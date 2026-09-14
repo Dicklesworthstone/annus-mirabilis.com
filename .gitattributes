@@ -1,0 +1,28 @@
+# Normalize text to LF so digests, byte-identity checks, and diffs are stable across platforms.
+* text=auto eol=lf
+
+# Pinned facsimiles, figures, fonts, media, and WASM artifacts are immutable binaries.
+# Git must never transform their bytes: their SHA-256 digests are pinned in provenance receipts
+# and release manifests.
+*.pdf binary
+*.png binary
+*.jpg binary
+*.jpeg binary
+*.webp binary
+*.avif binary
+*.gif binary
+*.ico binary
+*.woff binary
+*.woff2 binary
+*.ttf binary
+*.otf binary
+*.wasm binary
+*.mp4 binary
+*.webm binary
+
+# Reviewed German ledgers carry page markers and are compared byte for byte against editions.
+public/papers/transcripts/*.txt text eol=lf
+
+# Generated lockfiles collapse in GitHub diffs but stay reviewable.
+bun.lock text eol=lf linguist-generated=true
+Cargo.lock text eol=lf linguist-generated=true

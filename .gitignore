@@ -1,0 +1,76 @@
+# Next.js and build output
+.next*
+out/
+build/
+dist/
+
+# Dependencies
+node_modules/
+.pnp
+.pnp.js
+
+# Environment variables and secrets
+.env
+.env.*
+!.env.example
+*.pem
+
+# Vercel (the verified prebuilt workflow writes .vercel/output locally)
+.vercel
+
+# Logs and tool caches
+*.log
+npm-debug.log*
+yarn-debug.log*
+yarn-error.log*
+bun.lockb
+.turbo
+*.tsbuildinfo
+
+# OS
+.DS_Store
+._*
+Thumbs.db
+
+# IDEs
+.vscode/
+.idea/
+*.swp
+*.swo
+
+# Rust build intermediates for any local WASM staging crate.
+# Content-addressed WASM artifacts that ship are committed under public/wasm/.
+target/
+
+# Test, audit, and retained-failure evidence (kept locally or attached to CI runs, never committed)
+artifacts/
+test-results/
+playwright-report/
+blob-report/
+coverage/
+
+# Scratch work belongs in a session scratch directory, never in the repository
+tmp
+tmp/
+*.wip.txt
+out.txt
+
+# Agent tooling runtime state
+.ntm/
+.doctor/
+.beads/*.db
+.beads/*.db-journal
+.beads/*.db-wal
+.beads/*.db-shm
+.beads/*.sock*
+.beads/.local_version
+.beads/recovery_*
+
+# The legacy Pages Router is forbidden (AGENTS.md Rule 2). Ignoring the path keeps an
+# accidental directory out of commits; the architecture test still fails the build if it exists.
+src/pages/
+
+# Superseded plan drafts kept locally. The master plan is
+# COMPREHENSIVE_PLAN_FOR_ANNUS_MIRABILIS_SITE_MERGED.md.
+COMPREHENSIVE_PLAN_FOR_ANNUS_MIRABILIS_SITE_ASTRA*.md
+COMPREHENSIVE_PLAN_FOR_ANNUS_MIRABILIS_SITE_FABLE*.md
