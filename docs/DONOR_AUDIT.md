@@ -533,3 +533,79 @@ The following discrepancies between master plan prose and the pinned codebase we
 - **Evidence:** `package.json:15` confirmed.
 - **Affected Bead:** `am-gov-decision-stack-versions-6ax`.
 - **Resolution:** Annus Mirabilis adopts `"bun test --isolate"` as standard test command.
+
+---
+
+## 8. Re-Audit Policy
+
+As both donor repositories (`classic-patents.com` and `frankensim`) are actively developed, adopting a newer revision is a deliberate, governed process that must never occur silently or partially.
+
+### 8.1 Re-Audit Procedure
+
+When proposing to advance either pinned revision:
+
+1. **File Reservation:** The adopting agent must acquire an exclusive file reservation for `docs/DONOR_AUDIT.md` via Agent Mail (`am file_reservations reserve <project> <agent> docs/DONOR_AUDIT.md --exclusive`).
+2. **Commit Resolution & Date Stamping:** Verify the candidate commit object using `git cat-file -e <hash>^{commit}` and record its exact UTC/local commit date, author, and commit message.
+3. **Ancestry Determination:** Determine the exact topological relationship to the prior pinned commit:
+   ```bash
+   git -C <repo> merge-base --is-ancestor <old-pin> <new-pin>
+   ```
+   Confirm that `<old-pin>` is a strict ancestor of `<new-pin>`. If the branches have diverged, document the divergence and common merge-base explicitly.
+4. **Targeted Crate/Directory Diff Analysis:**
+   - For `frankensim`: Run `git diff --stat <old-pin> <new-pin> -- crates/fs-wasm crates/fs-rand crates/fs-qty crates/fs-sparse crates/fs-demo-physics-wasm` (and any new crates considered for export).
+   - For `classic-patents.com`: Run `git diff --stat <old-pin> <new-pin> -- src/components/ui src/physics scripts/ ios/`.
+   Save the diff stat and commit list to `artifacts/donor-audit/<tool-run-id>/diff-<new-pin>.txt`.
+5. **Automated Re-Audit Run:** Execute the donor verification tool:
+   ```bash
+   bun scripts/donor-audit.ts
+   ```
+   This script re-verifies path existence, scans for forbidden identity strings, and checks that fact line numbers remain valid.
+6. **Fact Table Mutation:** Any fact whose line numbers or implementation changed must be updated to `changed` status with both the old and new readings cited. Never silently overwrite a previous finding.
+7. **Regression Test Gate:** Execute the audit test suite:
+   ```bash
+   bun test scripts/donor-audit/
+   bun test src/testing/extractionInventory.test.ts
+   ```
+8. **Downstream Bead Notification:** Post an update comment (`br comments add <bead> "..."`) to all blocked or dependent beads (`am-fs-capability-audit-byc`, `am-scaf-extract-*`) detailing the revision bump and highlighting any `changed` verdicts.
+
+---
+
+## 9. Attribution Header Template
+
+All source files extracted from `classic-patents.com` must preserve full copyright attribution and include the exact OpenAI/Anthropic Rider condition.
+
+### 9.1 Donor License Receipt
+
+- **Donor License Path:** `classic-patents.com:LICENSE`
+- **Donor License SHA-256:** `32a82e0a5754e72e51fae44b65a936c831c07376f21c90f5fb9e76897fcc3509`
+- **Rider Location:** Lines 12–54 of `classic-patents.com:LICENSE` (`ADDITIONAL RIDER / RESTRICTION (OpenAI / Anthropic)`).
+- **Rider Terms:** Prohibits use, copying, benchmarking, evaluation, testing, or ingestion into training datasets or automated pipelines by OpenAI, L.L.C., Anthropic, PBC, or their affiliates without express prior written permission. Preserved unmodified in `annus-mirabilis.com:LICENSE`.
+
+### 9.2 Mandatory Source File Header Template
+
+Every extracted TypeScript, TSX, JavaScript, or CSS file must begin with this exact comment block before any imports or executable code:
+
+```typescript
+/**
+ * Extracted from classic-patents.com
+ * Source repository: https://github.com/Dicklesworthstone/classic-patents.com
+ * Source path: <donor-path>
+ * Pinned commit: da11ff475902728fd8dd1d9db9f3af37c16ec8a5
+ * License: MIT License (with OpenAI/Anthropic Rider)
+ * Preserved license text: /LICENSE
+ *
+ * Modifications:
+ * - <brief bulleted list of changes made during extraction>
+ */
+```
+
+### 9.3 Special File Format Rules
+
+1. **Non-Commentable Formats (JSON, YAML, Markdown, Binary Assets):**
+   - Files that do not support comment blocks must not have syntax altered to force a comment.
+   - Their attribution, donor source path, pinned commit, and modifications must be recorded in Section 11 of this document and in `NOTICE.md`.
+2. **Vendored Third-Party Dependencies (`public/pdfjs/`):**
+   - Third-party files vendored by the donor (e.g. Mozilla pdf.js worker `pdf.worker.min.mjs`, Apache-2.0; `jbig2.wasm`; `openjpeg.wasm`) keep their upstream license notices and licenses intact under `public/pdfjs/wasm/`.
+   - Do **not** apply the donor MIT header to upstream third-party code.
+3. **Enforcement Gate:**
+   - `am-gov-license-inventory-w6yz` enforces that every extracted file matches this template and verifies the presence of required license notices across `src/` and `public/`.
