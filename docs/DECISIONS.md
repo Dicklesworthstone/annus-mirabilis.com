@@ -122,7 +122,7 @@ Every runtime library, build tool, and runtime environment is pinned to an exact
 | **Content** | `js-yaml` | `4.1.0` | MIT | Build / Content | Strict YAML parser for declarative content records under `content/`. |
 | **Content** | `marked` | `15.0.7` | MIT | Build / Content | Constrained Markdown parser enforcing closed node allowlist (no raw HTML, no executable MDX). |
 | **Search** | `minisearch` | `7.1.2` | MIT | Build / Client | Lightweight (under 8 kB gzipped) client-side search indexing engine over build-time pre-indexed paper tokens. Chosen over FlexSearch due to deterministic serialization and zero memory leak profile. |
-| **Font Tool** | `fonttools` (`pyftsubset`) | `4.56.0` | Apache-2.0 | Build / Scripts | Reproducible subsetting of Newsreader, Plus Jakarta Sans, and JetBrains Mono fonts without omitting German diacritics, Greek letters, or mathematical notation. |
+| **Font Tool** | `fonttools` (`pyftsubset`) | `4.56.0` | MIT | Build / Scripts | Reproducible subsetting of Newsreader, Plus Jakarta Sans, and JetBrains Mono fonts without omitting German diacritics, Greek letters, or mathematical notation. |
 | **Linter** | `@biomejs/biome` | `2.5.8` | MIT / Apache-2.0 | Development | High-speed linting, code formatting, and syntax verification. |
 | **Testing** | `playwright` | `1.62.1` | Apache-2.0 | Testing | Browser automation harness driving headless Chromium, WebKit, and Firefox acceptance suites. |
 | **Testing** | `@axe-core/playwright` | `4.10.1` | MPL-2.0 | Testing | Automated WCAG AA accessibility compliance verification in end-to-end tests. |

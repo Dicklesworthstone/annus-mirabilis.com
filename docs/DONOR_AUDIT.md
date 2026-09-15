@@ -560,7 +560,7 @@ The following discrepancies between master plan prose and the pinned codebase we
 
 - **Plan Claim:** Plan §2.3, carried into the section 5 reuse table, names `public/patents/facsimiles/` as the donor facsimile directory.
 - **Code Fact:** That path does not exist at the pinned revision. `git ls-tree --name-only da11ff475902728fd8dd1d9db9f3af37c16ec8a5 public/patents/` returns `facsimile-pages`, `fig-8-source-crop-v3.png`, `fig-9-source-crop-v3.png`, `figures`, `pdfs`, `source-text`, and `transcripts`. There is no `facsimiles` entry, and `git cat-file -t da11ff475902728fd8dd1d9db9f3af37c16ec8a5:public/patents/facsimiles` independently reports the path absent.
-- **Evidence:** The real directory is `public/patents/facsimile-pages/`, which holds 109 files at the pinned revision.
+- **Evidence:** The real directory is `public/patents/facsimile-pages/`, which holds 103 files at the pinned revision. An earlier revision of this entry said 109; that count came from a `grep -ic facsimile` sweep that counted directory entries alongside files, and is retracted here rather than quietly overwritten. Four independent counters agree on 103: `git ls-tree -r --name-only`, a `blob`-type filter, a `.webp` suffix filter, and `ls-files`. The `-r -t` listing returns 209, which is 103 blobs plus 103 per-patent directories plus the `facsimile-pages` tree itself.
 - **Affected Beads:** `am-read-facsimile-face-er0`, `am-bm-slice-e2e-sbqu`.
 - **Resolution:** Section 5 now states the corrected path, which the bead permits in place of existence. Any extraction reading donor facsimile page images must use `public/patents/facsimile-pages/`. This was the one path of the 62 cited in the reuse table that did not resolve.
 
