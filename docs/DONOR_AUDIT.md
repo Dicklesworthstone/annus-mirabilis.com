@@ -105,8 +105,9 @@ The following deterministic commands were executed in the local environment to e
    - Result: `32a82e0a5754e72e51fae44b65a936c831c07376f21c90f5fb9e76897fcc3509  -`
 
 5. **Reuse Seam Path Existence Verification:**
-   - Method: Enumerated all 39 reuse and harness paths from §2.3 and verified against `git ls-tree -r --name-only da11ff475902728fd8dd1d9db9f3af37c16ec8a5`.
-   - Result: 100% of tested paths confirmed present at the pinned revision.
+   - Method: Every donor path cited in the section 5 reuse table's first column was checked at the pinned revision, with `git cat-file -e <hash>:<path>` for files and `git ls-tree -d <hash> -- <dir>` for directories.
+   - Result: 62 paths checked, 61 present, 1 absent. `public/patents/facsimiles/` does not exist at the pinned revision; `git ls-tree` of `public/patents/` returns `facsimile-pages`, `figures`, `pdfs`, `source-text`, and `transcripts`, and the real directory is `public/patents/facsimile-pages/` with 109 files. Section 5 states the corrected path and the exception is recorded as discrepancy 7.7.
+   - Correction: an earlier revision of this log reported "100% of tested paths confirmed present" over 39 paths. That claim was wrong on both the count and the result, and is retracted here rather than quietly overwritten.
 
 ---
 
