@@ -323,7 +323,7 @@ Status values follow the strict closed vocabulary: `confirmed`, `changed`, `not-
 - **Statement:** Coverage is multidimensional: catalogue records, reviewed ledgers, accepted editions, patent-specific WASM surfaces, generic-WASM consumers, and typed-host-only records are distinct numbers and cannot be collapsed into a single completeness percentage.
 - **Status:** `confirmed`
 - **File & Line Evidence:**
-  - `classic-patents.com:src/physics/coverageManifest.ts`: lines 18–25 define `WasmSurfaceKind` (`generic-wasm`, `interpretive-wasm`, `patent-specific-wasm`); lines 78–95 define `PatentCoverageSummary` with 16 distinct metrics: `total`, `pinnedFacsimiles`, `reviewedLedgers`, `publishedEditions`, `candidateEditions`, `heldEditions`, `rejectedEditions`, `facsimileOnlyRecords`, `sourceBoundedRecords`, `patentSpecificWasm`, `interpretiveWasm`, `genericWasm`, `typedHostOnly`, `sharedBusUpdaters`, `sharedBusSnapshots`, and `missingSharedBus`.
+  - `classic-patents.com:src/physics/coverageManifest.ts`: lines 15–19 define `WasmSurfaceKind` (`none`, `generic-wasm`, `interpretive-wasm`, `patent-specific-wasm`); lines 76–93 define `PatentCoverageSummary` with 16 distinct metrics: `total`, `pinnedFacsimiles`, `reviewedLedgers`, `publishedEditions`, `candidateEditions`, `heldEditions`, `rejectedEditions`, `facsimileOnlyRecords`, `sourceBoundedRecords`, `patentSpecificWasm`, `interpretiveWasm`, `genericWasm`, `typedHostOnly`, `sharedBusUpdaters`, `sharedBusSnapshots`, and `missingSharedBus`.
 
 ### Finding 4.3: Equation Schema, Term Interaction & Redesign Seams
 
@@ -333,7 +333,7 @@ Status values follow the strict closed vocabulary: `confirmed`, `changed`, `not-
   - `classic-patents.com:src/components/ui/ColorizedEquation.tsx`:
     - Line 117 contains the permissive token match: `variableId.startsWith(\`var_\${variable.id}\`) || ...`, which relies on substring matching instead of exact canonical quantity IDs.
     - Lines 162–213 implement `colorBlindMode` toggling and accessibility aria labels (`aria-pressed={colorBlindMode}`).
-    - Lines 360–445 implement keyboard navigation and hover highlighting over math symbols.
+    - Line 337 wires `onKeyDown={handleFormulaKeyDown}` for keyboard navigation over math symbols, with the arrow-key step map at lines 46 and 48 (`ArrowLeft: -1`, `ArrowRight: 1`). Lines 360–445, cited here previously, define `PlainEnglishFragment` and `PlainEnglishDecoder` and contain no keyboard handling.
   - `classic-patents.com:src/components/ui/LatexRenderer.tsx`: lines 19–32 implement `trustInteractiveTokenMarkup` as a restricted KaTeX trust callback that strictly allowlists `htmlId` and `htmlClass` attributes while refusing arbitrary URLs or script injections.
   - `classic-patents.com:src/types/equation.ts`: lines 10–55 define the equation data structure linking symbols, descriptions, units, and color assignments.
 
@@ -350,7 +350,7 @@ Status values follow the strict closed vocabulary: `confirmed`, `changed`, `not-
       const tickMap = new Map<string, number>();
       const changeMap = new Map<string, ParamChange | null>();
       ```
-    - Lines 39–42 implement `bumpTick`:
+    - Lines 40–43 implement `bumpTick` (line 39 is blank):
       ```ts
       function bumpTick(patentId: string, change: ParamChange | null) {
         tickMap.set(patentId, (tickMap.get(patentId) ?? 0) + 1);
@@ -375,7 +375,7 @@ Status values follow the strict closed vocabulary: `confirmed`, `changed`, `not-
 - **Status:** `confirmed`
 - **File & Line Evidence:**
   - `classic-patents.com:src/physics/coverageManifest.ts`:
-    - Line 22: `export type RuntimeProvenance = "WASM" | "TS_FALLBACK" | "HONEST_PLACEHOLDER";`
+    - Line 21: `export type RuntimeProvenance = "WASM" | "TS_FALLBACK" | "HONEST_PLACEHOLDER";` (line 22 is blank)
     - Lines 24–32: `WasmSurfaceDescriptor` explicitly types `refusalBoundary: "typed-wasm" | "host-decoder" | "none"` and `provesSharedBusSource?: boolean`.
     - Lines 65–72: distinguishes `wasmArtifactPresent`, `admittedProvenance`, and `coldStartProvenance: "HONEST_PLACEHOLDER"`.
 
@@ -403,7 +403,7 @@ Status values follow the strict closed vocabulary: `confirmed`, `changed`, `not-
 - **Statement:** The browser acceptance harness checks source identities, exact routes, source assets, URL-restored views, actual controls, telemetry and refusal behavior, 320 px screens, keyboard and touch interactions, reduced motion compliance, and retains failure evidence upon failure.
 - **Status:** `confirmed`
 - **File & Line Evidence:**
-  - `classic-patents.com:scripts/patent-e2e-contract.ts`: lines 13–15 define viewports including `phone: { width: 320, height: 800 }`; lines 35–65 define `PatentE2EScenario` capturing source identity, route, controls, and figure assets.
+  - `classic-patents.com:scripts/patent-e2e-contract.ts`: lines 14–18 define `PATENT_E2E_VIEWPORTS`, with `desktop` at line 15, `tablet` at 16, and `phone: { width: 320, height: 800 }` at line 17; line 39 declares `export interface PatentE2EScenario` capturing source identity, route, controls, and figure assets. Line 13 is blank, and the range 13–15 cited here previously excluded the phone viewport it named.
   - `classic-patents.com:scripts/e2e-patent-vertical-slices.ts`:
     - Lines 400, 440, 464, and 1673–1737 capture and assert complete failure evidence packages (full-page PNG screenshot, DOM snapshot, diagnostic JSON, and Playwright execution trace).
     - Lines 1023–1024 and 1448–1457 test keyboard tab navigation and focus visibility.
