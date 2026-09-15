@@ -1,4 +1,1 @@
-# Beads Project Configuration
-# issue_prefix: am
-# default_priority: 2
-# default_type: task
+claim_exclusive: true

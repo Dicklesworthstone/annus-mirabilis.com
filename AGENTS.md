@@ -833,6 +833,66 @@ Rules that bind every change under `ios/` and `scripts/app/`:
 - Apple account work, external TestFlight distribution, uploads, and App Store submission are human gates that need the user's explicit written authorization in the current conversation. Uploads go only through `scripts/app/verified-app-release.ts`.
 - Apple validation runs locally as the `apple` gate family, not in the website's CI. Never delete or erase a simulator, and never delete reader data on a device.
 
+## Swarm Operations and Honest Credit
+
+These rules bind human-directed sessions and agent swarms alike.
+
+**Purpose.** The output of agent work is working, deployable capability delivered
+accretively. Process exists to serve that outcome and must never become the product.
+
+**Closure is orchestrator-only, and it is audited.** `br` in this repository has no
+workflow-gate configuration surface, so a direct `open` to `closed` transition is not
+refused by the tool. It is instead detected: the orchestrator snapshots the closed set
+every tick and reopens any closure it did not make, with an incident comment naming the
+actor. Do not close a bead, yours or a peer's. Move finished work to a state the
+orchestrator can verify and say so in the bead and by Agent Mail.
+
+**The creation gate for process artifacts.** A certificate, ledger, dashboard, matrix,
+meta-report, readiness review, or conformance check may exist only if it names, at
+creation: its concrete consumer, the gate it enforces, the observed defect class that
+justifies it, and its deletion condition. The boundary test is whether running code
+branches on the artifact. If only humans and status reports read it, it is process, it
+earns zero capability credit, and it should not be created. Writing code solely to
+manufacture a consumer does not pass the gate.
+
+**Named reward-hacking patterns.** These are forbidden and are cited by id in incident
+comments:
+
+- **RH-1 gate self-weakening**: editing validator, conformance, or test-gate code so a
+  failing check passes. Gate-code diffs are reviewed separately, never bundled.
+- **RH-2 proof-class inflation**: presenting fixtures, captures, mocks, or hand-inserted
+  rows as live proof. The hierarchy is static, unit and planted-red, capture and replay,
+  live, field; no lower class substitutes for a higher one.
+- **RH-3 golden regeneration reflex**: regenerating goldens to match broken output.
+- **RH-4 commit-stream pumping**: trivial or artificially split commits, and placeholder
+  scaffolds that pass a syntax gate. Commit rate is a saturation signal, never a metric.
+- **RH-5 tautological tests**: tests asserting that the code does what the code does.
+  Every feature carries at least one negative a naive wrong implementation would fail.
+- **RH-6 easy-bead cherry-picking**: claiming low-risk leaves while critical-path work
+  starves. Claim the highest-priority ready bead.
+- **RH-7 close-pump abuse**: closing items to flood the ready pool.
+- **RH-8 scope-splitting**: splitting one unit into types, implementation, and tests to
+  harvest several closures. Code and its tests ship in the same bead.
+- **RH-9 follow-up laundering**: moving an in-scope acceptance condition into a new bead
+  and closing the original.
+- **RH-10 spec-editing as progress**: weakening a plan, spec, or frozen decision instead
+  of implementing it. The decisions in `docs/PLAN_MINING_DECISIONS.md` are frozen.
+- **RH-11 dependency smuggling**: vendoring or shimming around a banned dependency.
+- **RH-12 demo-path hardcoding**: special-casing fixtures so the happy path passes.
+  Environment sniffing in product code is forbidden outright.
+
+**Refusal is not delivery.** An implementation that only builds the guard or refusal path
+is labeled refusal-only and stays open. It reads as unfinished, not shipped.
+
+**Blocked means named.** If work is blocked on something external, say exactly what is
+missing and what substitutes you are forbidden to fake it with. Waiting earns no credit.
+
+**Evidence discipline.** Never silence stderr in a command whose output will be cited as
+evidence. A close request without cited evidence is a debt, not a completion.
+
+**Builds go through `rch`.** Compilation and test commands are offloaded to the remote
+worker fleet. Never report a build result you did not observe.
+
 ## Beads Issue Tracking
 
 Use `br` (beads_rust) for task tracking. **`br` never runs git.** After changes, sync and stage manually.
