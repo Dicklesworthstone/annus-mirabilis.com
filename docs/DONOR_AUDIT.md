@@ -415,9 +415,10 @@ The reuse table adapts Plan §2.3. Every path listed has been verified against t
 | **Facsimile & Source Architecture**<br>`public/patents/facsimiles/`<br>`public/patents/transcripts/`<br>`src/data/editions/`<br>`src/data/patents/sourceTextValidation.ts` | **Reuse architecture** | Bilingual critical edition (German source face + English translation), sentence-level many-to-many alignment, section-scoped notation concordance, separately attributed notes | MIT + Rider | `am-bm-slice-e2e-sbqu`<br>`am-read-facsimile-face-er0` |
 | **KaTeX Math Rendering**<br>`src/components/ui/LatexRenderer.tsx`<br>(includes `TextWithLatex`, `HudText`) | **Adapt** | Build-time static KaTeX (HTML + MathML); client hydrates term and operation interaction only; malformed math fails build closed | MIT + Rider | `am-scaf-extract-ui-components-c31` |
 | **Colorized Equations & Interaction**<br>`src/components/ui/ColorizedEquation.tsx`<br>`src/components/ui/colorPalette.ts`<br>`src/components/ui/equationValueFormatting.ts`<br>`src/types/equation.ts` | **Refactor** | Exact canonical quantity IDs (eliminate `variableId.startsWith("var_" + id)` token matching and human-label lookups), operation-level derivations, expression trees | MIT + Rider | `am-scaf-extract-ui-components-c31`<br>`am-eq-expression-tree-8kl` |
-| **Dual Projection Viewer / Shell**<br>`src/components/patents/DualProjectionViewer.tsx`<br>`src/components/patents/patentViewMode.ts` | **Reuse interaction ideas, not monolith** | Reader shell with independently loaded panels (German source, English translation, explanation, discovery, laboratory); `?view=` deep links preserved | MIT + Rider | `am-scaf-extract-ui-components-c31`<br>`am-read-split-face-32c` |
+| **Dual Projection Viewer (component)**<br>`src/components/patents/DualProjectionViewer.tsx` | **Redesign input, never copy-and-rename** | The monolith is not extracted. Its interaction ideas inform a reader shell with independently loaded panels (German source, English translation, explanation, discovery, laboratory), built new by `am-read-bilingual-faces-pao` | N/A (no code copied) | None (redesign input, no destination path) |
+| **View Mode Addressing**<br>`src/components/patents/patentViewMode.ts` | **Reuse** | `?view=` deep links preserved as admitted reader state | MIT + Rider | `am-scaf-extract-ui-components-c31` |
 | **Parallel Readings & Addressing**<br>`src/data/editions/parallelReadings.ts` | **Replace addressing model** | Replace block-index addressing with permanent, immutable content IDs (`s<n>-p<m>-s<k>`); inserting paragraphs never shifts annotations | MIT + Rider | `am-cm-id-scheme-8bn`<br>`am-scaf-extract-runtime-utilities-99y` |
-| **Physics State Bus**<br>`src/physics/usePatentPhysics.ts` | **Replace ownership layer** | Replace module-global maps with instance-scoped experiments (`am-rt-snapshot-store-aft`); one immutable snapshot per revision; observer change never restarts world | MIT + Rider | `am-rt-snapshot-store-aft` |
+| **Physics State Bus**<br>`src/physics/usePatentPhysics.ts` | **Redesign input, never copy-and-rename** | Not extracted. `am-rt-snapshot-store-aft` builds a new ownership layer: module-global maps keyed by patent id are replaced by instance-scoped experiments, one immutable snapshot per revision, and an observer change never restarts the world | N/A (no code copied) | None (redesign input, no destination path) |
 | **Deterministic Control Tapes**<br>`src/physics/controlTape.ts`<br>`src/physics/tickScheduler.ts`<br>`src/physics/transport.ts`<br>`src/physics/paramAliases.ts` | **Reuse with new identities** | Deterministic tapes, host-fed time, cross-paper parameter aliasing via canonical quantity IDs rather than arbitrary strings | MIT + Rider | `am-scaf-extract-runtime-utilities-99y` |
 | **WASM Runtime & Evaluators**<br>`src/physics/genericWasm.ts`<br>`src/physics/useGenericWasmSource.ts`<br>`src/physics/wasmArtifacts.test.ts`<br>`src/physics/lie.ts`<br>`src/physics/qty.ts`<br>`src/physics/intervals.ts`<br>`src/physics/energyLedger.ts` | **Reuse** | Honest execution labeling (`wasm`, `ts-fallback`, `unloaded`); rational dimensional exponents; validated interval bounds; energy ledgers | MIT + Rider | `am-scaf-extract-runtime-utilities-99y` |
 | **Multidimensional Coverage**<br>`src/physics/coverageManifest.ts` | **Extend** | Source, translation, argument, instrument, accessibility, and numerical coverage stay separate dimensions; no single aggregated score | MIT + Rider | `am-scaf-extract-runtime-utilities-99y`<br>`am-cm-coverage-ledger-0ip` |
@@ -429,7 +430,7 @@ The reuse table adapts Plan §2.3. Every path listed has been verified against t
 | **Layout Chrome & Core UI**<br>`src/components/layout/Header.tsx`<br>`src/components/layout/Footer.tsx`<br>`src/components/layout/ThemeToggle.tsx`<br>`src/components/layout/PatentSearchPalette.tsx`<br>`src/app/opengraph-image.tsx`<br>`src/app/robots.ts`<br>`src/app/sitemap.ts`<br>`src/app/error.tsx`<br>`src/app/global-error.tsx`<br>`src/app/not-found.tsx` | **Reuse** | Three custom themes (Annalen, Kramgasse Night, Slate); build-time static search index; zero external scripts or analytics | MIT + Rider | `am-scaf-extract-ui-components-c31` |
 | **Verified Production Deployment**<br>`scripts/verified-production-deploy.ts`<br>`scripts/deployment-target.ts`<br>`scripts/deployment-verification.ts`<br>`scripts/smoke-test-deployment.ts`<br>`scripts/app-router-architecture.ts` | **Reuse** | Candidate-then-promote release pipeline; fail-closed verification against unpromoted preview URL before DNS alias promotion | MIT + Rider | `am-scaf-extract-scripts-7jm`<br>`am-scaf-architecture-gate-l1p`<br>`am-rel-verified-deploy-qndt` |
 | **Acceptance & Verification Harness**<br>`scripts/verify-data.ts`<br>`scripts/e2e-patent-vertical-slices.ts`<br>`scripts/patent-e2e-contract.ts`<br>`docs/PATENT_E2E_HARNESS.md` | **Adapt** | Adapt for content compiler (`verify-content.ts`) and paper vertical-slice browser acceptance suite | MIT + Rider | `am-scaf-extract-scripts-7jm`<br>`am-bm-slice-e2e-sbqu` |
-| **Native iPhone App Shell Patterns**<br>`ios/project.yml`<br>`ios/Sources/PatentPDFReader.swift`<br>`ios/Sources/PrivacyInfo.xcprivacy`<br>`scripts/dsr-apple-quality.sh`<br>`ios/UITests/` | **Adapt patterns, not code** | SwiftUI native shell rendering static edition in WKWebView; on-demand facsimile PDF downloads with SHA-256 pins; offline reading | MIT + Rider | `am-app-xcodegen-scaffold-z228`<br>`am-app-facsimile-downloads-72nz`<br>`am-app-store-screenshots-k44q` |
+| **Native iPhone App Shell Patterns**<br>`ios/project.yml`<br>`ios/Sources/PatentPDFReader.swift`<br>`ios/Sources/PrivacyInfo.xcprivacy`<br>`scripts/dsr-apple-quality.sh`<br>`ios/UITests/` | **Adapt patterns, not code** | SwiftUI native shell rendering static edition in WKWebView; on-demand facsimile PDF downloads with SHA-256 pins; offline reading | MIT + Rider | `am-app-xcodegen-scaffold-z228`<br>`am-app-facsimile-downloads-72nz`<br>`am-app-e2e-journeys-vm0t` |
 | **Patent-Specific Features**<br>Claims, disputes, patent classifications, broadside printing, audio player, wizard reports, generic visual dispatch | **Do not port** | Replaced by historical argument steps, physical alternatives, experimental evidence, and connections | N/A | None (Excluded) |
 
 ---
@@ -472,11 +473,11 @@ The FrankenPatents native iOS application in `classic-patents.com:ios/` establis
 | Donor App Seam / Verified Path | Decision | Adaptation in Annus Mirabilis (`ios/`) | Extracting Bead |
 |---|---|---|---|
 | **XcodeGen Project Spec**<br>`ios/project.yml` | **Copy pattern** | XcodeGen specification for declarative Xcode project generation; includes `regenerate-and-diff` CI check to prevent project drift | `am-app-xcodegen-scaffold-z228` |
-| **Static Edition Exporters**<br>`ios/export-patents.ts`<br>`ios/export-native-models.ts` | **Adapt pattern** | Build-time script exporting compiled static edition HTML, MathML, and JSON assets into the Xcode app bundle for offline reading | `am-app-export-edition-w24k` |
+| **Static Edition Exporters**<br>`ios/export-patents.ts`<br>`ios/export-native-models.ts` | **Adapt pattern** | Build-time script exporting compiled static edition HTML, MathML, and JSON assets into the Xcode app bundle for offline reading | `am-app-edition-export-kwpu` |
 | **Native Parity Checker**<br>`ios/check-native-parity.ts` | **Do not port** | The FrankenPatents app asserted text substring equality across native and web parsers. Annus Mirabilis embeds the compiled web edition directly in WKWebView, guaranteeing 100% mathematical and typographic parity by design | None (Excluded) |
 | **Facsimile PDF Downloader**<br>`ios/Sources/PatentPDFReader.swift` | **Adapt pattern** | On-demand background PDF download manager implementing: host allowlist, ephemeral `URLSessionConfiguration`, 50MB size limit, PDF magic-byte header validation, SHA-256 integrity pin check, atomic disk publish, and exclusion from iCloud backups (`isExcludedFromBackupKey`) | `am-app-facsimile-downloads-72nz` |
 | **Apple Privacy Manifest**<br>`ios/Sources/PrivacyInfo.xcprivacy` | **Copy pattern** | Native Apple privacy manifest declaring `NSPrivacyTracking = false`, empty collected data categories, and no third-party tracking domains | `am-app-xcodegen-scaffold-z228` |
-| **App Store Screenshot Tests**<br>`ios/UITests/FrankenPatentsUITests.swift` | **Adapt pattern** | XCUITest suite using DEBUG launch arguments (`--reset-state`, `--skip-animations`) to deterministically drive UI flows and capture localized App Store screenshots | `am-app-store-screenshots-k44q` |
+| **App Store Screenshot Tests**<br>`ios/UITests/FrankenPatentsUITests.swift` | **Adapt pattern** | XCUITest suite using DEBUG launch arguments (`--reset-state`, `--skip-animations`) to deterministically drive UI flows and capture localized App Store screenshots | `am-app-e2e-journeys-vm0t` |
 | **Apple Quality Gate Script**<br>`scripts/dsr-apple-quality.sh` | **Adapt pattern** | Shell gate running XcodeGen diff validation, SwiftFormat, SwiftLint, Xcode build verification, and test execution | `am-app-xcodegen-scaffold-z228` |
 | **Native Math Parser**<br>`ios/Sources/NativeMathView.swift` | **Do not port** | FrankenPatents attempted native regex-based LaTeX parsing in SwiftUI. Annus Mirabilis renders KaTeX HTML + MathML inside WKWebView with full fidelity | None (Excluded) |
 | **Native SceneKit Tab**<br>`ios/Sources/NativePatentSceneView.swift` | **Do not port** | Native SceneKit simulation view. Annus Mirabilis renders WebGL/Three.js/Canvas instruments directly inside WKWebView | None (Excluded) |
@@ -609,3 +610,225 @@ Every extracted TypeScript, TSX, JavaScript, or CSS file must begin with this ex
    - Do **not** apply the donor MIT header to upstream third-party code.
 3. **Enforcement Gate:**
    - `am-gov-license-inventory-w6yz` enforces that every extracted file matches this template and verifies the presence of required license notices across `src/` and `public/`.
+
+## 11. Extracted Files
+
+This is the extraction inventory. **It is empty by design.** At the time of writing, zero donor
+files have been extracted into this repository. Rows are appended by each extracting bead as a file
+actually lands, never in advance. A row written before its file exists is a claim, not a record, and
+this section exists to keep the difference visible.
+
+Each extracting bead owns its own subsection below, so parallel beads append to their own table
+instead of editing one shared table at once.
+
+### 11.1 Row format
+
+Every row carries five fields plus a batch, a commit, a notice form, and notes:
+
+| Field | Meaning |
+|---|---|
+| `sourcePath` | The donor path at the pinned revision, exactly as `git show <hash>:<path>` names it |
+| `newOwner` | The destination path in this repository **and** the bead id that owns it from then on |
+| `retainedBehavior` | One line naming the behavior this project is deliberately keeping, the reason the file was worth extracting at all |
+| `removedAssumptions` | The patent-specific assumptions stripped during extraction, named individually. An empty list is a claim that the file had none, and is checked in review, never defaulted |
+| `firstReaderJourney` | The bead id and spec path of the first browser acceptance journey that exercises this file with real reader actions, plus the assertion inside it that would fail if the file were broken |
+| `batch` | `1` or `2`, per section 11.2 |
+| `commit` | The commit that introduced the extracted file here |
+| `noticeForm` | `header` for files that carry the section 9 comment block, or `NOTICE.md` for formats that cannot carry comments |
+| `notes` | Anything a later reader needs, including `legacy` marking |
+
+Rules that govern this table:
+
+1. `firstReaderJourney` is the field that does the work. A file with no journey is a file nobody can
+prove is used, and that is the state in which donor code quietly rots in a fork.
+2. A row whose `firstReaderJourney` names a bead or spec path that does not exist is recorded as
+`pending: <bead id>`, naming the bead that will create it. **An extracting bead may not be closed
+while any of its rows is `pending`.**
+3. `removedAssumptions` is present on every row. An empty list is written explicitly and confirmed in
+review; it is never left blank.
+4. A file present in this repository carrying a section 9 attribution header that names a donor path,
+with no row in this inventory, **fails the hygiene scan with the path named**.
+5. A batch 2 file extracted early is marked `legacy` in notes and may not be imported from
+`src/app`, `src/reader`, or a content route.
+
+#### 11.1.1 Worked `firstReaderJourney` values (guidance, not inventory rows)
+
+These are the intended journeys for the seams section 5 already names. They are recorded here so the
+owning bead does not have to invent one, and they become rows only when the file lands:
+
+- `src/components/ui/LatexRenderer.tsx` to `am-bm-slice-e2e-sbqu`, the Brownian sections 4 to 5
+journey, at the step that renders a displayed equation on the reading face.
+- `src/components/patents/PinnedPdfFacsimile.tsx` and `public/pdfjs` to `am-read-facsimile-face-er0`,
+at the step that opens a page and lands on a section from the page map.
+- `src/physics/controlTape.ts`, `tickScheduler.ts`, `transport.ts` to `am-bm-slice-e2e-sbqu`, at the
+step that replays the teaching tape `einstein-0-8-micron` from a permalink.
+- `src/physics/coverageManifest.ts` to `am-cm-coverage-ledger-0ip`, at the assertion that the donor's
+three provenance states remain distinct.
+- `src/physics/specClauses.ts` to `am-read-result-weave-jex`, at the `bm01-s5-distribution-agreement`
+assertion.
+- `scripts/verified-production-deploy.ts` and its helpers to `am-rel-candidate-checks-kc7y`, at the
+candidate check against deployed, unpromoted assets.
+- The chrome, theme toggle, command palette, Open Graph route, and error boundaries to
+`am-scaf-extract-ui-components-c31`, in its own browser spec on the empty site.
+
+### 11.2 The two ordered extraction batches
+
+The ordering is a real constraint, not a preference:
+
+- **Batch 1** may land before the new semantic identities exist: typography tokens, the restricted
+mathematics-rendering approach (the KaTeX trust callback), selected ordinary controls, the
+source-facsimile interaction patterns, and the candidate-release discipline.
+- **Batch 2** lands only after the new identities are defined: equation term selection and
+source-to-explanation alignment. Their owners are `am-eq-expression-tree-8kl` (term and operation
+ids, canonical quantity bindings), `am-not-quantity-registry-2f7` (canonical quantity ids), and
+`am-cm-id-scheme-8bn` (content ids and anchors).
+
+### 11.3 Redesign inputs, listed with no destination path
+
+These four are **never copy-and-rename**. They informed a redesign and are not extracted. A row that
+gives any of them a destination path fails the hygiene scan.
+
+| Redesign input | Donor location | Why it is not extracted | Who builds the replacement |
+|---|---|---|---|
+| Physics state bus | `src/physics/usePatentPhysics.ts` | Keeps module-global maps keyed by patent id and increments a control-change tick that is a UI event count, not a solver step | `am-rt-snapshot-store-aft` builds instance-scoped experiments with one immutable snapshot per revision |
+| Dual projection viewer, as a component | `src/components/patents/DualProjectionViewer.tsx` | A monolith; only its interaction ideas survive | `am-read-bilingual-faces-pao` builds a shell with independently loaded panels |
+| Aggregate catalogue registries | `colorizedEquations.ts` (the roughly 976 KB all-patents record) and the all-patents catalogue | An aggregate record that must never enter the client bundle wholesale; the donor itself already passes server-resolved per-patent data instead | Per-record server resolution, never an aggregate import |
+| Generic or Wright-default visual dispatch | The donor's unmapped-patent fallback visualizer | An unmapped id must fail closed with a typed refusal (`outside-domain` or `not-applicable`), never render a plausible wrong model. See section 6.1 item 8 | Typed refusal path, no default visualizer |
+
+### 11.4 Files deliberately left behind
+
+Recorded with reasons in section 6 rather than duplicated here:
+
+- Section 6.1, items 1 through 8: patent claims and claim trees, infringement disputes, patent
+classification systems and citation lineages, the era filter bar, broadside printing mode, the audio
+narration player, patent search wizards and discovery reports, and the generic or Wright-default
+visual dispatch.
+- Section 6.2, the four seams marked **Do not port**: the native parity checker
+(`ios/check-native-parity.ts`), the native math parser (`ios/Sources/NativeMathView.swift`), the
+native SceneKit tab (`ios/Sources/NativePatentSceneView.swift`), and the hand-typed native theme
+(`ios/Sources/Theme.swift`).
+
+### 11.5 A blanket rename is not an extraction
+
+Renaming `patentId` to `paperId` would leave the real differences intact. There are three, and they
+are the reason the runtime was replaced rather than aliased:
+
+1. One paper has many independent experiments, and the same experiment can appear twice on a page,
+which is why identity is instance-scoped (`am-rt-snapshot-store-aft`).
+2. A frame speed is not automatically a particle speed, which is why aliasing runs through canonical
+quantity ids (`am-not-quantity-registry-2f7`) rather than through parameter names.
+3. An imported signal can carry different units or a different historical meaning, which is why a
+constant set is part of every request (`am-ref-constants-xik`).
+
+`am-scaf-extract-runtime-utilities-99y` already renames `patentId` to `experimentId` while not
+inventing the identity model; this is the reason, recorded where the extraction beads read it.
+
+### 11.6 Per-bead extraction tables
+
+Each table below is empty until its bead extracts a file. The column order is the row format of
+section 11.1.
+
+#### `am-scaf-extract-ui-components-c31`
+
+| sourcePath | newOwner | retainedBehavior | removedAssumptions | firstReaderJourney | batch | commit | noticeForm | notes |
+|---|---|---|---|---|---|---|---|---|
+
+_No files extracted yet._
+
+#### `am-scaf-extract-runtime-utilities-99y`
+
+| sourcePath | newOwner | retainedBehavior | removedAssumptions | firstReaderJourney | batch | commit | noticeForm | notes |
+|---|---|---|---|---|---|---|---|---|
+
+_No files extracted yet._
+
+#### `am-scaf-extract-scripts-7jm`
+
+| sourcePath | newOwner | retainedBehavior | removedAssumptions | firstReaderJourney | batch | commit | noticeForm | notes |
+|---|---|---|---|---|---|---|---|---|
+
+_No files extracted yet._
+
+#### `am-scaf-architecture-gate-l1p`
+
+| sourcePath | newOwner | retainedBehavior | removedAssumptions | firstReaderJourney | batch | commit | noticeForm | notes |
+|---|---|---|---|---|---|---|---|---|
+
+_No files extracted yet._
+
+#### `am-eq-expression-tree-8kl`
+
+| sourcePath | newOwner | retainedBehavior | removedAssumptions | firstReaderJourney | batch | commit | noticeForm | notes |
+|---|---|---|---|---|---|---|---|---|
+
+_No files extracted yet._
+
+#### `am-cm-id-scheme-8bn`
+
+| sourcePath | newOwner | retainedBehavior | removedAssumptions | firstReaderJourney | batch | commit | noticeForm | notes |
+|---|---|---|---|---|---|---|---|---|
+
+_No files extracted yet._
+
+#### `am-cm-coverage-ledger-0ip`
+
+| sourcePath | newOwner | retainedBehavior | removedAssumptions | firstReaderJourney | batch | commit | noticeForm | notes |
+|---|---|---|---|---|---|---|---|---|
+
+_No files extracted yet._
+
+#### `am-read-facsimile-face-er0`
+
+| sourcePath | newOwner | retainedBehavior | removedAssumptions | firstReaderJourney | batch | commit | noticeForm | notes |
+|---|---|---|---|---|---|---|---|---|
+
+_No files extracted yet._
+
+#### `am-read-result-weave-jex`
+
+| sourcePath | newOwner | retainedBehavior | removedAssumptions | firstReaderJourney | batch | commit | noticeForm | notes |
+|---|---|---|---|---|---|---|---|---|
+
+_No files extracted yet._
+
+#### `am-bm-slice-e2e-sbqu`
+
+| sourcePath | newOwner | retainedBehavior | removedAssumptions | firstReaderJourney | batch | commit | noticeForm | notes |
+|---|---|---|---|---|---|---|---|---|
+
+_No files extracted yet._
+
+#### `am-rel-verified-deploy-qndt`
+
+| sourcePath | newOwner | retainedBehavior | removedAssumptions | firstReaderJourney | batch | commit | noticeForm | notes |
+|---|---|---|---|---|---|---|---|---|
+
+_No files extracted yet._
+
+#### `am-app-xcodegen-scaffold-z228`
+
+| sourcePath | newOwner | retainedBehavior | removedAssumptions | firstReaderJourney | batch | commit | noticeForm | notes |
+|---|---|---|---|---|---|---|---|---|
+
+_No files extracted yet._
+
+#### `am-app-edition-export-kwpu`
+
+| sourcePath | newOwner | retainedBehavior | removedAssumptions | firstReaderJourney | batch | commit | noticeForm | notes |
+|---|---|---|---|---|---|---|---|---|
+
+_No files extracted yet._
+
+#### `am-app-facsimile-downloads-72nz`
+
+| sourcePath | newOwner | retainedBehavior | removedAssumptions | firstReaderJourney | batch | commit | noticeForm | notes |
+|---|---|---|---|---|---|---|---|---|
+
+_No files extracted yet._
+
+#### `am-app-e2e-journeys-vm0t`
+
+| sourcePath | newOwner | retainedBehavior | removedAssumptions | firstReaderJourney | batch | commit | noticeForm | notes |
+|---|---|---|---|---|---|---|---|---|
+
+_No files extracted yet._
