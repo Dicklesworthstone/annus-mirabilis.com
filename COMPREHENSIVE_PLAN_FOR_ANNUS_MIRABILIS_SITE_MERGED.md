@@ -3676,6 +3676,15 @@ inverted; chosen automatically on `/discover` unless the reader has set a
 theme). Dark modes are optional; they are not the primary identity.
 Contrast is checked at AA for every color pair used for text.
 
+The placeholder page served at `annus-mirabilis.com` during preparation
+realized this direction (journal cream `#eee7d7`, ink `#1a1916`, red
+`#ae2119` for emphasis only, Newsreader with its optical-size axis, a
+running head, the frontispiece with its credit, and one mark per printed
+journal page grouped 17, 12, 31, and 3). The owner asked to keep that
+design for the site, so `docs/design/placeholder/` is the reference
+implementation of the Annalen theme and departures from it carry a
+recorded reason.
+
 ### 15.4 Page anatomy
 
 Desktop reading has a main text column and an optional companion column

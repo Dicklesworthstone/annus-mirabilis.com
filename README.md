@@ -16,7 +16,7 @@
 
 </div>
 
-> **Status: planning.** This repository holds the master plan (version 2.0) and the dependency-ordered task graph derived from it. No application code exists yet and nothing is deployed at `annus-mirabilis.com`. Everything below describes the product the plan specifies, not a finished website.
+> **Status: planning.** This repository holds the master plan (version 2.0), the iPhone app plan, and the dependency-ordered task graph derived from them. No application code exists yet. `annus-mirabilis.com` currently serves a static in-preparation placeholder page, not the edition. Everything below describes the product the plans specify, not a finished website.
 
 ---
 

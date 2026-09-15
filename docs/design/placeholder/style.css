@@ -1,0 +1,240 @@
+@font-face {
+  font-family: "Newsreader";
+  src: url("fonts/newsreader-5.3.0/newsreader-latin-opsz-normal.woff2") format("woff2");
+  font-weight: 200 800;
+  font-style: normal;
+  font-display: swap;
+}
+@font-face {
+  font-family: "Newsreader";
+  src: url("fonts/newsreader-5.3.0/newsreader-latin-wght-italic.woff2") format("woff2");
+  font-weight: 200 800;
+  font-style: italic;
+  font-display: swap;
+}
+
+:root {
+  --paper: #eee7d7;
+  --ink: #1a1916;
+  --muted: #5c554a;
+  --rule: #cbc1ac;
+  --red: #ae2119;
+  --serif: "Newsreader", "Iowan Old Style", "Palatino Linotype", Palatino, Georgia, serif;
+  --sp: clamp(0.3rem, 1.6vw, 0.7rem);
+  --tick-gap: 2px;
+  --cols: repeat(17, minmax(0, 1fr)) var(--sp) repeat(12, minmax(0, 1fr)) var(--sp)
+    repeat(31, minmax(0, 1fr)) var(--sp) repeat(3, minmax(0, 1fr));
+  color-scheme: light;
+}
+
+*,
+*::before,
+*::after { box-sizing: border-box; }
+
+html {
+  background: var(--paper);
+  color: var(--ink);
+  -webkit-text-size-adjust: 100%;
+  text-size-adjust: 100%;
+}
+
+body {
+  margin: 0;
+  font-family: var(--serif);
+  font-size: 1.1875rem;
+  line-height: 1.6;
+  font-optical-sizing: auto;
+  font-variant-numeric: lining-nums;
+  text-rendering: optimizeLegibility;
+}
+
+::selection { background: var(--red); color: var(--paper); }
+
+.page {
+  max-width: 60rem;
+  margin: 0 auto;
+  padding: 1.25rem 1.25rem 2.5rem;
+}
+
+/* Frontispiece: the photograph faces the title, as in a book */
+.hero {
+  display: grid;
+  gap: 1.75rem;
+  margin-top: clamp(1.75rem, 5vw, 3.5rem);
+}
+.plate { margin: 0; max-width: 30rem; }
+.plate img {
+  display: block;
+  width: 100%;
+  height: auto;
+  mix-blend-mode: multiply;
+}
+.plate figcaption {
+  margin-top: 0.6rem;
+  font-size: 0.8rem;
+  line-height: 1.45;
+  color: var(--muted);
+}
+.hero h1 { margin-top: 0; }
+
+@media (min-width: 56rem) {
+  .hero {
+    grid-template-columns: minmax(0, 25rem) minmax(0, 1fr);
+    gap: 3.5rem;
+    align-items: start;
+  }
+  .titleblock { padding-top: 1rem; }
+  .hero h1 { font-size: clamp(4rem, 6.4vw, 6rem); }
+}
+
+/* Running head and foot, set like a journal page */
+.runhead,
+.foot {
+  display: flex;
+  justify-content: space-between;
+  gap: 1rem;
+  font-size: 0.75rem;
+  letter-spacing: 0.2em;
+  text-transform: uppercase;
+  color: var(--muted);
+}
+.runhead { padding-bottom: 0.6rem; border-bottom: 1px solid var(--ink); }
+.foot { margin-top: 4.5rem; padding-top: 0.6rem; border-top: 1px solid var(--rule); }
+
+h1 {
+  font-weight: 500;
+  font-size: clamp(3.3rem, 13.5vw, 7.25rem);
+  line-height: 0.95;
+  letter-spacing: -0.015em;
+  margin: clamp(2.5rem, 9vw, 5.5rem) 0 0.6rem;
+}
+.sub {
+  font-style: italic;
+  font-size: clamp(1.35rem, 4.4vw, 1.9rem);
+  line-height: 1.25;
+  margin: 0 0 2.25rem;
+}
+.lede { margin: 0 0 1rem; max-width: 36em; }
+
+/* The 63 pages: one mark per printed journal page */
+.folio { margin: 3.5rem 0 0; }
+.labels,
+.ticks {
+  display: grid;
+  grid-template-columns: var(--cols);
+  column-gap: var(--tick-gap);
+}
+.labels {
+  font-size: 0.8rem;
+  letter-spacing: 0.08em;
+  color: var(--muted);
+  margin-bottom: 0.4rem;
+  line-height: 1;
+}
+.l1 { grid-column: 1 / span 17; }
+.l2 { grid-column: 19 / span 12; }
+.l3 { grid-column: 32 / span 31; }
+.l4 { grid-column: 64 / span 3; white-space: nowrap; }
+.ticks { height: clamp(3rem, 11vw, 5.5rem); }
+.ticks > i {
+  background: var(--ink);
+  transform-origin: bottom;
+  transition: background-color 0.2s ease;
+  animation: set 0.7s cubic-bezier(0.2, 0.7, 0.2, 1) both;
+}
+.ticks > :nth-child(n + 19) { animation-delay: 0.15s; }
+.ticks > :nth-child(n + 32) { animation-delay: 0.3s; }
+.ticks > :nth-child(n + 64) { animation-delay: 0.45s; }
+@keyframes set {
+  from { transform: scaleY(0); }
+  to { transform: scaleY(1); }
+}
+figcaption { margin-top: 0.8rem; font-size: 0.95rem; color: var(--muted); }
+figcaption b { color: var(--ink); font-weight: 600; }
+
+/* Pointing at a paper lights its pages */
+body:has(#p1:hover) .ticks > i:nth-child(-n + 17),
+body:has(#p2:hover) .ticks > i:nth-child(n + 19):nth-child(-n + 30),
+body:has(#p3:hover) .ticks > i:nth-child(n + 32):nth-child(-n + 62),
+body:has(#p4:hover) .ticks > i:nth-child(n + 64) { background: var(--red); }
+
+/* The four papers */
+.papers {
+  list-style: none;
+  margin: 3.5rem 0 0;
+  padding: 0;
+  border-top: 1px solid var(--ink);
+}
+.papers li {
+  display: grid;
+  grid-template-columns: 2.75rem 1fr;
+  gap: 0 0.75rem;
+  padding: 1.5rem 0;
+  border-bottom: 1px solid var(--rule);
+}
+.rn {
+  font-size: 0.95rem;
+  letter-spacing: 0.08em;
+  color: var(--muted);
+  padding-top: 0.3rem;
+}
+.papers h2 {
+  font-weight: 500;
+  font-size: clamp(1.35rem, 3.6vw, 1.65rem);
+  line-height: 1.2;
+  margin: 0 0 0.6rem;
+}
+.de { font-style: italic; margin: 0; line-height: 1.4; }
+.en { margin: 0.25rem 0 0; color: var(--muted); line-height: 1.4; font-size: 1.05rem; }
+.loc {
+  margin: 0.6rem 0 0;
+  font-size: 0.8rem;
+  letter-spacing: 0.06em;
+  color: var(--muted);
+  font-variant-numeric: lining-nums tabular-nums;
+}
+
+/* In preparation */
+.follow { margin-top: 3.5rem; }
+.label {
+  font-size: 0.75rem;
+  letter-spacing: 0.2em;
+  text-transform: uppercase;
+  font-weight: 600;
+  color: var(--red);
+  margin: 0 0 0.75rem;
+}
+.follow p { margin: 0 0 1.1rem; max-width: 36em; }
+.links {
+  list-style: none;
+  padding: 0;
+  margin: 0 0 1.75rem;
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.5rem 1.75rem;
+}
+.links a { font-size: 1.2rem; font-weight: 500; }
+.follow .sibling { font-size: 1rem; color: var(--muted); }
+
+a {
+  color: inherit;
+  text-decoration-line: underline;
+  text-decoration-thickness: 1px;
+  text-decoration-color: var(--red);
+  text-underline-offset: 0.2em;
+}
+a:hover { color: var(--red); }
+a:focus-visible { outline: 2px solid var(--red); outline-offset: 3px; border-radius: 2px; }
+
+/* Not-found page */
+.nf h1 { font-size: clamp(2.6rem, 10vw, 4.75rem); }
+
+@media (max-width: 40rem) {
+  :root { --tick-gap: 1px; }
+  body { font-size: 1.125rem; }
+  .papers li { grid-template-columns: 2.25rem 1fr; gap: 0 0.5rem; }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .ticks > i { animation: none; transition: none; }
+}
