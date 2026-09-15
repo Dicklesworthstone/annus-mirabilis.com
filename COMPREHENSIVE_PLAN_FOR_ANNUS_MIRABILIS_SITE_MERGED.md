@@ -774,14 +774,12 @@ These are not optional color. Each is a typed record with a primary source
   anyway.
 - Quotations from secondary literature are limited to short attributed
   phrases; everything else is paraphrased with citation.
-- **Letters, photographs, name, and likeness.** The Habicht letter and
-  other correspondence are paraphrased, not reproduced; the CPAE
-  transcriptions and translations are Princeton's editorial work. The site
-  uses no photograph of Einstein unless a specific image has cleared
-  terms recorded in the receipt. The Hebrew University of Jerusalem
-  asserts rights in the Einstein name and likeness for commercial and
-  branding uses; the domain and branding use the year, not the name, and
-  no logo, merchandise, or product uses his name or face.
+- **Letters and photographs.** The Habicht letter and other
+  correspondence are paraphrased, not reproduced; the CPAE transcriptions
+  and translations are Princeton's editorial work. Public-domain
+  photographs of Einstein, such as Lucien Chavan's patent-office portrait
+  of about 1905, may be used anywhere on the site, including the home page
+  and share cards, with an accurate source credit.
 
 ### 4.2 Pinned facsimile sources (resolved in Batch A)
 
@@ -4331,7 +4329,7 @@ translations of the readings against the same alignment.
 | Reproducing a textbook myth | "The photoelectric effect proves photons"; "Michelson–Morley made Einstein do it" | The required margin entries and the misconception ledger are audited per paper |
 | Home experiment expectations | A reader gets $N = 2\times10^{23}$ and concludes the physics is wrong, or buys the wrong microscope | The protocol states optics requirements and uncertainty up front; the result is an interval with the dominant uncertainty named |
 | Reading-face weight from four rendered readings | HTML bloat on mobile | 250 kB gzipped budget with JSON fragment fallback |
-| Likeness and letters | Photographs or quoted letters used without cleared terms | None without cleared terms; branding uses the year, not the name |
+| Letters reproduced | Letters quoted at length from an editorial edition | Letters paraphrased; photographs come from public-domain sources and carry a credit |
 | Bit-identity overclaimed | "Deterministic" promised across libm implementations | The guarantee is stated precisely (§12.9) and recorded per comparison |
 
 **Decisions made by this plan.** The content unit is an argument linked to

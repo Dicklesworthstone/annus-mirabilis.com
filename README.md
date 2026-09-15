@@ -189,7 +189,7 @@ bun run build        # production build, including the content compiler
 - **The German texts are public domain.** They were published in 1905 and 1906, and Einstein died in 1955.
 - **Scans are not the text.** A particular scan can carry its scanning institution's terms. Each pinned facsimile's origin, terms, retrieval date, and SHA-256 are recorded in its provenance receipt.
 - **Existing English translations are not republished.** The site makes its own translation from the German and cites historical translations only as attributed comparison witnesses.
-- **Name and likeness.** No photograph of Einstein is used without cleared terms, letters are paraphrased rather than reproduced, and the project's branding uses the year, not the name.
+- **Letters and photographs.** Letters are paraphrased rather than reproduced. Public-domain photographs of Einstein appear with a source credit.
 - **The [LICENSE](./LICENSE) covers code and new prose.** It grants no rights to embedded scans, historical datasets, fonts, or other third-party material, each of which carries its own recorded rights status.
 
 ## Related Projects
