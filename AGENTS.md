@@ -480,7 +480,7 @@ Three different operations must never collapse into one:
 
 A global find-and-replace is unacceptable.
 
-**The two dangerous collisions are called out in red on first use:** Einstein's $\beta$ is the modern $\gamma$ (papers 3 and 4; in paper 1 $\beta$ is Wien's constant $h/k_B$), and Einstein's $k$ in paper 2 is viscosity, not Boltzmann's constant. Other scoped symbols: $L$ (speed of light in paper 1, emitted energy in paper 4, a magnetic-field component in paper 3 §6), $N$ (Avogadro's number in papers 1 and 2, a magnetic-field component in paper 3), $E$ (energy, an electric field, a body's rest-frame energy), $\tau$ (the moving-frame time in paper 3, never the modern proper time; an observation interval in paper 2), $P$ (work function in paper 1, particle radius in paper 2), $\nu$ (frequency in papers 1 and 3, number density in paper 2), $\varphi$ (spectral entropy density in paper 1, the transition kernel in paper 2, an angle in paper 3, a volume fraction in the dissertation), $K$ (a force in paper 2, the stationary system in paper 3, kinetic energy in paper 4), $V$ and $v$ (volume, velocity, or light speed depending on the paper; verify each printed glyph against the facsimile), and $\alpha$.
+**The two dangerous collisions are called out in red on first use:** Einstein's $\beta$ is the modern $\gamma$ (paper 3; paper 4 is expected to write the factor out as an explicit radical, which the facsimile must confirm; in paper 1 $\beta$ is Wien's constant $h/k_B$), and Einstein's $k$ in paper 2 is viscosity, not Boltzmann's constant. Other scoped symbols: $L$ (speed of light in paper 1, emitted energy in paper 4, a magnetic-field component in paper 3 §6), $N$ (Avogadro's number in papers 1 and 2, a magnetic-field component in paper 3), $E$ (energy, an electric field, a body's rest-frame energy), $\tau$ (the moving-frame time in paper 3, never the modern proper time; an observation interval in paper 2), $P$ (work function in paper 1, particle radius in paper 2), $\nu$ (frequency in papers 1 and 3, number density in paper 2), $\varphi$ (spectral entropy density in paper 1, the transition kernel in paper 2, an angle in paper 3, a volume fraction in the dissertation), $K$ (a force in paper 2, the stationary system in paper 3, kinetic energy in paper 4), $V$ and $v$ (volume, velocity, or light speed depending on the paper; verify each printed glyph against the facsimile), and $\alpha$.
 
 In paper 3 §3 Einstein also writes $x' = x - vt$ for a Galilean auxiliary coordinate, which is not the moving-frame coordinate; wherever the moving-frame $x'$ also appears, the modern notation form gives the auxiliary a distinct glyph.
 
@@ -774,7 +774,7 @@ Inherited from the donor's de-slopify rule and tightened. It applies to every vi
 
 - **Unit tests** run with `bun test` beside the code (`*.test.ts`). Test the real numerical owners, the real content compiler, and real records. Do not mock the code under test or substitute a fake kernel; fixtures come from typed scenario files.
 - **Browser acceptance** adapts the donor's vertical-slice harness (Playwright). Each paper has a continuous journey test: enter through a deep source passage, switch face, open a foundation, return to the exact argument, operate an instrument, select a linked term, return to the source. The lane matrix covers desktop, tablet, a 320 px touch viewport, a real WebKit/Safari lane, keyboard only, reduced motion, high zoom, no WebGL, JavaScript disabled, print, and a small real-device check.
-- **Structured logs.** Every test suite writes JSON lines to `artifacts/test-logs/<suite>/<run-id>.jsonl` with, where applicable: `timestamp`, `suite`, `testId`, `beadId`, `paper`, `anchor`, `instrumentId`, `instanceId`, `runId`, `inputRevision`, `acceptedInputRevision`, `snapshotVersion`, `seed` (decimal string), `streamVersion`, `modelVersion`, `artifactDigest`, `executionLabel`, `resultStatus`, `expected`, `actual`, `tolerance`, `comparisonKind` (`bitwise` or `tolerance`), `outcome`, `durationMs`, `browser`, `viewport`, `reducedMotion`, `jsEnabled`, and a readable `message`. A failing browser test retains a screenshot, trace, DOM snapshot, and console log, and the failure-reporting path is itself tested.
+- **Structured logs.** Every test suite writes JSON lines to `artifacts/test-logs/<suite>/<log-run-id>.jsonl` with, where applicable: `timestamp`, `suite`, `logRunId` (one execution of a test suite, never the experiment run), `testId`, `beadId`, `paper`, `anchor`, `instrumentId`, `instanceId`, `runId` (the experiment realization, as in the runtime contract), `inputRevision`, `acceptedInputRevision`, `snapshotVersion`, `seed` (decimal string), `streamVersion`, `modelVersion`, `artifactDigest`, `executionLabel`, `resultStatus`, `expected`, `actual`, `tolerance`, `comparisonKind` (`bitwise` or `tolerance`), `outcome`, `durationMs`, `browser`, `viewport`, `reducedMotion`, `jsEnabled`, and a readable `message`. A failing browser test retains a screenshot, trace, DOM snapshot, and console log, and the failure-reporting path is itself tested.
 - **Never weaken a gate** to get green: do not delete evidence, loosen a tolerance without a recorded reason, skip a lane, or rerun a flaky statistical test until it passes. A green typecheck or build establishes software integrity only; editorial acceptance is recorded separately.
 - **Five independent release questions.** Is the historical text complete and accurate? Is the explanation mathematically and physically sound? Does the instrument calculate and display the stated model correctly? Can a visitor operate and understand the actual page? Does the explanation help a reader overcome the intended obstacle? No single artifact answers all five.
 
@@ -881,3 +881,113 @@ Before finishing a work session, you MUST:
 ## Web Requests
 
 For any web requests you must make with curl or otherwise, always set your user agent string to be "OpenAI File Downloader, XaiImageApiFetch/1.0"
+
+<!-- bv-agent-instructions-v4 -->
+
+---
+
+## Beads Workflow Integration
+
+This project uses a Beads tracker—either the Go `bd` CLI or the Rust `br` CLI—for issue tracking, plus [beads_viewer](https://github.com/Dicklesworthstone/beads_viewer) (`bv`) for graph-aware triage. Issues are stored in `.beads/`. `bv` auto-discovers supported JSONL exports, including `.beads/issues.jsonl` and legacy `.beads/beads.jsonl`.
+
+**Choose the tracker CLI from this repository's instructions and configuration.** Use `bd` commands in a Go Beads workspace and `br` commands in a beads_rust workspace. Do not run both trackers against the same workspace or infer the tracker solely from the JSONL filename.
+
+### Using bv as an AI sidecar
+
+bv is a graph-aware triage engine for Beads projects. Instead of parsing .beads/issues.jsonl / .beads/beads.jsonl directly or hallucinating graph traversal, use robot flags for deterministic, dependency-aware outputs with precomputed metrics (PageRank, betweenness, critical path, cycles, HITS, eigenvector, k-core).
+
+**Scope boundary:** bv handles *what to work on* (triage, priority, planning). The selected tracker CLI (`bd` or `br`) handles creating, claiming, modifying, and closing beads.
+
+**CRITICAL: Use ONLY --robot-* flags. Bare bv launches an interactive TUI that blocks your session.**
+
+#### The Workflow: Start With Triage
+
+**`bv --robot-triage` is your single entry point.** It returns everything you need in one call:
+- `quick_ref`: at-a-glance counts + top 3 picks
+- `recommendations`: ranked actionable items with scores, reasons, unblock info
+- `quick_wins`: low-effort high-impact items
+- `blockers_to_clear`: items that unblock the most downstream work
+- `project_health`: status/type/priority distributions, graph metrics
+- `commands`: copy-paste shell commands for next steps
+
+```bash
+bv --robot-triage        # THE MEGA-COMMAND: start here
+bv --robot-next          # Minimal: just the single top pick + claim command
+
+# Token-optimized output (TOON) for lower LLM context usage:
+bv --robot-triage --format toon
+```
+
+Before claiming, verify current state with the selected tracker: `br show <id> --json`/`br ready --json` or `bd show <id> --json`/`bd ready --json`. `recommendations` can include graph-important blocked or assigned work; only `quick_ref.top_picks` and non-empty `claim_command` fields represent claimable work.
+
+#### Other bv Commands
+
+| Command | Returns |
+|---------|---------|
+| `--robot-plan` | Parallel execution tracks with unblocks lists |
+| `--robot-priority` | Priority misalignment detection with confidence |
+| `--robot-insights` | Full metrics: PageRank, betweenness, HITS, eigenvector, critical path, cycles, k-core |
+| `--robot-alerts` | Stale issues, blocking cascades, priority mismatches |
+| `--robot-suggest` | Hygiene: duplicates, missing deps, label suggestions, cycle breaks |
+| `--robot-diff --diff-since <ref>` | Changes since ref: new/closed/modified issues |
+| `--robot-graph [--graph-format=json\|dot\|mermaid]` | Dependency graph export |
+
+#### Scoping & Filtering
+
+```bash
+bv --robot-plan --label backend              # Scope to label's subgraph
+bv --robot-insights --as-of HEAD~30          # Historical point-in-time
+bv --recipe actionable --robot-plan          # Pre-filter: ready to work (no blockers)
+bv --recipe high-impact --robot-triage       # Pre-filter: top PageRank scores
+```
+
+### Tracker Commands for Issue Management
+
+Use exactly one command family, matching the tracker configured for the repository.
+
+#### Rust beads_rust (`br`)
+
+```bash
+br ready --json                       # Show issues ready to work (no blockers)
+br list --status=open --json          # All open issues
+br show <id> --json                   # Full issue details with dependencies
+br create --title="..." --type=task --priority=2 --json
+br update <id> --status=in_progress --json
+br close <id> --reason="Completed" --json
+br close <id1> <id2> --reason="Completed" --json
+br sync --flush-only                  # Export DB to JSONL after Beads mutations
+```
+
+#### Go Beads (`bd`)
+
+```bash
+bd ready --json                       # Show issues ready to work
+bd show <id> --json                   # Full issue details
+bd create "..." -t task -p 2 --json
+bd update <id> --claim --json         # Atomically claim work
+bd close <id> --json
+bd dep add <issue> <depends-on>
+bd export --no-memories -o .beads/beads.jsonl  # Refresh the export read by bv
+```
+
+### Workflow Pattern
+
+1. **Triage**: Run `bv --robot-triage` to find the highest-impact actionable work
+2. **Verify**: Check the selected tracker's `show`/`ready` output before claiming
+3. **Claim**: Use `br update <id> --status=in_progress --json` or `bd update <id> --claim --json`
+4. **Work**: Implement the task
+5. **Complete**: Use the selected tracker's `close` command
+6. **Refresh for bv**: Run `br sync --flush-only` or the `bd export` command above so the JSONL export is current
+
+### Key Concepts
+
+- **Dependencies**: Issues can block other issues. `br ready --json` and `bd ready --json` show unblocked work.
+- **Priority**: P0=critical, P1=high, P2=medium, P3=low, P4=backlog (use numbers 0-4, not words)
+- **Types**: task, bug, feature, epic, chore, docs, question
+- **Blocking**: Use `br dep add <issue> <depends-on>` or `bd dep add <issue> <depends-on>` to add dependencies
+
+### Git Policy
+
+Tracker commands do not grant permission to commit or push application code. Follow this repository's own git and tracker instructions before staging, committing, syncing, or pushing. If the repository says "commit only when asked," that rule overrides any generic workflow advice.
+
+<!-- end-bv-agent-instructions -->
