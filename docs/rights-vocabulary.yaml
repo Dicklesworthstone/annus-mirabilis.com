@@ -1,0 +1,205 @@
+# Controlled vocabulary for SourceAsset rights and publication determinations
+# Specification: docs/RIGHTS.md
+# Consumer: am-cm-schemas-source-1en and provenance receipt validation
+
+version: 1
+
+rightsStatus:
+  - value: public-domain-text
+    definition: "Historical text whose public-domain basis is recorded."
+    requiredFields:
+      - rights.statement
+      - rights.recordedAt
+    implies: "Permits transcription, translation, and publication. In the United States as of 2026, works published in 1930 or earlier are public domain; in life-plus-70 jurisdictions, Einstein works became public domain at the end of 2025."
+
+  - value: public-domain-image
+    definition: "A photograph or other image whose public-domain basis is recorded, used with a credit."
+    requiredFields:
+      - rights.statement
+      - rights.source
+      - rights.credit
+      - rights.recordedAt
+    implies: "Requires a non-empty rights.credit naming the archive, photographer where known, and date. Eligible for publication if the scan terms permit."
+
+  - value: scan-open-terms
+    definition: "A scan whose stated terms permit reuse and redistribution."
+    requiredFields:
+      - rights.statement
+      - rights.source
+      - originUrl
+      - acquisitionDate
+    implies: "Eligible for publicationDecision: publish and cloudProcessing: permitted if the stated terms place no restriction on processing."
+
+  - value: scan-terms-restrict-redistribution
+    definition: "A scan whose stated terms restrict re-hosting, redistribution, or commercial use."
+    requiredFields:
+      - rights.statement
+      - rights.source
+      - originUrl
+      - acquisitionDate
+    implies: "Must have publicationDecision set to pin-local-only or reference-only, and rights.reuseTerms set to no-reuse-offered."
+
+  - value: scan-terms-unknown
+    definition: "No terms statement found yet."
+    requiredFields:
+      - rights.source
+      - rights.recordedAt
+    implies: "Must have publicationDecision: reference-only and cloudProcessing: unknown. The file cannot be pinned, served, or sent to cloud services until terms are located and verified."
+
+  - value: site-original-code
+    definition: "Code written for this site, governed by LICENSE."
+    requiredFields:
+      - rights.statement
+    implies: "Governed by LICENSE (MIT with OpenAI/Anthropic rider). Holds rights.reuseTerms: pending-decision until am-gov-decision-license-rights-tps is recorded."
+
+  - value: site-original-prose
+    definition: "New prose and the new translation, governed by the license decision."
+    requiredFields:
+      - rights.statement
+    implies: "Governed by the upcoming license decision. Holds rights.reuseTerms: pending-decision until am-gov-decision-license-rights-tps is recorded."
+
+  - value: third-party-licensed
+    definition: "A third-party asset under a named license."
+    requiredFields:
+      - rights.statement
+      - rights.source
+    implies: "Must satisfy the conditions of the specified license. Eligible for publication if the license permits redistribution."
+
+  - value: in-copyright-witness-only
+    definition: "Consulted and cited, never copied."
+    requiredFields:
+      - rights.statement
+    implies: "Must have publicationDecision: reference-only and rights.reuseTerms: no-reuse-offered. Never pinned or served."
+
+  - value: cleared-image
+    definition: "An image with a recorded clearance rather than a public-domain basis."
+    requiredFields:
+      - rights.statement
+      - rights.source
+      - rights.credit
+    implies: "Requires a non-empty rights.credit. Eligible for publication within the limits of the clearance record."
+
+publicationDecision:
+  - value: publish
+    definition: "Served from public/ to visitors."
+    requiresReason: false
+    requiredFields: []
+    implies: "Asset is served publicly. Requires a rights.status that permits redistribution."
+
+  - value: pin-local-only
+    definition: "Pinned bytes retained locally outside git and never served."
+    requiresReason: true
+    requiredFields:
+      - publicationReason
+    implies: "Asset is stored in local developer storage for verification but never committed to git or served from public/. Requires rights.reuseTerms: no-reuse-offered."
+
+  - value: reference-only
+    definition: "Consulted and cited, never pinned."
+    requiresReason: true
+    requiredFields:
+      - publicationReason
+    implies: "Asset is cited in documentation or provenance receipts only; no file is pinned or served. Requires rights.reuseTerms: no-reuse-offered."
+
+cloudProcessing:
+  - value: permitted
+    definition: "Stated terms permit sending page images or asset bytes to cloud OCR or processing services."
+    requiredFields:
+      - cloudProcessingBasis
+      - rights.recordedAt
+    implies: "Scan pages may be dispatched to cloud OCR pipelines. Cannot be combined with scan-terms-unknown."
+
+  - value: forbidden
+    definition: "Stated terms prohibit third-party machine processing or cloud transfer."
+    requiredFields:
+      - cloudProcessingBasis
+      - rights.recordedAt
+    implies: "Scan pages must not be dispatched to cloud OCR. Local processing is also barred by repository policy."
+
+  - value: unknown
+    definition: "Stated terms are ambiguous, unexamined, or silent on third-party processing."
+    requiredFields:
+      - cloudProcessingBasis
+      - rights.recordedAt
+    implies: "Cloud OCR is paused for this scan until the user makes a determination. Never assumed to be permitted."
+
+reuseTerms:
+  - value: pending-decision
+    definition: "A site-original asset awaiting the formal license and rider decision in am-gov-decision-license-rights-tps."
+    requiredFields:
+      - rights.statement
+    implies: "Asset is served but no public reuse terms are offered yet. Surfaces display pending status."
+
+  - value: named-license
+    definition: "Reuse offered under a named open license (for example MIT, CC-BY-4.0)."
+    requiredFields:
+      - rights.statement
+      - rights.source
+    implies: "Reuse is permitted according to the terms of the license identified in rights.statement and linked in rights.source."
+
+  - value: source-terms
+    definition: "Reuse governed by the asset's own stated third-party or archive terms, quoted verbatim."
+    requiredFields:
+      - rights.statement
+    implies: "Reuse is governed solely by the original source repository or archive terms quoted in rights.statement."
+
+  - value: no-reuse-offered
+    definition: "The recorded terms do not support public reuse, or the asset is not published."
+    requiredFields:
+      - rights.statement
+    implies: "No reuse permissions are granted to third parties. Mandatory for any asset whose publicationDecision is not publish."
+
+constraints:
+  - id: scan-restrict-redistribution-non-publish
+    if: "rights.status == 'scan-terms-restrict-redistribution'"
+    then: "publicationDecision in ['pin-local-only', 'reference-only']"
+    message: "Scans with terms restricting redistribution must not be published; publicationDecision must be pin-local-only or reference-only."
+
+  - id: scan-terms-unknown-reference-and-unknown-cloud
+    if: "rights.status == 'scan-terms-unknown'"
+    then: "publicationDecision == 'reference-only' && cloudProcessing == 'unknown'"
+    message: "Assets with unknown scan terms must be reference-only and cloudProcessing must be unknown until terms are located."
+
+  - id: in-copyright-witness-reference-only
+    if: "rights.status == 'in-copyright-witness-only'"
+    then: "publicationDecision == 'reference-only'"
+    message: "In-copyright comparison witnesses must have publicationDecision set to reference-only."
+
+  - id: publish-requires-redistributable-status
+    if: "publicationDecision == 'publish'"
+    then: "rights.status in ['scan-open-terms', 'public-domain-text', 'public-domain-image', 'site-original-code', 'site-original-prose', 'third-party-licensed', 'cleared-image']"
+    message: "Publication requires a status that permits redistribution."
+
+  - id: image-credit-required
+    if: "rights.status in ['public-domain-image', 'cleared-image']"
+    then: "rights.credit != null && rights.credit != ''"
+    message: "Images (public domain or cleared) require a non-empty rights.credit."
+
+  - id: cloud-permitted-not-unknown-terms
+    if: "cloudProcessing == 'permitted'"
+    then: "rights.status != 'scan-terms-unknown'"
+    message: "cloudProcessing: permitted cannot be combined with scan-terms-unknown."
+
+  - id: non-publish-no-reuse
+    if: "publicationDecision in ['pin-local-only', 'reference-only']"
+    then: "rights.reuseTerms == 'no-reuse-offered'"
+    message: "An asset whose publicationDecision is not publish must carry rights.reuseTerms: no-reuse-offered."
+
+  - id: site-original-pending-decision
+    if: "rights.status in ['site-original-code', 'site-original-prose'] && licenseDecisionPending"
+    then: "rights.reuseTerms in ['pending-decision', 'named-license']"
+    message: "Site-original code and prose must carry rights.reuseTerms: pending-decision until am-gov-decision-license-rights-tps is recorded, and named-license thereafter."
+
+  - id: named-license-requires-source
+    if: "rights.reuseTerms == 'named-license'"
+    then: "rights.source != null && rights.source != ''"
+    message: "rights.reuseTerms: named-license requires a non-empty rights.source URL."
+
+  - id: reuse-terms-requires-statement
+    if: "rights.reuseTerms != null"
+    then: "rights.statement != null && rights.statement != ''"
+    message: "Every rights.reuseTerms determination requires an explanatory rights.statement."
+
+  - id: non-publish-requires-reason
+    if: "publicationDecision in ['pin-local-only', 'reference-only']"
+    then: "publicationReason != null && publicationReason != ''"
+    message: "A publicationDecision other than publish requires a publicationReason."
