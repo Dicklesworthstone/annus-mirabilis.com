@@ -555,6 +555,22 @@ The following discrepancies between master plan prose and the pinned codebase we
 - **Affected Bead:** `am-gov-decision-stack-versions-6ax`.
 - **Resolution:** Annus Mirabilis adopts `"bun test --isolate"` as standard test command.
 
+### Discrepancy 7.7: Donor Facsimile Directory Path
+
+- **Plan Claim:** Plan §2.3, carried into the section 5 reuse table, names `public/patents/facsimiles/` as the donor facsimile directory.
+- **Code Fact:** That path does not exist at the pinned revision. `git ls-tree --name-only da11ff475902728fd8dd1d9db9f3af37c16ec8a5 public/patents/` returns `facsimile-pages`, `fig-8-source-crop-v3.png`, `fig-9-source-crop-v3.png`, `figures`, `pdfs`, `source-text`, and `transcripts`. There is no `facsimiles` entry, and `git cat-file -t da11ff475902728fd8dd1d9db9f3af37c16ec8a5:public/patents/facsimiles` independently reports the path absent.
+- **Evidence:** The real directory is `public/patents/facsimile-pages/`, which holds 109 files at the pinned revision.
+- **Affected Beads:** `am-read-facsimile-face-er0`, `am-bm-slice-e2e-sbqu`.
+- **Resolution:** Section 5 now states the corrected path, which the bead permits in place of existence. Any extraction reading donor facsimile page images must use `public/patents/facsimile-pages/`. This was the one path of the 62 cited in the reuse table that did not resolve.
+
+### Discrepancy 7.8: Recorded Extent of the OpenAI/Anthropic Rider
+
+- **Document Claim:** Section 9.1 of this audit placed the rider at lines 12 to 54 of `classic-patents.com:LICENSE`.
+- **Code Fact:** Line 54 falls mid-sentence (`extent permitted by applicable law, the prevailing party in any action to`). Rider content continues through the `"Affiliate"` definition, which is explicitly scoped "For purposes of this rider" and closes at line 62. The MIT boilerplate resumes at line 64 with `The above copyright notice and this permission notice shall be included in all`, and the file is 73 lines.
+- **Evidence:** `git -C /Users/jemanuel/projects/classic-patents.com show da11ff475902728fd8dd1d9db9f3af37c16ec8a5:LICENSE | sed -n '48,73p'`.
+- **Affected Bead:** `am-gov-license-inventory-w6yz`.
+- **Resolution:** Section 9.1 corrected to lines 12 to 62. The range matters because copying only lines 12 to 54 would carry 43 of the rider's 51 lines and silently drop the `"Affiliate"` definition on which the rider's scope depends. The license inventory gate must preserve the full rider.
+
 ---
 
 ## 8. Re-Audit Policy
