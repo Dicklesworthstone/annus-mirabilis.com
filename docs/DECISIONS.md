@@ -157,6 +157,7 @@ A dedicated compatibility probe was constructed in the session scratch directory
 - **Log Location:** `artifacts/test-logs/stack-probe/run-1789500358874.jsonl`
 - **Total Test Checks Executed:** 14 (7 per browser)
 - **Overall Verdict:** PASS across all functional, accessibility, and security assertions.
+- **Runtime the probe actually ran on:** Node **`v25.9.0`** (Homebrew, `/opt/homebrew/Cellar/node/25.9.0_3/bin/node`, arm64 Darwin), **not** the locked `22.13.4`. Node 22 is not installed on this host: `brew info node@22` reports "Not installed", `/opt/homebrew/opt/node@22/bin/node` does not exist, and no `nvm`, `fnm` or `volta` is present to supply it. **A reader must not treat the 14 Chromium and WebKit checks above as validation of locked Node `22.13.4`.** The checks validate the browser, CSP and WASM behaviour of the candidate stack; they say nothing about the Node runtime version. Re-running the probe under `22.13.4` before that version is relied upon is left to the bead that installs it.
 
 #### Test Execution Summary
 
@@ -237,7 +238,7 @@ The following capability record documents the exact status of required deploymen
     "available": true,
     "checkedWith": "vercel curl --help (exit 2)",
     "cliVersion": "59.10.0",
-    "replacement": "curl -s -S -f -H "x-vercel-protection-bypass: ${VERCEL_AUTOMATION_BYPASS_SECRET}" "${DEPLOYMENT_URL}${ENDPOINT}""
+    "replacement": "curl -s -S -f -H \"x-vercel-protection-bypass: ${VERCEL_AUTOMATION_BYPASS_SECRET}\" \"${DEPLOYMENT_URL}${ENDPOINT}\""
   }
 ]
 ```
