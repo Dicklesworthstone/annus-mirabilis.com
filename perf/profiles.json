@@ -1,0 +1,228 @@
+{
+  "schemaVersion": 1,
+  "decisionId": "D-2026-09-15-device-profiles",
+  "playwrightVersion": "1.62.1",
+  "budgetCatalog": {
+    "initial-route-js": {
+      "id": "initial-route-js",
+      "profileIndependent": true,
+      "method": "Compressed transferred first-route JavaScript from the production build. No Three.js, pdf.js, or WASM in the initial dependency graph. Not a browser-timed metric.",
+      "limit": { "value": 200, "unit": "KiB", "bytes": 204800 }
+    },
+    "reading-face-html": {
+      "id": "reading-face-html",
+      "profileIndependent": true,
+      "method": "Gzipped HTML size of the largest paper's reading face in the production build. Over budget, R2 and R3 load from a static JSON fragment.",
+      "limit": { "value": 250, "unit": "kB", "bytes": 250000 }
+    },
+    "visible-text-math": {
+      "id": "visible-text-math",
+      "profileIndependent": false,
+      "method": "Main content present in the initial HTML with locally hosted subset fonts. Measured with JavaScript disabled and a cold font cache on mobile-low-cost."
+    },
+    "interaction-latency-p75": {
+      "id": "interaction-latency-p75",
+      "profileIndependent": false,
+      "method": "PerformanceObserver for event entries with durationThreshold 16, grouped by interactionId, taking each interaction's longest duration. At least 20 repetitions. p75 by nearest rank: with 20 sorted samples the 15th value. Threshold 200 ms. Event Timing durations are rounded to 8 ms; do not set a finer threshold."
+    },
+    "layout-shift": {
+      "id": "layout-shift",
+      "profileIndependent": false,
+      "method": "layout-shift entries excluding hadRecentInput, grouped into session windows (gaps under 1 s, windows capped at 5 s). Report the largest window across load, font swap, and deferred math activation. Threshold 0.1."
+    },
+    "instrument-feedback": {
+      "id": "instrument-feedback",
+      "profileIndependent": false,
+      "method": "From the input event timestamp to the performance mark emitted when the accepted snapshot for that inputRevision is painted, not the pending-state paint. Threshold 100 ms after the laboratory has loaded."
+    },
+    "animation-frame-rate": {
+      "id": "animation-frame-rate",
+      "profileIndependent": false,
+      "method": "requestAnimationFrame intervals over a 10 s window after warm-up. desktop-capable: median interval at most 16.7 ms, at most 5 percent of intervals above 33.4 ms. mobile-low-cost: median at most 33.4 ms, at most 5 percent above 50 ms. Physics accuracy is a separate measurement and is never traded for frame rate."
+    },
+    "resource-lifecycle": {
+      "id": "resource-lifecycle",
+      "profileIndependent": false,
+      "method": "No growing count of workers, GPU contexts, listeners, or particle buffers across repeated route changes. Owned and executed by am-plat-resource-stress-9zgu, not by this decision bead.",
+      "owningBead": "am-plat-resource-stress-9zgu"
+    }
+  },
+  "measurement": {
+    "interactionRepetitionsMin": 20,
+    "interactionPercentile": 0.75,
+    "nearestRankOneIndexed": 15,
+    "eventTimingRoundingMs": 8,
+    "animationWindowMs": 10000,
+    "frameIntervalDesktopMedianMaxMs": 16.7,
+    "frameIntervalDesktopLongMaxMs": 33.4,
+    "frameIntervalDesktopLongMaxFraction": 0.05,
+    "frameIntervalMobileMedianMaxMs": 33.4,
+    "frameIntervalMobileLongMaxMs": 50,
+    "frameIntervalMobileLongMaxFraction": 0.05
+  },
+  "profiles": [
+    {
+      "id": "desktop-capable",
+      "description": "Lab stand-in for a mid-range laptop. Chromium and WebKit at 1440 by 900. No CPU throttling. Network 10 Mbps down / 10 Mbps up / 40 ms RTT, enforced on Chromium via CDP only.",
+      "engines": ["chromium", "webkit"],
+      "viewports": [
+        {
+          "id": "desktop-1440",
+          "width": 1440,
+          "height": 900,
+          "deviceScaleFactor": 1,
+          "isMobile": false,
+          "hasTouch": false
+        }
+      ],
+      "cpuSlowdown": {
+        "factor": 1,
+        "calibration": "none",
+        "phoneModel": "",
+        "host": "",
+        "benchmarkMsHost": null,
+        "benchmarkMsPhone": null,
+        "testerId": "",
+        "date": "",
+        "chromiumCdpCommand": "Emulation.setCPUThrottlingRate",
+        "webkitCpuThrottling": "unavailable"
+      },
+      "network": {
+        "downKbps": 10000,
+        "upKbps": 10000,
+        "rttMs": 40,
+        "enforcedOn": ["chromium"]
+      },
+      "cacheStates": ["cold", "warm"],
+      "budgets": [
+        "initial-route-js",
+        "reading-face-html",
+        "layout-shift",
+        "instrument-feedback",
+        "animation-frame-rate",
+        "resource-lifecycle"
+      ],
+      "emulated": true
+    },
+    {
+      "id": "mobile-low-cost",
+      "description": "Genuinely constrained lab mobile profile. Chromium with a provisional 4x CPU slowdown; WebKit on the same viewports with no CPU throttling. 360 by 800 plus the 320-pixel touch lane. Slow network. Cold cache. Not a named commercial phone.",
+      "engines": ["chromium", "webkit"],
+      "viewports": [
+        {
+          "id": "mobile-360",
+          "width": 360,
+          "height": 800,
+          "deviceScaleFactor": 2,
+          "isMobile": true,
+          "hasTouch": true
+        },
+        {
+          "id": "mobile-320",
+          "width": 320,
+          "height": 800,
+          "deviceScaleFactor": 2,
+          "isMobile": true,
+          "hasTouch": true
+        }
+      ],
+      "cpuSlowdown": {
+        "factor": 4,
+        "calibration": "provisional",
+        "phoneModel": "",
+        "host": "",
+        "benchmarkMsHost": null,
+        "benchmarkMsPhone": null,
+        "testerId": "",
+        "date": "",
+        "chromiumCdpCommand": "Emulation.setCPUThrottlingRate",
+        "webkitCpuThrottling": "unavailable"
+      },
+      "network": {
+        "downKbps": 1600,
+        "upKbps": 750,
+        "rttMs": 150,
+        "enforcedOn": ["chromium"]
+      },
+      "cacheStates": ["cold"],
+      "budgets": [
+        "initial-route-js",
+        "reading-face-html",
+        "visible-text-math",
+        "interaction-latency-p75",
+        "layout-shift",
+        "instrument-feedback",
+        "animation-frame-rate",
+        "resource-lifecycle"
+      ],
+      "emulated": true
+    },
+    {
+      "id": "tablet",
+      "description": "Portrait tablet acceptance viewport on WebKit. 768 by 1024, touch, no CPU throttling. Network matches desktop-capable. Not a budget host except for the two profile-independent byte budgets.",
+      "engines": ["webkit"],
+      "viewports": [
+        {
+          "id": "tablet-768",
+          "width": 768,
+          "height": 1024,
+          "deviceScaleFactor": 2,
+          "isMobile": true,
+          "hasTouch": true
+        }
+      ],
+      "cpuSlowdown": {
+        "factor": 1,
+        "calibration": "none",
+        "phoneModel": "",
+        "host": "",
+        "benchmarkMsHost": null,
+        "benchmarkMsPhone": null,
+        "testerId": "",
+        "date": "",
+        "chromiumCdpCommand": "Emulation.setCPUThrottlingRate",
+        "webkitCpuThrottling": "unavailable"
+      },
+      "network": {
+        "downKbps": 10000,
+        "upKbps": 10000,
+        "rttMs": 40,
+        "enforcedOn": []
+      },
+      "cacheStates": ["cold"],
+      "budgets": ["initial-route-js", "reading-face-html"],
+      "emulated": true
+    },
+    {
+      "id": "real-device-small",
+      "description": "Physical devices for the small real-device checks. One low-cost Android phone and one iPhone on Safari. Model, OS, and browser versions are empty until those beads record them. No Playwright emulation.",
+      "engines": ["chromium", "webkit"],
+      "viewports": [],
+      "cpuSlowdown": {
+        "factor": 1,
+        "calibration": "none",
+        "phoneModel": "",
+        "host": "",
+        "benchmarkMsHost": null,
+        "benchmarkMsPhone": null,
+        "testerId": "",
+        "date": "",
+        "chromiumCdpCommand": "Emulation.setCPUThrottlingRate",
+        "webkitCpuThrottling": "unavailable"
+      },
+      "network": {
+        "downKbps": 1600,
+        "upKbps": 750,
+        "rttMs": 150,
+        "enforcedOn": []
+      },
+      "cacheStates": ["cold"],
+      "budgets": [],
+      "emulated": false,
+      "hardwareRecordedLaterBy": [
+        "am-test-real-device-slice-check-bize",
+        "am-test-real-device-check-iju4"
+      ]
+    }
+  ]
+}

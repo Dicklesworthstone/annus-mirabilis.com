@@ -1,0 +1,223 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://annus-mirabilis.com/perf/profiles.schema.json",
+  "title": "Annus Mirabilis lab performance profiles",
+  "type": "object",
+  "additionalProperties": false,
+  "required": [
+    "schemaVersion",
+    "decisionId",
+    "playwrightVersion",
+    "budgetCatalog",
+    "measurement",
+    "profiles"
+  ],
+  "properties": {
+    "schemaVersion": { "type": "integer", "const": 1 },
+    "decisionId": { "type": "string", "minLength": 1 },
+    "playwrightVersion": { "type": "string", "pattern": "^[0-9]+\\.[0-9]+\\.[0-9]+$" },
+    "budgetCatalog": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "initial-route-js",
+        "reading-face-html",
+        "visible-text-math",
+        "interaction-latency-p75",
+        "layout-shift",
+        "instrument-feedback",
+        "animation-frame-rate",
+        "resource-lifecycle"
+      ],
+      "properties": {
+        "initial-route-js": { "$ref": "#/$defs/budgetDef" },
+        "reading-face-html": { "$ref": "#/$defs/budgetDef" },
+        "visible-text-math": { "$ref": "#/$defs/budgetDef" },
+        "interaction-latency-p75": { "$ref": "#/$defs/budgetDef" },
+        "layout-shift": { "$ref": "#/$defs/budgetDef" },
+        "instrument-feedback": { "$ref": "#/$defs/budgetDef" },
+        "animation-frame-rate": { "$ref": "#/$defs/budgetDef" },
+        "resource-lifecycle": { "$ref": "#/$defs/budgetDef" }
+      }
+    },
+    "measurement": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "interactionRepetitionsMin",
+        "interactionPercentile",
+        "nearestRankOneIndexed",
+        "eventTimingRoundingMs",
+        "animationWindowMs",
+        "frameIntervalDesktopMedianMaxMs",
+        "frameIntervalDesktopLongMaxMs",
+        "frameIntervalDesktopLongMaxFraction",
+        "frameIntervalMobileMedianMaxMs",
+        "frameIntervalMobileLongMaxMs",
+        "frameIntervalMobileLongMaxFraction"
+      ],
+      "properties": {
+        "interactionRepetitionsMin": { "type": "integer", "const": 20 },
+        "interactionPercentile": { "type": "number", "const": 0.75 },
+        "nearestRankOneIndexed": { "type": "integer", "const": 15 },
+        "eventTimingRoundingMs": { "type": "integer", "const": 8 },
+        "animationWindowMs": { "type": "integer", "const": 10000 },
+        "frameIntervalDesktopMedianMaxMs": { "type": "number" },
+        "frameIntervalDesktopLongMaxMs": { "type": "number" },
+        "frameIntervalDesktopLongMaxFraction": { "type": "number" },
+        "frameIntervalMobileMedianMaxMs": { "type": "number" },
+        "frameIntervalMobileLongMaxMs": { "type": "number" },
+        "frameIntervalMobileLongMaxFraction": { "type": "number" }
+      }
+    },
+    "profiles": {
+      "type": "array",
+      "minItems": 4,
+      "items": { "$ref": "#/$defs/profile" }
+    }
+  },
+  "$defs": {
+    "budgetId": {
+      "type": "string",
+      "enum": [
+        "initial-route-js",
+        "reading-face-html",
+        "visible-text-math",
+        "interaction-latency-p75",
+        "layout-shift",
+        "instrument-feedback",
+        "animation-frame-rate",
+        "resource-lifecycle"
+      ]
+    },
+    "budgetDef": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["id", "profileIndependent", "method"],
+      "properties": {
+        "id": { "$ref": "#/$defs/budgetId" },
+        "profileIndependent": { "type": "boolean" },
+        "method": { "type": "string", "minLength": 1 },
+        "limit": { "type": "object" },
+        "owningBead": { "type": "string" }
+      }
+    },
+    "engine": {
+      "type": "string",
+      "enum": ["chromium", "webkit"]
+    },
+    "viewport": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["id", "width", "height", "deviceScaleFactor", "isMobile", "hasTouch"],
+      "properties": {
+        "id": { "type": "string", "minLength": 1 },
+        "width": { "type": "integer", "minimum": 320 },
+        "height": { "type": "integer", "minimum": 1 },
+        "deviceScaleFactor": { "type": "number", "minimum": 1 },
+        "isMobile": { "type": "boolean" },
+        "hasTouch": { "type": "boolean" }
+      }
+    },
+    "network": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["downKbps", "upKbps", "rttMs", "enforcedOn"],
+      "properties": {
+        "downKbps": { "type": "number", "minimum": 1 },
+        "upKbps": { "type": "number", "minimum": 1 },
+        "rttMs": { "type": "number", "minimum": 0 },
+        "enforcedOn": {
+          "type": "array",
+          "items": { "$ref": "#/$defs/engine" }
+        }
+      }
+    },
+    "cpuSlowdown": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "factor",
+        "calibration",
+        "phoneModel",
+        "host",
+        "benchmarkMsHost",
+        "benchmarkMsPhone",
+        "testerId",
+        "date",
+        "chromiumCdpCommand",
+        "webkitCpuThrottling"
+      ],
+      "properties": {
+        "factor": { "type": "number", "minimum": 1 },
+        "calibration": {
+          "type": "string",
+          "enum": ["provisional", "none", "measured"]
+        },
+        "phoneModel": { "type": "string" },
+        "host": { "type": "string" },
+        "benchmarkMsHost": { "type": ["number", "null"] },
+        "benchmarkMsPhone": { "type": ["number", "null"] },
+        "testerId": { "type": "string" },
+        "date": { "type": "string" },
+        "chromiumCdpCommand": { "type": "string" },
+        "webkitCpuThrottling": {
+          "type": "string",
+          "enum": ["unavailable"]
+        }
+      }
+    },
+    "profile": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "id",
+        "description",
+        "engines",
+        "viewports",
+        "cpuSlowdown",
+        "network",
+        "cacheStates",
+        "budgets",
+        "emulated"
+      ],
+      "properties": {
+        "id": {
+          "type": "string",
+          "enum": [
+            "desktop-capable",
+            "mobile-low-cost",
+            "tablet",
+            "real-device-small"
+          ]
+        },
+        "description": { "type": "string", "minLength": 1 },
+        "engines": {
+          "type": "array",
+          "minItems": 1,
+          "items": { "$ref": "#/$defs/engine" }
+        },
+        "viewports": {
+          "type": "array",
+          "items": { "$ref": "#/$defs/viewport" }
+        },
+        "cpuSlowdown": { "$ref": "#/$defs/cpuSlowdown" },
+        "network": { "$ref": "#/$defs/network" },
+        "cacheStates": {
+          "type": "array",
+          "minItems": 1,
+          "items": { "type": "string", "enum": ["cold", "warm"] }
+        },
+        "budgets": {
+          "type": "array",
+          "items": { "$ref": "#/$defs/budgetId" }
+        },
+        "emulated": { "type": "boolean" },
+        "hardwareRecordedLaterBy": {
+          "type": "array",
+          "items": { "type": "string" }
+        }
+      }
+    }
+  }
+}
