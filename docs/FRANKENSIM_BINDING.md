@@ -2660,7 +2660,33 @@ TypeScript mirrors those names. The kernel-id table fenced block (decision (c), 
 
 ---
 
-### Appendix. Evidence for (f) Slim-bundle mechanism: AWAITING USER DECISION
+### Appendix. Decision (f), Slim-bundle mechanism: ANSWERED BY THE USER, 2026-09-15
+
+**Decision (f) is answered, and the answer is neither option this appendix sketched.** Both sketched
+options were workarounds for a build defect. The user is the sole maintainer of `frankensim`,
+`asupersync` and the sibling repositories, and directs that the **full `fs-wasm` artifact be kept as
+originally intended and the upstream build failure be fixed**.
+
+The defect, established by the section 4 probe: `crates/fs-wasm/Cargo.toml:104` correctly requests
+`asupersync` with `default-features = false, features = ["wasm-browser-prod"]`, but 23 sibling crates
+pull `asupersync` with bare default features. Those defaults include `native-runtime`
+(`asupersync/Cargo.toml:137`), which `asupersync` itself forbids on `wasm32` via `compile_error!` at
+`asupersync/src/lib.rs:129`. Cargo unifies features across the dependency graph, so the siblings
+defeat `fs-wasm`'s own correct request and the `wasm32` build dies.
+
+The fix follows a convention already established in this repository: every browser-targeted crate
+(`fs-cmaes-viz-wasm`, `fs-crump-wasm`, `fs-edison-wasm`, `fs-flyer-wasm`, `fs-goddard-wasm`, and
+`fs-wasm` itself) already opts out of asupersync's defaults. The remaining crates reachable from
+`fs-wasm` must do the same.
+
+Making the full build work and choosing what payload reaches a reader are separate questions. This
+decision settles the first. `am-fs-slim-artifact-0yh` retains its own rationale, which is payload
+size rather than feature conflict: the donor's `src/physics/deepWasm.ts` warns against copying the
+4.9 MB kitchen-sink package to browsers.
+
+The evidence below is retained as the record of what was measured before the decision.
+
+#### Evidence as gathered (the two options originally sketched)
 
 **This appendix is not a decision.** Bead `am-fs-capability-audit-byc` requirement 5(f): the user decides; the bead stays open until `br comments add am-fs-capability-audit-byc` quotes the user and the date; no agent records that answer on the user's behalf. No option is marked chosen. No decider is named.
 
