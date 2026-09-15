@@ -481,3 +481,55 @@ The FrankenPatents native iOS application in `classic-patents.com:ios/` establis
 | **Native Math Parser**<br>`ios/Sources/NativeMathView.swift` | **Do not port** | FrankenPatents attempted native regex-based LaTeX parsing in SwiftUI. Annus Mirabilis renders KaTeX HTML + MathML inside WKWebView with full fidelity | None (Excluded) |
 | **Native SceneKit Tab**<br>`ios/Sources/NativePatentSceneView.swift` | **Do not port** | Native SceneKit simulation view. Annus Mirabilis renders WebGL/Three.js/Canvas instruments directly inside WKWebView | None (Excluded) |
 | **Hand-Typed Native Theme**<br>`ios/Sources/Theme.swift` | **Do not port** | Hardcoded Swift color/font constants. Annus Mirabilis exports CSS design tokens to Swift generated structs at build time | None (Excluded) |
+
+---
+
+## 7. Discrepancies
+
+The following discrepancies between master plan prose and the pinned codebase were identified during audit inspection. Each discrepancy has been recorded as an explicit comment on its affected bead in the task tracker.
+
+### Discrepancy 7.1: React Three Fiber vs Direct Three.js
+- **Plan Statement:** Early architectural descriptions mentioned React Three Fiber (`@react-three/fiber`) as a possible visualizer dependency.
+- **Code Fact:** `classic-patents.com:package.json` declares direct `three` (`^0.185.1`) and `@types/three` (`^0.185.4`). Neither `@react-three/fiber` nor `@react-three/drei` is declared or installed.
+- **Evidence:** `src/components/patents/visuals/three/ThreeStudioScene.ts` implements imperative Three.js scene graphs, render loops, and WebGL canvas mounting directly.
+- **Affected Beads:** `am-scaf-extract-ui-components-c31`, `am-gov-decision-stack-versions-6ax`.
+- **Resolution:** Annus Mirabilis locks direct Three.js and Canvas/SVG, avoiding React Three Fiber overhead.
+
+### Discrepancy 7.2: UI Component Directory Paths
+- **Plan Statement:** Plan §2.3 listed `ColorizedEquation.tsx`, `LatexRenderer.tsx`, `colorPalette.ts`, and `equationValueFormatting.ts` without a subfolder, implying `src/components/`.
+- **Code Fact:** These files reside in `src/components/ui/`, not `src/components/`.
+- **Evidence:** Verified by path lookup at `da11ff475902728fd8dd1d9db9f3af37c16ec8a5`:
+  - `src/components/ui/ColorizedEquation.tsx`
+  - `src/components/ui/LatexRenderer.tsx`
+  - `src/components/ui/colorPalette.ts`
+  - `src/components/ui/equationValueFormatting.ts`
+- **Affected Bead:** `am-scaf-extract-ui-components-c31`.
+- **Resolution:** Updated in Section 5 reuse table; extraction bead will extract directly from `src/components/ui/`.
+
+### Discrepancy 7.3: FrankenSim `fs-lattice` Domain Semantics
+- **Plan Statement:** In the context of Brownian motion and atomic modeling, the name `fs-lattice` might suggest crystalline lattice models or solid-state physics.
+- **Code Fact:** In `frankensim:crates/fs-lattice`, the crate implements 3D additive manufacturing infill optimization (TPMS gyroids, strut lattices, porosity gradients for CNC/3D printing). It does not model physics lattices or atomic crystal scattering.
+- **Evidence:** `crates/fs-lattice/Cargo.toml` description: `"Lattice infill optimization and strut topology generation"`.
+- **Affected Bead:** `am-fs-capability-audit-byc`.
+- **Resolution:** Annus Mirabilis must not rely on `fs-lattice` for physical atom/molecular simulations; Brownian motion will use direct stochastic particles (`fs-rand`) and 1D diffusion kernels (`fs-sparse`).
+
+### Discrepancy 7.4: FrankenSim `fs-flux` Domain Semantics
+- **Plan Statement:** In the context of the light-quanta paper, `fs-flux` might suggest radiative energy flux calculations.
+- **Code Fact:** `crates/fs-flux` is a fluid mechanics crate modeling Navier-Stokes flow, boundary-layer flux balance, and finite volume solvers.
+- **Evidence:** `crates/fs-flux/Cargo.toml` description: `"Navier-Stokes and Euler finite-volume fluid dynamics"`.
+- **Affected Bead:** `am-fs-capability-audit-byc`.
+- **Resolution:** Radiation entropy and spectral distributions will be implemented via dedicated reference models or new upstream FrankenSim exports, not `fs-flux`.
+
+### Discrepancy 7.5: Vercel CLI `vercel curl` Subcommand Existence
+- **Plan Statement:** Planning review questioned whether `vercel curl` was a supported command in standard release automation.
+- **Code Fact:** `scripts/verified-production-deploy.ts:294` actively relies on `vercel curl --deployment <d> <path>` to probe protected prebuilt deployments before alias promotion.
+- **Evidence:** `scripts/verified-production-deploy.ts` lines 290–305 implement `assertProtectedPreviewResponse` using `vercel curl`.
+- **Affected Bead:** `am-rel-verified-deploy-qndt`.
+- **Resolution:** Recorded for `am-gov-decision-stack-versions-6ax` to ensure the locked Vercel CLI version includes the `vercel curl` subcommand.
+
+### Discrepancy 7.6: Bun Test Per-File Isolation Mechanism
+- **Plan Statement:** Plan noted the requirement for per-file test isolation, querying whether the donor used an external wrapper script or runner flag.
+- **Code Fact:** The donor uses Bun native `--isolate` flag directly in `package.json:15`: `"test": "bun test --isolate --timeout 60000"`.
+- **Evidence:** `package.json:15` confirmed.
+- **Affected Bead:** `am-gov-decision-stack-versions-6ax`.
+- **Resolution:** Annus Mirabilis adopts `"bun test --isolate"` as standard test command.
