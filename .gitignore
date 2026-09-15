@@ -72,3 +72,6 @@ src/pages/
 
 # Cloudflare Wrangler local state (created by CLI runs; never committed)
 .wrangler/
+
+# Claude Code session runtime lock (not project config; .claude/ itself stays trackable)
+.claude/scheduled_tasks.lock

@@ -158,8 +158,8 @@ A dedicated compatibility probe was constructed in the session scratch directory
 - **Total Test Checks Executed:** 14 (7 per browser)
 - **Overall Verdict:** PASS across all functional, accessibility, and security assertions.
 - **Probe coverage against the locked inventory (read this before trusting the verdict above).** The probe exercised **9 of the 25 locked items**: `next` 15.5.25, `react` 19.0.0, `react-dom` 19.0.0, `typescript` 5.7.3, `katex` 0.18.4, `tailwindcss` 3.4.17, `postcss` 8.5.26, `autoprefixer` 10.4.20 and `playwright` 1.62.1, each matching its locked version. Two locked versions **differ from what was probed, across a major version boundary**, and the PASS verdict above does **not** extend to them:
-  - `pdfjs-dist` is locked at **6.3.289** but the probe ran **4.10.38**. The `lazy_pdfjs_and_streaming_wasm_worker` check therefore validates pdf.js 4.x, not the locked 6.x. pdf.js changed its worker and API surface between those majors, so this check must be re-run under 6.3.289 before the facsimile lane relies on it.
-  - `zod` is locked at **4.4.3** but the probe ran **3.24.2**. Zod 3 to 4 is a breaking-change boundary; no probe evidence covers the locked major.
+  - `pdfjs-dist` is locked at **6.3.289** but the probe ran **4.10.38**. The `lazy_pdfjs_and_streaming_wasm_worker` check therefore validates pdf.js 4.x, not the locked 6.x. pdf.js changed its worker and API surface between those majors, so this check must be re-run under 6.3.289 before the facsimile lane relies on it. **RE-PROBED AND RESOLVED 2026-09-15 — see §3.1 below; it passes, but it is NOT a drop-in upgrade.**
+  - `zod` is locked at **4.4.3** but the probe ran **3.24.2**. Zod 3 to 4 is a breaking-change boundary; no probe evidence covers the locked major. **RE-PROBED AND RESOLVED 2026-09-15 — see §3.1 below.**
   - The remaining items were absent from the probe entirely: `three`, `@types/three`, `lucide-react`, `fflate`, `js-yaml`, `marked`, `minisearch`, `@biomejs/biome`, `@axe-core/playwright`, `ubs`, `fonttools`, `bun`, `node` and `vercel`. The CLI tools are not npm dependencies of the probe app; the runtime libraries simply were not installed in it. Their versions are chosen, not probed.
 - **Runtime the probe actually ran on:** Node **`v25.9.0`** (Homebrew, `/opt/homebrew/Cellar/node/25.9.0_3/bin/node`, arm64 Darwin), **not** the locked `22.13.4`. Node 22 is not installed on this host: `brew info node@22` reports "Not installed", `/opt/homebrew/opt/node@22/bin/node` does not exist, and no `nvm`, `fnm` or `volta` is present to supply it. **A reader must not treat the 14 Chromium and WebKit checks above as validation of locked Node `22.13.4`.** The checks validate the browser, CSP and WASM behaviour of the candidate stack; they say nothing about the Node runtime version. Re-running the probe under `22.13.4` before that version is relied upon is left to the bead that installs it.
 
@@ -174,6 +174,33 @@ A dedicated compatibility probe was constructed in the session scratch directory
 | `csp_inline_scripts_strict_self_only` | Behavior under `script-src 'self'` alone without `'unsafe-inline'` or hashes | FAIL (Expected) | FAIL (Expected) | Next.js inline RSC payload scripts blocked; client hydration does not mount without hashes or `'unsafe-inline'`. |
 | `csp_inline_scripts_hashes` | Inline scripts allowed via build-time SHA-256 hashes | PASS | PASS | Pre-paint and inline payload scripts with matching SHA-256 hashes execute without `'unsafe-inline'`. |
 | `csp_wasm_without_wasm_unsafe_eval` | Dedicated Worker WASM execution without `'wasm-unsafe-eval'` keyword | PASS | PASS | Worker context in modern browsers allows streaming WASM instantiation when served with proper MIME type; `'wasm-unsafe-eval'` is reserved for main thread eval-like compilation. |
+
+---
+
+#### 3.1 Locked-major re-probe (`run-1789508308951`), 2026-09-15
+
+The two major-version gaps above were closed by re-running the probe with the **locked** versions installed. The user directed this re-probe before ratifying the stack.
+
+- **Structured Log Run ID:** `run-1789508308951`
+- **Log location:** `artifacts/test-logs/stack-probe/run-1789508308951.jsonl` (6144 bytes, 18 records, 9 chromium + 9 webkit). `artifacts/` is gitignored, so this file is evidence on disk, not a committed artifact.
+- **Installed and resolved:** `pdfjs-dist@6.3.289` and `zod@4.4.3`, confirmed by `bun pm ls` and by reading each package's `package.json`.
+- **Outcome:** 16 pass, 2 fail. The 2 failures are `csp_inline_scripts_strict_self_only` in both browsers — the **same deliberate failure the original run recorded**, not a regression.
+- **The probe app lives in the session scratch directory and was never created inside this repository.** Verified: no `probe-runner.ts`, `bun.lock`, or `next.config.js` exists in the repository root.
+
+**`pdfjs-dist` 6.3.289 — passes, but is not a drop-in.** `lazy_pdfjs_and_streaming_wasm_worker` passed in chromium and webkit under the recommended CSP, with `PDFWorker.promise` actually resolved (the 4.x probe only set `workerSrc` and never started the worker, which would have rubber-stamped either major). Four real migration requirements were found, and the scaffold must honour them:
+
+1. **The worker bytes must be replaced.** The 4.x `public/pdf.worker.min.mjs` is 1375838 bytes; the 6.3.289 worker is 1265413 bytes (sha256 `8ab0e5e30031b4a06ecfddd5ae9562f0227f830ee7ec9ed1a968b134243d2386`). The URL is unchanged, so leaving the old file in place would silently mix majors.
+2. **The worker is constructed as a module** (`new Worker(workerSrc, { type: "module" })`). Both engines accepted it under the recommended policy; **no new CSP token was required.**
+3. **6.x ships a `wasm/` tree that 4.x did not** (`jbig2.wasm`, `openjpeg.wasm`, `qcms_bg.wasm`, `quickjs-eval.wasm`), and `getDocument` gained `wasmUrl`. JPEG2000/JBIG2 facsimile decoding will need `wasmUrl` pointed at a same-origin directory. **This run did NOT prove those fetches occur** — they are a facsimile-rendering contract, not a worker-boot contract, and remain unproven.
+4. **The default `workerSrc` changed** to `./pdf.worker.mjs`; hosts relying on a bundler-implicit worker in 4.x will break. `@napi-rs/canvas` appears as a new optional dependency, not installed for this browser probe.
+
+**`zod` 4.4.3 — first evidence of any kind.** The original 14-record run never imported zod at all, so its PASS verdict never covered this dependency in either major. A new `zod_schema_validation` check (`z.object({slug, pages})` accepting a valid paper record and rejecting an invalid one) passed in both browsers. This covers the **classic parse path only**; it does not prove that arbitrary v3 call sites will port.
+
+**Recorded as NOT proven, to avoid overclaiming:**
+
+- `next.config.js` gained `transpilePackages: ['pdfjs-dist', 'zod']`, but the first 6.x build was run *with* the flag and succeeded. There was no failing build without it, so this is a precaution, not a measured requirement.
+- The runtime caveat is unchanged: this run also executed on Node **v25.9.0**, not the locked 22.13.4.
+- The remaining locked items listed above are still unprobed. Re-probing the two majors did not widen coverage beyond them.
 
 ---
 
@@ -332,3 +359,214 @@ To prevent dependency drift, security regressions, and framework churn from dist
    - Employs `vercel curl` where supported, with automatic fallback to `curl -H "x-vercel-protection-bypass: ..."` when required.
 4. **`am-plat-security-f644` (Production CSP and Security Hardening):**
    - Adopts the CSP findings in Section 4 as the empirical baseline for production header deployment.
+
+---
+
+## D-2026-09-15-device-profiles
+
+- **Question:** Which device, browser, viewport, network, and cache profiles define "the agreed profile" for each performance budget, and how is each metric measured?
+- **Options:**
+  - **A. Developer laptop only:** Measure every budget on an unthrottled workstation at a single large viewport. *Refused.* The product promises readers on modest devices (§17.5, §17.4). A 4x slowdown on a fast host is not a phone.
+  - **B. Named lab profiles with a provisional constrained mobile profile, calibrated later against a real low-cost phone (recommended):** Four profiles (`desktop-capable`, `mobile-low-cost`, `tablet`, `real-device-small`). Until a phone measurement exists, `mobile-low-cost` uses a 4x Chromium CPU slowdown and a slow network, labeled `calibration: "provisional"`. Real hardware is owned by other beads.
+  - **C. Field RUM / Core Web Vitals from visitors:** *Refused.* The site collects no field performance data (§16.6). Lab numbers may echo CWV thresholds; they are never reported as field measurements.
+- **Choice:** **Option B.**
+- **Reason:** Master Plan §16.4 says provisional budgets may change only with recorded measurements that name hardware, browser, viewport, network, and cache state. Several budgets are meaningless without that agreement (200 ms p75 interaction latency; 60 Hz desktop / 30 Hz mobile). The acceptance criteria allow closure without a phone: "calibrated or provisionally 4x CPU slowdown and a slow network." This entry takes the provisional form and leaves tester id and date empty. WebKit cannot apply Chromium CDP CPU throttling; that is documented below rather than papered over.
+- **Prepared by:** Grok 4.6 (grok-cli) for coordinator SandyCedar, bead `am-gov-decision-device-profiles-1zm`.
+- **Decider:** not yet assigned. Same human-gate pattern as `D-2026-09-15-stack-versions`: the project owner or the editorial owner named in `am-gov-owners-and-reviewers-hte`. `docs/OWNERS.md` does not exist yet (`ls` on that path failed).
+- **Status:** AWAITING RATIFICATION. Machine-readable `perf/profiles.json` is the file budget checks will read. Budgets stay provisional until the reference slice produces measurements. This entry does not loosen any number.
+- **Date:** 2026-09-15.
+
+### Profiles
+
+Machine-readable source: `perf/profiles.json` (`schemaVersion` 1). Schema: `perf/profiles.schema.json`. Playwright version named in the file is the locked `1.62.1` from `docs/DECISIONS.md` line 127, not the `1.63.0` that `npx playwright --version` printed on this host.
+
+Engines named here are the two the compatibility probe actually ran. Command run this session:
+
+```
+python3 -c '...count browsers in artifacts/test-logs/stack-probe/run-1789500358874.jsonl...'
+```
+
+Result actually printed: `n 14`, `Counter({'chromium': 7, 'webkit': 7})`, `Counter({'pass': 12, 'fail': 2})`. File `stat`: 4772 bytes, mtime epoch 1789500369. The JSONL records do not contain browser version strings. Version strings come from `docs/DECISIONS.md` line 154, which records the same log run id `run-1789500358874` against headless Chromium (153.0.8010.12) and WebKit (26.6). The probe ran on Node v25.9.0 (`node --version` this session printed `v25.9.0`). That is not the locked Node 22.13.4; do not treat the 14 checks as a Node 22 result.
+
+| Profile id | Represents | Emulation |
+|---|---|---|
+| `desktop-capable` | Mid-range laptop lab stand-in | Chromium and WebKit, 1440x900, CPU factor 1, network 10000/10000 kbps, 40 ms RTT, cold and warm cache |
+| `mobile-low-cost` | Constrained mobile lab stand-in | Chromium 4x CPU (provisional) and WebKit unthrottled, 360x800 and 320x800, DSF 2, `isMobile` and `hasTouch` true, 1600 down / 750 up kbps, 150 ms RTT, cold cache |
+| `tablet` | Portrait tablet acceptance viewport | WebKit only, 768x1024, DSF 2, touch, CPU factor 1, same network numbers as desktop, cold cache, not a budget host except the two byte budgets |
+| `real-device-small` | Physical devices | Not emulated. Model, OS, and browser fields empty. Owned by `am-test-real-device-slice-check-bize` and `am-test-real-device-check-iju4`. |
+
+No commercial device name is recorded. None was measured.
+
+Viewport numbers that were derived from a command this session, not from memory:
+
+```
+sed -n '14,18p' classic-patents.com/scripts/patent-e2e-contract.ts
+```
+
+printed
+
+```
+export const PATENT_E2E_VIEWPORTS = {
+  desktop: { width: 1440, height: 900 },
+  tablet: { width: 768, height: 1024 },
+  phone: { width: 320, height: 800 },
+} as const;
+```
+
+`rg -n "phone: \{ width: 320"` on that file printed line 17. The 360x800 mobile viewport is the bead's proposed companion to that 320-pixel lane, not a measured phone CSS size.
+
+### WebKit has no CPU throttling
+
+Playwright 1.62.1, donor install, `playwright-core/types/types.d.ts` line 10160 (grep this session):
+
+```
+* **NOTE** CDP sessions are only supported on Chromium-based browsers.
+```
+
+CPU slowdown is Chrome DevTools Protocol `Emulation.setCPUThrottlingRate`. Same package `protocol.d.ts` line 7104: "Enables CPU throttling to emulate slow CPUs." Parameter `rate` is a slowdown factor (1 is no throttle, 2 is 2x).
+
+WebKit in Playwright 1.62.1 has no CDP session and therefore no `setCPUThrottlingRate`. Every profile records `webkitCpuThrottling: "unavailable"`. Network CDP (`Network.emulateNetworkConditions`) is the same Chromium-only channel; `perf/profiles.json` lists `network.enforcedOn: ["chromium"]` on the emulated desktop and mobile profiles, and `[]` on tablet and real-device-small.
+
+**What that means for comparing the two lanes.** A Chromium `mobile-low-cost` run is CPU-throttled (provisionally 4x) and bandwidth-throttled. A WebKit run on the same viewport is neither. The numbers are not interchangeable. A WebKit pass does not imply a throttled-Chromium pass. A throttled-Chromium fail does not imply a WebKit fail. Every measurement record must name `profileId`, `engine`, `cpuSlowdown.factor`, `cpuSlowdown.calibration`, and whether network CDP was applied. Do not average Chromium and WebKit into one p75.
+
+`slowMo` in Playwright is a debugging pause between operations. It is not CPU throttling and is not used for these budgets.
+
+### CPU calibration procedure
+
+Committed script: `perf/benchmark/cpu-calibration.mjs` (benchmark id `am-cpu-calibration-v1`, 8_000_000 LCG/xorshift iterations, no `Math.random`).
+
+Procedure, when hardware exists:
+
+1. Run the script on the reference low-cost Android phone from `real-device-small`.
+2. Run the same script on the measurement host, unthrottled.
+3. Choose Chromium `Emulation.setCPUThrottlingRate` so throttled-host `elapsedMs` is within 10 percent of the phone `elapsedMs`.
+4. Record phone model, host (CPU model, OS, runner type), both times, tester id from `docs/OWNERS.md` role `real-device-tester` (that file does not exist yet; the role is owned by `am-gov-owners-and-reviewers-hte`), date, and the resulting factor.
+5. Copy raw stdout from both machines to `artifacts/test-logs/perf-profiles/<log-run-id>/evidence/calibration/` and never delete it.
+6. Set `cpuSlowdown.calibration` to `"measured"` only after those fields are filled. Until then it stays the literal string `"provisional"`, and `testerId` and `date` stay empty strings.
+
+CI runners with different CPUs record their own host benchmark and scale the factor. Reusing a laptop factor on a different host is the quiet failure this procedure exists to prevent.
+
+**Calibration state today:** `"provisional"`. Factor 4. `testerId` `""`. `date` `""`. `phoneModel` `""`. `host` `""`. `benchmarkMsHost` `null`. `benchmarkMsPhone` `null`.
+
+The script was executed twice on this host as a smoke test that it prints JSON. Those elapsed times are **not** a calibration and were **not** written into `perf/profiles.json`:
+
+```
+bun perf/benchmark/cpu-calibration.mjs
+```
+
+printed `elapsedMs` 30.10575, `nodeVersion` "v26.3.0" (Bun 1.4.0's reported Node), `cpuModel` "Apple M4", `cpuCount` 10, `calibration` "provisional", empty testerId and date.
+
+```
+node perf/benchmark/cpu-calibration.mjs
+```
+
+printed `elapsedMs` 29.218541, `nodeVersion` "v25.9.0", `bunVersion` null, same CPU fields, same empty testerId and date. Digest 1393473504 on both.
+
+`sysctl -n machdep.cpu.brand_string` printed `Apple M4`. `sysctl -n hw.ncpu` printed `10`. `sw_vers` printed macOS 26.5 (25F71). None of that is a phone.
+
+What would turn provisional into measured: `am-test-real-device-slice-check-bize` runs this script on a real low-cost Android phone, fills the empty fields, and records the factor. `am-test-real-device-check-iju4` is the later launch check. This bead does not run those.
+
+### Budget mapping
+
+Byte limits were computed this session with `python3 -c "print(200*1024); print(250*1000)"` which printed `204800` and `250000`. The plan writes 200 **KiB** for first-route JS and 250 **kB** for gzipped reading-face HTML (`COMPREHENSIVE_PLAN_FOR_ANNUS_MIRABILIS_SITE_MERGED.md` lines 3851–3852, confirmed with `sed -n '3848,3860p'`). Those two units are not the same; the JSON stores both the plan unit and the byte interpretation rather than collapsing them.
+
+| Budget id | Limit | Profile | Method |
+|---|---|---|---|
+| `initial-route-js` | 200 KiB = 204800 bytes compressed | Profile-independent (listed on desktop, mobile, tablet) | Production-build transferred first-route JS. No Three.js, pdf.js, or WASM in the initial graph. |
+| `reading-face-html` | 250 kB = 250000 bytes gzipped | Profile-independent | Production-build gzipped HTML of the largest paper's reading face. |
+| `visible-text-math` | Main content in initial HTML | `mobile-low-cost` | JavaScript disabled, cold font cache. |
+| `layout-shift` | 0.1 | `desktop-capable` and `mobile-low-cost` | `layout-shift` entries excluding `hadRecentInput`; session windows (gaps under 1 s, cap 5 s); largest window across load, font swap, deferred math activation. Cold cache on mobile; cold and warm on desktop. |
+| `interaction-latency-p75` | 200 ms at p75 | `mobile-low-cost` (stricter) | `PerformanceObserver` `event` entries, `durationThreshold: 16`, group by `interactionId`, longest duration per interaction. At least 20 repetitions. Nearest rank: `python3` printed `ceil(0.75*20) = 15`, so the 15th of 20 sorted samples. Event Timing is rounded to 8 ms; do not set a finer threshold. Includes opening a detail drawer. |
+| `instrument-feedback` | 100 ms | `desktop-capable` and `mobile-low-cost` | Input event timestamp to the mark emitted when the accepted snapshot for that `inputRevision` is painted, after the laboratory has loaded. Not the pending-state paint. |
+| `animation-frame-rate` | 60 Hz desktop / 30 Hz mobile | `desktop-capable` / `mobile-low-cost` | `requestAnimationFrame` intervals over 10 s after warm-up. `python3` printed `1000/60 = 16.666...` and `1000/30 = 33.333...`. Recorded thresholds: desktop median interval ≤ 16.7 ms with at most 5% of intervals above 33.4 ms; mobile median ≤ 33.4 ms with at most 5% above 50 ms. Physics accuracy is a separate measurement and is never traded for frame rate. |
+| `resource-lifecycle` | No growing workers, GPU contexts, listeners, or particle buffers | `desktop-capable` and `mobile-low-cost` | **Not executed here.** Owned by `am-plat-resource-stress-9zgu`. |
+
+`tablet` carries only the two profile-independent byte budgets. `real-device-small` carries none until the hardware beads record a run.
+
+Budgets change only through a recorded measurement and a new decision entry. Never loosen a number silently to make CI pass. Under a depleted budget the product reduces visual detail, never the physics (no larger integration step, no smaller statistical sample).
+
+Enforcement in CI is `am-plat-perf-budgets-s3ww`, which this entry unblocks.
+
+### Measurement method (lab)
+
+- **Tool:** Playwright `1.62.1` (locked). Chromium throttling via CDP. WebKit unthrottled and labeled.
+- **Cache:** `cold` means a new browser context with empty cache and storage. `warm` means a second load in the same context after the first load completed.
+- **Network bytes/sec for CDP:** `floor(downKbps * 1000 / 8)`. Command `python3` printed 1250000 for 10000 kbps, 200000 for 1600 kbps, 93750 for 750 kbps. Helper `cdpDownloadBytesPerSecond` in `src/testing/perfProfiles.ts` matches those integers (bun test asserted them).
+- **Every measurement record names:** `profileId`, `calibration`, `cpuSlowdown`, `host`, `browser` (engine and version), `build` revision, `cacheState`, `repetitions`, `percentile` where applicable, date, and `logRunId`.
+
+### Out of scope (named owners, not done here)
+
+- `am-plat-resource-stress-9zgu` — resource-lifecycle stress run.
+- `am-test-real-device-slice-check-bize` — slice check on a low-cost Android phone and an iPhone; supplies the phone benchmark this calibration needs.
+- `am-test-real-device-check-iju4` — later launch real-device check.
+- `am-gov-owners-and-reviewers-hte` — names the `real-device-tester` person.
+- `am-plat-perf-budgets-s3ww` — enforces these budgets in CI.
+
+### Validation actually run
+
+Command:
+
+```
+bun src/testing/perfProfiles.ts
+```
+
+Exit code 0. stdout:
+
+```
+{
+  "outcome": "pass",
+  "path": "/Users/jemanuel/projects/annus-mirabilis.com/perf/profiles.json",
+  "schema": "/Users/jemanuel/projects/annus-mirabilis.com/perf/profiles.schema.json",
+  "profileIds": [
+    "desktop-capable",
+    "mobile-low-cost",
+    "tablet",
+    "real-device-small"
+  ],
+  "mobileCalibration": "provisional",
+  "mobileFactor": 4,
+  "mobileTesterIdEmpty": true,
+  "mobileDateEmpty": true,
+  "webkitCpuThrottling": "unavailable",
+  "playwrightVersion": "1.62.1"
+}
+```
+
+Command:
+
+```
+bun test src/testing/perfProfiles.test.ts
+```
+
+`bun test v1.4.0 (34cbb9a40)`. 14 pass, 0 fail, 41 expect() calls, 1034.00 ms. Negative fixtures covered: missing network; unknown budget id; CPU factor below 1; viewport narrower than 320; `mobile-low-cost` without a 320-pixel viewport; measured calibration missing host, phone model, or tester id; p75 of 20 samples is the 15th value and n<20 is rejected; desktop frame-rate median 16.7 ms passes and 20.0 ms fails; testerId filled while `calibration` is `"provisional"` fails.
+
+Schema-test JSONL (gitignored artifacts): `artifacts/test-logs/perf-profiles/20260915T213441Z-6a14d561.jsonl`, one pass line, `suite: "perf-profiles"`.
+
+### Evidence
+
+- `perf/profiles.json`, `perf/profiles.schema.json`, `perf/benchmark/cpu-calibration.mjs`, `src/testing/perfProfiles.ts`, `src/testing/perfProfiles.test.ts`.
+- Compatibility probe JSONL `artifacts/test-logs/stack-probe/run-1789500358874.jsonl` (14 records, 7 Chromium, 7 WebKit).
+- Donor viewports `classic-patents.com/scripts/patent-e2e-contract.ts` lines 14–18.
+- Playwright 1.62.1 types: `newCDPSession` Chromium-only at `types.d.ts:10160`; `Emulation.setCPUThrottlingRate` at `protocol.d.ts:7104–7110`.
+- Master Plan §16.4, §16.6, §17.4, §17.5, §20; table at lines 3851–3858.
+- Locked Playwright `1.62.1` at `docs/DECISIONS.md` line 127.
+
+### Beads unblocked
+
+- `am-plat-perf-budgets-s3ww` (measure against these profiles).
+- `am-test-real-device-slice-check-bize` (run the calibration benchmark on the reference phone).
+- `am-app-perf-budgets-q2ku` starts from these profiles; app work never delays a website batch.
+
+### Revisit trigger
+
+- First phone run of `perf/benchmark/cpu-calibration.mjs` recorded by `am-test-real-device-slice-check-bize`, which replaces `"provisional"` with `"measured"` and fills tester id and date.
+- Any budget change after the reference slice, which requires a new decision entry and must not be a silent CI edit.
+- Playwright gaining WebKit CPU or network throttling, which would require a new decision about whether the two engines can share a throttled comparison.
+
+### Consequences for dependent beads
+
+1. **`am-plat-perf-budgets-s3ww`:** Read `perf/profiles.json`. Apply CDP CPU and network emulation only on Chromium. Label WebKit runs `webkitCpuThrottling: unavailable`. Do not compare the two engines as one distribution.
+2. **`am-test-real-device-slice-check-bize`:** Run `perf/benchmark/cpu-calibration.mjs` on the phone and the host. Keep raw output. Fill the empty calibration fields. Do not invent a phone model in the meantime.
+3. **`am-test-real-device-check-iju4`:** Launch hardware check; not a lab-emulation substitute.
+4. **`am-plat-resource-stress-9zgu`:** Owns `resource-lifecycle`. Profiles only name which lab profiles that bead measures on.
+5. **`am-app-perf-budgets-q2ku`:** May copy profile ids; iPhone numbers are that bead's, not this file's.
