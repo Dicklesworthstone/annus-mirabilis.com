@@ -469,7 +469,8 @@ Einstein reader works.
 | `scripts/verified-production-deploy.ts`, `deployment-*`, `smoke-test-deployment.ts`, `app-router-architecture.ts` | Reuse | Candidate-then-promote release with a release manifest (§18.3) |
 | `scripts/verify-data.ts` (pattern), the E2E harness | Adapt | Content compiler and paper vertical slices (§17) |
 | `AGENTS.md` | Copy and edit | Rules 0–2, git safety, cloud-OCR-only, FrankenSim honesty, Three.js craft, release, Beads, Agent Mail, landing the plane; new chapters per §17.6 |
-| Patent claims, disputes, categories, lineages, era filters, broadside printing, audio narration player, iOS app, wizard reports | Do not port | Replaced by argument steps, historical alternatives, evidence, connections; narration returns later as reviewed audio (§16.4) |
+| `ios/` (the FrankenPatents app): XcodeGen project with a stale-project check, build-time export of web records, the pinned-digest PDF downloader, the zero-collection privacy manifest, DEBUG launch arguments, UI tests that produce store screenshots, the local Apple gate | Adapt the patterns, not the code | The iPhone app of §18.6: a native shell around the bundled edition in WKWebView. Its native TeX parser, SceneKit simulation tab, hand-typed theme, and source-substring parity checks are not ported |
+| Patent claims, disputes, categories, lineages, era filters, broadside printing, audio narration player, wizard reports | Do not port | Replaced by argument steps, historical alternatives, evidence, connections; narration returns later as reviewed audio (§16.4) |
 | Generic or Wright-default visual dispatch | Do not port | Exhaustive experiment registry; unknown ids fail explicitly rather than showing a plausible wrong model |
 
 ### 2.4 Stack
@@ -3645,6 +3646,8 @@ scripts/
   build-content.ts  verify-content.ts  verify-wasm-artifacts.ts
   extract-kernel-source.ts  build-search-index.ts  digitize-datasets/
   e2e-paper-vertical-slices.ts  verified-production-deploy.ts
+  app/                     # app edition export, native payloads, Apple gate, app release
+ios/                       # the iPhone app (§18.6)
 ```
 
 A proposed structure, not a claim that these files exist. Keep independent
@@ -4179,6 +4182,24 @@ instrument work never blocks on a hosting comparison.
 chosen license with rider and per-asset exceptions, README modeled on the
 donor's (TL;DR, the four papers table, architecture box, getting started,
 verification, license), and this plan committed as the master document.
+
+### 18.6 The iPhone app
+
+An iPhone and iPad app ships from this repository under `ios/`, specified by
+`COMPREHENSIVE_PLAN_FOR_ANNUS_MIRABILIS_IPHONE_APP.md` and built by the
+`am-ep-app-m247` epic. It is a native SwiftUI shell around the same static
+edition, bundled in the app and rendered by WKWebView from a local
+first-party origin, so a reader reads offline while every displayed number
+still comes from the edition's own runtime and its registered owners. The
+app never reimplements the reader, the equations, the instruments, or the
+physics, and the reading path never loads remote content.
+
+The app follows the website and never leads it: its edition is built from
+the same commit and release profile, each build is bound to the website's
+`releaseId` and determinism digest, TestFlight carries the preview edition,
+and the App Store release follows the website's launch with the same
+release id. No web bead depends on an app bead, and app work never delays a
+website batch.
 
 ---
 

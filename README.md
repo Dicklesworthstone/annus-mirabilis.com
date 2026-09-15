@@ -109,6 +109,14 @@ The reading experience must be excellent without a GPU, without running a simula
 
 ---
 
+## The iPhone App (Planned)
+
+An iPhone and iPad app lives in the same repository under `ios/`, specified by [the app plan](./COMPREHENSIVE_PLAN_FOR_ANNUS_MIRABILIS_IPHONE_APP.md). It is a native SwiftUI shell around the **same edition**: the compiled papers, bundled in the app and rendered by WebKit from a local origin, so the whole edition reads offline. The shell adds what a phone does well, including a library, native search, Spotlight, Handoff to and from Safari, universal links, the share sheet, find in page, printing a chapter, Dynamic Type, and VoiceOver across native and edition surfaces.
+
+Nothing is recomputed natively, nothing is downloaded at runtime except facsimile PDFs a reader asks for, and no data is collected. Each app build carries the same release id as the website edition it ships.
+
+---
+
 ## The Instrument Catalogue (33 Core Instruments)
 
 | Paper | Instruments |

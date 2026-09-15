@@ -56,6 +56,8 @@ This explicitly includes pinned facsimile PDFs, reviewed ledgers, content record
 This repository is at the planning stage. It contains:
 
 - the master plan, [`COMPREHENSIVE_PLAN_FOR_ANNUS_MIRABILIS_SITE_MERGED.md`](./COMPREHENSIVE_PLAN_FOR_ANNUS_MIRABILIS_SITE_MERGED.md) (version 2.0);
+- the iPhone app plan, [`COMPREHENSIVE_PLAN_FOR_ANNUS_MIRABILIS_IPHONE_APP.md`](./COMPREHENSIVE_PLAN_FOR_ANNUS_MIRABILIS_IPHONE_APP.md) (version 1.0), whose work is the `am-ep-app-m247` epic;
+- the earlier plan drafts (ASTRA, ASTRA_V2, FABLE), committed as a public record of how the master plan developed;
 - the task graph in `.beads/`, managed with `br` and analyzed with `bv`;
 - this file, the README, the license, and repository configuration.
 
@@ -126,6 +128,7 @@ Anyone who wants to understand: readers with no algebra, rusty or strong mathema
 7. **Tooling.** Bun for tests and scripts, Biome for lint and format, `tsc --noEmit` for types, `ubs` for bug scanning.
 8. **Hosting.** Vercel through the verified prebuilt candidate-then-promote release script; Cloudflare as registrar and authoritative DNS with DNS-only records at launch. `vercel.json` keeps `{"git": {"deploymentEnabled": false}}`.
 9. **Privacy.** No accounts, no third-party scripts, no fingerprinting, no advertising, no hosted model. Reading progress, notes, tours, and predictions stay in local storage. The single analytic is the cookieless clarity signal.
+10. **iPhone app.** A native SwiftUI shell in `ios/` hosting the same static edition, bundled and rendered by WKWebView from a local first-party origin, offline, built from the same commit and release as the website. See the iPhone app chapter below and the app plan.
 
 ---
 
@@ -154,7 +157,8 @@ The planning audit inspected classic-patents.com at `da11ff475902728fd8dd1d9db9f
 | Layout chrome, theme toggle, search palette, Open Graph image routes, error boundaries, `robots`, `sitemap` | Reuse | New themes; build-time search index |
 | `scripts/verified-production-deploy.ts`, `deployment-target.ts`, `deployment-verification.ts`, `smoke-test-deployment.ts`, `app-router-architecture.ts` | Reuse | Candidate-then-promote release with a release manifest |
 | `scripts/verify-data.ts` (pattern), `scripts/e2e-patent-vertical-slices.ts`, `patent-e2e-contract.ts`, `docs/PATENT_E2E_HARNESS.md` | Adapt | The content compiler and paper vertical-slice browser acceptance |
-| Patent claims, disputes, categories, lineages, era filters, broadside printing, the audio narration player, the iOS app, wizard reports, generic or Wright-default visual dispatch | **Do not port** | Replaced by argument steps, historical alternatives, evidence, and connections. Unknown experiment ids fail explicitly instead of showing a plausible wrong model |
+| `ios/` (the FrankenPatents app): `project.yml` with its regenerate-and-diff check, the build-time export of web records, `PatentPDFReader.swift`, `PrivacyInfo.xcprivacy`, DEBUG launch arguments, UI tests that produce store screenshots, `scripts/dsr-apple-quality.sh` | Adapt the patterns, not the code | The iPhone app of `am-ep-app-m247`: a native shell around the bundled edition rendered by WKWebView. Its native TeX parser, SceneKit simulation tab, hand-typed theme, and source-substring parity checks are not ported |
+| Patent claims, disputes, categories, lineages, era filters, broadside printing, the audio narration player, wizard reports, generic or Wright-default visual dispatch | **Do not port** | Replaced by argument steps, historical alternatives, evidence, and connections. Unknown experiment ids fail explicitly instead of showing a plausible wrong model |
 
 ---
 
@@ -334,6 +338,8 @@ scripts/
   build-content.ts  verify-content.ts  verify-wasm-artifacts.ts
   extract-kernel-source.ts  build-search-index.ts  digitize-datasets/
   e2e-paper-vertical-slices.ts  verified-production-deploy.ts
+  app/                     # app edition export, native payloads, Apple gate, app release
+ios/                       # the iPhone app (see the iPhone app plan)
 ```
 
 This is a proposed structure. Confirm with the relevant bead before creating a new top-level directory.
@@ -809,6 +815,23 @@ Until a command exists, do not report it as passing.
 - **Changing DNS, connecting a domain, or deploying requires explicit written authorization from the user in the current conversation.** Planning documents do not authorize it. Classic Patents is never changed as part of this site's release; the two sites fail and recover independently.
 
 ---
+
+## iPhone App (Planned)
+
+The app lives in `ios/` with its scripts in `scripts/app/`. It is specified by [`COMPREHENSIVE_PLAN_FOR_ANNUS_MIRABILIS_IPHONE_APP.md`](./COMPREHENSIVE_PLAN_FOR_ANNUS_MIRABILIS_IPHONE_APP.md) and built by the `am-ep-app-m247` epic. Nothing under `ios/` exists yet; `am-app-agents-chapter-egpg` replaces this section with verified commands once the Apple gate and release script land.
+
+The shape: a native SwiftUI shell (library, outlines, Discover and Lab catalogues, native search, Spotlight, Handoff, universal links, share, print, settings, facsimile downloads) around the **same static edition**, bundled in the app and rendered by WKWebView from a local first-party origin, with a narrow versioned bridge for storage, settings, sharing, and lifecycle events.
+
+Rules that bind every change under `ios/` and `scripts/app/`:
+
+- Swift never computes, caches, or formats a displayed physical quantity, and never authors reader-facing scientific text. Numbers come from the edition's runtime; words come from compiled records.
+- The reader never loads remote web content. The edition is bundled, built from the same commit and release profile as the website, and bound to a web `releaseId`.
+- Never reimplement the reader faces, readings, equations, instruments, or physics natively. The donor's native TeX parser and its animation-only simulation tab are the mistakes this app exists to avoid.
+- Generated Swift models, design tokens, route tables, and editions are build products; never hand-edit them, and never commit a generated edition.
+- No web bead depends on an app bead, and app work never delays a website batch.
+- No third-party Swift packages without a recorded reason, a license inventory entry, and a privacy-manifest review.
+- Apple account work, external TestFlight distribution, uploads, and App Store submission are human gates that need the user's explicit written authorization in the current conversation. Uploads go only through `scripts/app/verified-app-release.ts`.
+- Apple validation runs locally as the `apple` gate family, not in the website's CI. Never delete or erase a simulator, and never delete reader data on a device.
 
 ## Beads Issue Tracking
 
