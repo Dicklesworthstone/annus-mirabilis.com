@@ -65,7 +65,7 @@ No application code, content record, facsimile, or WASM artifact exists yet, and
 
 The earlier plan drafts (`COMPREHENSIVE_PLAN_FOR_ANNUS_MIRABILIS_SITE_ASTRA.md`, `COMPREHENSIVE_PLAN_FOR_ANNUS_MIRABILIS_SITE_ASTRA_V2.md`, `COMPREHENSIVE_PLAN_FOR_ANNUS_MIRABILIS_SITE_FABLE.md`) are committed beside the master plan as a public record of how it was developed. They are superseded and are never a source of requirements.
 
-**Sources of truth.** The master plan records intent and reasoning. The beads are the executable work queue, and each is written to stand on its own. Several beads record corrections to the plan found while converting it (numerical claims that failed a check, fixtures that would not expose the bug they were meant to catch). If a bead and the plan disagree, do not silently pick one: record the evidence with `br comments add <id> "..."` and raise it with the user.
+**Sources of truth.** The master plan records intent and reasoning. The beads are the executable work queue, and each is written to stand on its own. Several beads record corrections to the plan found while converting it (numerical claims that failed a check, fixtures that would not expose the bug they were meant to catch). If a bead and the plan disagree, do not silently pick one: record the evidence with `br comments add <id> "..."` and raise it with the user. Decisions taken while converting the plan, including proposals that were considered and declined, are recorded in [`docs/PLAN_MINING_DECISIONS.md`](./docs/PLAN_MINING_DECISIONS.md); a declined proposal leaves no trace in the beads, so check there before re-opening one.
 
 ---
 
