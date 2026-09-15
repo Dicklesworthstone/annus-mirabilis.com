@@ -38,6 +38,26 @@
   - `git -C ~/projects/frankensim merge-base --is-ancestor 5bbbfae6f7de614422f6f97f5798a3e00f8ad813 88a4819abe7a361d278759aabec962604f87a00c` exited `0` (TRUE).
   - `git -C ~/projects/frankensim merge-base --is-ancestor 88a4819abe7a361d278759aabec962604f87a00c 5bbbfae6f7de614422f6f97f5798a3e00f8ad813` exited `1` (FALSE).
   - **Verdict:** `5bbbfae6f7de614422f6f97f5798a3e00f8ad813` IS an ancestor of `88a4819abe7a361d278759aabec962604f87a00c`, proving that `88a4819abe7a361d278759aabec962604f87a00c` is the later revision.
+- **Inspected Revisions.** Each inspection is attributed to the document that performed it, with the
+files that inspection actually opened, so a later reader can tell an inspected revision from the
+pinned one and can see what each inspection did and did not look at:
+
+| Revision | Commit date | Pinned | Inspecting document | Files that inspection opened |
+|---|---|---|---|---|
+| `5bbbfae6f7de614422f6f97f5798a3e00f8ad813` | `2026-09-13T22:22:09-04:00` | **Yes, the kickoff pin** | This audit, during the `am-gov-donor-audit-0wa` implementation session | `crates/fs-wasm/Cargo.toml`; `crates/fs-wasm/src/lib.rs`; `crates/fs-rand/src/philox.rs`; the workspace crate listing |
+| `88a4819abe7a361d278759aabec962604f87a00c` | `2026-09-14T09:07:46-04:00` | No | `COMPREHENSIVE_PLAN_FOR_ANNUS_MIRABILIS_SITE_ASTRA.md` and `COMPREHENSIVE_PLAN_FOR_ANNUS_MIRABILIS_SITE_ASTRA_V2.md` (7 and 8 citations of the hash respectively) | `README` capability boundaries; root `Cargo.toml` workspace layout and nightly policy; `crates/fs-rand/src/lib.rs`; `crates/fs-qty/src/lib.rs`; `crates/fs-wasm/Cargo.toml`; `crates/fs-demo-physics-wasm/src/lib.rs`; the opening declarations and heat-update portion of `crates/fs-wasm/src/lib.rs` |
+
+  The pinned revision is the **older** of the two. That is deliberate, and it is stated here so that
+no reader infers that the pin is simply the newest revision available.
+- **Ancestry Evidence On Disk.** The ancestry result, the commit list, and the per-crate diff stat
+are saved under `artifacts/donor-audit/20260915T182531Z-sandycedar/`:
+  - `ancestry.txt`: both `merge-base --is-ancestor` runs with their exit codes and the verdict.
+  - `log-older-to-newer.txt`: the 3 commits between the revisions (`88a4819a`, `f12c84cd`, `268f2399`).
+  - `diff-stat-five-crates.txt`: the empty diff stat over `crates/fs-wasm`, `crates/fs-rand`, `crates/fs-qty`, `crates/fs-sparse`, and `crates/fs-demo-physics-wasm`.
+
+  `artifacts/` is never committed: `.gitignore` keeps test, audit, and retained-failure evidence
+local or attached to CI runs. The commands that produced these files are recorded verbatim in
+section 2, so any reader can regenerate the evidence from the two hashes without this directory.
 
 ---
 
