@@ -403,3 +403,81 @@ Status values follow the strict closed vocabulary: `confirmed`, `changed`, `not-
   - **Analytics / Tracking Scripts:** Search for `next/script`, `gtag`, `google-analytics`, `plausible`, and `segment` in `src/app/` and `src/components/layout/` returned 0 matches. No runtime analytics scripts are present.
   - **Open Graph Image Routes:** `classic-patents.com:src/app/opengraph-image.tsx` and `classic-patents.com:src/app/patents/[id]/opengraph-image.tsx` declare `export const dynamic = "force-static"` and render pure inline JSX with CSS shapes and unicode glyphs. No external runtime images or fetches are invoked.
   - **External Links:** Informational links to `https://github.com/Dicklesworthstone/classic-patents.com` appear in `src/components/layout/Footer.tsx:102` and `src/components/layout/Header.tsx:169`. These must be updated to the Annus Mirabilis repository during extraction.
+
+---
+
+## 5. Reuse Table
+
+The reuse table adapts Plan §2.3. Every path listed has been verified against the pinned donor tree at commit `da11ff475902728fd8dd1d9db9f3af37c16ec8a5`. All 48 component and script paths were confirmed present in the donor checkout.
+
+| Donor Seam / Verified Path | Decision | Adaptation in Annus Mirabilis | License Notice Requirement | Extracting Bead |
+|---|---|---|---|---|
+| **Facsimile & Source Architecture**<br>`public/patents/facsimiles/`<br>`public/patents/transcripts/`<br>`src/data/editions/`<br>`src/data/patents/sourceTextValidation.ts` | **Reuse architecture** | Bilingual critical edition (German source face + English translation), sentence-level many-to-many alignment, section-scoped notation concordance, separately attributed notes | MIT + Rider | `am-bm-slice-e2e-sbqu`<br>`am-read-facsimile-face-er0` |
+| **KaTeX Math Rendering**<br>`src/components/ui/LatexRenderer.tsx`<br>(includes `TextWithLatex`, `HudText`) | **Adapt** | Build-time static KaTeX (HTML + MathML); client hydrates term and operation interaction only; malformed math fails build closed | MIT + Rider | `am-scaf-extract-ui-components-c31` |
+| **Colorized Equations & Interaction**<br>`src/components/ui/ColorizedEquation.tsx`<br>`src/components/ui/colorPalette.ts`<br>`src/components/ui/equationValueFormatting.ts`<br>`src/types/equation.ts` | **Refactor** | Exact canonical quantity IDs (eliminate `variableId.startsWith("var_" + id)` token matching and human-label lookups), operation-level derivations, expression trees | MIT + Rider | `am-scaf-extract-ui-components-c31`<br>`am-eq-expression-tree-8kl` |
+| **Dual Projection Viewer / Shell**<br>`src/components/patents/DualProjectionViewer.tsx`<br>`src/components/patents/patentViewMode.ts` | **Reuse interaction ideas, not monolith** | Reader shell with independently loaded panels (German source, English translation, explanation, discovery, laboratory); `?view=` deep links preserved | MIT + Rider | `am-scaf-extract-ui-components-c31`<br>`am-read-split-face-32c` |
+| **Parallel Readings & Addressing**<br>`src/data/editions/parallelReadings.ts` | **Replace addressing model** | Replace block-index addressing with permanent, immutable content IDs (`s<n>-p<m>-s<k>`); inserting paragraphs never shifts annotations | MIT + Rider | `am-cm-id-scheme-8bn`<br>`am-scaf-extract-runtime-utilities-99y` |
+| **Physics State Bus**<br>`src/physics/usePatentPhysics.ts` | **Replace ownership layer** | Replace module-global maps with instance-scoped experiments (`am-rt-snapshot-store-aft`); one immutable snapshot per revision; observer change never restarts world | MIT + Rider | `am-rt-snapshot-store-aft` |
+| **Deterministic Control Tapes**<br>`src/physics/controlTape.ts`<br>`src/physics/tickScheduler.ts`<br>`src/physics/transport.ts`<br>`src/physics/paramAliases.ts` | **Reuse with new identities** | Deterministic tapes, host-fed time, cross-paper parameter aliasing via canonical quantity IDs rather than arbitrary strings | MIT + Rider | `am-scaf-extract-runtime-utilities-99y` |
+| **WASM Runtime & Evaluators**<br>`src/physics/genericWasm.ts`<br>`src/physics/useGenericWasmSource.ts`<br>`src/physics/wasmArtifacts.test.ts`<br>`src/physics/lie.ts`<br>`src/physics/qty.ts`<br>`src/physics/intervals.ts`<br>`src/physics/energyLedger.ts` | **Reuse** | Honest execution labeling (`wasm`, `ts-fallback`, `unloaded`); rational dimensional exponents; validated interval bounds; energy ledgers | MIT + Rider | `am-scaf-extract-runtime-utilities-99y` |
+| **Multidimensional Coverage**<br>`src/physics/coverageManifest.ts` | **Extend** | Source, translation, argument, instrument, accessibility, and numerical coverage stay separate dimensions; no single aggregated score | MIT + Rider | `am-scaf-extract-runtime-utilities-99y`<br>`am-cm-coverage-ledger-0ip` |
+| **Spec Clause Weave**<br>`src/physics/specClauses.ts` | **Generalize** | Highlight the exact premise or conclusion an instrument currently demonstrates as an informative pointer, never decorative truth glow | MIT + Rider | `am-scaf-extract-runtime-utilities-99y`<br>`am-read-result-weave-jex` |
+| **Visual Modules & 3D/2D Integration**<br>`src/components/patents/visuals/three/ThreeStudioScene.ts`<br>`src/components/patents/visuals/three/StudioKernelChips.tsx` | **Selectively adapt** | 2D first (Canvas/SVG) for spacetime event geometry and probability distributions; direct Three.js only where 2D loses spatial information | MIT + Rider | `am-scaf-extract-ui-components-c31` |
+| **Historical Glossary / Concordance**<br>`src/components/patents/ArchaicGlossaryModal.tsx`<br>`src/data/esotericPatentTerms.ts` | **Refactor** | Section-scoped notation concordance and period vocabulary, never a global dictionary keyed by spelling | MIT + Rider | `am-scaf-extract-ui-components-c31` |
+| **Visualizer Controls & Telemetry**<br>`src/components/patents/PhysicsTelemetryBadge.tsx`<br>`src/components/patents/PhysicsTelemetryBadgeHeader.tsx`<br>`src/components/ui/SensitivitySlider.tsx`<br>`src/components/patents/visuals/ControlTapeScrubber.tsx`<br>`src/components/patents/visuals/ClaimConstraintToggle.tsx` | **Adapt** | Numeric input entry beside every slider; probe toggles keyed to physical results; WCAG AA contrast compliance | MIT + Rider | `am-scaf-extract-ui-components-c31` |
+| **Facsimile Viewer & PDF Worker**<br>`src/components/patents/PinnedPdfFacsimile.tsx`<br>`src/components/patents/usePinnedPdfFacsimile.ts`<br>`public/pdfjs/` | **Reuse** | Facsimile viewer with page mapping to sections and equations; self-hosted pdf.js worker assets | MIT + Rider (components);<br>Apache-2.0 (`public/pdfjs`) | `am-scaf-extract-ui-components-c31`<br>`am-read-facsimile-face-er0` |
+| **Layout Chrome & Core UI**<br>`src/components/layout/Header.tsx`<br>`src/components/layout/Footer.tsx`<br>`src/components/layout/ThemeToggle.tsx`<br>`src/components/layout/PatentSearchPalette.tsx`<br>`src/app/opengraph-image.tsx`<br>`src/app/robots.ts`<br>`src/app/sitemap.ts`<br>`src/app/error.tsx`<br>`src/app/global-error.tsx`<br>`src/app/not-found.tsx` | **Reuse** | Three custom themes (Annalen, Kramgasse Night, Slate); build-time static search index; zero external scripts or analytics | MIT + Rider | `am-scaf-extract-ui-components-c31` |
+| **Verified Production Deployment**<br>`scripts/verified-production-deploy.ts`<br>`scripts/deployment-target.ts`<br>`scripts/deployment-verification.ts`<br>`scripts/smoke-test-deployment.ts`<br>`scripts/app-router-architecture.ts` | **Reuse** | Candidate-then-promote release pipeline; fail-closed verification against unpromoted preview URL before DNS alias promotion | MIT + Rider | `am-scaf-extract-scripts-7jm`<br>`am-scaf-architecture-gate-l1p`<br>`am-rel-verified-deploy-qndt` |
+| **Acceptance & Verification Harness**<br>`scripts/verify-data.ts`<br>`scripts/e2e-patent-vertical-slices.ts`<br>`scripts/patent-e2e-contract.ts`<br>`docs/PATENT_E2E_HARNESS.md` | **Adapt** | Adapt for content compiler (`verify-content.ts`) and paper vertical-slice browser acceptance suite | MIT + Rider | `am-scaf-extract-scripts-7jm`<br>`am-bm-slice-e2e-sbqu` |
+| **Native iPhone App Shell Patterns**<br>`ios/project.yml`<br>`ios/Sources/PatentPDFReader.swift`<br>`ios/Sources/PrivacyInfo.xcprivacy`<br>`scripts/dsr-apple-quality.sh`<br>`ios/UITests/` | **Adapt patterns, not code** | SwiftUI native shell rendering static edition in WKWebView; on-demand facsimile PDF downloads with SHA-256 pins; offline reading | MIT + Rider | `am-app-xcodegen-scaffold-z228`<br>`am-app-facsimile-downloads-72nz`<br>`am-app-store-screenshots-k44q` |
+| **Patent-Specific Features**<br>Claims, disputes, patent classifications, broadside printing, audio player, wizard reports, generic visual dispatch | **Do not port** | Replaced by historical argument steps, physical alternatives, experimental evidence, and connections | N/A | None (Excluded) |
+
+---
+
+## 6. Do-Not-Port List & FrankenPatents App Seams
+
+### 6.1 Patent-Specific Features (Do Not Port)
+
+The following architectural components and features of `classic-patents.com` are tightly bound to the patent museum domain and must **never** be ported to `annus-mirabilis.com`:
+
+1. **Patent Claims and Claim Trees:**
+   - Files: `src/components/patents/ClaimsList.tsx`, `src/components/patents/ClaimTree.tsx`, patent-specific claims logic in `src/components/patents/visuals/ClaimConstraintToggle.tsx`.
+   - Reason: Annus Mirabilis models historical scientific arguments, experimental premises, heuristic hypotheses, and formal derivations, not patent legal claims.
+2. **Infringement Disputes and Patent Wars:**
+   - Files: `src/components/patents/HistoricalContextPanel.tsx` (rival claims, legal disputes, patent wars sections).
+   - Reason: Historical context in Annus Mirabilis focuses on contemporary physics (the 1904 curriculum, experimental anomalies, Planck radiation debates), not priority litigation.
+3. **Patent Classification Systems & Citation Lineages:**
+   - Files: IPC/CPC classification code taxonomies, patent lineage trees, backward/forward citation graphs.
+   - Reason: Replaced by bibliographic citations to *Annalen der Physik* and historical paper dependencies.
+4. **Era Filter Bar:**
+   - File: `src/components/layout/EraFilterBar.tsx`.
+   - Reason: Annus Mirabilis focuses strictly on the 1905 Annus Mirabilis papers plus the 1905 doctoral dissertation.
+5. **Broadside Printing Mode:**
+   - File: `src/components/patents/PrintBroadsideModal.tsx`.
+   - Reason: The reading experience is optimized for continuous bilingual parallel reading, split views, and standard paper printing, not decorative broadsides.
+6. **Audio Narration Player:**
+   - File: `src/components/layout/AudioCleanupProvider.tsx`, pre-rendered audio narration assets.
+   - Reason: Audio players add substantial runtime weight and third-party dependencies. Annus Mirabilis prioritizes semantic KaTeX MathML, accessible screen-reader tables, and tactile text alternatives.
+7. **Patent Search Wizards & Discovery Reports:**
+   - Files: `src/components/patents/PatentWizard.tsx`, automated wizard summary generators.
+   - Reason: Discovery is an editorial pedagogical journey through 1904 scientific dilemmas, not a product wizard.
+8. **Generic or Wright-Default Visual Dispatch:**
+   - Files: `src/components/patents/visuals/index.ts`, `src/components/patents/PatentVisualDispatcher.tsx`.
+   - Reason: In Classic Patents, unmapped patents fall back to a default visualizer (often the Wright Flyer). In Annus Mirabilis, unknown or unmapped experiment IDs must **fail closed** with an explicit typed refusal (`outside-domain` or `not-applicable`), never rendering an inaccurate physical model.
+
+### 6.2 FrankenPatents iPhone App Seams (App Plan §2.4)
+
+The FrankenPatents native iOS application in `classic-patents.com:ios/` establishes key architectural patterns for the Annus Mirabilis native app (`am-ep-app-m247`). Each seam has been verified against commit `da11ff475902728fd8dd1d9db9f3af37c16ec8a5` and evaluated:
+
+| Donor App Seam / Verified Path | Decision | Adaptation in Annus Mirabilis (`ios/`) | Extracting Bead |
+|---|---|---|---|
+| **XcodeGen Project Spec**<br>`ios/project.yml` | **Copy pattern** | XcodeGen specification for declarative Xcode project generation; includes `regenerate-and-diff` CI check to prevent project drift | `am-app-xcodegen-scaffold-z228` |
+| **Static Edition Exporters**<br>`ios/export-patents.ts`<br>`ios/export-native-models.ts` | **Adapt pattern** | Build-time script exporting compiled static edition HTML, MathML, and JSON assets into the Xcode app bundle for offline reading | `am-app-export-edition-w24k` |
+| **Native Parity Checker**<br>`ios/check-native-parity.ts` | **Do not port** | The FrankenPatents app asserted text substring equality across native and web parsers. Annus Mirabilis embeds the compiled web edition directly in WKWebView, guaranteeing 100% mathematical and typographic parity by design | None (Excluded) |
+| **Facsimile PDF Downloader**<br>`ios/Sources/PatentPDFReader.swift` | **Adapt pattern** | On-demand background PDF download manager implementing: host allowlist, ephemeral `URLSessionConfiguration`, 50MB size limit, PDF magic-byte header validation, SHA-256 integrity pin check, atomic disk publish, and exclusion from iCloud backups (`isExcludedFromBackupKey`) | `am-app-facsimile-downloads-72nz` |
+| **Apple Privacy Manifest**<br>`ios/Sources/PrivacyInfo.xcprivacy` | **Copy pattern** | Native Apple privacy manifest declaring `NSPrivacyTracking = false`, empty collected data categories, and no third-party tracking domains | `am-app-xcodegen-scaffold-z228` |
+| **App Store Screenshot Tests**<br>`ios/UITests/FrankenPatentsUITests.swift` | **Adapt pattern** | XCUITest suite using DEBUG launch arguments (`--reset-state`, `--skip-animations`) to deterministically drive UI flows and capture localized App Store screenshots | `am-app-store-screenshots-k44q` |
+| **Apple Quality Gate Script**<br>`scripts/dsr-apple-quality.sh` | **Adapt pattern** | Shell gate running XcodeGen diff validation, SwiftFormat, SwiftLint, Xcode build verification, and test execution | `am-app-xcodegen-scaffold-z228` |
+| **Native Math Parser**<br>`ios/Sources/NativeMathView.swift` | **Do not port** | FrankenPatents attempted native regex-based LaTeX parsing in SwiftUI. Annus Mirabilis renders KaTeX HTML + MathML inside WKWebView with full fidelity | None (Excluded) |
+| **Native SceneKit Tab**<br>`ios/Sources/NativePatentSceneView.swift` | **Do not port** | Native SceneKit simulation view. Annus Mirabilis renders WebGL/Three.js/Canvas instruments directly inside WKWebView | None (Excluded) |
+| **Hand-Typed Native Theme**<br>`ios/Sources/Theme.swift` | **Do not port** | Hardcoded Swift color/font constants. Annus Mirabilis exports CSS design tokens to Swift generated structs at build time | None (Excluded) |
