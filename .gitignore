@@ -70,10 +70,5 @@ out.txt
 # accidental directory out of commits; the architecture test still fails the build if it exists.
 src/pages/
 
-# Superseded plan drafts kept locally. The master plan is
-# COMPREHENSIVE_PLAN_FOR_ANNUS_MIRABILIS_SITE_MERGED.md.
-COMPREHENSIVE_PLAN_FOR_ANNUS_MIRABILIS_SITE_ASTRA*.md
-COMPREHENSIVE_PLAN_FOR_ANNUS_MIRABILIS_SITE_FABLE*.md
-
 # Cloudflare Wrangler local state (created by CLI runs; never committed)
 .wrangler/

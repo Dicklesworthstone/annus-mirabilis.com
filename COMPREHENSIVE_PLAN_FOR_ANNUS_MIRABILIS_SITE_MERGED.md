@@ -4121,7 +4121,8 @@ experiment).
 Cloudflare for the registered domain and authoritative DNS; Vercel for the
 Next.js deployment via the inherited `verified-production-deploy.ts`
 workflow, pointed at `annus-mirabilis.com`, `www.annus-mirabilis.com`, and
-a stable `annus-mirabilis.vercel.app` alias; `vercel.json` keeps
+a stable `annus-mirabilis-seven.vercel.app` alias (Vercel assigned it because
+`annus-mirabilis.vercel.app` belongs to another account); `vercel.json` keeps
 `{"git": {"deploymentEnabled": false}}`. Registration at Cloudflare does
 not require hosting on Cloudflare. This document does not authorize
 changing DNS, connecting a domain, or deploying; it specifies the intended
