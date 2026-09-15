@@ -631,6 +631,351 @@ Every extracted TypeScript, TSX, JavaScript, or CSS file must begin with this ex
 3. **Enforcement Gate:**
    - `am-gov-license-inventory-w6yz` enforces that every extracted file matches this template and verifies the presence of required license notices across `src/` and `public/`.
 
+## 10. Donor Identities That Must Never Be Copied
+
+This document provides the authoritative Section 10 inventory of donor identity strings, infrastructure parameters, route patterns, and third-party origins from `classic-patents.com` at pinned revision `da11ff475902728fd8dd1d9db9f3af37c16ec8a5`.
+
+Every entry is verified against the pinned donor tree via read-only `git grep` inspection. Each string is accompanied by the exact command executed and its actual terminal output, establishing whether the string is **FOUND** (with file path and line number) or **NOT PRESENT** in the codebase.
+
+The list holds two kinds of entry, and the difference matters to whoever implements the hygiene scan:
+
+- **Found in the donor tree.** Seventeen of the twenty strings below appear at the pinned revision with a cited path and line. A scan for one of these tests something that demonstrably exists in the donor.
+- **Forbidden although absent from the donor tree.** Three do not appear at the pinned revision: `45267`, because the donor spells the port `45_267` with a numeric separator (see 10.4), and `fonts.googleapis.com` and `fonts.gstatic.com`, because the donor never writes those literals; it imports `next/font/google`, which contacts those origins at build time (see 10.6). They remain on the list because they are forbidden in this repository, not because they were found in the donor. Each was verified absent with `git grep -F -e <string> da11ff475902728fd8dd1d9db9f3af37c16ec8a5`, which returned zero matches.
+
+These strings form the input for automated hygiene and gate scans in `am-scaf-extract-scripts-7jm`, `am-scaf-extract-ui-components-c31`, and `am-rel-verified-deploy-qndt`.
+
+---
+
+### 10.1 Master Fenced List of Exact Forbidden Strings
+
+The following exact strings must **never** be copied into, imported by, or referenced within `annus-mirabilis.com`:
+
+```text
+classic-patents.com
+www.classic-patents.com
+classic-patents.vercel.app
+prj_eeVw8BqcY9iO2e0VEQyS5i6rZkE0
+classic-patents
+team_F5Q3EH8Qxu3nDEOyEZLcQPe6
+45_267
+45267
+/patents/us-821393-wright-flyer
+/patents/us-4063220-metcalfe-ethernet
+/patents/
+https://github.com/Dicklesworthstone/classic-patents.com
+https://github.com/Dicklesworthstone
+https://schema.org
+fonts.googleapis.com
+fonts.gstatic.com
+patents.google.com
+https://patents.google.com
+https://openapi.vercel.sh
+https://solidmechanics.org
+```
+
+---
+
+### 10.2 Donor Domain & Hostname Identities
+
+#### 1. `classic-patents.com`
+- **Verdict:** `FOUND`
+- **Command:**
+  ```bash
+  git -C /Users/jemanuel/projects/classic-patents.com grep -n "classic-patents.com" da11ff475902728fd8dd1d9db9f3af37c16ec8a5 -- scripts/verified-production-deploy.ts scripts/deployment-target.ts scripts/deployment-verification.ts src/app/layout.tsx src/app/robots.ts src/app/sitemap.ts src/components/layout/Header.tsx src/components/layout/Footer.tsx
+  ```
+- **Actual Output:**
+  ```text
+  da11ff475902728fd8dd1d9db9f3af37c16ec8a5:scripts/deployment-target.ts:15:  customDomains: ["classic-patents.com", "www.classic-patents.com"] as const,
+  da11ff475902728fd8dd1d9db9f3af37c16ec8a5:scripts/deployment-verification.ts:19:  "classic-patents.com",
+  da11ff475902728fd8dd1d9db9f3af37c16ec8a5:scripts/deployment-verification.ts:20:  "www.classic-patents.com",
+  da11ff475902728fd8dd1d9db9f3af37c16ec8a5:scripts/deployment-verification.ts:75: * canonical production project that owns classic-patents.com.
+  da11ff475902728fd8dd1d9db9f3af37c16ec8a5:scripts/deployment-verification.ts:106:        `Duplicate projects (such as 'classic-patents.com') do not own the production domain alias and will cause silent deployment divergence.`,
+  da11ff475902728fd8dd1d9db9f3af37c16ec8a5:scripts/verified-production-deploy.ts:25:const PUBLIC_HOSTNAMES = ["classic-patents.com", "www.classic-patents.com"] as const;
+  da11ff475902728fd8dd1d9db9f3af37c16ec8a5:src/app/layout.tsx:38:  metadataBase: new URL("https://classic-patents.com"),
+  da11ff475902728fd8dd1d9db9f3af37c16ec8a5:src/app/layout.tsx:74:    url: "https://classic-patents.com",
+  da11ff475902728fd8dd1d9db9f3af37c16ec8a5:src/app/layout.tsx:125:              url: "https://classic-patents.com",
+  da11ff475902728fd8dd1d9db9f3af37c16ec8a5:src/app/layout.tsx:131:                url: "https://classic-patents.com",
+  da11ff475902728fd8dd1d9db9f3af37c16ec8a5:src/app/robots.ts:11:    sitemap: "https://classic-patents.com/sitemap.xml",
+  da11ff475902728fd8dd1d9db9f3af37c16ec8a5:src/app/sitemap.ts:7:  const baseUrl = "https://classic-patents.com";
+  da11ff475902728fd8dd1d9db9f3af37c16ec8a5:src/components/layout/Footer.tsx:102:                  href="https://github.com/Dicklesworthstone/classic-patents.com"
+  da11ff475902728fd8dd1d9db9f3af37c16ec8a5:src/components/layout/Header.tsx:169:              href="https://github.com/Dicklesworthstone/classic-patents.com"
+  ```
+- **Replacement in Annus Mirabilis:** Must be replaced with `annus-mirabilis.com`.
+
+---
+
+#### 2. `www.classic-patents.com`
+- **Verdict:** `FOUND`
+- **Command:**
+  ```bash
+  git -C /Users/jemanuel/projects/classic-patents.com grep -n "www.classic-patents.com" da11ff475902728fd8dd1d9db9f3af37c16ec8a5 -- scripts/
+  ```
+- **Actual Output:**
+  ```text
+  da11ff475902728fd8dd1d9db9f3af37c16ec8a5:scripts/deployment-target.test.ts:62:    ╶ https://www.classic-patents.com
+  da11ff475902728fd8dd1d9db9f3af37c16ec8a5:scripts/deployment-target.test.ts:104:    expect(parsed.aliases).toContain("www.classic-patents.com");
+  da11ff475902728fd8dd1d9db9f3af37c16ec8a5:scripts/deployment-target.test.ts:110:      "www.classic-patents.com",
+  da11ff475902728fd8dd1d9db9f3af37c16ec8a5:scripts/deployment-target.test.ts:119:        "www.classic-patents.com",
+  da11ff475902728fd8dd1d9db9f3af37c16ec8a5:scripts/deployment-target.ts:15:  customDomains: ["classic-patents.com", "www.classic-patents.com"] as const,
+  da11ff475902728fd8dd1d9db9f3af37c16ec8a5:scripts/deployment-verification.test.ts:87:        "https://www.classic-patents.com",
+  da11ff475902728fd8dd1d9db9f3af37c16ec8a5:scripts/deployment-verification.ts:20:  "www.classic-patents.com",
+  da11ff475902728fd8dd1d9db9f3af37c16ec8a5:scripts/verified-production-deploy.ts:25:const PUBLIC_HOSTNAMES = ["classic-patents.com", "www.classic-patents.com"] as const;
+  ```
+- **Replacement in Annus Mirabilis:** Must be replaced with `www.annus-mirabilis.com`.
+
+---
+
+#### 3. `classic-patents.vercel.app`
+- **Verdict:** `FOUND`
+- **Command:**
+  ```bash
+  git -C /Users/jemanuel/projects/classic-patents.com grep -n "classic-patents.vercel.app" da11ff475902728fd8dd1d9db9f3af37c16ec8a5 -- scripts/
+  ```
+- **Actual Output:**
+  ```text
+  da11ff475902728fd8dd1d9db9f3af37c16ec8a5:scripts/deployment-target.test.ts:63:    ╶ https://classic-patents.vercel.app
+  da11ff475902728fd8dd1d9db9f3af37c16ec8a5:scripts/deployment-target.ts:16:  platformDomain: "classic-patents.vercel.app" as const,
+  da11ff475902728fd8dd1d9db9f3af37c16ec8a5:scripts/deployment-verification.test.ts:103:      const missingWww = ["classic-patents.com", "classic-patents.vercel.app"];
+  da11ff475902728fd8dd1d9db9f3af37c16ec8a5:scripts/deployment-verification.ts:22:export const CANONICAL_PLATFORM_HOSTNAME = "classic-patents.vercel.app";
+  da11ff475902728fd8dd1d9db9f3af37c16ec8a5:scripts/verified-production-deploy.ts:26:const PLATFORM_HOSTNAME = "classic-patents.vercel.app";
+  ```
+- **Replacement in Annus Mirabilis:** Must be replaced with `annus-mirabilis-seven.vercel.app` (or current canonical platform hostname).
+
+---
+
+### 10.3 Donor Vercel Project & Team Identifiers
+
+#### 4. Vercel `projectId`: `prj_eeVw8BqcY9iO2e0VEQyS5i6rZkE0`
+- **Verdict:** `FOUND`
+- **Command:**
+  ```bash
+  git -C /Users/jemanuel/projects/classic-patents.com grep -n "prj_eeVw8BqcY9iO2e0VEQyS5i6rZkE0" da11ff475902728fd8dd1d9db9f3af37c16ec8a5 -- scripts/
+  ```
+- **Actual Output:**
+  ```text
+  da11ff475902728fd8dd1d9db9f3af37c16ec8a5:scripts/deployment-target.ts:12:  projectId: "prj_eeVw8BqcY9iO2e0VEQyS5i6rZkE0",
+  da11ff475902728fd8dd1d9db9f3af37c16ec8a5:scripts/deployment-verification.ts:14:export const CANONICAL_VERCEL_PROJECT_ID = "prj_eeVw8BqcY9iO2e0VEQyS5i6rZkE0";
+  ```
+- **Replacement in Annus Mirabilis:** Must be replaced with Annus Mirabilis Vercel project ID (`am-rel-vercel-setup-ituk`).
+
+---
+
+#### 5. Vercel `projectName`: `classic-patents`
+- **Verdict:** `FOUND`
+- **Command:**
+  ```bash
+  git -C /Users/jemanuel/projects/classic-patents.com grep -n "CANONICAL_VERCEL_PROJECT_NAME" da11ff475902728fd8dd1d9db9f3af37c16ec8a5 -- scripts/
+  ```
+- **Actual Output:**
+  ```text
+  da11ff475902728fd8dd1d9db9f3af37c16ec8a5:scripts/deployment-verification.test.ts:9:  CANONICAL_VERCEL_PROJECT_NAME,
+  da11ff475902728fd8dd1d9db9f3af37c16ec8a5:scripts/deployment-verification.test.ts:21:        projectName: CANONICAL_VERCEL_PROJECT_NAME,
+  da11ff475902728fd8dd1d9db9f3af37c16ec8a5:scripts/deployment-verification.test.ts:26:      expect(parsed.projectName).toBe(CANONICAL_VERCEL_PROJECT_NAME);
+  da11ff475902728fd8dd1d9db9f3af37c16ec8a5:scripts/deployment-verification.test.ts:44:        projectName: CANONICAL_VERCEL_PROJECT_NAME,
+  da11ff475902728fd8dd1d9db9f3af37c16ec8a5:scripts/deployment-verification.test.ts:55:        projectName: CANONICAL_VERCEL_PROJECT_NAME,
+  da11ff475902728fd8dd1d9db9f3af37c16ec8a5:scripts/deployment-verification.test.ts:71:      expect(config.projectName).toBe(CANONICAL_VERCEL_PROJECT_NAME);
+  da11ff475902728fd8dd1d9db9f3af37c16ec8a5:scripts/deployment-verification.ts:16:export const CANONICAL_VERCEL_PROJECT_NAME = "classic-patents";
+  da11ff475902728fd8dd1d9db9f3af37c16ec8a5:scripts/deployment-verification.ts:103:  if (raw.projectName !== CANONICAL_VERCEL_PROJECT_NAME) {
+  da11ff475902728fd8dd1d9db9f3af37c16ec8a5:scripts/deployment-verification.ts:105:      `Incorrect Vercel projectName: expected '${CANONICAL_VERCEL_PROJECT_NAME}', found '${raw.projectName}'. ` +
+  da11ff475902728fd8dd1d9db9f3af37c16ec8a5:scripts/deployment-verification.ts:137:      `Missing .vercel/project.json at ${filePath}. Link the repository to the canonical '${CANONICAL_VERCEL_PROJECT_NAME}' project before deploying.`,
+  ```
+- **Replacement in Annus Mirabilis:** Must be replaced with `"annus-mirabilis"`.
+
+---
+
+#### 6. Vercel `orgId`: `team_F5Q3EH8Qxu3nDEOyEZLcQPe6`
+- **Verdict:** `FOUND`
+- **Command:**
+  ```bash
+  git -C /Users/jemanuel/projects/classic-patents.com grep -n "team_F5Q3EH8Qxu3nDEOyEZLcQPe6" da11ff475902728fd8dd1d9db9f3af37c16ec8a5 -- scripts/
+  ```
+- **Actual Output:**
+  ```text
+  da11ff475902728fd8dd1d9db9f3af37c16ec8a5:scripts/deployment-target.ts:14:  orgId: "team_F5Q3EH8Qxu3nDEOyEZLcQPe6",
+  da11ff475902728fd8dd1d9db9f3af37c16ec8a5:scripts/deployment-verification.ts:15:export const CANONICAL_VERCEL_ORG_ID = "team_F5Q3EH8Qxu3nDEOyEZLcQPe6";
+  ```
+- **Replacement in Annus Mirabilis:** Must be replaced with the team/org ID owning `annus-mirabilis`.
+
+---
+
+### 10.4 Donor Deployment Lock Port
+
+#### 7. Deployment Lock Port: `45_267` and `45267`
+- **Code Form (`45_267`):** `FOUND`
+- **Command:**
+  ```bash
+  git -C /Users/jemanuel/projects/classic-patents.com grep -n "DEPLOYMENT_LOCK_PORT" da11ff475902728fd8dd1d9db9f3af37c16ec8a5 -- scripts/
+  ```
+- **Actual Output:**
+  ```text
+  da11ff475902728fd8dd1d9db9f3af37c16ec8a5:scripts/verified-production-deploy.ts:24:const DEPLOYMENT_LOCK_PORT = 45_267;
+  da11ff475902728fd8dd1d9db9f3af37c16ec8a5:scripts/verified-production-deploy.ts:346:    server.listen({ host: "127.0.0.1", port: DEPLOYMENT_LOCK_PORT, exclusive: true }, resolve);
+  ```
+- **Planning Prose Form (`45267`):** `NOT PRESENT` in scripts/src
+- **Command:**
+  ```bash
+  git -C /Users/jemanuel/projects/classic-patents.com grep -n "45267" da11ff475902728fd8dd1d9db9f3af37c16ec8a5 -- scripts/ src/
+  ```
+- **Actual Output:** (Exit code 1, zero matches in `scripts/` or `src/`).
+- **Replacement in Annus Mirabilis:** Annus Mirabilis uses a distinct local mutex socket port (such as `45_268` or project-specific port) to prevent cross-repository deployment lock collision when both projects deploy concurrently. Both `45_267` and `45267` are forbidden.
+
+---
+
+### 10.5 Patent Route Patterns Used by Donor Checks
+
+#### 8. Wright Detail Page Route: `/patents/us-821393-wright-flyer`
+- **Verdict:** `FOUND`
+- **Command:**
+  ```bash
+  git -C /Users/jemanuel/projects/classic-patents.com grep -n "WRIGHT_ROUTE" da11ff475902728fd8dd1d9db9f3af37c16ec8a5 -- scripts/
+  ```
+- **Actual Output:**
+  ```text
+  da11ff475902728fd8dd1d9db9f3af37c16ec8a5:scripts/verified-production-deploy.ts:28:const WRIGHT_ROUTE = "/patents/us-821393-wright-flyer";
+  da11ff475902728fd8dd1d9db9f3af37c16ec8a5:scripts/verified-production-deploy.ts:319:  await assertResponse(url, WRIGHT_ROUTE, WRIGHT_ARCHIVAL_TEXT_LABEL);
+  da11ff475902728fd8dd1d9db9f3af37c16ec8a5:scripts/verified-production-deploy.ts:324:  assertProtectedPreviewResponse(deployment, WRIGHT_ROUTE, WRIGHT_ARCHIVAL_TEXT_LABEL);
+  ```
+- **Replacement in Annus Mirabilis:** Replaced by Brownian motion vertical slice route `/brownian-motion` (or section permalinks).
+
+---
+
+#### 9. Complete Source-Text Endpoint: `/patents/us-4063220-metcalfe-ethernet`
+- **Verdict:** `FOUND`
+- **Command:**
+  ```bash
+  git -C /Users/jemanuel/projects/classic-patents.com grep -n "COMPLETE_SOURCE_DELIVERY_ROUTE" da11ff475902728fd8dd1d9db9f3af37c16ec8a5 -- scripts/
+  ```
+- **Actual Output:**
+  ```text
+  da11ff475902728fd8dd1d9db9f3af37c16ec8a5:scripts/verified-production-deploy.ts:30:const COMPLETE_SOURCE_DELIVERY_ROUTE = "/patents/us-4063220-metcalfe-ethernet";
+  da11ff475902728fd8dd1d9db9f3af37c16ec8a5:scripts/verified-production-deploy.ts:320:  await assertResponse(url, COMPLETE_SOURCE_DELIVERY_ROUTE, COMPLETE_SOURCE_DELIVERY_MARKER);
+  da11ff475902728fd8dd1d9db9f3af37c16ec8a5:scripts/verified-production-deploy.ts:327:    COMPLETE_SOURCE_DELIVERY_ROUTE,
+  ```
+- **Replacement in Annus Mirabilis:** Replaced by complete paper source delivery routes (e.g. `/brownian-motion`, `/light-quanta`).
+
+---
+
+#### 10. General Patent Route Pattern: `/patents/` (`/patents/${patent.id}`)
+- **Verdict:** `FOUND`
+- **Command:**
+  ```bash
+  git -C /Users/jemanuel/projects/classic-patents.com grep -n "route: \`/patents/" da11ff475902728fd8dd1d9db9f3af37c16ec8a5 -- scripts/
+  ```
+- **Actual Output:**
+  ```text
+  da11ff475902728fd8dd1d9db9f3af37c16ec8a5:scripts/deployment-target.ts:201:      route: `/patents/${patent.id}`,
+  da11ff475902728fd8dd1d9db9f3af37c16ec8a5:scripts/e2e-threejs-visual-audit.ts:716:      route: `/patents/${patentId}`,
+  da11ff475902728fd8dd1d9db9f3af37c16ec8a5:scripts/e2e-threejs-visual-audit.ts:5003:          route: `/patents/${distribution.patentId}`,
+  da11ff475902728fd8dd1d9db9f3af37c16ec8a5:scripts/patent-e2e-contract.ts:192:      route: `/patents/${patent.id}`,
+  ```
+- **Additional Specific Patent Routes Checked in Donor Visual Sweeps:**
+  - `/patents/us-381968-tesla-motor` (`scripts/e2e-visual-audit.ts:45`)
+  - `/patents/us-223898-edison-lightbulb` (`scripts/e2e-visual-audit.ts:46`)
+  - `/patents/us-2708656-fermi-reactor` (`scripts/e2e-visual-audit.ts:47`)
+  - `/patents/us-4136359-wozniak-apple` (`scripts/e2e-visual-audit.ts:48`)
+  - `/patents/us-3541541-engelbart-mouse` (`scripts/e2e-visual-audit.ts:49`)
+  - `/patents/us-1781541-einstein-refrigerator` (`scripts/e2e-visual-audit.ts:50`)
+- **Asset Routes:**
+  - `/patents/pdfs/` (`scripts/patent-e2e-contract.ts:169`)
+  - `/patents/figures/` (`scripts/patent-e2e-contract.test.ts:51`)
+- **Replacement in Annus Mirabilis:** Annus Mirabilis uses paper slugs: `/light-quanta`, `/brownian-motion`, `/special-relativity`, `/mass-energy`, `/molecular-dimensions`, and `/facsimiles/`.
+
+---
+
+### 10.6 Third-Party Origins & Ingestion Vectors
+
+#### 11. Layout & Chrome HTTPS Literals
+- **Verdict:** `FOUND` (external origin literals in metadata and footer)
+- **Command:**
+  ```bash
+  git -C /Users/jemanuel/projects/classic-patents.com grep -n "https://" da11ff475902728fd8dd1d9db9f3af37c16ec8a5 -- src/app/layout.tsx src/components/layout/
+  ```
+- **Actual Output:**
+  ```text
+  da11ff475902728fd8dd1d9db9f3af37c16ec8a5:src/app/layout.tsx:38:  metadataBase: new URL("https://classic-patents.com"),
+  da11ff475902728fd8dd1d9db9f3af37c16ec8a5:src/app/layout.tsx:69:  authors: [{ name: "Jeffrey Emanuel", url: "https://github.com/Dicklesworthstone" }],
+  da11ff475902728fd8dd1d9db9f3af37c16ec8a5:src/app/layout.tsx:74:    url: "https://classic-patents.com",
+  da11ff475902728fd8dd1d9db9f3af37c16ec8a5:src/app/layout.tsx:122:              "@context": "https://schema.org",
+  da11ff475902728fd8dd1d9db9f3af37c16ec8a5:src/app/layout.tsx:125:              url: "https://classic-patents.com",
+  da11ff475902728fd8dd1d9db9f3af37c16ec8a5:src/app/layout.tsx:131:                url: "https://classic-patents.com",
+  da11ff475902728fd8dd1d9db9f3af37c16ec8a5:src/components/layout/Footer.tsx:102:                  href="https://github.com/Dicklesworthstone/classic-patents.com"
+  da11ff475902728fd8dd1d9db9f3af37c16ec8a5:src/components/layout/Header.tsx:169:              href="https://github.com/Dicklesworthstone/classic-patents.com"
+  ```
+- **Forbidden Third-Party Origins Identified:**
+  - `https://github.com/Dicklesworthstone/classic-patents.com` (`github.com`)
+  - `https://github.com/Dicklesworthstone` (`github.com`)
+  - `https://schema.org` (`schema.org`)
+- **Hygiene Action:** `Header.tsx` and `Footer.tsx` repository links must point to `https://github.com/Dicklesworthstone/annus-mirabilis.com`.
+
+---
+
+#### 12. Remote Google Fonts Origin (`next/font/google`)
+- **Verdict:** `FOUND`
+- **Command:**
+  ```bash
+  git -C /Users/jemanuel/projects/classic-patents.com grep -n "next/font/google" da11ff475902728fd8dd1d9db9f3af37c16ec8a5 -- src/app/layout.tsx
+  ```
+- **Actual Output:**
+  ```text
+  da11ff475902728fd8dd1d9db9f3af37c16ec8a5:src/app/layout.tsx:2:import { JetBrains_Mono, Newsreader, Plus_Jakarta_Sans } from "next/font/google";
+  ```
+- **Third-Party Origins Contacted:** these are origins the build reaches through `next/font/google`, not literals present in the donor tree. Both were checked separately and neither appears at the pinned revision:
+  - `fonts.googleapis.com`: `NOT PRESENT` as a literal. `git grep -F -e fonts.googleapis.com da11ff475902728fd8dd1d9db9f3af37c16ec8a5` returned zero matches.
+  - `fonts.gstatic.com`: `NOT PRESENT` as a literal. `git grep -F -e fonts.gstatic.com da11ff475902728fd8dd1d9db9f3af37c16ec8a5` returned zero matches.
+- **Hygiene Action:** AGENTS.md policy strictly forbids remote fonts. Fonts must be self-hosted WOFF2 files in `public/fonts/` loaded via local CSS `@font-face` rules. Both Google font origins are forbidden.
+
+---
+
+#### 13. `next/script`
+- **Verdict:** `NOT PRESENT`
+- **Command:**
+  ```bash
+  git -C /Users/jemanuel/projects/classic-patents.com grep -n "next/script" da11ff475902728fd8dd1d9db9f3af37c16ec8a5
+  ```
+- **Actual Output:** (Exit code 1, zero matches across repository).
+- **Hygiene Action:** Zero `<Script>` tags exist in the donor. No script tags may be added.
+
+---
+
+#### 14. Analytics Package Imports
+- **Verdict:** `NOT PRESENT`
+- **Command:**
+  ```bash
+  git -C /Users/jemanuel/projects/classic-patents.com grep -n -E "from ['\"](@vercel/analytics|@vercel/speed-insights|plausible|posthog-js|mixpanel-browser)" da11ff475902728fd8dd1d9db9f3af37c16ec8a5
+  ```
+- **Actual Output:** (Exit code 1, zero matches across repository).
+- **Hygiene Action:** No tracking or telemetry SDKs exist in the donor. Third-party analytics are strictly prohibited by AGENTS.md.
+
+---
+
+#### 15. `fetch(` in Open Graph and Image Routes
+- **Verdict:** `NOT PRESENT`
+- **Command:**
+  ```bash
+  git -C /Users/jemanuel/projects/classic-patents.com grep -n "fetch(" da11ff475902728fd8dd1d9db9f3af37c16ec8a5 -- src/app/opengraph-image.tsx src/app/twitter-image.tsx "src/app/patents/[id]/opengraph-image.tsx" "src/app/patents/[id]/twitter-image.tsx"
+  ```
+- **Actual Output:** (Exit code 1, zero matches across all 4 image route files).
+- **Hygiene Action:** Image routes generate static SVG/CSS graphics with `export const dynamic = "force-static"`. No external runtime fetches exist or may be introduced.
+
+---
+
+#### 16. Additional External HTTPS Origins in Records & Schemas
+- **`https://patents.google.com`**
+  - **Verdict:** `FOUND`
+  - **Command:** `git -C /Users/jemanuel/projects/classic-patents.com grep -n "https://patents.google.com" da11ff475902728fd8dd1d9db9f3af37c16ec8a5 -- src/data/patents/`
+  - **Matches:** Present across 38 patent records (e.g. `src/data/patents/wright-flyer.ts:37`).
+  - **Hygiene Rule:** Out of scope for Annus Mirabilis; scientific citations link to *Annalen der Physik* references.
+- **`https://openapi.vercel.sh`**
+  - **Verdict:** `FOUND`
+  - **Command:** `git -C /Users/jemanuel/projects/classic-patents.com grep -n "https://openapi.vercel.sh" da11ff475902728fd8dd1d9db9f3af37c16ec8a5`
+  - **Match:** `vercel.json:2:  "$schema": "https://openapi.vercel.sh/vercel.json",`
+- **`https://solidmechanics.org`**
+  - **Verdict:** `FOUND`
+  - **Command:** `git -C /Users/jemanuel/projects/classic-patents.com grep -n "https://solidmechanics.org" da11ff475902728fd8dd1d9db9f3af37c16ec8a5`
+  - **Match:** `src/physics/catalogKernels.ts:3144:  // https://solidmechanics.org/Text/Chapter3_5/Chapter3_5.php`
+
+---
+
 ## 11. Extracted Files
 
 This is the extraction inventory. **It is empty by design.** At the time of writing, zero donor
