@@ -428,11 +428,11 @@ Status values follow the strict closed vocabulary: `confirmed`, `changed`, `not-
 
 ## 5. Reuse Table
 
-The reuse table adapts Plan §2.3. Every path listed has been verified against the pinned donor tree at commit `da11ff475902728fd8dd1d9db9f3af37c16ec8a5`. All 48 component and script paths were confirmed present in the donor checkout.
+The reuse table adapts Plan §2.3. Every path listed was checked against the pinned donor tree at commit `da11ff475902728fd8dd1d9db9f3af37c16ec8a5`, using `git cat-file -e <hash>:<path>` for files and `git ls-tree -d <hash> -- <dir>` for directories. Of the 62 donor paths cited in the first column, 61 resolved at the pinned revision and one did not: `public/patents/facsimiles/`, the path named in the plan, does not exist there. The row below states the corrected path, `public/patents/facsimile-pages/`, which holds 109 files at the pinned revision.
 
 | Donor Seam / Verified Path | Decision | Adaptation in Annus Mirabilis | License Notice Requirement | Extracting Bead |
 |---|---|---|---|---|
-| **Facsimile & Source Architecture**<br>`public/patents/facsimiles/`<br>`public/patents/transcripts/`<br>`src/data/editions/`<br>`src/data/patents/sourceTextValidation.ts` | **Reuse architecture** | Bilingual critical edition (German source face + English translation), sentence-level many-to-many alignment, section-scoped notation concordance, separately attributed notes | MIT + Rider | `am-bm-slice-e2e-sbqu`<br>`am-read-facsimile-face-er0` |
+| **Facsimile & Source Architecture**<br>`public/patents/facsimile-pages/`<br>`public/patents/transcripts/`<br>`src/data/editions/`<br>`src/data/patents/sourceTextValidation.ts` | **Reuse architecture** | Bilingual critical edition (German source face + English translation), sentence-level many-to-many alignment, section-scoped notation concordance, separately attributed notes | MIT + Rider | `am-bm-slice-e2e-sbqu`<br>`am-read-facsimile-face-er0` |
 | **KaTeX Math Rendering**<br>`src/components/ui/LatexRenderer.tsx`<br>(includes `TextWithLatex`, `HudText`) | **Adapt** | Build-time static KaTeX (HTML + MathML); client hydrates term and operation interaction only; malformed math fails build closed | MIT + Rider | `am-scaf-extract-ui-components-c31` |
 | **Colorized Equations & Interaction**<br>`src/components/ui/ColorizedEquation.tsx`<br>`src/components/ui/colorPalette.ts`<br>`src/components/ui/equationValueFormatting.ts`<br>`src/types/equation.ts` | **Refactor** | Exact canonical quantity IDs (eliminate `variableId.startsWith("var_" + id)` token matching and human-label lookups), operation-level derivations, expression trees | MIT + Rider | `am-scaf-extract-ui-components-c31`<br>`am-eq-expression-tree-8kl` |
 | **Dual Projection Viewer (component)**<br>`src/components/patents/DualProjectionViewer.tsx` | **Redesign input, never copy-and-rename** | The monolith is not extracted. Its interaction ideas inform a reader shell with independently loaded panels (German source, English translation, explanation, discovery, laboratory), built new by `am-read-bilingual-faces-pao` | N/A (no code copied) | None (redesign input, no destination path) |
@@ -599,7 +599,7 @@ All source files extracted from `classic-patents.com` must preserve full copyrig
 
 - **Donor License Path:** `classic-patents.com:LICENSE`
 - **Donor License SHA-256:** `32a82e0a5754e72e51fae44b65a936c831c07376f21c90f5fb9e76897fcc3509`
-- **Rider Location:** Lines 12–54 of `classic-patents.com:LICENSE` (`ADDITIONAL RIDER / RESTRICTION (OpenAI / Anthropic)`).
+- **Rider Location:** Lines 12–62 of `classic-patents.com:LICENSE` (`ADDITIONAL RIDER / RESTRICTION (OpenAI / Anthropic)`). Line 12 opens the rider heading; line 62 closes the `"Affiliate"` definition that is explicitly scoped "For purposes of this rider". The MIT boilerplate resumes at line 64, and the file is 73 lines.
 - **Rider Terms:** Prohibits use, copying, benchmarking, evaluation, testing, or ingestion into training datasets or automated pipelines by OpenAI, L.L.C., Anthropic, PBC, or their affiliates without express prior written permission. Preserved unmodified in `annus-mirabilis.com:LICENSE`.
 
 ### 9.2 Mandatory Source File Header Template
