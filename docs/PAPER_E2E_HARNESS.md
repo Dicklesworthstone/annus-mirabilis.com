@@ -24,7 +24,15 @@ constraints, physics telemetry); there is no equivalent here yet.
 Building the paper lanes, the DOM readiness contract (what "hydrated" means
 for a reader face, which stable `data-*` identifiers each face and
 instrument exposes), and the fixture bundler on this extracted harness is
-`am-test-e2e-harness-bqmh`'s scope, not this bead's. Until that lands:
+`am-test-e2e-harness-bqmh`'s scope, not this bead's. That bead has since
+landed the DOM contract, the lane definitions, the emulation utilities, the
+fixture application registry, and the CLI flag parser documented below
+(`scripts/e2e/domContract.ts`, `lanes.ts`, `emulation.ts`,
+`fixtures/fixtureApps.ts`, `cli.ts`, plus `checks/measure.ts` and
+`evidence.ts`); it has not yet landed the fixture bundler and server, the
+harness's own self-test fixture pages, `playwright.config.ts`, or the CI
+workflow and gate registration — those remain open under the same bead.
+Until they land:
 
 - `--self-test-failure` runs end to end: it launches Chromium, navigates to
   the target, and deliberately records a failure with full evidence
@@ -82,6 +90,164 @@ must retain all four failure-evidence kinds (`screenshot`, `trace`, `dom`,
 `console`). The validator checks the journey's *shape*; it says nothing
 about a real paper's DOM. `am-test-e2e-harness-bqmh` builds the real paper
 lanes that populate this contract with actual routes and selectors.
+
+## The DOM readiness contract
+
+`scripts/e2e/domContract.ts` is a pure parser over an already-captured
+attribute map (never a live page): `parseInstrumentRoot`,
+`parseInstrumentView`, `parseReaderRoot`, and `parseAnchor` each require
+their named attributes and throw a `DomContractError` (carrying `.attribute`
+and, for an address, `.value`) naming exactly what is missing or ill-formed,
+rather than returning a value that silently omits a field.
+
+The reader root `[data-reader-root]` carries `data-ready="true"` once static
+content is present and hydration (if any) has completed, and `data-view`
+naming the current face. Anchors carry `id` and `data-anchor`, and the two
+must agree. Every instrument root `[data-instrument-id]` carries
+`data-instance-id`, `data-run-id`, `data-snapshot-version`,
+`data-input-revision`, `data-accepted-input-revision`, `data-pending`
+(`"true"` while a newer request is outstanding), and `data-execution-label`
+(one of `frankensim`, `host`, `static`, `unavailable`); a typed primary
+result adds `data-result-status`, a refusal adds `data-refusal-code`.
+Runtime-lane attributes `data-accepted-action-index` and `data-view-state`
+(defined by `am-rt-snapshot-store-aft`) are read when present and never
+required. Every view of one instance (trace, distribution, equation live
+values, table, accessible description) carries `data-instance-id`,
+`data-run-id`, and `data-snapshot-version`; `scripts/e2e/checks/measure.ts`'s
+`checkSameSnapshotIdentity` asserts they agree across views.
+
+**The `data-instrument-id` value rule.** `am-inst-registry-dispatcher-66l0`
+writes this attribute and owns which value it holds: the bare catalogue id
+(`bm-01`) when the default mode is mounted, or `<instrumentId>:<mode>`
+(`me-03:box-1906`, `sr-02:apparatus`, `bm-04:kicks-off`, `bm-07:kitchen`)
+when a registered mode is mounted — never a preset id, because a preset
+changes parameters within a mode while the address names the mode.
+`parseInstrumentAddress` validates the grammar unconditionally: a single
+optional colon, and lower-case ASCII words and digits joined by hyphens on
+each side, with a dot permitted only between two digits. A preset id
+(`<instrumentId>-<slug>`, e.g. `sr-03-boost-0.6c`) fails this grammar
+whenever it is used as an address, because its slug may glue a unit letter
+onto a decimal (`0.6c`) with no hyphen — exactly the shape the grammar
+rejects. Membership (whether a given `<instrumentId>:<mode>` is actually
+registered) is checked only against a `declaredModes` list the caller
+supplies — a paper journey passes the list from its compiled manifest — and
+an address outside that list fails naming the registered modes. With no
+list, the parser returns the parsed instrument id and mode and asserts
+nothing about membership, because this Batch A harness must not import the
+compiled content registry to read a DOM attribute.
+
+## Lanes
+
+`scripts/e2e/lanes.ts` defines the eleven lanes AGENTS.md's "Testing and
+Logging Standards" require, as plain structural data (`LaneDefinition`) —
+not `@playwright/test` `Project` objects, because `@playwright/test` is not
+yet a dependency of this repository (only the browser-automation library
+`playwright` is; see `src/testing/log/playwright.ts`). A real
+`playwright.config.ts` maps each definition onto a Playwright project once
+that dependency is added; until then `laneByName` and `createLaneActions`
+are exercised directly.
+
+| Lane | Browser | Viewport | Notes |
+|---|---|---|---|
+| `desktop` | Chromium | 1440×900 | |
+| `tablet` | WebKit | 768×1024 | touch |
+| `touch-320` | Chromium | 320×800 | mobile emulation, touch, exactly 320 CSS px wide |
+| `webkit-real` | WebKit | 1280×800 | a real WebKit/Safari lane, distinct from `tablet` |
+| `keyboard-only` | Chromium | 1440×900 | `createLaneActions` throws on any pointer action |
+| `reduced-motion` | Chromium | 1440×900 | `reducedMotion: "reduce"` |
+| `zoom-400` | Chromium | 320×256 | device scale factor 4 (WCAG reflow) |
+| `text-200` | Chromium | 1440×900 | injects a root font-size: 200% stylesheet |
+| `no-webgl` | Chromium | 1440×900 | launched with `--disable-3d-apis --disable-webgl --disable-webgl2`; `getContext("webgl"/"webgl2")` must return `null` |
+| `js-disabled` | Chromium | 1440×900 | `javaScriptEnabled: false` |
+| `print` | Chromium | 1440×900 | print media emulation and PDF output |
+
+`createLaneActions(lane, delegate)` wraps a page's real action methods so
+the contract primitives (`operateInstrument`, `enterValue`, ...) go through
+one API that enforces `keyboard-only`'s constraint, instead of each journey
+author remembering to avoid pointer calls by convention.
+
+## Emulation utilities
+
+`scripts/e2e/emulation.ts` holds the pieces other beads reuse without
+depending on a live page:
+
+- `TEXT_SPACING_STYLESHEET` and `parseTextSpacingStylesheet` — the WCAG
+  1.4.12 values (line height 1.5, paragraph spacing 2 em, letter spacing
+  0.12 em, word spacing 0.16 em) as one injectable stylesheet, and a parser
+  back out of it so a test can assert on the values directly rather than on
+  the CSS text.
+- `visionDeficiencyAvailability(browser)` — Chromium-only; reports
+  `"not-available"` for WebKit and Firefox rather than silently no-op'ing.
+- `isWasmRequestUrl(url)` — the `*.wasm` request-blocking predicate.
+- `releaseOrder(releases)` — given a set of `{ id, delayMs }` responses,
+  returns the order they resolve in, for scripting "an older response
+  arrives after a newer one" against `data-accepted-input-revision`.
+- `resolveCpuThrottling` / `loadCpuThrottling` — reads a profile's
+  `cpuSlowdown.factor` from `perf/profiles.json` (or a fixture path);
+  reports `"not-available"` when the file or the named profile is absent,
+  never a default factor. WebKit cannot throttle CPU; do not mix
+  performance assertions into acceptance lanes.
+
+## The fixture application registry
+
+`scripts/e2e/fixtures/fixtureApps.ts` is the **one** registry of
+interactive fixture applications and the **one** validator of its entries;
+there is never a second bundler or a second registry. A bead that needs an
+interactive fixture instrument in a real browser adds an entry here in the
+same change as its fixture application, instead of adding a fixture build,
+flag, route, or conditional import to the main application:
+
+```ts
+export interface FixtureAppEntry {
+  id: string;                    // stable; appears in failure messages
+  entry: string;                 // a directory under src/testing/
+  outDir: string;                // artifacts/e2e-fixtures/<id>/ (gitignored)
+  owner: string;                 // the registering bead id
+  staticInputs?: FixtureStaticInput[];
+}
+```
+
+`staticInputs` (`{ from, servedPath }`) declares committed or generated
+files an application needs served unchanged beside its bundle — a pinned
+WASM artifact and its manifest, for instance — so a fixture can exercise the
+real artifact rather than an unchecked copy. `from` must stay inside the
+repository; `servedPath` is relative to that application's `/apps/<id>/`
+root, may not be absolute or escape it, may not collide with a bundle
+output name (`bundle.js`, `bundle.js.map`), and may not repeat within one
+entry. `validateFixtureAppRegistry` rejects a duplicate id, an `entry`
+outside `src/testing/`, an `outDir` outside `artifacts/e2e-fixtures/`, an
+entry with no owner, and every `staticInputs` violation above; it accepts
+an optional `isKnownBeadId` predicate to check an owner against real bead
+ids without this pure module depending on the tracker.
+
+The registry ships **empty** from this bead: the harness's own self-test
+fixture (`harness-selftest`) and each consumer's fixture application
+(`am-rt-browser-conformance-09i5`'s `runtime`, `am-inst-predict-mode-ti7m`'s
+`predict-mode`, `am-inst-interaction-primitives-emwy`'s
+`interaction-primitives`, `am-inst-2d-view-kit-u75r`'s `2d-view-kit`,
+`am-inst-parameter-controls-cmj9`'s `controls-kit`) each land in the same
+change as that fixture application, from the bead that owns it. The
+bundler (`bundleFixtures.ts`), the server (`fixtureServer.ts`), and the
+build-output scan (`buildOutputScan.ts`) that turn a registered entry into
+a served, verified bundle remain open work under this bead.
+
+## The CLI's harness flags
+
+`scripts/e2e/cli.ts`'s `parseE2ECliArgs` parses the flag set requirement 12
+of `am-test-e2e-harness-bqmh` names:
+
+```bash
+bun scripts/e2e-paper-vertical-slices.ts [--paper <slug> | --fixtures | --smoke] [--lane <name>] [--journey <id>]
+```
+
+Exactly one of `--paper <slug>`, `--fixtures`, or `--smoke` is required.
+`--lane <name>` is validated against `lanes.ts`'s `laneByName` (an unknown
+lane fails naming every known lane); `--paper <slug>` is checked against an
+optional caller-supplied list of known paper slugs, with the same
+no-list-means-no-membership-check boundary as the instrument address
+parser. This is a distinct, smaller flag set from `parsePaperE2EArgs` in
+`scripts/e2e/paper-e2e-contract.ts` (`--all`, `--changed`, `--base-url`,
+`--viewports`, ...); wiring the two into one CLI entry point is open work.
 
 ## What a self-test proves
 
