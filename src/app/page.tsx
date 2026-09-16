@@ -63,6 +63,12 @@ export default function Home() {
           <p>
             <a href="/lab/bm-06/">Open the spreading laboratory →</a>
           </p>
+          <p>
+            <a href="/lab/lq-01/">Interrogate wave interference and spherical energy spreading →</a>
+          </p>
+          <p>
+            <a href="/lab/me-02/">Ask what a drop in energy of motion says about inertia →</a>
+          </p>
         </div>
       </section>
       <section className="reading">

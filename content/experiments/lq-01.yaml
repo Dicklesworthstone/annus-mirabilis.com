@@ -1,0 +1,590 @@
+id: lq-01
+title: "LQ-01: Wave Description and Energy Spreading"
+explanatoryQuestion: "What does a continuous wave description of light explain well, and what exactly does its intensity measure?"
+sourceRefs:
+  - paper: light-quanta
+    id: s0
+argumentIds:
+  - arg-lq-wave-success
+  - arg-lq-time-averages
+  - arg-lq-energy-spreading
+schemaVersion: 1
+parameters:
+  - id: A1
+    label: "Wave 1 amplitude"
+    accessibleName: "First wave source amplitude"
+    accessibleDescription: "Normalized electric field amplitude of first coherent source"
+    quantityId: radiationElectricField
+    displayUnit: ""
+    modelDomain:
+      min: 0
+      max: 2
+      minInclusive: true
+      maxInclusive: true
+      reason: "Normalized non-negative field amplitude"
+    visualRange:
+      min: 0
+      max: 2
+    default: 1
+    mapping:
+      kind: linear
+    role: independent
+    commandClass: setup-change
+  - id: A2
+    label: "Wave 2 amplitude"
+    accessibleName: "Second wave source amplitude"
+    accessibleDescription: "Normalized electric field amplitude of second coherent source"
+    quantityId: radiationElectricField
+    displayUnit: ""
+    modelDomain:
+      min: 0
+      max: 2
+      minInclusive: true
+      maxInclusive: true
+      reason: "Normalized non-negative field amplitude"
+    visualRange:
+      min: 0
+      max: 2
+    default: 1
+    mapping:
+      kind: linear
+    role: independent
+    commandClass: setup-change
+  - id: delta
+    label: "Relative phase"
+    accessibleName: "Relative phase difference"
+    accessibleDescription: "Phase difference between the two sources in radians"
+    quantityId: phaseAngle
+    displayUnit: "rad"
+    modelDomain:
+      min: 0
+      max: 6.283185307179586
+      minInclusive: true
+      maxInclusive: true
+      reason: "Phase difference over a full 2*pi cycle"
+    visualRange:
+      min: 0
+      max: 6.283185307179586
+    default: 0
+    mapping:
+      kind: linear
+    role: independent
+    commandClass: physical-intervention
+  - id: wavelength
+    label: "Wavelength"
+    accessibleName: "Monochromatic light wavelength"
+    accessibleDescription: "Wavelength of the monochromatic waves in display units"
+    quantityId: wavelength
+    displayUnit: ""
+    modelDomain:
+      min: 0.2
+      max: 5
+      minInclusive: true
+      maxInclusive: true
+      reason: "Positive wavelength in scale-free display units"
+    visualRange:
+      min: 0.2
+      max: 5
+    default: 1
+    mapping:
+      kind: linear
+    role: independent
+    commandClass: setup-change
+  - id: separation
+    label: "Source separation"
+    accessibleName: "Separation between sources"
+    accessibleDescription: "Separation distance d between the two coherent sources in units of wavelength"
+    quantityId: displacement1d
+    displayUnit: "lambda"
+    modelDomain:
+      min: 0
+      max: 10
+      minInclusive: true
+      maxInclusive: true
+      reason: "Non-negative source separation in units of wavelength"
+    visualRange:
+      min: 0
+      max: 10
+    default: 3
+    mapping:
+      kind: linear
+    role: independent
+    commandClass: setup-change
+  - id: screenDistance
+    label: "Screen distance"
+    accessibleName: "Distance to observation screen"
+    accessibleDescription: "Distance D from source plane to observation screen in units of wavelength"
+    quantityId: displacement1d
+    displayUnit: "lambda"
+    modelDomain:
+      min: 10
+      max: 1000
+      minInclusive: true
+      maxInclusive: true
+      reason: "Strictly positive screen distance in units of wavelength"
+    visualRange:
+      min: 10
+      max: 1000
+    default: 100
+    mapping:
+      kind: log
+      base: 10
+    role: independent
+    commandClass: setup-change
+  - id: readout
+    label: "Intensity readout"
+    accessibleName: "Readout mode"
+    accessibleDescription: "Choice between time-averaged intensity and instantaneous squared field"
+    quantityId: measurementKind
+    displayUnit: ""
+    modelDomain:
+      enumerated: []
+      reason: "One of time-average or instantaneous"
+    visualRange:
+      min: 0
+      max: 1
+    default: "time-average"
+    mapping:
+      kind: linear
+    role: independent
+    commandClass: observer-change
+  - id: t
+    label: "Time phase"
+    accessibleName: "Instantaneous snapshot phase"
+    accessibleDescription: "Normalized time phase omega*t for instantaneous readout"
+    quantityId: phaseAngle
+    displayUnit: "rad"
+    modelDomain:
+      min: 0
+      max: 6.283185307179586
+      minInclusive: true
+      maxInclusive: true
+      reason: "Time phase parameter for instantaneous snapshot"
+    visualRange:
+      min: 0
+      max: 6.283185307179586
+    default: 0
+    mapping:
+      kind: linear
+    role: independent
+    commandClass: observer-change
+  - id: P
+    label: "Source power"
+    accessibleName: "Isotropic source radiant power"
+    accessibleDescription: "Total radiant power emitted by point source in watts"
+    quantityId: incidentPower
+    displayUnit: "W"
+    modelDomain:
+      min: 0.001
+      max: 1000
+      minInclusive: true
+      maxInclusive: true
+      reason: "Strictly positive source power in watts"
+    visualRange:
+      min: 0.001
+      max: 1000
+    default: 1
+    mapping:
+      kind: log
+      base: 10
+    role: independent
+    commandClass: physical-intervention
+  - id: r
+    label: "Observation radius"
+    accessibleName: "Spreading sphere radius"
+    accessibleDescription: "Distance from point source to observation sphere in meters"
+    quantityId: displacement1d
+    displayUnit: "m"
+    modelDomain:
+      min: 0.1
+      max: 100
+      minInclusive: true
+      maxInclusive: true
+      reason: "Strictly positive distance from source in meters"
+    visualRange:
+      min: 0.1
+      max: 100
+    default: 1
+    mapping:
+      kind: log
+      base: 10
+    role: independent
+    commandClass: physical-intervention
+  - id: mode
+    label: "Laboratory mode"
+    accessibleName: "Operating mode"
+    accessibleDescription: "Choice between two-source interference and inverse-square spherical spreading"
+    quantityId: measurementKind
+    displayUnit: ""
+    modelDomain:
+      enumerated: []
+      reason: "One of interference or spreading"
+    visualRange:
+      min: 0
+      max: 1
+    default: "interference"
+    mapping:
+      kind: linear
+    role: independent
+    commandClass: setup-change
+  - id: screenPosition
+    label: "Screen position"
+    accessibleName: "Target screen position"
+    accessibleDescription: "Selected position on observation screen (center, first-min, first-max)"
+    quantityId: measurementKind
+    displayUnit: ""
+    modelDomain:
+      enumerated: []
+      reason: "One of center, first-min, or first-max"
+    visualRange:
+      min: 0
+      max: 2
+    default: "center"
+    mapping:
+      kind: linear
+    role: independent
+    commandClass: measurement-change
+outputs:
+  - id: centerIntensity
+    quantityId: incidentPower
+    allowedStatuses:
+      - value
+      - outside-domain
+    primary: true
+  - id: fringeVisibility
+    quantityId: visibility
+    allowedStatuses:
+      - value
+    primary: false
+  - id: fringeSpacing
+    quantityId: fringeSpacing
+    allowedStatuses:
+      - value
+      - outside-domain
+    primary: false
+  - id: pointSourceIntensity
+    quantityId: incidentPower
+    allowedStatuses:
+      - value
+      - outside-domain
+    primary: false
+  - id: shellPower
+    quantityId: incidentPower
+    allowedStatuses:
+      - value
+      - outside-domain
+    primary: false
+  - id: instantaneousCenterIntensity
+    quantityId: incidentPower
+    allowedStatuses:
+      - value
+      - outside-domain
+    primary: false
+  - id: smallAperturePower
+    quantityId: incidentPower
+    allowedStatuses:
+      - value
+      - outside-domain
+    primary: false
+  - id: exactDiskPower
+    quantityId: incidentPower
+    allowedStatuses:
+      - value
+      - outside-domain
+    primary: false
+  - id: relativeDifference
+    quantityId: dimensionlessRatio
+    allowedStatuses:
+      - value
+      - outside-domain
+    primary: false
+  - id: pathDifference
+    quantityId: displacement1d
+    allowedStatuses:
+      - value
+    primary: false
+  - id: selectedPositionIntensity
+    quantityId: incidentPower
+    allowedStatuses:
+      - value
+      - outside-domain
+    primary: false
+  - id: screenIntensity
+    quantityId: coordinate-intensity
+    allowedStatuses:
+      - value
+      - outside-domain
+    primary: false
+assumptions:
+  - "Linear superposition holds for the scalar wave field."
+  - "The two sources are monochromatic and mutually coherent."
+  - "Observation times are long compared with optical periods for time-averaged readouts."
+  - "Energy radiates isotropically from point sources into non-absorbing free space."
+admittedDomain: "Scalar wave propagation, coherent two-source interference, and spherical energy spreading with positive distance r > 0."
+notModeled:
+  - "Polarization and vector electromagnetic field components."
+  - "Photon statistics, photon anti-bunching, or quantum optics."
+  - "Absorption, emission, or quantum detection by matter."
+  - "Non-monochromatic or finite-coherence-length light sources."
+  - "Diffraction effects beyond the coherent two-source idealization."
+  - "An absolute physical intensity scale unless a radiant power and detector geometry are declared."
+owner:
+  kind: reference-evaluator
+  kernelFunctions:
+    - displayRole: executing-source
+      language: ts
+      module: "src/physics/reference/radiation.ts"
+      exportName: "twoSourceIntensity"
+    - displayRole: reference-implementation
+      language: ts
+      module: "src/physics/reference/radiation.ts"
+      exportName: "inverseSquareIntensity"
+    - displayRole: reference-implementation
+      language: ts
+      module: "src/physics/reference/radiation.ts"
+      exportName: "shellPowerIdentity"
+    - displayRole: reference-implementation
+      language: ts
+      module: "src/physics/reference/radiation.ts"
+      exportName: "fringeVisibility"
+    - displayRole: reference-implementation
+      language: ts
+      module: "src/physics/reference/radiation.ts"
+      exportName: "fringeSpacingSmallAngle"
+views:
+  - id: lq-01-interference-plot
+    kind: svg
+    consumes:
+      - centerIntensity
+      - fringeVisibility
+      - fringeSpacing
+      - screenIntensity
+      - pathDifference
+      - selectedPositionIntensity
+  - id: lq-01-wavefront-view
+    kind: svg
+    consumes:
+      - centerIntensity
+      - pathDifference
+  - id: lq-01-spreading-view
+    kind: svg
+    consumes:
+      - pointSourceIntensity
+      - shellPower
+      - smallAperturePower
+      - exactDiskPower
+      - relativeDifference
+  - id: lq-01-data-table
+    kind: table
+    consumes:
+      - centerIntensity
+      - fringeVisibility
+      - fringeSpacing
+      - pointSourceIntensity
+      - shellPower
+      - instantaneousCenterIntensity
+      - smallAperturePower
+      - exactDiskPower
+      - relativeDifference
+actions:
+  - actionId: lq-01-set-phase-difference
+    family: wave-optics
+    question: "How does the relative phase between two coherent waves alter the interference pattern and center brightness?"
+    inputs:
+      - delta
+      - A1
+      - A2
+    commandClass: physical-intervention
+    acceptedResult:
+      outputs:
+        - centerIntensity
+        - fringeVisibility
+      allowedStatuses:
+        - value
+    visualAffordance: "Wave crests shift and center intensity transitions between constructive maximum and destructive zero"
+    equivalentAffordance: "Read center intensity in data table as phase varies"
+    announcement: "Phase difference updated: center intensity recalculated"
+  - actionId: lq-01-select-screen-position
+    family: wave-optics
+    question: "How does the path difference from the two sources determine whether a screen position is bright or dark?"
+    inputs:
+      - screenPosition
+    commandClass: measurement-change
+    acceptedResult:
+      outputs:
+        - pathDifference
+        - selectedPositionIntensity
+      allowedStatuses:
+        - value
+    visualAffordance: "Screen marker highlights local path difference and interference fringe"
+    equivalentAffordance: "Read path difference and intensity for chosen position in data table"
+    announcement: "Screen position selected: path difference and intensity updated"
+  - actionId: lq-01-toggle-readout-mode
+    family: wave-optics
+    question: "How does the time-averaged intensity recorded by optical detectors differ from the instantaneous squared field?"
+    inputs:
+      - readout
+      - t
+    commandClass: observer-change
+    acceptedResult:
+      outputs:
+        - centerIntensity
+        - instantaneousCenterIntensity
+      allowedStatuses:
+        - value
+    visualAffordance: "Plot switches between stationary time-averaged envelope and rapid instantaneous oscillation"
+    equivalentAffordance: "Read time-averaged vs instantaneous label and values in table"
+    announcement: "Readout mode toggled: instantaneous vs time-averaged display updated"
+  - actionId: lq-01-set-spreading-radius
+    family: radiation-energy-accounting
+    question: "How does geometric spherical spreading reduce intensity while strictly conserving total radiant power across any enclosing shell?"
+    inputs:
+      - r
+      - P
+    commandClass: physical-intervention
+    acceptedResult:
+      outputs:
+        - pointSourceIntensity
+        - shellPower
+        - smallAperturePower
+        - exactDiskPower
+      allowedStatuses:
+        - value
+    visualAffordance: "Spherical shell radius expands with inverse-square color attenuation while total shell power remains constant"
+    equivalentAffordance: "Read intensity and shell power in data table"
+    announcement: "Spreading radius updated: intensity and enclosed shell power calculated"
+presets:
+  - presetId: lq-01-equal-amplitudes
+    label: "Equal amplitudes in phase (A1 = A2 = 1, delta = 0)"
+    parameterValues:
+      A1: 1
+      A2: 1
+      delta: 0
+      wavelength: 1
+      separation: 3
+      screenDistance: 100
+      readout: "time-average"
+      t: 0
+      P: 1
+      r: 1
+      mode: "interference"
+      screenPosition: "center"
+  - presetId: lq-01-phase-shifted
+    label: "Half-wave phase shift (A1 = A2 = 1, delta = pi)"
+    parameterValues:
+      A1: 1
+      A2: 1
+      delta: 3.141592653589793
+      wavelength: 1
+      separation: 3
+      screenDistance: 100
+      readout: "time-average"
+      t: 0
+      P: 1
+      r: 1
+      mode: "interference"
+      screenPosition: "center"
+  - presetId: lq-01-unequal-amplitudes
+    label: "Unequal amplitudes (A1 = 1, A2 = 0.5, delta = 0)"
+    parameterValues:
+      A1: 1
+      A2: 0.5
+      delta: 0
+      wavelength: 1
+      separation: 3
+      screenDistance: 100
+      readout: "time-average"
+      t: 0
+      P: 1
+      r: 1
+      mode: "interference"
+      screenPosition: "center"
+  - presetId: lq-01-inverse-square-spreading
+    label: "Inverse-square spherical spreading (P = 1 W, r = 1 m)"
+    parameterValues:
+      A1: 1
+      A2: 1
+      delta: 0
+      wavelength: 1
+      separation: 3
+      screenDistance: 100
+      readout: "time-average"
+      t: 0
+      P: 1
+      r: 1
+      mode: "spreading"
+      screenPosition: "center"
+  - presetId: lq-01-instantaneous-snapshot
+    label: "Instantaneous field snapshot (t = 0)"
+    parameterValues:
+      A1: 1
+      A2: 1
+      delta: 0
+      wavelength: 1
+      separation: 3
+      screenDistance: 100
+      readout: "instantaneous"
+      t: 0
+      P: 1
+      r: 1
+      mode: "interference"
+      screenPosition: "center"
+probes:
+  - lq01-probe-equal-interference
+  - lq01-probe-time-average
+  - lq01-probe-inverse-square
+weavePredicates:
+  - lq01-s0-wave-success
+  - lq01-s0-time-averages
+  - lq01-s0-energy-spreading
+historicalOverlays: []
+realRate:
+  natural: false
+embeddable: true
+predictMode:
+  enabled: true
+  prompts:
+    - promptId: lq-01-predict-phase-shift
+      controlId: delta
+      question: "Two equal waves meet at the center of the screen. What happens to the intensity there when the phase difference goes from 0 to π?"
+      candidates:
+        - id: unchanged
+          label: "It stays the same"
+          description: "Interference does not change the total brightness at the center"
+          relation: "⟨I⟩(π) = ⟨I⟩(0)"
+          separatingAssumption: "Assumes radiant powers add directly without linear scalar field superposition or interference."
+        - id: halves
+          label: "It halves"
+          description: "Shifting one wave cancels half the incoming radiant power"
+          relation: "⟨I⟩(π) = 0.5 * ⟨I⟩(0)"
+          separatingAssumption: "Assumes shifting by half a wave cancels only half the incoming field instead of complete phase reversal."
+        - id: drops-to-zero
+          label: "It drops to zero"
+          description: "Equal waves out of phase by half a cycle cancel completely"
+          relation: "⟨I⟩(π) = 0"
+          separatingAssumption: "Follows from linear field superposition: equal waves with delta = pi cancel completely at the center."
+    - promptId: lq-01-predict-inverse-square
+      controlId: r
+      question: "The source keeps its power. What happens to the intensity when the distance from it doubles?"
+      candidates:
+        - id: halves
+          label: "It halves"
+          description: "Intensity falls in linear proportion to distance"
+          relation: "I ∝ r^(-1)"
+          separatingAssumption: "Assumes linear 1/r geometric dilution rather than 1/r^2 spherical area expansion."
+        - id: quarters
+          label: "It drops to a quarter"
+          description: "Energy spreads over the spherical area 4*pi*r^2"
+          relation: "I ∝ r^(-2)"
+          separatingAssumption: "Follows from spherical surface area 4*pi*r^2: doubling radius quadruples area, quartering intensity."
+        - id: unchanged
+          label: "It stays the same"
+          description: "Power radiates without geometric dilution"
+          relation: "I ∝ r^0"
+          separatingAssumption: "Assumes collimated beam propagation without geometric angular spreading."
+acceptanceCases:
+  - waves-lq01
+defaultScenario: waves-lq01
+tapeModel:
+  modelId: lq-01
+  modelVersion: 1

@@ -53,11 +53,21 @@ export default function Papers() {
             </p>
             <p className="fine">{paper.locator}</p>
             <p className="badge">{paper.status}</p>
+            {i === 0 && (
+              <div className="actions">
+                <a href="/lab/lq-01/">Wave description & energy spreading →</a>
+              </div>
+            )}
             {i === 1 && (
               <div className="actions">
                 <a href="/papers/brownian-motion/">Read the displacement argument →</a>
                 <a href="/discover/brownian-motion/">First encounter →</a>
                 <a href="/lab/bm-06/">Spreading laboratory →</a>
+              </div>
+            )}
+            {i === 3 && (
+              <div className="actions">
+                <a href="/lab/me-02/">Inertia from the small-speed coefficient →</a>
               </div>
             )}
           </article>

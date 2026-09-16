@@ -1,0 +1,8 @@
+beadId: am-lq-01-wave-description-kv2r
+targets:
+  - instrument: lq-01
+    captions:
+      - r0
+      - r1
+      - r2
+      - r3
