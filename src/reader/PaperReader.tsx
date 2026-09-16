@@ -1,3 +1,7 @@
+import { EquationScope } from "../equations/EquationScope";
+import { SemanticEquation } from "../equations/SemanticEquation";
+import equationPayload from "../generated/brownian-equations.json";
+import type { CompiledEquation } from "../equations/viewTypes";
 import { loadPaper } from "../content/server";
 import { ReadingBlocks, FoundationBody, FoundationLink } from "./Blocks";
 import { ReaderController } from "./ReaderController";
@@ -23,6 +27,7 @@ export async function PaperReader({ section }: { section?: string }) {
     <div className="reader-body">{sections.map(s => <section key={s.id} id={s.id} tabIndex={-1} className="reader-section"><h2>{s.title}</h2>{args.filter(a => a.section === s.id).map(a => <article key={a.id} id={a.id} tabIndex={-1} className="reader-passage">
       <p className="eyebrow">{a.meaning.logicalRole} · {a.meaning.modelStatus === "approximation" ? "Model approximation" : "Within the stated model"}</p><h3>{a.title}</h3><p className="passage-question">{a.question}</p>
       <div data-face-reading>{(["overview", "full", "steps"] as const).map((reading, i) => <div data-reading={i} hidden={i !== 1} className="reading-version" key={reading}><ReadingBlocks blocks={a.readings[reading]} foundations={foundations} embed={reading === "steps"}/></div>)}
+        <EquationScope>{(equationPayload.equations as readonly CompiledEquation[]).filter(e=>e.argument===a.id).map(e=><SemanticEquation key={e.id} equation={e}/>)}</EquationScope>
         <details className="local-steps"><summary>Show every step here: {a.title}</summary><ReadingBlocks blocks={a.readings.steps} foundations={foundations} embed/></details>
         <aside className="modern-margin" data-reading="3" hidden><h4>Modern qualifications</h4><ReadingBlocks blocks={a.readings.margin} foundations={foundations}/></aside>
       </div>
