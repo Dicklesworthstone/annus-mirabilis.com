@@ -5,6 +5,9 @@ import { createInstanceStore, type Parameters } from "../store/instanceStore.ts"
 import { ME01_CLASSES, ME01_DEFAULTS, ME01_OUTPUTS, type Me01Parameters } from "./definition.ts";
 import { validateMe01Parameters } from "./parameters.ts";
 
+export type { Me01Snapshot };
+export type Me01Evaluation = Me01Snapshot;
+
 export type PreparedMe01Example = Readonly<{
   sourceDigest: string;
   parameters: Me01Parameters;
