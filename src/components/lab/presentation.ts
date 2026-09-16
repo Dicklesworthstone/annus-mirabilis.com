@@ -1,3 +1,4 @@
+import { formatScaledDecimal } from "../../units/decimalScale.ts";
 import type { AcceptedSnapshot, NumericView, PublishedResult } from "../../experiments/store/instanceStore.ts";
 export function result(snapshot: AcceptedSnapshot, id: string): PublishedResult {
   const value = snapshot.outputs.find(o => o.quantityId === id);
@@ -16,9 +17,8 @@ export function array(snapshot: AcceptedSnapshot, id: string): NumericView {
 }
 /** Presentation rounding and explicit unit conversion only; no physical laws live here. */
 export function display(value: number, factor = 1): string {
-  const scaled = value * factor;
-  if (!Number.isFinite(scaled)) throw new TypeError("A nonfinite display value was rejected.");
-  return scaled === 0 ? "0" : Number(scaled.toPrecision(5)).toString();
+  if (!Number.isFinite(value) || !Number.isFinite(factor) || factor <= 0) throw new TypeError("A nonfinite display value was rejected.");
+  return formatScaledDecimal(Number(value.toPrecision(5)), Math.log10(factor));
 }
 export function identity(snapshot: AcceptedSnapshot) {
   return { "data-instance-id": snapshot.instanceId, "data-run-id": snapshot.runId, "data-snapshot-version": snapshot.snapshotVersion };

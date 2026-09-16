@@ -4,35 +4,10 @@ import { BM06_MODEL, BM06_PRESETS, type Bm06Parameters } from "../../experiments
 import { createBm06Session, type PreparedBm06Example } from "../../experiments/bm06/session.ts";
 import { createBm06BrowserChannel } from "../../experiments/bm06/browser.ts";
 import { decodeBm06Settings, encodeBm06Settings } from "../../experiments/bm06/permalink.ts";
+import { BM06_FIELDS as fields, toBm06Draft as toDraft, fromBm06Draft as fromDraft } from "../../experiments/bm06/controls.ts";
 import { DistributionPlot, GridComparison } from "./DistributionPlot.tsx";
 import { array, display, identity, scalar } from "./presentation.ts";
 
-type NumericKey = Exclude<keyof Bm06Parameters, "gridEnabled">;
-const fields: readonly { key: NumericKey; label: string; unit: string; factor: number }[] = [
-  { key: "T", label: "Temperature", unit: "K", factor: 1 },
-  { key: "eta", label: "Viscosity", unit: "mPa·s", factor: 1000 },
-  { key: "a", label: "Particle radius", unit: "μm", factor: 1e6 },
-  { key: "t", label: "Elapsed time", unit: "s", factor: 1 },
-  { key: "lower", label: "Lower interval endpoint", unit: "μm", factor: 1e6 },
-  { key: "upper", label: "Upper interval endpoint", unit: "μm", factor: 1e6 },
-  { key: "n", label: "Grid cells", unit: "count", factor: 1 },
-  { key: "dx", label: "Cell width", unit: "μm", factor: 1e6 },
-  { key: "steps", label: "Time steps", unit: "count", factor: 1 },
-];
-type Draft = Record<NumericKey, string> & { gridEnabled: boolean };
-function toDraft(p: Bm06Parameters): Draft {
-  return Object.assign({ gridEnabled: p.gridEnabled }, Object.fromEntries(fields.map(f => [f.key, String(p[f.key] * f.factor)]))) as Draft;
-}
-function fromDraft(draft: Draft): Bm06Parameters {
-  const entries = fields.map(f => {
-    const text = draft[f.key].trim();
-    if (!text || !/^[+-]?(?:\d+\.?\d*|\.\d+)(?:e[+-]?\d+)?$/i.test(text)) throw new Error(`${f.label}: enter a finite number in ${f.unit}.`);
-    const value = Number(text) / f.factor;
-    if (!Number.isFinite(value)) throw new Error(`${f.label}: enter a finite number in ${f.unit}.`);
-    return [f.key, value];
-  });
-  return { ...Object.fromEntries(entries), gridEnabled: draft.gridEnabled } as Bm06Parameters;
-}
 export function BrownianLab({ example, title = "The spreading laboratory" }: { example: PreparedBm06Example; title?: string }) {
   const id = useId();
   const [session] = useState(() => createBm06Session(`bm06-${id}`, example, createBm06BrowserChannel));
