@@ -30,9 +30,10 @@ const PROVENANCE_FIXTURES_DIR = path.resolve(__dirname, "../../testing/fixtures/
 test("Integration: receiptToSourceAsset for ap-99-001.md conforms to validateSourceAsset schema", () => {
   const receiptPath = path.join(PROVENANCE_FIXTURES_DIR, "ap-99-001.md");
   const markdown = fs.readFileSync(receiptPath, "utf8");
-  const receipt = parseReceipt(markdown, receiptPath);
+  const parsed = parseReceipt(markdown, receiptPath);
+  assert.ok(parsed.ok && parsed.receipt, "Failed to parse receipt");
 
-  const asset = receiptToSourceAsset(receipt);
+  const asset = receiptToSourceAsset(parsed.receipt);
   const validated = validateSourceAsset(asset);
 
   assert.equal(validated.originUrl, "https://example.org/details/annalen-der-physik-99-001");

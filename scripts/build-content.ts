@@ -18,6 +18,7 @@ export async function loadReadingFiles(root = ROOT) {
       const full = resolve(path, name), stat = await lstat(full);
       if (stat.isSymbolicLink()) throw new Error(`Content symlinks are not admitted: ${full}`);
       if (stat.isDirectory()) { await walk(full); continue; }
+      if (name.endsWith(".md")) continue;
       if (!stat.isFile() || stat.size > 512 * 1024) throw new Error(`Invalid or oversized content file: ${full}`);
       if (files.length >= 512) throw new Error("Content record-count budget exceeded.");
       bytes += stat.size; if (bytes > 8 * 1024 * 1024) throw new Error("Content total size budget exceeded.");
