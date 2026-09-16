@@ -143,6 +143,12 @@ export function validateTapeCompatibility(
  * Tape recorder that captures parameter changes into a bounded versioned tape.
  */
 export class ControlTapeRecorder {
+  readonly experimentId: string;
+  readonly modelIdentity: string;
+  readonly initialConditions: Record<string, number>;
+  readonly seed: number;
+  readonly tickS: number;
+
   private events: ControlTapeEvent[] = [];
   private checkpoints: ControlTapeCheckpoint[] = [];
   private currentState: Record<string, number>;
@@ -150,12 +156,17 @@ export class ControlTapeRecorder {
   private currentTick = 0;
 
   constructor(
-    public readonly experimentId: string,
-    public readonly modelIdentity: string,
-    public readonly initialConditions: Record<string, number>,
-    public readonly seed = 0,
-    public readonly tickS = 1 / 60,
+    experimentId: string,
+    modelIdentity: string,
+    initialConditions: Record<string, number>,
+    seed = 0,
+    tickS = 1 / 60,
   ) {
+    this.experimentId = experimentId;
+    this.modelIdentity = modelIdentity;
+    this.initialConditions = initialConditions;
+    this.seed = seed;
+    this.tickS = tickS;
     this.currentState = { ...initialConditions };
     // Create initial checkpoint at tick 0
     const { digest, digestKind } = computeTapeDigest(this.currentState, 0, this.seed);
@@ -262,17 +273,15 @@ export class ControlTapeRecorder {
  * Handles forward/backward seeking, checkpoint restoration, and refusal on model mismatch.
  */
 export class ControlTapeReplayer {
+  readonly tape: ControlTape;
   private currentTick = 0;
   private state: Record<string, number>;
   private lastValidCheckpoint: ControlTapeCheckpoint;
   private isRefused = false;
   private refusalReason: string | undefined = undefined;
 
-  constructor(
-    public readonly tape: ControlTape,
-    currentExperimentId: string,
-    currentModelIdentity: string,
-  ) {
+  constructor(tape: ControlTape, currentExperimentId: string, currentModelIdentity: string) {
+    this.tape = tape;
     const validation = validateTapeCompatibility(tape, currentExperimentId, currentModelIdentity);
     if (!validation.valid) {
       this.isRefused = true;
@@ -310,6 +319,10 @@ export class ControlTapeReplayer {
 
   get reason(): string | undefined {
     return this.refusalReason;
+  }
+
+  get lastCheckpoint(): ControlTapeCheckpoint {
+    return this.lastValidCheckpoint;
   }
 
   /**
