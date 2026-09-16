@@ -192,6 +192,7 @@ export function conflictingBuilds(): string[] {
     const parts = trimmed.split(/\s+/);
     const pid = parts[0];
     const ppid = parts[1];
+    if (!pid) return false;
     if (pid === currentPid || ppid === currentPid) return false;
     const commandStr = parts.slice(3).join(" ");
     if (

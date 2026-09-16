@@ -1,11 +1,9 @@
 import { getLogger } from "./logger.ts";
 import type { Outcome, ToleranceSpec } from "./schema.ts";
-// am-ver-tolerance-module-ho90 delivers this module. Its documented interface
-// (validateToleranceSpec, withinTolerance, compareBitwise) is consumed here
-// verbatim; this file carries no tolerance or bitwise comparison logic of its
-// own. See am-test-logging-standard-l3cp's comment on that bead and the
-// MaroonTiger -> BoldHarbor mail thread for the agreed signatures.
-import { validateToleranceSpec, withinTolerance, compareBitwise } from "../../units/tolerance.ts";
+// am-ver-tolerance-module-ho90 delivers this module (landed as commit 83835e9).
+// withinTolerance and compareBitwise are consumed here verbatim; this file
+// carries no tolerance or bitwise comparison logic of its own.
+import { withinTolerance, compareBitwise } from "../../units/tolerance.ts";
 
 export interface AssertionMeta {
   suite: string;
@@ -64,10 +62,13 @@ export async function withTestLog(meta: AssertionMeta, fn: () => unknown | Promi
 }
 
 /**
- * Requires an explicit `ToleranceSpec`, delegates the verdict to
- * `src/units/tolerance.ts`, and logs `expected`, `actual`, `tolerance`,
- * `comparisonKind: "tolerance"`, `diff`, `allowed`, and `verdict`. Fails on
- * any spec issue or a non-`within` verdict.
+ * Requires an explicit `ToleranceSpec` and delegates the verdict to
+ * `withinTolerance` in `src/units/tolerance.ts` (which validates the spec via
+ * `validateToleranceSpec` internally and reports an invalid spec as the
+ * `"invalid-spec"` verdict kind, rather than a separately shaped event).
+ * Logs `expected`, `actual`, `tolerance`, `comparisonKind: "tolerance"`,
+ * `diff`, `allowed`, and `verdict`. Fails on any spec issue or a
+ * non-`within` verdict.
  */
 export function expectClose(actual: number, expected: number, spec: ToleranceSpec, meta: AssertionMeta) {
   if (spec === undefined || spec === null) {
@@ -76,23 +77,16 @@ export function expectClose(actual: number, expected: number, spec: ToleranceSpe
     throw new Error("expectClose requires an explicit ToleranceSpec (absolute and/or relative).");
   }
   const logger = loggerFor(meta);
-  const issues = validateToleranceSpec(spec, expected);
-  if (issues.length > 0) {
-    const message = issues.map((issue: { message: string }) => issue.message).join("; ");
-    logger.log({
-      ...identityFields(meta),
-      expected: toLoggable(expected),
-      actual: toLoggable(actual),
-      tolerance: spec,
-      comparisonKind: "tolerance",
-      outcome: "failed" satisfies Outcome,
-      message,
-    });
-    logger.flushSync();
-    throw new Error(`expectClose: invalid tolerance spec — ${message}`);
-  }
-
+  // withinTolerance validates the spec itself and reports "invalid-spec" as a
+  // verdict kind, so every call — valid or not — produces one verdict object
+  // and one log line with diff/allowed/verdict, never a differently-shaped
+  // early-exit event for the invalid-spec case.
   const verdict = withinTolerance(actual, expected, spec);
+  const message = verdict.ok
+    ? undefined
+    : verdict.kind === "invalid-spec"
+      ? `expectClose: invalid tolerance spec — ${verdict.issues.map((issue) => issue.message).join("; ")}`
+      : `expectClose failed: ${verdict.kind} diff=${verdict.diff} allowed=${verdict.allowed}`;
   logger.log({
     ...identityFields(meta),
     expected: toLoggable(expected),
@@ -103,13 +97,13 @@ export function expectClose(actual: number, expected: number, spec: ToleranceSpe
     allowed: verdict.allowed,
     verdict: verdict.kind,
     outcome: (verdict.ok ? "passed" : "failed") satisfies Outcome,
-    ...(verdict.ok ? {} : { message: `expectClose failed: ${verdict.kind} diff=${verdict.diff} allowed=${verdict.allowed}` }),
+    ...(message !== undefined ? { message } : {}),
   });
   // expectClose is usually the sole assertion in a test; flush immediately so
   // a caller can read the event straight back rather than waiting on a
   // separate test-boundary flush.
   logger.flushSync();
-  if (!verdict.ok) throw new Error(`expectClose failed: ${verdict.kind} diff=${verdict.diff} allowed=${verdict.allowed}`);
+  if (!verdict.ok) throw new Error(message ?? `expectClose failed: ${verdict.kind}`);
   return verdict;
 }
 
@@ -136,7 +130,7 @@ export function expectBitwise(actual: unknown, expected: unknown, meta: Assertio
   return verdict;
 }
 
-/** Writes any schema-valid event through this test's logger. */
-export function recordEvent(meta: AssertionMeta, rawEvent: Record<string, unknown>) {
-  return loggerFor(meta).log({ ...identityFields(meta), ...rawEvent });
+/** Writes any schema-valid event, routed to its logger by the event's own `suite`/`logRunId`. */
+export function recordEvent(event: Record<string, unknown> & { suite: string; logRunId?: string }) {
+  return getLogger(event.suite, event.logRunId).log(event);
 }

@@ -253,14 +253,15 @@ export function summarizePaperE2EEvents(args: {
   const failed = args.events.filter(isFailedAction);
   const grouped = new Map<string, PaperE2EEvent[]>();
   for (const event of args.events) {
-    const key = [event.sliceId, event.viewport, event.face, event.action].join(" ");
+    const key = [event.sliceId, event.viewport, event.face, event.action].join("::");
     const events = grouped.get(key) ?? [];
     events.push(event);
     grouped.set(key, events);
   }
   const actionGroups: PaperE2EActionGroup[] = [...grouped.values()]
     .map((events) => {
-      const [first] = events;
+      const first = events[0];
+      if (!first) throw new Error("unreachable: an event group can never be empty");
       return {
         sliceId: first.sliceId,
         viewport: first.viewport,
@@ -280,8 +281,8 @@ export function summarizePaperE2EEvents(args: {
     })
     .sort((left, right) =>
       [left.sliceId, left.viewport, left.face, left.action]
-        .join(" ")
-        .localeCompare([right.sliceId, right.viewport, right.face, right.action].join(" ")),
+        .join("::")
+        .localeCompare([right.sliceId, right.viewport, right.face, right.action].join("::")),
     );
   return {
     schemaVersion: PAPER_E2E_SUMMARY_SCHEMA,
