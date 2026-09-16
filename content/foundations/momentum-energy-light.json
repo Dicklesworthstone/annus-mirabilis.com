@@ -1,0 +1,41 @@
+{
+  "schemaVersion": 1,
+  "kind": "foundation",
+  "id": "momentum-energy-light",
+  "title": "Momentum, energy flux, and radiation pressure of light",
+  "question": "How does a beam of light carry energy and momentum?",
+  "summary": "Light carries momentum proportional to its energy: p = E / c. Absorbing 1 W of light produces a continuous push of 1/c = 3.3356e-9 N, while ideal reflection doubles the push.",
+  "review": "draft",
+  "explanation": [
+    {
+      "kind": "paragraph",
+      "text": "In classical electromagnetic theory, light is a continuous wave that transports both energy and linear momentum through space. The Poynting vector (introduced by John Henry Poynting in 1884) describes the directional energy flux density in watts per square metre. Because electromagnetic waves travel at the speed of light c, the momentum p carried by a beam is directly proportional to its total energy E through the relation p = E / c."
+    },
+    {
+      "kind": "paragraph",
+      "text": "When a beam of light shines on a target, the absorption of radiant power P delivers a continuous physical force F = P / c. For 1.0 Watt of absorbed light, the mechanical push is 1 / c = 3.33564e-9 Newtons per Watt. When the target acts as an ideal mirror, the light reverses direction and imparts twice its incident momentum, producing a force of 2P / c = 6.67128e-9 Newtons per Watt."
+    },
+    {
+      "kind": "paragraph",
+      "text": "This radiation pressure was experimentally verified with high precision around the turn of the century by Pyotr Lebedev (1901) and Ernest Fox Nichols and Gordon Ferrie Hull (1901-1903), demonstrating that classical electromagnetic fields exert measurable macroscopic mechanical force."
+    },
+    {
+      "kind": "paragraph",
+      "text": "In Einstein's mass-energy paper of September 1905, radiation momentum plays a crucial role: a body at rest that emits two equal pulses of light of energy L/2 in opposite directions imparts equal and opposite momenta (+L / (2c) and -L / (2c)), leaving the emitting body at rest with zero total transferred momentum."
+    }
+  ],
+  "example": [
+    {
+      "kind": "formula",
+      "latex": "p = \\frac{E}{c}, \\quad F_{\\text{abs}} = \\frac{P}{c} \\approx 3.33564 \\times 10^{-9}\\,\\text{N/W}, \\quad F_{\\text{refl}} = \\frac{2P}{c}",
+      "spoken": "Momentum equals energy divided by c, absorbed force equals power divided by c which is approximately 3.33564 times ten to the minus nine Newtons per Watt, and reflected force is twice that value."
+    },
+    {
+      "kind": "paragraph",
+      "text": "A continuous laser beam absorbing 1.0 Watt of power at normal incidence delivers F = (1.0 W) / (299792458 m/s) = 3.33564e-9 N of force. If the surface reflects the entire 1.0 Watt, the force is 2(3.33564e-9 N) = 6.67128e-9 N."
+    }
+  ],
+  "prerequisites": ["functions-graphs", "derivatives"],
+  "stoppingPoint": "Light's momentum is the push a beam gives when absorbed or reflected; it follows from Maxwell's electrodynamics without requiring quantum hypotheses.",
+  "citations": []
+}

@@ -1,0 +1,45 @@
+{
+  "schemaVersion": 1,
+  "kind": "foundation",
+  "id": "fields-waves",
+  "title": "Fields, continuous waves, and harmonic functions",
+  "question": "What is a continuous wave field and how is its energy measured?",
+  "summary": "A field assigns physical values across continuous space. Harmonic waves propagate oscillations with phase kx - omega t, where optical intensity reflects the time average of cos^2 equal to 0.5 rather than instantaneous fluctuations.",
+  "review": "draft",
+  "explanation": [
+    {
+      "kind": "paragraph",
+      "text": "A field assigns a definite physical quantity to every location in space and time. A scalar field assigns a single number, such as temperature or particle density, while a vector field assigns a magnitude and direction, such as electric field strength E or magnetic field B."
+    },
+    {
+      "kind": "paragraph",
+      "text": "Harmonic waves propagate oscillating field values through space according to the phase factor kx - omega t, where the wavenumber k = 2 pi / lambda relates to wavelength lambda and angular frequency omega = 2 pi nu relates to cyclic frequency nu. The wave crests travel at the phase speed c = lambda nu."
+    },
+    {
+      "kind": "paragraph",
+      "text": "Because optical frequencies oscillate hundreds of trillions of times per second (for example, 600 THz corresponds to green-cyan light with wavelength lambda = c / nu = 499.65 nm), measuring instruments record the time-averaged energy flux rather than the instantaneous field oscillation. Over any complete period, the average of cos^2(omega t) is exactly 0.5."
+    },
+    {
+      "kind": "paragraph",
+      "text": "When an isotropic source emits total power P into three dimensions, the energy spreads evenly over concentric spherical wavefronts of area 4 pi r^2. The intensity at distance r is given by I = P / (4 pi r^2). For a 1 W point source, the intensity is 0.0795775 W/m^2 at distance r = 1 m, and drops to one-quarter (0.0198944 W/m^2) at distance r = 2 m."
+    },
+    {
+      "kind": "paragraph",
+      "text": "The Doppler shift in sound is an illustrative analogy for wave frequency shifts: sound waves travel through a material medium (air), which creates an asymmetry between a moving source and a moving listener. This analogy has a strict physical limit: light requires no material ether medium, and in 1905 Einstein demonstrated that electromagnetic wave transformation depends purely on relative velocity between observers."
+    }
+  ],
+  "example": [
+    {
+      "kind": "formula",
+      "latex": "I = \\frac{P}{4\\pi r^2}, \\quad \\langle \\cos^2(\\omega t) \\rangle = \\frac{1}{T}\\int_0^T \\cos^2(\\omega t)\\,dt = 0.5",
+      "spoken": "Intensity equals total power divided by four pi r squared, and the time average of cosine squared over a period is one half."
+    },
+    {
+      "kind": "paragraph",
+      "text": "At frequency nu = 600 THz (6.0e14 Hz) with light speed c = 299792458 m/s, the wavelength is lambda = c / nu = 499.65 nm. A 1 W source produces intensity I = 1 / (4 pi (1)^2) = 0.0795775 W/m^2 at 1 m, and I = 1 / (4 pi (2)^2) = 0.0198944 W/m^2 at 2 m."
+    }
+  ],
+  "prerequisites": ["functions-graphs", "derivatives"],
+  "stoppingPoint": "A field is a value assigned to every place; observed optical intensity is a time average, not an instantaneous pulse.",
+  "citations": []
+}

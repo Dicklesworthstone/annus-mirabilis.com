@@ -1,0 +1,37 @@
+{
+  "schemaVersion": 1,
+  "kind": "foundation",
+  "id": "frames-events",
+  "title": "Events, reference frames, and the coordinate grid",
+  "question": "How do observers assign spatial and temporal coordinates to physical events?",
+  "summary": "An event is a physical occurrence at a single point in space and instant in time. A reference frame is an idealized coordinate system of rigid rods and synchronized clocks that assigns four numbers (x, y, z, t) to each event.",
+  "review": "draft",
+  "explanation": [
+    {
+      "kind": "paragraph",
+      "text": "An event is a physical occurrence localized at a single location in space and a single instant in time, such as a spark jumping, a particle collision, or the emission of a flash of light."
+    },
+    {
+      "kind": "paragraph",
+      "text": "To measure events quantitatively, observers construct a reference frame: an imaginary rigid spatial lattice equipped with stationary clocks at every grid intersection. An observer does not rely on looking at a distant clock across space (which incurs light-travel delay); instead, the coordinate time of an event is recorded by the local clock located right where the event occurs."
+    },
+    {
+      "kind": "paragraph",
+      "text": "Clock synchronization follows Einstein's operational convention: a light pulse sent from clock A at time t_A reaches clock B, reflects, and returns to A at time t'_A. Clock B is synchronized with clock A if its reading at reflection satisfies the midpoint assignment t_B = (t_A + t'_A) / 2."
+    }
+  ],
+  "example": [
+    {
+      "kind": "formula",
+      "latex": "t_B = \\frac{1}{2}\\left(t_A + t'_A\\right)",
+      "spoken": "The time at clock B equals one half of the sum of the emission time at clock A and the return time at clock A."
+    },
+    {
+      "kind": "paragraph",
+      "text": "If a master clock A emits a light signal at t_A = 0 seconds toward stationary clock B, and the reflected signal returns to clock A at t'_A = 10 seconds, the synchronization convention assigns the time t_B = (0 + 10) / 2 = 5 seconds to the reflection event at clock B."
+    }
+  ],
+  "prerequisites": ["functions-graphs"],
+  "stoppingPoint": "An event is something that happens at one place and one time; coordinate assignment is an operational measurement convention, not an absolute cosmic background.",
+  "citations": []
+}

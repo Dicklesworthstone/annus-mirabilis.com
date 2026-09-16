@@ -152,6 +152,9 @@ const mathCommands = new Set([
   "nu",
   "alpha",
   "omega",
+  "cos",
+  "sin",
+  "mathbf",
 ]);
 export function validateMath(x: unknown, p = "formula"): void {
   text(x, p);

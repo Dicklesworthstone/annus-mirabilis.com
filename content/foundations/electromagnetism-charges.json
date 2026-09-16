@@ -1,0 +1,45 @@
+{
+  "schemaVersion": 1,
+  "kind": "foundation",
+  "id": "electromagnetism-charges",
+  "title": "Forces on charges, currents, and electromagnetic waves",
+  "question": "How do charges interact with electric and magnetic fields?",
+  "summary": "Electric charges produce electric fields and experience forces q E; moving charges experience magnetic forces q v x B. Bound charges act as resonators absorbing and emitting electromagnetic waves at the speed of light.",
+  "review": "draft",
+  "explanation": [
+    {
+      "kind": "paragraph",
+      "text": "Electric charge is the intrinsic property of matter that produces and responds to electromagnetic fields. A charge q at rest in an electric field E experiences an electrostatic force F = q E. When moving with velocity v through a magnetic field B, the charge experiences an additional perpendicular magnetic force F = q (v x B). Together, these form the Lorentz force."
+    },
+    {
+      "kind": "paragraph",
+      "text": "Moving a charge through an electric potential difference Delta V transfers potential energy Delta W = q Delta V. For a fundamental electron charge e = 1.602e-19 C accelerated across a potential of 1 V, the energy gained is defined as 1 electron-volt (1 eV = 1.602e-19 J)."
+    },
+    {
+      "kind": "paragraph",
+      "text": "In microscopic matter, an electron bound to an equilibrium position by a restoring force acts as a harmonic oscillator or resonator. When disturbed by incoming electromagnetic waves, it absorbs and reradiates energy at its natural resonant frequency nu_0. Einstein's 1905 light-quanta paper opened with Planck's model of such resonators in thermal equilibrium with radiant energy."
+    },
+    {
+      "kind": "paragraph",
+      "text": "Maxwell's electrodynamics expresses four physical laws in words: electric charges act as sources of electric flux; magnetic field lines are closed loops with no isolated magnetic charges; a time-varying magnetic field induces a circulating electric field (Faraday induction); and electric currents alongside time-varying electric fields generate circulating magnetic fields (Maxwell-Ampere law). Combined, these equations govern self-propagating electromagnetic waves traveling at speed c in vacuum."
+    },
+    {
+      "kind": "paragraph",
+      "text": "Einstein pointed out in 1905 that classical electrodynamics treated the relative motion of a magnet and a conductor with an artificial asymmetry: moving the magnet created an electric field in space that drove current, whereas moving the conductor created no electric field but rather a magnetic Lorentz force on electrons. Yet the physical current was identical in both descriptions."
+    }
+  ],
+  "example": [
+    {
+      "kind": "formula",
+      "latex": "\\mathbf{F} = q\\left(\\mathbf{E} + \\mathbf{v} \\times \\mathbf{B}\\right), \\quad \\Delta W = q \\Delta V",
+      "spoken": "Force equals charge times the sum of electric field and the cross product of velocity with magnetic field, and work equals charge times potential difference."
+    },
+    {
+      "kind": "paragraph",
+      "text": "Accelerating an electron of charge e = 1.602e-19 Coulombs across an electric potential difference of Delta V = 1.0 Volt gives kinetic energy Delta W = (1.602e-19 C)(1.0 V) = 1.602e-19 Joules = 1 eV. An electron bound with effective spring constant k_s and mass m oscillates at natural frequency nu_0 = (1 / 2 pi) sqrt(k_s / m)."
+    }
+  ],
+  "prerequisites": ["functions-graphs", "derivatives"],
+  "stoppingPoint": "Charge is the property that makes electric forces; fields mediate force between separated charges without action-at-a-distance.",
+  "citations": []
+}
