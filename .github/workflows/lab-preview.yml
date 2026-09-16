@@ -12,7 +12,7 @@ jobs:
     steps:
       - uses: actions/checkout@v4
       - name: Retain exact public source for reproducible laboratory review
-        run: mkdir -p artifacts/review && git archive --format=tar HEAD > artifacts/review/source.tar
+        run: mkdir -p artifacts/review artifacts/browser && git archive --format=tar HEAD > artifacts/review/source.tar
       - uses: actions/upload-artifact@v4
         with:
           name: laboratory-review-source
@@ -22,10 +22,16 @@ jobs:
           # This is the runtime actually exercised by the standalone reference tests.
           # The ratified 22.13.4 runtime remains a separate compatibility obligation.
           node-version: 22.16.0
-      - run: npm install --ignore-scripts --no-audit --no-fund
-      - run: npm run test:reference
-      - run: npm run typecheck
-      - run: npm run build
+      - uses: oven-sh/setup-bun@v2
+        with:
+          bun-version: 1.4.0
+      - run: bun install --frozen-lockfile --ignore-scripts
+      - run: bun run test:reference
+      - name: Verify the reference owners under Node as well
+        shell: bash
+        run: node --experimental-strip-types --test src/testing/*.test.mjs 2>&1 | tee artifacts/browser/reference-tests.log
+      - run: bun run typecheck
+      - run: bun run build
         env:
           NEXT_TELEMETRY_DISABLED: "1"
       - run: tar -cf artifacts/review/site.tar out
@@ -33,8 +39,8 @@ jobs:
         with:
           name: laboratory-static-preview
           path: artifacts/review/site.tar
-      - run: npx playwright install --with-deps chromium
-      - run: npm run test:browser
+      - run: bunx playwright install --with-deps chromium
+      - run: bun run test:browser
       - uses: actions/upload-artifact@v4
         if: always()
         with:
