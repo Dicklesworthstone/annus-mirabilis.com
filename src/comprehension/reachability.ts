@@ -15,7 +15,7 @@
  */
 
 import type { Argument, Block } from "../content/schemas/reading.ts";
-import { ComprehensionLogger, newToolRunId } from "./logger.ts";
+import { type ComprehensionLogger, newToolRunId } from "./logger.ts";
 import type { Accomplishment } from "./types.ts";
 
 export interface ReachSetAuditResult {

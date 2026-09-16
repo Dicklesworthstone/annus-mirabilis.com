@@ -110,10 +110,7 @@ describe("sessionRecord schema and validation", () => {
     assert.throws(
       () => validateSessionRecord(invalidFacilitator),
       (err: unknown) => {
-        return (
-          err instanceof SessionValidationError &&
-          err.code === "facilitator-contains-email"
-        );
+        return err instanceof SessionValidationError && err.code === "facilitator-contains-email";
       },
     );
   });

@@ -375,15 +375,20 @@ describe("pedagogy-claim", () => {
   });
 
   it("passes per-stage support phrasing", () => {
-    const findings1 = checkVoice("for this argument, readers in these rounds needed this much support", {
-      context: "prose",
-    });
+    const findings1 = checkVoice(
+      "for this argument, readers in these rounds needed this much support",
+      {
+        context: "prose",
+      },
+    );
     assert.equal(has(findings1, "pedagogy-claim"), false);
 
-    const findings2 = checkVoice("for this stage, readers consistently used the partial comparison", {
-      context: "prose",
-    });
+    const findings2 = checkVoice(
+      "for this stage, readers consistently used the partial comparison",
+      {
+        context: "prose",
+      },
+    );
     assert.equal(has(findings2, "pedagogy-claim"), false);
   });
 });
-

@@ -7,7 +7,7 @@
  * Crucially: this audit does NOT fail the build; it exits 0 with findings present.
  */
 
-import { readdirSync, readFileSync, statSync } from "node:fs";
+import { readdirSync, readFileSync } from "node:fs";
 import { join } from "node:path";
 import { ComprehensionLogger } from "../src/comprehension/logger.ts";
 import { auditCorpusReachability } from "../src/comprehension/reachability.ts";

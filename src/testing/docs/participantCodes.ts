@@ -78,7 +78,9 @@ function daysInMonth(year: number, month: number): number {
   }
 }
 
-function validateCalendarDate(dateDigits: string): { ok: true; date: string } | { ok: false; error: string } {
+function validateCalendarDate(
+  dateDigits: string,
+): { ok: true; date: string } | { ok: false; error: string } {
   if (!/^\d{8}$/.test(dateDigits)) {
     return {
       ok: false,
@@ -225,9 +227,7 @@ export function parseParticipantCode(code: string): ParticipantCodeResult {
  * Formats a parsed participant code or parts record back to standard participant code string.
  */
 export function formatParticipantCode(
-  parts:
-    | ParticipantCodeResult
-    | { paper: string; route: string; date: string; index: number },
+  parts: ParticipantCodeResult | { paper: string; route: string; date: string; index: number },
 ): string {
   if ("ok" in parts) {
     if (!parts.ok) {

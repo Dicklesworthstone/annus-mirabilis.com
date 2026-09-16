@@ -12,13 +12,7 @@
 
 import type { ValidPaper, ValidRoute } from "../testing/docs/participantCodes.ts";
 
-export const ACCOMPLISHMENTS = [
-  "appreciate",
-  "explain",
-  "predict",
-  "derive",
-  "critique",
-] as const;
+export const ACCOMPLISHMENTS = ["appreciate", "explain", "predict", "derive", "critique"] as const;
 
 export type Accomplishment = (typeof ACCOMPLISHMENTS)[number];
 
@@ -117,27 +111,32 @@ export interface AccomplishmentDefinition {
 export const ACCOMPLISHMENT_DEFINITIONS: readonly AccomplishmentDefinition[] = [
   {
     accomplishment: "appreciate",
-    outcomeInRound: "The participant explains why the question mattered and what was surprising about the answer",
+    outcomeInRound:
+      "The participant explains why the question mattered and what was surprising about the answer",
     whatMustRemainInReach: "A concrete example and the original passage",
   },
   {
     accomplishment: "explain",
-    outcomeInRound: "The participant reconstructs the main reasoning in words, a picture, or a small table",
+    outcomeInRound:
+      "The participant reconstructs the main reasoning in words, a picture, or a small table",
     whatMustRemainInReach: "Definitions, the assumptions in force, and a bridge to the symbols",
   },
   {
     accomplishment: "predict",
-    outcomeInRound: "The participant anticipates how a specified change affects an observable, and says why",
+    outcomeInRound:
+      "The participant anticipates how a specified change affects an observable, and says why",
     whatMustRemainInReach: "Units, a numerical example, and the model that applies",
   },
   {
     accomplishment: "derive",
     outcomeInRound: "The participant reproduces the mathematical steps and identifies each premise",
-    whatMustRemainInReach: "Every intermediate step, any alternative derivation, and the printed notation",
+    whatMustRemainInReach:
+      "Every intermediate step, any alternative derivation, and the printed notation",
   },
   {
     accomplishment: "critique",
-    outcomeInRound: "The participant separates what follows, what is suggested, what has been measured, and what remains undetermined",
+    outcomeInRound:
+      "The participant separates what follows, what is suggested, what has been measured, and what remains undetermined",
     whatMustRemainInReach: "Countermodels, uncertainty, primary sources, and later qualifications",
   },
 ];

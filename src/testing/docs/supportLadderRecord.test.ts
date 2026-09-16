@@ -5,10 +5,7 @@ import {
   validateSupportDefaultChange,
   validateSupportLadderUsage,
 } from "../../comprehension/session.ts";
-import type {
-  SupportDefaultChangeRecord,
-  SupportLadderUsage,
-} from "../../comprehension/types.ts";
+import type { SupportDefaultChangeRecord, SupportLadderUsage } from "../../comprehension/types.ts";
 
 describe("supportLadderRecord schema and validation", () => {
   it("support ladder rungs used, order, and stopping point round-trip cleanly", () => {
@@ -33,12 +30,10 @@ describe("supportLadderRecord schema and validation", () => {
       stageId: "bm-variance-argument",
       previousDefaultRung: "partialComparison",
       newDefaultRung: "explanation",
-      justifyingRoundIds: [
-        "round-brownian-slice-20270412-01",
-        "round-brownian-slice-20270412-02",
-      ],
+      justifyingRoundIds: ["round-brownian-slice-20270412-01", "round-brownian-slice-20270412-02"],
       changeDate: "2027-04-13",
-      rationale: "Rounds 01 and 02 showed readers consistently going straight to the explanation for the variance step.",
+      rationale:
+        "Rounds 01 and 02 showed readers consistently going straight to the explanation for the variance step.",
     };
 
     const validated = validateSupportDefaultChange(validChange);
@@ -61,10 +56,7 @@ describe("supportLadderRecord schema and validation", () => {
     assert.throws(
       () => validateSupportDefaultChange(invalidChange),
       (err: unknown) => {
-        return (
-          err instanceof SessionValidationError &&
-          err.code === "missing-justifying-round-ids"
-        );
+        return err instanceof SessionValidationError && err.code === "missing-justifying-round-ids";
       },
     );
   });

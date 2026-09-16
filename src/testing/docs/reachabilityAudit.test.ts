@@ -11,9 +11,7 @@ import type { Argument } from "../../content/schemas/reading.ts";
 function loadRealBrownianArguments(): Argument[] {
   const rootDir = process.cwd();
   const dir = join(rootDir, "content/arguments/brownian-motion");
-  const files = readdirSync(dir).filter(
-    (f) => f.startsWith("arg-") && f.endsWith(".json"),
-  );
+  const files = readdirSync(dir).filter((f) => f.startsWith("arg-") && f.endsWith(".json"));
   return files.map((f) => {
     const content = readFileSync(join(dir, f), "utf8");
     return JSON.parse(content) as Argument;
@@ -52,7 +50,8 @@ describe("reachabilityAudit (real compiler, real fixture corpus)", () => {
   });
 
   it("removing the node's limitations reports Critique reach-set missing target", () => {
-    const baseNode = brownianNodes[0]!;
+    const baseNode = brownianNodes[0];
+    assert.ok(baseNode, "Base node must exist");
     const mutatedNode: Argument = {
       ...baseNode,
       limitations: [],
@@ -69,7 +68,8 @@ describe("reachabilityAudit (real compiler, real fixture corpus)", () => {
   });
 
   it("removing the example action/help reports Appreciate reach-set missing target", () => {
-    const baseNode = brownianNodes[0]!;
+    const baseNode = brownianNodes[0];
+    assert.ok(baseNode, "Base node must exist");
     const mutatedNode: Argument = {
       ...baseNode,
       help: {
@@ -89,7 +89,8 @@ describe("reachabilityAudit (real compiler, real fixture corpus)", () => {
   });
 
   it("removing units from an instrument output reports Predict reach-set missing target", () => {
-    const baseNode = brownianNodes[0]!;
+    const baseNode = brownianNodes[0];
+    assert.ok(baseNode, "Base node must exist");
     const instrumentUnits = new Map<string, boolean>();
     // Seed instrument without units
     for (const exp of baseNode.experiments) {
@@ -108,7 +109,8 @@ describe("reachabilityAudit (real compiler, real fixture corpus)", () => {
   });
 
   it("removing the only resolving FoundationLink reports Explain reach-set missing target", () => {
-    const baseNode = brownianNodes[0]!;
+    const baseNode = brownianNodes[0];
+    assert.ok(baseNode, "Base node must exist");
     // Mutate node so no foundations resolve
     const mutatedNode: Argument = {
       ...baseNode,

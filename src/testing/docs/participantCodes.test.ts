@@ -1,5 +1,5 @@
 import assert from "node:assert/strict";
-import { readdirSync, readFileSync, statSync } from "node:fs";
+import { readdirSync, readFileSync } from "node:fs";
 import { join, relative } from "node:path";
 import { describe, it } from "node:test";
 import {
@@ -112,7 +112,7 @@ describe("participantCodes parser and formatter", () => {
     const rootDir = process.cwd();
     const scannedDirs = ["src", "scripts"];
     const suspiciousRegexPatterns = [
-      /\/(?:[^\/\n\\]|\\.)*(?:no-algebra|nonvisual|full-derivation|low-cost-phone)(?:[^\/\n\\]|\\.)*\\d\{8\}(?:[^\/\n\\]|\\.)*\//,
+      /\/(?:[^/\n\\]|\\.)*(?:no-algebra|nonvisual|full-derivation|low-cost-phone)(?:[^/\n\\]|\\.)*\\d\{8\}(?:[^/\n\\]|\\.)*\//,
       /RegExp\([^)]*(?:no-algebra|nonvisual|full-derivation|low-cost-phone)[^)]*8[^)]*\)/,
     ];
 
