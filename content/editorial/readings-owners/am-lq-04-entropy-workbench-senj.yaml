@@ -1,0 +1,15 @@
+# Declares this bead as the owner of LQ-04's instrument-caption readings, so parallel
+# readings-authoring beads never edit a shared file and audit-readings.ts can report any
+# caption missing R0-R3 against this bead by name.
+#
+# Scope note (MaroonTiger, 2026-09-16): the physics owner (src/experiments/lq04/session.ts),
+# manifest, and /lab/lq-04 route landed this pass. The actual R0-R3 caption texts this file
+# declares ownership of have NOT been authored yet -- that is a real, named gap, not an
+# oversight; see this bead's BATCH_PENDING comment for the full list.
+paper: light-quanta
+targetKinds:
+  - instrument-caption
+scope:
+  instrumentIds:
+    - lq-04
+ownerBeadId: am-lq-04-entropy-workbench-senj
