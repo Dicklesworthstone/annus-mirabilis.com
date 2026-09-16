@@ -7,6 +7,7 @@ import type { PreparedBm01Example } from "../experiments/bm01/session";
 import tracerExample from "../generated/bm01-example.json";
 import equationPayload from "../generated/brownian-equations.json";
 import { FoundationBody, FoundationLink, ReadingBlocks } from "./Blocks";
+import { BrownianFirstEncounter } from "./entrances/BrownianFirstEncounter";
 import { ReaderController } from "./ReaderController";
 import { ROOT_ARMING_SOURCE } from "./rootArming.inline";
 import "./reader.css";
@@ -79,6 +80,11 @@ export async function PaperReader({ section }: { section?: string }) {
           </p>
         </aside>
         <div className="reader-body">
+          {paper.id === "brownian-motion" && (!section || section === "s4") && (
+            <section className="reader-entrance-section" aria-label="First encounter">
+              <BrownianFirstEncounter />
+            </section>
+          )}
           {sections.map((s) => (
             <section key={s.id} id={s.id} tabIndex={-1} className="reader-section">
               <h2>{s.title}</h2>

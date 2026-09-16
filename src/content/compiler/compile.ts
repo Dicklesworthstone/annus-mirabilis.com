@@ -7,6 +7,7 @@
  */
 
 import type { EquationRecord } from "../../equations/record.ts";
+import { validateEntranceRecord } from "../entrances/entranceRecord.ts";
 import {
   type Argument,
   type Block,
@@ -118,6 +119,13 @@ export function compileReadingContent(files: readonly Readonly<{ path: string; t
         routeMatch.kind === "editorial-overrides"
       ) {
         parseContentFile(file);
+        continue;
+      }
+
+      // Entrance records
+      if (routeMatch.kind === "entrance") {
+        const parsed = parseContentFile(file);
+        validateEntranceRecord(parsed, file.path);
         continue;
       }
 

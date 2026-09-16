@@ -1,0 +1,209 @@
+import { afterAll, afterEach, beforeEach, describe, expect, it } from "bun:test";
+import { act } from "react";
+import { createRoot } from "react-dom/client";
+import { renderToString } from "react-dom/server";
+import { validateEntranceRecord } from "../../content/entrances/entranceRecord.ts";
+import { BrownianFirstEncounter } from "../../reader/entrances/BrownianFirstEncounter.tsx";
+import { newRunIdentity, TestLogger } from "../log/logger.ts";
+import { createContainer, installDom, removeContainer, uninstallDom } from "../reactDom.ts";
+
+const BEAD_ID = "am-bm-first-encounter-fjvh";
+
+describe("Brownian First Encounter Interactive UI Component (am-bm-first-encounter-fjvh)", () => {
+  const logger = new TestLogger("brownian-first-encounter", newRunIdentity());
+  let container: HTMLElement;
+
+  afterAll(async () => {
+    await logger.flush();
+  });
+
+  beforeEach(async () => {
+    await installDom();
+    container = createContainer();
+  });
+
+  afterEach(async () => {
+    removeContainer(container);
+    await uninstallDom();
+  });
+
+  const record = validateEntranceRecord({
+    id: "entrance-brownian-motion",
+    paper: "brownian-motion",
+    question: "Do particles that wander in all directions ever get anywhere?",
+    story: "Four trial particles wander three steps left, one left, one right, and three right.",
+    sourceAnchor: "#entry-brownian-motion",
+    helpEntries: [
+      {
+        obstacle: "Why not calculate speed directly?",
+        clarification: "Because the trajectory is jagged and changes direction constantly.",
+      },
+    ],
+    authoredEntries: [-3, -1, 1, 3],
+    bridge: {
+      id: "bridge-brownian-entrance",
+      kind: "bridge",
+      title: "From Random Steps to the Diffusion Law",
+      concreteOperation: "Track signed displacements and compare absolute sum with sum of squares.",
+      compactExplanation: "Squaring keeps opposite displacements from cancelling.",
+      textualEquivalent: "Tracking net spread over time by squaring displacement.",
+      stoppingPoint: "Transition to the mean-square displacement formula in Section 5.",
+      readinessSign: "Can explain why squaring retains movement.",
+      returnCaptions: [
+        { callingAnchor: "entry-brownian-motion", caption: "Back to Brownian entrance" },
+      ],
+      newSkill:
+        "keeping track of how far things went by squaring, so opposite directions stop cancelling.",
+      whyUsefulHere:
+        "Section 5 says how far a particle typically wanders after a given time, and that statement is about the squared spread, not about a speed.",
+      continueWith: [
+        { route: "more-guidance", targetId: "foundation:mean-variance-rms" },
+        { route: "less-guidance", targetId: "instrument:bm-01" },
+      ],
+      authorship: { draftedBy: [{ id: "jemanuel", kind: "human" }] },
+      reviewState: "draft",
+    },
+  });
+
+  it("renders all 10 pedagogical steps and labels examples as authored, not measured", () => {
+    const start = performance.now();
+    const html = renderToString(<BrownianFirstEncounter record={record} />);
+
+    // Authored label
+    expect(html).toContain("Authored arithmetic examples");
+    expect(html).toContain("not a measured dataset");
+
+    // Step 1: 4 authored displacements
+    expect(html).toContain("Step 1");
+    expect(html).toContain("−3, −1, +1, and +3 units");
+
+    // Step 2 & 3: Signed sum is zero
+    expect(html).toContain("Why the signed sum gives zero");
+    expect(html).toContain("centre of mass");
+
+    // Step 4 & 5: Both proposals accepted
+    expect(html).toContain("Proposal A (Ignore the direction)");
+    expect(html).toContain("Proposal B (Square each displacement)");
+    expect(html).toContain("Both of the following proposals are completely sensible");
+
+    // Step 6 & 7: Mean absolute (2), mean square (5), RMS (2.236) and doubled case (4, 20, 4.472)
+    expect(html).toContain("Scaling: What happens when displacements double?");
+    expect(html).toContain("Mean Absolute Displacement:");
+    expect(html).toContain("4 units");
+    expect(html).toContain("20 sq units");
+
+    // Step 8: Why Einstein favored the square (cross terms vanish)
+    expect(html).toContain("Why Einstein’s derivation favored the mean square");
+    expect(html).toContain("independent");
+    expect(html).toContain("cross terms");
+
+    // Step 9: Mean absolute is not wrong
+    expect(html).toContain("Mean absolute displacement is not a wrong answer");
+
+    // Step 10: The Bridge
+    expect(html).toContain("The Bridge to the Argument");
+    expect(html).toContain("New Skill");
+    expect(html).toContain("Why Useful in the Paper");
+    expect(html).toContain("Continue With Your Choice of Guidance");
+
+    logger.log({
+      testId: "ui-ten-steps-rendered",
+      beadId: BEAD_ID,
+      expected: "10-step pedagogical flow with authored label",
+      actual: "all 10 steps verified in DOM",
+      outcome: "passed",
+      durationMs: performance.now() - start,
+      comparisonKind: "formatted",
+    });
+  });
+
+  it("updates totals when user interacts with sliders via keyboard and restores with restore button", async () => {
+    const root = createRoot(container);
+    await act(async () => {
+      root.render(<BrownianFirstEncounter record={record} />);
+    });
+
+    // Check initial totals
+    const sumEl = container.querySelector('[data-testid="totals-signed-sum"]');
+    const absEl = container.querySelector('[data-testid="totals-mean-absolute"]');
+    const sqEl = container.querySelector('[data-testid="totals-mean-square"]');
+    const rmsEl = container.querySelector('[data-testid="totals-rms"]');
+
+    expect(sumEl?.textContent).toContain("0");
+    expect(absEl?.textContent).toContain("2.00");
+    expect(sqEl?.textContent).toContain("5.00");
+    expect(rmsEl?.textContent).toContain("2.236");
+
+    // Find slider 1 (initial value -3) and press ArrowRight twice -> moves to -1
+    const slider1 = container.querySelector(
+      'div[role="slider"][aria-valuenow="-3"]',
+    ) as HTMLElement;
+    expect(slider1).not.toBeNull();
+
+    await act(async () => {
+      slider1.dispatchEvent(new KeyboardEvent("keydown", { key: "ArrowRight", bubbles: true }));
+    });
+    await act(async () => {
+      slider1.dispatchEvent(new KeyboardEvent("keydown", { key: "ArrowRight", bubbles: true }));
+    });
+
+    // Entries are now [-1, -1, +1, +3] -> sum: 2, meanAbs: 1.5, meanSq: 3, rms: sqrt(3) ~= 1.732
+    expect(sumEl?.textContent).toContain("+2");
+    expect(absEl?.textContent).toContain("1.50");
+    expect(sqEl?.textContent).toContain("3.00");
+
+    // Click 'Back to authored example' restore button
+    const restoreBtn = Array.from(container.querySelectorAll("button")).find((b) =>
+      b.textContent?.includes("Back to authored example"),
+    );
+    expect(restoreBtn).toBeDefined();
+
+    await act(async () => {
+      restoreBtn?.click();
+    });
+
+    // Verify restored totals
+    expect(sumEl?.textContent).toContain("0");
+    expect(absEl?.textContent).toContain("2.00");
+    expect(sqEl?.textContent).toContain("5.00");
+    expect(rmsEl?.textContent).toContain("2.236");
+  });
+
+  it("switches to table mode and edits inputs", async () => {
+    const root = createRoot(container);
+    await act(async () => {
+      root.render(<BrownianFirstEncounter record={record} />);
+    });
+
+    // Switch to table mode
+    const tableBtn = Array.from(container.querySelectorAll("button")).find((b) =>
+      b.textContent?.includes("Table & Numeric Inputs"),
+    );
+    expect(tableBtn).toBeDefined();
+
+    await act(async () => {
+      tableBtn?.click();
+    });
+
+    const table = container.querySelector("table");
+    expect(table).not.toBeNull();
+
+    // Verify 4 rows
+    const rows = table?.querySelectorAll("tbody tr");
+    expect(rows?.length).toBe(4);
+
+    // Increase Particle 4 from +3 to +4
+    const increaseBtn4 = container.querySelector(
+      'button[aria-label="Increase Particle 4 displacement"]',
+    ) as HTMLElement;
+    expect(increaseBtn4).not.toBeNull();
+
+    await act(async () => {
+      increaseBtn4.click();
+    });
+
+    // [-3, -1, 1, 4] -> sum: 1, meanAbs: 2.25, meanSq: 6.75
+    const sumEl = container.querySelector('[data-testid="totals-signed-sum"]');
+    expect(sumEl?.textContent).toContain("+1");
+  });
+});

@@ -16,6 +16,7 @@ export interface ContentRoute {
 export type ContentRouteKind =
   | "paper"
   | "argument"
+  | "entrance"
   | "equation"
   | "foundation"
   | "citation"
@@ -71,9 +72,23 @@ export const CONTENT_ROUTES: readonly ContentRoute[] = [
     extractParams: (m) => ({ slug: m[1] ?? "", id: m[1] ?? "", format: m[2] ?? "" }),
   },
 
-  // 3. Arguments
+  // 3. Entrances & Arguments
   {
-    pattern: /^(?:content\/)?arguments\/([a-z0-9-]+)\/([a-z0-9-]+)\.(json|yaml|yml)$/,
+    pattern: /^(?:content\/)?arguments\/([a-z0-9-]+)\/(entrance-[a-z0-9-]+)\.(json|yaml|yml)$/,
+    kind: "entrance",
+    schema: "EntranceRecord",
+    format: "json",
+    extractParams: (m) => ({ paper: m[1] ?? "", id: m[2] ?? "", format: m[3] ?? "" }),
+  },
+  {
+    pattern: /^(?:content\/)?entrances\/(?:entrance-)?([a-z0-9-]+)\.(json|yaml|yml)$/,
+    kind: "entrance",
+    schema: "EntranceRecord",
+    format: "json",
+    extractParams: (m) => ({ id: `entrance-${m[1]}`, slug: m[1] ?? "", format: m[2] ?? "" }),
+  },
+  {
+    pattern: /^(?:content\/)?arguments\/([a-z0-9-]+)\/((?!entrance-)[a-z0-9-]+)\.(json|yaml|yml)$/,
     kind: "argument",
     schema: "ArgumentNode",
     format: "json",
