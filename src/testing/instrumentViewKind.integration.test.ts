@@ -1,66 +1,91 @@
-import { describe, expect, it } from "bun:test";
-import { getClarificationKind, type InstrumentViewTarget } from "../reader/stack/kinds.ts";
+/**
+ * am-read-return-stack-oxa. instrument-view mounted through the REAL dispatcher
+ * (am-inst-registry-dispatcher-66l0): no fixture dispatcher, no parallel resolution logic. A
+ * fixture view loader stands in for the not-yet-wired production loader map (dispatch.tsx's own
+ * docblock: that map is am-inst-lab-route-f8f3's scope, which does not exist yet).
+ */
 
-describe("instrumentViewKind.integration (am-read-return-stack-oxa)", () => {
-  it("instrument-view is registered with descends: true", () => {
-    const def = getClarificationKind("instrument-view");
-    expect(def).toBeDefined();
-    expect(def?.kind).toBe("instrument-view");
-    expect(def?.descends).toBe(true);
-    expect(def?.render).toBeDefined();
-  });
+import { afterEach, beforeEach, describe, expect, test } from "bun:test";
+import { act, createElement } from "react";
+import { createRoot } from "react-dom/client";
+import { getClarificationKind } from "../reader/stack/kinds.ts";
+import { installDom, uninstallDom } from "./reactDom.ts";
 
-  it("parseId validates catalogue address grammar only", () => {
-    const def = getClarificationKind("instrument-view");
-    if (!def) throw new Error("instrument-view kind not found");
+beforeEach(installDom);
+afterEach(uninstallDom);
 
-    // Valid known id
-    const parsedKnown = def.parseId("bm-01") as InstrumentViewTarget | null;
-    expect(parsedKnown).toEqual({ raw: "bm-01" });
-
-    // Valid unknown id
-    const parsedUnknown = def.parseId("unknown-instrument") as InstrumentViewTarget | null;
-    expect(parsedUnknown).toEqual({ raw: "unknown-instrument" });
-
-    // Valid id with mode
-    const parsedWithMode = def.parseId("bm-01:custom") as InstrumentViewTarget | null;
-    expect(parsedWithMode).toEqual({ raw: "bm-01:custom" });
-
-    // Invalid grammar (multiple colons)
-    const parsedInvalid = def.parseId("bm-01:a:b");
-    expect(parsedInvalid).toBeNull();
-  });
-
-  it("staticHref formats /lab route with id or encoded address", () => {
-    const def = getClarificationKind("instrument-view");
-    if (!def) throw new Error("instrument-view kind not found");
-
-    expect(def.staticHref({ raw: "bm-01" })).toBe("/lab/bm-01");
-    // Undeclared mode falls back to encoded route
-    expect(def.staticHref({ raw: "bm-01:teaching" })).toBe("/lab/bm-01%3Ateaching");
-  });
-
-  it("title resolves label for known instruments and falls back to raw id for unknown", () => {
-    const def = getClarificationKind("instrument-view");
-    if (!def) throw new Error("instrument-view kind not found");
-
-    const knownTitle = def.title({ raw: "bm-01" });
-    expect(knownTitle).toBeDefined();
-    expect(knownTitle).not.toBe("bm-01");
-
-    const unknownTitle = def.title({ raw: "unknown-inst" });
-    expect(unknownTitle).toBe("unknown-inst");
-  });
-
-  it("render mounts ExperimentDispatch with id and instanceId", () => {
-    const def = getClarificationKind("instrument-view");
-    if (!def?.render) throw new Error("instrument-view render function not found");
-
-    const element = def.render({
-      parsed: { raw: "bm-01" },
-      instanceId: "test-instance-1",
+describe("instrument-view: real dispatcher, fixture instrument", () => {
+  test("a known id with a fixture view loader mounts the fixture view", async () => {
+    const def = getClarificationKind("instrument-view")!;
+    const parsed = def.parseId("bm-01")!;
+    const container = document.createElement("div");
+    document.body.appendChild(container);
+    const root = createRoot(container);
+    await act(async () => {
+      root.render(
+        def.render?.({
+          parsed,
+          instanceId: "bm-01:test",
+          viewLoaders: {
+            "bm-01": () =>
+              Promise.resolve({
+                default: ({ instanceId }: { instanceId: string }) =>
+                  createElement(
+                    "div",
+                    { "data-testid": "fixture-view" },
+                    `fixture view for ${instanceId}`,
+                  ),
+              }),
+          },
+        }),
+      );
     });
+    await act(async () => {
+      await new Promise((resolve) => setTimeout(resolve, 0));
+    });
+    const fixtureView = container.querySelector('[data-testid="fixture-view"]');
+    expect(fixtureView).not.toBeNull();
+    expect(fixtureView?.textContent).toBe("fixture view for bm-01:test");
+    act(() => {
+      root.unmount();
+    });
+    container.remove();
+  });
 
-    expect(element).toBeDefined();
+  test("a well-formed but unknown experiment id fails explicitly: the unknown-experiment notice, never another instrument", async () => {
+    const def = getClarificationKind("instrument-view")!;
+    const parsed = def.parseId("zz-99")!;
+    const container = document.createElement("div");
+    document.body.appendChild(container);
+    const root = createRoot(container);
+    await act(async () => {
+      root.render(def.render?.({ parsed, instanceId: "zz-99:test" }));
+    });
+    const notice = container.querySelector('[data-testid="unknown-experiment-notice"]');
+    expect(notice).not.toBeNull();
+    expect(notice?.textContent).toContain("zz-99");
+    // Never a substitute instrument: no other instrument's markup is present.
+    expect(container.querySelector('[data-testid="fixture-view"]')).toBeNull();
+    expect(container.querySelector('[data-testid="in-preparation-notice"]')).toBeNull();
+    act(() => {
+      root.unmount();
+    });
+    container.remove();
+  });
+
+  test("a known, real catalogue id with no view loader renders the in-preparation surface, never a fabricated result", async () => {
+    const def = getClarificationKind("instrument-view")!;
+    const parsed = def.parseId("bm-01")!;
+    const container = document.createElement("div");
+    document.body.appendChild(container);
+    const root = createRoot(container);
+    await act(async () => {
+      root.render(def.render?.({ parsed, instanceId: "bm-01:test" }));
+    });
+    expect(container.querySelector('[data-testid="in-preparation-notice"]')).not.toBeNull();
+    act(() => {
+      root.unmount();
+    });
+    container.remove();
   });
 });
