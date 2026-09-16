@@ -8,7 +8,10 @@
 
 import type { DomainKind, ScientificResult } from "../../experiments/results/types.ts";
 import { classifyWithTolerance } from "../../units/tolerance.ts";
+import { constantValue, getConstantSet } from "./constants.ts";
 import { gamma, gammaMinusOne } from "./kinematics.ts";
+
+export const C_SI = constantValue(getConstantSet("modern-si-2019"), "speedOfLight").value;
 
 export const OWNER_ID = "waves";
 
@@ -155,16 +158,18 @@ export function dopplerFactor(beta: number, thetaRad: number): number {
   if (!Number.isFinite(beta) || Math.abs(beta) >= 1) {
     return Number.NaN;
   }
-  const gResult = gamma(beta);
-  if (gResult.status !== "value") return Number.NaN;
-  const g = gResult.value;
-  return g * (1 - beta * Math.cos(thetaRad));
+  const boosted = transformWaveVector(
+    1,
+    { x: Math.cos(thetaRad), y: Math.sin(thetaRad), z: 0 },
+    beta,
+    1,
+  );
+  return boosted.omegaPrime;
 }
 
 /**
- * Relativistic aberration of light direction:
- * cos(theta') = (cos(theta) - beta) / (1 - beta * cos(theta))
- * sin(theta') = sin(theta) / (gamma * (1 - beta * cos(theta)))
+ * Relativistic aberration of light direction, taken from the same
+ * transformWaveVector call that supplies the Doppler factor.
  */
 export function aberration(
   beta: number,
@@ -177,28 +182,28 @@ export function aberration(
       thetaPrimeRad: Number.NaN,
     });
   }
-  const gResult = gamma(beta);
-  if (gResult.status !== "value") {
-    return Object.freeze({
-      cosThetaPrime: Number.NaN,
-      sinThetaPrime: Number.NaN,
-      thetaPrimeRad: Number.NaN,
-    });
-  }
-  const g = gResult.value;
-  const cosTheta = Math.cos(thetaRad);
-  const sinTheta = Math.sin(thetaRad);
-  const denom = 1 - beta * cosTheta;
-
-  const cosThetaPrime = (cosTheta - beta) / denom;
-  const sinThetaPrime = sinTheta / (g * denom);
-  const thetaPrimeRad = Math.atan2(sinThetaPrime, cosThetaPrime);
-
+  const boosted = transformWaveVector(
+    1,
+    { x: Math.cos(thetaRad), y: Math.sin(thetaRad), z: 0 },
+    beta,
+    1,
+  );
+  const omegaPrime = boosted.omegaPrime;
+  const cosThetaPrime = boosted.kPrime.x / omegaPrime;
+  const sinThetaPrime = boosted.kPrime.y / omegaPrime;
   return Object.freeze({
     cosThetaPrime,
     sinThetaPrime,
-    thetaPrimeRad,
+    thetaPrimeRad: Math.atan2(sinThetaPrime, cosThetaPrime),
   });
+}
+
+export function classicalObserverDopplerFactor(beta: number, thetaRad: number): number {
+  return 1 - beta * Math.cos(thetaRad);
+}
+
+export function classicalSourceDopplerFactor(beta: number, thetaRad: number): number {
+  return 1 / (1 + beta * Math.cos(thetaRad));
 }
 
 /**
@@ -432,5 +437,637 @@ export function mirrorFrameLedger(
     workRate: 0,
     forcePrime,
     reproducedForceK,
+  });
+}
+
+export type Sr09Input = Readonly<{
+  beta: number;
+  propagationAngleDeg: number;
+  frequencyHz: number;
+  detectorMotion?: "rest-in-k" | "rest-in-K" | "custom";
+  detectorSpeed?: number;
+  countingWindow?: number;
+  secondOrderSpeed?: number;
+  selectedEventId?: string;
+}>;
+
+export interface Sr09NamedEventRecord {
+  id: string;
+  label: string;
+  eventK: Event4;
+  event_k: Event4;
+  waveK: Wave4Vector;
+  wave_k: Wave4Vector;
+  phaseK: number;
+  phase_k: number;
+  phasesAgree: boolean;
+  adversarialPhase_k: number;
+}
+
+export interface Sr09EvaluationResult {
+  beta: number;
+  gamma: number;
+  propagationAngleStationaryDeg: number;
+  propagationAngleStationaryRad: number;
+  propagationAngleMovingDeg: number;
+  propagationAngleMovingRad: number;
+  cosThetaStationary: number;
+  sinThetaStationary: number;
+  cosThetaMoving: number;
+  sinThetaMoving: number;
+  waveFrequencyStationaryHz: number;
+  waveFrequencyMovingHz: number;
+  waveAngularFrequencyStationary: number;
+  waveAngularFrequencyMoving: number;
+  dopplerFactor: number;
+  amplitudeFactor: number;
+  lineOfSightRecedingFactor: number;
+  lineOfSightApproachingFactor: number;
+  detectorCrossings: number;
+  detectorProperRateHz: number;
+  earthOrbitAberrationArcsec: number;
+  earthOrbitAberrationFormatted: string;
+  secondOrderShift: number;
+  secondOrderComparisonSpeed: number;
+  events: readonly Sr09NamedEventRecord[];
+  results: readonly ScientificResult[];
+  status: "value" | "outside-domain";
+}
+
+function sr09Outside(quantityId: string, unit: string, semanticKind: string): ScientificResult {
+  return Object.freeze({
+    quantityId,
+    unit,
+    semanticKind,
+    ownerId: OWNER_ID,
+    status: "outside-domain" as const,
+    condition: "superluminal-speed",
+    domainKind: "physical" as const,
+    reason: "No inertial observer at |v| >= c.",
+    boundary: { parameterId: "beta", value: 0.95 },
+  });
+}
+
+export function evaluateSr09(input: Sr09Input): Sr09EvaluationResult {
+  const beta = input.beta;
+  const thetaDeg = input.propagationAngleDeg;
+  const thetaRad = (thetaDeg * Math.PI) / 180;
+  const nuK = input.frequencyHz;
+  const omegaK = 2 * Math.PI * nuK;
+  const secondOrderSpeed = input.secondOrderSpeed ?? 0.005;
+
+  if (!Number.isFinite(beta) || Math.abs(beta) >= 1) {
+    return Object.freeze({
+      beta,
+      gamma: Number.NaN,
+      propagationAngleStationaryDeg: thetaDeg,
+      propagationAngleStationaryRad: thetaRad,
+      propagationAngleMovingDeg: Number.NaN,
+      propagationAngleMovingRad: Number.NaN,
+      cosThetaStationary: Number.NaN,
+      sinThetaStationary: Number.NaN,
+      cosThetaMoving: Number.NaN,
+      sinThetaMoving: Number.NaN,
+      waveFrequencyStationaryHz: nuK,
+      waveFrequencyMovingHz: Number.NaN,
+      waveAngularFrequencyStationary: omegaK,
+      waveAngularFrequencyMoving: Number.NaN,
+      dopplerFactor: Number.NaN,
+      amplitudeFactor: Number.NaN,
+      lineOfSightRecedingFactor: Number.NaN,
+      lineOfSightApproachingFactor: Number.NaN,
+      detectorCrossings: Number.NaN,
+      detectorProperRateHz: Number.NaN,
+      earthOrbitAberrationArcsec: Number.NaN,
+      earthOrbitAberrationFormatted: "outside-domain",
+      secondOrderShift: Number.NaN,
+      secondOrderComparisonSpeed: secondOrderSpeed,
+      events: [],
+      results: [
+        sr09Outside("frameSpeed", "c", "speed"),
+        sr09Outside("propagationAngleStationary", "deg", "angle"),
+        sr09Outside("propagationAngleMoving", "deg", "angle"),
+        sr09Outside("waveFrequencyStationary", "Hz", "frequency"),
+        sr09Outside("waveFrequencyMoving", "Hz", "frequency"),
+        sr09Outside("dopplerFactor", "1", "ratio"),
+        sr09Outside("wavePhase", "rad", "angle"),
+        sr09Outside("lorentzFactor", "1", "lorentz-factor"),
+        sr09Outside("classicalObserverDopplerFactor", "1", "ratio"),
+        sr09Outside("classicalSourceDopplerFactor", "1", "ratio"),
+        sr09Outside("recedingDopplerFactor", "1", "ratio"),
+        sr09Outside("approachingDopplerFactor", "1", "ratio"),
+      ],
+      status: "outside-domain",
+    });
+  }
+
+  const gResult = gamma(beta);
+  const g = gResult.status === "value" ? gResult.value : Number.NaN;
+  const cosThetaK = Math.cos(thetaRad);
+  const sinThetaK = Math.sin(thetaRad);
+  const kMag = omegaK / C_SI;
+  const boosted = transformWaveVector(
+    omegaK,
+    { x: kMag * cosThetaK, y: kMag * sinThetaK, z: 0 },
+    beta,
+    C_SI,
+  );
+  const omega_k = boosted.omegaPrime;
+  const nu_k = omega_k / (2 * Math.PI);
+  const doppler = omega_k / omegaK;
+  const ab = aberration(beta, thetaRad);
+  let theta_k_deg = (ab.thetaPrimeRad * 180) / Math.PI;
+  if (theta_k_deg < 0) theta_k_deg += 360;
+  const classicalObserver = classicalObserverDopplerFactor(beta, thetaRad);
+  const classicalSource = classicalSourceDopplerFactor(beta, thetaRad);
+
+  const recedingFactor = Math.sqrt((1 - beta) / (1 + beta));
+  const approachingFactor = Math.sqrt((1 + beta) / (1 - beta));
+
+  const detectorSpeed = input.detectorSpeed ?? beta;
+  const detectorWindow = input.countingWindow ?? 10 / nuK;
+  const detectorCrossings = detectorCrossingCount({
+    omega: omegaK,
+    k: { x: (omegaK / C_SI) * cosThetaK, y: (omegaK / C_SI) * sinThetaK, z: 0 },
+    detectorVelocity: { x: detectorSpeed * C_SI, y: 0, z: 0 },
+    window: detectorWindow,
+  });
+  const detectorProperRateHz = detectorCrossings / detectorWindow;
+
+  const betaEarth = 29780 / C_SI;
+  const earthOrbitAberrationRad = Math.atan(betaEarth);
+  const earthOrbitAberrationArcsec = (earthOrbitAberrationRad * 180 * 3600) / Math.PI;
+  const earthOrbitAberrationFormatted = `${earthOrbitAberrationArcsec.toFixed(2)}" (20.50")`;
+
+  const secondOrderShiftVal = secondOrderShift(secondOrderSpeed);
+
+  // Discrete named events for Phase Invariance verification
+  const kxK = (omegaK / C_SI) * cosThetaK;
+  const kyK = (omegaK / C_SI) * sinThetaK;
+  const kzK = 0;
+  const wave1_K = { omega: omegaK, kx: kxK, ky: kyK, kz: kzK };
+
+  const transW = transformWaveVector(omegaK, { x: kxK, y: kyK, z: kzK }, beta, C_SI);
+  const wave1_k = {
+    omega: transW.omegaPrime,
+    kx: transW.kPrime.x,
+    ky: transW.kPrime.y,
+    kz: transW.kPrime.z,
+  };
+
+  // Event 1: tick at t = 1e-15 s, x = 0, y = 0, z = 0
+  const event1_K = { t: 1e-15, x: 0, y: 0, z: 0 };
+  const event1_k = {
+    t: g * (event1_K.t - (beta * event1_K.x) / C_SI),
+    x: g * (event1_K.x - beta * C_SI * event1_K.t),
+    y: 0,
+    z: 0,
+  };
+  const p1_K = phaseAtEvent(event1_K, wave1_K);
+  const p1_k = phaseAtEvent(event1_k, wave1_k);
+  const val1_K = p1_K.status === "value" && typeof p1_K.value === "number" ? p1_K.value : 0;
+  const val1_k = p1_k.status === "value" && typeof p1_k.value === "number" ? p1_k.value : 0;
+
+  // Adversarial Phase: uses Galilean wave transformation where kx does not mix with omega
+  const adv_kx_k = g * (kxK + (beta * omegaK) / C_SI);
+  const adv_wave1_k = { omega: omega_k, kx: adv_kx_k, ky: kyK, kz: kzK };
+  const adv_p1_k = phaseAtEvent(event1_k, adv_wave1_k);
+  const adv_val1_k =
+    adv_p1_k.status === "value" && typeof adv_p1_k.value === "number" ? adv_p1_k.value : 0;
+
+  // Event 2: offset event (t = 2e-15 s, x = 3e-7 m, y = 0, z = 0)
+  const event2_K = { t: 2e-15, x: 3e-7, y: 0, z: 0 };
+  const event2_k = {
+    t: g * (event2_K.t - (beta * event2_K.x) / C_SI),
+    x: g * (event2_K.x - beta * C_SI * event2_K.t),
+    y: 0,
+    z: 0,
+  };
+  const p2_K = phaseAtEvent(event2_K, wave1_K);
+  const p2_k = phaseAtEvent(event2_k, wave1_k);
+  const val2_K = p2_K.status === "value" && typeof p2_K.value === "number" ? p2_K.value : 0;
+  const val2_k = p2_k.status === "value" && typeof p2_k.value === "number" ? p2_k.value : 0;
+  const adv_p2_k = phaseAtEvent(event2_k, adv_wave1_k);
+  const adv_val2_k =
+    adv_p2_k.status === "value" && typeof adv_p2_k.value === "number" ? adv_p2_k.value : 0;
+
+  const events: readonly Sr09NamedEventRecord[] = [
+    Object.freeze({
+      id: "sr-09-event-origin-tick",
+      label: "Origin cycle tick (t = 1 fs, x = 0)",
+      eventK: event1_K,
+      event_k: event1_k,
+      waveK: wave1_K,
+      wave_k: wave1_k,
+      phaseK: val1_K,
+      phase_k: val1_k,
+      phasesAgree:
+        classifyWithTolerance(val1_K - val1_k, { absolute: 1e-12 }).sign === "indeterminate" ||
+        val1_K === val1_k,
+      adversarialPhase_k: adv_val1_k,
+    }),
+    Object.freeze({
+      id: "sr-09-event-offset",
+      label: "Offset downstream event (t = 2 fs, x = 300 nm)",
+      eventK: event2_K,
+      event_k: event2_k,
+      waveK: wave1_K,
+      wave_k: wave1_k,
+      phaseK: val2_K,
+      phase_k: val2_k,
+      phasesAgree:
+        classifyWithTolerance(val2_K - val2_k, { absolute: 1e-12 }).sign === "indeterminate" ||
+        val2_K === val2_k,
+      adversarialPhase_k: adv_val2_k,
+    }),
+  ];
+
+  const results: readonly ScientificResult[] = [
+    Object.freeze({
+      quantityId: "frameSpeed",
+      unit: "c",
+      semanticKind: "speed",
+      ownerId: OWNER_ID,
+      status: "value",
+      value: beta,
+    }),
+    Object.freeze({
+      quantityId: "propagationAngleStationary",
+      unit: "deg",
+      semanticKind: "angle",
+      ownerId: OWNER_ID,
+      status: "value",
+      value: thetaDeg,
+    }),
+    Object.freeze({
+      quantityId: "propagationAngleMoving",
+      unit: "deg",
+      semanticKind: "angle",
+      ownerId: OWNER_ID,
+      status: "value",
+      value: theta_k_deg,
+    }),
+    Object.freeze({
+      quantityId: "waveFrequencyStationary",
+      unit: "Hz",
+      semanticKind: "frequency",
+      ownerId: OWNER_ID,
+      status: "value",
+      value: nuK,
+    }),
+    Object.freeze({
+      quantityId: "waveFrequencyMoving",
+      unit: "Hz",
+      semanticKind: "frequency",
+      ownerId: OWNER_ID,
+      status: "value",
+      value: nu_k,
+    }),
+    Object.freeze({
+      quantityId: "dopplerFactor",
+      unit: "1",
+      semanticKind: "ratio",
+      ownerId: OWNER_ID,
+      status: "value",
+      value: doppler,
+    }),
+    Object.freeze({
+      quantityId: "wavePhase",
+      unit: "rad",
+      semanticKind: "angle",
+      ownerId: OWNER_ID,
+      status: "value",
+      value: val1_K,
+    }),
+    Object.freeze({
+      quantityId: "lorentzFactor",
+      unit: "1",
+      semanticKind: "lorentz-factor",
+      ownerId: OWNER_ID,
+      status: "value",
+      value: g,
+    }),
+    Object.freeze({
+      quantityId: "classicalObserverDopplerFactor",
+      unit: "1",
+      semanticKind: "ratio",
+      ownerId: OWNER_ID,
+      status: "value",
+      value: classicalObserver,
+    }),
+    Object.freeze({
+      quantityId: "classicalSourceDopplerFactor",
+      unit: "1",
+      semanticKind: "ratio",
+      ownerId: OWNER_ID,
+      status: "value",
+      value: classicalSource,
+    }),
+    Object.freeze({
+      quantityId: "recedingDopplerFactor",
+      unit: "1",
+      semanticKind: "ratio",
+      ownerId: OWNER_ID,
+      status: "value",
+      value: recedingFactor,
+    }),
+    Object.freeze({
+      quantityId: "approachingDopplerFactor",
+      unit: "1",
+      semanticKind: "ratio",
+      ownerId: OWNER_ID,
+      status: "value",
+      value: approachingFactor,
+    }),
+  ];
+
+  return Object.freeze({
+    beta,
+    gamma: g,
+    propagationAngleStationaryDeg: thetaDeg,
+    propagationAngleStationaryRad: thetaRad,
+    propagationAngleMovingDeg: theta_k_deg,
+    propagationAngleMovingRad: ab.thetaPrimeRad,
+    cosThetaStationary: cosThetaK,
+    sinThetaStationary: sinThetaK,
+    cosThetaMoving: ab.cosThetaPrime,
+    sinThetaMoving: ab.sinThetaPrime,
+    waveFrequencyStationaryHz: nuK,
+    waveFrequencyMovingHz: nu_k,
+    waveAngularFrequencyStationary: omegaK,
+    waveAngularFrequencyMoving: omega_k,
+    dopplerFactor: doppler,
+    amplitudeFactor: doppler,
+    lineOfSightRecedingFactor: recedingFactor,
+    lineOfSightApproachingFactor: approachingFactor,
+    detectorCrossings,
+    detectorProperRateHz,
+    earthOrbitAberrationArcsec,
+    earthOrbitAberrationFormatted,
+    secondOrderShift: secondOrderShiftVal,
+    secondOrderComparisonSpeed: secondOrderSpeed,
+    events,
+    results,
+    status: "value",
+  });
+}
+
+export type Sr11Input = Readonly<{
+  beta: number;
+  incidentAngleDeg: number;
+  incidentEnergyDensity?: number;
+  mirrorArea?: number;
+  frame?: "lab" | "mirror";
+  unitLayer?: "si" | "gaussian";
+}>;
+
+export interface Sr11EvaluationResult {
+  beta: number;
+  incidentAngleDeg: number;
+  incidentAngleRad: number;
+  incidentEnergyDensity: number;
+  mirrorArea: number;
+  frame: "lab" | "mirror";
+  unitLayer: "si" | "gaussian";
+  frequencyRatio: number;
+  cosPhiReflected: number;
+  phiReflectedRad: number;
+  phiReflectedDeg: number;
+  amplitudeRatio: number;
+  radiationPressure: number;
+  radiationForce: number;
+  incidentPower: number;
+  reflectedPower: number;
+  workRate: number;
+  energyBalanceResidual: number;
+  explanation: string;
+  results: readonly ScientificResult[];
+  status: "value" | "not-applicable" | "indeterminate" | "outside-domain";
+  reason?: string;
+}
+
+export function evaluateSr11(input: Sr11Input): Sr11EvaluationResult {
+  const beta = input.beta;
+  const phiDeg = input.incidentAngleDeg;
+  const phiRad = (phiDeg * Math.PI) / 180;
+  const u = input.incidentEnergyDensity ?? 1.0;
+  const Am = input.mirrorArea ?? 1.0;
+  const frame = input.frame ?? "lab";
+  const unitLayer = input.unitLayer ?? "si";
+  const c = 1.0;
+
+  if (!Number.isFinite(beta) || Math.abs(beta) >= 1) {
+    const reason = "Mirror speed beta must be in (-1, 1).";
+    const outside = (quantityId: string, unit: string, semanticKind: string): ScientificResult =>
+      Object.freeze({
+        quantityId,
+        unit,
+        semanticKind,
+        ownerId: OWNER_ID,
+        status: "outside-domain" as const,
+        condition: "superluminal-speed",
+        domainKind: "physical" as const,
+        reason,
+        boundary: { parameterId: "beta", value: 0.95 },
+      });
+
+    return Object.freeze({
+      beta,
+      incidentAngleDeg: phiDeg,
+      incidentAngleRad: phiRad,
+      incidentEnergyDensity: u,
+      mirrorArea: Am,
+      frame,
+      unitLayer,
+      frequencyRatio: Number.NaN,
+      cosPhiReflected: Number.NaN,
+      phiReflectedRad: Number.NaN,
+      phiReflectedDeg: Number.NaN,
+      amplitudeRatio: Number.NaN,
+      radiationPressure: Number.NaN,
+      radiationForce: Number.NaN,
+      incidentPower: Number.NaN,
+      reflectedPower: Number.NaN,
+      workRate: Number.NaN,
+      energyBalanceResidual: Number.NaN,
+      explanation: reason,
+      results: [
+        outside("frequencyRatio", "1", "ratio"),
+        outside("cosPhiReflected", "1", "cosine"),
+        outside("phiReflectedDeg", "deg", "angle"),
+        outside("amplitudeRatio", "1", "ratio"),
+        outside("radiationPressure", "Pa", "pressure"),
+        outside("radiationForce", "N", "force"),
+        outside("incidentPower", "W", "power"),
+        outside("reflectedPower", "W", "power"),
+        outside("workRate", "W", "power"),
+        outside("energyBalanceResidual", "W", "power"),
+      ],
+      status: "outside-domain" as const,
+      reason,
+    });
+  }
+
+  const mmRes = movingMirror(beta, phiRad, { u, c, Am });
+
+  if (mmRes.status !== "value") {
+    const reason = mmRes.reason;
+    const makeStatusResult = (
+      quantityId: string,
+      unit: string,
+      semanticKind: string,
+    ): ScientificResult => {
+      if (mmRes.status === "outside-domain") {
+        return Object.freeze({
+          quantityId,
+          unit,
+          semanticKind,
+          ownerId: OWNER_ID,
+          status: "outside-domain" as const,
+          condition: mmRes.condition,
+          domainKind: mmRes.domainKind,
+          reason,
+          boundary: { parameterId: "beta", value: 0.95 },
+        });
+      }
+      return Object.freeze({
+        quantityId,
+        unit,
+        semanticKind,
+        ownerId: OWNER_ID,
+        status: "not-applicable" as const,
+        reason,
+      });
+    };
+
+    return Object.freeze({
+      beta,
+      incidentAngleDeg: phiDeg,
+      incidentAngleRad: phiRad,
+      incidentEnergyDensity: u,
+      mirrorArea: Am,
+      frame,
+      unitLayer,
+      frequencyRatio: Number.NaN,
+      cosPhiReflected: Number.NaN,
+      phiReflectedRad: Number.NaN,
+      phiReflectedDeg: Number.NaN,
+      amplitudeRatio: Number.NaN,
+      radiationPressure: Number.NaN,
+      radiationForce: Number.NaN,
+      incidentPower: Number.NaN,
+      reflectedPower: Number.NaN,
+      workRate: Number.NaN,
+      energyBalanceResidual: Number.NaN,
+      explanation: reason,
+      results: [
+        makeStatusResult("frequencyRatio", "1", "ratio"),
+        makeStatusResult("cosPhiReflected", "1", "cosine"),
+        makeStatusResult("phiReflectedDeg", "deg", "angle"),
+        makeStatusResult("amplitudeRatio", "1", "ratio"),
+        makeStatusResult("radiationPressure", "Pa", "pressure"),
+        makeStatusResult("radiationForce", "N", "force"),
+        makeStatusResult("incidentPower", "W", "power"),
+        makeStatusResult("reflectedPower", "W", "power"),
+        makeStatusResult("workRate", "W", "power"),
+        makeStatusResult("energyBalanceResidual", "W", "power"),
+      ],
+      status: mmRes.status,
+      reason,
+    });
+  }
+
+  let frequencyRatio: number;
+  let cosPhiReflected: number;
+  let phiReflectedRad: number;
+  let amplitudeRatio: number;
+  let radiationPressure: number;
+  let radiationForce: number;
+  let incidentPower: number;
+  let reflectedPower: number;
+  let workRate: number;
+  let energyBalanceResidual: number;
+  let explanation: string;
+
+  if (frame === "mirror") {
+    const ledger = mirrorFrameLedger(beta, phiRad, { I: u, Am, c });
+    frequencyRatio = ledger.frequencyFactor;
+    cosPhiReflected = ledger.cosPhiPrime;
+    phiReflectedRad = ledger.phiPrimeRad;
+    amplitudeRatio = ledger.frequencyFactor;
+    radiationPressure = ledger.forcePrime / Am;
+    radiationForce = ledger.forcePrime;
+    incidentPower = ledger.incidentPower;
+    reflectedPower = ledger.reflectedPower;
+    workRate = 0;
+    energyBalanceResidual = 0;
+    explanation =
+      "In the mirror rest frame, reflection does no mechanical work and incident power equals reflected power.";
+  } else {
+    frequencyRatio = mmRes.frequencyRatio;
+    cosPhiReflected = mmRes.cosPhiReflected;
+    phiReflectedRad = mmRes.phiReflectedRad;
+    amplitudeRatio = mmRes.amplitudeRatio;
+    radiationPressure = mmRes.radiationPressure;
+    radiationForce = mmRes.radiationForce;
+    incidentPower = mmRes.incidentPower;
+    reflectedPower = mmRes.reflectedPower;
+    workRate = mmRes.workRate;
+    energyBalanceResidual = mmRes.energyBalanceResidual;
+    explanation = mmRes.explanation ?? "";
+  }
+
+  const phiReflectedDeg = (phiReflectedRad * 180) / Math.PI;
+
+  const val = (
+    quantityId: string,
+    unit: string,
+    semanticKind: string,
+    v: number,
+  ): ScientificResult =>
+    Object.freeze({
+      quantityId,
+      unit,
+      semanticKind,
+      ownerId: OWNER_ID,
+      status: "value" as const,
+      value: v,
+    });
+
+  const results: ScientificResult[] = [
+    val("frequencyRatio", "1", "ratio", frequencyRatio),
+    val("cosPhiReflected", "1", "cosine", cosPhiReflected),
+    val("phiReflectedDeg", "deg", "angle", phiReflectedDeg),
+    val("amplitudeRatio", "1", "ratio", amplitudeRatio),
+    val("radiationPressure", "Pa", "pressure", radiationPressure),
+    val("radiationForce", "N", "force", radiationForce),
+    val("incidentPower", "W", "power", incidentPower),
+    val("reflectedPower", "W", "power", reflectedPower),
+    val("workRate", "W", "power", workRate),
+    val("energyBalanceResidual", "W", "power", energyBalanceResidual),
+  ];
+
+  return Object.freeze({
+    beta,
+    incidentAngleDeg: phiDeg,
+    incidentAngleRad: phiRad,
+    incidentEnergyDensity: u,
+    mirrorArea: Am,
+    frame,
+    unitLayer,
+    frequencyRatio,
+    cosPhiReflected,
+    phiReflectedRad,
+    phiReflectedDeg,
+    amplitudeRatio,
+    radiationPressure,
+    radiationForce,
+    incidentPower,
+    reflectedPower,
+    workRate,
+    energyBalanceResidual,
+    explanation,
+    results,
+    status: "value" as const,
   });
 }

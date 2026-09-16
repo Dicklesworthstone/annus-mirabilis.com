@@ -2,7 +2,7 @@
 
 Generated from `content/quantities/*.yaml` by `scripts/generate-quantity-ids.ts`. Do not hand-edit; run `bun scripts/generate-quantity-ids.ts` to regenerate, and `--check` in CI to confirm this file is fresh.
 
-Total: 238 quantities, 45 rejected spellings, 2 reserved spellings.
+Total: 242 quantities, 45 rejected spellings, 2 reserved spellings.
 
 ## Registered quantities
 
@@ -19,6 +19,7 @@ Total: 238 quantities, 45 rejected spellings, 2 reserved spellings.
 | ansatzTransverseScale | Modern ansatz transverse scale | 0,0,0,0,0,0 | not-applicable | scalar | — |
 | apparentSpeed | Apparent speed | 1,0,-1,0,0,0 | not-applicable | scalar | — |
 | apparentSpeedRatio | Apparent speed ratio | 0,0,0,0,0,0 | not-applicable | scalar | — |
+| approachingDopplerFactor | Approaching line-of-sight Doppler factor | 0,0,0,0,0,0 | not-applicable | scalar | — |
 | auxiliaryGalileanCoordinate | Auxiliary Galilean coordinate: x' | 1,0,0,0,0,0 | not-applicable | scalar | — |
 | avogadroConstant | Avogadro's constant | 0,0,0,0,0,-1 | not-applicable | scalar | avogadroNumber, moleculesPerMole |
 | avogadroNumberEstimate | Avogadro number estimate | 0,0,0,0,0,-1 | not-applicable | scalar | avogadroNumber, molecularNumberEstimate, moleculesPerMole |
@@ -37,6 +38,8 @@ Total: 238 quantities, 45 rejected spellings, 2 reserved spellings.
 | chargeToMassRatio | Charge-to-mass ratio | 0,-1,1,0,1,0 | not-applicable | scalar | — |
 | chargeVelocityMoving | Charge velocity (moving system) | 1,0,-1,0,0,0 | moving-system | vector | — |
 | chargeVelocityStationary | Charge velocity (stationary system) | 1,0,-1,0,0,0 | stationary-system | vector | — |
+| classicalObserverDopplerFactor | Classical observer Doppler factor | 0,0,0,0,0,0 | not-applicable | scalar | — |
+| classicalSourceDopplerFactor | Classical source Doppler factor | 0,0,0,0,0,0 | not-applicable | scalar | — |
 | clockOffset | Clock offset | 0,0,1,0,0,0 | not-applicable | scalar | — |
 | collectorPotential | Collector potential | 2,1,-3,0,-1,0 | not-applicable | scalar | — |
 | columnLength | Column length | 1,0,0,0,0,0 | not-applicable | scalar | — |
@@ -194,6 +197,7 @@ Total: 238 quantities, 45 rejected spellings, 2 reserved spellings.
 | radiusCurvatureElectric | Radius of curvature (electric deflection) | 1,0,0,0,0,0 | not-applicable | scalar | — |
 | radiusCurvatureMagnetic | Radius of curvature (magnetic deflection) | 1,0,0,0,0,0 | not-applicable | scalar | — |
 | rapidity | Rapidity | 0,0,0,0,0,0 | not-applicable | scalar | — |
+| recedingDopplerFactor | Receding line-of-sight Doppler factor | 0,0,0,0,0,0 | not-applicable | scalar | — |
 | recoilSpeed | Recoil speed | 1,0,-1,0,0,0 | not-applicable | scalar | — |
 | reflectedFrequencyRatio | Reflected frequency ratio | 0,0,0,0,0,0 | not-applicable | scalar | — |
 | relativeSpectralEmission | Relative spectral emission | 0,0,0,0,0,0 | not-applicable | scalar | — |

@@ -1,0 +1,16 @@
+# Readings owner file for SR-09 (am-sr-09-doppler-aberration-rabd).
+ownerBeadId: am-sr-09-doppler-aberration-rabd
+targetKinds:
+  - instrument-caption
+scope:
+  instrumentIds:
+    - sr-09
+entries:
+  - id: sr-09-doppler-aberration-caption
+    targetKind: instrument-caption
+    instrumentId: sr-09
+    readings:
+      r0: "The frequency and direction of light transform together because a plane wave's phase is invariant between frames. Observers in relative motion see the same light wave shifted in frequency and arriving from a different apparent angle."
+      r1: "Under a boost along x, a light ray at angle θ in K has frequency ratio ν'/ν = γ(1 - β cos θ) and apparent angle cos θ' = (cos θ - β)/(1 - β cos θ). Along the line of motion, the Doppler factor is √(1-β)/√(1+β) for receding and √(1+β)/√(1-β) for approaching rays."
+      r2: "At right angles in the stationary system (θ = 90°), the frequency increases by γ (transverse Doppler effect) and the ray swings forward to cos θ' = -β (aberration). Ives and Stilwell confirmed the second-order shift in 1938."
+      r3: "Section 7 derives both principles strictly from phase invariance φ' = φ. Wavefront crossings counted by a moving detector match the transformed frequency ν' exactly. Frequency and wave vector transform as a 4-covector."

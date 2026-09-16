@@ -1,0 +1,310 @@
+id: sr-09
+title: "SR-09: Doppler and aberration"
+explanatoryQuestion: "How do the frequency and propagation direction of light transform between frames?"
+sourceRefs:
+  - paper: special-relativity
+    id: s7
+argumentIds:
+  - arg-sr-doppler-aberration
+schemaVersion: 1
+parameters:
+  - id: beta
+    label: "Observer frame speed"
+    accessibleName: "Observer frame speed as a fraction of c"
+    accessibleDescription: "Relative speed beta = v/c of the moving frame along the positive x-axis."
+    quantityId: frameSpeed
+    displayUnit: "c"
+    modelDomain:
+      min: -0.95
+      max: 0.95
+      minInclusive: true
+      maxInclusive: true
+      reason: "Teaching domain stays within 0.95c."
+    visualRange:
+      min: -0.95
+      max: 0.95
+    default: 0.6
+    mapping:
+      kind: linear
+    role: independent
+    commandClass: observer-change
+  - id: propagationAngleDeg
+    label: "Propagation angle"
+    accessibleName: "Wave propagation angle in stationary frame"
+    accessibleDescription: "Angle theta between the light propagation vector and the boost axis in frame K."
+    quantityId: propagationAngleStationary
+    displayUnit: "deg"
+    modelDomain:
+      min: 0
+      max: 360
+      minInclusive: true
+      maxInclusive: true
+      reason: "Full circle angle domain."
+    visualRange:
+      min: 0
+      max: 360
+    default: 0
+    mapping:
+      kind: linear
+    role: independent
+    commandClass: setup-change
+  - id: frequencyTHz
+    label: "Wave frequency"
+    accessibleName: "Frequency of the light in stationary frame"
+    accessibleDescription: "Cyclic frequency in Terahertz."
+    quantityId: waveFrequencyStationary
+    displayUnit: "THz"
+    modelDomain:
+      min: 1
+      max: 10000
+      minInclusive: true
+      maxInclusive: true
+      reason: "Visible and near-optical spectrum."
+    visualRange:
+      min: 100
+      max: 1000
+    default: 500
+    mapping:
+      kind: linear
+    role: independent
+    commandClass: setup-change
+outputs:
+  - id: frameSpeed
+    quantityId: frameSpeed
+    allowedStatuses:
+      - value
+      - outside-domain
+    primary: true
+  - id: propagationAngleStationary
+    quantityId: propagationAngleStationary
+    allowedStatuses:
+      - value
+    primary: true
+  - id: propagationAngleMoving
+    quantityId: propagationAngleMoving
+    allowedStatuses:
+      - value
+    primary: true
+  - id: waveFrequencyStationary
+    quantityId: waveFrequencyStationary
+    allowedStatuses:
+      - value
+    primary: true
+  - id: waveFrequencyMoving
+    quantityId: waveFrequencyMoving
+    allowedStatuses:
+      - value
+    primary: true
+  - id: dopplerFactor
+    quantityId: dopplerFactor
+    allowedStatuses:
+      - value
+    primary: true
+  - id: wavePhase
+    quantityId: wavePhase
+    allowedStatuses:
+      - value
+      - outside-domain
+    primary: true
+  - id: lineOfSightRecedingFactor
+    quantityId: dopplerFactor
+    allowedStatuses:
+      - value
+    primary: false
+  - id: lineOfSightApproachingFactor
+    quantityId: dopplerFactor
+    allowedStatuses:
+      - value
+    primary: false
+  - id: detectorCrossings
+    quantityId: detectorCrossings
+    allowedStatuses:
+      - value
+    primary: false
+  - id: detectorProperRateHz
+    quantityId: waveFrequencyMoving
+    allowedStatuses:
+      - value
+    primary: false
+  - id: earthOrbitAberrationArcsec
+    quantityId: propagationAngleMoving
+    allowedStatuses:
+      - value
+    primary: false
+  - id: secondOrderShift
+    quantityId: dopplerFactor
+    allowedStatuses:
+      - value
+    primary: false
+assumptions:
+  - "Monochromatic plane wave in vacuum."
+  - "Inertial observers with relative speed |v| < c along the x-axis."
+  - "Invariance of plane-wave phase between reference frames."
+admittedDomain: "Inertial frames with |v| < c and optical frequencies."
+notModeled:
+  - "media and dispersion"
+  - "sound in a medium"
+  - "gravitational redshift"
+  - "finite packets (SR-10)"
+  - "telescope optics and atmospheric refraction"
+  - "photon picture"
+  - "canal-ray apparatus beyond published values"
+owner:
+  kind: reference-evaluator
+  kernelFunctions:
+    - displayRole: reference-implementation
+      language: ts
+      module: "src/physics/reference/waves.ts"
+      exportName: "evaluateSr09"
+      independentReferences:
+        - experimentId: sr-09
+          quantityId: dopplerFactor
+  identifierBindings:
+    - kernelFunction: evaluateSr09
+      identifier: beta
+      quantityId: frameSpeed
+    - kernelFunction: evaluateSr09
+      identifier: theta
+      quantityId: propagationAngleStationary
+    - kernelFunction: evaluateSr09
+      identifier: doppler
+      quantityId: dopplerFactor
+    - kernelFunction: phaseAtEvent
+      identifier: phase
+      quantityId: wavePhase
+  traceScenarioId: sr-09-receding-0.6
+  traceRows:
+    - label: Longitudinal Doppler factor at 0.6c
+      expression: "sqrt((1 - beta) / (1 + beta))"
+      value: 0.5
+      unit: "1"
+      quantityId: dopplerFactor
+views:
+  - id: svg-wavefronts
+    kind: svg
+    consumes:
+      - propagationAngleStationary
+      - propagationAngleMoving
+      - waveFrequencyStationary
+      - waveFrequencyMoving
+      - dopplerFactor
+  - id: table-doppler-aberration
+    kind: table
+    consumes:
+      - frameSpeed
+      - propagationAngleStationary
+      - propagationAngleMoving
+      - waveFrequencyStationary
+      - waveFrequencyMoving
+      - dopplerFactor
+      - wavePhase
+actions:
+  - actionId: change-boost-angle
+    family: fields-boosts
+    question: "How do light frequency and angle transform under a boost along x?"
+    inputs:
+      - beta
+      - propagationAngleDeg
+    commandClass: observer-change
+    acceptedResult:
+      outputs:
+        - propagationAngleMoving
+        - waveFrequencyMoving
+        - dopplerFactor
+        - wavePhase
+      allowedStatuses:
+        - value
+        - outside-domain
+    visualAffordance: "Side-by-side wavefront and angle ray diagrams in K and k"
+    equivalentAffordance: "Type observer speed and angle to read transformed values and phase invariance check."
+    announcement: "Wave transformed under observer boost"
+acceptanceCases:
+  - sr-09-receding-0.6
+  - sr-09-approaching-0.6
+  - sr-09-transverse-0.6
+  - sr-09-earth-orbit-aberration
+defaultScenario: sr-09-receding-0.6
+tapeModel:
+  modelId: doppler-aberration-host
+  modelVersion: 1
+teachingTapes:
+  - tapeId: doppler-aberration
+    title: doppler aberration
+presets:
+  - presetId: sr-09-receding-0.6
+    label: Receding light along axis at 0.6c
+    parameterValues:
+      beta: 0.6
+      propagationAngleDeg: 0
+      frequencyTHz: 500
+    scenarioId: sr-09-receding-0.6
+  - presetId: sr-09-approaching-0.6
+    label: Approaching light along axis at 0.6c
+    parameterValues:
+      beta: 0.6
+      propagationAngleDeg: 180
+      frequencyTHz: 500
+    scenarioId: sr-09-approaching-0.6
+  - presetId: sr-09-transverse-0.6
+    label: Transverse ray at 90 deg, 0.6c
+    parameterValues:
+      beta: 0.6
+      propagationAngleDeg: 90
+      frequencyTHz: 500
+    scenarioId: sr-09-transverse-0.6
+  - presetId: sr-09-earth-orbit-aberration
+    label: Earth orbit aberration
+    parameterValues:
+      beta: 0.0000993654
+      propagationAngleDeg: 90
+      frequencyTHz: 500
+    scenarioId: sr-09-earth-orbit-aberration
+probes:
+  - toggle-frame
+  - type-speed
+  - type-angle
+  - query-phase
+weavePredicates:
+  - sr09-phase-invariance
+  - sr09-doppler-principle
+  - sr09-aberration-formula
+historicalOverlays:
+  - ives-stilwell-1938
+realRate:
+  natural: false
+embeddable: true
+predictMode:
+  enabled: true
+  prompts:
+    - promptId: sr-09-predict-receding
+      controlId: beta
+      question: "When observing a light wave traveling in the same direction as the observer at 0.6c, how does the observed frequency compare to the source frequency?"
+      candidates:
+        - id: halves
+          label: Halves to 0.5
+          description: Relativistic Doppler formula gives sqrt((1-beta)/(1+beta)) = 0.5.
+          separatingAssumption: "Light in vacuum transforms with the relative-motion Doppler factor."
+        - id: classical-observer
+          label: Classical observer through medium 0.4
+          description: Medium-based formula 1 - beta gives 0.4.
+          separatingAssumption: "Light is assumed to propagate in a stationary luminiferous ether."
+        - id: classical-source
+          label: Classical receding source 0.625
+          description: Medium-based receding source formula 1 / (1 + beta) gives 0.625.
+          separatingAssumption: "The source is assumed to move through a fixed medium."
+    - promptId: sr-09-predict-approaching
+      controlId: propagationAngleDeg
+      question: "When observing a light wave traveling toward the observer at 0.6c, how does the observed frequency compare to the source frequency?"
+      candidates:
+        - id: doubles
+          label: Doubles to 2.0
+          description: Relativistic Doppler formula gives sqrt((1+beta)/(1-beta)) = 2.0.
+          separatingAssumption: "Light in vacuum transforms with the relativistic Doppler factor."
+        - id: classical-approaching-observer
+          label: Classical approaching observer 1.6
+          description: Medium-based approaching observer formula 1 + beta gives 1.6.
+          separatingAssumption: "The observer moves through a stationary ether."
+        - id: classical-approaching-source
+          label: Classical approaching source 2.5
+          description: Medium-based approaching source formula 1 / (1 - beta) gives 2.5.
+          separatingAssumption: "The source moves toward the observer through an ether."

@@ -302,6 +302,46 @@
   frame: not-applicable
   colorRole: field
 
+- id: classicalObserverDopplerFactor
+  name: Classical observer Doppler factor
+  description: Frequency ratio for an observer moving through a still medium, 1 - beta cos theta. Right for sound; first-order agreement with light.
+  dimensionStatus: declared
+  dimension: [0, 0, 0, 0, 0, 0]
+  dimensionlessKind: ratio
+  mathematicalKind: scalar
+  frame: not-applicable
+  colorRole: field
+
+- id: classicalSourceDopplerFactor
+  name: Classical source Doppler factor
+  description: Frequency ratio for a source moving through a still medium, 1 / (1 + beta cos theta). Right for sound; first-order agreement with light.
+  dimensionStatus: declared
+  dimension: [0, 0, 0, 0, 0, 0]
+  dimensionlessKind: ratio
+  mathematicalKind: scalar
+  frame: not-applicable
+  colorRole: field
+
+- id: recedingDopplerFactor
+  name: Receding line-of-sight Doppler factor
+  description: Relativistic frequency ratio along the boost, sqrt((1-beta)/(1+beta)), independent of the current ray angle.
+  dimensionStatus: declared
+  dimension: [0, 0, 0, 0, 0, 0]
+  dimensionlessKind: ratio
+  mathematicalKind: scalar
+  frame: not-applicable
+  colorRole: field
+
+- id: approachingDopplerFactor
+  name: Approaching line-of-sight Doppler factor
+  description: Relativistic frequency ratio against the boost, sqrt((1+beta)/(1-beta)), independent of the current ray angle.
+  dimensionStatus: declared
+  dimension: [0, 0, 0, 0, 0, 0]
+  dimensionlessKind: ratio
+  mathematicalKind: scalar
+  frame: not-applicable
+  colorRole: field
+
 - id: reflectedFrequencyRatio
   name: Reflected frequency ratio
   description: The ratio of a wave's frequency after reflection off a moving mirror to its frequency before, as printed in section 7's radiation-pressure derivation.

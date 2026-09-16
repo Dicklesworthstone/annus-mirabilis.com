@@ -1,0 +1,38 @@
+tapeVersion: 2
+tapeId: doppler-aberration
+experimentId: sr-09
+mode: "sr-09:default"
+title: doppler aberration
+description: Teaching tape demonstrating the relativistic Doppler effect and aberration under a 0.6c boost.
+isTeachingSequence: true
+modelIdentity:
+  modelId: doppler-aberration-host
+  modelVersion: "1"
+  artifactDigest: "host:sha256:sr09-evaluateSr09"
+constantSetId: modern-si-2019
+seed: "0"
+streamVersion: 1
+allocationId: sr-09.none.v1
+initialConditions:
+  beta: 0.6
+  propagationAngleDeg: 0
+  frequencyTHz: 500
+events:
+  - kind: control
+    actionIndex: 1
+    commandClass: observer-change
+    commandId: beta-0.6
+    parameterId: beta
+    value: 0.6
+checkpoints:
+  - actionIndex: 1
+    stepIndex: 0
+    simulatedTime: 0
+    digest: "host:sha256:sr09-evaluateSr09"
+    digestKind: host
+    checkpointVersion: 1
+    streamSemanticsVersion: 1
+    seed: "0"
+    streamPositions: []
+    label: doppler-aberration-0.6
+    teachingNote: At 0.6c receding light along the axis halves its frequency (factor 0.5) while phase remains invariant.
