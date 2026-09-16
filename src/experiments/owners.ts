@@ -33,6 +33,11 @@ export const OWNER_BINDINGS: Readonly<Partial<Record<CatalogueId, OwnerBinding>>
     module: "src/experiments/bm01/session.ts",
     function: "createBm01Session",
   }),
+  "bm-02": Object.freeze({
+    kind: "reference-evaluator",
+    module: "src/experiments/bm02/session.ts",
+    function: "computeBm02Snapshot",
+  }),
   "bm-03": Object.freeze({
     kind: "reference-evaluator",
     module: "src/experiments/bm03/session.ts",
