@@ -2,7 +2,6 @@ import { describe, expect, test } from "bun:test";
 import { readdirSync, readFileSync } from "node:fs";
 import { dirname, join } from "node:path";
 import { fileURLToPath } from "node:url";
-import { classifyWithTolerance, compareBitwise, validateToleranceSpec, validateToleranceSpecAcross, withinTolerance } from "./tolerance.ts";
 import {
   BITWISE_CASES,
   CLASSIFY_CASES,
@@ -12,6 +11,13 @@ import {
   VALIDATE_SPEC_CASES,
   WITHIN_TOLERANCE_CASES,
 } from "./tolerance.cases.ts";
+import {
+  classifyWithTolerance,
+  compareBitwise,
+  validateToleranceSpec,
+  validateToleranceSpecAcross,
+  withinTolerance,
+} from "./tolerance.ts";
 
 describe("validateToleranceSpec", () => {
   for (const c of VALIDATE_SPEC_CASES) {
@@ -120,7 +126,18 @@ describe("classifyWithTolerance", () => {
 describe("module purity", () => {
   test("tolerance.ts performs no I/O, logging, randomness, or global mutation", () => {
     const source = readFileSync(fileURLToPath(new URL("./tolerance.ts", import.meta.url)), "utf8");
-    for (const forbidden of ["console.", "Math.random(", "require(", "process.", "fetch(", "readFileSync", "writeFileSync", "globalThis.", "localStorage", "XMLHttpRequest"]) {
+    for (const forbidden of [
+      "console.",
+      "Math.random(",
+      "require(",
+      "process.",
+      "fetch(",
+      "readFileSync",
+      "writeFileSync",
+      "globalThis.",
+      "localStorage",
+      "XMLHttpRequest",
+    ]) {
       expect(source.includes(forbidden)).toBe(false);
     }
   });

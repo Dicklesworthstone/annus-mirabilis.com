@@ -5,9 +5,14 @@
  */
 import { readFileSync } from "node:fs";
 import { fileURLToPath } from "node:url";
-import { strictParse } from "../schemas/strictParse.ts";
-import { isRegisteredQuantityId, QUANTITIES_DIR, type QuantityRegistry, getQuantityRegistry } from "./registry.ts";
 import type { Quantity } from "../schemas/argument.ts";
+import { strictParse } from "../schemas/strictParse.ts";
+import {
+  getQuantityRegistry,
+  isRegisteredQuantityId,
+  QUANTITIES_DIR,
+  type QuantityRegistry,
+} from "./registry.ts";
 
 export type LegacySpellingEntry = Readonly<{
   spelling: string;
@@ -15,16 +20,26 @@ export type LegacySpellingEntry = Readonly<{
   message?: string | undefined;
 }>;
 
-export const LEGACY_SPELLINGS_PATH = fileURLToPath(new URL("../../../content/quantities/legacy-spellings.yaml", import.meta.url));
+export const LEGACY_SPELLINGS_PATH = fileURLToPath(
+  new URL("../../../content/quantities/legacy-spellings.yaml", import.meta.url),
+);
 
 /** Validates already-parsed legacy-spellings YAML data. Pure (no I/O), so both the file-based
  * loader below and the content compiler's text-based route (which already holds parsed YAML)
  * share exactly this one validation, never two copies of the entry shape. Throws `TypeError`;
  * callers that need a different error type (the compiler's `ContentError`) catch and rewrap. */
-export function parseLegacySpellingEntries(parsed: unknown, path: string): ReadonlyMap<string, LegacySpellingEntry> {
+export function parseLegacySpellingEntries(
+  parsed: unknown,
+  path: string,
+): ReadonlyMap<string, LegacySpellingEntry> {
   // A comment-only or blank file parses to {} (this parser's empty-document value): treat
   // that as zero entries rather than a shape error, so a fixture can declare "no spellings".
-  if (parsed && typeof parsed === "object" && !Array.isArray(parsed) && Object.keys(parsed).length === 0) {
+  if (
+    parsed &&
+    typeof parsed === "object" &&
+    !Array.isArray(parsed) &&
+    Object.keys(parsed).length === 0
+  ) {
     return new Map();
   }
   if (!Array.isArray(parsed)) {
@@ -35,12 +50,25 @@ export function parseLegacySpellingEntries(parsed: unknown, path: string): Reado
     const entryPath = `${path}[${i}]`;
     if (!raw || typeof raw !== "object") throw new TypeError(`${entryPath}: expected an object.`);
     const o = raw as Record<string, unknown>;
-    if (typeof o.spelling !== "string" || !o.spelling.trim()) throw new TypeError(`${entryPath}.spelling: required.`);
-    if (!Array.isArray(o.canonicalIds) || o.canonicalIds.length === 0 || !o.canonicalIds.every((c) => typeof c === "string" && c.trim())) {
+    if (typeof o.spelling !== "string" || !o.spelling.trim())
+      throw new TypeError(`${entryPath}.spelling: required.`);
+    if (
+      !Array.isArray(o.canonicalIds) ||
+      o.canonicalIds.length === 0 ||
+      !o.canonicalIds.every((c) => typeof c === "string" && c.trim())
+    ) {
       throw new TypeError(`${entryPath}.canonicalIds: required non-empty string array.`);
     }
-    if (map.has(o.spelling)) throw new TypeError(`${entryPath}: duplicate legacy spelling "${o.spelling}".`);
-    map.set(o.spelling, Object.freeze({ spelling: o.spelling, canonicalIds: Object.freeze([...o.canonicalIds] as string[]), message: typeof o.message === "string" ? o.message : undefined }));
+    if (map.has(o.spelling))
+      throw new TypeError(`${entryPath}: duplicate legacy spelling "${o.spelling}".`);
+    map.set(
+      o.spelling,
+      Object.freeze({
+        spelling: o.spelling,
+        canonicalIds: Object.freeze([...o.canonicalIds] as string[]),
+        message: typeof o.message === "string" ? o.message : undefined,
+      }),
+    );
   });
   return map;
 }
@@ -63,14 +91,20 @@ export function getLegacySpellings(): ReadonlyMap<string, LegacySpellingEntry> {
 /** Every legacy spelling maps to a registry id and is never itself one. A spelling data file
  * that violates this is a defect in the data, not a runtime concern for callers -- checked
  * eagerly here and again by registry.test.ts, never silently tolerated. */
-export function assertLegacySpellingsAreValid(registry: QuantityRegistry = getQuantityRegistry()): void {
+export function assertLegacySpellingsAreValid(
+  registry: QuantityRegistry = getQuantityRegistry(),
+): void {
   for (const entry of getLegacySpellings().values()) {
     if (registry.quantities.has(entry.spelling)) {
-      throw new TypeError(`legacy-spellings.yaml: "${entry.spelling}" is a registry id; a legacy spelling must never also be an id.`);
+      throw new TypeError(
+        `legacy-spellings.yaml: "${entry.spelling}" is a registry id; a legacy spelling must never also be an id.`,
+      );
     }
     for (const canonicalId of entry.canonicalIds) {
       if (!registry.quantities.has(canonicalId)) {
-        throw new TypeError(`legacy-spellings.yaml: "${entry.spelling}" names canonical id "${canonicalId}", which is not registered.`);
+        throw new TypeError(
+          `legacy-spellings.yaml: "${entry.spelling}" names canonical id "${canonicalId}", which is not registered.`,
+        );
       }
     }
   }
@@ -102,7 +136,9 @@ export function legacySpellingMessage(id: string): string {
   const entry = getLegacySpellings().get(id);
   if (!entry) throw new RangeError(`"${id}" is not a recorded legacy spelling.`);
   if (entry.message) return entry.message;
-  return entry.canonicalIds.length === 1 ? `use ${entry.canonicalIds[0]}` : `choose between ${entry.canonicalIds.join(" or ")}`;
+  return entry.canonicalIds.length === 1
+    ? `use ${entry.canonicalIds[0]}`
+    : `choose between ${entry.canonicalIds.join(" or ")}`;
 }
 
 export { isRegisteredQuantityId, QUANTITIES_DIR };

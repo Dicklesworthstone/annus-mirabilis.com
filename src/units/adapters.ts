@@ -5,7 +5,7 @@
  * has not been exactly true since the 2019 SI redefinition). Pure: no I/O, no globals.
  * am-not-quantity-registry-2f7.
  */
-import { rational, multiply, divide, type Rational } from "../content/dimensions/rational.ts";
+import { divide, multiply, type Rational, rational } from "../content/dimensions/rational.ts";
 
 export type UnitExactness = "exact" | "conventional";
 
@@ -16,7 +16,13 @@ export type UnitDefinition = Readonly<{
   exactness: UnitExactness;
 }>;
 
-function def(unit: string, family: string, num: bigint, den: bigint, exactness: UnitExactness): UnitDefinition {
+function def(
+  unit: string,
+  family: string,
+  num: bigint,
+  den: bigint,
+  exactness: UnitExactness,
+): UnitDefinition {
   return Object.freeze({ unit, family, factor: rational(num, den), exactness });
 }
 
@@ -95,14 +101,21 @@ function lookup(unit: string): UnitDefinition {
 /** The exact rational factor `from` and `to` share, and whether the correspondence is exact
  * or conventional (the weaker of the two, if they differ). Refuses to convert across
  * families: a length never converts to a viscosity by exponent arithmetic alone. */
-export function conversionFactor(fromUnit: string, toUnit: string): Readonly<{ factor: Rational; exactness: UnitExactness }> {
+export function conversionFactor(
+  fromUnit: string,
+  toUnit: string,
+): Readonly<{ factor: Rational; exactness: UnitExactness }> {
   const from = lookup(fromUnit);
   const to = lookup(toUnit);
   if (from.family !== to.family) {
-    throw new UnitConversionError("family-mismatch", `Cannot convert "${fromUnit}" (${from.family}) to "${toUnit}" (${to.family}).`);
+    throw new UnitConversionError(
+      "family-mismatch",
+      `Cannot convert "${fromUnit}" (${from.family}) to "${toUnit}" (${to.family}).`,
+    );
   }
   const factor = divide(from.factor, to.factor);
-  const exactness: UnitExactness = from.exactness === "exact" && to.exactness === "exact" ? "exact" : "conventional";
+  const exactness: UnitExactness =
+    from.exactness === "exact" && to.exactness === "exact" ? "exact" : "conventional";
   return Object.freeze({ factor, exactness });
 }
 
@@ -110,9 +123,15 @@ export function conversionFactor(fromUnit: string, toUnit: string): Readonly<{ f
  * derivative per `fromUnit`) converts to a derivative per `toUnit` by this same exact
  * factor's reciprocal. AGENTS.md: unit conversions apply to sensitivities as well as values;
  * sensitivity conversion itself is implemented by am-ver-precision-display-5e5. */
-export function inverseConversionFactor(fromUnit: string, toUnit: string): Readonly<{ factor: Rational; exactness: UnitExactness }> {
+export function inverseConversionFactor(
+  fromUnit: string,
+  toUnit: string,
+): Readonly<{ factor: Rational; exactness: UnitExactness }> {
   const forward = conversionFactor(fromUnit, toUnit);
-  return Object.freeze({ factor: divide(rational(1n), forward.factor), exactness: forward.exactness });
+  return Object.freeze({
+    factor: divide(rational(1n), forward.factor),
+    exactness: forward.exactness,
+  });
 }
 
 function bigPow(base: bigint, exp: bigint): bigint {
@@ -135,7 +154,11 @@ function rationalToExactDecimalString(r: Rational): string {
     d /= 5n;
     fives++;
   }
-  if (d !== 1n) throw new UnitConversionError("non-terminating-decimal", `${r.num}/${r.den} has no finite decimal representation.`);
+  if (d !== 1n)
+    throw new UnitConversionError(
+      "non-terminating-decimal",
+      `${r.num}/${r.den} has no finite decimal representation.`,
+    );
   const k = twos > fives ? twos : fives;
   const scaledNum = num * bigPow(2n, k - twos) * bigPow(5n, k - fives);
   const digits = scaledNum.toString();
@@ -156,7 +179,8 @@ function rationalToExactDecimalString(r: Rational): string {
 export function parseExactDecimal(text: string): Rational {
   const trimmed = text.trim();
   const match = /^([+-]?)(\d+)(?:\.(\d+))?(?:[eE]([+-]?\d+))?$/.exec(trimmed);
-  if (!match) throw new UnitConversionError("invalid-decimal", `"${text}" is not a finite decimal number.`);
+  if (!match)
+    throw new UnitConversionError("invalid-decimal", `"${text}" is not a finite decimal number.`);
   const [, sign, intPart, fracPart = "", expPart] = match;
   const digits = intPart + fracPart;
   const exponent = (expPart ? Number(expPart) : 0) - fracPart.length;
@@ -181,7 +205,8 @@ export function convertExact(decimalValue: string, fromUnit: string, toUnit: str
  * true nearest double; no tolerance constant is involved because there is nothing to
  * compare against, only a single computed result. */
 export function convertValue(value: number, fromUnit: string, toUnit: string): number {
-  if (!Number.isFinite(value)) throw new UnitConversionError("nonfinite-value", "Only finite values can be converted.");
+  if (!Number.isFinite(value))
+    throw new UnitConversionError("nonfinite-value", "Only finite values can be converted.");
   const { factor } = conversionFactor(fromUnit, toUnit);
   return (value * Number(factor.num)) / Number(factor.den);
 }
@@ -191,22 +216,38 @@ const CELSIUS_OFFSET = rational(27315n, 100n); // 273.15, exact
 /** Converts an absolute temperature. The Celsius offset applies here and only here --
  * never to a temperature difference or a sensitivity, which are the same size of degree in
  * both scales. */
-export function convertTemperatureValue(value: number, from: "K" | "degC", to: "K" | "degC"): number {
-  if (!Number.isFinite(value)) throw new UnitConversionError("nonfinite-value", "Only finite temperatures can be converted.");
+export function convertTemperatureValue(
+  value: number,
+  from: "K" | "degC",
+  to: "K" | "degC",
+): number {
+  if (!Number.isFinite(value))
+    throw new UnitConversionError("nonfinite-value", "Only finite temperatures can be converted.");
   const offset = Number(CELSIUS_OFFSET.num) / Number(CELSIUS_OFFSET.den);
   if (from === to) return value;
   if (from === "degC" && to === "K") return value + offset;
   if (from === "K" && to === "degC") return value - offset;
-  throw new UnitConversionError("unknown-unit", `Unknown temperature unit pair "${from}" -> "${to}".`);
+  throw new UnitConversionError(
+    "unknown-unit",
+    `Unknown temperature unit pair "${from}" -> "${to}".`,
+  );
 }
 
 /** A temperature difference or sensitivity (a derivative per degree) is numerically
  * identical in K and degC: the affine offset cancels. Refuses to touch other unit pairs so a
  * length sensitivity is never silently passed through unconverted. */
-export function convertTemperatureDelta(value: number, from: "K" | "degC", to: "K" | "degC"): number {
-  if (!Number.isFinite(value)) throw new UnitConversionError("nonfinite-value", "Only finite differences can be converted.");
+export function convertTemperatureDelta(
+  value: number,
+  from: "K" | "degC",
+  to: "K" | "degC",
+): number {
+  if (!Number.isFinite(value))
+    throw new UnitConversionError("nonfinite-value", "Only finite differences can be converted.");
   if ((from !== "K" && from !== "degC") || (to !== "K" && to !== "degC")) {
-    throw new UnitConversionError("unknown-unit", `Unknown temperature unit pair "${from}" -> "${to}".`);
+    throw new UnitConversionError(
+      "unknown-unit",
+      `Unknown temperature unit pair "${from}" -> "${to}".`,
+    );
   }
   return value;
 }
@@ -216,13 +257,21 @@ export type HistoricalLabel = Readonly<{ label: string; unit: string; note: stri
 /** Historical display labels: the value never changes, only how it is printed, and
  * "per gram-equivalent" additionally depends on a valence the label alone cannot supply. */
 export const HISTORICAL_LABELS: readonly HistoricalLabel[] = Object.freeze([
-  Object.freeze({ label: "per gram-molecule", unit: "1/mol", note: "A historical label for mol^-1; the value does not change." }),
+  Object.freeze({
+    label: "per gram-molecule",
+    unit: "1/mol",
+    note: "A historical label for mol^-1; the value does not change.",
+  }),
   Object.freeze({
     label: "per gram-equivalent",
     unit: "1/mol",
     note: "A historical label for the charge of a monovalent ion's gram-equivalent; one gram-equivalent is 1/z mole for valence z. The value does not change but display requires z.",
   }),
-  Object.freeze({ label: "Mikron", unit: "um", note: "Paper 2's historical label for the micrometer." }),
+  Object.freeze({
+    label: "Mikron",
+    unit: "um",
+    note: "Paper 2's historical label for the micrometer.",
+  }),
 ]);
 
 export function listUnitsInFamily(family: string): readonly UnitDefinition[] {

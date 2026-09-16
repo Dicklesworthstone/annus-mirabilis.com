@@ -12,9 +12,13 @@
  * implement them), so there is no anchor-expansion amplification to bound.
  * am-not-quantity-registry-2f7.
  */
+
+import {
+  type LegacySpellingEntry,
+  parseLegacySpellingEntries,
+} from "../quantities/resolveQuantityId.ts";
+import { type Quantity, validateQuantity } from "../schemas/argument.ts";
 import { strictParse } from "../schemas/strictParse.ts";
-import { validateQuantity, type Quantity } from "../schemas/argument.ts";
-import { parseLegacySpellingEntries, type LegacySpellingEntry } from "../quantities/resolveQuantityId.ts";
 import { ContentError } from "./json.ts";
 
 const LEGACY_SPELLINGS_FILENAME = "legacy-spellings.yaml";
@@ -39,22 +43,37 @@ function parseYamlOrThrowContentError(text: string, path: string): unknown {
 /** Validates the legacy-spellings table. Pure text in, entries out; the compiler decides
  * what to do with duplicates against the live quantity set, since that requires every
  * quantities file's ids, not just this one file. */
-export function compileLegacySpellingsFile(text: string, path: string): readonly LegacySpellingEntry[] {
+export function compileLegacySpellingsFile(
+  text: string,
+  path: string,
+): readonly LegacySpellingEntry[] {
   const parsed = parseYamlOrThrowContentError(text, path);
   try {
     return [...parseLegacySpellingEntries(parsed, path).values()];
   } catch (e) {
-    throw new ContentError("invalid-legacy-spellings", path, e instanceof Error ? e.message : String(e));
+    throw new ContentError(
+      "invalid-legacy-spellings",
+      path,
+      e instanceof Error ? e.message : String(e),
+    );
   }
 }
 
 /** Validates one quantities domain file (an array of Quantity records) through the exact
  * same `validateQuantity` the registry loader uses -- one schema, one set of rules, whether
  * the record is read by the registry directly or admitted by the content compiler. */
-export function compileQuantitiesFile(text: string, path: string, registeredIds: readonly string[]): readonly Quantity[] {
+export function compileQuantitiesFile(
+  text: string,
+  path: string,
+  registeredIds: readonly string[],
+): readonly Quantity[] {
   const parsed = parseYamlOrThrowContentError(text, path);
   if (!Array.isArray(parsed)) {
-    throw new ContentError("invalid-quantities-file", path, "Expected a YAML list of quantity records.");
+    throw new ContentError(
+      "invalid-quantities-file",
+      path,
+      "Expected a YAML list of quantity records.",
+    );
   }
   const ids = [...registeredIds];
   const result: Quantity[] = [];
@@ -77,7 +96,9 @@ export function compileQuantitiesRoutePath(
   path: string,
   text: string,
   registeredIds: readonly string[],
-): { kind: "legacy-spellings"; entries: readonly LegacySpellingEntry[] } | { kind: "quantities"; quantities: readonly Quantity[] } {
+):
+  | { kind: "legacy-spellings"; entries: readonly LegacySpellingEntry[] }
+  | { kind: "quantities"; quantities: readonly Quantity[] } {
   const filename = path.slice(path.lastIndexOf("/") + 1);
   if (filename === LEGACY_SPELLINGS_FILENAME) {
     return { kind: "legacy-spellings", entries: compileLegacySpellingsFile(text, path) };

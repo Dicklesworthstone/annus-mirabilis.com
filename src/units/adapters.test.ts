@@ -64,7 +64,7 @@ describe("conventional conversions", () => {
     expect(conversionFactor("statV/cm", "V/m").exactness).toBe("conventional");
   });
   test("1 statC is close to 3.3356409520e-10 C, marked conventional", () => {
-    expect(convertValue(1, "statC", "C")).toBeCloseTo(3.3356409520e-10, 18);
+    expect(convertValue(1, "statC", "C")).toBeCloseTo(3.335640952e-10, 18);
     expect(conversionFactor("statC", "C").exactness).toBe("conventional");
   });
 });
@@ -128,7 +128,10 @@ describe("temperature", () => {
 
 describe("parseExactDecimal", () => {
   test("round-trips integers, decimals, and exponents exactly, reduced to lowest terms", () => {
-    expect(parseExactDecimal("1.602176634e-19")).toEqual({ num: 801088317n, den: 5_000_000_000_000_000_000_000_000_000n });
+    expect(parseExactDecimal("1.602176634e-19")).toEqual({
+      num: 801088317n,
+      den: 5_000_000_000_000_000_000_000_000_000n,
+    });
     expect(parseExactDecimal("-3")).toEqual({ num: -3n, den: 1n });
     expect(parseExactDecimal("0.1")).toEqual({ num: 1n, den: 10n });
   });
