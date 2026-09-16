@@ -11,7 +11,7 @@
  */
 
 import { spawnSync } from "node:child_process";
-import { readdirSync, readFileSync, statSync } from "node:fs";
+import { readdirSync, readFileSync } from "node:fs";
 import { join, normalize, relative, resolve } from "node:path";
 import { pathToFileURL } from "node:url";
 

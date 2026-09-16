@@ -544,7 +544,7 @@ function writeStructuredLogs(
   };
   lines.push(JSON.stringify(summaryEntry));
 
-  writeFileSync(logFile, lines.join("\n") + "\n", "utf8");
+  writeFileSync(logFile, `${lines.join("\n")}\n`, "utf8");
 
   // 3. Retain evidence for failed steps
   const failedSteps = summary.results.filter(

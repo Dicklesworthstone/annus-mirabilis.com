@@ -1,27 +1,19 @@
 import assert from "node:assert";
 import { existsSync } from "node:fs";
-import { mkdir, readFile, rm, writeFile } from "node:fs/promises";
+import { readFile, writeFile } from "node:fs/promises";
 import { dirname, resolve } from "node:path";
-import test, { describe, it } from "node:test";
+import { describe, it } from "node:test";
 import { fileURLToPath } from "node:url";
 import { FixtureAdapter } from "./ocr-adapters/fixture-adapter.ts";
 import { loadAdapter } from "./ocr-adapters/loader.ts";
+import { OcrRefusalError } from "./ocr-adapters/types.ts";
 import {
-  AdapterAuthError,
-  AdapterTimeoutError,
-  AdapterUnavailableError,
-  OcrRefusalError,
-} from "./ocr-adapters/types.ts";
-import {
-  generateLogRunId,
-  generateToolRunId,
   loadPlan,
   planChunks,
   redact,
   renderPages,
   resumeRun,
   runOcrOrchestrator,
-  summarizeRun,
   validatePlan,
 } from "./ocr-ledgers.ts";
 
@@ -286,7 +278,7 @@ describe("OCR Orchestrator: Unit and Integration Tests", () => {
         "pages/page-1.md",
       );
       const content = await readFile(page1Path, "utf-8");
-      await writeFile(page1Path, content + "\n[TAMPERED CONTENT]");
+      await writeFile(page1Path, `${content}\n[TAMPERED CONTENT]`);
 
       // Resume check
       const plan = await loadPlan(planPath);

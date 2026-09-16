@@ -50,8 +50,8 @@ test("summarize reports correct counts per suite and outcome for a fixture event
   assert.deepEqual(summary.counts.alpha, { passed: 1, failed: 1, skipped: 1, "not-available": 0 });
   assert.deepEqual(summary.counts.beta, { passed: 1, failed: 0, skipped: 0, "not-available": 1 });
   assert.equal(summary.failures.length, 1);
-  assert.equal(summary.failures[0]!.testId, "t2");
-  assert.equal(summary.failures[0]!.message, "boom");
+  assert.equal(summary.failures[0]?.testId, "t2");
+  assert.equal(summary.failures[0]?.message, "boom");
 });
 
 test("failures list includes evidence paths when present", () => {
@@ -68,7 +68,7 @@ test("failures list includes evidence paths when present", () => {
   ];
   const summary = summarize(events);
   assert.equal(summary.failures.length, 1);
-  assert.deepEqual(summary.failures[0]!.evidence, { screenshot: "s.png", dom: "d.html" });
+  assert.deepEqual(summary.failures[0]?.evidence, { screenshot: "s.png", dom: "d.html" });
 });
 
 test("two script processes sharing one toolRunId are grouped under it with both logRunId values listed", () => {

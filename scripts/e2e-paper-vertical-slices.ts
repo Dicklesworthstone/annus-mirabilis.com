@@ -74,7 +74,6 @@ import * as path from "node:path";
 import { fileURLToPath } from "node:url";
 import { type BrowserContext, type ConsoleMessage, chromium, type Page } from "playwright";
 import {
-  classifyPaperE2EDiagnostic,
   createPaperE2EEvent,
   PAPER_E2E_VIEWPORTS,
   type PaperE2EEvent,

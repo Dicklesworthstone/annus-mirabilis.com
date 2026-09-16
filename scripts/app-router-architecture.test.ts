@@ -344,7 +344,7 @@ describe("App Router Architecture Gate", () => {
       const loaded = loadAllowlist(allowlistPath);
       assert.ok(loaded["README.md"]);
       assert.ok(loaded["package.json"]);
-      assert.ok(loaded["src"]);
+      assert.ok(loaded.src);
     });
 
     it("rejects an allowlist entry missing a reason", () => {
