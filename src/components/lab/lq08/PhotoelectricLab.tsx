@@ -10,7 +10,7 @@ import {
 } from "./PhotoelectricPlot.tsx";
 
 export type PhotoelectricLabProps = Readonly<{
-  example?: PreparedLq08Example;
+  example?: PreparedLq08Example | undefined;
 }>;
 
 type Preset = Readonly<{
