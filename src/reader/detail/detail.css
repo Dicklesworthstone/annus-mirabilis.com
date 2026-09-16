@@ -1,0 +1,59 @@
+/*
+ * am-read-detail-axis-sfc. Reveals the reading matching the current Detail, overriding the
+ * `hidden` attribute's user-agent `display: none` for the one that should show. Not exercised by
+ * any test in this repository (there is no CSS test runner here; src/reader/stack/Compass.tsx
+ * documents the same gap for its own stylesheet) -- correctness here is direct inspection
+ * against the bead's own text, not a proof class above "static".
+ *
+ * The static markup this bead's compiler projection emits always gives R1 no `hidden` attribute
+ * and gives R0, R2, and R3 `hidden`, so with no `data-detail` attribute on <html> at all (the
+ * no-JavaScript case: the pre-paint script never ran) the base HTML/UA behavior alone already
+ * shows exactly R1 and hides everything else. Nothing below needs to special-case that case or
+ * repeat it for `data-detail="1"`, which the pre-paint script also treats as its own default.
+ */
+
+:root[data-detail="0"] [data-reading="0"] {
+  display: initial;
+}
+:root[data-detail="0"] [data-reading="1"] {
+  display: none;
+}
+
+:root[data-detail="2"] [data-reading="1"] {
+  display: none;
+}
+:root[data-detail="2"] [data-reading="2"] {
+  display: initial;
+}
+
+/*
+ * Per-unit override (`data-detail-override` on one unit's own container, per this bead's Per-
+ * unit deeper reading requirement) outranks the page-wide `:root[data-detail]` rules above, but
+ * only inside that one unit's subtree.
+ */
+[data-unit][data-detail-override="0"] [data-reading="0"] {
+  display: initial;
+}
+[data-unit][data-detail-override="0"] [data-reading="1"] {
+  display: none;
+}
+[data-unit][data-detail-override="0"] [data-reading="2"] {
+  display: none;
+}
+
+[data-unit][data-detail-override="1"] [data-reading="0"] {
+  display: none;
+}
+[data-unit][data-detail-override="1"] [data-reading="1"] {
+  display: initial;
+}
+[data-unit][data-detail-override="1"] [data-reading="2"] {
+  display: none;
+}
+
+[data-unit][data-detail-override="2"] [data-reading="1"] {
+  display: none;
+}
+[data-unit][data-detail-override="2"] [data-reading="2"] {
+  display: initial;
+}
