@@ -44,24 +44,25 @@ function lastDayOfMonth(year: number, month: number): number {
   return new Date(year, month, 0).getDate();
 }
 
-export function validatePaperDate(
-  raw: unknown,
-  recordId = "unknown",
-  field = "date"
-): PaperDate {
+export function validatePaperDate(raw: unknown, recordId = "unknown", field = "date"): PaperDate {
   if (!raw || typeof raw !== "object") {
-    throw new DateValidationError("invalid-date-record", "Date must be an object.", recordId, field);
+    throw new DateValidationError(
+      "invalid-date-record",
+      "Date must be an object.",
+      recordId,
+      field,
+    );
   }
 
   const o = raw as Record<string, unknown>;
 
   // Reject single instant field if present
-  if ("instant" in o || "iso" in o && !("earliest" in o && "latest" in o)) {
+  if ("instant" in o || ("iso" in o && !("earliest" in o && "latest" in o))) {
     throw new DateValidationError(
       "date-precision-instant",
       `Date record carrying a single instant field; coarse-precision dates must store [earliest, latest] interval.`,
       recordId,
-      field
+      field,
     );
   }
 
@@ -70,7 +71,7 @@ export function validatePaperDate(
       "invalid-date-type",
       `Invalid date type "${o.type}". Expected one of: ${PAPER_DATE_TYPES.join(", ")}`,
       recordId,
-      `${field}.type`
+      `${field}.type`,
     );
   }
 
@@ -79,7 +80,7 @@ export function validatePaperDate(
       "invalid-date-precision",
       `Invalid date precision "${o.precision}". Expected one of: ${DATE_PRECISIONS.join(", ")}`,
       recordId,
-      `${field}.precision`
+      `${field}.precision`,
     );
   }
 
@@ -88,10 +89,20 @@ export function validatePaperDate(
   const latest = typeof o.latest === "string" ? o.latest : "";
 
   if (!/^\d{4}-\d{2}-\d{2}$/.test(earliest)) {
-    throw new DateValidationError("invalid-iso-date", `Invalid earliest date format: "${earliest}". Must be YYYY-MM-DD.`, recordId, `${field}.earliest`);
+    throw new DateValidationError(
+      "invalid-iso-date",
+      `Invalid earliest date format: "${earliest}". Must be YYYY-MM-DD.`,
+      recordId,
+      `${field}.earliest`,
+    );
   }
   if (!/^\d{4}-\d{2}-\d{2}$/.test(latest)) {
-    throw new DateValidationError("invalid-iso-date", `Invalid latest date format: "${latest}". Must be YYYY-MM-DD.`, recordId, `${field}.latest`);
+    throw new DateValidationError(
+      "invalid-iso-date",
+      `Invalid latest date format: "${latest}". Must be YYYY-MM-DD.`,
+      recordId,
+      `${field}.latest`,
+    );
   }
 
   if (earliest > latest) {
@@ -99,7 +110,7 @@ export function validatePaperDate(
       "date-precision-inverted",
       `Inverted date interval: earliest (${earliest}) is after latest (${latest}).`,
       recordId,
-      field
+      field,
     );
   }
 
@@ -112,7 +123,7 @@ export function validatePaperDate(
         "date-precision-interval-mismatch",
         `Precision "day" requires earliest (${earliest}) to equal latest (${latest}).`,
         recordId,
-        field
+        field,
       );
     }
   } else if (precision === "month") {
@@ -122,7 +133,7 @@ export function validatePaperDate(
         "date-precision-interval-mismatch",
         `Precision "month" requires interval from first to last day of month (${eY}-${String(eM).padStart(2, "0")}-01 to ${eY}-${String(eM).padStart(2, "0")}-${expectedLast}), found ${earliest} to ${latest}.`,
         recordId,
-        field
+        field,
       );
     }
   } else if (precision === "year") {
@@ -131,17 +142,27 @@ export function validatePaperDate(
         "date-precision-interval-mismatch",
         `Precision "year" requires interval from Jan 1 to Dec 31 of year (${eY}-01-01 to ${eY}-12-31), found ${earliest} to ${latest}.`,
         recordId,
-        field
+        field,
       );
     }
   }
 
   if (typeof o.source !== "string" || !o.source.trim()) {
-    throw new DateValidationError("missing-date-source", "Date source citation is required.", recordId, `${field}.source`);
+    throw new DateValidationError(
+      "missing-date-source",
+      "Date source citation is required.",
+      recordId,
+      `${field}.source`,
+    );
   }
 
   if (typeof o.verifiedAt !== "string" || !o.verifiedAt.trim()) {
-    throw new DateValidationError("missing-date-verified", "Date verifiedAt is required.", recordId, `${field}.verifiedAt`);
+    throw new DateValidationError(
+      "missing-date-verified",
+      "Date verifiedAt is required.",
+      recordId,
+      `${field}.verifiedAt`,
+    );
   }
 
   return {
@@ -167,7 +188,7 @@ export function validateChronology(dates: readonly PaperDate[], recordId = "unkn
         "chronology-received-before-dateline",
         `Paper received date (${received.earliest}..${received.latest}) is strictly before date-line (${dateline.earliest}..${dateline.latest}).`,
         recordId,
-        "dates"
+        "dates",
       );
     }
   }
@@ -178,7 +199,7 @@ export function validateChronology(dates: readonly PaperDate[], recordId = "unkn
         "chronology-published-before-received",
         `Issue publication date (${published.earliest}..${published.latest}) is strictly before received date (${received.earliest}..${received.latest}).`,
         recordId,
-        "dates"
+        "dates",
       );
     }
   }

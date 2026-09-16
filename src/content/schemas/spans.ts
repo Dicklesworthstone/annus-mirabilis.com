@@ -37,7 +37,7 @@ export function validateSpanAnchor(
   raw: unknown,
   plainText: string,
   currentBlockRevision: number,
-  path = "span"
+  path = "span",
 ): SpanAnchor {
   if (!raw || typeof raw !== "object") {
     throw new SpanValidationError("invalid-span", "Span must be an object.", path);
@@ -46,10 +46,18 @@ export function validateSpanAnchor(
   const o = raw as Record<string, unknown>;
 
   if (typeof o.start !== "number" || o.start < 0 || !Number.isInteger(o.start)) {
-    throw new SpanValidationError("invalid-span-start", "Span start must be a non-negative integer.", `${path}.start`);
+    throw new SpanValidationError(
+      "invalid-span-start",
+      "Span start must be a non-negative integer.",
+      `${path}.start`,
+    );
   }
   if (typeof o.end !== "number" || o.end <= o.start || !Number.isInteger(o.end)) {
-    throw new SpanValidationError("invalid-span-end", `Span end (${o.end}) must be an integer greater than start (${o.start}).`, `${path}.end`);
+    throw new SpanValidationError(
+      "invalid-span-end",
+      `Span end (${o.end}) must be an integer greater than start (${o.start}).`,
+      `${path}.end`,
+    );
   }
 
   const textLen = codePointLength(plainText);
@@ -57,28 +65,37 @@ export function validateSpanAnchor(
     throw new SpanValidationError(
       "span-out-of-bounds",
       `Span end (${o.end}) exceeds text length (${textLen} code points).`,
-      `${path}.end`
+      `${path}.end`,
     );
   }
 
-  const revision = typeof o.blockRevision === "number" ? o.blockRevision : typeof o.sourceRevision === "number" ? o.sourceRevision : undefined;
+  const revision =
+    typeof o.blockRevision === "number"
+      ? o.blockRevision
+      : typeof o.sourceRevision === "number"
+        ? o.sourceRevision
+        : undefined;
 
   if (typeof revision !== "number" || revision <= 0 || !Number.isInteger(revision)) {
-    throw new SpanValidationError("invalid-span-revision", "Span blockRevision must be a positive integer.", `${path}.blockRevision`);
+    throw new SpanValidationError(
+      "invalid-span-revision",
+      "Span blockRevision must be a positive integer.",
+      `${path}.blockRevision`,
+    );
   }
 
   if (revision < currentBlockRevision) {
     throw new SpanValidationError(
       "span-revision-stale",
       `Span blockRevision (${revision}) is stale compared to block revision (${currentBlockRevision}).`,
-      `${path}.blockRevision`
+      `${path}.blockRevision`,
     );
   }
   if (revision > currentBlockRevision) {
     throw new SpanValidationError(
       "span-revision-future",
       `Span blockRevision (${revision}) is ahead of current block revision (${currentBlockRevision}).`,
-      `${path}.blockRevision`
+      `${path}.blockRevision`,
     );
   }
 
@@ -87,7 +104,7 @@ export function validateSpanAnchor(
     throw new SpanValidationError(
       "span-digest-mismatch",
       `Span textDigest (${o.textDigest}) does not match computed digest of plain text (${expectedDigest}).`,
-      `${path}.textDigest`
+      `${path}.textDigest`,
     );
   }
 

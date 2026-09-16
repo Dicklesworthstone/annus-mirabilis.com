@@ -4,22 +4,27 @@
  * Specification: AGENTS.md and am-cm-schemas-source-1en
  */
 
-import { validatePaperDate, validateChronology, type PaperDate } from "./dates.ts";
-import { validateInline, plainText, type Inline } from "./inlines.ts";
-import { validateSpanAnchor, spanTextDigest, type SpanAnchor } from "./spans.ts";
-import { validateAuthorshipEntry, validateAuthorshipBlock, type AuthorshipEntry, type AuthorshipBlock } from "./authorship.ts";
 import {
-  RIGHTS_STATUS_VALUES,
-  PUBLICATION_DECISION_VALUES,
   CLOUD_PROCESSING_VALUES,
-  REUSE_TERMS_VALUES,
-  type RightsStatus,
-  type PublicationDecision,
   type CloudProcessing,
-  type ReuseTerms,
   type PageMapEntry,
+  PUBLICATION_DECISION_VALUES,
+  type PublicationDecision,
+  REUSE_TERMS_VALUES,
+  type ReuseTerms,
+  RIGHTS_STATUS_VALUES,
+  type RightsStatus,
 } from "../provenance/receiptSchema.ts";
 import type { SourceAsset, SourceAssetRights } from "../provenance/receiptToSourceAsset.ts";
+import {
+  type AuthorshipBlock,
+  type AuthorshipEntry,
+  validateAuthorshipBlock,
+  validateAuthorshipEntry,
+} from "./authorship.ts";
+import { type PaperDate, validateChronology, validatePaperDate } from "./dates.ts";
+import { type Inline, plainText, validateInline } from "./inlines.ts";
+import { type SpanAnchor, spanTextDigest, validateSpanAnchor } from "./spans.ts";
 
 export class SchemaValidationError extends Error {
   readonly code: string;
@@ -110,53 +115,128 @@ export type Paper = Readonly<{
 }>;
 
 export function validatePaper(raw: unknown, path = "Paper"): Paper {
-  if (!raw || typeof raw !== "object") throw new SchemaValidationError("invalid-record", "Paper must be an object.", "Paper", path);
+  if (!raw || typeof raw !== "object")
+    throw new SchemaValidationError("invalid-record", "Paper must be an object.", "Paper", path);
   const o = raw as Record<string, unknown>;
 
   if (!PAPER_SLUGS.includes(o.slug as PaperSlug)) {
-    throw new SchemaValidationError("invalid-paper-slug", `Invalid paper slug "${o.slug}".`, "Paper", `${path}.slug`);
+    throw new SchemaValidationError(
+      "invalid-paper-slug",
+      `Invalid paper slug "${o.slug}".`,
+      "Paper",
+      `${path}.slug`,
+    );
   }
   if (typeof o.bibKey !== "string" || !/^ap-\d+-\d+$/.test(o.bibKey)) {
-    throw new SchemaValidationError("invalid-bib-key", `Invalid bibKey "${o.bibKey}". Must match ap-<vol>-<page>.`, "Paper", `${path}.bibKey`);
+    throw new SchemaValidationError(
+      "invalid-bib-key",
+      `Invalid bibKey "${o.bibKey}". Must match ap-<vol>-<page>.`,
+      "Paper",
+      `${path}.bibKey`,
+    );
   }
   if (typeof o.titleGerman !== "string" || !o.titleGerman.trim()) {
-    throw new SchemaValidationError("missing-title-german", "titleGerman is required.", "Paper", `${path}.titleGerman`);
+    throw new SchemaValidationError(
+      "missing-title-german",
+      "titleGerman is required.",
+      "Paper",
+      `${path}.titleGerman`,
+    );
   }
   if (typeof o.titleEnglishWorking !== "string" || !o.titleEnglishWorking.trim()) {
-    throw new SchemaValidationError("missing-title-english", "titleEnglishWorking is required.", "Paper", `${path}.titleEnglishWorking`);
+    throw new SchemaValidationError(
+      "missing-title-english",
+      "titleEnglishWorking is required.",
+      "Paper",
+      `${path}.titleEnglishWorking`,
+    );
   }
 
   // Validate editorialAdditions
   if (!Array.isArray(o.editorialAdditions)) {
-    throw new SchemaValidationError("missing-editorial-additions", "editorialAdditions array is required (may be empty).", "Paper", `${path}.editorialAdditions`);
+    throw new SchemaValidationError(
+      "missing-editorial-additions",
+      "editorialAdditions array is required (may be empty).",
+      "Paper",
+      `${path}.editorialAdditions`,
+    );
   }
   const editorialAdditions: EditorialAddition[] = o.editorialAdditions.map((ea, i) => {
-    if (!ea || typeof ea !== "object") throw new SchemaValidationError("invalid-addition", "Addition must be an object.", "Paper", `${path}.editorialAdditions[${i}]`);
+    if (!ea || typeof ea !== "object")
+      throw new SchemaValidationError(
+        "invalid-addition",
+        "Addition must be an object.",
+        "Paper",
+        `${path}.editorialAdditions[${i}]`,
+      );
     const a = ea as Record<string, unknown>;
-    if (typeof a.phrase !== "string") throw new SchemaValidationError("missing-phrase", "phrase is required.", "Paper", `${path}.editorialAdditions[${i}].phrase`);
-    if (typeof a.reason !== "string") throw new SchemaValidationError("missing-reason", "reason is required.", "Paper", `${path}.editorialAdditions[${i}].reason`);
-    if (typeof a.germanBasis !== "string") throw new SchemaValidationError("missing-basis", "germanBasis is required.", "Paper", `${path}.editorialAdditions[${i}].germanBasis`);
+    if (typeof a.phrase !== "string")
+      throw new SchemaValidationError(
+        "missing-phrase",
+        "phrase is required.",
+        "Paper",
+        `${path}.editorialAdditions[${i}].phrase`,
+      );
+    if (typeof a.reason !== "string")
+      throw new SchemaValidationError(
+        "missing-reason",
+        "reason is required.",
+        "Paper",
+        `${path}.editorialAdditions[${i}].reason`,
+      );
+    if (typeof a.germanBasis !== "string")
+      throw new SchemaValidationError(
+        "missing-basis",
+        "germanBasis is required.",
+        "Paper",
+        `${path}.editorialAdditions[${i}].germanBasis`,
+      );
     return {
       phrase: a.phrase,
       reason: a.reason,
       germanBasis: a.germanBasis,
-      ...(typeof a.witnessCoincidence === "string" ? { witnessCoincidence: a.witnessCoincidence } : {}),
+      ...(typeof a.witnessCoincidence === "string"
+        ? { witnessCoincidence: a.witnessCoincidence }
+        : {}),
     };
   });
 
   // Validate dates
   if (!Array.isArray(o.dates) || o.dates.length === 0) {
-    throw new SchemaValidationError("missing-dates", "dates array is required.", "Paper", `${path}.dates`);
+    throw new SchemaValidationError(
+      "missing-dates",
+      "dates array is required.",
+      "Paper",
+      `${path}.dates`,
+    );
   }
-  const dates = o.dates.map((d, i) => validatePaperDate(d, o.bibKey as string, `${path}.dates[${i}]`));
+  const dates = o.dates.map((d, i) =>
+    validatePaperDate(d, o.bibKey as string, `${path}.dates[${i}]`),
+  );
   validateChronology(dates, o.bibKey as string);
 
   // Validate journal
   const j = o.journal as Record<string, unknown>;
-  if (!j || typeof j !== "object") throw new SchemaValidationError("missing-journal", "journal is required.", "Paper", `${path}.journal`);
+  if (!j || typeof j !== "object")
+    throw new SchemaValidationError(
+      "missing-journal",
+      "journal is required.",
+      "Paper",
+      `${path}.journal`,
+    );
   const pages = j.pages as Record<string, unknown>;
-  if (!pages || typeof pages.first !== "number" || typeof pages.last !== "number" || pages.first > pages.last) {
-    throw new SchemaValidationError("invalid-journal-pages", "journal pages {first, last} invalid.", "Paper", `${path}.journal.pages`);
+  if (
+    !pages ||
+    typeof pages.first !== "number" ||
+    typeof pages.last !== "number" ||
+    pages.first > pages.last
+  ) {
+    throw new SchemaValidationError(
+      "invalid-journal-pages",
+      "journal pages {first, last} invalid.",
+      "Paper",
+      `${path}.journal.pages`,
+    );
   }
 
   return {
@@ -177,12 +257,16 @@ export function validatePaper(raw: unknown, path = "Paper"): Paper {
       pages: { first: pages.first as number, last: pages.last as number },
       doi: j.doi as string,
       doiVerifiedAt: j.doiVerifiedAt as string,
-      laterEditionDois: Array.isArray(j.laterEditionDois) ? (j.laterEditionDois as LaterEditionDoi[]) : undefined,
+      laterEditionDois: Array.isArray(j.laterEditionDois)
+        ? (j.laterEditionDois as LaterEditionDoi[])
+        : undefined,
     },
     collectedPapers: o.collectedPapers as { volume: number; document: number },
     orderedBlockIds: Array.isArray(o.orderedBlockIds) ? (o.orderedBlockIds as string[]) : [],
     companion: Boolean(o.companion),
-    relatedDocuments: Array.isArray(o.relatedDocuments) ? (o.relatedDocuments as RelatedDocument[]) : undefined,
+    relatedDocuments: Array.isArray(o.relatedDocuments)
+      ? (o.relatedDocuments as RelatedDocument[])
+      : undefined,
     status: (o.status as string) || "published",
     sourceStatus: (o.sourceStatus as string) || "reviewed",
     sourceNotice: (o.sourceNotice as string) || "",
@@ -191,55 +275,126 @@ export function validatePaper(raw: unknown, path = "Paper"): Paper {
 }
 
 // 2. SOURCE ASSET
-export { type SourceAsset, type SourceAssetRights };
+export type { SourceAsset, SourceAssetRights };
 
 export function validateSourceAsset(raw: unknown, path = "SourceAsset"): SourceAsset {
-  if (!raw || typeof raw !== "object") throw new SchemaValidationError("invalid-record", "SourceAsset must be an object.", "SourceAsset", path);
+  if (!raw || typeof raw !== "object")
+    throw new SchemaValidationError(
+      "invalid-record",
+      "SourceAsset must be an object.",
+      "SourceAsset",
+      path,
+    );
   const o = raw as Record<string, unknown>;
 
   if (typeof o.originUrl !== "string" || !o.originUrl.trim()) {
-    throw new SchemaValidationError("missing-origin-url", "originUrl is required.", "SourceAsset", `${path}.originUrl`);
+    throw new SchemaValidationError(
+      "missing-origin-url",
+      "originUrl is required.",
+      "SourceAsset",
+      `${path}.originUrl`,
+    );
   }
   if (typeof o.acquisitionDate !== "string" || !/^\d{4}-\d{2}-\d{2}$/.test(o.acquisitionDate)) {
-    throw new SchemaValidationError("invalid-acquisition-date", "acquisitionDate must be YYYY-MM-DD.", "SourceAsset", `${path}.acquisitionDate`);
+    throw new SchemaValidationError(
+      "invalid-acquisition-date",
+      "acquisitionDate must be YYYY-MM-DD.",
+      "SourceAsset",
+      `${path}.acquisitionDate`,
+    );
   }
   if (typeof o.sha256 !== "string" || !/^[a-f0-9]{64}$/.test(o.sha256)) {
-    throw new SchemaValidationError("invalid-sha256", "sha256 must be a 64-character lowercase hex string.", "SourceAsset", `${path}.sha256`);
+    throw new SchemaValidationError(
+      "invalid-sha256",
+      "sha256 must be a 64-character lowercase hex string.",
+      "SourceAsset",
+      `${path}.sha256`,
+    );
   }
   if (typeof o.mimeType !== "string" || !o.mimeType.includes("/")) {
-    throw new SchemaValidationError("invalid-mime-type", "mimeType is required.", "SourceAsset", `${path}.mimeType`);
+    throw new SchemaValidationError(
+      "invalid-mime-type",
+      "mimeType is required.",
+      "SourceAsset",
+      `${path}.mimeType`,
+    );
   }
   if (typeof o.pageCount !== "number" || o.pageCount <= 0 || !Number.isInteger(o.pageCount)) {
-    throw new SchemaValidationError("invalid-page-count", "pageCount must be a positive integer.", "SourceAsset", `${path}.pageCount`);
+    throw new SchemaValidationError(
+      "invalid-page-count",
+      "pageCount must be a positive integer.",
+      "SourceAsset",
+      `${path}.pageCount`,
+    );
   }
   if (!Array.isArray(o.pageMapping) || o.pageMapping.length === 0) {
-    throw new SchemaValidationError("missing-page-mapping", "pageMapping must be a non-empty array.", "SourceAsset", `${path}.pageMapping`);
+    throw new SchemaValidationError(
+      "missing-page-mapping",
+      "pageMapping must be a non-empty array.",
+      "SourceAsset",
+      `${path}.pageMapping`,
+    );
   }
 
   // Validate rights
   const r = o.rights as Record<string, unknown>;
   if (!r || typeof r !== "object") {
-    throw new SchemaValidationError("missing-rights", "rights object is required.", "SourceAsset", `${path}.rights`);
+    throw new SchemaValidationError(
+      "missing-rights",
+      "rights object is required.",
+      "SourceAsset",
+      `${path}.rights`,
+    );
   }
   if (!RIGHTS_STATUS_VALUES.includes(r.status as RightsStatus)) {
-    throw new SchemaValidationError("invalid-rights-status", `Invalid rights status "${r.status}".`, "SourceAsset", `${path}.rights.status`);
+    throw new SchemaValidationError(
+      "invalid-rights-status",
+      `Invalid rights status "${r.status}".`,
+      "SourceAsset",
+      `${path}.rights.status`,
+    );
   }
   if (!REUSE_TERMS_VALUES.includes(r.reuseTerms as ReuseTerms)) {
-    throw new SchemaValidationError("invalid-reuse-terms", `Invalid reuse terms "${r.reuseTerms}".`, "SourceAsset", `${path}.rights.reuseTerms`);
+    throw new SchemaValidationError(
+      "invalid-reuse-terms",
+      `Invalid reuse terms "${r.reuseTerms}".`,
+      "SourceAsset",
+      `${path}.rights.reuseTerms`,
+    );
   }
   if (typeof r.statement !== "string") {
-    throw new SchemaValidationError("missing-rights-statement", "rights.statement is required.", "SourceAsset", `${path}.rights.statement`);
+    throw new SchemaValidationError(
+      "missing-rights-statement",
+      "rights.statement is required.",
+      "SourceAsset",
+      `${path}.rights.statement`,
+    );
   }
 
   // Validate publication decision & cloud processing
   if (!PUBLICATION_DECISION_VALUES.includes(o.publicationDecision as PublicationDecision)) {
-    throw new SchemaValidationError("invalid-publication-decision", `Invalid publication decision "${o.publicationDecision}".`, "SourceAsset", `${path}.publicationDecision`);
+    throw new SchemaValidationError(
+      "invalid-publication-decision",
+      `Invalid publication decision "${o.publicationDecision}".`,
+      "SourceAsset",
+      `${path}.publicationDecision`,
+    );
   }
   if (!CLOUD_PROCESSING_VALUES.includes(o.cloudProcessing as CloudProcessing)) {
-    throw new SchemaValidationError("invalid-cloud-processing", `Invalid cloud processing "${o.cloudProcessing}".`, "SourceAsset", `${path}.cloudProcessing`);
+    throw new SchemaValidationError(
+      "invalid-cloud-processing",
+      `Invalid cloud processing "${o.cloudProcessing}".`,
+      "SourceAsset",
+      `${path}.cloudProcessing`,
+    );
   }
   if (typeof o.cloudProcessingBasis !== "string" || !o.cloudProcessingBasis.trim()) {
-    throw new SchemaValidationError("missing-cloud-processing-basis", "cloudProcessingBasis is required.", "SourceAsset", `${path}.cloudProcessingBasis`);
+    throw new SchemaValidationError(
+      "missing-cloud-processing-basis",
+      "cloudProcessingBasis is required.",
+      "SourceAsset",
+      `${path}.cloudProcessingBasis`,
+    );
   }
 
   return {
@@ -313,41 +468,93 @@ export type SourceBlock = Readonly<{
 }>;
 
 export function validateSourceBlock(raw: unknown, path = "SourceBlock"): SourceBlock {
-  if (!raw || typeof raw !== "object") throw new SchemaValidationError("invalid-record", "SourceBlock must be an object.", "SourceBlock", path);
+  if (!raw || typeof raw !== "object")
+    throw new SchemaValidationError(
+      "invalid-record",
+      "SourceBlock must be an object.",
+      "SourceBlock",
+      path,
+    );
   const o = raw as Record<string, unknown>;
 
   if (typeof o.id !== "string" || !o.id.trim()) {
     throw new SchemaValidationError("missing-id", "id is required.", "SourceBlock", `${path}.id`);
   }
   if (!SOURCE_BLOCK_KINDS.includes(o.kind as SourceBlockKind)) {
-    throw new SchemaValidationError("invalid-kind", `Invalid block kind "${o.kind}".`, "SourceBlock", `${path}.kind`);
+    throw new SchemaValidationError(
+      "invalid-kind",
+      `Invalid block kind "${o.kind}".`,
+      "SourceBlock",
+      `${path}.kind`,
+    );
   }
   if (!Array.isArray(o.locators) || o.locators.length === 0) {
-    throw new SchemaValidationError("missing-locators", "locators array is required and must cover every printed page.", "SourceBlock", `${path}.locators`);
+    throw new SchemaValidationError(
+      "missing-locators",
+      "locators array is required and must cover every printed page.",
+      "SourceBlock",
+      `${path}.locators`,
+    );
   }
   if (typeof o.revision !== "number" || o.revision <= 0 || !Number.isInteger(o.revision)) {
-    throw new SchemaValidationError("invalid-revision", "revision must be a positive integer.", "SourceBlock", `${path}.revision`);
+    throw new SchemaValidationError(
+      "invalid-revision",
+      "revision must be a positive integer.",
+      "SourceBlock",
+      `${path}.revision`,
+    );
   }
 
   // Validate status fields: must be separate fields
   const st = o.status as Record<string, unknown>;
   if (!st || typeof st !== "object") {
-    throw new SchemaValidationError("missing-status-block", "status must be an object with separate status fields.", "SourceBlock", `${path}.status`);
+    throw new SchemaValidationError(
+      "missing-status-block",
+      "status must be an object with separate status fields.",
+      "SourceBlock",
+      `${path}.status`,
+    );
   }
   if (!["not-started", "draft", "proofed", "reviewed"].includes(st.transcription as string)) {
-    throw new SchemaValidationError("invalid-transcription-status", `Invalid transcription status "${st.transcription}".`, "SourceBlock", `${path}.status.transcription`);
+    throw new SchemaValidationError(
+      "invalid-transcription-status",
+      `Invalid transcription status "${st.transcription}".`,
+      "SourceBlock",
+      `${path}.status.transcription`,
+    );
   }
-  if (!["not-started", "draft", "proofed", "reviewed", "not-applicable"].includes(st.mathTranscription as string)) {
-    throw new SchemaValidationError("invalid-math-status", `Invalid mathTranscription status "${st.mathTranscription}".`, "SourceBlock", `${path}.status.mathTranscription`);
+  if (
+    !["not-started", "draft", "proofed", "reviewed", "not-applicable"].includes(
+      st.mathTranscription as string,
+    )
+  ) {
+    throw new SchemaValidationError(
+      "invalid-math-status",
+      `Invalid mathTranscription status "${st.mathTranscription}".`,
+      "SourceBlock",
+      `${path}.status.mathTranscription`,
+    );
   }
   if (!["not-started", "draft", "aligned", "reviewed"].includes(st.translation as string)) {
-    throw new SchemaValidationError("invalid-translation-status", `Invalid translation status "${st.translation}".`, "SourceBlock", `${path}.status.translation`);
+    throw new SchemaValidationError(
+      "invalid-translation-status",
+      `Invalid translation status "${st.translation}".`,
+      "SourceBlock",
+      `${path}.status.translation`,
+    );
   }
   if (!["draft", "in-progress", "reviewed", "accepted"].includes(st.review as string)) {
-    throw new SchemaValidationError("invalid-review-status", `Invalid review status "${st.review}".`, "SourceBlock", `${path}.status.review`);
+    throw new SchemaValidationError(
+      "invalid-review-status",
+      `Invalid review status "${st.review}".`,
+      "SourceBlock",
+      `${path}.status.review`,
+    );
   }
 
-  const inlines = Array.isArray(o.inlines) ? o.inlines.map((inl, i) => validateInline(inl, `${path}.inlines[${i}]`)) : [];
+  const inlines = Array.isArray(o.inlines)
+    ? o.inlines.map((inl, i) => validateInline(inl, `${path}.inlines[${i}]`))
+    : [];
   const text = plainText(inlines);
 
   // Validate sentence spans
@@ -356,7 +563,13 @@ export function validateSourceBlock(raw: unknown, path = "SourceBlock"): SourceB
     for (let i = 0; i < o.sentenceSpans.length; i++) {
       const sp = o.sentenceSpans[i] as Record<string, unknown>;
       const p = `${path}.sentenceSpans[${i}]`;
-      if (!sp || typeof sp.id !== "string") throw new SchemaValidationError("missing-span-id", "sentenceSpan id is required.", "SourceBlock", p);
+      if (!sp || typeof sp.id !== "string")
+        throw new SchemaValidationError(
+          "missing-span-id",
+          "sentenceSpan id is required.",
+          "SourceBlock",
+          p,
+        );
       const spanAnchor = validateSpanAnchor(sp.span, text, o.revision as number, `${p}.span`);
       sentenceSpans.push({ id: sp.id, span: spanAnchor });
     }
@@ -402,22 +615,48 @@ export type TranslationUnit = Readonly<{
 }>;
 
 export function validateTranslationUnit(raw: unknown, path = "TranslationUnit"): TranslationUnit {
-  if (!raw || typeof raw !== "object") throw new SchemaValidationError("invalid-record", "TranslationUnit must be an object.", "TranslationUnit", path);
+  if (!raw || typeof raw !== "object")
+    throw new SchemaValidationError(
+      "invalid-record",
+      "TranslationUnit must be an object.",
+      "TranslationUnit",
+      path,
+    );
   const o = raw as Record<string, unknown>;
 
   if (typeof o.id !== "string" || !o.id.trim()) {
-    throw new SchemaValidationError("missing-id", "id is required.", "TranslationUnit", `${path}.id`);
+    throw new SchemaValidationError(
+      "missing-id",
+      "id is required.",
+      "TranslationUnit",
+      `${path}.id`,
+    );
   }
   if (!Array.isArray(o.sourceRefs) || o.sourceRefs.length === 0) {
-    throw new SchemaValidationError("missing-source-refs", "sourceRefs must contain one or more source block or sentence references.", "TranslationUnit", `${path}.sourceRefs`);
+    throw new SchemaValidationError(
+      "missing-source-refs",
+      "sourceRefs must contain one or more source block or sentence references.",
+      "TranslationUnit",
+      `${path}.sourceRefs`,
+    );
   }
   if (typeof o.revision !== "number" || o.revision <= 0 || !Number.isInteger(o.revision)) {
-    throw new SchemaValidationError("invalid-revision", "revision must be a positive integer.", "TranslationUnit", `${path}.revision`);
+    throw new SchemaValidationError(
+      "invalid-revision",
+      "revision must be a positive integer.",
+      "TranslationUnit",
+      `${path}.revision`,
+    );
   }
 
   const reviewState = o.reviewState as string;
   if (!["draft", "in-progress", "corrected", "reviewed"].includes(reviewState)) {
-    throw new SchemaValidationError("invalid-review-state", `Invalid reviewState "${reviewState}".`, "TranslationUnit", `${path}.reviewState`);
+    throw new SchemaValidationError(
+      "invalid-review-state",
+      `Invalid reviewState "${reviewState}".`,
+      "TranslationUnit",
+      `${path}.reviewState`,
+    );
   }
 
   const translator = validateAuthorshipEntry(o.translator, "translator", `${path}.translator`);
@@ -425,14 +664,21 @@ export function validateTranslationUnit(raw: unknown, path = "TranslationUnit"):
 
   if (reviewState === "corrected" || reviewState === "reviewed") {
     if (!o.editor) {
-      throw new SchemaValidationError("missing-editor", `reviewState "${reviewState}" requires an editor attribution.`, "TranslationUnit", `${path}.editor`);
+      throw new SchemaValidationError(
+        "missing-editor",
+        `reviewState "${reviewState}" requires an editor attribution.`,
+        "TranslationUnit",
+        `${path}.editor`,
+      );
     }
     editor = validateAuthorshipEntry(o.editor, "editor", `${path}.editor`);
   } else if (o.editor) {
     editor = validateAuthorshipEntry(o.editor, "editor", `${path}.editor`);
   }
 
-  const inlines = Array.isArray(o.inlines) ? o.inlines.map((inl, i) => validateInline(inl, `${path}.inlines[${i}]`)) : [];
+  const inlines = Array.isArray(o.inlines)
+    ? o.inlines.map((inl, i) => validateInline(inl, `${path}.inlines[${i}]`))
+    : [];
   const unresolvedAlternatives = Array.isArray(o.unresolvedAlternatives)
     ? (o.unresolvedAlternatives as UnresolvedAlternative[])
     : [];
@@ -470,27 +716,54 @@ export type Alignment = Readonly<{
 }>;
 
 export function validateAlignment(raw: unknown, path = "Alignment"): Alignment {
-  if (!raw || typeof raw !== "object") throw new SchemaValidationError("invalid-record", "Alignment must be an object.", "Alignment", path);
+  if (!raw || typeof raw !== "object")
+    throw new SchemaValidationError(
+      "invalid-record",
+      "Alignment must be an object.",
+      "Alignment",
+      path,
+    );
   const o = raw as Record<string, unknown>;
 
   if (typeof o.id !== "string" || !o.id.trim()) {
     throw new SchemaValidationError("missing-id", "id is required.", "Alignment", `${path}.id`);
   }
   if (!Array.isArray(o.edges) || o.edges.length === 0) {
-    throw new SchemaValidationError("missing-edges", "edges must be a non-empty array of many-to-many alignment edges.", "Alignment", `${path}.edges`);
+    throw new SchemaValidationError(
+      "missing-edges",
+      "edges must be a non-empty array of many-to-many alignment edges.",
+      "Alignment",
+      `${path}.edges`,
+    );
   }
 
   const edges: AlignmentEdge[] = o.edges.map((e, i) => {
-    if (!e || typeof e !== "object") throw new SchemaValidationError("invalid-edge", "Edge must be an object.", "Alignment", `${path}.edges[${i}]`);
+    if (!e || typeof e !== "object")
+      throw new SchemaValidationError(
+        "invalid-edge",
+        "Edge must be an object.",
+        "Alignment",
+        `${path}.edges[${i}]`,
+      );
     const edge = e as Record<string, unknown>;
     const src = edge.source as Record<string, unknown>;
     const tgt = edge.target as Record<string, unknown>;
 
     if (!src || typeof src.paper !== "string" || typeof src.blockId !== "string") {
-      throw new SchemaValidationError("invalid-edge-source", "edge.source requires paper and blockId.", "Alignment", `${path}.edges[${i}].source`);
+      throw new SchemaValidationError(
+        "invalid-edge-source",
+        "edge.source requires paper and blockId.",
+        "Alignment",
+        `${path}.edges[${i}].source`,
+      );
     }
     if (!tgt || typeof tgt.translationUnitId !== "string") {
-      throw new SchemaValidationError("invalid-edge-target", "edge.target requires translationUnitId.", "Alignment", `${path}.edges[${i}].target`);
+      throw new SchemaValidationError(
+        "invalid-edge-target",
+        "edge.target requires translationUnitId.",
+        "Alignment",
+        `${path}.edges[${i}].target`,
+      );
     }
 
     return {
@@ -564,31 +837,76 @@ export type GlossUnit = Readonly<{
 }>;
 
 export function validateGlossUnit(raw: unknown, path = "GlossUnit"): GlossUnit {
-  if (!raw || typeof raw !== "object") throw new SchemaValidationError("invalid-record", "GlossUnit must be an object.", "GlossUnit", path);
+  if (!raw || typeof raw !== "object")
+    throw new SchemaValidationError(
+      "invalid-record",
+      "GlossUnit must be an object.",
+      "GlossUnit",
+      path,
+    );
   const o = raw as Record<string, unknown>;
 
   if (typeof o.sentenceId !== "string" || !o.sentenceId.trim()) {
-    throw new SchemaValidationError("missing-sentence-id", "sentenceId is required.", "GlossUnit", `${path}.sentenceId`);
+    throw new SchemaValidationError(
+      "missing-sentence-id",
+      "sentenceId is required.",
+      "GlossUnit",
+      `${path}.sentenceId`,
+    );
   }
   if (typeof o.revision !== "number" || o.revision <= 0) {
-    throw new SchemaValidationError("invalid-revision", "revision must be a positive integer.", "GlossUnit", `${path}.revision`);
+    throw new SchemaValidationError(
+      "invalid-revision",
+      "revision must be a positive integer.",
+      "GlossUnit",
+      `${path}.revision`,
+    );
   }
   if (!Array.isArray(o.tokens) || o.tokens.length === 0) {
-    throw new SchemaValidationError("missing-tokens", "tokens array is required.", "GlossUnit", `${path}.tokens`);
+    throw new SchemaValidationError(
+      "missing-tokens",
+      "tokens array is required.",
+      "GlossUnit",
+      `${path}.tokens`,
+    );
   }
 
   const attribution = validateAuthorshipEntry(o.attribution, "author", `${path}.attribution`);
-  const editor = o.editor ? validateAuthorshipEntry(o.editor, "editor", `${path}.editor`) : undefined;
+  const editor = o.editor
+    ? validateAuthorshipEntry(o.editor, "editor", `${path}.editor`)
+    : undefined;
 
   const tokens: GlossToken[] = o.tokens.map((t, i) => {
-    if (!t || typeof t !== "object") throw new SchemaValidationError("invalid-token", "Token must be an object.", "GlossUnit", `${path}.tokens[${i}]`);
+    if (!t || typeof t !== "object")
+      throw new SchemaValidationError(
+        "invalid-token",
+        "Token must be an object.",
+        "GlossUnit",
+        `${path}.tokens[${i}]`,
+      );
     const tok = t as Record<string, unknown>;
-    if (typeof tok.german !== "string") throw new SchemaValidationError("missing-german-token", "german word is required.", "GlossUnit", `${path}.tokens[${i}].german`);
+    if (typeof tok.german !== "string")
+      throw new SchemaValidationError(
+        "missing-german-token",
+        "german word is required.",
+        "GlossUnit",
+        `${path}.tokens[${i}].german`,
+      );
     if (tok.grammarNote && !tok.noteClass) {
-      throw new SchemaValidationError("missing-note-class", "noteClass is required whenever grammarNote is present.", "GlossUnit", `${path}.tokens[${i}].noteClass`);
+      throw new SchemaValidationError(
+        "missing-note-class",
+        "noteClass is required whenever grammarNote is present.",
+        "GlossUnit",
+        `${path}.tokens[${i}].noteClass`,
+      );
     }
     if (tok.contextual && !tok.reason) {
-      throw new SchemaValidationError("missing-contextual-reason", "reason is required when contextual: true.", "GlossUnit", `${path}.tokens[${i}].reason`);
+      throw new SchemaValidationError(
+        "missing-contextual-reason",
+        "reason is required when contextual: true.",
+        "GlossUnit",
+        `${path}.tokens[${i}].reason`,
+      );
     }
     return {
       german: tok.german,
@@ -605,7 +923,12 @@ export function validateGlossUnit(raw: unknown, path = "GlossUnit"): GlossUnit {
     ? o.multiwordUnits.map((m, i) => {
         const mw = m as Record<string, unknown>;
         if (!Array.isArray(mw.tokenIndices) || mw.tokenIndices.length < 2) {
-          throw new SchemaValidationError("invalid-multiword-indices", "Multiword unit requires at least two token indices.", "GlossUnit", `${path}.multiwordUnits[${i}].tokenIndices`);
+          throw new SchemaValidationError(
+            "invalid-multiword-indices",
+            "Multiword unit requires at least two token indices.",
+            "GlossUnit",
+            `${path}.multiwordUnits[${i}].tokenIndices`,
+          );
         }
         return {
           tokenIndices: mw.tokenIndices as number[],
@@ -664,17 +987,33 @@ export type EditorialNote = Readonly<{
 }>;
 
 export function validateEditorialNote(raw: unknown, path = "EditorialNote"): EditorialNote {
-  if (!raw || typeof raw !== "object") throw new SchemaValidationError("invalid-record", "EditorialNote must be an object.", "EditorialNote", path);
+  if (!raw || typeof raw !== "object")
+    throw new SchemaValidationError(
+      "invalid-record",
+      "EditorialNote must be an object.",
+      "EditorialNote",
+      path,
+    );
   const o = raw as Record<string, unknown>;
 
   if (typeof o.id !== "string" || !o.id.trim()) {
     throw new SchemaValidationError("missing-id", "id is required.", "EditorialNote", `${path}.id`);
   }
   if (!EDITORIAL_NOTE_KINDS.includes(o.kind as EditorialNoteKind)) {
-    throw new SchemaValidationError("invalid-kind", `Invalid note kind "${o.kind}".`, "EditorialNote", `${path}.kind`);
+    throw new SchemaValidationError(
+      "invalid-kind",
+      `Invalid note kind "${o.kind}".`,
+      "EditorialNote",
+      `${path}.kind`,
+    );
   }
   if (typeof o.claim !== "string" || !o.claim.trim()) {
-    throw new SchemaValidationError("missing-claim", "claim is required.", "EditorialNote", `${path}.claim`);
+    throw new SchemaValidationError(
+      "missing-claim",
+      "claim is required.",
+      "EditorialNote",
+      `${path}.claim`,
+    );
   }
 
   const author = validateAuthorshipEntry(o.author, "author", `${path}.author`);
@@ -685,16 +1024,31 @@ export function validateEditorialNote(raw: unknown, path = "EditorialNote"): Edi
   if (kind === "dispute") {
     const hasPrimary = sourceSupport.some((s) => s.role === "primary");
     if (!hasPrimary) {
-      throw new SchemaValidationError("dispute-requires-primary-source", 'EditorialNote of kind "dispute" requires at least one sourceSupport entry with role: "primary".', "EditorialNote", `${path}.sourceSupport`);
+      throw new SchemaValidationError(
+        "dispute-requires-primary-source",
+        'EditorialNote of kind "dispute" requires at least one sourceSupport entry with role: "primary".',
+        "EditorialNote",
+        `${path}.sourceSupport`,
+      );
     }
   }
 
   if (kind === "correction" || kind === "typographical") {
     if (!o.originalReading || !o.proposedReading || !o.reasoning || !o.evidence) {
-      throw new SchemaValidationError("correction-fields-required", 'correction or typographical notes require originalReading, proposedReading, reasoning, and evidence.', "EditorialNote", path);
+      throw new SchemaValidationError(
+        "correction-fields-required",
+        "correction or typographical notes require originalReading, proposedReading, reasoning, and evidence.",
+        "EditorialNote",
+        path,
+      );
     }
     if (o.layer !== "source" && o.layer !== "translation") {
-      throw new SchemaValidationError("invalid-correction-layer", 'correction note requires layer: "source" | "translation".', "EditorialNote", `${path}.layer`);
+      throw new SchemaValidationError(
+        "invalid-correction-layer",
+        'correction note requires layer: "source" | "translation".',
+        "EditorialNote",
+        `${path}.layer`,
+      );
     }
   }
 
@@ -733,17 +1087,33 @@ export type Citation = Readonly<{
 }>;
 
 export function validateCitation(raw: unknown, path = "Citation"): Citation {
-  if (!raw || typeof raw !== "object") throw new SchemaValidationError("invalid-record", "Citation must be an object.", "Citation", path);
+  if (!raw || typeof raw !== "object")
+    throw new SchemaValidationError(
+      "invalid-record",
+      "Citation must be an object.",
+      "Citation",
+      path,
+    );
   const o = raw as Record<string, unknown>;
 
   if (typeof o.id !== "string" || !o.id.trim()) {
     throw new SchemaValidationError("missing-id", "id is required.", "Citation", `${path}.id`);
   }
   if (typeof o.title !== "string" || !o.title.trim()) {
-    throw new SchemaValidationError("missing-title", "title is required.", "Citation", `${path}.title`);
+    throw new SchemaValidationError(
+      "missing-title",
+      "title is required.",
+      "Citation",
+      `${path}.title`,
+    );
   }
   if (!["primary", "comparison-witness", "secondary", "technical"].includes(o.role as string)) {
-    throw new SchemaValidationError("invalid-role", `Invalid citation role "${o.role}".`, "Citation", `${path}.role`);
+    throw new SchemaValidationError(
+      "invalid-role",
+      `Invalid citation role "${o.role}".`,
+      "Citation",
+      `${path}.role`,
+    );
   }
 
   // accessed is required whenever url is present and doi is absent
@@ -752,11 +1122,13 @@ export function validateCitation(raw: unknown, path = "Citation"): Citation {
       "accessed-date-required",
       "accessed date is required whenever URL is present and DOI is absent.",
       "Citation",
-      `${path}.accessed`
+      `${path}.accessed`,
     );
   }
 
-  const accessed = o.accessed ? validatePaperDate(o.accessed, o.id as string, `${path}.accessed`) : undefined;
+  const accessed = o.accessed
+    ? validatePaperDate(o.accessed, o.id as string, `${path}.accessed`)
+    : undefined;
 
   return {
     id: o.id,
@@ -783,14 +1155,14 @@ export function validateCitation(raw: unknown, path = "Citation"): Citation {
 export function verifyEquationTranslation(
   germanLatex: string,
   englishLatex: string,
-  equationId = "equation"
+  equationId = "equation",
 ): void {
   if (germanLatex !== englishLatex) {
     throw new SchemaValidationError(
       "equation-notation-translated",
       `Equation "${equationId}" translated notation differs from original German notation ("${englishLatex}" vs "${germanLatex}"). Notation must never be translated.`,
       "Equation",
-      equationId
+      equationId,
     );
   }
 }

@@ -138,7 +138,10 @@ export function validateInline(node: unknown, path = "inline"): Inline {
       return { kind: "text", text: o.text };
     case "emphasis":
       if (!Array.isArray(o.inlines)) throw new Error(`${path}: inlines array is required.`);
-      return { kind: "emphasis", inlines: o.inlines.map((item, i) => validateInline(item, `${path}.inlines[${i}]`)) };
+      return {
+        kind: "emphasis",
+        inlines: o.inlines.map((item, i) => validateInline(item, `${path}.inlines[${i}]`)),
+      };
     case "math":
       if (typeof o.latex !== "string") throw new Error(`${path}: latex is required.`);
       return {

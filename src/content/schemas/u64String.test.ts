@@ -1,9 +1,15 @@
-import test from "node:test";
 import assert from "node:assert/strict";
-import { validateU64String, U64ValidationError } from "./u64String.ts";
+import { readFileSync } from "node:fs";
+import { resolve } from "node:path";
+import test from "node:test";
+import { U64ValidationError, validateU64String } from "./u64String.ts";
+
+const fixturePath = resolve(process.cwd(), "src/testing/fixtures/u64-boundaries.json");
+const fixture = JSON.parse(readFileSync(fixturePath, "utf-8"));
 
 test("u64String: valid canonical decimal strings validate successfully", () => {
-  const validCases = [
+  const validCases: string[] = [
+    ...fixture.valid,
     "0",
     "1",
     "42",
@@ -40,13 +46,14 @@ test("u64String: numbers and non-strings are rejected", () => {
         assert.ok(err instanceof U64ValidationError);
         assert.equal(err.code, "u64-not-string");
         return true;
-      }
+      },
     );
   }
 });
 
-test("u64String: format violations are rejected", () => {
-  const formatViolations = [
+test("u64String: format violations from fixture and inline cases are rejected", () => {
+  const formatViolations: string[] = [
+    ...fixture.formatViolations,
     "",
     " ",
     " 0",
@@ -78,13 +85,14 @@ test("u64String: format violations are rejected", () => {
         assert.ok(err instanceof U64ValidationError);
         assert.equal(err.code, "u64-invalid-format");
         return true;
-      }
+      },
     );
   }
 });
 
-test("u64String: values exceeding 2^64-1 are rejected", () => {
-  const overflows = [
+test("u64String: values exceeding 2^64-1 from fixture and inline cases are rejected", () => {
+  const overflows: string[] = [
+    ...fixture.overflows,
     "18446744073709551616", // 2^64
     "18446744073709551617", // 2^64 + 1
     "184467440737095516150",
@@ -99,7 +107,7 @@ test("u64String: values exceeding 2^64-1 are rejected", () => {
         assert.ok(err instanceof U64ValidationError);
         assert.equal(err.code, "u64-overflow");
         return true;
-      }
+      },
     );
   }
 });

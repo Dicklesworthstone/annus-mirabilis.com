@@ -7,22 +7,22 @@
  * am-ref-constants-xik, am-rt-u64-identities-7ce.
  */
 
-import { validateU64String, U64ValidationError } from "./u64String.ts";
-import { validatePaperDate, type PaperDate } from "./dates.ts";
-import { validateCitation, type Citation } from "./source.ts";
-import type { SourceAssetRights } from "../provenance/receiptToSourceAsset.ts";
 import {
-  parseInstrumentId,
-  parsePresetId,
-  parsePredictPromptId,
-  parseModeId,
-  parseTapeId,
   type InstrumentId,
-  type PresetId,
-  type PredictPromptId,
   type ModeId,
+  type PredictPromptId,
+  type PresetId,
+  parseInstrumentId,
+  parseModeId,
+  parsePredictPromptId,
+  parsePresetId,
+  parseTapeId,
   type TapeId,
 } from "../ids.ts";
+import type { SourceAssetRights } from "../provenance/receiptToSourceAsset.ts";
+import { type PaperDate, validatePaperDate } from "./dates.ts";
+import { type Citation, validateCitation } from "./source.ts";
+import { U64ValidationError, validateU64String } from "./u64String.ts";
 
 export class ExperimentValidationError extends Error {
   readonly code: string;
@@ -131,7 +131,9 @@ export type KernelFunctionRef = Readonly<{
   path?: string | undefined;
   fnName?: string | undefined;
   revision?: string | undefined;
-  independentReferences?: readonly Readonly<{ experimentId: string; quantityId: string }>[] | undefined;
+  independentReferences?:
+    | readonly Readonly<{ experimentId: string; quantityId: string }>[]
+    | undefined;
 }>;
 
 export type IdentifierBinding = Readonly<{
@@ -289,39 +291,84 @@ export type Experiment = Readonly<{
 
 export function validateExperiment(raw: unknown, path = "Experiment"): Experiment {
   if (!raw || typeof raw !== "object") {
-    throw new ExperimentValidationError("invalid-record", "Experiment must be an object.", "Experiment", path);
+    throw new ExperimentValidationError(
+      "invalid-record",
+      "Experiment must be an object.",
+      "Experiment",
+      path,
+    );
   }
   const o = raw as Record<string, unknown>;
 
   // Identity
   if (typeof o.id !== "string") {
-    throw new ExperimentValidationError("missing-id", "Experiment id is required.", "Experiment", `${path}.id`);
+    throw new ExperimentValidationError(
+      "missing-id",
+      "Experiment id is required.",
+      "Experiment",
+      `${path}.id`,
+    );
   }
   const instParsed = parseInstrumentId(o.id);
   if (!instParsed.ok) {
-    throw new ExperimentValidationError("invalid-instrument-id", instParsed.error, "Experiment", `${path}.id`);
+    throw new ExperimentValidationError(
+      "invalid-instrument-id",
+      instParsed.error,
+      "Experiment",
+      `${path}.id`,
+    );
   }
   const instrumentId = instParsed.value;
 
   if (typeof o.title !== "string" || !o.title.trim()) {
-    throw new ExperimentValidationError("missing-title", "Experiment title is required.", "Experiment", `${path}.title`);
+    throw new ExperimentValidationError(
+      "missing-title",
+      "Experiment title is required.",
+      "Experiment",
+      `${path}.title`,
+    );
   }
   if (typeof o.explanatoryQuestion !== "string" || !o.explanatoryQuestion.trim()) {
-    throw new ExperimentValidationError("missing-question", "explanatoryQuestion is required.", "Experiment", `${path}.explanatoryQuestion`);
+    throw new ExperimentValidationError(
+      "missing-question",
+      "explanatoryQuestion is required.",
+      "Experiment",
+      `${path}.explanatoryQuestion`,
+    );
   }
   if (!Array.isArray(o.sourceRefs)) {
-    throw new ExperimentValidationError("missing-source-refs", "sourceRefs must be an array.", "Experiment", `${path}.sourceRefs`);
+    throw new ExperimentValidationError(
+      "missing-source-refs",
+      "sourceRefs must be an array.",
+      "Experiment",
+      `${path}.sourceRefs`,
+    );
   }
   if (!Array.isArray(o.argumentIds)) {
-    throw new ExperimentValidationError("missing-argument-ids", "argumentIds must be an array.", "Experiment", `${path}.argumentIds`);
+    throw new ExperimentValidationError(
+      "missing-argument-ids",
+      "argumentIds must be an array.",
+      "Experiment",
+      `${path}.argumentIds`,
+    );
   }
   if (typeof o.schemaVersion !== "number" || o.schemaVersion <= 0) {
-    throw new ExperimentValidationError("invalid-schema-version", "schemaVersion must be a positive number.", "Experiment", `${path}.schemaVersion`);
+    throw new ExperimentValidationError(
+      "invalid-schema-version",
+      "schemaVersion must be a positive number.",
+      "Experiment",
+      `${path}.schemaVersion`,
+    );
   }
 
   // Parameters
   if (!Array.isArray(o.parameters) || o.parameters.length === 0) {
-    throw new ExperimentValidationError("missing-parameters", "parameters must be a non-empty array.", "Experiment", `${path}.parameters`);
+    throw new ExperimentValidationError(
+      "missing-parameters",
+      "parameters must be a non-empty array.",
+      "Experiment",
+      `${path}.parameters`,
+    );
   }
   const paramMap = new Map<string, ParameterSpec>();
   const parameters: ParameterSpec[] = [];
@@ -330,30 +377,70 @@ export function validateExperiment(raw: unknown, path = "Experiment"): Experimen
     const pRaw = o.parameters[i];
     const pPath = `${path}.parameters[${i}]`;
     if (!pRaw || typeof pRaw !== "object") {
-      throw new ExperimentValidationError("invalid-parameter", "Parameter must be an object.", "Experiment", pPath);
+      throw new ExperimentValidationError(
+        "invalid-parameter",
+        "Parameter must be an object.",
+        "Experiment",
+        pPath,
+      );
     }
     const p = pRaw as Record<string, unknown>;
     if (typeof p.id !== "string" || !p.id.trim()) {
-      throw new ExperimentValidationError("missing-param-id", "Parameter id is required.", "Experiment", `${pPath}.id`);
+      throw new ExperimentValidationError(
+        "missing-param-id",
+        "Parameter id is required.",
+        "Experiment",
+        `${pPath}.id`,
+      );
     }
     if (typeof p.quantityId !== "string" || !p.quantityId.trim()) {
-      throw new ExperimentValidationError("missing-param-quantity-id", "Parameter quantityId is required.", "Experiment", `${pPath}.quantityId`);
+      throw new ExperimentValidationError(
+        "missing-param-quantity-id",
+        "Parameter quantityId is required.",
+        "Experiment",
+        `${pPath}.quantityId`,
+      );
     }
     if (!p.modelDomain || typeof p.modelDomain !== "object") {
-      throw new ExperimentValidationError("missing-model-domain", "Parameter modelDomain is required.", "Experiment", `${pPath}.modelDomain`);
+      throw new ExperimentValidationError(
+        "missing-model-domain",
+        "Parameter modelDomain is required.",
+        "Experiment",
+        `${pPath}.modelDomain`,
+      );
     }
     if (!p.visualRange || typeof p.visualRange !== "object") {
-      throw new ExperimentValidationError("missing-visual-range", "Parameter visualRange is required.", "Experiment", `${pPath}.visualRange`);
+      throw new ExperimentValidationError(
+        "missing-visual-range",
+        "Parameter visualRange is required.",
+        "Experiment",
+        `${pPath}.visualRange`,
+      );
     }
     if (!p.mapping || typeof p.mapping !== "object") {
-      throw new ExperimentValidationError("missing-param-mapping", "Parameter mapping is required.", "Experiment", `${pPath}.mapping`);
+      throw new ExperimentValidationError(
+        "missing-param-mapping",
+        "Parameter mapping is required.",
+        "Experiment",
+        `${pPath}.mapping`,
+      );
     }
     const mapping = p.mapping as Record<string, unknown>;
     if (!["linear", "log", "step"].includes(mapping.kind as string)) {
-      throw new ExperimentValidationError("invalid-param-mapping-kind", `Invalid mapping kind "${mapping.kind}".`, "Experiment", `${pPath}.mapping.kind`);
+      throw new ExperimentValidationError(
+        "invalid-param-mapping-kind",
+        `Invalid mapping kind "${mapping.kind}".`,
+        "Experiment",
+        `${pPath}.mapping.kind`,
+      );
     }
     if (!COMMAND_CLASSES.includes(p.commandClass as CommandClass)) {
-      throw new ExperimentValidationError("invalid-command-class", `Invalid commandClass "${p.commandClass}".`, "Experiment", `${pPath}.commandClass`);
+      throw new ExperimentValidationError(
+        "invalid-command-class",
+        `Invalid commandClass "${p.commandClass}".`,
+        "Experiment",
+        `${pPath}.commandClass`,
+      );
     }
 
     const param: ParameterSpec = {
@@ -379,7 +466,11 @@ export function validateExperiment(raw: unknown, path = "Experiment"): Experimen
 
   // Check gridParameterId references
   for (const param of parameters) {
-    if (param.mapping.kind === "step" && "gridParameterId" in param.mapping && param.mapping.gridParameterId) {
+    if (
+      param.mapping.kind === "step" &&
+      "gridParameterId" in param.mapping &&
+      param.mapping.gridParameterId
+    ) {
       const targetId = param.mapping.gridParameterId;
       const target = paramMap.get(targetId);
       if (!target) {
@@ -387,7 +478,7 @@ export function validateExperiment(raw: unknown, path = "Experiment"): Experimen
           "missing-grid-parameter",
           `Parameter "${param.id}" references non-existent gridParameterId "${targetId}".`,
           "Experiment",
-          `${path}.parameters.${param.id}.mapping`
+          `${path}.parameters.${param.id}.mapping`,
         );
       }
       if (target.quantityId !== param.quantityId) {
@@ -395,15 +486,19 @@ export function validateExperiment(raw: unknown, path = "Experiment"): Experimen
           "grid-parameter-dimension-mismatch",
           `Parameter "${param.id}" (quantity "${param.quantityId}") references gridParameterId "${targetId}" with mismatched quantity "${target.quantityId}".`,
           "Experiment",
-          `${path}.parameters.${param.id}.mapping`
+          `${path}.parameters.${param.id}.mapping`,
         );
       }
-      if (target.mapping.kind === "step" && "gridParameterId" in target.mapping && target.mapping.gridParameterId) {
+      if (
+        target.mapping.kind === "step" &&
+        "gridParameterId" in target.mapping &&
+        target.mapping.gridParameterId
+      ) {
         throw new ExperimentValidationError(
           "grid-parameter-chain-forbidden",
           `Grid parameter chaining is forbidden: "${targetId}" itself uses gridParameterId.`,
           "Experiment",
-          `${path}.parameters.${param.id}.mapping`
+          `${path}.parameters.${param.id}.mapping`,
         );
       }
     }
@@ -411,7 +506,12 @@ export function validateExperiment(raw: unknown, path = "Experiment"): Experimen
 
   // Outputs
   if (!Array.isArray(o.outputs) || o.outputs.length === 0) {
-    throw new ExperimentValidationError("missing-outputs", "outputs must be a non-empty array.", "Experiment", `${path}.outputs`);
+    throw new ExperimentValidationError(
+      "missing-outputs",
+      "outputs must be a non-empty array.",
+      "Experiment",
+      `${path}.outputs`,
+    );
   }
   const outputs: OutputSpec[] = [];
   let hasPrimaryOutput = false;
@@ -421,21 +521,46 @@ export function validateExperiment(raw: unknown, path = "Experiment"): Experimen
     const outRaw = o.outputs[i];
     const outPath = `${path}.outputs[${i}]`;
     if (!outRaw || typeof outRaw !== "object") {
-      throw new ExperimentValidationError("invalid-output", "Output must be an object.", "Experiment", outPath);
+      throw new ExperimentValidationError(
+        "invalid-output",
+        "Output must be an object.",
+        "Experiment",
+        outPath,
+      );
     }
     const out = outRaw as Record<string, unknown>;
     if (typeof out.id !== "string" || !out.id.trim()) {
-      throw new ExperimentValidationError("missing-output-id", "Output id is required.", "Experiment", `${outPath}.id`);
+      throw new ExperimentValidationError(
+        "missing-output-id",
+        "Output id is required.",
+        "Experiment",
+        `${outPath}.id`,
+      );
     }
     if (typeof out.quantityId !== "string" || !out.quantityId.trim()) {
-      throw new ExperimentValidationError("missing-output-quantity-id", "Output quantityId is required.", "Experiment", `${outPath}.quantityId`);
+      throw new ExperimentValidationError(
+        "missing-output-quantity-id",
+        "Output quantityId is required.",
+        "Experiment",
+        `${outPath}.quantityId`,
+      );
     }
     if (!Array.isArray(out.allowedStatuses) || out.allowedStatuses.length === 0) {
-      throw new ExperimentValidationError("missing-allowed-statuses", "Output allowedStatuses must be a non-empty array.", "Experiment", `${outPath}.allowedStatuses`);
+      throw new ExperimentValidationError(
+        "missing-allowed-statuses",
+        "Output allowedStatuses must be a non-empty array.",
+        "Experiment",
+        `${outPath}.allowedStatuses`,
+      );
     }
     for (const st of out.allowedStatuses) {
       if (!OUTPUT_STATUSES.includes(st as OutputStatus)) {
-        throw new ExperimentValidationError("invalid-output-status", `Invalid output status "${st}".`, "Experiment", `${outPath}.allowedStatuses`);
+        throw new ExperimentValidationError(
+          "invalid-output-status",
+          `Invalid output status "${st}".`,
+          "Experiment",
+          `${outPath}.allowedStatuses`,
+        );
       }
       if (st !== "value") {
         allowsNonValue = true;
@@ -457,7 +582,7 @@ export function validateExperiment(raw: unknown, path = "Experiment"): Experimen
       "missing-primary-output",
       "Experiment must declare at least one primary output (primary: true).",
       "Experiment",
-      `${path}.outputs`
+      `${path}.outputs`,
     );
   }
 
@@ -465,37 +590,72 @@ export function validateExperiment(raw: unknown, path = "Experiment"): Experimen
   if (!Array.isArray(o.notModeled) || o.notModeled.length === 0) {
     throw new ExperimentValidationError(
       "empty-not-modeled",
-      'Experiment notModeled array MUST BE NON-EMPTY. An empty notModeled list fails the audit to ensure honest boundary declarations.',
+      "Experiment notModeled array MUST BE NON-EMPTY. An empty notModeled list fails the audit to ensure honest boundary declarations.",
       "Experiment",
-      `${path}.notModeled`
+      `${path}.notModeled`,
     );
   }
   const notModeled = o.notModeled as string[];
 
   if (!Array.isArray(o.assumptions)) {
-    throw new ExperimentValidationError("missing-assumptions", "assumptions must be an array.", "Experiment", `${path}.assumptions`);
+    throw new ExperimentValidationError(
+      "missing-assumptions",
+      "assumptions must be an array.",
+      "Experiment",
+      `${path}.assumptions`,
+    );
   }
   if (typeof o.admittedDomain !== "string" || !o.admittedDomain.trim()) {
-    throw new ExperimentValidationError("missing-admitted-domain", "admittedDomain prose is required.", "Experiment", `${path}.admittedDomain`);
+    throw new ExperimentValidationError(
+      "missing-admitted-domain",
+      "admittedDomain prose is required.",
+      "Experiment",
+      `${path}.admittedDomain`,
+    );
   }
 
   // Owner
   if (!o.owner || typeof o.owner !== "object") {
-    throw new ExperimentValidationError("missing-owner", "owner block is required.", "Experiment", `${path}.owner`);
+    throw new ExperimentValidationError(
+      "missing-owner",
+      "owner block is required.",
+      "Experiment",
+      `${path}.owner`,
+    );
   }
   const ow = o.owner as Record<string, unknown>;
   if (!["reference-evaluator", "frankensim", "static"].includes(ow.kind as string)) {
-    throw new ExperimentValidationError("invalid-owner-kind", `Invalid owner kind "${ow.kind}".`, "Experiment", `${path}.owner.kind`);
+    throw new ExperimentValidationError(
+      "invalid-owner-kind",
+      `Invalid owner kind "${ow.kind}".`,
+      "Experiment",
+      `${path}.owner.kind`,
+    );
   }
   if (ow.kind === "static") {
     if (typeof ow.staticReason !== "string" || !ow.staticReason.trim()) {
-      throw new ExperimentValidationError("missing-static-reason", "Static owner requires non-empty staticReason.", "Experiment", `${path}.owner.staticReason`);
+      throw new ExperimentValidationError(
+        "missing-static-reason",
+        "Static owner requires non-empty staticReason.",
+        "Experiment",
+        `${path}.owner.staticReason`,
+      );
     }
     if (Array.isArray(ow.kernelFunctions) && ow.kernelFunctions.length > 0) {
-      throw new ExperimentValidationError("static-owner-has-functions", "Static owner cannot declare kernel functions.", "Experiment", `${path}.owner.kernelFunctions`);
+      throw new ExperimentValidationError(
+        "static-owner-has-functions",
+        "Static owner cannot declare kernel functions.",
+        "Experiment",
+        `${path}.owner.kernelFunctions`,
+      );
     }
     if (ow.traceScenarioId || (Array.isArray(ow.traceRows) && ow.traceRows.length > 0)) {
-      throw new ExperimentValidationError("static-owner-has-trace", "Static owner cannot declare trace scenario or trace rows.", "Experiment", `${path}.owner`);
+      throw new ExperimentValidationError(
+        "static-owner-has-trace",
+        "Static owner cannot declare trace scenario or trace rows.",
+        "Experiment",
+        `${path}.owner`,
+      );
     }
   }
 
@@ -506,11 +666,21 @@ export function validateExperiment(raw: unknown, path = "Experiment"): Experimen
       const kRaw = ow.kernelFunctions[i];
       const kPath = `${path}.owner.kernelFunctions[${i}]`;
       if (!kRaw || typeof kRaw !== "object") {
-        throw new ExperimentValidationError("invalid-kernel-function", "Kernel function must be an object.", "Experiment", kPath);
+        throw new ExperimentValidationError(
+          "invalid-kernel-function",
+          "Kernel function must be an object.",
+          "Experiment",
+          kPath,
+        );
       }
       const k = kRaw as Record<string, unknown>;
       if (!KERNEL_DISPLAY_ROLES.includes(k.displayRole as KernelDisplayRole)) {
-        throw new ExperimentValidationError("invalid-kernel-display-role", `Invalid displayRole "${k.displayRole}".`, "Experiment", `${kPath}.displayRole`);
+        throw new ExperimentValidationError(
+          "invalid-kernel-display-role",
+          `Invalid displayRole "${k.displayRole}".`,
+          "Experiment",
+          `${kPath}.displayRole`,
+        );
       }
       const role = k.displayRole as KernelDisplayRole;
       if (role === "pseudocode" || role === "derivation") {
@@ -519,7 +689,7 @@ export function validateExperiment(raw: unknown, path = "Experiment"): Experimen
             "pseudocode-with-exec-fields",
             `Kernel function with displayRole "${role}" must not declare executable reference fields (module, crate, path, fnName, revision).`,
             "Experiment",
-            kPath
+            kPath,
           );
         }
       } else if (role === "executing-source" || role === "reference-implementation") {
@@ -529,7 +699,7 @@ export function validateExperiment(raw: unknown, path = "Experiment"): Experimen
               "missing-ts-kernel-fields",
               `TypeScript kernel function with displayRole "${role}" requires module and exportName.`,
               "Experiment",
-              kPath
+              kPath,
             );
           }
         } else if (k.language === "rust") {
@@ -538,11 +708,16 @@ export function validateExperiment(raw: unknown, path = "Experiment"): Experimen
               "missing-rust-kernel-fields",
               `Rust kernel function with displayRole "${role}" requires crate, path, fnName, and revision.`,
               "Experiment",
-              kPath
+              kPath,
             );
           }
         } else {
-          throw new ExperimentValidationError("missing-kernel-language", `Kernel function requires language: "ts" | "rust".`, "Experiment", `${kPath}.language`);
+          throw new ExperimentValidationError(
+            "missing-kernel-language",
+            `Kernel function requires language: "ts" | "rust".`,
+            "Experiment",
+            `${kPath}.language`,
+          );
         }
       }
       kernelFunctions.push(k as any);
@@ -557,7 +732,7 @@ export function validateExperiment(raw: unknown, path = "Experiment"): Experimen
         "trace-rows-exceeded",
         `Experiment "${instrumentId}" traceRows contains ${ow.traceRows.length} rows, exceeding the 12-row cap.`,
         "Experiment",
-        `${path}.owner.traceRows`
+        `${path}.owner.traceRows`,
       );
     }
     traceRows = ow.traceRows as TraceRow[];
@@ -568,14 +743,21 @@ export function validateExperiment(raw: unknown, path = "Experiment"): Experimen
     ...(typeof ow.capabilityId === "string" ? { capabilityId: ow.capabilityId } : {}),
     ...(typeof ow.staticReason === "string" ? { staticReason: ow.staticReason } : {}),
     kernelFunctions,
-    identifierBindings: Array.isArray(ow.identifierBindings) ? (ow.identifierBindings as IdentifierBinding[]) : [],
+    identifierBindings: Array.isArray(ow.identifierBindings)
+      ? (ow.identifierBindings as IdentifierBinding[])
+      : [],
     ...(typeof ow.traceScenarioId === "string" ? { traceScenarioId: ow.traceScenarioId } : {}),
     ...(traceRows ? { traceRows } : {}),
   };
 
   // Views
   if (!Array.isArray(o.views) || o.views.length === 0) {
-    throw new ExperimentValidationError("missing-views", "views must be a non-empty array.", "Experiment", `${path}.views`);
+    throw new ExperimentValidationError(
+      "missing-views",
+      "views must be a non-empty array.",
+      "Experiment",
+      `${path}.views`,
+    );
   }
   const views: ViewSpec[] = [];
   let hasCanvasOrThree = false;
@@ -586,11 +768,21 @@ export function validateExperiment(raw: unknown, path = "Experiment"): Experimen
     const vRaw = o.views[i];
     const vPath = `${path}.views[${i}]`;
     if (!vRaw || typeof vRaw !== "object") {
-      throw new ExperimentValidationError("invalid-view", "View must be an object.", "Experiment", vPath);
+      throw new ExperimentValidationError(
+        "invalid-view",
+        "View must be an object.",
+        "Experiment",
+        vPath,
+      );
     }
     const v = vRaw as Record<string, unknown>;
     if (!VIEW_KINDS.includes(v.kind as ViewKind)) {
-      throw new ExperimentValidationError("invalid-view-kind", `Invalid view kind "${v.kind}".`, "Experiment", `${vPath}.kind`);
+      throw new ExperimentValidationError(
+        "invalid-view-kind",
+        `Invalid view kind "${v.kind}".`,
+        "Experiment",
+        `${vPath}.kind`,
+      );
     }
     const kind = v.kind as ViewKind;
     if (kind === "three") {
@@ -600,27 +792,47 @@ export function validateExperiment(raw: unknown, path = "Experiment"): Experimen
           "missing-spatial-justification",
           `A "three" view requires a non-empty spatialJustification explaining why 3D is necessary over 2D.`,
           "Experiment",
-          `${vPath}.spatialJustification`
+          `${vPath}.spatialJustification`,
         );
       }
       const req = Array.isArray(v.requires) ? v.requires : [];
       if (!req.includes("webgl")) {
-        throw new ExperimentValidationError('three-view-missing-webgl', 'A "three" view must declare requires: ["webgl"].', "Experiment", `${vPath}.requires`);
+        throw new ExperimentValidationError(
+          "three-view-missing-webgl",
+          'A "three" view must declare requires: ["webgl"].',
+          "Experiment",
+          `${vPath}.requires`,
+        );
       }
     } else if (kind === "canvas") {
       hasCanvasOrThree = true;
       const req = Array.isArray(v.requires) ? v.requires : [];
       if (!req.includes("canvas-2d")) {
-        throw new ExperimentValidationError('canvas-view-missing-canvas-2d', 'A "canvas" view must declare requires: ["canvas-2d"].', "Experiment", `${vPath}.requires`);
+        throw new ExperimentValidationError(
+          "canvas-view-missing-canvas-2d",
+          'A "canvas" view must declare requires: ["canvas-2d"].',
+          "Experiment",
+          `${vPath}.requires`,
+        );
       }
     } else if (kind === "table" || kind === "text") {
       hasTableOrText = true;
       if (Array.isArray(v.requires) && v.requires.length > 0) {
-        throw new ExperimentValidationError("table-text-view-declares-capability", `A "${kind}" view must not declare rendering capabilities in requires.`, "Experiment", `${vPath}.requires`);
+        throw new ExperimentValidationError(
+          "table-text-view-declares-capability",
+          `A "${kind}" view must not declare rendering capabilities in requires.`,
+          "Experiment",
+          `${vPath}.requires`,
+        );
       }
     } else if (kind === "svg") {
       if (Array.isArray(v.requires) && v.requires.length > 0) {
-        throw new ExperimentValidationError("svg-view-declares-capability", 'An "svg" view must not declare rendering capabilities in requires.', "Experiment", `${vPath}.requires`);
+        throw new ExperimentValidationError(
+          "svg-view-declares-capability",
+          'An "svg" view must not declare rendering capabilities in requires.',
+          "Experiment",
+          `${vPath}.requires`,
+        );
       }
     }
 
@@ -633,7 +845,8 @@ export function validateExperiment(raw: unknown, path = "Experiment"): Experimen
       kind,
       consumes: Array.isArray(v.consumes) ? (v.consumes as string[]) : [],
       requires: Array.isArray(v.requires) ? (v.requires as RenderingCapability[]) : undefined,
-      spatialJustification: typeof v.spatialJustification === "string" ? v.spatialJustification : undefined,
+      spatialJustification:
+        typeof v.spatialJustification === "string" ? v.spatialJustification : undefined,
     });
   }
 
@@ -642,7 +855,7 @@ export function validateExperiment(raw: unknown, path = "Experiment"): Experimen
       "canvas-or-three-missing-fallback-view",
       'Every manifest with a "canvas" or "three" view must also include at least one "table" or "text" accessible fallback view.',
       "Experiment",
-      `${path}.views`
+      `${path}.views`,
     );
   }
   if (!hasNoRequiresView) {
@@ -650,23 +863,38 @@ export function validateExperiment(raw: unknown, path = "Experiment"): Experimen
       "all-views-require-capabilities",
       "Every manifest must keep at least one view with no rendering capability requirements.",
       "Experiment",
-      `${path}.views`
+      `${path}.views`,
     );
   }
 
   // RealRate
   if (!o.realRate || typeof o.realRate !== "object") {
-    throw new ExperimentValidationError("missing-real-rate", "realRate declaration is required.", "Experiment", `${path}.realRate`);
+    throw new ExperimentValidationError(
+      "missing-real-rate",
+      "realRate declaration is required.",
+      "Experiment",
+      `${path}.realRate`,
+    );
   }
   const rr = o.realRate as Record<string, unknown>;
   let realRate: RealRate;
   if (rr.natural === true) {
     if (typeof rr.quantity !== "string" || !rr.quantity.trim()) {
-      throw new ExperimentValidationError("missing-real-rate-quantity", "natural: true requires output quantity.", "Experiment", `${path}.realRate.quantity`);
+      throw new ExperimentValidationError(
+        "missing-real-rate-quantity",
+        "natural: true requires output quantity.",
+        "Experiment",
+        `${path}.realRate.quantity`,
+      );
     }
     const sb = rr.scaleBar as Record<string, unknown>;
     if (!sb || typeof sb.length !== "number" || typeof sb.unit !== "string") {
-      throw new ExperimentValidationError("missing-real-rate-scalebar", "natural: true requires scaleBar: { length, unit }.", "Experiment", `${path}.realRate.scaleBar`);
+      throw new ExperimentValidationError(
+        "missing-real-rate-scalebar",
+        "natural: true requires scaleBar: { length, unit }.",
+        "Experiment",
+        `${path}.realRate.scaleBar`,
+      );
     }
     realRate = {
       natural: true,
@@ -676,24 +904,44 @@ export function validateExperiment(raw: unknown, path = "Experiment"): Experimen
   } else if (rr.natural === false) {
     realRate = { natural: false };
   } else {
-    throw new ExperimentValidationError("invalid-real-rate", "realRate must be { natural: true, ... } or { natural: false }.", "Experiment", `${path}.realRate`);
+    throw new ExperimentValidationError(
+      "invalid-real-rate",
+      "realRate must be { natural: true, ... } or { natural: false }.",
+      "Experiment",
+      `${path}.realRate`,
+    );
   }
 
   // PredictMode
   if (!o.predictMode || typeof o.predictMode !== "object") {
-    throw new ExperimentValidationError("missing-predict-mode", "predictMode is required (must be enabled or exempt with reason).", "Experiment", `${path}.predictMode`);
+    throw new ExperimentValidationError(
+      "missing-predict-mode",
+      "predictMode is required (must be enabled or exempt with reason).",
+      "Experiment",
+      `${path}.predictMode`,
+    );
   }
   const pm = o.predictMode as Record<string, unknown>;
   let predictMode: PredictMode;
 
   if (pm.exempt === true) {
     if (typeof pm.reason !== "string" || !pm.reason.trim()) {
-      throw new ExperimentValidationError("missing-predict-exemption-reason", "predictMode exemption requires a non-empty reason.", "Experiment", `${path}.predictMode.reason`);
+      throw new ExperimentValidationError(
+        "missing-predict-exemption-reason",
+        "predictMode exemption requires a non-empty reason.",
+        "Experiment",
+        `${path}.predictMode.reason`,
+      );
     }
     predictMode = { exempt: true, reason: pm.reason };
   } else if (pm.enabled === true) {
     if (!Array.isArray(pm.prompts) || pm.prompts.length === 0) {
-      throw new ExperimentValidationError("missing-predict-prompts", "predictMode.enabled: true requires a non-empty prompts array.", "Experiment", `${path}.predictMode.prompts`);
+      throw new ExperimentValidationError(
+        "missing-predict-prompts",
+        "predictMode.enabled: true requires a non-empty prompts array.",
+        "Experiment",
+        `${path}.predictMode.prompts`,
+      );
     }
     const prompts: PredictPrompt[] = [];
     const promptControlIds = new Set<string>();
@@ -702,27 +950,47 @@ export function validateExperiment(raw: unknown, path = "Experiment"): Experimen
       const prRaw = pm.prompts[i];
       const prPath = `${path}.predictMode.prompts[${i}]`;
       if (!prRaw || typeof prRaw !== "object") {
-        throw new ExperimentValidationError("invalid-predict-prompt", "Predict prompt must be an object.", "Experiment", prPath);
+        throw new ExperimentValidationError(
+          "invalid-predict-prompt",
+          "Predict prompt must be an object.",
+          "Experiment",
+          prPath,
+        );
       }
       const pr = prRaw as Record<string, unknown>;
       if (typeof pr.promptId !== "string") {
-        throw new ExperimentValidationError("missing-prompt-id", "promptId is required.", "Experiment", `${prPath}.promptId`);
+        throw new ExperimentValidationError(
+          "missing-prompt-id",
+          "promptId is required.",
+          "Experiment",
+          `${prPath}.promptId`,
+        );
       }
       const promptParsed = parsePredictPromptId(pr.promptId);
       if (!promptParsed.ok) {
-        throw new ExperimentValidationError("invalid-predict-prompt-id", promptParsed.error, "Experiment", `${prPath}.promptId`);
+        throw new ExperimentValidationError(
+          "invalid-predict-prompt-id",
+          promptParsed.error,
+          "Experiment",
+          `${prPath}.promptId`,
+        );
       }
 
       const controlKey = (pr.controlId || pr.actionId) as string | undefined;
       if (!controlKey) {
-        throw new ExperimentValidationError("missing-prompt-target", "Predict prompt requires controlId or actionId.", "Experiment", prPath);
+        throw new ExperimentValidationError(
+          "missing-prompt-target",
+          "Predict prompt requires controlId or actionId.",
+          "Experiment",
+          prPath,
+        );
       }
       if (promptControlIds.has(controlKey)) {
         throw new ExperimentValidationError(
           "duplicate-prompt-target",
           `Only one predict prompt is allowed per control or action (duplicate "${controlKey}").`,
           "Experiment",
-          prPath
+          prPath,
         );
       }
       promptControlIds.add(controlKey);
@@ -733,7 +1001,7 @@ export function validateExperiment(raw: unknown, path = "Experiment"): Experimen
           "predict-candidates-count",
           `Predict prompt "${pr.promptId}" must provide exactly 3 plausible candidates (found ${Array.isArray(pr.candidates) ? pr.candidates.length : 0}).`,
           "Experiment",
-          `${prPath}.candidates`
+          `${prPath}.candidates`,
         );
       }
 
@@ -744,14 +1012,29 @@ export function validateExperiment(raw: unknown, path = "Experiment"): Experimen
         const cRaw = pr.candidates[j];
         const cPath = `${prPath}.candidates[${j}]`;
         if (!cRaw || typeof cRaw !== "object") {
-          throw new ExperimentValidationError("invalid-candidate", "Candidate must be an object.", "Experiment", cPath);
+          throw new ExperimentValidationError(
+            "invalid-candidate",
+            "Candidate must be an object.",
+            "Experiment",
+            cPath,
+          );
         }
         const c = cRaw as Record<string, unknown>;
         if (typeof c.id !== "string" || !c.id.trim()) {
-          throw new ExperimentValidationError("missing-candidate-id", "Candidate id is required.", "Experiment", `${cPath}.id`);
+          throw new ExperimentValidationError(
+            "missing-candidate-id",
+            "Candidate id is required.",
+            "Experiment",
+            `${cPath}.id`,
+          );
         }
         if (candidateIds.has(c.id)) {
-          throw new ExperimentValidationError("duplicate-candidate-id", `Candidate id "${c.id}" is duplicated in prompt.`, "Experiment", `${cPath}.id`);
+          throw new ExperimentValidationError(
+            "duplicate-candidate-id",
+            `Candidate id "${c.id}" is duplicated in prompt.`,
+            "Experiment",
+            `${cPath}.id`,
+          );
         }
         candidateIds.add(c.id);
 
@@ -760,7 +1043,7 @@ export function validateExperiment(raw: unknown, path = "Experiment"): Experimen
             "missing-separating-assumption",
             `Candidate "${c.id}" in prompt "${pr.promptId}" is missing required separatingAssumption. Every candidate, including the accepted one, requires a separatingAssumption.`,
             "Experiment",
-            `${cPath}.separatingAssumption`
+            `${cPath}.separatingAssumption`,
           );
         }
 
@@ -792,7 +1075,7 @@ export function validateExperiment(raw: unknown, path = "Experiment"): Experimen
       "invalid-predict-mode",
       "predictMode must be { enabled: true, prompts: [...] } or { exempt: true, reason: string }.",
       "Experiment",
-      `${path}.predictMode`
+      `${path}.predictMode`,
     );
   }
 
@@ -803,22 +1086,37 @@ export function validateExperiment(raw: unknown, path = "Experiment"): Experimen
       const psRaw = o.presets[i];
       const psPath = `${path}.presets[${i}]`;
       if (!psRaw || typeof psRaw !== "object") {
-        throw new ExperimentValidationError("invalid-preset", "Preset must be an object.", "Experiment", psPath);
+        throw new ExperimentValidationError(
+          "invalid-preset",
+          "Preset must be an object.",
+          "Experiment",
+          psPath,
+        );
       }
       const ps = psRaw as Record<string, unknown>;
       if (typeof ps.presetId !== "string") {
-        throw new ExperimentValidationError("missing-preset-id", "presetId is required.", "Experiment", `${psPath}.presetId`);
+        throw new ExperimentValidationError(
+          "missing-preset-id",
+          "presetId is required.",
+          "Experiment",
+          `${psPath}.presetId`,
+        );
       }
       const presetParsed = parsePresetId(ps.presetId);
       if (!presetParsed.ok) {
-        throw new ExperimentValidationError("invalid-preset-id", presetParsed.error, "Experiment", `${psPath}.presetId`);
+        throw new ExperimentValidationError(
+          "invalid-preset-id",
+          presetParsed.error,
+          "Experiment",
+          `${psPath}.presetId`,
+        );
       }
       if (ps.scenarioId && ps.scenarioId !== ps.presetId) {
         throw new ExperimentValidationError(
           "preset-scenario-id-mismatch",
           `Preset scenarioId "${ps.scenarioId}" must equal presetId "${ps.presetId}".`,
           "Experiment",
-          `${psPath}.scenarioId`
+          `${psPath}.scenarioId`,
         );
       }
       presets.push({
@@ -837,7 +1135,7 @@ export function validateExperiment(raw: unknown, path = "Experiment"): Experimen
       "missing-refusal-acceptance-case",
       "Outputs allow non-numeric or refusal statuses, but acceptanceCases is empty.",
       "Experiment",
-      `${path}.acceptanceCases`
+      `${path}.acceptanceCases`,
     );
   }
 
@@ -848,18 +1146,38 @@ export function validateExperiment(raw: unknown, path = "Experiment"): Experimen
       const mRaw = o.modes[i];
       const mPath = `${path}.modes[${i}]`;
       if (!mRaw || typeof mRaw !== "object") {
-        throw new ExperimentValidationError("invalid-mode", "Mode must be an object.", "Experiment", mPath);
+        throw new ExperimentValidationError(
+          "invalid-mode",
+          "Mode must be an object.",
+          "Experiment",
+          mPath,
+        );
       }
       const m = mRaw as Record<string, unknown>;
       if (typeof m.id !== "string") {
-        throw new ExperimentValidationError("missing-mode-id", "Mode id is required.", "Experiment", `${mPath}.id`);
+        throw new ExperimentValidationError(
+          "missing-mode-id",
+          "Mode id is required.",
+          "Experiment",
+          `${mPath}.id`,
+        );
       }
       const modeParsed = parseModeId(m.id);
       if (!modeParsed.ok) {
-        throw new ExperimentValidationError("invalid-mode-id", modeParsed.error, "Experiment", `${mPath}.id`);
+        throw new ExperimentValidationError(
+          "invalid-mode-id",
+          modeParsed.error,
+          "Experiment",
+          `${mPath}.id`,
+        );
       }
       if (!HISTORICAL_STATUSES.includes(m.historicalStatus as HistoricalStatus)) {
-        throw new ExperimentValidationError("invalid-historical-status", `Invalid historicalStatus "${m.historicalStatus}".`, "Experiment", `${mPath}.historicalStatus`);
+        throw new ExperimentValidationError(
+          "invalid-historical-status",
+          `Invalid historicalStatus "${m.historicalStatus}".`,
+          "Experiment",
+          `${mPath}.historicalStatus`,
+        );
       }
       if (m.historicalStatus === "later-development") {
         if (typeof m.lensLabel !== "string" || !m.lensLabel.trim()) {
@@ -867,7 +1185,7 @@ export function validateExperiment(raw: unknown, path = "Experiment"): Experimen
             "missing-lens-label",
             'Mode with historicalStatus "later-development" requires lensLabel.',
             "Experiment",
-            `${mPath}.lensLabel`
+            `${mPath}.lensLabel`,
           );
         }
       }
@@ -892,12 +1210,19 @@ export function validateExperiment(raw: unknown, path = "Experiment"): Experimen
     actions: Array.isArray(o.actions) ? (o.actions as ActionContract[]) : [],
     acceptanceCases,
     defaultScenario: (o.defaultScenario as string) || "default",
-    tapeModel: (o.tapeModel as { modelId: string; modelVersion: number }) || { modelId: "tape-v1", modelVersion: 1 },
-    teachingTapes: Array.isArray(o.teachingTapes) ? (o.teachingTapes as { tapeId: string; title: string }[]) : [],
+    tapeModel: (o.tapeModel as { modelId: string; modelVersion: number }) || {
+      modelId: "tape-v1",
+      modelVersion: 1,
+    },
+    teachingTapes: Array.isArray(o.teachingTapes)
+      ? (o.teachingTapes as { tapeId: string; title: string }[])
+      : [],
     presets,
     probes: Array.isArray(o.probes) ? (o.probes as string[]) : [],
     weavePredicates: Array.isArray(o.weavePredicates) ? (o.weavePredicates as string[]) : [],
-    historicalOverlays: Array.isArray(o.historicalOverlays) ? (o.historicalOverlays as string[]) : [],
+    historicalOverlays: Array.isArray(o.historicalOverlays)
+      ? (o.historicalOverlays as string[])
+      : [],
     realRate,
     embeddable: Boolean(o.embeddable),
     predictMode,
@@ -988,7 +1313,14 @@ export type Scenario = Readonly<{
   title: string;
   description: string;
   experimentId?: string | undefined;
-  provenance?: Readonly<{ paper: string; sectionId: string; printedPage: number; locator?: string | undefined }> | undefined;
+  provenance?:
+    | Readonly<{
+        paper: string;
+        sectionId: string;
+        printedPage: number;
+        locator?: string | undefined;
+      }>
+    | undefined;
   constantSetId: string;
   constantSetMixing?: Readonly<{ declared: true; reason: string }> | undefined;
   inputs: Record<string, Readonly<{ value: number | string; unit: string }>>;
@@ -998,13 +1330,36 @@ export type Scenario = Readonly<{
   seed?: string | undefined;
   streamVersion?: number | undefined;
   allocationId?: string | undefined;
-  actions?: readonly Readonly<{ time?: number | undefined; event: string; commandClass: string; parameters?: Record<string, any> | undefined }>[] | undefined;
+  actions?:
+    | readonly Readonly<{
+        time?: number | undefined;
+        event: string;
+        commandClass: string;
+        parameters?: Record<string, any> | undefined;
+      }>[]
+    | undefined;
   expected: ScenarioExpected;
   modelVersion: number;
   schemaVersion: number;
   transcription?: HistoricalFixtureTranscription | undefined;
-  editorialInputs?: readonly Readonly<{ quantityId: string; value: number | string; unit: string; source: string; reason: string; sensitivity: string }>[] | undefined;
-  documentedAlternatives?: readonly Readonly<{ quantityId: string; value: number | string; printedRepresentation: string; reason: string }>[] | undefined;
+  editorialInputs?:
+    | readonly Readonly<{
+        quantityId: string;
+        value: number | string;
+        unit: string;
+        source: string;
+        reason: string;
+        sensitivity: string;
+      }>[]
+    | undefined;
+  documentedAlternatives?:
+    | readonly Readonly<{
+        quantityId: string;
+        value: number | string;
+        printedRepresentation: string;
+        reason: string;
+      }>[]
+    | undefined;
   routes?: readonly [IdentityRoute, IdentityRoute] | undefined;
   hypotheses?: readonly DiscriminationHypothesis[] | undefined;
   observation?: DiscriminationObservation | undefined;
@@ -1012,15 +1367,30 @@ export type Scenario = Readonly<{
 
 export function validateScenario(raw: unknown, path = "Scenario"): Scenario {
   if (!raw || typeof raw !== "object") {
-    throw new ExperimentValidationError("invalid-record", "Scenario must be an object.", "Scenario", path);
+    throw new ExperimentValidationError(
+      "invalid-record",
+      "Scenario must be an object.",
+      "Scenario",
+      path,
+    );
   }
   const o = raw as Record<string, unknown>;
 
   if (typeof o.id !== "string" || !o.id.trim()) {
-    throw new ExperimentValidationError("missing-id", "Scenario id is required.", "Scenario", `${path}.id`);
+    throw new ExperimentValidationError(
+      "missing-id",
+      "Scenario id is required.",
+      "Scenario",
+      `${path}.id`,
+    );
   }
   if (!SCENARIO_KINDS.includes(o.kind as ScenarioKind)) {
-    throw new ExperimentValidationError("invalid-scenario-kind", `Invalid scenario kind "${o.kind}".`, "Scenario", `${path}.kind`);
+    throw new ExperimentValidationError(
+      "invalid-scenario-kind",
+      `Invalid scenario kind "${o.kind}".`,
+      "Scenario",
+      `${path}.kind`,
+    );
   }
   const kind = o.kind as ScenarioKind;
 
@@ -1030,11 +1400,16 @@ export function validateScenario(raw: unknown, path = "Scenario"): Scenario {
       "retired-constant-set-field",
       'Found retired field "constantSet". Use "constantSetId" instead.',
       "Scenario",
-      `${path}.constantSet`
+      `${path}.constantSet`,
     );
   }
   if (typeof o.constantSetId !== "string" || !o.constantSetId.trim()) {
-    throw new ExperimentValidationError("missing-constant-set-id", "constantSetId is required.", "Scenario", `${path}.constantSetId`);
+    throw new ExperimentValidationError(
+      "missing-constant-set-id",
+      "constantSetId is required.",
+      "Scenario",
+      `${path}.constantSetId`,
+    );
   }
 
   // Seed validation
@@ -1045,7 +1420,7 @@ export function validateScenario(raw: unknown, path = "Scenario"): Scenario {
         "numeric-seed-rejected",
         `Scenario seed "${o.seed}" was provided as a JSON number. Seeds must be unsigned 64-bit decimal strings.`,
         "Scenario",
-        `${path}.seed`
+        `${path}.seed`,
       );
     }
     seed = validateU64String(o.seed, `${path}.seed`);
@@ -1056,7 +1431,7 @@ export function validateScenario(raw: unknown, path = "Scenario"): Scenario {
       "stochastic-missing-allocation-id",
       "Stochastic scenario with seedPolicy requires allocationId registered in STREAM_ALLOCATION.md.",
       "Scenario",
-      `${path}.allocationId`
+      `${path}.allocationId`,
     );
   }
 
@@ -1064,10 +1439,20 @@ export function validateScenario(raw: unknown, path = "Scenario"): Scenario {
   let transcription: HistoricalFixtureTranscription | undefined;
   if (kind === "historical-fixture") {
     if (!o.provenance || typeof o.provenance !== "object") {
-      throw new ExperimentValidationError("historical-missing-provenance", "historical-fixture requires provenance: { paper, sectionId, printedPage }.", "Scenario", `${path}.provenance`);
+      throw new ExperimentValidationError(
+        "historical-missing-provenance",
+        "historical-fixture requires provenance: { paper, sectionId, printedPage }.",
+        "Scenario",
+        `${path}.provenance`,
+      );
     }
     if (!o.transcription || typeof o.transcription !== "object") {
-      throw new ExperimentValidationError("historical-missing-transcription", "historical-fixture requires transcription block.", "Scenario", `${path}.transcription`);
+      throw new ExperimentValidationError(
+        "historical-missing-transcription",
+        "historical-fixture requires transcription block.",
+        "Scenario",
+        `${path}.transcription`,
+      );
     }
     const tr = o.transcription as Record<string, unknown>;
     if (tr.status === "verified-suspected-misprint") {
@@ -1076,7 +1461,7 @@ export function validateScenario(raw: unknown, path = "Scenario"): Scenario {
           "misprint-missing-evidence",
           "verified-suspected-misprint transcription requires printedReading and receiptRef.",
           "Scenario",
-          `${path}.transcription`
+          `${path}.transcription`,
         );
       }
     }
@@ -1089,7 +1474,12 @@ export function validateScenario(raw: unknown, path = "Scenario"): Scenario {
       const ed = o.editorialInputs[i] as Record<string, unknown>;
       const edPath = `${path}.editorialInputs[${i}]`;
       if (!ed.source || !ed.reason) {
-        throw new ExperimentValidationError("editorial-input-missing-fields", "editorialInputs entry requires source and reason.", "Scenario", edPath);
+        throw new ExperimentValidationError(
+          "editorial-input-missing-fields",
+          "editorialInputs entry requires source and reason.",
+          "Scenario",
+          edPath,
+        );
       }
     }
   }
@@ -1098,7 +1488,12 @@ export function validateScenario(raw: unknown, path = "Scenario"): Scenario {
       const alt = o.documentedAlternatives[i] as Record<string, unknown>;
       const altPath = `${path}.documentedAlternatives[${i}]`;
       if (!alt.printedRepresentation) {
-        throw new ExperimentValidationError("documented-alternative-missing-printed-rep", "documentedAlternatives entry requires printedRepresentation.", "Scenario", altPath);
+        throw new ExperimentValidationError(
+          "documented-alternative-missing-printed-rep",
+          "documentedAlternatives entry requires printedRepresentation.",
+          "Scenario",
+          altPath,
+        );
       }
     }
   }
@@ -1107,12 +1502,22 @@ export function validateScenario(raw: unknown, path = "Scenario"): Scenario {
   let routes: [IdentityRoute, IdentityRoute] | undefined;
   if (kind === "identity") {
     if (!Array.isArray(o.routes) || o.routes.length !== 2) {
-      throw new ExperimentValidationError("identity-routes-count", `Identity scenario requires exactly 2 routes (found ${Array.isArray(o.routes) ? o.routes.length : 0}).`, "Scenario", `${path}.routes`);
+      throw new ExperimentValidationError(
+        "identity-routes-count",
+        `Identity scenario requires exactly 2 routes (found ${Array.isArray(o.routes) ? o.routes.length : 0}).`,
+        "Scenario",
+        `${path}.routes`,
+      );
     }
     const r0 = o.routes[0] as IdentityRoute;
     const r1 = o.routes[1] as IdentityRoute;
     if (r0.owner === r1.owner) {
-      throw new ExperimentValidationError("identity-routes-same-owner", `Identity scenario routes must not share the same owner (both are "${r0.owner}").`, "Scenario", `${path}.routes`);
+      throw new ExperimentValidationError(
+        "identity-routes-same-owner",
+        `Identity scenario routes must not share the same owner (both are "${r0.owner}").`,
+        "Scenario",
+        `${path}.routes`,
+      );
     }
     routes = [r0, r1];
   }
@@ -1122,7 +1527,12 @@ export function validateScenario(raw: unknown, path = "Scenario"): Scenario {
   let observation: DiscriminationObservation | undefined;
   if (kind === "discrimination") {
     if (!Array.isArray(o.hypotheses) || o.hypotheses.length < 2) {
-      throw new ExperimentValidationError("discrimination-missing-hypotheses", "Discrimination scenario requires at least two hypotheses.", "Scenario", `${path}.hypotheses`);
+      throw new ExperimentValidationError(
+        "discrimination-missing-hypotheses",
+        "Discrimination scenario requires at least two hypotheses.",
+        "Scenario",
+        `${path}.hypotheses`,
+      );
     }
     const ownersSeen = new Map<string, string>();
     for (let i = 0; i < o.hypotheses.length; i++) {
@@ -1132,7 +1542,7 @@ export function validateScenario(raw: unknown, path = "Scenario"): Scenario {
           "discrimination-hypotheses-same-owner",
           `Discrimination hypotheses "${ownersSeen.get(hyp.owner)}" and "${hyp.id}" share the same owner "${hyp.owner}".`,
           "Scenario",
-          `${path}.hypotheses[${i}]`
+          `${path}.hypotheses[${i}]`,
         );
       }
       ownersSeen.set(hyp.owner, hyp.id);
@@ -1140,27 +1550,42 @@ export function validateScenario(raw: unknown, path = "Scenario"): Scenario {
     hypotheses = o.hypotheses as DiscriminationHypothesis[];
 
     if (!o.observation || typeof o.observation !== "object") {
-      throw new ExperimentValidationError("discrimination-missing-observation", "Discrimination scenario requires observation block.", "Scenario", `${path}.observation`);
+      throw new ExperimentValidationError(
+        "discrimination-missing-observation",
+        "Discrimination scenario requires observation block.",
+        "Scenario",
+        `${path}.observation`,
+      );
     }
     observation = o.observation as DiscriminationObservation;
   }
 
   // Expected block validation
   if (!o.expected || typeof o.expected !== "object") {
-    throw new ExperimentValidationError("missing-expected", "Scenario requires expected block.", "Scenario", `${path}.expected`);
+    throw new ExperimentValidationError(
+      "missing-expected",
+      "Scenario requires expected block.",
+      "Scenario",
+      `${path}.expected`,
+    );
   }
   const exp = o.expected as Record<string, unknown>;
 
   if (kind === "discrimination") {
     if (!exp.outcome || (exp.outcome !== "indistinguishable" && exp.outcome !== "discriminates")) {
-      throw new ExperimentValidationError("discrimination-missing-outcome", 'Discrimination scenario expected block requires outcome: "indistinguishable" | "discriminates".', "Scenario", `${path}.expected.outcome`);
+      throw new ExperimentValidationError(
+        "discrimination-missing-outcome",
+        'Discrimination scenario expected block requires outcome: "indistinguishable" | "discriminates".',
+        "Scenario",
+        `${path}.expected.outcome`,
+      );
     }
     if (exp.outcome === "indistinguishable" && ("residual" in exp || "difference" in exp)) {
       throw new ExperimentValidationError(
         "discrimination-indistinguishable-stored-residual",
         'Discrimination scenario with outcome "indistinguishable" must not store residual literals; runner computes comparison.',
         "Scenario",
-        `${path}.expected`
+        `${path}.expected`,
       );
     }
   }
@@ -1174,16 +1599,25 @@ export function validateScenario(raw: unknown, path = "Scenario"): Scenario {
 
       if (comp === "bitwise") {
         if (eoRaw.tolerance) {
-          throw new ExperimentValidationError("bitwise-tolerance-forbidden", "Bitwise comparison must not declare a tolerance.", "Scenario", `${eoPath}.tolerance`);
+          throw new ExperimentValidationError(
+            "bitwise-tolerance-forbidden",
+            "Bitwise comparison must not declare a tolerance.",
+            "Scenario",
+            `${eoPath}.tolerance`,
+          );
         }
       } else if (comp === "tolerance") {
         const tol = eoRaw.tolerance as Record<string, unknown> | undefined;
-        if (!tol || (typeof tol.absolute !== "number" && typeof tol.relative !== "number") || !tol.rationale) {
+        if (
+          !tol ||
+          (typeof tol.absolute !== "number" && typeof tol.relative !== "number") ||
+          !tol.rationale
+        ) {
           throw new ExperimentValidationError(
             "tolerance-comparison-missing-spec",
             "Tolerance comparison requires at least one positive absolute/relative tolerance AND a rationale.",
             "Scenario",
-            `${eoPath}.tolerance`
+            `${eoPath}.tolerance`,
           );
         }
       } else if (comp === "rounds-to") {
@@ -1192,18 +1626,23 @@ export function validateScenario(raw: unknown, path = "Scenario"): Scenario {
             "rounds-to-non-historical",
             `comparisonKind "rounds-to" is valid only on historical-fixture scenarios (found on ${kind}).`,
             "Scenario",
-            `${eoPath}.comparisonKind`
+            `${eoPath}.comparisonKind`,
           );
         }
         if (eoRaw.tolerance) {
-          throw new ExperimentValidationError("rounds-to-tolerance-forbidden", '"rounds-to" comparison takes no tolerance.', "Scenario", `${eoPath}.tolerance`);
+          throw new ExperimentValidationError(
+            "rounds-to-tolerance-forbidden",
+            '"rounds-to" comparison takes no tolerance.',
+            "Scenario",
+            `${eoPath}.tolerance`,
+          );
         }
         if (!eoRaw.printedValue || !eoRaw.printedPrecision) {
           throw new ExperimentValidationError(
             "rounds-to-missing-printed-spec",
             '"rounds-to" comparison requires printedValue and printedPrecision.',
             "Scenario",
-            eoPath
+            eoPath,
           );
         }
         if (eoRaw.roundingConvention === "half-even" && !eoRaw.roundingReason) {
@@ -1211,11 +1650,16 @@ export function validateScenario(raw: unknown, path = "Scenario"): Scenario {
             "half-even-missing-reason",
             'roundingConvention "half-even" requires roundingReason.',
             "Scenario",
-            `${eoPath}.roundingReason`
+            `${eoPath}.roundingReason`,
           );
         }
       } else {
-        throw new ExperimentValidationError("invalid-comparison-kind", `Invalid comparisonKind "${comp}".`, "Scenario", `${eoPath}.comparisonKind`);
+        throw new ExperimentValidationError(
+          "invalid-comparison-kind",
+          `Invalid comparisonKind "${comp}".`,
+          "Scenario",
+          `${eoPath}.comparisonKind`,
+        );
       }
       expectedOutputs.push(eoRaw as any);
     }
@@ -1248,7 +1692,9 @@ export function validateScenario(raw: unknown, path = "Scenario"): Scenario {
     schemaVersion: typeof o.schemaVersion === "number" ? o.schemaVersion : 1,
     transcription,
     editorialInputs: Array.isArray(o.editorialInputs) ? (o.editorialInputs as any[]) : undefined,
-    documentedAlternatives: Array.isArray(o.documentedAlternatives) ? (o.documentedAlternatives as any[]) : undefined,
+    documentedAlternatives: Array.isArray(o.documentedAlternatives)
+      ? (o.documentedAlternatives as any[])
+      : undefined,
     routes,
     hypotheses,
     observation,
@@ -1262,7 +1708,12 @@ export function validateScenario(raw: unknown, path = "Scenario"): Scenario {
 export type DataCell =
   | Readonly<{ kind: "number"; value: number; originalToken?: string | undefined }>
   | Readonly<{ kind: "missing"; reason: string }>
-  | Readonly<{ kind: "bound"; direction: "upper" | "lower"; value: number; originalToken?: string | undefined }>;
+  | Readonly<{
+      kind: "bound";
+      direction: "upper" | "lower";
+      value: number;
+      originalToken?: string | undefined;
+    }>;
 
 export const COLUMN_ROLES = ["observed", "controlled", "derived", "reported-fit"] as const;
 export type ColumnRole = (typeof COLUMN_ROLES)[number];
@@ -1353,18 +1804,28 @@ export function validateDataCell(raw: unknown, path = "cell"): DataCell {
       "bare-number-cell-rejected",
       `Bare numbers in cells[] are rejected. Use typed DataCell union: { kind: "number", value, originalToken? }, { kind: "missing", reason }, or { kind: "bound", direction, value }.`,
       "HistoricalDataset",
-      path
+      path,
     );
   }
   if (!raw || typeof raw !== "object") {
-    throw new ExperimentValidationError("invalid-data-cell", "DataCell must be an object.", "HistoricalDataset", path);
+    throw new ExperimentValidationError(
+      "invalid-data-cell",
+      "DataCell must be an object.",
+      "HistoricalDataset",
+      path,
+    );
   }
   const o = raw as Record<string, unknown>;
   const kind = o.kind as string;
 
   if (kind === "number") {
     if (typeof o.value !== "number" || isNaN(o.value)) {
-      throw new ExperimentValidationError("missing-cell-number-value", 'DataCell of kind "number" requires numeric value.', "HistoricalDataset", `${path}.value`);
+      throw new ExperimentValidationError(
+        "missing-cell-number-value",
+        'DataCell of kind "number" requires numeric value.',
+        "HistoricalDataset",
+        `${path}.value`,
+      );
     }
     return {
       kind: "number",
@@ -1373,15 +1834,30 @@ export function validateDataCell(raw: unknown, path = "cell"): DataCell {
     };
   } else if (kind === "missing") {
     if (typeof o.reason !== "string" || !o.reason.trim()) {
-      throw new ExperimentValidationError("missing-cell-reason", 'DataCell of kind "missing" requires a reason in words.', "HistoricalDataset", `${path}.reason`);
+      throw new ExperimentValidationError(
+        "missing-cell-reason",
+        'DataCell of kind "missing" requires a reason in words.',
+        "HistoricalDataset",
+        `${path}.reason`,
+      );
     }
     return { kind: "missing", reason: o.reason };
   } else if (kind === "bound") {
     if (o.direction !== "upper" && o.direction !== "lower") {
-      throw new ExperimentValidationError("invalid-bound-direction", 'DataCell of kind "bound" requires direction: "upper" | "lower".', "HistoricalDataset", `${path}.direction`);
+      throw new ExperimentValidationError(
+        "invalid-bound-direction",
+        'DataCell of kind "bound" requires direction: "upper" | "lower".',
+        "HistoricalDataset",
+        `${path}.direction`,
+      );
     }
     if (typeof o.value !== "number" || isNaN(o.value)) {
-      throw new ExperimentValidationError("missing-bound-value", 'DataCell of kind "bound" requires numeric value.', "HistoricalDataset", `${path}.value`);
+      throw new ExperimentValidationError(
+        "missing-bound-value",
+        'DataCell of kind "bound" requires numeric value.',
+        "HistoricalDataset",
+        `${path}.value`,
+      );
     }
     return {
       kind: "bound",
@@ -1390,29 +1866,62 @@ export function validateDataCell(raw: unknown, path = "cell"): DataCell {
       originalToken: (o.originalToken as string) || undefined,
     };
   } else {
-    throw new ExperimentValidationError("invalid-cell-kind", `Unknown cell kind "${kind}".`, "HistoricalDataset", `${path}.kind`);
+    throw new ExperimentValidationError(
+      "invalid-cell-kind",
+      `Unknown cell kind "${kind}".`,
+      "HistoricalDataset",
+      `${path}.kind`,
+    );
   }
 }
 
-export function validateHistoricalDataset(raw: unknown, path = "HistoricalDataset"): HistoricalDataset {
+export function validateHistoricalDataset(
+  raw: unknown,
+  path = "HistoricalDataset",
+): HistoricalDataset {
   if (!raw || typeof raw !== "object") {
-    throw new ExperimentValidationError("invalid-record", "HistoricalDataset must be an object.", "HistoricalDataset", path);
+    throw new ExperimentValidationError(
+      "invalid-record",
+      "HistoricalDataset must be an object.",
+      "HistoricalDataset",
+      path,
+    );
   }
   const o = raw as Record<string, unknown>;
 
   if (typeof o.id !== "string" || !o.id.trim()) {
-    throw new ExperimentValidationError("missing-id", "HistoricalDataset id is required.", "HistoricalDataset", `${path}.id`);
+    throw new ExperimentValidationError(
+      "missing-id",
+      "HistoricalDataset id is required.",
+      "HistoricalDataset",
+      `${path}.id`,
+    );
   }
   if (typeof o.title !== "string" || !o.title.trim()) {
-    throw new ExperimentValidationError("missing-title", "HistoricalDataset title is required.", "HistoricalDataset", `${path}.title`);
+    throw new ExperimentValidationError(
+      "missing-title",
+      "HistoricalDataset title is required.",
+      "HistoricalDataset",
+      `${path}.title`,
+    );
   }
   if (o.evidenceStatus !== "historical-measurement" && o.evidenceStatus !== "modern-observation") {
-    throw new ExperimentValidationError("invalid-evidence-status", `Invalid evidenceStatus "${o.evidenceStatus}".`, "HistoricalDataset", `${path}.evidenceStatus`);
+    throw new ExperimentValidationError(
+      "invalid-evidence-status",
+      `Invalid evidenceStatus "${o.evidenceStatus}".`,
+      "HistoricalDataset",
+      `${path}.evidenceStatus`,
+    );
   }
 
   // Publications
   if (!Array.isArray(o.publications) || o.publications.length === 0) {
-    throw new ExperimentValidationError("missing-publications", "HistoricalDataset publications must be a non-empty array.", "HistoricalDataset", `${path}.publications`);
+    throw new ExperimentValidationError(
+      "missing-publications",
+      "HistoricalDataset publications must be a non-empty array.",
+      "HistoricalDataset",
+      `${path}.publications`,
+    );
   }
   const pubIds = new Set<string>();
   const publications: DatasetPublication[] = [];
@@ -1421,15 +1930,30 @@ export function validateHistoricalDataset(raw: unknown, path = "HistoricalDatase
     const pRaw = o.publications[i] as Record<string, unknown>;
     const pPath = `${path}.publications[${i}]`;
     if (!pRaw || typeof pRaw !== "object") {
-      throw new ExperimentValidationError("invalid-publication", "Publication must be an object.", "HistoricalDataset", pPath);
+      throw new ExperimentValidationError(
+        "invalid-publication",
+        "Publication must be an object.",
+        "HistoricalDataset",
+        pPath,
+      );
     }
     if (typeof pRaw.id !== "string" || !pRaw.id.trim()) {
-      throw new ExperimentValidationError("missing-publication-id", "Publication id is required.", "HistoricalDataset", `${pPath}.id`);
+      throw new ExperimentValidationError(
+        "missing-publication-id",
+        "Publication id is required.",
+        "HistoricalDataset",
+        `${pPath}.id`,
+      );
     }
     pubIds.add(pRaw.id);
 
     if (!pRaw.locator || typeof pRaw.locator !== "object") {
-      throw new ExperimentValidationError("missing-publication-locator", "Publication requires locator ({kind, number/page}).", "HistoricalDataset", `${pPath}.locator`);
+      throw new ExperimentValidationError(
+        "missing-publication-locator",
+        "Publication requires locator ({kind, number/page}).",
+        "HistoricalDataset",
+        `${pPath}.locator`,
+      );
     }
     const loc = pRaw.locator as Record<string, unknown>;
     if (loc.kind === "table" || loc.kind === "figure") {
@@ -1438,22 +1962,41 @@ export function validateHistoricalDataset(raw: unknown, path = "HistoricalDatase
           "missing-table-figure-number",
           `Publication locator of kind "${loc.kind}" requires a table/figure number.`,
           "HistoricalDataset",
-          `${pPath}.locator.number`
+          `${pPath}.locator.number`,
         );
       }
     } else if (loc.kind === "unnumbered-table") {
       if (typeof loc.page !== "number") {
-        throw new ExperimentValidationError("missing-unnumbered-table-page", "unnumbered-table locator requires page number.", "HistoricalDataset", `${pPath}.locator.page`);
+        throw new ExperimentValidationError(
+          "missing-unnumbered-table-page",
+          "unnumbered-table locator requires page number.",
+          "HistoricalDataset",
+          `${pPath}.locator.page`,
+        );
       }
     } else if (loc.kind === "text") {
       if (typeof loc.page !== "number" || loc.sentence === undefined) {
-        throw new ExperimentValidationError("missing-text-locator-fields", "text locator requires page and sentence.", "HistoricalDataset", `${pPath}.locator`);
+        throw new ExperimentValidationError(
+          "missing-text-locator-fields",
+          "text locator requires page and sentence.",
+          "HistoricalDataset",
+          `${pPath}.locator`,
+        );
       }
     } else {
-      throw new ExperimentValidationError("invalid-locator-kind", `Invalid locator kind "${loc.kind}".`, "HistoricalDataset", `${pPath}.locator.kind`);
+      throw new ExperimentValidationError(
+        "invalid-locator-kind",
+        `Invalid locator kind "${loc.kind}".`,
+        "HistoricalDataset",
+        `${pPath}.locator.kind`,
+      );
     }
 
-    const pubDate = validatePaperDate(pRaw.publicationDate, pRaw.id as string, `${pPath}.publicationDate`);
+    const pubDate = validatePaperDate(
+      pRaw.publicationDate,
+      pRaw.id as string,
+      `${pPath}.publicationDate`,
+    );
 
     publications.push({
       id: pRaw.id,
@@ -1468,7 +2011,7 @@ export function validateHistoricalDataset(raw: unknown, path = "HistoricalDatase
       "invalid-primary-publication-id",
       `primaryPublicationId "${o.primaryPublicationId}" must resolve to one of publications[].id.`,
       "HistoricalDataset",
-      `${path}.primaryPublicationId`
+      `${path}.primaryPublicationId`,
     );
   }
 
@@ -1480,10 +2023,20 @@ export function validateHistoricalDataset(raw: unknown, path = "HistoricalDatase
       const sRaw = o.series[i] as Record<string, unknown>;
       const sPath = `${path}.series[${i}]`;
       if (!sRaw || typeof sRaw !== "object") {
-        throw new ExperimentValidationError("invalid-series", "Series must be an object.", "HistoricalDataset", sPath);
+        throw new ExperimentValidationError(
+          "invalid-series",
+          "Series must be an object.",
+          "HistoricalDataset",
+          sPath,
+        );
       }
       if (typeof sRaw.id !== "string" || !sRaw.id.trim()) {
-        throw new ExperimentValidationError("missing-series-id", "Series id is required.", "HistoricalDataset", `${sPath}.id`);
+        throw new ExperimentValidationError(
+          "missing-series-id",
+          "Series id is required.",
+          "HistoricalDataset",
+          `${sPath}.id`,
+        );
       }
       seriesIds.add(sRaw.id);
       if (typeof sRaw.publicationId !== "string" || !pubIds.has(sRaw.publicationId)) {
@@ -1491,13 +2044,15 @@ export function validateHistoricalDataset(raw: unknown, path = "HistoricalDatase
           "series-unknown-publication-id",
           `Series "${sRaw.id}" references unknown publicationId "${sRaw.publicationId}".`,
           "HistoricalDataset",
-          `${sPath}.publicationId`
+          `${sPath}.publicationId`,
         );
       }
       seriesList.push({
         id: sRaw.id,
         publicationId: sRaw.publicationId,
-        observationDate: sRaw.observationDate ? validatePaperDate(sRaw.observationDate, sRaw.id as string, `${sPath}.observationDate`) : undefined,
+        observationDate: sRaw.observationDate
+          ? validatePaperDate(sRaw.observationDate, sRaw.id as string, `${sPath}.observationDate`)
+          : undefined,
         description: (sRaw.description as string) || "",
       });
     }
@@ -1505,16 +2060,35 @@ export function validateHistoricalDataset(raw: unknown, path = "HistoricalDatase
 
   // Digitizer
   if (!o.digitizer || typeof o.digitizer !== "object") {
-    throw new ExperimentValidationError("missing-digitizer", "digitizer block is required.", "HistoricalDataset", `${path}.digitizer`);
+    throw new ExperimentValidationError(
+      "missing-digitizer",
+      "digitizer block is required.",
+      "HistoricalDataset",
+      `${path}.digitizer`,
+    );
   }
   const dig = o.digitizer as Record<string, unknown>;
-  if (typeof dig.digitizationRevision !== "number" || dig.digitizationRevision <= 0 || !Number.isInteger(dig.digitizationRevision)) {
-    throw new ExperimentValidationError("invalid-digitization-revision", "digitizationRevision must be a positive integer.", "HistoricalDataset", `${path}.digitizer.digitizationRevision`);
+  if (
+    typeof dig.digitizationRevision !== "number" ||
+    dig.digitizationRevision <= 0 ||
+    !Number.isInteger(dig.digitizationRevision)
+  ) {
+    throw new ExperimentValidationError(
+      "invalid-digitization-revision",
+      "digitizationRevision must be a positive integer.",
+      "HistoricalDataset",
+      `${path}.digitizer.digitizationRevision`,
+    );
   }
 
   // Columns
   if (!Array.isArray(o.columns) || o.columns.length === 0) {
-    throw new ExperimentValidationError("missing-columns", "columns must be a non-empty array.", "HistoricalDataset", `${path}.columns`);
+    throw new ExperimentValidationError(
+      "missing-columns",
+      "columns must be a non-empty array.",
+      "HistoricalDataset",
+      `${path}.columns`,
+    );
   }
   const columns: DatasetColumn[] = [];
 
@@ -1522,14 +2096,19 @@ export function validateHistoricalDataset(raw: unknown, path = "HistoricalDatase
     const colRaw = o.columns[i] as Record<string, unknown>;
     const colPath = `${path}.columns[${i}]`;
     if (!colRaw || typeof colRaw !== "object") {
-      throw new ExperimentValidationError("invalid-column", "Column must be an object.", "HistoricalDataset", colPath);
+      throw new ExperimentValidationError(
+        "invalid-column",
+        "Column must be an object.",
+        "HistoricalDataset",
+        colPath,
+      );
     }
     if ("derived" in colRaw && typeof colRaw.derived === "boolean") {
       throw new ExperimentValidationError(
         "retired-derived-boolean-flag",
         'Found retired boolean "derived" flag on column. Use role: "observed" | "controlled" | "derived" | "reported-fit".',
         "HistoricalDataset",
-        colPath
+        colPath,
       );
     }
     if (!COLUMN_ROLES.includes(colRaw.role as ColumnRole)) {
@@ -1537,7 +2116,7 @@ export function validateHistoricalDataset(raw: unknown, path = "HistoricalDatase
         "invalid-column-role",
         `Invalid column role "${colRaw.role}". Must be one of: observed, controlled, derived, reported-fit.`,
         "HistoricalDataset",
-        `${colPath}.role`
+        `${colPath}.role`,
       );
     }
     if (colRaw.role === "reported-fit") {
@@ -1546,7 +2125,7 @@ export function validateHistoricalDataset(raw: unknown, path = "HistoricalDatase
           "missing-fit-description",
           'Column with role "reported-fit" requires fitDescription naming what was fitted and by whom.',
           "HistoricalDataset",
-          `${colPath}.fitDescription`
+          `${colPath}.fitDescription`,
         );
       }
     }
@@ -1566,14 +2145,19 @@ export function validateHistoricalDataset(raw: unknown, path = "HistoricalDatase
       const rRaw = o.rows[r] as Record<string, unknown>;
       const rPath = `${path}.rows[${r}]`;
       if (!rRaw || !Array.isArray(rRaw.cells)) {
-        throw new ExperimentValidationError("invalid-row", "Row must be an object with cells array.", "HistoricalDataset", rPath);
+        throw new ExperimentValidationError(
+          "invalid-row",
+          "Row must be an object with cells array.",
+          "HistoricalDataset",
+          rPath,
+        );
       }
       if (rRaw.cells.length !== columns.length) {
         throw new ExperimentValidationError(
           "cell-count-mismatch",
           `Row ${r} has ${rRaw.cells.length} cells, but dataset declares ${columns.length} columns.`,
           "HistoricalDataset",
-          rPath
+          rPath,
         );
       }
       const cells = rRaw.cells.map((c, cIdx) => validateDataCell(c, `${rPath}.cells[${cIdx}]`));
@@ -1590,7 +2174,7 @@ export function validateHistoricalDataset(raw: unknown, path = "HistoricalDatase
       "missing-allowed-inference-models",
       "allowedInferenceModelIds is required (may be empty []). An absent list is rejected to prevent unvetted inferences.",
       "HistoricalDataset",
-      `${path}.allowedInferenceModelIds`
+      `${path}.allowedInferenceModelIds`,
     );
   }
 
@@ -1605,11 +2189,16 @@ export function validateHistoricalDataset(raw: unknown, path = "HistoricalDatase
           "invalid-result-relation",
           `Invalid addressesResults relation "${arRaw.relation}". Vocabulary is strictly: tested-a-prediction, measured-a-quantity-the-result-uses, reinterpreted, narrowed-the-domain, disputed ("confirmed" and "proved" are forbidden).`,
           "HistoricalDataset",
-          `${arPath}.relation`
+          `${arPath}.relation`,
         );
       }
       if (typeof arRaw.statement !== "string" || !arRaw.statement.trim()) {
-        throw new ExperimentValidationError("missing-result-statement", "addressesResults entry requires statement sentence.", "HistoricalDataset", `${arPath}.statement`);
+        throw new ExperimentValidationError(
+          "missing-result-statement",
+          "addressesResults entry requires statement sentence.",
+          "HistoricalDataset",
+          `${arPath}.statement`,
+        );
       }
       addressesResults.push({
         resultId: arRaw.resultId as string,
@@ -1677,7 +2266,14 @@ export type Tour = Readonly<{
   completionStatement: string;
   steps: readonly TourStep[];
   requiresEquations: boolean;
-  syllabus?: readonly Readonly<{ session: number; title: string; prerequisites?: readonly string[] | undefined; steps: readonly string[] }>[] | undefined;
+  syllabus?:
+    | readonly Readonly<{
+        session: number;
+        title: string;
+        prerequisites?: readonly string[] | undefined;
+        steps: readonly string[];
+      }>[]
+    | undefined;
 }>;
 
 export function validateTour(raw: unknown, path = "Tour"): Tour {
@@ -1690,7 +2286,12 @@ export function validateTour(raw: unknown, path = "Tour"): Tour {
     throw new ExperimentValidationError("missing-id", "Tour id is required.", "Tour", `${path}.id`);
   }
   if (!TOUR_BUDGETS.includes(o.budget as TourBudget)) {
-    throw new ExperimentValidationError("invalid-tour-budget", `Invalid tour budget "${o.budget}".`, "Tour", `${path}.budget`);
+    throw new ExperimentValidationError(
+      "invalid-tour-budget",
+      `Invalid tour budget "${o.budget}".`,
+      "Tour",
+      `${path}.budget`,
+    );
   }
   const budget = o.budget as TourBudget;
 
@@ -1700,16 +2301,26 @@ export function validateTour(raw: unknown, path = "Tour"): Tour {
       "fifteen-minutes-requires-equations-forbidden",
       'A "fifteen-minutes" tour must have requiresEquations: false.',
       "Tour",
-      `${path}.requiresEquations`
+      `${path}.requiresEquations`,
     );
   }
 
   if (typeof o.completionStatement !== "string" || !o.completionStatement.trim()) {
-    throw new ExperimentValidationError("missing-completion-statement", "completionStatement is required.", "Tour", `${path}.completionStatement`);
+    throw new ExperimentValidationError(
+      "missing-completion-statement",
+      "completionStatement is required.",
+      "Tour",
+      `${path}.completionStatement`,
+    );
   }
 
   if (!Array.isArray(o.steps) || o.steps.length === 0) {
-    throw new ExperimentValidationError("missing-tour-steps", "steps must be a non-empty array.", "Tour", `${path}.steps`);
+    throw new ExperimentValidationError(
+      "missing-tour-steps",
+      "steps must be a non-empty array.",
+      "Tour",
+      `${path}.steps`,
+    );
   }
 
   const steps: TourStep[] = [];
@@ -1717,10 +2328,20 @@ export function validateTour(raw: unknown, path = "Tour"): Tour {
     const sRaw = o.steps[i] as Record<string, unknown>;
     const sPath = `${path}.steps[${i}]`;
     if (!sRaw || typeof sRaw !== "object") {
-      throw new ExperimentValidationError("invalid-tour-step", "Tour step must be an object.", "Tour", sPath);
+      throw new ExperimentValidationError(
+        "invalid-tour-step",
+        "Tour step must be an object.",
+        "Tour",
+        sPath,
+      );
     }
     if (typeof sRaw.anchorId !== "string" || !sRaw.anchorId.trim()) {
-      throw new ExperimentValidationError("missing-step-anchor-id", "Tour step requires anchorId.", "Tour", `${sPath}.anchorId`);
+      throw new ExperimentValidationError(
+        "missing-step-anchor-id",
+        "Tour step requires anchorId.",
+        "Tour",
+        `${sPath}.anchorId`,
+      );
     }
 
     let instPreset: TourStepPreset | undefined;
@@ -1731,19 +2352,29 @@ export function validateTour(raw: unknown, path = "Tour"): Tour {
           "tape-and-preset-both-present",
           "Tour step instrumentPreset cannot declare both tapeId and presetId.",
           "Tour",
-          `${sPath}.instrumentPreset`
+          `${sPath}.instrumentPreset`,
         );
       }
       if (ip.presetId && typeof ip.presetId === "string") {
         const psParsed = parsePresetId(ip.presetId);
         if (!psParsed.ok) {
-          throw new ExperimentValidationError("invalid-preset-id", psParsed.error, "Tour", `${sPath}.instrumentPreset.presetId`);
+          throw new ExperimentValidationError(
+            "invalid-preset-id",
+            psParsed.error,
+            "Tour",
+            `${sPath}.instrumentPreset.presetId`,
+          );
         }
       }
       if (ip.promptId && typeof ip.promptId === "string") {
         const prParsed = parsePredictPromptId(ip.promptId);
         if (!prParsed.ok) {
-          throw new ExperimentValidationError("invalid-prompt-id", prParsed.error, "Tour", `${sPath}.instrumentPreset.promptId`);
+          throw new ExperimentValidationError(
+            "invalid-prompt-id",
+            prParsed.error,
+            "Tour",
+            `${sPath}.instrumentPreset.promptId`,
+          );
         }
       }
       instPreset = {
@@ -1759,7 +2390,7 @@ export function validateTour(raw: unknown, path = "Tour"): Tour {
         "prompt-id-and-tour-prediction-collision",
         "Tour step cannot declare both promptId and tourPrediction. Use registered promptId or custom tourPrediction, not both.",
         "Tour",
-        sPath
+        sPath,
       );
     }
 
@@ -1833,12 +2464,22 @@ export type ConstantSet = Readonly<{
 
 export function validateConstantSet(raw: unknown, path = "ConstantSet"): ConstantSet {
   if (!raw || typeof raw !== "object") {
-    throw new ExperimentValidationError("invalid-record", "ConstantSet must be an object.", "ConstantSet", path);
+    throw new ExperimentValidationError(
+      "invalid-record",
+      "ConstantSet must be an object.",
+      "ConstantSet",
+      path,
+    );
   }
   const o = raw as Record<string, unknown>;
 
   if (typeof o.id !== "string" || !o.id.trim()) {
-    throw new ExperimentValidationError("missing-id", "ConstantSet id is required.", "ConstantSet", `${path}.id`);
+    throw new ExperimentValidationError(
+      "missing-id",
+      "ConstantSet id is required.",
+      "ConstantSet",
+      `${path}.id`,
+    );
   }
 
   // Reject retired ids
@@ -1847,16 +2488,30 @@ export function validateConstantSet(raw: unknown, path = "ConstantSet"): Constan
       "retired-constant-set-id",
       'Found retired constant set id "einstein-1905-brownian". Use "einstein-1905-brownian-printed".',
       "ConstantSet",
-      `${path}.id`
+      `${path}.id`,
     );
   }
 
-  if (!["defined", "measured-without-counting-molecules", "not-applicable"].includes(o.gasConstantProvenance as string)) {
-    throw new ExperimentValidationError("invalid-gas-constant-provenance", `Invalid gasConstantProvenance "${o.gasConstantProvenance}".`, "ConstantSet", `${path}.gasConstantProvenance`);
+  if (
+    !["defined", "measured-without-counting-molecules", "not-applicable"].includes(
+      o.gasConstantProvenance as string,
+    )
+  ) {
+    throw new ExperimentValidationError(
+      "invalid-gas-constant-provenance",
+      `Invalid gasConstantProvenance "${o.gasConstantProvenance}".`,
+      "ConstantSet",
+      `${path}.gasConstantProvenance`,
+    );
   }
 
   if (!Array.isArray(o.entries) || o.entries.length === 0) {
-    throw new ExperimentValidationError("missing-entries", "entries must be a non-empty array.", "ConstantSet", `${path}.entries`);
+    throw new ExperimentValidationError(
+      "missing-entries",
+      "entries must be a non-empty array.",
+      "ConstantSet",
+      `${path}.entries`,
+    );
   }
 
   const entries: ConstantSetEntry[] = [];
@@ -1866,18 +2521,38 @@ export function validateConstantSet(raw: unknown, path = "ConstantSet"): Constan
     const eRaw = o.entries[i] as Record<string, unknown>;
     const ePath = `${path}.entries[${i}]`;
     if (!eRaw || typeof eRaw !== "object") {
-      throw new ExperimentValidationError("invalid-entry", "Constant entry must be an object.", "ConstantSet", ePath);
+      throw new ExperimentValidationError(
+        "invalid-entry",
+        "Constant entry must be an object.",
+        "ConstantSet",
+        ePath,
+      );
     }
     if (!CONSTANT_ENTRY_KINDS.includes(eRaw.kind as ConstantEntryKind)) {
-      throw new ExperimentValidationError("invalid-entry-kind", `Invalid entry kind "${eRaw.kind}".`, "ConstantSet", `${ePath}.kind`);
+      throw new ExperimentValidationError(
+        "invalid-entry-kind",
+        `Invalid entry kind "${eRaw.kind}".`,
+        "ConstantSet",
+        `${ePath}.kind`,
+      );
     }
     const kind = eRaw.kind as ConstantEntryKind;
 
     if (kind === "exact-defined" && eRaw.uncertainty !== undefined) {
-      throw new ExperimentValidationError("exact-defined-has-uncertainty", 'Entry of kind "exact-defined" must not carry uncertainty.', "ConstantSet", `${ePath}.uncertainty`);
+      throw new ExperimentValidationError(
+        "exact-defined-has-uncertainty",
+        'Entry of kind "exact-defined" must not carry uncertainty.',
+        "ConstantSet",
+        `${ePath}.uncertainty`,
+      );
     }
     if (kind === "measured" && eRaw.uncertainty === undefined) {
-      throw new ExperimentValidationError("measured-missing-uncertainty", 'Entry of kind "measured" requires uncertainty.', "ConstantSet", `${ePath}.uncertainty`);
+      throw new ExperimentValidationError(
+        "measured-missing-uncertainty",
+        'Entry of kind "measured" requires uncertainty.',
+        "ConstantSet",
+        `${ePath}.uncertainty`,
+      );
     }
 
     if (isPrintedSet || kind === "printed-historical") {
@@ -1886,12 +2561,17 @@ export function validateConstantSet(raw: unknown, path = "ConstantSet"): Constan
           "missing-printed-status",
           'Entry in printed-historical constant set requires printedStatus: "printed" | "editorial-input" | "printed-corrected".',
           "ConstantSet",
-          `${ePath}.printedStatus`
+          `${ePath}.printedStatus`,
         );
       }
       const pStatus = eRaw.printedStatus as PrintedStatus;
       if (pStatus === "printed" && !eRaw.printedReading) {
-        throw new ExperimentValidationError("printed-missing-reading", 'printedStatus "printed" requires printedReading.', "ConstantSet", `${ePath}.printedReading`);
+        throw new ExperimentValidationError(
+          "printed-missing-reading",
+          'printedStatus "printed" requires printedReading.',
+          "ConstantSet",
+          `${ePath}.printedReading`,
+        );
       }
       if (pStatus === "editorial-input") {
         if (!eRaw.reason || !eRaw.sensitivity) {
@@ -1899,7 +2579,7 @@ export function validateConstantSet(raw: unknown, path = "ConstantSet"): Constan
             "editorial-input-missing-reason-sensitivity",
             'printedStatus "editorial-input" requires reason and sensitivity.',
             "ConstantSet",
-            ePath
+            ePath,
           );
         }
       }
@@ -1909,7 +2589,7 @@ export function validateConstantSet(raw: unknown, path = "ConstantSet"): Constan
             "printed-corrected-missing-receipt-ref",
             'printedStatus "printed-corrected" requires receiptRef, printedReading, and correctedValue.',
             "ConstantSet",
-            ePath
+            ePath,
           );
         }
       }
@@ -1921,7 +2601,7 @@ export function validateConstantSet(raw: unknown, path = "ConstantSet"): Constan
           "checked-missing-checked-by-at",
           'transcriptionStatus "transcribed-and-checked" requires checkedBy and checkedAt.',
           "ConstantSet",
-          ePath
+          ePath,
         );
       }
     }

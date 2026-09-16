@@ -1,47 +1,38 @@
-import test from "node:test";
 import assert from "node:assert/strict";
+import test from "node:test";
+import { compareDates, DatePrecisionError, formatDate, formatDateStrict } from "../dates.ts";
 import {
+  AuthorshipValidationError,
+  authorshipOf,
+  validateAuthorshipBlock,
+  validateAuthorshipEntry,
+} from "./authorship.ts";
+import {
+  DateValidationError,
+  type PaperDate,
+  validateChronology,
+  validatePaperDate,
+} from "./dates.ts";
+import {
+  codePointLength,
+  codePointSlice,
+  type Inline,
+  plainText,
+  validateInline,
+} from "./inlines.ts";
+import {
+  SchemaValidationError,
+  validateAlignment,
+  validateCitation,
+  validateEditorialNote,
+  validateGlossUnit,
   validatePaper,
   validateSourceBlock,
   validateTranslationUnit,
-  validateAlignment,
-  validateGlossUnit,
-  validateEditorialNote,
-  validateCitation,
   verifyEquationTranslation,
-  SchemaValidationError,
 } from "./source.ts";
-import {
-  validatePaperDate,
-  validateChronology,
-  DateValidationError,
-  type PaperDate,
-} from "./dates.ts";
-import {
-  formatDate,
-  formatDateStrict,
-  compareDates,
-  DatePrecisionError,
-} from "../dates.ts";
-import {
-  plainText,
-  codePointLength,
-  codePointSlice,
-  validateInline,
-  type Inline,
-} from "./inlines.ts";
-import {
-  spanTextDigest,
-  validateSpanAnchor,
-  SpanValidationError,
-} from "./spans.ts";
-import {
-  validateAuthorshipEntry,
-  validateAuthorshipBlock,
-  authorshipOf,
-  AuthorshipValidationError,
-} from "./authorship.ts";
-import { strictParse, StrictParseError } from "./strictParse.ts";
+import { SpanValidationError, spanTextDigest, validateSpanAnchor } from "./spans.ts";
+import { StrictParseError, strictParse } from "./strictParse.ts";
 
 // ==========================================
 // 1. PAPER TESTS
@@ -50,8 +41,10 @@ test("Paper: valid paper passes schema validation", () => {
   const raw = {
     slug: "brownian-motion",
     bibKey: "ap-17-549",
-    titleGerman: "Über die von der molekularkinetischen Theorie der Wärme geforderte Bewegung von in ruhenden Flüssigkeiten suspendierten Teilchen",
-    titleEnglishWorking: "On the Movement of Small Particles Suspended in Stationary Liquids Required by the Molecular-Kinetic Theory of Heat",
+    titleGerman:
+      "Über die von der molekularkinetischen Theorie der Wärme geforderte Bewegung von in ruhenden Flüssigkeiten suspendierten Teilchen",
+    titleEnglishWorking:
+      "On the Movement of Small Particles Suspended in Stationary Liquids Required by the Molecular-Kinetic Theory of Heat",
     editorialAdditions: [
       {
         phrase: "Small",
@@ -134,10 +127,13 @@ test("Paper: invalid slug or invalid chronology fails", () => {
     journal: { pages: { first: 1, last: 2 } },
   };
 
-  assert.throws(() => validatePaper(rawInvalidSlug), (err: any) => {
-    assert.equal(err.code, "invalid-paper-slug");
-    return true;
-  });
+  assert.throws(
+    () => validatePaper(rawInvalidSlug),
+    (err: any) => {
+      assert.equal(err.code, "invalid-paper-slug");
+      return true;
+    },
+  );
 
   const rawBadChronology = {
     slug: "brownian-motion",
@@ -166,10 +162,13 @@ test("Paper: invalid slug or invalid chronology fails", () => {
     journal: { pages: { first: 549, last: 560 } },
   };
 
-  assert.throws(() => validatePaper(rawBadChronology), (err: any) => {
-    assert.equal(err.code, "chronology-received-before-dateline");
-    return true;
-  });
+  assert.throws(
+    () => validatePaper(rawBadChronology),
+    (err: any) => {
+      assert.equal(err.code, "chronology-received-before-dateline");
+      return true;
+    },
+  );
 });
 
 // ==========================================
@@ -225,10 +224,13 @@ test("SourceBlock: missing separate status fields fails", () => {
     status: "reviewed", // WRONG: must be separate object fields!
   };
 
-  assert.throws(() => validateSourceBlock(rawCombinedStatus), (err: any) => {
-    assert.equal(err.code, "missing-status-block");
-    return true;
-  });
+  assert.throws(
+    () => validateSourceBlock(rawCombinedStatus),
+    (err: any) => {
+      assert.equal(err.code, "missing-status-block");
+      return true;
+    },
+  );
 });
 
 test("SourceBlock: stale span revision or digest mismatch fails", () => {
@@ -260,10 +262,13 @@ test("SourceBlock: stale span revision or digest mismatch fails", () => {
     },
   };
 
-  assert.throws(() => validateSourceBlock(rawStaleSpan), (err: any) => {
-    assert.equal(err.code, "span-revision-stale");
-    return true;
-  });
+  assert.throws(
+    () => validateSourceBlock(rawStaleSpan),
+    (err: any) => {
+      assert.equal(err.code, "span-revision-stale");
+      return true;
+    },
+  );
 
   const rawWrongDigest = {
     id: "s1-p1",
@@ -290,10 +295,13 @@ test("SourceBlock: stale span revision or digest mismatch fails", () => {
     },
   };
 
-  assert.throws(() => validateSourceBlock(rawWrongDigest), (err: any) => {
-    assert.equal(err.code, "span-digest-mismatch");
-    return true;
-  });
+  assert.throws(
+    () => validateSourceBlock(rawWrongDigest),
+    (err: any) => {
+      assert.equal(err.code, "span-digest-mismatch");
+      return true;
+    },
+  );
 });
 
 // ==========================================
@@ -302,9 +310,7 @@ test("SourceBlock: stale span revision or digest mismatch fails", () => {
 test("TranslationUnit: references one or more source blocks and requires editor when corrected/reviewed", () => {
   const raw = {
     id: "s3-p2-s1a",
-    sourceRefs: [
-      { paper: "brownian-motion", id: "s3-p2-s1" },
-    ],
+    sourceRefs: [{ paper: "brownian-motion", id: "s3-p2-s1" }],
     inlines: [{ kind: "text", text: "Introduction to molecular kinetic theory." }],
     translator: { id: "agent:BoldHarbor", kind: "model", modelId: "gpt-5.6-luna" },
     editor: { id: "jemanuel", name: "Jeffrey Emanuel", kind: "human" },
@@ -326,10 +332,13 @@ test("TranslationUnit: references one or more source blocks and requires editor 
     editor: undefined,
     reviewState: "reviewed",
   };
-  assert.throws(() => validateTranslationUnit(rawNoEditor), (err: any) => {
-    assert.equal(err.code, "missing-editor");
-    return true;
-  });
+  assert.throws(
+    () => validateTranslationUnit(rawNoEditor),
+    (err: any) => {
+      assert.equal(err.code, "missing-editor");
+      return true;
+    },
+  );
 });
 
 // ==========================================
@@ -386,10 +395,13 @@ test("GlossUnit: tokens and multiword units validation", () => {
     ...raw,
     tokens: [{ german: "Arbeit", english: "work", grammarNote: "note without noteClass" }],
   };
-  assert.throws(() => validateGlossUnit(rawMissingNoteClass), (err: any) => {
-    assert.equal(err.code, "missing-note-class");
-    return true;
-  });
+  assert.throws(
+    () => validateGlossUnit(rawMissingNoteClass),
+    (err: any) => {
+      assert.equal(err.code, "missing-note-class");
+      return true;
+    },
+  );
 });
 
 // ==========================================
@@ -406,10 +418,13 @@ test("EditorialNote: dispute note requires primary sourceSupport, correction req
     reviewState: "draft",
   };
 
-  assert.throws(() => validateEditorialNote(rawDisputeNoPrimary), (err: any) => {
-    assert.equal(err.code, "dispute-requires-primary-source");
-    return true;
-  });
+  assert.throws(
+    () => validateEditorialNote(rawDisputeNoPrimary),
+    (err: any) => {
+      assert.equal(err.code, "dispute-requires-primary-source");
+      return true;
+    },
+  );
 
   const rawValidDispute = {
     ...rawDisputeNoPrimary,
@@ -432,10 +447,13 @@ test("EditorialNote: dispute note requires primary sourceSupport, correction req
     reasoning: "Broken letter",
     // evidence missing!
   };
-  assert.throws(() => validateEditorialNote(rawCorrectionMissingEvidence), (err: any) => {
-    assert.equal(err.code, "correction-fields-required");
-    return true;
-  });
+  assert.throws(
+    () => validateEditorialNote(rawCorrectionMissingEvidence),
+    (err: any) => {
+      assert.equal(err.code, "correction-fields-required");
+      return true;
+    },
+  );
 });
 
 // ==========================================
@@ -450,10 +468,13 @@ test("Citation: accessed date required when url is present and doi is absent", (
     role: "secondary",
   };
 
-  assert.throws(() => validateCitation(rawUrlNoDoiNoAccessed), (err: any) => {
-    assert.equal(err.code, "accessed-date-required");
-    return true;
-  });
+  assert.throws(
+    () => validateCitation(rawUrlNoDoiNoAccessed),
+    (err: any) => {
+      assert.equal(err.code, "accessed-date-required");
+      return true;
+    },
+  );
 
   const rawUrlWithAccessed = {
     ...rawUrlNoDoiNoAccessed,
@@ -482,10 +503,13 @@ test("Equation: English equation notation must be byte-identical to German", () 
   assert.doesNotThrow(() => verifyEquationTranslation(germanLatex, englishIdentical, "eq-1"));
 
   // Modified notation fails
-  assert.throws(() => verifyEquationTranslation(germanLatex, englishModified, "eq-1"), (err: any) => {
-    assert.equal(err.code, "equation-notation-translated");
-    return true;
-  });
+  assert.throws(
+    () => verifyEquationTranslation(germanLatex, englishModified, "eq-1"),
+    (err: any) => {
+      assert.equal(err.code, "equation-notation-translated");
+      return true;
+    },
+  );
 });
 
 // ==========================================
@@ -493,16 +517,23 @@ test("Equation: English equation notation must be byte-identical to German", () 
 // ==========================================
 test("Authorship: agent cannot serve as reviewer/facilitator/tester", () => {
   // Agent as author/translator is allowed
-  const authorEntry = validateAuthorshipEntry({ id: "agent:BoldHarbor", kind: "model", modelId: "gpt-5.6-luna" }, "author");
+  const authorEntry = validateAuthorshipEntry(
+    { id: "agent:BoldHarbor", kind: "model", modelId: "gpt-5.6-luna" },
+    "author",
+  );
   assert.equal(authorEntry.id, "agent:BoldHarbor");
 
   // Agent as reviewer must fail
   assert.throws(
-    () => validateAuthorshipEntry({ id: "agent:BoldHarbor", kind: "model", modelId: "gpt-5.6-luna" }, "reviewer"),
+    () =>
+      validateAuthorshipEntry(
+        { id: "agent:BoldHarbor", kind: "model", modelId: "gpt-5.6-luna" },
+        "reviewer",
+      ),
     (err: any) => {
       assert.equal(err.code, "agent-as-reviewer");
       return true;
-    }
+    },
   );
 
   // Model without modelId must fail
@@ -511,7 +542,7 @@ test("Authorship: agent cannot serve as reviewer/facilitator/tester", () => {
     (err: any) => {
       assert.equal(err.code, "missing-model-id");
       return true;
-    }
+    },
   );
 
   // Id starting with model: must fail
@@ -520,7 +551,7 @@ test("Authorship: agent cannot serve as reviewer/facilitator/tester", () => {
     (err: any) => {
       assert.equal(err.code, "invalid-model-prefix");
       return true;
-    }
+    },
   );
 });
 
@@ -617,8 +648,11 @@ derived:
   <<: *base
   key2: value2
 `;
-  assert.throws(() => strictParse(yamlWithMerge, "yaml"), (err: any) => {
-    assert.equal(err.code, "yaml-merge-key-forbidden");
-    return true;
-  });
+  assert.throws(
+    () => strictParse(yamlWithMerge, "yaml"),
+    (err: any) => {
+      assert.equal(err.code, "yaml-merge-key-forbidden");
+      return true;
+    },
+  );
 });

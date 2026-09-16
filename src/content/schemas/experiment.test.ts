@@ -1,17 +1,17 @@
-import test from "node:test";
 import assert from "node:assert/strict";
 import fs from "node:fs";
 import path from "node:path";
+import test from "node:test";
 import { fileURLToPath } from "node:url";
 
 import {
-  validateExperiment,
-  validateScenario,
-  validateHistoricalDataset,
-  validateTour,
+  ExperimentValidationError,
   validateConstantSet,
   validateDataCell,
-  ExperimentValidationError,
+  validateExperiment,
+  validateHistoricalDataset,
+  validateScenario,
+  validateTour,
 } from "./experiment.ts";
 import { strictParse } from "./strictParse.ts";
 
@@ -58,7 +58,7 @@ test("Experiment: Planted Negative - empty notModeled fails audit", () => {
       assert.ok(err instanceof ExperimentValidationError);
       assert.equal(err.code, "empty-not-modeled");
       return true;
-    }
+    },
   );
 });
 
@@ -80,7 +80,7 @@ test("Experiment: Planted Negative - three view without spatial justification or
       assert.ok(err instanceof ExperimentValidationError);
       assert.equal(err.code, "missing-spatial-justification");
       return true;
-    }
+    },
   );
 
   // Add spatialJustification but omit webgl from requires
@@ -98,7 +98,7 @@ test("Experiment: Planted Negative - three view without spatial justification or
       assert.ok(err instanceof ExperimentValidationError);
       assert.equal(err.code, "three-view-missing-webgl");
       return true;
-    }
+    },
   );
 });
 
@@ -114,7 +114,7 @@ test("Experiment: Planted Negative - canvas view without canvas-2d fails", () =>
       assert.ok(err instanceof ExperimentValidationError);
       assert.equal(err.code, "canvas-view-missing-canvas-2d");
       return true;
-    }
+    },
   );
 });
 
@@ -138,7 +138,7 @@ test("Experiment: Planted Negative - canvas or three without fallback table/text
       assert.ok(err instanceof ExperimentValidationError);
       assert.equal(err.code, "canvas-or-three-missing-fallback-view");
       return true;
-    }
+    },
   );
 });
 
@@ -176,7 +176,7 @@ test("Experiment: Planted Negative - all views requiring capabilities fails", ()
       assert.ok(err instanceof ExperimentValidationError);
       assert.equal(err.code, "table-text-view-declares-capability");
       return true;
-    }
+    },
   );
 });
 
@@ -193,7 +193,7 @@ test("Experiment: Planted Negative - predictMode candidate count not equal to 3 
       assert.ok(err instanceof ExperimentValidationError);
       assert.equal(err.code, "predict-candidates-count");
       return true;
-    }
+    },
   );
 });
 
@@ -209,7 +209,7 @@ test("Experiment: Planted Negative - predict candidate missing separatingAssumpt
       assert.ok(err instanceof ExperimentValidationError);
       assert.equal(err.code, "missing-separating-assumption");
       return true;
-    }
+    },
   );
 });
 
@@ -225,7 +225,7 @@ test("Experiment: Planted Negative - predictMode exemption without reason fails"
       assert.ok(err instanceof ExperimentValidationError);
       assert.equal(err.code, "missing-predict-exemption-reason");
       return true;
-    }
+    },
   );
 });
 
@@ -241,7 +241,7 @@ test("Experiment: Planted Negative - gridParameterId missing, mismatched, or cha
       assert.ok(err instanceof ExperimentValidationError);
       assert.equal(err.code, "missing-grid-parameter");
       return true;
-    }
+    },
   );
 
   // Mismatched dimension (temperature vs time)
@@ -252,7 +252,7 @@ test("Experiment: Planted Negative - gridParameterId missing, mismatched, or cha
       assert.ok(err instanceof ExperimentValidationError);
       assert.equal(err.code, "grid-parameter-dimension-mismatch");
       return true;
-    }
+    },
   );
 
   // Chained grid step
@@ -279,7 +279,7 @@ test("Experiment: Planted Negative - gridParameterId missing, mismatched, or cha
       assert.ok(err instanceof ExperimentValidationError);
       assert.equal(err.code, "grid-parameter-chain-forbidden");
       return true;
-    }
+    },
   );
 });
 
@@ -305,7 +305,7 @@ test("Experiment: Planted Negative - traceRows exceeding 12 rows fails", () => {
       assert.ok(err instanceof ExperimentValidationError);
       assert.equal(err.code, "trace-rows-exceeded");
       return true;
-    }
+    },
   );
 });
 
@@ -325,7 +325,7 @@ test("Experiment: Planted Negative - pseudocode kernel function declaring module
       assert.ok(err instanceof ExperimentValidationError);
       assert.equal(err.code, "pseudocode-with-exec-fields");
       return true;
-    }
+    },
   );
 });
 
@@ -341,7 +341,7 @@ test("Experiment: Planted Negative - preset scenarioId mismatch fails", () => {
       assert.ok(err instanceof ExperimentValidationError);
       assert.equal(err.code, "preset-scenario-id-mismatch");
       return true;
-    }
+    },
   );
 });
 
@@ -373,7 +373,7 @@ test("Scenario: Planted Negative - numeric seed in JSON/YAML is rejected", () =>
       assert.ok(err instanceof ExperimentValidationError);
       assert.equal(err.code, "numeric-seed-rejected");
       return true;
-    }
+    },
   );
 });
 
@@ -389,7 +389,7 @@ test("Scenario: Planted Negative - stochastic scenario missing allocationId fail
       assert.ok(err instanceof ExperimentValidationError);
       assert.equal(err.code, "stochastic-missing-allocation-id");
       return true;
-    }
+    },
   );
 });
 
@@ -398,7 +398,10 @@ test("Scenario: Planted Negative - bitwise comparison with tolerance fails", () 
   const raw = strictParse(yaml, "yaml") as any;
 
   raw.expected.outputs[0].comparisonKind = "bitwise";
-  raw.expected.outputs[0].tolerance = { relative: 0.01, rationale: "Bitwise does not allow tolerance" };
+  raw.expected.outputs[0].tolerance = {
+    relative: 0.01,
+    rationale: "Bitwise does not allow tolerance",
+  };
 
   assert.throws(
     () => validateScenario(raw),
@@ -406,7 +409,7 @@ test("Scenario: Planted Negative - bitwise comparison with tolerance fails", () 
       assert.ok(err instanceof ExperimentValidationError);
       assert.equal(err.code, "bitwise-tolerance-forbidden");
       return true;
-    }
+    },
   );
 });
 
@@ -424,7 +427,7 @@ test("Scenario: Planted Negative - rounds-to comparison on modern-golden fails",
       assert.ok(err instanceof ExperimentValidationError);
       assert.equal(err.code, "rounds-to-non-historical");
       return true;
-    }
+    },
   );
 });
 
@@ -440,7 +443,7 @@ test("Scenario: Planted Negative - historical fixture missing provenance or tran
       assert.ok(err instanceof ExperimentValidationError);
       assert.equal(err.code, "historical-missing-provenance");
       return true;
-    }
+    },
   );
 
   raw.provenance = { paper: "brownian-motion", sectionId: "bm-sec-01", printedPage: 549 };
@@ -451,7 +454,7 @@ test("Scenario: Planted Negative - historical fixture missing provenance or tran
       assert.ok(err instanceof ExperimentValidationError);
       assert.equal(err.code, "historical-missing-transcription");
       return true;
-    }
+    },
   );
 });
 
@@ -468,7 +471,7 @@ test("Scenario: Planted Negative - identity scenario with invalid routes fails",
       assert.ok(err instanceof ExperimentValidationError);
       assert.equal(err.code, "identity-routes-count");
       return true;
-    }
+    },
   );
 
   // 2 routes sharing same owner
@@ -483,7 +486,7 @@ test("Scenario: Planted Negative - identity scenario with invalid routes fails",
       assert.ok(err instanceof ExperimentValidationError);
       assert.equal(err.code, "identity-routes-same-owner");
       return true;
-    }
+    },
   );
 });
 
@@ -493,8 +496,22 @@ test("Scenario: Planted Negative - discrimination scenario with same owner on hy
 
   raw.kind = "discrimination";
   raw.hypotheses = [
-    { id: "h1", label: "Hyp 1", owner: "owner-same", modelIdentity: "m1", circumstancesInWhichItWorks: "c1", historicalStatus: "original-1905" },
-    { id: "h2", label: "Hyp 2", owner: "owner-same", modelIdentity: "m2", circumstancesInWhichItWorks: "c2", historicalStatus: "contemporary-alternative" },
+    {
+      id: "h1",
+      label: "Hyp 1",
+      owner: "owner-same",
+      modelIdentity: "m1",
+      circumstancesInWhichItWorks: "c1",
+      historicalStatus: "original-1905",
+    },
+    {
+      id: "h2",
+      label: "Hyp 2",
+      owner: "owner-same",
+      modelIdentity: "m2",
+      circumstancesInWhichItWorks: "c2",
+      historicalStatus: "contemporary-alternative",
+    },
   ];
   raw.observation = { observableId: "diffusivity", inputs: {}, procedure: "measure" };
   raw.expected = { outcome: "discriminates" };
@@ -505,7 +522,7 @@ test("Scenario: Planted Negative - discrimination scenario with same owner on hy
       assert.ok(err instanceof ExperimentValidationError);
       assert.equal(err.code, "discrimination-hypotheses-same-owner");
       return true;
-    }
+    },
   );
 });
 
@@ -522,7 +539,7 @@ test("Scenario: Planted Negative - retired constantSet field is rejected", () =>
       assert.ok(err instanceof ExperimentValidationError);
       assert.equal(err.code, "retired-constant-set-field");
       return true;
-    }
+    },
   );
 });
 
@@ -553,7 +570,7 @@ test("HistoricalDataset: Planted Negative - bare number in cell array is rejecte
       assert.ok(err instanceof ExperimentValidationError);
       assert.equal(err.code, "bare-number-cell-rejected");
       return true;
-    }
+    },
   );
 });
 
@@ -570,7 +587,7 @@ test("HistoricalDataset: Planted Negative - cell count mismatch against columns 
       assert.ok(err instanceof ExperimentValidationError);
       assert.equal(err.code, "cell-count-mismatch");
       return true;
-    }
+    },
   );
 });
 
@@ -586,7 +603,7 @@ test("HistoricalDataset: Planted Negative - publication locator missing table/fi
       assert.ok(err instanceof ExperimentValidationError);
       assert.equal(err.code, "missing-table-figure-number");
       return true;
-    }
+    },
   );
 });
 
@@ -602,7 +619,7 @@ test("HistoricalDataset: Planted Negative - reported-fit column missing fitDescr
       assert.ok(err instanceof ExperimentValidationError);
       assert.equal(err.code, "missing-fit-description");
       return true;
-    }
+    },
   );
 });
 
@@ -618,7 +635,7 @@ test("HistoricalDataset: Planted Negative - retired boolean derived flag is reje
       assert.ok(err instanceof ExperimentValidationError);
       assert.equal(err.code, "retired-derived-boolean-flag");
       return true;
-    }
+    },
   );
 });
 
@@ -634,7 +651,7 @@ test("HistoricalDataset: Planted Negative - absent allowedInferenceModelIds fail
       assert.ok(err instanceof ExperimentValidationError);
       assert.equal(err.code, "missing-allowed-inference-models");
       return true;
-    }
+    },
   );
 });
 
@@ -650,7 +667,7 @@ test("HistoricalDataset: Planted Negative - forbidden result relations (confirme
       assert.ok(err instanceof ExperimentValidationError);
       assert.equal(err.code, "invalid-result-relation");
       return true;
-    }
+    },
   );
 });
 
@@ -681,7 +698,7 @@ test("Tour: Planted Negative - fifteen-minutes tour with requiresEquations: true
       assert.ok(err instanceof ExperimentValidationError);
       assert.equal(err.code, "fifteen-minutes-requires-equations-forbidden");
       return true;
-    }
+    },
   );
 });
 
@@ -697,7 +714,7 @@ test("Tour: Planted Negative - step declaring both promptId and tourPrediction f
       assert.ok(err instanceof ExperimentValidationError);
       assert.equal(err.code, "prompt-id-and-tour-prediction-collision");
       return true;
-    }
+    },
   );
 });
 
@@ -713,7 +730,7 @@ test("Tour: Planted Negative - step declaring both tapeId and presetId fails", (
       assert.ok(err instanceof ExperimentValidationError);
       assert.equal(err.code, "tape-and-preset-both-present");
       return true;
-    }
+    },
   );
 });
 
@@ -744,7 +761,7 @@ test("ConstantSet: Planted Negative - retired constant set id fails", () => {
       assert.ok(err instanceof ExperimentValidationError);
       assert.equal(err.code, "retired-constant-set-id");
       return true;
-    }
+    },
   );
 });
 
@@ -762,7 +779,7 @@ test("ConstantSet: Planted Negative - exact-defined entry with uncertainty fails
       assert.ok(err instanceof ExperimentValidationError);
       assert.equal(err.code, "exact-defined-has-uncertainty");
       return true;
-    }
+    },
   );
 });
 
@@ -780,7 +797,7 @@ test("ConstantSet: Planted Negative - measured entry without uncertainty fails",
       assert.ok(err instanceof ExperimentValidationError);
       assert.equal(err.code, "measured-missing-uncertainty");
       return true;
-    }
+    },
   );
 });
 
@@ -796,7 +813,7 @@ test("ConstantSet: Planted Negative - printed-historical entry missing printedSt
       assert.ok(err instanceof ExperimentValidationError);
       assert.equal(err.code, "missing-printed-status");
       return true;
-    }
+    },
   );
 });
 
@@ -812,6 +829,6 @@ test("ConstantSet: Planted Negative - editorial-input missing reason or sensitiv
       assert.ok(err instanceof ExperimentValidationError);
       assert.equal(err.code, "editorial-input-missing-reason-sensitivity");
       return true;
-    }
+    },
   );
 });

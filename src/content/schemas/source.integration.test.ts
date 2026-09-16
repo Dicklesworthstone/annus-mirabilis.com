@@ -1,26 +1,25 @@
-import test from "node:test";
 import assert from "node:assert/strict";
 import fs from "node:fs";
 import path from "node:path";
+import test from "node:test";
 import { fileURLToPath } from "node:url";
-
+import { parseReceipt } from "../provenance/parseReceipt.ts";
+import { receiptToSourceAsset } from "../provenance/receiptToSourceAsset.ts";
+import { AuthorshipGovernanceError, authorshipOf } from "./authorship.ts";
 import {
+  SchemaValidationError,
+  validateAlignment,
+  validateCitation,
+  validateEditorialNote,
+  validateGlossUnit,
   validatePaper,
   validateSourceAsset,
   validateSourceBlock,
   validateTranslationUnit,
-  validateAlignment,
-  validateGlossUnit,
-  validateEditorialNote,
-  validateCitation,
   verifyEquationTranslation,
-  SchemaValidationError,
 } from "./source.ts";
+import { SpanValidationError, spanTextDigest, validateSpanAnchor } from "./spans.ts";
 import { strictParse } from "./strictParse.ts";
-import { parseReceipt } from "../provenance/parseReceipt.ts";
-import { receiptToSourceAsset } from "../provenance/receiptToSourceAsset.ts";
-import { spanTextDigest, validateSpanAnchor, SpanValidationError } from "./spans.ts";
-import { authorshipOf, AuthorshipGovernanceError } from "./authorship.ts";
 
 const __filename = fileURLToPath(import.meta.url);
 const __dirname = path.dirname(__filename);
@@ -37,7 +36,10 @@ test("Integration: receiptToSourceAsset for ap-99-001.md conforms to validateSou
   const validated = validateSourceAsset(asset);
 
   assert.equal(validated.originUrl, "https://example.org/details/annalen-der-physik-99-001");
-  assert.equal(validated.sha256, "0123456789abcdef0123456789abcdef0123456789abcdef0123456789abcdef");
+  assert.equal(
+    validated.sha256,
+    "0123456789abcdef0123456789abcdef0123456789abcdef0123456789abcdef",
+  );
   assert.equal(validated.mimeType, "application/pdf");
   assert.equal(validated.pageCount, 4);
   assert.equal(validated.rights.status, "scan-open-terms");
@@ -92,7 +94,10 @@ test("Integration: Valid YAML fixtures parsed via strictParse pass all 8 schema 
   assert.equal(gloss.multiwordUnits.length, 1);
 
   // 6. EditorialNote
-  const noteYaml = fs.readFileSync(path.join(FIXTURES_DIR, "editorial-note-dispute-valid.yaml"), "utf8");
+  const noteYaml = fs.readFileSync(
+    path.join(FIXTURES_DIR, "editorial-note-dispute-valid.yaml"),
+    "utf8",
+  );
   const rawNote = strictParse(noteYaml, "yaml");
   const note = validateEditorialNote(rawNote);
   assert.equal(note.id, "ed-bm-01-dispute");
@@ -125,7 +130,7 @@ test("Integration: Planted Negative - Stale span revision triggers rejection", (
       assert.ok(err instanceof SpanValidationError);
       assert.equal(err.code, "span-revision-stale");
       return true;
-    }
+    },
   );
 });
 
@@ -143,7 +148,7 @@ test("Integration: Planted Negative - Span digest mismatch triggers rejection", 
       assert.ok(err instanceof SpanValidationError);
       assert.equal(err.code, "span-digest-mismatch");
       return true;
-    }
+    },
   );
 });
 
@@ -162,7 +167,7 @@ custom:
     (err: any) => {
       assert.equal(err.code, "yaml-merge-key-forbidden");
       return true;
-    }
+    },
   );
 });
 
@@ -176,7 +181,7 @@ test("Integration: Planted Negative - Equation LaTeX translation rejection", () 
       assert.ok(err instanceof SchemaValidationError);
       assert.equal(err.code, "equation-notation-translated");
       return true;
-    }
+    },
   );
 });
 
@@ -198,12 +203,15 @@ test("Integration: Planted Negative - Agent as reviewer rejected in TranslationU
       assert.ok(err instanceof AuthorshipGovernanceError);
       assert.equal(err.code, "agent-as-reviewer");
       return true;
-    }
+    },
   );
 });
 
 test("Integration: Planted Negative - Dispute note without primary source support is rejected", () => {
-  const noteYaml = fs.readFileSync(path.join(FIXTURES_DIR, "editorial-note-dispute-valid.yaml"), "utf8");
+  const noteYaml = fs.readFileSync(
+    path.join(FIXTURES_DIR, "editorial-note-dispute-valid.yaml"),
+    "utf8",
+  );
   const rawNote = strictParse(noteYaml, "yaml") as any;
 
   // Change source support role to secondary
@@ -215,6 +223,6 @@ test("Integration: Planted Negative - Dispute note without primary source suppor
       assert.ok(err instanceof SchemaValidationError);
       assert.equal(err.code, "dispute-requires-primary-source");
       return true;
-    }
+    },
   );
 });

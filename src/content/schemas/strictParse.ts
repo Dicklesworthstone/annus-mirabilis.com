@@ -30,7 +30,11 @@ export function strictParse(text: string, format: "json" | "yaml" | "auto" = "au
 
   const trimmed = normalized.trim();
   const effectiveFormat =
-    format === "auto" ? (trimmed.startsWith("{") || trimmed.startsWith("[") ? "json" : "yaml") : format;
+    format === "auto"
+      ? trimmed.startsWith("{") || trimmed.startsWith("[")
+        ? "json"
+        : "yaml"
+      : format;
 
   if (effectiveFormat === "json") {
     return strictParseJson(normalized);
@@ -40,16 +44,7 @@ export function strictParse(text: string, format: "json" | "yaml" | "auto" = "au
 }
 
 function strictParseJson(text: string): unknown {
-  // Check duplicate keys in JSON
-  const keyMap = new Map<string, number>();
-  const parsed = JSON.parse(text, function (this: any, key: string, value: any) {
-    if (this && typeof this === "object" && !Array.isArray(this) && key) {
-      // In reviver, check duplicate keys if needed
-    }
-    return value;
-  });
-
-  return parsed;
+  return JSON.parse(text);
 }
 
 function strictParseYaml(text: string): unknown {
