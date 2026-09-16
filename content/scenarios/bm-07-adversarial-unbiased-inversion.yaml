@@ -1,0 +1,24 @@
+id: bm-07-adversarial-unbiased-inversion
+kind: adversarial
+title: An unbiased diffusivity estimate is not unbiased after inversion
+description: >
+  The plausible mistake is that inverting an unbiased D̂ leaves an unbiased N̂.
+  Under the chi-square model the inverted mean is q/(q-2).
+constantSetId: modern-si-2019
+owner: inference.molecularNumber
+plausibleMistake: "An unbiased estimate stays unbiased after inversion."
+intendedFailure: "E[1/chi^2_q] = 1/(q-2), so the mean of C/D̂ is q/(q-2) = 1.020408 at q=100, not 1."
+inputs:
+  degreesOfFreedom:
+    value: 100
+    unit: "1"
+expected:
+  outputs:
+    - outputId: inverseBiasFactor
+      value: 1.0204081632653061
+      comparisonKind: tolerance
+      tolerance:
+        relative: 1.0e-12
+        rationale: Exact q/(q-2) at q=100.
+modelVersion: 1
+schemaVersion: 1

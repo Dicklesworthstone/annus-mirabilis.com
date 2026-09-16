@@ -19,7 +19,7 @@ export default function InferencePage() {
         </h1>
         <p className="lead">
           An equation predicts how particles spread. Turn the question around: what can a finite set
-          of displacements tell you about its hidden parameters—and what must you know
+          of displacements tell you about its hidden parameters, and what must you know
           independently?
         </p>
         <p>
@@ -83,6 +83,33 @@ export default function InferencePage() {
           is conservative and does not require their statistical independence. It remains
           conditional on exact calibration, timing and the chosen gas constant in this preview.
         </p>
+        <h2>Worked interval (readable without JavaScript)</h2>
+        <table className="inference-summary">
+          <caption>
+            d = 2, M = 50, q = 100, D̂ = 0.42944 μm²/s, 95% chi-square interval. Not a molecular
+            count.
+          </caption>
+          <thead>
+            <tr>
+              <th scope="col">Quantity</th>
+              <th scope="col">Value</th>
+            </tr>
+          </thead>
+          <tbody>
+            <tr>
+              <th scope="row">Diffusion interval</th>
+              <td>[0.331457, 0.578589] μm²/s</td>
+            </tr>
+            <tr>
+              <th scope="row">Modern-SI inversion (consistency check)</th>
+              <td>N̂ = 6.02213 × 10²³ mol⁻¹</td>
+            </tr>
+            <tr>
+              <th scope="row">Inverse-bias factor at q = 100</th>
+              <td>q/(q − 2) = 1.020408; an unbiased D̂ is not unbiased after inversion</td>
+            </tr>
+          </tbody>
+        </table>
         <h2>A synthetic recovery is not a new molecular count</h2>
         <p>
           This exercise draws a hidden number and generates data from it using a chosen gas

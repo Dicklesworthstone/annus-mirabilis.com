@@ -152,11 +152,12 @@ export function estimateIncrements(
         compensation = next - sum - term;
         sum = next;
       }
-  const q = d * (centered ? M - 1 : M),
+  const observationInterval = dt,
+    q = d * (centered ? M - 1 : M),
     normalization = estimatorId === "maximum-likelihood-centered" ? d * M : q;
   const sumSquares = sum * scale * scale,
-    unbiasedDHat = sumSquares / (2 * dt) / q,
-    dHat = sumSquares / (2 * dt) / normalization;
+    unbiasedDHat = sumSquares / (2 * observationInterval) / q,
+    dHat = sumSquares / (2 * observationInterval) / normalization;
   for (let c = 0; c < d; c++) drift[c] = (means[c]! * scale) / dt;
   if (
     ![sumSquares, unbiasedDHat, dHat, ...drift].every(Number.isFinite) ||
@@ -338,8 +339,16 @@ export function invertToMolecularNumber(
     input.interval.lower > input.interval.upper
   )
     return invalid("A positive diffusion estimate and ordered interval are required.");
-  const C = (g.data.R * input.T) / (6 * Math.PI * input.eta * input.a),
-    estimate = C / input.dHat;
+  // Live-term identifiers for show-the-code: diffusionCoefficient, avogadroNumberEstimate,
+  // particleRadius, viscosity, temperature, molarGasConstant. Never a modern exact k_B here.
+  const temperature = input.T,
+    viscosity = input.eta,
+    particleRadius = input.a,
+    molarGasConstant = g.data.R,
+    diffusionCoefficient = input.dHat;
+  const C = (molarGasConstant * temperature) / (6 * Math.PI * viscosity * particleRadius);
+  const avogadroNumberEstimate = C / diffusionCoefficient;
+  const estimate = avogadroNumberEstimate;
   const lower = C / input.interval.upper,
     upper = C / input.interval.lower;
   const modern = g.data.semanticKind === "consistency-check";
@@ -474,5 +483,106 @@ export function identifiabilityFamily(
   return {
     kind: "accepted",
     data: { product, radii, numbers, semanticKind: g.data.semanticKind, constantSetId: set.id },
+  };
+}
+
+export const SEMANTIC_KIND_VISITOR_TEXT = Object.freeze({
+  "synthetic-recovery":
+    "This checks the inference method on data made with a hidden number. It is not evidence that molecules exist.",
+  "independent-estimate":
+    "This combines the measured displacements with a gas constant measured without counting molecules, so it is an independent estimate of the number of molecules in a mole.",
+  "consistency-check":
+    "With the 2019 SI constants the gas constant is defined as N_A × k_B, so this compares the measurement with the defined Avogadro constant (equivalently, it estimates Boltzmann's constant). It is not an independent count of molecules.",
+} as const);
+
+export function semanticKindVisitorText(kind: NumberMeaning): string {
+  return SEMANTIC_KIND_VISITOR_TEXT[kind];
+}
+
+export type SummaryEstimate = Readonly<{
+  dHat: number;
+  meanSquareDisplacement: number;
+  observationInterval: number;
+  independentCoordinateCount: number | null;
+}>;
+
+/** Einstein's one-coordinate summary: D̂ = λ_x² / (2 Δt). The interval needs an independent count. */
+export function estimateSummaryStatistics(input: {
+  meanSquareDisplacement: number;
+  observationInterval: number;
+  independentCoordinateCount: number | null;
+}): Assessment<SummaryEstimate> {
+  const observationInterval = input.observationInterval,
+    meanSquareDisplacement = input.meanSquareDisplacement;
+  if (!positive(observationInterval) || !positive(meanSquareDisplacement))
+    return invalid("A positive mean-square displacement and observation interval are required.");
+  const count = input.independentCoordinateCount;
+  if (count !== null && (!Number.isSafeInteger(count) || count < 1 || count > 10000))
+    return invalid("The independent coordinate count must be a positive integer, or omitted.");
+  const dHat = meanSquareDisplacement / (2 * observationInterval);
+  if (!positive(dHat))
+    return invalid("The summary diffusivity cannot be represented at this numerical scale.");
+  return {
+    kind: "accepted",
+    data: Object.freeze({
+      dHat,
+      meanSquareDisplacement,
+      observationInterval,
+      independentCoordinateCount: count,
+    }),
+  };
+}
+
+export function summaryChiSquareInterval(
+  summary: SummaryEstimate,
+  alpha: number,
+): Assessment<StatisticalInterval> {
+  if (summary.independentCoordinateCount === null)
+    return noValue(
+      "not-applicable",
+      "The independent displacement count is unreported, so this summary path cannot form a chi-square interval. Only the point estimate is admitted.",
+    );
+  return chiSquareInterval({
+    dHat: summary.dHat,
+    q: summary.independentCoordinateCount,
+    alpha,
+    estimatorId: "summary-statistic",
+  });
+}
+
+/** Finite-difference logarithmic sensitivities of N̂ = C/D̂. Calibration scale s multiplies displacements. */
+export function invertSensitivities(input: {
+  dHat: number;
+  T: number;
+  eta: number;
+  a: number;
+  calibrationScale: number;
+}): Assessment<Readonly<Record<keyof typeof INFERENCE_SENSITIVITIES, number>>> {
+  if (![input.dHat, input.T, input.eta, input.a, input.calibrationScale].every(positive))
+    return invalid(
+      "Positive diffusivity, temperature, viscosity, radius and calibration are required.",
+    );
+  const n = (T: number, eta: number, a: number, s: number, dHat: number) =>
+    T / (6 * Math.PI * eta * a * dHat * s * s);
+  const N = n(input.T, input.eta, input.a, input.calibrationScale, input.dHat);
+  const rel = 1e-6;
+  const slope = (perturbed: number) => Math.log(perturbed / N) / Math.log(1 + rel);
+  return {
+    kind: "accepted",
+    data: Object.freeze({
+      molarGasConstant: 1,
+      temperature: slope(
+        n(input.T * (1 + rel), input.eta, input.a, input.calibrationScale, input.dHat),
+      ),
+      viscosity: slope(
+        n(input.T, input.eta * (1 + rel), input.a, input.calibrationScale, input.dHat),
+      ),
+      particleRadius: slope(
+        n(input.T, input.eta, input.a * (1 + rel), input.calibrationScale, input.dHat),
+      ),
+      spatialCalibration: slope(
+        n(input.T, input.eta, input.a, input.calibrationScale * (1 + rel), input.dHat),
+      ),
+    }),
   };
 }

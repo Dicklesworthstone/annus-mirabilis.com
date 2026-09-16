@@ -1,0 +1,35 @@
+id: bm-07-inversion-golden
+kind: modern-golden
+title: BM-07 modern-SI inversion is a consistency check
+description: >
+  D̂ = 0.42944 μm²/s at T = 293.15 K, η = 1.000 mPa s, a = 0.500 μm with
+  modern-si-2019 recovers N̂ matching defined N_A to five figures. This is a
+  consistency check, not an independent count of molecules.
+constantSetId: modern-si-2019
+owner: inference.molecularNumber
+inputs:
+  diffusionCoefficient:
+    value: 4.2944e-13
+    unit: "m2/s"
+  temperature:
+    value: 293.15
+    unit: K
+  viscosity:
+    value: 0.001
+    unit: "Pa s"
+  particleRadius:
+    value: 5.0e-7
+    unit: m
+  degreesOfFreedom:
+    value: 100
+    unit: "1"
+expected:
+  outputs:
+    - outputId: avogadroNumberEstimate
+      value: 6.022134653649135e23
+      comparisonKind: tolerance
+      tolerance:
+        relative: 1.0e-9
+        rationale: Exact C/D with modern SI R and the golden Stokes-Einstein D.
+modelVersion: 1
+schemaVersion: 1

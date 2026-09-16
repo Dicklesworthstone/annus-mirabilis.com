@@ -1,0 +1,373 @@
+# BM-07 infer the molecular number (am-bm-07-infer-molecular-number-frf9).
+# Kitchen mode bm-07:kitchen is registered by am-bm-07-kitchen-mode-mays, not here.
+id: bm-07
+title: "BM-07: Infer the molecular number"
+explanatoryQuestion: "What can measured displacements tell you about the number of molecules, and how sure can you be?"
+sourceRefs:
+  - paper: brownian-motion
+    id: s5
+argumentIds:
+  - arg-bm-inference
+schemaVersion: 1
+parameters:
+  - id: observationSet
+    label: "Observation set"
+    accessibleName: "Which displacements to invert"
+    accessibleDescription: "Synthetic hidden-N generator, Perrin 1909 dataset, or kitchen CSV hand-off"
+    quantityId: observationInterval
+    displayUnit: ""
+    modelDomain:
+      enumerated: []
+      reason: "synthetic, perrin-1909, or kitchen"
+    visualRange:
+      min: 0
+      max: 1
+    default: "synthetic"
+    mapping:
+      kind: linear
+    role: independent
+    commandClass: setup-change
+  - id: seed
+    label: "Seed"
+    accessibleName: "Random stream seed"
+    accessibleDescription: "Unsigned 64-bit decimal seed for the synthetic generator"
+    quantityId: observationInterval
+    displayUnit: ""
+    modelDomain:
+      enumerated: []
+      reason: "Any canonical unsigned 64-bit decimal string"
+    visualRange:
+      min: 0
+      max: 1
+    default: "1905"
+    mapping:
+      kind: linear
+    role: independent
+    commandClass: setup-change
+  - id: M
+    label: "Displacement count"
+    accessibleName: "Number of displacement vectors"
+    accessibleDescription: "Selects increments of the fixed logical path; never regenerates"
+    quantityId: observationInterval
+    displayUnit: "1"
+    modelDomain:
+      min: 1
+      max: 1000
+      minInclusive: true
+      maxInclusive: true
+      reason: "At least one increment; two when drift is estimated"
+    visualRange:
+      min: 1
+      max: 200
+    default: 50
+    mapping:
+      kind: linear
+    role: independent
+    commandClass: measurement-change
+  - id: dt
+    label: "Frame spacing"
+    accessibleName: "Observation interval"
+    accessibleDescription: "Must land on the quarter-second synthetic replay grid"
+    quantityId: observationInterval
+    displayUnit: "s"
+    modelDomain:
+      min: 0.25
+      max: 16
+      minInclusive: true
+      maxInclusive: true
+      reason: "Integer multiple of the 0.25 s recording grid"
+    visualRange:
+      min: 0.25
+      max: 4
+    default: 1
+    mapping:
+      kind: step
+      size: 0.25
+    role: independent
+    commandClass: measurement-change
+  - id: T
+    label: "Inference temperature"
+    accessibleName: "Assumed temperature"
+    accessibleDescription: "Estimator input; does not regenerate observations"
+    quantityId: temperature
+    displayUnit: "K"
+    modelDomain:
+      min: 273
+      max: 330
+      minInclusive: true
+      maxInclusive: true
+      reason: "Liquid water at ordinary laboratory pressure"
+    visualRange:
+      min: 273
+      max: 330
+    default: 293.15
+    mapping:
+      kind: linear
+    role: independent
+    commandClass: estimator-change
+  - id: eta
+    label: "Inference viscosity"
+    accessibleName: "Assumed dynamic viscosity"
+    accessibleDescription: "Estimator input in pascal-seconds"
+    quantityId: viscosity
+    displayUnit: "Pa s"
+    modelDomain:
+      min: 0.0005
+      max: 0.02
+      minInclusive: true
+      maxInclusive: true
+      reason: "Newtonian-liquid Stokes drag"
+    visualRange:
+      min: 0.0005
+      max: 0.02
+    default: 0.001
+    mapping:
+      kind: linear
+    role: independent
+    commandClass: estimator-change
+  - id: coverageTrials
+    label: "Hypothetical experiments"
+    accessibleName: "Number of repeated synthetic experiments"
+    accessibleDescription: "Zero hides the coverage view; 100 runs the seeded repeated-experiment set"
+    quantityId: observationInterval
+    displayUnit: "1"
+    modelDomain:
+      min: 0
+      max: 100
+      minInclusive: true
+      maxInclusive: true
+      reason: "Work-budget bound on hypothetical experiments"
+    visualRange:
+      min: 0
+      max: 100
+    default: 0
+    mapping:
+      kind: linear
+    role: independent
+    commandClass: estimator-change
+  - id: radiusKnown
+    label: "Independent radius declared"
+    accessibleName: "Whether an independent particle radius is declared"
+    accessibleDescription: "Estimator-change; observations stay fixed. False leaves (a, N) underdetermined."
+    quantityId: particleRadius
+    displayUnit: ""
+    modelDomain:
+      enumerated: []
+      reason: "true or false"
+    visualRange:
+      min: 0
+      max: 1
+    default: "false"
+    mapping:
+      kind: linear
+    role: independent
+    commandClass: estimator-change
+  - id: a
+    label: "Inference radius"
+    accessibleName: "Assumed particle radius"
+    accessibleDescription: "Independent radius declaration; never derived from these displacements"
+    quantityId: particleRadius
+    displayUnit: "m"
+    modelDomain:
+      min: 1e-7
+      max: 5e-6
+      minInclusive: true
+      maxInclusive: true
+      reason: "Dilute sphere, Stokes hydrodynamic regime"
+    visualRange:
+      min: 1e-7
+      max: 5e-6
+    default: 5e-7
+    mapping:
+      kind: log
+      base: 10
+    role: independent
+    commandClass: estimator-change
+outputs:
+  - id: diffusionCoefficientEstimate
+    quantityId: diffusionCoefficient
+    allowedStatuses:
+      - value
+      - underdetermined
+    primary: true
+  - id: avogadroNumberEstimate
+    quantityId: avogadroNumberEstimate
+    allowedStatuses:
+      - value
+      - underdetermined
+      - not-applicable
+  - id: radiusNumberProduct
+    quantityId: avogadroNumberEstimate
+    allowedStatuses:
+      - value
+      - underdetermined
+assumptions:
+  - "Independent, equally spaced, isotropic Gaussian increments with known or fitted drift"
+  - "Negligible localization error, exposure blur, overlap and censoring"
+  - "Radius, when used, is declared independently of these displacements"
+admittedDomain: "Ideal free diffusion of a dilute sphere; synthetic generator or an admitted historical/kitchen observation bundle."
+notModeled:
+  - "Localization error, blur, correlated or irregularly timed increments, and censoring (BM-08 and kitchen mode)"
+  - "Non-Gaussian increments"
+  - "Time-varying drift"
+  - "Polydispersity within one track set"
+  - "Wall effects"
+  - "Uncertainty in C without declared coverages"
+  - "Uncertainty in the gas constant itself"
+owner:
+  kind: reference-evaluator
+  kernelFunctions:
+    - displayRole: reference-implementation
+      language: ts
+      module: "src/physics/reference/inference.ts"
+      exportName: "invertToMolecularNumber"
+    - displayRole: reference-implementation
+      language: ts
+      module: "src/physics/reference/inference.ts"
+      exportName: "estimateIncrements"
+    - displayRole: reference-implementation
+      language: ts
+      module: "src/physics/reference/inference.ts"
+      exportName: "inverseBias"
+    - displayRole: reference-implementation
+      language: ts
+      module: "src/physics/reference/inference.ts"
+      exportName: "identifiabilityFamily"
+    - displayRole: reference-implementation
+      language: ts
+      module: "src/physics/reference/inference.ts"
+      exportName: "combinedMolecularNumberInterval"
+  identifierBindings:
+    - kernelFunction: invertToMolecularNumber
+      identifier: "temperature"
+      quantityId: temperature
+    - kernelFunction: invertToMolecularNumber
+      identifier: "viscosity"
+      quantityId: viscosity
+    - kernelFunction: invertToMolecularNumber
+      identifier: "particleRadius"
+      quantityId: particleRadius
+    - kernelFunction: invertToMolecularNumber
+      identifier: "molarGasConstant"
+      quantityId: molarGasConstant
+    - kernelFunction: invertToMolecularNumber
+      identifier: "diffusionCoefficient"
+      quantityId: diffusionCoefficient
+    - kernelFunction: invertToMolecularNumber
+      identifier: "avogadroNumberEstimate"
+      quantityId: avogadroNumberEstimate
+    - kernelFunction: estimateIncrements
+      identifier: "observationInterval"
+      quantityId: observationInterval
+  traceScenarioId: bm-07-inversion-golden
+  traceRows:
+    - label: "Golden inversion"
+      expression: "N = R T / (6 pi eta a D)"
+      value: 6.022134653649135e23
+      unit: "1/mol"
+      quantityId: avogadroNumberEstimate
+views:
+  - id: increments-scatter
+    kind: svg
+    consumes:
+      - diffusionCoefficientEstimate
+  - id: identifiability-family
+    kind: svg
+    consumes:
+      - radiusNumberProduct
+  - id: inference-table
+    kind: table
+    consumes:
+      - diffusionCoefficientEstimate
+      - avogadroNumberEstimate
+      - radiusNumberProduct
+actions:
+  - actionId: bm-07-choose-estimator-and-count
+    family: probability-diffusion
+    question: "What diffusivity and molecular-number interval follow from these displacements?"
+    inputs:
+      - M
+      - dt
+      - T
+      - eta
+      - a
+    commandClass: estimator-change
+    acceptedResult:
+      outputs:
+        - diffusionCoefficientEstimate
+        - avogadroNumberEstimate
+      allowedStatuses:
+        - value
+        - underdetermined
+        - not-applicable
+    visualAffordance: "Interval bars and identifiability curve update from the accepted snapshot"
+    equivalentAffordance: "Type M and the inference inputs, then read the estimate table"
+    announcement: "Inference table updated from the accepted snapshot"
+acceptanceCases:
+  - bm-07-inversion-golden
+  - bm-07-identifiability
+  - bm-07-adversarial-unbiased-inversion
+  - bm-07-perrin-1909
+defaultScenario: bm-07-identifiability
+tapeModel:
+  modelId: inference-bm07-host
+  modelVersion: 1
+teachingTapes:
+  - tapeId: perrins-count
+    title: "Perrin's count"
+presets:
+  - presetId: bm-07-identifiability
+    label: "Identifiability family, radius undeclared"
+    parameterValues:
+      radiusKnown: "false"
+      observationSet: "synthetic"
+    scenarioId: bm-07-identifiability
+  - presetId: bm-07-inversion-golden
+    label: "Modern-SI inversion golden"
+    parameterValues:
+      radiusKnown: "true"
+      T: 293.15
+      eta: 0.001
+      a: 5.0e-7
+      observationSet: "synthetic"
+    scenarioId: bm-07-inversion-golden
+  - presetId: bm-07-perrin-1909
+    label: "Perrin 1909 historical set"
+    parameterValues:
+      observationSet: "perrin-1909"
+    scenarioId: bm-07-perrin-1909
+  - presetId: bm-07-coverage
+    label: "Repeated-experiment coverage view"
+    parameterValues:
+      coverageTrials: 100
+      radiusKnown: "true"
+probes:
+  - identifiability-family
+  - estimator-switch
+  - wrong-radius
+  - coverage-simulation
+weavePredicates:
+  - bm07-s5-inversion
+historicalOverlays: []
+realRate:
+  natural: false
+embeddable: true
+predictMode:
+  enabled: true
+  prompts:
+    - promptId: bm-07-predict-sample-size
+      controlId: M
+      question: "With four times as many displacement measurements, the interval for D becomes about four times narrower, about two times narrower, or unchanged?"
+      candidates:
+        - id: four-times
+          label: "About four times narrower"
+          description: "Interval width scales as 1/M"
+          separatingAssumption: "Variance of the mean square is taken to fall as 1/M^2 rather than 1/M."
+        - id: two-times
+          label: "About two times narrower"
+          description: "Interval width scales as 1/sqrt(M)"
+          separatingAssumption: "q D̂/D is chi-square with q proportional to M, so interval width falls as 1/sqrt(M)."
+        - id: unchanged
+          label: "Unchanged"
+          description: "More displacements do not tighten the interval"
+          separatingAssumption: "The interval is treated as a property of the physical constants, not of sample size."

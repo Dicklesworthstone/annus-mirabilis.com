@@ -99,6 +99,7 @@ export function decodeLabToken(input: unknown): RequestToken {
     "experimentId",
     "instanceId",
     "runId",
+    "parentRunId",
     "actionIndex",
     "revisions",
     "parameters",
@@ -106,6 +107,8 @@ export function decodeLabToken(input: unknown): RequestToken {
   if (o.experimentId !== "bm-07") fail("Unknown instrument.");
   text(o.instanceId);
   text(o.runId);
+  if (o.parentRunId !== null && typeof o.parentRunId !== "string") fail("Invalid parent run.");
+  if (typeof o.parentRunId === "string") text(o.parentRunId);
   count(o.actionIndex, 1);
   const revisions = record(o.revisions, ["input", "observer", "measurement", "estimator"]);
   for (const v of Object.values(revisions)) count(v);
@@ -151,6 +154,7 @@ function sameToken(a: RequestToken, b: RequestToken): boolean {
     a.experimentId === b.experimentId &&
     a.instanceId === b.instanceId &&
     a.runId === b.runId &&
+    a.parentRunId === b.parentRunId &&
     a.actionIndex === b.actionIndex &&
     Object.keys(a.revisions).every(
       (k) =>

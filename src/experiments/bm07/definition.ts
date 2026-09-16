@@ -1,5 +1,6 @@
 import type { EstimatorId } from "../../physics/reference/inference.ts";
 import type { OutputContract, ParameterClass } from "../store/instanceStore.ts";
+export type Bm07ObservationSet = "synthetic" | "perrin-1909" | "kitchen";
 export type Bm07Parameters = Readonly<{
   seed: string;
   generatorT: number;
@@ -20,6 +21,9 @@ export type Bm07Parameters = Readonly<{
   radiusError: number;
   inputCoverage: number;
   coverageTrials: number;
+  observationSet: Bm07ObservationSet;
+  constantSetId: string;
+  calibrationScale: number;
 }>;
 export const BM07_DEFAULTS: Bm07Parameters = Object.freeze({
   seed: "1905",
@@ -41,6 +45,9 @@ export const BM07_DEFAULTS: Bm07Parameters = Object.freeze({
   radiusError: 0.1,
   inputCoverage: 0.99,
   coverageTrials: 0,
+  observationSet: "synthetic",
+  constantSetId: "scenario-bm07-hidden-number",
+  calibrationScale: 1,
 });
 export const BM07_CLASSES: Readonly<Record<keyof Bm07Parameters, ParameterClass>> = Object.freeze({
   seed: "input",
@@ -62,7 +69,18 @@ export const BM07_CLASSES: Readonly<Record<keyof Bm07Parameters, ParameterClass>
   radiusError: "estimator",
   inputCoverage: "estimator",
   coverageTrials: "estimator",
+  observationSet: "input",
+  constantSetId: "estimator",
+  calibrationScale: "measurement",
 });
+export const BM07_SEMANTIC_KIND_TEXT = Object.freeze({
+  "synthetic-recovery":
+    "This checks the inference method on data made with a hidden number. It is not evidence that molecules exist.",
+  "independent-estimate":
+    "This combines the measured displacements with a gas constant measured without counting molecules, so it is an independent estimate of the number of molecules in a mole.",
+  "consistency-check":
+    "With the 2019 SI constants the gas constant is defined as N_A × k_B, so this compares the measurement with the defined Avogadro constant (equivalently, it estimates Boltzmann's constant). It is not an independent count of molecules.",
+} as const);
 export const BM07_MODEL = Object.freeze({
   id: "bm07-host-preview-v1",
   constantSetId: "scenario-bm07-hidden-number",
@@ -110,6 +128,7 @@ export const BM07_OUTPUTS: Readonly<Record<string, OutputContract>> = Object.fre
   coverageMolecular: c("1", "normalized-conditional-molecular-intervals", interval),
   diffusionCoveringCount: c("1", "observed-interval-covering-count", interval),
   molecularCoveringCount: c("1", "observed-interval-covering-count", interval),
+  observationDigest: c("1", "observation-data-digest"),
 });
 export function bm07Layout(id: string, p: Bm07Parameters): number | null {
   if (["diffusionInterval", "molecularInterval", "conditionalInterval"].includes(id)) return 2;

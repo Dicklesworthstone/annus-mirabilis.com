@@ -1,0 +1,37 @@
+ownerBeadId: am-bm-07-infer-molecular-number-frf9
+targets:
+  - kind: caption
+    id: bm-07
+    readings:
+      r0: "Measured wandering pins down the diffusion coefficient. With a temperature, a viscosity, a radius, and a gas constant it gives a number of molecules in a mole, and the interval says how sure you can be."
+      r1: "The estimator, the chi-square interval, identifiability of the radius-number product, and the semantic kind of every estimate of N: synthetic recovery, independent estimate, or a modern-SI consistency check."
+      r2: "The interval is built from repeated hypothetical experiments. Inversion reverses the endpoints of the D interval. Radius and molecular number cannot both be found from displacements. An unbiased D̂ is not unbiased after inversion."
+      r3: "Einstein's section 5 inversion, Perrin's 1909 measurements, and the 2019 SI definition that turns a modern-constant inversion into a consistency check, not an independent count."
+  - kind: caption
+    id: bm-07-identifiability
+    readings:
+      r0: "Displacements fix a product of radius and molecular number, not either one alone."
+      r1: "The joint pair (a, N) is underdetermined until an independent radius is declared."
+      r2: "Doubling a and halving N leaves the predicted diffusivity unchanged. No narrow interval is offered yet."
+      r3: "This is the identifiability view Journey II opens before any inversion interval."
+  - kind: caption
+    id: bm-07-inversion-golden
+    readings:
+      r0: "With modern SI constants the inversion is a consistency check against defined N_A."
+      r1: "N̂ = 6.02213e23 mol^-1 with the ratio to defined N_A and an estimate of k_B."
+      r2: "R = N_A k_B exactly in 2019 SI, so this cannot count molecules independently."
+      r3: "The 2019 SI defining constants make a modern-constant inversion a consistency check."
+  - kind: caption
+    id: bm-07-perrin-1909
+    readings:
+      r0: "Perrin's 1909 observations invert with a gas constant measured without counting molecules."
+      r1: "The estimate is an independent-estimate beside Perrin's reported value, once the dataset is admitted."
+      r2: "If the independent count is unreported, only the point estimate is shown; the interval is not-applicable."
+      r3: "Table cells wait on the admitted HistoricalDataset; they are not invented here."
+  - kind: caption
+    id: bm-07-coverage
+    readings:
+      r0: "Repeat the procedure on many synthetic datasets and count how often the interval covers the generator value."
+      r1: "Each interval moves; the generating parameter does not. The covering fraction is a property of the procedure."
+      r2: "This is not a posterior probability for one realized interval."
+      r3: "The foundation node's repeated-experiment construction opens this preset."

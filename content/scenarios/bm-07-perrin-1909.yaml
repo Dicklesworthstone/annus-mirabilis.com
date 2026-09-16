@@ -1,0 +1,29 @@
+id: bm-07-perrin-1909
+kind: historical-fixture
+title: Perrin 1909 Brownian molecular-number series
+description: >
+  Historical inference on Perrin's 1909 observations. Table cells are not
+  invented here; they belong to am-data-perrin-1909-p7ku.
+provenance:
+  paper: brownian-motion
+  sectionId: s5
+  printedPage: 559
+constantSetId: scenario-gas-constant-measured
+owner: inference.molecularNumber
+transcription:
+  status: pending
+  reason: "Perrin 1909 HistoricalDataset is not yet admitted (am-data-perrin-1909-p7ku). No table numbers have been invented."
+inputs:
+  diffusionCoefficient:
+    value: 4.2944e-13
+    unit: "m2/s"
+expected:
+  outputs:
+    - outputId: avogadroNumberEstimate
+      comparisonKind: rounds-to
+      printedValue: "7e23"
+      printedPrecision:
+        significantFigures: 1
+      qualifier: about
+modelVersion: 1
+schemaVersion: 1

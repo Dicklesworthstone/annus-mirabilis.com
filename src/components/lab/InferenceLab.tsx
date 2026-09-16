@@ -6,7 +6,7 @@ import {
   type InferenceDraft,
   toInferenceDraft,
 } from "../../experiments/bm07/controls.ts";
-import type { Bm07Parameters } from "../../experiments/bm07/definition.ts";
+import { BM07_SEMANTIC_KIND_TEXT, type Bm07Parameters } from "../../experiments/bm07/definition.ts";
 import { inferenceObservationCsv } from "../../experiments/bm07/export.ts";
 import { decodeBm07Settings, encodeBm07Settings } from "../../experiments/bm07/permalink.ts";
 import { createBm07Session, type PreparedBm07Example } from "../../experiments/bm07/session.ts";
@@ -167,6 +167,8 @@ export function InferenceLab({
       data-pending={String(view.pending)}
       data-radius-known={String(p.radiusKnown)}
       data-estimator={p.estimator}
+      data-observation-set={p.observationSet}
+      data-semantic-kind="synthetic-recovery"
       data-recording-draws={scalar(snapshot, "recordingDraws")}
       data-request-draws={scalar(snapshot, "requestDraws")}
       data-coverage-draws={scalar(snapshot, "coverageDraws")}
@@ -195,6 +197,29 @@ export function InferenceLab({
       <div className="lab-columns">
         <div>
           <form className="inference-controls" onSubmit={submit} noValidate>
+            <fieldset disabled={!ready}>
+              <legend>Observation set</legend>
+              <label htmlFor={`${id}-observationSet`}>
+                Which displacements
+                <select
+                  id={`${id}-observationSet`}
+                  name="observationSet"
+                  value={draft.observationSet}
+                  onChange={(e) => edit("observationSet", e.target.value)}
+                >
+                  <option value="synthetic">Synthetic inverse exercise (hidden N)</option>
+                  <option value="perrin-1909">Perrin 1909 historical dataset</option>
+                  <option value="kitchen">Kitchen classroom CSV (handed off)</option>
+                </select>
+              </label>
+              <p className="fine">
+                The synthetic set checks inference machinery on data made with a hidden number. It
+                is not evidence that molecules exist. Perrin 1909 waits on the admitted
+                HistoricalDataset; this instrument will not invent table numbers. Kitchen CSV is
+                analyzed by the existing kitchen session; BM-07 consumes that session and does not
+                re-parse video.
+              </p>
+            </fieldset>
             <fieldset disabled={!ready}>
               <legend>1 · Observe the same path</legend>
               <div className="input-grid">
@@ -484,6 +509,9 @@ export function InferenceLab({
             </p>
             <InferenceFamily snapshot={snapshot} />
           </section>
+          <p className="notice" data-semantic-kind="synthetic-recovery">
+            {BM07_SEMANTIC_KIND_TEXT["synthetic-recovery"]}
+          </p>
           <h3>Condition on the missing information</h3>
           <table className="inference-summary">
             <caption>
@@ -614,7 +642,7 @@ export function InferenceLab({
                       ))}
                       {Array.from({ length: p.d }, (_, c) => (
                         <td key={c}>
-                          {i === 0 ? "—" : display(increments.at((i - 1) * p.d + c)!, 1e6)}
+                          {i === 0 ? "" : display(increments.at((i - 1) * p.d + c)!, 1e6)}
                         </td>
                       ))}
                     </tr>
@@ -670,6 +698,22 @@ export function InferenceLab({
           </div>
         </div>
       </section>
+      <section className="action-contract">
+        <h3>Same scientific action without the plot</h3>
+        <p>
+          Choose the observation set, estimator, and interval kind from the lists. Type the
+          displacement count M and the inference temperature, viscosity, and radius. Read the table
+          of estimated D and its interval, then N and its interval with the wording above, the
+          inverse-bias note, and the identifiability family. The plots are a view of that same
+          accepted snapshot.
+        </p>
+      </section>
+      <p className="not-modeled">
+        Not modeled: localization error, blur, correlated or irregularly timed increments, and
+        censoring (see BM-08 and kitchen mode); non-Gaussian increments; time-varying drift;
+        polydispersity within one track set; wall effects; uncertainty in C without declared
+        coverages; uncertainty in the gas constant itself.
+      </p>
       <details className="inference-provenance">
         <summary>Accepted calculation identity and limits</summary>
         <p className="fine">

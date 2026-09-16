@@ -37,21 +37,38 @@ export function validateBm07Parameters(input: unknown): Computation<Bm07Paramete
   if (
     typeof p.radiusKnown !== "boolean" ||
     !["conditional", "combined"].includes(p.intervalKind) ||
+    !["synthetic", "perrin-1909", "kitchen"].includes(p.observationSet) ||
+    typeof p.constantSetId !== "string" ||
+    p.constantSetId.length === 0 ||
+    p.constantSetId.length > 128 ||
     ![
       "independent-increment-known-zero-drift",
       "drift-centered",
       "maximum-likelihood-centered",
     ].includes(p.estimator)
   )
-    return bad("Choose a registered estimator, interval procedure and radius declaration.");
+    return bad(
+      "Choose a registered observation set, constant-set id, estimator, interval procedure and radius declaration.",
+    );
   for (const k of keys as (keyof Bm07Parameters)[])
     if (
       typeof BM07_DEFAULTS[k] === "number" &&
       (typeof p[k] !== "number" || !Number.isFinite(p[k]))
     )
       return bad("Use finite numbers in the stated units.");
-  if (![p.generatorT, p.generatorEta, p.generatorRadius, p.T, p.eta, p.a, p.dt].every((v) => v > 0))
-    return bad("Temperatures, viscosities, radii and spacing must be positive.");
+  if (
+    ![
+      p.generatorT,
+      p.generatorEta,
+      p.generatorRadius,
+      p.T,
+      p.eta,
+      p.a,
+      p.dt,
+      p.calibrationScale,
+    ].every((v) => v > 0)
+  )
+    return bad("Temperatures, viscosities, radii, spacing and calibration scale must be positive.");
   if (
     ![1, 2].includes(p.d) ||
     !Number.isSafeInteger(p.M) ||

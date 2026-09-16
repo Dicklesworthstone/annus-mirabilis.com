@@ -6,6 +6,12 @@ import {
   stokesEinsteinD,
 } from "../../physics/reference/diffusion.ts";
 import {
+  chiSquareInterval,
+  identifiabilityFamily,
+  inverseBias,
+  invertToMolecularNumber,
+} from "../../physics/reference/inference.ts";
+import {
   aperturePower,
   bandLimitedMeanQuantumEnergyWien,
   independentPointsProbability,
@@ -228,7 +234,8 @@ const OWNERS: OwnerRecord[] = [
         num(ctx.inputs, "xMax"),
         set,
       );
-      if (res.status !== "value") throw new Error("bandLimitedMeanQuantumEnergyWien refused inputs.");
+      if (res.status !== "value")
+        throw new Error("bandLimitedMeanQuantumEnergyWien refused inputs.");
       return {
         meanQuantumEnergyWien: res.meanQuantumEnergyWien,
         energyShareBelowBoundary: res.energyShareBelowBoundary,
@@ -308,6 +315,58 @@ const OWNERS: OwnerRecord[] = [
       return {
         stoppingPotentialMagnitude: v,
       };
+    },
+  },
+  {
+    id: "inference.molecularNumber",
+    sourcePath: fileURLToPath(new URL("../../physics/reference/inference.ts", import.meta.url)),
+    fn: (ctx) => {
+      const out: Record<string, number> = {};
+      if (typeof ctx.inputs.degreesOfFreedom === "number") {
+        const bias = inverseBias(ctx.inputs.degreesOfFreedom);
+        if (bias.kind === "accepted") out.inverseBiasFactor = bias.data.meanFactor;
+      }
+      if (typeof ctx.inputs.diffusionCoefficient !== "number") return out;
+      const set = getConstantSet(ctx.constantSetId);
+      const dHat = ctx.inputs.diffusionCoefficient;
+      const T = ctx.inputs.temperature ?? 293.15;
+      const eta = ctx.inputs.viscosity ?? 0.001;
+      const a = ctx.inputs.particleRadius ?? 0.5e-6;
+      const q = ctx.inputs.degreesOfFreedom ?? 100;
+      const family = identifiabilityFamily(
+        {
+          D: dHat,
+          T,
+          eta,
+          radiusRange: [0.25e-6, 1e-6],
+          synthetic: ctx.constantSetId !== "modern-si-2019",
+        },
+        set,
+      );
+      if (family.kind === "accepted") {
+        out.radiusNumberProduct = family.data.product;
+        out.radiusNumberProductMicrometrePerMol = family.data.product * 1e6;
+      }
+      const band = chiSquareInterval({ dHat, q, alpha: 0.05 });
+      if (band.kind !== "accepted") return out;
+      const inverse = invertToMolecularNumber(
+        {
+          T,
+          eta,
+          a,
+          radiusProvenance: "independently-declared",
+          dHat,
+          interval: band.data,
+          synthetic: ctx.constantSetId !== "modern-si-2019",
+        },
+        set,
+      );
+      if (inverse.kind === "accepted") {
+        out.avogadroNumberEstimate = inverse.data.estimate;
+        out.intervalLower = inverse.data.interval.lower;
+        out.intervalUpper = inverse.data.interval.upper;
+      }
+      return out;
     },
   },
 ];

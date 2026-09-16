@@ -1,0 +1,50 @@
+# Teaching tape "Perrin's count" (am-bm-07-infer-molecular-number-frf9).
+# Constant set is the measured-gas-constant scenario, never modern-si-2019.
+# Table cells from Perrin 1909 are not invented; checkpoints record the host
+# identity until am-data-perrin-1909-p7ku admits the HistoricalDataset.
+tapeVersion: 2
+tapeId: perrins-count
+experimentId: bm-07
+mode: "bm-07"
+title: "Perrin's count"
+isTeachingSequence: true
+modelIdentity:
+  modelId: inference-bm07-host
+  modelVersion: "1.0.0"
+  artifactDigest: "host:sha256:0000000000000000000000000000000000000000000000000000000000000000"
+constantSetId: scenario-gas-constant-measured
+seed: "1909"
+streamVersion: 1
+allocationId: bm-07.synthetic-latent.v1
+initialConditions:
+  T: 293.15
+  eta: 0.001
+  a: 5.0e-7
+  M: 50
+  d: 2
+  dt: 1
+  coverage: 0.95
+events:
+  - kind: control
+    actionIndex: 1
+    commandClass: estimator-change
+    commandId: declare-independent-radius
+    parameterId: a
+    value: 5.0e-7
+checkpoints:
+  - actionIndex: 1
+    stepIndex: 4096
+    simulatedTime: 1024
+    digest: "host:sha256:3333333333333333333333333333333333333333333333333333333333333333"
+    digestKind: host
+    checkpointVersion: 1
+    streamSemanticsVersion: 1
+    seed: "1909"
+    streamPositions: []
+    label: "Declared radius, historical gas-constant set"
+    teachingNote: "Replay uses the dataset record's own constants. Modern exact k_B is not read."
+    expectedDisplayValues:
+      - label: "semantic kind"
+        value: 0
+        unit: "1"
+        constantSetId: scenario-gas-constant-measured

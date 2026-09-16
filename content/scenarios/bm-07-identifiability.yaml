@@ -1,0 +1,31 @@
+id: bm-07-identifiability
+kind: modern-golden
+title: BM-07 identifiability family is a radius-number product
+description: >
+  From displacements alone the pair (a, N) is underdetermined. The admitted
+  product aN = RT/(6 π η D̂) at D̂ = 0.42944 μm²/s is 3.01107e23 μm mol^-1.
+constantSetId: modern-si-2019
+owner: inference.molecularNumber
+inputs:
+  diffusionCoefficient:
+    value: 4.2944e-13
+    unit: "m2/s"
+  temperature:
+    value: 293.15
+    unit: K
+  viscosity:
+    value: 0.001
+    unit: "Pa s"
+  particleRadius:
+    value: 5.0e-7
+    unit: m
+expected:
+  outputs:
+    - outputId: radiusNumberProductMicrometrePerMol
+      value: 3.0110673268245676e23
+      comparisonKind: tolerance
+      tolerance:
+        relative: 1.0e-8
+        rationale: aN = RT/(6 pi eta D) converted to micrometre per mole.
+modelVersion: 1
+schemaVersion: 1

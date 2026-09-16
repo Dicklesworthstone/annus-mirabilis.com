@@ -1,6 +1,8 @@
 import { BM07_OUTPUTS, type Bm07Parameters } from "../../experiments/bm07/definition.ts";
+import { observationDigestNumber } from "../../experiments/bm07/digest.ts";
 import { validateBm07Parameters } from "../../experiments/bm07/parameters.ts";
 import { executionOutcomeRegistry } from "../../experiments/results/outcomes.ts";
+import { makeRefusal } from "../../experiments/results/refusals.ts";
 import type { ScientificResult } from "../../experiments/results/types.ts";
 import type { Computation } from "../../physics/reference/diffusion/ftcs.ts";
 import {
@@ -85,8 +87,22 @@ export async function createBm07Recording(
 ): Promise<Computation<InferenceRecording>> {
   const valid = validateBm07Parameters(input);
   if (valid.kind !== "accepted") return valid;
-  const p = valid.data,
-    grid = observationGrid(p.M, p.d, p.dt);
+  const p = valid.data;
+  if (p.observationSet !== "synthetic")
+    return {
+      kind: "refused",
+      refusal: makeRefusal(
+        "invalid-parameter",
+        { capabilityId: "diffusion.inference" },
+        {
+          details: {
+            requirements:
+              "The synthetic worker admits only the labeled inverse exercise. Historical rows and kitchen CSV use the host hand-off, not this recording.",
+          },
+        },
+      ),
+    };
+  const grid = observationGrid(p.M, p.d, p.dt);
   if (grid.kind !== "accepted") return grid;
   return recordInferencePath(
     {
@@ -107,6 +123,20 @@ export async function measureBm07(
 ): Promise<Computation<Bm07Evaluation>> {
   const valid = validateBm07Parameters(p);
   if (valid.kind !== "accepted") return valid;
+  if (p.observationSet !== "synthetic")
+    return {
+      kind: "refused",
+      refusal: makeRefusal(
+        "invalid-parameter",
+        { capabilityId: "diffusion.inference" },
+        {
+          details: {
+            requirements:
+              "The synthetic worker admits only the labeled inverse exercise. Historical rows and kitchen CSV use the host hand-off, not this recording.",
+          },
+        },
+      ),
+    };
   if (
     recording.steps !== INFERENCE_GRID_STEPS ||
     recording.replicate !== 0 ||
@@ -127,6 +157,7 @@ export async function measureBm07(
     number("recordingDraws", recording.draws),
     number("reusedRecording", reused ? 1 : 0),
     number("retainedBytes", recording.positions.byteLength),
+    number("observationDigest", observationDigestNumber(observation.data.increments)),
   ];
   const estimate = estimateIncrements(observation.data.increments, p.dt, p.d, p.estimator);
   if (estimate.kind === "refused" || estimate.kind === "outcome") return estimate;

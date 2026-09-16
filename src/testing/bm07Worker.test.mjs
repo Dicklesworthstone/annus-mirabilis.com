@@ -111,6 +111,7 @@ test("radius assumptions change inversion without touching the observations, gen
   assert.equal(c.runId, a.runId);
   same(a, c, "observationPositions");
   same(a, c, "observationIncrements");
+  assert.equal(out(c, "observationDigest").value, out(a, "observationDigest").value);
   assert.equal(out(c, "requestDraws").value, 0);
   assert.equal(out(c, "avogadroNumberEstimate").value, out(b, "avogadroNumberEstimate").value / 2);
   assert.equal(out(c, "generatorMolecularNumber").value, out(a, "generatorMolecularNumber").value);
