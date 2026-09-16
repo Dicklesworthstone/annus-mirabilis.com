@@ -1,0 +1,94 @@
+<!DOCTYPE html>
+<html lang="en" data-detail="standard">
+<head>
+  <meta charset="utf-8">
+  <title>Fixture Section - Brownian Motion</title>
+  <style>
+    body { font-family: Newsreader, serif; line-height: 1.6; padding: 24px; max-width: 800px; margin: 0 auto; }
+    .linked-term { color: #883300; text-decoration: underline dotted; cursor: pointer; }
+    .footnote { margin-top: 48px; border-top: 1px solid #ccc; padding-top: 12px; font-size: 0.9em; }
+  </style>
+</head>
+<body data-reader-root="true" data-ready="true" data-view="source">
+  <header>
+    <nav>
+      <a href="#s1">Section 1</a>
+      <a href="/foundations/stokes-einstein" data-foundation="stokes-einstein">Foundation: Stokes-Einstein</a>
+      <a href="/paper/brownian-motion?view=parallel">Parallel Face</a>
+      <a href="/paper/brownian-motion?view=source" id="return-to-source-btn">Return to Source</a>
+    </nav>
+  </header>
+
+  <main>
+    <section id="s1" data-anchor="s1">
+      <h1>§1. On the Osmotic Pressure to be Ascribed to Suspended Particles</h1>
+      
+      <p id="s1-p1" data-anchor="s1-p1">
+        Let there be suspended in a liquid a number of small particles.
+      </p>
+
+      <p id="s1-p2" data-anchor="s1-p2">
+        <span id="s1-p2-s1" data-anchor="s1-p2-s1">We shall investigate what state of dynamic equilibrium will be established when a thermodynamic force acts upon each particle.</span>
+        The suspended particles experience a drag determined by the fluid <span data-term-id="viscosity" class="linked-term">viscosity</span> <sup id="fnref-1"><a href="#fn1" class="footnote-mark">1</a></sup>.
+      </p>
+
+      <div class="equation" data-equation-id="diff-eq-1">
+        <math xmlns="http://www.w3.org/1998/Math/MathML" display="block">
+          <semantics>
+            <mrow>
+              <mi>D</mi>
+              <mo>=</mo>
+              <mfrac>
+                <mrow><mi>R</mi><mi>T</mi></mrow>
+                <mrow><mn>6</mn><mi>π</mi><mi>k</mi><mi>η</mi><mi>a</mi></mrow>
+              </mfrac>
+            </mrow>
+            <annotation encoding="application/x-tex">D = \frac{RT}{6\pi k \eta a}</annotation>
+          </semantics>
+        </math>
+      </div>
+
+      <div id="argument-anchor" data-anchor="argument-step-1">
+        <p>This is the fundamental relation connecting osmotic pressure to molecular dimensions.</p>
+      </div>
+    </section>
+
+    <aside id="term-details-viscosity" style="display: none;" data-active-term="viscosity">
+      <h3>Viscosity (&eta;)</h3>
+      <p>Measure of a fluid's resistance to gradual deformation by shear or tensile stress.</p>
+    </aside>
+
+    <footer class="footnotes">
+      <div id="fn1" class="footnote" data-footnote-id="1">
+        <p><a href="#fnref-1">1.</a> A. Einstein, Annalen der Physik (4) 17, 549–560 (1905).</p>
+      </div>
+    </footer>
+  </main>
+
+  <script>
+    const url = new URL(window.location.href);
+    const initialView = url.searchParams.get('view') || 'source';
+    document.body.setAttribute('data-view', initialView);
+
+    const term = document.querySelector('[data-term-id="viscosity"]');
+    const termDetails = document.getElementById('term-details-viscosity');
+    if (term && termDetails) {
+      term.addEventListener('click', () => {
+        termDetails.style.display = termDetails.style.display === 'none' ? 'block' : 'none';
+      });
+    }
+
+    const faceLinks = document.querySelectorAll('a[href*="view="]');
+    for (const link of faceLinks) {
+      link.addEventListener('click', (e) => {
+        e.preventDefault();
+        const href = link.getAttribute('href');
+        const match = href.match(/view=([a-z-]+)/);
+        if (match && match[1]) {
+          document.body.setAttribute('data-view', match[1]);
+        }
+      });
+    }
+  </script>
+</body>
+</html>

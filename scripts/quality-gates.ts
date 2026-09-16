@@ -13,7 +13,7 @@
  * - 2: Refused (e.g. required step unavailable in profile mode)
  */
 
-import { type SpawnSyncReturns, spawnSync } from "node:child_process";
+import { spawnSync } from "node:child_process";
 import { existsSync, mkdirSync, writeFileSync } from "node:fs";
 import { delimiter, join, resolve } from "node:path";
 import { pathToFileURL } from "node:url";
@@ -343,13 +343,19 @@ export function runQualityGates(options: QualityGatesOptions = {}): QualityGates
     }
 
     const stepStart = Date.now();
-    let procResult: SpawnSyncReturns<Buffer>;
+    let procResult: {
+      status: number | null;
+      signal: string | null;
+      stdout: Buffer;
+      stderr: Buffer;
+      error?: Error;
+    };
     try {
       const [cmd, ...args] = step.command;
       procResult = spawnSync(cmd, args, {
         cwd: rootDir,
         env: process.env,
-        stdio: "pipe",
+        stdio: ["ignore", "pipe", "pipe"],
       });
     } catch (err) {
       const stepDuration = Date.now() - stepStart;
@@ -379,6 +385,32 @@ export function runQualityGates(options: QualityGatesOptions = {}): QualityGates
     const stepDuration = Date.now() - stepStart;
     const stdoutText = procResult.stdout ? procResult.stdout.toString("utf8") : "";
     const stderrText = procResult.stderr ? procResult.stderr.toString("utf8") : "";
+
+    if (procResult.error) {
+      results.push({
+        stepId: step.id,
+        title: step.title,
+        owner: step.owner,
+        family: step.family,
+        cadence: step.cadence,
+        command: step.command,
+        outcome: "failed",
+        exitCode: 1,
+        durationMs: stepDuration,
+        message: `Failed to execute process: ${procResult.error.message}`,
+        stdout: stdoutText,
+        stderr: stderrText,
+      });
+      hasFailed = true;
+      if (!silent) {
+        console.error(`✖  ${stepHeader} FAILED in ${stepDuration}ms: ${procResult.error.message}`);
+      }
+      if (rawMode === "fail-fast") {
+        break;
+      }
+      continue;
+    }
+
     const exitCode = procResult.status ?? (procResult.signal ? 1 : 0);
 
     if (exitCode === 0) {

@@ -1,15 +1,35 @@
-import { describe, expect, it } from "bun:test";
-import { existsSync, mkdirSync, readFileSync, rmSync } from "node:fs";
+import assert from "node:assert/strict";
+import { existsSync, readFileSync } from "node:fs";
 import { join } from "node:path";
+import { describe, it } from "node:test";
 import { generateLogRunId } from "./app-router-architecture.ts";
-import { type GateStep, QUALITY_GATE_STEPS, validateRegistry } from "./quality-gates/registry.ts";
-import { classifyTestFile, partitionTestFiles, runAllTests } from "./quality-gates/test-runner.ts";
 import {
-  checkStepAvailability,
-  isToolOnPath,
-  parseCliArgs,
-  runQualityGates,
-} from "./quality-gates.ts";
+  type GateCadence,
+  type GateFamily,
+  type GateStep,
+  QUALITY_GATE_STEPS,
+  type ReleaseProfile,
+  validateRegistry,
+} from "./quality-gates/registry.ts";
+import { classifyTestFile, partitionTestFiles } from "./quality-gates/test-runner.ts";
+import { parseCliArgs, runQualityGates } from "./quality-gates.ts";
+
+function expect<T>(actual: T) {
+  return {
+    toBe(expected: T) {
+      assert.equal(actual, expected);
+    },
+    toEqual(expected: unknown) {
+      assert.deepEqual(actual, expected);
+    },
+    toBeDefined() {
+      assert.ok(actual !== undefined && actual !== null);
+    },
+    toContain(substr: string) {
+      assert.ok(String(actual).includes(substr), `Expected ${String(actual)} to contain ${substr}`);
+    },
+  };
+}
 
 describe("Quality Gates Registry & Validator", () => {
   it("validates the production quality gate registry successfully", () => {
@@ -54,7 +74,7 @@ describe("Quality Gates Registry & Validator", () => {
       id: "invalid-family-step",
       title: "Step with bad family",
       command: ["bun", "-e", "process.exit(0)"],
-      family: "quantum" as any,
+      family: "quantum" as unknown as GateFamily,
       cadence: "every-run",
       requiredInCi: true,
       requiredInProfiles: ["scaffold"],
@@ -73,7 +93,7 @@ describe("Quality Gates Registry & Validator", () => {
       title: "Step with bad cadence",
       command: ["bun", "-e", "process.exit(0)"],
       family: "fast",
-      cadence: "weekly" as any,
+      cadence: "weekly" as unknown as GateCadence,
       requiredInCi: true,
       requiredInProfiles: ["scaffold"],
       availability: {},
@@ -93,7 +113,7 @@ describe("Quality Gates Registry & Validator", () => {
       family: "fast",
       cadence: "every-run",
       requiredInCi: true,
-      requiredInProfiles: ["staging" as any],
+      requiredInProfiles: ["staging" as unknown as ReleaseProfile],
       availability: {},
       owner: "bead-1",
     };
@@ -157,7 +177,6 @@ describe("Quality Gates Runner Engine", () => {
       silent: true,
     });
 
-    console.error("DEBUG RESULT:", summary.results[0]);
     expect(summary.outcome).toBe("passed");
     expect(summary.exitCode).toBe(0);
     expect(summary.passedCount).toBe(2);
@@ -421,19 +440,20 @@ describe("Quality Gates Runner Engine", () => {
 
     expect(summary.outcome).toBe("failed");
     expect(summary.logPath).toBeDefined();
-    expect(existsSync(summary.logPath!)).toBe(true);
+    const logPath = summary.logPath ?? "";
+    expect(existsSync(logPath)).toBe(true);
 
-    const logContent = readFileSync(summary.logPath!, "utf8").trim().split("\n");
+    const logContent = readFileSync(logPath, "utf8").trim().split("\n");
     expect(logContent.length).toBe(2); // 1 step line + 1 summary line
 
-    const stepLine = JSON.parse(logContent[0]!);
+    const stepLine = JSON.parse(logContent[0] ?? "{}");
     expect(stepLine.suite).toBe("quality-gates");
     expect(stepLine.logRunId).toBe(logRunId);
     expect(stepLine.stepId).toBe("fixture-failing-step");
     expect(stepLine.outcome).toBe("failed");
     expect(stepLine.exitCode).toBe(1);
 
-    const summaryLine = JSON.parse(logContent[1]!);
+    const summaryLine = JSON.parse(logContent[1] ?? "{}");
     expect(summaryLine.suite).toBe("quality-gates");
     expect(summaryLine.logRunId).toBe(logRunId);
     expect(summaryLine.outcome).toBe("failed");
@@ -477,12 +497,18 @@ describe("Quality Gates Runner Engine", () => {
 
 describe("Orphan Test Gate & Runner Partitioning", () => {
   it("classifies files with bun:test as bun runner", () => {
-    const res = classifyTestFile("src/sample.test.ts", () => 'import { test } from "bun:test";');
+    const res = classifyTestFile(
+      "src/sample.test.ts",
+      () => 'import { test } from "' + "bun:" + 'test";',
+    );
     expect(res.runner).toBe("bun");
   });
 
   it("classifies files with node:test or .test.mjs as node runner", () => {
-    const res1 = classifyTestFile("src/sample.test.ts", () => 'import test from "' + 'node:' + 'test";');
+    const res1 = classifyTestFile(
+      "src/sample.test.ts",
+      () => 'import test from "' + "node:" + 'test";',
+    );
     expect(res1.runner).toBe("node");
 
     const res2 = classifyTestFile("src/sample.test.mjs", () => "export const a = 1;");
@@ -497,7 +523,7 @@ describe("Orphan Test Gate & Runner Partitioning", () => {
 
   it("fails runAllTests and reports failure when an orphaned test file is present", () => {
     const partition = partitionTestFiles(["src/good.test.ts", "src/orphan.test.ts"], (p) =>
-      p.includes("good") ? 'import { test } from "bun:test";' : "const x = 1;",
+      p.includes("good") ? 'import { test } from "' + "bun:" + 'test";' : "const x = 1;",
     );
 
     expect(partition.bunFiles.length).toBe(1);

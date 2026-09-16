@@ -1,0 +1,31 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Horizontal Overflow Check - Broken</title>
+  <style>
+    body {
+      margin: 0;
+      padding: 16px;
+      font-family: sans-serif;
+    }
+    .overflowing-element {
+      width: 800px;
+      min-width: 800px;
+      height: 100px;
+      background: #fdd;
+      border: 1px solid #c00;
+    }
+  </style>
+</head>
+<body>
+  <main>
+    <h1>Horizontal Overflow Defect</h1>
+    <!-- Defect: An 800px fixed width block forcing document scrollWidth > clientWidth on 320px viewport -->
+    <div class="overflowing-element">
+      Fixed 800px width element triggering page-level horizontal overflow.
+    </div>
+  </main>
+</body>
+</html>

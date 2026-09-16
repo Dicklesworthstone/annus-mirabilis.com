@@ -1,0 +1,40 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <title>Print Clipping Check - Broken</title>
+  <style>
+    @media print {
+      /* Defect: Equations and text clipped with overflow: hidden and fixed max-height in print */
+      .essential-prose {
+        overflow: hidden;
+        max-height: 20px;
+      }
+      .equation-block {
+        display: none !important;
+      }
+    }
+  </style>
+</head>
+<body>
+  <article>
+    <section class="essential-prose">
+      <h1>On the Motion of Small Particles Suspended in Liquids</h1>
+      <p>In this paper it will be shown that, according to the molecular-kinetic theory of heat, bodies of microscopically-visible size suspended in a liquid will perform movements of such magnitude that they can be easily observed in a microscope.</p>
+    </section>
+    <section class="equation-block">
+      <math xmlns="http://www.w3.org/1998/Math/MathML" display="block">
+        <semantics>
+          <mrow>
+            <msub><mi>λ</mi><mi>x</mi></msub>
+            <mo>=</mo>
+            <msqrt>
+              <mrow><mn>2</mn><mi>D</mi><mi>t</mi></mrow>
+            </msqrt>
+          </mrow>
+        </semantics>
+      </math>
+    </section>
+  </article>
+</body>
+</html>

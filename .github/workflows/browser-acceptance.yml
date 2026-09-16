@@ -1,0 +1,55 @@
+name: Browser Acceptance
+
+on:
+  push:
+    branches:
+      - main
+  pull_request:
+    branches:
+      - main
+
+permissions:
+  contents: read
+
+concurrency:
+  group: ${{ github.workflow }}-${{ github.ref }}
+  cancel-in-progress: true
+
+jobs:
+  browser-acceptance:
+    name: Browser Acceptance E2E
+    runs-on: ubuntu-latest
+    timeout-minutes: 25
+
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@11bd71901bbe5b1630ceea73d27597364c9af683 # v4.2.2
+        with:
+          persist-credentials: false
+
+      - name: Setup Bun
+        uses: oven-sh/setup-bun@4bc047ad259df6fc24a6c9b0f9a0cb08cf17fbe5 # v2.0.1
+        with:
+          bun-version: "1.4.0"
+
+      - name: Setup Node.js
+        uses: actions/setup-node@1e60f620b9541d16abce96c5465dc8ee9832be0b # v4.1.0
+        with:
+          node-version: "22.13.4"
+
+      - name: Install dependencies
+        run: bun install --frozen-lockfile
+
+      - name: Install Playwright Chromium
+        run: bunx playwright install --with-deps chromium
+
+      - name: Run browser acceptance harness
+        run: node --experimental-strip-types --test scripts/e2e/checks/*.test.ts scripts/e2e/*.test.ts scripts/e2e/fixtures/*.test.ts
+
+      - name: Upload test logs and failure evidence
+        if: failure()
+        uses: actions/upload-artifact@4cec3d8aa04e39d1a68397de0c4cd6fb99ba841c # v4.6.1
+        with:
+          name: browser-acceptance-evidence
+          path: artifacts/test-logs/
+          if-no-files-found: ignore

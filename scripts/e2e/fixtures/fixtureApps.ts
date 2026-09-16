@@ -153,6 +153,19 @@ export function validateFixtureAppRegistry(
   return issues;
 }
 
+export const SELFTEST_FIXTURE_ENTRY: FixtureAppEntry = Object.freeze({
+  id: "harness-selftest",
+  entry: "src/testing/e2e/fixture-apps/selftest/",
+  outDir: "artifacts/e2e-fixtures/harness-selftest/",
+  owner: "am-test-e2e-harness-bqmh",
+  staticInputs: [
+    {
+      from: "src/testing/e2e/fixture-apps/selftest/fixture.wasm",
+      servedPath: "fixture.wasm",
+    },
+  ],
+});
+
 export const VIEW_KIT_FIXTURE_ENTRY: FixtureAppEntry = Object.freeze({
   id: "view-kit",
   entry: "src/testing/e2e/fixture-apps/view-kit/",
@@ -171,6 +184,7 @@ export const CONTROLS_KIT_FIXTURE_ENTRY: FixtureAppEntry = Object.freeze({
  * The registry of interactive fixture applications.
  */
 export const FIXTURE_APP_REGISTRY: readonly FixtureAppEntry[] = Object.freeze([
+  SELFTEST_FIXTURE_ENTRY,
   VIEW_KIT_FIXTURE_ENTRY,
   CONTROLS_KIT_FIXTURE_ENTRY,
 ]);

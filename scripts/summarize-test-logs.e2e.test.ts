@@ -1,4 +1,5 @@
 import assert from "node:assert/strict";
+import { spawnSync } from "node:child_process";
 import { cpSync, mkdtempSync, readdirSync, readFileSync } from "node:fs";
 import path from "node:path";
 import test from "node:test";
@@ -13,19 +14,16 @@ function copyFixtureTree(): string {
   return workDir;
 }
 
-test("scripts/summarize-test-logs.ts runs end to end over a committed fixture log directory via Bun.spawn", async () => {
+test("scripts/summarize-test-logs.ts runs end to end over a committed fixture log directory", () => {
   const workDir = copyFixtureTree();
 
-  const proc = Bun.spawn(["bun", "scripts/summarize-test-logs.ts", "--root", workDir], {
+  const proc = spawnSync("bun", ["scripts/summarize-test-logs.ts", "--root", workDir], {
     cwd: process.cwd(),
-    stdout: "pipe",
-    stderr: "pipe",
+    encoding: "utf8",
   });
-  const [stdout, stderr, exitCode] = await Promise.all([
-    new Response(proc.stdout).text(),
-    new Response(proc.stderr).text(),
-    proc.exited,
-  ]);
+  const stdout = proc.stdout || "";
+  const stderr = proc.stderr || "";
+  const exitCode = proc.status;
 
   assert.equal(stderr, "", `expected no stderr, got: ${stderr}`);
   // fixture-suite-a has exactly one failing test, so the summarizer must exit non-zero.
@@ -40,7 +38,9 @@ test("scripts/summarize-test-logs.ts runs end to end over a committed fixture lo
   const summaryDir = path.join(workDir, "summary");
   const summaryFiles = readdirSync(summaryDir).filter((f) => f.endsWith(".json"));
   assert.equal(summaryFiles.length, 1);
-  const summary = JSON.parse(readFileSync(path.join(summaryDir, summaryFiles[0]!), "utf8"));
+  const summaryFile = summaryFiles[0];
+  assert.ok(summaryFile !== undefined);
+  const summary = JSON.parse(readFileSync(path.join(summaryDir, summaryFile), "utf8"));
   assert.equal(summary.totalEvents, 6);
   assert.deepEqual(summary.counts["fixture-suite-a"], {
     passed: 1,

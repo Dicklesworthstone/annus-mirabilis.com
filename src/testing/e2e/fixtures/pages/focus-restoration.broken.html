@@ -1,0 +1,36 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <title>Focus Restoration Check - Broken</title>
+</head>
+<body>
+  <main>
+    <h1>Focus Restoration Broken Demo</h1>
+    <button id="open-dialog-btn" type="button">Open Drawer</button>
+    
+    <div id="drawer" role="dialog" aria-modal="true" style="display: none; border: 1px solid #333; padding: 16px; margin-top: 16px;">
+      <h2>Clarification Drawer</h2>
+      <p>Explaining Brownian motion context.</p>
+      <button id="close-dialog-btn" type="button">Close Drawer</button>
+    </div>
+  </main>
+
+  <script>
+    const openBtn = document.getElementById('open-dialog-btn');
+    const closeBtn = document.getElementById('close-dialog-btn');
+    const drawer = document.getElementById('drawer');
+
+    openBtn.addEventListener('click', () => {
+      drawer.style.display = 'block';
+      closeBtn.focus();
+    });
+
+    closeBtn.addEventListener('click', () => {
+      drawer.style.display = 'none';
+      // Defect: Fails to restore focus to openBtn, leaves focus on body/unfocused
+      document.body.focus();
+    });
+  </script>
+</body>
+</html>

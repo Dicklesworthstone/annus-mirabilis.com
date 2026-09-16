@@ -1,0 +1,25 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <title>Snapshot Identity Check - Broken</title>
+</head>
+<body>
+  <!-- Defect: Mismatched snapshotVersion across views (table view has version 2 while others have 3) -->
+  <div id="instrument-root"
+       data-instrument-id="bm-06"
+       data-instance-id="inst-bm06-1"
+       data-run-id="run-bm06-1"
+       data-snapshot-version="3"
+       data-input-revision="2"
+       data-accepted-input-revision="2"
+       data-pending="false"
+       data-execution-label="host">
+    <div data-view="trace" data-instance-id="inst-bm06-1" data-run-id="run-bm06-1" data-snapshot-version="3">Trace View</div>
+    <div data-view="distribution" data-instance-id="inst-bm06-1" data-run-id="run-bm06-1" data-snapshot-version="3">Distribution View</div>
+    <div data-view="equation" data-instance-id="inst-bm06-1" data-run-id="run-bm06-1" data-snapshot-version="3">Equation View</div>
+    <div data-view="table" data-instance-id="inst-bm06-1" data-run-id="run-bm06-1" data-snapshot-version="2">Table View</div>
+    <div data-view="a11y" data-instance-id="inst-bm06-1" data-run-id="run-bm06-1" data-snapshot-version="3">Accessible Summary</div>
+  </div>
+</body>
+</html>

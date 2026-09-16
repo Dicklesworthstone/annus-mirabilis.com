@@ -58,17 +58,36 @@ export async function bundleFixtureApp(
   const entryFile = resolve(root, entry.entry, "index.ts");
   const outDir = resolve(root, entry.outDir);
   await mkdir(outDir, { recursive: true });
-  await execFileAsync("bun", [
-    "build",
-    entryFile,
-    "--outdir",
-    outDir,
-    "--entry-naming",
-    "bundle.js",
-    "--sourcemap=external",
-    "--target=browser",
-    "--format=esm",
-  ]);
+  if (typeof Bun !== "undefined" && typeof Bun.build === "function") {
+    const buildResult = await Bun.build({
+      entrypoints: [entryFile],
+      outdir: outDir,
+      naming: "bundle.js",
+      sourcemap: "external",
+      target: "browser",
+      format: "esm",
+    });
+    if (!buildResult.success) {
+      throw new Error(`Failed to bundle fixture: ${buildResult.logs.map(String).join("\n")}`);
+    }
+  } else {
+    const bunBin = process.execPath.includes("bun") ? process.execPath : "bun";
+    await execFileAsync(
+      bunBin,
+      [
+        "build",
+        entryFile,
+        "--outdir",
+        outDir,
+        "--entry-naming",
+        "bundle.js",
+        "--sourcemap=external",
+        "--target=browser",
+        "--format=esm",
+      ],
+      { env: process.env },
+    );
+  }
   const staticInputsCopied = await copyStaticInputs(entry, outDir, root);
   return { id: entry.id, outDir, bundleFiles: FIXTURE_BUNDLE_OUTPUT_NAMES, staticInputsCopied };
 }

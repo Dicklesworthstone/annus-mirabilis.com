@@ -12,38 +12,43 @@ This document is adapted from the donor's `docs/PATENT_E2E_HARNESS.md`
 MIT License with the OpenAI/Anthropic Rider, preserved at `/LICENSE`) by
 `am-scaf-extract-scripts-7jm`.
 
-## Current status: infrastructure only
+## Status: Browser Acceptance Harness Delivered
 
-This bead (`am-scaf-extract-scripts-7jm`) extracts and adapts the harness's
-**infrastructure**: browser launch, viewports, readiness, evidence
-retention, and JSONL logging. It does not carry a paper scenario source. The
-donor's scenario manifest (`buildPatentE2EScenarios`) read the donor's live
-archival-edition data model (`allPatents`, colorized equations, claim
-constraints, physics telemetry); there is no equivalent here yet.
+This bead (`am-test-e2e-harness-bqmh`) delivers the complete browser acceptance
+harness infrastructure, test lanes, DOM contracts, reusable checks, and fixture
+subsystems:
 
-Building the paper lanes, the DOM readiness contract (what "hydrated" means
-for a reader face, which stable `data-*` identifiers each face and
-instrument exposes), and the fixture bundler on this extracted harness is
-`am-test-e2e-harness-bqmh`'s scope, not this bead's. That bead has since
-landed the DOM contract, the lane definitions, the emulation utilities, the
-fixture application registry and its bundler/server/build-output scan, and
-the CLI flag parser documented below (`scripts/e2e/domContract.ts`,
-`lanes.ts`, `emulation.ts`, `fixtures/fixtureApps.ts`,
-`fixtures/bundleFixtures.ts`, `fixtures/fixtureServer.ts`,
-`fixtures/buildOutputScan.ts`, `cli.ts`, plus `checks/measure.ts` and
-`evidence.ts`); it has not yet landed the harness's own self-test fixture
-pages (`harness-selftest`), `playwright.config.ts`, or the CI workflow and
-gate registration — those remain open under the same bead. Until they land:
-
-- `--self-test-failure` runs end to end: it launches Chromium, navigates to
-  the target, and deliberately records a failure with full evidence
-  retention. This is the harness's own acceptance proof.
-- Every other mode (`--paper <slug>`, `--changed`, `--all`) parses
-  correctly, runs the real preflight check against the target server (so a
-  dry run still produces a real JSONL log), and then records one honest
-  `configuration`/`scenario-selection` failure event naming
-  `am-test-e2e-harness-bqmh` as the bead that wires in real scenarios,
-  instead of pretending paper lanes exist.
+- **DOM readiness contract** (`scripts/e2e/domContract.ts`): pure attribute parsers
+  enforcing `data-reader-root`, `data-instrument-id`, `data-instance-id`,
+  `data-run-id`, `data-snapshot-version`, `data-input-revision`,
+  `data-accepted-input-revision`, `data-pending`, `data-execution-label`,
+  `data-result-status`, `data-refusal-code`, and instrument address grammar.
+- **Lanes and configuration** (`scripts/e2e/lanes.ts`, `playwright.config.ts`):
+  all 11 Playwright projects (`desktop`, `tablet`, `touch-320`, `webkit-real`,
+  `keyboard-only`, `reduced-motion`, `zoom-400`, `text-200`, `no-webgl`,
+  `js-disabled`, `print`).
+- **Emulation utilities** (`scripts/e2e/emulation.ts`): text-spacing stylesheets,
+  vision deficiency emulation, `*.wasm` URL interception, response release delays,
+  and CPU throttling profiles.
+- **Contract primitives** (`scripts/e2e/primitives.ts`): `enterDeepPassage`,
+  `switchFace`, `openFoundation`, `returnToArgument`, `operateInstrument`,
+  `enterValue`, `selectLinkedTerm`, `returnToSource`, and `restoreFromUrl`.
+- **Reusable checks** (`scripts/e2e/checks/instrumentChecks.ts`,
+  `scripts/e2e/checks/pageChecks.ts`, `scripts/e2e/checks/measure.ts`):
+  instrument contract, snapshot identity across views, typed entry/step,
+  out-of-domain refusal, WASM block fallback, stale response rejection, restart
+  run ID generation, 320px horizontal overflow, semantic MathML, focus
+  restoration, footnote reachability, print fidelity, and `@axe-core/playwright`
+  accessibility audit.
+- **Fixture subsystem and self-test pages** (`scripts/e2e/fixtures/*`,
+  `src/testing/e2e/fixtures/pages/*`, `src/testing/e2e/fixture-apps/selftest/*`):
+  fixture application registry, deterministic `bun build` bundler, 127.0.0.1-only
+  HTTP server, production build leakage scanner, ok/broken self-test HTML fixture
+  pairs for every check, fixture reading section, and interactive `harness-selftest`
+  instrument app.
+- **CI and Gates** (`.github/workflows/browser-acceptance.yml`,
+  `scripts/quality-gates/registry.ts`): registered `browser-acceptance` gate step
+  and standalone GitHub Actions browser workflow.
 
 ## Commands
 
@@ -253,9 +258,11 @@ into a served, verified bundle now exist:
   id, source directory, or a `staticInputs` served name had leaked into
   production, naming the offending file.
 
-Still open under this bead: the harness's own `harness-selftest` fixture
-pages and scripted instrument (requirement 9), `playwright.config.ts`, and
-the CI workflow and gate registration.
+The harness's own `harness-selftest` fixture application and self-test HTML
+pages (`src/testing/e2e/fixtures/pages/`), `playwright.config.ts`, the browser
+acceptance test suite (`scripts/e2e/checks/*.test.ts`, `scripts/e2e/*.test.ts`),
+and the GitHub Actions CI workflow (`.github/workflows/browser-acceptance.yml`)
+are fully delivered and verified.
 
 ## The CLI's harness flags
 

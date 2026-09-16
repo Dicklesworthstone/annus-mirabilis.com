@@ -1,0 +1,23 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <title>Stale Response Check - Broken</title>
+</head>
+<body>
+  <!-- Defect: An older delayed response for revision 1 erroneously overwrote the newer accepted revision 2 -->
+  <div id="instrument-root"
+       data-instrument-id="bm-01"
+       data-instance-id="inst-stale-1"
+       data-run-id="run-stale-1"
+       data-snapshot-version="3"
+       data-input-revision="2"
+       data-accepted-input-revision="1"
+       data-pending="false"
+       data-execution-label="host"
+       data-result-status="value">
+    <h2>Stale Response Applied</h2>
+    <p>Bug: Overwrote accepted input revision back to 1.</p>
+  </div>
+</body>
+</html>
