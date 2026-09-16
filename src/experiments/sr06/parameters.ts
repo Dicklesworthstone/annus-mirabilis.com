@@ -27,7 +27,10 @@ export function validateSr06Parameters(input: unknown): Sr06ParameterCheck {
   if (typeof p.showRapidity !== "boolean" || !MODES.includes(p.mode))
     return bad("Choose collinear, angled, or two-boosts, and a rapidity toggle.");
   for (const k of keys as (keyof Sr06Parameters)[]) {
-    if (typeof SR06_DEFAULTS[k] === "number" && (typeof p[k] !== "number" || !Number.isFinite(p[k])))
+    if (
+      typeof SR06_DEFAULTS[k] === "number" &&
+      (typeof p[k] !== "number" || !Number.isFinite(p[k]))
+    )
       return bad("Use finite numbers in the stated units.");
   }
   if (Math.abs(p.frameBeta) >= 1 || Math.abs(p.secondBeta) >= 1)

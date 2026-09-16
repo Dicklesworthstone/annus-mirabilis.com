@@ -19,7 +19,9 @@ export function fromSr06Draft(draft: Sr06Draft): Sr06Parameters {
   const r = validateSr06Parameters(p);
   if (r.kind !== "accepted")
     throw new TypeError(
-      r.kind === "refused" ? String(r.refusal.details?.requirements ?? r.refusal.message) : "Invalid settings.",
+      r.kind === "refused"
+        ? String(r.refusal.details?.requirements ?? r.refusal.message)
+        : "Invalid settings.",
     );
   return r.data;
 }

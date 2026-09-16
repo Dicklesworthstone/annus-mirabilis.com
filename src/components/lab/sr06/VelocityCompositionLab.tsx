@@ -11,10 +11,7 @@ import {
   type Sr06Parameters,
 } from "../../../experiments/sr06/definition.ts";
 import { decodeSr06Settings, encodeSr06Settings } from "../../../experiments/sr06/permalink.ts";
-import {
-  createSr06Session,
-  type PreparedSr06Example,
-} from "../../../experiments/sr06/session.ts";
+import { createSr06Session, type PreparedSr06Example } from "../../../experiments/sr06/session.ts";
 import { result } from "../presentation.ts";
 import { VelocityCompositionPlot } from "./VelocityCompositionPlot.tsx";
 
@@ -23,7 +20,9 @@ function Readout({
   id,
   digits = 6,
 }: {
-  snapshot: NonNullable<ReturnType<ReturnType<typeof createSr06Session>["getSnapshot"]>["accepted"]>;
+  snapshot: NonNullable<
+    ReturnType<ReturnType<typeof createSr06Session>["getSnapshot"]>["accepted"]
+  >;
   id: string;
   digits?: number;
 }) {
@@ -47,7 +46,11 @@ export function VelocityCompositionLab({
 }) {
   const id = useId();
   const [session] = useState(() => createSr06Session(`sr06-${id}`, example.parameters));
-  const view = useSyncExternalStore(session.subscribe, session.getSnapshot, session.getServerSnapshot);
+  const view = useSyncExternalStore(
+    session.subscribe,
+    session.getSnapshot,
+    session.getServerSnapshot,
+  );
   const snapshot = view.accepted!;
   const p = snapshot.parameters as Sr06Parameters;
   const [draft, setDraft] = useState(() => toSr06Draft(p));
@@ -61,7 +64,9 @@ export function VelocityCompositionLab({
     const shared = decodeSr06Settings(window.location.search);
     if (shared.kind === "settings") {
       setDraft(toSr06Draft(shared.parameters));
-      setNote("Shared settings are loaded as a draft. The worked example stays until you apply them.");
+      setNote(
+        "Shared settings are loaded as a draft. The worked example stays until you apply them.",
+      );
     } else if (shared.kind === "invalid") setNote(shared.message);
   }, []);
 

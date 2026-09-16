@@ -17,7 +17,10 @@ export function encodeSr06Settings(p: Sr06Parameters): string {
 
 export function decodeSr06Settings(
   search: string,
-): { kind: "none" } | { kind: "settings"; parameters: Sr06Parameters } | { kind: "invalid"; message: string } {
+):
+  | { kind: "none" }
+  | { kind: "settings"; parameters: Sr06Parameters }
+  | { kind: "invalid"; message: string } {
   if (!search || search === "?") return { kind: "none" };
   const q = new URLSearchParams(search);
   if (![...q.keys()].some((k) => ["v", "w", "alpha", "mode"].includes(k))) return { kind: "none" };
@@ -27,7 +30,10 @@ export function decodeSr06Settings(
     frameBeta: q.has("v") ? Number(q.get("v")) : SR06_DEFAULTS.frameBeta,
     movingSpeed: q.has("w") ? Number(q.get("w")) : SR06_DEFAULTS.movingSpeed,
     alphaDeg: q.has("alpha") ? Number(q.get("alpha")) : SR06_DEFAULTS.alphaDeg,
-    mode: mode === "angled" || mode === "two-boosts" || mode === "collinear" ? mode : SR06_DEFAULTS.mode,
+    mode:
+      mode === "angled" || mode === "two-boosts" || mode === "collinear"
+        ? mode
+        : SR06_DEFAULTS.mode,
     secondBeta: q.has("v2") ? Number(q.get("v2")) : SR06_DEFAULTS.secondBeta,
     secondAngleDeg: q.has("alpha2") ? Number(q.get("alpha2")) : SR06_DEFAULTS.secondAngleDeg,
     showRapidity: q.get("rapidity") === "1",

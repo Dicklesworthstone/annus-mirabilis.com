@@ -5,8 +5,8 @@ import { fileURLToPath } from "node:url";
 import { parsePredictPromptId, parsePresetId } from "../content/ids.ts";
 import { ExperimentValidationError, validateExperiment } from "../content/schemas/experiment.ts";
 import { strictParse } from "../content/schemas/strictParse.ts";
-import { evaluateSr06 } from "../experiments/sr06/session.ts";
 import { SR06_DEFAULTS } from "../experiments/sr06/definition.ts";
+import { evaluateSr06 } from "../experiments/sr06/session.ts";
 
 const ROOT = resolve(dirname(fileURLToPath(import.meta.url)), "../..");
 

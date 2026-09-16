@@ -1,8 +1,8 @@
 import type { Metadata } from "next";
 import { Formula } from "../../../components/edition/Formula.tsx";
 import { VelocityCompositionComparison } from "../../../components/lab/sr06/VelocityCompositionLab.tsx";
-import { DEFAULT_PREPARED_EXAMPLE } from "../../../experiments/sr06/session.ts";
 import { validateSr06Parameters } from "../../../experiments/sr06/parameters.ts";
+import { DEFAULT_PREPARED_EXAMPLE } from "../../../experiments/sr06/session.ts";
 import "./composition.css";
 
 export const metadata: Metadata = {
@@ -11,7 +11,8 @@ export const metadata: Metadata = {
 
 export default function VelocityCompositionPage() {
   const checked = validateSr06Parameters(DEFAULT_PREPARED_EXAMPLE.parameters);
-  if (checked.kind !== "accepted") throw new Error("The prepared composition settings are invalid.");
+  if (checked.kind !== "accepted")
+    throw new Error("The prepared composition settings are invalid.");
   return (
     <>
       <header className="page-intro">

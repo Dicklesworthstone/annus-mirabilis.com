@@ -17,7 +17,9 @@ import { SR06_CLASSES, SR06_DEFAULTS, SR06_OUTPUTS, type Sr06Parameters } from "
 import { validateSr06Parameters } from "./parameters.ts";
 
 function identity(id: keyof typeof SR06_OUTPUTS) {
-  const { statuses: _s, ...c } = SR06_OUTPUTS[id];
+  const contract = SR06_OUTPUTS[id];
+  if (!contract) throw new TypeError(`Unregistered SR-06 output: ${id}`);
+  const { statuses: _s, ...c } = contract;
   return { quantityId: id, ...c };
 }
 
@@ -64,7 +66,11 @@ export function evaluateSr06(p: Sr06Parameters): ScientificResult[] {
   const uy = composed.value.uy;
   const U = Math.hypot(ux, uy);
   const galilean = Math.hypot(p.frameBeta + wx, wy);
-  outputs.push(value("composedUxOverC", ux), value("composedUyOverC", uy), value("composedSpeedOverC", U));
+  outputs.push(
+    value("composedUxOverC", ux),
+    value("composedUyOverC", uy),
+    value("composedSpeedOverC", U),
+  );
   outputs.push(value("galileanSpeedOverC", galilean));
   if (p.movingSpeed < 1) {
     const printed = composePrinted(p.frameBeta, p.movingSpeed, alpha, 1);
@@ -78,7 +84,11 @@ export function evaluateSr06(p: Sr06Parameters): ScientificResult[] {
   }
   if (p.mode === "collinear" && p.movingSpeed < 1) {
     const s = composedSpeedShortfall(p.frameBeta, p.movingSpeed);
-    outputs.push(s.status === "value" ? value("shortfall", s.value) : absent("shortfall", "outside-domain", s.reason));
+    outputs.push(
+      s.status === "value"
+        ? value("shortfall", s.value)
+        : absent("shortfall", "outside-domain", s.reason),
+    );
   } else {
     outputs.push(value("shortfall", 1 - U));
   }
@@ -114,7 +124,8 @@ export function evaluateSr06(p: Sr06Parameters): ScientificResult[] {
         );
       }
     } else {
-      const msg = first.status !== "value" ? first.reason : second.status !== "value" ? second.reason : "";
+      const msg =
+        first.status !== "value" ? first.reason : second.status !== "value" ? second.reason : "";
       outputs.push(
         absent("rotationDeg", "outside-domain", msg),
         absent("composedGamma", "outside-domain", msg),
@@ -124,16 +135,28 @@ export function evaluateSr06(p: Sr06Parameters): ScientificResult[] {
   } else {
     const collinear = p.movingSpeed < 1 ? composeCollinear(p.frameBeta, p.movingSpeed) : null;
     const g =
-      collinear?.status === "value" ? 1 / Math.sqrt(1 - collinear.value * collinear.value) : 1 / Math.sqrt(1 - U * U);
+      collinear?.status === "value"
+        ? 1 / Math.sqrt(1 - collinear.value * collinear.value)
+        : 1 / Math.sqrt(1 - U * U);
     outputs.push(
-      absent("rotationDeg", "not-applicable", "A single boost along one line has no Wigner rotation."),
-      Number.isFinite(g) ? value("composedGamma", g) : absent("composedGamma", "outside-domain", "Gamma is undefined."),
+      absent(
+        "rotationDeg",
+        "not-applicable",
+        "A single boost along one line has no Wigner rotation.",
+      ),
+      Number.isFinite(g)
+        ? value("composedGamma", g)
+        : absent("composedGamma", "outside-domain", "Gamma is undefined."),
       absent("productMatrix", "not-applicable", "The 4×4 product is published in two-boosts mode."),
     );
   }
   const r1 = rapidity(p.frameBeta);
   const r2 = p.movingSpeed < 1 ? rapidity(p.movingSpeed) : null;
-  outputs.push(r1.status === "value" ? value("rapidityFrame", r1.value) : absent("rapidityFrame", "outside-domain", r1.reason));
+  outputs.push(
+    r1.status === "value"
+      ? value("rapidityFrame", r1.value)
+      : absent("rapidityFrame", "outside-domain", r1.reason),
+  );
   if (r2 && r2.status === "value") {
     outputs.push(value("rapidityMoving", r2.value));
     outputs.push(
@@ -143,8 +166,16 @@ export function evaluateSr06(p: Sr06Parameters): ScientificResult[] {
     );
   } else {
     outputs.push(
-      absent("rapidityMoving", "not-applicable", "A light-like moving-frame speed has no finite rapidity."),
-      absent("rapiditySum", "not-applicable", "A light-like moving-frame speed has no finite rapidity."),
+      absent(
+        "rapidityMoving",
+        "not-applicable",
+        "A light-like moving-frame speed has no finite rapidity.",
+      ),
+      absent(
+        "rapiditySum",
+        "not-applicable",
+        "A light-like moving-frame speed has no finite rapidity.",
+      ),
     );
   }
   const inc = compositionIncrement(c / p.mediumIndex, p.flowSpeed, c);
@@ -216,7 +247,8 @@ export function createSr06Session(
         else setup[key] = next[key];
       }
       let request = Object.keys(setup).length ? store.issue("setup-change", setup) : null;
-      if (Object.keys(presentation).length) request = store.issue("presentation-change", presentation);
+      if (Object.keys(presentation).length)
+        request = store.issue("presentation-change", presentation);
       request ??= store.issue("continue");
       const decision = store.publish({
         ...request,
