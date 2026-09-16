@@ -1,6 +1,7 @@
 import type { EquationRecord } from "../../equations/record.ts";
 import { ContentError, parseContentJson } from "./json.ts";
 import { READING_IDS, validateReadingRecord, type ReadingRecord, type Paper, type Argument, type Foundation, type Citation, type Block } from "../schemas/reading.ts";
+import { isQuantitiesPath, compileQuantitiesRoutePath } from "./quantities.ts";
 export type Diagnostic = Readonly<{ severity: "error" | "review"; code: string; path: string; message: string }>;
 export type PaperPayload = Readonly<{ schemaVersion: 1; paper: Paper; arguments: readonly Argument[]; foundations: readonly Foundation[]; citations: readonly Citation[]; equations: readonly EquationRecord[] }>;
 const routes = [

@@ -17,12 +17,11 @@ export type LegacySpellingEntry = Readonly<{
 
 export const LEGACY_SPELLINGS_PATH = fileURLToPath(new URL("../../../content/quantities/legacy-spellings.yaml", import.meta.url));
 
-/** Loads a legacy-spellings file from an arbitrary path, uncached -- used directly by
- * fixture-driven tests and by the id-doc generator's `--legacy` override. The real,
- * cached table (`getLegacySpellings`) always reads `LEGACY_SPELLINGS_PATH`. */
-export function getLegacySpellingsFrom(path: string): ReadonlyMap<string, LegacySpellingEntry> {
-  const text = readFileSync(path, "utf8");
-  const parsed = strictParse(text, "yaml");
+/** Validates already-parsed legacy-spellings YAML data. Pure (no I/O), so both the file-based
+ * loader below and the content compiler's text-based route (which already holds parsed YAML)
+ * share exactly this one validation, never two copies of the entry shape. Throws `TypeError`;
+ * callers that need a different error type (the compiler's `ContentError`) catch and rewrap. */
+export function parseLegacySpellingEntries(parsed: unknown, path: string): ReadonlyMap<string, LegacySpellingEntry> {
   // A comment-only or blank file parses to {} (this parser's empty-document value): treat
   // that as zero entries rather than a shape error, so a fixture can declare "no spellings".
   if (parsed && typeof parsed === "object" && !Array.isArray(parsed) && Object.keys(parsed).length === 0) {
@@ -44,6 +43,14 @@ export function getLegacySpellingsFrom(path: string): ReadonlyMap<string, Legacy
     map.set(o.spelling, Object.freeze({ spelling: o.spelling, canonicalIds: Object.freeze([...o.canonicalIds] as string[]), message: typeof o.message === "string" ? o.message : undefined }));
   });
   return map;
+}
+
+/** Loads a legacy-spellings file from an arbitrary path, uncached -- used directly by
+ * fixture-driven tests and by the id-doc generator's `--legacy` override. The real,
+ * cached table (`getLegacySpellings`) always reads `LEGACY_SPELLINGS_PATH`. */
+export function getLegacySpellingsFrom(path: string): ReadonlyMap<string, LegacySpellingEntry> {
+  const text = readFileSync(path, "utf8");
+  return parseLegacySpellingEntries(strictParse(text, "yaml"), path);
 }
 
 let cachedLegacySpellings: ReadonlyMap<string, LegacySpellingEntry> | undefined;
