@@ -10,7 +10,8 @@ import { assertOwnerBinding, MissingOwnerError, OWNER_BINDINGS } from "../experi
 import { REGISTRY, registryEntry, registryParityViolations } from "../experiments/registry.ts";
 
 describe("owners: every registered id names exactly one real binding", () => {
-  test("all five registered ids bind to a reference-evaluator naming their real session module", () => {
+  test("all 33 registered ids bind to a reference-evaluator naming their real session module", () => {
+    expect(Object.keys(OWNER_BINDINGS).length).toBe(33);
     for (const [id, binding] of Object.entries(OWNER_BINDINGS)) {
       const directoryId = id.replace("-", "");
       expect(binding?.kind).toBe("reference-evaluator");
@@ -22,7 +23,7 @@ describe("owners: every registered id names exactly one real binding", () => {
   });
 
   test("assertOwnerBinding returns null for in-preparation ids without checking a binding", () => {
-    expect(assertOwnerBinding("lq-01", "in-preparation")).toBeNull();
+    expect(assertOwnerBinding("shelf-michelson-morley", "in-preparation")).toBeNull();
   });
 
   test("assertOwnerBinding throws MissingOwnerError, naming the id, for a registered id with no binding", () => {
@@ -76,18 +77,35 @@ describe("registry: built eagerly, one entry per catalogue id", () => {
 });
 
 describe("resolveExperimentDispatch: the pure resolution contract, no React required", () => {
-  test("an id outside the catalogue resolves to 'unknown', never to a substitute instrument", () => {
+  test("an id outside the catalogue resolves to 'unknown' with typed refusal code 'unknown-catalogue-id'", () => {
     const state = resolveExperimentDispatch("wright-flyer");
     expect(state.kind).toBe("unknown");
     if (state.kind === "unknown") {
       expect(state.requestedId).toBe("wright-flyer");
       expect(state.reason).toContain("wright-flyer");
+      expect(state.refusalCode).toBe("unknown-catalogue-id");
+    }
+  });
+
+  test("an address with malformed grammar resolves to 'unknown' with typed refusal code 'invalid-address-grammar'", () => {
+    const state = resolveExperimentDispatch("bm-01:too:many:colons");
+    expect(state.kind).toBe("unknown");
+    if (state.kind === "unknown") {
+      expect(state.refusalCode).toBe("invalid-address-grammar");
+    }
+  });
+
+  test("an unregistered mode address on a registered id resolves to 'unknown' with typed refusal code 'undeclared-mode'", () => {
+    const state = resolveExperimentDispatch("bm-06:kicks-off");
+    expect(state.kind).toBe("unknown");
+    if (state.kind === "unknown") {
+      expect(state.refusalCode).toBe("undeclared-mode");
+      expect(state.reason).toContain("kicks-off");
     }
   });
 
   test("every catalogue id that is NOT a currently-registered id resolves to 'unknown' or 'in-preparation', never 'registered'", () => {
-    // Derived from REGISTERED_IDS itself, never a duplicated snapshot (this drifted stale
-    // twice from hardcoded lists as the registry grew tick over tick).
+    // Derived from REGISTERED_IDS itself, never a duplicated snapshot.
     const registeredSet = new Set<CatalogueId>(REGISTERED_IDS);
     for (const id of CATALOGUE_IDS) {
       if (registeredSet.has(id)) continue;
@@ -96,7 +114,7 @@ describe("resolveExperimentDispatch: the pure resolution contract, no React requ
     }
   });
 
-  test("a catalogue id with no manifest resolves to in-preparation, carrying its authored question when present", () => {
+  test("a catalogue id in preparation resolves to in-preparation, carrying its authored question when present", () => {
     // Derived rather than naming one id: any in-preparation id with no authored question
     // demonstrates the same contract without drifting when the registry grows.
     const registeredSet = new Set<CatalogueId>(REGISTERED_IDS);
@@ -108,13 +126,15 @@ describe("resolveExperimentDispatch: the pure resolution contract, no React requ
     if (withQuestion.kind === "in-preparation") expect(withQuestion.question).toBeUndefined();
   });
 
-  test("a registered id resolves to 'registered' with its real owner binding", () => {
-    const state = resolveExperimentDispatch("bm-06");
-    expect(state.kind).toBe("registered");
-    if (state.kind === "registered") {
-      expect(state.owner.kind).toBe("reference-evaluator");
-      expect(state.mode).toBeNull();
-      expect(state.view).toBeUndefined();
+  test("all 33 registered core ids resolve to 'registered' with their real owner bindings", () => {
+    for (const id of REGISTERED_IDS) {
+      const state = resolveExperimentDispatch(id);
+      expect(state.kind).toBe("registered");
+      if (state.kind === "registered") {
+        expect(state.owner.kind).toBe("reference-evaluator");
+        expect(state.mode).toBeNull();
+        expect(state.id).toBe(id);
+      }
     }
   });
 
@@ -125,10 +145,5 @@ describe("resolveExperimentDispatch: the pure resolution contract, no React requ
     const state = resolveExperimentDispatch("bm-06", loaders);
     expect(state.kind).toBe("registered");
     if (state.kind === "registered") expect(state.view).toBe(loaders["bm-06"]);
-  });
-
-  test("an unregistered mode address on a registered id resolves to 'unknown', not to the bare id", () => {
-    const state = resolveExperimentDispatch("bm-06:kicks-off");
-    expect(state.kind).toBe("unknown");
   });
 });

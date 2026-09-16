@@ -46,16 +46,19 @@ async function renderDispatch(container: HTMLElement, id: string, viewLoaders: V
 }
 
 describe("ExperimentDispatch: the unknown-id planted negative", () => {
-  test("an unknown id renders the explicit 'not available here' state and no other instrument renders", async () => {
+  test("an unknown id renders the explicit 'not available here' state with refusalCode 'unknown-catalogue-id', and no other instrument renders", async () => {
     const container = createContainer();
     const loaders = fixtureLoaders();
     const root = await renderDispatch(container, "wright-flyer", loaders);
     try {
-      expect(container.querySelector('[data-testid="unknown-experiment-notice"]')).not.toBeNull();
+      const notice = container.querySelector('[data-testid="unknown-experiment-notice"]');
+      expect(notice).not.toBeNull();
+      expect(notice?.getAttribute("data-refusal-code")).toBe("unknown-catalogue-id");
       expect(container.textContent).toContain("This experiment is not available here.");
       expect(container.textContent).toContain("wright-flyer");
       expect(container.querySelector('[data-testid="fixture-bm-06"]')).toBeNull();
       expect(container.querySelector('[data-testid="fixture-bm-07"]')).toBeNull();
+      expect(container.querySelector("[data-instrument-id]")).toBeNull();
       expect(rendered).toEqual([]);
     } finally {
       await act(async () => {
@@ -65,7 +68,43 @@ describe("ExperimentDispatch: the unknown-id planted negative", () => {
     }
   });
 
-  test("a catalogue id outside the registered five is 'unknown to the fixture set' but still resolves in-preparation, not a substitute view", async () => {
+  test("an invalid grammar address renders unknown notice with refusalCode 'invalid-address-grammar'", async () => {
+    const container = createContainer();
+    const loaders = fixtureLoaders();
+    const root = await renderDispatch(container, "bm-06:too:many:colons", loaders);
+    try {
+      const notice = container.querySelector('[data-testid="unknown-experiment-notice"]');
+      expect(notice).not.toBeNull();
+      expect(notice?.getAttribute("data-refusal-code")).toBe("invalid-address-grammar");
+      expect(container.querySelector("[data-instrument-id]")).toBeNull();
+      expect(rendered).toEqual([]);
+    } finally {
+      await act(async () => {
+        root.unmount();
+      });
+      removeContainer(container);
+    }
+  });
+
+  test("an undeclared mode address renders unknown notice with refusalCode 'undeclared-mode'", async () => {
+    const container = createContainer();
+    const loaders = fixtureLoaders();
+    const root = await renderDispatch(container, "bm-06:kicks-off", loaders);
+    try {
+      const notice = container.querySelector('[data-testid="unknown-experiment-notice"]');
+      expect(notice).not.toBeNull();
+      expect(notice?.getAttribute("data-refusal-code")).toBe("undeclared-mode");
+      expect(container.querySelector("[data-instrument-id]")).toBeNull();
+      expect(rendered).toEqual([]);
+    } finally {
+      await act(async () => {
+        root.unmount();
+      });
+      removeContainer(container);
+    }
+  });
+
+  test("a catalogue id without a wired view loader in the fixture set renders in-preparation, not a substitute view", async () => {
     const container = createContainer();
     const loaders = fixtureLoaders();
     const root = await renderDispatch(container, "lq-01", loaders);

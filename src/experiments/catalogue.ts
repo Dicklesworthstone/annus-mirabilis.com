@@ -55,7 +55,7 @@ export const CATALOGUE_STATUS: Readonly<Record<CatalogueId, CatalogueStatus>> = 
   "lq-01": "registered",
   "lq-02": "registered",
   "lq-03": "registered",
-  "lq-04": "in-preparation",
+  "lq-04": "registered",
   "lq-05": "registered",
   "lq-06": "registered",
   "lq-07": "registered",
@@ -73,7 +73,7 @@ export const CATALOGUE_STATUS: Readonly<Record<CatalogueId, CatalogueStatus>> = 
   "sr-02": "registered",
   "sr-03": "registered",
   "sr-04": "registered",
-  "sr-05": "in-preparation",
+  "sr-05": "registered",
   "sr-06": "registered",
   "sr-07": "registered",
   "sr-08": "registered",
@@ -150,7 +150,7 @@ export const CATALOGUE_QUESTIONS: Readonly<Partial<Record<CatalogueId, string>>>
   "sr-11":
     "How do the frequency, angle, amplitude, and radiation pressure of light transform when reflected by a moving mirror, and how does energy balance between the light and the mirror's mechanical work?",
   "sr-13":
-    "What force, work, energy, and deflection relations follow for a slowly accelerated electron, and why do two different \"transverse masses\" appear?",
+    'What force, work, energy, and deflection relations follow for a slowly accelerated electron, and why do two different "transverse masses" appear?',
 });
 
 /** Runtime guard for an id read from a URL, permalink, or reader link: never assume the string is valid. */
@@ -313,6 +313,11 @@ export function parseCatalogueAddress(value: string): ParsedCatalogueAddress {
   return { raw: value, instrumentId, mode };
 }
 
+export type CatalogueAddressErrorCode =
+  | "invalid-address-grammar"
+  | "unknown-catalogue-id"
+  | "undeclared-mode";
+
 /**
  * Resolves a parsed address's `instrumentId` to a known `CatalogueId` and,
  * if a mode is present, checks it against that id's `DECLARED_MODES`. A
@@ -322,15 +327,21 @@ export function parseCatalogueAddress(value: string): ParsedCatalogueAddress {
  */
 export function resolveCatalogueAddress(
   value: string,
-): { id: CatalogueId; mode: string | null } | { error: string } {
+): { id: CatalogueId; mode: string | null } | { error: string; code: CatalogueAddressErrorCode } {
   let parsed: ParsedCatalogueAddress;
   try {
     parsed = parseCatalogueAddress(value);
   } catch (error) {
-    return { error: error instanceof Error ? error.message : String(error) };
+    return {
+      error: error instanceof Error ? error.message : String(error),
+      code: "invalid-address-grammar",
+    };
   }
   if (!isCatalogueId(parsed.instrumentId)) {
-    return { error: `unknown catalogue id "${parsed.instrumentId}"` };
+    return {
+      error: `unknown catalogue id "${parsed.instrumentId}"`,
+      code: "unknown-catalogue-id",
+    };
   }
   if (parsed.mode === null) {
     return { id: parsed.instrumentId, mode: null };
@@ -341,6 +352,7 @@ export function resolveCatalogueAddress(
       error: `"${parsed.mode}" is not a declared mode of ${parsed.instrumentId}; declared modes: ${
         declared.join(", ") || "<none>"
       }`,
+      code: "undeclared-mode",
     };
   }
   return { id: parsed.instrumentId, mode: parsed.mode };

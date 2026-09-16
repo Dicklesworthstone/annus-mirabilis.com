@@ -104,7 +104,7 @@ export function validateCoverageLedger(context: LedgerContext): readonly Coverag
   // Track instrument usage for shared-instrument correspondence note checks
   const instrumentUsage = new Map<string, ArgumentNodeCoverage[]>();
 
-  for (const node of context.argumentNodes) {
+  for (const node of context.argumentNodes ?? []) {
     const { treatment } = node;
 
     // 1. Omitted treatment requires written reason
@@ -251,7 +251,7 @@ export function generateCoverageReport(
   const argumentByKind: Record<string, number> = {};
   let totalArgNodes = 0;
 
-  for (const node of context.argumentNodes) {
+  for (const node of context.argumentNodes ?? []) {
     totalArgNodes++;
     const p = node.paper;
     const kind = node.treatment.kind;
@@ -289,7 +289,7 @@ export function generateCoverageReport(
   const a11yNodes: Record<string, { kind: string; details?: string | undefined }> = {};
   const a11yByKind: Record<string, number> = {};
 
-  for (const node of context.argumentNodes) {
+  for (const node of context.argumentNodes ?? []) {
     const kind = node.accessibilityEquivalent?.kind ?? "missing";
     a11yNodes[node.id] = {
       kind,

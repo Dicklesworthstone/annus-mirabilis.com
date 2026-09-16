@@ -26,7 +26,7 @@
  */
 
 import { type ComponentType, lazy, Suspense } from "react";
-import type { CatalogueId } from "./catalogue.ts";
+import type { CatalogueAddressErrorCode, CatalogueId } from "./catalogue.ts";
 import { resolveCatalogueAddress } from "./catalogue.ts";
 import type { OwnerBinding } from "./owners.ts";
 import { registryEntry } from "./registry.ts";
@@ -43,7 +43,12 @@ export type ViewLoader = () => Promise<{ default: ComponentType<ExperimentViewPr
 export type ViewLoaders = Readonly<Partial<Record<CatalogueId, ViewLoader>>>;
 
 export type ExperimentDispatchState =
-  | Readonly<{ kind: "unknown"; requestedId: string; reason: string }>
+  | Readonly<{
+      kind: "unknown";
+      requestedId: string;
+      reason: string;
+      refusalCode: CatalogueAddressErrorCode;
+    }>
   | Readonly<{
       kind: "in-preparation";
       id: CatalogueId;
@@ -66,7 +71,12 @@ export function resolveExperimentDispatch(
 ): ExperimentDispatchState {
   const resolved = resolveCatalogueAddress(rawId);
   if ("error" in resolved) {
-    return { kind: "unknown", requestedId: rawId, reason: resolved.error };
+    return {
+      kind: "unknown",
+      requestedId: rawId,
+      reason: resolved.error,
+      refusalCode: resolved.code,
+    };
   }
   const entry = registryEntry(resolved.id);
   if (entry.status === "in-preparation") {
@@ -112,7 +122,13 @@ export function ExperimentDispatch({
   const state = resolveExperimentDispatch(id, viewLoaders);
 
   if (state.kind === "unknown") {
-    return <UnknownExperimentNotice requestedId={state.requestedId} sourceHref={sourceHref} />;
+    return (
+      <UnknownExperimentNotice
+        requestedId={state.requestedId}
+        refusalCode={state.refusalCode}
+        sourceHref={sourceHref}
+      />
+    );
   }
 
   if (state.kind === "in-preparation") {
