@@ -1,0 +1,9 @@
+ownerBeadId: am-sr-06-velocity-composition-7ni4
+targets:
+  - kind: caption
+    id: sr-06
+    readings:
+      r0: "Ordinary speeds do not add. Two motions slower than light still compose to a motion slower than light, and a ray of light stays a ray of light."
+      r1: "Section 5 of the 1905 kinematics paper gives the composition from the Lorentz transformation's differentials. Along a line, U = (v + w)/(1 + vw/c²). At an angle the printed formula is used. Two successive boosts that are not parallel also rotate the spatial axes."
+      r2: "Type the two speeds as fractions of c. The Galilean sum is drawn for contrast and is labeled as such. No inertial observer is admitted at or beyond c; that is a refusal, not a silent clamp. Rapidity, if shown, is Minkowski's 1908 aid."
+      r3: "The Wigner rotation of two non-collinear boosts is a later geometric name for a 1905 kinematic fact. Fizeau's first-order drag is compared here as a later interpretation (Laue 1907)."

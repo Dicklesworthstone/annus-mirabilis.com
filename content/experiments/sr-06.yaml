@@ -1,0 +1,274 @@
+id: sr-06
+title: "SR-06: Velocity composition"
+explanatoryQuestion: "Why doesn't adding speeds preserve light speed, and what happens when the motions are not along one line?"
+sourceRefs:
+  - paper: special-relativity
+    id: s5
+argumentIds:
+  - arg-sr-composition
+schemaVersion: 1
+parameters:
+  - id: frameBeta
+    label: "Frame speed v/c"
+    accessibleName: "Signed speed of the moving frame over the speed of light"
+    accessibleDescription: "Boost along +x. No inertial observer at or beyond c."
+    quantityId: frameSpeed
+    displayUnit: "1"
+    modelDomain:
+      min: -1
+      max: 1
+      minInclusive: false
+      maxInclusive: false
+      reason: "No inertial observer at |v| >= c"
+    visualRange:
+      min: -0.95
+      max: 0.95
+    default: 0.6
+    mapping:
+      kind: linear
+    role: independent
+    commandClass: setup-change
+  - id: movingSpeed
+    label: "Moving-frame speed w/c"
+    accessibleName: "Speed in the moving frame over the speed of light"
+    accessibleDescription: "w = c is admitted and stays light-like; w > c is refused."
+    quantityId: frameSpeed
+    displayUnit: "1"
+    modelDomain:
+      min: 0
+      max: 1
+      minInclusive: true
+      maxInclusive: true
+      reason: "Particle speed at most c"
+    visualRange:
+      min: 0
+      max: 0.95
+    default: 0.6
+    mapping:
+      kind: linear
+    role: independent
+    commandClass: setup-change
+  - id: alphaDeg
+    label: "Angle in the moving frame"
+    accessibleName: "Angle of the moving-frame velocity in degrees"
+    accessibleDescription: "Zero is collinear with the boost. 90 degrees is the printed transverse case."
+    quantityId: emissionAngle
+    displayUnit: "deg"
+    modelDomain:
+      min: 0
+      max: 360
+      minInclusive: true
+      maxInclusive: true
+      reason: "A full turn of direction"
+    visualRange:
+      min: 0
+      max: 360
+    default: 0
+    mapping:
+      kind: linear
+    role: independent
+    commandClass: setup-change
+outputs:
+  - id: composedSpeedOverC
+    quantityId: frameSpeed
+    allowedStatuses:
+      - value
+      - outside-domain
+    primary: true
+  - id: composedUxOverC
+    quantityId: frameSpeed
+    allowedStatuses:
+      - value
+      - outside-domain
+  - id: composedUyOverC
+    quantityId: frameSpeed
+    allowedStatuses:
+      - value
+      - outside-domain
+  - id: printedSpeedOverC
+    quantityId: frameSpeed
+    allowedStatuses:
+      - value
+      - outside-domain
+  - id: galileanSpeedOverC
+    quantityId: frameSpeed
+    allowedStatuses:
+      - value
+      - outside-domain
+  - id: shortfall
+    quantityId: frameSpeed
+    allowedStatuses:
+      - value
+      - outside-domain
+  - id: rotationDeg
+    quantityId: emissionAngle
+    allowedStatuses:
+      - value
+      - not-applicable
+      - outside-domain
+assumptions:
+  - "Inertial frames, first boost along +x, special-relativistic kinematics only."
+  - "Prescribed velocities; no dynamics of the body that carries them."
+admittedDomain: "Inertial observers with |v| < c; moving-frame speed w at most c; signed teaching speeds within 0.95c on the slider."
+notModeled:
+  - "accelerated motion"
+  - "spin dynamics and Thomas precession of real bodies (only the kinematic rotation is shown)"
+  - "dispersion and the medium's own physics in Fizeau-type setups"
+  - "gravity"
+owner:
+  kind: reference-evaluator
+  kernelFunctions:
+    - displayRole: reference-implementation
+      language: ts
+      module: "src/physics/reference/kinematics.ts"
+      exportName: "composePrinted"
+    - displayRole: reference-implementation
+      language: ts
+      module: "src/physics/reference/kinematics.ts"
+      exportName: "composeBoosts"
+    - displayRole: reference-implementation
+      language: ts
+      module: "src/physics/reference/kinematics.ts"
+      exportName: "composedSpeedShortfall"
+    - displayRole: reference-implementation
+      language: ts
+      module: "src/physics/reference/kinematics.ts"
+      exportName: "compositionIncrement"
+  identifierBindings:
+    - kernelFunction: composePrinted
+      identifier: "v"
+      quantityId: frameSpeed
+    - kernelFunction: composePrinted
+      identifier: "w"
+      quantityId: frameSpeed
+    - kernelFunction: composePrinted
+      identifier: "alpha"
+      quantityId: emissionAngle
+    - kernelFunction: composedSpeedShortfall
+      identifier: "beta1"
+      quantityId: frameSpeed
+    - kernelFunction: compositionIncrement
+      identifier: "u"
+      quantityId: frameSpeed
+  traceScenarioId: sr-06-collinear-0.6-0.6
+  traceRows:
+    - label: "Collinear 0.6c with 0.6c"
+      expression: "U/c = (v + w)/(1 + v w) = 15/17"
+      value: 0.8823529411764706
+      unit: "c"
+      quantityId: frameSpeed
+views:
+  - id: velocity-space
+    kind: svg
+    consumes:
+      - composedUxOverC
+      - composedUyOverC
+      - composedSpeedOverC
+      - galileanSpeedOverC
+  - id: composition-table
+    kind: table
+    consumes:
+      - composedUxOverC
+      - composedUyOverC
+      - composedSpeedOverC
+      - printedSpeedOverC
+      - shortfall
+      - rotationDeg
+actions:
+  - actionId: sr-06-type-speeds
+    family: fields-boosts
+    question: "What composed speed and rotation follow from these two motions?"
+    inputs:
+      - frameBeta
+      - movingSpeed
+      - alphaDeg
+    commandClass: setup-change
+    acceptedResult:
+      outputs:
+        - composedSpeedOverC
+        - composedUxOverC
+        - composedUyOverC
+        - shortfall
+      allowedStatuses:
+        - value
+        - outside-domain
+        - not-applicable
+    visualAffordance: "Arrows in velocity space and the composition table update from the accepted snapshot"
+    equivalentAffordance: "Type v/c, w/c, and the angle, then read U and the shortfall from the table"
+    announcement: "Composition table updated from the accepted snapshot"
+acceptanceCases:
+  - sr-06-collinear-0.6-0.6
+  - sr-06-angled-90deg-0.6
+  - sr-06-perpendicular-boosts-0.6
+defaultScenario: sr-06-collinear-0.6-0.6
+tapeModel:
+  modelId: sr-06
+  modelVersion: 1
+teachingTapes: []
+presets:
+  - presetId: sr-06-collinear-0.6-0.6
+    label: "0.6c along 0.6c"
+    parameterValues:
+      frameBeta: 0.6
+      movingSpeed: 0.6
+      alphaDeg: 0
+  - presetId: sr-06-angled-90deg-0.6
+    label: "Printed formula at 90 degrees"
+    parameterValues:
+      frameBeta: 0.6
+      movingSpeed: 0.6
+      alphaDeg: 90
+  - presetId: sr-06-perpendicular-boosts-0.6
+    label: "Successive perpendicular boosts"
+    parameterValues:
+      frameBeta: 0.6
+      movingSpeed: 0.6
+      alphaDeg: 0
+  - presetId: sr-06-near-light-0.99
+    label: "0.99c with 0.99c"
+    parameterValues:
+      frameBeta: 0.99
+      movingSpeed: 0.99
+  - presetId: sr-06-null-ray
+    label: "A transverse light ray"
+    parameterValues:
+      movingSpeed: 1
+      alphaDeg: 90
+  - presetId: sr-06-fizeau-water
+    label: "Fizeau water limit"
+    parameterValues:
+      frameBeta: 0.6
+      movingSpeed: 0.6
+probes:
+  - collinear-sum
+  - angled-printed
+  - two-boost-rotation
+weavePredicates:
+  - sr06-subluminal-composition
+  - sr06-null-stays-null
+historicalOverlays: []
+realRate:
+  natural: false
+embeddable: true
+predictMode:
+  enabled: true
+  prompts:
+    - promptId: sr-06-predict-collinear
+      controlId: movingSpeed
+      question: "An object moves at 0.6c relative to a frame that moves at 0.6c. What speed does the platform measure?"
+      candidates:
+        - id: galilean-sum
+          label: "1.2 times light speed"
+          description: "Everyday addition of speeds"
+          separatingAssumption: "U = v + w, with no composition denominator."
+          relation: "U = v + w"
+        - id: relativistic-15-17
+          label: "About 0.88 of light speed"
+          description: "The section 5 collinear composition"
+          separatingAssumption: "U = (v + w)/(1 + v w / c^2)."
+          relation: "U = (v + w)/(1 + vw/c^2)"
+        - id: unchanged-0-6c
+          label: "0.6 of light speed"
+          description: "The platform measures only the moving-frame speed"
+          separatingAssumption: "U = w, as if the frame speed did not compose."
+          relation: "U = w"
