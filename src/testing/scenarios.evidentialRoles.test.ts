@@ -1,6 +1,6 @@
 import { describe, expect, test } from "bun:test";
-import { mkdirSync, writeFileSync } from "node:fs";
-import { join } from "node:path";
+import { dirname, join } from "node:path";
+import { fileURLToPath } from "node:url";
 import { createDeclaredConstantSet } from "../physics/reference/constants.ts";
 import {
   checkPrintedConsistency,
@@ -9,7 +9,7 @@ import {
   ILLUSTRATIVE_VALUE_AS_INPUT,
 } from "./scenario-registry/evidentialRoleGuard.ts";
 import { loadScenarioFile } from "./scenario-registry/load.ts";
-import { runLoadedScenarios } from "./scenario-registry/run.ts";
+import { runScenariosIsolated } from "./scenario-registry/run.ts";
 
 const illustrative = createDeclaredConstantSet({
   id: "scenario-self-test-illustrative-direct",
@@ -106,30 +106,9 @@ describe("evidential roles", () => {
   });
 
   test("a scenario whose inputs name the illustrative displacement fails the runner", () => {
-    const dir = join(process.cwd(), "src/testing/scenario-fixtures/negatives");
-    mkdirSync(dir, { recursive: true });
-    const path = join(dir, "illustrative-input.yaml");
-    writeFileSync(
-      path,
-      `id: self-test-illustrative-input
-kind: modern-golden
-title: circular
-constantSetId: scenario-self-test-illustrative
-owner: selfTest.constant
-inputs:
-  rmsDisplacement1d: { value: 7.947833e-7, unit: m }
-  value: { value: 1, unit: "1" }
-expected:
-  outputs:
-    - outputId: value
-      value: 1
-      comparisonKind: tolerance
-      tolerance: { relative: 1.0e-9, rationale: "n/a" }
-modelVersion: 1
-schemaVersion: 1
-`,
-    );
-    const { results } = runLoadedScenarios([loadScenarioFile(path)]);
+    const dir = dirname(fileURLToPath(import.meta.url));
+    const path = join(dir, "scenario-fixtures/negatives/illustrative-input.yaml");
+    const { results } = runScenariosIsolated([loadScenarioFile(path)]);
     expect(results[0]?.status).toBe("failed");
     expect(results[0]?.message.includes("illustrative-value-as-input")).toBe(true);
   });

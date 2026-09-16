@@ -8,7 +8,7 @@ import {
 } from "../scenario-fixtures/evaluator.ts";
 import { scenarioKindLabel } from "../scenario-registry/labels.ts";
 import { defaultScenarioDirs, loadScenarios } from "../scenario-registry/load.ts";
-import { runLoadedScenarios } from "../scenario-registry/run.ts";
+import { runScenariosIsolated } from "../scenario-registry/run.ts";
 
 const C = 299792458;
 
@@ -21,7 +21,7 @@ describe("discrimination scenarios", () => {
         "shelf-fizeau-fresnel-versus-relativistic",
       ].includes(item.scenario.id),
     );
-    const { results } = runLoadedScenarios(loaded);
+    const { results } = runScenariosIsolated(loaded);
     const byId = Object.fromEntries(results.map((r) => [r.scenarioId, r]));
     expect(byId["sr-02-emf-first-order-agreement"]?.status).toBe("passed");
     expect(byId["sr-02-emf-discriminates-at-0.6c"]?.status).toBe("passed");

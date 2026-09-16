@@ -1,5 +1,10 @@
 import { describe, expect, test } from "bun:test";
-import { CATALOGUE_IDS } from "../experiments/catalogue.ts";
+import {
+  CATALOGUE_IDS,
+  CATALOGUE_QUESTIONS,
+  type CatalogueId,
+  REGISTERED_IDS,
+} from "../experiments/catalogue.ts";
 import { resolveExperimentDispatch, type ViewLoaders } from "../experiments/dispatch.tsx";
 import { assertOwnerBinding, MissingOwnerError, OWNER_BINDINGS } from "../experiments/owners.ts";
 import { REGISTRY, registryEntry, registryParityViolations } from "../experiments/registry.ts";
@@ -21,17 +26,19 @@ describe("owners: every registered id names exactly one real binding", () => {
   });
 
   test("assertOwnerBinding throws MissingOwnerError, naming the id, for a registered id with no binding", () => {
-    // lq-02 is still in-preparation with no owner binding today (unlike lq-01, which gained a
-    // binding since this test was first written); it stands in here for "a registered id with
-    // no binding" without asserting anything about its own real catalogue status.
-    expect(() => assertOwnerBinding("lq-02", "registered")).toThrow(MissingOwnerError);
+    // Derived rather than hardcoded: the registry grows every tick, so this picks whichever
+    // catalogue id genuinely has no owner binding right now, instead of naming one that may
+    // gain a binding later (this test broke twice from exactly that drift before this fix).
+    const unbound = CATALOGUE_IDS.find((id) => !(id in OWNER_BINDINGS));
+    if (!unbound) throw new Error("expected at least one catalogue id with no owner binding");
+    expect(() => assertOwnerBinding(unbound, "registered")).toThrow(MissingOwnerError);
     try {
-      assertOwnerBinding("lq-02", "registered");
+      assertOwnerBinding(unbound, "registered");
       throw new Error("expected a throw");
     } catch (error) {
       expect(error).toBeInstanceOf(MissingOwnerError);
-      expect((error as MissingOwnerError).id).toBe("lq-02");
-      expect((error as Error).message).toContain("lq-02");
+      expect((error as MissingOwnerError).id).toBe(unbound);
+      expect((error as Error).message).toContain(unbound);
     }
   });
 });
@@ -58,16 +65,8 @@ describe("registry: built eagerly, one entry per catalogue id", () => {
   });
 
   test("only the ids with an authored CATALOGUE_QUESTIONS entry carry a question", () => {
-    const authored = new Set([
-      "bm-03",
-      "bm-04",
-      "bm-05",
-      "lq-01",
-      "lq-03",
-      "lq-08",
-      "me-01",
-      "me-02",
-    ]);
+    // Derived from CATALOGUE_QUESTIONS itself, never a duplicated snapshot of its keys.
+    const authored = new Set(Object.keys(CATALOGUE_QUESTIONS));
     for (const id of CATALOGUE_IDS) {
       const entry = registryEntry(id);
       if (authored.has(id)) expect(entry.question).toBeTruthy();
@@ -87,21 +86,9 @@ describe("resolveExperimentDispatch: the pure resolution contract, no React requ
   });
 
   test("every catalogue id that is NOT a currently-registered id resolves to 'unknown' or 'in-preparation', never 'registered'", () => {
-    const registeredSet = new Set([
-      "bm-01",
-      "bm-02",
-      "bm-03",
-      "bm-04",
-      "bm-05",
-      "bm-06",
-      "bm-07",
-      "bm-08",
-      "lq-01",
-      "lq-03",
-      "lq-08",
-      "me-01",
-      "me-02",
-    ]);
+    // Derived from REGISTERED_IDS itself, never a duplicated snapshot (this drifted stale
+    // twice from hardcoded lists as the registry grew tick over tick).
+    const registeredSet = new Set<CatalogueId>(REGISTERED_IDS);
     for (const id of CATALOGUE_IDS) {
       if (registeredSet.has(id)) continue;
       const state = resolveExperimentDispatch(id);
@@ -110,8 +97,13 @@ describe("resolveExperimentDispatch: the pure resolution contract, no React requ
   });
 
   test("a catalogue id with no manifest resolves to in-preparation, carrying its authored question when present", () => {
-    // sr-01 is still in-preparation with no authored question today.
-    const withQuestion = resolveExperimentDispatch("sr-01");
+    // Derived rather than naming one id: any in-preparation id with no authored question
+    // demonstrates the same contract without drifting when the registry grows.
+    const registeredSet = new Set<CatalogueId>(REGISTERED_IDS);
+    const questioned = new Set(Object.keys(CATALOGUE_QUESTIONS));
+    const candidate = CATALOGUE_IDS.find((id) => !registeredSet.has(id) && !questioned.has(id));
+    if (!candidate) throw new Error("expected an in-preparation id with no authored question");
+    const withQuestion = resolveExperimentDispatch(candidate);
     expect(withQuestion.kind).toBe("in-preparation");
     if (withQuestion.kind === "in-preparation") expect(withQuestion.question).toBeUndefined();
   });

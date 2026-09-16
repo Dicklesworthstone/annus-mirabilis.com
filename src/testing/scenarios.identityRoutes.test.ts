@@ -1,11 +1,11 @@
 import { describe, expect, test } from "bun:test";
-import { mkdirSync, writeFileSync } from "node:fs";
-import { join } from "node:path";
+import { dirname, join } from "node:path";
+import { fileURLToPath } from "node:url";
 import { validateScenario } from "../content/schemas/experiment.ts";
 import { checkIdentityIndependence, readOwnerSource } from "./scenario-registry/identityRoutes.ts";
 import { loadScenarioFile } from "./scenario-registry/load.ts";
 import { ownerSourceMap } from "./scenario-registry/owners.ts";
-import { runLoadedScenarios } from "./scenario-registry/run.ts";
+import { runScenariosIsolated } from "./scenario-registry/run.ts";
 
 describe("identity routes", () => {
   test("two distinct owners pass independence", () => {
@@ -49,37 +49,12 @@ describe("identity routes", () => {
   });
 
   test("a missing second route reports not-available", () => {
-    const dir = join(process.cwd(), "src/testing/scenario-fixtures/negatives");
-    mkdirSync(dir, { recursive: true });
-    const path = join(dir, "identity-missing-route.yaml");
-    writeFileSync(
-      path,
-      `id: self-test-identity-missing
-kind: identity
-title: missing
-constantSetId: modern-si-2019
-owner: selfTest.timesTwoClosed
-inputs:
-  x: { value: 1, unit: "1" }
-routes:
-  - routeId: a
-    owner: selfTest.timesTwoClosed
-    description: product
-  - routeId: b
-    owner: selfTest.notYetImplemented
-    description: missing owner
-expected:
-  outputs:
-    - outputId: value
-      value: 2
-      comparisonKind: tolerance
-      tolerance: { relative: 1.0e-9, rationale: "n/a" }
-modelVersion: 1
-schemaVersion: 1
-`,
+    const path = join(
+      dirname(fileURLToPath(import.meta.url)),
+      "scenario-fixtures/negatives/identity-missing-route.yaml",
     );
     const loaded = loadScenarioFile(path);
-    const { results } = runLoadedScenarios([loaded]);
+    const { results } = runScenariosIsolated([loaded]);
     expect(results[0]?.status).toBe("not-available");
   });
 

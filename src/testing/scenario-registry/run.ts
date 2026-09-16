@@ -1,4 +1,5 @@
-import { mkdirSync, writeFileSync } from "node:fs";
+import { mkdirSync, mkdtempSync, writeFileSync } from "node:fs";
+import { tmpdir } from "node:os";
 import { dirname, join } from "node:path";
 import type { Scenario } from "../../content/schemas/experiment.ts";
 import {
@@ -177,17 +178,12 @@ function resolveSet(id: string): ConstantSet {
 }
 
 function writeFailure(
+  logRoot: string,
   logRunId: string,
   scenarioId: string,
   payload: Record<string, unknown>,
 ): string {
-  const path = join(
-    process.cwd(),
-    "artifacts/test-logs/scenarios",
-    logRunId,
-    "failures",
-    `${scenarioId}.json`,
-  );
+  const path = join(logRoot, "scenarios", logRunId, "failures", `${scenarioId}.json`);
   mkdirSync(dirname(path), { recursive: true });
   writeFileSync(path, `${JSON.stringify(payload, null, 2)}\n`);
   return path;
@@ -195,10 +191,17 @@ function writeFailure(
 
 export function runLoadedScenarios(
   loaded: readonly LoadedScenario[],
-  options: { logRunId?: string } = {},
-): { results: ScenarioRunResult[]; logRunId: string; failed: number; notAvailable: number } {
+  options: { logRunId?: string; logRoot?: string } = {},
+): {
+  results: ScenarioRunResult[];
+  logRunId: string;
+  logRoot: string;
+  failed: number;
+  notAvailable: number;
+} {
   const logRunId = options.logRunId ?? newRunIdentity();
-  const logger = new TestLogger("scenarios", logRunId);
+  const logRoot = options.logRoot ?? join(process.cwd(), "artifacts", "test-logs");
+  const logger = new TestLogger("scenarios", logRunId, logRoot);
   const results: ScenarioRunResult[] = [];
   const sources = ownerSourceMap();
   const sourceTexts: Record<string, string> = {};
@@ -235,7 +238,7 @@ export function runLoadedScenarios(
     }
     logger.log(event);
     if (row.status === "failed") {
-      const failurePath = writeFailure(logRunId, item.scenario.id, {
+      const failurePath = writeFailure(logRoot, logRunId, item.scenario.id, {
         scenarioId: item.scenario.id,
         path: item.path,
         message: row.message,
@@ -249,9 +252,16 @@ export function runLoadedScenarios(
   return {
     results,
     logRunId,
+    logRoot,
     failed: results.filter((r) => r.status === "failed").length,
     notAvailable: results.filter((r) => r.status === "not-available").length,
   };
+}
+
+/** Tests that need a log file must call this, never the shared artifacts/ tree. */
+export function runScenariosIsolated(loaded: readonly LoadedScenario[]) {
+  const logRoot = mkdtempSync(join(tmpdir(), "am-scenarios-"));
+  return runLoadedScenarios(loaded, { logRoot, logRunId: newRunIdentity() });
 }
 
 function runOne(

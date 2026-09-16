@@ -1,12 +1,13 @@
 import { describe, expect, test } from "bun:test";
 import { readFileSync } from "node:fs";
+import { join } from "node:path";
 import { defaultScenarioDirs, loadScenarios } from "./scenario-registry/load.ts";
-import { runLoadedScenarios } from "./scenario-registry/run.ts";
+import { runScenariosIsolated } from "./scenario-registry/run.ts";
 
 describe("scenario runner", () => {
   test("executes passing fixtures of all five kinds and writes JSONL", () => {
     const loaded = loadScenarios(defaultScenarioDirs());
-    const { results, logRunId, failed } = runLoadedScenarios(loaded);
+    const { results, logRunId, logRoot, failed } = runScenariosIsolated(loaded);
     expect(failed).toBe(0);
     const byId = Object.fromEntries(results.map((r) => [r.scenarioId, r]));
     expect(byId["self-test-golden"]?.status).toBe("passed");
@@ -21,7 +22,7 @@ describe("scenario runner", () => {
     expect(byId["diffusion-adversarial-half-diffusivity"]?.status).toBe("passed");
     expect(byId["diffusion-adversarial-1um-radius"]?.status).toBe("passed");
     expect(byId["diffusion-einstein-1905-printed"]?.status).toBe("not-available");
-    const log = readFileSync(`artifacts/test-logs/scenarios/${logRunId}.jsonl`, "utf8");
+    const log = readFileSync(join(logRoot, "scenarios", `${logRunId}.jsonl`), "utf8");
     expect(log.includes("self-test-golden")).toBe(true);
     expect(log.includes("not-available")).toBe(true);
   });
@@ -30,7 +31,7 @@ describe("scenario runner", () => {
     const loaded = loadScenarios(defaultScenarioDirs()).filter(
       (item) => item.scenario.id === "diffusion-adversarial-1um-radius",
     );
-    const { results } = runLoadedScenarios(loaded);
+    const { results } = runScenariosIsolated(loaded);
     expect(results[0]?.status).toBe("passed");
     const actuals = results[0]?.extra.actual as { rmsDisplacement1d?: number } | undefined;
     const actual = actuals?.rmsDisplacement1d ?? Number.NaN;
