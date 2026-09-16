@@ -194,7 +194,8 @@ export function decodeLabResponse(
         },
       ).outputs;
       for (const output of outputs) {
-        const c = BM07_OUTPUTS[output.quantityId]!;
+        const c = BM07_OUTPUTS[output.quantityId];
+        if (!c) fail(`Response declares an unregistered quantity id: ${output.quantityId}.`);
         if (
           output.ownerId !== c.ownerId ||
           output.semanticKind !== c.semanticKind ||
