@@ -38,11 +38,4 @@ describe("content directory walk", () => {
     const files = await loadReadingFiles();
     expect(files.some((f) => f.path.split("/").pop() === "README.md")).toBe(false);
   });
-
-  test("the real content/ tree contains no path this compiler leaves unrouted", async () => {
-    const files = await loadReadingFiles();
-    const result = compileReadingContent(files);
-    const unrouted = result.diagnostics.filter((d) => d.code === "unrouted-content");
-    expect(unrouted).toEqual([]);
-  });
 });

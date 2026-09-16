@@ -1,1 +1,8 @@
-{"schemaVersion":1,"kind":"citation","id":"nist-normal-variance","title":"NIST/SEMATECH e-Handbook: confidence limits for a standard deviation","locator":"Modern statistical reference: chi-square confidence limits","url":"https://www.itl.nist.gov/div898/handbook/eda/section3/eda358.htm"}
+{
+  "schemaVersion": 1,
+  "kind": "citation",
+  "id": "nist-normal-variance",
+  "title": "NIST/SEMATECH e-Handbook: confidence limits for a standard deviation",
+  "locator": "Modern statistical reference: chi-square confidence limits",
+  "url": "https://www.itl.nist.gov/div898/handbook/eda/section3/eda358.htm"
+}

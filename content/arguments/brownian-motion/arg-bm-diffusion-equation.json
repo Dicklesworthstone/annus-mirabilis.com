@@ -1,1 +1,116 @@
-{"schemaVersion":1,"kind":"argument","id":"arg-bm-diffusion-equation","paper":"brownian-motion","section":"s4","title":"From a step law to a density law","question":"How can random individual steps produce a deterministic equation?","recap":"Normalization preserves probability; symmetry removes drift; the second moment supplies diffusion.","review":"draft","premises":["The transition density is normalized, symmetric and has finite second moment.","The density is smooth on the step scale; the retained expansion has a controlled coarse-grained range."],"limitations":["A Taylor truncation is an approximation unless justified by a suitable limiting procedure.","Physical independence breaks down at sufficiently short times; the limit is not a literal collision movie."],"citations":["ap-17-549"],"readings":{"overview":[{"kind":"paragraph","text":"The exact step rule averages over possible displacements. With symmetry, finite variance and a justified smooth-scale approximation, its leading evolution is the diffusion equation."}],"full":[{"kind":"paragraph","text":"Let φ(Δ) be the probability density for a displacement Δ during τ. To end at x, a tracer must start at x − Δ and then make that displacement. Adding over all possible increments gives the transition relation, written here in modern notation."},{"kind":"formula","latex":"p(x,t+\\tau)=\\int_{-\\infty}^{\\infty}p(x-\\Delta,t)\\varphi(\\Delta)\\,d\\Delta","spoken":"The next density is the integral of the previous shifted density times the step density."},{"kind":"paragraph","text":"Expand to first order in time and second order in displacement. Normalization cancels the zeroth-order term. Symmetry removes the first moment. The second moment remains."},{"kind":"formula","latex":"D=\\frac{1}{2\\tau}\\int_{-\\infty}^{\\infty}\\Delta^2\\varphi(\\Delta)\\,d\\Delta","spoken":"D is half the mean-square step divided by the step interval."},{"kind":"formula","latex":"\\frac{\\partial p}{\\partial t}=D\\frac{\\partial^2p}{\\partial x^2}","spoken":"The retained equation is the diffusion equation."},{"kind":"foundation","id":"taylor-expansion","returnCaption":"Return to the expansion at fixed position or fixed time."}],"steps":[{"kind":"foundation","id":"taylor-expansion","returnCaption":"Return to the two expansions and their remainders."},{"kind":"formula","latex":"p(x,t+\\tau)\\approx p(x,t)+\\tau\\frac{\\partial p}{\\partial t}","spoken":"Keep the density and its first time change on the left."},{"kind":"formula","latex":"p(x-\\Delta,t)\\approx p-\\Delta\\frac{\\partial p}{\\partial x}+\\frac{\\Delta^2}{2}\\frac{\\partial^2p}{\\partial x^2}","spoken":"Keep value, slope and curvature of the spatial density on the right."},{"kind":"steps","items":["The time derivative holds position fixed; the spatial derivatives hold time fixed.","Insert the spatial expansion into the transition integral. The derivatives do not depend on the integration variable Δ.","The integral of φ is one, so the first term integrates to p.","For a symmetric φ, positive and negative Δ contributions cancel in the integral of Δφ.","The remaining second-order contribution is half the second spatial derivative times the mean-square increment.","Subtract p from both sides and divide by τ.","Identify the mean-square increment divided by 2τ as D. This is the retained diffusion law, with the stated approximation conditions."]},{"kind":"foundation","id":"integration","returnCaption":"Return to normalization and cancellation inside the transition integral."},{"kind":"foundation","id":"diffusion-equation","returnCaption":"Return to what the resulting density equation predicts."}],"margin":[{"kind":"paragraph","text":"The equations here are explanatory modern forms, not facsimile-checked printed formulas. A formal τ → 0 operation is not sufficient by itself: step sizes must scale with τ so that diffusivity stays finite and discarded terms vanish. The reader should distinguish this limit from the physical range where independent increments are a useful approximation."}]},"prerequisites":[{"id":"arg-bm-independent-steps","edge":"premise"}],"help":{"why":"distributions","missingStep":"taylor-expansion","example":"taylor-expansion"},"experiments":["bm-05","bm-06"],"meaning":{"logicalRole":"derivation","historicalStatus":"pedagogical-reconstruction","modelStatus":"approximation","executionStatus":"static-illustration"}}
+{
+  "schemaVersion": 1,
+  "kind": "argument",
+  "id": "arg-bm-diffusion-equation",
+  "paper": "brownian-motion",
+  "section": "s4",
+  "title": "From a step law to a density law",
+  "question": "How can random individual steps produce a deterministic equation?",
+  "recap": "Normalization preserves probability; symmetry removes drift; the second moment supplies diffusion.",
+  "review": "draft",
+  "premises": [
+    "The transition density is normalized, symmetric and has finite second moment.",
+    "The density is smooth on the step scale; the retained expansion has a controlled coarse-grained range."
+  ],
+  "limitations": [
+    "A Taylor truncation is an approximation unless justified by a suitable limiting procedure.",
+    "Physical independence breaks down at sufficiently short times; the limit is not a literal collision movie."
+  ],
+  "citations": ["ap-17-549"],
+  "readings": {
+    "overview": [
+      {
+        "kind": "paragraph",
+        "text": "The exact step rule averages over possible displacements. With symmetry, finite variance and a justified smooth-scale approximation, its leading evolution is the diffusion equation."
+      }
+    ],
+    "full": [
+      {
+        "kind": "paragraph",
+        "text": "Let φ(Δ) be the probability density for a displacement Δ during τ. To end at x, a tracer must start at x − Δ and then make that displacement. Adding over all possible increments gives the transition relation, written here in modern notation."
+      },
+      {
+        "kind": "formula",
+        "latex": "p(x,t+\\tau)=\\int_{-\\infty}^{\\infty}p(x-\\Delta,t)\\varphi(\\Delta)\\,d\\Delta",
+        "spoken": "The next density is the integral of the previous shifted density times the step density."
+      },
+      {
+        "kind": "paragraph",
+        "text": "Expand to first order in time and second order in displacement. Normalization cancels the zeroth-order term. Symmetry removes the first moment. The second moment remains."
+      },
+      {
+        "kind": "formula",
+        "latex": "D=\\frac{1}{2\\tau}\\int_{-\\infty}^{\\infty}\\Delta^2\\varphi(\\Delta)\\,d\\Delta",
+        "spoken": "D is half the mean-square step divided by the step interval."
+      },
+      {
+        "kind": "formula",
+        "latex": "\\frac{\\partial p}{\\partial t}=D\\frac{\\partial^2p}{\\partial x^2}",
+        "spoken": "The retained equation is the diffusion equation."
+      },
+      {
+        "kind": "foundation",
+        "id": "taylor-expansion",
+        "returnCaption": "Return to the expansion at fixed position or fixed time."
+      }
+    ],
+    "steps": [
+      {
+        "kind": "foundation",
+        "id": "taylor-expansion",
+        "returnCaption": "Return to the two expansions and their remainders."
+      },
+      {
+        "kind": "formula",
+        "latex": "p(x,t+\\tau)\\approx p(x,t)+\\tau\\frac{\\partial p}{\\partial t}",
+        "spoken": "Keep the density and its first time change on the left."
+      },
+      {
+        "kind": "formula",
+        "latex": "p(x-\\Delta,t)\\approx p-\\Delta\\frac{\\partial p}{\\partial x}+\\frac{\\Delta^2}{2}\\frac{\\partial^2p}{\\partial x^2}",
+        "spoken": "Keep value, slope and curvature of the spatial density on the right."
+      },
+      {
+        "kind": "steps",
+        "items": [
+          "The time derivative holds position fixed; the spatial derivatives hold time fixed.",
+          "Insert the spatial expansion into the transition integral. The derivatives do not depend on the integration variable Δ.",
+          "The integral of φ is one, so the first term integrates to p.",
+          "For a symmetric φ, positive and negative Δ contributions cancel in the integral of Δφ.",
+          "The remaining second-order contribution is half the second spatial derivative times the mean-square increment.",
+          "Subtract p from both sides and divide by τ.",
+          "Identify the mean-square increment divided by 2τ as D. This is the retained diffusion law, with the stated approximation conditions."
+        ]
+      },
+      {
+        "kind": "foundation",
+        "id": "integration",
+        "returnCaption": "Return to normalization and cancellation inside the transition integral."
+      },
+      {
+        "kind": "foundation",
+        "id": "diffusion-equation",
+        "returnCaption": "Return to what the resulting density equation predicts."
+      }
+    ],
+    "margin": [
+      {
+        "kind": "paragraph",
+        "text": "The equations here are explanatory modern forms, not facsimile-checked printed formulas. A formal τ → 0 operation is not sufficient by itself: step sizes must scale with τ so that diffusivity stays finite and discarded terms vanish. The reader should distinguish this limit from the physical range where independent increments are a useful approximation."
+      }
+    ]
+  },
+  "prerequisites": [{ "id": "arg-bm-independent-steps", "edge": "premise" }],
+  "help": {
+    "why": "distributions",
+    "missingStep": "taylor-expansion",
+    "example": "taylor-expansion"
+  },
+  "experiments": ["bm-05", "bm-06"],
+  "meaning": {
+    "logicalRole": "derivation",
+    "historicalStatus": "pedagogical-reconstruction",
+    "modelStatus": "approximation",
+    "executionStatus": "static-illustration"
+  }
+}

@@ -1,1 +1,88 @@
-{"schemaVersion":1,"kind":"argument","id":"arg-bm-observable","paper":"brownian-motion","section":"s4","title":"Zero average is not no movement","question":"What can we measure when left and right cancel?","recap":"Signed displacements can cancel. Their squares still record movement.","review":"draft","premises":["All displacements use the same origin, axis, units and observation interval."],"limitations":["The model expectation need not equal the mean of one small sample.","Net displacement is not total path length."],"citations":["ap-17-549"],"readings":{"overview":[{"kind":"paragraph","text":"Left and right can cancel in the average while every tracer moves. Squaring before averaging keeps track of the spread."}],"full":[{"kind":"paragraph","text":"A signed mean answers where the ensemble’s centre has moved. It does not answer how far its members have wandered. For a centred distribution, rightward and leftward contributions balance even while the distribution broadens."},{"kind":"formula","latex":"\\langle x\\rangle=0,\\qquad\\langle x^2\\rangle>0","spoken":"The model’s mean displacement can be zero while its mean-square displacement is positive."},{"kind":"paragraph","text":"To retain the movement, square each displacement before averaging. Taking the square root of that mean square returns a length: the root-mean-square displacement, or RMS. A mean absolute displacement is a different observable, and neither is the length of a wandering trajectory."},{"kind":"foundation","id":"mean-variance-rms","returnCaption":"Return to the observable that keeps movement when signed displacements cancel."}],"steps":[{"kind":"foundation","id":"bridge-negative-numbers-direction","returnCaption":"Return to why leftward and rightward displacements can cancel."},{"kind":"steps","items":["Choose the common starting point as zero and right as positive.","Use four displacements, in micrometres: −3, −1, +1, +3.","Their sum is zero. Divide by four: the signed mean is zero.","Square each first: 9, 1, 1, 9 square micrometres.","The squares add to 20. Divide by four: the mean square is 5 square micrometres.","Take the square root: the RMS is approximately 2.236 micrometres.","The mean distance is instead (3 + 1 + 1 + 3) / 4 = 2 micrometres. These are different questions, not inconsistent answers."]},{"kind":"foundation","id":"mean-variance-rms","returnCaption":"Return to the distinction between signed mean, mean square and RMS."}],"margin":[{"kind":"paragraph","text":"This is an authored mathematical example, not a transcription, translation or historical observation. The source pointer is the Brownian paper’s displacement argument; no claim is made that these four numbers appear there."}]},"prerequisites":[],"help":{"why":"mean-variance-rms","missingStep":"bridge-squaring-square-roots","example":"mean-variance-rms"},"experiments":["bm-01"],"meaning":{"logicalRole":"definition","historicalStatus":"pedagogical-reconstruction","modelStatus":"exact-within-model","executionStatus":"static-illustration"}}
+{
+  "schemaVersion": 1,
+  "kind": "argument",
+  "id": "arg-bm-observable",
+  "paper": "brownian-motion",
+  "section": "s4",
+  "title": "Zero average is not no movement",
+  "question": "What can we measure when left and right cancel?",
+  "recap": "Signed displacements can cancel. Their squares still record movement.",
+  "review": "draft",
+  "premises": ["All displacements use the same origin, axis, units and observation interval."],
+  "limitations": [
+    "The model expectation need not equal the mean of one small sample.",
+    "Net displacement is not total path length."
+  ],
+  "citations": ["ap-17-549"],
+  "readings": {
+    "overview": [
+      {
+        "kind": "paragraph",
+        "text": "Left and right can cancel in the average while every tracer moves. Squaring before averaging keeps track of the spread."
+      }
+    ],
+    "full": [
+      {
+        "kind": "paragraph",
+        "text": "A signed mean answers where the ensemble’s centre has moved. It does not answer how far its members have wandered. For a centred distribution, rightward and leftward contributions balance even while the distribution broadens."
+      },
+      {
+        "kind": "formula",
+        "latex": "\\langle x\\rangle=0,\\qquad\\langle x^2\\rangle>0",
+        "spoken": "The model’s mean displacement can be zero while its mean-square displacement is positive."
+      },
+      {
+        "kind": "paragraph",
+        "text": "To retain the movement, square each displacement before averaging. Taking the square root of that mean square returns a length: the root-mean-square displacement, or RMS. A mean absolute displacement is a different observable, and neither is the length of a wandering trajectory."
+      },
+      {
+        "kind": "foundation",
+        "id": "mean-variance-rms",
+        "returnCaption": "Return to the observable that keeps movement when signed displacements cancel."
+      }
+    ],
+    "steps": [
+      {
+        "kind": "foundation",
+        "id": "bridge-negative-numbers-direction",
+        "returnCaption": "Return to why leftward and rightward displacements can cancel."
+      },
+      {
+        "kind": "steps",
+        "items": [
+          "Choose the common starting point as zero and right as positive.",
+          "Use four displacements, in micrometres: −3, −1, +1, +3.",
+          "Their sum is zero. Divide by four: the signed mean is zero.",
+          "Square each first: 9, 1, 1, 9 square micrometres.",
+          "The squares add to 20. Divide by four: the mean square is 5 square micrometres.",
+          "Take the square root: the RMS is approximately 2.236 micrometres.",
+          "The mean distance is instead (3 + 1 + 1 + 3) / 4 = 2 micrometres. These are different questions, not inconsistent answers."
+        ]
+      },
+      {
+        "kind": "foundation",
+        "id": "mean-variance-rms",
+        "returnCaption": "Return to the distinction between signed mean, mean square and RMS."
+      }
+    ],
+    "margin": [
+      {
+        "kind": "paragraph",
+        "text": "This is an authored mathematical example, not a transcription, translation or historical observation. The source pointer is the Brownian paper’s displacement argument; no claim is made that these four numbers appear there."
+      }
+    ]
+  },
+  "prerequisites": [],
+  "help": {
+    "why": "mean-variance-rms",
+    "missingStep": "bridge-squaring-square-roots",
+    "example": "mean-variance-rms"
+  },
+  "experiments": ["bm-01"],
+  "meaning": {
+    "logicalRole": "definition",
+    "historicalStatus": "pedagogical-reconstruction",
+    "modelStatus": "exact-within-model",
+    "executionStatus": "static-illustration"
+  }
+}

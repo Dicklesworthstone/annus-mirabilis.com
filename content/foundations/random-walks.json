@@ -1,1 +1,34 @@
-{"schemaVersion":1,"kind":"foundation","id":"random-walks","title":"From steps to spread","question":"Why does typical displacement grow as the square root of the step count?","summary":"Independent centred increments add their variances, not their distances.","review":"draft","explanation":[{"kind":"formula","latex":"X_n=\\Delta_1+\\ldots+\\Delta_n","spoken":"Position after n steps is the sum of the n signed increments."},{"kind":"paragraph","text":"Assume each increment has zero mean and the same finite mean square ℓ². Expanding the square produces n squared increments plus pairwise products. Independence and zero means remove every expected cross term."},{"kind":"formula","latex":"\\langle X_n^2\\rangle=nl^2,\\qquad \\sqrt{\\langle X_n^2\\rangle}=l\\sqrt n","spoken":"The mean square is n times ell squared, and RMS displacement is ell times the square root of n."}],"example":[{"kind":"paragraph","text":"One hundred steps of RMS size 1 have RMS net displacement 10. Four hundred such steps have RMS net displacement 20. This does not say that any individual walker ends exactly 10 or 20 units away, and it does not count the path length."}],"prerequisites":["probability-independence","mean-variance-rms"],"stoppingPoint":"This walk is a mathematical bridge, not a claim that liquid molecules force a tracer to make fixed jumps.","citations":[]}
+{
+  "schemaVersion": 1,
+  "kind": "foundation",
+  "id": "random-walks",
+  "title": "From steps to spread",
+  "question": "Why does typical displacement grow as the square root of the step count?",
+  "summary": "Independent centred increments add their variances, not their distances.",
+  "review": "draft",
+  "explanation": [
+    {
+      "kind": "formula",
+      "latex": "X_n=\\Delta_1+\\ldots+\\Delta_n",
+      "spoken": "Position after n steps is the sum of the n signed increments."
+    },
+    {
+      "kind": "paragraph",
+      "text": "Assume each increment has zero mean and the same finite mean square ℓ². Expanding the square produces n squared increments plus pairwise products. Independence and zero means remove every expected cross term."
+    },
+    {
+      "kind": "formula",
+      "latex": "\\langle X_n^2\\rangle=nl^2,\\qquad \\sqrt{\\langle X_n^2\\rangle}=l\\sqrt n",
+      "spoken": "The mean square is n times ell squared, and RMS displacement is ell times the square root of n."
+    }
+  ],
+  "example": [
+    {
+      "kind": "paragraph",
+      "text": "One hundred steps of RMS size 1 have RMS net displacement 10. Four hundred such steps have RMS net displacement 20. This does not say that any individual walker ends exactly 10 or 20 units away, and it does not count the path length."
+    }
+  ],
+  "prerequisites": ["probability-independence", "mean-variance-rms"],
+  "stoppingPoint": "This walk is a mathematical bridge, not a claim that liquid molecules force a tracer to make fixed jumps.",
+  "citations": []
+}

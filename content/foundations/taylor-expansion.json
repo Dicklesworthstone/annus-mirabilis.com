@@ -1,1 +1,38 @@
-{"schemaVersion":1,"kind":"foundation","id":"taylor-expansion","title":"A local expansion","question":"Why can a smooth function be replaced by a few terms?","summary":"Near a point, value, slope and curvature describe the leading change. Discarding the remaining terms requires a scale argument.","review":"draft","explanation":[{"kind":"paragraph","text":"The first derivative is local change per unit of the input. The second derivative describes how that first rate changes. A Taylor expansion writes the nearby value using those rates. The dots stand for a remainder; they are not automatically negligible."},{"kind":"formula","latex":"f(x+\\Delta)=f(x)+\\Delta f'(x)+\\frac{\\Delta^2}{2}f''(x)+\\ldots","spoken":"Nearby value equals the value plus displacement times slope plus half the squared displacement times curvature, followed by a remainder."},{"kind":"paragraph","text":"For a diffusion limit, the mean square step shrinks in proportion to the time interval, while the retained variance per unit time stays finite. Higher moments and the variation scale of the density must justify neglecting higher terms. A real tracer does not have independent steps at arbitrarily short times."}],"example":[{"kind":"formula","latex":"(x+\\Delta)^2=x^2+2x\\Delta+\\Delta^2","spoken":"For the square function, the local expansion is exact through the quadratic term."},{"kind":"paragraph","text":"At x = 2 and Δ = 0.1, the three terms are 4, 0.4 and 0.01, adding to 4.41. Keeping only the value and slope gives 4.4, with an error of 0.01."}],"prerequisites":["bridge-squaring-square-roots"],"stoppingPoint":"Name what is held fixed, which terms are retained, and why the remainder is small.","citations":[]}
+{
+  "schemaVersion": 1,
+  "kind": "foundation",
+  "id": "taylor-expansion",
+  "title": "A local expansion",
+  "question": "Why can a smooth function be replaced by a few terms?",
+  "summary": "Near a point, value, slope and curvature describe the leading change. Discarding the remaining terms requires a scale argument.",
+  "review": "draft",
+  "explanation": [
+    {
+      "kind": "paragraph",
+      "text": "The first derivative is local change per unit of the input. The second derivative describes how that first rate changes. A Taylor expansion writes the nearby value using those rates. The dots stand for a remainder; they are not automatically negligible."
+    },
+    {
+      "kind": "formula",
+      "latex": "f(x+\\Delta)=f(x)+\\Delta f'(x)+\\frac{\\Delta^2}{2}f''(x)+\\ldots",
+      "spoken": "Nearby value equals the value plus displacement times slope plus half the squared displacement times curvature, followed by a remainder."
+    },
+    {
+      "kind": "paragraph",
+      "text": "For a diffusion limit, the mean square step shrinks in proportion to the time interval, while the retained variance per unit time stays finite. Higher moments and the variation scale of the density must justify neglecting higher terms. A real tracer does not have independent steps at arbitrarily short times."
+    }
+  ],
+  "example": [
+    {
+      "kind": "formula",
+      "latex": "(x+\\Delta)^2=x^2+2x\\Delta+\\Delta^2",
+      "spoken": "For the square function, the local expansion is exact through the quadratic term."
+    },
+    {
+      "kind": "paragraph",
+      "text": "At x = 2 and Δ = 0.1, the three terms are 4, 0.4 and 0.01, adding to 4.41. Keeping only the value and slope gives 4.4, with an error of 0.01."
+    }
+  ],
+  "prerequisites": ["bridge-squaring-square-roots"],
+  "stoppingPoint": "Name what is held fixed, which terms are retained, and why the remainder is small.",
+  "citations": []
+}

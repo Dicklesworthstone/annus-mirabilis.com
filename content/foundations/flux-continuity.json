@@ -1,1 +1,33 @@
-{"schemaVersion":1,"kind":"foundation","id":"flux-continuity","title":"Counting what crosses a boundary","question":"Why does a difference of flows change the density?","summary":"What accumulates in a region equals what enters minus what leaves, provided nothing is created or destroyed inside.","review":"draft","explanation":[{"kind":"paragraph","text":"Take a short interval. If more tracers enter through its boundaries than leave, its count increases. Flux counts signed crossings per area per time; number density counts particles per volume. They are not the same quantity."},{"kind":"formula","latex":"\\frac{\\partial c}{\\partial t}=-\\frac{\\partial J}{\\partial x}","spoken":"Density changes at the negative spatial derivative of the flux."},{"kind":"paragraph","text":"In the one-dimensional description, the same balance applies per unit transverse area. The minus sign says an increasing rightward flux removes more particles at the right boundary than arrive at the left."}],"example":[{"kind":"paragraph","text":"If seven particles enter and five leave during a time interval, the count rises by two. If both flows are five, the count is unchanged even though particles keep crossing."}],"prerequisites":["bridge-sum-average"],"stoppingPoint":"Conservation counts net crossings; it does not require each individual particle to stop.","citations":[]}
+{
+  "schemaVersion": 1,
+  "kind": "foundation",
+  "id": "flux-continuity",
+  "title": "Counting what crosses a boundary",
+  "question": "Why does a difference of flows change the density?",
+  "summary": "What accumulates in a region equals what enters minus what leaves, provided nothing is created or destroyed inside.",
+  "review": "draft",
+  "explanation": [
+    {
+      "kind": "paragraph",
+      "text": "Take a short interval. If more tracers enter through its boundaries than leave, its count increases. Flux counts signed crossings per area per time; number density counts particles per volume. They are not the same quantity."
+    },
+    {
+      "kind": "formula",
+      "latex": "\\frac{\\partial c}{\\partial t}=-\\frac{\\partial J}{\\partial x}",
+      "spoken": "Density changes at the negative spatial derivative of the flux."
+    },
+    {
+      "kind": "paragraph",
+      "text": "In the one-dimensional description, the same balance applies per unit transverse area. The minus sign says an increasing rightward flux removes more particles at the right boundary than arrive at the left."
+    }
+  ],
+  "example": [
+    {
+      "kind": "paragraph",
+      "text": "If seven particles enter and five leave during a time interval, the count rises by two. If both flows are five, the count is unchanged even though particles keep crossing."
+    }
+  ],
+  "prerequisites": ["bridge-sum-average"],
+  "stoppingPoint": "Conservation counts net crossings; it does not require each individual particle to stop.",
+  "citations": []
+}

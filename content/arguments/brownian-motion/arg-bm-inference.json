@@ -1,1 +1,93 @@
-{"schemaVersion":1,"kind":"argument","id":"arg-bm-inference","paper":"brownian-motion","section":"s5","title":"What would let us count molecules?","question":"Which additional measurements turn displacement into an estimate of N?","recap":"Displacement constrains diffusivity; independent radius, viscosity, temperature and gas-constant information are needed to infer molecular number.","review":"draft","premises":["A suitable estimate of the model mean-square coordinate displacement or its time slope.","Independent values of R, T, η and tracer radius a, under the stated dilute-liquid model."],"limitations":["A synthetic run generated from an assumed N is not independent evidence for N.","Diffusivity alone constrains the product aN when radius is unknown.","Measurement noise, drift, exposure and finite sampling require separate treatment."],"citations":["ap-17-549"],"readings":{"overview":[{"kind":"paragraph","text":"A displacement measurement can constrain molecular number only with additional independently known physical quantities and a valid model. A simulation using an assumed answer is not a new measurement of that answer."}],"full":[{"kind":"formula","latex":"D=\\frac{\\langle x^2\\rangle}{2t},\\qquad N=\\frac{RTt}{3\\pi\\eta a\\langle x^2\\rangle}","spoken":"Diffusivity is mean-square displacement over twice time; molecular number is R T t over three pi viscosity radius mean-square displacement."},{"kind":"paragraph","text":"The first expression refers to the model mean square, or to an estimate obtained from an appropriate sample. The second is an inversion under the stated physical assumptions. An estimate needs uncertainty and checks of those assumptions; rearranging symbols does not remove experimental error."},{"kind":"paragraph","text":"Without an independent radius, the same D can result from many pairs of a and N. The data then select a compatible family rather than a unique molecular number. The existing synthetic laboratories explore this relationship but do not supply a historical measurement."},{"kind":"foundation","id":"mean-variance-rms","returnCaption":"Return to the observable that must be estimated from displacement data."},{"kind":"foundation","id":"error-and-inference","returnCaption":"Return to what a finite sample and independent inputs can identify."}],"steps":[{"kind":"steps","items":["Begin with mean square = 2Dt. Divide both sides by 2t, for positive t.","The result is D = mean square/(2t).","The separate physical relation is D = RT/(6πηaN). Multiply both sides by 6πηaN.","Divide by 6πηaD to obtain N = RT/(6πηaD).","Insert mean square/(2t) for D. Dividing by that fraction multiplies by 2t/mean square.","Cancel the factor two against six, giving N = RTt/(3πηa mean square).","Notice that a and N occur as a product in the original relation. Without one, D alone cannot determine the other.","A simulation using an assumed molecular number can test this inversion’s arithmetic, but cannot independently establish that number in nature."]},{"kind":"foundation","id":"mean-variance-rms","returnCaption":"Return to estimating a mean square rather than a squared mean."}],"margin":[{"kind":"paragraph","text":"No historical dataset or numerical estimate is supplied here as evidence. The bibliography points to the original argument; source transcription, translation, measurement-error instruments and historical-data inference remain in preparation. This keeps an algebraic inversion separate from a successful empirical determination."}]},"prerequisites":[{"id":"arg-bm-diffusivity","edge":"premise"}],"help":{"why":"error-and-inference","missingStep":"diffusion-equation","example":"error-and-inference"},"experiments":["bm-07","bm-01"],"meaning":{"logicalRole":"derivation","historicalStatus":"pedagogical-reconstruction","modelStatus":"approximation","executionStatus":"static-illustration"}}
+{
+  "schemaVersion": 1,
+  "kind": "argument",
+  "id": "arg-bm-inference",
+  "paper": "brownian-motion",
+  "section": "s5",
+  "title": "What would let us count molecules?",
+  "question": "Which additional measurements turn displacement into an estimate of N?",
+  "recap": "Displacement constrains diffusivity; independent radius, viscosity, temperature and gas-constant information are needed to infer molecular number.",
+  "review": "draft",
+  "premises": [
+    "A suitable estimate of the model mean-square coordinate displacement or its time slope.",
+    "Independent values of R, T, η and tracer radius a, under the stated dilute-liquid model."
+  ],
+  "limitations": [
+    "A synthetic run generated from an assumed N is not independent evidence for N.",
+    "Diffusivity alone constrains the product aN when radius is unknown.",
+    "Measurement noise, drift, exposure and finite sampling require separate treatment."
+  ],
+  "citations": ["ap-17-549"],
+  "readings": {
+    "overview": [
+      {
+        "kind": "paragraph",
+        "text": "A displacement measurement can constrain molecular number only with additional independently known physical quantities and a valid model. A simulation using an assumed answer is not a new measurement of that answer."
+      }
+    ],
+    "full": [
+      {
+        "kind": "formula",
+        "latex": "D=\\frac{\\langle x^2\\rangle}{2t},\\qquad N=\\frac{RTt}{3\\pi\\eta a\\langle x^2\\rangle}",
+        "spoken": "Diffusivity is mean-square displacement over twice time; molecular number is R T t over three pi viscosity radius mean-square displacement."
+      },
+      {
+        "kind": "paragraph",
+        "text": "The first expression refers to the model mean square, or to an estimate obtained from an appropriate sample. The second is an inversion under the stated physical assumptions. An estimate needs uncertainty and checks of those assumptions; rearranging symbols does not remove experimental error."
+      },
+      {
+        "kind": "paragraph",
+        "text": "Without an independent radius, the same D can result from many pairs of a and N. The data then select a compatible family rather than a unique molecular number. The existing synthetic laboratories explore this relationship but do not supply a historical measurement."
+      },
+      {
+        "kind": "foundation",
+        "id": "mean-variance-rms",
+        "returnCaption": "Return to the observable that must be estimated from displacement data."
+      },
+      {
+        "kind": "foundation",
+        "id": "error-and-inference",
+        "returnCaption": "Return to what a finite sample and independent inputs can identify."
+      }
+    ],
+    "steps": [
+      {
+        "kind": "steps",
+        "items": [
+          "Begin with mean square = 2Dt. Divide both sides by 2t, for positive t.",
+          "The result is D = mean square/(2t).",
+          "The separate physical relation is D = RT/(6πηaN). Multiply both sides by 6πηaN.",
+          "Divide by 6πηaD to obtain N = RT/(6πηaD).",
+          "Insert mean square/(2t) for D. Dividing by that fraction multiplies by 2t/mean square.",
+          "Cancel the factor two against six, giving N = RTt/(3πηa mean square).",
+          "Notice that a and N occur as a product in the original relation. Without one, D alone cannot determine the other.",
+          "A simulation using an assumed molecular number can test this inversion’s arithmetic, but cannot independently establish that number in nature."
+        ]
+      },
+      {
+        "kind": "foundation",
+        "id": "mean-variance-rms",
+        "returnCaption": "Return to estimating a mean square rather than a squared mean."
+      }
+    ],
+    "margin": [
+      {
+        "kind": "paragraph",
+        "text": "No historical dataset or numerical estimate is supplied here as evidence. The bibliography points to the original argument; source transcription, translation, measurement-error instruments and historical-data inference remain in preparation. This keeps an algebraic inversion separate from a successful empirical determination."
+      }
+    ]
+  },
+  "prerequisites": [{ "id": "arg-bm-diffusivity", "edge": "premise" }],
+  "help": {
+    "why": "error-and-inference",
+    "missingStep": "diffusion-equation",
+    "example": "error-and-inference"
+  },
+  "experiments": ["bm-07", "bm-01"],
+  "meaning": {
+    "logicalRole": "derivation",
+    "historicalStatus": "pedagogical-reconstruction",
+    "modelStatus": "approximation",
+    "executionStatus": "static-illustration"
+  }
+}

@@ -1,1 +1,38 @@
-{"schemaVersion":1,"kind":"foundation","id":"probability-independence","title":"Probability and independence","question":"Why do the cross terms disappear?","summary":"Independent centred steps have zero expected product. Independence alone is not enough: their means must also be zero.","review":"draft","explanation":[{"kind":"paragraph","text":"For independent choices, the probability of one result together with another is the product of their probabilities. Independence says learning the first result does not change the probabilities of the second. It does not mean that the second result must undo the first."},{"kind":"formula","latex":"\\langle AB\\rangle=\\langle A\\rangle\\langle B\\rangle=0","spoken":"The expected product of independent centred variables A and B is zero."},{"kind":"paragraph","text":"For nonzero means the product of the means survives. Correlations can also preserve a cross term. The diffusion argument must state which case it assumes."}],"example":[{"kind":"steps","items":["For two fair independent steps of size one, list (++), (+−), (−+), (−−). Each has probability one quarter.","Their products are +1, −1, −1, +1. The average product is zero.","Their sums are +2, 0, 0, −2. The squared sums are 4, 0, 0, 4, with average 2.","If the second step always repeats the first, the squared sum is always 4. That is a different, correlated model."]}],"prerequisites":["bridge-sum-average","bridge-negative-numbers-direction"],"stoppingPoint":"Ask whether learning one result changes the probabilities for the next.","citations":[]}
+{
+  "schemaVersion": 1,
+  "kind": "foundation",
+  "id": "probability-independence",
+  "title": "Probability and independence",
+  "question": "Why do the cross terms disappear?",
+  "summary": "Independent centred steps have zero expected product. Independence alone is not enough: their means must also be zero.",
+  "review": "draft",
+  "explanation": [
+    {
+      "kind": "paragraph",
+      "text": "For independent choices, the probability of one result together with another is the product of their probabilities. Independence says learning the first result does not change the probabilities of the second. It does not mean that the second result must undo the first."
+    },
+    {
+      "kind": "formula",
+      "latex": "\\langle AB\\rangle=\\langle A\\rangle\\langle B\\rangle=0",
+      "spoken": "The expected product of independent centred variables A and B is zero."
+    },
+    {
+      "kind": "paragraph",
+      "text": "For nonzero means the product of the means survives. Correlations can also preserve a cross term. The diffusion argument must state which case it assumes."
+    }
+  ],
+  "example": [
+    {
+      "kind": "steps",
+      "items": [
+        "For two fair independent steps of size one, list (++), (+−), (−+), (−−). Each has probability one quarter.",
+        "Their products are +1, −1, −1, +1. The average product is zero.",
+        "Their sums are +2, 0, 0, −2. The squared sums are 4, 0, 0, 4, with average 2.",
+        "If the second step always repeats the first, the squared sum is always 4. That is a different, correlated model."
+      ]
+    }
+  ],
+  "prerequisites": ["bridge-sum-average", "bridge-negative-numbers-direction"],
+  "stoppingPoint": "Ask whether learning one result changes the probabilities for the next.",
+  "citations": []
+}

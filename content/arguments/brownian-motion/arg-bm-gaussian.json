@@ -1,1 +1,104 @@
-{"schemaVersion":1,"kind":"argument","id":"arg-bm-gaussian","paper":"brownian-motion","section":"s4","title":"What the spreading curve predicts","question":"How does the density law become a measurable displacement?","recap":"For an unbounded point source, the Gaussian has mean square 2Dt and coordinate RMS √(2Dt).","review":"draft","premises":["Constant positive D, an unbounded line, no drift, and a localized initial ensemble."],"limitations":["A finite closed box has a different long-time distribution.","At t = 0 the distribution is a point mass, not an ordinary density.","Coordinate RMS is not the three-dimensional RMS distance."],"citations":["ap-17-549"],"readings":{"overview":[{"kind":"paragraph","text":"For the unbounded, drift-free point-source model, spread is Gaussian at positive times and coordinate RMS displacement is √(2Dt). The starting distribution is a point mass."}],"full":[{"kind":"formula","latex":"p(x,t)=\\frac{e^{-x^2/(4Dt)}}{\\sqrt{4\\pi Dt}}\\quad(t>0)","spoken":"The point-source solution is the normalized Gaussian density for positive time."},{"kind":"paragraph","text":"Its symmetry gives zero mean. Its second moment is 2Dt. These are ensemble statements: the curve assigns probabilities to intervals, not destinations to individual particles."},{"kind":"formula","latex":"\\lambda_x=\\sqrt{\\langle x^2\\rangle}=\\sqrt{2Dt}","spoken":"Coordinate RMS displacement is the square root of two D t."},{"kind":"paragraph","text":"The probability of finding a displacement between a and b is the integral of this density over that interval. At time zero, an interval containing the starting point has probability one; no finite bell represents that state."},{"kind":"foundation","id":"gaussian-distributions","returnCaption":"Return to normalization and the Gaussian second moment."}],"steps":[{"kind":"foundation","id":"gaussian-distributions","returnCaption":"Return to the normalized point-source solution."},{"kind":"steps","items":["For positive t, change variable to u = x/√(4Dt). Then x = √(4Dt)u and dx = √(4Dt)du.","The normalization factor cancels the factor in dx, leaving exp(−u²)/√π. Its integral is one.","The first moment vanishes because x times the density is odd: the negative side cancels the positive side.","For the second moment substitute x² = 4Dt u².","The normalized integral of u² exp(−u²) is one half, by integration by parts.","Multiplying 4Dt by one half yields 2Dt. Taking the nonnegative square root gives √(2Dt)."]},{"kind":"formula","latex":"\\langle x^2\\rangle=\\frac{4Dt}{\\sqrt\\pi}\\int_{-\\infty}^{\\infty}u^2e^{-u^2}\\,du=2Dt","spoken":"The second moment is four D t times the normalized Gaussian second-moment integral, giving two D t."},{"kind":"paragraph","text":"To check the density equation directly: the time derivative is p times (−1/(2t) + x²/(4Dt²)). The second spatial derivative is p times (−1/(2Dt) + x²/(4D²t²)). Multiplying the latter by D gives the former."},{"kind":"foundation","id":"distributions","returnCaption":"Return to probabilities of intervals rather than heights."}],"margin":[{"kind":"paragraph","text":"The displayed derivation verifies a modern normalized form. It does not replace the diplomatic transcription or establish which notation appears on a printed page. Three independent coordinates give total mean square 6Dt, whereas the paper’s one-coordinate displacement question uses 2Dt."}]},"prerequisites":[{"id":"arg-bm-diffusion-equation","edge":"premise"}],"help":{"why":"distributions","missingStep":"gaussian-distributions","example":"distributions"},"experiments":["bm-06","bm-01"],"meaning":{"logicalRole":"derivation","historicalStatus":"pedagogical-reconstruction","modelStatus":"exact-within-model","executionStatus":"static-illustration"}}
+{
+  "schemaVersion": 1,
+  "kind": "argument",
+  "id": "arg-bm-gaussian",
+  "paper": "brownian-motion",
+  "section": "s4",
+  "title": "What the spreading curve predicts",
+  "question": "How does the density law become a measurable displacement?",
+  "recap": "For an unbounded point source, the Gaussian has mean square 2Dt and coordinate RMS √(2Dt).",
+  "review": "draft",
+  "premises": [
+    "Constant positive D, an unbounded line, no drift, and a localized initial ensemble."
+  ],
+  "limitations": [
+    "A finite closed box has a different long-time distribution.",
+    "At t = 0 the distribution is a point mass, not an ordinary density.",
+    "Coordinate RMS is not the three-dimensional RMS distance."
+  ],
+  "citations": ["ap-17-549"],
+  "readings": {
+    "overview": [
+      {
+        "kind": "paragraph",
+        "text": "For the unbounded, drift-free point-source model, spread is Gaussian at positive times and coordinate RMS displacement is √(2Dt). The starting distribution is a point mass."
+      }
+    ],
+    "full": [
+      {
+        "kind": "formula",
+        "latex": "p(x,t)=\\frac{e^{-x^2/(4Dt)}}{\\sqrt{4\\pi Dt}}\\quad(t>0)",
+        "spoken": "The point-source solution is the normalized Gaussian density for positive time."
+      },
+      {
+        "kind": "paragraph",
+        "text": "Its symmetry gives zero mean. Its second moment is 2Dt. These are ensemble statements: the curve assigns probabilities to intervals, not destinations to individual particles."
+      },
+      {
+        "kind": "formula",
+        "latex": "\\lambda_x=\\sqrt{\\langle x^2\\rangle}=\\sqrt{2Dt}",
+        "spoken": "Coordinate RMS displacement is the square root of two D t."
+      },
+      {
+        "kind": "paragraph",
+        "text": "The probability of finding a displacement between a and b is the integral of this density over that interval. At time zero, an interval containing the starting point has probability one; no finite bell represents that state."
+      },
+      {
+        "kind": "foundation",
+        "id": "gaussian-distributions",
+        "returnCaption": "Return to normalization and the Gaussian second moment."
+      }
+    ],
+    "steps": [
+      {
+        "kind": "foundation",
+        "id": "gaussian-distributions",
+        "returnCaption": "Return to the normalized point-source solution."
+      },
+      {
+        "kind": "steps",
+        "items": [
+          "For positive t, change variable to u = x/√(4Dt). Then x = √(4Dt)u and dx = √(4Dt)du.",
+          "The normalization factor cancels the factor in dx, leaving exp(−u²)/√π. Its integral is one.",
+          "The first moment vanishes because x times the density is odd: the negative side cancels the positive side.",
+          "For the second moment substitute x² = 4Dt u².",
+          "The normalized integral of u² exp(−u²) is one half, by integration by parts.",
+          "Multiplying 4Dt by one half yields 2Dt. Taking the nonnegative square root gives √(2Dt)."
+        ]
+      },
+      {
+        "kind": "formula",
+        "latex": "\\langle x^2\\rangle=\\frac{4Dt}{\\sqrt\\pi}\\int_{-\\infty}^{\\infty}u^2e^{-u^2}\\,du=2Dt",
+        "spoken": "The second moment is four D t times the normalized Gaussian second-moment integral, giving two D t."
+      },
+      {
+        "kind": "paragraph",
+        "text": "To check the density equation directly: the time derivative is p times (−1/(2t) + x²/(4Dt²)). The second spatial derivative is p times (−1/(2Dt) + x²/(4D²t²)). Multiplying the latter by D gives the former."
+      },
+      {
+        "kind": "foundation",
+        "id": "distributions",
+        "returnCaption": "Return to probabilities of intervals rather than heights."
+      }
+    ],
+    "margin": [
+      {
+        "kind": "paragraph",
+        "text": "The displayed derivation verifies a modern normalized form. It does not replace the diplomatic transcription or establish which notation appears on a printed page. Three independent coordinates give total mean square 6Dt, whereas the paper’s one-coordinate displacement question uses 2Dt."
+      }
+    ]
+  },
+  "prerequisites": [{ "id": "arg-bm-diffusion-equation", "edge": "premise" }],
+  "help": {
+    "why": "distributions",
+    "missingStep": "gaussian-distributions",
+    "example": "distributions"
+  },
+  "experiments": ["bm-06", "bm-01"],
+  "meaning": {
+    "logicalRole": "derivation",
+    "historicalStatus": "pedagogical-reconstruction",
+    "modelStatus": "exact-within-model",
+    "executionStatus": "static-illustration"
+  }
+}

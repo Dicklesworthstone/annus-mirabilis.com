@@ -1,1 +1,29 @@
-{"schemaVersion":1,"kind":"foundation","id":"bridge-squaring-square-roots","title":"Squares and square roots","question":"Why does four times a mean square mean twice the RMS?","summary":"Squaring multiplies a number by itself. The nonnegative square root reverses that operation.","review":"draft","explanation":[{"kind":"paragraph","text":"Both +3 and −3 have square 9. Squaring therefore removes the sign while giving greater weight to a larger magnitude. A square root returns the result to the original kind of unit: the square root of a square micrometre is a micrometre."},{"kind":"formula","latex":"\\sqrt{4q}=2\\sqrt q\\quad(q\\ge 0)","spoken":"The square root of four q is twice the square root of q, for nonnegative q."}],"example":[{"kind":"paragraph","text":"The mean square of −3, −1, +1, +3 is 5. Doubling each displacement gives −6, −2, +2, +6, whose mean square is 20. The RMS changes from approximately 2.236 to 4.472: twice as large, not four times as large."}],"prerequisites":["bridge-sum-average"],"stoppingPoint":"Use the nonnegative square root when reporting a magnitude.","citations":[]}
+{
+  "schemaVersion": 1,
+  "kind": "foundation",
+  "id": "bridge-squaring-square-roots",
+  "title": "Squares and square roots",
+  "question": "Why does four times a mean square mean twice the RMS?",
+  "summary": "Squaring multiplies a number by itself. The nonnegative square root reverses that operation.",
+  "review": "draft",
+  "explanation": [
+    {
+      "kind": "paragraph",
+      "text": "Both +3 and −3 have square 9. Squaring therefore removes the sign while giving greater weight to a larger magnitude. A square root returns the result to the original kind of unit: the square root of a square micrometre is a micrometre."
+    },
+    {
+      "kind": "formula",
+      "latex": "\\sqrt{4q}=2\\sqrt q\\quad(q\\ge 0)",
+      "spoken": "The square root of four q is twice the square root of q, for nonnegative q."
+    }
+  ],
+  "example": [
+    {
+      "kind": "paragraph",
+      "text": "The mean square of −3, −1, +1, +3 is 5. Doubling each displacement gives −6, −2, +2, +6, whose mean square is 20. The RMS changes from approximately 2.236 to 4.472: twice as large, not four times as large."
+    }
+  ],
+  "prerequisites": ["bridge-sum-average"],
+  "stoppingPoint": "Use the nonnegative square root when reporting a magnitude.",
+  "citations": []
+}

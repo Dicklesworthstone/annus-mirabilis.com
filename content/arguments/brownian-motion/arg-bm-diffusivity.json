@@ -1,1 +1,96 @@
-{"schemaVersion":1,"kind":"argument","id":"arg-bm-diffusivity","paper":"brownian-motion","section":"s5","title":"Why viscosity changes the spread","question":"What fixes D for a small spherical tracer in a liquid?","recap":"Combining ideal osmotic pressure with mobility and diffusive balance relates diffusivity to temperature, viscosity and radius.","review":"draft","premises":["Dilute spherical tracers in a homogeneous Newtonian liquid, Stokes mobility and ideal osmotic pressure.","R is a separately known molar gas constant; N denotes molecular number per mole."],"limitations":["Slip, inertia, interactions, non-Newtonian response and gas corrections are not included.","The argument imports constitutive laws; conservation alone does not derive them."],"citations":["ap-17-549"],"readings":{"overview":[{"kind":"paragraph","text":"For the stated dilute-sphere liquid model, higher viscosity lowers D. Doubling viscosity halves the predicted mean square at fixed time and divides RMS displacement by √2."}],"full":[{"kind":"paragraph","text":"The displacement law tells us what a given D predicts. A separate model connects D to a tracer’s physical surroundings. Let b be mobility, so a small force F produces mean drift bF. Stokes drag for a sphere gives b = 1/(6πηa)."},{"kind":"paragraph","text":"Let c be number density. At isothermal balance the force density cF balances the osmotic-pressure gradient. With ideal osmotic pressure Π = cRT/N, the drift flux cbF becomes b(RT/N) times the density gradient. Equating it with the opposite diffusive flux gives D = bRT/N."},{"kind":"formula","latex":"D=\\frac{RT}{6\\pi\\eta aN}=\\frac{k_BT}{6\\pi\\eta a}","spoken":"Stokes–Einstein diffusivity is R T over six pi viscosity radius N, or k B T over six pi viscosity radius."},{"kind":"paragraph","text":"The equality kB = R/N relates the two forms. For a prediction using modern constants it is convenient. For an inference of N, using a value of kB derived from that same N would defeat the point."},{"kind":"foundation","id":"flux-continuity","returnCaption":"Return to balancing drift and diffusive fluxes."}],"steps":[{"kind":"steps","items":["Name the quantities: T is absolute temperature, η dynamic viscosity, a tracer radius, R molar gas constant, and N molecular number per mole.","Mobility b is drift speed divided by force. Stokes drag supplies b = 1/(6πηa).","The isothermal ideal osmotic-pressure relation is Π = cRT/N, where c counts tracers per volume.","Differentiate with respect to position: the gradient of Π is (RT/N) times the gradient of c.","Mechanical balance gives cF equal to that pressure gradient. Multiply by b to obtain the drift flux.","Fick’s law gives the opposing diffusive flux as −D times the gradient of c.","Zero total flux for this balance gives D = bRT/N. Substitute the Stokes mobility.","Holding T, radius and constants fixed, doubling η halves D. The RMS displacement at a fixed time then falls by √2, not by two."]},{"kind":"foundation","id":"flux-continuity","returnCaption":"Return to the distinction between density and flux."},{"kind":"foundation","id":"bridge-squaring-square-roots","returnCaption":"Return to the square-root response when diffusivity changes."}],"margin":[{"kind":"paragraph","text":"This is an explanatory summary of the physical relation developed before the displacement calculation, not a complete edition of §§1–3. The live laboratories use the explicitly labeled modern SI constant set, not claimed facsimile-verified 1905 numerical inputs."}]},"prerequisites":[{"id":"arg-bm-gaussian","edge":"premise"}],"help":{"why":"flux-continuity","missingStep":"diffusion-equation","example":"diffusion-equation"},"experiments":["bm-01","bm-06"],"meaning":{"logicalRole":"derivation","historicalStatus":"pedagogical-reconstruction","modelStatus":"approximation","executionStatus":"static-illustration"}}
+{
+  "schemaVersion": 1,
+  "kind": "argument",
+  "id": "arg-bm-diffusivity",
+  "paper": "brownian-motion",
+  "section": "s5",
+  "title": "Why viscosity changes the spread",
+  "question": "What fixes D for a small spherical tracer in a liquid?",
+  "recap": "Combining ideal osmotic pressure with mobility and diffusive balance relates diffusivity to temperature, viscosity and radius.",
+  "review": "draft",
+  "premises": [
+    "Dilute spherical tracers in a homogeneous Newtonian liquid, Stokes mobility and ideal osmotic pressure.",
+    "R is a separately known molar gas constant; N denotes molecular number per mole."
+  ],
+  "limitations": [
+    "Slip, inertia, interactions, non-Newtonian response and gas corrections are not included.",
+    "The argument imports constitutive laws; conservation alone does not derive them."
+  ],
+  "citations": ["ap-17-549"],
+  "readings": {
+    "overview": [
+      {
+        "kind": "paragraph",
+        "text": "For the stated dilute-sphere liquid model, higher viscosity lowers D. Doubling viscosity halves the predicted mean square at fixed time and divides RMS displacement by √2."
+      }
+    ],
+    "full": [
+      {
+        "kind": "paragraph",
+        "text": "The displacement law tells us what a given D predicts. A separate model connects D to a tracer’s physical surroundings. Let b be mobility, so a small force F produces mean drift bF. Stokes drag for a sphere gives b = 1/(6πηa)."
+      },
+      {
+        "kind": "paragraph",
+        "text": "Let c be number density. At isothermal balance the force density cF balances the osmotic-pressure gradient. With ideal osmotic pressure Π = cRT/N, the drift flux cbF becomes b(RT/N) times the density gradient. Equating it with the opposite diffusive flux gives D = bRT/N."
+      },
+      {
+        "kind": "formula",
+        "latex": "D=\\frac{RT}{6\\pi\\eta aN}=\\frac{k_BT}{6\\pi\\eta a}",
+        "spoken": "Stokes–Einstein diffusivity is R T over six pi viscosity radius N, or k B T over six pi viscosity radius."
+      },
+      {
+        "kind": "paragraph",
+        "text": "The equality kB = R/N relates the two forms. For a prediction using modern constants it is convenient. For an inference of N, using a value of kB derived from that same N would defeat the point."
+      },
+      {
+        "kind": "foundation",
+        "id": "flux-continuity",
+        "returnCaption": "Return to balancing drift and diffusive fluxes."
+      }
+    ],
+    "steps": [
+      {
+        "kind": "steps",
+        "items": [
+          "Name the quantities: T is absolute temperature, η dynamic viscosity, a tracer radius, R molar gas constant, and N molecular number per mole.",
+          "Mobility b is drift speed divided by force. Stokes drag supplies b = 1/(6πηa).",
+          "The isothermal ideal osmotic-pressure relation is Π = cRT/N, where c counts tracers per volume.",
+          "Differentiate with respect to position: the gradient of Π is (RT/N) times the gradient of c.",
+          "Mechanical balance gives cF equal to that pressure gradient. Multiply by b to obtain the drift flux.",
+          "Fick’s law gives the opposing diffusive flux as −D times the gradient of c.",
+          "Zero total flux for this balance gives D = bRT/N. Substitute the Stokes mobility.",
+          "Holding T, radius and constants fixed, doubling η halves D. The RMS displacement at a fixed time then falls by √2, not by two."
+        ]
+      },
+      {
+        "kind": "foundation",
+        "id": "flux-continuity",
+        "returnCaption": "Return to the distinction between density and flux."
+      },
+      {
+        "kind": "foundation",
+        "id": "bridge-squaring-square-roots",
+        "returnCaption": "Return to the square-root response when diffusivity changes."
+      }
+    ],
+    "margin": [
+      {
+        "kind": "paragraph",
+        "text": "This is an explanatory summary of the physical relation developed before the displacement calculation, not a complete edition of §§1–3. The live laboratories use the explicitly labeled modern SI constant set, not claimed facsimile-verified 1905 numerical inputs."
+      }
+    ]
+  },
+  "prerequisites": [{ "id": "arg-bm-gaussian", "edge": "premise" }],
+  "help": {
+    "why": "flux-continuity",
+    "missingStep": "diffusion-equation",
+    "example": "diffusion-equation"
+  },
+  "experiments": ["bm-01", "bm-06"],
+  "meaning": {
+    "logicalRole": "derivation",
+    "historicalStatus": "pedagogical-reconstruction",
+    "modelStatus": "approximation",
+    "executionStatus": "static-illustration"
+  }
+}
