@@ -1,0 +1,73 @@
+ownerBeadId: am-bm-08-measurement-bias-h1ye
+beadId: am-bm-08-measurement-bias-h1ye
+targets:
+  - kind: caption
+    id: bm-08
+    readings:
+      r0: "A camera adds noise and blur, and the stage can drift. Each changes the measured spread in a predictable direction, and the simple interval stops being valid."
+      r1: "The admitted noise, exposure, and drift models, and which estimator or interval each one permits."
+      r2: "The variance and covariance formulas step by step, and why neighboring steps become anticorrelated under localization noise."
+      r3: "These are later measurement models (Berglund 2010; Vestergaard, Blainey, and Flyvbjerg 2014), not Einstein's 1905 derivation."
+  - kind: caption
+    id: bm-08-apparent-speed-noise
+    readings:
+      r0: "Camera noise makes measured apparent speed diverge as the observation interval shrinks."
+      r1: "Below the crossover interval tau = sigma^2/D, camera jitter dominates and apparent speed scales as 1/dt rather than 1/sqrt(dt)."
+      r2: "The apparent rise is an artifact of the finite localization noise 2*sigma^2 in the numerator, not a physical particle acceleration."
+      r3: "Demonstrates the velocity trap on real measurement models; for zero noise the crossover is not-applicable."
+  - kind: caption
+    id: bm-08-noise-only
+    readings:
+      r0: "Localization noise introduces negative lag-1 covariance and inflates the second moment."
+      r1: "Neighboring increments share a position sample with opposite signs, producing Cov = -sigma^2."
+      r2: "The naive independent-increment estimator is biased upward by sigma^2/dt."
+      r3: "Berglund (2010) zero-exposure baseline."
+  - kind: caption
+    id: bm-08-exposure-fixture
+    readings:
+      r0: "Finite camera exposure averages positions during the frame, partially cancelling noise."
+      r1: "Uniform exposure Te <= dt yields Var = 2D(dt - Te/3) + 2*sigma^2 and Cov = D*Te/3 - sigma^2."
+      r2: "The identity Var + 2*Cov = 2*D*dt holds exactly for all uniform exposures and noise levels."
+      r3: "Berglund (2010) uniform exposure model."
+  - kind: caption
+    id: bm-08-drift-fluid
+    readings:
+      r0: "Fluid drift is a physical change that forks a new trajectory."
+      r1: "Flow velocity v adds mean displacement v*dt to each increment, inflating uncentered variance."
+      r2: "Because fluid drift alters the physical path, it is classified as a setup-change."
+      r3: "Distinguished from stage drift by its physical causal origin."
+  - kind: caption
+    id: bm-08-drift-stage
+    readings:
+      r0: "Stage drift is an observational motion that preserves the latent physical path."
+      r1: "Constant stage motion shifts measured coordinates without altering latent fluid diffusion."
+      r2: "Classified as a measurement-change; the latent trajectory is preserved bitwise."
+      r3: "Centering by mean increment removes constant stage drift with d*(M-1) degrees of freedom."
+  - kind: caption
+    id: bm-08-overlap-refusal
+    readings:
+      r0: "Overlapping displacement windows share increments and are refused."
+      r1: "Passing overlapping windows to the independent estimator returns outside-domain."
+      r2: "Overlapping windows do not add independent degrees of freedom."
+      r3: "Epistemic refusal protecting against spurious confidence inflation."
+  - kind: caption
+    id: bm-08-cve
+    readings:
+      r0: "Covariance-based estimator yields unbiased point estimates for D and sigma^2."
+      r1: "CVE combines variance and lag-1 covariance to cancel both exposure blur and localization noise."
+      r2: "D_hat_CVE = (Var/2 + Cov)/dt; point estimate is unbiased but has no admitted interval."
+      r3: "Vestergaard, Blainey, and Flyvbjerg (2014)."
+  - kind: caption
+    id: bm-08-pairs-exact-coverage
+    readings:
+      r0: "Disjoint frame pairs produce an exact confidence interval when noise is known."
+      r1: "Increments from disjoint pairs (0,1), (2,3) share no camera frames or noise samples."
+      r2: "Sum of squared pair increments follows chi-square distribution with d*(K-1) degrees of freedom."
+      r3: "Exact 1 - alpha physical coverage under known Gaussian localization error."
+  - kind: caption
+    id: bm-08-pairs-estimated-coverage
+    readings:
+      r0: "Estimating noise from stationary clicks yields a conservative confidence interval."
+      r1: "Bonferroni splitting allocates alpha/2 to noise estimation and alpha/2 to pair variance."
+      r2: "Conservative confidence set guarantees at least nominal coverage."
+      r3: "Validates inference protocol for hand-clicked laboratory microscopy."

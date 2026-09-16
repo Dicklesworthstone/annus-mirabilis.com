@@ -14,7 +14,7 @@ export type PreparedBm08Example = Readonly<{
 export function createBm08Session(
   instanceId: string,
   example: PreparedBm08Example,
-  workerFactory: () => WorkerChannel,
+  workerFactory?: () => WorkerChannel,
 ) {
   const store = createInstanceStore({
     experimentId: "bm-08",
@@ -55,10 +55,17 @@ export function createBm08Session(
     getServerSnapshot: () => serverSnapshot,
     subscribe: store.subscribe,
     apply(input: unknown) {
-      const checked = validateBm08Parameters(input);
+      const snap = store.getSnapshot();
+      const previous = (snap.requested?.parameters ??
+        snap.accepted?.parameters ??
+        example.parameters) as Bm08Parameters;
+      const merged =
+        typeof input === "object" && input !== null
+          ? { ...previous, ...(input as Record<string, unknown>) }
+          : input;
+      const checked = validateBm08Parameters(merged);
       if (checked.kind !== "accepted") return checked;
-      const previous = store.getSnapshot().requested!.parameters,
-        p = checked.data;
+      const p = checked.data;
       const groups: Record<string, Record<string, number | string | boolean>> = {
         input: {},
         measurement: {},
@@ -74,12 +81,14 @@ export function createBm08Session(
       ] as const)
         if (Object.keys(groups[group]!).length) request = store.issue(command, groups[group]!);
       request ??= store.issue("continue");
-      scheduler ??= createHostScheduler(store, workerFactory, example.sourceDigest, {
-        version: BM08_PROTOCOL,
-        decodeHello: decodeLabHello,
-        decodeResponse: decodeLabResponse,
-      });
-      scheduler.request(request);
+      if (workerFactory) {
+        scheduler ??= createHostScheduler(store, workerFactory, example.sourceDigest, {
+          version: BM08_PROTOCOL,
+          decodeHello: decodeLabHello,
+          decodeResponse: decodeLabResponse,
+        });
+        scheduler.request(request);
+      }
       return { kind: "accepted" as const, data: request };
     },
     stop() {

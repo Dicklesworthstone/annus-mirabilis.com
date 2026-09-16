@@ -1,0 +1,51 @@
+# Teaching tape "Camera noise and exposure bias" (am-bm-08-measurement-bias-h1ye).
+tapeVersion: 2
+tapeId: camera-bias
+experimentId: bm-08
+mode: "bm-08"
+title: "Camera noise and exposure bias"
+isTeachingSequence: true
+modelIdentity:
+  modelId: inference-bm08-host
+  modelVersion: "1.0.0"
+  artifactDigest: "host:sha256:0000000000000000000000000000000000000000000000000000000000000000"
+constantSetId: modern-si-2019
+seed: "1905"
+streamVersion: 1
+allocationId: bm-08.camera-latent.v1
+initialConditions:
+  D: 0.42944e-12
+  flowDrift: 0
+  M: 100
+  d: 2
+  dt: 1
+  exposure: 0.5
+  sigma: 0.2e-6
+  stageDrift: 0
+  clicks: 30
+  coverage: 0.95
+  coverageTrials: 0
+events:
+  - kind: control
+    actionIndex: 1
+    commandClass: measurement-change
+    commandId: set-localization-noise
+    parameterId: sigma
+    value: 0.2e-6
+checkpoints:
+  - actionIndex: 1
+    stepIndex: 4112
+    simulatedTime: 1028
+    digest: "host:sha256:8888888888888888888888888888888888888888888888888888888888888888"
+    digestKind: host
+    checkpointVersion: 1
+    streamSemanticsVersion: 1
+    seed: "1905"
+    streamPositions: []
+    label: "Noisy, exposure-blurred camera observations"
+    teachingNote: "Camera noise adds 2*sigma^2 variance and negative lag-1 covariance."
+    expectedDisplayValues:
+      - label: "naive expectation"
+        value: 0.42944e-12
+        unit: "m2/s"
+        constantSetId: modern-si-2019

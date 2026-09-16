@@ -1,0 +1,545 @@
+# BM-08 measurement bias with localization noise, drift, and exposure models (am-bm-08-measurement-bias-h1ye).
+id: bm-08
+title: "BM-08: Measurement bias with localization noise, drift, and exposure models"
+explanatoryQuestion: "How do camera noise, exposure blur, and drift change what displacement data can tell you, and when does the simple interval stop being valid?"
+sourceRefs:
+  - paper: brownian-motion
+    id: s5
+argumentIds:
+  - arg-bm-inference
+schemaVersion: 1
+parameters:
+  - id: sigma
+    label: "Localization error"
+    accessibleName: "Standard deviation of localization noise"
+    accessibleDescription: "Adds independent zero-mean Gaussian noise to observed frame positions"
+    quantityId: localizationErrorStd
+    displayUnit: "m"
+    modelDomain:
+      min: 0
+      max: 5.0e-7
+      minInclusive: true
+      maxInclusive: true
+      reason: "Nonnegative localization error standard deviation"
+    visualRange:
+      min: 0
+      max: 5.0e-7
+    default: 2.0e-7
+    mapping:
+      kind: linear
+    role: independent
+    commandClass: measurement-change
+  - id: exposure
+    label: "Exposure time"
+    accessibleName: "Uniform frame exposure duration"
+    accessibleDescription: "Uniform continuous time average over [t_i, t_i + T_e]"
+    quantityId: exposureTime
+    displayUnit: "s"
+    modelDomain:
+      min: 0
+      max: 4
+      minInclusive: true
+      maxInclusive: true
+      reason: "On the 0.25 s exposure grid, no longer than the frame spacing dt"
+    visualRange:
+      min: 0
+      max: 4
+    default: 0.5
+    mapping:
+      kind: step
+      size: 0.25
+    role: independent
+    commandClass: measurement-change
+  - id: dt
+    label: "Frame spacing"
+    accessibleName: "Time between successive frame starts"
+    accessibleDescription: "Integer frame interval on the replay grid"
+    quantityId: observationInterval
+    displayUnit: "s"
+    modelDomain:
+      min: 1
+      max: 4
+      minInclusive: true
+      maxInclusive: true
+      reason: "Replay grid frame spacing: 1, 2, 3, or 4 seconds"
+    visualRange:
+      min: 1
+      max: 4
+    default: 1
+    mapping:
+      kind: step
+      size: 1
+    role: independent
+    commandClass: measurement-change
+  - id: stageDrift
+    label: "Stage drift velocity"
+    accessibleName: "Observational stage drift along x"
+    accessibleDescription: "Observational coordinate motion preserving the latent path"
+    quantityId: driftVelocity
+    displayUnit: "m/s"
+    modelDomain:
+      min: 0
+      max: 1.0e-6
+      minInclusive: true
+      maxInclusive: true
+      reason: "Constant stage drift"
+    visualRange:
+      min: 0
+      max: 1.0e-6
+    default: 0
+    mapping:
+      kind: linear
+    role: independent
+    commandClass: measurement-change
+  - id: flowDrift
+    label: "Fluid flow drift velocity"
+    accessibleName: "Physical fluid drift along x"
+    accessibleDescription: "Physical flow in the medium; alters the latent path and forks a new run"
+    quantityId: driftVelocity
+    displayUnit: "m/s"
+    modelDomain:
+      min: 0
+      max: 1.0e-6
+      minInclusive: true
+      maxInclusive: true
+      reason: "Constant fluid flow velocity"
+    visualRange:
+      min: 0
+      max: 1.0e-6
+    default: 0
+    mapping:
+      kind: linear
+    role: independent
+    commandClass: setup-change
+  - id: D
+    label: "Diffusivity"
+    accessibleName: "Physical diffusion coefficient"
+    accessibleDescription: "Underlying physical diffusivity of the Brownian tracer"
+    quantityId: diffusionCoefficient
+    displayUnit: "m2/s"
+    modelDomain:
+      min: 1.0e-14
+      max: 1.0e-10
+      minInclusive: true
+      maxInclusive: true
+      reason: "Positive physical diffusion coefficient"
+    visualRange:
+      min: 1.0e-13
+      max: 1.0e-11
+    default: 4.2944e-13
+    mapping:
+      kind: log
+      base: 10
+    role: independent
+    commandClass: setup-change
+  - id: d
+    label: "Measured coordinates"
+    accessibleName: "Number of observed coordinate axes"
+    accessibleDescription: "1 for x marginal, 2 for x-y tracking"
+    quantityId: observationInterval
+    displayUnit: "1"
+    modelDomain:
+      min: 1
+      max: 2
+      minInclusive: true
+      maxInclusive: true
+      reason: "1 or 2 measured spatial dimensions"
+    visualRange:
+      min: 1
+      max: 2
+    default: 2
+    mapping:
+      kind: linear
+    role: independent
+    commandClass: measurement-change
+  - id: M
+    label: "Number of increments"
+    accessibleName: "Number of tracked frame increments"
+    accessibleDescription: "Frame sequence length"
+    quantityId: observationInterval
+    displayUnit: "1"
+    modelDomain:
+      min: 3
+      max: 1000
+      minInclusive: true
+      maxInclusive: true
+      reason: "At least 3 increments for covariance estimation"
+    visualRange:
+      min: 3
+      max: 500
+    default: 100
+    mapping:
+      kind: linear
+    role: independent
+    commandClass: measurement-change
+  - id: clicks
+    label: "Stationary clicks"
+    accessibleName: "Number of repeated clicks on stationary feature"
+    accessibleDescription: "Used to estimate camera localization noise variance"
+    quantityId: observationInterval
+    displayUnit: "1"
+    modelDomain:
+      min: 5
+      max: 100
+      minInclusive: true
+      maxInclusive: true
+      reason: "At least 5 stationary-feature clicks"
+    visualRange:
+      min: 5
+      max: 100
+    default: 30
+    mapping:
+      kind: linear
+    role: independent
+    commandClass: measurement-change
+  - id: noiseMethod
+    label: "Noise declaration method"
+    accessibleName: "Noise method for disjoint pairs"
+    accessibleDescription: "Exact known sigma or estimated from stationary clicks"
+    quantityId: observationInterval
+    displayUnit: ""
+    modelDomain:
+      enumerated: []
+      reason: "known or stationary"
+    visualRange:
+      min: 0
+      max: 1
+    default: "stationary"
+    mapping:
+      kind: linear
+    role: independent
+    commandClass: estimator-change
+  - id: coverage
+    label: "Nominal coverage"
+    accessibleName: "Confidence level 1 - alpha"
+    accessibleDescription: "Nominal coverage of the confidence intervals"
+    quantityId: observationInterval
+    displayUnit: ""
+    modelDomain:
+      min: 0.5
+      max: 0.999
+      minInclusive: true
+      maxInclusive: true
+      reason: "Coverage probability strictly between 0 and 1"
+    visualRange:
+      min: 0.5
+      max: 0.99
+    default: 0.95
+    mapping:
+      kind: linear
+    role: independent
+    commandClass: estimator-change
+  - id: coverageTrials
+    label: "Hypothetical experiments"
+    accessibleName: "Number of repeated synthetic experiment trials"
+    accessibleDescription: "Zero hides the repeated coverage view; positive runs the coverage set"
+    quantityId: observationInterval
+    displayUnit: "1"
+    modelDomain:
+      min: 0
+      max: 100
+      minInclusive: true
+      maxInclusive: true
+      reason: "Work-budget bound on hypothetical experiments"
+    visualRange:
+      min: 0
+      max: 100
+    default: 0
+    mapping:
+      kind: linear
+    role: independent
+    commandClass: estimator-change
+  - id: seed
+    label: "Latent path seed"
+    accessibleName: "Random stream seed for latent Brownian path"
+    accessibleDescription: "Unsigned 64-bit decimal string"
+    quantityId: observationInterval
+    displayUnit: ""
+    modelDomain:
+      enumerated: []
+      reason: "Any canonical unsigned 64-bit decimal string"
+    visualRange:
+      min: 0
+      max: 1
+    default: "1905"
+    mapping:
+      kind: linear
+    role: independent
+    commandClass: setup-change
+  - id: noiseSeed
+    label: "Localization noise seed"
+    accessibleName: "Random stream seed for localization noise"
+    accessibleDescription: "Unsigned 64-bit decimal string"
+    quantityId: observationInterval
+    displayUnit: ""
+    modelDomain:
+      enumerated: []
+      reason: "Any canonical unsigned 64-bit decimal string"
+    visualRange:
+      min: 0
+      max: 1
+    default: "1905"
+    mapping:
+      kind: linear
+    role: independent
+    commandClass: measurement-change
+  - id: clickSeed
+    label: "Stationary click seed"
+    accessibleName: "Random stream seed for stationary clicks"
+    accessibleDescription: "Unsigned 64-bit decimal string"
+    quantityId: observationInterval
+    displayUnit: ""
+    modelDomain:
+      enumerated: []
+      reason: "Any canonical unsigned 64-bit decimal string"
+    visualRange:
+      min: 0
+      max: 1
+    default: "1926"
+    mapping:
+      kind: linear
+    role: independent
+    commandClass: measurement-change
+outputs:
+  - id: naiveD
+    quantityId: diffusionCoefficient
+    allowedStatuses:
+      - value
+    primary: true
+  - id: centeredD
+    quantityId: diffusionCoefficient
+    allowedStatuses:
+      - value
+  - id: covarianceD
+    quantityId: diffusionCoefficient
+    allowedStatuses:
+      - value
+  - id: pairD
+    quantityId: diffusionCoefficient
+    allowedStatuses:
+      - value
+  - id: naiveInterval
+    quantityId: diffusionCoefficient
+    allowedStatuses:
+      - value
+      - not-applicable
+  - id: centeredInterval
+    quantityId: diffusionCoefficient
+    allowedStatuses:
+      - value
+      - not-applicable
+  - id: pairInterval
+    quantityId: diffusionCoefficient
+    allowedStatuses:
+      - value
+      - not-applicable
+  - id: apparentSpeedIdeal
+    quantityId: apparentSpeed
+    allowedStatuses:
+      - value
+  - id: apparentSpeedMeasured
+    quantityId: apparentSpeed
+    allowedStatuses:
+      - value
+  - id: apparentSpeedRatio
+    quantityId: apparentSpeedRatio
+    allowedStatuses:
+      - value
+  - id: speedCrossover
+    quantityId: observationInterval
+    allowedStatuses:
+      - value
+      - not-applicable
+assumptions:
+  - "Uniform exposure profile Te <= dt"
+  - "Independent zero-mean Gaussian localization error"
+  - "Constant diffusivity and constant drift"
+  - "Stationary-feature click noise matches moving-particle localization error"
+admittedDomain: "Equally spaced observations of Brownian motion under uniform camera exposure, Gaussian localization noise, and constant fluid or stage drift."
+notModeled:
+  - "Non-uniform exposure profiles"
+  - "Correlated or non-Gaussian localization errors"
+  - "Pixelation and sub-pixel quantization"
+  - "Particles leaving the focal plane"
+  - "Time-varying drift or turbulent flow"
+  - "Irregular frame timing"
+  - "Motion outside the measured coordinates"
+  - "Difference between stationary-feature click noise and moving-particle localization error"
+owner:
+  kind: reference-evaluator
+  kernelFunctions:
+    - displayRole: reference-implementation
+      language: ts
+      module: "src/physics/reference/inference.ts"
+      exportName: "cameraMoments"
+    - displayRole: reference-implementation
+      language: ts
+      module: "src/physics/reference/inference.ts"
+      exportName: "covarianceEstimator"
+    - displayRole: reference-implementation
+      language: ts
+      module: "src/physics/reference/inference.ts"
+      exportName: "disjointPairsKnownNoiseInterval"
+    - displayRole: reference-implementation
+      language: ts
+      module: "src/physics/reference/inference.ts"
+      exportName: "stationaryClickNoiseEstimate"
+    - displayRole: reference-implementation
+      language: ts
+      module: "src/physics/reference/inference.ts"
+      exportName: "bartlettBandsMA1"
+  identifierBindings:
+    - kernelFunction: cameraMoments
+      identifier: "D"
+      quantityId: diffusionCoefficient
+    - kernelFunction: cameraMoments
+      identifier: "dt"
+      quantityId: observationInterval
+    - kernelFunction: cameraMoments
+      identifier: "exposure"
+      quantityId: exposureTime
+    - kernelFunction: cameraMoments
+      identifier: "sigma"
+      quantityId: localizationErrorStd
+    - kernelFunction: cameraMoments
+      identifier: "drift"
+      quantityId: driftVelocity
+views:
+  - id: camera-path
+    kind: svg
+    consumes:
+      - diffusionCoefficient
+  - id: camera-speed
+    kind: svg
+    consumes:
+      - apparentSpeed
+  - id: camera-table
+    kind: table
+    consumes:
+      - diffusionCoefficient
+actions:
+  - actionId: bm-08-choose-camera-model-and-estimator
+    family: probability-diffusion
+    question: "How do camera noise, exposure blur, and drift change what displacement data can tell you?"
+    inputs:
+      - sigma
+      - exposure
+      - dt
+      - stageDrift
+      - flowDrift
+      - noiseMethod
+    commandClass: measurement-change
+    acceptedResult:
+      outputs:
+        - naiveD
+        - covarianceD
+        - pairD
+      allowedStatuses:
+        - value
+        - not-applicable
+        - outside-domain
+    visualAffordance: "Plots and estimator panels update from the accepted snapshot"
+    equivalentAffordance: "Type parameters, then read the estimate and moment tables"
+    announcement: "Estimates and moments updated from the accepted snapshot"
+acceptanceCases:
+  - bm-08-exposure-fixture
+  - bm-08-noise-only
+  - bm-08-drift-fluid
+  - bm-08-drift-stage
+  - bm-08-cve
+  - bm-08-pairs-exact-coverage
+  - bm-08-pairs-estimated-coverage
+  - bm-08-overlap-refusal
+  - bm-08-apparent-speed-noise
+defaultScenario: bm-08-apparent-speed-noise
+tapeModel:
+  modelId: inference-bm08-host
+  modelVersion: 1
+teachingTapes:
+  - tapeId: camera-bias
+    title: "Camera noise and exposure bias"
+presets:
+  - presetId: bm-08-apparent-speed-noise
+    label: "Apparent speed scaling under camera localization noise"
+    parameterValues:
+      sigma: 2.0e-7
+      exposure: 0
+      d: 1
+      dt: 1
+    scenarioId: bm-08-apparent-speed-noise
+  - presetId: bm-08-noise-only
+    label: "Localization noise only"
+    parameterValues:
+      sigma: 2.0e-7
+      exposure: 0
+      d: 1
+    scenarioId: bm-08-noise-only
+  - presetId: bm-08-exposure-fixture
+    label: "Uniform exposure and localization error fixture"
+    parameterValues:
+      sigma: 5.0e-8
+      exposure: 0.5
+      dt: 1
+      d: 1
+    scenarioId: bm-08-exposure-fixture
+  - presetId: bm-08-drift-fluid
+    label: "Physical fluid drift"
+    parameterValues:
+      flowDrift: 1.0e-7
+    scenarioId: bm-08-drift-fluid
+  - presetId: bm-08-drift-stage
+    label: "Observational stage drift"
+    parameterValues:
+      stageDrift: 1.0e-7
+    scenarioId: bm-08-drift-stage
+  - presetId: bm-08-cve
+    label: "Covariance-based estimator (CVE)"
+    parameterValues:
+      noiseMethod: "known"
+    scenarioId: bm-08-cve
+  - presetId: bm-08-pairs-exact-coverage
+    label: "Disjoint pairs interval with exact noise"
+    parameterValues:
+      noiseMethod: "known"
+    scenarioId: bm-08-pairs-exact-coverage
+  - presetId: bm-08-pairs-estimated-coverage
+    label: "Disjoint pairs interval with stationary-click noise"
+    parameterValues:
+      noiseMethod: "stationary"
+    scenarioId: bm-08-pairs-estimated-coverage
+  - presetId: bm-08-overlap-refusal
+    label: "Overlapping windows refusal probe"
+    scenarioId: bm-08-overlap-refusal
+probes:
+  - bm-08-noise-only
+  - bm-08-exposure-fixture
+  - bm-08-drift-fluid
+  - bm-08-drift-stage
+  - bm-08-overlap-refusal
+  - bm-08-cve
+  - bm-08-pairs-exact-coverage
+  - bm-08-pairs-estimated-coverage
+predictMode:
+  enabled: true
+  prompts:
+    - promptId: bm-08-predict-camera-noise
+      controlId: sigma
+      question: "Add camera noise. Does the naive diffusion estimate go up, down, or stay the same? Does the correlation between neighboring steps become positive, negative, or zero?"
+      candidates:
+        - id: up-negative
+          label: "Diffusion goes up, correlation becomes negative"
+          description: "Noise adds variance 2*sigma^2 to displacements and introduces negative lag-1 covariance -sigma^2"
+          separatingAssumption: "Under independent Gaussian localization noise, Delta y_i contains epsilon_{i+1} - epsilon_i, adding 2*sigma^2 to variance and -sigma^2 to adjacent covariance."
+        - id: up-zero
+          label: "Diffusion goes up, correlation stays zero"
+          description: "Noise broadens displacements without introducing increment correlation"
+          separatingAssumption: "Treats measured increments as independent random variables, ignoring the shared noise sample between adjacent steps."
+        - id: unchanged
+          label: "Diffusion and correlation remain unchanged"
+          description: "Camera noise is assumed to average out over many increments"
+          separatingAssumption: "Assumes zero-mean noise does not contribute to the mean squared displacement."
+weavePredicates: []
+historicalOverlays: []
+realRate:
+  natural: false
+embeddable: true
