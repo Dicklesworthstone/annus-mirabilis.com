@@ -130,6 +130,104 @@ describe("tapes.compatibility: Compatibility Validation and Typed Input Refusals
     if (!check.compatible) assert.equal(check.refusalCode, "tape-grid-mismatch");
   });
 
+  it("adversarial fixture: tape recorded at one grid must REFUSE against a different grid, not interpolate", async () => {
+    // Tape recorded on a 0.02s grid for 60s
+    const recordedGrid = { baseSpacing: 0.02, horizon: 60 };
+    const tape = { ...baseTape, replayGrid: recordedGrid };
+
+    // Case 1: Runtime context has coarser spacing (0.05s) - must refuse, not interpolate
+    const coarseContext: TapeRuntimeContext = {
+      ...baseContext,
+      replayGrid: { baseSpacing: 0.05, horizon: 60 },
+    };
+    const coarseCheck = validateTapeCompatibility(tape, coarseContext);
+    assert.equal(coarseCheck.compatible, false);
+    if (!coarseCheck.compatible) {
+      assert.equal(coarseCheck.refusalCode, "tape-grid-mismatch");
+    }
+
+    const coarseReplayer = new ControlTapeReplayer(tape, coarseContext);
+    assert.equal(coarseReplayer.refused, true);
+    assert.equal(coarseReplayer.activeRefusalCode, "tape-grid-mismatch");
+    const coarseSeek = await coarseReplayer.seekToAction(1);
+    assert.equal(coarseSeek.isRefused, true);
+    assert.equal(coarseSeek.refusalCode, "tape-grid-mismatch");
+
+    // Case 2: Runtime context has mismatched horizon (120s vs 60s)
+    const horizonContext: TapeRuntimeContext = {
+      ...baseContext,
+      replayGrid: { baseSpacing: 0.02, horizon: 120 },
+    };
+    const horizonCheck = validateTapeCompatibility(tape, horizonContext);
+    assert.equal(horizonCheck.compatible, false);
+    if (!horizonCheck.compatible) {
+      assert.equal(horizonCheck.refusalCode, "tape-grid-mismatch");
+    }
+
+    // Case 3: Tape has grid but runtime context has undefined grid
+    const noGridContext: TapeRuntimeContext = {
+      ...baseContext,
+      replayGrid: undefined,
+    };
+    const noGridCheck = validateTapeCompatibility(tape, noGridContext);
+    assert.equal(noGridCheck.compatible, false);
+    if (!noGridCheck.compatible) {
+      assert.equal(noGridCheck.refusalCode, "tape-grid-mismatch");
+    }
+
+    // Case 4: Tape has no grid but runtime context requires a grid
+    const contextWithGrid: TapeRuntimeContext = {
+      ...baseContext,
+      replayGrid: { baseSpacing: 0.02, horizon: 60 },
+    };
+    const tapeNoGrid = { ...baseTape, replayGrid: undefined };
+    const missingGridCheck = validateTapeCompatibility(tapeNoGrid, contextWithGrid);
+    assert.equal(missingGridCheck.compatible, false);
+    if (!missingGridCheck.compatible) {
+      assert.equal(missingGridCheck.refusalCode, "tape-grid-mismatch");
+    }
+  });
+
+  it("replayer refuses by name on checkpoint digest divergence instead of masking it", async () => {
+    // Construct tape with a checkpoint whose digest does not match the actual state
+    const tapeWithForgedCheckpoint: ControlTapeV2 = {
+      ...baseTape,
+      events: [
+        {
+          kind: "control",
+          actionIndex: 1,
+          commandClass: "physical-intervention",
+          commandId: "set-viscosity",
+          parameterId: "viscosity",
+          value: 2.5e-3,
+          atSimulatedTime: 0.5,
+        },
+      ],
+      checkpoints: [
+        {
+          actionIndex: 1,
+          stepIndex: 10,
+          simulatedTime: 0.5,
+          digest: "host:sha256:0000000000000000000000000000000000000000000000000000000000000000",
+          digestKind: "host",
+          checkpointVersion: 1,
+          streamSemanticsVersion: 1,
+          seed: baseTape.seed,
+          streamPositions: [],
+        },
+      ],
+    };
+
+    const replayer = new ControlTapeReplayer(tapeWithForgedCheckpoint, baseContext);
+    assert.equal(replayer.refused, false); // Compatible context
+
+    // Seeking to actionIndex 1 where checkpoint digest diverges
+    const seekResult = await replayer.seekToAction(1);
+    assert.equal(seekResult.isRefused, true);
+    assert.equal(seekResult.refusalCode, "tape-model-mismatch");
+    assert.ok(seekResult.refusal);
+  });
+
   it("replayer preserves initial conditions and returns structured refusal object on incompatibility", async () => {
     const replayer = new ControlTapeReplayer(baseTape, {
       ...baseContext,

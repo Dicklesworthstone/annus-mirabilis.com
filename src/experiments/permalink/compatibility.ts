@@ -121,16 +121,24 @@ export function checkTapeCompatibility(
   }
 
   // 7. Replay grid
-  if (tape.replayGrid && env.replayGrid) {
+  if (tape.replayGrid !== undefined || env.replayGrid !== undefined) {
     if (
+      !tape.replayGrid ||
+      !env.replayGrid ||
       tape.replayGrid.baseSpacing !== env.replayGrid.baseSpacing ||
       tape.replayGrid.horizon !== env.replayGrid.horizon
     ) {
       const def = refusalCodeRegistry["tape-grid-mismatch"];
+      const tapeDesc = tape.replayGrid
+        ? `spacing: ${tape.replayGrid.baseSpacing}, horizon: ${tape.replayGrid.horizon}`
+        : "none";
+      const envDesc = env.replayGrid
+        ? `spacing: ${env.replayGrid.baseSpacing}, horizon: ${env.replayGrid.horizon}`
+        : "none";
       return {
         compatible: false,
         refusalCode: "tape-grid-mismatch",
-        notice: `${def.message} Recorded on grid (spacing: ${tape.replayGrid.baseSpacing}, horizon: ${tape.replayGrid.horizon}); current is (spacing: ${env.replayGrid.baseSpacing}, horizon: ${env.replayGrid.horizon}).`,
+        notice: `${def.message} Recorded on grid (${tapeDesc}); current is (${envDesc}).`,
         repair: def.repair,
         tapeIdentity: tape.replayGrid,
         currentIdentity: env.replayGrid,

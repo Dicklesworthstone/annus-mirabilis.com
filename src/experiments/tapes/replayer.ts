@@ -238,17 +238,50 @@ export class ControlTapeReplayer {
     this.currentActionIndex = clampedAction;
     this.state = workingState;
 
-    // Compute digest for current state
-    const digestResult =
-      bestCheckpoint && bestCheckpoint.actionIndex === clampedAction
-        ? { digest: bestCheckpoint.digest, digestKind: bestCheckpoint.digestKind }
-        : await computeCheckpointDigest({
-            state: workingState,
-            actionIndex: clampedAction,
-            stepIndex: bestCheckpoint ? bestCheckpoint.stepIndex : 0,
-            simulatedTime: bestCheckpoint ? bestCheckpoint.simulatedTime : 0,
-            seed: this.tape.seed,
-          });
+    // Compute scientific digest for current working state
+    const digestResult = await computeCheckpointDigest({
+      state: workingState,
+      actionIndex: clampedAction,
+      stepIndex: bestCheckpoint ? bestCheckpoint.stepIndex : 0,
+      simulatedTime: bestCheckpoint ? bestCheckpoint.simulatedTime : 0,
+      seed: this.tape.seed,
+      streamPositions: bestCheckpoint?.streamPositions,
+    });
+
+    // If seeking to an exact checkpoint, verify invariant: replayed digest must match recorded checkpoint
+    if (bestCheckpoint && bestCheckpoint.actionIndex === clampedAction) {
+      if (digestResult.digest !== bestCheckpoint.digest) {
+        this.isRefused = true;
+        this.refusalCode = "tape-model-mismatch";
+        const def = refusalCodeRegistry["tape-model-mismatch"];
+        this.refusal = makeRefusal(
+          "tape-model-mismatch",
+          { parameterIds: ["tape"] },
+          {
+            rankedRepairs: [
+              {
+                label:
+                  def?.repair ||
+                  "The replayed state diverged from the recorded checkpoint. Start a new run.",
+                action: { parameterId: "run", value: "new" },
+              },
+            ],
+          },
+        );
+
+        return Object.freeze({
+          actionIndex: clampedAction,
+          state: Object.freeze({ ...workingState }),
+          digest: digestResult.digest,
+          digestKind: digestResult.digestKind,
+          activeCheckpoint: bestCheckpoint,
+          activePredictions: Object.freeze(activePredictions),
+          isRefused: true,
+          refusalCode: this.refusalCode,
+          refusal: this.refusal,
+        });
+      }
+    }
 
     return Object.freeze({
       actionIndex: clampedAction,
