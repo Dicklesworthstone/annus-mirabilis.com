@@ -35,5 +35,16 @@ export type InlineScriptRegistry = readonly InlineScriptRegistryEntry[];
  * them stable (they appear in the manifest and in failure messages):
  * "theme", "detail", "view", "root-arming", "perspective", "storage-keys",
  * "offline-detail".
+ *
+ * am-read-shell-routes-3ua built and tested "view"
+ * (src/reader/prepaintView.inline.ts) and "root-arming"
+ * (src/reader/rootArming.inline.ts) in this same wave, but deliberately did
+ * NOT register them here yet: scripts/build/inline-script-hashes.ts fails a
+ * registered entry that no route emits, and no route wires either script
+ * into a layout in this pass (that lands with the Shell/ShellIsland routes,
+ * blocked on am-cm-compiler-core-oa7 and am-test-e2e-harness-bqmh — see
+ * docs/decisions/reader-faces-static.md). Registering an unemitted entry
+ * now would break the build for every lane; the entry lands in the same
+ * change as the route that actually emits the script.
  */
 export const INLINE_SCRIPT_REGISTRY: InlineScriptRegistry = Object.freeze([]);
