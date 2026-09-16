@@ -7,19 +7,19 @@
  */
 
 import type { EquationRecord } from "../../equations/record.ts";
-import { ContentError, parseContentFile, checkNfc, checkFileSize } from "./loaders.ts";
-import { matchContentRoute } from "./routes.ts";
 import {
-  READING_IDS,
-  validateReadingRecord,
-  type ReadingRecord,
-  type Paper,
   type Argument,
-  type Foundation,
-  type Citation,
   type Block,
+  type Citation,
+  type Foundation,
+  type Paper,
+  READING_IDS,
+  type ReadingRecord,
+  validateReadingRecord,
 } from "../schemas/reading.ts";
-import { compileContent, type CompileResult, type CompilerOptions } from "./compiler.ts";
+import { type CompileResult, type CompilerOptions, compileContent } from "./compiler.ts";
+import { ContentError, checkFileSize, checkNfc, parseContentFile } from "./loaders.ts";
+import { matchContentRoute } from "./routes.ts";
 
 export type Diagnostic = Readonly<{
   severity: "error" | "review" | "flag";
@@ -35,6 +35,7 @@ export type Diagnostic = Readonly<{
   repair?: string | undefined;
   flaggedText?: string | undefined;
   contentHash?: string | undefined;
+  fingerprint?: string | undefined;
 }>;
 
 export type PaperPayload = Readonly<{
@@ -46,7 +47,7 @@ export type PaperPayload = Readonly<{
   equations: readonly EquationRecord[];
 }>;
 
-export { compileContent, type CompileResult, type CompilerOptions };
+export { type CompileResult, type CompilerOptions, compileContent };
 
 interface RawQuantityRecord {
   id?: unknown;
@@ -67,9 +68,7 @@ interface RawLegacySpellingRecord {
  * Synchronous compiler for reading content records, outlines, and foundations.
  * Supports JSON, YAML, allowlisted documentation files, quantity validation, and full error aggregation.
  */
-export function compileReadingContent(
-  files: readonly Readonly<{ path: string; text: string }>[],
-): {
+export function compileReadingContent(files: readonly Readonly<{ path: string; text: string }>[]): {
   ok: boolean;
   diagnostics: Diagnostic[];
   papers: PaperPayload[];
@@ -170,7 +169,11 @@ export function compileReadingContent(
           "paper" in record &&
           record.paper !== matchParams.paper)
       ) {
-        throw new ContentError("path-identity", file.path, "Record identity disagrees with its file path.");
+        throw new ContentError(
+          "path-identity",
+          file.path,
+          "Record identity disagrees with its file path.",
+        );
       }
 
       if (records.has(record.id)) {
@@ -236,7 +239,8 @@ export function compileReadingContent(
         anchors.add(s.id);
         for (const a of s.arguments) {
           const arg = ref(a, "argument", r.id);
-          if (claimed.has(a)) issue("duplicate-placement", r.id, `Argument appears more than once: ${a}.`);
+          if (claimed.has(a))
+            issue("duplicate-placement", r.id, `Argument appears more than once: ${a}.`);
           claimed.add(a);
           if (arg?.kind === "argument" && (arg.paper !== r.id || arg.section !== s.id))
             issue("section-mismatch", a, "Argument belongs to a different paper or section.");
@@ -253,7 +257,8 @@ export function compileReadingContent(
         severity: "review",
         code: "equation-review-pending",
         path: r.id,
-        message: "Modern teaching equation; historical notation and editorial review are not claimed.",
+        message:
+          "Modern teaching equation; historical notation and editorial review are not claimed.",
       });
     }
     if (r.kind === "argument" || r.kind === "foundation") {
@@ -317,7 +322,9 @@ export function compileReadingContent(
   if (!diagnostics.some((d) => d.severity === "error"))
     for (const paper of records.values())
       if (paper.kind === "paper") {
-        const args = paper.sections.flatMap((s) => s.arguments.map((id) => records.get(id) as Argument));
+        const args = paper.sections.flatMap((s) =>
+          s.arguments.map((id) => records.get(id) as Argument),
+        );
         const needed = new Set<string>();
         function add(id: string): void {
           if (needed.has(id)) return;
@@ -325,17 +332,23 @@ export function compileReadingContent(
           const f = records.get(id) as Foundation;
           if (f) {
             f.prerequisites.forEach(add);
-            for (const b of [...f.explanation, ...f.example]) if (b.kind === "foundation") add(b.id);
+            for (const b of [...f.explanation, ...f.example])
+              if (b.kind === "foundation") add(b.id);
           }
         }
         for (const a of args) {
           Object.values(a.help).forEach(add);
-          for (const reading of READING_IDS) for (const b of a.readings[reading]) if (b.kind === "foundation") add(b.id);
+          for (const reading of READING_IDS)
+            for (const b of a.readings[reading]) if (b.kind === "foundation") add(b.id);
         }
         const equations = [...records.values()].filter(
           (r): r is EquationRecord => r.kind === "equation" && r.paper === paper.id,
         );
-        for (const equation of equations) equation.notes.forEach((note) => add(note.foundation));
+        for (const equation of equations) {
+          for (const note of equation.notes) {
+            add(note.foundation);
+          }
+        }
         const foundations = [...needed].sort().map((id) => records.get(id) as Foundation);
         const citations = [
           ...new Set([
@@ -346,7 +359,14 @@ export function compileReadingContent(
         ]
           .sort()
           .map((id) => records.get(id) as Citation);
-        papers.push({ schemaVersion: 1, paper, arguments: args, foundations, citations, equations });
+        papers.push({
+          schemaVersion: 1,
+          paper,
+          arguments: args,
+          foundations,
+          citations,
+          equations,
+        });
       }
 
   return {
