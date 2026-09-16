@@ -10,10 +10,10 @@ import { checkTraceRowCount } from "./bindings.ts";
 import type { KernelIssue, WorkedTrace } from "./types.ts";
 
 export const BM01_TRACE_SCENARIO_ID = "diffusion-einstein-1905-printed";
-export const BM01_TRACE_CONSTANT_SET_LABEL = "einstein-1905-brownian-printed";
+export const BM01_TRACE_CONSTANT_SET_LABEL = "Declared 1905-plan inputs (source review pending)";
 export const BM01_TRACE_CONSTANT_SET_ID = "scenario-einstein-1905-brownian-printed";
 
-/** Editorial inputs of the printed 1905 Brownian calculation, in SI. */
+/** Chosen values from the project plan, in SI. Legacy IDs do not certify transcription. */
 export const BM01_PRINTED_INPUTS = Object.freeze({
   R: 8.31,
   T: 290.15,
@@ -27,9 +27,9 @@ export function printedBrownianConstantSet() {
     id: BM01_TRACE_CONSTANT_SET_ID,
     era: 1905,
     provenance:
-      "Declared editorial inputs matching Einstein 1905 printed values: R = 8.31e7 erg mol^-1 K^-1 (8.31 J mol^-1 K^-1), N = 6e23 mol^-1. The reserved historical set einstein-1905-brownian-printed is not registered (am-ref-constants-xik).",
-    precisionNote: "Printed-era declared inputs, not 2019 SI definitions.",
-    gasConstantProvenance: "measured-without-counting-molecules",
+      "Chosen teaching inputs from the project plan: R = 8.31 J mol^-1 K^-1 and N = 6e23 mol^-1. These are not measurements or checked transcriptions. The reserved historical set remains unavailable.",
+    precisionNote: "Declared decimal inputs; neither measurement uncertainties nor source review are asserted.",
+    gasConstantProvenance: "not-applicable",
     entries: [
       {
         quantityId: "molarGasConstant",
@@ -37,8 +37,8 @@ export function printedBrownianConstantSet() {
         exactDecimal: "8.31",
         unit: "J/(mol K)",
         kind: "declared-scenario",
-        evidentialRole: "measured-observation",
-        provenance: "Einstein 1905 Brownian paper, printed R = 8.31e7 erg mol^-1 K^-1.",
+        evidentialRole: "declared-input",
+        provenance: "Chosen R = 8.31 J mol^-1 K^-1 for this arithmetic exercise.",
         dependsOn: [],
       },
       {
@@ -47,8 +47,8 @@ export function printedBrownianConstantSet() {
         exactDecimal: "6e23",
         unit: "1/mol",
         kind: "declared-scenario",
-        evidentialRole: "measured-observation",
-        provenance: "Einstein 1905 Brownian paper, printed N = 6e23 mol^-1.",
+        evidentialRole: "declared-input",
+        provenance: "Chosen N = 6e23 mol^-1 for this arithmetic exercise.",
         dependsOn: [],
       },
     ],

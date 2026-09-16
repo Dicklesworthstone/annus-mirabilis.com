@@ -42,7 +42,7 @@ const entry = (quantityId, exactDecimal, unit, dependsOn = []) => ({
   unit,
   value: Number(exactDecimal),
   kind: "declared-scenario",
-  evidentialRole: "measured-observation",
+  evidentialRole: "declared-input",
   provenance:
     "Explicit numerical test inputs from am-ref-diffusion-lr3; not a checked transcription.",
   dependsOn,
@@ -53,7 +53,7 @@ const draft = {
   provenance:
     "Numerical reconstruction of the plan's declared inputs; no historical verification claimed.",
   precisionNote: "Binary64 evaluation of declared decimal values.",
-  gasConstantProvenance: "measured-without-counting-molecules",
+  gasConstantProvenance: "not-applicable",
   entries: [
     entry("molarGasConstant", "8.31", "J/(mol K)"),
     entry("avogadroConstant", "6e23", "1/mol"),

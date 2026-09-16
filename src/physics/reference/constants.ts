@@ -29,6 +29,7 @@ export type ConstantEntryKind =
 
 export type EvidentialRole =
   | "defined-exact"
+  | "declared-input"
   | "measured-observation"
   | "fitted-constant"
   | "theoretical-estimate"
@@ -193,6 +194,9 @@ export function freezeConstantSet(set: ConstantSet): ConstantSet {
         "invalid-evidential-role",
         `Declared inputs are not SI definitions: ${entry.quantityId}.`,
       );
+
+    if (entry.evidentialRole === "declared-input" && entry.kind !== "declared-scenario")
+      reject("invalid-evidential-role", "A chosen scenario input cannot stand in for a measurement or historical transcription.");
 
     if (entry.kind === "measured") {
       if (
@@ -739,6 +743,7 @@ export function printedReadingOf(entry: ConstantEntry): string {
 
 const EVIDENTIAL_ROLE_TEXT: Readonly<Record<EvidentialRole, string>> = Object.freeze({
   "defined-exact": "a defining constant of the unit system, exact by definition",
+  "declared-input": "a chosen input for a scenario, not a measured or transcribed constant",
   "measured-observation": "a quantity someone measured",
   "fitted-constant": "a constant fitted to measurements",
   "theoretical-estimate": "a value computed from a theory and other constants",
