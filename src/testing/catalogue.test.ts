@@ -49,18 +49,17 @@ describe("catalogue: the 33 core ids and the 5 declared non-core ids", () => {
     }
   });
 
-  test("REGISTERED_IDS agrees exactly with the ids that have a real owner binding (cross-file consistency, not a hardcoded snapshot)", () => {
-    // A literal id list here drifted stale twice as the registry grew every tick; this checks
-    // the invariant that actually matters instead -- every registered id has a real owner
-    // binding in owners.ts, and nothing bound there is left un-registered -- which DOES fail
-    // if the two files disagree, unlike a plain re-derivation of REGISTERED_IDS from its own
-    // filter (which could never fail).
+  test("every registered id has a real owner binding (cross-file consistency, not a hardcoded snapshot)", () => {
+    // A literal id list here drifted stale twice as the registry grew every tick. This checks
+    // the direction of the invariant that is always true rather than re-deriving REGISTERED_IDS
+    // from its own filter (which could never fail): a catalogue id flipped to "registered"
+    // without ever wiring owners.ts would be a real bug this catches. The converse does NOT
+    // hold and is not asserted here -- a lane may legitimately land session.ts and an owner
+    // binding slightly before flipping the manifest-backed catalogue status (observed live:
+    // sr-05 has a binding and a route today but is still "in-preparation").
     const boundIds = new Set(Object.keys(OWNER_BINDINGS));
     for (const id of REGISTERED_IDS) {
       expect(boundIds.has(id)).toBe(true);
-    }
-    for (const id of boundIds) {
-      expect(CATALOGUE_STATUS[id as CatalogueId]).toBe("registered");
     }
     expect(REGISTERED_IDS.length).toBeGreaterThan(0);
   });

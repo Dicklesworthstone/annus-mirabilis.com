@@ -1,0 +1,403 @@
+# LQ-04 instrument manifest (am-lq-04-entropy-workbench-senj).
+#
+# Scope note (MaroonTiger, 2026-09-16): built alongside the real owner (src/physics/reference/
+# radiation.ts, am-ref-radiation-15c, already landed) and the /lab/lq-04 route + component, per
+# BoldHarbor's route-first directive. content/papers/light-quanta.json does not exist yet (the
+# same pre-existing gap lq-01.yaml and lq-03.yaml already note); sourceRefs below name the
+# sections the bead itself cites (S3, S4).
+#
+# modern-si-2019 only: einstein-1905-light-quanta-printed is not yet a registered constant set
+# (src/physics/reference/constants.ts's getConstantSet throws for it; owner am-ref-constants-xik),
+# so there is no constant-set toggle here -- the same honest limit lq-03.yaml already states
+# against the same owner.
+#
+# A NAMED OWNER DEFECT found while building this instrument, not patched here (not this bead's
+# file): radiationEntropyVolumeChange's returned `effectiveIndependentCount` field is really
+# E/(B*nu) in J/K (this bead's `entropyVolumeCoefficient`), not the dimensionless E/(h*nu) this
+# bead requires under that name. src/experiments/lq04/session.ts relabels the owner's field and
+# computes the true dimensionless count independently; see that file's header comment.
+#
+# NOT done this pass, honestly: the derivation-chain panel and its per-step attribution to Wien
+# (needs the equation-system rendering this bead names as owned by am-lq-equations-s1-s4-9gl5,
+# not built here); the plot of Delta S against ln(V/V0) (the architecture guard just caught two
+# other lanes importing physics into a Plot component this same hour -- a real precomputed-points
+# plot needs more care than this pass's budget allowed, so the state table stands in for it); the
+# per-unit "PartitionControl" action contract (am-inst-interaction-families-m2ps does not exist
+# yet -- no src/experiments/interactions directory at all -- so the ratio control below is a
+# plain radio-plus-number-input, explicitly not that primitive); the family parity suite (same
+# missing directory, so that acceptance criterion cannot be attempted); predict mode (exempt,
+# see below); show-the-code (wired with an empty listings array, matching the same stub other
+# labs ship pending am-inst-show-the-code-4brv's real kernel extraction); permalink/tape/embed
+# (am-inst-permalink-tape-s677 not implemented in any lab yet, including this one); the R0-R3
+# caption texts (content/editorial/readings-owners/am-lq-04-entropy-workbench-senj.yaml declares
+# ownership but the texts are not authored); e2e (am-lq-e2e-x7z0 not started).
+id: lq-04
+title: "LQ-04: Radiation Entropy Workbench"
+explanatoryQuestion: "Within the regime where Wien's law holds, how does the entropy of monochromatic radiation depend on the volume it occupies, and what had to be fixed to get a definite answer?"
+sourceRefs:
+  - paper: light-quanta
+    id: s3
+  - paper: light-quanta
+    id: s4
+argumentIds: []
+schemaVersion: 1
+parameters:
+  - id: frequency
+    label: "Frequency"
+    accessibleName: "Monochromatic radiation frequency"
+    accessibleDescription: "Sets the frequency of the monochromatic radiation band in hertz"
+    quantityId: frequency
+    displayUnit: "Hz"
+    modelDomain:
+      min: 1e13
+      max: 1e16
+      minInclusive: true
+      maxInclusive: true
+      reason: "Teaching range within the owner's stable Wien evaluation"
+    visualRange:
+      min: 1e13
+      max: 1e16
+    default: 6.0e14
+    mapping:
+      kind: log
+      base: 10
+    role: independent
+    commandClass: setup-change
+  - id: bandwidth
+    label: "Band width"
+    accessibleName: "Narrow-band width around the chosen frequency"
+    accessibleDescription: "Sets the width of the narrow frequency band in hertz"
+    quantityId: bandwidth
+    displayUnit: "Hz"
+    modelDomain:
+      min: 1e9
+      max: 1e14
+      minInclusive: true
+      maxInclusive: true
+      reason: "Must stay narrow relative to the chosen frequency (dNu/nu <= 1%)"
+    visualRange:
+      min: 1e9
+      max: 1e14
+    default: 1.0e12
+    mapping:
+      kind: log
+      base: 10
+    role: independent
+    commandClass: setup-change
+  - id: referenceVolume
+    label: "Reference volume"
+    accessibleName: "Reference volume V0"
+    accessibleDescription: "Sets the reference volume in cubic meters"
+    quantityId: volume
+    displayUnit: "m^3"
+    modelDomain:
+      min: 1e-6
+      max: 1
+      minInclusive: true
+      maxInclusive: true
+      reason: "Teaching range"
+    visualRange:
+      min: 1e-6
+      max: 1
+    default: 1.0e-3
+    mapping:
+      kind: log
+      base: 10
+    role: independent
+    commandClass: setup-change
+  - id: referenceTemperature
+    label: "Reference temperature"
+    accessibleName: "Reference temperature T0"
+    accessibleDescription: "Sets the reference temperature that fixes the reference density and the constrained energy"
+    quantityId: temperature
+    displayUnit: "K"
+    modelDomain:
+      min: 500
+      max: 10000
+      minInclusive: true
+      maxInclusive: true
+      reason: "Teaching range, matching lq-03's owner-shared temperature domain"
+    visualRange:
+      min: 500
+      max: 10000
+    default: 3000
+    mapping:
+      kind: log
+      base: 10
+    role: independent
+    commandClass: setup-change
+  - id: volumeRatio
+    label: "Volume ratio"
+    accessibleName: "Ratio of the compared volume to the reference volume"
+    accessibleDescription: "Sets V/V0 for the constrained-state comparison at fixed energy and band; choose half, same, or double, or enter any ratio"
+    quantityId: volumeRatio
+    displayUnit: ""
+    modelDomain:
+      min: 1e-4
+      max: 1e4
+      minInclusive: true
+      maxInclusive: true
+      reason: "Wide enough to reach the dense refusal while excluding numerically degenerate ratios"
+    visualRange:
+      min: 0.1
+      max: 10
+    default: 1
+    mapping:
+      kind: log
+      base: 10
+    role: independent
+    commandClass: setup-change
+  - id: diluteThresholdX
+    label: "Dilute threshold x_min"
+    accessibleName: "Minimum admitted Wien dimensionless ratio"
+    accessibleDescription: "Sets how close to the Wien boundary a state may be admitted, as x = B*nu/T"
+    quantityId: dimensionlessRatio
+    displayUnit: ""
+    modelDomain:
+      min: 3
+      max: 10
+      minInclusive: true
+      maxInclusive: true
+      reason: "Corresponds to a pointwise Planck-Wien deviation between about 5% and 0.005%"
+    visualRange:
+      min: 3
+      max: 10
+    default: 4.6052
+    mapping:
+      kind: linear
+    role: independent
+    commandClass: estimator-change
+outputs:
+  - id: radiationEnergy
+    quantityId: radiationEnergy
+    allowedStatuses:
+      - value
+    primary: true
+  - id: initialTemperature
+    quantityId: initialTemperature
+    allowedStatuses:
+      - value
+      - outside-domain
+    primary: false
+  - id: finalTemperature
+    quantityId: finalTemperature
+    allowedStatuses:
+      - value
+      - outside-domain
+    primary: false
+  - id: initialX
+    quantityId: initialX
+    allowedStatuses:
+      - value
+      - outside-domain
+    primary: false
+  - id: finalX
+    quantityId: finalX
+    allowedStatuses:
+      - value
+      - outside-domain
+    primary: false
+  - id: initialPointwiseDeviation
+    quantityId: initialPointwiseDeviation
+    allowedStatuses:
+      - value
+      - outside-domain
+    primary: false
+  - id: finalPointwiseDeviation
+    quantityId: finalPointwiseDeviation
+    allowedStatuses:
+      - value
+      - outside-domain
+    primary: false
+  - id: initialSpectralEntropyDensity
+    quantityId: initialSpectralEntropyDensity
+    allowedStatuses:
+      - value
+      - outside-domain
+    primary: false
+  - id: finalSpectralEntropyDensity
+    quantityId: finalSpectralEntropyDensity
+    allowedStatuses:
+      - value
+      - outside-domain
+    primary: false
+  - id: radiationEntropy
+    quantityId: radiationEntropy
+    allowedStatuses:
+      - value
+      - outside-domain
+    primary: true
+  - id: radiationEntropyNumeric
+    quantityId: radiationEntropyNumeric
+    allowedStatuses:
+      - value
+      - outside-domain
+    primary: false
+  - id: entropyVolumeCoefficient
+    quantityId: entropyVolumeCoefficient
+    allowedStatuses:
+      - value
+      - outside-domain
+    primary: false
+  - id: effectiveIndependentCount
+    quantityId: effectiveIndependentCount
+    allowedStatuses:
+      - value
+      - outside-domain
+    primary: false
+  - id: unfixedConstantDeltaS
+    quantityId: unfixedConstantDeltaS
+    allowedStatuses:
+      - value
+      - not-applicable
+      - outside-domain
+    primary: false
+  - id: unfixedConstantExtraTerm
+    quantityId: unfixedConstantExtraTerm
+    allowedStatuses:
+      - value
+      - not-applicable
+      - outside-domain
+    primary: false
+assumptions:
+  - "Radiation in the admitted Wien approximation rho_nu = A nu^3 e^(-B nu / T)"
+  - "The two compared states share the same fixed energy E, frequency nu, and narrow band dNu"
+  - "The integration constant C(nu) is fixed to zero by the zero-density boundary condition, never assumed"
+admittedDomain: "Monochromatic radiation in the Wien regime (pointwise Planck-Wien deviation at or below the chosen threshold at both compared states), narrow band (dNu/nu <= 1%), compared at fixed energy and band."
+notModeled:
+  - "Radiation outside the Wien regime"
+  - "Broad bands"
+  - "How the constrained states are prepared"
+  - "Walls, mirrors, adiabatic compression, or any mechanism that changes volume"
+  - "Any interpretation of E/(h*nu) as a count of particles"
+owner:
+  kind: reference-evaluator
+  kernelFunctions:
+    - displayRole: reference-implementation
+      language: ts
+      module: "src/physics/reference/radiation/entropy.ts"
+      exportName: "wienTemperatureFromDensity"
+    - displayRole: reference-implementation
+      language: ts
+      module: "src/physics/reference/radiation/entropy.ts"
+      exportName: "wienSpectralEntropyDensity"
+    - displayRole: reference-implementation
+      language: ts
+      module: "src/physics/reference/radiation/entropy.ts"
+      exportName: "radiationEntropyVolumeChange"
+      independentReferences:
+        - experimentId: lq-04
+          quantityId: radiationEntropy
+    - displayRole: reference-implementation
+      language: ts
+      module: "src/physics/reference/radiation/entropy.ts"
+      exportName: "entropyWithUnfixedConstant"
+    - displayRole: reference-implementation
+      language: ts
+      module: "src/physics/reference/radiation/spectra.ts"
+      exportName: "regimeRelativeErrors"
+  identifierBindings:
+    - kernelFunction: radiationEntropyVolumeChange
+      identifier: "E"
+      quantityId: radiationEnergy
+    - kernelFunction: radiationEntropyVolumeChange
+      identifier: "nu"
+      quantityId: frequency
+    - kernelFunction: radiationEntropyVolumeChange
+      identifier: "V"
+      quantityId: volume
+    - kernelFunction: radiationEntropyVolumeChange
+      identifier: "V0"
+      quantityId: volume
+  traceScenarioId: lq-04-halve-volume
+  traceRows:
+    - label: "Entropy change on halving the volume at fixed energy and band"
+      expression: "Delta S = (E / (B nu)) ln(V / V0)"
+      value: -2.179814e-13
+      unit: "J/K"
+      quantityId: radiationEntropy
+views:
+  - id: lq-04-state-table
+    kind: table
+    consumes:
+      - initialTemperature
+      - finalTemperature
+      - initialX
+      - finalX
+      - initialSpectralEntropyDensity
+      - finalSpectralEntropyDensity
+      - radiationEntropy
+      - radiationEntropyNumeric
+      - entropyVolumeCoefficient
+      - effectiveIndependentCount
+actions:
+  - actionId: lq-04-compare-volumes
+    family: radiation-entropy
+    question: "At fixed energy and band, how does the entropy change when the volume is halved, kept the same, or doubled?"
+    inputs:
+      - volumeRatio
+    commandClass: setup-change
+    acceptedResult:
+      outputs:
+        - radiationEntropy
+        - initialX
+        - finalX
+      allowedStatuses:
+        - value
+        - outside-domain
+    visualAffordance: "State table updates both endpoints and the entropy-change sentence"
+    equivalentAffordance: "Choose half, same, or double, or type any ratio, and read the entropy-change sentence"
+    announcement: "Entropy change updated for the selected volume ratio"
+acceptanceCases:
+  - lq-04-halve-volume
+  - lq-04-dense-refusal
+  - lq-04-derived-temperature
+defaultScenario: lq-04-halve-volume
+tapeModel:
+  modelId: "lq-04"
+  modelVersion: 1
+teachingTapes: []
+presets:
+  - presetId: lq-04-halve-volume
+    label: "Halve the volume (the golden state)"
+    parameterValues:
+      frequency: 6.0e14
+      bandwidth: 1.0e12
+      referenceVolume: 1.0e-3
+      referenceTemperature: 3000
+      volumeRatio: 0.5
+      diluteThresholdX: 4.6052
+      showUnfixedConstantPanel: false
+  - presetId: lq-04-dense-refusal
+    label: "Dense state (outside the Wien regime)"
+    parameterValues:
+      frequency: 6.0e14
+      bandwidth: 1.0e12
+      referenceVolume: 1.0e-3
+      referenceTemperature: 3000
+      volumeRatio: 1.0e-4
+      diluteThresholdX: 4.6052
+      showUnfixedConstantPanel: false
+  - presetId: lq-04-derived-temperature
+    label: "Derivative check: ds_nu/drho_nu against 1/T"
+    parameterValues:
+      frequency: 6.0e14
+      bandwidth: 1.0e12
+      referenceVolume: 1.0e-3
+      referenceTemperature: 3000
+      volumeRatio: 1
+      diluteThresholdX: 4.6052
+      showUnfixedConstantPanel: false
+probes:
+  - lq-04-coefficient-probe
+weavePredicates:
+  - lq04-s4-volume-law
+  - lq04-s4-wien-validity-limit
+  - lq04-s3-derivative-check
+historicalOverlays: []
+realRate:
+  natural: false
+embeddable: true
+predictMode:
+  exempt: true
+  reason: "am-inst-predict-mode-ti7m is still open. The bead's own prompt (halving the volume at fixed energy and band changes the entropy by a fixed amount, an amount proportional to the energy, or nothing) is named in the bead text but not authored as manifest predictMode.prompts here, matching lq-03.yaml's precedent for the same reason."
