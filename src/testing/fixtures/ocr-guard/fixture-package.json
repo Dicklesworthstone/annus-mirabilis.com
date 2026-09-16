@@ -1,0 +1,7 @@
+{
+  "name": "fixture-package",
+  "version": "1.0.0",
+  "dependencies": {
+    "tesseract.js": "^5.0.0"
+  }
+}

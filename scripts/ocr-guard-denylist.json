@@ -1,0 +1,111 @@
+{
+  "version": 1,
+  "description": "Denylist of local OCR engines, daemons, vision transcription libraries, and text extraction calls forbidden by AGENTS.md (Cloud OCR Only: Hard Resource Policy).",
+  "denylist": [
+    {
+      "pattern": "tesseract.js",
+      "category": "dependency-or-import",
+      "reason": "tesseract.js is a local WebAssembly/JS OCR engine forbidden by repository resource policy (AGENTS.md 'Cloud OCR Only: Hard Resource Policy')."
+    },
+    {
+      "pattern": "node-tesseract-ocr",
+      "category": "dependency-or-import",
+      "reason": "node-tesseract-ocr invokes local tesseract binary forbidden by repository resource policy."
+    },
+    {
+      "pattern": "tesseract",
+      "category": "binary-or-spawn",
+      "reason": "Tesseract CLI / C++ library is a local OCR engine forbidden by repository resource policy."
+    },
+    {
+      "pattern": "ocrmypdf",
+      "category": "binary-or-spawn",
+      "reason": "OCRmyPDF runs local OCR engines forbidden by repository resource policy."
+    },
+    {
+      "pattern": "focr",
+      "category": "binary-or-spawn",
+      "reason": "focr is a local fast OCR tool forbidden by repository resource policy."
+    },
+    {
+      "pattern": "easyocr",
+      "category": "import-or-spawn",
+      "reason": "EasyOCR is a local PyTorch-based OCR engine forbidden by repository resource policy."
+    },
+    {
+      "pattern": "paddleocr",
+      "category": "import-or-spawn",
+      "reason": "PaddleOCR is a local OCR toolkit forbidden by repository resource policy."
+    },
+    {
+      "pattern": "pix2tex",
+      "category": "import-or-spawn",
+      "reason": "pix2tex / LaTeX-OCR is a local vision model for equations forbidden by repository resource policy."
+    },
+    {
+      "pattern": "latex-ocr",
+      "category": "import-or-spawn",
+      "reason": "LaTeX-OCR is a local equation recognition model forbidden by repository resource policy."
+    },
+    {
+      "pattern": "surya",
+      "category": "import-or-spawn",
+      "reason": "Surya is a local multilingual OCR / layout model forbidden by repository resource policy."
+    },
+    {
+      "pattern": "kraken",
+      "category": "import-or-spawn",
+      "reason": "Kraken is a local OCR/HTR engine forbidden by repository resource policy."
+    },
+    {
+      "pattern": "doctr",
+      "category": "import-or-spawn",
+      "reason": "docTR is a local deep learning OCR library forbidden by repository resource policy."
+    },
+    {
+      "pattern": "rapidocr",
+      "category": "import-or-spawn",
+      "reason": "RapidOCR is a local ONNX OCR runner forbidden by repository resource policy."
+    },
+    {
+      "pattern": "VNRecognizeTextRequest",
+      "category": "code-symbol",
+      "reason": "Apple Vision VNRecognizeTextRequest is local machine text recognition forbidden by repository resource policy."
+    },
+    {
+      "pattern": "ollama",
+      "category": "import-or-spawn",
+      "reason": "Ollama runs local LLM/multimodal vision models forbidden by repository resource policy."
+    },
+    {
+      "pattern": "llava",
+      "category": "import-or-spawn",
+      "reason": "LLaVA runs local multimodal vision recognition forbidden by repository resource policy."
+    },
+    {
+      "pattern": "llama.cpp",
+      "category": "import-or-spawn",
+      "reason": "llama.cpp vision modes run local multimodal recognition forbidden by repository resource policy."
+    },
+    {
+      "pattern": "pdftotext",
+      "category": "binary-or-spawn",
+      "reason": "pdftotext text-layer extraction is forbidden in source-layer pipelines; historical facsimile text layers are unreliable and must not substitute for cloud OCR research drafts or editorial transcription."
+    },
+    {
+      "pattern": "getTextContent",
+      "category": "code-symbol",
+      "reason": "pdf.js getTextContent extraction is forbidden in source-layer pipelines; text layers are unreliable for 1905 typesetting."
+    }
+  ],
+  "allowedRenderers": [
+    {
+      "pattern": "pdftoppm",
+      "reason": "Page rendering to images for cloud upload is permitted; rendering is not OCR."
+    },
+    {
+      "pattern": "pdfjs-dist/legacy/build/pdf",
+      "reason": "PDF canvas rendering for display or image generation is permitted."
+    }
+  ]
+}

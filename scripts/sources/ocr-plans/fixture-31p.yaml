@@ -1,0 +1,16 @@
+planVersion: 1
+key: fixture-31p
+facsimilePath: src/testing/fixtures/ocr/fixture-31p.pdf
+facsimileSha256: 898b2c17280ead59806688d623bfb8c6bc04239e8248c8dc97a28994ff18d814
+pdfPageRange: [1, 31]
+chunkSize: 2
+maxConcurrency: 2
+cloudProcessing: permitted
+cloudProcessingBasisRef: "Section 2.1: Public domain 1905 paper scan"
+render:
+  dpi: 300
+  format: png
+instructionsVersion: v1
+expectedWorkerIdentity: gpt-5.6-luna
+expectedCounts:
+  1: { displayEquations: 1, footnoteMarkers: 1, illegible: 0 }
