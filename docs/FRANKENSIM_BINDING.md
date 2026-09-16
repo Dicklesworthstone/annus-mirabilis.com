@@ -1124,6 +1124,147 @@ A computed `s * s` is not always exactly `2 D dt` in floating point. Coin mean-s
 
 Because every physical kernel starts at 0, the stored values are numerically also displacements from the origin (`displacement1d`). The buffer still binds `latentPosition1d` (the latent path). Field coordinates of a PDE grid bind `positionCoordinate1d` and are not this export.
 
+##### Export-bead lock (`am-fs-export-philox-normals-xnv`)
+
+Decider: `agent:grok-lane-cod-probe`, acting under BoldHarbor's 2026-09-16 assignment of this bead. Quoted instruction: "YOUR NEXT BEAD: am-fs-export-philox-normals-xnv" and "THE STREAM ARGUMENTS ARE UNDERSPECIFIED" / "THE REFUSAL CHANNEL". This is not a project-owner ratification and is re-openable by the owner. The two AGENTS.md gaps this export owns are locked as follows before any implementation.
+
+**Stream arguments.** The plan sketch `philox_normals(seed, index, count)` is rejected. `index` is not a stream id. Implemented form:
+
+```text
+philox_normals(seed: u64, stream_kernel: u32, tile: u32, start_index: u64, count: usize)
+```
+
+- `seed` is the 64-bit stream seed (Philox key), canonical decimal at JSON/JS boundaries.
+- `stream_kernel` is the registry stream kernel id (decision (c)), a `u32`, distinct from `brownian_frames`'s `step_kernel`.
+- `tile` is the logical tile id (`StreamKey.tile`).
+- `start_index` counts **draws**, not normals. Normal `i` consumes draws `start_index + 2*i` and `start_index + 2*i + 1`.
+- Positioning is `Stream::resume(StreamCheckpoint::current(StreamKey { seed, kernel: stream_kernel, tile }, start_index))`.
+
+**Refusal channel.** Native return is `Result<Vec<f64>, Refusal>` after `admit_*`. The WASM/JS boundary returns the decision-(b) envelope (`ok` with `Float64Array` values, or `refusal` / `execution` object). An unexplained empty `Vec<f64>` is not a refusal. `count == 0` is `invalid-parameter`. `count > PHILOX_NORMALS_MAX_COUNT` is execution outcome `budget-exhausted`. `start_index + 2*count` overflowing `u64` is `stream-index-overflow`. Ziggurat is never used.
+
+**Parity claimed by the vector file.** Integer Philox block, `next_u64`, the 53-bit `next_f64` ladder, `next_below` (including rejection draws), and the 83-byte checkpoint are **bitwise**. Native-versus-WASM `next_normal` is bitwise when `fs_math::det` holds on `wasm32`. WASM-versus-TypeScript normals are **not** bitwise: TypeScript uses host `Math` (`HOST_NORMAL_VERSION = philox-box-muller-host-v1` in `src/physics/reference/philox.ts`); FrankenSim uses `det::{ln, cos, sqrt}`. The port bead records the tolerance. Do not claim bitwise Gaussian parity with the host.
+
+#### 5.2.4 `diffusion1d_frames`
+
+```rust
+pub fn admit_diffusion1d_frames(
+    n: usize,
+    frames: usize,
+    steps_per_frame: usize,
+    diffusion: f64,
+    dx: f64,
+    dt: f64,
+    profile: u32,
+) -> Result<Diffusion1dSpec, Refusal>;
+
+pub fn diffusion1d_frames_admitted(spec: &Diffusion1dSpec) -> Vec<f64>;
+
+pub fn diffusion1d_frames(
+    n: usize,
+    frames: usize,
+    steps_per_frame: usize,
+    diffusion: f64,
+    dx: f64,
+    dt: f64,
+    profile: u32,
+) -> Result<Vec<f64>, Refusal>;
+```
+
+**Layout.** Length `frames * n`. Cell `i` of frame `f` is at index `f * n + i`. Frame 0 is the initial profile. Each later frame follows `steps_per_frame` FTCS steps. Cell centers `x_i = (i as f64 + 0.5) * dx`.
+
+**Operator `L` (sign opposite `laplacian_5pt`).** Assemble with `Coo::new(n, n)`, `push` in ascending column order, `assemble` to `Csr`:
+
+- row 0: `(0,0) = -1`, `(0,1) = +1`
+- interior row `i`: `(i, i-1) = +1`, `(i, i) = -2`, `(i, i+1) = +1`
+- row `n-1`: `(n-1, n-2) = +1`, `(n-1, n-1) = -1`
+
+This is the mirrored-ghost zero-flux discretisation of `+Δ` without the `1/dx^2` factor. Every column sums to zero.
+
+**Update.** `y = L u` via `Csr::spmv`. Then `u_i <- u_i + r * y_i` with **unfused** multiply and add (never `mul_add`), every cell from the previous field.
+
+**Stability ratio.** `r = (diffusion * dt) / (dx * dx)` in exactly that order. Refuse when `r > 0.5` with **no epsilon**. `r = 0.5` is admissible. Code `ftcs-unstable`, details `{ ratio, limit: 0.5, dtMax }` where `dtMax = (dx * dx) / (2.0 * diffusion)`, ranked repairs: use `dt = dtMax`; increase `dx` to at least `sqrt(2 D dt)`; reduce `diffusion` to at most `dx^2 / (2 dt)`. Never return a partially integrated field.
+
+The documented order matters. The export bead's planted case `diffusion = 0.1`, `dx = 0.1`, `dt = 0.05` gives exactly 0.5 under `(diffusion * dt) / (dx * dx)` and a value that would refuse under `diffusion * dt / dx / dx`.
+
+**Profiles.**
+
+| `profile` | Name | Definition | Mass `sum_i u_i dx` | Quantity id |
+|---|---|---|---|---|
+| 0 | spike | unit mass in center cell `i_c = n/2` (floor), value `1.0 / dx`, else 0 | 1 | `probabilityDensity` |
+| 1 | step | `u_i = 1` for `i < n/2` (floor), else 0 | `floor(n/2) * dx` (not unit mass) | `probabilityDensity` with an explicit CONTRACT note that the field is unnormalised; consumers must not treat it as a unit-mass density |
+| 2 | two spikes | value `0.5 / dx` at `floor(n/4)` and `floor(3n/4)` | 1 | `probabilityDensity` |
+
+Unknown `profile` is `unsupported-kernel`. `diffusion = 0` is valid and returns constant frames equal to the initial profile.
+
+`probabilityDensity` is the registry id (L⁻¹, one-dimensional) from `am-not-quantity-registry-2f7`. Grid spacing binds `gridSpacing`; the time step binds `timeStep`. The field coordinate of cell `i` binds `positionCoordinate1d`. The **buffer values** bind `probabilityDensity`, never `positionCoordinate1d`.
+
+---
+
+### 5.3 Decision (a): step-kernel scaling for `brownian_frames`
+
+#### Resolution chosen
+
+**`distinct-meaning`.** Not an alias.
+
+Under the recommended physical scaling, the plan's kernel 2 ("Gaussian") and kernel 3 ("Gaussian with the exact D so ⟨x²⟩ = 2Dt") coincide in distribution. Two ids with silently identical meaning are forbidden. The two admissible resolutions were: (1) give kernel 2 a distinct documented meaning, or (2) make id 2 a documented alias of id 3 with an explicit stream-semantics decision.
+
+This audit takes **(1)**. Kernel 2 is a dimensionless unit-variance Gaussian teaching walk. The export refuses to label it physical. Kernel 3 is the physically scaled Gaussian with per-step variance `2 D dt`. Ids 2 and 3 are not aliases: they do not produce bitwise-identical trajectories for generic `D` and `dt`, they bind different quantity ids, and removing id 2 later is a stream-semantics version bump because tapes may have recorded `step_kernel = 2`.
+
+Why not alias. An alias that is "not part of the golden surface" can be removed without a version bump and break every tape that used it (audit pitfall). An alias that is part of the surface still leaves two ids with the same meaning, which the test harness must then special-case forever. The plan already distinguished "Gaussian" from "Gaussian with the exact D". Keeping that distinction, with kernel 2 refused for physical labels, is the honest reading.
+
+Common-random-number note (not alias identity). Kernels 2 and 3 consume the same two draws per step from the same stream. When `s = (2.0 * diffusion * dt).sqrt()` equals `1.0` exactly, kernel 3's `next_normal() * 1.0` is bitwise equal to kernel 2's `next_normal()` for finite values (IEEE-754 `x * 1.0 = x`). That is a reconstruction test, not a licence to treat the ids as one. For any other `s`, `x += z * s` is not a bitwise scaled copy of the kernel-2 path, because the scale is applied per increment in `f64`.
+
+#### Exact arithmetic (all kernels)
+
+Scale factors are computed **once per call**, not per particle and not per step, in the stated operator order. Positions accumulate `x = x + step` in `f64` from the start value (0.0 for the one-shot form). `det::sqrt` is the hardware square root (`det.rs:238`). The ziggurat path (`next_normal_ziggurat`, line 591) is never used.
+
+A computed `s * s` is not always exactly `2 D dt` in floating point. Coin mean-square tests use a rounding-level tolerance, not equality.
+
+#### Per-kernel table
+
+##### Kernel 0: coin (physical)
+
+- **Distribution.** Two-point: step `+s` or `-s` with equal probability. `s = (2.0 * diffusion * dt).sqrt()`. Draw `u = next_u64()` (one draw). Step is `+s` if `u >> 63 == 1`, otherwise `-s`.
+- **Support.** `{+s, -s}`.
+- **Per-step variance (reals).** `s² = 2 D dt`. Fourth moment `μ₄ = σ⁴ = (2 D dt)²`.
+- **Draws per step.** 1 (`next_u64`). After `S` steps the particle's stream index is `S`.
+- **Position unit.** metre (SI inputs).
+- **Quantity id.** `latentPosition1d` (length). Never a dimensionless id.
+- **Physical label.** Admitted. Execution label "Ideal model, computed with FrankenSim" is earnable after an accepted call.
+
+##### Kernel 1: uniform (physical)
+
+- **Distribution.** `u = next_f64()` in `[0, 1)` via the 53-bit ladder (`lib.rs:554–555`). `h = (6.0 * diffusion * dt).sqrt()`. Step `(2.0 * u - 1.0) * h`.
+- **Support.** `[-h, h)`. `+h` is excluded; `-h` is included. The one-ulp endpoint asymmetry is documented. The mean is O(`h / 2^53`), not a second physical parameter.
+- **Per-step variance (reals).** For Unif`[-h, h)` the variance is `(2h)²/12 = h²/3`. `h² = 6 D dt`, so `h²/3 = 2 D dt`. Fourth moment `μ₄ = 9 σ⁴ / 5`.
+- **Draws per step.** 1 (`next_f64` = one `next_u64`). After `S` steps the index is `S`.
+- **Position unit.** metre.
+- **Quantity id.** `latentPosition1d`.
+- **Physical label.** Admitted.
+
+##### Kernel 2: unit Gaussian teaching walk (dimensionless)
+
+- **Distribution.** Standard normal. `z = next_normal()` (Box–Muller, lines 579–584). Step `z` with **no** multiplication by `s`.
+- **Support.** ℝ, in `f64`.
+- **Per-step variance.** 1 (step units). Fourth moment `μ₄ = 3`.
+- **Draws per step.** 2. After `S` steps the index is `2S`.
+- **`diffusion` and `dt`.** Validated with the same finiteness and sign rules as the physical kernels so the call shape is uniform, and **they do not scale the step**. Changing `D` or `dt` with a fixed seed therefore yields the same path. A test that expects physical scaling from kernel 2 is a failing test of the host, not of the export.
+- **Position unit.** step unit (dimensionless). **Not metre.**
+- **Quantity id.** `walkStepCoordinate1d`, **requested** from `am-not-quantity-registry-2f7` (no existing dimensionless walk-coordinate id; `stepRms` is length, `stepInterval` is time, `positionCoordinate1d` / `latentPosition1d` / `displacement1d` are length). `dimensionlessKind` to be recorded by that bead as a coordinate in step units, permitted unit `1` (step). **A dimensionless output binds this id, never `positionCoordinate1d`.** The protocol decoder's unit check must reject any attempt to attach metres or `positionCoordinate1d` to a kernel-2 buffer.
+- **Physical label.** **Refused.** CONTRACT.md and the ok-envelope `quantityId` / `unit` fields carry the dimensionless id. A host that prints "metres" or claims Stokes–Einstein D for a kernel-2 buffer is wrong even if the WASM call succeeded. BM-01's physical tracer ensemble uses kernel 3 (or 0 or 1). BM-05 may use kernel 2 as the unit-step teaching walk beside the physically scaled kernels.
+
+##### Kernel 3: Gaussian with exact D (physical)
+
+- **Distribution.** `z = next_normal()`; `s = (2.0 * diffusion * dt).sqrt()` once per call; step `z * s`.
+- **Support.** ℝ, in `f64`.
+- **Per-step variance (reals).** `s² = 2 D dt`. At step boundary `s` (time `t = s dt`), `⟨x²⟩ = 2 D t`. Fourth moment `μ₄ = 3 σ⁴`.
+- **Draws per step.** 2. After `S` steps the index is `2S`.
+- **Position unit.** metre.
+- **Quantity id.** `latentPosition1d`.
+- **Physical label.** Admitted. This is the kernel BM-01 uses for the physical ensemble and the kernel whose mean-square growth BM-05 compares with the coin and the uniform.
+
+Because every physical kernel starts at 0, the stored values are numerically also displacements from the origin (`displacement1d`). The buffer still binds `latentPosition1d` (the latent path). Field coordinates of a PDE grid bind `positionCoordinate1d` and are not this export.
+
 **TypeScript walk-law agreement (am-fs-export-brownian-frames-nhm).** The site's `WALK_KERNELS` in `src/physics/reference/diffusion/walkLaws.ts` pin `fourthMomentFactor` 1 (coin, excess kurtosis −2), 1.8 (uniform, −1.2), and 3 (Gaussian, 0), and bind the physical Gaussian to `stepKernel` 3. Those factors are identical to `fourthMomentOverSigma4` in the kernel-resolution block below. This export implements that block; it does not change kernel ids 2 or 3. Kernel 2 remains `unit-gaussian-teaching` (variance 1, D and dt do not scale the step). Kernel 3 remains `gaussian-exact-D` (variance `2 D dt`). A mismatch would mean one of the two owners is wrong; the numbers currently agree.
 
 **Refusal channel (same bead).** Native calls return `Result<Vec<f64>, Refusal>` with `code`, `message`, `ranked_repairs`, and a JSON `details` object. An unexplained empty `Vec<f64>` is not a refusal. WASM returns a paired `envelope` string plus `values`; `values` is empty only when `envelope` is a `{"refusal":...}` object.
