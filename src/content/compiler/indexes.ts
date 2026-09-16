@@ -6,13 +6,7 @@
  */
 
 import type { EquationRecord } from "../../equations/record.ts";
-import type {
-  Argument,
-  Block,
-  Citation,
-  Foundation,
-  Paper,
-} from "../schemas/reading.ts";
+import type { Argument, Block, Citation, Foundation, Paper } from "../schemas/reading.ts";
 import { READING_IDS } from "../schemas/reading.ts";
 
 export interface ContentIndexes {

@@ -1,5 +1,5 @@
-import { describe, it, expect } from "bun:test";
-import { validateConstrainedMarkdown, ContentError } from "../content/compiler/loaders.ts";
+import { describe, expect, it } from "bun:test";
+import { ContentError, validateConstrainedMarkdown } from "../content/compiler/loaders.ts";
 import { getLogger } from "./log/logger.ts";
 
 describe("Markdown Allowlist & Constrained Dialect (am-cm-compiler-core-oa7)", () => {
@@ -49,14 +49,14 @@ describe("Markdown Allowlist & Constrained Dialect (am-cm-compiler-core-oa7)", (
   });
 
   it("rejects raw HTML tags with line number", () => {
-    const md = "Line 1: clean\nLine 2: <div class=\"warning\">Caution</div>\nLine 3: clean";
+    const md = 'Line 1: clean\nLine 2: <div class="warning">Caution</div>\nLine 3: clean';
     const result = validateConstrainedMarkdown(md, "html.md");
     expect(result.ok).toBe(false);
     expect(result.issues.some((i) => i.code === "markdown-raw-html" && i.line === 2)).toBe(true);
 
-    expect(() =>
-      validateConstrainedMarkdown(md, "html.md", { throwOnError: true }),
-    ).toThrow(ContentError);
+    expect(() => validateConstrainedMarkdown(md, "html.md", { throwOnError: true })).toThrow(
+      ContentError,
+    );
     logTest("markdown-reject-raw-html", "passed", "Rejected raw HTML <div> tag with line number");
   });
 

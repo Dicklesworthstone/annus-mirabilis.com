@@ -1,6 +1,6 @@
-import { describe, it, expect } from "bun:test";
-import { readdir, readFile, stat } from "node:fs/promises";
-import { resolve, relative } from "node:path";
+import { describe, expect, it } from "bun:test";
+import { readdir, readFile } from "node:fs/promises";
+import { relative, resolve } from "node:path";
 import { getLogger } from "./log/logger.ts";
 
 describe("Client Component Import Boundary Gate (am-cm-compiler-core-oa7)", () => {
@@ -45,12 +45,16 @@ describe("Client Component Import Boundary Gate (am-cm-compiler-core-oa7)", () =
 
     for (const filePath of scannedFiles) {
       const content = await readFile(filePath, "utf8");
-      const isClient = content.includes('"use client"') || content.includes("'use client'") || filePath.includes("/visuals/");
+      const isClient =
+        content.includes('"use client"') ||
+        content.includes("'use client'") ||
+        filePath.includes("/visuals/");
 
       if (isClient) {
         const lines = content.split(/\r?\n/);
         for (let idx = 0; idx < lines.length; idx++) {
-          const line = lines[idx]!;
+          const line = lines[idx];
+          if (!line) continue;
           // Check for forbidden imports
           if (
             /from\s+["'].*?(?:content\/compiler|generated\/content(?:\/index)?)["']/.test(line) ||

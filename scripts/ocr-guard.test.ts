@@ -1,12 +1,12 @@
-import test, { describe, it } from "node:test";
 import assert from "node:assert";
 import { readFile } from "node:fs/promises";
-import { resolve, dirname } from "node:path";
+import { dirname, resolve } from "node:path";
+import test, { describe, it } from "node:test";
 import { fileURLToPath } from "node:url";
 import {
   loadDenylist,
+  scanContentForViolations,
   scanRepositoryForForbiddenOcr,
-  scanContentForViolations
 } from "./sources/ocrGuard.ts";
 
 const ROOT = resolve(dirname(fileURLToPath(import.meta.url)), "..");
@@ -17,7 +17,7 @@ describe("OCR Guard (Hard Resource Policy)", () => {
     assert.equal(
       result.ok,
       true,
-      `OCR Guard failed on real tree with violations:\n${result.violations.map(v => `${v.file}:${v.line}: [${v.pattern}] ${v.reason}`).join("\n")}`
+      `OCR Guard failed on real tree with violations:\n${result.violations.map((v) => `${v.file}:${v.line}: [${v.pattern}] ${v.reason}`).join("\n")}`,
     );
     assert.equal(result.violations.length, 0);
     assert.ok(result.scannedFileCount > 10, "Expected multiple files scanned in real tree");
@@ -30,11 +30,13 @@ describe("OCR Guard (Hard Resource Policy)", () => {
     const violations = scanContentForViolations(fixturePath, content, denylistConfig.denylist);
 
     assert.ok(violations.length > 0, "Expected violations for tesseract spawn");
-    const tesseractViolation = violations.find(v => v.pattern === "tesseract");
+    const tesseractViolation = violations.find((v) => v.pattern === "tesseract");
     assert.ok(tesseractViolation, "Should find tesseract violation");
     assert.ok(
-      tesseractViolation.reason.includes("Tesseract CLI / C++ library is a local OCR engine forbidden"),
-      `Expected denylist reason, got: ${tesseractViolation.reason}`
+      tesseractViolation.reason.includes(
+        "Tesseract CLI / C++ library is a local OCR engine forbidden",
+      ),
+      `Expected denylist reason, got: ${tesseractViolation.reason}`,
     );
   });
 
@@ -45,11 +47,11 @@ describe("OCR Guard (Hard Resource Policy)", () => {
     const violations = scanContentForViolations(fixturePath, content, denylistConfig.denylist);
 
     assert.ok(violations.length > 0, "Expected violations for tesseract.js import");
-    const violation = violations.find(v => v.pattern === "tesseract.js");
+    const violation = violations.find((v) => v.pattern === "tesseract.js");
     assert.ok(violation, "Should find tesseract.js violation");
     assert.ok(
       violation.reason.includes("tesseract.js is a local WebAssembly/JS OCR engine forbidden"),
-      `Expected denylist reason, got: ${violation.reason}`
+      `Expected denylist reason, got: ${violation.reason}`,
     );
   });
 
@@ -60,11 +62,11 @@ describe("OCR Guard (Hard Resource Policy)", () => {
     const violations = scanContentForViolations(fixturePath, content, denylistConfig.denylist);
 
     assert.ok(violations.length > 0, "Expected violations for pdftotext execution");
-    const violation = violations.find(v => v.pattern === "pdftotext");
+    const violation = violations.find((v) => v.pattern === "pdftotext");
     assert.ok(violation, "Should find pdftotext violation");
     assert.ok(
       violation.reason.includes("pdftotext text-layer extraction is forbidden"),
-      `Expected denylist reason, got: ${violation.reason}`
+      `Expected denylist reason, got: ${violation.reason}`,
     );
   });
 
@@ -75,11 +77,11 @@ describe("OCR Guard (Hard Resource Policy)", () => {
     const violations = scanContentForViolations(fixturePath, content, denylistConfig.denylist);
 
     assert.ok(violations.length > 0, "Expected violations for tesseract.js in package.json");
-    const violation = violations.find(v => v.pattern === "tesseract.js");
+    const violation = violations.find((v) => v.pattern === "tesseract.js");
     assert.ok(violation, "Should find tesseract.js dependency violation");
     assert.ok(
       violation.reason.includes("tesseract.js is a local WebAssembly/JS OCR engine forbidden"),
-      `Expected denylist reason, got: ${violation.reason}`
+      `Expected denylist reason, got: ${violation.reason}`,
     );
   });
 

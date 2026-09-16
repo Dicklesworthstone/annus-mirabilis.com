@@ -12,6 +12,11 @@ import {
   parseCliArgs,
   runQualityGates,
 } from "./quality-gates.ts";
+import {
+  classifyTestFile,
+  partitionTestFiles,
+  runAllTests,
+} from "./quality-gates/test-runner.ts";
 import { generateLogRunId } from "./app-router-architecture.ts";
 
 describe("Quality Gates Registry & Validator", () => {
@@ -466,3 +471,37 @@ describe("Quality Gates Runner Engine", () => {
     expect(args3.only).toEqual(["architecture", "typecheck"]);
   });
 });
+
+describe("Orphan Test Gate & Runner Partitioning", () => {
+  it("classifies files with bun:test as bun runner", () => {
+    const res = classifyTestFile("src/sample.test.ts", () => 'import { test } from "bun:test";');
+    expect(res.runner).toBe("bun");
+  });
+
+  it("classifies files with node:test or .test.mjs as node runner", () => {
+    const res1 = classifyTestFile("src/sample.test.ts", () => 'import test from "node:test";');
+    expect(res1.runner).toBe("node");
+
+    const res2 = classifyTestFile("src/sample.test.mjs", () => 'export const a = 1;');
+    expect(res2.runner).toBe("node");
+  });
+
+  it("detects and flags orphaned test files matching neither runner pattern", () => {
+    const orphanRes = classifyTestFile("src/orphaned.test.ts", () => 'const x = 42;');
+    expect(orphanRes.runner).toBe("orphan");
+    expect(orphanRes.reason).toContain("does not import 'bun:test', 'node:test', 'node:assert'");
+  });
+
+  it("fails runAllTests and reports failure when an orphaned test file is present", () => {
+    const partition = partitionTestFiles(
+      ["src/good.test.ts", "src/orphan.test.ts"],
+      (p) => p.includes("good") ? 'import { test } from "bun:test";' : 'const x = 1;'
+    );
+
+    expect(partition.bunFiles.length).toBe(1);
+    expect(partition.nodeFiles.length).toBe(0);
+    expect(partition.orphanFiles.length).toBe(1);
+    expect(partition.orphanFiles[0]).toBe("src/orphan.test.ts");
+  });
+});
+

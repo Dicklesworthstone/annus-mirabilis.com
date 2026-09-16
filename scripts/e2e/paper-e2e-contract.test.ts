@@ -42,8 +42,8 @@ import {
   createPaperE2EEvent,
   PAPER_E2E_EVIDENCE_KINDS,
   type PaperE2EEvent,
-  parsePaperE2EArgs,
   paperE2EExitCode,
+  parsePaperE2EArgs,
   safeArtifactSegment,
   serializePaperE2EEvent,
   stableFailureStem,
@@ -70,7 +70,9 @@ describe("paper E2E CLI contract", () => {
     expect(parsePaperE2EArgs(["--self-test-failure"]).selfTestFailure).toBe(true);
     expect(() => parsePaperE2EArgs([])).toThrow("Select exactly one");
     expect(() => parsePaperE2EArgs(["--all", "--changed"])).toThrow("Select exactly one");
-    expect(() => parsePaperE2EArgs(["--all", "--viewports", "wide"])).toThrow("Unknown E2E viewport");
+    expect(() => parsePaperE2EArgs(["--all", "--viewports", "wide"])).toThrow(
+      "Unknown E2E viewport",
+    );
   });
 });
 
@@ -196,9 +198,9 @@ describe("structured E2E diagnostics", () => {
       });
     const paired = summarize([event, createPaperE2EEvent(evidence)]);
     expect(paired).toMatchObject({ eventCount: 2, failedActions: 1, failureEvidenceEvents: 1 });
-    expect(paired.actionGroups.find((group) => group.action === "failure-evidence")?.artifactPaths).toEqual([
-      "failure.png",
-    ]);
+    expect(
+      paired.actionGroups.find((group) => group.action === "failure-evidence")?.artifactPaths,
+    ).toEqual(["failure.png"]);
     expect(paperE2EExitCode(paired)).toBe(1);
     const unpaired = summarize([createPaperE2EEvent(evidence)]);
     expect(unpaired.failedActions).toBe(1);
@@ -259,7 +261,10 @@ describe("vertical-slice journey contract", () => {
       {
         kind: "enter-source-passage" as const,
         description: "Land on section 4, paragraph 2, sentence 1 from a deep link.",
-        readiness: { description: "the source paragraph is visible", selector: '[data-anchor="s4-p2-s1"]' },
+        readiness: {
+          description: "the source paragraph is visible",
+          selector: '[data-anchor="s4-p2-s1"]',
+        },
       },
       {
         kind: "switch-face" as const,
@@ -272,27 +277,42 @@ describe("vertical-slice journey contract", () => {
       {
         kind: "open-foundation" as const,
         description: "Open the diffusion-coefficient foundation lesson.",
-        readiness: { description: "the foundation panel is expanded", selector: '[data-foundation-open="true"]' },
+        readiness: {
+          description: "the foundation panel is expanded",
+          selector: '[data-foundation-open="true"]',
+        },
       },
       {
         kind: "return-to-argument" as const,
         description: "Return to the exact interrupted argument step.",
-        readiness: { description: "the argument node is back in view", selector: '[data-anchor="s4-p2-s1"]' },
+        readiness: {
+          description: "the argument node is back in view",
+          selector: '[data-anchor="s4-p2-s1"]',
+        },
       },
       {
         kind: "operate-instrument" as const,
         description: "Operate the BM-01 tracer lab's viscosity control.",
-        readiness: { description: "the instrument reports an accepted snapshot", selector: '[data-instrument-status="accepted"]' },
+        readiness: {
+          description: "the instrument reports an accepted snapshot",
+          selector: '[data-instrument-status="accepted"]',
+        },
       },
       {
         kind: "select-linked-term" as const,
         description: "Select the diffusivity term in the displayed equation.",
-        readiness: { description: "the term's highlight state is active", selector: '[data-term="diffusivity"][aria-pressed="true"]' },
+        readiness: {
+          description: "the term's highlight state is active",
+          selector: '[data-term="diffusivity"][aria-pressed="true"]',
+        },
       },
       {
         kind: "return-to-source" as const,
         description: "Return to the source passage the argument was built on.",
-        readiness: { description: "the source face is visible again", selector: '[data-face="source"]' },
+        readiness: {
+          description: "the source face is visible again",
+          selector: '[data-face="source"]',
+        },
       },
     ],
     retainedEvidenceOnFailure: [...PAPER_E2E_EVIDENCE_KINDS],
@@ -329,9 +349,11 @@ describe("vertical-slice journey contract", () => {
       ...wellFormedJourney,
       retainedEvidenceOnFailure: ["screenshot", "console"],
     });
-    expect(errors.some((message) => message.includes("does not retain failure evidence for: trace, dom"))).toBe(
-      true,
-    );
+    expect(
+      errors.some((message) =>
+        message.includes("does not retain failure evidence for: trace, dom"),
+      ),
+    ).toBe(true);
   });
 
   test("rejects a journey with no route", () => {

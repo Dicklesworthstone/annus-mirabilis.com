@@ -1,19 +1,19 @@
 import { readFile } from "node:fs/promises";
-import { resolve, dirname } from "node:path";
+import { dirname, resolve } from "node:path";
 import { fileURLToPath } from "node:url";
 import {
-  type CloudOcrAdapter,
-  type ChunkSubmission,
-  type SubmitResult,
-  type PollResult,
-  type FetchResult,
-  type DescribeResult,
-  AdapterUnavailableError,
   AdapterAuthError,
-  AdapterQuotaError,
   AdapterBadResponseError,
+  AdapterQuotaError,
   AdapterTimeoutError,
-  OcrRefusalError
+  AdapterUnavailableError,
+  type ChunkSubmission,
+  type CloudOcrAdapter,
+  type DescribeResult,
+  type FetchResult,
+  OcrRefusalError,
+  type PollResult,
+  type SubmitResult,
 } from "./types.ts";
 
 const ROOT = resolve(dirname(fileURLToPath(import.meta.url)), "../..");
@@ -48,7 +48,7 @@ export class FixtureAdapter implements CloudOcrAdapter {
   private timeoutsBeforeSuccess: number;
   private currentTimeoutCount = 0;
   private customPageText: Record<number, string>;
-  
+
   // Submission tracker: chunkIndex -> count
   readonly submissions: Map<number, number> = new Map();
   // Job store: jobId -> chunk
@@ -59,7 +59,7 @@ export class FixtureAdapter implements CloudOcrAdapter {
     if (env === "production") {
       throw new OcrRefusalError(
         "FIXTURE_ADAPTER_OUTSIDE_TEST",
-        "Fixture adapter cannot be loaded when NODE_ENV=production."
+        "Fixture adapter cannot be loaded when NODE_ENV=production.",
       );
     }
 
@@ -76,7 +76,7 @@ export class FixtureAdapter implements CloudOcrAdapter {
   describe(): DescribeResult {
     return {
       service: "fixture-cloud-worker",
-      workerIdentity: this.workerIdentity
+      workerIdentity: this.workerIdentity,
     };
   }
 
@@ -88,19 +88,27 @@ export class FixtureAdapter implements CloudOcrAdapter {
     if (this.failAtChunkIndex !== null && chunk.chunkIndex === this.failAtChunkIndex) {
       if (this.timeoutsBeforeSuccess > 0 && this.currentTimeoutCount < this.timeoutsBeforeSuccess) {
         this.currentTimeoutCount++;
-        throw new AdapterTimeoutError(`Simulated timeout (${this.currentTimeoutCount}/${this.timeoutsBeforeSuccess}) on chunk ${chunk.chunkIndex}`);
+        throw new AdapterTimeoutError(
+          `Simulated timeout (${this.currentTimeoutCount}/${this.timeoutsBeforeSuccess}) on chunk ${chunk.chunkIndex}`,
+        );
       }
 
       if (this.failWithCode) {
         switch (this.failWithCode) {
           case "ADAPTER_UNAVAILABLE":
-            throw new AdapterUnavailableError(`Cloud OCR service unavailable at chunk ${chunk.chunkIndex}`);
+            throw new AdapterUnavailableError(
+              `Cloud OCR service unavailable at chunk ${chunk.chunkIndex}`,
+            );
           case "ADAPTER_AUTH":
-            throw new AdapterAuthError(`Cloud OCR authentication failed at chunk ${chunk.chunkIndex}`);
+            throw new AdapterAuthError(
+              `Cloud OCR authentication failed at chunk ${chunk.chunkIndex}`,
+            );
           case "ADAPTER_QUOTA":
             throw new AdapterQuotaError(`Cloud OCR quota exceeded at chunk ${chunk.chunkIndex}`);
           case "ADAPTER_BAD_RESPONSE":
-            throw new AdapterBadResponseError(`Cloud OCR returned bad response at chunk ${chunk.chunkIndex}`);
+            throw new AdapterBadResponseError(
+              `Cloud OCR returned bad response at chunk ${chunk.chunkIndex}`,
+            );
           case "ADAPTER_TIMEOUT":
             throw new AdapterTimeoutError(`Cloud OCR timed out at chunk ${chunk.chunkIndex}`);
           default:
@@ -136,7 +144,7 @@ export class FixtureAdapter implements CloudOcrAdapter {
         const candidatePaths = [
           resolve(this.fixtureDir, chunk.key, `page-${pageNum}.md`),
           resolve(this.fixtureDir, "fixture-3p", `page-${pageNum}.md`),
-          resolve(this.fixtureDir, "fixture-31p", `page-${pageNum}.md`)
+          resolve(this.fixtureDir, "fixture-31p", `page-${pageNum}.md`),
         ];
         let loaded = false;
         for (const p of candidatePaths) {
@@ -156,7 +164,7 @@ export class FixtureAdapter implements CloudOcrAdapter {
 
       pages.push({
         pdfPage: pageNum,
-        text: pageText
+        text: pageText,
       });
     }
 
@@ -164,7 +172,7 @@ export class FixtureAdapter implements CloudOcrAdapter {
       pages,
       workerIdentity: this.workerIdentity,
       model: this.model,
-      costUnits: this.costUnits
+      costUnits: this.costUnits,
     };
   }
 

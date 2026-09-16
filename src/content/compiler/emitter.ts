@@ -9,10 +9,10 @@
 import { createHash } from "node:crypto";
 import { mkdir, writeFile } from "node:fs/promises";
 import { resolve } from "node:path";
-import type { Paper, Argument, Foundation, Citation, Block } from "../schemas/reading.ts";
-import type { EquationRecord } from "../../equations/record.ts";
 import { expressionLatex } from "../../equations/latex.ts";
 import { BROWNIAN_QUANTITIES } from "../../equations/quantities.ts";
+import type { EquationRecord } from "../../equations/record.ts";
+import type { Argument, Block, Citation, Foundation, Paper } from "../schemas/reading.ts";
 import type { PaperPayload } from "./compile.ts";
 
 export interface PayloadManifestEntry {
@@ -165,13 +165,9 @@ ${e.explanation}
       foundation.explanation,
     )}\n\n## Worked example\n\n${markdownBlocks(foundation.example)}\n\n${foundation.stoppingPoint}\n`;
 
-    await emitOne(
-      foundation.id,
-      "foundation",
-      foundation,
-      md,
-      [`foundations/${foundation.id}.json`],
-    );
+    await emitOne(foundation.id, "foundation", foundation, md, [
+      `foundations/${foundation.id}.json`,
+    ]);
   }
 
   const index: ContentBuildIndex = {

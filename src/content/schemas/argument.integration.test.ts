@@ -44,7 +44,10 @@ test("Integration: Valid YAML fixtures parsed via strictParse pass all argument 
   const start = Date.now();
 
   // 1. Available Historical Premise
-  const hpAvailYaml = fs.readFileSync(path.join(FIXTURES_DIR, "historical-premise-available-valid.yaml"), "utf8");
+  const hpAvailYaml = fs.readFileSync(
+    path.join(FIXTURES_DIR, "historical-premise-available-valid.yaml"),
+    "utf8",
+  );
   const rawHpAvail = strictParse(hpAvailYaml, "yaml");
   const hpAvail = validateHistoricalPremise(rawHpAvail);
   assert.equal(hpAvail.id, "rayleigh-1900-radiation-law");
@@ -53,7 +56,10 @@ test("Integration: Valid YAML fixtures parsed via strictParse pass all argument 
   assert.equal(hpAvail.claimsEinsteinKnew, true);
 
   // 2. Later Historical Premise
-  const hpLaterYaml = fs.readFileSync(path.join(FIXTURES_DIR, "historical-premise-later-valid.yaml"), "utf8");
+  const hpLaterYaml = fs.readFileSync(
+    path.join(FIXTURES_DIR, "historical-premise-later-valid.yaml"),
+    "utf8",
+  );
   const rawHpLater = strictParse(hpLaterYaml, "yaml");
   const hpLater = validateHistoricalPremise(rawHpLater);
   assert.equal(hpLater.id, "perrin-1909-brownian-measurements");
@@ -61,7 +67,10 @@ test("Integration: Valid YAML fixtures parsed via strictParse pass all argument 
   assert.equal(hpLater.date.latestYear, 1909);
 
   // 3. Admitted Import Historical Premise
-  const hpAdmitYaml = fs.readFileSync(path.join(FIXTURES_DIR, "historical-premise-admitted-import-valid.yaml"), "utf8");
+  const hpAdmitYaml = fs.readFileSync(
+    path.join(FIXTURES_DIR, "historical-premise-admitted-import-valid.yaml"),
+    "utf8",
+  );
   const rawHpAdmit = strictParse(hpAdmitYaml, "yaml");
   const hpAdmit = validateHistoricalPremise(rawHpAdmit);
   assert.equal(hpAdmit.admittedImport, true);
@@ -69,7 +78,10 @@ test("Integration: Valid YAML fixtures parsed via strictParse pass all argument 
   assert.equal(hpAdmit.date.latestYear, 1905);
 
   // 4. Verified Historical Premise
-  const hpVerYaml = fs.readFileSync(path.join(FIXTURES_DIR, "historical-premise-verified-valid.yaml"), "utf8");
+  const hpVerYaml = fs.readFileSync(
+    path.join(FIXTURES_DIR, "historical-premise-verified-valid.yaml"),
+    "utf8",
+  );
   const rawHpVer = strictParse(hpVerYaml, "yaml");
   const hpVer = validateHistoricalPremise(rawHpVer);
   assert.equal(hpVer.verifier, "jemanuel");
@@ -85,21 +97,30 @@ test("Integration: Valid YAML fixtures parsed via strictParse pass all argument 
   assert.equal(argNode.recap?.startsWith("Established"), true);
 
   // 6. ArgumentNode without Recap
-  const argNodeNoRecapYaml = fs.readFileSync(path.join(FIXTURES_DIR, "argument-node-no-recap-valid.yaml"), "utf8");
+  const argNodeNoRecapYaml = fs.readFileSync(
+    path.join(FIXTURES_DIR, "argument-node-no-recap-valid.yaml"),
+    "utf8",
+  );
   const rawArgNodeNoRecap = strictParse(argNodeNoRecapYaml, "yaml");
   const argNodeNoRecap = validateArgumentNode(rawArgNodeNoRecap);
   assert.equal(argNodeNoRecap.id, "arg-bm-diffusion-equilibrium");
   assert.equal(argNodeNoRecap.recap, undefined);
 
   // 7. Quantity with Spectral Density
-  const qSpectralYaml = fs.readFileSync(path.join(FIXTURES_DIR, "quantity-spectral-density-valid.yaml"), "utf8");
+  const qSpectralYaml = fs.readFileSync(
+    path.join(FIXTURES_DIR, "quantity-spectral-density-valid.yaml"),
+    "utf8",
+  );
   const rawQSpectral = strictParse(qSpectralYaml, "yaml");
   const qSpectral = validateQuantity(rawQSpectral);
   assert.equal(qSpectral.id, "frequencyEnergyDensity");
   assert.equal(qSpectral.densityKind, "density");
 
   // 8. Quantity with Electric Field and Gaussian Dimension
-  const qFieldYaml = fs.readFileSync(path.join(FIXTURES_DIR, "quantity-electric-field-valid.yaml"), "utf8");
+  const qFieldYaml = fs.readFileSync(
+    path.join(FIXTURES_DIR, "quantity-electric-field-valid.yaml"),
+    "utf8",
+  );
   const rawQField = strictParse(qFieldYaml, "yaml");
   const qField = validateQuantity(rawQField);
   assert.equal(qField.gaussianDimension?.length, 6);
@@ -111,13 +132,19 @@ test("Integration: Valid YAML fixtures parsed via strictParse pass all argument 
   assert.equal(qAngle.dimensionlessKind, "angle");
 
   // 10. Quantity with SI, Gaussian, and EMU CGS dimensions
-  const qChargeYaml = fs.readFileSync(path.join(FIXTURES_DIR, "quantity-gram-equivalent-charge-valid.yaml"), "utf8");
+  const qChargeYaml = fs.readFileSync(
+    path.join(FIXTURES_DIR, "quantity-gram-equivalent-charge-valid.yaml"),
+    "utf8",
+  );
   const rawQCharge = strictParse(qChargeYaml, "yaml");
   const qCharge = validateQuantity(rawQCharge);
   assert.equal(qCharge.emuDimension?.length, 6);
 
   // 11. State-dependent Quantity
-  const qStateDepYaml = fs.readFileSync(path.join(FIXTURES_DIR, "quantity-state-dependent-valid.yaml"), "utf8");
+  const qStateDepYaml = fs.readFileSync(
+    path.join(FIXTURES_DIR, "quantity-state-dependent-valid.yaml"),
+    "utf8",
+  );
   const rawQStateDep = strictParse(qStateDepYaml, "yaml");
   const qStateDep = validateQuantity(rawQStateDep);
   assert.equal(qStateDep.dimensionStatus, "state-dependent");
@@ -154,13 +181,19 @@ test("Integration: Valid YAML fixtures parsed via strictParse pass all argument 
   assert.equal(bridge.continueWith?.length, 2);
 
   // 16. Misconception with 2 tempting claims
-  const misc2ClaimsYaml = fs.readFileSync(path.join(FIXTURES_DIR, "misconception-two-claims-valid.yaml"), "utf8");
+  const misc2ClaimsYaml = fs.readFileSync(
+    path.join(FIXTURES_DIR, "misconception-two-claims-valid.yaml"),
+    "utf8",
+  );
   const rawMisc2Claims = strictParse(misc2ClaimsYaml, "yaml");
   const misc2Claims = validateMisconception(rawMisc2Claims);
   assert.equal(misc2Claims.temptingClaims.length, 2);
 
   // 17. Misconception with whereItIsTrue 'none'
-  const miscNoneYaml = fs.readFileSync(path.join(FIXTURES_DIR, "misconception-where-true-none-valid.yaml"), "utf8");
+  const miscNoneYaml = fs.readFileSync(
+    path.join(FIXTURES_DIR, "misconception-where-true-none-valid.yaml"),
+    "utf8",
+  );
   const rawMiscNone = strictParse(miscNoneYaml, "yaml");
   const miscNone = validateMisconception(rawMiscNone);
   assert.equal(miscNone.whereItIsTrue.startsWith("none"), true);
@@ -185,7 +218,10 @@ test("Integration: Valid YAML fixtures parsed via strictParse pass all argument 
 
 test("Integration: Planted Negative - Stale / invalid premise claims rejected from parsed YAML", () => {
   const start = Date.now();
-  const hpAvailYaml = fs.readFileSync(path.join(FIXTURES_DIR, "historical-premise-available-valid.yaml"), "utf8");
+  const hpAvailYaml = fs.readFileSync(
+    path.join(FIXTURES_DIR, "historical-premise-available-valid.yaml"),
+    "utf8",
+  );
   const raw = strictParse(hpAvailYaml, "yaml") as any;
 
   // Drop einsteinKnowledgeEvidence while claimsEinsteinKnew is true
@@ -214,7 +250,10 @@ test("Integration: Planted Negative - Stale / invalid premise claims rejected fr
 
 test("Integration: Planted Negative - Singular temptingClaim in Misconception rejected from YAML", () => {
   const start = Date.now();
-  const miscYaml = fs.readFileSync(path.join(FIXTURES_DIR, "misconception-two-claims-valid.yaml"), "utf8");
+  const miscYaml = fs.readFileSync(
+    path.join(FIXTURES_DIR, "misconception-two-claims-valid.yaml"),
+    "utf8",
+  );
   const raw = strictParse(miscYaml, "yaml") as any;
 
   // Replace plural with singular

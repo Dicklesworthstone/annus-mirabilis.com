@@ -1,10 +1,10 @@
-import { describe, it, expect, beforeEach } from "bun:test";
-import { readFile, mkdir, writeFile } from "node:fs/promises";
+import { beforeEach, describe, expect, it } from "bun:test";
+import { mkdir, readFile, writeFile } from "node:fs/promises";
 import { resolve } from "node:path";
 import { buildContent } from "../../scripts/build-content.ts";
+import { clearRegisteredChecksForTests } from "../content/compiler/checks/registry.ts";
 import { canonicalJsonStringify } from "../content/compiler/emitter.ts";
 import { getLogger, newRunIdentity } from "./log/logger.ts";
-import { clearRegisteredChecksForTests } from "../content/compiler/checks/registry.ts";
 
 describe("Content Compiler Golden Payload Comparison (am-cm-compiler-core-oa7)", () => {
   const logger = getLogger("content-compiler-tests");
@@ -31,13 +31,18 @@ describe("Content Compiler Golden Payload Comparison (am-cm-compiler-core-oa7)",
     expect(result.ok).toBe(true);
     expect(result.index).toBeDefined();
 
-    const paperEntry = result.index!.payloads.find((p) => p.kind === "paper" && p.id === "test-paper");
+    const paperEntry = result.index!.payloads.find(
+      (p) => p.kind === "paper" && p.id === "test-paper",
+    );
     expect(paperEntry).toBeDefined();
 
     const producedPath = resolve(root, "generated/content", paperEntry!.file);
     const producedContent = await readFile(producedPath, "utf8");
 
-    const goldenPath = resolve(root, "src/content/compiler/__fixtures__/golden/paper-test-paper.golden.json");
+    const goldenPath = resolve(
+      root,
+      "src/content/compiler/__fixtures__/golden/paper-test-paper.golden.json",
+    );
     const goldenContent = await readFile(goldenPath, "utf8");
 
     const parsedProduced = JSON.parse(producedContent);

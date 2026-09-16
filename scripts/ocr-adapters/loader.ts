@@ -1,5 +1,5 @@
-import { type CloudOcrAdapter, OcrRefusalError } from "./types.ts";
 import { FixtureAdapter, type FixtureAdapterOptions } from "./fixture-adapter.ts";
+import { type CloudOcrAdapter, OcrRefusalError } from "./types.ts";
 
 const FORBIDDEN_ADAPTER_PATTERNS = [
   /local/i,
@@ -16,11 +16,11 @@ const FORBIDDEN_ADAPTER_PATTERNS = [
   /rapidocr/i,
   /ollama/i,
   /llava/i,
-  /llama/i
+  /llama/i,
 ];
 
 export function isForbiddenAdapterName(name: string): boolean {
-  return FORBIDDEN_ADAPTER_PATTERNS.some(pattern => pattern.test(name));
+  return FORBIDDEN_ADAPTER_PATTERNS.some((pattern) => pattern.test(name));
 }
 
 export interface LoadAdapterOptions extends FixtureAdapterOptions {
@@ -30,7 +30,7 @@ export interface LoadAdapterOptions extends FixtureAdapterOptions {
 
 export function loadAdapter(
   nameOrOptions?: string | LoadAdapterOptions | undefined,
-  extraOptions?: FixtureAdapterOptions | undefined
+  extraOptions?: FixtureAdapterOptions | undefined,
 ): CloudOcrAdapter {
   let name: string | undefined;
   let options: LoadAdapterOptions = {};
@@ -51,7 +51,7 @@ export function loadAdapter(
   if (!name || name.trim() === "") {
     throw new OcrRefusalError(
       "NO_ADAPTER",
-      "No OCR adapter configured. Specify --adapter <name> or set OCR_ADAPTER. See docs/OCR_DISPATCH.md."
+      "No OCR adapter configured. Specify --adapter <name> or set OCR_ADAPTER. See docs/OCR_DISPATCH.md.",
     );
   }
 
@@ -60,7 +60,7 @@ export function loadAdapter(
   if (isForbiddenAdapterName(normalized)) {
     throw new OcrRefusalError(
       "FORBIDDEN_ADAPTER_NAME",
-      `Adapter name "${name}" matches a forbidden local recognition tool. Local OCR is strictly barred (AGENTS.md).`
+      `Adapter name "${name}" matches a forbidden local recognition tool. Local OCR is strictly barred (AGENTS.md).`,
     );
   }
 
@@ -70,6 +70,6 @@ export function loadAdapter(
 
   throw new OcrRefusalError(
     "NO_ADAPTER",
-    `Unknown OCR adapter: "${name}". Cloud adapters must be implemented in scripts/ocr-adapters/ and registered. See docs/OCR_DISPATCH.md.`
+    `Unknown OCR adapter: "${name}". Cloud adapters must be implemented in scripts/ocr-adapters/ and registered. See docs/OCR_DISPATCH.md.`,
   );
 }

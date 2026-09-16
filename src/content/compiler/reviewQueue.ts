@@ -104,7 +104,9 @@ export function parseFlagReviews(text: string): Map<string, FlagReviewRecord> {
       const fingerprint = typeof rec.fingerprint === "string" ? rec.fingerprint.trim() : "";
       const rule = typeof rec.rule === "string" ? rec.rule.trim() : "";
       const recordId = typeof rec.recordId === "string" ? rec.recordId.trim() : "";
-      const decision = (typeof rec.decision === "string" ? rec.decision.trim() : "accepted-as-is") as ReviewDecision;
+      const decision = (
+        typeof rec.decision === "string" ? rec.decision.trim() : "accepted-as-is"
+      ) as ReviewDecision;
       const reviewer = typeof rec.reviewer === "string" ? rec.reviewer.trim() : "";
       const date = typeof rec.date === "string" ? rec.date.trim() : "";
       const note = typeof rec.note === "string" ? rec.note.trim() : "";
@@ -147,7 +149,8 @@ export function buildReviewQueue(
       contentHash: flag.contentHash,
     });
 
-    const paper = flag.paper ?? (options?.paperLookup ? options.paperLookup(flag.recordId) : undefined);
+    const paper =
+      flag.paper ?? (options?.paperLookup ? options.paperLookup(flag.recordId) : undefined);
     const existingReview = reviewsMap.get(fingerprint);
 
     if (existingReview) {
@@ -263,9 +266,7 @@ function formatReviewQueueMarkdown(data: {
           if (flag.review.note) lines.push(`  - *Note:* ${flag.review.note}`);
           lines.push(`  - *Fingerprint:* \`${flag.fingerprint}\``);
         } else {
-          lines.push(
-            `- **[OPEN]** \`${flag.recordId}\` (${flag.path || flag.file || "record"})`,
-          );
+          lines.push(`- **[OPEN]** \`${flag.recordId}\` (${flag.path || flag.file || "record"})`);
           lines.push(`  - *Message:* ${flag.message}`);
           if (flag.repair) lines.push(`  - *Repair:* ${flag.repair}`);
           if (flag.flaggedText) lines.push(`  - *Flagged text:* \`${flag.flaggedText}\``);

@@ -1,8 +1,8 @@
-import { describe, it, expect } from "bun:test";
+import { describe, expect, it } from "bun:test";
 import {
+  buildReviewQueue,
   computeFlagFingerprint,
   parseFlagReviews,
-  buildReviewQueue,
   type ReviewFlagItem,
 } from "../content/compiler/reviewQueue.ts";
 import { getLogger } from "./log/logger.ts";
@@ -124,7 +124,11 @@ describe("Content Review Queue & Flag Lifecycle (am-cm-compiler-core-oa7)", () =
     expect(queue.summary.openCount).toBe(1);
     expect(queue.summary.staleCount).toBe(1);
 
-    logTest("flag-text-edit-reopen", "passed", "Reopened flag upon text modification and flagged review as stale");
+    logTest(
+      "flag-text-edit-reopen",
+      "passed",
+      "Reopened flag upon text modification and flagged review as stale",
+    );
   });
 
   it("identifies orphaned reviews as stale-review and formats Markdown grouped by paper and rule", () => {
@@ -170,8 +174,14 @@ describe("Content Review Queue & Flag Lifecycle (am-cm-compiler-core-oa7)", () =
     expect(queue.markdownContent).toContain("### Rule: `rule-a`");
     expect(queue.markdownContent).toContain("### Rule: `rule-b`");
     expect(queue.markdownContent).toContain("## Stale Reviews");
-    expect(queue.markdownContent).toContain("stale111111111111111111111111111111111111111111111111111111111111");
+    expect(queue.markdownContent).toContain(
+      "stale111111111111111111111111111111111111111111111111111111111111",
+    );
 
-    logTest("review-queue-markdown-format", "passed", "Generated grouped Markdown and captured stale reviews");
+    logTest(
+      "review-queue-markdown-format",
+      "passed",
+      "Generated grouped Markdown and captured stale reviews",
+    );
   });
 });

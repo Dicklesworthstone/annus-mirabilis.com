@@ -64,13 +64,19 @@ function isEscapingRelativePath(value: string): boolean {
   return segments.includes("..");
 }
 
-function validateStaticInputs(entryId: string, staticInputs: readonly FixtureStaticInput[] | undefined): FixtureAppIssue[] {
+function validateStaticInputs(
+  entryId: string,
+  staticInputs: readonly FixtureStaticInput[] | undefined,
+): FixtureAppIssue[] {
   if (!staticInputs || staticInputs.length === 0) return [];
   const issues: FixtureAppIssue[] = [];
   const servedPaths = new Set<string>();
   for (const input of staticInputs) {
     if (!isRepositoryRelative(input.from)) {
-      issues.push({ id: entryId, message: `entry "${entryId}" declares a staticInputs.from outside the repository: "${input.from}"` });
+      issues.push({
+        id: entryId,
+        message: `entry "${entryId}" declares a staticInputs.from outside the repository: "${input.from}"`,
+      });
     }
     if (isEscapingRelativePath(input.servedPath)) {
       issues.push({
@@ -85,7 +91,10 @@ function validateStaticInputs(entryId: string, staticInputs: readonly FixtureSta
       });
     }
     if (servedPaths.has(input.servedPath)) {
-      issues.push({ id: entryId, message: `entry "${entryId}" declares staticInputs.servedPath "${input.servedPath}" more than once` });
+      issues.push({
+        id: entryId,
+        message: `entry "${entryId}" declares staticInputs.servedPath "${input.servedPath}" more than once`,
+      });
     }
     servedPaths.add(input.servedPath);
   }
@@ -113,17 +122,29 @@ export function validateFixtureAppRegistry(
     seenIds.add(entry.id);
 
     if (!entry.entry.startsWith(ENTRY_ROOT)) {
-      issues.push({ id: entry.id, message: `entry "${entry.id}" has an entry directory outside ${ENTRY_ROOT}: "${entry.entry}"` });
+      issues.push({
+        id: entry.id,
+        message: `entry "${entry.id}" has an entry directory outside ${ENTRY_ROOT}: "${entry.entry}"`,
+      });
     }
     if (!entry.outDir.startsWith(OUT_DIR_ROOT)) {
-      issues.push({ id: entry.id, message: `entry "${entry.id}" has an outDir outside ${OUT_DIR_ROOT}: "${entry.outDir}"` });
+      issues.push({
+        id: entry.id,
+        message: `entry "${entry.id}" has an outDir outside ${OUT_DIR_ROOT}: "${entry.outDir}"`,
+      });
     }
     if (!entry.owner || entry.owner.trim().length === 0) {
       issues.push({ id: entry.id, message: `entry "${entry.id}" has no owner` });
     } else if (!BEAD_ID_PATTERN.test(entry.owner)) {
-      issues.push({ id: entry.id, message: `entry "${entry.id}" has an owner that is not a well-formed bead id: "${entry.owner}"` });
+      issues.push({
+        id: entry.id,
+        message: `entry "${entry.id}" has an owner that is not a well-formed bead id: "${entry.owner}"`,
+      });
     } else if (isKnownBeadId && !isKnownBeadId(entry.owner)) {
-      issues.push({ id: entry.id, message: `entry "${entry.id}" has an owner that is not a known bead id: "${entry.owner}"` });
+      issues.push({
+        id: entry.id,
+        message: `entry "${entry.id}" has an owner that is not a known bead id: "${entry.owner}"`,
+      });
     }
 
     issues.push(...validateStaticInputs(entry.id, entry.staticInputs));

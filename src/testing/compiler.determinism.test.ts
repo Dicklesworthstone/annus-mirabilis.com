@@ -1,9 +1,9 @@
-import { describe, it, expect, beforeEach } from "bun:test";
-import { readFile, writeFile, mkdir, rm } from "node:fs/promises";
+import { beforeEach, describe, expect, it } from "bun:test";
+import { mkdir, readFile, rm, writeFile } from "node:fs/promises";
 import { resolve } from "node:path";
 import { buildContent } from "../../scripts/build-content.ts";
-import { getLogger } from "./log/logger.ts";
 import { clearRegisteredChecksForTests } from "../content/compiler/checks/registry.ts";
+import { getLogger } from "./log/logger.ts";
 
 describe("Content Compiler Determinism & Incremental Stability (am-cm-compiler-core-oa7)", () => {
   const logger = getLogger("content-compiler-tests");

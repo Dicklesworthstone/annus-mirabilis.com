@@ -1,16 +1,16 @@
-import { describe, it, expect, beforeEach } from "bun:test";
+import { beforeEach, describe, expect, it } from "bun:test";
 import { readdir, readFile } from "node:fs/promises";
 import { resolve } from "node:path";
 import { buildContent } from "../../scripts/build-content.ts";
 import {
-  registerCheck,
+  type CheckFamily,
+  type ContentCheck,
   clearRegisteredChecksForTests,
   DECLARED_CHECK_FAMILIES,
-  type ContentCheck,
-  type CheckFamily,
+  registerCheck,
 } from "../content/compiler/checks/registry.ts";
-import { RUN_IDENTITY_PATTERN } from "./log/schema.ts";
 import { getLogger } from "./log/logger.ts";
+import { RUN_IDENTITY_PATTERN } from "./log/schema.ts";
 
 describe("Diagnostics Fields and Structured Logging Gate (am-cm-compiler-core-oa7)", () => {
   const logger = getLogger("content-compiler-tests");
@@ -43,7 +43,10 @@ describe("Diagnostics Fields and Structured Logging Gate (am-cm-compiler-core-oa
 
     const latestFile = logFiles[logFiles.length - 1]!;
     const logContent = await readFile(resolve(logDir, latestFile), "utf8");
-    const lines = logContent.trim().split(/\r?\n/).map((l) => JSON.parse(l));
+    const lines = logContent
+      .trim()
+      .split(/\r?\n/)
+      .map((l) => JSON.parse(l));
 
     expect(lines.length).toBeGreaterThan(0);
 
@@ -96,12 +99,13 @@ describe("Diagnostics Fields and Structured Logging Gate (am-cm-compiler-core-oa
     expect(() => registerCheck(badCheck)).toThrow();
     try {
       registerCheck(badCheck);
-    } catch (e: any) {
-      expect(e.message).toContain("content-structural");
-      expect(e.message).toContain("compiler");
-      expect(e.message).toContain("structural");
-      expect(e.message).toContain("semantic");
-      expect(e.message).toContain("voice");
+    } catch (e: unknown) {
+      const err = e as Error;
+      expect(err.message).toContain("content-structural");
+      expect(err.message).toContain("compiler");
+      expect(err.message).toContain("structural");
+      expect(err.message).toContain("semantic");
+      expect(err.message).toContain("voice");
     }
     logTest(
       "reject-undeclared-family",

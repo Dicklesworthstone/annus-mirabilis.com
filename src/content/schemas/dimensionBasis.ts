@@ -57,23 +57,47 @@ export function validateRationalScale(
   allowZero = true,
 ): RationalScale {
   if (!val || typeof val !== "object") {
-    throw new DimensionSchemaError("invalid-rational", "Expected an exact rational scale {num, den}.", path);
+    throw new DimensionSchemaError(
+      "invalid-rational",
+      "Expected an exact rational scale {num, den}.",
+      path,
+    );
   }
   const o = val as Record<string, unknown>;
   if (typeof o.num !== "number" || !Number.isInteger(o.num)) {
-    throw new DimensionSchemaError("invalid-numerator", "Rational numerator must be an integer.", `${path}.num`);
+    throw new DimensionSchemaError(
+      "invalid-numerator",
+      "Rational numerator must be an integer.",
+      `${path}.num`,
+    );
   }
   if (typeof o.den !== "number" || !Number.isInteger(o.den)) {
-    throw new DimensionSchemaError("invalid-denominator", "Rational denominator must be an integer.", `${path}.den`);
+    throw new DimensionSchemaError(
+      "invalid-denominator",
+      "Rational denominator must be an integer.",
+      `${path}.den`,
+    );
   }
   if (o.den === 0) {
-    throw new DimensionSchemaError("invalid-denominator", "A rational denominator cannot be zero.", `${path}.den`);
+    throw new DimensionSchemaError(
+      "invalid-denominator",
+      "A rational denominator cannot be zero.",
+      `${path}.den`,
+    );
   }
   if (o.den < 0) {
-    throw new DimensionSchemaError("invalid-denominator", "Rational denominator must be strictly positive.", `${path}.den`);
+    throw new DimensionSchemaError(
+      "invalid-denominator",
+      "Rational denominator must be strictly positive.",
+      `${path}.den`,
+    );
   }
   if (!allowZero && o.num === 0) {
-    throw new DimensionSchemaError("zero-scale-forbidden", "Scale factor cannot be zero.", `${path}.num`);
+    throw new DimensionSchemaError(
+      "zero-scale-forbidden",
+      "Scale factor cannot be zero.",
+      `${path}.num`,
+    );
   }
   if (gcd(o.num, o.den) !== 1) {
     throw new DimensionSchemaError(
@@ -94,7 +118,12 @@ export function validateRationalDimension(
 ): RationalDimension {
   if (val && typeof val === "object" && !Array.isArray(val)) {
     const obj = val as Record<string, unknown>;
-    if ("luminousIntensity" in obj || "candela" in obj || "luminous_intensity" in obj || "cd" in obj) {
+    if (
+      "luminousIntensity" in obj ||
+      "candela" in obj ||
+      "luminous_intensity" in obj ||
+      "cd" in obj
+    ) {
       throw new DimensionSchemaError(
         "luminous-intensity-forbidden",
         "Luminous intensity is not in the dimension basis: no quantity in the corpus needs it.",
@@ -104,7 +133,11 @@ export function validateRationalDimension(
   }
 
   if (!Array.isArray(val)) {
-    throw new DimensionSchemaError("invalid-dimension-array", `Dimension must be an array of ${DIMENSION_COUNT} rational exponents.`, path);
+    throw new DimensionSchemaError(
+      "invalid-dimension-array",
+      `Dimension must be an array of ${DIMENSION_COUNT} rational exponents.`,
+      path,
+    );
   }
   if (val.length !== DIMENSION_COUNT) {
     if (val.length > DIMENSION_COUNT) {
@@ -114,14 +147,22 @@ export function validateRationalDimension(
         path,
       );
     }
-    throw new DimensionSchemaError("invalid-dimension-length", `Dimension array must have exactly ${DIMENSION_COUNT} exponents in basis order [${DIMENSION_BASIS.join(", ")}].`, path);
+    throw new DimensionSchemaError(
+      "invalid-dimension-length",
+      `Dimension array must have exactly ${DIMENSION_COUNT} exponents in basis order [${DIMENSION_BASIS.join(", ")}].`,
+      path,
+    );
   }
 
   const result: RationalScale[] = val.map((slot, i) => {
     const slotPath = `${path}[${i}] (${DIMENSION_BASIS[i]})`;
     if (typeof slot === "string") {
       if (!/^-?(?:0|[1-9]\d*)(?:\/[1-9]\d*)?$/.test(slot)) {
-        throw new DimensionSchemaError("invalid-rational-string", `Invalid rational string "${slot}".`, slotPath);
+        throw new DimensionSchemaError(
+          "invalid-rational-string",
+          `Invalid rational string "${slot}".`,
+          slotPath,
+        );
       }
       const [numStr, denStr = "1"] = slot.split("/");
       const num = parseInt(numStr!, 10);

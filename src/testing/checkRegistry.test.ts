@@ -1,12 +1,12 @@
-import { describe, it, expect, beforeEach, afterEach } from "bun:test";
+import { afterEach, beforeEach, describe, expect, it } from "bun:test";
 import {
-  registerCheck,
-  listRegisteredChecks,
-  runAllChecks,
+  type CheckFamily,
+  type ContentCheck,
   clearRegisteredChecksForTests,
   DECLARED_CHECK_FAMILIES,
-  type ContentCheck,
-  type CheckFamily,
+  listRegisteredChecks,
+  registerCheck,
+  runAllChecks,
 } from "../content/compiler/checks/registry.ts";
 import { getLogger } from "./log/logger.ts";
 
@@ -41,13 +41,18 @@ describe("Check Plugin Registry & Crash Containment (am-cm-compiler-core-oa7)", 
     expect(() => registerCheck(invalidCheck as ContentCheck)).toThrow();
     try {
       registerCheck(invalidCheck as ContentCheck);
-    } catch (e: any) {
-      expect(e.message).toContain("content-structural");
+    } catch (e: unknown) {
+      const err = e as Error;
+      expect(err.message).toContain("content-structural");
       for (const fam of DECLARED_CHECK_FAMILIES) {
-        expect(e.message).toContain(fam);
+        expect(err.message).toContain(fam);
       }
     }
-    logTest("check-family-validation", "passed", "Refused invalid check family and named all 16 declared families");
+    logTest(
+      "check-family-validation",
+      "passed",
+      "Refused invalid check family and named all 16 declared families",
+    );
   });
 
   it("registers checks and returns them via listRegisteredChecks()", () => {
@@ -71,7 +76,11 @@ describe("Check Plugin Registry & Crash Containment (am-cm-compiler-core-oa7)", 
     expect(list.length).toBe(2);
     expect(list.find((c) => c.id === "sample-structural-check")?.family).toBe("structural");
     expect(list.find((c) => c.id === "sample-voice-flag")?.severity).toBe("flag");
-    logTest("check-registry-list", "passed", "listRegisteredChecks returns all registered checks with families");
+    logTest(
+      "check-registry-list",
+      "passed",
+      "listRegisteredChecks returns all registered checks with families",
+    );
   });
 
   it("differentiates error checks (fails build) and flag checks (build passes)", async () => {
@@ -116,7 +125,11 @@ describe("Check Plugin Registry & Crash Containment (am-cm-compiler-core-oa7)", 
     expect(mixedResult.passed).toBe(false);
     expect(mixedResult.diagnostics.some((d) => d.severity === "error")).toBe(true);
     expect(mixedResult.diagnostics.some((d) => d.severity === "flag")).toBe(true);
-    logTest("check-severity-handling", "passed", "Correctly distinguished error checks vs flag checks");
+    logTest(
+      "check-severity-handling",
+      "passed",
+      "Correctly distinguished error checks vs flag checks",
+    );
   });
 
   it("contains check crashes: reports check-crashed and executes subsequent checks", async () => {

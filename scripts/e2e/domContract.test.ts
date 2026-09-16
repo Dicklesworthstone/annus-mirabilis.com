@@ -15,10 +15,26 @@ test("bm-01 parses as the default mode", () => {
 });
 
 test("me-03:box-1906, sr-02:apparatus, bm-04:kicks-off, and bm-07:kitchen parse as mode addresses", () => {
-  assert.deepEqual(parseInstrumentAddress("me-03:box-1906"), { raw: "me-03:box-1906", instrumentId: "me-03", mode: "box-1906" });
-  assert.deepEqual(parseInstrumentAddress("sr-02:apparatus"), { raw: "sr-02:apparatus", instrumentId: "sr-02", mode: "apparatus" });
-  assert.deepEqual(parseInstrumentAddress("bm-04:kicks-off"), { raw: "bm-04:kicks-off", instrumentId: "bm-04", mode: "kicks-off" });
-  assert.deepEqual(parseInstrumentAddress("bm-07:kitchen"), { raw: "bm-07:kitchen", instrumentId: "bm-07", mode: "kitchen" });
+  assert.deepEqual(parseInstrumentAddress("me-03:box-1906"), {
+    raw: "me-03:box-1906",
+    instrumentId: "me-03",
+    mode: "box-1906",
+  });
+  assert.deepEqual(parseInstrumentAddress("sr-02:apparatus"), {
+    raw: "sr-02:apparatus",
+    instrumentId: "sr-02",
+    mode: "apparatus",
+  });
+  assert.deepEqual(parseInstrumentAddress("bm-04:kicks-off"), {
+    raw: "bm-04:kicks-off",
+    instrumentId: "bm-04",
+    mode: "kicks-off",
+  });
+  assert.deepEqual(parseInstrumentAddress("bm-07:kitchen"), {
+    raw: "bm-07:kitchen",
+    instrumentId: "bm-07",
+    mode: "kitchen",
+  });
 });
 
 test("sr-03-boost-0.6c (a preset id) in mode position fails", () => {
@@ -44,12 +60,19 @@ test("the-boost-to-0.6c used as an address fails", () => {
 test("with a supplied declared-mode list, an address outside it fails naming the registered modes", () => {
   const declaredModes = ["me-03:box-1906", "sr-02:apparatus"];
   assert.deepEqual(parseInstrumentAddress("me-03:box-1906", declaredModes).mode, "box-1906");
-  assert.throws(() => parseInstrumentAddress("lq-08:intensity-probe", declaredModes), /not among the registered modes/);
+  assert.throws(
+    () => parseInstrumentAddress("lq-08:intensity-probe", declaredModes),
+    /not among the registered modes/,
+  );
 });
 
 test("with no list, the parser returns the instrument id and mode and asserts nothing", () => {
   const address = parseInstrumentAddress("lq-08:intensity-probe");
-  assert.deepEqual(address, { raw: "lq-08:intensity-probe", instrumentId: "lq-08", mode: "intensity-probe" });
+  assert.deepEqual(address, {
+    raw: "lq-08:intensity-probe",
+    instrumentId: "lq-08",
+    mode: "intensity-probe",
+  });
 });
 
 const FULL_INSTRUMENT_ROOT_ATTRS = {
@@ -108,26 +131,46 @@ test("an unknown data-execution-label value is rejected", () => {
 });
 
 test("data-accepted-action-index and data-view-state are read when present and never required", () => {
-  const { "data-accepted-action-index": _a, "data-view-state": _b, ...withoutRuntimeLaneAttrs } = FULL_INSTRUMENT_ROOT_ATTRS;
+  const {
+    "data-accepted-action-index": _a,
+    "data-view-state": _b,
+    ...withoutRuntimeLaneAttrs
+  } = FULL_INSTRUMENT_ROOT_ATTRS;
   const parsed = parseInstrumentRoot(withoutRuntimeLaneAttrs);
   assert.equal(parsed.acceptedActionIndex, undefined);
   assert.equal(parsed.viewState, undefined);
 });
 
 test("parseInstrumentView requires instance, run, and snapshot identity", () => {
-  const view = parseInstrumentView({ "data-instance-id": "i1", "data-run-id": "r1", "data-snapshot-version": "2" });
+  const view = parseInstrumentView({
+    "data-instance-id": "i1",
+    "data-run-id": "r1",
+    "data-snapshot-version": "2",
+  });
   assert.deepEqual(view, { instanceId: "i1", runId: "r1", snapshotVersion: "2" });
-  assert.throws(() => parseInstrumentView({ "data-instance-id": "i1", "data-run-id": "r1" }), /data-snapshot-version/);
+  assert.throws(
+    () => parseInstrumentView({ "data-instance-id": "i1", "data-run-id": "r1" }),
+    /data-snapshot-version/,
+  );
 });
 
 test("parseReaderRoot reads data-ready and requires data-view", () => {
-  assert.deepEqual(parseReaderRoot({ "data-ready": "true", "data-view": "reading" }), { ready: true, view: "reading" });
-  assert.deepEqual(parseReaderRoot({ "data-ready": "false", "data-view": "results" }), { ready: false, view: "results" });
+  assert.deepEqual(parseReaderRoot({ "data-ready": "true", "data-view": "reading" }), {
+    ready: true,
+    view: "reading",
+  });
+  assert.deepEqual(parseReaderRoot({ "data-ready": "false", "data-view": "results" }), {
+    ready: false,
+    view: "results",
+  });
   assert.throws(() => parseReaderRoot({ "data-ready": "true" }), /data-view/);
 });
 
 test("parseAnchor requires id and data-anchor to agree", () => {
-  assert.deepEqual(parseAnchor({ id: "s1-p2", "data-anchor": "s1-p2" }), { id: "s1-p2", anchor: "s1-p2" });
+  assert.deepEqual(parseAnchor({ id: "s1-p2", "data-anchor": "s1-p2" }), {
+    id: "s1-p2",
+    anchor: "s1-p2",
+  });
   assert.throws(() => parseAnchor({ id: "s1-p2", "data-anchor": "s1-p3" }), /does not match/);
   assert.throws(() => parseAnchor({ id: "s1-p2" }), /data-anchor/);
 });

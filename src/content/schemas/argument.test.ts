@@ -89,10 +89,13 @@ test("Meanings: Planted Negative - missing any of the four fields fails", () => 
     modelStatus: "exact-within-model",
     // executionStatus missing!
   };
-  assert.throws(() => validateMeanings(missingExec), (err: any) => {
-    assert.equal(err.code, "missing-meaning-field");
-    return true;
-  });
+  assert.throws(
+    () => validateMeanings(missingExec),
+    (err: any) => {
+      assert.equal(err.code, "missing-meaning-field");
+      return true;
+    },
+  );
 
   logger.log({
     testId: "meanings-missing-field-rejected",
@@ -114,10 +117,13 @@ test("Meanings: Planted Negative - invalid enum value fails", () => {
     modelStatus: "exact-within-model",
     executionStatus: "static-illustration",
   };
-  assert.throws(() => validateMeanings(invalidRole), (err: any) => {
-    assert.equal(err.code, "invalid-logical-role");
-    return true;
-  });
+  assert.throws(
+    () => validateMeanings(invalidRole),
+    (err: any) => {
+      assert.equal(err.code, "invalid-logical-role");
+      return true;
+    },
+  );
 
   logger.log({
     testId: "meanings-invalid-enum-rejected",
@@ -139,7 +145,8 @@ test("HistoricalPremise: valid available, parallel-work, and later cards pass", 
   const start = Date.now();
   const availableCard = {
     id: "rayleigh-1900-radiation-law",
-    proposition: "Energy density of blackbody radiation scales as T * nu^2 in classical equipartition.",
+    proposition:
+      "Energy density of blackbody radiation scales as T * nu^2 in classical equipartition.",
     status: "available",
     sources: [{ title: "Phil. Mag. 49", locator: "p. 539" }],
     date: {
@@ -159,7 +166,8 @@ test("HistoricalPremise: valid available, parallel-work, and later cards pass", 
 
   const laterCard = {
     id: "perrin-1909-brownian-measurements",
-    proposition: "Direct visual confirmation of Avogadro's number from Brownian particle sedimentation.",
+    proposition:
+      "Direct visual confirmation of Avogadro's number from Brownian particle sedimentation.",
     status: "later",
     sources: [{ title: "Ann. Chim. Phys. 18", locator: "pp. 5-114" }],
     date: {
@@ -257,7 +265,9 @@ test("HistoricalPremise: verified card requires verifier, date, and evidenceLoca
       latestYear: 1877,
     },
     claimsEinsteinKnew: true,
-    einsteinKnowledgeEvidence: ["Einstein 1905 light-quanta §5 cites Boltzmann principle directly."],
+    einsteinKnowledgeEvidence: [
+      "Einstein 1905 light-quanta §5 cites Boltzmann principle directly.",
+    ],
     verifier: "jemanuel",
     dateVerified: "2026-09-15",
     evidenceLocator: "Doc 14, Collected Papers Vol 2",
@@ -269,10 +279,13 @@ test("HistoricalPremise: verified card requires verifier, date, and evidenceLoca
 
   // Missing evidenceLocator fails
   const missingLocator = { ...verifiedCard, evidenceLocator: undefined };
-  assert.throws(() => validateHistoricalPremise(missingLocator), (err: any) => {
-    assert.equal(err.code, "verified-premise-missing-locator");
-    return true;
-  });
+  assert.throws(
+    () => validateHistoricalPremise(missingLocator),
+    (err: any) => {
+      assert.equal(err.code, "verified-premise-missing-locator");
+      return true;
+    },
+  );
 
   logger.log({
     testId: "historical-premise-verified-locator-required",
@@ -299,10 +312,13 @@ test("HistoricalPremise: Planted Negative - claimsEinsteinKnew without evidence 
     authorship: validAuthorship,
     reviewState: "draft",
   };
-  assert.throws(() => validateHistoricalPremise(raw), (err: any) => {
-    assert.equal(err.code, "missing-einstein-knowledge-evidence");
-    return true;
-  });
+  assert.throws(
+    () => validateHistoricalPremise(raw),
+    (err: any) => {
+      assert.equal(err.code, "missing-einstein-knowledge-evidence");
+      return true;
+    },
+  );
 
   logger.log({
     testId: "historical-premise-einstein-evidence-required",
@@ -328,10 +344,13 @@ test("HistoricalPremise: Planted Negative - status 'later-confirmation' is rejec
     authorship: validAuthorship,
     reviewState: "draft",
   };
-  assert.throws(() => validateHistoricalPremise(raw), (err: any) => {
-    assert.equal(err.code, "invalid-premise-status");
-    return true;
-  });
+  assert.throws(
+    () => validateHistoricalPremise(raw),
+    (err: any) => {
+      assert.equal(err.code, "invalid-premise-status");
+      return true;
+    },
+  );
 
   logger.log({
     testId: "historical-premise-later-confirmation-rejected",
@@ -357,10 +376,13 @@ test("HistoricalPremise: Planted Negative - invalid ID grammar journey-i-rayleig
     authorship: validAuthorship,
     reviewState: "draft",
   };
-  assert.throws(() => validateHistoricalPremise(raw), (err: any) => {
-    assert.equal(err.code, "premise-id-grammar");
-    return true;
-  });
+  assert.throws(
+    () => validateHistoricalPremise(raw),
+    (err: any) => {
+      assert.equal(err.code, "premise-id-grammar");
+      return true;
+    },
+  );
 
   logger.log({
     testId: "historical-premise-journey-id-rejected",
@@ -386,10 +408,13 @@ test("HistoricalPremise: Planted Negative - latestYear mismatch with latest date
     authorship: validAuthorship,
     reviewState: "draft",
   };
-  assert.throws(() => validateHistoricalPremise(raw), (err: any) => {
-    assert.equal(err.code, "latest-year-mismatch");
-    return true;
-  });
+  assert.throws(
+    () => validateHistoricalPremise(raw),
+    (err: any) => {
+      assert.equal(err.code, "latest-year-mismatch");
+      return true;
+    },
+  );
 
   logger.log({
     testId: "historical-premise-latest-year-mismatch",
@@ -413,7 +438,8 @@ test("ArgumentNode: valid argument node with historical premise, evidence edge, 
     id: "arg-bm-variance-of-sum",
     paper: "brownian-motion",
     question: "How does the mean-square displacement scale with time across independent steps?",
-    conclusion: "The variance of a sum of independent displacements equals the sum of their variances: <Delta^2> = 2Dt.",
+    conclusion:
+      "The variance of a sum of independent displacements equals the sum of their variances: <Delta^2> = 2Dt.",
     logicalRole: "derivation",
     derivationChainId: "dc-bm-diffusion",
     limitations: ["Applies only for time intervals tau long compared to collision times."],
@@ -449,10 +475,12 @@ test("ArgumentNode: valid argument node with historical premise, evidence edge, 
       treatment: {
         kind: "instrument",
         experimentIds: ["bm-01", "bm-05"],
-        correspondenceNote: "bm-01 visualizes the individual walks; bm-05 computes the ensemble variance.",
+        correspondenceNote:
+          "bm-01 visualizes the individual walks; bm-05 computes the ensemble variance.",
       },
     },
-    recap: "Established that irregular molecular collisions drive macroscopically observable diffusion proportional to elapsed time.",
+    recap:
+      "Established that irregular molecular collisions drive macroscopically observable diffusion proportional to elapsed time.",
     authorship: validAuthorship,
     reviewState: "reviewed",
   };
@@ -511,10 +539,13 @@ test("ArgumentNode: Planted Negative - empty recap string is rejected", () => {
     reviewState: "draft",
   };
 
-  assert.throws(() => validateArgumentNode(rawEmptyRecap), (err: any) => {
-    assert.equal(err.code, "empty-recap");
-    return true;
-  });
+  assert.throws(
+    () => validateArgumentNode(rawEmptyRecap),
+    (err: any) => {
+      assert.equal(err.code, "empty-recap");
+      return true;
+    },
+  );
 
   logger.log({
     testId: "argument-node-empty-recap-rejected",
@@ -840,7 +871,14 @@ test("Quantity: state-dependent dimension requires note and forbids dimension/is
     () =>
       validateQuantity({
         ...validStateDep,
-        dimension: [{ num: 0, den: 1 }, { num: 0, den: 1 }, { num: 0, den: 1 }, { num: 0, den: 1 }, { num: 0, den: 1 }, { num: 0, den: 1 }],
+        dimension: [
+          { num: 0, den: 1 },
+          { num: 0, den: 1 },
+          { num: 0, den: 1 },
+          { num: 0, den: 1 },
+          { num: 0, den: 1 },
+          { num: 0, den: 1 },
+        ],
       }),
     (err: any) => {
       assert.equal(err.code, "state-dependent-dimension-declared");
@@ -895,7 +933,14 @@ test("Quantity: Planted Negatives - rational reduction, denominator 0, and non-z
     name: "Bad EMU",
     description: "Test",
     mathematicalKind: "scalar",
-    dimension: [{ num: 0, den: 1 }, { num: 0, den: 1 }, { num: 0, den: 1 }, { num: 0, den: 1 }, { num: 1, den: 1 }, { num: 0, den: 1 }],
+    dimension: [
+      { num: 0, den: 1 },
+      { num: 0, den: 1 },
+      { num: 0, den: 1 },
+      { num: 0, den: 1 },
+      { num: 1, den: 1 },
+      { num: 0, den: 1 },
+    ],
     emuDimension: [
       { num: 1, den: 2 },
       { num: 1, den: 2 },
@@ -905,10 +950,13 @@ test("Quantity: Planted Negatives - rational reduction, denominator 0, and non-z
       { num: 0, den: 1 },
     ],
   };
-  assert.throws(() => validateQuantity(emuWithCurrent), (err: any) => {
-    assert.equal(err.code, "cgs-nonzero-current");
-    return true;
-  });
+  assert.throws(
+    () => validateQuantity(emuWithCurrent),
+    (err: any) => {
+      assert.equal(err.code, "cgs-nonzero-current");
+      return true;
+    },
+  );
 
   // Dimensionless without dimensionlessKind
   const dimlessNoKind = {
@@ -916,12 +964,22 @@ test("Quantity: Planted Negatives - rational reduction, denominator 0, and non-z
     name: "Ratio",
     description: "Dimensionless ratio",
     mathematicalKind: "scalar",
-    dimension: [{ num: 0, den: 1 }, { num: 0, den: 1 }, { num: 0, den: 1 }, { num: 0, den: 1 }, { num: 0, den: 1 }, { num: 0, den: 1 }],
+    dimension: [
+      { num: 0, den: 1 },
+      { num: 0, den: 1 },
+      { num: 0, den: 1 },
+      { num: 0, den: 1 },
+      { num: 0, den: 1 },
+      { num: 0, den: 1 },
+    ],
   };
-  assert.throws(() => validateQuantity(dimlessNoKind), (err: any) => {
-    assert.equal(err.code, "missing-dimensionless-kind");
-    return true;
-  });
+  assert.throws(
+    () => validateQuantity(dimlessNoKind),
+    (err: any) => {
+      assert.equal(err.code, "missing-dimensionless-kind");
+      return true;
+    },
+  );
 
   // Invalid frame "rest"
   const badFrame = {
@@ -929,13 +987,23 @@ test("Quantity: Planted Negatives - rational reduction, denominator 0, and non-z
     name: "Energy",
     description: "Body energy",
     mathematicalKind: "scalar",
-    dimension: [{ num: 2, den: 1 }, { num: 1, den: 1 }, { num: -2, den: 1 }, { num: 0, den: 1 }, { num: 0, den: 1 }, { num: 0, den: 1 }],
+    dimension: [
+      { num: 2, den: 1 },
+      { num: 1, den: 1 },
+      { num: -2, den: 1 },
+      { num: 0, den: 1 },
+      { num: 0, den: 1 },
+      { num: 0, den: 1 },
+    ],
     frame: "rest",
   };
-  assert.throws(() => validateQuantity(badFrame), (err: any) => {
-    assert.equal(err.code, "invalid-frame");
-    return true;
-  });
+  assert.throws(
+    () => validateQuantity(badFrame),
+    (err: any) => {
+      assert.equal(err.code, "invalid-frame");
+      return true;
+    },
+  );
 
   // Invalid statistic "meanSquare" (camelCase)
   const badStat = {
@@ -943,13 +1011,23 @@ test("Quantity: Planted Negatives - rational reduction, denominator 0, and non-z
     name: "Displacement",
     description: "Mean square",
     mathematicalKind: "scalar",
-    dimension: [{ num: 2, den: 1 }, { num: 0, den: 1 }, { num: 0, den: 1 }, { num: 0, den: 1 }, { num: 0, den: 1 }, { num: 0, den: 1 }],
+    dimension: [
+      { num: 2, den: 1 },
+      { num: 0, den: 1 },
+      { num: 0, den: 1 },
+      { num: 0, den: 1 },
+      { num: 0, den: 1 },
+      { num: 0, den: 1 },
+    ],
     statistic: "meanSquare",
   };
-  assert.throws(() => validateQuantity(badStat), (err: any) => {
-    assert.equal(err.code, "invalid-statistic");
-    return true;
-  });
+  assert.throws(
+    () => validateQuantity(badStat),
+    (err: any) => {
+      assert.equal(err.code, "invalid-statistic");
+      return true;
+    },
+  );
 
   // Luminous intensity requested
   assert.throws(
@@ -992,7 +1070,12 @@ test("Equation: valid equation with term scale 1/2 for kappa and emu-cgs passes"
     paper: "brownian-motion",
     tree: { op: "equals" },
     notationForms: {
-      source: { mode: "authored", unitSystem: "emu-cgs", latex: "2 \\kappa N = R", termBindings: ["t1", "t2", "t3"] },
+      source: {
+        mode: "authored",
+        unitSystem: "emu-cgs",
+        latex: "2 \\kappa N = R",
+        termBindings: ["t1", "t2", "t3"],
+      },
       modern: { mode: "generated", unitSystem: "si" },
     },
     terms: [
@@ -1071,7 +1154,14 @@ test("Equation: Planted Negatives - missing spokenForm, zero term scale, and aut
       validateSemanticEquation({
         ...base,
         spokenForm: "Valid spoken form.",
-        terms: [{ termId: "eq-sr-s1-1.t.v", quantityId: "velocity", scale: { num: 0, den: 1 }, role: "variable" }],
+        terms: [
+          {
+            termId: "eq-sr-s1-1.t.v",
+            quantityId: "velocity",
+            scale: { num: 0, den: 1 },
+            role: "variable",
+          },
+        ],
       }),
     (err: any) => {
       assert.equal(err.code, "zero-scale-forbidden");
@@ -1156,10 +1246,13 @@ test("ReadingSet: Planted Negative - targetKind 'caption' or mismatched targetId
     reviewState: "draft",
   };
 
-  assert.throws(() => validateReadingSet(rawCaption), (err: any) => {
-    assert.equal(err.code, "invalid-reading-target-kind");
-    return true;
-  });
+  assert.throws(
+    () => validateReadingSet(rawCaption),
+    (err: any) => {
+      assert.equal(err.code, "invalid-reading-target-kind");
+      return true;
+    },
+  );
 
   const rawMismatch = {
     targetId: "s3-p1",
@@ -1172,10 +1265,13 @@ test("ReadingSet: Planted Negative - targetKind 'caption' or mismatched targetId
     reviewState: "draft",
   };
 
-  assert.throws(() => validateReadingSet(rawMismatch), (err: any) => {
-    assert.equal(err.code, "invalid-target-id-for-kind");
-    return true;
-  });
+  assert.throws(
+    () => validateReadingSet(rawMismatch),
+    (err: any) => {
+      assert.equal(err.code, "invalid-target-id-for-kind");
+      return true;
+    },
+  );
 
   logger.log({
     testId: "reading-set-mismatched-target-rejected",
@@ -1241,14 +1337,17 @@ test("Foundation: valid foundation with 5-part workedExample and returnCaptions 
     id: "found-stokes-viscosity",
     kind: "foundation",
     title: "Stokes Law and Viscous Friction",
-    learningObjective: "Understand how drag force scales with particle radius and dynamic viscosity.",
+    learningObjective:
+      "Understand how drag force scales with particle radius and dynamic viscosity.",
     compactExplanation: "A sphere moving in fluid experiences resistive drag F = 6*pi*eta*r*v.",
     fullExplanation: "Full hydrodynamic derivation under zero-Reynolds laminar flow conditions.",
     workedExample: {
-      question: "How does the RMS displacement of a suspended particle change if fluid viscosity doubles?",
+      question:
+        "How does the RMS displacement of a suspended particle change if fluid viscosity doubles?",
       given: "Stokes drag coefficient 6*pi*eta*r; temperature T and radius r held fixed.",
       plausibleFirstThought: "Doubling the viscosity halves the displacement.",
-      decisiveStep: "Because <x^2> is proportional to D = kT/(6*pi*eta*r), the RMS displacement scales as sqrt(D) = 1/sqrt(2) approx 0.70711.",
+      decisiveStep:
+        "Because <x^2> is proportional to D = kT/(6*pi*eta*r), the RMS displacement scales as sqrt(D) = 1/sqrt(2) approx 0.70711.",
       limitation: "Applies only for spherical particles in laminar Newtonian fluid regime.",
     },
     textualEquivalent: "Linear drag scaling explanation without vectors.",
@@ -1288,7 +1387,8 @@ test("Bridge: valid entrance bridge with 2 continueWith routes passes", () => {
     compactExplanation: "Connects visible jittering to invisible molecular kinetic energy.",
     textualEquivalent: "Intuitive account of thermal kicks from molecules.",
     stoppingPoint: "Transition to statistical formulation in §1.",
-    readinessSign: "Can explain why particles never settle into absolute rest at non-zero temperature.",
+    readinessSign:
+      "Can explain why particles never settle into absolute rest at non-zero temperature.",
     returnCaptions: [{ callingAnchor: "entrance-bm", caption: "Entrance view" }],
     continueWith: [
       { route: "more-guidance", targetId: "found-thermal-equilibrium" },
@@ -1364,7 +1464,13 @@ test("Foundation/Bridge: Planted Negatives - authored backlinks, string workedEx
     () =>
       validateFoundationOrBridge({
         ...base,
-        workedExample: { question: "Q", given: "G", plausibleFirstThought: "P", decisiveStep: "D", limitation: "   " },
+        workedExample: {
+          question: "Q",
+          given: "G",
+          plausibleFirstThought: "P",
+          decisiveStep: "D",
+          limitation: "   ",
+        },
       }),
     (err: any) => {
       assert.equal(err.code, "missing-worked-example-part");
@@ -1387,10 +1493,13 @@ test("Foundation/Bridge: Planted Negatives - authored backlinks, string workedEx
     authorship: validAuthorship,
     reviewState: "draft",
   };
-  assert.throws(() => validateFoundationOrBridge(bridge1Route), (err: any) => {
-    assert.equal(err.code, "invalid-continue-with-routes");
-    return true;
-  });
+  assert.throws(
+    () => validateFoundationOrBridge(bridge1Route),
+    (err: any) => {
+      assert.equal(err.code, "invalid-continue-with-routes");
+      return true;
+    },
+  );
 
   // Bridge with both more-guidance routes
   const bridgeBothMore = {
@@ -1400,10 +1509,13 @@ test("Foundation/Bridge: Planted Negatives - authored backlinks, string workedEx
       { route: "more-guidance", targetId: "found-2" },
     ],
   };
-  assert.throws(() => validateFoundationOrBridge(bridgeBothMore), (err: any) => {
-    assert.equal(err.code, "invalid-continue-with-routes");
-    return true;
-  });
+  assert.throws(
+    () => validateFoundationOrBridge(bridgeBothMore),
+    (err: any) => {
+      assert.equal(err.code, "invalid-continue-with-routes");
+      return true;
+    },
+  );
 
   logger.log({
     testId: "foundation-bridge-planted-negatives-rejected",
@@ -1431,8 +1543,10 @@ test("Misconception: valid misconception with two temptingClaims and interventio
       "The particle moves on a smooth differentiable trajectory at microscopic time scales.",
     ],
     whyTempting: "Our macro intuition is rooted in differentiable Newtonian paths.",
-    whereItIsTrue: "Valid only for time intervals much shorter than the momentum relaxation time tau_p = m / (6*pi*eta*r).",
-    whatIsTrue: "At observable optical time scales, molecular collisions randomize direction millions of times per second.",
+    whereItIsTrue:
+      "Valid only for time intervals much shorter than the momentum relaxation time tau_p = m / (6*pi*eta*r).",
+    whatIsTrue:
+      "At observable optical time scales, molecular collisions randomize direction millions of times per second.",
     instrumentIds: ["bm-01", "bm-06"],
     anchors: ["bm-s4-p3"],
     resultIds: ["res-diff-scaling"],
@@ -1454,7 +1568,10 @@ test("Misconception: valid misconception with two temptingClaims and interventio
 
   const misc = validateMisconception(raw);
   assert.equal(misc.temptingClaims.length, 2);
-  assert.equal(misc.intervention.defaultsReviewed.defaultControls, raw.intervention.defaultsReviewed.defaultControls);
+  assert.equal(
+    misc.intervention.defaultsReviewed.defaultControls,
+    raw.intervention.defaultsReviewed.defaultControls,
+  );
 
   logger.log({
     testId: "misconception-valid-pass",
@@ -1474,10 +1591,14 @@ test("Misconception: valid misconception with whereItIsTrue 'none' and staticTre
     id: "misc-sr-ether-drag",
     paper: "special-relativity",
     temptingClaims: ["The luminiferous ether is dragged partially by moving dielectric media."],
-    whyTempting: "Fresnel drag formula was historically interpreted as mechanical medium entrainment.",
-    whereItIsTrue: "none: in relativistic electrodynamics the speed of light in vacuum is strictly invariant without any medium.",
+    whyTempting:
+      "Fresnel drag formula was historically interpreted as mechanical medium entrainment.",
+    whereItIsTrue:
+      "none: in relativistic electrodynamics the speed of light in vacuum is strictly invariant without any medium.",
     whatIsTrue: "Fresnel formula arises purely from relativistic velocity addition.",
-    staticTreatment: { reason: "Static Minkowski event diagram illustrates frame-independent wavefronts." },
+    staticTreatment: {
+      reason: "Static Minkowski event diagram illustrates frame-independent wavefronts.",
+    },
     anchors: ["sr-s0-p2"],
     resultIds: [],
     sources: ["Michelson-Morley 1887"],
@@ -1639,10 +1760,13 @@ test("ObstacleResponses: Planted Negative - kebab-case key unfamiliar-word-or-sy
     "unfamiliar-word-or-symbol": "Explains word.",
   };
 
-  assert.throws(() => validateObstacleResponses(rawKebab), (err: any) => {
-    assert.equal(err.code, "invalid-obstacle-key");
-    return true;
-  });
+  assert.throws(
+    () => validateObstacleResponses(rawKebab),
+    (err: any) => {
+      assert.equal(err.code, "invalid-obstacle-key");
+      return true;
+    },
+  );
 
   logger.log({
     testId: "obstacle-responses-kebab-key-rejected",

@@ -1,14 +1,19 @@
+import { createHash } from "node:crypto";
+import { lstat, mkdir, readdir, readFile, writeFile } from "node:fs/promises";
+import { dirname, relative, resolve } from "node:path";
+import { fileURLToPath } from "node:url";
+import {
+  compileContent,
+  compileReadingContent,
+  type Diagnostic,
+  type PaperPayload,
+} from "../src/content/compiler/compile.ts";
+import { emitPayloads } from "../src/content/compiler/emitter.ts";
+import { checkFileSize, checkNfc } from "../src/content/compiler/loaders.ts";
+import type { Block, Foundation } from "../src/content/schemas/reading.ts";
 import { expressionLatex } from "../src/equations/latex.ts";
 import { BROWNIAN_QUANTITIES } from "../src/equations/quantities.ts";
-import { readFile, readdir, lstat, mkdir, writeFile } from "node:fs/promises";
-import { createHash } from "node:crypto";
-import { dirname, resolve, relative } from "node:path";
-import { fileURLToPath } from "node:url";
-import { compileContent, compileReadingContent, type PaperPayload, type Diagnostic } from "../src/content/compiler/compile.ts";
-import type { Block, Foundation } from "../src/content/schemas/reading.ts";
-import { emitPayloads } from "../src/content/compiler/emitter.ts";
 import { getLogger } from "../src/testing/log/logger.ts";
-import { checkNfc, checkFileSize } from "../src/content/compiler/loaders.ts";
 
 export const CONTENT_COMPILER_FILES = [
   "scripts/build-content.ts",
@@ -50,12 +55,21 @@ export async function loadReadingFiles(root = ROOT, corpusDir = "content") {
         await walk(full);
         continue;
       }
-      if (name.endsWith(".md") || name.endsWith(".yaml") || name.endsWith(".yml") || name.endsWith(".txt")) continue;
-      if (!stat.isFile() || stat.size > 512 * 1024) throw new Error(`Invalid or oversized content file: ${full}`);
+      if (
+        name.endsWith(".md") ||
+        name.endsWith(".yaml") ||
+        name.endsWith(".yml") ||
+        name.endsWith(".txt")
+      )
+        continue;
+      if (!stat.isFile() || stat.size > 512 * 1024)
+        throw new Error(`Invalid or oversized content file: ${full}`);
       if (files.length >= 512) throw new Error("Content record-count budget exceeded.");
       bytes += stat.size;
       if (bytes > 8 * 1024 * 1024) throw new Error("Content total size budget exceeded.");
-      const text = new TextDecoder("utf-8", { fatal: true, ignoreBOM: true }).decode(await readFile(full));
+      const text = new TextDecoder("utf-8", { fatal: true, ignoreBOM: true }).decode(
+        await readFile(full),
+      );
       files.push({ path: relative(directory, full).split("\\").join("/"), text });
     }
   }
@@ -79,11 +93,14 @@ export async function loadAllContentFiles(root = ROOT, corpusDir = "content") {
         await walk(full);
         continue;
       }
-      if (!stat.isFile() || stat.size > 512 * 1024) throw new Error(`Invalid or oversized content file: ${full}`);
+      if (!stat.isFile() || stat.size > 512 * 1024)
+        throw new Error(`Invalid or oversized content file: ${full}`);
       if (files.length >= 512) throw new Error("Content record-count budget exceeded.");
       bytes += stat.size;
       if (bytes > 8 * 1024 * 1024) throw new Error("Content total size budget exceeded.");
-      const text = new TextDecoder("utf-8", { fatal: true, ignoreBOM: true }).decode(await readFile(full));
+      const text = new TextDecoder("utf-8", { fatal: true, ignoreBOM: true }).decode(
+        await readFile(full),
+      );
       files.push({ path: relative(directory, full).split("\\").join("/"), text });
     }
   }
@@ -146,7 +163,9 @@ export async function buildContent(root = ROOT, options?: { corpusDir?: string }
   }
 
   // Calculate hashes and digests
-  const inputDigest = digest(files.map((f) => `${f.path}\0${Buffer.byteLength(f.text)}\0${f.text}`).join(""));
+  const inputDigest = digest(
+    files.map((f) => `${f.path}\0${Buffer.byteLength(f.text)}\0${f.text}`).join(""),
+  );
   const compilerFiles = CONTENT_COMPILER_FILES;
   const compilerDigest = digest(
     (
@@ -168,8 +187,14 @@ export async function buildContent(root = ROOT, options?: { corpusDir?: string }
   if (result.reviewQueue) {
     const artifactsDir = resolve(root, "artifacts");
     await mkdir(artifactsDir, { recursive: true });
-    await writeFile(resolve(artifactsDir, "content-review-queue.json"), result.reviewQueue.jsonContent);
-    await writeFile(resolve(artifactsDir, "content-review-queue.md"), result.reviewQueue.markdownContent);
+    await writeFile(
+      resolve(artifactsDir, "content-review-queue.json"),
+      result.reviewQueue.jsonContent,
+    );
+    await writeFile(
+      resolve(artifactsDir, "content-review-queue.md"),
+      result.reviewQueue.markdownContent,
+    );
   }
 
   if (!result.ok) {
@@ -183,7 +208,9 @@ export async function buildContent(root = ROOT, options?: { corpusDir?: string }
         family: "compiler",
         event: "content-compiled",
         errorsCount: result.diagnostics.filter((d) => d.severity === "error").length,
-        flagsCount: result.diagnostics.filter((d) => d.severity === "flag" || d.severity === "review").length,
+        flagsCount: result.diagnostics.filter(
+          (d) => d.severity === "flag" || d.severity === "review",
+        ).length,
         openFlagsCount: result.reviewQueue?.summary.openCount ?? 0,
         reviewedFlagsCount: result.reviewQueue?.summary.reviewedCount ?? 0,
         staleReviewsCount: result.reviewQueue?.summary.staleCount ?? 0,
@@ -234,7 +261,8 @@ export async function buildContent(root = ROOT, options?: { corpusDir?: string }
       family: "compiler",
       event: "content-compiled",
       errorsCount: 0,
-      flagsCount: result.diagnostics.filter((d) => d.severity === "flag" || d.severity === "review").length,
+      flagsCount: result.diagnostics.filter((d) => d.severity === "flag" || d.severity === "review")
+        .length,
       openFlagsCount: result.reviewQueue?.summary.openCount ?? 0,
       reviewedFlagsCount: result.reviewQueue?.summary.reviewedCount ?? 0,
       staleReviewsCount: result.reviewQueue?.summary.staleCount ?? 0,

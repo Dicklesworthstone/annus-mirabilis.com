@@ -20,7 +20,11 @@ test("the committed FIXTURE_APP_REGISTRY is empty and passes validation, which i
 
 test("registry validation rejects a duplicate id", () => {
   const issues = validateFixtureAppRegistry([VALID_ENTRY, { ...VALID_ENTRY }]);
-  assert.ok(issues.some((issue) => issue.message.includes('duplicate fixture application id "harness-selftest"')));
+  assert.ok(
+    issues.some((issue) =>
+      issue.message.includes('duplicate fixture application id "harness-selftest"'),
+    ),
+  );
 });
 
 test("registry validation rejects an entry outside src/testing/", () => {
@@ -29,8 +33,12 @@ test("registry validation rejects an entry outside src/testing/", () => {
 });
 
 test("registry validation rejects an outDir outside artifacts/e2e-fixtures/", () => {
-  const issues = validateFixtureAppRegistry([{ ...VALID_ENTRY, outDir: "artifacts/build/harness-selftest/" }]);
-  assert.ok(issues.some((issue) => issue.message.includes("outDir outside artifacts/e2e-fixtures/")));
+  const issues = validateFixtureAppRegistry([
+    { ...VALID_ENTRY, outDir: "artifacts/build/harness-selftest/" },
+  ]);
+  assert.ok(
+    issues.some((issue) => issue.message.includes("outDir outside artifacts/e2e-fixtures/")),
+  );
 });
 
 test("registry validation rejects an entry without an owner", () => {
@@ -42,7 +50,10 @@ test("every registered entry's owner is a real bead id, checked via an injected 
   const knownBeadIds = new Set(["am-test-e2e-harness-bqmh"]);
   const isKnownBeadId = (id: string) => knownBeadIds.has(id);
   assert.deepEqual(validateFixtureAppRegistry([VALID_ENTRY], isKnownBeadId), []);
-  const issues = validateFixtureAppRegistry([{ ...VALID_ENTRY, owner: "am-does-not-exist-zzz" }], isKnownBeadId);
+  const issues = validateFixtureAppRegistry(
+    [{ ...VALID_ENTRY, owner: "am-does-not-exist-zzz" }],
+    isKnownBeadId,
+  );
   assert.ok(issues.some((issue) => issue.message.includes("not a known bead id")));
 });
 
@@ -57,24 +68,39 @@ test("staticInputs validation rejects a from outside the repository", () => {
     staticInputs: [{ from: "../outside-repo/manifest.json", servedPath: "manifest.json" }],
   };
   const issues = validateFixtureAppRegistry([entry]);
-  assert.ok(issues.some((issue) => issue.message.includes("staticInputs.from outside the repository")));
+  assert.ok(
+    issues.some((issue) => issue.message.includes("staticInputs.from outside the repository")),
+  );
 });
 
 test("staticInputs validation rejects a servedPath that is absolute or contains ..", () => {
   const absolute = validateFixtureAppRegistry([
-    { ...VALID_ENTRY, staticInputs: [{ from: "public/wasm/manifest.json", servedPath: "/manifest.json" }] },
+    {
+      ...VALID_ENTRY,
+      staticInputs: [{ from: "public/wasm/manifest.json", servedPath: "/manifest.json" }],
+    },
   ]);
-  assert.ok(absolute.some((issue) => issue.message.includes("absolute or escapes its application root")));
+  assert.ok(
+    absolute.some((issue) => issue.message.includes("absolute or escapes its application root")),
+  );
 
   const traversal = validateFixtureAppRegistry([
-    { ...VALID_ENTRY, staticInputs: [{ from: "public/wasm/manifest.json", servedPath: "../manifest.json" }] },
+    {
+      ...VALID_ENTRY,
+      staticInputs: [{ from: "public/wasm/manifest.json", servedPath: "../manifest.json" }],
+    },
   ]);
-  assert.ok(traversal.some((issue) => issue.message.includes("absolute or escapes its application root")));
+  assert.ok(
+    traversal.some((issue) => issue.message.includes("absolute or escapes its application root")),
+  );
 });
 
 test("staticInputs validation rejects a servedPath colliding with a bundle output name", () => {
   const issues = validateFixtureAppRegistry([
-    { ...VALID_ENTRY, staticInputs: [{ from: "public/wasm/manifest.json", servedPath: "bundle.js" }] },
+    {
+      ...VALID_ENTRY,
+      staticInputs: [{ from: "public/wasm/manifest.json", servedPath: "bundle.js" }],
+    },
   ]);
   assert.ok(issues.some((issue) => issue.message.includes("collides with a bundle output name")));
 });
@@ -88,7 +114,11 @@ test("staticInputs validation rejects a duplicate servedPath within one entry", 
     ],
   };
   const issues = validateFixtureAppRegistry([entry]);
-  assert.ok(issues.some((issue) => issue.message.includes('staticInputs.servedPath "frankensim.wasm" more than once')));
+  assert.ok(
+    issues.some((issue) =>
+      issue.message.includes('staticInputs.servedPath "frankensim.wasm" more than once'),
+    ),
+  );
 });
 
 test("a well-formed entry with well-formed staticInputs produces no issues", () => {

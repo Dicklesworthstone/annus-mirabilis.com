@@ -69,18 +69,27 @@ export interface InstrumentAddress {
  * With no list, membership is never asserted, because this Batch A harness
  * must not import the compiled content registry to read a DOM attribute.
  */
-export function parseInstrumentAddress(value: string, declaredModes?: readonly string[]): InstrumentAddress {
+export function parseInstrumentAddress(
+  value: string,
+  declaredModes?: readonly string[],
+): InstrumentAddress {
   const colonCount = (value.match(/:/g) ?? []).length;
   if (colonCount > 1) {
-    throw new DomContractError(`instrument address "${value}" has more than one colon`, { attribute: "data-instrument-id", value });
+    throw new DomContractError(`instrument address "${value}" has more than one colon`, {
+      attribute: "data-instrument-id",
+      value,
+    });
   }
 
   if (colonCount === 0) {
     if (!isWellFormedAddressSide(value)) {
-      throw new DomContractError(`instrument address "${value}" is not a well-formed catalogue id`, {
-        attribute: "data-instrument-id",
-        value,
-      });
+      throw new DomContractError(
+        `instrument address "${value}" is not a well-formed catalogue id`,
+        {
+          attribute: "data-instrument-id",
+          value,
+        },
+      );
     }
     return { raw: value, instrumentId: value, mode: null };
   }
@@ -137,8 +146,14 @@ export interface InstrumentRootAttributes {
  * present and never required, because a paper journey may run against a page
  * that predates that bead.
  */
-export function parseInstrumentRoot(attrs: AttributeMap, declaredModes?: readonly string[]): InstrumentRootAttributes {
-  const address = parseInstrumentAddress(requireAttribute(attrs, "data-instrument-id"), declaredModes);
+export function parseInstrumentRoot(
+  attrs: AttributeMap,
+  declaredModes?: readonly string[],
+): InstrumentRootAttributes {
+  const address = parseInstrumentAddress(
+    requireAttribute(attrs, "data-instrument-id"),
+    declaredModes,
+  );
   const instanceId = requireAttribute(attrs, "data-instance-id");
   const runId = requireAttribute(attrs, "data-run-id");
   const snapshotVersion = requireAttribute(attrs, "data-snapshot-version");
@@ -213,10 +228,13 @@ export function parseAnchor(attrs: AttributeMap): AnchorAttributes {
   const id = requireAttribute(attrs, "id");
   const anchor = requireAttribute(attrs, "data-anchor");
   if (id !== anchor) {
-    throw new DomContractError(`anchor element's id "${id}" does not match its data-anchor "${anchor}"`, {
-      attribute: "data-anchor",
-      value: anchor,
-    });
+    throw new DomContractError(
+      `anchor element's id "${id}" does not match its data-anchor "${anchor}"`,
+      {
+        attribute: "data-anchor",
+        value: anchor,
+      },
+    );
   }
   return { id, anchor };
 }

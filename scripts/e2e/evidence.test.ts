@@ -3,8 +3,7 @@ import { existsSync, mkdtempSync, readFileSync, rmSync, writeFileSync } from "no
 import { tmpdir } from "node:os";
 import { join } from "node:path";
 import test from "node:test";
-import { newRunIdentity } from "../../src/testing/log/logger.ts";
-import { suiteLogPath } from "../../src/testing/log/logger.ts";
+import { newRunIdentity, suiteLogPath } from "../../src/testing/log/logger.ts";
 import { e2eEvidenceDir, retainE2EEvidence } from "./evidence.ts";
 
 function writeFixture(path: string, contents: string): void {
@@ -12,8 +11,16 @@ function writeFixture(path: string, contents: string): void {
 }
 
 test("the evidence writer names files under artifacts/test-logs/<suite>/<log-run-id>/evidence/<testId>/<lane>/", () => {
-  const dir = e2eEvidenceDir("e2e", "20260101T000000Z-deadbeef", "reader-focus-restoration", "keyboard-only");
-  assert.match(dir, /artifacts\/test-logs\/e2e\/20260101T000000Z-deadbeef\/evidence\/reader-focus-restoration\/keyboard-only$/);
+  const dir = e2eEvidenceDir(
+    "e2e",
+    "20260101T000000Z-deadbeef",
+    "reader-focus-restoration",
+    "keyboard-only",
+  );
+  assert.match(
+    dir,
+    /artifacts\/test-logs\/e2e\/20260101T000000Z-deadbeef\/evidence\/reader-focus-restoration\/keyboard-only$/,
+  );
 });
 
 test("retainE2EEvidence copies and records all five paths", async () => {
@@ -36,7 +43,13 @@ test("retainE2EEvidence copies and records all five paths", async () => {
     }
 
     const result = await retainE2EEvidence(
-      { suite: "e2e", logRunId, testId: "reader-focus-restoration", lane: "keyboard-only", outcome: "failed" },
+      {
+        suite: "e2e",
+        logRunId,
+        testId: "reader-focus-restoration",
+        lane: "keyboard-only",
+        outcome: "failed",
+      },
       { screenshot, trace, dom, console: consoleLog, network },
     );
 
@@ -76,7 +89,13 @@ test("a missing trace is reported in the log, never dropped silently", async () 
     }
 
     const result = await retainE2EEvidence(
-      { suite: "e2e", logRunId, testId: "print-equation-clipping", lane: "print", outcome: "failed" },
+      {
+        suite: "e2e",
+        logRunId,
+        testId: "print-equation-clipping",
+        lane: "print",
+        outcome: "failed",
+      },
       { screenshot, trace: missingTrace, dom, console: consoleLog, network },
     );
 

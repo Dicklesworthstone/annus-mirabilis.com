@@ -100,7 +100,7 @@ describe("extracted donor identity hygiene", () => {
   test("the scanner itself fails on a fixture containing the donor lock port outside a comment", () => {
     const fixtureWithViolation = [
       "export const DEPLOYMENT_LOCK_PORT = 45267;",
-      "export const HOSTNAME = \"classic-patents.com\";",
+      'export const HOSTNAME = "classic-patents.com";',
     ].join("\n");
     const violations = scanForForbiddenIdentities(fixtureWithViolation, forbidden);
     const tokens = violations.map((v) => v.token);
@@ -170,7 +170,10 @@ describe("runId field naming discipline", () => {
 
 describe("tool-run-id artifact directory naming", () => {
   test("scripts/smoke-test-deployment.ts names its artifact directory with a tool run id", () => {
-    const content = fs.readFileSync(path.join(REPO_ROOT, "scripts/smoke-test-deployment.ts"), "utf8");
+    const content = fs.readFileSync(
+      path.join(REPO_ROOT, "scripts/smoke-test-deployment.ts"),
+      "utf8",
+    );
     expect(content).toContain("newToolRunId");
     expect(content).toContain("toolRunId");
     expect(content).toMatch(/artifacts",\s*"smoke-test-deployment",\s*toolRunId/);

@@ -4,12 +4,12 @@
  * Spec: AGENTS.md and am-cm-compiler-core-oa7
  */
 
-import { readFile } from "node:fs/promises";
 import { createHash } from "node:crypto";
+import { readFile } from "node:fs/promises";
 import { resolve } from "node:path";
+import type { Argument, Foundation } from "../schemas/reading.ts";
 import type { PaperPayload } from "./compile.ts";
-import type { Foundation, Argument } from "../schemas/reading.ts";
-import type { ContentBuildIndex, PayloadManifestEntry } from "./emitter.ts";
+import type { ContentBuildIndex } from "./emitter.ts";
 
 export async function loadContentIndex(rootDir = process.cwd()): Promise<ContentBuildIndex> {
   const indexPath = resolve(rootDir, "generated/content/index.json");
@@ -33,12 +33,16 @@ export async function loadCompiledPayload<T>(
   const bytes = await readFile(payloadPath);
 
   if (bytes.length !== entry.bytes) {
-    throw new Error(`Byte length mismatch for ${kind}/${id}: expected ${entry.bytes}, got ${bytes.length}`);
+    throw new Error(
+      `Byte length mismatch for ${kind}/${id}: expected ${entry.bytes}, got ${bytes.length}`,
+    );
   }
 
   const sha = createHash("sha256").update(bytes).digest("hex");
   if (sha !== entry.sha256) {
-    throw new Error(`SHA-256 digest mismatch for ${kind}/${id}: expected ${entry.sha256}, got ${sha}`);
+    throw new Error(
+      `SHA-256 digest mismatch for ${kind}/${id}: expected ${entry.sha256}, got ${sha}`,
+    );
   }
 
   const data = JSON.parse(bytes.toString("utf8")) as T;
@@ -55,7 +59,10 @@ export async function loadPaperPayload(id: string, rootDir = process.cwd()): Pro
   return loadCompiledPayload<PaperPayload>("paper", id, rootDir);
 }
 
-export async function loadFoundationPayload(id: string, rootDir = process.cwd()): Promise<Foundation> {
+export async function loadFoundationPayload(
+  id: string,
+  rootDir = process.cwd(),
+): Promise<Foundation> {
   return loadCompiledPayload<Foundation>("foundation", id, rootDir);
 }
 
@@ -91,7 +98,9 @@ export async function loadSectionPayload(
   const sectionArgs = paper.arguments.filter((a) => section.arguments.includes(a.id));
   const neededFoundationIds = new Set<string>();
   for (const a of sectionArgs) {
-    Object.values(a.help ?? {}).forEach((fid) => neededFoundationIds.add(fid));
+    for (const fid of Object.values(a.help ?? {})) {
+      neededFoundationIds.add(fid);
+    }
     for (const reading of Object.values(a.readings)) {
       for (const b of reading) {
         if (b.kind === "foundation") neededFoundationIds.add(b.id);

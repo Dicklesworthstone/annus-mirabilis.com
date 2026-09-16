@@ -13,8 +13,8 @@
  * beside the harness's checks, not here.
  */
 
-import { evidenceDir, retainEvidence } from "../../src/testing/log/evidence.ts";
 import type { RetainEvidenceResult } from "../../src/testing/log/evidence.ts";
+import { evidenceDir, retainEvidence } from "../../src/testing/log/evidence.ts";
 import type { Outcome } from "../../src/testing/log/schema.ts";
 
 export interface RetainE2EEvidenceMeta {
@@ -37,7 +37,12 @@ export interface E2EEvidenceCapturePaths {
 }
 
 /** `.../evidence/<testId>/<lane>/`, so evidence for the same check in different lanes never collides. */
-export function e2eEvidenceDir(suite: string, logRunId: string, testId: string, lane: string): string {
+export function e2eEvidenceDir(
+  suite: string,
+  logRunId: string,
+  testId: string,
+  lane: string,
+): string {
   return evidenceDir(suite, logRunId, `${testId}/${lane}`);
 }
 
@@ -52,7 +57,13 @@ export async function retainE2EEvidence(
   meta: RetainE2EEvidenceMeta,
   capture: E2EEvidenceCapturePaths,
 ): Promise<RetainEvidenceResult> {
-  const sources = [capture.screenshot, capture.trace, capture.dom, capture.console, capture.network];
+  const sources = [
+    capture.screenshot,
+    capture.trace,
+    capture.dom,
+    capture.console,
+    capture.network,
+  ];
   return retainEvidence(
     {
       suite: meta.suite,

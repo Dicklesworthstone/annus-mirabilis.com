@@ -119,7 +119,8 @@ export function parseContentJson(text: string, path = "content"): unknown {
         if (text[i] !== '"') fail("Expected an object key.");
         const key = string();
         if (Object.hasOwn(o, key)) fail(`Duplicate key: ${key}.`, "duplicate-key");
-        if (["__proto__", "constructor", "prototype"].includes(key)) fail(`Reserved key: ${key}.`, "reserved-key");
+        if (["__proto__", "constructor", "prototype"].includes(key))
+          fail(`Reserved key: ${key}.`, "reserved-key");
         space();
         if (text[i++] !== ":") fail("Expected a colon.");
         o[key] = value(depth + 1);
@@ -149,7 +150,9 @@ export function parseContentJson(text: string, path = "content"): unknown {
         if (text[i++] !== ",") fail("Expected a comma or closing bracket.");
       }
     }
-    const token = /^(?:true|false|null|-?(?:0|[1-9]\d*)(?:\.\d+)?(?:[eE][+-]?\d+)?)/.exec(text.slice(i))?.[0];
+    const token = /^(?:true|false|null|-?(?:0|[1-9]\d*)(?:\.\d+)?(?:[eE][+-]?\d+)?)/.exec(
+      text.slice(i),
+    )?.[0];
     if (!token) return fail("Expected a JSON value.");
     i += token.length;
     const parsed: unknown = JSON.parse(token);
@@ -210,7 +213,7 @@ export function parseContentYaml(text: string, path = "content"): unknown {
     structural = structural.replace(/'(?:[^'\\]|\\.)*'/g, "''");
 
     // 1. Custom tags (e.g. !!js/function, !tag, !<...>)
-    if (/(?:^|\s)!(?:![a-zA-Z0-9_\-\/]+|<[^>]+>|[a-zA-Z0-9_\-]+)/.test(structural)) {
+    if (/(?:^|\s)!(?:![a-zA-Z0-9_\-/]+|<[^>]+>|[a-zA-Z0-9_-]+)/.test(structural)) {
       throw new ContentError(
         "yaml-custom-tag",
         `${path}:${lineNum}`,
@@ -220,7 +223,7 @@ export function parseContentYaml(text: string, path = "content"): unknown {
     }
 
     // 2. Anchors (&anchor)
-    if (/(?:^|\s)&[a-zA-Z0-9_\-]+/.test(structural)) {
+    if (/(?:^|\s)&[a-zA-Z0-9_-]+/.test(structural)) {
       throw new ContentError(
         "yaml-anchor-forbidden",
         `${path}:${lineNum}`,
@@ -240,7 +243,7 @@ export function parseContentYaml(text: string, path = "content"): unknown {
     }
 
     // 4. Aliases (*alias)
-    if (/(?:^|\s)\*[a-zA-Z0-9_\-]+/.test(structural)) {
+    if (/(?:^|\s)\*[a-zA-Z0-9_-]+/.test(structural)) {
       throw new ContentError(
         "yaml-alias-forbidden",
         `${path}:${lineNum}`,
@@ -388,7 +391,7 @@ export function validateConstrainedMarkdown(
     // 4. Check for raw HTML tags: <tag>, </div>, <p>, <span>, <b>, <i>, etc.
     // Exclude HTML comments <!-- ... -->
     const sanitizedLine = line.replace(/<!--[\s\S]*?-->/g, "");
-    if (/<[a-zA-Z\/][^>]*>/.test(sanitizedLine)) {
+    if (/<[a-zA-Z/][^>]*>/.test(sanitizedLine)) {
       issues.push({
         code: "markdown-raw-html",
         line: lineNum,
@@ -402,7 +405,7 @@ export function validateConstrainedMarkdown(
     for (const match of imgMatches) {
       const url = match[2]!;
       // An admitted image must have an id in admittedFigures or be a recognized internal figure path
-      const figureIdMatch = url.match(/^(?:(?:figure|fig)\/|\/figures\/)?([a-zA-Z0-9_\-]+)$/);
+      const figureIdMatch = url.match(/^(?:(?:figure|fig)\/|\/figures\/)?([a-zA-Z0-9_-]+)$/);
       const figureId = figureIdMatch ? figureIdMatch[1]! : url;
       if (!admittedFigures.has(figureId) && !admittedFigures.has(url)) {
         issues.push({
@@ -415,8 +418,10 @@ export function validateConstrainedMarkdown(
   }
 
   if (options?.throwOnError && issues.length > 0) {
-    const first = issues[0]!;
-    throw new ContentError(first.code, `${path}:${first.line}`, first.message, first.line);
+    const first = issues[0];
+    if (first) {
+      throw new ContentError(first.code, `${path}:${first.line}`, first.message, first.line);
+    }
   }
 
   return {

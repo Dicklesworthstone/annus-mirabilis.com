@@ -10,7 +10,11 @@ test("reducedMotion is set in its lane", () => {
   assert.equal(laneByName("reduced-motion").reducedMotion, "reduce");
   for (const lane of LANES) {
     if (lane.name !== "reduced-motion") {
-      assert.notEqual(lane.reducedMotion, "reduce", `lane "${lane.name}" should not set reducedMotion: reduce`);
+      assert.notEqual(
+        lane.reducedMotion,
+        "reduce",
+        `lane "${lane.name}" should not set reducedMotion: reduce`,
+      );
     }
   }
 });
@@ -19,7 +23,11 @@ test("JavaScript is disabled only in its lane", () => {
   assert.equal(laneByName("js-disabled").javaScriptEnabled, false);
   for (const lane of LANES) {
     if (lane.name !== "js-disabled") {
-      assert.notEqual(lane.javaScriptEnabled, false, `lane "${lane.name}" should not disable JavaScript`);
+      assert.notEqual(
+        lane.javaScriptEnabled,
+        false,
+        `lane "${lane.name}" should not disable JavaScript`,
+      );
     }
   }
 });

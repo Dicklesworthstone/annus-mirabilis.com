@@ -45,7 +45,11 @@ const DESKTOP_VIEWPORT: LaneViewport = { width: 1440, height: 900 };
 /** Matches PAPER_E2E_VIEWPORTS.phone in scripts/e2e/paper-e2e-contract.ts: 320 CSS px wide. */
 const TOUCH_320_VIEWPORT: LaneViewport = { width: 320, height: 800 };
 
-const WEBGL_DISABLING_CHROMIUM_ARGS = ["--disable-3d-apis", "--disable-webgl", "--disable-webgl2"] as const;
+const WEBGL_DISABLING_CHROMIUM_ARGS = [
+  "--disable-3d-apis",
+  "--disable-webgl",
+  "--disable-webgl2",
+] as const;
 
 const TEXT_200_STYLESHEET = "html { font-size: 200% !important; }";
 
@@ -115,7 +119,8 @@ export const LANES: readonly LaneDefinition[] = Object.freeze([
   },
   {
     name: "js-disabled",
-    description: "Desktop Chromium with JavaScript disabled; reading checks run against the rendered document.",
+    description:
+      "Desktop Chromium with JavaScript disabled; reading checks run against the rendered document.",
     browser: "chromium",
     viewport: DESKTOP_VIEWPORT,
     javaScriptEnabled: false,
@@ -132,7 +137,9 @@ export const LANES: readonly LaneDefinition[] = Object.freeze([
 export function laneByName(name: string): LaneDefinition {
   const lane = LANES.find((candidate) => candidate.name === name);
   if (!lane) {
-    throw new Error(`unknown lane "${name}"; known lanes: ${LANES.map((candidate) => candidate.name).join(", ")}`);
+    throw new Error(
+      `unknown lane "${name}"; known lanes: ${LANES.map((candidate) => candidate.name).join(", ")}`,
+    );
   }
   return lane;
 }
@@ -159,10 +166,15 @@ export interface LaneActions {
  * cannot accidentally pass the keyboard-only lane by using a pointer.
  */
 export function createLaneActions(lane: LaneDefinition, delegate: LaneActionDelegate): LaneActions {
-  function guardPointerAction<Args extends unknown[]>(actionName: string, fn: (...args: Args) => void) {
+  function guardPointerAction<Args extends unknown[]>(
+    actionName: string,
+    fn: (...args: Args) => void,
+  ) {
     return (...args: Args): void => {
       if (lane.keyboardOnly) {
-        throw new Error(`lane "${lane.name}" is keyboard-only; a pointer action ("${actionName}") is not permitted`);
+        throw new Error(
+          `lane "${lane.name}" is keyboard-only; a pointer action ("${actionName}") is not permitted`,
+        );
       }
       fn(...args);
     };
