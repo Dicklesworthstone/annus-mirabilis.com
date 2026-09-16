@@ -22,7 +22,7 @@ function printedSet() {
     provenance:
       "Declared editorial inputs matching Einstein 1905 printed R and N. The reserved historical set einstein-1905-brownian-printed is not registered (am-ref-constants-xik).",
     precisionNote: "Two-significant-figure comparison to 0,8 Mikron and ca. 6 Mikron.",
-    gasConstantProvenance: "measured-without-counting-molecules",
+    gasConstantProvenance: "not-applicable",
     entries: [
       {
         quantityId: "molarGasConstant",
@@ -30,7 +30,7 @@ function printedSet() {
         exactDecimal: "8.31",
         unit: "J/(mol K)",
         kind: "declared-scenario",
-        evidentialRole: "measured-observation",
+        evidentialRole: "declared-input",
         provenance: "Paper 2 printed R = 8.31e7 erg mol^-1 K^-1.",
         dependsOn: [],
       },
@@ -40,7 +40,7 @@ function printedSet() {
         exactDecimal: "6e23",
         unit: "1/mol",
         kind: "declared-scenario",
-        evidentialRole: "measured-observation",
+        evidentialRole: "declared-input",
         provenance: "Paper 2 printed N = 6e23 mol^-1.",
         dependsOn: [],
       },
@@ -54,6 +54,8 @@ describe(`scenario ${SCENARIO_ID}`, () => {
     const set = printedSet();
     expect(set.id).not.toBe("modern-si-2019");
     expect(set.entries.some((e) => e.quantityId === "boltzmannConstant")).toBe(false);
+    expect(set.gasConstantProvenance).toBe("not-applicable");
+    expect(set.entries.every((e) => e.evidentialRole === "declared-input")).toBe(true);
   });
 
   test("stated a=0.5 um, eta=1.35e-3, T=290.15 give 0.7947833 um at 1 s and 6.156365 um at 60 s", () => {

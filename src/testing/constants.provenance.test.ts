@@ -1,5 +1,9 @@
 import { describe, expect, test } from "bun:test";
-import { createDeclaredConstantSet, getConstantSet } from "../physics/reference/constants.ts";
+import {
+  ConstantSetError,
+  createDeclaredConstantSet,
+  getConstantSet,
+} from "../physics/reference/constants.ts";
 
 describe("gasConstantProvenance", () => {
   test("modern-si-2019 is defined", () => {
@@ -13,27 +17,49 @@ describe("gasConstantProvenance", () => {
     expect(set.entries.some((e) => e.quantityId === "boltzmannConstant")).toBe(false);
   });
 
-  test("scenario-gas-constant-measured is measured-without-counting-molecules and contains no N_A or k_B", () => {
-    const set = getConstantSet("scenario-gas-constant-measured");
-    expect(set.gasConstantProvenance).toBe("measured-without-counting-molecules");
-    expect(set.entries.some((e) => e.quantityId === "avogadroConstant")).toBe(false);
-    expect(set.entries.some((e) => e.quantityId === "boltzmannConstant")).toBe(false);
+  test("a declared scenario with defined gasConstantProvenance fails validation", () => {
+    try {
+      createDeclaredConstantSet({
+        id: "scenario-bad-provenance",
+        era: 2024,
+        provenance: "test",
+        precisionNote: "test",
+        gasConstantProvenance: "defined",
+        entries: [
+          {
+            quantityId: "temperature",
+            value: 293.15,
+            exactDecimal: "293.15",
+            unit: "K",
+            kind: "declared-scenario",
+            evidentialRole: "declared-input",
+            provenance: "test",
+            dependsOn: [],
+          },
+        ],
+      });
+      throw new Error("expected throw");
+    } catch (e) {
+      expect(e).toBeInstanceOf(ConstantSetError);
+      expect((e as ConstantSetError).code).toBe("ambiguous-constant-provenance");
+      expect((e as Error).message).toContain("Standalone scenarios are not SI definitions");
+    }
   });
 });
 
 describe("scenario-gas-constant-measured: the standalone Moldover 1988 set", () => {
-  test("its one entry carries the standard uncertainty and CODATA-style precision", () => {
+  test("holds Moldover 1988 R = 8.314471 with uncertainty 0.000014 and role measured-observation", () => {
     const set = getConstantSet("scenario-gas-constant-measured");
-    expect(set.entries).toHaveLength(1);
-    const R = set.entries[0]!;
-    expect(R.quantityId).toBe("molarGasConstant");
+    expect(set.era).toBe(1988);
+    expect(set.gasConstantProvenance).toBe("measured-without-counting-molecules");
+    const R = set.entries.find((e) => e.quantityId === "molarGasConstant")!;
     expect(R.value).toBe(8.314471);
     expect(R.uncertainty).toBe(0.000014);
     expect(R.evidentialRole).toBe("measured-observation");
   });
 
   test("a copy without the uncertainty fails validation", () => {
-    expect(() =>
+    try {
       createDeclaredConstantSet({
         id: "scenario-gas-constant-no-uncertainty",
         era: 1988,
@@ -52,19 +78,26 @@ describe("scenario-gas-constant-measured: the standalone Moldover 1988 set", () 
             dependsOn: [],
           },
         ],
-      }),
-    ).toThrow(/measured-missing-uncertainty/);
+      });
+      throw new Error("expected throw");
+    } catch (e) {
+      expect(e).toBeInstanceOf(ConstantSetError);
+      expect((e as ConstantSetError).code).toBe("measured-missing-uncertainty");
+      expect((e as Error).message).toContain("requires uncertainty");
+    }
   });
 
   test("its relative difference from the 2019 exact R is about 1.008e-6", () => {
     const measured = getConstantSet("scenario-gas-constant-measured").entries[0]!.value;
-    const exact = getConstantSet("modern-si-2019").entries.find((e) => e.quantityId === "molarGasConstant")!.value;
+    const exact = getConstantSet("modern-si-2019").entries.find(
+      (e) => e.quantityId === "molarGasConstant",
+    )!.value;
     const relativeDifference = (measured - exact) / exact;
     expect(Math.abs(relativeDifference - 1.008e-6)).toBeLessThan(2e-8);
   });
 
   test("a declared set mixing a defined N_A with a measured R fails validation", () => {
-    expect(() =>
+    try {
       createDeclaredConstantSet({
         id: "scenario-bad-mix",
         era: 2024,
@@ -84,7 +117,12 @@ describe("scenario-gas-constant-measured: the standalone Moldover 1988 set", () 
             uncertainty: 0.000014,
           },
         ],
-      }),
-    ).toThrow(/ambiguous-constant-provenance|not SI definitions/);
+      });
+      throw new Error("expected throw");
+    } catch (e) {
+      expect(e).toBeInstanceOf(ConstantSetError);
+      expect((e as ConstantSetError).code).toBe("ambiguous-constant-provenance");
+      expect((e as Error).message).toContain("Standalone scenarios are not SI definitions");
+    }
   });
 });

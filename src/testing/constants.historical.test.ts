@@ -61,14 +61,17 @@ describe("registry status: every printed-historical and reserved set reports not
       getConstantSet("not-a-real-set-id");
       throw new Error("expected a throw");
     } catch (error) {
+      expect(error).toBeInstanceOf(ConstantSetError);
       expect((error as ConstantSetError).code).toBe("unknown-constant-set");
     }
   });
 
-  test("checkPrintedConsistency on a reserved id reports not-available (a throw), never passed", () => {
-    expect(() => checkPrintedConsistency("einstein-1905-brownian-printed")).toThrow(
-      /constant-set-not-registered/,
-    );
+  test("checkPrintedConsistency on a reserved id reports not-available, never passed", () => {
+    const report = checkPrintedConsistency("einstein-1905-brownian-printed");
+    expect(report.available).toBe(false);
+    expect(report.ok).toBe(false);
+    expect(report.issues[0]?.code).toBe("not-available");
+    expect(report.issues[0]?.message).toContain("am-ref-constants-xik");
   });
 });
 
@@ -82,25 +85,30 @@ const printedBase: Omit<ConstantEntry, "quantityId" | "value" | "exactDecimal"> 
 
 describe("the printed-historical entry model (fixture sets, not registered content)", () => {
   test("printedStatus is required on every printed-historical entry", () => {
-    expect(() =>
+    try {
       freezeConstantSet({
         id: "modern-si-2019-will-not-collide",
         kind: "printed-historical",
-        era: "1905",
+        era: 1905,
         provenance: "fixture",
         precisionNote: "fixture",
         gasConstantProvenance: "not-applicable",
         entries: [{ ...printedBase, quantityId: "fixtureAlpha", value: 1, exactDecimal: "1" }],
-      }),
-    ).toThrow(/missing-printed-status/);
+      });
+      throw new Error("expected throw");
+    } catch (e) {
+      expect(e).toBeInstanceOf(ConstantSetError);
+      expect((e as ConstantSetError).code).toBe("missing-printed-status");
+      expect((e as Error).message).toContain("requires printedStatus");
+    }
   });
 
   test('printedStatus "printed" requires printedReading', () => {
-    expect(() =>
+    try {
       freezeConstantSet({
         id: "scenario-will-not-collide-1",
         kind: "printed-historical",
-        era: "1905",
+        era: 1905,
         provenance: "fixture",
         precisionNote: "fixture",
         gasConstantProvenance: "not-applicable",
@@ -114,16 +122,21 @@ describe("the printed-historical entry model (fixture sets, not registered conte
             transcriptionStatus: "pending-transcription",
           },
         ],
-      }),
-    ).toThrow(/printed-missing-reading/);
+      });
+      throw new Error("expected throw");
+    } catch (e) {
+      expect(e).toBeInstanceOf(ConstantSetError);
+      expect((e as ConstantSetError).code).toBe("printed-missing-reading");
+      expect((e as Error).message).toContain("has no printedReading");
+    }
   });
 
   test('printedStatus "editorial-input" requires reason and sensitivity', () => {
-    expect(() =>
+    try {
       freezeConstantSet({
         id: "scenario-will-not-collide-2",
         kind: "printed-historical",
-        era: "1905",
+        era: 1905,
         provenance: "fixture",
         precisionNote: "fixture",
         gasConstantProvenance: "not-applicable",
@@ -137,13 +150,19 @@ describe("the printed-historical entry model (fixture sets, not registered conte
             transcriptionStatus: "pending-transcription",
           },
         ],
-      }),
-    ).toThrow(/editorial-input-missing-fields/);
+      });
+      throw new Error("expected throw");
+    } catch (e) {
+      expect(e).toBeInstanceOf(ConstantSetError);
+      expect((e as ConstantSetError).code).toBe("editorial-input-missing-fields");
+      expect((e as Error).message).toContain("needs reason and sensitivity");
+    }
+
     expect(() =>
       freezeConstantSet({
         id: "scenario-will-not-collide-3",
         kind: "printed-historical",
-        era: "1905",
+        era: 1905,
         provenance: "fixture",
         precisionNote: "fixture",
         gasConstantProvenance: "not-applicable",
@@ -164,13 +183,11 @@ describe("the printed-historical entry model (fixture sets, not registered conte
   });
 
   test('a "printed-corrected" entry without receiptRef fails schema validation, matching the printed-exponent decision case', () => {
-    // Mirrors the bead's own worked example: a witness prints alpha's exponent as 1e-56, which
-    // would make the printed N ten times too small; the corrected reading is 1e-57.
-    expect(() =>
+    try {
       freezeConstantSet({
         id: "scenario-will-not-collide-4",
         kind: "printed-historical",
-        era: "1905",
+        era: 1905,
         provenance: "fixture",
         precisionNote: "fixture",
         gasConstantProvenance: "not-applicable",
@@ -183,21 +200,28 @@ describe("the printed-historical entry model (fixture sets, not registered conte
             printedStatus: "printed-corrected",
             printedReading: "6,1·10^-56",
             correctedValue: 6.1e-57,
-            correctionReason: "reproduces the printed N; the printed exponent is ten times too large",
-            // receiptRef intentionally omitted
+            correctionReason:
+              "reproduces the printed N; the printed exponent is ten times too large",
             transcriptionStatus: "pending-transcription",
           },
         ],
-      }),
-    ).toThrow(/printed-corrected-missing-fields/);
+      });
+      throw new Error("expected throw");
+    } catch (e) {
+      expect(e).toBeInstanceOf(ConstantSetError);
+      expect((e as ConstantSetError).code).toBe("printed-corrected-missing-fields");
+      expect((e as Error).message).toContain(
+        "needs printedReading, correctedValue, correctionReason, and receiptRef",
+      );
+    }
   });
 
   test('a "transcribed-and-checked" entry without checkedBy/checkedAt fails validation', () => {
-    expect(() =>
+    try {
       freezeConstantSet({
         id: "scenario-will-not-collide-5",
         kind: "printed-historical",
-        era: "1905",
+        era: 1905,
         provenance: "fixture",
         precisionNote: "fixture",
         gasConstantProvenance: "not-applicable",
@@ -212,15 +236,22 @@ describe("the printed-historical entry model (fixture sets, not registered conte
             transcriptionStatus: "transcribed-and-checked",
           },
         ],
-      }),
-    ).toThrow(/transcribed-missing-check-metadata/);
+      });
+      throw new Error("expected throw");
+    } catch (e) {
+      expect(e).toBeInstanceOf(ConstantSetError);
+      expect((e as ConstantSetError).code).toBe("transcribed-missing-check-metadata");
+      expect((e as Error).message).toContain(
+        "claims transcribed-and-checked without checkedBy and checkedAt",
+      );
+    }
   });
 
   test("a pending-transcription entry validates without checkedBy/checkedAt: this is the honest state for content this bead has not facsimile-checked", () => {
     const set = freezeConstantSet({
       id: "scenario-will-not-collide-6",
       kind: "printed-historical",
-      era: "1905",
+      era: 1905,
       provenance: "fixture",
       precisionNote: "fixture",
       gasConstantProvenance: "not-applicable",
@@ -245,7 +276,7 @@ describe("checkPrintedConsistency: structural checks, not per-paper arithmetic (
     const set = freezeConstantSet({
       id: "scenario-will-not-collide-7",
       kind: "printed-historical",
-      era: "1905",
+      era: 1905,
       provenance: "fixture",
       precisionNote: "fixture",
       gasConstantProvenance: "not-applicable",
@@ -277,7 +308,8 @@ describe("checkPrintedConsistency: structural checks, not per-paper arithmetic (
     expect(report.issues).toContainEqual({
       quantityId: "derivedN",
       code: "dangling-dependency",
-      message: 'derivedN depends on "missingBeta", which is not an entry of scenario-will-not-collide-7.',
+      message:
+        'derivedN depends on "missingBeta", which is not an entry of scenario-will-not-collide-7.',
     });
   });
 
@@ -285,7 +317,7 @@ describe("checkPrintedConsistency: structural checks, not per-paper arithmetic (
     const set = freezeConstantSet({
       id: "scenario-will-not-collide-8",
       kind: "printed-historical",
-      era: "1905",
+      era: 1905,
       provenance: "fixture",
       precisionNote: "fixture",
       gasConstantProvenance: "not-applicable",
@@ -312,6 +344,11 @@ describe("checkPrintedConsistency: structural checks, not per-paper arithmetic (
         },
       ],
     });
-    expect(checkPrintedConsistency(set)).toEqual({ setId: set.id, ok: true, issues: [] });
+    expect(checkPrintedConsistency(set)).toEqual({
+      setId: set.id,
+      available: true,
+      ok: true,
+      issues: [],
+    });
   });
 });

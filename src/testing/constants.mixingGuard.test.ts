@@ -2,6 +2,7 @@ import { describe, expect, test } from "bun:test";
 import {
   assertSameSet,
   compareAcrossSets,
+  ConstantSetError,
   constantValue,
   createDeclaredConstantSet,
   deriveScenarioSet,
@@ -16,7 +17,16 @@ describe("the mixing guard: cross-set arithmetic never happens silently", () => 
     const codata = getConstantSet("modern-codata-2022");
     const R = constantValue(modern, "molarGasConstant");
     const me = constantValue(codata, "electronMass");
-    expect(() => assertSameSet(R, me)).toThrow(/constant-set-mismatch/);
+    try {
+      assertSameSet(R, me);
+      throw new Error("expected throw");
+    } catch (e) {
+      expect(e).toBeInstanceOf(ConstantSetError);
+      expect((e as ConstantSetError).code).toBe("constant-set-mismatch");
+      expect((e as Error).message).toContain(
+        "Cannot combine modern-si-2019 and modern-codata-2022",
+      );
+    }
   });
 });
 
@@ -95,16 +105,21 @@ describe("deriveScenarioSet", () => {
   });
 
   test("createDeclaredConstantSet (the standalone-set builder) refuses an empty set", () => {
-    expect(() =>
+    try {
       createDeclaredConstantSet({
         id: "scenario-empty",
         era: 2024,
         provenance: "test",
         precisionNote: "test",
-        gasConstantProvenance: "measured-without-counting-molecules",
+        gasConstantProvenance: "not-applicable",
         entries: [],
-      }),
-    ).toThrow(/empty-constant-set|Declare at least one input/);
+      });
+      throw new Error("expected throw");
+    } catch (e) {
+      expect(e).toBeInstanceOf(ConstantSetError);
+      expect((e as ConstantSetError).code).toBe("empty-constant-set");
+      expect((e as Error).message).toContain("Declare at least one input");
+    }
   });
 });
 
@@ -127,13 +142,20 @@ describe("compareAcrossSets: a labeled comparison, never a mixed calculation", (
   test("mismatched quantity ids throw comparison-quantity-mismatch", () => {
     const modernSet = getConstantSet("modern-si-2019");
     const codata = getConstantSet("modern-codata-2022");
-    expect(() =>
+    try {
       compareAcrossSets({
         left: constantValue(modernSet, "molarGasConstant"),
         right: constantValue(codata, "electronMass"),
         reason: "deliberately mismatched",
-      }),
-    ).toThrow(/comparison-quantity-mismatch/);
+      });
+      throw new Error("expected throw");
+    } catch (e) {
+      expect(e).toBeInstanceOf(ConstantSetError);
+      expect((e as ConstantSetError).code).toBe("comparison-quantity-mismatch");
+      expect((e as Error).message).toContain(
+        "Cannot compare molarGasConstant (in modern-si-2019) with electronMass (in modern-codata-2022)",
+      );
+    }
   });
 
   test("a comparison record is not a ConstantValue and cannot be used as a constant", () => {
@@ -144,25 +166,49 @@ describe("compareAcrossSets: a labeled comparison, never a mixed calculation", (
       right: constantValue(modernSet, "molarGasConstant"),
       reason: "labeled comparison, not an input",
     });
-    // @ts-expect-error a SetComparison is not a ConstantValue
-    expect(() => assertSameSet(comparison)).toThrow(/invalid-constant/);
+    try {
+      // @ts-expect-error a SetComparison is not a ConstantValue
+      assertSameSet(comparison);
+      throw new Error("expected throw");
+    } catch (e) {
+      expect(e).toBeInstanceOf(ConstantSetError);
+      expect((e as ConstantSetError).code).toBe("invalid-constant");
+      expect((e as Error).message).toContain("Expected a tagged finite constant");
+    }
   });
 });
 
 describe("withHistoricalGuard: forbidModernExact", () => {
   test("trips on modern exact k_B and N_A read from inside the guard", () => {
     const modernSet = getConstantSet("modern-si-2019");
-    expect(() =>
-      withHistoricalGuard(() => constantValue(modernSet, "boltzmannConstant")),
-    ).toThrow(/modern-constant-in-historical-path/);
-    expect(() =>
-      withHistoricalGuard(() => constantValue(modernSet, "avogadroConstant")),
-    ).toThrow(/modern-constant-in-historical-path/);
+    try {
+      withHistoricalGuard(() => constantValue(modernSet, "boltzmannConstant"));
+      throw new Error("expected throw");
+    } catch (e) {
+      expect(e).toBeInstanceOf(ConstantSetError);
+      expect((e as ConstantSetError).code).toBe("modern-constant-in-historical-path");
+      expect((e as Error).message).toContain(
+        "Historical inference paths may not read modern exact boltzmannConstant from modern-si-2019",
+      );
+    }
+
+    try {
+      withHistoricalGuard(() => constantValue(modernSet, "avogadroConstant"));
+      throw new Error("expected throw");
+    } catch (e) {
+      expect(e).toBeInstanceOf(ConstantSetError);
+      expect((e as ConstantSetError).code).toBe("modern-constant-in-historical-path");
+      expect((e as Error).message).toContain(
+        "Historical inference paths may not read modern exact avogadroConstant from modern-si-2019",
+      );
+    }
   });
 
   test("does not trip on a declared scenario set used outside a historical path, or on a non-guarded modern read", () => {
     const measured = getConstantSet("scenario-gas-constant-measured");
-    expect(() => withHistoricalGuard(() => constantValue(measured, "molarGasConstant"))).not.toThrow();
+    expect(() =>
+      withHistoricalGuard(() => constantValue(measured, "molarGasConstant")),
+    ).not.toThrow();
     const modernSet = getConstantSet("modern-si-2019");
     expect(constantValue(modernSet, "boltzmannConstant").value).toBe(1.380649e-23);
   });
@@ -170,19 +216,39 @@ describe("withHistoricalGuard: forbidModernExact", () => {
 
 describe("withMode1904Guard: no pre-1905 light speed, no modern sets", () => {
   test("trips on the modern sets", () => {
-    expect(() => withMode1904Guard(() => getConstantSet("modern-si-2019"))).toThrow(
-      /modern-constant-in-1904-mode/,
-    );
-    expect(() => withMode1904Guard(() => getConstantSet("modern-codata-2022"))).toThrow(
-      /modern-constant-in-1904-mode/,
-    );
+    try {
+      withMode1904Guard(() => getConstantSet("modern-si-2019"));
+      throw new Error("expected throw");
+    } catch (e) {
+      expect(e).toBeInstanceOf(ConstantSetError);
+      expect((e as ConstantSetError).code).toBe("modern-constant-in-1904-mode");
+      expect((e as Error).message).toContain("modern-si-2019 is not available inside a 1904 mode");
+    }
+
+    try {
+      withMode1904Guard(() => getConstantSet("modern-codata-2022"));
+      throw new Error("expected throw");
+    } catch (e) {
+      expect(e).toBeInstanceOf(ConstantSetError);
+      expect((e as ConstantSetError).code).toBe("modern-constant-in-1904-mode");
+      expect((e as Error).message).toContain(
+        "modern-codata-2022 is not available inside a 1904 mode",
+      );
+    }
   });
 
   test("a numeric light-speed request throws no-pre-1905-light-speed-set", () => {
     const modernSet = getConstantSet("modern-si-2019");
-    expect(() => withMode1904Guard(() => constantValue(modernSet, "speedOfLight"))).toThrow(
-      /no-pre-1905-light-speed-set/,
-    );
+    try {
+      withMode1904Guard(() => constantValue(modernSet, "speedOfLight"));
+      throw new Error("expected throw");
+    } catch (e) {
+      expect(e).toBeInstanceOf(ConstantSetError);
+      expect((e as ConstantSetError).code).toBe("no-pre-1905-light-speed-set");
+      expect((e as Error).message).toContain(
+        "No constant set holding a light speed available by 1904 is registered",
+      );
+    }
   });
 
   test("does not trip outside the guard", () => {
