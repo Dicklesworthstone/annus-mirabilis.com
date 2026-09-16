@@ -188,3 +188,55 @@
   mathematicalKind: scalar
   frame: not-applicable
   colorRole: energy
+
+- id: planckChargeQuotient
+  name: "Planck constant over elementary charge (h/e)"
+  description: >
+    The exact modern ratio h/e in volt-seconds, derived in modern-si-2019 from the two
+    exact defining constants (am-ref-constants-xik). Not itself a named SI defining
+    constant; recorded because the modern set's dependsOn chain needs its own id rather
+    than an unlabeled intermediate.
+  dimensionStatus: declared
+  dimension: [2, 1, -2, 0, -1, 0]
+  isConstant: true
+  mathematicalKind: scalar
+  frame: not-applicable
+  colorRole: quanta
+
+- id: faradayConstant
+  name: Faraday constant
+  description: >
+    F = N_A * e, the charge per mole of a monovalent species. Exact in the modern set
+    because both N_A and e are exact by definition there; am-ref-constants-xik.
+  dimensionStatus: declared
+  dimension: [0, 0, 1, 0, 1, -1]
+  isConstant: true
+  mathematicalKind: scalar
+  frame: not-applicable
+  colorRole: statistical
+
+- id: vacuumPermeability
+  name: "Vacuum magnetic permeability (mu_0)"
+  description: >
+    The modern CODATA-measured magnetic constant. Not exact after the 2019 SI
+    redefinition; carries a CODATA release id and standard uncertainty in its
+    constant-set entry, never treated as a fixed value across releases.
+  dimensionStatus: declared
+  dimension: [1, 1, -2, 0, -2, 0]
+  isConstant: true
+  mathematicalKind: scalar
+  frame: not-applicable
+  colorRole: field
+
+- id: vacuumPermittivity
+  name: "Vacuum electric permittivity (epsilon_0)"
+  description: >
+    The modern CODATA-measured electric constant, 1/(mu_0 c^2) in principle but recorded
+    as its own measured entry with its own CODATA uncertainty, never silently derived from
+    vacuumPermeability and speedOfLight inside a constant-set record.
+  dimensionStatus: declared
+  dimension: [-3, -1, 4, 0, 2, 0]
+  isConstant: true
+  mathematicalKind: scalar
+  frame: not-applicable
+  colorRole: field
