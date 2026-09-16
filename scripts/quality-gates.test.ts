@@ -1,23 +1,15 @@
 import { describe, expect, it } from "bun:test";
 import { existsSync, mkdirSync, readFileSync, rmSync } from "node:fs";
 import { join } from "node:path";
-import {
-  type GateStep,
-  QUALITY_GATE_STEPS,
-  validateRegistry,
-} from "./quality-gates/registry.ts";
+import { generateLogRunId } from "./app-router-architecture.ts";
+import { type GateStep, QUALITY_GATE_STEPS, validateRegistry } from "./quality-gates/registry.ts";
+import { classifyTestFile, partitionTestFiles, runAllTests } from "./quality-gates/test-runner.ts";
 import {
   checkStepAvailability,
   isToolOnPath,
   parseCliArgs,
   runQualityGates,
 } from "./quality-gates.ts";
-import {
-  classifyTestFile,
-  partitionTestFiles,
-  runAllTests,
-} from "./quality-gates/test-runner.ts";
-import { generateLogRunId } from "./app-router-architecture.ts";
 
 describe("Quality Gates Registry & Validator", () => {
   it("validates the production quality gate registry successfully", () => {
@@ -405,7 +397,11 @@ describe("Quality Gates Runner Engine", () => {
       {
         id: "fixture-failing-step",
         title: "Deliberately failing step for evidence",
-        command: ["bun", "-e", "console.log('stdout output'); console.error('stderr output'); process.exit(1)"],
+        command: [
+          "bun",
+          "-e",
+          "console.log('stdout output'); console.error('stderr output'); process.exit(1)",
+        ],
         family: "fast",
         cadence: "every-run",
         requiredInCi: true,
@@ -449,8 +445,14 @@ describe("Quality Gates Runner Engine", () => {
     expect(existsSync(join(evidenceDir, "fixture-failing-step.stderr.txt"))).toBe(true);
     expect(existsSync(join(evidenceDir, "fixture-failing-step.meta.json"))).toBe(true);
 
-    const stdoutEvidence = readFileSync(join(evidenceDir, "fixture-failing-step.stdout.txt"), "utf8");
-    const stderrEvidence = readFileSync(join(evidenceDir, "fixture-failing-step.stderr.txt"), "utf8");
+    const stdoutEvidence = readFileSync(
+      join(evidenceDir, "fixture-failing-step.stdout.txt"),
+      "utf8",
+    );
+    const stderrEvidence = readFileSync(
+      join(evidenceDir, "fixture-failing-step.stderr.txt"),
+      "utf8",
+    );
     expect(stdoutEvidence).toContain("stdout output");
     expect(stderrEvidence).toContain("stderr output");
   });
@@ -482,20 +484,19 @@ describe("Orphan Test Gate & Runner Partitioning", () => {
     const res1 = classifyTestFile("src/sample.test.ts", () => 'import test from "node:test";');
     expect(res1.runner).toBe("node");
 
-    const res2 = classifyTestFile("src/sample.test.mjs", () => 'export const a = 1;');
+    const res2 = classifyTestFile("src/sample.test.mjs", () => "export const a = 1;");
     expect(res2.runner).toBe("node");
   });
 
   it("detects and flags orphaned test files matching neither runner pattern", () => {
-    const orphanRes = classifyTestFile("src/orphaned.test.ts", () => 'const x = 42;');
+    const orphanRes = classifyTestFile("src/orphaned.test.ts", () => "const x = 42;");
     expect(orphanRes.runner).toBe("orphan");
     expect(orphanRes.reason).toContain("does not import 'bun:test', 'node:test', 'node:assert'");
   });
 
   it("fails runAllTests and reports failure when an orphaned test file is present", () => {
-    const partition = partitionTestFiles(
-      ["src/good.test.ts", "src/orphan.test.ts"],
-      (p) => p.includes("good") ? 'import { test } from "bun:test";' : 'const x = 1;'
+    const partition = partitionTestFiles(["src/good.test.ts", "src/orphan.test.ts"], (p) =>
+      p.includes("good") ? 'import { test } from "bun:test";' : "const x = 1;",
     );
 
     expect(partition.bunFiles.length).toBe(1);
@@ -504,4 +505,3 @@ describe("Orphan Test Gate & Runner Partitioning", () => {
     expect(partition.orphanFiles[0]).toBe("src/orphan.test.ts");
   });
 });
-

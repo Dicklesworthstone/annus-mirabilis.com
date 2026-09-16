@@ -92,9 +92,7 @@ const numerical = (reason: string): Computation<never> => ({
 const isCount = (n: number, maximum = 10000) => Number.isSafeInteger(n) && n >= 0 && n <= maximum;
 
 /** Analytic teaching deviations are never passed to a sampler. */
-export function kernelMoments(
-  kernel: StepKernel,
-): Readonly<{
+export function kernelMoments(kernel: StepKernel): Readonly<{
   mean: ScientificResult;
   secondMoment: ScientificResult;
   variance: ScientificResult;

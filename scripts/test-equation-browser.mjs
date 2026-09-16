@@ -163,16 +163,14 @@ export async function checkEquationBrowser(browser, url, check) {
     assert.equal(await lab.getAttribute("data-execution-label"), "host");
     const acceptedIdentity = await identity(lab),
       instance = await lab.getAttribute("data-instance-id");
-    for (const snapshot of await lab
-      .locator("[data-equation-values]")
-      .evaluateAll((nodes) =>
-        nodes.map((el) => ({
-          run: el.dataset.runId,
-          version: el.dataset.snapshotVersion,
-          instance: el.dataset.instanceId,
-          label: el.dataset.executionLabel,
-        })),
-      ))
+    for (const snapshot of await lab.locator("[data-equation-values]").evaluateAll((nodes) =>
+      nodes.map((el) => ({
+        run: el.dataset.runId,
+        version: el.dataset.snapshotVersion,
+        instance: el.dataset.instanceId,
+        label: el.dataset.executionLabel,
+      })),
+    ))
       assert.deepEqual(snapshot, {
         run: acceptedIdentity.run,
         version: acceptedIdentity.version,
