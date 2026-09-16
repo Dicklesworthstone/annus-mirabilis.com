@@ -27,8 +27,8 @@ export function optionsFromToken(token: RequestToken): KitchenOptions {
 }
 function source(digest: string) { if (!/^source:sha256:[a-f0-9]{64}$/.test(digest)) throw new TypeError("Missing evaluator source identity."); }
 function tokenContract(input: unknown): asserts input is RequestToken {
-  closed(input,["instanceId","experimentId","runId","actionIndex","revisions","parameters"]);
-  if (input.experimentId !== "bm-07-kitchen" || typeof input.instanceId !== "string" || input.instanceId.length > 256 || typeof input.runId !== "string" || input.runId.length > 512 || !Number.isSafeInteger(input.actionIndex) || Number(input.actionIndex)<1) throw new TypeError("Wrong observation request identity.");
+  closed(input,["instanceId","experimentId","runId","parentRunId","actionIndex","revisions","parameters"]);
+  if (input.experimentId !== "bm-07-kitchen" || typeof input.instanceId !== "string" || input.instanceId.length > 256 || typeof input.runId !== "string" || input.runId.length > 512 || (input.parentRunId !== null && typeof input.parentRunId !== "string") || !Number.isSafeInteger(input.actionIndex) || Number(input.actionIndex)<1) throw new TypeError("Wrong observation request identity.");
   closed(input.revisions,["input","observer","measurement","estimator"]);
   if (Object.values(input.revisions).some(v=>!Number.isSafeInteger(v)||Number(v)<0)) throw new TypeError("Invalid observation revision.");
   closed(input.parameters,["sourceId","documentDigest","track","axis","coverage","constantSet"]);
