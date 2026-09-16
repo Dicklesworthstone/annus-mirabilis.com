@@ -36,14 +36,14 @@ export default function LightComplexPage() {
       <section className="reading" id="light-complex-worked">
         <h2>Worked case (readable without JavaScript)</h2>
         <p>
-          Consider a spherical light complex of initial volume $V = 1.0\text{ m}^3$ and total energy{" "}
-          $E = 1.0\text{ J}$ propagating along the $x$-axis ($\varphi = 0^\circ$) in the stationary
-          system $K$. An observer moves along the $x$-axis at speed $v = 0.6c$ ($\beta = 0.6, \gamma = 1.25$).
+          Consider a spherical light complex of initial volume V = 1.0 m&sup3; and total energy{" "}
+          E = 1.0 J propagating along the x-axis (&phi; = 0&deg;) in the stationary
+          system K. An observer moves along the x-axis at speed v = 0.6c (&beta; = 0.6, &gamma; = 1.25).
         </p>
         <p>
-          The Doppler factor is $q = \gamma(1 - \beta\cos\varphi) = 1.25(1 - 0.6) = 0.5$.
+          The Doppler factor is q = &gamma;(1 &minus; &beta; cos &phi;) = 1.25(1 &minus; 0.6) = 0.5.
           Because the moving observer&apos;s simultaneous spatial plane cuts across a moving wave front,
-          the volume of the complex in $k$ transforms as:
+          the volume of the complex in k transforms as:
         </p>
         <Formula
           latex={String.raw`\frac{V'}{V} = \frac{1}{q} = \frac{\sqrt{1 - \beta^2}}{1 - \beta\cos\varphi} = \frac{1}{0.5} = 2.0\implies V' = 2.0\text{ m}^3`}
