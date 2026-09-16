@@ -638,7 +638,7 @@ These are probe results, not decisions (decisions are other lanes).
 2. **`cargo test -p fs-rand` from the root workspace requires `frankensqlite`**, because unrelated workspace member `fs-flywheel-e2e` -> `fs-ledger` -> `fsqlite`. The audited slice cannot be tested from the unmodified root workspace without that sibling (or a scratch-only member filter, which this lane did not apply).
 3. **`fs-math` / `fs-sparse` test oracles pin frankenscipy `=0.1.0`; current frankenscipy is `0.2.0`.** Native tests of those two crates would fail version checks even after a frankenscipy archive of HEAD.
 4. **Kitchen-sink `wasm32` of `fs-wasm` at these pins dies on asupersync default features.** `fs-wasm` asks for `wasm-browser-prod`; `fs-cheb` / `fs-fft` / `fs-geom` / `fs-rep-mesh` / `fs-render` / `fs-exec` ask for default asupersync, whose default includes `native-runtime`, which `asupersync/src/lib.rs:129` forbids on wasm32.
-5. **The capability crate graph is small and has no asupersync/getrandom/upper-stack.** That is measured (`cargo tree` exit 0). A `.wasm` byte count for it was not obtained on this host because pin-toolchain `rust-lld` cannot load `libLLVM.dylib` from the rpath it encodes.
+5. **The capability crate graph is small and has no asupersync/getrandom/upper-stack.** That is measured (`cargo tree` exit 0). **Corrected 2026-09-16 (`am-fs-probe-lld-sigabrt-b5av`):** a `.wasm` byte count **was** obtained by linking on an rch Linux worker. The Darwin pin `rust-lld` rpath defect in 4.6 remains real locally. Do not keep citing "no `.wasm`" as current. See 4.12.
 6. **rch cannot be treated as a transparent cargo for this nested-archive layout.** Exit 103 (no admissible workers) and a 12-file nested-crate sync that omitted `../fs-ad` were observed. Local bypass was required to reach rustc.
 7. **37 wasm_bindgen exports exist in source; none are the three first scientific exports.**
 
@@ -650,19 +650,112 @@ These are probe results, not decisions (decisions are other lanes).
 artifacts/wasm-build/probe-5bbbfae6f7de614422f6f97f5798a3e00f8ad813/20260915T204024Z-fa82f3e8/
   IDENTITY.txt
   frankensim/  asupersync/  franken_networkx/  franken_numpy/  frankenscipy/
+  frankensqlite/   (added 2026-09-16, rev b82f3e6c69710eed4a8fb8b91262f8354ba5bcf8)
+  frankentorch/    (added 2026-09-16, rev b1cd1b866be155c67d959f7a8b32396c25ec70a1)
   cargo-target-native/  cargo-target-fswasm/  cargo-target-probe/
   fs-wasm-pkg/          (empty)
   probe-pkg/            (empty)
+  cargo-target-probe/wasm32-unknown-unknown/debug/am_probe_capability.wasm
+    5640411 bytes, sha256 ad267b7c84831be100179c2f73236e088b12705c5310052137fb66a4b36f0a32
   logs/  env/
   frankensim/crates/am-probe-capability/   (scratch only)
   run_logged.py
 
-artifacts/frankensim-probe/20260915T204024Z-fa82f3e8/
-  probe.jsonl
-  porcelain-before.txt  porcelain-after.txt  rch-before.txt  IDENTITY.txt
-  <testId>.transcript.txt
-  <testId>.env.txt          (every failing command)
+artifacts/frankensim-probe/20260915T204024Z-fa82f3e8/     (original, 5 of 15 fails known-bad)
+artifacts/frankensim-probe/20260916T054234Z-b95b76ff/    (frankensqlite only; rch E415 frankentorch; probe crate linked)
+artifacts/frankensim-probe/20260916T054752Z-cb03ad87/    (complete copy; tree pass; kitchen-sink constellation.lock)
+artifacts/frankensim-probe/20260916T061550Z-95721f44/    (unrestricted native tests)
 ```
+
+---
+
+### 4.12 Corrected probe copy (`am-fs-probe-copy-incomplete-hy6a`) and wasm32 link (`am-fs-probe-lld-sigabrt-b5av`)
+
+**Lane:** grok-lane-cod-probe, 2026-09-16.  
+**Harness:** `scripts/probe-frankensim-copy.ts`, `src/testing/probeCopy.ts`.  
+**The 2026-09-15 results for the five copy-incomplete commands are known-bad evidence.** They measured an incomplete archive, not FrankenSim.
+
+#### 4.12.1 Copy step
+
+`git archive` of every sibling the path-dep closure reaches, including optional path deps: cargo and rch still materialize those directories.
+
+| Sibling | Revision archived | Required |
+|---|---|---|
+| frankensim | `5bbbfae6f7de614422f6f97f5798a3e00f8ad813` (pin) | yes |
+| asupersync | `5adf01082b14de1d7bd2c9d9da9779d5502cb4bc` | yes |
+| franken_networkx | `25827f857ee9a2f76852118f62e55a872e72d8e7` | yes |
+| franken_numpy | `90eb5822cd110efddf9649525897ad22c3d9c2a2` | yes |
+| frankenscipy | `7fbb6aaad342d6dcf9c0e350c503ce17426a4892` | yes |
+| frankensqlite | `b82f3e6c69710eed4a8fb8b91262f8354ba5bcf8` | yes (was omitted) |
+| frankentorch | `b1cd1b866be155c67d959f7a8b32396c25ec70a1` | yes (optional in fs-ad; rch RCH-E415 still requires the path) |
+
+A first attempt to document-exclude frankentorch was **withdrawn** after `logRunId=20260916T054234Z-b95b76ff` named `frankentorch/crates/ft-autograd` as a missing materialization path. Completeness check after both archives: `ok: true`.
+
+#### 4.12.2 The five previously invalid results, restated
+
+Original invalidating errors were `failed to load manifest` / `fsqlite` / `fnx-classes` / `No such file`. New test ids; no command was retried to manufacture green.
+
+| Original testId | Corrected testId | logRunId | exit | What it measures now |
+|---|---|---|---|---|
+| `native-test-fs-rand-local-bypass` | `native-test-fs-rand-unrestricted` | `20260916T061550Z-95721f44` | 101 | Workspace **loads**. Then `fsci-special = "=0.1.0"` vs archived frankenscipy **0.2.0**, required by `fs-math`. Confirms 4.10.3 with a live cargo run. |
+| `native-test-fs-math-fs-sparse-local-bypass` | `native-test-fs-math-fs-sparse-unrestricted` | `20260916T061550Z-95721f44` | 101 | Same `fsci-special = "=0.1.0"` vs 0.2.0. |
+| `fswasm-cargo-tree` | `fswasm-cargo-tree-complete` | `20260916T054752Z-cb03ad87` | **0** | `--locked` tree of `crates/fs-wasm` **passes**. The fnx-classes omission is gone. |
+| `fswasm-cargo-check-wasm32` | `fswasm-cargo-check-wasm32-complete` | `20260916T054752Z-cb03ad87` | 101 | Graph compiles as far as asupersync. Then `fs-la/build.rs` cannot read `frankensim/constellation.lock` **on the worker**. The file **is** in the local git-archive copy (and in the pin). This is an rch sync omission of a frankensim-root file, not a missing sibling. |
+| `fswasm-wasm-pack-dev-web` | `fswasm-wasm-pack-dev-web-complete` | `20260916T054752Z-cb03ad87` | 1 | Same `constellation.lock` miss via inner `cargo build --locked`. |
+
+Quoted native error (both unrestricted tests):
+
+```
+error: failed to select a version for the requirement `fsci-special = "=0.1.0"`
+candidate versions found which didn't match: 0.2.0
+location searched: .../frankenscipy/crates/fsci-special
+required by package `fs-math v0.0.1` (.../frankensim/crates/fs-math)
+```
+
+Quoted kitchen-sink error:
+
+```
+cannot read required GEMM build-identity input
+  .../frankensim/crates/fs-la/../../constellation.lock: No such file or directory (os error 2)
+```
+
+A worker-pin `RCH_WORKER=hz1,hz4,hz2` run (`native-test-fs-rand-complete`) exited 103 `RCH-I001` queue_timeout in 300s. That is not a FrankenSim result and was not reused.
+
+#### 4.12.3 wasm32 probe crate link (`am-fs-probe-lld-sigabrt-b5av`)
+
+Root cause, confirmed against the pin toolchain binary: `rust-lld` LC_RPATH is `@loader_path/../lib`, so it looks in `lib/rustlib/aarch64-apple-darwin/lib/` for `libLLVM.dylib`. nightly-2026-07-06 on Darwin ships that dylib in the toolchain `lib/` directory instead. `DYLD_LIBRARY_PATH` does not change the rpath search list (already recorded in 4.6). This is a **toolchain layout defect**, not an invalid wasm-bindgen export list. The probe crate exports `probe_touch` and `__wbindgen_describe_probe_touch`.
+
+`rch exec -- cargo build --target wasm32-unknown-unknown` from `crates/am-probe-capability` on worker **hz4** (`logRunId=20260916T054234Z-b95b76ff`, testId `probe-cargo-build-wasm32`): **exit 0** in 113548 ms. `Finished dev profile` in 16.89 s of remote rustc.
+
+| Artifact | Bytes | SHA-256 | Kind |
+|---|---|---|---|
+| `am_probe_capability.wasm` | 5640411 | `ad267b7c84831be100179c2f73236e088b12705c5310052137fb66a4b36f0a32` | debug wasm32, magic 00 61 73 6d version 1; exports `probe_touch` and `__wbindgen_describe_probe_touch` |
+| Donor `fs_wasm_bg.wasm` | 5134779 | `ba050469d5a3ae56ce3e3be26fa959a06a6194f0287512f7c86f222994e5799f` | prebuilt kitchen-sink (unchanged) |
+
+The 5.6 MiB figure is a **debug** module with DWARF sections. It is not comparable to the donor 4.9 MiB release kitchen sink. It does prove the three leaf crates plus wasm-bindgen **linked**.
+
+#### 4.12.4 Restated failure count
+
+Original claim: 15 of 17 probe commands failed. Five of those 15 were copy-incomplete (this bead). Three were local Darwin rust-lld SIGABRT (the lld bead).
+
+Against a complete sibling copy, with rch remote for compilation:
+
+| Class | Count | Status |
+|---|---|---|
+| Missing sibling / failed to load manifest | **0** | Cleared. Tree of fs-wasm passes. Native workspace loads. |
+| frankenscipy `=0.1.0` vs archived 0.2.0 | 2 | Live, both unrestricted native tests. Confirms 4.10.3. |
+| rch did not sync `frankensim/constellation.lock` | 2 | Kitchen-sink wasm32 check and wasm-pack. File present in the local archive. |
+| Darwin pin rust-lld rpath | local only | Remote wasm32 probe crate **links**. |
+| asupersync `native-runtime` on the **pin** kitchen sink | not re-reached | Check died on constellation.lock first. The pin archive is still `5bbbfae6`; live frankensim `57f176c5` is a different tree. |
+| rch admission / worker pin | discarded | RCH-I001 on a mistaken worker set. |
+
+**Sibling-copy failures remaining: 0.** Remaining negatives are version pins, rch sync of a frankensim-root lockfile, and the Darwin-only rust-lld layout.
+
+#### 4.12.5 Claims in this document that the corrected probes contradict
+
+1. **4.6 / 4.8 / 4.10.5 "no `.wasm` was produced"** is false for the probe crate under rch. The file is `cargo-target-probe/wasm32-unknown-unknown/debug/am_probe_capability.wasm`, 5640411 bytes. Local Darwin rust-lld still cannot link.
+2. **4.10.2 as a terminal result** ("the audited slice cannot be tested from the root workspace without frankensqlite") is true as a **requirement** and false as the **stopping error**. After frankensqlite and frankentorch are present, cargo loads the workspace and stops on 4.10.3 (`fsci-special =0.1.0`).
+3. **4.5's later siblings-local `cargo tree --locked` failure** ("cannot update the lock file") does not reproduce on the complete copy: `fswasm-cargo-tree-complete` exit 0.
 
 ---
 
