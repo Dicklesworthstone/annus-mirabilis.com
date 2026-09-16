@@ -1,0 +1,18 @@
+# Fixture concordance for kinematics notation tests (am-ref-kinematics-tjq).
+# The live file is content/notation/special-relativity.yaml (am-not-entries-relativity-f6e).
+modernOnlySymbols:
+  - id: rapidity
+    glyph: "χ"
+    introducedBy: kinematics-modern-lens
+  - id: ansatzTransverseScale
+    glyph: "a_\\perp"
+    introducedBy: kinematics-ansatz
+  - id: ansatzSpatialScale
+    glyph: "a"
+    introducedBy: kinematics-ansatz
+  - id: ansatzTimeScale
+    glyph: "b"
+    introducedBy: kinematics-ansatz
+  - id: ansatzTimeSpaceCoefficient
+    glyph: "d"
+    introducedBy: kinematics-ansatz
