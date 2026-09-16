@@ -1,11 +1,6 @@
 "use client";
 
-import { useEffect, useId, useMemo, useState, useSyncExternalStore } from "react";
-import {
-  createLq09Session,
-  einsteinPrintedIonizationChecks,
-  type PreparedLq09Example,
-} from "../../../experiments/lq09/session.ts";
+import { useEffect, useMemo, useState, useSyncExternalStore } from "react";
 import {
   LQ09_DEFAULTS,
   LQ09_NOT_MODELED,
@@ -14,9 +9,11 @@ import {
   type Lq09Parameters,
 } from "../../../experiments/lq09/definition.ts";
 import {
-  IonizationCountingPlot,
-  IonizationThresholdLadderPlot,
-} from "./IonizationPlot.tsx";
+  createLq09Session,
+  einsteinPrintedIonizationChecks,
+  type PreparedLq09Example,
+} from "../../../experiments/lq09/session.ts";
+import { IonizationCountingPlot, IonizationThresholdLadderPlot } from "./IonizationPlot.tsx";
 
 export type IonizationLabProps = Readonly<{
   example?: PreparedLq09Example | undefined;
@@ -75,10 +72,7 @@ const PREDICT_PROMPTS: readonly PredictPrompt[] = [
 ];
 
 export function IonizationLab({ example }: IonizationLabProps) {
-  const session = useMemo(
-    () => createLq09Session("lq09-interactive-session", example),
-    [example],
-  );
+  const session = useMemo(() => createLq09Session("lq09-interactive-session", example), [example]);
 
   const snapshot = useSyncExternalStore(
     session.subscribe,
@@ -96,22 +90,30 @@ export function IonizationLab({ example }: IonizationLabProps) {
     return accepted?.outputs.find((o) => o.quantityId === quantityId);
   };
 
-  const quantumEnergyEv = (getOutput("quantumEnergyEv")?.value as number) ?? 12.0;
-  const excessEnergyEv = (getOutput("excessEnergyEv")?.value as number) ?? 2.0;
-  const thresholdFrequency = (getOutput("thresholdFrequency")?.value as number) ?? 2.418e15;
-  const thresholdWavelengthNm = (getOutput("thresholdWavelengthNm")?.value as number) ?? 123.98;
-  const singleQuantumAllowed = (getOutput("singleQuantumAllowed")?.value as number) === 1;
+  const getOutputValue = (quantityId: string): number | null => {
+    const out = accepted?.outputs.find((o) => o.quantityId === quantityId);
+    return out && out.status === "value" && typeof out.value === "number" ? out.value : null;
+  };
 
-  const incidentQRate = (getOutput("quantumRate")?.value as number) ?? 5.201e11;
-  const absorbedQRate = (getOutput("absorbedQuantumRate")?.value as number) ?? 2.601e11;
-  const absorbedLightEnergy = (getOutput("absorbedLightEnergy")?.value as number) ?? 5e-7;
+  const quantumEnergyEv = getOutputValue("quantumEnergyEv") ?? 12.0;
+  const excessEnergyEv = getOutputValue("excessEnergyEv") ?? 2.0;
+  const thresholdFrequency = getOutputValue("thresholdFrequency") ?? 2.418e15;
+  const thresholdWavelengthNm = getOutputValue("thresholdWavelengthNm") ?? 123.98;
+  const singleQuantumAllowed = (getOutputValue("singleQuantumAllowed") ?? 1) === 1;
+
+  const incidentQRate = getOutputValue("quantumRate") ?? 5.201e11;
+  const absorbedQRate = getOutputValue("absorbedQuantumRate") ?? 2.601e11;
+  const absorbedLightEnergy = getOutputValue("absorbedLightEnergy") ?? 5e-7;
 
   const ionizationRateOut = getOutput("ionizationRate");
   const ionizationRate =
-    ionizationRateOut?.status === "value" ? (ionizationRateOut.value as number) : null;
+    ionizationRateOut &&
+    ionizationRateOut.status === "value" &&
+    typeof ionizationRateOut.value === "number"
+      ? ionizationRateOut.value
+      : null;
   const ionizationStatus = ionizationRateOut?.status ?? "value";
 
-  const ionizationCountOut = getOutput("ionizationCount");
   const ionizedGramMoleculesOut = getOutput("ionizedGramMolecules");
 
   // Predict mode state
@@ -226,7 +228,7 @@ export function IonizationLab({ example }: IonizationLabProps) {
                 <div className="space-y-1.5 mb-3">
                   {prompt.options.map((opt, idx) => (
                     <label
-                      key={idx}
+                      key={opt.text}
                       className={`flex items-start gap-2 p-2 rounded cursor-pointer border transition-colors ${
                         userAnswers[prompt.id] === idx
                           ? "border-rose-500 bg-rose-50/40 dark:bg-rose-950/20"
@@ -237,9 +239,7 @@ export function IonizationLab({ example }: IonizationLabProps) {
                         type="radio"
                         name={prompt.id}
                         checked={userAnswers[prompt.id] === idx}
-                        onChange={() =>
-                          setUserAnswers({ ...userAnswers, [prompt.id]: idx })
-                        }
+                        onChange={() => setUserAnswers({ ...userAnswers, [prompt.id]: idx })}
                         disabled={revealed[prompt.id]}
                         className="mt-0.5"
                       />
@@ -291,7 +291,10 @@ export function IonizationLab({ example }: IonizationLabProps) {
             {/* Light Frequency */}
             <div>
               <div className="flex justify-between text-xs mb-1">
-                <label htmlFor="freq-slider" className="font-medium text-slate-700 dark:text-slate-300">
+                <label
+                  htmlFor="freq-slider"
+                  className="font-medium text-slate-700 dark:text-slate-300"
+                >
                   Light Frequency (&nu;)
                 </label>
                 <span className="font-mono text-slate-600 dark:text-slate-400">
@@ -316,7 +319,10 @@ export function IonizationLab({ example }: IonizationLabProps) {
             {/* Ionization Energy */}
             <div>
               <div className="flex justify-between text-xs mb-1">
-                <label htmlFor="jmol-slider" className="font-medium text-slate-700 dark:text-slate-300">
+                <label
+                  htmlFor="jmol-slider"
+                  className="font-medium text-slate-700 dark:text-slate-300"
+                >
                   Ionization Threshold (J_mol)
                 </label>
                 <span className="font-mono text-slate-600 dark:text-slate-400">{jMolEv} eV</span>
@@ -339,7 +345,10 @@ export function IonizationLab({ example }: IonizationLabProps) {
             {/* Optical Power */}
             <div>
               <div className="flex justify-between text-xs mb-1">
-                <label htmlFor="popt-slider" className="font-medium text-slate-700 dark:text-slate-300">
+                <label
+                  htmlFor="popt-slider"
+                  className="font-medium text-slate-700 dark:text-slate-300"
+                >
                   Incident Power (P_opt)
                 </label>
                 <span className="font-mono text-slate-600 dark:text-slate-400">
@@ -364,7 +373,10 @@ export function IonizationLab({ example }: IonizationLabProps) {
             {/* Absorption Efficiency */}
             <div>
               <div className="flex justify-between text-xs mb-1">
-                <label htmlFor="eta-slider" className="font-medium text-slate-700 dark:text-slate-300">
+                <label
+                  htmlFor="eta-slider"
+                  className="font-medium text-slate-700 dark:text-slate-300"
+                >
                   Absorption Fraction (&eta;_abs)
                 </label>
                 <span className="font-mono text-slate-600 dark:text-slate-400">
@@ -389,10 +401,15 @@ export function IonizationLab({ example }: IonizationLabProps) {
             {/* Exposure Duration */}
             <div>
               <div className="flex justify-between text-xs mb-1">
-                <label htmlFor="dur-slider" className="font-medium text-slate-700 dark:text-slate-300">
+                <label
+                  htmlFor="dur-slider"
+                  className="font-medium text-slate-700 dark:text-slate-300"
+                >
                   Exposure Duration (t)
                 </label>
-                <span className="font-mono text-slate-600 dark:text-slate-400">{durationSec} s</span>
+                <span className="font-mono text-slate-600 dark:text-slate-400">
+                  {durationSec} s
+                </span>
               </div>
               <input
                 id="dur-slider"
@@ -411,7 +428,10 @@ export function IonizationLab({ example }: IonizationLabProps) {
 
             {/* Absorption Mode Selection */}
             <div>
-              <label htmlFor="mode-select" className="block text-xs font-medium text-slate-700 dark:text-slate-300 mb-1">
+              <label
+                htmlFor="mode-select"
+                className="block text-xs font-medium text-slate-700 dark:text-slate-300 mb-1"
+              >
                 Absorption Epistemic State
               </label>
               <select
@@ -440,7 +460,10 @@ export function IonizationLab({ example }: IonizationLabProps) {
             {absMode === "declared-fraction" && (
               <div>
                 <div className="flex justify-between text-xs mb-1">
-                  <label htmlFor="dec-slider" className="font-medium text-slate-700 dark:text-slate-300">
+                  <label
+                    htmlFor="dec-slider"
+                    className="font-medium text-slate-700 dark:text-slate-300"
+                  >
                     Declared Yield (a)
                   </label>
                   <span className="font-mono text-slate-600 dark:text-slate-400">
@@ -482,7 +505,8 @@ export function IonizationLab({ example }: IonizationLabProps) {
                   ({histChecks.lenardCheck.printedPotentialText})
                 </p>
                 <p className="text-[11px] text-slate-500">
-                  Modern SI at 190 nm: {histChecks.lenardCheck.modernEnergyEvAt190nm.toFixed(2)} eV (per molecule).
+                  Modern SI at 190 nm: {histChecks.lenardCheck.modernEnergyEvAt190nm.toFixed(2)} eV
+                  (per molecule).
                 </p>
               </div>
 
@@ -495,10 +519,12 @@ export function IonizationLab({ example }: IonizationLabProps) {
                   <span className="font-mono font-bold text-rose-600 dark:text-rose-400">
                     {histChecks.starkCheck.printedPotentialText}
                   </span>{" "}
-                  &rarr; &lambda;_0 &approx; {histChecks.starkCheck.thresholdWavelengthNm.toFixed(0)} nm
+                  &rarr; &lambda;_0 &approx;{" "}
+                  {histChecks.starkCheck.thresholdWavelengthNm.toFixed(0)} nm
                 </p>
                 <p className="text-[11px] text-slate-500">
-                  J = {histChecks.starkCheck.energyPerGramEquivalentErg.toExponential(1)} erg per gram-equivalent.
+                  J = {histChecks.starkCheck.energyPerGramEquivalentErg.toExponential(1)} erg per
+                  gram-equivalent.
                 </p>
               </div>
             </div>
@@ -532,7 +558,10 @@ export function IonizationLab({ example }: IonizationLabProps) {
               Accepted Laboratory Telemetry Snapshot
             </h4>
             <div className="overflow-x-auto">
-              <table className="w-full text-xs text-left" aria-label="Accepted laboratory telemetry snapshot">
+              <table
+                className="w-full text-xs text-left"
+                aria-label="Accepted laboratory telemetry snapshot"
+              >
                 <thead>
                   <tr className="border-b border-slate-200 dark:border-slate-700 text-slate-500 font-medium">
                     <th className="py-1.5">Quantity</th>
@@ -545,37 +574,51 @@ export function IonizationLab({ example }: IonizationLabProps) {
                   <tr data-quantity-id="frequency">
                     <td className="py-1.5 font-sans">Light Frequency</td>
                     <td>&nu;</td>
-                    <td><span className="text-emerald-600 font-sans">value</span></td>
-                    <td className="text-right">{(currentParams.frequency / 1e12).toFixed(2)} THz</td>
+                    <td>
+                      <span className="text-emerald-600 font-sans">value</span>
+                    </td>
+                    <td className="text-right">
+                      {(currentParams.frequency / 1e12).toFixed(2)} THz
+                    </td>
                   </tr>
                   <tr data-quantity-id="ionizationEnergyPerMolecule">
                     <td className="py-1.5 font-sans">Ionization Work / Molecule</td>
                     <td>J_mol</td>
-                    <td><span className="text-emerald-600 font-sans">value</span></td>
+                    <td>
+                      <span className="text-emerald-600 font-sans">value</span>
+                    </td>
                     <td className="text-right">{currentParams.ionizationEnergyEv.toFixed(2)} eV</td>
                   </tr>
                   <tr data-quantity-id="quantumEnergyEv">
                     <td className="py-1.5 font-sans">Quantum Energy</td>
                     <td>h&nu;</td>
-                    <td><span className="text-emerald-600 font-sans">value</span></td>
+                    <td>
+                      <span className="text-emerald-600 font-sans">value</span>
+                    </td>
                     <td className="text-right">{quantumEnergyEv.toFixed(4)} eV</td>
                   </tr>
                   <tr data-quantity-id="excessEnergyEv">
                     <td className="py-1.5 font-sans">Excess Kinetic Energy</td>
                     <td>E_excess</td>
-                    <td><span className="text-emerald-600 font-sans">value</span></td>
+                    <td>
+                      <span className="text-emerald-600 font-sans">value</span>
+                    </td>
                     <td className="text-right">{excessEnergyEv.toFixed(4)} eV</td>
                   </tr>
                   <tr data-quantity-id="absorbedLightEnergy">
                     <td className="py-1.5 font-sans">Absorbed Light Energy</td>
                     <td>L</td>
-                    <td><span className="text-emerald-600 font-sans">value</span></td>
+                    <td>
+                      <span className="text-emerald-600 font-sans">value</span>
+                    </td>
                     <td className="text-right">{absorbedLightEnergy.toExponential(4)} J</td>
                   </tr>
                   <tr data-quantity-id="absorbedQuantumRate">
                     <td className="py-1.5 font-sans">Absorbed Quantum Rate</td>
                     <td>N&#775;_abs</td>
-                    <td><span className="text-emerald-600 font-sans">value</span></td>
+                    <td>
+                      <span className="text-emerald-600 font-sans">value</span>
+                    </td>
                     <td className="text-right">{absorbedQRate.toExponential(4)} s&#8315;&sup1;</td>
                   </tr>
                   <tr data-quantity-id="ionizationRate">
@@ -587,8 +630,8 @@ export function IonizationLab({ example }: IonizationLabProps) {
                           ionizationStatus === "value"
                             ? "text-emerald-600"
                             : ionizationStatus === "underdetermined"
-                            ? "text-amber-600"
-                            : "text-rose-600"
+                              ? "text-amber-600"
+                              : "text-rose-600"
                         }`}
                       >
                         {ionizationStatus}
@@ -598,8 +641,8 @@ export function IonizationLab({ example }: IonizationLabProps) {
                       {ionizationStatus === "value" && ionizationRate !== null
                         ? `${ionizationRate.toExponential(4)} s⁻¹`
                         : ionizationStatus === "underdetermined"
-                        ? `≤ ${absorbedQRate.toExponential(4)} s⁻¹`
-                        : "not-applicable"}
+                          ? `≤ ${absorbedQRate.toExponential(4)} s⁻¹`
+                          : "not-applicable"}
                     </td>
                   </tr>
                   <tr data-quantity-id="ionizedGramMolecules">
@@ -611,19 +654,21 @@ export function IonizationLab({ example }: IonizationLabProps) {
                           ionizedGramMoleculesOut?.status === "value"
                             ? "text-emerald-600"
                             : ionizedGramMoleculesOut?.status === "underdetermined"
-                            ? "text-amber-600"
-                            : "text-rose-600"
+                              ? "text-amber-600"
+                              : "text-rose-600"
                         }`}
                       >
                         {ionizedGramMoleculesOut?.status ?? "value"}
                       </span>
                     </td>
                     <td className="text-right">
-                      {ionizedGramMoleculesOut?.status === "value"
-                        ? `${(ionizedGramMoleculesOut.value as number).toExponential(4)} mol`
+                      {ionizedGramMoleculesOut &&
+                      ionizedGramMoleculesOut.status === "value" &&
+                      typeof ionizedGramMoleculesOut.value === "number"
+                        ? `${ionizedGramMoleculesOut.value.toExponential(4)} mol`
                         : ionizedGramMoleculesOut?.status === "underdetermined"
-                        ? `≤ ${(absorbedLightEnergy / (6.022e23 * quantumEnergyEv * 1.602e-19)).toExponential(4)} mol`
-                        : "not-applicable"}
+                          ? `≤ ${(absorbedLightEnergy / (6.022e23 * quantumEnergyEv * 1.602e-19)).toExponential(4)} mol`
+                          : "not-applicable"}
                     </td>
                   </tr>
                 </tbody>
@@ -638,10 +683,12 @@ export function IonizationLab({ example }: IonizationLabProps) {
         <section className="bg-slate-900 text-slate-200 rounded-lg p-5 border border-slate-800 font-mono text-xs overflow-x-auto space-y-3">
           <div className="flex justify-between items-center text-slate-400 border-b border-slate-800 pb-2">
             <span>Pinned Kernel Evaluator: src/physics/reference/photoelectric.ts</span>
-            <span className="text-[10px] bg-slate-800 px-2 py-0.5 rounded">TypeScript Reference Owner</span>
+            <span className="text-[10px] bg-slate-800 px-2 py-0.5 rounded">
+              TypeScript Reference Owner
+            </span>
           </div>
           <pre className="text-slate-300 leading-relaxed">
-{`// Paper 1, §9 Single-Quantum Ionization Conservation:
+            {`// Paper 1, §9 Single-Quantum Ionization Conservation:
 // Threshold frequency: nu_0 = J_mol / h
 // If nu < nu_0: ionization count and rate are strictly not-applicable.
 // If nu >= nu_0:
@@ -658,8 +705,8 @@ export function IonizationLab({ example }: IonizationLabProps) {
           Limits of this Reference Model (Not Modeled)
         </h4>
         <ul className="grid grid-cols-1 md:grid-cols-2 gap-2 text-xs text-slate-600 dark:text-slate-400">
-          {LQ09_NOT_MODELED.map((item, idx) => (
-            <li key={idx} className="flex items-start gap-1.5">
+          {LQ09_NOT_MODELED.map((item) => (
+            <li key={item} className="flex items-start gap-1.5">
               <span className="text-rose-500 font-bold">&bull;</span>
               <span>{item}</span>
             </li>

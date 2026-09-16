@@ -51,9 +51,9 @@ export default function IonizationPage() {
         <p>
           Suppose light of frequency <Formula latex={String.raw`\nu > \nu_0`} /> shines into a gas,
           and a total light energy <Formula latex="L" /> is absorbed. Under Einstein&apos;s primary
-          hypothesis that every absorbed quantum of energy{" "}
-          <Formula latex={String.raw`R\beta\nu`} /> ionizes exactly one molecule, the number of
-          ionized gram-molecules <Formula latex="j" /> is given by:
+          hypothesis that every absorbed quantum of energy <Formula latex={String.raw`R\beta\nu`} />{" "}
+          ionizes exactly one molecule, the number of ionized gram-molecules <Formula latex="j" />{" "}
+          is given by:
         </p>
         <Formula latex={String.raw`j = \frac{L}{R\beta\nu}`} />
         <p>
@@ -70,15 +70,14 @@ export default function IonizationPage() {
             an exact equality.
           </li>
           <li>
-            <strong>Declared fraction:</strong> If only a fraction{" "}
-            <Formula latex="a \in [0, 1]" /> of absorbed quanta goes to ionization while the rest
-            dissipates as heat or non-ionizing excitation, the yield is{" "}
+            <strong>Declared fraction:</strong> If only a fraction <Formula latex="a \in [0, 1]" />{" "}
+            of absorbed quanta goes to ionization while the rest dissipates as heat or non-ionizing
+            excitation, the yield is{" "}
             <Formula latex={String.raw`N_{\text{ion}} = a \frac{L}{h\nu}`} />.
           </li>
           <li>
             <strong>Unknown non-ionizing channels:</strong> If the partition between ionizing and
-            non-ionizing absorption is unknown, the count is{" "}
-            <code>underdetermined</code>, with{" "}
+            non-ionizing absorption is unknown, the count is <code>underdetermined</code>, with{" "}
             <Formula latex={String.raw`N_{\text{ion}} \le \frac{L}{h\nu}`} /> providing a rigorous
             single-quantum upper bound.
           </li>
@@ -94,17 +93,20 @@ export default function IonizationPage() {
             <strong>Philipp Lenard (1900):</strong> Observed that ultraviolet light from a spark
             source ionizes air when transmitted through quartz, for wavelengths{" "}
             <Formula latex={String.raw`\lambda \le 1.9\times 10^{-5}\text{ cm}`} /> (190 nm).
-            Einstein calculated that for <Formula latex={String.raw`\lambda = 1.9\times 10^{-5}\text{ cm}`} />,
-            the quantum energy per gram-equivalent is:
-            <Formula latex={String.raw`R\beta\nu = 8{,}31\cdot 10^7 \times 4{,}866\cdot 10^{-11} \times 1{,}58\cdot 10^{15} \approx 6{,}4\cdot 10^{12}\text{ Erg}`} />
-            Divided by the gram-equivalent charge <Formula latex={String.raw`E = 9{,}6\cdot 10^3\text{ emu}`} />,
-            this corresponds to a potential difference of{" "}
-            <Formula latex={String.raw`V \approx 6{,}6\text{ Volts}`} />.
+            Einstein calculated that for{" "}
+            <Formula latex={String.raw`\lambda = 1.9\times 10^{-5}\text{ cm}`} />, the quantum
+            energy per gram-equivalent is:
+            <Formula
+              latex={String.raw`R\beta\nu = 8{,}31\cdot 10^7 \times 4{,}866\cdot 10^{-11} \times 1{,}58\cdot 10^{15} \approx 6{,}4\cdot 10^{12}\text{ Erg}`}
+            />
+            Divided by the gram-equivalent charge{" "}
+            <Formula latex={String.raw`E = 9{,}6\cdot 10^3\text{ emu}`} />, this corresponds to a
+            potential difference of <Formula latex={String.raw`V \approx 6{,}6\text{ Volts}`} />.
           </li>
           <li>
             <strong>Johannes Stark (1902):</strong> Found that cathode rays in air require a minimum
-            potential difference of about <Formula latex="10\text{ Volts}" /> to produce
-            ionization, giving <Formula latex={String.raw`J = 9{,}6\cdot 10^{12}\text{ Erg}`} /> per
+            potential difference of about <Formula latex="10\text{ Volts}" /> to produce ionization,
+            giving <Formula latex={String.raw`J = 9{,}6\cdot 10^{12}\text{ Erg}`} /> per
             gram-equivalent and a threshold wavelength of{" "}
             <Formula latex={String.raw`\lambda_0 \approx 126\text{ nm}`} />.
           </li>
@@ -114,9 +116,9 @@ export default function IonizationPage() {
         <p>
           Below the ionization threshold frequency (<Formula latex={String.raw`\nu < \nu_0`} />
           ), the count and rate of single-quantum ionization are strictly{" "}
-          <code>not-applicable</code> (a typed non-value), never 0 presented as a measured rate.
-          In real gases, secondary ionization by energetic electrons can produce additional ions,
-          which is why the relations above describe direct single-quantum ionization under the
+          <code>not-applicable</code> (a typed non-value), never 0 presented as a measured rate. In
+          real gases, secondary ionization by energetic electrons can produce additional ions, which
+          is why the relations above describe direct single-quantum ionization under the
           paper&apos;s hypothesis.
         </p>
 

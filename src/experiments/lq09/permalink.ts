@@ -1,5 +1,5 @@
 import { parseScaledDecimal } from "../../units/decimalScale.ts";
-import { LQ09_DEFAULTS, type Lq09AbsorptionMode, type Lq09Parameters } from "./definition.ts";
+import type { Lq09AbsorptionMode, Lq09Parameters } from "./definition.ts";
 import { validateLq09Parameters } from "./parameters.ts";
 
 export type DecodedLq09Settings =
@@ -26,7 +26,8 @@ export function decodeLq09Settings(search: string): DecodedLq09Settings {
   const raw = search.startsWith("?") ? search.slice(1) : search;
   const invalid = (): DecodedLq09Settings => ({
     kind: "invalid",
-    message: "This ionization bounds link is incomplete or unsupported. The worked example is unchanged.",
+    message:
+      "This ionization bounds link is incomplete or unsupported. The worked example is unchanged.",
   });
   if (raw.length > 4096) return invalid();
 

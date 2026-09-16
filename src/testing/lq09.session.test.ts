@@ -34,9 +34,7 @@ describe("LQ-09 Session Management (am-lq-09-ionization-mbul)", () => {
     expect(res.kind).toBe("accepted");
 
     const snapshot = session.getSnapshot();
-    const qeOutput = snapshot.accepted?.outputs.find(
-      (o) => o.quantityId === "quantumEnergyEv",
-    );
+    const qeOutput = snapshot.accepted?.outputs.find((o) => o.quantityId === "quantumEnergyEv");
     expect(qeOutput?.status).toBe("value");
     if (qeOutput?.status === "value") {
       // At 3500 THz, E_q ≈ 14.475 eV
@@ -56,9 +54,7 @@ describe("LQ-09 Session Management (am-lq-09-ionization-mbul)", () => {
     expect(res.kind).toBe("accepted");
 
     const snapshot = session.getSnapshot();
-    const ionRateOutput = snapshot.accepted?.outputs.find(
-      (o) => o.quantityId === "ionizationRate",
-    );
+    const ionRateOutput = snapshot.accepted?.outputs.find((o) => o.quantityId === "ionizationRate");
     expect(ionRateOutput?.status).toBe("not-applicable");
     if (ionRateOutput?.status === "not-applicable") {
       expect(ionRateOutput.reason).toBe("no single-quantum ionization under this hypothesis");

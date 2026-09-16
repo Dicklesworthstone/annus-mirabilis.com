@@ -1,4 +1,5 @@
 import { describe, expect, it, test } from "bun:test";
+import { resolveQuantityId } from "../content/quantities/resolveQuantityId.ts";
 import { getConstantSet } from "../physics/reference/constants.ts";
 import {
   einsteinPrintedIonizationChecks,
@@ -6,7 +7,6 @@ import {
   ionizationCount,
 } from "../physics/reference/photoelectric.ts";
 import { withinTolerance } from "../units/tolerance.ts";
-import { resolveQuantityId } from "../content/quantities/resolveQuantityId.ts";
 
 describe("LQ-09 Ionization Bounds & Counting Reference Evaluator (Paper 1, §9)", () => {
   const set = getConstantSet("modern-si-2019");
@@ -252,11 +252,9 @@ describe("LQ-09 Ionization Bounds & Counting Reference Evaluator (Paper 1, §9)"
     expect(hist.starkCheck.thresholdWavelengthNm).toBeCloseTo(126.37, 1);
 
     // Within tolerance checks
-    const tol1 = withinTolerance(
-      hist.lenardCheck.potentialDifferenceVolts,
-      6.65077,
-      { relative: 1e-4 },
-    );
+    const tol1 = withinTolerance(hist.lenardCheck.potentialDifferenceVolts, 6.65077, {
+      relative: 1e-4,
+    });
     expect(tol1.ok).toBe(true);
     expect(tol1.kind).toBe("within");
   });

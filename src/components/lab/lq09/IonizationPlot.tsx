@@ -27,9 +27,7 @@ export function IonizationThresholdLadderPlot({
   const scaleY = (ev: number) => {
     const clamped = Math.max(0, Math.min(maxEnergy, ev));
     return (
-      height -
-      padding.bottom -
-      (clamped / maxEnergy) * (height - padding.top - padding.bottom)
+      height - padding.bottom - (clamped / maxEnergy) * (height - padding.top - padding.bottom)
     );
   };
 
@@ -46,8 +44,8 @@ export function IonizationThresholdLadderPlot({
       <p className="text-xs text-slate-600 dark:text-slate-400 mb-2">
         <span className="font-mono">h&nu; = {quantumEnergyEv.toFixed(2)} eV</span> | J_mol ={" "}
         <span className="font-mono">{ionizationEnergyEv.toFixed(2)} eV</span> (&nu;_0 ={" "}
-        <span className="font-mono">{(thresholdFrequencyHz / 1e12).toFixed(1)} THz</span>, &lambda;_0 ={" "}
-        <span className="font-mono">{thresholdWavelengthNm.toFixed(1)} nm</span>)
+        <span className="font-mono">{(thresholdFrequencyHz / 1e12).toFixed(1)} THz</span>,
+        &lambda;_0 = <span className="font-mono">{thresholdWavelengthNm.toFixed(1)} nm</span>)
       </p>
       <svg
         viewBox={`0 0 ${width} ${height}`}

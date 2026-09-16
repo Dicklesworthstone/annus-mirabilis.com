@@ -71,7 +71,9 @@ export function validateLq09Parameters(input: unknown): Computation<Lq09Paramete
 
   const validModes = ["all-absorbed-ionizes", "declared-fraction", "unknown"];
   if (!validModes.includes(p.absorptionMode)) {
-    return bad("Absorption mode must be 'all-absorbed-ionizes', 'declared-fraction', or 'unknown'.");
+    return bad(
+      "Absorption mode must be 'all-absorbed-ionizes', 'declared-fraction', or 'unknown'.",
+    );
   }
 
   if (typeof p.gasName !== "string" || typeof p.gasCitation !== "string") {

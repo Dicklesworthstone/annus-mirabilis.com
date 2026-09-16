@@ -1,10 +1,10 @@
 import {
   einsteinPrintedIonizationChecks,
+  type IonizationBoundsResult,
+  type IonizationCountResult,
   ionizationBounds,
   ionizationCount,
   visibleColor,
-  type IonizationBoundsResult,
-  type IonizationCountResult,
 } from "../../physics/reference/photoelectric.ts";
 import { parseResult } from "../results/codec.ts";
 import type { ScientificResult } from "../results/types.ts";
@@ -14,7 +14,7 @@ import { validateLq09Parameters } from "./parameters.ts";
 
 export type PreparedLq09Example = Readonly<{
   sourceDigest: string;
-  parameters: Lq09Parameters;
+  parameters: Lq09Parameters | Record<string, unknown>;
   results: readonly string[];
   stepIndex: number;
   simulationTime: number;
@@ -204,6 +204,7 @@ export function evaluateLq09(p: Lq09Parameters): ScientificResult[] {
       condition: countRes.ionizationRatePerSecond.condition,
       domainKind: countRes.ionizationRatePerSecond.domainKind,
       reason: countRes.ionizationRatePerSecond.reason,
+      boundary: { alternativeModel: "photoelectric.ionizationCount" },
     });
   }
 
@@ -246,6 +247,7 @@ export function evaluateLq09(p: Lq09Parameters): ScientificResult[] {
       condition: countRes.ionizationCountMolecules.condition,
       domainKind: countRes.ionizationCountMolecules.domainKind,
       reason: countRes.ionizationCountMolecules.reason,
+      boundary: { alternativeModel: "photoelectric.ionizationCount" },
     });
   }
 
@@ -288,6 +290,7 @@ export function evaluateLq09(p: Lq09Parameters): ScientificResult[] {
       condition: countRes.ionizedGramMolecules.condition,
       domainKind: countRes.ionizedGramMolecules.domainKind,
       reason: countRes.ionizedGramMolecules.reason,
+      boundary: { alternativeModel: "photoelectric.ionizationCount" },
     });
   }
 
@@ -295,7 +298,7 @@ export function evaluateLq09(p: Lq09Parameters): ScientificResult[] {
 }
 
 export function createLq09Session(instanceId: string, example?: PreparedLq09Example) {
-  const initialParams = example?.parameters ?? LQ09_DEFAULTS;
+  const initialParams = (example?.parameters as unknown as Lq09Parameters) ?? LQ09_DEFAULTS;
 
   const store = createInstanceStore({
     experimentId: "lq-09",

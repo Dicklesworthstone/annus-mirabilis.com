@@ -126,7 +126,8 @@ export const LQ09_PRESETS = Object.freeze({
   subThreshold: Object.freeze({
     id: "lq-09-sub-threshold",
     label: "Sub-Threshold (9 eV UV, 10 eV Ionization)",
-    description: "2176.19 THz (9.0 eV) light below the 10.0 eV threshold: no single-quantum ionization.",
+    description:
+      "2176.19 THz (9.0 eV) light below the 10.0 eV threshold: no single-quantum ionization.",
     parameters: Object.freeze({
       frequency: 2.17619e15,
       ionizationEnergyEv: 10.0,
@@ -142,7 +143,8 @@ export const LQ09_PRESETS = Object.freeze({
   historicalChecks: Object.freeze({
     id: "lq-09-historical-checks",
     label: "Historical Lenard Check (190 nm UV, 6.459 eV)",
-    description: "Lenard's 1900 quartz UV cutoff at 190 nm (1578.95 THz) corresponding to ca. 6.6 Volt potential.",
+    description:
+      "Lenard's 1900 quartz UV cutoff at 190 nm (1578.95 THz) corresponding to ca. 6.6 Volt potential.",
     parameters: Object.freeze({
       frequency: 1.57895e15,
       ionizationEnergyEv: 6.459,
@@ -190,7 +192,8 @@ export const LQ09_PRESETS = Object.freeze({
   unknownAbsorption: Object.freeze({
     id: "lq-09-unknown-absorption",
     label: "Unknown Absorption State",
-    description: "Unmeasured non-ionizing channels: reports underdetermined with N_abs upper bound.",
+    description:
+      "Unmeasured non-ionizing channels: reports underdetermined with N_abs upper bound.",
     parameters: Object.freeze({
       frequency: 2.90159e15,
       ionizationEnergyEv: 10.0,
