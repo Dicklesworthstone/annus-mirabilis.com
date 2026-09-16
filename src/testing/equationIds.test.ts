@@ -1,6 +1,6 @@
 import { describe, expect, it } from "bun:test";
 import { allocateEquationIds } from "../content/ids.ts";
-import { TestLogger, newRunIdentity } from "./log/logger.ts";
+import { newRunIdentity, TestLogger } from "./log/logger.ts";
 
 describe("Equation ID Allocation and Repeated Label Qualification", () => {
   const logger = new TestLogger("content-ids", newRunIdentity());

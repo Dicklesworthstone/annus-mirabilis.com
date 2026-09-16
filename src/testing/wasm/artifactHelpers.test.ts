@@ -1,10 +1,10 @@
 import { describe, expect, test } from "bun:test";
+import { appendExtractionLog, newExtractionLogRunId } from "../extractionLogging.ts";
 import {
   computeArtifactDigest,
   computeArtifactDigestAsync,
   validateWasmBytes,
 } from "./artifactHelpers.ts";
-import { appendExtractionLog, newExtractionLogRunId } from "../extractionLogging.ts";
 
 const logRunId = newExtractionLogRunId();
 
@@ -32,7 +32,8 @@ describe("WASM Artifact Test Helpers", () => {
       testId: "artifact-helpers-digest-computation",
       outcome: "pass",
       durationMs: performance.now() - start,
-      message: "computeArtifactDigest produces exact lowercase SHA-256 digest; single-byte change alters digest",
+      message:
+        "computeArtifactDigest produces exact lowercase SHA-256 digest; single-byte change alters digest",
       expected: "9f64a742e7503487c53e0ec6ca3ecab334b07f287140e691ec55074f76ca096e",
       actual: digestA,
       comparisonKind: "bitwise",

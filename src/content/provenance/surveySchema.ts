@@ -2,17 +2,17 @@
  * Schema definitions and validation for provenance survey records (docs/provenance/survey/<key>.md).
  */
 
-import { parseYaml } from "./yaml.ts";
 import {
-  RIGHTS_STATUS_VALUES,
-  PUBLICATION_DECISION_VALUES,
   CLOUD_PROCESSING_VALUES,
-  REUSE_TERMS_VALUES,
-  type RightsStatus,
-  type PublicationDecision,
   type CloudProcessing,
+  PUBLICATION_DECISION_VALUES,
+  type PublicationDecision,
+  REUSE_TERMS_VALUES,
   type ReuseTerms,
+  RIGHTS_STATUS_VALUES,
+  type RightsStatus,
 } from "./receiptSchema.ts";
+import { parseYaml } from "./yaml.ts";
 
 export type SurveySearch = Readonly<{
   host: string;
@@ -135,7 +135,7 @@ export type SurveyDiagnostic = Readonly<{
 
 export function validateSurveyFrontMatter(
   raw: unknown,
-  filePath: string
+  filePath: string,
 ): { data?: SurveyFrontMatter | undefined; diagnostics: readonly SurveyDiagnostic[] } {
   const diagnostics: SurveyDiagnostic[] = [];
   const err = (rule: string, path: string, message: string, expected?: string, actual?: string) => {
@@ -150,7 +150,13 @@ export function validateSurveyFrontMatter(
   const o = raw as Record<string, unknown>;
 
   if (o.surveyFormatVersion !== 1) {
-    err("survey-version", "surveyFormatVersion", "surveyFormatVersion must be 1.", "1", String(o.surveyFormatVersion));
+    err(
+      "survey-version",
+      "surveyFormatVersion",
+      "surveyFormatVersion must be 1.",
+      "1",
+      String(o.surveyFormatVersion),
+    );
   }
 
   if (typeof o.key !== "string" || !/^ap-\d+-\d+$/.test(o.key)) {
@@ -193,14 +199,18 @@ export function validateSurveyFrontMatter(
       err(
         "survey-candidate-terms",
         `${p}.verbatimTerms`,
-        `Candidate "${c.id || i}" must provide verbatimTerms or record "termsNotFound".`
+        `Candidate "${c.id || i}" must provide verbatimTerms or record "termsNotFound".`,
       );
     }
 
     // Proposed classification validation
     const pc = c.proposedClassification as Record<string, unknown>;
     if (!pc || typeof pc !== "object") {
-      err("survey-proposed-classification", `${p}.proposedClassification`, "proposedClassification is required.");
+      err(
+        "survey-proposed-classification",
+        `${p}.proposedClassification`,
+        "proposedClassification is required.",
+      );
     } else {
       if (!RIGHTS_STATUS_VALUES.includes(pc.rightsStatus as RightsStatus)) {
         err(
@@ -208,7 +218,7 @@ export function validateSurveyFrontMatter(
           `${p}.proposedClassification.rightsStatus`,
           `Invalid rightsStatus "${pc.rightsStatus}".`,
           RIGHTS_STATUS_VALUES.join(" | "),
-          String(pc.rightsStatus)
+          String(pc.rightsStatus),
         );
       }
       if (!PUBLICATION_DECISION_VALUES.includes(pc.publicationDecision as PublicationDecision)) {
@@ -217,7 +227,7 @@ export function validateSurveyFrontMatter(
           `${p}.proposedClassification.publicationDecision`,
           `Invalid publicationDecision "${pc.publicationDecision}".`,
           PUBLICATION_DECISION_VALUES.join(" | "),
-          String(pc.publicationDecision)
+          String(pc.publicationDecision),
         );
       }
       if (!CLOUD_PROCESSING_VALUES.includes(pc.cloudProcessing as CloudProcessing)) {
@@ -226,7 +236,7 @@ export function validateSurveyFrontMatter(
           `${p}.proposedClassification.cloudProcessing`,
           `Invalid cloudProcessing "${pc.cloudProcessing}".`,
           CLOUD_PROCESSING_VALUES.join(" | "),
-          String(pc.cloudProcessing)
+          String(pc.cloudProcessing),
         );
       }
       if (!REUSE_TERMS_VALUES.includes(pc.reuseTerms as ReuseTerms)) {
@@ -235,7 +245,7 @@ export function validateSurveyFrontMatter(
           `${p}.proposedClassification.reuseTerms`,
           `Invalid reuseTerms "${pc.reuseTerms}".`,
           REUSE_TERMS_VALUES.join(" | "),
-          String(pc.reuseTerms)
+          String(pc.reuseTerms),
         );
       }
     }
@@ -250,14 +260,17 @@ export function validateSurveyFrontMatter(
       err(
         "survey-recommendation-candidate",
         "recommendation.candidateId",
-        `Recommendation candidateId "${rec.candidateId}" does not match any candidate id.`
+        `Recommendation candidateId "${rec.candidateId}" does not match any candidate id.`,
       );
     }
-    if (rec.fallbackCandidateId && (typeof rec.fallbackCandidateId !== "string" || !candidateIds.has(rec.fallbackCandidateId))) {
+    if (
+      rec.fallbackCandidateId &&
+      (typeof rec.fallbackCandidateId !== "string" || !candidateIds.has(rec.fallbackCandidateId))
+    ) {
       err(
         "survey-recommendation-fallback",
         "recommendation.fallbackCandidateId",
-        `Recommendation fallbackCandidateId "${rec.fallbackCandidateId}" does not match any candidate id.`
+        `Recommendation fallbackCandidateId "${rec.fallbackCandidateId}" does not match any candidate id.`,
       );
     }
   }
@@ -289,7 +302,7 @@ export function validateSurveyFrontMatter(
         err(
           "survey-unknown-in-questions",
           `candidates[${i}].proposedClassification`,
-          `Candidate "${c.id}" has unknown rights/cloud classification or termsNotFound, but is not raised in openQuestionsForUser.`
+          `Candidate "${c.id}" has unknown rights/cloud classification or termsNotFound, but is not raised in openQuestionsForUser.`,
         );
       }
     }
@@ -303,7 +316,7 @@ export function validateSurveyFrontMatter(
 
 export function validateSurveyRecord(
   fileText: string,
-  filePath: string
+  filePath: string,
 ): { ok: boolean; diagnostics: readonly SurveyDiagnostic[]; data?: SurveyFrontMatter | undefined } {
   const match = fileText.match(/^---\r?\n([\s\S]*?)\r?\n---/);
   if (!match) {

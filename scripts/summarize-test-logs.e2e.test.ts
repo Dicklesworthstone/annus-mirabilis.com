@@ -1,7 +1,7 @@
-import test from "node:test";
 import assert from "node:assert/strict";
-import { cpSync, mkdtempSync, readFileSync, readdirSync } from "node:fs";
+import { cpSync, mkdtempSync, readdirSync, readFileSync } from "node:fs";
 import path from "node:path";
+import test from "node:test";
 import { artifactsRoot } from "../src/testing/log/logger.ts";
 
 const FIXTURE_ROOT = path.join(process.cwd(), "src/testing/fixtures/test-logs");
@@ -42,9 +42,17 @@ test("scripts/summarize-test-logs.ts runs end to end over a committed fixture lo
   assert.equal(summaryFiles.length, 1);
   const summary = JSON.parse(readFileSync(path.join(summaryDir, summaryFiles[0]!), "utf8"));
   assert.equal(summary.totalEvents, 6);
-  assert.deepEqual(summary.counts["fixture-suite-a"], { passed: 1, failed: 1, skipped: 1, "not-available": 1 });
+  assert.deepEqual(summary.counts["fixture-suite-a"], {
+    passed: 1,
+    failed: 1,
+    skipped: 1,
+    "not-available": 1,
+  });
   assert.equal(summary.failures.length, 1);
   assert.equal(summary.failures[0].testId, "t2");
   assert.equal(summary.toolRuns.length, 1);
-  assert.deepEqual(summary.toolRuns[0].logRunIds.sort(), ["20260101T000300Z-dddddddd", "20260101T000400Z-ffffffff"]);
+  assert.deepEqual(summary.toolRuns[0].logRunIds.sort(), [
+    "20260101T000300Z-dddddddd",
+    "20260101T000400Z-ffffffff",
+  ]);
 });

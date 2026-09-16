@@ -1,7 +1,7 @@
-import test from "node:test";
 import assert from "node:assert/strict";
 import { readFileSync } from "node:fs";
-import { TestLogger, newRunIdentity } from "./logger.ts";
+import test from "node:test";
+import { newRunIdentity, TestLogger } from "./logger.ts";
 import { parseLogLine } from "./schema.ts";
 
 /**
@@ -30,8 +30,12 @@ test("two suites logging concurrently produce two intact files, never interleave
   await Promise.all(writers);
   await Promise.all([alpha.flush(), beta.flush()]);
 
-  const alphaLines = readFileSync(alpha.filePath, "utf8").split("\n").filter((l) => l.length > 0);
-  const betaLines = readFileSync(beta.filePath, "utf8").split("\n").filter((l) => l.length > 0);
+  const alphaLines = readFileSync(alpha.filePath, "utf8")
+    .split("\n")
+    .filter((l) => l.length > 0);
+  const betaLines = readFileSync(beta.filePath, "utf8")
+    .split("\n")
+    .filter((l) => l.length > 0);
 
   assert.equal(alphaLines.length, eventsPerSuite);
   assert.equal(betaLines.length, eventsPerSuite);
@@ -62,8 +66,13 @@ test("many events buffered on one logger and flushed concurrently never interlea
   flushes.push(logger.flush());
   await Promise.all(flushes);
 
-  const lines = readFileSync(logger.filePath, "utf8").split("\n").filter((l) => l.length > 0);
+  const lines = readFileSync(logger.filePath, "utf8")
+    .split("\n")
+    .filter((l) => l.length > 0);
   assert.equal(lines.length, total);
   const events = lines.map(parseLogLine);
-  assert.deepEqual(events.map((e) => e.testId), Array.from({ length: total }, (_, i) => `event-${i}`));
+  assert.deepEqual(
+    events.map((e) => e.testId),
+    Array.from({ length: total }, (_, i) => `event-${i}`),
+  );
 });

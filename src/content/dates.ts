@@ -3,7 +3,7 @@
  * Specification: AGENTS.md and am-cm-schemas-source-1en
  */
 
-import type { PaperDate, DatePrecision } from "./schemas/dates.ts";
+import type { DatePrecision, PaperDate } from "./schemas/dates.ts";
 
 const PRECISION_RANK: Record<DatePrecision, number> = {
   year: 0,
@@ -13,8 +13,18 @@ const PRECISION_RANK: Record<DatePrecision, number> = {
 };
 
 const MONTH_NAMES = [
-  "January", "February", "March", "April", "May", "June",
-  "July", "August", "September", "October", "November", "December"
+  "January",
+  "February",
+  "March",
+  "April",
+  "May",
+  "June",
+  "July",
+  "August",
+  "September",
+  "October",
+  "November",
+  "December",
 ];
 
 export class DatePrecisionError extends Error {
@@ -22,7 +32,9 @@ export class DatePrecisionError extends Error {
   readonly available: DatePrecision;
 
   constructor(requested: DatePrecision, available: DatePrecision) {
-    super(`Cannot format date with precision "${requested}" when recorded precision is "${available}".`);
+    super(
+      `Cannot format date with precision "${requested}" when recorded precision is "${available}".`,
+    );
     this.name = "DatePrecisionError";
     this.requested = requested;
     this.available = available;

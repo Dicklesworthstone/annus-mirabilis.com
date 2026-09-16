@@ -46,7 +46,8 @@ describe("Transport Runtime Extraction", () => {
       testId: "transport-capability-probe-shared-memory-disabled",
       outcome: "pass",
       durationMs: performance.now() - start,
-      message: "probeTransportCapabilities keeps shared memory disabled and falls back to transferable/copy paths",
+      message:
+        "probeTransportCapabilities keeps shared memory disabled and falls back to transferable/copy paths",
     });
   });
 
@@ -108,7 +109,8 @@ describe("Transport Runtime Extraction", () => {
       testId: "donor-trap-oldest-lease-eviction",
       outcome: "pass",
       durationMs: performance.now() - start,
-      message: "donor-trap: oldest-lease eviction confirmed; unreleased oldest lease is evicted upon capacity overflow",
+      message:
+        "donor-trap: oldest-lease eviction confirmed; unreleased oldest lease is evicted upon capacity overflow",
     });
   });
 
@@ -168,7 +170,8 @@ describe("Transport Runtime Extraction", () => {
       testId: "transport-worker-supervisor-fallback",
       outcome: "pass",
       durationMs: performance.now() - start,
-      message: "TransportWorkerSupervisor preserves last accepted state and provides honest refusal on crash",
+      message:
+        "TransportWorkerSupervisor preserves last accepted state and provides honest refusal on crash",
     });
   });
 

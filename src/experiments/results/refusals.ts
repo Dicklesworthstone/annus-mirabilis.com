@@ -1,7 +1,13 @@
-import { refusalCodeRegistry, type RefusalCode } from "./refusalCodes.ts";
+import { type RefusalCode, refusalCodeRegistry } from "./refusalCodes.ts";
 import type { DomainKind, ParameterAction } from "./types.ts";
 
-export type JsonValue = null | boolean | number | string | readonly JsonValue[] | { readonly [key: string]: JsonValue };
+export type JsonValue =
+  | null
+  | boolean
+  | number
+  | string
+  | readonly JsonValue[]
+  | { readonly [key: string]: JsonValue };
 export type RequestRefusal = Readonly<{
   code: RefusalCode;
   domainKind: DomainKind;
@@ -15,7 +21,9 @@ export type RequestRefusal = Readonly<{
 export function makeRefusal(
   code: RefusalCode,
   affected: RequestRefusal["affected"],
-  options: Pick<RequestRefusal, "details"> & { rankedRepairs?: RequestRefusal["rankedRepairs"] } = {},
+  options: Pick<RequestRefusal, "details"> & {
+    rankedRepairs?: RequestRefusal["rankedRepairs"];
+  } = {},
 ): RequestRefusal {
   const definition = refusalCodeRegistry[code];
   if (!definition) throw new TypeError(`Unregistered refusal code: ${code}`);

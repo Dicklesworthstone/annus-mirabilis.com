@@ -1,30 +1,29 @@
-import test, { describe, it } from "node:test";
 import assert from "node:assert";
-import { readFile, writeFile, mkdir, rm } from "node:fs/promises";
 import { existsSync } from "node:fs";
-import { resolve, dirname } from "node:path";
+import { mkdir, readFile, rm, writeFile } from "node:fs/promises";
+import { dirname, resolve } from "node:path";
+import test, { describe, it } from "node:test";
 import { fileURLToPath } from "node:url";
-
-import {
-  planChunks,
-  validatePlan,
-  loadPlan,
-  renderPages,
-  redact,
-  generateToolRunId,
-  generateLogRunId,
-  resumeRun,
-  summarizeRun,
-  runOcrOrchestrator
-} from "./ocr-ledgers.ts";
-import { loadAdapter } from "./ocr-adapters/loader.ts";
 import { FixtureAdapter } from "./ocr-adapters/fixture-adapter.ts";
+import { loadAdapter } from "./ocr-adapters/loader.ts";
 import {
-  OcrRefusalError,
-  AdapterUnavailableError,
   AdapterAuthError,
-  AdapterTimeoutError
+  AdapterTimeoutError,
+  AdapterUnavailableError,
+  OcrRefusalError,
 } from "./ocr-adapters/types.ts";
+import {
+  generateLogRunId,
+  generateToolRunId,
+  loadPlan,
+  planChunks,
+  redact,
+  renderPages,
+  resumeRun,
+  runOcrOrchestrator,
+  summarizeRun,
+  validatePlan,
+} from "./ocr-ledgers.ts";
 
 const ROOT = resolve(dirname(fileURLToPath(import.meta.url)), "..");
 
@@ -83,7 +82,7 @@ describe("OCR Orchestrator: Unit and Integration Tests", () => {
       cloudProcessingBasisRef: "Section 2.1",
       render: { dpi: 300, format: "png" },
       instructionsVersion: "v1",
-      expectedWorkerIdentity: "gpt-5.6-luna"
+      expectedWorkerIdentity: "gpt-5.6-luna",
     };
 
     it("refuses chunk size > 4 with CHUNK_TOO_LARGE", () => {
@@ -102,7 +101,7 @@ describe("OCR Orchestrator: Unit and Integration Tests", () => {
       const corruptedSha = "21a902fa8ec62604854f9c8e045da0d5eadc52b6f1f2592e00e762645319354f";
       const res = validatePlan(
         { ...basePlan, facsimileSha256: corruptedSha },
-        { pinnedDigest: basePlan.facsimileSha256 }
+        { pinnedDigest: basePlan.facsimileSha256 },
       );
       assert.equal(res.valid, false);
       assert.equal(res.refusalCode, "FACSIMILE_DIGEST_MISMATCH");
@@ -137,36 +136,39 @@ describe("OCR Orchestrator: Unit and Integration Tests", () => {
     it("refuses when no adapter is configured with NO_ADAPTER", () => {
       assert.throws(
         () => loadAdapter(undefined),
-        (err: any) => err instanceof OcrRefusalError && err.refusalCode === "NO_ADAPTER"
+        (err: any) => err instanceof OcrRefusalError && err.refusalCode === "NO_ADAPTER",
       );
     });
 
     it("refuses adapter name 'local-tesseract' with FORBIDDEN_ADAPTER_NAME", () => {
       assert.throws(
         () => loadAdapter("local-tesseract"),
-        (err: any) => err instanceof OcrRefusalError && err.refusalCode === "FORBIDDEN_ADAPTER_NAME"
+        (err: any) =>
+          err instanceof OcrRefusalError && err.refusalCode === "FORBIDDEN_ADAPTER_NAME",
       );
     });
 
     it("refuses fixture adapter when NODE_ENV=production with FIXTURE_ADAPTER_OUTSIDE_TEST", () => {
       assert.throws(
         () => loadAdapter("fixture", { nodeEnv: "production" }),
-        (err: any) => err instanceof OcrRefusalError && err.refusalCode === "FIXTURE_ADAPTER_OUTSIDE_TEST"
+        (err: any) =>
+          err instanceof OcrRefusalError && err.refusalCode === "FIXTURE_ADAPTER_OUTSIDE_TEST",
       );
     });
 
     it("refuses worker identity that differs from the plan with WORKER_IDENTITY_MISMATCH", async () => {
       const adapter = new FixtureAdapter({ workerIdentity: "unauthorized-worker-identity" });
       const planPath = "scripts/sources/ocr-plans/fixture-3p.yaml";
-      
+
       await assert.rejects(
         async () => {
           await runOcrOrchestrator({
             planPath,
-            adapter
+            adapter,
           });
         },
-        (err: any) => err instanceof OcrRefusalError && err.refusalCode === "WORKER_IDENTITY_MISMATCH"
+        (err: any) =>
+          err instanceof OcrRefusalError && err.refusalCode === "WORKER_IDENTITY_MISMATCH",
       );
     });
   });
@@ -174,7 +176,12 @@ describe("OCR Orchestrator: Unit and Integration Tests", () => {
   describe("Rendering", () => {
     it("renders committed 3-page fixture PDF to three PNGs whose dimensions equal page boxes at 300 dpi (2550 x 3300) with renderer recorded", async () => {
       const outputDir = resolve(ROOT, "artifacts/test-runs/render-test");
-      const rendered = await renderPages("src/testing/fixtures/ocr/fixture-3p.pdf", [1, 2, 3], outputDir, { dpi: 300 });
+      const rendered = await renderPages(
+        "src/testing/fixtures/ocr/fixture-3p.pdf",
+        [1, 2, 3],
+        outputDir,
+        { dpi: 300 },
+      );
 
       assert.equal(rendered.length, 3);
       for (let i = 0; i < 3; i++) {
@@ -196,14 +203,14 @@ describe("OCR Orchestrator: Unit and Integration Tests", () => {
       const toolRunId = `test-outage-${Date.now()}`;
       const adapter = new FixtureAdapter({
         failAtChunkIndex: 2,
-        failWithCode: "ADAPTER_UNAVAILABLE"
+        failWithCode: "ADAPTER_UNAVAILABLE",
       });
 
       const planPath = "scripts/sources/ocr-plans/fixture-31p.yaml";
       const result = await runOcrOrchestrator({
         planPath,
         toolRunId,
-        adapter
+        adapter,
       });
 
       assert.equal(result.ok, false);
@@ -226,7 +233,7 @@ describe("OCR Orchestrator: Unit and Integration Tests", () => {
       const toolRunId = `test-resume-${Date.now()}`;
       const adapter1 = new FixtureAdapter({
         failAtChunkIndex: 2,
-        failWithCode: "ADAPTER_UNAVAILABLE"
+        failWithCode: "ADAPTER_UNAVAILABLE",
       });
 
       const planPath = "scripts/sources/ocr-plans/fixture-31p.yaml";
@@ -234,7 +241,7 @@ describe("OCR Orchestrator: Unit and Integration Tests", () => {
       const res1 = await runOcrOrchestrator({
         planPath,
         toolRunId,
-        adapter: adapter1
+        adapter: adapter1,
       });
       assert.equal(res1.ok, false);
       assert.equal(adapter1.getSubmissionCount(0), 1);
@@ -245,7 +252,7 @@ describe("OCR Orchestrator: Unit and Integration Tests", () => {
       const res2 = await runOcrOrchestrator({
         planPath,
         resumeToolRunId: toolRunId,
-        adapter: adapter2
+        adapter: adapter2,
       });
 
       assert.equal(res2.ok, true);
@@ -267,12 +274,17 @@ describe("OCR Orchestrator: Unit and Integration Tests", () => {
       const res1 = await runOcrOrchestrator({
         planPath,
         toolRunId,
-        adapter
+        adapter,
       });
       assert.equal(res1.ok, true);
 
       // Tamper with page-1.md body
-      const page1Path = resolve(ROOT, "artifacts/ocr-runs/fixture-3p", toolRunId, "pages/page-1.md");
+      const page1Path = resolve(
+        ROOT,
+        "artifacts/ocr-runs/fixture-3p",
+        toolRunId,
+        "pages/page-1.md",
+      );
       const content = await readFile(page1Path, "utf-8");
       await writeFile(page1Path, content + "\n[TAMPERED CONTENT]");
 
@@ -282,7 +294,10 @@ describe("OCR Orchestrator: Unit and Integration Tests", () => {
       const resumeState = await resumeRun(runDir, plan);
 
       // Chunk 0 (holding page 1 and 2) must be incomplete
-      assert.ok(!resumeState.completedChunkIndices.has(0), "Chunk 0 should be marked incomplete due to digest mismatch");
+      assert.ok(
+        !resumeState.completedChunkIndices.has(0),
+        "Chunk 0 should be marked incomplete due to digest mismatch",
+      );
       // Chunk 1 (holding page 3) must remain complete
       assert.ok(resumeState.completedChunkIndices.has(1), "Chunk 1 should remain complete");
     });
@@ -293,14 +308,14 @@ describe("OCR Orchestrator: Unit and Integration Tests", () => {
       const toolRunId = `test-retry-timeout-${Date.now()}`;
       const adapter = new FixtureAdapter({
         failAtChunkIndex: 0,
-        timeoutsBeforeSuccess: 2
+        timeoutsBeforeSuccess: 2,
       });
 
       const planPath = "scripts/sources/ocr-plans/fixture-3p.yaml";
       const res = await runOcrOrchestrator({
         planPath,
         toolRunId,
-        adapter
+        adapter,
       });
 
       assert.equal(res.ok, true);
@@ -312,14 +327,14 @@ describe("OCR Orchestrator: Unit and Integration Tests", () => {
       const toolRunId = `test-retry-auth-${Date.now()}`;
       const adapter = new FixtureAdapter({
         failAtChunkIndex: 0,
-        failWithCode: "ADAPTER_AUTH"
+        failWithCode: "ADAPTER_AUTH",
       });
 
       const planPath = "scripts/sources/ocr-plans/fixture-3p.yaml";
       const res = await runOcrOrchestrator({
         planPath,
         toolRunId,
-        adapter
+        adapter,
       });
 
       assert.equal(res.ok, false);
@@ -335,15 +350,15 @@ describe("OCR Orchestrator: Unit and Integration Tests", () => {
       // Custom page text with NO math region to trigger mismatch against expectedCounts (displayEquations: 1)
       const adapter = new FixtureAdapter({
         customPageText: {
-          1: "[[RUNNING-HEAD Test]]\n[[PAGE-NUMBER 1]]\nText without math region."
-        }
+          1: "[[RUNNING-HEAD Test]]\n[[PAGE-NUMBER 1]]\nText without math region.",
+        },
       });
 
       const planPath = "scripts/sources/ocr-plans/fixture-3p.yaml";
       const res = await runOcrOrchestrator({
         planPath,
         toolRunId,
-        adapter
+        adapter,
       });
 
       assert.equal(res.ok, true);
@@ -357,11 +372,13 @@ describe("OCR Orchestrator: Unit and Integration Tests", () => {
       assert.deepEqual(res.summary.pageRanges, [1, 3]);
 
       // Coverage should flag page 1 as mismatch
-      const page1Coverage = res.coverage.pages.find(p => p.pdfPage === 1);
+      const page1Coverage = res.coverage.pages.find((p) => p.pdfPage === 1);
       assert.ok(page1Coverage);
       assert.equal(page1Coverage.mismatch, true);
       assert.ok(res.coverage.mismatches.length > 0);
-      const mathMismatch = res.coverage.mismatches.find(m => m.pdfPage === 1 && m.field === "displayEquations");
+      const mathMismatch = res.coverage.mismatches.find(
+        (m) => m.pdfPage === 1 && m.field === "displayEquations",
+      );
       assert.ok(mathMismatch);
       assert.equal(mathMismatch.actual, 0);
       assert.equal(mathMismatch.expected, 1);
@@ -373,7 +390,7 @@ describe("OCR Orchestrator: Unit and Integration Tests", () => {
       const secretToken = "super-secret-token-xyz-12345";
       const mockEnv = {
         LUNA_API_KEY: secretToken,
-        SOME_OTHER_VAR: "regular-value"
+        SOME_OTHER_VAR: "regular-value",
       };
 
       const rawMessage = `Error contacting Luna service with API key ${secretToken} and header Authorization: Bearer ${secretToken}`;

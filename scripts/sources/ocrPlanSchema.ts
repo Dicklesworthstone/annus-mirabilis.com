@@ -1,6 +1,6 @@
-import { readFile } from "node:fs/promises";
 import { createHash } from "node:crypto";
-import { resolve, dirname } from "node:path";
+import { readFile } from "node:fs/promises";
+import { dirname, resolve } from "node:path";
 import { fileURLToPath } from "node:url";
 import { type OcrRefusalCode, OcrRefusalError } from "../ocr-adapters/types.ts";
 
@@ -139,7 +139,7 @@ function parsePrimitive(val: string): any {
   if (val.startsWith("[") && val.endsWith("]")) {
     const inner = val.slice(1, -1).trim();
     if (!inner) return [];
-    return inner.split(",").map(s => parsePrimitive(s.trim()));
+    return inner.split(",").map((s) => parsePrimitive(s.trim()));
   }
   if (val === "true") return true;
   if (val === "false") return false;
@@ -154,7 +154,7 @@ function parsePrimitive(val: string): any {
 
 export function validatePlan(
   raw: unknown,
-  options: ValidatePlanOptions = {}
+  options: ValidatePlanOptions = {},
 ): PlanValidationResult {
   const errors: string[] = [];
 
@@ -162,18 +162,22 @@ export function validatePlan(
     return {
       valid: false,
       errors: ["Plan must be a non-null object."],
-      refusalCode: "MULTI_SOURCE_PLAN"
+      refusalCode: "MULTI_SOURCE_PLAN",
     };
   }
 
   const obj = raw as Record<string, any>;
 
   // Check for multi-source plan (e.g. keys array or multiple keys declared)
-  if (Array.isArray(obj.keys) || (Array.isArray(obj.key) && obj.key.length > 1) || Array.isArray(obj.facsimilePaths)) {
+  if (
+    Array.isArray(obj.keys) ||
+    (Array.isArray(obj.key) && obj.key.length > 1) ||
+    Array.isArray(obj.facsimilePaths)
+  ) {
     return {
       valid: false,
       errors: ["A plan must cover exactly one paper key and one facsimile."],
-      refusalCode: "MULTI_SOURCE_PLAN"
+      refusalCode: "MULTI_SOURCE_PLAN",
     };
   }
 
@@ -197,8 +201,10 @@ export function validatePlan(
   if (obj.cloudProcessing !== "permitted") {
     return {
       valid: false,
-      errors: [`cloudProcessing is '${obj.cloudProcessing}', but must be 'permitted'. OCR paused by policy.`],
-      refusalCode: "CLOUD_PROCESSING_NOT_PERMITTED"
+      errors: [
+        `cloudProcessing is '${obj.cloudProcessing}', but must be 'permitted'. OCR paused by policy.`,
+      ],
+      refusalCode: "CLOUD_PROCESSING_NOT_PERMITTED",
     };
   }
 
@@ -214,16 +220,20 @@ export function validatePlan(
     if (typeof first !== "number" || typeof last !== "number" || first < 1 || last < first) {
       return {
         valid: false,
-        errors: [`Invalid pdfPageRange: [${first}, ${last}]. Pages must be >= 1 and first <= last.`],
-        refusalCode: "PAGE_RANGE_OUT_OF_BOUNDS"
+        errors: [
+          `Invalid pdfPageRange: [${first}, ${last}]. Pages must be >= 1 and first <= last.`,
+        ],
+        refusalCode: "PAGE_RANGE_OUT_OF_BOUNDS",
       };
     }
 
     if (options.totalPdfPages !== undefined && last > options.totalPdfPages) {
       return {
         valid: false,
-        errors: [`pdfPageRange [${first}, ${last}] exceeds total PDF pages (${options.totalPdfPages}).`],
-        refusalCode: "PAGE_RANGE_OUT_OF_BOUNDS"
+        errors: [
+          `pdfPageRange [${first}, ${last}] exceeds total PDF pages (${options.totalPdfPages}).`,
+        ],
+        refusalCode: "PAGE_RANGE_OUT_OF_BOUNDS",
       };
     }
   }
@@ -234,7 +244,7 @@ export function validatePlan(
     return {
       valid: false,
       errors: [`chunkSize ${chunkSize} is invalid. Must be between 1 and 4.`],
-      refusalCode: "CHUNK_TOO_LARGE"
+      refusalCode: "CHUNK_TOO_LARGE",
     };
   }
 
@@ -244,7 +254,7 @@ export function validatePlan(
     return {
       valid: false,
       errors: [`maxConcurrency ${maxConcurrency} exceeds allowed limit (maximum 2).`],
-      refusalCode: "CONCURRENCY_TOO_HIGH"
+      refusalCode: "CONCURRENCY_TOO_HIGH",
     };
   }
 
@@ -267,8 +277,10 @@ export function validatePlan(
     if (obj.facsimileSha256.toLowerCase() !== options.pinnedDigest.toLowerCase()) {
       return {
         valid: false,
-        errors: [`facsimileSha256 ${obj.facsimileSha256} does not match pinned digest ${options.pinnedDigest}.`],
-        refusalCode: "FACSIMILE_DIGEST_MISMATCH"
+        errors: [
+          `facsimileSha256 ${obj.facsimileSha256} does not match pinned digest ${options.pinnedDigest}.`,
+        ],
+        refusalCode: "FACSIMILE_DIGEST_MISMATCH",
       };
     }
   }
@@ -278,8 +290,10 @@ export function validatePlan(
     if (obj.facsimileSha256.toLowerCase() !== computedDigest.toLowerCase()) {
       return {
         valid: false,
-        errors: [`facsimileSha256 ${obj.facsimileSha256} does not match computed digest ${computedDigest}.`],
-        refusalCode: "FACSIMILE_DIGEST_MISMATCH"
+        errors: [
+          `facsimileSha256 ${obj.facsimileSha256} does not match computed digest ${computedDigest}.`,
+        ],
+        refusalCode: "FACSIMILE_DIGEST_MISMATCH",
       };
     }
   }
@@ -301,7 +315,7 @@ export function validatePlan(
     render: { dpi: 300, format: "png" },
     instructionsVersion: obj.instructionsVersion,
     expectedWorkerIdentity: obj.expectedWorkerIdentity,
-    expectedCounts: obj.expectedCounts
+    expectedCounts: obj.expectedCounts,
   };
 
   return { valid: true, plan, errors: [] };
@@ -309,7 +323,7 @@ export function validatePlan(
 
 export async function loadPlan(
   planPath: string,
-  options: ValidatePlanOptions = {}
+  options: ValidatePlanOptions = {},
 ): Promise<OcrPlan> {
   const fullPath = resolve(ROOT, planPath);
   const text = await readFile(fullPath, "utf-8");
@@ -326,12 +340,15 @@ export async function loadPlan(
 
   const result = validatePlan(raw, {
     ...options,
-    facsimileBuffer: buffer ?? options.facsimileBuffer
+    facsimileBuffer: buffer ?? options.facsimileBuffer,
   });
 
   if (!result.valid || !result.plan) {
     const refusal = result.refusalCode ?? "MULTI_SOURCE_PLAN";
-    throw new OcrRefusalError(refusal, `Plan validation failed for ${planPath}:\n${result.errors.join("\n")}`);
+    throw new OcrRefusalError(
+      refusal,
+      `Plan validation failed for ${planPath}:\n${result.errors.join("\n")}`,
+    );
   }
 
   return result.plan;

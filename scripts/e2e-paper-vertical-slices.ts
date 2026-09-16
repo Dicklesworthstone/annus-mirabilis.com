@@ -82,9 +82,9 @@ import {
   type PaperE2EOptions,
   type PaperE2ESummary,
   type PaperE2EViewportName,
-  parsePaperE2EArgs,
   paperE2EExitCode,
   paperE2EUsage,
+  parsePaperE2EArgs,
   redactPaperE2ESecrets,
   serializePaperE2EEvent,
   stableFailureStem,
@@ -124,7 +124,11 @@ class RunRecorder {
     fs.mkdirSync(this.runDirectory, { recursive: true });
   }
 
-  registerDiagnostics(sliceId: string, viewport: PaperE2EViewportName, diagnostics: ScenarioDiagnostics) {
+  registerDiagnostics(
+    sliceId: string,
+    viewport: PaperE2EViewportName,
+    diagnostics: ScenarioDiagnostics,
+  ) {
     this.diagnosticsByScenario.set(`${sliceId}::${viewport}`, diagnostics);
   }
 
@@ -139,7 +143,8 @@ class RunRecorder {
     });
     this.events.push(complete);
     fs.appendFileSync(this.eventPath, `${serializePaperE2EEvent(complete)}\n`, "utf8");
-    const marker = complete.status === "pass" ? "PASS" : complete.status === "fail" ? "FAIL" : "INFO";
+    const marker =
+      complete.status === "pass" ? "PASS" : complete.status === "fail" ? "FAIL" : "INFO";
     console.log(
       `[${marker}] ${complete.sliceId} ${complete.viewport} ${complete.face}/${complete.action} (${complete.durationMs}ms)`,
     );
@@ -174,7 +179,12 @@ export async function main() {
   try {
     await preflightServer(options.baseUrl, recorder);
   } catch {
-    finishRun(recorder, { startedAt, baseUrl: options.baseUrl, sliceIds: [], viewports: options.viewports });
+    finishRun(recorder, {
+      startedAt,
+      baseUrl: options.baseUrl,
+      sliceIds: [],
+      viewports: options.viewports,
+    });
     return;
   }
 
@@ -187,7 +197,12 @@ export async function main() {
           "Run with --self-test-failure to exercise the failure-evidence retention path.",
       ),
     );
-    finishRun(recorder, { startedAt, baseUrl: options.baseUrl, sliceIds: [], viewports: options.viewports });
+    finishRun(recorder, {
+      startedAt,
+      baseUrl: options.baseUrl,
+      sliceIds: [],
+      viewports: options.viewports,
+    });
     return;
   }
 
@@ -214,7 +229,12 @@ export async function main() {
       expected: "a runnable Playwright Chromium installation",
       errors: [error instanceof Error ? error.message : String(error)],
     });
-    finishRun(recorder, { startedAt, baseUrl: options.baseUrl, sliceIds: [], viewports: options.viewports });
+    finishRun(recorder, {
+      startedAt,
+      baseUrl: options.baseUrl,
+      sliceIds: [],
+      viewports: options.viewports,
+    });
     return;
   }
   try {
@@ -235,7 +255,12 @@ export async function main() {
     try {
       await browser.close();
     } finally {
-      finishRun(recorder, { startedAt, baseUrl: options.baseUrl, sliceIds: [], viewports: options.viewports });
+      finishRun(recorder, {
+        startedAt,
+        baseUrl: options.baseUrl,
+        sliceIds: [],
+        viewports: options.viewports,
+      });
     }
   }
 }
@@ -268,7 +293,10 @@ async function runFailureEvidenceSelfTest(args: {
   let traceStopped = false;
 
   try {
-    const response = await page.goto(args.baseUrl, { waitUntil: "domcontentloaded", timeout: 30_000 });
+    const response = await page.goto(args.baseUrl, {
+      waitUntil: "domcontentloaded",
+      timeout: 30_000,
+    });
     const responseStatus = response?.status() ?? 0;
     const artifactPaths = await captureFailureEvidence({
       page,
@@ -293,7 +321,12 @@ async function runFailureEvidenceSelfTest(args: {
         result: "intentional nonzero exit",
         evidenceKinds: ["screenshot", "DOM", "diagnostics", "trace"],
       },
-      actual: { responseStatus, url: page.url(), artifactCount: artifactPaths.length, evidenceIntegrity },
+      actual: {
+        responseStatus,
+        url: page.url(),
+        artifactCount: artifactPaths.length,
+        evidenceIntegrity,
+      },
       responseStatus,
       errors: ["Synthetic failure requested by --self-test-failure."],
       consoleErrors: diagnostics.consoleErrors,
@@ -479,7 +512,12 @@ function recordRunConfigurationFailure(recorder: RunRecorder, error: unknown) {
 
 function finishRun(
   recorder: RunRecorder,
-  args: { startedAt: string; baseUrl: string; sliceIds: readonly string[]; viewports: readonly PaperE2EViewportName[] },
+  args: {
+    startedAt: string;
+    baseUrl: string;
+    sliceIds: readonly string[];
+    viewports: readonly PaperE2EViewportName[];
+  },
 ) {
   const summary = summarizePaperE2EEvents({
     logRunId: recorder.logRunId,
@@ -493,7 +531,9 @@ function finishRun(
   });
   const summaryPath = recorder.writeSummary(summary);
   console.log("=======================================================================");
-  console.log(`  Completed: ${summary.passedActions} passed actions, ${summary.failedActions} failed actions`);
+  console.log(
+    `  Completed: ${summary.passedActions} passed actions, ${summary.failedActions} failed actions`,
+  );
   console.log(`  Failed slices: ${summary.failedSlices.join(", ") || "none"}`);
   for (const group of summary.actionGroups.filter((entry) => entry.failedActions > 0)) {
     console.log(

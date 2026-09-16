@@ -8,12 +8,8 @@
   "question": "How do electromagnetic fields transform between inertial frames?",
   "recap": "Maxwell equations retain their form under Lorentz transformation.",
   "review": "draft",
-  "premises": [
-    "The laws of electrodynamics hold in all frames where mechanics holds."
-  ],
-  "limitations": [
-    "Valid in vacuum."
-  ],
+  "premises": ["The laws of electrodynamics hold in all frames where mechanics holds."],
+  "limitations": ["Valid in vacuum."],
   "citations": ["cite-test-1905"],
   "readings": {
     "overview": [

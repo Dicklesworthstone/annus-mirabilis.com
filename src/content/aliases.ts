@@ -31,7 +31,11 @@ export function validateAliasRecord(raw: unknown): ParseResult<AliasRecord> {
   const obj = raw as Record<string, unknown>;
 
   if (typeof obj.retiredId !== "string" || !obj.retiredId.trim()) {
-    return { ok: false, error: "Alias record requires a non-empty 'retiredId' string", rule: "alias-schema" };
+    return {
+      ok: false,
+      error: "Alias record requires a non-empty 'retiredId' string",
+      rule: "alias-schema",
+    };
   }
 
   const kind = obj.kind;
@@ -44,12 +48,20 @@ export function validateAliasRecord(raw: unknown): ParseResult<AliasRecord> {
   }
 
   if (!Array.isArray(obj.replacementIds)) {
-    return { ok: false, error: "Alias record 'replacementIds' must be an array of strings", rule: "alias-schema" };
+    return {
+      ok: false,
+      error: "Alias record 'replacementIds' must be an array of strings",
+      rule: "alias-schema",
+    };
   }
   const replacementIds: string[] = [];
   for (const rep of obj.replacementIds) {
     if (typeof rep !== "string" || !rep.trim()) {
-      return { ok: false, error: "Alias replacement IDs must be non-empty strings", rule: "alias-schema" };
+      return {
+        ok: false,
+        error: "Alias replacement IDs must be non-empty strings",
+        rule: "alias-schema",
+      };
     }
     replacementIds.push(rep.trim());
   }
@@ -87,11 +99,19 @@ export function validateAliasRecord(raw: unknown): ParseResult<AliasRecord> {
   }
 
   if (typeof obj.reason !== "string" || !obj.reason.trim()) {
-    return { ok: false, error: "Alias record requires a non-empty 'reason' string", rule: "alias-schema" };
+    return {
+      ok: false,
+      error: "Alias record requires a non-empty 'reason' string",
+      rule: "alias-schema",
+    };
   }
 
   if (typeof obj.editor !== "string" || !obj.editor.trim()) {
-    return { ok: false, error: "Alias record requires a non-empty 'editor' string", rule: "alias-schema" };
+    return {
+      ok: false,
+      error: "Alias record requires a non-empty 'editor' string",
+      rule: "alias-schema",
+    };
   }
 
   return {
@@ -182,7 +202,9 @@ export function resolveAlias(
 export function explainGap(
   missingId: string,
   aliases: readonly AliasRecord[],
-): { readonly status: "explained"; readonly alias: AliasRecord } | { readonly status: "unexplained" } {
+):
+  | { readonly status: "explained"; readonly alias: AliasRecord }
+  | { readonly status: "unexplained" } {
   const alias = aliases.find((a) => a.retiredId === missingId);
   if (alias) {
     return { status: "explained", alias };

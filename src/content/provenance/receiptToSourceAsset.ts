@@ -3,13 +3,13 @@
  */
 
 import type {
+  CloudProcessing,
+  PageMapEntry,
+  PublicationDecision,
   Receipt,
   ReceiptFrontMatter,
-  PageMapEntry,
-  RightsStatus,
-  PublicationDecision,
-  CloudProcessing,
   ReuseTerms,
+  RightsStatus,
 } from "./receiptSchema.ts";
 
 export type SourceAssetRights = Readonly<{

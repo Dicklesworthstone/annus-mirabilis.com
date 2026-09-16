@@ -1,12 +1,6 @@
 import { describe, expect, it } from "bun:test";
-import {
-  add,
-  divide,
-  multiply,
-  parseRational,
-  rational,
-} from "./rational.ts";
-import { TestLogger, newRunIdentity } from "../../testing/log/logger.ts";
+import { newRunIdentity, TestLogger } from "../../testing/log/logger.ts";
+import { add, divide, multiply, parseRational, rational } from "./rational.ts";
 
 describe("Exact Rational Dimension Arithmetic", () => {
   const logger = new TestLogger("dimension-validator-tests", newRunIdentity());

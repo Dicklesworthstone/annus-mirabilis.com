@@ -66,7 +66,8 @@ describe("Energy Ledger and Conservation Verification", () => {
       testId: "energy-ledger-discrete-passivity-units",
       outcome: "pass",
       durationMs: performance.now() - start,
-      message: "validateDiscretePassivityAndConservation checks power balance and enforces Watt unit dimension",
+      message:
+        "validateDiscretePassivityAndConservation checks power balance and enforces Watt unit dimension",
     });
   });
 

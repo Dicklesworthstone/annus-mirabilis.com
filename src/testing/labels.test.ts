@@ -1,6 +1,6 @@
 import { describe, expect, it } from "bun:test";
 import { normalizePrintedLabel } from "../content/ids.ts";
-import { TestLogger, newRunIdentity } from "./log/logger.ts";
+import { newRunIdentity, TestLogger } from "./log/logger.ts";
 
 describe("Printed Label Normalization (normalizePrintedLabel)", () => {
   const logger = new TestLogger("content-ids", newRunIdentity());

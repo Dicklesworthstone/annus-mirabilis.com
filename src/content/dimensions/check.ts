@@ -10,9 +10,9 @@
  */
 
 import {
-  type Dimension,
-  DIMENSIONLESS,
   combine,
+  DIMENSIONLESS,
+  type Dimension,
   dimension,
   dimensionText,
   isDimensionless,
@@ -23,8 +23,8 @@ import {
 } from "./rational.ts";
 import {
   type QuantityDescriptor,
-  type UnitSystemContext,
   resolveQuantityDimension,
+  type UnitSystemContext,
 } from "./unitSystems.ts";
 
 export type DimensionCheckStatus =

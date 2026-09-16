@@ -1,5 +1,5 @@
-import { readFile, readdir, lstat } from "node:fs/promises";
-import { resolve, dirname, relative } from "node:path";
+import { lstat, readdir, readFile } from "node:fs/promises";
+import { dirname, relative, resolve } from "node:path";
 import { fileURLToPath } from "node:url";
 
 export interface DenylistEntry {
@@ -40,7 +40,7 @@ export async function loadDenylist(root = ROOT): Promise<DenylistConfig> {
 export function scanContentForViolations(
   filePath: string,
   content: string,
-  denylist: DenylistEntry[]
+  denylist: DenylistEntry[],
 ): GuardViolation[] {
   const violations: GuardViolation[] = [];
   const lines = content.split("\n");
@@ -53,7 +53,7 @@ export function scanContentForViolations(
         ...(parsed.dependencies || {}),
         ...(parsed.devDependencies || {}),
         ...(parsed.peerDependencies || {}),
-        ...(parsed.optionalDependencies || {})
+        ...(parsed.optionalDependencies || {}),
       };
       for (const entry of denylist) {
         if (entry.pattern in allDeps) {
@@ -62,7 +62,7 @@ export function scanContentForViolations(
             line: 1,
             pattern: entry.pattern,
             reason: entry.reason,
-            snippet: `dependency "${entry.pattern}": "${allDeps[entry.pattern]}"`
+            snippet: `dependency "${entry.pattern}": "${allDeps[entry.pattern]}"`,
           });
         }
       }
@@ -77,7 +77,10 @@ export function scanContentForViolations(
     const trimmed = line.trim();
 
     // Skip comments that merely mention the denylist or explain guard rules
-    if (trimmed.startsWith("//") && (trimmed.includes("denylist") || trimmed.includes("forbidden") || trimmed.includes("policy"))) {
+    if (
+      trimmed.startsWith("//") &&
+      (trimmed.includes("denylist") || trimmed.includes("forbidden") || trimmed.includes("policy"))
+    ) {
       continue;
     }
 
@@ -89,15 +92,21 @@ export function scanContentForViolations(
         // match import ... from "..." or import "..." or require("...")
         const importRegex = new RegExp(
           `(?:import\\s+(?:(?:[\\w*\\s{},$]+)\\s+from\\s+)?['"\`][^'"\`]*${escapeRegex(p)}[^'"\`]*['"\`]|require\\s*\\(\\s*['"\`][^'"\`]*${escapeRegex(p)}[^'"\`]*['"\`])`,
-          "i"
+          "i",
         );
         if (importRegex.test(line)) matched = true;
       }
-      
+
       if (entry.category === "binary-or-spawn" || entry.category === "import-or-spawn") {
         // match spawn/exec/execSync/execFile of the binary
-        const spawnRegex = new RegExp(`(?:spawn|exec|execSync|execFile|fork)\\s*\\(\\s*['"\`]${escapeRegex(p)}['"\`]`, "i");
-        const binaryInvocationRegex = new RegExp(`(?:spawn|exec|execSync|execFile)\\s*\\([^)]*['"\`]\\s*${escapeRegex(p)}\\b`, "i");
+        const spawnRegex = new RegExp(
+          `(?:spawn|exec|execSync|execFile|fork)\\s*\\(\\s*['"\`]${escapeRegex(p)}['"\`]`,
+          "i",
+        );
+        const binaryInvocationRegex = new RegExp(
+          `(?:spawn|exec|execSync|execFile)\\s*\\([^)]*['"\`]\\s*${escapeRegex(p)}\\b`,
+          "i",
+        );
         if (spawnRegex.test(line) || binaryInvocationRegex.test(line)) matched = true;
       }
 
@@ -113,7 +122,7 @@ export function scanContentForViolations(
           line: i + 1,
           pattern: p,
           reason: entry.reason,
-          snippet: line.trim()
+          snippet: line.trim(),
         });
       }
     }
@@ -128,7 +137,7 @@ function escapeRegex(s: string): string {
 
 export async function scanRepositoryForForbiddenOcr(
   root = ROOT,
-  customFiles?: { path: string; content: string }[]
+  customFiles?: { path: string; content: string }[],
 ): Promise<GuardScanResult> {
   const denylistConfig = await loadDenylist(root);
   const denylist = denylistConfig.denylist;
@@ -144,7 +153,7 @@ export async function scanRepositoryForForbiddenOcr(
     return {
       ok: violations.length === 0,
       violations,
-      scannedFileCount: scannedCount
+      scannedFileCount: scannedCount,
     };
   }
 
@@ -167,7 +176,7 @@ export async function scanRepositoryForForbiddenOcr(
     for (const name of entries) {
       const full = resolve(dirPath, name);
       const rel = relative(root, full).split("\\").join("/");
-      
+
       // Skip test fixtures in ocr-guard, the denylist json, guard tests, and scanner itself
       if (rel.includes("src/testing/fixtures/ocr-guard")) continue;
       if (rel === "scripts/ocr-guard-denylist.json") continue;
@@ -203,6 +212,6 @@ export async function scanRepositoryForForbiddenOcr(
   return {
     ok: violations.length === 0,
     violations,
-    scannedFileCount: scannedCount
+    scannedFileCount: scannedCount,
   };
 }

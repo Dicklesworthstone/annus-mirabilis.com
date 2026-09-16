@@ -21,19 +21,28 @@ test('<script src="https://cdn.example/x.js">, <link href="//fonts.example/css">
     '<img src="http://example.org/a.png">';
   const found = findCrossOriginReferences(html, ORIGIN);
   assert.deepEqual(found, [
-    { tag: "script", attribute: "src", url: "https://cdn.example/x.js", origin: "https://cdn.example" },
+    {
+      tag: "script",
+      attribute: "src",
+      url: "https://cdn.example/x.js",
+      origin: "https://cdn.example",
+    },
     { tag: "link", attribute: "href", url: "//fonts.example/css", origin: "https://fonts.example" },
     { tag: "img", attribute: "src", url: "http://example.org/a.png", origin: "http://example.org" },
   ]);
 });
 
-test("a plain <a href=\"https://github.com/...\"> passes because a hyperlink is not a request", () => {
+test('a plain <a href="https://github.com/..."> passes because a hyperlink is not a request', () => {
   const html = '<a href="https://github.com/example/example">source</a>';
   assert.deepEqual(findCrossOriginReferences(html, ORIGIN), []);
 });
 
 test("checkExpectedStatus passes and fails on the documented status codes", () => {
-  const ok = checkExpectedStatus({ url: `${ORIGIN}/`, status: 200, headers: {}, body: "" }, "home-page-200", 200);
+  const ok = checkExpectedStatus(
+    { url: `${ORIGIN}/`, status: 200, headers: {}, body: "" },
+    "home-page-200",
+    200,
+  );
   assert.equal(ok.outcome, "pass");
   const notFound = checkExpectedStatus(
     { url: `${ORIGIN}/missing`, status: 200, headers: {}, body: "" },
@@ -46,24 +55,43 @@ test("checkExpectedStatus passes and fails on the documented status codes", () =
 
 test("checkBodyContains passes and fails on the expected substring", () => {
   const pass = checkBodyContains(
-    { url: `${ORIGIN}/`, status: 200, headers: {}, body: "<h1>The edition is in preparation.</h1>" },
+    {
+      url: `${ORIGIN}/`,
+      status: 200,
+      headers: {},
+      body: "<h1>The edition is in preparation.</h1>",
+    },
     "home-page-text",
     "in preparation",
   );
   assert.equal(pass.outcome, "pass");
-  const fail = checkBodyContains({ url: `${ORIGIN}/`, status: 200, headers: {}, body: "<h1>Coming soon!</h1>" }, "home-page-text", "in preparation");
+  const fail = checkBodyContains(
+    { url: `${ORIGIN}/`, status: 200, headers: {}, body: "<h1>Coming soon!</h1>" },
+    "home-page-text",
+    "in preparation",
+  );
   assert.equal(fail.outcome, "fail");
 });
 
 test("checkNoCrossOriginReferences passes on same-origin markup and fails naming each third-party origin", () => {
   const clean = checkNoCrossOriginReferences(
-    { url: `${ORIGIN}/`, status: 200, headers: {}, body: '<script src="/_next/static/a.js"></script>' },
+    {
+      url: `${ORIGIN}/`,
+      status: 200,
+      headers: {},
+      body: '<script src="/_next/static/a.js"></script>',
+    },
     "home-page-no-third-party-origin",
     ORIGIN,
   );
   assert.equal(clean.outcome, "pass");
   const dirty = checkNoCrossOriginReferences(
-    { url: `${ORIGIN}/`, status: 200, headers: {}, body: '<script src="https://cdn.example/x.js"></script>' },
+    {
+      url: `${ORIGIN}/`,
+      status: 200,
+      headers: {},
+      body: '<script src="https://cdn.example/x.js"></script>',
+    },
     "home-page-no-third-party-origin",
     ORIGIN,
   );

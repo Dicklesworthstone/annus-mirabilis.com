@@ -93,9 +93,7 @@ export function combine(a: Dimension, b: Dimension, sign: 1 | -1 = 1): Dimension
   if (a.length !== DIMENSION_BASIS.length || b.length !== DIMENSION_BASIS.length) {
     throw new TypeError("Dimension vectors must have length 6.");
   }
-  return Object.freeze(
-    a.map((v, i) => add(v, multiply(b[i]!, rational(BigInt(sign))))),
-  );
+  return Object.freeze(a.map((v, i) => add(v, multiply(b[i]!, rational(BigInt(sign))))));
 }
 
 /**
@@ -124,9 +122,7 @@ export function isDimensionless(d: Dimension): boolean {
  * Formats a dimension vector as comma-separated rational strings (e.g. "1,0,-2,0,0,0" or "1/2,1/2,-1,0,0,0").
  */
 export function dimensionText(d: Dimension): string {
-  return d
-    .map((v) => (v.den === 1n ? String(v.num) : `${v.num}/${v.den}`))
-    .join(",");
+  return d.map((v) => (v.den === 1n ? String(v.num) : `${v.num}/${v.den}`)).join(",");
 }
 
 /**

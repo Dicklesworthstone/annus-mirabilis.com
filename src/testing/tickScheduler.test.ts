@@ -83,7 +83,8 @@ describe("TickScheduler Runtime Extraction", () => {
       testId: "donor-trap-tick-drop-past-maxcatchup",
       outcome: "pass",
       durationMs: performance.now() - start,
-      message: "donor-trap: tick drop past maxCatchup confirmed; scheduler reanchors and caps delivered ticks",
+      message:
+        "donor-trap: tick drop past maxCatchup confirmed; scheduler reanchors and caps delivered ticks",
     });
   });
 

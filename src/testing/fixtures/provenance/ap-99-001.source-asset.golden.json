@@ -8,36 +8,21 @@
     {
       "pdfPageIndex": 1,
       "printedPage": 1,
-      "contents": [
-        "article-text"
-      ],
-      "sectionIds": [
-        "s1"
-      ],
+      "contents": ["article-text"],
+      "sectionIds": ["s1"],
       "displayEquations": {
-        "numbered": [
-          "(1)"
-        ],
+        "numbered": ["(1)"],
         "unnumbered": 0
       },
-      "footnoteMarks": [
-        "1)"
-      ]
+      "footnoteMarks": ["1)"]
     },
     {
       "pdfPageIndex": 2,
       "printedPage": 2,
-      "contents": [
-        "article-text"
-      ],
-      "sectionIds": [
-        "s1",
-        "s2"
-      ],
+      "contents": ["article-text"],
+      "sectionIds": ["s1", "s2"],
       "displayEquations": {
-        "numbered": [
-          "(2)"
-        ],
+        "numbered": ["(2)"],
         "unnumbered": 1
       },
       "footnoteMarks": []
@@ -45,16 +30,10 @@
     {
       "pdfPageIndex": 3,
       "printedPage": 3,
-      "contents": [
-        "article-text"
-      ],
-      "sectionIds": [
-        "s2"
-      ],
+      "contents": ["article-text"],
+      "sectionIds": ["s2"],
       "displayEquations": {
-        "numbered": [
-          "(3)"
-        ],
+        "numbered": ["(3)"],
         "unnumbered": 0
       },
       "footnoteMarks": []
@@ -62,12 +41,8 @@
     {
       "pdfPageIndex": 4,
       "printedPage": 4,
-      "contents": [
-        "article-text"
-      ],
-      "sectionIds": [
-        "s3"
-      ],
+      "contents": ["article-text"],
+      "sectionIds": ["s3"],
       "displayEquations": {
         "numbered": [],
         "unnumbered": 0

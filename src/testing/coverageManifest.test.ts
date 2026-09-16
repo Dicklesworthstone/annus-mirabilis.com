@@ -1,8 +1,8 @@
 import { describe, expect, test } from "bun:test";
 import {
   createInitialCoverageSummary,
-  PaperCoverageRow,
-  RuntimeProvenance,
+  type PaperCoverageRow,
+  type RuntimeProvenance,
 } from "../content/coverage/coverageManifest.ts";
 import { appendExtractionLog, newExtractionLogRunId } from "./extractionLogging.ts";
 

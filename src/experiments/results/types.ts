@@ -13,11 +13,28 @@ export type ResultIdentity = Readonly<{
   ownerId: string;
 }>;
 export type Uncertainty =
-  | Readonly<{ kind: "statistical-interval"; lower: number; upper: number; coverage: number; sampleSize: number; method: string }>
+  | Readonly<{
+      kind: "statistical-interval";
+      lower: number;
+      upper: number;
+      coverage: number;
+      sampleSize: number;
+      method: string;
+    }>
   | Readonly<{ kind: "enclosure"; lower: number; upper: number; method: string }>
-  | Readonly<{ kind: "numerical-error-estimate"; magnitude: number; method: string; guarantee: "bound" | "estimate" }>
+  | Readonly<{
+      kind: "numerical-error-estimate";
+      magnitude: number;
+      method: string;
+      guarantee: "bound" | "estimate";
+    }>
   | Readonly<{ kind: "input-precision"; significantFigures: number; source: string }>
-  | Readonly<{ kind: "measurement-uncertainty"; magnitude: number; datasetId: string; uncertaintyType: string }>;
+  | Readonly<{
+      kind: "measurement-uncertainty";
+      magnitude: number;
+      datasetId: string;
+      uncertaintyType: string;
+    }>;
 
 export type LimitRepresentation =
   | Readonly<{ kind: "point-mass"; location: number; mass: number }>
@@ -27,9 +44,19 @@ export type ResultPayload =
   | Readonly<{ status: "value"; value: number | Float64Array; uncertainty?: Uncertainty }>
   | Readonly<{ status: "symbolic"; expressionRef: string; unspecifiedSymbols: readonly string[] }>
   | Readonly<{ status: "analytic-limit"; description: string; representation: LimitRepresentation }>
-  | Readonly<{ status: "underdetermined"; compatibleFamily: string; neededInformation: readonly string[] }>
+  | Readonly<{
+      status: "underdetermined";
+      compatibleFamily: string;
+      neededInformation: readonly string[];
+    }>
   | Readonly<{ status: "not-applicable"; reason: string }>
-  | Readonly<{ status: "outside-domain"; condition: string; domainKind: DomainKind; reason: string; boundary: ParameterAction | Readonly<{ alternativeModel: string }> }>
+  | Readonly<{
+      status: "outside-domain";
+      condition: string;
+      domainKind: DomainKind;
+      reason: string;
+      boundary: ParameterAction | Readonly<{ alternativeModel: string }>;
+    }>
   | Readonly<{
       status: "divergent";
       expressionRef: string;

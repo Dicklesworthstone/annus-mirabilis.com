@@ -1,7 +1,7 @@
 import assert from "node:assert/strict";
 import test from "node:test";
-import { checkInitialRouteGraph, normalizeAppManifestKey } from "./initialRouteGraph.ts";
 import type { AppBuildManifest } from "./initialRouteGraph.ts";
+import { checkInitialRouteGraph, normalizeAppManifestKey } from "./initialRouteGraph.ts";
 
 test("normalizeAppManifestKey mirrors Next's normalizeAppPath for root and nested pages", () => {
   assert.equal(normalizeAppManifestKey("page"), "/");
@@ -27,7 +27,9 @@ test("a chunk containing WebGLRenderer fails naming the chunk and the signature"
   const result = checkInitialRouteGraph({
     route: "/",
     manifest: CLEAN_MANIFEST,
-    chunkContents: { "static/chunks/app/page.js": "const r = new THREE.WebGLRenderer({ antialias: true });" },
+    chunkContents: {
+      "static/chunks/app/page.js": "const r = new THREE.WebGLRenderer({ antialias: true });",
+    },
   });
   assert.equal(result.ok, false);
   if (result.ok) return;
@@ -52,12 +54,18 @@ test("a module trace containing node_modules/pdfjs-dist/ fails", () => {
   assert.equal(result.ok, false);
   if (result.ok) return;
   assert.deepEqual(result.violations, [
-    { kind: "module-trace", module: "node_modules/pdfjs-dist/build/pdf.js", signature: "node_modules/pdfjs-dist/" },
+    {
+      kind: "module-trace",
+      module: "node_modules/pdfjs-dist/build/pdf.js",
+      signature: "node_modules/pdfjs-dist/",
+    },
   ]);
 });
 
 test("a .wasm entry fails", () => {
-  const manifest: AppBuildManifest = { pages: { page: ["static/chunks/app/page.js", "static/wasm/frankensim.wasm"] } };
+  const manifest: AppBuildManifest = {
+    pages: { page: ["static/chunks/app/page.js", "static/wasm/frankensim.wasm"] },
+  };
   const result = checkInitialRouteGraph({ route: "/", manifest });
   assert.equal(result.ok, false);
   if (result.ok) return;

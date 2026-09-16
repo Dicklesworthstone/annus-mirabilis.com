@@ -51,7 +51,8 @@ export function mapToRuntimeDimension(
     return {
       ok: false,
       code: "fractional-exponent",
-      message: "Runtime dimensions require integer exponents; fractional exponents (e.g. 1/2) cannot be mapped to fs-qty.",
+      message:
+        "Runtime dimensions require integer exponents; fractional exponents (e.g. 1/2) cannot be mapped to fs-qty.",
     };
   }
 

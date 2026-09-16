@@ -176,7 +176,9 @@ export function parsePaperE2EArgs(argv: readonly string[]): PaperE2EOptions {
   const selectorCount =
     Number(options.all) + Number(options.changed) + Number(options.sliceIds.length > 0);
   if (!options.selfTestFailure && selectorCount !== 1) {
-    throw new Error("Select exactly one of --all, --changed, or one or more --paper <slug> arguments.");
+    throw new Error(
+      "Select exactly one of --all, --changed, or one or more --paper <slug> arguments.",
+    );
   }
   if (options.viewports.length === 0) {
     throw new Error("At least one E2E viewport is required.");
@@ -295,7 +297,8 @@ export function summarizePaperE2EEvents(args: {
     eventCount: args.events.length,
     passedActions: args.events.filter((event) => event.status === "pass").length,
     failedActions: failed.length,
-    failureEvidenceEvents: args.events.filter((event) => event.action === "failure-evidence").length,
+    failureEvidenceEvents: args.events.filter((event) => event.action === "failure-evidence")
+      .length,
     failedSlices: [...new Set(failed.map((event) => event.sliceId))].sort(),
     artifactDirectory: args.artifactDirectory,
     actionGroups,
@@ -453,9 +456,13 @@ export function validatePaperE2EJourney(journey: PaperE2EJourney): string[] {
 
   for (const step of journey.steps) {
     if (!step.readiness || step.readiness.description.trim().length === 0) {
-      errors.push(`journey ${journey.sliceId} step "${step.kind}" is missing a readiness description.`);
+      errors.push(
+        `journey ${journey.sliceId} step "${step.kind}" is missing a readiness description.`,
+      );
     } else if (step.readiness.selector.trim().length === 0) {
-      errors.push(`journey ${journey.sliceId} step "${step.kind}" is missing a readiness selector.`);
+      errors.push(
+        `journey ${journey.sliceId} step "${step.kind}" is missing a readiness selector.`,
+      );
     }
   }
 

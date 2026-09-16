@@ -1,18 +1,18 @@
-import test from "node:test";
 import assert from "node:assert/strict";
+import crypto from "node:crypto";
 import fs from "node:fs";
 import path from "node:path";
-import crypto from "node:crypto";
+import test from "node:test";
 import { checkReceipt } from "./checkReceipt.ts";
 import { parseReceipt } from "./parseReceipt.ts";
-import { receiptToSourceAsset } from "./receiptToSourceAsset.ts";
 import { resolveEquationPage } from "./receiptSchema.ts";
-import {
-  writeGeneratedSectionSync,
-  replaceGeneratedContent,
-  GeneratedSectionError,
-} from "./writeGeneratedSection.ts";
+import { receiptToSourceAsset } from "./receiptToSourceAsset.ts";
 import { validateSurveyRecord } from "./surveySchema.ts";
+import {
+  GeneratedSectionError,
+  replaceGeneratedContent,
+  writeGeneratedSectionSync,
+} from "./writeGeneratedSection.ts";
 
 const FIXTURES_DIR = path.resolve("src/testing/fixtures/provenance");
 const CONFIG_DIR = path.join(FIXTURES_DIR, "facsimile-sources");
@@ -83,21 +83,38 @@ const errorTestCases = [
   { file: "err-uppercase-digest.md", rule: "receipt-scan-sha256-invalid" },
   { file: "err-short-digest.md", rule: "receipt-scan-sha256-invalid" },
   { file: "err-untyped-date.md", rule: "receipt-date-iso" },
-  { file: "err-chronology-pub-before-rec.md", rule: "receipt-chronology-published-before-received" },
-  { file: "err-chronology-rec-before-dateline.md", rule: "receipt-chronology-received-before-dateline" },
+  {
+    file: "err-chronology-pub-before-rec.md",
+    rule: "receipt-chronology-published-before-received",
+  },
+  {
+    file: "err-chronology-rec-before-dateline.md",
+    rule: "receipt-chronology-received-before-dateline",
+  },
   { file: "err-invalid-doi.md", rule: "receipt-journal-doi-invalid" },
   { file: "err-invalid-rights-status.md", rule: "receipt-rights-status-invalid" },
   { file: "err-scan-restrict-publish.md", rule: "receipt-rights-restrict-publish" },
   { file: "err-publish-path-invalid.md", rule: "receipt-publish-path" },
-  { file: "err-scan-digest-mismatch.md", rule: "receipt-config-digest-mismatch", options: { configDir: CONFIG_DIR } },
-  { file: "err-no-config-record.md", rule: "receipt-config-missing", options: { configDir: CONFIG_DIR } },
+  {
+    file: "err-scan-digest-mismatch.md",
+    rule: "receipt-config-digest-mismatch",
+    options: { configDir: CONFIG_DIR },
+  },
+  {
+    file: "err-no-config-record.md",
+    rule: "receipt-config-missing",
+    options: { configDir: CONFIG_DIR },
+  },
   { file: "err-page-map-missing-page.md", rule: "receipt-pagemap-missing-page" },
   { file: "err-page-map-duplicate-page.md", rule: "receipt-pagemap-duplicate-index" },
   { file: "err-page-map-decreasing-pages.md", rule: "receipt-pagemap-decreasing-pages" },
   { file: "err-page-map-contents-invalid.md", rule: "receipt-pagemap-contents-invalid" },
   { file: "err-other-article-with-sections.md", rule: "receipt-pagemap-other-article-sections" },
   { file: "err-refined-still-has-unnumbered.md", rule: "receipt-pagemap-refined-has-unnumbered" },
-  { file: "err-refined-shorter-unnumbered-ids.md", rule: "receipt-pagemap-refined-no-unnumbered-ids" },
+  {
+    file: "err-refined-shorter-unnumbered-ids.md",
+    rule: "receipt-pagemap-refined-no-unnumbered-ids",
+  },
   { file: "err-witness-no-wikisource.md", rule: "receipt-witness-missing-wikisource" },
   { file: "err-witness-no-cpae.md", rule: "receipt-witness-missing-cpae" },
   { file: "err-headings-out-of-order.md", rule: "receipt-headings-order" },
@@ -125,7 +142,7 @@ for (const tc of errorTestCases) {
     assert.equal(
       foundRule,
       true,
-      `Expected error rule "${tc.rule}", found: ${result.errors.map((e) => e.rule).join(", ")}`
+      `Expected error rule "${tc.rule}", found: ${result.errors.map((e) => e.rule).join(", ")}`,
     );
   });
 }
@@ -134,7 +151,10 @@ test("Checker fails when key does not match filename basename", () => {
   const content = fs.readFileSync(path.join(FIXTURES_DIR, "ap-99-001.md"), "utf8");
   const result = checkReceipt(content, "docs/provenance/ap-99-002.md");
   assert.equal(result.ok, false);
-  assert.equal(result.errors.some((e) => e.rule === "receipt-key-filename-mismatch"), true);
+  assert.equal(
+    result.errors.some((e) => e.rule === "receipt-key-filename-mismatch"),
+    true,
+  );
 });
 
 // Flag tests
@@ -144,7 +164,10 @@ test("Flags: pending section is reported as flag, not fatal error", () => {
   const result = checkReceipt(content, filePath, { configDir: CONFIG_DIR });
 
   assert.equal(result.ok, true);
-  assert.equal(result.flags.some((f) => f.rule === "receipt-section-pending"), true);
+  assert.equal(
+    result.flags.some((f) => f.rule === "receipt-section-pending"),
+    true,
+  );
 });
 
 test("Flags: pending watch list item under in-progress status is reported as flag", () => {
@@ -153,7 +176,10 @@ test("Flags: pending watch list item under in-progress status is reported as fla
   const result = checkReceipt(content, filePath, { configDir: CONFIG_DIR });
 
   assert.equal(result.ok, true);
-  assert.equal(result.flags.some((f) => f.rule === "receipt-watchlist-pending"), true);
+  assert.equal(
+    result.flags.some((f) => f.rule === "receipt-watchlist-pending"),
+    true,
+  );
 });
 
 test("Flags: absent local-only file is reported as flag, but escalates to error under requireLocal", () => {
@@ -163,12 +189,18 @@ test("Flags: absent local-only file is reported as flag, but escalates to error 
   // Default: flag
   const resFlag = checkReceipt(content, filePath);
   assert.equal(resFlag.ok, true);
-  assert.equal(resFlag.flags.some((f) => f.rule === "receipt-local-file-not-available"), true);
+  assert.equal(
+    resFlag.flags.some((f) => f.rule === "receipt-local-file-not-available"),
+    true,
+  );
 
   // With requireLocal: error
   const resErr = checkReceipt(content, filePath, { requireLocal: true });
   assert.equal(resErr.ok, false);
-  assert.equal(resErr.errors.some((e) => e.rule === "receipt-local-file-missing"), true);
+  assert.equal(
+    resErr.errors.some((e) => e.rule === "receipt-local-file-missing"),
+    true,
+  );
 });
 
 // writeGeneratedSection tests
@@ -176,13 +208,21 @@ test("writeGeneratedSection replaces content and preserves prefix/suffix bytes u
   const sample = `# Header\n\n<!-- generated:editorial-acceptance:start -->\nOld text\n<!-- generated:editorial-acceptance:end -->\n\n# Footer\n`;
   const newContent = "German source review: accepted by Reviewer on 2026-09-15.";
 
-  const { updatedText, prefixSha256, suffixSha256 } = replaceGeneratedContent(sample, "editorial-acceptance", newContent);
+  const { updatedText, prefixSha256, suffixSha256 } = replaceGeneratedContent(
+    sample,
+    "editorial-acceptance",
+    newContent,
+  );
 
   assert.match(updatedText, /German source review: accepted/);
   assert.doesNotMatch(updatedText, /Old text/);
 
   // Check prefix and suffix hash
-  const origPrefix = sample.slice(0, sample.indexOf("<!-- generated:editorial-acceptance:start -->") + "<!-- generated:editorial-acceptance:start -->".length);
+  const origPrefix = sample.slice(
+    0,
+    sample.indexOf("<!-- generated:editorial-acceptance:start -->") +
+      "<!-- generated:editorial-acceptance:start -->".length,
+  );
   const origSuffix = sample.slice(sample.indexOf("<!-- generated:editorial-acceptance:end -->"));
   assert.equal(crypto.createHash("sha256").update(origPrefix).digest("hex"), prefixSha256);
   assert.equal(crypto.createHash("sha256").update(origSuffix).digest("hex"), suffixSha256);
@@ -191,13 +231,13 @@ test("writeGeneratedSection replaces content and preserves prefix/suffix bytes u
 test("writeGeneratedSection refuses missing or duplicated markers", () => {
   assert.throws(
     () => replaceGeneratedContent("# No markers", "editorial-acceptance", "test"),
-    GeneratedSectionError
+    GeneratedSectionError,
   );
 
   const duplicateStart = `<!-- generated:test:start -->\n<!-- generated:test:start -->\n<!-- generated:test:end -->`;
   assert.throws(
     () => replaceGeneratedContent(duplicateStart, "test", "content"),
-    GeneratedSectionError
+    GeneratedSectionError,
   );
 });
 
@@ -213,26 +253,44 @@ test("Survey schema catches candidate without terms or termsNotFound", () => {
   const content = fs.readFileSync(path.join(FIXTURES_DIR, "err-survey-no-terms.md"), "utf8");
   const result = validateSurveyRecord(content, "err-survey-no-terms.md");
   assert.equal(result.ok, false);
-  assert.equal(result.diagnostics.some((d) => d.rule === "survey-candidate-terms"), true);
+  assert.equal(
+    result.diagnostics.some((d) => d.rule === "survey-candidate-terms"),
+    true,
+  );
 });
 
 test("Survey schema catches invalid proposed status", () => {
   const content = fs.readFileSync(path.join(FIXTURES_DIR, "err-survey-invalid-status.md"), "utf8");
   const result = validateSurveyRecord(content, "err-survey-invalid-status.md");
   assert.equal(result.ok, false);
-  assert.equal(result.diagnostics.some((d) => d.rule === "survey-rights-status"), true);
+  assert.equal(
+    result.diagnostics.some((d) => d.rule === "survey-rights-status"),
+    true,
+  );
 });
 
 test("Survey schema catches recommendation naming missing candidate", () => {
-  const content = fs.readFileSync(path.join(FIXTURES_DIR, "err-survey-missing-candidate-rec.md"), "utf8");
+  const content = fs.readFileSync(
+    path.join(FIXTURES_DIR, "err-survey-missing-candidate-rec.md"),
+    "utf8",
+  );
   const result = validateSurveyRecord(content, "err-survey-missing-candidate-rec.md");
   assert.equal(result.ok, false);
-  assert.equal(result.diagnostics.some((d) => d.rule === "survey-recommendation-candidate"), true);
+  assert.equal(
+    result.diagnostics.some((d) => d.rule === "survey-recommendation-candidate"),
+    true,
+  );
 });
 
 test("Survey schema catches unknown classification absent from openQuestionsForUser", () => {
-  const content = fs.readFileSync(path.join(FIXTURES_DIR, "err-survey-unknown-not-in-questions.md"), "utf8");
+  const content = fs.readFileSync(
+    path.join(FIXTURES_DIR, "err-survey-unknown-not-in-questions.md"),
+    "utf8",
+  );
   const result = validateSurveyRecord(content, "err-survey-unknown-not-in-questions.md");
   assert.equal(result.ok, false);
-  assert.equal(result.diagnostics.some((d) => d.rule === "survey-unknown-in-questions"), true);
+  assert.equal(
+    result.diagnostics.some((d) => d.rule === "survey-unknown-in-questions"),
+    true,
+  );
 });

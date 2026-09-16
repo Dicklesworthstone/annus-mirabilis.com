@@ -13,10 +13,11 @@
  * - 2: Refused (e.g. required step unavailable in profile mode)
  */
 
-import { spawnSync, type SpawnSyncReturns } from "node:child_process";
-import { delimiter, join, resolve } from "node:path";
+import { type SpawnSyncReturns, spawnSync } from "node:child_process";
 import { existsSync, mkdirSync, writeFileSync } from "node:fs";
+import { delimiter, join, resolve } from "node:path";
 import { pathToFileURL } from "node:url";
+import { generateLogRunId } from "./app-router-architecture.ts";
 import {
   type GateCadence,
   type GateFamily,
@@ -30,7 +31,6 @@ import {
   QUALITY_GATE_STEPS,
   validateRegistry,
 } from "./quality-gates/registry.ts";
-import { generateLogRunId } from "./app-router-architecture.ts";
 
 export type RunnerMode = "fail-fast" | "all" | "profile";
 
@@ -153,9 +153,10 @@ export function checkStepAvailability(step: GateStep, rootDir: string): Availabi
 export function runQualityGates(options: QualityGatesOptions = {}): QualityGatesSummary {
   const startTime = Date.now();
   const rootDir = options.rootDir || process.cwd();
-  const rawMode: RunnerMode = options.profile ? "profile" : (options.mode || "fail-fast");
+  const rawMode: RunnerMode = options.profile ? "profile" : options.mode || "fail-fast";
   const profile: GateProfile | undefined = options.profile;
-  const cadence: GateCadence | "all" = options.cadence || (rawMode === "profile" ? "all" : "every-run");
+  const cadence: GateCadence | "all" =
+    options.cadence || (rawMode === "profile" ? "all" : "every-run");
   const familyFilter: GateFamily | "all" = options.family || "all";
   const onlyFilter = options.only && options.only.length > 0 ? new Set(options.only) : null;
   const logRunId = options.logRunId || generateLogRunId();
@@ -165,7 +166,9 @@ export function runQualityGates(options: QualityGatesOptions = {}): QualityGates
   const validation = validateRegistry(allSteps);
   if (!validation.valid) {
     if (!silent) {
-      console.error(`🚨 Quality Gate Registry Invalid:\n${validation.errors.map((e) => `   - ${e}`).join("\n")}`);
+      console.error(
+        `🚨 Quality Gate Registry Invalid:\n${validation.errors.map((e) => `   - ${e}`).join("\n")}`,
+      );
     }
     return {
       logRunId,
@@ -187,7 +190,7 @@ export function runQualityGates(options: QualityGatesOptions = {}): QualityGates
   }
 
   // 1. Filter relevant steps
-  let selectedSteps = allSteps.filter((step) => {
+  const selectedSteps = allSteps.filter((step) => {
     if (onlyFilter && !onlyFilter.has(step.id)) {
       return false;
     }
@@ -210,7 +213,9 @@ export function runQualityGates(options: QualityGatesOptions = {}): QualityGates
       const avail = checkStepAvailability(step, rootDir);
       if (!avail.available) {
         if (!silent) {
-          console.error(`\n🚨 Release Profile '${profile}' Refusal: Required step '${step.id}' is unavailable.`);
+          console.error(
+            `\n🚨 Release Profile '${profile}' Refusal: Required step '${step.id}' is unavailable.`,
+          );
           console.error(`   ${avail.details}`);
         }
         const refusalResult: StepExecutionResult = {
@@ -254,7 +259,9 @@ export function runQualityGates(options: QualityGatesOptions = {}): QualityGates
   if (!silent) {
     console.log(`\n======================================================`);
     console.log(`🛡️  Annus Mirabilis Quality Gates Chain`);
-    console.log(`   Mode: ${rawMode} | Profile: ${profile || "none"} | Family: ${familyFilter} | Cadence: ${cadence}`);
+    console.log(
+      `   Mode: ${rawMode} | Profile: ${profile || "none"} | Family: ${familyFilter} | Cadence: ${cadence}`,
+    );
     console.log(`   Selected Steps: ${selectedSteps.length}`);
     console.log(`======================================================\n`);
   }
@@ -485,7 +492,7 @@ export function runQualityGates(options: QualityGatesOptions = {}): QualityGates
 function writeStructuredLogs(
   rootDir: string,
   summary: QualityGatesSummary,
-  customLogsDir?: string
+  customLogsDir?: string,
 ): string {
   const logsDir = customLogsDir || join(rootDir, "artifacts", "test-logs", "quality-gates");
   mkdirSync(logsDir, { recursive: true });
@@ -540,7 +547,9 @@ function writeStructuredLogs(
   writeFileSync(logFile, lines.join("\n") + "\n", "utf8");
 
   // 3. Retain evidence for failed steps
-  const failedSteps = summary.results.filter((r) => r.outcome === "failed" || r.outcome === "refused");
+  const failedSteps = summary.results.filter(
+    (r) => r.outcome === "failed" || r.outcome === "refused",
+  );
   if (failedSteps.length > 0) {
     const evidenceDir = join(logsDir, summary.logRunId, "evidence");
     mkdirSync(evidenceDir, { recursive: true });
@@ -554,7 +563,7 @@ function writeStructuredLogs(
       writeFileSync(
         join(evidenceDir, `${failed.stepId}.meta.json`),
         JSON.stringify(failed, null, 2),
-        "utf8"
+        "utf8",
       );
     }
   }
@@ -593,7 +602,9 @@ export function parseCliArgs(argv: string[]): QualityGatesOptions {
       if (val === "all" || KNOWN_FAMILIES.includes(val as GateFamily)) {
         options.family = val as GateFamily | "all";
       } else {
-        console.error(`Unknown family '${val}'. Expected one of: ${KNOWN_FAMILIES.join(", ")}, all`);
+        console.error(
+          `Unknown family '${val}'. Expected one of: ${KNOWN_FAMILIES.join(", ")}, all`,
+        );
         process.exit(1);
       }
     } else if (arg === "--cadence") {
@@ -601,7 +612,9 @@ export function parseCliArgs(argv: string[]): QualityGatesOptions {
       if (val === "all" || KNOWN_CADENCES.includes(val as GateCadence)) {
         options.cadence = val as GateCadence | "all";
       } else {
-        console.error(`Unknown cadence '${val}'. Expected one of: ${KNOWN_CADENCES.join(", ")}, all`);
+        console.error(
+          `Unknown cadence '${val}'. Expected one of: ${KNOWN_CADENCES.join(", ")}, all`,
+        );
         process.exit(1);
       }
     } else if (arg === "--only") {

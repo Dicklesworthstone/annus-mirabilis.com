@@ -37,7 +37,8 @@ export function diagnoseRustLldRpath(
   const present = new Set(existingFiles);
   const rpathHasLibLLVM = resolvedLibSearch.some((dir) => present.has(`${dir}/libLLVM.dylib`));
   const toolchainRoot = rustLldPath.split("/lib/rustlib/")[0];
-  const toolchainLibHasLibLLVM = toolchainRoot !== undefined && present.has(`${toolchainRoot}/lib/libLLVM.dylib`);
+  const toolchainLibHasLibLLVM =
+    toolchainRoot !== undefined && present.has(`${toolchainRoot}/lib/libLLVM.dylib`);
   const pinLayoutBroken = loadsLibLLVM && toolchainLibHasLibLLVM && !rpathHasLibLLVM;
   const reason = pinLayoutBroken
     ? "rust-lld LC_RPATH is @loader_path/../lib, so it looks in rustlib/<triple>/lib/ for libLLVM.dylib. nightly-2026-07-06 on Darwin ships libLLVM.dylib in the toolchain lib/ directory instead. That is a toolchain layout defect, not an invalid wasm-bindgen export list."
@@ -56,11 +57,20 @@ export function diagnoseRustLldRpath(
   };
 }
 
-export function classifyWasmLinkTranscript(transcript: string): "toolchain-lld" | "linked" | "other" {
-  if (/Finished `dev` profile/.test(transcript) && /error: linking with `rust-lld` failed/.test(transcript) === false) {
+export function classifyWasmLinkTranscript(
+  transcript: string,
+): "toolchain-lld" | "linked" | "other" {
+  if (
+    /Finished `dev` profile/.test(transcript) &&
+    /error: linking with `rust-lld` failed/.test(transcript) === false
+  ) {
     return "linked";
   }
-  if (/linking with `rust-lld` failed/.test(transcript) || /signal: 6/.test(transcript) || /libLLVM\.dylib/.test(transcript)) {
+  if (
+    /linking with `rust-lld` failed/.test(transcript) ||
+    /signal: 6/.test(transcript) ||
+    /libLLVM\.dylib/.test(transcript)
+  ) {
     return "toolchain-lld";
   }
   return "other";

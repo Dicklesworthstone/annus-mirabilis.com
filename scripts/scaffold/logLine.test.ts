@@ -1,13 +1,13 @@
 import assert from "node:assert/strict";
-import test from "node:test";
 import { mkdtempSync, readFileSync, rmSync } from "node:fs";
 import { tmpdir } from "node:os";
 import { join } from "node:path";
+import test from "node:test";
 import {
-  LOG_RUN_ID_PATTERN,
   appendLogLine,
   evidenceDirFor,
   formatLogLine,
+  LOG_RUN_ID_PATTERN,
   logPathFor,
   newLogRunId,
   writeEvidenceFile,

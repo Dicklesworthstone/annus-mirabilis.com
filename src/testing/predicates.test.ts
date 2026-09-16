@@ -48,7 +48,8 @@ describe("Result Predicates Weave Mechanism", () => {
       testId: "predicates-registry-evaluation",
       outcome: "pass",
       durationMs: performance.now() - start,
-      message: "ResultClauseRegistry evaluates predicate clauses and returns structured clause objects",
+      message:
+        "ResultClauseRegistry evaluates predicate clauses and returns structured clause objects",
     });
   });
 });

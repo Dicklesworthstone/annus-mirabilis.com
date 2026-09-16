@@ -1,14 +1,14 @@
 import { describe, expect, it } from "bun:test";
 import {
   anchorForSourceId,
-  entryAnchorForEntrance,
   entranceForEntryAnchor,
+  entryAnchorForEntrance,
   equationAnchorForRecord,
   equationRecordForAnchor,
   parseAnchor,
 } from "../content/anchors.ts";
 import { ENTRANCE_PAPER_SLUGS } from "../content/ids.ts";
-import { TestLogger, newRunIdentity } from "./log/logger.ts";
+import { newRunIdentity, TestLogger } from "./log/logger.ts";
 
 describe("Anchors and Mappings", () => {
   const logger = new TestLogger("content-ids", newRunIdentity());

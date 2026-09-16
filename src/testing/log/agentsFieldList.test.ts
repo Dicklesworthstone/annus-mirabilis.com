@@ -1,8 +1,8 @@
-import test from "node:test";
 import assert from "node:assert/strict";
 import { readFileSync } from "node:fs";
 import path from "node:path";
-import { FIELD_ORDER, AGENTS_MD_SUITE_LOG_PATH_PATTERN } from "./schema.ts";
+import test from "node:test";
+import { AGENTS_MD_SUITE_LOG_PATH_PATTERN, FIELD_ORDER } from "./schema.ts";
 
 const AGENTS_MD_PATH = path.join(process.cwd(), "AGENTS.md");
 
@@ -16,15 +16,20 @@ const KNOWN_NON_FIELD_VALUE_TOKENS = new Set(["bitwise", "formatted"]);
 function extractStructuredLogsParagraph(agentsMdText: string): string {
   const marker = "**Structured logs.**";
   const start = agentsMdText.indexOf(marker);
-  if (start === -1) throw new Error('Could not find the "Structured logs." paragraph in AGENTS.md.');
+  if (start === -1)
+    throw new Error('Could not find the "Structured logs." paragraph in AGENTS.md.');
   const end = agentsMdText.indexOf("\n", start);
-  if (end === -1) throw new Error('The "Structured logs." paragraph never terminates before end of file.');
+  if (end === -1)
+    throw new Error('The "Structured logs." paragraph never terminates before end of file.');
   return agentsMdText.slice(start, end);
 }
 
 function extractSuiteLogPathPattern(paragraph: string): string {
   const match = paragraph.match(/writes JSON lines to `([^`]+)`/);
-  if (!match) throw new Error('Could not find the suite log path pattern in the "Structured logs." paragraph.');
+  if (!match)
+    throw new Error(
+      'Could not find the suite log path pattern in the "Structured logs." paragraph.',
+    );
   return match[1]!;
 }
 
@@ -48,10 +53,15 @@ function extractFieldNameTokens(paragraph: string): string[] {
  * fixture paragraph in the test below, so a schema/document drift is always
  * a build failure, never a silent gap.
  */
-function assertParagraphFieldsAreInSchema(paragraph: string, knownFields: ReadonlySet<string>): void {
+function assertParagraphFieldsAreInSchema(
+  paragraph: string,
+  knownFields: ReadonlySet<string>,
+): void {
   for (const field of extractFieldNameTokens(paragraph)) {
     if (!knownFields.has(field)) {
-      throw new Error(`AGENTS.md's "Structured logs" paragraph names field "${field}", which is missing from the logging schema.`);
+      throw new Error(
+        `AGENTS.md's "Structured logs" paragraph names field "${field}", which is missing from the logging schema.`,
+      );
     }
   }
 }
@@ -69,10 +79,13 @@ test('every field named in AGENTS.md\'s "Structured logs" paragraph exists in th
   assert.ok(fields.includes("runId"));
   assert.ok(fields.includes("seed"));
   assert.ok(fields.includes("comparisonKind"));
-  assert.ok(fields.length >= 25, `expected at least 25 distinct fields named in the paragraph, found ${fields.length}`);
+  assert.ok(
+    fields.length >= 25,
+    `expected at least 25 distinct fields named in the paragraph, found ${fields.length}`,
+  );
 });
 
-test('the path pattern in AGENTS.md matches artifacts/test-logs/<suite>/<log-run-id>.jsonl', () => {
+test("the path pattern in AGENTS.md matches artifacts/test-logs/<suite>/<log-run-id>.jsonl", () => {
   const agentsMd = readFileSync(AGENTS_MD_PATH, "utf8");
   const paragraph = extractStructuredLogsParagraph(agentsMd);
   const pathPattern = extractSuiteLogPathPattern(paragraph);

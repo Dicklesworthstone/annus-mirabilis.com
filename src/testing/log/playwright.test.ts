@@ -1,23 +1,36 @@
-import test from "node:test";
 import assert from "node:assert/strict";
 import { readFileSync } from "node:fs";
-import { logPlaywrightStep, createJourneyLoggingFixture, TestLogReporter } from "./playwright.ts";
+import test from "node:test";
 import { getLogger, newRunIdentity } from "./logger.ts";
-import { parseLogLine } from "./schema.ts";
-import { LogSchemaError } from "./schema.ts";
+import { createJourneyLoggingFixture, logPlaywrightStep, TestLogReporter } from "./playwright.ts";
+import { LogSchemaError, parseLogLine } from "./schema.ts";
 
 const SUITE = "test-logging";
 
 function eventsFor(suite: string, logRunId: string) {
   const logger = getLogger(suite, logRunId);
-  return readFileSync(logger.filePath, "utf8").split("\n").filter((l) => l.length > 0).map(parseLogLine);
+  return readFileSync(logger.filePath, "utf8")
+    .split("\n")
+    .filter((l) => l.length > 0)
+    .map(parseLogLine);
 }
 
 test("logPlaywrightStep records the journey lane fields on a passing step", async () => {
   const logRunId = newRunIdentity();
   const logger = getLogger(SUITE, logRunId);
   logPlaywrightStep(
-    { suite: SUITE, logRunId, testId: "brownian-slice-enter", browser: "chromium", viewport: "1280x800", reducedMotion: false, jsEnabled: true, lane: "desktop", journey: "brownian-slice", step: "enter-deep-passage" },
+    {
+      suite: SUITE,
+      logRunId,
+      testId: "brownian-slice-enter",
+      browser: "chromium",
+      viewport: "1280x800",
+      reducedMotion: false,
+      jsEnabled: true,
+      lane: "desktop",
+      journey: "brownian-slice",
+      step: "enter-deep-passage",
+    },
     "passed",
     { durationMs: 42 },
   );
@@ -33,7 +46,19 @@ test("logPlaywrightStep records the journey lane fields on a passing step", asyn
 test("THE FAILURE-REPORTING PATH IS ITSELF TESTED: a failing browser step without evidence is rejected", () => {
   const logRunId = newRunIdentity();
   assert.throws(
-    () => logPlaywrightStep({ suite: SUITE, logRunId, testId: "missing-evidence", browser: "chromium", viewport: "1280x800", reducedMotion: false, jsEnabled: true }, "failed"),
+    () =>
+      logPlaywrightStep(
+        {
+          suite: SUITE,
+          logRunId,
+          testId: "missing-evidence",
+          browser: "chromium",
+          viewport: "1280x800",
+          reducedMotion: false,
+          jsEnabled: true,
+        },
+        "failed",
+      ),
     LogSchemaError,
   );
 });
@@ -42,7 +67,18 @@ test("THE FAILURE-REPORTING PATH IS ITSELF TESTED: a failing browser step with e
   const logRunId = newRunIdentity();
   const logger = getLogger(SUITE, logRunId);
   logPlaywrightStep(
-    { suite: SUITE, logRunId, testId: "operate-instrument-fails", browser: "webkit", viewport: "320x568", reducedMotion: true, jsEnabled: true, lane: "touch-320", journey: "brownian-slice", step: "operate-instrument" },
+    {
+      suite: SUITE,
+      logRunId,
+      testId: "operate-instrument-fails",
+      browser: "webkit",
+      viewport: "320x568",
+      reducedMotion: true,
+      jsEnabled: true,
+      lane: "touch-320",
+      journey: "brownian-slice",
+      step: "operate-instrument",
+    },
     "failed",
     {
       message: "instrument did not respond to the drag gesture",
@@ -67,7 +103,16 @@ test("THE FAILURE-REPORTING PATH IS ITSELF TESTED: a failing browser step with e
 test("createJourneyLoggingFixture logs through a fixed suite/log-run id and flushes", async () => {
   const logRunId = newRunIdentity();
   const fixture = createJourneyLoggingFixture({ suite: SUITE, logRunId });
-  fixture.logStep({ testId: "fixture-step", browser: "chromium", viewport: "1280x800", reducedMotion: false, jsEnabled: true }, "passed");
+  fixture.logStep(
+    {
+      testId: "fixture-step",
+      browser: "chromium",
+      viewport: "1280x800",
+      reducedMotion: false,
+      jsEnabled: true,
+    },
+    "passed",
+  );
   await fixture.flush();
   const [event] = eventsFor(SUITE, logRunId);
   assert.equal(event!.testId, "fixture-step");
@@ -80,7 +125,16 @@ test("TestLogReporter.onTestEnd maps a passing Playwright result including proje
   reporter.onTestEnd(
     {
       title: "enters through a deep source passage",
-      parent: { project: () => ({ name: "webkit-mobile", use: { viewport: { width: 375, height: 667 }, reducedMotion: "reduce", javaScriptEnabled: true } }) },
+      parent: {
+        project: () => ({
+          name: "webkit-mobile",
+          use: {
+            viewport: { width: 375, height: 667 },
+            reducedMotion: "reduce",
+            javaScriptEnabled: true,
+          },
+        }),
+      },
     },
     { status: "passed", duration: 123.4, attachments: [] },
   );
@@ -99,7 +153,12 @@ test("TestLogReporter.onTestEnd on a failing result attaches screenshot/trace/do
   reporter.onTestEnd(
     {
       title: "operates an instrument",
-      parent: { project: () => ({ name: "chromium", use: { viewport: { width: 1280, height: 800 }, javaScriptEnabled: true } }) },
+      parent: {
+        project: () => ({
+          name: "chromium",
+          use: { viewport: { width: 1280, height: 800 }, javaScriptEnabled: true },
+        }),
+      },
     },
     {
       status: "failed",
@@ -127,7 +186,10 @@ test("TestLogReporter.onTestEnd on a failing result WITHOUT evidence attachments
   assert.throws(
     () =>
       reporter.onTestEnd(
-        { title: "operates an instrument without captured evidence", parent: { project: () => ({ name: "chromium" }) } },
+        {
+          title: "operates an instrument without captured evidence",
+          parent: { project: () => ({ name: "chromium" }) },
+        },
         { status: "failed", duration: 10, error: { message: "boom" }, attachments: [] },
       ),
     LogSchemaError,

@@ -5,11 +5,11 @@
  * Validates docs/OWNERS.md and all 9 review briefs under docs/review/.
  */
 
-import { describe, it } from "node:test";
 import assert from "node:assert/strict";
+import { randomBytes } from "node:crypto";
 import { existsSync, mkdirSync, readFileSync, writeFileSync } from "node:fs";
 import { join } from "node:path";
-import { randomBytes } from "node:crypto";
+import { describe, it } from "node:test";
 
 export function generateLogRunId(date: Date = new Date()): string {
   const pad = (n: number) => String(n).padStart(2, "0");
@@ -50,7 +50,7 @@ export const VALID_ROLE_IDS = new Set([
   "translator",
   "checking-editor",
   "glossator",
-  "edition-editor"
+  "edition-editor",
 ]);
 
 export const REVIEW_ROLES = new Set([
@@ -63,7 +63,7 @@ export const REVIEW_ROLES = new Set([
   "cross-projection-reviewer",
   "accessibility-codesign-facilitator",
   "comprehension-facilitator",
-  "real-device-tester"
+  "real-device-tester",
 ]);
 
 export interface OwnersValidationResult {
@@ -100,7 +100,11 @@ export function parseOwnersMarkdown(content: string): OwnersValidationResult {
       continue;
     }
 
-    if (line.startsWith("| id | displayName | roles | scope | status | consentToBeNamed | assignedBy | assignedOn |")) {
+    if (
+      line.startsWith(
+        "| id | displayName | roles | scope | status | consentToBeNamed | assignedBy | assignedOn |",
+      )
+    ) {
       tableHeaderFound = true;
       inTable = true;
       i++; // Skip separator line
@@ -116,7 +120,9 @@ export function parseOwnersMarkdown(content: string): OwnersValidationResult {
       const rawCols = line.split("|").map((c) => c.trim());
       // A valid table row split by '|' has empty string at index 0 and index 9 (before first and after last |)
       if (rawCols.length < 10) {
-        errors.push(`Line ${i + 1}: Table row has ${rawCols.length - 2} columns, expected 8 columns.`);
+        errors.push(
+          `Line ${i + 1}: Table row has ${rawCols.length - 2} columns, expected 8 columns.`,
+        );
         continue;
       }
 
@@ -131,7 +137,9 @@ export function parseOwnersMarkdown(content: string): OwnersValidationResult {
 
       // Validate ID
       if (!id || !/^[a-z0-9][a-z0-9-]{1,40}$/.test(id)) {
-        errors.push(`Line ${i + 1}: Invalid id '${id}'. Must be lowercase handle [a-z0-9][a-z0-9-]{1,40}.`);
+        errors.push(
+          `Line ${i + 1}: Invalid id '${id}'. Must be lowercase handle [a-z0-9][a-z0-9-]{1,40}.`,
+        );
       }
 
       if (id.startsWith("model:")) {
@@ -139,35 +147,52 @@ export function parseOwnersMarkdown(content: string): OwnersValidationResult {
       }
 
       // Check agent in reviewer role
-      const roles = rolesRaw.split(",").map((r) => r.trim()).filter(Boolean);
+      const roles = rolesRaw
+        .split(",")
+        .map((r) => r.trim())
+        .filter(Boolean);
       for (const role of roles) {
         if (!VALID_ROLE_IDS.has(role)) {
           errors.push(`Line ${i + 1}: Unknown role id '${role}'.`);
         }
-        if (REVIEW_ROLES.has(role) && (id.startsWith("agent:") || assignedBy.startsWith("model:"))) {
+        if (
+          REVIEW_ROLES.has(role) &&
+          (id.startsWith("agent:") || assignedBy.startsWith("model:"))
+        ) {
           errors.push(`Line ${i + 1}: Agent ID '${id}' may not hold reviewer role '${role}'.`);
         }
       }
 
-      const scope = scopeRaw.split(",").map((s) => s.trim()).filter(Boolean);
+      const scope = scopeRaw
+        .split(",")
+        .map((s) => s.trim())
+        .filter(Boolean);
 
       // Validate Status and Name
       if (statusRaw === "open: recruiting") {
         if (displayName.length > 0) {
-          errors.push(`Line ${i + 1}: Open recruiting row '${id}' must have an empty displayName, found '${displayName}'.`);
+          errors.push(
+            `Line ${i + 1}: Open recruiting row '${id}' must have an empty displayName, found '${displayName}'.`,
+          );
         }
         if (consentRaw !== "not-applicable") {
-          errors.push(`Line ${i + 1}: Open recruiting row '${id}' must have consentToBeNamed 'not-applicable', found '${consentRaw}'.`);
+          errors.push(
+            `Line ${i + 1}: Open recruiting row '${id}' must have consentToBeNamed 'not-applicable', found '${consentRaw}'.`,
+          );
         }
       } else if (statusRaw === "assigned") {
         if (displayName.length === 0) {
           errors.push(`Line ${i + 1}: Assigned row '${id}' must have a non-empty displayName.`);
         }
         if (consentRaw !== "yes") {
-          errors.push(`Line ${i + 1}: Assigned row '${id}' must have consentToBeNamed 'yes', found '${consentRaw}'.`);
+          errors.push(
+            `Line ${i + 1}: Assigned row '${id}' must have consentToBeNamed 'yes', found '${consentRaw}'.`,
+          );
         }
       } else {
-        errors.push(`Line ${i + 1}: Unknown status '${statusRaw}'. Expected 'assigned' or 'open: recruiting'.`);
+        errors.push(
+          `Line ${i + 1}: Unknown status '${statusRaw}'. Expected 'assigned' or 'open: recruiting'.`,
+        );
       }
 
       rows.push({
@@ -178,22 +203,28 @@ export function parseOwnersMarkdown(content: string): OwnersValidationResult {
         status: statusRaw as "assigned" | "open: recruiting",
         consentToBeNamed: consentRaw as "yes" | "not-applicable",
         assignedBy,
-        assignedOn
+        assignedOn,
       });
     }
   }
 
   if (!tableHeaderFound) {
-    errors.push("Missing required table header: | id | displayName | roles | scope | status | consentToBeNamed | assignedBy | assignedOn |");
+    errors.push(
+      "Missing required table header: | id | displayName | roles | scope | status | consentToBeNamed | assignedBy | assignedOn |",
+    );
   }
 
   // Verify qualifications for assigned reviewers
   const qualSet = new Set(qualifications);
   for (const row of rows) {
     if (row.status === "assigned") {
-      const hasReviewRole = row.roles.some((r) => REVIEW_ROLES.has(r) || r === "editorial-owner" || r === "implementation-owner");
+      const hasReviewRole = row.roles.some(
+        (r) => REVIEW_ROLES.has(r) || r === "editorial-owner" || r === "implementation-owner",
+      );
       if (hasReviewRole && !qualSet.has(row.id)) {
-        errors.push(`Assigned owner/reviewer '${row.id}' must have a qualification statement under '## Qualifications'.`);
+        errors.push(
+          `Assigned owner/reviewer '${row.id}' must have a qualification statement under '## Qualifications'.`,
+        );
       }
     }
   }
@@ -202,7 +233,7 @@ export function parseOwnersMarkdown(content: string): OwnersValidationResult {
     ok: errors.length === 0,
     errors,
     rows,
-    qualifications
+    qualifications,
   };
 }
 
@@ -220,17 +251,19 @@ export const SUPERSEDED_PHYSICS_RULES: readonly SupersededPhraseRule[] = [
   {
     name: "printed elementary charge",
     test: (line: string) => /printed\s+elementary\s+charge/i.test(line),
-    reason: "Elementary charge was not printed in Paper 1."
+    reason: "Elementary charge was not printed in Paper 1.",
   },
   {
     name: "R and L called 'printed constants'",
-    test: (line: string) => /\$?R\$?\s+and\s+\$?L\$?\s+called\s+['"]?printed constants['"]?/i.test(line) || /called\s+['"]printed constants['"]/i.test(line),
-    reason: "R and L are editorial inputs, not printed constants."
+    test: (line: string) =>
+      /\$?R\$?\s+and\s+\$?L\$?\s+called\s+['"]?printed constants['"]?/i.test(line) ||
+      /called\s+['"]printed constants['"]/i.test(line),
+    reason: "R and L are editorial inputs, not printed constants.",
   },
   {
     name: "$k$ from 1 to",
     test: (line: string) => /\$?k\$?\s+from\s+1\s+to/i.test(line),
-    reason: "Obsolete notation index form."
+    reason: "Obsolete notation index form.",
   },
   {
     name: "gasConstant (unrejected)",
@@ -242,19 +275,25 @@ export const SUPERSEDED_PHYSICS_RULES: readonly SupersededPhraseRule[] = [
         !lower.includes("the spelling gasconstant is rejected")
       );
     },
-    reason: "Rejected spelling; canonical quantity is molarGasConstant."
+    reason: "Rejected spelling; canonical quantity is molarGasConstant.",
   },
   {
     name: "60 s displacement without constant set",
     test: (line: string) => {
       const lower = line.toLowerCase();
       if (/60\s*s\s*displacement/i.test(line)) {
-        return !lower.includes("constant set") && !lower.includes("printed") && !lower.includes("about 6") && !lower.includes("einstein-1905");
+        return (
+          !lower.includes("constant set") &&
+          !lower.includes("printed") &&
+          !lower.includes("about 6") &&
+          !lower.includes("einstein-1905")
+        );
       }
       return false;
     },
-    reason: "60 s displacement must always be stated with its explicit constant set or as printed 'about 6'."
-  }
+    reason:
+      "60 s displacement must always be stated with its explicit constant set or as printed 'about 6'.",
+  },
 ];
 
 export function checkSupersededPhrases(content: string): { phrase: string; line: number }[] {
@@ -294,7 +333,7 @@ describe("Reviewer Briefs and Owners Table Suite", () => {
       file,
       check,
       outcome,
-      message
+      message,
     };
     writeFileSync(logPath, JSON.stringify(logEntry) + "\n", { flag: "a", encoding: "utf8" });
   }
@@ -309,7 +348,7 @@ describe("Reviewer Briefs and Owners Table Suite", () => {
       "transfer-task.md",
       "cross-projection.md",
       "contributors.md",
-      "facilitators.md"
+      "facilitators.md",
     ];
 
     for (const briefName of requiredBriefs) {
@@ -318,8 +357,16 @@ describe("Reviewer Briefs and Owners Table Suite", () => {
         assert.ok(existsSync(filePath), `Brief ${briefName} must exist under docs/review/`);
 
         const content = readFileSync(filePath, "utf8");
-        assert.ok(content.includes("## Evidence Format"), `${briefName} must have an '## Evidence Format' section`);
-        logCheck("brief-existence", briefName, "passed", `${briefName} exists with evidence format`);
+        assert.ok(
+          content.includes("## Evidence Format"),
+          `${briefName} must have an '## Evidence Format' section`,
+        );
+        logCheck(
+          "brief-existence",
+          briefName,
+          "passed",
+          `${briefName} exists with evidence format`,
+        );
       });
     }
   });
@@ -337,10 +384,21 @@ describe("Reviewer Briefs and Owners Table Suite", () => {
 
       assert.ok(content.includes("page-comparison.yaml"), "Must reference page-comparison.yaml");
       assert.ok(content.includes("disagreements.yaml"), "Must reference disagreements.yaml");
-      assert.ok(content.includes("german-source-focus.yaml"), "Must reference german-source-focus.yaml");
-      assert.ok(content.includes("scripts/import-review-record.ts"), "Must reference import command");
+      assert.ok(
+        content.includes("german-source-focus.yaml"),
+        "Must reference german-source-focus.yaml",
+      );
+      assert.ok(
+        content.includes("scripts/import-review-record.ts"),
+        "Must reference import command",
+      );
 
-      logCheck("german-source-sections", "german-source.md", "passed", "german-source.md contains all required sections and artifacts");
+      logCheck(
+        "german-source-sections",
+        "german-source.md",
+        "passed",
+        "german-source.md contains all required sections and artifacts",
+      );
     });
   });
 
@@ -360,21 +418,35 @@ describe("Reviewer Briefs and Owners Table Suite", () => {
         "ftcs-unstable",
         "molarGasConstant",
         "avogadroConstant",
-        "\\gamma\\,\\mathbf{v}\\times\\mathbf{B}"
+        "\\gamma\\,\\mathbf{v}\\times\\mathbf{B}",
       ];
 
       for (const val of requiredValues) {
         assert.ok(content.includes(val), `physics.md must contain required fixture value '${val}'`);
       }
 
-      logCheck("physics-constants", "physics.md", "passed", "physics.md contains all audited fixture constants");
+      logCheck(
+        "physics-constants",
+        "physics.md",
+        "passed",
+        "physics.md contains all audited fixture constants",
+      );
     });
 
     it("contains zero superseded statements", () => {
       const content = readFileSync(join(reviewDir, "physics.md"), "utf8");
       const violations = checkSupersededPhrases(content);
-      assert.deepEqual(violations, [], `physics.md contains superseded statements: ${JSON.stringify(violations)}`);
-      logCheck("physics-superseded-check", "physics.md", "passed", "physics.md free of superseded statements");
+      assert.deepEqual(
+        violations,
+        [],
+        `physics.md contains superseded statements: ${JSON.stringify(violations)}`,
+      );
+      logCheck(
+        "physics-superseded-check",
+        "physics.md",
+        "passed",
+        "physics.md free of superseded statements",
+      );
     });
 
     it("planted negative: catches superseded statement in bad fixture", () => {
@@ -385,9 +457,17 @@ $R$ and $L$ called 'printed constants' in paper 1.
 The spelling gasConstant is used directly.
 `;
       const violations = checkSupersededPhrases(badFixture);
-      assert.ok(violations.length >= 3, "Planted negative fixture must detect all superseded phrases");
+      assert.ok(
+        violations.length >= 3,
+        "Planted negative fixture must detect all superseded phrases",
+      );
       assert.ok(violations.some((v) => v.phrase === "printed elementary charge" && v.line === 3));
-      logCheck("physics-planted-negative", "badFixture", "passed", "Planted negative fixture detected superseded phrases with line numbers");
+      logCheck(
+        "physics-planted-negative",
+        "badFixture",
+        "passed",
+        "Planted negative fixture detected superseded phrases with line numbers",
+      );
     });
   });
 
@@ -407,7 +487,7 @@ The spelling gasConstant is used directly.
         "Results card",
         "Printed chapter",
         "Accessible equivalent",
-        "Fifteen-minute tour"
+        "Fifteen-minute tour",
       ];
 
       let lastIndex = -1;
@@ -432,14 +512,22 @@ The spelling gasConstant is used directly.
         "missing-accessible-bridge",
         "broken-weave-link",
         "misaligned-step",
-        "unexplained-jump"
+        "unexplained-jump",
       ];
       for (const fk of findingKinds) {
         assert.ok(content.includes(fk), `cross-projection.md must define finding kind '${fk}'`);
       }
 
-      assert.ok(content.includes("authored none of the eleven projections"), "Must enforce self-review prohibition");
-      logCheck("cross-projection-matrix", "cross-projection.md", "passed", "cross-projection.md verified with 11 projections, 4 verdicts, and 7 finding kinds");
+      assert.ok(
+        content.includes("authored none of the eleven projections"),
+        "Must enforce self-review prohibition",
+      );
+      logCheck(
+        "cross-projection-matrix",
+        "cross-projection.md",
+        "passed",
+        "cross-projection.md verified with 11 projections, 4 verdicts, and 7 finding kinds",
+      );
     });
   });
 
@@ -492,7 +580,10 @@ The spelling gasConstant is used directly.
       const result = parseOwnersMarkdown(content);
 
       assert.ok(result.ok, `docs/OWNERS.md failed validation: ${result.errors.join("; ")}`);
-      assert.ok(result.rows.length >= 20, "OWNERS.md must have at least 20 owner/reviewer/contributor rows");
+      assert.ok(
+        result.rows.length >= 20,
+        "OWNERS.md must have at least 20 owner/reviewer/contributor rows",
+      );
 
       // Verify jemanuel is editorial-owner and implementation-owner
       const jemanuel = result.rows.find((r) => r.id === "jemanuel");
@@ -508,7 +599,12 @@ The spelling gasConstant is used directly.
       assert.ok(openRows.every((r) => r.displayName === ""));
       assert.ok(openRows.every((r) => r.consentToBeNamed === "not-applicable"));
 
-      logCheck("owners-real-validation", "OWNERS.md", "passed", "docs/OWNERS.md valid with jemanuel and open-recruiting rows");
+      logCheck(
+        "owners-real-validation",
+        "OWNERS.md",
+        "passed",
+        "docs/OWNERS.md valid with jemanuel and open-recruiting rows",
+      );
     });
 
     it("planted negative: row with missing column fails", () => {
@@ -520,7 +616,12 @@ The spelling gasConstant is used directly.
       const result = parseOwnersMarkdown(malformed);
       assert.equal(result.ok, false);
       assert.ok(result.errors.some((e) => e.includes("expected 8 columns")));
-      logCheck("owners-planted-missing-col", "fixture", "passed", "Planted negative: missing column detected");
+      logCheck(
+        "owners-planted-missing-col",
+        "fixture",
+        "passed",
+        "Planted negative: missing column detected",
+      );
     });
 
     it("planted negative: agent id in reviewer role fails with distinct agent error", () => {
@@ -535,8 +636,17 @@ LLM orchestrator.
 `;
       const result = parseOwnersMarkdown(agentReviewer);
       assert.equal(result.ok, false);
-      assert.ok(result.errors.some((e) => e.includes("Agent ID 'agent:BoldHarbor' may not hold reviewer role")));
-      logCheck("owners-planted-agent-reviewer", "fixture", "passed", "Planted negative: agent in reviewer role rejected");
+      assert.ok(
+        result.errors.some((e) =>
+          e.includes("Agent ID 'agent:BoldHarbor' may not hold reviewer role"),
+        ),
+      );
+      logCheck(
+        "owners-planted-agent-reviewer",
+        "fixture",
+        "passed",
+        "Planted negative: agent in reviewer role rejected",
+      );
     });
 
     it("planted negative: open recruiting row with a displayName fails", () => {
@@ -547,8 +657,19 @@ LLM orchestrator.
 `;
       const result = parseOwnersMarkdown(namedOpen);
       assert.equal(result.ok, false);
-      assert.ok(result.errors.some((e) => e.includes("Open recruiting row 'open-german-source-brownian' must have an empty displayName")));
-      logCheck("owners-planted-open-named", "fixture", "passed", "Planted negative: named open recruiting row rejected");
+      assert.ok(
+        result.errors.some((e) =>
+          e.includes(
+            "Open recruiting row 'open-german-source-brownian' must have an empty displayName",
+          ),
+        ),
+      );
+      logCheck(
+        "owners-planted-open-named",
+        "fixture",
+        "passed",
+        "Planted negative: named open recruiting row rejected",
+      );
     });
 
     it("planted negative: assigned row without consentToBeNamed: yes fails", () => {
@@ -564,7 +685,12 @@ PhD in Germanics.
       const result = parseOwnersMarkdown(noConsent);
       assert.equal(result.ok, false);
       assert.ok(result.errors.some((e) => e.includes("must have consentToBeNamed 'yes'")));
-      logCheck("owners-planted-no-consent", "fixture", "passed", "Planted negative: assigned row without consent rejected");
+      logCheck(
+        "owners-planted-no-consent",
+        "fixture",
+        "passed",
+        "Planted negative: assigned row without consent rejected",
+      );
     });
 
     it("planted negative: assigned row without qualification statement fails", () => {
@@ -578,7 +704,12 @@ PhD in Germanics.
       const result = parseOwnersMarkdown(noQual);
       assert.equal(result.ok, false);
       assert.ok(result.errors.some((e) => e.includes("must have a qualification statement")));
-      logCheck("owners-planted-no-qual", "fixture", "passed", "Planted negative: assigned row without qualification statement rejected");
+      logCheck(
+        "owners-planted-no-qual",
+        "fixture",
+        "passed",
+        "Planted negative: assigned row without qualification statement rejected",
+      );
     });
 
     it("planted negative: unknown human authorship ID fails resolution", () => {
@@ -592,7 +723,12 @@ PhD in Germanics.
       const isValidUnknown = validateAuthorshipId("unknown-person-42", result.rows);
       assert.equal(isValidUnknown, false);
 
-      logCheck("owners-authorship-unknown", "OWNERS.md", "passed", "Authorship ID validation correctly resolves known vs unknown contributors");
+      logCheck(
+        "owners-authorship-unknown",
+        "OWNERS.md",
+        "passed",
+        "Authorship ID validation correctly resolves known vs unknown contributors",
+      );
     });
   });
 });

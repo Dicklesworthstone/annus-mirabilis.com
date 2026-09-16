@@ -101,7 +101,11 @@ export function validateSlug(slug: string): ParseResult<string> {
     return { ok: false, error: "Slug must be a non-empty string", rule: "slug-grammar" };
   }
   if (slug.includes(":") || slug.includes(" ")) {
-    return { ok: false, error: `Slug '${slug}' cannot contain colons or whitespace`, rule: "slug-grammar" };
+    return {
+      ok: false,
+      error: `Slug '${slug}' cannot contain colons or whitespace`,
+      rule: "slug-grammar",
+    };
   }
   if (slug.startsWith("-") || slug.endsWith("-") || slug.includes("--")) {
     return {
@@ -160,9 +164,17 @@ export interface NonCoreInstrumentDescriptor {
 }
 
 export const NON_CORE_INSTRUMENT_IDS: readonly NonCoreInstrumentDescriptor[] = [
-  { id: "shelf-michelson-morley", kind: "shelf", owningBead: "am-disc-shelf-michelson-fizeau-dauq" },
+  {
+    id: "shelf-michelson-morley",
+    kind: "shelf",
+    owningBead: "am-disc-shelf-michelson-fizeau-dauq",
+  },
   { id: "shelf-fizeau", kind: "shelf", owningBead: "am-disc-shelf-michelson-fizeau-dauq" },
-  { id: "shelf-maxwell-galilean", kind: "shelf", owningBead: "am-disc-shelf-michelson-fizeau-dauq" },
+  {
+    id: "shelf-maxwell-galilean",
+    kind: "shelf",
+    owningBead: "am-disc-shelf-michelson-fizeau-dauq",
+  },
   { id: "avogadro-lab", kind: "discovery", owningBead: "am-disc-avogadro-lab-pfi7" },
   { id: "light-thread", kind: "discovery", owningBead: "am-disc-light-thread-7wm4" },
 ] as const;
@@ -173,7 +185,9 @@ export type InstrumentId = Brand<string, "InstrumentId">;
 
 export function parseInstrumentId(
   raw: string,
-): { readonly ok: true; readonly value: InstrumentId; readonly kind: InstrumentKind } | { readonly ok: false; readonly error: string; readonly rule?: string } {
+):
+  | { readonly ok: true; readonly value: InstrumentId; readonly kind: InstrumentKind }
+  | { readonly ok: false; readonly error: string; readonly rule?: string } {
   if (CORE_INSTRUMENT_PATTERN.test(raw)) {
     return { ok: true, value: raw as InstrumentId, kind: "core" };
   }
@@ -208,11 +222,19 @@ export function parseModeId(raw: string): ParseResult<ModeId> {
   }
   const instResult = parseInstrumentId(parts[0]);
   if (!instResult.ok) {
-    return { ok: false, error: `Invalid instrument in mode ID '${raw}': ${instResult.error}`, rule: instResult.rule };
+    return {
+      ok: false,
+      error: `Invalid instrument in mode ID '${raw}': ${instResult.error}`,
+      rule: instResult.rule,
+    };
   }
   const slugResult = validateSlug(parts[1]);
   if (!slugResult.ok) {
-    return { ok: false, error: `Invalid mode slug in '${raw}': ${slugResult.error}`, rule: slugResult.rule };
+    return {
+      ok: false,
+      error: `Invalid mode slug in '${raw}': ${slugResult.error}`,
+      rule: slugResult.rule,
+    };
   }
   return { ok: true, value: raw as ModeId };
 }
@@ -259,14 +281,22 @@ export function parsePresetId(raw: string): ParseResult<PresetId> {
   }
   const slugResult = validateSlug(slugPart);
   if (!slugResult.ok) {
-    return { ok: false, error: `Invalid preset slug in '${raw}': ${slugResult.error}`, rule: slugResult.rule };
+    return {
+      ok: false,
+      error: `Invalid preset slug in '${raw}': ${slugResult.error}`,
+      rule: slugResult.rule,
+    };
   }
   return { ok: true, value: raw as PresetId };
 }
 
 export function parsePredictPromptId(raw: string): ParseResult<PredictPromptId> {
   if (!raw || typeof raw !== "string") {
-    return { ok: false, error: "Predict prompt ID must be a non-empty string", rule: "predict-prompt-grammar" };
+    return {
+      ok: false,
+      error: "Predict prompt ID must be a non-empty string",
+      rule: "predict-prompt-grammar",
+    };
   }
   if (raw.includes(":")) {
     return {
@@ -298,7 +328,11 @@ export function parsePredictPromptId(raw: string): ParseResult<PredictPromptId> 
   const slugPart = raw.slice(instPrefix.length + "-predict-".length);
   const slugResult = validateSlug(slugPart);
   if (!slugResult.ok) {
-    return { ok: false, error: `Invalid prompt slug in '${raw}': ${slugResult.error}`, rule: slugResult.rule };
+    return {
+      ok: false,
+      error: `Invalid prompt slug in '${raw}': ${slugResult.error}`,
+      rule: slugResult.rule,
+    };
   }
   return { ok: true, value: raw as PredictPromptId };
 }
@@ -316,7 +350,11 @@ export function parseTapeId(raw: string): ParseResult<TapeId> {
   }
   const slugResult = validateSlug(raw);
   if (!slugResult.ok) {
-    return { ok: false, error: `Invalid tape ID slug '${raw}': ${slugResult.error}`, rule: slugResult.rule };
+    return {
+      ok: false,
+      error: `Invalid tape ID slug '${raw}': ${slugResult.error}`,
+      rule: slugResult.rule,
+    };
   }
   return { ok: true, value: raw as TapeId };
 }
@@ -343,9 +381,7 @@ export type AlignableUnitId =
   | PartHeadingId
   | Brand<string, "AlignableUnitId">;
 
-export type TranslationUnitId =
-  | AlignableUnitId
-  | Brand<string, "TranslationUnitId">;
+export type TranslationUnitId = AlignableUnitId | Brand<string, "TranslationUnitId">;
 
 export type InlineMathId = Brand<string, "InlineMathId">;
 export type ReferenceId = Brand<string, "ReferenceId">;
@@ -495,7 +531,11 @@ export function parseTranslationUnitId(raw: string): ParseResult<TranslationUnit
   if (letterSplitMatch) {
     return { ok: true, value: raw as TranslationUnitId };
   }
-  if (/^(closing-dateline|closing-ack|closing-received|masthead-title|masthead-author)[a-z]$/.test(raw)) {
+  if (
+    /^(closing-dateline|closing-ack|closing-received|masthead-title|masthead-author)[a-z]$/.test(
+      raw,
+    )
+  ) {
     return {
       ok: false,
       error: `Invalid split translation ID '${raw}': letter-ending block IDs join split suffix with hyphen (e.g. 'closing-ack-a', not 'closing-acka')`,
@@ -510,7 +550,10 @@ export function parseTranslationUnitId(raw: string): ParseResult<TranslationUnit
 }
 
 export function parseInlineMathId(raw: string): ParseResult<InlineMathId> {
-  if (/^(?:[a-z]+-\d{4}-)?s\d+-p[1-9]\d*-s[1-9]\d*-m[1-9]\d*$/.test(raw) || /^(?:[a-z]+-\d{4}-)?s\d+-fn[1-9]\d*-m[1-9]\d*$/.test(raw)) {
+  if (
+    /^(?:[a-z]+-\d{4}-)?s\d+-p[1-9]\d*-s[1-9]\d*-m[1-9]\d*$/.test(raw) ||
+    /^(?:[a-z]+-\d{4}-)?s\d+-fn[1-9]\d*-m[1-9]\d*$/.test(raw)
+  ) {
     return { ok: true, value: raw as InlineMathId };
   }
   return {
@@ -553,7 +596,11 @@ export type EquationOpId = Brand<string, "EquationOpId">;
  */
 export function normalizePrintedLabel(label: string): string {
   if (!label || typeof label !== "string") return "";
-  let clean = label.trim().replace(/^[\(\[\{]/, "").replace(/[\)\]\}]$/, "").trim();
+  let clean = label
+    .trim()
+    .replace(/^[([{]/, "")
+    .replace(/[)\]}]$/, "")
+    .trim();
 
   // Roman numerals conversion at start of token
   const romanMap: Record<string, string> = {
@@ -728,7 +775,8 @@ export function parseQuantityId(raw: string): ParseResult<QuantityId> {
 }
 
 export type ConcordanceEntryId = Brand<string, "ConcordanceEntryId">;
-export const CONCORDANCE_ID_PATTERN = /^(lq|bm|sr|me|md)\.([a-zA-Z0-9_'-]+)\.([a-z0-9]+(?:-[a-z0-9]+)*)$/;
+export const CONCORDANCE_ID_PATTERN =
+  /^(lq|bm|sr|me|md)\.([a-zA-Z0-9_'-]+)\.([a-z0-9]+(?:-[a-z0-9]+)*)$/;
 
 export function parseConcordanceEntryId(raw: string): ParseResult<ConcordanceEntryId> {
   if (CONCORDANCE_ID_PATTERN.test(raw)) {
@@ -756,7 +804,12 @@ export function parsePremiseId(raw: string): ParseResult<PremiseId> {
 }
 
 export type EntranceId = Brand<string, "EntranceId">;
-export const ENTRANCE_PAPER_SLUGS = ["light-quanta", "brownian-motion", "special-relativity", "mass-energy"] as const;
+export const ENTRANCE_PAPER_SLUGS = [
+  "light-quanta",
+  "brownian-motion",
+  "special-relativity",
+  "mass-energy",
+] as const;
 
 export function parseEntranceId(raw: string): ParseResult<EntranceId> {
   const prefix = "entrance-";

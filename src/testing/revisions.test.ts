@@ -1,12 +1,12 @@
 import { describe, expect, it } from "bun:test";
 import type { AliasRecord } from "../content/aliases.ts";
 import {
-  type VersionedRecord,
   checkRevisionChanges,
+  type VersionedRecord,
   validateDistinctIdentities,
   validateRecordLineage,
 } from "../content/revisions.ts";
-import { TestLogger, newRunIdentity } from "./log/logger.ts";
+import { newRunIdentity, TestLogger } from "./log/logger.ts";
 
 describe("Revisions, Lineages, and Distinct Identity Dimensions", () => {
   const logger = new TestLogger("content-ids", newRunIdentity());
@@ -48,9 +48,7 @@ describe("Revisions, Lineages, and Distinct Identity Dimensions", () => {
         ],
       },
     ];
-    const headRecords: VersionedRecord[] = [
-      { id: "premise-rayleigh", revision: 2 },
-    ];
+    const headRecords: VersionedRecord[] = [{ id: "premise-rayleigh", revision: 2 }];
 
     const result = checkRevisionChanges(baseRecords, headRecords);
     expect(result.ok).toBe(false);

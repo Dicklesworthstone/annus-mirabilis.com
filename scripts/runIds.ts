@@ -16,7 +16,10 @@
 
 function newRunStamp(): string {
   const now = new Date();
-  const stamp = now.toISOString().replace(/[-:]/g, "").replace(/\.\d+Z$/, "Z");
+  const stamp = now
+    .toISOString()
+    .replace(/[-:]/g, "")
+    .replace(/\.\d+Z$/, "Z");
   const hex = Math.floor(Math.random() * 0xffffffff)
     .toString(16)
     .padStart(8, "0");

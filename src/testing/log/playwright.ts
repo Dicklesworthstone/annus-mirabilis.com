@@ -35,7 +35,11 @@ export interface PlaywrightStepOptions {
 }
 
 /** Logs one journey step with the browser lane fields required by AGENTS.md. */
-export function logPlaywrightStep(meta: PlaywrightStepMeta, outcome: Outcome, options: PlaywrightStepOptions = {}) {
+export function logPlaywrightStep(
+  meta: PlaywrightStepMeta,
+  outcome: Outcome,
+  options: PlaywrightStepOptions = {},
+) {
   const logger = getLogger(meta.suite, meta.logRunId);
   return logger.log({
     testId: meta.testId,
@@ -58,16 +62,27 @@ export function logPlaywrightStep(meta: PlaywrightStepMeta, outcome: Outcome, op
 }
 
 export interface JourneyLoggingFixture {
-  logStep(meta: Omit<PlaywrightStepMeta, "suite" | "logRunId">, outcome: Outcome, options?: PlaywrightStepOptions): ReturnType<typeof logPlaywrightStep>;
+  logStep(
+    meta: Omit<PlaywrightStepMeta, "suite" | "logRunId">,
+    outcome: Outcome,
+    options?: PlaywrightStepOptions,
+  ): ReturnType<typeof logPlaywrightStep>;
   flush(): ReturnType<TestLogger["flush"]>;
 }
 
 /** A fixture a Playwright test config can provide per-worker, bound to one suite/log-run id. */
-export function createJourneyLoggingFixture(defaults: { suite: string; logRunId?: string }): JourneyLoggingFixture {
+export function createJourneyLoggingFixture(defaults: {
+  suite: string;
+  logRunId?: string;
+}): JourneyLoggingFixture {
   const logger = getLogger(defaults.suite, defaults.logRunId);
   return {
     logStep(meta, outcome, options) {
-      return logPlaywrightStep({ ...meta, suite: logger.suite, logRunId: logger.logRunId }, outcome, options);
+      return logPlaywrightStep(
+        { ...meta, suite: logger.suite, logRunId: logger.logRunId },
+        outcome,
+        options,
+      );
     },
     flush() {
       return logger.flush();
@@ -90,7 +105,16 @@ export interface MinimalPlaywrightTestResult {
 
 export interface MinimalPlaywrightTestCase {
   title: string;
-  parent?: { project?: () => { name?: string; use?: { viewport?: { width: number; height: number } | null; reducedMotion?: string; javaScriptEnabled?: boolean } } };
+  parent?: {
+    project?: () => {
+      name?: string;
+      use?: {
+        viewport?: { width: number; height: number } | null;
+        reducedMotion?: string;
+        javaScriptEnabled?: boolean;
+      };
+    };
+  };
 }
 
 function mapStatus(status: MinimalPlaywrightTestResult["status"]): Outcome {
@@ -100,7 +124,10 @@ function mapStatus(status: MinimalPlaywrightTestResult["status"]): Outcome {
   return "failed";
 }
 
-function attachmentPath(attachments: MinimalPlaywrightTestResult["attachments"], name: string): string | undefined {
+function attachmentPath(
+  attachments: MinimalPlaywrightTestResult["attachments"],
+  name: string,
+): string | undefined {
   return attachments.find((a) => a.name === name)?.path;
 }
 
@@ -132,7 +159,9 @@ export class TestLogReporter {
         ...(this.logRunId !== undefined ? { logRunId: this.logRunId } : {}),
         testId: test.title,
         browser: project?.name ?? "unknown",
-        viewport: project?.use?.viewport ? `${project.use.viewport.width}x${project.use.viewport.height}` : "default",
+        viewport: project?.use?.viewport
+          ? `${project.use.viewport.width}x${project.use.viewport.height}`
+          : "default",
         reducedMotion: project?.use?.reducedMotion === "reduce",
         jsEnabled: project?.use?.javaScriptEnabled !== false,
       },

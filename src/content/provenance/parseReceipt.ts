@@ -4,8 +4,8 @@
  * and checks pending status lines.
  */
 
+import type { Receipt, ReceiptBodySection, ReceiptFrontMatter } from "./receiptSchema.ts";
 import { parseYaml, YamlParseError } from "./yaml.ts";
-import type { ReceiptBodySection, ReceiptFrontMatter, Receipt } from "./receiptSchema.ts";
 
 export const REQUIRED_RECEIPT_HEADINGS = [
   "## Identity",
@@ -52,7 +52,7 @@ export function parseReceipt(markdownText: string, filePath: string): ParsedRece
     err(
       "receipt-format-structure",
       "front-matter",
-      "Provenance receipt must begin with YAML front matter enclosed by ---."
+      "Provenance receipt must begin with YAML front matter enclosed by ---.",
     );
     return { ok: false, bodySections: [], diagnostics };
   }
@@ -68,7 +68,11 @@ export function parseReceipt(markdownText: string, filePath: string): ParsedRece
     err(
       "receipt-yaml-syntax",
       "front-matter",
-      e instanceof YamlParseError ? e.message : (e instanceof Error ? e.message : "Failed to parse YAML front matter.")
+      e instanceof YamlParseError
+        ? e.message
+        : e instanceof Error
+          ? e.message
+          : "Failed to parse YAML front matter.",
     );
     return { ok: false, rawFrontMatter, body, bodySections: [], diagnostics };
   }
@@ -99,7 +103,7 @@ export function parseReceipt(markdownText: string, filePath: string): ParsedRece
       "body.headings",
       `Expected exactly ${REQUIRED_RECEIPT_HEADINGS.length} level-2 headings, found ${foundHeadings.length}.`,
       REQUIRED_RECEIPT_HEADINGS.join(", "),
-      foundHeadings.map((h) => h.title).join(", ")
+      foundHeadings.map((h) => h.title).join(", "),
     );
   } else {
     for (let i = 0; i < REQUIRED_RECEIPT_HEADINGS.length; i++) {
@@ -112,7 +116,7 @@ export function parseReceipt(markdownText: string, filePath: string): ParsedRece
           `body.headings[${i}]`,
           `Heading ${i + 1} mismatch: expected "${expected}" but found "${actual || "missing"}".`,
           expected,
-          actual
+          actual,
         );
       }
     }
@@ -122,7 +126,8 @@ export function parseReceipt(markdownText: string, filePath: string): ParsedRece
   const bodySections: ReceiptBodySection[] = [];
   for (let i = 0; i < foundHeadings.length; i++) {
     const cur = foundHeadings[i]!;
-    const nextLineIndex = i + 1 < foundHeadings.length ? foundHeadings[i + 1]!.lineIndex : lines.length;
+    const nextLineIndex =
+      i + 1 < foundHeadings.length ? foundHeadings[i + 1]!.lineIndex : lines.length;
     const contentLines = lines.slice(cur.lineIndex + 1, nextLineIndex);
     const content = contentLines.join("\n").trim();
 
@@ -154,7 +159,7 @@ export function parseReceipt(markdownText: string, filePath: string): ParsedRece
         err(
           "receipt-pending-malformed",
           `body.${sec.title}`,
-          `Section "${sec.title}" is pending but content does not match "Status: pending (owner: <bead id>)".`
+          `Section "${sec.title}" is pending but content does not match "Status: pending (owner: <bead id>)".`,
         );
       } else {
         const ownerInBody = pendingMatch[1];
@@ -164,7 +169,7 @@ export function parseReceipt(markdownText: string, filePath: string): ParsedRece
             err(
               "receipt-pending-owner-mismatch",
               `body.${sec.title}`,
-              `Section "${sec.title}" pending owner in body (${ownerInBody}) does not match front matter (${ownerInFm}).`
+              `Section "${sec.title}" pending owner in body (${ownerInBody}) does not match front matter (${ownerInFm}).`,
             );
           }
         }
@@ -184,7 +189,7 @@ export function parseReceipt(markdownText: string, filePath: string): ParsedRece
     err(
       "receipt-generated-markers",
       "body.editorial-acceptance",
-      `Editorial acceptance section must contain exactly one start marker and one end marker (found start: ${startCount}, end: ${endCount}).`
+      `Editorial acceptance section must contain exactly one start marker and one end marker (found start: ${startCount}, end: ${endCount}).`,
     );
   } else {
     const startIdx = body.indexOf(startMarker);
@@ -193,7 +198,7 @@ export function parseReceipt(markdownText: string, filePath: string): ParsedRece
       err(
         "receipt-generated-markers-order",
         "body.editorial-acceptance",
-        "Start marker must appear before end marker."
+        "Start marker must appear before end marker.",
       );
     } else {
       editorialAcceptanceContent = body.slice(startIdx + startMarker.length, endIdx).trim();

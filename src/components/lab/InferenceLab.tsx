@@ -1,113 +1,718 @@
 "use client";
-import { useState, useEffect, useId, useSyncExternalStore, type FormEvent } from "react";
-import { createBm07Session, type PreparedBm07Example } from "../../experiments/bm07/session.ts";
+import { type FormEvent, useEffect, useId, useState, useSyncExternalStore } from "react";
 import { createBm07BrowserChannel } from "../../experiments/bm07/browser.ts";
-import { toInferenceDraft, fromInferenceDraft, type InferenceDraft } from "../../experiments/bm07/controls.ts";
-import { encodeBm07Settings, decodeBm07Settings } from "../../experiments/bm07/permalink.ts";
-import { inferenceObservationCsv } from "../../experiments/bm07/export.ts";
+import {
+  fromInferenceDraft,
+  type InferenceDraft,
+  toInferenceDraft,
+} from "../../experiments/bm07/controls.ts";
 import type { Bm07Parameters } from "../../experiments/bm07/definition.ts";
-import { InferenceValue, InferenceInterval, InferencePath, InferenceFamily, InferenceCoverage } from "./InferencePlots.tsx";
+import { inferenceObservationCsv } from "../../experiments/bm07/export.ts";
+import { decodeBm07Settings, encodeBm07Settings } from "../../experiments/bm07/permalink.ts";
+import { createBm07Session, type PreparedBm07Example } from "../../experiments/bm07/session.ts";
+import {
+  InferenceCoverage,
+  InferenceFamily,
+  InferenceInterval,
+  InferencePath,
+  InferenceValue,
+} from "./InferencePlots.tsx";
 import { array, display, identity, result, scalar } from "./presentation.ts";
+
 const estimatorNames = {
   "independent-increment-known-zero-drift": "Known zero drift · unbiased",
   "drift-centered": "Fit drift · unbiased spread",
   "maximum-likelihood-centered": "Fit drift · maximum likelihood",
 };
-export function InferenceLab({ example, title = "What can wandering reveal?" }: { example: PreparedBm07Example; title?: string }) {
-  const id = useId(), [session] = useState(() => createBm07Session(`bm07-${id}`, example, createBm07BrowserChannel));
-  const view = useSyncExternalStore(session.subscribe, session.getSnapshot, session.getServerSnapshot), snapshot = view.accepted!, p = snapshot.parameters as Bm07Parameters;
+export function InferenceLab({
+  example,
+  title = "What can wandering reveal?",
+}: {
+  example: PreparedBm07Example;
+  title?: string;
+}) {
+  const id = useId(),
+    [session] = useState(() => createBm07Session(`bm07-${id}`, example, createBm07BrowserChannel));
+  const view = useSyncExternalStore(
+      session.subscribe,
+      session.getSnapshot,
+      session.getServerSnapshot,
+    ),
+    snapshot = view.accepted!,
+    p = snapshot.parameters as Bm07Parameters;
   const [draft, setDraft] = useState(() => toInferenceDraft(example.parameters));
-  const [ready, setReady] = useState(false), [dirty, setDirty] = useState(false), [error, setError] = useState(""), [note, setNote] = useState(""), [shareUrl, setShareUrl] = useState(""), [revealedRun, setRevealedRun] = useState<string | null>(null);
-  const revealed = revealedRun === snapshot.runId, isStatic = snapshot === session.getServerSnapshot().accepted;
+  const [ready, setReady] = useState(false),
+    [dirty, setDirty] = useState(false),
+    [error, setError] = useState(""),
+    [note, setNote] = useState(""),
+    [shareUrl, setShareUrl] = useState(""),
+    [revealedRun, setRevealedRun] = useState<string | null>(null);
+  const revealed = revealedRun === snapshot.runId,
+    isStatic = snapshot === session.getServerSnapshot().accepted;
   useEffect(() => {
     setReady(true);
     const shared = decodeBm07Settings(window.location.search);
-    if (shared.kind === "settings") { setDraft(toInferenceDraft(shared.parameters)); setDirty(true); setNote("Shared settings are loaded as a draft. The worked example is unchanged until you apply them. No hypothetical experiments start from a link."); }
-    else if (shared.kind === "invalid") setNote(shared.message);
+    if (shared.kind === "settings") {
+      setDraft(toInferenceDraft(shared.parameters));
+      setDirty(true);
+      setNote(
+        "Shared settings are loaded as a draft. The worked example is unchanged until you apply them. No hypothetical experiments start from a link.",
+      );
+    } else if (shared.kind === "invalid") setNote(shared.message);
     return () => session.disconnect();
   }, [session]);
-  function edit(key: keyof InferenceDraft, value: string) { setDraft(d => ({ ...d, [key]: value })); setDirty(true); }
+  function edit(key: keyof InferenceDraft, value: string) {
+    setDraft((d) => ({ ...d, [key]: value }));
+    setDirty(true);
+  }
   function apply(settings: Bm07Parameters) {
     const response = session.apply(settings);
-    if (response.kind !== "accepted") { setError(response.kind === "refused" ? String(response.refusal.details?.requirements ?? response.refusal.message) : response.outcome.message); return; }
-    setDraft(toInferenceDraft(settings)); setDirty(false); setError(""); setNote("");
+    if (response.kind !== "accepted") {
+      setError(
+        response.kind === "refused"
+          ? String(response.refusal.details?.requirements ?? response.refusal.message)
+          : response.outcome.message,
+      );
+      return;
+    }
+    setDraft(toInferenceDraft(settings));
+    setDirty(false);
+    setError("");
+    setNote("");
   }
   function submit(event: FormEvent<HTMLFormElement>) {
     event.preventDefault();
-    try { apply({ ...fromInferenceDraft(draft), coverageTrials: 0 }); } catch (e) { setError(e instanceof Error ? e.message : "Check the input settings."); }
+    try {
+      apply({ ...fromInferenceDraft(draft), coverageTrials: 0 });
+    } catch (e) {
+      setError(e instanceof Error ? e.message : "Check the input settings.");
+    }
   }
   function newTrial() {
-    try { const seed = crypto.getRandomValues(new Uint32Array(2)); apply({ ...p, seed: ((BigInt(seed[0]!) << 32n) | BigInt(seed[1]!)).toString(), coverageTrials: 0 }); }
-    catch { setError("A random seed is unavailable here. Enter another unsigned 64-bit seed in the generator settings."); }
+    try {
+      const seed = crypto.getRandomValues(new Uint32Array(2));
+      apply({
+        ...p,
+        seed: ((BigInt(seed[0]!) << 32n) | BigInt(seed[1]!)).toString(),
+        coverageTrials: 0,
+      });
+    } catch {
+      setError(
+        "A random seed is unavailable here. Enter another unsigned 64-bit seed in the generator settings.",
+      );
+    }
   }
   async function share() {
-    const link = new URL("/lab/bm-07/", window.location.origin); link.search = encodeBm07Settings(session.acceptedParameters()); setShareUrl(link.href);
-    try { await navigator.clipboard.writeText(link.href); setNote("The accepted inference settings were copied. Coverage experiments are not included."); }
-    catch { setNote("Copy the accepted settings from the selectable field below."); }
+    const link = new URL("/lab/bm-07/", window.location.origin);
+    link.search = encodeBm07Settings(session.acceptedParameters());
+    setShareUrl(link.href);
+    try {
+      await navigator.clipboard.writeText(link.href);
+      setNote(
+        "The accepted inference settings were copied. Coverage experiments are not included.",
+      );
+    } catch {
+      setNote("Copy the accepted settings from the selectable field below.");
+    }
   }
   function exportObservations() {
-    const url = URL.createObjectURL(new Blob([inferenceObservationCsv(snapshot, example.sourceDigest)], { type: "text/csv;charset=utf-8" }));
-    const link = document.createElement("a"); link.href = url; link.download = `bm07-synthetic-observations-${p.seed}.csv`; link.click(); setTimeout(() => URL.revokeObjectURL(url), 1000);
+    const url = URL.createObjectURL(
+      new Blob([inferenceObservationCsv(snapshot, example.sourceDigest)], {
+        type: "text/csv;charset=utf-8",
+      }),
+    );
+    const link = document.createElement("a");
+    link.href = url;
+    link.download = `bm07-synthetic-observations-${p.seed}.csv`;
+    link.click();
+    setTimeout(() => URL.revokeObjectURL(url), 1000);
   }
-  const field = (key: keyof InferenceDraft, label: string) => <label key={key} htmlFor={`${id}-${key}`}>{label}<input id={`${id}-${key}`} name={key} type="text" inputMode={key === "seed" || key === "M" ? "numeric" : "decimal"} value={draft[key]} onChange={e => edit(key, e.target.value)}/></label>;
-  const intervalKind = p.intervalKind === "conditional" ? "Conditional on exact input values" : "Combined declared input intervals · conservative";
-  const announcement = view.pending ? "Calculating the request. All displayed observations and estimates still belong to the accepted settings." : view.status === "refused" ? `${view.refusal!.message} Accepted data remain unchanged.` : view.status === "unavailable" ? `${view.outcome!.message} The accepted data remain readable.` : view.status === "paused" ? "Calculation stopped. The accepted data remain unchanged." : isStatic ? "Static worked example. No calculation has been started in this browser." : `Accepted ${p.M} non-overlapping displacements in ${p.d} coordinates. ${p.radiusKnown ? "An independent radius is declared." : "Molecular number is not separately identified."}`;
-  const times = array(snapshot, "observationTimes"), positions = array(snapshot, "observationPositions"), increments = array(snapshot, "observationIncrements");
-  return <section className="laboratory inference-lab" aria-labelledby={`${id}-title`} data-instrument-id="bm-07" {...identity(snapshot)} data-pending={String(view.pending)} data-radius-known={String(p.radiusKnown)} data-estimator={p.estimator} data-recording-draws={scalar(snapshot, "recordingDraws")} data-request-draws={scalar(snapshot, "requestDraws")} data-coverage-draws={scalar(snapshot, "coverageDraws")}>
-    <header className="lab-heading"><div><p className="eyebrow">BM-07 · The inverse problem</p><h2 id={`${id}-title`}>{title}</h2></div><span className="badge">{isStatic ? "Static worked example" : "Synthetic recovery · host calculation"}</span></header>
-    <noscript><p className="notice">JavaScript is off. The calculated example, observations, compatible family and explanation remain readable. Changing settings or revealing the generating parameter requires JavaScript.</p></noscript>
-    <p>These positions were generated with a hidden molecular number. First ask what the observations identify. Then declare the missing information, estimate the number, and test what a confidence interval does across hypothetical repeats.</p>
-    <div className="lab-columns"><div>
-      <form className="inference-controls" onSubmit={submit} noValidate>
-        <fieldset disabled={!ready}><legend>1 · Observe the same path</legend><div className="input-grid">
-          {field("M", "Non-overlapping displacements (1–1000)")}
-          {field("dt", "Observation spacing (s; multiples of 0.25)")}
-          <label htmlFor={`${id}-d`}>Observed coordinates<select id={`${id}-d`} name="d" value={draft.d} onChange={e => edit("d", e.target.value)}><option value="1">One: x</option><option value="2">Two: x and y</option></select></label>
-          <label className="wide" htmlFor={`${id}-estimator`}>Estimator<select id={`${id}-estimator`} name="estimator" value={draft.estimator} onChange={e => edit("estimator", e.target.value)}>{Object.entries(estimatorNames).map(([key, label]) => <option key={key} value={key}>{label}</option>)}</select></label>
-        </div><p className="fine">The fixed recording lasts 1024 seconds. Spacing, coordinate count, sample count and estimator changes reuse it. No overlapping windows, localization noise, exposure blur or censoring are admitted by these intervals.</p></fieldset>
-        <fieldset disabled={!ready}><legend>2 · Declare inference inputs</legend>
-          <label className="check" htmlFor={`${id}-radiusKnown`}><input id={`${id}-radiusKnown`} name="radiusKnown" type="checkbox" checked={draft.radiusKnown === "true"} onChange={e => edit("radiusKnown", String(e.target.checked))}/>An independent particle radius is available</label>
-          <div className="input-grid">{field("a", "Assumed particle radius (μm)")}{field("T", "Assumed temperature (K)")}{field("eta", "Assumed dynamic viscosity (mPa s)")}{field("coverage", "Target interval coverage (%)")}</div>
-          <p className="fine">These are inference assumptions, not generator controls. Changing them never moves a recorded position. A radius derived from these same displacements using an assumed molecular number would be circular, not independent information.</p>
-          <label htmlFor={`${id}-intervalKind`}>Molecular-number interval<select id={`${id}-intervalKind`} name="intervalKind" value={draft.intervalKind} onChange={e => edit("intervalKind", e.target.value)}><option value="conditional">Conditional: inputs held exact</option><option value="combined">Combined: declared input intervals</option></select></label>
-          <details><summary>Declare input uncertainty</summary><p className="fine">Each input interval is its stated value plus or minus the relative bound below. Its declared coverage must describe a valid measurement procedure. Bounds alone are not confidence intervals. Calibration, timing and the chosen gas constant remain exact in this exercise.</p><div className="input-grid">{field("temperatureError", "Temperature relative bound (%)")}{field("viscosityError", "Viscosity relative bound (%)")}{field("radiusError", "Radius relative bound (%)")}{field("inputCoverage", "Coverage of each input interval (%; 0 = undeclared)")}</div><p className="fine">The combined procedure allocates the remaining error probability to the diffusion interval and uses a union bound. It requires no independence between the three input intervals, but cannot create a coverage guarantee from undeclared coverage.</p></details>
-        </fieldset>
-        <fieldset disabled={!ready}><legend>3 · Apply the request</legend><div className="actions"><button type="submit">Apply inference settings</button><button className="secondary" type="button" disabled={!view.pending} onClick={() => session.stop()}>Stop calculation</button></div>
-          <details><summary>Change the synthetic generator</summary><p className="fine">Changing these fields starts a new physical run. The hidden molecular number is drawn on a separate stream from 3 × 10²³ to 1.2 × 10²⁴ mol⁻¹. The generator uses the explicitly chosen R = 8.314471 J/(mol K), not a modern Boltzmann constant that would preselect the answer.</p><div className="input-grid">{field("seed", "Trial seed (unsigned 64-bit integer)")}{field("generatorT", "Generator temperature (K)")}{field("generatorEta", "Generator viscosity (mPa s)")}{field("generatorRadius", "Generator radius (μm)")}</div></details>
-        </fieldset>
-      </form>
-      {dirty && <p className="draft-note">These edits are a draft. The displayed observations and estimates still describe the accepted settings.</p>}
-      {error && <p className="notice error" role="alert">{error}</p>}
-      <div className="actions"><button disabled={!ready} className="secondary" onClick={() => apply({ ...p, T: p.generatorT, eta: p.generatorEta, a: p.generatorRadius, radiusKnown: true, coverageTrials: 0 })}>Use declared generator conditions</button><button disabled={!ready || !p.radiusKnown} className="secondary" onClick={() => apply({ ...p, a: p.a * 2 })}>Assume twice the radius · same data</button><button disabled={!ready} className="secondary" onClick={() => apply({ ...p, radiusKnown: false, coverageTrials: 0 })}>Return to the unidentified family</button></div>
-      <p className="fine">These comparison buttons use accepted settings, not draft edits. “Use declared generator conditions” supplies the known setup of this synthetic exercise; it is not a real independent measurement.</p>
-      <div className="actions"><button disabled={!ready} className="secondary" onClick={newTrial}>New independent trial</button><button disabled={!ready} className="secondary" onClick={share}>Copy accepted inference link</button><button disabled={!ready} className="secondary" onClick={exportObservations}>Download accepted observations</button></div>
-      {shareUrl && <label className="share-field" htmlFor={`${id}-share`}>Accepted inference link<input id={`${id}-share`} readOnly value={shareUrl} onFocus={e => e.target.select()}/></label>}
-      {note && <p className="notice">{note}</p>}
-      <p className="fine">The CSV contains every selected position and displacement in SI units with generator metadata. It contains synthetic data, not observations of a real suspension. Opening a shared link starts no worker.</p>
-    </div><div className="lab-results inference-results">
-      <p className="status-line inference-status" role="status" aria-live="polite" aria-atomic="true">{announcement}</p>
-      {view.refusal && <div className="notice error"><p>{String(view.refusal.details?.requirements ?? view.refusal.message)}</p>{view.refusal.rankedRepairs.map((repair, i) => repair.action && <button key={i} className="secondary" onClick={() => apply({ ...(view.requested!.parameters as Bm07Parameters), [repair.action!.parameterId]: repair.action!.value })}>{repair.label}</button>)}<button className="secondary" onClick={() => apply(p)}>Restore accepted settings</button></div>}
-      <p className="accepted-caption">Accepted seed {p.seed}; {p.M} non-overlapping displacements; {p.d} coordinate{p.d === 1 ? "" : "s"}; spacing {display(p.dt)} s. {estimatorNames[p.estimator]}. Assumed T = {display(p.T)} K, η = {display(p.eta, 1e3)} mPa s; {p.radiusKnown ? `declared radius ${display(p.a, 1e6)} μm` : "independent radius not declared"}.</p>
-      <InferencePath snapshot={snapshot}/>
-      <h3>What the data identify</h3>
-      <table className="inference-summary"><caption>Accepted estimate and conditional diffusion uncertainty</caption><tbody><tr><th scope="row">Estimated D (μm²/s)</th><td><InferenceValue snapshot={snapshot} id="diffusionCoefficientEstimate" factor={1e12}/></td></tr><tr><th scope="row">{display(p.coverage, 100)}% diffusion interval (μm²/s)</th><td><InferenceInterval snapshot={snapshot} id="diffusionInterval" factor={1e12}/></td></tr><tr><th scope="row">Degrees of freedom</th><td><InferenceValue snapshot={snapshot} id="degreesOfFreedom"/></td></tr><tr><th scope="row">Compatible radius × number (m/mol)</th><td><InferenceValue snapshot={snapshot} id="radiusNumberProduct"/></td></tr></tbody></table>
-      <section className="inference-family"><h3>A family before a single number</h3><p>At the assumed temperature and viscosity, the estimated diffusion scale constrains a product: radius times molecular number. A larger radius and a smaller number can fit exactly the same point estimate.</p><InferenceFamily snapshot={snapshot}/></section>
-      <h3>Condition on the missing information</h3>
-      <table className="inference-summary"><caption>{intervalKind}; target {display(p.coverage, 100)}%</caption><tbody><tr><th scope="row">Recovered N (10²³ mol⁻¹)</th><td><InferenceValue snapshot={snapshot} id="avogadroNumberEstimate" factor={1e-23}/></td></tr><tr><th scope="row">Selected interval (10²³ mol⁻¹)</th><td><InferenceInterval snapshot={snapshot} id="molecularInterval" factor={1e-23}/></td></tr>{p.intervalKind === "combined" && <tr><th scope="row">Conditional comparison (10²³ mol⁻¹)</th><td><InferenceInterval snapshot={snapshot} id="conditionalInterval" factor={1e-23}/></td></tr>}</tbody></table>
-      <p className="fine">This is recovery of a synthetic generating parameter, not a measurement of the modern Avogadro constant. The inverted bounds exchange endpoints. A finite confidence interval is not a posterior probability assigned to this one fixed parameter.</p>
-      <details><summary>Estimator bias and small-sample limits</summary><p>The known-zero-drift estimate uses every coordinate without subtracting a fitted mean. Fitting a separate drift in each coordinate consumes degrees of freedom. The centered maximum-likelihood estimate divides by the original sample count; the unbiased version uses one fewer. Both use the same correctly rescaled confidence interval.</p><table className="inference-summary"><caption>Expected ratios under the ideal model with correct input values</caption><tbody><tr><th scope="row">Mean estimated D / true D</th><td><InferenceValue snapshot={snapshot} id="diffusionBiasFactor"/></td></tr><tr><th scope="row">Mean recovered N / true N</th><td><InferenceValue snapshot={snapshot} id="inverseBiasFactor"/></td></tr><tr><th scope="row">Variance of recovered N / true N</th><td><InferenceValue snapshot={snapshot} id="inverseVarianceFactor"/></td></tr></tbody></table><p className="fine">An unbiased diffusion estimate does not have an unbiased reciprocal. With too few degrees of freedom, the reciprocal’s mean or variance does not exist even though a particular trial can produce a finite estimate. With one displacement and fitted drift, spread is underdetermined.</p></details>
-      <div className="inference-reveal"><button disabled={!ready} className="secondary" onClick={() => setRevealedRun(revealed ? null : snapshot.runId)}>{revealed ? "Hide generating values" : "Reveal generating values"}</button>{revealed && <p data-hidden-answer>Generating N: <InferenceValue snapshot={snapshot} id="generatorMolecularNumber" factor={1e-23}/> × 10²³ mol⁻¹. Generating D: <InferenceValue snapshot={snapshot} id="generatorDiffusionCoefficient" factor={1e12}/> μm²/s. Revealing these values does not redraw or refit anything.</p>}<p className="fine">The hidden answer is a learning device, not a secret: the generated browser data can be inspected.</p></div>
-      <details><summary>Inspect the accepted observations</summary><div className="table-scroll"><table><caption>All selected synthetic positions and increments; μm and seconds</caption><thead><tr><th scope="col">Time</th>{Array.from({ length: p.d }, (_, c) => <th key={c} scope="col">{c === 0 ? "x" : "y"} (μm)</th>)}{Array.from({ length: p.d }, (_, c) => <th key={c} scope="col">Δ{c === 0 ? "x" : "y"} (μm)</th>)}</tr></thead><tbody>{Array.from({ length: times.length }, (_, i) => <tr key={i}><th scope="row">{display(times.at(i)!)}</th>{Array.from({ length: p.d }, (_, c) => <td key={c}>{display(positions.at(i * p.d + c)!, 1e6)}</td>)}{Array.from({ length: p.d }, (_, c) => <td key={c}>{i === 0 ? "—" : display(increments.at((i - 1) * p.d + c)!, 1e6)}</td>)}</tr>)}</tbody></table></div></details>
-    </div></div>
-    <section className="grid-result inference-results"><h3>What does coverage mean?</h3><p>Repeat the observation procedure on other hypothetical paths with the same generating parameter. Each interval moves; the parameter does not. Change an inference assumption while keeping those paths to see how a wrong radius can spoil molecular-number coverage even when diffusion intervals behave well.</p>
-      <div className="actions"><button disabled={!ready || view.pending || p.intervalKind !== "conditional" || result(snapshot, "diffusionCoefficientEstimate").status !== "value"} onClick={() => apply({ ...p, coverageTrials: 100 })}>Run 100 hypothetical experiments</button><button className="secondary" disabled={!ready || p.coverageTrials === 0} onClick={() => apply({ ...p, coverageTrials: 0 })}>Hide repeated-trial results</button></div>
-      <p className="fine">Uses the accepted settings. No seed search, discarded failures or redraws to reach the target fraction. In combined-input mode this view is unavailable: no repeated input-measurement procedure has been specified. After a form edit, run coverage explicitly again.</p>
-      <div className="inference-coverage-grid"><div><h3>Diffusivity procedure</h3><InferenceCoverage snapshot={snapshot}/></div><div><h3>Molecular-number procedure</h3><InferenceCoverage snapshot={snapshot} molecular/></div></div>
+  const field = (key: keyof InferenceDraft, label: string) => (
+    <label key={key} htmlFor={`${id}-${key}`}>
+      {label}
+      <input
+        id={`${id}-${key}`}
+        name={key}
+        type="text"
+        inputMode={key === "seed" || key === "M" ? "numeric" : "decimal"}
+        value={draft[key]}
+        onChange={(e) => edit(key, e.target.value)}
+      />
+    </label>
+  );
+  const intervalKind =
+    p.intervalKind === "conditional"
+      ? "Conditional on exact input values"
+      : "Combined declared input intervals · conservative";
+  const announcement = view.pending
+    ? "Calculating the request. All displayed observations and estimates still belong to the accepted settings."
+    : view.status === "refused"
+      ? `${view.refusal!.message} Accepted data remain unchanged.`
+      : view.status === "unavailable"
+        ? `${view.outcome!.message} The accepted data remain readable.`
+        : view.status === "paused"
+          ? "Calculation stopped. The accepted data remain unchanged."
+          : isStatic
+            ? "Static worked example. No calculation has been started in this browser."
+            : `Accepted ${p.M} non-overlapping displacements in ${p.d} coordinates. ${p.radiusKnown ? "An independent radius is declared." : "Molecular number is not separately identified."}`;
+  const times = array(snapshot, "observationTimes"),
+    positions = array(snapshot, "observationPositions"),
+    increments = array(snapshot, "observationIncrements");
+  return (
+    <section
+      className="laboratory inference-lab"
+      aria-labelledby={`${id}-title`}
+      data-instrument-id="bm-07"
+      {...identity(snapshot)}
+      data-pending={String(view.pending)}
+      data-radius-known={String(p.radiusKnown)}
+      data-estimator={p.estimator}
+      data-recording-draws={scalar(snapshot, "recordingDraws")}
+      data-request-draws={scalar(snapshot, "requestDraws")}
+      data-coverage-draws={scalar(snapshot, "coverageDraws")}
+    >
+      <header className="lab-heading">
+        <div>
+          <p className="eyebrow">BM-07 · The inverse problem</p>
+          <h2 id={`${id}-title`}>{title}</h2>
+        </div>
+        <span className="badge">
+          {isStatic ? "Static worked example" : "Synthetic recovery · host calculation"}
+        </span>
+      </header>
+      <noscript>
+        <p className="notice">
+          JavaScript is off. The calculated example, observations, compatible family and explanation
+          remain readable. Changing settings or revealing the generating parameter requires
+          JavaScript.
+        </p>
+      </noscript>
+      <p>
+        These positions were generated with a hidden molecular number. First ask what the
+        observations identify. Then declare the missing information, estimate the number, and test
+        what a confidence interval does across hypothetical repeats.
+      </p>
+      <div className="lab-columns">
+        <div>
+          <form className="inference-controls" onSubmit={submit} noValidate>
+            <fieldset disabled={!ready}>
+              <legend>1 · Observe the same path</legend>
+              <div className="input-grid">
+                {field("M", "Non-overlapping displacements (1–1000)")}
+                {field("dt", "Observation spacing (s; multiples of 0.25)")}
+                <label htmlFor={`${id}-d`}>
+                  Observed coordinates
+                  <select
+                    id={`${id}-d`}
+                    name="d"
+                    value={draft.d}
+                    onChange={(e) => edit("d", e.target.value)}
+                  >
+                    <option value="1">One: x</option>
+                    <option value="2">Two: x and y</option>
+                  </select>
+                </label>
+                <label className="wide" htmlFor={`${id}-estimator`}>
+                  Estimator
+                  <select
+                    id={`${id}-estimator`}
+                    name="estimator"
+                    value={draft.estimator}
+                    onChange={(e) => edit("estimator", e.target.value)}
+                  >
+                    {Object.entries(estimatorNames).map(([key, label]) => (
+                      <option key={key} value={key}>
+                        {label}
+                      </option>
+                    ))}
+                  </select>
+                </label>
+              </div>
+              <p className="fine">
+                The fixed recording lasts 1024 seconds. Spacing, coordinate count, sample count and
+                estimator changes reuse it. No overlapping windows, localization noise, exposure
+                blur or censoring are admitted by these intervals.
+              </p>
+            </fieldset>
+            <fieldset disabled={!ready}>
+              <legend>2 · Declare inference inputs</legend>
+              <label className="check" htmlFor={`${id}-radiusKnown`}>
+                <input
+                  id={`${id}-radiusKnown`}
+                  name="radiusKnown"
+                  type="checkbox"
+                  checked={draft.radiusKnown === "true"}
+                  onChange={(e) => edit("radiusKnown", String(e.target.checked))}
+                />
+                An independent particle radius is available
+              </label>
+              <div className="input-grid">
+                {field("a", "Assumed particle radius (μm)")}
+                {field("T", "Assumed temperature (K)")}
+                {field("eta", "Assumed dynamic viscosity (mPa s)")}
+                {field("coverage", "Target interval coverage (%)")}
+              </div>
+              <p className="fine">
+                These are inference assumptions, not generator controls. Changing them never moves a
+                recorded position. A radius derived from these same displacements using an assumed
+                molecular number would be circular, not independent information.
+              </p>
+              <label htmlFor={`${id}-intervalKind`}>
+                Molecular-number interval
+                <select
+                  id={`${id}-intervalKind`}
+                  name="intervalKind"
+                  value={draft.intervalKind}
+                  onChange={(e) => edit("intervalKind", e.target.value)}
+                >
+                  <option value="conditional">Conditional: inputs held exact</option>
+                  <option value="combined">Combined: declared input intervals</option>
+                </select>
+              </label>
+              <details>
+                <summary>Declare input uncertainty</summary>
+                <p className="fine">
+                  Each input interval is its stated value plus or minus the relative bound below.
+                  Its declared coverage must describe a valid measurement procedure. Bounds alone
+                  are not confidence intervals. Calibration, timing and the chosen gas constant
+                  remain exact in this exercise.
+                </p>
+                <div className="input-grid">
+                  {field("temperatureError", "Temperature relative bound (%)")}
+                  {field("viscosityError", "Viscosity relative bound (%)")}
+                  {field("radiusError", "Radius relative bound (%)")}
+                  {field("inputCoverage", "Coverage of each input interval (%; 0 = undeclared)")}
+                </div>
+                <p className="fine">
+                  The combined procedure allocates the remaining error probability to the diffusion
+                  interval and uses a union bound. It requires no independence between the three
+                  input intervals, but cannot create a coverage guarantee from undeclared coverage.
+                </p>
+              </details>
+            </fieldset>
+            <fieldset disabled={!ready}>
+              <legend>3 · Apply the request</legend>
+              <div className="actions">
+                <button type="submit">Apply inference settings</button>
+                <button
+                  className="secondary"
+                  type="button"
+                  disabled={!view.pending}
+                  onClick={() => session.stop()}
+                >
+                  Stop calculation
+                </button>
+              </div>
+              <details>
+                <summary>Change the synthetic generator</summary>
+                <p className="fine">
+                  Changing these fields starts a new physical run. The hidden molecular number is
+                  drawn on a separate stream from 3 × 10²³ to 1.2 × 10²⁴ mol⁻¹. The generator uses
+                  the explicitly chosen R = 8.314471 J/(mol K), not a modern Boltzmann constant that
+                  would preselect the answer.
+                </p>
+                <div className="input-grid">
+                  {field("seed", "Trial seed (unsigned 64-bit integer)")}
+                  {field("generatorT", "Generator temperature (K)")}
+                  {field("generatorEta", "Generator viscosity (mPa s)")}
+                  {field("generatorRadius", "Generator radius (μm)")}
+                </div>
+              </details>
+            </fieldset>
+          </form>
+          {dirty && (
+            <p className="draft-note">
+              These edits are a draft. The displayed observations and estimates still describe the
+              accepted settings.
+            </p>
+          )}
+          {error && (
+            <p className="notice error" role="alert">
+              {error}
+            </p>
+          )}
+          <div className="actions">
+            <button
+              disabled={!ready}
+              className="secondary"
+              onClick={() =>
+                apply({
+                  ...p,
+                  T: p.generatorT,
+                  eta: p.generatorEta,
+                  a: p.generatorRadius,
+                  radiusKnown: true,
+                  coverageTrials: 0,
+                })
+              }
+            >
+              Use declared generator conditions
+            </button>
+            <button
+              disabled={!ready || !p.radiusKnown}
+              className="secondary"
+              onClick={() => apply({ ...p, a: p.a * 2 })}
+            >
+              Assume twice the radius · same data
+            </button>
+            <button
+              disabled={!ready}
+              className="secondary"
+              onClick={() => apply({ ...p, radiusKnown: false, coverageTrials: 0 })}
+            >
+              Return to the unidentified family
+            </button>
+          </div>
+          <p className="fine">
+            These comparison buttons use accepted settings, not draft edits. “Use declared generator
+            conditions” supplies the known setup of this synthetic exercise; it is not a real
+            independent measurement.
+          </p>
+          <div className="actions">
+            <button disabled={!ready} className="secondary" onClick={newTrial}>
+              New independent trial
+            </button>
+            <button disabled={!ready} className="secondary" onClick={share}>
+              Copy accepted inference link
+            </button>
+            <button disabled={!ready} className="secondary" onClick={exportObservations}>
+              Download accepted observations
+            </button>
+          </div>
+          {shareUrl && (
+            <label className="share-field" htmlFor={`${id}-share`}>
+              Accepted inference link
+              <input
+                id={`${id}-share`}
+                readOnly
+                value={shareUrl}
+                onFocus={(e) => e.target.select()}
+              />
+            </label>
+          )}
+          {note && <p className="notice">{note}</p>}
+          <p className="fine">
+            The CSV contains every selected position and displacement in SI units with generator
+            metadata. It contains synthetic data, not observations of a real suspension. Opening a
+            shared link starts no worker.
+          </p>
+        </div>
+        <div className="lab-results inference-results">
+          <p
+            className="status-line inference-status"
+            role="status"
+            aria-live="polite"
+            aria-atomic="true"
+          >
+            {announcement}
+          </p>
+          {view.refusal && (
+            <div className="notice error">
+              <p>{String(view.refusal.details?.requirements ?? view.refusal.message)}</p>
+              {view.refusal.rankedRepairs.map(
+                (repair, i) =>
+                  repair.action && (
+                    <button
+                      key={i}
+                      className="secondary"
+                      onClick={() =>
+                        apply({
+                          ...(view.requested!.parameters as Bm07Parameters),
+                          [repair.action!.parameterId]: repair.action!.value,
+                        })
+                      }
+                    >
+                      {repair.label}
+                    </button>
+                  ),
+              )}
+              <button className="secondary" onClick={() => apply(p)}>
+                Restore accepted settings
+              </button>
+            </div>
+          )}
+          <p className="accepted-caption">
+            Accepted seed {p.seed}; {p.M} non-overlapping displacements; {p.d} coordinate
+            {p.d === 1 ? "" : "s"}; spacing {display(p.dt)} s. {estimatorNames[p.estimator]}.
+            Assumed T = {display(p.T)} K, η = {display(p.eta, 1e3)} mPa s;{" "}
+            {p.radiusKnown
+              ? `declared radius ${display(p.a, 1e6)} μm`
+              : "independent radius not declared"}
+            .
+          </p>
+          <InferencePath snapshot={snapshot} />
+          <h3>What the data identify</h3>
+          <table className="inference-summary">
+            <caption>Accepted estimate and conditional diffusion uncertainty</caption>
+            <tbody>
+              <tr>
+                <th scope="row">Estimated D (μm²/s)</th>
+                <td>
+                  <InferenceValue
+                    snapshot={snapshot}
+                    id="diffusionCoefficientEstimate"
+                    factor={1e12}
+                  />
+                </td>
+              </tr>
+              <tr>
+                <th scope="row">{display(p.coverage, 100)}% diffusion interval (μm²/s)</th>
+                <td>
+                  <InferenceInterval snapshot={snapshot} id="diffusionInterval" factor={1e12} />
+                </td>
+              </tr>
+              <tr>
+                <th scope="row">Degrees of freedom</th>
+                <td>
+                  <InferenceValue snapshot={snapshot} id="degreesOfFreedom" />
+                </td>
+              </tr>
+              <tr>
+                <th scope="row">Compatible radius × number (m/mol)</th>
+                <td>
+                  <InferenceValue snapshot={snapshot} id="radiusNumberProduct" />
+                </td>
+              </tr>
+            </tbody>
+          </table>
+          <section className="inference-family">
+            <h3>A family before a single number</h3>
+            <p>
+              At the assumed temperature and viscosity, the estimated diffusion scale constrains a
+              product: radius times molecular number. A larger radius and a smaller number can fit
+              exactly the same point estimate.
+            </p>
+            <InferenceFamily snapshot={snapshot} />
+          </section>
+          <h3>Condition on the missing information</h3>
+          <table className="inference-summary">
+            <caption>
+              {intervalKind}; target {display(p.coverage, 100)}%
+            </caption>
+            <tbody>
+              <tr>
+                <th scope="row">Recovered N (10²³ mol⁻¹)</th>
+                <td>
+                  <InferenceValue snapshot={snapshot} id="avogadroNumberEstimate" factor={1e-23} />
+                </td>
+              </tr>
+              <tr>
+                <th scope="row">Selected interval (10²³ mol⁻¹)</th>
+                <td>
+                  <InferenceInterval snapshot={snapshot} id="molecularInterval" factor={1e-23} />
+                </td>
+              </tr>
+              {p.intervalKind === "combined" && (
+                <tr>
+                  <th scope="row">Conditional comparison (10²³ mol⁻¹)</th>
+                  <td>
+                    <InferenceInterval
+                      snapshot={snapshot}
+                      id="conditionalInterval"
+                      factor={1e-23}
+                    />
+                  </td>
+                </tr>
+              )}
+            </tbody>
+          </table>
+          <p className="fine">
+            This is recovery of a synthetic generating parameter, not a measurement of the modern
+            Avogadro constant. The inverted bounds exchange endpoints. A finite confidence interval
+            is not a posterior probability assigned to this one fixed parameter.
+          </p>
+          <details>
+            <summary>Estimator bias and small-sample limits</summary>
+            <p>
+              The known-zero-drift estimate uses every coordinate without subtracting a fitted mean.
+              Fitting a separate drift in each coordinate consumes degrees of freedom. The centered
+              maximum-likelihood estimate divides by the original sample count; the unbiased version
+              uses one fewer. Both use the same correctly rescaled confidence interval.
+            </p>
+            <table className="inference-summary">
+              <caption>Expected ratios under the ideal model with correct input values</caption>
+              <tbody>
+                <tr>
+                  <th scope="row">Mean estimated D / true D</th>
+                  <td>
+                    <InferenceValue snapshot={snapshot} id="diffusionBiasFactor" />
+                  </td>
+                </tr>
+                <tr>
+                  <th scope="row">Mean recovered N / true N</th>
+                  <td>
+                    <InferenceValue snapshot={snapshot} id="inverseBiasFactor" />
+                  </td>
+                </tr>
+                <tr>
+                  <th scope="row">Variance of recovered N / true N</th>
+                  <td>
+                    <InferenceValue snapshot={snapshot} id="inverseVarianceFactor" />
+                  </td>
+                </tr>
+              </tbody>
+            </table>
+            <p className="fine">
+              An unbiased diffusion estimate does not have an unbiased reciprocal. With too few
+              degrees of freedom, the reciprocal’s mean or variance does not exist even though a
+              particular trial can produce a finite estimate. With one displacement and fitted
+              drift, spread is underdetermined.
+            </p>
+          </details>
+          <div className="inference-reveal">
+            <button
+              disabled={!ready}
+              className="secondary"
+              onClick={() => setRevealedRun(revealed ? null : snapshot.runId)}
+            >
+              {revealed ? "Hide generating values" : "Reveal generating values"}
+            </button>
+            {revealed && (
+              <p data-hidden-answer>
+                Generating N:{" "}
+                <InferenceValue snapshot={snapshot} id="generatorMolecularNumber" factor={1e-23} />{" "}
+                × 10²³ mol⁻¹. Generating D:{" "}
+                <InferenceValue
+                  snapshot={snapshot}
+                  id="generatorDiffusionCoefficient"
+                  factor={1e12}
+                />{" "}
+                μm²/s. Revealing these values does not redraw or refit anything.
+              </p>
+            )}
+            <p className="fine">
+              The hidden answer is a learning device, not a secret: the generated browser data can
+              be inspected.
+            </p>
+          </div>
+          <details>
+            <summary>Inspect the accepted observations</summary>
+            <div className="table-scroll">
+              <table>
+                <caption>All selected synthetic positions and increments; μm and seconds</caption>
+                <thead>
+                  <tr>
+                    <th scope="col">Time</th>
+                    {Array.from({ length: p.d }, (_, c) => (
+                      <th key={c} scope="col">
+                        {c === 0 ? "x" : "y"} (μm)
+                      </th>
+                    ))}
+                    {Array.from({ length: p.d }, (_, c) => (
+                      <th key={c} scope="col">
+                        Δ{c === 0 ? "x" : "y"} (μm)
+                      </th>
+                    ))}
+                  </tr>
+                </thead>
+                <tbody>
+                  {Array.from({ length: times.length }, (_, i) => (
+                    <tr key={i}>
+                      <th scope="row">{display(times.at(i)!)}</th>
+                      {Array.from({ length: p.d }, (_, c) => (
+                        <td key={c}>{display(positions.at(i * p.d + c)!, 1e6)}</td>
+                      ))}
+                      {Array.from({ length: p.d }, (_, c) => (
+                        <td key={c}>
+                          {i === 0 ? "—" : display(increments.at((i - 1) * p.d + c)!, 1e6)}
+                        </td>
+                      ))}
+                    </tr>
+                  ))}
+                </tbody>
+              </table>
+            </div>
+          </details>
+        </div>
+      </div>
+      <section className="grid-result inference-results">
+        <h3>What does coverage mean?</h3>
+        <p>
+          Repeat the observation procedure on other hypothetical paths with the same generating
+          parameter. Each interval moves; the parameter does not. Change an inference assumption
+          while keeping those paths to see how a wrong radius can spoil molecular-number coverage
+          even when diffusion intervals behave well.
+        </p>
+        <div className="actions">
+          <button
+            disabled={
+              !ready ||
+              view.pending ||
+              p.intervalKind !== "conditional" ||
+              result(snapshot, "diffusionCoefficientEstimate").status !== "value"
+            }
+            onClick={() => apply({ ...p, coverageTrials: 100 })}
+          >
+            Run 100 hypothetical experiments
+          </button>
+          <button
+            className="secondary"
+            disabled={!ready || p.coverageTrials === 0}
+            onClick={() => apply({ ...p, coverageTrials: 0 })}
+          >
+            Hide repeated-trial results
+          </button>
+        </div>
+        <p className="fine">
+          Uses the accepted settings. No seed search, discarded failures or redraws to reach the
+          target fraction. In combined-input mode this view is unavailable: no repeated
+          input-measurement procedure has been specified. After a form edit, run coverage explicitly
+          again.
+        </p>
+        <div className="inference-coverage-grid">
+          <div>
+            <h3>Diffusivity procedure</h3>
+            <InferenceCoverage snapshot={snapshot} />
+          </div>
+          <div>
+            <h3>Molecular-number procedure</h3>
+            <InferenceCoverage snapshot={snapshot} molecular />
+          </div>
+        </div>
+      </section>
+      <details className="inference-provenance">
+        <summary>Accepted calculation identity and limits</summary>
+        <p className="fine">
+          Run {snapshot.runId}; snapshot {snapshot.snapshotVersion}; revisions{" "}
+          {JSON.stringify(snapshot.revisions)}. Host reference owner <code>inference.bm07</code>,
+          scenario <code>scenario-bm07-hidden-number</code>.
+        </p>
+        <p className="fine">
+          Primary recording draws: <InferenceValue snapshot={snapshot} id="recordingDraws" />. Work
+          for this request: <InferenceValue snapshot={snapshot} id="requestDraws" /> draws,
+          including <InferenceValue snapshot={snapshot} id="coverageDraws" /> for hypothetical
+          experiments. Retained primary recording:{" "}
+          <InferenceValue snapshot={snapshot} id="retainedBytes" /> bytes. Reused worker recording:{" "}
+          {scalar(snapshot, "reusedRecording") === 1 ? "yes" : "no"}.
+        </p>
+        <p className="fine">
+          Source identity: <code>{example.sourceDigest}</code>. This host preview has no historical
+          data importer or camera-noise fit. Browser arithmetic is not a claim of strict
+          cross-engine WASM replay.
+        </p>
+      </details>
     </section>
-    <details className="inference-provenance"><summary>Accepted calculation identity and limits</summary><p className="fine">Run {snapshot.runId}; snapshot {snapshot.snapshotVersion}; revisions {JSON.stringify(snapshot.revisions)}. Host reference owner <code>inference.bm07</code>, scenario <code>scenario-bm07-hidden-number</code>.</p><p className="fine">Primary recording draws: <InferenceValue snapshot={snapshot} id="recordingDraws"/>. Work for this request: <InferenceValue snapshot={snapshot} id="requestDraws"/> draws, including <InferenceValue snapshot={snapshot} id="coverageDraws"/> for hypothetical experiments. Retained primary recording: <InferenceValue snapshot={snapshot} id="retainedBytes"/> bytes. Reused worker recording: {scalar(snapshot, "reusedRecording") === 1 ? "yes" : "no"}.</p><p className="fine">Source identity: <code>{example.sourceDigest}</code>. This host preview has no historical data importer or camera-noise fit. Browser arithmetic is not a claim of strict cross-engine WASM replay.</p></details>
-  </section>;
+  );
 }
 export function InferenceComparison({ example }: { example: PreparedBm07Example }) {
-  const [second, setSecond] = useState(false), [ready, setReady] = useState(false); useEffect(() => setReady(true), []);
-  return <><InferenceLab example={example}/><div className="comparison-toggle"><button className="secondary" disabled={!ready} onClick={() => setSecond(!second)}>{second ? "Close second inference laboratory" : "Open a second independent inference laboratory"}</button><p className="fine">Each placement has separate settings and worker ownership. The same seed initially reproduces the same synthetic data; choose a different seed for an independent trial.</p></div>{second && <InferenceLab example={example} title="A separately controlled inference"/>}</>;
+  const [second, setSecond] = useState(false),
+    [ready, setReady] = useState(false);
+  useEffect(() => setReady(true), []);
+  return (
+    <>
+      <InferenceLab example={example} />
+      <div className="comparison-toggle">
+        <button className="secondary" disabled={!ready} onClick={() => setSecond(!second)}>
+          {second
+            ? "Close second inference laboratory"
+            : "Open a second independent inference laboratory"}
+        </button>
+        <p className="fine">
+          Each placement has separate settings and worker ownership. The same seed initially
+          reproduces the same synthetic data; choose a different seed for an independent trial.
+        </p>
+      </div>
+      {second && <InferenceLab example={example} title="A separately controlled inference" />}
+    </>
+  );
 }

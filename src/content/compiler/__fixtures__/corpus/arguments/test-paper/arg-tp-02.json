@@ -8,12 +8,8 @@
   "question": "Does length depend on the observer's motion?",
   "recap": "Moving rods are measured to be shorter than stationary rods.",
   "review": "draft",
-  "premises": [
-    "Simultaneity is relative to the motion of the coordinate system."
-  ],
-  "limitations": [
-    "Applies to inertial frames."
-  ],
+  "premises": ["Simultaneity is relative to the motion of the coordinate system."],
+  "limitations": ["Applies to inertial frames."],
   "citations": ["cite-test-1905"],
   "readings": {
     "overview": [
@@ -31,10 +27,7 @@
     "steps": [
       {
         "kind": "steps",
-        "items": [
-          "Measure rod at rest.",
-          "Measure rod in motion using synchronized clocks."
-        ]
+        "items": ["Measure rod at rest.", "Measure rod in motion using synchronized clocks."]
       }
     ],
     "margin": [

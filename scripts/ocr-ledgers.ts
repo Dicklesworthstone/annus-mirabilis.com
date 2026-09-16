@@ -1,11 +1,12 @@
 #!/usr/bin/env bun
+
 /**
  * ============================================================================
  * Annus Mirabilis: Cloud OCR Orchestrator (scripts/ocr-ledgers.ts)
  * ============================================================================
  *
  * HARD RESOURCE POLICY (AGENTS.md - "Cloud OCR Only: Hard Resource Policy"):
- * 
+ *
  * NEVER RUN OCR ON THIS MACHINE.
  * Local OCR has already caused severe performance degradation, slowed an entire
  * multi-agent campaign, and wasted substantial time in the donor project. This
@@ -28,66 +29,65 @@
  * ============================================================================
  */
 
-import { readFile, mkdir } from "node:fs/promises";
 import { existsSync } from "node:fs";
-import { resolve, dirname } from "node:path";
+import { mkdir, readFile } from "node:fs/promises";
+import { dirname, resolve } from "node:path";
 import { fileURLToPath } from "node:url";
-
+import { type LoadAdapterOptions, loadAdapter } from "./ocr-adapters/loader.ts";
 import {
-  type OcrPlan,
-  loadPlan,
-  validatePlan,
-  type ValidatePlanOptions
-} from "./sources/ocrPlanSchema.ts";
-import {
-  type CloudOcrAdapter,
-  type OcrRefusalCode,
-  OcrRefusalError,
-  OcrAdapterError,
-  AdapterUnavailableError,
   AdapterAuthError,
+  AdapterBadResponseError,
   AdapterQuotaError,
   AdapterTimeoutError,
-  AdapterBadResponseError
+  AdapterUnavailableError,
+  type CloudOcrAdapter,
+  OcrAdapterError,
+  type OcrRefusalCode,
+  OcrRefusalError,
 } from "./ocr-adapters/types.ts";
-import { loadAdapter, type LoadAdapterOptions } from "./ocr-adapters/loader.ts";
 import {
+  loadPlan,
+  type OcrPlan,
+  type ValidatePlanOptions,
+  validatePlan,
+} from "./sources/ocrPlanSchema.ts";
+import {
+  appendStructuredLog,
+  buildCoverage,
+  type CheckpointContext,
   type ChunkPlan,
+  type ChunkResult,
+  type CoverageResult,
+  generateLogRunId,
+  generateToolRunId,
+  planChunks,
   type RenderedPage,
   type RenderOptions,
-  type ChunkResult,
-  type CheckpointContext,
-  type ResumeState,
   type ResumeOptions,
+  type ResumeState,
   type RunSummaryResult,
-  type CoverageResult,
-  planChunks,
-  renderPages,
-  runChunk,
-  writeCheckpoint,
-  resumeRun,
-  summarizeRun,
-  buildCoverage,
   redact,
-  generateToolRunId,
-  generateLogRunId,
-  appendStructuredLog
+  renderPages,
+  resumeRun,
+  runChunk,
+  summarizeRun,
+  writeCheckpoint,
 } from "./sources/ocrRunner.ts";
 
 export {
-  loadPlan,
-  validatePlan,
-  planChunks,
-  renderPages,
-  loadAdapter,
-  runChunk,
-  writeCheckpoint,
-  resumeRun,
-  summarizeRun,
   buildCoverage,
-  redact,
+  generateLogRunId,
   generateToolRunId,
-  generateLogRunId
+  loadAdapter,
+  loadPlan,
+  planChunks,
+  redact,
+  renderPages,
+  resumeRun,
+  runChunk,
+  summarizeRun,
+  validatePlan,
+  writeCheckpoint,
 };
 
 const ROOT = resolve(dirname(fileURLToPath(import.meta.url)), "..");
@@ -122,7 +122,7 @@ export interface OrchestratorResult {
 }
 
 export async function runOcrOrchestrator(
-  options: RunOrchestratorOptions
+  options: RunOrchestratorOptions,
 ): Promise<OrchestratorResult> {
   const logRunId = options.logRunId ?? generateLogRunId();
   const plan = await loadPlan(options.planPath, { checkFacsimile: true });
@@ -141,12 +141,14 @@ export async function runOcrOrchestrator(
       runDir,
       summary: res.summary,
       coverage: res.coverage,
-      receiptBlock: res.receiptBlock
+      receiptBlock: res.receiptBlock,
     };
   }
 
   // Load instructions
-  const instructionsFile = options.instructionsPath ?? resolve(ROOT, "scripts/sources/ocr-instructions", `${plan.instructionsVersion}.md`);
+  const instructionsFile =
+    options.instructionsPath ??
+    resolve(ROOT, "scripts/sources/ocr-instructions", `${plan.instructionsVersion}.md`);
   const instructionText = await readFile(instructionsFile, "utf-8");
 
   // Plan chunks
@@ -154,8 +156,13 @@ export async function runOcrOrchestrator(
 
   // Render pages
   const imagesDir = resolve(runDir, "images");
-  const allPdfPages = chunks.flatMap(c => c.pdfPages);
-  const renderedList = await renderPages(plan.facsimilePath, allPdfPages, imagesDir, options.renderOptions);
+  const allPdfPages = chunks.flatMap((c) => c.pdfPages);
+  const renderedList = await renderPages(
+    plan.facsimilePath,
+    allPdfPages,
+    imagesDir,
+    options.renderOptions,
+  );
   const renderedPagesMap = new Map<number, RenderedPage>();
   for (const r of renderedList) {
     renderedPagesMap.set(r.pdfPage, r);
@@ -172,7 +179,7 @@ export async function runOcrOrchestrator(
     planPath: options.planPath,
     facsimileSha256: plan.facsimileSha256,
     instructionsVersion: plan.instructionsVersion,
-    status: "planned"
+    status: "planned",
   });
 
   for (const r of renderedList) {
@@ -189,7 +196,7 @@ export async function runOcrOrchestrator(
       renderer: r.renderer,
       rendererVersion: r.rendererVersion,
       dpi: r.dpi,
-      status: "rendered"
+      status: "rendered",
     });
   }
 
@@ -198,7 +205,7 @@ export async function runOcrOrchestrator(
       ok: true,
       toolRunId,
       logRunId,
-      runDir
+      runDir,
     };
   }
 
@@ -208,7 +215,7 @@ export async function runOcrOrchestrator(
   // Resume state check
   const resumeState = await resumeRun(runDir, plan, {
     resubmitChunkIndex: options.resubmitChunkIndex,
-    resubmitReason: options.resubmitReason
+    resubmitReason: options.resubmitReason,
   });
 
   const checkpointContext: CheckpointContext = {
@@ -217,7 +224,7 @@ export async function runOcrOrchestrator(
     logRunId,
     adapter: adapter.name,
     instructionsVersion: plan.instructionsVersion,
-    renderedPages: renderedPagesMap
+    renderedPages: renderedPagesMap,
   };
 
   // Process chunks with concurrency up to plan.maxConcurrency (1 or 2)
@@ -228,9 +235,9 @@ export async function runOcrOrchestrator(
 
   for (let i = 0; i < chunks.length; i += concurrency) {
     const chunkBatch = chunks.slice(i, i + concurrency);
-    
+
     // Filter out already completed chunks
-    const toProcess = chunkBatch.filter(c => {
+    const toProcess = chunkBatch.filter((c) => {
       if (resumeState.completedChunkIndices.has(c.chunkIndex)) {
         appendStructuredLog(runDir, logRunId, {
           timestamp: new Date().toISOString(),
@@ -242,7 +249,7 @@ export async function runOcrOrchestrator(
           facsimileSha256: plan.facsimileSha256,
           chunkIndex: c.chunkIndex,
           pdfPages: c.pdfPages,
-          status: "skipped-checkpoint"
+          status: "skipped-checkpoint",
         });
         return false;
       }
@@ -262,12 +269,12 @@ export async function runOcrOrchestrator(
           instructionText,
           toolRunId,
           logRunId,
-          runDir
+          runDir,
         );
         await writeCheckpoint(runDir, c, res, checkpointContext);
         resumeState.completedChunkIndices.add(c.chunkIndex);
         return { chunk: c, res };
-      })
+      }),
     );
 
     let batchError: any = null;
@@ -305,7 +312,7 @@ export async function runOcrOrchestrator(
           chunkIndex: pausedChunkIndex ?? i,
           status: "paused",
           errorCode: err?.code ?? "OUTAGE",
-          message: err.message
+          message: err.message,
         });
         break;
       } else {
@@ -320,7 +327,7 @@ export async function runOcrOrchestrator(
           chunkIndex: pausedChunkIndex ?? i,
           status: "failed",
           errorCode: err?.code ?? "ERROR",
-          message: err.message
+          message: err.message,
         });
         throw err;
       }
@@ -339,7 +346,7 @@ export async function runOcrOrchestrator(
       paused: true,
       pauseReason: outageError.message,
       pauseComment,
-      error: outageError
+      error: outageError,
     };
   }
 
@@ -352,7 +359,7 @@ export async function runOcrOrchestrator(
     runDir,
     summary,
     coverage,
-    receiptBlock
+    receiptBlock,
   };
 }
 
@@ -387,7 +394,9 @@ if (import.meta.url === `file://${process.argv[1]}`) {
   }
 
   if (!planPath && !summarizeToolRunId) {
-    console.error("Usage: bun scripts/ocr-ledgers.ts --plan <path> [--dry-run] [--resume <tool-run-id>] [--summarize <tool-run-id>] [--resubmit-chunk <i> --reason \"<text>\"] [--adapter <name>]");
+    console.error(
+      'Usage: bun scripts/ocr-ledgers.ts --plan <path> [--dry-run] [--resume <tool-run-id>] [--summarize <tool-run-id>] [--resubmit-chunk <i> --reason "<text>"] [--adapter <name>]',
+    );
     process.exit(1);
   }
 
@@ -398,9 +407,9 @@ if (import.meta.url === `file://${process.argv[1]}`) {
     summarizeOnly: !!summarizeToolRunId,
     resubmitChunkIndex,
     resubmitReason,
-    adapterName
+    adapterName,
   })
-    .then(result => {
+    .then((result) => {
       if (result.paused) {
         console.error(`\n[PAUSED] OCR Run Paused: ${result.pauseReason}`);
         console.error(`Post this comment:\n${result.pauseComment}\n`);
@@ -416,7 +425,7 @@ if (import.meta.url === `file://${process.argv[1]}`) {
       }
       process.exit(0);
     })
-    .catch(err => {
+    .catch((err) => {
       console.error(`\n[REFUSAL/ERROR] ${err.message}`);
       process.exit(err.exitCode ?? 1);
     });

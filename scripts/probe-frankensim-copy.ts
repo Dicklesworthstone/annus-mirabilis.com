@@ -1,19 +1,19 @@
 #!/usr/bin/env node
+import { spawnSync } from "node:child_process";
 /**
  * Archive every sibling the FrankenSim path-dep closure reaches into a probe
  * copy. The 2026-09-15 probe omitted frankensqlite and invalidated five results.
  *
  * Never writes into live sibling checkouts. Never retries a failed probe.
  */
-import { mkdirSync, writeFileSync, appendFileSync, existsSync } from "node:fs";
-import { spawnSync } from "node:child_process";
+import { appendFileSync, existsSync, mkdirSync, writeFileSync } from "node:fs";
 import { dirname, join, resolve } from "node:path";
 import { fileURLToPath } from "node:url";
 import {
   ASUPERSYNC_PIN,
-  FRANKENSIM_PIN,
   checkProbeCopy,
   discoverPathDeps,
+  FRANKENSIM_PIN,
   requiredSiblingNames,
 } from "../src/testing/probeCopy.ts";
 
@@ -53,15 +53,24 @@ function archiveSibling(name: string, dest: string): { revision: string; files: 
   if (archive.status !== 0) {
     throw new Error(`git archive ${name} ${revision} failed: ${archive.stderr?.toString() ?? ""}`);
   }
-  const tar = spawnSync("tar", ["-C", dest, "-xf", "-"], { input: archive.stdout, encoding: "buffer" });
-  if (tar.status !== 0) throw new Error(`tar extract ${name} failed: ${tar.stderr?.toString() ?? ""}`);
-  const count = spawnSync("git", ["-C", live, "ls-tree", "-r", "--name-only", revision], { encoding: "utf8" });
+  const tar = spawnSync("tar", ["-C", dest, "-xf", "-"], {
+    input: archive.stdout,
+    encoding: "buffer",
+  });
+  if (tar.status !== 0)
+    throw new Error(`tar extract ${name} failed: ${tar.stderr?.toString() ?? ""}`);
+  const count = spawnSync("git", ["-C", live, "ls-tree", "-r", "--name-only", revision], {
+    encoding: "utf8",
+  });
   const files = count.stdout.split("\n").filter((line) => line.length > 0).length;
   return { revision, files };
 }
 
 function recordRevision(buildRoot: string, name: string, revision: string): void {
-  writeFileSync(join(buildRoot, `${name.toUpperCase().replace(/-/g, "_")}_REVISION`), `${revision}\n`);
+  writeFileSync(
+    join(buildRoot, `${name.toUpperCase().replace(/-/g, "_")}_REVISION`),
+    `${revision}\n`,
+  );
   const identity = join(buildRoot, "IDENTITY.txt");
   appendFileSync(identity, `${name}Revision=${revision}\n`);
 }

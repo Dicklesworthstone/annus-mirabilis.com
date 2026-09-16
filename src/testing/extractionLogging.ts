@@ -1,7 +1,7 @@
+import { createHash } from "node:crypto";
 import { appendFileSync, mkdirSync } from "node:fs";
 import { dirname, join } from "node:path";
 import { fileURLToPath } from "node:url";
-import { createHash } from "node:crypto";
 
 function repoRoot(): string {
   const currentDir = dirname(fileURLToPath(import.meta.url));
@@ -10,7 +10,10 @@ function repoRoot(): string {
 
 export function newExtractionLogRunId(): string {
   const now = new Date();
-  const stamp = now.toISOString().replace(/[-:]/g, "").replace(/\.\d+Z$/, "Z");
+  const stamp = now
+    .toISOString()
+    .replace(/[-:]/g, "")
+    .replace(/\.\d+Z$/, "Z");
   const hex = createHash("sha256")
     .update(`${stamp}-${process.pid}-${performance.now()}`)
     .digest("hex")
@@ -38,10 +41,12 @@ export interface ExtractionLogEntry {
   };
 }
 
-export function appendExtractionLog(entry: Omit<ExtractionLogEntry, "suite" | "beadId"> & {
-  suite?: "runtime-extraction";
-  beadId?: "am-scaf-extract-runtime-utilities-99y";
-}): void {
+export function appendExtractionLog(
+  entry: Omit<ExtractionLogEntry, "suite" | "beadId"> & {
+    suite?: "runtime-extraction";
+    beadId?: "am-scaf-extract-runtime-utilities-99y";
+  },
+): void {
   const dir = join(repoRoot(), "artifacts/test-logs/runtime-extraction");
   mkdirSync(dir, { recursive: true });
   const line = JSON.stringify({

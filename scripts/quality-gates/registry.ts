@@ -16,17 +16,9 @@ export type GateFamily = "fast" | "browser" | "perf" | "apple";
 export type GateCadence = "every-run" | "nightly";
 export type GateProfile = "scaffold" | "preview" | "launch";
 
-export type GateOutcome =
-  | "passed"
-  | "failed"
-  | "not-available"
-  | "skipped"
-  | "refused";
+export type GateOutcome = "passed" | "failed" | "not-available" | "skipped" | "refused";
 
-export type GateSkipReason =
-  | "tool-unavailable"
-  | "not-required-in-ci"
-  | "cadence";
+export type GateSkipReason = "tool-unavailable" | "not-required-in-ci" | "cadence";
 
 export interface AvailabilityProbe {
   readonly scriptPath?: string;
@@ -381,11 +373,15 @@ export function validateRegistry(steps: readonly GateStep[]): RegistryValidation
     }
 
     if (!validFamilies.has(step.family)) {
-      errors.push(`${prefix}: unknown family '${step.family}'. Expected one of: ${KNOWN_FAMILIES.join(", ")}.`);
+      errors.push(
+        `${prefix}: unknown family '${step.family}'. Expected one of: ${KNOWN_FAMILIES.join(", ")}.`,
+      );
     }
 
     if (!validCadences.has(step.cadence)) {
-      errors.push(`${prefix}: unknown cadence '${step.cadence}'. Expected one of: ${KNOWN_CADENCES.join(", ")}.`);
+      errors.push(
+        `${prefix}: unknown cadence '${step.cadence}'. Expected one of: ${KNOWN_CADENCES.join(", ")}.`,
+      );
     }
 
     if (!step.owner || step.owner.trim().length === 0) {
@@ -395,7 +391,9 @@ export function validateRegistry(steps: readonly GateStep[]): RegistryValidation
     if (Array.isArray(step.requiredInProfiles)) {
       for (const profile of step.requiredInProfiles) {
         if (!validProfiles.has(profile)) {
-          errors.push(`${prefix}: unknown profile '${profile}' in requiredInProfiles. Expected one of: ${KNOWN_PROFILES.join(", ")}.`);
+          errors.push(
+            `${prefix}: unknown profile '${profile}' in requiredInProfiles. Expected one of: ${KNOWN_PROFILES.join(", ")}.`,
+          );
         }
       }
     } else {

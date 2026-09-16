@@ -1,8 +1,8 @@
 import { describe, expect, it } from "bun:test";
 import { existsSync, readFileSync } from "node:fs";
 import path from "node:path";
+import { newRunIdentity, TestLogger } from "../../testing/log/logger.ts";
 import { DIMENSION_BASIS, DIMENSION_SI_UNITS } from "./dimensionBasis.ts";
-import { TestLogger, newRunIdentity } from "../../testing/log/logger.ts";
 
 describe("Dimension Basis Order and FrankenSim Upstream Contract", () => {
   const logger = new TestLogger("dimension-validator-tests", newRunIdentity());

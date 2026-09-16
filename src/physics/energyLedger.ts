@@ -13,11 +13,7 @@
 
 import { areDimensionsEqual, DIM_POWER, parseUnitToDimension } from "../units/qty.ts";
 
-export type EnergyAvailability =
-  | "exact"
-  | "kernel-partial"
-  | "steady-power"
-  | "unavailable";
+export type EnergyAvailability = "exact" | "kernel-partial" | "steady-power" | "unavailable";
 
 export type EnergyBalanceReport =
   | {

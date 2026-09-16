@@ -1,9 +1,9 @@
-import { getLogger } from "./logger.ts";
-import type { Outcome, ToleranceSpec } from "./schema.ts";
 // am-ver-tolerance-module-ho90 delivers this module (landed as commit 83835e9).
 // withinTolerance and compareBitwise are consumed here verbatim; this file
 // carries no tolerance or bitwise comparison logic of its own.
-import { withinTolerance, compareBitwise } from "../../units/tolerance.ts";
+import { compareBitwise, withinTolerance } from "../../units/tolerance.ts";
+import { getLogger } from "./logger.ts";
+import type { Outcome, ToleranceSpec } from "./schema.ts";
 
 export interface AssertionMeta {
   suite: string;
@@ -36,18 +36,27 @@ function identityFields(meta: AssertionMeta): Record<string, unknown> {
 function toLoggable(value: unknown): unknown {
   if (typeof value === "bigint") return value.toString();
   if (ArrayBuffer.isView(value) && !(value instanceof DataView)) {
-    return Array.from(value as unknown as Iterable<number | bigint>, (v) => (typeof v === "bigint" ? v.toString() : v));
+    return Array.from(value as unknown as Iterable<number | bigint>, (v) =>
+      typeof v === "bigint" ? v.toString() : v,
+    );
   }
   return value;
 }
 
 /** Records outcome, duration, and failure message for one test. */
-export async function withTestLog(meta: AssertionMeta, fn: () => unknown | Promise<unknown>): Promise<void> {
+export async function withTestLog(
+  meta: AssertionMeta,
+  fn: () => unknown | Promise<unknown>,
+): Promise<void> {
   const logger = loggerFor(meta);
   const start = performance.now();
   try {
     await fn();
-    logger.log({ ...identityFields(meta), outcome: "passed", durationMs: Math.round(performance.now() - start) });
+    logger.log({
+      ...identityFields(meta),
+      outcome: "passed",
+      durationMs: Math.round(performance.now() - start),
+    });
   } catch (error) {
     logger.log({
       ...identityFields(meta),
@@ -70,7 +79,12 @@ export async function withTestLog(meta: AssertionMeta, fn: () => unknown | Promi
  * `diff`, `allowed`, and `verdict`. Fails on any spec issue or a
  * non-`within` verdict.
  */
-export function expectClose(actual: number, expected: number, spec: ToleranceSpec, meta: AssertionMeta) {
+export function expectClose(
+  actual: number,
+  expected: number,
+  spec: ToleranceSpec,
+  meta: AssertionMeta,
+) {
   if (spec === undefined || spec === null) {
     // No tolerance object exists to log; a schema-valid "tolerance" comparison
     // event requires one, so this precondition failure is a thrown error only.
@@ -123,7 +137,11 @@ export function expectBitwise(actual: unknown, expected: unknown, meta: Assertio
     verdict: verdict.kind,
     outcome: (verdict.ok ? "passed" : "failed") satisfies Outcome,
     ...(verdict.detail !== undefined ? { extra: { detail: toLoggable(verdict.detail) } } : {}),
-    ...(verdict.ok ? {} : { message: `expectBitwise failed: ${verdict.kind}${verdict.detail !== undefined ? ` (${JSON.stringify(verdict.detail)})` : ""}` }),
+    ...(verdict.ok
+      ? {}
+      : {
+          message: `expectBitwise failed: ${verdict.kind}${verdict.detail !== undefined ? ` (${JSON.stringify(verdict.detail)})` : ""}`,
+        }),
   });
   logger.flushSync();
   if (!verdict.ok) throw new Error(`expectBitwise failed: ${verdict.kind}`);

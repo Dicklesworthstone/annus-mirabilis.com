@@ -9,13 +9,37 @@ export interface WorkflowViolation {
 }
 
 const FORBIDDEN_TOKENS = [
-  { token: "vercel", rule: "no-vercel", message: "Vercel CLI or actions are forbidden in CI workflows." },
-  { token: "deploy", rule: "no-deploy", message: "Deployment steps are forbidden in CI workflows." },
+  {
+    token: "vercel",
+    rule: "no-vercel",
+    message: "Vercel CLI or actions are forbidden in CI workflows.",
+  },
+  {
+    token: "deploy",
+    rule: "no-deploy",
+    message: "Deployment steps are forbidden in CI workflows.",
+  },
   { token: "alias", rule: "no-alias", message: "Alias steps are forbidden in CI workflows." },
-  { token: "wrangler", rule: "no-wrangler", message: "Wrangler CLI or actions are forbidden in CI workflows." },
-  { token: "cloudflare", rule: "no-cloudflare", message: "Cloudflare actions or secrets are forbidden in CI workflows." },
-  { token: "pull_request_target", rule: "no-pull-request-target", message: "pull_request_target trigger is strictly forbidden due to privilege escalation risks." },
-  { token: "--family apple", rule: "no-apple-family-in-ci", message: "Apple quality gate family must never be run in website CI workflows." },
+  {
+    token: "wrangler",
+    rule: "no-wrangler",
+    message: "Wrangler CLI or actions are forbidden in CI workflows.",
+  },
+  {
+    token: "cloudflare",
+    rule: "no-cloudflare",
+    message: "Cloudflare actions or secrets are forbidden in CI workflows.",
+  },
+  {
+    token: "pull_request_target",
+    rule: "no-pull-request-target",
+    message: "pull_request_target trigger is strictly forbidden due to privilege escalation risks.",
+  },
+  {
+    token: "--family apple",
+    rule: "no-apple-family-in-ci",
+    message: "Apple quality gate family must never be run in website CI workflows.",
+  },
 ];
 
 /**
@@ -38,7 +62,8 @@ export function scanWorkflowContent(filename: string, content: string): Workflow
   }
 
   // Check write permissions
-  const writePermPattern = /permissions:\s*[\s\S]*?(?:write|contents:\s*write|id-token:\s*write|pull-requests:\s*write|actions:\s*write|deployments:\s*write|packages:\s*write)/i;
+  const writePermPattern =
+    /permissions:\s*[\s\S]*?(?:write|contents:\s*write|id-token:\s*write|pull-requests:\s*write|actions:\s*write|deployments:\s*write|packages:\s*write)/i;
   if (writePermPattern.test(content)) {
     violations.push({
       file: filename,
@@ -64,7 +89,9 @@ describe("CI Workflow Security & Scope Scanner", () => {
   const workflowsDir = join(process.cwd(), ".github", "workflows");
 
   it("passes all real repository workflow files in .github/workflows", () => {
-    const files = readdirSync(workflowsDir).filter((f) => f.endsWith(".yml") || f.endsWith(".yaml"));
+    const files = readdirSync(workflowsDir).filter(
+      (f) => f.endsWith(".yml") || f.endsWith(".yaml"),
+    );
     expect(files.length).toBeGreaterThanOrEqual(2);
 
     const allViolations: WorkflowViolation[] = [];

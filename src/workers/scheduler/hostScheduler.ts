@@ -1,15 +1,16 @@
-import { LabProtocolError, validateSourceDigest } from "../protocol/bm06.ts";
 import {
-  executionOutcomeRegistry,
   type ExecutionOutcomeId,
+  executionOutcomeRegistry,
 } from "../../experiments/results/outcomes.ts";
 import type { createInstanceStore, RequestToken } from "../../experiments/store/instanceStore.ts";
+import { LabProtocolError, validateSourceDigest } from "../protocol/bm06.ts";
 
 export type WorkerChannel = Readonly<{
   send(message: unknown): void;
   listen(onMessage: (message: unknown) => void, onError: () => void): () => void;
   dispose(): void;
 }>;
+
 import type { ScientificResult } from "../../experiments/results/types.ts";
 import type { Computation } from "../../physics/reference/diffusion/ftcs.ts";
 export type HostProtocol = Readonly<{

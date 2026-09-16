@@ -202,7 +202,10 @@ const seed = Math.random();
 const route = "/patents/us-821393-wright-flyer";
 const kernel = "wrightKernel";
 `;
-    const violations = scanCodeForHygiene("src/testing/fixtures/deliberatelyFailingHygiene.ts", badFixtureCode);
+    const violations = scanCodeForHygiene(
+      "src/testing/fixtures/deliberatelyFailingHygiene.ts",
+      badFixtureCode,
+    );
     expect(violations.length).toBeGreaterThan(0);
 
     const tokensFound = violations.map((v) => v.token);

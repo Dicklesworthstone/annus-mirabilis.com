@@ -4,7 +4,7 @@ import { randomBytes } from "node:crypto";
 import { mkdirSync, writeFileSync } from "node:fs";
 import path from "node:path";
 import { runRevisionCheck } from "../../scripts/check-revisions.ts";
-import { TestLogger, newRunIdentity } from "./log/logger.ts";
+import { newRunIdentity, TestLogger } from "./log/logger.ts";
 
 describe("check-revisions Integration with Git Repository", () => {
   const logger = new TestLogger("check-revisions", newRunIdentity());
@@ -38,7 +38,10 @@ describe("check-revisions Integration with Git Repository", () => {
     );
 
     execSync("git add content/record-1.json", { cwd: testRepoDir, stdio: "ignore" });
-    execSync('git commit -m "feat: initial record revision 1"', { cwd: testRepoDir, stdio: "ignore" });
+    execSync('git commit -m "feat: initial record revision 1"', {
+      cwd: testRepoDir,
+      stdio: "ignore",
+    });
 
     // Commit 2: Content changed but revision NOT incremented
     writeFileSync(
@@ -56,7 +59,10 @@ describe("check-revisions Integration with Git Repository", () => {
     );
 
     execSync("git add content/record-1.json", { cwd: testRepoDir, stdio: "ignore" });
-    execSync('git commit -m "fix: content edit without revision bump"', { cwd: testRepoDir, stdio: "ignore" });
+    execSync('git commit -m "fix: content edit without revision bump"', {
+      cwd: testRepoDir,
+      stdio: "ignore",
+    });
 
     // Run the revision check against base HEAD~1 inside the test repo
     const originalCwd = process.cwd();

@@ -2,7 +2,7 @@ import { randomBytes } from "node:crypto";
 import { appendFileSync, mkdirSync } from "node:fs";
 import { appendFile, mkdir } from "node:fs/promises";
 import path from "node:path";
-import { validateEvent, type LogEvent } from "./schema.ts";
+import { type LogEvent, validateEvent } from "./schema.ts";
 
 /**
  * Mints a `YYYYMMDDTHHMMSSZ-<8 hex>` identity from a cryptographic random
@@ -10,7 +10,10 @@ import { validateEvent, type LogEvent } from "./schema.ts";
  * (a pipeline or tool run) — never for the experiment `runId`.
  */
 export function newRunIdentity(): string {
-  const compact = new Date().toISOString().replace(/[-:]/g, "").replace(/\.\d+Z$/, "Z");
+  const compact = new Date()
+    .toISOString()
+    .replace(/[-:]/g, "")
+    .replace(/\.\d+Z$/, "Z");
   return `${compact}-${randomBytes(4).toString("hex")}`;
 }
 
@@ -79,7 +82,8 @@ export class TestLogger {
   /** Flushes the buffer as one append call, serialized against concurrent flushes. */
   flush(): Promise<void> {
     if (this.buffer.length === 0) return this.writeQueue;
-    const lines = this.buffer.splice(0, this.buffer.length)
+    const lines = this.buffer
+      .splice(0, this.buffer.length)
       .map((line) => line + "\n")
       .join("");
     const target = this.filePath;
@@ -93,7 +97,8 @@ export class TestLogger {
   /** Synchronous flush for process-exit handlers, where async work cannot complete. */
   flushSync(): void {
     if (this.buffer.length === 0) return;
-    const lines = this.buffer.splice(0, this.buffer.length)
+    const lines = this.buffer
+      .splice(0, this.buffer.length)
       .map((line) => line + "\n")
       .join("");
     const target = this.filePath;

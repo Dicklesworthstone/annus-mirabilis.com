@@ -346,12 +346,7 @@ export function sampleHeatAt(
 }
 
 /** Root-mean-square amplitude of one 2D wave snapshot. */
-export function waveFrameRms(
-  wave: Float64Array,
-  n: number,
-  frames: number,
-  frame: number,
-): number {
+export function waveFrameRms(wave: Float64Array, n: number, frames: number, frame: number): number {
   const f = Math.max(0, Math.min(frames - 1, Math.floor(frame)));
   const m = n * n;
   const offset = f * m;

@@ -13,12 +13,12 @@ import path from "node:path";
 import { parseArgs } from "node:util";
 import { type AliasRecord, validateAliasRecord } from "../src/content/aliases.ts";
 import {
-  type VersionedRecord,
   checkRevisionChanges,
   computeCanonicalRecordHash,
+  type VersionedRecord,
   validateRecordLineage,
 } from "../src/content/revisions.ts";
-import { TestLogger, newRunIdentity } from "../src/testing/log/logger.ts";
+import { newRunIdentity, TestLogger } from "../src/testing/log/logger.ts";
 
 function getGitFilesAtRef(ref: string, dir: string): string[] {
   try {

@@ -7,9 +7,9 @@
  */
 
 import {
+  checkDimensions as checkContentDimensions,
   type DimensionCheckResult,
   type DimensionCheckStatus,
-  checkDimensions as checkContentDimensions,
 } from "../content/dimensions/check.ts";
 import type { Dimension } from "../content/dimensions/rational.ts";
 import type { Expression } from "./ast.ts";

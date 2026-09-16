@@ -89,12 +89,7 @@ export function multiplyIntervals(a: Interval, b: Interval): Interval {
   const p2 = a.min * b.max;
   const p3 = a.max * b.min;
   const p4 = a.max * b.max;
-  return createInterval(
-    Math.min(p1, p2, p3, p4),
-    Math.max(p1, p2, p3, p4),
-    undefined,
-    a.kind,
-  );
+  return createInterval(Math.min(p1, p2, p3, p4), Math.max(p1, p2, p3, p4), undefined, a.kind);
 }
 
 /**
@@ -109,12 +104,7 @@ export function divideIntervals(a: Interval, b: Interval): Interval {
   const q2 = a.min / b.max;
   const q3 = a.max / b.min;
   const q4 = a.max / b.max;
-  return createInterval(
-    Math.min(q1, q2, q3, q4),
-    Math.max(q1, q2, q3, q4),
-    undefined,
-    a.kind,
-  );
+  return createInterval(Math.min(q1, q2, q3, q4), Math.max(q1, q2, q3, q4), undefined, a.kind);
 }
 
 /**
@@ -143,12 +133,7 @@ export function intersectIntervals(a: Interval, b: Interval): Interval | null {
  * Computes the convex hull (bounding span) enclosing both intervals.
  */
 export function hullIntervals(a: Interval, b: Interval): Interval {
-  return createInterval(
-    Math.min(a.min, b.min),
-    Math.max(a.max, b.max),
-    a.unit,
-    a.kind,
-  );
+  return createInterval(Math.min(a.min, b.min), Math.max(a.max, b.max), a.unit, a.kind);
 }
 
 /**

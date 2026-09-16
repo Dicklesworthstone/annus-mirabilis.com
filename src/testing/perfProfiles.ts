@@ -1,4 +1,4 @@
-import { readFileSync, mkdirSync, appendFileSync } from "node:fs";
+import { appendFileSync, mkdirSync, readFileSync } from "node:fs";
 import { dirname, join } from "node:path";
 import { fileURLToPath } from "node:url";
 
@@ -140,20 +140,34 @@ export function validateAgainstSchema(
     return issues;
   }
   if (Array.isArray(node.enum) && !node.enum.includes(data as never)) {
-    issues.push({ path, message: `expected one of ${JSON.stringify(node.enum)}, got ${JSON.stringify(data)}` });
+    issues.push({
+      path,
+      message: `expected one of ${JSON.stringify(node.enum)}, got ${JSON.stringify(data)}`,
+    });
     return issues;
   }
   if (node.type !== undefined && !matchesType(data, node.type as string | string[])) {
-    issues.push({ path, message: `expected type ${JSON.stringify(node.type)}, got ${typeOf(data)}` });
+    issues.push({
+      path,
+      message: `expected type ${JSON.stringify(node.type)}, got ${typeOf(data)}`,
+    });
     return issues;
   }
   if (typeof node.minimum === "number" && typeof data === "number" && data < node.minimum) {
     issues.push({ path, message: `expected >= ${node.minimum}, got ${data}` });
   }
-  if (typeof node.minLength === "number" && typeof data === "string" && data.length < node.minLength) {
+  if (
+    typeof node.minLength === "number" &&
+    typeof data === "string" &&
+    data.length < node.minLength
+  ) {
     issues.push({ path, message: `expected minLength ${node.minLength}` });
   }
-  if (typeof node.pattern === "string" && typeof data === "string" && !new RegExp(node.pattern).test(data)) {
+  if (
+    typeof node.pattern === "string" &&
+    typeof data === "string" &&
+    !new RegExp(node.pattern).test(data)
+  ) {
     issues.push({ path, message: `expected to match /${node.pattern}/` });
   }
   if (node.type === "object" || (isObject(node.properties) && isObject(data))) {
@@ -185,7 +199,14 @@ export function validateAgainstSchema(
     }
     if (isObject(node.items)) {
       data.forEach((item, i) => {
-        issues.push(...validateAgainstSchema(item, node.items as Record<string, unknown>, root, `${path}[${i}]`));
+        issues.push(
+          ...validateAgainstSchema(
+            item,
+            node.items as Record<string, unknown>,
+            root,
+            `${path}[${i}]`,
+          ),
+        );
       });
     }
   }
@@ -239,7 +260,10 @@ export function validateDomain(file: ProfilesFile): ValidationIssue[] {
           message: "provisional mobile-low-cost CPU slowdown must be 4",
         });
       }
-      if (profile.cpuSlowdown.calibration !== "provisional" && profile.cpuSlowdown.calibration !== "measured") {
+      if (
+        profile.cpuSlowdown.calibration !== "provisional" &&
+        profile.cpuSlowdown.calibration !== "measured"
+      ) {
         issues.push({
           path: `$.profiles.${profile.id}.cpuSlowdown.calibration`,
           message: `mobile-low-cost calibration must be provisional or measured, got ${profile.cpuSlowdown.calibration}`,
@@ -268,7 +292,10 @@ export function validateDomain(file: ProfilesFile): ValidationIssue[] {
     }
     if (profile.cpuSlowdown.calibration === "measured") {
       if (!profile.cpuSlowdown.host) {
-        issues.push({ path: `$.profiles.${profile.id}.cpuSlowdown.host`, message: "measured calibration missing host" });
+        issues.push({
+          path: `$.profiles.${profile.id}.cpuSlowdown.host`,
+          message: "measured calibration missing host",
+        });
       }
       if (!profile.cpuSlowdown.phoneModel) {
         issues.push({
@@ -283,7 +310,10 @@ export function validateDomain(file: ProfilesFile): ValidationIssue[] {
         });
       }
       if (!profile.cpuSlowdown.date) {
-        issues.push({ path: `$.profiles.${profile.id}.cpuSlowdown.date`, message: "measured calibration missing date" });
+        issues.push({
+          path: `$.profiles.${profile.id}.cpuSlowdown.date`,
+          message: "measured calibration missing date",
+        });
       }
     }
     if (profile.cpuSlowdown.webkitCpuThrottling !== "unavailable") {
@@ -293,19 +323,31 @@ export function validateDomain(file: ProfilesFile): ValidationIssue[] {
       });
     }
   }
-  if (!ids.has("mobile-low-cost") || !ids.has("desktop-capable") || !ids.has("tablet") || !ids.has("real-device-small")) {
+  if (
+    !ids.has("mobile-low-cost") ||
+    !ids.has("desktop-capable") ||
+    !ids.has("tablet") ||
+    !ids.has("real-device-small")
+  ) {
     issues.push({ path: "$.profiles", message: "missing one of the four required profile ids" });
   }
   return issues;
 }
 
-export function validateProfilesFile(data: unknown, schema: Record<string, unknown>): ValidationIssue[] {
+export function validateProfilesFile(
+  data: unknown,
+  schema: Record<string, unknown>,
+): ValidationIssue[] {
   const schemaIssues = validateAgainstSchema(data, schema);
   if (schemaIssues.length > 0) return schemaIssues;
   return validateDomain(data as ProfilesFile);
 }
 
-export function loadCommittedProfiles(): { data: ProfilesFile; schema: Record<string, unknown>; issues: ValidationIssue[] } {
+export function loadCommittedProfiles(): {
+  data: ProfilesFile;
+  schema: Record<string, unknown>;
+  issues: ValidationIssue[];
+} {
   const data = JSON.parse(readFileSync(PROFILES_PATH, "utf8")) as ProfilesFile;
   const schema = JSON.parse(readFileSync(SCHEMA_PATH, "utf8")) as Record<string, unknown>;
   return { data, schema, issues: validateProfilesFile(data, schema) };
@@ -315,13 +357,18 @@ export function loadCommittedProfiles(): { data: ProfilesFile; schema: Record<st
  * Nearest-rank p75 for Event Timing samples.
  * With n = 20, ceil(0.75 * 20) = 15, so the 15th 1-indexed value (index 14).
  */
-export function nearestRankPercentile(sortedAscending: number[], percentile: number, minSamples: number): number {
+export function nearestRankPercentile(
+  sortedAscending: number[],
+  percentile: number,
+  minSamples: number,
+): number {
   if (sortedAscending.length < minSamples) {
     throw new Error(`need at least ${minSamples} samples, got ${sortedAscending.length}`);
   }
   const rank = Math.ceil(percentile * sortedAscending.length);
   const value = sortedAscending[rank - 1];
-  if (value === undefined) throw new Error(`rank ${rank} out of bounds for ${sortedAscending.length} samples`);
+  if (value === undefined)
+    throw new Error(`rank ${rank} out of bounds for ${sortedAscending.length} samples`);
   return value;
 }
 
@@ -336,7 +383,8 @@ export function median(values: number[]): number {
   }
   const lower = sorted[mid - 1];
   const upper = sorted[mid];
-  if (lower === undefined || upper === undefined) throw new Error(`median indices ${mid - 1}/${mid} out of bounds`);
+  if (lower === undefined || upper === undefined)
+    throw new Error(`median indices ${mid - 1}/${mid} out of bounds`);
   return (lower + upper) / 2;
 }
 
@@ -380,7 +428,10 @@ export function appendPerfProfilesLog(entry: {
 
 export function newLogRunId(): string {
   const now = new Date();
-  const stamp = now.toISOString().replace(/[-:]/g, "").replace(/\.\d+Z$/, "Z");
+  const stamp = now
+    .toISOString()
+    .replace(/[-:]/g, "")
+    .replace(/\.\d+Z$/, "Z");
   const hex = Math.floor(Math.random() * 0xffffffff)
     .toString(16)
     .padStart(8, "0");

@@ -1,8 +1,8 @@
 import { describe, expect, it } from "bun:test";
+import { newRunIdentity, TestLogger } from "../../testing/log/logger.ts";
 import { checkDimensions, type QuantityRegistryMap } from "./check.ts";
 import { dimension, dimensionText, rational } from "./rational.ts";
 import { mapToRuntimeDimension } from "./runtimeMapping.ts";
-import { TestLogger, newRunIdentity } from "../../testing/log/logger.ts";
 
 describe("Exact Rational Dimension Validator and Semantic Kind Checker", () => {
   const logger = new TestLogger("dimension-validator-tests", newRunIdentity());
@@ -20,7 +20,12 @@ describe("Exact Rational Dimension Validator and Semantic Kind Checker", () => {
   const root = (radicand: any, degree = 2) => ({ kind: "root", radicand, degree });
   const pow = (base: any, exponent: any) => ({ kind: "power", base, exponent });
   const fn = (name: string, argument: any) => ({ kind: "function", name, argument });
-  const rel = (left: any, right: any, op = "=") => ({ kind: "relation", operator: op, left, right });
+  const rel = (left: any, right: any, op = "=") => ({
+    kind: "relation",
+    operator: op,
+    left,
+    right,
+  });
   const deriv = (expression: any, variable: any, order = 1) => ({
     kind: "derivative",
     expression,
@@ -46,17 +51,40 @@ describe("Exact Rational Dimension Validator and Semantic Kind Checker", () => {
     boltzmannConstant: { id: "boltzmannConstant", dimension: ["2", "1", "-2", "-1", "0", "0"] },
     viscosity: { id: "viscosity", dimension: ["-1", "1", "-1", "0", "0", "0"] },
     particleRadius: { id: "particleRadius", dimension: ["1", "0", "0", "0", "0", "0"] },
-    diffusionCoefficient: { id: "diffusionCoefficient", dimension: ["2", "0", "-1", "0", "0", "0"] },
+    diffusionCoefficient: {
+      id: "diffusionCoefficient",
+      dimension: ["2", "0", "-1", "0", "0", "0"],
+    },
     rmsDisplacement: { id: "rmsDisplacement", dimension: ["1", "0", "0", "0", "0", "0"] },
 
     // Light Quanta
-    frequency: { id: "frequency", dimension: ["0", "0", "-1", "0", "0", "0"], semanticKind: "cyclic-frequency" },
-    angularFrequency: { id: "angularFrequency", dimension: ["0", "0", "-1", "0", "0", "0"], semanticKind: "angular-frequency" },
+    frequency: {
+      id: "frequency",
+      dimension: ["0", "0", "-1", "0", "0", "0"],
+      semanticKind: "cyclic-frequency",
+    },
+    angularFrequency: {
+      id: "angularFrequency",
+      dimension: ["0", "0", "-1", "0", "0", "0"],
+      semanticKind: "angular-frequency",
+    },
     wienAlpha: { id: "wienAlpha", dimension: ["-1", "1", "2", "0", "0", "0"] }, // J s^4 m^-3
     wienBeta: { id: "wienBeta", dimension: ["0", "0", "1", "1", "0", "0"] }, // K s
-    spectralEnergyDensityFreq: { id: "spectralEnergyDensityFreq", dimension: ["-1", "1", "-1", "0", "0", "0"], semanticKind: "spectral-density-frequency" }, // J s m^-3
-    spectralEnergyDensityWave: { id: "spectralEnergyDensityWave", dimension: ["-2", "1", "-2", "0", "0", "0"], semanticKind: "spectral-density-wavelength" }, // J m^-4
-    totalEnergyDensity: { id: "totalEnergyDensity", dimension: ["-1", "1", "-2", "0", "0", "0"], semanticKind: "total-density" }, // J m^-3
+    spectralEnergyDensityFreq: {
+      id: "spectralEnergyDensityFreq",
+      dimension: ["-1", "1", "-1", "0", "0", "0"],
+      semanticKind: "spectral-density-frequency",
+    }, // J s m^-3
+    spectralEnergyDensityWave: {
+      id: "spectralEnergyDensityWave",
+      dimension: ["-2", "1", "-2", "0", "0", "0"],
+      semanticKind: "spectral-density-wavelength",
+    }, // J m^-4
+    totalEnergyDensity: {
+      id: "totalEnergyDensity",
+      dimension: ["-1", "1", "-2", "0", "0", "0"],
+      semanticKind: "total-density",
+    }, // J m^-3
     wavelength: { id: "wavelength", dimension: ["1", "0", "0", "0", "0", "0"] },
 
     // Electrodynamics (Dual SI / Gaussian / EMU)
@@ -113,20 +141,60 @@ describe("Exact Rational Dimension Validator and Semantic Kind Checker", () => {
     },
 
     // Semantic Kinds
-    coordinateTime: { id: "coordinateTime", dimension: ["0", "0", "1", "0", "0", "0"], semanticKind: "coordinate-time" },
-    properTime: { id: "properTime", dimension: ["0", "0", "1", "0", "0", "0"], semanticKind: "proper-time" },
-    labForce: { id: "labForce", dimension: ["1", "1", "-2", "0", "0", "0"], semanticKind: "laboratory-force" },
-    comovingForce: { id: "comovingForce", dimension: ["1", "1", "-2", "0", "0", "0"], semanticKind: "comoving-force" },
-    meanSquareVal: { id: "meanSquareVal", dimension: ["2", "0", "0", "0", "0", "0"], semanticKind: "mean-square" },
-    varianceVal: { id: "varianceVal", dimension: ["2", "0", "0", "0", "0", "0"], semanticKind: "variance" },
-    measuredPos: { id: "measuredPos", dimension: ["1", "0", "0", "0", "0", "0"], semanticKind: "measured-position" },
-    latentPos: { id: "latentPos", dimension: ["1", "0", "0", "0", "0", "0"], semanticKind: "latent-position" },
+    coordinateTime: {
+      id: "coordinateTime",
+      dimension: ["0", "0", "1", "0", "0", "0"],
+      semanticKind: "coordinate-time",
+    },
+    properTime: {
+      id: "properTime",
+      dimension: ["0", "0", "1", "0", "0", "0"],
+      semanticKind: "proper-time",
+    },
+    labForce: {
+      id: "labForce",
+      dimension: ["1", "1", "-2", "0", "0", "0"],
+      semanticKind: "laboratory-force",
+    },
+    comovingForce: {
+      id: "comovingForce",
+      dimension: ["1", "1", "-2", "0", "0", "0"],
+      semanticKind: "comoving-force",
+    },
+    meanSquareVal: {
+      id: "meanSquareVal",
+      dimension: ["2", "0", "0", "0", "0", "0"],
+      semanticKind: "mean-square",
+    },
+    varianceVal: {
+      id: "varianceVal",
+      dimension: ["2", "0", "0", "0", "0", "0"],
+      semanticKind: "variance",
+    },
+    measuredPos: {
+      id: "measuredPos",
+      dimension: ["1", "0", "0", "0", "0", "0"],
+      semanticKind: "measured-position",
+    },
+    latentPos: {
+      id: "latentPos",
+      dimension: ["1", "0", "0", "0", "0", "0"],
+      semanticKind: "latent-position",
+    },
     angleVal: { id: "angleVal", dimension: ["0", "0", "0", "0", "0", "0"], semanticKind: "angle" },
     countVal: { id: "countVal", dimension: ["0", "0", "0", "0", "0", "0"], semanticKind: "count" },
 
     // State Dependent (Paper 2 §2)
-    stateVariable: { id: "stateVariable", dimension: ["0", "0", "0", "0", "0", "0"], dimensionStatus: "state-dependent" },
-    configurationIntegralFactor: { id: "configurationIntegralFactor", dimension: ["0", "0", "0", "0", "0", "0"], dimensionStatus: "state-dependent" },
+    stateVariable: {
+      id: "stateVariable",
+      dimension: ["0", "0", "0", "0", "0", "0"],
+      dimensionStatus: "state-dependent",
+    },
+    configurationIntegralFactor: {
+      id: "configurationIntegralFactor",
+      dimension: ["0", "0", "0", "0", "0", "0"],
+      dimensionStatus: "state-dependent",
+    },
   };
 
   it("validates Brownian motion: lambda_x = sqrt(2*D*t) and sqrt(D*t) has length dimension", () => {
@@ -137,7 +205,10 @@ describe("Exact Rational Dimension Validator and Semantic Kind Checker", () => {
       expect(dimensionText(checkSqrt.dimension)).toBe("1,0,0,0,0,0"); // Length
     }
 
-    const eq = rel(sym("rmsDisplacement"), root(prod(num(2), sym("diffusionCoefficient"), sym("time")), 2));
+    const eq = rel(
+      sym("rmsDisplacement"),
+      root(prod(num(2), sym("diffusionCoefficient"), sym("time")), 2),
+    );
     expect(checkDimensions(eq, REGISTRY).status).toBe("consistent");
   });
 
@@ -169,16 +240,22 @@ describe("Exact Rational Dimension Validator and Semantic Kind Checker", () => {
   });
 
   it("validates exp(-x^2 / (4Dt)) passes and exp(-x^2 / (4D)) fails", () => {
-    const goodExp = fn("exp", quot(
-      prod(num(-1), pow(sym("rmsDisplacement"), { num: 2, den: 1 })),
-      prod(num(4), sym("diffusionCoefficient"), sym("time")),
-    ));
+    const goodExp = fn(
+      "exp",
+      quot(
+        prod(num(-1), pow(sym("rmsDisplacement"), { num: 2, den: 1 })),
+        prod(num(4), sym("diffusionCoefficient"), sym("time")),
+      ),
+    );
     expect(checkDimensions(goodExp, REGISTRY).status).toBe("consistent");
 
-    const badExp = fn("exp", quot(
-      prod(num(-1), pow(sym("rmsDisplacement"), { num: 2, den: 1 })),
-      prod(num(4), sym("diffusionCoefficient")),
-    ));
+    const badExp = fn(
+      "exp",
+      quot(
+        prod(num(-1), pow(sym("rmsDisplacement"), { num: 2, den: 1 })),
+        prod(num(4), sym("diffusionCoefficient")),
+      ),
+    );
     const badRes = checkDimensions(badExp, REGISTRY);
     expect(badRes.status).toBe("inconsistent");
     if (badRes.status === "inconsistent") {
@@ -248,7 +325,13 @@ describe("Exact Rational Dimension Validator and Semantic Kind Checker", () => {
     // E-field Y, magnetic field N, velocity v, lightSpeed V
     const transformExpr = rel(
       sym("electricFieldSI"),
-      prod(num("1.0"), sum(sym("electricFieldSI"), prod(quot(sym("velocity"), sym("lightSpeed")), sym("magneticFieldSI")))),
+      prod(
+        num("1.0"),
+        sum(
+          sym("electricFieldSI"),
+          prod(quot(sym("velocity"), sym("lightSpeed")), sym("magneticFieldSI")),
+        ),
+      ),
     );
 
     // Passes in Gaussian-CGS context

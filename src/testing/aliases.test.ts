@@ -5,7 +5,7 @@ import {
   resolveAlias,
   validateAliasRecord,
 } from "../content/aliases.ts";
-import { TestLogger, newRunIdentity } from "./log/logger.ts";
+import { newRunIdentity, TestLogger } from "./log/logger.ts";
 
 describe("Alias Records, Chain Resolution, and Gap Explanation", () => {
   const logger = new TestLogger("content-ids", newRunIdentity());

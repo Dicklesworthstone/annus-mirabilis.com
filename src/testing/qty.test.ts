@@ -61,7 +61,8 @@ describe("SI Quantity Algebra and Port Contracts", () => {
       testId: "qty-dimension-arithmetic",
       outcome: "pass",
       durationMs: performance.now() - start,
-      message: "SI dimension vector multiplication, division, and power operations match physical laws",
+      message:
+        "SI dimension vector multiplication, division, and power operations match physical laws",
     });
   });
 
@@ -87,7 +88,8 @@ describe("SI Quantity Algebra and Port Contracts", () => {
       testId: "qty-unit-parsing",
       outcome: "pass",
       durationMs: performance.now() - start,
-      message: "parseUnitToDimension parses SI units including tesla (T) and mechanical/electrical units",
+      message:
+        "parseUnitToDimension parses SI units including tesla (T) and mechanical/electrical units",
     });
   });
 
@@ -122,7 +124,8 @@ describe("SI Quantity Algebra and Port Contracts", () => {
       testId: "qty-port-contracts-validation",
       outcome: "pass",
       durationMs: performance.now() - start,
-      message: "createPortContract and validatePortValue enforce dimensions and prevent topology/SI confusion",
+      message:
+        "createPortContract and validatePortValue enforce dimensions and prevent topology/SI confusion",
     });
   });
 });

@@ -79,7 +79,11 @@ export function parseYaml(text: string): unknown {
       const line = lines[index]!;
       if (line.indent < seqIndent) break;
       if (line.indent > seqIndent) {
-        throw new YamlParseError(`Unexpected indentation in sequence`, line.lineNum, line.indent + 1);
+        throw new YamlParseError(
+          `Unexpected indentation in sequence`,
+          line.lineNum,
+          line.indent + 1,
+        );
       }
 
       if (!line.trimmed.startsWith("- ") && line.trimmed !== "-") {
@@ -210,7 +214,11 @@ export function parseYaml(text: string): unknown {
       const line = lines[index]!;
       if (line.indent < mapIndent) break;
       if (line.indent > mapIndent) {
-        throw new YamlParseError(`Unexpected indentation in mapping`, line.lineNum, line.indent + 1);
+        throw new YamlParseError(
+          `Unexpected indentation in mapping`,
+          line.lineNum,
+          line.indent + 1,
+        );
       }
 
       if (line.trimmed.startsWith("- ") || line.trimmed === "-") break;

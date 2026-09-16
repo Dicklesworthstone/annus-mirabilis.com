@@ -12,7 +12,10 @@ import { dirname, join } from "node:path";
 export const LOG_RUN_ID_PATTERN = /^\d{8}T\d{6}Z-[0-9a-f]{8}$/;
 
 export function newLogRunId(now: Date = new Date()): string {
-  const stamp = now.toISOString().replace(/[-:]/g, "").replace(/\.\d{3}Z$/, "Z");
+  const stamp = now
+    .toISOString()
+    .replace(/[-:]/g, "")
+    .replace(/\.\d{3}Z$/, "Z");
   const hex = randomBytes(4).toString("hex");
   return `${stamp}-${hex}`;
 }
@@ -47,7 +50,10 @@ export type LogFields = {
   extra?: LogExtra;
 };
 
-export function formatLogLine(fields: LogFields, timestamp: string = new Date().toISOString()): string {
+export function formatLogLine(
+  fields: LogFields,
+  timestamp: string = new Date().toISOString(),
+): string {
   return JSON.stringify({ timestamp, ...fields });
 }
 
@@ -55,7 +61,11 @@ export function logPathFor(suite: string, logRunId: string, root: string = proce
   return join(root, "artifacts/test-logs", suite, `${logRunId}.jsonl`);
 }
 
-export function evidenceDirFor(suite: string, logRunId: string, root: string = process.cwd()): string {
+export function evidenceDirFor(
+  suite: string,
+  logRunId: string,
+  root: string = process.cwd(),
+): string {
   return join(root, "artifacts/test-logs", suite, logRunId, "evidence");
 }
 

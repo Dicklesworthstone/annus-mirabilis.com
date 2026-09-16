@@ -36,11 +36,7 @@ export function same(canonical: string): ParamAliasSpec {
 /**
  * Helper to construct a scaled linear alias mapping.
  */
-export function linear(
-  canonical: string,
-  scale: number,
-  offset = 0,
-): ParamAliasSpec {
+export function linear(canonical: string, scale: number, offset = 0): ParamAliasSpec {
   return {
     canonical,
     toCanonical: (v: number) => v * scale + offset,

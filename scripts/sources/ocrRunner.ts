@@ -1,31 +1,30 @@
-import { readFile, writeFile, rename, mkdir, readdir, lstat, appendFile } from "node:fs/promises";
-import { existsSync, readFileSync } from "node:fs";
-import { createHash, randomBytes } from "node:crypto";
-import { resolve, dirname, basename } from "node:path";
-import { fileURLToPath } from "node:url";
 import { execFile } from "node:child_process";
+import { createHash, randomBytes } from "node:crypto";
+import { existsSync, readFileSync } from "node:fs";
+import { appendFile, lstat, mkdir, readdir, readFile, rename, writeFile } from "node:fs/promises";
+import { basename, dirname, resolve } from "node:path";
+import { fileURLToPath } from "node:url";
 import { promisify } from "node:util";
-
+import { type LoadAdapterOptions, loadAdapter } from "../ocr-adapters/loader.ts";
 import {
-  type CloudOcrAdapter,
-  type ChunkSubmission,
-  type ChunkImage,
-  type OcrRefusalCode,
-  OcrRefusalError,
-  OcrAdapterError,
-  AdapterUnavailableError,
   AdapterAuthError,
+  AdapterBadResponseError,
   AdapterQuotaError,
   AdapterTimeoutError,
-  AdapterBadResponseError
+  AdapterUnavailableError,
+  type ChunkImage,
+  type ChunkSubmission,
+  type CloudOcrAdapter,
+  OcrAdapterError,
+  type OcrRefusalCode,
+  OcrRefusalError,
 } from "../ocr-adapters/types.ts";
-import { loadAdapter, type LoadAdapterOptions } from "../ocr-adapters/loader.ts";
 import {
-  type OcrPlan,
   type ExpectedPageCounts,
   loadPlan,
+  type OcrPlan,
+  type ValidatePlanOptions,
   validatePlan,
-  type ValidatePlanOptions
 } from "./ocrPlanSchema.ts";
 
 const execFileAsync = promisify(execFile);
@@ -53,10 +52,16 @@ export interface ChunkPlan {
 export function planChunks(pdfPageRange: [number, number], chunkSize = 2): ChunkPlan[] {
   const [first, last] = pdfPageRange;
   if (chunkSize < 1 || chunkSize > 4) {
-    throw new OcrRefusalError("CHUNK_TOO_LARGE", `chunkSize ${chunkSize} is invalid. Maximum allowed is 4, minimum is 1.`);
+    throw new OcrRefusalError(
+      "CHUNK_TOO_LARGE",
+      `chunkSize ${chunkSize} is invalid. Maximum allowed is 4, minimum is 1.`,
+    );
   }
   if (first < 1 || last < first) {
-    throw new OcrRefusalError("PAGE_RANGE_OUT_OF_BOUNDS", `Invalid page range [${first}, ${last}].`);
+    throw new OcrRefusalError(
+      "PAGE_RANGE_OUT_OF_BOUNDS",
+      `Invalid page range [${first}, ${last}].`,
+    );
   }
 
   const chunks: ChunkPlan[] = [];
@@ -69,7 +74,7 @@ export function planChunks(pdfPageRange: [number, number], chunkSize = 2): Chunk
     }
     chunks.push({
       chunkIndex,
-      pdfPages: pages
+      pdfPages: pages,
     });
     chunkIndex++;
   }
@@ -77,7 +82,10 @@ export function planChunks(pdfPageRange: [number, number], chunkSize = 2): Chunk
   return chunks;
 }
 
-export function redact(text: string, env: Record<string, string | undefined> = process.env): string {
+export function redact(
+  text: string,
+  env: Record<string, string | undefined> = process.env,
+): string {
   let result = text;
 
   // Redact header patterns
@@ -96,12 +104,12 @@ export function redact(text: string, env: Record<string, string | undefined> = p
     "OCR_API_KEY",
     "ANTHROPIC_API_KEY",
     "VERCEL_TOKEN",
-    "CLOUDFLARE_API_TOKEN"
+    "CLOUDFLARE_API_TOKEN",
   ];
 
   for (const [key, val] of Object.entries(env)) {
     if (!val || val.length < 4) continue;
-    const isSensitive = sensitiveNames.some(s => key.toUpperCase().includes(s));
+    const isSensitive = sensitiveNames.some((s) => key.toUpperCase().includes(s));
     if (isSensitive) {
       result = result.split(val).join("[REDACTED]");
     }
@@ -124,20 +132,26 @@ export interface RenderedPage {
 export interface RenderOptions {
   dpi?: number | undefined;
   rendererVersion?: string | undefined;
-  customRenderer?: ((pdfPath: string, pageNum: number, outPath: string) => Promise<{ width: number; height: number; buffer: Buffer }>) | undefined;
+  customRenderer?:
+    | ((
+        pdfPath: string,
+        pageNum: number,
+        outPath: string,
+      ) => Promise<{ width: number; height: number; buffer: Buffer }>)
+    | undefined;
 }
 
 export async function renderPages(
   facsimilePath: string,
   pdfPages: number[],
   outputDir: string,
-  options: RenderOptions = {}
+  options: RenderOptions = {},
 ): Promise<RenderedPage[]> {
   await mkdir(outputDir, { recursive: true });
   const dpi = options.dpi ?? 300;
   const fullFacPath = resolve(ROOT, facsimilePath);
 
-  let renderer = "pdftoppm";
+  const renderer = "pdftoppm";
   let rendererVersion = options.rendererVersion ?? "unknown";
 
   if (!options.customRenderer) {
@@ -169,14 +183,14 @@ export async function renderPages(
         height: res.height,
         dpi,
         renderer: "custom-renderer",
-        rendererVersion: rendererVersion || "1.0.0"
+        rendererVersion: rendererVersion || "1.0.0",
       });
     }
     return rendered;
   }
 
   // Check if any pages need rendering with pdftoppm
-  const missingPages = pdfPages.filter(p => !existsSync(resolve(outputDir, `page-${p}.png`)));
+  const missingPages = pdfPages.filter((p) => !existsSync(resolve(outputDir, `page-${p}.png`)));
 
   if (missingPages.length > 0) {
     const minPage = Math.min(...missingPages);
@@ -193,10 +207,12 @@ export async function renderPages(
         "-l",
         String(maxPage),
         fullFacPath,
-        batchPrefix
+        batchPrefix,
       ]);
     } catch (err: any) {
-      throw new Error(`Failed to render pages ${minPage}..${maxPage} with pdftoppm: ${err.message}`);
+      throw new Error(
+        `Failed to render pages ${minPage}..${maxPage} with pdftoppm: ${err.message}`,
+      );
     }
 
     // Rename generated files to page-<pageNum>.png
@@ -236,7 +252,7 @@ export async function renderPages(
       height,
       dpi,
       renderer,
-      rendererVersion
+      rendererVersion,
     });
   }
 
@@ -284,7 +300,7 @@ export interface RunLogEntry {
 export async function appendStructuredLog(
   runDir: string,
   logRunId: string,
-  entry: RunLogEntry
+  entry: RunLogEntry,
 ): Promise<void> {
   const line = redact(JSON.stringify(entry)) + "\n";
   const runLogPath = resolve(runDir, "run.jsonl");
@@ -316,7 +332,7 @@ export async function runChunk(
   instructionText: string,
   toolRunId: string,
   logRunId: string,
-  runDir: string
+  runDir: string,
 ): Promise<ChunkResult> {
   const images: ChunkImage[] = [];
   for (const pageNum of chunk.pdfPages) {
@@ -327,7 +343,7 @@ export async function runChunk(
     images.push({
       path: rendered.imagePath,
       sha256: rendered.imageSha256,
-      pdfPage: pageNum
+      pdfPage: pageNum,
     });
   }
 
@@ -338,7 +354,7 @@ export async function runChunk(
     pdfPages: chunk.pdfPages,
     images,
     instructionsVersion: plan.instructionsVersion,
-    instructionText
+    instructionText,
   };
 
   const startTime = Date.now();
@@ -364,11 +380,14 @@ export async function runChunk(
         adapter: adapter.name,
         jobId: submitRes.jobId,
         status: "submitted",
-        retry: retries
+        retry: retries,
       });
       break;
     } catch (err: any) {
-      const isRetryable = err instanceof AdapterTimeoutError || err instanceof AdapterBadResponseError || err?.retryable === true;
+      const isRetryable =
+        err instanceof AdapterTimeoutError ||
+        err instanceof AdapterBadResponseError ||
+        err?.retryable === true;
       if (isRetryable && retries < maxRetries) {
         retries++;
         await appendStructuredLog(runDir, logRunId, {
@@ -385,9 +404,9 @@ export async function runChunk(
           status: "retried",
           retry: retries,
           errorCode: err?.code ?? "RETRY",
-          message: err.message
+          message: err.message,
         });
-        await new Promise(r => setTimeout(r, 10 * retries));
+        await new Promise((r) => setTimeout(r, 10 * retries));
         continue;
       }
       throw err;
@@ -408,15 +427,15 @@ export async function runChunk(
   if (plan.expectedWorkerIdentity && fetchRes.workerIdentity !== plan.expectedWorkerIdentity) {
     throw new OcrRefusalError(
       "WORKER_IDENTITY_MISMATCH",
-      `Worker identity returned by adapter ("${fetchRes.workerIdentity}") does not match plan expectation ("${plan.expectedWorkerIdentity}"). Stopping run.`
+      `Worker identity returned by adapter ("${fetchRes.workerIdentity}") does not match plan expectation ("${plan.expectedWorkerIdentity}"). Stopping run.`,
     );
   }
 
   const durationMs = Date.now() - startTime;
-  const pages = fetchRes.pages.map(p => ({
+  const pages = fetchRes.pages.map((p) => ({
     pdfPage: p.pdfPage,
     text: p.text,
-    textSha256: createHash("sha256").update(p.text).digest("hex")
+    textSha256: createHash("sha256").update(p.text).digest("hex"),
   }));
 
   return {
@@ -427,7 +446,7 @@ export async function runChunk(
     model: fetchRes.model,
     costUnits: fetchRes.costUnits,
     retries,
-    durationMs
+    durationMs,
   };
 }
 
@@ -444,7 +463,7 @@ export async function writeCheckpoint(
   runDir: string,
   chunk: ChunkPlan,
   result: ChunkResult,
-  context: CheckpointContext
+  context: CheckpointContext,
 ): Promise<void> {
   const pagesDir = resolve(runDir, "pages");
   await mkdir(pagesDir, { recursive: true });
@@ -469,7 +488,7 @@ export async function writeCheckpoint(
       `textSha256: ${page.textSha256}`,
       `receivedAt: ${new Date().toISOString()}`,
       "---",
-      ""
+      "",
     ].join("\n");
 
     const fullContent = frontMatter + page.text;
@@ -495,7 +514,7 @@ export async function writeCheckpoint(
     jobId: result.jobId,
     status: "completed",
     retry: result.retries,
-    durationMs: result.durationMs
+    durationMs: result.durationMs,
   });
 }
 
@@ -545,7 +564,7 @@ export function parsePageCheckpoint(content: string): ParsedPageCheckpoint | nul
     instructionsVersion: meta.instructionsVersion,
     imageSha256: meta.imageSha256,
     textSha256: meta.textSha256,
-    body
+    body,
   };
 }
 
@@ -562,7 +581,7 @@ export interface ResumeState {
 export async function resumeRun(
   runDir: string,
   plan: OcrPlan,
-  options: ResumeOptions = {}
+  options: ResumeOptions = {},
 ): Promise<ResumeState> {
   const pagesDir = resolve(runDir, "pages");
   const existingPages = new Map<number, ParsedPageCheckpoint>();
@@ -674,7 +693,7 @@ export interface CoverageResult {
 
 export async function summarizeRun(
   runDir: string,
-  plan: OcrPlan
+  plan: OcrPlan,
 ): Promise<{ summary: RunSummaryResult; coverage: CoverageResult; receiptBlock: string }> {
   const pagesDir = resolve(runDir, "pages");
   const toolRunId = basename(runDir);
@@ -756,7 +775,7 @@ export async function summarizeRun(
     instructionsVersion: plan.instructionsVersion,
     failures,
     retries,
-    costUnits: existingPages.size * 1.0
+    costUnits: existingPages.size * 1.0,
   };
 
   // Coverage
@@ -771,7 +790,7 @@ export async function summarizeRun(
       coveragePages.push({
         pdfPage: p,
         status: "missing",
-        counts: { mathRegions: 0, footnoteMarkers: 0, illegible: 0 }
+        counts: { mathRegions: 0, footnoteMarkers: 0, illegible: 0 },
       });
       continue;
     }
@@ -783,7 +802,7 @@ export async function summarizeRun(
     const counts = {
       mathRegions: mathMatches,
       footnoteMarkers: fnMatches,
-      illegible: illegibleMatches
+      illegible: illegibleMatches,
     };
 
     const exp = plan.expectedCounts?.[p];
@@ -795,7 +814,7 @@ export async function summarizeRun(
           pdfPage: p,
           field: "displayEquations",
           actual: counts.mathRegions,
-          expected: exp.displayEquations
+          expected: exp.displayEquations,
         });
       }
       if (exp.footnoteMarkers !== undefined && exp.footnoteMarkers !== counts.footnoteMarkers) {
@@ -804,7 +823,7 @@ export async function summarizeRun(
           pdfPage: p,
           field: "footnoteMarkers",
           actual: counts.footnoteMarkers,
-          expected: exp.footnoteMarkers
+          expected: exp.footnoteMarkers,
         });
       }
       if (exp.illegible !== undefined && exp.illegible !== counts.illegible) {
@@ -813,7 +832,7 @@ export async function summarizeRun(
           pdfPage: p,
           field: "illegible",
           actual: counts.illegible,
-          expected: exp.illegible
+          expected: exp.illegible,
         });
       }
     }
@@ -823,7 +842,7 @@ export async function summarizeRun(
       status: "drafted",
       counts,
       expectedCounts: exp,
-      mismatch: isMismatch
+      mismatch: isMismatch,
     });
   }
 
@@ -834,7 +853,7 @@ export async function summarizeRun(
     draftedPages: existingPages.size,
     missingPages: totalPages - existingPages.size,
     pages: coveragePages,
-    mismatches
+    mismatches,
   };
 
   // Receipt block markdown
@@ -847,12 +866,20 @@ export async function summarizeRun(
     `- **Date:** ${completedAt}`,
     `- **Pages Drafted:** ${existingPages.size} / ${totalPages} (range [${firstPage}, ${lastPage}])`,
     "",
-    "> **Notice:** Cloud OCR output is research evidence only. Every equation is retyped against page images; machine draft text is never accepted into the source ledger or edition without line-by-line editorial review."
+    "> **Notice:** Cloud OCR output is research evidence only. Every equation is retyped against page images; machine draft text is never accepted into the source ledger or edition without line-by-line editorial review.",
   ].join("\n");
 
   // Save to run directory
-  await writeFile(resolve(runDir, "summary.json"), JSON.stringify(summary, null, 2) + "\n", "utf-8");
-  await writeFile(resolve(runDir, "coverage.json"), JSON.stringify(coverage, null, 2) + "\n", "utf-8");
+  await writeFile(
+    resolve(runDir, "summary.json"),
+    JSON.stringify(summary, null, 2) + "\n",
+    "utf-8",
+  );
+  await writeFile(
+    resolve(runDir, "coverage.json"),
+    JSON.stringify(coverage, null, 2) + "\n",
+    "utf-8",
+  );
   await writeFile(resolve(runDir, "receipt-block.md"), receiptBlock + "\n", "utf-8");
 
   return { summary, coverage, receiptBlock };

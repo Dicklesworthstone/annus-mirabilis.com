@@ -4,9 +4,9 @@
  * Refuses if markers are missing, duplicated, or malformed, and guarantees atomic file replacement.
  */
 
+import crypto from "node:crypto";
 import fs from "node:fs";
 import path from "node:path";
-import crypto from "node:crypto";
 
 export class GeneratedSectionError extends Error {
   readonly code: string;
@@ -20,7 +20,7 @@ export class GeneratedSectionError extends Error {
 export function replaceGeneratedContent(
   originalText: string,
   sectionId: string,
-  newContent: string
+  newContent: string,
 ): { updatedText: string; prefixSha256: string; suffixSha256: string } {
   const startMarker = `<!-- generated:${sectionId}:start -->`;
   const endMarker = `<!-- generated:${sectionId}:end -->`;
@@ -42,25 +42,25 @@ export function replaceGeneratedContent(
   if (startIndices.length === 0) {
     throw new GeneratedSectionError(
       "missing-start-marker",
-      `Missing start marker "${startMarker}" in receipt file.`
+      `Missing start marker "${startMarker}" in receipt file.`,
     );
   }
   if (startIndices.length > 1) {
     throw new GeneratedSectionError(
       "duplicate-start-marker",
-      `Duplicate start marker "${startMarker}" found (${startIndices.length} occurrences).`
+      `Duplicate start marker "${startMarker}" found (${startIndices.length} occurrences).`,
     );
   }
   if (endIndices.length === 0) {
     throw new GeneratedSectionError(
       "missing-end-marker",
-      `Missing end marker "${endMarker}" in receipt file.`
+      `Missing end marker "${endMarker}" in receipt file.`,
     );
   }
   if (endIndices.length > 1) {
     throw new GeneratedSectionError(
       "duplicate-end-marker",
-      `Duplicate end marker "${endMarker}" found (${endIndices.length} occurrences).`
+      `Duplicate end marker "${endMarker}" found (${endIndices.length} occurrences).`,
     );
   }
 
@@ -70,7 +70,7 @@ export function replaceGeneratedContent(
   if (startPos > endPos) {
     throw new GeneratedSectionError(
       "unbalanced-markers",
-      `Start marker appears after end marker for section "${sectionId}".`
+      `Start marker appears after end marker for section "${sectionId}".`,
     );
   }
 
@@ -90,7 +90,7 @@ export function replaceGeneratedContent(
 export function writeGeneratedSectionSync(
   filePath: string,
   sectionId: string,
-  content: string
+  content: string,
 ): { prefixSha256: string; suffixSha256: string } {
   if (!fs.existsSync(filePath)) {
     throw new GeneratedSectionError("file-not-found", `Target file not found: ${filePath}`);
@@ -100,7 +100,7 @@ export function writeGeneratedSectionSync(
   const { updatedText, prefixSha256, suffixSha256 } = replaceGeneratedContent(
     original,
     sectionId,
-    content
+    content,
   );
 
   const dir = path.dirname(filePath);
@@ -116,7 +116,7 @@ export function writeGeneratedSectionSync(
 export async function writeGeneratedSection(
   filePath: string,
   sectionId: string,
-  content: string
+  content: string,
 ): Promise<{ prefixSha256: string; suffixSha256: string }> {
   return writeGeneratedSectionSync(filePath, sectionId, content);
 }

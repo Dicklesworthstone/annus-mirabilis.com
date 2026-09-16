@@ -42,7 +42,9 @@ describe("committed perf/profiles.json", () => {
     expect(mobile?.cpuSlowdown.host).toBe("");
     expect(mobile?.cpuSlowdown.benchmarkMsHost).toBeNull();
     expect(mobile?.cpuSlowdown.benchmarkMsPhone).toBeNull();
-    expect(mobile?.viewports.some((v) => v.width === 320 && v.height === 800 && v.hasTouch)).toBe(true);
+    expect(mobile?.viewports.some((v) => v.width === 320 && v.height === 800 && v.hasTouch)).toBe(
+      true,
+    );
     expect(mobile?.network.downKbps).toBe(1600);
     expect(mobile?.network.upKbps).toBe(750);
     expect(mobile?.network.rttMs).toBe(150);
@@ -61,7 +63,11 @@ describe("negative fixtures", () => {
     const broken = clone(data);
     delete (broken.profiles[0] as { network?: unknown }).network;
     const issues = validateProfilesFile(broken, schema);
-    expect(issues.some((i) => i.message.includes("missing required field") && i.path.includes("network"))).toBe(true);
+    expect(
+      issues.some(
+        (i) => i.message.includes("missing required field") && i.path.includes("network"),
+      ),
+    ).toBe(true);
   });
 
   test("unknown budget id", () => {
@@ -70,9 +76,11 @@ describe("negative fixtures", () => {
     if (!profile) throw new Error("fixture expects at least one profile");
     profile.budgets.push("made-up-budget" as never);
     const issues = validateProfilesFile(broken, schema);
-    expect(issues.some((i) => i.message.includes("unknown budget id") || i.message.includes("expected one of"))).toBe(
-      true,
-    );
+    expect(
+      issues.some(
+        (i) => i.message.includes("unknown budget id") || i.message.includes("expected one of"),
+      ),
+    ).toBe(true);
   });
 
   test("CPU factor below 1", () => {
@@ -81,7 +89,9 @@ describe("negative fixtures", () => {
     if (!profile) throw new Error("fixture expects at least one profile");
     profile.cpuSlowdown.factor = 0.5;
     const issues = validateProfilesFile(broken, schema);
-    expect(issues.some((i) => i.message.includes("below 1") || i.message.includes("expected >= 1"))).toBe(true);
+    expect(
+      issues.some((i) => i.message.includes("below 1") || i.message.includes("expected >= 1")),
+    ).toBe(true);
   });
 
   test("viewport narrower than 320 px", () => {
@@ -91,9 +101,11 @@ describe("negative fixtures", () => {
     if (!viewport) throw new Error("fixture expects at least one profile with a viewport");
     viewport.width = 319;
     const issues = validateProfilesFile(broken, schema);
-    expect(issues.some((i) => i.message.includes("narrower than 320") || i.message.includes("expected >= 320"))).toBe(
-      true,
-    );
+    expect(
+      issues.some(
+        (i) => i.message.includes("narrower than 320") || i.message.includes("expected >= 320"),
+      ),
+    ).toBe(true);
   });
 
   test("mobile-low-cost without a 320-pixel viewport", () => {

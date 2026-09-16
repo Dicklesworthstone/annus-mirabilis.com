@@ -73,7 +73,7 @@ export function discoverTestFiles(rootDir: string = process.cwd()): string[] {
  */
 export function classifyTestFile(
   filePath: string,
-  contentGetter: (p: string) => string = (p) => readFileSync(p, "utf8")
+  contentGetter: (p: string) => string = (p) => readFileSync(p, "utf8"),
 ): ClassifiedTestFile {
   const normPath = normalize(filePath).replace(/\\/g, "/");
   let content = "";
@@ -88,7 +88,9 @@ export function classifyTestFile(
   }
 
   // Explicit bun:test import or Bun global APIs (Bun.spawn, etc.)
-  const hasBunTest = /from\s+["']bun:test["']|require\(["']bun:test["']\)|\bBun\.[a-zA-Z]/.test(content);
+  const hasBunTest = /from\s+["']bun:test["']|require\(["']bun:test["']\)|\bBun\.[a-zA-Z]/.test(
+    content,
+  );
   // Explicit node:test import
   const hasNodeTest = /from\s+["']node:test["']|require\(["']node:test["']\)/.test(content);
 
@@ -101,7 +103,8 @@ export function classifyTestFile(
     return {
       path: normPath,
       runner: "orphan",
-      reason: "File imports both 'bun:test' and 'node:test'. A test file must target exactly one runner.",
+      reason:
+        "File imports both 'bun:test' and 'node:test'. A test file must target exactly one runner.",
     };
   }
 
@@ -133,7 +136,8 @@ export function classifyTestFile(
   return {
     path: normPath,
     runner: "orphan",
-    reason: "File does not import 'bun:test', 'node:test', 'node:assert', and does not follow runner conventions.",
+    reason:
+      "File does not import 'bun:test', 'node:test', 'node:assert', and does not follow runner conventions.",
   };
 }
 
@@ -142,7 +146,7 @@ export function classifyTestFile(
  */
 export function partitionTestFiles(
   files: readonly string[],
-  contentGetter?: (p: string) => string
+  contentGetter?: (p: string) => string,
 ): TestPartitionResult {
   const bunFiles: string[] = [];
   const nodeFiles: string[] = [];
@@ -170,12 +174,7 @@ export function partitionTestFiles(
 /**
  * Executes test suites across Bun and Node runners.
  */
-export function runAllTests(
-  options: {
-    rootDir?: string;
-    targetFiles?: readonly string[];
-  } = {}
-): {
+export function runAllTests(options: { rootDir?: string; targetFiles?: readonly string[] } = {}): {
   success: boolean;
   discoveredCount: number;
   bunCount: number;
@@ -184,9 +183,10 @@ export function runAllTests(
   exitCode: number;
 } {
   const rootDir = options.rootDir || process.cwd();
-  const allDiscovered = options.targetFiles && options.targetFiles.length > 0
-    ? [...options.targetFiles]
-    : discoverTestFiles(rootDir);
+  const allDiscovered =
+    options.targetFiles && options.targetFiles.length > 0
+      ? [...options.targetFiles]
+      : discoverTestFiles(rootDir);
 
   const partition = partitionTestFiles(allDiscovered, (p) => {
     const fullPath = resolve(rootDir, p);
@@ -199,12 +199,18 @@ export function runAllTests(
 
   // Check Orphan Test Gate
   if (partition.orphanFiles.length > 0) {
-    console.error(`\n🚨 Orphan Test Gate Failed: Found ${partition.orphanFiles.length} test file(s) matching no runner pattern:`);
+    console.error(
+      `\n🚨 Orphan Test Gate Failed: Found ${partition.orphanFiles.length} test file(s) matching no runner pattern:`,
+    );
     for (const orphan of partition.orphanFiles) {
-      const classification = classifyTestFile(orphan, (p) => readFileSync(resolve(rootDir, p), "utf8"));
+      const classification = classifyTestFile(orphan, (p) =>
+        readFileSync(resolve(rootDir, p), "utf8"),
+      );
       console.error(`   - ${orphan}: ${classification.reason || "Unrecognized test structure"}`);
     }
-    console.error(`\nEvery test file must import 'bun:test' (for Bun runner) or 'node:test' (for Node runner).\n`);
+    console.error(
+      `\nEvery test file must import 'bun:test' (for Bun runner) or 'node:test' (for Node runner).\n`,
+    );
     return {
       success: false,
       discoveredCount: partition.allDiscovered.length,
@@ -235,14 +241,16 @@ export function runAllTests(
 
   // 2. Run Node tests
   if (partition.nodeFiles.length > 0) {
-    console.log(`\n▶ Running ${partition.nodeFiles.length} Node test files (node --experimental-strip-types --test)...`);
+    console.log(
+      `\n▶ Running ${partition.nodeFiles.length} Node test files (node --experimental-strip-types --test)...`,
+    );
     const nodeResult = spawnSync(
       "node",
       ["--experimental-strip-types", "--test", ...partition.nodeFiles],
       {
         cwd: rootDir,
         stdio: "inherit",
-      }
+      },
     );
 
     if (nodeResult.status !== 0) {

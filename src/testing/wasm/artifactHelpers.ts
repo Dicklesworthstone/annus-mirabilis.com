@@ -29,7 +29,10 @@ export async function computeArtifactDigestAsync(bytes: ArrayBuffer | Uint8Array
     const buf = bytes instanceof Uint8Array ? bytes.buffer : bytes;
     const hashBuf = await globalThis.crypto.subtle.digest("SHA-256", buf);
     const hashArray = Array.from(new Uint8Array(hashBuf));
-    return hashArray.map((b) => b.toString(16).padStart(2, "0")).join("").toLowerCase();
+    return hashArray
+      .map((b) => b.toString(16).padStart(2, "0"))
+      .join("")
+      .toLowerCase();
   }
   return computeArtifactDigest(bytes);
 }
@@ -50,11 +53,20 @@ export function validateWasmBytes(bytes: ArrayBuffer | Uint8Array): boolean {
  * Loads WASM binary bytes from a file path or URL.
  */
 export async function loadWasmBytes(urlOrPath: string | URL): Promise<ArrayBuffer> {
-  if (typeof urlOrPath === "string" && !urlOrPath.startsWith("http://") && !urlOrPath.startsWith("https://") && !urlOrPath.startsWith("file://")) {
+  if (
+    typeof urlOrPath === "string" &&
+    !urlOrPath.startsWith("http://") &&
+    !urlOrPath.startsWith("https://") &&
+    !urlOrPath.startsWith("file://")
+  ) {
     const buf = readFileSync(urlOrPath);
     return buf.buffer.slice(buf.byteOffset, buf.byteOffset + buf.byteLength);
   }
-  const bunGlobal = (globalThis as unknown as { Bun?: { file: (path: string | URL) => { arrayBuffer: () => Promise<ArrayBuffer> } } }).Bun;
+  const bunGlobal = (
+    globalThis as unknown as {
+      Bun?: { file: (path: string | URL) => { arrayBuffer: () => Promise<ArrayBuffer> } };
+    }
+  ).Bun;
   if (bunGlobal && typeof bunGlobal.file === "function") {
     return bunGlobal.file(urlOrPath).arrayBuffer();
   }

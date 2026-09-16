@@ -7,11 +7,11 @@ import {
   createInterval,
   divideIntervals,
   hullIntervals,
-  intersectIntervals,
   IntervalRefusalError,
+  intersectIntervals,
   intervalsOverlap,
   multiplyIntervals,
-  RegimeDefinition,
+  type RegimeDefinition,
   scaleInterval,
   subtractIntervals,
 } from "../physics/intervals.ts";
@@ -87,7 +87,13 @@ describe("Intervals and Physical Regimes Runtime Extraction", () => {
     // NOT a probability distribution or confidence interval with tail densities.
     // Interval multiplication and Minkowski addition yield worst-case guaranteed bounds.
     const start = performance.now();
-    const measurement = createInterval(10, 20, "nm", "provenance-tolerance", "Definite bounded enclosure");
+    const measurement = createInterval(
+      10,
+      20,
+      "nm",
+      "provenance-tolerance",
+      "Definite bounded enclosure",
+    );
     const factor = createInterval(2, 3, "1", "provenance-tolerance", "Definite multiplier");
 
     const enclosed = multiplyIntervals(measurement, factor);
@@ -101,7 +107,8 @@ describe("Intervals and Physical Regimes Runtime Extraction", () => {
       testId: "interval-arithmetic-enclosure-is-not-a-probability-interval",
       outcome: "pass",
       durationMs: performance.now() - start,
-      message: "interval-arithmetic enclosure is not a probability interval; guaranteed containment bounds verified",
+      message:
+        "interval-arithmetic enclosure is not a probability interval; guaranteed containment bounds verified",
     });
   });
 
@@ -160,7 +167,8 @@ describe("Intervals and Physical Regimes Runtime Extraction", () => {
       testId: "intervals-regime-classification-refusal",
       outcome: "pass",
       durationMs: performance.now() - start,
-      message: "classifyValueOrInterval classifies regimes and refuses intervals spanning regime boundaries",
+      message:
+        "classifyValueOrInterval classifies regimes and refuses intervals spanning regime boundaries",
     });
   });
 });

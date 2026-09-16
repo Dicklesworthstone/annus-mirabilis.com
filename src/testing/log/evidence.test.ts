@@ -1,8 +1,8 @@
-import test from "node:test";
 import assert from "node:assert/strict";
 import { readFileSync, statSync } from "node:fs";
 import path from "node:path";
-import { retainEvidence, evidenceDir } from "./evidence.ts";
+import test from "node:test";
+import { evidenceDir, retainEvidence } from "./evidence.ts";
 import { getLogger, newRunIdentity } from "./logger.ts";
 import { parseLogLine } from "./schema.ts";
 
@@ -39,7 +39,9 @@ test("retainEvidence copies fixture files without mutating the originals, and th
   assert.equal(statSync(CONFIG_FIXTURE).mtimeMs, originalConfigMtime);
 
   const logger = getLogger(SUITE, logRunId);
-  const lines = readFileSync(logger.filePath, "utf8").split("\n").filter((l) => l.length > 0);
+  const lines = readFileSync(logger.filePath, "utf8")
+    .split("\n")
+    .filter((l) => l.length > 0);
   const event = lines.map(parseLogLine).find((e) => e.testId === testId);
   assert.ok(event, "expected a log event for retain-evidence-basic");
   assert.equal(event!.outcome, "failed");
@@ -52,13 +54,18 @@ test("a missing evidence source is reported in the event message and never skipp
   const testId = "retain-evidence-missing-source";
   const missingSource = path.join(FIXTURES, "does-not-exist.txt");
 
-  const { copied, missing } = await retainEvidence({ suite: SUITE, logRunId, testId }, [STDOUT_FIXTURE, missingSource]);
+  const { copied, missing } = await retainEvidence({ suite: SUITE, logRunId, testId }, [
+    STDOUT_FIXTURE,
+    missingSource,
+  ]);
 
   assert.equal(copied.length, 1);
   assert.deepEqual(missing, [missingSource]);
 
   const logger = getLogger(SUITE, logRunId);
-  const lines = readFileSync(logger.filePath, "utf8").split("\n").filter((l) => l.length > 0);
+  const lines = readFileSync(logger.filePath, "utf8")
+    .split("\n")
+    .filter((l) => l.length > 0);
   const event = lines.map(parseLogLine).find((e) => e.testId === testId);
   assert.ok(event, "expected a log event for retain-evidence-missing-source");
   assert.match(event!.message ?? "", /Missing evidence source\(s\)/);

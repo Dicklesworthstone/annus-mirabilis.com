@@ -1,5 +1,5 @@
-import test from "node:test";
 import assert from "node:assert/strict";
+import test from "node:test";
 import { classifyWasmLinkTranscript, diagnoseRustLldRpath } from "./probeLld.ts";
 
 const PIN_OTOOL = `Load command 14
@@ -25,12 +25,16 @@ Load command 17
 `;
 
 test("pin rust-lld rpath is @loader_path/../lib, which is rustlib lib not toolchain lib", () => {
-  const rustLld = "/Users/jemanuel/.rustup/toolchains/nightly-2026-07-06-aarch64-apple-darwin/lib/rustlib/aarch64-apple-darwin/bin/rust-lld";
+  const rustLld =
+    "/Users/jemanuel/.rustup/toolchains/nightly-2026-07-06-aarch64-apple-darwin/lib/rustlib/aarch64-apple-darwin/bin/rust-lld";
   const d = diagnoseRustLldRpath(PIN_OTOOL, rustLld, [
     "/Users/jemanuel/.rustup/toolchains/nightly-2026-07-06-aarch64-apple-darwin/lib/libLLVM.dylib",
   ]);
   assert.equal(d.loadsLibLLVM, true);
-  assert.deepEqual(d.rpaths, ["@loader_path/../lib", "/Users/runner/work/rust/rust/build/aarch64-apple-darwin/llvm/lib"]);
+  assert.deepEqual(d.rpaths, [
+    "@loader_path/../lib",
+    "/Users/runner/work/rust/rust/build/aarch64-apple-darwin/llvm/lib",
+  ]);
   assert.ok(d.resolvedLibSearch[0].endsWith("lib/rustlib/aarch64-apple-darwin/lib"));
   assert.equal(d.rpathHasLibLLVM, false);
   assert.equal(d.toolchainLibHasLibLLVM, true);
@@ -40,7 +44,8 @@ test("pin rust-lld rpath is @loader_path/../lib, which is rustlib lib not toolch
 });
 
 test("a later nightly that places libLLVM on the rustlib rpath is not the pin defect", () => {
-  const rustLld = "/Users/jemanuel/.rustup/toolchains/nightly-2026-08-31-aarch64-apple-darwin/lib/rustlib/aarch64-apple-darwin/bin/rust-lld";
+  const rustLld =
+    "/Users/jemanuel/.rustup/toolchains/nightly-2026-08-31-aarch64-apple-darwin/lib/rustlib/aarch64-apple-darwin/bin/rust-lld";
   const d = diagnoseRustLldRpath(LATER_NIGHTLY_OTOOL, rustLld, [
     "/Users/jemanuel/.rustup/toolchains/nightly-2026-08-31-aarch64-apple-darwin/lib/rustlib/aarch64-apple-darwin/lib/libLLVM.dylib",
     "/Users/jemanuel/.rustup/toolchains/nightly-2026-08-31-aarch64-apple-darwin/lib/libLLVM.dylib",
@@ -51,8 +56,26 @@ test("a later nightly that places libLLVM on the rustlib rpath is not the pin de
 });
 
 test("SIGABRT + rust-lld is a toolchain crash; a finished wasm link is not; native-runtime is other", () => {
-  assert.equal(classifyWasmLinkTranscript('error: linking with `rust-lld` failed: signal: 6 (SIGABRT)\ndyld: Library not loaded: @rpath/libLLVM.dylib'), "toolchain-lld");
-  assert.equal(classifyWasmLinkTranscript("    Finished `dev` profile [unoptimized + debuginfo] target(s) in 12.0s"), "linked");
-  assert.equal(classifyWasmLinkTranscript("error: feature `native-runtime` is forbidden on wasm32 browser builds."), "other");
-  assert.notEqual(classifyWasmLinkTranscript("error: failed to load manifest for dependency `fsqlite`"), "toolchain-lld");
+  assert.equal(
+    classifyWasmLinkTranscript(
+      "error: linking with `rust-lld` failed: signal: 6 (SIGABRT)\ndyld: Library not loaded: @rpath/libLLVM.dylib",
+    ),
+    "toolchain-lld",
+  );
+  assert.equal(
+    classifyWasmLinkTranscript(
+      "    Finished `dev` profile [unoptimized + debuginfo] target(s) in 12.0s",
+    ),
+    "linked",
+  );
+  assert.equal(
+    classifyWasmLinkTranscript(
+      "error: feature `native-runtime` is forbidden on wasm32 browser builds.",
+    ),
+    "other",
+  );
+  assert.notEqual(
+    classifyWasmLinkTranscript("error: failed to load manifest for dependency `fsqlite`"),
+    "toolchain-lld",
+  );
 });

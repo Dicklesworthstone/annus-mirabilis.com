@@ -3,27 +3,27 @@
  * Specification: docs/editorial/RECEIPT_FORMAT.md
  */
 
+import crypto from "node:crypto";
 import fs from "node:fs";
 import path from "node:path";
-import crypto from "node:crypto";
-import { parseReceipt, type ParsedReceiptResult } from "./parseReceipt.ts";
-import { parseYaml } from "./yaml.ts";
+import { type ParsedReceiptResult, parseReceipt } from "./parseReceipt.ts";
 import {
-  RECEIPT_FORMAT_VERSION,
-  PAPER_DATE_TYPES,
-  DATE_PRECISIONS,
-  RIGHTS_STATUS_VALUES,
-  PUBLICATION_DECISION_VALUES,
   CLOUD_PROCESSING_VALUES,
-  REUSE_TERMS_VALUES,
   CONTENTS_VOCABULARY,
-  WITNESS_KINDS,
-  LEDGER_STATUS_VALUES,
-  type PaperDate,
+  DATE_PRECISIONS,
   type DatePrecision,
-  type ReceiptFrontMatter,
+  LEDGER_STATUS_VALUES,
+  PAPER_DATE_TYPES,
+  type PaperDate,
+  PUBLICATION_DECISION_VALUES,
+  RECEIPT_FORMAT_VERSION,
+  REUSE_TERMS_VALUES,
   type Receipt,
+  type ReceiptFrontMatter,
+  RIGHTS_STATUS_VALUES,
+  WITNESS_KINDS,
 } from "./receiptSchema.ts";
+import { parseYaml } from "./yaml.ts";
 
 export type CheckDiagnostic = Readonly<{
   rule: string;
@@ -54,7 +54,7 @@ export type CheckOptions = Readonly<{
 export function checkReceipt(
   fileContentOrParsed: string | ParsedReceiptResult,
   filePath: string,
-  options: CheckOptions = {}
+  options: CheckOptions = {},
 ): CheckResult {
   const diagnostics: CheckDiagnostic[] = [];
   const errors: CheckDiagnostic[] = [];
@@ -66,9 +66,17 @@ export function checkReceipt(
     message: string,
     expected?: string,
     actual?: string,
-    repair?: string
+    repair?: string,
   ) => {
-    const diag: CheckDiagnostic = { rule, severity: "error", path: p, message, expected, actual, repair };
+    const diag: CheckDiagnostic = {
+      rule,
+      severity: "error",
+      path: p,
+      message,
+      expected,
+      actual,
+      repair,
+    };
     diagnostics.push(diag);
     errors.push(diag);
   };
@@ -79,9 +87,17 @@ export function checkReceipt(
     message: string,
     expected?: string,
     actual?: string,
-    repair?: string
+    repair?: string,
   ) => {
-    const diag: CheckDiagnostic = { rule, severity: "flag", path: p, message, expected, actual, repair };
+    const diag: CheckDiagnostic = {
+      rule,
+      severity: "flag",
+      path: p,
+      message,
+      expected,
+      actual,
+      repair,
+    };
     diagnostics.push(diag);
     flags.push(diag);
   };
@@ -123,7 +139,7 @@ export function checkReceipt(
       `Receipt key "${fm.key}" does not match filename basename "${baseName}".`,
       baseName,
       fm.key,
-      `Set key: ${baseName}`
+      `Set key: ${baseName}`,
     );
   }
 
@@ -134,7 +150,7 @@ export function checkReceipt(
       "receiptFormatVersion",
       `Expected receiptFormatVersion: ${RECEIPT_FORMAT_VERSION}, found ${fm.receiptFormatVersion}.`,
       String(RECEIPT_FORMAT_VERSION),
-      String(fm.receiptFormatVersion)
+      String(fm.receiptFormatVersion),
     );
   }
 
@@ -144,7 +160,7 @@ export function checkReceipt(
       "receiptKind",
       `Unsupported receiptKind "${fm.receiptKind}". Expected "facsimile-scan".`,
       "facsimile-scan",
-      String(fm.receiptKind)
+      String(fm.receiptKind),
     );
   }
 
@@ -161,7 +177,11 @@ export function checkReceipt(
       addError("receipt-paper-title-german", "paper.titleGerman", "German title is required.");
     }
     if (typeof paper.titleEnglishWorking !== "string" || !paper.titleEnglishWorking) {
-      addError("receipt-paper-title-english", "paper.titleEnglishWorking", "English working title is required.");
+      addError(
+        "receipt-paper-title-english",
+        "paper.titleEnglishWorking",
+        "English working title is required.",
+      );
     }
     if (typeof paper.authorLine !== "string" || !paper.authorLine) {
       addError("receipt-paper-author", "paper.authorLine", "Author line is required.");
@@ -174,8 +194,16 @@ export function checkReceipt(
       if (typeof journal.name !== "string" || !journal.name) {
         addError("receipt-journal-name", "paper.journal.name", "Journal name is required.");
       }
-      if (!journal.pages || typeof journal.pages.first !== "number" || typeof journal.pages.last !== "number") {
-        addError("receipt-journal-pages", "paper.journal.pages", "Journal pages {first, last} are required.");
+      if (
+        !journal.pages ||
+        typeof journal.pages.first !== "number" ||
+        typeof journal.pages.last !== "number"
+      ) {
+        addError(
+          "receipt-journal-pages",
+          "paper.journal.pages",
+          "Journal pages {first, last} are required.",
+        );
       } else {
         const keyMatch = key.match(/^ap-\d+-(\d+)$/);
         if (keyMatch) {
@@ -186,7 +214,7 @@ export function checkReceipt(
               "paper.journal.pages.first",
               `Journal first page (${journal.pages.first}) must equal first page in key (${expectedFirstPage}).`,
               String(expectedFirstPage),
-              String(journal.pages.first)
+              String(journal.pages.first),
             );
           }
         }
@@ -194,24 +222,27 @@ export function checkReceipt(
           addError(
             "receipt-journal-page-order",
             "paper.journal.pages",
-            `Journal last page (${journal.pages.last}) cannot be less than first page (${journal.pages.first}).`
+            `Journal last page (${journal.pages.last}) cannot be less than first page (${journal.pages.first}).`,
           );
         }
       }
 
       // DOI validation
-      if (typeof journal.doi !== "string" || !/^10\.\d{4,9}\/[-._;()/:A-Za-z0-9]+$/.test(journal.doi)) {
+      if (
+        typeof journal.doi !== "string" ||
+        !/^10\.\d{4,9}\/[-._;()/:A-Za-z0-9]+$/.test(journal.doi)
+      ) {
         addError(
           "receipt-journal-doi-invalid",
           "paper.journal.doi",
-          `Invalid canonical DOI format "${journal.doi}".`
+          `Invalid canonical DOI format "${journal.doi}".`,
         );
       }
       if (typeof journal.doiVerifiedAt !== "string" || !journal.doiVerifiedAt) {
         addError(
           "receipt-journal-doi-verified",
           "paper.journal.doiVerifiedAt",
-          "doiVerifiedAt date is required."
+          "doiVerifiedAt date is required.",
         );
       }
     }
@@ -234,7 +265,7 @@ export function checkReceipt(
             `${p}.type`,
             `Invalid date type "${d.type}".`,
             PAPER_DATE_TYPES.join(" | "),
-            String(d.type)
+            String(d.type),
           );
         }
         if (!DATE_PRECISIONS.includes(d.precision)) {
@@ -243,14 +274,14 @@ export function checkReceipt(
             `${p}.precision`,
             `Invalid date precision "${d.precision}".`,
             DATE_PRECISIONS.join(" | "),
-            String(d.precision)
+            String(d.precision),
           );
         }
         if (typeof d.iso !== "string" || !isValidIsoDate(d.iso, d.precision)) {
           addError(
             "receipt-date-iso",
             `${p}.iso`,
-            `Invalid or untyped ISO date "${d.iso}" for precision "${d.precision}".`
+            `Invalid or untyped ISO date "${d.iso}" for precision "${d.precision}".`,
           );
         }
         if (typeof d.verifiedAt !== "string" || !d.verifiedAt) {
@@ -273,7 +304,7 @@ export function checkReceipt(
       addError(
         "receipt-scan-sha256-invalid",
         "scan.sha256",
-        `Invalid scan SHA-256 digest "${scan.sha256}". Must be lowercase 64-character hexadecimal string.`
+        `Invalid scan SHA-256 digest "${scan.sha256}". Must be lowercase 64-character hexadecimal string.`,
       );
     }
 
@@ -282,13 +313,17 @@ export function checkReceipt(
         addError(
           "receipt-parent-sha256-invalid",
           "scan.parent.sha256",
-          `Invalid parent SHA-256 digest "${scan.parent.sha256}". Must be lowercase 64-character hexadecimal string.`
+          `Invalid parent SHA-256 digest "${scan.parent.sha256}". Must be lowercase 64-character hexadecimal string.`,
         );
       }
     }
 
     if (typeof scan.pageCount !== "number" || scan.pageCount <= 0) {
-      addError("receipt-scan-pagecount", "scan.pageCount", "scan.pageCount must be a positive integer.");
+      addError(
+        "receipt-scan-pagecount",
+        "scan.pageCount",
+        "scan.pageCount must be a positive integer.",
+      );
     }
 
     // Rights status validation
@@ -298,7 +333,7 @@ export function checkReceipt(
         "scan.rightsStatus",
         `Invalid rightsStatus "${scan.rightsStatus}".`,
         RIGHTS_STATUS_VALUES.join(" | "),
-        String(scan.rightsStatus)
+        String(scan.rightsStatus),
       );
     }
 
@@ -308,7 +343,7 @@ export function checkReceipt(
         "scan.publicationDecision",
         `Invalid publicationDecision "${scan.publicationDecision}".`,
         PUBLICATION_DECISION_VALUES.join(" | "),
-        String(scan.publicationDecision)
+        String(scan.publicationDecision),
       );
     }
 
@@ -318,7 +353,7 @@ export function checkReceipt(
         "scan.cloudProcessing",
         `Invalid cloudProcessing "${scan.cloudProcessing}".`,
         CLOUD_PROCESSING_VALUES.join(" | "),
-        String(scan.cloudProcessing)
+        String(scan.cloudProcessing),
       );
     }
 
@@ -328,16 +363,19 @@ export function checkReceipt(
         "scan.reuseTerms",
         `Invalid reuseTerms "${scan.reuseTerms}".`,
         REUSE_TERMS_VALUES.join(" | "),
-        String(scan.reuseTerms)
+        String(scan.reuseTerms),
       );
     }
 
     // Vocabulary & Rights constraints
-    if (scan.rightsStatus === "scan-terms-restrict-redistribution" && scan.publicationDecision === "publish") {
+    if (
+      scan.rightsStatus === "scan-terms-restrict-redistribution" &&
+      scan.publicationDecision === "publish"
+    ) {
       addError(
         "receipt-rights-restrict-publish",
         "scan.publicationDecision",
-        "Scans with scan-terms-restrict-redistribution cannot have publicationDecision: publish."
+        "Scans with scan-terms-restrict-redistribution cannot have publicationDecision: publish.",
       );
     }
 
@@ -348,7 +386,7 @@ export function checkReceipt(
       addError(
         "receipt-image-credit-required",
         "scan.credit",
-        `rightsStatus "${scan.rightsStatus}" requires a non-empty credit field.`
+        `rightsStatus "${scan.rightsStatus}" requires a non-empty credit field.`,
       );
     }
 
@@ -356,15 +394,18 @@ export function checkReceipt(
       addError(
         "receipt-nonpublish-no-reuse",
         "scan.reuseTerms",
-        `An asset with publicationDecision "${scan.publicationDecision}" must have reuseTerms: no-reuse-offered.`
+        `An asset with publicationDecision "${scan.publicationDecision}" must have reuseTerms: no-reuse-offered.`,
       );
     }
 
-    if (scan.publicationDecision !== "publish" && (!scan.publicationReason || !scan.publicationReason.trim())) {
+    if (
+      scan.publicationDecision !== "publish" &&
+      (!scan.publicationReason || !scan.publicationReason.trim())
+    ) {
       addError(
         "receipt-nonpublish-reason-required",
         "scan.publicationReason",
-        `publicationDecision "${scan.publicationDecision}" requires a publicationReason.`
+        `publicationDecision "${scan.publicationDecision}" requires a publicationReason.`,
       );
     }
 
@@ -372,7 +413,7 @@ export function checkReceipt(
       addError(
         "receipt-named-license-source-required",
         "scan.originUrl",
-        "reuseTerms: named-license requires a non-empty source URL."
+        "reuseTerms: named-license requires a non-empty source URL.",
       );
     }
 
@@ -381,7 +422,7 @@ export function checkReceipt(
         addError(
           "receipt-publish-path",
           "scan.path",
-          `Published scan path must be under public/papers/pdfs/, found "${scan.path}".`
+          `Published scan path must be under public/papers/pdfs/, found "${scan.path}".`,
         );
       }
     }
@@ -391,7 +432,7 @@ export function checkReceipt(
         addError(
           "receipt-pin-local-path",
           "scan.path",
-          `pin-local-only scan path must be under sources/pinned/, found "${scan.path}".`
+          `pin-local-only scan path must be under sources/pinned/, found "${scan.path}".`,
         );
       }
     }
@@ -404,13 +445,13 @@ export function checkReceipt(
           addError(
             "receipt-local-file-missing",
             "scan.path",
-            `Local-only pinned file missing at "${scan.path}" under --require-local.`
+            `Local-only pinned file missing at "${scan.path}" under --require-local.`,
           );
         } else {
           addFlag(
             "receipt-local-file-not-available",
             "scan.path",
-            `Local-only pinned file not present on this machine: "${scan.path}".`
+            `Local-only pinned file not present on this machine: "${scan.path}".`,
           );
         }
       } else {
@@ -422,7 +463,7 @@ export function checkReceipt(
             addError(
               "receipt-local-file-digest-mismatch",
               "scan.sha256",
-              `Actual file SHA-256 (${actualSha}) disagrees with scan.sha256 (${scan.sha256}).`
+              `Actual file SHA-256 (${actualSha}) disagrees with scan.sha256 (${scan.sha256}).`,
             );
           }
         } catch {
@@ -443,28 +484,31 @@ export function checkReceipt(
             addError(
               "receipt-config-digest-mismatch",
               "scan.sha256",
-              `scan.sha256 (${scan.sha256}) disagrees with configuration record (${pinnedCfg.sha256}).`
+              `scan.sha256 (${scan.sha256}) disagrees with configuration record (${pinnedCfg.sha256}).`,
             );
           }
           if (pinnedCfg.pageCount && pinnedCfg.pageCount !== scan.pageCount) {
             addError(
               "receipt-config-pagecount-mismatch",
               "scan.pageCount",
-              `scan.pageCount (${scan.pageCount}) disagrees with configuration record (${pinnedCfg.pageCount}).`
+              `scan.pageCount (${scan.pageCount}) disagrees with configuration record (${pinnedCfg.pageCount}).`,
             );
           }
         } catch (e) {
           addError(
             "receipt-config-read-error",
             "config",
-            `Failed to parse configuration record at ${configPath}: ${e instanceof Error ? e.message : String(e)}`
+            `Failed to parse configuration record at ${configPath}: ${e instanceof Error ? e.message : String(e)}`,
           );
         }
-      } else if (scan.publicationDecision === "publish" || scan.publicationDecision === "pin-local-only") {
+      } else if (
+        scan.publicationDecision === "publish" ||
+        scan.publicationDecision === "pin-local-only"
+      ) {
         addError(
           "receipt-config-missing",
           "config",
-          `Receipt claims pinned scan for "${key}" but no configuration record found in ${options.configDir}.`
+          `Receipt claims pinned scan for "${key}" but no configuration record found in ${options.configDir}.`,
         );
       }
     }
@@ -479,7 +523,7 @@ export function checkReceipt(
       addError(
         "receipt-pagemap-count",
         "pageMap",
-        `pageMap length (${pageMap.length}) does not match scan.pageCount (${scan.pageCount}).`
+        `pageMap length (${pageMap.length}) does not match scan.pageCount (${scan.pageCount}).`,
       );
     }
 
@@ -491,10 +535,18 @@ export function checkReceipt(
       const p = `pageMap[${i}]`;
 
       if (typeof entry.pdfPageIndex !== "number") {
-        addError("receipt-pagemap-index", `${p}.pdfPageIndex`, "pdfPageIndex is required and must be a number.");
+        addError(
+          "receipt-pagemap-index",
+          `${p}.pdfPageIndex`,
+          "pdfPageIndex is required and must be a number.",
+        );
       } else {
         if (seenIndices.has(entry.pdfPageIndex)) {
-          addError("receipt-pagemap-duplicate-index", `${p}.pdfPageIndex`, `Duplicate pdfPageIndex ${entry.pdfPageIndex}.`);
+          addError(
+            "receipt-pagemap-duplicate-index",
+            `${p}.pdfPageIndex`,
+            `Duplicate pdfPageIndex ${entry.pdfPageIndex}.`,
+          );
         }
         seenIndices.add(entry.pdfPageIndex);
       }
@@ -510,7 +562,7 @@ export function checkReceipt(
               `${p}.contents`,
               `Invalid contents value "${c}".`,
               CONTENTS_VOCABULARY.join(" | "),
-              String(c)
+              String(c),
             );
           }
         }
@@ -522,7 +574,7 @@ export function checkReceipt(
           addError(
             "receipt-pagemap-other-article-sections",
             `${p}.sectionIds`,
-            "other-article pages must carry no sectionIds."
+            "other-article pages must carry no sectionIds.",
           );
         }
       }
@@ -533,7 +585,7 @@ export function checkReceipt(
           addError(
             "receipt-pagemap-printed-page",
             `${p}.printedPage`,
-            "article-text page requires printedPage."
+            "article-text page requires printedPage.",
           );
         } else {
           if (paper?.journal?.pages) {
@@ -544,7 +596,7 @@ export function checkReceipt(
               addError(
                 "receipt-pagemap-printed-page-range",
                 `${p}.printedPage`,
-                `printedPage ${entry.printedPage} is outside journal range ${paper.journal.pages.first}–${paper.journal.pages.last}.`
+                `printedPage ${entry.printedPage} is outside journal range ${paper.journal.pages.first}–${paper.journal.pages.last}.`,
               );
             }
           }
@@ -553,7 +605,7 @@ export function checkReceipt(
             addError(
               "receipt-pagemap-decreasing-pages",
               `${p}.printedPage`,
-              `printedPage ${entry.printedPage} decreased from previous article page ${lastArticlePrintedPage}.`
+              `printedPage ${entry.printedPage} decreased from previous article page ${lastArticlePrintedPage}.`,
             );
           }
           lastArticlePrintedPage = entry.printedPage;
@@ -566,7 +618,7 @@ export function checkReceipt(
           addError(
             "receipt-pagemap-refined-has-unnumbered",
             `${p}.displayEquations.unnumbered`,
-            `Refined page map entry (refinedBy: ${entry.refinedBy}) must replace unnumbered count with unnumberedIds.`
+            `Refined page map entry (refinedBy: ${entry.refinedBy}) must replace unnumbered count with unnumberedIds.`,
           );
         }
         if (
@@ -577,7 +629,7 @@ export function checkReceipt(
           addError(
             "receipt-pagemap-refined-no-unnumbered-ids",
             `${p}.displayEquations.unnumberedIds`,
-            `Refined page map entry (refinedBy: ${entry.refinedBy}) requires non-empty unnumberedIds.`
+            `Refined page map entry (refinedBy: ${entry.refinedBy}) requires non-empty unnumberedIds.`,
           );
         }
       }
@@ -590,7 +642,7 @@ export function checkReceipt(
           addError(
             "receipt-pagemap-missing-page",
             "pageMap",
-            `pageMap is missing PDF page index ${pageNum} (expected 1 to ${scan.pageCount}).`
+            `pageMap is missing PDF page index ${pageNum} (expected 1 to ${scan.pageCount}).`,
           );
         }
       }
@@ -615,7 +667,7 @@ export function checkReceipt(
           `${p}.kind`,
           `Invalid witness kind "${w.kind}".`,
           WITNESS_KINDS.join(" | "),
-          String(w.kind)
+          String(w.kind),
         );
       }
 
@@ -626,7 +678,7 @@ export function checkReceipt(
         addError(
           "receipt-witness-availability",
           `${p}.availability`,
-          `Invalid witness availability "${w.availability}". Expected "available" | "not-found".`
+          `Invalid witness availability "${w.availability}". Expected "available" | "not-found".`,
         );
       }
     }
@@ -635,14 +687,14 @@ export function checkReceipt(
       addError(
         "receipt-witness-missing-cpae",
         "witnesses",
-        "Witnesses list must contain a collected-papers entry."
+        "Witnesses list must contain a collected-papers entry.",
       );
     }
     if (!hasWikisource) {
       addError(
         "receipt-witness-missing-wikisource",
         "witnesses",
-        "Witnesses list must contain a wikisource entry."
+        "Witnesses list must contain a wikisource entry.",
       );
     }
   }
@@ -658,7 +710,7 @@ export function checkReceipt(
         "transcription.ledgerStatus",
         `Invalid ledgerStatus "${transcription.ledgerStatus}".`,
         LEDGER_STATUS_VALUES.join(" | "),
-        String(transcription.ledgerStatus)
+        String(transcription.ledgerStatus),
       );
     }
 
@@ -667,13 +719,13 @@ export function checkReceipt(
         addError(
           "receipt-ledger-source-pdf-sha256-invalid",
           "transcription.ledgerSourcePdfSha256",
-          "ledgerSourcePdfSha256 must be a lowercase 64-character hexadecimal digest."
+          "ledgerSourcePdfSha256 must be a lowercase 64-character hexadecimal digest.",
         );
       } else if (scan && transcription.ledgerSourcePdfSha256 !== scan.sha256) {
         addError(
           "receipt-ledger-source-pdf-sha256-mismatch",
           "transcription.ledgerSourcePdfSha256",
-          `ledgerSourcePdfSha256 (${transcription.ledgerSourcePdfSha256}) does not match scan.sha256 (${scan.sha256}).`
+          `ledgerSourcePdfSha256 (${transcription.ledgerSourcePdfSha256}) does not match scan.sha256 (${scan.sha256}).`,
         );
       }
     }
@@ -689,14 +741,14 @@ export function checkReceipt(
           addError(
             "receipt-tool-run-id-invalid",
             `${p}.toolRunId`,
-            `Invalid toolRunId format "${run.toolRunId}". Expected run-<timestamp|digits>-<hex> format.`
+            `Invalid toolRunId format "${run.toolRunId}". Expected run-<timestamp|digits>-<hex> format.`,
           );
         } else {
           if (seenToolRunIds.has(run.toolRunId)) {
             addError(
               "receipt-tool-run-id-duplicate",
               `${p}.toolRunId`,
-              `Duplicate toolRunId "${run.toolRunId}" in ocrRuns.`
+              `Duplicate toolRunId "${run.toolRunId}" in ocrRuns.`,
             );
           }
           seenToolRunIds.add(run.toolRunId);
@@ -716,7 +768,7 @@ export function checkReceipt(
         addError(
           "receipt-reviewed-no-acceptance",
           "transcription.ledgerStatus",
-          "ledgerStatus: reviewed requires a German source review acceptance record in the editorial acceptance section."
+          "ledgerStatus: reviewed requires a German source review acceptance record in the editorial acceptance section.",
         );
       }
 
@@ -728,7 +780,7 @@ export function checkReceipt(
             addError(
               "receipt-reviewed-pending-watchlist",
               `watchList[${i}]`,
-              `ledgerStatus is reviewed but watchList item "${item.id}" is still pending.`
+              `ledgerStatus is reviewed but watchList item "${item.id}" is still pending.`,
             );
           }
         }
@@ -745,7 +797,7 @@ export function checkReceipt(
         addError(
           "receipt-typo-no-evidence",
           `${p}.evidence`,
-          `Typographical error "${typo.id || i}" is missing evidence.`
+          `Typographical error "${typo.id || i}" is missing evidence.`,
         );
       }
     }
@@ -759,7 +811,7 @@ export function checkReceipt(
         addFlag(
           "receipt-watchlist-pending",
           `watchList[${i}]`,
-          `Watch-list item "${item.id}" is pending under ledgerStatus "${transcription?.ledgerStatus}".`
+          `Watch-list item "${item.id}" is pending under ledgerStatus "${transcription?.ledgerStatus}".`,
         );
       }
     }
@@ -772,7 +824,7 @@ export function checkReceipt(
       addFlag(
         "receipt-section-pending",
         `pending[${i}]`,
-        `Section "${pend.section}" is pending (owner: ${pend.owner}).`
+        `Section "${pend.section}" is pending (owner: ${pend.owner}).`,
       );
     }
   }
@@ -806,7 +858,7 @@ function isValidToolRunId(id: string): boolean {
 
 function validateChronology(
   dates: readonly PaperDate[],
-  addError: (rule: string, path: string, message: string) => void
+  addError: (rule: string, path: string, message: string) => void,
 ): void {
   const dateline = dates.find((d) => d.type === "date-line");
   const received = dates.find((d) => d.type === "received");
@@ -818,7 +870,7 @@ function validateChronology(
       addError(
         "receipt-chronology-received-before-dateline",
         "paper.dates",
-        `Paper received date (${received.iso}) is before date-line (${dateline.iso}).`
+        `Paper received date (${received.iso}) is before date-line (${dateline.iso}).`,
       );
     }
   }
@@ -829,7 +881,7 @@ function validateChronology(
       addError(
         "receipt-chronology-published-before-received",
         "paper.dates",
-        `Issue publication date (${publication.iso}) is before received date (${received.iso}).`
+        `Issue publication date (${publication.iso}) is before received date (${received.iso}).`,
       );
     }
   }
@@ -837,7 +889,8 @@ function validateChronology(
 
 export function compareDatesAtCoarserPrecision(d1: PaperDate, d2: PaperDate): number {
   const precisionOrder: Record<DatePrecision, number> = { year: 0, month: 1, day: 2 };
-  const coarser = precisionOrder[d1.precision] <= precisionOrder[d2.precision] ? d1.precision : d2.precision;
+  const coarser =
+    precisionOrder[d1.precision] <= precisionOrder[d2.precision] ? d1.precision : d2.precision;
 
   const getNorm = (d: PaperDate, prec: DatePrecision): string => {
     if (prec === "year") return d.iso.slice(0, 4);

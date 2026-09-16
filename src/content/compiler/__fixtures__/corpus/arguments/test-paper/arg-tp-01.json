@@ -8,12 +8,8 @@
   "question": "When are two distant events simultaneous?",
   "recap": "Simultaneity requires synchronized clocks linked by light signals.",
   "review": "draft",
-  "premises": [
-    "Light propagation is isotropic and constant in all inertial frames."
-  ],
-  "limitations": [
-    "Requires homogeneous isotropic propagation of light."
-  ],
+  "premises": ["Light propagation is isotropic and constant in all inertial frames."],
+  "limitations": ["Requires homogeneous isotropic propagation of light."],
   "citations": ["cite-test-1905"],
   "readings": {
     "overview": [

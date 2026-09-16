@@ -1,4 +1,5 @@
 import { describe, expect, it } from "bun:test";
+import { parseAnchor } from "../content/anchors.ts";
 import {
   parseBibKey,
   parseClosingId,
@@ -12,11 +13,11 @@ import {
   parseInlineMathId,
   parseInstrumentId,
   parseModeId,
-  parseParagraphId,
   parsePaperCode,
+  parseParagraphId,
   parsePredictPromptId,
-  parsePresetId,
   parsePremiseId,
+  parsePresetId,
   parseQuantityId,
   parseReferenceId,
   parseRouteSlug,
@@ -26,8 +27,7 @@ import {
   parseTranslationUnitId,
   validateSlug,
 } from "../content/ids.ts";
-import { parseAnchor } from "../content/anchors.ts";
-import { TestLogger, newRunIdentity } from "./log/logger.ts";
+import { newRunIdentity, TestLogger } from "./log/logger.ts";
 
 describe("Content IDs Grammar, Dot Rule, and Negative Characterizations", () => {
   const logger = new TestLogger("content-ids", newRunIdentity());
@@ -62,7 +62,14 @@ describe("Content IDs Grammar, Dot Rule, and Negative Characterizations", () => 
 
   it("enforces disjoint grammars for modes, presets, prompts, and tapes", () => {
     // Modes
-    const validModes = ["sr-02:apparatus", "bm-04:kicks-off", "bm-07:kitchen", "me-03:box-1906", "lq-02:1904", "shelf-michelson-morley:1904"];
+    const validModes = [
+      "sr-02:apparatus",
+      "bm-04:kicks-off",
+      "bm-07:kitchen",
+      "me-03:box-1906",
+      "lq-02:1904",
+      "shelf-michelson-morley:1904",
+    ];
     for (const m of validModes) {
       expect(parseModeId(m).ok).toBe(true);
       expect(parsePresetId(m).ok).toBe(false);
@@ -71,7 +78,14 @@ describe("Content IDs Grammar, Dot Rule, and Negative Characterizations", () => 
     }
 
     // Presets
-    const validPresets = ["sr-03-boost-0.6c", "lq-08-intensity-probe", "me-03-card-coal", "me-03-sealed-lamp-and-mirror", "shelf-michelson-morley-1904", "light-thread-two-slits"];
+    const validPresets = [
+      "sr-03-boost-0.6c",
+      "lq-08-intensity-probe",
+      "me-03-card-coal",
+      "me-03-sealed-lamp-and-mirror",
+      "shelf-michelson-morley-1904",
+      "light-thread-two-slits",
+    ];
     for (const p of validPresets) {
       expect(parsePresetId(p).ok).toBe(true);
       expect(parseModeId(p).ok).toBe(false);
@@ -85,7 +99,13 @@ describe("Content IDs Grammar, Dot Rule, and Negative Characterizations", () => 
     expect(parseModeId(promptId).ok).toBe(false);
 
     // Teaching Tapes
-    const validTapes = ["einstein-0-8-micron", "perrins-count", "the-boost-to-0.6c", "the-two-pulses", "the-locked-positions"];
+    const validTapes = [
+      "einstein-0-8-micron",
+      "perrins-count",
+      "the-boost-to-0.6c",
+      "the-two-pulses",
+      "the-locked-positions",
+    ];
     for (const t of validTapes) {
       expect(parseTapeId(t).ok).toBe(true);
       expect(parseModeId(t).ok).toBe(false);

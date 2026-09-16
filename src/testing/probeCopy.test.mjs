@@ -1,20 +1,20 @@
-import test from "node:test";
 import assert from "node:assert/strict";
-import { mkdtempSync, mkdirSync, writeFileSync, rmSync } from "node:fs";
+import { mkdirSync, mkdtempSync, rmSync, writeFileSync } from "node:fs";
 import { tmpdir } from "node:os";
 import { join } from "node:path";
+import test from "node:test";
 import {
-  INCOMPLETE_20260915_SIBLINGS,
-  REQUIRED_SIBLINGS,
-  WITHDRAWN_EXCLUSIONS,
   checkProbeCopy,
   classifyProbeFailure,
   discoverPathDeps,
   documentedExclusion,
+  INCOMPLETE_20260915_SIBLINGS,
   parsePathEntries,
+  REQUIRED_SIBLINGS,
   requiredSiblingNames,
   siblingFromResolved,
   siblingNeeds,
+  WITHDRAWN_EXCLUSIONS,
 } from "./probeCopy.ts";
 
 const FSQLITE_TRANSCRIPT = `error: failed to load manifest for workspace member
@@ -93,7 +93,12 @@ test("REQUIRED_SIBLINGS includes frankensqlite and frankentorch; the 2026-09-15 
   assert.equal(documentedExclusion("frankentorch"), undefined);
   assert.equal(WITHDRAWN_EXCLUSIONS[0].sibling, "frankentorch");
   assert.match(WITHDRAWN_EXCLUSIONS[0].reason, /RCH-E415/);
-  assert.deepEqual([...INCOMPLETE_20260915_SIBLINGS].sort(), ["asupersync", "franken_networkx", "franken_numpy", "frankenscipy"]);
+  assert.deepEqual([...INCOMPLETE_20260915_SIBLINGS].sort(), [
+    "asupersync",
+    "franken_networkx",
+    "franken_numpy",
+    "frankenscipy",
+  ]);
 });
 
 test("parsePathEntries records optional = true on the same table and not on a required neighbour", () => {
@@ -111,7 +116,10 @@ fsqlite = { path = "../../../frankensqlite/crates/fsqlite", features = ["async-a
 
 test("siblingFromResolved walks out of frankensim into the archive sibling, never an internal crate", () => {
   const frankensim = "/tmp/probe/frankensim";
-  assert.equal(siblingFromResolved(frankensim, "/tmp/probe/frankensqlite/crates/fsqlite"), "frankensqlite");
+  assert.equal(
+    siblingFromResolved(frankensim, "/tmp/probe/frankensqlite/crates/fsqlite"),
+    "frankensqlite",
+  );
   assert.equal(siblingFromResolved(frankensim, "/tmp/probe/frankensim/crates/fs-rand"), null);
   assert.equal(siblingFromResolved(frankensim, "/tmp/probe/asupersync"), "asupersync");
 });
@@ -190,12 +198,17 @@ test("retained fsqlite and fnx-classes transcripts are absent-sibling; asupersyn
   assert.equal(classifyProbeFailure(FNX_TRANSCRIPT), "absent-sibling");
   assert.equal(classifyProbeFailure(ASUPERSYNC_TRANSCRIPT), "other");
   assert.equal(classifyProbeFailure(LLD_TRANSCRIPT), "toolchain-lld");
-  assert.equal(classifyProbeFailure("error: cannot update the lock file because --locked was passed"), "other");
+  assert.equal(
+    classifyProbeFailure("error: cannot update the lock file because --locked was passed"),
+    "other",
+  );
 });
 
 test("a naive implementation that treats every cargo 101 as a missing sibling is rejected", () => {
   const nativeRuntime = classifyProbeFailure(ASUPERSYNC_TRANSCRIPT);
-  const lockDrift = classifyProbeFailure("error: cannot update the lock file ... --locked was passed");
+  const lockDrift = classifyProbeFailure(
+    "error: cannot update the lock file ... --locked was passed",
+  );
   assert.notEqual(nativeRuntime, "absent-sibling");
   assert.notEqual(lockDrift, "absent-sibling");
 });

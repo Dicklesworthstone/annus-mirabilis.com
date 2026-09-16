@@ -1,7 +1,7 @@
 import { describe, expect, it } from "bun:test";
 import type { AliasRecord } from "../content/aliases.ts";
 import { parseIdSnapshot, validateFrozenIds } from "../content/frozenIds.ts";
-import { TestLogger, newRunIdentity } from "./log/logger.ts";
+import { newRunIdentity, TestLogger } from "./log/logger.ts";
 
 describe("Frozen ID Snapshots and Stability Gate", () => {
   const logger = new TestLogger("content-ids", newRunIdentity());

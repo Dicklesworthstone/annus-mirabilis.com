@@ -1,7 +1,8 @@
-import test from "node:test";
 import assert from "node:assert/strict";
 import { spawnSync } from "node:child_process";
+import test from "node:test";
 import { runBrownianDemo } from "../../scripts/reference/brownian-demo.mjs";
+
 const near = (a, b) => assert.ok(Math.abs(a - b) < Math.abs(b) * 1e-12);
 test("Brownian example composes the actual owners in canonical SI", () => {
   const result = runBrownianDemo();
@@ -39,7 +40,26 @@ test("example distinguishes budget limits and physical parameter-domain results"
   assert.equal("grid" in domain, false);
 });
 test("example rejects malformed inputs and the CLI reports an invalid invocation", () => {
-  for (const bad of [null, [], { dt: 1 }, { a: NaN }, { steps: 0 }, { t: -1 }, { get T() { throw new Error("must not execute"); } }]) assert.throws(() => runBrownianDemo(bad));
-  const child = spawnSync(process.execPath, ["--experimental-strip-types", "scripts/reference/brownian-demo.mjs", '{"unknown":1}'], { cwd: new URL("../../", import.meta.url), encoding: "utf8" });
-  assert.equal(child.status, 1); assert.equal(child.stdout, ""); assert.match(child.stderr, /Invalid input: unknown/);
+  for (const bad of [
+    null,
+    [],
+    { dt: 1 },
+    { a: NaN },
+    { steps: 0 },
+    { t: -1 },
+    {
+      get T() {
+        throw new Error("must not execute");
+      },
+    },
+  ])
+    assert.throws(() => runBrownianDemo(bad));
+  const child = spawnSync(
+    process.execPath,
+    ["--experimental-strip-types", "scripts/reference/brownian-demo.mjs", '{"unknown":1}'],
+    { cwd: new URL("../../", import.meta.url), encoding: "utf8" },
+  );
+  assert.equal(child.status, 1);
+  assert.equal(child.stdout, "");
+  assert.match(child.stderr, /Invalid input: unknown/);
 });

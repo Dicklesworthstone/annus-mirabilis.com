@@ -50,7 +50,8 @@ describe("Generic WASM and Reference Fallbacks", () => {
       testId: "donor-trap-module-global-source",
       outcome: "pass",
       durationMs: performance.now() - start,
-      message: "donor-trap: module-global source confirmed; module load status is decoupled from snapshot provenance",
+      message:
+        "donor-trap: module-global source confirmed; module load status is decoupled from snapshot provenance",
     });
   });
 

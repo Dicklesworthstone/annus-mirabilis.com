@@ -150,7 +150,12 @@ function run(
 }
 
 export function trackedWorkingTreeChanges(): string {
-  const status = run("git", ["status", "--porcelain=v1", "--untracked-files=all"], true, false).stdout;
+  const status = run(
+    "git",
+    ["status", "--porcelain=v1", "--untracked-files=all"],
+    true,
+    false,
+  ).stdout;
   return status
     .split("\n")
     .filter(
@@ -266,7 +271,9 @@ export function assertCompletePrebuiltArtifact(buildStartedAtMs: number) {
     throw new Error("Vercel build did not create .vercel/output/config.json.");
   }
   if (!fs.existsSync(staticDirectory)) {
-    throw new Error("Vercel build produced no static output; refusing to deploy a partial artifact.");
+    throw new Error(
+      "Vercel build produced no static output; refusing to deploy a partial artifact.",
+    );
   }
 
   let config: { version?: unknown };
@@ -281,7 +288,9 @@ export function assertCompletePrebuiltArtifact(buildStartedAtMs: number) {
   }
   const configModifiedAtMs = fs.statSync(configPath).mtimeMs;
   if (configModifiedAtMs + 1_000 < buildStartedAtMs) {
-    throw new Error("Vercel output predates this release attempt; refusing to upload a stale prebuilt artifact.");
+    throw new Error(
+      "Vercel output predates this release attempt; refusing to upload a stale prebuilt artifact.",
+    );
   }
 
   const fileCount = countFiles(outputDirectory);
@@ -301,7 +310,11 @@ export function deploymentUrl(output: string): string {
   return url.replace(/[),.]$/, "");
 }
 
-export async function assertResponse(url: string, pathName: string, requiredText: string): Promise<string> {
+export async function assertResponse(
+  url: string,
+  pathName: string,
+  requiredText: string,
+): Promise<string> {
   const response = await fetch(`${url}${pathName}`, { signal: AbortSignal.timeout(30_000) });
   const body = await response.text();
   if (!response.ok || !body.includes(requiredText)) {
@@ -318,7 +331,11 @@ export async function assertResponse(url: string, pathName: string, requiredText
  * it, only this function needs to switch to the documented fallback:
  * plain `curl` with `x-vercel-protection-bypass: ${VERCEL_AUTOMATION_BYPASS_SECRET}`.
  */
-export function assertProtectedPreviewResponse(deployment: string, pathName: string, requiredText: string): string {
+export function assertProtectedPreviewResponse(
+  deployment: string,
+  pathName: string,
+  requiredText: string,
+): string {
   const marker = "__ANNUS_MIRABILIS_HTTP_STATUS__";
   const response = run(
     "vercel",

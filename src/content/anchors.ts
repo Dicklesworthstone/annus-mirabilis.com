@@ -7,18 +7,18 @@
  */
 
 import {
+  ENTRANCE_PAPER_SLUGS,
   type EntranceId,
   type EquationRecordId,
-  ENTRANCE_PAPER_SLUGS,
-  type PaperCode,
-  PAPER_CODES,
   PAPER_CODE_TO_ROUTE_SLUG,
+  PAPER_CODES,
+  type PaperCode,
   type ParseResult,
-  type RouteSlug,
-  ROUTE_SLUG_TO_PAPER_CODE,
   parseEquationRecordId,
   parseInstrumentId,
   parsePremiseId,
+  ROUTE_SLUG_TO_PAPER_CODE,
+  type RouteSlug,
   validateSlug,
 } from "./ids.ts";
 
@@ -90,7 +90,9 @@ export function equationRecordForAnchor(
  * Example: 'entrance-brownian-motion' -> '#entry-brownian-motion'
  */
 export function entryAnchorForEntrance(entranceId: string): string {
-  const match = entranceId.match(/^entrance-(light-quanta|brownian-motion|special-relativity|mass-energy)$/);
+  const match = entranceId.match(
+    /^entrance-(light-quanta|brownian-motion|special-relativity|mass-energy)$/,
+  );
   if (!match || !match[1]) {
     throw new Error(`Cannot derive entry anchor from invalid entrance ID '${entranceId}'`);
   }
@@ -106,7 +108,9 @@ export function entranceForEntryAnchor(anchor: string): EntranceId {
   if (clean === "entrance" || clean === "entry") {
     throw new Error("Retired bare anchor; use '#entry-<paper-slug>' instead");
   }
-  const match = clean.match(/^entry-(light-quanta|brownian-motion|special-relativity|mass-energy)$/);
+  const match = clean.match(
+    /^entry-(light-quanta|brownian-motion|special-relativity|mass-energy)$/,
+  );
   if (!match || !match[1]) {
     throw new Error(
       `Cannot derive entrance ID from anchor '${anchor}': must be '#entry-<paper-slug>' for one of the four main papers`,
@@ -187,7 +191,11 @@ export function parseAnchor(raw: string): ParseResult<ParsedAnchor> {
     const slug = target.slice("result-".length);
     const slugRes = validateSlug(slug);
     if (!slugRes.ok) {
-      return { ok: false, error: `Invalid result anchor '${fragment}': ${slugRes.error}`, rule: "result-anchor-grammar" };
+      return {
+        ok: false,
+        error: `Invalid result anchor '${fragment}': ${slugRes.error}`,
+        rule: "result-anchor-grammar",
+      };
     }
     return {
       ok: true,

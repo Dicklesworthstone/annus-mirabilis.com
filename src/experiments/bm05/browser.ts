@@ -1,9 +1,12 @@
 import type { WorkerChannel } from "../../workers/scheduler/hostScheduler.ts";
 /** Called only by the lazy scheduler after an explicit reader action. */
 export function createBm05BrowserChannel(): WorkerChannel {
-  const worker = new Worker(new URL("../../workers/host/bm05Worker.ts", import.meta.url), { type: "module", name: "Annus Mirabilis walk ensemble" });
+  const worker = new Worker(new URL("../../workers/host/bm05Worker.ts", import.meta.url), {
+    type: "module",
+    name: "Annus Mirabilis walk ensemble",
+  });
   return {
-    send: message => worker.postMessage(message),
+    send: (message) => worker.postMessage(message),
     listen(onMessage, onError) {
       const message = (event: MessageEvent<unknown>) => onMessage(event.data);
       worker.addEventListener("message", message);

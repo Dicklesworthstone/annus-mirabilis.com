@@ -289,7 +289,10 @@ export type Receipt = Readonly<{
 /**
  * Resolves an unnumbered or numbered equation ID / label to its 1-based PDF page index.
  */
-export function resolveEquationPage(pageMap: readonly PageMapEntry[], equationId: string): number | null {
+export function resolveEquationPage(
+  pageMap: readonly PageMapEntry[],
+  equationId: string,
+): number | null {
   for (const entry of pageMap) {
     if (entry.displayEquations.numbered.includes(equationId)) {
       return entry.pdfPageIndex;

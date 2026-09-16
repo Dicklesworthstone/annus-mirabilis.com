@@ -1,7 +1,7 @@
-import { readdirSync, readFileSync, mkdirSync, writeFileSync, statSync } from "node:fs";
+import { mkdirSync, readdirSync, readFileSync, statSync, writeFileSync } from "node:fs";
 import path from "node:path";
-import { parseLogLine, type LogEvent, type Outcome } from "../src/testing/log/schema.ts";
 import { artifactsRoot } from "../src/testing/log/logger.ts";
+import { type LogEvent, type Outcome, parseLogLine } from "../src/testing/log/schema.ts";
 
 export interface SummaryFailure {
   suite: string;
@@ -50,7 +50,10 @@ export function summarize(events: readonly LogEvent[]): LogSummary {
     }
 
     if (event.toolRunId !== undefined) {
-      const group = toolRuns.get(event.toolRunId) ?? { logRunIds: new Set<string>(), eventCount: 0 };
+      const group = toolRuns.get(event.toolRunId) ?? {
+        logRunIds: new Set<string>(),
+        eventCount: 0,
+      };
       group.logRunIds.add(event.logRunId);
       group.eventCount += 1;
       toolRuns.set(event.toolRunId, group);
@@ -88,7 +91,9 @@ export function collectEvents(options: CollectOptions = {}): LogEvent[] {
   const root = options.root ?? artifactsRoot();
   let suiteDirs: string[];
   try {
-    suiteDirs = readdirSync(root).filter((entry) => statSync(path.join(root, entry)).isDirectory() && entry !== "summary");
+    suiteDirs = readdirSync(root).filter(
+      (entry) => statSync(path.join(root, entry)).isDirectory() && entry !== "summary",
+    );
   } catch {
     return [];
   }
@@ -130,20 +135,26 @@ function printSummary(summary: LogSummary): void {
   console.log("Test log summary");
   console.log("=================");
   for (const [suite, outcomes] of Object.entries(summary.counts)) {
-    console.log(`${suite}: passed=${outcomes.passed} failed=${outcomes.failed} skipped=${outcomes.skipped} not-available=${outcomes["not-available"]}`);
+    console.log(
+      `${suite}: passed=${outcomes.passed} failed=${outcomes.failed} skipped=${outcomes.skipped} not-available=${outcomes["not-available"]}`,
+    );
   }
   console.log(`total events: ${summary.totalEvents}`);
   if (summary.failures.length > 0) {
     console.log("\nFailures:");
     for (const failure of summary.failures) {
       const evidenceNote = failure.evidence ? ` evidence=${JSON.stringify(failure.evidence)}` : "";
-      console.log(`  [${failure.suite}] ${failure.testId}: ${failure.message ?? "(no message)"}${evidenceNote}`);
+      console.log(
+        `  [${failure.suite}] ${failure.testId}: ${failure.message ?? "(no message)"}${evidenceNote}`,
+      );
     }
   }
   if (summary.toolRuns.length > 0) {
     console.log("\nTool runs:");
     for (const group of summary.toolRuns) {
-      console.log(`  ${group.toolRunId}: ${group.eventCount} events across logRunIds [${group.logRunIds.join(", ")}]`);
+      console.log(
+        `  ${group.toolRunId}: ${group.eventCount} events across logRunIds [${group.logRunIds.join(", ")}]`,
+      );
     }
   }
 }
@@ -162,13 +173,19 @@ async function main(): Promise<number> {
   const events = collectEvents(options);
   const summary = summarize(events);
   printSummary(summary);
-  const writtenLogRunId = options.logRunId ?? new Date().toISOString().replace(/[-:]/g, "").replace(/\.\d+Z$/, "Z");
+  const writtenLogRunId =
+    options.logRunId ??
+    new Date()
+      .toISOString()
+      .replace(/[-:]/g, "")
+      .replace(/\.\d+Z$/, "Z");
   const target = writeSummaryFile(summary, writtenLogRunId, root);
   console.log(`\nWrote summary to ${target}`);
   return summary.failures.length > 0 ? 1 : 0;
 }
 
-const isMainModule = process.argv[1] !== undefined && import.meta.url === `file://${process.argv[1]}`;
+const isMainModule =
+  process.argv[1] !== undefined && import.meta.url === `file://${process.argv[1]}`;
 if (isMainModule) {
   main().then((code) => process.exit(code));
 }

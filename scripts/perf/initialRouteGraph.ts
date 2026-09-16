@@ -1,7 +1,13 @@
 import { readFile } from "node:fs/promises";
 import { dirname, resolve } from "node:path";
 import { fileURLToPath } from "node:url";
-import { appendLogLine, evidenceDirFor, logPathFor, newLogRunId, writeEvidenceFile } from "../scaffold/logLine.ts";
+import {
+  appendLogLine,
+  evidenceDirFor,
+  logPathFor,
+  newLogRunId,
+  writeEvidenceFile,
+} from "../scaffold/logLine.ts";
 
 const ROOT = resolve(dirname(fileURLToPath(import.meta.url)), "../..");
 const SUITE = "initial-route-graph";
@@ -42,11 +48,21 @@ export function normalizeRoute(route: string): string {
   return route.startsWith("/") ? route : `/${route}`;
 }
 
-const FORBIDDEN_SIGNATURES = ["WebGLRenderer", "GlobalWorkerOptions", "WebAssembly.instantiateStreaming", ".wasm"] as const;
+const FORBIDDEN_SIGNATURES = [
+  "WebGLRenderer",
+  "GlobalWorkerOptions",
+  "WebAssembly.instantiateStreaming",
+  ".wasm",
+] as const;
 
 const FORBIDDEN_MODULE_SUBSTRINGS = ["node_modules/pdfjs-dist/", "node_modules/three/"] as const;
 
-export type SignatureViolation = { kind: "chunk-signature"; chunk: string; signature: string; excerpt: string };
+export type SignatureViolation = {
+  kind: "chunk-signature";
+  chunk: string;
+  signature: string;
+  excerpt: string;
+};
 export type ChunkFileViolation = { kind: "chunk-filename"; chunk: string; signature: string };
 export type ModuleTraceViolation = { kind: "module-trace"; module: string; signature: string };
 export type RouteGraphViolation = SignatureViolation | ChunkFileViolation | ModuleTraceViolation;
@@ -92,7 +108,12 @@ export function checkInitialRouteGraph(input: RouteGraphInput): RouteGraphResult
     };
   }
   if (chunks.length === 0) {
-    return { ok: false, route, reason: `route ${route} lists no chunks in the manifest`, violations: [] };
+    return {
+      ok: false,
+      route,
+      reason: `route ${route} lists no chunks in the manifest`,
+      violations: [],
+    };
   }
 
   const violations: RouteGraphViolation[] = [];
@@ -110,7 +131,12 @@ export function checkInitialRouteGraph(input: RouteGraphInput): RouteGraphResult
     for (const signature of FORBIDDEN_SIGNATURES) {
       const index = content.indexOf(signature);
       if (index !== -1) {
-        violations.push({ kind: "chunk-signature", chunk, signature, excerpt: excerptAround(content, index) });
+        violations.push({
+          kind: "chunk-signature",
+          chunk,
+          signature,
+          excerpt: excerptAround(content, index),
+        });
       }
     }
   }
@@ -158,7 +184,10 @@ async function loadRealManifest(root: string): Promise<AppBuildManifest> {
   return JSON.parse(raw) as AppBuildManifest;
 }
 
-async function loadChunkContents(root: string, chunks: readonly string[]): Promise<Record<string, string>> {
+async function loadChunkContents(
+  root: string,
+  chunks: readonly string[],
+): Promise<Record<string, string>> {
   const contents: Record<string, string> = {};
   for (const chunk of chunks) {
     try {
@@ -197,7 +226,14 @@ async function main(): Promise<void> {
       message: `route ${result.route} loads ${result.chunks.length} chunk(s) with no forbidden dependency`,
       extra: { route: result.route },
     });
-    console.log(JSON.stringify({ outcome: "pass", route: result.route, chunks: result.chunks.length, logPath }));
+    console.log(
+      JSON.stringify({
+        outcome: "pass",
+        route: result.route,
+        chunks: result.chunks.length,
+        logPath,
+      }),
+    );
     return;
   }
 

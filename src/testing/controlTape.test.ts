@@ -1,9 +1,9 @@
 import { describe, expect, test } from "bun:test";
 import {
-  computeTapeDigest,
-  ControlTape,
+  type ControlTape,
   ControlTapeRecorder,
   ControlTapeReplayer,
+  computeTapeDigest,
   MAX_TAPE_EVENTS,
   quantizeFloat,
   validateTapeCompatibility,
@@ -66,7 +66,8 @@ describe("ControlTape Runtime Extraction", () => {
       testId: "donor-trap-32-bit-seed-coercion",
       outcome: "pass",
       durationMs: performance.now() - start,
-      message: "donor-trap: 32-bit seed coercion confirmed; seeds 1 and 4294967297 collide under 32-bit XOR",
+      message:
+        "donor-trap: 32-bit seed coercion confirmed; seeds 1 and 4294967297 collide under 32-bit XOR",
       expected: dLow.digest,
       actual: dHigh.digest,
       comparisonKind: "bitwise",
@@ -210,7 +211,11 @@ describe("ControlTape Runtime Extraction", () => {
     expect(wrongExperiment.refused).toBe(true);
     expect(wrongExperiment.reason).toContain("cannot replay on 'bm-05-osmotic'");
 
-    const wrongModel = new ControlTapeReplayer(testTape, "bm-01-diffusion", "bm01Kernel@v2-incompatible");
+    const wrongModel = new ControlTapeReplayer(
+      testTape,
+      "bm-01-diffusion",
+      "bm01Kernel@v2-incompatible",
+    );
     expect(wrongModel.refused).toBe(true);
     expect(wrongModel.reason).toContain("Incompatible model identity");
 
@@ -224,7 +229,8 @@ describe("ControlTape Runtime Extraction", () => {
       testId: "control-tape-compatibility-refusal",
       outcome: "pass",
       durationMs: performance.now() - start,
-      message: "Refuses replay gracefully upon experiment or model mismatch without inventing state",
+      message:
+        "Refuses replay gracefully upon experiment or model mismatch without inventing state",
     });
   });
 });

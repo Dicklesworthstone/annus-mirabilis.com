@@ -102,33 +102,18 @@ export function qtyDimension(unit: string): string {
   if (u === "t" || u === "tesla" || u === "gauss") return "M/IT²";
   if (u === "f" || u === "farad" || u === "µf" || u === "uf" || u === "pf") return "I²T⁴/ML²";
   if (u === "h" || u === "henry" || u === "mh" || u === "µh" || u === "uh") return "ML²/I²T²";
-  if (u === "rad" || u === "deg" || u === "°" || u === "%" || u === "ratio" || u === "")
-    return "1";
+  if (u === "rad" || u === "deg" || u === "°" || u === "%" || u === "ratio" || u === "") return "1";
   return "1";
 }
 
 /** Multiply two SI dimension vectors (adds exponents). */
 export function multiplyDimensions(a: SiDimensionVector, b: SiDimensionVector): SiDimensionVector {
-  return [
-    a[0] + b[0],
-    a[1] + b[1],
-    a[2] + b[2],
-    a[3] + b[3],
-    a[4] + b[4],
-    a[5] + b[5],
-  ];
+  return [a[0] + b[0], a[1] + b[1], a[2] + b[2], a[3] + b[3], a[4] + b[4], a[5] + b[5]];
 }
 
 /** Divide two SI dimension vectors (subtracts exponents). */
 export function divideDimensions(a: SiDimensionVector, b: SiDimensionVector): SiDimensionVector {
-  return [
-    a[0] - b[0],
-    a[1] - b[1],
-    a[2] - b[2],
-    a[3] - b[3],
-    a[4] - b[4],
-    a[5] - b[5],
-  ];
+  return [a[0] - b[0], a[1] - b[1], a[2] - b[2], a[3] - b[3], a[4] - b[4], a[5] - b[5]];
 }
 
 /** Raise an SI dimension vector to a rational power (multiplies exponents). */
@@ -218,7 +203,15 @@ export function parseUnitToDimension(unit: string): SiDimensionVector {
     return DIM_POWER;
 
   // Energy
-  if (u === "j" || u === "kj" || u === "mj" || u === "kwh" || u === "btu" || u === "ev" || u === "erg")
+  if (
+    u === "j" ||
+    u === "kj" ||
+    u === "mj" ||
+    u === "kwh" ||
+    u === "btu" ||
+    u === "ev" ||
+    u === "erg"
+  )
     return DIM_ENERGY;
 
   // Torque / Moment

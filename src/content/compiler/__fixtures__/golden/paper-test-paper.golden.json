@@ -1,12 +1,8 @@
 {
   "arguments": [
     {
-      "citations": [
-        "cite-test-1905"
-      ],
-      "experiments": [
-        "bm-01"
-      ],
+      "citations": ["cite-test-1905"],
+      "experiments": ["bm-01"],
       "help": {
         "example": "bridge-sum-average",
         "missingStep": "bridge-sum-average",
@@ -14,9 +10,7 @@
       },
       "id": "arg-tp-01",
       "kind": "argument",
-      "limitations": [
-        "Requires homogeneous isotropic propagation of light."
-      ],
+      "limitations": ["Requires homogeneous isotropic propagation of light."],
       "meaning": {
         "executionStatus": "static-illustration",
         "historicalStatus": "pedagogical-reconstruction",
@@ -24,9 +18,7 @@
         "modelStatus": "exact-within-model"
       },
       "paper": "test-paper",
-      "premises": [
-        "Light propagation is isotropic and constant in all inertial frames."
-      ],
+      "premises": ["Light propagation is isotropic and constant in all inertial frames."],
       "prerequisites": [],
       "question": "When are two distant events simultaneous?",
       "readings": {
@@ -66,12 +58,8 @@
       "title": "Definition of Simultaneity"
     },
     {
-      "citations": [
-        "cite-test-1905"
-      ],
-      "experiments": [
-        "bm-01"
-      ],
+      "citations": ["cite-test-1905"],
+      "experiments": ["bm-01"],
       "help": {
         "example": "bridge-sum-average",
         "missingStep": "bridge-sum-average",
@@ -79,9 +67,7 @@
       },
       "id": "arg-tp-02",
       "kind": "argument",
-      "limitations": [
-        "Applies to inertial frames."
-      ],
+      "limitations": ["Applies to inertial frames."],
       "meaning": {
         "executionStatus": "static-illustration",
         "historicalStatus": "pedagogical-reconstruction",
@@ -89,9 +75,7 @@
         "modelStatus": "exact-within-model"
       },
       "paper": "test-paper",
-      "premises": [
-        "Simultaneity is relative to the motion of the coordinate system."
-      ],
+      "premises": ["Simultaneity is relative to the motion of the coordinate system."],
       "prerequisites": [
         {
           "edge": "premise",
@@ -120,10 +104,7 @@
         ],
         "steps": [
           {
-            "items": [
-              "Measure rod at rest.",
-              "Measure rod in motion using synchronized clocks."
-            ],
+            "items": ["Measure rod at rest.", "Measure rod in motion using synchronized clocks."],
             "kind": "steps"
           }
         ]
@@ -135,12 +116,8 @@
       "title": "On the Relativity of Lengths and Times"
     },
     {
-      "citations": [
-        "cite-test-1905"
-      ],
-      "experiments": [
-        "bm-01"
-      ],
+      "citations": ["cite-test-1905"],
+      "experiments": ["bm-01"],
       "help": {
         "example": "bridge-sum-average",
         "missingStep": "bridge-sum-average",
@@ -148,9 +125,7 @@
       },
       "id": "arg-tp-03",
       "kind": "argument",
-      "limitations": [
-        "Valid in vacuum."
-      ],
+      "limitations": ["Valid in vacuum."],
       "meaning": {
         "executionStatus": "static-illustration",
         "historicalStatus": "pedagogical-reconstruction",
@@ -158,9 +133,7 @@
         "modelStatus": "exact-within-model"
       },
       "paper": "test-paper",
-      "premises": [
-        "The laws of electrodynamics hold in all frames where mechanics holds."
-      ],
+      "premises": ["The laws of electrodynamics hold in all frames where mechanics holds."],
       "prerequisites": [
         {
           "edge": "premise",
@@ -247,9 +220,7 @@
   ],
   "foundations": [
     {
-      "citations": [
-        "cite-test-1905"
-      ],
+      "citations": ["cite-test-1905"],
       "example": [
         {
           "kind": "paragraph",
@@ -282,17 +253,12 @@
     "schemaVersion": 1,
     "sections": [
       {
-        "arguments": [
-          "arg-tp-01",
-          "arg-tp-02"
-        ],
+        "arguments": ["arg-tp-01", "arg-tp-02"],
         "id": "s1",
         "title": "Kinematical Part"
       },
       {
-        "arguments": [
-          "arg-tp-03"
-        ],
+        "arguments": ["arg-tp-03"],
         "id": "s2",
         "title": "Electrodynamical Part"
       }

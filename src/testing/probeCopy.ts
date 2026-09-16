@@ -182,8 +182,14 @@ export function checkProbeCopy(buildRoot: string, deps: readonly PathDep[]): Cop
 
   for (const dep of deps) {
     if (!required.includes(dep.sibling) && documentedExclusion(dep.sibling)) continue;
-    const dest = resolve(join(root, "frankensim"), dirname(dep.manifest), dep.pathSpec, "Cargo.toml");
-    if (!existsSync(dest)) missingManifests.push(`${dep.sibling} via ${dep.manifest} -> ${dep.pathSpec}`);
+    const dest = resolve(
+      join(root, "frankensim"),
+      dirname(dep.manifest),
+      dep.pathSpec,
+      "Cargo.toml",
+    );
+    if (!existsSync(dest))
+      missingManifests.push(`${dep.sibling} via ${dep.manifest} -> ${dep.pathSpec}`);
   }
 
   present.sort();
@@ -193,7 +199,10 @@ export function checkProbeCopy(buildRoot: string, deps: readonly PathDep[]): Cop
   missingManifests.sort();
 
   return {
-    ok: missingRequired.length === 0 && missingUndocumented.length === 0 && missingManifests.length === 0,
+    ok:
+      missingRequired.length === 0 &&
+      missingUndocumented.length === 0 &&
+      missingManifests.length === 0,
     present,
     missingRequired,
     missingOptionalDocumented,
@@ -215,7 +224,9 @@ const ABSENT_SIBLING_MARKERS = [
 export function classifyProbeFailure(transcript: string): FailureClass {
   if (
     /rust-lld/.test(transcript) &&
-    (/SIGABRT/.test(transcript) || /libLLVM\.dylib/.test(transcript) || /signal: 6/.test(transcript))
+    (/SIGABRT/.test(transcript) ||
+      /libLLVM\.dylib/.test(transcript) ||
+      /signal: 6/.test(transcript))
   ) {
     return "toolchain-lld";
   }
@@ -229,7 +240,9 @@ export function classifyProbeFailure(transcript: string): FailureClass {
   for (const match of transcript.matchAll(/unable to update\s+([^\s]+)/g)) {
     if (match[1]) subjectPaths.push(match[1]);
   }
-  for (const match of transcript.matchAll(/cannot read required [^\n]*?(\/[^\s:]+): No such file/g)) {
+  for (const match of transcript.matchAll(
+    /cannot read required [^\n]*?(\/[^\s:]+): No such file/g,
+  )) {
     if (match[1]) subjectPaths.push(match[1]);
   }
   const siblingHit = subjectPaths.some((path) =>
@@ -252,7 +265,8 @@ function listCargoTomls(root: string): string[] {
       continue;
     }
     for (const name of entries) {
-      if (name === ".git" || name === "target" || name === "artifacts" || name === "node_modules") continue;
+      if (name === ".git" || name === "target" || name === "artifacts" || name === "node_modules")
+        continue;
       const full = join(dir, name);
       let stat;
       try {

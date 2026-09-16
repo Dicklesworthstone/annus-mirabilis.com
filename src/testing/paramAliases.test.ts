@@ -4,7 +4,7 @@ import {
   expandParamAliases,
   linear,
   PARAM_ALIASES,
-  ParamAliasRegistry,
+  type ParamAliasRegistry,
   same,
 } from "../experiments/paramAliases.ts";
 import { appendExtractionLog, newExtractionLogRunId } from "./extractionLogging.ts";
@@ -37,11 +37,20 @@ describe("Parameter Aliases Runtime Extraction", () => {
     expect(canonFromCelsius.id).toBe("temperatureKelvin");
     expect(canonFromCelsius.value).toBe(293.15);
 
-    const canonFromKelvin = canonicalizeParam("bm-01-diffusion", "T_kelvin", 293.15, customRegistry);
+    const canonFromKelvin = canonicalizeParam(
+      "bm-01-diffusion",
+      "T_kelvin",
+      293.15,
+      customRegistry,
+    );
     expect(canonFromKelvin.id).toBe("temperatureKelvin");
     expect(canonFromKelvin.value).toBe(293.15);
 
-    const expanded = expandParamAliases("bm-01-diffusion", { temperatureKelvin: 293.15 }, customRegistry);
+    const expanded = expandParamAliases(
+      "bm-01-diffusion",
+      { temperatureKelvin: 293.15 },
+      customRegistry,
+    );
     expect(expanded.T_celsius).toBeCloseTo(20, 6);
     expect(expanded.T_kelvin).toBe(293.15);
 
@@ -82,7 +91,8 @@ describe("Parameter Aliases Runtime Extraction", () => {
       testId: "param-aliases-no-glyph-unit-matching",
       outcome: "pass",
       durationMs: performance.now() - start,
-      message: "Characterization: paramAliases prevents cross-linking of distinct physical quantities by glyph or unit",
+      message:
+        "Characterization: paramAliases prevents cross-linking of distinct physical quantities by glyph or unit",
     });
   });
 });

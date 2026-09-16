@@ -1,6 +1,6 @@
 import { copyFileSync, existsSync, mkdirSync } from "node:fs";
 import path from "node:path";
-import { getLogger, artifactsRoot } from "./logger.ts";
+import { artifactsRoot, getLogger } from "./logger.ts";
 import type { Outcome } from "./schema.ts";
 
 export interface RetainEvidenceMeta {
@@ -28,7 +28,10 @@ export interface RetainEvidenceResult {
  * deletes the originals (AGENTS.md Rule 1) — a missing source is reported in
  * the event message, never silently skipped.
  */
-export async function retainEvidence(meta: RetainEvidenceMeta, sources: readonly string[]): Promise<RetainEvidenceResult> {
+export async function retainEvidence(
+  meta: RetainEvidenceMeta,
+  sources: readonly string[],
+): Promise<RetainEvidenceResult> {
   const logger = getLogger(meta.suite, meta.logRunId);
   const destDir = evidenceDir(meta.suite, logger.logRunId, meta.testId);
   mkdirSync(destDir, { recursive: true });
@@ -45,9 +48,8 @@ export async function retainEvidence(meta: RetainEvidenceMeta, sources: readonly
     copied.push(dest);
   }
 
-  const message = missing.length > 0
-    ? `Missing evidence source(s): ${missing.join(", ")}`
-    : meta.message;
+  const message =
+    missing.length > 0 ? `Missing evidence source(s): ${missing.join(", ")}` : meta.message;
 
   logger.log({
     testId: meta.testId,

@@ -2,7 +2,13 @@ import { spawn } from "node:child_process";
 import { createServer } from "node:net";
 import { dirname, resolve } from "node:path";
 import { fileURLToPath } from "node:url";
-import { appendLogLine, evidenceDirFor, logPathFor, newLogRunId, writeEvidenceFile } from "./logLine.ts";
+import {
+  appendLogLine,
+  evidenceDirFor,
+  logPathFor,
+  newLogRunId,
+  writeEvidenceFile,
+} from "./logLine.ts";
 
 const ROOT = resolve(dirname(fileURLToPath(import.meta.url)), "../..");
 const SUITE = "scaffold-static-output";
@@ -16,7 +22,12 @@ const DEFAULT_HOME_PAGE_TEXT = "in preparation";
 // except inside the CLI section at the bottom of the file.
 // ---------------------------------------------------------------------------
 
-export type CrossOriginReference = { tag: "script" | "link" | "img"; attribute: "src" | "href"; url: string; origin: string };
+export type CrossOriginReference = {
+  tag: "script" | "link" | "img";
+  attribute: "src" | "href";
+  url: string;
+  origin: string;
+};
 
 const TAG_ATTRIBUTE: Record<CrossOriginReference["tag"], CrossOriginReference["attribute"]> = {
   script: "src",
@@ -35,7 +46,10 @@ function extractAttribute(tagSource: string, attribute: string): string | undefi
  * Only `<script src>`, `<link href>`, and `<img src>` make a request; a
  * plain `<a href>` is a hyperlink, not a request, and is never scanned.
  */
-export function findCrossOriginReferences(html: string, pageOrigin: string): CrossOriginReference[] {
+export function findCrossOriginReferences(
+  html: string,
+  pageOrigin: string,
+): CrossOriginReference[] {
   const pageOriginValue = new URL(pageOrigin).origin;
   const found: CrossOriginReference[] = [];
   const tagPattern = /<(script|link|img)\b[^>]*>/gi;
@@ -69,7 +83,11 @@ export type FetchedResource = {
 
 export type StaticOutputCheckResult = { id: string; outcome: "pass" | "fail"; message: string };
 
-export function checkExpectedStatus(resource: FetchedResource, id: string, expectedStatus: number): StaticOutputCheckResult {
+export function checkExpectedStatus(
+  resource: FetchedResource,
+  id: string,
+  expectedStatus: number,
+): StaticOutputCheckResult {
   const outcome = resource.status === expectedStatus ? "pass" : "fail";
   return {
     id,
@@ -81,7 +99,11 @@ export function checkExpectedStatus(resource: FetchedResource, id: string, expec
   };
 }
 
-export function checkBodyContains(resource: FetchedResource, id: string, expectedSubstring: string): StaticOutputCheckResult {
+export function checkBodyContains(
+  resource: FetchedResource,
+  id: string,
+  expectedSubstring: string,
+): StaticOutputCheckResult {
   const outcome = resource.body.includes(expectedSubstring) ? "pass" : "fail";
   return {
     id,
@@ -93,7 +115,11 @@ export function checkBodyContains(resource: FetchedResource, id: string, expecte
   };
 }
 
-export function checkNoCrossOriginReferences(resource: FetchedResource, id: string, pageOrigin: string): StaticOutputCheckResult {
+export function checkNoCrossOriginReferences(
+  resource: FetchedResource,
+  id: string,
+  pageOrigin: string,
+): StaticOutputCheckResult {
   const references = findCrossOriginReferences(resource.body, pageOrigin);
   const outcome = references.length === 0 ? "pass" : "fail";
   return {
@@ -134,12 +160,18 @@ type ServerHandle = { stop: () => Promise<void>; log: string[] };
 
 async function startNextServer(port: number): Promise<ServerHandle> {
   const log: string[] = [];
-  const child = spawn("npx", ["next", "start", "-p", String(port)], { cwd: ROOT, stdio: ["ignore", "pipe", "pipe"] });
+  const child = spawn("npx", ["next", "start", "-p", String(port)], {
+    cwd: ROOT,
+    stdio: ["ignore", "pipe", "pipe"],
+  });
   child.stdout?.on("data", (chunk) => log.push(String(chunk)));
   child.stderr?.on("data", (chunk) => log.push(String(chunk)));
 
   const ready = new Promise<void>((resolveReady, reject) => {
-    const timeout = setTimeout(() => reject(new Error(`next start did not become ready within 30s. Log:\n${log.join("")}`)), 30_000);
+    const timeout = setTimeout(
+      () => reject(new Error(`next start did not become ready within 30s. Log:\n${log.join("")}`)),
+      30_000,
+    );
     const onData = (chunk: Buffer) => {
       if (/ready|started server/i.test(String(chunk))) {
         clearTimeout(timeout);
@@ -209,7 +241,11 @@ async function main(): Promise<void> {
       });
       if (check.outcome === "fail") {
         writeEvidenceFile(evidenceDir, `${check.id}-status.txt`, String(home.status));
-        writeEvidenceFile(evidenceDir, `${check.id}-headers.json`, JSON.stringify(home.headers, null, 2));
+        writeEvidenceFile(
+          evidenceDir,
+          `${check.id}-headers.json`,
+          JSON.stringify(home.headers, null, 2),
+        );
         writeEvidenceFile(evidenceDir, `${check.id}-body.txt`, home.body.slice(0, 4096));
       }
     }

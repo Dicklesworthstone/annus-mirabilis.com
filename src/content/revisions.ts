@@ -63,7 +63,11 @@ export function validateDistinctIdentities(identities: Record<string, unknown>):
  * Validates that a versioned record's lineage is strictly increasing without gaps.
  */
 export function validateRecordLineage(record: VersionedRecord): ParseResult<true> {
-  if (typeof record.revision !== "number" || !Number.isInteger(record.revision) || record.revision < 1) {
+  if (
+    typeof record.revision !== "number" ||
+    !Number.isInteger(record.revision) ||
+    record.revision < 1
+  ) {
     return {
       ok: false,
       error: `Record '${record.id}' has invalid revision '${String(record.revision)}': must be a positive integer >= 1`,
