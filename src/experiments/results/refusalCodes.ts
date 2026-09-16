@@ -25,6 +25,7 @@ export function defineRefusalRegistry<const T extends Record<string, RefusalDefi
 }
 
 export const refusalCodeRegistry = defineRefusalRegistry({
+  "circular-radius-from-displacement": { domainKind: "model", message: "A radius inferred from these same displacements with an assumed molecular number cannot independently recover that number.", repair: "Declare a radius from an independent measurement, or inspect the compatible radius–number family." },
   "ftcs-unstable": { domainKind: "numerical", message: "This time step is too large for the explicit diffusion scheme.", repair: "Reduce the time step to the stated limit." },
   "off-replay-grid": { domainKind: "numerical", message: "This interval is not on the recorded time grid.", repair: "Choose a recorded interval, or start a new run with a different grid." },
   "superluminal-observer": { domainKind: "physical", message: "An inertial observer must move more slowly than light in this model.", repair: "Choose a speed with magnitude below the speed of light." },
