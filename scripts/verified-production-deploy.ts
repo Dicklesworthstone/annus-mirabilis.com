@@ -75,8 +75,8 @@ import { CANONICAL_PRODUCTION_PROJECT, PROMOTION_REQUIRED_DOMAINS } from "./depl
 import { newToolRunId } from "./runIds";
 
 /**
- * Placeholder local deployment lock port. Deliberately not the donor's
- * `45_267`: that literal is a forbidden donor identity
+ * Local deployment lock port. Deliberately not the donor's original port
+ * number, which this file's header names as a forbidden donor identity
  * (docs/DONOR_AUDIT.md section 10.4). This value is a real, usable port
  * choice for annus-mirabilis's own exclusive local deployment lock, not a
  * "fill me in" placeholder like the project identity constants.
