@@ -1005,6 +1005,8 @@ pub fn philox_normals(
 
 #### 5.2.4 `diffusion1d_frames`
 
+Implemented in `crates/fs-wasm/src/diffusion1d.rs` (bead `am-fs-export-diffusion1d-cew`). Native API is `Result<Vec<f64>, Refusal>`. The WASM boundary returns `{envelope, values}`; an empty `values` array is only the companion of a named refusal envelope.
+
 ```rust
 pub fn admit_diffusion1d_frames(
     n: usize,
