@@ -1,0 +1,9 @@
+ownerBeadId: am-sr-07-field-equations-xxes
+targets:
+  - kind: caption
+    id: sr-07
+    readings:
+      r0: "Carry Maxwell's equations into the moving frame. They keep the same form, provided the electric and magnetic fields transform together."
+      r1: "Section 6 substitutes the chain-rule operators from the section 3 map, groups terms, and identifies the combinations that play the role of the transformed fields. In paper 3, X, Y, Z are electric components and L, M, N are magnetic components. Einstein's beta is the modern gamma. The algebra is a static worked chain; the residuals are a live host calculation on an admitted plane wave."
+      r2: "Select one of the six Maxwell-Hertz equations and step it. The printed layer is Gaussian, as in the 1905 paper. The modern layer is SI; the conversion is labeled, never silent. Validation uses closed-form derivatives, not finite differences. Speeds at or beyond light speed are refused."
+      r3: "Form invariance of the homogeneous equations does not by itself prove every physical identification of the fields. The later layer says so and stops. L and N here are magnetic components, not the speed of light and not Avogadro's number."

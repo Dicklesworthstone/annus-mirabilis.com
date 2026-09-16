@@ -1,8 +1,7 @@
 /**
- * Field transforms and the magnet-conductor electromotive-force comparison
- * used by SR-02. Generic field play (SR-07, SR-08) is out of this bead's
- * scope; this module is the host-calculation owner until FrankenSim is
- * adopted. Views must not import it.
+ * Field transforms (SR-02, SR-08) and the SR-07 plane-wave Maxwell residual
+ * oracle. Views must not import this module; laboratories read accepted
+ * snapshot quantities only.
  */
 
 import type { DomainKind, ScientificResult } from "../../experiments/results/types.ts";
@@ -666,19 +665,37 @@ function waveNormal(kind: PlaneWaveKind): Vec3 {
   return Object.freeze({ x: 1, y: 0, z: 0 });
 }
 
+function rejectFromNormal(trial: Vec3, n: Vec3): Vec3 | null {
+  const dot = trial.x * n.x + trial.y * n.y + trial.z * n.z;
+  const x = trial.x - dot * n.x;
+  const y = trial.y - dot * n.y;
+  const z = trial.z - dot * n.z;
+  const mag = Math.hypot(x, y, z);
+  if (mag < 1e-12) return null;
+  return Object.freeze({ x: x / mag, y: y / mag, z: z / mag });
+}
+
 function wavePolarization(kind: PlaneWaveKind, pol: Polarization): Vec3 {
   const n = waveNormal(kind);
-  const a =
-    pol === "primary"
-      ? Object.freeze({ x: 0, y: n.x === 0 ? 0 : 1, z: n.x === 0 ? 1 : 0 })
-      : Object.freeze({ x: n.y !== 0 ? 1 : 0, y: 0, z: n.x !== 0 ? 1 : 0 });
-  const ax = a.y * n.z - a.z * n.y;
-  const ay = a.z * n.x - a.x * n.z;
-  const az = a.x * n.y - a.y * n.x;
-  const cross = Object.freeze({ x: ax, y: ay, z: az });
-  const mag = Math.hypot(cross.x, cross.y, cross.z);
-  if (mag === 0) return Object.freeze({ x: 0, y: 1, z: 0 });
-  return Object.freeze({ x: cross.x / mag, y: cross.y / mag, z: cross.z / mag });
+  const preferred: readonly Vec3[] = [
+    Object.freeze({ x: 0, y: 1, z: 0 }),
+    Object.freeze({ x: 0, y: 0, z: 1 }),
+    Object.freeze({ x: 1, y: 0, z: 0 }),
+  ];
+  let e1: Vec3 | null = null;
+  for (const trial of preferred) {
+    e1 = rejectFromNormal(trial, n);
+    if (e1) break;
+  }
+  const primary = e1 ?? Object.freeze({ x: 0, y: 1, z: 0 });
+  const cross = Object.freeze({
+    x: n.y * primary.z - n.z * primary.y,
+    y: n.z * primary.x - n.x * primary.z,
+    z: n.x * primary.y - n.y * primary.x,
+  });
+  const mag = Math.hypot(cross.x, cross.y, cross.z) || 1;
+  const secondary = Object.freeze({ x: cross.x / mag, y: cross.y / mag, z: cross.z / mag });
+  return pol === "primary" ? primary : secondary;
 }
 
 export function seededPlaneWaveEvents(seed = SR07_EVENT_SEED, count = 20): readonly Event4[] {
@@ -765,11 +782,16 @@ function applyPrintedOrFlipped(
   convention: TransformConvention,
 ): { E: Vec3; B: Vec3; gamma: number } {
   const t = transformSI({ E, B, boost: v, c: 1 });
-  if (convention === "printed") return t;
+  if (convention === "printed" || !Number.isFinite(t.gamma)) return t;
+  const γ = t.gamma;
   return {
-    gamma: t.gamma,
-    E: Object.freeze({ x: t.E.x, y: t.E.y, z: -t.E.z }),
-    B: Object.freeze({ x: t.B.x, y: -t.B.y, z: t.B.z }),
+    gamma: γ,
+    E: Object.freeze({
+      x: E.x,
+      y: t.E.y,
+      z: γ * (E.z - v * B.y),
+    }),
+    B: t.B,
   };
 }
 
@@ -810,6 +832,7 @@ export function maxwellResidualsPlaneWave(input: {
   frequencyFactor: number;
   gamma: number;
   passed: boolean;
+  eventSeed: string;
 }> {
   const v = input.beta;
   const g = gamma(v);
@@ -821,6 +844,7 @@ export function maxwellResidualsPlaneWave(input: {
       frequencyFactor: Number.NaN,
       gamma: Number.NaN,
       passed: false,
+      eventSeed: SR07_EVENT_SEED,
     });
   }
   const E0 = input.E0 ?? 1;
@@ -832,10 +856,10 @@ export function maxwellResidualsPlaneWave(input: {
   const residuals = new Float64Array(6);
   let maxResidual = 0;
   const γ = g.value;
-  const amplitudeFactor =
-    input.wave === "plus-x" && input.polarization === "primary" ? γ * (1 - v) : γ;
-  const frequencyFactor =
-    input.wave === "plus-x" ? γ * (1 - Math.sign(n.x) * v) : γ * (1 - n.x * v);
+  const doppler = γ * (1 - n.x * v);
+  const amplitudeFactor = input.wave === "plus-x" || input.wave === "minus-x" ? doppler : γ;
+  const frequencyFactor = doppler;
+  let allPassed = true;
   for (const event of events) {
     const w = planeWaveAt(n, eHat, E0, omega, event);
     const dEdt = applyPrintedOrFlipped(w.dEdt, w.dBdt, v, convention);
@@ -866,29 +890,25 @@ export function maxwellResidualsPlaneWave(input: {
     ];
     const six = [...faraday, ...ampere];
     for (let i = 0; i < 6; i++) {
-      const terms = [
-        Math.abs(curlE[i % 3] ?? 0),
-        Math.abs(bTau.dTau[i % 3 === 0 ? "x" : i % 3 === 1 ? "y" : "z"] ?? 0),
-        Math.abs(curlB[i % 3] ?? 0),
-        Math.abs(eTau.dTau[i % 3 === 0 ? "x" : i % 3 === 1 ? "y" : "z"] ?? 0),
-        E0 * omega,
-      ];
+      const axis = i % 3 === 0 ? "x" : i % 3 === 1 ? "y" : "z";
+      const terms =
+        i < 3
+          ? [curlE[i] ?? 0, bTau.dTau[axis], E0 * omega]
+          : [curlB[i % 3] ?? 0, eTau.dTau[axis], E0 * omega];
       const tol = SR07_RESIDUAL_RELATIVE * maxAbs(terms) + SR07_RESIDUAL_FLOOR * E0 * omega;
       const r = Math.abs(six[i] ?? 0);
-      const currentRes = residuals[i] ?? 0;
-      if (r > currentRes) residuals[i] = r;
+      if (r > (residuals[i] ?? 0)) residuals[i] = r;
       if (r > maxResidual) maxResidual = r;
-      if (r > tol && r > maxResidual) maxResidual = r;
+      if (r > tol) allPassed = false;
     }
   }
-  const passed =
-    maxResidual <= SR07_RESIDUAL_RELATIVE * E0 * omega + SR07_RESIDUAL_FLOOR * E0 * omega;
   return Object.freeze({
     maxResidual,
     residuals,
     amplitudeFactor,
     frequencyFactor,
     gamma: γ,
-    passed,
+    passed: allPassed,
+    eventSeed: SR07_EVENT_SEED,
   });
 }

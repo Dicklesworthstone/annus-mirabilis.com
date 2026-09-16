@@ -1,0 +1,349 @@
+id: sr-07
+title: "SR-07: Transform the field equations"
+explanatoryQuestion: "How do the Maxwell-Hertz equations keep their form under the transformation, and what must the electric and magnetic fields do?"
+sourceRefs:
+  - paper: special-relativity
+    id: s6
+argumentIds:
+  - arg-sr-field-equations
+schemaVersion: 1
+parameters:
+  - id: equationId
+    label: "Maxwell-Hertz equation"
+    accessibleName: "Which of the six Maxwell-Hertz equations to step"
+    accessibleDescription: "One of the six homogeneous Maxwell-Hertz equations as printed in section 6. L and N are magnetic-field components."
+    quantityId: measurementKind
+    displayUnit: ""
+    modelDomain:
+      enumerated:
+        - ampere-x
+        - ampere-y
+        - ampere-z
+        - faraday-x
+        - faraday-y
+        - faraday-z
+      reason: "The six printed Maxwell-Hertz equations of section 6"
+    visualRange:
+      min: 0
+      max: 5
+    default: "ampere-x"
+    mapping:
+      kind: linear
+    role: independent
+    commandClass: presentation-change
+  - id: stepIndex
+    label: "Derivation step"
+    accessibleName: "Index of the current derivation step"
+    accessibleDescription: "Integer from 0 (chain rule) through 5 (caveat)."
+    quantityId: measurementKind
+    displayUnit: "1"
+    modelDomain:
+      min: 0
+      max: 5
+      minInclusive: true
+      maxInclusive: true
+      reason: "Six authored steps from chain rule to the caveat"
+    visualRange:
+      min: 0
+      max: 5
+    default: 0
+    mapping:
+      kind: linear
+    role: independent
+    commandClass: presentation-change
+  - id: unitLayer
+    label: "Unit layer"
+    accessibleName: "Printed Gaussian or modern SI"
+    accessibleDescription: "Paper 3 is Gaussian. The site also shows a labeled SI conversion. The conversion is never silent."
+    quantityId: measurementKind
+    displayUnit: ""
+    modelDomain:
+      enumerated:
+        - printed-gaussian
+        - modern-si
+      reason: "Printed Gaussian as in Annalen 1905, or labeled modern SI"
+    visualRange:
+      min: 0
+      max: 1
+    default: "printed-gaussian"
+    mapping:
+      kind: linear
+    role: independent
+    commandClass: presentation-change
+  - id: boostBeta
+    label: "Validation boost v/c"
+    accessibleName: "Signed speed of the moving frame over the speed of light"
+    accessibleDescription: "Boost of k relative to K along x, as a fraction of c. The validation wave is defined in K; the boost re-describes it. No inertial observer at or beyond c."
+    quantityId: frameSpeed
+    displayUnit: "1"
+    modelDomain:
+      min: -0.95
+      max: 0.95
+      minInclusive: true
+      maxInclusive: true
+      reason: "Teaching validation stays inside |v/c| <= 0.95; |v| >= c is refused"
+    visualRange:
+      min: -0.95
+      max: 0.95
+    default: 0.6
+    mapping:
+      kind: linear
+    role: independent
+    commandClass: observer-change
+  - id: wave
+    label: "Validation wave"
+    accessibleName: "Admitted analytic plane-wave direction"
+    accessibleDescription: "One of plus-x, minus-x, plus-y, or oblique. Other field configurations are not modeled."
+    quantityId: measurementKind
+    displayUnit: ""
+    modelDomain:
+      enumerated:
+        - plus-x
+        - minus-x
+        - plus-y
+        - oblique
+      reason: "Admitted analytic validation waves"
+    visualRange:
+      min: 0
+      max: 3
+    default: "plus-x"
+    mapping:
+      kind: linear
+    role: independent
+    commandClass: setup-change
+  - id: polarization
+    label: "Polarization"
+    accessibleName: "Primary or secondary polarization of the validation wave"
+    accessibleDescription: "Primary for a plus-x wave is electric along y. Secondary is electric along z. L, M, N remain magnetic."
+    quantityId: measurementKind
+    displayUnit: ""
+    modelDomain:
+      enumerated:
+        - primary
+        - secondary
+      reason: "Two orthogonal polarizations for each admitted wave"
+    visualRange:
+      min: 0
+      max: 1
+    default: "primary"
+    mapping:
+      kind: linear
+    role: independent
+    commandClass: setup-change
+outputs:
+  - id: residualMax
+    quantityId: residualMax
+    allowedStatuses:
+      - value
+      - outside-domain
+    primary: true
+  - id: residualFaradayX
+    quantityId: residualFaradayX
+    allowedStatuses:
+      - value
+      - outside-domain
+  - id: residualFaradayY
+    quantityId: residualFaradayY
+    allowedStatuses:
+      - value
+      - outside-domain
+  - id: residualFaradayZ
+    quantityId: residualFaradayZ
+    allowedStatuses:
+      - value
+      - outside-domain
+  - id: residualAmpereX
+    quantityId: residualAmpereX
+    allowedStatuses:
+      - value
+      - outside-domain
+  - id: residualAmpereY
+    quantityId: residualAmpereY
+    allowedStatuses:
+      - value
+      - outside-domain
+  - id: residualAmpereZ
+    quantityId: residualAmpereZ
+    allowedStatuses:
+      - value
+      - outside-domain
+  - id: amplitudeFactor
+    quantityId: amplitudeFactor
+    allowedStatuses:
+      - value
+      - outside-domain
+    primary: true
+  - id: frequencyFactor
+    quantityId: frequencyFactor
+    allowedStatuses:
+      - value
+      - outside-domain
+  - id: lorentzFactor
+    quantityId: lorentzFactor
+    allowedStatuses:
+      - value
+      - outside-domain
+  - id: formInvariant
+    quantityId: formInvariant
+    allowedStatuses:
+      - value
+      - outside-domain
+    primary: true
+  - id: stepIndexOut
+    quantityId: stepIndexOut
+    allowedStatuses:
+      - value
+      - outside-domain
+assumptions:
+  - "Homogeneous Maxwell-Hertz equations in empty space; no sources or currents."
+  - "The algebra is the printed Gaussian chain of section 6. Residuals are a host-calculation oracle on an admitted plane wave, not the argument."
+  - "Paper 3 is Gaussian. The modern SI layer is a labeled unit-system conversion, never a silent rewrite."
+  - "In paper 3, L and N are magnetic-field components. Einstein's beta is the modern gamma. tau is the moving-frame coordinate time."
+admittedDomain: "Inertial observers with |v/c| <= 0.95 for validation; |v| >= c is outside the domain. Validation waves are the four admitted analytic plane waves with two polarizations each."
+notModeled:
+  - "sources and currents (SR-12)"
+  - "media"
+  - "boundary conditions"
+  - "radiation reaction"
+  - "field configurations other than the admitted analytic validation waves"
+owner:
+  kind: reference-evaluator
+  kernelFunctions:
+    - displayRole: reference-implementation
+      language: ts
+      module: "src/physics/reference/fields.ts"
+      exportName: "maxwellResidualsPlaneWave"
+    - displayRole: reference-implementation
+      language: ts
+      module: "src/physics/reference/fields.ts"
+      exportName: "transformSI"
+    - displayRole: reference-implementation
+      language: ts
+      module: "src/physics/reference/fields.ts"
+      exportName: "transformGaussianHistorical"
+  identifierBindings:
+    - kernelFunction: maxwellResidualsPlaneWave
+      identifier: beta
+      quantityId: frameSpeed
+    - kernelFunction: maxwellResidualsPlaneWave
+      identifier: wave
+      quantityId: measurementKind
+    - kernelFunction: maxwellResidualsPlaneWave
+      identifier: polarization
+      quantityId: measurementKind
+    - kernelFunction: transformSI
+      identifier: E
+      quantityId: electricFieldStationary
+    - kernelFunction: transformSI
+      identifier: B
+      quantityId: magneticFieldStationary
+    - kernelFunction: transformSI
+      identifier: boost
+      quantityId: frameSpeed
+  traceScenarioId: sr-07-plane-wave-0.6c
+  traceRows:
+    - label: "Amplitude and frequency factors at 0.6c for the plus-x primary wave"
+      expression: "gamma (1 - beta) = 1/2"
+      value: 0.5
+      unit: "1"
+      quantityId: amplitudeFactor
+views:
+  - id: equation-stepper
+    kind: text
+    consumes:
+      - stepIndexOut
+      - formInvariant
+  - id: residual-table
+    kind: table
+    consumes:
+      - residualMax
+      - residualFaradayX
+      - residualFaradayY
+      - residualFaradayZ
+      - residualAmpereX
+      - residualAmpereY
+      - residualAmpereZ
+      - amplitudeFactor
+      - frequencyFactor
+      - lorentzFactor
+      - formInvariant
+actions:
+  - actionId: sr-07-step-equation
+    family: derivations
+    question: "How do the Maxwell-Hertz equations keep their form, and what combinations play the role of the transformed fields?"
+    inputs:
+      - equationId
+      - stepIndex
+      - unitLayer
+    commandClass: presentation-change
+    acceptedResult:
+      outputs:
+        - stepIndexOut
+        - formInvariant
+        - residualMax
+      allowedStatuses:
+        - value
+        - outside-domain
+    visualAffordance: "The selected equation and the current derivation step update from the accepted snapshot"
+    equivalentAffordance: "Choose an equation from the list, advance or go back a named step, and read whether the transformed equations still have Maxwell-Hertz form"
+    announcement: "Derivation step updated from the accepted snapshot"
+acceptanceCases:
+  - sr-07-plane-wave-0.6c
+  - sr-07-oblique-wave-0.6c
+  - sr-07-equation-1-grouping
+defaultScenario: sr-07-plane-wave-0.6c
+tapeModel:
+  modelId: sr-07
+  modelVersion: 1
+teachingTapes: []
+presets:
+  - presetId: sr-07-plane-wave-0.6c
+    label: "Plane wave along +x at 0.6c"
+    parameterValues:
+      boostBeta: 0.6
+      wave: plus-x
+      polarization: primary
+  - presetId: sr-07-oblique-wave-0.6c
+    label: "Oblique wave at 0.6c"
+    parameterValues:
+      boostBeta: 0.6
+      wave: oblique
+      polarization: primary
+  - presetId: sr-07-equation-1-grouping
+    label: "First equation, grouping step"
+    parameterValues:
+      equationId: ampere-x
+      stepIndex: 3
+probes:
+  - form-invariance
+  - unit-layer
+  - residual-oracle
+weavePredicates:
+  - sr07-form-invariance
+  - sr07-printed-transforms
+historicalOverlays: []
+realRate:
+  natural: false
+embeddable: true
+predictMode:
+  enabled: true
+  prompts:
+    - promptId: sr-07-predict-n-combination
+      controlId: stepIndex
+      question: "Which field combination now appears where N stood?"
+      candidates:
+        - id: N
+          label: "N"
+          description: "The magnetic z component is unchanged."
+          separatingAssumption: "Magnetic components are frame-independent scalars."
+          relation: "N' = N"
+        - id: beta-N-minus
+          label: "beta (N minus (v/V) Y)"
+          description: "The grouping that section 6 identifies as the transformed magnetic z component."
+          separatingAssumption: "The chain-rule substitution forces electric and magnetic components to mix."
+          relation: "N' = beta (N - (v/V) Y)"
+        - id: N-minus-vY
+          label: "N minus v Y"
+          description: "A Galilean mix without Einstein's beta (modern gamma)."
+          separatingAssumption: "The time and x derivatives do not mix through the section 3 map."
+          relation: "N' = N - v Y"

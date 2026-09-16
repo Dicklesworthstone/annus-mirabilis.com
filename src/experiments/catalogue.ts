@@ -75,7 +75,7 @@ export const CATALOGUE_STATUS: Readonly<Record<CatalogueId, CatalogueStatus>> = 
   "sr-04": "registered",
   "sr-05": "in-preparation",
   "sr-06": "registered",
-  "sr-07": "in-preparation",
+  "sr-07": "registered",
   "sr-08": "registered",
   "sr-09": "in-preparation",
   "sr-10": "in-preparation",
@@ -129,6 +129,8 @@ export const CATALOGUE_QUESTIONS: Readonly<Partial<Record<CatalogueId, string>>>
     "How does relative motion affect the synchronization of clocks, the coordinate measurement of moving rods, and the invariant causal order of events?",
   "sr-06":
     "Why doesn't adding speeds preserve light speed, and what happens when the motions are not along one line?",
+  "sr-07":
+    "How do the Maxwell-Hertz equations keep their form under the transformation, and what must the electric and magnetic fields do?",
   "sr-04":
     "What map between two inertial frames keeps both postulates, and what does each requirement decide?",
   "me-01":

@@ -1,0 +1,12 @@
+.sr07-equation {
+  font-size: 1.05rem;
+  overflow-x: auto;
+  max-width: 100%;
+}
+.sr07-step {
+  max-width: 40rem;
+}
+.sr07-components {
+  overflow-x: auto;
+  max-width: 100%;
+}

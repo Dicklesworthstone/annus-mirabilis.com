@@ -1,0 +1,409 @@
+"use client";
+
+import { type FormEvent, useEffect, useId, useState, useSyncExternalStore } from "react";
+import {
+  SR07_CAPTION,
+  SR07_COMPONENTS,
+  SR07_EQUATIONS,
+  SR07_MODEL,
+  SR07_NOT_MODELED,
+  SR07_PRESETS,
+  SR07_STEPS,
+  type Sr07EquationId,
+  type Sr07Parameters,
+  type Sr07Polarization,
+  type Sr07UnitLayer,
+  type Sr07Wave,
+} from "../../../experiments/sr07/definition.ts";
+import { decodeSr07Settings, encodeSr07Settings } from "../../../experiments/sr07/permalink.ts";
+import { createSr07Session, type PreparedSr07Example } from "../../../experiments/sr07/session.ts";
+import { identity, result } from "../presentation.ts";
+
+function Readout({
+  snapshot,
+  id,
+  digits = 6,
+}: {
+  snapshot: NonNullable<
+    ReturnType<ReturnType<typeof createSr07Session>["getSnapshot"]>["accepted"]
+  >;
+  id: string;
+  digits?: number;
+}) {
+  const r = result(snapshot, id);
+  if (r.status === "value" && typeof r.value === "number")
+    return <span data-output={id}>{r.value.toExponential(digits)}</span>;
+  const text = "reason" in r ? r.reason : "No value.";
+  return (
+    <span data-output={id} data-result-status={r.status}>
+      {text}
+    </span>
+  );
+}
+
+const EQUATION_IDS = Object.keys(SR07_EQUATIONS) as Sr07EquationId[];
+const WAVES: readonly Sr07Wave[] = ["plus-x", "minus-x", "plus-y", "oblique"];
+const POLS: readonly Sr07Polarization[] = ["primary", "secondary"];
+
+export function FieldEquationsLab({
+  example,
+  title = "The field equations keep their form",
+}: {
+  example: PreparedSr07Example;
+  title?: string;
+}) {
+  const id = useId();
+  const [session] = useState(() => createSr07Session(`sr07-${id}`, example.parameters));
+  const view = useSyncExternalStore(
+    session.subscribe,
+    session.getSnapshot,
+    session.getServerSnapshot,
+  );
+  const snapshot = view.accepted;
+  const p = (snapshot?.parameters ?? example.parameters) as Sr07Parameters;
+  const [error, setError] = useState("");
+  const [predict, setPredict] = useState<string | null>(null);
+  const [ready, setReady] = useState(false);
+  const [betaDraft, setBetaDraft] = useState(String(p.boostBeta));
+
+  useEffect(() => {
+    setReady(true);
+    const shared = decodeSr07Settings(window.location.search);
+    if (shared.kind !== "settings") return;
+    const r = session.apply(shared.parameters);
+    if (r.kind !== "accepted") {
+      setError(String(r.refusal.details?.requirements ?? r.refusal.message));
+      return;
+    }
+    setError("");
+  }, [session]);
+
+  useEffect(() => {
+    setBetaDraft(String(p.boostBeta));
+  }, [p.boostBeta]);
+
+  function apply(next: Sr07Parameters) {
+    const r = session.apply(next);
+    if (r.kind !== "accepted") {
+      setError(String(r.refusal.details?.requirements ?? r.refusal.message));
+      return;
+    }
+    setError("");
+  }
+
+  function submit(event: FormEvent<HTMLFormElement>) {
+    event.preventDefault();
+    const boostBeta = Number(betaDraft);
+    apply({ ...p, boostBeta });
+  }
+
+  if (!snapshot) throw new Error("SR-07 requires an accepted snapshot.");
+
+  const eq = SR07_EQUATIONS[p.equationId];
+  const displayed = p.unitLayer === "printed-gaussian" ? eq.printed : eq.si;
+  const unitLabel =
+    p.unitLayer === "printed-gaussian"
+      ? "Printed Gaussian (Annalen 1905). X, Y, Z electric; L, M, N magnetic."
+      : "Modern SI. Conversion from Gaussian is labeled; it is not a silent rewrite.";
+  const formOk = result(snapshot, "formInvariant");
+  const invariant =
+    formOk.status === "value" && typeof formOk.value === "number" && formOk.value === 1;
+
+  return (
+    <section
+      className="laboratory-shell"
+      aria-label={title}
+      data-instrument-id="sr-07"
+      data-execution-label="host"
+      data-source-digest={example.sourceDigest}
+      data-unit-layer={p.unitLayer}
+      {...identity(snapshot)}
+    >
+      <header className="lab-heading">
+        <p className="eyebrow">{SR07_MODEL.label}</p>
+        <h2>{title}</h2>
+      </header>
+      <p data-detail="0">{SR07_CAPTION.r0}</p>
+      <p data-detail="1">{SR07_CAPTION.r1}</p>
+      <p data-detail="2" hidden>
+        {SR07_CAPTION.r2}
+      </p>
+      <p data-detail="3" hidden>
+        {SR07_CAPTION.r3}
+      </p>
+      <noscript>
+        <p className="notice">
+          JavaScript is off. The first Maxwell-Hertz equation in printed Gaussian form is (1/V)
+          ∂X/∂t = ∂N/∂y − ∂M/∂z. After the section 3 chain rule and grouping, the same form holds in
+          the moving frame for the transformed fields. N is a magnetic component. Stepping and live
+          residuals require JavaScript.
+        </p>
+      </noscript>
+      <p className="notice" data-unit-layer={p.unitLayer} data-unit-system={p.unitLayer}>
+        Unit layer: {unitLabel}
+      </p>
+      <form onSubmit={submit}>
+        <fieldset>
+          <legend>Equation and step</legend>
+          <label htmlFor={`${id}-eq`}>
+            Maxwell-Hertz equation
+            <select
+              id={`${id}-eq`}
+              value={p.equationId}
+              onChange={(e) =>
+                apply({ ...p, equationId: e.target.value as Sr07EquationId, stepIndex: 0 })
+              }
+            >
+              {EQUATION_IDS.map((eqId) => (
+                <option key={eqId} value={eqId}>
+                  {eqId}: {SR07_EQUATIONS[eqId].printed}
+                </option>
+              ))}
+            </select>
+          </label>
+          <p
+            className="sr07-equation"
+            data-equation-id={p.equationId}
+            data-unit-layer={p.unitLayer}
+          >
+            {displayed}
+          </p>
+          <p className="fine">{eq.spoken}</p>
+          <p>
+            Step {p.stepIndex + 1} of {SR07_STEPS.length}
+          </p>
+          <p className="sr07-step">{SR07_STEPS[p.stepIndex]}</p>
+          <button
+            type="button"
+            disabled={p.stepIndex === 0}
+            onClick={() => apply({ ...p, stepIndex: p.stepIndex - 1 })}
+          >
+            Previous step
+          </button>
+          <button
+            type="button"
+            disabled={p.stepIndex >= SR07_STEPS.length - 1}
+            onClick={() => apply({ ...p, stepIndex: p.stepIndex + 1 })}
+          >
+            Next step
+          </button>
+        </fieldset>
+        <fieldset>
+          <legend>Unit layer and validation wave</legend>
+          <label>
+            <input
+              type="radio"
+              name="units"
+              checked={p.unitLayer === "printed-gaussian"}
+              onChange={() => apply({ ...p, unitLayer: "printed-gaussian" as Sr07UnitLayer })}
+            />
+            Printed Gaussian
+          </label>
+          <label>
+            <input
+              type="radio"
+              name="units"
+              checked={p.unitLayer === "modern-si"}
+              onChange={() => apply({ ...p, unitLayer: "modern-si" as Sr07UnitLayer })}
+            />
+            Modern SI (labeled conversion)
+          </label>
+          <label htmlFor={`${id}-wave`}>
+            Validation wave
+            <select
+              id={`${id}-wave`}
+              value={p.wave}
+              onChange={(e) => apply({ ...p, wave: e.target.value as Sr07Wave })}
+            >
+              {WAVES.map((w) => (
+                <option key={w} value={w}>
+                  {w}
+                </option>
+              ))}
+            </select>
+          </label>
+          <label htmlFor={`${id}-pol`}>
+            Polarization
+            <select
+              id={`${id}-pol`}
+              value={p.polarization}
+              onChange={(e) => apply({ ...p, polarization: e.target.value as Sr07Polarization })}
+            >
+              {POLS.map((pol) => (
+                <option key={pol} value={pol}>
+                  {pol}
+                </option>
+              ))}
+            </select>
+          </label>
+          <label htmlFor={`${id}-beta`}>
+            Validation boost v/c
+            <input
+              id={`${id}-beta`}
+              name="boostBeta"
+              type="number"
+              step="0.05"
+              min="-0.95"
+              max="0.95"
+              value={betaDraft}
+              onChange={(e) => setBetaDraft(e.target.value)}
+            />
+          </label>
+          <button type="submit">Apply boost</button>
+        </fieldset>
+      </form>
+      {p.equationId === "ampere-x" && p.stepIndex === 2 && predict === null ? (
+        <form
+          onSubmit={(e) => {
+            e.preventDefault();
+            const chosen = new FormData(e.currentTarget).get("candidate");
+            if (typeof chosen === "string") setPredict(chosen);
+          }}
+        >
+          <p>Which field combination now appears where N stood?</p>
+          <label>
+            <input type="radio" name="candidate" value="N" /> N
+          </label>
+          <label>
+            <input type="radio" name="candidate" value="beta-N-minus" /> β(N − (v/V) Y)
+          </label>
+          <label>
+            <input type="radio" name="candidate" value="N-minus-vY" /> N − vY
+          </label>
+          <button type="submit" disabled={!ready}>
+            Record this prediction
+          </button>
+        </form>
+      ) : null}
+      {predict ? (
+        <p
+          className="notice"
+          data-prompt-id="sr-07-predict-n-combination"
+          data-candidate-id={predict}
+        >
+          Prediction recorded as {predict}. The grouping step identifies β(N − (v/V) Y). N is
+          magnetic.
+        </p>
+      ) : null}
+      {error ? <p className="notice error">{error}</p> : null}
+      <table className="inference-summary sr07-components">
+        <caption>Printed symbols in paper 3, section 6</caption>
+        <thead>
+          <tr>
+            <th scope="col">Printed</th>
+            <th scope="col">Role in this paper</th>
+            <th scope="col">Modern SI (labeled conversion)</th>
+          </tr>
+        </thead>
+        <tbody>
+          {SR07_COMPONENTS.map((row) => (
+            <tr key={row.printed}>
+              <th scope="row">{row.printed}</th>
+              <td>{row.role}</td>
+              <td>{row.si}</td>
+            </tr>
+          ))}
+        </tbody>
+      </table>
+      <p className="fine">
+        K is the stationary system. τ is the moving-frame time, not the modern proper time.
+        Einstein&apos;s β is the modern γ.
+      </p>
+      <table className="inference-summary">
+        <caption>
+          Plane-wave Maxwell residuals in the moving frame (analytic derivatives; host calculation)
+        </caption>
+        <tbody>
+          <tr>
+            <th scope="row">Form invariant?</th>
+            <td data-form-invariant={String(invariant)}>{invariant ? "yes" : "no"}</td>
+          </tr>
+          <tr>
+            <th scope="row">Max residual</th>
+            <td>
+              <Readout snapshot={snapshot} id="residualMax" />
+            </td>
+          </tr>
+          <tr>
+            <th scope="row">Faraday x, y, z</th>
+            <td>
+              <Readout snapshot={snapshot} id="residualFaradayX" />
+              {"; "}
+              <Readout snapshot={snapshot} id="residualFaradayY" />
+              {"; "}
+              <Readout snapshot={snapshot} id="residualFaradayZ" />
+            </td>
+          </tr>
+          <tr>
+            <th scope="row">Ampere-Maxwell x, y, z</th>
+            <td>
+              <Readout snapshot={snapshot} id="residualAmpereX" />
+              {"; "}
+              <Readout snapshot={snapshot} id="residualAmpereY" />
+              {"; "}
+              <Readout snapshot={snapshot} id="residualAmpereZ" />
+            </td>
+          </tr>
+          <tr>
+            <th scope="row">Amplitude factor γ(1 − β) for a +x wave</th>
+            <td>
+              <Readout snapshot={snapshot} id="amplitudeFactor" />
+            </td>
+          </tr>
+          <tr>
+            <th scope="row">Frequency factor</th>
+            <td>
+              <Readout snapshot={snapshot} id="frequencyFactor" />
+            </td>
+          </tr>
+        </tbody>
+      </table>
+      <p className="fine">
+        Residuals are an oracle on an admitted analytic wave. They are not the section 6 argument.
+        The algebra above is a static worked example.
+      </p>
+      <details>
+        <summary>Show the validation code</summary>
+        <p>
+          Residuals come from <code>maxwellResidualsPlaneWave</code> and <code>transformSI</code> in
+          the host evaluator <code>src/physics/reference/fields.ts</code>. The derivation steps are
+          an authored static chain, not that function.
+        </p>
+      </details>
+      <section className="action-contract">
+        <h3>Same scientific action without the display equation</h3>
+        <p>
+          Choose an equation from the list, advance or go back a named step, and read the residual
+          table. Ask whether the transformed equations still have the Maxwell-Hertz form.
+        </p>
+      </section>
+      <p className="not-modeled">Not modeled: {SR07_NOT_MODELED.join("; ")}.</p>
+      <div>
+        {SR07_PRESETS.map((preset) => (
+          <button
+            key={preset.presetId}
+            type="button"
+            className="secondary"
+            onClick={() => apply({ ...p, ...preset.parameterValues })}
+          >
+            {preset.label}
+          </button>
+        ))}
+        <button
+          type="button"
+          className="secondary"
+          onClick={() => {
+            if (typeof window !== "undefined")
+              window.history.replaceState(null, "", encodeSr07Settings(p));
+          }}
+        >
+          Copy these settings into the address
+        </button>
+      </div>
+    </section>
+  );
+}
+
+export function FieldEquationsComparison({ example }: { example: PreparedSr07Example }) {
+  return <FieldEquationsLab example={example} />;
+}
