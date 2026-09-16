@@ -33,11 +33,12 @@ export default function Home() {
           <p>
             The tracer ensemble records reproducible synthetic paths; the random-step laboratory
             shows how different step laws approach diffusion; the spreading laboratory explores
-            interval probabilities and the diffusion equation. Enter your own conditions, compare
-            observation times, and test a numerical scheme against its analytic model.
+            interval probabilities and the diffusion equation. The inference laboratory turns the
+            question around: estimate a hidden molecular number, identify the missing inputs, and
+            test uncertainty across hypothetical repetitions.
           </p>
           <p>
-            The new reading path connects these instruments to six explanatory passages and twelve
+            The reading path connects these instruments to six explanatory passages and thirteen
             foundation lessons. Open a missing step, change the level of detail, and return without
             restarting the embedded trial.
           </p>
@@ -51,6 +52,9 @@ export default function Home() {
           <a href="/lab/bm-01/">Open the tracer ensemble →</a>
           <p>
             <a href="/lab/bm-05/">Build diffusion from independent steps →</a>
+          </p>
+          <p>
+            <a href="/lab/bm-07/">Infer a hidden molecular number—and test the uncertainty →</a>
           </p>
           <p>
             <a href="/lab/bm-06/">Open the spreading laboratory →</a>
