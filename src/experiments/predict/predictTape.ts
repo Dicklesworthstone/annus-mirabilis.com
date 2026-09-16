@@ -36,5 +36,5 @@ export function buildPredictionTapeEvent(
  * is already `revealed` with that prediction attached.
  */
 export function restorePromptFromTapeEvent(event: TapePredictionEvent): PredictPromptRecord {
-  return { promptId: event.promptId, state: "revealed", choice: event.payload };
+  return { promptId: event.promptId, state: "revealed", choice: event.payload, amendment: null };
 }

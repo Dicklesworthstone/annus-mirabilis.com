@@ -1,0 +1,37 @@
+tapeVersion: 2
+tapeId: field-frame-change
+experimentId: sr-08
+mode: "sr-08:default"
+title: field frame change
+description: Teaching tape demonstrating the transformation of electric and magnetic fields under a 0.6c boost.
+isTeachingSequence: true
+modelIdentity:
+  modelId: field-frame-change-host
+  modelVersion: "1"
+  artifactDigest: "host:sha256:sr08-evaluateSr08"
+constantSetId: modern-si-2019
+seed: "0"
+streamVersion: 1
+allocationId: sr-08.none.v1
+initialConditions:
+  boost: 179875474.8
+  testCharge: 1.602176634e-19
+events:
+  - kind: control
+    actionIndex: 1
+    commandClass: observer-change
+    commandId: boost-0.6c
+    parameterId: boost
+    value: 179875474.8
+checkpoints:
+  - actionIndex: 1
+    stepIndex: 0
+    simulatedTime: 0
+    digest: "host:sha256:sr08-evaluateSr08"
+    digestKind: host
+    checkpointVersion: 1
+    streamSemanticsVersion: 1
+    seed: "0"
+    streamPositions: []
+    label: field-transformation-0.6c
+    teachingNote: At 0.6c a pure Ey=1 V/m field transforms to E'y=1.25 V/m and B'z=-2.5017e-9 T, preserving invariants.

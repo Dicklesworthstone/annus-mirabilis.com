@@ -76,7 +76,7 @@ export const CATALOGUE_STATUS: Readonly<Record<CatalogueId, CatalogueStatus>> = 
   "sr-05": "in-preparation",
   "sr-06": "registered",
   "sr-07": "in-preparation",
-  "sr-08": "in-preparation",
+  "sr-08": "registered",
   "sr-09": "in-preparation",
   "sr-10": "in-preparation",
   "sr-11": "in-preparation",
@@ -139,6 +139,8 @@ export const CATALOGUE_QUESTIONS: Readonly<Partial<Record<CatalogueId, string>>>
     "Why does moving the magnet instead of the conductor create an explanatory asymmetry, and how does the transformation remove it?",
   "sr-01":
     "How can distant clocks acquire an operational common time, and do moving clocks share it?",
+  "sr-08":
+    "How do electric and magnetic descriptions change together under a boost, and what does a test charge experience in each frame?",
 });
 
 /** Runtime guard for an id read from a URL, permalink, or reader link: never assume the string is valid. */

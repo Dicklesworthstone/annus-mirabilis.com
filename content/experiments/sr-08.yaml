@@ -1,0 +1,262 @@
+id: sr-08
+title: "SR-08: electric and magnetic frame change"
+explanatoryQuestion: "How do electric and magnetic descriptions change together under a boost, and what does a test charge experience in each frame?"
+sourceRefs:
+  - paper: special-relativity
+    id: s6
+argumentIds:
+  - arg-sr-field-transform
+schemaVersion: 1
+parameters:
+  - id: boost
+    label: "Observer boost speed"
+    accessibleName: "Observer boost speed along the x-axis"
+    accessibleDescription: "Speed of the moving coordinate frame k relative to K along x, in metres per second."
+    quantityId: frameSpeed
+    displayUnit: "m/s"
+    modelDomain:
+      min: -284802835.1
+      max: 284802835.1
+      minInclusive: true
+      maxInclusive: true
+      reason: "No inertial observer at |v| >= c; teaching range stays inside 0.95c."
+    visualRange:
+      min: 0
+      max: 284802835.1
+    default: 179875474.8
+    mapping:
+      kind: linear
+    role: independent
+    commandClass: observer-change
+  - id: testCharge
+    label: "Test charge"
+    accessibleName: "Magnitude of the test point charge"
+    accessibleDescription: "Electric charge of the test particle in Coulombs."
+    quantityId: electronCharge
+    displayUnit: "C"
+    modelDomain:
+      min: -1.0e-6
+      max: 1.0e-6
+      minInclusive: true
+      maxInclusive: true
+      reason: "Finite test charge without back-reaction."
+    visualRange:
+      min: -1.602176634e-19
+      max: 1.602176634e-19
+    default: 1.602176634e-19
+    mapping:
+      kind: linear
+    role: independent
+    commandClass: setup-change
+outputs:
+  - id: electricFieldStationary
+    quantityId: electricFieldStationary
+    allowedStatuses:
+      - value
+      - outside-domain
+    primary: true
+  - id: electricFieldMoving
+    quantityId: electricFieldMoving
+    allowedStatuses:
+      - value
+      - outside-domain
+    primary: true
+  - id: magneticFieldStationary
+    quantityId: magneticFieldStationary
+    allowedStatuses:
+      - value
+      - outside-domain
+    primary: true
+  - id: magneticFieldMoving
+    quantityId: magneticFieldMoving
+    allowedStatuses:
+      - value
+      - outside-domain
+    primary: true
+  - id: fieldInvariantEDotB
+    quantityId: fieldInvariantEDotB
+    allowedStatuses:
+      - value
+      - outside-domain
+    primary: false
+  - id: fieldInvariantE2MinusC2B2
+    quantityId: fieldInvariantE2MinusC2B2
+    allowedStatuses:
+      - value
+      - outside-domain
+    primary: false
+  - id: lorentzFactor
+    quantityId: lorentzFactor
+    allowedStatuses:
+      - value
+      - outside-domain
+    primary: false
+  - id: chargeVelocityStationary
+    quantityId: chargeVelocityStationary
+    allowedStatuses:
+      - value
+      - outside-domain
+    primary: false
+  - id: chargeVelocityMoving
+    quantityId: chargeVelocityMoving
+    allowedStatuses:
+      - value
+      - outside-domain
+    primary: false
+  - id: transverseForceLaboratory
+    quantityId: transverseForceLaboratory
+    allowedStatuses:
+      - value
+      - outside-domain
+    primary: true
+  - id: transverseForceComoving
+    quantityId: transverseForceComoving
+    allowedStatuses:
+      - value
+      - outside-domain
+    primary: true
+assumptions:
+  - "Uniform prescribed fields in the stationary frame."
+  - "Point test charge without radiation reaction or self-fields."
+  - "Pointwise field transformation at a single event."
+  - "Inertial observers with relative speed |v| < c along the x-axis."
+admittedDomain: "Inertial frames with |v| < c and test charges with speed |u| < c."
+notModeled:
+  - "field sources and currents"
+  - "radiation and self-fields"
+  - "radiation reaction"
+  - "back-reaction on the field"
+  - "media and polarization"
+  - "nonuniform fields"
+  - "accelerated observers"
+owner:
+  kind: reference-evaluator
+  kernelFunctions:
+    - displayRole: reference-implementation
+      language: ts
+      module: "src/physics/reference/fields.ts"
+      exportName: "evaluateSr08"
+      independentReferences:
+        - experimentId: sr-08
+          quantityId: electricFieldMoving
+  identifierBindings:
+    - kernelFunction: evaluateSr08
+      identifier: boost
+      quantityId: frameSpeed
+    - kernelFunction: evaluateSr08
+      identifier: Eprime
+      quantityId: electricFieldMoving
+    - kernelFunction: evaluateSr08
+      identifier: Bprime
+      quantityId: magneticFieldMoving
+    - kernelFunction: transformSI
+      identifier: E
+      quantityId: electricFieldStationary
+    - kernelFunction: transformSI
+      identifier: B
+      quantityId: magneticFieldStationary
+  traceScenarioId: sr-08-pure-electric-0.6c
+  traceRows:
+    - label: Transformed Ey component at 0.6c
+      expression: "gamma * Ey"
+      value: 1.25
+      unit: "V/m"
+      quantityId: electricFieldMoving
+views:
+  - id: svg-field-vectors
+    kind: svg
+    consumes:
+      - electricFieldStationary
+      - electricFieldMoving
+      - magneticFieldStationary
+      - magneticFieldMoving
+  - id: table-field-components
+    kind: table
+    consumes:
+      - electricFieldStationary
+      - electricFieldMoving
+      - magneticFieldStationary
+      - magneticFieldMoving
+      - fieldInvariantEDotB
+      - fieldInvariantE2MinusC2B2
+      - lorentzFactor
+actions:
+  - actionId: boost-fields
+    family: fields-boosts
+    question: "How do electric and magnetic field vectors transform under a boost along x?"
+    inputs:
+      - boost
+    commandClass: observer-change
+    acceptedResult:
+      outputs:
+        - electricFieldMoving
+        - magneticFieldMoving
+        - fieldInvariantEDotB
+        - fieldInvariantE2MinusC2B2
+        - lorentzFactor
+      allowedStatuses:
+        - value
+        - outside-domain
+    visualAffordance: "Side-by-side electric and magnetic vector diagrams in K and k"
+    equivalentAffordance: "Type a boost speed and read the transformed field components and invariant checks."
+    announcement: "Fields transformed under boost"
+acceptanceCases:
+  - sr-08-pure-electric-0.6c
+  - sr-08-pure-magnetic-low-speed
+  - sr-08-crossed-fields-null
+defaultScenario: sr-08-pure-electric-0.6c
+tapeModel:
+  modelId: field-frame-change-host
+  modelVersion: 1
+teachingTapes:
+  - tapeId: field-frame-change
+    title: field frame change
+presets:
+  - presetId: sr-08-pure-electric-0.6c
+    label: Pure electric field at 0.6c
+    parameterValues:
+      boost: 179875474.8
+      testCharge: 1.602176634e-19
+    scenarioId: sr-08-pure-electric-0.6c
+  - presetId: sr-08-pure-magnetic-low-speed
+    label: Pure magnetic field at 10 m/s
+    parameterValues:
+      boost: 10
+      testCharge: 1.602176634e-19
+    scenarioId: sr-08-pure-magnetic-low-speed
+  - presetId: sr-08-crossed-fields-null
+    label: Null field invariant E = cB
+    parameterValues:
+      boost: 179875474.8
+      testCharge: 1.602176634e-19
+    scenarioId: sr-08-crossed-fields-null
+probes:
+  - toggle-frame
+  - type-boost
+  - toggle-units
+weavePredicates:
+  - sr08-new-manner-expression
+  - sr08-field-transformation
+historicalOverlays: []
+realRate:
+  natural: false
+embeddable: true
+predictMode:
+  enabled: true
+  prompts:
+    - promptId: sr-08-predict-appearing-field
+      controlId: boost
+      question: "When a pure electric field in the y direction is described from a frame moving along x at 0.6c, what magnetic field appears?"
+      candidates:
+        - id: no-magnetic-field
+          label: None
+          description: A pure electric field remains purely electric in all inertial frames.
+          separatingAssumption: "Electric and magnetic fields are treated as independent absolute entities."
+        - id: perpendicular-magnetic-field
+          label: Perpendicular magnetic field
+          description: A magnetic field in the negative z direction appears, proportional to -v Ey / c^2.
+          separatingAssumption: "The transformation of Maxwell's equations mixes electric and magnetic components across frames."
+        - id: parallel-magnetic-field
+          label: Parallel magnetic field
+          description: A magnetic field appears along the direction of motion.
+          separatingAssumption: "The boost is assumed to generate field along the line of travel."
