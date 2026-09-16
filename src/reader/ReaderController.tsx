@@ -3,8 +3,12 @@ import { useEffect } from "react";
 import { DETAIL_STORAGE_KEY, FACES, MAX_CLARIFICATION_DEPTH, openFoundation, parseDetail, parseReaderLocation, passageHref, readerHref, restoreReaderState, type Face, type ReaderRegistry, type ReaderState } from "./navigation/state";
 type Props = { registry: ReaderRegistry; titles: Readonly<Record<string, string>>; questions: Readonly<Record<string, string>> };
 /** Only navigation metadata crosses this island. Prose, math and laboratory subtrees stay mounted. */
-export function ReaderController({ registry, titles, questions }: Props) {
+export function ReaderController(props: Props) {
+  // App Router history restoration may recreate equal object props. Do not remount
+  // the navigation owner and steal focus from the trigger we just restored.
+  const navigation = JSON.stringify(props);
   useEffect(() => {
+    const { registry, titles, questions } = JSON.parse(navigation) as Props;
     const root = document.querySelector<HTMLElement>("[data-reader-root]")!;
     const dialog = root.querySelector<HTMLDialogElement>("[data-clarification-dialog]")!;
     const announcement = root.querySelector<HTMLElement>("[data-reader-announcement]")!;
@@ -14,6 +18,8 @@ export function ReaderController({ registry, titles, questions }: Props) {
     let state = restoreReaderState(history.state?.annusReader?.state, registry) ?? parseReaderLocation(location.search, location.hash, registry, stored);
     let index = Number.isSafeInteger(history.state?.annusReader?.index) ? history.state.annusReader.index as number : 0;
     let trigger = 0;
+    let returnAnimation = 0;
+    const cancelReturn = () => { if (returnAnimation) cancelAnimationFrame(returnAnimation); returnAnimation = 0; };
     root.dataset.enhanced = "true"; [...detailControls, ...lensControls].forEach(control => { control.disabled = false; });
     function url() { const u = new URL(readerHref(registry, state), location.origin); u.pathname = location.pathname; return u.pathname + u.search + u.hash; }
     function save(push = false) {
@@ -31,7 +37,19 @@ export function ReaderController({ registry, titles, questions }: Props) {
       if (dialog.open && dialog.contains(target)) dialog.scrollTop += delta; else window.scrollBy(0, delta);
       document.documentElement.style.scrollBehavior = behavior;
     }
+    function restoreFocus(previous: ReaderState) {
+      focusReturn(previous);
+      const expected = state;
+      // The browser completes native dialog/history focus restoration after the
+      // event handler. Reassert the semantic return on the next frame, unless
+      // another navigation has already superseded it.
+      returnAnimation = requestAnimationFrame(() => {
+        returnAnimation = 0;
+        if (state === expected) focusReturn(previous);
+      });
+    }
     function render(previous?: ReaderState, message = "") {
+      cancelReturn();
       document.documentElement.dataset.detail = String(state.detail);
       document.documentElement.dataset.lens = state.lens ? "modern" : "paper";
       document.documentElement.dataset.readerView = state.view;
@@ -46,11 +64,11 @@ export function ReaderController({ registry, titles, questions }: Props) {
         root.querySelector<HTMLElement>("[data-compass-idea]")!.textContent = titles[frame.foundationId] ?? frame.foundationId;
         if (!dialog.open) dialog.showModal();
         if (!previous || previous.frames.at(-1)?.foundationId !== frame.foundationId || previous.frames.length !== state.frames.length) {
-          if (previous && previous.frames.length > state.frames.length) focusReturn(previous); else heading.focus();
+          if (previous && previous.frames.length > state.frames.length) restoreFocus(previous); else heading.focus();
         }
       } else {
         if (dialog.open) dialog.close();
-        if (previous?.frames.length) focusReturn(previous);
+        if (previous?.frames.length) restoreFocus(previous);
       }
       if (message) announcement.textContent = message;
     }
@@ -101,8 +119,8 @@ export function ReaderController({ registry, titles, questions }: Props) {
     };
     root.addEventListener("click", click); root.addEventListener("change", changeControl); dialog.addEventListener("cancel", cancel); window.addEventListener("popstate", pop);
     save(); render();
-    return () => { root.removeEventListener("click", click); root.removeEventListener("change", changeControl); dialog.removeEventListener("cancel", cancel); window.removeEventListener("popstate", pop); };
-  }, [registry, titles, questions]);
+    return () => { cancelReturn(); root.removeEventListener("click", click); root.removeEventListener("change", changeControl); dialog.removeEventListener("cancel", cancel); window.removeEventListener("popstate", pop); };
+  }, [navigation]);
   return <div className="reader-controls">
     <nav aria-label="Reading face"><a href="?view=reading" data-view-link="reading">Explanation</a><a href="?view=results" data-view-link="results">Argument synopsis</a><a href="?view=german" data-view-link="german">Source status</a></nav>
     <div className="reader-options"><label>Detail<select data-detail-control defaultValue="1" disabled><option value="0">Overview</option><option value="1">Full explanation</option><option value="2">Show every step</option></select></label><label className="check"><input type="checkbox" data-lens-control disabled/>Show modern qualifications</label></div>

@@ -1,5 +1,5 @@
 import assert from "node:assert/strict";
-import { readFile } from "node:fs/promises";
+import { readFile, writeFile } from "node:fs/promises";
 import { gzipSync } from "node:zlib";
 import AxeBuilder from "@axe-core/playwright";
 
@@ -51,9 +51,14 @@ export async function checkReaderBrowser(browser, url, check) {
   } finally { await beforeHydration.close(); }
 
   const context = await browser.newContext({ viewport: { width: 1280, height: 900 }, reducedMotion: "reduce" });
+  const page = await context.newPage();
   try {
-    await context.addInitScript(() => { Object.defineProperty(navigator, "clipboard", { configurable: true, value: { writeText: () => Promise.reject(new Error("clipboard unavailable")) } }); });
-    const page = await context.newPage(); const errors = []; let workers = 0;
+    await context.addInitScript(() => {
+      Object.defineProperty(navigator, "clipboard", { configurable: true, value: { writeText: () => Promise.reject(new Error("clipboard unavailable")) } });
+      window.readerFocusLog = [];
+      document.addEventListener("focusin", event => { window.readerFocusLog.push({ id: event.target.id, tag: event.target.tagName }); if (window.readerFocusLog.length > 40) window.readerFocusLog.shift(); });
+    });
+    const errors = []; let workers = 0;
     page.on("pageerror", e => errors.push(String(e))); page.on("worker", () => workers++);
     await page.goto(url + route + "?note=private&tape=private#" + firstId);
     await page.locator('[data-reader-root][data-enhanced="true"]').waitFor();
@@ -100,7 +105,7 @@ export async function checkReaderBrowser(browser, url, check) {
     await page.waitForFunction(id => document.activeElement.id === id, nestedTrigger);
     assert.equal(await page.locator("html").getAttribute("data-detail"), "2");
     await page.goBack(); await dialog.waitFor({ state: "hidden" });
-    assert.equal(await page.evaluate(() => document.activeElement.id), rootTrigger);
+    await page.waitForFunction(id => document.activeElement.id === id, rootTrigger);
     await page.goForward(); await dialog.waitFor({ state: "visible" });
     assert.equal(await dialog.getAttribute("aria-labelledby"), "clarification-mean-variance-rms");
     check("nested explanations restore trigger focus through Back/Forward and preserve the selected detail");
@@ -158,7 +163,7 @@ export async function checkReaderBrowser(browser, url, check) {
     await page.screenshot({ path: "artifacts/browser/reader-clarification-320.png" });
     await dialog.getByRole("button", { name: "Return to the exact step", exact: true }).click();
     await dialog.waitFor({ state: "hidden" });
-    assert.equal(await page.evaluate(() => document.activeElement.id), rootTrigger);
+    await page.waitForFunction(id => document.activeElement.id === id, rootTrigger);
     await page.setViewportSize({ width: 1280, height: 900 });
     await passage.screenshot({ path: "artifacts/browser/reader-passage-desktop.png" });
     await page.emulateMedia({ media: "print" });
@@ -185,5 +190,14 @@ export async function checkReaderBrowser(browser, url, check) {
     assert.ok(!await page.locator("dialog").isVisible());
     assert.equal(await page.locator("html").getAttribute("data-reader-view"), "reading");
     check("static section routes, direct clarification links, all foundations and machine-readable exports resolve safely");
+  } catch (error) {
+    const detail = await page.evaluate(() => ({
+      url: location.href, active: document.activeElement?.id, history: history.state?.annusReader,
+      dialogOpen: document.querySelector("dialog")?.open, focusLog: window.readerFocusLog,
+      triggers: [...document.querySelectorAll('[id^="reader-trigger-"]')].map(el => ({ id: el.id, visible: el.getClientRects().length > 0, foundation: el.dataset.foundation })),
+    })).catch(() => null);
+    await writeFile("artifacts/browser/reader-failure.json", JSON.stringify({ error: String(error), detail }, null, 2));
+    await page.screenshot({ path: "artifacts/browser/reader-failure.png" }).catch(() => {});
+    throw error;
   } finally { await context.close(); }
 }
