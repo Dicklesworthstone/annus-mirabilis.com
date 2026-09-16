@@ -1,0 +1,16 @@
+id: self-test-illustrative-input
+kind: modern-golden
+title: circular
+constantSetId: scenario-self-test-illustrative
+owner: selfTest.constant
+inputs:
+  rmsDisplacement1d: { value: 7.947833e-7, unit: m }
+  value: { value: 1, unit: "1" }
+expected:
+  outputs:
+    - outputId: value
+      value: 1
+      comparisonKind: tolerance
+      tolerance: { relative: 1.0e-9, rationale: "n/a" }
+modelVersion: 1
+schemaVersion: 1

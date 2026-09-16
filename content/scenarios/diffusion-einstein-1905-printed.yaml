@@ -1,0 +1,45 @@
+id: diffusion-einstein-1905-printed
+kind: historical-fixture
+title: Einstein 1905 printed mean displacement
+description: >
+  Paper 2 section 5 stated inputs. Transcription of the facsimile is not claimed;
+  this row is pending until the pinned scan is reviewed.
+provenance:
+  paper: brownian-motion
+  sectionId: s5
+  printedPage: 559
+constantSetId: scenario-einstein-1905-brownian-printed
+owner: diffusion.stokesEinsteinRms
+transcription:
+  status: pending
+  reason: "Pinned facsimile for paper 2 is not reviewed in this repository yet; the row must not pass on remembered numbers."
+editorialInputs:
+  - quantityId: molarGasConstant
+    value: 8.31
+    unit: "J/(mol K)"
+    source: "editorial input; paper 2 does not print R"
+    reason: "Chosen as 8.31 J mol^-1 K^-1, the value used with paper 2's printed N."
+    sensitivity: Linear in R.
+inputs:
+  temperature:
+    value: 290.15
+    unit: K
+  viscosity:
+    value: 0.00135
+    unit: "Pa s"
+  particleRadius:
+    value: 5.0e-7
+    unit: m
+  elapsedTime:
+    value: 1
+    unit: s
+expected:
+  outputs:
+    - outputId: rmsDisplacement1d
+      comparisonKind: rounds-to
+      printedValue: "0,8 Mikron"
+      printedPrecision:
+        significantFigures: 1
+      qualifier: about
+modelVersion: 1
+schemaVersion: 1

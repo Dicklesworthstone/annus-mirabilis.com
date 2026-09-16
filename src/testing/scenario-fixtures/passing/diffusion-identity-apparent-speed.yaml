@@ -1,0 +1,30 @@
+id: diffusion-identity-apparent-speed
+kind: identity
+title: Apparent speed doubles when the interval is quartered
+description: Ratio of two evaluated apparent speeds versus the closed-form exponent 2.
+constantSetId: modern-si-2019
+owner: diffusion.apparentSpeedRatio
+inputs:
+  D:
+    value: 4.2943956455496146e-13
+    unit: "m2/s"
+  tau:
+    value: 1
+    unit: s
+routes:
+  - routeId: evaluated-ratio
+    owner: diffusion.apparentSpeedRatio
+    description: Ratio of two host evaluations of apparentSpeed at tau and tau/4.
+  - routeId: closed-exponent
+    owner: diffusion.apparentSpeedExponent
+    description: Closed-form tau^{-1/2} scaling, not a second call to apparentSpeed.
+expected:
+  outputs:
+    - outputId: ratio
+      value: 2
+      comparisonKind: tolerance
+      tolerance:
+        relative: 1.0e-15
+        rationale: Exact inverse-square-root scaling of the observation interval.
+modelVersion: 1
+schemaVersion: 1

@@ -1249,7 +1249,7 @@ export type ScenarioKind = (typeof SCENARIO_KINDS)[number];
 export type ToleranceSpec = Readonly<{
   absolute?: number | undefined;
   relative?: number | undefined;
-  relativeTo?: number | undefined;
+  relativeTo?: "reference" | "larger" | undefined;
   rationale?: string | undefined;
 }>;
 
@@ -1365,6 +1365,11 @@ export type Scenario = Readonly<{
   routes?: readonly [IdentityRoute, IdentityRoute] | undefined;
   hypotheses?: readonly DiscriminationHypothesis[] | undefined;
   observation?: DiscriminationObservation | undefined;
+  plausibleMistake?: string | undefined;
+  intendedFailure?: string | undefined;
+  datasetId?: string | undefined;
+  inferenceModelId?: string | undefined;
+  printedRepresentation?: string | undefined;
 }>;
 
 export function validateScenario(raw: unknown, path = "Scenario"): Scenario {
@@ -1395,6 +1400,25 @@ export function validateScenario(raw: unknown, path = "Scenario"): Scenario {
     );
   }
   const kind = o.kind as ScenarioKind;
+
+  if (kind === "adversarial") {
+    if (typeof o.plausibleMistake !== "string" || !o.plausibleMistake.trim()) {
+      throw new ExperimentValidationError(
+        "adversarial-missing-plausible-mistake",
+        "adversarial scenarios require plausibleMistake naming the wrong claim.",
+        "Scenario",
+        `${path}.plausibleMistake`,
+      );
+    }
+    if (typeof o.intendedFailure !== "string" || !o.intendedFailure.trim()) {
+      throw new ExperimentValidationError(
+        "adversarial-missing-intended-failure",
+        "adversarial scenarios require intendedFailure naming why the wrong claim fails.",
+        "Scenario",
+        `${path}.intendedFailure`,
+      );
+    }
+  }
 
   // Retired spelling check
   if ("constantSet" in o && !("constantSetId" in o)) {
@@ -1609,6 +1633,14 @@ export function validateScenario(raw: unknown, path = "Scenario"): Scenario {
           );
         }
       } else if (comp === "tolerance") {
+        if (kind === "historical-fixture") {
+          throw new ExperimentValidationError(
+            "historical-printed-requires-rounds-to",
+            `Historical fixture output "${eoRaw.outputId}" expects a printed number and must use comparisonKind "rounds-to", not "tolerance".`,
+            "Scenario",
+            `${eoPath}.comparisonKind`,
+          );
+        }
         const tol = eoRaw.tolerance as Record<string, unknown> | undefined;
         if (
           !tol ||
@@ -1700,6 +1732,12 @@ export function validateScenario(raw: unknown, path = "Scenario"): Scenario {
     routes,
     hypotheses,
     observation,
+    plausibleMistake: typeof o.plausibleMistake === "string" ? o.plausibleMistake : undefined,
+    intendedFailure: typeof o.intendedFailure === "string" ? o.intendedFailure : undefined,
+    datasetId: typeof o.datasetId === "string" ? o.datasetId : undefined,
+    inferenceModelId: typeof o.inferenceModelId === "string" ? o.inferenceModelId : undefined,
+    printedRepresentation:
+      typeof o.printedRepresentation === "string" ? o.printedRepresentation : undefined,
   };
 }
 

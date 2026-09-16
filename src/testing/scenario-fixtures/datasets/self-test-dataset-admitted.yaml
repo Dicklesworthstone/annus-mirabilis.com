@@ -1,0 +1,46 @@
+id: self-test-dataset-admitted
+title: Self-test dataset
+evidenceStatus: historical-measurement
+publications:
+  - id: pub-1
+    citation: cit-self-test
+    locator: { kind: table, number: 1 }
+    publicationDate:
+      type: issue-publication
+      text: "1909"
+      earliest: "1909-01-01"
+      latest: "1909-12-31"
+      precision: year
+      source: self-test
+      verifiedAt: "2026-09-16"
+primaryPublicationId: pub-1
+digitizer:
+  name: Self-test
+  method: Hand-typed self-test table
+  date: "2026-09-16"
+  sourcePageImage: none.png
+  digitizationRevision: 1
+columns:
+  - name: x
+    quantityId: rmsDisplacement1d
+    unit: m
+    role: observed
+rows:
+  - cells:
+      - kind: number
+        value: 1
+        originalToken: "1"
+uncertainty:
+  type: none
+  description: Self-test table, not a measurement.
+notes: Self-test.
+rights:
+  status: public-domain-verified
+  statement: Self-test record.
+  source: self-test
+  recordedAt: "2026-09-16"
+  reuseTerms: unrestricted-scholarly
+allowedInferenceModelIds:
+  - selfTest.constant
+calibrationIds: []
+sharedInputIds: []

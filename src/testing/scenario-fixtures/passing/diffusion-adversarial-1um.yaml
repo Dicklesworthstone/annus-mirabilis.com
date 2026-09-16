@@ -1,0 +1,31 @@
+id: diffusion-adversarial-1um-radius
+kind: adversarial
+title: A 1 micron radius is not Einstein's 0.8 micron
+description: The plausible mistake is to keep the printed 0.8 micron when the radius doubles.
+constantSetId: scenario-einstein-1905-brownian-printed
+owner: diffusion.stokesEinsteinRms
+plausibleMistake: "A 1 um radius still reproduces Einstein's 0.8 micron at 1 s."
+intendedFailure: "Doubling the radius halves D and scales RMS by 1/sqrt(2), giving 0.562 um, which lies outside the printed interval [0.75, 0.85) um."
+inputs:
+  temperature:
+    value: 290.15
+    unit: K
+  viscosity:
+    value: 0.00135
+    unit: "Pa s"
+  particleRadius:
+    value: 1.0e-6
+    unit: m
+  elapsedTime:
+    value: 1
+    unit: s
+expected:
+  outputs:
+    - outputId: rmsDisplacement1d
+      value: 5.61999e-7
+      comparisonKind: tolerance
+      tolerance:
+        relative: 1.0e-5
+        rationale: Independent Stokes-Einstein RMS at a = 1 um from the declared R and N.
+modelVersion: 1
+schemaVersion: 1

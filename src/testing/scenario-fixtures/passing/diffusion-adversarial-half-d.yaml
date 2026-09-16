@@ -1,0 +1,22 @@
+id: diffusion-adversarial-half-diffusivity
+kind: adversarial
+title: Halving D scales RMS by 1/sqrt(2), not 1/2
+description: The plausible mistake is that displacement scales with D.
+constantSetId: modern-si-2019
+owner: selfTest.rootTwoScale
+plausibleMistake: "Halving diffusivity halves the RMS displacement."
+intendedFailure: "RMS scales as sqrt(D), so the factor is 1/sqrt(2) = 0.70711, not 0.5."
+inputs:
+  baselineRms:
+    value: 9.267573194261391e-7
+    unit: m
+expected:
+  outputs:
+    - outputId: rmsDisplacement1d
+      value: 6.553163850804903e-7
+      comparisonKind: tolerance
+      tolerance:
+        relative: 1.0e-6
+        rationale: Independent 1/sqrt(2) scaling of the modern 1 s RMS.
+modelVersion: 1
+schemaVersion: 1

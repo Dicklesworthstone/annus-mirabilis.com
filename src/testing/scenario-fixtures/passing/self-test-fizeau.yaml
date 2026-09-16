@@ -1,0 +1,32 @@
+id: shelf-fizeau-fresnel-versus-relativistic
+kind: discrimination
+title: Fresnel drag versus relativistic composition at Fizeau's flow
+description: Desk comparison of two formulas at n=1.333 and 7.06 m/s. Not a laboratory rerun.
+constantSetId: modern-si-2019
+owner: selfTest.fresnelDrag
+hypotheses:
+  - id: fresnel-drag
+    label: Fresnel partial drag
+    owner: selfTest.fresnelDrag
+    modelIdentity: fresnel-1851
+    circumstancesInWhichItWorks: Slow flow in a dielectric, first order in u/c.
+    historicalStatus: available-before-cutoff
+  - id: relativistic-drag-later
+    label: Relativistic velocity composition
+    owner: selfTest.relativisticDrag
+    modelIdentity: relativistic-drag-later
+    circumstancesInWhichItWorks: The same flow under Einstein 1905 composition.
+    historicalStatus: later-development
+observation:
+  observableId: increment
+  procedure: Dragged-light increment at n = 1.333 and a flow of 7.06 m/s.
+  inputs:
+    n: 1.333
+    flow: 7.06
+tolerance:
+  relative: 1.0e-6
+  rationale: Fizeau's stated experimental uncertainty, far coarser than 2e-8.
+expected:
+  outcome: indistinguishable
+modelVersion: 1
+schemaVersion: 1

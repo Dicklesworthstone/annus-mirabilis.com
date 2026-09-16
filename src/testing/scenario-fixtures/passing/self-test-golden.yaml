@@ -1,0 +1,21 @@
+id: self-test-golden
+kind: modern-golden
+title: Self-test modern golden
+description: Plumbing check that 2x is 2.
+constantSetId: modern-si-2019
+owner: selfTest.timesTwoClosed
+inputs:
+  x:
+    value: 3
+    unit: "1"
+expected:
+  outputs:
+    - outputId: value
+      value: 6
+      comparisonKind: tolerance
+      tolerance:
+        absolute: 0
+        relative: 1.0e-15
+        rationale: Exact doubling of a small integer.
+modelVersion: 1
+schemaVersion: 1

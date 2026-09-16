@@ -1,0 +1,39 @@
+id: self-test-historical-misprint
+kind: historical-fixture
+title: Self-test suspected misprint
+description: Runs the corrected reading; evidence keeps the printed reading.
+provenance:
+  paper: brownian-motion
+  sectionId: s5
+  printedPage: 559
+constantSetId: scenario-einstein-1905-brownian-printed
+owner: diffusion.stokesEinsteinRms
+transcription:
+  status: verified-suspected-misprint
+  facsimilePage: 0
+  printedReading: "8 x 10^-4 cm"
+  correctedReading: "8 x 10^-5 cm = 0,8 Mikron"
+  reasoning: "Self-test of the misprint path; not a claim about the facsimile."
+  receiptRef: "docs/provenance/ap-17-549.md"
+inputs:
+  temperature:
+    value: 290.15
+    unit: K
+  viscosity:
+    value: 0.00135
+    unit: "Pa s"
+  particleRadius:
+    value: 5.0e-7
+    unit: m
+  elapsedTime:
+    value: 1
+    unit: s
+expected:
+  outputs:
+    - outputId: rmsDisplacement1d
+      comparisonKind: rounds-to
+      printedValue: "0,8 Mikron"
+      printedPrecision:
+        significantFigures: 1
+modelVersion: 1
+schemaVersion: 1

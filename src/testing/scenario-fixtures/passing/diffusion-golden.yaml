@@ -1,0 +1,38 @@
+id: scenario-golden-brownian
+kind: modern-golden
+title: Modern Brownian golden
+description: Stokes-Einstein and RMS from modern SI constants. Plumbing, not a historical claim.
+constantSetId: modern-si-2019
+owner: diffusion.stokesEinsteinRms
+equations:
+  - eq-model-bm-diffusivity
+  - eq-model-bm-rms
+inputs:
+  temperature:
+    value: 293.15
+    unit: K
+  viscosity:
+    value: 0.001
+    unit: "Pa s"
+  particleRadius:
+    value: 5.0e-7
+    unit: m
+  elapsedTime:
+    value: 1
+    unit: s
+expected:
+  outputs:
+    - outputId: diffusionCoefficient
+      value: 4.2943956455496146e-13
+      comparisonKind: tolerance
+      tolerance:
+        relative: 1.0e-9
+        rationale: Exact modern constants; relative 1e-9 against the host evaluator.
+    - outputId: rmsDisplacement1d
+      value: 9.267573194261391e-7
+      comparisonKind: tolerance
+      tolerance:
+        relative: 1.0e-9
+        rationale: RMS from the same D at 1 s.
+modelVersion: 1
+schemaVersion: 1

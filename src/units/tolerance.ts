@@ -32,7 +32,7 @@ export type ToleranceIssue = Readonly<{ code: ToleranceIssueCode; message: strin
  * owned by the precision-display module; it is named here only so every layer that records a
  * comparison shares one vocabulary instead of inventing its own.
  */
-export type ComparisonKind = "bitwise" | "tolerance" | "formatted";
+export type ComparisonKind = "bitwise" | "tolerance" | "formatted" | "rounds-to";
 
 const RELATIVE_UPPER_BOUND = 1; // relative must stay in [0, 1); see reference-mode-asymmetry.
 const RESOLUTION_FACTOR = 4; // 4*EPSILON*|reference|: the smallest absolute step a double can distinguish there.
@@ -331,6 +331,95 @@ export type ClassificationVerdict = Readonly<{ sign: SignClassification; allowed
  * band is honestly `indeterminate`; it is never coerced to `zero`. `zero` is reserved for the
  * exact arithmetic path: the value is exactly 0 and the band itself is exactly 0.
  */
+export type PrintedPrecision =
+  | Readonly<{ significantFigures: number }>
+  | Readonly<{ decimals: number }>;
+export type RoundingConvention = "half-up" | "half-even";
+export type RoundingInterval = Readonly<{
+  low: number;
+  high: number;
+  step: number;
+  printedValue: number;
+}>;
+export type RoundsToVerdict = Readonly<{
+  ok: boolean;
+  interval: RoundingInterval;
+  convention: RoundingConvention;
+}>;
+
+function roundingStep(printedValue: number, printedPrecision: PrintedPrecision): number {
+  if ("decimals" in printedPrecision) {
+    if (!Number.isInteger(printedPrecision.decimals) || printedPrecision.decimals < 0) {
+      throw new RangeError("printedPrecision.decimals must be a nonnegative integer.");
+    }
+    return 10 ** -printedPrecision.decimals;
+  }
+  if (
+    !Number.isInteger(printedPrecision.significantFigures) ||
+    printedPrecision.significantFigures < 1
+  ) {
+    throw new RangeError("printedPrecision.significantFigures must be an integer >= 1.");
+  }
+  if (!Number.isFinite(printedValue) || printedValue === 0) {
+    throw new RangeError("significantFigures rounding needs a finite nonzero printed value.");
+  }
+  return (
+    10 ** (Math.floor(Math.log10(Math.abs(printedValue))) - printedPrecision.significantFigures + 1)
+  );
+}
+
+/**
+ * Half-open interval around a printed figure. For 0,8 Mikron at 1 significant figure this is
+ * [0.75, 0.85) μm. The interval is a statement about what the printer set, not a numerical
+ * error bar, and a qualifier such as "ca." never widens it.
+ */
+export function roundingInterval(
+  printedValue: number,
+  printedPrecision: PrintedPrecision,
+): RoundingInterval {
+  if (!Number.isFinite(printedValue)) {
+    throw new RangeError("roundingInterval requires a finite printed value.");
+  }
+  const step = roundingStep(printedValue, printedPrecision);
+  return Object.freeze({
+    low: printedValue - step / 2,
+    high: printedValue + step / 2,
+    step,
+    printedValue,
+  });
+}
+
+function roundHalfEvenToStep(value: number, step: number): number {
+  const units = value / step;
+  const floor = Math.floor(units);
+  const frac = units - floor;
+  if (frac !== 0.5) return Math.round(units) * step;
+  return (floor % 2 === 0 ? floor : floor + 1) * step;
+}
+
+/**
+ * Historical printed-rounding comparison. `half-up` uses the derived half-open interval.
+ * `half-even` rounds the recomputation to the printed place with banker's rounding and
+ * compares that to the printed value. The registry must call this and must not implement a
+ * second comparison.
+ */
+export function roundsTo(
+  value: number,
+  printedValue: number,
+  printedPrecision: PrintedPrecision,
+  roundingConvention: RoundingConvention = "half-up",
+): RoundsToVerdict {
+  const interval = roundingInterval(printedValue, printedPrecision);
+  if (!Number.isFinite(value)) {
+    return Object.freeze({ ok: false, interval, convention: roundingConvention });
+  }
+  const ok =
+    roundingConvention === "half-even"
+      ? roundHalfEvenToStep(value, interval.step) === printedValue
+      : value >= interval.low && value < interval.high;
+  return Object.freeze({ ok, interval, convention: roundingConvention });
+}
+
 export function classifyWithTolerance(
   value: number,
   band: ToleranceBand = {},

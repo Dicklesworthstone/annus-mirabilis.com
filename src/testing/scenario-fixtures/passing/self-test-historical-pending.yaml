@@ -1,0 +1,35 @@
+id: self-test-historical-pending
+kind: historical-fixture
+title: Self-test pending transcription
+description: Must report not-available, never passed.
+provenance:
+  paper: brownian-motion
+  sectionId: s5
+  printedPage: 559
+constantSetId: scenario-einstein-1905-brownian-printed
+owner: diffusion.stokesEinsteinRms
+transcription:
+  status: pending
+  reason: "Pinned facsimile for this self-test row is not in the repository."
+inputs:
+  temperature:
+    value: 290.15
+    unit: K
+  viscosity:
+    value: 0.00135
+    unit: "Pa s"
+  particleRadius:
+    value: 5.0e-7
+    unit: m
+  elapsedTime:
+    value: 1
+    unit: s
+expected:
+  outputs:
+    - outputId: rmsDisplacement1d
+      comparisonKind: rounds-to
+      printedValue: "0,8 Mikron"
+      printedPrecision:
+        significantFigures: 1
+modelVersion: 1
+schemaVersion: 1

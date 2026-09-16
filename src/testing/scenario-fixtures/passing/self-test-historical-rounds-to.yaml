@@ -1,0 +1,43 @@
+id: self-test-historical-rounds-to
+kind: historical-fixture
+title: Self-test printed rounding
+description: A self-test printed 0,8 that the recomputation 0.7947833 must round into. Not a facsimile claim.
+provenance:
+  paper: brownian-motion
+  sectionId: s5
+  printedPage: 559
+constantSetId: scenario-einstein-1905-brownian-printed
+owner: diffusion.stokesEinsteinRms
+transcription:
+  status: verified
+  facsimilePage: 0
+editorialInputs:
+  - quantityId: molarGasConstant
+    value: 8.31
+    unit: "J/(mol K)"
+    source: "editorial input; paper 2 does not print R"
+    reason: "Paper 1 section 2 appears not to print it either; 8.31 is the declared editorial value."
+    sensitivity: Linear in R.
+inputs:
+  temperature:
+    value: 290.15
+    unit: K
+  viscosity:
+    value: 0.00135
+    unit: "Pa s"
+  particleRadius:
+    value: 5.0e-7
+    unit: m
+  elapsedTime:
+    value: 1
+    unit: s
+expected:
+  outputs:
+    - outputId: rmsDisplacement1d
+      comparisonKind: rounds-to
+      printedValue: "0,8 Mikron"
+      printedPrecision:
+        significantFigures: 1
+      roundingConvention: half-up
+modelVersion: 1
+schemaVersion: 1

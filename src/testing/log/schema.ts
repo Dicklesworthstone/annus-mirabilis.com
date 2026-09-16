@@ -8,7 +8,7 @@
  * rather than trusting callers to keep them straight.
  */
 
-export type ComparisonKind = "bitwise" | "tolerance" | "formatted";
+export type ComparisonKind = "bitwise" | "tolerance" | "formatted" | "rounds-to";
 export type Outcome = "passed" | "failed" | "skipped" | "not-available";
 
 export interface ToleranceSpec {
@@ -122,7 +122,12 @@ export const AGENTS_MD_SUITE_LOG_PATH_PATTERN = "artifacts/test-logs/<suite>/<lo
 
 const ISO_TIMESTAMP_PATTERN = /^\d{4}-\d{2}-\d{2}T\d{2}:\d{2}:\d{2}(?:\.\d+)?Z$/;
 const OUTCOME_VALUES: readonly Outcome[] = ["passed", "failed", "skipped", "not-available"];
-const COMPARISON_KIND_VALUES: readonly ComparisonKind[] = ["bitwise", "tolerance", "formatted"];
+const COMPARISON_KIND_VALUES: readonly ComparisonKind[] = [
+  "bitwise",
+  "tolerance",
+  "formatted",
+  "rounds-to",
+];
 const FORBIDDEN_EXTRA_KEYS = new Set(["readerNote", "freeTextAnswer", "email", "participantName"]);
 const MAX_EXTRA_STRING_LENGTH = 2000;
 
@@ -186,7 +191,10 @@ function validateComparison(raw: Record<string, unknown>): void {
   const hasExpected = raw.expected !== undefined;
   const hasComparisonKind = raw.comparisonKind !== undefined;
   if (hasComparisonKind && !COMPARISON_KIND_VALUES.includes(raw.comparisonKind as ComparisonKind)) {
-    fail('"comparisonKind" must be "bitwise", "tolerance", or "formatted".', "comparisonKind");
+    fail(
+      '"comparisonKind" must be "bitwise", "tolerance", "formatted", or "rounds-to".',
+      "comparisonKind",
+    );
   }
   if (hasExpected && !hasComparisonKind) {
     fail('"comparisonKind" is required whenever "expected" is present.', "comparisonKind");

@@ -1,0 +1,33 @@
+id: sr-02-emf-discriminates-at-0.6c
+kind: discrimination
+title: Magnet and conductor descriptions at 0.6c
+description: The same two accounts, now separated by the transformation law.
+constantSetId: modern-si-2019
+owner: selfTest.magnetFrameEmf
+hypotheses:
+  - id: magnet-frame
+    label: Magnet-frame force q v cross B
+    owner: selfTest.magnetFrameEmf
+    modelIdentity: magnet-frame-1905
+    circumstancesInWhichItWorks: Low speed.
+    historicalStatus: introduced-in-current-paper
+  - id: conductor-frame
+    label: Conductor-frame electric field
+    owner: selfTest.conductorFrameEmf
+    modelIdentity: conductor-frame-1905
+    circumstancesInWhichItWorks: High speed.
+    historicalStatus: introduced-in-current-paper
+observation:
+  observableId: emf
+  procedure: Electromotive force along a 0.1 m segment at 1 T and 0.6c.
+  inputs:
+    B: 1
+    v: 179875474.8
+    ell: 0.1
+tolerance:
+  relative: 1.0e-6
+  rationale: A numerical bound that the 0.6c ratio 1.25 must exceed.
+expected:
+  outcome: discriminates
+modelVersion: 1
+schemaVersion: 1

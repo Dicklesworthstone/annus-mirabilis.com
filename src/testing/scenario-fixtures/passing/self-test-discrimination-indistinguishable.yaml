@@ -1,0 +1,34 @@
+id: sr-02-emf-first-order-agreement
+kind: discrimination
+title: Magnet and conductor descriptions at 10 m/s
+description: Self-test of first-order agreement. Not a device measurement.
+constantSetId: modern-si-2019
+owner: selfTest.magnetFrameEmf
+hypotheses:
+  - id: magnet-frame
+    label: Magnet-frame force q v cross B
+    owner: selfTest.magnetFrameEmf
+    modelIdentity: magnet-frame-1905
+    circumstancesInWhichItWorks: Low speed, magnet at rest in the lab.
+    historicalStatus: introduced-in-current-paper
+  - id: conductor-frame
+    label: Conductor-frame electric field
+    owner: selfTest.conductorFrameEmf
+    modelIdentity: conductor-frame-1905
+    circumstancesInWhichItWorks: The same segment described from the conductor.
+    historicalStatus: introduced-in-current-paper
+observation:
+  observableId: emf
+  procedure: Electromotive force along a 0.1 m segment at 1 T and 10 m/s.
+  inputs:
+    B: 1
+    v: 10
+    ell: 0.1
+tolerance:
+  relative: 1.0e-12
+  absolute: 1.0e-18
+  rationale: Precision of the observations the paper's introduction appeals to, far coarser than 1e-15.
+expected:
+  outcome: indistinguishable
+modelVersion: 1
+schemaVersion: 1

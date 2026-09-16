@@ -1,0 +1,27 @@
+id: self-test-identity
+kind: identity
+title: Self-test independent doubling
+description: 2x from a product and from a sum.
+constantSetId: modern-si-2019
+owner: selfTest.timesTwoClosed
+inputs:
+  x:
+    value: 4
+    unit: "1"
+routes:
+  - routeId: product
+    owner: selfTest.timesTwoClosed
+    description: Distinct derivation, product 2x.
+  - routeId: sum
+    owner: selfTest.timesTwoFromAdd
+    description: Distinct derivation, x plus x.
+expected:
+  outputs:
+    - outputId: value
+      value: 8
+      comparisonKind: tolerance
+      tolerance:
+        relative: 1.0e-15
+        rationale: Exact integer identity.
+modelVersion: 1
+schemaVersion: 1
