@@ -1,4 +1,4 @@
-import { parseScaledDecimal } from "../../units/decimalScale.ts";
+import { formatScaledDecimal, parseScaledDecimal } from "../../units/decimalScale.ts";
 import type {
   Lq06ForkAChoice,
   Lq06Parameters,
@@ -9,16 +9,17 @@ import { validateLq06Parameters } from "./parameters.ts";
 
 export type DecodedLq06Settings =
   | Readonly<{ kind: "settings"; parameters: Lq06Parameters }>
-  | Readonly<{ kind: "empty" }>
+  | Readonly<{ kind: "absent" }>
   | Readonly<{ kind: "invalid"; message: string }>;
 
 export function encodeLq06Settings(p: Lq06Parameters): string {
+  if (validateLq06Parameters(p).kind !== "accepted") throw new TypeError("Only valid accepted settings can be shared.");
   const q = new URLSearchParams();
-  q.set("e", (p.radiationEnergy * 1e9).toFixed(4)); // in nJ
-  q.set("nu", (p.frequency / 1e12).toFixed(2)); // in THz
+  q.set("e", formatScaledDecimal(p.radiationEnergy, 9)); // in nJ
+  q.set("nu", formatScaledDecimal(p.frequency, -12)); // in THz
   q.set("n", String(p.gasParticles));
-  q.set("v", p.volumeRatio.toFixed(4));
-  q.set("t", p.temperature.toFixed(0));
+  q.set("v", formatScaledDecimal(p.volumeRatio, 0));
+  q.set("t", formatScaledDecimal(p.temperature, 0));
   q.set("sub", p.selectedSubexpression);
   q.set("elem", p.proposedEnergyElement);
   q.set("fork", p.forkAChoice);
@@ -27,7 +28,7 @@ export function encodeLq06Settings(p: Lq06Parameters): string {
 }
 
 export function decodeLq06Settings(search: string): DecodedLq06Settings {
-  if (!search || search === "?") return { kind: "empty" };
+  if (!search || search === "?") return { kind: "absent" };
   const raw = search.startsWith("?") ? search.slice(1) : search;
   const invalid = (): DecodedLq06Settings => ({
     kind: "invalid",
@@ -38,12 +39,17 @@ export function decodeLq06Settings(search: string): DecodedLq06Settings {
 
   const q = new URLSearchParams(raw);
   const requiredKeys = ["e", "nu", "n", "v", "t", "sub", "elem", "fork"];
-  if (!requiredKeys.every((k) => q.has(k))) return invalid();
+  const allowed = new Set([...requiredKeys, "cset"]);
+  if (!requiredKeys.every((k) => q.getAll(k).length === 1) ||
+      [...q.keys()].some(k => !allowed.has(k) || q.getAll(k).length !== 1)) return invalid();
 
   try {
-    const eNanoJ = parseScaledDecimal(q.get("e") ?? "", 0);
-    const nuTHz = parseScaledDecimal(q.get("nu") ?? "", 0);
-    const n = Number.parseInt(q.get("n") ?? "", 10);
+    const energy = parseScaledDecimal(q.get("e") ?? "", 9);
+    const frequency = parseScaledDecimal(q.get("nu") ?? "", -12);
+    const count = q.get("n") ?? "";
+    if (!/^[1-9]\d*$/.test(count)) return invalid();
+    const n = Number(count);
+    if (!Number.isSafeInteger(n)) return invalid();
     const v = parseScaledDecimal(q.get("v") ?? "", 0);
     const t = parseScaledDecimal(q.get("t") ?? "", 0);
     const sub = q.get("sub") as Lq06SubexpressionChoice;
@@ -52,8 +58,8 @@ export function decodeLq06Settings(search: string): DecodedLq06Settings {
     const cset = q.get("cset") ?? "modern-si-2019";
 
     const computation = validateLq06Parameters({
-      radiationEnergy: eNanoJ * 1e-9,
-      frequency: nuTHz * 1e12,
+      radiationEnergy: energy,
+      frequency,
       gasParticles: n,
       volumeRatio: v,
       temperature: t,

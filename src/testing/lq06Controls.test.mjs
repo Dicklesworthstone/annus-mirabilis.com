@@ -53,11 +53,12 @@ test("permalink encoding roundtrips valid settings accurately", () => {
 
 test("permalink decoding rejects invalid or corrupt query strings", () => {
   const q = encodeLq06Settings(LQ06_DEFAULTS);
+  const changed = (key, value) => { const params = new URLSearchParams(q); params.set(key, value); return params.toString(); };
   for (const invalid of [
     `${q}&extra=1`,
-    q.replace("e=9.0556", "e=invalid"),
-    q.replace("nu=600.00", "nu=1e400"),
-    q.replace("sub=none", "sub=unknown-subexpression"),
+    changed("e", "invalid"),
+    changed("nu", "1e400"),
+    changed("sub", "unknown-subexpression"),
     `?${"x".repeat(4096)}`,
   ]) {
     assert.equal(decodeLq06Settings(invalid).kind, "invalid", invalid);
@@ -76,4 +77,16 @@ test("validator enforces strictly positive energy, frequency, and valid choices"
   assert.equal(validateLq06Parameters({ ...LQ06_DEFAULTS, gasParticles: -1 }).kind, "refused");
   assert.equal(validateLq06Parameters({ ...LQ06_DEFAULTS, volumeRatio: 0 }).kind, "refused");
   assert.equal(validateLq06Parameters({ ...LQ06_DEFAULTS, temperature: -50 }).kind, "refused");
+});
+
+
+test("accepted settings links preserve exact values and reject duplicate or truncated interpretations", () => {
+  const p = {...LQ06_DEFAULTS, radiationEnergy: 9.055612345678901e-9, frequency: 600123456789012.5, volumeRatio: .123456789012345, temperature: 3000.125};
+  assert.deepEqual(decodeLq06Settings(encodeLq06Settings(p)), {kind: "settings", parameters: p});
+  const original = encodeLq06Settings(p);
+  for (const key of ["e", "nu", "n", "v", "t", "sub", "elem", "fork", "cset"]) assert.equal(decodeLq06Settings(`${original}&${key}=1`).kind, "invalid");
+  for (const count of ["1.5", "10junk", "1e2", "9007199254740993", "+1", "01"]) {
+    const query = new URLSearchParams(original); query.set("n", count); assert.equal(decodeLq06Settings(query.toString()).kind, "invalid");
+  }
+  assert.equal(decodeLq06Settings("?").kind, "absent");
 });
