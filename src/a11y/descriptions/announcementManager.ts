@@ -11,23 +11,7 @@
  * 7. Supports host-fed clocks for deterministic testing.
  */
 
-function defaultAnnounce(message: string): void {
-  if (typeof document !== "undefined") {
-    let el = document.getElementById("a11y-live-region");
-    if (!el) {
-      el = document.createElement("div");
-      el.id = "a11y-live-region";
-      el.className = "sr-only";
-      el.setAttribute("aria-live", "polite");
-      el.setAttribute("aria-atomic", "true");
-      document.body.appendChild(el);
-    }
-    el.textContent = "";
-    setTimeout(() => {
-      if (el) el.textContent = message;
-    }, 50);
-  }
-}
+import { announce } from "../announce.ts";
 
 export interface AnnouncementManagerOptions {
   /** Clock provider returning timestamps in milliseconds (default: Date.now). */
@@ -50,7 +34,7 @@ export class AnnouncementManager {
 
   constructor(options: AnnouncementManagerOptions = {}) {
     this.clock = options.clock ?? (() => Date.now());
-    this.dispatch = options.onAnnounce ?? ((msg) => defaultAnnounce(msg));
+    this.dispatch = options.onAnnounce ?? ((msg) => announce(msg));
     this.throttleIntervalMs = options.throttleIntervalMs ?? 1000;
   }
 

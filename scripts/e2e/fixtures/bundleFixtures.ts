@@ -12,7 +12,7 @@
  */
 
 import { execFile } from "node:child_process";
-import { realpathSync } from "node:fs";
+import { existsSync, realpathSync } from "node:fs";
 import { copyFile, mkdir } from "node:fs/promises";
 import { dirname, join, resolve } from "node:path";
 import { promisify } from "node:util";
@@ -67,6 +67,22 @@ export async function bundleFixtureApp(
       sourcemap: "external",
       target: "browser",
       format: "esm",
+      plugins: [
+        {
+          name: "relative-ts-resolver",
+          setup(build) {
+            build.onResolve({ filter: /^\.\.?\// }, (args) => {
+              if (!args.importer) return undefined;
+              const direct = resolve(dirname(args.importer), args.path);
+              if (existsSync(direct)) return { path: direct };
+              for (const ext of [".ts", ".tsx", ".js", ".jsx"]) {
+                if (existsSync(direct + ext)) return { path: direct + ext };
+              }
+              return undefined;
+            });
+          },
+        },
+      ],
     });
     if (!buildResult.success) {
       throw new Error(`Failed to bundle fixture: ${buildResult.logs.map(String).join("\n")}`);
