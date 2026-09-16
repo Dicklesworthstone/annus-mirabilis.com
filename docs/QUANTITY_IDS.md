@@ -2,7 +2,7 @@
 
 Generated from `content/quantities/*.yaml` by `scripts/generate-quantity-ids.ts`. Do not hand-edit; run `bun scripts/generate-quantity-ids.ts` to regenerate, and `--check` in CI to confirm this file is fresh.
 
-Total: 222 quantities, 45 rejected spellings, 2 reserved spellings.
+Total: 226 quantities, 45 rejected spellings, 2 reserved spellings.
 
 ## Registered quantities
 
@@ -82,6 +82,7 @@ Total: 222 quantities, 45 rejected spellings, 2 reserved spellings.
 | eventSeparationTemporal | Temporal event separation | 0,0,1,0,0,0 | not-applicable | scalar | — |
 | exposureTime | Exposure time | 0,0,1,0,0,0 | not-applicable | scalar | — |
 | externalForcePerParticle | External force per particle | 1,1,-2,0,0,0 | not-applicable | scalar | externalForce |
+| faradayConstant | Faraday constant | 0,0,1,0,1,-1 | not-applicable | scalar | — |
 | fieldInvariantE2MinusC2B2 | Field invariant: E^2 - c^2 B^2 | 2,2,-6,0,-2,0 | not-applicable | scalar | — |
 | fieldInvariantEDotB | Field invariant: E dot B | 1,2,-5,0,-2,0 | not-applicable | scalar | — |
 | fieldScaleFactorUnknown | Unknown scale factor: psi(v) | 0,0,0,0,0,0 | not-applicable | scalar | — |
@@ -159,6 +160,7 @@ Total: 222 quantities, 45 rejected spellings, 2 reserved spellings.
 | partitionForce | Partition force | 1,1,-2,0,0,0 | not-applicable | scalar | — |
 | peakFrequency | Peak frequency | 0,0,-1,0,0,0 | not-applicable | scalar | — |
 | peakWavelength | Peak wavelength | 1,0,0,0,0,0 | not-applicable | scalar | — |
+| planckChargeQuotient | Planck constant over elementary charge (h/e) | 2,1,-2,0,-1,0 | not-applicable | scalar | — |
 | planckConstant | Planck's constant | 2,1,-1,0,0,0 | not-applicable | scalar | — |
 | positionCoordinate1d | Position coordinate (field, one dimension) | 1,0,0,0,0,0 | not-applicable | scalar | — |
 | pressure | Gas pressure | -1,1,-2,0,0,0 | not-applicable | scalar | — |
@@ -212,6 +214,8 @@ Total: 222 quantities, 45 rejected spellings, 2 reserved spellings.
 | transverseMassComoving | Transverse mass (comoving) | 0,1,0,0,0,0 | object-rest | scalar | massCoefficientTransverseComoving, transverseMassSource |
 | transverseMassLaboratory | Transverse mass (laboratory) | 0,1,0,0,0,0 | laboratory | scalar | transverseCoefficientLaboratory |
 | universalEntropyConstant | Universal entropy constant | 2,1,-2,-1,0,0 | not-applicable | scalar | entropyCoefficient |
+| vacuumPermeability | Vacuum magnetic permeability (mu_0) | 1,1,-2,0,-2,0 | not-applicable | scalar | — |
+| vacuumPermittivity | Vacuum electric permittivity (epsilon_0) | -3,-1,4,0,2,0 | not-applicable | scalar | — |
 | velocityComposed | Composed velocity (stationary system) | 1,0,-1,0,0,0 | stationary-system | vector | — |
 | velocityDirectionAngle | Velocity direction angle: alpha | 0,0,0,0,0,0 | not-applicable | scalar | — |
 | velocityInMovingFrame | Velocity in the moving frame | 1,0,-1,0,0,0 | moving-system | vector | — |
@@ -242,4 +246,9 @@ Reserved for a not-yet-authored record; `resolveQuantityId` reports these `unreg
 
 Declared data fields on a quantity's authored record, exempt from the legacy-spelling check because they name a representation of that same quantity, never a different one.
 
+- `lnW` on `configurationProbability`
+- `log10W` on `configurationProbability`
 - `logFrequencyEnergyDensity` on `frequencyEnergyDensity`
+- `log10FrequencyEnergyDensity` on `frequencyEnergyDensity`
+- `logWavelengthEnergyDensity` on `wavelengthEnergyDensity`
+- `log10WavelengthEnergyDensity` on `wavelengthEnergyDensity`

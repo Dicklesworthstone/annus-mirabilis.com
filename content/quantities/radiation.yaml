@@ -48,7 +48,7 @@
   densityKind: density
   densityPer: [volume, frequency-interval]
   spectralBasis: per-frequency
-  representationFields: [logFrequencyEnergyDensity]
+  representationFields: [logFrequencyEnergyDensity, log10FrequencyEnergyDensity]
   colorRole: energy
 
 - id: wavelengthEnergyDensity
@@ -61,6 +61,7 @@
   densityKind: density
   densityPer: [volume, wavelength-interval]
   spectralBasis: per-wavelength
+  representationFields: [logWavelengthEnergyDensity, log10WavelengthEnergyDensity]
   colorRole: energy
 
 - id: logIntervalEnergyDensity
