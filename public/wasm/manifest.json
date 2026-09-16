@@ -1,0 +1,99 @@
+{
+  "schemaVersion": 1,
+  "bundleId": "fs-annus-diffusion",
+  "bundleDir": "public/wasm/fs-annus-diffusion/105d7ffc15414de5",
+  "wasmDigest": "105d7ffc15414de5eccebcbcae942015b187fed0ea67a26ced5c50949593bb7b",
+  "wasmBytes": 154,
+  "hashPrefix": "105d7ffc15414de5",
+  "revisions": {
+    "frankensim": "5bbbfae6f7de614422f6f97f5798a3e00f8ad813",
+    "asupersync": "5adf01082b14de1d7bd2c9d9da9779d5502cb4bc"
+  },
+  "toolchain": "nightly-2026-07-06",
+  "wasmPackVersion": "0.13.1",
+  "wasmBindgenVersion": "0.2",
+  "streamSemanticsVersion": 1,
+  "refusalMappingDigest": "3abbb592f3a368d19f60a4739dc1c3c984a7e101a66db5c930d810b059112166",
+  "capabilities": [
+    {
+      "capabilityId": "diffusion.brownian-frames",
+      "browserExport": "brownian_frames",
+      "releaseArtifact": "fs-annus-diffusion",
+      "acceptanceState": "owner-decided",
+      "determinismClass": "Deterministic",
+      "streamKernelIds": [
+        419758081,
+        419758082,
+        419758083,
+        419758084
+      ],
+      "exportSignatures": [
+        "brownian_frames"
+      ]
+    },
+    {
+      "capabilityId": "diffusion.philox-normals",
+      "browserExport": "philox_normals",
+      "releaseArtifact": "fs-annus-diffusion",
+      "acceptanceState": "owner-decided",
+      "determinismClass": "Deterministic",
+      "streamKernelIds": [
+        419758081,
+        419758082,
+        419758083,
+        419758084
+      ],
+      "exportSignatures": [
+        "philox_normals"
+      ]
+    },
+    {
+      "capabilityId": "diffusion.ftcs-1d",
+      "browserExport": "diffusion1d_frames",
+      "releaseArtifact": "fs-annus-diffusion",
+      "acceptanceState": "owner-decided",
+      "determinismClass": "Deterministic",
+      "streamKernelIds": [
+        419758081,
+        419758082,
+        419758083,
+        419758084
+      ],
+      "exportSignatures": [
+        "diffusion1d_frames"
+      ]
+    }
+  ],
+  "sizeBudget": {
+    "maxBytes": 500000,
+    "fullPackageBytes": 4900000,
+    "recordedBytes": 154,
+    "jsGlueBytes": 13342,
+    "totalBundleBytes": 15334
+  },
+  "files": {
+    "fs_annus_diffusion_bg.wasm": {
+      "sha256": "105d7ffc15414de5eccebcbcae942015b187fed0ea67a26ced5c50949593bb7b",
+      "bytes": 154
+    },
+    "fs_annus_diffusion.js": {
+      "sha256": "2710e3d0a5933293233a873df5b2032fd3b54184467d56ce42225073167ace6f",
+      "bytes": 13342
+    },
+    "fs_annus_diffusion.d.ts": {
+      "sha256": "e92fd7dda982c5178c13968ca3549692f318c8864f39c10eb3b20731b9323673",
+      "bytes": 1534
+    },
+    "fs_annus_diffusion_bg.wasm.d.ts": {
+      "sha256": "6ec82fb419ad26aeee892bcfb05d1a7cf9166bc3b32019dbecc1d2ca07f0178d",
+      "bytes": 304
+    }
+  },
+  "build": {
+    "command": "wasm-pack build --release --target web -- --locked",
+    "flags": [
+      "--remap-path-prefix"
+    ],
+    "timestamp": "2026-09-16T21:40:09.774Z"
+  }
+}

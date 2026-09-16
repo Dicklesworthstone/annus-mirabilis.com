@@ -1,0 +1,26 @@
+{
+  "description": "Known-answer test vectors and reference sequences for Philox4x32-10 (am-fs-philox-ts-port-7kp).",
+  "kats": [
+    {
+      "name": "zero_block",
+      "counter": [0, 0, 0, 0],
+      "key": [0, 0],
+      "expected": [1713891541, 3781805453, 3159862348, 2600524760],
+      "expectedHex": ["0x6627e8d5", "0xe169c58d", "0xbc57ac4c", "0x9b00dbd8"]
+    },
+    {
+      "name": "all_ones",
+      "counter": [4294967295, 4294967295, 4294967295, 4294967295],
+      "key": [4294967295, 4294967295],
+      "expected": [1083123565, 1103633166, 2718615494, 1834275325],
+      "expectedHex": ["0x408f276d", "0x41c83b0e", "0xa20bc7c6", "0x6d5451fd"]
+    },
+    {
+      "name": "pi_digits",
+      "counter": [608135816, 2242054355, 320436782, 57701188],
+      "key": [2752067618, 698298832],
+      "expected": [3513581065, 2499661035, 1342299168, 605187745],
+      "expectedHex": ["0xd16cfe09", "0x94fdcceb", "0x5001e420", "0x24126ea1"]
+    }
+  ]
+}

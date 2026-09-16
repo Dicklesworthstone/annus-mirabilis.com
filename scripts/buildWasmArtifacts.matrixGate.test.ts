@@ -1,6 +1,8 @@
-import { describe, expect, test } from "bun:test";
+import assert from "node:assert/strict";
 import { readFileSync } from "node:fs";
 import path from "node:path";
+import { describe, it } from "node:test";
+import { fileURLToPath } from "node:url";
 import {
   type CapabilityMatrixRow,
   parseCapabilityMatrix,
@@ -8,8 +10,9 @@ import {
 import { admitExportsForBundle, formatAdmissionFailures } from "./wasm-artifacts/matrixGate.ts";
 
 const BUNDLE_ID = "fs-annus-diffusion";
-const BINDING_DOCUMENT_PATH = path.join(import.meta.dir, "..", "docs", "FRANKENSIM_BINDING.md");
-const MATRIX_GATE_SOURCE_PATH = path.join(import.meta.dir, "wasm-artifacts", "matrixGate.ts");
+const currentDir = path.dirname(fileURLToPath(import.meta.url));
+const BINDING_DOCUMENT_PATH = path.join(currentDir, "..", "docs", "FRANKENSIM_BINDING.md");
+const MATRIX_GATE_SOURCE_PATH = path.join(currentDir, "wasm-artifacts", "matrixGate.ts");
 
 function row(
   overrides: Partial<CapabilityMatrixRow> &
@@ -30,7 +33,7 @@ function row(
 }
 
 describe("admitExportsForBundle: the fixture matrix in the bead's own test plan", () => {
-  test("a matrix whose three export rows name this bundle at owner-decided admits all three", () => {
+  it("a matrix whose three export rows name this bundle at owner-decided admits all three", () => {
     const matrix: CapabilityMatrixRow[] = [
       row({ capabilityId: "diffusion.brownian-frames", browserExport: "brownian_frames" }),
       row({ capabilityId: "diffusion.philox-normals", browserExport: "philox_normals" }),
@@ -41,13 +44,14 @@ describe("admitExportsForBundle: the fixture matrix in the bead's own test plan"
       ["brownian_frames", "philox_normals", "diffusion1d_frames"],
       BUNDLE_ID,
     );
-    expect(result.failures).toEqual([]);
-    expect(result.admitted.map((a) => a.export).sort()).toEqual(
+    assert.deepEqual(result.failures, []);
+    assert.deepEqual(
+      result.admitted.map((a) => a.export).sort(),
       ["brownian_frames", "diffusion1d_frames", "philox_normals"].sort(),
     );
   });
 
-  test("a row whose releaseArtifact is none excludes that export, naming the export and the field", () => {
+  it("a row whose releaseArtifact is none excludes that export, naming the export and the field", () => {
     const matrix: CapabilityMatrixRow[] = [
       row({
         capabilityId: "diffusion.heat-frames",
@@ -56,14 +60,15 @@ describe("admitExportsForBundle: the fixture matrix in the bead's own test plan"
       }),
     ];
     const result = admitExportsForBundle(matrix, ["heat_frames"], BUNDLE_ID);
-    expect(result.admitted).toEqual([]);
-    expect(result.failures).toHaveLength(1);
-    expect(result.failures[0]).toMatchObject({ export: "heat_frames", field: "releaseArtifact" });
-    expect(formatAdmissionFailures(result)).toContain("heat_frames");
-    expect(formatAdmissionFailures(result)).toContain("releaseArtifact");
+    assert.deepEqual(result.admitted, []);
+    assert.equal(result.failures.length, 1);
+    assert.equal(result.failures[0]?.export, "heat_frames");
+    assert.equal(result.failures[0]?.field, "releaseArtifact");
+    assert.ok(formatAdmissionFailures(result)?.includes("heat_frames"));
+    assert.ok(formatAdmissionFailures(result)?.includes("releaseArtifact"));
   });
 
-  test("a row naming a different bundle fails the same way", () => {
+  it("a row naming a different bundle fails the same way", () => {
     const matrix: CapabilityMatrixRow[] = [
       row({
         capabilityId: "radiation.some-other-bundle",
@@ -72,12 +77,13 @@ describe("admitExportsForBundle: the fixture matrix in the bead's own test plan"
       }),
     ];
     const result = admitExportsForBundle(matrix, ["planck_frames"], BUNDLE_ID);
-    expect(result.admitted).toEqual([]);
-    expect(result.failures[0]).toMatchObject({ export: "planck_frames", field: "releaseArtifact" });
-    expect(result.failures[0]?.message).toContain("fs-annus-radiation");
+    assert.deepEqual(result.admitted, []);
+    assert.equal(result.failures[0]?.export, "planck_frames");
+    assert.equal(result.failures[0]?.field, "releaseArtifact");
+    assert.ok(result.failures[0]?.message.includes("fs-annus-radiation"));
   });
 
-  test("a row at acceptanceState: not-started is refused even when releaseArtifact names this bundle", () => {
+  it("a row at acceptanceState: not-started is refused even when releaseArtifact names this bundle", () => {
     const matrix: CapabilityMatrixRow[] = [
       row({
         capabilityId: "diffusion.brownian-frames",
@@ -86,21 +92,20 @@ describe("admitExportsForBundle: the fixture matrix in the bead's own test plan"
       }),
     ];
     const result = admitExportsForBundle(matrix, ["brownian_frames"], BUNDLE_ID);
-    expect(result.admitted).toEqual([]);
-    expect(result.failures[0]).toMatchObject({
-      export: "brownian_frames",
-      field: "acceptanceState",
-    });
-    expect(result.failures[0]?.message).toContain("not-started");
+    assert.deepEqual(result.admitted, []);
+    assert.equal(result.failures[0]?.export, "brownian_frames");
+    assert.equal(result.failures[0]?.field, "acceptanceState");
+    assert.ok(result.failures[0]?.message.includes("not-started"));
   });
 
-  test("an export with no row at all fails naming the export", () => {
+  it("an export with no row at all fails naming the export", () => {
     const result = admitExportsForBundle([], ["philox_normals"], BUNDLE_ID);
-    expect(result.admitted).toEqual([]);
-    expect(result.failures[0]).toMatchObject({ export: "philox_normals", field: "missing-row" });
+    assert.deepEqual(result.admitted, []);
+    assert.equal(result.failures[0]?.export, "philox_normals");
+    assert.equal(result.failures[0]?.field, "missing-row");
   });
 
-  test("rows for the same export that disagree with each other are refused, not resolved by picking one", () => {
+  it("rows for the same export that disagree with each other are refused, not resolved by picking one", () => {
     const matrix: CapabilityMatrixRow[] = [
       row({
         capabilityId: "diffusion.brownian-frames",
@@ -115,14 +120,12 @@ describe("admitExportsForBundle: the fixture matrix in the bead's own test plan"
       }),
     ];
     const result = admitExportsForBundle(matrix, ["brownian_frames"], BUNDLE_ID);
-    expect(result.admitted).toEqual([]);
-    expect(result.failures[0]).toMatchObject({
-      export: "brownian_frames",
-      field: "inconsistent-rows",
-    });
+    assert.deepEqual(result.admitted, []);
+    assert.equal(result.failures[0]?.export, "brownian_frames");
+    assert.equal(result.failures[0]?.field, "inconsistent-rows");
   });
 
-  test("consistent multi-row exports (two instruments, one capability) admit normally", () => {
+  it("consistent multi-row exports (two instruments, one capability) admit normally", () => {
     const matrix: CapabilityMatrixRow[] = [
       row({
         capabilityId: "diffusion.brownian-frames",
@@ -136,13 +139,13 @@ describe("admitExportsForBundle: the fixture matrix in the bead's own test plan"
       }),
     ];
     const result = admitExportsForBundle(matrix, ["brownian_frames"], BUNDLE_ID);
-    expect(result.failures).toEqual([]);
-    expect(result.admitted[0]?.rows).toHaveLength(2);
+    assert.deepEqual(result.failures, []);
+    assert.equal(result.admitted[0]?.rows.length, 2);
   });
 });
 
 describe("admitExportsForBundle against the real capability matrix", () => {
-  test("brownian_frames, philox_normals, and diffusion1d_frames are all admitted for fs-annus-diffusion", () => {
+  it("brownian_frames, philox_normals, and diffusion1d_frames are all admitted for fs-annus-diffusion", () => {
     const bindingDocument = readFileSync(BINDING_DOCUMENT_PATH, "utf8");
     const matrix = parseCapabilityMatrix(bindingDocument);
     const result = admitExportsForBundle(
@@ -150,34 +153,35 @@ describe("admitExportsForBundle against the real capability matrix", () => {
       ["brownian_frames", "philox_normals", "diffusion1d_frames"],
       BUNDLE_ID,
     );
-    expect(formatAdmissionFailures(result)).toBeNull();
-    expect(result.admitted.map((a) => a.export).sort()).toEqual(
+    assert.equal(formatAdmissionFailures(result), null);
+    assert.deepEqual(
+      result.admitted.map((a) => a.export).sort(),
       ["brownian_frames", "diffusion1d_frames", "philox_normals"].sort(),
     );
   });
 
-  test("heat_frames (present upstream, deliberately refused as an owner) is not admitted", () => {
+  it("heat_frames (present upstream, deliberately refused as an owner) is not admitted", () => {
     const bindingDocument = readFileSync(BINDING_DOCUMENT_PATH, "utf8");
     const matrix = parseCapabilityMatrix(bindingDocument);
     const result = admitExportsForBundle(matrix, ["heat_frames"], BUNDLE_ID);
-    expect(result.admitted).toEqual([]);
-    expect(result.failures[0]?.field).toBe("releaseArtifact");
+    assert.deepEqual(result.admitted, []);
+    assert.equal(result.failures[0]?.field, "releaseArtifact");
   });
 });
 
 describe("the gate reads the shared parser and holds no second admitted-set", () => {
-  test("matrixGate.ts contains no second parse of the fenced capability-matrix block", () => {
+  it("matrixGate.ts contains no second parse of the fenced capability-matrix block", () => {
     const source = readFileSync(MATRIX_GATE_SOURCE_PATH, "utf8");
-    expect(source).not.toContain("```capability-matrix");
-    expect(source).not.toMatch(/extractCapabilityMatrixBlock|parseCapabilityMatrixBody/);
+    assert.equal(source.includes("```capability-matrix"), false);
+    assert.equal(/extractCapabilityMatrixBlock|parseCapabilityMatrixBody/.test(source), false);
   });
 
-  test("matrixGate.ts hard-codes no capability id from the real matrix", () => {
+  it("matrixGate.ts hard-codes no capability id from the real matrix", () => {
     const source = readFileSync(MATRIX_GATE_SOURCE_PATH, "utf8");
     const bindingDocument = readFileSync(BINDING_DOCUMENT_PATH, "utf8");
     const matrix = parseCapabilityMatrix(bindingDocument);
     for (const capabilityId of new Set(matrix.map((r) => r.capabilityId))) {
-      expect(source).not.toContain(capabilityId);
+      assert.equal(source.includes(capabilityId), false);
     }
   });
 });

@@ -1,6 +1,8 @@
-import { describe, expect, test } from "bun:test";
+import assert from "node:assert/strict";
 import { readFileSync } from "node:fs";
 import path from "node:path";
+import { describe, it } from "node:test";
+import { fileURLToPath } from "node:url";
 import {
   CAPABILITY_MATRIX_REQUIRED_KEYS,
   CapabilityMatrixParseError,
@@ -9,13 +11,8 @@ import {
   parseCapabilityMatrixBody,
 } from "./capabilityMatrix.ts";
 
-const BINDING_DOCUMENT_PATH = path.join(
-  import.meta.dir,
-  "..",
-  "..",
-  "docs",
-  "FRANKENSIM_BINDING.md",
-);
+const currentDir = path.dirname(fileURLToPath(import.meta.url));
+const BINDING_DOCUMENT_PATH = path.join(currentDir, "..", "..", "docs", "FRANKENSIM_BINDING.md");
 
 function readBindingDocument(): string {
   return readFileSync(BINDING_DOCUMENT_PATH, "utf8");
@@ -51,29 +48,30 @@ const FIXTURE_ORPHAN_ROW = [
 ].join("\n");
 
 describe("extractCapabilityMatrixBlock", () => {
-  test("extracts the body between the fences, exclusive", () => {
+  it("extracts the body between the fences, exclusive", () => {
     const doc = `intro\n\`\`\`capability-matrix\n${FIXTURE_ROW}\n\`\`\`\noutro`;
     const block = extractCapabilityMatrixBlock(doc);
-    expect(block).toBe(FIXTURE_ROW);
-    expect(block).not.toContain("```");
+    assert.equal(block, FIXTURE_ROW);
+    assert.equal(block.includes("```"), false);
   });
 
-  test("refuses when the opening fence is missing", () => {
-    expect(() => extractCapabilityMatrixBlock("no fence here")).toThrow(CapabilityMatrixParseError);
+  it("refuses when the opening fence is missing", () => {
+    assert.throws(() => extractCapabilityMatrixBlock("no fence here"), CapabilityMatrixParseError);
   });
 
-  test("refuses when the closing fence is missing", () => {
-    expect(() => extractCapabilityMatrixBlock(`\`\`\`capability-matrix\n${FIXTURE_ROW}\n`)).toThrow(
+  it("refuses when the closing fence is missing", () => {
+    assert.throws(
+      () => extractCapabilityMatrixBlock(`\`\`\`capability-matrix\n${FIXTURE_ROW}\n`),
       CapabilityMatrixParseError,
     );
   });
 });
 
 describe("parseCapabilityMatrixBody", () => {
-  test("parses one row into a fully typed record", () => {
+  it("parses one row into a fully typed record", () => {
     const rows = parseCapabilityMatrixBody(FIXTURE_ROW);
-    expect(rows).toHaveLength(1);
-    expect(rows[0]).toEqual({
+    assert.equal(rows.length, 1);
+    assert.deepEqual(rows[0], {
       capabilityId: "diffusion.brownian-frames",
       family: "Diffusion and stochastic transport",
       instrumentId: "bm-01",
@@ -88,126 +86,129 @@ describe("parseCapabilityMatrixBody", () => {
     });
   });
 
-  test("parses multiple rows in sequence", () => {
+  it("parses multiple rows in sequence", () => {
     const rows = parseCapabilityMatrixBody(`${FIXTURE_ROW}\n${FIXTURE_ORPHAN_ROW}`);
-    expect(rows).toHaveLength(2);
-    expect(rows.map((row) => row.capabilityId)).toEqual([
-      "diffusion.brownian-frames",
-      "diffusion.heat-frames",
-    ]);
+    assert.equal(rows.length, 2);
+    assert.deepEqual(
+      rows.map((row) => row.capabilityId),
+      ["diffusion.brownian-frames", "diffusion.heat-frames"],
+    );
   });
 
-  test("carries reason only for instrumentId: none rows", () => {
+  it("carries reason only for instrumentId: none rows", () => {
     const rows = parseCapabilityMatrixBody(FIXTURE_ORPHAN_ROW);
-    expect(rows[0]?.instrumentId).toBe("none");
-    expect(rows[0]?.reason).toBe(
+    assert.equal(rows[0]?.instrumentId, "none");
+    assert.equal(
+      rows[0]?.reason,
       "heat_frames is not an honest owner for any diffusion instrument.",
     );
   });
 
-  test("refuses instrumentId: none without a reason", () => {
+  it("refuses instrumentId: none without a reason", () => {
     const malformed = FIXTURE_ORPHAN_ROW.split("\n")
       .filter((line) => !line.trim().startsWith("reason:"))
       .join("\n");
-    expect(() => parseCapabilityMatrixBody(malformed)).toThrow(CapabilityMatrixParseError);
+    assert.throws(() => parseCapabilityMatrixBody(malformed), CapabilityMatrixParseError);
   });
 
-  test("refuses a reason field when instrumentId is not none", () => {
+  it("refuses a reason field when instrumentId is not none", () => {
     const malformed = `${FIXTURE_ROW}\n  reason: "should not be here"`;
-    expect(() => parseCapabilityMatrixBody(malformed)).toThrow(CapabilityMatrixParseError);
+    assert.throws(() => parseCapabilityMatrixBody(malformed), CapabilityMatrixParseError);
   });
 
-  test("refuses a row missing a required key", () => {
+  it("refuses a row missing a required key", () => {
     const malformed = FIXTURE_ROW.split("\n")
       .filter((line) => !line.trim().startsWith("acceptanceState:"))
       .join("\n");
-    expect(() => parseCapabilityMatrixBody(malformed)).toThrow(CapabilityMatrixParseError);
+    assert.throws(() => parseCapabilityMatrixBody(malformed), CapabilityMatrixParseError);
   });
 
-  test("refuses a duplicate key within one row", () => {
+  it("refuses a duplicate key within one row", () => {
     const malformed = `${FIXTURE_ROW}\n  owner: "fs_wasm::duplicate"`;
-    expect(() => parseCapabilityMatrixBody(malformed)).toThrow(CapabilityMatrixParseError);
+    assert.throws(() => parseCapabilityMatrixBody(malformed), CapabilityMatrixParseError);
   });
 
-  test("refuses an unexpected key", () => {
+  it("refuses an unexpected key", () => {
     const malformed = `${FIXTURE_ROW}\n  extraColumn: "not part of the schema"`;
-    expect(() => parseCapabilityMatrixBody(malformed)).toThrow(CapabilityMatrixParseError);
+    assert.throws(() => parseCapabilityMatrixBody(malformed), CapabilityMatrixParseError);
   });
 
-  test("refuses a line that is neither a row start nor a continuation", () => {
-    expect(() => parseCapabilityMatrixBody("not a valid line at all")).toThrow(
+  it("refuses a line that is neither a row start nor a continuation", () => {
+    assert.throws(
+      () => parseCapabilityMatrixBody("not a valid line at all"),
       CapabilityMatrixParseError,
     );
   });
 
-  test("refuses a continuation line before any row has started", () => {
-    expect(() => parseCapabilityMatrixBody('  family: "orphaned continuation"')).toThrow(
+  it("refuses a continuation line before any row has started", () => {
+    assert.throws(
+      () => parseCapabilityMatrixBody('  family: "orphaned continuation"'),
       CapabilityMatrixParseError,
     );
   });
 
-  test("unquotes a JSON-style double-quoted scalar, preserving embedded colons", () => {
+  it("unquotes a JSON-style double-quoted scalar, preserving embedded colons", () => {
     const rows = parseCapabilityMatrixBody(FIXTURE_ROW);
-    expect(rows[0]?.owner).toBe("fs_wasm::brownian_frames");
+    assert.equal(rows[0]?.owner, "fs_wasm::brownian_frames");
   });
 
-  test("an empty body parses to zero rows", () => {
-    expect(parseCapabilityMatrixBody("")).toEqual([]);
-    expect(parseCapabilityMatrixBody("\n\n")).toEqual([]);
+  it("an empty body parses to zero rows", () => {
+    assert.deepEqual(parseCapabilityMatrixBody(""), []);
+    assert.deepEqual(parseCapabilityMatrixBody("\n\n"), []);
   });
 });
 
 describe("parseCapabilityMatrix against the real binding document", () => {
-  test("parses without throwing and recovers the documented row count", () => {
+  it("parses without throwing and recovers the documented row count", () => {
     const rows = parseCapabilityMatrix(readBindingDocument());
     // docs/FRANKENSIM_BINDING.md "Summary counts" states 41 rows; recomputed here from
     // the fenced block itself, not copied from that paragraph.
-    expect(rows).toHaveLength(41);
+    assert.equal(rows.length, 41);
   });
 
-  test("every row carries exactly the required keys, plus reason only when instrumentId is none", () => {
+  it("every row carries exactly the required keys, plus reason only when instrumentId is none", () => {
     const rows = parseCapabilityMatrix(readBindingDocument());
     for (const row of rows) {
       const keys = Object.keys(row).filter((key) => key !== "reason");
-      expect(new Set(keys)).toEqual(new Set(CAPABILITY_MATRIX_REQUIRED_KEYS));
+      assert.deepEqual(new Set(keys), new Set(CAPABILITY_MATRIX_REQUIRED_KEYS));
       if (row.instrumentId === "none") {
-        expect(typeof row.reason).toBe("string");
+        assert.equal(typeof row.reason, "string");
       } else {
-        expect(row.reason).toBeUndefined();
+        assert.equal(row.reason, undefined);
       }
     }
   });
 
-  test("the three first-export capabilities are present with fs-annus-diffusion", () => {
+  it("the three first-export capabilities are present with fs-annus-diffusion", () => {
     const rows = parseCapabilityMatrix(readBindingDocument());
     const byExport = new Map(
       rows
         .filter((r) => r.releaseArtifact === "fs-annus-diffusion")
         .map((r) => [r.browserExport, r]),
     );
-    expect(byExport.has("brownian_frames")).toBe(true);
-    expect(byExport.has("philox_normals")).toBe(true);
-    expect(byExport.has("diffusion1d_frames")).toBe(true);
+    assert.equal(byExport.has("brownian_frames"), true);
+    assert.equal(byExport.has("philox_normals"), true);
+    assert.equal(byExport.has("diffusion1d_frames"), true);
     for (const row of byExport.values()) {
-      expect(row.acceptanceState).not.toBe("not-started");
+      assert.notEqual(row.acceptanceState, "not-started");
     }
   });
 
-  test("the four documented orphan rows (instrumentId: none) exist and carry a reason", () => {
+  it("the four documented orphan rows (instrumentId: none) exist and carry a reason", () => {
     const rows = parseCapabilityMatrix(readBindingDocument());
     const orphans = rows.filter((row) => row.instrumentId === "none");
-    expect(orphans).toHaveLength(4);
+    assert.equal(orphans.length, 4);
     for (const row of orphans) {
-      expect(row.releaseArtifact).toBe("none");
-      expect(typeof row.reason).toBe("string");
-      expect((row.reason ?? "").length).toBeGreaterThan(0);
+      assert.equal(row.releaseArtifact, "none");
+      assert.equal(typeof row.reason, "string");
+      assert.ok((row.reason ?? "").length > 0);
     }
   });
 
-  test("no row claims acceptanceState verified, adopted, or not-started (matches the audit's own summary)", () => {
+  it("no row claims acceptanceState verified, adopted, or not-started (matches the audit's own summary)", () => {
     const rows = parseCapabilityMatrix(readBindingDocument());
     for (const row of rows) {
-      expect(["verified", "adopted", "not-started"]).not.toContain(row.acceptanceState);
+      assert.equal(["verified", "adopted", "not-started"].includes(row.acceptanceState), false);
     }
   });
 });
