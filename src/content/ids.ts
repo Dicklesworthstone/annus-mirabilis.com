@@ -334,8 +334,19 @@ export type ClosingId = Brand<string, "ClosingId">;
 export type MastheadId = Brand<string, "MastheadId">;
 export type PartHeadingId = Brand<string, "PartHeadingId">;
 
-export type AlignableUnitId = Brand<string, "AlignableUnitId">;
-export type TranslationUnitId = Brand<string, "TranslationUnitId">;
+export type AlignableUnitId =
+  | SentenceId
+  | HeadingId
+  | FootnoteId
+  | ClosingId
+  | MastheadId
+  | PartHeadingId
+  | Brand<string, "AlignableUnitId">;
+
+export type TranslationUnitId =
+  | AlignableUnitId
+  | Brand<string, "TranslationUnitId">;
+
 export type InlineMathId = Brand<string, "InlineMathId">;
 export type ReferenceId = Brand<string, "ReferenceId">;
 
@@ -577,7 +588,7 @@ export function normalizePrintedLabel(label: string): string {
 }
 
 export function parseEquationAnchor(raw: string): ParseResult<EquationAnchor> {
-  if (/^eq-(?:s\d+-)?(?:d[1-9]\d*|[0-9a-z]+(?:p+)?|roman-[0-9a-z]+(?:p+)?)$/.test(raw)) {
+  if (/^eq-(?:s\d+-)?(?:d[1-9]\d*|[1-9]\d*[a-z]?p*|roman-[1-9]\d*[a-z]?p*)$/.test(raw)) {
     return { ok: true, value: raw as EquationAnchor };
   }
   return {

@@ -7,8 +7,7 @@
  * Bead: am-cm-id-scheme-8bn
  */
 
-import { execSync } from "node:crypto"; // wait, execSync from child_process!
-import { execFileSync, execSync as nodeExecSync } from "node:child_process";
+import { execFileSync, execSync } from "node:child_process";
 import { existsSync, readdirSync, readFileSync } from "node:fs";
 import path from "node:path";
 import { parseArgs } from "node:util";
@@ -23,7 +22,7 @@ import { TestLogger, newRunIdentity } from "../src/testing/log/logger.ts";
 
 function getGitFilesAtRef(ref: string, dir: string): string[] {
   try {
-    const output = nodeExecSync(`git ls-tree -r --name-only ${ref} ${dir}`, {
+    const output = execSync(`git ls-tree -r --name-only ${ref} ${dir}`, {
       encoding: "utf8",
       stdio: ["ignore", "pipe", "ignore"],
     });
@@ -38,7 +37,7 @@ function getGitFilesAtRef(ref: string, dir: string): string[] {
 
 function readGitFileAtRef(ref: string, relativePath: string): string | null {
   try {
-    return nodeExecSync(`git show ${ref}:${relativePath}`, {
+    return execSync(`git show ${ref}:${relativePath}`, {
       encoding: "utf8",
       stdio: ["ignore", "pipe", "ignore"],
     });
@@ -175,7 +174,7 @@ export async function runRevisionCheck(baseRef: string, contentDir: string): Pro
 }
 
 // CLI execution
-if (import.meta.main || process.argv[1]?.endsWith("check-revisions.ts")) {
+if (process.argv[1]?.endsWith("check-revisions.ts")) {
   const { values } = parseArgs({
     args: process.argv.slice(2),
     options: {
