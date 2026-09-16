@@ -14,7 +14,6 @@
  * Spec: AGENTS.md "Editorial Voice" and am-edit-voice-lint-trmf
  */
 
-import { randomUUID } from "node:crypto";
 import { existsSync, mkdirSync, readdirSync, readFileSync, statSync, writeFileSync } from "node:fs";
 import path from "node:path";
 import { fileURLToPath } from "node:url";
@@ -29,6 +28,7 @@ import {
 } from "../src/content/checks/voice/overrides.ts";
 import type { VoiceContext } from "../src/content/checks/voice/rules.ts";
 import { parseYaml } from "../src/content/provenance/yaml.ts";
+import { newRunIdentity } from "../src/testing/log/logger.ts";
 
 const ROOT = path.resolve(path.dirname(fileURLToPath(import.meta.url)), "..");
 const LOGS_DIR = path.join(ROOT, "artifacts", "test-logs", "voice-lint");
@@ -72,7 +72,7 @@ export async function runVoiceLint(): Promise<{
   logRunId: string;
   logFilePath: string;
 }> {
-  const logRunId = randomUUID();
+  const logRunId = newRunIdentity();
   const timestamp = new Date().toISOString();
   const logEntries: LogEntry[] = [];
 
