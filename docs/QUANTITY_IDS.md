@@ -2,7 +2,7 @@
 
 Generated from `content/quantities/*.yaml` by `scripts/generate-quantity-ids.ts`. Do not hand-edit; run `bun scripts/generate-quantity-ids.ts` to regenerate, and `--check` in CI to confirm this file is fresh.
 
-Total: 226 quantities, 45 rejected spellings, 2 reserved spellings.
+Total: 227 quantities, 45 rejected spellings, 2 reserved spellings.
 
 ## Registered quantities
 
@@ -160,6 +160,7 @@ Total: 226 quantities, 45 rejected spellings, 2 reserved spellings.
 | partitionForce | Partition force | 1,1,-2,0,0,0 | not-applicable | scalar | — |
 | peakFrequency | Peak frequency | 0,0,-1,0,0,0 | not-applicable | scalar | — |
 | peakWavelength | Peak wavelength | 1,0,0,0,0,0 | not-applicable | scalar | — |
+| photocurrent | Photocurrent | 0,0,0,0,1,0 | not-applicable | scalar | — |
 | planckChargeQuotient | Planck constant over elementary charge (h/e) | 2,1,-2,0,-1,0 | not-applicable | scalar | — |
 | planckConstant | Planck's constant | 2,1,-1,0,0,0 | not-applicable | scalar | — |
 | positionCoordinate1d | Position coordinate (field, one dimension) | 1,0,0,0,0,0 | not-applicable | scalar | — |

@@ -9,9 +9,7 @@ export const LOG_DOUBLE_ZERO_THRESHOLD = -745.1332191019411; // ln(4.94065645841
 
 export function isLinearRepresentable(lnValue: number): boolean {
   return (
-    Number.isFinite(lnValue) &&
-    lnValue >= LOG_DOUBLE_MIN_NORMAL &&
-    lnValue <= LOG_DOUBLE_MAX_NORMAL
+    Number.isFinite(lnValue) && lnValue >= LOG_DOUBLE_MIN_NORMAL && lnValue <= LOG_DOUBLE_MAX_NORMAL
   );
 }
 

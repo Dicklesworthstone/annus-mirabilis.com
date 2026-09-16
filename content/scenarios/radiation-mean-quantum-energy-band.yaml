@@ -1,0 +1,38 @@
+id: radiation-mean-quantum-energy-band
+kind: modern-golden
+title: Band-limited mean quantum energy over Wien regime
+description: >
+  Editorial variant evaluating mean quantum energy over a bounded frequency range,
+  reporting energy and count shares below the Wien validity boundary.
+provenance:
+  paper: light-quanta
+  sectionId: s6
+  printedPage: 143
+constantSetId: modern-si-2019
+owner: radiation.meanQuantumEnergyBand
+inputs:
+  temperature:
+    value: 3000
+    unit: K
+  xMin:
+    value: 4.605170186
+    unit: ""
+  xMax:
+    value: 50
+    unit: ""
+expected:
+  outputs:
+    - outputId: energyShareBelowBoundary
+      comparisonKind: tolerance
+      tolerance:
+        relative: 1.0e-5
+        rationale: "Incomplete gamma ratio gamma(4, x0)/6."
+      value: 0.675136
+    - outputId: countShareBelowBoundary
+      comparisonKind: tolerance
+      tolerance:
+        relative: 1.0e-5
+        rationale: "Incomplete gamma ratio gamma(3, x0)/2."
+      value: 0.837910
+modelVersion: 1
+schemaVersion: 1

@@ -248,7 +248,12 @@ export function logIntervalEnergyDensity(
   const quantityId = "logIntervalEnergyDensity";
   const unit = "J/m^3";
   if (!Number.isFinite(nuOrLambda) || nuOrLambda <= 0)
-    return refuseNonpositive(basis === "frequency" ? "frequency" : "wavelength", nuOrLambda, quantityId, unit);
+    return refuseNonpositive(
+      basis === "frequency" ? "frequency" : "wavelength",
+      nuOrLambda,
+      quantityId,
+      unit,
+    );
   if (!Number.isFinite(T) || T <= 0) return refuseNonpositive("temperature", T, quantityId, unit);
 
   let spectralResult: RadiationResult<number>;
@@ -331,7 +336,10 @@ export function planckPeakWavelength(T: number, set: ConstantSet): RadiationResu
 }
 
 /** Peak of log-interval spectral density (nu * u_nu): x_4 = 3.920690395. */
-export function planckPeakLogInterval(T: number, set: ConstantSet): {
+export function planckPeakLogInterval(
+  T: number,
+  set: ConstantSet,
+): {
   x: number;
   peakFrequency: number;
   peakWavelength: number;

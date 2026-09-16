@@ -1,0 +1,43 @@
+id: waves-lq01
+kind: modern-golden
+title: Flat disk aperture power and inverse-square comparison
+description: >
+  Radiant power through a 1 cm^2 aperture at distance 1 m from a 1 W isotropic point source.
+provenance:
+  paper: light-quanta
+  sectionId: s1
+  printedPage: 133
+constantSetId: modern-si-2019
+owner: radiation.waves
+inputs:
+  P:
+    value: 1.0
+    unit: W
+  r:
+    value: 1.0
+    unit: m
+  apertureArea:
+    value: 0.0001
+    unit: m^2
+expected:
+  outputs:
+    - outputId: smallAperturePower
+      comparisonKind: tolerance
+      tolerance:
+        relative: 1.0e-5
+        rationale: "Small-aperture area product P*S/(4*pi*r^2)."
+      value: 7.957747e-6
+    - outputId: exactDiskPower
+      comparisonKind: tolerance
+      tolerance:
+        relative: 1.0e-5
+        rationale: "Exact geometric solid angle integral for flat circular disk."
+      value: 7.957557e-6
+    - outputId: relativeDifference
+      comparisonKind: tolerance
+      tolerance:
+        relative: 1.0e-3
+        rationale: "Relative fractional difference between small-aperture and exact disk power."
+      value: -2.387e-5
+modelVersion: 1
+schemaVersion: 1

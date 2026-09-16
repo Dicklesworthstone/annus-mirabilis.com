@@ -1,0 +1,32 @@
+id: radiation-mean-quantum-energy-extrapolation
+kind: modern-golden
+title: Mean quantum energy over full Wien spectrum
+description: >
+  Einstein 1905 paper 1 section 6 mean energy of light quanta over full Wien spectrum,
+  yielding 3*(R/N)*T = 3*k_B*T, with ratio 2 to a free molecule's mean kinetic energy.
+provenance:
+  paper: light-quanta
+  sectionId: s6
+  printedPage: 143
+constantSetId: modern-si-2019
+owner: radiation.meanQuantumEnergyExtrapolation
+inputs:
+  temperature:
+    value: 3000
+    unit: K
+expected:
+  outputs:
+    - outputId: meanQuantumEnergyWien
+      comparisonKind: tolerance
+      tolerance:
+        relative: 1.0e-9
+        rationale: "Exact analytical product 3 * k_B * T in 2019 SI."
+      value: 1.2425841e-19
+    - outputId: ratioToMoleculeKinetic
+      comparisonKind: tolerance
+      tolerance:
+        relative: 1.0e-9
+        rationale: "Exact ratio 3 / 1.5 = 2."
+      value: 2.0
+modelVersion: 1
+schemaVersion: 1

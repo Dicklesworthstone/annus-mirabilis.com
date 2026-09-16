@@ -1,0 +1,34 @@
+id: configurations-lq05
+kind: modern-golden
+title: Independent point configuration probability for n=10, f=1/2
+description: >
+  Statistical probability W = (V/V0)^n = (1/2)^10 for ten independent points.
+provenance:
+  paper: light-quanta
+  sectionId: s5
+  printedPage: 140
+constantSetId: modern-si-2019
+owner: radiation.configurations
+inputs:
+  n:
+    value: 10
+    unit: ""
+  f:
+    value: 0.5
+    unit: ""
+expected:
+  outputs:
+    - outputId: configurationProbability
+      comparisonKind: tolerance
+      tolerance:
+        relative: 1.0e-6
+        rationale: "Exact rational (1/2)^10 = 1/1024."
+      value: 0.0009765625
+    - outputId: lnW
+      comparisonKind: tolerance
+      tolerance:
+        relative: 1.0e-6
+        rationale: "Exact logarithm 10 * ln(0.5)."
+      value: -6.9314718
+modelVersion: 1
+schemaVersion: 1

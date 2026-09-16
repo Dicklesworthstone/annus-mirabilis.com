@@ -1,0 +1,31 @@
+id: radiation-spectra-lq03
+kind: modern-golden
+title: Planck 400-600 THz band integrated energy density at 5000 K
+description: >
+  Integrated energy density in the 400-600 THz (499.654-749.481 nm) optical band at T = 5000 K.
+provenance:
+  paper: light-quanta
+  sectionId: s3
+  printedPage: 136
+constantSetId: modern-si-2019
+owner: radiation.bandEnergy
+inputs:
+  temperature:
+    value: 5000
+    unit: K
+  nuMin:
+    value: 4.0e14
+    unit: Hz
+  nuMax:
+    value: 6.0e14
+    unit: Hz
+expected:
+  outputs:
+    - outputId: bandEnergy
+      comparisonKind: tolerance
+      tolerance:
+        relative: 1.0e-5
+        rationale: "Adaptive Gauss-Kronrod integral verified against independent analytic series."
+      value: 0.1286853
+modelVersion: 1
+schemaVersion: 1

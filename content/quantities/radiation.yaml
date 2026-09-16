@@ -305,6 +305,17 @@
   frame: not-applicable
   colorRole: statistical
 
+- id: photocurrent
+  name: Photocurrent
+  description: The electric current of photoelectrons reaching the collector in a photoelectric circuit.
+  dimensionStatus: declared
+  dimension: [0, 0, 0, 0, 1, 0]
+  gaussianDimension: ["3/2", "1/2", -2, 0, 0, 0]
+  emuDimension: ["1/2", "1/2", -1, 0, 0, 0]
+  mathematicalKind: scalar
+  frame: not-applicable
+  colorRole: field
+
 - id: ionizationEnergyPerMolecule
   name: Ionization energy per molecule
   description: The energy required to ionize one molecule.

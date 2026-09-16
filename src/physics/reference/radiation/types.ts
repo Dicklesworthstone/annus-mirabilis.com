@@ -4,7 +4,11 @@
  */
 
 import type { ExecutionOutcome } from "../../../experiments/results/outcomes.ts";
-import type { DomainKind, LimitRepresentation, ParameterAction } from "../../../experiments/results/types.ts";
+import type {
+  DomainKind,
+  LimitRepresentation,
+  ParameterAction,
+} from "../../../experiments/results/types.ts";
 
 /** Cyclic frequency (nu) in Hz (branded to prevent unit/frequency-kind confusion with angular frequency). */
 export type CyclicFrequency = number & { readonly __brand?: "CyclicFrequencyHz" };
@@ -175,7 +179,9 @@ export type AvogadroReadout = Readonly<{
   rOverN: number;
   printedROverN: number;
   unroundedROverN: number;
-  markers: Readonly<Record<string, { printedStatus: string; sensitivity?: string; reason?: string }>>;
+  markers: Readonly<
+    Record<string, { printedStatus: string; sensitivity?: string; reason?: string }>
+  >;
   modernComparisons: Readonly<{
     modernAvogadro: number;
     modernReciprocalGram: number;

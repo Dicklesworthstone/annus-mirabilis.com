@@ -6,6 +6,14 @@ import {
   stokesEinsteinD,
 } from "../../physics/reference/diffusion.ts";
 import {
+  aperturePower,
+  bandLimitedMeanQuantumEnergyWien,
+  independentPointsProbability,
+  meanQuantumEnergyWien,
+  planckBandEnergyDensity,
+  planckFrequencyEnergyDensity,
+} from "../../physics/reference/radiation.ts";
+import {
   conductorFrameEmf,
   fresnelDraggedIncrement,
   magnetFrameEmf,
@@ -196,6 +204,111 @@ const OWNERS: OwnerRecord[] = [
     id: "diffusion.apparentSpeedExponent",
     sourcePath: evaluatorPath,
     fn: () => ({ ratio: 2 }),
+  },
+  {
+    id: "radiation.meanQuantumEnergyExtrapolation",
+    sourcePath: fileURLToPath(new URL("../../physics/reference/radiation.ts", import.meta.url)),
+    fn: (ctx) => {
+      const set = getConstantSet(ctx.constantSetId || "modern-si-2019");
+      const res = meanQuantumEnergyWien(num(ctx.inputs, "temperature"), set);
+      return {
+        meanQuantumEnergyWien: res.meanQuantumEnergyWien,
+        ratioToMoleculeKinetic: res.ratioToMoleculeKinetic,
+      };
+    },
+  },
+  {
+    id: "radiation.meanQuantumEnergyBand",
+    sourcePath: fileURLToPath(new URL("../../physics/reference/radiation.ts", import.meta.url)),
+    fn: (ctx) => {
+      const set = getConstantSet(ctx.constantSetId || "modern-si-2019");
+      const res = bandLimitedMeanQuantumEnergyWien(
+        num(ctx.inputs, "temperature"),
+        num(ctx.inputs, "xMin"),
+        num(ctx.inputs, "xMax"),
+        set,
+      );
+      if (res.status !== "value") throw new Error("bandLimitedMeanQuantumEnergyWien refused inputs.");
+      return {
+        meanQuantumEnergyWien: res.meanQuantumEnergyWien,
+        energyShareBelowBoundary: res.energyShareBelowBoundary,
+        countShareBelowBoundary: res.countShareBelowBoundary,
+      };
+    },
+  },
+  {
+    id: "radiation.spectra",
+    sourcePath: fileURLToPath(new URL("../../physics/reference/radiation.ts", import.meta.url)),
+    fn: (ctx) => {
+      const set = getConstantSet(ctx.constantSetId || "modern-si-2019");
+      const nu = num(ctx.inputs, "frequency");
+      const T = num(ctx.inputs, "temperature");
+      const res = planckFrequencyEnergyDensity(nu, T, set);
+      if (res.status !== "value") throw new Error("planckFrequencyEnergyDensity refused inputs.");
+      return {
+        frequencyEnergyDensity: res.value,
+        logFrequencyEnergyDensity: res.logFrequencyEnergyDensity ?? 0,
+      };
+    },
+  },
+  {
+    id: "radiation.bandEnergy",
+    sourcePath: fileURLToPath(new URL("../../physics/reference/radiation.ts", import.meta.url)),
+    fn: (ctx) => {
+      const set = getConstantSet(ctx.constantSetId || "modern-si-2019");
+      const res = planckBandEnergyDensity(
+        num(ctx.inputs, "nuMin"),
+        num(ctx.inputs, "nuMax"),
+        num(ctx.inputs, "temperature"),
+        set,
+      );
+      if (res.status !== "value") throw new Error("planckBandEnergyDensity refused inputs.");
+      return {
+        bandEnergy: res.value,
+      };
+    },
+  },
+  {
+    id: "radiation.configurations",
+    sourcePath: fileURLToPath(new URL("../../physics/reference/radiation.ts", import.meta.url)),
+    fn: (ctx) => {
+      const res = independentPointsProbability(num(ctx.inputs, "n"), num(ctx.inputs, "f"));
+      return {
+        configurationProbability: res.value,
+        lnW: res.lnW,
+        log10W: res.log10W,
+      };
+    },
+  },
+  {
+    id: "radiation.waves",
+    sourcePath: fileURLToPath(new URL("../../physics/reference/radiation.ts", import.meta.url)),
+    fn: (ctx) => {
+      const res = aperturePower({
+        P: num(ctx.inputs, "P"),
+        r: num(ctx.inputs, "r"),
+        apertureArea: num(ctx.inputs, "apertureArea"),
+      });
+      if (res.status !== "value") throw new Error("aperturePower refused inputs.");
+      return {
+        smallAperturePower: res.value.smallAperturePower,
+        exactDiskPower: res.value.exactDiskPower,
+        relativeDifference: res.value.relativeDifference,
+      };
+    },
+  },
+  {
+    id: "photoelectric.stoppingPotentialMagnitude",
+    sourcePath: fileURLToPath(new URL("../../physics/reference/radiation.ts", import.meta.url)),
+    fn: (ctx) => {
+      const nu = num(ctx.inputs, "frequency");
+      const h = 6.62607015e-34;
+      const e = 1.602176634e-19;
+      const v = (h * nu) / e;
+      return {
+        stoppingPotentialMagnitude: v,
+      };
+    },
   },
 ];
 
