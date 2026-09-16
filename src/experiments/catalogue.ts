@@ -78,7 +78,7 @@ export const CATALOGUE_STATUS: Readonly<Record<CatalogueId, CatalogueStatus>> = 
   "sr-07": "registered",
   "sr-08": "registered",
   "sr-09": "registered",
-  "sr-10": "in-preparation",
+  "sr-10": "registered",
   "sr-11": "registered",
   "sr-12": "registered",
   "sr-13": "in-preparation",

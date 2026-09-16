@@ -1,0 +1,38 @@
+tapeVersion: 2
+tapeId: charge-current
+experimentId: sr-12
+mode: "sr-12:default"
+title: charge and current transformation
+description: Teaching tape demonstrating the transformation of charge and current density under a 0.6c boost.
+isTeachingSequence: true
+modelIdentity:
+  modelId: charge-current-host
+  modelVersion: "1"
+  artifactDigest: "host:sha256:sr12-evaluateSr12"
+constantSetId: modern-si-2019
+seed: "0"
+streamVersion: 1
+allocationId: sr-12.none.v1
+initialConditions:
+  boost: 179875474.8
+  chargeDensity: 0
+  currentDensityX: 1
+events:
+  - kind: control
+    actionIndex: 1
+    commandClass: observer-change
+    commandId: boost-0.6c
+    parameterId: boost
+    value: 179875474.8
+checkpoints:
+  - actionIndex: 1
+    stepIndex: 0
+    simulatedTime: 0
+    digest: "host:sha256:sr12-evaluateSr12"
+    digestKind: host
+    checkpointVersion: 1
+    streamSemanticsVersion: 1
+    seed: "0"
+    streamPositions: []
+    label: charge-current-0.6c
+    teachingNote: At 0.6c a neutral wire with Jx=1 A/m² develops a net charge density rho'=-2.5017e-9 C/m³ while current transforms to J'x=1.25 A/m².

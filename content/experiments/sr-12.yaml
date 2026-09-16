@@ -1,0 +1,320 @@
+id: sr-12
+title: "SR-12: charge and current density"
+explanatoryQuestion: "How do charge density and current density transform between inertial frames, and why is a neutral current-carrying wire charged in a moving frame?"
+sourceRefs:
+  - paper: special-relativity
+    id: s9
+argumentIds:
+  - arg-sr-charge-current
+schemaVersion: 1
+parameters:
+  - id: boost
+    label: "Observer boost speed"
+    accessibleName: "Observer boost speed along the x-axis"
+    accessibleDescription: "Speed of the moving coordinate frame k relative to K along x, in metres per second."
+    quantityId: frameSpeed
+    displayUnit: "m/s"
+    modelDomain:
+      min: -284802835.1
+      max: 284802835.1
+      minInclusive: true
+      maxInclusive: true
+      reason: "No inertial observer at |v| >= c; teaching range stays inside 0.95c."
+    visualRange:
+      min: 0
+      max: 284802835.1
+    default: 179875474.8
+    mapping:
+      kind: linear
+    role: independent
+    commandClass: observer-change
+  - id: chargeDensity
+    label: "Charge density (stationary frame)"
+    accessibleName: "Charge density in the stationary frame"
+    accessibleDescription: "Volumetric charge density in Coulombs per cubic metre."
+    quantityId: chargeDensityStationary
+    displayUnit: "C/m^3"
+    modelDomain:
+      min: -1.0e6
+      max: 1.0e6
+      minInclusive: true
+      maxInclusive: true
+      reason: "Finite volumetric charge density."
+    visualRange:
+      min: -10
+      max: 10
+    default: 0
+    mapping:
+      kind: linear
+    role: independent
+    commandClass: setup-change
+  - id: currentDensityX
+    label: "Current density Jx"
+    accessibleName: "Current density along x in the stationary frame"
+    accessibleDescription: "Current density along x in Amperes per square metre."
+    quantityId: currentDensityStationary
+    displayUnit: "A/m^2"
+    modelDomain:
+      min: -1.0e9
+      max: 1.0e9
+      minInclusive: true
+      maxInclusive: true
+      reason: "Finite volumetric current density."
+    visualRange:
+      min: -10
+      max: 10
+    default: 1
+    mapping:
+      kind: linear
+    role: independent
+    commandClass: setup-change
+outputs:
+  - id: chargeDensityStationary
+    quantityId: chargeDensityStationary
+    allowedStatuses:
+      - value
+      - outside-domain
+    primary: true
+  - id: chargeDensityMoving
+    quantityId: chargeDensityMoving
+    allowedStatuses:
+      - value
+      - outside-domain
+    primary: true
+  - id: currentDensityStationary
+    quantityId: currentDensityStationary
+    allowedStatuses:
+      - value
+      - outside-domain
+    primary: true
+  - id: currentDensityMoving
+    quantityId: currentDensityMoving
+    allowedStatuses:
+      - value
+      - outside-domain
+    primary: true
+  - id: fourCurrentInvariant
+    quantityId: fourCurrentInvariant
+    allowedStatuses:
+      - value
+      - outside-domain
+    primary: false
+  - id: fourCurrentInvariantNormalized
+    quantityId: fourCurrentInvariantNormalized
+    allowedStatuses:
+      - value
+      - outside-domain
+    primary: false
+  - id: lorentzFactor
+    quantityId: lorentzFactor
+    allowedStatuses:
+      - value
+      - outside-domain
+    primary: false
+  - id: continuityResidualStationary
+    quantityId: continuityResidualStationary
+    allowedStatuses:
+      - value
+      - outside-domain
+    primary: false
+  - id: continuityResidualMoving
+    quantityId: continuityResidualMoving
+    allowedStatuses:
+      - value
+      - outside-domain
+    primary: false
+  - id: loopLegChargePositive
+    quantityId: loopLegChargePositive
+    allowedStatuses:
+      - value
+      - outside-domain
+    primary: true
+  - id: loopLegChargeNegative
+    quantityId: loopLegChargeNegative
+    allowedStatuses:
+      - value
+      - outside-domain
+    primary: true
+  - id: loopTotalCharge
+    quantityId: loopTotalCharge
+    allowedStatuses:
+      - value
+      - outside-domain
+    primary: true
+  - id: sphereTotalChargeStationary
+    quantityId: sphereTotalChargeStationary
+    allowedStatuses:
+      - value
+      - outside-domain
+    primary: true
+  - id: sphereTotalChargeMoving
+    quantityId: sphereTotalChargeMoving
+    allowedStatuses:
+      - value
+      - outside-domain
+    primary: true
+assumptions:
+  - "Continuous charge and current distributions in inertial frames."
+  - "Exact relativistic four-current transformation without radiation back-reaction."
+  - "Linear wire idealization with independent conduction and ionic lattice carriers."
+admittedDomain: "Inertial frames with |v| <= 0.95c and finite charge and current distributions."
+notModeled:
+  - "microscopic lattice dynamics and thermal vibrations"
+  - "self-inductance and transient current startup"
+  - "radiation reaction from accelerated charges"
+  - "material resistance and Joule heating"
+  - "finite wire thickness effects"
+  - "gravitational fields and general relativistic curvature"
+owner:
+  kind: reference-evaluator
+  kernelFunctions:
+    - displayRole: reference-implementation
+      language: ts
+      module: "src/physics/reference/fields.ts"
+      exportName: "evaluateSr12"
+      independentReferences:
+        - experimentId: sr-12
+          quantityId: chargeDensityMoving
+  identifierBindings:
+    - kernelFunction: evaluateSr12
+      identifier: boost
+      quantityId: frameSpeed
+    - kernelFunction: evaluateSr12
+      identifier: rhoPrime
+      quantityId: chargeDensityMoving
+    - kernelFunction: evaluateSr12
+      identifier: JprimeX
+      quantityId: currentDensityMoving
+    - kernelFunction: transformChargeCurrent
+      identifier: rho
+      quantityId: chargeDensityStationary
+    - kernelFunction: transformChargeCurrent
+      identifier: J
+      quantityId: currentDensityStationary
+  traceScenarioId: sr-12-neutral-conductor-0.6
+  traceRows:
+    - label: Transformed charge density at 0.6c
+      expression: "-gamma * (v * Jx) / c^2"
+      value: -2.50171804e-9
+      unit: "C/m^3"
+      quantityId: chargeDensityMoving
+views:
+  - id: svg-wire-distribution
+    kind: svg
+    consumes:
+      - chargeDensityStationary
+      - chargeDensityMoving
+      - currentDensityStationary
+      - currentDensityMoving
+  - id: table-four-current-components
+    kind: table
+    consumes:
+      - chargeDensityStationary
+      - chargeDensityMoving
+      - currentDensityStationary
+      - currentDensityMoving
+      - fourCurrentInvariant
+      - fourCurrentInvariantNormalized
+      - lorentzFactor
+actions:
+  - actionId: boost-charge-current
+    family: fields-boosts
+    question: "How do charge density and current density transform under a Lorentz boost?"
+    inputs:
+      - boost
+    commandClass: observer-change
+    acceptedResult:
+      outputs:
+        - chargeDensityMoving
+        - currentDensityMoving
+        - fourCurrentInvariant
+        - fourCurrentInvariantNormalized
+        - lorentzFactor
+      allowedStatuses:
+        - value
+        - outside-domain
+    visualAffordance: "Side-by-side charge and current distributions in K and k"
+    equivalentAffordance: "Type a boost speed and read the transformed charge and current densities."
+    announcement: "Charge and current densities transformed under boost"
+acceptanceCases:
+  - sr-12-neutral-conductor-0.6
+  - sr-12-convection-0.5c
+  - sr-12-moving-sphere-0.6c
+  - sr-12-gaussian-pulse-0.5c
+  - sr-12-current-loop-0.6c
+defaultScenario: sr-12-neutral-conductor-0.6
+tapeModel:
+  modelId: charge-current-host
+  modelVersion: 1
+teachingTapes:
+  - tapeId: charge-current
+    title: charge and current transformation
+presets:
+  - presetId: sr-12-neutral-conductor-0.6
+    label: Neutral conductor at 0.6c
+    parameterValues:
+      boost: 179875474.8
+      chargeDensity: 0
+      currentDensityX: 1
+    scenarioId: sr-12-neutral-conductor-0.6
+  - presetId: sr-12-convection-0.5c
+    label: Convection current at 0.5c boosted by 0.6c
+    parameterValues:
+      boost: 179875474.8
+      chargeDensity: 1
+      carrierVelocityX: 149896229
+    scenarioId: sr-12-convection-0.5c
+  - presetId: sr-12-moving-sphere-0.6c
+    label: Uniformly charged sphere at 0.6c
+    parameterValues:
+      boost: 179875474.8
+      chargeDensity: 1
+      sphereRadius: 1
+    scenarioId: sr-12-moving-sphere-0.6c
+  - presetId: sr-12-gaussian-pulse-0.5c
+    label: Gaussian pulse continuity at 0.5c
+    parameterValues:
+      boost: 179875474.8
+      pulseAmplitude: 1
+      carrierVelocityX: 149896229
+      pulseWidth: 1
+    scenarioId: sr-12-gaussian-pulse-0.5c
+  - presetId: sr-12-current-loop-0.6c
+    label: Rectangular current loop at 0.6c
+    parameterValues:
+      boost: 179875474.8
+      loopCurrent: 1
+      loopLengthX: 1
+      loopLengthY: 0.5
+    scenarioId: sr-12-current-loop-0.6c
+probes:
+  - toggle-frame
+  - type-boost
+  - toggle-units
+  - toggle-mode
+weavePredicates:
+  - sr12-charge-density-transformation
+  - sr12-total-charge-invariance
+historicalOverlays: []
+realRate:
+  natural: false
+embeddable: true
+predictMode:
+  enabled: true
+  prompts:
+    - promptId: sr-12-predict-neutral-wire
+      controlId: boost
+      question: "A neutral wire carries a current in the +x direction. Described from a frame moving in the +x direction, is the wire still neutral?"
+      candidates:
+        - id: still-neutral
+          label: Still neutral
+          description: "The wire remains electrically neutral in all inertial frames."
+          separatingAssumption: "Charge density is assumed to be an absolute scalar invariant across frames."
+        - id: negatively-charged
+          label: Negatively charged
+          description: "A net negative charge density appears: rho' = -gamma * v * Jx / c^2 < 0."
+          separatingAssumption: "Charge density and current density transform together as components of a relativistic four-vector."
+        - id: positively-charged
+          label: Positively charged
+          description: "A net positive charge density appears."
+          separatingAssumption: "The sign of relative motion is inverted in the Lorentz transformation."

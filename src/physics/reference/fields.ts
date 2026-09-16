@@ -912,3 +912,414 @@ export function maxwellResidualsPlaneWave(input: {
     eventSeed: SR07_EVENT_SEED,
   });
 }
+
+// ---------------------------------------------------------------------------
+// SR-12: Charge and Current Density Transformations (Paper 3, §9)
+// ---------------------------------------------------------------------------
+
+export type Sr12UnitLayer = "si" | "gaussian";
+export type Sr12Mode =
+  | "neutral-conductor"
+  | "convection"
+  | "moving-sphere"
+  | "gaussian-pulse"
+  | "current-loop";
+
+export type Sr12Input = Readonly<{
+  unitLayer: Sr12UnitLayer;
+  descriptionFrame: "stationary" | "moving";
+  mode: Sr12Mode;
+  chargeDensity: number;
+  currentDensity: Vec3;
+  boost: number;
+  carrierVelocity: Vec3;
+  sphereRadius: number;
+  sphereCharge: number;
+  loopCurrent: number;
+  loopLengthX: number;
+  loopLengthY: number;
+  pulseWidth: number;
+  pulseAmplitude: number;
+}>;
+
+export type Sr12Snapshot = Readonly<{
+  beta: number;
+  gamma: number;
+  chargeDensityStationary: ScientificResult;
+  chargeDensityMoving: ScientificResult;
+  currentDensityStationary: ScientificResult;
+  currentDensityMoving: ScientificResult;
+  fourCurrentInvariant: ScientificResult;
+  fourCurrentInvariantNormalized: ScientificResult;
+  lorentzFactor: ScientificResult;
+  continuityResidualStationary: ScientificResult;
+  continuityResidualMoving: ScientificResult;
+  loopLegChargePositive: ScientificResult;
+  loopLegChargeNegative: ScientificResult;
+  loopTotalCharge: ScientificResult;
+  sphereTotalChargeStationary: ScientificResult;
+  sphereTotalChargeMoving: ScientificResult;
+  eventId: string;
+}>;
+
+export function transformChargeCurrent(input: {
+  rho: number;
+  J: Vec3;
+  boost: number;
+  c?: number;
+}): Readonly<{
+  rho: number;
+  J: Vec3;
+  beta: number;
+  gamma: number;
+}> {
+  const c = input.c ?? C_SI;
+  const v = input.boost;
+  const beta = v / c;
+  const g = gamma(beta);
+  if (g.status !== "value") {
+    return Object.freeze({
+      rho: Number.NaN,
+      J: Object.freeze({ x: Number.NaN, y: Number.NaN, z: Number.NaN }),
+      beta,
+      gamma: Number.NaN,
+    });
+  }
+  const γ = g.value;
+  const { rho, J } = input;
+  const rhoPrime = γ * (rho - (v * J.x) / (c * c));
+  const JprimeX = γ * (J.x - v * rho);
+  return Object.freeze({
+    rho: rhoPrime,
+    J: Object.freeze({
+      x: JprimeX,
+      y: J.y,
+      z: J.z,
+    }),
+    beta,
+    gamma: γ,
+  });
+}
+
+export function fourCurrentInvariants(
+  rho: number,
+  J: Vec3,
+  c = C_SI,
+): Readonly<{
+  si: number;
+  normalized: number;
+}> {
+  const jSq = J.x * J.x + J.y * J.y + J.z * J.z;
+  const si = c * rho * (c * rho) - jSq;
+  const normalized = c === 1 ? rho * rho - jSq : rho * c * (rho * c) - jSq;
+  return Object.freeze({ si, normalized });
+}
+
+export function sphereTotalCharge(radius: number, rho: number): number {
+  return (4 / 3) * Math.PI * radius * radius * radius * rho;
+}
+
+export function currentLoopCharges(
+  I: number,
+  lx: number,
+  _ly: number,
+  boost: number,
+  c = C_SI,
+): Readonly<{
+  gamma: number;
+  contractedLengthX: number;
+  lineDensityPositive: number;
+  lineDensityNegative: number;
+  legChargePositive: number;
+  legChargeNegative: number;
+  totalCharge: number;
+}> {
+  const beta = boost / c;
+  const g = gamma(beta);
+  if (g.status !== "value") {
+    return Object.freeze({
+      gamma: Number.NaN,
+      contractedLengthX: Number.NaN,
+      lineDensityPositive: Number.NaN,
+      lineDensityNegative: Number.NaN,
+      legChargePositive: Number.NaN,
+      legChargeNegative: Number.NaN,
+      totalCharge: Number.NaN,
+    });
+  }
+  const γ = g.value;
+  const contractedLengthX = lx / γ;
+  const lineDensityPositive = (-γ * boost * I) / (c * c);
+  const lineDensityNegative = (+γ * boost * I) / (c * c);
+  const legChargePositive = lineDensityPositive * contractedLengthX;
+  const legChargeNegative = lineDensityNegative * contractedLengthX;
+  const totalCharge = legChargePositive + legChargeNegative;
+  return Object.freeze({
+    gamma: γ,
+    contractedLengthX,
+    lineDensityPositive,
+    lineDensityNegative,
+    legChargePositive,
+    legChargeNegative,
+    totalCharge,
+  });
+}
+
+export function gaussianPulseContinuity(
+  rho0: number,
+  u: number,
+  sigma: number,
+  x: number,
+  t: number,
+  boost: number,
+  c = C_SI,
+): Readonly<{
+  stationaryResidual: number;
+  movingResidual: number;
+  rho: number;
+  Jx: number;
+  rhoPrime: number;
+  JprimeX: number;
+}> {
+  const beta = boost / c;
+  const g = gamma(beta);
+  if (g.status !== "value" || sigma <= 0 || Math.abs(u) >= c) {
+    return Object.freeze({
+      stationaryResidual: Number.NaN,
+      movingResidual: Number.NaN,
+      rho: Number.NaN,
+      Jx: Number.NaN,
+      rhoPrime: Number.NaN,
+      JprimeX: Number.NaN,
+    });
+  }
+  const γ = g.value;
+  const s2 = sigma * sigma;
+  const arg = x - u * t;
+  const gauss = Math.exp(-(arg * arg) / (2 * s2));
+  const rho = rho0 * gauss;
+  const Jx = u * rho;
+  const dRhoDt = ((u * arg) / s2) * rho;
+  const dJxDx = -((u * arg) / s2) * rho;
+  const stationaryResidual = Math.abs(dRhoDt + dJxDx);
+
+  const denom = 1 - (u * boost) / (c * c);
+  const uPrime = (u - boost) / denom;
+  const rhoPrime = γ * (1 - (u * boost) / (c * c)) * rho;
+  const JprimeX = γ * (u - boost) * rho;
+
+  const xp = γ * (x - boost * t);
+  const tp = γ * (t - (boost * x) / (c * c));
+  const argPrime = xp - uPrime * tp;
+  const sigmaPrime = sigma / (γ * (1 - (u * boost) / (c * c)));
+  const sp2 = sigmaPrime * sigmaPrime;
+  const dRhoPrimeDtPrime = ((uPrime * argPrime) / sp2) * rhoPrime;
+  const dJprimePrimeDxPrime = -((uPrime * argPrime) / sp2) * rhoPrime;
+  const movingResidual = Math.abs(dRhoPrimeDtPrime + dJprimePrimeDxPrime);
+
+  return Object.freeze({
+    stationaryResidual,
+    movingResidual,
+    rho,
+    Jx,
+    rhoPrime,
+    JprimeX,
+  });
+}
+
+const SR12_ROWS = {
+  rhoM: [
+    "chargeDensityStationary",
+    "C/m^3",
+    "charge-density-stationary",
+    "fields.transformChargeCurrent",
+  ],
+  rhoC: ["chargeDensityMoving", "C/m^3", "charge-density-moving", "fields.transformChargeCurrent"],
+  JM: [
+    "currentDensityStationary",
+    "A/m^2",
+    "current-density-stationary",
+    "fields.transformChargeCurrent",
+  ],
+  JC: ["currentDensityMoving", "A/m^2", "current-density-moving", "fields.transformChargeCurrent"],
+  inv: [
+    "fourCurrentInvariant",
+    "A^2/m^4",
+    "four-current-invariant",
+    "fields.fourCurrentInvariants",
+  ],
+  invNorm: [
+    "fourCurrentInvariantNormalized",
+    "1",
+    "four-current-invariant-normalized",
+    "fields.fourCurrentInvariants",
+  ],
+  gamma: ["lorentzFactor", "1", "lorentz-factor", "kinematics.gamma"],
+  contM: [
+    "continuityResidualStationary",
+    "A/m^3",
+    "continuity-residual-stationary",
+    "fields.gaussianPulseContinuity",
+  ],
+  contC: [
+    "continuityResidualMoving",
+    "A/m^3",
+    "continuity-residual-moving",
+    "fields.gaussianPulseContinuity",
+  ],
+  legPos: ["loopLegChargePositive", "C", "loop-leg-charge-positive", "fields.currentLoopCharges"],
+  legNeg: ["loopLegChargeNegative", "C", "loop-leg-charge-negative", "fields.currentLoopCharges"],
+  loopTotal: ["loopTotalCharge", "C", "loop-total-charge", "fields.currentLoopCharges"],
+  sphereM: [
+    "sphereTotalChargeStationary",
+    "C",
+    "sphere-total-charge-stationary",
+    "fields.sphereTotalCharge",
+  ],
+  sphereC: [
+    "sphereTotalChargeMoving",
+    "C",
+    "sphere-total-charge-moving",
+    "fields.sphereTotalCharge",
+  ],
+} as const;
+
+export function evaluateSr12(input: Sr12Input): Sr12Snapshot {
+  const c = C_SI;
+  const v = input.boost;
+  const eventId = "event-charge-current-0";
+
+  const packScalar = (
+    key: keyof typeof SR12_ROWS,
+    make: (id: string, unit: string, kind: string, owner: string) => ScientificResult,
+  ) => {
+    const r = SR12_ROWS[key];
+    return make(r[0], r[1], r[2], r[3]);
+  };
+
+  const valScalar = (key: keyof typeof SR12_ROWS, num: number) =>
+    packScalar(key, (id, unit, kind, owner) => asValue(id, unit, kind, owner, num));
+
+  const valVector = (key: keyof typeof SR12_ROWS, vec: Vec3) =>
+    packScalar(key, (id, unit, kind, owner) => asVectorValue(id, unit, kind, owner, vec));
+
+  const refuseAll = (reason: string, condition: string): Sr12Snapshot => {
+    const out = (key: keyof typeof SR12_ROWS) =>
+      packScalar(key, (id, unit, kind, owner) =>
+        asOutside(id, unit, kind, owner, condition, reason),
+      );
+    return Object.freeze({
+      beta: v / c,
+      gamma: Number.NaN,
+      chargeDensityStationary: out("rhoM"),
+      chargeDensityMoving: out("rhoC"),
+      currentDensityStationary: out("JM"),
+      currentDensityMoving: out("JC"),
+      fourCurrentInvariant: out("inv"),
+      fourCurrentInvariantNormalized: out("invNorm"),
+      lorentzFactor: out("gamma"),
+      continuityResidualStationary: out("contM"),
+      continuityResidualMoving: out("contC"),
+      loopLegChargePositive: out("legPos"),
+      loopLegChargeNegative: out("legNeg"),
+      loopTotalCharge: out("loopTotal"),
+      sphereTotalChargeStationary: out("sphereM"),
+      sphereTotalChargeMoving: out("sphereC"),
+      eventId,
+    });
+  };
+
+  if (
+    ![
+      input.boost,
+      input.chargeDensity,
+      input.currentDensity.x,
+      input.currentDensity.y,
+      input.currentDensity.z,
+      input.carrierVelocity.x,
+      input.carrierVelocity.y,
+      input.carrierVelocity.z,
+      input.sphereRadius,
+      input.sphereCharge,
+      input.loopCurrent,
+      input.loopLengthX,
+      input.loopLengthY,
+      input.pulseWidth,
+      input.pulseAmplitude,
+    ].every(Number.isFinite)
+  ) {
+    return refuseAll(
+      "All density, current, velocity and boost inputs must be finite numbers.",
+      "finite inputs",
+    );
+  }
+
+  const beta = v / c;
+  if (Math.abs(beta) > 0.95) {
+    return refuseAll("Observer boost speed must satisfy |v| <= 0.95c.", "|v| <= 0.95c");
+  }
+
+  const g = gamma(beta);
+  if (g.status !== "value") {
+    return refuseAll("Lorentz factor could not be evaluated.", "|v| < c");
+  }
+  const γ = g.value;
+
+  const rho0 = input.chargeDensity;
+  let J0: Vec3 = input.currentDensity;
+
+  if (input.mode === "convection") {
+    const uMagSq =
+      input.carrierVelocity.x ** 2 + input.carrierVelocity.y ** 2 + input.carrierVelocity.z ** 2;
+    if (uMagSq >= c * c) {
+      return refuseAll("Carrier velocity must satisfy |u| < c.", "|u| < c");
+    }
+    J0 = Object.freeze({
+      x: rho0 * input.carrierVelocity.x,
+      y: rho0 * input.carrierVelocity.y,
+      z: rho0 * input.carrierVelocity.z,
+    });
+  }
+
+  const transformed = transformChargeCurrent({ rho: rho0, J: J0, boost: v, c });
+  const invs = fourCurrentInvariants(rho0, J0, c);
+
+  // Mode-specific calculations
+  const loop = currentLoopCharges(input.loopCurrent, input.loopLengthX, input.loopLengthY, v, c);
+
+  const sphereQ0 = sphereTotalCharge(input.sphereRadius, rho0);
+  const sphereQPrime = sphereQ0; // Exact charge invariance
+
+  const pulse = gaussianPulseContinuity(
+    input.pulseAmplitude,
+    input.carrierVelocity.x,
+    input.pulseWidth,
+    0,
+    0,
+    v,
+    c,
+  );
+
+  return Object.freeze({
+    beta,
+    gamma: γ,
+    chargeDensityStationary: valScalar("rhoM", rho0),
+    chargeDensityMoving: valScalar("rhoC", transformed.rho),
+    currentDensityStationary: valVector("JM", J0),
+    currentDensityMoving: valVector("JC", transformed.J),
+    fourCurrentInvariant: valScalar("inv", invs.si),
+    fourCurrentInvariantNormalized: valScalar(
+      "invNorm",
+      (c * rho0) ** 2 / (c * c) - (J0.x ** 2 + J0.y ** 2 + J0.z ** 2) / (c * c),
+    ),
+    lorentzFactor: valScalar("gamma", γ),
+    continuityResidualStationary: valScalar("contM", pulse.stationaryResidual || 0),
+    continuityResidualMoving: valScalar("contC", pulse.movingResidual || 0),
+    loopLegChargePositive: valScalar("legPos", loop.legChargePositive),
+    loopLegChargeNegative: valScalar("legNeg", loop.legChargeNegative),
+    loopTotalCharge: valScalar("loopTotal", loop.totalCharge),
+    sphereTotalChargeStationary: valScalar("sphereM", sphereQ0),
+    sphereTotalChargeMoving: valScalar("sphereC", sphereQPrime),
+    eventId,
+  });
+}
