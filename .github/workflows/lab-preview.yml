@@ -31,7 +31,9 @@ jobs:
         shell: bash
         run: node --experimental-strip-types --test src/testing/*.test.mjs 2>&1 | tee artifacts/browser/reference-tests.log
       - run: bun run typecheck
-      - run: bun run build
+      - name: Build the complete production preview
+        shell: bash
+        run: bun run build 2>&1 | tee artifacts/browser/build.log
         env:
           NEXT_TELEMETRY_DISABLED: "1"
       - run: tar -cf artifacts/review/site.tar out
