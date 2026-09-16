@@ -2,14 +2,10 @@ import { describe, expect, test } from "bun:test";
 import { mkdtempSync } from "node:fs";
 import { tmpdir } from "node:os";
 import { join } from "node:path";
-import {
-  alignedBoost,
-  composeBoosts,
-  generalBoost,
-} from "../physics/reference/kinematics.ts";
 import { SR06_DEFAULTS } from "../experiments/sr06/definition.ts";
 import { validateSr06Parameters } from "../experiments/sr06/parameters.ts";
 import { createSr06Session, evaluateSr06 } from "../experiments/sr06/session.ts";
+import { alignedBoost, composeBoosts, generalBoost } from "../physics/reference/kinematics.ts";
 import { newRunIdentity, TestLogger } from "./log/logger.ts";
 
 const suite = "instrument-sr-06";
