@@ -12,6 +12,7 @@ import {
   REGISTERED_IDS,
   resolveCatalogueAddress,
 } from "../experiments/catalogue.ts";
+import { OWNER_BINDINGS } from "../experiments/owners.ts";
 
 describe("catalogue: the 33 core ids and the 5 declared non-core ids", () => {
   test("has exactly 38 ids", () => {
@@ -48,28 +49,20 @@ describe("catalogue: the 33 core ids and the 5 declared non-core ids", () => {
     }
   });
 
-  test("registered instruments currently include the Brownian slice, lq-01, lq-03, lq-08, and me-01/me-02", () => {
-    expect([...REGISTERED_IDS].sort()).toEqual([
-      "bm-01",
-      "bm-02",
-      "bm-03",
-      "bm-04",
-      "bm-05",
-      "bm-06",
-      "bm-07",
-      "bm-08",
-      "lq-01",
-      "lq-02",
-      "lq-03",
-      "lq-05",
-      "lq-07",
-      "lq-08",
-      "me-01",
-      "me-02",
-      "me-03",
-      "sr-02",
-      "sr-03",
-    ]);
+  test("REGISTERED_IDS agrees exactly with the ids that have a real owner binding (cross-file consistency, not a hardcoded snapshot)", () => {
+    // A literal id list here drifted stale twice as the registry grew every tick; this checks
+    // the invariant that actually matters instead -- every registered id has a real owner
+    // binding in owners.ts, and nothing bound there is left un-registered -- which DOES fail
+    // if the two files disagree, unlike a plain re-derivation of REGISTERED_IDS from its own
+    // filter (which could never fail).
+    const boundIds = new Set(Object.keys(OWNER_BINDINGS));
+    for (const id of REGISTERED_IDS) {
+      expect(boundIds.has(id)).toBe(true);
+    }
+    for (const id of boundIds) {
+      expect(CATALOGUE_STATUS[id as CatalogueId]).toBe("registered");
+    }
+    expect(REGISTERED_IDS.length).toBeGreaterThan(0);
   });
 
   test("catalogueLabel is defined for every id (the switch+never exhaustiveness form)", () => {

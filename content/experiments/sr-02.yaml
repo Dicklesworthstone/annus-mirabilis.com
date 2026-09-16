@@ -1,0 +1,274 @@
+id: sr-02
+title: "SR-02: magnet and conductor descriptions"
+explanatoryQuestion: "Why does moving the magnet instead of the conductor create an explanatory asymmetry, and how does the transformation remove it?"
+sourceRefs:
+  - paper: special-relativity
+    id: s0
+argumentIds:
+  - arg-sr-opening-asymmetry
+schemaVersion: 1
+parameters:
+  - id: speed
+    label: "Relative speed"
+    accessibleName: "Relative speed of magnet and conductor"
+    accessibleDescription: "Equal relative motion of magnet and conductor, in metres per second."
+    quantityId: frameSpeed
+    displayUnit: "m/s"
+    modelDomain:
+      min: -284802835.1
+      max: 284802835.1
+      minInclusive: true
+      maxInclusive: true
+      reason: "No inertial observer at |v| >= c; teaching range stays inside 0.95c."
+    visualRange:
+      min: 0
+      max: 179875474.8
+    default: 10
+    mapping:
+      kind: linear
+    role: independent
+    commandClass: setup-change
+  - id: magneticField
+    label: "Uniform magnetic field B"
+    accessibleName: "Uniform magnetic field in the magnet rest frame"
+    accessibleDescription: "Prescribed static field in the magnet's rest frame."
+    quantityId: magneticFieldStationary
+    displayUnit: "T"
+    modelDomain:
+      min: 1.0e-9
+      max: 100
+      minInclusive: true
+      maxInclusive: true
+      reason: "Finite teaching range for the uniform model."
+    visualRange:
+      min: 0.1
+      max: 2
+    default: 1
+    mapping:
+      kind: log
+      base: 10
+    role: independent
+    commandClass: setup-change
+  - id: segmentLength
+    label: "Segment length"
+    accessibleName: "Length of the declared path"
+    accessibleDescription: "Straight-segment length used for the electromotive-force comparison."
+    quantityId: boxLength
+    displayUnit: "m"
+    modelDomain:
+      min: 1.0e-6
+      max: 10
+      minInclusive: false
+      maxInclusive: true
+      reason: "The path must have positive length."
+    visualRange:
+      min: 0.01
+      max: 1
+    default: 0.1
+    mapping:
+      kind: log
+      base: 10
+    role: independent
+    commandClass: setup-change
+outputs:
+  - id: emfMagnet
+    quantityId: electromotiveForceMagnetFrame
+    allowedStatuses:
+      - value
+      - symbolic
+      - outside-domain
+    primary: true
+  - id: emfConductor
+    quantityId: electromotiveForceConductorFrame
+    allowedStatuses:
+      - value
+      - symbolic
+      - not-applicable
+      - underdetermined
+      - outside-domain
+    primary: true
+  - id: emfExcess
+    quantityId: electromotiveForceExcess
+    allowedStatuses:
+      - value
+      - symbolic
+      - not-applicable
+      - underdetermined
+      - outside-domain
+    primary: false
+  - id: circuitCurrent
+    quantityId: inducedCircuitCurrent
+    allowedStatuses:
+      - not-applicable
+      - symbolic
+      - outside-domain
+    primary: false
+assumptions:
+  - "Prescribed static field in the magnet frame."
+  - "Pointwise field transformation at a single event."
+  - "Test charge without back-reaction."
+  - "The default path is transverse to the boost, so endpoint events are simultaneous in both frames."
+admittedDomain: "Inertial observers with |v| < c and a positive segment length."
+notModeled:
+  - "conductor resistance and induced currents"
+  - "self-inductance"
+  - "magnetization dynamics and extended-magnet fields beyond the ideal dipole"
+  - "time-varying flux of extended circuits"
+  - "edge fields"
+  - "radiation"
+  - "unipolar machines"
+  - "electromotive-force comparison across frames for a path with a component along the direction of motion, which needs a declared simultaneity slice this model does not supply"
+owner:
+  kind: reference-evaluator
+  kernelFunctions:
+    - displayRole: reference-implementation
+      language: ts
+      module: "src/physics/reference/fields.ts"
+      exportName: "evaluateSr02"
+      independentReferences:
+        - experimentId: sr-02
+          quantityId: electromotiveForceMagnetFrame
+  identifierBindings:
+    - kernelFunction: evaluateSr02
+      identifier: v
+      quantityId: frameSpeed
+    - kernelFunction: evaluateSr02
+      identifier: Bz
+      quantityId: magneticFieldStationary
+    - kernelFunction: evaluateSr02
+      identifier: emfMagnet
+      quantityId: electromotiveForceMagnetFrame
+    - kernelFunction: evaluateSr02
+      identifier: emfConductor
+      quantityId: electromotiveForceConductorFrame
+    - kernelFunction: transformSI
+      identifier: E
+      quantityId: electricFieldStationary
+    - kernelFunction: dipoleField
+      identifier: moment
+      quantityId: magneticDipoleMoment
+  traceScenarioId: sr-02-uniform-10ms
+  traceRows:
+    - label: Magnet-frame electromotive force at 10 m/s
+      expression: "v B ell"
+      value: 1
+      unit: "V"
+      quantityId: electromotiveForceMagnetFrame
+views:
+  - id: svg-apparatus
+    kind: svg
+    consumes:
+      - emfMagnet
+  - id: table-both-frames
+    kind: table
+    consumes:
+      - emfMagnet
+      - emfConductor
+      - emfExcess
+actions:
+  - actionId: compare-named-frames
+    family: fields-boosts
+    question: "How do the magnet-rest and conductor-rest descriptions of the same current compare?"
+    inputs:
+      - speed
+      - magneticField
+      - segmentLength
+    commandClass: observer-change
+    acceptedResult:
+      outputs:
+        - emfMagnet
+        - emfConductor
+        - emfExcess
+      allowedStatuses:
+        - value
+        - not-applicable
+        - underdetermined
+        - outside-domain
+        - symbolic
+    visualAffordance: "Side-by-side field and force arrows at the test point"
+    equivalentAffordance: "Select the frame from a radio group, type a speed, and read both tables. Compare 10 m/s with 0.6c."
+    announcement: "Both descriptions compared"
+emfComparison:
+  observable: "the work per unit charge along the declared path"
+  path:
+    kind: straight-segment
+    endpoints: [event-segment-near, event-segment-far]
+    orientation: { x: 0, y: 1, z: 0 }
+  sliceFrame: K
+  timeParametrization: "all endpoint events taken at one time of sliceFrame"
+  sourceTransformation: "the magnet's field is transformed into the conductor's rest frame by the SI field transformation at the same event"
+modes:
+  - id: sr-02:apparatus
+    label: qualitative reconstruction
+    historicalStatus: contemporary-alternative
+    notModeledAdditions:
+      - "no field or circuit is computed in this mode"
+acceptanceCases:
+  - sr-02-uniform-10ms
+  - sr-02-uniform-0.6c
+  - sr-02-path-along-motion-0.6c
+  - sr-02-dipole-equatorial
+defaultScenario: sr-02-uniform-10ms
+tapeModel:
+  modelId: magnet-conductor-host
+  modelVersion: 1
+teachingTapes:
+  - tapeId: magnet-and-conductor
+    title: magnet and conductor
+presets:
+  - presetId: sr-02-uniform-10ms
+    label: Uniform field at 10 m/s
+    parameterValues:
+      speed: 10
+      magneticField: 1
+      segmentLength: 0.1
+    scenarioId: sr-02-uniform-10ms
+  - presetId: sr-02-uniform-0.6c
+    label: Uniform field at 0.6c
+    parameterValues:
+      speed: 179875474.8
+      magneticField: 1
+      segmentLength: 0.1
+    scenarioId: sr-02-uniform-0.6c
+  - presetId: sr-02-apparatus-nagging-fact
+    label: Nagging fact (resolution withheld)
+    parameterValues:
+      mode: apparatus
+      resolution: withheld
+    scenarioId: sr-02-apparatus-nagging-fact
+  - presetId: sr-02-apparatus
+    label: Apparatus with resolution shown
+    parameterValues:
+      mode: apparatus
+      resolution: shown
+    scenarioId: sr-02-apparatus
+probes:
+  - toggle-frame
+  - type-speed
+  - path-along-motion
+weavePredicates:
+  - sr02-introduction-asymmetry
+  - sr02-section-6-resolution
+historicalOverlays: []
+realRate:
+  natural: false
+embeddable: true
+predictMode:
+  enabled: true
+  prompts:
+    - promptId: sr-02-predict-which-emf
+      controlId: descriptionFrame
+      question: "The magnet moves past the wire at 10 m/s instead of the wire moving past the magnet at 10 m/s. Is the electromotive force along the wire larger, the same, or zero?"
+      candidates:
+        - id: larger
+          label: Larger
+          description: Moving the magnet produces a larger electromotive force.
+          separatingAssumption: "The two classical mechanisms are treated as producing different first-order currents."
+        - id: same
+          label: The same to first order
+          description: Equal relative motion gives the same current to first order in v/c.
+          separatingAssumption: "The two descriptions agree at the speeds of real apparatus; they differ by gamma minus one."
+        - id: zero
+          label: Zero
+          description: One of the two descriptions produces no electromotive force.
+          separatingAssumption: "The magnet-moving electric field is treated as the only source of current."

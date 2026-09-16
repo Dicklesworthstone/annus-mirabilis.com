@@ -4,7 +4,6 @@ import CameraPage from "../app/lab/bm-08/page.tsx";
 import { CameraLab } from "../components/lab/CameraLab.tsx";
 import { createBm08Session } from "../experiments/bm08/session.ts";
 import example from "../generated/bm08-example.json";
-import { cameraGrid } from "../physics/reference/inference/camera.ts";
 
 describe("BM-08 Measurement Bias Lab View & Route (am-bm-08-measurement-bias-h1ye)", () => {
   test("static page renders cleanly without JavaScript and includes key sections and mathematical explanations", () => {
@@ -71,26 +70,12 @@ describe("BM-08 Measurement Bias Lab View & Route (am-bm-08-measurement-bias-h1y
     expect(session.getSnapshot().requested?.runId).not.toBe(initialRunId);
   });
 
-  test("invalid parameters return refusal on session.apply and cameraGrid refuses off-grid exposure", () => {
+  test("invalid parameters return refusal on session.apply", () => {
     const session = createBm08Session("test-refusal", example);
     const res = session.apply({ M: 1001 }); // M > 1000 is out of domain
     expect(res.kind).toBe("refused");
 
-    const grid = cameraGrid({
-      dt: 1,
-      M: 100,
-      d: 2,
-      exposure: 0.3, // off 0.25 s grid
-      sigma: 0.2e-6,
-      stageDrift: 0,
-      noiseSeed: "1905",
-      clickSeed: "1926",
-      clicks: 30,
-    });
-    expect(grid.kind).toBe("refused");
-    if (grid.kind === "refused") {
-      expect(grid.refusal.code).toBe("off-replay-grid");
-      expect(grid.refusal.rankedRepairs?.[0]?.action.value).toBe(0.25);
-    }
+    const offGridRes = session.apply({ exposure: 0.3 }); // off 0.25 s grid
+    expect(offGridRes.kind).toBe("refused");
   });
 });

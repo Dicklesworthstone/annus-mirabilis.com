@@ -1,0 +1,44 @@
+tapeVersion: 2
+tapeId: magnet-and-conductor
+experimentId: sr-02
+mode: "sr-02:default"
+title: magnet and conductor
+description: Teaching tape that compares the magnet-rest and conductor-rest descriptions at 10 m/s and at 0.6c.
+isTeachingSequence: true
+modelIdentity:
+  modelId: magnet-conductor-host
+  modelVersion: "1"
+  artifactDigest: "host:sha256:sr02-evaluateSr02"
+constantSetId: modern-si-2019
+seed: "0"
+streamVersion: 1
+allocationId: sr-02.none.v1
+initialConditions:
+  speed: 10
+  magneticField: 1
+  segmentLength: 0.1
+events:
+  - kind: control
+    actionIndex: 1
+    commandClass: setup-change
+    commandId: speed-20
+    parameterId: speed
+    value: 20
+  - kind: control
+    actionIndex: 2
+    commandClass: setup-change
+    commandId: speed-0.6c
+    parameterId: speed
+    value: 179875474.8
+checkpoints:
+  - actionIndex: 2
+    stepIndex: 0
+    simulatedTime: 0
+    digest: "host:sha256:sr02-evaluateSr02"
+    digestKind: host
+    checkpointVersion: 1
+    streamSemanticsVersion: 1
+    seed: "0"
+    streamPositions: []
+    label: both-descriptions
+    teachingNote: At 0.6c the two electromotive forces differ by the factor 1.25.

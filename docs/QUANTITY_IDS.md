@@ -2,7 +2,7 @@
 
 Generated from `content/quantities/*.yaml` by `scripts/generate-quantity-ids.ts`. Do not hand-edit; run `bun scripts/generate-quantity-ids.ts` to regenerate, and `--check` in CI to confirm this file is fresh.
 
-Total: 231 quantities, 45 rejected spellings, 2 reserved spellings.
+Total: 238 quantities, 45 rejected spellings, 2 reserved spellings.
 
 ## Registered quantities
 
@@ -68,6 +68,9 @@ Total: 231 quantities, 45 rejected spellings, 2 reserved spellings.
 | elapsedTime | Elapsed time | 0,0,1,0,0,0 | not-applicable | scalar | — |
 | electricFieldMoving | Electric field (moving system) | 1,1,-3,0,-1,0 | moving-system | vector | electricField |
 | electricFieldStationary | Electric field (stationary system) | 1,1,-3,0,-1,0 | stationary-system | vector | electricField |
+| electromotiveForceConductorFrame | Electromotive force (conductor rest) | 2,1,-3,0,-1,0 | moving-system | scalar | — |
+| electromotiveForceExcess | Electromotive-force excess over unity | 0,0,0,0,0,0 | not-applicable | scalar | — |
+| electromotiveForceMagnetFrame | Electromotive force (magnet rest) | 2,1,-3,0,-1,0 | stationary-system | scalar | — |
 | electronCharge | Electron charge | 0,0,1,0,1,0 | not-applicable | scalar | — |
 | electronMass | Electron mass | 0,1,0,0,0,0 | not-applicable | scalar | — |
 | electronWork | Electron work | 2,1,-2,0,0,0 | not-applicable | scalar | — |
@@ -76,6 +79,7 @@ Total: 231 quantities, 45 rejected spellings, 2 reserved spellings.
 | emissionRate | Photoelectron emission rate | 0,0,-1,0,0,0 | not-applicable | scalar | — |
 | emittedEnergyRestFrame | Emitted energy (object rest frame) | 2,1,-2,0,0,0 | object-rest | scalar | emittedEnergyRest |
 | emittedQuantumRate | Fluorescent emitted quantum rate | 0,0,-1,0,0,0 | not-applicable | scalar | — |
+| endpointSimultaneityOffset | Endpoint simultaneity offset | 0,0,1,0,0,0 | not-applicable | scalar | — |
 | entropy | Entropy | 2,1,-2,-1,0,0 | not-applicable | scalar | entropyDifference, entropyFunctionOfProbability |
 | entropyVolumeCoefficient | Entropy-volume coefficient | 2,1,-2,-1,0,0 | not-applicable | scalar | entropyCoefficient |
 | eventSeparationSpatial | Spatial event separation | 1,0,0,0,0,0 | not-applicable | scalar | — |
@@ -99,6 +103,7 @@ Total: 231 quantities, 45 rejected spellings, 2 reserved spellings.
 | hydrostaticHead | Hydrostatic head | 1,0,0,0,0,0 | not-applicable | scalar | — |
 | incidentPower | Incident radiant power | 2,1,-3,0,0,0 | not-applicable | scalar | — |
 | independentPointCount | Independent point count | 0,0,0,0,0,0 | not-applicable | scalar | — |
+| inducedCircuitCurrent | Induced circuit current | 0,0,0,0,1,0 | not-applicable | scalar | — |
 | inertialMassDecrease | Inertial mass decrease | 0,1,0,0,0,0 | not-applicable | scalar | massLossCoefficient |
 | interceptedPower | Intercepted power | 2,1,-3,0,0,0 | not-applicable | scalar | — |
 | intervalProbability | Interval probability | 0,0,0,0,0,0 | not-applicable | scalar | — |
@@ -132,6 +137,7 @@ Total: 231 quantities, 45 rejected spellings, 2 reserved spellings.
 | longitudinalForce | Longitudinal force | 1,1,-2,0,0,0 | not-applicable | vector | — |
 | longitudinalMass | Longitudinal mass | 0,1,0,0,0,0 | not-applicable | scalar | longitudinalMassSource, massCoefficientLongitudinal |
 | lorentzFactor | Lorentz factor | 0,0,0,0,0,0 | not-applicable | scalar | — |
+| magneticDipoleMoment | Magnetic dipole moment | 2,0,0,0,1,0 | not-applicable | vector | — |
 | magneticFieldMoving | Magnetic field (moving system) | 0,1,-2,0,-1,0 | moving-system | vector | magneticField |
 | magneticFieldStationary | Magnetic field (stationary system) | 0,1,-2,0,-1,0 | stationary-system | vector | magneticField |
 | massChangeSigned | Signed mass change | 0,1,0,0,0,0 | not-applicable | scalar | — |
@@ -159,6 +165,7 @@ Total: 231 quantities, 45 rejected spellings, 2 reserved spellings.
 | particleRadius | Particle radius | 1,0,0,0,0,0 | not-applicable | scalar | — |
 | particleVelocity | Particle velocity (laboratory) | 1,0,-1,0,0,0 | laboratory | vector | — |
 | partitionForce | Partition force | 1,1,-2,0,0,0 | not-applicable | scalar | — |
+| pathBoostParallelComponent | Path boost-parallel component | 0,0,0,0,0,0 | not-applicable | scalar | — |
 | peakFrequency | Peak frequency | 0,0,-1,0,0,0 | not-applicable | scalar | — |
 | peakWavelength | Peak wavelength | 1,0,0,0,0,0 | not-applicable | scalar | — |
 | photocurrent | Photocurrent | 0,0,0,0,1,0 | not-applicable | scalar | — |

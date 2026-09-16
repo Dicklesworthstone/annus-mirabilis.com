@@ -474,3 +474,74 @@
   mathematicalKind: scalar
   frame: not-applicable
   colorRole: space-geometry
+
+- id: magneticDipoleMoment
+  name: Magnetic dipole moment
+  description: The magnetic dipole moment used by the ideal-dipole field of SR-02.
+  dimensionStatus: declared
+  dimension: [2, 0, 0, 0, 1, 0]
+  mathematicalKind: vector
+  frame: not-applicable
+  colorRole: field
+
+- id: electromotiveForceMagnetFrame
+  name: Electromotive force (magnet rest)
+  description: >
+    Work per unit charge along the declared path in the magnet's rest frame. An electromotive
+    force is a path integral, not a field component.
+  dimensionStatus: declared
+  dimension: [2, 1, -3, 0, -1, 0]
+  mathematicalKind: scalar
+  frame: stationary-system
+  colorRole: field
+
+- id: electromotiveForceConductorFrame
+  name: Electromotive force (conductor rest)
+  description: Work per unit charge along the declared path in the conductor's rest frame.
+  dimensionStatus: declared
+  dimension: [2, 1, -3, 0, -1, 0]
+  mathematicalKind: scalar
+  frame: moving-system
+  colorRole: field
+
+- id: electromotiveForceExcess
+  name: Electromotive-force excess over unity
+  description: >
+    gamma minus one for the two electromotive-force descriptions, from the cancellation-free
+    form. Never stored as a float64 ratio minus one.
+  dimensionStatus: declared
+  dimension: [0, 0, 0, 0, 0, 0]
+  dimensionlessKind: ratio
+  mathematicalKind: scalar
+  frame: not-applicable
+  colorRole: statistical
+
+- id: pathBoostParallelComponent
+  name: Path boost-parallel component
+  description: The absolute value of n-hat dot v-hat for the declared electromotive-force path.
+  dimensionStatus: declared
+  dimension: [0, 0, 0, 0, 0, 0]
+  dimensionlessKind: ratio
+  mathematicalKind: scalar
+  frame: not-applicable
+  colorRole: space-geometry
+
+- id: endpointSimultaneityOffset
+  name: Endpoint simultaneity offset
+  description: >
+    Coordinate-time offset of the path's far end in the other frame, gamma v Delta x / c^2.
+    Zero exactly for a path across the boost.
+  dimensionStatus: declared
+  dimension: [0, 0, 1, 0, 0, 0]
+  mathematicalKind: scalar
+  frame: not-applicable
+  colorRole: time-rate
+
+- id: inducedCircuitCurrent
+  name: Induced circuit current
+  description: Current in a closed conducting circuit. SR-02 does not model a circuit; the output is not-applicable.
+  dimensionStatus: declared
+  dimension: [0, 0, 0, 0, 1, 0]
+  mathematicalKind: scalar
+  frame: not-applicable
+  colorRole: field
