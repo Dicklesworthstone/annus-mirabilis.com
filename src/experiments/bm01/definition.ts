@@ -6,6 +6,11 @@ export const BM01_MODEL = Object.freeze({ id: "bm01-host-preview-v1", constantSe
 export const TRACE_COUNT = 24, TRACE_POINTS = 101, HISTOGRAM_BINS = 40;
 const c = (unit: string, semanticKind: string, ownerId: string, statuses: OutputContract["statuses"] = ["value"]): OutputContract => Object.freeze({ unit, semanticKind, ownerId, statuses: Object.freeze([...statuses]) });
 export const BM01_OUTPUTS: Readonly<Record<string, OutputContract>> = Object.freeze({
+  temperature: c("K", "absolute-temperature", "bm01.acceptedInputs"),
+  viscosity: c("Pa s", "dynamic-viscosity", "bm01.acceptedInputs"),
+  particleRadius: c("m", "sphere-radius", "bm01.acceptedInputs"),
+  observationInterval: c("s", "observation-interval", "bm01.acceptedInputs"),
+  boltzmannConstant: c("J/K", "boltzmann-constant", "constants.modernSI2019"),
   diffusionCoefficient: c("m2/s", "latent-diffusivity", "diffusion.stokesEinsteinD"),
   rmsDisplacement1d: c("m", "latent-coordinate-rms", "diffusion.rmsDisplacement"),
   modelSecondMoment: c("m2", "latent-vector-second-moment", "diffusion.moments"),

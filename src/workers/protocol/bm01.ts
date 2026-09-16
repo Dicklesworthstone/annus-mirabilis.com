@@ -6,7 +6,7 @@ import type { Computation } from "../../physics/reference/diffusion/ftcs.ts";
 import type { Bm01Evaluation } from "../operations/bm01.ts";
 
 /** Deliberately scoped version: not an assertion that the full WASM protocol is implemented. */
-export const BM01_PROTOCOL = "bm01-host-v1";
+export const BM01_PROTOCOL = "bm01-host-v2";
 export type LabRequest = Readonly<{ messageKind: "request"; protocolVersion: typeof BM01_PROTOCOL; sourceDigest: string; token: RequestToken }>;
 export type LabCancel = Readonly<{ messageKind: "cancel"; protocolVersion: typeof BM01_PROTOCOL; instanceId: string; actionIndex: number }>;
 export type LabResponse = Readonly<{ messageKind: "result"; protocolVersion: typeof BM01_PROTOCOL; sourceDigest: string; token: RequestToken; result: Computation<Bm01Evaluation> }>;
@@ -98,6 +98,8 @@ export function decodeLabResponse(input: unknown, expected: RequestToken, expect
           if (length !== null ? !(output.value instanceof Float64Array) || output.value.length !== length : typeof output.value !== "number") fail("Output buffer does not match its declared layout.");
         }
         const p = token.parameters as Bm01Parameters;
+        const inputKey = ({ temperature: "T", viscosity: "eta", particleRadius: "a", observationInterval: "interval" } as const)[output.quantityId as "temperature" | "viscosity" | "particleRadius" | "observationInterval"];
+        if (inputKey && (output.status !== "value" || output.value !== p[inputKey])) fail("Accepted input echo disagrees with its request.");
         if (["meanBand", "secondMomentBand"].includes(output.quantityId)) {
           const expectedStatus = p.M < 2 ? "underdetermined" : p.interval === 0 ? "analytic-limit" : "value";
           if (output.status !== expectedStatus) fail("Sampling band status does not match the experiment.");
