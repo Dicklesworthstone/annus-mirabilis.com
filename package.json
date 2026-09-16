@@ -11,7 +11,7 @@
     "prebuild": "bun scripts/app-router-architecture.ts",
     "check:architecture": "bun scripts/app-router-architecture.ts",
     "prepare:content": "bun scripts/build-content.ts && bun scripts/build-equations.ts",
-    "prepare:lab": "bun scripts/generate-lab.mjs && bun scripts/generate-tracers.mjs && bun scripts/generate-walks.mjs && bun scripts/generate-inference.mjs",
+    "prepare:lab": "bun scripts/generate-lab.mjs && bun scripts/generate-tracers.mjs && bun scripts/generate-walks.mjs && bun scripts/generate-inference.mjs && bun scripts/generate-observation.mjs",
     "dev": "bun run prepare:content && bun run prepare:lab && next dev",
     "build": "bun run prepare:content && bun run prepare:lab && next build",
     "start": "next start",
@@ -33,12 +33,10 @@
   "devDependencies": {
     "@axe-core/playwright": "4.10.1",
     "@biomejs/biome": "2.5.8",
-    "@happy-dom/global-registrator": "20.14.5",
     "@types/katex": "0.16.7",
     "@types/node": "22.13.4",
     "@types/react": "19.0.0",
     "@types/react-dom": "19.0.0",
-    "happy-dom": "20.14.5",
     "playwright": "1.62.1",
     "typescript": "5.7.3"
   },
