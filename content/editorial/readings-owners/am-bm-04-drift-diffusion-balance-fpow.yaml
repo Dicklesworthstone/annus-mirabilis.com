@@ -1,0 +1,8 @@
+beadId: am-bm-04-drift-diffusion-balance-fpow
+targets:
+  - instrument: bm-04
+    captions:
+      - r0
+      - r1
+      - r2
+      - r3

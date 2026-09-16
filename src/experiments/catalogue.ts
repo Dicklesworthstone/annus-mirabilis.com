@@ -62,7 +62,7 @@ export const CATALOGUE_STATUS: Readonly<Record<CatalogueId, CatalogueStatus>> = 
   "lq-08": "registered",
   "lq-09": "in-preparation",
   "bm-01": "registered",
-  "bm-02": "in-preparation",
+  "bm-02": "registered",
   "bm-03": "registered",
   "bm-04": "registered",
   "bm-05": "registered",
@@ -82,7 +82,7 @@ export const CATALOGUE_STATUS: Readonly<Record<CatalogueId, CatalogueStatus>> = 
   "sr-11": "in-preparation",
   "sr-12": "in-preparation",
   "sr-13": "in-preparation",
-  "me-01": "in-preparation",
+  "me-01": "registered",
   "me-02": "registered",
   "me-03": "in-preparation",
   "shelf-michelson-morley": "in-preparation",
@@ -113,6 +113,8 @@ export const CATALOGUE_QUESTIONS: Readonly<Partial<Record<CatalogueId, string>>>
   "bm-04":
     "How can drag and equilibrium determine how fast particles diffuse, and why does the force you apply not matter?",
   "bm-05": "After many steps, what will changing the step law while keeping its variance do?",
+  "me-01":
+    "If a body at rest emits two equal pulses in opposite directions, what do two observers' energy ledgers force you to say about the body?",
   "me-02":
     "What does a smaller energy of motion at the same speed tell you about the body's inertia, and why does the conclusion come from low speeds?",
 });

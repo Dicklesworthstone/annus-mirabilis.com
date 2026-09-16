@@ -1,0 +1,566 @@
+id: bm-04
+title: "BM-04: Drift-Diffusion Balance"
+explanatoryQuestion: "How can drag and equilibrium determine how fast particles diffuse, and why does the force you apply not matter?"
+sourceRefs:
+  - paper: brownian-motion
+    id: s3
+argumentIds:
+  - arg-bm-inference
+  - arg-bm-diffusivity
+  - arg-bm-diffusion-equation
+schemaVersion: 1
+parameters:
+  - id: F
+    label: "External force"
+    accessibleName: "Force per particle"
+    accessibleDescription: "External driving force applied to each suspended particle in newtons"
+    quantityId: externalForcePerParticle
+    displayUnit: "fN"
+    modelDomain:
+      min: -1e-13
+      max: 1e-13
+      minInclusive: true
+      maxInclusive: true
+      reason: "Finite force range around typical piconewton/femtonewton hydrodynamic and gravitational forces"
+    visualRange:
+      min: -20
+      max: 20
+    default: 4.047373e-15
+    mapping:
+      kind: linear
+    role: independent
+    commandClass: physical-intervention
+  - id: m
+    label: "Kick strength multiplier"
+    accessibleName: "Diffusive kick strength multiplier"
+    accessibleDescription: "Multiplier m on the Stokes-Einstein kick diffusivity: D_kicks = m * mu * k_B * T"
+    quantityId: kickDiffusivity
+    displayUnit: ""
+    modelDomain:
+      min: 0
+      max: 10
+      minInclusive: true
+      maxInclusive: true
+      reason: "Nonnegative multiplier; 0 is the kicks-off Nägeli branch, 1 is the physical Einstein balance"
+    visualRange:
+      min: 0
+      max: 3
+    default: 1
+    mapping:
+      kind: linear
+    role: independent
+    commandClass: setup-change
+  - id: T
+    label: "Temperature"
+    accessibleName: "Absolute temperature of the suspension"
+    accessibleDescription: "Fluid temperature in Kelvin"
+    quantityId: temperature
+    displayUnit: "K"
+    modelDomain:
+      min: 273.15
+      max: 373.15
+      minInclusive: true
+      maxInclusive: true
+      reason: "Liquid water temperature range at atmospheric pressure"
+    visualRange:
+      min: 273.15
+      max: 373.15
+    default: 293.15
+    mapping:
+      kind: linear
+    role: independent
+    commandClass: setup-change
+  - id: eta
+    label: "Viscosity"
+    accessibleName: "Fluid dynamic viscosity"
+    accessibleDescription: "Viscosity in pascal-seconds"
+    quantityId: viscosity
+    displayUnit: "mPa s"
+    modelDomain:
+      min: 0.0002
+      max: 0.05
+      minInclusive: true
+      maxInclusive: true
+      reason: "Newtonian laminar drag regime"
+    visualRange:
+      min: 0.2
+      max: 5
+    default: 0.001002
+    mapping:
+      kind: linear
+    role: independent
+    commandClass: setup-change
+  - id: a
+    label: "Particle radius"
+    accessibleName: "Hydrodynamic sphere radius"
+    accessibleDescription: "Particle radius in meters"
+    quantityId: particleRadius
+    displayUnit: "um"
+    modelDomain:
+      min: 1e-8
+      max: 1e-5
+      minInclusive: true
+      maxInclusive: true
+      reason: "Colloidal size regime where Stokes drag applies"
+    visualRange:
+      min: 0.1
+      max: 5
+    default: 5e-7
+    mapping:
+      kind: log
+      base: 10
+    role: independent
+    commandClass: setup-change
+  - id: W
+    label: "Box width"
+    accessibleName: "Domain width"
+    accessibleDescription: "Spatial box width in meters"
+    quantityId: domainWidth
+    displayUnit: "um"
+    modelDomain:
+      min: 1e-6
+      max: 1e-4
+      minInclusive: true
+      maxInclusive: true
+      reason: "Microscope field size"
+    visualRange:
+      min: 2
+      max: 50
+    default: 1e-5
+    mapping:
+      kind: linear
+    role: independent
+    commandClass: setup-change
+  - id: cells
+    label: "Spatial cells"
+    accessibleName: "Number of grid cells"
+    accessibleDescription: "Number of finite-volume spatial discretization cells"
+    quantityId: gridCellCount
+    displayUnit: ""
+    modelDomain:
+      min: 10
+      max: 500
+      minInclusive: true
+      maxInclusive: true
+      reason: "Finite volume grid resolution budget"
+    visualRange:
+      min: 20
+      max: 400
+    default: 100
+    mapping:
+      kind: linear
+    role: independent
+    commandClass: setup-change
+  - id: dt
+    label: "Time step"
+    accessibleName: "Numerical integration time step"
+    accessibleDescription: "Time step dt in seconds"
+    quantityId: timeStep
+    displayUnit: "ms"
+    modelDomain:
+      min: 0.00001
+      max: 1
+      minInclusive: true
+      maxInclusive: true
+      reason: "Explicit finite volume stability limits"
+    visualRange:
+      min: 0.1
+      max: 20
+    default: 0.005
+    mapping:
+      kind: linear
+    role: independent
+    commandClass: setup-change
+  - id: steps
+    label: "Simulation steps"
+    accessibleName: "Number of time steps"
+    accessibleDescription: "Number of discrete steps to advance"
+    quantityId: simulationStepCount
+    displayUnit: ""
+    modelDomain:
+      min: 1
+      max: 10000
+      minInclusive: true
+      maxInclusive: true
+      reason: "Numerical work budget"
+    visualRange:
+      min: 10
+      max: 1000
+    default: 200
+    mapping:
+      kind: linear
+    role: independent
+    commandClass: setup-change
+  - id: profile
+    label: "Initial profile"
+    accessibleName: "Initial concentration profile"
+    accessibleDescription: "Starting distribution: uniform, step, equilibrium, or spike"
+    quantityId: initialDistributionKind
+    displayUnit: ""
+    modelDomain:
+      enumerated: []
+      reason: "One of uniform, step, equilibrium, or spike"
+    visualRange:
+      min: 0
+      max: 1
+    default: "uniform"
+    mapping:
+      kind: linear
+    role: independent
+    commandClass: setup-change
+outputs:
+  - id: densityProfile
+    quantityId: probabilityDensity
+    allowedStatuses:
+      - value
+      - outside-domain
+    primary: true
+  - id: osmoticProfile
+    quantityId: probabilityDensity
+    allowedStatuses:
+      - value
+      - outside-domain
+  - id: diffusionCoefficient
+    quantityId: diffusionCoefficient
+    allowedStatuses:
+      - value
+      - outside-domain
+  - id: kickDiffusivity
+    quantityId: kickDiffusivity
+    allowedStatuses:
+      - value
+      - outside-domain
+  - id: mobility
+    quantityId: mobility
+    allowedStatuses:
+      - value
+      - outside-domain
+  - id: driftVelocity
+    quantityId: driftVelocity
+    allowedStatuses:
+      - value
+      - outside-domain
+  - id: osmoticDecayLength
+    quantityId: osmoticDecayLength
+    allowedStatuses:
+      - value
+      - not-applicable
+      - outside-domain
+  - id: kineticDecayLength
+    quantityId: kineticDecayLength
+    allowedStatuses:
+      - value
+      - not-applicable
+      - outside-domain
+  - id: driftFlux
+    quantityId: driftFlux
+    allowedStatuses:
+      - value
+      - outside-domain
+  - id: diffusionFlux
+    quantityId: diffusionFlux
+    allowedStatuses:
+      - value
+      - outside-domain
+  - id: totalFlux
+    quantityId: particleFlux
+    allowedStatuses:
+      - value
+      - outside-domain
+  - id: steadyState
+    quantityId: steadyStateIndicator
+    allowedStatuses:
+      - value
+      - not-applicable
+assumptions:
+  - "Dilute spherical particles suspended in a homogeneous Newtonian liquid"
+  - "Laminar Stokes drag regime where drift velocity u = mu * F"
+  - "Dynamic steady-state balance between directional drift and Brownian diffusion"
+  - "Zero-flux reflecting boundary conditions at domain walls"
+  - "Colloidal size regime where momentum relaxation is negligible compared to observation times"
+admittedDomain: "Dilute colloidal suspensions in Newtonian fluids under weak external forces where thermal fluctuations and hydrodynamic drag operate in dynamic equilibrium."
+notModeled:
+  - "Non-dilute particle-particle steric and electrostatic interactions"
+  - "Short-time ballistic inertial relaxation (Langevin timescale)"
+  - "Near-wall hydrodynamic lubrication and image force corrections"
+  - "Three-dimensional convective fluid circulation or thermal buoyancy"
+  - "Chemical surface adsorption or specific wall potential wells"
+  - "Polydispersity in particle radius or density"
+owner:
+  kind: reference-evaluator
+  kernelFunctions:
+    - displayRole: reference-implementation
+      language: ts
+      module: "src/physics/reference/diffusion/driftDiffusion.ts"
+      exportName: "driftDiffusionFrames1d"
+      independentReferences:
+        - experimentId: bm-04
+          quantityId: probabilityDensity
+    - displayRole: reference-implementation
+      language: ts
+      module: "src/physics/reference/diffusion/routeA.ts"
+      exportName: "equilibriumBalance"
+    - displayRole: reference-implementation
+      language: ts
+      module: "src/physics/reference/diffusion/routeA.ts"
+      exportName: "decayLengths"
+    - displayRole: reference-implementation
+      language: ts
+      module: "src/physics/reference/diffusion/routeA.ts"
+      exportName: "osmoticEquilibriumProfile"
+  identifierBindings:
+    - kernelFunction: equilibriumBalance
+      identifier: "force"
+      quantityId: externalForcePerParticle
+    - kernelFunction: equilibriumBalance
+      identifier: "temperature"
+      quantityId: temperature
+    - kernelFunction: equilibriumBalance
+      identifier: "eta"
+      quantityId: viscosity
+    - kernelFunction: equilibriumBalance
+      identifier: "a"
+      quantityId: particleRadius
+    - kernelFunction: equilibriumBalance
+      identifier: "kickDiffusivity"
+      quantityId: kickDiffusivity
+    - kernelFunction: decayLengths
+      identifier: "force"
+      quantityId: externalForcePerParticle
+    - kernelFunction: decayLengths
+      identifier: "temperature"
+      quantityId: temperature
+    - kernelFunction: decayLengths
+      identifier: "kickDiffusivity"
+      quantityId: kickDiffusivity
+    - kernelFunction: decayLengths
+      identifier: "mobility"
+      quantityId: mobility
+    - kernelFunction: decayLengths
+      identifier: "osmotic"
+      quantityId: osmoticDecayLength
+    - kernelFunction: decayLengths
+      identifier: "kinetic"
+      quantityId: kineticDecayLength
+    - kernelFunction: driftDiffusionFrames1d
+      identifier: "force"
+      quantityId: externalForcePerParticle
+    - kernelFunction: driftDiffusionFrames1d
+      identifier: "mobility"
+      quantityId: mobility
+    - kernelFunction: driftDiffusionFrames1d
+      identifier: "kickDiffusivity"
+      quantityId: kickDiffusivity
+    - kernelFunction: driftDiffusionFrames1d
+      identifier: "u"
+      quantityId: driftVelocity
+  traceScenarioId: bm-04-golden
+  traceRows:
+    - label: "Stokes mobility"
+      expression: "mu = 1 / (6 * pi * eta * a)"
+      value: 1.057754e11
+      unit: "kg-1 s"
+      quantityId: mobility
+    - label: "Diffusivity at m = 1"
+      expression: "D = mu * k_B * T"
+      value: 4.280967e-13
+      unit: "m2/s"
+      quantityId: diffusionCoefficient
+    - label: "Osmotic decay length at 4.047 fN"
+      expression: "lambda_osm = k_B * T / |F|"
+      value: 1.000000e-6
+      unit: "m"
+      quantityId: osmoticDecayLength
+views:
+  - id: density-profile-view
+    kind: svg
+    consumes:
+      - densityProfile
+      - osmoticProfile
+  - id: flux-balance-view
+    kind: svg
+    consumes:
+      - driftFlux
+      - diffusionFlux
+      - totalFlux
+  - id: balance-table-summary
+    kind: table
+    consumes:
+      - diffusionCoefficient
+      - kickDiffusivity
+      - osmoticDecayLength
+      - kineticDecayLength
+      - steadyState
+actions:
+  - actionId: bm-04-run-to-steady-state
+    family: probability-diffusion
+    question: "How does the kinetic density profile compare with the osmotic equilibrium profile at steady state?"
+    inputs:
+      - F
+      - m
+    commandClass: physical-intervention
+    acceptedResult:
+      outputs:
+        - densityProfile
+        - osmoticProfile
+        - steadyState
+      allowedStatuses:
+        - value
+    visualAffordance: "Density profile curve converges toward osmotic exponential curve"
+    equivalentAffordance: "Compare table rows for osmotic and kinetic decay lengths"
+    announcement: "Steady state reached; decay lengths updated"
+  - actionId: bm-04-probe-kicks-off-naegeli
+    family: probability-diffusion
+    question: "What happens to the suspended particles if thermal agitation (molecular kicks) is turned off (m = 0)?"
+    inputs:
+      - m
+      - F
+    commandClass: setup-change
+    acceptedResult:
+      outputs:
+        - densityProfile
+        - driftFlux
+      allowedStatuses:
+        - value
+    visualAffordance: "Particles drift toward the wall and accumulate completely, or remain frozen without force"
+    equivalentAffordance: "Read the zero kick diffusivity and complete wall accumulation notice in the table"
+    announcement: "Kicks off (Nägeli branch): zero diffusion, irreversible drift accumulation"
+  - actionId: bm-04-vary-force-cancellation
+    family: probability-diffusion
+    question: "Why does the value of the diffusion coefficient D remain unchanged regardless of the magnitude or direction of the applied force F?"
+    inputs:
+      - F
+    commandClass: physical-intervention
+    acceptedResult:
+      outputs:
+        - diffusionCoefficient
+        - driftVelocity
+      allowedStatuses:
+        - value
+    visualAffordance: "Cancellation panel highlights force dropping out of the quotient"
+    equivalentAffordance: "Read the unchanged D value across varying forces in the data table"
+    announcement: "Force cancellation demonstrated: D is independent of F"
+acceptanceCases:
+  - bm04-steady-state-einstein
+  - bm04-naegeli-kicks-off-drift
+  - bm04-naegeli-zero-force-frozen
+  - bm04-mismatched-kicks-nonequilibrium
+defaultScenario: bm04-steady-state-einstein
+tapeModel:
+  modelId: brownian-motion-drift-diffusion
+  modelVersion: 1
+teachingTapes:
+  - tapeId: bm-04-balance-tape-01
+    title: "Drift-diffusion flux balance in a 10 micron channel"
+presets:
+  - presetId: bm-04-einstein-balance
+    label: "Einstein equilibrium balance (m = 1, F = 4.047 fN)"
+    parameterValues:
+      F: 4.047373e-15
+      m: 1
+      T: 293.15
+      eta: 0.001002
+      a: 5e-7
+      W: 1e-5
+      cells: 100
+      dt: 0.005
+      steps: 200
+      profile: "uniform"
+  - presetId: bm-04-naegeli-kicks-off
+    label: "Nägeli kicks-off branch (m = 0, F = 4.047 fN)"
+    parameterValues:
+      F: 4.047373e-15
+      m: 0
+      T: 293.15
+      eta: 0.001002
+      a: 5e-7
+      W: 1e-5
+      cells: 100
+      dt: 0.0001
+      steps: 200
+      profile: "uniform"
+  - presetId: bm-04-naegeli-zero-force
+    label: "Nägeli frozen step (m = 0, F = 0)"
+    parameterValues:
+      F: 0
+      m: 0
+      T: 293.15
+      eta: 0.001002
+      a: 5e-7
+      W: 1e-5
+      cells: 100
+      dt: 0.005
+      steps: 200
+      profile: "step"
+  - presetId: bm-04-mismatched-kicks
+    label: "Mismatched kinetic kicks (m = 2, F = 4.047 fN)"
+    parameterValues:
+      F: 4.047373e-15
+      m: 2
+      T: 293.15
+      eta: 0.001002
+      a: 5e-7
+      W: 1e-5
+      cells: 100
+      dt: 0.005
+      steps: 200
+      profile: "uniform"
+  - presetId: bm-04-zero-force-relaxation
+    label: "Pure diffusion relaxation (m = 1, F = 0)"
+    parameterValues:
+      F: 0
+      m: 1
+      T: 293.15
+      eta: 0.001002
+      a: 5e-7
+      W: 1e-5
+      cells: 100
+      dt: 0.005
+      steps: 200
+      profile: "step"
+probes:
+  - bm04-probe-kick-strength
+  - bm04-probe-force-independence
+  - bm04-probe-cfl-stability
+weavePredicates:
+  - bm04-s3-diffusion-coefficient
+  - bm04-s3-force-balance
+historicalOverlays: []
+realRate:
+  natural: false
+embeddable: true
+predictMode:
+  enabled: true
+  prompts:
+    - promptId: bm-04-predict-force-dependence
+      controlId: F
+      question: "If you double the external force pulling on the particles, does the steady-state diffusion coefficient D double, halve, or stay unchanged?"
+      candidates:
+        - id: bm-04-predict-force-dependence-double
+          label: "D doubles"
+          description: "A stronger force causes faster particle transport"
+          separatingAssumption: "Confuses the drift flux u*n with the diffusion coefficient D."
+        - id: bm-04-predict-force-dependence-unchanged
+          label: "D stays unchanged"
+          description: "Diffusion reflects thermal agitation and drag; the force drops out of the relation"
+          separatingAssumption: "Follows from D = mu * k_B * T: the force drops out of the equilibrium quotient."
+        - id: bm-04-predict-force-dependence-halves
+          label: "D halves"
+          description: "A stronger force compresses the distribution, reducing spreading"
+          separatingAssumption: "Confuses the compressed decay length lambda with the diffusivity D."
+    - promptId: bm-04-predict-kicks-off
+      controlId: m
+      question: "In a hypothetical world where single molecular collisions cannot move particles (kicks off, m = 0), what happens to particles under a constant downward force?"
+      candidates:
+        - id: bm-04-predict-kicks-off-pileup
+          label: "All particles drift to the bottom wall and remain stuck there"
+          description: "Without thermal diffusion to oppose drift, particles accumulate irreversibly at the boundary"
+          separatingAssumption: "Without diffusion flux to balance drift, the only steady state is complete wall pileup: Nägeli's model prediction."
+        - id: bm-04-predict-kicks-off-equilibrium
+          label: "Particles form an exponential equilibrium gradient just like with kicks"
+          description: "Equilibrium is purely thermodynamic and does not depend on molecular collisions"
+          separatingAssumption: "Assumes an exponential distribution can arise without a diffusive counter-flux."
+        - id: bm-04-predict-kicks-off-bounce
+          label: "Particles oscillate back and forth between walls"
+          description: "Particles bounce elastically from the bottom wall"
+          separatingAssumption: "Assumes elastic frictionless bouncing without viscous damping."
