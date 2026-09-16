@@ -1,0 +1,438 @@
+# LQ-07 instrument manifest (am-lq-07-fluorescence-zjai).
+id: lq-07
+title: "LQ-07: Fluorescence Energy Budget and Stokes's Rule"
+explanatoryQuestion: "Why can the frequency of emitted fluorescent light not exceed that of the exciting light under the light-quantum hypothesis, and what are the exact conditions for exceptions?"
+sourceRefs:
+  - paper: light-quanta
+    id: s7
+argumentIds:
+  - arg-lq-stokes-rule
+  - arg-lq-fluorescence-budget
+  - arg-lq-weak-illumination
+schemaVersion: 1
+parameters:
+  - id: nu1
+    label: "Exciting Frequency ν₁"
+    accessibleName: "Exciting light cyclic frequency in Terahertz"
+    accessibleDescription: "Frequency of the incident light quanta exciting the fluorescent substance"
+    quantityId: cyclicFrequency
+    displayUnit: "THz"
+    modelDomain:
+      min: 100
+      max: 3000
+      minInclusive: true
+      maxInclusive: true
+      reason: "Optical to ultraviolet frequency range"
+    visualRange:
+      min: 300
+      max: 1200
+    default: 850
+    mapping:
+      kind: linear
+    role: independent
+    commandClass: setup-change
+  - id: nu2
+    label: "Emitted Frequency ν₂"
+    accessibleName: "Emitted fluorescence cyclic frequency in Terahertz"
+    accessibleDescription: "Frequency of the candidate emitted fluorescent light quantum"
+    quantityId: cyclicFrequency
+    displayUnit: "THz"
+    modelDomain:
+      min: 100
+      max: 3000
+      minInclusive: true
+      maxInclusive: true
+      reason: "Optical to ultraviolet frequency range"
+    visualRange:
+      min: 300
+      max: 1200
+    default: 850
+    mapping:
+      kind: linear
+    role: independent
+    commandClass: setup-change
+  - id: regime
+    label: "Accounting Regime"
+    accessibleName: "Fluorescence energy accounting regime"
+    accessibleDescription: "Selects among standard single-quantum Stokes, multi-quantum absorption, non-Wien source caveat, or modern thermal allowance"
+    quantityId: regimeSelection
+    displayUnit: ""
+    modelDomain:
+      enumerated: []
+      reason: "One of standard-stokes, deviation-multi-quantum, deviation-non-wien, modern-thermal"
+    visualRange:
+      min: 0
+      max: 3
+    default: "standard-stokes"
+    mapping:
+      kind: linear
+    role: independent
+    commandClass: setup-change
+  - id: multiQuantumK
+    label: "Absorbed Quanta k"
+    accessibleName: "Number of quanta absorbed per elementary process"
+    accessibleDescription: "Number of light quanta absorbed simultaneously in deviation case (1)"
+    quantityId: quantumCount
+    displayUnit: ""
+    modelDomain:
+      min: 1
+      max: 5
+      minInclusive: true
+      maxInclusive: true
+      reason: "Multi-photon absorption order"
+    visualRange:
+      min: 1
+      max: 5
+    default: 1
+    mapping:
+      kind: step
+    role: independent
+    commandClass: setup-change
+  - id: sourceTemperatureK
+    label: "Source Temperature T_src"
+    accessibleName: "Exciting radiation source temperature in Kelvin"
+    accessibleDescription: "Blackbody temperature of the source emitting exciting radiation for Wien validity check"
+    quantityId: temperature
+    displayUnit: "K"
+    modelDomain:
+      min: 1000
+      max: 50000
+      minInclusive: true
+      maxInclusive: true
+      reason: "Source temperature range"
+    visualRange:
+      min: 2000
+      max: 30000
+    default: 5800
+    mapping:
+      kind: log
+    role: independent
+    commandClass: setup-change
+  - id: bodyTemperatureK
+    label: "Body Temperature T_body"
+    accessibleName: "Emitting substance temperature in Kelvin"
+    accessibleDescription: "Thermal temperature of the fluorescent body for modern phonon-assisted anti-Stokes allowance"
+    quantityId: temperature
+    displayUnit: "K"
+    modelDomain:
+      min: 0
+      max: 1000
+      minInclusive: true
+      maxInclusive: true
+      reason: "Fluorescent medium temperature"
+    visualRange:
+      min: 77
+      max: 600
+    default: 300
+    mapping:
+      kind: linear
+    role: independent
+    commandClass: setup-change
+  - id: absorbedPowerMicrowatts
+    label: "Absorbed Optical Power"
+    accessibleName: "Absorbed exciting light power in microwatts"
+    accessibleDescription: "Total optical power absorbed by the fluorescent substance"
+    quantityId: power
+    displayUnit: "uW"
+    modelDomain:
+      min: 0.000001
+      max: 1000000
+      minInclusive: true
+      maxInclusive: true
+      reason: "Power range from 1 pW to 1 W"
+    visualRange:
+      min: 0.000001
+      max: 100
+    default: 1.0
+    mapping:
+      kind: log
+    role: independent
+    commandClass: setup-change
+  - id: quantumYield
+    label: "Quantum Yield Y"
+    accessibleName: "Fluorescence quantum efficiency"
+    accessibleDescription: "Ratio of emitted photons to absorbed photons (0 <= Y <= 1)"
+    quantityId: quantumYield
+    displayUnit: ""
+    modelDomain:
+      min: 0
+      max: 1
+      minInclusive: true
+      maxInclusive: true
+      reason: "Physical quantum yield ratio in [0, 1]"
+    visualRange:
+      min: 0
+      max: 1
+    default: 0.5
+    mapping:
+      kind: linear
+    role: independent
+    commandClass: setup-change
+  - id: channels
+    label: "Energy Channels"
+    accessibleName: "Available energy dissipation channels"
+    accessibleDescription: "Whether non-optical energy dissipation (heat/phonons) is available"
+    quantityId: channelSelection
+    displayUnit: ""
+    modelDomain:
+      enumerated: []
+      reason: "One of light-plus-heat or light-only"
+    visualRange:
+      min: 0
+      max: 1
+    default: "light-plus-heat"
+    mapping:
+      kind: linear
+    role: independent
+    commandClass: setup-change
+outputs:
+  - id: allowed
+    quantityId: booleanVerdict
+    allowedStatuses:
+      - value
+      - outside-domain
+      - not-applicable
+    primary: true
+  - id: nu2Max
+    quantityId: cyclicFrequency
+    allowedStatuses:
+      - value
+      - outside-domain
+      - not-applicable
+    primary: true
+  - id: e1Ev
+    quantityId: energy
+    allowedStatuses:
+      - value
+      - outside-domain
+      - not-applicable
+    primary: true
+  - id: e2Ev
+    quantityId: energy
+    allowedStatuses:
+      - value
+      - outside-domain
+      - not-applicable
+    primary: true
+  - id: eOtherEv
+    quantityId: energy
+    allowedStatuses:
+      - value
+      - outside-domain
+      - not-applicable
+    primary: true
+  - id: energyDeficitEv
+    quantityId: energy
+    allowedStatuses:
+      - value
+      - outside-domain
+      - not-applicable
+    primary: true
+  - id: absorbedRate
+    quantityId: eventRate
+    allowedStatuses:
+      - value
+      - outside-domain
+      - not-applicable
+    primary: false
+  - id: emittedRate
+    quantityId: eventRate
+    allowedStatuses:
+      - value
+      - outside-domain
+      - not-applicable
+    primary: false
+  - id: emittedPowerWatts
+    quantityId: power
+    allowedStatuses:
+      - value
+      - outside-domain
+      - not-applicable
+    primary: false
+  - id: dissipatedHeatWatts
+    quantityId: power
+    allowedStatuses:
+      - value
+      - outside-domain
+      - not-applicable
+    primary: false
+assumptions:
+  - "The exciting light consists of energy quanta of magnitude h*nu1 as derived for the Wien regime."
+  - "The absorption and emission of light are elementary processes occurring via single quanta (unless in deviation case 1)."
+  - "Each absorbed quantum is transformed into a light quantum of frequency nu2 and/or non-optical energy channels (heat)."
+  - "Energy is strictly conserved in every elementary transformation: h*nu1 = h*nu2 + E_other with E_other >= 0."
+admittedDomain: "Photoluminescence in low-density matter under single-photon and named deviation excitation regimes"
+notModeled:
+  - "Detailed atomic or molecular energy level structures and transition dipoles."
+  - "Non-radiative decay kinetics and intermediate triplet states (phosphorescence timescales)."
+  - "Spatial propagation, self-absorption, and re-emission geometry inside the bulk medium."
+  - "Coherent optical effects and laser amplification."
+owner:
+  kind: reference-evaluator
+  kernelFunctions:
+    - displayRole: reference-implementation
+      language: ts
+      module: "src/physics/reference/photoelectric.ts"
+      exportName: "fluorescenceBudget"
+views:
+  - id: lq-07-energy-ledger
+    kind: svg
+    consumes:
+      - nu1
+      - nu2
+      - e1Ev
+      - e2Ev
+      - eOtherEv
+      - energyDeficitEv
+  - id: lq-07-rates-card
+    kind: table
+    consumes:
+      - absorbedRate
+      - emittedRate
+      - emittedPowerWatts
+      - dissipatedHeatWatts
+actions:
+  - actionId: lq-07-set-frequencies
+    family: radiation-entropy
+    question: "How does the energy budget change when incident frequency nu1 or emitted frequency nu2 changes?"
+    inputs:
+      - nu1
+      - nu2
+    commandClass: setup-change
+    acceptedResult:
+      outputs:
+        - allowed
+        - nu2Max
+        - e1Ev
+        - e2Ev
+        - eOtherEv
+        - energyDeficitEv
+      allowedStatuses:
+        - value
+        - outside-domain
+        - not-applicable
+    visualAffordance: "Energy ledger bars and deficit hatch update with frequencies"
+    equivalentAffordance: "Type incident and emitted frequencies directly"
+    announcement: "Frequencies updated; fluorescence energy budget evaluated"
+acceptanceCases:
+  - stokes-rule-einstein-1905-printed
+  - anti-stokes-single-quantum-disallowed
+  - deviation-multi-quantum-absorption
+  - deviation-non-wien-regime-refusal
+  - modern-thermal-phonon-assisted
+defaultScenario: stokes-rule-einstein-1905-printed
+tapeModel:
+  modelId: fluorescence-budget-reference
+  modelVersion: 1
+teachingTapes:
+  - tapeId: stokes-rule-energy-budget
+    title: "Stokes's Rule Single-Quantum Energy Budget"
+  - tapeId: lq-07-journey-stage-g
+    title: "Light Quanta Stage G: Photoluminescence"
+probes:
+  - lq-07-stokes-cutoff-probe
+  - lq-07-weak-intensity-linear-rate-probe
+weavePredicates:
+  - lq07-s7-energy-conservation
+  - lq07-s7-multi-quantum-deviation
+  - lq07-s7-weak-illumination-rate
+historicalOverlays: []
+realRate:
+  natural: false
+embeddable: true
+presets:
+  - presetId: lq-07-stokes-rule
+    label: "Stokes's Rule (§7 as printed)"
+    parameterValues:
+      nu1: 850
+      nu2: 850
+      regime: standard-stokes
+      multiQuantumK: 1
+      sourceTemperatureK: 5800
+      bodyTemperatureK: 300
+      absorbedPowerMicrowatts: 1.0
+      quantumYield: 0.5
+      channels: light-plus-heat
+  - presetId: lq-07-anti-stokes-disallowed
+    label: "Anti-Stokes Disallowed (900 THz proposal)"
+    parameterValues:
+      nu1: 850
+      nu2: 900
+      regime: standard-stokes
+      multiQuantumK: 1
+      sourceTemperatureK: 5800
+      bodyTemperatureK: 300
+      absorbedPowerMicrowatts: 1.0
+      quantumYield: 0.5
+      channels: light-plus-heat
+  - presetId: lq-07-deviation-multi
+    label: "Deviation Case 1 (k = 2 multi-quantum)"
+    parameterValues:
+      nu1: 850
+      nu2: 900
+      regime: deviation-multi-quantum
+      multiQuantumK: 2
+      sourceTemperatureK: 5800
+      bodyTemperatureK: 300
+      absorbedPowerMicrowatts: 1.0
+      quantumYield: 0.5
+      channels: light-plus-heat
+  - presetId: lq-07-deviation-non-wien
+    label: "Deviation Case 2 (T_src = 20,000 K non-Wien source)"
+    parameterValues:
+      nu1: 850
+      nu2: 850
+      regime: deviation-non-wien
+      multiQuantumK: 1
+      sourceTemperatureK: 20000
+      bodyTemperatureK: 300
+      absorbedPowerMicrowatts: 1.0
+      quantumYield: 0.5
+      channels: light-plus-heat
+  - presetId: lq-07-modern-thermal
+    label: "Modern Thermal Allowance (T_body = 300 K)"
+    parameterValues:
+      nu1: 850
+      nu2: 900
+      regime: modern-thermal
+      multiQuantumK: 1
+      sourceTemperatureK: 5800
+      bodyTemperatureK: 300
+      absorbedPowerMicrowatts: 1.0
+      quantumYield: 0.5
+      channels: light-plus-heat
+predictMode:
+  enabled: true
+  prompts:
+    - promptId: lq-07-predict-higher-frequency
+      controlId: nu2
+      question: "Can fluorescent emission occur at higher frequency than the exciting light (nu2 > nu1) under single-quantum absorption?"
+      candidates:
+        - id: lq-07-predict-higher-frequency-never
+          label: "Never"
+          description: "Each emitted quantum cannot exceed the energy of one absorbed quantum (h*nu2 <= h*nu1)."
+          separatingAssumption: "Single-quantum energy conservation: h*nu1 = h*nu2 + E_other with E_other >= 0."
+        - id: lq-07-predict-higher-frequency-intensity
+          label: "With intense light"
+          description: "Higher illumination power supplies more energy per second to pump higher-energy emission."
+          separatingAssumption: "Energy accumulation assumption: assumes energy from multiple quanta pools continuously in the medium."
+        - id: lq-07-predict-higher-frequency-materials
+          label: "In certain resonant materials"
+          description: "Specific resonant media can multiply frequency without requiring multi-quantum absorption."
+          separatingAssumption: "Material multiplier assumption: assumes internal atomic resonance can boost output photon energy."
+    - promptId: lq-07-predict-weak-light
+      controlId: absorbedPowerMicrowatts
+      question: "How does the fluorescence emission rate behave as the incident light becomes extremely weak?"
+      candidates:
+        - id: lq-07-predict-weak-light-linear
+          label: "Strictly proportional with zero threshold"
+          description: "Each absorbed quantum acts independently with probability Y, yielding an emission rate exactly proportional to absorbed power."
+          separatingAssumption: "Light-quantum independence: individual photon absorption events trigger emission directly."
+        - id: lq-07-predict-weak-light-threshold
+          label: "Stops below a threshold"
+          description: "Weak illumination fails to accumulate enough wave energy to excite the atom, so emission ceases entirely."
+          separatingAssumption: "Wave accumulation threshold assumption: excitation requires reaching a minimum continuous energy density."
+        - id: lq-07-predict-weak-light-quadratic
+          label: "Drops quadratically"
+          description: "Weak illumination reduces the probability of paired photon interactions, dropping emission faster than linear."
+          separatingAssumption: "Cooperative absorption assumption: assumes emission rate depends on two-photon density."

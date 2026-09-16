@@ -1,0 +1,7 @@
+paper: light-quanta
+targetKinds:
+  - instrument-caption
+scope:
+  instrumentIds:
+    - lq-07
+ownerBeadId: am-lq-07-fluorescence-zjai
