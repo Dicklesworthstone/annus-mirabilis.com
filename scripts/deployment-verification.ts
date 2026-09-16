@@ -69,8 +69,9 @@ export function parseAndValidateVercelProjectConfig(
   let parsed: unknown;
   try {
     parsed = JSON.parse(projectJsonContent);
-  } catch (err: any) {
-    throw new Error(`Invalid JSON in .vercel/project.json: ${err.message}`);
+  } catch (err: unknown) {
+    const message = err instanceof Error ? err.message : String(err);
+    throw new Error(`Invalid JSON in .vercel/project.json: ${message}`);
   }
 
   if (!parsed || typeof parsed !== "object") {
