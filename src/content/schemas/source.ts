@@ -4,6 +4,7 @@
  * Specification: AGENTS.md and am-cm-schemas-source-1en
  */
 
+import { type TextDirection, validateDirection, validateLanguageTag } from "../../i18n/language.ts";
 import {
   CLOUD_PROCESSING_VALUES,
   type CloudProcessing,
@@ -465,6 +466,8 @@ export type SourceBlock = Readonly<{
   sentenceSpans: readonly SentenceSpan[];
   revision: number;
   status: SourceBlockStatus;
+  lang?: string | undefined;
+  dir?: TextDirection | undefined;
 }>;
 
 export function validateSourceBlock(raw: unknown, path = "SourceBlock"): SourceBlock {
@@ -503,6 +506,34 @@ export function validateSourceBlock(raw: unknown, path = "SourceBlock"): SourceB
       "SourceBlock",
       `${path}.revision`,
     );
+  }
+
+  let lang: string | undefined;
+  if (o.lang !== undefined) {
+    try {
+      lang = validateLanguageTag(o.lang, `${path}.lang`);
+    } catch (err: any) {
+      throw new SchemaValidationError(
+        "invalid-language-tag",
+        err.message,
+        "SourceBlock",
+        `${path}.lang`,
+      );
+    }
+  }
+
+  let dir: TextDirection | undefined;
+  if (o.dir !== undefined) {
+    try {
+      dir = validateDirection(o.dir, `${path}.dir`);
+    } catch (err: any) {
+      throw new SchemaValidationError(
+        "invalid-direction",
+        err.message,
+        "SourceBlock",
+        `${path}.dir`,
+      );
+    }
   }
 
   // Validate status fields: must be separate fields
@@ -594,6 +625,8 @@ export function validateSourceBlock(raw: unknown, path = "SourceBlock"): SourceB
       translation: st.translation as any,
       review: st.review as any,
     },
+    ...(lang ? { lang } : {}),
+    ...(dir ? { dir } : {}),
   };
 }
 
@@ -612,6 +645,8 @@ export type TranslationUnit = Readonly<{
   revision: number;
   unresolvedAlternatives: readonly UnresolvedAlternative[];
   reviewState: "draft" | "in-progress" | "corrected" | "reviewed";
+  lang: string;
+  dir?: TextDirection | undefined;
 }>;
 
 export function validateTranslationUnit(raw: unknown, path = "TranslationUnit"): TranslationUnit {
@@ -647,6 +682,40 @@ export function validateTranslationUnit(raw: unknown, path = "TranslationUnit"):
       "TranslationUnit",
       `${path}.revision`,
     );
+  }
+
+  if (typeof o.lang !== "string" || !o.lang.trim()) {
+    throw new SchemaValidationError(
+      "missing-lang",
+      "lang is required for TranslationUnit.",
+      "TranslationUnit",
+      `${path}.lang`,
+    );
+  }
+  let lang: string;
+  try {
+    lang = validateLanguageTag(o.lang, `${path}.lang`);
+  } catch (err: any) {
+    throw new SchemaValidationError(
+      "invalid-language-tag",
+      err.message,
+      "TranslationUnit",
+      `${path}.lang`,
+    );
+  }
+
+  let dir: TextDirection | undefined;
+  if (o.dir !== undefined) {
+    try {
+      dir = validateDirection(o.dir, `${path}.dir`);
+    } catch (err: any) {
+      throw new SchemaValidationError(
+        "invalid-direction",
+        err.message,
+        "TranslationUnit",
+        `${path}.dir`,
+      );
+    }
   }
 
   const reviewState = o.reviewState as string;
@@ -692,6 +761,8 @@ export function validateTranslationUnit(raw: unknown, path = "TranslationUnit"):
     revision: o.revision as number,
     unresolvedAlternatives,
     reviewState: reviewState as any,
+    lang,
+    ...(dir ? { dir } : {}),
   };
 }
 
@@ -827,13 +898,14 @@ export type GlossUnit = Readonly<{
   revision: number;
   sourceRevision: number;
   sourceTextDigest: string;
-  lang: "en";
-  sourceLang: "de";
+  lang: string;
+  sourceLang: string;
   attribution: AuthorshipEntry;
   editor?: AuthorshipEntry | undefined;
   reviewState: "draft" | "in-progress" | "corrected" | "reviewed";
   tokens: readonly GlossToken[];
   multiwordUnits: readonly MultiwordUnit[];
+  dir?: TextDirection | undefined;
 }>;
 
 export function validateGlossUnit(raw: unknown, path = "GlossUnit"): GlossUnit {
@@ -869,6 +941,43 @@ export function validateGlossUnit(raw: unknown, path = "GlossUnit"): GlossUnit {
       "GlossUnit",
       `${path}.tokens`,
     );
+  }
+
+  let lang = "en";
+  if (o.lang !== undefined) {
+    try {
+      lang = validateLanguageTag(o.lang, `${path}.lang`);
+    } catch (err: any) {
+      throw new SchemaValidationError(
+        "invalid-language-tag",
+        err.message,
+        "GlossUnit",
+        `${path}.lang`,
+      );
+    }
+  }
+
+  let sourceLang = "de";
+  if (o.sourceLang !== undefined) {
+    try {
+      sourceLang = validateLanguageTag(o.sourceLang, `${path}.sourceLang`);
+    } catch (err: any) {
+      throw new SchemaValidationError(
+        "invalid-language-tag",
+        err.message,
+        "GlossUnit",
+        `${path}.sourceLang`,
+      );
+    }
+  }
+
+  let dir: TextDirection | undefined;
+  if (o.dir !== undefined) {
+    try {
+      dir = validateDirection(o.dir, `${path}.dir`);
+    } catch (err: any) {
+      throw new SchemaValidationError("invalid-direction", err.message, "GlossUnit", `${path}.dir`);
+    }
   }
 
   const attribution = validateAuthorshipEntry(o.attribution, "author", `${path}.attribution`);
@@ -945,13 +1054,14 @@ export function validateGlossUnit(raw: unknown, path = "GlossUnit"): GlossUnit {
     revision: o.revision as number,
     sourceRevision: (o.sourceRevision as number) || 1,
     sourceTextDigest: (o.sourceTextDigest as string) || "",
-    lang: "en",
-    sourceLang: "de",
+    lang,
+    sourceLang,
     attribution,
     editor,
     reviewState: (o.reviewState as any) || "draft",
     tokens,
     multiwordUnits,
+    ...(dir ? { dir } : {}),
   };
 }
 
@@ -984,6 +1094,8 @@ export type EditorialNote = Readonly<{
   reasoning?: string | undefined;
   evidence?: string | undefined;
   layer?: "source" | "translation" | undefined;
+  lang?: string | undefined;
+  dir?: TextDirection | undefined;
 }>;
 
 export function validateEditorialNote(raw: unknown, path = "EditorialNote"): EditorialNote {
@@ -1014,6 +1126,34 @@ export function validateEditorialNote(raw: unknown, path = "EditorialNote"): Edi
       "EditorialNote",
       `${path}.claim`,
     );
+  }
+
+  let lang: string | undefined;
+  if (o.lang !== undefined) {
+    try {
+      lang = validateLanguageTag(o.lang, `${path}.lang`);
+    } catch (err: any) {
+      throw new SchemaValidationError(
+        "invalid-language-tag",
+        err.message,
+        "EditorialNote",
+        `${path}.lang`,
+      );
+    }
+  }
+
+  let dir: TextDirection | undefined;
+  if (o.dir !== undefined) {
+    try {
+      dir = validateDirection(o.dir, `${path}.dir`);
+    } catch (err: any) {
+      throw new SchemaValidationError(
+        "invalid-direction",
+        err.message,
+        "EditorialNote",
+        `${path}.dir`,
+      );
+    }
   }
 
   const author = validateAuthorshipEntry(o.author, "author", `${path}.author`);
@@ -1065,6 +1205,8 @@ export function validateEditorialNote(raw: unknown, path = "EditorialNote"): Edi
     reasoning: (o.reasoning as string) || undefined,
     evidence: (o.evidence as string) || undefined,
     layer: (o.layer as any) || undefined,
+    ...(lang ? { lang } : {}),
+    ...(dir ? { dir } : {}),
   };
 }
 
@@ -1165,4 +1307,125 @@ export function verifyEquationTranslation(
       equationId,
     );
   }
+}
+
+// 9. TRANSLATION EDITION
+export type TranslationEdition = Readonly<{
+  language: string;
+  paperId: string;
+  editionId: string;
+  title: string;
+  translator: AuthorshipEntry;
+  editor?: AuthorshipEntry | undefined;
+  license: string;
+  reviewState: "draft" | "in-progress" | "corrected" | "reviewed";
+  units: readonly TranslationUnit[];
+  missingUnitsNotice?: string | undefined;
+}>;
+
+export function validateTranslationEdition(
+  raw: unknown,
+  path = "TranslationEdition",
+): TranslationEdition {
+  if (!raw || typeof raw !== "object")
+    throw new SchemaValidationError(
+      "invalid-record",
+      "TranslationEdition must be an object.",
+      "TranslationEdition",
+      path,
+    );
+  const o = raw as Record<string, unknown>;
+
+  if (typeof o.editionId !== "string" || !o.editionId.trim()) {
+    throw new SchemaValidationError(
+      "missing-edition-id",
+      "editionId is required.",
+      "TranslationEdition",
+      `${path}.editionId`,
+    );
+  }
+  if (typeof o.paperId !== "string" || !o.paperId.trim()) {
+    throw new SchemaValidationError(
+      "missing-paper-id",
+      "paperId is required.",
+      "TranslationEdition",
+      `${path}.paperId`,
+    );
+  }
+  if (typeof o.title !== "string" || !o.title.trim()) {
+    throw new SchemaValidationError(
+      "missing-title",
+      "title is required.",
+      "TranslationEdition",
+      `${path}.title`,
+    );
+  }
+  if (typeof o.license !== "string" || !o.license.trim()) {
+    throw new SchemaValidationError(
+      "missing-license",
+      "license is required.",
+      "TranslationEdition",
+      `${path}.license`,
+    );
+  }
+
+  const rawLang = o.language ?? o.lang;
+  if (typeof rawLang !== "string" || !rawLang.trim()) {
+    throw new SchemaValidationError(
+      "missing-language",
+      "language is required.",
+      "TranslationEdition",
+      `${path}.language`,
+    );
+  }
+
+  let language: string;
+  try {
+    language = validateLanguageTag(rawLang, `${path}.language`);
+  } catch (err: any) {
+    throw new SchemaValidationError(
+      "invalid-language-tag",
+      err.message,
+      "TranslationEdition",
+      `${path}.language`,
+    );
+  }
+
+  const reviewState = o.reviewState as string;
+  if (!["draft", "in-progress", "corrected", "reviewed"].includes(reviewState)) {
+    throw new SchemaValidationError(
+      "invalid-review-state",
+      `Invalid reviewState "${reviewState}".`,
+      "TranslationEdition",
+      `${path}.reviewState`,
+    );
+  }
+
+  const translator = validateAuthorshipEntry(o.translator, "translator", `${path}.translator`);
+  const editor = o.editor
+    ? validateAuthorshipEntry(o.editor, "editor", `${path}.editor`)
+    : undefined;
+
+  if (!Array.isArray(o.units)) {
+    throw new SchemaValidationError(
+      "missing-units",
+      "units must be an array of TranslationUnits.",
+      "TranslationEdition",
+      `${path}.units`,
+    );
+  }
+  const units = o.units.map((u, i) => validateTranslationUnit(u, `${path}.units[${i}]`));
+
+  return {
+    language,
+    paperId: o.paperId as string,
+    editionId: o.editionId as string,
+    title: o.title as string,
+    translator,
+    editor,
+    license: o.license as string,
+    reviewState: reviewState as any,
+    units,
+    missingUnitsNotice: typeof o.missingUnitsNotice === "string" ? o.missingUnitsNotice : undefined,
+  };
 }

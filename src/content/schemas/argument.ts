@@ -5,99 +5,100 @@
  * and am-cm-schemas-argument-llm
  */
 
-import { validateAuthorshipBlock, type AuthorshipBlock } from "./authorship.ts";
+import { type TextDirection, validateDirection, validateLanguageTag } from "../../i18n/language.ts";
+import {
+  type EquationOpId,
+  type EquationRecordId,
+  type EquationTermId,
+  PAPER_CODES,
+  type PremiseId,
+  parseClosingId,
+  parseEntranceId,
+  parseEquationOpId,
+  parseEquationRecordId,
+  parseEquationTermId,
+  parseFootnoteId,
+  parseGenericRecordId,
+  parseHeadingId,
+  parsePaperCode,
+  parseParagraphId,
+  parsePremiseId,
+  parseQuantityId,
+  parseRouteSlug,
+  type QuantityId,
+  ROUTE_SLUGS,
+} from "../ids.ts";
+import { type AuthorshipBlock, validateAuthorshipBlock } from "./authorship.ts";
 import {
   DIMENSION_BASIS,
   DIMENSION_COUNT,
   type DimensionBasisName,
-  type RationalScale,
-  type RationalDimension,
-  validateRationalScale,
-  validateRationalDimension,
-  isDimensionless,
   DimensionSchemaError,
+  isDimensionless,
+  type RationalDimension,
+  type RationalScale,
+  validateRationalDimension,
+  validateRationalScale,
 } from "./dimensionBasis.ts";
 import {
-  LOGICAL_ROLES,
-  HISTORICAL_STATUSES,
-  MODEL_STATUSES,
-  EXECUTION_STATUSES,
-  PREMISE_STATUSES,
-  PREMISE_EDGE_TYPES,
-  PROOF_EDGE_KINDS,
-  EVIDENCE_RELATIONS,
-  PROOF_ROUTES,
-  MATHEMATICAL_KINDS,
+  COLOR_ROLES,
+  CONTINUE_WITH_ROUTES,
+  type ColorRole,
+  type ContinueWithRoute,
   DENSITY_KINDS,
   DENSITY_PER_KINDS,
-  SPECTRAL_BASES,
-  FREQUENCY_KINDS,
-  TIME_KINDS,
-  FRAMES,
-  OBSERVATION_KINDS,
-  STATISTICS,
-  DIMENSIONLESS_KINDS,
-  DIMENSION_STATUSES,
-  COLOR_ROLES,
-  UNIT_SYSTEMS,
-  OBSTACLE_KIND_IDS,
-  READING_TARGET_KINDS,
-  MODERN_RELATIONS,
-  NOTATION_MODES,
-  FOUNDATION_KINDS,
-  CONTINUE_WITH_ROUTES,
-  type LogicalRole,
-  type HistoricalStatus,
-  type ModelStatus,
-  type ExecutionStatus,
-  type FourMeanings,
-  type PremiseStatus,
-  type PremiseEdgeType,
-  type ProofEdgeKind,
-  type EvidenceRelation,
-  type ProofRoute,
-  type MathematicalKind,
   type DensityKind,
   type DensityPerKind,
-  type SpectralBasis,
-  type FrequencyKind,
-  type TimeKind,
-  type Frame,
-  type ObservationKind,
-  type Statistic,
+  DIMENSION_STATUSES,
+  DIMENSIONLESS_KINDS,
   type DimensionlessKind,
   type DimensionStatus,
-  type ColorRole,
-  type UnitSystem,
-  type ObstacleKindId,
-  type ReadingTargetKind,
-  type ModernRelation,
-  type NotationMode,
+  EVIDENCE_RELATIONS,
+  type EvidenceRelation,
+  EXECUTION_STATUSES,
+  type ExecutionStatus,
+  FOUNDATION_KINDS,
   type FoundationKind,
-  type ContinueWithRoute,
+  type FourMeanings,
+  FRAMES,
+  FREQUENCY_KINDS,
+  type Frame,
+  type FrequencyKind,
+  HISTORICAL_STATUSES,
+  type HistoricalStatus,
+  LOGICAL_ROLES,
+  type LogicalRole,
+  MATHEMATICAL_KINDS,
+  type MathematicalKind,
+  MODEL_STATUSES,
+  MODERN_RELATIONS,
+  type ModelStatus,
+  type ModernRelation,
+  NOTATION_MODES,
+  type NotationMode,
+  OBSERVATION_KINDS,
+  OBSTACLE_KIND_IDS,
+  type ObservationKind,
+  type ObstacleKindId,
+  PREMISE_EDGE_TYPES,
+  PREMISE_STATUSES,
+  PROOF_EDGE_KINDS,
+  PROOF_ROUTES,
+  type PremiseEdgeType,
+  type PremiseStatus,
+  type ProofEdgeKind,
+  type ProofRoute,
+  READING_TARGET_KINDS,
+  type ReadingTargetKind,
+  SPECTRAL_BASES,
+  type SpectralBasis,
+  STATISTICS,
+  type Statistic,
+  TIME_KINDS,
+  type TimeKind,
+  UNIT_SYSTEMS,
+  type UnitSystem,
 } from "./meanings.ts";
-import {
-  parsePremiseId,
-  parseQuantityId,
-  parseEquationRecordId,
-  parseEquationTermId,
-  parseEquationOpId,
-  parseParagraphId,
-  parseHeadingId,
-  parseFootnoteId,
-  parseClosingId,
-  parseGenericRecordId,
-  parseRouteSlug,
-  parsePaperCode,
-  parseEntranceId,
-  PAPER_CODES,
-  ROUTE_SLUGS,
-  type PremiseId,
-  type QuantityId,
-  type EquationRecordId,
-  type EquationTermId,
-  type EquationOpId,
-} from "../ids.ts";
 
 export class ArgumentSchemaError extends Error {
   readonly code: string;
@@ -117,38 +118,87 @@ export class ArgumentSchemaError extends Error {
 // 1. Four Meanings Validator
 // ============================================================================
 
-export function validateMeanings(raw: unknown, path = "meanings", entity = "Meanings"): FourMeanings {
+export function validateMeanings(
+  raw: unknown,
+  path = "meanings",
+  entity = "Meanings",
+): FourMeanings {
   if (!raw || typeof raw !== "object" || Array.isArray(raw)) {
-    throw new ArgumentSchemaError("invalid-meanings-record", "Meanings must be an object with four required fields.", entity, path);
+    throw new ArgumentSchemaError(
+      "invalid-meanings-record",
+      "Meanings must be an object with four required fields.",
+      entity,
+      path,
+    );
   }
   const o = raw as Record<string, unknown>;
 
   if (!o.logicalRole || typeof o.logicalRole !== "string") {
-    throw new ArgumentSchemaError("missing-meaning-field", "meanings.logicalRole is required.", entity, `${path}.logicalRole`);
+    throw new ArgumentSchemaError(
+      "missing-meaning-field",
+      "meanings.logicalRole is required.",
+      entity,
+      `${path}.logicalRole`,
+    );
   }
   if (!LOGICAL_ROLES.includes(o.logicalRole as LogicalRole)) {
-    throw new ArgumentSchemaError("invalid-logical-role", `Invalid logicalRole "${o.logicalRole}". Expected one of: ${LOGICAL_ROLES.join(", ")}`, entity, `${path}.logicalRole`);
+    throw new ArgumentSchemaError(
+      "invalid-logical-role",
+      `Invalid logicalRole "${o.logicalRole}". Expected one of: ${LOGICAL_ROLES.join(", ")}`,
+      entity,
+      `${path}.logicalRole`,
+    );
   }
 
   if (!o.historicalStatus || typeof o.historicalStatus !== "string") {
-    throw new ArgumentSchemaError("missing-meaning-field", "meanings.historicalStatus is required.", entity, `${path}.historicalStatus`);
+    throw new ArgumentSchemaError(
+      "missing-meaning-field",
+      "meanings.historicalStatus is required.",
+      entity,
+      `${path}.historicalStatus`,
+    );
   }
   if (!HISTORICAL_STATUSES.includes(o.historicalStatus as HistoricalStatus)) {
-    throw new ArgumentSchemaError("invalid-historical-status", `Invalid historicalStatus "${o.historicalStatus}". Expected one of: ${HISTORICAL_STATUSES.join(", ")}`, entity, `${path}.historicalStatus`);
+    throw new ArgumentSchemaError(
+      "invalid-historical-status",
+      `Invalid historicalStatus "${o.historicalStatus}". Expected one of: ${HISTORICAL_STATUSES.join(", ")}`,
+      entity,
+      `${path}.historicalStatus`,
+    );
   }
 
   if (!o.modelStatus || typeof o.modelStatus !== "string") {
-    throw new ArgumentSchemaError("missing-meaning-field", "meanings.modelStatus is required.", entity, `${path}.modelStatus`);
+    throw new ArgumentSchemaError(
+      "missing-meaning-field",
+      "meanings.modelStatus is required.",
+      entity,
+      `${path}.modelStatus`,
+    );
   }
   if (!MODEL_STATUSES.includes(o.modelStatus as ModelStatus)) {
-    throw new ArgumentSchemaError("invalid-model-status", `Invalid modelStatus "${o.modelStatus}". Expected one of: ${MODEL_STATUSES.join(", ")}`, entity, `${path}.modelStatus`);
+    throw new ArgumentSchemaError(
+      "invalid-model-status",
+      `Invalid modelStatus "${o.modelStatus}". Expected one of: ${MODEL_STATUSES.join(", ")}`,
+      entity,
+      `${path}.modelStatus`,
+    );
   }
 
   if (!o.executionStatus || typeof o.executionStatus !== "string") {
-    throw new ArgumentSchemaError("missing-meaning-field", "meanings.executionStatus is required.", entity, `${path}.executionStatus`);
+    throw new ArgumentSchemaError(
+      "missing-meaning-field",
+      "meanings.executionStatus is required.",
+      entity,
+      `${path}.executionStatus`,
+    );
   }
   if (!EXECUTION_STATUSES.includes(o.executionStatus as ExecutionStatus)) {
-    throw new ArgumentSchemaError("invalid-execution-status", `Invalid executionStatus "${o.executionStatus}". Expected one of: ${EXECUTION_STATUSES.join(", ")}`, entity, `${path}.executionStatus`);
+    throw new ArgumentSchemaError(
+      "invalid-execution-status",
+      `Invalid executionStatus "${o.executionStatus}". Expected one of: ${EXECUTION_STATUSES.join(", ")}`,
+      entity,
+      `${path}.executionStatus`,
+    );
   }
 
   return {
@@ -191,44 +241,94 @@ export type HistoricalPremise = Readonly<{
   evidenceLocator?: string | undefined;
   authorship: AuthorshipBlock;
   reviewState: string;
+  lang?: string | undefined;
+  dir?: TextDirection | undefined;
 }>;
 
-export function validateHistoricalPremise(raw: unknown, path = "HistoricalPremise"): HistoricalPremise {
+export function validateHistoricalPremise(
+  raw: unknown,
+  path = "HistoricalPremise",
+): HistoricalPremise {
   if (!raw || typeof raw !== "object" || Array.isArray(raw)) {
-    throw new ArgumentSchemaError("invalid-record", "HistoricalPremise must be an object.", "HistoricalPremise", path);
+    throw new ArgumentSchemaError(
+      "invalid-record",
+      "HistoricalPremise must be an object.",
+      "HistoricalPremise",
+      path,
+    );
   }
   const o = raw as Record<string, unknown>;
 
   if (typeof o.id !== "string" || !o.id.trim()) {
-    throw new ArgumentSchemaError("missing-id", "HistoricalPremise id is required.", "HistoricalPremise", `${path}.id`);
+    throw new ArgumentSchemaError(
+      "missing-id",
+      "HistoricalPremise id is required.",
+      "HistoricalPremise",
+      `${path}.id`,
+    );
   }
   const idResult = parsePremiseId(o.id);
   if (!idResult.ok) {
-    throw new ArgumentSchemaError(idResult.rule || "invalid-id", idResult.error, "HistoricalPremise", `${path}.id`);
+    throw new ArgumentSchemaError(
+      idResult.rule || "invalid-id",
+      idResult.error,
+      "HistoricalPremise",
+      `${path}.id`,
+    );
   }
 
   if (typeof o.proposition !== "string" || !o.proposition.trim()) {
-    throw new ArgumentSchemaError("missing-proposition", "proposition is required.", "HistoricalPremise", `${path}.proposition`);
+    throw new ArgumentSchemaError(
+      "missing-proposition",
+      "proposition is required.",
+      "HistoricalPremise",
+      `${path}.proposition`,
+    );
   }
 
   if (o.status === "later-confirmation") {
-    throw new ArgumentSchemaError("invalid-premise-status", "'later-confirmation' is rejected in favor of 'later'.", "HistoricalPremise", `${path}.status`);
+    throw new ArgumentSchemaError(
+      "invalid-premise-status",
+      "'later-confirmation' is rejected in favor of 'later'.",
+      "HistoricalPremise",
+      `${path}.status`,
+    );
   }
   if (!PREMISE_STATUSES.includes(o.status as PremiseStatus)) {
-    throw new ArgumentSchemaError("invalid-premise-status", `Invalid status "${o.status}". Expected one of: ${PREMISE_STATUSES.join(", ")}`, "HistoricalPremise", `${path}.status`);
+    throw new ArgumentSchemaError(
+      "invalid-premise-status",
+      `Invalid status "${o.status}". Expected one of: ${PREMISE_STATUSES.join(", ")}`,
+      "HistoricalPremise",
+      `${path}.status`,
+    );
   }
 
   if (!Array.isArray(o.sources) || o.sources.length === 0) {
-    throw new ArgumentSchemaError("missing-sources", "sources array is required and must contain original evidence citations.", "HistoricalPremise", `${path}.sources`);
+    throw new ArgumentSchemaError(
+      "missing-sources",
+      "sources array is required and must contain original evidence citations.",
+      "HistoricalPremise",
+      `${path}.sources`,
+    );
   }
 
   // Date validation
   const d = o.date as Record<string, unknown>;
   if (!d || typeof d !== "object") {
-    throw new ArgumentSchemaError("missing-date", "date object is required.", "HistoricalPremise", `${path}.date`);
+    throw new ArgumentSchemaError(
+      "missing-date",
+      "date object is required.",
+      "HistoricalPremise",
+      `${path}.date`,
+    );
   }
   if (!["day", "month", "year"].includes(d.precision as string)) {
-    throw new ArgumentSchemaError("invalid-date-precision", `Invalid date precision "${d.precision}". Expected day, month, or year.`, "HistoricalPremise", `${path}.date.precision`);
+    throw new ArgumentSchemaError(
+      "invalid-date-precision",
+      `Invalid date precision "${d.precision}". Expected day, month, or year.`,
+      "HistoricalPremise",
+      `${path}.date.precision`,
+    );
   }
   const precision = d.precision as "day" | "month" | "year";
   const earliest = typeof d.earliest === "string" ? d.earliest : "";
@@ -236,20 +336,40 @@ export function validateHistoricalPremise(raw: unknown, path = "HistoricalPremis
 
   if (precision === "day") {
     if (!/^\d{4}-\d{2}-\d{2}$/.test(earliest) || !/^\d{4}-\d{2}-\d{2}$/.test(latest)) {
-      throw new ArgumentSchemaError("invalid-date-precision-format", `Precision "day" requires ISO YYYY-MM-DD for earliest and latest.`, "HistoricalPremise", `${path}.date`);
+      throw new ArgumentSchemaError(
+        "invalid-date-precision-format",
+        `Precision "day" requires ISO YYYY-MM-DD for earliest and latest.`,
+        "HistoricalPremise",
+        `${path}.date`,
+      );
     }
   } else if (precision === "month") {
     if (!/^\d{4}-\d{2}$/.test(earliest) || !/^\d{4}-\d{2}$/.test(latest)) {
-      throw new ArgumentSchemaError("invalid-date-precision-format", `Precision "month" requires ISO YYYY-MM for earliest and latest.`, "HistoricalPremise", `${path}.date`);
+      throw new ArgumentSchemaError(
+        "invalid-date-precision-format",
+        `Precision "month" requires ISO YYYY-MM for earliest and latest.`,
+        "HistoricalPremise",
+        `${path}.date`,
+      );
     }
   } else if (precision === "year") {
     if (!/^\d{4}$/.test(earliest) || !/^\d{4}$/.test(latest)) {
-      throw new ArgumentSchemaError("invalid-date-precision-format", `Precision "year" requires ISO YYYY for earliest and latest.`, "HistoricalPremise", `${path}.date`);
+      throw new ArgumentSchemaError(
+        "invalid-date-precision-format",
+        `Precision "year" requires ISO YYYY for earliest and latest.`,
+        "HistoricalPremise",
+        `${path}.date`,
+      );
     }
   }
 
   if (typeof d.latestYear !== "number" || !Number.isInteger(d.latestYear)) {
-    throw new ArgumentSchemaError("missing-latest-year", "latestYear integer is required.", "HistoricalPremise", `${path}.date.latestYear`);
+    throw new ArgumentSchemaError(
+      "missing-latest-year",
+      "latestYear integer is required.",
+      "HistoricalPremise",
+      `${path}.date.latestYear`,
+    );
   }
   const expectedYear = parseInt(latest.slice(0, 4), 10);
   if (d.latestYear !== expectedYear) {
@@ -298,9 +418,14 @@ export function validateHistoricalPremise(raw: unknown, path = "HistoricalPremis
   }
 
   // Verification validation
-  let verifier = typeof o.verifier === "string" ? o.verifier : undefined;
-  let dateVerified = typeof o.dateVerified === "string" ? o.dateVerified : typeof o.dateVerifiedAt === "string" ? o.dateVerifiedAt : undefined;
-  let evidenceLocator = typeof o.evidenceLocator === "string" ? o.evidenceLocator : undefined;
+  const verifier = typeof o.verifier === "string" ? o.verifier : undefined;
+  const dateVerified =
+    typeof o.dateVerified === "string"
+      ? o.dateVerified
+      : typeof o.dateVerifiedAt === "string"
+        ? o.dateVerifiedAt
+        : undefined;
+  const evidenceLocator = typeof o.evidenceLocator === "string" ? o.evidenceLocator : undefined;
 
   if (verifier || dateVerified || evidenceLocator) {
     if (!verifier || (!dateVerified && !o.date) || !evidenceLocator) {
@@ -314,6 +439,34 @@ export function validateHistoricalPremise(raw: unknown, path = "HistoricalPremis
   }
 
   const authorship = validateAuthorshipBlock(o.authorship, `${path}.authorship`);
+  let lang: string | undefined;
+  if (o.lang !== undefined) {
+    try {
+      lang = validateLanguageTag(o.lang, `${path}.lang`);
+    } catch (err: any) {
+      throw new ArgumentSchemaError(
+        "invalid-language-tag",
+        err.message,
+        "HistoricalPremise",
+        `${path}.lang`,
+      );
+    }
+  }
+
+  let dir: TextDirection | undefined;
+  if (o.dir !== undefined) {
+    try {
+      dir = validateDirection(o.dir, `${path}.dir`);
+    } catch (err: any) {
+      throw new ArgumentSchemaError(
+        "invalid-direction",
+        err.message,
+        "HistoricalPremise",
+        `${path}.dir`,
+      );
+    }
+  }
+
   const reviewState = (o.reviewState as string) || "draft";
 
   return {
@@ -329,7 +482,9 @@ export function validateHistoricalPremise(raw: unknown, path = "HistoricalPremis
     },
     claimsEinsteinKnew,
     einsteinKnowledgeEvidence,
-    paperCitesOrAsserts: Array.isArray(o.paperCitesOrAsserts) ? (o.paperCitesOrAsserts as PaperCitationRef[]) : undefined,
+    paperCitesOrAsserts: Array.isArray(o.paperCitesOrAsserts)
+      ? (o.paperCitesOrAsserts as PaperCitationRef[])
+      : undefined,
     admittedStages: Array.isArray(o.admittedStages) ? (o.admittedStages as string[]) : undefined,
     admittedImport,
     verifier,
@@ -337,6 +492,8 @@ export function validateHistoricalPremise(raw: unknown, path = "HistoricalPremis
     evidenceLocator,
     authorship,
     reviewState,
+    ...(lang ? { lang } : {}),
+    ...(dir ? { dir } : {}),
   };
 }
 
@@ -371,7 +528,11 @@ export type PrerequisiteRef = Readonly<{
 }>;
 
 export type CoverageTreatment =
-  | Readonly<{ kind: "instrument"; experimentIds: readonly string[]; correspondenceNote?: string | undefined }>
+  | Readonly<{
+      kind: "instrument";
+      experimentIds: readonly string[];
+      correspondenceNote?: string | undefined;
+    }>
   | Readonly<{ kind: "static"; description: string }>
   | Readonly<{ kind: "omitted"; reason: string }>;
 
@@ -404,7 +565,12 @@ export type ArgumentNode = Readonly<{
 
 export function validateArgumentNode(raw: unknown, path = "ArgumentNode"): ArgumentNode {
   if (!raw || typeof raw !== "object" || Array.isArray(raw)) {
-    throw new ArgumentSchemaError("invalid-record", "ArgumentNode must be an object.", "ArgumentNode", path);
+    throw new ArgumentSchemaError(
+      "invalid-record",
+      "ArgumentNode must be an object.",
+      "ArgumentNode",
+      path,
+    );
   }
   const o = raw as Record<string, unknown>;
 
@@ -412,21 +578,46 @@ export function validateArgumentNode(raw: unknown, path = "ArgumentNode"): Argum
     throw new ArgumentSchemaError("missing-id", "id is required.", "ArgumentNode", `${path}.id`);
   }
   if (!o.id.startsWith("arg-")) {
-    throw new ArgumentSchemaError("invalid-argument-id", `Argument ID "${o.id}" must start with "arg-".`, "ArgumentNode", `${path}.id`);
+    throw new ArgumentSchemaError(
+      "invalid-argument-id",
+      `Argument ID "${o.id}" must start with "arg-".`,
+      "ArgumentNode",
+      `${path}.id`,
+    );
   }
 
   if (typeof o.paper !== "string" || !o.paper.trim()) {
-    throw new ArgumentSchemaError("missing-paper", "paper is required.", "ArgumentNode", `${path}.paper`);
+    throw new ArgumentSchemaError(
+      "missing-paper",
+      "paper is required.",
+      "ArgumentNode",
+      `${path}.paper`,
+    );
   }
   if (typeof o.question !== "string" || !o.question.trim()) {
-    throw new ArgumentSchemaError("missing-question", "question is required.", "ArgumentNode", `${path}.question`);
+    throw new ArgumentSchemaError(
+      "missing-question",
+      "question is required.",
+      "ArgumentNode",
+      `${path}.question`,
+    );
   }
   if (typeof o.conclusion !== "string" || !o.conclusion.trim()) {
-    throw new ArgumentSchemaError("missing-conclusion", "conclusion is required.", "ArgumentNode", `${path}.conclusion`);
+    throw new ArgumentSchemaError(
+      "missing-conclusion",
+      "conclusion is required.",
+      "ArgumentNode",
+      `${path}.conclusion`,
+    );
   }
 
   if (!LOGICAL_ROLES.includes(o.logicalRole as LogicalRole)) {
-    throw new ArgumentSchemaError("invalid-logical-role", `Invalid logicalRole "${o.logicalRole}".`, "ArgumentNode", `${path}.logicalRole`);
+    throw new ArgumentSchemaError(
+      "invalid-logical-role",
+      `Invalid logicalRole "${o.logicalRole}".`,
+      "ArgumentNode",
+      `${path}.logicalRole`,
+    );
   }
 
   const meanings = validateMeanings(o.meanings, `${path}.meanings`, "ArgumentNode");
@@ -437,13 +628,33 @@ export function validateArgumentNode(raw: unknown, path = "ArgumentNode"): Argum
     for (let i = 0; i < o.premises.length; i++) {
       const p = o.premises[i] as Record<string, unknown>;
       const pPath = `${path}.premises[${i}]`;
-      if (!p || typeof p !== "object") throw new ArgumentSchemaError("invalid-premise", "Premise entry must be an object.", "ArgumentNode", pPath);
+      if (!p || typeof p !== "object")
+        throw new ArgumentSchemaError(
+          "invalid-premise",
+          "Premise entry must be an object.",
+          "ArgumentNode",
+          pPath,
+        );
       const ref = p.ref as Record<string, unknown>;
-      if (!ref || typeof ref.id !== "string" || !["argument", "premise", "equation", "foundation"].includes(ref.kind as string)) {
-        throw new ArgumentSchemaError("invalid-premise-ref", "Premise ref requires kind ('argument' | 'premise' | 'equation' | 'foundation') and id.", "ArgumentNode", `${pPath}.ref`);
+      if (
+        !ref ||
+        typeof ref.id !== "string" ||
+        !["argument", "premise", "equation", "foundation"].includes(ref.kind as string)
+      ) {
+        throw new ArgumentSchemaError(
+          "invalid-premise-ref",
+          "Premise ref requires kind ('argument' | 'premise' | 'equation' | 'foundation') and id.",
+          "ArgumentNode",
+          `${pPath}.ref`,
+        );
       }
       if (!PREMISE_EDGE_TYPES.includes(p.edgeType as PremiseEdgeType)) {
-        throw new ArgumentSchemaError("invalid-edge-type", `Invalid edgeType "${p.edgeType}". Expected one of: ${PREMISE_EDGE_TYPES.join(", ")}`, "ArgumentNode", `${pPath}.edgeType`);
+        throw new ArgumentSchemaError(
+          "invalid-edge-type",
+          `Invalid edgeType "${p.edgeType}". Expected one of: ${PREMISE_EDGE_TYPES.join(", ")}`,
+          "ArgumentNode",
+          `${pPath}.edgeType`,
+        );
       }
       premises.push({
         ref: { kind: ref.kind as any, id: ref.id as string },
@@ -458,13 +669,33 @@ export function validateArgumentNode(raw: unknown, path = "ArgumentNode"): Argum
     for (let i = 0; i < o.evidence.length; i++) {
       const e = o.evidence[i] as Record<string, unknown>;
       const ePath = `${path}.evidence[${i}]`;
-      if (!e || typeof e !== "object") throw new ArgumentSchemaError("invalid-evidence", "Evidence entry must be an object.", "ArgumentNode", ePath);
+      if (!e || typeof e !== "object")
+        throw new ArgumentSchemaError(
+          "invalid-evidence",
+          "Evidence entry must be an object.",
+          "ArgumentNode",
+          ePath,
+        );
       const ref = e.ref as Record<string, unknown>;
-      if (!ref || typeof ref.id !== "string" || !["dataset", "premise", "citation"].includes(ref.kind as string)) {
-        throw new ArgumentSchemaError("invalid-evidence-ref", "Evidence ref requires kind ('dataset' | 'premise' | 'citation') and id.", "ArgumentNode", `${ePath}.ref`);
+      if (
+        !ref ||
+        typeof ref.id !== "string" ||
+        !["dataset", "premise", "citation"].includes(ref.kind as string)
+      ) {
+        throw new ArgumentSchemaError(
+          "invalid-evidence-ref",
+          "Evidence ref requires kind ('dataset' | 'premise' | 'citation') and id.",
+          "ArgumentNode",
+          `${ePath}.ref`,
+        );
       }
       if (!EVIDENCE_RELATIONS.includes(e.relation as EvidenceRelation)) {
-        throw new ArgumentSchemaError("invalid-evidence-relation", `Invalid evidence relation "${e.relation}".`, "ArgumentNode", `${ePath}.relation`);
+        throw new ArgumentSchemaError(
+          "invalid-evidence-relation",
+          `Invalid evidence relation "${e.relation}".`,
+          "ArgumentNode",
+          `${ePath}.relation`,
+        );
       }
       evidence.push({
         ref: { kind: ref.kind as any, id: ref.id as string },
@@ -481,13 +712,28 @@ export function validateArgumentNode(raw: unknown, path = "ArgumentNode"): Argum
       const pr = o.prerequisites[i] as Record<string, unknown>;
       const prPath = `${path}.prerequisites[${i}]`;
       if (typeof pr === "string" || !pr || typeof pr !== "object") {
-        throw new ArgumentSchemaError("invalid-prerequisite-shape", "Prerequisite must be { foundationId, kind: 'proof-edge' | 'cross-link' }.", "ArgumentNode", prPath);
+        throw new ArgumentSchemaError(
+          "invalid-prerequisite-shape",
+          "Prerequisite must be { foundationId, kind: 'proof-edge' | 'cross-link' }.",
+          "ArgumentNode",
+          prPath,
+        );
       }
       if (typeof pr.foundationId !== "string" || !pr.foundationId.trim()) {
-        throw new ArgumentSchemaError("missing-prerequisite-foundation-id", "prerequisite requires foundationId.", "ArgumentNode", `${prPath}.foundationId`);
+        throw new ArgumentSchemaError(
+          "missing-prerequisite-foundation-id",
+          "prerequisite requires foundationId.",
+          "ArgumentNode",
+          `${prPath}.foundationId`,
+        );
       }
       if (!PROOF_EDGE_KINDS.includes(pr.kind as ProofEdgeKind)) {
-        throw new ArgumentSchemaError("invalid-prerequisite-kind", `Invalid prerequisite kind "${pr.kind}". Expected "proof-edge" or "cross-link".`, "ArgumentNode", `${prPath}.kind`);
+        throw new ArgumentSchemaError(
+          "invalid-prerequisite-kind",
+          `Invalid prerequisite kind "${pr.kind}". Expected "proof-edge" or "cross-link".`,
+          "ArgumentNode",
+          `${prPath}.kind`,
+        );
       }
       prerequisites.push({
         foundationId: pr.foundationId,
@@ -499,35 +745,66 @@ export function validateArgumentNode(raw: unknown, path = "ArgumentNode"): Argum
   // Validate coverage obligation
   const cov = o.coverageObligation as Record<string, unknown>;
   if (!cov || typeof cov !== "object") {
-    throw new ArgumentSchemaError("missing-coverage-obligation", "coverageObligation object is required.", "ArgumentNode", `${path}.coverageObligation`);
+    throw new ArgumentSchemaError(
+      "missing-coverage-obligation",
+      "coverageObligation object is required.",
+      "ArgumentNode",
+      `${path}.coverageObligation`,
+    );
   }
   const treat = cov.treatment as Record<string, unknown>;
   if (!treat || typeof treat !== "object") {
-    throw new ArgumentSchemaError("missing-coverage-treatment", "coverageObligation.treatment object is required.", "ArgumentNode", `${path}.coverageObligation.treatment`);
+    throw new ArgumentSchemaError(
+      "missing-coverage-treatment",
+      "coverageObligation.treatment object is required.",
+      "ArgumentNode",
+      `${path}.coverageObligation.treatment`,
+    );
   }
 
   let treatment: CoverageTreatment;
   if (treat.kind === "instrument") {
     if (!Array.isArray(treat.experimentIds) || treat.experimentIds.length === 0) {
-      throw new ArgumentSchemaError("missing-experiment-ids", "treatment of kind 'instrument' requires non-empty experimentIds.", "ArgumentNode", `${path}.coverageObligation.treatment.experimentIds`);
+      throw new ArgumentSchemaError(
+        "missing-experiment-ids",
+        "treatment of kind 'instrument' requires non-empty experimentIds.",
+        "ArgumentNode",
+        `${path}.coverageObligation.treatment.experimentIds`,
+      );
     }
     treatment = {
       kind: "instrument",
       experimentIds: treat.experimentIds as string[],
-      correspondenceNote: typeof treat.correspondenceNote === "string" ? treat.correspondenceNote : undefined,
+      correspondenceNote:
+        typeof treat.correspondenceNote === "string" ? treat.correspondenceNote : undefined,
     };
   } else if (treat.kind === "static") {
     if (typeof treat.description !== "string" || !treat.description.trim()) {
-      throw new ArgumentSchemaError("missing-static-description", "treatment of kind 'static' requires description.", "ArgumentNode", `${path}.coverageObligation.treatment.description`);
+      throw new ArgumentSchemaError(
+        "missing-static-description",
+        "treatment of kind 'static' requires description.",
+        "ArgumentNode",
+        `${path}.coverageObligation.treatment.description`,
+      );
     }
     treatment = { kind: "static", description: treat.description };
   } else if (treat.kind === "omitted") {
     if (typeof treat.reason !== "string" || !treat.reason.trim()) {
-      throw new ArgumentSchemaError("omitted-treatment-missing-reason", "Coverage treatment of kind 'omitted' requires a non-empty reason.", "ArgumentNode", `${path}.coverageObligation.treatment.reason`);
+      throw new ArgumentSchemaError(
+        "omitted-treatment-missing-reason",
+        "Coverage treatment of kind 'omitted' requires a non-empty reason.",
+        "ArgumentNode",
+        `${path}.coverageObligation.treatment.reason`,
+      );
     }
     treatment = { kind: "omitted", reason: treat.reason };
   } else {
-    throw new ArgumentSchemaError("invalid-treatment-kind", `Invalid treatment kind "${treat.kind}".`, "ArgumentNode", `${path}.coverageObligation.treatment.kind`);
+    throw new ArgumentSchemaError(
+      "invalid-treatment-kind",
+      `Invalid treatment kind "${treat.kind}".`,
+      "ArgumentNode",
+      `${path}.coverageObligation.treatment.kind`,
+    );
   }
 
   const coverageObligation: CoverageObligation = {
@@ -542,10 +819,20 @@ export function validateArgumentNode(raw: unknown, path = "ArgumentNode"): Argum
   let recap: string | undefined;
   if (o.recap !== undefined) {
     if (typeof o.recap !== "string") {
-      throw new ArgumentSchemaError("invalid-recap-type", "recap must be a string.", "ArgumentNode", `${path}.recap`);
+      throw new ArgumentSchemaError(
+        "invalid-recap-type",
+        "recap must be a string.",
+        "ArgumentNode",
+        `${path}.recap`,
+      );
     }
     if (o.recap.trim().length === 0) {
-      throw new ArgumentSchemaError("empty-recap", "Authored recap cannot be an empty string.", "ArgumentNode", `${path}.recap`);
+      throw new ArgumentSchemaError(
+        "empty-recap",
+        "Authored recap cannot be an empty string.",
+        "ArgumentNode",
+        `${path}.recap`,
+      );
     }
     recap = o.recap;
   }
@@ -564,7 +851,9 @@ export function validateArgumentNode(raw: unknown, path = "ArgumentNode"): Argum
     meanings,
     premises,
     evidence,
-    sourceSupport: Array.isArray(o.sourceSupport) ? (o.sourceSupport as { paper: string; id: string }[]) : [],
+    sourceSupport: Array.isArray(o.sourceSupport)
+      ? (o.sourceSupport as { paper: string; id: string }[])
+      : [],
     prerequisites,
     coverageObligation,
     recap,
@@ -593,7 +882,12 @@ export function validateProof(raw: unknown, path = "Proof"): Proof {
     throw new ArgumentSchemaError("missing-id", "Proof id is required.", "Proof", `${path}.id`);
   }
   if (!PROOF_ROUTES.includes(o.route as ProofRoute)) {
-    throw new ArgumentSchemaError("invalid-proof-route", `Invalid proof route "${o.route}". Expected one of: ${PROOF_ROUTES.join(", ")}`, "Proof", `${path}.route`);
+    throw new ArgumentSchemaError(
+      "invalid-proof-route",
+      `Invalid proof route "${o.route}". Expected one of: ${PROOF_ROUTES.join(", ")}`,
+      "Proof",
+      `${path}.route`,
+    );
   }
 
   return {
@@ -602,7 +896,9 @@ export function validateProof(raw: unknown, path = "Proof"): Proof {
     orderedSteps: Array.isArray(o.orderedSteps) ? (o.orderedSteps as string[]) : [],
     entryAssumptions: Array.isArray(o.entryAssumptions) ? (o.entryAssumptions as string[]) : [],
     moveTypes: Array.isArray(o.moveTypes) ? (o.moveTypes as string[]) : [],
-    sourceMapping: Array.isArray(o.sourceMapping) ? (o.sourceMapping as { paper: string; id: string }[]) : [],
+    sourceMapping: Array.isArray(o.sourceMapping)
+      ? (o.sourceMapping as { paper: string; id: string }[])
+      : [],
     route: o.route as ProofRoute,
   };
 }
@@ -645,9 +941,18 @@ export type Quantity = Readonly<{
   colorRole?: ColorRole | undefined;
 }>;
 
-export function validateQuantity(raw: unknown, path = "Quantity", registeredQuantityIds: readonly string[] = []): Quantity {
+export function validateQuantity(
+  raw: unknown,
+  path = "Quantity",
+  registeredQuantityIds: readonly string[] = [],
+): Quantity {
   if (!raw || typeof raw !== "object" || Array.isArray(raw)) {
-    throw new ArgumentSchemaError("invalid-record", "Quantity must be an object.", "Quantity", path);
+    throw new ArgumentSchemaError(
+      "invalid-record",
+      "Quantity must be an object.",
+      "Quantity",
+      path,
+    );
   }
   const o = raw as Record<string, unknown>;
 
@@ -656,19 +961,34 @@ export function validateQuantity(raw: unknown, path = "Quantity", registeredQuan
   }
   const idResult = parseQuantityId(o.id);
   if (!idResult.ok) {
-    throw new ArgumentSchemaError(idResult.rule || "invalid-quantity-id", idResult.error, "Quantity", `${path}.id`);
+    throw new ArgumentSchemaError(
+      idResult.rule || "invalid-quantity-id",
+      idResult.error,
+      "Quantity",
+      `${path}.id`,
+    );
   }
 
   if (typeof o.name !== "string" || !o.name.trim()) {
     throw new ArgumentSchemaError("missing-name", "name is required.", "Quantity", `${path}.name`);
   }
   if (typeof o.description !== "string" || !o.description.trim()) {
-    throw new ArgumentSchemaError("missing-description", "description is required.", "Quantity", `${path}.description`);
+    throw new ArgumentSchemaError(
+      "missing-description",
+      "description is required.",
+      "Quantity",
+      `${path}.description`,
+    );
   }
 
   const dimensionStatus = (o.dimensionStatus as DimensionStatus) || "declared";
   if (!DIMENSION_STATUSES.includes(dimensionStatus)) {
-    throw new ArgumentSchemaError("invalid-dimension-status", `Invalid dimensionStatus "${o.dimensionStatus}".`, "Quantity", `${path}.dimensionStatus`);
+    throw new ArgumentSchemaError(
+      "invalid-dimension-status",
+      `Invalid dimensionStatus "${o.dimensionStatus}".`,
+      "Quantity",
+      `${path}.dimensionStatus`,
+    );
   }
 
   let dimension: RationalDimension | undefined;
@@ -704,7 +1024,12 @@ export function validateQuantity(raw: unknown, path = "Quantity", registeredQuan
   } else {
     // Declared dimension
     if (o.dimension === undefined) {
-      throw new ArgumentSchemaError("missing-dimension", "dimension is required for declared quantities.", "Quantity", `${path}.dimension`);
+      throw new ArgumentSchemaError(
+        "missing-dimension",
+        "dimension is required for declared quantities.",
+        "Quantity",
+        `${path}.dimension`,
+      );
     }
     dimension = validateRationalDimension(o.dimension, `${path}.dimension`, false);
   }
@@ -712,7 +1037,11 @@ export function validateQuantity(raw: unknown, path = "Quantity", registeredQuan
   // Gaussian & EMU CGS dimensions
   let gaussianDimension: RationalDimension | undefined;
   if (o.gaussianDimension !== undefined) {
-    gaussianDimension = validateRationalDimension(o.gaussianDimension, `${path}.gaussianDimension`, true);
+    gaussianDimension = validateRationalDimension(
+      o.gaussianDimension,
+      `${path}.gaussianDimension`,
+      true,
+    );
   }
 
   let emuDimension: RationalDimension | undefined;
@@ -722,72 +1051,127 @@ export function validateQuantity(raw: unknown, path = "Quantity", registeredQuan
 
   // Mathematical & density kinds
   if (!MATHEMATICAL_KINDS.includes(o.mathematicalKind as MathematicalKind)) {
-    throw new ArgumentSchemaError("invalid-mathematical-kind", `Invalid mathematicalKind "${o.mathematicalKind}".`, "Quantity", `${path}.mathematicalKind`);
+    throw new ArgumentSchemaError(
+      "invalid-mathematical-kind",
+      `Invalid mathematicalKind "${o.mathematicalKind}".`,
+      "Quantity",
+      `${path}.mathematicalKind`,
+    );
   }
   const mathematicalKind = o.mathematicalKind as MathematicalKind;
 
   const densityKind = (o.densityKind as DensityKind) || "not-applicable";
   if (!DENSITY_KINDS.includes(densityKind)) {
-    throw new ArgumentSchemaError("invalid-density-kind", `Invalid densityKind "${o.densityKind}".`, "Quantity", `${path}.densityKind`);
+    throw new ArgumentSchemaError(
+      "invalid-density-kind",
+      `Invalid densityKind "${o.densityKind}".`,
+      "Quantity",
+      `${path}.densityKind`,
+    );
   }
 
   let densityPer: DensityPerKind[] | undefined;
   if (densityKind === "density") {
     if (!Array.isArray(o.densityPer) || o.densityPer.length === 0) {
-      throw new ArgumentSchemaError("missing-density-per", "densityKind: 'density' requires non-empty densityPer array.", "Quantity", `${path}.densityPer`);
+      throw new ArgumentSchemaError(
+        "missing-density-per",
+        "densityKind: 'density' requires non-empty densityPer array.",
+        "Quantity",
+        `${path}.densityPer`,
+      );
     }
     densityPer = o.densityPer.map((dp, i) => {
       if (!DENSITY_PER_KINDS.includes(dp as DensityPerKind)) {
-        throw new ArgumentSchemaError("invalid-density-per-item", `Invalid densityPer item "${dp}".`, "Quantity", `${path}.densityPer[${i}]`);
+        throw new ArgumentSchemaError(
+          "invalid-density-per-item",
+          `Invalid densityPer item "${dp}".`,
+          "Quantity",
+          `${path}.densityPer[${i}]`,
+        );
       }
       return dp as DensityPerKind;
     });
   }
 
   // Semantic distinctions
-  let spectralBasis = o.spectralBasis as SpectralBasis | undefined;
+  const spectralBasis = o.spectralBasis as SpectralBasis | undefined;
   if (spectralBasis && !SPECTRAL_BASES.includes(spectralBasis)) {
-    throw new ArgumentSchemaError("invalid-spectral-basis", `Invalid spectralBasis "${spectralBasis}".`, "Quantity", `${path}.spectralBasis`);
+    throw new ArgumentSchemaError(
+      "invalid-spectral-basis",
+      `Invalid spectralBasis "${spectralBasis}".`,
+      "Quantity",
+      `${path}.spectralBasis`,
+    );
   }
 
-  let frequencyKind = o.frequencyKind as FrequencyKind | undefined;
+  const frequencyKind = o.frequencyKind as FrequencyKind | undefined;
   if (frequencyKind && !FREQUENCY_KINDS.includes(frequencyKind)) {
-    throw new ArgumentSchemaError("invalid-frequency-kind", `Invalid frequencyKind "${frequencyKind}".`, "Quantity", `${path}.frequencyKind`);
+    throw new ArgumentSchemaError(
+      "invalid-frequency-kind",
+      `Invalid frequencyKind "${frequencyKind}".`,
+      "Quantity",
+      `${path}.frequencyKind`,
+    );
   }
 
-  let timeKind = o.timeKind as TimeKind | undefined;
+  const timeKind = o.timeKind as TimeKind | undefined;
   if (timeKind && !TIME_KINDS.includes(timeKind)) {
-    throw new ArgumentSchemaError("invalid-time-kind", `Invalid timeKind "${timeKind}".`, "Quantity", `${path}.timeKind`);
+    throw new ArgumentSchemaError(
+      "invalid-time-kind",
+      `Invalid timeKind "${timeKind}".`,
+      "Quantity",
+      `${path}.timeKind`,
+    );
   }
 
-  let frame = o.frame as Frame | undefined;
+  const frame = o.frame as Frame | undefined;
   if (frame && !FRAMES.includes(frame)) {
-    throw new ArgumentSchemaError("invalid-frame", `Invalid frame "${frame}". Expected one of: ${FRAMES.join(", ")}`, "Quantity", `${path}.frame`);
+    throw new ArgumentSchemaError(
+      "invalid-frame",
+      `Invalid frame "${frame}". Expected one of: ${FRAMES.join(", ")}`,
+      "Quantity",
+      `${path}.frame`,
+    );
   }
 
-  let observation = o.observation as ObservationKind | undefined;
+  const observation = o.observation as ObservationKind | undefined;
   if (observation && !OBSERVATION_KINDS.includes(observation)) {
-    throw new ArgumentSchemaError("invalid-observation", `Invalid observation "${observation}".`, "Quantity", `${path}.observation`);
+    throw new ArgumentSchemaError(
+      "invalid-observation",
+      `Invalid observation "${observation}".`,
+      "Quantity",
+      `${path}.observation`,
+    );
   }
 
-  let modelArtifact = typeof o.modelArtifact === "boolean" ? o.modelArtifact : undefined;
+  const modelArtifact = typeof o.modelArtifact === "boolean" ? o.modelArtifact : undefined;
   let artifactNote: string | undefined;
   if (modelArtifact) {
     if (typeof o.artifactNote !== "string" || !o.artifactNote.trim()) {
-      throw new ArgumentSchemaError("missing-artifact-note", "modelArtifact: true requires artifactNote.", "Quantity", `${path}.artifactNote`);
+      throw new ArgumentSchemaError(
+        "missing-artifact-note",
+        "modelArtifact: true requires artifactNote.",
+        "Quantity",
+        `${path}.artifactNote`,
+      );
     }
     artifactNote = o.artifactNote;
   }
 
-  let statistic = o.statistic as Statistic | undefined;
+  const statistic = o.statistic as Statistic | undefined;
   if (statistic) {
     if (!STATISTICS.includes(statistic)) {
-      throw new ArgumentSchemaError("invalid-statistic", `Invalid statistic "${statistic}". Enum values must be kebab-case.`, "Quantity", `${path}.statistic`);
+      throw new ArgumentSchemaError(
+        "invalid-statistic",
+        `Invalid statistic "${statistic}". Enum values must be kebab-case.`,
+        "Quantity",
+        `${path}.statistic`,
+      );
     }
   }
 
   // Dimensionless check
-  let dimensionlessKind = o.dimensionlessKind as DimensionlessKind | undefined;
+  const dimensionlessKind = o.dimensionlessKind as DimensionlessKind | undefined;
   if (dimension && isDimensionless(dimension)) {
     if (!dimensionlessKind || !DIMENSIONLESS_KINDS.includes(dimensionlessKind)) {
       throw new ArgumentSchemaError(
@@ -805,7 +1189,13 @@ export function validateQuantity(raw: unknown, path = "Quantity", registeredQuan
     representationFields = [];
     for (let i = 0; i < o.representationFields.length; i++) {
       const rep = o.representationFields[i];
-      if (typeof rep !== "string") throw new ArgumentSchemaError("invalid-representation-field", "Representation field must be a string.", "Quantity", `${path}.representationFields[${i}]`);
+      if (typeof rep !== "string")
+        throw new ArgumentSchemaError(
+          "invalid-representation-field",
+          "Representation field must be a string.",
+          "Quantity",
+          `${path}.representationFields[${i}]`,
+        );
       if (rep === o.id || registeredQuantityIds.includes(rep)) {
         throw new ArgumentSchemaError(
           "representation-field-shadows-id",
@@ -818,9 +1208,14 @@ export function validateQuantity(raw: unknown, path = "Quantity", registeredQuan
     }
   }
 
-  let colorRole = o.colorRole as ColorRole | undefined;
+  const colorRole = o.colorRole as ColorRole | undefined;
   if (colorRole && !COLOR_ROLES.includes(colorRole)) {
-    throw new ArgumentSchemaError("invalid-color-role", `Invalid colorRole "${colorRole}".`, "Quantity", `${path}.colorRole`);
+    throw new ArgumentSchemaError(
+      "invalid-color-role",
+      `Invalid colorRole "${colorRole}".`,
+      "Quantity",
+      `${path}.colorRole`,
+    );
   }
 
   return {
@@ -846,8 +1241,11 @@ export function validateQuantity(raw: unknown, path = "Quantity", registeredQuan
     statistic,
     dimensionlessKind,
     representationFields,
-    referenceConditions: typeof o.referenceConditions === "string" ? o.referenceConditions : undefined,
-    permittedUnits: Array.isArray(o.permittedUnits) ? (o.permittedUnits as PermittedUnit[]) : undefined,
+    referenceConditions:
+      typeof o.referenceConditions === "string" ? o.referenceConditions : undefined,
+    permittedUnits: Array.isArray(o.permittedUnits)
+      ? (o.permittedUnits as PermittedUnit[])
+      : undefined,
     formatting: typeof o.formatting === "string" ? o.formatting : undefined,
     colorRole,
   };
@@ -888,8 +1286,12 @@ export type SemanticEquation = Readonly<{
   notationForms: Readonly<{ source: NotationForm; modern: NotationForm }>;
   terms: readonly EquationTermBinding[];
   operations: readonly EquationOperation[];
-  derivationLinks?: Readonly<{ chainIds: readonly string[]; usedBy: readonly string[] }> | undefined;
-  numericalBindings?: readonly Readonly<{ termId: string; experimentId: string; outputId: string }>[] | undefined;
+  derivationLinks?:
+    | Readonly<{ chainIds: readonly string[]; usedBy: readonly string[] }>
+    | undefined;
+  numericalBindings?:
+    | readonly Readonly<{ termId: string; experimentId: string; outputId: string }>[]
+    | undefined;
   spokenForm: string;
   readings: string;
   meanings: FourMeanings;
@@ -898,7 +1300,12 @@ export type SemanticEquation = Readonly<{
 
 export function validateSemanticEquation(raw: unknown, path = "Equation"): SemanticEquation {
   if (!raw || typeof raw !== "object" || Array.isArray(raw)) {
-    throw new ArgumentSchemaError("invalid-record", "Equation must be an object.", "Equation", path);
+    throw new ArgumentSchemaError(
+      "invalid-record",
+      "Equation must be an object.",
+      "Equation",
+      path,
+    );
   }
   const o = raw as Record<string, unknown>;
 
@@ -907,16 +1314,31 @@ export function validateSemanticEquation(raw: unknown, path = "Equation"): Seman
   }
   const idResult = parseEquationRecordId(o.id);
   if (!idResult.ok) {
-    throw new ArgumentSchemaError(idResult.rule || "invalid-equation-id", idResult.error, "Equation", `${path}.id`);
+    throw new ArgumentSchemaError(
+      idResult.rule || "invalid-equation-id",
+      idResult.error,
+      "Equation",
+      `${path}.id`,
+    );
   }
 
   if (typeof o.paper !== "string" || !o.paper.trim()) {
-    throw new ArgumentSchemaError("missing-paper", "paper is required.", "Equation", `${path}.paper`);
+    throw new ArgumentSchemaError(
+      "missing-paper",
+      "paper is required.",
+      "Equation",
+      `${path}.paper`,
+    );
   }
 
   // Spoken form is REQUIRED and non-empty
   if (typeof o.spokenForm !== "string" || !o.spokenForm.trim()) {
-    throw new ArgumentSchemaError("missing-spoken-form", "Authored spokenForm is required and cannot be empty.", "Equation", `${path}.spokenForm`);
+    throw new ArgumentSchemaError(
+      "missing-spoken-form",
+      "Authored spokenForm is required and cannot be empty.",
+      "Equation",
+      `${path}.spokenForm`,
+    );
   }
 
   // Modern relation required if modernTree exists
@@ -934,24 +1356,55 @@ export function validateSemanticEquation(raw: unknown, path = "Equation"): Seman
   // Notation forms
   const nf = o.notationForms as Record<string, unknown>;
   if (!nf || typeof nf !== "object") {
-    throw new ArgumentSchemaError("missing-notation-forms", "notationForms object is required with source and modern entries.", "Equation", `${path}.notationForms`);
+    throw new ArgumentSchemaError(
+      "missing-notation-forms",
+      "notationForms object is required with source and modern entries.",
+      "Equation",
+      `${path}.notationForms`,
+    );
   }
 
   function validateNotationForm(formRaw: unknown, fPath: string): NotationForm {
-    if (!formRaw || typeof formRaw !== "object") throw new ArgumentSchemaError("invalid-notation-form", "Notation form must be an object.", "Equation", fPath);
+    if (!formRaw || typeof formRaw !== "object")
+      throw new ArgumentSchemaError(
+        "invalid-notation-form",
+        "Notation form must be an object.",
+        "Equation",
+        fPath,
+      );
     const form = formRaw as Record<string, unknown>;
     if (!NOTATION_MODES.includes(form.mode as NotationMode)) {
-      throw new ArgumentSchemaError("invalid-notation-mode", `Invalid mode "${form.mode}".`, "Equation", `${fPath}.mode`);
+      throw new ArgumentSchemaError(
+        "invalid-notation-mode",
+        `Invalid mode "${form.mode}".`,
+        "Equation",
+        `${fPath}.mode`,
+      );
     }
     if (!UNIT_SYSTEMS.includes(form.unitSystem as UnitSystem)) {
-      throw new ArgumentSchemaError("invalid-unit-system", `Invalid unitSystem "${form.unitSystem}".`, "Equation", `${fPath}.unitSystem`);
+      throw new ArgumentSchemaError(
+        "invalid-unit-system",
+        `Invalid unitSystem "${form.unitSystem}".`,
+        "Equation",
+        `${fPath}.unitSystem`,
+      );
     }
     if (form.mode === "authored") {
       if (typeof form.latex !== "string" || !form.latex.trim()) {
-        throw new ArgumentSchemaError("authored-notation-missing-latex", "Authored notation form requires latex.", "Equation", `${fPath}.latex`);
+        throw new ArgumentSchemaError(
+          "authored-notation-missing-latex",
+          "Authored notation form requires latex.",
+          "Equation",
+          `${fPath}.latex`,
+        );
       }
       if (!Array.isArray(form.termBindings) || form.termBindings.length === 0) {
-        throw new ArgumentSchemaError("authored-notation-missing-bindings", "Authored notation form requires termBindings array.", "Equation", `${fPath}.termBindings`);
+        throw new ArgumentSchemaError(
+          "authored-notation-missing-bindings",
+          "Authored notation form requires termBindings array.",
+          "Equation",
+          `${fPath}.termBindings`,
+        );
       }
     }
     return {
@@ -971,9 +1424,22 @@ export function validateSemanticEquation(raw: unknown, path = "Equation"): Seman
     for (let i = 0; i < o.terms.length; i++) {
       const t = o.terms[i] as Record<string, unknown>;
       const tPath = `${path}.terms[${i}]`;
-      if (!t || typeof t !== "object") throw new ArgumentSchemaError("invalid-term", "Term must be an object.", "Equation", tPath);
-      if (typeof t.termId !== "string" || !t.termId.trim()) throw new ArgumentSchemaError("missing-term-id", "termId is required.", "Equation", `${tPath}.termId`);
-      if (typeof t.quantityId !== "string" || !t.quantityId.trim()) throw new ArgumentSchemaError("missing-quantity-id", "quantityId is required.", "Equation", `${tPath}.quantityId`);
+      if (!t || typeof t !== "object")
+        throw new ArgumentSchemaError("invalid-term", "Term must be an object.", "Equation", tPath);
+      if (typeof t.termId !== "string" || !t.termId.trim())
+        throw new ArgumentSchemaError(
+          "missing-term-id",
+          "termId is required.",
+          "Equation",
+          `${tPath}.termId`,
+        );
+      if (typeof t.quantityId !== "string" || !t.quantityId.trim())
+        throw new ArgumentSchemaError(
+          "missing-quantity-id",
+          "quantityId is required.",
+          "Equation",
+          `${tPath}.quantityId`,
+        );
 
       let scale: RationalScale | undefined;
       if (t.scale !== undefined) {
@@ -983,7 +1449,12 @@ export function validateSemanticEquation(raw: unknown, path = "Equation"): Seman
       let component: "x" | "y" | "z" | undefined;
       if (t.component !== undefined) {
         if (!["x", "y", "z"].includes(t.component as string)) {
-          throw new ArgumentSchemaError("invalid-component", `Invalid component "${t.component}". Expected x, y, or z.`, "Equation", `${tPath}.component`);
+          throw new ArgumentSchemaError(
+            "invalid-component",
+            `Invalid component "${t.component}". Expected x, y, or z.`,
+            "Equation",
+            `${tPath}.component`,
+          );
         }
         component = t.component as "x" | "y" | "z";
       }
@@ -1005,7 +1476,13 @@ export function validateSemanticEquation(raw: unknown, path = "Equation"): Seman
     for (let i = 0; i < o.operations.length; i++) {
       const op = o.operations[i] as Record<string, unknown>;
       const opPath = `${path}.operations[${i}]`;
-      if (!op || typeof op !== "object") throw new ArgumentSchemaError("invalid-op", "Operation must be an object.", "Equation", opPath);
+      if (!op || typeof op !== "object")
+        throw new ArgumentSchemaError(
+          "invalid-op",
+          "Operation must be an object.",
+          "Equation",
+          opPath,
+        );
       operations.push({
         opId: (op.opId as string) || `op-${i + 1}`,
         kind: (op.kind as string) || "step",
@@ -1047,14 +1524,29 @@ export type FoundationLink = Readonly<{
 
 export function validateFoundationLink(raw: unknown, path = "FoundationLink"): FoundationLink {
   if (!raw || typeof raw !== "object" || Array.isArray(raw)) {
-    throw new ArgumentSchemaError("invalid-record", "FoundationLink must be an object.", "FoundationLink", path);
+    throw new ArgumentSchemaError(
+      "invalid-record",
+      "FoundationLink must be an object.",
+      "FoundationLink",
+      path,
+    );
   }
   const o = raw as Record<string, unknown>;
   if (typeof o.foundationId !== "string" || !o.foundationId.trim()) {
-    throw new ArgumentSchemaError("missing-foundation-id", "foundationId is required.", "FoundationLink", `${path}.foundationId`);
+    throw new ArgumentSchemaError(
+      "missing-foundation-id",
+      "foundationId is required.",
+      "FoundationLink",
+      `${path}.foundationId`,
+    );
   }
   if (typeof o.callingAnchor !== "string" || !o.callingAnchor.trim()) {
-    throw new ArgumentSchemaError("missing-calling-anchor", "callingAnchor is required.", "FoundationLink", `${path}.callingAnchor`);
+    throw new ArgumentSchemaError(
+      "missing-calling-anchor",
+      "callingAnchor is required.",
+      "FoundationLink",
+      `${path}.callingAnchor`,
+    );
   }
   return {
     foundationId: o.foundationId,
@@ -1081,11 +1573,22 @@ export function validateWorkedExample(raw: unknown, path = "workedExample"): Wor
     );
   }
   const o = raw as Record<string, unknown>;
-  const parts = ["question", "given", "plausibleFirstThought", "decisiveStep", "limitation"] as const;
+  const parts = [
+    "question",
+    "given",
+    "plausibleFirstThought",
+    "decisiveStep",
+    "limitation",
+  ] as const;
 
   for (const part of parts) {
     if (typeof o[part] !== "string" || !(o[part] as string).trim()) {
-      throw new ArgumentSchemaError("missing-worked-example-part", `WorkedExample requires non-empty "${part}".`, "WorkedExample", `${path}.${part}`);
+      throw new ArgumentSchemaError(
+        "missing-worked-example-part",
+        `WorkedExample requires non-empty "${part}".`,
+        "WorkedExample",
+        `${path}.${part}`,
+      );
     }
   }
 
@@ -1118,6 +1621,8 @@ export type Foundation = Readonly<{
   instrumentOrConstruction?: string | undefined;
   authorship: AuthorshipBlock;
   reviewState: string;
+  lang?: string | undefined;
+  dir?: TextDirection | undefined;
 }>;
 
 export type BridgeContinueWith = Readonly<{
@@ -1142,11 +1647,18 @@ export type Bridge = Readonly<{
   whyUsefulHere?: string | undefined;
   authorship: AuthorshipBlock;
   reviewState: string;
+  lang?: string | undefined;
+  dir?: TextDirection | undefined;
 }>;
 
 export function validateFoundationOrBridge(raw: unknown, path = "Foundation"): Foundation | Bridge {
   if (!raw || typeof raw !== "object" || Array.isArray(raw)) {
-    throw new ArgumentSchemaError("invalid-record", "Foundation/Bridge must be an object.", "Foundation", path);
+    throw new ArgumentSchemaError(
+      "invalid-record",
+      "Foundation/Bridge must be an object.",
+      "Foundation",
+      path,
+    );
   }
   const o = raw as Record<string, unknown>;
 
@@ -1154,16 +1666,31 @@ export function validateFoundationOrBridge(raw: unknown, path = "Foundation"): F
     throw new ArgumentSchemaError("missing-id", "id is required.", "Foundation", `${path}.id`);
   }
   if (typeof o.title !== "string" || !o.title.trim()) {
-    throw new ArgumentSchemaError("missing-title", "title is required.", "Foundation", `${path}.title`);
+    throw new ArgumentSchemaError(
+      "missing-title",
+      "title is required.",
+      "Foundation",
+      `${path}.title`,
+    );
   }
 
   if (o.backlinks !== undefined) {
-    throw new ArgumentSchemaError("authored-backlinks-forbidden", "Authored backlinks are forbidden; backlinks are computed by the compiler.", "Foundation", `${path}.backlinks`);
+    throw new ArgumentSchemaError(
+      "authored-backlinks-forbidden",
+      "Authored backlinks are forbidden; backlinks are computed by the compiler.",
+      "Foundation",
+      `${path}.backlinks`,
+    );
   }
 
   const kind = o.kind as FoundationKind;
   if (!FOUNDATION_KINDS.includes(kind)) {
-    throw new ArgumentSchemaError("invalid-kind", `Invalid kind "${o.kind}". Expected "foundation" or "bridge".`, "Foundation", `${path}.kind`);
+    throw new ArgumentSchemaError(
+      "invalid-kind",
+      `Invalid kind "${o.kind}". Expected "foundation" or "bridge".`,
+      "Foundation",
+      `${path}.kind`,
+    );
   }
 
   // Return captions
@@ -1173,7 +1700,12 @@ export function validateFoundationOrBridge(raw: unknown, path = "Foundation"): F
       const rc = o.returnCaptions[i] as Record<string, unknown>;
       const rcPath = `${path}.returnCaptions[${i}]`;
       if (!rc || typeof rc.callingAnchor !== "string" || typeof rc.caption !== "string") {
-        throw new ArgumentSchemaError("invalid-return-caption", "returnCaption requires callingAnchor and caption.", "Foundation", rcPath);
+        throw new ArgumentSchemaError(
+          "invalid-return-caption",
+          "returnCaption requires callingAnchor and caption.",
+          "Foundation",
+          rcPath,
+        );
       }
       returnCaptions.push({ callingAnchor: rc.callingAnchor, caption: rc.caption });
     }
@@ -1184,19 +1716,44 @@ export function validateFoundationOrBridge(raw: unknown, path = "Foundation"): F
 
   if (kind === "foundation") {
     if (typeof o.learningObjective !== "string" || !o.learningObjective.trim()) {
-      throw new ArgumentSchemaError("missing-learning-objective", "learningObjective is required.", "Foundation", `${path}.learningObjective`);
+      throw new ArgumentSchemaError(
+        "missing-learning-objective",
+        "learningObjective is required.",
+        "Foundation",
+        `${path}.learningObjective`,
+      );
     }
     if (typeof o.compactExplanation !== "string" || !o.compactExplanation.trim()) {
-      throw new ArgumentSchemaError("missing-compact-explanation", "compactExplanation is required.", "Foundation", `${path}.compactExplanation`);
+      throw new ArgumentSchemaError(
+        "missing-compact-explanation",
+        "compactExplanation is required.",
+        "Foundation",
+        `${path}.compactExplanation`,
+      );
     }
     if (typeof o.fullExplanation !== "string" || !o.fullExplanation.trim()) {
-      throw new ArgumentSchemaError("missing-full-explanation", "fullExplanation is required.", "Foundation", `${path}.fullExplanation`);
+      throw new ArgumentSchemaError(
+        "missing-full-explanation",
+        "fullExplanation is required.",
+        "Foundation",
+        `${path}.fullExplanation`,
+      );
     }
     if (typeof o.textualEquivalent !== "string" || !o.textualEquivalent.trim()) {
-      throw new ArgumentSchemaError("missing-textual-equivalent", "textualEquivalent is required.", "Foundation", `${path}.textualEquivalent`);
+      throw new ArgumentSchemaError(
+        "missing-textual-equivalent",
+        "textualEquivalent is required.",
+        "Foundation",
+        `${path}.textualEquivalent`,
+      );
     }
     if (typeof o.stoppingPoint !== "string" || !o.stoppingPoint.trim()) {
-      throw new ArgumentSchemaError("missing-stopping-point", "stoppingPoint is required.", "Foundation", `${path}.stoppingPoint`);
+      throw new ArgumentSchemaError(
+        "missing-stopping-point",
+        "stoppingPoint is required.",
+        "Foundation",
+        `${path}.stoppingPoint`,
+      );
     }
 
     const workedExample = validateWorkedExample(o.workedExample, `${path}.workedExample`);
@@ -1207,12 +1764,53 @@ export function validateFoundationOrBridge(raw: unknown, path = "Foundation"): F
         const pr = o.prerequisites[i] as Record<string, unknown>;
         const prPath = `${path}.prerequisites[${i}]`;
         if (typeof pr === "string" || !pr || typeof pr !== "object") {
-          throw new ArgumentSchemaError("invalid-prerequisite-shape", "Prerequisite must be { foundationId, kind: 'proof-edge' | 'cross-link' }.", "Foundation", prPath);
+          throw new ArgumentSchemaError(
+            "invalid-prerequisite-shape",
+            "Prerequisite must be { foundationId, kind: 'proof-edge' | 'cross-link' }.",
+            "Foundation",
+            prPath,
+          );
         }
         if (!PROOF_EDGE_KINDS.includes(pr.kind as ProofEdgeKind)) {
-          throw new ArgumentSchemaError("invalid-prerequisite-kind", `Invalid prerequisite kind "${pr.kind}".`, "Foundation", `${prPath}.kind`);
+          throw new ArgumentSchemaError(
+            "invalid-prerequisite-kind",
+            `Invalid prerequisite kind "${pr.kind}".`,
+            "Foundation",
+            `${prPath}.kind`,
+          );
         }
-        prerequisites.push({ foundationId: pr.foundationId as string, kind: pr.kind as ProofEdgeKind });
+        prerequisites.push({
+          foundationId: pr.foundationId as string,
+          kind: pr.kind as ProofEdgeKind,
+        });
+      }
+    }
+
+    let lang: string | undefined;
+    if (o.lang !== undefined) {
+      try {
+        lang = validateLanguageTag(o.lang, `${path}.lang`);
+      } catch (err: any) {
+        throw new ArgumentSchemaError(
+          "invalid-language-tag",
+          err.message,
+          "Foundation",
+          `${path}.lang`,
+        );
+      }
+    }
+
+    let dir: TextDirection | undefined;
+    if (o.dir !== undefined) {
+      try {
+        dir = validateDirection(o.dir, `${path}.dir`);
+      } catch (err: any) {
+        throw new ArgumentSchemaError(
+          "invalid-direction",
+          err.message,
+          "Foundation",
+          `${path}.dir`,
+        );
       }
     }
 
@@ -1228,26 +1826,54 @@ export function validateFoundationOrBridge(raw: unknown, path = "Foundation"): F
       prerequisites,
       stoppingPoint: o.stoppingPoint,
       returnCaptions,
-      instrumentOrConstruction: typeof o.instrumentOrConstruction === "string" ? o.instrumentOrConstruction : undefined,
+      instrumentOrConstruction:
+        typeof o.instrumentOrConstruction === "string" ? o.instrumentOrConstruction : undefined,
       authorship,
       reviewState,
+      ...(lang ? { lang } : {}),
+      ...(dir ? { dir } : {}),
     };
   } else {
     // Bridge
     if (typeof o.concreteOperation !== "string" || !o.concreteOperation.trim()) {
-      throw new ArgumentSchemaError("missing-concrete-operation", "concreteOperation is required on Bridge.", "Bridge", `${path}.concreteOperation`);
+      throw new ArgumentSchemaError(
+        "missing-concrete-operation",
+        "concreteOperation is required on Bridge.",
+        "Bridge",
+        `${path}.concreteOperation`,
+      );
     }
     if (typeof o.compactExplanation !== "string" || !o.compactExplanation.trim()) {
-      throw new ArgumentSchemaError("missing-compact-explanation", "compactExplanation is required.", "Bridge", `${path}.compactExplanation`);
+      throw new ArgumentSchemaError(
+        "missing-compact-explanation",
+        "compactExplanation is required.",
+        "Bridge",
+        `${path}.compactExplanation`,
+      );
     }
     if (typeof o.textualEquivalent !== "string" || !o.textualEquivalent.trim()) {
-      throw new ArgumentSchemaError("missing-textual-equivalent", "textualEquivalent is required.", "Bridge", `${path}.textualEquivalent`);
+      throw new ArgumentSchemaError(
+        "missing-textual-equivalent",
+        "textualEquivalent is required.",
+        "Bridge",
+        `${path}.textualEquivalent`,
+      );
     }
     if (typeof o.stoppingPoint !== "string" || !o.stoppingPoint.trim()) {
-      throw new ArgumentSchemaError("missing-stopping-point", "stoppingPoint is required.", "Bridge", `${path}.stoppingPoint`);
+      throw new ArgumentSchemaError(
+        "missing-stopping-point",
+        "stoppingPoint is required.",
+        "Bridge",
+        `${path}.stoppingPoint`,
+      );
     }
     if (typeof o.readinessSign !== "string" || !o.readinessSign.trim()) {
-      throw new ArgumentSchemaError("missing-readiness-sign", "readinessSign is required.", "Bridge", `${path}.readinessSign`);
+      throw new ArgumentSchemaError(
+        "missing-readiness-sign",
+        "readinessSign is required.",
+        "Bridge",
+        `${path}.readinessSign`,
+      );
     }
 
     let workedExample: WorkedExample | undefined;
@@ -1262,22 +1888,65 @@ export function validateFoundationOrBridge(raw: unknown, path = "Foundation"): F
         const cw = o.continueWith[i] as Record<string, unknown>;
         const cwPath = `${path}.continueWith[${i}]`;
         if (!cw || !CONTINUE_WITH_ROUTES.includes(cw.route as ContinueWithRoute)) {
-          throw new ArgumentSchemaError("invalid-continue-with-route", `Invalid continueWith route "${cw?.route}".`, "Bridge", `${cwPath}.route`);
+          throw new ArgumentSchemaError(
+            "invalid-continue-with-route",
+            `Invalid continueWith route "${cw?.route}".`,
+            "Bridge",
+            `${cwPath}.route`,
+          );
         }
         if (typeof cw.targetId !== "string" || !cw.targetId.trim()) {
-          throw new ArgumentSchemaError("missing-continue-with-target", "continueWith requires targetId.", "Bridge", `${cwPath}.targetId`);
+          throw new ArgumentSchemaError(
+            "missing-continue-with-target",
+            "continueWith requires targetId.",
+            "Bridge",
+            `${cwPath}.targetId`,
+          );
         }
         continueWith.push({ route: cw.route as ContinueWithRoute, targetId: cw.targetId });
       }
 
       // If entrance bridge: exactly 2 routes (one more-guidance, one less-guidance)
       if (continueWith.length !== 2) {
-        throw new ArgumentSchemaError("invalid-continue-with-routes", `continueWith must contain exactly 2 routes (got ${continueWith.length}).`, "Bridge", `${path}.continueWith`);
+        throw new ArgumentSchemaError(
+          "invalid-continue-with-routes",
+          `continueWith must contain exactly 2 routes (got ${continueWith.length}).`,
+          "Bridge",
+          `${path}.continueWith`,
+        );
       }
       const hasMore = continueWith.some((r) => r.route === "more-guidance");
       const hasLess = continueWith.some((r) => r.route === "less-guidance");
       if (!hasMore || !hasLess) {
-        throw new ArgumentSchemaError("invalid-continue-with-routes", "continueWith requires one 'more-guidance' and one 'less-guidance' route.", "Bridge", `${path}.continueWith`);
+        throw new ArgumentSchemaError(
+          "invalid-continue-with-routes",
+          "continueWith requires one 'more-guidance' and one 'less-guidance' route.",
+          "Bridge",
+          `${path}.continueWith`,
+        );
+      }
+    }
+
+    let lang: string | undefined;
+    if (o.lang !== undefined) {
+      try {
+        lang = validateLanguageTag(o.lang, `${path}.lang`);
+      } catch (err: any) {
+        throw new ArgumentSchemaError(
+          "invalid-language-tag",
+          err.message,
+          "Bridge",
+          `${path}.lang`,
+        );
+      }
+    }
+
+    let dir: TextDirection | undefined;
+    if (o.dir !== undefined) {
+      try {
+        dir = validateDirection(o.dir, `${path}.dir`);
+      } catch (err: any) {
+        throw new ArgumentSchemaError("invalid-direction", err.message, "Bridge", `${path}.dir`);
       }
     }
 
@@ -1292,12 +1961,15 @@ export function validateFoundationOrBridge(raw: unknown, path = "Foundation"): F
       readinessSign: o.readinessSign,
       returnCaptions,
       workedExample,
-      instrumentOrConstruction: typeof o.instrumentOrConstruction === "string" ? o.instrumentOrConstruction : undefined,
+      instrumentOrConstruction:
+        typeof o.instrumentOrConstruction === "string" ? o.instrumentOrConstruction : undefined,
       continueWith,
       newSkill: typeof o.newSkill === "string" ? o.newSkill : undefined,
       whyUsefulHere: typeof o.whyUsefulHere === "string" ? o.whyUsefulHere : undefined,
       authorship,
       reviewState,
+      ...(lang ? { lang } : {}),
+      ...(dir ? { dir } : {}),
     };
   }
 }
@@ -1334,11 +2006,18 @@ export type Misconception = Readonly<{
   essentialForPrint?: boolean | undefined;
   authorship: AuthorshipBlock;
   reviewState: string;
+  lang?: string | undefined;
+  dir?: TextDirection | undefined;
 }>;
 
 export function validateMisconception(raw: unknown, path = "Misconception"): Misconception {
   if (!raw || typeof raw !== "object" || Array.isArray(raw)) {
-    throw new ArgumentSchemaError("invalid-record", "Misconception must be an object.", "Misconception", path);
+    throw new ArgumentSchemaError(
+      "invalid-record",
+      "Misconception must be an object.",
+      "Misconception",
+      path,
+    );
   }
   const o = raw as Record<string, unknown>;
 
@@ -1346,7 +2025,12 @@ export function validateMisconception(raw: unknown, path = "Misconception"): Mis
     throw new ArgumentSchemaError("missing-id", "id is required.", "Misconception", `${path}.id`);
   }
   if (typeof o.paper !== "string" || !o.paper.trim()) {
-    throw new ArgumentSchemaError("missing-paper", "paper is required.", "Misconception", `${path}.paper`);
+    throw new ArgumentSchemaError(
+      "missing-paper",
+      "paper is required.",
+      "Misconception",
+      `${path}.paper`,
+    );
   }
 
   // Plural temptingClaims validation
@@ -1358,29 +2042,54 @@ export function validateMisconception(raw: unknown, path = "Misconception"): Mis
       `${path}.temptingClaim`,
     );
   }
-  if (!Array.isArray(o.temptingClaims) || o.temptingClaims.length === 0 || o.temptingClaims.length > 2) {
+  if (
+    !Array.isArray(o.temptingClaims) ||
+    o.temptingClaims.length < 1 ||
+    o.temptingClaims.length > 2
+  ) {
     throw new ArgumentSchemaError(
       "invalid-tempting-claims-count",
-      `temptingClaims must contain 1 or 2 entries (got ${Array.isArray(o.temptingClaims) ? o.temptingClaims.length : "non-array"}).`,
+      "temptingClaims array must contain 1-2 entries.",
       "Misconception",
       `${path}.temptingClaims`,
     );
   }
   const temptingClaims = o.temptingClaims.map((tc, i) => {
-    if (typeof tc !== "string" || !tc.trim()) throw new ArgumentSchemaError("invalid-tempting-claim", "temptingClaim must be a non-empty string.", "Misconception", `${path}.temptingClaims[${i}]`);
+    if (typeof tc !== "string" || !tc.trim())
+      throw new ArgumentSchemaError(
+        "invalid-tempting-claim",
+        "temptingClaim must be a non-empty string.",
+        "Misconception",
+        `${path}.temptingClaims[${i}]`,
+      );
     return tc;
   });
 
   if (typeof o.whyTempting !== "string" || !o.whyTempting.trim()) {
-    throw new ArgumentSchemaError("missing-why-tempting", "whyTempting is required.", "Misconception", `${path}.whyTempting`);
+    throw new ArgumentSchemaError(
+      "missing-why-tempting",
+      "whyTempting is required.",
+      "Misconception",
+      `${path}.whyTempting`,
+    );
   }
 
   if (typeof o.whereItIsTrue !== "string" || !o.whereItIsTrue.trim()) {
-    throw new ArgumentSchemaError("missing-where-it-is-true", "whereItIsTrue is required.", "Misconception", `${path}.whereItIsTrue`);
+    throw new ArgumentSchemaError(
+      "missing-where-it-is-true",
+      "whereItIsTrue is required.",
+      "Misconception",
+      `${path}.whereItIsTrue`,
+    );
   }
 
   if (!o.whatIsTrue) {
-    throw new ArgumentSchemaError("missing-what-is-true", "whatIsTrue is required.", "Misconception", `${path}.whatIsTrue`);
+    throw new ArgumentSchemaError(
+      "missing-what-is-true",
+      "whatIsTrue is required.",
+      "Misconception",
+      `${path}.whatIsTrue`,
+    );
   }
 
   // Treatment validation
@@ -1398,11 +2107,21 @@ export function validateMisconception(raw: unknown, path = "Misconception"): Mis
   // Intervention validation
   const inv = o.intervention as Record<string, unknown>;
   if (!inv || typeof inv !== "object") {
-    throw new ArgumentSchemaError("missing-intervention", "intervention object is required.", "Misconception", `${path}.intervention`);
+    throw new ArgumentSchemaError(
+      "missing-intervention",
+      "intervention object is required.",
+      "Misconception",
+      `${path}.intervention`,
+    );
   }
   const defs = inv.defaultsReviewed as Record<string, unknown>;
   if (!defs || typeof defs !== "object") {
-    throw new ArgumentSchemaError("missing-defaults-reviewed", "intervention.defaultsReviewed object is required.", "Misconception", `${path}.intervention.defaultsReviewed`);
+    throw new ArgumentSchemaError(
+      "missing-defaults-reviewed",
+      "intervention.defaultsReviewed object is required.",
+      "Misconception",
+      `${path}.intervention.defaultsReviewed`,
+    );
   }
 
   const requiredJudgments = ["model", "labels", "defaultControls", "feedback"] as const;
@@ -1418,7 +2137,40 @@ export function validateMisconception(raw: unknown, path = "Misconception"): Mis
   }
 
   if (typeof inv.reviewRecordId !== "string" || !inv.reviewRecordId.trim()) {
-    throw new ArgumentSchemaError("missing-review-record-id", "intervention requires reviewRecordId.", "Misconception", `${path}.intervention.reviewRecordId`);
+    throw new ArgumentSchemaError(
+      "missing-review-record-id",
+      "intervention requires reviewRecordId.",
+      "Misconception",
+      `${path}.intervention.reviewRecordId`,
+    );
+  }
+
+  let lang: string | undefined;
+  if (o.lang !== undefined) {
+    try {
+      lang = validateLanguageTag(o.lang, `${path}.lang`);
+    } catch (err: any) {
+      throw new ArgumentSchemaError(
+        "invalid-language-tag",
+        err.message,
+        "Misconception",
+        `${path}.lang`,
+      );
+    }
+  }
+
+  let dir: TextDirection | undefined;
+  if (o.dir !== undefined) {
+    try {
+      dir = validateDirection(o.dir, `${path}.dir`);
+    } catch (err: any) {
+      throw new ArgumentSchemaError(
+        "invalid-direction",
+        err.message,
+        "Misconception",
+        `${path}.dir`,
+      );
+    }
   }
 
   const authorship = validateAuthorshipBlock(o.authorship, `${path}.authorship`);
@@ -1450,6 +2202,8 @@ export function validateMisconception(raw: unknown, path = "Misconception"): Mis
     essentialForPrint: typeof o.essentialForPrint === "boolean" ? o.essentialForPrint : undefined,
     authorship,
     reviewState,
+    ...(lang ? { lang } : {}),
+    ...(dir ? { dir } : {}),
   };
 }
 
@@ -1468,16 +2222,28 @@ export type ReadingSet = Readonly<{
   essentialForPrint?: boolean | undefined;
   authorship: AuthorshipBlock;
   reviewState: string;
+  lang?: string | undefined;
+  dir?: TextDirection | undefined;
 }>;
 
 export function validateReadingSet(raw: unknown, path = "ReadingSet"): ReadingSet {
   if (!raw || typeof raw !== "object" || Array.isArray(raw)) {
-    throw new ArgumentSchemaError("invalid-record", "ReadingSet must be an object.", "ReadingSet", path);
+    throw new ArgumentSchemaError(
+      "invalid-record",
+      "ReadingSet must be an object.",
+      "ReadingSet",
+      path,
+    );
   }
   const o = raw as Record<string, unknown>;
 
   if (typeof o.targetId !== "string" || !o.targetId.trim()) {
-    throw new ArgumentSchemaError("missing-target-id", "targetId is required.", "ReadingSet", `${path}.targetId`);
+    throw new ArgumentSchemaError(
+      "missing-target-id",
+      "targetId is required.",
+      "ReadingSet",
+      `${path}.targetId`,
+    );
   }
 
   const targetKind = o.targetKind as ReadingTargetKind;
@@ -1501,24 +2267,79 @@ export function validateReadingSet(raw: unknown, path = "ReadingSet"): ReadingSe
   // Validate targetId grammar for targetKind
   if (targetKind === "paragraph") {
     const pResult = parseParagraphId(o.targetId);
-    if (!pResult.ok) throw new ArgumentSchemaError("invalid-target-id-for-kind", pResult.error, "ReadingSet", `${path}.targetId`);
+    if (!pResult.ok)
+      throw new ArgumentSchemaError(
+        "invalid-target-id-for-kind",
+        pResult.error,
+        "ReadingSet",
+        `${path}.targetId`,
+      );
   } else if (targetKind === "heading") {
     const hResult = parseHeadingId(o.targetId);
-    if (!hResult.ok) throw new ArgumentSchemaError("invalid-target-id-for-kind", hResult.error, "ReadingSet", `${path}.targetId`);
+    if (!hResult.ok)
+      throw new ArgumentSchemaError(
+        "invalid-target-id-for-kind",
+        hResult.error,
+        "ReadingSet",
+        `${path}.targetId`,
+      );
   } else if (targetKind === "footnote") {
     const fnResult = parseFootnoteId(o.targetId);
-    if (!fnResult.ok) throw new ArgumentSchemaError("invalid-target-id-for-kind", fnResult.error, "ReadingSet", `${path}.targetId`);
+    if (!fnResult.ok)
+      throw new ArgumentSchemaError(
+        "invalid-target-id-for-kind",
+        fnResult.error,
+        "ReadingSet",
+        `${path}.targetId`,
+      );
   } else if (targetKind === "closing") {
     const clResult = parseClosingId(o.targetId);
-    if (!clResult.ok) throw new ArgumentSchemaError("invalid-target-id-for-kind", clResult.error, "ReadingSet", `${path}.targetId`);
+    if (!clResult.ok)
+      throw new ArgumentSchemaError(
+        "invalid-target-id-for-kind",
+        clResult.error,
+        "ReadingSet",
+        `${path}.targetId`,
+      );
   } else if (targetKind === "equation") {
     const eqResult = parseEquationRecordId(o.targetId);
-    if (!eqResult.ok) throw new ArgumentSchemaError("invalid-target-id-for-kind", eqResult.error, "ReadingSet", `${path}.targetId`);
+    if (!eqResult.ok)
+      throw new ArgumentSchemaError(
+        "invalid-target-id-for-kind",
+        eqResult.error,
+        "ReadingSet",
+        `${path}.targetId`,
+      );
   }
 
   let foundationLinks: FoundationLink[] | undefined;
   if (Array.isArray(o.foundationLinks)) {
-    foundationLinks = o.foundationLinks.map((fl, i) => validateFoundationLink(fl, `${path}.foundationLinks[${i}]`));
+    foundationLinks = o.foundationLinks.map((fl, i) =>
+      validateFoundationLink(fl, `${path}.foundationLinks[${i}]`),
+    );
+  }
+
+  let lang: string | undefined;
+  if (o.lang !== undefined) {
+    try {
+      lang = validateLanguageTag(o.lang, `${path}.lang`);
+    } catch (err: any) {
+      throw new ArgumentSchemaError(
+        "invalid-language-tag",
+        err.message,
+        "ReadingSet",
+        `${path}.lang`,
+      );
+    }
+  }
+
+  let dir: TextDirection | undefined;
+  if (o.dir !== undefined) {
+    try {
+      dir = validateDirection(o.dir, `${path}.dir`);
+    } catch (err: any) {
+      throw new ArgumentSchemaError("invalid-direction", err.message, "ReadingSet", `${path}.dir`);
+    }
   }
 
   const authorship = validateAuthorshipBlock(o.authorship, `${path}.authorship`);
@@ -1535,6 +2356,8 @@ export function validateReadingSet(raw: unknown, path = "ReadingSet"): ReadingSe
     essentialForPrint: typeof o.essentialForPrint === "boolean" ? o.essentialForPrint : undefined,
     authorship,
     reviewState,
+    ...(lang ? { lang } : {}),
+    ...(dir ? { dir } : {}),
   };
 }
 
@@ -1554,23 +2377,59 @@ export type AuthoringContract = Readonly<{
   bridge: string;
 }>;
 
-export function validateAuthoringContract(raw: unknown, path = "AuthoringContract"): AuthoringContract {
+export function validateAuthoringContract(
+  raw: unknown,
+  path = "AuthoringContract",
+): AuthoringContract {
   if (!raw || typeof raw !== "object" || Array.isArray(raw)) {
-    throw new ArgumentSchemaError("invalid-record", "AuthoringContract must be an object.", "AuthoringContract", path);
+    throw new ArgumentSchemaError(
+      "invalid-record",
+      "AuthoringContract must be an object.",
+      "AuthoringContract",
+      path,
+    );
   }
   const o = raw as Record<string, unknown>;
 
-  if (typeof o.question !== "string" || !o.question.trim()) throw new ArgumentSchemaError("missing-question", "question is required.", "AuthoringContract", `${path}.question`);
-  if (typeof o.conclusionSupported !== "string" || !o.conclusionSupported.trim()) throw new ArgumentSchemaError("missing-conclusion", "conclusionSupported is required.", "AuthoringContract", `${path}.conclusionSupported`);
-  if (typeof o.bridge !== "string" || !o.bridge.trim()) throw new ArgumentSchemaError("missing-bridge", "bridge is required.", "AuthoringContract", `${path}.bridge`);
+  if (typeof o.question !== "string" || !o.question.trim())
+    throw new ArgumentSchemaError(
+      "missing-question",
+      "question is required.",
+      "AuthoringContract",
+      `${path}.question`,
+    );
+  if (typeof o.conclusionSupported !== "string" || !o.conclusionSupported.trim())
+    throw new ArgumentSchemaError(
+      "missing-conclusion",
+      "conclusionSupported is required.",
+      "AuthoringContract",
+      `${path}.conclusionSupported`,
+    );
+  if (typeof o.bridge !== "string" || !o.bridge.trim())
+    throw new ArgumentSchemaError(
+      "missing-bridge",
+      "bridge is required.",
+      "AuthoringContract",
+      `${path}.bridge`,
+    );
 
   function validateQualifications(list: unknown, qPath: string): QualificationRecord[] {
     if (!Array.isArray(list)) return [];
     return list.map((item, i) => {
       const q = item as Record<string, unknown>;
       const itemPath = `${qPath}[${i}]`;
-      if (!q || typeof q.qualificationId !== "string" || typeof q.statement !== "string" || typeof q.restricts !== "string") {
-        throw new ArgumentSchemaError("invalid-qualification", "Qualification requires qualificationId, statement, and restricts.", "AuthoringContract", itemPath);
+      if (
+        !q ||
+        typeof q.qualificationId !== "string" ||
+        typeof q.statement !== "string" ||
+        typeof q.restricts !== "string"
+      ) {
+        throw new ArgumentSchemaError(
+          "invalid-qualification",
+          "Qualification requires qualificationId, statement, and restricts.",
+          "AuthoringContract",
+          itemPath,
+        );
       }
       return {
         qualificationId: q.qualificationId,
@@ -1581,8 +2440,14 @@ export function validateAuthoringContract(raw: unknown, path = "AuthoringContrac
     });
   }
 
-  const approximationsIntroduced = validateQualifications(o.approximationsIntroduced, `${path}.approximationsIntroduced`);
-  const omissionsAcknowledged = validateQualifications(o.omissionsAcknowledged, `${path}.omissionsAcknowledged`);
+  const approximationsIntroduced = validateQualifications(
+    o.approximationsIntroduced,
+    `${path}.approximationsIntroduced`,
+  );
+  const omissionsAcknowledged = validateQualifications(
+    o.omissionsAcknowledged,
+    `${path}.omissionsAcknowledged`,
+  );
 
   return {
     question: o.question,
@@ -1613,9 +2478,17 @@ export type ObstacleResponses = Readonly<{
   exampleFirst?: Readonly<{ workedExampleRef: string }> | undefined;
 }>;
 
-export function validateObstacleResponses(raw: unknown, path = "ObstacleResponses"): ObstacleResponses {
+export function validateObstacleResponses(
+  raw: unknown,
+  path = "ObstacleResponses",
+): ObstacleResponses {
   if (!raw || typeof raw !== "object" || Array.isArray(raw)) {
-    throw new ArgumentSchemaError("invalid-record", "ObstacleResponses must be an object.", "ObstacleResponses", path);
+    throw new ArgumentSchemaError(
+      "invalid-record",
+      "ObstacleResponses must be an object.",
+      "ObstacleResponses",
+      path,
+    );
   }
   const o = raw as Record<string, unknown>;
 
@@ -1650,7 +2523,9 @@ export function validateObstacleResponses(raw: unknown, path = "ObstacleResponse
         result[kind] = {
           explanation: (resp.explanation as string) || "",
           foundationLinks: Array.isArray(resp.foundationLinks)
-            ? resp.foundationLinks.map((fl, i) => validateFoundationLink(fl, `${path}.${kind}.foundationLinks[${i}]`))
+            ? resp.foundationLinks.map((fl, i) =>
+                validateFoundationLink(fl, `${path}.${kind}.foundationLinks[${i}]`),
+              )
             : undefined,
         };
       }
@@ -1660,7 +2535,9 @@ export function validateObstacleResponses(raw: unknown, path = "ObstacleResponse
   if (o.exampleFirst !== undefined) {
     const ef = o.exampleFirst as Record<string, unknown>;
     result.exampleFirst = {
-      workedExampleRef: (ef?.workedExampleRef as string) || (typeof o.exampleFirst === "string" ? o.exampleFirst : ""),
+      workedExampleRef:
+        (ef?.workedExampleRef as string) ||
+        (typeof o.exampleFirst === "string" ? o.exampleFirst : ""),
     };
   }
 

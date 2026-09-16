@@ -1,0 +1,22 @@
+{
+  "locale": "de",
+  "reviewState": "reviewed",
+  "messages": {
+    "nav.home": "Startseite",
+    "nav.papers": "Abhandlungen",
+    "nav.discover": "Entdecken",
+    "nav.lab": "Labor",
+    "nav.notation": "Notation",
+    "reader.view.german": "Quelle (Deutsch)",
+    "reader.view.translation": "Englische Übersetzung",
+    "reader.view.parallel": "Parallele Ausrichtung",
+    "reader.view.facsimile": "Faksimile",
+    "reader.detail.overview": "Überblick",
+    "reader.detail.full": "Vollständige Erklärung",
+    "reader.detail.steps": "Jeden Schritt zeigen",
+    "missingLanguage.notice": "Die Übersetzung in die gewünschte Sprache ist noch nicht verfügbar; Rückfall auf Englisch.",
+    "experiments.status.running": "Simulation läuft",
+    "experiments.status.completed": "Berechnung abgeschlossen",
+    "experiments.status.refusal": "Verweigerung"
+  }
+}

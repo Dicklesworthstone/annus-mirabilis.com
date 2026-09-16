@@ -28,6 +28,7 @@ import {
   validateGlossUnit,
   validatePaper,
   validateSourceBlock,
+  validateTranslationEdition,
   validateTranslationUnit,
   verifyEquationTranslation,
 } from "./source.ts";
@@ -319,6 +320,7 @@ test("TranslationUnit: references one or more source blocks and requires editor 
       { text: "Alternative phrasing", rationale: "Preserves period modality." },
     ],
     reviewState: "reviewed",
+    lang: "en",
   };
 
   const tu = validateTranslationUnit(raw);
@@ -652,6 +654,48 @@ derived:
     () => strictParse(yamlWithMerge, "yaml"),
     (err: any) => {
       assert.equal(err.code, "yaml-merge-key-forbidden");
+      return true;
+    },
+  );
+});
+
+// ==========================================
+// 13. TRANSLATION EDITION & LANGUAGE TESTS
+// ==========================================
+test("TranslationEdition: validates language tag, required metadata, and child units", () => {
+  const rawTu = {
+    id: "s1-p1-s1",
+    sourceRefs: [{ paper: "brownian-motion", id: "s1-p1-s1" }],
+    inlines: [{ kind: "text", text: "In this paper..." }],
+    translator: { id: "agent:BoldHarbor", kind: "model", modelId: "gpt-5.6-luna" },
+    revision: 1,
+    unresolvedAlternatives: [],
+    reviewState: "draft",
+    lang: "en",
+  };
+
+  const rawEdition = {
+    editionId: "edition-en-standard",
+    paperId: "ap-17-549",
+    language: "en",
+    title: "On the Motion of Small Particles Suspended in Liquids at Rest",
+    translator: { id: "agent:BoldHarbor", kind: "model", modelId: "gpt-5.6-luna" },
+    license: "CC-BY-4.0",
+    reviewState: "draft",
+    units: [rawTu],
+  };
+
+  const edition = validateTranslationEdition(rawEdition);
+  assert.equal(edition.editionId, "edition-en-standard");
+  assert.equal(edition.language, "en");
+  assert.equal(edition.units.length, 1);
+
+  // Invalid language tag
+  const badLangEdition = { ...rawEdition, language: "english" };
+  assert.throws(
+    () => validateTranslationEdition(badLangEdition),
+    (err: any) => {
+      assert.equal(err.code, "invalid-language-tag");
       return true;
     },
   );

@@ -3,14 +3,20 @@
  * Specification: AGENTS.md and am-cm-schemas-source-1en
  */
 
+import { validateDirection, validateLanguageTag } from "../../i18n/language.ts";
+
 export type TextInline = Readonly<{
   kind: "text";
   text: string;
+  lang?: string | undefined;
+  dir?: "ltr" | "rtl" | undefined;
 }>;
 
 export type EmphasisInline = Readonly<{
   kind: "emphasis";
   inlines: readonly Inline[];
+  lang?: string | undefined;
+  dir?: "ltr" | "rtl" | undefined;
 }>;
 
 export type MathInline = Readonly<{
@@ -31,12 +37,16 @@ export type TermInline = Readonly<{
   text: string;
   termId: string;
   definition?: string | undefined;
+  lang?: string | undefined;
+  dir?: "ltr" | "rtl" | undefined;
 }>;
 
 export type ReferenceInline = Readonly<{
   kind: "reference";
   text: string;
   targetId: string;
+  lang?: string | undefined;
+  dir?: "ltr" | "rtl" | undefined;
 }>;
 
 export type CitationRefInline = Readonly<{
@@ -132,15 +142,25 @@ export function validateInline(node: unknown, path = "inline"): Inline {
   const o = node as Record<string, unknown>;
   const kind = o.kind as string;
 
+  const lang = o.lang !== undefined ? validateLanguageTag(o.lang, `${path}.lang`) : undefined;
+  const dir = o.dir !== undefined ? validateDirection(o.dir, `${path}.dir`) : undefined;
+
   switch (kind) {
     case "text":
       if (typeof o.text !== "string") throw new Error(`${path}: text is required.`);
-      return { kind: "text", text: o.text };
+      return {
+        kind: "text",
+        text: o.text,
+        ...(lang ? { lang } : {}),
+        ...(dir ? { dir } : {}),
+      };
     case "emphasis":
       if (!Array.isArray(o.inlines)) throw new Error(`${path}: inlines array is required.`);
       return {
         kind: "emphasis",
         inlines: o.inlines.map((item, i) => validateInline(item, `${path}.inlines[${i}]`)),
+        ...(lang ? { lang } : {}),
+        ...(dir ? { dir } : {}),
       };
     case "math":
       if (typeof o.latex !== "string") throw new Error(`${path}: latex is required.`);
@@ -162,11 +182,19 @@ export function validateInline(node: unknown, path = "inline"): Inline {
         text: o.text,
         termId: o.termId,
         ...(typeof o.definition === "string" ? { definition: o.definition } : {}),
+        ...(lang ? { lang } : {}),
+        ...(dir ? { dir } : {}),
       };
     case "reference":
       if (typeof o.text !== "string") throw new Error(`${path}: text is required.`);
       if (typeof o.targetId !== "string") throw new Error(`${path}: targetId is required.`);
-      return { kind: "reference", text: o.text, targetId: o.targetId };
+      return {
+        kind: "reference",
+        text: o.text,
+        targetId: o.targetId,
+        ...(lang ? { lang } : {}),
+        ...(dir ? { dir } : {}),
+      };
     case "citation-ref":
       if (typeof o.citationId !== "string") throw new Error(`${path}: citationId is required.`);
       return {
