@@ -36,7 +36,8 @@
  *   assumption, only renamed fields and schema strings.
  */
 
-import { describe, expect, test } from "bun:test";
+import assert from "node:assert/strict";
+import { describe, it } from "node:test";
 import {
   classifyPaperE2EDiagnostic,
   createPaperE2EEvent,
@@ -50,10 +51,10 @@ import {
   summarizePaperE2EEvents,
   validatePaperE2EEventOrder,
   validatePaperE2EJourney,
-} from "./paper-e2e-contract";
+} from "./paper-e2e-contract.ts";
 
 describe("paper E2E CLI contract", () => {
-  test("requires one explicit selection mode and preserves the exact 320px phone viewport", () => {
+  it("requires one explicit selection mode and preserves the exact 320px phone viewport", () => {
     const options = parsePaperE2EArgs([
       "--paper",
       "brownian-motion",
@@ -64,20 +65,21 @@ describe("paper E2E CLI contract", () => {
       "--base-url",
       "http://127.0.0.1:3000/",
     ]);
-    expect(options.sliceIds).toEqual(["brownian-motion", "light-quanta"]);
-    expect(options.viewports).toEqual(["desktop", "phone"]);
-    expect(options.baseUrl).toBe("http://127.0.0.1:3000");
-    expect(parsePaperE2EArgs(["--self-test-failure"]).selfTestFailure).toBe(true);
-    expect(() => parsePaperE2EArgs([])).toThrow("Select exactly one");
-    expect(() => parsePaperE2EArgs(["--all", "--changed"])).toThrow("Select exactly one");
-    expect(() => parsePaperE2EArgs(["--all", "--viewports", "wide"])).toThrow(
-      "Unknown E2E viewport",
+    assert.deepEqual(options.sliceIds, ["brownian-motion", "light-quanta"]);
+    assert.deepEqual(options.viewports, ["desktop", "phone"]);
+    assert.equal(options.baseUrl, "http://127.0.0.1:3000");
+    assert.equal(parsePaperE2EArgs(["--self-test-failure"]).selfTestFailure, true);
+    assert.throws(() => parsePaperE2EArgs([]), /Select exactly one/);
+    assert.throws(() => parsePaperE2EArgs(["--all", "--changed"]), /Select exactly one/);
+    assert.throws(
+      () => parsePaperE2EArgs(["--all", "--viewports", "wide"]),
+      /Unknown E2E viewport/,
     );
   });
 });
 
 describe("structured E2E diagnostics", () => {
-  test("serializes validated JSONL events and redacts common secret shapes", () => {
+  it("serializes validated JSONL events and redacts common secret shapes", () => {
     const event = createPaperE2EEvent({
       logRunId: "log-run-1",
       sequence: 1,
@@ -96,15 +98,14 @@ describe("structured E2E diagnostics", () => {
       timestamp: "2026-09-01T00:00:00.000Z",
     });
     const line = serializePaperE2EEvent(event);
-    expect(line).not.toContain("secret");
-    expect(JSON.parse(line)).toMatchObject({
-      schemaVersion: "annus-mirabilis.e2e-event.v1",
-      durationMs: 0,
-      viewport: "phone",
-    });
+    assert.ok(!line.includes("secret"));
+    const parsed = JSON.parse(line);
+    assert.equal(parsed.schemaVersion, "annus-mirabilis.e2e-event.v1");
+    assert.equal(parsed.durationMs, 0);
+    assert.equal(parsed.viewport, "phone");
   });
 
-  test("summarizes failures deterministically and produces a nonzero exit code", () => {
+  it("summarizes failures deterministically and produces a nonzero exit code", () => {
     const pass = createPaperE2EEvent({
       logRunId: "log-run-1",
       sequence: 1,
@@ -137,37 +138,35 @@ describe("structured E2E diagnostics", () => {
       artifactDirectory: "artifacts/log-run-1",
       events: [pass, fail],
     });
-    expect(summary).toMatchObject({ eventCount: 2, passedActions: 1, failedActions: 1 });
-    expect(summary.failedSlices).toEqual(["light-quanta"]);
-    expect(summary.actionGroups).toEqual([
-      expect.objectContaining({
-        sliceId: "brownian-motion",
-        viewport: "desktop",
-        face: "route",
-        action: "http-200",
-        passedActions: 1,
-        failedActions: 0,
-      }),
-      expect.objectContaining({
-        sliceId: "light-quanta",
-        viewport: "phone",
-        face: "source",
-        action: "publication-state",
-        passedActions: 0,
-        failedActions: 1,
-      }),
-    ]);
-    expect(paperE2EExitCode(summary)).toBe(1);
+    assert.equal(summary.eventCount, 2);
+    assert.equal(summary.passedActions, 1);
+    assert.equal(summary.failedActions, 1);
+    assert.deepEqual(summary.failedSlices, ["light-quanta"]);
+    assert.equal(summary.actionGroups.length, 2);
+    assert.equal(summary.actionGroups[0]?.sliceId, "brownian-motion");
+    assert.equal(summary.actionGroups[0]?.viewport, "desktop");
+    assert.equal(summary.actionGroups[0]?.face, "route");
+    assert.equal(summary.actionGroups[0]?.action, "http-200");
+    assert.equal(summary.actionGroups[0]?.passedActions, 1);
+    assert.equal(summary.actionGroups[0]?.failedActions, 0);
+    assert.equal(summary.actionGroups[1]?.sliceId, "light-quanta");
+    assert.equal(summary.actionGroups[1]?.viewport, "phone");
+    assert.equal(summary.actionGroups[1]?.face, "source");
+    assert.equal(summary.actionGroups[1]?.action, "publication-state");
+    assert.equal(summary.actionGroups[1]?.passedActions, 0);
+    assert.equal(summary.actionGroups[1]?.failedActions, 1);
+    assert.equal(paperE2EExitCode(summary), 1);
   });
 
-  test("creates stable, filesystem-safe failure names", () => {
-    expect(safeArtifactSegment("Face 1 / source:state")).toBe("face-1-source-state");
-    expect(stableFailureStem("brownian-motion", "phone", "Instrument Face", "Run BM-01")).toBe(
+  it("creates stable, filesystem-safe failure names", () => {
+    assert.equal(safeArtifactSegment("Face 1 / source:state"), "face-1-source-state");
+    assert.equal(
+      stableFailureStem("brownian-motion", "phone", "Instrument Face", "Run BM-01"),
       "brownian-motion__phone__instrument-face__run-bm-01",
     );
   });
 
-  test("capture events do not double-count a failure or hide an uncaught scenario failure", () => {
+  it("capture events do not double-count a failure or hide an uncaught scenario failure", () => {
     const event = createPaperE2EEvent({
       logRunId: "log-run-1",
       sequence: 1,
@@ -197,17 +196,20 @@ describe("structured E2E diagnostics", () => {
         events,
       });
     const paired = summarize([event, createPaperE2EEvent(evidence)]);
-    expect(paired).toMatchObject({ eventCount: 2, failedActions: 1, failureEvidenceEvents: 1 });
-    expect(
+    assert.equal(paired.eventCount, 2);
+    assert.equal(paired.failedActions, 1);
+    assert.equal(paired.failureEvidenceEvents, 1);
+    assert.deepEqual(
       paired.actionGroups.find((group) => group.action === "failure-evidence")?.artifactPaths,
-    ).toEqual(["failure.png"]);
-    expect(paperE2EExitCode(paired)).toBe(1);
+      ["failure.png"],
+    );
+    assert.equal(paperE2EExitCode(paired), 1);
     const unpaired = summarize([createPaperE2EEvent(evidence)]);
-    expect(unpaired.failedActions).toBe(1);
-    expect(paperE2EExitCode(unpaired)).toBe(1);
+    assert.equal(unpaired.failedActions, 1);
+    assert.equal(paperE2EExitCode(unpaired), 1);
   });
 
-  test("validates deterministic event order and rejects missing or repeated sequence numbers", () => {
+  it("validates deterministic event order and rejects missing or repeated sequence numbers", () => {
     const first = createPaperE2EEvent({
       logRunId: "log-run-1",
       sequence: 1,
@@ -230,24 +232,26 @@ describe("structured E2E diagnostics", () => {
       status: "pass",
       durationMs: 1,
     });
-    expect(validatePaperE2EEventOrder([first, second])).toEqual([]);
-    expect(validatePaperE2EEventOrder([second, first])).toEqual([
+    assert.deepEqual(validatePaperE2EEventOrder([first, second]), []);
+    assert.deepEqual(validatePaperE2EEventOrder([second, first]), [
       "event index 0 has sequence 2; expected 1",
       "event index 1 has sequence 1; expected 2",
     ]);
-    expect(() => serializePaperE2EEvent({ ...first, sequence: 0 })).toThrow(
-      "sequence must be a positive integer",
+    assert.throws(
+      () => serializePaperE2EEvent({ ...first, sequence: 0 }),
+      /sequence must be a positive integer/,
     );
   });
 
-  test("allows only documented cancellation noise and rejects actionable browser failures", () => {
-    expect(classifyPaperE2EDiagnostic("[http 404] /favicon.ico")).toMatchObject({ allowed: true });
-    expect(
+  it("allows only documented cancellation noise and rejects actionable browser failures", () => {
+    assert.equal(classifyPaperE2EDiagnostic("[http 404] /favicon.ico").allowed, true);
+    assert.equal(
       classifyPaperE2EDiagnostic(
         "[requestfailed] GET http://localhost/_next/static/chunk.js net::ERR_ABORTED",
-      ),
-    ).toMatchObject({ allowed: true });
-    expect(classifyPaperE2EDiagnostic("[http 500] /papers/brownian-motion").allowed).toBe(false);
+      ).allowed,
+      true,
+    );
+    assert.equal(classifyPaperE2EDiagnostic("[http 500] /papers/brownian-motion").allowed, false);
   });
 });
 
@@ -318,46 +322,46 @@ describe("vertical-slice journey contract", () => {
     retainedEvidenceOnFailure: [...PAPER_E2E_EVIDENCE_KINDS],
   };
 
-  test("accepts a well-formed fixture journey", () => {
-    expect(validatePaperE2EJourney(wellFormedJourney)).toEqual([]);
+  it("accepts a well-formed fixture journey", () => {
+    assert.deepEqual(validatePaperE2EJourney(wellFormedJourney), []);
   });
 
-  test("rejects a journey with a missing canonical step", () => {
+  it("rejects a journey with a missing canonical step", () => {
     const missingStep = { ...wellFormedJourney, steps: wellFormedJourney.steps.slice(0, 6) };
     const errors = validatePaperE2EJourney(missingStep);
-    expect(errors.length).toBeGreaterThan(0);
-    expect(errors[0]).toContain("exactly the 7 canonical steps in order");
+    assert.ok(errors.length > 0);
+    assert.ok(errors[0]?.includes("exactly the 7 canonical steps in order"));
   });
 
-  test("rejects a journey with steps out of order", () => {
+  it("rejects a journey with steps out of order", () => {
     const reordered = { ...wellFormedJourney, steps: [...wellFormedJourney.steps].reverse() };
     const errors = validatePaperE2EJourney(reordered);
-    expect(errors[0]).toContain("exactly the 7 canonical steps in order");
+    assert.ok(errors[0]?.includes("exactly the 7 canonical steps in order"));
   });
 
-  test("rejects a journey step missing a readiness condition (never a sleep-based wait)", () => {
+  it("rejects a journey step missing a readiness condition (never a sleep-based wait)", () => {
     const steps = wellFormedJourney.steps.map((step, index) =>
       index === 2 ? { ...step, readiness: { description: "", selector: "" } } : step,
     );
     const errors = validatePaperE2EJourney({ ...wellFormedJourney, steps });
-    expect(errors.some((message) => message.includes('step "open-foundation"'))).toBe(true);
-    expect(errors.some((message) => message.includes("readiness description"))).toBe(true);
+    assert.ok(errors.some((message) => message.includes('step "open-foundation"')));
+    assert.ok(errors.some((message) => message.includes("readiness description")));
   });
 
-  test("rejects a journey that does not retain every failure-evidence kind", () => {
+  it("rejects a journey that does not retain every failure-evidence kind", () => {
     const errors = validatePaperE2EJourney({
       ...wellFormedJourney,
       retainedEvidenceOnFailure: ["screenshot", "console"],
     });
-    expect(
+    assert.ok(
       errors.some((message) =>
         message.includes("does not retain failure evidence for: trace, dom"),
       ),
-    ).toBe(true);
+    );
   });
 
-  test("rejects a journey with no route", () => {
+  it("rejects a journey with no route", () => {
     const errors = validatePaperE2EJourney({ ...wellFormedJourney, route: "" });
-    expect(errors.some((message) => message.includes("has no route"))).toBe(true);
+    assert.ok(errors.some((message) => message.includes("has no route")));
   });
 });

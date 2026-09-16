@@ -44,7 +44,7 @@
  *   assumption.
  */
 
-import { newLogRunId } from "../runIds";
+import { newLogRunId } from "../runIds.ts";
 
 export const PAPER_E2E_LOG_SCHEMA = "annus-mirabilis.e2e-event.v1" as const;
 export const PAPER_E2E_SUMMARY_SCHEMA = "annus-mirabilis.e2e-summary.v1" as const;
