@@ -35,7 +35,8 @@ export default function Home() {
             shows how different step laws approach diffusion; the spreading laboratory explores
             interval probabilities and the diffusion equation. The inference laboratory turns the
             question around: estimate a hidden molecular number, identify the missing inputs, and
-            test uncertainty across hypothetical repetitions.
+            test uncertainty across hypothetical repetitions. The camera laboratory then separates
+            physical wandering from exposure blur, localization error, and stage drift.
           </p>
           <p>
             The reading path connects these instruments to six explanatory passages and thirteen
@@ -55,6 +56,9 @@ export default function Home() {
           </p>
           <p>
             <a href="/lab/bm-07/">Infer a hidden molecular number—and test the uncertainty →</a>
+          </p>
+          <p>
+            <a href="/lab/bm-08/">Keep the particle; change the camera and the inference →</a>
           </p>
           <p>
             <a href="/lab/bm-06/">Open the spreading laboratory →</a>
