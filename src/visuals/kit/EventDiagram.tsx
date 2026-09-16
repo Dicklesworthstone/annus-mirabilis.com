@@ -27,6 +27,7 @@ export interface EventDiagramProps {
   readonly lightconeOrigin?: readonly [number, number];
   readonly width?: number;
   readonly height?: number;
+  readonly attributionLabel?: string | undefined;
 }
 
 /**
@@ -41,6 +42,7 @@ export function EventDiagram({
   lightconeOrigin = [0, 0],
   width = 500,
   height = 500,
+  attributionLabel = "H. Minkowski (1908)",
 }: EventDiagramProps): ReactElement {
   const [ox, oct] = lightconeOrigin;
   const pox = xProjector(ox);
@@ -65,6 +67,8 @@ export function EventDiagram({
       width={width}
       height={height}
       className="event-diagram"
+      data-minkowski-convention="1908"
+      data-historical-attribution={attributionLabel || undefined}
       role="img"
       aria-label="Spacetime event diagram showing worldlines, lightcones, and discrete events."
     >
@@ -163,6 +167,22 @@ export function EventDiagram({
           </g>
         );
       })}
+
+      {/* Historical Attribution Label */}
+      {attributionLabel && (
+        <text
+          x={width - 8}
+          y={height - 8}
+          textAnchor="end"
+          fontSize={10}
+          fill="currentColor"
+          opacity={0.6}
+          data-testid="minkowski-label"
+          className="font-serif italic select-none"
+        >
+          {attributionLabel}
+        </text>
+      )}
     </svg>
   );
 }
