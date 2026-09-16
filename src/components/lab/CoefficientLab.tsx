@@ -4,13 +4,24 @@ import {
   ME02_CAPTION,
   ME02_MODEL,
   ME02_NOT_MODELED,
+  ME02_PREDICT_PROMPT,
   type Me02Parameters,
 } from "../../experiments/me02/definition.ts";
 import { validateMe02Parameters } from "../../experiments/me02/parameters.ts";
 import { createMe02Session, type PreparedMe02Example } from "../../experiments/me02/session.ts";
+import {
+  amendAfterReveal,
+  beginPrompt,
+  keepToSelf,
+  type PredictPromptRecord,
+  reveal,
+  skipPrediction,
+  submitPrediction,
+} from "../../experiments/predict/predictState.ts";
 import { parseResult } from "../../experiments/results/codec.ts";
 import type { ScientificResult } from "../../experiments/results/types.ts";
 import type { AcceptedSnapshot, PublishedResult } from "../../experiments/store/instanceStore.ts";
+import { PredictPanel } from "./PredictPanel.tsx";
 import { display, identity, result } from "./presentation.ts";
 
 type Output = ScientificResult | PublishedResult;
@@ -154,6 +165,9 @@ export function CoefficientLab({
   const [draft, setDraft] = useState(() => ({ ...example.parameters }));
   const [ready, setReady] = useState(false);
   const [error, setError] = useState("");
+  const [predictRecord, setPredictRecord] = useState<PredictPromptRecord>(() =>
+    beginPrompt(ME02_PREDICT_PROMPT.promptId),
+  );
   useEffect(() => {
     setReady(true);
   }, []);
@@ -165,6 +179,16 @@ export function CoefficientLab({
     }
     setDraft(parameters);
     setError("");
+    setPredictRecord((current) => {
+      if (
+        current.state === "predicted" ||
+        current.state === "predicted-unrecorded" ||
+        current.state === "skipped"
+      ) {
+        return reveal(current);
+      }
+      return current;
+    });
   }
   function submit(event: FormEvent<HTMLFormElement>) {
     event.preventDefault();
@@ -309,101 +333,119 @@ export function CoefficientLab({
           </fieldset>
         </form>
         <div className="lab-results">
-          <h3>Accepted snapshot</h3>
-          <table>
-            <caption>
-              Outputs from the host calculation. Presentation does not recompute them.
-            </caption>
-            <tbody>
-              <tr>
-                <th scope="row">Exact difference L(γ−1)</th>
-                <td>
-                  <SnapshotReading snapshot={snapshot} quantityId="kineticEnergyDifference" />
-                </td>
-              </tr>
-              <tr>
-                <th scope="row">Quadratic estimate</th>
-                <td>
-                  <SnapshotReading snapshot={snapshot} quantityId="quadraticKineticDifference" />
-                </td>
-              </tr>
-              <tr>
-                <th scope="row">Finite-speed proxy</th>
-                <td>
-                  <SnapshotReading snapshot={snapshot} quantityId="finiteSpeedMassProxy" />
-                </td>
-              </tr>
-              <tr>
-                <th scope="row">Limiting coefficient L/c²</th>
-                <td>
-                  <SnapshotReading snapshot={snapshot} quantityId="inertialMassDecrease" />
-                </td>
-              </tr>
-              <tr>
-                <th scope="row">Signed mass change</th>
-                <td>
-                  <SnapshotReading snapshot={snapshot} quantityId="massChangeSigned" />
-                </td>
-              </tr>
-              {p.showNaive ? (
+          <PredictPanel
+            prompt={ME02_PREDICT_PROMPT}
+            record={predictRecord}
+            onRecord={(choice) => setPredictRecord((current) => submitPrediction(current, choice))}
+            onSkip={() => setPredictRecord((current) => skipPrediction(current))}
+            onKeepToSelf={() => setPredictRecord((current) => keepToSelf(current))}
+            onAmend={(choice) => setPredictRecord((current) => amendAfterReveal(current, choice))}
+          />
+          <div
+            data-response=""
+            hidden={
+              ready &&
+              (predictRecord.state === "hidden" ||
+                predictRecord.state === "predicted" ||
+                predictRecord.state === "predicted-unrecorded")
+            }
+          >
+            <h3>Accepted snapshot</h3>
+            <table>
+              <caption>
+                Outputs from the host calculation. Presentation does not recompute them.
+              </caption>
+              <tbody>
                 <tr>
-                  <th scope="row">Naive γ−1 (diagnostic)</th>
+                  <th scope="row">Exact difference L(γ−1)</th>
                   <td>
-                    <SnapshotReading snapshot={snapshot} quantityId="naiveGammaMinusOne" />
+                    <SnapshotReading snapshot={snapshot} quantityId="kineticEnergyDifference" />
                   </td>
                 </tr>
-              ) : null}
-            </tbody>
-          </table>
-          <CoefficientBars snapshot={snapshot} clipId={id} />
-          <h3>Named-speed comparison (worked example)</h3>
-          <p>
-            At 0.6c versus 0.01c, with L = 1 in normalized units. These two columns were calculated
-            at build time.
-          </p>
-          <table>
-            <thead>
-              <tr>
-                <th scope="col">Quantity</th>
-                <th scope="col">0.6c</th>
-                <th scope="col">0.01c</th>
-              </tr>
-            </thead>
-            <tbody>
-              <tr>
-                <th scope="row">Exact difference</th>
-                <td>
-                  <OutputReading item={find(at06, "kineticEnergyDifference")} />
-                </td>
-                <td>
-                  <OutputReading item={find(at001, "kineticEnergyDifference")} />
-                </td>
-              </tr>
-              <tr>
-                <th scope="row">Quadratic estimate</th>
-                <td>
-                  <OutputReading item={find(at06, "quadraticKineticDifference")} />
-                </td>
-                <td>
-                  <OutputReading item={find(at001, "quadraticKineticDifference")} />
-                </td>
-              </tr>
-              <tr>
-                <th scope="row">Finite-speed proxy</th>
-                <td>
-                  <OutputReading item={find(at06, "finiteSpeedMassProxy")} />
-                </td>
-                <td>
-                  <OutputReading item={find(at001, "finiteSpeedMassProxy")} />
-                </td>
-              </tr>
-            </tbody>
-          </table>
-          <p>
-            Printed mass change {display(printed.printedGrams)} g ({printed.printedConstantSetId})
-            for L = {display(printed.emittedEnergyErg)} erg. Modern mass change{" "}
-            {display(printed.modernGrams)} g ({printed.modernConstantSetId}). {printed.wording}.
-          </p>
+                <tr>
+                  <th scope="row">Quadratic estimate</th>
+                  <td>
+                    <SnapshotReading snapshot={snapshot} quantityId="quadraticKineticDifference" />
+                  </td>
+                </tr>
+                <tr>
+                  <th scope="row">Finite-speed proxy</th>
+                  <td>
+                    <SnapshotReading snapshot={snapshot} quantityId="finiteSpeedMassProxy" />
+                  </td>
+                </tr>
+                <tr>
+                  <th scope="row">Limiting coefficient L/c²</th>
+                  <td>
+                    <SnapshotReading snapshot={snapshot} quantityId="inertialMassDecrease" />
+                  </td>
+                </tr>
+                <tr>
+                  <th scope="row">Signed mass change</th>
+                  <td>
+                    <SnapshotReading snapshot={snapshot} quantityId="massChangeSigned" />
+                  </td>
+                </tr>
+                {p.showNaive ? (
+                  <tr>
+                    <th scope="row">Naive γ−1 (diagnostic)</th>
+                    <td>
+                      <SnapshotReading snapshot={snapshot} quantityId="naiveGammaMinusOne" />
+                    </td>
+                  </tr>
+                ) : null}
+              </tbody>
+            </table>
+            <CoefficientBars snapshot={snapshot} clipId={id} />
+            <h3>Named-speed comparison (worked example)</h3>
+            <p>
+              At 0.6c versus 0.01c, with L = 1 in normalized units. These two columns were
+              calculated at build time.
+            </p>
+            <table>
+              <thead>
+                <tr>
+                  <th scope="col">Quantity</th>
+                  <th scope="col">0.6c</th>
+                  <th scope="col">0.01c</th>
+                </tr>
+              </thead>
+              <tbody>
+                <tr>
+                  <th scope="row">Exact difference</th>
+                  <td>
+                    <OutputReading item={find(at06, "kineticEnergyDifference")} />
+                  </td>
+                  <td>
+                    <OutputReading item={find(at001, "kineticEnergyDifference")} />
+                  </td>
+                </tr>
+                <tr>
+                  <th scope="row">Quadratic estimate</th>
+                  <td>
+                    <OutputReading item={find(at06, "quadraticKineticDifference")} />
+                  </td>
+                  <td>
+                    <OutputReading item={find(at001, "quadraticKineticDifference")} />
+                  </td>
+                </tr>
+                <tr>
+                  <th scope="row">Finite-speed proxy</th>
+                  <td>
+                    <OutputReading item={find(at06, "finiteSpeedMassProxy")} />
+                  </td>
+                  <td>
+                    <OutputReading item={find(at001, "finiteSpeedMassProxy")} />
+                  </td>
+                </tr>
+              </tbody>
+            </table>
+            <p>
+              Printed mass change {display(printed.printedGrams)} g ({printed.printedConstantSetId})
+              for L = {display(printed.emittedEnergyErg)} erg. Modern mass change{" "}
+              {display(printed.modernGrams)} g ({printed.modernConstantSetId}). {printed.wording}.
+            </p>
+          </div>
         </div>
       </div>
       <p className="fine">Not modeled: {ME02_NOT_MODELED.join("; ")}.</p>

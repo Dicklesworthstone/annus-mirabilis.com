@@ -38,6 +38,36 @@ export const ME02_NOT_MODELED = Object.freeze([
   "uncertainty in the printed factor's rounding (shown as a labeled comparison, not modeled)",
 ]);
 
+export const ME02_PREDICT_PROMPT = Object.freeze({
+  promptId: "me-02-predict-exact-versus-quadratic",
+  controlId: "output-view",
+  supportedCandidateId: "larger",
+  question:
+    "At 0.6c, is the exact energy difference larger or smaller than the quadratic estimate?",
+  candidates: Object.freeze([
+    Object.freeze({
+      id: "larger",
+      label: "Larger",
+      description: "The exact difference lies above the quadratic estimate.",
+      separatingAssumption:
+        "The fourth-order term in the expansion of gamma is positive, so the exact curve sits above the quadratic.",
+    }),
+    Object.freeze({
+      id: "smaller",
+      label: "Smaller",
+      description: "The exact difference lies below the quadratic estimate.",
+      separatingAssumption:
+        "The quadratic is treated as an upper bound rather than a truncation of a series with a positive next term.",
+    }),
+    Object.freeze({
+      id: "equal",
+      label: "Equal",
+      description: "The two curves coincide at 0.6c.",
+      separatingAssumption: "The low-speed proxy is treated as exact at every speed.",
+    }),
+  ]),
+});
+
 const c = (
   unit: string,
   semanticKind: string,

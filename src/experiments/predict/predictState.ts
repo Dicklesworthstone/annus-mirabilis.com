@@ -27,11 +27,18 @@ export type PredictPromptStateName =
  */
 export type PredictionChoice = PredictionPayload;
 
+export type AfterTheFactAmendment = Readonly<{
+  choice: PredictionChoice;
+  recordedAfterReveal: true;
+}>;
+
 export interface PredictPromptRecord {
   readonly promptId: string;
   readonly state: PredictPromptStateName;
   /** Set only when `state` is `predicted`, `predicted-unrecorded` (form-less), or after reveal/clear of one of those. */
   readonly choice: PredictionChoice | null;
+  /** A later guess. Never replaces `choice` once the result has been shown. */
+  readonly amendment: AfterTheFactAmendment | null;
 }
 
 export class PredictStateError extends Error {
@@ -47,7 +54,7 @@ export class PredictStateError extends Error {
 
 /** A prompt has no record at all until its control is first engaged; this is that first record. */
 export function beginPrompt(promptId: string): PredictPromptRecord {
-  return { promptId, state: "hidden", choice: null };
+  return { promptId, state: "hidden", choice: null, amendment: null };
 }
 
 function requireHidden(record: PredictPromptRecord, action: string): void {
@@ -66,7 +73,7 @@ export function submitPrediction(
   choice: PredictionChoice,
 ): PredictPromptRecord {
   requireHidden(record, "submit a prediction for");
-  return { ...record, state: "predicted", choice };
+  return { ...record, state: "predicted", choice, amendment: null };
 }
 
 /** "I have one in mind": commits to a prediction without stating it. Records no choice at all. */
@@ -99,7 +106,37 @@ export function reveal(record: PredictPromptRecord): PredictPromptRecord {
       record.state,
     );
   }
-  return { ...record, state: "revealed" };
+  return { ...record, state: "revealed", amendment: record.amendment };
+}
+
+/**
+ * Record a later guess after the result is already shown. The original
+ * `choice` is left untouched. The amendment is marked `recordedAfterReveal`
+ * so a reader can see it was not the commitment. Calling `submitPrediction`
+ * after reveal still throws: that path is the silent revision this forbids.
+ */
+export function amendAfterReveal(
+  record: PredictPromptRecord,
+  choice: PredictionChoice,
+): PredictPromptRecord {
+  if (record.state !== "revealed") {
+    throw new PredictStateError(
+      `cannot amend prompt "${record.promptId}" from state "${record.state}"; it must be "revealed"`,
+      record.promptId,
+      record.state,
+    );
+  }
+  if (record.choice === null) {
+    throw new PredictStateError(
+      `cannot amend prompt "${record.promptId}": nothing was recorded before the reveal`,
+      record.promptId,
+      record.state,
+    );
+  }
+  return {
+    ...record,
+    amendment: Object.freeze({ choice, recordedAfterReveal: true as const }),
+  };
 }
 
 /** The reader explicitly clears both the prediction and the result from view. */
@@ -111,7 +148,7 @@ export function clearPrompt(record: PredictPromptRecord): PredictPromptRecord {
       record.state,
     );
   }
-  return { ...record, state: "cleared", choice: null };
+  return { ...record, state: "cleared", choice: null, amendment: null };
 }
 
 /** Re-predicting after a clear starts the prompt over, exactly like its first engagement. */

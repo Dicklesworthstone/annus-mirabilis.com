@@ -1,6 +1,7 @@
 import assert from "node:assert/strict";
 import test from "node:test";
 import {
+  amendAfterReveal,
   beginPrompt,
   clearPrompt,
   emptyRegistry,
@@ -14,6 +15,22 @@ import {
   submitPrediction,
   withPrompt,
 } from "./predictState.ts";
+
+test("a recorded prediction cannot be silently revised after reveal; an amendment is marked after-the-fact", () => {
+  const original = { form: "candidate" as const, candidateId: "larger" };
+  const recorded = submitPrediction(beginPrompt("me-02-predict-exact-versus-quadratic"), original);
+  const shown = reveal(recorded);
+  assert.throws(
+    () => submitPrediction(shown, { form: "candidate", candidateId: "equal" }),
+    PredictStateError,
+  );
+  assert.deepEqual(shown.choice, original);
+  assert.equal(shown.amendment, null);
+  const amended = amendAfterReveal(shown, { form: "candidate", candidateId: "equal" });
+  assert.deepEqual(amended.choice, original);
+  assert.equal(amended.amendment?.recordedAfterReveal, true);
+  assert.deepEqual(amended.amendment?.choice, { form: "candidate", candidateId: "equal" });
+});
 
 test("a prompt begins hidden", () => {
   const record = beginPrompt("bm-05-predict-step-shape");
