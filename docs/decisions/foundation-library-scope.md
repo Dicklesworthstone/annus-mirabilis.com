@@ -1,6 +1,9 @@
-# Foundation library infrastructure: what this pass built and why
+# Foundation library infrastructure: existing state and scope boundaries
 
-Scope record for `am-found-library-infra-002t`, written 2026-09-16.
+Scope record for `am-found-library-infra-002t`, written 2026-09-16. Records
+what already existed before this bead touched anything, and what this pass
+deliberately left for a later change and why — not a progress log (see the
+commit history and bead comments for that).
 
 ## What already existed, verified by reading the code
 
@@ -39,63 +42,41 @@ Scope record for `am-found-library-infra-002t`, written 2026-09-16.
   (`am-read-return-stack-oxa`) do not exist anywhere in the tree. Confirmed
   by grep, not assumed.
 
-## The canonical 46-id table
+## The canonical 46-id table lives in code, not here
 
-Transcribed directly from `am-ep-foundations-z1e`'s "Canonical id table and
-partition" section (36 nodes + 10 bridges, one owner each) into
-`content/foundations/registry.yaml`. Not invented: every id, kind, and
-owner in the registry is copied from that table.
+`src/content/foundations/canonicalIds.ts` is the frozen, exported table
+(id, kind, ownerBead for all 46 entries), transcribed verbatim from
+`am-ep-foundations-z1e`'s "Canonical id table and partition" section. It is
+not restated in this document, so this document cannot drift from it.
+`src/content/foundations/canonicalIds.test.ts` asserts the table's own
+counts (36 nodes, 10 bridges, 46 total) and, separately, that
+`content/foundations/registry.yaml` has no id absent from the table, no id
+missing from the registry, and that every registry entry's `kind` and
+`ownerBead` agree with the canonical table — so an editing mistake in
+either file is a failing test, not a silent drift.
 
-`status` (`authored`/`planned`) was set by reading every file under
+`content/foundations/registry.yaml` additionally carries `cluster`,
+`status` (`authored`/`planned`), and `plannedCallers`, none of which are
+part of the epic's table. `status` was set by reading every file under
 `content/foundations/*.json` and comparing each file's own `id` field
-(never its filename) against the canonical slug:
+(never its filename) against the canonical slug: 17 ids match an existing
+file and are `authored`; the remaining 29 are `planned`.
 
-- 17 ids match an existing file exactly and are marked `authored`.
-- **`foundation:error-inference` is marked `planned`, not `authored`,
-  despite `content/foundations/error-and-inference.json` existing.** That
-  file's own `id` field is `"error-and-inference"`, not `"error-inference"`
-  — a real, observed mismatch (`registry.test.ts`'s
-  `checkRecordsAgainstRegistry` suite asserts this directly against the
-  real content directory). Not silently renamed: the file is owned by the
-  statistics-inference cluster bead
-  (`am-found-statistics-inference-pzqv`), and this bead does not edit
-  another bead's content. Flagged here and in a `br comments add` on that
-  bead instead.
-- The remaining 28 ids are `planned` because no matching file exists.
-- `plannedCallers` is left empty for all 46 entries. No real data exists
-  yet about which future paper sections will call which foundation;
-  inventing anchor ids would be exactly the kind of fabrication the
-  orchestrator's incident notices this session were about. Owning beads
-  add their own entries as they author.
+**`foundation:error-inference` is marked `planned`, not `authored`,
+despite `content/foundations/error-and-inference.json` existing.** That
+file's own `id` field is `"error-and-inference"`, not `"error-inference"`
+— a real, observed mismatch, asserted directly against the real content
+directory by `registry.test.ts`'s `checkRecordsAgainstRegistry` suite. Not
+silently renamed: the file is owned by the statistics-inference cluster
+bead (`am-found-statistics-inference-pzqv`), and this bead does not edit
+another bead's content. Flagged here and in a `br comments add` on that
+bead instead.
 
-## What this pass built
-
-- `content/foundations/registry.yaml` — the 46-id registry described above.
-- `src/content/foundations/registry.ts` — `parseRegistry` (structural
-  validation: malformed id, duplicate id, invalid kind/status, missing
-  owner) and `checkRecordsAgainstRegistry` (cross-checks the registry
-  against real files by each file's own `id` field, reporting
-  `authored-without-record` and `unregistered-record`).
-- `src/content/foundations/registry.test.ts` — 17 tests: every fixture
-  violation named in the bead's test plan (duplicate id, two owners,
-  malformed id, invalid kind, invalid status, missing owner), the real
-  registry's counts (36 nodes / 10 bridges / 46 total, matching the
-  canonical table above), `foundation:two-measurements-two-unknowns`
-  resolving to `am-found-statistics-inference-pzqv` with kind `node`, and
-  the real `error-and-inference.json` mismatch.
-- `src/reader/WorkedExample.tsx` — a pure, presentational component
-  rendering the five parts in order from the real `WorkedExample` type in
-  `argument.ts`, with the decisive step as a native `<details>` open by
-  default at `detail === 2` and closed otherwise. No storage read or write,
-  no analytics, no `onToggle` handler: opening it is the browser's own
-  behavior and is not observable to this component.
-- `src/reader/WorkedExample.test.tsx` — 7 tests: part order, literal text
-  of every part present, `<details>` open/closed at each Detail level,
-  no `<script>` tags (works without JavaScript), and that the component is
-  a pure function of its props.
-- `js-yaml@4.1.0` and `@types/js-yaml@4.0.9` added as exact-pinned
-  dependencies (`js-yaml` is already in `docs/DECISIONS.md`'s locked
-  inventory at this exact version; needed to parse the registry).
+`plannedCallers` is left empty for all 46 entries. No real data exists yet
+about which future paper sections will call which foundation; inventing
+anchor ids would be exactly the kind of fabrication the orchestrator's
+incident notices this session were about. Owning beads add their own
+entries as they author.
 
 ## What this pass deliberately did not build, and why
 
@@ -128,8 +109,6 @@ owner in the registry is copied from that table.
 
 ## Consequence
 
-No acceptance criterion of this bead is fully met. What is real: the
-registry (with an honestly-marked exception), its validator and 17 tests,
-and a tested, reusable five-part worked-example renderer, ready for
-whichever future change wires it into a live route once the compiler
-pipeline and return-stack land.
+No acceptance criterion of this bead is fully met while the items above
+stay unbuilt: they gate the drawer wiring, the backlinks, and the
+end-to-end checks respectively.

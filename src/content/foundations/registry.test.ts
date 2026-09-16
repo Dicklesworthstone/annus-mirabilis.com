@@ -1,20 +1,21 @@
 import { describe, expect, test } from "bun:test";
 import {
+  CANONICAL_BRIDGE_COUNT,
+  CANONICAL_NODE_COUNT,
+  CANONICAL_TOTAL_COUNT,
+} from "./canonicalIds";
+import {
   checkRecordsAgainstRegistry,
   loadRegistry,
   parseRegistry,
   RegistryError,
 } from "./registry";
 
-/**
- * The canonical id table and partition check from am-ep-foundations-z1e
- * ("Canonical id table and partition"): 36 nodes, 10 bridges, 46 ids total,
- * transcribed here as a fixture so a change to the real registry is checked
- * against a value that does not live inside the code under test.
- */
-const CANONICAL_NODE_COUNT = 36;
-const CANONICAL_BRIDGE_COUNT = 10;
-const CANONICAL_TOTAL_COUNT = 46;
+// Canonical counts (36 nodes, 10 bridges, 46 total) come from
+// ./canonicalIds.ts, the frozen table transcribed from
+// am-ep-foundations-z1e; canonicalIds.test.ts owns verifying that table
+// against the epic and against this registry in detail (per-id kind and
+// ownerBead agreement). These tests only check the aggregate counts.
 
 function validEntry(overrides: Partial<Record<string, unknown>> = {}) {
   return {
