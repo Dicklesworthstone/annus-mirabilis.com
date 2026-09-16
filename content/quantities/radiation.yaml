@@ -1,0 +1,495 @@
+# Radiation and light quanta (paper 1: light-quanta). am-not-quantity-registry-2f7.
+# Dimension order: [length, mass, time, temperature, current, amount].
+# systemEnergy (shared with paper 2 section 2) lives in constants.yaml, not here.
+
+- id: frequency
+  name: Frequency
+  description: A cyclic frequency (nu), counted in cycles per second.
+  dimensionStatus: declared
+  dimension: [0, 0, -1, 0, 0, 0]
+  mathematicalKind: scalar
+  frame: not-applicable
+  frequencyKind: cyclic
+  colorRole: time-rate
+
+- id: angularFrequency
+  name: Angular frequency
+  description: >
+    An angular frequency (omega), radians per second. Shares frequency's T^-1 dimension
+    exactly, so a missing 2*pi is invisible to dimensional analysis; frequencyKind is the
+    guard that keeps the two distinct.
+  dimensionStatus: declared
+  dimension: [0, 0, -1, 0, 0, 0]
+  mathematicalKind: scalar
+  frame: not-applicable
+  frequencyKind: angular
+  colorRole: time-rate
+
+- id: wavelength
+  name: Wavelength
+  description: The spatial period of a wave.
+  dimensionStatus: declared
+  dimension: [1, 0, 0, 0, 0, 0]
+  mathematicalKind: scalar
+  frame: not-applicable
+  colorRole: space-geometry
+
+- id: frequencyEnergyDensity
+  name: Frequency-basis spectral energy density
+  description: >
+    Radiation energy per unit volume per unit frequency interval (rho_nu). Carries the
+    log-space representation field logFrequencyEnergyDensity (ln(rho_nu), used by LQ-03's
+    stability test), which is a plotting representation of this same quantity, never a
+    separate one and never a legacy spelling.
+  dimensionStatus: declared
+  dimension: [-1, 1, -1, 0, 0, 0]
+  mathematicalKind: scalar
+  frame: not-applicable
+  densityKind: density
+  densityPer: [volume, frequency-interval]
+  spectralBasis: per-frequency
+  representationFields: [logFrequencyEnergyDensity]
+  colorRole: energy
+
+- id: wavelengthEnergyDensity
+  name: Wavelength-basis spectral energy density
+  description: Radiation energy per unit volume per unit wavelength interval (u_lambda).
+  dimensionStatus: declared
+  dimension: [-2, 1, -2, 0, 0, 0]
+  mathematicalKind: scalar
+  frame: not-applicable
+  densityKind: density
+  densityPer: [volume, wavelength-interval]
+  spectralBasis: per-wavelength
+  colorRole: energy
+
+- id: logIntervalEnergyDensity
+  name: Log-interval spectral energy density
+  description: >
+    The energy per unit volume per unit logarithmic interval (nu*u_nu), identically equal to
+    lambda*u_lambda since the two bases describe the same physical quantity. Has no legacy
+    spelling: logFrequencyEnergyDensity is a different thing entirely, a representation field
+    (ln u_nu) declared on frequencyEnergyDensity, not a spelling of this density.
+  dimensionStatus: declared
+  dimension: [-1, 1, -2, 0, 0, 0]
+  mathematicalKind: scalar
+  frame: not-applicable
+  densityKind: density
+  densityPer: [volume, log-interval]
+  spectralBasis: per-log-interval
+  colorRole: energy
+
+- id: bandEnergy
+  name: Band-integrated radiation energy
+  description: The total radiation energy integrated over a finite frequency or wavelength band.
+  dimensionStatus: declared
+  dimension: [2, 1, -2, 0, 0, 0]
+  mathematicalKind: scalar
+  frame: not-applicable
+  densityKind: total
+  spectralBasis: none
+  colorRole: energy
+
+- id: spectralEntropyDensity
+  name: Spectral entropy density
+  description: Radiation entropy per unit volume per unit frequency interval.
+  dimensionStatus: declared
+  dimension: [-1, 1, -1, -1, 0, 0]
+  mathematicalKind: scalar
+  frame: not-applicable
+  densityKind: density
+  densityPer: [volume, frequency-interval]
+  spectralBasis: per-frequency
+  colorRole: statistical
+
+- id: radiationEnergy
+  name: Radiation energy
+  description: The absolute radiation energy in a region, not a per-volume density.
+  dimensionStatus: declared
+  dimension: [2, 1, -2, 0, 0, 0]
+  mathematicalKind: scalar
+  frame: not-applicable
+  colorRole: energy
+
+- id: radiationEntropy
+  name: Radiation entropy
+  description: The absolute radiation entropy in a region, not a per-volume density.
+  dimensionStatus: declared
+  dimension: [2, 1, -2, -1, 0, 0]
+  mathematicalKind: scalar
+  frame: not-applicable
+  colorRole: statistical
+
+- id: bandwidth
+  name: Bandwidth
+  description: The width of a frequency band.
+  dimensionStatus: declared
+  dimension: [0, 0, -1, 0, 0, 0]
+  mathematicalKind: scalar
+  frame: not-applicable
+  frequencyKind: cyclic
+  colorRole: time-rate
+
+- id: peakFrequency
+  name: Peak frequency
+  description: The frequency at which a spectral density is maximal.
+  dimensionStatus: declared
+  dimension: [0, 0, -1, 0, 0, 0]
+  mathematicalKind: scalar
+  frame: not-applicable
+  frequencyKind: cyclic
+  colorRole: time-rate
+
+- id: peakWavelength
+  name: Peak wavelength
+  description: The wavelength at which a spectral density is maximal.
+  dimensionStatus: declared
+  dimension: [1, 0, 0, 0, 0, 0]
+  mathematicalKind: scalar
+  frame: not-applicable
+  colorRole: space-geometry
+
+- id: independentPointCount
+  name: Independent point count
+  description: The number of independently movable points in a gas model, paper 1 section 5's kinetic-theory analogy.
+  dimensionStatus: declared
+  dimension: [0, 0, 0, 0, 0, 0]
+  dimensionlessKind: count
+  mathematicalKind: scalar
+  frame: not-applicable
+  colorRole: quanta
+
+- id: effectiveIndependentCount
+  name: Effective independent count
+  description: >
+    The real-valued E/(h*nu), never rounded to an integer. A count in kind, but not
+    integer-constrained; distinct from entropyVolumeCoefficient, which carries the J/K value
+    this count multiplies by universalEntropyConstant.
+  dimensionStatus: declared
+  dimension: [0, 0, 0, 0, 0, 0]
+  dimensionlessKind: count
+  mathematicalKind: scalar
+  frame: not-applicable
+  colorRole: quanta
+
+- id: quantumEnergy
+  name: Quantum energy
+  description: >
+    The energy R*beta*nu/N of one light quantum. Distinct from meanResonatorEnergy,
+    meanResonatorEnergyAtFrequency, and meanQuantumEnergyWien, none of which is a spelling of
+    another.
+  dimensionStatus: declared
+  dimension: [2, 1, -2, 0, 0, 0]
+  mathematicalKind: scalar
+  frame: not-applicable
+  colorRole: energy
+
+- id: workFunction
+  name: Work function
+  description: The photoelectric work function, the energy needed to remove an electron from a metal.
+  dimensionStatus: declared
+  dimension: [2, 1, -2, 0, 0, 0]
+  mathematicalKind: scalar
+  frame: not-applicable
+  colorRole: energy
+
+- id: maxKineticEnergy
+  name: Maximum photoelectron kinetic energy
+  description: The maximum kinetic energy of an emitted photoelectron.
+  dimensionStatus: declared
+  dimension: [2, 1, -2, 0, 0, 0]
+  mathematicalKind: scalar
+  frame: not-applicable
+  colorRole: energy
+
+- id: stoppingPotentialMagnitude
+  name: Stopping potential magnitude
+  description: The magnitude of the retarding potential that just stops the fastest photoelectrons, used in paper 1 section 8's printed electromagnetic-CGS numerical check.
+  dimensionStatus: declared
+  dimension: [2, 1, -3, 0, -1, 0]
+  gaussianDimension: [1/2, 1/2, -1, 0, 0, 0]
+  emuDimension: [3/2, 1/2, -2, 0, 0, 0]
+  mathematicalKind: scalar
+  frame: not-applicable
+  colorRole: field
+
+- id: collectorPotential
+  name: Collector potential
+  description: The signed collector potential in a photoelectric apparatus (can be positive or negative), as opposed to the unsigned stoppingPotentialMagnitude; carries the same section 8 electromagnetic-CGS dimension.
+  dimensionStatus: declared
+  dimension: [2, 1, -3, 0, -1, 0]
+  gaussianDimension: [1/2, 1/2, -1, 0, 0, 0]
+  emuDimension: [3/2, 1/2, -2, 0, 0, 0]
+  mathematicalKind: scalar
+  frame: not-applicable
+  colorRole: field
+
+- id: thresholdFrequency
+  name: Threshold frequency
+  description: The minimum frequency at which the photoelectric effect occurs for a given metal.
+  dimensionStatus: declared
+  dimension: [0, 0, -1, 0, 0, 0]
+  mathematicalKind: scalar
+  frame: not-applicable
+  frequencyKind: cyclic
+  colorRole: time-rate
+
+- id: incidentPower
+  name: Incident radiant power
+  description: The radiant power incident on a photoelectric surface.
+  dimensionStatus: declared
+  dimension: [2, 1, -3, 0, 0, 0]
+  mathematicalKind: scalar
+  frame: not-applicable
+  colorRole: energy
+
+- id: quantumRate
+  name: Incident quantum rate
+  description: The number of light quanta incident per second. Counts quanta, never electrons.
+  dimensionStatus: declared
+  dimension: [0, 0, -1, 0, 0, 0]
+  mathematicalKind: scalar
+  frame: not-applicable
+  colorRole: quanta
+
+- id: absorbedQuantumRate
+  name: Absorbed quantum rate
+  description: >
+    LQ-07 and LQ-09's N-dot-1, the number of light quanta absorbed per second. Counts
+    absorbed quanta, distinct from quantumRate (incident quanta), emittedQuantumRate
+    (fluorescent emission), emissionRate (electrons), and ionizationRate (ionization events).
+  dimensionStatus: declared
+  dimension: [0, 0, -1, 0, 0, 0]
+  mathematicalKind: scalar
+  frame: not-applicable
+  colorRole: quanta
+
+- id: emittedQuantumRate
+  name: Fluorescent emitted quantum rate
+  description: LQ-07's N-dot-2, the number of light quanta emitted by a fluorescent substance per second. Counts emitted quanta, not electrons.
+  dimensionStatus: declared
+  dimension: [0, 0, -1, 0, 0, 0]
+  mathematicalKind: scalar
+  frame: not-applicable
+  colorRole: quanta
+
+- id: emissionRate
+  name: Photoelectron emission rate
+  description: >
+    The number of electrons emitted per second. Counts electrons, never quanta: conflating
+    this with absorbedQuantumRate or emittedQuantumRate would make a fluorescence yield look
+    like a quantum efficiency.
+  dimensionStatus: declared
+  dimension: [0, 0, -1, 0, 0, 0]
+  mathematicalKind: scalar
+  frame: not-applicable
+  colorRole: quanta
+
+- id: ionizationRate
+  name: Ionization event rate
+  description: LQ-09's rate of ionization events per second. Counts ionization events, distinct from ionizedGramMolecules (an amount, not a rate).
+  dimensionStatus: declared
+  dimension: [0, 0, -1, 0, 0, 0]
+  mathematicalKind: scalar
+  frame: not-applicable
+  colorRole: quanta
+
+- id: quantumEfficiency
+  name: Quantum efficiency
+  description: The dimensionless ratio of emitted electrons (or events) to absorbed quanta.
+  dimensionStatus: declared
+  dimension: [0, 0, 0, 0, 0, 0]
+  dimensionlessKind: ratio
+  mathematicalKind: scalar
+  frame: not-applicable
+  colorRole: statistical
+
+- id: ionizationEnergyPerMolecule
+  name: Ionization energy per molecule
+  description: The energy required to ionize one molecule.
+  dimensionStatus: declared
+  dimension: [2, 1, -2, 0, 0, 0]
+  mathematicalKind: scalar
+  frame: not-applicable
+  colorRole: energy
+
+- id: universalEntropyConstant
+  name: Universal entropy constant
+  description: >
+    Paper 1 section 5's printed C, before Einstein identifies it with R/N. Distinct from
+    entropyVolumeCoefficient, which is a coefficient in a specific entropy expression, not
+    this universal constant.
+  dimensionStatus: declared
+  dimension: [2, 1, -2, -1, 0, 0]
+  mathematicalKind: scalar
+  frame: not-applicable
+  isConstant: true
+  colorRole: statistical
+
+- id: pressure
+  name: Gas pressure
+  description: >
+    A gas pressure, paper 1 section 5's footnote. Distinct from osmoticPressure and
+    radiationPressureMirror, which live in other domain files.
+  dimensionStatus: declared
+  dimension: [-1, 1, -2, 0, 0, 0]
+  mathematicalKind: scalar
+  frame: not-applicable
+  colorRole: material
+
+- id: gramEquivalentCharge
+  name: Gram-equivalent charge
+  description: >
+    Paper 1 section 8's printed E, the charge per gram-equivalent of a monovalent ion
+    (9.6e3 in electromagnetic-CGS as printed).
+  dimensionStatus: declared
+  dimension: [0, 0, 1, 0, 1, -1]
+  gaussianDimension: [3/2, 1/2, -1, 0, 0, -1]
+  emuDimension: [1/2, 1/2, 0, 0, 0, -1]
+  mathematicalKind: scalar
+  frame: not-applicable
+  colorRole: field
+
+- id: workFunctionPerGramEquivalent
+  name: Work function per gram-equivalent
+  description: Paper 1 section 8's printed P-prime, the photoelectric work function expressed per gram-equivalent.
+  dimensionStatus: declared
+  dimension: [2, 1, -2, 0, 0, -1]
+  mathematicalKind: scalar
+  frame: not-applicable
+  colorRole: energy
+
+- id: ionizationWorkPerGramEquivalent
+  name: Ionization work per gram-equivalent
+  description: Paper 1 section 9's printed J, the ionization work expressed per gram-equivalent.
+  dimensionStatus: declared
+  dimension: [2, 1, -2, 0, 0, -1]
+  mathematicalKind: scalar
+  frame: not-applicable
+  colorRole: energy
+
+- id: absorbedLightEnergy
+  name: Absorbed light energy
+  description: Paper 1 section 9's printed L, the light energy absorbed by an ionizing gas.
+  dimensionStatus: declared
+  dimension: [2, 1, -2, 0, 0, 0]
+  mathematicalKind: scalar
+  frame: not-applicable
+  colorRole: energy
+
+- id: ionizedGramMolecules
+  name: Ionized gram-molecules
+  description: >
+    Paper 1 section 9's printed j = L/(R*beta*nu), an amount of substance, never a rate.
+    absorbedLightEnergy divided by (molarGasConstant times wienConstantBeta times frequency)
+    has this dimension, so section 9's printed j cannot be bound to a rate quantity.
+  dimensionStatus: declared
+  dimension: [0, 0, 0, 0, 0, 1]
+  mathematicalKind: scalar
+  frame: not-applicable
+  colorRole: quanta
+
+- id: radiationElectricField
+  name: Radiation electric field
+  description: >
+    Paper 1 section 1's footnote field, whose component Z the footnote expands (a vector
+    component is a term-binding field, never a separate id).
+  dimensionStatus: declared
+  dimension: [1, 1, -3, 0, -1, 0]
+  gaussianDimension: [-1/2, 1/2, -1, 0, 0, 0]
+  mathematicalKind: vector
+  frame: not-applicable
+  colorRole: field
+
+- id: fourierAmplitude
+  name: Fourier amplitude
+  description: The amplitude A_nu of one Fourier component of radiationElectricField over the long averaging interval.
+  dimensionStatus: declared
+  dimension: [1, 1, -3, 0, -1, 0]
+  gaussianDimension: [-1/2, 1/2, -1, 0, 0, 0]
+  mathematicalKind: scalar
+  frame: not-applicable
+  colorRole: field
+
+- id: fourierPhase
+  name: Fourier phase
+  description: The phase alpha_nu of one Fourier component of radiationElectricField.
+  dimensionStatus: declared
+  dimension: [0, 0, 0, 0, 0, 0]
+  dimensionlessKind: angle
+  mathematicalKind: scalar
+  frame: not-applicable
+  colorRole: field
+
+- id: longAveragingInterval
+  name: Long averaging interval
+  description: >
+    Paper 1 section 1 footnote's long period T over which the Fourier decomposition is
+    taken. Despite the printed symbol T, this is never temperature.
+  dimensionStatus: declared
+  dimension: [0, 0, 1, 0, 0, 0]
+  mathematicalKind: scalar
+  frame: not-applicable
+  colorRole: time-rate
+
+- id: meanResonatorEnergy
+  name: Mean resonator energy
+  description: >
+    Paper 1's printed E-bar = (R/N)*T, the mean energy of a material resonator. Distinct
+    from meanResonatorEnergyAtFrequency, meanQuantumEnergyWien, and quantumEnergy.
+  dimensionStatus: declared
+  dimension: [2, 1, -2, 0, 0, 0]
+  mathematicalKind: scalar
+  frame: not-applicable
+  colorRole: energy
+
+- id: meanResonatorEnergyAtFrequency
+  name: Mean resonator energy at a given frequency
+  description: >
+    Paper 1's printed E-bar-nu = L^3*rho_nu/(8*pi*nu^2), the mean energy of a resonator of
+    frequency nu in the radiation field. Distinct from meanResonatorEnergy (the general
+    mean), meanQuantumEnergyWien, and quantumEnergy.
+  dimensionStatus: declared
+  dimension: [2, 1, -2, 0, 0, 0]
+  mathematicalKind: scalar
+  frame: not-applicable
+  colorRole: energy
+
+- id: meanQuantumEnergyWien
+  name: Mean quantum energy over a Wien spectrum
+  description: >
+    Paper 1 section 6's printed 3*(R/N)*T, the mean energy of the light quanta over a Wien
+    spectrum. Distinct from meanResonatorEnergy, meanResonatorEnergyAtFrequency, and
+    quantumEnergy (one element's energy); none of the four is a spelling of another.
+  dimensionStatus: declared
+  dimension: [2, 1, -2, 0, 0, 0]
+  mathematicalKind: scalar
+  frame: not-applicable
+  colorRole: energy
+
+- id: lagrangeMultiplier
+  name: Lagrange multiplier
+  description: >
+    Paper 1 section 3's printed lambda, the multiplier of the fixed-energy constraint, equal
+    to d(phi)/d(rho) and identified with 1/T.
+  dimensionStatus: declared
+  dimension: [0, 0, 0, -1, 0, 0]
+  mathematicalKind: scalar
+  frame: not-applicable
+  colorRole: statistical
+
+- id: entropyVolumeCoefficient
+  name: Entropy-volume coefficient
+  description: >
+    The coefficient multiplying ln(V/V0) in an entropy difference (a logarithm is
+    dimensionless, so this carries entropy's own dimension). Its radiation reading is
+    Einstein's printed E/(beta*nu), equal after beta = h/k_B to universalEntropyConstant
+    times effectiveIndependentCount; its gas reading is universalEntropyConstant times
+    independentPointCount. LQ-06's match is therefore a comparison of two values of ONE
+    quantity, never of a quantity against a count: effectiveIndependentCount stays
+    dimensionless and never carries the J/K value.
+  dimensionStatus: declared
+  dimension: [2, 1, -2, -1, 0, 0]
+  mathematicalKind: scalar
+  frame: not-applicable
+  colorRole: statistical

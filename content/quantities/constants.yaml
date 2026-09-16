@@ -1,0 +1,190 @@
+# Shared constants and generic quantities used across all four papers and the companion.
+# am-not-quantity-registry-2f7. Dimension order: [length, mass, time, temperature, current, amount].
+# Values are never stored here -- see am-ref-constants-xik's constant sets. Exactness and
+# evidential status belong to each constant-set entry, never to the quantity (a printed
+# Einstein N is not the modern exact value; only the constant-set entry knows that).
+
+- id: speedOfLight
+  name: Speed of light
+  description: >
+    The vacuum light speed constant, printed as L in paper 1 sections 1-2 and as V in
+    papers 3 and 4. Its value comes from the active constant set, never from this record.
+  dimensionStatus: declared
+  dimension: [1, 0, -1, 0, 0, 0]
+  isConstant: true
+  mathematicalKind: scalar
+  frame: not-applicable
+  colorRole: space-geometry
+
+- id: planckConstant
+  name: Planck's constant
+  description: The quantum of action h, binding resonator and light-quantum energies to frequency.
+  dimensionStatus: declared
+  dimension: [2, 1, -1, 0, 0, 0]
+  isConstant: true
+  mathematicalKind: scalar
+  frame: not-applicable
+  colorRole: quanta
+
+- id: boltzmannConstant
+  name: Boltzmann's constant
+  description: >
+    The gas constant per molecule, k_B. In the modern set it is exact by definition; in a
+    historical set it is derived from R and N via thermalConstant, never assumed ambient.
+  dimensionStatus: declared
+  dimension: [2, 1, -2, -1, 0, 0]
+  isConstant: true
+  mathematicalKind: scalar
+  frame: not-applicable
+  colorRole: statistical
+
+- id: avogadroConstant
+  name: Avogadro's constant
+  description: >
+    The constant symbol N or N_A, valued by the active constant set. Einstein's printed N in
+    papers 1 and 2 binds this id, with its value coming from a printed-historical constant
+    set (6.17e23 in paper 1, 6e23 in paper 2 section 5); only modern-si-2019 holds the exact
+    modern value. An inference output with an uncertainty binds avogadroNumberEstimate
+    instead, never this id.
+  dimensionStatus: declared
+  dimension: [0, 0, 0, 0, 0, -1]
+  isConstant: true
+  mathematicalKind: scalar
+  frame: not-applicable
+  colorRole: statistical
+
+- id: molarGasConstant
+  name: Molar gas constant
+  description: >
+    R, the universal gas constant per mole. In the modern set R = N_A k_B and N_A is exact
+    by definition, so R, N_A and k_B are not three independent uncertain inputs.
+  dimensionStatus: declared
+  dimension: [2, 1, -2, -1, 0, -1]
+  isConstant: true
+  mathematicalKind: scalar
+  frame: not-applicable
+  colorRole: statistical
+
+- id: speedOfLightSquared
+  name: Speed of light squared, as a printed factor
+  description: >
+    Paper 4's printed factor 9e20 cm^2/s^2, bound as its own record because the paper prints
+    this factor rather than V. Its constant-set entry records that this is 0.14 percent above
+    the modern c^2 = 8.98755e20 cm^2/s^2, since Einstein rounds V to 3e10 cm/s. No check
+    substitutes the square of the set's speedOfLight for it.
+  dimensionStatus: declared
+  dimension: [2, 0, -2, 0, 0, 0]
+  isConstant: true
+  mathematicalKind: scalar
+  frame: not-applicable
+  colorRole: space-geometry
+
+- id: elementaryCharge
+  name: Elementary charge
+  description: >
+    Paper 1's printed epsilon, the charge quantum. Distinct from electronCharge (paper 3
+    section 10's electron charge); neither is a legacy spelling of the other.
+  dimensionStatus: declared
+  dimension: [0, 0, 1, 0, 1, 0]
+  gaussianDimension: [3/2, 1/2, -1, 0, 0, 0]
+  emuDimension: [1/2, 1/2, 0, 0, 0, 0]
+  isConstant: true
+  mathematicalKind: scalar
+  frame: not-applicable
+  colorRole: field
+
+- id: wienConstantAlpha
+  name: "Wien's constant: alpha"
+  description: Paper 1's printed alpha, the coefficient of the Wien radiation law's exponential prefactor.
+  dimensionStatus: declared
+  dimension: [-1, 1, 2, 0, 0, 0]
+  isConstant: true
+  mathematicalKind: scalar
+  frame: not-applicable
+  colorRole: energy
+
+- id: wienConstantBeta
+  name: "Wien's constant: beta"
+  description: >
+    Paper 1's printed beta = h/k_B in the Wien exponential. In paper 3 the printed beta is a
+    different symbol (the modern gamma) and binds lorentzFactor instead; this id is reserved
+    for paper 1's Wien constant only.
+  dimensionStatus: declared
+  dimension: [0, 0, 1, 1, 0, 0]
+  isConstant: true
+  mathematicalKind: scalar
+  frame: not-applicable
+  colorRole: energy
+
+- id: temperature
+  name: Temperature
+  description: Absolute temperature.
+  dimensionStatus: declared
+  dimension: [0, 0, 0, 1, 0, 0]
+  mathematicalKind: scalar
+  frame: not-applicable
+  colorRole: statistical
+
+- id: volume
+  name: Volume
+  description: A three-dimensional spatial volume.
+  dimensionStatus: declared
+  dimension: [3, 0, 0, 0, 0, 0]
+  mathematicalKind: scalar
+  frame: not-applicable
+  colorRole: space-geometry
+
+- id: entropy
+  name: Entropy
+  description: >
+    A state quantity, not a coefficient. entropyVolumeCoefficient (radiation.yaml) is a
+    distinct id for the coefficient multiplying a log-volume-ratio term.
+  dimensionStatus: declared
+  dimension: [2, 1, -2, -1, 0, 0]
+  mathematicalKind: scalar
+  frame: not-applicable
+  colorRole: statistical
+
+- id: volumeRatio
+  name: Volume ratio
+  description: A dimensionless ratio of two volumes, such as V/V0 in a log-expansion entropy term.
+  dimensionStatus: declared
+  dimension: [0, 0, 0, 0, 0, 0]
+  dimensionlessKind: ratio
+  mathematicalKind: scalar
+  frame: not-applicable
+  colorRole: space-geometry
+
+- id: configurationProbability
+  name: Configuration probability
+  description: >
+    Paper 1 section 5's W, the relative probability of a volume configuration. Also binds
+    the rejected spellings independentPointsProbability, multiplicity, and statisticalProbability.
+  dimensionStatus: declared
+  dimension: [0, 0, 0, 0, 0, 0]
+  dimensionlessKind: probability
+  mathematicalKind: scalar
+  frame: not-applicable
+  colorRole: statistical
+
+- id: elapsedTime
+  name: Elapsed time
+  description: A generic time duration, used where no more specific time-kind record applies.
+  dimensionStatus: declared
+  dimension: [0, 0, 1, 0, 0, 0]
+  mathematicalKind: scalar
+  frame: not-applicable
+  colorRole: time-rate
+
+- id: systemEnergy
+  name: System energy
+  description: >
+    The thermodynamic energy of a system, shared by paper 1's section 5 footnote (its
+    printed E-bar) and paper 2 section 2 (its printed E-bar). One record serves both papers'
+    printed E-bar rather than two ids for the same concept. Distinct from microstateEnergy
+    (paper 2 section 2's E as a function of the state variables) and from radiationEnergy.
+  dimensionStatus: declared
+  dimension: [2, 1, -2, 0, 0, 0]
+  mathematicalKind: scalar
+  frame: not-applicable
+  colorRole: energy

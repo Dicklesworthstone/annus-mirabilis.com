@@ -1,0 +1,17 @@
+# Defect fixture: this file declares BOTH a valid canonical quantity AND a record whose id
+# is itself a recorded legacy spelling (see legacy-spellings.yaml beside this file).
+# generate-quantity-ids.ts --check must fail on the second record, naming it.
+- id: molarGasConstant
+  name: Molar gas constant (fixture)
+  description: A valid record so the legacy spelling's canonical id resolves.
+  dimensionStatus: declared
+  dimension: [2, 1, -2, -1, 0, -1]
+  mathematicalKind: scalar
+  frame: not-applicable
+- id: gasConstant
+  name: Gas constant (defect fixture)
+  description: This id must never be allowed to register; it is a recorded legacy spelling.
+  dimensionStatus: declared
+  dimension: [2, 1, -2, -1, 0, -1]
+  mathematicalKind: scalar
+  frame: not-applicable

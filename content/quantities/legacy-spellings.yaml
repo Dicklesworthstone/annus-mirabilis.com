@@ -1,0 +1,118 @@
+# Spellings that must never become registry ids, each mapped to the canonical id(s) it was
+# rejected in favor of. `resolveQuantityId` reports these; it never silently resolves a
+# binding for the author. `message`, when given, overrides the generated "use X" /
+# "choose between X or Y" wording -- only for cases where a plain id list would not
+# actually explain the choice (an expression instead of a quantity, or two candidates that
+# need their distinguishing reason spelled out).
+#
+# am-not-quantity-registry-2f7. Do not add a spelling here that is also a registry id
+# (registry.ts's loader enforces this) or a declared representationFields entry.
+
+- spelling: lightSpeed
+  canonicalIds: [speedOfLight]
+- spelling: gasConstant
+  canonicalIds: [molarGasConstant]
+- spelling: avogadroNumber
+  canonicalIds: [avogadroNumberEstimate, avogadroConstant]
+  message: "avogadroNumber is ambiguous: bind avogadroNumberEstimate for an inferred value carrying an uncertainty, or avogadroConstant for the constant symbol valued by a constant set."
+- spelling: moleculesPerMole
+  canonicalIds: [avogadroNumberEstimate, avogadroConstant]
+  message: "moleculesPerMole is ambiguous: bind avogadroNumberEstimate for an inferred value carrying an uncertainty, or avogadroConstant for the constant symbol valued by a constant set."
+- spelling: molecularNumberEstimate
+  canonicalIds: [avogadroNumberEstimate]
+- spelling: emittedEnergyRest
+  canonicalIds: [emittedEnergyRestFrame]
+- spelling: observerSpeed
+  canonicalIds: [frameSpeed]
+- spelling: additiveConstant
+  canonicalIds: [additiveEnergyConstant]
+- spelling: massLossCoefficient
+  canonicalIds: [inertialMassDecrease]
+- spelling: coordinateTime
+  canonicalIds: [coordinateTimeStationary, coordinateTimeMoving]
+  message: "coordinateTime does not say which system's clock: bind coordinateTimeStationary or coordinateTimeMoving."
+- spelling: properTime
+  canonicalIds: [properTimeElapsed]
+- spelling: rodLengthRest
+  canonicalIds: [lengthProper]
+- spelling: rodLengthMeasured
+  canonicalIds: [lengthMeasuredStationary]
+- spelling: electricField
+  canonicalIds: [electricFieldStationary, electricFieldMoving]
+  message: "electricField does not say which system: bind electricFieldStationary or electricFieldMoving."
+- spelling: magneticField
+  canonicalIds: [magneticFieldStationary, magneticFieldMoving]
+  message: "magneticField does not say which system: bind magneticFieldStationary or magneticFieldMoving."
+- spelling: chargeDensity
+  canonicalIds: [chargeDensityStationary, chargeDensityMoving]
+  message: "chargeDensity does not say which system: bind chargeDensityStationary or chargeDensityMoving."
+- spelling: currentDensity
+  canonicalIds: [currentDensityStationary, currentDensityMoving]
+  message: "currentDensity does not say which system: bind currentDensityStationary or currentDensityMoving."
+- spelling: lightComplexEnergy
+  canonicalIds: [lightComplexEnergyStationary, lightComplexEnergyMoving]
+  message: "lightComplexEnergy does not say which system: bind lightComplexEnergyStationary or lightComplexEnergyMoving."
+- spelling: lightComplexVolume
+  canonicalIds: [lightComplexVolumeStationary, lightComplexVolumeMoving]
+  message: "lightComplexVolume does not say which system: bind lightComplexVolumeStationary or lightComplexVolumeMoving."
+- spelling: lightAmplitude
+  canonicalIds: [lightAmplitudeStationary, lightAmplitudeMoving]
+  message: "lightAmplitude does not say which system: bind lightAmplitudeStationary or lightAmplitudeMoving."
+- spelling: propagationAngle
+  canonicalIds: [propagationAngleStationary, propagationAngleMoving]
+  message: "propagationAngle does not say which system: bind propagationAngleStationary or propagationAngleMoving."
+- spelling: massCoefficientLongitudinal
+  canonicalIds: [longitudinalMass]
+- spelling: longitudinalMassSource
+  canonicalIds: [longitudinalMass]
+- spelling: massCoefficientTransverseComoving
+  canonicalIds: [transverseMassComoving]
+- spelling: transverseMassSource
+  canonicalIds: [transverseMassComoving]
+- spelling: transverseCoefficientLaboratory
+  canonicalIds: [transverseMassLaboratory]
+- spelling: externalForce
+  canonicalIds: [externalForcePerParticle]
+- spelling: ionizationEnergy
+  canonicalIds: [ionizationEnergyPerMolecule]
+- spelling: independentPointsProbability
+  canonicalIds: [configurationProbability]
+- spelling: multiplicity
+  canonicalIds: [configurationProbability]
+- spelling: statisticalProbability
+  canonicalIds: [configurationProbability]
+- spelling: directionCosineMotion
+  canonicalIds: [directionCosineStationary, directionCosineMoving]
+  message: "directionCosineMotion does not say which system: bind directionCosineStationary or directionCosineMoving."
+- spelling: comShift
+  canonicalIds: [centerOfMassShift]
+- spelling: entropyDifference
+  canonicalIds: [entropy, radiationEntropy]
+  message: "entropyDifference is not a quantity: bind the terms, not the difference."
+- spelling: entropyCoefficient
+  canonicalIds: [entropyVolumeCoefficient, universalEntropyConstant]
+  message: "entropyCoefficient is ambiguous between this coefficient and the constant R/N: bind entropyVolumeCoefficient or universalEntropyConstant."
+- spelling: entropyFunctionOfProbability
+  canonicalIds: [entropy]
+  message: "entropyFunctionOfProbability is not a separate quantity: bind the function's values to entropy."
+- spelling: frequencyBandWidth
+  canonicalIds: [bandwidth]
+- spelling: meanOscillatorEnergy
+  canonicalIds: [meanResonatorEnergy]
+- spelling: resonatorMeanEnergyAtFrequency
+  canonicalIds: [meanResonatorEnergyAtFrequency]
+- spelling: meanQuantumEnergy
+  canonicalIds: [meanQuantumEnergyWien, quantumEnergy]
+  message: "meanQuantumEnergy is ambiguous between the Wien-spectrum mean and one element's energy: bind meanQuantumEnergyWien or quantumEnergy."
+- spelling: electricForceComponentZ
+  canonicalIds: [radiationElectricField]
+  message: "electricForceComponentZ is a vector component, not a quantity id: bind radiationElectricField and select the z component on the term."
+- spelling: decayLength
+  canonicalIds: [osmoticDecayLength, kineticDecayLength]
+  message: "decayLength is ambiguous: bind osmoticDecayLength or kineticDecayLength. The two agree only when the Einstein relation holds, which BM-04 exists to test."
+- spelling: acceleratingVoltage
+  canonicalIds: [acceleratingPotential]
+- spelling: viscosityRatio
+  canonicalIds: [relativeViscosity]
+- spelling: intervalSquared
+  canonicalIds: [spacetimeIntervalSquared]

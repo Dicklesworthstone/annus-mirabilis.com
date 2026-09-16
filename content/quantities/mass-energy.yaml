@@ -1,0 +1,209 @@
+# Paper 4 (mass-energy equivalence) plus the 1906 box thought experiment.
+# am-not-quantity-registry-2f7. Dimension order: [length, mass, time, temperature, current, amount].
+
+- id: emittedEnergyRestFrame
+  name: Emitted energy (object rest frame)
+  description: >
+    The energy L emitted by a body as radiation, measured in the body's own rest frame.
+    Rejected bare spelling emittedEnergyRest.
+  dimensionStatus: declared
+  dimension: [2, 1, -2, 0, 0, 0]
+  mathematicalKind: scalar
+  frame: object-rest
+  colorRole: energy
+
+- id: bodyEnergyRestBefore
+  name: Body energy before emission (stationary system)
+  description: >
+    The body's energy in the stationary system before it emits radiation, as printed in
+    paper 4. Carries frame: stationary-system (the system in which the body happens to be at
+    rest before emission), not frame: object-rest -- it does not end in the "Rest" or
+    "RestFrame" id suffix and this choice is intentional.
+  dimensionStatus: declared
+  dimension: [2, 1, -2, 0, 0, 0]
+  mathematicalKind: scalar
+  frame: stationary-system
+  colorRole: energy
+
+- id: bodyEnergyRestAfter
+  name: Body energy after emission (stationary system)
+  description: The body's energy in the stationary system after it emits radiation, as printed in paper 4.
+  dimensionStatus: declared
+  dimension: [2, 1, -2, 0, 0, 0]
+  mathematicalKind: scalar
+  frame: stationary-system
+  colorRole: energy
+
+- id: bodyEnergyMovingBefore
+  name: Body energy before emission (moving system)
+  description: The same body's energy before emission, as measured in a system moving relative to it, per paper 4's printed derivation.
+  dimensionStatus: declared
+  dimension: [2, 1, -2, 0, 0, 0]
+  mathematicalKind: scalar
+  frame: moving-system
+  colorRole: energy
+
+- id: bodyEnergyMovingAfter
+  name: Body energy after emission (moving system)
+  description: The same body's energy after emission, as measured in a system moving relative to it, per paper 4's printed derivation.
+  dimensionStatus: declared
+  dimension: [2, 1, -2, 0, 0, 0]
+  mathematicalKind: scalar
+  frame: moving-system
+  colorRole: energy
+
+- id: kineticEnergyBefore
+  name: Body kinetic energy before emission (moving system)
+  description: The body's kinetic energy relative to the moving system before it emits radiation, as printed in paper 4.
+  dimensionStatus: declared
+  dimension: [2, 1, -2, 0, 0, 0]
+  mathematicalKind: scalar
+  frame: moving-system
+  colorRole: energy
+
+- id: kineticEnergyAfter
+  name: Body kinetic energy after emission (moving system)
+  description: The body's kinetic energy relative to the moving system after it emits radiation, as printed in paper 4.
+  dimensionStatus: declared
+  dimension: [2, 1, -2, 0, 0, 0]
+  mathematicalKind: scalar
+  frame: moving-system
+  colorRole: energy
+
+- id: kineticEnergyDifference
+  name: Body kinetic energy difference (moving system)
+  description: The difference between kineticEnergyBefore and kineticEnergyAfter, the quantity paper 4's argument isolates.
+  dimensionStatus: declared
+  dimension: [2, 1, -2, 0, 0, 0]
+  mathematicalKind: scalar
+  frame: moving-system
+  colorRole: energy
+
+- id: additiveEnergyConstant
+  name: Additive energy constant
+  description: >
+    Paper 4's printed additive constant relating a body's energy in the stationary and moving
+    systems, C or C'. Always symbolic on the historical derivation route -- its value is never
+    fixed by the argument, only its cancellation. Rejected bare spelling additiveConstant.
+  dimensionStatus: declared
+  dimension: [2, 1, -2, 0, 0, 0]
+  mathematicalKind: scalar
+  frame: not-applicable
+  colorRole: energy
+
+- id: emissionAngle
+  name: Emission angle
+  description: The angle at which a body emits radiation relative to its direction of motion, as printed in paper 4.
+  dimensionStatus: declared
+  dimension: [0, 0, 0, 0, 0, 0]
+  dimensionlessKind: angle
+  mathematicalKind: scalar
+  frame: not-applicable
+  colorRole: space-geometry
+
+- id: finiteSpeedMassProxy
+  name: Finite-speed mass proxy
+  description: >
+    Paper 4's printed proxy quantity L/(V^2(1-v^2/V^2)) before taking the v -> 0 limit that
+    isolates inertialMassDecrease.
+  dimensionStatus: declared
+  dimension: [0, 1, 0, 0, 0, 0]
+  mathematicalKind: scalar
+  frame: not-applicable
+  colorRole: material
+
+- id: inertialMassDecrease
+  name: Inertial mass decrease
+  description: >
+    Paper 4's printed L/V^2, the limit of finiteSpeedMassProxy as v approaches 0: the decrease
+    in a body's inertial mass corresponding to the emitted energy L. Rejected bare spelling
+    massLossCoefficient.
+  dimensionStatus: declared
+  dimension: [0, 1, 0, 0, 0, 0]
+  mathematicalKind: scalar
+  frame: not-applicable
+  colorRole: material
+
+- id: massChangeSigned
+  name: Signed mass change
+  description: A body's signed change in mass (increase or decrease) accompanying an energy change, generalizing inertialMassDecrease's sign convention.
+  dimensionStatus: declared
+  dimension: [0, 1, 0, 0, 0, 0]
+  mathematicalKind: scalar
+  frame: not-applicable
+  colorRole: material
+
+- id: invariantMassSystem
+  name: Invariant mass of a system
+  description: The frame-invariant mass of a multi-body or multi-photon system, used in modern-lens treatments of paper 4's result.
+  dimensionStatus: declared
+  dimension: [0, 1, 0, 0, 0, 0]
+  mathematicalKind: scalar
+  frame: not-applicable
+  colorRole: material
+
+- id: boxMass
+  name: Box mass
+  description: The mass of the box in Einstein's 1906 box-and-pulse thought experiment.
+  dimensionStatus: declared
+  dimension: [0, 1, 0, 0, 0, 0]
+  mathematicalKind: scalar
+  frame: not-applicable
+  colorRole: material
+
+- id: boxLength
+  name: Box length
+  description: The length of the box in the 1906 thought experiment, along the axis the light pulse travels.
+  dimensionStatus: declared
+  dimension: [1, 0, 0, 0, 0, 0]
+  mathematicalKind: scalar
+  frame: not-applicable
+  colorRole: space-geometry
+
+- id: pulseFlightTime
+  name: Pulse flight time
+  description: The time the light pulse takes to cross the box in the 1906 thought experiment.
+  dimensionStatus: declared
+  dimension: [0, 0, 1, 0, 0, 0]
+  mathematicalKind: scalar
+  frame: not-applicable
+  colorRole: time-rate
+
+- id: pulseMomentum
+  name: Pulse momentum
+  description: The momentum E/c carried by the light pulse in the 1906 thought experiment.
+  dimensionStatus: declared
+  dimension: [1, 1, -1, 0, 0, 0]
+  mathematicalKind: scalar
+  frame: not-applicable
+  colorRole: energy
+
+- id: recoilSpeed
+  name: Recoil speed
+  description: The box's recoil speed from emitting the light pulse in the 1906 thought experiment.
+  dimensionStatus: declared
+  dimension: [1, 0, -1, 0, 0, 0]
+  mathematicalKind: scalar
+  frame: not-applicable
+  colorRole: space-geometry
+
+- id: centerOfMassShift
+  name: Center-of-mass shift
+  description: >
+    The apparent shift in the system's center of mass in the 1906 thought experiment, which
+    Einstein's argument requires to vanish by assigning mass to the transported energy.
+    Rejected bare spelling comShift; an output may keep a short output id but binds this quantity.
+  dimensionStatus: declared
+  dimension: [1, 0, 0, 0, 0, 0]
+  mathematicalKind: scalar
+  frame: not-applicable
+  colorRole: space-geometry
+
+- id: lightMassAssigned
+  name: Mass assigned to transported light energy
+  description: The mass Einstein's 1906 argument assigns to the light energy in transit, so that the system's center of mass stays fixed.
+  dimensionStatus: declared
+  dimension: [0, 1, 0, 0, 0, 0]
+  mathematicalKind: scalar
+  frame: not-applicable
+  colorRole: material

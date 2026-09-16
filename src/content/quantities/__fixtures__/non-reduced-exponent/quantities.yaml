@@ -1,0 +1,9 @@
+# Defect fixture: the length exponent "2/4" is not reduced to lowest terms (should be "1/2").
+# validateRationalDimension (am-cm-schemas-argument-llm) must reject this.
+- id: exampleRootQuantity
+  name: Example root quantity (defect fixture)
+  description: A dimension with a non-reduced rational exponent, which must be rejected.
+  dimensionStatus: declared
+  dimension: [2/4, 0, -1, 0, 0, 0]
+  mathematicalKind: scalar
+  frame: not-applicable

@@ -1,0 +1,5 @@
+# Fixture: isolated legacy-spellings table for this one defect scenario, so the check fails
+# on exactly the intended defect (an id that is also a legacy spelling) and not on an
+# unrelated missing canonical id from the full real table.
+- spelling: gasConstant
+  canonicalIds: [molarGasConstant]

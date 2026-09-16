@@ -1,0 +1,15 @@
+# Defect fixture: the same id declared twice. registry.ts's loader must reject this.
+- id: exampleDuplicateQuantity
+  name: Example duplicate quantity, first declaration (defect fixture)
+  description: The first of two records sharing one id.
+  dimensionStatus: declared
+  dimension: [1, 0, 0, 0, 0, 0]
+  mathematicalKind: scalar
+  frame: not-applicable
+- id: exampleDuplicateQuantity
+  name: Example duplicate quantity, second declaration (defect fixture)
+  description: The second of two records sharing one id; the loader must reject this file.
+  dimensionStatus: declared
+  dimension: [0, 0, 1, 0, 0, 0]
+  mathematicalKind: scalar
+  frame: not-applicable

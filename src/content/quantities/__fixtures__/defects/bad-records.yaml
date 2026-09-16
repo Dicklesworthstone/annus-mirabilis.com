@@ -1,0 +1,42 @@
+# Deliberately defective records for scripts/generateQuantityIds.e2e.test.ts. Never loaded
+# by the real registry (registry.ts's loader skips any `__fixtures__` directory).
+
+- id: gasConstant
+  name: "Bad fixture: legacy spelling used as an id"
+  description: This id collides with a recorded legacy spelling (canonical molarGasConstant), on purpose, for the defect-detection e2e test.
+  dimensionStatus: declared
+  dimension: [2, 1, -2, -1, 0, -1]
+  mathematicalKind: scalar
+  frame: not-applicable
+
+- id: bogusFieldStationary
+  name: "Bad fixture: frame suffix disagreement"
+  description: Ends with "Stationary" but declares frame moving-system, on purpose, for the defect-detection e2e test.
+  dimensionStatus: declared
+  dimension: [1, 0, -1, 0, 0, 0]
+  mathematicalKind: scalar
+  frame: moving-system
+
+- id: nonReducedExponentQuantity
+  name: "Bad fixture: non-reduced rational exponent"
+  description: Declares 2/4 instead of 1/2 in the length slot, on purpose, for the defect-detection e2e test.
+  dimensionStatus: declared
+  dimension: ["2/4", 0, 0, 0, 0, 0]
+  mathematicalKind: scalar
+  frame: not-applicable
+
+- id: duplicatedFixtureQuantity
+  name: "Bad fixture: duplicate id, first copy"
+  description: The first of two records sharing an id, on purpose, for the defect-detection e2e test.
+  dimensionStatus: declared
+  dimension: [1, 0, 0, 0, 0, 0]
+  mathematicalKind: scalar
+  frame: not-applicable
+
+- id: duplicatedFixtureQuantity
+  name: "Bad fixture: duplicate id, second copy"
+  description: The second of two records sharing an id, on purpose, for the defect-detection e2e test.
+  dimensionStatus: declared
+  dimension: [1, 0, 0, 0, 0, 0]
+  mathematicalKind: scalar
+  frame: not-applicable

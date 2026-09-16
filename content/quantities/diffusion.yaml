@@ -1,0 +1,665 @@
+# Diffusion, inference (paper 2), the companion (dissertation), BM-02/BM-04, and dataset
+# columns. am-not-quantity-registry-2f7. Dimension order:
+# [length, mass, time, temperature, current, amount]. Values are never stored here.
+
+- id: diffusionCoefficient
+  name: Diffusion coefficient
+  description: The Stokes-Einstein diffusion coefficient D, e.g. paper 2's D = RT/(6*pi*eta*a*N).
+  dimensionStatus: declared
+  dimension: [2, 0, -1, 0, 0, 0]
+  mathematicalKind: scalar
+  frame: not-applicable
+  colorRole: material
+
+- id: viscosity
+  name: Dynamic viscosity
+  description: >
+    The suspending fluid's dynamic viscosity eta. Einstein's printed k in paper 2 and the
+    dissertation is this viscosity, never Boltzmann's constant.
+  dimensionStatus: declared
+  dimension: [-1, 1, -1, 0, 0, 0]
+  mathematicalKind: scalar
+  frame: not-applicable
+  colorRole: material
+
+- id: particleRadius
+  name: Particle radius
+  description: The suspended sphere's radius a in the Stokes-Einstein relation.
+  dimensionStatus: declared
+  dimension: [1, 0, 0, 0, 0, 0]
+  mathematicalKind: scalar
+  frame: not-applicable
+  colorRole: space-geometry
+
+- id: numberDensity
+  name: Number density
+  description: Particles per unit volume, distinct from molesPerVolume (an amount, not a particle count).
+  dimensionStatus: declared
+  dimension: [-3, 0, 0, 0, 0, 0]
+  mathematicalKind: scalar
+  frame: not-applicable
+  colorRole: material
+
+- id: probabilityDensity
+  name: Probability density (one-dimensional)
+  description: A one-dimensional probability density over displacement, never confused with intervalProbability (a mass, not a density).
+  dimensionStatus: declared
+  dimension: [-1, 0, 0, 0, 0, 0]
+  densityKind: density
+  densityPer: [displacement]
+  mathematicalKind: scalar
+  frame: not-applicable
+  colorRole: statistical
+
+- id: particleCount
+  name: Particle count
+  description: A count of particles, e.g. observed in a Brownian trial.
+  dimensionStatus: declared
+  dimension: [0, 0, 0, 0, 0, 0]
+  dimensionlessKind: count
+  mathematicalKind: scalar
+  frame: not-applicable
+  colorRole: statistical
+
+- id: osmoticPressure
+  name: Osmotic pressure
+  description: Paper 2's osmotic pressure Pi driving diffusion, distinct from pressure and radiationPressureMirror.
+  dimensionStatus: declared
+  dimension: [-1, 1, -2, 0, 0, 0]
+  mathematicalKind: scalar
+  frame: not-applicable
+  colorRole: material
+
+- id: mobility
+  name: Mobility
+  description: The particle mobility mu relating drift velocity to applied force (v = mu*F).
+  dimensionStatus: declared
+  dimension: [0, -1, 1, 0, 0, 0]
+  mathematicalKind: scalar
+  frame: not-applicable
+  colorRole: material
+
+- id: dragForce
+  name: Drag force
+  description: The Stokes drag force opposing a particle's motion through the fluid.
+  dimensionStatus: declared
+  dimension: [1, 1, -2, 0, 0, 0]
+  mathematicalKind: scalar
+  frame: not-applicable
+  colorRole: material
+
+- id: externalForcePerParticle
+  name: External force per particle
+  description: An externally applied force per particle, e.g. gravity net of buoyancy in BM-02.
+  dimensionStatus: declared
+  dimension: [1, 1, -2, 0, 0, 0]
+  mathematicalKind: scalar
+  frame: not-applicable
+  colorRole: material
+
+- id: driftVelocity
+  name: Drift velocity
+  description: The mean velocity a particle acquires under a steady external force.
+  dimensionStatus: declared
+  dimension: [1, 0, -1, 0, 0, 0]
+  mathematicalKind: scalar
+  frame: not-applicable
+  colorRole: space-geometry
+
+- id: particleFlux
+  name: Particle flux
+  description: The total particle flux, the sum of driftFlux and diffusionFlux, paper 2 equation (2).
+  dimensionStatus: declared
+  dimension: [-2, 0, -1, 0, 0, 0]
+  mathematicalKind: scalar
+  frame: not-applicable
+  colorRole: material
+
+- id: driftFlux
+  name: Drift flux
+  description: The advective term of particleFlux, carried by driftVelocity.
+  dimensionStatus: declared
+  dimension: [-2, 0, -1, 0, 0, 0]
+  mathematicalKind: scalar
+  frame: not-applicable
+  colorRole: material
+
+- id: diffusionFlux
+  name: Diffusion flux
+  description: The diffusive term of particleFlux, carried by the concentration gradient and D.
+  dimensionStatus: declared
+  dimension: [-2, 0, -1, 0, 0, 0]
+  mathematicalKind: scalar
+  frame: not-applicable
+  colorRole: material
+
+- id: freeEnergy
+  name: Free energy
+  description: A thermodynamic free energy used in the osmotic-pressure derivation.
+  dimensionStatus: declared
+  dimension: [2, 1, -2, 0, 0, 0]
+  mathematicalKind: scalar
+  frame: not-applicable
+  colorRole: energy
+
+- id: transitionKernel
+  name: Transition kernel
+  description: >
+    Paper 2's transition probability density phi(displacement) over one interval tau; a
+    probability density per displacement, never a total probability.
+  dimensionStatus: declared
+  dimension: [-1, 0, 0, 0, 0, 0]
+  densityKind: density
+  densityPer: [displacement]
+  mathematicalKind: scalar
+  frame: not-applicable
+  colorRole: statistical
+
+- id: displacementIncrement
+  name: Displacement increment
+  description: One particle's displacement over a single interval tau.
+  dimensionStatus: declared
+  dimension: [1, 0, 0, 0, 0, 0]
+  mathematicalKind: scalar
+  frame: not-applicable
+  colorRole: space-geometry
+
+- id: displacement1d
+  name: Displacement since start (one dimension)
+  description: A particle's cumulative one-dimensional displacement since the start of observation.
+  dimensionStatus: declared
+  dimension: [1, 0, 0, 0, 0, 0]
+  mathematicalKind: scalar
+  frame: not-applicable
+  colorRole: space-geometry
+
+- id: meanSquareDisplacement1d
+  name: Mean-square displacement (one dimension)
+  description: The mean of the squared one-dimensional displacement over a sample, distinct from displacementVariance1d.
+  dimensionStatus: declared
+  dimension: [2, 0, 0, 0, 0, 0]
+  statistic: mean-square
+  mathematicalKind: scalar
+  frame: not-applicable
+  colorRole: statistical
+
+- id: displacementVariance1d
+  name: Displacement variance (one dimension)
+  description: The variance of the one-dimensional displacement, distinct from meanSquareDisplacement1d (which does not subtract the mean).
+  dimensionStatus: declared
+  dimension: [2, 0, 0, 0, 0, 0]
+  statistic: variance
+  mathematicalKind: scalar
+  frame: not-applicable
+  colorRole: statistical
+
+- id: rmsDisplacement1d
+  name: RMS displacement (one dimension)
+  description: The root-mean-square one-dimensional displacement, sqrt(meanSquareDisplacement1d).
+  dimensionStatus: declared
+  dimension: [1, 0, 0, 0, 0, 0]
+  statistic: rms
+  mathematicalKind: scalar
+  frame: not-applicable
+  colorRole: statistical
+
+- id: radialDistance2d
+  name: Radial distance (two dimensions)
+  description: The planar radial distance from the origin, used by the two-dimensional propagator.
+  dimensionStatus: declared
+  dimension: [1, 0, 0, 0, 0, 0]
+  mathematicalKind: scalar
+  frame: not-applicable
+  colorRole: space-geometry
+
+- id: positionCoordinate1d
+  name: Position coordinate (field, one dimension)
+  description: A generic one-dimensional field coordinate, neither measured nor latent by itself.
+  dimensionStatus: declared
+  dimension: [1, 0, 0, 0, 0, 0]
+  mathematicalKind: scalar
+  frame: not-applicable
+  colorRole: space-geometry
+
+- id: latentPosition1d
+  name: Latent position (one dimension)
+  description: A particle's true, unobserved one-dimensional position, distinct from measuredPosition1d.
+  dimensionStatus: declared
+  dimension: [1, 0, 0, 0, 0, 0]
+  observation: latent
+  mathematicalKind: scalar
+  frame: not-applicable
+  colorRole: space-geometry
+
+- id: measuredPosition1d
+  name: Measured position (one dimension)
+  description: A particle's recorded one-dimensional position under a localization-error model, distinct from latentPosition1d.
+  dimensionStatus: declared
+  dimension: [1, 0, 0, 0, 0, 0]
+  observation: measured
+  mathematicalKind: scalar
+  frame: not-applicable
+  colorRole: space-geometry
+
+- id: observationInterval
+  name: Observation interval
+  description: The time between successive recorded observations, a measurement choice distinct from timeStep and stepInterval.
+  dimensionStatus: declared
+  dimension: [0, 0, 1, 0, 0, 0]
+  timeKind: not-applicable
+  mathematicalKind: scalar
+  frame: not-applicable
+  colorRole: time-rate
+
+- id: exposureTime
+  name: Exposure time
+  description: The camera or detector exposure duration, a source of motion-blur bias distinct from observationInterval.
+  dimensionStatus: declared
+  dimension: [0, 0, 1, 0, 0, 0]
+  timeKind: not-applicable
+  mathematicalKind: scalar
+  frame: not-applicable
+  colorRole: time-rate
+
+- id: localizationErrorStd
+  name: Localization error (standard deviation)
+  description: The standard deviation of a particle-tracking localization-noise model.
+  dimensionStatus: declared
+  dimension: [1, 0, 0, 0, 0, 0]
+  mathematicalKind: scalar
+  frame: not-applicable
+  colorRole: statistical
+
+- id: apparentSpeed
+  name: Apparent speed
+  description: >
+    A velocity trap: the displacement-over-time ratio a localization-error model produces,
+    never a physical velocity. Labeled a model artifact so it cannot feed a physical claim.
+  dimensionStatus: declared
+  dimension: [1, 0, -1, 0, 0, 0]
+  modelArtifact: true
+  artifactNote: This is a model artifact of a localization-error model, never a physical velocity; it must never feed a physical claim.
+  mathematicalKind: scalar
+  frame: not-applicable
+  colorRole: statistical
+
+- id: apparentSpeedRatio
+  name: Apparent speed ratio
+  description: >
+    The apparent speed measured under a localization-error model divided by the apparent
+    speed the same model gives without that error, at the same observation interval. States
+    how far a measurement sits from the model; never a ratio of physical velocities.
+  dimensionStatus: declared
+  dimension: [0, 0, 0, 0, 0, 0]
+  dimensionlessKind: ratio
+  modelArtifact: true
+  artifactNote: It states how far a measurement sits from the model and is never a ratio of physical velocities.
+  mathematicalKind: scalar
+  frame: not-applicable
+  colorRole: statistical
+
+- id: avogadroNumberEstimate
+  name: Avogadro number estimate
+  description: >
+    An inference output with an uncertainty, such as BM-07's N-hat, distinct from
+    avogadroConstant (the constant symbol valued by a constant set, never an inference).
+  dimensionStatus: declared
+  dimension: [0, 0, 0, 0, 0, -1]
+  mathematicalKind: scalar
+  frame: not-applicable
+  colorRole: statistical
+
+- id: osmoticDecayLength
+  name: Osmotic decay length
+  description: >
+    k_B*T/F, the decay length of the osmotic-force mechanism. Distinct from
+    kineticDecayLength; the two agree only when the Einstein relation holds, which BM-04
+    exists to test.
+  dimensionStatus: declared
+  dimension: [1, 0, 0, 0, 0, 0]
+  mathematicalKind: scalar
+  frame: not-applicable
+  colorRole: material
+
+- id: kineticDecayLength
+  name: Kinetic decay length
+  description: >
+    D_kick/(mu*F), the decay length of the kinetic-kick mechanism. Distinct from
+    osmoticDecayLength; the two agree only when the Einstein relation holds, which BM-04
+    exists to test.
+  dimensionStatus: declared
+  dimension: [1, 0, 0, 0, 0, 0]
+  mathematicalKind: scalar
+  frame: not-applicable
+  colorRole: material
+
+- id: stabilityRatio
+  name: Stability ratio
+  description: The FTCS numerical stability ratio D*deltaT/deltaX^2.
+  dimensionStatus: declared
+  dimension: [0, 0, 0, 0, 0, 0]
+  dimensionlessKind: ratio
+  mathematicalKind: scalar
+  frame: not-applicable
+  colorRole: statistical
+
+- id: timeStep
+  name: Time step
+  description: >
+    The step of an integration or replay grid, such as BM-01's h and the FTCS delta-t. Never
+    the observation interval, and distinct from stepInterval (a model parameter of the BM-05
+    walk).
+  dimensionStatus: declared
+  dimension: [0, 0, 1, 0, 0, 0]
+  timeKind: not-applicable
+  mathematicalKind: scalar
+  frame: not-applicable
+  colorRole: time-rate
+
+- id: gridSpacing
+  name: Grid spacing
+  description: The FTCS cell spacing delta-x.
+  dimensionStatus: declared
+  dimension: [1, 0, 0, 0, 0, 0]
+  mathematicalKind: scalar
+  frame: not-applicable
+  colorRole: space-geometry
+
+- id: stepInterval
+  name: Step interval
+  description: >
+    The interval tau between one BM-05 random walk's steps, a model parameter of the walk,
+    distinct from timeStep (a numerical or replay grid) and observationInterval (a
+    measurement choice).
+  dimensionStatus: declared
+  dimension: [0, 0, 1, 0, 0, 0]
+  timeKind: not-applicable
+  mathematicalKind: scalar
+  frame: not-applicable
+  colorRole: time-rate
+
+- id: stepRms
+  name: Step RMS
+  description: >
+    The root mean square of one BM-05 walk step, so that D = <s^2>/(2*tau) is a result the
+    instrument shows rather than a definition.
+  dimensionStatus: declared
+  dimension: [1, 0, 0, 0, 0, 0]
+  statistic: rms
+  mathematicalKind: scalar
+  frame: not-applicable
+  colorRole: statistical
+
+- id: intervalProbability
+  name: Interval probability
+  description: The probability mass of a named interval or bin, never probabilityDensity (a density, not a mass).
+  dimensionStatus: declared
+  dimension: [0, 0, 0, 0, 0, 0]
+  dimensionlessKind: probability
+  mathematicalKind: scalar
+  frame: not-applicable
+  colorRole: statistical
+
+- id: meanDisplacement1d
+  name: Mean displacement (one dimension)
+  description: The signed sample mean of one-dimensional displacements, distinct from rmsDisplacement1d (which is never signed).
+  dimensionStatus: declared
+  dimension: [1, 0, 0, 0, 0, 0]
+  statistic: mean
+  mathematicalKind: scalar
+  frame: not-applicable
+  colorRole: statistical
+
+- id: kolmogorovDistance
+  name: Kolmogorov distance
+  description: >
+    The supremum difference between two cumulative distributions (a Kolmogorov-Smirnov-style
+    statistic). Not one of the enumerated `statistic` kinds; its supremum-difference nature is
+    documented here rather than forcing an inexact enum value.
+  dimensionStatus: declared
+  dimension: [0, 0, 0, 0, 0, 0]
+  dimensionlessKind: ratio
+  mathematicalKind: scalar
+  frame: not-applicable
+  colorRole: statistical
+
+- id: maxProbabilityDifference
+  name: Maximum probability difference
+  description: The largest absolute difference between two sets of interval probabilities, for grid-against-analytic comparisons.
+  dimensionStatus: declared
+  dimension: [0, 0, 0, 0, 0, 0]
+  dimensionlessKind: ratio
+  mathematicalKind: scalar
+  frame: not-applicable
+  colorRole: statistical
+
+- id: volumeFraction
+  name: Volume fraction
+  description: The companion's solute volume fraction phi in the dilute-suspension viscosity law.
+  dimensionStatus: declared
+  dimension: [0, 0, 0, 0, 0, 0]
+  dimensionlessKind: ratio
+  mathematicalKind: scalar
+  frame: not-applicable
+  colorRole: material
+
+- id: effectiveViscosity
+  name: Effective viscosity
+  description: The companion's suspension viscosity eta-star, distinct from the solvent viscosity.
+  dimensionStatus: declared
+  dimension: [-1, 1, -1, 0, 0, 0]
+  mathematicalKind: scalar
+  frame: not-applicable
+  colorRole: material
+
+- id: suspensionViscosityCoefficient
+  name: Suspension viscosity coefficient
+  description: >
+    The coefficient of phi in the dilute-suspension viscosity law: 1 in the 1906 printing,
+    5/2 after the 1911 correction. Einstein prints k for the viscosity itself, so this
+    coefficient is never called k; the modern [eta] appears only in modern-notation layers.
+  dimensionStatus: declared
+  dimension: [0, 0, 0, 0, 0, 0]
+  dimensionlessKind: ratio
+  mathematicalKind: scalar
+  frame: not-applicable
+  colorRole: material
+
+- id: molesPerVolume
+  name: Moles per volume
+  description: >
+    The solute's amount per unit volume used by the suspension inversion; with
+    molarGasConstant and temperature gives an osmotic pressure. Not numberDensity, which
+    counts particles rather than amount.
+  dimensionStatus: declared
+  dimension: [-3, 0, 0, 0, 0, 1]
+  mathematicalKind: scalar
+  frame: not-applicable
+  colorRole: material
+
+- id: soluteAmount
+  name: Solute amount
+  description: Paper 2 section 1's printed z gram-molecules of dissolved substance.
+  dimensionStatus: declared
+  dimension: [0, 0, 0, 0, 0, 1]
+  mathematicalKind: scalar
+  frame: not-applicable
+  colorRole: material
+
+- id: particleMass
+  name: Particle mass
+  description: Paper 2 section 3's printed mu, a suspended particle's mass.
+  dimensionStatus: declared
+  dimension: [0, 1, 0, 0, 0, 0]
+  mathematicalKind: scalar
+  frame: not-applicable
+  colorRole: material
+
+- id: columnLength
+  name: Column length
+  description: Paper 2 section 3's fluid column length l.
+  dimensionStatus: declared
+  dimension: [1, 0, 0, 0, 0, 0]
+  mathematicalKind: scalar
+  frame: not-applicable
+  colorRole: space-geometry
+
+- id: driftFluxComponent
+  name: Drift flux component
+  description: A vector component along the declared x axis of driftFlux, paper 2 equation (2).
+  dimensionStatus: declared
+  dimension: [-2, 0, -1, 0, 0, 0]
+  mathematicalKind: vector-component
+  frame: not-applicable
+  colorRole: material
+
+- id: diffusionFluxComponent
+  name: Diffusion flux component
+  description: A vector component along the declared x axis of diffusionFlux, paper 2 equation (2).
+  dimensionStatus: declared
+  dimension: [-2, 0, -1, 0, 0, 0]
+  mathematicalKind: vector-component
+  frame: not-applicable
+  colorRole: material
+
+- id: microstateEnergy
+  name: Microstate energy
+  description: Paper 2 section 2's printed E as a function of the state variables, distinct from systemEnergy (the thermodynamic mean).
+  dimensionStatus: declared
+  dimension: [2, 1, -2, 0, 0, 0]
+  mathematicalKind: scalar
+  frame: not-applicable
+  colorRole: energy
+
+- id: stateVariable
+  name: State variable
+  description: Paper 2 section 2's printed p_nu, a microstate coordinate. Always symbolic; carries no fixed dimension.
+  dimensionStatus: state-dependent
+  dimensionNote: Paper 2 section 2's state variable p_nu is a function of the microstate and carries no fixed dimension; always symbolic.
+  mathematicalKind: scalar
+  frame: not-applicable
+  colorRole: statistical
+
+- id: stateVariableRate
+  name: State variable rate
+  description: Paper 2 section 2's printed phi_nu, the time rate of a state variable. Always symbolic; carries no fixed dimension.
+  dimensionStatus: state-dependent
+  dimensionNote: Paper 2 section 2's state variable rate phi_nu is a function of the microstate and carries no fixed dimension; always symbolic.
+  mathematicalKind: scalar
+  frame: not-applicable
+  colorRole: statistical
+
+- id: configurationIntegral
+  name: Configuration integral
+  description: Paper 2 section 2's printed B, a configuration-space integral. Always symbolic; carries no fixed dimension.
+  dimensionStatus: state-dependent
+  dimensionNote: Paper 2 section 2's configuration integral B is a function of the microstate and carries no fixed dimension; always symbolic.
+  mathematicalKind: scalar
+  frame: not-applicable
+  colorRole: statistical
+
+- id: configurationIntegralFactor
+  name: Configuration integral factor
+  description: Paper 2 section 2's printed J, a factor of the configuration integral. Always symbolic; carries no fixed dimension.
+  dimensionStatus: state-dependent
+  dimensionNote: Paper 2 section 2's configuration integral factor J is a function of the microstate and carries no fixed dimension; always symbolic.
+  mathematicalKind: scalar
+  frame: not-applicable
+  colorRole: statistical
+
+- id: partitionForce
+  name: Partition force
+  description: BM-02's osmotic force Pi*A on a partition of area A.
+  dimensionStatus: declared
+  dimension: [1, 1, -2, 0, 0, 0]
+  mathematicalKind: scalar
+  frame: not-applicable
+  colorRole: material
+
+- id: hydrostaticHead
+  name: Hydrostatic head
+  description: BM-02's equilibrium head Pi/(rho*g).
+  dimensionStatus: declared
+  dimension: [1, 0, 0, 0, 0, 0]
+  mathematicalKind: scalar
+  frame: not-applicable
+  colorRole: space-geometry
+
+- id: kickDiffusivity
+  name: Kick diffusivity
+  description: >
+    BM-04's diffusivity of random kicks, a separate id from diffusionCoefficient so the
+    Einstein relation D = mu*k_B*T is a result the instrument tests, never an identity of
+    this registry.
+  dimensionStatus: declared
+  dimension: [2, 0, -1, 0, 0, 0]
+  mathematicalKind: scalar
+  frame: not-applicable
+  colorRole: material
+
+- id: relativeViscosity
+  name: Relative viscosity
+  description: >
+    The suspension's eta-star/eta (Bancelin 1911 dataset column and the companion's
+    suspension output); one record serves both uses. Distinct from
+    suspensionViscosityCoefficient (the coefficient of phi, not the ratio itself).
+  dimensionStatus: declared
+  dimension: [0, 0, 0, 0, 0, 0]
+  dimensionlessKind: ratio
+  mathematicalKind: scalar
+  frame: not-applicable
+  colorRole: material
+
+- id: relativeSpectralEmission
+  name: Relative spectral emission
+  description: A ratio on a relative scale whose reference the dataset states, the 1899-1900 spectra.
+  dimensionStatus: declared
+  dimension: [0, 0, 0, 0, 0, 0]
+  dimensionlessKind: ratio
+  mathematicalKind: scalar
+  frame: not-applicable
+  colorRole: statistical
+
+- id: chargeToMassRatio
+  name: Charge-to-mass ratio
+  description: The Kaufmann and Bucherer dataset column's electron charge-to-mass ratio.
+  dimensionStatus: declared
+  dimension: [0, -1, 1, 0, 1, 0]
+  gaussianDimension: ["-1/2", "3/2", -1, 0, 0, 0]
+  emuDimension: ["-1/2", "1/2", 0, 0, 0, 0]
+  mathematicalKind: scalar
+  frame: not-applicable
+  colorRole: material
+
+- id: fringeShift
+  name: Fringe shift
+  description: The Fizeau 1851 dataset column's interference fringe shift, a real-valued count.
+  dimensionStatus: declared
+  dimension: [0, 0, 0, 0, 0, 0]
+  dimensionlessKind: count
+  mathematicalKind: scalar
+  frame: not-applicable
+  colorRole: statistical
+
+- id: dragCoefficient
+  name: Drag coefficient
+  description: The Fizeau 1851 dataset column's measured counterpart of Fresnel's drag coefficient 1 - 1/n^2.
+  dimensionStatus: declared
+  dimension: [0, 0, 0, 0, 0, 0]
+  dimensionlessKind: ratio
+  mathematicalKind: scalar
+  frame: not-applicable
+  colorRole: statistical
+
+- id: speedRatio
+  name: Speed ratio
+  description: >
+    The modern beta = v/c only, used by the Kaufmann, Bucherer, and Ives-Stilwell dataset
+    columns and by modern-lens formulas. Never bound to Einstein's printed beta, which binds
+    lorentzFactor in paper 3 and wienConstantBeta in paper 1.
+  dimensionStatus: declared
+  dimension: [0, 0, 0, 0, 0, 0]
+  dimensionlessKind: ratio
+  mathematicalKind: scalar
+  frame: not-applicable
+  colorRole: space-geometry

@@ -1,0 +1,303 @@
+# Paper 3 kinematics: frames, times, positions, the interval, velocities.
+# am-not-quantity-registry-2f7. Dimension order: [length, mass, time, temperature, current, amount].
+# The electrodynamics part of paper 3 (fields, sources, waves, the electron) lives in
+# electrodynamics.yaml, owned separately.
+
+- id: frameSpeed
+  name: Frame speed
+  description: The signed frame speed v between the stationary and moving systems. Rejected legacy spelling observerSpeed.
+  dimensionStatus: declared
+  dimension: [1, 0, -1, 0, 0, 0]
+  mathematicalKind: scalar
+  frame: not-applicable
+  colorRole: space-geometry
+
+- id: lorentzFactor
+  name: Lorentz factor
+  description: >
+    The modern gamma. Einstein's printed beta in paper 3 binds THIS id, never speedRatio;
+    the two dangerous notational collisions (beta-as-gamma here, k-as-viscosity in paper 2)
+    are called out on first use in the notation concordance.
+  dimensionStatus: declared
+  dimension: [0, 0, 0, 0, 0, 0]
+  dimensionlessKind: ratio
+  mathematicalKind: scalar
+  frame: not-applicable
+  colorRole: space-geometry
+
+- id: rapidity
+  name: Rapidity
+  description: The hyperbolic angle whose tanh is the speed ratio; a modern-lens convenience, not printed notation.
+  dimensionStatus: declared
+  dimension: [0, 0, 0, 0, 0, 0]
+  dimensionlessKind: hyperbolic-angle
+  mathematicalKind: scalar
+  frame: not-applicable
+  colorRole: space-geometry
+
+- id: scaleFactorUnknown
+  name: "Unknown scale factor: phi(v)"
+  description: >
+    Einstein's section 3 printed phi(v), the undetermined scale function before it is fixed.
+    Distinct from fieldScaleFactorUnknown (electrodynamics.yaml, section 6's psi(v)) --
+    different symbol, different argument, only later both shown to equal 1.
+  dimensionStatus: declared
+  dimension: [0, 0, 0, 0, 0, 0]
+  dimensionlessKind: ratio
+  mathematicalKind: scalar
+  frame: not-applicable
+  colorRole: space-geometry
+
+- id: transformationCoefficientA
+  name: "Transformation coefficient: a"
+  description: Section 3's printed a, the undetermined function of v before it is fixed.
+  dimensionStatus: declared
+  dimension: [0, 0, 0, 0, 0, 0]
+  dimensionlessKind: ratio
+  mathematicalKind: scalar
+  frame: not-applicable
+  colorRole: space-geometry
+
+- id: velocityDirectionAngle
+  name: "Velocity direction angle: alpha"
+  description: Section 5's printed alpha, the angle between w and the direction of motion.
+  dimensionStatus: declared
+  dimension: [0, 0, 0, 0, 0, 0]
+  dimensionlessKind: angle
+  mathematicalKind: scalar
+  frame: not-applicable
+  colorRole: space-geometry
+
+- id: speedDeficitFromLight
+  name: "Speed deficit from light speed: kappa, lambda"
+  description: >
+    Section 5's printed kappa and lambda in v = V - kappa, w = V - lambda. These are SPEEDS,
+    not ratios: the amounts by which each speed falls short of light speed. One record with a
+    speed dimension serves both symbols; the printed inequality
+    U = V(2V - kappa - lambda)/(2V - kappa - lambda + kappa*lambda/V) < V dimension-checks
+    against this record.
+  dimensionStatus: declared
+  dimension: [1, 0, -1, 0, 0, 0]
+  mathematicalKind: scalar
+  frame: not-applicable
+  colorRole: space-geometry
+
+- id: ansatzSpatialScale
+  name: "Modern ansatz spatial scale: a(v)"
+  description: >
+    The modern side-door ansatz a(v) in xi = a(v)(x - vt). A labeled modern-layer symbol,
+    never printed notation.
+  dimensionStatus: declared
+  dimension: [0, 0, 0, 0, 0, 0]
+  dimensionlessKind: ratio
+  mathematicalKind: scalar
+  frame: not-applicable
+  colorRole: space-geometry
+
+- id: ansatzTimeScale
+  name: "Modern ansatz time scale: b(v)"
+  description: The modern ansatz b(v). A labeled modern-layer symbol, never printed notation.
+  dimensionStatus: declared
+  dimension: [0, 0, 0, 0, 0, 0]
+  dimensionlessKind: ratio
+  mathematicalKind: scalar
+  frame: not-applicable
+  colorRole: space-geometry
+
+- id: ansatzTimeSpaceCoefficient
+  name: "Modern ansatz time-space coefficient: d(v)"
+  description: >
+    The modern ansatz d(v), so that d(v)*x is a time. A labeled modern-layer symbol, never
+    printed notation.
+  dimensionStatus: declared
+  dimension: [-1, 0, 1, 0, 0, 0]
+  mathematicalKind: scalar
+  frame: not-applicable
+  colorRole: space-geometry
+
+- id: ansatzTransverseScale
+  name: Modern ansatz transverse scale
+  description: >
+    The modern ansatz's transverse coefficient. A labeled modern-layer symbol. NEVER written
+    "k" in any layer, because k is Einstein's moving system from section 3 on.
+  dimensionStatus: declared
+  dimension: [0, 0, 0, 0, 0, 0]
+  dimensionlessKind: ratio
+  mathematicalKind: scalar
+  frame: not-applicable
+  colorRole: space-geometry
+
+- id: coordinateTimeStationary
+  name: Coordinate time (stationary system)
+  description: The stationary system K's coordinate time. Rejected legacy spelling coordinateTime (ambiguous between the two systems).
+  dimensionStatus: declared
+  dimension: [0, 0, 1, 0, 0, 0]
+  timeKind: coordinate
+  mathematicalKind: scalar
+  frame: stationary-system
+  colorRole: time-rate
+
+- id: coordinateTimeMoving
+  name: Coordinate time (moving system)
+  description: >
+    The moving system k's coordinate time. This id, electronWork, and kineticEnergy are
+    canonical ids, not legacy spellings of anything.
+  dimensionStatus: declared
+  dimension: [0, 0, 1, 0, 0, 0]
+  timeKind: coordinate
+  mathematicalKind: scalar
+  frame: moving-system
+  colorRole: time-rate
+
+- id: coordinatePositionStationary
+  name: Coordinate position (stationary system)
+  description: A position vector in the stationary system K, (x, y, z).
+  dimensionStatus: declared
+  dimension: [1, 0, 0, 0, 0, 0]
+  mathematicalKind: vector
+  frame: stationary-system
+  colorRole: space-geometry
+
+- id: coordinatePositionMoving
+  name: Coordinate position (moving system)
+  description: A position vector in the moving system k, (xi, eta, zeta).
+  dimensionStatus: declared
+  dimension: [1, 0, 0, 0, 0, 0]
+  mathematicalKind: vector
+  frame: moving-system
+  colorRole: space-geometry
+
+- id: auxiliaryGalileanCoordinate
+  name: "Auxiliary Galilean coordinate: x'"
+  description: >
+    Einstein's section 3 printed x' = x - vt, a Galilean auxiliary coordinate -- NOT the
+    moving-frame coordinate coordinatePositionMoving. Wherever the true moving-frame x' also
+    appears, the modern notation form gives this auxiliary a distinct glyph.
+  dimensionStatus: declared
+  dimension: [1, 0, 0, 0, 0, 0]
+  mathematicalKind: scalar
+  frame: not-applicable
+  colorRole: space-geometry
+
+- id: properTimeElapsed
+  name: Elapsed proper time
+  description: >
+    The elapsed time in a clock's own rest frame. Rejected legacy spelling properTime. Carries
+    frame: object-rest (a clock's proper time is tied to its own rest frame, unlike a truly
+    frame-independent invariant such as wavePhase or spacetimeIntervalSquared).
+  dimensionStatus: declared
+  dimension: [0, 0, 1, 0, 0, 0]
+  timeKind: proper
+  mathematicalKind: scalar
+  frame: object-rest
+  colorRole: time-rate
+
+- id: eventSeparationSpatial
+  name: Spatial event separation
+  description: The spatial separation Delta x between two events.
+  dimensionStatus: declared
+  dimension: [1, 0, 0, 0, 0, 0]
+  mathematicalKind: scalar
+  frame: not-applicable
+  colorRole: space-geometry
+
+- id: eventSeparationTemporal
+  name: Temporal event separation
+  description: The temporal separation Delta t between two events.
+  dimensionStatus: declared
+  dimension: [0, 0, 1, 0, 0, 0]
+  mathematicalKind: scalar
+  frame: not-applicable
+  colorRole: time-rate
+
+- id: lengthProper
+  name: Proper length
+  description: A rod's length in its own rest frame. Rejected legacy spelling rodLengthRest.
+  dimensionStatus: declared
+  dimension: [1, 0, 0, 0, 0, 0]
+  mathematicalKind: scalar
+  frame: object-rest
+  colorRole: space-geometry
+
+- id: lengthMeasuredStationary
+  name: Measured length (stationary system)
+  description: A rod's length as measured from the stationary system. Rejected legacy spelling rodLengthMeasured.
+  dimensionStatus: declared
+  dimension: [1, 0, 0, 0, 0, 0]
+  observation: measured
+  mathematicalKind: scalar
+  frame: stationary-system
+  colorRole: space-geometry
+
+- id: sphereRadius
+  name: Sphere radius
+  description: The radius of a sphere used in a section 3/4 rigid-body construction.
+  dimensionStatus: declared
+  dimension: [1, 0, 0, 0, 0, 0]
+  mathematicalKind: scalar
+  frame: not-applicable
+  colorRole: space-geometry
+
+- id: lightSphereRadius
+  name: Light-sphere radius
+  description: The radius of an expanding light sphere used in the section 3 derivation.
+  dimensionStatus: declared
+  dimension: [1, 0, 0, 0, 0, 0]
+  mathematicalKind: scalar
+  frame: not-applicable
+  colorRole: space-geometry
+
+- id: clockOffset
+  name: Clock offset
+  description: A synchronization offset between two clocks.
+  dimensionStatus: declared
+  dimension: [0, 0, 1, 0, 0, 0]
+  mathematicalKind: scalar
+  frame: not-applicable
+  colorRole: time-rate
+
+- id: spacetimeIntervalSquared
+  name: Squared spacetime interval
+  description: >
+    The squared interval between two events, s^2 = Delta x^2 - c^2 Delta t^2, POSITIVE for a
+    spacelike separation. The sign convention is part of the record, because the opposite
+    convention flips the sign of every classification that reads it. It carries
+    frame: frame-independent rather than a frame-tagged pair because every inertial frame
+    computes the same value from its own separations -- exactly why am-sr-03-rod-simultaneity
+    displays it beside the frame-relative simultaneityClassification: the contrast is the
+    lesson. Rejected legacy spelling intervalSquared (the bare spelling collides with
+    observationInterval, stepInterval, longAveragingInterval, intervalProbability, and
+    logIntervalEnergyDensity). The boundary band near zero belongs to the tolerance module,
+    never this registry.
+  dimensionStatus: declared
+  dimension: [2, 0, 0, 0, 0, 0]
+  mathematicalKind: scalar
+  frame: frame-independent
+  colorRole: space-geometry
+
+- id: velocityInMovingFrame
+  name: Velocity in the moving frame
+  description: A particle's velocity vector as measured in the moving system k.
+  dimensionStatus: declared
+  dimension: [1, 0, -1, 0, 0, 0]
+  mathematicalKind: vector
+  frame: moving-system
+  colorRole: space-geometry
+
+- id: velocityComposed
+  name: Composed velocity (stationary system)
+  description: The relativistic velocity-addition result, expressed in the stationary system.
+  dimensionStatus: declared
+  dimension: [1, 0, -1, 0, 0, 0]
+  mathematicalKind: vector
+  frame: stationary-system
+  colorRole: space-geometry
+
+- id: particleVelocity
+  name: Particle velocity (laboratory)
+  description: A particle's velocity vector as measured in the laboratory frame.
+  dimensionStatus: declared
+  dimension: [1, 0, -1, 0, 0, 0]
+  mathematicalKind: vector
+  frame: laboratory
+  colorRole: space-geometry

@@ -1,0 +1,8 @@
+# Fixture: a valid, minimal registry used to prove --check catches a stale committed doc copy.
+- id: exampleStaleDocQuantity
+  name: Example stale-doc quantity (fixture)
+  description: A valid record; the committed QUANTITY_IDS.md fixture beside it is deliberately stale.
+  dimensionStatus: declared
+  dimension: [1, 0, 0, 0, 0, 0]
+  mathematicalKind: scalar
+  frame: not-applicable

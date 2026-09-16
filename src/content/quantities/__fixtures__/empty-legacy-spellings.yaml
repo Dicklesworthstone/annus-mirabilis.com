@@ -1,0 +1,2 @@
+# Fixture: no legacy spellings declared. A comment-only file parses to this project's
+# empty-document value, treated by getLegacySpellingsFrom as zero entries.

@@ -1,0 +1,476 @@
+# Paper 3 electrodynamics: fields, sources, waves, the moving electron.
+# am-not-quantity-registry-2f7. Dimension order: [length, mass, time, temperature, current, amount].
+# magneticDeflectability and electricDeflectability are RESERVED spellings (see registry.ts's
+# RESERVED_SPELLINGS), not records: am-sre-equations-2g3h adds them after the facsimile check.
+
+- id: electricFieldStationary
+  name: Electric field (stationary system)
+  description: The electric field vector in the stationary system K. Rejected bare spelling electricField.
+  dimensionStatus: declared
+  dimension: [1, 1, -3, 0, -1, 0]
+  gaussianDimension: ["-1/2", "1/2", -1, 0, 0, 0]
+  mathematicalKind: vector
+  frame: stationary-system
+  colorRole: field
+
+- id: electricFieldMoving
+  name: Electric field (moving system)
+  description: The electric field vector in the moving system k. Rejected bare spelling electricField.
+  dimensionStatus: declared
+  dimension: [1, 1, -3, 0, -1, 0]
+  gaussianDimension: ["-1/2", "1/2", -1, 0, 0, 0]
+  mathematicalKind: vector
+  frame: moving-system
+  colorRole: field
+
+- id: magneticFieldStationary
+  name: Magnetic field (stationary system)
+  description: The magnetic field vector in the stationary system K. Rejected bare spelling magneticField.
+  dimensionStatus: declared
+  dimension: [0, 1, -2, 0, -1, 0]
+  gaussianDimension: ["-1/2", "1/2", -1, 0, 0, 0]
+  mathematicalKind: vector
+  frame: stationary-system
+  colorRole: field
+
+- id: magneticFieldMoving
+  name: Magnetic field (moving system)
+  description: The magnetic field vector in the moving system k. Rejected bare spelling magneticField.
+  dimensionStatus: declared
+  dimension: [0, 1, -2, 0, -1, 0]
+  gaussianDimension: ["-1/2", "1/2", -1, 0, 0, 0]
+  mathematicalKind: vector
+  frame: moving-system
+  colorRole: field
+
+- id: fieldInvariantE2MinusC2B2
+  name: "Field invariant: E^2 - c^2 B^2"
+  description: The Lorentz-invariant combination of the field magnitudes, E^2 - c^2 B^2.
+  dimensionStatus: declared
+  dimension: [2, 2, -6, 0, -2, 0]
+  gaussianDimension: [-1, 1, -2, 0, 0, 0]
+  mathematicalKind: scalar
+  frame: not-applicable
+  colorRole: field
+
+- id: fieldInvariantEDotB
+  name: "Field invariant: E dot B"
+  description: The Lorentz-invariant combination of the field vectors, E dot B.
+  dimensionStatus: declared
+  dimension: [1, 2, -5, 0, -2, 0]
+  gaussianDimension: [-1, 1, -2, 0, 0, 0]
+  mathematicalKind: scalar
+  frame: not-applicable
+  colorRole: field
+
+- id: fieldScaleFactorUnknown
+  name: "Unknown scale factor: psi(v)"
+  description: >
+    Section 6's printed psi(v), the common undetermined factor of the transformed fields. A
+    distinct record from kinematics.yaml's scaleFactorUnknown (section 3's phi(v)) because the
+    two are established by different arguments and only later both shown to equal 1.
+  dimensionStatus: declared
+  dimension: [0, 0, 0, 0, 0, 0]
+  dimensionlessKind: ratio
+  mathematicalKind: scalar
+  frame: not-applicable
+  colorRole: field
+
+- id: chargeDensityStationary
+  name: Charge density (stationary system)
+  description: The electric charge density in the stationary system K. Rejected bare spelling chargeDensity.
+  dimensionStatus: declared
+  dimension: [-3, 0, 1, 0, 1, 0]
+  gaussianDimension: ["-3/2", "1/2", -1, 0, 0, 0]
+  mathematicalKind: scalar
+  frame: stationary-system
+  colorRole: field
+
+- id: chargeDensityMoving
+  name: Charge density (moving system)
+  description: The electric charge density in the moving system k. Rejected bare spelling chargeDensity.
+  dimensionStatus: declared
+  dimension: [-3, 0, 1, 0, 1, 0]
+  gaussianDimension: ["-3/2", "1/2", -1, 0, 0, 0]
+  mathematicalKind: scalar
+  frame: moving-system
+  colorRole: field
+
+- id: currentDensityStationary
+  name: Current density (stationary system)
+  description: The electric current density vector in the stationary system K. Rejected bare spelling currentDensity.
+  dimensionStatus: declared
+  dimension: [-2, 0, 0, 0, 1, 0]
+  gaussianDimension: ["-1/2", "1/2", -2, 0, 0, 0]
+  mathematicalKind: vector
+  frame: stationary-system
+  colorRole: field
+
+- id: currentDensityMoving
+  name: Current density (moving system)
+  description: The electric current density vector in the moving system k. Rejected bare spelling currentDensity.
+  dimensionStatus: declared
+  dimension: [-2, 0, 0, 0, 1, 0]
+  gaussianDimension: ["-1/2", "1/2", -2, 0, 0, 0]
+  mathematicalKind: vector
+  frame: moving-system
+  colorRole: field
+
+- id: chargeVelocityMoving
+  name: Charge velocity (moving system)
+  description: Section 9's printed u_xi, u_eta, u_zeta, a moving charge's velocity components in the moving system k.
+  dimensionStatus: declared
+  dimension: [1, 0, -1, 0, 0, 0]
+  mathematicalKind: vector
+  frame: moving-system
+  colorRole: space-geometry
+
+- id: chargeVelocityStationary
+  name: Charge velocity (stationary system)
+  description: >
+    The same moving charge's velocity components transformed into the stationary system K.
+    Both chargeVelocityMoving and chargeVelocityStationary exist because section 9 transforms
+    one into the other.
+  dimensionStatus: declared
+  dimension: [1, 0, -1, 0, 0, 0]
+  mathematicalKind: vector
+  frame: stationary-system
+  colorRole: space-geometry
+
+- id: waveFrequencyStationary
+  name: Wave frequency (stationary system)
+  description: A plane light wave's cyclic frequency as measured in the stationary system K.
+  dimensionStatus: declared
+  dimension: [0, 0, -1, 0, 0, 0]
+  frequencyKind: cyclic
+  mathematicalKind: scalar
+  frame: stationary-system
+  colorRole: time-rate
+
+- id: waveFrequencyMoving
+  name: Wave frequency (moving system)
+  description: A plane light wave's cyclic frequency as measured in the moving system k.
+  dimensionStatus: declared
+  dimension: [0, 0, -1, 0, 0, 0]
+  frequencyKind: cyclic
+  mathematicalKind: scalar
+  frame: moving-system
+  colorRole: time-rate
+
+- id: waveAngularFrequencyStationary
+  name: Wave angular frequency (stationary system)
+  description: A plane light wave's angular frequency as measured in the stationary system K.
+  dimensionStatus: declared
+  dimension: [0, 0, -1, 0, 0, 0]
+  frequencyKind: angular
+  mathematicalKind: scalar
+  frame: stationary-system
+  colorRole: time-rate
+
+- id: waveAngularFrequencyMoving
+  name: Wave angular frequency (moving system)
+  description: A plane light wave's angular frequency as measured in the moving system k.
+  dimensionStatus: declared
+  dimension: [0, 0, -1, 0, 0, 0]
+  frequencyKind: angular
+  mathematicalKind: scalar
+  frame: moving-system
+  colorRole: time-rate
+
+- id: directionCosineStationary
+  name: Direction cosine (stationary system)
+  description: A component of the wave-normal unit direction as measured in the stationary system K. Rejected bare spelling directionCosineMotion.
+  dimensionStatus: declared
+  dimension: [0, 0, 0, 0, 0, 0]
+  dimensionlessKind: ratio
+  mathematicalKind: vector
+  frame: stationary-system
+  colorRole: space-geometry
+
+- id: directionCosineMoving
+  name: Direction cosine (moving system)
+  description: A component of the wave-normal unit direction as measured in the moving system k. Rejected bare spelling directionCosineMotion.
+  dimensionStatus: declared
+  dimension: [0, 0, 0, 0, 0, 0]
+  dimensionlessKind: ratio
+  mathematicalKind: vector
+  frame: moving-system
+  colorRole: space-geometry
+
+- id: propagationAngleStationary
+  name: Propagation angle (stationary system)
+  description: The angle between the wave normal and the frame speed direction, in the stationary system K. Rejected bare spelling propagationAngle.
+  dimensionStatus: declared
+  dimension: [0, 0, 0, 0, 0, 0]
+  dimensionlessKind: angle
+  mathematicalKind: scalar
+  frame: stationary-system
+  colorRole: space-geometry
+
+- id: propagationAngleMoving
+  name: Propagation angle (moving system)
+  description: The angle between the wave normal and the frame speed direction, in the moving system k. Rejected bare spelling propagationAngle.
+  dimensionStatus: declared
+  dimension: [0, 0, 0, 0, 0, 0]
+  dimensionlessKind: angle
+  mathematicalKind: scalar
+  frame: moving-system
+  colorRole: space-geometry
+
+- id: lightAmplitudeStationary
+  name: Light amplitude (stationary system)
+  description: A plane light wave's field amplitude as measured in the stationary system K. Rejected bare spelling lightAmplitude.
+  dimensionStatus: declared
+  dimension: [1, 1, -3, 0, -1, 0]
+  gaussianDimension: ["-1/2", "1/2", -1, 0, 0, 0]
+  mathematicalKind: scalar
+  frame: stationary-system
+  colorRole: field
+
+- id: lightAmplitudeMoving
+  name: Light amplitude (moving system)
+  description: A plane light wave's field amplitude as measured in the moving system k. Rejected bare spelling lightAmplitude.
+  dimensionStatus: declared
+  dimension: [1, 1, -3, 0, -1, 0]
+  gaussianDimension: ["-1/2", "1/2", -1, 0, 0, 0]
+  mathematicalKind: scalar
+  frame: moving-system
+  colorRole: field
+
+- id: lightComplexVolumeStationary
+  name: Light complex volume (stationary system)
+  description: The volume of a light complex as measured in the stationary system K. Rejected bare spelling lightComplexVolume.
+  dimensionStatus: declared
+  dimension: [3, 0, 0, 0, 0, 0]
+  mathematicalKind: scalar
+  frame: stationary-system
+  colorRole: space-geometry
+
+- id: lightComplexVolumeMoving
+  name: Light complex volume (moving system)
+  description: The volume of a light complex as measured in the moving system k. Rejected bare spelling lightComplexVolume.
+  dimensionStatus: declared
+  dimension: [3, 0, 0, 0, 0, 0]
+  mathematicalKind: scalar
+  frame: moving-system
+  colorRole: space-geometry
+
+- id: lightComplexEnergyStationary
+  name: Light complex energy (stationary system)
+  description: The energy of a light complex as measured in the stationary system K. Rejected bare spelling lightComplexEnergy.
+  dimensionStatus: declared
+  dimension: [2, 1, -2, 0, 0, 0]
+  mathematicalKind: scalar
+  frame: stationary-system
+  colorRole: energy
+
+- id: lightComplexEnergyMoving
+  name: Light complex energy (moving system)
+  description: The energy of a light complex as measured in the moving system k. Rejected bare spelling lightComplexEnergy.
+  dimensionStatus: declared
+  dimension: [2, 1, -2, 0, 0, 0]
+  mathematicalKind: scalar
+  frame: moving-system
+  colorRole: energy
+
+- id: wavePhase
+  name: Wave phase
+  description: >
+    The phase of a plane wave at a named event, phi = k.x - omega*t in K and
+    phi' = k'.x' - omega'*t' in k. One record, not a frame-tagged pair: the phase is a scalar
+    with the same value in both frames, and that invariance is the single fact section 7
+    derives the Doppler principle and aberration from. am-sr-09-doppler-aberration-rabd binds
+    this id for both frames of its phaseAtEvent output, so their agreement stays a testable
+    result rather than an identity this registry asserts.
+  dimensionStatus: declared
+  dimension: [0, 0, 0, 0, 0, 0]
+  dimensionlessKind: angle
+  mathematicalKind: scalar
+  frame: frame-independent
+  formatting: >
+    A phase is compared as printed and never reduced modulo 2*pi first, because that would
+    hide a genuine 2*pi disagreement, and never compared through its cosine.
+  colorRole: field
+
+- id: dopplerFactor
+  name: Doppler factor
+  description: The ratio by which a moving-mirror or moving-source frequency is scaled, as printed in section 7's Doppler derivation.
+  dimensionStatus: declared
+  dimension: [0, 0, 0, 0, 0, 0]
+  dimensionlessKind: ratio
+  mathematicalKind: scalar
+  frame: not-applicable
+  colorRole: field
+
+- id: reflectedFrequencyRatio
+  name: Reflected frequency ratio
+  description: The ratio of a wave's frequency after reflection off a moving mirror to its frequency before, as printed in section 7's radiation-pressure derivation.
+  dimensionStatus: declared
+  dimension: [0, 0, 0, 0, 0, 0]
+  dimensionlessKind: ratio
+  mathematicalKind: scalar
+  frame: not-applicable
+  colorRole: field
+
+- id: mirrorSpeed
+  name: Mirror speed
+  description: A moving mirror's speed, as used in section 7's radiation-pressure derivation.
+  dimensionStatus: declared
+  dimension: [1, 0, -1, 0, 0, 0]
+  mathematicalKind: scalar
+  frame: not-applicable
+  colorRole: space-geometry
+
+- id: interceptedPower
+  name: Intercepted power
+  description: The radiant power a moving mirror intercepts, as printed in section 7.
+  dimensionStatus: declared
+  dimension: [2, 1, -3, 0, 0, 0]
+  mathematicalKind: scalar
+  frame: not-applicable
+  colorRole: energy
+
+- id: radiationPressureMirror
+  name: Radiation pressure on a mirror
+  description: The pressure light exerts on a perfectly reflecting moving mirror, as printed in section 7. Distinct from osmoticPressure and pressure.
+  dimensionStatus: declared
+  dimension: [-1, 1, -2, 0, 0, 0]
+  mathematicalKind: scalar
+  frame: not-applicable
+  colorRole: field
+
+- id: radiationForce
+  name: Radiation force
+  description: The force light exerts on a moving mirror, as printed in section 7.
+  dimensionStatus: declared
+  dimension: [1, 1, -2, 0, 0, 0]
+  mathematicalKind: vector
+  frame: not-applicable
+  colorRole: field
+
+- id: electronCharge
+  name: Electron charge
+  description: >
+    Section 10's printed electron charge. Distinct from elementaryCharge (paper 1's printed
+    epsilon, constants.yaml); neither is a legacy spelling of the other.
+  dimensionStatus: declared
+  dimension: [0, 0, 1, 0, 1, 0]
+  gaussianDimension: ["3/2", "1/2", -1, 0, 0, 0]
+  mathematicalKind: scalar
+  frame: not-applicable
+  colorRole: field
+
+- id: electronMass
+  name: Electron mass
+  description: Section 10's electron mass, as used in the equations of motion of a moving electron in an electromagnetic field.
+  dimensionStatus: declared
+  dimension: [0, 1, 0, 0, 0, 0]
+  mathematicalKind: scalar
+  frame: not-applicable
+  colorRole: material
+
+- id: longitudinalMass
+  name: Longitudinal mass
+  description: Section 10's printed longitudinal mass coefficient of a moving electron. Rejected bare spellings massCoefficientLongitudinal, longitudinalMassSource.
+  dimensionStatus: declared
+  dimension: [0, 1, 0, 0, 0, 0]
+  mathematicalKind: scalar
+  frame: not-applicable
+  colorRole: material
+
+- id: transverseMassComoving
+  name: Transverse mass (comoving)
+  description: >
+    Section 10's printed transverse mass coefficient evaluated in the electron's own
+    instantaneous rest frame (a particle's comoving frame maps to frame: object-rest, the same
+    value used for a *RestFrame id). Rejected bare spellings massCoefficientTransverseComoving,
+    transverseMassSource.
+  dimensionStatus: declared
+  dimension: [0, 1, 0, 0, 0, 0]
+  mathematicalKind: scalar
+  frame: object-rest
+  colorRole: material
+
+- id: transverseMassLaboratory
+  name: Transverse mass (laboratory)
+  description: Section 10's transverse mass coefficient as it enters the laboratory-frame equation of motion. Rejected bare spelling transverseCoefficientLaboratory.
+  dimensionStatus: declared
+  dimension: [0, 1, 0, 0, 0, 0]
+  mathematicalKind: scalar
+  frame: laboratory
+  colorRole: material
+
+- id: transverseForceComoving
+  name: Transverse force (comoving)
+  description: The transverse component of the force on a moving electron, evaluated in its own instantaneous rest frame.
+  dimensionStatus: declared
+  dimension: [1, 1, -2, 0, 0, 0]
+  mathematicalKind: vector
+  frame: object-rest
+  colorRole: field
+
+- id: transverseForceLaboratory
+  name: Transverse force (laboratory)
+  description: The transverse component of the force on a moving electron, evaluated in the laboratory frame. Distinct from transverseForceComoving.
+  dimensionStatus: declared
+  dimension: [1, 1, -2, 0, 0, 0]
+  mathematicalKind: vector
+  frame: laboratory
+  colorRole: field
+
+- id: longitudinalForce
+  name: Longitudinal force
+  description: The longitudinal component of the force on a moving electron, as printed in section 10.
+  dimensionStatus: declared
+  dimension: [1, 1, -2, 0, 0, 0]
+  mathematicalKind: vector
+  frame: not-applicable
+  colorRole: field
+
+- id: electronWork
+  name: Electron work
+  description: The work done on a moving electron by the electromagnetic field, as printed in section 10. A canonical id, not a legacy spelling of anything.
+  dimensionStatus: declared
+  dimension: [2, 1, -2, 0, 0, 0]
+  mathematicalKind: scalar
+  frame: not-applicable
+  colorRole: energy
+
+- id: kineticEnergy
+  name: Kinetic energy (electron)
+  description: The kinetic energy of a moving electron as printed in section 10, distinct from electronWork.
+  dimensionStatus: declared
+  dimension: [2, 1, -2, 0, 0, 0]
+  mathematicalKind: scalar
+  frame: not-applicable
+  colorRole: energy
+
+- id: acceleratingPotential
+  name: Accelerating potential
+  description: >
+    A potential difference that accelerates a charge, whether it drives section 10's electron
+    or a dataset's canal rays; the particle is a role on the binding, not part of the id.
+    Rejected bare spelling acceleratingVoltage.
+  dimensionStatus: declared
+  dimension: [2, 1, -3, 0, -1, 0]
+  mathematicalKind: scalar
+  frame: not-applicable
+  colorRole: field
+
+- id: radiusCurvatureMagnetic
+  name: Radius of curvature (magnetic deflection)
+  description: Section 10's radius of curvature of an electron's path under a magnetic deflecting field.
+  dimensionStatus: declared
+  dimension: [1, 0, 0, 0, 0, 0]
+  mathematicalKind: scalar
+  frame: not-applicable
+  colorRole: space-geometry
+
+- id: radiusCurvatureElectric
+  name: Radius of curvature (electric deflection)
+  description: Section 10's radius of curvature of an electron's path under an electric deflecting field.
+  dimensionStatus: declared
+  dimension: [1, 0, 0, 0, 0, 0]
+  mathematicalKind: scalar
+  frame: not-applicable
+  colorRole: space-geometry

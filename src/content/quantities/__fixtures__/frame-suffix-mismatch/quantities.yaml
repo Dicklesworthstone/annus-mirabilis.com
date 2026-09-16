@@ -1,0 +1,9 @@
+# Defect fixture: id ends with "Moving" but frame disagrees with the required
+# moving-system value. registry.ts's checkFrameSuffixAgreement must reject this.
+- id: exampleFieldMoving
+  name: Example field (defect fixture)
+  description: This id ends with "Moving" but wrongly declares a stationary-system frame.
+  dimensionStatus: declared
+  dimension: [1, 1, -3, 0, -1, 0]
+  mathematicalKind: scalar
+  frame: stationary-system
