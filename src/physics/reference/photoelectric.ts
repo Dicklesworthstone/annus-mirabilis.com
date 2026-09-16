@@ -123,12 +123,8 @@ export function thresholdFrequency(
       "Work function must be a finite number.",
     );
   }
-  if (workFunctionJoules <= 0) {
-    return outsideDomain(
-      "nonpositive-work-function",
-      "physical",
-      "Work function must be strictly positive.",
-    );
+  if (workFunctionJoules < 0) {
+    return outsideDomain("negative-work-function", "physical", "Work function cannot be negative.");
   }
   const h = getPlanckConstant(set);
   return ok(workFunctionJoules / h, "Hz");
@@ -174,12 +170,8 @@ export function kMax(
       "Work function must be a finite number.",
     );
   }
-  if (workFunctionJoules <= 0) {
-    return outsideDomain(
-      "nonpositive-work-function",
-      "physical",
-      "Work function must be strictly positive.",
-    );
+  if (workFunctionJoules < 0) {
+    return outsideDomain("negative-work-function", "physical", "Work function cannot be negative.");
   }
 
   const h = getPlanckConstant(set);
@@ -255,7 +247,7 @@ export function signedEnergyBudget(
   const e = getElementaryCharge(set);
   const eq = h * nu;
   const excess = eq - workFunctionJoules;
-  const emitted = excess >= 0 && nu > 0 && workFunctionJoules > 0;
+  const emitted = excess >= 0 && nu > 0 && workFunctionJoules >= 0;
   return Object.freeze({
     quantumEnergy: eq,
     workFunction: workFunctionJoules,

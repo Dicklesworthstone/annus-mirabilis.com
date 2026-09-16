@@ -230,10 +230,14 @@ export function createLq08Session(instanceId: string, example?: PreparedLq08Exam
     getServerSnapshot: () => serverSnapshot,
     subscribe: store.subscribe,
     apply(input: unknown) {
-      const validated = validateLq08Parameters(input);
+      const current = (store.getSnapshot().accepted?.parameters ??
+        initialParams) as Parameters as Lq08Parameters;
+      const merged = input && typeof input === "object" ? { ...current, ...input } : input;
+      const validated = validateLq08Parameters(merged);
       if (validated.kind !== "accepted") return validated;
       const parameters = validated.data;
-      const previous = store.getSnapshot().requested?.parameters ?? initialParams;
+      const previous = (store.getSnapshot().requested?.parameters ??
+        initialParams) as Parameters as Lq08Parameters;
       const setup: Record<string, number> = {};
       const measurement: Record<string, number> = {};
 

@@ -198,3 +198,21 @@ export function getOwnerTheoreticalLine(workFunctionEv: number, set?: ConstantSe
       "Theoretical line: slope is exact h/e from reference physics owner, not derived from empirical fit.",
   });
 }
+
+export function evaluateMillikanOverlay(workFunctionEv = 2.2, set?: ConstantSet) {
+  const fit = fitMillikanSodiumData();
+  const theoretical = getOwnerTheoreticalLine(workFunctionEv, set);
+  return Object.freeze({
+    fittedSlopeVs: fit.slope,
+    fittedSlopeStdErr: fit.slopeStandardError,
+    modelLineSlopeVs: theoretical.slope,
+    modelLineSource: theoretical.source,
+    dataset: Object.freeze({
+      citation:
+        'Millikan, R. A. (1916). A Direct Photoelectric Determination of Planck\'s "h". Physical Review 7, 355–389.',
+      points: MILLIKAN_1916_SODIUM_POINTS,
+    }),
+  });
+}
+
+export type MillikanOverlayResult = ReturnType<typeof evaluateMillikanOverlay>;
