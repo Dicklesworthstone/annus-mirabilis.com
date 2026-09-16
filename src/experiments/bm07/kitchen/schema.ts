@@ -11,7 +11,7 @@ export const KITCHEN_METADATA_KEYS = Object.freeze([
   "calibration_axes", "calibration_method", "calibration_interval_um", "declared_interval_s",
   "frame_rate_hz", "timing_source", "temperature_k", "temperature_interval_k", "viscosity_mpa_s",
   "viscosity_source", "radius_um", "radius_interval_um", "radius_interval_coverage", "exposure_s",
-  "drift_source", "constant_set_id", "sample", "data_origin",
+  "drift_source", "constant_set_id", "sample", "data_origin", "radius_provenance",
 ] as const);
 export type MetadataKey = (typeof KITCHEN_METADATA_KEYS)[number];
 export type KitchenMetadata = Readonly<Record<MetadataKey, string>>;
@@ -56,10 +56,10 @@ export function intervalMetadata(raw: string, field: string): readonly [number, 
   return Object.freeze([a, b]);
 }
 export function validateKitchenMetadata(input: Record<string, string>): KitchenMetadata {
-  const optional = new Set(["exposure_s", "data_origin"]);
+  const optional = new Set(["exposure_s", "data_origin", "radius_provenance"]);
   for (const key of KITCHEN_METADATA_KEYS) if (!(key in input) && !optional.has(key))
     throw new KitchenInputError(0, key, "the metadata declaration is missing (a blank value is allowed for an unknown optional measurement).");
-  const m = { ...input, exposure_s: input.exposure_s ?? "", data_origin: input.data_origin ?? "reader-supplied" } as Record<MetadataKey, string>;
+  const m = { ...input, exposure_s: input.exposure_s ?? "", data_origin: input.data_origin ?? "reader-supplied", radius_provenance: input.radius_provenance ?? "unknown" } as Record<MetadataKey, string>;
   const numeric = (key: MetadataKey, min: number, max: number, nullable = false) => {
     if (!m[key] && nullable) return;
     const n = kitchenNumber(m[key], key);
@@ -80,6 +80,7 @@ export function validateKitchenMetadata(input: Record<string, string>): KitchenM
   choice("timing_source", ["frame-callback", "declared-rate"]); choice("drift_source", ["stage", "fluid", "unknown", "none"]);
   choice("constant_set_id", ["scenario-gas-constant-measured", "einstein-1905-brownian-printed", "modern-si-2019"]);
   choice("data_origin", ["reader-supplied", "synthetic"]);
+  choice("radius_provenance", ["independent", "same-displacements", "unknown"]);
   for (const axis of ["x", "y"] as const) if ((m.calibration_axes === axis || m.calibration_axes === "both") && !m[`pixels_per_um_${axis}`])
     throw new KitchenInputError(0, `pixels_per_um_${axis}`, "the declared calibrated axis needs a scale.");
   for (const [k, point] of [["temperature_interval_k", "temperature_k"], ["radius_interval_um", "radius_um"], ["calibration_interval_um", ""]] as const) {
