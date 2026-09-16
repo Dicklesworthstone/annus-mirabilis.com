@@ -153,9 +153,16 @@ export function validateFixtureAppRegistry(
   return issues;
 }
 
+export const VIEW_KIT_FIXTURE_ENTRY: FixtureAppEntry = Object.freeze({
+  id: "view-kit",
+  entry: "src/testing/e2e/fixture-apps/view-kit/",
+  outDir: "artifacts/e2e-fixtures/view-kit/",
+  owner: "am-inst-2d-view-kit-u75r",
+});
+
 /**
- * No entries yet: every consumer bead registers its own application in the
- * same change as that application's fixture source, per the module comment
- * above.
+ * The registry of interactive fixture applications.
  */
-export const FIXTURE_APP_REGISTRY: readonly FixtureAppEntry[] = Object.freeze([]);
+export const FIXTURE_APP_REGISTRY: readonly FixtureAppEntry[] = Object.freeze([
+  VIEW_KIT_FIXTURE_ENTRY,
+]);

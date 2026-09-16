@@ -13,8 +13,8 @@ const VALID_ENTRY: FixtureAppEntry = {
   owner: "am-test-e2e-harness-bqmh",
 };
 
-test("the committed FIXTURE_APP_REGISTRY is empty and passes validation, which is the harness's baseline", () => {
-  assert.deepEqual(FIXTURE_APP_REGISTRY, []);
+test("the committed FIXTURE_APP_REGISTRY passes validation, which is the harness's baseline", () => {
+  assert.ok(FIXTURE_APP_REGISTRY.length >= 1);
   assert.deepEqual(validateFixtureAppRegistry(FIXTURE_APP_REGISTRY), []);
 });
 
