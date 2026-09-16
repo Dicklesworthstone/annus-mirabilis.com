@@ -15,9 +15,26 @@ export function compileReadingContent(files: readonly Readonly<{ path: string; t
   const diagnostics: Diagnostic[] = [], records = new Map<string, ReadingRecord>();
   const issue = (code: string, path: string, message: string) => diagnostics.push({ severity: "error", code, path, message });
   const paths = new Set<string>();
+  // Quantities are not a ReadingRecord kind and never join the paper/argument/foundation
+  // reference graph below; they get their own id space and their own cross-check
+  // (a legacy spelling's canonical id must resolve, and must never itself be a quantity id).
+  const quantityIds = new Map<string, string>();
+  const legacySpellingEntries: { spelling: string; canonicalIds: readonly string[] }[] = [];
   for (const file of [...files].sort((a, b) => a.path < b.path ? -1 : a.path > b.path ? 1 : 0)) {
     if (paths.has(file.path)) { issue("duplicate-path", file.path, "A content file was supplied more than once."); continue; } paths.add(file.path);
     try {
+      if (isQuantitiesPath(file.path)) {
+        const routed = compileQuantitiesRoutePath(file.path, file.text, [...quantityIds.keys()]);
+        if (routed.kind === "legacy-spellings") {
+          legacySpellingEntries.push(...routed.entries);
+        } else {
+          for (const q of routed.quantities) {
+            if (quantityIds.has(q.id)) { issue("duplicate-id", file.path, `Duplicate quantity id: ${q.id} (also defined in ${quantityIds.get(q.id)}).`); continue; }
+            quantityIds.set(q.id, file.path);
+          }
+        }
+        continue;
+      }
       const route = routes.find(r => r.pattern.test(file.path));
       if (!route) throw new ContentError("unrouted-content", file.path, "No schema owns this path. The preview admits JSON records only.");
       const record = validateReadingRecord(parseContentJson(file.text, file.path), file.path);
@@ -26,6 +43,12 @@ export function compileReadingContent(files: readonly Readonly<{ path: string; t
       if (records.has(record.id)) { issue("duplicate-id", file.path, `Duplicate id: ${record.id}.`); continue; }
       records.set(record.id, record);
     } catch (e) { if (!(e instanceof ContentError)) throw e; issue(e.code, e.path, e.message); }
+  }
+  for (const entry of legacySpellingEntries) {
+    if (quantityIds.has(entry.spelling)) issue("legacy-spelling-as-id", "quantities/legacy-spellings.yaml", `"${entry.spelling}" is a registered quantity id but is also a recorded legacy spelling.`);
+    for (const canonicalId of entry.canonicalIds) {
+      if (!quantityIds.has(canonicalId)) issue("legacy-spelling-unresolved", "quantities/legacy-spellings.yaml", `Legacy spelling "${entry.spelling}" names unregistered canonical id "${canonicalId}".`);
+    }
   }
   const ref = (id: string, kind: ReadingRecord["kind"], from: string) => {
     const r = records.get(id); if (r?.kind !== kind) issue("dangling-reference", from, `Expected ${kind}: ${id}.`); return r;
