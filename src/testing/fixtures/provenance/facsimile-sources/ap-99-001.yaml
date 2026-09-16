@@ -1,0 +1,9 @@
+pinned:
+  sha256: "0123456789abcdef0123456789abcdef0123456789abcdef0123456789abcdef"
+  pageCount: 4
+  originUrl: "https://example.org/details/annalen-der-physik-99-001"
+  acquisitionDate: "2026-09-15"
+  rightsStatus: scan-open-terms
+  publicationDecision: publish
+  cloudProcessing: permitted
+  reuseTerms: source-terms

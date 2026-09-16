@@ -1,0 +1,88 @@
+{
+  "originUrl": "https://example.org/details/annalen-der-physik-99-001",
+  "acquisitionDate": "2026-09-15",
+  "sha256": "0123456789abcdef0123456789abcdef0123456789abcdef0123456789abcdef",
+  "mimeType": "application/pdf",
+  "pageCount": 4,
+  "pageMapping": [
+    {
+      "pdfPageIndex": 1,
+      "printedPage": 1,
+      "contents": [
+        "article-text"
+      ],
+      "sectionIds": [
+        "s1"
+      ],
+      "displayEquations": {
+        "numbered": [
+          "(1)"
+        ],
+        "unnumbered": 0
+      },
+      "footnoteMarks": [
+        "1)"
+      ]
+    },
+    {
+      "pdfPageIndex": 2,
+      "printedPage": 2,
+      "contents": [
+        "article-text"
+      ],
+      "sectionIds": [
+        "s1",
+        "s2"
+      ],
+      "displayEquations": {
+        "numbered": [
+          "(2)"
+        ],
+        "unnumbered": 1
+      },
+      "footnoteMarks": []
+    },
+    {
+      "pdfPageIndex": 3,
+      "printedPage": 3,
+      "contents": [
+        "article-text"
+      ],
+      "sectionIds": [
+        "s2"
+      ],
+      "displayEquations": {
+        "numbered": [
+          "(3)"
+        ],
+        "unnumbered": 0
+      },
+      "footnoteMarks": []
+    },
+    {
+      "pdfPageIndex": 4,
+      "printedPage": 4,
+      "contents": [
+        "article-text"
+      ],
+      "sectionIds": [
+        "s3"
+      ],
+      "displayEquations": {
+        "numbered": [],
+        "unnumbered": 0
+      },
+      "footnoteMarks": []
+    }
+  ],
+  "rights": {
+    "status": "scan-open-terms",
+    "statement": "This digital scan is provided under open access terms permitting free redistribution and academic reuse.",
+    "source": "https://example.org/details/annalen-der-physik-99-001",
+    "recordedAt": "2026-09-15",
+    "reuseTerms": "source-terms"
+  },
+  "publicationDecision": "publish",
+  "cloudProcessing": "permitted",
+  "cloudProcessingBasis": "Open access scan repository terms permit computational analysis."
+}
