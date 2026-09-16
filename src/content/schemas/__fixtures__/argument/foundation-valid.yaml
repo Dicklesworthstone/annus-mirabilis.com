@@ -1,0 +1,25 @@
+id: found-stokes-viscosity
+kind: foundation
+title: "Stokes Law and Viscous Friction"
+learningObjective: "Understand how drag force scales with particle radius and dynamic viscosity."
+compactExplanation: "A sphere moving in fluid experiences resistive drag F = 6*pi*eta*r*v."
+fullExplanation: "Full hydrodynamic derivation under zero-Reynolds laminar flow conditions."
+workedExample:
+  question: "How does the RMS displacement of a suspended particle change if fluid viscosity doubles?"
+  given: "Stokes drag coefficient 6*pi*eta*r; temperature T and radius r held fixed."
+  plausibleFirstThought: "Doubling the viscosity halves the displacement."
+  decisiveStep: "Because <x^2> is proportional to D = kT/(6*pi*eta*r), the RMS displacement scales as sqrt(D) = 1/sqrt(2) approx 0.70711."
+  limitation: "Applies only for spherical particles in laminar Newtonian fluid regime."
+textualEquivalent: "Linear drag scaling explanation without vectors."
+prerequisites:
+  - foundationId: found-viscosity
+    kind: proof-edge
+stoppingPoint: "Limits of Stokes law when particle size approaches mean free path."
+returnCaptions:
+  - callingAnchor: bm-s3-p1
+    caption: "Stokes drag applied to suspended pollen grains"
+authorship:
+  draftedBy:
+    - id: jemanuel
+      kind: human
+reviewState: reviewed

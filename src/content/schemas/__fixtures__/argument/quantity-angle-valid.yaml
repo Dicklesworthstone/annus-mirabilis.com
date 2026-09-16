@@ -1,0 +1,19 @@
+id: propagationAngleStationary
+name: "Propagation Angle in Stationary System"
+description: "Angle between wave vector and X axis in frame K."
+mathematicalKind: scalar
+dimension:
+  - num: 0
+    den: 1
+  - num: 0
+    den: 1
+  - num: 0
+    den: 1
+  - num: 0
+    den: 1
+  - num: 0
+    den: 1
+  - num: 0
+    den: 1
+dimensionlessKind: angle
+colorRole: space-geometry

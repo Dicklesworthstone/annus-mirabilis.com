@@ -1,0 +1,43 @@
+id: gramEquivalentCharge
+name: "Gram-Equivalent Charge"
+description: "Charge of a gram-equivalent in electrochemistry."
+mathematicalKind: scalar
+dimension:
+  - num: 0
+    den: 1
+  - num: 0
+    den: 1
+  - num: 1
+    den: 1
+  - num: 0
+    den: 1
+  - num: 1
+    den: 1
+  - num: -1
+    den: 1
+gaussianDimension:
+  - num: 3
+    den: 2
+  - num: 1
+    den: 2
+  - num: -1
+    den: 1
+  - num: 0
+    den: 1
+  - num: 0
+    den: 1
+  - num: -1
+    den: 1
+emuDimension:
+  - num: 1
+    den: 2
+  - num: 1
+    den: 2
+  - num: 0
+    den: 1
+  - num: 0
+    den: 1
+  - num: 0
+    den: 1
+  - num: -1
+    den: 1

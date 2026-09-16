@@ -1,0 +1,23 @@
+id: entrance-brownian-motion
+kind: bridge
+title: "Entering Brownian Motion"
+concreteOperation: "Tracking microscopic fluctuating particles in a stationary droplet."
+compactExplanation: "Connects visible jittering to invisible molecular kinetic energy."
+textualEquivalent: "Intuitive account of thermal kicks from molecules."
+stoppingPoint: "Transition to statistical formulation in §1."
+readinessSign: "Can explain why particles never settle into absolute rest at non-zero temperature."
+returnCaptions:
+  - callingAnchor: entrance-bm
+    caption: "Entrance view"
+continueWith:
+  - route: more-guidance
+    targetId: found-thermal-equilibrium
+  - route: less-guidance
+    targetId: bm-01
+newSkill: "Interpreting root-mean-square displacement graphs"
+whyUsefulHere: "Prepares for Einstein's diffusion equation in §4."
+authorship:
+  draftedBy:
+    - id: jemanuel
+      kind: human
+reviewState: draft

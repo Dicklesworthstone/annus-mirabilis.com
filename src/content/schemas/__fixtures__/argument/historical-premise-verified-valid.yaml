@@ -1,0 +1,22 @@
+id: boltzmann-1877-entropy-probability
+proposition: "Entropy is proportional to the logarithm of microscopic state probability."
+status: available
+sources:
+  - title: "Wien. Ber. 76"
+    locator: "p. 373"
+date:
+  earliest: "1877"
+  latest: "1877"
+  precision: year
+  latestYear: 1877
+claimsEinsteinKnew: true
+einsteinKnowledgeEvidence:
+  - "Einstein 1905 light-quanta §5 cites Boltzmann principle directly."
+verifier: jemanuel
+dateVerified: "2026-09-15"
+evidenceLocator: "Doc 14, Collected Papers Vol 2"
+authorship:
+  draftedBy:
+    - id: jemanuel
+      kind: human
+reviewState: reviewed

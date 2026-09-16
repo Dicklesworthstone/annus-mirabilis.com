@@ -1,0 +1,38 @@
+id: eq-bm-s2-1
+paper: brownian-motion
+tree:
+  op: equals
+notationForms:
+  source:
+    mode: authored
+    unitSystem: emu-cgs
+    latex: "2 \\kappa N = R"
+    termBindings:
+      - eq-bm-s2-1.t.kappa
+      - eq-bm-s2-1.t.n
+      - eq-bm-s2-1.t.r
+  modern:
+    mode: generated
+    unitSystem: si
+terms:
+  - termId: eq-bm-s2-1.t.kappa
+    quantityId: boltzmannConstant
+    scale:
+      num: 1
+      den: 2
+    role: constant
+operations:
+  - opId: eq-bm-s2-1.op.mult
+    kind: multiplication
+    explanation: "Multiply gas constant"
+spokenForm: "Two kappa times Avogadro's number equals the universal gas constant."
+readings: rs-eq-bm-s2-1
+meanings:
+  logicalRole: definition
+  historicalStatus: introduced-in-current-paper
+  modelStatus: exact-within-model
+  executionStatus: static-illustration
+authorship:
+  draftedBy:
+    - id: jemanuel
+      kind: human

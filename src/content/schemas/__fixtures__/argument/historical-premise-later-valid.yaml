@@ -1,0 +1,17 @@
+id: perrin-1909-brownian-measurements
+proposition: "Direct experimental determination of Avogadro's number from Brownian particle sedimentation and mean displacement."
+status: later
+sources:
+  - title: "Ann. Chim. Phys. 18"
+    locator: "pp. 5-114"
+date:
+  earliest: "1909"
+  latest: "1909"
+  precision: year
+  latestYear: 1909
+claimsEinsteinKnew: false
+authorship:
+  draftedBy:
+    - id: jemanuel
+      kind: human
+reviewState: reviewed

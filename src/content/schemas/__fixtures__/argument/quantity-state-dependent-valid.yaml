@@ -1,0 +1,7 @@
+id: configurationIntegral
+name: "Configuration Integral"
+description: "State integral B in paper 2 §2."
+mathematicalKind: scalar
+dimensionStatus: state-dependent
+dimensionNote: "Dimension depends on the number and nature of state variables p_nu."
+isConstant: false

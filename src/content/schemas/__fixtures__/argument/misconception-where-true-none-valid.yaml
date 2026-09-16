@@ -1,0 +1,26 @@
+id: misc-sr-ether-drag
+paper: special-relativity
+temptingClaims:
+  - "The luminiferous ether is dragged partially by moving dielectric media."
+whyTempting: "Fresnel drag formula was historically interpreted as mechanical medium entrainment."
+whereItIsTrue: "none: in relativistic electrodynamics the speed of light in vacuum is strictly invariant without any medium."
+whatIsTrue: "Fresnel formula arises purely from relativistic velocity addition."
+staticTreatment:
+  reason: "Static Minkowski event diagram illustrates frame-independent wavefronts."
+anchors:
+  - sr-s0-p2
+resultIds: []
+sources:
+  - "Michelson-Morley 1887"
+intervention:
+  defaultsReviewed:
+    model: "Minkowski spacetime diagram"
+    labels: "Light cone invariants"
+    defaultControls: "Static comparative diagram"
+    feedback: "Clear non-medium relativistic velocity sum"
+  reviewRecordId: rev-misc-sr-02-jemanuel
+authorship:
+  draftedBy:
+    - id: jemanuel
+      kind: human
+reviewState: reviewed

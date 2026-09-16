@@ -1,0 +1,49 @@
+id: arg-bm-variance-of-sum
+paper: brownian-motion
+question: "How does the mean-square displacement scale with time across independent steps?"
+conclusion: "The variance of a sum of independent displacements equals the sum of their variances: <Delta^2> = 2Dt."
+logicalRole: derivation
+derivationChainId: dc-bm-diffusion
+limitations:
+  - "Applies only for time intervals tau long compared to collision times."
+meanings:
+  logicalRole: derivation
+  historicalStatus: introduced-in-current-paper
+  modelStatus: exact-within-model
+  executionStatus: host-calculation
+premises:
+  - ref:
+      kind: premise
+      id: fick-1855-diffusion-law
+    edgeType: historical-derivation
+evidence:
+  - ref:
+      kind: dataset
+      id: perrin-1909-dataset
+    relation: supports
+    dateLabel: "later evidence (1909)"
+sourceSupport:
+  - paper: brownian-motion
+    id: s4-p3
+prerequisites:
+  - foundationId: found-taylor-series
+    kind: proof-edge
+  - foundationId: found-gaussian-integral
+    kind: cross-link
+coverageObligation:
+  question: "Variance scaling"
+  observableResponse: "Linear growth with time"
+  mathematicalOwner: "Diffusion equation"
+  nonvisualEquivalent: "Table of RMS displacement vs time"
+  treatment:
+    kind: instrument
+    experimentIds:
+      - bm-01
+      - bm-05
+    correspondenceNote: "bm-01 visualizes the individual walks; bm-05 computes the ensemble variance."
+recap: "Established that irregular molecular collisions drive macroscopically observable diffusion proportional to elapsed time."
+authorship:
+  draftedBy:
+    - id: jemanuel
+      kind: human
+reviewState: reviewed

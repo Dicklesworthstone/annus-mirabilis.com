@@ -1,0 +1,9 @@
+unfamiliarWordOrSymbol:
+  explanation: "Explains archaic German terminology."
+  foundationLinks:
+    - foundationId: found-notation
+      callingAnchor: s1-p1
+algebraicMove:
+  explanation: "Explains integration by parts."
+exampleFirst:
+  workedExampleRef: found-stokes-viscosity

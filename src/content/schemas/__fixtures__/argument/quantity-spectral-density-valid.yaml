@@ -1,0 +1,23 @@
+id: frequencyEnergyDensity
+name: "Spectral Energy Density (Frequency)"
+description: "Energy per unit volume per unit frequency interval."
+mathematicalKind: scalar
+densityKind: density
+densityPer:
+  - volume
+  - frequency-interval
+spectralBasis: per-frequency
+dimension:
+  - num: -1
+    den: 1
+  - num: 1
+    den: 1
+  - num: -1
+    den: 1
+  - num: 0
+    den: 1
+  - num: 0
+    den: 1
+  - num: 0
+    den: 1
+colorRole: energy

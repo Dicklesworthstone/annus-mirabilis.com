@@ -1,0 +1,30 @@
+id: arg-bm-diffusion-equilibrium
+paper: brownian-motion
+question: "How does osmotic pressure balance viscous friction in dynamic equilibrium?"
+conclusion: "Equilibrium condition relates diffusion coefficient D to mobility."
+logicalRole: derivation
+limitations: []
+meanings:
+  logicalRole: derivation
+  historicalStatus: introduced-in-current-paper
+  modelStatus: exact-within-model
+  executionStatus: host-calculation
+premises: []
+evidence: []
+sourceSupport:
+  - paper: brownian-motion
+    id: s3-p1
+prerequisites: []
+coverageObligation:
+  question: "Equilibrium relation"
+  observableResponse: "Osmotic-drag balance"
+  mathematicalOwner: "Stokes-Einstein relation"
+  nonvisualEquivalent: "Force balance equation"
+  treatment:
+    kind: static
+    description: "Equilibrium balance diagram"
+authorship:
+  draftedBy:
+    - id: jemanuel
+      kind: human
+reviewState: draft

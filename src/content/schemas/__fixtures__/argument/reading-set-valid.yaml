@@ -1,0 +1,14 @@
+targetId: s3-fn1
+targetKind: footnote
+r0: "Footnote overview."
+r1: "Footnote full explanation."
+r2: "Footnote step-by-step."
+r3: "Historical context on the footnote."
+foundationLinks:
+  - foundationId: found-viscosity
+    callingAnchor: s3-fn1
+authorship:
+  draftedBy:
+    - id: jemanuel
+      kind: human
+reviewState: reviewed

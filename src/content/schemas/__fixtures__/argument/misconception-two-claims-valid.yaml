@@ -1,0 +1,31 @@
+id: misc-bm-continuous-velocity
+paper: brownian-motion
+temptingClaims:
+  - "A Brownian particle has an instantaneous physical velocity that can be measured by Delta x / Delta t."
+  - "The particle moves on a smooth differentiable trajectory at microscopic time scales."
+whyTempting: "Our macro intuition is rooted in differentiable Newtonian paths."
+whereItIsTrue: "Valid only for time intervals much shorter than the momentum relaxation time tau_p = m / (6*pi*eta*r)."
+whatIsTrue: "At observable optical time scales, molecular collisions randomize direction millions of times per second."
+instrumentIds:
+  - bm-01
+  - bm-06
+anchors:
+  - bm-s4-p3
+resultIds:
+  - res-diff-scaling
+sources:
+  - "Perrin 1909"
+intervention:
+  instrumentId: bm-01
+  scenarioId: sc-short-time
+  defaultsReviewed:
+    model: "Langevin stochastic ballistic-to-diffusive transition"
+    labels: "RMS displacement vs elapsed observation interval"
+    defaultControls: "Time resolution slider starting at macro regime"
+    feedback: "Alerts when reader attempts to compute instantaneous dx/dt"
+  reviewRecordId: rev-misc-bm-01-jemanuel
+authorship:
+  draftedBy:
+    - id: jemanuel
+      kind: human
+reviewState: reviewed

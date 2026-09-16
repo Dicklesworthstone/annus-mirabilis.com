@@ -1,0 +1,18 @@
+id: abraham-1905-electron-dynamics
+proposition: "Relativistic electrodynamics result for moving electron in §8."
+status: available
+sources:
+  - title: "Theorie der Elektrizität"
+    locator: "Vol II"
+date:
+  earliest: "1905-01"
+  latest: "1905-01"
+  precision: month
+  latestYear: 1905
+claimsEinsteinKnew: false
+admittedImport: true
+authorship:
+  draftedBy:
+    - id: jemanuel
+      kind: human
+reviewState: reviewed

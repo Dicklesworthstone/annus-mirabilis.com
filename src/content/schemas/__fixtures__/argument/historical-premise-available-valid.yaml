@@ -1,0 +1,19 @@
+id: rayleigh-1900-radiation-law
+proposition: "Energy density of blackbody radiation scales as T * nu^2 in classical equipartition."
+status: available
+sources:
+  - title: "Phil. Mag. 49"
+    locator: "p. 539"
+date:
+  earliest: "1900"
+  latest: "1900"
+  precision: year
+  latestYear: 1900
+claimsEinsteinKnew: true
+einsteinKnowledgeEvidence:
+  - "Letter to Mileva Marić, 1901"
+authorship:
+  draftedBy:
+    - id: jemanuel
+      kind: human
+reviewState: reviewed

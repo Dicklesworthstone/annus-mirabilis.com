@@ -1,0 +1,31 @@
+id: electricFieldX
+name: "Electric Field Component X"
+description: "Stationary frame electric field in X direction."
+mathematicalKind: vector-component
+dimension:
+  - num: 1
+    den: 1
+  - num: 1
+    den: 1
+  - num: -3
+    den: 1
+  - num: 0
+    den: 1
+  - num: -1
+    den: 1
+  - num: 0
+    den: 1
+gaussianDimension:
+  - num: -1
+    den: 2
+  - num: 1
+    den: 2
+  - num: -1
+    den: 1
+  - num: 0
+    den: 1
+  - num: 0
+    den: 1
+  - num: 0
+    den: 1
+colorRole: field
