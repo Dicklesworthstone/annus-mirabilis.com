@@ -8,13 +8,20 @@ import type { ExecutionOutcome } from "../results/outcomes.ts";
 import type { RequestRefusal } from "../results/refusals.ts";
 import type { OutputStatus, ScientificResult } from "../results/types.ts";
 
-export type ParameterClass = "input" | "observer" | "measurement" | "estimator";
+export type ParameterClass =
+  | "input"
+  | "observer"
+  | "measurement"
+  | "estimator"
+  | "presentation";
 export type Parameters = Readonly<Record<string, number | string | boolean>>;
 export type Command =
   | "setup-change"
+  | "physical-intervention"
   | "observer-change"
   | "measurement-change"
   | "estimator-change"
+  | "presentation-change"
   | "continue";
 export type NumericView = Readonly<{
   length: number;
@@ -70,12 +77,21 @@ export type OutputContract = Readonly<{
   semanticKind: string;
   ownerId: string;
 }>;
+const allParameterClasses = [
+  "input",
+  "observer",
+  "measurement",
+  "estimator",
+  "presentation",
+] as const;
 const revisionKeys = ["input", "observer", "measurement", "estimator"] as const;
 const revisionFor = {
   "setup-change": "input",
+  "physical-intervention": "input",
   "observer-change": "observer",
   "measurement-change": "measurement",
   "estimator-change": "estimator",
+  "presentation-change": null,
 } as const;
 function freeze<T>(value: T): T {
   if (value !== null && typeof value === "object") {
@@ -143,7 +159,7 @@ export function createInstanceStore(options: {
       Object.fromEntries(Object.keys(parameters).map((k) => [k, true])),
       Object.fromEntries(Object.keys(classes).map((k) => [k, true])),
     ) ||
-    Object.values(classes).some((c) => !revisionKeys.includes(c))
+    Object.values(classes).some((c) => !allParameterClasses.includes(c))
   )
     throw new TypeError("Every parameter needs exactly one declared command class.");
   const contracts = freeze(structuredClone(options.outputs));
@@ -207,20 +223,30 @@ export function createInstanceStore(options: {
   function issue(command: Command, patch: Parameters = {}): RequestToken {
     if (!(command === "continue" || Object.hasOwn(revisionFor, command)))
       throw new TypeError("Unknown scientific command.");
-    if (command !== "setup-change" && runNumber === 0)
+    if (
+      command !== "setup-change" &&
+      command !== "physical-intervention" &&
+      command !== "presentation-change" &&
+      runNumber === 0
+    )
       throw new Error("Start a setup before changing its description.");
     const checked = parameterCopy(patch);
-    const revision = command === "continue" ? null : revisionFor[command];
-    for (const key of Object.keys(checked))
-      if (!Object.hasOwn(classes, key) || classes[key] !== revision)
+    const revision =
+      command === "continue" || command === "presentation-change"
+        ? null
+        : revisionFor[command];
+    for (const key of Object.keys(checked)) {
+      const expectedClass = command === "presentation-change" ? "presentation" : revision;
+      if (!Object.hasOwn(classes, key) || classes[key] !== expectedClass)
         throw new TypeError(`Parameter ${key} does not belong to ${command}.`);
+    }
     if (
       actionIndex === Number.MAX_SAFE_INTEGER ||
       runNumber === Number.MAX_SAFE_INTEGER ||
       (revision !== null && revisions[revision] === Number.MAX_SAFE_INTEGER)
     )
       throw new RangeError("The instance identity counter is exhausted.");
-    if (command === "setup-change") runNumber++;
+    if (command === "setup-change" || command === "physical-intervention") runNumber++;
     if (revision !== null)
       revisions = Object.freeze({ ...revisions, [revision]: revisions[revision] + 1 });
     parameters = parameterCopy({ ...parameters, ...checked });

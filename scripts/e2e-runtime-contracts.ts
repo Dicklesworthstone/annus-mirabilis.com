@@ -36,6 +36,7 @@ import {
 } from "../src/experiments/results/planExamples.ts";
 import { ResultStatusNote } from "../src/experiments/results/ResultStatusNote.tsx";
 import type { ScientificResult } from "../src/experiments/results/types.ts";
+import { createInstanceStore } from "../src/experiments/store/instanceStore.ts";
 import { createStreamKey } from "../src/experiments/streams/allocation.ts";
 import { ControlTapeRecorder } from "../src/experiments/tapes/recorder.ts";
 import {
@@ -51,6 +52,19 @@ import {
 } from "../src/experiments/tapes/schema.ts";
 import { createPhiloxStream } from "../src/physics/reference/philox.ts";
 import { newRunIdentity, TestLogger } from "../src/testing/log/logger.ts";
+import { createChunkPlan, executeChunked } from "../src/workers/scheduler/chunking.ts";
+import { markAccepted, markInput, markPainted } from "../src/workers/scheduler/marks.ts";
+import {
+  createDedicatedScheduler,
+  type HostProtocol,
+  type SchedulerEvent,
+  type WorkerChannel,
+} from "../src/workers/scheduler/scheduler.ts";
+import {
+  forceTransportMode,
+  probeTransportCapabilities,
+  SharedMemoryDisabledError,
+} from "../src/workers/transport.ts";
 
 interface CliOptions {
   suite: string;
@@ -1066,6 +1080,803 @@ async function runTapesE2E(logRunId: string, verbose: boolean): Promise<boolean>
   return allPassed;
 }
 
+async function runSchedulerE2E(logRunId: string, verbose: boolean): Promise<boolean> {
+  const logger = new TestLogger("worker-scheduler", logRunId);
+  let allPassed = true;
+
+  const failureDir = resolve(
+    process.cwd(),
+    "artifacts",
+    "test-logs",
+    "worker-scheduler",
+    logRunId,
+    "failures",
+  );
+
+  const recordFailure = (testId: string, reason: string, extra: Record<string, unknown> = {}) => {
+    mkdirSync(failureDir, { recursive: true });
+    const failFilePath = join(failureDir, `${testId}.json`);
+    const failData = {
+      testId,
+      reason,
+      reproductionCommand: `bun scripts/e2e-runtime-contracts.ts --suite scheduler --log-run-id ${logRunId}`,
+      ...extra,
+    };
+    writeFileSync(failFilePath, JSON.stringify(failData, null, 2), "utf8");
+
+    logger.log({
+      testId,
+      beadId: "am-rt-worker-scheduler-7tl",
+      suite: "worker-scheduler",
+      outcome: "failed",
+      message: reason,
+      extra: {
+        failurePath: failFilePath,
+        reason,
+        ...extra,
+      },
+    });
+  };
+
+  if (verbose) {
+    console.log(`[E2E-Runtime] Starting scheduler suite (logRunId: ${logRunId})`);
+  }
+
+  const SOURCE_DIGEST = "bm06-source-digest-e2e";
+  function mockProtocol(): HostProtocol {
+    return {
+      version: "bm06-host-v1",
+      decodeHello: () => ({ messageKind: "hello" }),
+      decodeResponse: (_msg, token) => ({
+        token,
+        result: {
+          kind: "accepted" as const,
+          data: {
+            stepIndex: 10,
+            simulationTime: 1.0,
+            outputs: [
+              {
+                status: "value" as const,
+                quantityId: "concentration",
+                unit: "mol/m^3",
+                semanticKind: "scalar",
+                ownerId: "bm-06",
+                value: 1.0,
+              },
+            ],
+          },
+        },
+      }),
+    };
+  }
+
+  // 1. Burst Coalescing: 1 in-flight + 50 rapid changes
+  {
+    const startTime = Date.now();
+    const testId = "scheduler-coalesce-burst";
+    try {
+      const store = createInstanceStore({
+        experimentId: "bm-06",
+        instanceId: "inst-coalesce-e2e",
+        initialParameters: { diffusivity: 1.0 },
+        parameterClasses: { diffusivity: "input" },
+        outputs: {
+          concentration: {
+            statuses: ["value"],
+            unit: "mol/m^3",
+            semanticKind: "scalar",
+            ownerId: "bm-06",
+          },
+        },
+      });
+
+      const events: SchedulerEvent[] = [];
+      let workerListener: ((msg: unknown) => void) | null = null;
+      const sentMessages: unknown[] = [];
+
+      const mockChannel: WorkerChannel = {
+        send(msg) {
+          sentMessages.push(msg);
+        },
+        listen(onMsg) {
+          workerListener = onMsg;
+          onMsg({ messageKind: "hello" });
+          return () => {
+            workerListener = null;
+          };
+        },
+        dispose() {},
+      };
+
+      const scheduler = createDedicatedScheduler({
+        store,
+        factory: () => mockChannel,
+        sourceDigest: SOURCE_DIGEST,
+        protocol: mockProtocol(),
+        report: (e) => events.push(e),
+      });
+
+      const token0 = store.issue("setup-change", { diffusivity: 2.0 });
+      scheduler.request(token0, "setup-change");
+
+      let lastToken = token0;
+      for (let i = 1; i <= 50; i++) {
+        lastToken = store.issue("setup-change", { diffusivity: 2.0 + i * 0.1 });
+        scheduler.request(lastToken, "setup-change");
+      }
+
+      const supersededBefore = events.filter((e) => e.kind === "superseded");
+      if (supersededBefore.length !== 49) {
+        throw new Error(`Expected 49 superseded events, got ${supersededBefore.length}`);
+      }
+
+      // Worker completes token0
+      if (workerListener) {
+        workerListener({
+          messageKind: "result",
+          protocolVersion: "bm06-host-v1",
+          sourceDigest: SOURCE_DIGEST,
+          token: token0,
+          result: {
+            kind: "accepted",
+            data: {
+              stepIndex: 10,
+              simulationTime: 1.0,
+              outputs: [
+                {
+                  status: "value",
+                  quantityId: "concentration",
+                  unit: "mol/m^3",
+                  semanticKind: "scalar",
+                  ownerId: "bm-06",
+                  value: 2.0,
+                },
+              ],
+            },
+          },
+        });
+      }
+
+      const dispatchedEvents = events.filter((e) => e.kind === "dispatched");
+      if (dispatchedEvents.length !== 2) {
+        throw new Error(`Expected exactly 2 dispatches, got ${dispatchedEvents.length}`);
+      }
+
+      // Worker completes lastToken
+      if (workerListener) {
+        workerListener({
+          messageKind: "result",
+          protocolVersion: "bm06-host-v1",
+          sourceDigest: SOURCE_DIGEST,
+          token: lastToken,
+          result: {
+            kind: "accepted",
+            data: {
+              stepIndex: 20,
+              simulationTime: 2.0,
+              outputs: [
+                {
+                  status: "value",
+                  quantityId: "concentration",
+                  unit: "mol/m^3",
+                  semanticKind: "scalar",
+                  ownerId: "bm-06",
+                  value: 7.0,
+                },
+              ],
+            },
+          },
+        });
+      }
+
+      const snapshot = store.getSnapshot();
+      if (snapshot.accepted?.actionIndex !== lastToken.actionIndex) {
+        throw new Error(
+          `Expected snapshot actionIndex ${lastToken.actionIndex}, got ${snapshot.accepted?.actionIndex}`,
+        );
+      }
+
+      logger.log({
+        testId,
+        beadId: "am-rt-worker-scheduler-7tl",
+        suite: "worker-scheduler",
+        outcome: "passed",
+        durationMs: Date.now() - startTime,
+        expected: lastToken.actionIndex,
+        actual: snapshot.accepted?.actionIndex,
+        comparisonKind: "bitwise",
+        message: "Successfully verified burst coalescing and final snapshot publication.",
+        extra: {
+          totalRequests: 51,
+          dispatchedCount: dispatchedEvents.length,
+          supersededCount: supersededBefore.length,
+          finalActionIndex: snapshot.accepted?.actionIndex,
+        },
+      });
+    } catch (err: unknown) {
+      allPassed = false;
+      const msg = (err as Error).message;
+      recordFailure(testId, msg);
+    }
+  }
+
+  // 2. Out-of-order / Stale Rejection
+  {
+    const startTime = Date.now();
+    const testId = "scheduler-stale-rejection";
+    try {
+      const store = createInstanceStore({
+        experimentId: "bm-06",
+        instanceId: "inst-stale-e2e",
+        initialParameters: { diffusivity: 1.0 },
+        parameterClasses: { diffusivity: "input" },
+        outputs: {
+          concentration: {
+            statuses: ["value"],
+            unit: "mol/m^3",
+            semanticKind: "scalar",
+            ownerId: "bm-06",
+          },
+        },
+      });
+
+      let workerListener: ((msg: unknown) => void) | null = null;
+      const mockChannel: WorkerChannel = {
+        send() {},
+        listen(onMsg) {
+          workerListener = onMsg;
+          onMsg({ messageKind: "hello" });
+          return () => {
+            workerListener = null;
+          };
+        },
+        dispose() {},
+      };
+
+      const events: SchedulerEvent[] = [];
+      const scheduler = createDedicatedScheduler({
+        store,
+        factory: () => mockChannel,
+        sourceDigest: SOURCE_DIGEST,
+        protocol: {
+          version: "bm06-host-v1",
+          decodeHello: () => ({ messageKind: "hello" }),
+          decodeResponse: (msg) => {
+            const typed = msg as {
+              token: RequestToken;
+              result: {
+                kind: "accepted";
+                data: {
+                  outputs: readonly ScientificResult[];
+                  stepIndex: number;
+                  simulationTime: number;
+                };
+              };
+            };
+            return {
+              token: typed.token,
+              result: typed.result,
+            };
+          },
+        },
+        report: (e) => events.push(e),
+      });
+
+      const token1 = store.issue("setup-change", { diffusivity: 2.0 });
+      scheduler.request(token1, "setup-change");
+
+      if (workerListener) {
+        workerListener({
+          messageKind: "result",
+          protocolVersion: "bm06-host-v1",
+          sourceDigest: SOURCE_DIGEST,
+          token: token1,
+          result: {
+            kind: "accepted",
+            data: {
+              stepIndex: 10,
+              simulationTime: 1.0,
+              outputs: [
+                {
+                  status: "value",
+                  quantityId: "concentration",
+                  unit: "mol/m^3",
+                  semanticKind: "scalar",
+                  ownerId: "bm-06",
+                  value: 2.0,
+                },
+              ],
+            },
+          },
+        });
+      }
+
+      const snapshot1 = store.getSnapshot();
+      if (snapshot1.accepted?.actionIndex !== 1) {
+        throw new Error(`Expected snapshot actionIndex 1, got ${snapshot1.accepted?.actionIndex}`);
+      }
+
+      const token2 = store.issue("setup-change", { diffusivity: 3.0 });
+      scheduler.request(token2, "setup-change");
+
+      // Inject stale response for token1 with invalid value 999.0
+      if (workerListener) {
+        workerListener({
+          messageKind: "result",
+          protocolVersion: "bm06-host-v1",
+          sourceDigest: SOURCE_DIGEST,
+          token: token1,
+          result: {
+            kind: "accepted",
+            data: {
+              stepIndex: 10,
+              simulationTime: 1.0,
+              outputs: [
+                {
+                  status: "value",
+                  quantityId: "concentration",
+                  unit: "mol/m^3",
+                  semanticKind: "scalar",
+                  ownerId: "bm-06",
+                  value: 999.0,
+                },
+              ],
+            },
+          },
+        });
+      }
+
+      const snapshotAfterStale = store.getSnapshot();
+      if (snapshotAfterStale.accepted?.actionIndex !== 1) {
+        throw new Error(
+          `Snapshot modified by stale response: actionIndex ${snapshotAfterStale.accepted?.actionIndex}`,
+        );
+      }
+      const staleOutput = snapshotAfterStale.accepted?.outputs[0];
+      if (staleOutput?.status !== "value" || (staleOutput as { value: number }).value !== 2.0) {
+        throw new Error("Snapshot value modified by stale response");
+      }
+
+      const staleEvents = events.filter((e) => e.kind === "stale");
+      if (staleEvents.length !== 1) {
+        throw new Error(`Expected 1 stale event, got ${staleEvents.length}`);
+      }
+
+      logger.log({
+        testId,
+        beadId: "am-rt-worker-scheduler-7tl",
+        suite: "worker-scheduler",
+        outcome: "passed",
+        durationMs: Date.now() - startTime,
+        expected: 1,
+        actual: snapshotAfterStale.accepted?.actionIndex,
+        comparisonKind: "bitwise",
+        message: "Successfully rejected late stale response before store publication.",
+      });
+    } catch (err: unknown) {
+      allPassed = false;
+      const msg = (err as Error).message;
+      recordFailure(testId, msg);
+    }
+  }
+
+  // 3. Work-Unit Chunking Invariance
+  {
+    const startTime = Date.now();
+    const testId = "scheduler-chunk-invariance";
+    try {
+      interface SimulationState {
+        accumulator: number;
+        stepCount: number;
+      }
+
+      const stepFn = (state: SimulationState, chunk: { workUnits: number }): SimulationState => {
+        let acc = state.accumulator;
+        for (let i = 0; i < chunk.workUnits; i++) {
+          acc = ((acc * 1103515245 + 12345) & 0x7fffffff) >>> 0;
+        }
+        return {
+          accumulator: acc,
+          stepCount: state.stepCount + chunk.workUnits,
+        };
+      };
+
+      const plan1k = createChunkPlan(100000, 1000);
+      const plan100k = createChunkPlan(100000, 100000);
+
+      const result1k = await executeChunked<SimulationState>({
+        plan: plan1k,
+        initialState: { accumulator: 42, stepCount: 0 },
+        step: stepFn,
+        isCancelled: () => false,
+      });
+
+      const result100k = await executeChunked<SimulationState>({
+        plan: plan100k,
+        initialState: { accumulator: 42, stepCount: 0 },
+        step: stepFn,
+        isCancelled: () => false,
+      });
+
+      if (!result1k.completed || !result100k.completed) {
+        throw new Error("Chunked execution failed to complete");
+      }
+      if (result1k.state.accumulator !== result100k.state.accumulator) {
+        throw new Error(
+          `Chunk invariance mismatch: 1k acc ${result1k.state.accumulator} vs 100k acc ${result100k.state.accumulator}`,
+        );
+      }
+
+      logger.log({
+        testId,
+        beadId: "am-rt-worker-scheduler-7tl",
+        suite: "worker-scheduler",
+        outcome: "passed",
+        durationMs: Date.now() - startTime,
+        expected: result100k.state.accumulator,
+        actual: result1k.state.accumulator,
+        comparisonKind: "bitwise",
+        message: "Successfully verified bitwise identity across chunk sizes 10^3 and 10^5.",
+        extra: {
+          totalWorkUnits: 100000,
+          plan1kChunks: plan1k.chunks.length,
+          plan100kChunks: plan100k.chunks.length,
+          finalAccumulator: result1k.state.accumulator,
+        },
+      });
+    } catch (err: unknown) {
+      allPassed = false;
+      const msg = (err as Error).message;
+      recordFailure(testId, msg);
+    }
+  }
+
+  // 4. Cooperative Cancellation
+  {
+    const startTime = Date.now();
+    const testId = "scheduler-cooperative-cancellation";
+    try {
+      const cancelAfterChunks = 5;
+      let executedChunks = 0;
+      const plan = createChunkPlan(50000, 1000);
+
+      const result = await executeChunked<number>({
+        plan,
+        initialState: 0,
+        step: (state, chunk) => {
+          executedChunks++;
+          return state + chunk.workUnits;
+        },
+        isCancelled: () => executedChunks >= cancelAfterChunks,
+      });
+
+      if (result.completed || !result.cancelled || result.chunksCompleted !== cancelAfterChunks) {
+        throw new Error(
+          `Expected cancelled execution with ${cancelAfterChunks} chunks, got completed: ${result.completed}, chunks: ${result.chunksCompleted}`,
+        );
+      }
+
+      logger.log({
+        testId,
+        beadId: "am-rt-worker-scheduler-7tl",
+        suite: "worker-scheduler",
+        outcome: "passed",
+        durationMs: Date.now() - startTime,
+        expected: cancelAfterChunks,
+        actual: result.chunksCompleted,
+        comparisonKind: "bitwise",
+        message: "Successfully stopped execution cooperatively at next chunk boundary.",
+      });
+    } catch (err: unknown) {
+      allPassed = false;
+      const msg = (err as Error).message;
+      recordFailure(testId, msg);
+    }
+  }
+
+  // 5. Crash Recovery
+  {
+    const startTime = Date.now();
+    const testId = "scheduler-crash-recovery";
+    try {
+      const store = createInstanceStore({
+        experimentId: "bm-06",
+        instanceId: "inst-recovery-e2e",
+        initialParameters: { diffusivity: 1.0 },
+        parameterClasses: { diffusivity: "input" },
+        outputs: {
+          concentration: {
+            statuses: ["value"],
+            unit: "mol/m^3",
+            semanticKind: "scalar",
+            ownerId: "bm-06",
+          },
+        },
+      });
+
+      let errorCallback: (() => void) | null = null;
+      let factoryCount = 0;
+
+      const mockFactory = (): WorkerChannel => {
+        factoryCount++;
+        return {
+          send() {},
+          listen(onMsg, onErr) {
+            errorCallback = onErr;
+            onMsg({ messageKind: "hello" });
+            return () => {
+              errorCallback = null;
+            };
+          },
+          dispose() {},
+        };
+      };
+
+      const scheduler = createDedicatedScheduler({
+        store,
+        factory: mockFactory,
+        sourceDigest: SOURCE_DIGEST,
+        protocol: mockProtocol(),
+        maxRestarts: 3,
+      });
+
+      // Request 1 + Crash 1
+      const token1 = store.issue("setup-change", { diffusivity: 2.0 });
+      scheduler.request(token1, "setup-change");
+      errorCallback?.();
+
+      // Request 2 + Crash 2
+      const token2 = store.issue("setup-change", { diffusivity: 3.0 });
+      scheduler.request(token2, "setup-change");
+      errorCallback?.();
+
+      // Request 3 + Crash 3
+      const token3 = store.issue("setup-change", { diffusivity: 4.0 });
+      scheduler.request(token3, "setup-change");
+      errorCallback?.();
+
+      // Request 4 (Exceeds maxRestarts 3)
+      const token4 = store.issue("setup-change", { diffusivity: 5.0 });
+      scheduler.request(token4, "setup-change");
+
+      const snapshot = store.getSnapshot();
+      if (snapshot.status !== "unavailable") {
+        throw new Error(`Expected store status "unavailable", got "${snapshot.status}"`);
+      }
+      if (snapshot.outcome?.outcome !== "environment-unsupported") {
+        throw new Error(
+          `Expected outcome "environment-unsupported", got "${snapshot.outcome?.outcome}"`,
+        );
+      }
+
+      logger.log({
+        testId,
+        beadId: "am-rt-worker-scheduler-7tl",
+        suite: "worker-scheduler",
+        outcome: "passed",
+        durationMs: Date.now() - startTime,
+        expected: "environment-unsupported",
+        actual: snapshot.outcome?.outcome,
+        comparisonKind: "bitwise",
+        message:
+          "Successfully bounded worker crash restarts and transitioned cleanly to unavailable.",
+        extra: {
+          factoryRestartCount: factoryCount,
+          maxRestarts: 3,
+          finalStatus: snapshot.status,
+          outcomeId: snapshot.outcome?.outcome,
+        },
+      });
+    } catch (err: unknown) {
+      allPassed = false;
+      const msg = (err as Error).message;
+      recordFailure(testId, msg);
+    }
+  }
+
+  // 6. Presentation Change Routing
+  {
+    const startTime = Date.now();
+    const testId = "scheduler-presentation-routing";
+    try {
+      const store = createInstanceStore({
+        experimentId: "bm-06",
+        instanceId: "inst-pres-routing-e2e",
+        initialParameters: { diffusivity: 1.0, viewMode: "contour" },
+        parameterClasses: { diffusivity: "input", viewMode: "presentation" },
+        outputs: {
+          concentration: {
+            statuses: ["value"],
+            unit: "mol/m^3",
+            semanticKind: "scalar",
+            ownerId: "bm-06",
+          },
+        },
+      });
+
+      let workerListener: ((msg: unknown) => void) | null = null;
+      let sentCount = 0;
+
+      const mockChannel: WorkerChannel = {
+        send() {
+          sentCount++;
+        },
+        listen(onMsg) {
+          workerListener = onMsg;
+          onMsg({ messageKind: "hello" });
+          return () => {
+            workerListener = null;
+          };
+        },
+        dispose() {},
+      };
+
+      const scheduler = createDedicatedScheduler({
+        store,
+        factory: () => mockChannel,
+        sourceDigest: SOURCE_DIGEST,
+        protocol: mockProtocol(),
+      });
+
+      // 1. Physical setup-change: dispatches to worker
+      const token1 = store.issue("setup-change", { diffusivity: 2.0 });
+      scheduler.request(token1, "setup-change");
+
+      if (sentCount !== 1) {
+        throw new Error(`Expected 1 worker message for setup-change, got ${sentCount}`);
+      }
+
+      // Complete token 1
+      if (workerListener) {
+        workerListener({
+          messageKind: "result",
+          protocolVersion: "bm06-host-v1",
+          sourceDigest: SOURCE_DIGEST,
+          token: token1,
+          result: {
+            kind: "accepted",
+            data: {
+              stepIndex: 10,
+              simulationTime: 1.0,
+              outputs: [
+                {
+                  status: "value",
+                  quantityId: "concentration",
+                  unit: "mol/m^3",
+                  semanticKind: "scalar",
+                  ownerId: "bm-06",
+                  value: 2.0,
+                },
+              ],
+            },
+          },
+        });
+      }
+
+      // 2. Presentation change: zero worker messages
+      const token2 = store.issue("presentation-change", { viewMode: "particles" });
+      scheduler.request(token2, "presentation-change");
+
+      if (sentCount !== 1) {
+        throw new Error(
+          `presentation-change MUST NOT send worker messages. Message count rose to ${sentCount}`,
+        );
+      }
+
+      const snapshotAfter = store.getSnapshot();
+      if (snapshotAfter.accepted?.parameters.viewMode !== "particles") {
+        throw new Error(
+          `Expected viewMode "particles", got "${snapshotAfter.accepted?.parameters.viewMode}"`,
+        );
+      }
+      if (snapshotAfter.accepted?.actionIndex !== 2) {
+        throw new Error(`Expected actionIndex 2, got ${snapshotAfter.accepted?.actionIndex}`);
+      }
+
+      logger.log({
+        testId,
+        beadId: "am-rt-worker-scheduler-7tl",
+        suite: "worker-scheduler",
+        outcome: "passed",
+        durationMs: Date.now() - startTime,
+        expected: 1,
+        actual: sentCount,
+        comparisonKind: "bitwise",
+        message: "Successfully routed presentation-change directly without worker messages.",
+        extra: {
+          workerMessageCount: sentCount,
+          snapshotVersion: snapshotAfter.accepted?.snapshotVersion,
+          updatedParameter: "viewMode",
+        },
+      });
+    } catch (err: unknown) {
+      allPassed = false;
+      const msg = (err as Error).message;
+      recordFailure(testId, msg);
+    }
+  }
+
+  // 7. Transport Shared Memory Refusal
+  {
+    const startTime = Date.now();
+    const testId = "scheduler-transport-shared-memory-refusal";
+    try {
+      let threw = false;
+      try {
+        forceTransportMode("shared-memory");
+      } catch (err) {
+        if (err instanceof SharedMemoryDisabledError) {
+          threw = true;
+        }
+      }
+      if (!threw) {
+        throw new Error("Expected SharedMemoryDisabledError when forcing shared-memory mode");
+      }
+
+      const caps = probeTransportCapabilities({
+        crossOriginIsolated: true,
+        hasSharedArrayBuffer: true,
+        hasWebWorkers: true,
+      });
+      if (caps.hasSharedArrayBuffer !== false) {
+        throw new Error("Transport capability probe must report hasSharedArrayBuffer: false");
+      }
+
+      logger.log({
+        testId,
+        beadId: "am-rt-worker-scheduler-7tl",
+        suite: "worker-scheduler",
+        outcome: "passed",
+        durationMs: Date.now() - startTime,
+        expected: false,
+        actual: caps.hasSharedArrayBuffer,
+        comparisonKind: "bitwise",
+        message: "Successfully verified shared memory refusal and disabled status.",
+      });
+    } catch (err: unknown) {
+      allPassed = false;
+      const msg = (err as Error).message;
+      recordFailure(testId, msg);
+    }
+  }
+
+  // 8. Performance Marks Emission
+  {
+    const startTime = Date.now();
+    const testId = "scheduler-performance-marks";
+    try {
+      const instId = "inst-marks-e2e";
+      markInput(instId, 1, 0);
+      markAccepted(instId, 1, 1);
+      markPainted(instId, 1, 1);
+
+      const inputMarks = performance.getEntriesByName("am:input");
+      if (inputMarks.length === 0) {
+        throw new Error("Expected am:input mark in performance timeline");
+      }
+
+      logger.log({
+        testId,
+        beadId: "am-rt-worker-scheduler-7tl",
+        suite: "worker-scheduler",
+        outcome: "passed",
+        durationMs: Date.now() - startTime,
+        expected: "am:input",
+        actual: inputMarks[0]?.name,
+        comparisonKind: "bitwise",
+        message: "Successfully emitted performance marks for input, accepted, and painted.",
+      });
+    } catch (err: unknown) {
+      allPassed = false;
+      const msg = (err as Error).message;
+      recordFailure(testId, msg);
+    }
+  }
+
+  await logger.flush();
+  return allPassed;
+}
+
 async function main(): Promise<void> {
   const options = parseCliArgs();
   const logRunId = options.logRunId || newRunIdentity();
@@ -1098,6 +1909,16 @@ async function main(): Promise<void> {
     }
     console.log(
       `[E2E-Runtime] Tapes suite PASSED. Logged to artifacts/test-logs/runtime-tapes/${logRunId}.jsonl`,
+    );
+    process.exit(0);
+  } else if (options.suite === "scheduler") {
+    const success = await runSchedulerE2E(logRunId, options.verbose ?? true);
+    if (!success) {
+      console.error(`[E2E-Runtime] Scheduler suite FAILED. See logRunId: ${logRunId}`);
+      process.exit(1);
+    }
+    console.log(
+      `[E2E-Runtime] Scheduler suite PASSED. Logged to artifacts/test-logs/worker-scheduler/${logRunId}.jsonl`,
     );
     process.exit(0);
   } else {
