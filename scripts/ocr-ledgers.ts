@@ -29,42 +29,27 @@
  * ============================================================================
  */
 
-import { existsSync } from "node:fs";
 import { mkdir, readFile } from "node:fs/promises";
 import { dirname, resolve } from "node:path";
 import { fileURLToPath } from "node:url";
-import { type LoadAdapterOptions, loadAdapter } from "./ocr-adapters/loader.ts";
+import { loadAdapter } from "./ocr-adapters/loader.ts";
 import {
   AdapterAuthError,
-  AdapterBadResponseError,
   AdapterQuotaError,
-  AdapterTimeoutError,
   AdapterUnavailableError,
   type CloudOcrAdapter,
-  OcrAdapterError,
-  type OcrRefusalCode,
-  OcrRefusalError,
 } from "./ocr-adapters/types.ts";
-import {
-  loadPlan,
-  type OcrPlan,
-  type ValidatePlanOptions,
-  validatePlan,
-} from "./sources/ocrPlanSchema.ts";
+import { loadPlan, validatePlan } from "./sources/ocrPlanSchema.ts";
 import {
   appendStructuredLog,
   buildCoverage,
   type CheckpointContext,
-  type ChunkPlan,
-  type ChunkResult,
   type CoverageResult,
   generateLogRunId,
   generateToolRunId,
   planChunks,
   type RenderedPage,
   type RenderOptions,
-  type ResumeOptions,
-  type ResumeState,
   type RunSummaryResult,
   redact,
   renderPages,
@@ -277,13 +262,18 @@ export async function runOcrOrchestrator(
       }),
     );
 
-    let batchError: any = null;
+    let batchError: (Error & { code?: string }) | null = null;
     for (let j = 0; j < settledResults.length; j++) {
-      const settled = settledResults[j]!;
-      if (settled.status === "rejected") {
-        batchError = settled.reason;
-        if (!pausedChunkIndex) {
-          pausedChunkIndex = toProcess[j]?.chunkIndex ?? i;
+      const settled = settledResults[j];
+      if (settled && settled.status === "rejected") {
+        const reason = settled.reason;
+        batchError =
+          reason instanceof Error
+            ? (reason as Error & { code?: string })
+            : new Error(String(reason));
+        if (pausedChunkIndex === null) {
+          const target = toProcess[j];
+          pausedChunkIndex = target ? target.chunkIndex : i;
         }
       }
     }
@@ -294,9 +284,9 @@ export async function runOcrOrchestrator(
         err instanceof AdapterUnavailableError ||
         err instanceof AdapterAuthError ||
         err instanceof AdapterQuotaError ||
-        err?.code === "ADAPTER_UNAVAILABLE" ||
-        err?.code === "ADAPTER_AUTH" ||
-        err?.code === "ADAPTER_QUOTA";
+        err.code === "ADAPTER_UNAVAILABLE" ||
+        err.code === "ADAPTER_AUTH" ||
+        err.code === "ADAPTER_QUOTA";
 
       if (isOutage) {
         hasOutage = true;
@@ -311,7 +301,7 @@ export async function runOcrOrchestrator(
           facsimileSha256: plan.facsimileSha256,
           chunkIndex: pausedChunkIndex ?? i,
           status: "paused",
-          errorCode: err?.code ?? "OUTAGE",
+          errorCode: err.code ?? "OUTAGE",
           message: err.message,
         });
         break;
@@ -326,7 +316,7 @@ export async function runOcrOrchestrator(
           facsimileSha256: plan.facsimileSha256,
           chunkIndex: pausedChunkIndex ?? i,
           status: "failed",
-          errorCode: err?.code ?? "ERROR",
+          errorCode: err.code ?? "ERROR",
           message: err.message,
         });
         throw err;
@@ -335,7 +325,10 @@ export async function runOcrOrchestrator(
   }
 
   if (hasOutage && outageError) {
-    const pauseCode = (outageError as any).code ?? "ADAPTER_UNAVAILABLE";
+    const pauseCode =
+      "code" in outageError && typeof outageError.code === "string"
+        ? outageError.code
+        : "ADAPTER_UNAVAILABLE";
     const pauseComment = `RUST_LOG=error br comments add am-src-ocr-${plan.key} "PAUSED: OCR cloud adapter unavailable at chunk ${pausedChunkIndex} (code: ${pauseCode}). Checkpoints preserved in artifacts/ocr-runs/${plan.key}/${toolRunId}/."`;
 
     return {
@@ -363,9 +356,17 @@ export async function runOcrOrchestrator(
   };
 }
 
-// CLI entry point
-if (import.meta.url === `file://${process.argv[1]}`) {
-  const args = process.argv.slice(2);
+interface ParsedCliArgs {
+  readonly planPath: string;
+  readonly dryRun: boolean;
+  readonly resumeToolRunId?: string | undefined;
+  readonly summarizeToolRunId?: string | undefined;
+  readonly resubmitChunkIndex?: number | undefined;
+  readonly resubmitReason?: string | undefined;
+  readonly adapterName?: string | undefined;
+}
+
+function parseCliArgs(args: readonly string[]): ParsedCliArgs {
   let planPath = "";
   let dryRun = false;
   let resumeToolRunId: string | undefined;
@@ -374,26 +375,84 @@ if (import.meta.url === `file://${process.argv[1]}`) {
   let resubmitReason: string | undefined;
   let adapterName: string | undefined;
 
-  for (let i = 0; i < args.length; i++) {
-    const arg = args[i]!;
-    if (arg === "--plan" && i + 1 < args.length) {
-      planPath = args[++i]!;
+  let i = 0;
+  while (i < args.length) {
+    const arg = args[i];
+    if (!arg) {
+      i++;
+      continue;
+    }
+
+    if (arg === "--plan") {
+      const next = args[i + 1];
+      if (next) {
+        planPath = next;
+        i += 2;
+        continue;
+      }
     } else if (arg === "--dry-run") {
       dryRun = true;
-    } else if (arg === "--resume" && i + 1 < args.length) {
-      resumeToolRunId = args[++i]!;
-    } else if (arg === "--summarize" && i + 1 < args.length) {
-      summarizeToolRunId = args[++i]!;
-    } else if (arg === "--resubmit-chunk" && i + 1 < args.length) {
-      resubmitChunkIndex = parseInt(args[++i]!, 10);
-    } else if (arg === "--reason" && i + 1 < args.length) {
-      resubmitReason = args[++i]!;
-    } else if (arg === "--adapter" && i + 1 < args.length) {
-      adapterName = args[++i]!;
+      i++;
+      continue;
+    } else if (arg === "--resume") {
+      const next = args[i + 1];
+      if (next) {
+        resumeToolRunId = next;
+        i += 2;
+        continue;
+      }
+    } else if (arg === "--summarize") {
+      const next = args[i + 1];
+      if (next) {
+        summarizeToolRunId = next;
+        i += 2;
+        continue;
+      }
+    } else if (arg === "--resubmit-chunk") {
+      const next = args[i + 1];
+      if (next) {
+        const parsed = parseInt(next, 10);
+        if (!Number.isNaN(parsed)) {
+          resubmitChunkIndex = parsed;
+        }
+        i += 2;
+        continue;
+      }
+    } else if (arg === "--reason") {
+      const next = args[i + 1];
+      if (next) {
+        resubmitReason = next;
+        i += 2;
+        continue;
+      }
+    } else if (arg === "--adapter") {
+      const next = args[i + 1];
+      if (next) {
+        adapterName = next;
+        i += 2;
+        continue;
+      }
     }
+
+    i++;
   }
 
-  if (!planPath && !summarizeToolRunId) {
+  return {
+    planPath,
+    dryRun,
+    resumeToolRunId,
+    summarizeToolRunId,
+    resubmitChunkIndex,
+    resubmitReason,
+    adapterName,
+  };
+}
+
+// CLI entry point
+if (import.meta.url === `file://${process.argv[1]}`) {
+  const cliArgs = parseCliArgs(process.argv.slice(2));
+
+  if (!cliArgs.planPath && !cliArgs.summarizeToolRunId) {
     console.error(
       'Usage: bun scripts/ocr-ledgers.ts --plan <path> [--dry-run] [--resume <tool-run-id>] [--summarize <tool-run-id>] [--resubmit-chunk <i> --reason "<text>"] [--adapter <name>]',
     );
@@ -401,13 +460,13 @@ if (import.meta.url === `file://${process.argv[1]}`) {
   }
 
   runOcrOrchestrator({
-    planPath,
-    dryRun,
-    resumeToolRunId: resumeToolRunId || summarizeToolRunId,
-    summarizeOnly: !!summarizeToolRunId,
-    resubmitChunkIndex,
-    resubmitReason,
-    adapterName,
+    planPath: cliArgs.planPath,
+    dryRun: cliArgs.dryRun,
+    resumeToolRunId: cliArgs.resumeToolRunId || cliArgs.summarizeToolRunId,
+    summarizeOnly: !!cliArgs.summarizeToolRunId,
+    resubmitChunkIndex: cliArgs.resubmitChunkIndex,
+    resubmitReason: cliArgs.resubmitReason,
+    adapterName: cliArgs.adapterName,
   })
     .then((result) => {
       if (result.paused) {
