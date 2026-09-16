@@ -15,7 +15,9 @@
       "!node_modules",
       "!public/edition",
       "!src/generated",
-      "!artifacts"
+      "!artifacts",
+      "!.beads",
+      "!docs/design/placeholder"
     ]
   },
   "formatter": {

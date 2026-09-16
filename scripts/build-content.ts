@@ -7,7 +7,7 @@ import { fileURLToPath } from "node:url";
 import { compileReadingContent, type PaperPayload } from "../src/content/compiler/compile.ts";
 import type { Block } from "../src/content/schemas/reading.ts";
 
-export const CONTENT_COMPILER_FILES = ["scripts/build-content.ts", "src/content/compiler/compile.ts", "src/content/compiler/json.ts", "src/content/schemas/reading.ts", "src/content/dimensions/rational.ts", "src/equations/ast.ts", "src/equations/dimensions.ts", "src/equations/record.ts", "src/equations/quantities.ts", "src/equations/latex.ts", "src/experiments/bm01/definition.ts"] as const;
+export const CONTENT_COMPILER_FILES = ["scripts/build-content.ts", "src/content/compiler/compile.ts", "src/content/compiler/json.ts", "src/content/compiler/quantities.ts", "src/content/quantities/resolveQuantityId.ts", "src/content/schemas/reading.ts", "src/content/dimensions/rational.ts", "src/equations/ast.ts", "src/equations/dimensions.ts", "src/equations/record.ts", "src/equations/quantities.ts", "src/equations/latex.ts", "src/experiments/bm01/definition.ts"] as const;
 const ROOT = resolve(dirname(fileURLToPath(import.meta.url)), "..");
 const digest = (s: string | Uint8Array) => createHash("sha256").update(s).digest("hex");
 export async function loadReadingFiles(root = ROOT) {
