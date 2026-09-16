@@ -164,13 +164,20 @@ function document_(
 }
 
 /**
- * Seed registrations. `allowedValues`/`defaultValue` for the ten settings whose owning bead has
- * not landed yet (theme, detail, perspective, notation, units, readingOnly, measure, typeScale,
- * contrast, paragraphSpacing) are provisional placeholders sourced from AGENTS.md's own text
- * where it names concrete values (the three themes; the four-level Detail axis), and a minimal
- * honest two-value placeholder otherwise. `prePaint` and `ownerBeadId` for every setting, and the
- * full `predictEntry`/`glossReasoningWords` value sets, are load-bearing and taken verbatim from
- * this bead's own table — those are never placeholders.
+ * Seed registrations. `allowedValues`/`defaultValue` for the nine settings whose owning bead has
+ * not landed yet (theme, perspective, notation, units, readingOnly, measure, typeScale, contrast,
+ * paragraphSpacing) are provisional placeholders sourced from AGENTS.md's own text where it names
+ * concrete values (the three themes), and a minimal honest two-value placeholder otherwise.
+ * `prePaint` and `ownerBeadId` for every setting, and the full `predictEntry`/`glossReasoningWords`
+ * value sets, are load-bearing and taken verbatim from this bead's own table — those are never
+ * placeholders.
+ *
+ * `detail`'s three values (`am-read-detail-axis-sfc`, landed) are load-bearing too, not a
+ * placeholder: AGENTS.md's Detail axis has four readings, R0–R3, but R3 ("Historian's margin")
+ * annotates R1 rather than replacing it (`html[data-lens="modern"] [data-reading="3"]` in
+ * `src/reader/reader.css`) and is gated by the separate `perspective`/lens setting, not by
+ * `detail`. `data-detail` itself, set by `src/reader/detail/prepaint.ts`'s `READER_PREPAINT`,
+ * only ever takes "0" | "1" | "2".
  */
 export const SEED_ENTRIES: readonly KeyRegistration[] = [
   // Pre-paint settings (data attributes on <html> before first paint).
@@ -186,7 +193,7 @@ export const SEED_ENTRIES: readonly KeyRegistration[] = [
     "detail",
     "am-read-detail-axis-sfc",
     true,
-    ["0", "1", "2", "3"],
+    ["0", "1", "2"],
     "1",
     "Detail (reading depth)",
   ),

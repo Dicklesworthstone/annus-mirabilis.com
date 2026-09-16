@@ -15,7 +15,9 @@
  * a CSP hash is over exact bytes: a trailing newline or a changed quote
  * style produces a different hash.
  */
-import { ROOT_ARMING_SOURCE } from "../../reader/rootArming.inline";
+
+import { READER_PREPAINT } from "../../reader/detail/prepaint.ts";
+import { ROOT_ARMING_SOURCE } from "../../reader/rootArming.inline.ts";
 
 export type InlineScriptRoutes = "all" | readonly string[];
 
@@ -31,11 +33,15 @@ export type InlineScriptRegistry = readonly InlineScriptRegistryEntry[];
 
 /**
  * Still-future ids, so later beads keep them stable (they appear in the
- * manifest and in failure messages): "theme", "detail", "view",
- * "perspective", "storage-keys", "offline-detail". "detail" is the existing
- * combined `src/reader/detail/prepaint.ts` script (theme/detail/lens/view
- * pre-paint together); it predates this registry and is not yet registered
- * here — that gap belongs to am-read-detail-axis-sfc, not this bead.
+ * manifest and in failure messages): "theme", "perspective",
+ * "storage-keys", "offline-detail".
+ *
+ * "detail" (am-read-detail-axis-sfc) is `src/reader/detail/prepaint.ts`'s
+ * `READER_PREPAINT` — the combined detail/lens/view pre-paint script,
+ * injected verbatim by `src/app/layout.tsx` via
+ * `dangerouslySetInnerHTML={{ __html: READER_PREPAINT }}` in `<head>` on
+ * every route. It predated this registry; this is the entry that closes
+ * that gap.
  *
  * "root-arming" (am-read-shell-routes-3ua) is `src/reader/rootArming.inline.ts`,
  * wired into `PaperReader.tsx` as the reader root's first child on the
@@ -58,6 +64,13 @@ export const INLINE_SCRIPT_REGISTRY: InlineScriptRegistry = Object.freeze([
     ownerBeadId: "am-read-shell-routes-3ua",
     module: "src/reader/rootArming.inline.ts",
     source: ROOT_ARMING_SOURCE,
+    routes: "all",
+  }),
+  Object.freeze({
+    id: "detail",
+    ownerBeadId: "am-read-detail-axis-sfc",
+    module: "src/reader/detail/prepaint.ts",
+    source: READER_PREPAINT,
     routes: "all",
   }),
 ]);

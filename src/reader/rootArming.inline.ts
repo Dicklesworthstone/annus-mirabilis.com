@@ -16,7 +16,7 @@
  * `armReaderRoot.toString()`, never a hand-copied literal, because a
  * Content-Security-Policy hash is over exact bytes.
  */
-import { FACE_IDS } from "./faces/registry";
+import { FACE_IDS } from "./faces/registry.ts";
 
 const KNOWN_FACE_IDS: readonly string[] = FACE_IDS;
 
