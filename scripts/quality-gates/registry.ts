@@ -204,13 +204,13 @@ export const QUALITY_GATE_STEPS: readonly GateStep[] = [
   {
     id: "voice-lint",
     title: "Editorial voice lint",
-    command: ["bun", "scripts/voice-lint.ts"],
+    command: ["bun", "scripts/lint-voice.ts"],
     family: "fast",
     cadence: "every-run",
     requiredInCi: true,
     requiredInProfiles: ["preview", "launch"],
     availability: {
-      scriptPath: "scripts/voice-lint.ts",
+      scriptPath: "scripts/lint-voice.ts",
     },
     owner: "am-edit-voice-lint-trmf",
   },
