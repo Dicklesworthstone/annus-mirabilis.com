@@ -18,6 +18,7 @@ function makeAcceptedSnapshot(): AcceptedSnapshot {
     experimentId: "bm-01",
     instanceId: "inst-bm01",
     runId: "run-bm01-001",
+    parentRunId: null,
     actionIndex: 1,
     revisions: { input: 1, observer: 0, measurement: 0, estimator: 0 },
     parameters: {},

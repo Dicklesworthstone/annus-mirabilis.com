@@ -8,6 +8,7 @@ function makeAcceptedSnapshot(overrides: Partial<AcceptedSnapshot> = {}): Accept
     experimentId: "bm-01",
     instanceId: "inst-bm01-test",
     runId: "run-2026-bm01-alpha",
+    parentRunId: null,
     actionIndex: 1,
     revisions: { input: 1, observer: 0, measurement: 0, estimator: 0 },
     parameters: { temperature: 293.15, viscosity: 0.001, particleRadius: 1e-6 },
