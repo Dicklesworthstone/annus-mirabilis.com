@@ -1,5 +1,8 @@
 import type { MetadataRoute } from "next";
 
+// This metadata route has no request-time inputs; emit it in the static export.
+export const dynamic = "force-static";
+
 /**
  * Empty-corpus baseline: lists only the canonical home URL. The real route
  * inventory (papers, discover, lab) is built from the canonical-URL
