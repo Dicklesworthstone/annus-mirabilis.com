@@ -2,8 +2,10 @@ import { describe, expect, test } from "bun:test";
 import { renderToStaticMarkup } from "react-dom/server";
 import CameraPage from "../app/lab/bm-08/page.tsx";
 import { CameraLab } from "../components/lab/CameraLab.tsx";
-import { createBm08Session } from "../experiments/bm08/session.ts";
-import example from "../generated/bm08-example.json";
+import { createBm08Session, type PreparedBm08Example } from "../experiments/bm08/session.ts";
+import rawExample from "../generated/bm08-example.json";
+
+const example = rawExample as unknown as PreparedBm08Example;
 
 describe("BM-08 Measurement Bias Lab View & Route (am-bm-08-measurement-bias-h1ye)", () => {
   test("static page renders cleanly without JavaScript and includes key sections and mathematical explanations", () => {

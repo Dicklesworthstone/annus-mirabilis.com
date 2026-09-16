@@ -47,11 +47,11 @@ export default function EntropyWorkbenchPage() {
 
         <h2>The Dilute, Narrow-Band Limit (§4)</h2>
         <p>
-          Section 4 restricts to dilute monochromatic radiation obeying Wien&apos;s law, inverts
-          it for the temperature, integrates the entropy density using the zero-density
-          condition above, and integrates over a narrow band. The result is that the entropy of
-          radiation of energy <Formula latex="E" /> in volume <Formula latex="v" /> depends on
-          volume exactly the way the entropy of an ideal gas or a dilute solution does:
+          Section 4 restricts to dilute monochromatic radiation obeying Wien&apos;s law, inverts it
+          for the temperature, integrates the entropy density using the zero-density condition
+          above, and integrates over a narrow band. The result is that the entropy of radiation of
+          energy <Formula latex="E" /> in volume <Formula latex="v" /> depends on volume exactly the
+          way the entropy of an ideal gas or a dilute solution does:
         </p>
         <Formula
           latex={String.raw`S - S_0 = \frac{E}{\beta\nu}\ln\frac{v}{v_0}\qquad(\text{printed "lg" is the natural logarithm})`}
@@ -59,30 +59,27 @@ export default function EntropyWorkbenchPage() {
         <p>
           Only after this volume law is established does identifying{" "}
           <Formula latex={String.raw`\beta = h/k_B`} /> give the modern form{" "}
-          <Formula
-            latex={String.raw`\Delta S = k_B\,\frac{E}{h\nu}\ln\frac{V}{V_0}`}
-          />
-          . The coefficient <Formula latex={String.raw`E/(h\nu)`} /> emerges from an entropy
-          calculation; the workbench above never rounds it to an integer or calls it a count of
-          particles.
+          <Formula latex={String.raw`\Delta S = k_B\,\frac{E}{h\nu}\ln\frac{V}{V_0}`} />. The
+          coefficient <Formula latex={String.raw`E/(h\nu)`} /> emerges from an entropy calculation;
+          the workbench above never rounds it to an integer or calls it a count of particles.
         </p>
 
         <h2>Why the Fixing Condition Matters</h2>
         <p>
           Had the integration constant <Formula latex={String.raw`C(\nu)`} /> been left unfixed
           rather than set to zero by the boundary condition, it would contribute an extra term
-          proportional to <Formula latex={String.raw`(V - V_0)`} /> that does not cancel and does
-          not reproduce the volume law. The workbench&apos;s teaching panel above makes this
-          concrete with an illustrative nonzero <Formula latex={String.raw`C(\nu)`} />.
+          proportional to <Formula latex="(V - V_0)" /> that does not cancel and does not reproduce
+          the volume law. The workbench&apos;s teaching panel above makes this concrete with an
+          illustrative nonzero <Formula latex={String.raw`C(\nu)`} />.
         </p>
 
         <h2>Epistemic Boundary: A Regime-Limited Approximation</h2>
         <p>
-          Wien&apos;s law is an admitted approximation to the true (Planck) spectrum, accurate
-          only where the radiation is dilute relative to the frequency and temperature in
-          question. A state dense enough that Wien&apos;s law fails is not silently computed with
-          a wrong answer; the workbench refuses it and states why, rather than presenting a
-          number outside the regime the argument actually covers.
+          Wien&apos;s law is an admitted approximation to the true (Planck) spectrum, accurate only
+          where the radiation is dilute relative to the frequency and temperature in question. A
+          state dense enough that Wien&apos;s law fails is not silently computed with a wrong
+          answer; the workbench refuses it and states why, rather than presenting a number outside
+          the regime the argument actually covers.
         </p>
 
         <div className="actions">

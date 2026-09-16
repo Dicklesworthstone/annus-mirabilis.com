@@ -17,12 +17,13 @@ import {
   predictAnswerFor,
   type PreparedSr01Example,
 } from "../../../experiments/sr01/session.ts";
+import type { PublishedResult } from "../../../experiments/store/instanceStore.ts";
 
-function outputByQuantityId(outputs: readonly { quantityId: string }[], id: string) {
+function outputByQuantityId(outputs: readonly PublishedResult[], id: string): PublishedResult | undefined {
   return outputs.find((o) => o.quantityId === id);
 }
 
-function formatOutput(output: { status: string; value?: unknown; reason?: string } | undefined): string {
+function formatOutput(output: PublishedResult | undefined): string {
   if (!output) return "unavailable";
   if (output.status === "value") return String(output.value);
   if (output.status === "not-applicable") return `not applicable (${output.reason ?? "by convention"})`;

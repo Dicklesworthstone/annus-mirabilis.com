@@ -22,7 +22,7 @@ export function decodeSr01Settings(search: string): Sr01PermalinkResult {
   if (!KEYS.some(({ param }) => params.has(param))) return { kind: "none" };
 
   const candidate: Sr01Parameters = { ...SR01_DEFAULTS };
-  const mutable = candidate as Record<string, number>;
+  const mutable = candidate as unknown as Record<string, number>;
   for (const { key, param } of KEYS) {
     const raw = params.get(param);
     if (raw !== null) mutable[key] = Number.parseFloat(raw);

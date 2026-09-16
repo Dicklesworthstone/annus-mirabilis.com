@@ -21,14 +21,14 @@ describe("sr03.weave.integration: Spec clauses and physical invariants (am-sr-03
     const res = await evaluateSr03(SR03_PRESETS["sr-03-boost-0.6c"]?.parameters ?? SR03_DEFAULTS);
     expect(res.kind).toBe("accepted");
     if (res.kind === "accepted") {
-      const dtK = res.data.outputs.find((o) => o.quantityId === "temporalSeparationK")?.value;
-      const dxK = res.data.outputs.find((o) => o.quantityId === "spatialSeparationK")?.value;
-      const dtPrime = res.data.outputs.find(
-        (o) => o.quantityId === "temporalSeparationKPrime",
-      )?.value;
-      const dxPrime = res.data.outputs.find(
-        (o) => o.quantityId === "spatialSeparationKPrime",
-      )?.value;
+      const getVal = (id: string) => {
+        const o = res.data.outputs.find((x) => x.quantityId === id);
+        return o && o.status === "value" ? o.value : undefined;
+      };
+      const dtK = getVal("temporalSeparationK");
+      const dxK = getVal("spatialSeparationK");
+      const dtPrime = getVal("temporalSeparationKPrime");
+      const dxPrime = getVal("spatialSeparationKPrime");
 
       expect(dtK).toBe(0);
       expect(dxK).toBe(10);
@@ -45,7 +45,9 @@ describe("sr03.weave.integration: Spec clauses and physical invariants (am-sr-03
     if (res.kind === "accepted") {
       const meas = res.data.outputs.find((o) => o.quantityId === "measuredLength");
       expect(meas?.status).toBe("value");
-      expect(withinTolerance(meas?.value as number, 8.0, { absolute: 1e-12 }).ok).toBe(true);
+      if (meas && meas.status === "value") {
+        expect(withinTolerance(meas.value as number, 8.0, { absolute: 1e-12 }).ok).toBe(true);
+      }
     }
   });
 
@@ -53,15 +55,13 @@ describe("sr03.weave.integration: Spec clauses and physical invariants (am-sr-03
     const res = await evaluateSr03(SR03_PRESETS["sr-03-sphere-0.6c"]?.parameters ?? SR03_DEFAULTS);
     expect(res.kind).toBe("accepted");
     if (res.kind === "accepted") {
-      const longAxis = res.data.outputs.find(
-        (o) => o.quantityId === "ellipsoidAxisLongitudinal",
-      )?.value;
-      const transY = res.data.outputs.find(
-        (o) => o.quantityId === "ellipsoidAxisTransverseY",
-      )?.value;
-      const transZ = res.data.outputs.find(
-        (o) => o.quantityId === "ellipsoidAxisTransverseZ",
-      )?.value;
+      const getVal = (id: string) => {
+        const o = res.data.outputs.find((x) => x.quantityId === id);
+        return o && o.status === "value" ? o.value : undefined;
+      };
+      const longAxis = getVal("ellipsoidAxisLongitudinal");
+      const transY = getVal("ellipsoidAxisTransverseY");
+      const transZ = getVal("ellipsoidAxisTransverseZ");
 
       expect(withinTolerance(longAxis as number, 0.8, { absolute: 1e-12 }).ok).toBe(true);
       expect(transY).toBe(1.0);
@@ -75,8 +75,12 @@ describe("sr03.weave.integration: Spec clauses and physical invariants (am-sr-03
     );
     expect(res.kind).toBe("accepted");
     if (res.kind === "accepted") {
-      const s2 = res.data.outputs.find((o) => o.quantityId === "spacetimeIntervalSquared")?.value;
-      const causalOrder = res.data.outputs.find((o) => o.quantityId === "causalOrder")?.value;
+      const getVal = (id: string) => {
+        const o = res.data.outputs.find((x) => x.quantityId === id);
+        return o && o.status === "value" ? o.value : undefined;
+      };
+      const s2 = getVal("spacetimeIntervalSquared");
+      const causalOrder = getVal("causalOrder");
 
       expect((s2 as number) < 0).toBe(true);
       expect(causalOrder).toBe(-1); // timelike
@@ -84,11 +88,11 @@ describe("sr03.weave.integration: Spec clauses and physical invariants (am-sr-03
   });
 
   test("SR-03 output contracts declare all required semantic kinds and units", () => {
-    expect(SR03_OUTPUTS.spatialSeparationK.unit).toBe("ls");
-    expect(SR03_OUTPUTS.temporalSeparationK.unit).toBe("s");
-    expect(SR03_OUTPUTS.measuredLength.unit).toBe("ls");
-    expect(SR03_OUTPUTS.spacetimeIntervalSquared.unit).toBe("ls^2");
-    expect(SR03_OUTPUTS.gammaFactor.unit).toBe("1");
-    expect(SR03_OUTPUTS.ellipsoidAxisLongitudinal.unit).toBe("ls");
+    expect(SR03_OUTPUTS.spatialSeparationK?.unit).toBe("ls");
+    expect(SR03_OUTPUTS.temporalSeparationK?.unit).toBe("s");
+    expect(SR03_OUTPUTS.measuredLength?.unit).toBe("ls");
+    expect(SR03_OUTPUTS.spacetimeIntervalSquared?.unit).toBe("ls^2");
+    expect(SR03_OUTPUTS.gammaFactor?.unit).toBe("1");
+    expect(SR03_OUTPUTS.ellipsoidAxisLongitudinal?.unit).toBe("ls");
   });
 });
