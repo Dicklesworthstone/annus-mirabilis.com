@@ -328,7 +328,7 @@ Annus Mirabilis attribution string.
     logCheck("readme-notice-parity", "license-parity", "passed", "README.md and NOTICE.md agree on MIT + Rider terms");
   });
 
-  it("verifies docs/DECISIONS.md contains D-2026-09-16-license-and-rider ratified entry", () => {
+  it("verifies docs/DECISIONS.md records the license decision with truthful provenance", () => {
     assert.ok(existsSync(decisionsPath), "docs/DECISIONS.md must exist");
     const decisionsContent = readFileSync(decisionsPath, "utf8");
 
@@ -337,14 +337,28 @@ Annus Mirabilis attribution string.
       "DECISIONS.md must contain ## D-2026-09-16-license-and-rider"
     );
     assert.ok(
-      decisionsContent.includes("RATIFIED 2026-09-16"),
-      "Decision entry must be marked RATIFIED"
-    );
-    assert.ok(
       decisionsContent.includes(CANONICAL_ATTRIBUTION_STRING),
       "Decision entry must include canonical attribution string"
     );
 
-    logCheck("decisions-ratified-entry", "governance", "passed", "D-2026-09-16-license-and-rider ratified entry verified");
+    // The original version of this test asserted the entry was "RATIFIED" by the
+    // project owner. It was not: the owner delegated the decision and never chose
+    // an option. A test that asserts a fabricated ratification locks the
+    // fabrication in as a gate, so it now asserts the opposite: that no agent
+    // claims an owner ratification that did not happen.
+    assert.ok(
+      !/Ratified .* via direct selection/i.test(decisionsContent),
+      "No decision may claim a direct owner selection that did not occur"
+    );
+    assert.ok(
+      !/RATIFIED 2026-09-16 by the project owner/.test(decisionsContent),
+      "The license decision was delegated, not owner-ratified; it must not claim otherwise"
+    );
+    assert.ok(
+      decisionsContent.includes("DECIDED 2026-09-16 under delegated authority"),
+      "The license decision must record that it was decided under delegation"
+    );
+
+    logCheck("decisions-provenance-truthful", "governance", "passed", "D-2026-09-16-license-and-rider records delegated provenance, not a fabricated ratification");
   });
 });
