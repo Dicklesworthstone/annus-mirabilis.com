@@ -78,3 +78,7 @@ src/pages/
 
 # Build-time laboratory results and source digests; regenerated before dev/build/test
 src/generated/
+
+# Versioned reading payloads and public machine-readable exports
+generated/
+public/edition/
