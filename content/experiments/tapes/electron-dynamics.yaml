@@ -1,0 +1,44 @@
+tapeVersion: 2
+tapeId: electron-dynamics
+experimentId: sr-13
+mode: "sr-13:default"
+title: electron work and deflection
+description: Teaching tape demonstrating mass coefficients, work, kinetic energy, and deflections for a relativistic electron.
+isTeachingSequence: true
+modelIdentity:
+  modelId: electron-dynamics-host
+  modelVersion: "1"
+  artifactDigest: "host:sha256:sr13-electronDynamics"
+constantSetId: modern-si-2019
+seed: "0"
+streamVersion: 1
+allocationId: sr-13.none.v1
+initialConditions:
+  electricFieldX: 0
+  electricFieldY: 1.0e5
+  electricFieldZ: 0
+  magneticFieldX: 0
+  magneticFieldY: 0
+  magneticFieldZ: 0
+  initialSpeed: 0.6
+  initialDirectionDeg: 0
+  integrationInterval: 2.0e-9
+events:
+  - kind: control
+    actionIndex: 1
+    commandClass: setup-change
+    commandId: set-speed-0.6
+    parameterId: initialSpeed
+    value: 0.6
+checkpoints:
+  - actionIndex: 1
+    stepIndex: 0
+    simulatedTime: 0
+    digest: "host:sha256:sr13-electronDynamics"
+    digestKind: host
+    checkpointVersion: 1
+    streamSemanticsVersion: 1
+    seed: "0"
+    streamPositions: []
+    label: electron-dynamics-0.6c
+    teachingNote: At 0.6c, the electron has gamma = 1.25, transverse mass 1.5625m in Einstein's 1905 convention and 1.25m in Planck's 1906 convention. Both conventions yield identical observable deflection radii.

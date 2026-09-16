@@ -32,7 +32,7 @@ export {
 /**
  * Checks if a string is a valid 64-bit unsigned decimal integer.
  */
-export function isValidSeed(raw: unknown): rawInput is string {
+export function isValidSeed(raw: unknown): raw is string {
   if (typeof raw !== "string") return false;
   try {
     parseU64(raw);

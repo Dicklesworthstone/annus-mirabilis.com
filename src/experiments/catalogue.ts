@@ -81,7 +81,7 @@ export const CATALOGUE_STATUS: Readonly<Record<CatalogueId, CatalogueStatus>> = 
   "sr-10": "registered",
   "sr-11": "registered",
   "sr-12": "registered",
-  "sr-13": "in-preparation",
+  "sr-13": "registered",
   "me-01": "registered",
   "me-02": "registered",
   "me-03": "registered",
@@ -149,6 +149,8 @@ export const CATALOGUE_QUESTIONS: Readonly<Partial<Record<CatalogueId, string>>>
   "sr-10": "How do the energy and volume of a bounded light complex transform between frames?",
   "sr-11":
     "How do the frequency, angle, amplitude, and radiation pressure of light transform when reflected by a moving mirror, and how does energy balance between the light and the mirror's mechanical work?",
+  "sr-13":
+    "What force, work, energy, and deflection relations follow for a slowly accelerated electron, and why do two different \"transverse masses\" appear?",
 });
 
 /** Runtime guard for an id read from a URL, permalink, or reader link: never assume the string is valid. */

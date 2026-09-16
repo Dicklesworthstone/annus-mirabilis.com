@@ -1,0 +1,584 @@
+id: sr-13
+title: "SR-13: electron dynamics and force conventions"
+explanatoryQuestion: "What force, work, energy, and deflection relations follow for a slowly accelerated electron, and why do two different \"transverse masses\" appear?"
+sourceRefs:
+  - paper: special-relativity
+    id: s10
+argumentIds:
+  - arg-sr-electron-dynamics
+schemaVersion: 1
+parameters:
+  - id: electricFieldX
+    label: "Electric field X"
+    accessibleName: "Electric field component along X in V/m"
+    accessibleDescription: "Uniform electric field along the X axis in V/m."
+    quantityId: electricFieldStationary
+    displayUnit: "V/m"
+    modelDomain:
+      min: -1.0e8
+      max: 1.0e8
+      minInclusive: true
+      maxInclusive: true
+      reason: "Finite laboratory electric fields."
+    visualRange:
+      min: -1.0e6
+      max: 1.0e6
+    default: 0
+    mapping:
+      kind: linear
+    role: independent
+    commandClass: setup-change
+  - id: electricFieldY
+    label: "Electric field Y"
+    accessibleName: "Electric field component along Y in V/m"
+    accessibleDescription: "Uniform electric field along the Y axis in V/m."
+    quantityId: electricFieldStationary
+    displayUnit: "V/m"
+    modelDomain:
+      min: -1.0e8
+      max: 1.0e8
+      minInclusive: true
+      maxInclusive: true
+      reason: "Finite laboratory electric fields."
+    visualRange:
+      min: -1.0e6
+      max: 1.0e6
+    default: 1.0e5
+    mapping:
+      kind: linear
+    role: independent
+    commandClass: setup-change
+  - id: electricFieldZ
+    label: "Electric field Z"
+    accessibleName: "Electric field component along Z in V/m"
+    accessibleDescription: "Uniform electric field along the Z axis in V/m."
+    quantityId: electricFieldStationary
+    displayUnit: "V/m"
+    modelDomain:
+      min: -1.0e8
+      max: 1.0e8
+      minInclusive: true
+      maxInclusive: true
+      reason: "Finite laboratory electric fields."
+    visualRange:
+      min: -1.0e6
+      max: 1.0e6
+    default: 0
+    mapping:
+      kind: linear
+    role: independent
+    commandClass: setup-change
+  - id: magneticFieldX
+    label: "Magnetic field X"
+    accessibleName: "Magnetic field component along X in Tesla"
+    accessibleDescription: "Uniform magnetic field along the X axis in T."
+    quantityId: magneticFieldStationary
+    displayUnit: "T"
+    modelDomain:
+      min: -10.0
+      max: 10.0
+      minInclusive: true
+      maxInclusive: true
+      reason: "Finite laboratory magnetic fields."
+    visualRange:
+      min: -1.0
+      max: 1.0
+    default: 0
+    mapping:
+      kind: linear
+    role: independent
+    commandClass: setup-change
+  - id: magneticFieldY
+    label: "Magnetic field Y"
+    accessibleName: "Magnetic field component along Y in Tesla"
+    accessibleDescription: "Uniform magnetic field along the Y axis in T."
+    quantityId: magneticFieldStationary
+    displayUnit: "T"
+    modelDomain:
+      min: -10.0
+      max: 10.0
+      minInclusive: true
+      maxInclusive: true
+      reason: "Finite laboratory magnetic fields."
+    visualRange:
+      min: -1.0
+      max: 1.0
+    default: 0
+    mapping:
+      kind: linear
+    role: independent
+    commandClass: setup-change
+  - id: magneticFieldZ
+    label: "Magnetic field Z"
+    accessibleName: "Magnetic field component along Z in Tesla"
+    accessibleDescription: "Uniform magnetic field along the Z axis in T."
+    quantityId: magneticFieldStationary
+    displayUnit: "T"
+    modelDomain:
+      min: -10.0
+      max: 10.0
+      minInclusive: true
+      maxInclusive: true
+      reason: "Finite laboratory magnetic fields."
+    visualRange:
+      min: -1.0
+      max: 1.0
+    default: 0
+    mapping:
+      kind: linear
+    role: independent
+    commandClass: setup-change
+  - id: initialSpeed
+    label: "Initial speed (v/c)"
+    accessibleName: "Initial particle velocity as a fraction of c"
+    accessibleDescription: "Speed ratio v/c at entry."
+    quantityId: particleVelocity
+    displayUnit: "dimensionless"
+    modelDomain:
+      min: -0.95
+      max: 0.95
+      minInclusive: true
+      maxInclusive: true
+      reason: "Subluminal velocity ratio |v| < c."
+    visualRange:
+      min: 0
+      max: 0.95
+    default: 0.6
+    mapping:
+      kind: linear
+    role: independent
+    commandClass: setup-change
+  - id: initialDirectionDeg
+    label: "Initial direction angle"
+    accessibleName: "Initial velocity direction angle in degrees"
+    accessibleDescription: "Angle of initial velocity in degrees in the xy plane."
+    quantityId: particleVelocity
+    displayUnit: "deg"
+    modelDomain:
+      min: 0
+      max: 360
+      minInclusive: true
+      maxInclusive: true
+      reason: "Full circle angle range."
+    visualRange:
+      min: 0
+      max: 360
+    default: 0
+    mapping:
+      kind: linear
+    role: independent
+    commandClass: setup-change
+  - id: integrationInterval
+    label: "Integration interval"
+    accessibleName: "Trajectory integration time duration in seconds"
+    accessibleDescription: "Total simulation time interval in seconds."
+    quantityId: particleVelocity
+    displayUnit: "s"
+    modelDomain:
+      min: 1.0e-13
+      max: 1.0e-6
+      minInclusive: true
+      maxInclusive: true
+      reason: "Finite simulation duration."
+    visualRange:
+      min: 1.0e-10
+      max: 1.0e-8
+    default: 2.0e-9
+    mapping:
+      kind: linear
+    role: independent
+    commandClass: setup-change
+  - id: forceConvention
+    label: "Force convention"
+    accessibleName: "Force definition convention"
+    accessibleDescription: "Choice between Einstein's 1905 source convention (comoving force / stationary acceleration) and Planck's 1906 laboratory convention (F = dp/dt)."
+    quantityId: referenceFrame
+    displayUnit: "dimensionless"
+    modelDomain:
+      min: 0
+      max: 1
+      minInclusive: true
+      maxInclusive: true
+      reason: "Discrete force convention choice."
+    visualRange:
+      min: 0
+      max: 1
+    default: 0
+    mapping:
+      kind: linear
+    role: independent
+    commandClass: presentation-change
+  - id: massLanguage
+    label: "Mass description language"
+    accessibleName: "Mass description framework"
+    accessibleDescription: "Choice between 1905 velocity-dependent mass coefficients and modern invariant rest mass with relativistic momentum and energy."
+    quantityId: referenceFrame
+    displayUnit: "dimensionless"
+    modelDomain:
+      min: 0
+      max: 1
+      minInclusive: true
+      maxInclusive: true
+      reason: "Discrete language framework."
+    visualRange:
+      min: 0
+      max: 1
+    default: 0
+    mapping:
+      kind: linear
+    role: independent
+    commandClass: presentation-change
+  - id: particle
+    label: "Particle type"
+    accessibleName: "Particle type selector"
+    accessibleDescription: "Choice between physical electron (CODATA 2022 constants) and custom ponderable material point."
+    quantityId: referenceFrame
+    displayUnit: "dimensionless"
+    modelDomain:
+      min: 0
+      max: 1
+      minInclusive: true
+      maxInclusive: true
+      reason: "Discrete particle choice."
+    visualRange:
+      min: 0
+      max: 1
+    default: 0
+    mapping:
+      kind: linear
+    role: independent
+    commandClass: setup-change
+  - id: datasetOverlay
+    label: "Dataset overlay"
+    accessibleName: "Historical experimental dataset overlay"
+    accessibleDescription: "Overlay cited historical deflection datasets: Kaufmann 1902-1906 or Bucherer 1908."
+    quantityId: referenceFrame
+    displayUnit: "dimensionless"
+    modelDomain:
+      min: 0
+      max: 2
+      minInclusive: true
+      maxInclusive: true
+      reason: "Discrete overlay selection."
+    visualRange:
+      min: 0
+      max: 2
+    default: 0
+    mapping:
+      kind: linear
+    role: independent
+    commandClass: presentation-change
+outputs:
+  - id: longitudinalMass
+    quantityId: longitudinalMass
+    allowedStatuses:
+      - value
+      - outside-domain
+    primary: true
+  - id: transverseMassComoving
+    quantityId: transverseMassComoving
+    allowedStatuses:
+      - value
+      - outside-domain
+    primary: true
+  - id: transverseMassLaboratory
+    quantityId: transverseMassLaboratory
+    allowedStatuses:
+      - value
+      - outside-domain
+    primary: true
+  - id: kineticEnergy
+    quantityId: kineticEnergy
+    allowedStatuses:
+      - value
+      - outside-domain
+    primary: true
+  - id: kineticEnergyNewtonian
+    quantityId: kineticEnergy
+    allowedStatuses:
+      - value
+      - outside-domain
+    primary: false
+  - id: acceleratingPotential
+    quantityId: acceleratingPotential
+    allowedStatuses:
+      - value
+      - outside-domain
+    primary: true
+  - id: acceleratingPotentialNewtonian
+    quantityId: acceleratingPotential
+    allowedStatuses:
+      - value
+      - outside-domain
+    primary: false
+  - id: radiusCurvatureMagnetic
+    quantityId: radiusCurvatureMagnetic
+    allowedStatuses:
+      - value
+      - outside-domain
+    primary: true
+  - id: radiusCurvatureElectric
+    quantityId: radiusCurvatureElectric
+    allowedStatuses:
+      - value
+      - outside-domain
+    primary: true
+  - id: lorentzFactor
+    quantityId: lorentzFactor
+    allowedStatuses:
+      - value
+      - outside-domain
+    primary: true
+  - id: speedRatio
+    quantityId: speedRatio
+    allowedStatuses:
+      - value
+      - outside-domain
+    primary: true
+assumptions:
+  - "Point charge in prescribed uniform electric and magnetic fields."
+  - "Special relativistic dynamics in inertial frames without radiation reaction."
+  - "Rigid electron and contractile electron models appear only as historical references."
+admittedDomain: "Subluminal velocities |v| < c and finite prescribed electromagnetic fields."
+notModeled:
+  - "radiation reaction from accelerated charges"
+  - "self-electromagnetic fields and structure of the electron"
+  - "quantum electrodynamic corrections and spin"
+  - "space charge interactions in beam ensembles"
+  - "non-uniform and fringe electromagnetic fields"
+  - "apparatus-specific geometry of historical deflection experiments"
+owner:
+  kind: reference-evaluator
+  kernelFunctions:
+    - displayRole: reference-implementation
+      language: ts
+      module: "src/physics/reference/electron.ts"
+      exportName: "evaluateSr13"
+      independentReferences:
+        - experimentId: sr-13
+views:
+  - id: svg-electron-trajectory
+    kind: svg
+    consumes:
+      - radiusCurvatureMagnetic
+      - radiusCurvatureElectric
+      - speedRatio
+      - lorentzFactor
+  - id: table-electron-coefficients
+    kind: table
+    consumes:
+      - longitudinalMass
+      - transverseMassComoving
+      - transverseMassLaboratory
+      - kineticEnergy
+      - acceleratingPotential
+      - lorentzFactor
+  - id: plot-kinetic-energy
+    kind: svg
+    consumes:
+      - kineticEnergy
+      - kineticEnergyNewtonian
+      - acceleratingPotential
+      - acceleratingPotentialNewtonian
+actions:
+  - actionId: electron-dynamics
+    family: relativistic-dynamics
+    question: "What force, work, energy, and deflection relations follow for a slowly accelerated electron, and why do two different \"transverse masses\" appear?"
+    inputs:
+      - electricFieldX
+      - electricFieldY
+      - electricFieldZ
+      - magneticFieldX
+      - magneticFieldY
+      - magneticFieldZ
+      - initialSpeed
+      - initialDirectionDeg
+      - integrationInterval
+    commandClass: setup-change
+    acceptedResult:
+      outputs:
+        - longitudinalMass
+        - transverseMassComoving
+        - transverseMassLaboratory
+        - kineticEnergy
+        - acceleratingPotential
+        - radiusCurvatureMagnetic
+        - radiusCurvatureElectric
+        - lorentzFactor
+        - speedRatio
+      allowedStatuses:
+        - value
+        - outside-domain
+    visualAffordance: "Trajectory curve in field region with coefficient table and kinetic energy comparison"
+    equivalentAffordance: "Enter field components and initial speed to compute longitudinal and transverse masses, kinetic energy, potential, and deflection radii."
+    announcement: "Relativistic electron dynamics and mass coefficients computed."
+acceptanceCases:
+  - sr-13-convention-0.6
+  - sr-13-energy-0.95
+  - sr-13-magnetic-radius-0.01t
+  - sr-13-electric-radius-1e5
+  - sr-13-transverse-e-2ns
+  - sr-13-kaufmann-overlay
+  - sr-13-bucherer-overlay
+defaultScenario: sr-13-transverse-e-2ns
+tapeModel:
+  modelId: electron-dynamics-host
+  modelVersion: 1
+teachingTapes:
+  - tapeId: electron-dynamics
+    title: electron work and deflection
+presets:
+  - presetId: sr-13-convention-0.6
+    label: Force convention comparison at 0.6c
+    parameterValues:
+      electricFieldX: 0
+      electricFieldY: 1.0e5
+      electricFieldZ: 0
+      magneticFieldX: 0
+      magneticFieldY: 0
+      magneticFieldZ: 0
+      initialSpeed: 0.6
+      initialDirectionDeg: 0
+      integrationInterval: 2.0e-9
+      forceConvention: source
+      massLanguage: "1905"
+      particle: electron
+      datasetOverlay: none
+    scenarioId: sr-13-convention-0.6
+  - presetId: sr-13-energy-0.95
+    label: Relativistic kinetic energy at 0.95c
+    parameterValues:
+      electricFieldX: 0
+      electricFieldY: 0
+      electricFieldZ: 0
+      magneticFieldX: 0
+      magneticFieldY: 0
+      magneticFieldZ: 0
+      initialSpeed: 0.95
+      initialDirectionDeg: 0
+      integrationInterval: 2.0e-9
+      forceConvention: source
+      massLanguage: "1905"
+      particle: electron
+      datasetOverlay: none
+    scenarioId: sr-13-energy-0.95
+  - presetId: sr-13-magnetic-radius-0.01t
+    label: Transverse magnetic deflection at B = 0.01 T
+    parameterValues:
+      electricFieldX: 0
+      electricFieldY: 0
+      electricFieldZ: 0
+      magneticFieldX: 0
+      magneticFieldY: 0
+      magneticFieldZ: 0.01
+      initialSpeed: 0.6
+      initialDirectionDeg: 0
+      integrationInterval: 2.0e-9
+      forceConvention: source
+      massLanguage: "1905"
+      particle: electron
+      datasetOverlay: none
+    scenarioId: sr-13-magnetic-radius-0.01t
+  - presetId: sr-13-electric-radius-1e5
+    label: Transverse electric deflection at E = 10^5 V/m
+    parameterValues:
+      electricFieldX: 0
+      electricFieldY: 1.0e5
+      electricFieldZ: 0
+      magneticFieldX: 0
+      magneticFieldY: 0
+      magneticFieldZ: 0
+      initialSpeed: 0.6
+      initialDirectionDeg: 0
+      integrationInterval: 2.0e-9
+      forceConvention: source
+      massLanguage: "1905"
+      particle: electron
+      datasetOverlay: none
+    scenarioId: sr-13-electric-radius-1e5
+  - presetId: sr-13-transverse-e-2ns
+    label: Default transverse field trajectory (2 ns)
+    parameterValues:
+      electricFieldX: 0
+      electricFieldY: 1.0e5
+      electricFieldZ: 0
+      magneticFieldX: 0
+      magneticFieldY: 0
+      magneticFieldZ: 0
+      initialSpeed: 0.6
+      initialDirectionDeg: 0
+      integrationInterval: 2.0e-9
+      forceConvention: source
+      massLanguage: "1905"
+      particle: electron
+      datasetOverlay: none
+    scenarioId: sr-13-transverse-e-2ns
+  - presetId: sr-13-kaufmann-overlay
+    label: Kaufmann 1902-1906 experimental dataset overlay
+    parameterValues:
+      electricFieldX: 0
+      electricFieldY: 1.0e5
+      electricFieldZ: 0
+      magneticFieldX: 0
+      magneticFieldY: 0
+      magneticFieldZ: 0.01
+      initialSpeed: 0.6
+      initialDirectionDeg: 0
+      integrationInterval: 2.0e-9
+      forceConvention: source
+      massLanguage: "1905"
+      particle: electron
+      datasetOverlay: kaufmann-1902-1906
+    scenarioId: sr-13-kaufmann-overlay
+  - presetId: sr-13-bucherer-overlay
+    label: Bucherer 1908 experimental dataset overlay
+    parameterValues:
+      electricFieldX: 0
+      electricFieldY: 1.0e5
+      electricFieldZ: 0
+      magneticFieldX: 0
+      magneticFieldY: 0
+      magneticFieldZ: 0.01
+      initialSpeed: 0.6
+      initialDirectionDeg: 0
+      integrationInterval: 2.0e-9
+      forceConvention: laboratory
+      massLanguage: modern
+      particle: electron
+      datasetOverlay: bucherer-1908
+    scenarioId: sr-13-bucherer-overlay
+probes:
+  - toggle-convention
+  - toggle-language
+  - type-speed
+  - type-electric-field
+  - type-magnetic-field
+  - toggle-overlay
+weavePredicates:
+  - sr13-force-convention
+  - sr13-infinite-energy
+historicalOverlays:
+  - kaufmann-1902-1906
+  - bucherer-1908
+realRate:
+  natural: false
+embeddable: true
+predictMode:
+  enabled: true
+  prompts:
+    - promptId: sr-13-predict-transverse-mass
+      controlId: initialSpeed
+      question: "At 0.6c, is the electron harder to push sideways by a factor of 1.25 or 1.5625?"
+      candidates:
+        - id: answer-depends-on-definition
+          label: "It depends on which frame's force you compare to acceleration (1.25 in lab, 1.5625 in comoving), but both predict the identical physical deflection."
+          description: "In Einstein's 1905 source convention (comoving force / stationary acceleration), the transverse coefficient is gamma^2 = 1.5625. In Planck's 1906 laboratory convention (F = dp/dt), the coefficient is gamma = 1.25. Observable deflections and radii are identical."
+          separatingAssumption: "Force is a convention-dependent definition connecting rest-frame dynamics to coordinate measurements."
+        - id: answer-always-1-25
+          label: "1.25 (gamma)"
+          description: "Assumes only the modern relativistic momentum definition F = dp/dt."
+          separatingAssumption: "Only the laboratory convention is considered valid."
+        - id: answer-always-1-5625
+          label: "1.5625 (gamma^2)"
+          description: "Assumes Einstein's 1905 source convention combining comoving force with stationary acceleration."
+          separatingAssumption: "Only the source convention is considered valid."

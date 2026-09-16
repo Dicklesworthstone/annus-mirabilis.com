@@ -257,9 +257,8 @@ export function ParameterControl({
     const text = e.target.value;
     setDraftText(text);
 
-    const parsed = parseParameterValue(spec, text, {
-      gridStepOverride: dependentGridValue,
-    });
+    const options = dependentGridValue !== undefined ? { gridStepOverride: dependentGridValue } : undefined;
+    const parsed = parseParameterValue(spec, text, options);
 
     if (parsed.ok) {
       setErrorExplanation(null);
@@ -275,9 +274,8 @@ export function ParameterControl({
   const handleSliderChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     const sliderNum = Number(e.target.value);
     const canonicalVal = toCanonicalValue(spec, sliderNum);
-    const parsed = parseParameterValue(spec, String(canonicalVal), {
-      gridStepOverride: dependentGridValue,
-    });
+    const options = dependentGridValue !== undefined ? { gridStepOverride: dependentGridValue } : undefined;
+    const parsed = parseParameterValue(spec, String(canonicalVal), options);
 
     if (parsed.ok) {
       setErrorExplanation(null);
@@ -296,9 +294,8 @@ export function ParameterControl({
     const nextDisp = currentDisp + direction * stepIncrement;
     const nextCanonical = toCanonicalValue(spec, nextDisp);
 
-    const parsed = parseParameterValue(spec, String(nextCanonical), {
-      gridStepOverride: dependentGridValue,
-    });
+    const options = dependentGridValue !== undefined ? { gridStepOverride: dependentGridValue } : undefined;
+    const parsed = parseParameterValue(spec, String(nextCanonical), options);
 
     if (parsed.ok) {
       setErrorExplanation(null);
@@ -313,9 +310,8 @@ export function ParameterControl({
 
   // Apply offered neighbour option
   const handleApplyNeighbour = (neighbour: number) => {
-    const parsed = parseParameterValue(spec, String(neighbour), {
-      gridStepOverride: dependentGridValue,
-    });
+    const options = dependentGridValue !== undefined ? { gridStepOverride: dependentGridValue } : undefined;
+    const parsed = parseParameterValue(spec, String(neighbour), options);
     if (parsed.ok) {
       setErrorExplanation(null);
       setOfferedNeighbours([]);

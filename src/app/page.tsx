@@ -86,6 +86,11 @@ export default function Home() {
             </a>
           </p>
           <p>
+            <a href="/lab/sr-13/">
+              Examine electron dynamics and both force conventions →
+            </a>
+          </p>
+          <p>
             <a href="/lab/lq-06/">
               Match radiation entropy to gas entropy and derive the light quantum →
             </a>

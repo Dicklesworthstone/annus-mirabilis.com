@@ -152,7 +152,7 @@ export function serializeParameterValue(spec: ParameterSpec, value: number | str
 export function parseParameterValue(
   spec: ParameterSpec,
   text: string,
-  options?: { gridStepOverride?: number },
+  options?: { gridStepOverride?: number | undefined } | undefined,
 ): ParseResult {
   // 1. Seed parameter handling (untrimmed strict check)
   const isSeedParam =

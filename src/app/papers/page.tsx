@@ -71,6 +71,7 @@ export default function Papers() {
                 <a href="/lab/sr-02/">Magnet and conductor →</a>
                 <a href="/lab/sr-03/">Rod measurement & simultaneity →</a>
                 <a href="/lab/sr-10/">Finite light complex →</a>
+                <a href="/lab/sr-13/">Electron dynamics & mass conventions →</a>
               </div>
             )}
             {i === 3 && (
