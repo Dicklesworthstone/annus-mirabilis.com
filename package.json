@@ -20,7 +20,7 @@
     "format": "biome format --write .",
     "format:check": "biome format .",
     "test": "bun run prepare:content && bun run prepare:lab && bun test --isolate --timeout 60000 src scripts",
-    "test:reference": "bun run prepare:content && bun run prepare:lab && bun test src/testing/*.test.mjs",
+    "test:reference": "bun run prepare:content && bun run prepare:lab && bun test --isolate --timeout 60000 src/testing/*.test.mjs",
     "test:browser": "bun scripts/test-lab-browser.mjs"
   },
   "dependencies": {
