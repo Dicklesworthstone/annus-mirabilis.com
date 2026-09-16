@@ -26,13 +26,13 @@ export function decodeSr10Settings(
   const candidate: Sr10Parameters = {
     ...SR10_DEFAULTS,
     beta: q.has("v") ? Number(q.get("v")) : SR10_DEFAULTS.beta,
-    propagationAngleDeg: q.has("phi")
-      ? Number(q.get("phi"))
-      : SR10_DEFAULTS.propagationAngleDeg,
+    propagationAngleDeg: q.has("phi") ? Number(q.get("phi")) : SR10_DEFAULTS.propagationAngleDeg,
     initialEnergyJ: q.has("E") ? Number(q.get("E")) : SR10_DEFAULTS.initialEnergyJ,
     initialVolumeM3: q.has("V") ? Number(q.get("V")) : SR10_DEFAULTS.initialVolumeM3,
     initialAmplitude: q.has("A") ? Number(q.get("A")) : SR10_DEFAULTS.initialAmplitude,
-    showCountermodel: q.has("countermodel") ? q.get("countermodel") !== "0" : SR10_DEFAULTS.showCountermodel,
+    showCountermodel: q.has("countermodel")
+      ? q.get("countermodel") !== "0"
+      : SR10_DEFAULTS.showCountermodel,
   };
 
   const checked = validateSr10Parameters(candidate);

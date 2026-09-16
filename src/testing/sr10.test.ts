@@ -1,10 +1,8 @@
 import { describe, expect, test } from "bun:test";
-import { gamma } from "../physics/reference/kinematics.ts";
 import {
   dopplerFactor,
   evaluateSr10,
   lightComplexFactors,
-  lightComplexMaterialContractionCountermodel,
   lightComplexVolumeNumeric,
 } from "../physics/reference/waves.ts";
 
@@ -76,13 +74,12 @@ describe("SR-10: The Finite Light Complex (Einstein 1905 §8)", () => {
     expect(res.volumeFactor).toBeCloseTo(2.0, 12);
     expect(res.transformedEnergyJ).toBeCloseTo(0.5, 12);
     expect(res.transformedVolumeM3).toBeCloseTo(2.0, 12);
-
-    // Countermodel check:
-    // Naive rod contraction: V_rod'/V = 1/gamma = 0.8
-    // Naive energy: E_wrong' = q^2 / gamma = 0.25 / 1.25 = 0.20
-    expect(res.countermodelEnergyFactor).toBeCloseTo(0.2, 12);
+    expect(res.materialVolumeFactor).toBeCloseTo(0.8, 12);
+    expect(res.energyFactor).not.toBeCloseTo(res.materialVolumeFactor, 2);
+    expect(res.volumeFactor).not.toBeCloseTo(res.materialVolumeFactor, 2);
+    expect(res.countermodelEnergyFactor).toBeCloseTo(0.8, 12);
     expect(res.countermodelVolumeFactor).toBeCloseTo(0.8, 12);
-    expect(res.countermodelEnergyJ).toBeCloseTo(0.2, 12);
+    expect(res.countermodelEnergyJ).toBeCloseTo(0.8, 12);
     expect(res.countermodelVolumeM3).toBeCloseTo(0.8, 12);
   });
 
@@ -102,14 +99,13 @@ describe("SR-10: The Finite Light Complex (Einstein 1905 §8)", () => {
     expect(res.transformedEnergyJ).toBeCloseTo(2.0, 12);
     expect(res.transformedVolumeM3).toBeCloseTo(0.5, 12);
 
-    // Countermodel check:
-    // Naive energy: q^2 / gamma = 4.0 / 1.25 = 3.20
-    expect(res.countermodelEnergyFactor).toBeCloseTo(3.2, 12);
+    expect(res.countermodelEnergyFactor).toBeCloseTo(0.8, 12);
     expect(res.countermodelVolumeFactor).toBeCloseTo(0.8, 12);
-    expect(res.countermodelEnergyJ).toBeCloseTo(3.2, 12);
+    expect(res.countermodelEnergyJ).toBeCloseTo(0.8, 12);
+    expect(res.energyFactor).not.toBeCloseTo(res.materialVolumeFactor, 2);
   });
 
-  test("unprimed transverse ray in K (phi = 90 deg, beta = 0.6): energy factor is gamma", () => {
+  test("unprimed transverse ray (cos phi = 0) is the discriminating case: light factor gamma vs material 1/gamma", () => {
     const res = evaluateSr10({
       beta: 0.6,
       propagationAngleDeg: 90,
@@ -119,12 +115,16 @@ describe("SR-10: The Finite Light Complex (Einstein 1905 §8)", () => {
 
     expect(res.status).toBe("value");
     expect(res.energyFactor).toBeCloseTo(1.25, 12);
+    expect(res.materialVolumeFactor).toBeCloseTo(0.8, 12);
+    expect(res.energyFactor / res.materialVolumeFactor).toBeCloseTo(1.25 * 1.25, 12);
+    expect(res.countermodelEnergyFactor).toBeCloseTo(0.8, 12);
+    expect(res.energyFactor).not.toBeCloseTo(res.countermodelEnergyFactor, 2);
     expect(res.volumeFactor).toBeCloseTo(0.8, 12);
     expect(res.transformedEnergyJ).toBeCloseTo(1.25, 12);
     expect(res.transformedVolumeM3).toBeCloseTo(0.8, 12);
   });
 
-  test("moving-frame transverse ray (cos phi = beta = 0.6, phi ≈ 53.13 deg): light volume expands (1.25) vs rod contracts (0.8)", () => {
+  test("moving-frame transverse ray (cos phi = beta) is degenerate for energy versus material", () => {
     const phiDeg = (Math.acos(0.6) * 180) / Math.PI;
     const res = evaluateSr10({
       beta: 0.6,
@@ -134,18 +134,11 @@ describe("SR-10: The Finite Light Complex (Einstein 1905 §8)", () => {
     });
 
     expect(res.status).toBe("value");
-    // q = gamma * (1 - beta^2) = 1 / gamma = 0.8
     expect(res.energyFactor).toBeCloseTo(0.8, 10);
-    // V'/V = 1 / q = gamma = 1.25 (Light packet volume expands!)
+    expect(res.materialVolumeFactor).toBeCloseTo(0.8, 10);
+    expect(res.energyFactor).toBeCloseTo(res.materialVolumeFactor, 10);
+    expect(res.countermodelEnergyFactor).toBeCloseTo(res.energyFactor, 10);
     expect(res.volumeFactor).toBeCloseTo(1.25, 10);
-
-    // Material rod contraction: 1 / gamma = 0.8 (contracts!)
-    expect(res.countermodelVolumeFactor).toBeCloseTo(0.8, 10);
-    // Ratio of light volume to rod volume is gamma^2 = 1.25 / 0.8 = 1.5625
-    expect(res.volumeFactor / res.countermodelVolumeFactor).toBeCloseTo(1.25 * 1.25, 10);
-
-    // Countermodel energy: q^2 / gamma = 0.64 / 1.25 = 0.512 != 0.8
-    expect(res.countermodelEnergyFactor).toBeCloseTo(0.512, 10);
   });
 
   test("energy density balance u' = E'/V' = u * q^2 holds universally", () => {

@@ -155,6 +155,24 @@ outputs:
     allowedStatuses:
       - value
     primary: false
+  - id: materialVolumeFactor
+    quantityId: lorentzFactor
+    allowedStatuses:
+      - value
+      - outside-domain
+    primary: false
+  - id: countermodelEnergyFactor
+    quantityId: lorentzFactor
+    allowedStatuses:
+      - value
+      - outside-domain
+    primary: false
+  - id: countermodelVolumeFactor
+    quantityId: lorentzFactor
+    allowedStatuses:
+      - value
+      - outside-domain
+    primary: false
   - id: countermodelEnergyMoving
     quantityId: lightComplexEnergyMoving
     allowedStatuses:
@@ -226,6 +244,9 @@ views:
       - lightComplexVolumeStationary
       - lightComplexVolumeMoving
       - dopplerFactor
+      - materialVolumeFactor
+      - countermodelEnergyFactor
+      - countermodelVolumeFactor
 actions:
   - actionId: change-light-complex-boost
     family: fields-boosts
@@ -250,7 +271,7 @@ acceptanceCases:
   - sr-10-longitudinal-0.6
   - sr-10-opposite-0.6
   - sr-10-transverse-in-k-0.6
-  - sr-10-transverse-stationary-coincidence
+  - sr-10-transverse-unprimed-0.6
 defaultScenario: sr-10-longitudinal-0.6
 tapeModel:
   modelId: light-complex-host
@@ -276,21 +297,21 @@ presets:
       initialVolumeM3: 1.0
     scenarioId: sr-10-opposite-0.6
   - presetId: sr-10-transverse-in-k-0.6
-    label: Transverse in moving frame k (0.6c, cos phi = 0.6)
+    label: Transverse in moving frame k (degenerate: cos phi = beta)
     parameterValues:
       beta: 0.6
       propagationAngleDeg: 53.13010235415598
       initialEnergyJ: 1.0
       initialVolumeM3: 1.0
     scenarioId: sr-10-transverse-in-k-0.6
-  - presetId: sr-10-transverse-stationary-coincidence
-    label: Transverse in stationary frame K (0.6c, phi = 90 deg)
+  - presetId: sr-10-transverse-unprimed-0.6
+    label: Transverse in stationary frame K (discriminating: phi = 90 deg)
     parameterValues:
       beta: 0.6
       propagationAngleDeg: 90
       initialEnergyJ: 1.0
       initialVolumeM3: 1.0
-    scenarioId: sr-10-transverse-stationary-coincidence
+    scenarioId: sr-10-transverse-unprimed-0.6
 probes:
   - toggle-countermodel
   - type-speed

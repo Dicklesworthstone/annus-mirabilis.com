@@ -9,7 +9,7 @@ describe("SR-10 session store and parameter validation", () => {
     const snap = session.getSnapshot().accepted;
     expect(snap).toBeDefined();
     expect(snap?.parameters).toBeDefined();
-    expect(snap?.outputs.length).toBe(15);
+    expect(snap?.outputs.length).toBe(18);
     expect(session.acceptedParameters().beta).toBe(0.6);
   });
 
@@ -46,7 +46,7 @@ describe("SR-10 session store and parameter validation", () => {
     });
     expect(checkedBeta.kind).toBe("refused");
     if (checkedBeta.kind === "refused") {
-      expect(checkedBeta.refusal.code).toBe("invalid-parameter");
+      expect(checkedBeta.refusal.code).toBe("superluminal-observer");
     }
 
     const checkedEnergy = validateSr10Parameters({
@@ -71,7 +71,7 @@ describe("SR-10 session store and parameter validation", () => {
 
   test("snapshot outputs match evaluateSr10", () => {
     const outputs = snapshotOutputs(SR10_DEFAULTS);
-    expect(outputs.length).toBe(15);
+    expect(outputs.length).toBe(18);
     const doppler = outputs.find((o) => o.quantityId === "dopplerFactor");
     expect(doppler?.status).toBe("value");
     if (doppler?.status === "value") {

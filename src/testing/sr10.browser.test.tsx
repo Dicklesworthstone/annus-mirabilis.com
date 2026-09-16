@@ -13,7 +13,7 @@ describe("SR-10 Light Complex Lab View & Route (am-sr-10-light-complex-kek0)", (
     expect(html).toContain("A packet of light does not transform");
     expect(html).toContain("Special relativity · Electrodynamics §8");
     expect(html).toContain("Worked case (readable without JavaScript)");
-    expect(html).toContain("Treating the light complex like a rigid rod");
+    expect(html).toContain("Treating the light complex like that rod");
     expect(html).toContain('data-instrument-id="sr-10"');
   });
 

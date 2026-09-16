@@ -33,7 +33,6 @@ export function LightComplexPlot({
   energyDensityFactor,
   showCountermodel = true,
   countermodelEnergyJ,
-  countermodelVolumeM3,
   countermodelEnergyFactor,
   countermodelVolumeFactor,
 }: LightComplexPlotProps) {
@@ -59,7 +58,10 @@ export function LightComplexPlot({
   // Under the simultaneity slice at t'=0, the spherical complex transforms to an ellipsoid
   // with volume ratio 1/q.
   const rx_k = Math.max(15, Math.min(130, baseRadius * Math.sqrt(volumeFactor || 1)));
-  const ry_k = Math.max(15, Math.min(130, baseRadius * Math.sqrt(volumeFactor || 1) * (1 / Math.max(0.2, gamma || 1))));
+  const ry_k = Math.max(
+    15,
+    Math.min(130, baseRadius * Math.sqrt(volumeFactor || 1) * (1 / Math.max(0.2, gamma || 1))),
+  );
 
   // Countermodel rod contraction: rx_rod = baseRadius / gamma, ry_rod = baseRadius
   const rx_rod = Math.max(10, baseRadius / (gamma || 1));
@@ -386,17 +388,20 @@ export function LightComplexPlot({
         </div>
       </div>
 
-      {showCountermodel && countermodelEnergyFactor !== undefined && countermodelVolumeFactor !== undefined ? (
+      {showCountermodel &&
+      countermodelEnergyFactor !== undefined &&
+      countermodelVolumeFactor !== undefined ? (
         <div className="p-3 rounded-md border border-amber-500/40 bg-amber-500/10 text-xs">
           <div className="font-semibold text-amber-800 dark:text-amber-300">
             Countermodel Comparison: &ldquo;Treat the packet like a rigid rod&rdquo;
           </div>
           <p className="mt-1 text-amber-900/90 dark:text-amber-200/90">
-            If one naively assumed the volume contracted like a material rod (V′/V = 1/γ ={" "}
-            {countermodelVolumeFactor.toFixed(4)}), the energy would transform as q²/γ ={" "}
-            {countermodelEnergyFactor.toFixed(4)} (E′_wrong ={" "}
-            {countermodelEnergyJ !== undefined ? countermodelEnergyJ.toFixed(3) : "—"} J).
-            The true physical light complex volume is 1/q = {volumeFactor.toFixed(4)}, ensuring E′/E = q = ν′/ν.
+            If the packet were treated as a rigid rod, both energy and volume would scale by 1/γ ={" "}
+            {countermodelVolumeFactor.toFixed(4)} (E′_wrong ={" "}
+            {countermodelEnergyJ !== undefined ? countermodelEnergyJ.toFixed(3) : "—"} J). The true
+            energy factor is q = {energyFactor.toFixed(4)} and the true volume factor is 1/q ={" "}
+            {volumeFactor.toFixed(4)}. At φ = 90° in K those differ from 1/γ by γ². At cos φ = β
+            they do not.
           </p>
         </div>
       ) : null}

@@ -21,12 +21,14 @@ export function validateSr10Parameters(input: unknown): Sr10ParameterCheck {
   const initialVolumeM3 = typeof o.initialVolumeM3 === "number" ? o.initialVolumeM3 : 1.0;
   const initialAmplitude = typeof o.initialAmplitude === "number" ? o.initialAmplitude : 1.0;
   const showCountermodel =
-    typeof o.showCountermodel === "boolean" ? o.showCountermodel : Boolean(o.showCountermodel ?? true);
+    typeof o.showCountermodel === "boolean"
+      ? o.showCountermodel
+      : Boolean(o.showCountermodel ?? true);
 
   if (!Number.isFinite(beta) || Math.abs(beta) >= 1) {
     return {
       kind: "refused",
-      refusal: makeRefusal("invalid-parameter", { parameterIds: ["beta"] }),
+      refusal: makeRefusal("superluminal-observer", { parameterIds: ["beta"] }),
     };
   }
   if (!Number.isFinite(propagationAngleDeg)) {

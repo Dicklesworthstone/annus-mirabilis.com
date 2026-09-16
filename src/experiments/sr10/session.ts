@@ -60,7 +60,6 @@ export function createSr10Session(
     getSnapshot: store.getSnapshot,
     getServerSnapshot: () => serverSnapshot,
     subscribe: store.subscribe,
-    evaluate: evaluateSr10,
     acceptedParameters(): Sr10Parameters {
       return (store.getSnapshot().accepted?.parameters ??
         example.parameters) as unknown as Sr10Parameters;

@@ -281,12 +281,14 @@ export function lightComplexVolumeNumeric(beta: number, thetaRad: number, _sampl
 }
 
 /**
- * Production countermodel for SR-10's comparison mode:
- * Implements the naive material-contraction substitution q^2 / gamma.
+ * Planted negative for SR-10: treat the light complex as a material volume.
+ * The wrong factor is 1/gamma at every angle. It does not use q, so it cannot
+ * accidentally agree with the light factor except at the degenerate angle
+ * where q itself equals 1/gamma (cos phi = beta, transverse in the moving frame).
  */
 export function lightComplexMaterialContractionCountermodel(
   beta: number,
-  thetaRad: number,
+  _thetaRad?: number,
 ): Readonly<{ modelId: string; factor: number }> {
   const gResult = gamma(beta);
   if (gResult.status !== "value") {
@@ -295,11 +297,9 @@ export function lightComplexMaterialContractionCountermodel(
       factor: Number.NaN,
     });
   }
-  const g = gResult.value;
-  const q = g * (1 - beta * Math.cos(thetaRad));
   return Object.freeze({
     modelId: "countermodel-material-contraction",
-    factor: (q * q) / g,
+    factor: 1 / gResult.value,
   });
 }
 
@@ -842,6 +842,7 @@ export interface Sr10EvaluationResult {
   energyDensityFactor: number;
   volumeFactor: number;
   amplitudeFactor: number;
+  materialVolumeFactor: number;
   countermodelEnergyJ: number;
   countermodelVolumeM3: number;
   countermodelEnergyFactor: number;
@@ -895,6 +896,7 @@ export function evaluateSr10(input: Sr10Input): Sr10EvaluationResult {
       energyDensityFactor: Number.NaN,
       volumeFactor: Number.NaN,
       amplitudeFactor: Number.NaN,
+      materialVolumeFactor: Number.NaN,
       countermodelEnergyJ: Number.NaN,
       countermodelVolumeM3: Number.NaN,
       countermodelEnergyFactor: Number.NaN,
@@ -914,8 +916,11 @@ export function evaluateSr10(input: Sr10Input): Sr10EvaluationResult {
         sr10Outside("lorentzFactor", "1", "lorentz-factor"),
         sr10Outside("energyDensityFactor", "1", "ratio"),
         sr10Outside("volumeFactor", "1", "ratio"),
+        sr10Outside("materialVolumeFactor", "1", "ratio"),
         sr10Outside("countermodelEnergyMoving", "J", "energy"),
         sr10Outside("countermodelVolumeMoving", "m^3", "space-geometry"),
+        sr10Outside("countermodelEnergyFactor", "1", "ratio"),
+        sr10Outside("countermodelVolumeFactor", "1", "ratio"),
       ],
       status: "outside-domain",
     });
@@ -941,9 +946,10 @@ export function evaluateSr10(input: Sr10Input): Sr10EvaluationResult {
 
   const countermodel = lightComplexMaterialContractionCountermodel(beta, thetaRad);
   const countermodelEnergyFactor = countermodel.factor;
-  const countermodelVolumeFactor = 1 / g;
+  const countermodelVolumeFactor = countermodel.factor;
   const countermodelEnergyJ = initialEnergyJ * countermodelEnergyFactor;
   const countermodelVolumeM3 = initialVolumeM3 * countermodelVolumeFactor;
+  const materialVolumeFactor = 1 / g;
 
   const numericVolRatio = lightComplexVolumeNumeric(beta, thetaRad);
   const numericVolumeM3 = initialVolumeM3 * numericVolRatio;
@@ -977,8 +983,11 @@ export function evaluateSr10(input: Sr10Input): Sr10EvaluationResult {
     val("lorentzFactor", "1", "lorentz-factor", g),
     val("energyDensityFactor", "1", "ratio", q2),
     val("volumeFactor", "1", "ratio", volFactor),
+    val("materialVolumeFactor", "1", "ratio", materialVolumeFactor),
     val("countermodelEnergyMoving", "J", "energy", countermodelEnergyJ),
     val("countermodelVolumeMoving", "m^3", "space-geometry", countermodelVolumeM3),
+    val("countermodelEnergyFactor", "1", "ratio", countermodelEnergyFactor),
+    val("countermodelVolumeFactor", "1", "ratio", countermodelVolumeFactor),
   ];
 
   return Object.freeze({
@@ -1002,6 +1011,7 @@ export function evaluateSr10(input: Sr10Input): Sr10EvaluationResult {
     energyDensityFactor: q2,
     volumeFactor: volFactor,
     amplitudeFactor: q,
+    materialVolumeFactor,
     countermodelEnergyJ,
     countermodelVolumeM3,
     countermodelEnergyFactor,

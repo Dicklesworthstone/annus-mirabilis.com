@@ -52,8 +52,8 @@ export function LightComplexLab({
     session.getSnapshot,
     session.getServerSnapshot,
   );
-  const snapshot = view.accepted!;
-  const p = snapshot.parameters as Sr10Parameters;
+  const snapshot = view.accepted;
+  const p = (snapshot?.parameters ?? example.parameters) as Sr10Parameters;
   const [draft, setDraft] = useState(() => ({ ...example.parameters }));
   const [ready, setReady] = useState(false);
   const [error, setError] = useState("");
@@ -82,6 +82,8 @@ export function LightComplexLab({
     apply(checked.data);
   }
 
+  if (!snapshot) throw new Error("SR-10 requires an accepted snapshot.");
+
   const beta = numericOf(result(snapshot, "frameSpeed"));
   const phiK = numericOf(result(snapshot, "propagationAngleStationary"));
   const phiPrime = numericOf(result(snapshot, "propagationAngleMoving"));
@@ -97,6 +99,8 @@ export function LightComplexLab({
   const volumeFactor = numericOf(result(snapshot, "volumeFactor"));
   const countermodelEnergy = numericOf(result(snapshot, "countermodelEnergyMoving"));
   const countermodelVolume = numericOf(result(snapshot, "countermodelVolumeMoving"));
+  const countermodelEnergyFactor = numericOf(result(snapshot, "countermodelEnergyFactor"));
+  const countermodelVolumeFactor = numericOf(result(snapshot, "countermodelVolumeFactor"));
 
   return (
     <section
@@ -117,8 +121,8 @@ export function LightComplexLab({
       <noscript>
         <p className="notice">
           JavaScript is off. This is a complete worked example calculated when the site was built.
-          Energy transformation, volume transformation, and the countermodel comparison remain available;
-          changing the settings requires JavaScript.
+          Energy transformation, volume transformation, and the countermodel comparison remain
+          available; changing the settings requires JavaScript.
         </p>
       </noscript>
       <p data-detail="0">{SR10_CAPTION.r0}</p>
@@ -130,9 +134,10 @@ export function LightComplexLab({
         {SR10_CAPTION.r3}
       </p>
       <p>
-        A bounded pulse of light does not transform like a solid rod. Because the observer’s
-        simultaneous slice cuts across a moving front, the volume transforms as 1/q = 1/[γ(1 − β cos φ)].
-        Energy density transforms as q², so total energy transforms as E′ = Eq = E(ν′/ν).
+        A bounded pulse of light does not transform like a solid rod. Energy follows q = γ(1 − β cos
+        φ). Volume follows 1/q. The planted negative &ldquo;it contracts like a rod&rdquo; is tested
+        at φ = 90° in K, where q = γ and 1/γ differ by γ², and along the axis. At cos φ = β the
+        energy factor equals 1/γ and cannot catch that mistake.
       </p>
       <div className="lab-columns">
         <form onSubmit={submit} aria-label="Light complex settings">
@@ -229,9 +234,7 @@ export function LightComplexLab({
               <button
                 type="button"
                 className="secondary"
-                onClick={() =>
-                  apply({ ...p, beta: 0.6, propagationAngleDeg: 53.13010235415598 })
-                }
+                onClick={() => apply({ ...p, beta: 0.6, propagationAngleDeg: 53.13010235415598 })}
               >
                 Transverse in k (cos φ = 0.6)
               </button>
@@ -260,6 +263,8 @@ export function LightComplexLab({
           volumeK !== null &&
           volumePrime !== null &&
           qFactor !== null &&
+          volumeFactor !== null &&
+          energyDensityFactor !== null &&
           gammaVal !== null ? (
             <LightComplexPlot
               beta={beta}
@@ -273,17 +278,13 @@ export function LightComplexLab({
               amplitudeStationary={ampK ?? 1}
               amplitudeMoving={ampPrime ?? 1}
               energyFactor={qFactor}
-              volumeFactor={volumeFactor ?? 1 / qFactor}
-              energyDensityFactor={energyDensityFactor ?? qFactor * qFactor}
+              volumeFactor={volumeFactor}
+              energyDensityFactor={energyDensityFactor}
               showCountermodel={draft.showCountermodel}
               countermodelEnergyJ={countermodelEnergy ?? undefined}
               countermodelVolumeM3={countermodelVolume ?? undefined}
-              countermodelEnergyFactor={
-                countermodelEnergy !== null ? countermodelEnergy / energyK : undefined
-              }
-              countermodelVolumeFactor={
-                countermodelVolume !== null ? countermodelVolume / volumeK : undefined
-              }
+              countermodelEnergyFactor={countermodelEnergyFactor ?? undefined}
+              countermodelVolumeFactor={countermodelVolumeFactor ?? undefined}
             />
           ) : (
             <p>The model does not admit this observer. No inertial observer at |v| ≥ c.</p>
@@ -291,13 +292,15 @@ export function LightComplexLab({
           <h3>Accepted snapshot</h3>
           <table>
             <caption>
-              Relativistic light complex transformation factors compared to the naive material contraction countermodel.
+              Relativistic light complex transformation factors compared to the naive material
+              contraction countermodel.
             </caption>
             <tbody>
               <tr>
                 <th scope="row">Energy in K (E)</th>
                 <td>
-                  <SnapshotReading snapshot={snapshot} quantityId="lightComplexEnergyStationary" /> J
+                  <SnapshotReading snapshot={snapshot} quantityId="lightComplexEnergyStationary" />{" "}
+                  J
                 </td>
               </tr>
               <tr>
@@ -309,7 +312,8 @@ export function LightComplexLab({
               <tr>
                 <th scope="row">Volume in K (V)</th>
                 <td>
-                  <SnapshotReading snapshot={snapshot} quantityId="lightComplexVolumeStationary" /> m³
+                  <SnapshotReading snapshot={snapshot} quantityId="lightComplexVolumeStationary" />{" "}
+                  m³
                 </td>
               </tr>
               <tr>
@@ -331,6 +335,12 @@ export function LightComplexLab({
                 </td>
               </tr>
               <tr>
+                <th scope="row">Material volume factor 1/γ</th>
+                <td>
+                  <SnapshotReading snapshot={snapshot} quantityId="materialVolumeFactor" />
+                </td>
+              </tr>
+              <tr>
                 <th scope="row">Lorentz factor γ</th>
                 <td>
                   <SnapshotReading snapshot={snapshot} quantityId="lorentzFactor" />
@@ -345,22 +355,16 @@ export function LightComplexLab({
               {draft.showCountermodel ? (
                 <>
                   <tr className="countermodel-row">
-                    <th scope="row">Countermodel E′ (q²/γ)</th>
+                    <th scope="row">Countermodel E′ (1/γ)</th>
                     <td>
-                      <SnapshotReading
-                        snapshot={snapshot}
-                        quantityId="countermodelEnergyMoving"
-                      />{" "}
+                      <SnapshotReading snapshot={snapshot} quantityId="countermodelEnergyMoving" />{" "}
                       J <span className="badge warning">(wrong model)</span>
                     </td>
                   </tr>
                   <tr className="countermodel-row">
                     <th scope="row">Countermodel V′ (1/γ)</th>
                     <td>
-                      <SnapshotReading
-                        snapshot={snapshot}
-                        quantityId="countermodelVolumeMoving"
-                      />{" "}
+                      <SnapshotReading snapshot={snapshot} quantityId="countermodelVolumeMoving" />{" "}
                       m³ <span className="badge warning">(wrong model)</span>
                     </td>
                   </tr>
@@ -369,9 +373,9 @@ export function LightComplexLab({
             </tbody>
           </table>
           <p>
-            Remarkably, the energy factor E′/E equals the Doppler frequency ratio ν′/ν = q across all
-            angles and speeds. This exact proportionality between light energy and wave frequency
-            holds invariantly for any bounded light packet under Lorentz transformations.
+            Remarkably, the energy factor E′/E equals the Doppler frequency ratio ν′/ν = q across
+            all angles and speeds. This exact proportionality between light energy and wave
+            frequency holds invariantly for any bounded light packet under Lorentz transformations.
           </p>
         </div>
       </div>

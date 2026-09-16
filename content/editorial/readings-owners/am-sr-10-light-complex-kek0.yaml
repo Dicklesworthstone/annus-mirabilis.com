@@ -10,7 +10,7 @@ entries:
     targetKind: instrument-caption
     instrumentId: sr-10
     readings:
-      r0: "A light complex (a bounded packet of light) transforms in energy and volume by the same factor q = γ(1 - β cos φ). Energy density transforms as q², volume as 1/q, and total energy as E' = Eq."
-      r1: "The volume of a light complex does not transform like a material rod (1/γ). The simultaneous boundary in the moving frame cuts across the moving light front, giving V'/V = 1/q. For receding light along the axis (φ = 0°, β = 0.6), volume doubles to 2.0 while energy halves to 0.5."
-      r2: "At right angles in the stationary system (φ = 90°), q = γ = 1.25. The energy increases to 1.25E while volume contracts to 0.8V. When transverse in the moving system (cos φ = β), q = 1/γ = 0.8 and volume expands to 1.25V."
-      r3: "Section 8 establishes that the ratio E'/E equals the frequency ratio ν'/ν = q for any angle. The energy of a light complex and its frequency vary with observer motion according to the exact same law."
+      r0: "A bounded packet of light transforms in energy by q = γ(1 − β cos φ) and in volume by 1/q. Neither factor is the material contraction 1/γ."
+      r1: "Einstein's printed volume of the complex is V′/V = 1/q, not 1/γ. Energy and frequency follow q. For receding light along the axis at β = 0.6, q = 1/2: energy halves and volume doubles. A rigid rod of the same rest volume would contract to 0.8."
+      r2: "The discriminating case is a ray transverse in the unprimed frame (cos φ = 0): the light factor is γ and the material factor is 1/γ, so they differ by γ². A ray transverse in the moving frame (cos φ = β) gives q = 1/γ, which equals the material factor and cannot catch the planted negative."
+      r3: "Section 8 notes that the energy and the frequency of a light complex vary with the observer's motion according to the same law. The later photon identification is not a 1905 premise."
