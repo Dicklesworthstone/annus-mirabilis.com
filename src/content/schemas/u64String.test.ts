@@ -42,7 +42,7 @@ test("u64String: numbers and non-strings are rejected", () => {
   for (const input of nonStrings) {
     assert.throws(
       () => validateU64String(input),
-      (err: any) => {
+      (err: unknown) => {
         assert.ok(err instanceof U64ValidationError);
         assert.equal(err.code, "u64-not-string");
         return true;
@@ -81,7 +81,7 @@ test("u64String: format violations from fixture and inline cases are rejected", 
   for (const s of formatViolations) {
     assert.throws(
       () => validateU64String(s),
-      (err: any) => {
+      (err: unknown) => {
         assert.ok(err instanceof U64ValidationError);
         assert.equal(err.code, "u64-invalid-format");
         return true;
@@ -103,7 +103,7 @@ test("u64String: values exceeding 2^64-1 from fixture and inline cases are rejec
   for (const s of overflows) {
     assert.throws(
       () => validateU64String(s),
-      (err: any) => {
+      (err: unknown) => {
         assert.ok(err instanceof U64ValidationError);
         assert.equal(err.code, "u64-overflow");
         return true;

@@ -73,11 +73,45 @@ export interface LogEvent {
 
 /** Canonical field order: AGENTS.md order for the base fields, then the reviewed additions. */
 export const FIELD_ORDER = [
-  "timestamp", "suite", "logRunId", "testId", "beadId", "paper", "anchor", "instrumentId", "instanceId", "runId",
-  "inputRevision", "acceptedInputRevision", "snapshotVersion", "seed", "streamVersion", "modelVersion", "artifactDigest",
-  "executionLabel", "resultStatus", "expected", "actual", "tolerance", "comparisonKind", "outcome", "durationMs",
-  "browser", "viewport", "reducedMotion", "jsEnabled", "message",
-  "diff", "allowed", "verdict", "lane", "journey", "step", "toolRunId", "evidence", "extra",
+  "timestamp",
+  "suite",
+  "logRunId",
+  "testId",
+  "beadId",
+  "paper",
+  "anchor",
+  "instrumentId",
+  "instanceId",
+  "runId",
+  "inputRevision",
+  "acceptedInputRevision",
+  "snapshotVersion",
+  "seed",
+  "streamVersion",
+  "modelVersion",
+  "artifactDigest",
+  "executionLabel",
+  "resultStatus",
+  "expected",
+  "actual",
+  "tolerance",
+  "comparisonKind",
+  "outcome",
+  "durationMs",
+  "browser",
+  "viewport",
+  "reducedMotion",
+  "jsEnabled",
+  "message",
+  "diff",
+  "allowed",
+  "verdict",
+  "lane",
+  "journey",
+  "step",
+  "toolRunId",
+  "evidence",
+  "extra",
 ] as const satisfies readonly (keyof LogEvent)[];
 
 const KNOWN_FIELDS = new Set<string>(FIELD_ORDER);
@@ -92,8 +126,10 @@ const COMPARISON_KIND_VALUES: readonly ComparisonKind[] = ["bitwise", "tolerance
 const FORBIDDEN_EXTRA_KEYS = new Set(["readerNote", "freeTextAnswer", "email", "participantName"]);
 const MAX_EXTRA_STRING_LENGTH = 2000;
 
+import { parseU64, U64_MAX_BIGINT, U64ValidationError } from "../../experiments/identity/u64.ts";
+
 /** 2^64 - 1, the largest value a canonical unsigned 64-bit decimal seed may hold. */
-export const SEED_MAX = 18446744073709551615n;
+export const SEED_MAX = U64_MAX_BIGINT;
 
 export class LogSchemaError extends Error {
   readonly field: string | undefined;
@@ -109,23 +145,18 @@ function fail(message: string, field?: string): never {
 }
 
 /**
- * Canonical unsigned 64-bit decimal seed check. This is an interim grammar;
- * am-rt-u64-identities-7ce replaces it with the single grammar in
- * src/experiments/identity/u64.ts, which this schema will then import.
+ * Canonical unsigned 64-bit decimal seed check.
+ * Imports and delegates to the single canonical grammar in src/experiments/identity/u64.ts.
  */
 export function validateSeed(seed: unknown): string {
-  if (typeof seed !== "string") fail('"seed" must be a canonical decimal string, never a JSON number.', "seed");
-  const value = seed as string;
-  if (value.length === 0 || value.length > 20) {
-    fail(`"seed" must be a 1-20 digit unsigned decimal string (64-bit range); got length ${value.length}.`, "seed");
+  try {
+    return parseU64(seed, "seed");
+  } catch (err: unknown) {
+    if (err instanceof U64ValidationError) {
+      fail(err.message, "seed");
+    }
+    fail(String(err), "seed");
   }
-  if (!/^(?:0|[1-9][0-9]*)$/.test(value)) {
-    fail(`"seed" must be an unsigned decimal string with no sign, whitespace, or leading zeros (got ${JSON.stringify(value)}).`, "seed");
-  }
-  if (BigInt(value) > SEED_MAX) {
-    fail(`"seed" ${value} exceeds the 64-bit range (max ${SEED_MAX.toString()}).`, "seed");
-  }
-  return value;
 }
 
 function validateRunIdentityField(value: unknown, field: "logRunId" | "toolRunId"): void {
@@ -169,7 +200,7 @@ function validateComparison(raw: Record<string, unknown>): void {
 function validateBrowserEvidence(raw: Record<string, unknown>): void {
   if (raw.browser === undefined || raw.outcome !== "failed") return;
   const evidence = raw.evidence as EvidencePaths | undefined;
-  if (!evidence || !evidence.screenshot || !evidence.dom) {
+  if (!evidence?.screenshot || !evidence.dom) {
     fail(
       'A failing browser event must retain at least a screenshot and a DOM snapshot path in "evidence".',
       "evidence",
@@ -180,12 +211,17 @@ function validateBrowserEvidence(raw: Record<string, unknown>): void {
 function checkStringLengths(value: unknown, path: string): void {
   if (typeof value === "string") {
     if (value.length > MAX_EXTRA_STRING_LENGTH) {
-      fail(`"${path}" exceeds ${MAX_EXTRA_STRING_LENGTH} characters; log a digest or summary instead.`, path);
+      fail(
+        `"${path}" exceeds ${MAX_EXTRA_STRING_LENGTH} characters; log a digest or summary instead.`,
+        path,
+      );
     }
     return;
   }
   if (Array.isArray(value)) {
-    value.forEach((item, index) => checkStringLengths(item, `${path}[${index}]`));
+    for (let index = 0; index < value.length; index++) {
+      checkStringLengths(value[index], `${path}[${index}]`);
+    }
     return;
   }
   if (value !== null && typeof value === "object") {
@@ -205,7 +241,10 @@ function validateExtra(extra: unknown): void {
   }
   for (const key of Object.keys(extra as Record<string, unknown>)) {
     if (FORBIDDEN_EXTRA_KEYS.has(key)) {
-      fail(`"extra.${key}" is forbidden: logs never contain reader notes, free-text answers, or personal data.`, `extra.${key}`);
+      fail(
+        `"extra.${key}" is forbidden: logs never contain reader notes, free-text answers, or personal data.`,
+        `extra.${key}`,
+      );
     }
   }
   checkStringLengths(extra, "extra");
@@ -225,10 +264,15 @@ export function validateEvent(raw: Record<string, unknown>): LogEvent {
     if (raw[field] === undefined) fail(`"${field}" is required.`, field);
   }
   if (typeof raw.timestamp !== "string" || !ISO_TIMESTAMP_PATTERN.test(raw.timestamp)) {
-    fail(`"timestamp" must be an ISO 8601 UTC string (got ${JSON.stringify(raw.timestamp)}).`, "timestamp");
+    fail(
+      `"timestamp" must be an ISO 8601 UTC string (got ${JSON.stringify(raw.timestamp)}).`,
+      "timestamp",
+    );
   }
-  if (typeof raw.suite !== "string" || raw.suite.length === 0) fail('"suite" is required and must be non-empty.', "suite");
-  if (typeof raw.testId !== "string" || raw.testId.length === 0) fail('"testId" is required and must be non-empty.', "testId");
+  if (typeof raw.suite !== "string" || raw.suite.length === 0)
+    fail('"suite" is required and must be non-empty.', "suite");
+  if (typeof raw.testId !== "string" || raw.testId.length === 0)
+    fail('"testId" is required and must be non-empty.', "testId");
   validateRunIdentityField(raw.logRunId, "logRunId");
   if (raw.toolRunId !== undefined) validateRunIdentityField(raw.toolRunId, "toolRunId");
   validateRunId(raw);
