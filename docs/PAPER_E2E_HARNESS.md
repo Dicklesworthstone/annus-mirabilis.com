@@ -26,13 +26,14 @@ for a reader face, which stable `data-*` identifiers each face and
 instrument exposes), and the fixture bundler on this extracted harness is
 `am-test-e2e-harness-bqmh`'s scope, not this bead's. That bead has since
 landed the DOM contract, the lane definitions, the emulation utilities, the
-fixture application registry, and the CLI flag parser documented below
-(`scripts/e2e/domContract.ts`, `lanes.ts`, `emulation.ts`,
-`fixtures/fixtureApps.ts`, `cli.ts`, plus `checks/measure.ts` and
-`evidence.ts`); it has not yet landed the fixture bundler and server, the
-harness's own self-test fixture pages, `playwright.config.ts`, or the CI
-workflow and gate registration — those remain open under the same bead.
-Until they land:
+fixture application registry and its bundler/server/build-output scan, and
+the CLI flag parser documented below (`scripts/e2e/domContract.ts`,
+`lanes.ts`, `emulation.ts`, `fixtures/fixtureApps.ts`,
+`fixtures/bundleFixtures.ts`, `fixtures/fixtureServer.ts`,
+`fixtures/buildOutputScan.ts`, `cli.ts`, plus `checks/measure.ts` and
+`evidence.ts`); it has not yet landed the harness's own self-test fixture
+pages (`harness-selftest`), `playwright.config.ts`, or the CI workflow and
+gate registration — those remain open under the same bead. Until they land:
 
 - `--self-test-failure` runs end to end: it launches Chromium, navigates to
   the target, and deliberately records a failure with full evidence
@@ -226,10 +227,35 @@ fixture (`harness-selftest`) and each consumer's fixture application
 `predict-mode`, `am-inst-interaction-primitives-emwy`'s
 `interaction-primitives`, `am-inst-2d-view-kit-u75r`'s `2d-view-kit`,
 `am-inst-parameter-controls-cmj9`'s `controls-kit`) each land in the same
-change as that fixture application, from the bead that owns it. The
-bundler (`bundleFixtures.ts`), the server (`fixtureServer.ts`), and the
-build-output scan (`buildOutputScan.ts`) that turn a registered entry into
-a served, verified bundle remain open work under this bead.
+change as that fixture application, from the bead that owns it.
+
+The bundler, server, and build-output scan that turn a registered entry
+into a served, verified bundle now exist:
+
+- **`bundleFixtures.ts`** runs `bun build <entry>/index.ts --outdir <outDir>
+  --entry-naming bundle.js --sourcemap=external --target=browser
+  --format=esm` for each registered entry (verified byte-identical across
+  two runs on the same input, including its committed two-module test
+  fixture at `src/testing/e2e/fixture-apps/bundler-probe/`, which is a
+  bundler correctness probe, never a shipped interactive fixture), then
+  copies each `staticInputs` file byte for byte, failing by name when a
+  declared source file is missing.
+- **`fixtureServer.ts`** binds only to `127.0.0.1`, serves `staticRoot` at
+  `/` and `appsRoot/<id>/...` at `/apps/<id>/`, resolves `.wasm` to
+  `application/wasm`, applies a caller-supplied `headersForPath` resolver
+  (so a fixture page can be served with the same headers the real
+  application would send for that path), and 404s any request that would
+  resolve outside either root, including a `..` traversal hidden behind a
+  percent-encoded slash.
+- **`buildOutputScan.ts`** scans a flat listing of built output paths (a
+  real `next build`/`out` tree via `listBuildOutputFiles`, or a fixed
+  listing in tests) for any string that could only appear if a fixture's
+  id, source directory, or a `staticInputs` served name had leaked into
+  production, naming the offending file.
+
+Still open under this bead: the harness's own `harness-selftest` fixture
+pages and scripted instrument (requirement 9), `playwright.config.ts`, and
+the CI workflow and gate registration.
 
 ## The CLI's harness flags
 

@@ -1,0 +1,4 @@
+{
+  "probe": "bundler-probe",
+  "purpose": "a tiny committed staticInputs source for bundleFixtures.test.ts's digest check"
+}
