@@ -308,7 +308,7 @@ export function WalkLab({
               >
                 <option value="">Choose a prediction</option>
                 {BM05_PROMPT.candidates.map((c) => (
-                  <option key={c.candidateId} value={c.candidateId}>
+                  <option key={c.id} value={c.id}>
                     {c.label}
                   </option>
                 ))}

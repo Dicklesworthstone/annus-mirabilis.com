@@ -1,3 +1,4 @@
+import type { PredictPrompt } from "../../content/schemas/experiment.ts";
 import type { OutputContract, ParameterClass } from "../store/instanceStore.ts";
 export type Bm05Parameters = Readonly<{
   kernel: "coin" | "uniform" | "gaussian";
@@ -35,18 +36,43 @@ export const BM05_MODEL = Object.freeze({
   label: "Synthetic independent steps · ideal model, host calculation",
 });
 export const WALK_TRACE_POINTS = 101;
-export const BM05_PROMPT = Object.freeze({
-  id: "bm-05-predict-step-shape",
+/**
+ * Conforms to the real `PredictPrompt`/`PredictCandidate` shape
+ * (`src/content/schemas/experiment.ts`, am-cm-schemas-experiment-fuu), so
+ * am-inst-predict-mode-ti7m's predict-state and storage modules can consume
+ * it directly. The accepted candidate is `same-bell-shape`: the central
+ * limit theorem is exactly the claim that a zero-mean, finite-variance step
+ * law's limiting distribution depends on the variance, not the step
+ * law's shape.
+ */
+export const BM05_PROMPT: PredictPrompt = Object.freeze({
+  promptId: "bm-05-predict-step-shape",
+  controlId: "kernel",
   question: "After many steps, what will changing the step law while keeping its variance do?",
   candidates: Object.freeze([
-    Object.freeze({ candidateId: "two-separate-piles", label: "Keep two separate piles" }),
     Object.freeze({
-      candidateId: "same-bell-shape",
-      label: "Approach the same bell shape and spread",
+      id: "two-separate-piles",
+      label: "Keep two separate piles",
+      description:
+        "The two step laws never converge; the walk's spread keeps a visible trace of which law produced it.",
+      separatingAssumption:
+        "That would hold if the two step laws produced genuinely different limiting distributions — a bias, or a variance that never settles. Coin, uniform, and Gaussian steps here are all zero-mean with the same finite variance, and the central limit theorem says any such step law converges to the same Gaussian after enough independent steps, so the two piles must merge rather than stay apart.",
     }),
     Object.freeze({
-      candidateId: "wider-bell",
+      id: "same-bell-shape",
+      label: "Approach the same bell shape and spread",
+      description:
+        "Both step laws converge to the same Gaussian, because only the per-step variance controls the limit.",
+      separatingAssumption:
+        "This is what the central limit theorem guarantees for any zero-mean, finite-variance step law: after enough independent steps, the sum's distribution converges to a Gaussian whose spread depends only on the number of steps and the per-step variance, never on the step law's shape.",
+    }),
+    Object.freeze({
+      id: "wider-bell",
       label: "Make a wider bell despite the same variance",
+      description:
+        "The resulting spread is wider than the coin-step case even though the per-step variance matches.",
+      separatingAssumption:
+        "That would hold if the resulting spread depended on some property of the step law beyond its variance — a heavier tail inflating the typical size, for instance. Holding the variance fixed already fixes the limiting Gaussian's width; a different step shape with the same variance converges to the identical spread, not a wider one.",
     }),
   ]),
 });
