@@ -271,3 +271,87 @@ test("one broken subscriber cannot corrupt publication or silence other subscrib
   assert.equal(errors.length, 2);
   assert.equal(store.getSnapshot().status, "accepted");
 });
+
+// am-rt-command-classes-dzp: setup-change and physical-intervention run identity.
+test("a setup-change forks a new identified run whose parentRunId names the previous one, which stays retrievable", () => {
+  const store = createInstanceStore(options());
+  const first = store.issue("setup-change");
+  assert.equal(first.parentRunId, null);
+  expectAccepted(store.publish(publication(first, 1, 0)));
+  const second = store.issue("setup-change", { D: 2 });
+  assert.notEqual(second.runId, first.runId);
+  assert.equal(second.parentRunId, first.runId);
+  // The old run stays identifiable by id even though it is no longer the requested run.
+  assert.deepEqual(store.getRun(first.runId), {
+    runId: first.runId,
+    parentRunId: null,
+    forkedAtSimulatedTime: null,
+    startedAtActionIndex: first.actionIndex,
+  });
+  assert.equal(store.getRun(second.runId).parentRunId, first.runId);
+  assert.equal(store.getRun("no-such-run"), undefined);
+  assert.deepEqual(
+    store.listRuns().map((r) => r.runId),
+    [first.runId, second.runId],
+  );
+});
+
+test("a forward physical-intervention keeps the current runId (am-rt-command-classes-dzp requirement 3)", () => {
+  const store = createInstanceStore(options());
+  const first = store.issue("setup-change");
+  expectAccepted(store.publish(publication(first, 1, 4))); // simulationTime = 4 * 0.25 = 1
+  const forward = store.issue("physical-intervention", { D: 2 }, { atSimulatedTime: 5 });
+  assert.equal(forward.runId, first.runId);
+  assert.equal(forward.parentRunId, first.parentRunId);
+  assert.equal(forward.revisions.input, first.revisions.input + 1);
+  assert.equal(store.listRuns().length, 1, "no new run was forked");
+});
+
+test("a backdated physical-intervention forks an explicitly identified run and leaves the parent's accepted history untouched", () => {
+  const store = createInstanceStore(options());
+  const first = store.issue("setup-change");
+  expectAccepted(store.publish(publication(first, 1, 4))); // simulationTime = 1
+  const acceptedBeforeFork = store.getSnapshot().accepted;
+  const backdated = store.issue("physical-intervention", { D: 2 }, { atSimulatedTime: 0.1 });
+  assert.notEqual(backdated.runId, first.runId);
+  assert.equal(backdated.parentRunId, first.runId);
+  const forkRecord = store.getRun(backdated.runId);
+  assert.equal(forkRecord.parentRunId, first.runId);
+  assert.equal(forkRecord.forkedAtSimulatedTime, 0.1);
+  // The parent run's own record, and the accepted snapshot that predated the fork, are both
+  // still exactly as they were -- forking never rewrites accepted history.
+  assert.deepEqual(store.getRun(first.runId), {
+    runId: first.runId,
+    parentRunId: null,
+    forkedAtSimulatedTime: null,
+    startedAtActionIndex: first.actionIndex,
+  });
+  assert.equal(store.getSnapshot().accepted, acceptedBeforeFork);
+});
+
+test("physical-intervention requires a non-negative finite atSimulatedTime and only applies to that class", () => {
+  const store = createInstanceStore(options());
+  const first = store.issue("setup-change");
+  expectAccepted(store.publish(publication(first, 1, 0)));
+  assert.throws(() => store.issue("physical-intervention", { D: 2 }));
+  assert.throws(() => store.issue("physical-intervention", { D: 2 }, { atSimulatedTime: -1 }));
+  assert.throws(() => store.issue("physical-intervention", { D: 2 }, { atSimulatedTime: NaN }));
+  assert.throws(() => store.issue("observer-change", { observer: 0.2 }, { atSimulatedTime: 1 }));
+});
+
+test("physical-intervention cannot be the first command on an instance", () => {
+  const store = createInstanceStore(options());
+  assert.throws(() => store.issue("physical-intervention", { D: 2 }, { atSimulatedTime: 0 }));
+});
+
+test("observer, measurement, and estimator changes report the run's own parentRunId, never their own", () => {
+  const store = createInstanceStore(options());
+  const first = store.issue("setup-change");
+  expectAccepted(store.publish(publication(first, 1, 0)));
+  const second = store.issue("setup-change", { D: 2 });
+  expectAccepted(store.publish(publication(second, 1, 0)));
+  const observed = store.issue("observer-change", { observer: 0.3 });
+  assert.equal(observed.runId, second.runId);
+  assert.equal(observed.parentRunId, second.parentRunId);
+  assert.equal(observed.parentRunId, first.runId);
+});

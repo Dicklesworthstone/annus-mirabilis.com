@@ -8,12 +8,7 @@ import type { ExecutionOutcome } from "../results/outcomes.ts";
 import type { RequestRefusal } from "../results/refusals.ts";
 import type { OutputStatus, ScientificResult } from "../results/types.ts";
 
-export type ParameterClass =
-  | "input"
-  | "observer"
-  | "measurement"
-  | "estimator"
-  | "presentation";
+export type ParameterClass = "input" | "observer" | "measurement" | "estimator" | "presentation";
 export type Parameters = Readonly<Record<string, number | string | boolean>>;
 export type Command =
   | "setup-change"
@@ -36,9 +31,23 @@ export type RequestToken = Readonly<{
   experimentId: string;
   instanceId: string;
   runId: string;
+  /** The run this one was forked from (am-rt-command-classes-dzp requirement 3), or null for
+   * the instance's first run. Set only on the setup-change or physical-intervention command
+   * that created this runId; every later command on the same run repeats that run's own value. */
+  parentRunId: string | null;
   actionIndex: number;
   revisions: Revisions;
   parameters: Parameters;
+}>;
+/** One identified run's lineage, retrievable by id after the instance has moved on
+ * (am-rt-command-classes-dzp: "the old run stays identifiable"). Not the run's accepted
+ * snapshots -- that history belongs to am-rt-snapshot-store-aft; this is identity only. */
+export type RunRecord = Readonly<{
+  runId: string;
+  parentRunId: string | null;
+  /** Set only when this run was forked by a backdated physical-intervention. */
+  forkedAtSimulatedTime: number | null;
+  startedAtActionIndex: number;
 }>;
 export type Publication = RequestToken &
   Readonly<{
@@ -173,6 +182,7 @@ export function createInstanceStore(options: {
     runNumber = 0,
     snapshotVersion = 0;
   let completed = false;
+  const runs: RunRecord[] = [];
   let view: ExperimentView = freeze({
     status: "idle",
     pending: false,
@@ -220,21 +230,31 @@ export function createInstanceStore(options: {
     if (completed) return denied("completed-action");
     return { accepted: true };
   }
-  function issue(command: Command, patch: Parameters = {}): RequestToken {
+  function issue(
+    command: Command,
+    patch: Parameters = {},
+    commandOptions: Readonly<{ atSimulatedTime?: number }> = {},
+  ): RequestToken {
     if (!(command === "continue" || Object.hasOwn(revisionFor, command)))
       throw new TypeError("Unknown scientific command.");
-    if (
-      command !== "setup-change" &&
-      command !== "physical-intervention" &&
-      command !== "presentation-change" &&
-      runNumber === 0
-    )
+    if (command !== "setup-change" && command !== "presentation-change" && runNumber === 0)
       throw new Error("Start a setup before changing its description.");
+    if (command === "physical-intervention") {
+      if (
+        !Number.isFinite(commandOptions.atSimulatedTime) ||
+        (commandOptions.atSimulatedTime as number) < 0
+      )
+        throw new TypeError(
+          "physical-intervention requires a non-negative finite atSimulatedTime.",
+        );
+    } else if (commandOptions.atSimulatedTime !== undefined) {
+      throw new TypeError(
+        `atSimulatedTime is only meaningful for physical-intervention, not ${command}.`,
+      );
+    }
     const checked = parameterCopy(patch);
     const revision =
-      command === "continue" || command === "presentation-change"
-        ? null
-        : revisionFor[command];
+      command === "continue" || command === "presentation-change" ? null : revisionFor[command];
     for (const key of Object.keys(checked)) {
       const expectedClass = command === "presentation-change" ? "presentation" : revision;
       if (!Object.hasOwn(classes, key) || classes[key] !== expectedClass)
@@ -246,16 +266,49 @@ export function createInstanceStore(options: {
       (revision !== null && revisions[revision] === Number.MAX_SAFE_INTEGER)
     )
       throw new RangeError("The instance identity counter is exhausted.");
-    if (command === "setup-change" || command === "physical-intervention") runNumber++;
+    // A setup-change always forks a new identified run (am-rt-command-classes-dzp requirement
+    // 3): "the old run stays identifiable; the new accepted run is explicit". A
+    // physical-intervention forks only when it is backdated -- atSimulatedTime earlier than the
+    // latest accepted simulatedTime on this run -- so it never silently rewrites accepted
+    // history; a forward intervention keeps the current runId exactly as printed there.
+    const latestAcceptedTime =
+      view.accepted && view.accepted.runId === `${instanceId}/run/${runNumber}`
+        ? view.accepted.simulationTime
+        : null;
+    const isBackdated =
+      command === "physical-intervention" &&
+      latestAcceptedTime !== null &&
+      (commandOptions.atSimulatedTime as number) < latestAcceptedTime;
+    const forks = command === "setup-change" || isBackdated;
+    const currentRunId = runNumber === 0 ? null : `${instanceId}/run/${runNumber}`;
+    if (forks) {
+      runNumber++;
+      runs.push(
+        freeze({
+          runId: `${instanceId}/run/${runNumber}`,
+          parentRunId: currentRunId,
+          forkedAtSimulatedTime: isBackdated ? (commandOptions.atSimulatedTime as number) : null,
+          startedAtActionIndex: actionIndex + 1,
+        }),
+      );
+    }
     if (revision !== null)
       revisions = Object.freeze({ ...revisions, [revision]: revisions[revision] + 1 });
     parameters = parameterCopy({ ...parameters, ...checked });
     actionIndex++;
     completed = false;
+    const runId = `${instanceId}/run/${runNumber}`;
+    // Every run this instance has ever forked is in `runs` (pushed exactly when `forks` was
+    // true for it, including the instance's first run), so a continuing command's parentRunId
+    // is always found by looking up its own already-recorded run.
+    const parentRunId = forks
+      ? currentRunId
+      : (runs.find((r) => r.runId === runId)?.parentRunId ?? null);
     const token = freeze({
       instanceId,
       experimentId,
-      runId: `${instanceId}/run/${runNumber}`,
+      runId,
+      parentRunId,
       actionIndex,
       revisions,
       parameters,
@@ -281,6 +334,7 @@ export function createInstanceStore(options: {
               "experimentId",
               "instanceId",
               "runId",
+              "parentRunId",
               "actionIndex",
               "revisions",
               "parameters",
@@ -379,6 +433,13 @@ export function createInstanceStore(options: {
     fail,
     getSnapshot: () => view,
     getServerSnapshot: () => serverSnapshot,
+    /** The old run stays identifiable after a setup-change or a backdated physical-intervention
+     * forks a new one (am-rt-command-classes-dzp requirement 3): looked up by id, not just the
+     * current run. Returns undefined for a runId this instance never created. */
+    getRun: (runId: string): RunRecord | undefined => runs.find((r) => r.runId === runId),
+    /** Every run this instance has ever forked, oldest first. Identity only -- accepted
+     * snapshots per run belong to am-rt-snapshot-store-aft, not here. */
+    listRuns: (): readonly RunRecord[] => runs.slice(),
     subscribe(listener: () => void) {
       listeners.add(listener);
       return () => {
