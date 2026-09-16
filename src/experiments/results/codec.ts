@@ -133,7 +133,7 @@ const uncertainty: Check = (v, p) => {
   const o = object(v, p);
   if (typeof o.kind !== "string" || !Object.hasOwn(uncertaintyChecks, o.kind))
     fail(`${p}.kind`, "unknown uncertainty kind");
-  uncertaintyChecks[o.kind]!(v, p);
+  uncertaintyChecks[o.kind]?.(v, p);
 };
 const numericValue: Check = (v, p) => {
   if (v instanceof Float64Array) {
@@ -223,7 +223,10 @@ function jsonDetails(v: unknown, p: string): void {
   const visit = (value: unknown, path: string, depth: number): void => {
     if (++nodes > 100_000 || depth > 32) fail(path, "details exceed the nesting or size budget");
     if (value === null || typeof value === "boolean" || typeof value === "string") return;
-    if (typeof value === "number") return finite(value, path);
+    if (typeof value === "number") {
+      finite(value, path);
+      return;
+    }
     if (Array.isArray(value)) {
       for (let i = 0; i < value.length; i++) visit(value[i], `${path}[${i}]`, depth + 1);
     } else
@@ -323,7 +326,7 @@ export function decodeResultBatch(input: unknown, policy: ResultPolicy): ResultB
     seen.add(output.quantityId);
     if (
       !Object.hasOwn(policy.statuses, output.quantityId) ||
-      !policy.statuses[output.quantityId]!.includes(output.status)
+      !policy.statuses[output.quantityId]?.includes(output.status)
     )
       fail(`batch.outputs.${output.quantityId}`, "status not admitted by the manifest");
   }

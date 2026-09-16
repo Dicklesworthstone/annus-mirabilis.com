@@ -104,5 +104,41 @@ export const refusalCodeRegistry = defineRefusalRegistry({
     message: "The quantile calculation did not reach its stated accuracy.",
     repair: "Retry with a larger iteration budget.",
   },
+  "tape-version-unsupported": {
+    domainKind: "input",
+    message: "This shared state was recorded with an unsupported tape version.",
+    repair: "Start a new run with the current model.",
+  },
+  "tape-model-mismatch": {
+    domainKind: "input",
+    message: "This shared state was recorded with a different model identity or version.",
+    repair: "Start a new run with the current model.",
+  },
+  "tape-artifact-mismatch": {
+    domainKind: "input",
+    message: "This shared state was recorded with a different computational artifact digest.",
+    repair: "Start a new run with the current model.",
+  },
+  "tape-constant-set-mismatch": {
+    domainKind: "input",
+    message: "This shared state was recorded with a different physical constant set.",
+    repair: "Start a new run with the current model.",
+  },
+  "tape-stream-version-mismatch": {
+    domainKind: "input",
+    message:
+      "This shared state was recorded with a different pseudorandom stream generator version.",
+    repair: "Start a new run with the current model.",
+  },
+  "tape-allocation-mismatch": {
+    domainKind: "input",
+    message: "This shared state was recorded with a different random stream allocation.",
+    repair: "Start a new run with the current model.",
+  },
+  "tape-grid-mismatch": {
+    domainKind: "input",
+    message: "This shared state was recorded on a different stochastic replay grid.",
+    repair: "Start a new run with the current model.",
+  },
 });
 export type RefusalCode = keyof typeof refusalCodeRegistry;
