@@ -2,14 +2,11 @@
 # bun's test runner posix_spawn of node fails with EBADF (measured: the
 # same files pass under node --test). bun 1.4.0 honours camelCase
 # pathIgnorePatterns with repo-relative paths or **/ globs; basename-only
-# entries and kebab-case keys are ignored.
+# entries and kebab-case keys are silently ignored.
 # Node still runs this list via scripts/run-node-only-tests.ts (`bun run test:node`).
 [test]
 pathIgnorePatterns = [
-  "scripts/check-receipts.e2e.test.ts",
-  "scripts/generateQuantityIds.e2e.test.ts",
-  "scripts/ocr-ledgers.e2e.test.ts",
+  "scripts/e2e",
+  "**/*.e2e.test.ts",
   "scripts/quality-gates.test.ts",
-  "scripts/summarize-test-logs.e2e.test.ts",
-  "scripts/e2e/**/*.test.ts",
 ]

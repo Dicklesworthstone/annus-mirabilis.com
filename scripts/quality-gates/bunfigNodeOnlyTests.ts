@@ -35,12 +35,14 @@ function matchGlob(relPath: string, pattern: string): boolean {
   if (!pattern.includes("*")) {
     return relPath === pattern;
   }
-  const escaped = pattern
+  const regexStr = pattern
     .replace(/[.+^${}()|[\]\\]/g, "\\$&")
+    .replace(/\/\*\*\//g, ":::SLASH_GLOBSTAR_SLASH:::")
     .replace(/\*\*/g, ":::GLOBSTAR:::")
     .replace(/\*/g, "[^/]*")
+    .replace(/:::SLASH_GLOBSTAR_SLASH:::/g, "/(?:.*/)?")
     .replace(/:::GLOBSTAR:::/g, ".*");
-  return new RegExp(`^${escaped}$`).test(relPath);
+  return new RegExp(`^${regexStr}$`).test(relPath);
 }
 
 function walkFiles(dir: string, root: string, out: string[]): void {
@@ -78,18 +80,14 @@ export function expandIgnorePatternsToTestFiles(
 export function nodeOnlyTestArgs(bunfigText: string, root: string): string[] {
   const patterns = parsePathIgnorePatterns(bunfigText);
   const fromBunfig = expandIgnorePatternsToTestFiles(patterns, root);
-  const args = [...NODE_SUITE_ALWAYS];
-  for (const file of fromBunfig) {
-    if (file === "scripts/e2e" || file.startsWith("scripts/e2e/")) continue;
-    args.push(file);
-  }
-  for (const path of args) {
-    if (path.includes("*")) continue;
+  const e2eFiles = expandIgnorePatternsToTestFiles(NODE_SUITE_ALWAYS, root);
+  const allTestFiles = [...new Set([...e2eFiles, ...fromBunfig])].sort();
+  for (const path of allTestFiles) {
     if (!existsSync(join(root, path)) && !existsSync(path)) {
       throw new Error(`node-only test path does not exist: ${path}`);
     }
   }
-  return args;
+  return allTestFiles;
 }
 
 export function nodeOnlyTestCommand(args: readonly string[]): string {

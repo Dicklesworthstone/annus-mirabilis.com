@@ -1,6 +1,9 @@
 import assert from "node:assert/strict";
+import { readFileSync } from "node:fs";
+import { resolve } from "node:path";
 import { describe, it } from "node:test";
 import {
+  BUNFIG_RELATIVE_PATH,
   expandIgnorePatternsToTestFiles,
   nodeOnlyTestArgs,
   parsePathIgnorePatterns,
@@ -21,35 +24,31 @@ describe("bunfigNodeOnlyTests", () => {
     assert.equal(withRepoPath.includes("scripts/quality-gates.test.ts"), true);
   });
 
-  it("nodeOnlyTestArgs always includes scripts/e2e and the bunfig-expanded files", () => {
-    const args = nodeOnlyTestArgs(
-      `pathIgnorePatterns = ["scripts/check-receipts.e2e.test.ts", "scripts/quality-gates.test.ts"]`,
-      process.cwd(),
-    );
-    assert.equal(args[0], "scripts/e2e/**/*.test.ts");
+  it("nodeOnlyTestArgs expands all e2e and bunfig-ignored test files", () => {
+    const liveBunfig = readFileSync(resolve(process.cwd(), BUNFIG_RELATIVE_PATH), "utf8");
+    const args = nodeOnlyTestArgs(liveBunfig, process.cwd());
     assert.equal(args.includes("scripts/quality-gates.test.ts"), true);
     assert.equal(args.includes("scripts/check-receipts.e2e.test.ts"), true);
+    assert.equal(args.includes("scripts/generateQuantityIds.e2e.test.ts"), true);
+    assert.equal(args.includes("scripts/ocr-ledgers.e2e.test.ts"), true);
+    assert.equal(args.includes("scripts/summarize-test-logs.e2e.test.ts"), true);
+    assert.equal(args.includes("scripts/e2e/checks/instrumentChecks.test.ts"), true);
+    assert.equal(args.includes("scripts/e2e/checks/pageChecks.test.ts"), true);
+    assert.equal(args.includes("scripts/e2e/primitives.test.ts"), true);
+    assert.equal(args.length, 19);
   });
 
-  it("every file matched by bunfig's pathIgnorePatterns appears in the node-only arg list", () => {
-    const bunfigText = `pathIgnorePatterns = [
-      "scripts/check-receipts.e2e.test.ts",
-      "scripts/generateQuantityIds.e2e.test.ts",
-      "scripts/ocr-ledgers.e2e.test.ts",
-      "scripts/quality-gates.test.ts",
-      "scripts/summarize-test-logs.e2e.test.ts",
-      "scripts/e2e/**/*.test.ts"
-    ]`;
-    const patterns = parsePathIgnorePatterns(bunfigText);
+  it("every file matched by live bunfig's pathIgnorePatterns appears in the node-only arg list", () => {
+    const liveBunfig = readFileSync(resolve(process.cwd(), BUNFIG_RELATIVE_PATH), "utf8");
+    const patterns = parsePathIgnorePatterns(liveBunfig);
     const ignoredFiles = expandIgnorePatternsToTestFiles(patterns, process.cwd());
-    const args = nodeOnlyTestArgs(bunfigText, process.cwd());
-    const coveredByArgs = expandIgnorePatternsToTestFiles(args, process.cwd());
+    const args = nodeOnlyTestArgs(liveBunfig, process.cwd());
     for (const file of ignoredFiles) {
       assert.ok(
-        coveredByArgs.includes(file),
+        args.includes(file),
         `File ${file} is ignored by bunfig but missing from node-only test execution`,
       );
     }
-    assert.ok(ignoredFiles.length >= 17, `Expected at least 17 ignored files, found ${ignoredFiles.length}`);
+    assert.equal(ignoredFiles.length, 5);
   });
 });
