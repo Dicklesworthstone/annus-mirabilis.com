@@ -11,6 +11,8 @@
  * - Removed patent-specific claim clause tables (generalized for result weave in am-read-result-weave-jex).
  */
 
+export const WEAVE_PREDICATE_VERSION = 1;
+
 export interface ResultPredicateClause {
   readonly id: string;
   readonly phrase: string;

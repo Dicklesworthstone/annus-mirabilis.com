@@ -5,6 +5,8 @@
 
 import { type OwnersRegistry, ROLE_TO_REVIEW_TYPE } from "../owners/parseOwners.ts";
 
+export const REVIEW_SCHEMA_VERSION = 1;
+
 export const REVIEW_TYPES = [
   "german-source",
   "physics-math",

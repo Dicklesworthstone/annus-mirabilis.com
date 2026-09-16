@@ -16,6 +16,8 @@ import { TickScheduler } from "../experiments/scheduler/tickScheduler.ts";
 
 export type Provenance = "WASM" | "TS_FALLBACK" | "HONEST_PLACEHOLDER";
 
+export const WORKER_PROTOCOL_VERSION = 1;
+
 export interface UniversalPhysicsTelemetry {
   readonly [key: string]: number | string | boolean | readonly number[];
 }
@@ -137,16 +139,20 @@ export interface BufferLease<T extends ArrayBufferView = Float32Array> {
  * Guarantees that buffer allocation plateaus under sustained high-frequency stepping.
  */
 export class BoundedBufferPool {
+  readonly shape: BufferShape;
+  readonly capacity: number;
   private buffers: Float32Array[] = [];
   private activeLeases = new Map<string, { buffer: Float32Array; tick: number }>();
   private leaseCounter = 0;
   private totalAllocations = 0;
 
   constructor(
-    public readonly shape: BufferShape,
-    public readonly capacity = 3, // Tri-buffering: producer, consumer, pending
+    shape: BufferShape,
+    capacity = 3, // Tri-buffering: producer, consumer, pending
     useSharedMemory = false,
   ) {
+    this.shape = shape;
+    this.capacity = capacity;
     if (useSharedMemory) {
       throw new SharedMemoryDisabledError(
         "BoundedBufferPool does not permit useSharedMemory: true.",

@@ -41,6 +41,8 @@ export class SchemaValidationError extends Error {
   }
 }
 
+export const SOURCE_SCHEMA_VERSION = 1;
+
 // 1. PAPER
 export const PAPER_SLUGS = [
   "light-quanta",

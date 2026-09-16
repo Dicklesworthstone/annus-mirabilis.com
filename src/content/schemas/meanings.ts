@@ -3,6 +3,8 @@
  * Specification: AGENTS.md (§5.1, §5.2, §6.2–6.6, §11.2, §11.4, §11.5, §11.6) and am-cm-schemas-argument-llm
  */
 
+export const EQUATION_SCHEMA_VERSION = 1;
+
 // 1. Four Kinds of Meaning
 export const LOGICAL_ROLES = [
   "definition",

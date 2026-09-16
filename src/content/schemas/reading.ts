@@ -8,9 +8,10 @@ export type Block = Readonly<
   | { kind: "steps"; items: readonly string[] }
   | { kind: "foundation"; id: string; returnCaption: string }
 >;
+export const READING_SCHEMA_VERSION = 1;
 export const READING_IDS = ["overview", "full", "steps", "margin"] as const;
 export type ReadingId = (typeof READING_IDS)[number];
-type Header = Readonly<{ schemaVersion: 1; id: string }>;
+type Header = Readonly<{ schemaVersion: typeof READING_SCHEMA_VERSION; id: string }>;
 export type Citation = Header &
   Readonly<{ kind: "citation"; title: string; locator: string; url: string }>;
 export type Foundation = Header &

@@ -38,6 +38,8 @@ export class ExperimentValidationError extends Error {
   }
 }
 
+export const EXPERIMENT_SCHEMA_VERSION = 1;
+
 // ============================================================================
 // 1. EXPERIMENT MANIFEST
 // ============================================================================

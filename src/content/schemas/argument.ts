@@ -40,6 +40,9 @@ import {
   validateRationalDimension,
   validateRationalScale,
 } from "./dimensionBasis.ts";
+
+export const ARGUMENT_SCHEMA_VERSION = 1;
+
 import {
   COLOR_ROLES,
   CONTINUE_WITH_ROUTES,
