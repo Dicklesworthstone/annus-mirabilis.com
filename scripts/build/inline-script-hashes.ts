@@ -81,12 +81,14 @@ export type FoundInlineScript = {
 export function extractInlineScripts(html: string): FoundInlineScript[] {
   const found: FoundInlineScript[] = [];
   const scriptTagPattern = /<script\b([^>]*)>([\s\S]*?)<\/script\s*>/gi;
-  let match: RegExpExecArray | null;
-  while ((match = scriptTagPattern.exec(html)) !== null) {
+  let match: RegExpExecArray | null = scriptTagPattern.exec(html);
+  while (match !== null) {
     const attrs = match[1] ?? "";
     const source = match[2] ?? "";
-    if (/\bsrc\s*=/i.test(attrs)) continue;
-    found.push({ source, sha256: sha256Base64(source), excerpt: source.slice(0, 200) });
+    if (!/\bsrc\s*=/i.test(attrs)) {
+      found.push({ source, sha256: sha256Base64(source), excerpt: source.slice(0, 200) });
+    }
+    match = scriptTagPattern.exec(html);
   }
   return found;
 }
