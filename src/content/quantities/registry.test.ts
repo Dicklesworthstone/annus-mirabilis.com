@@ -1,8 +1,25 @@
 import { describe, expect, test } from "bun:test";
-import { combine, dimension, isDimensionless, power, rational, sameDimension, type Dimension } from "../dimensions/rational.ts";
-import { FRAME_SUFFIXES, getQuantity, getQuantityRegistry, RESERVED_SPELLINGS, UnknownQuantityError } from "./registry.ts";
-import { getLegacySpellings, legacySpellingMessage, resolveQuantityId } from "./resolveQuantityId.ts";
-import type { Quantity } from "../schemas/argument.ts";
+import {
+  combine,
+  type Dimension,
+  dimension,
+  isDimensionless,
+  power,
+  rational,
+  sameDimension,
+} from "../dimensions/rational.ts";
+import {
+  FRAME_SUFFIXES,
+  getQuantity,
+  getQuantityRegistry,
+  RESERVED_SPELLINGS,
+  UnknownQuantityError,
+} from "./registry.ts";
+import {
+  getLegacySpellings,
+  legacySpellingMessage,
+  resolveQuantityId,
+} from "./resolveQuantityId.ts";
 
 function dimOf(id: string): Dimension {
   const q = getQuantity(id);
@@ -50,8 +67,12 @@ describe("registry loads and every record validates", () => {
 
 describe("dimensions", () => {
   test("diffusionCoefficient is L^2 T^-1 and rmsDisplacement1d is L; sqrt(D*t) is L", () => {
-    expect(sameDimension(dimOf("diffusionCoefficient"), dimension(["2", "0", "-1", "0", "0", "0"]))).toBe(true);
-    expect(sameDimension(dimOf("rmsDisplacement1d"), dimension(["1", "0", "0", "0", "0", "0"]))).toBe(true);
+    expect(
+      sameDimension(dimOf("diffusionCoefficient"), dimension(["2", "0", "-1", "0", "0", "0"])),
+    ).toBe(true);
+    expect(
+      sameDimension(dimOf("rmsDisplacement1d"), dimension(["1", "0", "0", "0", "0", "0"])),
+    ).toBe(true);
     const dt = combine(dimOf("diffusionCoefficient"), dimOf("elapsedTime"));
     expect(sameDimension(power(dt, HALF), dimOf("rmsDisplacement1d"))).toBe(true);
   });
@@ -67,38 +88,71 @@ describe("dimensions", () => {
 
   test("molarGasConstant equals avogadroConstant * boltzmannConstant dimensionally, and equally avogadroNumberEstimate * boltzmannConstant; both Avogadro quantities are N^-1", () => {
     const R_dim = dimOf("molarGasConstant");
-    expect(sameDimension(R_dim, combine(dimOf("avogadroConstant"), dimOf("boltzmannConstant")))).toBe(true);
-    expect(sameDimension(R_dim, combine(dimOf("avogadroNumberEstimate"), dimOf("boltzmannConstant")))).toBe(true);
+    expect(
+      sameDimension(R_dim, combine(dimOf("avogadroConstant"), dimOf("boltzmannConstant"))),
+    ).toBe(true);
+    expect(
+      sameDimension(R_dim, combine(dimOf("avogadroNumberEstimate"), dimOf("boltzmannConstant"))),
+    ).toBe(true);
     const nInverse = dimension(["0", "0", "0", "0", "0", "-1"]);
     expect(sameDimension(dimOf("avogadroConstant"), nInverse)).toBe(true);
     expect(sameDimension(dimOf("avogadroNumberEstimate"), nInverse)).toBe(true);
   });
 
   test("wienConstantBeta * frequency / temperature is dimensionless", () => {
-    const combined = combine(combine(dimOf("wienConstantBeta"), dimOf("frequency")), dimOf("temperature"), -1);
+    const combined = combine(
+      combine(dimOf("wienConstantBeta"), dimOf("frequency")),
+      dimOf("temperature"),
+      -1,
+    );
     expect(isDimensionless(combined)).toBe(true);
   });
 
   test("electricFieldStationary and magneticFieldStationary share a Gaussian dimension and differ in SI dimension", () => {
-    expect(sameDimension(gaussianDimOf("electricFieldStationary"), gaussianDimOf("magneticFieldStationary"))).toBe(true);
-    expect(sameDimension(dimOf("electricFieldStationary"), dimOf("magneticFieldStationary"))).toBe(false);
+    expect(
+      sameDimension(
+        gaussianDimOf("electricFieldStationary"),
+        gaussianDimOf("magneticFieldStationary"),
+      ),
+    ).toBe(true);
+    expect(sameDimension(dimOf("electricFieldStationary"), dimOf("magneticFieldStationary"))).toBe(
+      false,
+    );
   });
 
   test("elementaryCharge has Gaussian dimension M^1/2 L^3/2 T^-1", () => {
-    expect(sameDimension(gaussianDimOf("elementaryCharge"), dimension(["3/2", "1/2", "-1", "0", "0", "0"]))).toBe(true);
+    expect(
+      sameDimension(
+        gaussianDimOf("elementaryCharge"),
+        dimension(["3/2", "1/2", "-1", "0", "0", "0"]),
+      ),
+    ).toBe(true);
   });
 
   test("in electromagnetic dimensions, gramEquivalentCharge * stoppingPotentialMagnitude is an energy per amount, the dimension of molarGasConstant * wienConstantBeta * frequency; in Gaussian dimensions elementaryCharge * stoppingPotentialMagnitude is an energy", () => {
-    const emuProduct = combine(emuDimOf("gramEquivalentCharge"), emuDimOf("stoppingPotentialMagnitude"));
-    const energyPerAmount = combine(combine(dimOf("molarGasConstant"), dimOf("wienConstantBeta")), dimOf("frequency"));
+    const emuProduct = combine(
+      emuDimOf("gramEquivalentCharge"),
+      emuDimOf("stoppingPotentialMagnitude"),
+    );
+    const energyPerAmount = combine(
+      combine(dimOf("molarGasConstant"), dimOf("wienConstantBeta")),
+      dimOf("frequency"),
+    );
     expect(sameDimension(emuProduct, energyPerAmount)).toBe(true);
-    const gaussianProduct = combine(gaussianDimOf("elementaryCharge"), gaussianDimOf("stoppingPotentialMagnitude"));
+    const gaussianProduct = combine(
+      gaussianDimOf("elementaryCharge"),
+      gaussianDimOf("stoppingPotentialMagnitude"),
+    );
     expect(sameDimension(gaussianProduct, dimension(["2", "1", "-2", "0", "0", "0"]))).toBe(true);
   });
 
   test("osmoticDecayLength and kineticDecayLength are both L and remain distinct records", () => {
-    expect(sameDimension(dimOf("osmoticDecayLength"), dimension(["1", "0", "0", "0", "0", "0"]))).toBe(true);
-    expect(sameDimension(dimOf("kineticDecayLength"), dimension(["1", "0", "0", "0", "0", "0"]))).toBe(true);
+    expect(
+      sameDimension(dimOf("osmoticDecayLength"), dimension(["1", "0", "0", "0", "0", "0"])),
+    ).toBe(true);
+    expect(
+      sameDimension(dimOf("kineticDecayLength"), dimension(["1", "0", "0", "0", "0", "0"])),
+    ).toBe(true);
     expect(getQuantity("osmoticDecayLength").id).not.toBe(getQuantity("kineticDecayLength").id);
   });
 
@@ -110,14 +164,30 @@ describe("dimensions", () => {
   });
 
   test("lagrangeMultiplier * radiationEnergy has the dimension of radiationEntropy; fourierAmplitude shares radiationElectricField's SI and Gaussian dimensions; pulseMomentum * speedOfLight is an energy", () => {
-    expect(sameDimension(combine(dimOf("lagrangeMultiplier"), dimOf("radiationEnergy")), dimOf("radiationEntropy"))).toBe(true);
+    expect(
+      sameDimension(
+        combine(dimOf("lagrangeMultiplier"), dimOf("radiationEnergy")),
+        dimOf("radiationEntropy"),
+      ),
+    ).toBe(true);
     expect(sameDimension(dimOf("fourierAmplitude"), dimOf("radiationElectricField"))).toBe(true);
-    expect(sameDimension(gaussianDimOf("fourierAmplitude"), gaussianDimOf("radiationElectricField"))).toBe(true);
-    expect(sameDimension(combine(dimOf("pulseMomentum"), dimOf("speedOfLight")), dimension(["2", "1", "-2", "0", "0", "0"]))).toBe(true);
+    expect(
+      sameDimension(gaussianDimOf("fourierAmplitude"), gaussianDimOf("radiationElectricField")),
+    ).toBe(true);
+    expect(
+      sameDimension(
+        combine(dimOf("pulseMomentum"), dimOf("speedOfLight")),
+        dimension(["2", "1", "-2", "0", "0", "0"]),
+      ),
+    ).toBe(true);
   });
 
   test("diffusionCoefficient * timeStep / gridSpacing^2 has the dimension of stabilityRatio", () => {
-    const lhs = combine(combine(dimOf("diffusionCoefficient"), dimOf("timeStep")), power(dimOf("gridSpacing"), R(2n)), -1);
+    const lhs = combine(
+      combine(dimOf("diffusionCoefficient"), dimOf("timeStep")),
+      power(dimOf("gridSpacing"), R(2n)),
+      -1,
+    );
     expect(sameDimension(lhs, dimOf("stabilityRatio"))).toBe(true);
     expect(isDimensionless(dimOf("stabilityRatio"))).toBe(true);
   });
@@ -128,46 +198,88 @@ describe("dimensions", () => {
   });
 
   test("speedOfLightSquared has the dimension of speedOfLight squared, and emittedEnergyRestFrame / speedOfLightSquared has the dimension of inertialMassDecrease", () => {
-    expect(sameDimension(dimOf("speedOfLightSquared"), power(dimOf("speedOfLight"), R(2n)))).toBe(true);
-    expect(sameDimension(combine(dimOf("emittedEnergyRestFrame"), dimOf("speedOfLightSquared"), -1), dimOf("inertialMassDecrease"))).toBe(true);
+    expect(sameDimension(dimOf("speedOfLightSquared"), power(dimOf("speedOfLight"), R(2n)))).toBe(
+      true,
+    );
+    expect(
+      sameDimension(
+        combine(dimOf("emittedEnergyRestFrame"), dimOf("speedOfLightSquared"), -1),
+        dimOf("inertialMassDecrease"),
+      ),
+    ).toBe(true);
   });
 
   test("molesPerVolume * molarGasConstant * temperature has the dimension of osmoticPressure", () => {
-    const lhs = combine(combine(dimOf("molesPerVolume"), dimOf("molarGasConstant")), dimOf("temperature"));
+    const lhs = combine(
+      combine(dimOf("molesPerVolume"), dimOf("molarGasConstant")),
+      dimOf("temperature"),
+    );
     expect(sameDimension(lhs, dimOf("osmoticPressure"))).toBe(true);
   });
 
   test("entropyVolumeCoefficient has the dimension of entropy, and entropyVolumeCoefficient / universalEntropyConstant is dimensionless", () => {
     expect(sameDimension(dimOf("entropyVolumeCoefficient"), dimOf("entropy"))).toBe(true);
-    expect(isDimensionless(combine(dimOf("entropyVolumeCoefficient"), dimOf("universalEntropyConstant"), -1))).toBe(true);
+    expect(
+      isDimensionless(
+        combine(dimOf("entropyVolumeCoefficient"), dimOf("universalEntropyConstant"), -1),
+      ),
+    ).toBe(true);
   });
 
   test("each of the five rate records is T^-1, and absorbedLightEnergy / (molarGasConstant * wienConstantBeta * frequency) has the dimension of ionizedGramMolecules (amount)", () => {
     const perTime = dimension(["0", "0", "-1", "0", "0", "0"]);
-    for (const id of ["quantumRate", "absorbedQuantumRate", "emittedQuantumRate", "emissionRate", "ionizationRate"]) {
+    for (const id of [
+      "quantumRate",
+      "absorbedQuantumRate",
+      "emittedQuantumRate",
+      "emissionRate",
+      "ionizationRate",
+    ]) {
       expect(sameDimension(dimOf(id), perTime)).toBe(true);
     }
-    const denom = combine(combine(dimOf("molarGasConstant"), dimOf("wienConstantBeta")), dimOf("frequency"));
+    const denom = combine(
+      combine(dimOf("molarGasConstant"), dimOf("wienConstantBeta")),
+      dimOf("frequency"),
+    );
     const lhs = combine(dimOf("absorbedLightEnergy"), denom, -1);
     expect(sameDimension(lhs, dimOf("ionizedGramMolecules"))).toBe(true);
-    expect(sameDimension(dimOf("ionizedGramMolecules"), dimension(["0", "0", "0", "0", "0", "1"]))).toBe(true);
+    expect(
+      sameDimension(dimOf("ionizedGramMolecules"), dimension(["0", "0", "0", "0", "0", "1"])),
+    ).toBe(true);
   });
 
   test("ansatzTimeSpaceCoefficient * frameSpeed is dimensionless, and speedDeficitFromLight has the dimension of speedOfLight", () => {
-    expect(isDimensionless(combine(dimOf("ansatzTimeSpaceCoefficient"), dimOf("frameSpeed")))).toBe(true);
+    expect(isDimensionless(combine(dimOf("ansatzTimeSpaceCoefficient"), dimOf("frameSpeed")))).toBe(
+      true,
+    );
     expect(sameDimension(dimOf("speedDeficitFromLight"), dimOf("speedOfLight"))).toBe(true);
   });
 
   test("spacetimeIntervalSquared has the dimension of eventSeparationSpatial squared and of (speedOfLight * eventSeparationTemporal) squared", () => {
     const s2 = dimOf("spacetimeIntervalSquared");
     expect(sameDimension(s2, power(dimOf("eventSeparationSpatial"), R(2n)))).toBe(true);
-    expect(sameDimension(s2, power(combine(dimOf("speedOfLight"), dimOf("eventSeparationTemporal")), R(2n)))).toBe(true);
+    expect(
+      sameDimension(
+        s2,
+        power(combine(dimOf("speedOfLight"), dimOf("eventSeparationTemporal")), R(2n)),
+      ),
+    ).toBe(true);
   });
 
   test("wavePhase is dimensionless, and waveAngularFrequency*Time has its dimension in either frame", () => {
     expect(isDimensionless(dimOf("wavePhase"))).toBe(true);
-    expect(sameDimension(combine(dimOf("waveAngularFrequencyStationary"), dimOf("coordinateTimeStationary")), dimOf("wavePhase"))).toBe(true);
-    expect(sameDimension(combine(dimOf("waveAngularFrequencyMoving"), dimOf("coordinateTimeMoving")), dimOf("wavePhase"))).toBe(true);
+    expect(
+      sameDimension(
+        combine(dimOf("waveAngularFrequencyStationary"), dimOf("coordinateTimeStationary")),
+        dimOf("wavePhase"),
+      ),
+    ).toBe(true);
+    expect(
+      sameDimension(
+        combine(dimOf("waveAngularFrequencyMoving"), dimOf("coordinateTimeMoving")),
+        dimOf("wavePhase"),
+      ),
+    ).toBe(true);
   });
 });
 
@@ -204,32 +316,69 @@ describe("distinctness", () => {
   }
 
   test("apparentSpeedRatio is distinct from both apparentSpeed and speedRatio", () => {
-    const ids = new Set([getQuantity("apparentSpeedRatio").id, getQuantity("apparentSpeed").id, getQuantity("speedRatio").id]);
+    const ids = new Set([
+      getQuantity("apparentSpeedRatio").id,
+      getQuantity("apparentSpeed").id,
+      getQuantity("speedRatio").id,
+    ]);
     expect(ids.size).toBe(3);
   });
 
   test("four energies (meanResonatorEnergy, meanResonatorEnergyAtFrequency, meanQuantumEnergyWien, quantumEnergy) are four distinct records", () => {
-    const ids = new Set(["meanResonatorEnergy", "meanResonatorEnergyAtFrequency", "meanQuantumEnergyWien", "quantumEnergy"].map((id) => getQuantity(id).id));
+    const ids = new Set(
+      [
+        "meanResonatorEnergy",
+        "meanResonatorEnergyAtFrequency",
+        "meanQuantumEnergyWien",
+        "quantumEnergy",
+      ].map((id) => getQuantity(id).id),
+    );
     expect(ids.size).toBe(4);
   });
 
   test("entropyVolumeCoefficient, effectiveIndependentCount, entropy, and universalEntropyConstant are four distinct records", () => {
-    const ids = new Set(["entropyVolumeCoefficient", "effectiveIndependentCount", "entropy", "universalEntropyConstant"].map((id) => getQuantity(id).id));
+    const ids = new Set(
+      [
+        "entropyVolumeCoefficient",
+        "effectiveIndependentCount",
+        "entropy",
+        "universalEntropyConstant",
+      ].map((id) => getQuantity(id).id),
+    );
     expect(ids.size).toBe(4);
   });
 
   test("the five T^-1 rate records are pairwise distinct", () => {
-    const ids = new Set(["quantumRate", "absorbedQuantumRate", "emittedQuantumRate", "emissionRate", "ionizationRate"].map((id) => getQuantity(id).id));
+    const ids = new Set(
+      [
+        "quantumRate",
+        "absorbedQuantumRate",
+        "emittedQuantumRate",
+        "emissionRate",
+        "ionizationRate",
+      ].map((id) => getQuantity(id).id),
+    );
     expect(ids.size).toBe(5);
   });
 
   test("spacetimeIntervalSquared is distinct from observationInterval, stepInterval, longAveragingInterval, intervalProbability, and logIntervalEnergyDensity", () => {
-    const ids = new Set(["spacetimeIntervalSquared", "observationInterval", "stepInterval", "longAveragingInterval", "intervalProbability", "logIntervalEnergyDensity"].map((id) => getQuantity(id).id));
+    const ids = new Set(
+      [
+        "spacetimeIntervalSquared",
+        "observationInterval",
+        "stepInterval",
+        "longAveragingInterval",
+        "intervalProbability",
+        "logIntervalEnergyDensity",
+      ].map((id) => getQuantity(id).id),
+    );
     expect(ids.size).toBe(6);
   });
 
   test("wavePhase, fourierPhase, and propagationAngleStationary are three distinct angles", () => {
-    const ids = new Set(["wavePhase", "fourierPhase", "propagationAngleStationary"].map((id) => getQuantity(id).id));
+    const ids = new Set(
+      ["wavePhase", "fourierPhase", "propagationAngleStationary"].map((id) => getQuantity(id).id),
+    );
     expect(ids.size).toBe(3);
     expect(getQuantity("wavePhase").frame).toBe("frame-independent");
   });
@@ -259,7 +408,8 @@ describe("legacy spellings", () => {
   test('resolveQuantityId("gasConstant") returns legacy-spelling with molarGasConstant, message "use molarGasConstant"', () => {
     const result = resolveQuantityId("gasConstant");
     expect(result.ok).toBe(false);
-    if (!result.ok && result.kind === "legacy-spelling") expect(result.canonicalIds).toEqual(["molarGasConstant"]);
+    if (!result.ok && result.kind === "legacy-spelling")
+      expect(result.canonicalIds).toEqual(["molarGasConstant"]);
     expect(legacySpellingMessage("gasConstant")).toBe("use molarGasConstant");
   });
 
@@ -284,7 +434,8 @@ describe("legacy spellings", () => {
   test("acceleratingVoltage names acceleratingPotential", () => {
     const result = resolveQuantityId("acceleratingVoltage");
     expect(result.ok).toBe(false);
-    if (!result.ok && result.kind === "legacy-spelling") expect(result.canonicalIds).toEqual(["acceleratingPotential"]);
+    if (!result.ok && result.kind === "legacy-spelling")
+      expect(result.canonicalIds).toEqual(["acceleratingPotential"]);
   });
 
   test('the typo "electricFieldStationry" returns unregistered, never a near match', () => {
@@ -320,7 +471,8 @@ describe("legacy spellings", () => {
   test('intervalSquared returns legacy-spelling with spacetimeIntervalSquared, message "use spacetimeIntervalSquared"', () => {
     const result = resolveQuantityId("intervalSquared");
     expect(result.ok).toBe(false);
-    if (!result.ok && result.kind === "legacy-spelling") expect(result.canonicalIds).toEqual(["spacetimeIntervalSquared"]);
+    if (!result.ok && result.kind === "legacy-spelling")
+      expect(result.canonicalIds).toEqual(["spacetimeIntervalSquared"]);
     expect(legacySpellingMessage("intervalSquared")).toBe("use spacetimeIntervalSquared");
   });
 });

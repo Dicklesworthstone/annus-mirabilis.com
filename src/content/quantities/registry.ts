@@ -8,9 +8,9 @@
 import { readdirSync, readFileSync } from "node:fs";
 import { extname, join } from "node:path";
 import { fileURLToPath } from "node:url";
+import { type Quantity, validateQuantity } from "../schemas/argument.ts";
+import type { Frame } from "../schemas/meanings.ts";
 import { strictParse } from "../schemas/strictParse.ts";
-import { validateQuantity, type Quantity } from "../schemas/argument.ts";
-import { type Frame } from "../schemas/meanings.ts";
 
 export class QuantityRegistryError extends Error {
   readonly code: string;
@@ -26,12 +26,16 @@ export class QuantityRegistryError extends Error {
 export class UnknownQuantityError extends Error {
   readonly code = "unknown-quantity";
   constructor(id: string) {
-    super(`Unknown quantity id: "${id}". No label, prefix, or case-insensitive lookup exists; check content/quantities/ or docs/QUANTITY_IDS.md.`);
+    super(
+      `Unknown quantity id: "${id}". No label, prefix, or case-insensitive lookup exists; check content/quantities/ or docs/QUANTITY_IDS.md.`,
+    );
     this.name = "UnknownQuantityError";
   }
 }
 
-export const QUANTITIES_DIR = fileURLToPath(new URL("../../../content/quantities/", import.meta.url));
+export const QUANTITIES_DIR = fileURLToPath(
+  new URL("../../../content/quantities/", import.meta.url),
+);
 
 /** A record's id gets a distinct, frame-tagged pair only for a documented suffix. The suffix
  * must always agree with the record's own `frame` field; this is a defect, not a style note --
@@ -46,9 +50,9 @@ export const FRAME_SUFFIXES: Readonly<Record<string, Frame>> = Object.freeze({
 
 export function frameSuffixFor(id: string): { suffix: string; expected: Frame } | undefined {
   // Longest suffix first: "RestFrame" must not be shadowed by a hypothetical shorter match.
-  const suffixes = Object.keys(FRAME_SUFFIXES).sort((a, b) => b.length - a.length);
-  for (const suffix of suffixes) {
-    if (id.endsWith(suffix)) return { suffix, expected: FRAME_SUFFIXES[suffix]! };
+  const suffixes = Object.entries(FRAME_SUFFIXES).sort(([a], [b]) => b.length - a.length);
+  for (const [suffix, expected] of suffixes) {
+    if (id.endsWith(suffix)) return { suffix, expected };
   }
   return undefined;
 }
@@ -162,6 +166,8 @@ export function isRegisteredQuantityId(id: string): boolean {
  * `resolveQuantityId` still reports these `unregistered`; this table is documentation
  * (surfaced in docs/QUANTITY_IDS.md), never a silent stand-in binding. */
 export const RESERVED_SPELLINGS: Readonly<Record<string, string>> = Object.freeze({
-  magneticDeflectability: "am-sre-equations-2g3h adds this record, citing paper 3 section 10's printed definition, after the facsimile check of am-edn-inventory-relativity-0u9.",
-  electricDeflectability: "am-sre-equations-2g3h adds this record, citing paper 3 section 10's printed definition, after the facsimile check of am-edn-inventory-relativity-0u9.",
+  magneticDeflectability:
+    "am-sre-equations-2g3h adds this record, citing paper 3 section 10's printed definition, after the facsimile check of am-edn-inventory-relativity-0u9.",
+  electricDeflectability:
+    "am-sre-equations-2g3h adds this record, citing paper 3 section 10's printed definition, after the facsimile check of am-edn-inventory-relativity-0u9.",
 });
