@@ -18,6 +18,7 @@ import { join } from "node:path";
 import { existsSync, readFileSync } from "node:fs";
 import {
   checkArchitecture,
+  generateLogRunId,
   loadAllowlist,
   matchesAllowlist,
   writeGateLog,
@@ -404,8 +405,13 @@ describe("App Router Architecture Gate", () => {
   });
 
   describe("Structured Logging and Evidence", () => {
+    it("generates logRunId matching YYYYMMDDTHHMMSSZ-<8 hex> format", () => {
+      const id = generateLogRunId();
+      assert.match(id, /^\d{8}T\d{6}Z-[0-9a-f]{8}$/);
+    });
+
     it("writes JSONL logs and creates evidence files on violation", () => {
-      const logRunId = `test-run-${Date.now()}`;
+      const logRunId = generateLogRunId();
       const fakeArtifactsDir = join(process.cwd(), "artifacts");
       const fakeEntries: RepoEntry[] = [
         { path: "src/pages/.keep", kind: "file" },

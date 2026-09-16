@@ -13,9 +13,25 @@
  */
 
 import { execFileSync } from "node:child_process";
+import { randomBytes } from "node:crypto";
 import { existsSync, mkdirSync, readdirSync, readFileSync, writeFileSync } from "node:fs";
 import { basename, extname, join, normalize, relative, resolve } from "node:path";
 import { pathToFileURL } from "node:url";
+
+/**
+ * Generates a standard log run ID in the format YYYYMMDDTHHMMSSZ-<8 hex>.
+ */
+export function generateLogRunId(date: Date = new Date()): string {
+  const pad = (n: number) => String(n).padStart(2, "0");
+  const year = date.getUTCFullYear();
+  const month = pad(date.getUTCMonth() + 1);
+  const day = pad(date.getUTCDate());
+  const hours = pad(date.getUTCHours());
+  const minutes = pad(date.getUTCMinutes());
+  const seconds = pad(date.getUTCSeconds());
+  const hex = randomBytes(4).toString("hex");
+  return `${year}${month}${day}T${hours}${minutes}${seconds}Z-${hex}`;
+}
 
 export interface RepoEntry {
   readonly path: string;
@@ -420,7 +436,7 @@ export function runArchitectureGateCli(rootDir: string = process.cwd()): number 
   const entries = collectRepoEntries(rootDir, isIgnored);
   const violations = checkArchitecture(entries, isIgnored, allowlist);
 
-  const logRunId = `${new Date().toISOString().replace(/[:.]/g, "-")}-${Math.random().toString(36).slice(2, 8)}`;
+  const logRunId = generateLogRunId();
   const artifactsDir = join(rootDir, "artifacts");
 
   writeGateLog(artifactsDir, logRunId, entries, violations);
