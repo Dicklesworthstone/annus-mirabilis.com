@@ -1,0 +1,371 @@
+id: sr-11
+title: "SR-11: moving mirror reflection"
+explanatoryQuestion: "How do the frequency, angle, amplitude, and radiation pressure of light transform when reflected by a moving mirror, and how does energy balance between the light and the mirror's mechanical work?"
+sourceRefs:
+  - paper: special-relativity
+    id: s8
+argumentIds:
+  - arg-sr-moving-mirror
+schemaVersion: 1
+parameters:
+  - id: beta
+    label: "Mirror speed ratio (v/c)"
+    accessibleName: "Mirror velocity normalized by the speed of light along the mirror normal"
+    accessibleDescription: "Velocity ratio v/c of the mirror moving in the +x direction."
+    quantityId: velocityRatio
+    displayUnit: "dimensionless"
+    modelDomain:
+      min: -0.95
+      max: 0.95
+      minInclusive: true
+      maxInclusive: true
+      reason: "Physical mirrors with subluminal speeds."
+    visualRange:
+      min: -0.9
+      max: 0.9
+    default: 0.6
+    mapping:
+      kind: linear
+    role: independent
+    commandClass: setup-change
+  - id: incidentAngleDeg
+    label: "Incident angle"
+    accessibleName: "Angle of incident light ray relative to mirror normal in degrees"
+    accessibleDescription: "Angle phi in degrees between the incident light wave vector and the mirror normal."
+    quantityId: incidentAngle
+    displayUnit: "deg"
+    modelDomain:
+      min: 0
+      max: 180
+      minInclusive: true
+      maxInclusive: true
+      reason: "Spherical angle range."
+    visualRange:
+      min: 0
+      max: 90
+    default: 0
+    mapping:
+      kind: linear
+    role: independent
+    commandClass: setup-change
+  - id: incidentEnergyDensity
+    label: "Incident energy density"
+    accessibleName: "Energy density u of incident radiation"
+    accessibleDescription: "Energy density of the incident light beam in J/m³ or Gaussian units."
+    quantityId: energyDensity
+    displayUnit: "J/m³"
+    modelDomain:
+      min: 1.0e-12
+      max: 1.0e6
+      minInclusive: true
+      maxInclusive: true
+      reason: "Positive finite radiation energy density."
+    visualRange:
+      min: 0.1
+      max: 10
+    default: 1.0
+    mapping:
+      kind: linear
+    role: independent
+    commandClass: setup-change
+  - id: mirrorArea
+    label: "Mirror surface area"
+    accessibleName: "Surface area of the mirror"
+    accessibleDescription: "Area of the mirror face encountering the radiation beam in m²."
+    quantityId: area
+    displayUnit: "m²"
+    modelDomain:
+      min: 1.0e-6
+      max: 100.0
+      minInclusive: true
+      maxInclusive: true
+      reason: "Positive mirror surface area."
+    visualRange:
+      min: 0.1
+      max: 5.0
+    default: 1.0
+    mapping:
+      kind: linear
+    role: independent
+    commandClass: setup-change
+  - id: frame
+    label: "Description frame"
+    accessibleName: "Reference frame for calculation and ledger"
+    accessibleDescription: "Observer frame: laboratory frame K or mirror rest frame k."
+    quantityId: referenceFrame
+    displayUnit: "dimensionless"
+    modelDomain:
+      min: 0
+      max: 1
+      minInclusive: true
+      maxInclusive: true
+      reason: "Discrete frame choice."
+    visualRange:
+      min: 0
+      max: 1
+    default: 0
+    mapping:
+      kind: linear
+    role: independent
+    commandClass: observer-change
+  - id: unitLayer
+    label: "Unit layer"
+    accessibleName: "Unit convention layer"
+    accessibleDescription: "Display units in SI or 1905 Gaussian convention."
+    quantityId: unitSystem
+    displayUnit: "dimensionless"
+    modelDomain:
+      min: 0
+      max: 1
+      minInclusive: true
+      maxInclusive: true
+      reason: "Discrete unit convention."
+    visualRange:
+      min: 0
+      max: 1
+    default: 0
+    mapping:
+      kind: linear
+    role: independent
+    commandClass: observer-change
+outputs:
+  - id: frequencyRatio
+    quantityId: frequencyRatio
+    allowedStatuses:
+      - value
+      - not-applicable
+      - outside-domain
+    primary: true
+  - id: cosPhiReflected
+    quantityId: cosPhiReflected
+    allowedStatuses:
+      - value
+      - not-applicable
+      - outside-domain
+    primary: true
+  - id: phiReflectedDeg
+    quantityId: phiReflectedDeg
+    allowedStatuses:
+      - value
+      - not-applicable
+      - outside-domain
+    primary: true
+  - id: amplitudeRatio
+    quantityId: amplitudeRatio
+    allowedStatuses:
+      - value
+      - not-applicable
+      - outside-domain
+    primary: false
+  - id: radiationPressure
+    quantityId: radiationPressure
+    allowedStatuses:
+      - value
+      - not-applicable
+      - outside-domain
+    primary: true
+  - id: radiationForce
+    quantityId: radiationForce
+    allowedStatuses:
+      - value
+      - not-applicable
+      - outside-domain
+    primary: true
+  - id: incidentPower
+    quantityId: incidentPower
+    allowedStatuses:
+      - value
+      - not-applicable
+      - outside-domain
+    primary: true
+  - id: reflectedPower
+    quantityId: reflectedPower
+    allowedStatuses:
+      - value
+      - not-applicable
+      - outside-domain
+    primary: true
+  - id: workRate
+    quantityId: workRate
+    allowedStatuses:
+      - value
+      - not-applicable
+      - outside-domain
+    primary: true
+  - id: energyBalanceResidual
+    quantityId: energyBalanceResidual
+    allowedStatuses:
+      - value
+      - not-applicable
+      - outside-domain
+    primary: true
+assumptions:
+  - "Perfect planar mirror moving at constant velocity normal to its face."
+  - "Monochromatic plane wave incident on the mirror face."
+  - "Infinite mass idealization for the mirror (no acceleration under radiation pressure)."
+  - "Elastic electromagnetic reflection in the mirror rest frame."
+admittedDomain: "Subluminal mirror velocities |v| < c and incident angles with cos(phi) > beta."
+notModeled:
+  - "mirror mass and acceleration (infinite mass limit)"
+  - "finite mirror thickness and internal absorption"
+  - "diffraction at mirror edges"
+  - "quantum radiation pressure fluctuations"
+  - "non-monochromatic wave packets"
+owner:
+  kind: reference-evaluator
+  kernelFunctions:
+    - displayRole: reference-implementation
+      language: ts
+      module: "src/physics/reference/waves.ts"
+      exportName: "evaluateSr11"
+      independentReferences:
+        - experimentId: sr-11
+views:
+  - id: svg-ray-reflection
+    kind: svg
+    consumes:
+      - frequencyRatio
+      - cosPhiReflected
+      - phiReflectedDeg
+      - radiationPressure
+      - radiationForce
+      - incidentPower
+      - reflectedPower
+      - workRate
+      - energyBalanceResidual
+  - id: table-moving-mirror
+    kind: table
+    consumes:
+      - frequencyRatio
+      - cosPhiReflected
+      - phiReflectedDeg
+      - amplitudeRatio
+      - radiationPressure
+      - radiationForce
+      - incidentPower
+      - reflectedPower
+      - workRate
+      - energyBalanceResidual
+actions:
+  - actionId: mirror-reflection
+    family: wave-optics
+    question: "How do light frequency, reflection angle, radiation pressure, and power transform on reflection from a moving mirror?"
+    inputs:
+      - beta
+      - incidentAngleDeg
+      - incidentEnergyDensity
+      - mirrorArea
+    commandClass: setup-change
+    acceptedResult:
+      outputs:
+        - frequencyRatio
+        - cosPhiReflected
+        - phiReflectedDeg
+        - amplitudeRatio
+        - radiationPressure
+        - radiationForce
+        - incidentPower
+        - reflectedPower
+        - workRate
+        - energyBalanceResidual
+      allowedStatuses:
+        - value
+        - not-applicable
+        - outside-domain
+    visualAffordance: "Incident and reflected ray diagram with Doppler wavelength coloring and energy ledger bars"
+    equivalentAffordance: "Enter mirror velocity and incidence angle to compute shifted frequency, reflection angle, radiation pressure, and energy balance."
+    announcement: "Moving mirror reflection and energy balance computed."
+acceptanceCases:
+  - sr-11-normal-0.6
+  - sr-11-approaching-0.6
+  - sr-11-oblique-30deg-0.6
+  - sr-11-interception-limit-0.6
+  - sr-11-mirror-frame-0.6
+  - sr-11-stationary
+defaultScenario: sr-11-normal-0.6
+tapeModel:
+  modelId: moving-mirror-host
+  modelVersion: 1
+teachingTapes:
+  - tapeId: moving-mirror
+    title: moving mirror reflection
+presets:
+  - presetId: sr-11-normal-0.6
+    label: Receding mirror at 0.6c (normal incidence)
+    parameterValues:
+      beta: 0.6
+      incidentAngleDeg: 0
+      incidentEnergyDensity: 1.0
+      mirrorArea: 1.0
+    scenarioId: sr-11-normal-0.6
+  - presetId: sr-11-approaching-0.6
+    label: Approaching mirror at -0.6c (head-on)
+    parameterValues:
+      beta: -0.6
+      incidentAngleDeg: 0
+      incidentEnergyDensity: 1.0
+      mirrorArea: 1.0
+    scenarioId: sr-11-approaching-0.6
+  - presetId: sr-11-oblique-30deg-0.6
+    label: Oblique incidence at 30 deg, 0.6c
+    parameterValues:
+      beta: 0.6
+      incidentAngleDeg: 30
+      incidentEnergyDensity: 1.0
+      mirrorArea: 1.0
+    scenarioId: sr-11-oblique-30deg-0.6
+  - presetId: sr-11-interception-limit-0.6
+    label: Interception limit (cos phi <= 0.6)
+    parameterValues:
+      beta: 0.6
+      incidentAngleDeg: 53.13010235
+      incidentEnergyDensity: 1.0
+      mirrorArea: 1.0
+    scenarioId: sr-11-interception-limit-0.6
+  - presetId: sr-11-mirror-frame-0.6
+    label: Mirror rest frame (normal incidence)
+    parameterValues:
+      beta: 0.6
+      incidentAngleDeg: 0
+      incidentEnergyDensity: 1.0
+      mirrorArea: 1.0
+    scenarioId: sr-11-mirror-frame-0.6
+  - presetId: sr-11-stationary
+    label: Stationary mirror (beta = 0)
+    parameterValues:
+      beta: 0
+      incidentAngleDeg: 0
+      incidentEnergyDensity: 1.0
+      mirrorArea: 1.0
+    scenarioId: sr-11-stationary
+probes:
+  - toggle-frame
+  - type-speed
+  - type-angle
+  - toggle-units
+weavePredicates:
+  - sr11-radiation-pressure
+  - sr11-energy-balance
+historicalOverlays: []
+realRate:
+  natural: false
+embeddable: true
+predictMode:
+  enabled: true
+  prompts:
+    - promptId: sr-11-predict-receding-frequency
+      controlId: beta
+      question: "The mirror recedes at 0.6c and light hits it head-on. What fraction of the incident frequency returns?"
+      candidates:
+        - id: ratio-0-25
+          label: "0.25 (one quarter)"
+          description: Double Doppler redshift (incident arrival and reflected departure) gives (1-v/c)/(1+v/c) = 0.4/1.6 = 0.25.
+          separatingAssumption: "Relativistic double Doppler shift applies to reflection from a moving boundary."
+        - id: ratio-0-4
+          label: "0.4"
+          description: Only a single Doppler factor (1-v/c) is applied.
+          separatingAssumption: "Doppler shift is mistakenly applied only once upon arrival at the mirror."
+        - id: ratio-1-0
+          label: "1.0 (no shift)"
+          description: Speed of light is constant, so frequency is assumed invariant.
+          separatingAssumption: "Constancy of wave speed is confused with constancy of wave frequency."

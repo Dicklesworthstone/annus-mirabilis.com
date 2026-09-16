@@ -1,0 +1,39 @@
+tapeVersion: 2
+tapeId: moving-mirror
+experimentId: sr-11
+mode: "sr-11:default"
+title: moving mirror reflection
+description: Teaching tape demonstrating frequency shift, aberration, radiation pressure, and energy balance for reflection from a moving mirror.
+isTeachingSequence: true
+modelIdentity:
+  modelId: moving-mirror-host
+  modelVersion: "1"
+  artifactDigest: "host:sha256:sr11-movingMirror"
+constantSetId: modern-si-2019
+seed: "0"
+streamVersion: 1
+allocationId: sr-11.none.v1
+initialConditions:
+  beta: 0.6
+  incidentAngleDeg: 0
+  incidentEnergyDensity: 1.0
+  mirrorArea: 1.0
+events:
+  - kind: control
+    actionIndex: 1
+    commandClass: setup-change
+    commandId: set-beta-0.6
+    parameterId: beta
+    value: 0.6
+checkpoints:
+  - actionIndex: 1
+    stepIndex: 0
+    simulatedTime: 0
+    digest: "host:sha256:sr11-movingMirror"
+    digestKind: host
+    checkpointVersion: 1
+    streamSemanticsVersion: 1
+    seed: "0"
+    streamPositions: []
+    label: receding-mirror-0.6c
+    teachingNote: Light hitting a receding mirror at 0.6c returns with frequency ratio 0.25, while mechanical work P*v*Am = 0.3*I*Am accounts exactly for the energy lost by the radiation.
