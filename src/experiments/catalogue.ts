@@ -137,6 +137,8 @@ export const CATALOGUE_QUESTIONS: Readonly<Partial<Record<CatalogueId, string>>>
     "What does a smaller energy of motion at the same speed tell you about the body's inertia, and why does the conclusion come from low speeds?",
   "sr-02":
     "Why does moving the magnet instead of the conductor create an explanatory asymmetry, and how does the transformation remove it?",
+  "sr-01":
+    "How can distant clocks acquire an operational common time, and do moving clocks share it?",
 });
 
 /** Runtime guard for an id read from a URL, permalink, or reader link: never assume the string is valid. */
