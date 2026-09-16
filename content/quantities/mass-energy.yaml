@@ -101,6 +101,51 @@
   frame: not-applicable
   colorRole: space-geometry
 
+- id: quadraticKineticDifference
+  name: Quadratic kinetic-energy approximation
+  description: >
+    The second-order approximation (1/2) L (v/c)^2 of the kinetic-energy difference, printed
+    as neglecting magnitudes of fourth and higher order. Distinct from the exact difference.
+  dimensionStatus: declared
+  dimension: [2, 1, -2, 0, 0, 0]
+  mathematicalKind: scalar
+  frame: moving-system
+  colorRole: energy
+
+- id: quadraticRelativeDiscrepancy
+  name: Quadratic relative discrepancy
+  description: The relative difference between the exact kinetic-energy difference and its quadratic approximation.
+  dimensionStatus: declared
+  dimension: [0, 0, 0, 0, 0, 0]
+  dimensionlessKind: ratio
+  mathematicalKind: scalar
+  frame: not-applicable
+  colorRole: statistical
+
+- id: proxyExcessOverLimit
+  name: Proxy excess over the limiting coefficient
+  description: >
+    The finite-speed mass proxy divided by L/c^2, minus one. About (3/4)(v/c)^2 at small speed.
+    Never labeled the exact mass loss.
+  dimensionStatus: declared
+  dimension: [0, 0, 0, 0, 0, 0]
+  dimensionlessKind: ratio
+  mathematicalKind: scalar
+  frame: not-applicable
+  colorRole: statistical
+
+- id: naiveGammaMinusOne
+  name: Naive Lorentz-factor excess
+  description: >
+    The cancellation-prone evaluation 1/sqrt(1-beta^2) - 1, published only as a diagnostic.
+    It never feeds the proxy or the limiting coefficient.
+  dimensionStatus: declared
+  dimension: [0, 0, 0, 0, 0, 0]
+  dimensionlessKind: ratio
+  mathematicalKind: scalar
+  frame: not-applicable
+  colorRole: statistical
+
 - id: finiteSpeedMassProxy
   name: Finite-speed mass proxy
   description: >

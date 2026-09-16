@@ -1,0 +1,258 @@
+id: me-02
+title: "ME-02: inertia from the small-speed coefficient"
+explanatoryQuestion: "What does a smaller energy of motion at the same speed tell you about the body's inertia, and why does the conclusion come from low speeds?"
+sourceRefs:
+  - paper: mass-energy
+    id: s0
+argumentIds:
+  - arg-me-coefficient
+schemaVersion: 1
+parameters:
+  - id: beta
+    label: "Observer speed v/c"
+    accessibleName: "Signed observer speed over the speed of light"
+    accessibleDescription: "Sets the observer speed as a fraction of the speed of light; every output is even in this speed."
+    quantityId: frameSpeed
+    displayUnit: "1"
+    modelDomain:
+      min: -0.95
+      max: 0.95
+      minInclusive: true
+      maxInclusive: true
+      reason: "No inertial observer at |v| >= c; teaching range stays inside 0.95."
+    visualRange:
+      min: 0
+      max: 0.95
+    default: 0.6
+    mapping:
+      kind: linear
+    role: independent
+    commandClass: observer-change
+  - id: emittedEnergy
+    label: "Emitted energy L"
+    accessibleName: "Energy emitted as radiation in the body's rest frame"
+    accessibleDescription: "Positive emitted energy. Entering a new value is a setup change; changing only the display unit is presentation."
+    quantityId: emittedEnergyRestFrame
+    displayUnit: "J"
+    modelDomain:
+      min: 0
+      max: 1.0e22
+      minInclusive: false
+      maxInclusive: true
+      reason: "L must be positive."
+    visualRange:
+      min: 0.1
+      max: 10
+    default: 1
+    mapping:
+      kind: log
+      base: 10
+    role: independent
+    commandClass: setup-change
+outputs:
+  - id: exactDifference
+    quantityId: kineticEnergyDifference
+    allowedStatuses:
+      - value
+      - outside-domain
+    primary: true
+  - id: quadraticApproximation
+    quantityId: quadraticKineticDifference
+    allowedStatuses:
+      - value
+      - outside-domain
+    primary: false
+  - id: quadraticRelativeDiscrepancy
+    quantityId: quadraticRelativeDiscrepancy
+    allowedStatuses:
+      - value
+      - not-applicable
+      - outside-domain
+    primary: false
+  - id: finiteSpeedProxy
+    quantityId: finiteSpeedMassProxy
+    allowedStatuses:
+      - value
+      - not-applicable
+      - outside-domain
+    primary: false
+  - id: limitingCoefficient
+    quantityId: inertialMassDecrease
+    allowedStatuses:
+      - analytic-limit
+      - value
+      - outside-domain
+    primary: true
+  - id: inertialMassDecrease
+    quantityId: inertialMassDecrease
+    allowedStatuses:
+      - value
+      - outside-domain
+    primary: false
+  - id: proxyExcessOverLimit
+    quantityId: proxyExcessOverLimit
+    allowedStatuses:
+      - value
+      - not-applicable
+      - outside-domain
+    primary: false
+  - id: massChangeSigned
+    quantityId: massChangeSigned
+    allowedStatuses:
+      - value
+      - outside-domain
+    primary: false
+  - id: naiveGammaMinusOne
+    quantityId: naiveGammaMinusOne
+    allowedStatuses:
+      - value
+      - outside-domain
+    primary: false
+assumptions:
+  - "The ledger result K0 - K1 = L(gamma - 1) with its premises from ME-01."
+  - "The Newtonian form 1/2 m v^2 at second order identifies the coefficient."
+admittedDomain: "Inertial observers with |v/c| < 1 and positive emitted energy L."
+notModeled:
+  - "the premises themselves (explained, not simulated)"
+  - "accelerated motion"
+  - "modern momentum formulations"
+  - "any body not covered by the paper's argument"
+  - "uncertainty in the printed factor's rounding (shown as a labeled comparison, not modeled)"
+owner:
+  kind: reference-evaluator
+  kernelFunctions:
+    - displayRole: reference-implementation
+      language: ts
+      module: "src/physics/reference/massEnergy.ts"
+      exportName: "evaluateMe02"
+      independentReferences:
+        - experimentId: me-02
+          quantityId: inertialMassDecrease
+  identifierBindings:
+    - kernelFunction: evaluateMe02
+      identifier: beta
+      quantityId: frameSpeed
+    - kernelFunction: evaluateMe02
+      identifier: L
+      quantityId: emittedEnergyRestFrame
+    - kernelFunction: evaluateMe02
+      identifier: c
+      quantityId: speedOfLight
+    - kernelFunction: evaluateMe02
+      identifier: exact
+      quantityId: kineticEnergyDifference
+    - kernelFunction: evaluateMe02
+      identifier: proxy
+      quantityId: finiteSpeedMassProxy
+    - kernelFunction: evaluateMe02
+      identifier: limitValue
+      quantityId: inertialMassDecrease
+  traceScenarioId: mass-energy-printed-factor
+  traceRows:
+    - label: Exact kinetic-energy difference at 0.6c
+      expression: "L (gamma - 1) = L gamma^2 beta^2 / (gamma + 1)"
+      value: 0.25
+      unit: "L"
+      quantityId: kineticEnergyDifference
+views:
+  - id: svg-coefficient
+    kind: svg
+    consumes:
+      - exactDifference
+      - quadraticApproximation
+      - finiteSpeedProxy
+      - limitingCoefficient
+  - id: table-coefficient
+    kind: table
+    consumes:
+      - exactDifference
+      - quadraticApproximation
+      - finiteSpeedProxy
+      - limitingCoefficient
+      - inertialMassDecrease
+      - massChangeSigned
+actions:
+  - actionId: compare-named-speeds
+    family: energy-accounting
+    question: "How does the drop in energy of motion at 0.6c compare with 0.01c?"
+    inputs:
+      - beta
+      - emittedEnergy
+    commandClass: observer-change
+    acceptedResult:
+      outputs:
+        - exactDifference
+        - finiteSpeedProxy
+        - limitingCoefficient
+      allowedStatuses:
+        - value
+        - analytic-limit
+        - not-applicable
+        - outside-domain
+    visualAffordance: "SVG plot of exact, quadratic, proxy, and limit against speed"
+    equivalentAffordance: "Type a speed, choose outputs, and read the table. Compare 0.6c with 0.01c."
+    announcement: "Named speeds compared"
+acceptanceCases:
+  - me-02-0.6c
+  - me-02-limit-zero
+  - me-02-adversarial-proxy
+defaultScenario: me-02-0.6c
+tapeModel:
+  modelId: mass-energy-coefficient-host
+  modelVersion: 1
+teachingTapes:
+  - tapeId: toward-low-speed
+    title: toward low speed
+presets:
+  - presetId: me-02-0.6c
+    label: Observer at 0.6c
+    parameterValues:
+      beta: 0.6
+      emittedEnergy: 1
+    scenarioId: me-02-0.6c
+probes:
+  - slide-toward-zero
+  - show-naive-evaluation
+  - type-printed-erg
+weavePredicates:
+  - me02-coefficient-stabilized
+  - me02-printed-factor
+historicalOverlays: []
+realRate:
+  natural: false
+embeddable: true
+predictMode:
+  enabled: true
+  prompts:
+    - promptId: me-02-predict-exact-versus-quadratic
+      controlId: output-view
+      question: "At 0.6c, is the exact energy difference larger or smaller than the quadratic estimate?"
+      candidates:
+        - id: larger
+          label: Larger
+          description: The exact difference lies above the quadratic estimate.
+          separatingAssumption: "The fourth-order term in the expansion of gamma is positive, so the exact curve sits above the quadratic."
+        - id: smaller
+          label: Smaller
+          description: The exact difference lies below the quadratic estimate.
+          separatingAssumption: "The quadratic is treated as an upper bound rather than a truncation of a series with a positive next term."
+        - id: equal
+          label: Equal
+          description: The two curves coincide at 0.6c.
+          separatingAssumption: "The low-speed proxy is treated as exact at every speed."
+    - promptId: me-02-predict-toward-low-speed
+      controlId: beta
+      question: "As the speed gets smaller and smaller, what happens to the drop in energy of motion?"
+      candidates:
+        - id: looks-like-lighter-body
+          label: Looks like a lighter body
+          description: It looks like the energy of motion of a body that lost a little mass.
+          separatingAssumption: "The coefficient of 1/2 v^2 approaches L/c^2 as the speed vanishes."
+        - id: drops-to-nothing-faster
+          label: Drops to nothing faster
+          description: It falls away faster than the speed does, leaving nothing to compare.
+          separatingAssumption: "A vanishing difference is treated as having no coefficient."
+        - id: stays-a-fixed-fraction
+          label: Stays a fixed fraction
+          description: It stays the same fraction of the emitted energy.
+          separatingAssumption: "The exact difference L(gamma-1) is treated as independent of speed."

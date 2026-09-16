@@ -2,7 +2,7 @@
 
 Generated from `content/quantities/*.yaml` by `scripts/generate-quantity-ids.ts`. Do not hand-edit; run `bun scripts/generate-quantity-ids.ts` to regenerate, and `--check` in CI to confirm this file is fresh.
 
-Total: 227 quantities, 45 rejected spellings, 2 reserved spellings.
+Total: 231 quantities, 45 rejected spellings, 2 reserved spellings.
 
 ## Registered quantities
 
@@ -148,6 +148,7 @@ Total: 227 quantities, 45 rejected spellings, 2 reserved spellings.
 | mobility | Mobility | 0,-1,1,0,0,0 | not-applicable | scalar | — |
 | molarGasConstant | Molar gas constant | 2,1,-2,-1,0,-1 | not-applicable | scalar | gasConstant |
 | molesPerVolume | Moles per volume | -3,0,0,0,0,1 | not-applicable | scalar | — |
+| naiveGammaMinusOne | Naive Lorentz-factor excess | 0,0,0,0,0,0 | not-applicable | scalar | — |
 | numberDensity | Number density | -3,0,0,0,0,0 | not-applicable | scalar | — |
 | observationInterval | Observation interval | 0,0,1,0,0,0 | not-applicable | scalar | — |
 | osmoticDecayLength | Osmotic decay length | 1,0,0,0,0,0 | not-applicable | scalar | decayLength |
@@ -169,8 +170,11 @@ Total: 227 quantities, 45 rejected spellings, 2 reserved spellings.
 | propagationAngleMoving | Propagation angle (moving system) | 0,0,0,0,0,0 | moving-system | scalar | propagationAngle |
 | propagationAngleStationary | Propagation angle (stationary system) | 0,0,0,0,0,0 | stationary-system | scalar | propagationAngle |
 | properTimeElapsed | Elapsed proper time | 0,0,1,0,0,0 | object-rest | scalar | properTime |
+| proxyExcessOverLimit | Proxy excess over the limiting coefficient | 0,0,0,0,0,0 | not-applicable | scalar | — |
 | pulseFlightTime | Pulse flight time | 0,0,1,0,0,0 | not-applicable | scalar | — |
 | pulseMomentum | Pulse momentum | 1,1,-1,0,0,0 | not-applicable | scalar | — |
+| quadraticKineticDifference | Quadratic kinetic-energy approximation | 2,1,-2,0,0,0 | moving-system | scalar | — |
+| quadraticRelativeDiscrepancy | Quadratic relative discrepancy | 0,0,0,0,0,0 | not-applicable | scalar | — |
 | quantumEfficiency | Quantum efficiency | 0,0,0,0,0,0 | not-applicable | scalar | — |
 | quantumEnergy | Quantum energy | 2,1,-2,0,0,0 | not-applicable | scalar | meanQuantumEnergy |
 | quantumRate | Incident quantum rate | 0,0,-1,0,0,0 | not-applicable | scalar | — |

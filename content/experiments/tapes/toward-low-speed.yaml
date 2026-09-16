@@ -1,0 +1,54 @@
+tapeVersion: 2
+tapeId: toward-low-speed
+experimentId: me-02
+mode: "me-02:default"
+title: toward low speed
+description: Teaching tape that walks the observer speed toward zero so the proxy can stabilize.
+isTeachingSequence: true
+modelIdentity:
+  modelId: mass-energy-coefficient-host
+  modelVersion: "1"
+  artifactDigest: "host:sha256:me02-coefficient-evaluateMe02"
+constantSetId: modern-si-2019
+seed: "0"
+streamVersion: 1
+allocationId: me-02.none.v1
+initialConditions:
+  beta: 0.6
+  emittedEnergy: 1
+events:
+  - kind: control
+    actionIndex: 1
+    commandClass: observer-change
+    commandId: speed-0.1
+    parameterId: beta
+    value: 0.1
+  - kind: control
+    actionIndex: 2
+    commandClass: observer-change
+    commandId: speed-0.01
+    parameterId: beta
+    value: 0.01
+  - kind: control
+    actionIndex: 3
+    commandClass: observer-change
+    commandId: speed-zero
+    parameterId: beta
+    value: 0
+checkpoints:
+  - actionIndex: 3
+    stepIndex: 0
+    simulatedTime: 0
+    digest: "host:sha256:me02-toward-low-speed-limit"
+    digestKind: host
+    checkpointVersion: 1
+    streamSemanticsVersion: 1
+    seed: "0"
+    streamPositions: []
+    label: analytic-limit
+    teachingNote: At vanishing speed the identified coefficient is L/c^2, an analytic limit.
+    expectedDisplayValues:
+      - label: limiting coefficient in normalized units
+        value: 1
+        unit: "L/c^2"
+        constantSetId: modern-si-2019
