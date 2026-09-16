@@ -6,12 +6,7 @@ import {
 import { parseResult } from "../results/codec.ts";
 import type { ScientificResult } from "../results/types.ts";
 import { createInstanceStore, type Parameters } from "../store/instanceStore.ts";
-import {
-  LQ06_CLASSES,
-  LQ06_DEFAULTS,
-  LQ06_OUTPUTS,
-  type Lq06Parameters,
-} from "./definition.ts";
+import { LQ06_CLASSES, LQ06_DEFAULTS, LQ06_OUTPUTS, type Lq06Parameters } from "./definition.ts";
 import { validateLq06Parameters } from "./parameters.ts";
 
 export type PreparedLq06Example = Readonly<{
@@ -30,7 +25,6 @@ export function evaluateLq06(p: Lq06Parameters): ScientificResult[] {
   );
 
   const kB = 1.380649e-23; // J/K
-  const h = 6.62607015e-34; // J*s
 
   const effResult = effectiveIndependentCount(p.radiationEnergy, p.frequency, constantSet);
   const nEff = effResult.count;
@@ -250,15 +244,43 @@ export function createLq06Session(instanceId: string, example?: PreparedLq06Exam
       const parameters = validated.data;
       const previous = (store.getSnapshot().requested?.parameters ??
         initialParams) as Parameters as Lq06Parameters;
-      const setup: Record<string, unknown> = {};
+
+      const groups: {
+        input: Record<string, unknown>;
+        measurement: Record<string, unknown>;
+        presentation: Record<string, unknown>;
+      } = {
+        input: {},
+        measurement: {},
+        presentation: {},
+      };
       for (const key of Object.keys(parameters) as (keyof Lq06Parameters)[]) {
-        if (Object.is(parameters[key], previous[key])) continue;
-        setup[key] = parameters[key];
+        if (!Object.is(parameters[key], previous[key])) {
+          const cls = LQ06_CLASSES[key];
+          if (cls && cls in groups) {
+            groups[cls as keyof typeof groups][key] = parameters[key];
+          }
+        }
       }
 
-      const request = Object.keys(setup).length
-        ? store.issue("setup-change", setup as Record<string, number>)
-        : store.issue("continue");
+      let request = null;
+      if (Object.keys(groups.input).length) {
+        request = store.issue(
+          "setup-change",
+          groups.input as Record<string, number | boolean | string>,
+        );
+      } else if (Object.keys(groups.measurement).length) {
+        request = store.issue(
+          "measurement-change",
+          groups.measurement as Record<string, number | boolean | string>,
+        );
+      } else if (Object.keys(groups.presentation).length) {
+        request = store.issue(
+          "presentation-change",
+          groups.presentation as Record<string, number | boolean | string>,
+        );
+      }
+      request ??= store.issue("continue");
 
       const computedOutputs = evaluateLq06(parameters);
       store.publish({

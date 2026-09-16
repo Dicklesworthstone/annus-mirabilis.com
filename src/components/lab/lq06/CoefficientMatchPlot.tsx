@@ -57,7 +57,15 @@ export function CoefficientMatchSideBySidePlot({
             <stop offset="0%" stopColor="#0ea5e9" stopOpacity="0.1" />
             <stop offset="100%" stopColor="#0ea5e9" stopOpacity="0.02" />
           </linearGradient>
-          <marker id="arrow" viewBox="0 0 10 10" refX="5" refY="5" markerWidth="6" markerHeight="6" orient="auto-start-reverse">
+          <marker
+            id="arrow"
+            viewBox="0 0 10 10"
+            refX="5"
+            refY="5"
+            markerWidth="6"
+            markerHeight="6"
+            orient="auto-start-reverse"
+          >
             <path d="M 0 0 L 10 5 L 0 10 z" fill="#64748b" />
           </marker>
         </defs>
@@ -82,16 +90,48 @@ export function CoefficientMatchSideBySidePlot({
           </text>
 
           {/* Radiation Entropy Formula */}
-          <rect x="15" y="65" width="270" height="42" rx="4" fill="#ffffff" stroke="#cbd5e1" strokeWidth="1" className="dark:fill-slate-800 dark:stroke-slate-700" />
-          <text x="150" y="92" textAnchor="middle" fill="#0f172a" className="text-xs font-mono font-bold dark:fill-slate-100">
+          <rect
+            x="15"
+            y="65"
+            width="270"
+            height="42"
+            rx="4"
+            fill="#ffffff"
+            stroke="#cbd5e1"
+            strokeWidth="1"
+            className="dark:fill-slate-800 dark:stroke-slate-700"
+          />
+          <text
+            x="150"
+            y="92"
+            textAnchor="middle"
+            fill="#0f172a"
+            className="text-xs font-mono font-bold dark:fill-slate-100"
+          >
             S - S₀ = (E / βν) · ln(V/V₀)
           </text>
 
           <text x="15" y="128" fill="#64748b" className="text-[11px] font-sans">
             With Boltzmann&apos;s constant k_B = R/N:
           </text>
-          <rect x="15" y="136" width="270" height="34" rx="4" fill="#fff1f2" stroke="#fecdd3" strokeWidth="1" className="dark:fill-rose-950/30 dark:stroke-rose-900" />
-          <text x="150" y="158" textAnchor="middle" fill="#be123c" className="text-xs font-mono font-bold dark:fill-rose-300">
+          <rect
+            x="15"
+            y="136"
+            width="270"
+            height="34"
+            rx="4"
+            fill="#fff1f2"
+            stroke="#fecdd3"
+            strokeWidth="1"
+            className="dark:fill-rose-950/30 dark:stroke-rose-900"
+          />
+          <text
+            x="150"
+            y="158"
+            textAnchor="middle"
+            fill="#be123c"
+            className="text-xs font-mono font-bold dark:fill-rose-300"
+          >
             = (R/N) · [ N·E / (R·β·ν) ] · ln(V/V₀)
           </text>
         </g>
@@ -116,16 +156,48 @@ export function CoefficientMatchSideBySidePlot({
           </text>
 
           {/* Gas Entropy Formula */}
-          <rect x="15" y="65" width="270" height="42" rx="4" fill="#ffffff" stroke="#cbd5e1" strokeWidth="1" className="dark:fill-slate-800 dark:stroke-slate-700" />
-          <text x="150" y="92" textAnchor="middle" fill="#0f172a" className="text-xs font-mono font-bold dark:fill-slate-100">
+          <rect
+            x="15"
+            y="65"
+            width="270"
+            height="42"
+            rx="4"
+            fill="#ffffff"
+            stroke="#cbd5e1"
+            strokeWidth="1"
+            className="dark:fill-slate-800 dark:stroke-slate-700"
+          />
+          <text
+            x="150"
+            y="92"
+            textAnchor="middle"
+            fill="#0f172a"
+            className="text-xs font-mono font-bold dark:fill-slate-100"
+          >
             S - S₀ = (R/N) · ln W
           </text>
 
           <text x="15" y="128" fill="#64748b" className="text-[11px] font-sans">
             Independent points W = (V/V₀)ⁿ:
           </text>
-          <rect x="15" y="136" width="270" height="34" rx="4" fill="#f0f9ff" stroke="#bae6fd" strokeWidth="1" className="dark:fill-sky-950/30 dark:stroke-sky-900" />
-          <text x="150" y="158" textAnchor="middle" fill="#0369a1" className="text-xs font-mono font-bold dark:fill-sky-300">
+          <rect
+            x="15"
+            y="136"
+            width="270"
+            height="34"
+            rx="4"
+            fill="#f0f9ff"
+            stroke="#bae6fd"
+            strokeWidth="1"
+            className="dark:fill-sky-950/30 dark:stroke-sky-900"
+          />
+          <text
+            x="150"
+            y="158"
+            textAnchor="middle"
+            fill="#0369a1"
+            className="text-xs font-mono font-bold dark:fill-sky-300"
+          >
             = (R/N) · [ n ] · ln(V/V₀)
           </text>
         </g>
@@ -133,8 +205,22 @@ export function CoefficientMatchSideBySidePlot({
         {/* Center Connection Arrow & Verdict */}
         <g transform="translate(320, 95)">
           <path d="M 0 15 L 60 15" stroke="#94a3b8" strokeWidth="2" strokeDasharray="3 3" />
-          <circle cx="30" cy="15" r="14" fill="#f8fafc" stroke="#cbd5e1" strokeWidth="1.5" className="dark:fill-slate-800 dark:stroke-slate-600" />
-          <text x="30" y="19" textAnchor="middle" fill="#475569" className="text-xs font-bold dark:fill-slate-300">
+          <circle
+            cx="30"
+            cy="15"
+            r="14"
+            fill="#f8fafc"
+            stroke="#cbd5e1"
+            strokeWidth="1.5"
+            className="dark:fill-slate-800 dark:stroke-slate-600"
+          />
+          <text
+            x="30"
+            y="19"
+            textAnchor="middle"
+            fill="#475569"
+            className="text-xs font-bold dark:fill-slate-300"
+          >
             ≡
           </text>
         </g>
@@ -154,29 +240,68 @@ export function CoefficientMatchSideBySidePlot({
           />
           {hasSelection && isMatch ? (
             <>
-              <text x="330" y="24" textAnchor="middle" fill="#065f46" className="text-xs font-bold font-sans dark:fill-emerald-400">
+              <text
+                x="330"
+                y="24"
+                textAnchor="middle"
+                fill="#065f46"
+                className="text-xs font-bold font-sans dark:fill-emerald-400"
+              >
                 ✓ Exact Functional Identification: n_eff = N·E / (R·β·ν) = E / (h·ν)
               </text>
-              <text x="330" y="44" textAnchor="middle" fill="#047857" className="text-xs font-mono dark:fill-emerald-300">
-                n_eff = {effectiveCount.toExponential(4)} quanta · ε = {quantumEnergyEv.toFixed(4)} eV ({quantumEnergyEv.toFixed(2)} eV / packet)
+              <text
+                x="330"
+                y="44"
+                textAnchor="middle"
+                fill="#047857"
+                className="text-xs font-mono dark:fill-emerald-300"
+              >
+                n_eff = {effectiveCount.toExponential(4)} quanta · ε = {quantumEnergyEv.toFixed(4)}{" "}
+                eV ({quantumEnergyEv.toFixed(2)} eV / packet)
               </text>
             </>
           ) : hasSelection ? (
             <>
-              <text x="330" y="24" textAnchor="middle" fill="#9f1239" className="text-xs font-bold font-sans dark:fill-rose-400">
+              <text
+                x="330"
+                y="24"
+                textAnchor="middle"
+                fill="#9f1239"
+                className="text-xs font-bold font-sans dark:fill-rose-400"
+              >
                 ✗ Subexpression Mismatch
               </text>
-              <text x="330" y="44" textAnchor="middle" fill="#be123c" className="text-xs font-sans dark:fill-rose-300">
-                The selected term does not match the dimensionless exponent n in S - S₀ = (R/N) n ln(V/V₀).
+              <text
+                x="330"
+                y="44"
+                textAnchor="middle"
+                fill="#be123c"
+                className="text-xs font-sans dark:fill-rose-300"
+              >
+                The selected term does not match the dimensionless exponent n in S - S₀ = (R/N) n
+                ln(V/V₀).
               </text>
             </>
           ) : (
             <>
-              <text x="330" y="24" textAnchor="middle" fill="#475569" className="text-xs font-medium font-sans dark:fill-slate-300">
+              <text
+                x="330"
+                y="24"
+                textAnchor="middle"
+                fill="#475569"
+                className="text-xs font-medium font-sans dark:fill-slate-300"
+              >
                 Select the subexpression in the controls above to test the correspondence
               </text>
-              <text x="330" y="44" textAnchor="middle" fill="#64748b" className="text-[11px] font-mono dark:fill-slate-400">
-                Radiation coeff: {radVolumeCoeff.toExponential(3)} J/K ↔ Gas coeff: {gasVolumeCoeff.toExponential(3)} J/K
+              <text
+                x="330"
+                y="44"
+                textAnchor="middle"
+                fill="#64748b"
+                className="text-[11px] font-mono dark:fill-slate-400"
+              >
+                Radiation coeff: {radVolumeCoeff.toExponential(3)} J/K ↔ Gas coeff:{" "}
+                {gasVolumeCoeff.toExponential(3)} J/K
               </text>
             </>
           )}
@@ -219,8 +344,9 @@ export function MeanEnergyStripPlot({
       </div>
 
       <p className="text-xs text-slate-600 dark:text-slate-400 mb-4">
-        Integrating over a full Wien spectrum, the average energy of a light quantum is exactly twice
-        the average translational kinetic energy of a gas molecule:
+        Integrating over a full Wien spectrum, the average energy of a light quantum is exactly
+        twice the average translational kinetic energy of a gas molecule (at 600 THz, monochromatic
+        h·ν is {ratioAt600THz.toFixed(2)}× this mean quantum energy):
       </p>
 
       <svg
@@ -234,9 +360,22 @@ export function MeanEnergyStripPlot({
           <text x="0" y="16" fill="#0f172a" className="text-xs font-bold dark:fill-slate-100">
             Wien Light Quantum Mean Energy: ⟨ε⟩ = 3 k_B T
           </text>
-          <rect x="0" y="26" width={barWidth} height="20" rx="3" fill="#f1f5f9" className="dark:fill-slate-800" />
+          <rect
+            x="0"
+            y="26"
+            width={barWidth}
+            height="20"
+            rx="3"
+            fill="#f1f5f9"
+            className="dark:fill-slate-800"
+          />
           <rect x="0" y="26" width={wienWidth} height="20" rx="3" fill="#f43f5e" />
-          <text x={wienWidth + 10} y="41" fill="#be123c" className="text-xs font-mono font-bold dark:fill-rose-400">
+          <text
+            x={wienWidth + 10}
+            y="41"
+            fill="#be123c"
+            className="text-xs font-mono font-bold dark:fill-rose-400"
+          >
             {meanQuantumEnergyEv.toFixed(4)} eV
           </text>
         </g>
@@ -246,20 +385,55 @@ export function MeanEnergyStripPlot({
           <text x="0" y="16" fill="#0f172a" className="text-xs font-bold dark:fill-slate-100">
             Gas Molecule Kinetic Energy: ⟨E_kin⟩ = 3/2 k_B T
           </text>
-          <rect x="0" y="26" width={barWidth} height="20" rx="3" fill="#f1f5f9" className="dark:fill-slate-800" />
+          <rect
+            x="0"
+            y="26"
+            width={barWidth}
+            height="20"
+            rx="3"
+            fill="#f1f5f9"
+            className="dark:fill-slate-800"
+          />
           <rect x="0" y="26" width={gasWidth} height="20" rx="3" fill="#0ea5e9" />
-          <text x={gasWidth + 10} y="41" fill="#0284c7" className="text-xs font-mono font-bold dark:fill-sky-400">
+          <text
+            x={gasWidth + 10}
+            y="41"
+            fill="#0284c7"
+            className="text-xs font-mono font-bold dark:fill-sky-400"
+          >
             {moleculeKineticEnergyEv.toFixed(4)} eV
           </text>
         </g>
 
         {/* 2:1 Badge */}
         <g transform="translate(560, 45)">
-          <rect x="0" y="0" width="100" height="50" rx="6" fill="#ecfdf5" stroke="#10b981" strokeWidth="1" className="dark:fill-emerald-950/40 dark:stroke-emerald-800" />
-          <text x="50" y="22" textAnchor="middle" fill="#065f46" className="text-[10px] font-bold uppercase tracking-wider dark:fill-emerald-300">
+          <rect
+            x="0"
+            y="0"
+            width="100"
+            height="50"
+            rx="6"
+            fill="#ecfdf5"
+            stroke="#10b981"
+            strokeWidth="1"
+            className="dark:fill-emerald-950/40 dark:stroke-emerald-800"
+          />
+          <text
+            x="50"
+            y="22"
+            textAnchor="middle"
+            fill="#065f46"
+            className="text-[10px] font-bold uppercase tracking-wider dark:fill-emerald-300"
+          >
             Exact Ratio
           </text>
-          <text x="50" y="42" textAnchor="middle" fill="#047857" className="text-base font-mono font-bold dark:fill-emerald-200">
+          <text
+            x="50"
+            y="42"
+            textAnchor="middle"
+            fill="#047857"
+            className="text-base font-mono font-bold dark:fill-emerald-200"
+          >
             {ratio.toFixed(1)} : 1
           </text>
         </g>

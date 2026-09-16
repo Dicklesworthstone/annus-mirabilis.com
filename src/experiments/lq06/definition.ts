@@ -8,13 +8,7 @@ export type Lq06SubexpressionChoice =
   | "N_E_over_R_beta_nu"
   | "V";
 
-export type Lq06ProposedEnergy =
-  | "none"
-  | "E"
-  | "h_nu"
-  | "R_beta_nu_over_N"
-  | "k_B_T"
-  | "arbitrary";
+export type Lq06ProposedEnergy = "none" | "E" | "h_nu" | "R_beta_nu_over_N" | "k_B_T" | "arbitrary";
 
 export type Lq06ForkAChoice = "none" | "coincidence" | "independent-quanta";
 
@@ -102,7 +96,12 @@ export const LQ06_OUTPUTS: Readonly<Record<string, OutputContract>> = Object.fre
   radiationEntropy: c("J/K", "radiation-entropy-change", "radiation.entropy", OUTSIDE),
   gasEntropy: c("J/K", "entropy", "radiation.configurations", OUTSIDE),
   entropyVolumeCoefficient: c("J/K", "entropy-volume-coefficient", "radiation.entropy", OUTSIDE),
-  gasEntropyVolumeCoefficient: c("J/K", "entropy-volume-coefficient", "radiation.configurations", OUTSIDE),
+  gasEntropyVolumeCoefficient: c(
+    "J/K",
+    "entropy-volume-coefficient",
+    "radiation.configurations",
+    OUTSIDE,
+  ),
   meanQuantumEnergyWien: c("J", "mean-quantum-energy", "radiation.quanta", OUTSIDE),
   meanQuantumEnergyWienEv: c("eV", "mean-quantum-energy", "radiation.quanta", OUTSIDE),
   moleculeMeanKineticEnergyEv: c("eV", "energy", "radiation.quanta", OUTSIDE),
@@ -112,7 +111,10 @@ export const LQ06_OUTPUTS: Readonly<Record<string, OutputContract>> = Object.fre
 });
 
 export const LQ06_PRESETS: Readonly<
-  Record<string, Readonly<{ id: string; label: string; description: string; parameters: Lq06Parameters }>>
+  Record<
+    string,
+    Readonly<{ id: string; label: string; description: string; parameters: Lq06Parameters }>
+  >
 > = Object.freeze({
   theMove: Object.freeze({
     id: "lq-06-the-move",

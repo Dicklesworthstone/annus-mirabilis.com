@@ -7,17 +7,10 @@ import {
   LQ06_PRESETS,
   type Lq06ForkAChoice,
   type Lq06Parameters,
-  type Lq06ProposedEnergy,
   type Lq06SubexpressionChoice,
 } from "../../../experiments/lq06/definition.ts";
-import {
-  createLq06Session,
-  type PreparedLq06Example,
-} from "../../../experiments/lq06/session.ts";
-import {
-  CoefficientMatchSideBySidePlot,
-  MeanEnergyStripPlot,
-} from "./CoefficientMatchPlot.tsx";
+import { createLq06Session, type PreparedLq06Example } from "../../../experiments/lq06/session.ts";
+import { CoefficientMatchSideBySidePlot, MeanEnergyStripPlot } from "./CoefficientMatchPlot.tsx";
 
 export type CoefficientMatchLabProps = Readonly<{
   example?: PreparedLq06Example | undefined;
@@ -76,10 +69,7 @@ const PREDICT_PROMPTS: readonly PredictPrompt[] = [
 ];
 
 export function CoefficientMatchLab({ example }: CoefficientMatchLabProps) {
-  const session = useMemo(
-    () => createLq06Session("lq06-interactive-session", example),
-    [example],
-  );
+  const session = useMemo(() => createLq06Session("lq06-interactive-session", example), [example]);
 
   const snapshot = useSyncExternalStore(
     session.subscribe,
@@ -113,10 +103,11 @@ export function CoefficientMatchLab({ example }: CoefficientMatchLabProps) {
   const meanEnergyRatio = getOutputValue("meanEnergyRatio") ?? 2.0;
   const ratioAt600THz = getOutputValue("ratioAt600THz") ?? 3.1995;
   const correspondenceVerdict = getOutput("correspondenceVerdict");
-  const isMatch =
+  const isMatch = Boolean(
     correspondenceVerdict &&
-    correspondenceVerdict.status === "value" &&
-    correspondenceVerdict.value === 1;
+      correspondenceVerdict.status === "value" &&
+      correspondenceVerdict.value === 1,
+  );
   const hasSelection = currentParams.selectedSubexpression !== "none";
 
   // Predict mode state
@@ -237,7 +228,10 @@ export function CoefficientMatchLab({ example }: CoefficientMatchLabProps) {
                         name={prompt.id}
                         checked={userAnswers[prompt.id] === prompt.options.indexOf(opt)}
                         onChange={() =>
-                          setUserAnswers({ ...userAnswers, [prompt.id]: prompt.options.indexOf(opt) })
+                          setUserAnswers({
+                            ...userAnswers,
+                            [prompt.id]: prompt.options.indexOf(opt),
+                          })
                         }
                         disabled={revealed[prompt.id]}
                         className="mt-0.5"
@@ -294,10 +288,18 @@ export function CoefficientMatchLab({ example }: CoefficientMatchLabProps) {
 
             <div className="grid grid-cols-1 gap-1.5">
               {[
-                { id: "N_E_over_R_beta_nu", label: "N·E / (R·β·ν)  [or E / (h·ν)]", desc: "Exponent of volume ratio (Correct)" },
+                {
+                  id: "N_E_over_R_beta_nu",
+                  label: "N·E / (R·β·ν)  [or E / (h·ν)]",
+                  desc: "Exponent of volume ratio (Correct)",
+                },
                 { id: "E", label: "E", desc: "Total radiation energy (Units: Joules)" },
                 { id: "nu", label: "ν", desc: "Frequency (Units: Hz)" },
-                { id: "E_over_beta_nu", label: "E / (β·ν)", desc: "Radiation entropy coeff (Units: J/K)" },
+                {
+                  id: "E_over_beta_nu",
+                  label: "E / (β·ν)",
+                  desc: "Radiation entropy coeff (Units: J/K)",
+                },
                 { id: "V", label: "V", desc: "Volume (Units: m³)" },
               ].map((item) => (
                 <button
@@ -318,7 +320,9 @@ export function CoefficientMatchLab({ example }: CoefficientMatchLabProps) {
                   }`}
                 >
                   <div className="font-mono">{item.label}</div>
-                  <div className="text-[10px] text-slate-500 dark:text-slate-400 font-sans">{item.desc}</div>
+                  <div className="text-[10px] text-slate-500 dark:text-slate-400 font-sans">
+                    {item.desc}
+                  </div>
                 </button>
               ))}
             </div>
@@ -333,7 +337,10 @@ export function CoefficientMatchLab({ example }: CoefficientMatchLabProps) {
             {/* Radiation Energy */}
             <div>
               <div className="flex justify-between text-xs mb-1">
-                <label htmlFor="energy-slider" className="font-medium text-slate-700 dark:text-slate-300">
+                <label
+                  htmlFor="energy-slider"
+                  className="font-medium text-slate-700 dark:text-slate-300"
+                >
                   Radiation Energy (E)
                 </label>
                 <span className="font-mono text-slate-600 dark:text-slate-400">{eNanoJ} nJ</span>
@@ -356,7 +363,10 @@ export function CoefficientMatchLab({ example }: CoefficientMatchLabProps) {
             {/* Frequency */}
             <div>
               <div className="flex justify-between text-xs mb-1">
-                <label htmlFor="freq-slider" className="font-medium text-slate-700 dark:text-slate-300">
+                <label
+                  htmlFor="freq-slider"
+                  className="font-medium text-slate-700 dark:text-slate-300"
+                >
                   Frequency (ν)
                 </label>
                 <span className="font-mono text-slate-600 dark:text-slate-400">{freqTHz} THz</span>
@@ -379,7 +389,10 @@ export function CoefficientMatchLab({ example }: CoefficientMatchLabProps) {
             {/* Volume Ratio */}
             <div>
               <div className="flex justify-between text-xs mb-1">
-                <label htmlFor="vol-slider" className="font-medium text-slate-700 dark:text-slate-300">
+                <label
+                  htmlFor="vol-slider"
+                  className="font-medium text-slate-700 dark:text-slate-300"
+                >
                   Volume Ratio (V / V₀)
                 </label>
                 <span className="font-mono text-slate-600 dark:text-slate-400">{volRatio}</span>
@@ -402,7 +415,10 @@ export function CoefficientMatchLab({ example }: CoefficientMatchLabProps) {
             {/* Gas Particles */}
             <div>
               <div className="flex justify-between text-xs mb-1">
-                <label htmlFor="gas-slider" className="font-medium text-slate-700 dark:text-slate-300">
+                <label
+                  htmlFor="gas-slider"
+                  className="font-medium text-slate-700 dark:text-slate-300"
+                >
                   Comparison Gas Particles (n)
                 </label>
                 <span className="font-mono text-slate-600 dark:text-slate-400">{gasN}</span>
@@ -425,7 +441,10 @@ export function CoefficientMatchLab({ example }: CoefficientMatchLabProps) {
             {/* Blackbody Temperature */}
             <div>
               <div className="flex justify-between text-xs mb-1">
-                <label htmlFor="temp-slider" className="font-medium text-slate-700 dark:text-slate-300">
+                <label
+                  htmlFor="temp-slider"
+                  className="font-medium text-slate-700 dark:text-slate-300"
+                >
                   Blackbody Temperature (T)
                 </label>
                 <span className="font-mono text-slate-600 dark:text-slate-400">{tempK} K</span>
@@ -447,7 +466,10 @@ export function CoefficientMatchLab({ example }: CoefficientMatchLabProps) {
 
             {/* Fork A Choice */}
             <div>
-              <label htmlFor="fork-select" className="block text-xs font-medium text-slate-700 dark:text-slate-300 mb-1">
+              <label
+                htmlFor="fork-select"
+                className="block text-xs font-medium text-slate-700 dark:text-slate-300 mb-1"
+              >
                 Fork A: Epistemic Interpretation
               </label>
               <select
@@ -460,7 +482,8 @@ export function CoefficientMatchLab({ example }: CoefficientMatchLabProps) {
               >
                 <option value="none">No philosophical stance chosen</option>
                 <option value="independent-quanta">
-                  Light Quanta Hypothesis: Radiation behaves as independent energy packets (The Move)
+                  Light Quanta Hypothesis: Radiation behaves as independent energy packets (The
+                  Move)
                 </option>
                 <option value="coincidence">
                   Formal Coincidence: Purely an algebraic curiosity, waves remain continuous
@@ -546,73 +569,101 @@ export function CoefficientMatchLab({ example }: CoefficientMatchLabProps) {
                   <tr data-quantity-id="radiationEnergy">
                     <td className="py-1.5 font-sans">Radiation Energy</td>
                     <td>E</td>
-                    <td><span className="text-emerald-600 font-sans">value</span></td>
-                    <td className="text-right">{(currentParams.radiationEnergy * 1e9).toFixed(4)} nJ</td>
+                    <td>
+                      <span className="text-emerald-600 font-sans">value</span>
+                    </td>
+                    <td className="text-right">
+                      {(currentParams.radiationEnergy * 1e9).toFixed(4)} nJ
+                    </td>
                   </tr>
                   <tr data-quantity-id="frequency">
                     <td className="py-1.5 font-sans">Frequency</td>
                     <td>ν</td>
-                    <td><span className="text-emerald-600 font-sans">value</span></td>
-                    <td className="text-right">{(currentParams.frequency / 1e12).toFixed(2)} THz</td>
+                    <td>
+                      <span className="text-emerald-600 font-sans">value</span>
+                    </td>
+                    <td className="text-right">
+                      {(currentParams.frequency / 1e12).toFixed(2)} THz
+                    </td>
                   </tr>
                   <tr data-quantity-id="volumeRatio">
                     <td className="py-1.5 font-sans">Volume Ratio</td>
                     <td>V/V₀</td>
-                    <td><span className="text-emerald-600 font-sans">value</span></td>
+                    <td>
+                      <span className="text-emerald-600 font-sans">value</span>
+                    </td>
                     <td className="text-right">{currentParams.volumeRatio.toFixed(4)}</td>
                   </tr>
                   <tr data-quantity-id="effectiveIndependentCount">
                     <td className="py-1.5 font-sans">Effective Quanta Count (Never Rounded)</td>
                     <td>n_eff</td>
-                    <td><span className="text-emerald-600 font-sans">value</span></td>
+                    <td>
+                      <span className="text-emerald-600 font-sans">value</span>
+                    </td>
                     <td className="text-right">{effectiveCount.toExponential(6)}</td>
                   </tr>
                   <tr data-quantity-id="quantumEnergy">
                     <td className="py-1.5 font-sans">Energy per Quantum (SI)</td>
                     <td>ε = hν</td>
-                    <td><span className="text-emerald-600 font-sans">value</span></td>
+                    <td>
+                      <span className="text-emerald-600 font-sans">value</span>
+                    </td>
                     <td className="text-right">{quantumEnergyJ.toExponential(6)} J</td>
                   </tr>
                   <tr data-quantity-id="quantumEnergyEv">
                     <td className="py-1.5 font-sans">Energy per Quantum (eV)</td>
                     <td>ε_eV</td>
-                    <td><span className="text-emerald-600 font-sans">value</span></td>
+                    <td>
+                      <span className="text-emerald-600 font-sans">value</span>
+                    </td>
                     <td className="text-right">{quantumEnergyEv.toFixed(6)} eV</td>
                   </tr>
                   <tr data-quantity-id="entropyVolumeCoefficient">
                     <td className="py-1.5 font-sans">Radiation Entropy Volume Coeff</td>
                     <td>E / (βν)</td>
-                    <td><span className="text-emerald-600 font-sans">value</span></td>
+                    <td>
+                      <span className="text-emerald-600 font-sans">value</span>
+                    </td>
                     <td className="text-right">{radVolumeCoeff.toExponential(6)} J/K</td>
                   </tr>
                   <tr data-quantity-id="gasEntropyVolumeCoefficient">
                     <td className="py-1.5 font-sans">Gas Entropy Volume Coeff</td>
                     <td>(R/N) n</td>
-                    <td><span className="text-emerald-600 font-sans">value</span></td>
+                    <td>
+                      <span className="text-emerald-600 font-sans">value</span>
+                    </td>
                     <td className="text-right">{gasVolumeCoeff.toExponential(6)} J/K</td>
                   </tr>
                   <tr data-quantity-id="radiationEntropy">
                     <td className="py-1.5 font-sans">Radiation Entropy Change</td>
                     <td>ΔS_rad</td>
-                    <td><span className="text-emerald-600 font-sans">value</span></td>
+                    <td>
+                      <span className="text-emerald-600 font-sans">value</span>
+                    </td>
                     <td className="text-right">{radEntropy.toExponential(6)} J/K</td>
                   </tr>
                   <tr data-quantity-id="gasEntropy">
                     <td className="py-1.5 font-sans">Gas Entropy Change</td>
                     <td>ΔS_gas</td>
-                    <td><span className="text-emerald-600 font-sans">value</span></td>
+                    <td>
+                      <span className="text-emerald-600 font-sans">value</span>
+                    </td>
                     <td className="text-right">{gasEntropy.toExponential(6)} J/K</td>
                   </tr>
                   <tr data-quantity-id="meanQuantumEnergyWienEv">
                     <td className="py-1.5 font-sans">Wien Mean Quantum Energy</td>
                     <td>⟨ε⟩ = 3 k_B T</td>
-                    <td><span className="text-emerald-600 font-sans">value</span></td>
+                    <td>
+                      <span className="text-emerald-600 font-sans">value</span>
+                    </td>
                     <td className="text-right">{meanQuantumEnergyEv.toFixed(6)} eV</td>
                   </tr>
                   <tr data-quantity-id="moleculeMeanKineticEnergyEv">
                     <td className="py-1.5 font-sans">Gas Molecule Kinetic Energy</td>
                     <td>⟨E_kin⟩ = 1.5 k_B T</td>
-                    <td><span className="text-emerald-600 font-sans">value</span></td>
+                    <td>
+                      <span className="text-emerald-600 font-sans">value</span>
+                    </td>
                     <td className="text-right">{moleculeKineticEnergyEv.toFixed(6)} eV</td>
                   </tr>
                 </tbody>
@@ -627,10 +678,12 @@ export function CoefficientMatchLab({ example }: CoefficientMatchLabProps) {
         <section className="bg-slate-900 text-slate-200 rounded-lg p-5 border border-slate-800 font-mono text-xs overflow-x-auto space-y-3">
           <div className="flex justify-between items-center text-slate-400 border-b border-slate-800 pb-2">
             <span>Pinned Kernel Evaluator: src/physics/reference/radiation/quanta.ts</span>
-            <span className="text-[10px] bg-slate-800 px-2 py-0.5 rounded">TypeScript Reference Owner</span>
+            <span className="text-[10px] bg-slate-800 px-2 py-0.5 rounded">
+              TypeScript Reference Owner
+            </span>
           </div>
           <pre className="text-slate-300 leading-relaxed">
-{`// Paper 1, §6 The Move: Matching Entropy Coefficients
+            {`// Paper 1, §6 The Move: Matching Entropy Coefficients
 // Radiation entropy: S - S_0 = (E / (beta * nu)) * ln(V / V_0)
 // Boltzmann gas entropy: S - S_0 = (R / N) * n * ln(V / V_0)
 //

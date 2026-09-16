@@ -1,4 +1,3 @@
-import type React from "react";
 import type { Lq06SubexpressionChoice } from "../../../experiments/lq06/definition.ts";
 
 export interface EntropyComparisonPlotProps {
@@ -23,8 +22,8 @@ export function EntropyComparisonPlot({
   volumeRatio,
   radiationEntropy,
   gasEntropy,
-  radVolumeCoeff,
-  gasVolumeCoeff,
+  radVolumeCoeff: _radVolumeCoeff,
+  gasVolumeCoeff: _gasVolumeCoeff,
   effectiveCount,
   quantumEnergyEv,
   selectedSubexpression,
@@ -93,13 +92,23 @@ export function EntropyComparisonPlot({
           <text x="14" y="140" className="text-[10px] fill-slate-400">
             Entropy change ΔS:
           </text>
-          <text x="246" y="140" textAnchor="end" className="text-[10px] fill-sky-300 font-mono font-semibold">
+          <text
+            x="246"
+            y="140"
+            textAnchor="end"
+            className="text-[10px] fill-sky-300 font-mono font-semibold"
+          >
             {radiationEntropy.toExponential(4)} J/K
           </text>
           <text x="14" y="158" className="text-[10px] fill-slate-400">
             Effective count n_eff:
           </text>
-          <text x="246" y="158" textAnchor="end" className="text-[10px] fill-amber-300 font-mono font-bold">
+          <text
+            x="246"
+            y="158"
+            textAnchor="end"
+            className="text-[10px] fill-amber-300 font-mono font-bold"
+          >
             {effectiveCount.toExponential(4)}
           </text>
         </g>
@@ -131,7 +140,12 @@ export function EntropyComparisonPlot({
           <text x="14" y="104" className="text-[10px] fill-slate-400">
             Gas particle count n:
           </text>
-          <text x="246" y="104" textAnchor="end" className="text-[10px] fill-slate-200 font-mono font-bold">
+          <text
+            x="246"
+            y="104"
+            textAnchor="end"
+            className="text-[10px] fill-slate-200 font-mono font-bold"
+          >
             {gasParticles}
           </text>
           <text x="14" y="122" className="text-[10px] fill-slate-400">
@@ -143,20 +157,37 @@ export function EntropyComparisonPlot({
           <text x="14" y="140" className="text-[10px] fill-slate-400">
             Entropy change ΔS:
           </text>
-          <text x="246" y="140" textAnchor="end" className="text-[10px] fill-amber-300 font-mono font-semibold">
+          <text
+            x="246"
+            y="140"
+            textAnchor="end"
+            className="text-[10px] fill-amber-300 font-mono font-semibold"
+          >
             {gasEntropy.toExponential(4)} J/K
           </text>
           <text x="14" y="158" className="text-[10px] fill-slate-400">
             Quantum energy ε = h·ν:
           </text>
-          <text x="246" y="158" textAnchor="end" className="text-[10px] fill-emerald-300 font-mono font-bold">
+          <text
+            x="246"
+            y="158"
+            textAnchor="end"
+            className="text-[10px] fill-emerald-300 font-mono font-bold"
+          >
             {quantumEnergyEv.toFixed(4)} eV
           </text>
         </g>
 
         {/* Central Correspondence Indicator */}
         <g transform="translate(290, 114)">
-          <circle cx="0" cy="0" r="16" fill="#1e293b" stroke={isMatch ? "#10b981" : "#64748b"} strokeWidth="2" />
+          <circle
+            cx="0"
+            cy="0"
+            r="16"
+            fill="#1e293b"
+            stroke={isMatch ? "#10b981" : "#64748b"}
+            strokeWidth="2"
+          />
           <text x="0" y="4" textAnchor="middle" className="text-[12px] fill-slate-200 font-bold">
             {isMatch ? "≡" : "vs"}
           </text>
@@ -176,7 +207,8 @@ export function EntropyComparisonPlot({
           <text x="270" y="20" textAnchor="middle" className="text-[11px] font-mono fill-slate-200">
             {isMatch ? (
               <tspan fill="#34d399">
-                ✓ Correspondence: n_eff = (N·E)/(R·β·ν) = E/(h·ν) ⟹ Energy per quantum ε = R·β·ν/N = h·ν = {quantumEnergyEv.toFixed(4)} eV
+                ✓ Correspondence: n_eff = (N·E)/(R·β·ν) = E/(h·ν) ⟹ Energy per quantum ε = R·β·ν/N =
+                h·ν = {quantumEnergyEv.toFixed(4)} eV
               </tspan>
             ) : selectedSubexpression !== "none" ? (
               <tspan fill="#f87171">

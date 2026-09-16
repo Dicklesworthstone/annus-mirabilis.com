@@ -1,4 +1,4 @@
-import { type Lq06Parameters, LQ06_DEFAULTS } from "./definition.ts";
+import { LQ06_DEFAULTS, type Lq06Parameters } from "./definition.ts";
 import { validateLq06Parameters } from "./parameters.ts";
 
 export type Lq06Draft = Readonly<{
@@ -46,8 +46,11 @@ export function fromLq06Draft(d: Lq06Draft): Lq06Parameters {
     constantSetId: d.constantSetId,
   });
 
-  if (res.kind !== "accepted") {
+  if (res.kind === "refused") {
     throw new Error(res.refusal.message);
+  }
+  if (res.kind === "outcome") {
+    throw new Error(res.outcome.message);
   }
 
   return res.data;

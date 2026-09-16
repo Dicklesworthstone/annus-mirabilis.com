@@ -1,6 +1,6 @@
 import type { Computation } from "../../physics/reference/diffusion/ftcs.ts";
 import { makeRefusal } from "../results/refusals.ts";
-import { type Lq06Parameters, LQ06_DEFAULTS } from "./definition.ts";
+import { LQ06_DEFAULTS, type Lq06Parameters } from "./definition.ts";
 
 export type Lq06ParameterCheck = Computation<Lq06Parameters>;
 
@@ -71,26 +71,12 @@ export function validateLq06Parameters(input: unknown): Lq06ParameterCheck {
     return bad("Temperature must be positive and under 50,000 K.");
   }
 
-  const validSubexpressions = [
-    "none",
-    "E",
-    "nu",
-    "E_over_beta_nu",
-    "N_E_over_R_beta_nu",
-    "V",
-  ];
+  const validSubexpressions = ["none", "E", "nu", "E_over_beta_nu", "N_E_over_R_beta_nu", "V"];
   if (!validSubexpressions.includes(p.selectedSubexpression)) {
     return bad("Invalid subexpression choice.");
   }
 
-  const validProposed = [
-    "none",
-    "E",
-    "h_nu",
-    "R_beta_nu_over_N",
-    "k_B_T",
-    "arbitrary",
-  ];
+  const validProposed = ["none", "E", "h_nu", "R_beta_nu_over_N", "k_B_T", "arbitrary"];
   if (!validProposed.includes(p.proposedEnergyElement)) {
     return bad("Invalid proposed energy element.");
   }
