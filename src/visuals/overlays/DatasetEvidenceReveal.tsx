@@ -21,7 +21,6 @@ export function DatasetEvidenceReveal({
   dataset,
   seriesId,
   selectedRowIndex = 0,
-  onSelectRow,
   normalizationFactor,
   className = "",
 }: DatasetEvidenceRevealProps): ReactElement {
@@ -35,16 +34,19 @@ export function DatasetEvidenceReveal({
 
   // Rights publication decision: only render crop if rights allow publication
   const canPublishCrop =
-    rights?.status === "public-domain-verified" ||
-    rights?.status === "cc-by-4.0" ||
-    rights?.status === "publish";
+    rights?.status === "public-domain-image" ||
+    rights?.status === "public-domain-text" ||
+    rights?.status === "cleared-image" ||
+    rights?.status === "site-original-code" ||
+    rights?.status === "site-original-prose";
 
   const rows = seriesId ? dataset.rows.filter((r) => r.seriesId === seriesId) : dataset.rows;
   const activeRow = rows[selectedRowIndex] ?? rows[0];
 
-  const citationText = typeof publication?.citation === "string"
-    ? publication.citation
-    : publication?.citation?.sourceTitle ?? dataset.title;
+  const citationText =
+    typeof publication?.citation === "string"
+      ? publication.citation
+      : (publication?.citation?.title ?? dataset.title);
 
   return (
     <div
@@ -100,7 +102,10 @@ export function DatasetEvidenceReveal({
       {/* Step 1: Source Region */}
       {activeStep === 1 && (
         <section className="reveal-step-1" aria-labelledby="step-1-title">
-          <h4 id="step-1-title" className="font-semibold text-xs mb-2 text-neutral-700 dark:text-neutral-300">
+          <h4
+            id="step-1-title"
+            className="font-semibold text-xs mb-2 text-neutral-700 dark:text-neutral-300"
+          >
             Step 1: Document Locator & Scan Region
           </h4>
           <div className="bg-neutral-50 dark:bg-neutral-950 p-3 rounded mb-3 text-xs leading-relaxed space-y-1">
@@ -129,13 +134,21 @@ export function DatasetEvidenceReveal({
               <span className="text-[11px] text-neutral-500 block mb-1">
                 Reviewed Figure / Table Crop ({dataset.digitizer.sourcePageImage})
               </span>
-              <div className="crop-placeholder h-24 flex items-center justify-center text-xs italic text-neutral-600 dark:text-neutral-400 bg-neutral-200 dark:bg-neutral-700 rounded" data-testid="crop-rendered">
-                [High-resolution scan crop: Table {locator?.kind === "table" ? locator.number : "1"}]
+              <div
+                className="crop-placeholder h-24 flex items-center justify-center text-xs italic text-neutral-600 dark:text-neutral-400 bg-neutral-200 dark:bg-neutral-700 rounded"
+                data-testid="crop-rendered"
+              >
+                [High-resolution scan crop: Table {locator?.kind === "table" ? locator.number : "1"}
+                ]
               </div>
             </div>
           ) : (
-            <div className="rights-withheld-notice p-3 border border-amber-300 bg-amber-50 dark:bg-amber-950/20 text-amber-900 dark:text-amber-200 rounded text-xs" data-testid="locator-only-notice">
-              <strong>Scan image withheld per rights terms:</strong> Access to original scan is reference-only. Please consult the published volume: {citationText}.
+            <div
+              className="rights-withheld-notice p-3 border border-amber-300 bg-amber-50 dark:bg-amber-950/20 text-amber-900 dark:text-amber-200 rounded text-xs"
+              data-testid="locator-only-notice"
+            >
+              <strong>Scan image withheld per rights terms:</strong> Access to original scan is
+              reference-only. Please consult the published volume: {citationText}.
             </div>
           )}
         </section>
@@ -144,14 +157,21 @@ export function DatasetEvidenceReveal({
       {/* Step 2: Printed Tokens vs Canonical Values */}
       {activeStep === 2 && (
         <section className="reveal-step-2" aria-labelledby="step-2-title">
-          <h4 id="step-2-title" className="font-semibold text-xs mb-2 text-neutral-700 dark:text-neutral-300">
+          <h4
+            id="step-2-title"
+            className="font-semibold text-xs mb-2 text-neutral-700 dark:text-neutral-300"
+          >
             Step 2: Original Printed Tokens vs Converted Values
           </h4>
           <p className="text-xs text-neutral-600 dark:text-neutral-400 mb-2">
-            Selected row index: {selectedRowIndex} (showing exact printed tokens from historical source)
+            Selected row index: {selectedRowIndex} (showing exact printed tokens from historical
+            source)
           </p>
           {activeRow && (
-            <table className="w-full text-xs border border-neutral-200 dark:border-neutral-700 mb-3" data-testid="tokens-table">
+            <table
+              className="w-full text-xs border border-neutral-200 dark:border-neutral-700 mb-3"
+              data-testid="tokens-table"
+            >
               <thead className="bg-neutral-100 dark:bg-neutral-800">
                 <tr>
                   <th className="p-2 text-left">Column</th>
@@ -173,7 +193,10 @@ export function DatasetEvidenceReveal({
                         : `missing (${cell.reason})`;
 
                   return (
-                    <tr key={`cell-${cIdx}`} className="border-t dark:border-neutral-800">
+                    <tr
+                      key={`token-${col?.quantityId ?? `col-${cIdx}`}`}
+                      className="border-t dark:border-neutral-800"
+                    >
                       <td className="p-2 font-medium">{col?.name ?? `Col ${cIdx}`}</td>
                       <td className="p-2 font-mono text-[11px] text-neutral-500">{col?.role}</td>
                       <td className="p-2 font-mono text-amber-800 dark:text-amber-300 bg-amber-50/50 dark:bg-amber-950/20">
@@ -193,20 +216,26 @@ export function DatasetEvidenceReveal({
       {/* Step 3: Transformations */}
       {activeStep === 3 && (
         <section className="reveal-step-3" aria-labelledby="step-3-title">
-          <h4 id="step-3-title" className="font-semibold text-xs mb-2 text-neutral-700 dark:text-neutral-300">
+          <h4
+            id="step-3-title"
+            className="font-semibold text-xs mb-2 text-neutral-700 dark:text-neutral-300"
+          >
             Step 3: Applied Reduction & Normalization Transformations
           </h4>
           <ul className="list-disc pl-5 text-xs text-neutral-700 dark:text-neutral-300 space-y-1.5 mb-3">
             <li>
-              <strong>Units conversion:</strong> All numerical columns mapped from historical CGS / printed units to SI standards.
+              <strong>Units conversion:</strong> All numerical columns mapped from historical CGS /
+              printed units to SI standards.
             </li>
             {normalizationFactor !== undefined && (
               <li>
-                <strong>Normalization Scale Factor:</strong> Multiplied by factor {normalizationFactor} for comparative display.
+                <strong>Normalization Scale Factor:</strong> Multiplied by factor{" "}
+                {normalizationFactor} for comparative display.
               </li>
             )}
             <li>
-              <strong>Uncertainty model:</strong> {dataset.uncertainty.description} ({dataset.uncertainty.type}).
+              <strong>Uncertainty model:</strong> {dataset.uncertainty.description} (
+              {dataset.uncertainty.type}).
             </li>
             <li>
               <strong>Editorial notes:</strong> {dataset.notes}
@@ -218,12 +247,17 @@ export function DatasetEvidenceReveal({
       {/* Step 4: Durable Citation & Digitizer Attribution */}
       {activeStep === 4 && (
         <section className="reveal-step-4" aria-labelledby="step-4-title">
-          <h4 id="step-4-title" className="font-semibold text-xs mb-2 text-neutral-700 dark:text-neutral-300">
+          <h4
+            id="step-4-title"
+            className="font-semibold text-xs mb-2 text-neutral-700 dark:text-neutral-300"
+          >
             Step 4: Full Citation & Digitization Provenance
           </h4>
           <div className="p-3 bg-neutral-50 dark:bg-neutral-950 rounded text-xs space-y-2 border dark:border-neutral-800">
             <div>
-              <span className="font-semibold block text-neutral-800 dark:text-neutral-200">Citation:</span>
+              <span className="font-semibold block text-neutral-800 dark:text-neutral-200">
+                Citation:
+              </span>
               <p className="font-serif text-neutral-700 dark:text-neutral-300">{citationText}</p>
             </div>
             <div className="grid grid-cols-2 gap-2 text-[11px] pt-2 border-t dark:border-neutral-800">
@@ -234,7 +268,10 @@ export function DatasetEvidenceReveal({
                 <strong>Method:</strong> {dataset.digitizer.method}
               </div>
               <div>
-                <strong>Digitization Date:</strong> {typeof dataset.digitizer.date === "string" ? dataset.digitizer.date : dataset.digitizer.date.text}
+                <strong>Digitization Date:</strong>{" "}
+                {typeof dataset.digitizer.date === "string"
+                  ? dataset.digitizer.date
+                  : dataset.digitizer.date.text}
               </div>
               <div>
                 <strong>Digitization Revision:</strong> {dataset.digitizer.digitizationRevision}
@@ -245,14 +282,28 @@ export function DatasetEvidenceReveal({
       )}
 
       {/* Static <details> fallback representation */}
-      <details className="mt-4 pt-3 border-t text-xs text-neutral-600 dark:text-neutral-400 dark:border-neutral-800" data-testid="static-details-fallback">
+      <details
+        className="mt-4 pt-3 border-t text-xs text-neutral-600 dark:text-neutral-400 dark:border-neutral-800"
+        data-testid="static-details-fallback"
+      >
         <summary className="cursor-pointer font-medium hover:text-neutral-900 dark:hover:text-neutral-100">
           Static Provenance Summary (Accessible / Print View)
         </summary>
         <div className="mt-2 space-y-1 pl-2">
-          <p><strong>Citation:</strong> {citationText}</p>
-          <p><strong>Digitizer:</strong> {dataset.digitizer.name} (Rev. {dataset.digitizer.digitizationRevision}, {typeof dataset.digitizer.date === "string" ? dataset.digitizer.date : dataset.digitizer.date.text})</p>
-          <p><strong>Rights:</strong> {rights?.statement || "Rights statement verified."}</p>
+          <p>
+            <strong>Citation:</strong> {citationText}
+          </p>
+          <p>
+            <strong>Digitizer:</strong> {dataset.digitizer.name} (Rev.{" "}
+            {dataset.digitizer.digitizationRevision},{" "}
+            {typeof dataset.digitizer.date === "string"
+              ? dataset.digitizer.date
+              : dataset.digitizer.date.text}
+            )
+          </p>
+          <p>
+            <strong>Rights:</strong> {rights?.statement || "Rights statement verified."}
+          </p>
         </div>
       </details>
     </div>

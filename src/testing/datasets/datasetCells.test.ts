@@ -1,5 +1,5 @@
 import { describe, expect, test } from "bun:test";
-import { readFileSync, readdirSync } from "node:fs";
+import { readdirSync, readFileSync } from "node:fs";
 import { join } from "node:path";
 import {
   computeLinearFit,
@@ -13,7 +13,6 @@ import {
   validateHistoricalDataset,
 } from "../../content/schemas/experiment.ts";
 import { strictParse } from "../../content/schemas/strictParse.ts";
-import { checkDatasetInference } from "../scenario-registry/datasetInference.ts";
 
 const FIXTURE_YAML = `id: cells-fixture-dataset
 title: "Cells Test Dataset"
@@ -41,7 +40,7 @@ digitizer:
   digitizationRevision: 2
 columns:
   - name: "X"
-    quantityId: "length"
+    quantityId: "particleRadius"
     unit: "m"
     role: "controlled"
   - name: "Y"
@@ -101,12 +100,20 @@ describe("datasetCells (am-inst-dataset-overlay-ra9r)", () => {
     const ds = validateHistoricalDataset(raw);
 
     expect(ds.rows.length).toBe(3);
-    expect(ds.rows[0]?.cells[0]?.kind).toBe("number");
-    expect((ds.rows[0]?.cells[0] as { originalToken?: string })?.originalToken).toBe("0,001");
-    expect(ds.rows[1]?.cells[1]?.kind).toBe("missing");
-    expect((ds.rows[1]?.cells[1] as { reason: string })?.reason).toBe("not reported");
-    expect(ds.rows[2]?.cells[1]?.kind).toBe("bound");
-    expect((ds.rows[2]?.cells[1] as { direction: string })?.direction).toBe("upper");
+    const row0 = ds.rows[0];
+    const cell00 = row0?.cells[0];
+    expect(cell00?.kind).toBe("number");
+    expect(cell00 && "originalToken" in cell00 ? cell00.originalToken : undefined).toBe("0,001");
+
+    const row1 = ds.rows[1];
+    const cell11 = row1?.cells[1];
+    expect(cell11?.kind).toBe("missing");
+    expect(cell11 && "reason" in cell11 ? cell11.reason : undefined).toBe("not reported");
+
+    const row2 = ds.rows[2];
+    const cell21 = row2?.cells[1];
+    expect(cell21?.kind).toBe("bound");
+    expect(cell21 && "direction" in cell21 ? cell21.direction : undefined).toBe("upper");
 
     // calibrationIds and sharedInputIds
     expect(ds.calibrationIds).toEqual(["cal-micrometer-01"]);
@@ -117,12 +124,16 @@ describe("datasetCells (am-inst-dataset-overlay-ra9r)", () => {
   test("computeSeriesMean refuses with not-applicable when series contains a bound", () => {
     const raw = strictParse(FIXTURE_YAML, "yaml");
     const ds = validateHistoricalDataset(raw);
-    const yCells: DataCell[] = ds.rows.map((r) => r.cells[1]!);
+    const yCells: DataCell[] = ds.rows.map(
+      (r) => r.cells[1] ?? { kind: "missing", reason: "missing" },
+    );
 
     const result = computeSeriesMean(yCells);
     expect(result.status).toBe("not-applicable");
     if (result.status === "not-applicable") {
-      expect(result.reason).toContain("this series contains a value the apparatus could only bound");
+      expect(result.reason).toContain(
+        "this series contains a value the apparatus could only bound",
+      );
       expect(result.boundedRowIndices).toEqual([2]);
     }
   });
@@ -130,8 +141,12 @@ describe("datasetCells (am-inst-dataset-overlay-ra9r)", () => {
   test("computeLinearFit refuses with not-applicable when evaluated cells contain a bound", () => {
     const raw = strictParse(FIXTURE_YAML, "yaml");
     const ds = validateHistoricalDataset(raw);
-    const xCells: DataCell[] = ds.rows.map((r) => r.cells[0]!);
-    const yCells: DataCell[] = ds.rows.map((r) => r.cells[1]!);
+    const xCells: DataCell[] = ds.rows.map(
+      (r) => r.cells[0] ?? { kind: "missing", reason: "missing" },
+    );
+    const yCells: DataCell[] = ds.rows.map(
+      (r) => r.cells[1] ?? { kind: "missing", reason: "missing" },
+    );
 
     const result = computeLinearFit(xCells, yCells);
     expect(result.status).toBe("not-applicable");
@@ -157,7 +172,9 @@ describe("datasetCells (am-inst-dataset-overlay-ra9r)", () => {
   test("computeUnboundedSubsetMean explicitly documents excluded bound and missing rows", () => {
     const raw = strictParse(FIXTURE_YAML, "yaml");
     const ds = validateHistoricalDataset(raw);
-    const yCells: DataCell[] = ds.rows.map((r) => r.cells[1]!);
+    const yCells: DataCell[] = ds.rows.map(
+      (r) => r.cells[1] ?? { kind: "missing", reason: "missing" },
+    );
 
     const result = computeUnboundedSubsetMean(yCells);
     expect(result.status).toBe("value");
@@ -167,40 +184,46 @@ describe("datasetCells (am-inst-dataset-overlay-ra9r)", () => {
   });
 
   test("planted negative: bare number cell rejected with named union", () => {
-    expect(() => validateDataCell(42 as any)).toThrow(ExperimentValidationError);
+    expect(() => validateDataCell(42 as unknown as DataCell)).toThrow(ExperimentValidationError);
   });
 
   test("planted negative: missing cell without reason fails", () => {
-    expect(() => validateDataCell({ kind: "missing" } as any)).toThrow(ExperimentValidationError);
+    expect(() => validateDataCell({ kind: "missing" } as unknown as DataCell)).toThrow(
+      ExperimentValidationError,
+    );
   });
 
   test("planted negative: bound cell without direction fails", () => {
-    expect(() => validateDataCell({ kind: "bound", value: 5 } as any)).toThrow(
+    expect(() => validateDataCell({ kind: "bound", value: 5 } as unknown as DataCell)).toThrow(
       ExperimentValidationError,
     );
   });
 
   test("planted negative: row cell count mismatch fails naming counts", () => {
-    const raw = strictParse(FIXTURE_YAML, "yaml") as any;
-    raw.rows[0].cells.pop();
+    const raw = strictParse(FIXTURE_YAML, "yaml") as Record<string, unknown>;
+    const rows = raw.rows as Array<{ cells: unknown[] }>;
+    rows[0]?.cells.pop();
     expect(() => validateHistoricalDataset(raw)).toThrow(ExperimentValidationError);
   });
 
   test("planted negative: reported-fit column missing fitDescription fails", () => {
-    const raw = strictParse(FIXTURE_YAML, "yaml") as any;
-    delete raw.columns[2].fitDescription;
+    const raw = strictParse(FIXTURE_YAML, "yaml") as Record<string, unknown>;
+    const cols = raw.columns as Array<Record<string, unknown>>;
+    if (cols[2]) delete cols[2].fitDescription;
     expect(() => validateHistoricalDataset(raw)).toThrow(ExperimentValidationError);
   });
 
   test("planted negative: retired derived boolean flag fails naming all four roles", () => {
-    const raw = strictParse(FIXTURE_YAML, "yaml") as any;
-    raw.columns[0].derived = true;
+    const raw = strictParse(FIXTURE_YAML, "yaml") as Record<string, unknown>;
+    const cols = raw.columns as Array<Record<string, unknown>>;
+    if (cols[0]) cols[0].derived = true;
     expect(() => validateHistoricalDataset(raw)).toThrow(ExperimentValidationError);
   });
 
   test("planted negative: digitizationRevision 0 fails", () => {
-    const raw = strictParse(FIXTURE_YAML, "yaml") as any;
-    raw.digitizer.digitizationRevision = 0;
+    const raw = strictParse(FIXTURE_YAML, "yaml") as Record<string, unknown>;
+    const dig = raw.digitizer as Record<string, unknown>;
+    dig.digitizationRevision = 0;
     expect(() => validateHistoricalDataset(raw)).toThrow(ExperimentValidationError);
   });
 
@@ -211,7 +234,7 @@ describe("datasetCells (am-inst-dataset-overlay-ra9r)", () => {
       if (typeof f !== "string" || !f.endsWith(".ts")) continue;
       const content = readFileSync(join(dir, f), "utf8");
       expect(content).not.toContain('["observed", "controlled"');
-      expect(content).not.toContain('type DataCell =');
+      expect(content).not.toContain("type DataCell =");
     }
   });
 });

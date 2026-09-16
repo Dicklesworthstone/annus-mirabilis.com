@@ -1,4 +1,5 @@
-import type { HistoricalDataset, PaperDate } from "../schemas/experiment.ts";
+import type { PaperDate } from "../schemas/dates.ts";
+import type { HistoricalDataset } from "../schemas/experiment.ts";
 
 export const HISTORICAL_SHELF_CUTOFF = "1904-12-31";
 

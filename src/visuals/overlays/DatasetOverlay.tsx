@@ -67,7 +67,7 @@ export function DatasetOverlay({
   const citationText =
     typeof publication?.citation === "string"
       ? publication.citation
-      : (publication?.citation?.sourceTitle ?? dataset.title);
+      : (publication?.citation?.title ?? dataset.title);
 
   const shelfStatus = getDatasetShelfStatus(dataset, seriesId);
 
@@ -124,7 +124,7 @@ export function DatasetOverlay({
         width={width}
         height={height}
         className="dataset-overlay-svg overflow-visible"
-        role="group"
+        role="img"
         aria-label={`Historical dataset: ${dataset.title}`}
       >
         {rows.map((row, rIdx) => {
@@ -148,19 +148,35 @@ export function DatasetOverlay({
           const isReportedFit = yCol?.role === "reported-fit" || xCol?.role === "reported-fit";
 
           return (
-            <g
-              key={`dp-${rIdx}`}
+            <a
+              key={`dp-${dataset.id}-${row.seriesId ?? "s"}-${rawX}-${rawY}`}
+              href={`#row-${rIdx}`}
               className={`dataset-point cursor-pointer ${isSelected ? "is-selected" : ""}`}
               data-row-index={rIdx}
               data-role={yCol?.role ?? "observed"}
-              onClick={() => handleRowSelect(rIdx)}
+              onClick={(e) => {
+                e.preventDefault();
+                handleRowSelect(rIdx);
+              }}
+              onKeyDown={(e) => {
+                if (e.key === "Enter" || e.key === " ") {
+                  e.preventDefault();
+                  handleRowSelect(rIdx);
+                }
+              }}
             >
               {/* 1. Bounded Cell: Draw bounded directional arrow / bracket */}
               {(isYBound || isXBound) && (
                 <g
                   className="bound-marker"
-                  data-bound-direction={isYBound ? yCell.direction : xCell.direction}
-                  aria-label={`Bound: ${isYBound ? yCell.direction : xCell.direction} ${isYBound ? yCell.value : xCell.value}`}
+                  data-bound-direction={
+                    isYBound
+                      ? yCell.direction
+                      : xCell.kind === "bound"
+                        ? xCell.direction
+                        : undefined
+                  }
+                  aria-label={`Bound: ${isYBound ? yCell.direction : xCell.kind === "bound" ? xCell.direction : ""} ${isYBound ? yCell.value : xCell.kind === "bound" ? xCell.value : ""}`}
                 >
                   <line
                     x1={px}
@@ -205,7 +221,7 @@ export function DatasetOverlay({
                   data-testid="empirical-point"
                 />
               )}
-            </g>
+            </a>
           );
         })}
       </svg>

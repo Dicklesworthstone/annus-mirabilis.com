@@ -30,7 +30,7 @@ digitizer:
   digitizationRevision: 1
 columns:
   - name: "Radius"
-    quantityId: "length"
+    quantityId: "particleRadius"
     unit: "m"
     role: "controlled"
   - name: "Displacement"
@@ -71,7 +71,8 @@ describe("datasetLoader (am-inst-dataset-overlay-ra9r)", () => {
   test("rejects pipeline-only datasets loaded from pipeline directory", () => {
     expect(() =>
       loadHistoricalDatasetFromYaml(VALID_DATASET_YAML, {
-        sourcePath: "/Users/jemanuel/projects/annus-mirabilis_com/pipeline/scratch/run-01/test.yaml",
+        sourcePath:
+          "/Users/jemanuel/projects/annus-mirabilis_com/pipeline/scratch/run-01/test.yaml",
       }),
     ).toThrow(DatasetValidationError);
   });

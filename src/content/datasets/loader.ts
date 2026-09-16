@@ -1,13 +1,7 @@
 import { createHash } from "node:crypto";
 import { readFileSync } from "node:fs";
-import {
-  legacySpellingMessage,
-  resolveQuantityId,
-} from "../quantities/resolveQuantityId.ts";
-import {
-  type HistoricalDataset,
-  validateHistoricalDataset,
-} from "../schemas/experiment.ts";
+import { legacySpellingMessage, resolveQuantityId } from "../quantities/resolveQuantityId.ts";
+import { type HistoricalDataset, validateHistoricalDataset } from "../schemas/experiment.ts";
 import { strictParse } from "../schemas/strictParse.ts";
 
 export class DatasetValidationError extends Error {

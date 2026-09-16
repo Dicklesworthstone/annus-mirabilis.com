@@ -204,7 +204,7 @@ export function computeLinearFit(
   }
 
   const denom = n * sumXX - sumX * sumX;
-  if (Math.abs(denom) < 1e-15) {
+  if (denom >= -1e-15 && denom <= 1e-15) {
     return {
       status: "not-applicable",
       reason: "zero variance in x values",

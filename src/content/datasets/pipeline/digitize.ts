@@ -80,7 +80,13 @@ export function executeDigitizationPipeline(
   const dataString = rows
     .map((r) =>
       r.cells
-        .map((c) => (c.kind === "number" ? String(c.value) : c.kind === "bound" ? `${c.direction}:${c.value}` : `missing:${c.reason}`))
+        .map((c) =>
+          c.kind === "number"
+            ? String(c.value)
+            : c.kind === "bound"
+              ? `${c.direction}:${c.value}`
+              : `missing:${c.reason}`,
+        )
         .join(","),
     )
     .join("\n");

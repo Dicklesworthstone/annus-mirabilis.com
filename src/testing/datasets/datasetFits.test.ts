@@ -32,7 +32,7 @@ digitizer:
   digitizationRevision: 1
 columns:
   - name: "X"
-    quantityId: "length"
+    quantityId: "particleRadius"
     unit: "m"
     role: "controlled"
   - name: "Y"
@@ -40,12 +40,37 @@ columns:
     unit: "m"
     role: "observed"
 rows:
-  - cells: [{ kind: number, value: 1 }, { kind: number, value: 2 }]
-  - cells: [{ kind: number, value: 2 }, { kind: number, value: 4 }]
-  - cells: [{ kind: number, value: 3 }, { kind: number, value: 6 }]
-  - cells: [{ kind: number, value: 4 }, { kind: number, value: 8 }]
-  - cells: [{ kind: number, value: 5 }, { kind: missing, reason: "outlier reading" }]
-  - cells: [{ kind: number, value: 6 }, { kind: bound, direction: upper, value: 15 }]
+  - cells:
+      - kind: number
+        value: 1
+      - kind: number
+        value: 2
+  - cells:
+      - kind: number
+        value: 2
+      - kind: number
+        value: 4
+  - cells:
+      - kind: number
+        value: 3
+      - kind: number
+        value: 6
+  - cells:
+      - kind: number
+        value: 4
+      - kind: number
+        value: 8
+  - cells:
+      - kind: number
+        value: 5
+      - kind: missing
+        reason: "Excluded missing observation cell"
+  - cells:
+      - kind: number
+        value: 6
+      - kind: bound
+        direction: upper
+        value: 15
 uncertainty:
   type: none
   description: "none"
@@ -88,16 +113,16 @@ describe("datasetFits (am-inst-dataset-overlay-ra9r)", () => {
     const raw = strictParse(FITS_SIX_ROWS_YAML, "yaml");
     const ds = validateHistoricalDataset(raw);
     expect(ds.fits?.length).toBe(1);
-    const fit = ds.fits![0]!;
-    expect(fit.rowsUsed).toEqual([0, 1, 2, 3]);
-    expect(fit.rowsExcluded.length).toBe(2);
-    expect(fit.parameters[0]?.source).toBe("fitted-here");
+    const fit = ds.fits?.[0];
+    expect(fit?.rowsUsed).toEqual([0, 1, 2, 3]);
+    expect(fit?.rowsExcluded.length).toBe(2);
+    expect(fit?.parameters[0]?.source).toBe("fitted-here");
   });
 
   test("a fixture with one row in neither rowsUsed nor rowsExcluded fails naming the row", () => {
-    const raw = strictParse(FITS_SIX_ROWS_YAML, "yaml") as any;
-    // Remove row 3 from rowsUsed so it is in neither
-    raw.fits[0].rowsUsed = [0, 1, 2];
+    const raw = strictParse(FITS_SIX_ROWS_YAML, "yaml") as Record<string, unknown>;
+    const fits = raw.fits as Array<Record<string, unknown>>;
+    if (fits[0]) fits[0].rowsUsed = [0, 1, 2];
     expect(() => validateHistoricalDataset(raw)).toThrow(ExperimentValidationError);
     try {
       validateHistoricalDataset(raw);
@@ -108,9 +133,10 @@ describe("datasetFits (am-inst-dataset-overlay-ra9r)", () => {
   });
 
   test("a fixture with one row in both rowsUsed and rowsExcluded fails", () => {
-    const raw = strictParse(FITS_SIX_ROWS_YAML, "yaml") as any;
-    // Add row 3 to rowsExcluded as well
-    raw.fits[0].rowsExcluded.push({ rowIndex: 3, reason: "duplicate" });
+    const raw = strictParse(FITS_SIX_ROWS_YAML, "yaml") as Record<string, unknown>;
+    const fits = raw.fits as Array<Record<string, unknown>>;
+    const rowsExcluded = fits[0]?.rowsExcluded as Array<Record<string, unknown>>;
+    rowsExcluded.push({ rowIndex: 3, reason: "duplicate" });
     expect(() => validateHistoricalDataset(raw)).toThrow(ExperimentValidationError);
     try {
       validateHistoricalDataset(raw);
@@ -121,8 +147,10 @@ describe("datasetFits (am-inst-dataset-overlay-ra9r)", () => {
   });
 
   test("a fixture with an exclusion whose reason is empty fails", () => {
-    const raw = strictParse(FITS_SIX_ROWS_YAML, "yaml") as any;
-    raw.fits[0].rowsExcluded[0].reason = "   ";
+    const raw = strictParse(FITS_SIX_ROWS_YAML, "yaml") as Record<string, unknown>;
+    const fits = raw.fits as Array<Record<string, unknown>>;
+    const rowsExcluded = fits[0]?.rowsExcluded as Array<Record<string, unknown>>;
+    if (rowsExcluded[0]) rowsExcluded[0].reason = "   ";
     expect(() => validateHistoricalDataset(raw)).toThrow(ExperimentValidationError);
     try {
       validateHistoricalDataset(raw);
