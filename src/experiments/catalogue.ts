@@ -53,12 +53,12 @@ export type CatalogueStatus = "registered" | "in-preparation";
  */
 export const CATALOGUE_STATUS: Readonly<Record<CatalogueId, CatalogueStatus>> = Object.freeze({
   "lq-01": "registered",
-  "lq-02": "in-preparation",
+  "lq-02": "registered",
   "lq-03": "registered",
   "lq-04": "in-preparation",
   "lq-05": "registered",
   "lq-06": "in-preparation",
-  "lq-07": "in-preparation",
+  "lq-07": "registered",
   "lq-08": "registered",
   "lq-09": "in-preparation",
   "bm-01": "registered",
@@ -70,8 +70,8 @@ export const CATALOGUE_STATUS: Readonly<Record<CatalogueId, CatalogueStatus>> = 
   "bm-07": "registered",
   "bm-08": "registered",
   "sr-01": "in-preparation",
-  "sr-02": "in-preparation",
-  "sr-03": "in-preparation",
+  "sr-02": "registered",
+  "sr-03": "registered",
   "sr-04": "in-preparation",
   "sr-05": "in-preparation",
   "sr-06": "in-preparation",
@@ -84,7 +84,7 @@ export const CATALOGUE_STATUS: Readonly<Record<CatalogueId, CatalogueStatus>> = 
   "sr-13": "in-preparation",
   "me-01": "registered",
   "me-02": "registered",
-  "me-03": "in-preparation",
+  "me-03": "registered",
   "shelf-michelson-morley": "in-preparation",
   "shelf-fizeau": "in-preparation",
   "shelf-maxwell-galilean": "in-preparation",
@@ -112,6 +112,8 @@ export const CATALOGUE_QUESTIONS: Readonly<Partial<Record<CatalogueId, string>>>
     "What does a measured radiation spectrum look like at a given temperature, in which regime is Wien's law or the classical law an accurate description, and what does a density plot actually measure?",
   "lq-05":
     "How does counting independent possibilities produce an entropy that depends on volume like n ln V, and what changes if the things are not independent?",
+  "lq-07":
+    "Why can the frequency of emitted fluorescent light not exceed that of the exciting light under the light-quantum hypothesis, and what are the exact conditions for exceptions?",
   "lq-08":
     "Why does increasing light intensity release more electrons without increasing their individual energy, while increasing frequency increases electron energy without requiring higher intensity?",
   "bm-03":
@@ -119,10 +121,14 @@ export const CATALOGUE_QUESTIONS: Readonly<Partial<Record<CatalogueId, string>>>
   "bm-04":
     "How can drag and equilibrium determine how fast particles diffuse, and why does the force you apply not matter?",
   "bm-05": "After many steps, what will changing the step law while keeping its variance do?",
+  "sr-03":
+    "How does relative motion affect the synchronization of clocks, the coordinate measurement of moving rods, and the invariant causal order of events?",
   "me-01":
     "If a body at rest emits two equal pulses in opposite directions, what do two observers' energy ledgers force you to say about the body?",
   "me-02":
     "What does a smaller energy of motion at the same speed tell you about the body's inertia, and why does the conclusion come from low speeds?",
+  "sr-02":
+    "Why does moving the magnet instead of the conductor create an explanatory asymmetry, and how does the transformation remove it?",
 });
 
 /** Runtime guard for an id read from a URL, permalink, or reader link: never assume the string is valid. */
@@ -225,9 +231,16 @@ function isWellFormedAddressSide(side: string): boolean {
  * shipped one). The `Record` is exhaustive over every id for the same
  * compile-time reason as `CATALOGUE_STATUS`.
  */
+const DECLARED_MODE_OVERRIDES: Partial<Record<CatalogueId, readonly string[]>> = {
+  "sr-02": Object.freeze(["apparatus"]),
+};
+
 export const DECLARED_MODES: Readonly<Record<CatalogueId, readonly string[]>> = Object.freeze(
   Object.fromEntries(
-    CATALOGUE_IDS.map((id) => [id, Object.freeze([]) as readonly string[]]),
+    CATALOGUE_IDS.map((id) => [
+      id,
+      Object.freeze([...(DECLARED_MODE_OVERRIDES[id] ?? [])]) as readonly string[],
+    ]),
   ) as Record<CatalogueId, readonly string[]>,
 );
 

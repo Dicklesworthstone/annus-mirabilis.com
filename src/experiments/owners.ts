@@ -28,6 +28,11 @@ export const OWNER_BINDINGS: Readonly<Partial<Record<CatalogueId, OwnerBinding>>
     module: "src/experiments/lq01/session.ts",
     function: "createLq01Session",
   }),
+  "lq-02": Object.freeze({
+    kind: "reference-evaluator",
+    module: "src/experiments/lq02/session.ts",
+    function: "computeLq02Snapshot",
+  }),
   "lq-03": Object.freeze({
     kind: "reference-evaluator",
     module: "src/experiments/lq03/session.ts",
@@ -37,6 +42,11 @@ export const OWNER_BINDINGS: Readonly<Partial<Record<CatalogueId, OwnerBinding>>
     kind: "reference-evaluator",
     module: "src/experiments/lq05/session.ts",
     function: "createLq05Session",
+  }),
+  "lq-07": Object.freeze({
+    kind: "reference-evaluator",
+    module: "src/experiments/lq07/session.ts",
+    function: "createLq07Session",
   }),
   "lq-08": Object.freeze({
     kind: "reference-evaluator",
@@ -83,6 +93,21 @@ export const OWNER_BINDINGS: Readonly<Partial<Record<CatalogueId, OwnerBinding>>
     module: "src/experiments/bm08/session.ts",
     function: "createBm08Session",
   }),
+  "sr-02": Object.freeze({
+    kind: "reference-evaluator",
+    module: "src/experiments/sr02/session.ts",
+    function: "createSr02Session",
+  }),
+  "sr-03": Object.freeze({
+    kind: "reference-evaluator",
+    module: "src/experiments/sr03/session.ts",
+    function: "createSr03Session",
+  }),
+  "sr-05": Object.freeze({
+    kind: "reference-evaluator",
+    module: "src/experiments/sr05/session.ts",
+    function: "createSr05Session",
+  }),
   "me-01": Object.freeze({
     kind: "reference-evaluator",
     module: "src/experiments/me01/session.ts",
@@ -92,6 +117,11 @@ export const OWNER_BINDINGS: Readonly<Partial<Record<CatalogueId, OwnerBinding>>
     kind: "reference-evaluator",
     module: "src/experiments/me02/session.ts",
     function: "createMe02Session",
+  }),
+  "me-03": Object.freeze({
+    kind: "reference-evaluator",
+    module: "src/experiments/me03/session.ts",
+    function: "createMe03Session",
   }),
 });
 

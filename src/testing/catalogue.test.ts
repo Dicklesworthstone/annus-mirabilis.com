@@ -59,11 +59,16 @@ describe("catalogue: the 33 core ids and the 5 declared non-core ids", () => {
       "bm-07",
       "bm-08",
       "lq-01",
+      "lq-02",
       "lq-03",
       "lq-05",
+      "lq-07",
       "lq-08",
       "me-01",
       "me-02",
+      "me-03",
+      "sr-02",
+      "sr-03",
     ]);
   });
 
