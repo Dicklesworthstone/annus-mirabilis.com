@@ -7,6 +7,7 @@ import AxeBuilder from "@axe-core/playwright";
 import { checkTracerBrowser } from "./test-tracer-browser.mjs";
 import { checkWalkBrowser } from "./test-walk-browser.mjs";
 import { checkEquationBrowser } from "./test-equation-browser.mjs";
+import { checkCameraBrowser } from "./test-camera-browser.mjs";
 import { checkInferenceBrowser } from "./test-inference-browser.mjs";
 import { checkReaderBrowser } from "./test-reader-browser.mjs";
 
@@ -103,6 +104,7 @@ try {
   await checkReaderBrowser(browser, url, check);
   await checkEquationBrowser(browser, url, check);
   await checkInferenceBrowser(browser, url, check);
+  await checkCameraBrowser(browser, url, check);
 } finally {
   await writeFile("artifacts/browser/checks.json", JSON.stringify(evidence, null, 2));
   await browser.close();
