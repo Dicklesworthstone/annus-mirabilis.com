@@ -1,0 +1,481 @@
+id: me-01
+title: "ME-01: opposite pulses and two ledgers"
+explanatoryQuestion: "If a body at rest emits two equal pulses in opposite directions, what do two observers' energy ledgers force you to say about the body?"
+sourceRefs:
+  - paper: mass-energy
+    id: s0
+argumentIds:
+  - arg-me-two-ledgers
+schemaVersion: 1
+parameters:
+  - id: frameSpeed
+    label: "Observer speed v/c"
+    accessibleName: "Signed observer speed as a fraction of the speed of light"
+    accessibleDescription: "Sets the observer frame velocity relative to the body's rest system."
+    quantityId: frameSpeed
+    displayUnit: "1"
+    modelDomain:
+      min: -0.95
+      max: 0.95
+      minInclusive: true
+      maxInclusive: true
+      reason: "No inertial observer at |v| >= c; teaching range stays inside 0.95."
+    visualRange:
+      min: 0
+      max: 0.95
+    default: 0.6
+    mapping:
+      kind: linear
+    role: independent
+    commandClass: observer-change
+  - id: emittedEnergyRestFrame
+    label: "Emitted energy L"
+    accessibleName: "Total energy emitted as radiation in the body's rest frame"
+    accessibleDescription: "Positive emitted energy. Entering a new value is a setup change; changing only the display unit is presentation."
+    quantityId: emittedEnergyRestFrame
+    displayUnit: "J"
+    modelDomain:
+      min: 0
+      max: 1.0e22
+      minInclusive: false
+      maxInclusive: true
+      reason: "L must be positive."
+    visualRange:
+      min: 0.1
+      max: 10
+    default: 1
+    mapping:
+      kind: log
+      base: 10
+    role: independent
+    commandClass: setup-change
+  - id: emissionAngle
+    label: "Emission angle phi"
+    accessibleName: "Angle of emission relative to the direction of relative motion"
+    accessibleDescription: "Angle in degrees between the emitted pulse and the relative velocity vector in the rest frame."
+    quantityId: emissionAngle
+    displayUnit: "deg"
+    modelDomain:
+      min: 0
+      max: 180
+      minInclusive: true
+      maxInclusive: true
+      reason: "Angle spans 0 to 180 degrees."
+    visualRange:
+      min: 0
+      max: 180
+    default: 0
+    mapping:
+      kind: linear
+    role: independent
+    commandClass: setup-change
+  - id: offsetDisplay
+    label: "Offset display"
+    accessibleName: "Display mode for internal body energy offsets"
+    accessibleDescription: "Keep body energies symbolic or display arbitrary offsets."
+    quantityId: additiveEnergyConstant
+    displayUnit: ""
+    modelDomain:
+      enumerated:
+        - symbolic
+        - offsets
+      reason: "Either symbolic representation or explicit offsets."
+    visualRange:
+      min: 0
+      max: 1
+    default: "symbolic"
+    mapping:
+      kind: linear
+    role: independent
+    commandClass: presentation-change
+  - id: premise
+    label: "Source premise probe"
+    accessibleName: "Assumption about the additive energy constant C"
+    accessibleDescription: "Whether the additive constant C relating moving and rest energy is held unchanged upon emission."
+    quantityId: additiveEnergyConstant
+    displayUnit: ""
+    modelDomain:
+      enumerated:
+        - unchanged
+        - relaxed
+      reason: "Either the paper's premise (unchanged) or relaxed (underdetermined)."
+    visualRange:
+      min: 0
+      max: 1
+    default: "unchanged"
+    mapping:
+      kind: linear
+    role: independent
+    commandClass: setup-change
+  - id: step
+    label: "Derivation step"
+    accessibleName: "Stepwise subtraction and balance derivation"
+    accessibleDescription: "Current step in the two-ledger accounting argument."
+    quantityId: kineticEnergyDifference
+    displayUnit: ""
+    modelDomain:
+      enumerated:
+        - intro
+        - moving-pulses
+        - sum-angle
+        - two-balances
+        - subtraction-move
+        - premise-kinetic
+      reason: "Steps of the two-ledger derivation."
+    visualRange:
+      min: 0
+      max: 5
+    default: "subtraction-move"
+    mapping:
+      kind: linear
+    role: independent
+    commandClass: presentation-change
+  - id: cancelAngleFactors
+    label: "Cancel angle factors"
+    accessibleName: "Toggle angle factor cancellation"
+    accessibleDescription: "Show or cancel the direction-dependent angle factors in the energy sum."
+    quantityId: scaleFactorUnknown
+    displayUnit: ""
+    modelDomain:
+      enumerated:
+        - "true"
+        - "false"
+      reason: "Boolean toggle for cancellation."
+    visualRange:
+      min: 0
+      max: 1
+    default: true
+    mapping:
+      kind: linear
+    role: independent
+    commandClass: presentation-change
+  - id: cancelInternalEnergies
+    label: "Cancel internal energies"
+    accessibleName: "Toggle internal rest energy cancellation"
+    accessibleDescription: "Show or cancel internal rest energies E0 and E1 in the two-ledger subtraction."
+    quantityId: bodyEnergyRestBefore
+    displayUnit: ""
+    modelDomain:
+      enumerated:
+        - "true"
+        - "false"
+      reason: "Boolean toggle for cancellation."
+    visualRange:
+      min: 0
+      max: 1
+    default: true
+    mapping:
+      kind: linear
+    role: independent
+    commandClass: presentation-change
+  - id: cancelAdditiveConstant
+    label: "Cancel additive constant"
+    accessibleName: "Toggle additive constant cancellation"
+    accessibleDescription: "Show or cancel additive constant C under the source premise."
+    quantityId: additiveEnergyConstant
+    displayUnit: ""
+    modelDomain:
+      enumerated:
+        - "true"
+        - "false"
+      reason: "Boolean toggle for cancellation."
+    visualRange:
+      min: 0
+      max: 1
+    default: true
+    mapping:
+      kind: linear
+    role: independent
+    commandClass: presentation-change
+  - id: notation
+    label: "Notation style"
+    accessibleName: "Notation display style"
+    accessibleDescription: "Einstein printed notation (1905 radical) or modern gamma notation."
+    quantityId: lorentzFactor
+    displayUnit: ""
+    modelDomain:
+      enumerated:
+        - printed
+        - modern
+      reason: "Either printed or modern notation."
+    visualRange:
+      min: 0
+      max: 1
+    default: "printed"
+    mapping:
+      kind: linear
+    role: independent
+    commandClass: presentation-change
+outputs:
+  - id: movingBalanceLight
+    quantityId: lightComplexEnergyMoving
+    allowedStatuses:
+      - value
+      - outside-domain
+    primary: true
+  - id: restBalanceLight
+    quantityId: emittedEnergyRestFrame
+    allowedStatuses:
+      - value
+      - outside-domain
+    primary: false
+  - id: restBodyBefore
+    quantityId: bodyEnergyRestBefore
+    allowedStatuses:
+      - symbolic
+      - outside-domain
+    primary: false
+  - id: restBodyAfter
+    quantityId: bodyEnergyRestAfter
+    allowedStatuses:
+      - symbolic
+      - outside-domain
+    primary: false
+  - id: movingBodyBefore
+    quantityId: bodyEnergyMovingBefore
+    allowedStatuses:
+      - symbolic
+      - outside-domain
+    primary: false
+  - id: movingBodyAfter
+    quantityId: bodyEnergyMovingAfter
+    allowedStatuses:
+      - symbolic
+      - outside-domain
+    primary: false
+  - id: kineticEnergyDifference
+    quantityId: kineticEnergyDifference
+    allowedStatuses:
+      - value
+      - underdetermined
+      - outside-domain
+    primary: true
+  - id: additiveEnergyConstant
+    quantityId: additiveEnergyConstant
+    allowedStatuses:
+      - symbolic
+      - outside-domain
+    primary: false
+assumptions:
+  - "Symmetric emission of two equal pulses in the rest frame."
+  - "The imported §8 light-energy transformation: l* = l(1 - (v/V)cos(phi))/sqrt(1 - (v/V)^2)."
+  - "Conservation of energy in each inertial reference frame."
+  - "The source premise that the additive constant C relating moving and rest energy is unchanged upon emission."
+admittedDomain: "Inertial observers with |v/c| < 1, positive emitted energy L > 0, and finite emission angle phi."
+notModeled:
+  - "recoil from asymmetric emission"
+  - "finite pulse duration and shape"
+  - "the emission mechanism"
+  - "radiation pressure on the body during emission"
+  - "gravity"
+  - "the quantum nature of light"
+  - "the body's absolute rest energy (kept symbolic)"
+owner:
+  kind: reference-evaluator
+  kernelFunctions:
+    - displayRole: reference-implementation
+      language: ts
+      module: "src/physics/reference/massEnergy.ts"
+      exportName: "evaluatePulseEnergies"
+      independentReferences:
+        - experimentId: me-01
+          quantityId: lightComplexEnergyMoving
+    - displayRole: reference-implementation
+      language: ts
+      module: "src/physics/reference/massEnergy.ts"
+      exportName: "evaluateLedgers"
+      independentReferences:
+        - experimentId: me-01
+          quantityId: emittedEnergyRestFrame
+    - displayRole: reference-implementation
+      language: ts
+      module: "src/physics/reference/massEnergy.ts"
+      exportName: "evaluateSubtraction"
+      independentReferences:
+        - experimentId: me-01
+          quantityId: kineticEnergyDifference
+  identifierBindings:
+    - kernelFunction: evaluatePulseEnergies
+      identifier: emittedEnergyRestFrame
+      quantityId: emittedEnergyRestFrame
+    - kernelFunction: evaluatePulseEnergies
+      identifier: frameSpeed
+      quantityId: frameSpeed
+    - kernelFunction: evaluatePulseEnergies
+      identifier: emissionAngle
+      quantityId: emissionAngle
+    - kernelFunction: evaluatePulseEnergies
+      identifier: lorentzFactor
+      quantityId: lorentzFactor
+    - kernelFunction: evaluatePulseEnergies
+      identifier: lightComplexEnergyMoving
+      quantityId: lightComplexEnergyMoving
+    - kernelFunction: evaluateSubtraction
+      identifier: kineticEnergyDifference
+      quantityId: kineticEnergyDifference
+    - kernelFunction: evaluateSubtraction
+      identifier: additiveEnergyConstant
+      quantityId: additiveEnergyConstant
+    - kernelFunction: evaluateSubtraction
+      identifier: speedOfLight
+      quantityId: speedOfLight
+views:
+  - id: svg-two-ledgers
+    kind: svg
+    consumes:
+      - movingBalanceLight
+      - restBalanceLight
+      - kineticEnergyDifference
+  - id: table-two-ledgers
+    kind: table
+    consumes:
+      - movingBalanceLight
+      - restBalanceLight
+      - restBodyBefore
+      - restBodyAfter
+      - movingBodyBefore
+      - movingBodyAfter
+      - kineticEnergyDifference
+      - additiveEnergyConstant
+actions:
+  - actionId: change-observer-speed
+    family: observer
+    question: "What does an observer moving at speed v see compared to the rest frame?"
+    inputs:
+      - frameSpeed
+    commandClass: observer-change
+    acceptedResult:
+      outputs:
+        - movingBalanceLight
+        - kineticEnergyDifference
+      allowedStatuses:
+        - value
+        - underdetermined
+        - outside-domain
+    visualAffordance: "Observer velocity slider adjusting pulse arrows and moving ledger column"
+    equivalentAffordance: "Enter signed observer speed v/c and read the moving ledger values in the table."
+    announcement: "Observer speed updated"
+  - actionId: tilt-emission-axis
+    family: geometry
+    question: "How does tilting the emission axis by angle phi affect the total light energy?"
+    inputs:
+      - emissionAngle
+    commandClass: setup-change
+    acceptedResult:
+      outputs:
+        - movingBalanceLight
+      allowedStatuses:
+        - value
+        - outside-domain
+    visualAffordance: "Angle dial rotating emission direction and adjusting individual pulse arrow lengths"
+    equivalentAffordance: "Enter angle in degrees and observe that the sum of pulse energies remains gamma*L."
+    announcement: "Emission axis updated"
+  - actionId: probe-premise
+    family: premises
+    question: "What happens to the kinetic energy difference if the additive constant C changes upon emission?"
+    inputs:
+      - premise
+    commandClass: setup-change
+    acceptedResult:
+      outputs:
+        - kineticEnergyDifference
+      allowedStatuses:
+        - value
+        - underdetermined
+    visualAffordance: "Premise toggle switching between source premise (C unchanged) and relaxed premise"
+    equivalentAffordance: "Toggle premise and read whether kinetic energy difference is evaluated or underdetermined."
+    announcement: "Premise probed"
+  - actionId: step-subtraction
+    family: derivations
+    question: "How does subtracting the rest-frame ledger from the moving-frame ledger eliminate the unknown body energies?"
+    inputs:
+      - step
+    commandClass: presentation-change
+    acceptedResult:
+      outputs:
+        - kineticEnergyDifference
+      allowedStatuses:
+        - value
+        - underdetermined
+    visualAffordance: "Derivation step buttons highlighting ledger cancellations and the subtraction move"
+    equivalentAffordance: "Select derivation step and read highlighted cancellation in the ledger table."
+    announcement: "Derivation step updated"
+acceptanceCases:
+  - me-01-golden
+  - me-01-refusals
+historicalOverlays: []
+realRate:
+  natural: false
+embeddable: true
+presets:
+  - presetId: me-01-default
+    label: "Collinear emission (v = 0.6c, phi = 0 deg)"
+    parameterValues:
+      frameSpeed: 0.6
+      emittedEnergyRestFrame: 1.0
+      emissionAngle: 0
+      offsetDisplay: "symbolic"
+      premise: "unchanged"
+      step: "subtraction-move"
+      cancelAngleFactors: true
+      cancelInternalEnergies: true
+      cancelAdditiveConstant: true
+      notation: "printed"
+  - presetId: me-01-transverse-emission
+    label: "Transverse emission (v = 0.6c, phi = 90 deg)"
+    parameterValues:
+      frameSpeed: 0.6
+      emittedEnergyRestFrame: 1.0
+      emissionAngle: 90
+      offsetDisplay: "symbolic"
+      premise: "unchanged"
+      step: "moving-pulses"
+      cancelAngleFactors: true
+      cancelInternalEnergies: true
+      cancelAdditiveConstant: true
+      notation: "printed"
+  - presetId: me-01-sixty-degree-tilt
+    label: "Tilted axis (v = 0.6c, phi = 60 deg)"
+    parameterValues:
+      frameSpeed: 0.6
+      emittedEnergyRestFrame: 1.0
+      emissionAngle: 60
+      offsetDisplay: "symbolic"
+      premise: "unchanged"
+      step: "sum-angle"
+      cancelAngleFactors: true
+      cancelInternalEnergies: true
+      cancelAdditiveConstant: true
+      notation: "printed"
+  - presetId: me-01-rest-frame
+    label: "Stationary observer (v = 0)"
+    parameterValues:
+      frameSpeed: 0.0
+      emittedEnergyRestFrame: 1.0
+      emissionAngle: 0
+      offsetDisplay: "symbolic"
+      premise: "unchanged"
+      step: "two-balances"
+      cancelAngleFactors: true
+      cancelInternalEnergies: true
+      cancelAdditiveConstant: true
+      notation: "printed"
+predictMode:
+  enabled: true
+  prompts:
+    - promptId: me-01-predict-tilt-axis
+      controlId: emissionAngle
+      question: "If the body emits the two opposite pulses at an angle φ = 60° rather than along the direction of motion (φ = 0°), what happens to the total energy of the two light pulses measured by the moving observer?"
+      candidates:
+        - id: me-01-candidate-sum-unchanged
+          label: "The total light energy in the moving frame is unchanged (still γL), because the angle terms cancel in the sum."
+          description: "The Doppler angle factors -β cos φ and +β cos φ sum to zero."
+          separatingAssumption: "Symmetric emission in opposite directions ensures complete cancellation in the energy sum."
+        - id: me-01-candidate-sum-decreases
+          label: "The total light energy decreases because the forward pulse is less blue-shifted."
+          description: "Belief that the forward pulse energy reduction dominates."
+          separatingAssumption: "Treats forward Doppler shift in isolation without the backward compensation."
+        - id: me-01-candidate-sum-increases
+          label: "The total light energy increases due to the transverse Doppler effect."
+          description: "Belief that angle tilt adds extra transverse energy."
+          separatingAssumption: "Misapplies transverse dilation to the sum of directional photons."

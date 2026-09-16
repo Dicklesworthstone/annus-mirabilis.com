@@ -52,7 +52,7 @@ export type CatalogueStatus = "registered" | "in-preparation";
  * the type system itself rather than a runtime assertion.
  */
 export const CATALOGUE_STATUS: Readonly<Record<CatalogueId, CatalogueStatus>> = Object.freeze({
-  "lq-01": "in-preparation",
+  "lq-01": "registered",
   "lq-02": "in-preparation",
   "lq-03": "in-preparation",
   "lq-04": "in-preparation",
@@ -106,6 +106,8 @@ export const REGISTERED_IDS: readonly CatalogueId[] = Object.freeze(
  * authored"). Absence is honest: most ids have no authored question yet.
  */
 export const CATALOGUE_QUESTIONS: Readonly<Partial<Record<CatalogueId, string>>> = Object.freeze({
+  "lq-01":
+    "What does a continuous wave description of light explain well, and what exactly does its intensity measure?",
   "lq-08":
     "Why does increasing light intensity release more electrons without increasing their individual energy, while increasing frequency increases electron energy without requiring higher intensity?",
   "bm-03":

@@ -1,0 +1,8 @@
+beadId: am-me-01-two-ledgers-g1re
+targets:
+  - instrument: me-01
+    captions:
+      - r0
+      - r1
+      - r2
+      - r3

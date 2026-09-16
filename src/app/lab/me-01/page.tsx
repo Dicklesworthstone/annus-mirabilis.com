@@ -1,0 +1,115 @@
+import type { Metadata } from "next";
+import { Formula } from "../../../components/edition/Formula.tsx";
+import { TwoLedgersComparison } from "../../../components/lab/me01/TwoLedgersLab.tsx";
+import { DEFAULT_PREPARED_EXAMPLE } from "../../../experiments/me01/session.ts";
+
+export const metadata: Metadata = {
+  title: "Opposite pulses and two ledgers (ME-01)",
+};
+
+export default function TwoLedgersPage() {
+  const example = DEFAULT_PREPARED_EXAMPLE;
+
+  return (
+    <>
+      <header className="page-intro">
+        <p className="eyebrow">Mass–Energy · The Two-Ledger Derivation</p>
+        <h1>
+          Opposite pulses
+          <br />
+          and two energy ledgers.
+        </h1>
+        <p className="lead">
+          If a body at rest emits two equal pulses of light in opposite directions, what do the
+          energy accounting books of two different inertial observers force you to conclude about
+          the body&apos;s energy of motion?
+        </p>
+        <p>
+          <a href="/papers/mass-energy/#arg-me-two-ledgers">
+            Read the original 1905 mass–energy argument and open its derivation steps &rarr;
+          </a>
+        </p>
+      </header>
+
+      <TwoLedgersComparison example={example} />
+
+      <section className="reading" id="two-ledgers-argument">
+        <p className="eyebrow">Open the derivation</p>
+        <h2>The imported light-energy transformation</h2>
+        <p>
+          Einstein imports a result proven in &sect;8 of his third 1905 paper (Special Relativity).
+          When light of energy <var>l</var> is emitted in the stationary system at an angle{" "}
+          <var>&phi;</var> to the direction of relative motion, an observer moving past at speed{" "}
+          <var>v</var> measures its energy <var>l*</var> as:
+        </p>
+        <Formula
+          latex={String.raw`l^* = l \frac{1 - \frac{v}{V}\cos\varphi}{\sqrt{1 - \left(\frac{v}{V}\right)^2}}`}
+        />
+        <p>
+          In modern notation with &beta; = v/c and the Lorentz factor &gamma; = 1/&radic;(1 -
+          &beta;²):
+        </p>
+        <Formula latex={String.raw`l^* = l\,\gamma\,(1 - \beta\cos\varphi)`} />
+
+        <h2>The two accounting sheets: Rest frame and moving frame</h2>
+        <p>
+          Let the body at rest have initial internal energy <var>E₀</var>. It emits two equal light
+          pulses of energy <var>L/2</var> in opposite directions (<var>&phi;</var> and{" "}
+          <var>&phi; + 180&deg;</var>). Conservation of energy in the stationary frame requires:
+        </p>
+        <Formula
+          latex={String.raw`E_0 = E_1 + \frac{1}{2}L + \frac{1}{2}L = E_1 + L \implies E_0 - E_1 = L`}
+        />
+        <p>
+          Now consider the same physical event as measured by an observer moving at speed{" "}
+          <var>v</var>. The initial energy of the body in this frame is <var>H₀</var>. The two
+          pulses have energies:
+        </p>
+        <Formula
+          latex={String.raw`\text{Pulse 1} = \frac{1}{2}L\,\gamma\,(1 - \beta\cos\varphi), \qquad \text{Pulse 2} = \frac{1}{2}L\,\gamma\,(1 + \beta\cos\varphi)`}
+        />
+        <p>
+          When the two pulse energies are added together, the angle terms{" "}
+          <var>&minus;&beta; cos &phi;</var> and <var>+&beta; cos &phi;</var> cancel identically:
+        </p>
+        <Formula
+          latex={String.raw`\text{Total moving light} = \frac{1}{2}L\,\gamma\,(1 - \beta\cos\varphi) + \frac{1}{2}L\,\gamma\,(1 + \beta\cos\varphi) = \gamma L`}
+        />
+        <p>Energy conservation in the moving frame therefore gives:</p>
+        <Formula latex={String.raw`H_0 = H_1 + \gamma L \implies H_0 - H_1 = \gamma L`} />
+
+        <h2>The Subtraction Move: Eliminating the unknown internal energies</h2>
+        <p>
+          Neither <var>E₀</var> nor <var>H₀</var> is known. But subtracting the stationary-system
+          balance from the moving-system balance completely eliminates the body&apos;s unknown
+          internal rest energy:
+        </p>
+        <Formula latex={String.raw`(H_0 - E_0) - (H_1 - E_1) = \gamma L - L = L\,(\gamma - 1)`} />
+
+        <h2>Identifying the kinetic energy drop</h2>
+        <p>
+          The difference between a body&apos;s energy in a moving system and its energy in the rest
+          system differs from its kinetic energy <var>K</var> only by an additive constant{" "}
+          <var>C</var>:
+        </p>
+        <Formula latex="H - E = K + C" />
+        <p>
+          Under Einstein&apos;s source premise that the constant <var>C</var> does not alter upon
+          the emission of light (<var>C = C&apos;</var>), substituting this relation yields:
+        </p>
+        <Formula latex={String.raw`(K_0 + C) - (K_1 + C) = K_0 - K_1 = L\,(\gamma - 1)`} />
+        <p>
+          The body&apos;s energy of motion drops by <var>L(&gamma; &minus; 1)</var> while its speed
+          remains unchanged.
+        </p>
+
+        <div className="actions">
+          <a className="button" href="/lab/me-02/">
+            Explore the small-speed coefficient (ME-02) &rarr;
+          </a>
+          <a href="/lab/bm-01/">The Brownian tracer laboratory</a>
+        </div>
+      </section>
+    </>
+  );
+}
