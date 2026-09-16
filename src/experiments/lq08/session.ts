@@ -6,6 +6,7 @@ import {
   quantumRate,
   stoppingPotentialFromEv,
   thresholdFrequencyFromEv,
+  visibleColor,
 } from "../../physics/reference/photoelectric.ts";
 import { parseResult } from "../results/codec.ts";
 import type { ScientificResult } from "../results/types.ts";
@@ -279,3 +280,5 @@ export function createLq08Session(instanceId: string, example?: PreparedLq08Exam
     },
   });
 }
+
+export { visibleColor };

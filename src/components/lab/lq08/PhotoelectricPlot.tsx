@@ -1,5 +1,5 @@
 import type { MillikanOverlayResult } from "../../../experiments/lq08/millikan.ts";
-import { visibleColor } from "../../../physics/reference/photoelectric.ts";
+import { visibleColor } from "../../../experiments/lq08/session.ts";
 
 export type EnergyLadderProps = Readonly<{
   frequency: number; // Hz
