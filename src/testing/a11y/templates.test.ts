@@ -40,7 +40,7 @@ describe("templates: Layer 2 accessible graph description template engine (am-a1
       semanticKind: "probability-density",
       ownerId: "diffusion",
       status: "analytic-limit" as const,
-      representation: { kind: "point-mass", location: 0, mass: 1 },
+      representation: { kind: "point-mass" as const, location: 0, mass: 1 },
       description:
         "At initial time zero, the distribution is an exact Dirac delta limit with zero spatial variance.",
     });

@@ -4,6 +4,7 @@ import { createRoot } from "react-dom/client";
 import { AnnouncementManager } from "../../a11y/descriptions/announcementManager.ts";
 import {
   GraphDescriptionContainer,
+  type GraphDescriptionState,
   useGraphDescription,
 } from "../../a11y/descriptions/provider.tsx";
 import type { RepresentationScale } from "../../visuals/kit/types.ts";
@@ -187,7 +188,7 @@ describe("GraphDescriptionContainer Integration: Three-layer accessible provider
     const container = createContainer();
     const root = createRoot(container);
 
-    let observedState: ReturnType<typeof useGraphDescription> | null = null;
+    let observedState: GraphDescriptionState | null = null;
 
     function TestChild() {
       const state = useGraphDescription();
@@ -211,10 +212,13 @@ describe("GraphDescriptionContainer Integration: Three-layer accessible provider
         );
       });
 
-      expect(observedState).not.toBeNull();
-      expect(observedState?.snapshotVersion).toBe("v123");
-      expect(observedState?.layer1Statement).toBe("Child hook consumer test.");
-      expect(typeof observedState?.describeNow).toBe("function");
+      const state = observedState as GraphDescriptionState | null;
+      expect(state).not.toBeNull();
+      if (state) {
+        expect(state.snapshotVersion).toBe("v123");
+        expect(state.layer1Statement).toBe("Child hook consumer test.");
+        expect(typeof state.describeNow).toBe("function");
+      }
     } finally {
       await act(() => {
         root.unmount();
