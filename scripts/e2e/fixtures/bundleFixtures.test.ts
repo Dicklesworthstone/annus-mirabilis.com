@@ -97,3 +97,12 @@ test("a missing source file fails naming the entry and the path", async () => {
     );
   });
 });
+
+test("a parent-relative .ts specifier resolves under Bun.build browser target", async () => {
+  await withTempOutDir(async (outDir) => {
+    const entry: FixtureAppEntry = { ...PROBE_ENTRY_BASE, outDir };
+    await bundleFixtureApp(entry, ROOT);
+    const bundle = await readFile(fixtureBundlePath(entry, ROOT), "utf8");
+    assert.match(bundle, /hello/);
+  });
+});

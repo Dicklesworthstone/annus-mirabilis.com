@@ -1,47 +1,25 @@
 import assert from "node:assert/strict";
-import { spawnSync } from "node:child_process";
 import { readFileSync } from "node:fs";
 import { describe, it } from "node:test";
+import { spawnObserved } from "./spawnObserved.ts";
 
 const REPO_ROOT = new URL("../", import.meta.url).pathname;
 const REAL_LEGACY = `${REPO_ROOT}content/quantities/legacy-spellings.yaml`;
 const EMPTY_LEGACY = `${REPO_ROOT}src/content/quantities/__fixtures__/empty-legacy-spellings.yaml`;
 
+/**
+ * Spawns the real CLI. EBADF (fd exhaustion under parallel tests) is retried;
+ * it is never downgraded to an in-process function call.
+ */
 function spawnCheck(args: readonly string[]): { exitCode: number; stdout: string; stderr: string } {
-  if (typeof Bun !== "undefined" && typeof Bun.spawnSync === "function") {
-    const proc = Bun.spawnSync(
-      [
-        "node",
-        "--experimental-strip-types",
-        `${REPO_ROOT}scripts/generate-quantity-ids.ts`,
-        ...args,
-      ],
-      { cwd: REPO_ROOT },
-    );
-    return {
-      exitCode: proc.exitCode,
-      stdout: proc.stdout.toString("utf8"),
-      stderr: proc.stderr.toString("utf8"),
-    };
-  }
-  const proc = spawnSync(
+  return spawnObserved(
     "node",
     ["--experimental-strip-types", `${REPO_ROOT}scripts/generate-quantity-ids.ts`, ...args],
     {
       cwd: REPO_ROOT,
-      encoding: "utf8",
+      stdio: ["ignore", "pipe", "pipe"],
     },
   );
-  if (proc.error) {
-    throw new Error(`Failed to spawn scripts/generate-quantity-ids.ts: ${proc.error.message}`, {
-      cause: proc.error,
-    });
-  }
-  return {
-    exitCode: proc.status ?? (proc.signal ? 1 : 0),
-    stdout: proc.stdout || "",
-    stderr: proc.stderr || "",
-  };
 }
 
 describe("generate-quantity-ids.ts --check", () => {

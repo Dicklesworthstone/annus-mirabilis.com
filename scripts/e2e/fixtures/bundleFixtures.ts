@@ -69,6 +69,9 @@ export async function bundleFixtureApp(
       format: "esm",
       plugins: [
         {
+          // Bun.build({ target: "browser" }) strips ".ts" from relative
+          // specifiers and then fails to find "../announce". Runtime `bun`
+          // and node resolve the same specifier. Restore the extension.
           name: "relative-ts-resolver",
           setup(build) {
             build.onResolve({ filter: /^\.\.?\// }, (args) => {

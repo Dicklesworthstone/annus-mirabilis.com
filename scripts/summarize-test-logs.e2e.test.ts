@@ -1,9 +1,9 @@
 import assert from "node:assert/strict";
-import { spawnSync } from "node:child_process";
 import { cpSync, mkdtempSync, readdirSync, readFileSync } from "node:fs";
 import path from "node:path";
 import test from "node:test";
 import { artifactsRoot } from "../src/testing/log/logger.ts";
+import { spawnObserved } from "./spawnObserved.ts";
 
 const FIXTURE_ROOT = path.join(process.cwd(), "src/testing/fixtures/test-logs");
 
@@ -14,54 +14,15 @@ function copyFixtureTree(): string {
   return workDir;
 }
 
-function isNodeError(error: unknown): error is NodeJS.ErrnoException {
-  return error instanceof Error && "code" in error;
-}
-
 function spawnSummarizer(workDir: string): { exitCode: number; stdout: string; stderr: string } {
-  if (typeof Bun !== "undefined" && typeof Bun.spawnSync === "function") {
-    const proc = Bun.spawnSync(["bun", "scripts/summarize-test-logs.ts", "--root", workDir], {
+  return spawnObserved(
+    "node",
+    ["--experimental-strip-types", "scripts/summarize-test-logs.ts", "--root", workDir],
+    {
       cwd: process.cwd(),
       stdio: ["ignore", "pipe", "pipe"],
-    });
-    return {
-      exitCode: proc.exitCode,
-      stdout: proc.stdout.toString("utf8"),
-      stderr: proc.stderr.toString("utf8"),
-    };
-  }
-  const maxAttempts = 3;
-  let lastError: unknown;
-  for (let attempt = 1; attempt <= maxAttempts; attempt++) {
-    const proc = spawnSync(
-      "node",
-      ["--experimental-strip-types", "scripts/summarize-test-logs.ts", "--root", workDir],
-      {
-        cwd: process.cwd(),
-        encoding: "utf8",
-        stdio: ["ignore", "pipe", "pipe"],
-      },
-    );
-    if (!proc.error) {
-      return {
-        exitCode: proc.status ?? (proc.signal ? 1 : 0),
-        stdout: proc.stdout || "",
-        stderr: proc.stderr || "",
-      };
-    }
-    lastError = proc.error;
-    if (isNodeError(proc.error) && proc.error.code === "EBADF" && attempt < maxAttempts) {
-      Atomics.wait(new Int32Array(new SharedArrayBuffer(4)), 0, 0, 50 * attempt);
-      continue;
-    }
-    throw new Error(
-      `Failed to spawn scripts/summarize-test-logs.ts (attempt ${attempt}/${maxAttempts}): ${proc.error.message}`,
-      { cause: proc.error },
-    );
-  }
-  throw new Error(`Failed to spawn scripts/summarize-test-logs.ts after ${maxAttempts} attempts`, {
-    cause: lastError,
-  });
+    },
+  );
 }
 
 test("scripts/summarize-test-logs.ts runs end to end over a committed fixture log directory", () => {

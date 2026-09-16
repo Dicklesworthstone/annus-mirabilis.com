@@ -1,4 +1,8 @@
 import { describe, expect, test } from "bun:test";
+import { readFileSync } from "node:fs";
+import { dirname, join } from "node:path";
+import { fileURLToPath } from "node:url";
+import { getLastAnnouncement } from "../../a11y/announce.ts";
 import { AnnouncementManager } from "../../a11y/descriptions/announcementManager.ts";
 
 describe("announcementManager: Accessible Graph Announcement Manager (am-a11y-graph-descriptions-vxe1)", () => {
@@ -105,5 +109,24 @@ describe("announcementManager: Accessible Graph Announcement Manager (am-a11y-gr
     expect(announcements).toEqual([]);
 
     manager.dispose();
+  });
+
+  test("default dispatch uses the shared announce module, not a private live-region copy", () => {
+    const manager = new AnnouncementManager({ clock: () => 1000 });
+    manager.describeNow("shared live region");
+    expect(getLastAnnouncement()).toBe("shared live region");
+    manager.dispose();
+  });
+
+  test("announcementManager.ts does not contain a private defaultAnnounce copy", () => {
+    const source = readFileSync(
+      join(
+        dirname(fileURLToPath(import.meta.url)),
+        "../../a11y/descriptions/announcementManager.ts",
+      ),
+      "utf8",
+    );
+    expect(source).toContain('from "../announce.ts"');
+    expect(source.includes("function defaultAnnounce")).toBe(false);
   });
 });

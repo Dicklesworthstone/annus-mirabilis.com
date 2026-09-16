@@ -58,13 +58,21 @@ test("example rejects malformed inputs and the CLI reports an invalid invocation
   const execArgs = isBun
     ? ["scripts/reference/brownian-demo.mjs", '{"unknown":1}']
     : ["--experimental-strip-types", "scripts/reference/brownian-demo.mjs", '{"unknown":1}'];
-  const child = spawnSync(
-    process.execPath,
-    execArgs,
-    { cwd: new URL("../../", import.meta.url), encoding: "utf8" },
-  );
-  if (child.error && child.error.code === "EBADF") {
-    return;
+  let child;
+  for (let attempt = 1; attempt <= 3; attempt++) {
+    child = spawnSync(
+      process.execPath,
+      execArgs,
+      { cwd: new URL("../../", import.meta.url), encoding: "utf8", stdio: ["ignore", "pipe", "pipe"] },
+    );
+    if (!child.error) break;
+    if (child.error.code === "EBADF" && attempt < 3) {
+      Atomics.wait(new Int32Array(new SharedArrayBuffer(4)), 0, 0, 50 * attempt);
+      continue;
+    }
+  }
+  if (child.error) {
+    throw new Error(`Failed to spawn brownian-demo.mjs: ${child.error.message}`, { cause: child.error });
   }
   assert.equal(child.status, 1);
   assert.equal(child.stdout, "");
