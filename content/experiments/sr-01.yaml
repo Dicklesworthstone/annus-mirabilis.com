@@ -1,0 +1,386 @@
+id: sr-01
+title: "SR-01: clock synchronization with the event ledger"
+explanatoryQuestion: "How can distant clocks acquire an operational common time, and do moving clocks share it?"
+sourceRefs:
+  - paper: relativity
+    id: s1
+argumentIds:
+  - arg-sr-clock-sync
+schemaVersion: 1
+parameters:
+  - id: stationSeparationLs
+    label: "Station separation AB"
+    accessibleName: "Distance between clock stations A and B"
+    accessibleDescription: "Proper distance between the two stations, in light-seconds. Drives both the basic synchronization round and the section 2 rod chase."
+    quantityId: stationSeparationLs
+    displayUnit: "ls"
+    modelDomain:
+      min: 1.0e-6
+      max: 1.0e6
+      minInclusive: false
+      maxInclusive: true
+      reason: "Separation must be a finite, positive number of light-seconds."
+    visualRange:
+      min: 0.1
+      max: 100
+    default: 10
+    mapping:
+      kind: log
+      base: 10
+    role: independent
+    commandClass: setup-change
+  - id: emissionTimeA
+    label: "Signal emission time at A"
+    accessibleName: "Coordinate time the synchronizing signal leaves clock A"
+    accessibleDescription: "The time, by clock A, that the synchronizing signal is emitted."
+    quantityId: emissionTimeA
+    displayUnit: "s"
+    modelDomain:
+      min: 0
+      max: 1.0e6
+      minInclusive: true
+      maxInclusive: true
+      reason: "Emission time is finite and non-negative, after the run start."
+    visualRange:
+      min: 0
+      max: 60
+    default: 0
+    mapping:
+      kind: linear
+    role: independent
+    commandClass: physical-intervention
+  - id: clockOffsetB
+    label: "Initial clock offset (B)"
+    accessibleName: "Clock B's own independently-declared offset from the procedure's assignment"
+    accessibleDescription: "How far clock B's own reading differs from what Einstein's procedure would assign it. Zero means B is synchronized by definition."
+    quantityId: clockOffsetB
+    displayUnit: "s"
+    modelDomain:
+      min: -1.0e6
+      max: 1.0e6
+      minInclusive: true
+      maxInclusive: true
+      reason: "Any finite offset is admissible; it is a declared clock reading, not a physical constraint."
+    visualRange:
+      min: -5
+      max: 5
+    default: 0
+    mapping:
+      kind: linear
+    role: independent
+    commandClass: setup-change
+  - id: rodBeta
+    label: "Station motion (section 2)"
+    accessibleName: "Velocity of the rod ends in the stationary frame"
+    accessibleDescription: "Section 2's chase: the two stations are the ends of a rod moving at this fraction of c in the stationary frame."
+    quantityId: rodBeta
+    displayUnit: "1"
+    modelDomain:
+      min: -0.95
+      max: 0.95
+      minInclusive: true
+      maxInclusive: true
+      reason: "No inertial observer at |u| >= c; teaching range stays inside 0.95."
+    visualRange:
+      min: -0.95
+      max: 0.95
+    default: 0
+    mapping:
+      kind: linear
+    role: independent
+    commandClass: setup-change
+  - id: pairBeta
+    label: "Moving clock pair velocity"
+    accessibleName: "Velocity of the synchronized moving pair, judged from the platform"
+    accessibleDescription: "The pair's velocity as a fraction of c, judged in the platform (stationary) frame."
+    quantityId: pairBeta
+    displayUnit: "1"
+    modelDomain:
+      min: -0.95
+      max: 0.95
+      minInclusive: true
+      maxInclusive: true
+      reason: "No inertial observer at |v| >= c; teaching range stays inside 0.95."
+    visualRange:
+      min: -0.95
+      max: 0.95
+    default: 0.6
+    mapping:
+      kind: linear
+    role: independent
+    commandClass: setup-change
+  - id: pairSeparationLs
+    label: "Moving pair proper separation L"
+    accessibleName: "Proper separation of the moving clock pair"
+    accessibleDescription: "The distance between the two moving clocks, measured in their own rest frame, in light-seconds."
+    quantityId: pairSeparationLs
+    displayUnit: "ls"
+    modelDomain:
+      min: 1.0e-6
+      max: 1.0e6
+      minInclusive: false
+      maxInclusive: true
+      reason: "Separation must be a finite, positive number of light-seconds."
+    visualRange:
+      min: 0.1
+      max: 100
+    default: 10
+    mapping:
+      kind: log
+      base: 10
+    role: independent
+    commandClass: setup-change
+  - id: frameBeta
+    label: "Frame of description"
+    accessibleName: "Velocity of the observer describing the ledger"
+    accessibleDescription: "Changes which inertial frame's coordinates the ledger is expressed in. Never creates a new physical setup."
+    quantityId: frameBeta
+    displayUnit: "1"
+    modelDomain:
+      min: -0.95
+      max: 0.95
+      minInclusive: true
+      maxInclusive: true
+      reason: "No inertial observer at |v| >= c; teaching range stays inside 0.95."
+    visualRange:
+      min: -0.95
+      max: 0.95
+    default: 0
+    mapping:
+      kind: linear
+    role: independent
+    commandClass: observer-change
+outputs:
+  - id: assignedRemoteTime
+    quantityId: assignedRemoteTime
+    allowedStatuses:
+      - value
+      - outside-domain
+    primary: true
+  - id: roundTripSpeed
+    quantityId: roundTripSpeed
+    allowedStatuses:
+      - value
+      - outside-domain
+    primary: true
+  - id: criterionOffset
+    quantityId: criterionOffset
+    allowedStatuses:
+      - value
+      - outside-domain
+    primary: true
+  - id: chaseOutboundLeg
+    quantityId: chaseOutboundLeg
+    allowedStatuses:
+      - value
+      - outside-domain
+    primary: false
+  - id: chaseReturnLeg
+    quantityId: chaseReturnLeg
+    allowedStatuses:
+      - value
+      - outside-domain
+    primary: false
+  - id: desynchronization
+    quantityId: desynchronization
+    allowedStatuses:
+      - value
+      - outside-domain
+    primary: true
+  - id: oneWayLightSpeed
+    quantityId: oneWayLightSpeed
+    allowedStatuses:
+      - not-applicable
+    primary: false
+assumptions:
+  - "The two one-way transit times of the synchronizing signal are set equal by definition, not measured: Einstein's stated procedure (paper 3, section 1)."
+  - "Light speed c is the same in every inertial frame (postulate)."
+  - "Inertial frames, aligned axes, point events, and ideal clocks."
+  - "Alternative: slow clock transport requires a dynamical assumption about how a clock's rate depends on its motion; it agrees with the light convention only in the limit of vanishingly slow transport within one inertial frame, never as an exact equivalence at finite speed."
+admittedDomain: "Inertial frames with |v/c| < 1 for every velocity control, positive finite station and pair separations."
+notModeled:
+  - "signal delays in cables or electronics"
+  - "gravitational effects"
+  - "accelerated or rotating clocks"
+  - "clock mechanisms"
+  - "the optical appearance of distant clocks"
+  - "detector response times"
+  - "any measurement of one-way light speed"
+owner:
+  kind: reference-evaluator
+  kernelFunctions:
+    - displayRole: reference-implementation
+      language: ts
+      module: "src/physics/reference/events.ts"
+      exportName: "synchronizationRound"
+      independentReferences:
+        - experimentId: sr-01
+          quantityId: assignedRemoteTime
+    - displayRole: reference-implementation
+      language: ts
+      module: "src/physics/reference/events.ts"
+      exportName: "movingRodLegs"
+      independentReferences:
+        - experimentId: sr-01
+          quantityId: chaseOutboundLeg
+    - displayRole: reference-implementation
+      language: ts
+      module: "src/physics/reference/events.ts"
+      exportName: "desynchronizationObserved"
+      independentReferences:
+        - experimentId: sr-01
+          quantityId: desynchronization
+  identifierBindings:
+    - kernelFunction: synchronizationRound
+      identifier: emissionTimeA
+      quantityId: emissionTimeA
+    - kernelFunction: synchronizationRound
+      identifier: separationLs
+      quantityId: stationSeparationLs
+    - kernelFunction: synchronizationRound
+      identifier: assignedRemoteTime
+      quantityId: assignedRemoteTime
+    - kernelFunction: movingRodLegs
+      identifier: beta
+      quantityId: rodBeta
+    - kernelFunction: desynchronizationObserved
+      identifier: properSeparationLs
+      quantityId: pairSeparationLs
+    - kernelFunction: desynchronizationObserved
+      identifier: beta
+      quantityId: pairBeta
+views:
+  - id: table-event-ledger
+    kind: table
+    consumes:
+      - assignedRemoteTime
+      - roundTripSpeed
+      - criterionOffset
+  - id: svg-track-scene
+    kind: svg
+    consumes:
+      - chaseOutboundLeg
+      - chaseReturnLeg
+      - desynchronization
+actions:
+  - actionId: emit-signal
+    family: clock-event
+    question: "If a signal leaves A now and bounces off B, what time does the procedure assign B at reflection?"
+    inputs:
+      - emissionTimeA
+    commandClass: physical-intervention
+    acceptedResult:
+      outputs:
+        - assignedRemoteTime
+        - roundTripSpeed
+      allowedStatuses:
+        - value
+        - outside-domain
+    visualAffordance: "An emit-signal button at a typed model time, animating the signal along the track scene"
+    equivalentAffordance: "Choose emit signal from the ledger table's action list and read the assigned remote time as a table row."
+    announcement: "Signal emitted"
+  - actionId: change-frame-of-description
+    family: clock-event
+    question: "Which frame regards these events as simultaneous?"
+    inputs:
+      - frameBeta
+    commandClass: observer-change
+    acceptedResult:
+      outputs:
+        - assignedRemoteTime
+        - criterionOffset
+      allowedStatuses:
+        - value
+        - outside-domain
+    visualAffordance: "Frame-of-description slider redescribing the track scene's event positions"
+    equivalentAffordance: "Enter the frame velocity and read the redescribed ledger table; event ids and each clock's own reading stay the same."
+    announcement: "Frame of description updated"
+acceptanceCases:
+  - sr-01-sync-0-10
+  - sr-01-round-trip-10ls
+  - sr-01-rod-chase-0.6c
+  - sr-01-moving-pair-0.6c
+historicalOverlays: []
+realRate:
+  natural: false
+embeddable: true
+presets:
+  - presetId: sr-01-sync-0-10
+    label: "Emission at 0, reception at 10 (reflection assigned 5)"
+    parameterValues:
+      stationSeparationLs: 5
+      emissionTimeA: 0
+      clockOffsetB: 0
+      rodBeta: 0
+      pairBeta: 0.6
+      pairSeparationLs: 10
+      frameBeta: 0
+  - presetId: sr-01-second-flash-20-30
+    label: "Emission at 20, reception at 30 (reflection assigned 25)"
+    parameterValues:
+      stationSeparationLs: 5
+      emissionTimeA: 20
+      clockOffsetB: 0
+      rodBeta: 0
+      pairBeta: 0.6
+      pairSeparationLs: 10
+      frameBeta: 0
+  - presetId: sr-01-round-trip-10ls
+    label: "Round trip over 10 light-seconds (speed = c)"
+    parameterValues:
+      stationSeparationLs: 10
+      emissionTimeA: 0
+      clockOffsetB: 0
+      rodBeta: 0
+      pairBeta: 0.6
+      pairSeparationLs: 10
+      frameBeta: 0
+  - presetId: sr-01-rod-chase-0.6c
+    label: "Rod ends 10 ls apart, moving at 0.6c (legs 25 s / 6.25 s)"
+    parameterValues:
+      stationSeparationLs: 10
+      emissionTimeA: 0
+      clockOffsetB: 0
+      rodBeta: 0.6
+      pairBeta: 0.6
+      pairSeparationLs: 10
+      frameBeta: 0
+  - presetId: sr-01-moving-pair-0.6c
+    label: "Moving pair: L = 10 ls at 0.6c (6 s desynchronization, trailing ahead)"
+    parameterValues:
+      stationSeparationLs: 10
+      emissionTimeA: 0
+      clockOffsetB: 0
+      rodBeta: 0
+      pairBeta: 0.6
+      pairSeparationLs: 10
+      frameBeta: 0
+  - presetId: sr-01-three-stations
+    label: "Three mutually resting stations (A, B, C): transitivity"
+    parameterValues:
+      stationSeparationLs: 10
+      emissionTimeA: 0
+      clockOffsetB: 0
+      rodBeta: 0
+      pairBeta: 0.6
+      pairSeparationLs: 10
+      frameBeta: 0
+predictMode:
+  enabled: true
+  prompts:
+    - promptId: sr-01-predict-moving-pair
+      controlId: pairBeta
+      question: "A pair of clocks rides past at a steady speed, and the riders set their clocks with the same light-signal rule. Judged by our clocks, what do theirs show?"
+      candidates:
+        - id: they-agree
+          label: "They agree with ours"
+          description: "The moving pair's clocks read the same as ours at every moment we compare them."
+          separatingAssumption: "That would hold only if simultaneity itself did not depend on the frame doing the judging -- but the same light-signal procedure, applied by observers in relative motion, assigns different remote times to the same pair of events."
+        - id: leading-clock-ahead
+          label: "The leading clock is ahead"
+          description: "The clock at the front of the moving pair, in its direction of travel, reads later than the trailing one."
+          separatingAssumption: "This is the mirror image of what the platform frame actually finds for a pair moving in the positive direction: vL/c^2 puts the trailing clock ahead, not the leading one, for positive v."
+        - id: trailing-clock-ahead
+          label: "The trailing clock is ahead"
+          description: "The clock at the back of the moving pair, in its direction of travel, reads later than the leading one."
+          separatingAssumption: "This is what vL/c^2 gives directly: for a positive velocity, the trailing clock is observed ahead in the platform frame, by an amount that grows with both the speed and the proper separation."
