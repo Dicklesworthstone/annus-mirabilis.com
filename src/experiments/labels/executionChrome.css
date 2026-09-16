@@ -1,0 +1,77 @@
+/* Currency and execution chrome (am-inst-execution-labels-5ywv).
+   Meaning never depends on color alone: each currency state has a unique
+   heading, sentence, data-currency-state value, and border style. */
+
+.execution-chrome {
+  display: flex;
+  flex-direction: column;
+  align-items: flex-end;
+  gap: 0.45rem;
+  max-width: 22rem;
+}
+
+.execution-label {
+  margin: 0;
+}
+
+.execution-currency {
+  margin: 0;
+  padding: 0.35rem 0.55rem;
+  font-size: 0.8rem;
+  line-height: 1.45;
+  max-width: 100%;
+  background: var(--panel, #fffdf7);
+  color: inherit;
+}
+
+.execution-currency[data-currency-state="accepted"] {
+  border: 1px solid var(--line, #8c998f);
+  border-style: solid;
+}
+
+.execution-currency[data-currency-state="running"] {
+  border: 2px dashed var(--line, #8c998f);
+}
+
+.execution-currency[data-currency-state="refused"] {
+  border: 4px double var(--line, #8c998f);
+}
+
+.execution-currency[data-currency-state="stale"] {
+  border: 3px dotted var(--line, #8c998f);
+}
+
+.execution-currency-heading {
+  display: block;
+  font-weight: 650;
+  letter-spacing: 0.02em;
+}
+
+.execution-currency-text,
+.execution-currency-refusal {
+  display: block;
+  margin: 0.15rem 0 0;
+}
+
+.model-note {
+  width: 100%;
+  font-size: 0.8rem;
+  line-height: 1.45;
+  border: 1px solid var(--line, #c7c5b9);
+  padding: 0.35rem 0.55rem;
+  background: var(--panel, #fffdf7);
+}
+
+.model-note > summary {
+  cursor: pointer;
+  font-weight: 600;
+}
+
+.model-note-list {
+  margin: 0.4rem 0 0;
+  padding-left: 1.1rem;
+}
+
+.model-note-list > li {
+  margin: 0.2rem 0;
+}

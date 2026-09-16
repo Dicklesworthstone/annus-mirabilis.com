@@ -1,11 +1,14 @@
 "use client";
 import { type FormEvent, useEffect, useId, useState, useSyncExternalStore } from "react";
+import { getKernelListingsForInstrument } from "../../content/kernel/listings.ts";
 import { createBm05BrowserChannel } from "../../experiments/bm05/browser.ts";
 import { BM05_FIELDS, fromWalkDraft, toWalkDraft } from "../../experiments/bm05/controls.ts";
-import { BM05_MODEL, BM05_PROMPT, type Bm05Parameters } from "../../experiments/bm05/definition.ts";
+import { BM05_PROMPT, type Bm05Parameters } from "../../experiments/bm05/definition.ts";
 import { decodeBm05Settings, encodeBm05Settings } from "../../experiments/bm05/permalink.ts";
 import { createBm05Session, type PreparedBm05Example } from "../../experiments/bm05/session.ts";
-import { getKernelListingsForInstrument } from "../../content/kernel/listings.ts";
+import { ExecutionChrome } from "../../experiments/labels/ExecutionChrome.tsx";
+import { modelNoteFromView } from "../../experiments/labels/modelNoteData.ts";
+import { labelRootAttributes } from "../../experiments/labels/resultAttributes.ts";
 import type { AcceptedSnapshot } from "../../experiments/store/instanceStore.ts";
 import { array, display, identity, result, scalar } from "./presentation.ts";
 import { ShowTheCode } from "./ShowTheCode.tsx";
@@ -147,7 +150,7 @@ export function WalkLab({
       data-input-revision={view.requested!.revisions.input}
       data-accepted-input-revision={snapshot.revisions.input}
       data-pending={String(view.pending)}
-      data-execution-label="host"
+      {...labelRootAttributes("host-accepted", view, "sampleRms")}
       data-selected-step={p.n}
       data-kernel={p.kernel}
       data-recording-draws={scalar(snapshot, "recordingDraws")}
@@ -159,7 +162,14 @@ export function WalkLab({
           <p className="eyebrow">BM-05 · The independent-step argument</p>
           <h2 id={`${id}-title`}>{title}</h2>
         </div>
-        <span className="badge">{BM05_MODEL.label}</span>
+        <ExecutionChrome
+          state="host-accepted"
+          view={view}
+          modelNote={modelNoteFromView(view, {
+            notModeled: "A continuous Langevin path; only independent steps of a chosen law.",
+            showTheCodeHref: `#stc-${id}`,
+          })}
+        />
       </header>
       <noscript>
         <p className="notice">

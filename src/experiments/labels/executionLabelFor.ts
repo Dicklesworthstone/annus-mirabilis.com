@@ -25,6 +25,28 @@ export type ExecutionLabelInfo = Readonly<{
  * has no default case: an `ExecutionStateKind` value added upstream without a case here fails
  * `bun run typecheck` (`exhaustive` is typed `never`), rather than silently rendering nothing.
  */
+/**
+ * Maps the three-value host derivation (`deriveHostExecution`) onto the four
+ * public kinds this bead renders. FrankenSim is never produced here: that
+ * path is earned only by `deriveExecutionStateKind`.
+ */
+export function executionStateKindFromHostLabel(
+  label: "static" | "host" | "unavailable",
+): ExecutionStateKind {
+  switch (label) {
+    case "static":
+      return "static-example";
+    case "host":
+      return "host-accepted";
+    case "unavailable":
+      return "unavailable";
+    default: {
+      const exhaustive: never = label;
+      throw new Error(`Unhandled host execution label: ${String(exhaustive)}`);
+    }
+  }
+}
+
 export function executionLabelFor(state: ExecutionStateKind): ExecutionLabelInfo {
   switch (state) {
     case "frankensim-accepted":

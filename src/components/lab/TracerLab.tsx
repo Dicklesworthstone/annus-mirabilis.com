@@ -1,5 +1,6 @@
 "use client";
 import { type FormEvent, useEffect, useId, useState, useSyncExternalStore } from "react";
+import { getKernelListingsForInstrument } from "../../content/kernel/listings.ts";
 import { EquationScope } from "../../equations/EquationScope.tsx";
 import { SemanticEquation } from "../../equations/SemanticEquation.tsx";
 import type { CompiledEquation } from "../../equations/viewTypes.ts";
@@ -12,9 +13,12 @@ import {
 } from "../../experiments/bm01/definition.ts";
 import { decodeBm01Settings, encodeBm01Settings } from "../../experiments/bm01/permalink.ts";
 import { createBm01Session, type PreparedBm01Example } from "../../experiments/bm01/session.ts";
+import { ExecutionChrome } from "../../experiments/labels/ExecutionChrome.tsx";
+import { executionStateKindFromHostLabel } from "../../experiments/labels/executionLabelFor.ts";
+import { modelNoteFromView } from "../../experiments/labels/modelNoteData.ts";
+import { labelRootAttributes } from "../../experiments/labels/resultAttributes.ts";
 import { deriveHostExecution } from "../../experiments/provenance/executionState.ts";
 import type { AcceptedSnapshot } from "../../experiments/store/instanceStore.ts";
-import { getKernelListingsForInstrument } from "../../content/kernel/listings.ts";
 import equationPayload from "../../generated/brownian-equations.json";
 import { array, display, identity, result, scalar } from "./presentation.ts";
 import { ShowTheCode } from "./ShowTheCode.tsx";
@@ -149,6 +153,7 @@ export function TracerLab({
     example.sourceDigest,
     snapshot === session.getServerSnapshot().accepted,
   );
+  const executionKind = executionStateKindFromHostLabel(execution.label);
   const editQuantity = (quantityId: string) => {
     const name = (
       {
@@ -173,7 +178,7 @@ export function TracerLab({
         data-input-revision={view.requested!.revisions.input}
         data-accepted-input-revision={snapshot.revisions.input}
         data-pending={String(view.pending)}
-        data-execution-label={execution.label}
+        {...labelRootAttributes(executionKind, view, "tracerPositions")}
         data-recording-draws={scalar(snapshot, "recordingDraws")}
         data-recording-reused={scalar(snapshot, "reusedRecording")}
       >
@@ -182,7 +187,14 @@ export function TracerLab({
             <p className="eyebrow">BM-01 · A reproducible trial</p>
             <h2 id={`${id}-title`}>{title}</h2>
           </div>
-          <span className="badge">{execution.text} · Synthetic trajectories</span>
+          <ExecutionChrome
+            state={executionKind}
+            view={view}
+            modelNote={modelNoteFromView(view, {
+              notModeled: "Molecular collisions (no collision bath owns the displacement).",
+              showTheCodeHref: `#stc-${id}`,
+            })}
+          />
         </header>
         <noscript>
           <p className="notice">

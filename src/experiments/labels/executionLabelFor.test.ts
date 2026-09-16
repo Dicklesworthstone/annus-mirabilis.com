@@ -1,6 +1,10 @@
 import { describe, expect, test } from "bun:test";
 import { deriveExecutionStateKind, type ExecutionStateKind } from "../provenance/executionState.ts";
-import { DATA_EXECUTION_LABEL_VALUES, executionLabelFor } from "./executionLabelFor.ts";
+import {
+  DATA_EXECUTION_LABEL_VALUES,
+  executionLabelFor,
+  executionStateKindFromHostLabel,
+} from "./executionLabelFor.ts";
 
 const ALL_STATES: readonly ExecutionStateKind[] = [
   "frankensim-accepted",
@@ -59,5 +63,16 @@ describe("executionLabelFor: exhaustive mapping of the four public labels", () =
       ],
     });
     expect(executionLabelFor(state).text).toBe("Ideal model, host calculation");
+  });
+
+  test("executionStateKindFromHostLabel never maps a host derivation onto frankensim-accepted", () => {
+    expect(executionStateKindFromHostLabel("host")).toBe("host-accepted");
+    expect(executionStateKindFromHostLabel("static")).toBe("static-example");
+    expect(executionStateKindFromHostLabel("unavailable")).toBe("unavailable");
+    for (const label of ["host", "static", "unavailable"] as const) {
+      expect(executionLabelFor(executionStateKindFromHostLabel(label)).dataExecutionLabel).not.toBe(
+        "frankensim",
+      );
+    }
   });
 });

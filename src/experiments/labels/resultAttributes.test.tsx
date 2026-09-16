@@ -11,7 +11,12 @@ import {
 import { makeRefusal } from "../results/refusals.ts";
 import { instrumentRootAttributes } from "../store/identityAttributes.ts";
 import { createInstanceStore } from "../store/instanceStore.ts";
-import { executionLabelAttributes, resultAttributes } from "./resultAttributes.ts";
+import { deriveCurrencyState } from "./currencyState.ts";
+import {
+  executionLabelAttributes,
+  labelRootAttributes,
+  resultAttributes,
+} from "./resultAttributes.ts";
 
 function options() {
   return {
@@ -120,6 +125,55 @@ describe("resultAttributes + executionLabelAttributes on the instrument root (am
       if (!element) throw new Error("expected the refusal message element");
       expect(element.getAttribute("data-refusal-code")).toBe("invalid-parameter");
       expect(element.textContent).not.toContain("invalid-parameter");
+    } finally {
+      await act(() => {
+        root.unmount();
+      });
+      removeContainer(container);
+    }
+  });
+
+  test("labelRootAttributes on a paused setup-change carries data-currency-state=stale beside the last accepted engine label", async () => {
+    const store = createInstanceStore(options());
+    const first = store.issue("setup-change");
+    store.publish({ ...first, stepIndex: 0, simulationTime: 0, final: true, outputs: [output] });
+    store.issue("setup-change", { D: 2 });
+    store.pause();
+    const view = store.getSnapshot();
+    expect(deriveCurrencyState(view)).toBe("stale");
+    const identity = instrumentRootAttributes(view);
+    if (!identity) throw new Error("expected instrument root attributes after pause");
+    const labels = labelRootAttributes("host-accepted", view, "density");
+
+    const container = createContainer();
+    const root = createRoot(container);
+    try {
+      await act(() => {
+        root.render(
+          createElement("div", {
+            "data-testid": "instrument-root",
+            "data-instrument-id": "bm-06",
+            ...identity,
+            ...labels,
+          }),
+        );
+      });
+      const element = container.querySelector('[data-testid="instrument-root"]');
+      if (!element) throw new Error("expected the instrument root element");
+      expect(element.getAttribute("data-execution-label")).toBe("host");
+      expect(element.getAttribute("data-currency-state")).toBe("stale");
+      expect(element.getAttribute("data-pending")).toBe("false");
+      expect(element.getAttribute("data-input-revision")).not.toBe(
+        element.getAttribute("data-accepted-input-revision"),
+      );
+      const captured: Record<string, string | null> = {
+        "data-instrument-id": element.getAttribute("data-instrument-id"),
+        "data-execution-label": element.getAttribute("data-execution-label"),
+      };
+      for (const name of Object.keys(identity)) captured[name] = element.getAttribute(name);
+      const parsed = parseInstrumentRoot(captured);
+      expect(parsed.executionLabel).toBe("host");
+      expect(parsed.pending).toBe(false);
     } finally {
       await act(() => {
         root.unmount();

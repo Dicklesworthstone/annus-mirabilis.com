@@ -1,5 +1,6 @@
 "use client";
 import { type FormEvent, useEffect, useId, useState, useSyncExternalStore } from "react";
+import { getKernelListingsForInstrument } from "../../content/kernel/listings.ts";
 import { createBm06BrowserChannel } from "../../experiments/bm06/browser.ts";
 import {
   BM06_FIELDS as fields,
@@ -14,7 +15,9 @@ import {
 } from "../../experiments/bm06/definition.ts";
 import { decodeBm06Settings, encodeBm06Settings } from "../../experiments/bm06/permalink.ts";
 import { createBm06Session, type PreparedBm06Example } from "../../experiments/bm06/session.ts";
-import { getKernelListingsForInstrument } from "../../content/kernel/listings.ts";
+import { ExecutionChrome } from "../../experiments/labels/ExecutionChrome.tsx";
+import { modelNoteFromView } from "../../experiments/labels/modelNoteData.ts";
+import { labelRootAttributes } from "../../experiments/labels/resultAttributes.ts";
 import { DistributionPlot, GridComparison } from "./DistributionPlot.tsx";
 import { array, display, identity, scalar } from "./presentation.ts";
 import { ShowTheCode } from "./ShowTheCode.tsx";
@@ -140,7 +143,7 @@ export function BrownianLab({
       data-input-revision={view.requested!.revisions.input}
       data-accepted-input-revision={snapshot.revisions.input}
       data-pending={String(view.pending)}
-      data-execution-label="host"
+      {...labelRootAttributes("host-accepted", view, "probabilityDensity")}
       data-source-digest={example.sourceDigest}
     >
       <header className="lab-heading">
@@ -148,7 +151,14 @@ export function BrownianLab({
           <p className="eyebrow">BM-06 · An executable model</p>
           <h2 id={`${id}-title`}>{title}</h2>
         </div>
-        <span className="badge">{BM06_MODEL.label}</span>
+        <ExecutionChrome
+          state="host-accepted"
+          view={view}
+          modelNote={modelNoteFromView(view, {
+            notModeled: "The ballistic short-time regime and inertia.",
+            showTheCodeHref: `#stc-${id}`,
+          })}
+        />
       </header>
       <noscript>
         <p className="notice">

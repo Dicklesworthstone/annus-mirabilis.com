@@ -9,6 +9,7 @@
  */
 import type { ExecutionStateKind } from "../provenance/executionState.ts";
 import type { ExperimentView } from "../store/instanceStore.ts";
+import { currencyAttributes, deriveCurrencyState } from "./currencyState.ts";
 import { type DataExecutionLabelValue, executionLabelFor } from "./executionLabelFor.ts";
 
 export type ExecutionLabelAttributes = Readonly<{
@@ -39,4 +40,21 @@ export function resultAttributes(view: ExperimentView, primaryOutputId: string):
   const output = view.accepted?.outputs.find((o) => o.quantityId === primaryOutputId);
   if (!output) return Object.freeze({});
   return Object.freeze({ "data-result-status": output.status });
+}
+
+/**
+ * Attributes this bead owns on the instrument root, spread alongside
+ * `instrumentRootAttributes`. Currency is omitted when no snapshot exists.
+ */
+export function labelRootAttributes(
+  state: ExecutionStateKind,
+  view: ExperimentView,
+  primaryOutputId: string,
+): Readonly<Record<string, string>> {
+  const currency = deriveCurrencyState(view);
+  return Object.freeze({
+    ...executionLabelAttributes(state),
+    ...(currency === undefined ? {} : currencyAttributes(currency)),
+    ...resultAttributes(view, primaryOutputId),
+  });
 }

@@ -8,6 +8,7 @@
  */
 import { describe, expect, test } from "bun:test";
 import type { ExecutionStateKind } from "../provenance/executionState.ts";
+import type { ExecutionLabelProps } from "./ExecutionLabel.tsx";
 import { executionLabelFor } from "./executionLabelFor.ts";
 
 describe("labelProps: loader state cannot reach the label component's function", () => {
@@ -35,5 +36,11 @@ describe("labelProps: loader state cannot reach the label component's function",
     for (const state of states) {
       expect(executionLabelFor(state).text.length).toBeGreaterThan(0);
     }
+  });
+
+  test("ExecutionLabel props reject a loader-state object at the type level", () => {
+    // @ts-expect-error loader/artifact flags are not ExecutionLabel props.
+    const rejected: ExecutionLabelProps = { artifactLoaded: true, workerReady: true };
+    expect(rejected).not.toBeUndefined();
   });
 });
