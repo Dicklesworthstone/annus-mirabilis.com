@@ -1,0 +1,675 @@
+/**
+ * Extracted from classic-patents.com
+ * Source repository: https://github.com/Dicklesworthstone/classic-patents.com
+ * Source path: src/physics/genericWasm.ts
+ * Pinned commit: da11ff475902728fd8dd1d9db9f3af37c16ec8a5
+ * License: MIT License (with OpenAI/Anthropic Rider)
+ * Preserved license text: /LICENSE
+ *
+ * Modifications:
+ * - Removed patent-specific visual crate helper functions.
+ * - Preserved generic WASM loading, execution labeling states ('wasm' | 'ts-fallback' | 'unloaded'), and reference host fallbacks (heat, wave, cyclic symmetry, Laplacian modes, fluid frames, GA motor orbit).
+ */
+
+export type GenericKernelSource = "wasm" | "ts-fallback" | "unloaded";
+
+type GaFn = (nPoints: number, steps: number) => Float64Array;
+type HeatFn = (n: number, frames: number, stepsPerFrame: number) => Float64Array;
+type WaveFn = (n: number, frames: number, stepsPerFrame: number) => Float64Array;
+type FluidFn = (n: number, frames: number) => Float64Array;
+type CyclicFn = (n: number, stiffness: number) => Float64Array;
+type ModesFn = (n: number, k: number) => Float64Array;
+type PoissonFn = (n: number) => Float64Array;
+type GrayScottFn = (n: number, frames: number, feed: number, kill: number) => Float64Array;
+type FftFn = (n: number, seed: number) => Float64Array;
+type AutodiffFn = (xmin: number, xmax: number, samples: number) => Float64Array;
+type HodgeFn = (shape: number) => Float64Array;
+type NsCavityFn = (cells: number, frames: number, re: number, spf: number) => Float64Array;
+type TrussPathFn = (nx: number, ny: number, gapTol: number) => Float64Array;
+type FlowcertFn = (steps: number, tol: number) => Float64Array;
+type RunFrameFn = (seed: number) => Float64Array;
+type GenericKernelSourceListener = () => void;
+
+let gaFn: GaFn | null = null;
+let heatFn: HeatFn | null = null;
+let waveFn: WaveFn | null = null;
+let fluidFn: FluidFn | null = null;
+let cyclicFn: CyclicFn | null = null;
+let modesFn: ModesFn | null = null;
+let loadPromise: Promise<GenericKernelSource> | null = null;
+let source: GenericKernelSource = "unloaded";
+const sourceListeners = new Set<GenericKernelSourceListener>();
+
+/**
+ * Optional numerical exports bound when a slim WASM artifact instantiates.
+ */
+export const extraWasmFns: {
+  poisson2d: PoissonFn | null;
+  grayScottFrames: GrayScottFn | null;
+  fftPowerSpectrum: FftFn | null;
+  autodiffDerivatives: AutodiffFn | null;
+  hodgeDecomposition: HodgeFn | null;
+  navierStokesCavity: NsCavityFn | null;
+  trussPath: TrussPathFn | null;
+  flowcert: FlowcertFn | null;
+  runFrame: RunFrameFn | null;
+} = {
+  poisson2d: null,
+  grayScottFrames: null,
+  fftPowerSpectrum: null,
+  autodiffDerivatives: null,
+  hodgeDecomposition: null,
+  navierStokesCavity: null,
+  trussPath: null,
+  flowcert: null,
+  runFrame: null,
+};
+
+function clearExtraWasmFns() {
+  extraWasmFns.poisson2d = null;
+  extraWasmFns.grayScottFrames = null;
+  extraWasmFns.fftPowerSpectrum = null;
+  extraWasmFns.autodiffDerivatives = null;
+  extraWasmFns.hodgeDecomposition = null;
+  extraWasmFns.navierStokesCavity = null;
+  extraWasmFns.trussPath = null;
+  extraWasmFns.flowcert = null;
+  extraWasmFns.runFrame = null;
+}
+
+const orbitCache = new Map<string, Float64Array>();
+const heatCache = new Map<string, Float64Array>();
+const waveCache = new Map<string, Float64Array>();
+const fluidCache = new Map<string, Float64Array>();
+const cyclicCache = new Map<string, Float64Array>();
+const modesCache = new Map<string, Float64Array>();
+
+function clearKernelCaches() {
+  orbitCache.clear();
+  heatCache.clear();
+  waveCache.clear();
+  fluidCache.clear();
+  cyclicCache.clear();
+  modesCache.clear();
+}
+
+export function genericKernelSource(): GenericKernelSource {
+  return source;
+}
+
+export function subscribeGenericKernelSource(listener: GenericKernelSourceListener): () => void {
+  sourceListeners.add(listener);
+  return () => sourceListeners.delete(listener);
+}
+
+function setGenericKernelSource(next: GenericKernelSource): void {
+  if (source === next) return;
+  source = next;
+  for (const listener of [...sourceListeners]) listener();
+}
+
+export function ensureGenericWasm(): Promise<GenericKernelSource> {
+  loadPromise ??= initializeGenericWasm();
+  return loadPromise;
+}
+
+async function initializeGenericWasm(): Promise<GenericKernelSource> {
+  if (typeof window === "undefined") {
+    setGenericKernelSource("ts-fallback");
+    return source;
+  }
+  try {
+    const jsUrl = "/wasm/fs-generic/fs_wasm.js";
+    const wasmUrl = "/wasm/fs-generic/fs_wasm_bg.wasm";
+    const jsText = await fetch(jsUrl, { signal: AbortSignal.timeout(10_000) }).then((r) => {
+      if (!r.ok) throw new Error(`generic wasm glue ${r.status}`);
+      return r.text();
+    });
+    const blobUrl = URL.createObjectURL(new Blob([jsText], { type: "text/javascript" }));
+    try {
+      const mod = (await import(/* webpackIgnore: true */ blobUrl)) as {
+        default: (module_or_path?: unknown) => Promise<unknown>;
+        ga_motor_orbit?: GaFn;
+        heat_frames?: HeatFn;
+        wave2d_frames?: WaveFn;
+        fluid_frames?: FluidFn;
+        cyclic_symmetry?: CyclicFn;
+        laplacian_modes?: ModesFn;
+        poisson2d?: PoissonFn;
+        gray_scott_frames?: GrayScottFn;
+        fft_power_spectrum?: FftFn;
+        autodiff_derivatives?: AutodiffFn;
+        hodge_decomposition?: HodgeFn;
+        navier_stokes_cavity?: NsCavityFn;
+        trusspath?: TrussPathFn;
+        flowcert?: FlowcertFn;
+        run_frame?: RunFrameFn;
+        engine?: () => string;
+      };
+      await mod.default({ module_or_path: wasmUrl });
+      if (
+        typeof mod.ga_motor_orbit !== "function" ||
+        typeof mod.heat_frames !== "function" ||
+        typeof mod.wave2d_frames !== "function" ||
+        typeof mod.fluid_frames !== "function" ||
+        typeof mod.cyclic_symmetry !== "function" ||
+        typeof mod.laplacian_modes !== "function"
+      ) {
+        throw new Error("fs-wasm core motor/heat/wave/fluid/cyclic/modal exports missing");
+      }
+      gaFn = mod.ga_motor_orbit;
+      heatFn = mod.heat_frames;
+      waveFn = mod.wave2d_frames;
+      fluidFn = mod.fluid_frames;
+      cyclicFn = mod.cyclic_symmetry;
+      modesFn = mod.laplacian_modes;
+      extraWasmFns.poisson2d = typeof mod.poisson2d === "function" ? mod.poisson2d : null;
+      extraWasmFns.grayScottFrames =
+        typeof mod.gray_scott_frames === "function" ? mod.gray_scott_frames : null;
+      extraWasmFns.fftPowerSpectrum =
+        typeof mod.fft_power_spectrum === "function" ? mod.fft_power_spectrum : null;
+      extraWasmFns.autodiffDerivatives =
+        typeof mod.autodiff_derivatives === "function" ? mod.autodiff_derivatives : null;
+      extraWasmFns.hodgeDecomposition =
+        typeof mod.hodge_decomposition === "function" ? mod.hodge_decomposition : null;
+      extraWasmFns.navierStokesCavity =
+        typeof mod.navier_stokes_cavity === "function" ? mod.navier_stokes_cavity : null;
+      extraWasmFns.trussPath = typeof mod.trusspath === "function" ? mod.trusspath : null;
+      extraWasmFns.flowcert = typeof mod.flowcert === "function" ? mod.flowcert : null;
+      extraWasmFns.runFrame = typeof mod.run_frame === "function" ? mod.run_frame : null;
+      clearKernelCaches();
+      setGenericKernelSource("wasm");
+    } finally {
+      URL.revokeObjectURL(blobUrl);
+    }
+  } catch {
+    gaFn = null;
+    heatFn = null;
+    waveFn = null;
+    fluidFn = null;
+    cyclicFn = null;
+    modesFn = null;
+    clearExtraWasmFns();
+    setGenericKernelSource("ts-fallback");
+  }
+  return source;
+}
+
+/** PGA screw motor orbit. Layout: [nPoints, steps, then steps*nPoints*3 xyz]. */
+export function gaMotorOrbit(nPoints: number, steps: number): Float64Array {
+  const n = Math.max(3, Math.min(200, Math.floor(nPoints)));
+  const s = Math.max(1, Math.min(240, Math.floor(steps)));
+  const key = `${n}:${s}`;
+  const cached = orbitCache.get(key);
+  if (cached) return cached;
+  let out: Float64Array;
+  if (gaFn) {
+    const raw = gaFn(n, s);
+    out = raw instanceof Float64Array ? raw : Float64Array.from(raw);
+  } else {
+    out = gaMotorOrbitFallback(n, s);
+  }
+  orbitCache.set(key, out);
+  return out;
+}
+
+/** Explicit 5-pt heat diffusion. Layout: frames * n * n, row-major. */
+export function heatFrames(n: number, frames: number, stepsPerFrame = 2): Float64Array {
+  const nn = Math.max(3, Math.min(96, Math.floor(n)));
+  const f = Math.max(1, Math.min(240, Math.floor(frames)));
+  const spf = Math.max(1, Math.min(40, Math.floor(stepsPerFrame)));
+  const key = `${nn}:${f}:${spf}`;
+  const cached = heatCache.get(key);
+  if (cached) return cached;
+  let out: Float64Array;
+  if (heatFn) {
+    const raw = heatFn(nn, f, spf);
+    out = raw instanceof Float64Array ? raw : Float64Array.from(raw);
+  } else {
+    out = heatFramesFallback(nn, f, spf);
+  }
+  heatCache.set(key, out);
+  return out;
+}
+
+/** 2-D wave snapshots. Layout: frames * n * n. */
+export function wave2dFrames(n: number, frames: number, stepsPerFrame = 2): Float64Array {
+  const nn = Math.max(8, Math.min(128, Math.floor(n)));
+  const f = Math.max(1, Math.min(180, Math.floor(frames)));
+  const spf = Math.max(1, Math.min(8, Math.floor(stepsPerFrame)));
+  const key = `${nn}:${f}:${spf}`;
+  const cached = waveCache.get(key);
+  if (cached) return cached;
+  let out: Float64Array;
+  if (waveFn) {
+    const raw = waveFn(nn, f, spf);
+    out = raw instanceof Float64Array ? raw : Float64Array.from(raw);
+  } else {
+    out = wave2dFramesFallback(nn, f, spf);
+  }
+  waveCache.set(key, out);
+  return out;
+}
+
+/** Stable-fluids density snapshots. Layout: frames * n * n. */
+export function fluidFrames(n: number, frames: number): Float64Array {
+  const nn = Math.max(16, Math.min(96, Math.floor(n)));
+  const f = Math.max(1, Math.min(200, Math.floor(frames)));
+  const key = `${nn}:${f}`;
+  const cached = fluidCache.get(key);
+  if (cached) return cached;
+  let out: Float64Array;
+  if (fluidFn) {
+    const raw = fluidFn(nn, f);
+    out = raw instanceof Float64Array ? raw : Float64Array.from(raw);
+  } else {
+    out = fluidFramesFallback(nn, f);
+  }
+  fluidCache.set(key, out);
+  return out;
+}
+
+/** Circulant Toeplitz solver for 1D rotational / cyclic structures. */
+export function cyclicSymmetry(n: number, kappa: number): Float64Array {
+  const nn = Math.max(4, Math.min(64, Math.floor(n)));
+  const k = Math.max(0.01, Math.min(100, kappa));
+  const key = `${nn}:${k.toFixed(4)}`;
+  const cached = cyclicCache.get(key);
+  if (cached) return cached;
+  let out: Float64Array;
+  if (cyclicFn) {
+    const raw = cyclicFn(nn, k);
+    out = raw instanceof Float64Array ? raw : Float64Array.from(raw);
+  } else {
+    out = cyclicSymmetryFallback(nn, k);
+  }
+  cyclicCache.set(key, out);
+  return out;
+}
+
+/** First k Dirichlet Laplacian modes. */
+export function laplacianModes(n: number, k: number): Float64Array {
+  const nn = Math.max(4, Math.min(64, Math.floor(n)));
+  const kk = Math.max(1, Math.min(nn, Math.floor(k)));
+  const key = `${nn}:${kk}`;
+  const cached = modesCache.get(key);
+  if (cached) return cached;
+  let out: Float64Array;
+  if (modesFn) {
+    const raw = modesFn(nn, kk);
+    out = raw instanceof Float64Array ? raw : Float64Array.from(raw);
+  } else {
+    out = laplacianModesFallback(nn, kk);
+  }
+  modesCache.set(key, out);
+  return out;
+}
+
+/** Map angular progress to a frame index along a closed orbit. */
+export function gaMotorFrameIndex(
+  progress01: number,
+  fullTurnRad: number,
+  totalFrames: number,
+): number {
+  if (totalFrames <= 0) return 0;
+  const wrapped = ((progress01 % 1) + 1) % 1;
+  const turnFrac = fullTurnRad > 0 ? (wrapped * 2 * Math.PI) / fullTurnRad : wrapped;
+  const idx = Math.floor(turnFrac * totalFrames) % totalFrames;
+  return Math.max(0, Math.min(totalFrames - 1, idx));
+}
+
+/** Bilinear sample from a 2D scalar field within heatFrames. */
+export function sampleHeatAt(
+  heat: Float64Array,
+  n: number,
+  frames: number,
+  frame: number,
+  u: number,
+  v: number,
+): number {
+  const f = Math.max(0, Math.min(frames - 1, Math.floor(frame)));
+  const m = n * n;
+  const offset = f * m;
+  const x = Math.max(0, Math.min(n - 1, u * (n - 1)));
+  const y = Math.max(0, Math.min(n - 1, v * (n - 1)));
+  const i = Math.floor(x);
+  const j = Math.floor(y);
+  const fx = x - i;
+  const fy = y - j;
+  const i1 = Math.min(n - 1, i + 1);
+  const j1 = Math.min(n - 1, j + 1);
+  const a = heat[offset + j * n + i] ?? 0;
+  const b = heat[offset + j * n + i1] ?? 0;
+  const c = heat[offset + j1 * n + i] ?? 0;
+  const d = heat[offset + j1 * n + i1] ?? 0;
+  return a * (1 - fx) * (1 - fy) + b * fx * (1 - fy) + c * (1 - fx) * fy + d * fx * fy;
+}
+
+/** Root-mean-square amplitude of one 2D wave snapshot. */
+export function waveFrameRms(
+  wave: Float64Array,
+  n: number,
+  frames: number,
+  frame: number,
+): number {
+  const f = Math.max(0, Math.min(frames - 1, Math.floor(frame)));
+  const m = n * n;
+  const offset = f * m;
+  let sumSq = 0;
+  for (let i = 0; i < m; i++) {
+    const v = wave[offset + i] ?? 0;
+    sumSq += v * v;
+  }
+  return Math.sqrt(sumSq / Math.max(1, m));
+}
+
+/** Read solution at sector index from cyclicSymmetry output. */
+export function cyclicSol(ring: Float64Array, index: number): number {
+  const n = ring[0] ?? 0;
+  if (n <= 0) return 0;
+  const idx = ((index % n) + n) % n;
+  return ring[1 + 2 * n + idx] ?? 0;
+}
+
+/** Read harmonic magnitude from cyclicSymmetry output. */
+export function cyclicHarmonic(ring: Float64Array, harmonicIndex: number): number {
+  const n = ring[0] ?? 0;
+  if (n <= 0) return 0;
+  const idx = Math.max(0, Math.min(n - 1, Math.floor(harmonicIndex)));
+  return ring[1 + 3 * n + idx] ?? 0;
+}
+
+/** Sample one spatial mode from laplacianModes output. */
+export function laplacianModeShape(
+  modes: Float64Array,
+  n: number,
+  k: number,
+  modeIndex: number,
+  spatialIndex: number,
+): number {
+  if (modeIndex < 0 || modeIndex >= k) return 0;
+  if (spatialIndex < 0 || spatialIndex >= n) return 0;
+  return modes[k + modeIndex * n + spatialIndex] ?? 0;
+}
+
+/** Bilinear sample from fluid density. */
+export function sampleFluidAt(
+  fluid: Float64Array,
+  n: number,
+  frames: number,
+  frame: number,
+  u: number,
+  v: number,
+): number {
+  const f = Math.max(0, Math.min(frames - 1, Math.floor(frame)));
+  const m = n * n;
+  const offset = f * m;
+  const slice = fluid.subarray(offset, offset + m);
+  return fluidSample(slice, n, u * (n - 1), v * (n - 1));
+}
+
+// ----------------------------------------------------------------------------
+// Host Reference Fallbacks
+// ----------------------------------------------------------------------------
+
+function gaMotorOrbitFallback(nPoints: number, steps: number): Float64Array {
+  const twoPi = Math.PI * 2;
+  const seedR = 0.35;
+  const offset = 1.0;
+  const dtheta = twoPi / 60;
+  const dz = 0.06;
+  const out = new Float64Array(2 + steps * nPoints * 3);
+  out[0] = nPoints;
+  out[1] = steps;
+  let cursor = 2;
+  let theta = 0;
+  let zOff = 0;
+  for (let s = 0; s < steps; s++) {
+    const c = Math.cos(theta);
+    const sn = Math.sin(theta);
+    for (let i = 0; i < nPoints; i++) {
+      const a = (twoPi * i) / nPoints;
+      const sx = offset + seedR * Math.cos(a);
+      const sy = 0;
+      const sz = seedR * Math.sin(a);
+      out[cursor] = c * sx - sn * sy;
+      out[cursor + 1] = sn * sx + c * sy;
+      out[cursor + 2] = sz + zOff;
+      cursor += 3;
+    }
+    theta += dtheta;
+    zOff += dz;
+  }
+  return out;
+}
+
+function heatFramesFallback(n: number, frames: number, spf: number): Float64Array {
+  const m = n * n;
+  const u = new Float64Array(m);
+  const au = new Float64Array(m);
+  const h = 1 / (n + 1);
+  const gauss = (x: number, y: number, cx: number, cy: number, s: number) =>
+    Math.exp(-((x - cx) ** 2 + (y - cy) ** 2) / (2 * s * s));
+  for (let i = 0; i < n; i++) {
+    for (let j = 0; j < n; j++) {
+      const x = (i + 1) * h;
+      const y = (j + 1) * h;
+      u[i * n + j] = gauss(x, y, 0.3, 0.3, 0.07) - gauss(x, y, 0.7, 0.68, 0.08);
+    }
+  }
+  const dt = 0.2;
+  const out = new Float64Array(frames * m);
+  for (let f = 0; f < frames; f++) {
+    out.set(u, f * m);
+    for (let s = 0; s < spf; s++) {
+      for (let i = 0; i < n; i++) {
+        for (let j = 0; j < n; j++) {
+          const idx = i * n + j;
+          const c = u[idx] ?? 0;
+          const up = i > 0 ? (u[(i - 1) * n + j] ?? 0) : c;
+          const dn = i + 1 < n ? (u[(i + 1) * n + j] ?? 0) : c;
+          const lf = j > 0 ? (u[i * n + (j - 1)] ?? 0) : c;
+          const rt = j + 1 < n ? (u[i * n + (j + 1)] ?? 0) : c;
+          au[idx] = 4 * c - up - dn - lf - rt;
+        }
+      }
+      for (let i = 0; i < m; i++) {
+        u[i] = (u[i] ?? 0) - dt * (au[i] ?? 0);
+      }
+    }
+  }
+  return out;
+}
+
+function wave2dFramesFallback(n: number, frames: number, spf: number): Float64Array {
+  const m = n * n;
+  const uPrev = new Float64Array(m);
+  const uCur = new Float64Array(m);
+  const twoPi = Math.PI * 2;
+  const sigma = 0.55;
+  for (let row = 0; row < n; row++) {
+    for (let col = 0; col < n; col++) {
+      const x = (twoPi * col) / n - Math.PI;
+      const y = (twoPi * row) / n - Math.PI;
+      const v = Math.exp(-(x * x + y * y) / (2 * sigma * sigma));
+      const idx = row * n + col;
+      uPrev[idx] = v;
+      uCur[idx] = v;
+    }
+  }
+  const dt = 0.08;
+  const out = new Float64Array(frames * m);
+  const lap = new Float64Array(m);
+  for (let f = 0; f < frames; f++) {
+    out.set(uCur, f * m);
+    for (let s = 0; s < spf; s++) {
+      for (let i = 0; i < n; i++) {
+        for (let j = 0; j < n; j++) {
+          const idx = i * n + j;
+          const c = uCur[idx] ?? 0;
+          const up = i > 0 ? (uCur[(i - 1) * n + j] ?? 0) : c;
+          const dn = i + 1 < n ? (uCur[(i + 1) * n + j] ?? 0) : c;
+          const lf = j > 0 ? (uCur[i * n + (j - 1)] ?? 0) : c;
+          const rt = j + 1 < n ? (uCur[i * n + (j + 1)] ?? 0) : c;
+          lap[idx] = up + dn + lf + rt - 4 * c;
+        }
+      }
+      for (let i = 0; i < m; i++) {
+        const next = 2 * (uCur[i] ?? 0) - (uPrev[i] ?? 0) + dt * dt * (lap[i] ?? 0);
+        uPrev[i] = uCur[i] ?? 0;
+        uCur[i] = next;
+      }
+    }
+  }
+  return out;
+}
+
+function cyclicSymmetryFallback(n: number, kappa: number): Float64Array {
+  const twoPi = Math.PI * 2;
+  const first = new Float64Array(n);
+  first[0] = 2 + kappa;
+  first[1] = -1;
+  first[n - 1] = -1;
+  const rhs = new Float64Array(n);
+  rhs[0] = 1;
+  const sol = new Float64Array(n);
+  const harmonics = new Float64Array(n);
+  const hatC = new Float64Array(n);
+  for (let k = 0; k < n; k++) {
+    hatC[k] = 2 + kappa - 2 * Math.cos((twoPi * k) / n);
+  }
+  for (let j = 0; j < n; j++) {
+    let v = 0;
+    for (let k = 0; k < n; k++) {
+      const denom = hatC[k] === 0 ? 1e-9 : (hatC[k] ?? 1e-9);
+      v += Math.cos((twoPi * k * j) / n) / denom;
+    }
+    sol[j] = v / n;
+  }
+  for (let k = 0; k < n; k++) {
+    let re = 0;
+    let im = 0;
+    for (let j = 0; j < n; j++) {
+      const xj = sol[j] ?? 0;
+      const ang = (twoPi * k * j) / n;
+      re += xj * Math.cos(ang);
+      im -= xj * Math.sin(ang);
+    }
+    harmonics[k] = Math.hypot(re, im) / n;
+  }
+  const out = new Float64Array(1 + 4 * n);
+  out[0] = n;
+  out.set(first, 1);
+  out.set(rhs, 1 + n);
+  out.set(sol, 1 + 2 * n);
+  out.set(harmonics, 1 + 3 * n);
+  return out;
+}
+
+function laplacianModesFallback(n: number, k: number): Float64Array {
+  const out = new Float64Array(k + k * n);
+  const norm = Math.sqrt(2 / (n + 1));
+  for (let m = 0; m < k; m++) {
+    const mode = m + 1;
+    out[m] = 2 - 2 * Math.cos((Math.PI * mode) / (n + 1));
+    for (let i = 0; i < n; i++) {
+      out[k + m * n + i] = norm * Math.sin((Math.PI * mode * (i + 1)) / (n + 1));
+    }
+  }
+  return out;
+}
+
+function fluidIdx(n: number, i: number, j: number): number {
+  const ii = Math.max(0, Math.min(n - 1, i));
+  const jj = Math.max(0, Math.min(n - 1, j));
+  return jj * n + ii;
+}
+
+function fluidSample(field: Float64Array, n: number, x: number, y: number): number {
+  const x0 = Math.max(0, Math.min(n - 1.001, x));
+  const y0 = Math.max(0, Math.min(n - 1.001, y));
+  const i = Math.floor(x0);
+  const j = Math.floor(y0);
+  const fx = x0 - i;
+  const fy = y0 - j;
+  const a = field[fluidIdx(n, i, j)] ?? 0;
+  const b = field[fluidIdx(n, i + 1, j)] ?? 0;
+  const c = field[fluidIdx(n, i, j + 1)] ?? 0;
+  const d = field[fluidIdx(n, i + 1, j + 1)] ?? 0;
+  return a * (1 - fx) * (1 - fy) + b * fx * (1 - fy) + c * (1 - fx) * fy + d * fx * fy;
+}
+
+function fluidFramesFallback(n: number, frames: number): Float64Array {
+  const m = n * n;
+  const vx = new Float64Array(m);
+  const vy = new Float64Array(m);
+  const dens = new Float64Array(m);
+  const p = new Float64Array(m);
+  const div = new Float64Array(m);
+  const tmp = new Float64Array(m);
+  const out = new Float64Array(frames * m);
+  const dt = 1;
+  const buoyancy = 0.12;
+  const vmax = n / 4;
+  const srcI = Math.floor(n * 0.25);
+  const srcJ = n - 2;
+  for (let frame = 0; frame < frames; frame++) {
+    dens[fluidIdx(n, srcI, srcJ)] = Math.min(1, (dens[fluidIdx(n, srcI, srcJ)] ?? 0) + 0.8);
+    vy[fluidIdx(n, srcI, srcJ)] = (vy[fluidIdx(n, srcI, srcJ)] ?? 0) + 0.35;
+    for (let k = 0; k < m; k++) {
+      vy[k] = (vy[k] ?? 0) + dt * buoyancy * (dens[k] ?? 0);
+    }
+    tmp.set(dens);
+    for (let j = 0; j < n; j++) {
+      for (let i = 0; i < n; i++) {
+        const k = j * n + i;
+        const x = i - dt * (vx[k] ?? 0);
+        const y = j - dt * (vy[k] ?? 0);
+        dens[k] = fluidSample(tmp, n, x, y);
+      }
+    }
+    for (let j = 0; j < n; j++) {
+      for (let i = 0; i < n; i++) {
+        const ip = Math.min(n - 1, i + 1);
+        const im = Math.max(0, i - 1);
+        const jp = Math.min(n - 1, j + 1);
+        const jm = Math.max(0, j - 1);
+        div[j * n + i] =
+          0.5 *
+          ((vx[j * n + ip] ?? 0) -
+            (vx[j * n + im] ?? 0) +
+            (vy[jp * n + i] ?? 0) -
+            (vy[jm * n + i] ?? 0));
+      }
+    }
+    p.fill(0);
+    for (let it = 0; it < 8; it++) {
+      tmp.set(p);
+      for (let j = 1; j < n - 1; j++) {
+        for (let i = 1; i < n - 1; i++) {
+          p[j * n + i] =
+            0.25 *
+            ((tmp[j * n + (i + 1)] ?? 0) +
+              (tmp[j * n + (i - 1)] ?? 0) +
+              (tmp[(j + 1) * n + i] ?? 0) +
+              (tmp[(j - 1) * n + i] ?? 0) -
+              (div[j * n + i] ?? 0));
+        }
+      }
+    }
+    for (let j = 1; j < n - 1; j++) {
+      for (let i = 1; i < n - 1; i++) {
+        const k = j * n + i;
+        vx[k] = (vx[k] ?? 0) - 0.5 * ((p[j * n + (i + 1)] ?? 0) - (p[j * n + (i - 1)] ?? 0));
+        vy[k] = (vy[k] ?? 0) - 0.5 * ((p[(j + 1) * n + i] ?? 0) - (p[(j - 1) * n + i] ?? 0));
+      }
+    }
+    for (let k = 0; k < m; k++) {
+      vx[k] = Math.max(-vmax, Math.min(vmax, (vx[k] ?? 0) * 0.999));
+      vy[k] = Math.max(-vmax, Math.min(vmax, (vy[k] ?? 0) * 0.999));
+      dens[k] = Math.max(0, Math.min(1, (dens[k] ?? 0) * 0.994));
+    }
+    out.set(dens, frame * m);
+  }
+  return out;
+}

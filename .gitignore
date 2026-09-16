@@ -47,7 +47,7 @@ artifacts/
 test-results/
 playwright-report/
 blob-report/
-coverage/
+/coverage/
 
 # Scratch work belongs in a session scratch directory, never in the repository
 tmp

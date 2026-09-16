@@ -1089,6 +1089,8 @@ visual dispatch.
 (`ios/check-native-parity.ts`), the native math parser (`ios/Sources/NativeMathView.swift`), the
 native SceneKit tab (`ios/Sources/NativePatentSceneView.swift`), and the hand-typed native theme
 (`ios/Sources/Theme.swift`).
+- `src/physics/lie.ts`: Implements SO(3) Euler equations with moments of inertia for aircraft rigid-body flight dynamics (Wright flyer fallback in donor). It does not implement Lorentz boosts or relativistic velocity composition; relativistic transformations belong in FrankenSim and paper-specific reference evaluators.
+- `src/physics/telemetryData.ts`: Module-global UI tick counter and patent-scoped telemetry maps replaced by instance-scoped snapshot stores (`am-rt-snapshot-store-aft`).
 
 ### 11.5 A blanket rename is not an extraction
 
@@ -1119,10 +1121,18 @@ _No files extracted yet._
 
 #### `am-scaf-extract-runtime-utilities-99y`
 
-| sourcePath | newOwner | retainedBehavior | removedAssumptions | firstReaderJourney | batch | commit | noticeForm | notes |
-|---|---|---|---|---|---|---|---|---|
-
-_No files extracted yet._
+| `src/physics/controlTape.ts` | `src/experiments/tape/controlTape.ts` (`am-scaf-extract-runtime-utilities-99y`) | Deterministic recording, scrubbing, checkpointing, and quantization of parameter streams (3600-tick bounded window) | Replaced patentId with instance-scoped experimentId; removed patent-specific control schemes | `am-exp-bm01-diffusion-chamber-7d8` | 1 | pending | header | Pinned 32-bit seed coercion trap in characterization test |
+| `src/physics/tickScheduler.ts` | `src/experiments/scheduler/tickScheduler.ts` (`am-scaf-extract-runtime-utilities-99y`) | Host-pumped time accumulation, studio clock state machine, fixed-timestep scheduler with bounded catch-up | Decoupled from global requestAnimationFrame assumptions and patent-specific frame limits | `am-exp-bm01-diffusion-chamber-7d8` | 1 | pending | header | Pinned tick drop past maxCatchup trap in characterization test |
+| `src/physics/transport.ts` | `src/workers/transport.ts` (`am-scaf-extract-runtime-utilities-99y`) | Bounded buffer pool with lease tracking and postMessage transport bus for worker offloading | SharedArrayBuffer / shared-memory mode disabled with typed error; removed patent-specific message envelopes | `am-exp-bm01-diffusion-chamber-7d8` | 1 | pending | header | Pinned oldest-lease eviction trap and typed SharedMemoryDisabledError |
+| `src/physics/paramAliases.ts` | `src/experiments/paramAliases.ts` (`am-scaf-extract-runtime-utilities-99y`) | Canonical parameter aliasing, expansion, and scaling transformations | Stripped all donor patent strings; keyed strictly by canonical quantity IDs | `am-exp-bm01-diffusion-chamber-7d8` | 1 | pending | header | Pinned rejection of glyph/unit lookups in characterization test |
+| `src/physics/genericWasm.ts` | `src/workers/genericWasm.ts` (`am-scaf-extract-runtime-utilities-99y`) | WASM module loader, fallback numerical kernels (heat, wave, fluid, laplacian, cyclic), source state tracking | Decoupled module loading state from per-snapshot execution provenance | `am-exp-bm01-diffusion-chamber-7d8` | 1 | pending | header | Pinned module-global source trap in characterization test |
+| `src/physics/useGenericWasmSource.ts` | `src/workers/useGenericWasmSource.ts` (`am-scaf-extract-runtime-utilities-99y`) | React hook subscribing to WASM engine loading status via useSyncExternalStore | Removed patent-specific visual dispatcher ties | `am-exp-bm01-diffusion-chamber-7d8` | 1 | pending | header | Client hook for WASM source status |
+| `src/physics/wasmArtifacts.test.ts` | `src/testing/wasm/artifactHelpers.ts` (`am-scaf-extract-runtime-utilities-99y`) | WASM binary validation (0x00 0x61 0x73 0x6d magic header) and SHA-256 hex digest computation | Stripped hardcoded donor artifact paths and patent-specific hashes | `am-scaf-quality-gates-ci-4xx` | 1 | pending | header | Used for test-suite verification of WASM artifacts |
+| `src/physics/qty.ts` | `src/units/qty.ts` (`am-scaf-extract-runtime-utilities-99y`) | 6D SI dimension vectors [L, M, T, Θ, I, N], dimension arithmetic, unit parser, and port contracts | Extended SI unit coverage (including tesla/T); removed patent-specific unit assumptions | `am-exp-bm01-diffusion-chamber-7d8` | 1 | pending | header | Enforces physical unit safety across all experiment ports |
+| `src/physics/intervals.ts` | `src/physics/intervals.ts` (`am-scaf-extract-runtime-utilities-99y`) | Bounded interval arithmetic, intersection, hull, scaling, regime classification, and refusal assertions | Removed patent-specific regime enumerations | `am-exp-bm01-diffusion-chamber-7d8` | 1 | pending | header | Characterized difference between interval enclosure and probability density |
+| `src/physics/energyLedger.ts` | `src/physics/energyLedger.ts` (`am-scaf-extract-runtime-utilities-99y`) | Hamiltonian balance, discrete passivity verification (non-negative dissipation), and timestep convergence order | Generalized beyond mechanical patent devices to universal conservation checks | `am-exp-bm01-diffusion-chamber-7d8` | 1 | pending | header | Audited energy bookkeeping for numerical simulation integrity |
+| `src/physics/coverageManifest.ts` | `src/content/coverage/coverageManifest.ts` (`am-scaf-extract-runtime-utilities-99y`) | Multidimensional coverage descriptors maintaining separate source, translation, argument, and WASM dimensions | Replaced patent claim categories with paper section/clause structures; distinct provenance states (WASM, TS_FALLBACK, HONEST_PLACEHOLDER) | `am-cm-coverage-ledger-0ip` | 1 | pending | header | Prevents deceptive aggregation of coverage metrics |
+| `src/physics/specClauses.ts` | `src/reader/weave/predicates.ts` (`am-scaf-extract-runtime-utilities-99y`) | Result predicate evaluation and clause registration for highlighting verified physical claims | Stripped patent claim weave; generalized to paper proposition / result predicate mapping | `am-read-result-weave-jex` | 1 | pending | header | Pointers to verified claims, never decorative truth glow |
 
 #### `am-scaf-extract-scripts-7jm`
 
