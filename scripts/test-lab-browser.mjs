@@ -4,6 +4,7 @@ import { readFile, stat, mkdir, writeFile } from "node:fs/promises";
 import { resolve, extname, sep } from "node:path";
 import { chromium } from "playwright";
 import AxeBuilder from "@axe-core/playwright";
+import { checkTracerBrowser } from "./test-tracer-browser.mjs";
 
 const root = resolve("out");
 const types = { ".html": "text/html; charset=utf-8", ".js": "application/javascript", ".css": "text/css", ".json": "application/json", ".woff2": "font/woff2", ".woff": "font/woff", ".ttf": "font/ttf", ".svg": "image/svg+xml" };
@@ -93,6 +94,7 @@ try {
   assert.deepEqual(errors, []);
   check("interactive laboratory reflows at 320px without uncaught page errors");
   await context.close();
+  await checkTracerBrowser(browser, url, check);
 } finally {
   await writeFile("artifacts/browser/checks.json", JSON.stringify(evidence, null, 2));
   await browser.close();
