@@ -56,6 +56,7 @@ export default function Papers() {
             {i === 0 && (
               <div className="actions">
                 <a href="/lab/lq-01/">Wave description & energy spreading →</a>
+                <a href="/lab/lq-06/">Derive the light quantum from entropy matching →</a>
               </div>
             )}
             {i === 1 && (
@@ -69,6 +70,7 @@ export default function Papers() {
               <div className="actions">
                 <a href="/lab/sr-02/">Magnet and conductor →</a>
                 <a href="/lab/sr-03/">Rod measurement & simultaneity →</a>
+                <a href="/lab/sr-10/">Finite light complex →</a>
               </div>
             )}
             {i === 3 && (

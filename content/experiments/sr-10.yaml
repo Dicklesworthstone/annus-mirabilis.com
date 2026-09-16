@@ -1,0 +1,325 @@
+id: sr-10
+title: "SR-10: The finite light complex"
+explanatoryQuestion: "How do the energy and volume of a bounded light complex transform between frames?"
+sourceRefs:
+  - paper: special-relativity
+    id: s8
+argumentIds:
+  - arg-sr-light-complex
+schemaVersion: 1
+parameters:
+  - id: beta
+    label: "Observer frame speed"
+    accessibleName: "Observer frame speed as a fraction of c"
+    accessibleDescription: "Relative speed beta = v/c of the moving frame along the positive x-axis."
+    quantityId: frameSpeed
+    displayUnit: "c"
+    modelDomain:
+      min: -0.95
+      max: 0.95
+      minInclusive: true
+      maxInclusive: true
+      reason: "Teaching domain stays within 0.95c."
+    visualRange:
+      min: -0.95
+      max: 0.95
+    default: 0.6
+    mapping:
+      kind: linear
+    role: independent
+    commandClass: observer-change
+  - id: propagationAngleDeg
+    label: "Propagation angle"
+    accessibleName: "Wave propagation angle in stationary frame"
+    accessibleDescription: "Angle phi between the light propagation vector and the boost axis in frame K."
+    quantityId: propagationAngleStationary
+    displayUnit: "deg"
+    modelDomain:
+      min: 0
+      max: 360
+      minInclusive: true
+      maxInclusive: true
+      reason: "Full circle angle domain."
+    visualRange:
+      min: 0
+      max: 360
+    default: 0
+    mapping:
+      kind: linear
+    role: independent
+    commandClass: setup-change
+  - id: initialEnergyJ
+    label: "Initial energy"
+    accessibleName: "Energy of the light complex in stationary frame"
+    accessibleDescription: "Total electromagnetic energy of the bounded light packet in Joules."
+    quantityId: lightComplexEnergyStationary
+    displayUnit: "J"
+    modelDomain:
+      min: 0.001
+      max: 1000
+      minInclusive: true
+      maxInclusive: true
+      reason: "Positive energy domain."
+    visualRange:
+      min: 0.1
+      max: 10
+    default: 1.0
+    mapping:
+      kind: linear
+    role: independent
+    commandClass: setup-change
+  - id: initialVolumeM3
+    label: "Initial volume"
+    accessibleName: "Volume of the light complex in stationary frame"
+    accessibleDescription: "Spatial volume of the bounded light packet in cubic meters."
+    quantityId: lightComplexVolumeStationary
+    displayUnit: "m^3"
+    modelDomain:
+      min: 0.001
+      max: 1000
+      minInclusive: true
+      maxInclusive: true
+      reason: "Positive volume domain."
+    visualRange:
+      min: 0.1
+      max: 10
+    default: 1.0
+    mapping:
+      kind: linear
+    role: independent
+    commandClass: setup-change
+outputs:
+  - id: frameSpeed
+    quantityId: frameSpeed
+    allowedStatuses:
+      - value
+      - outside-domain
+    primary: true
+  - id: propagationAngleStationary
+    quantityId: propagationAngleStationary
+    allowedStatuses:
+      - value
+    primary: true
+  - id: propagationAngleMoving
+    quantityId: propagationAngleMoving
+    allowedStatuses:
+      - value
+    primary: true
+  - id: lightComplexEnergyStationary
+    quantityId: lightComplexEnergyStationary
+    allowedStatuses:
+      - value
+    primary: true
+  - id: lightComplexEnergyMoving
+    quantityId: lightComplexEnergyMoving
+    allowedStatuses:
+      - value
+    primary: true
+  - id: lightComplexVolumeStationary
+    quantityId: lightComplexVolumeStationary
+    allowedStatuses:
+      - value
+    primary: true
+  - id: lightComplexVolumeMoving
+    quantityId: lightComplexVolumeMoving
+    allowedStatuses:
+      - value
+    primary: true
+  - id: lightAmplitudeStationary
+    quantityId: lightAmplitudeStationary
+    allowedStatuses:
+      - value
+    primary: false
+  - id: lightAmplitudeMoving
+    quantityId: lightAmplitudeMoving
+    allowedStatuses:
+      - value
+    primary: false
+  - id: dopplerFactor
+    quantityId: dopplerFactor
+    allowedStatuses:
+      - value
+    primary: true
+  - id: lorentzFactor
+    quantityId: lorentzFactor
+    allowedStatuses:
+      - value
+    primary: true
+  - id: energyDensityFactor
+    quantityId: dopplerFactor
+    allowedStatuses:
+      - value
+    primary: false
+  - id: volumeFactor
+    quantityId: dopplerFactor
+    allowedStatuses:
+      - value
+    primary: false
+  - id: countermodelEnergyMoving
+    quantityId: lightComplexEnergyMoving
+    allowedStatuses:
+      - value
+    primary: false
+  - id: countermodelVolumeMoving
+    quantityId: lightComplexVolumeMoving
+    allowedStatuses:
+      - value
+    primary: false
+assumptions:
+  - "Bounded electromagnetic wave packet in vacuum enclosed by a moving spherical surface at light speed."
+  - "Inertial observers with relative speed |v| < c along the x-axis."
+  - "Maxwell-Hertz field transformations without medium dispersion."
+admittedDomain: "Inertial frames with |v| < c and positive packet volume and energy."
+notModeled:
+  - "media and dispersion"
+  - "quantum photon structure"
+  - "finite pulse dispersion in dielectric"
+  - "gravitational redshift"
+  - "boundary diffraction at packet edges"
+owner:
+  kind: reference-evaluator
+  kernelFunctions:
+    - displayRole: reference-implementation
+      language: ts
+      module: "src/physics/reference/waves.ts"
+      exportName: "evaluateSr10"
+      independentReferences:
+        - experimentId: sr-10
+          quantityId: lightComplexEnergyMoving
+  identifierBindings:
+    - kernelFunction: evaluateSr10
+      identifier: beta
+      quantityId: frameSpeed
+    - kernelFunction: evaluateSr10
+      identifier: theta
+      quantityId: propagationAngleStationary
+    - kernelFunction: evaluateSr10
+      identifier: energyMoving
+      quantityId: lightComplexEnergyMoving
+    - kernelFunction: evaluateSr10
+      identifier: volumeMoving
+      quantityId: lightComplexVolumeMoving
+  traceScenarioId: sr-10-longitudinal-0.6
+  traceRows:
+    - label: Light complex energy factor at 0.6c receding
+      expression: "gamma * (1 - beta)"
+      value: 0.5
+      unit: "1"
+      quantityId: dopplerFactor
+views:
+  - id: svg-complex-geometry
+    kind: svg
+    consumes:
+      - lightComplexVolumeStationary
+      - lightComplexVolumeMoving
+      - propagationAngleStationary
+      - propagationAngleMoving
+      - lightComplexEnergyMoving
+  - id: table-light-complex
+    kind: table
+    consumes:
+      - frameSpeed
+      - propagationAngleStationary
+      - propagationAngleMoving
+      - lightComplexEnergyStationary
+      - lightComplexEnergyMoving
+      - lightComplexVolumeStationary
+      - lightComplexVolumeMoving
+      - dopplerFactor
+actions:
+  - actionId: change-light-complex-boost
+    family: fields-boosts
+    question: "How do the energy and volume of a light complex transform under a boost along x?"
+    inputs:
+      - beta
+      - propagationAngleDeg
+    commandClass: observer-change
+    acceptedResult:
+      outputs:
+        - lightComplexEnergyMoving
+        - lightComplexVolumeMoving
+        - propagationAngleMoving
+        - dopplerFactor
+      allowedStatuses:
+        - value
+        - outside-domain
+    visualAffordance: "Side-by-side sphere in K and transformed ellipsoid in k with factor table"
+    equivalentAffordance: "Type observer speed and ray angle to read transformed energy, volume, and countermodel comparison."
+    announcement: "Light complex transformed under observer boost"
+acceptanceCases:
+  - sr-10-longitudinal-0.6
+  - sr-10-opposite-0.6
+  - sr-10-transverse-in-k-0.6
+  - sr-10-transverse-stationary-coincidence
+defaultScenario: sr-10-longitudinal-0.6
+tapeModel:
+  modelId: light-complex-host
+  modelVersion: 1
+teachingTapes:
+  - tapeId: finite-light-complex
+    title: finite light complex
+presets:
+  - presetId: sr-10-longitudinal-0.6
+    label: Receding light complex along axis (0.6c, phi = 0 deg)
+    parameterValues:
+      beta: 0.6
+      propagationAngleDeg: 0
+      initialEnergyJ: 1.0
+      initialVolumeM3: 1.0
+    scenarioId: sr-10-longitudinal-0.6
+  - presetId: sr-10-opposite-0.6
+    label: Approaching light complex along axis (0.6c, phi = 180 deg)
+    parameterValues:
+      beta: 0.6
+      propagationAngleDeg: 180
+      initialEnergyJ: 1.0
+      initialVolumeM3: 1.0
+    scenarioId: sr-10-opposite-0.6
+  - presetId: sr-10-transverse-in-k-0.6
+    label: Transverse in moving frame k (0.6c, cos phi = 0.6)
+    parameterValues:
+      beta: 0.6
+      propagationAngleDeg: 53.13010235415598
+      initialEnergyJ: 1.0
+      initialVolumeM3: 1.0
+    scenarioId: sr-10-transverse-in-k-0.6
+  - presetId: sr-10-transverse-stationary-coincidence
+    label: Transverse in stationary frame K (0.6c, phi = 90 deg)
+    parameterValues:
+      beta: 0.6
+      propagationAngleDeg: 90
+      initialEnergyJ: 1.0
+      initialVolumeM3: 1.0
+    scenarioId: sr-10-transverse-stationary-coincidence
+probes:
+  - toggle-countermodel
+  - type-speed
+  - type-angle
+weavePredicates:
+  - sr10-energy-frequency-proportionality
+  - sr10-volume-transformation
+  - sr10-countermodel-falsification
+historicalOverlays:
+  - einstein-1905-light-complex
+realRate:
+  natural: false
+embeddable: true
+predictMode:
+  enabled: true
+  prompts:
+    - promptId: sr-10-predict-volume
+      controlId: beta
+      question: "When a spherical light complex travels in the same direction as an observer moving at 0.6c (receding along x), what happens to its volume in the moving frame?"
+      candidates:
+        - id: expands-to-2
+          label: Expands to 2.0 times original volume (1/q = 2.0)
+          description: "Because the moving frame cuts simultaneous slices across propagating light, V'/V = 1/q = 2.0."
+          separatingAssumption: "Light complexes are bounded by lightfronts whose simultaneity slice transforms as 1/q."
+        - id: contracts-like-rod
+          label: Contracts to 0.8 times volume like a rigid rod (1/gamma = 0.8)
+          description: "Naive Lorentz contraction 1/gamma assumes a rigid body rather than moving wave fronts."
+          separatingAssumption: "Light complex is incorrectly treated as a solid object subject to standard Lorentz length contraction."
+        - id: invariant-volume
+          label: Remains unchanged at 1.0
+          description: "Galilean volume invariance ignores relativistic boundary slicing."
+          separatingAssumption: "Assumes absolute time and space coordinates."

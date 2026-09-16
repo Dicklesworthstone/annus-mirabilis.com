@@ -75,6 +75,21 @@ export default function Home() {
           <p>
             <a href="/lab/sr-03/">Measure moving rods, simultaneity, and causal order →</a>
           </p>
+          <p>
+            <a href="/lab/sr-09/">
+              Watch Doppler and aberration diverge from the medium formulae →
+            </a>
+          </p>
+          <p>
+            <a href="/lab/sr-10/">
+              Transform the energy and volume of a finite light complex →
+            </a>
+          </p>
+          <p>
+            <a href="/lab/lq-06/">
+              Match radiation entropy to gas entropy and derive the light quantum →
+            </a>
+          </p>
         </div>
       </section>
       <section className="reading">

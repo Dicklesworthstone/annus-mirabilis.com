@@ -1,0 +1,39 @@
+tapeVersion: 2
+tapeId: finite-light-complex
+experimentId: sr-10
+mode: "sr-10:default"
+title: finite light complex
+description: Teaching tape demonstrating how the energy and volume of a bounded light packet transform under a 0.6c boost.
+isTeachingSequence: true
+modelIdentity:
+  modelId: light-complex-host
+  modelVersion: "1"
+  artifactDigest: "host:sha256:sr10-evaluateSr10"
+constantSetId: modern-si-2019
+seed: "0"
+streamVersion: 1
+allocationId: sr-10.none.v1
+initialConditions:
+  beta: 0.6
+  propagationAngleDeg: 0
+  initialEnergyJ: 1.0
+  initialVolumeM3: 1.0
+events:
+  - kind: control
+    actionIndex: 1
+    commandClass: observer-change
+    commandId: beta-0.6
+    parameterId: beta
+    value: 0.6
+checkpoints:
+  - actionIndex: 1
+    stepIndex: 0
+    simulatedTime: 0
+    digest: "host:sha256:sr10-evaluateSr10"
+    digestKind: host
+    checkpointVersion: 1
+    streamSemanticsVersion: 1
+    seed: "0"
+    streamPositions: []
+    label: light-complex-0.6
+    teachingNote: At 0.6c receding light complex volume doubles (1/q = 2.0) while energy halves (q = 0.5), unlike rigid rod contraction (1/gamma = 0.8).
