@@ -1,0 +1,45 @@
+tapeId: ionization-bounds
+instrumentId: lq-09
+title: "Gas Ionization Threshold and Single-Quantum Energy Conservation"
+description: "Walkthrough of Einstein's 1905 §9 threshold bound h*nu >= J_mol, count relations j = L/(R*beta*nu), and historical checks."
+checkpoints:
+  - id: step-1-threshold
+    title: "1. The Single-Quantum Ionization Threshold"
+    parameters:
+      frequency: 2.90159e15
+      ionizationEnergyEv: 10.0
+      incidentPower: 0.000001
+      absorptionEfficiency: 0.5
+      duration: 1.0
+      declaredFraction: 1.0
+    caption: "Monochromatic UV at 2901.59 THz (12.0 eV) exceeds the 10.0 eV ionization threshold, supplying 2.0 eV excess kinetic energy per ionized molecule."
+  - id: step-2-subthreshold-cutoff
+    title: "2. The Sub-Threshold Refusal"
+    parameters:
+      frequency: 2.17619e15
+      ionizationEnergyEv: 10.0
+      incidentPower: 0.000001
+      absorptionEfficiency: 0.5
+      duration: 1.0
+      declaredFraction: 1.0
+    caption: "Below the threshold frequency (h*nu < J_mol), single-quantum ionization cannot occur; the count and rate report not-applicable."
+  - id: step-3-lenard-check
+    title: "3. Historical Lenard Air Ionization Check"
+    parameters:
+      frequency: 1.57895e15
+      ionizationEnergyEv: 6.459
+      incidentPower: 0.000001
+      absorptionEfficiency: 1.0
+      duration: 1.0
+      declaredFraction: 1.0
+    caption: "Lenard's quartz UV cutoff at 190 nm gives R*beta*nu = 6.38e12 erg, corresponding to ca. 6.6 Volts."
+  - id: step-4-proportional-counting
+    title: "4. Proportional Energy Accounting"
+    parameters:
+      frequency: 2.90159e15
+      ionizationEnergyEv: 10.0
+      incidentPower: 0.000002
+      absorptionEfficiency: 0.5
+      duration: 1.0
+      declaredFraction: 1.0
+    caption: "Doubling absorbed light energy L doubles the count of ionized molecules: j = L / (R*beta*nu)."

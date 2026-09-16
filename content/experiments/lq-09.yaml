@@ -1,0 +1,353 @@
+# LQ-09 instrument manifest (am-lq-09-ionization-mbul).
+id: lq-09
+title: "LQ-09: Gas Ionization Bounds and Counting Model"
+explanatoryQuestion: "How does single-quantum energy conservation set the frequency threshold for gas ionization, and what determines the relation between absorbed light energy and the count of ionized molecules?"
+sourceRefs:
+  - paper: light-quanta
+    id: s9
+argumentIds:
+  - arg-lq-ionization-bound
+  - arg-lq-absorbed-energy-count
+  - arg-lq-threshold-frequency
+schemaVersion: 1
+parameters:
+  - id: frequency
+    label: "Light Frequency"
+    accessibleName: "Monochromatic ultraviolet light frequency"
+    accessibleDescription: "Sets the frequency of the ionizing light beam in hertz"
+    quantityId: frequency
+    displayUnit: "THz"
+    modelDomain:
+      min: 1e14
+      max: 5e15
+      minInclusive: true
+      maxInclusive: true
+      reason: "Ultraviolet to extreme ultraviolet optical frequency range"
+    visualRange:
+      min: 1e15
+      max: 4e15
+    default: 2.90159e15
+    mapping:
+      kind: linear
+    role: independent
+    commandClass: physical-intervention
+  - id: ionizationEnergyEv
+    label: "Ionization Energy"
+    accessibleName: "Molecular ionization work threshold"
+    accessibleDescription: "Sets the energy required to ionize one gas molecule in electron-volts"
+    quantityId: ionizationEnergyPerMolecule
+    displayUnit: "eV"
+    modelDomain:
+      min: 1.0
+      max: 25.0
+      minInclusive: true
+      maxInclusive: true
+      reason: "Molecular and atomic ionization energies (e.g. Cs 3.89 eV to He 24.59 eV)"
+    visualRange:
+      min: 4.0
+      max: 18.0
+    default: 10.0
+    mapping:
+      kind: linear
+    role: independent
+    commandClass: setup-change
+  - id: incidentPower
+    label: "Optical Power"
+    accessibleName: "Incident radiant beam power"
+    accessibleDescription: "Sets the radiant power of the ionizing ultraviolet beam in watts"
+    quantityId: incidentPower
+    displayUnit: "uW"
+    modelDomain:
+      min: 0.0000001
+      max: 0.01
+      minInclusive: true
+      maxInclusive: true
+      reason: "Weak to moderate illumination regime avoiding multi-quantum intensity effects"
+    visualRange:
+      min: 0.000001
+      max: 0.001
+    default: 0.000001
+    mapping:
+      kind: linear
+    role: independent
+    commandClass: setup-change
+  - id: absorptionEfficiency
+    label: "Absorption Fraction"
+    accessibleName: "Gas column absorption fraction"
+    accessibleDescription: "Fraction of incident light power absorbed by the gas column"
+    quantityId: absorptionEfficiency
+    displayUnit: ""
+    modelDomain:
+      min: 0.0
+      max: 1.0
+      minInclusive: true
+      maxInclusive: true
+      reason: "Physical absorption efficiency in [0, 1]"
+    visualRange:
+      min: 0.1
+      max: 1.0
+    default: 0.5
+    mapping:
+      kind: linear
+    role: independent
+    commandClass: setup-change
+  - id: duration
+    label: "Illumination Duration"
+    accessibleName: "Illumination exposure duration"
+    accessibleDescription: "Duration of the ultraviolet exposure in seconds"
+    quantityId: duration
+    displayUnit: "s"
+    modelDomain:
+      min: 0.001
+      max: 3600.0
+      minInclusive: true
+      maxInclusive: true
+      reason: "Laboratory exposure timescale"
+    visualRange:
+      min: 0.1
+      max: 10.0
+    default: 1.0
+    mapping:
+      kind: linear
+    role: independent
+    commandClass: setup-change
+  - id: declaredFraction
+    label: "Ionization Yield"
+    accessibleName: "Declared single-quantum ionization fraction"
+    accessibleDescription: "Fraction of absorbed light quanta that successfully produce an ionization event"
+    quantityId: quantumEfficiency
+    displayUnit: ""
+    modelDomain:
+      min: 0.0
+      max: 1.0
+      minInclusive: true
+      maxInclusive: true
+      reason: "Fraction of absorbed quanta producing ions in [0, 1]"
+    visualRange:
+      min: 0.0
+      max: 1.0
+    default: 1.0
+    mapping:
+      kind: linear
+    role: independent
+    commandClass: setup-change
+outputs:
+  - id: quantumEnergy
+    quantityId: quantumEnergy
+    allowedStatuses:
+      - value
+      - outside-domain
+    primary: true
+  - id: thresholdFrequency
+    quantityId: thresholdFrequency
+    allowedStatuses:
+      - value
+      - outside-domain
+    primary: true
+  - id: excessEnergyEv
+    quantityId: excessEnergyEv
+    allowedStatuses:
+      - value
+      - outside-domain
+    primary: true
+  - id: absorbedLightEnergy
+    quantityId: absorbedLightEnergy
+    allowedStatuses:
+      - value
+      - outside-domain
+    primary: true
+  - id: quantumRate
+    quantityId: quantumRate
+    allowedStatuses:
+      - value
+      - outside-domain
+    primary: false
+  - id: absorbedQuantumRate
+    quantityId: absorbedQuantumRate
+    allowedStatuses:
+      - value
+      - outside-domain
+    primary: true
+  - id: ionizationRate
+    quantityId: ionizationRate
+    allowedStatuses:
+      - value
+      - not-applicable
+      - underdetermined
+      - outside-domain
+    primary: true
+  - id: ionizationCount
+    quantityId: ionizationCount
+    allowedStatuses:
+      - value
+      - not-applicable
+      - underdetermined
+      - outside-domain
+    primary: true
+  - id: ionizedGramMolecules
+    quantityId: ionizedGramMolecules
+    allowedStatuses:
+      - value
+      - not-applicable
+      - underdetermined
+      - outside-domain
+    primary: true
+  - id: singleQuantumAllowed
+    quantityId: singleQuantumAllowed
+    allowedStatuses:
+      - value
+      - outside-domain
+    primary: true
+assumptions:
+  - "The exciting ultraviolet light consists of discrete energy quanta of magnitude E = h*nu."
+  - "Each elementary gas ionization event involves absorption of at least one single light quantum (h*nu >= J_mol)."
+  - "Under the primary hypothesis, every absorbed quantum ionizes one gas molecule (j = L / R*beta*nu)."
+  - "In the general case, the count is bounded above by the total absorbed quanta N_abs = L / (h*nu)."
+admittedDomain: "Single-quantum gas photoionization in dilute gases under monochromatic ultraviolet illumination"
+notModeled:
+  - "Secondary ionization and cascade ionization by energetic photoelectrons in dense gases."
+  - "Multi-photon ionization processes occurring at extreme optical field intensities."
+  - "Molecular dissociation channels competing with direct ionization without charge separation."
+  - "Collisional de-excitation and recombination kinetics over extended reaction times."
+  - "Spatial beam divergence, gas column pressure gradients, and non-uniform absorption profiles."
+  - "Detailed autoionization resonances and vibrational-electronic coupling manifolds."
+owner:
+  kind: reference-evaluator
+  kernelFunctions:
+    - displayRole: reference-implementation
+      language: ts
+      module: "src/physics/reference/photoelectric.ts"
+      exportName: "ionizationCount"
+  identifierBindings:
+    - kernelFunction: "ionizationCount"
+      identifier: "nu"
+      quantityId: "frequency"
+    - kernelFunction: "ionizationCount"
+      identifier: "ionizationEnergyEv"
+      quantityId: "ionizationEnergyPerMolecule"
+views:
+  - id: lq-09-energy-ladder
+    kind: svg
+    consumes:
+      - quantumEnergy
+      - thresholdFrequency
+      - excessEnergyEv
+  - id: lq-09-rate-budget
+    kind: svg
+    consumes:
+      - absorbedQuantumRate
+      - quantumRate
+      - ionizationRate
+  - id: lq-09-data-table
+    kind: table
+    consumes:
+      - frequency
+      - ionizationEnergyPerMolecule
+      - excessEnergyEv
+      - absorbedLightEnergy
+      - absorbedQuantumRate
+      - ionizationRate
+      - ionizedGramMolecules
+actions:
+  - actionId: lq-09-sweep-frequency
+    family: radiation-entropy
+    question: "How does the ionization threshold depend on the light frequency?"
+    inputs:
+      - frequency
+    commandClass: physical-intervention
+    acceptedResult:
+      outputs:
+        - excessEnergyEv
+        - ionizationRate
+      allowedStatuses:
+        - value
+        - not-applicable
+    visualAffordance: "Energy ladder and excess kinetic energy update with frequency"
+    equivalentAffordance: "Type a frequency and read the excess energy and ionization rate"
+    announcement: "Ionization threshold and rate updated for selected frequency"
+  - actionId: lq-09-sweep-power
+    family: radiation-entropy
+    question: "How does the count of ionized molecules scale with absorbed optical power?"
+    inputs:
+      - incidentPower
+    commandClass: setup-change
+    acceptedResult:
+      outputs:
+        - absorbedQuantumRate
+        - ionizationRate
+        - ionizationCount
+      allowedStatuses:
+        - value
+        - not-applicable
+    visualAffordance: "Ionization rate scales linearly with incident power"
+    equivalentAffordance: "Type an optical power and read the ionization rate"
+    announcement: "Ionization count and rate updated with power"
+acceptanceCases:
+  - photoelectric-einstein-1905-printed
+defaultScenario: photoelectric-einstein-1905-printed
+presets:
+  - presetId: lq-09-threshold
+    label: "Golden Standard (12 eV UV, 10 eV Ionization)"
+    parameterValues:
+      frequency: 2.90159e15
+      ionizationEnergyEv: 10.0
+      incidentPower: 0.000001
+      absorptionEfficiency: 0.5
+      duration: 1.0
+      declaredFraction: 1.0
+  - presetId: lq-09-sub-threshold
+    label: "Sub-Threshold (9 eV UV, 10 eV Ionization)"
+    parameterValues:
+      frequency: 2.17619e15
+      ionizationEnergyEv: 10.0
+      incidentPower: 0.000001
+      absorptionEfficiency: 0.5
+      duration: 1.0
+      declaredFraction: 1.0
+  - presetId: lq-09-historical-checks
+    label: "Historical Lenard Check (190 nm UV, 6.459 eV)"
+    parameterValues:
+      frequency: 1.57895e15
+      ionizationEnergyEv: 6.459
+      incidentPower: 0.000001
+      absorptionEfficiency: 1.0
+      duration: 1.0
+      declaredFraction: 1.0
+realRate:
+  natural: false
+embeddable: true
+predictMode:
+  enabled: true
+  prompts:
+    - promptId: lq-09-predict-subthreshold
+      controlId: frequency
+      question: "If the incident photon energy is below the molecular ionization threshold (h*nu < J_mol), what is the single-quantum ionization rate?"
+      candidates:
+        - id: lq-09-predict-subthreshold-zero
+          label: "Zero (not-applicable)"
+          description: "No single-quantum ionization can occur without sufficient energy per quantum"
+          separatingAssumption: "Light-quantum hypothesis: each ionization event requires at least one full quantum of magnitude h*nu >= J_mol."
+        - id: lq-09-predict-subthreshold-accumulate
+          label: "Ions form after a delay"
+          description: "Gas molecules accumulate energy gradually from continuous wave absorption"
+          separatingAssumption: "Classical continuous wave absorption assumption."
+        - id: lq-09-predict-subthreshold-partial
+          label: "Reduced non-zero rate"
+          description: "Sub-threshold photons still ionize some fraction of molecules"
+          separatingAssumption: "Assumes partial quantum energy transfer can induce ionization."
+    - promptId: lq-09-predict-power-count
+      controlId: incidentPower
+      question: "Under the paper's assumption that all absorbed light ionizes, what happens to the number of ionized molecules if you double the radiant power?"
+      candidates:
+        - id: lq-09-predict-power-doubles
+          label: "Ion count doubles"
+          description: "Doubling absorbed energy L doubles the number of absorbed quanta L/(h*nu) and hence the ion count"
+          separatingAssumption: "Single-quantum proportionality: j = L / (R*beta*nu)."
+        - id: lq-09-predict-power-unchanged
+          label: "Ion count is unchanged"
+          description: "Ionization rate is saturated"
+          separatingAssumption: "Saturation regime assumption."
+        - id: lq-09-predict-power-quadruples
+          label: "Ion count quadruples"
+          description: "Ionization rate scales with light intensity squared"
+          separatingAssumption: "Non-linear multi-photon absorption assumption."

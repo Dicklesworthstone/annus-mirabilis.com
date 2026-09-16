@@ -1,0 +1,7 @@
+paper: light-quanta
+targetKinds:
+  - instrument-caption
+scope:
+  instrumentIds:
+    - lq-09
+ownerBeadId: am-lq-09-ionization-mbul
