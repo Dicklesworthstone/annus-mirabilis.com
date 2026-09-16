@@ -67,7 +67,6 @@ export function TwoLedgersLab({
     const shared = decodeMe01Settings(window.location.search);
     if (shared.kind === "settings") {
       setDraft(toMe01Draft(shared.parameters));
-      setDirty(true);
       setLinkNote(
         "Shared settings are loaded. Choose Apply settings to calculate them; the worked example is still displayed.",
       );
@@ -89,7 +88,6 @@ export function TwoLedgersLab({
     }
     setError("");
     setRefusalCode(null);
-    setDirty(false);
     setLinkNote("");
   }
 
