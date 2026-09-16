@@ -77,7 +77,8 @@ export function probeTransportCapabilities(injected?: {
 }): TransportCapabilities {
   const isIsolated =
     injected?.crossOriginIsolated ??
-    (typeof globalThis !== "undefined" && Boolean((globalThis as any).crossOriginIsolated));
+    (typeof globalThis !== "undefined" &&
+      Boolean((globalThis as { crossOriginIsolated?: boolean }).crossOriginIsolated));
 
   const hasWorkers = injected?.hasWebWorkers ?? typeof Worker !== "undefined";
 

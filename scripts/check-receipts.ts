@@ -8,11 +8,7 @@
 
 import fs from "node:fs";
 import path from "node:path";
-import {
-  checkReceipt,
-  type CheckDiagnostic,
-  type CheckResult,
-} from "../src/content/provenance/checkReceipt.ts";
+import { type CheckResult, checkReceipt } from "../src/content/provenance/checkReceipt.ts";
 import { validateSurveyRecord } from "../src/content/provenance/surveySchema.ts";
 
 type CliOptions = {
@@ -37,19 +33,34 @@ function parseArgs(args: string[]): CliOptions {
   for (let i = 0; i < args.length; i++) {
     const arg = args[i];
     if (arg === "--key" && i + 1 < args.length) {
-      options.key = args[++i];
+      const val = args[++i];
+      if (val !== undefined) {
+        options.key = val;
+      }
     } else if (arg === "--dir" && i + 1 < args.length) {
-      options.dir = args[++i]!;
+      const val = args[++i];
+      if (val !== undefined) {
+        options.dir = val;
+      }
     } else if (arg === "--config-dir" && i + 1 < args.length) {
-      options.configDir = args[++i]!;
+      const val = args[++i];
+      if (val !== undefined) {
+        options.configDir = val;
+      }
     } else if (arg === "--surveys-dir" && i + 1 < args.length) {
-      options.surveysDir = args[++i]!;
+      const val = args[++i];
+      if (val !== undefined) {
+        options.surveysDir = val;
+      }
     } else if (arg === "--surveys") {
       options.checkSurveys = true;
     } else if (arg === "--require-local") {
       options.requireLocal = true;
     } else if (arg === "--log-run-id" && i + 1 < args.length) {
-      options.logRunId = args[++i]!;
+      const val = args[++i];
+      if (val !== undefined) {
+        options.logRunId = val;
+      }
     }
   }
 

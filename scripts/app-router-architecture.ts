@@ -15,7 +15,7 @@
 import { execFileSync } from "node:child_process";
 import { randomBytes } from "node:crypto";
 import { existsSync, mkdirSync, readdirSync, readFileSync, writeFileSync } from "node:fs";
-import { basename, extname, join, normalize, relative, resolve } from "node:path";
+import { basename, extname, join, normalize, relative } from "node:path";
 import { pathToFileURL } from "node:url";
 
 /**
@@ -132,8 +132,7 @@ export function matchesAllowlist(entryPath: string, allowlist: Allowlist): boole
 
   for (const pattern of Object.keys(allowlist)) {
     if (pattern.includes("*")) {
-      const regexStr =
-        "^" + pattern.replace(/[.+?^${}()|[\]\\]/g, "\\$&").replace(/\*/g, ".*") + "$";
+      const regexStr = `^${pattern.replace(/[.+?^${}()|[\]\\]/g, "\\$&").replace(/\*/g, ".*")}$`;
       const regex = new RegExp(regexStr);
       if (regex.test(entryPath)) {
         return true;
@@ -310,7 +309,7 @@ export function checkArchitecture(
  */
 export function collectRepoEntries(
   rootDir: string,
-  isIgnored?: (path: string) => boolean,
+  _isIgnored?: (path: string) => boolean,
 ): RepoEntry[] {
   const entries: RepoEntry[] = [];
   const rootItems = readdirSync(rootDir, { withFileTypes: true });
@@ -417,7 +416,7 @@ export function writeGateLog(
   };
   lines.push(JSON.stringify(summary));
 
-  writeFileSync(logPath, lines.join("\n") + "\n", "utf8");
+  writeFileSync(logPath, `${lines.join("\n")}\n`, "utf8");
 
   let evidenceDir: string | undefined;
   if (violations.length > 0) {

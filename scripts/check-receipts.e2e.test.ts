@@ -6,7 +6,19 @@ import test from "node:test";
 
 const FIXTURES_DIR = path.resolve("src/testing/fixtures/provenance");
 
-function runCli(args: string[]): { code: number; stdout: string; stderr: string; jsonl: any[] } {
+type LogEntry = {
+  severity?: string;
+  rule?: string;
+  outcome?: string;
+  [key: string]: unknown;
+};
+
+function runCli(args: string[]): {
+  code: number;
+  stdout: string;
+  stderr: string;
+  jsonl: LogEntry[];
+} {
   const logRunId = `e2e-run-${Date.now()}-${Math.random().toString(16).slice(2, 8)}`;
   let code = 0;
   let stdout = "";
@@ -24,17 +36,18 @@ function runCli(args: string[]): { code: number; stdout: string; stderr: string;
       encoding: "utf8",
       stdio: ["ignore", "pipe", "pipe"],
     });
-  } catch (e: any) {
-    code = e.status ?? 1;
-    stdout = e.stdout?.toString() || "";
-    stderr = e.stderr?.toString() || "";
+  } catch (e: unknown) {
+    const err = e as { status?: number; stdout?: Buffer | string; stderr?: Buffer | string };
+    code = typeof err.status === "number" ? err.status : 1;
+    stdout = err.stdout ? err.stdout.toString() : "";
+    stderr = err.stderr ? err.stderr.toString() : "";
   }
 
   const logFile = path.join("artifacts", "test-logs", "receipts", `${logRunId}.jsonl`);
-  let jsonl: any[] = [];
+  let jsonl: LogEntry[] = [];
   if (fs.existsSync(logFile)) {
     const lines = fs.readFileSync(logFile, "utf8").trim().split("\n").filter(Boolean);
-    jsonl = lines.map((l) => JSON.parse(l));
+    jsonl = lines.map((l) => JSON.parse(l) as LogEntry);
   }
 
   return { code, stdout, stderr, jsonl };

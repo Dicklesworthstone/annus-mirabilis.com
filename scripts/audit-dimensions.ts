@@ -8,7 +8,6 @@
  */
 
 import { existsSync, readFileSync } from "node:fs";
-import path from "node:path";
 import { parseArgs } from "node:util";
 import { checkDimensions, type DimensionCheckResult } from "../src/content/dimensions/check.ts";
 import { dimensionText } from "../src/content/dimensions/rational.ts";
@@ -22,7 +21,7 @@ export interface EquationAuditEntry {
   readonly id: string;
   readonly paper: string;
   readonly unitSystem?: UnitSystemContext;
-  readonly tree: any;
+  readonly tree: unknown;
   readonly quantities: Record<string, QuantityDescriptor>;
 }
 
@@ -55,15 +54,17 @@ export async function runDimensionAudit(
       context: unitSystem,
     });
 
-    if (!paperCounts[entry.paper]) {
-      paperCounts[entry.paper] = {
+    let pCounts = paperCounts[entry.paper];
+    if (!pCounts) {
+      pCounts = {
         consistent: 0,
         inconsistent: 0,
         "semantic-mismatch": 0,
         "unsupported-check": 0,
       };
+      paperCounts[entry.paper] = pCounts;
     }
-    paperCounts[entry.paper]![result.status] = (paperCounts[entry.paper]![result.status] ?? 0) + 1;
+    pCounts[result.status] = (pCounts[result.status] ?? 0) + 1;
 
     let lhsDimText: string | undefined;
     let rhsDimText: string | undefined;
