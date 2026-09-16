@@ -1,0 +1,28 @@
+{
+  "schemaVersion": 1,
+  "bundleId": "fs-annus-diffusion-oversized",
+  "wasmDigest": "105d7ffc15414de5eccebcbcae942015b187fed0ea67a26ced5c50949593bb7b",
+  "wasmBytes": 512000,
+  "hashPrefix": "105d7ffc15414de5",
+  "revisions": {
+    "frankensim": "5bbbfae6f7de614422f6f97f5798a3e00f8ad813"
+  },
+  "toolchain": "nightly-2026-07-06",
+  "wasmPackVersion": "0.13.1",
+  "wasmBindgenVersion": "0.2",
+  "streamSemanticsVersion": 1,
+  "capabilities": [],
+  "sizeBudget": {
+    "maxBytes": 500000,
+    "fullPackageBytes": 4900000,
+    "recordedBytes": 512000,
+    "jsGlueBytes": 13342,
+    "totalBundleBytes": 525342
+  },
+  "files": {
+    "fs_annus_diffusion_bg.wasm": {
+      "sha256": "105d7ffc15414de5eccebcbcae942015b187fed0ea67a26ced5c50949593bb7b",
+      "bytes": 512000
+    }
+  }
+}

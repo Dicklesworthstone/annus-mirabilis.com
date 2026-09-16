@@ -1,11 +1,18 @@
 import assert from "node:assert/strict";
-import { existsSync, mkdirSync, mkdtempSync, writeFileSync } from "node:fs";
+import { existsSync, mkdirSync, mkdtempSync, readFileSync, writeFileSync } from "node:fs";
 import { join } from "node:path";
 import { describe, it } from "node:test";
+import type { WasmArtifactManifest } from "../src/workers/protocol/provenance.ts";
 import { buildWasmArtifacts } from "./build-wasm-artifacts.ts";
+import {
+  CHOSEN_POLICY_MAX_BYTES,
+  evaluateSizeBudget,
+  MAX_ALLOWED_DRIFT_RATIO,
+} from "./wasm-artifacts/sizeBudget.ts";
 
 describe("buildWasmArtifacts build, gates, and reproducibility", () => {
   const tempBase = "/Volumes/USBNVME16TB/temp_agent_space";
+  const fixturesBase = join(import.meta.dirname, "../src/testing/fixtures/wasm");
 
   it("builds slim WASM artifact and writes content-addressed files matching manifest", async () => {
     const tempDir = mkdtempSync(join(tempBase, "build-test-"));
@@ -98,5 +105,51 @@ describe("buildWasmArtifacts build, gates, and reproducibility", () => {
       },
       { message: /Capability matrix admission gate refused build/ },
     );
+  });
+
+  describe("size budget and drift gate evaluation (am-fs-slim-artifact-0yh requirement 8)", () => {
+    it("rejects fixture manifest exceeding absolute policy budget with typed code absolute-budget-exceeded", () => {
+      const fixturePath = join(fixturesBase, "manifest-exceeds-max-bytes.json");
+      const fixture = JSON.parse(readFileSync(fixturePath, "utf8")) as WasmArtifactManifest;
+
+      const result = evaluateSizeBudget(fixture.sizeBudget, fixture.wasmBytes);
+
+      // Assert typed refusal code and status, not string matching
+      assert.equal(result.passed, false);
+      assert.equal(result.status, "absolute-budget-exceeded");
+      assert.equal(result.code, "absolute-budget-exceeded");
+      assert.equal(result.maxBytes, CHOSEN_POLICY_MAX_BYTES);
+      assert.ok(result.totalBundleBytes > result.maxBytes);
+    });
+
+    it("rejects fixture manifest exceeding 10% drift bound under maxBytes with typed code drift-budget-exceeded", () => {
+      const fixturePath = join(fixturesBase, "manifest-exceeds-drift.json");
+      const fixture = JSON.parse(readFileSync(fixturePath, "utf8")) as WasmArtifactManifest;
+
+      const result = evaluateSizeBudget(fixture.sizeBudget, fixture.wasmBytes);
+
+      // Assert typed refusal code and status
+      assert.equal(result.passed, false);
+      assert.equal(result.status, "drift-budget-exceeded");
+      assert.equal(result.code, "drift-budget-exceeded");
+      assert.equal(result.maxBytes, CHOSEN_POLICY_MAX_BYTES);
+      assert.ok(result.totalBundleBytes <= result.maxBytes);
+      assert.ok(result.driftRatio > MAX_ALLOWED_DRIFT_RATIO);
+    });
+
+    it("accepts good fixture manifest under both absolute budget and 10% drift", () => {
+      const fixturePath = join(fixturesBase, "manifest-valid-budget.json");
+      const fixture = JSON.parse(readFileSync(fixturePath, "utf8")) as WasmArtifactManifest;
+
+      const result = evaluateSizeBudget(fixture.sizeBudget, fixture.wasmBytes);
+
+      // Assert accepted status
+      assert.equal(result.passed, true);
+      assert.equal(result.status, "ok");
+      assert.equal(result.code, undefined);
+      assert.equal(result.maxBytes, CHOSEN_POLICY_MAX_BYTES);
+      assert.ok(result.totalBundleBytes <= result.maxBytes);
+      assert.ok(result.driftRatio <= MAX_ALLOWED_DRIFT_RATIO);
+    });
   });
 });

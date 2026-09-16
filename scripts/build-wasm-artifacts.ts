@@ -173,6 +173,8 @@ export async function buildWasmArtifacts(options: BuildOptions = {}): Promise<Bu
       exportSignatures: [adm.export],
     })),
     sizeBudget: {
+      // 500 KB (500,000 bytes) is a CHOSEN policy budget limit (editorial/delivery constraint),
+      // NOT a physical measurement or hardware threshold.
       maxBytes: 500000,
       fullPackageBytes: 4900000,
       recordedBytes: wasmBytes.byteLength,

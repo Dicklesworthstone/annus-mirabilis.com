@@ -35,6 +35,7 @@ import {
   type WasmArtifactManifest,
 } from "../src/workers/protocol/provenance.ts";
 import { parseCapabilityMatrix } from "./wasm-artifacts/capabilityMatrix.ts";
+import { evaluateSizeBudget } from "./wasm-artifacts/sizeBudget.ts";
 
 export interface VerificationCheckResult {
   readonly testId: string;
@@ -43,9 +44,9 @@ export interface VerificationCheckResult {
   readonly message: string;
   readonly expected?: unknown;
   readonly actual?: unknown;
-  readonly tolerance?: number;
-  readonly maxDeviation?: number;
-  readonly failureDetails?: Record<string, unknown>;
+  readonly tolerance?: number | undefined;
+  readonly maxDeviation?: number | undefined;
+  readonly failureDetails?: Record<string, unknown> | undefined;
 }
 
 export function newLogRunId(): string {
@@ -55,16 +56,23 @@ export function newLogRunId(): string {
   return `${timestamp}-${randomSuffix}`;
 }
 
-export async function runWasmVerification(): Promise<{
+export interface VerificationOptions {
+  readonly manifestPath?: string | undefined;
+  readonly repoRoot?: string | undefined;
+}
+
+export async function runWasmVerification(options: VerificationOptions = {}): Promise<{
   readonly passed: boolean;
   readonly logRunId: string;
   readonly checks: readonly VerificationCheckResult[];
 }> {
-  const repoRoot = resolve(".");
+  const repoRoot = resolve(options.repoRoot ?? ".");
   const logRunId = newLogRunId();
   const checks: VerificationCheckResult[] = [];
 
-  const manifestPath = join(repoRoot, "public/wasm/manifest.json");
+  const manifestPath = options.manifestPath
+    ? resolve(options.manifestPath)
+    : join(repoRoot, "public/wasm/manifest.json");
   if (!existsSync(manifestPath)) {
     throw new Error(
       `WASM manifest not found at ${manifestPath}. Run bun scripts/build-wasm-artifacts.ts first.`,
@@ -430,22 +438,34 @@ export async function runWasmVerification(): Promise<{
     });
   }
 
-  // --- Check 8: Size budget check (< 500 KB and within 10% drift) ---
+  // --- Check 8: Size budget check (< 500 KB policy ceiling and within 10% drift) ---
   try {
-    const maxBytes = manifest.sizeBudget.maxBytes;
-    const recordedBytes = manifest.sizeBudget.recordedBytes;
-    const totalBundleBytes = manifest.sizeBudget.totalBundleBytes ?? recordedBytes;
-
-    const underMax = totalBundleBytes <= maxBytes;
-    const withinDrift = recordedBytes <= manifest.wasmBytes * 1.1;
+    const evalResult = evaluateSizeBudget(manifest.sizeBudget, manifest.wasmBytes);
 
     checks.push({
       testId: "wasm-size-budget",
-      passed: underMax && withinDrift,
+      passed: evalResult.passed,
       comparisonKind: "structural",
-      message: `WASM bundle size (${totalBundleBytes} B) is strictly within budget (${maxBytes} B).`,
-      expected: { maxBytes, underMax: true, withinDrift: true },
-      actual: { totalBundleBytes, underMax, withinDrift },
+      message: evalResult.message,
+      expected: {
+        status: "ok",
+        maxBytes: evalResult.maxBytes,
+        underMax: true,
+        withinDrift: true,
+      },
+      actual: {
+        status: evalResult.status,
+        code: evalResult.code,
+        totalBundleBytes: evalResult.totalBundleBytes,
+        recordedBytes: evalResult.recordedBytes,
+        wasmBytes: evalResult.wasmBytes,
+        driftRatio: evalResult.driftRatio,
+        underMax: evalResult.totalBundleBytes <= evalResult.maxBytes,
+        withinDrift: evalResult.driftRatio <= 0.1,
+      },
+      failureDetails: evalResult.code
+        ? { code: evalResult.code, status: evalResult.status, driftRatio: evalResult.driftRatio }
+        : undefined,
     });
   } catch (err) {
     checks.push({
