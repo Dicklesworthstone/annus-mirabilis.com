@@ -1,7 +1,6 @@
 import type { Computation } from "../../physics/reference/diffusion/ftcs.ts";
-import type { ConstraintId } from "../../physics/reference/kinematics.ts";
 import { makeRefusal } from "../results/refusals.ts";
-import { ALL_CONSTRAINTS, SR04_DEFAULTS, type Sr04Parameters } from "./definition.ts";
+import { ALL_CONSTRAINTS, SR04_DEFAULTS, splitConstraints, type Sr04Parameters } from "./definition.ts";
 
 /** Out-of-domain input explains, never silently clamps (am-sr-04-lorentz-map-px1k). */
 export function validateSr04Parameters(input: unknown): Computation<Sr04Parameters> {
@@ -29,7 +28,10 @@ export function validateSr04Parameters(input: unknown): Computation<Sr04Paramete
 
   if (!Number.isFinite(p.vOverC) || Math.abs(p.vOverC) > 0.95)
     return bad("The frame speed must be a fraction of c with magnitude at most 0.95.");
-  if (!Array.isArray(p.enabledConstraints) || p.enabledConstraints.some((id) => !(ALL_CONSTRAINTS as readonly string[]).includes(id)))
+  if (typeof p.enabledConstraints !== "string")
+    return bad("Enabled constraints must be a comma-joined list of construction constraint ids.");
+  const requestedConstraints = splitConstraints(p.enabledConstraints);
+  if (requestedConstraints.some((cid) => !(ALL_CONSTRAINTS as readonly string[]).includes(cid)))
     return bad("Enabled constraints must be a subset of the six named construction constraints.");
   for (const field of ["candidateA", "candidateB", "candidateD", "candidateTransverseScale"] as const) {
     if (!Number.isFinite(p[field]) || Math.abs(p[field]) > 1e6)
@@ -43,11 +45,5 @@ export function validateSr04Parameters(input: unknown): Computation<Sr04Paramete
   if (!Number.isFinite(p.objectSpeed) || Math.abs(p.objectSpeed) > 1e4)
     return bad("The slow case's object speed must be at most 1e4 m/s in magnitude; faster composition belongs to SR-06.");
 
-  return {
-    kind: "accepted",
-    data: Object.freeze({
-      ...p,
-      enabledConstraints: Object.freeze([...p.enabledConstraints]) as readonly ConstraintId[],
-    }),
-  };
+  return { kind: "accepted", data: Object.freeze({ ...p }) };
 }

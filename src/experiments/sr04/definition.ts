@@ -17,8 +17,10 @@ export const ALL_CONSTRAINTS: readonly ConstraintId[] = Object.freeze([
 export type Sr04Parameters = Readonly<{
   /** Frame speed v, as a fraction of c (|v/c| <= 0.95). */
   vOverC: number;
-  /** Which construction constraints the reader has enabled. */
-  enabledConstraints: readonly ConstraintId[];
+  /** Which construction constraints the reader has enabled, as a comma-joined list (the shared
+   * Parameters record type is Record<string, number | string | boolean>, so an array cannot
+   * travel here directly; splitConstraints()/joinConstraints() convert at the boundary). */
+  enabledConstraints: string;
   /** A hand-built candidate the reader is testing against checkCandidateMap; undefined means
    * "no hand-built candidate yet, just the enabled-constraint family." */
   candidateA: number;
@@ -32,9 +34,17 @@ export type Sr04Parameters = Readonly<{
   showLaterAids: boolean;
 }>;
 
+export function joinConstraints(ids: readonly ConstraintId[]): string {
+  return ids.join(",");
+}
+
+export function splitConstraints(joined: string): readonly ConstraintId[] {
+  return joined.length === 0 ? [] : (joined.split(",") as ConstraintId[]);
+}
+
 export const SR04_DEFAULTS: Sr04Parameters = Object.freeze({
   vOverC: 0.6,
-  enabledConstraints: Object.freeze([]),
+  enabledConstraints: "",
   candidateA: 1,
   candidateB: 1,
   candidateD: 0,

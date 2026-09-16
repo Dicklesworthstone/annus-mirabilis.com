@@ -14,7 +14,6 @@
 import {
   boostMatrixXT,
   type CandidateMap,
-  type ConstraintId,
   type ConstraintSolve,
   galileanRelativisticVelocityDifference,
   galileanVelocity,
@@ -25,7 +24,7 @@ import {
   speedOfLightMetresPerSecond,
 } from "../../physics/reference/kinematics.ts";
 import type { AcceptedSnapshot, ExperimentView, PublishedResult, RequestToken } from "../store/instanceStore.ts";
-import { SR04_DEFAULTS, type Sr04Parameters } from "./definition.ts";
+import { SR04_DEFAULTS, splitConstraints, type Sr04Parameters } from "./definition.ts";
 import { validateSr04Parameters } from "./parameters.ts";
 
 export type LaterAids = Readonly<{
@@ -60,7 +59,7 @@ export function evaluateSr04(p: Sr04Parameters): Sr04Evaluation {
     : undefined;
   const family = solveCandidateFamily({
     v,
-    enabledConstraints: p.enabledConstraints as ConstraintId[],
+    enabledConstraints: splitConstraints(p.enabledConstraints),
     ...(candidate ? { candidate } : {}),
   });
 

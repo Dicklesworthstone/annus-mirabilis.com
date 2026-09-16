@@ -1,7 +1,7 @@
 import { describe, expect, test } from "bun:test";
 import { gamma, solveCandidateFamily, speedOfLightMetresPerSecond } from "../../physics/reference/kinematics.ts";
 import { withinTolerance } from "../../units/tolerance.ts";
-import { SR04_DEFAULTS } from "./definition.ts";
+import { joinConstraints, SR04_DEFAULTS } from "./definition.ts";
 import { evaluateSr04 } from "./session.ts";
 
 const C = speedOfLightMetresPerSecond();
@@ -85,7 +85,7 @@ describe("SR-04 construction sequence against the bead's own worked numbers (am-
     const evaluation = evaluateSr04({
       ...SR04_DEFAULTS,
       vOverC: 0.6,
-      enabledConstraints: ["right-moving-light", "left-moving-light", "reciprocity", "isotropy", "identity-branch"],
+      enabledConstraints: joinConstraints(["right-moving-light", "left-moving-light", "reciprocity", "isotropy", "identity-branch"]),
     });
     expect(evaluation.family.status).toBe("value");
     if (evaluation.family.status !== "value") return;
@@ -100,14 +100,14 @@ describe("SR-04 construction sequence against the bead's own worked numbers (am-
     const evaluation = evaluateSr04({
       ...SR04_DEFAULTS,
       vOverC: 0.6,
-      enabledConstraints: [
+      enabledConstraints: joinConstraints([
         "right-moving-light",
         "left-moving-light",
         "reciprocity",
         "isotropy",
         "identity-branch",
         "transverse-light",
-      ],
+      ]),
     });
     expect(evaluation.family.status).toBe("value");
     if (evaluation.family.status !== "value") return;
@@ -119,8 +119,14 @@ describe("SR-04 construction sequence against the bead's own worked numbers (am-
     const evaluation = evaluateSr04({ ...SR04_DEFAULTS, vOverC: 0.6 });
     expect(evaluation.laterAids.matrix.status).toBe("value");
     if (evaluation.laterAids.matrix.status === "value") {
-      const [[m00, m01], [m10, m11]] = evaluation.laterAids.matrix.value;
-      const det = m00! * m11! - m01! * m10!;
+      const [row0, row1] = evaluation.laterAids.matrix.value;
+      if (!row0 || !row1) throw new Error("unreachable: a 2x2 matrix has two rows.");
+      const [m00, m01] = row0;
+      const [m10, m11] = row1;
+      if (m00 === undefined || m01 === undefined || m10 === undefined || m11 === undefined) {
+        throw new Error("unreachable: each row of a 2x2 matrix has two entries.");
+      }
+      const det = m00 * m11 - m01 * m10;
       expect(rel(det, 1)).toBe(true);
     }
     expect(evaluation.laterAids.eigenvalues).not.toBeNull();
