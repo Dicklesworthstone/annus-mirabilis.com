@@ -59,7 +59,7 @@ export const CATALOGUE_STATUS: Readonly<Record<CatalogueId, CatalogueStatus>> = 
   "lq-05": "in-preparation",
   "lq-06": "in-preparation",
   "lq-07": "in-preparation",
-  "lq-08": "in-preparation",
+  "lq-08": "registered",
   "lq-09": "in-preparation",
   "bm-01": "registered",
   "bm-02": "in-preparation",
@@ -106,6 +106,8 @@ export const REGISTERED_IDS: readonly CatalogueId[] = Object.freeze(
  * authored"). Absence is honest: most ids have no authored question yet.
  */
 export const CATALOGUE_QUESTIONS: Readonly<Partial<Record<CatalogueId, string>>> = Object.freeze({
+  "lq-08":
+    "Why does increasing light intensity release more electrons without increasing their individual energy, while increasing frequency increases electron energy without requiring higher intensity?",
   "bm-05": "After many steps, what will changing the step law while keeping its variance do?",
 });
 

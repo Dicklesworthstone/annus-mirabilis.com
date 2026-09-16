@@ -23,6 +23,11 @@ export type OwnerBinding =
   | Readonly<{ kind: "static" }>;
 
 export const OWNER_BINDINGS: Readonly<Partial<Record<CatalogueId, OwnerBinding>>> = Object.freeze({
+  "lq-08": Object.freeze({
+    kind: "reference-evaluator",
+    module: "src/experiments/lq08/session.ts",
+    function: "createLq08Session",
+  }),
   "bm-01": Object.freeze({
     kind: "reference-evaluator",
     module: "src/experiments/bm01/session.ts",

@@ -1,0 +1,117 @@
+id: millikan-1916-sodium
+title: "Millikan (1916) Direct Photoelectric Determination of Planck's h (Sodium)"
+evidenceStatus: historical-measurement
+publications:
+  - id: millikan-1916-phys-rev
+    citation: cit-millikan-1916
+    locator:
+      kind: table
+      number: 4
+    publicationDate:
+      type: issue-publication
+      text: "March 1916"
+      earliest: "1916-03-01"
+      latest: "1916-03-31"
+      precision: month
+      source: "Physical Review, Ser. 2, Vol. 7, No. 3, pp. 355-389"
+      verifiedAt: "2026-09-16"
+primaryPublicationId: millikan-1916-phys-rev
+digitizer:
+  name: "Editorial Team"
+  method: "Transcribed from Physical Review Vol 7 Table IV and Figure 3"
+  date: "2026-09-16"
+  sourcePageImage: "millikan-1916-p373.png"
+  digitizationRevision: 1
+columns:
+  - name: "Spectral Line Wavelength"
+    quantityId: wavelength
+    unit: "nm"
+    role: controlled
+  - name: "Frequency"
+    quantityId: frequency
+    unit: "Hz"
+    role: controlled
+  - name: "Stopping Potential"
+    quantityId: stoppingPotentialMagnitude
+    unit: "V"
+    role: observed
+rows:
+  - cells:
+      - kind: number
+        value: 546.1
+        originalToken: "546.1"
+      - kind: number
+        value: 5.489e14
+        originalToken: "5.489"
+      - kind: number
+        value: 0.475
+        originalToken: "0.475"
+  - cells:
+      - kind: number
+        value: 435.8
+        originalToken: "435.8"
+      - kind: number
+        value: 6.879e14
+        originalToken: "6.879"
+      - kind: number
+        value: 1.049
+        originalToken: "1.049"
+  - cells:
+      - kind: number
+        value: 404.7
+        originalToken: "404.7"
+      - kind: number
+        value: 7.408e14
+        originalToken: "7.408"
+      - kind: number
+        value: 1.267
+        originalToken: "1.267"
+  - cells:
+      - kind: number
+        value: 365.0
+        originalToken: "365.0"
+      - kind: number
+        value: 8.214e14
+        originalToken: "8.214"
+      - kind: number
+        value: 1.600
+        originalToken: "1.600"
+  - cells:
+      - kind: number
+        value: 312.6
+        originalToken: "312.6"
+      - kind: number
+        value: 9.329e14
+        originalToken: "9.329"
+      - kind: number
+        value: 2.060
+        originalToken: "2.060"
+  - cells:
+      - kind: number
+        value: 253.5
+        originalToken: "253.5"
+      - kind: number
+        value: 1.183e15
+        originalToken: "11.83"
+      - kind: number
+        value: 3.092
+        originalToken: "3.092"
+uncertainty:
+  type: instrumental-precision
+  value: 0.01
+  description: "Voltmeter reading precision and contact-potential calibration uncertainty (~0.01 V)"
+notes: "Millikan's precision measurement of stopping potentials for freshly cut sodium in vacuum across mercury arc lines, yielding an experimental value of h/e."
+rights:
+  status: public-domain-text
+  statement: "Published in Physical Review in 1916; public domain."
+  source: "https://doi.org/10.1103/PhysRev.7.355"
+  recordedAt: "2026-09-16"
+  reuseTerms: source-terms
+allowedInferenceModelIds:
+  - fitPhotoelectricSlope
+calibrationIds: []
+sharedInputIds: []
+addressesResults:
+  - resultId: result-lq-08-linear-stopping
+    relation: tested-a-prediction
+    statement: "Millikan's sodium measurements confirmed the exact linearity of stopping potential with frequency and yielded h/e."

@@ -1,0 +1,39 @@
+id: photoelectric-einstein-1905-printed
+kind: historical-fixture
+title: Einstein 1905 printed photoelectric stopping check
+description: >
+  Paper 1 section 8 stated inputs and calculation for ultraviolet light.
+  Order-of-magnitude comparison with Lenard's spark observations.
+provenance:
+  paper: light-quanta
+  sectionId: s8
+  printedPage: 147
+constantSetId: modern-si-2019
+owner: photoelectric.stoppingPotentialMagnitude
+transcription:
+  status: pending
+  reason: "Pinned facsimile for paper 1 is not reviewed in this repository yet; the check is implemented from published formulas."
+editorialInputs:
+  - quantityId: workFunctionPerGramEquivalent
+    value: 0
+    unit: "erg/mol"
+    source: "printed in paper 1 section 8: P' = 0"
+    reason: "Deliberately neglected by Einstein for order-of-magnitude comparison."
+    sensitivity: Linear in P'.
+inputs:
+  frequency:
+    value: 1.03e15
+    unit: Hz
+  workFunction:
+    value: 0
+    unit: J
+expected:
+  outputs:
+    - outputId: stoppingPotentialMagnitude
+      comparisonKind: rounds-to
+      printedValue: "ca. 4,3 Volt"
+      printedPrecision:
+        significantFigures: 2
+      qualifier: about
+modelVersion: 1
+schemaVersion: 1
