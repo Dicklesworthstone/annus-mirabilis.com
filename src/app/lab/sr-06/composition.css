@@ -1,0 +1,17 @@
+.sr06-plot svg {
+  max-width: 22rem;
+  width: 100%;
+  height: auto;
+}
+.sr06-matrix {
+  font-variant-numeric: tabular-nums;
+  font-size: 0.8rem;
+}
+.sr06-matrix td {
+  padding: 0.15rem 0.4rem;
+  text-align: right;
+}
+.predict-block label {
+  display: block;
+  margin: 0.25rem 0;
+}
