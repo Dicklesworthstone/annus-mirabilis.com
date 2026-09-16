@@ -1,0 +1,28 @@
+id: bm-01-golden
+kind: modern-golden
+title: "Standard Brownian Motion Golden Verification"
+description: "Evaluates Stokes-Einstein equation with modern CODATA constants"
+experimentId: bm-01
+constantSetId: modern-si-2019
+inputs:
+  temperature:
+    value: 293.15
+    unit: "K"
+  particleRadius:
+    value: 4e-7
+    unit: "m"
+owner: evaluateStokesEinstein
+seedPolicy: fixed
+seed: "9007199254740992"
+streamVersion: 1
+allocationId: alloc-brownian-default-v1
+expected:
+  outputs:
+    - outputId: diffusionCoefficient
+      value: 5.35e-13
+      comparisonKind: tolerance
+      tolerance:
+        relative: 0.001
+        rationale: "Precision of Stokes-Einstein host evaluator against reference calculation"
+modelVersion: 1
+schemaVersion: 1

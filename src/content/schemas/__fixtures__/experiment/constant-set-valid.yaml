@@ -1,0 +1,31 @@
+id: einstein-1905-brownian-printed
+era: "1905"
+provenance: "Annalen der Physik (4) 17, 549-560 (1905)"
+precisionNote: "Historical values as printed in Annalen der Physik 17"
+gasConstantProvenance: measured-without-counting-molecules
+entries:
+  - quantityId: gasConstant
+    value: 83100000
+    exactDecimal: "83100000"
+    kind: printed-historical
+    printedStatus: editorial-input
+    reason: "Gas constant value in CGS units used implicitly in numerical calculations"
+    sensitivity: "Linear scaling on inferred molecular dimensions"
+    era: "1905"
+    provenance: "Implicit historical CGS convention"
+    precision: "3 significant figures"
+    transcriptionStatus: transcribed-and-checked
+    checkedBy: "jemanuel"
+    checkedAt: "2026-09-15"
+  - quantityId: avogadroConstant
+    value: 6e23
+    exactDecimal: "600000000000000000000000"
+    kind: printed-historical
+    printedStatus: printed
+    printedReading: "6 · 10²³"
+    era: "1905"
+    provenance: "Ann. Phys. 17, p. 559"
+    precision: "1 significant figure"
+    transcriptionStatus: transcribed-and-checked
+    checkedBy: "jemanuel"
+    checkedAt: "2026-09-15"

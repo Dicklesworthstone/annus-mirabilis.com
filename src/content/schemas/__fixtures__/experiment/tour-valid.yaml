@@ -1,0 +1,22 @@
+id: tour-brownian-overview
+title: "Fifteen-Minute Discovery of Brownian Motion"
+budget: fifteen-minutes
+papers:
+  - brownian-motion
+completionStatement: "You have seen how invisible thermal motions drive visible particle dispersion and provide a bridge to Avogadro's number."
+steps:
+  - anchorId: ap-17-549-sec-01
+    detail: 0
+    instrumentPreset:
+      instrumentId: bm-01
+      presetId: bm-01-standard-water
+    estimatedMinutes: 5
+    purpose: "Introduce the osmotic equilibrium and suspension setup."
+  - anchorId: ap-17-549-sec-04
+    detail: 1
+    instrumentPreset:
+      instrumentId: bm-01
+      promptId: bm-01-predict-radius-effect
+    estimatedMinutes: 10
+    purpose: "Predict how granule size affects observable displacement before seeing Einstein's equation."
+requiresEquations: false

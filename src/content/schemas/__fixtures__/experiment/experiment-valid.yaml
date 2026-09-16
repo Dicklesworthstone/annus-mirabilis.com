@@ -1,0 +1,212 @@
+id: bm-01
+title: "Tracer Ensemble in Microscopic Diffusion"
+explanatoryQuestion: "How does molecular kinetic energy translate into observable macroscopic dispersion?"
+sourceRefs:
+  - paper: brownian-motion
+    id: ap-17-549-sec-01
+argumentIds:
+  - bm-arg-osmotic-pressure
+schemaVersion: 1
+parameters:
+  - id: temperature
+    label: "Temperature"
+    accessibleName: "Absolute temperature of the suspension fluid"
+    accessibleDescription: "Sets fluid temperature in Kelvin"
+    quantityId: temperature
+    displayUnit: "K"
+    modelDomain:
+      min: 270
+      max: 370
+      minInclusive: true
+      maxInclusive: true
+      reason: "Liquid state of water under standard atmospheric pressure"
+    visualRange:
+      min: 273
+      max: 350
+    default: 293.15
+    mapping:
+      kind: linear
+    role: independent
+    commandClass: setup-change
+  - id: particleRadius
+    label: "Particle Radius"
+    accessibleName: "Radius of suspended microscopic sphere"
+    accessibleDescription: "Hydrodynamic radius in meters"
+    quantityId: length
+    displayUnit: "m"
+    modelDomain:
+      min: 1e-8
+      max: 1e-5
+      minInclusive: true
+      maxInclusive: true
+      reason: "Stokes hydrodynamic regime limits"
+    visualRange:
+      min: 1e-7
+      max: 5e-6
+    default: 1e-6
+    mapping:
+      kind: log
+      base: 10
+    role: independent
+    commandClass: setup-change
+  - id: gridStep
+    label: "Grid Step"
+    accessibleName: "Fundamental replay step"
+    accessibleDescription: "Base time step for simulation stepping"
+    quantityId: time
+    displayUnit: "s"
+    modelDomain:
+      min: 0.01
+      max: 1.0
+      minInclusive: true
+      maxInclusive: true
+      reason: "Sampling limit"
+    visualRange:
+      min: 0.01
+      max: 1.0
+    default: 0.1
+    mapping:
+      kind: step
+      size: 0.01
+    role: independent
+    commandClass: setup-change
+  - id: observationInterval
+    label: "Observation Interval"
+    accessibleName: "Interval between position observations"
+    accessibleDescription: "Delta t for variance calculation"
+    quantityId: time
+    displayUnit: "s"
+    modelDomain:
+      min: 0.1
+      max: 10.0
+      minInclusive: true
+      maxInclusive: true
+      reason: "Grid multiple limit"
+    visualRange:
+      min: 0.1
+      max: 5.0
+    default: 0.5
+    mapping:
+      kind: step
+      gridParameterId: gridStep
+    role: independent
+    commandClass: measurement-change
+outputs:
+  - id: tracerPositions
+    quantityId: length
+    allowedStatuses:
+      - value
+      - outside-domain
+    primary: true
+  - id: diffusionCoefficient
+    quantityId: diffusivity
+    allowedStatuses:
+      - value
+    primary: false
+assumptions:
+  - "Stokes drag law applies to spherical particles in stationary liquid"
+  - "Molecular impacts are uncorrelated on observation timescales"
+admittedDomain: "Viscous Newtonian fluids with Reynolds number Re << 1 at ambient laboratory temperatures."
+notModeled:
+  - "Turbulent fluid advection"
+  - "Van der Waals particle aggregation"
+  - "Wall proximity boundary effects"
+owner:
+  kind: reference-evaluator
+  kernelFunctions:
+    - displayRole: reference-implementation
+      language: ts
+      module: "src/physics/reference/brownian.ts"
+      exportName: "evaluateStokesEinstein"
+      independentReferences:
+        - experimentId: bm-01
+          quantityId: diffusivity
+  identifierBindings:
+    - kernelFunction: evaluateStokesEinstein
+      identifier: "D"
+      quantityId: diffusivity
+  traceScenarioId: bm-01-golden
+  traceRows:
+    - label: "Diffusivity calculation"
+      expression: "D = (R * T) / (6 * pi * eta * r * N_A)"
+      value: 2.14e-13
+      unit: "m^2/s"
+      quantityId: diffusivity
+views:
+  - id: canvas-ensemble
+    kind: canvas
+    consumes:
+      - tracerPositions
+    requires:
+      - canvas-2d
+  - id: table-summary
+    kind: table
+    consumes:
+      - tracerPositions
+      - diffusionCoefficient
+actions:
+  - actionId: sample-displacement
+    family: probability-diffusion
+    question: "What is the expected RMS displacement after interval Delta t?"
+    inputs:
+      - temperature
+      - particleRadius
+    commandClass: physical-intervention
+    acceptedResult:
+      outputs:
+        - tracerPositions
+      allowedStatuses:
+        - value
+        - outside-domain
+    visualAffordance: "Particle trajectory trace"
+    equivalentAffordance: "Data table with mean and variance"
+    announcement: "Tracer displacement sampled"
+acceptanceCases:
+  - bm-01-golden
+  - bm-01-refusal-outside-domain
+defaultScenario: bm-01-golden
+tapeModel:
+  modelId: tape-brownian-v1
+  modelVersion: 1
+teachingTapes:
+  - tapeId: einstein-0-8-micron
+    title: "Einstein's 0.8 micron particle"
+presets:
+  - presetId: bm-01-standard-water
+    label: "Standard 0.8 micron in water at 20 C"
+    parameterValues:
+      temperature: 293.15
+      particleRadius: 4e-7
+    scenarioId: bm-01-standard-water
+probes:
+  - probe-rms-displacement
+weavePredicates:
+  - bm-premise-viscous-drag
+historicalOverlays:
+  - perrin-1909-table-1
+realRate:
+  natural: true
+  quantity: length
+  scaleBar:
+    length: 0.000001
+    unit: "m"
+embeddable: true
+predictMode:
+  enabled: true
+  prompts:
+    - promptId: bm-01-predict-radius-effect
+      controlId: particleRadius
+      question: "If particle radius r is quadrupled, how does the mean displacement change?"
+      candidates:
+        - id: halves
+          label: "Halves (1/2x)"
+          description: "Displacement scales inversely with square root of radius"
+          separatingAssumption: "Diffusion coefficient D scales as 1/r, and RMS displacement scales as sqrt(D)."
+        - id: quarters
+          label: "Quarters (1/4x)"
+          description: "Displacement scales inversely with radius"
+          separatingAssumption: "Displacement is assumed to be directly proportional to diffusion coefficient D rather than sqrt(D)."
+        - id: unchanged
+          label: "Remains unchanged"
+          description: "Displacement is independent of particle size"
+          separatingAssumption: "Molecular kinetic agitation is assumed to impart identical velocities regardless of tracer mass."

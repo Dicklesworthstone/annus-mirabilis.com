@@ -1,0 +1,77 @@
+id: perrin-1909-table-1
+title: "Perrin (1909) Granule Displacements in Water"
+evidenceStatus: historical-measurement
+publications:
+  - id: perrin-1909-ann-chim
+    citation: cit-perrin-1909
+    locator:
+      kind: table
+      number: 1
+    publicationDate:
+      type: issue-publication
+      text: "Septembre 1909"
+      earliest: "1909-09-01"
+      latest: "1909-09-30"
+      precision: month
+      source: "Annales de Chimie et de Physique, Ser. 8, Vol. 18"
+      verifiedAt: "2026-09-15"
+primaryPublicationId: perrin-1909-ann-chim
+digitizer:
+  name: "Editorial Team"
+  method: "Double manual keying from high-resolution scan"
+  date: "2026-09-15"
+  sourcePageImage: "perrin-1909-p056.png"
+  digitizationRevision: 1
+columns:
+  - name: "Granule Radius"
+    quantityId: length
+    unit: "um"
+    role: controlled
+  - name: "Mean Displacement"
+    quantityId: length
+    unit: "um"
+    role: observed
+  - name: "Fitted Mobility"
+    quantityId: mobility
+    unit: "s/kg"
+    role: reported-fit
+    fitDescription: "Linear least-squares fit by Perrin across displacement series"
+rows:
+  - cells:
+      - kind: number
+        value: 0.53
+        originalToken: "0,53"
+      - kind: number
+        value: 7.1
+        originalToken: "7,1"
+      - kind: number
+        value: 1.2e11
+        originalToken: "1,2·10¹¹"
+  - cells:
+      - kind: number
+        value: 0.37
+        originalToken: "0,37"
+      - kind: missing
+        reason: "Plate emulsion clouded on observation run 2"
+      - kind: bound
+        direction: upper
+        value: 2.5e11
+        originalToken: "< 2,5·10¹¹"
+uncertainty:
+  type: standard-deviation
+  description: "Reported sample standard deviation across 100 observations per granule size"
+notes: "Historical observations confirming Einstein (1905) diffusion relation."
+rights:
+  status: public-domain-verified
+  statement: "Public domain historical scientific paper."
+  source: "https://gallica.bnf.fr"
+  recordedAt: "2026-09-15"
+  reuseTerms: unrestricted-scholarly
+allowedInferenceModelIds:
+  - evaluateStokesEinstein
+calibrationIds: []
+sharedInputIds: []
+addressesResults:
+  - resultId: result-bm-01-diffusivity
+    relation: tested-a-prediction
+    statement: "Perrin measured granule displacements directly verifying Einstein's 1905 diffusion equation."
