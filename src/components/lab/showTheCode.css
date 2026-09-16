@@ -1,0 +1,69 @@
+.show-the-code {
+  border: 1px solid var(--line, #c7c5b9);
+  background: var(--panel, #fffdf7);
+  padding: 0.85rem 1rem;
+  margin: 1rem 0;
+  max-width: 100%;
+}
+.show-the-code > summary {
+  cursor: pointer;
+  font-family: system-ui, sans-serif;
+  font-size: 0.95rem;
+}
+.show-the-code-tabs {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.6rem;
+  margin: 0.7rem 0;
+  font-family: system-ui, sans-serif;
+}
+.show-the-code-tabs a {
+  min-height: 2.25rem;
+  display: inline-flex;
+  align-items: center;
+}
+.show-the-code-panel {
+  margin: 0.8rem 0;
+}
+.show-the-code-panel pre {
+  overflow: auto;
+  max-width: 100%;
+  padding: 0.7rem;
+  background: var(--wash, #e8eadf);
+  font-family: ui-monospace, "JetBrains Mono", monospace;
+  font-size: 0.85rem;
+  line-height: 1.45;
+}
+.show-the-code .kernel-trace-wrap {
+  overflow-x: auto;
+  max-width: 100%;
+}
+.show-the-code .kernel-trace {
+  border-collapse: collapse;
+  min-width: 28rem;
+}
+.show-the-code .kernel-trace th,
+.show-the-code .kernel-trace td {
+  border-bottom: 1px solid var(--line, #c7c5b9);
+  padding: 0.35rem 0.5rem;
+  text-align: left;
+  vertical-align: top;
+}
+.show-the-code .kernel-ident {
+  text-decoration: underline;
+  text-decoration-style: dotted;
+  text-underline-offset: 0.18em;
+}
+.show-the-code .kernel-role {
+  font-family: system-ui, sans-serif;
+  font-size: 0.9rem;
+  color: var(--muted, #545b56);
+}
+.show-the-code .kernel-header {
+  font-family: system-ui, sans-serif;
+  font-size: 0.85rem;
+  color: var(--muted, #545b56);
+}
+.equation-context[data-selected-quantity-id] .kernel-ident[data-selected="true"] {
+  background: #efe0ad;
+}

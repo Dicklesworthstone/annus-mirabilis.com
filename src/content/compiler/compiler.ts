@@ -9,6 +9,7 @@
 import type { EquationRecord } from "../../equations/record.ts";
 import { registerStructuralChecks } from "../checks/structural/structural.ts";
 import { registerVoiceCheck } from "../checks/voice/check.ts";
+import { registerKernelBindingCheck } from "../kernel/check.ts";
 import { registerSourceManifestCheck } from "../manifest/check.ts";
 import {
   type Argument,
@@ -283,6 +284,7 @@ export async function compileContent(
     registerStructuralChecks();
     registerSourceManifestCheck();
     registerVoiceCheck();
+    registerKernelBindingCheck();
   }
   const checkContext = {
     records: rawRecords,

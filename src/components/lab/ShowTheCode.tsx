@@ -1,0 +1,198 @@
+import type { ReactNode } from "react";
+import {
+  highlightKernelSource,
+  quantityHue,
+  selectionCss,
+  tokenizeKernelSource,
+} from "../../content/kernel/highlight.ts";
+import type { WorkedTrace } from "../../content/kernel/types.ts";
+import { KERNEL_DISPLAY_ROLE_LABELS, type KernelListing } from "../../content/kernel/types.ts";
+import "./showTheCode.css";
+
+function TraceTable({ trace }: { trace: WorkedTrace }) {
+  return (
+    <div className="kernel-trace-wrap">
+      <table
+        className="kernel-trace"
+        data-constant-set={trace.constantSetLabel}
+        data-scenario={trace.scenarioId}
+      >
+        <caption>
+          One worked example of this calculation. Constant set: {trace.constantSetLabel}.
+        </caption>
+        <thead>
+          <tr>
+            <th>Step</th>
+            <th>Expression</th>
+            <th>Value</th>
+            <th>Unit</th>
+          </tr>
+        </thead>
+        <tbody>
+          {trace.rows.map((row) => (
+            <tr key={row.label} data-quantity-id={row.quantityId} data-op-id={row.opId}>
+              <th scope="row">{row.label}</th>
+              <td>{row.expression}</td>
+              <td>{String(row.value)}</td>
+              <td>{row.unit}</td>
+            </tr>
+          ))}
+        </tbody>
+      </table>
+      {trace.terminatedAtRow !== undefined ? (
+        <p>{trace.refusalMessage ?? "The calculation stopped at this row."}</p>
+      ) : null}
+    </div>
+  );
+}
+
+export type ShowTheCodeProps = Readonly<{
+  listings: readonly KernelListing[];
+  producedCurrentSnapshot?: boolean | undefined;
+  snapshotFunctionName?: string | undefined;
+  equationCard?: ReactNode;
+  uid?: string | undefined;
+}>;
+
+function slug(text: string): string {
+  return text.replace(/[^A-Za-z0-9_-]+/g, "-");
+}
+
+export function ShowTheCode({
+  listings,
+  producedCurrentSnapshot = false,
+  snapshotFunctionName,
+  equationCard,
+  uid = "stc",
+}: ShowTheCodeProps) {
+  const quantityIds = [
+    ...new Set(listings.flatMap((l) => l.identifierBindings.map((b) => b.quantityId))),
+  ];
+  return (
+    <details className="show-the-code" open>
+      <summary>Show the code</summary>
+      <style>{selectionCss(quantityIds)}</style>
+      {listings.map((listing) => {
+        const id = `${uid}-${slug(listing.exportName)}`;
+        const roleLabel = KERNEL_DISPLAY_ROLE_LABELS[listing.displayRole];
+        const tokens = listing.source
+          ? tokenizeKernelSource(listing.source, listing.identifierBindings)
+          : [];
+        const claimsSnapshot =
+          producedCurrentSnapshot && snapshotFunctionName === listing.exportName;
+        return (
+          <article
+            key={listing.exportName}
+            className="show-the-code-listing"
+            data-display-role={listing.displayRole}
+            data-export-name={listing.exportName}
+          >
+            <p className="kernel-role">{roleLabel}</p>
+            <p className="kernel-header">
+              {listing.exportName}
+              {listing.filePath ? ` · ${listing.filePath}` : ""}
+              {listing.revision ? ` · revision ${listing.revision}` : ""}
+              {listing.sourceHash ? ` · ${listing.sourceHash}` : ""}
+            </p>
+            <p className="kernel-header">
+              {claimsSnapshot
+                ? "This is the function that produced the current snapshot."
+                : "This function computes the listed outputs when it runs."}
+            </p>
+            <nav className="show-the-code-tabs" aria-label="Show the code">
+              <a href={`#${id}-words`}>In words</a>
+              <a href={`#${id}-mathematics`}>Mathematics</a>
+              <a href={`#${id}-implementation`}>Implementation</a>
+            </nav>
+            <section id={`${id}-words`} className="show-the-code-panel" data-tab="words">
+              <h3>In words</h3>
+              <p>{listing.words}</p>
+            </section>
+            <section
+              id={`${id}-mathematics`}
+              className="show-the-code-panel"
+              data-tab="mathematics"
+            >
+              <h3>Mathematics</h3>
+              {equationCard ??
+                (listing.equationId ? (
+                  <div data-equation-card="" data-equation-id={listing.equationId} />
+                ) : null)}
+            </section>
+            <section
+              id={`${id}-implementation`}
+              className="show-the-code-panel"
+              data-tab="implementation"
+            >
+              <h3>Implementation</h3>
+              {tokens.length > 0 ? (
+                <pre>
+                  <code data-language={listing.language ?? "ts"}>
+                    {tokens.map((token) => {
+                      if (token.kind === "ident" && token.quantityId) {
+                        return (
+                          <span
+                            key={token.start}
+                            className="kernel-ident"
+                            data-quantity-id={token.quantityId}
+                            style={{
+                              color: quantityHue(token.quantityId),
+                              textDecoration: "underline",
+                              textDecorationStyle: "dotted",
+                              textUnderlineOffset: "0.18em",
+                            }}
+                          >
+                            {token.text}
+                          </span>
+                        );
+                      }
+                      if (token.kind === "comment") {
+                        return (
+                          <span key={token.start} className="kernel-comment">
+                            {token.text}
+                          </span>
+                        );
+                      }
+                      if (token.kind === "string") {
+                        return (
+                          <span key={token.start} className="kernel-string">
+                            {token.text}
+                          </span>
+                        );
+                      }
+                      return <span key={token.start}>{token.text}</span>;
+                    })}
+                  </code>
+                </pre>
+              ) : null}
+              {listing.trace ? <TraceTable trace={listing.trace} /> : null}
+              {listing.independentReferences.length > 0 ? (
+                <ul>
+                  {listing.independentReferences.map((ref) => (
+                    <li key={`${ref.experimentId}/${ref.quantityId}`}>
+                      <a href={`/verification/${ref.experimentId}/${ref.quantityId}`}>
+                        how this number is checked
+                      </a>
+                    </li>
+                  ))}
+                </ul>
+              ) : null}
+            </section>
+          </article>
+        );
+      })}
+    </details>
+  );
+}
+
+export function listingFromExtraction(listing: KernelListing): KernelListing {
+  if (!listing.source || listing.highlightedHtml) return listing;
+  return {
+    ...listing,
+    highlightedHtml: highlightKernelSource(
+      listing.source,
+      listing.language ?? "ts",
+      listing.identifierBindings,
+    ),
+  };
+}

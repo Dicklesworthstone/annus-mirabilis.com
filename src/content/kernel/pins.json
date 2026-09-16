@@ -1,0 +1,29 @@
+{
+  "schemaVersion": 1,
+  "functions": {
+    "stokesEinsteinD@src/physics/reference/diffusion/distributions.ts": "sha256:a41fa1ff39026dbed9a701b368028012995d1835d9acebb2e32d5010f47404ec",
+    "rmsDisplacement@src/physics/reference/diffusion/distributions.ts": "sha256:6d2d381222179a43397683f83d95eecf9dab253844f72dfcaa1eaab1302222eb",
+    "apparentSpeed@src/physics/reference/diffusion/distributions.ts": "sha256:1f2137435fdc15b0a9b5c91cc4dafba680e8d52b0f5143fdbefdfa9945f6baec",
+    "ensembleMoments@src/physics/reference/diffusion/tracers.ts": "sha256:15463ebef0c361e49d78fb4eb3083ebea96673f457bf503a56507023b73131cd",
+    "displacementHistogram@src/physics/reference/diffusion/tracers.ts": "sha256:c2c04e1d4ed5cb03f56b3f481dda8ac0f7789ba4641123e7625e432d423f1fae",
+    "kernelDiffusivity@src/physics/reference/diffusion/walkLaws.ts": "sha256:ca3f9990c635357a4698bbe3f9ea93fd291898536bdafddbcdab3ffc537677a0",
+    "randomWalkMoments@src/physics/reference/diffusion/walkLaws.ts": "sha256:6783075a2530f6028f515501e415352b59fe2d77d084d759a97af6995880ecb9",
+    "coinWalkDistribution@src/physics/reference/diffusion/walkLaws.ts": "sha256:62d40f3a276e02cfa768aed3f93b21fb6a74926ac94b31ae535b8e48c301de62",
+    "recordWalks@src/physics/reference/diffusion/walks.ts": "sha256:d8d45c494c5a564337a3ad369543562ad3d53b207e4cb39113cf70f28a54f64c",
+    "gaussianPropagator@src/physics/reference/diffusion/distributions.ts": "sha256:08378ddf8b6720db47f4949e26c3bb6de95c5ab5ba5851fe4b52b651ef62f55a",
+    "intervalProbability@src/physics/reference/diffusion/distributions.ts": "sha256:fdf333ecee819e1097ee25fb89e2caea663dd27fc5f8818d3a28cd8a15ff9a56",
+    "erf@src/physics/reference/special/erf.ts": "sha256:58ba0038d43059073d60c1af94ee48c8052c076685e393ce5eeab85362edda77",
+    "erfc@src/physics/reference/special/erf.ts": "sha256:45a75bb57d3658953e37bdc7ea1e9f0abbd6296180b6101f231d0631f5cb0922",
+    "radialPropagator2d@src/physics/reference/diffusion/distributions.ts": "sha256:58040898d39023e9e0e937741b8bb0885bad8976be85b6817c2b5ff3ef0916b2",
+    "radialPropagator3d@src/physics/reference/diffusion/distributions.ts": "sha256:37f9cc144c032a6104ceaa5b2020114d14a16a314620ad493149e5ee1bfdb6e8",
+    "ftcs1d@src/physics/reference/diffusion/ftcs.ts": "sha256:c04f80e8182597a114b7d20f492eb86053f90b4cc9e7cd299f516a6b44eb4755"
+  },
+  "closures": {
+    "src/physics/reference/diffusion/distributions.ts": "source:sha256:d89138075e7846c7cbc1e02954ecead709bc0ed3222db6d663c5c23ae3896652",
+    "src/physics/reference/diffusion/tracers.ts": "source:sha256:1eae7a08768a84891a8a46a8618529041c52eb44f07ca09448235f142e8267e5",
+    "src/physics/reference/diffusion/walkLaws.ts": "source:sha256:3c43c37800fe2a197c386f08ee396b9dade795bf251b23976e6c2e2513e36676",
+    "src/physics/reference/diffusion/walks.ts": "source:sha256:7e4d2370766b54d97609ec3b127bcf4dc621fe5f48d4dc9ee1f971b405937c9d",
+    "src/physics/reference/special/erf.ts": "source:sha256:36da87a989cc4d16571414b99849aa31ea544bb30878fd80fb9c19ffa9e11f62",
+    "src/physics/reference/diffusion/ftcs.ts": "source:sha256:e24f8031ec223fd31d63e67c8e82efb142dc7ac21a5460304a4e29e30cde5212"
+  }
+}
