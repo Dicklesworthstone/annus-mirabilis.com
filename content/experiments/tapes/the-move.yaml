@@ -1,0 +1,29 @@
+# Teaching tape for LQ-06: The Move (§6)
+tapeId: lq-06-the-move-walkthrough
+title: "The Move: From Entropy Law to Energy Quanta"
+experimentId: lq-06
+events:
+  - time: 0
+    kind: setup-change
+    parameters:
+      radiationEnergy: 9.055615e-9
+      frequency: 6.0e14
+      gasParticles: 10
+      volumeRatio: 0.5
+      temperature: 3000
+      selectedSubexpression: "none"
+      proposedEnergyElement: "none"
+      forkAChoice: "none"
+      constantSetId: "modern-si-2019"
+  - time: 1
+    kind: presentation-change
+    parameters:
+      selectedSubexpression: "N_E_over_R_beta_nu"
+  - time: 2
+    kind: presentation-change
+    parameters:
+      proposedEnergyElement: "h_nu"
+  - time: 3
+    kind: presentation-change
+    parameters:
+      forkAChoice: "independent-quanta"

@@ -1,0 +1,306 @@
+# LQ-06 instrument manifest (am-lq-06-coefficient-match-n8pe).
+id: lq-06
+title: "LQ-06: Matching the Entropy Coefficients to Derive the Light Quantum"
+explanatoryQuestion: "Why does comparing the radiation entropy volume law to the ideal gas entropy volume law suggest that monochromatic radiation behaves as independent energy quanta of magnitude R*beta*nu / N = h*nu?"
+sourceRefs:
+  - paper: light-quanta
+    id: s6
+argumentIds:
+  - arg-lq-the-move
+  - arg-lq-coefficient-match
+  - arg-lq-mean-energy
+schemaVersion: 1
+parameters:
+  - id: radiationEnergy
+    label: "Radiation Energy"
+    accessibleName: "Monochromatic radiation energy E"
+    accessibleDescription: "Sets the total radiation energy enclosed in the volume in Joules"
+    quantityId: radiationEnergy
+    displayUnit: "nJ"
+    modelDomain:
+      min: 1e-12
+      max: 1e-3
+      minInclusive: true
+      maxInclusive: true
+      reason: "Admitted radiation energy range within Wien domain"
+    visualRange:
+      min: 1e-10
+      max: 1e-7
+    default: 9.055615e-9
+    mapping:
+      kind: logarithmic
+    role: independent
+    commandClass: setup-change
+  - id: frequency
+    label: "Radiation Frequency"
+    accessibleName: "Monochromatic light frequency"
+    accessibleDescription: "Sets the frequency of the radiation in hertz"
+    quantityId: frequency
+    displayUnit: "THz"
+    modelDomain:
+      min: 1e14
+      max: 5e15
+      minInclusive: true
+      maxInclusive: true
+      reason: "Optical to ultraviolet spectrum where Wien's approximation holds"
+    visualRange:
+      min: 3e14
+      max: 1.5e15
+    default: 6e14
+    mapping:
+      kind: linear
+    role: independent
+    commandClass: setup-change
+  - id: gasParticles
+    label: "Gas Particle Count"
+    accessibleName: "Number of independent gas particles n"
+    accessibleDescription: "Sets the particle count in the comparison ideal gas"
+    quantityId: independentPointCount
+    displayUnit: ""
+    modelDomain:
+      min: 1
+      max: 1000000
+      minInclusive: true
+      maxInclusive: true
+      reason: "Discrete particle ensemble for Boltzmann configuration analogy"
+    visualRange:
+      min: 1
+      max: 100
+    default: 10
+    mapping:
+      kind: linear
+    role: independent
+    commandClass: setup-change
+  - id: volumeRatio
+    label: "Volume Ratio (V / V0)"
+    accessibleName: "Volume compression or expansion ratio V / V0"
+    accessibleDescription: "Sets the subvolume fraction for both radiation and gas systems"
+    quantityId: volumeRatio
+    displayUnit: ""
+    modelDomain:
+      min: 0.01
+      max: 10.0
+      minInclusive: true
+      maxInclusive: true
+      reason: "Volume change domain"
+    visualRange:
+      min: 0.1
+      max: 2.0
+    default: 0.5
+    mapping:
+      kind: linear
+    role: independent
+    commandClass: measurement-change
+  - id: temperature
+    label: "Equilibrium Temperature"
+    accessibleName: "Blackbody temperature for mean energy calculation"
+    accessibleDescription: "Sets the blackbody temperature in Kelvin for calculating the Wien spectrum mean quantum energy"
+    quantityId: temperature
+    displayUnit: "K"
+    modelDomain:
+      min: 100
+      max: 10000
+      minInclusive: true
+      maxInclusive: true
+      reason: "Thermal equilibrium temperature"
+    visualRange:
+      min: 500
+      max: 6000
+    default: 3000
+    mapping:
+      kind: linear
+    role: independent
+    commandClass: setup-change
+outputs:
+  - id: effectiveIndependentCount
+    quantityId: effectiveIndependentCount
+    allowedStatuses:
+      - value
+      - outside-domain
+    primary: true
+  - id: quantumEnergy
+    quantityId: quantumEnergy
+    allowedStatuses:
+      - value
+      - outside-domain
+    primary: true
+  - id: quantumEnergyEv
+    quantityId: quantumEnergyEv
+    allowedStatuses:
+      - value
+      - outside-domain
+    primary: true
+  - id: radiationEntropy
+    quantityId: radiationEntropy
+    allowedStatuses:
+      - value
+      - outside-domain
+    primary: true
+  - id: gasEntropy
+    quantityId: gasEntropy
+    allowedStatuses:
+      - value
+      - outside-domain
+    primary: true
+  - id: entropyVolumeCoefficient
+    quantityId: entropyVolumeCoefficient
+    allowedStatuses:
+      - value
+      - outside-domain
+    primary: true
+  - id: meanQuantumEnergyWien
+    quantityId: meanQuantumEnergyWien
+    allowedStatuses:
+      - value
+      - outside-domain
+    primary: false
+  - id: meanEnergyRatio
+    quantityId: meanEnergyRatio
+    allowedStatuses:
+      - value
+      - outside-domain
+    primary: false
+  - id: correspondenceVerdict
+    quantityId: correspondenceVerdict
+    allowedStatuses:
+      - value
+      - not-applicable
+    primary: true
+assumptions:
+  - "Wien radiation entropy law Delta S = (E / beta*nu) ln(V/V0) holds in the dilute radiation regime."
+  - "Boltzmann gas entropy principle Delta S = (R/N) n ln(V/V0) applies to n independent particles."
+  - "The coefficient multiplying ln(V/V0) represents the same physical entropy capacity in both systems."
+admittedDomain: "Monochromatic Wien-regime radiation and ideal gas comparison in identical volume transformations"
+notModeled:
+  - "Radiation outside the Wien regime (e.g. Rayleigh-Jeans limit)"
+  - "Mechanism of photon emission and absorption (developed in §§7–9)"
+  - "Cavity wall thermalization processes"
+  - "Wave interference inside the volume"
+owner:
+  kind: reference-evaluator
+  kernelFunctions:
+    - displayRole: reference-implementation
+      language: ts
+      module: "src/physics/reference/radiation/quanta.ts"
+      exportName: "effectiveIndependentCount"
+    - displayRole: reference-implementation
+      language: ts
+      module: "src/physics/reference/radiation/quanta.ts"
+      exportName: "meanQuantumEnergyWien"
+  identifierBindings:
+    - kernelFunction: "effectiveIndependentCount"
+      identifier: "E"
+      quantityId: "radiationEnergy"
+    - kernelFunction: "effectiveIndependentCount"
+      identifier: "nu"
+      quantityId: "frequency"
+views:
+  - id: lq-06-side-by-side
+    kind: svg
+    consumes:
+      - radiationEntropy
+      - gasEntropy
+      - entropyVolumeCoefficient
+  - id: lq-06-mean-energy-strip
+    kind: svg
+    consumes:
+      - meanQuantumEnergyWienEv
+      - moleculeMeanKineticEnergyEv
+      - meanEnergyRatio
+  - id: lq-06-role-cards
+    kind: table
+    consumes:
+      - effectiveIndependentCount
+      - quantumEnergyEv
+      - correspondenceVerdict
+actions:
+  - actionId: lq-06-match-subexpression
+    family: radiation-entropy
+    question: "Which subexpression in the radiation entropy law plays the role of the particle count n?"
+    inputs:
+      - selectedSubexpression
+    commandClass: presentation-change
+    acceptedResult:
+      outputs:
+        - correspondenceVerdict
+        - effectiveIndependentCount
+        - quantumEnergyEv
+      allowedStatuses:
+        - value
+        - not-applicable
+    visualAffordance: "Matching highlight links the subexpression N*E / (R*beta*nu) to n and reveals quantum energy"
+    equivalentAffordance: "Choose a subexpression candidate and read the verification verdict"
+    announcement: "Subexpression candidate evaluated against the entropy identity"
+  - actionId: lq-06-compare-mean-energies
+    family: radiation-entropy
+    question: "How does the mean quantum energy 3*k_B*T over a Wien spectrum compare to the mean kinetic energy 3/2*k_B*T of a gas molecule?"
+    inputs:
+      - temperature
+    commandClass: setup-change
+    acceptedResult:
+      outputs:
+        - meanQuantumEnergyWienEv
+        - moleculeMeanKineticEnergyEv
+        - meanEnergyRatio
+      allowedStatuses:
+        - value
+    visualAffordance: "Two side-by-side energy bars showing a fixed 2:1 ratio between Wien quantum mean energy and molecule kinetic energy"
+    equivalentAffordance: "Adjust temperature and verify the 2:1 ratio in the telemetry table"
+    announcement: "Mean energy comparison updated; ratio remains exactly 2"
+acceptanceCases:
+  - lq06-golden-the-move
+  - lq06-subexpression-mismatch-refusal
+  - lq06-historical-constants-printed
+defaultScenario: lq06-golden-the-move
+tapeModel:
+  modelId: lq-06-coefficient-match
+  modelVersion: 1
+teachingTapes:
+  - tapeId: lq-06-the-move-walkthrough
+    title: "The Move: From Entropy Law to Energy Quanta"
+presets:
+  - presetId: lq-06-the-move
+    label: "The Move (§6 Golden State)"
+    parameterValues:
+      radiationEnergy: 9.055615e-9
+      frequency: 6.0e14
+      gasParticles: 10
+      volumeRatio: 0.5
+      temperature: 3000
+  - presetId: lq-06-unrevealed
+    label: "Unrevealed Comparison"
+    parameterValues:
+      radiationEnergy: 9.055615e-9
+      frequency: 6.0e14
+      gasParticles: 10
+      volumeRatio: 0.5
+      temperature: 3000
+probes:
+  - lq-06-entropy-identity-probe
+  - lq-06-mean-energy-ratio-probe
+weavePredicates:
+  - lq06-s6-entropy-match
+  - lq06-s6-effective-count
+  - lq06-s6-mean-quantum-energy
+realRate:
+  natural: false
+embeddable: true
+predictMode:
+  enabled: true
+  prompts:
+    - promptId: lq-06-predict-subexpression
+      controlId: selectedSubexpression
+      question: "In the equation S - S_0 = (R/N) ln[(V/V_0)^(N*E / (R*beta*nu))], what quantity corresponds to the particle count n in S - S_0 = (R/N) n ln(V/V_0)?"
+      candidates:
+        - id: lq-06-cand-count
+          label: "n = N*E / (R*beta*nu) = E / (h*nu)"
+          description: "The exponent of the volume ratio V/V_0 plays exactly the role of the number of independent things"
+          separatingAssumption: "Mathematical equivalence: the logarithm laws equate the exponent in W = (V/V_0)^n to the radiation coefficient."
+        - id: lq-06-cand-energy
+          label: "n = E"
+          description: "Total radiation energy directly replaces particle count"
+          separatingAssumption: "Dimensional error: energy has units of Joules, while n is a dimensionless count."
+        - id: lq-06-cand-entropy-coeff
+          label: "n = E / (beta*nu)"
+          description: "The unscaled radiation entropy coefficient"
+          separatingAssumption: "Missing Boltzmann constant: E / (beta*nu) has units of J/K (entropy), not dimensionless count."

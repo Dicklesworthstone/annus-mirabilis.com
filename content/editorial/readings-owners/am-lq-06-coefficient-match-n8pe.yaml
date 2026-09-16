@@ -1,0 +1,24 @@
+# Readings owner file for LQ-06 (am-lq-06-coefficient-match-n8pe).
+ownerBeadId: am-lq-06-coefficient-match-n8pe
+targetKinds:
+  - instrument-caption
+scope:
+  instrumentIds:
+    - lq-06
+entries:
+  - id: lq-06-side-by-side-caption
+    targetKind: instrument-caption
+    instrumentId: lq-06
+    readings:
+      r0: "Comparing the entropy of monochromatic radiation to an ideal gas shows that both share the same volume dependence ln(V/V_0), with the particle count n replaced by E / (h*nu)."
+      r1: "Einstein §6 equates Boltzmann's gas entropy S - S_0 = (R/N) n ln(V/V_0) to Wien radiation entropy S - S_0 = (R/N) ln[(V/V_0)^(N*E / (R*beta*nu))], identifying n_eff = N*E / (R*beta*nu)."
+      r2: "For monochromatic radiation of energy E in volume V_0, the statistical probability of finding all energy in subvolume V is W = (V/V_0)^(E / (h*nu)). This matches n independent points if and only if n = E / (h*nu), implying individual energy elements epsilon = h*nu."
+      r3: "In the 1905 paper, Einstein uses R*beta*nu / N with beta = 4.866 × 10^-11, yielding R*beta/N = 6.5537 × 10^-27 erg·s, within 1% of Planck's h."
+  - id: lq-06-mean-energy-caption
+    targetKind: instrument-caption
+    instrumentId: lq-06
+    readings:
+      r0: "The mean energy of light quanta in a thermal Wien spectrum is exactly twice the average kinetic energy of a gas molecule."
+      r1: "Over a full Wien radiation spectrum at temperature T, the mean quantum energy is 3*k_B*T, compared to 3/2*k_B*T for a monoatomic gas molecule."
+      r2: "Integrating the Wien spectral energy and particle distributions yields <epsilon> = 3*k_B*T = 3*(R/N)*T, demonstrating that thermal radiation quanta have the same temperature scaling as kinetic gas particles."
+      r3: "Einstein calculates 3*(R/N)*T = 1.212 × 10^-12 erg at 3000 K, noting the striking factor of 2 relative to the translational kinetic energy of a gas molecule (3/2*(R/N)*T)."
