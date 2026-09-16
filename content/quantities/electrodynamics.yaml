@@ -383,8 +383,8 @@
   description: >
     Section 10's printed transverse mass coefficient evaluated in the electron's own
     instantaneous rest frame (a particle's comoving frame maps to frame: object-rest, the same
-    value used for a *RestFrame id). Rejected bare spellings massCoefficientTransverseComoving,
-    transverseMassSource.
+    value used for a RestFrame-suffixed id). Rejected bare spellings
+    massCoefficientTransverseComoving, transverseMassSource.
   dimensionStatus: declared
   dimension: [0, 1, 0, 0, 0, 0]
   mathematicalKind: scalar

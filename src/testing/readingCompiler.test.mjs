@@ -33,3 +33,40 @@ test('compiler rejects path/id mismatches and repeated file inputs',()=>{
  assert.equal(compileReadingContent([{...file(citation),path:'bibliography/other.json'}]).ok,false);
  assert.ok(compileReadingContent([file(citation),file(citation)]).diagnostics.some(d=>d.code==='duplicate-path'));
 });
+test('a genuinely unrouted path still fails, including a misplaced quantities-like path (AGENTS.md: unrouted-content is load-bearing)',()=>{
+ assert.ok(compileReadingContent([{path:'bad.yaml',text:'x'}]).diagnostics.some(d=>d.code==='unrouted-content'));
+ assert.ok(compileReadingContent([{path:'quantitites/typo.yaml',text:'- id: x'}]).diagnostics.some(d=>d.code==='unrouted-content'));
+ assert.ok(compileReadingContent([{path:'quantities/constant-sets/modern.yaml',text:'- id: x'}]).diagnostics.some(d=>d.code==='unrouted-content'));
+});
+test('quantities/*.yaml routes through the quantity schema and validates',()=>{
+ const good=[{path:'quantities/generic.yaml',text:'- id: exampleLength\n  name: Example length\n  description: A test quantity.\n  dimensionStatus: declared\n  dimension: [1, 0, 0, 0, 0, 0]\n  mathematicalKind: scalar\n  frame: not-applicable\n'}];
+ const result=compileReadingContent(good);
+ assert.equal(result.ok,true);
+});
+test('an invalid quantity record is reported as a diagnostic, never a crash',()=>{
+ const bad=[{path:'quantities/generic.yaml',text:'- id: NotCamelCase\n  name: Bad\n  description: Bad id casing.\n  dimensionStatus: declared\n  dimension: [1, 0, 0, 0, 0, 0]\n  mathematicalKind: scalar\n  frame: not-applicable\n'}];
+ const result=compileReadingContent(bad);
+ assert.equal(result.ok,false);
+ assert.ok(result.diagnostics.some(d=>d.code==='invalid-quantity'));
+});
+test('duplicate quantity ids across files are reported, not silently overwritten',()=>{
+ const files=[
+  {path:'quantities/a.yaml',text:'- id: sharedLength\n  name: Shared length\n  description: First declaration.\n  dimensionStatus: declared\n  dimension: [1, 0, 0, 0, 0, 0]\n  mathematicalKind: scalar\n  frame: not-applicable\n'},
+  {path:'quantities/b.yaml',text:'- id: sharedLength\n  name: Shared length again\n  description: Second declaration.\n  dimensionStatus: declared\n  dimension: [1, 0, 0, 0, 0, 0]\n  mathematicalKind: scalar\n  frame: not-applicable\n'},
+ ];
+ const result=compileReadingContent(files);
+ assert.equal(result.ok,false);
+ assert.ok(result.diagnostics.some(d=>d.code==='duplicate-id'&&d.message.includes('sharedLength')));
+});
+test('legacy-spellings.yaml cross-checks against the live quantity set: unresolved canonical id and id/spelling collision both fail',()=>{
+ const quantity={path:'quantities/generic.yaml',text:'- id: keptId\n  name: Kept\n  description: A kept quantity.\n  dimensionStatus: declared\n  dimension: [1, 0, 0, 0, 0, 0]\n  mathematicalKind: scalar\n  frame: not-applicable\n'};
+ const unresolved={path:'quantities/legacy-spellings.yaml',text:'- spelling: oldName\n  canonicalIds: [neverRegistered]\n'};
+ const r1=compileReadingContent([quantity,unresolved]);
+ assert.ok(r1.diagnostics.some(d=>d.code==='legacy-spelling-unresolved'));
+ const collision={path:'quantities/legacy-spellings.yaml',text:'- spelling: keptId\n  canonicalIds: [keptId]\n'};
+ const r2=compileReadingContent([quantity,collision]);
+ assert.ok(r2.diagnostics.some(d=>d.code==='legacy-spelling-as-id'));
+ const clean={path:'quantities/legacy-spellings.yaml',text:'- spelling: oldName\n  canonicalIds: [keptId]\n'};
+ const r3=compileReadingContent([quantity,clean]);
+ assert.equal(r3.ok,true);
+});
