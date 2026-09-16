@@ -94,9 +94,11 @@ export function ReaderController(props: Props) {
     }
     function render(previous?: ReaderState, message = "") {
       cancelReturn();
+      root.dataset.ready = "false";
       document.documentElement.dataset.detail = String(state.detail);
       document.documentElement.dataset.lens = state.lens ? "modern" : "paper";
-      document.documentElement.dataset.readerView = state.view;
+      document.documentElement.dataset.view = state.view;
+      root.dataset.view = state.view;
       detailControls.forEach((control) => {
         control.value = String(state.detail);
       });
@@ -133,6 +135,10 @@ export function ReaderController(props: Props) {
         if (previous?.frames.length) restoreFocus(previous);
       }
       if (message) announcement.textContent = message;
+      // No face content is code-split or lazily fetched yet: the moment render() has
+      // finished synchronously mutating the DOM for this state, the face is ready. A
+      // future async-loaded face panel would set this only once its own load settles.
+      root.dataset.ready = "true";
     }
     function change(next: ReaderState, push: boolean, message: string) {
       const previous = state;

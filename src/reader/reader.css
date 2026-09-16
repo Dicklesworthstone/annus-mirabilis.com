@@ -163,29 +163,31 @@ html[data-detail="2"] .reader-root [data-reading="2"] {
 html[data-lens="modern"] .reader-root [data-reading="3"] {
   display: block;
 }
-html[data-reader-view="results"] .reader-root [data-face-reading] {
+html[data-view="results"] .reader-root [data-face-reading] {
   display: none;
 }
-html[data-reader-view="results"] .reader-root [data-face-results] {
+html[data-view="results"] .reader-root [data-face-results] {
   display: block;
 }
 html:is(
-    [data-reader-view="german"],
-    [data-reader-view="english"],
-    [data-reader-view="parallel"],
-    [data-reader-view="gloss"],
-    [data-reader-view="facsimile"]
+    [data-view="german"],
+    [data-view="english"],
+    [data-view="parallel"],
+    [data-view="gloss"],
+    [data-view="facsimile"],
+    [data-view="split"]
   )
   .reader-root
   [data-face-reading] {
   display: none;
 }
 html:is(
-    [data-reader-view="german"],
-    [data-reader-view="english"],
-    [data-reader-view="parallel"],
-    [data-reader-view="gloss"],
-    [data-reader-view="facsimile"]
+    [data-view="german"],
+    [data-view="english"],
+    [data-view="parallel"],
+    [data-view="gloss"],
+    [data-view="facsimile"],
+    [data-view="split"]
   )
   .reader-root
   [data-face-source] {

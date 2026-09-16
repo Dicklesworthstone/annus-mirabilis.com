@@ -8,6 +8,7 @@ export const FACES = [
   "parallel",
   "gloss",
   "facsimile",
+  "split",
 ] as const;
 export type Face = (typeof FACES)[number];
 export type Detail = 0 | 1 | 2;

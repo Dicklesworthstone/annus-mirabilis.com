@@ -55,6 +55,24 @@ test("prepaint uses the same aliases and storage key, including blocked storage 
     assert.equal(document.documentElement.dataset.detail, want);
   }
 });
+test("prepaint sets data-view (not data-readerView) and knows the full eight-face set", () => {
+  for (const [search, want] of [
+    ["?view=split", "split"],
+    ["?view=facsimile", "facsimile"],
+    ["?view=bogus", "reading"],
+    ["", "reading"],
+  ]) {
+    const document = { documentElement: { dataset: {} } };
+    vm.runInNewContext(READER_PREPAINT, {
+      URLSearchParams,
+      location: { search },
+      document,
+      localStorage: { getItem: () => null },
+    });
+    assert.equal(document.documentElement.dataset.view, want);
+    assert.equal(document.documentElement.dataset.readerView, undefined);
+  }
+});
 test("passage links use only public axes while clarification links expose only their last level", () => {
   const s = parseReaderLocation(
     "?detail=2&view=results&lens=modern&note=secret&tape=private",

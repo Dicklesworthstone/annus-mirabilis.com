@@ -8,6 +8,7 @@ import tracerExample from "../generated/bm01-example.json";
 import equationPayload from "../generated/brownian-equations.json";
 import { FoundationBody, FoundationLink, ReadingBlocks } from "./Blocks";
 import { ReaderController } from "./ReaderController";
+import { ROOT_ARMING_SOURCE } from "./rootArming.inline";
 import "./reader.css";
 
 const labNames: Record<string, string> = {
@@ -27,7 +28,9 @@ export async function PaperReader({ section }: { section?: string }) {
   const titles = Object.fromEntries(foundations.map((f) => [f.id, f.title]));
   const questions = Object.fromEntries(args.map((a) => [a.id, a.question]));
   return (
-    <div data-reader-root className="reader-root">
+    <div data-reader-root data-ready="true" data-view="reading" className="reader-root">
+      {/* biome-ignore lint/security/noDangerouslySetInnerHtml: the harness's data-ready contract requires this exact script as the root's first child, synchronous before any face content paints; its source is derived from a tested pure function, never hand-authored HTML. */}
+      <script dangerouslySetInnerHTML={{ __html: ROOT_ARMING_SOURCE }} />
       <header className="page-intro">
         <p className="eyebrow">Read · Brownian motion · Explanation preview</p>
         <h1>{section ? sections[0]!.title : paper.title}</h1>
@@ -133,9 +136,9 @@ export async function PaperReader({ section }: { section?: string }) {
                     </div>
                     <div data-face-source hidden>
                       <p className="notice">
-                        The reviewed German, aligned English, gloss and facsimile for this passage
-                        are not yet available. The explanation does not stand in for those source
-                        layers.
+                        The reviewed German, aligned English, gloss, facsimile, and split view for
+                        this passage are not yet available. The explanation does not stand in for
+                        those source layers.
                       </p>
                     </div>
                     <details className="model-limits">

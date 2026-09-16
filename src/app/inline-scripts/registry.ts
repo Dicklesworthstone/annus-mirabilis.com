@@ -15,6 +15,7 @@
  * a CSP hash is over exact bytes: a trailing newline or a changed quote
  * style produces a different hash.
  */
+import { ROOT_ARMING_SOURCE } from "../../reader/rootArming.inline";
 
 export type InlineScriptRoutes = "all" | readonly string[];
 
@@ -29,22 +30,34 @@ export type InlineScriptRegistryEntry = {
 export type InlineScriptRegistry = readonly InlineScriptRegistryEntry[];
 
 /**
- * No entries yet: the scaffold's root layout has no inline script of its
- * own. The baseline manifest is therefore empty and the HTML scan passes on
- * empty, which is correct, not a gap. Known future ids, so later beads keep
- * them stable (they appear in the manifest and in failure messages):
- * "theme", "detail", "view", "root-arming", "perspective", "storage-keys",
- * "offline-detail".
+ * Still-future ids, so later beads keep them stable (they appear in the
+ * manifest and in failure messages): "theme", "detail", "view",
+ * "perspective", "storage-keys", "offline-detail". "detail" is the existing
+ * combined `src/reader/detail/prepaint.ts` script (theme/detail/lens/view
+ * pre-paint together); it predates this registry and is not yet registered
+ * here — that gap belongs to am-read-detail-axis-sfc, not this bead.
  *
- * am-read-shell-routes-3ua built and tested "view"
- * (src/reader/prepaintView.inline.ts) and "root-arming"
- * (src/reader/rootArming.inline.ts) in this same wave, but deliberately did
- * NOT register them here yet: scripts/build/inline-script-hashes.ts fails a
- * registered entry that no route emits, and no route wires either script
- * into a layout in this pass (that lands with the Shell/ShellIsland routes,
- * blocked on am-cm-compiler-core-oa7 and am-test-e2e-harness-bqmh — see
- * docs/decisions/reader-faces-static.md). Registering an unemitted entry
- * now would break the build for every lane; the entry lands in the same
- * change as the route that actually emits the script.
+ * "root-arming" (am-read-shell-routes-3ua) is `src/reader/rootArming.inline.ts`,
+ * wired into `PaperReader.tsx` as the reader root's first child on the
+ * brownian-motion paper and section routes (per the orchestrator's decision
+ * in docs/decisions/reader-faces-static.md to extend the existing reader in
+ * place rather than migrate to a modular Shell). `routes: "all"` because any
+ * future route that renders a reader root reuses the same script, not
+ * because every route emits it today.
+ *
+ * am-read-shell-routes-3ua also built and tested "view"
+ * (src/reader/prepaintView.inline.ts), a separate, unused-for-now head
+ * pre-paint script kept as ready infrastructure for a future modular Shell.
+ * It is not registered because nothing emits it: the existing "detail"
+ * script (above) already sets `data-view`, renamed from `data-readerView`
+ * to match this bead's contract, in the same change.
  */
-export const INLINE_SCRIPT_REGISTRY: InlineScriptRegistry = Object.freeze([]);
+export const INLINE_SCRIPT_REGISTRY: InlineScriptRegistry = Object.freeze([
+  Object.freeze({
+    id: "root-arming",
+    ownerBeadId: "am-read-shell-routes-3ua",
+    module: "src/reader/rootArming.inline.ts",
+    source: ROOT_ARMING_SOURCE,
+    routes: "all",
+  }),
+]);
