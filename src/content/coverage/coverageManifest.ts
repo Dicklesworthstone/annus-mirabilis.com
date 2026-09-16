@@ -8,7 +8,7 @@
  *
  * Modifications:
  * - Preserved distinct runtime provenance states ('WASM' | 'TS_FALLBACK' | 'HONEST_PLACEHOLDER') and surface descriptor contracts.
- * - Generalized for multi-dimensional paper and experiment coverage (to be extended by am-cm-coverage-ledger-0ip).
+ * - Generalized for multi-dimensional paper and experiment coverage (extended for am-cm-coverage-ledger-0ip).
  */
 
 export type WasmSurfaceKind =
@@ -18,6 +18,28 @@ export type WasmSurfaceKind =
   | "experiment-specific-wasm";
 
 export type RuntimeProvenance = "WASM" | "TS_FALLBACK" | "HONEST_PLACEHOLDER";
+
+export type DetailedProvenance =
+  | "static-worked-example"
+  | "host-calculation-available"
+  | "frankensim-owner-packaged"
+  | "artifact-loaded"
+  | "accepted-frankensim-result-demonstrated"
+  | "typed-refusal-boundary-present";
+
+export function mapDetailedProvenanceToDonor(provenance: DetailedProvenance): RuntimeProvenance {
+  switch (provenance) {
+    case "static-worked-example":
+      return "HONEST_PLACEHOLDER";
+    case "host-calculation-available":
+    case "frankensim-owner-packaged":
+      return "TS_FALLBACK";
+    case "artifact-loaded":
+    case "accepted-frankensim-result-demonstrated":
+    case "typed-refusal-boundary-present":
+      return "WASM";
+  }
+}
 
 export interface WasmSurfaceDescriptor {
   readonly kind: Exclude<WasmSurfaceKind, "none">;
