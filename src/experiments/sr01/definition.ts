@@ -1,3 +1,4 @@
+import type { PredictPrompt } from "../../content/schemas/experiment.ts";
 import type { OutputContract, ParameterClass } from "../store/instanceStore.ts";
 
 export interface Sr01Parameters {
@@ -137,13 +138,14 @@ export const SR01_PRESETS: readonly Sr01Preset[] = Object.freeze([
 ]);
 
 /**
- * Registered per `am-inst-predict-mode-ti7m`'s `PredictPrompt` shape (`../predict/predictState.ts`):
- * bound to the `desynchronization` output, reached by `pairBeta` and by the preset
- * `sr-01-moving-pair-0.6c`. The reveal is read from `desynchronizationObserved`'s own
- * `verdict` field at evaluation time (`session.ts`'s `predictAnswerFor`), never from a stored
- * string, so the question and the reveal cannot drift apart.
+ * Conforms to the real `PredictPrompt`/`PredictCandidate` shape
+ * (`src/content/schemas/experiment.ts`), the same contract `am-inst-predict-mode-ti7m` built
+ * and BM-05 already fills in: bound to the `desynchronization` output, reached by `pairBeta`
+ * and by the preset `sr-01-moving-pair-0.6c`. The reveal is read from
+ * `desynchronizationObserved`'s own `verdict` field at evaluation time (`session.ts`'s
+ * `predictAnswerFor`), never from a stored string, so the question and the reveal cannot drift.
  */
-export const SR01_PREDICT_MOVING_PAIR = Object.freeze({
+export const SR01_PREDICT_MOVING_PAIR: PredictPrompt = Object.freeze({
   promptId: "sr-01-predict-moving-pair",
   controlId: "pairBeta",
   question:
