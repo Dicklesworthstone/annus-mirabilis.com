@@ -8,7 +8,7 @@
     "node": "22.13.4"
   },
   "scripts": {
-    "prepare:lab": "node --experimental-strip-types scripts/generate-lab.mjs && node --experimental-strip-types scripts/generate-tracers.mjs && node --experimental-strip-types scripts/generate-walks.mjs",
+    "prepare:lab": "node --experimental-strip-types scripts/generate-lab.mjs && node --experimental-strip-types scripts/generate-tracers.mjs && node --experimental-strip-types scripts/generate-walks.mjs && node --experimental-strip-types scripts/generate-inference.mjs",
     "dev": "npm run prepare:content && npm run prepare:lab && next dev",
     "build": "npm run prepare:content && npm run prepare:lab && next build",
     "typecheck": "npm run prepare:content && npm run prepare:lab && tsc --noEmit",
