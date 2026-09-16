@@ -10,6 +10,15 @@
 import { type AliasRecord, explainGap } from "../aliases.ts";
 import type { ManifestDiagnostic, ManifestUnit, SourceManifest } from "./types.ts";
 
+export const KNOWN_DOCUMENT_JOURNAL_RANGES: Readonly<Record<string, readonly [number, number]>> = {
+  "ap-17-132": [132, 148],
+  "ap-17-549": [549, 560],
+  "ap-17-891": [891, 921],
+  "ap-18-639": [639, 641],
+  "ap-19-289": [289, 306],
+  "ap-34-591": [591, 592],
+};
+
 export interface ManifestValidationContext {
   readonly manifests: ReadonlyMap<string, SourceManifest>;
   readonly aliases?: readonly AliasRecord[] | undefined;
@@ -57,6 +66,37 @@ export function validateManifest(
 
   const [startPage, endPage] = manifest.pageRange;
 
+  // Check known journal ranges
+  const knownRange = KNOWN_DOCUMENT_JOURNAL_RANGES[manifest.document];
+  if (knownRange) {
+    const [knownStart, knownEnd] = knownRange;
+    if (startPage < knownStart || endPage > knownEnd) {
+      addDiag(
+        "error",
+        "journal-range-mismatch",
+        `Manifest pageRange [${startPage}, ${endPage}] exceeds known journal page range [${knownStart}, ${knownEnd}] for document '${manifest.document}'.`,
+        {
+          expected: knownRange,
+          actual: manifest.pageRange,
+          repair: `Align manifest pageRange to be within journal range [${knownStart}, ${knownEnd}].`,
+        },
+      );
+    }
+  }
+
+  // If paper manifest has 0 units, report empty-manifest
+  if (manifest.units.length === 0) {
+    addDiag(
+      "error",
+      "empty-manifest",
+      `Source manifest for '${manifest.paper}' has no units. A declared paper cannot have an empty manifest.`,
+      {
+        repair: "Add source units covering the paper's page range.",
+      },
+    );
+    return diagnostics;
+  }
+
   // =========================================================================
   // 1. Page Coverage and Bounds
   // =========================================================================
@@ -65,9 +105,12 @@ export function validateManifest(
     pageUnits.set(p, []);
   }
 
-  let previousBodyEndPage = startPage;
+  let previousBodyEndPage: number | null = null;
+  const unitsById = new Map<string, ManifestUnit>();
 
   for (const unit of manifest.units) {
+    unitsById.set(unit.id, unit);
+
     if (unit.locators.length === 0) {
       addDiag("error", "unit-locators-missing", `Unit '${unit.id}' has no locators.`, {
         unitId: unit.id,
@@ -133,9 +176,16 @@ export function validateManifest(
       }
     }
 
-    // Body units start page order check
+    // Body units start page order check (paragraphs, headings, closing units)
     const isBodyUnit =
-      unit.kind === "paragraph" || unit.kind === "heading" || unit.kind === "part-heading";
+      unit.kind === "paragraph" ||
+      unit.kind === "heading" ||
+      unit.kind === "part-heading" ||
+      unit.kind === "section-heading" ||
+      unit.kind === "masthead" ||
+      unit.kind === "masthead-title" ||
+      unit.kind === "masthead-author";
+
     if (isBodyUnit) {
       if (previousBodyEndPage !== null && unitStartPage < previousBodyEndPage) {
         addDiag(
@@ -171,24 +221,44 @@ export function validateManifest(
   }
 
   // =========================================================================
-  // 2. Footnotes and Display Equations
+  // 2. Footnotes, Display Equations, and containedIn
   // =========================================================================
-  const paragraphsById = new Map<string, ManifestUnit>();
-  for (const u of manifest.units) {
-    if (u.kind === "paragraph") {
-      paragraphsById.set(u.id, u);
-    }
-  }
-
   for (const unit of manifest.units) {
+    if (unit.containedIn) {
+      const parent = unitsById.get(unit.containedIn);
+      if (!parent) {
+        addDiag(
+          "error",
+          "containedin-target-invalid",
+          `Unit '${unit.id}' containedIn references missing unit '${unit.containedIn}'.`,
+          { unitId: unit.id },
+        );
+      } else {
+        const isParentValid =
+          parent.kind === "paragraph" ||
+          parent.kind === "footnote" ||
+          parent.kind === "heading" ||
+          parent.kind === "section-heading";
+        if (!isParentValid) {
+          addDiag(
+            "error",
+            "containedin-target-invalid",
+            `Unit '${unit.id}' containedIn references unit '${unit.containedIn}' with invalid kind '${parent.kind}'.`,
+            { unitId: unit.id },
+          );
+        }
+      }
+    }
+
     if (unit.kind === "footnote") {
-      if (!unit.footnoteMark) {
+      if (!unit.footnoteMark && !unit.unmarked) {
         addDiag(
           "error",
           "footnote-unmarked",
-          `Footnote '${unit.id}' has no corresponding text mark.`,
+          `Footnote '${unit.id}' has no corresponding text mark and is not marked 'unmarked: true'.`,
           {
             unitId: unit.id,
+            repair: `Add footnoteMark or specify 'unmarked: true' with unmarkedReason.`,
           },
         );
       }
@@ -196,7 +266,7 @@ export function validateManifest(
       // Check split page footnote
       const fnPage = unit.locators[0]?.page;
       if (fnPage && unit.containedIn) {
-        const parentP = paragraphsById.get(unit.containedIn);
+        const parentP = unitsById.get(unit.containedIn);
         const parentFirstLoc = parentP?.locators[0];
         if (parentFirstLoc) {
           const parentPage = parentFirstLoc.page;
@@ -216,8 +286,8 @@ export function validateManifest(
       }
     }
 
-    if (unit.kind === "equation" && unit.containedIn) {
-      const parentP = paragraphsById.get(unit.containedIn);
+    if ((unit.kind === "equation" || unit.kind === "display-equation") && unit.containedIn) {
+      const parentP = unitsById.get(unit.containedIn);
       const parentLastLoc = parentP?.locators[parentP.locators.length - 1];
       const eqFirstLoc = unit.locators[0];
       if (parentLastLoc && eqFirstLoc) {
@@ -238,7 +308,7 @@ export function validateManifest(
   // Check duplicate printed equation labels without section qualification
   const printedEqLabels = new Map<string, ManifestUnit[]>();
   for (const unit of manifest.units) {
-    if (unit.kind === "equation" && unit.originalLabel) {
+    if ((unit.kind === "equation" || unit.kind === "display-equation") && unit.originalLabel) {
       const list = printedEqLabels.get(unit.originalLabel) ?? [];
       list.push(unit);
       printedEqLabels.set(unit.originalLabel, list);
@@ -275,21 +345,22 @@ export function validateManifest(
           );
         }
 
-        if (ref.targetCitationId) {
-          if (context.citations && !context.citations.has(ref.targetCitationId)) {
+        const citationId = ref.target?.citationId ?? ref.targetCitationId;
+        if (citationId) {
+          if (context.citations && !context.citations.has(citationId)) {
             const isComplete = manifest.status === "complete";
             addDiag(
               isComplete ? "error" : "flag",
-              "citation-not-found",
-              `Reference '${ref.id}' points to unknown citation '${ref.targetCitationId}'.`,
+              isComplete ? "citation-not-found" : "reference-target-unresolved",
+              `Reference '${ref.id}' points to unknown citation '${citationId}'.`,
               { unitId: unit.id },
             );
           }
-        } else {
+        } else if (!ref.target?.id) {
           addDiag(
             "flag",
             "citation-target-missing",
-            `Reference '${ref.id}' in unit '${unit.id}' has no targetCitationId.`,
+            `Reference '${ref.id}' in unit '${unit.id}' has no target citation or internal reference.`,
             { unitId: unit.id },
           );
         }
@@ -345,7 +416,7 @@ export function validateManifest(
   // =========================================================================
   // 5. Sequence Gaps & Aliases
   // =========================================================================
-  // Group paragraphs, sentences, and equations by section
+  // Group paragraphs by section
   const sectionParagraphs = new Map<string, number[]>();
   for (const unit of manifest.units) {
     if (unit.kind === "paragraph") {
@@ -411,19 +482,30 @@ export function validateManifest(
   // =========================================================================
   // 6. Imports and Exports (Epistemic Chronology)
   // =========================================================================
-  if (manifest.exports && context.sourceBlocks) {
-    for (const exp of manifest.exports) {
-      const block = context.sourceBlocks.get(exp.id);
-      if (block?.printedLatex && block.printedLatex !== exp.printedForm) {
+  const allExports = manifest.exportedResults ?? manifest.exports;
+  if (allExports && context.sourceBlocks) {
+    for (const exp of allExports) {
+      const expId = exp.id ?? exp.resultId ?? "";
+      const block = context.sourceBlocks.get(expId);
+      if (block?.printedLatex) {
+        if (block.printedLatex !== exp.printedForm) {
+          addDiag(
+            "error",
+            "export-latex-mismatch",
+            `Export '${expId}' printedForm does not match source block LaTeX.`,
+            {
+              unitId: expId,
+              expected: block.printedLatex,
+              actual: exp.printedForm,
+            },
+          );
+        }
+      } else if (!block) {
         addDiag(
-          "error",
-          "export-latex-mismatch",
-          `Export '${exp.id}' printedForm does not match source block LaTeX.`,
-          {
-            unitId: exp.id,
-            expected: block.printedLatex,
-            actual: exp.printedForm,
-          },
+          "flag",
+          "export-printed-form-unverified",
+          `Export '${expId}' source block does not exist yet to verify printedForm.`,
+          { unitId: expId },
         );
       }
     }
@@ -434,6 +516,7 @@ export function validateManifest(
       context.paperDates?.get(manifest.paper) ?? context.paperDates?.get(manifest.document);
 
     for (const imp of manifest.importedResults) {
+      const fromPaper = imp.fromPaper ?? imp.paper ?? "";
       if (!imp.use) {
         addDiag(
           "error",
@@ -443,7 +526,7 @@ export function validateManifest(
       }
 
       // Self-reference check
-      if (imp.paper === manifest.paper || imp.paper === manifest.document) {
+      if (fromPaper === manifest.paper || fromPaper === manifest.document) {
         addDiag(
           "error",
           "import-self-reference",
@@ -452,17 +535,18 @@ export function validateManifest(
       }
 
       // Check that exported result exists in target manifest
-      const targetManifest = context.manifests.get(imp.paper);
+      const targetManifest = context.manifests.get(fromPaper);
       if (targetManifest) {
-        const exported = targetManifest.exports?.find((e) => e.id === imp.resultId);
+        const targetExports = targetManifest.exportedResults ?? targetManifest.exports;
+        const exported = targetExports?.find((e) => (e.id ?? e.resultId) === imp.resultId);
         if (!exported) {
           addDiag(
             "error",
             "import-unexported-result",
-            `Imported result '${imp.resultId}' is not exported by paper '${imp.paper}'.`,
+            `Imported result '${imp.resultId}' is not exported by paper '${fromPaper}'.`,
             {
               actual: imp.resultId,
-              repair: `Export '${imp.resultId}' in ${imp.paper}'s manifest or correct the reference.`,
+              repair: `Export '${imp.resultId}' in ${fromPaper}'s manifest or correct the reference.`,
             },
           );
         }
@@ -470,12 +554,12 @@ export function validateManifest(
 
       // Chronological check
       if (currentPaperDates?.received && context.paperDates) {
-        const importedDates = context.paperDates.get(imp.paper);
+        const importedDates = context.paperDates.get(fromPaper);
         if (importedDates?.received && importedDates.received > currentPaperDates.received) {
           addDiag(
             "error",
             "import-anachronism",
-            `Import from paper '${imp.paper}' (received ${importedDates.received}) is anachronistic for '${manifest.paper}' (received ${currentPaperDates.received}).`,
+            `Import from paper '${fromPaper}' (received ${importedDates.received}) is anachronistic for '${manifest.paper}' (received ${currentPaperDates.received}).`,
           );
         }
       }

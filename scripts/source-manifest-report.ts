@@ -16,6 +16,7 @@ import {
   writeManifestReportJson,
 } from "../src/content/manifest/report.ts";
 import { validateSourceManifest } from "../src/content/manifest/schema.ts";
+import { parseYaml } from "../src/content/provenance/yaml.ts";
 
 function generateToolRunId(): string {
   const pad = (n: number) => String(n).padStart(2, "0");
@@ -85,7 +86,11 @@ async function main() {
   let parsedRaw: unknown;
   try {
     const fileText = readFileSync(manifestPath, "utf8");
-    parsedRaw = JSON.parse(fileText);
+    if (manifestPath.endsWith(".json")) {
+      parsedRaw = JSON.parse(fileText);
+    } else {
+      parsedRaw = parseYaml(fileText);
+    }
   } catch (err) {
     console.error(`Error parsing manifest at '${manifestPath}':`, err);
     process.exit(1);

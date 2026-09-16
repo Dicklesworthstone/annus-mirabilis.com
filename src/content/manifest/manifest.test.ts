@@ -12,7 +12,7 @@ import { describe, it } from "node:test";
 import type { AliasRecord } from "../aliases.ts";
 import { ManifestSchemaError, validateSourceManifest } from "./schema.ts";
 import type { SourceManifest } from "./types.ts";
-import { validateManifest } from "./validator.ts";
+import { validateManifest, validateManifestCorpus } from "./validator.ts";
 
 function generateLogRunId(date: Date = new Date()): string {
   const pad = (n: number) => String(n).padStart(2, "0");
@@ -748,6 +748,187 @@ describe("Source Manifest & Locator Validator Suite", () => {
       "closing-received-receipt-rule",
       "passed",
       "Closing-received unit required for complete full-document manifest",
+    );
+  });
+
+  it("planted negative: draft locator format with start/end fails draft-locator-format", () => {
+    const raw = {
+      paper: "mini-paper",
+      document: "ap-17-132",
+      status: "in-preparation",
+      pageCount: 2,
+      pageRange: [132, 133],
+      units: [
+        {
+          id: "s1-p1",
+          kind: "paragraph",
+          locator: { start: { page: 132 }, end: { page: 133 } }, // Draft locator
+          locators: [{ page: 132 }],
+        },
+      ],
+    };
+
+    assert.throws(
+      () => validateSourceManifest(raw),
+      (err: unknown) => err instanceof ManifestSchemaError && err.code === "draft-locator-format",
+    );
+    logTest(
+      "planted-draft-locator-format",
+      "passed",
+      "Draft locator with start/end rejected with modern locators list named",
+    );
+  });
+
+  it("planted negative: draft heading id ending in -h fails draft-heading-id-format", () => {
+    const raw = {
+      paper: "mini-paper",
+      document: "ap-17-132",
+      status: "in-preparation",
+      pageCount: 2,
+      pageRange: [132, 133],
+      units: [
+        {
+          id: "s1-h", // Draft heading id
+          kind: "heading",
+          locators: [{ page: 132 }],
+        },
+      ],
+    };
+
+    assert.throws(
+      () => validateSourceManifest(raw),
+      (err: unknown) =>
+        err instanceof ManifestSchemaError &&
+        err.code === "draft-heading-id-format" &&
+        err.message.includes("s1"),
+    );
+    logTest(
+      "planted-draft-heading-id-format",
+      "passed",
+      "Draft heading id s1-h rejected with s1 named",
+    );
+  });
+
+  it("planted negative: draft footnote sentence id fails draft-sentence-id-format", () => {
+    const raw = {
+      paper: "mini-paper",
+      document: "ap-17-132",
+      status: "in-preparation",
+      pageCount: 2,
+      pageRange: [132, 133],
+      units: [
+        {
+          id: "s1-fn1-s1", // Draft sentence id in footnote
+          kind: "footnote",
+          footnoteMark: "1",
+          locators: [{ page: 132 }],
+        },
+      ],
+    };
+
+    assert.throws(
+      () => validateSourceManifest(raw),
+      (err: unknown) =>
+        err instanceof ManifestSchemaError &&
+        err.code === "draft-sentence-id-format" &&
+        err.message.includes("s1-fn1"),
+    );
+    logTest(
+      "planted-draft-sentence-id-format",
+      "passed",
+      "Draft footnote sentence id rejected naming s1-fn1",
+    );
+  });
+
+  it("planted negative: invalid figures declaration fails invalid-figures-declaration", () => {
+    const raw = {
+      paper: "mini-paper",
+      document: "ap-17-132",
+      status: "in-preparation",
+      figures: "inline", // Must be "none"
+      pageCount: 2,
+      pageRange: [132, 133],
+      units: [{ id: "s1-p1", kind: "paragraph", locators: [{ page: 132 }] }],
+    };
+
+    assert.throws(
+      () => validateSourceManifest(raw),
+      (err: unknown) =>
+        err instanceof ManifestSchemaError && err.code === "invalid-figures-declaration",
+    );
+    logTest(
+      "planted-invalid-figures-declaration",
+      "passed",
+      "Non-none figures declaration rejected",
+    );
+  });
+
+  it("planted negative: out of bounds region coordinates fail region-out-of-bounds", () => {
+    const raw = {
+      paper: "mini-paper",
+      document: "ap-17-132",
+      status: "in-preparation",
+      pageCount: 2,
+      pageRange: [132, 133],
+      units: [
+        {
+          id: "s1-p1",
+          kind: "paragraph",
+          locators: [{ page: 132, region: { x: -5, y: 10, width: 50, height: 50 } }], // x < 0
+        },
+      ],
+    };
+
+    assert.throws(
+      () => validateSourceManifest(raw),
+      (err: unknown) => err instanceof ManifestSchemaError && err.code === "region-out-of-bounds",
+    );
+    logTest("planted-region-out-of-bounds", "passed", "Negative region coordinates rejected");
+  });
+
+  it("planted negative: containedIn pointing to non-existent or invalid unit fails containedin-target-invalid", () => {
+    const manifest = createMiniPaperManifest({
+      units: [
+        { id: "s1-p1", kind: "paragraph", locators: [{ page: 132 }] },
+        {
+          id: "eq-1",
+          kind: "equation",
+          containedIn: "non-existent-unit",
+          locators: [{ page: 132 }],
+        },
+      ],
+    });
+
+    const diags = validateManifest(manifest, { manifests: new Map([[manifest.paper, manifest]]) });
+    const targetDiag = diags.find((d) => d.rule === "containedin-target-invalid");
+    assert.ok(targetDiag, "Expected containedin-target-invalid diagnostic");
+    logTest(
+      "planted-containedin-target-invalid",
+      "passed",
+      "Invalid containedIn target unit caught",
+    );
+  });
+
+  it("verifies empty corpus passes and empty manifest on declared paper fails empty-manifest", () => {
+    // 1. Empty corpus passes
+    const emptyCorpusResult = validateManifestCorpus(new Map());
+    assert.equal(emptyCorpusResult.ok, true);
+    assert.equal(emptyCorpusResult.diagnostics.length, 0);
+
+    // 2. Declared paper with empty manifest units fails
+    const emptyPaperManifest = createMiniPaperManifest({
+      units: [],
+    });
+
+    const emptyDiags = validateManifest(emptyPaperManifest, {
+      manifests: new Map([[emptyPaperManifest.paper, emptyPaperManifest]]),
+    });
+    const emptyDiag = emptyDiags.find((d) => d.rule === "empty-manifest");
+    assert.ok(emptyDiag, "Expected empty-manifest diagnostic");
+    logTest(
+      "empty-corpus-and-empty-manifest-rules",
+      "passed",
+      "Empty corpus passes and empty manifest fails",
     );
   });
 

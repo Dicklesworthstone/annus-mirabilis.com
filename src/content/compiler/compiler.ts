@@ -8,6 +8,7 @@
 
 import type { EquationRecord } from "../../equations/record.ts";
 import { registerStructuralChecks } from "../checks/structural/structural.ts";
+import { registerSourceManifestCheck } from "../manifest/check.ts";
 import {
   type Argument,
   type Citation,
@@ -16,11 +17,7 @@ import {
   READING_IDS,
   validateReadingRecord,
 } from "../schemas/reading.ts";
-import {
-  type CheckFamily,
-  listRegisteredChecks,
-  runAllChecks,
-} from "./checks/registry.ts";
+import { type CheckFamily, listRegisteredChecks, runAllChecks } from "./checks/registry.ts";
 import { buildContentIndexes, type ContentIndexes } from "./indexes.ts";
 import { ContentError, checkFileSize, checkNfc, parseContentFile } from "./loaders.ts";
 import {
@@ -283,6 +280,7 @@ export async function compileContent(
   const startCheck = performance.now();
   if (listRegisteredChecks().length === 0) {
     registerStructuralChecks();
+    registerSourceManifestCheck();
   }
   const checkContext = {
     records: rawRecords,
@@ -350,7 +348,7 @@ export async function compileContent(
   if (!hasErrors) {
     for (const paper of indexes.papers.values()) {
       const paperArgs = paper.sections.flatMap((s) =>
-        s.arguments.map((id) => indexes.arguments.get(id)!).filter(Boolean),
+        s.arguments.map((id) => indexes.arguments.get(id)).filter((a): a is Argument => Boolean(a)),
       );
 
       const neededFoundations = new Set<string>();
@@ -386,8 +384,8 @@ export async function compileContent(
 
       const paperFoundations = Array.from(neededFoundations)
         .sort()
-        .map((id) => indexes.foundations.get(id)!)
-        .filter(Boolean);
+        .map((id) => indexes.foundations.get(id))
+        .filter((f): f is Foundation => Boolean(f));
 
       const citationIds = Array.from(
         new Set([
@@ -399,7 +397,9 @@ export async function compileContent(
         .sort()
         .filter(Boolean);
 
-      const citations = citationIds.map((id) => indexes.citations.get(id)!).filter(Boolean);
+      const citations = citationIds
+        .map((id) => indexes.citations.get(id))
+        .filter((c): c is Citation => Boolean(c));
 
       papers.push({
         schemaVersion: 1,

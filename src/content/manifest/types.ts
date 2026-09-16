@@ -21,6 +21,15 @@ export interface ManifestLocator {
 
 export interface ManifestUnitReference {
   readonly id: string;
+  readonly printedText?: string | undefined;
+  readonly kind?: "bibliographic" | "internal" | "cross-paper" | undefined;
+  readonly target?:
+    | {
+        readonly citationId?: string | undefined;
+        readonly id?: string | undefined;
+        readonly paper?: string | undefined;
+      }
+    | undefined;
   readonly targetCitationId?: string | undefined;
   readonly text?: string | undefined;
 }
@@ -31,8 +40,11 @@ export const MANIFEST_UNIT_KINDS = [
   "masthead-author",
   "heading",
   "part-heading",
+  "section-heading",
   "paragraph",
   "equation",
+  "display-equation",
+  "inline-equation",
   "footnote",
   "citation",
   "closing-dateline",
@@ -46,29 +58,45 @@ export type ManifestUnitKind = (typeof MANIFEST_UNIT_KINDS)[number] | (string & 
 export interface ManifestUnit {
   readonly id: string;
   readonly kind: ManifestUnitKind;
+  readonly document?: string | undefined;
   readonly section?: string | undefined;
   readonly locators: readonly ManifestLocator[];
   readonly containedIn?: string | undefined; // For display equations
   readonly originalLabel?: string | undefined;
   readonly editorialLabel?: string | undefined;
   readonly references?: readonly ManifestUnitReference[] | undefined;
-  readonly destination?: string | undefined;
+  readonly destination?:
+    | {
+        readonly editionBlockId?: string | undefined;
+        readonly translationUnits?: readonly string[] | undefined;
+        readonly argumentObligations?: readonly string[] | undefined;
+        readonly notes?: readonly string[] | undefined;
+      }
+    | string
+    | undefined;
   readonly status?: string | undefined; // e.g. "reviewed", "draft", "proofed", "not-started"
   readonly scope?: "in-scope" | "not-in-scope" | undefined;
+  readonly notInScopeReason?: string | undefined;
   readonly footnoteMark?: string | undefined;
+  readonly unmarked?: boolean | undefined;
+  readonly unmarkedReason?: string | undefined;
   readonly isSplitFootnote?: boolean | undefined;
   readonly printedForm?: string | undefined;
 }
 
 export interface SourceManifestExport {
-  readonly id: string;
+  readonly id?: string | undefined;
+  readonly resultId?: string | undefined;
+  readonly blockIds?: readonly string[] | undefined;
+  readonly equationIds?: readonly string[] | undefined;
   readonly statement: string;
   readonly printedForm: string;
   readonly section?: string | undefined;
 }
 
 export interface SourceManifestImport {
-  readonly paper: string; // Paper slug or bibKey (e.g. 'special-relativity' or 'ap-17-891')
+  readonly paper?: string | undefined;
+  readonly fromPaper?: string | undefined;
   readonly resultId: string;
   readonly use: "premise" | "comparison";
 }
@@ -76,6 +104,8 @@ export interface SourceManifestImport {
 export interface SourceManifest {
   readonly paper: string; // Paper slug e.g. "light-quanta"
   readonly document: string; // Bibliographic key e.g. "ap-17-132"
+  readonly documents?: readonly string[] | undefined;
+  readonly figures?: "none" | undefined;
   readonly status: "complete" | "in-preparation" | "scoped";
   readonly scope?: "full-document" | "selected-sections" | undefined;
   readonly pageCount: number;
@@ -85,6 +115,7 @@ export interface SourceManifest {
   readonly frozenBy?: string | undefined;
   readonly units: readonly ManifestUnit[];
   readonly exports?: readonly SourceManifestExport[] | undefined;
+  readonly exportedResults?: readonly SourceManifestExport[] | undefined;
   readonly importedResults?: readonly SourceManifestImport[] | undefined;
 }
 
