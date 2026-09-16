@@ -6,6 +6,7 @@ import {
   BM03_CAPTION,
   BM03_DEFAULTS,
   BM03_MODEL,
+  BM03_NOT_MODELED,
   BM03_PRESETS,
   type Bm03Model,
   type Bm03Notation,
@@ -511,14 +512,11 @@ export function ConfigurationLab({
         </section>
 
         <section style={{ marginTop: "1rem" }}>
-          <h3>What this model leaves out</h3>
+          <h3>What this model assumes</h3>
           {BM03_MODEL.assumptions.map((note) => (
             <p key={note}>• {note}</p>
           ))}
-          <p className="fine">
-            No molecular dynamics simulation is performed; this is an exact statistical mechanical
-            host calculation.
-          </p>
+          <p className="fine">Not modeled: {BM03_NOT_MODELED.join("; ")}.</p>
         </section>
       </div>
 

@@ -48,8 +48,18 @@ describe("catalogue: the 33 core ids and the 5 declared non-core ids", () => {
     }
   });
 
-  test("exactly the five real instruments are registered", () => {
-    expect([...REGISTERED_IDS].sort()).toEqual(["bm-01", "bm-05", "bm-06", "bm-07", "bm-08"]);
+  test("registered instruments currently include the Brownian slice, lq-08, and me-02", () => {
+    expect([...REGISTERED_IDS].sort()).toEqual([
+      "bm-01",
+      "bm-03",
+      "bm-04",
+      "bm-05",
+      "bm-06",
+      "bm-07",
+      "bm-08",
+      "lq-08",
+      "me-02",
+    ]);
   });
 
   test("catalogueLabel is defined for every id (the switch+never exhaustiveness form)", () => {

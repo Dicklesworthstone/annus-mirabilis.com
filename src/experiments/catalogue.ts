@@ -63,8 +63,8 @@ export const CATALOGUE_STATUS: Readonly<Record<CatalogueId, CatalogueStatus>> = 
   "lq-09": "in-preparation",
   "bm-01": "registered",
   "bm-02": "in-preparation",
-  "bm-03": "in-preparation",
-  "bm-04": "in-preparation",
+  "bm-03": "registered",
+  "bm-04": "registered",
   "bm-05": "registered",
   "bm-06": "registered",
   "bm-07": "registered",
@@ -83,7 +83,7 @@ export const CATALOGUE_STATUS: Readonly<Record<CatalogueId, CatalogueStatus>> = 
   "sr-12": "in-preparation",
   "sr-13": "in-preparation",
   "me-01": "in-preparation",
-  "me-02": "in-preparation",
+  "me-02": "registered",
   "me-03": "in-preparation",
   "shelf-michelson-morley": "in-preparation",
   "shelf-fizeau": "in-preparation",
@@ -108,7 +108,13 @@ export const REGISTERED_IDS: readonly CatalogueId[] = Object.freeze(
 export const CATALOGUE_QUESTIONS: Readonly<Partial<Record<CatalogueId, string>>> = Object.freeze({
   "lq-08":
     "Why does increasing light intensity release more electrons without increasing their individual energy, while increasing frequency increases electron energy without requiring higher intensity?",
+  "bm-03":
+    "How does counting where independent particles can be produce the pressure law without solving any motion?",
+  "bm-04":
+    "How can drag and equilibrium determine how fast particles diffuse, and why does the force you apply not matter?",
   "bm-05": "After many steps, what will changing the step law while keeping its variance do?",
+  "me-02":
+    "What does a smaller energy of motion at the same speed tell you about the body's inertia, and why does the conclusion come from low speeds?",
 });
 
 /** Runtime guard for an id read from a URL, permalink, or reader link: never assume the string is valid. */
