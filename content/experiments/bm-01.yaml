@@ -1,0 +1,498 @@
+# BM-01 instrument manifest (am-bm-01-tracer-ensemble-hdly).
+#
+# Scope note (WildCrane, code-first, 2026-09-16): this manifest is being built where none
+# existed. The runtime code (src/experiments/bm01/*, src/workers/*/bm01*) already implements
+# the tracer engine, worker protocol, and TracerLab view, but it does not yet read this file
+# (that wiring is am-inst-parameter-controls-cmj9, still open). The parameter list below
+# therefore describes the instrument's DECLARED target shape: it reuses the existing runtime's
+# own parameter ids and validated domains (src/experiments/bm01/parameters.ts) wherever they
+# already exist, and states the bead's Einstein-preset defaults where the runtime's current
+# BM01_DEFAULTS have not yet been reconciled to them (T=293.15 K / eta=0.001 Pa s in code today,
+# vs. T=290.15 K / eta=1.35e-3 Pa s specified here) -- that reconciliation is not done in this
+# change and is named as a gap in the bead comment.
+#
+# "Constant set" is listed in the bead's Controls table but is NOT YET a switchable runtime
+# parameter (BM01_MODEL.constantSetId is a fixed literal in definition.ts); it is declared here
+# as a derived/informational parameter, not as an independent control, until that wiring exists.
+id: bm-01
+title: "BM-01: Tracer Ensemble and Observable Selection"
+explanatoryQuestion: "When individual tracers wander unpredictably, which statistic of their displacements stays stable and grows lawfully with the observation interval?"
+sourceRefs:
+  - paper: brownian-motion
+    id: s4
+  - paper: brownian-motion
+    id: s5
+argumentIds:
+  - arg-bm-observable
+  - arg-bm-independent-steps
+  - arg-bm-gaussian
+  - arg-bm-diffusivity
+  - arg-bm-diffusion-equation
+  - arg-bm-inference
+schemaVersion: 1
+parameters:
+  - id: seed
+    label: "Seed"
+    accessibleName: "Random stream seed"
+    accessibleDescription: "64-bit decimal seed identifying this run's random draws"
+    quantityId: streamSeed
+    displayUnit: ""
+    modelDomain:
+      enumerated: []
+      reason: "Any canonical unsigned 64-bit decimal string; recorded, never guessed."
+    visualRange:
+      min: 0
+      max: 1
+    default: "1905"
+    mapping:
+      kind: linear
+    role: independent
+    commandClass: setup-change
+  - id: T
+    label: "Temperature"
+    accessibleName: "Absolute temperature of the suspension fluid"
+    accessibleDescription: "Sets fluid temperature in Kelvin"
+    quantityId: temperature
+    displayUnit: "K"
+    modelDomain:
+      min: 273
+      max: 330
+      minInclusive: true
+      maxInclusive: true
+      reason: "Liquid state of water at ordinary laboratory pressure"
+    visualRange:
+      min: 273
+      max: 330
+    default: 290.15
+    mapping:
+      kind: linear
+    role: independent
+    commandClass: setup-change
+  - id: eta
+    label: "Viscosity"
+    accessibleName: "Dynamic viscosity of the suspension fluid"
+    accessibleDescription: "Sets fluid viscosity in pascal-seconds"
+    quantityId: viscosity
+    displayUnit: "mPa s"
+    modelDomain:
+      min: 0.0005
+      max: 0.02
+      minInclusive: true
+      maxInclusive: true
+      reason: "Newtonian-liquid Stokes drag regime"
+    visualRange:
+      min: 0.0005
+      max: 0.02
+    default: 0.00135
+    mapping:
+      kind: linear
+    role: independent
+    commandClass: setup-change
+  - id: a
+    label: "Radius"
+    accessibleName: "Radius of the suspended tracer sphere"
+    accessibleDescription: "Hydrodynamic radius in meters"
+    quantityId: particleRadius
+    displayUnit: "um"
+    modelDomain:
+      min: 1e-7
+      max: 5e-6
+      minInclusive: true
+      maxInclusive: true
+      reason: "Dilute sphere, Stokes hydrodynamic regime"
+    visualRange:
+      min: 1e-7
+      max: 5e-6
+    default: 5e-7
+    mapping:
+      kind: log
+      base: 10
+    role: independent
+    commandClass: setup-change
+  - id: M
+    label: "Ensemble size"
+    accessibleName: "Number of tracers in the ensemble"
+    accessibleDescription: "Integer count of independent tracers"
+    quantityId: ensembleSize
+    displayUnit: "tracers"
+    modelDomain:
+      min: 1
+      max: 3000
+      minInclusive: true
+      maxInclusive: true
+      reason: "Runtime work-budget bound (src/experiments/bm01/parameters.ts)"
+    visualRange:
+      min: 1
+      max: 3000
+    default: 400
+    mapping:
+      kind: linear
+    role: independent
+    commandClass: setup-change
+  - id: h
+    label: "Time resolution"
+    accessibleName: "Fundamental replay-grid step"
+    accessibleDescription: "The base time step of the recorded path, in seconds"
+    quantityId: timeStep
+    displayUnit: "s"
+    modelDomain:
+      min: 0.001
+      max: 1
+      minInclusive: true
+      maxInclusive: true
+      reason: "Sampling and work-budget limits"
+    visualRange:
+      min: 0.01
+      max: 0.1
+    default: 0.02
+    mapping:
+      kind: linear
+    role: independent
+    commandClass: setup-change
+  - id: H
+    label: "Recording length"
+    accessibleName: "Total recorded duration"
+    accessibleDescription: "How long the replay grid runs, in seconds"
+    quantityId: elapsedTime
+    displayUnit: "s"
+    modelDomain:
+      min: 0.001
+      max: 600
+      minInclusive: true
+      maxInclusive: true
+      reason: "H must be an integer multiple of h, at most 600 s (src/experiments/bm01/parameters.ts)"
+    visualRange:
+      min: 1
+      max: 60
+    default: 60
+    mapping:
+      kind: linear
+    role: independent
+    commandClass: setup-change
+  - id: interval
+    label: "Observation interval"
+    accessibleName: "Interval between position observations"
+    accessibleDescription: "Delta t used for the displayed statistics, in seconds"
+    quantityId: observationInterval
+    displayUnit: "s"
+    modelDomain:
+      min: 0
+      max: 600
+      minInclusive: true
+      maxInclusive: true
+      reason: "Must land on the replay grid (an integer multiple of h) and not exceed H"
+    visualRange:
+      min: 0.02
+      max: 60
+    default: 1
+    mapping:
+      kind: step
+      size: 0.02
+    role: independent
+    commandClass: measurement-change
+  - id: statistic
+    label: "Statistic"
+    accessibleName: "Displayed summary statistic"
+    accessibleDescription: "Which reduction of the sampled displacements is shown"
+    quantityId: displayedStatistic
+    displayUnit: ""
+    modelDomain:
+      enumerated: []
+      reason: "One of mean, mean-square, rms, apparent (src/experiments/bm01/parameters.ts)"
+    visualRange:
+      min: 0
+      max: 1
+    default: "rms"
+    mapping:
+      kind: linear
+    role: independent
+    commandClass: estimator-change
+  - id: d
+    label: "Dimension"
+    accessibleName: "Number of coordinates shown in the statistics"
+    accessibleDescription: "1D marginal, 2D projection, or 3D"
+    quantityId: displayedDimension
+    displayUnit: ""
+    modelDomain:
+      enumerated: [1, 2, 3]
+      reason: "Marginal, planar, or full three-axis statistics"
+    visualRange:
+      min: 1
+      max: 3
+    default: 1
+    mapping:
+      kind: linear
+    role: independent
+    commandClass: measurement-change
+outputs:
+  - id: tracerPositions
+    quantityId: particleRadius
+    allowedStatuses:
+      - value
+      - outside-domain
+    primary: true
+  - id: diffusionCoefficient
+    quantityId: diffusionCoefficient
+    allowedStatuses:
+      - value
+      - outside-domain
+  - id: rmsDisplacement1d
+    quantityId: displacement1d
+    allowedStatuses:
+      - value
+      - analytic-limit
+  - id: sampleMeanSquare
+    quantityId: displacementVariance1d
+    allowedStatuses:
+      - value
+      - analytic-limit
+  - id: sampledApparentSpeed
+    quantityId: apparentSpeed
+    allowedStatuses:
+      - value
+      - not-applicable
+assumptions:
+  - "Dilute, approximately spherical tracers in a homogeneous Newtonian fluid"
+  - "Low Reynolds number, free unbounded isotropic diffusion without drift"
+  - "Independent tracers; no hydrodynamic interaction between them"
+  - "Observation intervals long compared with the momentum relaxation time"
+admittedDomain: "Dilute spherical tracers in a homogeneous Newtonian liquid at low Reynolds number, observed on intervals long compared with the momentum relaxation time (about 1.1e-7 s for a 1 um sphere of density 2000 kg/m3 in 1 mPa s water)."
+notModeled:
+  - "Molecular collisions (no collision bath owns the displacement)"
+  - "The ballistic short-time regime and inertia"
+  - "Hydrodynamic interactions"
+  - "Walls and near-wall corrections"
+  - "Sedimentation"
+  - "Non-Newtonian or active fluids"
+  - "Rotation"
+  - "Polydispersity"
+  - "A temperature law for viscosity"
+  - "Localization error and motion blur (BM-08)"
+  - "Gas-phase slip"
+owner:
+  kind: reference-evaluator
+  kernelFunctions:
+    - displayRole: reference-implementation
+      language: ts
+      module: "src/physics/reference/diffusion/distributions.ts"
+      exportName: "stokesEinsteinD"
+      independentReferences:
+        - experimentId: bm-01
+          quantityId: diffusionCoefficient
+    - displayRole: reference-implementation
+      language: ts
+      module: "src/physics/reference/diffusion/distributions.ts"
+      exportName: "rmsDisplacement"
+    - displayRole: reference-implementation
+      language: ts
+      module: "src/physics/reference/diffusion/distributions.ts"
+      exportName: "apparentSpeed"
+    - displayRole: reference-implementation
+      language: ts
+      module: "src/physics/reference/diffusion/tracers.ts"
+      exportName: "ensembleMoments"
+    - displayRole: reference-implementation
+      language: ts
+      module: "src/physics/reference/diffusion/tracers.ts"
+      exportName: "displacementHistogram"
+  identifierBindings:
+    - kernelFunction: stokesEinsteinD
+      identifier: "T"
+      quantityId: temperature
+    - kernelFunction: stokesEinsteinD
+      identifier: "eta"
+      quantityId: viscosity
+    - kernelFunction: stokesEinsteinD
+      identifier: "a"
+      quantityId: particleRadius
+    - kernelFunction: rmsDisplacement
+      identifier: "D"
+      quantityId: diffusionCoefficient
+    - kernelFunction: rmsDisplacement
+      identifier: "t"
+      quantityId: observationInterval
+    - kernelFunction: apparentSpeed
+      identifier: "tau"
+      quantityId: observationInterval
+  traceScenarioId: bm-01-golden
+  traceRows:
+    - label: "Diffusivity, Einstein preset"
+      expression: "D = (R * T) / (6 * pi * eta * a * N_A)"
+      value: 0.3158402
+      unit: "um^2/s"
+      quantityId: diffusionCoefficient
+views:
+  - id: microscope-trace
+    kind: canvas
+    consumes:
+      - tracerPositions
+    requires:
+      - canvas-2d
+  - id: displacement-distribution
+    kind: svg
+    consumes:
+      - tracerPositions
+      - diffusionCoefficient
+  - id: statistics-plot
+    kind: svg
+    consumes:
+      - sampledApparentSpeed
+      - sampleMeanSquare
+  - id: table-summary
+    kind: table
+    consumes:
+      - rmsDisplacement1d
+      - sampleMeanSquare
+      - diffusionCoefficient
+actions:
+  - actionId: bm-01-choose-statistic-and-interval
+    family: probability-diffusion
+    question: "At this observation interval, which statistic of the tracer displacements stays stable?"
+    inputs:
+      - interval
+      - statistic
+    commandClass: measurement-change
+    acceptedResult:
+      outputs:
+        - rmsDisplacement1d
+        - sampleMeanSquare
+      allowedStatuses:
+        - value
+        - analytic-limit
+    visualAffordance: "Statistics table and log-log plot update for the chosen interval and statistic"
+    equivalentAffordance: "Type an interval, choose a statistic from a list, and read the table"
+    announcement: "Statistics updated for the chosen interval"
+  - actionId: bm-01-compare-intervals
+    family: probability-diffusion
+    question: "How does the typical displacement compare between two named observation intervals?"
+    inputs:
+      - interval
+    commandClass: measurement-change
+    acceptedResult:
+      outputs:
+        - rmsDisplacement1d
+      allowedStatuses:
+        - value
+    visualAffordance: "Two labeled points on the log-log statistics plot"
+    equivalentAffordance: "Read the table entries for both named intervals"
+    announcement: "Comparison updated"
+  - actionId: bm-01-compare-viscosity
+    family: probability-diffusion
+    question: "How does the diffusivity and RMS displacement change when viscosity changes, holding the seed fixed?"
+    inputs:
+      - eta
+    commandClass: setup-change
+    acceptedResult:
+      outputs:
+        - diffusionCoefficient
+        - rmsDisplacement1d
+      allowedStatuses:
+        - value
+    visualAffordance: "Before-and-after RMS values shown with the common-random-numbers note"
+    equivalentAffordance: "Type a viscosity and read the diffusivity and RMS before and after"
+    announcement: "Viscosity comparison updated; this reuses the recorded random draws"
+  - actionId: bm-01-read-census
+    family: probability-diffusion
+    question: "How many tracers are inside the visible field, and what is the plain-language summary?"
+    inputs: []
+    commandClass: presentation-change
+    acceptedResult:
+      outputs:
+        - tracerPositions
+      allowedStatuses:
+        - value
+    visualAffordance: "Census count and summary text beside the microscope view"
+    equivalentAffordance: "Read the census and the summary"
+    announcement: "Summary available"
+acceptanceCases:
+  - diffusion-einstein-1905-printed
+  - diffusion-einstein-1905-modern-kb
+  - diffusion-modern-viscosity-17c
+  - diffusion-modern-golden
+  - diffusion-apparent-speed-identity
+defaultScenario: diffusion-einstein-1905-printed
+tapeModel:
+  modelId: brownian-motion-reference
+  modelVersion: 1
+teachingTapes:
+  - tapeId: einstein-0-8-micron
+    title: "Einstein's 0.8 micron particle"
+presets:
+  - presetId: bm-01-velocity-trap
+    label: "The velocity trap (Exner's mistake)"
+    parameterValues:
+      T: 290.15
+      eta: 0.00135
+      a: 5e-7
+      M: 400
+      interval: 0.25
+      statistic: "apparent"
+  - presetId: bm-01-radius-probe
+    label: "The radius probe"
+    parameterValues:
+      T: 290.15
+      eta: 0.00135
+      a: 1e-6
+      M: 400
+      interval: 1
+  - presetId: bm-01-viscosity-comparison
+    label: "The viscosity comparison (common random numbers)"
+    parameterValues:
+      T: 290.15
+      eta: 0.0027
+      a: 5e-7
+      M: 400
+      interval: 1
+      seed: "1905"
+probes:
+  - bm-01-velocity-trap-mode
+  - bm-01-radius-probe-mode
+  - bm-01-modern-viscosity-comparison
+  - bm-01-gas-card-refusal
+weavePredicates:
+  - bm01-s4-cancellation
+  - bm01-s5-distribution-agreement
+  - bm01-s5-printed-numbers
+historicalOverlays: []
+realRate:
+  natural: true
+  quantity: displacement1d
+  scaleBar:
+    length: 1e-6
+    unit: "m"
+embeddable: true
+predictMode:
+  enabled: true
+  prompts:
+    - promptId: bm-01-predict-observation-interval
+      controlId: interval
+      question: "If you watch four times as long, does the typical distance from the start become 4 times as large, 2 times as large, or unchanged?"
+      candidates:
+        - id: bm-01-predict-observation-interval-four-times
+          label: "Four times as large"
+          description: "Distance grows in direct proportion to time"
+          separatingAssumption: "Assumes displacement accumulates linearly with time, as if drift dominated over diffusion."
+        - id: bm-01-predict-observation-interval-twice
+          label: "Two times as large"
+          description: "Distance grows as the square root of time"
+          separatingAssumption: "Follows from lambda_x = sqrt(2 D t): the model's answer."
+        - id: bm-01-predict-observation-interval-unchanged
+          label: "It stays the same"
+          description: "The typical distance is a property of the particle, not of the watching time"
+          separatingAssumption: "Assumes displacement is a fixed particle speed rather than a growing spread."
+    - promptId: bm-01-predict-viscosity
+      controlId: eta
+      question: "In a liquid twice as viscous, after the same time, does the typical distance become half as large, about 0.71 times as large, or unchanged?"
+      candidates:
+        - id: bm-01-predict-viscosity-half
+          label: "Half as large"
+          description: "Displacement follows the diffusivity directly, which halves"
+          separatingAssumption: "Assumes displacement is proportional to D rather than to sqrt(D)."
+        - id: bm-01-predict-viscosity-root-two
+          label: "About 0.71 times as large"
+          description: "Displacement follows the square root of the diffusivity, so it falls by 1/sqrt(2)"
+          separatingAssumption: "Follows from D proportional to 1/eta and lambda_x proportional to sqrt(D): the model's answer."
+        - id: bm-01-predict-viscosity-unchanged
+          label: "Unchanged"
+          description: "The fluid sets the rate of jostling but not the distance reached"
+          separatingAssumption: "Assumes the fluid only changes the tempo of steps, not their size."

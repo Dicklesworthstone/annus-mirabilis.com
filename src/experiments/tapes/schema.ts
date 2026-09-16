@@ -216,6 +216,18 @@ export type CheckpointStreamPosition = Readonly<{
   index: U64String;
 }>;
 
+/** A number a teaching tape tells the reader to expect on screen at this checkpoint (for
+ * example "0.79 μm"). `constantSetId` is required, never inferred from the tape's own
+ * top-level constant set, because a teaching tape may walk a reader through more than one
+ * constant set on the same recorded inputs (am-bm-01-tracer-ensemble-hdly: "every displayed
+ * number names its constant set"). */
+export type ExpectedDisplayValue = Readonly<{
+  label: string;
+  value: number;
+  unit: string;
+  constantSetId: string;
+}>;
+
 export type TapeCheckpoint = Readonly<{
   actionIndex: number;
   stepIndex: number;
@@ -228,6 +240,7 @@ export type TapeCheckpoint = Readonly<{
   streamPositions: readonly CheckpointStreamPosition[];
   label?: string | undefined;
   teachingNote?: string | undefined;
+  expectedDisplayValues?: readonly ExpectedDisplayValue[] | undefined;
 }>;
 
 // ---- The tape itself ----------------------------------------------------------------------
@@ -494,6 +507,10 @@ function validateCheckpoint(raw: unknown, path: string): TapeCheckpoint {
   const streamPositions = o.streamPositions.map((s, i) =>
     validateStreamPosition(s, `${path}.streamPositions[${i}]`),
   );
+  const expectedDisplayValues =
+    o.expectedDisplayValues === undefined
+      ? undefined
+      : validateExpectedDisplayValues(o.expectedDisplayValues, `${path}.expectedDisplayValues`);
   return Object.freeze({
     actionIndex: o.actionIndex,
     stepIndex: o.stepIndex,
@@ -506,7 +523,45 @@ function validateCheckpoint(raw: unknown, path: string): TapeCheckpoint {
     streamPositions: Object.freeze(streamPositions),
     label: typeof o.label === "string" ? o.label : undefined,
     teachingNote: typeof o.teachingNote === "string" ? o.teachingNote : undefined,
+    expectedDisplayValues,
   });
+}
+
+/** Every expected displayed value must name the constant set it was computed under
+ * (am-bm-01-tracer-ensemble-hdly): a value with no `constantSetId`, or an empty one, fails
+ * validation rather than being silently accepted as unlabeled. */
+function validateExpectedDisplayValues(
+  raw: unknown,
+  path: string,
+): readonly ExpectedDisplayValue[] {
+  if (!Array.isArray(raw))
+    throw new TapeValidationError("expectedDisplayValues must be an array.", path);
+  return Object.freeze(
+    raw.map((entry, i) => {
+      const entryPath = `${path}[${i}]`;
+      if (!entry || typeof entry !== "object")
+        throw new TapeValidationError("expected an expected-display-value object.", entryPath);
+      const o = entry as Record<string, unknown>;
+      if (typeof o.label !== "string" || !o.label.trim())
+        throw new TapeValidationError("label is required.", entryPath);
+      if (typeof o.value !== "number" || !Number.isFinite(o.value))
+        throw new TapeValidationError("value must be a finite number.", entryPath);
+      if (typeof o.unit !== "string" || !o.unit.trim())
+        throw new TapeValidationError("unit is required.", entryPath);
+      if (typeof o.constantSetId !== "string" || !o.constantSetId.trim()) {
+        throw new TapeValidationError(
+          `expected display value "${o.label}" must name its constantSetId; an unlabeled displayed number is not admitted.`,
+          entryPath,
+        );
+      }
+      return Object.freeze({
+        label: o.label,
+        value: o.value,
+        unit: o.unit,
+        constantSetId: o.constantSetId,
+      });
+    }),
+  );
 }
 
 function validateStreamPosition(raw: unknown, path: string): CheckpointStreamPosition {

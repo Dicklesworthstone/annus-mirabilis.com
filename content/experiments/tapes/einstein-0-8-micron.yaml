@@ -1,0 +1,87 @@
+# Teaching tape "Einstein's 0.8 micron particle" (am-bm-01-tracer-ensemble-hdly, requirement 10).
+#
+# Scope note (WildCrane, 2026-09-16): the bead's teaching-tape script walks through THREE
+# constant sets (einstein-1905-brownian-printed, modern-si-2019, scenario-modern-water-17c).
+# The tape schema's constantSetId is a single tape-wide field (src/experiments/tapes/schema.ts,
+# am-rt-control-tapes-0gc), not a per-event value -- a control tape cannot currently record a
+# mid-recording switch of constant set as a setup-change event, because TapeControlEvent.value
+# is numeric only and a constant-set id is a string. This tape therefore records ONLY the first
+# scenario (the historical constant set), which is fully representable: two measurement-change
+# events change the observation interval and reproduce Einstein's printed "0,8 Mikron" and
+# "ca. 6 Mikron". The modern-si-2019 and scenario-modern-water-17c comparisons are closed-form
+# recomputations on the SAME accepted inputs under a different constant set (a display-level
+# comparison, not a new recorded run) and are not tape events here; representing a constant-set
+# switch as a recordable event would need a schema change to am-rt-control-tapes-0gc, which is
+# named as a gap rather than worked around with a fabricated numeric encoding.
+#
+# `einstein-1905-brownian-printed` is not yet a registered constant set in
+# src/physics/reference/constants.ts (owned by am-ref-constants-xik, still open); it is named
+# here as a content-level string id, matching the bead's own requirement, but cannot yet be
+# evaluated live through getConstantSet. The two expectedDisplayValues below were verified
+# independently (desk inference: plain arithmetic reproducing D = R*T/(6*pi*eta*a*N_A) and
+# lambda_x = sqrt(2*D*t) from the bead's stated printed inputs), not through a live run.
+tapeVersion: 2
+tapeId: einstein-0-8-micron
+experimentId: bm-01
+mode: "bm-01:default"
+modelIdentity:
+  modelId: brownian-motion-reference
+  modelVersion: "1.0.0"
+  artifactDigest: "host:sha256:0000000000000000000000000000000000000000000000000000000000000000"
+constantSetId: einstein-1905-brownian-printed
+seed: "1905"
+streamVersion: 1
+allocationId: bm-01.latent.v1
+initialConditions:
+  T: 290.15
+  eta: 0.00135
+  a: 5e-7
+events:
+  - kind: control
+    actionIndex: 1
+    commandClass: measurement-change
+    commandId: observe-1s
+    parameterId: interval
+    value: 1
+  - kind: control
+    actionIndex: 2
+    commandClass: measurement-change
+    commandId: observe-60s
+    parameterId: interval
+    value: 60
+checkpoints:
+  - actionIndex: 1
+    stepIndex: 50
+    simulatedTime: 1
+    digest: "host:sha256:1111111111111111111111111111111111111111111111111111111111111111"
+    digestKind: host
+    checkpointVersion: 1
+    streamSemanticsVersion: 1
+    seed: "1905"
+    streamPositions: []
+    label: "Einstein's printed 1-second interval"
+    teachingNote: "Einstein printed lambda_x = 8e-5 cm = 0,8 Mikron for 1 s."
+    expectedDisplayValues:
+      - label: "lambda_x at 1 s"
+        value: 0.7947833
+        unit: "um"
+        constantSetId: einstein-1905-brownian-printed
+  - actionIndex: 2
+    stepIndex: 3000
+    simulatedTime: 60
+    digest: "host:sha256:2222222222222222222222222222222222222222222222222222222222222222"
+    digestKind: host
+    checkpointVersion: 1
+    streamSemanticsVersion: 1
+    seed: "1905"
+    streamPositions: []
+    label: "Einstein's printed 60-second interval"
+    teachingNote: "Einstein printed ca. 6 Mikron for 1 min."
+    expectedDisplayValues:
+      - label: "lambda_x at 60 s"
+        value: 6.156365
+        unit: "um"
+        constantSetId: einstein-1905-brownian-printed
+title: "Einstein's 0.8 micron particle"
+description: "Scrub the observation interval and see the printed displacement figures reproduced under the historical constant set."
+isTeachingSequence: true
