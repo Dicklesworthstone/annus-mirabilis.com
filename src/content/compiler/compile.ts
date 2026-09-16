@@ -58,7 +58,7 @@ export function compileReadingContent(files: readonly Readonly<{ path: string; t
       for (const p of r.prerequisites) ref(p.id, "argument", r.id);
       for (const id of Object.values(r.help)) ref(id, "foundation", r.id);
       for (const reading of READING_IDS) foundationRefs(r.readings[reading], r.id);
-      for (const id of r.experiments) if (!["bm-01", "bm-05", "bm-06"].includes(id)) issue("unavailable-experiment", r.id, `No implemented preview route for ${id}.`);
+      for (const id of r.experiments) if (!["bm-01", "bm-05", "bm-06", "bm-07"].includes(id)) issue("unavailable-experiment", r.id, `No implemented preview route for ${id}.`);
     }
     if (r.kind === "foundation") {
       for (const p of r.prerequisites) ref(p, "foundation", r.id);

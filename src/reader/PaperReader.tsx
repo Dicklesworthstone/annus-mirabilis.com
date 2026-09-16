@@ -9,7 +9,7 @@ import { TracerLab } from "../components/lab/TracerLab";
 import tracerExample from "../generated/bm01-example.json";
 import type { PreparedBm01Example } from "../experiments/bm01/session";
 import "./reader.css";
-const labNames: Record<string, string> = { "bm-01": "Tracer ensemble", "bm-05": "Random steps", "bm-06": "Spreading probability" };
+const labNames: Record<string, string> = { "bm-01": "Tracer ensemble", "bm-05": "Random steps", "bm-06": "Spreading probability", "bm-07": "Molecular-number inference" };
 export async function PaperReader({ section }: { section?: string }) {
   const payload = await loadPaper("brownian-motion"), { paper, foundations } = payload;
   const sections = section ? paper.sections.filter(s => s.id === section) : paper.sections;

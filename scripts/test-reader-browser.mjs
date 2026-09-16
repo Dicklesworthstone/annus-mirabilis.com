@@ -175,7 +175,7 @@ export async function checkReaderBrowser(browser, url, check) {
 
     const jsonLink = await page.getByRole("link", { name: "Structured reading records", exact: true }).getAttribute("href");
     const data = await (await context.request.get(url + jsonLink)).json();
-    assert.equal(data.paper.sourceStatus, "in-preparation"); assert.equal(data.arguments.length, 6); assert.equal(data.foundations.length, 12);
+    assert.equal(data.paper.sourceStatus, "in-preparation"); assert.equal(data.arguments.length, 6); assert.equal(data.foundations.length, 13);
     const markdownLink = await page.getByRole("link", { name: "Download the full explanation as Markdown", exact: true }).getAttribute("href");
     assert.match(await (await context.request.get(url + markdownLink)).text(), /not the German source/);
     for (const f of data.foundations) assert.equal((await context.request.get(`${url}/foundations/${f.id}/`)).status(), 200);

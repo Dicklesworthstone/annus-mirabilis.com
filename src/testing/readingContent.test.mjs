@@ -8,8 +8,8 @@ import { loadReadingFiles, buildContent, CONTENT_COMPILER_FILES } from '../../sc
 import { compileReadingContent } from '../content/compiler/compile.ts';
 const files=await loadReadingFiles();
 const replace=(id,change)=>files.map(f=>{const r=JSON.parse(f.text);return r.id===id?{...f,text:JSON.stringify(change(r))}:f;});
-test('the authored Brownian chapter joins six arguments and twelve finite prerequisite lessons',()=>{
- const x=compileReadingContent(files); assert.equal(x.ok,true); const p=x.papers[0];assert.equal(p.arguments.length,6);assert.equal(p.foundations.length,12);
+test('the authored Brownian chapter joins six arguments and thirteen finite prerequisite lessons',()=>{
+ const x=compileReadingContent(files); assert.equal(x.ok,true); const p=x.papers[0];assert.equal(p.arguments.length,6);assert.equal(p.foundations.length,13);
  assert.ok(p.arguments.every(a=>Object.keys(a.readings).length===4));assert.equal(p.paper.sourceStatus,'in-preparation');
  assert.equal(compileReadingContent([...files].reverse()).papers[0].paper.id,p.paper.id);
 });
@@ -28,7 +28,7 @@ test('duplicate outline entries and unavailable citations are compiler errors',(
 test('build outputs are reproducible, independently hashed and contain no fake source face',async()=>{
  const first=await buildContent(),second=await buildContent();assert.deepEqual(first.index,second.index);
  for(const payload of first.index.payloads){const bytes=await readFile('generated/content/'+payload.file);assert.equal(bytes.length,payload.bytes);assert.equal(createHash('sha256').update(bytes).digest('hex'),payload.sha256);}
- const paper=first.papers[0];assert.equal(paper.paper.status,'explanation-preview');assert.ok(paper.arguments.every(a=>a.review==='draft'));assert.equal(first.index.payloads.length,13);
+ const paper=first.papers[0];assert.equal(paper.paper.status,'explanation-preview');assert.ok(paper.arguments.every(a=>a.review==='draft'));assert.equal(first.index.payloads.length,14);
 });
 
 test('compiler revision changes produce new public URLs without changing the authored-input identity',async()=>{
