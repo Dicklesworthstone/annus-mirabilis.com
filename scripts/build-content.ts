@@ -2,17 +2,8 @@ import { createHash } from "node:crypto";
 import { lstat, mkdir, readdir, readFile, writeFile } from "node:fs/promises";
 import { dirname, relative, resolve } from "node:path";
 import { fileURLToPath } from "node:url";
-import {
-  compileContent,
-  compileReadingContent,
-  type Diagnostic,
-  type PaperPayload,
-} from "../src/content/compiler/compile.ts";
+import { compileContent } from "../src/content/compiler/compile.ts";
 import { emitPayloads } from "../src/content/compiler/emitter.ts";
-import { checkFileSize, checkNfc } from "../src/content/compiler/loaders.ts";
-import type { Block, Foundation } from "../src/content/schemas/reading.ts";
-import { expressionLatex } from "../src/equations/latex.ts";
-import { BROWNIAN_QUANTITIES } from "../src/equations/quantities.ts";
 import { getLogger } from "../src/testing/log/logger.ts";
 
 export const CONTENT_COMPILER_FILES = [
@@ -107,31 +98,6 @@ export async function loadAllContentFiles(root = ROOT, corpusDir = "content") {
 
   await walk(directory);
   return files;
-}
-
-function markdownBlocks(blocks: readonly Block[]): string {
-  return blocks
-    .map((b) =>
-      b.kind === "paragraph"
-        ? b.text
-        : b.kind === "formula"
-          ? `$$\n${b.latex}\n$$\n\n${b.spoken}`
-          : b.kind === "steps"
-            ? b.items.map((x, i) => `${i + 1}. ${x}`).join("\n")
-            : `[Foundation: ${b.id}](/foundations/${b.id}/) — ${b.returnCaption}`,
-    )
-    .join("\n\n");
-}
-
-function markdownPaper(p: PaperPayload): string {
-  return `# ${p.paper.title}\n\n${p.paper.sourceNotice}\n\n${p.arguments
-    .map(
-      (a) =>
-        `## ${a.title}\n\n${a.question}\n\n${markdownBlocks(a.readings.full)}\n\n### Model limits\n\n${a.limitations.join(
-          "\n\n",
-        )}`,
-    )
-    .join("\n\n")}\n`;
 }
 
 export async function buildContent(root = ROOT, options?: { corpusDir?: string }) {
@@ -248,7 +214,7 @@ export async function buildContent(root = ROOT, options?: { corpusDir?: string }
   const generatedDir = resolve(root, "generated/content", buildDigest);
   await writeFile(
     resolve(generatedDir, "diagnostics.jsonl"),
-    result.diagnostics.map((d) => JSON.stringify(d)).join("\n") + "\n",
+    `${result.diagnostics.map((d) => JSON.stringify(d)).join("\n")}\n`,
   );
 
   // Log success summary
@@ -290,8 +256,21 @@ if (process.argv[1] && resolve(process.argv[1]) === fileURLToPath(import.meta.ur
   const args = process.argv.slice(2);
   let corpusDir = "content";
   for (let i = 0; i < args.length; i++) {
-    if (args[i] === "--corpus" && args[i + 1]) {
-      corpusDir = args[i + 1]!;
+    if (args[i] === "--corpus") {
+      const nextArg = args[i + 1];
+      if (!nextArg) {
+        console.error(
+          JSON.stringify({
+            severity: "error",
+            code: "missing-corpus-argument",
+            path: "cli",
+            message: "Missing directory path following --corpus flag.",
+          }),
+        );
+        process.exitCode = 1;
+        process.exit(1);
+      }
+      corpusDir = nextArg;
       i++;
     }
   }

@@ -2,7 +2,7 @@ import assert from "node:assert";
 import { existsSync } from "node:fs";
 import { cp, mkdir, readdir, readFile } from "node:fs/promises";
 import { dirname, resolve } from "node:path";
-import test, { describe, it } from "node:test";
+import { describe, it } from "node:test";
 import { fileURLToPath } from "node:url";
 import { FixtureAdapter } from "./ocr-adapters/fixture-adapter.ts";
 import { runOcrOrchestrator } from "./ocr-ledgers.ts";
@@ -138,8 +138,8 @@ describe("OCR Orchestrator: End-to-End Pipeline Test", () => {
           "Artifacts must not contain 'runId' (only toolRunId and logRunId)",
         );
       }
-      assert.equal((res2.summary as any).runId, undefined);
-      assert.equal((res2.coverage as any).runId, undefined);
+      assert.equal("runId" in res2.summary, false);
+      assert.equal("runId" in res2.coverage, false);
     } catch (testError) {
       // Retain run directory and logs under artifacts/test-logs/ocr-ledgers/<log-run-id>/evidence/
       const evidenceDir = resolve(

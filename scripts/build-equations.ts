@@ -29,7 +29,7 @@ const rendererDigest = createHash("sha256")
 await mkdir("src/generated", { recursive: true });
 await writeFile(
   "src/generated/brownian-equations.json",
-  JSON.stringify({ schemaVersion: 1, rendererDigest, equations }, null, 2) + "\n",
+  `${JSON.stringify({ schemaVersion: 1, rendererDigest, equations }, null, 2)}\n`,
 );
 console.log(
   JSON.stringify({ event: "equations-compiled", count: equations.length, rendererDigest }),

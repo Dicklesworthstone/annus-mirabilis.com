@@ -7,17 +7,12 @@
  * Bead: am-cm-id-scheme-8bn
  */
 
-import { execFileSync, execSync } from "node:child_process";
+import { execSync } from "node:child_process";
 import { existsSync, readdirSync, readFileSync } from "node:fs";
 import path from "node:path";
 import { parseArgs } from "node:util";
 import { type AliasRecord, validateAliasRecord } from "../src/content/aliases.ts";
-import {
-  checkRevisionChanges,
-  computeCanonicalRecordHash,
-  type VersionedRecord,
-  validateRecordLineage,
-} from "../src/content/revisions.ts";
+import { checkRevisionChanges, type VersionedRecord } from "../src/content/revisions.ts";
 import { newRunIdentity, TestLogger } from "../src/testing/log/logger.ts";
 
 function getGitFilesAtRef(ref: string, dir: string): string[] {

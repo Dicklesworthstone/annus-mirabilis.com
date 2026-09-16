@@ -1,7 +1,7 @@
 import assert from "node:assert";
 import { readFile } from "node:fs/promises";
 import { dirname, resolve } from "node:path";
-import test, { describe, it } from "node:test";
+import { describe, it } from "node:test";
 import { fileURLToPath } from "node:url";
 import {
   loadDenylist,
