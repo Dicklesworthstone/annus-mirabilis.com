@@ -3,9 +3,9 @@
 <div align="center">
 
 [![License: MIT + Rider](https://img.shields.io/badge/License-MIT_+_OpenAI/Anthropic_Rider-blue.svg)](./LICENSE)
-[![Status: Planning](https://img.shields.io/badge/Status-Planning_(pre--implementation)-orange.svg)](./COMPREHENSIVE_PLAN_FOR_ANNUS_MIRABILIS_SITE_MERGED.md)
+[![Status: Early construction](https://img.shields.io/badge/Status-Early_construction-orange.svg)](./COMPREHENSIVE_PLAN_FOR_ANNUS_MIRABILIS_SITE_MERGED.md)
 [![Framework: Next.js App Router](https://img.shields.io/badge/Framework-Next.js_App_Router-black.svg)](https://nextjs.org/)
-[![Physics: FrankenSim Rust/WASM](https://img.shields.io/badge/Physics-FrankenSim_Rust%2FWASM-b7410e.svg)](https://github.com/Dicklesworthstone/frankensim)
+[![Physics: TS reference owners; FrankenSim WASM planned](https://img.shields.io/badge/Physics-TS_reference_owners_%C2%B7_FrankenSim_WASM_planned-b7410e.svg)](https://github.com/Dicklesworthstone/frankensim)
 [![Math: KaTeX + MathML](https://img.shields.io/badge/Math-KaTeX_+_MathML-329894.svg)](https://katex.org/)
 [![TypeScript: Strict](https://img.shields.io/badge/TypeScript-Strict-3178c6.svg)](https://www.typescriptlang.org/)
 [![Deployment: Vercel](https://img.shields.io/badge/Deployment-Vercel_(prebuilt)-000000.svg)](https://vercel.com/)
@@ -16,7 +16,13 @@
 
 </div>
 
-> **Status: planning.** This repository holds the master plan (version 2.0), the iPhone app plan, and the dependency-ordered task graph derived from them. No application code exists yet. `annus-mirabilis.com` currently serves a static in-preparation placeholder page, not the edition. Everything below describes the product the plans specify, not a finished website.
+> **Status: early construction, one paper partly standing.** This repository holds the master plan (version 2.0), the iPhone app plan, the dependency-ordered task graph derived from them, and a working application that covers a small part of one paper.
+>
+> **Built and tested** (measured 2026-09-16): a Next.js App Router application of about 5,300 lines of TypeScript across ten routes; audited reference physics owners (Philox4x32-10 streams, erf, Stokes-Einstein and Gaussian propagators, a bounded FTCS diffusion stepper with a typed stability refusal); the typed result algebra, refusal registry, instance-scoped snapshot store, and versioned worker protocols; a content compiler over 23 authored records; and three Brownian laboratories (BM-01 tracer ensemble, BM-05 random steps, BM-06 Gaussian spread). `node --experimental-strip-types --test src/testing/*.test.mjs` reports 224 tests, 224 pass, 0 fail.
+>
+> **Not built**: no pinned facsimile, reviewed German ledger, translation, or notation concordance. No FrankenSim WASM artifact is in use; every number is a labeled host calculation. 30 of the 33 instruments and 3 of the 4 papers do not exist. The application is not deployed; `annus-mirabilis.com` still serves a static in-preparation placeholder page.
+>
+> Everything below describes the product the plans specify, not a finished website.
 
 ---
 
