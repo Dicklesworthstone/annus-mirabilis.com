@@ -39,6 +39,9 @@ test("Experiment: valid YAML manifest passes schema validation", () => {
   assert.equal(exp.outputs.length, 2);
   assert.equal(exp.notModeled.length, 3);
   assert.equal(exp.views.length, 2);
+  assert.equal(exp.actions.length, 1);
+  assert.equal(exp.actions[0]?.actionId, "sample-displacement");
+  assert.equal(exp.actions[0]?.family, "probability-diffusion");
   assert.ok("enabled" in exp.predictMode && exp.predictMode.enabled);
   if ("enabled" in exp.predictMode && exp.predictMode.enabled) {
     assert.equal(exp.predictMode.prompts.length, 1);
@@ -340,6 +343,87 @@ test("Experiment: Planted Negative - preset scenarioId mismatch fails", () => {
     (err: any) => {
       assert.ok(err instanceof ExperimentValidationError);
       assert.equal(err.code, "preset-scenario-id-mismatch");
+      return true;
+    },
+  );
+});
+
+test("Experiment: Planted Negative - drag-only action without accessible alternative fails", () => {
+  const yaml = fs.readFileSync(path.join(FIXTURES_DIR, "experiment-valid.yaml"), "utf8");
+  const raw = strictParse(yaml, "yaml") as any;
+
+  raw.actions = [
+    {
+      actionId: "drag-particle",
+      family: "probability-diffusion",
+      question: "What happens when you drag the particle?",
+      inputs: ["temperature"],
+      commandClass: "physical-intervention",
+      acceptedResult: {
+        outputs: ["tracerPositions"],
+        allowedStatuses: ["value"],
+      },
+      visualAffordance: "Drag the particle on canvas",
+      equivalentAffordance: "Drag the pointer across the screen",
+      announcement: "Particle dragged",
+    },
+  ];
+
+  assert.throws(
+    () => validateExperiment(raw),
+    (err: any) => {
+      assert.ok(err instanceof ExperimentValidationError);
+      assert.equal(err.code, "drag-only-action-forbidden");
+      return true;
+    },
+  );
+});
+
+test("Experiment: Planted Negative - action missing equivalent affordance fails", () => {
+  const yaml = fs.readFileSync(path.join(FIXTURES_DIR, "experiment-valid.yaml"), "utf8");
+  const raw = strictParse(yaml, "yaml") as any;
+
+  raw.actions = [
+    {
+      actionId: "adjust-temperature",
+      family: "probability-diffusion",
+      question: "How does temperature affect diffusion?",
+      inputs: ["temperature"],
+      commandClass: "physical-intervention",
+      acceptedResult: {
+        outputs: ["tracerPositions"],
+        allowedStatuses: ["value"],
+      },
+      visualAffordance: "Drag the temperature slider",
+      equivalentAffordance: "",
+      announcement: "Temperature adjusted",
+    },
+  ];
+
+  assert.throws(
+    () => validateExperiment(raw),
+    (err: any) => {
+      assert.ok(err instanceof ExperimentValidationError);
+      assert.equal(err.code, "missing-equivalent-affordance");
+      return true;
+    },
+  );
+});
+
+test("Experiment: Planted Negative - duplicate actionId in actions fails", () => {
+  const yaml = fs.readFileSync(path.join(FIXTURES_DIR, "experiment-valid.yaml"), "utf8");
+  const raw = strictParse(yaml, "yaml") as any;
+
+  raw.actions = [
+    raw.actions[0],
+    { ...raw.actions[0] },
+  ];
+
+  assert.throws(
+    () => validateExperiment(raw),
+    (err: any) => {
+      assert.ok(err instanceof ExperimentValidationError);
+      assert.equal(err.code, "duplicate-action-id");
       return true;
     },
   );

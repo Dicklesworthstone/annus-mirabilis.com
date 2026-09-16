@@ -180,11 +180,20 @@ export type ViewSpec = Readonly<{
 
 export const ACTION_FAMILIES = [
   "probability-diffusion",
+  "probability",
   "clock-event",
   "radiation-entropy",
+  "radiation-energy-accounting",
   "fields-boosts",
+  "kinematics",
+  "relativistic-dynamics",
   "energy-accounting",
   "derivations",
+  "premises",
+  "wave-optics",
+  "observer",
+  "geometry",
+  "measurement",
 ] as const;
 export type ActionFamily = (typeof ACTION_FAMILIES)[number];
 
@@ -201,7 +210,300 @@ export type ActionContract = Readonly<{
   visualAffordance: string;
   equivalentAffordance: string;
   announcement: string;
+  modalities?: readonly ("keyboard" | "direct-entry" | "screen-reader" | "switch-control")[] | undefined;
 }>;
+
+export const VALID_ACTION_STATUSES = [
+  "value",
+  "outside-domain",
+  "not-applicable",
+  "underdetermined",
+  "uncomputable",
+  "provisional",
+  "refused",
+  "divergent",
+  "analytic-limit",
+  "symbolic",
+] as const;
+export type ValidActionStatus = (typeof VALID_ACTION_STATUSES)[number];
+
+const DRAG_GESTURE_PATTERN =
+  /\b(drag|dragging|draggable|swipe|mouse|pointer|canvas|draw|scrub|slider-only)\b/i;
+
+const ACCESSIBLE_MODALITY_PATTERN =
+  /\b(type|enter|select|choose|toggle|read|inspect|compare|adjust|advance|retreat|set|switch|press|navigate|button|radio|checkbox|table|direct entry|keyboard|stepper|input)\b/i;
+
+export function checkAccessibleEquivalence(
+  contract: Readonly<{
+    actionId: string;
+    visualAffordance: string;
+    equivalentAffordance: string;
+    announcement: string;
+  }>,
+  path = "ActionContract",
+): void {
+  const vis = contract.visualAffordance?.trim() || "";
+  const eq = contract.equivalentAffordance?.trim() || "";
+  const ann = contract.announcement?.trim() || "";
+
+  if (!vis) {
+    throw new ExperimentValidationError(
+      "missing-visual-affordance",
+      `Action "${contract.actionId}" must declare visualAffordance.`,
+      "Experiment",
+      `${path}.visualAffordance`,
+    );
+  }
+
+  if (!eq) {
+    throw new ExperimentValidationError(
+      "missing-equivalent-affordance",
+      `Action "${contract.actionId}" must declare an accessible equivalentAffordance.`,
+      "Experiment",
+      `${path}.equivalentAffordance`,
+    );
+  }
+
+  if (!ann) {
+    throw new ExperimentValidationError(
+      "missing-action-announcement",
+      `Action "${contract.actionId}" must declare an assistive announcement for live regions.`,
+      "Experiment",
+      `${path}.announcement`,
+    );
+  }
+
+  // Planted Negative: Drag-only action where equivalent merely repeats visual drag or requires drag
+  const isVisualDrag = DRAG_GESTURE_PATTERN.test(vis);
+  const isEquivalentDrag = DRAG_GESTURE_PATTERN.test(eq);
+
+  if (isEquivalentDrag && !ACCESSIBLE_MODALITY_PATTERN.test(eq.replace(DRAG_GESTURE_PATTERN, ""))) {
+    throw new ExperimentValidationError(
+      "drag-only-action-forbidden",
+      `Action "${contract.actionId}" declares equivalentAffordance that requires drag or mouse interaction without a non-drag alternative.`,
+      "Experiment",
+      `${path}.equivalentAffordance`,
+    );
+  }
+
+  if (isVisualDrag && vis.toLowerCase() === eq.toLowerCase()) {
+    throw new ExperimentValidationError(
+      "drag-only-action-forbidden",
+      `Action "${contract.actionId}" has identical visual and equivalent affordances requiring drag.`,
+      "Experiment",
+      `${path}.equivalentAffordance`,
+    );
+  }
+
+  // Ensure equivalent affordance provides an actionable modality
+  if (!ACCESSIBLE_MODALITY_PATTERN.test(eq)) {
+    throw new ExperimentValidationError(
+      "action-equivalent-insufficient",
+      `Action "${contract.actionId}" equivalentAffordance must specify an actionable non-visual modality (e.g. type, enter, select, toggle, read, compare, inspect).`,
+      "Experiment",
+      `${path}.equivalentAffordance`,
+    );
+  }
+}
+
+export function validateActionContract(
+  raw: unknown,
+  path = "ActionContract",
+  _declaredParameterIds?: Set<string>,
+  _declaredOutputIds?: Set<string>,
+): ActionContract {
+  if (!raw || typeof raw !== "object") {
+    throw new ExperimentValidationError(
+      "invalid-action-contract",
+      "Action contract must be an object.",
+      "Experiment",
+      path,
+    );
+  }
+  const o = raw as Record<string, unknown>;
+
+  // actionId
+  if (typeof o.actionId !== "string" || !o.actionId.trim()) {
+    throw new ExperimentValidationError(
+      "missing-action-id",
+      "actionId is required.",
+      "Experiment",
+      `${path}.actionId`,
+    );
+  }
+  const actionId = o.actionId.trim();
+  if (!/^[a-z0-9-]+$/.test(actionId)) {
+    throw new ExperimentValidationError(
+      "invalid-action-id",
+      `actionId "${actionId}" must be kebab-case (lowercase alphanumeric with hyphens).`,
+      "Experiment",
+      `${path}.actionId`,
+    );
+  }
+
+  // family
+  if (typeof o.family !== "string" || !(ACTION_FAMILIES as readonly string[]).includes(o.family)) {
+    throw new ExperimentValidationError(
+      "invalid-action-family",
+      `family "${String(o.family)}" must be one of: ${ACTION_FAMILIES.join(", ")}.`,
+      "Experiment",
+      `${path}.family`,
+    );
+  }
+  const family = o.family as ActionFamily;
+
+  // question
+  if (typeof o.question !== "string" || !o.question.trim() || o.question.trim().length < 5) {
+    throw new ExperimentValidationError(
+      "missing-action-question",
+      `Action "${actionId}" requires a non-empty question.`,
+      "Experiment",
+      `${path}.question`,
+    );
+  }
+  const question = o.question.trim();
+
+  // inputs
+  if (!Array.isArray(o.inputs)) {
+    throw new ExperimentValidationError(
+      "missing-action-inputs",
+      `Action "${actionId}" inputs must be an array of parameter IDs.`,
+      "Experiment",
+      `${path}.inputs`,
+    );
+  }
+  const inputs: string[] = [];
+  for (let i = 0; i < o.inputs.length; i++) {
+    const inp = o.inputs[i];
+    if (typeof inp !== "string" || !inp.trim()) {
+      throw new ExperimentValidationError(
+        "invalid-action-input",
+        `Action "${actionId}" input at index ${i} must be a non-empty string.`,
+        "Experiment",
+        `${path}.inputs[${i}]`,
+      );
+    }
+    inputs.push(inp.trim());
+  }
+
+  // commandClass
+  if (typeof o.commandClass !== "string" || !o.commandClass.trim()) {
+    throw new ExperimentValidationError(
+      "missing-action-command-class",
+      `Action "${actionId}" requires commandClass.`,
+      "Experiment",
+      `${path}.commandClass`,
+    );
+  }
+  const commandClass = o.commandClass.trim();
+
+  // acceptedResult
+  if (!o.acceptedResult || typeof o.acceptedResult !== "object") {
+    throw new ExperimentValidationError(
+      "invalid-accepted-result",
+      `Action "${actionId}" acceptedResult must be an object declaring outputs and allowedStatuses.`,
+      "Experiment",
+      `${path}.acceptedResult`,
+    );
+  }
+  const ar = o.acceptedResult as Record<string, unknown>;
+  if (!Array.isArray(ar.outputs)) {
+    throw new ExperimentValidationError(
+      "invalid-accepted-result",
+      `Action "${actionId}" acceptedResult.outputs must be an array.`,
+      "Experiment",
+      `${path}.acceptedResult.outputs`,
+    );
+  }
+  const outputs: string[] = ar.outputs.map((out) => String(out).trim());
+
+  if (!Array.isArray(ar.allowedStatuses) || ar.allowedStatuses.length === 0) {
+    throw new ExperimentValidationError(
+      "invalid-accepted-result",
+      `Action "${actionId}" acceptedResult.allowedStatuses must be a non-empty array.`,
+      "Experiment",
+      `${path}.acceptedResult.allowedStatuses`,
+    );
+  }
+  const allowedStatuses: string[] = [];
+  for (let i = 0; i < ar.allowedStatuses.length; i++) {
+    const st = String(ar.allowedStatuses[i]).trim();
+    if (!(VALID_ACTION_STATUSES as readonly string[]).includes(st)) {
+      throw new ExperimentValidationError(
+        "invalid-accepted-result-status",
+        `Action "${actionId}" allowedStatus "${st}" must be one of: ${VALID_ACTION_STATUSES.join(", ")}.`,
+        "Experiment",
+        `${path}.acceptedResult.allowedStatuses[${i}]`,
+      );
+    }
+    allowedStatuses.push(st);
+  }
+
+  // visualAffordance & equivalentAffordance & announcement
+  const visualAffordance = typeof o.visualAffordance === "string" ? o.visualAffordance.trim() : "";
+  const equivalentAffordance =
+    typeof o.equivalentAffordance === "string" ? o.equivalentAffordance.trim() : "";
+  const announcement = typeof o.announcement === "string" ? o.announcement.trim() : "";
+
+  checkAccessibleEquivalence(
+    {
+      actionId,
+      visualAffordance,
+      equivalentAffordance,
+      announcement,
+    },
+    path,
+  );
+
+  return Object.freeze({
+    actionId,
+    family,
+    question,
+    inputs: Object.freeze(inputs),
+    commandClass,
+    acceptedResult: Object.freeze({
+      outputs: Object.freeze(outputs),
+      allowedStatuses: Object.freeze(allowedStatuses),
+    }),
+    visualAffordance,
+    equivalentAffordance,
+    announcement,
+    modalities: Array.isArray(o.modalities) ? Object.freeze(o.modalities as any) : undefined,
+  });
+}
+
+export function validateActionContracts(
+  rawActions: unknown,
+  path = "Experiment.actions",
+  declaredParameterIds?: Set<string>,
+  declaredOutputIds?: Set<string>,
+): readonly ActionContract[] {
+  if (!Array.isArray(rawActions)) return Object.freeze([]);
+  const seenIds = new Set<string>();
+  const validated: ActionContract[] = [];
+
+  for (let i = 0; i < rawActions.length; i++) {
+    const aPath = `${path}[${i}]`;
+    const contract = validateActionContract(
+      rawActions[i],
+      aPath,
+      declaredParameterIds,
+      declaredOutputIds,
+    );
+    if (seenIds.has(contract.actionId)) {
+      throw new ExperimentValidationError(
+        "duplicate-action-id",
+        `Duplicate actionId "${contract.actionId}" found in actions list.`,
+        "Experiment",
+        `${aPath}.actionId`,
+      );
+    }
+    seenIds.add(contract.actionId);
+    validated.push(contract);
+  }
+
+  return Object.freeze(validated);
+}
 
 export type RealRate =
   | Readonly<{ natural: false }>
@@ -1209,7 +1511,12 @@ export function validateExperiment(raw: unknown, path = "Experiment"): Experimen
     notModeled,
     owner,
     views,
-    actions: Array.isArray(o.actions) ? (o.actions as ActionContract[]) : [],
+    actions: validateActionContracts(
+      o.actions,
+      `${path}.actions`,
+      new Set(parameters.map((p) => p.id)),
+      new Set(outputs.map((out) => out.id)),
+    ),
     acceptanceCases,
     defaultScenario: (o.defaultScenario as string) || "default",
     tapeModel: (o.tapeModel as { modelId: string; modelVersion: number }) || {

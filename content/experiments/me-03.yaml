@@ -255,8 +255,26 @@ derivedOutputs:
     semanticKind: "invariant-mass"
     ownerId: "massEnergy.fourMomentum"
     statuses:
-      - value
-      - outside-domain
+actions:
+  - actionId: select-system-boundary
+    family: energy-accounting
+    question: "When energy leaves a body, which system loses mass, and which does not?"
+    inputs:
+      - boundary
+      - disposition
+    commandClass: measurement-change
+    acceptedResult:
+      outputs:
+        - energyChange
+        - massChange
+        - systemEnergyChange
+        - systemMassChange
+      allowedStatuses:
+        - value
+        - not-applicable
+    visualAffordance: "Drag a boundary around objects"
+    equivalentAffordance: "Select the objects included in the system and inspect energy crossing that boundary"
+    announcement: "System boundary updated; energy and mass changes recalculated"
 
 presets:
   - presetId: me-03-sealed-lamp-and-mirror
