@@ -36,7 +36,7 @@ export async function checkWalkBrowser(browser,url,check) {
   check('BM-05: cached and replayed observations preserve the identical trial and report replay work honestly');
   for(const kernel of ['uniform','gaussian']){
    await lab.locator('[name="kernel"]').selectOption(kernel);await accepted(()=>apply.click());assert.equal(await value('diffusionCoefficient'),'1.25e-12');assert.equal(await value('stepSecondMoment'),'2.5e-13');assert.notEqual(await lab.getAttribute('data-run-id'),run);
-   const gap=Number(await value('shapeTerm'));if(kernel==='gaussian')assert.equal(gap,0);else assert.ok(Math.abs(gap-.0073842319360238)<1e-12);
+   const gap=Number(await value('shapeTerm'));if(kernel==='gaussian'){assert.equal(gap,0);assert.match(await lab.innerText(),/Gaussian steps are the exception/);}else assert.ok(Math.abs(gap-.0073842319360238)<1e-12);
   }
   check('BM-05: changing step shape preserves variance and diffusivity while changing the finite-step shape gap');
   const biasRun=await lab.getAttribute('data-run-id');await accepted(()=>lab.getByRole('button',{name:'Restore equal left/right probability',exact:true}).click());assert.equal(await lab.getAttribute('data-run-id'),biasRun);assert.equal(await lab.getAttribute('data-request-draws'),'0');assert.equal(await value('biasedDiffusion'),'1.25e-12');
