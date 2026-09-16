@@ -21,7 +21,7 @@
     "format:check": "biome format .",
     "gates": "bun scripts/quality-gates.ts --fail-fast --family fast",
     "test": "bun run prepare:content && bun run prepare:lab && bun test --isolate --timeout 60000 src scripts",
-    "test:node": "node --experimental-strip-types --test \"scripts/e2e/**/*.test.ts\" scripts/check-receipts.e2e.test.ts scripts/generateQuantityIds.e2e.test.ts scripts/summarize-test-logs.e2e.test.ts scripts/quality-gates.test.ts scripts/ocr-ledgers.e2e.test.ts",
+    "test:node": "node --experimental-strip-types scripts/run-node-only-tests.ts",
     "test:reference": "bun run prepare:content && bun run prepare:lab && bun test --isolate --timeout 60000 src/testing/*.test.mjs",
     "test:browser": "bun scripts/test-lab-browser.mjs"
   },

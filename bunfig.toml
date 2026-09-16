@@ -1,7 +1,15 @@
+# Subprocess-spawning tests cannot run under `bun test` on this host:
+# bun's test runner posix_spawn of node fails with EBADF (measured: the
+# same files pass under node --test). bun 1.4.0 honours camelCase
+# pathIgnorePatterns with repo-relative paths or **/ globs; basename-only
+# entries and kebab-case keys are ignored.
+# Node still runs this list via scripts/run-node-only-tests.ts (`bun run test:node`).
 [test]
-# Subprocess-spawning e2e tests and node:test test suites run under `node --experimental-strip-types --test`
-# and are ignored by bun test to avoid runner mismatch / posix_spawn EBADF under worker threads.
 pathIgnorePatterns = [
-  "**/*.e2e.test.ts",
+  "scripts/check-receipts.e2e.test.ts",
+  "scripts/generateQuantityIds.e2e.test.ts",
+  "scripts/ocr-ledgers.e2e.test.ts",
   "scripts/quality-gates.test.ts",
+  "scripts/summarize-test-logs.e2e.test.ts",
+  "scripts/e2e/**/*.test.ts",
 ]

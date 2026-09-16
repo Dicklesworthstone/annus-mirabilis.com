@@ -1,38 +1,50 @@
 import { describe, expect, test } from "bun:test";
 import { readFileSync } from "node:fs";
-import { classifyTestFile } from "./test-runner.ts";
+import {
+  expandIgnorePatternsToTestFiles,
+  nodeOnlyTestArgs,
+  nodeOnlyTestCommand,
+  parsePathIgnorePatterns,
+} from "./bunfigNodeOnlyTests.ts";
 
-const E2E_SPAWN_FILES = [
-  "scripts/check-receipts.e2e.test.ts",
-  "scripts/generateQuantityIds.e2e.test.ts",
-  "scripts/summarize-test-logs.e2e.test.ts",
-  "scripts/ocr-ledgers.e2e.test.ts",
-  "scripts/quality-gates.test.ts",
-] as const;
+describe("subprocess tests run under node, not bun test", () => {
+  const bunfig = readFileSync("bunfig.toml", "utf8");
+  const pkg = JSON.parse(readFileSync("package.json", "utf8")) as {
+    scripts: Record<string, string>;
+  };
+  const workflow = readFileSync(".github/workflows/quality-gates.yml", "utf8");
 
-describe("subprocess e2e tests run under node, not bun test", () => {
-  test("bunfig.toml ignores *.e2e.test.ts so bun test does not discover them", () => {
-    const bunfig = readFileSync("bunfig.toml", "utf8");
-    expect(bunfig).toContain("**/*.e2e.test.ts");
-    expect(bunfig).toContain("pathIgnorePatterns");
+  test("bunfig.toml uses the bun 1.4.0 pathIgnorePatterns key with repo-relative paths", () => {
+    const patterns = parsePathIgnorePatterns(bunfig);
+    expect(patterns.includes("scripts/quality-gates.test.ts")).toBe(true);
+    expect(patterns.includes("scripts/check-receipts.e2e.test.ts")).toBe(true);
+    expect(patterns.includes("quality-gates.test.ts")).toBe(false);
+    expect(patterns.includes("**/*.e2e.test.ts")).toBe(false);
   });
 
-  test("each spawn-based e2e file is classified as the node runner", () => {
-    for (const file of E2E_SPAWN_FILES) {
-      const classified = classifyTestFile(file);
-      expect(classified.runner).toBe("node");
-    }
+  test("bunfig ignore list expands to the spawn e2e files and quality-gates.test.ts", () => {
+    const patterns = parsePathIgnorePatterns(bunfig);
+    const files = expandIgnorePatternsToTestFiles(patterns, process.cwd());
+    expect(files.includes("scripts/check-receipts.e2e.test.ts")).toBe(true);
+    expect(files.includes("scripts/generateQuantityIds.e2e.test.ts")).toBe(true);
+    expect(files.includes("scripts/summarize-test-logs.e2e.test.ts")).toBe(true);
+    expect(files.includes("scripts/quality-gates.test.ts")).toBe(true);
+    expect(files.includes("src/content/editions/brownian.manifest.e2e.test.ts")).toBe(false);
   });
 
-  test("package.json test:node invokes the same node --test command as scripts/e2e plus the root e2e files", () => {
-    const pkg = JSON.parse(readFileSync("package.json", "utf8")) as {
-      scripts: Record<string, string>;
-    };
+  test("test:node derives its file list from bunfig so the two lists cannot drift", () => {
     const command = pkg.scripts["test:node"];
-    expect(command).toContain("node --experimental-strip-types --test");
-    expect(command).toContain("scripts/e2e");
-    for (const file of E2E_SPAWN_FILES) {
-      expect(command).toContain(file);
-    }
+    expect(command).toBe("node --experimental-strip-types scripts/run-node-only-tests.ts");
+    const args = nodeOnlyTestArgs(bunfig, process.cwd());
+    expect(args[0]).toBe("scripts/e2e/**/*.test.ts");
+    expect(args.includes("scripts/quality-gates.test.ts")).toBe(true);
+    expect(args.includes("scripts/check-receipts.e2e.test.ts")).toBe(true);
+    const printed = nodeOnlyTestCommand(args);
+    expect(printed.startsWith("node --experimental-strip-types --test ")).toBe(true);
+    expect(printed.includes("scripts/quality-gates.test.ts")).toBe(true);
+  });
+
+  test("CI quality-gates workflow invokes bun run test:node", () => {
+    expect(workflow.includes("bun run test:node")).toBe(true);
   });
 });
