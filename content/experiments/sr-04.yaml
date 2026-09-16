@@ -1,0 +1,320 @@
+# SR-04 instrument manifest (am-sr-04-lorentz-map-px1k).
+#
+# Scope note (WildCrane, 2026-09-16): built against the real kinematics owner
+# (src/physics/reference/kinematics.ts + kinematics/constraints.ts, am-ref-kinematics-tjq),
+# which landed this session with the exact construction-constraint engine (solveCandidateFamily,
+# checkCandidateMap) this bead is centered on. FULL MODE ONLY: the sr-04:1904 ExperimentMode
+# (Galilean-only, anachronism-lint-checked, mode-locked-host framing) is NOT declared here --
+# it depends on am-cm-anachronism-lint-dl2 (no rules file or matcher exists yet) and
+# am-ref-kinematics-tjq's withMode1904Guard wiring being exercised end to end, both a
+# substantially separate undertaking from the full-mode construction engine. See BATCH_PENDING
+# for the full list of what else is deferred (derivation-chain step rendering, the
+# ExpressionActionPicker/CoefficientEditor primitives, predict mode, show-the-code, tapes,
+# permalink, weave, captions R0-R3).
+id: sr-04
+title: "SR-04: Construct the Lorentz Map"
+explanatoryQuestion: "What map between two inertial frames keeps both postulates, and what does each requirement decide?"
+sourceRefs:
+  - paper: special-relativity
+    id: s3
+argumentIds: []
+schemaVersion: 1
+parameters:
+  - id: vOverC
+    label: "Frame speed"
+    accessibleName: "Relative speed of the primed frame, as a fraction of light speed"
+    accessibleDescription: "Sets v/c for the light-ray tests, the transverse ray, and the constructed map"
+    quantityId: frameSpeed
+    displayUnit: "c"
+    modelDomain:
+      min: -1
+      max: 1
+      minInclusive: false
+      maxInclusive: false
+      reason: "No inertial observer at |v| >= c"
+    numericalDomain:
+      min: -0.95
+      max: 0.95
+      minInclusive: true
+      maxInclusive: true
+    visualRange:
+      min: -0.95
+      max: 0.95
+    default: 0.6
+    mapping:
+      kind: linear
+    role: independent
+    commandClass: observer-change
+  - id: observerSpeed
+    label: "Slow-case observer speed"
+    accessibleName: "Observer speed for the slow-object demonstration"
+    accessibleDescription: "The ordinary-mechanics observer speed, in meters per second"
+    quantityId: velocityInMovingFrame
+    displayUnit: "m/s"
+    modelDomain:
+      min: -1e4
+      max: 1e4
+      minInclusive: true
+      maxInclusive: true
+      reason: "The slow case needs a slow observer; faster composition belongs to SR-06"
+    visualRange:
+      min: -100
+      max: 100
+    default: 30
+    mapping:
+      kind: linear
+    role: independent
+    commandClass: measurement-change
+  - id: objectSpeed
+    label: "Slow-case object speed"
+    accessibleName: "Object speed for the slow-object demonstration"
+    accessibleDescription: "The ordinary-mechanics object speed, in meters per second"
+    quantityId: velocityInMovingFrame
+    displayUnit: "m/s"
+    modelDomain:
+      min: -1e4
+      max: 1e4
+      minInclusive: true
+      maxInclusive: true
+      reason: "The slow case needs a slow observer; faster composition belongs to SR-06"
+    visualRange:
+      min: -100
+      max: 100
+    default: 10
+    mapping:
+      kind: linear
+    role: independent
+    commandClass: measurement-change
+  - id: candidateA
+    label: "Candidate coefficient a"
+    accessibleName: "Longitudinal scale coefficient of the hand-built candidate map"
+    accessibleDescription: "The x-scale coefficient a(v) of a candidate the reader is testing"
+    quantityId: coordinatePositionMoving
+    displayUnit: ""
+    modelDomain:
+      reason: "Any finite real; the candidate map is not the world"
+    visualRange:
+      min: -3
+      max: 3
+    default: 1
+    mapping:
+      kind: linear
+    role: independent
+    commandClass: setup-change
+  - id: candidateB
+    label: "Candidate coefficient b"
+    accessibleName: "Time-scale coefficient of the hand-built candidate map"
+    accessibleDescription: "The t-scale coefficient b(v) of a candidate the reader is testing"
+    quantityId: coordinateTimeMoving
+    displayUnit: ""
+    modelDomain:
+      reason: "Any finite real; the candidate map is not the world"
+    visualRange:
+      min: -3
+      max: 3
+    default: 1
+    mapping:
+      kind: linear
+    role: independent
+    commandClass: setup-change
+  - id: candidateD
+    label: "Candidate coefficient d"
+    accessibleName: "Position-dependence coefficient of the candidate's time map"
+    accessibleDescription: "The x-dependence coefficient d(v) of a candidate the reader is testing, in s/m"
+    quantityId: coordinateTimeMoving
+    displayUnit: "s/m"
+    modelDomain:
+      reason: "Any finite real; the candidate map is not the world"
+    visualRange:
+      min: -1e-8
+      max: 1e-8
+    default: 0
+    mapping:
+      kind: linear
+    role: independent
+    commandClass: setup-change
+  - id: candidateTransverseScale
+    label: "Candidate transverse scale"
+    accessibleName: "Transverse coefficient of the hand-built candidate map"
+    accessibleDescription: "The y and z scale coefficient of a candidate the reader is testing"
+    quantityId: coordinatePositionMoving
+    displayUnit: ""
+    modelDomain:
+      reason: "Any finite real; the candidate map is not the world"
+    visualRange:
+      min: -2
+      max: 2
+    default: 1
+    mapping:
+      kind: linear
+    role: independent
+    commandClass: setup-change
+outputs:
+  - id: slowCaseGalilean
+    quantityId: velocityInMovingFrame
+    allowedStatuses:
+      - value
+    primary: true
+  - id: rightRayFraction
+    quantityId: frameSpeed
+    allowedStatuses:
+      - value
+      - outside-domain
+    primary: false
+  - id: leftRayFraction
+    quantityId: frameSpeed
+    allowedStatuses:
+      - value
+      - outside-domain
+    primary: false
+  - id: lorentzFactor
+    quantityId: lorentzFactor
+    allowedStatuses:
+      - value
+      - outside-domain
+    primary: false
+  - id: rapidity
+    quantityId: rapidity
+    allowedStatuses:
+      - value
+      - outside-domain
+    primary: false
+assumptions:
+  - "Homogeneous space and time, uniform relative motion, inertial coordinates (linearity follows from these, not assumed with no argument)"
+  - "Two inertial frames in standard configuration: origins coincide at t = t' = 0, relative motion along x"
+  - "Both postulates (relativity, and one light speed for every inertial observer) are the constraints the map must satisfy -- neither the Lorentz factor nor the Minkowski interval is assumed to derive it"
+admittedDomain: "Two inertial frames related by a linear map, relative speed strictly below c."
+notModeled:
+  - "Non-aligned axes and rotations"
+  - "Accelerated frames"
+  - "Gravity"
+  - "A fully rigorous derivation of linearity"
+  - "Origins that do not coincide"
+  - "Non-collinear composition (SR-06)"
+owner:
+  kind: reference-evaluator
+  kernelFunctions:
+    - displayRole: reference-implementation
+      language: ts
+      module: "src/physics/reference/kinematics/constraints.ts"
+      exportName: "solveCandidateFamily"
+      independentReferences:
+        - experimentId: sr-04
+          quantityId: coordinatePositionMoving
+    - displayRole: reference-implementation
+      language: ts
+      module: "src/physics/reference/kinematics/constraints.ts"
+      exportName: "checkCandidateMap"
+    - displayRole: reference-implementation
+      language: ts
+      module: "src/physics/reference/kinematics.ts"
+      exportName: "galileanVelocity"
+    - displayRole: reference-implementation
+      language: ts
+      module: "src/physics/reference/kinematics.ts"
+      exportName: "galileanRelativisticVelocityDifference"
+    - displayRole: reference-implementation
+      language: ts
+      module: "src/physics/reference/kinematics.ts"
+      exportName: "boostMatrixXT"
+    - displayRole: reference-implementation
+      language: ts
+      module: "src/physics/reference/kinematics.ts"
+      exportName: "rapidity"
+  identifierBindings:
+    - kernelFunction: solveCandidateFamily
+      identifier: "v"
+      quantityId: frameSpeed
+    - kernelFunction: galileanVelocity
+      identifier: "u"
+      quantityId: velocityInMovingFrame
+    - kernelFunction: galileanVelocity
+      identifier: "v"
+      quantityId: frameSpeed
+    - kernelFunction: rapidity
+      identifier: "beta"
+      quantityId: frameSpeed
+  traceScenarioId: sr-04-galilean-shelf
+  traceRows:
+    - label: "Constructed map at 0.6c"
+      expression: "a = b = (1 - v^2/c^2)^{-1/2}, d = -a v / c^2"
+      value: 1.25
+      unit: "1"
+      quantityId: lorentzFactor
+views:
+  - id: constraint-table
+    kind: table
+    consumes:
+      - slowCaseGalilean
+      - rightRayFraction
+      - leftRayFraction
+      - lorentzFactor
+      - rapidity
+actions:
+  - actionId: sr-04-test-galilean-light
+    family: fields-boosts
+    question: "Does the Galilean candidate keep right-moving and left-moving light at c?"
+    inputs:
+      - vOverC
+    commandClass: measurement-change
+    acceptedResult:
+      outputs:
+        - rightRayFraction
+        - leftRayFraction
+      allowedStatuses:
+        - value
+        - outside-domain
+    visualAffordance: "Light-line diagram with the transformed ray speeds marked"
+    equivalentAffordance: "Type the frame speed and read both transformed ray speeds as fractions of c"
+    announcement: "Light-ray test updated"
+  - actionId: sr-04-test-candidate
+    family: fields-boosts
+    question: "Does this hand-built candidate map keep both light directions at c?"
+    inputs:
+      - candidateA
+      - candidateB
+      - candidateD
+      - candidateTransverseScale
+    commandClass: setup-change
+    acceptedResult:
+      outputs:
+        - rightRayFraction
+        - leftRayFraction
+      allowedStatuses:
+        - value
+        - outside-domain
+    visualAffordance: "Residual bars for each enabled constraint"
+    equivalentAffordance: "Type the four candidate coefficients and read each constraint's residual"
+    announcement: "Candidate residuals updated"
+acceptanceCases:
+  - sr-04-galilean-shelf
+  - sr-04-construct-0.6c
+defaultScenario: sr-04-galilean-shelf
+tapeModel:
+  modelId: "sr-04"
+  modelVersion: 1
+teachingTapes: []
+presets:
+  - presetId: sr-04-galilean-shelf
+    label: "The Galilean shelf: slow case and light rays at 0.6c"
+    parameterValues:
+      vOverC: 0.6
+      observerSpeed: 30
+      objectSpeed: 10
+  - presetId: sr-04-construct-0.6c
+    label: "The constructed map at 0.6c"
+    parameterValues:
+      vOverC: 0.6
+  - presetId: sr-04-later-aids-0.6c
+    label: "Later aids at 0.6c: determinant, eigenvalues, rapidity"
+    parameterValues:
+      vOverC: 0.6
+probes: []
+weavePredicates: []
+historicalOverlays: []
+realRate:
+  natural: false
+embeddable: true
+predictMode:
+  exempt: true
+  reason: "Predict-mode candidate authoring and the tape event wiring belong to am-inst-predict-mode-ti7m (still open); the bead's three prompts (b's value once light constraints hold, whether reciprocity plus light constraints fully fix the map, the Galilean light-speed prediction) are named in the bead text but not authored as manifest predictMode.prompts here."
