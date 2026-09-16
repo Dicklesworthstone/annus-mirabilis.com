@@ -61,7 +61,7 @@ export function DataTable({
       data-snapshot-version={String(snapshotVersion)}
     >
       <div className="table-scroll-container">
-        <table className="inspectable-table" aria-label={caption}>
+        <table className="inspectable-table inspectable-data-table" aria-label={caption}>
           <caption>{caption}</caption>
           <thead>
             <tr>
@@ -117,7 +117,7 @@ export function DataTable({
       )}
 
       {scaleRows.length > 0 && (
-        <details className="scale-facts-disclosure" open={false}>
+        <details className="scale-facts-disclosure scale-facts-details" open={false}>
           <summary>Representation scale facts (5 independent parameters)</summary>
           <table className="scale-facts-table">
             <caption>Declared representational scales for this visualization</caption>

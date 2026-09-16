@@ -1,5 +1,9 @@
-import { type ReactElement, type ReactNode, useEffect, useRef, useState } from "react";
-import { getScaleFactRows } from "./scale.ts";
+import { type ReactElement, type ReactNode, useEffect, useMemo, useRef, useState } from "react";
+import {
+  GraphDescriptionContainer,
+  type GraphDescriptionContainerProps,
+} from "../../a11y/descriptions/provider.tsx";
+import type { TemplateData } from "../../a11y/descriptions/templates.ts";
 import type { RepresentationScale } from "./types.ts";
 
 export interface InspectableTableRow {
@@ -11,33 +15,51 @@ export interface InspectableTableData {
   readonly headers: readonly string[];
   readonly rows: readonly InspectableTableRow[];
   readonly caption: string;
+  readonly pageSize?: number | undefined;
 }
 
 export interface AccessibleGraphViewProps {
   /** Layer 1: High-level comparison title. */
   readonly title: string;
   /** Layer 1: Accessible description of what is compared. */
-  readonly description: string;
+  readonly description?: string | undefined;
   /** Layer 2: Current scientific relation or outcome summary. */
-  readonly summary: string;
+  readonly summary?: string | undefined;
+  /** Layer 2: Declarative template string with {slots}. */
+  readonly template?: string | undefined;
+  /** Snapshot data consumed to populate the template. */
+  readonly templateData?: TemplateData | undefined;
   /** Layer 3: Optional detailed inspectable numerical table. */
-  readonly inspectableTable?: InspectableTableData;
+  readonly inspectableTable?: InspectableTableData | undefined;
+  /** Alternative standard tableData structure. */
+  readonly tableData?: GraphDescriptionContainerProps["tableData"] | undefined;
   /** Optional 5-field RepresentationScale for scale facts table. */
-  readonly scale?: RepresentationScale;
+  readonly scale?: RepresentationScale | undefined;
   /** Visual chart / canvas content. */
-  readonly children?: ReactNode;
-  /** Live region announcement text. Throttled to prevent 60Hz stream flooding. */
-  readonly liveAnnouncement?: string;
+  readonly children?: ReactNode | undefined;
+  /** Live region announcement text. */
+  readonly liveAnnouncement?: string | undefined;
   /** Throttle interval in ms for live region updates (default 1000ms). */
-  readonly liveThrottleMs?: number;
-  readonly className?: string;
+  readonly liveThrottleMs?: number | undefined;
+  /** Accepted snapshot version. */
+  readonly snapshotVersion?: string | number | undefined;
+  /** Run ID of the current calculation. */
+  readonly runId?: string | undefined;
+  /** Instrument ID for tracing (e.g. "bm-01"). */
+  readonly instrumentId?: string | undefined;
+  /** View ID for tracing (e.g. "histogram"). */
+  readonly viewId?: string | undefined;
+  /** Indicates if this is an animated/continuous simulation view. */
+  readonly animated?: boolean | undefined;
+  readonly className?: string | undefined;
 }
 
 /**
  * Three-layer accessible graph container (am-inst-2d-view-kit-u75r).
+ * Builds directly against GraphDescriptionContainer (am-a11y-graph-descriptions-vxe1).
  *
  * Layer 1: High-level statement of comparison.
- * Layer 2: Key findings / current relation summary.
+ * Layer 2: Key findings / current relation summary (via template or string summary).
  * Layer 3: Collapsible inspectable data table.
  * Includes scale facts table and throttled live-region stream.
  */
@@ -45,14 +67,24 @@ export function AccessibleGraphView({
   title,
   description,
   summary,
+  template,
+  templateData,
   inspectableTable,
+  tableData,
   scale,
   children,
   liveAnnouncement,
   liveThrottleMs = 1000,
+  snapshotVersion = "1",
+  runId,
+  instrumentId,
+  viewId,
+  animated = false,
   className = "accessible-graph-view",
 }: AccessibleGraphViewProps): ReactElement {
-  const [throttledAnnouncement, setThrottledAnnouncement] = useState<string>("");
+  const [throttledAnnouncement, setThrottledAnnouncement] = useState<string>(
+    liveAnnouncement ?? "",
+  );
   const lastAnnounceTimeRef = useRef<number>(0);
   const pendingTimerRef = useRef<ReturnType<typeof setTimeout> | null>(null);
 
@@ -78,91 +110,56 @@ export function AccessibleGraphView({
     };
   }, [liveAnnouncement, liveThrottleMs]);
 
-  const scaleRows = scale ? getScaleFactRows(scale) : [];
+  const layer1Statement = description ? `${title}. ${description}` : title;
+  const layer2Template = template ?? summary ?? "";
+  const mergedTemplateData: TemplateData = useMemo(() => {
+    return {
+      ...(templateData ?? {}),
+      statistics: {
+        ...(templateData?.statistics ?? {}),
+        ...(summary ? { summary } : {}),
+      },
+    };
+  }, [templateData, summary]);
+
+  const resolvedTableData = useMemo(() => {
+    if (tableData) return tableData;
+    if (inspectableTable) {
+      return {
+        caption: inspectableTable.caption,
+        columns: inspectableTable.headers.map((h, i) => ({ id: `col-${i}`, header: h })),
+        rows: inspectableTable.rows.map((r) => ({
+          id: String(r.key),
+          label: String(r.cells[0] ?? r.key),
+          values: r.cells,
+        })),
+        pageSize: inspectableTable.pageSize,
+      };
+    }
+    return undefined;
+  }, [tableData, inspectableTable]);
 
   return (
-    <figure className={className} aria-label={title}>
-      {/* Layer 1: High-level header and summary */}
-      <figcaption className="graph-layer-1">
-        <h4 className="graph-title">{title}</h4>
-        <p className="graph-description">{description}</p>
-      </figcaption>
-
-      {/* Layer 2: Current relation summary */}
-      <div className="graph-layer-2 relation-summary" role="status" aria-live="polite">
-        <p>{summary}</p>
-      </div>
-
-      {/* The visual chart / SVG / Canvas */}
-      <div className="graph-visual-container">{children}</div>
-
-      {/* Throttled live region (never 60 Hz flooding) */}
-      <div className="sr-only live-region" aria-live="polite" aria-atomic="true">
-        {throttledAnnouncement}
-      </div>
-
-      {/* Scale facts table for screen readers and print views */}
-      {scaleRows.length > 0 && (
-        <details className="scale-facts-details">
-          <summary>Representation scale facts (5 independent parameters)</summary>
-          <table className="scale-facts-table">
-            <caption>Declared representational scales for this visualization</caption>
-            <thead>
-              <tr>
-                <th scope="col">Dimension</th>
-                <th scope="col">Declared Fact</th>
-                <th scope="col">Note</th>
-              </tr>
-            </thead>
-            <tbody>
-              {scaleRows.map((row) => (
-                <tr key={row.key}>
-                  <th scope="row">{row.label}</th>
-                  <td>{row.value}</td>
-                  <td>{row.note ?? "—"}</td>
-                </tr>
-              ))}
-            </tbody>
-          </table>
-        </details>
+    <GraphDescriptionContainer
+      layer1Statement={layer1Statement}
+      layer2Template={layer2Template}
+      templateData={mergedTemplateData}
+      snapshotVersion={snapshotVersion}
+      runId={runId}
+      instrumentId={instrumentId}
+      viewId={viewId}
+      tableData={resolvedTableData}
+      scale={scale}
+      animated={animated}
+      initialTableOpen={true}
+      className={`accessible-graph-view ${className}`}
+    >
+      {children}
+      {throttledAnnouncement && (
+        <div className="sr-only live-region" aria-live="polite" aria-atomic="true">
+          {throttledAnnouncement}
+        </div>
       )}
-
-      {/* Layer 3: Collapsible inspectable data table */}
-      {inspectableTable && (
-        <details className="graph-layer-3 inspectable-details">
-          <summary>{`Inspect data points (${inspectableTable.rows.length} rows)`}</summary>
-          <div className="table-scroll">
-            <table className="inspectable-data-table">
-              <caption>{inspectableTable.caption}</caption>
-              <thead>
-                <tr>
-                  {inspectableTable.headers.map((h) => (
-                    <th key={h} scope="col">
-                      {h}
-                    </th>
-                  ))}
-                </tr>
-              </thead>
-              <tbody>
-                {inspectableTable.rows.map((row) => (
-                  <tr key={row.key}>
-                    {row.cells.map((cell, idx) => {
-                      const colHeader = inspectableTable.headers[idx] ?? `col-${idx}`;
-                      return idx === 0 ? (
-                        <th key={`${row.key}-head-${colHeader}`} scope="row">
-                          {cell}
-                        </th>
-                      ) : (
-                        <td key={`${row.key}-cell-${colHeader}`}>{cell}</td>
-                      );
-                    })}
-                  </tr>
-                ))}
-              </tbody>
-            </table>
-          </div>
-        </details>
-      )}
-    </figure>
+    </GraphDescriptionContainer>
   );
 }

@@ -79,6 +79,8 @@ export interface GraphDescriptionContainerProps {
   readonly scale?: RepresentationScale | undefined;
   /** Indicates if this is an animated/continuous simulation view. */
   readonly animated?: boolean | undefined;
+  /** Initial open state of Layer 3 data table (default false). */
+  readonly initialTableOpen?: boolean | undefined;
   /** Visual chart / canvas / SVG children. */
   readonly children?: ReactNode | undefined;
   /** Optional custom AnnouncementManager instance. */
@@ -97,12 +99,13 @@ export function GraphDescriptionContainer({
   tableData,
   scale,
   animated = false,
+  initialTableOpen = false,
   children,
   announcementManager,
   className = "accessible-graph-container",
 }: GraphDescriptionContainerProps): ReactElement {
   const [isPaused, setIsPaused] = useState<boolean>(false);
-  const [isTableOpen, setIsTableOpen] = useState<boolean>(false);
+  const [isTableOpen, setIsTableOpen] = useState<boolean>(initialTableOpen);
 
   // Initialize or memoize the announcement manager
   const manager = useMemo(() => {
@@ -169,7 +172,12 @@ export function GraphDescriptionContainer({
         </figcaption>
 
         {/* Layer 2: Relation Summary & Live Region readout */}
-        <div className="graph-layer-2-region" data-layer="2" role="status" aria-live="polite">
+        <div
+          className="graph-layer-2 graph-layer-2-region"
+          data-layer="2"
+          role="status"
+          aria-live="polite"
+        >
           <p className="layer-2-text">{layer2Summary}</p>
         </div>
 
