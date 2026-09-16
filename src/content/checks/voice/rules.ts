@@ -124,7 +124,8 @@ export type RuleId =
   | "theater"
   | "mockery"
   | "overclaim"
-  | "independence-claim";
+  | "independence-claim"
+  | "pedagogy-claim";
 
 export const RULE_IDS: readonly RuleId[] = [
   "em-dash",
@@ -141,6 +142,7 @@ export const RULE_IDS: readonly RuleId[] = [
   "mockery",
   "overclaim",
   "independence-claim",
+  "pedagogy-claim",
 ];
 
 export interface VoiceRules {

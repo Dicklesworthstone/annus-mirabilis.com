@@ -351,3 +351,39 @@ describe("independence-claim", () => {
     assert.equal(has(findings, "independence-claim", "info"), true);
   });
 });
+
+describe("pedagogy-claim", () => {
+  it("fails seeded 'discovery learning works better'", () => {
+    const findings = checkVoice("Studies show that discovery learning works better for physics.", {
+      context: "prose",
+    });
+    assert.equal(has(findings, "pedagogy-claim", "error"), true);
+  });
+
+  it("fails seeded 'productive struggle is essential'", () => {
+    const findings = checkVoice("We believe productive struggle is essential for true mastery.", {
+      context: "prose",
+    });
+    assert.equal(has(findings, "pedagogy-claim", "error"), true);
+  });
+
+  it("fails seeded 'direct instruction is more effective'", () => {
+    const findings = checkVoice("In all cases direct instruction is more effective.", {
+      context: "prose",
+    });
+    assert.equal(has(findings, "pedagogy-claim", "error"), true);
+  });
+
+  it("passes per-stage support phrasing", () => {
+    const findings1 = checkVoice("for this argument, readers in these rounds needed this much support", {
+      context: "prose",
+    });
+    assert.equal(has(findings1, "pedagogy-claim"), false);
+
+    const findings2 = checkVoice("for this stage, readers consistently used the partial comparison", {
+      context: "prose",
+    });
+    assert.equal(has(findings2, "pedagogy-claim"), false);
+  });
+});
+

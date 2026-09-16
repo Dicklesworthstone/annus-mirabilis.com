@@ -284,3 +284,25 @@ rules:
       - independently
       - separate determinations
       - agree independently
+
+  pedagogy-claim:
+    description: "Sitewide claims about discovery learning, direct instruction, or productive struggle."
+    kind: phrase-list
+    phrases:
+      - discovery learning works better
+      - discovery learning is generally superior
+      - discovery learning is superior
+      - discovery learning is best
+      - productive struggle is essential
+      - productive struggle is generally superior
+      - productive struggle is superior
+      - direct instruction is more effective
+      - direct instruction is generally superior
+      - direct instruction is superior
+      - direct instruction is best
+      - minimal guidance is generally superior
+      - minimal guidance is superior
+      - minimal guidance is best
+      - minimal guidance is worthless
+    defaultSeverity: error
+

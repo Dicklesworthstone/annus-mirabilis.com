@@ -139,6 +139,14 @@ export function checkVoice(text: string, options: CheckVoiceOptions): VoiceFindi
       context,
     ),
   );
+  findings.push(
+    ...matchPhraseListRule(
+      text,
+      rules.rules["pedagogy-claim"] as PhraseListRule,
+      "pedagogy-claim",
+      context,
+    ),
+  );
 
   return findings.sort((a, b) => a.index - b.index);
 }
