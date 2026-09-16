@@ -102,9 +102,21 @@ export const SR04_OUTPUTS: Readonly<Record<string, OutputContract>> = Object.fre
   ]),
   candidateResiduals: c("1", "candidate-map-residuals", "kinematics.checkCandidateMap"),
   slowCaseGalilean: c("m/s", "galilean-composed-velocity", "kinematics.galileanVelocity"),
-  slowCaseDeviation: c("m/s", "relativistic-galilean-deviation", "kinematics.galileanRelativisticVelocityDifference"),
-  rightRayFraction: c("1", "galilean-transformed-light-speed-fraction", "kinematics.galileanVelocity"),
-  leftRayFraction: c("1", "galilean-transformed-light-speed-fraction", "kinematics.galileanVelocity"),
+  slowCaseDeviation: c(
+    "m/s",
+    "relativistic-galilean-deviation",
+    "kinematics.galileanRelativisticVelocityDifference",
+  ),
+  rightRayFraction: c(
+    "1",
+    "galilean-transformed-light-speed-fraction",
+    "kinematics.galileanVelocity",
+  ),
+  leftRayFraction: c(
+    "1",
+    "galilean-transformed-light-speed-fraction",
+    "kinematics.galileanVelocity",
+  ),
   lorentzFactor: c("1", "lorentz-factor", "kinematics.gamma"),
   rapidity: c("1", "rapidity", "kinematics.rapidity", ["value", "outside-domain"]),
 });

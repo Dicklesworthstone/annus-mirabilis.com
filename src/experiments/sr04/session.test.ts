@@ -1,5 +1,9 @@
 import { describe, expect, test } from "bun:test";
-import { gamma, solveCandidateFamily, speedOfLightMetresPerSecond } from "../../physics/reference/kinematics.ts";
+import {
+  gamma,
+  solveCandidateFamily,
+  speedOfLightMetresPerSecond,
+} from "../../physics/reference/kinematics.ts";
 import { withinTolerance } from "../../units/tolerance.ts";
 import { joinConstraints, SR04_DEFAULTS } from "./definition.ts";
 import { evaluateSr04 } from "./session.ts";
@@ -12,14 +16,22 @@ function rel(a: number, b: number, tol = 1e-9): boolean {
 
 describe("SR-04 construction sequence against the bead's own worked numbers (am-sr-04-lorentz-map-px1k)", () => {
   test("step 1, Galilean candidate: slow case gives -20 m/s, light rays give 0.4c and 1.6c at v=0.6c", () => {
-    const evaluation = evaluateSr04({ ...SR04_DEFAULTS, vOverC: 0.6, observerSpeed: 30, objectSpeed: 10 });
+    const evaluation = evaluateSr04({
+      ...SR04_DEFAULTS,
+      vOverC: 0.6,
+      observerSpeed: 30,
+      objectSpeed: 10,
+    });
     expect(evaluation.slowCaseGalilean.status).toBe("value");
     if (evaluation.slowCaseGalilean.status === "value") {
       expect(evaluation.slowCaseGalilean.value).toBe(-20);
     }
     expect(evaluation.rightRayFraction.status).toBe("value");
     expect(evaluation.leftRayFraction.status).toBe("value");
-    if (evaluation.rightRayFraction.status === "value" && evaluation.leftRayFraction.status === "value") {
+    if (
+      evaluation.rightRayFraction.status === "value" &&
+      evaluation.leftRayFraction.status === "value"
+    ) {
       expect(rel(evaluation.rightRayFraction.value, 0.4)).toBe(true);
       expect(rel(evaluation.leftRayFraction.value, -1.6)).toBe(true);
     }
@@ -85,7 +97,13 @@ describe("SR-04 construction sequence against the bead's own worked numbers (am-
     const evaluation = evaluateSr04({
       ...SR04_DEFAULTS,
       vOverC: 0.6,
-      enabledConstraints: joinConstraints(["right-moving-light", "left-moving-light", "reciprocity", "isotropy", "identity-branch"]),
+      enabledConstraints: joinConstraints([
+        "right-moving-light",
+        "left-moving-light",
+        "reciprocity",
+        "isotropy",
+        "identity-branch",
+      ]),
     });
     expect(evaluation.family.status).toBe("value");
     if (evaluation.family.status !== "value") return;
@@ -149,7 +167,10 @@ describe("SR-04 construction sequence against the bead's own worked numbers (am-
     }
     expect(evaluation.rightRayFraction.status).toBe("value");
     expect(evaluation.leftRayFraction.status).toBe("value");
-    if (evaluation.rightRayFraction.status === "value" && evaluation.leftRayFraction.status === "value") {
+    if (
+      evaluation.rightRayFraction.status === "value" &&
+      evaluation.leftRayFraction.status === "value"
+    ) {
       expect(rel(evaluation.rightRayFraction.value, 1)).toBe(true);
       expect(rel(evaluation.leftRayFraction.value, -1)).toBe(true);
     }
@@ -171,7 +192,12 @@ describe("SR-04 construction sequence against the bead's own worked numbers (am-
   test("removing isotropy from the fully-constrained set leaves a two-branch (not single) result", () => {
     const family = solveCandidateFamily({
       v: 0.6 * C,
-      enabledConstraints: ["right-moving-light", "left-moving-light", "reciprocity", "identity-branch"],
+      enabledConstraints: [
+        "right-moving-light",
+        "left-moving-light",
+        "reciprocity",
+        "identity-branch",
+      ],
     });
     // isotropy removed: the engine must not silently supply it.
     expect(family.status).toBe("underdetermined");

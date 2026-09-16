@@ -23,8 +23,13 @@ import {
   solveCandidateFamily,
   speedOfLightMetresPerSecond,
 } from "../../physics/reference/kinematics.ts";
-import type { AcceptedSnapshot, ExperimentView, PublishedResult, RequestToken } from "../store/instanceStore.ts";
-import { SR04_DEFAULTS, splitConstraints, type Sr04Parameters } from "./definition.ts";
+import type {
+  AcceptedSnapshot,
+  ExperimentView,
+  PublishedResult,
+  RequestToken,
+} from "../store/instanceStore.ts";
+import { SR04_DEFAULTS, type Sr04Parameters, splitConstraints } from "./definition.ts";
 import { validateSr04Parameters } from "./parameters.ts";
 
 export type LaterAids = Readonly<{
@@ -64,11 +69,17 @@ export function evaluateSr04(p: Sr04Parameters): Sr04Evaluation {
   });
 
   const slowCaseGalilean = galileanVelocity(p.objectSpeed, p.observerSpeed);
-  const slowCaseDeviation = galileanRelativisticVelocityDifference(p.objectSpeed, p.observerSpeed, c);
+  const slowCaseDeviation = galileanRelativisticVelocityDifference(
+    p.objectSpeed,
+    p.observerSpeed,
+    c,
+  );
   const rightRay = galileanVelocity(c, v);
   const leftRay = galileanVelocity(-c, v);
   const rightRayFraction =
-    rightRay.status === "value" ? { status: "value" as const, value: rightRay.value / c } : rightRay;
+    rightRay.status === "value"
+      ? { status: "value" as const, value: rightRay.value / c }
+      : rightRay;
   const leftRayFraction =
     leftRay.status === "value" ? { status: "value" as const, value: leftRay.value / c } : leftRay;
 
@@ -76,7 +87,9 @@ export function evaluateSr04(p: Sr04Parameters): Sr04Evaluation {
   const rapidityValue = rapidity(p.vOverC);
   const matrix = boostMatrixXT(p.vOverC, c);
   const eigenvalues: readonly [number, number] | null =
-    gammaValue.status === "value" ? [gammaValue.value * (1 - p.vOverC), gammaValue.value * (1 + p.vOverC)] : null;
+    gammaValue.status === "value"
+      ? [gammaValue.value * (1 - p.vOverC), gammaValue.value * (1 + p.vOverC)]
+      : null;
 
   return Object.freeze({
     v,
@@ -127,11 +140,41 @@ export function buildSr04Snapshot(
 ): AcceptedSnapshot {
   const evaluation = evaluateSr04(parameters);
   const outputs: PublishedResult[] = [
-    toPublished("slowCaseGalilean", "m/s", "galilean-composed-velocity", "kinematics.galileanVelocity", evaluation.slowCaseGalilean),
-    toPublished("rightRayFraction", "1", "galilean-transformed-light-speed-fraction", "kinematics.galileanVelocity", evaluation.rightRayFraction),
-    toPublished("leftRayFraction", "1", "galilean-transformed-light-speed-fraction", "kinematics.galileanVelocity", evaluation.leftRayFraction),
-    toPublished("lorentzFactor", "1", "lorentz-factor", "kinematics.gamma", evaluation.laterAids.gammaValue),
-    toPublished("rapidity", "1", "rapidity", "kinematics.rapidity", evaluation.laterAids.rapidityValue),
+    toPublished(
+      "slowCaseGalilean",
+      "m/s",
+      "galilean-composed-velocity",
+      "kinematics.galileanVelocity",
+      evaluation.slowCaseGalilean,
+    ),
+    toPublished(
+      "rightRayFraction",
+      "1",
+      "galilean-transformed-light-speed-fraction",
+      "kinematics.galileanVelocity",
+      evaluation.rightRayFraction,
+    ),
+    toPublished(
+      "leftRayFraction",
+      "1",
+      "galilean-transformed-light-speed-fraction",
+      "kinematics.galileanVelocity",
+      evaluation.leftRayFraction,
+    ),
+    toPublished(
+      "lorentzFactor",
+      "1",
+      "lorentz-factor",
+      "kinematics.gamma",
+      evaluation.laterAids.gammaValue,
+    ),
+    toPublished(
+      "rapidity",
+      "1",
+      "rapidity",
+      "kinematics.rapidity",
+      evaluation.laterAids.rapidityValue,
+    ),
   ];
   return Object.freeze({
     experimentId: "sr-04",
@@ -149,12 +192,21 @@ export function buildSr04Snapshot(
   });
 }
 
-export function createSr04Session(instanceId = "sr04-default", initialParameters: Sr04Parameters = SR04_DEFAULTS) {
+export function createSr04Session(
+  instanceId = "sr04-default",
+  initialParameters: Sr04Parameters = SR04_DEFAULTS,
+) {
   let currentParams = { ...initialParameters };
   let currentRunId = `run-${Date.now()}`;
   let inputRevision = 1;
   let actionIndex = 0;
-  let acceptedSnapshot = buildSr04Snapshot(instanceId, currentRunId, currentParams, inputRevision, actionIndex);
+  let acceptedSnapshot = buildSr04Snapshot(
+    instanceId,
+    currentRunId,
+    currentParams,
+    inputRevision,
+    actionIndex,
+  );
 
   const listeners = new Set<() => void>();
   function notify() {
@@ -212,7 +264,13 @@ export function createSr04Session(instanceId = "sr04-default", initialParameters
         currentRunId = `run-${Date.now()}-${actionIndex}`;
       }
       currentParams = { ...validated.data };
-      acceptedSnapshot = buildSr04Snapshot(instanceId, currentRunId, currentParams, inputRevision, actionIndex);
+      acceptedSnapshot = buildSr04Snapshot(
+        instanceId,
+        currentRunId,
+        currentParams,
+        inputRevision,
+        actionIndex,
+      );
       view = {
         status: "accepted",
         pending: false,

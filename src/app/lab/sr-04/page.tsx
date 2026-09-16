@@ -24,11 +24,13 @@ export default function LorentzMapPage() {
           don&apos;t receive it.
         </h1>
         <p className="lead">
-          What map between two inertial frames keeps both postulates, and what does each
-          requirement decide?
+          What map between two inertial frames keeps both postulates, and what does each requirement
+          decide?
         </p>
         <p>
-          <a href="/papers/special-relativity/#s3">Read &sect;3&apos;s functional-equation route &rarr;</a>
+          <a href="/papers/special-relativity/#s3">
+            Read &sect;3&apos;s functional-equation route &rarr;
+          </a>
         </p>
       </header>
 
@@ -38,18 +40,18 @@ export default function LorentzMapPage() {
         <p className="eyebrow">Open the derivation</p>
         <h2>The Galilean shelf step</h2>
         <p>
-          The ordinary change of frame, x&prime; = x &minus; vt, works for slow objects: two
-          speeds slower than light compose the way ordinary mechanics expects, and the deviation
-          from the relativistic result is unmeasurably small. It fails completely for light: a
-          ray moving at c in one frame is measured at c &minus; v or c + v in the other, not c.
-          That conflict, not an assumed interval, is where the construction starts.
+          The ordinary change of frame, x&prime; = x &minus; vt, works for slow objects: two speeds
+          slower than light compose the way ordinary mechanics expects, and the deviation from the
+          relativistic result is unmeasurably small. It fails completely for light: a ray moving at
+          c in one frame is measured at c &minus; v or c + v in the other, not c. That conflict, not
+          an assumed interval, is where the construction starts.
         </p>
         <h2>No answer preinstalled</h2>
         <p>
-          The engine above solves only the constraints you enable. The Lorentz factor never
-          appears until the branch step fixes it; the Minkowski interval never appears at all in
-          the construction, because interval preservation is a modern verification oracle, not a
-          1905 premise. Requiring it up front would make the derivation circular.
+          The engine above solves only the constraints you enable. The Lorentz factor never appears
+          until the branch step fixes it; the Minkowski interval never appears at all in the
+          construction, because interval preservation is a modern verification oracle, not a 1905
+          premise. Requiring it up front would make the derivation circular.
         </p>
 
         <div className="actions">
