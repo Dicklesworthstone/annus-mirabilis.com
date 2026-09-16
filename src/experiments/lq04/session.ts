@@ -197,7 +197,6 @@ function outsideDomainOutput(
 export type PreparedLq04Example = Readonly<{
   sourceDigest: string;
   parameters: Lq04Parameters;
-  evaluation: Lq04Evaluation;
 }>;
 
 export function buildLq04Snapshot(

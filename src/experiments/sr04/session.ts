@@ -61,7 +61,7 @@ export function evaluateSr04(p: Sr04Parameters): Sr04Evaluation {
   const family = solveCandidateFamily({
     v,
     enabledConstraints: p.enabledConstraints as ConstraintId[],
-    candidate,
+    ...(candidate ? { candidate } : {}),
   });
 
   const slowCaseGalilean = galileanVelocity(p.objectSpeed, p.observerSpeed);
