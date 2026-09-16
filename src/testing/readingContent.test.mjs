@@ -4,7 +4,7 @@ import { readFile, cp, mkdir, mkdtemp, appendFile } from 'node:fs/promises';
 import { tmpdir } from 'node:os';
 import { resolve, dirname } from 'node:path';
 import { createHash } from 'node:crypto';
-import { loadReadingFiles, buildContent } from '../../scripts/build-content.ts';
+import { loadReadingFiles, buildContent, CONTENT_COMPILER_FILES } from '../../scripts/build-content.ts';
 import { compileReadingContent } from '../content/compiler/compile.ts';
 const files=await loadReadingFiles();
 const replace=(id,change)=>files.map(f=>{const r=JSON.parse(f.text);return r.id===id?{...f,text:JSON.stringify(change(r))}:f;});
@@ -34,7 +34,7 @@ test('build outputs are reproducible, independently hashed and contain no fake s
 test('compiler revision changes produce new public URLs without changing the authored-input identity',async()=>{
  const root=await mkdtemp(resolve(tmpdir(),'annus-reader-compiler-'));
  await cp('content',resolve(root,'content'),{recursive:true});
- for(const p of ['scripts/build-content.ts','src/content/compiler/compile.ts','src/content/compiler/json.ts','src/content/schemas/reading.ts']){
+ for(const p of CONTENT_COMPILER_FILES){
   await mkdir(dirname(resolve(root,p)),{recursive:true});await cp(p,resolve(root,p));
  }
  const first=await buildContent(root);

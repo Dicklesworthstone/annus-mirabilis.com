@@ -1,0 +1,183 @@
+{
+  "schemaVersion": 1,
+  "kind": "equation",
+  "id": "eq-model-bm-diffusivity",
+  "paper": "brownian-motion",
+  "argument": "arg-bm-diffusivity",
+  "title": "Resistance to motion controls spreading",
+  "spoken": "The diffusion coefficient equals the Boltzmann constant times the absolute temperature, divided by six times pi times the dynamic viscosity times the particle radius.",
+  "explanation": "Thermal energy competes with viscous drag. Doubling viscosity halves the diffusion coefficient while reducing RMS displacement only by the square root of two. Radius means radius, not diameter.",
+  "review": "draft",
+  "notation": "modern-pedagogical",
+  "unitSystem": "si",
+  "tree": {
+    "kind": "relation",
+    "opId": "eq-model-bm-diffusivity.op.equality",
+    "operator": "=",
+    "left": {
+      "kind": "symbol",
+      "termId": "eq-model-bm-diffusivity.t.diffusion",
+      "quantityId": "diffusionCoefficient"
+    },
+    "right": {
+      "kind": "quotient",
+      "opId": "eq-model-bm-diffusivity.op.division",
+      "numerator": {
+        "kind": "product",
+        "opId": "eq-model-bm-diffusivity.op.thermalEnergy",
+        "args": [
+          {
+            "kind": "symbol",
+            "termId": "eq-model-bm-diffusivity.t.boltzmann",
+            "quantityId": "boltzmannConstant"
+          },
+          {
+            "kind": "symbol",
+            "termId": "eq-model-bm-diffusivity.t.temperature",
+            "quantityId": "temperature"
+          }
+        ]
+      },
+      "denominator": {
+        "kind": "product",
+        "opId": "eq-model-bm-diffusivity.op.drag",
+        "args": [
+          {
+            "kind": "number",
+            "value": "6"
+          },
+          {
+            "kind": "constant",
+            "name": "pi"
+          },
+          {
+            "kind": "symbol",
+            "termId": "eq-model-bm-diffusivity.t.viscosity",
+            "quantityId": "viscosity"
+          },
+          {
+            "kind": "symbol",
+            "termId": "eq-model-bm-diffusivity.t.radius",
+            "quantityId": "particleRadius"
+          }
+        ]
+      }
+    }
+  },
+  "notes": [
+    {
+      "nodeId": "eq-model-bm-diffusivity.op.equality",
+      "title": "An ideal model",
+      "explanation": "This equation assumes the dilute spherical tracer and Stokes-drag model; dimensional consistency alone does not establish those assumptions.",
+      "foundation": "diffusion-equation"
+    },
+    {
+      "nodeId": "eq-model-bm-diffusivity.t.diffusion",
+      "title": "Diffusion coefficient",
+      "explanation": "A squared-distance-per-time coefficient. This value comes from the accepted model calculation.",
+      "foundation": "diffusion-equation"
+    },
+    {
+      "nodeId": "eq-model-bm-diffusivity.op.division",
+      "title": "Why divide by drag?",
+      "explanation": "Increasing the denominator reduces diffusivity at fixed thermal energy. This is a model dependence, not a rule that every larger quantity must reduce motion.",
+      "foundation": "flux-continuity"
+    },
+    {
+      "nodeId": "eq-model-bm-diffusivity.op.thermalEnergy",
+      "title": "Thermal energy scale",
+      "explanation": "Boltzmann constant times absolute temperature supplies energy per particle.",
+      "foundation": "mean-variance-rms"
+    },
+    {
+      "nodeId": "eq-model-bm-diffusivity.t.boltzmann",
+      "title": "A known modern constant",
+      "explanation": "The SI 2019 constant set supplies this value. It must not be treated as independent historical evidence when trying to infer molecular number.",
+      "foundation": "mean-variance-rms"
+    },
+    {
+      "nodeId": "eq-model-bm-diffusivity.t.temperature",
+      "title": "Absolute temperature",
+      "explanation": "Use kelvin. The laboratory holds viscosity as an independently supplied parameter.",
+      "foundation": "diffusion-equation"
+    },
+    {
+      "nodeId": "eq-model-bm-diffusivity.op.drag",
+      "title": "The drag coefficient",
+      "explanation": "Six pi times viscosity times radius is Stokes drag per speed for an isolated sphere in the assumed low-Reynolds regime.",
+      "foundation": "flux-continuity"
+    },
+    {
+      "nodeId": "eq-model-bm-diffusivity.t.viscosity",
+      "title": "Dynamic viscosity",
+      "explanation": "Viscosity is in the denominator. Doubling it at fixed temperature and radius halves D, not the RMS displacement.",
+      "foundation": "flux-continuity"
+    },
+    {
+      "nodeId": "eq-model-bm-diffusivity.t.radius",
+      "title": "Particle radius",
+      "explanation": "The input is a radius, not a diameter. Confusing them changes the predicted coefficient by a factor of two.",
+      "foundation": "bridge-squaring-square-roots"
+    }
+  ],
+  "bindings": [
+    {
+      "termId": "eq-model-bm-diffusivity.t.diffusion",
+      "quantityId": "diffusionCoefficient",
+      "experimentId": "bm-01",
+      "outputId": "diffusionCoefficient",
+      "instanceSlot": "primary"
+    },
+    {
+      "termId": "eq-model-bm-diffusivity.t.boltzmann",
+      "quantityId": "boltzmannConstant",
+      "experimentId": "bm-01",
+      "outputId": "boltzmannConstant",
+      "instanceSlot": "primary"
+    },
+    {
+      "termId": "eq-model-bm-diffusivity.t.temperature",
+      "quantityId": "temperature",
+      "experimentId": "bm-01",
+      "outputId": "temperature",
+      "instanceSlot": "primary"
+    },
+    {
+      "termId": "eq-model-bm-diffusivity.t.viscosity",
+      "quantityId": "viscosity",
+      "experimentId": "bm-01",
+      "outputId": "viscosity",
+      "instanceSlot": "primary"
+    },
+    {
+      "termId": "eq-model-bm-diffusivity.t.radius",
+      "quantityId": "particleRadius",
+      "experimentId": "bm-01",
+      "outputId": "particleRadius",
+      "instanceSlot": "primary"
+    }
+  ],
+  "sentence": [
+    {
+      "text": "The diffusion coefficient",
+      "nodeId": "eq-model-bm-diffusivity.t.diffusion"
+    },
+    {
+      "text": " is thermal energy",
+      "nodeId": "eq-model-bm-diffusivity.op.thermalEnergy"
+    },
+    {
+      "text": " divided by",
+      "nodeId": "eq-model-bm-diffusivity.op.division"
+    },
+    {
+      "text": " the viscous drag coefficient.",
+      "nodeId": "eq-model-bm-diffusivity.op.drag"
+    }
+  ],
+  "assumptions": [
+    "Dilute, approximately spherical tracers with no-slip Stokes drag in a homogeneous Newtonian liquid.",
+    "Wall corrections, interactions, inertia, and observation noise are not included.",
+    "The modern SI 2019 constant set is used; this is not a historical inversion exercise."
+  ]
+}

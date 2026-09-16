@@ -16,7 +16,7 @@ export function checkDimensions(root:Expression,registry:QuantityRegistry):Dimen
   function visit(n:Expression):Dimension {
     switch(n.kind) {
       case "symbol": {const q=registry[n.quantityId];if(!q) return stop(n,"unsupported-check","Unknown quantity.");return dimension(q.dimension);}
-      case "number":return DIMENSIONLESS;
+      case "number":case "constant":return DIMENSIONLESS;
       case "sum": {const first=n.args[0]!;for(const arg of n.args.slice(1))equal(n,first,arg);return visit(first);}
       case "product":return n.args.reduce<Dimension>((a,b)=>combine(a,visit(b)),DIMENSIONLESS);
       case "quotient":return combine(visit(n.numerator),visit(n.denominator),-1);

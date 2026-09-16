@@ -5,6 +5,7 @@ export type ExactScale = Readonly<{ num: number; den: number }>;
 type Op = Readonly<{ opId?: string }>;
 export type Expression =
   | Readonly<{ kind: "symbol"; termId: string; quantityId: string; scale?: ExactScale }>
+  | Readonly<{ kind: "constant"; name: "pi" }>
   | Readonly<{ kind: "number"; value: string }>
   | (Op & Readonly<{ kind: "sum" | "product"; args: readonly Expression[] }>)
   | (Op & Readonly<{ kind: "quotient"; numerator: Expression; denominator: Expression }>)
@@ -17,7 +18,7 @@ export type Expression =
   | (Op & Readonly<{ kind: "integral"; expression: Expression; variable: Expression }>);
 export function children(n: Expression): readonly Expression[] {
   switch (n.kind) {
-    case "symbol": case "number": return [];
+    case "symbol": case "number": case "constant": return [];
     case "sum": case "product": return n.args;
     case "quotient": return [n.numerator,n.denominator];
     case "power": return [n.base]; case "root": return [n.radicand];
@@ -53,13 +54,14 @@ export function parseExpression(input: unknown, equationId: string, registry: Qu
   function parse(x: unknown,path: string,depth: number): Expression {
     if(++count>256 || depth>24)fail(path,"Expression budget exceeded.");
     const kind=x && typeof x==="object" ? Object.getOwnPropertyDescriptor(x,"kind")?.value : null;
-    const fields:Record<string,readonly string[]>={symbol:["termId","quantityId"],number:["value"],sum:["args"],product:["args"],quotient:["numerator","denominator"],power:["base","exponent"],root:["radicand","degree"],negate:["argument"],average:["argument"],group:["argument"],function:["name","argument"],relation:["operator","left","right"],derivative:["expression","variable","order","partial"],integral:["expression","variable"]};
+    const fields:Record<string,readonly string[]>={symbol:["termId","quantityId"],constant:["name"],number:["value"],sum:["args"],product:["args"],quotient:["numerator","denominator"],power:["base","exponent"],root:["radicand","degree"],negate:["argument"],average:["argument"],group:["argument"],function:["name","argument"],relation:["operator","left","right"],derivative:["expression","variable","order","partial"],integral:["expression","variable"]};
     if(typeof kind!=="string" || !Object.hasOwn(fields,kind))fail(path,"Unsupported expression kind.");
-    const o=record(x,path,["kind",...fields[kind]!],kind==="symbol"?["scale"]:kind==="number"?[]:["opId"]);
+    const o=record(x,path,["kind",...fields[kind]!],kind==="symbol"?["scale"]:["number","constant"].includes(kind)?[]:["opId"]);
     if(kind==="symbol") {
       identity(o.termId,"t",path);
       if(typeof o.quantityId!=="string" || !Object.hasOwn(registry,o.quantityId))fail(path,"Bind to an exact registered quantity id, not a glyph or label.");
       if(Object.hasOwn(o,"scale"))exactScale(o.scale,path,true);
+    } else if(kind==="constant") { if(o.name!=="pi")fail(path,"Unsupported mathematical constant.");
     } else if(kind==="number") {
       if(typeof o.value!=="string" || o.value.length>80 || !/^-?(?:0|[1-9]\d*)(?:\.\d+)?(?:e[+-]?\d+)?$/.test(o.value) || !Number.isFinite(Number(o.value)))fail(path,"Expected an exact decimal literal, not executable TeX.");
     } else {

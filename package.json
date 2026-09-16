@@ -14,7 +14,7 @@
     "typecheck": "npm run prepare:content && npm run prepare:lab && tsc --noEmit",
     "test:reference": "npm run prepare:content && npm run prepare:lab && node --experimental-strip-types --test src/testing/*.test.mjs",
     "test:browser": "node scripts/test-lab-browser.mjs",
-    "prepare:content": "node --experimental-strip-types scripts/build-content.ts"
+    "prepare:content": "node --experimental-strip-types scripts/build-content.ts && node --experimental-strip-types scripts/build-equations.ts"
   },
   "dependencies": {
     "next": "15.5.25",

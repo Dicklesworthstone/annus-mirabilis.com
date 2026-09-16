@@ -1,3 +1,4 @@
+import { parseEquationRecord, type EquationRecord } from "../../equations/record.ts";
 import { ContentError } from "../compiler/json.ts";
 
 /** Explanatory preview records, not diplomatic source blocks or reviewed translations. */
@@ -32,7 +33,7 @@ export type Paper = Header & Readonly<{
   status: "explanation-preview"; sourceStatus: "in-preparation"; sourceNotice: string;
   sections: readonly Readonly<{ id: string; title: string; arguments: readonly string[] }>[];
 }>;
-export type ReadingRecord = Paper | Argument | Foundation | Citation;
+export type ReadingRecord = Paper | Argument | Foundation | Citation | EquationRecord;
 
 const error = (p: string, m: string): never => { throw new ContentError("invalid-record", p, m); };
 function object(x: unknown, p: string): Record<string, unknown> {
@@ -72,6 +73,7 @@ function block(x: unknown, p: string): void {
   else error(p, "Unknown content block.");
 }
 export function validateReadingRecord(input: unknown, path: string): ReadingRecord {
+  if (input && typeof input === "object" && Object.getOwnPropertyDescriptor(input, "kind")?.value === "equation") return parseEquationRecord(input, path);
   const o = object(input, path); choice(o.schemaVersion, `${path}.schemaVersion`, [1]); id(o.id, `${path}.id`);
   const common = ["schemaVersion", "id", "kind", "title"];
   text(o.title, `${path}.title`);

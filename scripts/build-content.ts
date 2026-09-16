@@ -1,3 +1,5 @@
+import { expressionLatex } from "../src/equations/latex.ts";
+import { BROWNIAN_QUANTITIES } from "../src/equations/quantities.ts";
 import { readFile, readdir, lstat, mkdir, writeFile } from "node:fs/promises";
 import { createHash } from "node:crypto";
 import { dirname, resolve, relative } from "node:path";
@@ -5,6 +7,7 @@ import { fileURLToPath } from "node:url";
 import { compileReadingContent, type PaperPayload } from "../src/content/compiler/compile.ts";
 import type { Block } from "../src/content/schemas/reading.ts";
 
+export const CONTENT_COMPILER_FILES = ["scripts/build-content.ts", "src/content/compiler/compile.ts", "src/content/compiler/json.ts", "src/content/schemas/reading.ts", "src/content/dimensions/rational.ts", "src/equations/ast.ts", "src/equations/dimensions.ts", "src/equations/record.ts", "src/equations/quantities.ts", "src/equations/latex.ts", "src/experiments/bm01/definition.ts"] as const;
 const ROOT = resolve(dirname(fileURLToPath(import.meta.url)), "..");
 const digest = (s: string | Uint8Array) => createHash("sha256").update(s).digest("hex");
 export async function loadReadingFiles(root = ROOT) {
@@ -36,7 +39,7 @@ export async function buildContent(root = ROOT) {
   // Versioned output directories prevent stale, half-updated payload mixtures. Never delete prior output.
   const inputDigest = digest(files.map(f => `${f.path}\0${Buffer.byteLength(f.text)}\0${f.text}`).join(""));
   // Compiler changes must invalidate public URLs even when authored records are unchanged.
-  const compilerFiles = ["scripts/build-content.ts", "src/content/compiler/compile.ts", "src/content/compiler/json.ts", "src/content/schemas/reading.ts"];
+  const compilerFiles = CONTENT_COMPILER_FILES;
   const compilerDigest = digest((await Promise.all(compilerFiles.map(async path => `${path}\0${digest(await readFile(resolve(root, path)))}`))).join("\n"));
   const buildDigest = digest(`${inputDigest}\0${compilerDigest}`);
   const generated = resolve(root, "generated/content", buildDigest), publicRoot = resolve(root, "public/edition", buildDigest);
@@ -48,7 +51,19 @@ export async function buildContent(root = ROOT) {
     await writeFile(resolve(publicRoot, `${kind}-${id}.md`), markdown);
     payloads.push({ id, kind, file: `${buildDigest}/${file}`, bytes: Buffer.byteLength(json), sha256: digest(json), jsonUrl: `/edition/${buildDigest}/${file}`, markdownUrl: `/edition/${buildDigest}/${kind}-${id}.md` });
   }
-  for (const paper of result.papers) await emit(paper.paper.id, "paper", paper, markdownPaper(paper));
+  for (const paper of result.papers) await emit(paper.paper.id, "paper", paper, markdownPaper(paper) + paper.equations.map(e => `
+## ${e.title}
+
+Modern teaching equation; review pending.
+
+$$
+${expressionLatex(e.tree, BROWNIAN_QUANTITIES)}
+$$
+
+${e.spoken}
+
+${e.explanation}
+`).join("\n"));
   for (const foundation of result.foundations) await emit(foundation.id, "foundation", foundation, `# ${foundation.title}\n\nAuthored explanation; editorial review pending.\n\n${markdownBlocks(foundation.explanation)}\n\n## Worked example\n\n${markdownBlocks(foundation.example)}\n\n${foundation.stoppingPoint}\n`);
   const index = { schemaVersion: 1, inputDigest, compilerDigest, buildDigest, payloads };
   await writeFile(resolve(generated, "diagnostics.jsonl"), result.diagnostics.map(d => JSON.stringify(d)).join("\n") + "\n");

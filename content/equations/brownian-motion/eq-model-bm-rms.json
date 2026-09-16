@@ -1,0 +1,132 @@
+{
+  "schemaVersion": 1,
+  "kind": "equation",
+  "id": "eq-model-bm-rms",
+  "paper": "brownian-motion",
+  "argument": "arg-bm-observable",
+  "title": "From spreading to a measurable distance",
+  "spoken": "The model coordinate root mean square displacement equals the square root of two times the diffusion coefficient times the observation interval.",
+  "explanation": "Squaring measures spread without cancellation between directions. Taking the positive square root turns squared distance back into a distance. Four times the observation interval gives twice the model RMS, not four times.",
+  "review": "draft",
+  "notation": "modern-pedagogical",
+  "unitSystem": "si",
+  "tree": {
+    "kind": "relation",
+    "opId": "eq-model-bm-rms.op.equality",
+    "operator": "=",
+    "left": {
+      "kind": "symbol",
+      "termId": "eq-model-bm-rms.t.rms",
+      "quantityId": "rmsDisplacement1d"
+    },
+    "right": {
+      "kind": "root",
+      "opId": "eq-model-bm-rms.op.squareRoot",
+      "degree": 2,
+      "radicand": {
+        "kind": "product",
+        "opId": "eq-model-bm-rms.op.meanSquare",
+        "args": [
+          {
+            "kind": "number",
+            "value": "2"
+          },
+          {
+            "kind": "symbol",
+            "termId": "eq-model-bm-rms.t.diffusion",
+            "quantityId": "diffusionCoefficient"
+          },
+          {
+            "kind": "symbol",
+            "termId": "eq-model-bm-rms.t.time",
+            "quantityId": "observationInterval"
+          }
+        ]
+      }
+    }
+  },
+  "notes": [
+    {
+      "nodeId": "eq-model-bm-rms.op.equality",
+      "title": "A model relation",
+      "explanation": "This equality concerns the ideal model. A finite synthetic ensemble fluctuates around it; its sample RMS is displayed separately.",
+      "foundation": "mean-variance-rms"
+    },
+    {
+      "nodeId": "eq-model-bm-rms.t.rms",
+      "title": "Coordinate RMS",
+      "explanation": "One coordinate, not the total three-dimensional distance. Model RMS and sample RMS have different meanings.",
+      "foundation": "mean-variance-rms"
+    },
+    {
+      "nodeId": "eq-model-bm-rms.op.squareRoot",
+      "title": "Why a square root?",
+      "explanation": "Two D t has units of squared length. Its positive square root has units of length and defines the typical displacement.",
+      "foundation": "bridge-squaring-square-roots"
+    },
+    {
+      "nodeId": "eq-model-bm-rms.op.meanSquare",
+      "title": "Build the mean square",
+      "explanation": "Independent zero-mean increments add their variances. The definition of D makes the coordinate mean square equal to 2 D t.",
+      "foundation": "probability-independence"
+    },
+    {
+      "nodeId": "eq-model-bm-rms.t.diffusion",
+      "title": "Diffusion coefficient",
+      "explanation": "This is the accepted model diffusivity, not a rate inferred from the synthetic data.",
+      "foundation": "diffusion-equation"
+    },
+    {
+      "nodeId": "eq-model-bm-rms.t.time",
+      "title": "Observation interval",
+      "explanation": "This is the interval used for the displayed displacement, not the simulation frame rate. Re-observing the trial preserves its paths.",
+      "foundation": "random-walks"
+    }
+  ],
+  "bindings": [
+    {
+      "termId": "eq-model-bm-rms.t.rms",
+      "quantityId": "rmsDisplacement1d",
+      "experimentId": "bm-01",
+      "outputId": "rmsDisplacement1d",
+      "instanceSlot": "primary"
+    },
+    {
+      "termId": "eq-model-bm-rms.t.diffusion",
+      "quantityId": "diffusionCoefficient",
+      "experimentId": "bm-01",
+      "outputId": "diffusionCoefficient",
+      "instanceSlot": "primary"
+    },
+    {
+      "termId": "eq-model-bm-rms.t.time",
+      "quantityId": "observationInterval",
+      "experimentId": "bm-01",
+      "outputId": "observationInterval",
+      "instanceSlot": "primary"
+    }
+  ],
+  "sentence": [
+    {
+      "text": "The typical coordinate distance",
+      "nodeId": "eq-model-bm-rms.t.rms"
+    },
+    {
+      "text": " is the positive square root",
+      "nodeId": "eq-model-bm-rms.op.squareRoot"
+    },
+    {
+      "text": " of twice the diffusion coefficient",
+      "nodeId": "eq-model-bm-rms.t.diffusion"
+    },
+    {
+      "text": " times the observation interval.",
+      "nodeId": "eq-model-bm-rms.t.time"
+    }
+  ],
+  "assumptions": [
+    "Independent, zero-mean Gaussian displacement increments in a homogeneous liquid.",
+    "One-coordinate model statistic, not a measured speed or a sample estimate.",
+    "The overdamped regime is assumed rather than established from additional particle and fluid measurements."
+  ]
+}

@@ -1,0 +1,115 @@
+{
+  "schemaVersion": 1,
+  "kind": "equation",
+  "id": "eq-model-bm-apparent-speed",
+  "paper": "brownian-motion",
+  "argument": "arg-bm-observable",
+  "title": "Why the apparent speed depends on how you watch",
+  "spoken": "Apparent coordinate speed equals the model coordinate root mean square displacement divided by the observation interval.",
+  "explanation": "This quotient depends on the observation interval. It is not instantaneous physical velocity. At zero interval the quotient is undefined, even though the displacement is zero.",
+  "review": "draft",
+  "notation": "modern-pedagogical",
+  "unitSystem": "si",
+  "tree": {
+    "kind": "relation",
+    "opId": "eq-model-bm-apparent-speed.op.definition",
+    "operator": "define",
+    "left": {
+      "kind": "symbol",
+      "termId": "eq-model-bm-apparent-speed.t.apparentSpeed",
+      "quantityId": "modelApparentSpeed"
+    },
+    "right": {
+      "kind": "quotient",
+      "opId": "eq-model-bm-apparent-speed.op.division",
+      "numerator": {
+        "kind": "symbol",
+        "termId": "eq-model-bm-apparent-speed.t.rms",
+        "quantityId": "rmsDisplacement1d"
+      },
+      "denominator": {
+        "kind": "symbol",
+        "termId": "eq-model-bm-apparent-speed.t.time",
+        "quantityId": "observationInterval"
+      }
+    }
+  },
+  "notes": [
+    {
+      "nodeId": "eq-model-bm-apparent-speed.op.definition",
+      "title": "Define the observable",
+      "explanation": "This defines an interval-dependent comparison. It does not introduce a physical instantaneous Brownian velocity.",
+      "foundation": "mean-variance-rms"
+    },
+    {
+      "nodeId": "eq-model-bm-apparent-speed.t.apparentSpeed",
+      "title": "Apparent coordinate speed",
+      "explanation": "A distance-per-interval statistic. It is not a molecular collision speed.",
+      "foundation": "random-walks"
+    },
+    {
+      "nodeId": "eq-model-bm-apparent-speed.op.division",
+      "title": "Divide by the same interval",
+      "explanation": "The distance grows as the square root of time, while the denominator grows linearly. The quotient therefore decreases as the interval grows.",
+      "foundation": "bridge-squaring-square-roots"
+    },
+    {
+      "nodeId": "eq-model-bm-apparent-speed.t.rms",
+      "title": "Model coordinate RMS",
+      "explanation": "The same accepted one-coordinate model displacement used by the neighboring RMS equation.",
+      "foundation": "mean-variance-rms"
+    },
+    {
+      "nodeId": "eq-model-bm-apparent-speed.t.time",
+      "title": "Positive observation interval",
+      "explanation": "A zero interval yields no apparent-speed value. The interface keeps the explanation instead of fabricating zero or infinity.",
+      "foundation": "random-walks"
+    }
+  ],
+  "bindings": [
+    {
+      "termId": "eq-model-bm-apparent-speed.t.apparentSpeed",
+      "quantityId": "modelApparentSpeed",
+      "experimentId": "bm-01",
+      "outputId": "modelApparentSpeed",
+      "instanceSlot": "primary"
+    },
+    {
+      "termId": "eq-model-bm-apparent-speed.t.rms",
+      "quantityId": "rmsDisplacement1d",
+      "experimentId": "bm-01",
+      "outputId": "rmsDisplacement1d",
+      "instanceSlot": "primary"
+    },
+    {
+      "termId": "eq-model-bm-apparent-speed.t.time",
+      "quantityId": "observationInterval",
+      "experimentId": "bm-01",
+      "outputId": "observationInterval",
+      "instanceSlot": "primary"
+    }
+  ],
+  "sentence": [
+    {
+      "text": "The apparent coordinate speed",
+      "nodeId": "eq-model-bm-apparent-speed.t.apparentSpeed"
+    },
+    {
+      "text": " divides",
+      "nodeId": "eq-model-bm-apparent-speed.op.division"
+    },
+    {
+      "text": " the typical coordinate distance",
+      "nodeId": "eq-model-bm-apparent-speed.t.rms"
+    },
+    {
+      "text": " by the chosen positive interval.",
+      "nodeId": "eq-model-bm-apparent-speed.t.time"
+    }
+  ],
+  "assumptions": [
+    "The same one-coordinate ideal Brownian model as the RMS relation.",
+    "A positive observation interval is required for the quotient.",
+    "Lines joining recorded points are a rendering convention, not a velocity measurement."
+  ]
+}
