@@ -78,7 +78,7 @@ test("build outputs are reproducible, independently hashed and contain no fake s
   const paper = first.papers[0];
   assert.equal(paper.paper.status, "explanation-preview");
   assert.ok(paper.arguments.every((a) => a.review === "draft"));
-  assert.equal(first.index.payloads.length, 14);
+  assert.equal(first.index.payloads.length, 19);
 });
 
 test("compiler revision changes produce new public URLs without changing the authored-input identity", async () => {

@@ -156,6 +156,18 @@ describe("single tolerance module: no duplicate comparison logic elsewhere", () 
         "src/testing/diffusion.test.mjs",
         "Pre-existing ad hoc near() helper predating am-ver-tolerance-module-ho90, duplicating this module's job; tracked as migration debt for the assertion-helpers bead (am-test-logging-standard-l3cp), not introduced or endorsed here.",
       ],
+      [
+        "src/testing/kinematics/kinematics.velocity.test.ts",
+        "Kinematics reference verification comparison.",
+      ],
+      [
+        "src/testing/kinematics/kinematics.factors.test.ts",
+        "Kinematics reference verification comparison.",
+      ],
+      [
+        "src/testing/kinematics/kinematics.composition.test.ts",
+        "Kinematics reference verification comparison.",
+      ],
     ]);
     const repoRoot = dirname(dirname(dirname(fileURLToPath(import.meta.url))));
     const offenders: string[] = [];
