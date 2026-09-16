@@ -1,0 +1,55 @@
+tapeVersion: 2
+tapeId: fixture-walk
+experimentId: bm-01
+mode: bm-01:default
+modelIdentity:
+  modelId: brownian-motion-reference
+  modelVersion: "1.0.0"
+  artifactDigest: host:sha256:0123456789abcdef0123456789abcdef0123456789abcdef0123456789abcdef
+constantSetId: einstein-1905-brownian-printed
+seed: "9007199254740993"
+streamVersion: 1
+allocationId: brownian-tracer-stream-0
+initialConditions:
+  particleRadius: 5.0e-7
+  viscosity: 1.35e-3
+  temperature: 290.15
+events:
+  - kind: control
+    actionIndex: 1
+    commandClass: setup-change
+    commandId: set-viscosity-water-17c
+    parameterId: viscosity
+    value: 1.35e-3
+  - kind: control
+    actionIndex: 2
+    commandClass: observer-change
+    commandId: set-view-zoom
+    parameterId: zoom
+    value: 1000
+  - kind: prediction
+    actionIndex: 3
+    instrumentId: bm-01
+    promptId: prompt-predict-displacement-1s
+    payload:
+      form: candidate
+      candidateId: candidate-0-8-micron
+  - kind: control
+    actionIndex: 4
+    commandClass: presentation-change
+    commandId: toggle-tracer-color
+    parameterId: tracerColorMode
+    value: 1
+checkpoints:
+  - actionIndex: 0
+    stepIndex: 0
+    simulatedTime: 0
+    digest: host:sha256:1111111111111111111111111111111111111111111111111111111111111111
+    digestKind: host
+    checkpointVersion: 1
+    streamSemanticsVersion: 1
+    seed: "9007199254740993"
+    streamPositions: []
+title: "Runtime Fixture Walk"
+description: "A reference runtime fixture tape demonstrating classified events, 64-bit seed, and prediction."
+isTeachingSequence: false

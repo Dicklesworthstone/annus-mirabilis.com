@@ -37,6 +37,18 @@ import {
 import { ResultStatusNote } from "../src/experiments/results/ResultStatusNote.tsx";
 import type { ScientificResult } from "../src/experiments/results/types.ts";
 import { createStreamKey } from "../src/experiments/streams/allocation.ts";
+import { ControlTapeRecorder } from "../src/experiments/tapes/recorder.ts";
+import {
+  ControlTapeReplayer,
+  type TapeRuntimeContext,
+  validateTapeCompatibility,
+} from "../src/experiments/tapes/replayer.ts";
+import {
+  type ControlTapeV2,
+  type PredictionPromptSpec,
+  type TapeModelIdentity,
+  validateControlTape,
+} from "../src/experiments/tapes/schema.ts";
 import { createPhiloxStream } from "../src/physics/reference/philox.ts";
 import { newRunIdentity, TestLogger } from "../src/testing/log/logger.ts";
 
@@ -660,6 +672,400 @@ async function runResultsE2E(logRunId: string, verbose: boolean): Promise<boolea
   return allPassed;
 }
 
+async function runTapeWorkerRoundTrip(tape: unknown): Promise<unknown> {
+  return new Promise((resolvePromise, rejectPromise) => {
+    const workerCode = `
+      const { parentPort } = require('node:worker_threads');
+      parentPort.on('message', (msg) => {
+        parentPort.postMessage(msg);
+      });
+    `;
+
+    const worker = new Worker(workerCode, { eval: true });
+
+    worker.on("message", (msg) => {
+      worker.terminate();
+      resolvePromise(msg);
+    });
+
+    worker.on("error", (err) => {
+      worker.terminate();
+      rejectPromise(err);
+    });
+
+    worker.postMessage(tape);
+  });
+}
+
+async function runTapesE2E(logRunId: string, verbose: boolean): Promise<boolean> {
+  const logger = new TestLogger("runtime-tapes", logRunId);
+  let allPassed = true;
+
+  const failureDir = resolve(
+    process.cwd(),
+    "artifacts",
+    "test-logs",
+    "runtime-tapes",
+    logRunId,
+    "failures",
+  );
+
+  const recordFailure = (
+    testId: string,
+    tapeData: unknown,
+    reason: string,
+    extra: Record<string, unknown> = {},
+  ) => {
+    mkdirSync(failureDir, { recursive: true });
+    const failFilePath = join(failureDir, `${testId}.json`);
+    const failData = {
+      testId,
+      tapeData,
+      reason,
+      reproductionCommand: `bun scripts/e2e-runtime-contracts.ts --suite tapes --log-run-id ${logRunId}`,
+      ...extra,
+    };
+    writeFileSync(failFilePath, JSON.stringify(failData, null, 2), "utf8");
+
+    logger.log({
+      testId,
+      beadId: "am-rt-control-tapes-0gc",
+      suite: "runtime-tapes",
+      outcome: "failed",
+      message: reason,
+      extra: {
+        failurePath: failFilePath,
+        reason,
+        ...extra,
+      },
+    });
+  };
+
+  if (verbose) {
+    console.log(`[E2E-Runtime] Starting tapes suite (logRunId: ${logRunId})`);
+  }
+
+  const modelIdentity: TapeModelIdentity = {
+    modelId: "brownian-motion-reference",
+    modelVersion: "1.0.0",
+    artifactDigest: "host:sha256:0123456789abcdef0123456789abcdef0123456789abcdef0123456789abcdef",
+  };
+
+  const context: TapeRuntimeContext = {
+    experimentId: "bm-01",
+    modelIdentity,
+    constantSetId: "einstein-1905-brownian-printed",
+    streamVersion: 1,
+    allocationId: "tracer-alloc-0",
+  };
+
+  const promptSpec: PredictionPromptSpec = {
+    promptId: "prompt-predict-disp",
+    candidateIds: ["candidate-0-8-micron", "candidate-1-0-micron"],
+    verbalChoices: { directionIds: ["x-axis"], shapeIds: ["gaussian"] },
+    valueTargetIds: ["diffusivity", "particleRadius"],
+  };
+
+  // 1. Candidate Prediction Recording, Worker Crossing, and Replay
+  {
+    const startTime = Date.now();
+    const testId = "tape-candidate-prediction-replay";
+    try {
+      const recorder = new ControlTapeRecorder({
+        tapeId: "tape-candidate-prediction",
+        experimentId: "bm-01",
+        mode: "bm-01:default",
+        modelIdentity,
+        constantSetId: "einstein-1905-brownian-printed",
+        seed: "9007199254740993",
+        streamVersion: 1,
+        allocationId: "tracer-alloc-0",
+        initialConditions: { viscosity: 1.35e-3, particleRadius: 5e-7 },
+      });
+
+      await recorder.recordCheckpoint({
+        stepIndex: 0,
+        simulatedTime: 0,
+        label: "Initial state",
+      });
+
+      recorder.recordControlEvent({
+        commandClass: "setup-change",
+        commandId: "set-viscosity",
+        parameterId: "viscosity",
+        value: 1.35e-3,
+      });
+
+      recorder.recordPredictionEvent({
+        instrumentId: "bm-01",
+        promptId: "prompt-predict-disp",
+        payload: { form: "candidate", candidateId: "candidate-0-8-micron" },
+        promptSpec,
+      });
+
+      const recordedCp = await recorder.recordCheckpoint({
+        stepIndex: 60,
+        simulatedTime: 1.0,
+        label: "After prediction",
+      });
+
+      const originalTape = recorder.getTape();
+
+      // Cross worker boundary
+      const workerEcho = await runTapeWorkerRoundTrip(originalTape);
+      const decodedTape = validateControlTape(workerEcho);
+
+      // Replay in fresh instance
+      const replayer = new ControlTapeReplayer(decodedTape, context);
+      const replayRes = await replayer.seekToAction(recordedCp.actionIndex);
+
+      if (replayRes.digest !== recordedCp.digest) {
+        throw new Error(
+          `Digest mismatch on replay: expected ${recordedCp.digest}, got ${replayRes.digest}`,
+        );
+      }
+
+      if (replayRes.activePredictions.length !== 1) {
+        throw new Error(`Expected 1 active prediction, got ${replayRes.activePredictions.length}`);
+      }
+
+      logger.log({
+        testId,
+        beadId: "am-rt-control-tapes-0gc",
+        suite: "runtime-tapes",
+        seed: "9007199254740993",
+        streamVersion: 1,
+        modelVersion: "1.0.0",
+        artifactDigest: modelIdentity.artifactDigest,
+        expected: recordedCp.digest,
+        actual: replayRes.digest,
+        comparisonKind: "bitwise",
+        outcome: "passed",
+        durationMs: Date.now() - startTime,
+        message:
+          "Successfully recorded, worker-roundtripped, and replayed candidate prediction tape.",
+        extra: {
+          tapeId: "tape-candidate-prediction",
+          experimentId: "bm-01",
+          constantSetId: "einstein-1905-brownian-printed",
+          actionIndex: recordedCp.actionIndex,
+          commandClass: "setup-change",
+          digest: replayRes.digest,
+          digestKind: replayRes.digestKind,
+          playbackSpeed: 1,
+          allocationId: "tracer-alloc-0",
+          authoringInstrument: "bm-01",
+          predictionForm: "candidate",
+        },
+      });
+    } catch (err: unknown) {
+      allPassed = false;
+      const msg = (err as Error).message;
+      recordFailure(testId, null, msg);
+    }
+  }
+
+  // 2. Values Prediction Recording, Worker Crossing, and Replay
+  {
+    const startTime = Date.now();
+    const testId = "tape-values-prediction-replay";
+    try {
+      const recorder = new ControlTapeRecorder({
+        tapeId: "tape-values-prediction",
+        experimentId: "bm-01",
+        mode: "bm-01:default",
+        modelIdentity,
+        constantSetId: "einstein-1905-brownian-printed",
+        seed: "18446744073709551615",
+        streamVersion: 1,
+        allocationId: "tracer-alloc-0",
+        initialConditions: { diffusivity: 4.2944e-13, particleRadius: 5e-7 },
+        quantizationPolicies: {
+          diffusivity: { kind: "significant-figures", digits: 3 },
+          particleRadius: { kind: "significant-figures", digits: 1 },
+        },
+      });
+
+      recorder.recordPredictionEvent({
+        instrumentId: "bm-01",
+        promptId: "prompt-predict-disp",
+        payload: {
+          form: "values",
+          targets: [
+            { targetId: "diffusivity", value: 4.2944e-13 },
+            { targetId: "particleRadius", value: 5.0001e-7 },
+          ],
+        },
+        promptSpec,
+      });
+
+      const recordedCp = await recorder.recordCheckpoint({
+        stepIndex: 120,
+        simulatedTime: 2.0,
+        label: "Values prediction checkpoint",
+      });
+
+      const originalTape = recorder.getTape();
+      const workerEcho = await runTapeWorkerRoundTrip(originalTape);
+      const decodedTape = validateControlTape(workerEcho);
+
+      const replayer = new ControlTapeReplayer(decodedTape, context);
+      const replayRes = await replayer.seekToAction(recordedCp.actionIndex);
+
+      if (replayRes.digest !== recordedCp.digest) {
+        throw new Error(
+          `Digest mismatch on values replay: expected ${recordedCp.digest}, got ${replayRes.digest}`,
+        );
+      }
+
+      logger.log({
+        testId,
+        beadId: "am-rt-control-tapes-0gc",
+        suite: "runtime-tapes",
+        seed: "18446744073709551615",
+        streamVersion: 1,
+        modelVersion: "1.0.0",
+        artifactDigest: modelIdentity.artifactDigest,
+        expected: recordedCp.digest,
+        actual: replayRes.digest,
+        comparisonKind: "bitwise",
+        outcome: "passed",
+        durationMs: Date.now() - startTime,
+        message: "Successfully recorded, worker-roundtripped, and replayed values prediction tape.",
+        extra: {
+          tapeId: "tape-values-prediction",
+          experimentId: "bm-01",
+          constantSetId: "einstein-1905-brownian-printed",
+          actionIndex: recordedCp.actionIndex,
+          digest: replayRes.digest,
+          digestKind: replayRes.digestKind,
+          playbackSpeed: 1,
+          allocationId: "tracer-alloc-0",
+          authoringInstrument: "bm-01",
+          predictionForm: "values",
+        },
+      });
+    } catch (err: unknown) {
+      allPassed = false;
+      const msg = (err as Error).message;
+      recordFailure(testId, null, msg);
+    }
+  }
+
+  // 3. Compatibility Refusals (all 7 mismatch types)
+  const baseTape: ControlTapeV2 = {
+    tapeVersion: 2,
+    tapeId: "compat-base-tape",
+    experimentId: "bm-01",
+    mode: "bm-01:default",
+    modelIdentity,
+    constantSetId: "einstein-1905-brownian-printed",
+    seed: "9007199254740993",
+    streamVersion: 1,
+    allocationId: "tracer-alloc-0",
+    initialConditions: { viscosity: 1.35e-3 },
+    events: [],
+    checkpoints: [],
+  };
+
+  const refusalCases = [
+    {
+      testId: "refusal-tape-version-unsupported",
+      tape: { ...baseTape, tapeVersion: 1 as unknown as 2 },
+      ctx: context,
+      expectedCode: "tape-version-unsupported",
+    },
+    {
+      testId: "refusal-tape-model-mismatch-experiment",
+      tape: baseTape,
+      ctx: { ...context, experimentId: "bm-07" },
+      expectedCode: "tape-model-mismatch",
+    },
+    {
+      testId: "refusal-tape-model-mismatch-id",
+      tape: baseTape,
+      ctx: {
+        ...context,
+        modelIdentity: { ...modelIdentity, modelId: "other-model" },
+      },
+      expectedCode: "tape-model-mismatch",
+    },
+    {
+      testId: "refusal-tape-artifact-mismatch",
+      tape: baseTape,
+      ctx: {
+        ...context,
+        modelIdentity: {
+          ...modelIdentity,
+          artifactDigest:
+            "host:sha256:ffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffff",
+        },
+      },
+      expectedCode: "tape-artifact-mismatch",
+    },
+    {
+      testId: "refusal-tape-constant-set-mismatch",
+      tape: baseTape,
+      ctx: { ...context, constantSetId: "modern-si-2019" },
+      expectedCode: "tape-constant-set-mismatch",
+    },
+    {
+      testId: "refusal-tape-stream-version-mismatch",
+      tape: baseTape,
+      ctx: { ...context, streamVersion: 2 },
+      expectedCode: "tape-stream-version-mismatch",
+    },
+    {
+      testId: "refusal-tape-allocation-mismatch",
+      tape: baseTape,
+      ctx: { ...context, allocationId: "other-alloc" },
+      expectedCode: "tape-allocation-mismatch",
+    },
+    {
+      testId: "refusal-tape-grid-mismatch",
+      tape: { ...baseTape, replayGrid: { baseSpacing: 0.1, horizon: 100 } },
+      ctx: { ...context, replayGrid: { baseSpacing: 0.2, horizon: 100 } },
+      expectedCode: "tape-grid-mismatch",
+    },
+  ];
+
+  for (const c of refusalCases) {
+    const startTime = Date.now();
+    try {
+      const check = validateTapeCompatibility(c.tape as ControlTapeV2, c.ctx);
+      if (check.compatible) {
+        throw new Error(`Expected compatibility check to fail with ${c.expectedCode}`);
+      }
+      if (check.refusalCode !== c.expectedCode) {
+        throw new Error(`Expected refusalCode ${c.expectedCode}, got ${check.refusalCode}`);
+      }
+
+      logger.log({
+        testId: c.testId,
+        beadId: "am-rt-control-tapes-0gc",
+        suite: "runtime-tapes",
+        expected: c.expectedCode,
+        actual: check.refusalCode,
+        comparisonKind: "bitwise",
+        outcome: "passed",
+        durationMs: Date.now() - startTime,
+        message: `Successfully validated ${c.expectedCode} refusal.`,
+        extra: {
+          refusalCode: check.refusalCode,
+          reason: check.reason,
+        },
+      });
+    } catch (err: unknown) {
+      allPassed = false;
+      const msg = (err as Error).message;
+      recordFailure(c.testId, c.tape, msg, { expectedCode: c.expectedCode });
+    }
+  }
+
+  await logger.flush();
+  return allPassed;
+}
+
 async function main(): Promise<void> {
   const options = parseCliArgs();
   const logRunId = options.logRunId || newRunIdentity();
@@ -682,6 +1088,16 @@ async function main(): Promise<void> {
     }
     console.log(
       `[E2E-Runtime] Results suite PASSED. Logged to artifacts/test-logs/runtime-results/${logRunId}.jsonl`,
+    );
+    process.exit(0);
+  } else if (options.suite === "tapes") {
+    const success = await runTapesE2E(logRunId, options.verbose ?? true);
+    if (!success) {
+      console.error(`[E2E-Runtime] Tapes suite FAILED. See logRunId: ${logRunId}`);
+      process.exit(1);
+    }
+    console.log(
+      `[E2E-Runtime] Tapes suite PASSED. Logged to artifacts/test-logs/runtime-tapes/${logRunId}.jsonl`,
     );
     process.exit(0);
   } else {
