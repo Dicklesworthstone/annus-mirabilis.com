@@ -1,0 +1,4 @@
+{"timestamp":"2026-01-01T00:00:00.000Z","suite":"fixture-suite-a","logRunId":"20260101T000000Z-aaaaaaaa","testId":"t1","outcome":"passed"}
+{"timestamp":"2026-01-01T00:00:01.000Z","suite":"fixture-suite-a","logRunId":"20260101T000000Z-aaaaaaaa","testId":"t2","outcome":"failed","message":"boom","browser":"chromium","evidence":{"screenshot":"s.png","dom":"d.html"}}
+{"timestamp":"2026-01-01T00:00:02.000Z","suite":"fixture-suite-a","logRunId":"20260101T000000Z-aaaaaaaa","testId":"t3","outcome":"skipped"}
+{"timestamp":"2026-01-01T00:00:03.000Z","suite":"fixture-suite-a","logRunId":"20260101T000000Z-aaaaaaaa","testId":"t4","outcome":"not-available"}

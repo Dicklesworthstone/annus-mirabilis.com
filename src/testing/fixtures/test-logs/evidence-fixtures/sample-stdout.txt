@@ -1,0 +1,2 @@
+[fixture] captured stdout for retainEvidence() tests: line one
+[fixture] captured stdout for retainEvidence() tests: line two
