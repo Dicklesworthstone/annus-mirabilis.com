@@ -60,6 +60,7 @@ describe("catalogue: the 33 core ids and the 5 declared non-core ids", () => {
       "bm-08",
       "lq-01",
       "lq-03",
+      "lq-05",
       "lq-08",
       "me-01",
       "me-02",

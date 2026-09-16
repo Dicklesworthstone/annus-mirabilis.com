@@ -1,0 +1,7 @@
+paper: light-quanta
+targetKinds:
+  - instrument-caption
+scope:
+  instrumentIds:
+    - lq-05
+ownerBeadId: am-lq-05-independent-configurations-jtvo

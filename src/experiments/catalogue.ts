@@ -56,7 +56,7 @@ export const CATALOGUE_STATUS: Readonly<Record<CatalogueId, CatalogueStatus>> = 
   "lq-02": "in-preparation",
   "lq-03": "registered",
   "lq-04": "in-preparation",
-  "lq-05": "in-preparation",
+  "lq-05": "registered",
   "lq-06": "in-preparation",
   "lq-07": "in-preparation",
   "lq-08": "registered",
@@ -110,6 +110,8 @@ export const CATALOGUE_QUESTIONS: Readonly<Partial<Record<CatalogueId, string>>>
     "What does a continuous wave description of light explain well, and what exactly does its intensity measure?",
   "lq-03":
     "What does a measured radiation spectrum look like at a given temperature, in which regime is Wien's law or the classical law an accurate description, and what does a density plot actually measure?",
+  "lq-05":
+    "How does counting independent possibilities produce an entropy that depends on volume like n ln V, and what changes if the things are not independent?",
   "lq-08":
     "Why does increasing light intensity release more electrons without increasing their individual energy, while increasing frequency increases electron energy without requiring higher intensity?",
   "bm-03":

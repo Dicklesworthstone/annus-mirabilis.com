@@ -1,0 +1,363 @@
+# LQ-05 instrument manifest (am-lq-05-independent-configurations-jtvo).
+id: lq-05
+title: "LQ-05: Independent Configurations and Boltzmann Entropy"
+explanatoryQuestion: "How does counting independent possibilities produce an entropy that depends on volume like n ln V, and what changes if the things are not independent?"
+sourceRefs:
+  - paper: light-quanta
+    id: s5
+argumentIds:
+  - arg-lq-boltzmann-principle
+  - arg-lq-independent-points
+  - arg-lq-entropy-volume
+schemaVersion: 1
+parameters:
+  - id: n
+    label: "Number of Points"
+    accessibleName: "Number of movable independent points"
+    accessibleDescription: "Sets the number of independent points distributed in the volume"
+    quantityId: independentPointCount
+    displayUnit: ""
+    modelDomain:
+      min: 1
+      max: 60
+      minInclusive: true
+      maxInclusive: true
+      reason: "Small enumeration to macroscopic logarithmic scaling"
+    visualRange:
+      min: 1
+      max: 60
+    default: 4
+    mapping:
+      kind: step
+    role: independent
+    commandClass: setup-change
+  - id: f
+    label: "Subvolume Fraction"
+    accessibleName: "Subvolume fraction V/V0"
+    accessibleDescription: "Fraction of the total volume into which particles may concentrate"
+    quantityId: volumeRatio
+    displayUnit: ""
+    modelDomain:
+      min: 0.001
+      max: 1.0
+      minInclusive: false
+      maxInclusive: true
+      reason: "Fraction of reference volume V/V0 in (0, 1]"
+    visualRange:
+      min: 0.01
+      max: 1.0
+    default: 0.5
+    mapping:
+      kind: linear
+    role: independent
+    commandClass: estimator-change
+  - id: view
+    label: "Display View"
+    accessibleName: "Observation display view"
+    accessibleDescription: "Selects among visual enumeration grid, Monte Carlo sampling, or logarithmic scaling"
+    quantityId: displayView
+    displayUnit: ""
+    modelDomain:
+      enumerated: []
+      reason: "One of enumeration, sampling, logarithmic"
+    visualRange:
+      min: 0
+      max: 2
+    default: "enumeration"
+    mapping:
+      kind: linear
+    role: independent
+    commandClass: presentation-change
+  - id: locked
+    label: "Locked Positions"
+    accessibleName: "Locked positions toggle"
+    accessibleDescription: "Toggles rigidly coupled positions where all points move together as a single unit"
+    quantityId: lockedPositions
+    displayUnit: ""
+    modelDomain:
+      enumerated: []
+      reason: "Boolean flag for rigid coupling counterexample"
+    visualRange:
+      min: 0
+      max: 1
+    default: false
+    mapping:
+      kind: linear
+    role: independent
+    commandClass: setup-change
+  - id: seed
+    label: "Random Seed"
+    accessibleName: "Pseudorandom Philox generator seed"
+    accessibleDescription: "Unsigned 64-bit integer decimal string seed for deterministic reproducible sampling"
+    quantityId: randomSeed
+    displayUnit: ""
+    modelDomain:
+      enumerated: []
+      reason: "Unsigned 64-bit decimal string"
+    visualRange:
+      min: 0
+      max: 1
+    default: "12345"
+    mapping:
+      kind: linear
+    role: independent
+    commandClass: setup-change
+  - id: trials
+    label: "Sampling Trials"
+    accessibleName: "Number of Monte Carlo sampling trials"
+    accessibleDescription: "Number of independent placement trials to evaluate empirical success rate"
+    quantityId: trialCount
+    displayUnit: ""
+    modelDomain:
+      min: 1
+      max: 1000000
+      minInclusive: true
+      maxInclusive: true
+      reason: "Monte Carlo sample size budget"
+    visualRange:
+      min: 100
+      max: 100000
+    default: 10000
+    mapping:
+      kind: log
+    role: independent
+    commandClass: setup-change
+outputs:
+  - id: configurationProbability
+    quantityId: configurationProbability
+    allowedStatuses:
+      - value
+      - outside-domain
+    primary: true
+  - id: lnW
+    quantityId: lnW
+    allowedStatuses:
+      - value
+      - outside-domain
+    primary: true
+  - id: log10W
+    quantityId: log10W
+    allowedStatuses:
+      - value
+      - outside-domain
+    primary: true
+  - id: deltaSOverKb
+    quantityId: entropy
+    allowedStatuses:
+      - value
+      - outside-domain
+    primary: true
+  - id: sampleFraction
+    quantityId: sampleFraction
+    allowedStatuses:
+      - value
+      - outside-domain
+    primary: false
+  - id: successCount
+    quantityId: successCount
+    allowedStatuses:
+      - value
+      - outside-domain
+    primary: false
+  - id: drawCountAfter
+    quantityId: drawCount
+    allowedStatuses:
+      - value
+      - outside-domain
+    primary: false
+  - id: expectedTrialsToOne
+    quantityId: expectedTrials
+    allowedStatuses:
+      - value
+      - outside-domain
+    primary: false
+  - id: lockedProbability
+    quantityId: configurationProbability
+    allowedStatuses:
+      - value
+      - outside-domain
+    primary: false
+assumptions:
+  - "No favored part of the space or direction in volume V_0."
+  - "Negligible interactions among the n movable points."
+  - "Other movable points may also be present without altering the independent distribution."
+  - "No assumption is needed about the laws of motion of the points."
+admittedDomain: "Independent non-interacting movable points in bounded subvolume fraction 0 < f <= 1"
+notModeled:
+  - "Interactions between points."
+  - "Gas dynamics or time evolution."
+  - "Radiation itself (this is the gas and dilute-solution analogy, not a model of light)."
+  - "Correlations other than the fully locked case."
+owner:
+  kind: reference-evaluator
+  kernelFunctions:
+    - displayRole: reference-implementation
+      language: ts
+      module: "src/physics/reference/radiation.ts"
+      exportName: "independentPointsProbability"
+views:
+  - id: lq-05-configuration-grid
+    kind: svg
+    consumes:
+      - configurationProbability
+      - n
+      - f
+  - id: lq-05-binomial-chart
+    kind: svg
+    consumes:
+      - n
+      - f
+  - id: lq-05-logarithmic-scale
+    kind: svg
+    consumes:
+      - log10W
+      - deltaSOverKb
+  - id: lq-05-counts-table
+    kind: table
+    consumes:
+      - configurationProbability
+      - lnW
+      - log10W
+      - deltaSOverKb
+actions:
+  - actionId: lq-05-set-subvolume
+    family: probability
+    question: "How does the probability change when the accessible volume fraction f = V/V0 changes?"
+    inputs:
+      - f
+    commandClass: estimator-change
+    acceptedResult:
+      outputs:
+        - configurationProbability
+        - lnW
+        - log10W
+        - deltaSOverKb
+      allowedStatuses:
+        - value
+    visualAffordance: "Draggable subvolume partition adjusts fraction f"
+    equivalentAffordance: "Type a fraction or select half or quarter from buttons"
+    announcement: "Subvolume fraction updated; configuration probability recalculated"
+  - actionId: lq-05-set-point-count
+    family: probability
+    question: "How does probability scale with the number of independent points n?"
+    inputs:
+      - n
+    commandClass: setup-change
+    acceptedResult:
+      outputs:
+        - configurationProbability
+        - lnW
+        - log10W
+        - deltaSOverKb
+      allowedStatuses:
+        - value
+    visualAffordance: "Point count stepper adjusts n from 1 to 60"
+    equivalentAffordance: "Type a number of points directly"
+    announcement: "Point count updated; probability scales exponentially as f^n"
+  - actionId: lq-05-toggle-locked
+    family: probability
+    question: "What happens to the probability if all points are rigidly locked together?"
+    inputs:
+      - locked
+    commandClass: setup-change
+    acceptedResult:
+      outputs:
+        - configurationProbability
+      allowedStatuses:
+        - value
+    visualAffordance: "Locked toggle unites points into a rigid group"
+    equivalentAffordance: "Toggle locked positions checkbox"
+    announcement: "Locked positions mode toggled; probability is f rather than f^n"
+acceptanceCases:
+  - lq05-ten-points-half-volume
+  - lq05-sixty-points-logarithmic
+  - lq05-locked-positions-counterexample
+defaultScenario: lq05-ten-points-half-volume
+tapeModel:
+  modelId: lq05-independent-configurations-v1
+  modelVersion: 1
+teachingTapes:
+  - the-locked-positions
+  - lq-05-journey-stage-e
+presets:
+  - presetId: lq-05-first-encounter
+    label: "First encounter (n = 2, f = 1/2)"
+    parameterValues:
+      n: 2
+      f: 0.5
+      view: "enumeration"
+      locked: false
+      seed: "12345"
+      trials: 10000
+  - presetId: lq-05-journey-stage-e
+    label: "Journey I Stage E (n = 3, log, locked)"
+    parameterValues:
+      n: 3
+      f: 0.5
+      view: "enumeration"
+      locked: false
+      seed: "19050511"
+      trials: 10000
+  - presetId: lq-05-locked-positions
+    label: "The locked positions (n = 10, locked counterexample)"
+    parameterValues:
+      n: 10
+      f: 0.5
+      view: "enumeration"
+      locked: true
+      seed: "12345"
+      trials: 10000
+  - presetId: lq-05-n60-log
+    label: "Large ensemble logarithmic view (n = 60)"
+    parameterValues:
+      n: 60
+      f: 0.5
+      view: "logarithmic"
+      locked: false
+      seed: "12345"
+      trials: 10000
+probes:
+  - lq-05-independence-probe
+  - lq-05-scaling-probe
+weavePredicates:
+  - lq05-s5-independent-probability
+  - lq05-s5-entropy-volume-relation
+  - lq05-s5-motion-assumption-independence
+realRate:
+  natural: false
+embeddable: true
+predictMode:
+  enabled: true
+  prompts:
+    - promptId: lq-05-predict-ten-points
+      controlId: n
+      question: "With 10 independent points, the chance that all sit in the left half is about: 1/2; 1/20; 1/1 000."
+      candidates:
+        - id: lq-05-predict-ten-points-one-in-two
+          label: "About one in two"
+          description: "The chance for a single point, unchanged by adding points."
+          separatingAssumption: "Single-point assumption: assumes total probability is set by one representative point."
+        - id: lq-05-predict-ten-points-one-in-twenty
+          label: "About one in twenty"
+          description: "The chance falls with n, but only in proportion to it."
+          separatingAssumption: "Linear scaling assumption: assumes probability decreases inversely with particle count."
+        - id: lq-05-predict-ten-points-one-in-a-thousand
+          label: "About one in a thousand"
+          description: "Each point independently halves the chance, so ten of them give 1/2^10 = 1/1024."
+          separatingAssumption: "Statistical independence: probabilities of independent events multiply: W = (1/2)^10."
+    - promptId: lq-05-predict-locked
+      controlId: locked
+      question: "If the 10 points are locked together, the chance is: 1/1 024; 1/2; 1/10."
+      candidates:
+        - id: lq-05-predict-locked-one-in-1024
+          label: "One in 1 024"
+          description: "Locking changes nothing, so the independent value stands."
+          separatingAssumption: "Assumes particle count alone determines the microstate count regardless of correlation."
+        - id: lq-05-predict-locked-one-in-two
+          label: "One in two"
+          description: "The ten move as one unit, so one uniform position decides."
+          separatingAssumption: "Rigid coupling: the entire cluster behaves as a single degree of freedom with probability f."
+        - id: lq-05-predict-locked-one-in-ten
+          label: "One in ten"
+          description: "Locking divides the independent exponent by the number of points."
+          separatingAssumption: "Linear reduction assumption: assumes partial correlation reduces the effective power."

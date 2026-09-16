@@ -1,0 +1,57 @@
+tapeVersion: 2
+tapeId: lq-05-journey-stage-e
+experimentId: lq-05
+mode: "lq-05:default"
+modelIdentity:
+  modelId: lq05-independent-configurations-v1
+  modelVersion: "1.0.0"
+  artifactDigest: "host:sha256:0000000000000000000000000000000000000000000000000000000000000000"
+constantSetId: modern-si-2019
+seed: "19050511"
+streamVersion: 1
+allocationId: lq-05.configuration.v1
+initialConditions:
+  n: 3
+  f: 0.5
+  view: enumeration
+  locked: false
+  trials: 10000
+events:
+  - kind: control
+    actionIndex: 1
+    commandClass: setup-change
+    commandId: set-n60
+    parameterId: n
+    value: 60
+  - kind: control
+    actionIndex: 2
+    commandClass: presentation-change
+    commandId: set-log-view
+    parameterId: view
+    value: logarithmic
+  - kind: control
+    actionIndex: 3
+    commandClass: setup-change
+    commandId: set-locked
+    parameterId: locked
+    value: true
+checkpoints:
+  - actionIndex: 1
+    stepIndex: 1
+    simulatedTime: 1
+    digest: "host:sha256:3333333333333333333333333333333333333333333333333333333333333333"
+    digestKind: host
+    checkpointVersion: 1
+    streamSemanticsVersion: 1
+    seed: "19050511"
+    streamPositions: []
+    label: "Three points in half volume"
+    teachingNote: "n = 3 gives W = 1/8."
+    expectedDisplayValues:
+      - label: "W"
+        value: 0.125
+        unit: ""
+        constantSetId: modern-si-2019
+title: "Journey I Stage E: The Microstate Counter"
+description: "Walkthrough for Journey I: n = 3 enumeration, n = 60 logarithmic scaling, and the locked comparison."
+isTeachingSequence: true

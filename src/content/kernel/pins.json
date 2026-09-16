@@ -19,11 +19,11 @@
     "ftcs1d@src/physics/reference/diffusion/ftcs.ts": "sha256:c04f80e8182597a114b7d20f492eb86053f90b4cc9e7cd299f516a6b44eb4755"
   },
   "closures": {
-    "src/physics/reference/diffusion/distributions.ts": "source:sha256:1c5b94629ea23aca68282eefe5c8f7bb2ad46add08f21980472f934f6b790a9b",
-    "src/physics/reference/diffusion/tracers.ts": "source:sha256:2318b4c86485331eb7498b6f8fcf74e9926eada8016717f594b041c610027e75",
-    "src/physics/reference/diffusion/walkLaws.ts": "source:sha256:8e3c34790bad59b1cbadc2989d4cdc6127cb5963bb879978b4a646204b9dff79",
-    "src/physics/reference/diffusion/walks.ts": "source:sha256:55a4a4d232123a2d1815fb6d0723b9323c6de073adecc145dc3d457569bc0044",
+    "src/physics/reference/diffusion/distributions.ts": "source:sha256:d9d0f51f765663781766124b551f955672ea5432a678182c28b136949a0da22f",
+    "src/physics/reference/diffusion/tracers.ts": "source:sha256:242d794e8f648d167d0e85ba3f2e818523780eff590decf8d9f4e08c54df2f1e",
+    "src/physics/reference/diffusion/walkLaws.ts": "source:sha256:ea6ac363058b3fc97ca3dd206baff28ec627d2e71da91dada30b1bd4c9f08692",
+    "src/physics/reference/diffusion/walks.ts": "source:sha256:0f0f09e78b41ae9962bc78673f3767505b2b068a9ac216d4093856800dd2d2fc",
     "src/physics/reference/special/erf.ts": "source:sha256:36da87a989cc4d16571414b99849aa31ea544bb30878fd80fb9c19ffa9e11f62",
-    "src/physics/reference/diffusion/ftcs.ts": "source:sha256:de9b2dfeda84da687dc64d0c94b470f729488b22cb18cafe0350965690565b72"
+    "src/physics/reference/diffusion/ftcs.ts": "source:sha256:ba6de6fb5970ecfcf04a21a759f59780c6903de4688545ca970f0e42c8f708c0"
   }
 }
