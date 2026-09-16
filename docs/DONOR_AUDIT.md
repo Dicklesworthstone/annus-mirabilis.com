@@ -1135,8 +1135,8 @@ _No files extracted yet._
 
 | sourcePath | newOwner | retainedBehavior | removedAssumptions | firstReaderJourney | batch | commit | noticeForm | notes |
 |---|---|---|---|---|---|---|---|---|
-
-_No files extracted yet._
+| `scripts/app-router-architecture.ts` | `scripts/app-router-architecture.ts` (`am-scaf-architecture-gate-l1p`) | Fail-closed App Router purity gate and root allowlist validation | Patent-specific routes stripped; generalized to five architectural rules | pending: am-scaf-quality-gates-ci-4xx | 1 | pending | header | Prebuild and test suite architecture gate |
+| `scripts/app-router-architecture.test.ts` | `scripts/app-router-architecture.test.ts` (`am-scaf-architecture-gate-l1p`) | Unit and integration test fixtures for architecture gate rules | Patent-specific test cases replaced with five generic architectural fixtures | pending: am-scaf-quality-gates-ci-4xx | 1 | pending | header | Architecture gate test suite |
 
 #### `am-eq-expression-tree-8kl`
 

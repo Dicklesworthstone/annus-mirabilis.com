@@ -8,6 +8,8 @@
     "node": "22.13.4"
   },
   "scripts": {
+    "prebuild": "node --experimental-strip-types scripts/app-router-architecture.ts",
+    "check:architecture": "node --experimental-strip-types scripts/app-router-architecture.ts",
     "prepare:lab": "node --experimental-strip-types scripts/generate-lab.mjs && node --experimental-strip-types scripts/generate-tracers.mjs && node --experimental-strip-types scripts/generate-walks.mjs && node --experimental-strip-types scripts/generate-inference.mjs",
     "dev": "npm run prepare:content && npm run prepare:lab && next dev",
     "build": "npm run prepare:content && npm run prepare:lab && next build",
@@ -23,13 +25,14 @@
     "katex": "0.18.4"
   },
   "devDependencies": {
-    "typescript": "5.7.3",
+    "@axe-core/playwright": "4.10.1",
+    "@biomejs/biome": "2.5.8",
+    "@types/katex": "0.16.7",
     "@types/node": "22.13.4",
     "@types/react": "19.0.0",
     "@types/react-dom": "19.0.0",
-    "@types/katex": "0.16.7",
     "playwright": "1.62.1",
-    "@axe-core/playwright": "4.10.1"
+    "typescript": "5.7.3"
   },
   "overrides": {
     "postcss": "8.5.26"
