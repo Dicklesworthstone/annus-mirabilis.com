@@ -4,7 +4,6 @@ import {
   type Bm08Parameters,
   bm08Layout,
 } from "../../experiments/bm08/definition.ts";
-import { validateBm08Parameters } from "../../experiments/bm08/parameters.ts";
 import {
   decodeOutcome,
   decodeRefusal,
@@ -109,8 +108,13 @@ export function decodeLabToken(input: unknown): RequestToken {
   count(o.actionIndex, 1);
   const revisions = record(o.revisions, ["input", "observer", "measurement", "estimator"]);
   for (const v of Object.values(revisions)) count(v);
-  if (validateBm08Parameters(o.parameters).kind !== "accepted")
+  if (
+    !o.parameters ||
+    typeof o.parameters !== "object" ||
+    ![Object.prototype, null].includes(Object.getPrototypeOf(o.parameters))
+  ) {
     fail("Invalid complete parameter record.");
+  }
   return structuredClone(input) as RequestToken;
 }
 export function decodeLabRequest(input: unknown, expectedDigest: string): LabRequest | LabCancel {

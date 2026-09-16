@@ -78,6 +78,29 @@ export function validateBm08Parameters(input: unknown): Computation<Bm08Paramete
     return bad(
       "Use 3–1000 increments, 1–4 second frame spacing, one or two coordinates, 5–200 stationary clicks and exposure between zero and frame spacing.",
     );
+  const exposureSteps = p.exposure / 0.25;
+  if (!Number.isInteger(exposureSteps))
+    return {
+      kind: "refused",
+      refusal: makeRefusal(
+        "off-replay-grid",
+        { parameterIds: ["exposure"], capabilityId: "diffusion.inference" },
+        {
+          details: {
+            requirements: "Exposure must be a multiple of the recorded quarter-second grid.",
+          },
+          rankedRepairs: [
+            {
+              action: {
+                parameterId: "exposure",
+                value: Math.floor(exposureSteps) * 0.25,
+              },
+              label: "Use the preceding recorded exposure",
+            },
+          ],
+        },
+      ),
+    };
   // The worker checks the replay-grid and recording horizon; a refusal preserves accepted state.
   return { kind: "accepted", data: Object.freeze({ ...p }) };
 }

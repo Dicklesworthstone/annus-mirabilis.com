@@ -148,8 +148,8 @@ test("Brownian DoD Item 4: results and misconceptions status", async () => {
 test("Brownian DoD Item 5: instruments BM-01 through BM-08 status", async () => {
   const startTime = Date.now();
 
-  const builtInstruments = ["bm01", "bm05", "bm06", "bm07", "bm08"];
-  const unbuiltInstruments = ["bm02", "bm03", "bm04"];
+  const builtInstruments = ["bm01", "bm02", "bm03", "bm04", "bm05", "bm06", "bm07", "bm08"];
+  const unbuiltInstruments: string[] = [];
 
   for (const id of builtInstruments) {
     const expDir = path.join(process.cwd(), "src/experiments", id);
@@ -162,7 +162,7 @@ test("Brownian DoD Item 5: instruments BM-01 through BM-08 status", async () => 
   }
 
   const kitchenPage = path.join(process.cwd(), "src/app/kitchen/page.tsx");
-  assert.equal(fs.existsSync(kitchenPage), false, "Kitchen page unbuilt");
+  assert.equal(fs.existsSync(kitchenPage), true, "Kitchen page built");
 
   suiteLogger.log({
     testId: "dod-item-5-instruments",
@@ -170,14 +170,13 @@ test("Brownian DoD Item 5: instruments BM-01 through BM-08 status", async () => 
     paper: "brownian-motion",
     outcome: "passed",
     durationMs: Date.now() - startTime,
-    message:
-      "Verified Item 5: 5 core instruments built (BM-01, BM-05, BM-06, BM-07, BM-08); BM-02..04 and kitchen unbuilt.",
+    message: "Verified Item 5: all 8 instruments built (BM-01 through BM-08); kitchen built.",
     extra: {
       item: "5. Instruments",
       check: "instruments-directory-audit",
       builtInstruments,
       unbuiltInstruments,
-      kitchenBuilt: false,
+      kitchenBuilt: true,
     },
   });
   await suiteLogger.flush();
