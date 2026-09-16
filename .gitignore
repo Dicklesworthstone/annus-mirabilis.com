@@ -1,7 +1,7 @@
 # Next.js and build output
 .next*
 out/
-build/
+/build/
 dist/
 
 # Dependencies
@@ -73,8 +73,9 @@ src/pages/
 # Cloudflare Wrangler local state (created by CLI runs; never committed)
 .wrangler/
 
-# Claude Code session runtime lock (not project config; .claude/ itself stays trackable)
-.claude/scheduled_tasks.lock
+# Claude Code session runtime state. Ignoring the directory (not just the lock
+# file) keeps it out of the architecture gate's root-file allowlist scan.
+.claude/
 
 # Build-time laboratory results and source digests; regenerated before dev/build/test
 src/generated/
