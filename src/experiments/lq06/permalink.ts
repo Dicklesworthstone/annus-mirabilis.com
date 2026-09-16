@@ -13,7 +13,8 @@ export type DecodedLq06Settings =
   | Readonly<{ kind: "invalid"; message: string }>;
 
 export function encodeLq06Settings(p: Lq06Parameters): string {
-  if (validateLq06Parameters(p).kind !== "accepted") throw new TypeError("Only valid accepted settings can be shared.");
+  if (validateLq06Parameters(p).kind !== "accepted")
+    throw new TypeError("Only valid accepted settings can be shared.");
   const q = new URLSearchParams();
   q.set("e", formatScaledDecimal(p.radiationEnergy, 9)); // in nJ
   q.set("nu", formatScaledDecimal(p.frequency, -12)); // in THz
@@ -39,7 +40,7 @@ export function decodeLq06Settings(search: string): DecodedLq06Settings {
 
   const q = new URLSearchParams(raw);
   const requiredKeys = ["e", "nu", "n", "v", "t", "sub", "elem", "fork"];
-  const allowed = new Set([...requiredKeys, "cset"]);
+  const allowed = new Set([...requiredKeys, "cset", "lq"]);
   if (
     !requiredKeys.every((k) => q.getAll(k).length === 1) ||
     [...q.keys()].some((k) => !allowed.has(k) || q.getAll(k).length !== 1)

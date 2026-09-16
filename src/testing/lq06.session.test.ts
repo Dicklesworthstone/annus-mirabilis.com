@@ -69,7 +69,7 @@ describe("LQ-06 Session Management & Evaluator (am-lq-06-coefficient-match-n8pe)
     expect(negGas.kind).toBe("refused");
   });
 
-  it("correctly encodes and decodes permalink settings", () => {
+  it("correctly encodes and decodes permalink settings with full round-trip parameter fidelity", () => {
     const params = {
       ...LQ06_DEFAULTS,
       radiationEnergy: 12e-9,
@@ -84,13 +84,18 @@ describe("LQ-06 Session Management & Evaluator (am-lq-06-coefficient-match-n8pe)
     expect(search).toContain("nu=750");
     expect(search).toContain("sub=N_E_over_R_beta_nu");
 
+    // Exact round-trip verification: full parameter object match
     const decoded = decodeLq06Settings(search);
     expect(decoded.kind).toBe("settings");
     if (decoded.kind === "settings") {
-      expect(decoded.parameters.radiationEnergy).toBeCloseTo(12e-9, 12);
-      expect(decoded.parameters.frequency).toBeCloseTo(7.5e14, 0);
-      expect(decoded.parameters.selectedSubexpression).toBe("N_E_over_R_beta_nu");
-      expect(decoded.parameters.proposedEnergyElement).toBe("h_nu");
+      expect(decoded.parameters).toEqual(params);
+    }
+
+    // Optional legacy lq key is supported without failing validation
+    const withLegacyKey = decodeLq06Settings(`${search}&lq=1`);
+    expect(withLegacyKey.kind).toBe("settings");
+    if (withLegacyKey.kind === "settings") {
+      expect(withLegacyKey.parameters).toEqual(params);
     }
   });
 
