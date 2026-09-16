@@ -60,4 +60,63 @@ describe("getKernelListingsForInstrument", () => {
     const listings = getKernelListingsForInstrument("unknown-inst");
     expect(listings).toEqual([]);
   });
+
+  describe("digest mismatch refusal and matching positive render", () => {
+    test("mismatched digest renders a typed refusal with data-refusal-code=stale-kernel-listing and suppresses code/trace", async () => {
+      const { renderToStaticMarkup } = await import("react-dom/server");
+      const { ShowTheCode } = await import("../../components/lab/ShowTheCode.tsx");
+      const listings = getKernelListingsForInstrument("bm-01");
+      const stokesListing = listings.find((l) => l.exportName === "stokesEinsteinD");
+      expect(stokesListing).toBeDefined();
+      if (!stokesListing) return;
+
+      const mismatchedSnapshotDigest =
+        "sha256:ffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffff";
+
+      const html = renderToStaticMarkup(
+        ShowTheCode({
+          listings: [stokesListing],
+          producedCurrentSnapshot: true,
+          snapshotFunctionName: "stokesEinsteinD",
+          snapshotSourceDigest: mismatchedSnapshotDigest,
+        }),
+      );
+
+      // Assert typed refusal by code, not just message substring
+      expect(html).toContain('data-refusal-code="stale-kernel-listing"');
+      expect(html).toContain('class="kernel-refusal kernel-digest-mismatch"');
+      // Verify code and trace elements are suppressed
+      expect(html).not.toContain('<code data-language="ts">');
+      expect(html).not.toContain('class="kernel-trace"');
+    });
+
+    test("matching digest renders code without refusal and binds quantity identifiers", async () => {
+      const { renderToStaticMarkup } = await import("react-dom/server");
+      const { ShowTheCode } = await import("../../components/lab/ShowTheCode.tsx");
+      const listings = getKernelListingsForInstrument("bm-01");
+      const stokesListing = listings.find((l) => l.exportName === "stokesEinsteinD");
+      expect(stokesListing).toBeDefined();
+      if (!stokesListing?.sourceHash) return;
+
+      const matchingSnapshotDigest = stokesListing.sourceHash;
+
+      const html = renderToStaticMarkup(
+        ShowTheCode({
+          listings: [stokesListing],
+          producedCurrentSnapshot: true,
+          snapshotFunctionName: "stokesEinsteinD",
+          snapshotSourceDigest: matchingSnapshotDigest,
+        }),
+      );
+
+      // Assert no refusal code is rendered
+      expect(html).not.toContain("data-refusal-code");
+      expect(html).not.toContain("kernel-refusal");
+      // Assert positive capability: code tokens and trace table render
+      expect(html).toContain('<code data-language="ts">');
+      expect(html).toContain('class="kernel-trace"');
+      expect(html).toContain('data-quantity-id="diffusionCoefficient"');
+      expect(html).toContain("This is the function that produced the current snapshot.");
+    });
+  });
 });
