@@ -1,0 +1,269 @@
+/**
+ * Brownian-slice editorial inventory.
+ *
+ * Records what exists, what is authored, and what is claimed. Reviewed is
+ * never inferred from authorship. Absent is recorded. Invented source units
+ * are refused.
+ *
+ * Bead: am-edn-inventory-brownian-slg
+ */
+
+import { existsSync, readdirSync, readFileSync } from "node:fs";
+import { join } from "node:path";
+import { compileReadingContent } from "../compiler/compile.ts";
+import { parseIdSnapshot } from "../frozenIds.ts";
+import { validateSourceManifest } from "../manifest/schema.ts";
+import { validateManifest } from "../manifest/validator.ts";
+import { parseYaml } from "../provenance/yaml.ts";
+
+export const BROWNIAN_PAPER = "brownian-motion";
+export const BROWNIAN_BIB_KEY = "ap-17-549";
+export const BROWNIAN_INVENTORY_BEAD = "am-edn-inventory-brownian-slg";
+
+export const DIFFICULTY_FLAG_KEYS = [
+  "s5-printed-numbers",
+  "s5-printed-units",
+  "r-not-printed",
+  "intro-uncertainty",
+  "velocity-warning",
+  "s4-tau-coarse-graining",
+  "dates",
+] as const;
+
+export const WATCH_LIST_RESULTS = ["pending", "matches", "differs", "not-found"] as const;
+export type WatchListResult = (typeof WATCH_LIST_RESULTS)[number];
+
+export const TREATMENT_MAP_ROWS = ["s0", "s1", "s2", "s3", "s4", "s5", "closing"] as const;
+
+export type Existence = "absent" | "authored";
+export type ReviewClaim = "not-claimed" | "pending" | "reviewed";
+
+export type LayerInventory = Readonly<{
+  layer: string;
+  existence: Existence;
+  reviewClaim: ReviewClaim;
+  ids: readonly string[];
+  note: string;
+}>;
+
+export type DifficultyFlag = Readonly<{
+  key: string;
+  result: WatchListResult;
+  rest: string;
+}>;
+
+export type BrownianInventory = Readonly<{
+  paper: typeof BROWNIAN_PAPER;
+  bibliographicKey: typeof BROWNIAN_BIB_KEY;
+  facsimilePinned: boolean;
+  sourceUnitsFrozen: boolean;
+  layers: readonly LayerInventory[];
+  difficultyFlags: readonly DifficultyFlag[];
+  treatmentMapRows: readonly string[];
+  paperStatus: string;
+  sourceStatus: string;
+}>;
+
+export class InventoryHonestyError extends Error {
+  readonly code: string;
+  constructor(code: string, message: string) {
+    super(message);
+    this.name = "InventoryHonestyError";
+    this.code = code;
+  }
+}
+
+const FLAG_LINE = /^- `flag:([a-z0-9-]+)`\s+(pending|matches|differs|not-found)\b(.*)$/i;
+
+export function parseDifficultyFlags(markdown: string): DifficultyFlag[] {
+  const flags: DifficultyFlag[] = [];
+  for (const raw of markdown.split(/\r?\n/)) {
+    const line = raw.trim();
+    const match = FLAG_LINE.exec(line);
+    if (!match) continue;
+    const key = match[1] ?? "";
+    const result = (match[2] ?? "").toLowerCase() as WatchListResult;
+    flags.push({ key, result, rest: (match[3] ?? "").trim() });
+  }
+  return flags;
+}
+
+export function reviewedWithoutRecord(claim: ReviewClaim, hasHumanReviewRecord: boolean): boolean {
+  return claim === "reviewed" && !hasHumanReviewRecord;
+}
+
+function jsonIds(dir: string, kind: string): string[] {
+  if (!existsSync(dir)) return [];
+  const ids: string[] = [];
+  for (const name of readdirSync(dir).sort()) {
+    if (!name.endsWith(".json")) continue;
+    const raw = JSON.parse(readFileSync(join(dir, name), "utf8")) as Record<string, unknown>;
+    if (raw.kind === kind && typeof raw.id === "string") ids.push(raw.id);
+  }
+  return ids;
+}
+
+export function loadBrownianInventory(root = process.cwd()): BrownianInventory {
+  const paperPath = join(root, "content/papers/brownian-motion.json");
+  const paper = JSON.parse(readFileSync(paperPath, "utf8")) as Record<string, unknown>;
+  const paperStatus = typeof paper.status === "string" ? paper.status : "";
+  const sourceStatus = typeof paper.sourceStatus === "string" ? paper.sourceStatus : "";
+
+  const argumentIds = jsonIds(join(root, "content/arguments/brownian-motion"), "argument");
+  const equationIds = jsonIds(join(root, "content/equations/brownian-motion"), "equation");
+
+  const labDir = join(root, "src/app/lab");
+  const instrumentIds = existsSync(labDir)
+    ? readdirSync(labDir)
+        .filter((name) => /^bm-0[1-8]$/.test(name))
+        .sort()
+    : [];
+
+  const facsimilePinned = existsSync(join(root, "docs/provenance/ap-17-549.md"));
+  const manifestPath = join(root, "content/source-blocks/brownian-motion/manifest.yaml");
+  const snapshotPath = join(
+    root,
+    "content/source-blocks/brownian-motion/manifest.ids.snapshot.txt",
+  );
+  const aliasPath = join(root, "content/aliases/brownian-motion.yaml");
+  const difficultiesPath = join(root, "docs/editorial/brownian-motion-difficulties.md");
+
+  const manifestRaw = parseYaml(readFileSync(manifestPath, "utf8"));
+  const manifest = validateSourceManifest(manifestRaw, manifestPath);
+  const snapshotIds = parseIdSnapshot(readFileSync(snapshotPath, "utf8"));
+  const aliasRaw = parseYaml(readFileSync(aliasPath, "utf8"));
+  const aliasList = Array.isArray((aliasRaw as { aliases?: unknown }).aliases)
+    ? ((aliasRaw as { aliases: unknown[] }).aliases ?? [])
+    : [];
+  const difficultyFlags = parseDifficultyFlags(readFileSync(difficultiesPath, "utf8"));
+
+  if (manifest.status === "complete") {
+    throw new InventoryHonestyError(
+      "source-claimed-complete",
+      "The Brownian source inventory is marked complete without a pinned facsimile.",
+    );
+  }
+  if (manifest.units.length > 0 && !facsimilePinned) {
+    throw new InventoryHonestyError(
+      "invented-source-units",
+      "Source units are present but the pinned facsimile receipt is absent. Invented units are not admitted.",
+    );
+  }
+  if (manifest.idsFrozenAt || snapshotIds.length > 0) {
+    throw new InventoryHonestyError(
+      "ids-frozen-without-facsimile",
+      "Source ids cannot freeze until the facsimile is pinned and units are inventoried.",
+    );
+  }
+  if (aliasList.length > 0) {
+    throw new InventoryHonestyError(
+      "aliases-not-empty",
+      "The Brownian alias file must stay empty until ids freeze.",
+    );
+  }
+  if (paperStatus !== "explanation-preview" || sourceStatus !== "in-preparation") {
+    throw new InventoryHonestyError(
+      "paper-overclaimed",
+      `Paper status is ${paperStatus}/${sourceStatus}; the edition is an explanation preview with source in preparation.`,
+    );
+  }
+
+  const layers: LayerInventory[] = [
+    {
+      layer: "source-units",
+      existence: manifest.units.length === 0 ? "absent" : "authored",
+      reviewClaim: "not-claimed",
+      ids: manifest.units.map((u) => u.id),
+      note: "Pinned facsimile absent. Units stay empty.",
+    },
+    {
+      layer: "translation",
+      existence: "absent",
+      reviewClaim: "not-claimed",
+      ids: [],
+      note: "No translation units are in the corpus.",
+    },
+    {
+      layer: "arguments",
+      existence: argumentIds.length > 0 ? "authored" : "absent",
+      reviewClaim: "pending",
+      ids: argumentIds,
+      note: "Authored explanation; no human review is claimed.",
+    },
+    {
+      layer: "equations",
+      existence: equationIds.length > 0 ? "authored" : "absent",
+      reviewClaim: "pending",
+      ids: equationIds,
+      note: "Modern teaching equation; historical notation and editorial review are not claimed.",
+    },
+    {
+      layer: "instruments",
+      existence: instrumentIds.length > 0 ? "authored" : "absent",
+      reviewClaim: "not-claimed",
+      ids: instrumentIds,
+      note: "Laboratory routes exist. They are not a source edition.",
+    },
+  ];
+
+  for (const layer of layers) {
+    if (reviewedWithoutRecord(layer.reviewClaim, false)) {
+      throw new InventoryHonestyError(
+        "reviewed-without-record",
+        `Layer ${layer.layer} claims reviewed without a human review record.`,
+      );
+    }
+  }
+
+  return {
+    paper: BROWNIAN_PAPER,
+    bibliographicKey: BROWNIAN_BIB_KEY,
+    facsimilePinned,
+    sourceUnitsFrozen: false,
+    layers,
+    difficultyFlags,
+    treatmentMapRows: TREATMENT_MAP_ROWS,
+    paperStatus,
+    sourceStatus,
+  };
+}
+
+export function brownianCompilerFlags(root = process.cwd()): {
+  editorial: readonly string[];
+  equation: readonly string[];
+} {
+  const files: { path: string; text: string }[] = [];
+  const addJsonDir = (rel: string) => {
+    const dir = join(root, rel);
+    if (!existsSync(dir)) return;
+    for (const name of readdirSync(dir).sort()) {
+      if (!name.endsWith(".json")) continue;
+      files.push({
+        path: `${rel.replace(/^content\//, "")}/${name}`,
+        text: readFileSync(join(dir, name), "utf8"),
+      });
+    }
+  };
+  addJsonDir("content/papers");
+  addJsonDir("content/arguments/brownian-motion");
+  addJsonDir("content/equations/brownian-motion");
+  addJsonDir("content/foundations");
+  addJsonDir("content/bibliography");
+  const compiled = compileReadingContent(files);
+  const editorial = compiled.diagnostics
+    .filter((d) => d.code === "editorial-review-pending")
+    .map((d) => d.path);
+  const equation = compiled.diagnostics
+    .filter((d) => d.code === "equation-review-pending")
+    .map((d) => d.path);
+  return { editorial, equation };
+}
+
+export function brownianSourceManifestDiagnostics(root = process.cwd()) {
+  const manifestPath = join(root, "content/source-blocks/brownian-motion/manifest.yaml");
+  const manifest = validateSourceManifest(
+    parseYaml(readFileSync(manifestPath, "utf8")),
+    manifestPath,
+  );
+  return validateManifest(manifest, { manifests: new Map([[manifest.paper, manifest]]) });
+}

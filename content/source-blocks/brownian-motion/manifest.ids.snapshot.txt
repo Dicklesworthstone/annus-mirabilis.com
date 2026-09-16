@@ -1,0 +1,4 @@
+# Brownian motion source-id snapshot (am-edn-inventory-brownian-slg)
+# Not frozen. The pinned facsimile (am-src-facsimile-brownian-mox) is absent.
+# Empty on purpose: absence is recorded; invented ids are not admitted.
+# s4-s5

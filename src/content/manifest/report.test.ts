@@ -164,6 +164,26 @@ describe("Source Manifest Report Suite", () => {
     );
   });
 
+  it("empty inventory does not claim that units are reviewed", () => {
+    const empty: SourceManifest = {
+      paper: "brownian-motion",
+      document: "ap-17-549",
+      status: "in-preparation",
+      pageCount: 12,
+      pageRange: [549, 560],
+      units: [],
+    };
+    const text = formatManifestReportText(generateManifestReport(empty));
+    assert.ok(text.includes("No source units inventoried"));
+    assert.equal(text.toLowerCase().includes("are reviewed"), false);
+    assert.equal(text.includes("%"), false);
+    logTest(
+      "empty-inventory-does-not-claim-review",
+      "passed",
+      "Zero units must not print a reviewed certificate",
+    );
+  });
+
   it("writes report JSON to artifacts/source-manifest/ and validates written file", () => {
     const report = generateManifestReport(sampleManifest);
     const runId = "test-run-1234";

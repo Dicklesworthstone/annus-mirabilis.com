@@ -84,16 +84,29 @@ export function validateManifest(
     }
   }
 
-  // If paper manifest has 0 units, report empty-manifest
+  // Empty units: a complete paper cannot omit its source inventory. An
+  // in-preparation paper may be empty; that is absence, not a reviewed edition.
   if (manifest.units.length === 0) {
-    addDiag(
-      "error",
-      "empty-manifest",
-      `Source manifest for '${manifest.paper}' has no units. A declared paper cannot have an empty manifest.`,
-      {
-        repair: "Add source units covering the paper's page range.",
-      },
-    );
+    if (manifest.status === "complete") {
+      addDiag(
+        "error",
+        "empty-manifest",
+        `Source manifest for '${manifest.paper}' is marked complete with no units. Completeness cannot be claimed without an inventory.`,
+        {
+          repair: "Inventory units from the pinned facsimile, or keep status in-preparation.",
+        },
+      );
+    } else {
+      addDiag(
+        "flag",
+        "source-units-absent",
+        `Source units for '${manifest.paper}' are absent. The facsimile is not pinned; invented units are not admitted.`,
+        {
+          repair:
+            "Inventory units from the pinned facsimile. Until then keep status in-preparation and units empty.",
+        },
+      );
+    }
     return diagnostics;
   }
 

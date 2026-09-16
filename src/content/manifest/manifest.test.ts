@@ -915,20 +915,36 @@ describe("Source Manifest & Locator Validator Suite", () => {
     assert.equal(emptyCorpusResult.ok, true);
     assert.equal(emptyCorpusResult.diagnostics.length, 0);
 
-    // 2. Declared paper with empty manifest units fails
-    const emptyPaperManifest = createMiniPaperManifest({
+    // 2. In-preparation paper with empty units is absence, not a completeness error
+    const emptyInPrep = createMiniPaperManifest({
       units: [],
     });
-
-    const emptyDiags = validateManifest(emptyPaperManifest, {
-      manifests: new Map([[emptyPaperManifest.paper, emptyPaperManifest]]),
+    const inPrepDiags = validateManifest(emptyInPrep, {
+      manifests: new Map([[emptyInPrep.paper, emptyInPrep]]),
     });
-    const emptyDiag = emptyDiags.find((d) => d.rule === "empty-manifest");
+    const absentFlag = inPrepDiags.find((d) => d.rule === "source-units-absent");
+    assert.ok(absentFlag, "Expected source-units-absent flag");
+    assert.equal(absentFlag.severity, "flag");
+    assert.equal(
+      inPrepDiags.some((d) => d.rule === "empty-manifest" && d.severity === "error"),
+      false,
+    );
+
+    // 3. Complete paper with empty units is an error: completeness cannot be claimed
+    const emptyComplete = createMiniPaperManifest({
+      status: "complete",
+      units: [],
+    });
+    const completeDiags = validateManifest(emptyComplete, {
+      manifests: new Map([[emptyComplete.paper, emptyComplete]]),
+    });
+    const emptyDiag = completeDiags.find((d) => d.rule === "empty-manifest");
     assert.ok(emptyDiag, "Expected empty-manifest diagnostic");
+    assert.equal(emptyDiag.severity, "error");
     logTest(
       "empty-corpus-and-empty-manifest-rules",
       "passed",
-      "Empty corpus passes and empty manifest fails",
+      "Empty corpus passes; in-preparation empty units flag absence; complete empty units error",
     );
   });
 

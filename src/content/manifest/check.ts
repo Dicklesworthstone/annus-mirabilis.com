@@ -60,6 +60,7 @@ export function registerSourceManifestCheck(): void {
             rule: diag.rule,
             message: diag.message,
             repair: diag.repair,
+            severity: diag.severity,
           });
         }
       }

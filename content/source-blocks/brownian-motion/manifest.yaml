@@ -1,0 +1,10 @@
+paper: brownian-motion
+document: ap-17-549
+figures: none
+status: in-preparation
+scope: full-document
+pageCount: 12
+pageRange: [549, 560]
+# idsFrozenAt is omitted: the facsimile is not pinned, so ids are not frozen.
+# Inventing sentence units from memory would be a false inventory.
+units: []

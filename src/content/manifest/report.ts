@@ -102,7 +102,10 @@ export function formatManifestReportText(report: ManifestReportData): string {
   }
   lines.push(``);
 
-  if (report.incompleteUnits.length > 0) {
+  if (report.totalUnits === 0) {
+    lines.push(`No source units inventoried. Absence is recorded; review is not claimed.`);
+    lines.push(``);
+  } else if (report.incompleteUnits.length > 0) {
     lines.push(`--- Incomplete Units (${report.incompleteUnits.length}) ---`);
     for (const u of report.incompleteUnits.slice(0, 20)) {
       lines.push(
@@ -114,7 +117,9 @@ export function formatManifestReportText(report: ManifestReportData): string {
     }
     lines.push(``);
   } else {
-    lines.push(`All in-scope units are reviewed.`);
+    lines.push(
+      `In-scope units have no incomplete statuses in this count. That is not a human-review certificate.`,
+    );
     lines.push(``);
   }
 

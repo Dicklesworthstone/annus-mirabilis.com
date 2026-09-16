@@ -39,6 +39,8 @@ export interface CheckReportItem {
   contentHash?: string | undefined;
   /** Stable SHA-256 fingerprint for review flags and tracking: SHA256(rule:recordId:flaggedText) */
   fingerprint?: string | undefined;
+  /** Overrides the check's default severity for this item. */
+  severity?: CheckSeverity | undefined;
 }
 
 export interface CheckContext {
@@ -131,7 +133,7 @@ export async function runAllChecks(
   for (const check of Array.from(registry.values())) {
     const report = (item: CheckReportItem): void => {
       diagnostics.push({
-        severity: check.severity,
+        severity: item.severity ?? check.severity,
         code: item.rule ?? check.id,
         checkId: check.id,
         family: check.family,
