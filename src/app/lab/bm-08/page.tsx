@@ -29,6 +29,10 @@ export default function CameraPage() {
           <a href="/papers/brownian-motion/#arg-bm-inference">Return to the argument</a>
         </p>
       </header>
+      <p className="notice">
+        Noise-calibration assumption: stationary-feature clicks and the moving particle must have
+        the same localization variance. The clicks cannot establish that assumption.
+      </p>
       <CameraComparison example={{ ...example, parameters: p.data }} />
       <section className="reading" id="camera-model">
         <p className="eyebrow">Why these procedures differ</p>
