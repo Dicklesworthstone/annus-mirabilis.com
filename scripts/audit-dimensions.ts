@@ -10,13 +10,13 @@
 import { existsSync, readFileSync } from "node:fs";
 import path from "node:path";
 import { parseArgs } from "node:util";
-import { type DimensionCheckResult, checkDimensions } from "../src/content/dimensions/check.ts";
+import { checkDimensions, type DimensionCheckResult } from "../src/content/dimensions/check.ts";
 import { dimensionText } from "../src/content/dimensions/rational.ts";
 import type {
   QuantityDescriptor,
   UnitSystemContext,
 } from "../src/content/dimensions/unitSystems.ts";
-import { TestLogger, newRunIdentity } from "../src/testing/log/logger.ts";
+import { newRunIdentity, TestLogger } from "../src/testing/log/logger.ts";
 
 export interface EquationAuditEntry {
   readonly id: string;

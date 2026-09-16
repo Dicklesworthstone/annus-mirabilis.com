@@ -1,8 +1,9 @@
-import { readFile, writeFile, mkdir } from "node:fs/promises";
 import { createHash } from "node:crypto";
+import { mkdir, readFile, writeFile } from "node:fs/promises";
 import { compileReadingContent } from "../src/content/compiler/compile.ts";
-import { loadReadingFiles } from "./build-content.ts";
 import { compileEquation } from "../src/equations/render.ts";
+import { loadReadingFiles } from "./build-content.ts";
+
 const result = compileReadingContent(await loadReadingFiles());
 if (!result.ok) throw new Error("Invalid reading content; equations were not generated.");
 const equations = result.papers.flatMap((p) => p.equations.map(compileEquation));

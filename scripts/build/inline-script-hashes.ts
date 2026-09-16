@@ -1,8 +1,8 @@
+import { execFileSync } from "node:child_process";
 import { createHash } from "node:crypto";
-import { readFile, readdir, stat, writeFile, mkdir } from "node:fs/promises";
+import { mkdir, readdir, readFile, stat, writeFile } from "node:fs/promises";
 import { dirname, join, relative, resolve } from "node:path";
 import { fileURLToPath } from "node:url";
-import { execFileSync } from "node:child_process";
 import type {
   InlineScriptRegistry,
   InlineScriptRegistryEntry,

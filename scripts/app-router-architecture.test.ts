@@ -12,30 +12,33 @@
  * - Added allowlist validation tests and structured evidence logging tests.
  */
 
-import { describe, it } from "node:test";
 import assert from "node:assert/strict";
-import { join } from "node:path";
 import { existsSync, readFileSync } from "node:fs";
+import { join } from "node:path";
+import { describe, it } from "node:test";
 import {
+  type Allowlist,
   checkArchitecture,
   generateLogRunId,
   loadAllowlist,
   matchesAllowlist,
-  writeGateLog,
-  type Allowlist,
   type RepoEntry,
+  writeGateLog,
 } from "./app-router-architecture.ts";
 
 const BASE_ALLOWLIST: Allowlist = {
   "README.md": "Repository overview and reader entry point",
   "AGENTS.md": "Binding repository instructions and rules for AI coding agents",
-  "LICENSE": "Primary repository license (MIT License with OpenAI/Anthropic Rider)",
+  LICENSE: "Primary repository license (MIT License with OpenAI/Anthropic Rider)",
   "NOTICE.md": "Attribution and license notices for third-party and donor materials",
   "THIRD_PARTY_NOTICES.md": "Third-party software dependencies license notices",
-  "COMPREHENSIVE_PLAN_FOR_ANNUS_MIRABILIS_SITE_MERGED.md": "Authoritative project master plan (v2.0)",
-  "COMPREHENSIVE_PLAN_FOR_ANNUS_MIRABILIS_IPHONE_APP.md": "Authoritative native iPhone app master plan (v1.0)",
+  "COMPREHENSIVE_PLAN_FOR_ANNUS_MIRABILIS_SITE_MERGED.md":
+    "Authoritative project master plan (v2.0)",
+  "COMPREHENSIVE_PLAN_FOR_ANNUS_MIRABILIS_IPHONE_APP.md":
+    "Authoritative native iPhone app master plan (v1.0)",
   "COMPREHENSIVE_PLAN_FOR_ANNUS_MIRABILIS_SITE_ASTRA.md": "Committed historical plan draft (ASTRA)",
-  "COMPREHENSIVE_PLAN_FOR_ANNUS_MIRABILIS_SITE_ASTRA_V2.md": "Committed historical plan draft (ASTRA v2)",
+  "COMPREHENSIVE_PLAN_FOR_ANNUS_MIRABILIS_SITE_ASTRA_V2.md":
+    "Committed historical plan draft (ASTRA v2)",
   "COMPREHENSIVE_PLAN_FOR_ANNUS_MIRABILIS_SITE_FABLE.md": "Committed historical plan draft (FABLE)",
   "package.json": "Package manifest and dependency configuration",
   "bun.lock": "Bun text lockfile pinning exact dependency revisions",
@@ -50,15 +53,15 @@ const BASE_ALLOWLIST: Allowlist = {
   ".vercelignore": "Vercel deployment upload ignore rules",
   ".gitignore": "Git version control file ignore rules",
   ".gitattributes": "Git repository path attributes",
-  "src": "Application source code (App Router, components, physics, reader)",
-  "content": "Declarative critical edition content records and metadata",
-  "public": "Static public assets, facsimiles, and self-hosted fonts",
-  "docs": "Documentation, architecture audit records, and specifications",
-  "scripts": "Build, verification, deployment, and test automation scripts",
-  "ios": "Native iOS Swift application project and assets",
-  "perf": "Performance benchmarks and telemetry scenarios",
+  src: "Application source code (App Router, components, physics, reader)",
+  content: "Declarative critical edition content records and metadata",
+  public: "Static public assets, facsimiles, and self-hosted fonts",
+  docs: "Documentation, architecture audit records, and specifications",
+  scripts: "Build, verification, deployment, and test automation scripts",
+  ios: "Native iOS Swift application project and assets",
+  perf: "Performance benchmarks and telemetry scenarios",
   ".beads": "Beads task management tracking directory",
-  ".github": "GitHub Actions CI/CD workflows and repository automation"
+  ".github": "GitHub Actions CI/CD workflows and repository automation",
 };
 
 describe("App Router Architecture Gate", () => {
@@ -82,7 +85,7 @@ describe("App Router Architecture Gate", () => {
         { path: "content/papers/brownian-motion.yaml", kind: "file" },
         { path: "public/figures/hero.svg", kind: "file" },
         { path: "docs/DONOR_AUDIT.md", kind: "file" },
-        { path: "scripts/app-router-architecture.ts", kind: "file" }
+        { path: "scripts/app-router-architecture.ts", kind: "file" },
       ];
 
       const violations = checkArchitecture(cleanEntries, () => false, BASE_ALLOWLIST);
@@ -92,9 +95,7 @@ describe("App Router Architecture Gate", () => {
 
   describe("Rule 1: Pages Router directory", () => {
     it("rejects src/pages directory alone", () => {
-      const entries: RepoEntry[] = [
-        { path: "src/pages", kind: "directory" }
-      ];
+      const entries: RepoEntry[] = [{ path: "src/pages", kind: "directory" }];
       const violations = checkArchitecture(entries, () => false, BASE_ALLOWLIST);
       assert.equal(violations.length, 1);
       assert.equal(violations[0].rule, "rule-1-pages-router");
@@ -104,9 +105,7 @@ describe("App Router Architecture Gate", () => {
     });
 
     it("rejects src/pages/.keep", () => {
-      const entries: RepoEntry[] = [
-        { path: "src/pages/.keep", kind: "file" }
-      ];
+      const entries: RepoEntry[] = [{ path: "src/pages/.keep", kind: "file" }];
       const violations = checkArchitecture(entries, () => false, BASE_ALLOWLIST);
       assert.equal(violations.length, 1);
       assert.equal(violations[0].rule, "rule-1-pages-router");
@@ -114,9 +113,7 @@ describe("App Router Architecture Gate", () => {
     });
 
     it("rejects src/pages/.keep even when ignore predicate returns true", () => {
-      const entries: RepoEntry[] = [
-        { path: "src/pages/.keep", kind: "file" }
-      ];
+      const entries: RepoEntry[] = [{ path: "src/pages/.keep", kind: "file" }];
       // Even if gitignore ignores src/pages, rule 1 MUST fail
       const violations = checkArchitecture(entries, () => true, BASE_ALLOWLIST);
       assert.equal(violations.length, 1);
@@ -124,9 +121,7 @@ describe("App Router Architecture Gate", () => {
     });
 
     it("rejects root pages/index.tsx", () => {
-      const entries: RepoEntry[] = [
-        { path: "pages/index.tsx", kind: "file" }
-      ];
+      const entries: RepoEntry[] = [{ path: "pages/index.tsx", kind: "file" }];
       const violations = checkArchitecture(entries, () => false, BASE_ALLOWLIST);
       assert.equal(violations.length, 1);
       assert.equal(violations[0].rule, "rule-1-pages-router");
@@ -136,18 +131,16 @@ describe("App Router Architecture Gate", () => {
 
   describe("Rule 2: Second App Router root and special files", () => {
     it("rejects root-level app/page.tsx", () => {
-      const entries: RepoEntry[] = [
-        { path: "app/page.tsx", kind: "file" }
-      ];
+      const entries: RepoEntry[] = [{ path: "app/page.tsx", kind: "file" }];
       const violations = checkArchitecture(entries, () => false, BASE_ALLOWLIST);
       assert.ok(violations.length >= 1);
-      assert.ok(violations.some((v) => v.rule === "rule-2-second-app-root" && v.path === "app/page.tsx"));
+      assert.ok(
+        violations.some((v) => v.rule === "rule-2-second-app-root" && v.path === "app/page.tsx"),
+      );
     });
 
     it("rejects src/other/layout.tsx", () => {
-      const entries: RepoEntry[] = [
-        { path: "src/other/layout.tsx", kind: "file" }
-      ];
+      const entries: RepoEntry[] = [{ path: "src/other/layout.tsx", kind: "file" }];
       const violations = checkArchitecture(entries, () => false, BASE_ALLOWLIST);
       assert.equal(violations.length, 1);
       assert.equal(violations[0].rule, "rule-2-second-app-root");
@@ -156,9 +149,7 @@ describe("App Router Architecture Gate", () => {
     });
 
     it("rejects src/reader/route.ts", () => {
-      const entries: RepoEntry[] = [
-        { path: "src/reader/route.ts", kind: "file" }
-      ];
+      const entries: RepoEntry[] = [{ path: "src/reader/route.ts", kind: "file" }];
       const violations = checkArchitecture(entries, () => false, BASE_ALLOWLIST);
       assert.equal(violations.length, 1);
       assert.equal(violations[0].rule, "rule-2-second-app-root");
@@ -166,9 +157,7 @@ describe("App Router Architecture Gate", () => {
     });
 
     it("rejects docs/site/next.config.mjs", () => {
-      const entries: RepoEntry[] = [
-        { path: "docs/site/next.config.mjs", kind: "file" }
-      ];
+      const entries: RepoEntry[] = [{ path: "docs/site/next.config.mjs", kind: "file" }];
       const violations = checkArchitecture(entries, () => false, BASE_ALLOWLIST);
       assert.equal(violations.length, 1);
       assert.equal(violations[0].rule, "rule-2-second-app-root");
@@ -180,16 +169,14 @@ describe("App Router Architecture Gate", () => {
         { path: "src/app/(reader)/papers/page.tsx", kind: "file" },
         { path: "src/app/embed/lab/[experiment]/page.tsx", kind: "file" },
         { path: "src/reader/ReaderLayout.tsx", kind: "file" },
-        { path: "next.config.mjs", kind: "file" }
+        { path: "next.config.mjs", kind: "file" },
       ];
       const violations = checkArchitecture(entries, () => false, BASE_ALLOWLIST);
       assert.deepEqual(violations, []);
     });
 
     it("rejects pages directory under ios/ (e.g. ios/App/pages/index.swift)", () => {
-      const entries: RepoEntry[] = [
-        { path: "ios/App/pages/index.swift", kind: "file" }
-      ];
+      const entries: RepoEntry[] = [{ path: "ios/App/pages/index.swift", kind: "file" }];
       const violations = checkArchitecture(entries, () => false, BASE_ALLOWLIST);
       assert.equal(violations.length, 1);
       assert.equal(violations[0].rule, "rule-2-second-app-root");
@@ -199,9 +186,7 @@ describe("App Router Architecture Gate", () => {
 
   describe("Rule 3: Legacy file names", () => {
     it("rejects src/components/_document.tsx", () => {
-      const entries: RepoEntry[] = [
-        { path: "src/components/_document.tsx", kind: "file" }
-      ];
+      const entries: RepoEntry[] = [{ path: "src/components/_document.tsx", kind: "file" }];
       const violations = checkArchitecture(entries, () => false, BASE_ALLOWLIST);
       assert.equal(violations.length, 1);
       assert.equal(violations[0].rule, "rule-3-legacy-files");
@@ -209,9 +194,7 @@ describe("App Router Architecture Gate", () => {
     });
 
     it("rejects src/app/_error.jsx", () => {
-      const entries: RepoEntry[] = [
-        { path: "src/app/_error.jsx", kind: "file" }
-      ];
+      const entries: RepoEntry[] = [{ path: "src/app/_error.jsx", kind: "file" }];
       const violations = checkArchitecture(entries, () => false, BASE_ALLOWLIST);
       assert.equal(violations.length, 1);
       assert.equal(violations[0].rule, "rule-3-legacy-files");
@@ -219,9 +202,7 @@ describe("App Router Architecture Gate", () => {
     });
 
     it("rejects src/_app.tsx", () => {
-      const entries: RepoEntry[] = [
-        { path: "src/_app.tsx", kind: "file" }
-      ];
+      const entries: RepoEntry[] = [{ path: "src/_app.tsx", kind: "file" }];
       const violations = checkArchitecture(entries, () => false, BASE_ALLOWLIST);
       assert.equal(violations.length, 1);
       assert.equal(violations[0].rule, "rule-3-legacy-files");
@@ -231,9 +212,7 @@ describe("App Router Architecture Gate", () => {
 
   describe("Rule 4: Root allowlist", () => {
     it("fails on unignored root scratch.ts", () => {
-      const entries: RepoEntry[] = [
-        { path: "scratch.ts", kind: "file" }
-      ];
+      const entries: RepoEntry[] = [{ path: "scratch.ts", kind: "file" }];
       const violations = checkArchitecture(entries, () => false, BASE_ALLOWLIST);
       assert.equal(violations.length, 1);
       assert.equal(violations[0].rule, "rule-4-root-allowlist");
@@ -241,9 +220,7 @@ describe("App Router Architecture Gate", () => {
     });
 
     it("fails on unignored stray fix_script.py at root", () => {
-      const entries: RepoEntry[] = [
-        { path: "fix_script.py", kind: "file" }
-      ];
+      const entries: RepoEntry[] = [{ path: "fix_script.py", kind: "file" }];
       const violations = checkArchitecture(entries, () => false, BASE_ALLOWLIST);
       assert.equal(violations.length, 1);
       assert.equal(violations[0].rule, "rule-4-root-allowlist");
@@ -254,7 +231,7 @@ describe("App Router Architecture Gate", () => {
       const entries: RepoEntry[] = [
         { path: "node_modules", kind: "directory" },
         { path: "artifacts", kind: "directory" },
-        { path: "generated", kind: "directory" }
+        { path: "generated", kind: "directory" },
       ];
       const ignoredSet = new Set(["node_modules", "artifacts", "generated"]);
       const violations = checkArchitecture(entries, (p) => ignoredSet.has(p), BASE_ALLOWLIST);
@@ -263,16 +240,14 @@ describe("App Router Architecture Gate", () => {
 
     it("passes root COMPREHENSIVE_PLAN_FOR_ANNUS_MIRABILIS_SITE_ASTRA_V2.md", () => {
       const entries: RepoEntry[] = [
-        { path: "COMPREHENSIVE_PLAN_FOR_ANNUS_MIRABILIS_SITE_ASTRA_V2.md", kind: "file" }
+        { path: "COMPREHENSIVE_PLAN_FOR_ANNUS_MIRABILIS_SITE_ASTRA_V2.md", kind: "file" },
       ];
       const violations = checkArchitecture(entries, () => false, BASE_ALLOWLIST);
       assert.deepEqual(violations, []);
     });
 
     it("fails on root tailwind.config.ts until allowlist gains it with a reason", () => {
-      const entries: RepoEntry[] = [
-        { path: "tailwind.config.ts", kind: "file" }
-      ];
+      const entries: RepoEntry[] = [{ path: "tailwind.config.ts", kind: "file" }];
       // Without tailwind in allowlist -> fails
       const violationsBefore = checkArchitecture(entries, () => false, BASE_ALLOWLIST);
       assert.equal(violationsBefore.length, 1);
@@ -281,19 +256,21 @@ describe("App Router Architecture Gate", () => {
       // With tailwind in allowlist -> passes
       const updatedAllowlist = {
         ...BASE_ALLOWLIST,
-        "tailwind.config.ts": "Tailwind CSS styling configuration"
+        "tailwind.config.ts": "Tailwind CSS styling configuration",
       };
       const violationsAfter = checkArchitecture(entries, () => false, updatedAllowlist);
       assert.deepEqual(violationsAfter, []);
     });
 
     it("handles root sources/ directory: passes when ignored, fails when not ignored", () => {
-      const entries: RepoEntry[] = [
-        { path: "sources", kind: "directory" }
-      ];
+      const entries: RepoEntry[] = [{ path: "sources", kind: "directory" }];
 
       // Ignored: passes
-      const violationsIgnored = checkArchitecture(entries, (p) => p === "sources" || p === "sources/", BASE_ALLOWLIST);
+      const violationsIgnored = checkArchitecture(
+        entries,
+        (p) => p === "sources" || p === "sources/",
+        BASE_ALLOWLIST,
+      );
       assert.deepEqual(violationsIgnored, []);
 
       // Not ignored: fails with explicit must-be-ignored message
@@ -308,7 +285,7 @@ describe("App Router Architecture Gate", () => {
         { path: "scripts/sources/facsimile-sources/ap-17-549.yaml", kind: "file" },
         { path: "scripts/sources/ocr-instructions/v1.md", kind: "file" },
         { path: "docs/provenance/survey/ap-17-549.md", kind: "file" },
-        { path: "docs/rights-vocabulary.yaml", kind: "file" }
+        { path: "docs/rights-vocabulary.yaml", kind: "file" },
       ];
       const violations = checkArchitecture(entries, () => false, BASE_ALLOWLIST);
       assert.deepEqual(violations, []);
@@ -317,9 +294,7 @@ describe("App Router Architecture Gate", () => {
 
   describe("Rule 5: Scratch files in the source tree", () => {
     it("fails on src/physics/fix_units.py", () => {
-      const entries: RepoEntry[] = [
-        { path: "src/physics/fix_units.py", kind: "file" }
-      ];
+      const entries: RepoEntry[] = [{ path: "src/physics/fix_units.py", kind: "file" }];
       const violations = checkArchitecture(entries, () => false, BASE_ALLOWLIST);
       assert.equal(violations.length, 1);
       assert.equal(violations[0].rule, "rule-5-scratch-files");
@@ -327,9 +302,7 @@ describe("App Router Architecture Gate", () => {
     });
 
     it("fails on content/equations/notes.wip.md", () => {
-      const entries: RepoEntry[] = [
-        { path: "content/equations/notes.wip.md", kind: "file" }
-      ];
+      const entries: RepoEntry[] = [{ path: "content/equations/notes.wip.md", kind: "file" }];
       const violations = checkArchitecture(entries, () => false, BASE_ALLOWLIST);
       assert.equal(violations.length, 1);
       assert.equal(violations[0].rule, "rule-5-scratch-files");
@@ -337,9 +310,7 @@ describe("App Router Architecture Gate", () => {
     });
 
     it("fails on public/figures/diagram.orig", () => {
-      const entries: RepoEntry[] = [
-        { path: "public/figures/diagram.orig", kind: "file" }
-      ];
+      const entries: RepoEntry[] = [{ path: "public/figures/diagram.orig", kind: "file" }];
       const violations = checkArchitecture(entries, () => false, BASE_ALLOWLIST);
       assert.equal(violations.length, 1);
       assert.equal(violations[0].rule, "rule-5-scratch-files");
@@ -350,7 +321,7 @@ describe("App Router Architecture Gate", () => {
       const entries: RepoEntry[] = [
         { path: "src/scratch_notes.ts", kind: "file" },
         { path: "src/components/tmp_button.tsx", kind: "file" },
-        { path: "src/physics/debug_helpers.ts", kind: "file" }
+        { path: "src/physics/debug_helpers.ts", kind: "file" },
       ];
       const violations = checkArchitecture(entries, () => false, BASE_ALLOWLIST);
       assert.equal(violations.length, 3);
@@ -360,7 +331,7 @@ describe("App Router Architecture Gate", () => {
     it("passes scripts/ files (Rule 5 does not cover scripts/)", () => {
       const entries: RepoEntry[] = [
         { path: "scripts/digitize-datasets/README.md", kind: "file" },
-        { path: "scripts/generate-lab.mjs", kind: "file" }
+        { path: "scripts/generate-lab.mjs", kind: "file" },
       ];
       const violations = checkArchitecture(entries, () => false, BASE_ALLOWLIST);
       assert.deepEqual(violations, []);
@@ -377,23 +348,17 @@ describe("App Router Architecture Gate", () => {
     });
 
     it("rejects an allowlist entry missing a reason", () => {
-      assert.throws(
-        () => {
-          loadAllowlist({
-            "README.md": ""
-          });
-        },
-        /must have a valid non-empty reason/
-      );
+      assert.throws(() => {
+        loadAllowlist({
+          "README.md": "",
+        });
+      }, /must have a valid non-empty reason/);
 
-      assert.throws(
-        () => {
-          loadAllowlist({
-            "README.md": "   "
-          });
-        },
-        /must have a valid non-empty reason/
-      );
+      assert.throws(() => {
+        loadAllowlist({
+          "README.md": "   ",
+        });
+      }, /must have a valid non-empty reason/);
     });
 
     it("supports wildcard matches", () => {
@@ -415,7 +380,7 @@ describe("App Router Architecture Gate", () => {
       const fakeArtifactsDir = join(process.cwd(), "artifacts");
       const fakeEntries: RepoEntry[] = [
         { path: "src/pages/.keep", kind: "file" },
-        { path: "scratch.ts", kind: "file" }
+        { path: "scratch.ts", kind: "file" },
       ];
       const fakeViolations = checkArchitecture(fakeEntries, () => false, BASE_ALLOWLIST);
 
@@ -423,7 +388,7 @@ describe("App Router Architecture Gate", () => {
         fakeArtifactsDir,
         logRunId,
         fakeEntries,
-        fakeViolations
+        fakeViolations,
       );
 
       assert.ok(existsSync(logPath));

@@ -27,8 +27,8 @@ import {
   assertCanonicalProjectIdentity,
   assertDeploymentReadyAndAliased,
   CANONICAL_PRODUCTION_PROJECT,
-  parseDeploymentInspect,
   PROMOTION_REQUIRED_DOMAINS,
+  parseDeploymentInspect,
 } from "./deployment-target";
 
 describe("deployment-target canonical project identity", () => {
