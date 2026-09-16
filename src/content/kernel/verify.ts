@@ -12,7 +12,7 @@ import { pinKey, SLICE_KERNEL_CATALOG, SLICE_REGISTERED_SCENARIOS } from "./cata
 import { extractTypeScriptExport } from "./extractTypeScript.ts";
 import { hashModuleClosure } from "./sourceDigest.ts";
 import { computeBm01StokesEinsteinTrace } from "./trace.ts";
-import type { ExtractedKernelSource, KernelIssue } from "./types.ts";
+import type { ExtractedKernelSource, KernelIssue, KernelListing } from "./types.ts";
 
 export type KernelPinFile = Readonly<{
   schemaVersion: 1;
@@ -174,6 +174,45 @@ export function verifySliceKernels(options: {
       bm01Trace: computeBm01StokesEinsteinTrace(),
     };
     writeFileSync(options.writeManifestPath, `${JSON.stringify(payload, null, 2)}\n`);
+
+    const listingsByInstrument: Record<string, KernelListing[]> = {};
+    for (const entry of SLICE_KERNEL_CATALOG) {
+      if (!entry.kernel.exportName) continue;
+      const exportName = entry.kernel.exportName;
+      const extracted = extractedList.find(
+        (e) => e.filePath === entry.kernel.module && e.exportName === exportName,
+      );
+      if (!extracted) continue;
+      const list = listingsByInstrument[entry.instrumentId] ?? [];
+      const trace =
+        entry.traceScenarioId === "diffusion-einstein-1905-printed" &&
+        entry.kernel.exportName === "stokesEinsteinD"
+          ? computeBm01StokesEinsteinTrace()
+          : undefined;
+
+      list.push({
+        displayRole: entry.kernel.displayRole,
+        language: entry.kernel.language,
+        exportName,
+        filePath: entry.kernel.module,
+        revision: options.revision,
+        sourceHash: extracted.sourceHash,
+        source: extracted.source,
+        words: entry.words.r1,
+        equationId: entry.equationId,
+        independentReferences: entry.independentReferences ?? [],
+        trace,
+        identifierBindings: entry.identifierBindings,
+      });
+      listingsByInstrument[entry.instrumentId] = list;
+    }
+
+    const genDir = resolve(options.root, "src/generated");
+    mkdirSync(genDir, { recursive: true });
+    writeFileSync(
+      resolve(genDir, "kernel-listings.json"),
+      `${JSON.stringify(listingsByInstrument, null, 2)}\n`,
+    );
   }
 
   return { ok: issues.length === 0, issues, extracted: extractedList, records };

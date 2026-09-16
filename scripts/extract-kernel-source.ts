@@ -1,3 +1,4 @@
+import { execFileSync } from "node:child_process";
 import { existsSync } from "node:fs";
 import { relative, resolve } from "node:path";
 import { fileURLToPath } from "node:url";
@@ -10,6 +11,25 @@ import { hashKernelSource } from "../src/content/kernel/sourceDigest.ts";
 import { verifySliceKernels, writePinsFromExtraction } from "../src/content/kernel/verify.ts";
 
 export { KernelExtractionError };
+
+export function checkCleanCommittedSource(root: string, filePaths: readonly string[]): string[] {
+  const dirty: string[] = [];
+  for (const rel of filePaths) {
+    try {
+      const out = execFileSync("git", ["diff", "HEAD", "--", rel], {
+        cwd: root,
+        encoding: "utf8",
+        stdio: ["ignore", "pipe", "ignore"],
+      });
+      if (out.trim().length > 0) {
+        dirty.push(rel);
+      }
+    } catch {
+      // ignore git errors if not running in a git tree
+    }
+  }
+  return dirty;
+}
 
 export type IdentifierBinding = Readonly<{
   kernelFunction: string;
@@ -170,6 +190,23 @@ if (invokedDirectly) {
     writeManifestPath: resolve(root, "generated/kernel-sources.json"),
   });
   if (writePins) {
+    const allowDirty =
+      process.argv.includes("--allow-dirty-pins") || process.argv.includes("--allow-dirty");
+    if (!allowDirty) {
+      const filePaths = [...new Set(result.records.map((r) => r.filePath))];
+      const dirtyFiles = checkCleanCommittedSource(root, filePaths);
+      if (dirtyFiles.length > 0) {
+        console.error(
+          JSON.stringify({
+            code: "uncommitted-pinned-source",
+            beadId: "am-inst-show-the-code-4brv",
+            dirtyFiles,
+            message: `Cannot write pins: the following ${dirtyFiles.length} pinned files have uncommitted working-tree changes in git HEAD: ${dirtyFiles.join(", ")}. Pinning uncommitted source violates the show-the-code guarantee. Commit your changes before writing pins, or pass --allow-dirty-pins to override.`,
+          }),
+        );
+        process.exit(1);
+      }
+    }
     writePinsFromExtraction(pinsPath, result.records);
     // Re-verify immediately against the newly written pins to ensure zero false positives
     const verifiedAfterWrite = verifySliceKernels({

@@ -14,8 +14,10 @@ import { decodeBm01Settings, encodeBm01Settings } from "../../experiments/bm01/p
 import { createBm01Session, type PreparedBm01Example } from "../../experiments/bm01/session.ts";
 import { deriveHostExecution } from "../../experiments/provenance/executionState.ts";
 import type { AcceptedSnapshot } from "../../experiments/store/instanceStore.ts";
+import { getKernelListingsForInstrument } from "../../content/kernel/listings.ts";
 import equationPayload from "../../generated/brownian-equations.json";
 import { array, display, identity, result, scalar } from "./presentation.ts";
+import { ShowTheCode } from "./ShowTheCode.tsx";
 import { PLOT_KINDS, TracerHistogram, TracerPaths, TracerScaling } from "./TracerPlots.tsx";
 
 function SamplingBand({
@@ -527,6 +529,13 @@ export function TracerLab({
                 : "This result was assembled from a newly generated deterministic recording."}
             </p>
             <p className="fine digest">Evaluator source digest: {example.sourceDigest}</p>
+            <ShowTheCode
+              listings={getKernelListingsForInstrument("bm-01")}
+              snapshotSourceDigest={example.sourceDigest}
+              producedCurrentSnapshot={true}
+              snapshotFunctionName="stokesEinsteinD"
+              uid={`stc-${id}`}
+            />
           </section>
         </div>
         <details>

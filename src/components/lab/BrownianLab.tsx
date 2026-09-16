@@ -14,8 +14,10 @@ import {
 } from "../../experiments/bm06/definition.ts";
 import { decodeBm06Settings, encodeBm06Settings } from "../../experiments/bm06/permalink.ts";
 import { createBm06Session, type PreparedBm06Example } from "../../experiments/bm06/session.ts";
+import { getKernelListingsForInstrument } from "../../content/kernel/listings.ts";
 import { DistributionPlot, GridComparison } from "./DistributionPlot.tsx";
 import { array, display, identity, scalar } from "./presentation.ts";
+import { ShowTheCode } from "./ShowTheCode.tsx";
 
 export type ExternalDiffusivitySource = Readonly<{
   instanceId: string;
@@ -471,6 +473,13 @@ export function BrownianLab({
           The source link opens current main, which may differ from this build. The digest above
           identifies the evaluator sources used by this page.
         </p>
+        <ShowTheCode
+          listings={getKernelListingsForInstrument("bm-06")}
+          snapshotSourceDigest={example.sourceDigest}
+          producedCurrentSnapshot={true}
+          snapshotFunctionName="gaussianPropagator"
+          uid={`stc-${id}`}
+        />
       </details>
       <div className="actions">
         <button

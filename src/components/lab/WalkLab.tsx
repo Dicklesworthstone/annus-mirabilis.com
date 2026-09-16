@@ -5,8 +5,10 @@ import { BM05_FIELDS, fromWalkDraft, toWalkDraft } from "../../experiments/bm05/
 import { BM05_MODEL, BM05_PROMPT, type Bm05Parameters } from "../../experiments/bm05/definition.ts";
 import { decodeBm05Settings, encodeBm05Settings } from "../../experiments/bm05/permalink.ts";
 import { createBm05Session, type PreparedBm05Example } from "../../experiments/bm05/session.ts";
+import { getKernelListingsForInstrument } from "../../content/kernel/listings.ts";
 import type { AcceptedSnapshot } from "../../experiments/store/instanceStore.ts";
 import { array, display, identity, result, scalar } from "./presentation.ts";
+import { ShowTheCode } from "./ShowTheCode.tsx";
 import { WalkConvergence, WalkHistogram, WalkPaths } from "./WalkPlots.tsx";
 
 const names = {
@@ -643,6 +645,13 @@ export function WalkLab({
             edition, reviewed historical constants, and full control-tape format remain in
             preparation.
           </p>
+          <ShowTheCode
+            listings={getKernelListingsForInstrument("bm-05")}
+            snapshotSourceDigest={example.sourceDigest}
+            producedCurrentSnapshot={true}
+            snapshotFunctionName="kernelDiffusivity"
+            uid={`stc-${id}`}
+          />
         </details>
       </section>
     </section>
