@@ -9,9 +9,11 @@
  */
 
 import type { ParameterSpec } from "../../content/schemas/experiment.ts";
+import { withinTolerance } from "../../units/tolerance.ts";
 import type { DomainValidationResult, OffGridDecision } from "./types.ts";
 
-const FLOAT_EPSILON = 1e-12;
+const DOMAIN_COMPARISON_TOLERANCE = { absolute: 1e-12 };
+const BOUNDARY_SLACK = 1e-12;
 
 /**
  * Validates a numerical value against a ParameterSpec's model domain and visual range.
@@ -31,7 +33,7 @@ export function validateDomain(spec: ParameterSpec, value: number): DomainValida
   // 1. Enumerated choices
   if (modelDomain.enumerated && modelDomain.enumerated.length > 0) {
     const isMember = modelDomain.enumerated.some(
-      (item) => Math.abs(item - value) < FLOAT_EPSILON,
+      (item) => withinTolerance(item, value, DOMAIN_COMPARISON_TOLERANCE).ok,
     );
     if (!isMember) {
       const reasonPrefix = modelDomain.reason ? `${modelDomain.reason}: ` : "";
@@ -54,7 +56,7 @@ export function validateDomain(spec: ParameterSpec, value: number): DomainValida
   // 2. Minimum bound
   if (modelDomain.min !== undefined) {
     const minInclusive = modelDomain.minInclusive !== false;
-    const violatesMin = minInclusive ? value < modelDomain.min - FLOAT_EPSILON : value <= modelDomain.min + FLOAT_EPSILON;
+    const violatesMin = minInclusive ? value < modelDomain.min - BOUNDARY_SLACK : value <= modelDomain.min + BOUNDARY_SLACK;
     if (violatesMin) {
       const reasonPrefix = modelDomain.reason ? `${modelDomain.reason}: ` : "";
       return {
@@ -71,7 +73,7 @@ export function validateDomain(spec: ParameterSpec, value: number): DomainValida
   // 3. Maximum bound
   if (modelDomain.max !== undefined) {
     const maxInclusive = modelDomain.maxInclusive !== false;
-    const violatesMax = maxInclusive ? value > modelDomain.max + FLOAT_EPSILON : value >= modelDomain.max - FLOAT_EPSILON;
+    const violatesMax = maxInclusive ? value > modelDomain.max + BOUNDARY_SLACK : value >= modelDomain.max - BOUNDARY_SLACK;
     if (violatesMax) {
       const reasonPrefix = modelDomain.reason ? `${modelDomain.reason}: ` : "";
       return {
@@ -87,14 +89,14 @@ export function validateDomain(spec: ParameterSpec, value: number): DomainValida
 
   // 4. Boundary check
   let isBoundary = false;
-  if (modelDomain.min !== undefined && Math.abs(value - modelDomain.min) < FLOAT_EPSILON) {
+  if (modelDomain.min !== undefined && withinTolerance(value, modelDomain.min, DOMAIN_COMPARISON_TOLERANCE).ok) {
     isBoundary = true;
   }
-  if (modelDomain.max !== undefined && Math.abs(value - modelDomain.max) < FLOAT_EPSILON) {
+  if (modelDomain.max !== undefined && withinTolerance(value, modelDomain.max, DOMAIN_COMPARISON_TOLERANCE).ok) {
     isBoundary = true;
   }
 
-  const isBeyondVisualTrack = value < visualRange.min - FLOAT_EPSILON || value > visualRange.max + FLOAT_EPSILON;
+  const isBeyondVisualTrack = value < visualRange.min - BOUNDARY_SLACK || value > visualRange.max + BOUNDARY_SLACK;
 
   return {
     valid: true,

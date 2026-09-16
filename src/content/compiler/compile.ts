@@ -106,14 +106,19 @@ export function compileReadingContent(files: readonly Readonly<{ path: string; t
       }
 
       // Documentation files (e.g. README.md) are allowlisted and skipped from reading records
-      if (routeMatch.kind === "documentation" || routeMatch.kind === "frozen-id-snapshot") {
+      if (
+        routeMatch.kind === "documentation" ||
+        routeMatch.kind === "frozen-id-snapshot" ||
+        routeMatch.kind === "source-manifest" ||
+        routeMatch.kind === "source-block" ||
+        routeMatch.kind === "aliases"
+      ) {
         continue;
       }
 
       // Editorial rules / reviews / owners / overrides
       if (
         routeMatch.kind === "flag-reviews" ||
-        routeMatch.kind === "aliases" ||
         routeMatch.kind === "readings-owner" ||
         routeMatch.kind === "editorial-rules" ||
         routeMatch.kind === "editorial-overrides"

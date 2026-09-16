@@ -7,7 +7,7 @@
  * Bead: am-cm-id-scheme-8bn
  */
 
-import { execSync } from "node:child_process";
+import { execFileSync } from "node:child_process";
 import { existsSync, readdirSync, readFileSync } from "node:fs";
 import path from "node:path";
 import { parseArgs } from "node:util";
@@ -17,9 +17,9 @@ import { newRunIdentity, TestLogger } from "../src/testing/log/logger.ts";
 
 function getGitFilesAtRef(ref: string, dir: string): string[] {
   try {
-    const output = execSync(`git ls-tree -r --name-only ${ref} ${dir}`, {
+    const output = execFileSync("git", ["ls-tree", "-r", "--name-only", ref, dir], {
       encoding: "utf8",
-      stdio: ["ignore", "pipe", "ignore"],
+      stdio: "pipe",
     });
     return output
       .split("\n")
@@ -32,9 +32,9 @@ function getGitFilesAtRef(ref: string, dir: string): string[] {
 
 function readGitFileAtRef(ref: string, relativePath: string): string | null {
   try {
-    return execSync(`git show ${ref}:${relativePath}`, {
+    return execFileSync("git", ["show", `${ref}:${relativePath}`], {
       encoding: "utf8",
-      stdio: ["ignore", "pipe", "ignore"],
+      stdio: "pipe",
     });
   } catch {
     return null;

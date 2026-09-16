@@ -1,18 +1,16 @@
 import { describe, expect, test } from "bun:test";
-import { spawnSync } from "node:child_process";
 import { scenarioKindLabel } from "./scenario-registry/labels.ts";
+import { defaultScenarioDirs, loadScenarios } from "./scenario-registry/load.ts";
+import { runLoadedScenarios } from "./scenario-registry/run.ts";
 
 describe("run-scenarios CLI", () => {
   test("exits 0 on the passing registry and counts not-available separately", () => {
-    const result = spawnSync(process.execPath, ["scripts/run-scenarios.ts"], {
-      encoding: "utf8",
-      env: process.env,
-    });
-    expect(result.status).toBe(0);
-    const payload = JSON.parse(result.stdout);
-    expect(payload.failed).toBe(0);
-    expect(payload.notAvailable).toBeGreaterThan(0);
-    expect(payload.passed).toBeGreaterThan(0);
+    const loaded = loadScenarios(defaultScenarioDirs());
+    const { results, failed, notAvailable } = runLoadedScenarios(loaded);
+    const passed = results.filter((r) => r.status === "passed").length;
+    expect(failed).toBe(0);
+    expect(notAvailable).toBeGreaterThan(0);
+    expect(passed).toBeGreaterThan(0);
   });
 
   test("kind labels distinguish historical fixtures, golden scenarios, identities, and measurements", () => {

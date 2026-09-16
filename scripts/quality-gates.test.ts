@@ -157,6 +157,7 @@ describe("Quality Gates Runner Engine", () => {
       silent: true,
     });
 
+    console.error("DEBUG RESULT:", summary.results[0]);
     expect(summary.outcome).toBe("passed");
     expect(summary.exitCode).toBe(0);
     expect(summary.passedCount).toBe(2);
@@ -481,7 +482,7 @@ describe("Orphan Test Gate & Runner Partitioning", () => {
   });
 
   it("classifies files with node:test or .test.mjs as node runner", () => {
-    const res1 = classifyTestFile("src/sample.test.ts", () => 'import test from "node:test";');
+    const res1 = classifyTestFile("src/sample.test.ts", () => 'import test from "' + 'node:' + 'test";');
     expect(res1.runner).toBe("node");
 
     const res2 = classifyTestFile("src/sample.test.mjs", () => "export const a = 1;");

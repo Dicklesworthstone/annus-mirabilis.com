@@ -16,6 +16,8 @@ import {
   transverseMassLaboratory,
 } from "../physics/reference/electron.ts";
 
+import { withinTolerance } from "../units/tolerance.ts";
+
 function val(r: ScientificResult | undefined): number {
   if (!r || r.status !== "value" || typeof r.value !== "number") {
     throw new Error(`Expected ScientificResult with numeric value, got: ${JSON.stringify(r)}`);
@@ -24,10 +26,12 @@ function val(r: ScientificResult | undefined): number {
 }
 
 function expectClose(actual: number, expected: number, relTol: number = 1e-5, absFloor: number = 1e-12) {
-  const diff = Math.abs(actual - expected);
-  if (diff <= absFloor) return;
-  const rel = diff / Math.max(Math.abs(actual), Math.abs(expected));
-  expect(rel).toBeLessThanOrEqual(relTol);
+  const verdict = withinTolerance(actual, expected, {
+    relative: relTol,
+    absolute: absFloor,
+    relativeTo: "larger",
+  });
+  expect(verdict.ok).toBe(true);
 }
 
 describe("SR-13 Acceptance Criteria & Numerical Rigor (am-sr-13-electron-dynamics-b6v7)", () => {

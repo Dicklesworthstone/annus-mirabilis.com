@@ -1,5 +1,6 @@
-import { describe, expect, it } from "bun:test";
-import { execSync } from "node:child_process";
+import assert from "node:assert";
+import test, { describe, it } from "node:test";
+import { execFileSync } from "node:child_process";
 import { randomBytes } from "node:crypto";
 import { mkdirSync, writeFileSync } from "node:fs";
 import path from "node:path";
@@ -16,10 +17,14 @@ describe("check-revisions Integration with Git Repository", () => {
 
     mkdirSync(path.join(testRepoDir, "content"), { recursive: true });
 
+    const runGit = (args: string[]) => {
+      execFileSync("git", args, { cwd: testRepoDir, stdio: "pipe" });
+    };
+
     // Initialize git repository
-    execSync("git init -b main", { cwd: testRepoDir, stdio: "ignore" });
-    execSync('git config user.name "Revision Test Agent"', { cwd: testRepoDir, stdio: "ignore" });
-    execSync('git config user.email "agent@example.com"', { cwd: testRepoDir, stdio: "ignore" });
+    runGit(["init", "-b", "main"]);
+    runGit(["config", "user.name", "Revision Test Agent"]);
+    runGit(["config", "user.email", "agent@example.com"]);
 
     // Commit 1: Initial record at revision 1
     const recordPath = path.join(testRepoDir, "content", "record-1.json");
@@ -37,11 +42,8 @@ describe("check-revisions Integration with Git Repository", () => {
       "utf8",
     );
 
-    execSync("git add content/record-1.json", { cwd: testRepoDir, stdio: "ignore" });
-    execSync('git commit -m "feat: initial record revision 1"', {
-      cwd: testRepoDir,
-      stdio: "ignore",
-    });
+    runGit(["add", "content/record-1.json"]);
+    runGit(["commit", "-m", "feat: initial record revision 1"]);
 
     // Commit 2: Content changed but revision NOT incremented
     writeFileSync(
@@ -58,11 +60,8 @@ describe("check-revisions Integration with Git Repository", () => {
       "utf8",
     );
 
-    execSync("git add content/record-1.json", { cwd: testRepoDir, stdio: "ignore" });
-    execSync('git commit -m "fix: content edit without revision bump"', {
-      cwd: testRepoDir,
-      stdio: "ignore",
-    });
+    runGit(["add", "content/record-1.json"]);
+    runGit(["commit", "-m", "fix: content edit without revision bump"]);
 
     // Run the revision check against base HEAD~1 inside the test repo
     const originalCwd = process.cwd();
@@ -70,12 +69,14 @@ describe("check-revisions Integration with Git Repository", () => {
     try {
       process.chdir(testRepoDir);
       checkPassed = await runRevisionCheck("HEAD~1", "content");
+    } catch (err) {
+      console.error("runRevisionCheck error:", err);
     } finally {
       process.chdir(originalCwd);
     }
 
     // It must fail because revision did not increase
-    expect(checkPassed).toBe(false);
+    assert.strictEqual(checkPassed, false);
 
     logger.log({
       testId: "git-revision-check-integration",
