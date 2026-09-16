@@ -1124,6 +1124,10 @@ A computed `s * s` is not always exactly `2 D dt` in floating point. Coin mean-s
 
 Because every physical kernel starts at 0, the stored values are numerically also displacements from the origin (`displacement1d`). The buffer still binds `latentPosition1d` (the latent path). Field coordinates of a PDE grid bind `positionCoordinate1d` and are not this export.
 
+**TypeScript walk-law agreement (am-fs-export-brownian-frames-nhm).** The site's `WALK_KERNELS` in `src/physics/reference/diffusion/walkLaws.ts` pin `fourthMomentFactor` 1 (coin, excess kurtosis −2), 1.8 (uniform, −1.2), and 3 (Gaussian, 0), and bind the physical Gaussian to `stepKernel` 3. Those factors are identical to `fourthMomentOverSigma4` in the kernel-resolution block below. This export implements that block; it does not change kernel ids 2 or 3. Kernel 2 remains `unit-gaussian-teaching` (variance 1, D and dt do not scale the step). Kernel 3 remains `gaussian-exact-D` (variance `2 D dt`). A mismatch would mean one of the two owners is wrong; the numbers currently agree.
+
+**Refusal channel (same bead).** Native calls return `Result<Vec<f64>, Refusal>` with `code`, `message`, `ranked_repairs`, and a JSON `details` object. An unexplained empty `Vec<f64>` is not a refusal. WASM returns a paired `envelope` string plus `values`; `values` is empty only when `envelope` is a `{"refusal":...}` object.
+
 #### Machine-readable kernel-resolution block
 
 Parsed by `scripts/verify-frankensim-binding.test.ts` (planned). A block that declared ids 2 and 3 with identical meaning and no alias decision would fail; this block does not.
