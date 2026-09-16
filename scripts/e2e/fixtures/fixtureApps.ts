@@ -160,9 +160,17 @@ export const VIEW_KIT_FIXTURE_ENTRY: FixtureAppEntry = Object.freeze({
   owner: "am-inst-2d-view-kit-u75r",
 });
 
+export const CONTROLS_KIT_FIXTURE_ENTRY: FixtureAppEntry = Object.freeze({
+  id: "controls-kit",
+  entry: "src/testing/e2e/fixture-apps/controls-kit/",
+  outDir: "artifacts/e2e-fixtures/controls-kit/",
+  owner: "am-inst-parameter-controls-cmj9",
+});
+
 /**
  * The registry of interactive fixture applications.
  */
 export const FIXTURE_APP_REGISTRY: readonly FixtureAppEntry[] = Object.freeze([
   VIEW_KIT_FIXTURE_ENTRY,
+  CONTROLS_KIT_FIXTURE_ENTRY,
 ]);
