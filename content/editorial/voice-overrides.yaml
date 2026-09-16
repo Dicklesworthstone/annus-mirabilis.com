@@ -1,0 +1,13 @@
+# Editorial voice overrides (content/editorial/voice-rules.yaml is the rule set this overrides).
+# No overrides are recorded yet; leaving this empty is the honest state until a reviewed exception
+# is actually granted. An entry without "reason" or "reviewer" is itself an error, and an entry
+# whose "matchedText" no longer occurs in its "target" is flagged as stale.
+#
+# Format of one entry:
+#   - target: <record id or repository-relative file path>
+#     rule: <the voice-rules.yaml rule id this overrides>
+#     matchedText: <the exact text the rule matched>
+#     reason: <why this specific text is allowed here>
+#     reviewer: <a reviewer id from docs/OWNERS.md>
+#     date: <YYYY-MM-DD>
+overrides: []

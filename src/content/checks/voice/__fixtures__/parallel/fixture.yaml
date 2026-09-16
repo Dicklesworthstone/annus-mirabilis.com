@@ -1,0 +1,5 @@
+# Fixture YAML containing parallel deny list for noParallelDenyLists test
+mockery_words:
+  - "foolish"
+  - "silly"
+  - "absurd"

@@ -1,0 +1,286 @@
+# Editorial voice rules (AGENTS.md "Editorial Voice", "Engineering Doctrine" item 13,
+# "Typed results", "Reasonable alternatives deserve a fair hearing"). Bead: am-edit-voice-lint-trmf.
+#
+# This is the ONE list and ONE override mechanism per kind of vocabulary. Surfaces that need
+# theater, mockery, overclaim, or independence-claim vocabulary call src/content/checks/voice's
+# checkVoice() rather than keeping a second copy; src/content/checks/voice/noParallelDenyLists.test.ts
+# enforces that no second list exists anywhere in the tree.
+#
+# status-enum-leak id groups are data, not code, so a later bead adds one line, not a matcher
+# change. Each group below is labeled with the bead that registers those ids in
+# src/experiments/results/{types,outcomes,refusalCodes}.ts. A registered id missing here is a
+# build failure (am-rt-typed-results-mqb requirement 11 reads this file against the live
+# registries), never a style note.
+
+contexts:
+  default: prose
+  known:
+    - prose
+    - ui-label
+    - task-feedback
+    - reader-progress
+    - journey-branch
+    - countermodel-cell
+    - independence-claim
+
+rules:
+  em-dash:
+    description: "U+2014 (em dash) anywhere in scanned text."
+    kind: literal-chars
+    chars:
+      - "—"
+    defaultSeverity: error
+    quotationExempt: true
+    translationSeverity: flag
+
+  ascii-dash:
+    description: "Two hyphens used as a word-joining dash, not as a command-line flag."
+    kind: regex
+    pattern: "(?<=[A-Za-z0-9)])[ \\t]--[ \\t](?=[A-Za-z0-9(])"
+    defaultSeverity: error
+    quotationExempt: true
+    codeSpanExempt: true
+    translationSeverity: flag
+
+  hype-word:
+    description: "seminal, pivotal, groundbreaking, revolutionary, in any inflection."
+    kind: word-list
+    words:
+      - seminal
+      - pivotal
+      - groundbreaking
+      - revolutionary
+      - revolutionize
+      - revolutionizes
+      - revolutionized
+      - revolutionizing
+      # German inflection, banned like the English ones except for the one attributed exception
+      # immediately below (Einstein's own "sehr revolutionär" to Habicht).
+      - revolutionär
+    defaultSeverity: error
+    quotationDowngrade: flag
+    exception:
+      attribution: habicht-letter
+      phrase: "sehr revolutionär"
+      passesOutright: true
+
+  unlock:
+    description: '"unlock" in any form.'
+    kind: word-list
+    words:
+      - unlock
+      - unlocks
+      - unlocked
+      - unlocking
+    defaultSeverity: error
+
+  not-x-its-y:
+    description: 'The construction "it''s not X, it''s Y" and close variants.'
+    kind: regex
+    pattern: "it'?s not [^,.;]+, ?it'?s "
+    defaultSeverity: flag
+
+  condescension:
+    description: 'obviously, clearly, "it is easy to see," trivially.'
+    kind: phrase-list
+    phrases:
+      - obviously
+      - clearly
+      - it is easy to see
+      - trivially
+    defaultSeverity: error
+
+  effortless-promise:
+    description: 'effortless, "master in minutes," "anyone can instantly understand," and similar.'
+    kind: phrase-list
+    phrases:
+      - effortless
+      - effortlessly
+      - master in minutes
+      - master it in minutes
+      - anyone can instantly understand
+      - instantly understand
+    defaultSeverity: flag
+
+  persona-label:
+    description: "A persona or profession used as a reader-facing label, mode, or choice."
+    kind: phrase-list
+    phrases:
+      - for programmers
+      - programmer mode
+      - physician mode
+      - the engineer's view
+      - engineer mode
+      - student version
+      - for readers with no algebra
+      - the physicist's view
+    severityByContext:
+      ui-label: error
+      default: flag
+
+  level-assignment:
+    description: '"your level," "beginner mode," "advanced users only," "placement test."'
+    kind: phrase-list
+    phrases:
+      - your level
+      - beginner mode
+      - advanced users only
+      - placement test
+    defaultSeverity: error
+
+  # --- status-enum-leak -------------------------------------------------------------------
+  status-enum-leak:
+    description: "Raw result status, execution-outcome, or refusal-code identifiers in visitor-facing text."
+    kind: status-enum-leak
+    defaultSeverity: error
+    singleWordProseSeverity: flag
+    ids:
+      # Result statuses (am-rt-typed-results-mqb). "value" and "symbolic" are ordinary words and
+      # are deliberately absent; the rendered-string test of am-rt-typed-results-mqb covers them.
+      statuses:
+        - analytic-limit
+        - underdetermined
+        - not-applicable
+        - outside-domain
+      # Execution outcomes (am-rt-typed-results-mqb). "cancelled" and "superseded" are ordinary
+      # words and are deliberately absent for the same reason.
+      executionOutcomes:
+        - transport-error
+        - protocol-mismatch
+        - malformed-response
+        - budget-exhausted
+        - missing-artifact
+        - artifact-mismatch
+        - environment-unsupported
+        - worker-crashed
+        - context-lost
+        - invariant-violation
+      # Refusal codes, grouped by the bead that registers them.
+      refusalCodes:
+        # am-rt-typed-results-mqb requirement 4 (initial registry).
+        - ftcs-unstable
+        - off-replay-grid
+        - superluminal-observer
+        - outside-wien-domain
+        - stokes-gas-medium
+        - invalid-seed
+        - nonfinite-input
+        - unsupported-kernel
+        - invalid-parameter
+        - stream-index-overflow
+        # am-rt-control-tapes-0gc requirement 7 (tape compatibility codes; reused by
+        # am-inst-permalink-tape-s677 for shared links).
+        - tape-version-unsupported
+        - tape-model-mismatch
+        - tape-artifact-mismatch
+        - tape-constant-set-mismatch
+        - tape-stream-version-mismatch
+        - tape-allocation-mismatch
+        - tape-grid-mismatch
+        # am-ref-diffusion-lr3 numerical codes. drift-cfl-exceeded is the Courant condition of
+        # the drift branch, a different code from ftcs-unstable (the von Neumann diffusion-number
+        # limit); neither is the retired spelling cfl-unstable, which never appears here.
+        - drift-diffusion-unstable
+        - drift-cfl-exceeded
+        - quantile-not-converged
+        # am-ref-inference-2w9.
+        - circular-radius-from-displacement
+      # Donor labels that must never leak as a visible execution label.
+      donorLabels:
+        - HONEST_PLACEHOLDER
+        - TS_FALLBACK
+
+  theater:
+    description: "Scoring and gamification vocabulary, and mark vocabulary on reader work."
+    kind: word-list
+    words:
+      - streak
+      - badge
+      - leaderboard
+      - points
+      - grade
+      - score
+      - "% complete"
+      - percent complete
+      - validated
+      - certified
+    markWords:
+      - correct
+      - incorrect
+      - wrong answer
+      - right answer
+      # Bare "wrong" is also mark vocabulary when grading an attempt ("You guessed wrong.",
+      # "Wrong!"); the multi-word forms above stay for the display-badge shape ("Wrong answer").
+      - wrong
+      - "✓"
+      - "✗"
+    markWordsProseExempt: true
+    severityByContext:
+      task-feedback: error
+      reader-progress: error
+      ui-label: error
+      default: flag
+
+  mockery:
+    description: "Words that mock a historical figure, a countermodel, or a reader's earlier guess."
+    kind: word-list
+    words:
+      - foolish
+      - naive
+      - naively
+      - silly
+      - stupid
+      - absurd
+      - obviously wrong
+    allowlist:
+      - naive estimate
+      - naive estimator
+      - naive estimates
+      - naive estimators
+    severityByContext:
+      journey-branch: error
+      countermodel-cell: error
+      default: flag
+
+  overclaim:
+    description: "The verdict vocabulary of reception and causation, which turns evidence into a settlement."
+    kind: overclaim
+    phrases:
+      - first decisive proof
+      - finally proved
+      - confirmed einstein's theory
+      - vindicated
+      - settled the question
+      - proved
+      - caused
+    # "proved" alone also matches ordinary mathematical-proof language; it is allowed when a
+    # nearby word marks a derivation inside a stated model rather than a verdict on the world.
+    provedAllowlistNearWords:
+      - theorem
+      - proof route
+      - converse
+      - lemma
+      - corollary
+      - "section"
+      - "§"
+      - derivation
+    quotationExempt: true
+    severityByContext:
+      prose: error
+      ui-label: error
+      task-feedback: error
+      journey-branch: flag
+      countermodel-cell: flag
+      default: flag
+
+  # independence-claim carries no active rule; am-dataset-independence-registry-3dfb matches on
+  # this list for its own independence-claim-missing rule. Held here, and only here, so that
+  # rule and this one never drift into two copies of the same vocabulary.
+  independence-claim:
+    description: "Vocabulary that marks a claim of independent determination. Data only; no rule enforced here."
+    kind: data-only
+    phrases:
+      - independent
+      - independently
+      - separate determinations
+      - agree independently

@@ -8,6 +8,7 @@
 
 import type { EquationRecord } from "../../equations/record.ts";
 import { registerStructuralChecks } from "../checks/structural/structural.ts";
+import { registerVoiceCheck } from "../checks/voice/check.ts";
 import { registerSourceManifestCheck } from "../manifest/check.ts";
 import {
   type Argument,
@@ -281,6 +282,7 @@ export async function compileContent(
   if (listRegisteredChecks().length === 0) {
     registerStructuralChecks();
     registerSourceManifestCheck();
+    registerVoiceCheck();
   }
   const checkContext = {
     records: rawRecords,

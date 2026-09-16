@@ -1,0 +1,5 @@
+# Planted fixture for noParallelDenyLists.test.ts
+mockery_terms:
+  - "foolish"
+  - "silly"
+  - "absurd"
