@@ -1,0 +1,422 @@
+id: bm-03
+title: "BM-03: Configuration Integral"
+explanatoryQuestion: "How does counting where independent particles can be produce the pressure law without solving any motion?"
+sourceRefs:
+  - paper: brownian-motion
+    id: s2
+argumentIds:
+  - arg-bm-diffusivity
+  - arg-bm-diffusion-equation
+  - arg-bm-observable
+schemaVersion: 1
+parameters:
+  - id: Np
+    label: "Particle count"
+    accessibleName: "Independent particle count"
+    accessibleDescription: "Number of independent particles in the suspension"
+    quantityId: particleCount
+    displayUnit: ""
+    modelDomain:
+      min: 1
+      max: 1000000
+      minInclusive: true
+      maxInclusive: true
+      reason: "Positive integer count of independent particles; explicit factor view up to 12, logarithmic view up to 10^6"
+    visualRange:
+      min: 1
+      max: 12
+    default: 2
+    mapping:
+      kind: linear
+    role: independent
+    commandClass: setup-change
+  - id: volumeRatio
+    label: "Volume ratio V/V0"
+    accessibleName: "Volume expansion ratio"
+    accessibleDescription: "Ratio of accessible volume V to reference volume V0"
+    quantityId: volumeRatio
+    displayUnit: "1"
+    modelDomain:
+      min: 0.001
+      max: 1000
+      minInclusive: false
+      maxInclusive: true
+      reason: "Positive volume ratio"
+    visualRange:
+      min: 0.5
+      max: 4
+    default: 2
+    mapping:
+      kind: linear
+    role: independent
+    commandClass: setup-change
+  - id: V0
+    label: "Reference volume V0"
+    accessibleName: "Reference accessible volume in cubic micrometres"
+    accessibleDescription: "Reference volume V0 in um^3 used to calculate pressure"
+    quantityId: volume
+    displayUnit: "um3"
+    modelDomain:
+      min: 1
+      max: 1000000000
+      minInclusive: false
+      maxInclusive: true
+      reason: "Positive reference volume"
+    visualRange:
+      min: 1000
+      max: 1000000000
+    default: 1000000
+    mapping:
+      kind: log
+      base: 10
+    role: independent
+    commandClass: setup-change
+  - id: T
+    label: "Temperature"
+    accessibleName: "Absolute temperature"
+    accessibleDescription: "Temperature in Kelvin"
+    quantityId: temperature
+    displayUnit: "K"
+    modelDomain:
+      min: 273.15
+      max: 373.15
+      minInclusive: true
+      maxInclusive: true
+      reason: "Liquid water temperature range"
+    visualRange:
+      min: 273.15
+      max: 373.15
+    default: 293.15
+    mapping:
+      kind: linear
+    role: independent
+    commandClass: setup-change
+  - id: model
+    label: "Particle model"
+    accessibleName: "Particle placement model"
+    accessibleDescription: "Independent particles (Einstein §2 premise) or locked cluster (counterexample)"
+    quantityId: particleCount
+    displayUnit: ""
+    modelDomain:
+      enumerated: []
+      reason: "Either independent particles or locked cluster"
+    visualRange:
+      min: 0
+      max: 1
+    default: "independent"
+    mapping:
+      kind: linear
+    role: independent
+    commandClass: setup-change
+  - id: step
+    label: "Construction step"
+    accessibleName: "Stepwise derivation step"
+    accessibleDescription: "Current step in the stepwise configuration integral construction"
+    quantityId: particleCount
+    displayUnit: ""
+    modelDomain:
+      enumerated: []
+      reason: "One of one-particle, two-particles, many-particles, derivative"
+    visualRange:
+      min: 1
+      max: 4
+    default: "one-particle"
+    mapping:
+      kind: linear
+    role: independent
+    commandClass: presentation-change
+  - id: notation
+    label: "Notation style"
+    accessibleName: "Notation display style"
+    accessibleDescription: "Einstein printed notation (1905) or modern notation"
+    quantityId: particleCount
+    displayUnit: ""
+    modelDomain:
+      enumerated: []
+      reason: "Either printed or modern"
+    visualRange:
+      min: 0
+      max: 1
+    default: "printed"
+    mapping:
+      kind: linear
+    role: independent
+    commandClass: presentation-change
+outputs:
+  - id: factorRatio
+    quantityId: volumeRatio
+    allowedStatuses:
+      - value
+      - outside-domain
+    primary: true
+  - id: deltaF
+    quantityId: freeEnergy
+    allowedStatuses:
+      - value
+      - outside-domain
+    primary: true
+  - id: pressure
+    quantityId: osmoticPressure
+    allowedStatuses:
+      - value
+      - outside-domain
+    primary: true
+  - id: lockedClusterPressure
+    quantityId: osmoticPressure
+    allowedStatuses:
+      - value
+      - outside-domain
+    primary: false
+  - id: volumeIndependentFactor
+    quantityId: freeEnergy
+    allowedStatuses:
+      - symbolic
+    primary: false
+  - id: momentumIntegrals
+    quantityId: freeEnergy
+    allowedStatuses:
+      - symbolic
+    primary: false
+  - id: freeEnergyOffset
+    quantityId: freeEnergy
+    allowedStatuses:
+      - symbolic
+    primary: false
+assumptions:
+  - "Independence of particle positions (the §2 premise)."
+  - "Dilution (no excluded volume interactions)."
+  - "Uniform potential inside the accessible volume."
+  - "Thermal equilibrium."
+  - "The volume-independent factor J does not depend on volume V."
+admittedDomain: "Independent particles in a dilute suspension with V > 0, V0 > 0, T > 0, and integer Np >= 1."
+notModeled:
+  - "interactions between particles"
+  - "excluded volume effects"
+  - "external potential fields"
+  - "non-ideal solutions"
+  - "quantum statistics"
+  - "momentum integrals beyond their cancellation in the derivative"
+  - "molecular dynamics or collision trajectories"
+  - "cluster formation or breakup kinetics"
+owner:
+  kind: reference-evaluator
+  kernelFunctions:
+    - displayRole: reference-implementation
+      language: ts
+      module: "src/physics/reference/diffusion.ts"
+      exportName: "configurationVolumeTerm"
+      independentReferences:
+        - experimentId: bm-03
+          quantityId: freeEnergy
+    - displayRole: reference-implementation
+      language: ts
+      module: "src/physics/reference/diffusion.ts"
+      exportName: "configurationFactorRatio"
+      independentReferences:
+        - experimentId: bm-03
+          quantityId: volumeRatio
+    - displayRole: reference-implementation
+      language: ts
+      module: "src/physics/reference/diffusion.ts"
+      exportName: "lockedClusterPressure"
+      independentReferences:
+        - experimentId: bm-03
+          quantityId: osmoticPressure
+  identifierBindings:
+    - kernelFunction: configurationVolumeTerm
+      identifier: Np
+      quantityId: particleCount
+    - kernelFunction: configurationVolumeTerm
+      identifier: V
+      quantityId: volume
+    - kernelFunction: configurationVolumeTerm
+      identifier: T
+      quantityId: temperature
+    - kernelFunction: configurationVolumeTerm
+      identifier: freeEnergyTerm
+      quantityId: freeEnergy
+    - kernelFunction: configurationVolumeTerm
+      identifier: pressure
+      quantityId: osmoticPressure
+    - kernelFunction: configurationFactorRatio
+      identifier: ratio
+      quantityId: volumeRatio
+    - kernelFunction: lockedClusterPressure
+      identifier: locked
+      quantityId: osmoticPressure
+  traceScenarioId: bm-03-two-particles-double
+  traceRows:
+    - label: Two particles volume factor
+      expression: "(V / V0)^Np = (2)^2 = 4"
+      value: 4
+      unit: "1"
+      quantityId: volumeRatio
+    - label: Free energy change
+      expression: "Delta F = -Np k_B T ln(V / V0)"
+      value: -5.61085e-21
+      unit: "J"
+      quantityId: freeEnergy
+    - label: Pressure
+      expression: "p = Np k_B T / V"
+      value: 4.0473725e-6
+      unit: "Pa"
+      quantityId: osmoticPressure
+views:
+  - id: svg-construction
+    kind: svg
+    consumes:
+      - factorRatio
+      - deltaF
+      - pressure
+      - lockedClusterPressure
+      - volumeIndependentFactor
+      - momentumIntegrals
+      - freeEnergyOffset
+  - id: table-configuration
+    kind: table
+    consumes:
+      - factorRatio
+      - deltaF
+      - pressure
+      - lockedClusterPressure
+      - volumeIndependentFactor
+      - momentumIntegrals
+      - freeEnergyOffset
+actions:
+  - actionId: compare-models
+    family: derivations
+    question: "How does the pressure change if all particles are locked into a single cluster?"
+    inputs:
+      - Np
+      - volumeRatio
+      - V0
+      - T
+      - model
+    commandClass: setup-change
+    acceptedResult:
+      outputs:
+        - factorRatio
+        - deltaF
+        - pressure
+        - lockedClusterPressure
+      allowedStatuses:
+        - value
+        - outside-domain
+    visualAffordance: "Stepwise SVG construction showing 1 cluster unit vs Np independent particles"
+    equivalentAffordance: "Toggle particle model between independent and locked-cluster, and read the two pressures in the table."
+    announcement: "Model compared"
+  - actionId: step-construction
+    family: derivations
+    question: "How do we construct the configuration integral and its volume derivative step by step?"
+    inputs:
+      - step
+    commandClass: presentation-change
+    acceptedResult:
+      outputs:
+        - factorRatio
+        - deltaF
+        - pressure
+        - volumeIndependentFactor
+        - momentumIntegrals
+        - freeEnergyOffset
+      allowedStatuses:
+        - value
+        - symbolic
+    visualAffordance: "Stepwise visual tiles and math expressions from 1 particle to derivative"
+    equivalentAffordance: "Advance or retreat the construction step and read the expression in the table."
+    announcement: "Construction step updated"
+acceptanceCases:
+  - bm-03-two-particles-double
+  - bm-03-million-particles
+  - bm-03-overflow-guard
+  - bm-03-pressure-matches-bm-02
+  - bm-03-locked-cluster
+  - bm-03-ratio-one
+defaultScenario: bm-03-two-particles-double
+presets:
+  - presetId: bm-03-two-particles-double
+    label: "Two particles, double volume"
+    parameterValues:
+      Np: 2
+      volumeRatio: 2
+      V0: 1000000
+      T: 293.15
+      model: "independent"
+      step: "two-particles"
+      notation: "printed"
+  - presetId: bm-03-million-particles
+    label: "One million particles (logarithmic evaluation)"
+    parameterValues:
+      Np: 1000000
+      volumeRatio: 2
+      V0: 1000000
+      T: 293.15
+      model: "independent"
+      step: "many-particles"
+      notation: "printed"
+  - presetId: bm-03-overflow-guard
+    label: "1024 particles overflow guard"
+    parameterValues:
+      Np: 1024
+      volumeRatio: 2
+      V0: 1000000
+      T: 293.15
+      model: "independent"
+      step: "many-particles"
+      notation: "printed"
+  - presetId: bm-03-pressure-matches-bm-02
+    label: "1000 particles (matches BM-02 default)"
+    parameterValues:
+      Np: 1000
+      volumeRatio: 1
+      V0: 1000000
+      T: 293.15
+      model: "independent"
+      step: "derivative"
+      notation: "printed"
+  - presetId: bm-03-locked-cluster
+    label: "Locked cluster counterexample"
+    parameterValues:
+      Np: 1000
+      volumeRatio: 2
+      V0: 1000000
+      T: 293.15
+      model: "locked-cluster"
+      step: "derivative"
+      notation: "printed"
+  - presetId: bm-03-ratio-one
+    label: "Volume ratio exactly 1 (Delta F = 0)"
+    parameterValues:
+      Np: 2
+      volumeRatio: 1
+      V0: 1000000
+      T: 293.15
+      model: "independent"
+      step: "two-particles"
+      notation: "printed"
+probes:
+  - bm-03-locked-cluster
+  - bm-03-million-particles
+historicalOverlays: []
+realRate:
+  natural: false
+embeddable: true
+predictMode:
+  enabled: true
+  prompts:
+    - promptId: bm-03-predict-volume-factor
+      controlId: Np
+      question: "Doubling the volume available to two independent particles multiplies the number of position arrangements by 2, 4, or 8?"
+      candidates:
+        - id: factor-2
+          label: "Multiplies by 2"
+          description: "Treats the volume factor as proportional to volume regardless of particle count."
+          separatingAssumption: "Assumes position options grow like V instead of V^2 for two particles."
+        - id: factor-4
+          label: "Multiplies by 4"
+          description: "Each independent particle has 2 times the volume, so 2 * 2 = 4 arrangements."
+          separatingAssumption: "Under statistical independence, two independent particle position options multiply: V * V = V^2, so (2V/V0)^2 = 4."
+        - id: factor-8
+          label: "Multiplies by 8"
+          description: "Assumes three-dimensional volume cubing per particle."
+          separatingAssumption: "Confuses the 3 spatial dimensions of one coordinate with the power Np of particle count."

@@ -1,0 +1,8 @@
+beadId: am-bm-03-configuration-integral-e84v
+targets:
+  - instrument: bm-03
+    captions:
+      - r0
+      - r1
+      - r2
+      - r3
