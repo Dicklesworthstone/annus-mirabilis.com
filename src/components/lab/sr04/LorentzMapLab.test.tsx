@@ -1,6 +1,10 @@
 import { describe, expect, test } from "bun:test";
 import { renderToStaticMarkup } from "react-dom/server";
-import { SR04_DEFAULTS, SR04_NOT_MODELED } from "../../../experiments/sr04/definition.ts";
+import {
+  joinConstraints,
+  SR04_DEFAULTS,
+  SR04_NOT_MODELED,
+} from "../../../experiments/sr04/definition.ts";
 import { evaluateSr04 } from "../../../experiments/sr04/session.ts";
 import { LorentzMapComparison } from "./LorentzMapLab.tsx";
 
@@ -44,14 +48,14 @@ describe("LorentzMapLab: server-rendered markup shows real numbers without JavaS
   test("enabling all six constraints renders the fully-fixed map (1.25, 1.25, transverse 1)", () => {
     const parameters = {
       ...SR04_DEFAULTS,
-      enabledConstraints: [
+      enabledConstraints: joinConstraints([
         "right-moving-light",
         "left-moving-light",
         "reciprocity",
         "isotropy",
         "identity-branch",
         "transverse-light",
-      ] as const,
+      ]),
     };
     const example = {
       parameters,

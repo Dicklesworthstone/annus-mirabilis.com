@@ -4,12 +4,19 @@ import { type FormEvent, useEffect, useId, useState, useSyncExternalStore } from
 import {
   ALL_CONSTRAINTS,
   type ConstraintId,
+  joinConstraints,
   SR04_DEFAULTS,
   SR04_NOT_MODELED,
   SR04_QUESTION,
   type Sr04Parameters,
+  splitConstraints,
 } from "../../../experiments/sr04/definition.ts";
-import { buildSr04Snapshot, createSr04Session, evaluateSr04, type PreparedSr04Example } from "../../../experiments/sr04/session.ts";
+import {
+  buildSr04Snapshot,
+  createSr04Session,
+  evaluateSr04,
+  type PreparedSr04Example,
+} from "../../../experiments/sr04/session.ts";
 import { identity } from "../presentation.ts";
 
 const CONSTRAINT_LABELS: Readonly<Record<ConstraintId, string>> = {
@@ -45,7 +52,7 @@ function toDraft(p: Sr04Parameters): Draft {
     candidateTransverseScale: String(p.candidateTransverseScale),
     testCandidate: p.testCandidate,
     showLaterAids: p.showLaterAids,
-    enabledConstraints: p.enabledConstraints,
+    enabledConstraints: splitConstraints(p.enabledConstraints),
   };
 }
 
@@ -60,13 +67,18 @@ function fromDraft(d: Draft): unknown {
     candidateTransverseScale: Number(d.candidateTransverseScale),
     testCandidate: d.testCandidate,
     showLaterAids: d.showLaterAids,
-    enabledConstraints: d.enabledConstraints,
+    enabledConstraints: joinConstraints(d.enabledConstraints),
   };
 }
 
-function fractionText(result: { status: string; value?: number; reason?: string }, unit: string): string {
+function fractionText(
+  result: { status: string; value?: number; reason?: string },
+  unit: string,
+): string {
   if (result.status !== "value" || typeof result.value !== "number") {
-    return result.status === "outside-domain" && result.reason ? result.reason : `(${result.status})`;
+    return result.status === "outside-domain" && result.reason
+      ? result.reason
+      : `(${result.status})`;
   }
   return `${result.value.toFixed(6)}${unit}`;
 }
@@ -79,10 +91,18 @@ export function LorentzMapLab({
   title?: string | undefined;
 }) {
   const id = useId();
-  const [session] = useState(() => createSr04Session(`sr04-${id}`, example?.parameters ?? SR04_DEFAULTS));
-  const view = useSyncExternalStore(session.subscribe, session.getSnapshot, session.getServerSnapshot);
+  const [session] = useState(() =>
+    createSr04Session(`sr04-${id}`, example?.parameters ?? SR04_DEFAULTS),
+  );
+  const view = useSyncExternalStore(
+    session.subscribe,
+    session.getSnapshot,
+    session.getServerSnapshot,
+  );
 
-  const fallback = session.getServerSnapshot().accepted ?? buildSr04Snapshot(`sr04-${id}`, "sr04-init", SR04_DEFAULTS, 0, 0);
+  const fallback =
+    session.getServerSnapshot().accepted ??
+    buildSr04Snapshot(`sr04-${id}`, "sr04-init", SR04_DEFAULTS, 0, 0);
   const snapshot = view.accepted ?? fallback;
   const p = snapshot.parameters as Sr04Parameters;
   const [draft, setDraft] = useState(() => toDraft(p));
@@ -148,14 +168,18 @@ export function LorentzMapLab({
 
       <noscript>
         <p className="notice">
-          JavaScript is off. This is a complete worked example calculated when the site was
-          built, at v = {SR04_DEFAULTS.vOverC}c with no construction constraints enabled (the
-          Galilean candidate). Changing settings requires JavaScript.
+          JavaScript is off. This is a complete worked example calculated when the site was built,
+          at v = {SR04_DEFAULTS.vOverC}c with no construction constraints enabled (the Galilean
+          candidate). Changing settings requires JavaScript.
         </p>
       </noscript>
 
       <div className="lab-columns">
-        <form onSubmit={submit} aria-label="Lorentz map construction settings" aria-describedby={error ? `${id}-error` : undefined}>
+        <form
+          onSubmit={submit}
+          aria-label="Lorentz map construction settings"
+          aria-describedby={error ? `${id}-error` : undefined}
+        >
           <fieldset disabled={!ready}>
             <legend>Frame speed and slow case</legend>
             <div className="input-grid">
@@ -228,16 +252,44 @@ export function LorentzMapLab({
             </label>
             <div className="input-grid">
               <label htmlFor={`${id}-candidateA`}>
-                a <input id={`${id}-candidateA`} type="text" inputMode="decimal" value={draft.candidateA} onChange={(e) => setDraft({ ...draft, candidateA: e.target.value })} />
+                a{" "}
+                <input
+                  id={`${id}-candidateA`}
+                  type="text"
+                  inputMode="decimal"
+                  value={draft.candidateA}
+                  onChange={(e) => setDraft({ ...draft, candidateA: e.target.value })}
+                />
               </label>
               <label htmlFor={`${id}-candidateB`}>
-                b <input id={`${id}-candidateB`} type="text" inputMode="decimal" value={draft.candidateB} onChange={(e) => setDraft({ ...draft, candidateB: e.target.value })} />
+                b{" "}
+                <input
+                  id={`${id}-candidateB`}
+                  type="text"
+                  inputMode="decimal"
+                  value={draft.candidateB}
+                  onChange={(e) => setDraft({ ...draft, candidateB: e.target.value })}
+                />
               </label>
               <label htmlFor={`${id}-candidateD`}>
-                d (s/m) <input id={`${id}-candidateD`} type="text" inputMode="decimal" value={draft.candidateD} onChange={(e) => setDraft({ ...draft, candidateD: e.target.value })} />
+                d (s/m){" "}
+                <input
+                  id={`${id}-candidateD`}
+                  type="text"
+                  inputMode="decimal"
+                  value={draft.candidateD}
+                  onChange={(e) => setDraft({ ...draft, candidateD: e.target.value })}
+                />
               </label>
               <label htmlFor={`${id}-candidateK`}>
-                transverse scale <input id={`${id}-candidateK`} type="text" inputMode="decimal" value={draft.candidateTransverseScale} onChange={(e) => setDraft({ ...draft, candidateTransverseScale: e.target.value })} />
+                transverse scale{" "}
+                <input
+                  id={`${id}-candidateK`}
+                  type="text"
+                  inputMode="decimal"
+                  value={draft.candidateTransverseScale}
+                  onChange={(e) => setDraft({ ...draft, candidateTransverseScale: e.target.value })}
+                />
               </label>
             </div>
             <button type="submit">Apply candidate</button>
@@ -255,7 +307,8 @@ export function LorentzMapLab({
                   apply(fromDraft(next));
                 }}
               />{" "}
-              Show the matrix, eigenvalues, and rapidity (later aids -- never used to derive the map)
+              Show the matrix, eigenvalues, and rapidity (later aids -- never used to derive the
+              map)
             </label>
           </fieldset>
         </form>
@@ -272,10 +325,22 @@ export function LorentzMapLab({
             <table>
               <caption>The map every enabled constraint has fixed.</caption>
               <tbody>
-                <tr><td>a</td><td>{family.value.a.toFixed(6)}</td></tr>
-                <tr><td>b</td><td>{family.value.b.toFixed(6)}</td></tr>
-                <tr><td>d (s/m)</td><td>{family.value.d.toExponential(6)}</td></tr>
-                <tr><td>transverse scale</td><td>{family.value.transverseScale}</td></tr>
+                <tr>
+                  <td>a</td>
+                  <td>{family.value.a.toFixed(6)}</td>
+                </tr>
+                <tr>
+                  <td>b</td>
+                  <td>{family.value.b.toFixed(6)}</td>
+                </tr>
+                <tr>
+                  <td>d (s/m)</td>
+                  <td>{family.value.d.toExponential(6)}</td>
+                </tr>
+                <tr>
+                  <td>transverse scale</td>
+                  <td>{family.value.transverseScale}</td>
+                </tr>
               </tbody>
             </table>
           )}
@@ -304,8 +369,11 @@ export function LorentzMapLab({
           <p>
             Slow case (observer {p.observerSpeed} m/s, object {p.objectSpeed} m/s): the ordinary
             change of frame gives{" "}
-            {evaluation.slowCaseGalilean.status === "value" ? `${evaluation.slowCaseGalilean.value} m/s` : "(unavailable)"}
-            . Light rays at v = {p.vOverC}c: right-moving {fractionText(evaluation.rightRayFraction, "c")}, left-moving{" "}
+            {evaluation.slowCaseGalilean.status === "value"
+              ? `${evaluation.slowCaseGalilean.value} m/s`
+              : "(unavailable)"}
+            . Light rays at v = {p.vOverC}c: right-moving{" "}
+            {fractionText(evaluation.rightRayFraction, "c")}, left-moving{" "}
             {fractionText(evaluation.leftRayFraction, "c")}.
           </p>
           <p className="fine">
@@ -322,8 +390,8 @@ export function LorentzMapLab({
                 {evaluation.laterAids.eigenvalues && (
                   <>
                     {" "}
-                    Eigenvalues on the light lines: {evaluation.laterAids.eigenvalues[0].toFixed(6)} and{" "}
-                    {evaluation.laterAids.eigenvalues[1].toFixed(6)}.
+                    Eigenvalues on the light lines: {evaluation.laterAids.eigenvalues[0].toFixed(6)}{" "}
+                    and {evaluation.laterAids.eigenvalues[1].toFixed(6)}.
                   </>
                 )}
               </p>
@@ -333,12 +401,14 @@ export function LorentzMapLab({
           <p className="fine">Not modeled: {SR04_NOT_MODELED.join("; ")}.</p>
 
           <details>
-            <summary>Action contract: the same construction without dragging, color, or a canvas</summary>
+            <summary>
+              Action contract: the same construction without dragging, color, or a canvas
+            </summary>
             <p>
-              Every action here is a checkbox toggle or typed text entry, and every result is a
-              text table or sentence. Enable constraints from the checklist, type a hand-built
-              candidate's coefficients, and read the residual or the fixed map. No control
-              depends on dragging a handle, distinguishing color alone, or reading a canvas.
+              Every action here is a checkbox toggle or typed text entry, and every result is a text
+              table or sentence. Enable constraints from the checklist, type a hand-built
+              candidate's coefficients, and read the residual or the fixed map. No control depends
+              on dragging a handle, distinguishing color alone, or reading a canvas.
             </p>
           </details>
         </div>
