@@ -51,13 +51,14 @@ export async function checkEquationBrowser(browser, url, check) {
     assert.deepEqual(await identity(lab),original);assert.equal(workers,0);
     check('equations: keyboard traversal selects actual expression operations without creating or mutating a trial');
 
+    assert.ok((await rms.locator('.equation-visual svg').evaluateAll(nodes=>nodes.map(el=>getComputedStyle(el).pointerEvents))).every(value=>value==='none'));
     await rms.locator('.equation-visual [data-term="eq-model-bm-rms.t.diffusion"]').click();
     assert.equal(await rms.getAttribute('data-selected-node-id'),eqId('rms')+'.t.diffusion');
     await page.waitForFunction(()=>document.querySelector('[data-equation-id="eq-model-bm-diffusivity"] .equation-visual [data-term="eq-model-bm-diffusivity.t.diffusion"]').dataset.selected==='true');
     assert.equal(await lab.locator('[data-output="diffusionCoefficient"]').evaluate(el=>getComputedStyle(el).outlineStyle),'solid');
     await rms.getByRole('button',{name:'Monochrome and patterns',exact:true}).click();
     assert.equal(await rms.getAttribute('data-pattern'),'true');
-    assert.equal(await rms.locator('.equation-visual .am-role-result').evaluate(el=>getComputedStyle(el).textDecorationStyle),'double');
+    assert.ok((await rms.locator('.equation-visual .am-role-result').evaluateAll(nodes=>nodes.map(el=>getComputedStyle(el).textDecorationStyle))).every(style=>style==='double'));
     await diffusion.getByRole('button',{name:'Dynamic viscosity term',exact:true}).click();
     await diffusion.getByRole('button',{name:'Edit this input in the laboratory',exact:true}).click();
     assert.equal(await page.evaluate(()=>document.activeElement.name),'eta');
