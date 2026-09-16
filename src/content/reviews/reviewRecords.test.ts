@@ -1,6 +1,7 @@
-import { describe, expect, it } from "bun:test";
+import assert from "node:assert/strict";
 import fs from "node:fs";
 import path from "node:path";
+import { describe, it } from "node:test";
 import { validateReviewAuthorship } from "../checks/review/authorship.ts";
 import { parseOwners } from "../owners/parseOwners.ts";
 import {
@@ -155,7 +156,7 @@ describe("reviewRecords master suite", () => {
       ),
     ];
 
-    expect(records.length).toBe(9);
+    assert.equal(records.length, 9);
 
     // Verify no reviewer appears in the authorship of any covered record
     for (const rec of records) {
@@ -167,7 +168,7 @@ describe("reviewRecords master suite", () => {
       };
 
       const issues = validateReviewAuthorship(targetRecord, rec, registry);
-      expect(issues.length).toBe(0);
+      assert.equal(issues.length, 0);
 
       // Log structured result
       globalReviewRecordsLogger.log({
@@ -185,7 +186,7 @@ describe("reviewRecords master suite", () => {
     }
 
     const logPath = globalReviewRecordsLogger.getLogFilePath();
-    expect(fs.existsSync(logPath)).toBe(true);
+    assert.equal(fs.existsSync(logPath), true);
   });
 
   it("validates any committed records under content/reviews if present", () => {
@@ -197,7 +198,7 @@ describe("reviewRecords master suite", () => {
       if (typeof f === "string" && (f.endsWith(".yaml") || f.endsWith(".json"))) {
         const fullPath = path.join(reviewsDir, f);
         // If real files exist, validate them
-        expect(fs.existsSync(fullPath)).toBe(true);
+        assert.equal(fs.existsSync(fullPath), true);
       }
     }
   });

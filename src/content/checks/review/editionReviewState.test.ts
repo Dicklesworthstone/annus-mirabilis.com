@@ -1,4 +1,5 @@
-import { describe, expect, it } from "bun:test";
+import assert from "node:assert/strict";
+import { describe, it } from "node:test";
 import { getReviewStateCheck, resetReviewStateCheck } from "../../editions/reviewState.ts";
 import { parseOwners } from "../../owners/parseOwners.ts";
 import { validateReviewRecord } from "../../schemas/review.ts";
@@ -49,7 +50,7 @@ describe("editionReviewState", () => {
       revision: 3,
       unitHash: "hash-333",
     });
-    expect(resPass.ok).toBe(true);
+    assert.equal(resPass.ok, true);
 
     // Revision 4 -> fails review-record-stale
     const resStaleRev = check({
@@ -59,8 +60,8 @@ describe("editionReviewState", () => {
       revision: 4,
       unitHash: "hash-333",
     });
-    expect(resStaleRev.ok).toBe(false);
-    expect(resStaleRev.code).toBe("review-record-stale");
+    assert.equal(resStaleRev.ok, false);
+    assert.equal(resStaleRev.code, "review-record-stale");
 
     // Changed unitHash -> fails review-record-stale
     const resStaleHash = check({
@@ -70,8 +71,8 @@ describe("editionReviewState", () => {
       revision: 3,
       unitHash: "hash-changed-444",
     });
-    expect(resStaleHash.ok).toBe(false);
-    expect(resStaleHash.code).toBe("review-record-stale");
+    assert.equal(resStaleHash.ok, false);
+    assert.equal(resStaleHash.code, "review-record-stale");
   });
 
   it("fails review-self-review when reviewer equals translator, checking editor, glossator, or edition editor", () => {
@@ -100,8 +101,8 @@ describe("editionReviewState", () => {
       revision: 1,
       translatorId: "rev-de-valid",
     });
-    expect(resTrans.ok).toBe(false);
-    expect(resTrans.code).toBe("review-self-review");
+    assert.equal(resTrans.ok, false);
+    assert.equal(resTrans.code, "review-self-review");
 
     // Reviewer equals checking editor
     const resCheckEd = check({
@@ -111,8 +112,8 @@ describe("editionReviewState", () => {
       revision: 1,
       checkingEditorId: "rev-de-valid",
     });
-    expect(resCheckEd.ok).toBe(false);
-    expect(resCheckEd.code).toBe("review-self-review");
+    assert.equal(resCheckEd.ok, false);
+    assert.equal(resCheckEd.code, "review-self-review");
 
     // Reviewer equals glossator
     const resGloss = check({
@@ -122,8 +123,8 @@ describe("editionReviewState", () => {
       revision: 1,
       glossatorId: "rev-de-valid",
     });
-    expect(resGloss.ok).toBe(false);
-    expect(resGloss.code).toBe("review-self-review");
+    assert.equal(resGloss.ok, false);
+    assert.equal(resGloss.code, "review-self-review");
 
     // Reviewer listed in edition editors
     const resEdnEd = check({
@@ -133,8 +134,8 @@ describe("editionReviewState", () => {
       revision: 1,
       editionEditors: ["rev-de-valid"],
     });
-    expect(resEdnEd.ok).toBe(false);
-    expect(resEdnEd.code).toBe("review-self-review");
+    assert.equal(resEdnEd.ok, false);
+    assert.equal(resEdnEd.code, "review-self-review");
   });
 
   it("fails review-reviewer-unknown when reviewer not in OWNERS.md", () => {
@@ -159,8 +160,8 @@ describe("editionReviewState", () => {
       layer: "translation",
       revision: 1,
     });
-    expect(res.ok).toBe(false);
-    expect(res.code).toBe("review-reviewer-unknown");
+    assert.equal(res.ok, false);
+    assert.equal(res.code, "review-reviewer-unknown");
   });
 
   it("fails review-reviewer-role when reviewer lacks german-source-reviewer role", () => {
@@ -185,8 +186,8 @@ describe("editionReviewState", () => {
       layer: "translation",
       revision: 1,
     });
-    expect(res.ok).toBe(false);
-    expect(res.code).toBe("review-reviewer-role");
+    assert.equal(res.ok, false);
+    assert.equal(res.code, "review-reviewer-role");
   });
 
   it("fails review-record-missing when no record exists for unit", () => {
@@ -198,8 +199,8 @@ describe("editionReviewState", () => {
       layer: "translation",
       revision: 1,
     });
-    expect(res.ok).toBe(false);
-    expect(res.code).toBe("review-record-missing");
+    assert.equal(res.ok, false);
+    assert.equal(res.code, "review-record-missing");
   });
 
   it("fails with review-records-not-available when strict default check is active", () => {
@@ -211,7 +212,7 @@ describe("editionReviewState", () => {
       layer: "translation",
       revision: 1,
     });
-    expect(res.ok).toBe(false);
-    expect(res.code).toBe("review-records-not-available");
+    assert.equal(res.ok, false);
+    assert.equal(res.code, "review-records-not-available");
   });
 });

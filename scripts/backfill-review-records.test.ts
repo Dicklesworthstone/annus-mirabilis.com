@@ -1,4 +1,5 @@
-import { describe, expect, it } from "bun:test";
+import assert from "node:assert/strict";
+import { describe, it } from "node:test";
 import { parseOwners } from "../src/content/owners/parseOwners.ts";
 import {
   BackfillError,
@@ -32,11 +33,11 @@ describe("backfill-review-records", () => {
     };
 
     const record = convertSessionReportToReviewRecord(report, registry);
-    expect(record.reviewType).toBe("accessibility-codesign");
-    expect(record.reviewer).toBe("a11y-fac-1");
-    expect(record.sessionRef).toBe("docs/accessibility/rounds/20260916-brownian.md");
-    expect(record.result).toBe("accepted");
-    expect(record.scope[0]?.recordId).toBe("brownian-motion");
+    assert.equal(record.reviewType, "accessibility-codesign");
+    assert.equal(record.reviewer, "a11y-fac-1");
+    assert.equal(record.sessionRef, "docs/accessibility/rounds/20260916-brownian.md");
+    assert.equal(record.result, "accepted");
+    assert.equal(record.scope[0]?.recordId, "brownian-motion");
   });
 
   it("refuses report when participant code has invalid date format (e.g. 2027-04-12-3) with file and line", () => {
@@ -50,14 +51,17 @@ describe("backfill-review-records", () => {
       scope: [{ recordId: "brownian-motion" }],
     };
 
-    expect(() => convertSessionReportToReviewRecord(report, registry)).toThrow(BackfillError);
-    try {
-      convertSessionReportToReviewRecord(report, registry);
-    } catch (err: unknown) {
-      expect((err as BackfillError).code).toBe("invalid-participant-code");
-      expect((err as BackfillError).file).toBe("docs/accessibility/rounds/bad-code.md");
-      expect((err as BackfillError).line).toBe(24);
-    }
+    assert.throws(
+      () => convertSessionReportToReviewRecord(report, registry),
+      (err: unknown) => {
+        return (
+          err instanceof BackfillError &&
+          err.code === "invalid-participant-code" &&
+          err.file === "docs/accessibility/rounds/bad-code.md" &&
+          err.line === 24
+        );
+      },
+    );
   });
 
   it("refuses report when facilitator id is absent from owners table", () => {
@@ -71,12 +75,15 @@ describe("backfill-review-records", () => {
       scope: [{ recordId: "brownian-motion" }],
     };
 
-    expect(() => convertSessionReportToReviewRecord(report, registry)).toThrow(BackfillError);
-    try {
-      convertSessionReportToReviewRecord(report, registry);
-    } catch (err: unknown) {
-      expect((err as BackfillError).code).toBe("unknown-facilitator");
-      expect((err as BackfillError).file).toBe("docs/accessibility/rounds/unknown-fac.md");
-    }
+    assert.throws(
+      () => convertSessionReportToReviewRecord(report, registry),
+      (err: unknown) => {
+        return (
+          err instanceof BackfillError &&
+          err.code === "unknown-facilitator" &&
+          err.file === "docs/accessibility/rounds/unknown-fac.md"
+        );
+      },
+    );
   });
 });

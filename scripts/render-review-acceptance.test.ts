@@ -1,6 +1,7 @@
-import { describe, expect, it } from "bun:test";
+import assert from "node:assert/strict";
 import fs from "node:fs";
 import path from "node:path";
+import { describe, it } from "node:test";
 import { parseOwners } from "../src/content/owners/parseOwners.ts";
 import { checkReceipt } from "../src/content/provenance/checkReceipt.ts";
 import { GeneratedSectionError } from "../src/content/provenance/writeGeneratedSection.ts";
@@ -42,13 +43,13 @@ describe("render-review-acceptance", () => {
       ],
     });
 
-    expect(rendered).toContain("### Verified Review Records");
-    expect(rendered).toContain("Dr. Hans Schmidt (`rev-de-1`)");
-    expect(rendered).toContain("`german-source`");
-    expect(rendered).toContain("`accepted`");
-    expect(rendered).toContain("### Translation & Editorial Credits");
-    expect(rendered).toContain("- **translator**: Dr. Sarah Jenkins (`trans-1`)");
-    expect(rendered).toContain("- **checking-editor**: Prof. Robert Meyer (`check-1`)");
+    assert.equal(rendered.includes("### Verified Review Records"), true);
+    assert.equal(rendered.includes("Dr. Hans Schmidt (`rev-de-1`)"), true);
+    assert.equal(rendered.includes("`german-source`"), true);
+    assert.equal(rendered.includes("`accepted`"), true);
+    assert.equal(rendered.includes("### Translation & Editorial Credits"), true);
+    assert.equal(rendered.includes("- **translator**: Dr. Sarah Jenkins (`trans-1`)"), true);
+    assert.equal(rendered.includes("- **checking-editor**: Prof. Robert Meyer (`check-1`)"), true);
   });
 
   it("updates receipt in artifacts log directory, preserves prefix/suffix hashes, and passes checkReceipt", () => {
@@ -80,16 +81,16 @@ describe("render-review-acceptance", () => {
     );
 
     const result = updateReceiptEditorialAcceptanceSync(targetReceiptCopy, [record], registry);
-    expect(result.prefixSha256).toBeDefined();
-    expect(result.suffixSha256).toBeDefined();
+    assert.ok(result.prefixSha256);
+    assert.ok(result.suffixSha256);
 
     // Verify written receipt passes checkReceipt
     const updatedContent = fs.readFileSync(targetReceiptCopy, "utf8");
-    expect(updatedContent).toContain("### Verified Review Records");
-    expect(updatedContent).toContain("Dr. Hans Schmidt");
+    assert.equal(updatedContent.includes("### Verified Review Records"), true);
+    assert.equal(updatedContent.includes("Dr. Hans Schmidt"), true);
 
     const checkRes = checkReceipt(updatedContent, targetReceiptCopy);
-    expect(checkRes.errors.length).toBe(0);
+    assert.equal(checkRes.errors.length, 0);
   });
 
   it("refuses to write and throws GeneratedSectionError if markers are missing", () => {
@@ -100,7 +101,8 @@ describe("render-review-acceptance", () => {
     const noMarkersFile = path.join(logDir, "no-markers.md");
     fs.writeFileSync(noMarkersFile, "# Title\n\nNo markers here\n", "utf8");
 
-    expect(() => updateReceiptEditorialAcceptanceSync(noMarkersFile, [], registry)).toThrow(
+    assert.throws(
+      () => updateReceiptEditorialAcceptanceSync(noMarkersFile, [], registry),
       GeneratedSectionError,
     );
   });

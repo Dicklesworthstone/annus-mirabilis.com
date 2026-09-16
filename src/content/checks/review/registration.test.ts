@@ -1,4 +1,5 @@
-import { describe, expect, it } from "bun:test";
+import assert from "node:assert/strict";
+import { describe, it } from "node:test";
 import {
   getReviewStateCheck,
   resetReviewStateCheck,
@@ -10,37 +11,37 @@ describe("Review State Check Registration Seam", () => {
   it("registers record-backed check and verifies single slot behavior and reset", () => {
     // 1. Initial state is strict default
     resetReviewStateCheck();
-    expect(getReviewStateCheck()).toBe(strictNoReviewedCheck);
+    assert.equal(getReviewStateCheck(), strictNoReviewedCheck);
 
     const checkContext = {
       unitId: "unit-reg-test",
       paper: "brownian-motion",
-      layer: "translation",
+      layer: "translation" as const,
       revision: 1,
     };
 
     const resStrict = getReviewStateCheck()(checkContext);
-    expect(resStrict.ok).toBe(false);
-    expect(resStrict.code).toBe("review-records-not-available");
+    assert.equal(resStrict.ok, false);
+    assert.equal(resStrict.code, "review-records-not-available");
 
     // 2. Install record-backed check
     registerEditionReviewState();
-    expect(getReviewStateCheck()).toBe(recordBackedReviewStateCheck);
+    assert.equal(getReviewStateCheck(), recordBackedReviewStateCheck);
 
     // Call installer again -> still single active check
     registerEditionReviewState();
-    expect(getReviewStateCheck()).toBe(recordBackedReviewStateCheck);
+    assert.equal(getReviewStateCheck(), recordBackedReviewStateCheck);
 
     // With record-backed registered: fails missing rather than not-available
     const resRecordBacked = getReviewStateCheck()(checkContext);
-    expect(resRecordBacked.ok).toBe(false);
-    expect(resRecordBacked.code).toBe("review-record-missing");
+    assert.equal(resRecordBacked.ok, false);
+    assert.equal(resRecordBacked.code, "review-record-missing");
 
     // 3. Reset back to strict default
     resetReviewStateCheck();
-    expect(getReviewStateCheck()).toBe(strictNoReviewedCheck);
+    assert.equal(getReviewStateCheck(), strictNoReviewedCheck);
     const resReset = getReviewStateCheck()(checkContext);
-    expect(resReset.ok).toBe(false);
-    expect(resReset.code).toBe("review-records-not-available");
+    assert.equal(resReset.ok, false);
+    assert.equal(resReset.code, "review-records-not-available");
   });
 });

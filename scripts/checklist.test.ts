@@ -1,4 +1,5 @@
-import { describe, expect, it } from "bun:test";
+import assert from "node:assert/strict";
+import { describe, it } from "node:test";
 import {
   type StandardReviewRecord,
   validateCrossProjectionRecord,
@@ -113,25 +114,32 @@ describe("checklist generator", () => {
     const evidence = getSampleEvidence();
     const result = generateChecklistMarkdown(evidence);
 
-    expect(result.markdown).toContain("## 1. Historical Text Complete and Accurate");
-    expect(result.markdown).toContain("## 2. Explanation Sound and Accessible");
-    expect(result.markdown).toContain(
-      "## 3. Instruments Calculate and Display Stated Model Correctly",
+    assert.equal(result.markdown.includes("## 1. Historical Text Complete and Accurate"), true);
+    assert.equal(result.markdown.includes("## 2. Explanation Sound and Accessible"), true);
+    assert.equal(
+      result.markdown.includes("## 3. Instruments Calculate and Display Stated Model Correctly"),
+      true,
     );
-    expect(result.markdown).toContain("## 4. Visitors Can Operate and Understand the Page");
-    expect(result.markdown).toContain("## 5. Explanation Helps Readers Overcome Intended Obstacle");
+    assert.equal(
+      result.markdown.includes("## 4. Visitors Can Operate and Understand the Page"),
+      true,
+    );
+    assert.equal(
+      result.markdown.includes("## 5. Explanation Helps Readers Overcome Intended Obstacle"),
+      true,
+    );
 
-    expect(result.markdown).toContain("### Comprehension Study Rounds");
-    expect(result.markdown).toContain("### Cross-Projection Invariance Reviews");
+    assert.equal(result.markdown.includes("### Comprehension Study Rounds"), true);
+    assert.equal(result.markdown.includes("### Cross-Projection Invariance Reviews"), true);
 
     // Assert NO percentage or numeric aggregate score is present
-    expect(result.markdown).not.toMatch(/\d+%/);
-    expect(result.markdown).not.toMatch(/score:\s*\d+/i);
-    expect(result.markdown).not.toMatch(/aggregate\s+score:\s*\d+/i);
-    expect(result.markdown).not.toMatch(/total:\s*\d+/i);
+    assert.equal(/\d+%/.test(result.markdown), false);
+    assert.equal(/score:\s*\d+/i.test(result.markdown), false);
+    assert.equal(/aggregate\s+score:\s*\d+/i.test(result.markdown), false);
+    assert.equal(/total:\s*\d+/i.test(result.markdown), false);
 
-    expect(result.passes).toBe(true);
-    expect(result.openBlockers.length).toBe(0);
+    assert.equal(result.passes, true);
+    assert.equal(result.openBlockers.length, 0);
   });
 
   it("fails checklist when Question 5 has comprehension rounds but missing cross-projection records", () => {
@@ -143,10 +151,11 @@ describe("checklist generator", () => {
     };
 
     const result = generateChecklistMarkdown(evidence);
-    expect(result.passes).toBe(false);
-    expect(
+    assert.equal(result.passes, false);
+    assert.equal(
       result.openBlockers.some((b) => b.includes("Cross-projection review records missing")),
-    ).toBe(true);
+      true,
+    );
   });
 
   it("blocks checklist when cross-projection record has open findings and lists owning bead ids", () => {
@@ -197,9 +206,12 @@ describe("checklist generator", () => {
     };
 
     const result = generateChecklistMarkdown(evidence);
-    expect(result.passes).toBe(false);
-    expect(result.markdown).toContain("qualification-dropped");
-    expect(result.markdown).toContain("am-me-readings-01");
-    expect(result.openBlockers.some((b) => b.includes("am-me-readings-01"))).toBe(true);
+    assert.equal(result.passes, false);
+    assert.equal(result.markdown.includes("qualification-dropped"), true);
+    assert.equal(result.markdown.includes("am-me-readings-01"), true);
+    assert.equal(
+      result.openBlockers.some((b) => b.includes("am-me-readings-01")),
+      true,
+    );
   });
 });

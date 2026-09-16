@@ -1,4 +1,5 @@
-import { describe, expect, it } from "bun:test";
+import assert from "node:assert/strict";
+import { describe, it } from "node:test";
 import { CorrectionGraph } from "./graph.ts";
 
 describe("CorrectionGraph", () => {
@@ -42,13 +43,13 @@ describe("CorrectionGraph", () => {
     // Record typographical correction to source block s2-p3
     const report = graph.recordCorrection("s2-p3", 2, "source");
 
-    expect(report.correctedId).toBe("s2-p3");
-    expect(report.staleNodeIds).toContain("s2-p3-tr");
-    expect(report.staleNodeIds).toContain("reading-r1-s2-p3");
-    expect(report.staleNodeIds).not.toContain("bm-06");
+    assert.equal(report.correctedId, "s2-p3");
+    assert.equal(report.staleNodeIds.includes("s2-p3-tr"), true);
+    assert.equal(report.staleNodeIds.includes("reading-r1-s2-p3"), true);
+    assert.equal(report.staleNodeIds.includes("bm-06"), false);
 
-    expect(report.staleReviewTypes).toContain("german-source");
-    expect(report.staleReviewTypes).toContain("physics-math");
+    assert.equal(report.staleReviewTypes.includes("german-source"), true);
+    assert.equal(report.staleReviewTypes.includes("physics-math"), true);
   });
 
   it("verifies translation-layer correction does not alter source correction history", () => {
@@ -72,8 +73,8 @@ describe("CorrectionGraph", () => {
     // Record translation correction
     graph.recordCorrection("s1-p1-tr", 2, "translation");
 
-    expect(graph.getTranslationCorrections().length).toBe(1);
-    expect(graph.getSourceCorrections().length).toBe(0);
+    assert.equal(graph.getTranslationCorrections().length, 1);
+    assert.equal(graph.getSourceCorrections().length, 0);
   });
 
   it("verifies correction on an isolated block stales nothing", () => {
@@ -87,7 +88,7 @@ describe("CorrectionGraph", () => {
     });
 
     const report = graph.recordCorrection("isolated-block", 2, "source");
-    expect(report.staleNodeIds.length).toBe(0);
-    expect(report.staleReviewTypes.length).toBe(0);
+    assert.equal(report.staleNodeIds.length, 0);
+    assert.equal(report.staleReviewTypes.length, 0);
   });
 });
