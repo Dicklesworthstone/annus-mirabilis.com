@@ -1,0 +1,70 @@
+tapeVersion: 2
+tapeId: the-boost-to-0.6c
+experimentId: sr-03
+mode: "sr-03:default"
+title: "The boost to 0.6c"
+description: "Demonstrates the relativity of simultaneity and length contraction for a 10-ls rod at v = 0.6c."
+isTeachingSequence: true
+modelIdentity:
+  modelId: sr03-rod-simultaneity-v1
+  modelVersion: "1.0.0"
+  artifactDigest: "host:sha256:0000000000000000000000000000000000000000000000000000000000000000"
+constantSetId: modern-si-2019
+seed: "1905"
+streamVersion: 1
+allocationId: sr-03.kinematics.v1
+initialConditions:
+  rodRestFrame: "k"
+  v: 0.6
+  L0: 10
+  measuringFrame: "K"
+  endpointPairId: "platform-simultaneous"
+  R: 1.0
+events:
+  - kind: prediction
+    actionIndex: 1
+    promptId: sr-03-predict-endpoint-pair
+    candidateId: earlier-trailing
+  - kind: control
+    actionIndex: 2
+    commandClass: measurement-change
+    commandId: set-endpoint-pair
+    parameterId: endpointPairId
+    value: "frame-simultaneous"
+checkpoints:
+  - actionIndex: 1
+    stepIndex: 1
+    simulatedTime: 0
+    digest: "host:sha256:1111111111111111111111111111111111111111111111111111111111111111"
+    digestKind: host
+    checkpointVersion: 1
+    streamSemanticsVersion: 1
+    seed: "1905"
+    streamPositions: []
+    label: "Signature platform-simultaneous pair at v = 0.6c"
+    teachingNote: "A pair simultaneous in K (dt = 0, dx = 10 ls) is not simultaneous in k (dt' = -7.5 s, dx' = 12.5 ls)."
+    expectedDisplayValues:
+      - label: "dtK"
+        value: 0
+        unit: "s"
+        constantSetId: modern-si-2019
+      - label: "dtk"
+        value: -7.5
+        unit: "s"
+        constantSetId: modern-si-2019
+  - actionIndex: 2
+    stepIndex: 2
+    simulatedTime: 0
+    digest: "host:sha256:2222222222222222222222222222222222222222222222222222222222222222"
+    digestKind: host
+    checkpointVersion: 1
+    streamSemanticsVersion: 1
+    seed: "1905"
+    streamPositions: []
+    label: "Valid frame-simultaneous measurement in K"
+    teachingNote: "Endpoints simultaneous in measuring frame K give measured contracted length L = 8 ls = L0 / gamma."
+    expectedDisplayValues:
+      - label: "measuredLength"
+        value: 8.0
+        unit: "ls"
+        constantSetId: modern-si-2019

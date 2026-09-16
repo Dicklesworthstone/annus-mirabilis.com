@@ -69,6 +69,12 @@ export default function Home() {
           <p>
             <a href="/lab/me-02/">Ask what a drop in energy of motion says about inertia →</a>
           </p>
+          <p>
+            <a href="/lab/sr-02/">Compare both descriptions of the magnet and conductor →</a>
+          </p>
+          <p>
+            <a href="/lab/sr-03/">Measure moving rods, simultaneity, and causal order →</a>
+          </p>
         </div>
       </section>
       <section className="reading">

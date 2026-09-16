@@ -65,6 +65,12 @@ export default function Papers() {
                 <a href="/lab/bm-06/">Spreading laboratory →</a>
               </div>
             )}
+            {i === 2 && (
+              <div className="actions">
+                <a href="/lab/sr-02/">Magnet and conductor →</a>
+                <a href="/lab/sr-03/">Rod measurement & simultaneity →</a>
+              </div>
+            )}
             {i === 3 && (
               <div className="actions">
                 <a href="/lab/me-02/">Inertia from the small-speed coefficient →</a>

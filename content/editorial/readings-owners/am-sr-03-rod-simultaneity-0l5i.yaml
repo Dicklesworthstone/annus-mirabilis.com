@@ -1,0 +1,7 @@
+paper: special-relativity
+targetKinds:
+  - instrument-caption
+scope:
+  instrumentIds:
+    - sr-03
+ownerBeadId: am-sr-03-rod-simultaneity-0l5i

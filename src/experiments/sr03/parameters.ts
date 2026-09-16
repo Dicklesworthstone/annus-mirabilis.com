@@ -1,0 +1,137 @@
+import type { Computation } from "../../physics/reference/diffusion/ftcs.ts";
+import { makeRefusal } from "../results/refusals.ts";
+import { type EndpointPairChoice, type FrameId, type Sr03Parameters } from "./definition.ts";
+
+const requiredKeys = ["rodRestFrame", "v", "L0", "measuringFrame", "endpointPairId", "R"] as const;
+const optionalKeys = ["customT1", "customX1", "customT2", "customX2"] as const;
+
+function refused(parameterIds: readonly string[], requirements: string): Computation<never> {
+  return {
+    kind: "refused",
+    refusal: makeRefusal("invalid-parameter", { parameterIds }, { details: { requirements } }),
+  };
+}
+
+export function validateSr03Parameters(input: unknown): Computation<Sr03Parameters> {
+  if (
+    !input ||
+    typeof input !== "object" ||
+    ![Object.prototype, null].includes(Object.getPrototypeOf(input))
+  ) {
+    return refused(requiredKeys, "Provide a plain settings record.");
+  }
+  const raw = input as Record<string, unknown>;
+
+  const ownKeys = Reflect.ownKeys(raw);
+  for (const k of ownKeys) {
+    if (typeof k !== "string") return refused(requiredKeys, "Keys must be strings.");
+    if (!requiredKeys.includes(k as any) && !optionalKeys.includes(k as any)) {
+      return refused(requiredKeys, `Unknown setting '${k}'.`);
+    }
+  }
+
+  for (const k of requiredKeys) {
+    if (!Object.hasOwn(raw, k)) {
+      return refused([k], `Missing required parameter '${k}'.`);
+    }
+  }
+
+  const rodRestFrame = raw.rodRestFrame as FrameId;
+  if (rodRestFrame !== "K" && rodRestFrame !== "k") {
+    return refused(["rodRestFrame"], "Rod rest frame must be 'K' (platform) or 'k' (moving).");
+  }
+
+  const measuringFrame = raw.measuringFrame as FrameId;
+  if (measuringFrame !== "K" && measuringFrame !== "k") {
+    return refused(["measuringFrame"], "Measuring frame must be 'K' (platform) or 'k' (moving).");
+  }
+
+  const vRaw = raw.v;
+  if (typeof vRaw !== "number" || !Number.isFinite(vRaw)) {
+    return {
+      kind: "refused",
+      refusal: makeRefusal("nonfinite-input", { parameterIds: ["v"] }),
+    };
+  }
+
+  if (Math.abs(vRaw) >= 1) {
+    return {
+      kind: "refused",
+      refusal: makeRefusal("superluminal-observer", { parameterIds: ["v"] }),
+    };
+  }
+
+  if (Math.abs(vRaw) > 0.95) {
+    return {
+      kind: "refused",
+      refusal: makeRefusal("superluminal-observer", { parameterIds: ["v"] }),
+    };
+  }
+
+  const L0Raw = raw.L0;
+  if (typeof L0Raw !== "number" || !Number.isFinite(L0Raw) || L0Raw < 1e-6 || L0Raw > 1e6) {
+    return refused(["L0"], "Proper rod length L0 must be strictly positive within [1e-6, 1e6] ls.");
+  }
+
+  const RRaw = raw.R;
+  if (typeof RRaw !== "number" || !Number.isFinite(RRaw) || RRaw < 1e-6 || RRaw > 1e6) {
+    return refused(["R"], "Sphere radius R must be strictly positive within [1e-6, 1e6] ls.");
+  }
+
+  const endpointPairId = raw.endpointPairId as EndpointPairChoice;
+  const validPairs: readonly EndpointPairChoice[] = [
+    "platform-simultaneous",
+    "frame-simultaneous",
+    "causal-timelike",
+    "causal-lightlike",
+    "causal-threshold",
+    "custom",
+  ];
+  if (!validPairs.includes(endpointPairId)) {
+    return refused(["endpointPairId"], `Unknown endpoint pair id '${endpointPairId}'.`);
+  }
+
+  let customT1: number | undefined;
+  let customX1: number | undefined;
+  let customT2: number | undefined;
+  let customX2: number | undefined;
+
+  if (endpointPairId === "custom") {
+    customT1 = typeof raw.customT1 === "number" ? raw.customT1 : 0;
+    customX1 = typeof raw.customX1 === "number" ? raw.customX1 : 0;
+    customT2 = typeof raw.customT2 === "number" ? raw.customT2 : 0;
+    customX2 = typeof raw.customX2 === "number" ? raw.customX2 : 10;
+
+    if (![customT1, customX1, customT2, customX2].every(Number.isFinite)) {
+      return {
+        kind: "refused",
+        refusal: makeRefusal("nonfinite-input", {
+          parameterIds: ["customT1", "customX1", "customT2", "customX2"],
+        }),
+      };
+    }
+  }
+
+  const customParams =
+    customT1 !== undefined &&
+    customX1 !== undefined &&
+    customT2 !== undefined &&
+    customX2 !== undefined
+      ? { customT1, customX1, customT2, customX2 }
+      : {};
+
+  const resultData: Sr03Parameters = {
+    rodRestFrame,
+    v: vRaw,
+    L0: L0Raw,
+    measuringFrame,
+    endpointPairId,
+    R: RRaw,
+    ...customParams,
+  };
+
+  return {
+    kind: "accepted",
+    data: Object.freeze(resultData),
+  };
+}

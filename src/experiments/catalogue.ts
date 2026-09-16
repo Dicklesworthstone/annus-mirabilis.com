@@ -60,7 +60,7 @@ export const CATALOGUE_STATUS: Readonly<Record<CatalogueId, CatalogueStatus>> = 
   "lq-06": "in-preparation",
   "lq-07": "registered",
   "lq-08": "registered",
-  "lq-09": "in-preparation",
+  "lq-09": "registered",
   "bm-01": "registered",
   "bm-02": "registered",
   "bm-03": "registered",
@@ -72,9 +72,9 @@ export const CATALOGUE_STATUS: Readonly<Record<CatalogueId, CatalogueStatus>> = 
   "sr-01": "in-preparation",
   "sr-02": "registered",
   "sr-03": "registered",
-  "sr-04": "in-preparation",
+  "sr-04": "registered",
   "sr-05": "in-preparation",
-  "sr-06": "in-preparation",
+  "sr-06": "registered",
   "sr-07": "in-preparation",
   "sr-08": "in-preparation",
   "sr-09": "in-preparation",
@@ -116,6 +116,8 @@ export const CATALOGUE_QUESTIONS: Readonly<Partial<Record<CatalogueId, string>>>
     "Why can the frequency of emitted fluorescent light not exceed that of the exciting light under the light-quantum hypothesis, and what are the exact conditions for exceptions?",
   "lq-08":
     "Why does increasing light intensity release more electrons without increasing their individual energy, while increasing frequency increases electron energy without requiring higher intensity?",
+  "lq-09":
+    "How does single-quantum energy conservation set the frequency threshold for gas ionization, and what determines the relation between absorbed light energy and the count of ionized molecules?",
   "bm-03":
     "How does counting where independent particles can be produce the pressure law without solving any motion?",
   "bm-04":
@@ -123,6 +125,10 @@ export const CATALOGUE_QUESTIONS: Readonly<Partial<Record<CatalogueId, string>>>
   "bm-05": "After many steps, what will changing the step law while keeping its variance do?",
   "sr-03":
     "How does relative motion affect the synchronization of clocks, the coordinate measurement of moving rods, and the invariant causal order of events?",
+  "sr-06":
+    "Why doesn't adding speeds preserve light speed, and what happens when the motions are not along one line?",
+  "sr-04":
+    "What map between two inertial frames keeps both postulates, and what does each requirement decide?",
   "me-01":
     "If a body at rest emits two equal pulses in opposite directions, what do two observers' energy ledgers force you to say about the body?",
   "me-02":

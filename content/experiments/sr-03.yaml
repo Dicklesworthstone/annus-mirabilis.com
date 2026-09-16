@@ -1,0 +1,459 @@
+id: sr-03
+title: "SR-03: Rod Measurement and Simultaneity"
+explanatoryQuestion: "How does relative motion affect the synchronization of clocks, the coordinate measurement of moving rods, and the invariant causal order of events?"
+sourceRefs:
+  - paper: special-relativity
+    id: s2
+  - paper: special-relativity
+    id: s4
+argumentIds:
+  - arg-sr-relativity-of-simultaneity
+  - arg-sr-physical-meaning-rods-spheres
+schemaVersion: 1
+parameters:
+  - id: rodRestFrame
+    label: "Rod rest frame"
+    accessibleName: "Frame in which the rod is at rest"
+    accessibleDescription: "Choice between moving frame k (moving at speed v) and platform frame K (at rest)"
+    quantityId: measurementKind
+    displayUnit: ""
+    modelDomain:
+      enumerated:
+        - k
+        - K
+      reason: "One of k or K"
+    visualRange:
+      min: 0
+      max: 1
+    default: "k"
+    mapping:
+      kind: linear
+    role: independent
+    commandClass: setup-change
+  - id: v
+    label: "Relative frame speed v/c"
+    accessibleName: "Signed frame velocity as fraction of light speed"
+    accessibleDescription: "Relative velocity between platform K and frame k in units of light speed c"
+    quantityId: frameSpeed
+    displayUnit: "c"
+    modelDomain:
+      min: -0.95
+      max: 0.95
+      minInclusive: true
+      maxInclusive: true
+      reason: "Subluminal frame velocity |v/c| <= 0.95"
+    visualRange:
+      min: -0.95
+      max: 0.95
+    default: 0.6
+    mapping:
+      kind: linear
+    role: independent
+    commandClass: setup-change
+  - id: L0
+    label: "Proper length L0"
+    accessibleName: "Proper rest length of the rod"
+    accessibleDescription: "Length of the rod in its own rest frame in light-seconds"
+    quantityId: lengthProper
+    displayUnit: "ls"
+    modelDomain:
+      min: 0.000001
+      max: 1000000
+      minInclusive: true
+      maxInclusive: true
+      reason: "Positive proper length in light-seconds"
+    visualRange:
+      min: 1
+      max: 50
+    default: 10
+    mapping:
+      kind: linear
+    role: independent
+    commandClass: setup-change
+  - id: measuringFrame
+    label: "Measuring frame"
+    accessibleName: "Observer frame performing the coordinate measurement"
+    accessibleDescription: "Choice of reference frame K or k whose clocks define simultaneity"
+    quantityId: measurementKind
+    displayUnit: ""
+    modelDomain:
+      enumerated:
+        - K
+        - k
+      reason: "One of K or k"
+    visualRange:
+      min: 0
+      max: 1
+    default: "K"
+    mapping:
+      kind: linear
+    role: independent
+    commandClass: observer-change
+  - id: endpointPairId
+    label: "Endpoint pair selection"
+    accessibleName: "Selected pair of endpoint measurement events"
+    accessibleDescription: "Selection among platform-simultaneous, frame-simultaneous, causal-timelike, causal-lightlike, causal-threshold, and custom"
+    quantityId: measurementKind
+    displayUnit: ""
+    modelDomain:
+      enumerated:
+        - platform-simultaneous
+        - frame-simultaneous
+        - causal-timelike
+        - causal-lightlike
+        - causal-threshold
+        - custom
+      reason: "Candidate endpoint event pair"
+    visualRange:
+      min: 0
+      max: 5
+    default: "platform-simultaneous"
+    mapping:
+      kind: linear
+    role: independent
+    commandClass: measurement-change
+  - id: R
+    label: "Sphere radius R"
+    accessibleName: "Radius of moving sphere at rest"
+    accessibleDescription: "Radius of the rigid sphere in its rest frame in light-seconds"
+    quantityId: sphereRadius
+    displayUnit: "ls"
+    modelDomain:
+      min: 0.000001
+      max: 1000000
+      minInclusive: true
+      maxInclusive: true
+      reason: "Positive sphere radius in light-seconds"
+    visualRange:
+      min: 0.5
+      max: 10
+    default: 1
+    mapping:
+      kind: linear
+    role: independent
+    commandClass: setup-change
+outputs:
+  - id: spatialSeparationK
+    quantityId: eventSeparationSpatial
+    allowedStatuses:
+      - value
+      - outside-domain
+    primary: false
+  - id: temporalSeparationK
+    quantityId: eventSeparationTemporal
+    allowedStatuses:
+      - value
+      - outside-domain
+    primary: false
+  - id: spatialSeparationKPrime
+    quantityId: eventSeparationSpatial
+    allowedStatuses:
+      - value
+      - outside-domain
+    primary: false
+  - id: temporalSeparationKPrime
+    quantityId: eventSeparationTemporal
+    allowedStatuses:
+      - value
+      - outside-domain
+    primary: false
+  - id: simultaneityK
+    quantityId: measurementKind
+    allowedStatuses:
+      - value
+      - outside-domain
+    primary: false
+  - id: simultaneityKPrime
+    quantityId: measurementKind
+    allowedStatuses:
+      - value
+      - outside-domain
+    primary: false
+  - id: measuredLength
+    quantityId: lengthMeasuredStationary
+    allowedStatuses:
+      - value
+      - not-applicable
+      - outside-domain
+    primary: true
+  - id: spacetimeIntervalSquared
+    quantityId: spacetimeIntervalSquared
+    allowedStatuses:
+      - value
+      - outside-domain
+    primary: true
+  - id: causalOrder
+    quantityId: measurementKind
+    allowedStatuses:
+      - value
+      - outside-domain
+    primary: false
+  - id: gammaFactor
+    quantityId: lorentzFactor
+    allowedStatuses:
+      - value
+      - outside-domain
+    primary: false
+  - id: ellipsoidAxisLongitudinal
+    quantityId: lengthMeasuredStationary
+    allowedStatuses:
+      - value
+      - outside-domain
+    primary: false
+  - id: ellipsoidAxisTransverseY
+    quantityId: sphereRadius
+    allowedStatuses:
+      - value
+      - outside-domain
+    primary: false
+  - id: ellipsoidAxisTransverseZ
+    quantityId: sphereRadius
+    allowedStatuses:
+      - value
+      - outside-domain
+    primary: false
+assumptions:
+  - "Ideal inertial reference frames K and k in standard configuration (aligned axes, motion along x)."
+  - "Point endpoint events on rod worldlines."
+  - "Light speed c = 1 light-second per second."
+  - "No non-inertial forces, stresses, or acceleration transients."
+admittedDomain: "Subluminal relative velocities |v| <= 0.95c, positive proper length L0 > 0, and finite event coordinates."
+notModeled:
+  - "Optical camera appearance and Terrell rotation."
+  - "Accelerating reference frames or non-inertial effects."
+  - "Material stress, strain, or dynamic elasticity transients."
+  - "Gravitational curvature (General Relativity)."
+  - "Superluminal observers (|v| >= c)."
+owner:
+  kind: reference-evaluator
+  kernelFunctions:
+    - displayRole: reference-implementation
+      language: ts
+      module: "src/physics/reference/events.ts"
+      exportName: "measureRodLength"
+    - displayRole: reference-implementation
+      language: ts
+      module: "src/physics/reference/events.ts"
+      exportName: "classifySimultaneity"
+    - displayRole: reference-implementation
+      language: ts
+      module: "src/physics/reference/events.ts"
+      exportName: "causalOrder"
+    - displayRole: reference-implementation
+      language: ts
+      module: "src/physics/reference/kinematics.ts"
+      exportName: "ellipsoidAxes"
+views:
+  - id: sr-03-strip-view
+    kind: svg
+    consumes:
+      - measuredLength
+      - spatialSeparationK
+      - temporalSeparationK
+      - spatialSeparationKPrime
+      - temporalSeparationKPrime
+  - id: sr-03-minkowski-diagram
+    kind: svg
+    consumes:
+      - spatialSeparationK
+      - temporalSeparationK
+      - spatialSeparationKPrime
+      - temporalSeparationKPrime
+      - spacetimeIntervalSquared
+  - id: sr-03-ellipsoid-view
+    kind: svg
+    consumes:
+      - ellipsoidAxisLongitudinal
+      - ellipsoidAxisTransverseY
+      - ellipsoidAxisTransverseZ
+  - id: sr-03-data-table
+    kind: table
+    consumes:
+      - spatialSeparationK
+      - temporalSeparationK
+      - spatialSeparationKPrime
+      - temporalSeparationKPrime
+      - simultaneityK
+      - simultaneityKPrime
+      - measuredLength
+      - spacetimeIntervalSquared
+      - causalOrder
+      - gammaFactor
+      - ellipsoidAxisLongitudinal
+      - ellipsoidAxisTransverseY
+      - ellipsoidAxisTransverseZ
+actions:
+  - actionId: sr-03-change-frame-speed
+    family: kinematics
+    question: "How does changing relative speed v alter coordinate length contraction and time desynchronization?"
+    inputs:
+      - v
+    commandClass: setup-change
+    acceptedResult:
+      outputs:
+        - measuredLength
+        - gammaFactor
+        - temporalSeparationKPrime
+      allowedStatuses:
+        - value
+        - not-applicable
+    visualAffordance: "Rod strip shortens and Minkowski axes tilt with relative speed"
+    equivalentAffordance: "Read measured length and gamma factor in data table"
+    announcement: "Relative speed updated: Lorentz contraction recalculated"
+  - actionId: sr-03-select-endpoint-pair
+    family: measurement
+    question: "What happens to the measured length when endpoint events are not simultaneous in the measuring frame?"
+    inputs:
+      - endpointPairId
+    commandClass: measurement-change
+    acceptedResult:
+      outputs:
+        - measuredLength
+        - simultaneityK
+        - simultaneityKPrime
+      allowedStatuses:
+        - value
+        - not-applicable
+    visualAffordance: "Event markers shift on Minkowski diagram and refusal message appears if non-simultaneous"
+    equivalentAffordance: "Read simultaneity classifications and length measurement status in table"
+    announcement: "Endpoint pair updated: simultaneity and length validity verified"
+  - actionId: sr-03-toggle-measuring-frame
+    family: observer
+    question: "How does changing the measuring observer frame switch the simultaneity condition and length result?"
+    inputs:
+      - measuringFrame
+    commandClass: observer-change
+    acceptedResult:
+      outputs:
+        - measuredLength
+        - simultaneityK
+        - simultaneityKPrime
+      allowedStatuses:
+        - value
+        - not-applicable
+    visualAffordance: "Measuring frame highlight swaps between K and k strips"
+    equivalentAffordance: "Read measuring frame and measured length in table"
+    announcement: "Measuring frame toggled: simultaneity verified from new frame perspective"
+presets:
+  - presetId: sr-03-boost-0.6c
+    label: "Boost to 0.6c (Signature)"
+    parameterValues:
+      rodRestFrame: "k"
+      v: 0.6
+      L0: 10
+      measuringFrame: "K"
+      endpointPairId: "platform-simultaneous"
+      R: 1
+  - presetId: sr-03-valid-pair-0.6c
+    label: "Valid Frame-Simultaneous Pair"
+    parameterValues:
+      rodRestFrame: "k"
+      v: 0.6
+      L0: 10
+      measuringFrame: "K"
+      endpointPairId: "frame-simultaneous"
+      R: 1
+  - presetId: sr-03-reciprocal-0.6c
+    label: "Reciprocal Measurement"
+    parameterValues:
+      rodRestFrame: "K"
+      v: 0.6
+      L0: 10
+      measuringFrame: "k"
+      endpointPairId: "frame-simultaneous"
+      R: 1
+  - presetId: sr-03-sphere-0.6c
+    label: "Moving Sphere Ellipsoid"
+    parameterValues:
+      rodRestFrame: "k"
+      v: 0.6
+      L0: 10
+      measuringFrame: "K"
+      endpointPairId: "frame-simultaneous"
+      R: 1
+  - presetId: sr-03-causal-timelike
+    label: "Causal Timelike Pair"
+    parameterValues:
+      rodRestFrame: "k"
+      v: 0.6
+      L0: 10
+      measuringFrame: "K"
+      endpointPairId: "causal-timelike"
+      R: 1
+  - presetId: sr-03-causal-lightlike
+    label: "Causal Lightlike Pair"
+    parameterValues:
+      rodRestFrame: "k"
+      v: 0.6
+      L0: 10
+      measuringFrame: "K"
+      endpointPairId: "causal-lightlike"
+      R: 1
+  - presetId: sr-03-causal-threshold
+    label: "Causal Threshold (Reversal)"
+    parameterValues:
+      rodRestFrame: "k"
+      v: 0.2
+      L0: 10
+      measuringFrame: "K"
+      endpointPairId: "causal-threshold"
+      R: 1
+probes:
+  - sr-03-probe-simultaneity
+  - sr-03-probe-length-contraction
+  - sr-03-probe-causal-order
+weavePredicates:
+  - sr03-s2-simultaneity-relativity
+  - sr03-s4-rod-measurement
+  - sr03-s4-sphere-ellipsoid
+historicalOverlays: []
+realRate:
+  natural: false
+embeddable: true
+predictMode:
+  enabled: true
+  prompts:
+    - promptId: sr-03-predict-endpoint-pair
+      controlId: endpointPairId
+      question: "At v = 0.6c, two events that mark the ends of a moving 10-ls rod are measured simultaneously in platform frame K (dt = 0, dx = 8 ls). What is their time separation dt' in the rod's rest frame k?"
+      candidates:
+        - id: earlier-trailing
+          label: "Front end earlier (dt' < 0)"
+          description: "The front end measurement occurs earlier than the rear end measurement in the rod frame."
+          relation: "dt' = -gamma * v * dx / c^2"
+          separatingAssumption: "Relativity of simultaneity: dt' = -gamma * v * dx / c^2 = -6.0 s."
+        - id: still-simultaneous
+          label: "Simultaneous in both frames (dt' = 0)"
+          description: "Events simultaneous in one frame must be simultaneous in all frames."
+          relation: "dt' = dt = 0"
+          separatingAssumption: "Classical absolute time assumption."
+        - id: later-trailing
+          label: "Front end later (dt' > 0)"
+          description: "The front end measurement occurs later than the rear end measurement in k."
+          relation: "dt' > 0"
+          separatingAssumption: "Wrong sign for Lorentz coordinate boost."
+    - promptId: sr-03-predict-causal-order
+      controlId: v
+      question: "If two events have a timelike separation (s^2 < 0, so a subluminal signal could connect them), what happens to their time order when viewed from a frame moving at 0.95c?"
+      candidates:
+        - id: order-preserved
+          label: "Order is invariant"
+          description: "Every inertial frame agrees which event occurred first."
+          relation: "sgn(dt') = sgn(dt)"
+          separatingAssumption: "Lorentz invariance of timelike causal order."
+        - id: order-reverses
+          label: "Time order reverses"
+          description: "At sufficiently high relative speed, the time order reverses."
+          relation: "sgn(dt') = -sgn(dt)"
+          separatingAssumption: "Confusing spacelike order dependence with timelike order invariance."
+        - id: becomes-simultaneous
+          label: "Becomes simultaneous"
+          description: "There exists an inertial frame where the two events occur at the same time."
+          relation: "dt' = 0"
+          separatingAssumption: "Assuming simultaneity is reachable for timelike intervals."
+acceptanceCases:
+  - sr03-signature-0.6c
+defaultScenario: sr03-signature-0.6c
+tapeModel:
+  modelId: sr-03
+  modelVersion: 1
