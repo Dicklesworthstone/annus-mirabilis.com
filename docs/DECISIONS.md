@@ -570,3 +570,58 @@ Schema-test JSONL (gitignored artifacts): `artifacts/test-logs/perf-profiles/202
 3. **`am-test-real-device-check-iju4`:** Launch hardware check; not a lab-emulation substitute.
 4. **`am-plat-resource-stress-9zgu`:** Owns `resource-lifecycle`. Profiles only name which lab profiles that bead measures on.
 5. **`am-app-perf-budgets-q2ku`:** May copy profile ids; iPhone numbers are that bead's, not this file's.
+
+---
+
+## D-2026-09-16-license-and-rider
+
+- **Question:** What license covers the codebase, new explanatory prose, English translation, machine-readable exports, authored figures, and historical datasets; how does the OpenAI/Anthropic rider apply; and what is the exact attribution string?
+- **Options:**
+  - **Option A (Recommended / Plan default):** MIT License with OpenAI/Anthropic Rider for all code, new explanatory prose, English translations, and authored figures. Machine-readable exports and future translations inherit the same license and rider. Raw numerical facts remain public domain; attribution string is: `"Annus Mirabilis (annus-mirabilis.com), critical edition and translation by Jeffrey Emanuel and contributors, based on Albert Einstein (1905)."`.
+  - **Option B:** MIT License (with Rider) for code; CC BY-NC-SA 4.0 (with Rider) for prose and translations. Machine-readable exports and figures inherit the respective layer license. Same attribution string.
+  - **Option C:** Standard MIT License for all code, prose, translations, and figures with NO OpenAI/Anthropic rider. Same attribution string.
+- **Choice:** **Option A**.
+- **Reason:** Full consistency across code, prose, translations, and mathematical/authored structures; preserves inherited donor licensing from Classic Patents and FrankenSim; ensures strong protection via the OpenAI/Anthropic rider; establishes clear layer boundaries and public domain distinctions without licensing fragmentation.
+- **Prepared by:** `AntigravityLane` (swarm agent, `am-gov-decision-license-rights-tps`).
+- **Decider:** Jeff Emanuel, project owner. Ratified 2026-09-16 in orchestration session via direct selection of Option A.
+- **Status:** RATIFIED 2026-09-16 by the project owner. This entry is **binding**. Dependent beads may cite it as a settled decision.
+- **Date:** 2026-09-16.
+- **Attribution String:**
+  ```text
+  Annus Mirabilis (annus-mirabilis.com), critical edition and translation by Jeffrey Emanuel and contributors, based on Albert Einstein (1905).
+  ```
+- **Scope and Layer Dispositions:**
+  1. **Historical German text:** Public domain worldwide. Published in *Annalen der Physik* in 1905–1906, author Albert Einstein died in 1955.
+  2. **Facsimile scans:** Per-asset terms governed by provenance receipts and `SourceAsset.rights`. Never covered by the code license.
+  3. **English translation:** MIT License with OpenAI/Anthropic Rider. Copyright (c) 2026 Jeffrey Emanuel and contributors.
+  4. **Explanatory prose:** MIT License with OpenAI/Anthropic Rider. Copyright (c) 2026 Jeffrey Emanuel and contributors.
+  5. **Code:** MIT License with OpenAI/Anthropic Rider. Copyright (c) 2026 Jeffrey Emanuel and contributors. See `LICENSE`.
+  6. **FrankenSim artifacts:** Inherited MIT License with OpenAI/Anthropic Rider from FrankenSim. Copyright (c) 2026 Jeffrey Emanuel.
+  7. **Fonts:** SIL Open Font License 1.1 (OFL-1.1) for Newsreader, Plus Jakarta Sans, JetBrains Mono, and KaTeX fonts.
+  8. **Third-party runtime libraries:** Permissive open-source licenses (MIT, Apache-2.0, ISC, MPL-2.0). See `NOTICE.md`.
+  9. **Images and figures:** Authored diagrams and SVGs are licensed under MIT License with OpenAI/Anthropic Rider. Public-domain photographs (including Lucien Chavan's ca. 1905 portrait of Einstein from ETH-Bibliothek Zürich) are in the public domain and carry source credits.
+  10. **Historical datasets:** Objective historical scientific observations (Perrin, Bancelin, Millikan, etc.) are uncopyrightable facts in the public domain; curated digital dataset structures and accompanying annotations are licensed under MIT License with OpenAI/Anthropic Rider.
+- **Holding-page exemption:**
+  The 2026-09-14 placeholder holding page and scaffold deployment are exempt from full publication constraints because they publish no translation, readings, or new editorial prose. The public-domain photograph of Einstein is credited.
+- **Publications requiring this decision:**
+  - Public preview release (`am-rel-preview-policy-cf6g`)
+  - Machine-readable exports (`am-cm-machine-readable-exports-xgy`)
+  - Embeds route (`am-inst-embed-route-rnyg`)
+  - Launch readiness audit (`am-launch-readiness-audit-sc9b`)
+- **Evidence:**
+  - Direct owner selection of Option A on 2026-09-16.
+  - Master Plan `COMPREHENSIVE_PLAN_FOR_ANNUS_MIRABILIS_SITE_MERGED.md` §20.
+  - Donor audit `docs/DONOR_AUDIT.md`.
+  - Structural test suite `src/testing/docs/noticeLayers.test.ts`.
+- **Beads Unblocked:**
+  - `am-launch-readiness-audit-sc9b`
+  - `am-cm-machine-readable-exports-xgy`
+  - `am-rel-preview-policy-cf6g`
+- **Revisit Trigger:**
+  - Explicit instruction from the project owner to modify licensing terms or rider scope.
+- **Consequences for Dependent and Affected Beads:**
+  1. **`am-cm-machine-readable-exports-xgy`:** Embeds the exact attribution string and MIT + Rider license block in generated JSON and Markdown export files.
+  2. **`am-inst-embed-route-rnyg`:** Embeddable interactive widgets and figures render the required attribution string.
+  3. **`am-rel-preview-policy-cf6g`:** Validates that published preview content adheres to the ratified licensing layers in `NOTICE.md`.
+  4. **`am-design-sources-about-zumd`:** `/about` and `/sources` project the 11-layer notice structure and exact attribution text.
+  5. **`am-launch-readiness-audit-sc9b`:** Audits that `NOTICE.md`, `LICENSE`, and `README.md` are ratified and non-provisional.
