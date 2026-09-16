@@ -56,6 +56,8 @@ tmp/
 out.txt
 
 # Agent tooling runtime state
+daemon.lock
+*.lock
 .ntm/
 .doctor/
 .beads/*.db
