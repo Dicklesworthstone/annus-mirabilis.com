@@ -26,7 +26,8 @@ export function ReaderController({ registry, titles, questions }: Props) {
       if (!target) return;
       target.focus({ preventScroll: true });
       const behavior = document.documentElement.style.scrollBehavior; document.documentElement.style.scrollBehavior = "auto";
-      window.scrollBy(0, target.getBoundingClientRect().top - (frame?.relativeY ?? 0.15) * innerHeight);
+      const delta = target.getBoundingClientRect().top - (frame?.relativeY ?? 0.15) * innerHeight;
+      if (dialog.open && dialog.contains(target)) dialog.scrollTop += delta; else window.scrollBy(0, delta);
       document.documentElement.style.scrollBehavior = behavior;
     }
     function render(previous?: ReaderState, message = "") {

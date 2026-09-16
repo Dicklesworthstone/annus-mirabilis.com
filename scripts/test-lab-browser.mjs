@@ -6,6 +6,7 @@ import { chromium } from "playwright";
 import AxeBuilder from "@axe-core/playwright";
 import { checkTracerBrowser } from "./test-tracer-browser.mjs";
 import { checkWalkBrowser } from "./test-walk-browser.mjs";
+import { checkReaderBrowser } from "./test-reader-browser.mjs";
 
 const root = resolve("out");
 const types = { ".html": "text/html; charset=utf-8", ".js": "application/javascript", ".css": "text/css", ".json": "application/json", ".woff2": "font/woff2", ".woff": "font/woff", ".ttf": "font/ttf", ".svg": "image/svg+xml" };
@@ -97,6 +98,7 @@ try {
   await context.close();
   await checkTracerBrowser(browser, url, check);
   await checkWalkBrowser(browser, url, check);
+  await checkReaderBrowser(browser, url, check);
 } finally {
   await writeFile("artifacts/browser/checks.json", JSON.stringify(evidence, null, 2));
   await browser.close();
