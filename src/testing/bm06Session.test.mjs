@@ -84,6 +84,34 @@ test("mixed setup/interval edits publish one correctly labeled result; invalid e
   assert.equal(counts().creations, 2);
   app.disconnect();
 });
+test("copying D from a named BM-01 instance records source identity and is never a live subscription", async () => {
+  const { app } = session();
+  const source = {
+    instanceId: "bm01-tracer-a",
+    runId: "run-1905-1",
+    snapshotVersion: 3,
+    value: 7e-13,
+  };
+  const outcome = app.copyDiffusivityFrom(source);
+  assert.equal(outcome.kind, "accepted");
+  await settled(app);
+  const accepted = app.getSnapshot().accepted;
+  assert.equal(accepted.parameters.copiedDiffusivityInstanceId, "bm01-tracer-a");
+  assert.equal(accepted.parameters.copiedDiffusivityRunId, "run-1905-1");
+  assert.equal(accepted.parameters.copiedDiffusivitySnapshotVersion, 3);
+  assert.equal(accepted.parameters.copiedDiffusivityValue, 7e-13);
+  assert.equal(
+    accepted.outputs.find((o) => o.quantityId === "activeDiffusionCoefficient").value,
+    7e-13,
+  );
+  // Mutating the source object after copying must not reach back into the accepted snapshot:
+  // the copy is a one-time value read, never a live subscription to BM-01's own state.
+  source.value = 9e-9;
+  source.instanceId = "mutated-after-the-fact";
+  assert.equal(app.getSnapshot().accepted.parameters.copiedDiffusivityValue, 7e-13);
+  assert.equal(app.getSnapshot().accepted.parameters.copiedDiffusivityInstanceId, "bm01-tracer-a");
+  app.disconnect();
+});
 test("sharing uses accepted settings rather than refused or still-requested values", async () => {
   const { app } = session();
   const accepted = app.acceptedParameters();

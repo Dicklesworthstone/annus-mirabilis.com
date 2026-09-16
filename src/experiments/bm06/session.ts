@@ -61,7 +61,7 @@ export function createBm06Session(
       if (validated.kind !== "accepted") return validated;
       const parameters = validated.data;
       const previous = store.getSnapshot().requested!.parameters;
-      const setup: Record<string, number | boolean> = {},
+      const setup: Record<string, number | boolean | string> = {},
         measurement: Record<string, number> = {};
       for (const key of Object.keys(parameters) as (keyof Bm06Parameters)[]) {
         if (Object.is(parameters[key], previous[key])) continue;
@@ -74,6 +74,26 @@ export function createBm06Session(
       scheduler ??= createBm06Scheduler(store, workerFactory, example.sourceDigest);
       scheduler.request(request);
       return { kind: "accepted" as const, data: request };
+    },
+    /** A one-time value copy from a named BM-01 instance's accepted snapshot: `source` is read
+     * once, spread into an ordinary setup-change patch, and never retained or subscribed to, so
+     * a later change to the source instance cannot reach back into this parameter set. */
+    copyDiffusivityFrom(
+      source: Readonly<{
+        instanceId: string;
+        runId: string;
+        snapshotVersion: number;
+        value: number;
+      }>,
+    ) {
+      const current = store.getSnapshot().accepted!.parameters as Parameters as Bm06Parameters;
+      return this.apply({
+        ...current,
+        copiedDiffusivityInstanceId: source.instanceId,
+        copiedDiffusivityRunId: source.runId,
+        copiedDiffusivitySnapshotVersion: source.snapshotVersion,
+        copiedDiffusivityValue: source.value,
+      });
     },
     stop() {
       scheduler?.cancel();

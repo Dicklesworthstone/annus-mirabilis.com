@@ -12,6 +12,15 @@ export type Bm06Parameters = Readonly<{
   n: number;
   dx: number;
   steps: number;
+  /** A one-time value copy from a named BM-01 instance's accepted snapshot, never a live
+   * subscription: these four fields are ordinary parameters, captured by value at the moment
+   * of copying, so a later change to the source instance cannot alter them. The empty-string /
+   * zero quadruple is the "not copied" sentinel; any other state must be all four fields set
+   * together (see validateBm06Parameters). */
+  copiedDiffusivityInstanceId: string;
+  copiedDiffusivityRunId: string;
+  copiedDiffusivitySnapshotVersion: number;
+  copiedDiffusivityValue: number;
 }>;
 export const BM06_DEFAULTS: Bm06Parameters = Object.freeze({
   T: 293.15,
@@ -24,6 +33,10 @@ export const BM06_DEFAULTS: Bm06Parameters = Object.freeze({
   n: 101,
   dx: 1e-7,
   steps: 250,
+  copiedDiffusivityInstanceId: "",
+  copiedDiffusivityRunId: "",
+  copiedDiffusivitySnapshotVersion: 0,
+  copiedDiffusivityValue: 0,
 });
 export const BM06_PARAMETER_CLASSES: Readonly<Record<keyof Bm06Parameters, ParameterClass>> =
   Object.freeze({
@@ -37,6 +50,10 @@ export const BM06_PARAMETER_CLASSES: Readonly<Record<keyof Bm06Parameters, Param
     n: "input",
     dx: "input",
     steps: "input",
+    copiedDiffusivityInstanceId: "input",
+    copiedDiffusivityRunId: "input",
+    copiedDiffusivitySnapshotVersion: "input",
+    copiedDiffusivityValue: "input",
   });
 export const BM06_BUDGET = Object.freeze({ workUnits: 4_000_000, allocationBytes: 16_000_000 });
 export const BM06_MODEL = Object.freeze({
@@ -101,7 +118,78 @@ export const BM06_OUTPUTS: Readonly<Record<string, OutputContract>> = Object.fre
     "not-applicable",
   ]),
   gridTimeStep: contract("s", "numerical-time-step", "bm06.evaluate", ["value", "not-applicable"]),
+  activeDiffusionCoefficient: contract("m2/s", "active-latent-diffusivity", "bm06.evaluate", [
+    "value",
+  ]),
+  meanRadius2d: contract("m", "latent-mean-radius-2d", "diffusion.moments"),
+  rmsRadius2d: contract("m", "latent-vector-rms-2d", "diffusion.moments"),
+  mostLikelyRadius2d: contract("m", "latent-most-likely-radius", "diffusion.mostLikelyRadius2d"),
+  meanRadius3d: contract("m", "latent-mean-radius-3d", "diffusion.moments"),
+  rmsRadius3d: contract("m", "latent-vector-rms-3d", "diffusion.moments"),
 });
+/**
+ * Explanations for the radial outputs above, shown beside them in the view (BoldHarbor's "wired
+ * into BM06_OUTPUTS ... and have no explanations of their own"). This is a plain text map, not a
+ * ReadingSet: the R0-R3 caption/readings-owners pipeline needs schemas from am-cm-schemas-
+ * argument-llm and an audit-readings.ts from am-cm-audit-scripts-d34, neither of which exists
+ * yet. When that infrastructure lands, these belong in this instrument's readings-owners file.
+ */
+export const BM06_RADIAL_EXPLANATIONS = Object.freeze({
+  meanRadius2d:
+    "The mean 2D radius <r> = sqrt(pi D t / 2) is smaller than the RMS radius sqrt(<r^2>) = sqrt(4 D t): the extra factor of r in the 2D density weights larger radii more heavily than a signed 1D coordinate does, so the two averages of the same spread disagree.",
+  rmsRadius2d:
+    "The RMS 2D radius sqrt(<r^2>) = sqrt(4 D t) is the square root of the mean squared distance from the start, not the mean distance itself -- squaring before averaging always weights the tail more than averaging the radius directly.",
+  mostLikelyRadius2d:
+    "The most likely 2D radius, where the density p_r(r,t) = (r / 2Dt) e^(-r^2/4Dt) peaks, is sqrt(2 D t): the same number as the 1D RMS displacement. The growing circumference of available positions at radius r (proportional to r itself) exactly cancels the falling Gaussian density near the start, moving the peak away from the origin.",
+  meanRadius3d:
+    "The mean 3D radius <r> = 4 sqrt(D t / pi) counts positions on a growing sphere (area proportional to r^2), pulling the average distance from the start out further than the 2D circumference case.",
+  rmsRadius3d:
+    "The RMS 3D radius sqrt(<r^2>) = sqrt(6 D t) reflects three independent coordinate directions, each contributing its own 2 D t to the mean squared displacement (compare the 1D case's single 2 D t).",
+});
+/**
+ * Declared as data only (am-read-result-weave-jex, the weave compiler and evaluator these must
+ * validate against, does not exist yet). Conditions are written over fields that already exist
+ * on a real accepted snapshot today -- `simulationTime` is `AcceptedSnapshot.simulationTime`
+ * (a structural field, not a screen value); every other reference is an existing BM06_OUTPUTS
+ * key and its published status/value -- never over what is displayed or selected on screen, so
+ * they are ready to compile once that bead lands. Two things are placeholders pending the real
+ * contract, named here rather than silently guessed: (1) whether the compiler reads snapshot
+ * structural fields like `simulationTime` the same way it reads named outputs, and (2) the exact
+ * shape of a "regime" condition (grid on/off has no dedicated output today -- the grid-family
+ * outputs the operation already publishes carry status "not-applicable" when the grid switch is
+ * off, so "grid is ftcs" is expressed here as `stabilityRatio` having status "value" rather than
+ * inventing an unpublished `gridMode` output). A structural test checks the shape below; nothing
+ * here has been run through a real weave pass.
+ */
+export const BM06_WEAVE_PREDICATES = Object.freeze([
+  Object.freeze({
+    id: "bm06-s4-solution",
+    targetSentenceId: "s4-solution",
+    pointerText: "the instrument is showing the solution this sentence states.",
+    conditions: Object.freeze([
+      Object.freeze({ kind: "threshold", field: "simulationTime", comparison: ">", value: 0 }),
+      Object.freeze({ kind: "status", outputId: "probabilityDensity", equals: "value" }),
+      Object.freeze({ kind: "status", outputId: "intervalProbability", equals: "value" }),
+    ]),
+  }),
+  Object.freeze({
+    id: "bm06-s4-grid-agreement",
+    targetSentenceId: "s4-diffusion-equation",
+    pointerText: "the numerical grid and the analytic curve agree within tolerance.",
+    conditions: Object.freeze([
+      Object.freeze({ kind: "status", outputId: "stabilityRatio", equals: "value" }),
+      Object.freeze({ kind: "threshold", outputId: "wallContact", comparison: "<", value: 0.5 }),
+      Object.freeze({
+        kind: "threshold",
+        outputId: "maxCellMassDifference",
+        comparison: "<=",
+        value: 1e-3,
+        exitComparison: ">",
+        exitValue: 2e-3,
+      }),
+    ]),
+  }),
+]);
 export const BM06_PRESETS = Object.freeze({
   "modern-one-second": Object.freeze({ label: "One second", parameters: BM06_DEFAULTS }),
   "modern-one-minute": Object.freeze({

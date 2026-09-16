@@ -26,6 +26,7 @@ const identities = {
   meanSquareDisplacement: ["m2", "latent-vector-second-moment"],
   meanRadialDistance: ["m", "latent-mean-radius"],
   rmsRadialDistance: ["m", "latent-vector-rms"],
+  mostLikelyRadius2d: ["m", "latent-most-likely-radius"],
   apparentSpeed: ["m/s", "interval-dependent-apparent-speed"],
   osmoticPressure: ["Pa", "ideal-osmotic-pressure"],
 } as const;
@@ -315,6 +316,19 @@ export function radialPropagator2d(r: number, t: number, D: number): Evaluation 
 }
 export function radialPropagator3d(r: number, t: number, D: number): Evaluation {
   return radial(r, t, D, 3);
+}
+/** Where p_r(r,t) = r/(2Dt) e^{-r^2/(4Dt)} peaks: d/dr = 0 at r = sqrt(2Dt), equal to the 1D RMS
+ * displacement -- the growing circumference of available positions exactly cancels the falling
+ * density near the start. Not defined for 3D: the bead's own spec gives no closed form there. */
+export function mostLikelyRadius2d(D: number, t: number): Evaluation {
+  if (!validDt(D, t))
+    return outside(
+      "mostLikelyRadius2d",
+      "mostLikelyRadius2d",
+      "D >= 0, t >= 0",
+      "Diffusivity and time must be finite and nonnegative.",
+    );
+  return number("mostLikelyRadius2d", "mostLikelyRadius2d", Math.sqrt(2 * D * t));
 }
 export function moments(
   d: number,

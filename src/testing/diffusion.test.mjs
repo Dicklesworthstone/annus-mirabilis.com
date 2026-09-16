@@ -16,6 +16,7 @@ import {
   gaussianPropagator,
   intervalProbability,
   moments,
+  mostLikelyRadius2d,
   osmoticPressure,
   radialPropagator2d,
   radialPropagator3d,
@@ -204,6 +205,22 @@ test("point distributions include closed endpoints, not an infinitely tall Gauss
   }
   assert.equal(val(intervalProbability(0, 0, 1, 1)), 0);
   assert.equal(val(rmsDisplacement(0, 1)), 0);
+});
+test("the 2D radial density genuinely peaks at its reported most-likely radius", () => {
+  assert.equal(mostLikelyRadius2d(-1, 1).result.status, "outside-domain");
+  assert.equal(mostLikelyRadius2d(1, -1).result.status, "outside-domain");
+  assert.equal(mostLikelyRadius2d(0, 0).result.status, "value");
+  assert.equal(val(mostLikelyRadius2d(0, 0)), 0);
+  const D = 0.5,
+    t = 1;
+  const peak = val(mostLikelyRadius2d(D, t));
+  near(peak, Math.sqrt(2 * D * t), 1e-14);
+  // Independent of the closed form: the density a small step below and above the reported peak
+  // must both be lower, or a wiring/arithmetic bug in the maximizer would not be caught.
+  const atPeak = val(radialPropagator2d(peak, t, D));
+  const eps = peak * 1e-4;
+  assert.ok(atPeak > val(radialPropagator2d(peak - eps, t, D)));
+  assert.ok(atPeak > val(radialPropagator2d(peak + eps, t, D)));
 });
 test("interval probability uses tail-safe and narrow-interval calculations", () => {
   near(val(intervalProbability(-1, 1, 1, 0.5)), 0.6826894921370859, 1e-14);

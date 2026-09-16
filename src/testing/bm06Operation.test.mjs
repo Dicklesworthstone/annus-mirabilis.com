@@ -140,6 +140,63 @@ test("cancellation is observed at a chunk boundary; budgets never become physics
   assert.equal(huge.outcome.outcome, "budget-exhausted");
   decodeOutcome(huge.outcome);
 });
+test("2D and 3D radial moments and the 2D most-likely radius match independently computed closed forms", async () => {
+  const r = await run();
+  const D = numeric(r, "diffusionCoefficient");
+  const t = defaults.t;
+  // Independent of moments()/mostLikelyRadius2d: typed out from the bead's own closed forms,
+  // not calling the owner under test. s is the 1D RMS displacement, sqrt(2 D t).
+  const s = Math.sqrt(2 * D * t);
+  const expected = {
+    meanRadius2d: s * Math.sqrt(Math.PI / 2), // = sqrt(pi D t)
+    rmsRadius2d: s * Math.SQRT2, // = sqrt(4 D t)
+    mostLikelyRadius2d: s, // = sqrt(2 D t)
+    meanRadius3d: s * 2 * Math.sqrt(2 / Math.PI), // = 4 sqrt(D t / pi)
+    rmsRadius3d: s * Math.sqrt(3), // = sqrt(6 D t)
+  };
+  for (const [id, value] of Object.entries(expected)) close(numeric(r, id), value, 1e-9);
+  // The 2D most-likely radius is the 1D RMS displacement (bead's own stated identity); the two
+  // owner functions compute sqrt(2*D*t) in a different operation order, so this is a numeric
+  // closeness check, not bitwise equality.
+  close(numeric(r, "mostLikelyRadius2d"), numeric(r, "rmsDisplacement1d"), 1e-12);
+  // A wiring bug that swapped the 2D and 3D slots, or reused one dimension for both, would be
+  // caught here: the two dimensions' moments are genuinely different numbers.
+  assert.notEqual(numeric(r, "meanRadius2d"), numeric(r, "meanRadius3d"));
+  assert.notEqual(numeric(r, "rmsRadius2d"), numeric(r, "rmsRadius3d"));
+});
+test("activeDiffusionCoefficient equals the model D with no copy, and the copied value once one is recorded", async () => {
+  const plain = await run();
+  assert.equal(
+    numeric(plain, "activeDiffusionCoefficient"),
+    numeric(plain, "diffusionCoefficient"),
+  );
+  const copied = await run({
+    copiedDiffusivityInstanceId: "bm01-tracer-a",
+    copiedDiffusivityRunId: "run-1",
+    copiedDiffusivitySnapshotVersion: 1,
+    copiedDiffusivityValue: 7e-13,
+  });
+  assert.equal(numeric(copied, "activeDiffusionCoefficient"), 7e-13);
+  // diffusionCoefficient keeps reporting what T/eta/a alone give -- the copy never
+  // misattributes its number to stokesEinsteinD.
+  assert.equal(numeric(copied, "diffusionCoefficient"), numeric(plain, "diffusionCoefficient"));
+  // Every downstream quantity uses the active (copied) D, not the model's own D.
+  close(numeric(copied, "rmsDisplacement1d"), Math.sqrt(2 * 7e-13 * defaults.t), 1e-9);
+  close(numeric(copied, "mostLikelyRadius2d"), Math.sqrt(2 * 7e-13 * defaults.t), 1e-9);
+});
+test("a copy with only some of the four fields set is refused, never partially applied", () => {
+  for (const partial of [
+    { copiedDiffusivityInstanceId: "bm01-a" },
+    { copiedDiffusivityRunId: "run-1" },
+    { copiedDiffusivitySnapshotVersion: 2 },
+    { copiedDiffusivityValue: 1e-12 },
+    { copiedDiffusivityInstanceId: "bm01-a", copiedDiffusivityValue: 0 },
+  ]) {
+    const r = validateBm06Parameters({ ...defaults, ...partial });
+    assert.equal(r.kind, "refused");
+    decodeRefusal(r.refusal);
+  }
+});
 test("a real lab result and refusal obey the existing accepted-state store", async () => {
   const store = createInstanceStore({
     experimentId: "bm-06",

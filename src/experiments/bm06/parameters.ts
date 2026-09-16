@@ -26,6 +26,7 @@ export function validateBm06Parameters(input: unknown): Computation<Bm06Paramete
       keys,
       "Every declared setting must occur exactly once; unknown settings are not supported.",
     );
+  const stringKeys = new Set(["copiedDiffusivityInstanceId", "copiedDiffusivityRunId"]);
   for (const key of keys) {
     const descriptor = Object.getOwnPropertyDescriptor(record, key);
     if (!descriptor?.enumerable || !Object.hasOwn(descriptor, "value"))
@@ -33,6 +34,8 @@ export function validateBm06Parameters(input: unknown): Computation<Bm06Paramete
     if (key === "gridEnabled") {
       if (typeof record[key] !== "boolean")
         return refused([key], "The grid switch must be true or false.");
+    } else if (stringKeys.has(key)) {
+      if (typeof record[key] !== "string") return refused([key], "This setting must be text.");
     } else if (typeof record[key] !== "number" || !Number.isFinite(record[key]))
       return { kind: "refused", refusal: makeRefusal("nonfinite-input", { parameterIds: [key] }) };
   }
@@ -42,6 +45,30 @@ export function validateBm06Parameters(input: unknown): Computation<Bm06Paramete
       ["T", "eta", "a", "t", "dx"],
       "Temperature, viscosity, radius and cell width must be positive; elapsed time can be zero.",
     );
+  const copyFields = [
+    "copiedDiffusivityInstanceId",
+    "copiedDiffusivityRunId",
+    "copiedDiffusivitySnapshotVersion",
+    "copiedDiffusivityValue",
+  ] as const;
+  const notCopied =
+    p.copiedDiffusivityInstanceId === "" &&
+    p.copiedDiffusivityRunId === "" &&
+    p.copiedDiffusivitySnapshotVersion === 0 &&
+    p.copiedDiffusivityValue === 0;
+  if (!notCopied) {
+    if (
+      p.copiedDiffusivityInstanceId === "" ||
+      p.copiedDiffusivityRunId === "" ||
+      !Number.isSafeInteger(p.copiedDiffusivitySnapshotVersion) ||
+      p.copiedDiffusivitySnapshotVersion < 0 ||
+      !(p.copiedDiffusivityValue > 0)
+    )
+      return refused(
+        [...copyFields],
+        "A copied diffusivity needs a non-empty source instance id, run id, a non-negative whole snapshot version, and a positive value; all four or none.",
+      );
+  }
   if (p.lower > p.upper)
     return refused(
       ["lower", "upper"],

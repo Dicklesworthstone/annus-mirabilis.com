@@ -11,6 +11,7 @@ import {
   gaussianPropagator,
   intervalProbability,
   moments,
+  mostLikelyRadius2d,
   rmsDisplacement,
   stokesEinsteinD,
 } from "../../physics/reference/diffusion/distributions.ts";
@@ -72,6 +73,21 @@ function scalar(result: ScientificResult): number {
     throw new RangeError("The requested model quantity has no representable scalar value.");
   return result.value;
 }
+/** Carries an owner's typed status/value through under a different published quantity id, so
+ * `moments(2, ...)` and `moments(3, ...)` -- which both use the dimension-independent ids
+ * `meanRadialDistance`/`rmsRadialDistance` -- can be published as BM-06's own, distinct
+ * `meanRadius2d`/`meanRadius3d` outputs without misattributing which owner produced the number. */
+function rename(result: ScientificResult, quantityId: string): ScientificResult {
+  const c = BM06_OUTPUTS[quantityId];
+  if (!c) throw new TypeError(`Undeclared output ${quantityId}`);
+  return decodeResult({
+    ...result,
+    quantityId,
+    unit: c.unit,
+    semanticKind: c.semanticKind,
+    ownerId: c.ownerId,
+  });
+}
 /** All model numbers and sampled curves are assembled here, never in the React view. */
 export async function evaluateBm06(
   input: unknown,
@@ -101,7 +117,14 @@ export async function evaluateBm06(
     };
   try {
     const diffusivity = stokesEinsteinD(p, getConstantSet("modern-si-2019")).result;
-    const D = scalar(diffusivity);
+    // A copied D (recorded on the parameters, never a live subscription -- see
+    // Bm06Parameters.copiedDiffusivityValue) replaces the model's own T/eta/a-derived value for
+    // every downstream calculation. `diffusivity`/`diffusionCoefficient` keeps reporting what
+    // T/eta/a alone would give, honestly attributed to stokesEinsteinD; `activeDiffusionCoefficient`
+    // reports whichever value this run actually used.
+    const modelD = scalar(diffusivity);
+    const D = p.copiedDiffusivityValue > 0 ? p.copiedDiffusivityValue : modelD;
+    const activeDiffusivity = value("activeDiffusionCoefficient", D);
     const rms = rmsDisplacement(D, p.t).result;
     const sigma = scalar(rms);
     const probability = intervalProbability(p.lower, p.upper, p.t, D).result;
@@ -116,8 +139,11 @@ export async function evaluateBm06(
             Float64Array.from(xs, (x) => scalar(gaussianPropagator(x, p.t, D).result)),
           );
     const times = new Float64Array([1, 10, 60]);
+    const radial2d = moments(2, D, p.t);
+    const radial3d = moments(3, D, p.t);
     const outputs: ScientificResult[] = [
       diffusivity,
+      activeDiffusivity,
       rms,
       moments(1, D, p.t).marginal.result,
       probability,
@@ -128,6 +154,11 @@ export async function evaluateBm06(
         "comparisonRms",
         Float64Array.from(times, (t) => scalar(rmsDisplacement(D, t).result)),
       ),
+      rename(radial2d.meanRadius.result, "meanRadius2d"),
+      rename(radial2d.rmsRadius.result, "rmsRadius2d"),
+      rename(mostLikelyRadius2d(D, p.t).result, "mostLikelyRadius2d"),
+      rename(radial3d.meanRadius.result, "meanRadius3d"),
+      rename(radial3d.rmsRadius.result, "rmsRadius3d"),
     ];
     let stepIndex = 0;
     if (p.gridEnabled) {

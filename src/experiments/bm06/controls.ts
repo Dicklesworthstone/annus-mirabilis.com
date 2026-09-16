@@ -1,6 +1,15 @@
 import { formatScaledDecimal, parseScaledDecimal } from "../../units/decimalScale.ts";
 import type { Bm06Parameters } from "./definition.ts";
-export type NumericKey = Exclude<keyof Bm06Parameters, "gridEnabled">;
+/** The four copiedDiffusivity* fields are never free-typed; they round-trip through the draft
+ * unchanged except when the explicit copy action (BrownianLab's "Copy D from BM-01") sets them. */
+export type NumericKey = Exclude<
+  keyof Bm06Parameters,
+  | "gridEnabled"
+  | "copiedDiffusivityInstanceId"
+  | "copiedDiffusivityRunId"
+  | "copiedDiffusivitySnapshotVersion"
+  | "copiedDiffusivityValue"
+>;
 export const BM06_FIELDS: readonly {
   key: NumericKey;
   label: string;
@@ -17,12 +26,25 @@ export const BM06_FIELDS: readonly {
   { key: "dx", label: "Cell width", unit: "μm", power: 6 },
   { key: "steps", label: "Time steps", unit: "count", power: 0 },
 ];
-export type Bm06Draft = Record<NumericKey, string> & { gridEnabled: boolean };
+export type Bm06Draft = Record<NumericKey, string> & {
+  gridEnabled: boolean;
+  copiedDiffusivityInstanceId: string;
+  copiedDiffusivityRunId: string;
+  copiedDiffusivitySnapshotVersion: number;
+  copiedDiffusivityValue: number;
+};
 export function toBm06Draft(p: Bm06Parameters): Bm06Draft {
   const values = Object.fromEntries(
     BM06_FIELDS.map((f) => [f.key, formatScaledDecimal(p[f.key], f.power)]),
   ) as Record<NumericKey, string>;
-  return { ...values, gridEnabled: p.gridEnabled };
+  return {
+    ...values,
+    gridEnabled: p.gridEnabled,
+    copiedDiffusivityInstanceId: p.copiedDiffusivityInstanceId,
+    copiedDiffusivityRunId: p.copiedDiffusivityRunId,
+    copiedDiffusivitySnapshotVersion: p.copiedDiffusivitySnapshotVersion,
+    copiedDiffusivityValue: p.copiedDiffusivityValue,
+  };
 }
 export function fromBm06Draft(draft: Bm06Draft): Bm06Parameters {
   const entries = BM06_FIELDS.map((f) => {
@@ -32,5 +54,12 @@ export function fromBm06Draft(draft: Bm06Draft): Bm06Parameters {
       throw new Error(`${f.label}: enter a representable finite decimal number in ${f.unit}.`);
     }
   });
-  return { ...Object.fromEntries(entries), gridEnabled: draft.gridEnabled } as Bm06Parameters;
+  return {
+    ...Object.fromEntries(entries),
+    gridEnabled: draft.gridEnabled,
+    copiedDiffusivityInstanceId: draft.copiedDiffusivityInstanceId,
+    copiedDiffusivityRunId: draft.copiedDiffusivityRunId,
+    copiedDiffusivitySnapshotVersion: draft.copiedDiffusivitySnapshotVersion,
+    copiedDiffusivityValue: draft.copiedDiffusivityValue,
+  } as Bm06Parameters;
 }

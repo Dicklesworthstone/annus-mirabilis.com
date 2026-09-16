@@ -9,6 +9,7 @@ import {
 import {
   BM06_MODEL,
   BM06_PRESETS,
+  BM06_RADIAL_EXPLANATIONS,
   type Bm06Parameters,
 } from "../../experiments/bm06/definition.ts";
 import { decodeBm06Settings, encodeBm06Settings } from "../../experiments/bm06/permalink.ts";
@@ -16,12 +17,23 @@ import { createBm06Session, type PreparedBm06Example } from "../../experiments/b
 import { DistributionPlot, GridComparison } from "./DistributionPlot.tsx";
 import { array, display, identity, scalar } from "./presentation.ts";
 
+export type ExternalDiffusivitySource = Readonly<{
+  instanceId: string;
+  runId: string;
+  snapshotVersion: number;
+  value: number;
+}>;
 export function BrownianLab({
   example,
   title = "The spreading laboratory",
+  externalDiffusivitySource,
 }: {
   example: PreparedBm06Example;
   title?: string;
+  /** A named BM-01 instance's accepted snapshot, offered by whichever page renders both
+   * instruments together (am-bm-slice-discovery-route-tias, not yet built) -- BrownianLab never
+   * reaches out for this itself. Undefined here means no source is available on this page today. */
+  externalDiffusivitySource?: ExternalDiffusivitySource;
 }) {
   const id = useId();
   const [session] = useState(() =>
@@ -77,6 +89,20 @@ export function BrownianLab({
   function preset(parameters: Bm06Parameters) {
     setDraft(toDraft(parameters));
     setDirty(true);
+    setError("");
+  }
+  function copyDiffusivity() {
+    if (!externalDiffusivitySource) return;
+    const outcome = session.copyDiffusivityFrom(externalDiffusivitySource);
+    if (outcome.kind === "refused") {
+      setError(
+        typeof outcome.refusal.details?.requirements === "string"
+          ? outcome.refusal.details.requirements
+          : outcome.refusal.message,
+      );
+      return;
+    }
+    setDraft(toDraft(session.acceptedParameters()));
     setError("");
   }
   async function share() {
@@ -217,7 +243,20 @@ export function BrownianLab({
               >
                 Stop calculation
               </button>
+              {externalDiffusivitySource && (
+                <button type="button" className="secondary" onClick={copyDiffusivity}>
+                  Copy D from {externalDiffusivitySource.instanceId}
+                </button>
+              )}
             </div>
+            {p.copiedDiffusivityValue > 0 && (
+              <p className="fine">
+                Diffusivity copied from instance {p.copiedDiffusivityInstanceId}, run{" "}
+                {p.copiedDiffusivityRunId}, snapshot version {p.copiedDiffusivitySnapshotVersion}: a
+                one-time value, not a live link. A later change in that instance will not change
+                this one.
+              </p>
+            )}
           </fieldset>
           {dirty && (
             <p className="draft-note">
@@ -350,6 +389,58 @@ export function BrownianLab({
               ))}
             </tbody>
           </table>
+        </section>
+        <section {...identity(snapshot)}>
+          <h3>The same spread, as a 2D or 3D radius</h3>
+          <p>
+            A radius is not a signed coordinate: it is never negative, and the growing circumference
+            (2D) or surface area (3D) of positions at a given distance changes which average is
+            largest.
+          </p>
+          <div className="table-scroll">
+            <table>
+              <caption>Radial moments at the accepted diffusivity and elapsed time</caption>
+              <thead>
+                <tr>
+                  <th scope="col">Quantity</th>
+                  <th scope="col">2D radius</th>
+                  <th scope="col">3D radius</th>
+                </tr>
+              </thead>
+              <tbody>
+                <tr>
+                  <th scope="row">Mean radius ⟨r⟩</th>
+                  <td data-output="meanRadius2d">
+                    {display(scalar(snapshot, "meanRadius2d"), 1e6)} μm
+                  </td>
+                  <td data-output="meanRadius3d">
+                    {display(scalar(snapshot, "meanRadius3d"), 1e6)} μm
+                  </td>
+                </tr>
+                <tr>
+                  <th scope="row">RMS radius √⟨r²⟩</th>
+                  <td data-output="rmsRadius2d">
+                    {display(scalar(snapshot, "rmsRadius2d"), 1e6)} μm
+                  </td>
+                  <td data-output="rmsRadius3d">
+                    {display(scalar(snapshot, "rmsRadius3d"), 1e6)} μm
+                  </td>
+                </tr>
+                <tr>
+                  <th scope="row">Most likely radius</th>
+                  <td data-output="mostLikelyRadius2d">
+                    {display(scalar(snapshot, "mostLikelyRadius2d"), 1e6)} μm
+                  </td>
+                  <td>not modeled</td>
+                </tr>
+              </tbody>
+            </table>
+          </div>
+          <p>{BM06_RADIAL_EXPLANATIONS.meanRadius2d}</p>
+          <p>{BM06_RADIAL_EXPLANATIONS.rmsRadius2d}</p>
+          <p>{BM06_RADIAL_EXPLANATIONS.mostLikelyRadius2d}</p>
+          <p>{BM06_RADIAL_EXPLANATIONS.meanRadius3d}</p>
+          <p>{BM06_RADIAL_EXPLANATIONS.rmsRadius3d}</p>
         </section>
         <section>
           <h3>What this model leaves out</h3>

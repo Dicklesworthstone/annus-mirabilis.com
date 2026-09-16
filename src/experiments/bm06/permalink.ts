@@ -3,6 +3,7 @@ import { validateBm06Parameters } from "./parameters.ts";
 
 const keys = Object.keys(BM06_DEFAULTS) as (keyof Bm06Parameters)[];
 const decimal = /^[+-]?(?:\d+\.?\d*|\.\d+)(?:e[+-]?\d+)?$/i;
+const stringKeys = new Set(["copiedDiffusivityInstanceId", "copiedDiffusivityRunId"]);
 export function encodeBm06Settings(input: Bm06Parameters): string {
   if (validateBm06Parameters(input).kind !== "accepted")
     throw new TypeError("Cannot share invalid settings.");
@@ -32,13 +33,15 @@ export function decodeBm06Settings(search: string): SettingsLink {
     [...query.keys()].some((k) => k !== "bm" && !keys.includes(k as keyof Bm06Parameters))
   )
     return invalid();
-  const input: Record<string, number | boolean> = {};
+  const input: Record<string, number | boolean | string> = {};
   for (const key of keys) {
     if (query.getAll(key).length !== 1) return invalid();
     const value = query.get(key)!;
     if (key === "gridEnabled") {
       if (value !== "1" && value !== "0") return invalid();
       input[key] = value === "1";
+    } else if (stringKeys.has(key)) {
+      input[key] = value;
     } else {
       if (!decimal.test(value)) return invalid();
       input[key] = Number(value);
