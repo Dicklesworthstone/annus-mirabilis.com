@@ -1,0 +1,37 @@
+{
+  "schemaVersion": 1,
+  "kind": "foundation",
+  "id": "functions-graphs",
+  "title": "Functions and graphs",
+  "question": "How does a mathematical function record relationships between physical quantities?",
+  "summary": "A function pairs each input value with exactly one output value; its graph displays that pairing as a continuous curve where coordinates and slopes carry physical units.",
+  "review": "draft",
+  "explanation": [
+    {
+      "kind": "paragraph",
+      "text": "A physical function is an unambiguous rule that assigns to each value of an independent input (such as elapsed time t or coordinate position x) a specific value of a dependent quantity (such as particle displacement, local concentration, or field energy). It describes how one aspect of a physical system responds when another changes."
+    },
+    {
+      "kind": "paragraph",
+      "text": "Plotting a function creates a curve on a coordinate plane. The horizontal axis represents the input, and the vertical axis represents the output. Every point on the curve represents a simultaneously paired measurement. Because both axes correspond to physical measurements, any slope or area derived from the graph carries the combined dimensions of those axes."
+    },
+    {
+      "kind": "paragraph",
+      "text": "Distinguishing functional laws from empirical scatter is essential. A theoretical function predicts the ideal expectation of an ensemble, such as the mean square displacement growing linearly with time. Individual experimental trials fluctuate around this expectation, but the functional form governs the ensemble average."
+    }
+  ],
+  "example": [
+    {
+      "kind": "formula",
+      "latex": "\\langle x^2\\rangle = 2Dt",
+      "spoken": "Mean square coordinate displacement equals two times the diffusion coefficient times time."
+    },
+    {
+      "kind": "paragraph",
+      "text": "For a diffusion coefficient D = 0.5 square micrometres per second, plotting mean square displacement against time t produces a straight line through the origin with slope 2D = 1.0 square micrometres per second. At t = 1 second the value is 1.0 square micrometre; at t = 4 seconds it is 4.0 square micrometres."
+    }
+  ],
+  "prerequisites": ["bridge-negative-numbers-direction"],
+  "stoppingPoint": "A graph is a record of paired quantities with physical units; a slope without units is not an explanation.",
+  "citations": []
+}

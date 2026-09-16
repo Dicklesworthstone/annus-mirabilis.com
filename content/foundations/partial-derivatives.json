@@ -1,0 +1,37 @@
+{
+  "schemaVersion": 1,
+  "kind": "foundation",
+  "id": "partial-derivatives",
+  "title": "Partial derivatives and held-fixed quantities",
+  "question": "What does a partial derivative mean when several variables change simultaneously?",
+  "summary": "A partial derivative quantifies how a multivariable function responds to variations in one variable while all other independent variables are strictly held constant.",
+  "review": "draft",
+  "explanation": [
+    {
+      "kind": "paragraph",
+      "text": "Many physical quantities depend on more than one parameter: particle density depends on both position x and time t; gas entropy depends on both volume V and temperature T. When asking how such a quantity changes, one must specify which variable is moving and which variables are being held constant."
+    },
+    {
+      "kind": "paragraph",
+      "text": "The partial derivative ∂f/∂x represents the rate of change of f with respect to x while holding time t strictly fixed. Conversely, ∂f/∂t represents the rate of accumulation at a fixed position x over time. In thermodynamics, holding temperature fixed produces an isothermal derivative, while holding entropy or volume fixed produces an adiabatic or isochoric derivative."
+    },
+    {
+      "kind": "paragraph",
+      "text": "Einstein's derivation of the diffusion equation equates the time rate of accumulation at a fixed location to the divergence of spatial flux: ∂f/∂t = D ∂^2f/∂x^2. Both sides describe rates under different held-fixed constraints."
+    }
+  ],
+  "example": [
+    {
+      "kind": "formula",
+      "latex": "\\frac{\\partial f}{\\partial t} = D \\frac{\\partial^2 f}{\\partial x^2}",
+      "spoken": "Partial derivative of density with respect to time equals diffusion coefficient times second spatial partial derivative."
+    },
+    {
+      "kind": "paragraph",
+      "text": "For density f(x, t) = (4 pi D t)^(-1/2) exp(-x^2 / (4Dt)), taking the derivative with respect to x holding t fixed gives ∂f/∂x = -x/(2Dt) f(x,t). Taking the derivative with respect to t holding x fixed gives ∂f/∂t = (-1/(2t) + x^2/(4Dt^2)) f(x,t). A direct calculation verifies ∂f/∂t = D ∂^2f/∂x^2."
+    }
+  ],
+  "prerequisites": ["derivatives"],
+  "stoppingPoint": "A partial derivative is mathematically and physically undefined until every held-fixed parameter is explicitly identified.",
+  "citations": []
+}

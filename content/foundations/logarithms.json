@@ -1,0 +1,41 @@
+{
+  "schemaVersion": 1,
+  "kind": "foundation",
+  "id": "logarithms",
+  "title": "Logarithms and product-to-sum relations",
+  "question": "Why do logarithms transform multiplicative probabilities into additive thermodynamic quantities?",
+  "summary": "A logarithm is the inverse of exponentiation, converting state-count multiplications into additive entropy, and carrying historical notation distinctions.",
+  "review": "draft",
+  "explanation": [
+    {
+      "kind": "paragraph",
+      "text": "The natural logarithm ln(x) is the inverse of the exponential function: ln(e^u) = u and e^(ln x) = x. Its defining algebraic property is that it converts products into sums: ln(A * B) = ln(A) + ln(B), and powers into products: ln(f^n) = n * ln(f)."
+    },
+    {
+      "kind": "paragraph",
+      "text": "In 1905 (§5 of the light-quanta paper), Einstein proved that if entropy S is an additive state function for independent systems (S = S_1 + S_2) while the statistical state probability W is multiplicative (W = W_1 * W_2), then the connection S = phi(W) must satisfy phi(W_1 * W_2) = phi(W_1) + phi(W_2). The only continuous solution is the logarithm: S = k * ln(W) + constant."
+    },
+    {
+      "kind": "paragraph",
+      "text": "For n = 10 independent molecules each occupying a volume fraction f = 1/2, the joint probability is (1/2)^10 and its logarithm is 10 * ln(1/2) approx -6.931472. Inverting Wien's radiation law u = A nu^3 exp(-beta nu / T) to solve for inverse temperature requires taking the logarithm: ln(u / (A nu^3)) = -beta nu / T."
+    },
+    {
+      "kind": "paragraph",
+      "text": "Notation note: In 1905 German scientific literature (including Annalen der Physik), 'lg' denoted the natural logarithm with base e. Modern ISO notation reserves 'lg' for the common base-10 logarithm log_10 and uses 'ln' for the natural logarithm. For example, 1905 printed 'lg 2' meant ln(2) approx 0.693147, not log_10(2) approx 0.301030."
+    }
+  ],
+  "example": [
+    {
+      "kind": "formula",
+      "latex": "S_1 + S_2 = k \\ln(W_1 \\cdot W_2) = k \\ln W_1 + k \\ln W_2",
+      "spoken": "Entropy of combined independent systems equals Boltzmann constant times natural log of product of state weights, which equals sum of individual entropies."
+    },
+    {
+      "kind": "paragraph",
+      "text": "Natural log of 2 is ln(2) approx 0.693147, whereas common log of 2 is log_10(2) approx 0.301030. For W_1 = 4 and W_2 = 8, W = 32: ln(4) approx 1.386294, ln(8) approx 2.079442, and ln(32) approx 3.465736 = 1.386294 + 2.079442."
+    }
+  ],
+  "prerequisites": ["exponentials"],
+  "stoppingPoint": "The natural logarithm is the unique continuous function mapping independent product states to additive thermodynamic quantities; 1905 printed 'lg' denotes the natural logarithm.",
+  "citations": []
+}

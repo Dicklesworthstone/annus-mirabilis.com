@@ -1,4 +1,4 @@
-import { parseEquationRecord, type EquationRecord } from "../../equations/record.ts";
+import { type EquationRecord, parseEquationRecord } from "../../equations/record.ts";
 import { ContentError } from "../compiler/json.ts";
 
 /** Explanatory preview records, not diplomatic source blocks or reviewed translations. */
@@ -86,7 +86,7 @@ function keys(x: unknown, p: string, fields: readonly string[]): Record<string, 
   return o;
 }
 function text(x: unknown, p: string): asserts x is string {
-  if (typeof x !== "string" || !x.trim() || x.length > 16000 || /<[!\/?a-z]/i.test(x))
+  if (typeof x !== "string" || !x.trim() || x.length > 16000 || /<[!/?a-z]/i.test(x))
     error(p, "Expected bounded plain text, not HTML or executable markup.");
 }
 function id(x: unknown, p: string): void {
@@ -97,9 +97,13 @@ function choice(x: unknown, p: string, values: readonly unknown[]): void {
   if (!values.includes(x)) error(p, "Unsupported value.");
 }
 function list(x: unknown, p: string, check: (x: unknown, p: string) => void, min = 0): void {
-  if (!Array.isArray(x) || x.length < min || x.length > 256)
-    return error(p, "Expected a bounded list.");
-  x.forEach((v, i) => check(v, `${p}[${i}]`));
+  if (!Array.isArray(x) || x.length < min || x.length > 256) {
+    error(p, "Expected a bounded list.");
+    return;
+  }
+  for (let i = 0; i < x.length; i++) {
+    check(x[i], `${p}[${i}]`);
+  }
 }
 const mathCommands = new Set([
   "langle",
@@ -139,18 +143,32 @@ const mathCommands = new Set([
   "pm",
   "ldots",
   "operatorname",
+  "lim",
+  "ln",
+  "lg",
+  "gamma",
+  "beta",
+  "nu",
+  "alpha",
+  "omega",
 ]);
 export function validateMath(x: unknown, p = "formula"): void {
   text(x, p);
   if (x.length > 4096) error(p, "Formula exceeds its budget.");
   for (const match of x.matchAll(/\\([a-zA-Z]+|.)/g)) {
-    const command = match[1]!;
-    if (!mathCommands.has(command) && ![",", ";", "!", " ", "{", "}", "\\"].includes(command))
+    const command = match[1];
+    if (
+      command &&
+      !mathCommands.has(command) &&
+      ![",", ";", "!", " ", "{", "}", "\\"].includes(command)
+    )
       error(p, `Unsupported math command: ${command}.`);
   }
-  for (const match of x.matchAll(/\\(?:begin|end)\{([^}]+)\}/g))
-    if (!["aligned", "gathered", "cases"].includes(match[1]!))
+  for (const match of x.matchAll(/\\(?:begin|end)\{([^}]+)\}/g)) {
+    const env = match[1];
+    if (env && !["aligned", "gathered", "cases"].includes(env))
       error(p, "Unsupported math environment.");
+  }
 }
 function block(x: unknown, p: string): void {
   const o = object(x, p);
@@ -272,7 +290,9 @@ export function validateReadingRecord(input: unknown, path: string): ReadingReco
       choice(e.edge, p, ["premise", "cross-reference", "verification"]);
     });
     const help = keys(o.help, `${path}.help`, ["why", "missingStep", "example"]);
-    Object.values(help).forEach((v) => id(v, path));
+    for (const v of Object.values(help)) {
+      id(v, path);
+    }
     const m = keys(o.meaning, path, [
       "logicalRole",
       "historicalStatus",

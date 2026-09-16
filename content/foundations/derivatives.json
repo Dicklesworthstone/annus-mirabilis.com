@@ -1,0 +1,37 @@
+{
+  "schemaVersion": 1,
+  "kind": "foundation",
+  "id": "derivatives",
+  "title": "Rates of change and derivatives",
+  "question": "What physical rate does a derivative measure?",
+  "summary": "A derivative measures the instantaneous rate of change of one physical quantity with respect to another, defined as the limit of average differences over shrinking intervals.",
+  "review": "draft",
+  "explanation": [
+    {
+      "kind": "paragraph",
+      "text": "When a quantity changes over an interval of time or space, the ratio of the change in output to the change in input gives an average rate. As the measurement interval shrinks toward zero, this average ratio approaches a definite limit: the instantaneous derivative."
+    },
+    {
+      "kind": "paragraph",
+      "text": "Geometrically, the derivative is the slope of the tangent line to the function graph at a single point. Physically, it always carries the units of the output divided by the units of the input. For position over time, the derivative is velocity in metres per second; for concentration over position, it is a spatial gradient in particles per metre to the fourth power."
+    },
+    {
+      "kind": "paragraph",
+      "text": "In 1905, Einstein used derivatives to relate microscopic flux to macroscopic concentration gradients, and to extract temperature and wavelength dependencies from radiation laws without guessing unmeasured intermediates."
+    }
+  ],
+  "example": [
+    {
+      "kind": "formula",
+      "latex": "\\frac{df}{dx} = \\lim_{\\Delta x \\to 0} \\frac{f(x+\\Delta x) - f(x)}{\\Delta x}",
+      "spoken": "The derivative of f with respect to x is the limit of the difference quotient as delta x approaches zero."
+    },
+    {
+      "kind": "paragraph",
+      "text": "If position x(t) = c t^2 with c = 3 metres per second squared, the change between t and t + Δt is c(t+Δt)^2 - ct^2 = 2ctΔt + c(Δt)^2. Dividing by Δt gives 2ct + cΔt. In the limit Δt -> 0, the instantaneous velocity is exactly 2ct = 6t metres per second."
+    }
+  ],
+  "prerequisites": ["functions-graphs"],
+  "stoppingPoint": "A derivative is an instantaneous rate bearing explicit units; it is not a fraction of two separate isolated zeros.",
+  "citations": []
+}
