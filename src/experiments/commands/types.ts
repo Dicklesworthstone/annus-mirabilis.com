@@ -34,3 +34,75 @@ export function isCommandClass(value: unknown): value is CommandClass {
 export function isDigestExcludedClass(commandClass: CommandClass): boolean {
   return commandClass === "presentation-change";
 }
+
+/**
+ * Command envelope (am-rt-command-classes-dzp requirement 2).
+ * `{ commandId, instanceId, actionIndex, class, payload }`.
+ */
+export type CommandEnvelope<
+  TClass extends CommandClass = CommandClass,
+  TPayload extends Record<string, unknown> = Record<string, unknown>,
+> = Readonly<{
+  commandId: string;
+  instanceId: string;
+  actionIndex: number;
+  class: TClass;
+  payload: TPayload;
+}>;
+
+export type SetupChangePayload = Readonly<{
+  parameters?: Readonly<Record<string, number | string | boolean>>;
+  modelId?: string;
+  fallbackReason?: string;
+  seed?: string;
+  [key: string]: unknown;
+}>;
+
+export type PhysicalInterventionPayload = Readonly<{
+  parameters: Readonly<Record<string, number | string | boolean>>;
+  atSimulatedTime: number;
+  [key: string]: unknown;
+}>;
+
+export type ObserverChangePayload = Readonly<{
+  parameters?: Readonly<Record<string, number | string | boolean>>;
+  frameId?: string;
+  velocityRatio?: number;
+  originOffset?: readonly [number, number, number];
+  [key: string]: unknown;
+}>;
+
+export type MeasurementChangePayload = Readonly<{
+  parameters?: Readonly<Record<string, number | string | boolean>>;
+  exposureTime?: number;
+  localizationError?: number;
+  observationInterval?: number;
+  samplingCadence?: number;
+  [key: string]: unknown;
+}>;
+
+export type EstimatorChangePayload = Readonly<{
+  parameters?: Readonly<Record<string, number | string | boolean>>;
+  estimatorId?: string;
+  method?: string;
+  assumptions?: readonly string[];
+  [key: string]: unknown;
+}>;
+
+export type PresentationChangePayload = Readonly<{
+  parameters?: Readonly<Record<string, number | string | boolean>>;
+  cameraPosition?: readonly [number, number, number];
+  labels?: Readonly<Record<string, string>>;
+  colorMap?: string;
+  drawnParticleCount?: number;
+  viewMode?: string;
+  [key: string]: unknown;
+}>;
+
+export type TypedCommand =
+  | CommandEnvelope<"setup-change", SetupChangePayload>
+  | CommandEnvelope<"physical-intervention", PhysicalInterventionPayload>
+  | CommandEnvelope<"observer-change", ObserverChangePayload>
+  | CommandEnvelope<"measurement-change", MeasurementChangePayload>
+  | CommandEnvelope<"estimator-change", EstimatorChangePayload>
+  | CommandEnvelope<"presentation-change", PresentationChangePayload>;

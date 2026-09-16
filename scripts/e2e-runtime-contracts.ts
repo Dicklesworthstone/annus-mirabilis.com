@@ -15,6 +15,16 @@ import { join, resolve } from "node:path";
 import { Worker } from "node:worker_threads";
 import React from "react";
 import { renderToStaticMarkup } from "react-dom/server";
+import { applyCommand } from "../src/experiments/commands/apply.ts";
+import { compareBaselineAndVariant } from "../src/experiments/commands/comparison.ts";
+
+import type { ExecutionStateSnapshot } from "../src/experiments/commands/invariants.ts";
+import {
+  checkObservationInterval,
+  type ReplayGrid,
+} from "../src/experiments/commands/replayGrid.ts";
+import type { TypedCommand } from "../src/experiments/commands/types.ts";
+
 import { parseWithU64, stringifyWithU64 } from "../src/experiments/identity/jsonCodec.ts";
 import { parseU64, type U64String, U64ValidationError } from "../src/experiments/identity/u64.ts";
 import { encodeU64QueryParams, getU64QueryParam } from "../src/experiments/identity/urlCodec.ts";
@@ -52,6 +62,16 @@ import {
 } from "../src/experiments/tapes/schema.ts";
 import { createPhiloxStream } from "../src/physics/reference/philox.ts";
 import { newRunIdentity, TestLogger } from "../src/testing/log/logger.ts";
+import { createEventLedgerDescription } from "../src/testing/runtime-fixtures/eventLedgerFixture.ts";
+import {
+  createSeededWalkFixture,
+  generateBaseLatentPath,
+} from "../src/testing/runtime-fixtures/seededWalkFixture.ts";
+
+import {
+  createTwoModelFixtureStore,
+  TWO_MODEL_DECLARED_MODELS,
+} from "../src/testing/runtime-fixtures/twoModelFixture.ts";
 import { createChunkPlan, executeChunked } from "../src/workers/scheduler/chunking.ts";
 import { markAccepted, markInput, markPainted } from "../src/workers/scheduler/marks.ts";
 import {
@@ -1877,6 +1897,775 @@ async function runSchedulerE2E(logRunId: string, verbose: boolean): Promise<bool
   return allPassed;
 }
 
+async function runCommandWorkerRoundTrip<T>(payload: T): Promise<T> {
+  return new Promise((resolvePromise, rejectPromise) => {
+    const workerCode = `
+      const { parentPort } = require('node:worker_threads');
+      parentPort.on('message', (msg) => {
+        parentPort.postMessage(msg);
+      });
+    `;
+
+    const worker = new Worker(workerCode, { eval: true });
+
+    worker.on("message", (msg) => {
+      worker.terminate();
+      resolvePromise(msg as T);
+    });
+
+    worker.on("error", (err) => {
+      worker.terminate();
+      rejectPromise(err);
+    });
+
+    worker.postMessage(payload);
+  });
+}
+
+async function runCommandsE2E(logRunId: string, verbose: boolean): Promise<boolean> {
+  const logger = new TestLogger("runtime-commands", logRunId);
+  let allPassed = true;
+
+  const failureDir = resolve(
+    process.cwd(),
+    "artifacts",
+    "test-logs",
+    "runtime-commands",
+    logRunId,
+    "failures",
+  );
+
+  const recordFailure = (testId: string, reason: string, extra: Record<string, unknown> = {}) => {
+    mkdirSync(failureDir, { recursive: true });
+    const failFilePath = join(failureDir, `${testId}.json`);
+    const failData = {
+      testId,
+      reason,
+      reproductionCommand: `bun scripts/e2e-runtime-contracts.ts --suite commands --log-run-id ${logRunId}`,
+      ...extra,
+    };
+    writeFileSync(failFilePath, JSON.stringify(failData, null, 2), "utf8");
+
+    logger.log({
+      testId,
+      beadId: "am-rt-command-classes-dzp",
+      suite: "runtime-commands",
+      outcome: "failed",
+      message: reason,
+      extra: {
+        failurePath: failFilePath,
+        reason,
+        ...extra,
+      },
+    });
+  };
+
+  if (verbose) {
+    console.log(`[E2E-Runtime] Starting commands suite (logRunId: ${logRunId})`);
+  }
+
+  // 1. Setup Change across Worker Boundary
+  {
+    const startTime = Date.now();
+    const testId = "commands-setup-change-worker";
+    try {
+      const store = createTwoModelFixtureStore("inst-commands-e2e");
+      const setupCmd: TypedCommand = {
+        commandId: "cmd-setup-e2e",
+        instanceId: "inst-commands-e2e",
+        actionIndex: 1,
+        class: "setup-change",
+        payload: {
+          parameters: { diffusionCoefficient: 4.29e-13, modelId: "exact-propagator" },
+          modelId: "exact-propagator",
+        },
+      };
+
+      const echoedCmd = await runCommandWorkerRoundTrip(setupCmd);
+      const res = applyCommand({ store, declaredModelIds: TWO_MODEL_DECLARED_MODELS }, echoedCmd);
+
+      if (!res.accepted) {
+        throw new Error("Setup change unexpectedly refused");
+      }
+
+      store.publish({
+        experimentId: "fixture-two-model",
+        instanceId: "inst-commands-e2e",
+        runId: res.token.runId,
+        parentRunId: null,
+        actionIndex: 1,
+        stepIndex: 0,
+        simulationTime: 0.0,
+        final: true,
+        revisions: { input: 1, observer: 0, measurement: 0, estimator: 0 },
+        parameters: {
+          diffusionCoefficient: 4.29e-13,
+          modelId: "exact-propagator",
+          particleCount: 200,
+        },
+        outputs: [
+          {
+            status: "value",
+            quantityId: "concentration",
+            unit: "mol/m^3",
+            semanticKind: "distribution",
+            ownerId: "fixture-two-model",
+            value: 1.0,
+          },
+        ],
+      });
+
+      const snap = store.getSnapshot();
+      if (snap.accepted?.runId !== "inst-commands-e2e/run/1") {
+        throw new Error(`Expected runId inst-commands-e2e/run/1, got ${snap.accepted?.runId}`);
+      }
+      if (snap.accepted?.stepIndex !== 0) {
+        throw new Error(`Expected stepIndex 0, got ${snap.accepted?.stepIndex}`);
+      }
+
+      logger.log({
+        testId,
+        beadId: "am-rt-command-classes-dzp",
+        suite: "runtime-commands",
+        instanceId: "inst-commands-e2e",
+        runId: snap.accepted?.runId,
+        inputRevision: snap.accepted?.revisions.input,
+        snapshotVersion: snap.accepted?.snapshotVersion,
+        expected: "setup-change",
+        actual: "setup-change",
+        comparisonKind: "bitwise",
+        outcome: "passed",
+        durationMs: Date.now() - startTime,
+        message: "Successfully applied and published setup-change across worker boundary.",
+        extra: {
+          commandClass: "setup-change",
+          actionIndex: snap.accepted?.actionIndex,
+          runIdAfter: snap.accepted?.runId,
+          stepIndexAfter: snap.accepted?.stepIndex,
+          revisionsAfter: snap.accepted?.revisions,
+        },
+      });
+    } catch (err: unknown) {
+      allPassed = false;
+      const msg = (err as Error).message;
+      recordFailure(testId, msg);
+    }
+  }
+
+  // 2. Forward Physical Intervention
+  {
+    const startTime = Date.now();
+    const testId = "commands-physical-intervention-forward";
+    try {
+      const store = createTwoModelFixtureStore("inst-intervene-fwd-e2e");
+      const token1 = store.issue("setup-change", { diffusionCoefficient: 1.0e-13 });
+      store.publish({
+        experimentId: "fixture-two-model",
+        instanceId: "inst-intervene-fwd-e2e",
+        runId: token1.runId,
+        parentRunId: null,
+        actionIndex: 1,
+        stepIndex: 10,
+        simulationTime: 1.0,
+        final: false,
+        revisions: { input: 1, observer: 0, measurement: 0, estimator: 0 },
+        parameters: {
+          diffusionCoefficient: 1.0e-13,
+          modelId: "exact-propagator",
+          particleCount: 200,
+        },
+        outputs: [
+          {
+            status: "value",
+            quantityId: "concentration",
+            unit: "mol/m^3",
+            semanticKind: "distribution",
+            ownerId: "fixture-two-model",
+            value: 1.0,
+          },
+        ],
+      });
+
+      const interventionCmd: TypedCommand = {
+        commandId: "cmd-fwd-intervene-e2e",
+        instanceId: "inst-intervene-fwd-e2e",
+        actionIndex: 2,
+        class: "physical-intervention",
+        payload: {
+          parameters: { diffusionCoefficient: 2.0e-13 },
+          atSimulatedTime: 1.5,
+        },
+      };
+
+      const echoedCmd = await runCommandWorkerRoundTrip(interventionCmd);
+      const res = applyCommand({ store }, echoedCmd);
+      if (!res.accepted) {
+        throw new Error("Forward intervention unexpectedly refused");
+      }
+      if (res.token.runId !== token1.runId) {
+        throw new Error(
+          `Forward intervention must keep runId ${token1.runId}, got ${res.token.runId}`,
+        );
+      }
+      if (res.token.revisions.input !== 2) {
+        throw new Error(`Expected inputRevision 2, got ${res.token.revisions.input}`);
+      }
+
+      logger.log({
+        testId,
+        beadId: "am-rt-command-classes-dzp",
+        suite: "runtime-commands",
+        instanceId: "inst-intervene-fwd-e2e",
+        runId: res.token.runId,
+        inputRevision: res.token.revisions.input,
+        expected: token1.runId,
+        actual: res.token.runId,
+        comparisonKind: "bitwise",
+        outcome: "passed",
+        durationMs: Date.now() - startTime,
+        message: "Successfully verified forward physical-intervention keeps runId.",
+        extra: {
+          commandClass: "physical-intervention",
+          actionIndex: 2,
+          runIdBefore: token1.runId,
+          runIdAfter: res.token.runId,
+          atSimulatedTime: 1.5,
+        },
+      });
+    } catch (err: unknown) {
+      allPassed = false;
+      const msg = (err as Error).message;
+      recordFailure(testId, msg);
+    }
+  }
+
+  // 3. Backdated Physical Intervention (Forks Run)
+  {
+    const startTime = Date.now();
+    const testId = "commands-physical-intervention-backdated";
+    try {
+      const store = createTwoModelFixtureStore("inst-intervene-back-e2e");
+      const token1 = store.issue("setup-change", { diffusionCoefficient: 1.0e-13 });
+      store.publish({
+        experimentId: "fixture-two-model",
+        instanceId: "inst-intervene-back-e2e",
+        runId: token1.runId,
+        parentRunId: null,
+        actionIndex: 1,
+        stepIndex: 50,
+        simulationTime: 5.0,
+        final: true,
+        revisions: { input: 1, observer: 0, measurement: 0, estimator: 0 },
+        parameters: {
+          diffusionCoefficient: 1.0e-13,
+          modelId: "exact-propagator",
+          particleCount: 200,
+        },
+        outputs: [
+          {
+            status: "value",
+            quantityId: "concentration",
+            unit: "mol/m^3",
+            semanticKind: "distribution",
+            ownerId: "fixture-two-model",
+            value: 1.0,
+          },
+        ],
+      });
+
+      const backdatedCmd: TypedCommand = {
+        commandId: "cmd-back-intervene-e2e",
+        instanceId: "inst-intervene-back-e2e",
+        actionIndex: 2,
+        class: "physical-intervention",
+        payload: {
+          parameters: { diffusionCoefficient: 3.0e-13 },
+          atSimulatedTime: 2.0,
+        },
+      };
+
+      const echoedCmd = await runCommandWorkerRoundTrip(backdatedCmd);
+      const res = applyCommand({ store }, echoedCmd);
+      if (!res.accepted) {
+        throw new Error("Backdated intervention unexpectedly refused");
+      }
+      if (res.token.runId === token1.runId) {
+        throw new Error("Backdated intervention MUST fork a new runId");
+      }
+      if (res.token.parentRunId !== token1.runId) {
+        throw new Error(`Expected parentRunId ${token1.runId}, got ${res.token.parentRunId}`);
+      }
+
+      const forkedRun = store.getRun(res.token.runId);
+      if (forkedRun?.forkedAtSimulatedTime !== 2.0) {
+        throw new Error(
+          `Expected forkedAtSimulatedTime 2.0, got ${forkedRun?.forkedAtSimulatedTime}`,
+        );
+      }
+
+      logger.log({
+        testId,
+        beadId: "am-rt-command-classes-dzp",
+        suite: "runtime-commands",
+        instanceId: "inst-intervene-back-e2e",
+        runId: res.token.runId,
+        inputRevision: res.token.revisions.input,
+        expected: token1.runId,
+        actual: res.token.parentRunId,
+        comparisonKind: "bitwise",
+        outcome: "passed",
+        durationMs: Date.now() - startTime,
+        message:
+          "Successfully verified backdated physical-intervention forks new identified run with parentRunId.",
+        extra: {
+          commandClass: "physical-intervention",
+          actionIndex: 2,
+          runIdBefore: token1.runId,
+          runIdAfter: res.token.runId,
+          parentRunId: res.token.parentRunId,
+          forkedAtSimulatedTime: 2.0,
+        },
+      });
+    } catch (err: unknown) {
+      allPassed = false;
+      const msg = (err as Error).message;
+      recordFailure(testId, msg);
+    }
+  }
+
+  // 4. Observer Change (Boost Frame and Preserves Digests)
+  {
+    const startTime = Date.now();
+    const testId = "commands-observer-change-boost";
+    try {
+      const ledger0 = await createEventLedgerDescription(0.0);
+      const ledgerBoost = await createEventLedgerDescription(0.6);
+
+      if (ledger0.eventSetDigest !== ledgerBoost.eventSetDigest) {
+        throw new Error("eventSetDigest mismatch after frame boost");
+      }
+      if (ledger0.worldlineDigest !== ledgerBoost.worldlineDigest) {
+        throw new Error("worldlineDigest mismatch after frame boost");
+      }
+
+      const observerCmd: TypedCommand = {
+        commandId: "cmd-obs-boost-e2e",
+        instanceId: "inst-obs-e2e",
+        actionIndex: 2,
+        class: "observer-change",
+        payload: { velocityRatio: 0.6 },
+      };
+
+      const echoedCmd = await runCommandWorkerRoundTrip(observerCmd);
+      if (echoedCmd.class !== "observer-change") {
+        throw new Error(`Expected echoedCmd class observer-change, got ${echoedCmd.class}`);
+      }
+
+      logger.log({
+        testId,
+        beadId: "am-rt-command-classes-dzp",
+        suite: "runtime-commands",
+        instanceId: "inst-obs-e2e",
+        runId: "inst-obs-e2e/run/1",
+        expected: ledger0.eventSetDigest,
+        actual: ledgerBoost.eventSetDigest,
+        comparisonKind: "bitwise",
+        outcome: "passed",
+        durationMs: Date.now() - startTime,
+        message:
+          "Successfully verified observer-change preserves eventSetDigest and worldlineDigest.",
+        extra: {
+          commandClass: "observer-change",
+          actionIndex: 2,
+          eventSetDigest: ledgerBoost.eventSetDigest,
+          worldlineDigest: ledgerBoost.worldlineDigest,
+          velocityRatio: 0.6,
+          drawCounterDeltaByStream: 0,
+        },
+      });
+    } catch (err: unknown) {
+      allPassed = false;
+      const msg = (err as Error).message;
+      recordFailure(testId, msg);
+    }
+  }
+
+  // 5. Measurement Change (Exposure & Localization Error)
+  {
+    const startTime = Date.now();
+    const testId = "commands-measurement-change-seeded";
+    try {
+      const baseLatentPath = generateBaseLatentPath();
+      const m1 = await createSeededWalkFixture({
+        observationIntervalSeconds: 0.2,
+        exposureTimeSeconds: 0.1,
+        localizationError: 0.05,
+        baseLatentPath,
+        noiseSeed: 111,
+      });
+
+      const m2 = await createSeededWalkFixture({
+        observationIntervalSeconds: 0.5,
+        exposureTimeSeconds: 0.3,
+        localizationError: 0.15,
+        baseLatentPath,
+        noiseSeed: 222,
+      });
+
+      if (m1.latentPathDigest !== m2.latentPathDigest) {
+        throw new Error("latentPathDigest must remain bitwise identical under measurement changes");
+      }
+
+      const measCmd: TypedCommand = {
+        commandId: "cmd-meas-e2e",
+        instanceId: "inst-meas-e2e",
+        actionIndex: 2,
+        class: "measurement-change",
+        payload: { exposureTime: 0.3, localizationError: 0.15, observationInterval: 0.5 },
+      };
+
+      const echoedCmd = await runCommandWorkerRoundTrip(measCmd);
+      if (echoedCmd.class !== "measurement-change") {
+        throw new Error(`Expected echoedCmd class measurement-change, got ${echoedCmd.class}`);
+      }
+
+      logger.log({
+        testId,
+        beadId: "am-rt-command-classes-dzp",
+        suite: "runtime-commands",
+        instanceId: "inst-meas-e2e",
+        runId: "inst-meas-e2e/run/1",
+        expected: m1.latentPathDigest,
+        actual: m2.latentPathDigest,
+        comparisonKind: "bitwise",
+        outcome: "passed",
+        durationMs: Date.now() - startTime,
+        message:
+          "Successfully verified measurement-change preserves latentPathDigest across observation changes.",
+        extra: {
+          commandClass: "measurement-change",
+          actionIndex: 2,
+          latentPathDigest: m2.latentPathDigest,
+          observationDataDigest: m2.observationDataDigest,
+          latentDraws: m2.drawCounters.latent,
+          noiseDraws: m2.drawCounters.noise,
+        },
+      });
+    } catch (err: unknown) {
+      allPassed = false;
+      const msg = (err as Error).message;
+      recordFailure(testId, msg);
+    }
+  }
+
+  // 6. Presentation Change (No Worker Message & Revisions Unchanged)
+  {
+    const startTime = Date.now();
+    const testId = "commands-presentation-change-workerless";
+    try {
+      const store = createTwoModelFixtureStore("inst-pres-e2e");
+      const token1 = store.issue("setup-change", { diffusionCoefficient: 1.0e-13 });
+      store.publish({
+        experimentId: "fixture-two-model",
+        instanceId: "inst-pres-e2e",
+        runId: token1.runId,
+        parentRunId: null,
+        actionIndex: 1,
+        stepIndex: 10,
+        simulationTime: 1.0,
+        final: true,
+        revisions: { input: 1, observer: 0, measurement: 0, estimator: 0 },
+        parameters: {
+          diffusionCoefficient: 1.0e-13,
+          modelId: "exact-propagator",
+          particleCount: 200,
+        },
+        outputs: [
+          {
+            status: "value",
+            quantityId: "concentration",
+            unit: "mol/m^3",
+            semanticKind: "distribution",
+            ownerId: "fixture-two-model",
+            value: 1.0,
+          },
+        ],
+      });
+
+      const presCmd: TypedCommand = {
+        commandId: "cmd-pres-e2e",
+        instanceId: "inst-pres-e2e",
+        actionIndex: 2,
+        class: "presentation-change",
+        payload: {
+          parameters: { particleCount: 800 },
+          drawnParticleCount: 800,
+        },
+      };
+
+      const res = applyCommand({ store }, presCmd);
+      if (!res.accepted) {
+        throw new Error("Presentation change unexpectedly refused");
+      }
+
+      if (res.token.runId !== token1.runId) {
+        throw new Error("Presentation change must not alter runId");
+      }
+      if (
+        res.token.revisions.input !== 1 ||
+        res.token.revisions.observer !== 0 ||
+        res.token.revisions.measurement !== 0 ||
+        res.token.revisions.estimator !== 0
+      ) {
+        throw new Error("Presentation change must not alter any revision counters");
+      }
+
+      logger.log({
+        testId,
+        beadId: "am-rt-command-classes-dzp",
+        suite: "runtime-commands",
+        instanceId: "inst-pres-e2e",
+        runId: res.token.runId,
+        expected: token1.runId,
+        actual: res.token.runId,
+        comparisonKind: "bitwise",
+        outcome: "passed",
+        durationMs: Date.now() - startTime,
+        message:
+          "Successfully verified presentation-change preserves all scientific states and revision counters.",
+        extra: {
+          commandClass: "presentation-change",
+          actionIndex: 2,
+          runIdBefore: token1.runId,
+          runIdAfter: res.token.runId,
+          particleCount: 800,
+        },
+      });
+    } catch (err: unknown) {
+      allPassed = false;
+      const msg = (err as Error).message;
+      recordFailure(testId, msg);
+    }
+  }
+
+  // 7. Model Choice (Setup Change with parentRunId, no fallbackReason)
+  {
+    const startTime = Date.now();
+    const testId = "commands-model-choice-switch";
+    try {
+      const store = createTwoModelFixtureStore("inst-model-switch-e2e");
+      const token1 = store.issue("setup-change", { modelId: "exact-propagator" });
+      store.publish({
+        experimentId: "fixture-two-model",
+        instanceId: "inst-model-switch-e2e",
+        runId: token1.runId,
+        parentRunId: null,
+        actionIndex: 1,
+        stepIndex: 20,
+        simulationTime: 2.0,
+        final: true,
+        revisions: { input: 1, observer: 0, measurement: 0, estimator: 0 },
+        parameters: {
+          diffusionCoefficient: 4.29e-13,
+          modelId: "exact-propagator",
+          particleCount: 200,
+        },
+        outputs: [
+          {
+            status: "value",
+            quantityId: "concentration",
+            unit: "mol/m^3",
+            semanticKind: "distribution",
+            ownerId: "fixture-two-model",
+            value: 1.0,
+          },
+        ],
+      });
+
+      const modelCmd: TypedCommand = {
+        commandId: "cmd-model-switch-e2e",
+        instanceId: "inst-model-switch-e2e",
+        actionIndex: 2,
+        class: "setup-change",
+        payload: {
+          parameters: { modelId: "ftcs-grid" },
+          modelId: "ftcs-grid",
+        },
+      };
+
+      const echoedCmd = await runCommandWorkerRoundTrip(modelCmd);
+      const res = applyCommand({ store, declaredModelIds: TWO_MODEL_DECLARED_MODELS }, echoedCmd);
+
+      if (!res.accepted) {
+        throw new Error("Model choice switch unexpectedly refused");
+      }
+      if (res.token.parentRunId !== token1.runId) {
+        throw new Error(`Expected parentRunId ${token1.runId}, got ${res.token.parentRunId}`);
+      }
+
+      logger.log({
+        testId,
+        beadId: "am-rt-command-classes-dzp",
+        suite: "runtime-commands",
+        instanceId: "inst-model-switch-e2e",
+        runId: res.token.runId,
+        inputRevision: res.token.revisions.input,
+        expected: token1.runId,
+        actual: res.token.parentRunId,
+        comparisonKind: "bitwise",
+        outcome: "passed",
+        durationMs: Date.now() - startTime,
+        message: "Successfully switched admitted model as setup-change with parentRunId lineage.",
+        extra: {
+          commandClass: "setup-change",
+          actionIndex: 2,
+          modelIdBefore: "exact-propagator",
+          modelIdAfter: "ftcs-grid",
+          runIdBefore: token1.runId,
+          runIdAfter: res.token.runId,
+          parentRunId: res.token.parentRunId,
+          fallbackReason: undefined,
+        },
+      });
+    } catch (err: unknown) {
+      allPassed = false;
+      const msg = (err as Error).message;
+      recordFailure(testId, msg);
+    }
+  }
+
+  // 8. Replay Grid Refusal (off-replay-grid)
+  {
+    const startTime = Date.now();
+    const testId = "commands-replay-grid-refusal";
+    try {
+      const grid: ReplayGrid = { baseSpacingSeconds: 0.1, storedHorizonSeconds: 10.0 };
+      const decision = checkObservationInterval(grid, 0.15, "observationInterval");
+
+      if (decision.accepted) {
+        throw new Error("Requested off-grid interval 0.15 s should have been refused");
+      }
+      if (decision.refusal.code !== "off-replay-grid") {
+        throw new Error(`Expected refusal code "off-replay-grid", got "${decision.refusal.code}"`);
+      }
+      if (!decision.refusal.rankedRepairs || decision.refusal.rankedRepairs.length < 2) {
+        throw new Error("Expected at least 2 ranked repairs for interior off-grid interval");
+      }
+
+      logger.log({
+        testId,
+        beadId: "am-rt-command-classes-dzp",
+        suite: "runtime-commands",
+        expected: "off-replay-grid",
+        actual: decision.refusal.code,
+        comparisonKind: "bitwise",
+        outcome: "passed",
+        durationMs: Date.now() - startTime,
+        message: "Successfully refused off-replay-grid observation interval with ranked repairs.",
+        extra: {
+          refusalCode: decision.refusal.code,
+          requestedInterval: 0.15,
+          repairsCount: decision.refusal.rankedRepairs?.length,
+        },
+      });
+    } catch (err: unknown) {
+      allPassed = false;
+      const msg = (err as Error).message;
+      recordFailure(testId, msg);
+    }
+  }
+
+  // 9. Baseline and Variant Comparison
+  {
+    const startTime = Date.now();
+    const testId = "commands-comparison-reports";
+    try {
+      const baseSnapshot: ExecutionStateSnapshot = {
+        instanceId: "inst-comp-e2e",
+        runId: "inst-comp-e2e/run/1",
+        parentRunId: null,
+        actionIndex: 1,
+        stepIndex: 10,
+        simulatedTime: 1.0,
+        revisions: { input: 1, observer: 0, measurement: 0, estimator: 0 },
+        digests: { latentPathDigest: "host:sha256:latent_e2e" },
+        drawCounters: { latent: 100 },
+      };
+
+      const obsCmd: TypedCommand = {
+        commandId: "cmd-obs-comp",
+        instanceId: "inst-comp-e2e",
+        actionIndex: 2,
+        class: "observer-change",
+        payload: { velocityRatio: 0.5 },
+      };
+
+      const descReport = compareBaselineAndVariant(
+        baseSnapshot,
+        { ...baseSnapshot, actionIndex: 2, revisions: { ...baseSnapshot.revisions, observer: 1 } },
+        obsCmd,
+      );
+
+      if (descReport.trialRelation !== "re-described-same-world") {
+        throw new Error(
+          `Expected trialRelation "re-described-same-world", got "${descReport.trialRelation}"`,
+        );
+      }
+
+      const crnReport = compareBaselineAndVariant(
+        baseSnapshot,
+        {
+          ...baseSnapshot,
+          runId: "inst-comp-e2e/run/2",
+          parentRunId: "inst-comp-e2e/run/1",
+          actionIndex: 2,
+          stepIndex: 0,
+          simulatedTime: 0.0,
+          revisions: { ...baseSnapshot.revisions, input: 2 },
+        },
+        {
+          commandId: "cmd-setup-comp",
+          instanceId: "inst-comp-e2e",
+          actionIndex: 2,
+          class: "setup-change",
+          payload: { parameters: { diffusivity: 2.0 } },
+        },
+        { baselineSeed: "12345", variantSeed: "12345" },
+      );
+
+      if (crnReport.trialRelation !== "common-random-numbers") {
+        throw new Error(
+          `Expected trialRelation "common-random-numbers", got "${crnReport.trialRelation}"`,
+        );
+      }
+
+      logger.log({
+        testId,
+        beadId: "am-rt-command-classes-dzp",
+        suite: "runtime-commands",
+        expected: "re-described-same-world",
+        actual: descReport.trialRelation,
+        comparisonKind: "bitwise",
+        outcome: "passed",
+        durationMs: Date.now() - startTime,
+        message: "Successfully generated baseline and variant comparison reports.",
+        extra: {
+          descTrialRelation: descReport.trialRelation,
+          crnTrialRelation: crnReport.trialRelation,
+          crnLabel: crnReport.randomnessLabel,
+        },
+      });
+    } catch (err: unknown) {
+      allPassed = false;
+      const msg = (err as Error).message;
+      recordFailure(testId, msg);
+    }
+  }
+
+  await logger.flush();
+  return allPassed;
+}
+
 async function main(): Promise<void> {
   const options = parseCliArgs();
   const logRunId = options.logRunId || newRunIdentity();
@@ -1919,6 +2708,16 @@ async function main(): Promise<void> {
     }
     console.log(
       `[E2E-Runtime] Scheduler suite PASSED. Logged to artifacts/test-logs/worker-scheduler/${logRunId}.jsonl`,
+    );
+    process.exit(0);
+  } else if (options.suite === "commands") {
+    const success = await runCommandsE2E(logRunId, options.verbose ?? true);
+    if (!success) {
+      console.error(`[E2E-Runtime] Commands suite FAILED. See logRunId: ${logRunId}`);
+      process.exit(1);
+    }
+    console.log(
+      `[E2E-Runtime] Commands suite PASSED. Logged to artifacts/test-logs/runtime-commands/${logRunId}.jsonl`,
     );
     process.exit(0);
   } else {
