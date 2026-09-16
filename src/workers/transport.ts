@@ -37,7 +37,9 @@ export type TapeListener = (frame: TransportTapeFrame) => void;
 export type TransportBufferMode = "shared-memory" | "transferable-array-buffer" | "copy-fallback";
 
 export class SharedMemoryDisabledError extends Error {
-  constructor(message = "Shared-memory transport mode and SharedArrayBuffer are disabled in Annus Mirabilis.") {
+  constructor(
+    message = "Shared-memory transport mode and SharedArrayBuffer are disabled in Annus Mirabilis.",
+  ) {
     super(message);
     this.name = "SharedMemoryDisabledError";
   }
@@ -77,7 +79,7 @@ export function probeTransportCapabilities(injected?: {
     injected?.crossOriginIsolated ??
     (typeof globalThis !== "undefined" && Boolean((globalThis as any).crossOriginIsolated));
 
-  const hasWorkers = injected?.hasWebWorkers ?? (typeof Worker !== "undefined");
+  const hasWorkers = injected?.hasWebWorkers ?? typeof Worker !== "undefined";
 
   let activeMode: TransportBufferMode;
   if (forcedMode !== null) {
@@ -90,7 +92,8 @@ export function probeTransportCapabilities(injected?: {
 
   let description = "Copy fallback pipeline (host JS memory)";
   if (activeMode === "transferable-array-buffer") {
-    description = "Transferable ArrayBuffer pipeline (zero-copy worker transfer; shared memory disabled)";
+    description =
+      "Transferable ArrayBuffer pipeline (zero-copy worker transfer; shared memory disabled)";
   }
 
   return {
@@ -144,7 +147,9 @@ export class BoundedBufferPool {
     useSharedMemory = false,
   ) {
     if (useSharedMemory) {
-      throw new SharedMemoryDisabledError("BoundedBufferPool does not permit useSharedMemory: true.");
+      throw new SharedMemoryDisabledError(
+        "BoundedBufferPool does not permit useSharedMemory: true.",
+      );
     }
     // Pre-allocate the fixed ring of buffers up to capacity
     for (let i = 0; i < capacity; i++) {

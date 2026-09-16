@@ -13,7 +13,13 @@ function runCli(args: string[]): { code: number; stdout: string; stderr: string;
   let stderr = "";
 
   try {
-    const fullArgs = ["--experimental-strip-types", "scripts/check-receipts.ts", ...args, "--log-run-id", logRunId];
+    const fullArgs = [
+      "--experimental-strip-types",
+      "scripts/check-receipts.ts",
+      ...args,
+      "--log-run-id",
+      logRunId,
+    ];
     stdout = cp.execFileSync("node", fullArgs, {
       encoding: "utf8",
       stdio: ["ignore", "pipe", "pipe"],
@@ -56,7 +62,13 @@ test("E2E: check-receipts CLI exits 1 on fixture directory containing errors", (
 });
 
 test("E2E: check-receipts CLI --require-local escalates missing local files to error", () => {
-  const { code, jsonl } = runCli(["--dir", FIXTURES_DIR, "--key", "flag-absent-local-only", "--require-local"]);
+  const { code, jsonl } = runCli([
+    "--dir",
+    FIXTURES_DIR,
+    "--key",
+    "flag-absent-local-only",
+    "--require-local",
+  ]);
   assert.equal(code, 1);
   const localErr = jsonl.find((e) => e.rule === "receipt-local-file-missing");
   assert.ok(localErr, "Expected receipt-local-file-missing error under --require-local");

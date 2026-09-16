@@ -46,15 +46,23 @@ test("the delay helper releases two responses in the configured order", () => {
 });
 
 test("CPU throttling resolves a known profile and reports not-available for an unknown one", () => {
-  const profiles = { profiles: [{ id: "mobile-low-cost", cpuSlowdown: { factor: 4, calibration: "provisional" } }] };
+  const profiles = {
+    profiles: [{ id: "mobile-low-cost", cpuSlowdown: { factor: 4, calibration: "provisional" } }],
+  };
   assert.deepEqual(resolveCpuThrottling(profiles, "mobile-low-cost"), {
     status: "available",
     profileId: "mobile-low-cost",
     factor: 4,
     calibration: "provisional",
   });
-  assert.deepEqual(resolveCpuThrottling(profiles, "desktop-capable"), { status: "not-available", profileId: "desktop-capable" });
-  assert.deepEqual(resolveCpuThrottling(undefined, "mobile-low-cost"), { status: "not-available", profileId: "mobile-low-cost" });
+  assert.deepEqual(resolveCpuThrottling(profiles, "desktop-capable"), {
+    status: "not-available",
+    profileId: "desktop-capable",
+  });
+  assert.deepEqual(resolveCpuThrottling(undefined, "mobile-low-cost"), {
+    status: "not-available",
+    profileId: "mobile-low-cost",
+  });
 });
 
 test("CPU throttling reads a fixture perf/profiles.json and reports not-available when the file is absent", async () => {
@@ -63,7 +71,11 @@ test("CPU throttling reads a fixture perf/profiles.json and reports not-availabl
     const fixturePath = join(dir, "profiles.json");
     writeFileSync(
       fixturePath,
-      JSON.stringify({ profiles: [{ id: "mobile-low-cost", cpuSlowdown: { factor: 4, calibration: "provisional" } }] }),
+      JSON.stringify({
+        profiles: [
+          { id: "mobile-low-cost", cpuSlowdown: { factor: 4, calibration: "provisional" } },
+        ],
+      }),
     );
     assert.deepEqual(await loadCpuThrottling("mobile-low-cost", fixturePath), {
       status: "available",

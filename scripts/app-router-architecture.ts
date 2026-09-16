@@ -112,7 +112,7 @@ export function loadAllowlist(allowlistInput: string | Record<string, unknown>):
 
     if (!reason || reason.length === 0) {
       throw new Error(
-        `Allowlist entry '${pattern}' must have a valid non-empty reason explaining why it is permitted.`
+        `Allowlist entry '${pattern}' must have a valid non-empty reason explaining why it is permitted.`,
       );
     }
 
@@ -132,7 +132,8 @@ export function matchesAllowlist(entryPath: string, allowlist: Allowlist): boole
 
   for (const pattern of Object.keys(allowlist)) {
     if (pattern.includes("*")) {
-      const regexStr = "^" + pattern.replace(/[.+?^${}()|[\]\\]/g, "\\$&").replace(/\*/g, ".*") + "$";
+      const regexStr =
+        "^" + pattern.replace(/[.+?^${}()|[\]\\]/g, "\\$&").replace(/\*/g, ".*") + "$";
       const regex = new RegExp(regexStr);
       if (regex.test(entryPath)) {
         return true;
@@ -159,7 +160,7 @@ function normalizeRepoPath(p: string): string {
 export function checkArchitecture(
   entries: readonly RepoEntry[],
   isIgnored: (path: string) => boolean,
-  allowlist: Allowlist
+  allowlist: Allowlist,
 ): ArchitectureViolation[] {
   const violations: ArchitectureViolation[] = [];
 
@@ -175,12 +176,17 @@ export function checkArchitecture(
     const isRootEntry = !path.includes("/");
 
     // Rule 1: Pages Router directory
-    if (path === "src/pages" || path.startsWith("src/pages/") || path === "pages" || path.startsWith("pages/")) {
+    if (
+      path === "src/pages" ||
+      path.startsWith("src/pages/") ||
+      path === "pages" ||
+      path.startsWith("pages/")
+    ) {
       violations.push({
         rule: "rule-1-pages-router",
         path: rawPath,
         message: `Forbidden Pages Router path '${rawPath}' detected. Next.js App Router projects forbid src/pages and root pages directories (even if empty, ignored, or containing only .keep). All routes belong in 'src/app/'.`,
-        repair: `Delete '${rawPath}' or move route definitions to 'src/app/'. Pure Next.js App Router architecture is required.`
+        repair: `Delete '${rawPath}' or move route definitions to 'src/app/'. Pure Next.js App Router architecture is required.`,
       });
       continue;
     }
@@ -191,7 +197,7 @@ export function checkArchitecture(
         rule: "rule-2-second-app-root",
         path: rawPath,
         message: `Root-level 'app/' directory detected at '${rawPath}'. The sole App Router root must be 'src/app/'.`,
-        repair: `Move all routes into 'src/app/' and delete the root 'app/' directory.`
+        repair: `Move all routes into 'src/app/' and delete the root 'app/' directory.`,
       });
       continue;
     }
@@ -204,7 +210,7 @@ export function checkArchitecture(
           rule: "rule-2-second-app-root",
           path: rawPath,
           message: `App Router special file '${rawPath}' found outside 'src/app/'.`,
-          repair: `Rename '${rawPath}' to a standard component name (e.g., ReaderLayout.tsx) or move it into 'src/app/'.`
+          repair: `Rename '${rawPath}' to a standard component name (e.g., ReaderLayout.tsx) or move it into 'src/app/'.`,
         });
       }
     }
@@ -215,7 +221,7 @@ export function checkArchitecture(
         rule: "rule-2-second-app-root",
         path: rawPath,
         message: `Nested Next.js configuration found at '${rawPath}'. Only one Next.js project is permitted at the repository root.`,
-        repair: `Remove nested Next.js project configuration at '${rawPath}'.`
+        repair: `Remove nested Next.js project configuration at '${rawPath}'.`,
       });
     }
 
@@ -227,7 +233,7 @@ export function checkArchitecture(
           rule: "rule-2-second-app-root",
           path: rawPath,
           message: `Forbidden pages directory found under 'ios/' at '${rawPath}'. The native iOS app shell must not replicate Pages Router structures.`,
-          repair: `Rename or remove the 'pages' directory under 'ios/'.`
+          repair: `Rename or remove the 'pages' directory under 'ios/'.`,
         });
       }
     }
@@ -239,7 +245,7 @@ export function checkArchitecture(
           rule: "rule-3-legacy-files",
           path: rawPath,
           message: `Legacy Pages Router file '${rawPath}' detected.`,
-          repair: `Remove '${rawPath}'. App Router uses 'src/app/error.tsx', 'src/app/global-error.tsx', and 'src/app/layout.tsx' instead.`
+          repair: `Remove '${rawPath}'. App Router uses 'src/app/error.tsx', 'src/app/global-error.tsx', and 'src/app/layout.tsx' instead.`,
         });
       }
     }
@@ -252,7 +258,7 @@ export function checkArchitecture(
             rule: "rule-4-root-allowlist",
             path: rawPath,
             message: `Root 'sources/' directory exists but is not ignored by git. Raw scans and local-only pins in sources/ must never be committed.`,
-            repair: `Add 'sources/' to .gitignore immediately before placing files in it.`
+            repair: `Add 'sources/' to .gitignore immediately before placing files in it.`,
           });
         }
       } else {
@@ -264,7 +270,7 @@ export function checkArchitecture(
               rule: "rule-4-root-allowlist",
               path: rawPath,
               message: `Unapproved unignored root entry '${rawPath}' is not in scripts/architecture-allowlist.json.`,
-              repair: `If '${rawPath}' is a temporary/scratch file, remove it. If required by a reviewed project decision, add it with a reason to scripts/architecture-allowlist.json.`
+              repair: `If '${rawPath}' is a temporary/scratch file, remove it. If required by a reviewed project decision, add it with a reason to scripts/architecture-allowlist.json.`,
             });
           }
         }
@@ -287,7 +293,7 @@ export function checkArchitecture(
             rule: "rule-5-scratch-files",
             path: rawPath,
             message: `Forbidden scratch/temporary file '${rawPath}' found in source tree.`,
-            repair: `Remove '${rawPath}' from the repository. Use session scratch directories (/Volumes/USBNVME16TB/temp_agent_space) or proper typed test fixtures.`
+            repair: `Remove '${rawPath}' from the repository. Use session scratch directories (/Volumes/USBNVME16TB/temp_agent_space) or proper typed test fixtures.`,
           });
         }
       }
@@ -302,7 +308,10 @@ export function checkArchitecture(
  * Walks root entries and recursively scans src/, content/, public/, docs/, scripts/, perf/, ios/, pages/, app/.
  * Skips node_modules, .git, .next, and never descends into sources/.
  */
-export function collectRepoEntries(rootDir: string, isIgnored?: (path: string) => boolean): RepoEntry[] {
+export function collectRepoEntries(
+  rootDir: string,
+  isIgnored?: (path: string) => boolean,
+): RepoEntry[] {
   const entries: RepoEntry[] = [];
   const rootItems = readdirSync(rootDir, { withFileTypes: true });
 
@@ -312,7 +321,7 @@ export function collectRepoEntries(rootDir: string, isIgnored?: (path: string) =
     }
     entries.push({
       path: item.name,
-      kind: item.isDirectory() ? "directory" : "file"
+      kind: item.isDirectory() ? "directory" : "file",
     });
   }
 
@@ -343,7 +352,7 @@ function walkDirectoryRecursive(dir: string, rootDir: string, entries: RepoEntry
     const relPath = relative(rootDir, fullPath).replace(/\\/g, "/");
     entries.push({
       path: relPath,
-      kind: item.isDirectory() ? "directory" : "file"
+      kind: item.isDirectory() ? "directory" : "file",
     });
     if (item.isDirectory()) {
       walkDirectoryRecursive(fullPath, rootDir, entries);
@@ -360,7 +369,7 @@ export function createGitIgnorePredicate(cwd: string): (path: string) => boolean
       const out = execFileSync("git", ["check-ignore", testPath], {
         cwd,
         encoding: "utf8",
-        stdio: ["pipe", "pipe", "ignore"]
+        stdio: ["pipe", "pipe", "ignore"],
       });
       return out.trim().length > 0;
     } catch {
@@ -376,7 +385,7 @@ export function writeGateLog(
   artifactsDir: string,
   logRunId: string,
   entries: readonly RepoEntry[],
-  violations: readonly ArchitectureViolation[]
+  violations: readonly ArchitectureViolation[],
 ): { logPath: string; evidenceDir?: string } {
   const logDir = join(artifactsDir, "test-logs", "architecture");
   mkdirSync(logDir, { recursive: true });
@@ -393,7 +402,7 @@ export function writeGateLog(
       rule: v.rule,
       path: v.path,
       message: v.message,
-      repair: v.repair
+      repair: v.repair,
     };
     lines.push(JSON.stringify(entry));
   }
@@ -404,7 +413,7 @@ export function writeGateLog(
     logRunId,
     outcome: violations.length === 0 ? "passed" : "failed",
     violations: violations.length,
-    entriesScanned: entries.length
+    entriesScanned: entries.length,
   };
   lines.push(JSON.stringify(summary));
 
@@ -414,8 +423,16 @@ export function writeGateLog(
   if (violations.length > 0) {
     evidenceDir = join(logDir, logRunId, "evidence");
     mkdirSync(evidenceDir, { recursive: true });
-    writeFileSync(join(evidenceDir, "violations.json"), JSON.stringify(violations, null, 2), "utf8");
-    writeFileSync(join(evidenceDir, "scanned-entries.json"), JSON.stringify(entries, null, 2), "utf8");
+    writeFileSync(
+      join(evidenceDir, "violations.json"),
+      JSON.stringify(violations, null, 2),
+      "utf8",
+    );
+    writeFileSync(
+      join(evidenceDir, "scanned-entries.json"),
+      JSON.stringify(entries, null, 2),
+      "utf8",
+    );
   }
 
   return { logPath, evidenceDir };
@@ -442,7 +459,9 @@ export function runArchitectureGateCli(rootDir: string = process.cwd()): number 
   writeGateLog(artifactsDir, logRunId, entries, violations);
 
   if (violations.length > 0) {
-    console.error(`\n🚨 Architecture Gate Failed (${violations.length} violation${violations.length === 1 ? "" : "s"} found):`);
+    console.error(
+      `\n🚨 Architecture Gate Failed (${violations.length} violation${violations.length === 1 ? "" : "s"} found):`,
+    );
     for (const v of violations) {
       console.error(`\n  [${v.rule}] ${v.path}`);
       console.error(`    ${v.message}`);

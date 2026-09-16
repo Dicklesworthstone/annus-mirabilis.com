@@ -15,7 +15,10 @@
 
 import { laneByName } from "./lanes.ts";
 
-export type E2ECliMode = { kind: "paper"; paperSlug: string } | { kind: "fixtures" } | { kind: "smoke" };
+export type E2ECliMode =
+  | { kind: "paper"; paperSlug: string }
+  | { kind: "fixtures" }
+  | { kind: "smoke" };
 
 export interface E2ECliOptions {
   readonly mode: E2ECliMode;
@@ -35,7 +38,10 @@ function requireValue(flag: string, value: string | undefined): string {
  * flag, matching the same boundary `domContract.ts` draws for instrument
  * addresses.
  */
-export function parseE2ECliArgs(argv: readonly string[], knownPaperSlugs?: readonly string[]): E2ECliOptions {
+export function parseE2ECliArgs(
+  argv: readonly string[],
+  knownPaperSlugs?: readonly string[],
+): E2ECliOptions {
   let mode: E2ECliMode | undefined;
   let lane: string | undefined;
   let journey: string | undefined;
@@ -53,7 +59,9 @@ export function parseE2ECliArgs(argv: readonly string[], knownPaperSlugs?: reado
       if (mode) throw new Error("select exactly one of --paper, --fixtures, or --smoke");
       const paperSlug = requireValue("--paper", value);
       if (knownPaperSlugs && !knownPaperSlugs.includes(paperSlug)) {
-        throw new Error(`unknown paper slug "${paperSlug}"; known papers: ${knownPaperSlugs.join(", ") || "<none>"}`);
+        throw new Error(
+          `unknown paper slug "${paperSlug}"; known papers: ${knownPaperSlugs.join(", ") || "<none>"}`,
+        );
       }
       mode = { kind: "paper", paperSlug };
       index += 1;

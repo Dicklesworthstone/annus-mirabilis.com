@@ -31,7 +31,10 @@ test("the print-text normalizer and comparison against fixed HTML and PDF text",
   assert.equal(compareEssentialPrintText(htmlText, pdfMatching).ok, true);
   const clippedResult = compareEssentialPrintText(htmlText, pdfClipped);
   assert.equal(clippedResult.ok, false);
-  assert.equal(clippedResult.normalizedHtml, "The molecular-kinetic theory of heat requires this motion.");
+  assert.equal(
+    clippedResult.normalizedHtml,
+    "The molecular-kinetic theory of heat requires this motion.",
+  );
   assert.equal(clippedResult.normalizedPdf, "The molecular-kinetic theory of heat requires");
 });
 

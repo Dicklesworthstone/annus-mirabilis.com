@@ -74,18 +74,27 @@ export interface SnapshotIdentityCheck {
  * `data-instance-id`, `data-run-id`, and `data-snapshot-version`. Fails
  * naming every disagreeing view rather than only the first.
  */
-export function checkSameSnapshotIdentity(views: readonly SnapshotIdentityAttrs[]): SnapshotIdentityCheck {
+export function checkSameSnapshotIdentity(
+  views: readonly SnapshotIdentityAttrs[],
+): SnapshotIdentityCheck {
   const first = views[0];
   if (!first) {
-    return { ok: false, mismatches: ["no views supplied; a snapshot-identity check requires at least one view"] };
+    return {
+      ok: false,
+      mismatches: ["no views supplied; a snapshot-identity check requires at least one view"],
+    };
   }
   const mismatches: string[] = [];
   for (const view of views.slice(1)) {
     if (view.instanceId !== first.instanceId) {
-      mismatches.push(`view "${view.view}" has instanceId ${view.instanceId}, expected ${first.instanceId} (from view "${first.view}")`);
+      mismatches.push(
+        `view "${view.view}" has instanceId ${view.instanceId}, expected ${first.instanceId} (from view "${first.view}")`,
+      );
     }
     if (view.runId !== first.runId) {
-      mismatches.push(`view "${view.view}" has runId ${view.runId}, expected ${first.runId} (from view "${first.view}")`);
+      mismatches.push(
+        `view "${view.view}" has runId ${view.runId}, expected ${first.runId} (from view "${first.view}")`,
+      );
     }
     if (view.snapshotVersion !== first.snapshotVersion) {
       mismatches.push(

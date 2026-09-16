@@ -187,16 +187,18 @@ if (process.argv[1]?.endsWith("check-revisions.ts")) {
   const baseRef = values.base ?? "HEAD~1";
   const contentDir = values.dir ?? "content";
 
-  runRevisionCheck(baseRef, contentDir).then((ok) => {
-    if (!ok) {
-      console.error(`check-revisions failed against base ${baseRef}`);
+  runRevisionCheck(baseRef, contentDir)
+    .then((ok) => {
+      if (!ok) {
+        console.error(`check-revisions failed against base ${baseRef}`);
+        process.exit(1);
+      } else {
+        console.log(`check-revisions passed against base ${baseRef}`);
+        process.exit(0);
+      }
+    })
+    .catch((err) => {
+      console.error("check-revisions error:", err);
       process.exit(1);
-    } else {
-      console.log(`check-revisions passed against base ${baseRef}`);
-      process.exit(0);
-    }
-  }).catch((err) => {
-    console.error("check-revisions error:", err);
-    process.exit(1);
-  });
+    });
 }

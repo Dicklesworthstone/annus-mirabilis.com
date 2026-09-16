@@ -3,9 +3,19 @@ import { readFile, readdir, stat, writeFile, mkdir } from "node:fs/promises";
 import { dirname, join, relative, resolve } from "node:path";
 import { fileURLToPath } from "node:url";
 import { execFileSync } from "node:child_process";
-import type { InlineScriptRegistry, InlineScriptRegistryEntry, InlineScriptRoutes } from "../../src/app/inline-scripts/registry.ts";
+import type {
+  InlineScriptRegistry,
+  InlineScriptRegistryEntry,
+  InlineScriptRoutes,
+} from "../../src/app/inline-scripts/registry.ts";
 import { INLINE_SCRIPT_REGISTRY } from "../../src/app/inline-scripts/registry.ts";
-import { appendLogLine, evidenceDirFor, logPathFor, newLogRunId, writeEvidenceFile } from "../scaffold/logLine.ts";
+import {
+  appendLogLine,
+  evidenceDirFor,
+  logPathFor,
+  newLogRunId,
+  writeEvidenceFile,
+} from "../scaffold/logLine.ts";
 
 const ROOT = resolve(dirname(fileURLToPath(import.meta.url)), "../..");
 const SUITE = "inline-script-hashes";
@@ -111,7 +121,12 @@ export function checkInlineScriptsAgainstRegistry(
       if (matchedEntry) {
         seenEntryIds.add(matchedEntry.id);
       } else {
-        issues.push({ kind: "unregistered-script", route, sha256: found.sha256, excerpt: found.excerpt });
+        issues.push({
+          kind: "unregistered-script",
+          route,
+          sha256: found.sha256,
+          excerpt: found.excerpt,
+        });
       }
     }
   }
@@ -227,7 +242,9 @@ async function main(): Promise<void> {
     return;
   }
 
-  console.log(JSON.stringify({ outcome: "pass", manifestPath, entries: manifest.scripts.length, logPath }));
+  console.log(
+    JSON.stringify({ outcome: "pass", manifestPath, entries: manifest.scripts.length, logPath }),
+  );
 }
 
 if (process.argv[1] && resolve(process.argv[1]) === fileURLToPath(import.meta.url)) {

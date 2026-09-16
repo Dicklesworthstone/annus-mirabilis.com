@@ -47,9 +47,10 @@ describe("deployment-target canonical project identity", () => {
 
   test("rejects any non-annus-mirabilis hostname", () => {
     for (const hostname of PROMOTION_REQUIRED_DOMAINS) {
-      expect(hostname.endsWith("annus-mirabilis.com") || hostname.endsWith("annus-mirabilis-seven.vercel.app")).toBe(
-        true,
-      );
+      expect(
+        hostname.endsWith("annus-mirabilis.com") ||
+          hostname.endsWith("annus-mirabilis-seven.vercel.app"),
+      ).toBe(true);
     }
   });
 

@@ -43,7 +43,10 @@ test("the manifest is sorted by id and byte-identical across two runs on the sam
   const options = { buildRevision: "abc123", generatedAt: "2026-01-01T00:00:00.000Z" };
   const first = buildInlineScriptHashManifest(REGISTRY, options);
   const second = buildInlineScriptHashManifest(REGISTRY, options);
-  assert.deepEqual(first.scripts.map((s) => s.id), ["detail", "theme"]);
+  assert.deepEqual(
+    first.scripts.map((s) => s.id),
+    ["detail", "theme"],
+  );
   assert.equal(serializeInlineScriptHashManifest(first), serializeInlineScriptHashManifest(second));
   const themeEntry = first.scripts.find((s) => s.id === "theme");
   assert.equal(themeEntry?.sha256, sha256Base64(THEME_ENTRY.source));
@@ -55,8 +58,10 @@ test("an empty registry with no inline scripts in the HTML passes, which is the 
   assert.deepEqual(issues, []);
 });
 
-test("an inline <script src=\"...\"> is ignored, because only elements without src carry hashable content", () => {
-  const found = extractInlineScripts('<script src="/_next/static/a.js"></script><script>1+1</script>');
+test('an inline <script src="..."> is ignored, because only elements without src carry hashable content', () => {
+  const found = extractInlineScripts(
+    '<script src="/_next/static/a.js"></script><script>1+1</script>',
+  );
   assert.equal(found.length, 1);
   assert.equal(found[0]?.source, "1+1");
 });
@@ -65,7 +70,9 @@ test("an HTML fixture whose inline script matches a registry entry passes", () =
   const html = `<html><head><script>${THEME_ENTRY.source}</script></head><body>ok</body></html>`;
   const issues = checkInlineScriptsAgainstRegistry(REGISTRY, { "/": html });
   // the "detail" entry is scoped to /papers/brownian-motion/, which this fixture never emits
-  assert.deepEqual(issues, [{ kind: "stale-entry", id: "detail", ownerBeadId: "am-read-detail-axis-sfc" }]);
+  assert.deepEqual(issues, [
+    { kind: "stale-entry", id: "detail", ownerBeadId: "am-read-detail-axis-sfc" },
+  ]);
 });
 
 test("an HTML fixture with an extra unregistered inline script fails naming the route, the hash, and the excerpt", () => {
@@ -86,7 +93,9 @@ test("an HTML fixture with an extra unregistered inline script fails naming the 
 test("an HTML fixture missing a registered entry's script fails naming the stale entry", () => {
   const htmlByRoute = { "/": `<script>${THEME_ENTRY.source}</script>` };
   const issues = checkInlineScriptsAgainstRegistry(REGISTRY, htmlByRoute);
-  assert.deepEqual(issues, [{ kind: "stale-entry", id: "detail", ownerBeadId: "am-read-detail-axis-sfc" }]);
+  assert.deepEqual(issues, [
+    { kind: "stale-entry", id: "detail", ownerBeadId: "am-read-detail-axis-sfc" },
+  ]);
 });
 
 test("an entry whose source differs from the emitted bytes by trailing whitespace fails, since CSP hashes are byte-exact", () => {
@@ -95,7 +104,12 @@ test("an entry whose source differs from the emitted bytes by trailing whitespac
   const htmlByRoute = { "/": `<script>${emittedWithTrailingWhitespace}</script>` };
   const issues = checkInlineScriptsAgainstRegistry(registry, htmlByRoute);
   assert.deepEqual(issues, [
-    { kind: "unregistered-script", route: "/", sha256: sha256Base64(emittedWithTrailingWhitespace), excerpt: emittedWithTrailingWhitespace },
+    {
+      kind: "unregistered-script",
+      route: "/",
+      sha256: sha256Base64(emittedWithTrailingWhitespace),
+      excerpt: emittedWithTrailingWhitespace,
+    },
     { kind: "stale-entry", id: "theme", ownerBeadId: "am-design-themes-typography-288q" },
   ]);
 });

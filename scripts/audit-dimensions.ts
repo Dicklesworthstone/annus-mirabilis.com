@@ -12,7 +12,10 @@ import path from "node:path";
 import { parseArgs } from "node:util";
 import { type DimensionCheckResult, checkDimensions } from "../src/content/dimensions/check.ts";
 import { dimensionText } from "../src/content/dimensions/rational.ts";
-import type { QuantityDescriptor, UnitSystemContext } from "../src/content/dimensions/unitSystems.ts";
+import type {
+  QuantityDescriptor,
+  UnitSystemContext,
+} from "../src/content/dimensions/unitSystems.ts";
 import { TestLogger, newRunIdentity } from "../src/testing/log/logger.ts";
 
 export interface EquationAuditEntry {
@@ -82,7 +85,12 @@ export async function runDimensionAudit(
       testId: entry.id,
       beadId: "am-cm-dimension-validator-aoz",
       paper: entry.paper,
-      outcome: result.status === "consistent" ? "passed" : result.status === "unsupported-check" ? "skipped" : "failed",
+      outcome:
+        result.status === "consistent"
+          ? "passed"
+          : result.status === "unsupported-check"
+            ? "skipped"
+            : "failed",
       message: result.status === "consistent" ? "Dimensionally consistent" : result.reason,
       extra: {
         equationId: entry.id,
@@ -91,7 +99,10 @@ export async function runDimensionAudit(
         status: result.status,
         lhsDimension: lhsDimText,
         rhsDimension: rhsDimText,
-        subexpression: result.status === "inconsistent" || result.status === "semantic-mismatch" ? result.subexpression : undefined,
+        subexpression:
+          result.status === "inconsistent" || result.status === "semantic-mismatch"
+            ? result.subexpression
+            : undefined,
         semanticKinds: result.status === "semantic-mismatch" ? result.kinds : undefined,
         reason: result.status !== "consistent" ? result.reason : undefined,
       },
@@ -145,17 +156,19 @@ if (process.argv[1]?.endsWith("audit-dimensions.ts")) {
     entries = JSON.parse(raw);
   }
 
-  runDimensionAudit(entries).then((summary) => {
-    console.log(
-      `Dimension audit: ${summary.total} total (${summary.consistent} consistent, ${summary.unsupportedCheck} review flags, ${summary.inconsistent} errors, ${summary.semanticMismatch} semantic mismatches)`,
-    );
-    if (!summary.ok) {
+  runDimensionAudit(entries)
+    .then((summary) => {
+      console.log(
+        `Dimension audit: ${summary.total} total (${summary.consistent} consistent, ${summary.unsupportedCheck} review flags, ${summary.inconsistent} errors, ${summary.semanticMismatch} semantic mismatches)`,
+      );
+      if (!summary.ok) {
+        process.exit(1);
+      } else {
+        process.exit(0);
+      }
+    })
+    .catch((err) => {
+      console.error("audit-dimensions failed:", err);
       process.exit(1);
-    } else {
-      process.exit(0);
-    }
-  }).catch((err) => {
-    console.error("audit-dimensions failed:", err);
-    process.exit(1);
-  });
+    });
 }

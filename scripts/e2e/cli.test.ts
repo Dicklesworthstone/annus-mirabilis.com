@@ -8,8 +8,16 @@ test("--paper, --fixtures, --smoke, --lane, and --journey parse", () => {
     lane: undefined,
     journey: undefined,
   });
-  assert.deepEqual(parseE2ECliArgs(["--fixtures"]), { mode: { kind: "fixtures" }, lane: undefined, journey: undefined });
-  assert.deepEqual(parseE2ECliArgs(["--smoke"]), { mode: { kind: "smoke" }, lane: undefined, journey: undefined });
+  assert.deepEqual(parseE2ECliArgs(["--fixtures"]), {
+    mode: { kind: "fixtures" },
+    lane: undefined,
+    journey: undefined,
+  });
+  assert.deepEqual(parseE2ECliArgs(["--smoke"]), {
+    mode: { kind: "smoke" },
+    lane: undefined,
+    journey: undefined,
+  });
   assert.deepEqual(parseE2ECliArgs(["--smoke", "--lane", "desktop"]), {
     mode: { kind: "smoke" },
     lane: "desktop",
@@ -20,15 +28,28 @@ test("--paper, --fixtures, --smoke, --lane, and --journey parse", () => {
     lane: undefined,
     journey: "enter-source-passage",
   });
-  assert.deepEqual(parseE2ECliArgs(["--paper", "brownian-motion", "--lane", "touch-320", "--journey", "operate-instrument"]), {
-    mode: { kind: "paper", paperSlug: "brownian-motion" },
-    lane: "touch-320",
-    journey: "operate-instrument",
-  });
+  assert.deepEqual(
+    parseE2ECliArgs([
+      "--paper",
+      "brownian-motion",
+      "--lane",
+      "touch-320",
+      "--journey",
+      "operate-instrument",
+    ]),
+    {
+      mode: { kind: "paper", paperSlug: "brownian-motion" },
+      lane: "touch-320",
+      journey: "operate-instrument",
+    },
+  );
 });
 
 test("an unknown lane is rejected with the list of lanes", () => {
-  assert.throws(() => parseE2ECliArgs(["--smoke", "--lane", "bogus-lane"]), /unknown lane "bogus-lane"; known lanes:/);
+  assert.throws(
+    () => parseE2ECliArgs(["--smoke", "--lane", "bogus-lane"]),
+    /unknown lane "bogus-lane"; known lanes:/,
+  );
 });
 
 test("an unknown paper slug is rejected", () => {
@@ -37,7 +58,10 @@ test("an unknown paper slug is rejected", () => {
     /unknown paper slug "light-quanta"; known papers: brownian-motion/,
   );
   // With no known-slug list supplied, only the flag grammar is checked.
-  assert.deepEqual(parseE2ECliArgs(["--paper", "light-quanta"]).mode, { kind: "paper", paperSlug: "light-quanta" });
+  assert.deepEqual(parseE2ECliArgs(["--paper", "light-quanta"]).mode, {
+    kind: "paper",
+    paperSlug: "light-quanta",
+  });
 });
 
 test("selecting more than one of --paper, --fixtures, --smoke fails", () => {

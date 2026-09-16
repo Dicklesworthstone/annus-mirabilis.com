@@ -184,12 +184,7 @@
       "properties": {
         "id": {
           "type": "string",
-          "enum": [
-            "desktop-capable",
-            "mobile-low-cost",
-            "tablet",
-            "real-device-small"
-          ]
+          "enum": ["desktop-capable", "mobile-low-cost", "tablet", "real-device-small"]
         },
         "description": { "type": "string", "minLength": 1 },
         "engines": {

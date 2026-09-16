@@ -8,7 +8,11 @@
 
 import fs from "node:fs";
 import path from "node:path";
-import { checkReceipt, type CheckDiagnostic, type CheckResult } from "../src/content/provenance/checkReceipt.ts";
+import {
+  checkReceipt,
+  type CheckDiagnostic,
+  type CheckResult,
+} from "../src/content/provenance/checkReceipt.ts";
 import { validateSurveyRecord } from "../src/content/provenance/surveySchema.ts";
 
 type CliOptions = {
@@ -263,7 +267,9 @@ async function main() {
   const logContent = logs.map((l) => JSON.stringify(l)).join("\n") + (logs.length > 0 ? "\n" : "");
   fs.writeFileSync(logFile, logContent, "utf8");
 
-  console.log(`\nSummary: ${filesChecked} files checked, ${totalErrors} errors, ${totalFlags} flags.`);
+  console.log(
+    `\nSummary: ${filesChecked} files checked, ${totalErrors} errors, ${totalFlags} flags.`,
+  );
   console.log(`Log written to: ${logFile}`);
 
   if (totalErrors > 0) {

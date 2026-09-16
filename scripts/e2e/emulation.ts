@@ -52,7 +52,8 @@ export interface TextSpacingDeclarations {
 function extractDeclaration(css: string, property: string): string {
   const pattern = new RegExp(`${property}\\s*:\\s*([^;]+?)\\s*(?:!important)?\\s*;`, "i");
   const match = pattern.exec(css);
-  if (!match?.[1]) throw new Error(`text-spacing stylesheet is missing a "${property}" declaration`);
+  if (!match?.[1])
+    throw new Error(`text-spacing stylesheet is missing a "${property}" declaration`);
   return match[1].trim();
 }
 
@@ -106,10 +107,18 @@ export type CpuThrottling =
   | { status: "not-available"; profileId: string };
 
 /** WebKit cannot throttle CPU; do not mix performance assertions into acceptance lanes (see AGENTS.md pitfalls). */
-export function resolveCpuThrottling(profiles: CpuThrottlingProfilesFile | undefined, profileId: string): CpuThrottling {
+export function resolveCpuThrottling(
+  profiles: CpuThrottlingProfilesFile | undefined,
+  profileId: string,
+): CpuThrottling {
   const profile = profiles?.profiles.find((candidate) => candidate.id === profileId);
   if (!profile) return { status: "not-available", profileId };
-  return { status: "available", profileId, factor: profile.cpuSlowdown.factor, calibration: profile.cpuSlowdown.calibration };
+  return {
+    status: "available",
+    profileId,
+    factor: profile.cpuSlowdown.factor,
+    calibration: profile.cpuSlowdown.calibration,
+  };
 }
 
 /**
@@ -118,7 +127,10 @@ export function resolveCpuThrottling(profiles: CpuThrottlingProfilesFile | undef
  * `not-available` rather than falling back to a default factor, since a
  * silent default would misreport what was actually measured.
  */
-export async function loadCpuThrottling(profileId: string, profilesPath = "perf/profiles.json"): Promise<CpuThrottling> {
+export async function loadCpuThrottling(
+  profileId: string,
+  profilesPath = "perf/profiles.json",
+): Promise<CpuThrottling> {
   let raw: string;
   try {
     raw = await readFile(profilesPath, "utf8");
