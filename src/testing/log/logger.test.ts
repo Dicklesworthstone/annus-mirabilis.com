@@ -1,5 +1,6 @@
 import assert from "node:assert/strict";
-import { readFileSync } from "node:fs";
+import { mkdtempSync, readFileSync } from "node:fs";
+import { tmpdir } from "node:os";
 import path from "node:path";
 import test from "node:test";
 import { artifactsRoot, newRunIdentity, suiteLogPath, TestLogger } from "./logger.ts";
@@ -261,4 +262,19 @@ test("suite log files land at artifacts/test-logs/<suite>/<log-run-id>.jsonl", (
   const logger = freshLogger();
   const expected = path.join(artifactsRoot(), SUITE, `${logger.logRunId}.jsonl`);
   assert.equal(logger.filePath, expected);
+});
+
+test("an explicit logRoot writes into that directory instead of artifacts/test-logs, so a test can own a unique mkdtemp root", async () => {
+  const ownRoot = mkdtempSync(path.join(tmpdir(), "am-logger-root-test-"));
+  const logRunId = newRunIdentity();
+  const logger = new TestLogger(SUITE, logRunId, ownRoot);
+
+  assert.equal(logger.filePath, path.join(ownRoot, SUITE, `${logRunId}.jsonl`));
+  assert.ok(!logger.filePath.startsWith(artifactsRoot()));
+
+  logger.log({ testId: "custom-root", outcome: "passed" });
+  await logger.flush();
+
+  const [event] = readLines(logger).map(parseLogLine);
+  assert.equal(event?.testId, "custom-root");
 });

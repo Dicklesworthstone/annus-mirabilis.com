@@ -48,18 +48,24 @@ function ensureExitHandlerInstalled(): void {
 export class TestLogger {
   readonly suite: string;
   readonly logRunId: string;
+  readonly logRoot: string;
   private buffer: string[] = [];
   private writeQueue: Promise<void> = Promise.resolve();
 
-  constructor(suite: string, logRunId: string = newRunIdentity()) {
+  constructor(
+    suite: string,
+    logRunId: string = newRunIdentity(),
+    logRoot: string = artifactsRoot(),
+  ) {
     this.suite = suite;
     this.logRunId = logRunId;
+    this.logRoot = logRoot;
     liveLoggers.add(this);
     ensureExitHandlerInstalled();
   }
 
   get filePath(): string {
-    return suiteLogPath(this.suite, this.logRunId);
+    return path.join(this.logRoot, this.suite, `${this.logRunId}.jsonl`);
   }
 
   /**
