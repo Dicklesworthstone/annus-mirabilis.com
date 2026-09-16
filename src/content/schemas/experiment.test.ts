@@ -39,8 +39,8 @@ test("Experiment: valid YAML manifest passes schema validation", () => {
   assert.equal(exp.outputs.length, 2);
   assert.equal(exp.notModeled.length, 3);
   assert.equal(exp.views.length, 2);
-  assert.equal(exp.predictMode.enabled, true);
-  if (exp.predictMode.enabled) {
+  assert.ok("enabled" in exp.predictMode && exp.predictMode.enabled);
+  if ("enabled" in exp.predictMode && exp.predictMode.enabled) {
     assert.equal(exp.predictMode.prompts.length, 1);
     assert.equal(exp.predictMode.prompts[0]?.candidates.length, 3);
   }
