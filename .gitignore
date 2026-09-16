@@ -75,3 +75,6 @@ src/pages/
 
 # Claude Code session runtime lock (not project config; .claude/ itself stays trackable)
 .claude/scheduled_tasks.lock
+
+# Build-time laboratory results and source digests; regenerated before dev/build/test
+src/generated/
