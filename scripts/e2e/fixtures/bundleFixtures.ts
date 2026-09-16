@@ -12,6 +12,7 @@
  */
 
 import { execFile } from "node:child_process";
+import { realpathSync } from "node:fs";
 import { copyFile, mkdir } from "node:fs/promises";
 import { dirname, join, resolve } from "node:path";
 import { promisify } from "node:util";
@@ -53,7 +54,7 @@ async function copyStaticInputs(
 /** Bundles one registered fixture application and copies its staticInputs. */
 export async function bundleFixtureApp(
   entry: FixtureAppEntry,
-  root: string = process.cwd(),
+  root: string = realpathSync(process.cwd()),
 ): Promise<FixtureBundleResult> {
   const entryFile = resolve(root, entry.entry, "index.ts");
   const outDir = resolve(root, entry.outDir);

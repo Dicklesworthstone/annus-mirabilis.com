@@ -3,6 +3,8 @@ import { spawnSync } from "node:child_process";
 import { readFileSync } from "node:fs";
 import { describe, it } from "node:test";
 
+import { run } from "./generate-quantity-ids.ts";
+
 const REPO_ROOT = new URL("../", import.meta.url).pathname;
 const REAL_LEGACY = `${REPO_ROOT}content/quantities/legacy-spellings.yaml`;
 const EMPTY_LEGACY = `${REPO_ROOT}src/content/quantities/__fixtures__/empty-legacy-spellings.yaml`;
@@ -16,6 +18,26 @@ function spawnCheck(args: readonly string[]): { exitCode: number; stdout: string
       encoding: "utf8",
     },
   );
+  if (proc.error && (proc.error as any).code === "EBADF") {
+    let stdout = "";
+    let stderr = "";
+    const origLog = console.log;
+    const origErr = console.error;
+    console.log = (...a: any[]) => {
+      stdout += a.join(" ") + "\n";
+    };
+    console.error = (...a: any[]) => {
+      stderr += a.join(" ") + "\n";
+    };
+    let exitCode = 1;
+    try {
+      exitCode = run(args);
+    } finally {
+      console.log = origLog;
+      console.error = origErr;
+    }
+    return { exitCode, stdout, stderr };
+  }
   return {
     exitCode: proc.status ?? (proc.signal ? 1 : 0),
     stdout: proc.stdout || "",

@@ -85,8 +85,8 @@ type StructuredLogEntry = {
   repair?: string;
 };
 
-async function main() {
-  const options = parseArgs(process.argv.slice(2));
+export async function runCheckReceipts(rawArgs: string[] = process.argv.slice(2)): Promise<number> {
+  const options = parseArgs(rawArgs);
   const logs: StructuredLogEntry[] = [];
   const logDir = path.join("artifacts", "test-logs", "receipts");
   fs.mkdirSync(logDir, { recursive: true });
@@ -283,14 +283,16 @@ async function main() {
   );
   console.log(`Log written to: ${logFile}`);
 
-  if (totalErrors > 0) {
-    process.exit(1);
-  } else {
-    process.exit(0);
-  }
+  return totalErrors > 0 ? 1 : 0;
 }
 
-main().catch((err) => {
-  console.error("Fatal error:", err);
-  process.exit(1);
-});
+const isMainModule =
+  process.argv[1] !== undefined &&
+  (import.meta.url === `file://${process.argv[1]}` || process.argv[1].endsWith("check-receipts.ts"));
+if (isMainModule) {
+  runCheckReceipts().then((code) => {
+    if (code !== 0) {
+      process.exit(code);
+    }
+  });
+}

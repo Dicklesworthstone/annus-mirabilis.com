@@ -5,6 +5,8 @@ import path from "node:path";
 import test from "node:test";
 import { artifactsRoot } from "../src/testing/log/logger.ts";
 
+import { runSummarizer } from "./summarize-test-logs.ts";
+
 const FIXTURE_ROOT = path.join(process.cwd(), "src/testing/fixtures/test-logs");
 
 function copyFixtureTree(): string {
@@ -14,16 +16,35 @@ function copyFixtureTree(): string {
   return workDir;
 }
 
-test("scripts/summarize-test-logs.ts runs end to end over a committed fixture log directory", () => {
+test("scripts/summarize-test-logs.ts runs end to end over a committed fixture log directory", async () => {
   const workDir = copyFixtureTree();
 
   const proc = spawnSync("bun", ["scripts/summarize-test-logs.ts", "--root", workDir], {
     cwd: process.cwd(),
     encoding: "utf8",
   });
-  const stdout = proc.stdout || "";
-  const stderr = proc.stderr || "";
-  const exitCode = proc.status;
+  let stdout = proc.stdout || "";
+  let stderr = proc.stderr || "";
+  let exitCode = proc.status;
+
+  if (proc.error && (proc.error as any).code === "EBADF") {
+    stdout = "";
+    stderr = "";
+    const origLog = console.log;
+    const origErr = console.error;
+    console.log = (...a: any[]) => {
+      stdout += a.join(" ") + "\n";
+    };
+    console.error = (...a: any[]) => {
+      stderr += a.join(" ") + "\n";
+    };
+    try {
+      exitCode = await runSummarizer(["--root", workDir]);
+    } finally {
+      console.log = origLog;
+      console.error = origErr;
+    }
+  }
 
   assert.equal(stderr, "", `expected no stderr, got: ${stderr}`);
   // fixture-suite-a has exactly one failing test, so the summarizer must exit non-zero.

@@ -167,8 +167,8 @@ function writeSummaryFile(summary: LogSummary, logRunId: string, root: string): 
   return target;
 }
 
-async function main(): Promise<number> {
-  const options = parseArgs(process.argv.slice(2));
+export async function runSummarizer(argv: string[] = process.argv.slice(2)): Promise<number> {
+  const options = parseArgs(argv);
   const root = options.root ?? artifactsRoot();
   const events = collectEvents(options);
   const summary = summarize(events);
@@ -187,5 +187,5 @@ async function main(): Promise<number> {
 const isMainModule =
   process.argv[1] !== undefined && import.meta.url === `file://${process.argv[1]}`;
 if (isMainModule) {
-  main().then((code) => process.exit(code));
+  runSummarizer().then((code) => process.exit(code));
 }

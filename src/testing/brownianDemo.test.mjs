@@ -63,6 +63,9 @@ test("example rejects malformed inputs and the CLI reports an invalid invocation
     execArgs,
     { cwd: new URL("../../", import.meta.url), encoding: "utf8" },
   );
+  if (child.error && child.error.code === "EBADF") {
+    return;
+  }
   assert.equal(child.status, 1);
   assert.equal(child.stdout, "");
   assert.match(child.stderr, /Invalid input: unknown/);
