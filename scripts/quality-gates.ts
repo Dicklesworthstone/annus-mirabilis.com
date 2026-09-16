@@ -13,7 +13,6 @@
  * - 2: Refused (e.g. required step unavailable in profile mode)
  */
 
-import { spawnSync } from "node:child_process";
 import { existsSync, mkdirSync, writeFileSync } from "node:fs";
 import { delimiter, join, resolve } from "node:path";
 import { pathToFileURL } from "node:url";
@@ -31,6 +30,7 @@ import {
   QUALITY_GATE_STEPS,
   validateRegistry,
 } from "./quality-gates/registry.ts";
+import { spawnObserved } from "./spawnObserved.ts";
 
 export type RunnerMode = "fail-fast" | "all" | "profile";
 
@@ -113,6 +113,9 @@ export interface AvailabilityCheckResult {
  * Evaluates the availability of a gate step.
  */
 export function checkStepAvailability(step: GateStep, rootDir: string): AvailabilityCheckResult {
+  if (!step.availability) {
+    return { available: true };
+  }
   if (step.availability.scriptPath) {
     const fullScriptPath = resolve(rootDir, step.availability.scriptPath);
     if (!existsSync(fullScriptPath)) {
@@ -343,31 +346,16 @@ export function runQualityGates(options: QualityGatesOptions = {}): QualityGates
     }
 
     const stepStart = Date.now();
-    let procResult: {
-      status: number | null;
-      signal: string | null;
-      stdout: Buffer;
-      stderr: Buffer;
-      error?: Error;
-    };
+    let procResult: ReturnType<typeof spawnObserved>;
     try {
       const [cmd, ...args] = step.command;
-      let procResult = spawnSync(cmd, args, {
+      if (!cmd) {
+        throw new Error(`Quality gate step "${step.id}" has an empty command.`);
+      }
+      procResult = spawnObserved(cmd, args, {
         cwd: rootDir,
         env: process.env,
-        stdio: ["ignore", "pipe", "pipe"],
       });
-      if (procResult.error && (procResult.error as NodeJS.ErrnoException).code === "EBADF") {
-        for (let attempt = 1; attempt <= 3; attempt++) {
-          Atomics.wait(new Int32Array(new SharedArrayBuffer(4)), 0, 0, 50 * attempt);
-          procResult = spawnSync(cmd, args, {
-            cwd: rootDir,
-            env: process.env,
-            stdio: ["ignore", "pipe", "pipe"],
-          });
-          if (!procResult.error) break;
-        }
-      }
     } catch (err) {
       const stepDuration = Date.now() - stepStart;
       const errorMsg = (err as Error).message;
@@ -394,35 +382,9 @@ export function runQualityGates(options: QualityGatesOptions = {}): QualityGates
     }
 
     const stepDuration = Date.now() - stepStart;
-    const stdoutText = procResult.stdout ? procResult.stdout.toString("utf8") : "";
-    const stderrText = procResult.stderr ? procResult.stderr.toString("utf8") : "";
-
-    if (procResult.error) {
-      results.push({
-        stepId: step.id,
-        title: step.title,
-        owner: step.owner,
-        family: step.family,
-        cadence: step.cadence,
-        command: step.command,
-        outcome: "failed",
-        exitCode: 1,
-        durationMs: stepDuration,
-        message: `Failed to execute process: ${procResult.error.message}`,
-        stdout: stdoutText,
-        stderr: stderrText,
-      });
-      hasFailed = true;
-      if (!silent) {
-        console.error(`✖  ${stepHeader} FAILED in ${stepDuration}ms: ${procResult.error.message}`);
-      }
-      if (rawMode === "fail-fast") {
-        break;
-      }
-      continue;
-    }
-
-    const exitCode = procResult.status ?? (procResult.signal ? 1 : 0);
+    const stdoutText = procResult.stdout;
+    const stderrText = procResult.stderr;
+    const exitCode = procResult.exitCode;
 
     if (exitCode === 0) {
       results.push({

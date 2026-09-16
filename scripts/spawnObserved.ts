@@ -9,7 +9,9 @@ import { type SpawnSyncOptions, spawnSync } from "node:child_process";
 export type ErrnoException = Error & { readonly code?: string };
 
 export function isErrnoException(err: unknown): err is ErrnoException {
-  return err instanceof Error;
+  return (
+    err instanceof Error && "code" in err && typeof (err as { code?: unknown }).code === "string"
+  );
 }
 
 export type ObservedSubprocess = Readonly<{
@@ -25,9 +27,11 @@ function sleepMs(ms: number): void {
   Atomics.wait(new Int32Array(new SharedArrayBuffer(4)), 0, 0, ms);
 }
 
-function asText(value: string | Buffer | null | undefined): string {
+function asText(value: string | Buffer | Uint8Array | null | undefined): string {
   if (value === null || value === undefined) return "";
-  return typeof value === "string" ? value : value.toString("utf8");
+  if (typeof value === "string") return value;
+  if (Buffer.isBuffer(value)) return value.toString("utf8");
+  return new TextDecoder().decode(value);
 }
 
 export function spawnObserved(
@@ -35,13 +39,16 @@ export function spawnObserved(
   args: readonly string[],
   options: SpawnSyncOptions = {},
 ): ObservedSubprocess {
+  const spawnOptions: SpawnSyncOptions = {
+    stdio: ["ignore", "pipe", "pipe"],
+    encoding: "utf8",
+    ...options,
+  };
+
   let lastError: Error | undefined;
   const attempts = EBADF_BACKOFF_MS.length + 1;
   for (let attempt = 0; attempt < attempts; attempt++) {
-    const proc = spawnSync(command, [...args], {
-      encoding: "utf8",
-      ...options,
-    });
+    const proc = spawnSync(command, [...args], spawnOptions);
     if (!proc.error) {
       return {
         kind: "subprocess",

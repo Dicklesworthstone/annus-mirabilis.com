@@ -8,18 +8,17 @@ const REAL_LEGACY = `${REPO_ROOT}content/quantities/legacy-spellings.yaml`;
 const EMPTY_LEGACY = `${REPO_ROOT}src/content/quantities/__fixtures__/empty-legacy-spellings.yaml`;
 
 /**
- * Spawns the real CLI. EBADF (fd exhaustion under parallel tests) is retried;
- * it is never downgraded to an in-process function call.
+ * Spawns the real CLI. Retries on EBADF if file descriptors are exhausted.
  */
 function spawnCheck(args: readonly string[]): { exitCode: number; stdout: string; stderr: string } {
-  return spawnObserved(
-    "node",
-    ["--experimental-strip-types", `${REPO_ROOT}scripts/generate-quantity-ids.ts`, ...args],
-    {
-      cwd: REPO_ROOT,
-      stdio: ["ignore", "pipe", "pipe"],
-    },
-  );
+  const isBun = typeof Bun !== "undefined";
+  const cliArgs = isBun
+    ? [`${REPO_ROOT}scripts/generate-quantity-ids.ts`, ...args]
+    : ["--experimental-strip-types", `${REPO_ROOT}scripts/generate-quantity-ids.ts`, ...args];
+  return spawnObserved(process.execPath, cliArgs, {
+    cwd: REPO_ROOT,
+    stdio: ["ignore", "pipe", "pipe"],
+  });
 }
 
 describe("generate-quantity-ids.ts --check", () => {
