@@ -1,0 +1,17 @@
+[
+  {
+    "id": "fixture-ghost",
+    "core": true,
+    "registered": true,
+    "dispatcherCase": true,
+    "inCoreCatalogue": true,
+    "inNonCoreList": false,
+    "probes": ["ghost-probe"],
+    "notModeled": ["Everything."],
+    "tapeModelId": "fixture-ghost@1",
+    "ownerTest": true,
+    "actionContracts": 1,
+    "predictEnabled": false,
+    "embeddable": true
+  }
+]

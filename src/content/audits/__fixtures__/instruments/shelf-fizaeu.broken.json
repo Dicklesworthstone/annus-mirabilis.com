@@ -1,0 +1,17 @@
+[
+  {
+    "id": "shelf-fizaeu",
+    "core": false,
+    "registered": true,
+    "dispatcherCase": true,
+    "inCoreCatalogue": false,
+    "inNonCoreList": false,
+    "probes": ["fizeau-delay"],
+    "notModeled": ["The 1851 apparatus."],
+    "tapeModelId": "shelf-fizaeu@1",
+    "ownerTest": true,
+    "actionContracts": 1,
+    "predictEnabled": true,
+    "embeddable": true
+  }
+]

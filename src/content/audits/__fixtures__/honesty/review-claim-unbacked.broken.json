@@ -1,0 +1,10 @@
+[
+  {
+    "id": "arg-accepted-no-record",
+    "kind": "argument",
+    "review": "accepted",
+    "hasAcceptedReviewRecord": false,
+    "emittedEditorialReviewPending": false,
+    "reviewer": "Named Reviewer"
+  }
+]

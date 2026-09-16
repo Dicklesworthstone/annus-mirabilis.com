@@ -203,12 +203,12 @@ export const QUALITY_GATE_STEPS: readonly GateStep[] = [
   },
   {
     id: "voice-lint",
-    title: "Editorial voice lint",
+    title: "Editorial voice lint (folded into verify-content as family voice)",
     command: ["bun", "scripts/lint-voice.ts"],
     family: "fast",
     cadence: "every-run",
-    requiredInCi: true,
-    requiredInProfiles: ["preview", "launch"],
+    requiredInCi: false,
+    requiredInProfiles: [],
     availability: {
       scriptPath: "scripts/lint-voice.ts",
     },
@@ -352,8 +352,8 @@ export function validateRegistry(steps: readonly GateStep[]): RegistryValidation
   const validCadences = new Set<string>(KNOWN_CADENCES);
   const validProfiles = new Set<string>(KNOWN_PROFILES);
 
-  for (let idx = 0; idx < steps.length; idx++) {
-    const step = steps[idx];
+  for (const [idx, step] of steps.entries()) {
+    if (!step) continue;
     const prefix = `Step #${idx + 1} (${step.id || "unnamed"})`;
 
     if (!step.id || step.id.trim().length === 0) {

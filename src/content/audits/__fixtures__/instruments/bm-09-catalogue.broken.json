@@ -1,0 +1,17 @@
+[
+  {
+    "id": "bm-09",
+    "core": true,
+    "registered": true,
+    "dispatcherCase": true,
+    "inCoreCatalogue": false,
+    "inNonCoreList": false,
+    "probes": ["none"],
+    "notModeled": ["Not a core instrument."],
+    "tapeModelId": "bm-09@1",
+    "ownerTest": true,
+    "actionContracts": 1,
+    "predictEnabled": true,
+    "embeddable": true
+  }
+]

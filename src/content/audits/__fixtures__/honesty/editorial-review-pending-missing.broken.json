@@ -1,0 +1,9 @@
+[
+  {
+    "id": "arg-draft-silent",
+    "kind": "argument",
+    "review": "draft",
+    "hasAcceptedReviewRecord": false,
+    "emittedEditorialReviewPending": false
+  }
+]

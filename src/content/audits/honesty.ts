@@ -16,12 +16,23 @@ export type ReviewHonestyRecord = Readonly<{
   review: "draft" | "accepted";
   hasAcceptedReviewRecord: boolean;
   emittedEditorialReviewPending: boolean;
+  /** Named reviewer. An accepted claim with an empty or missing reviewer is the planted defect. */
+  reviewer?: string;
 }>;
 
 export function auditReviewHonesty(records: readonly ReviewHonestyRecord[]): AuditReport {
   const findings: AuditFinding[] = [];
   for (const record of records) {
     if (record.review === "accepted") {
+      if (!record.reviewer?.trim()) {
+        findings.push({
+          check: "review-claim-without-reviewer",
+          family: "audit",
+          severity: "error",
+          recordId: record.id,
+          message: `${record.id} claims review without a named reviewer.`,
+        });
+      }
       if (!record.hasAcceptedReviewRecord) {
         findings.push({
           check: "review-claim-unbacked",

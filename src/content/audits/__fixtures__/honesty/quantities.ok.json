@@ -1,0 +1,7 @@
+{
+  "registered": ["diffusionCoefficient", "rmsDisplacement1d"],
+  "uses": [
+    { "from": "eq-model-bm-rms", "quantityId": "rmsDisplacement1d" },
+    { "from": "eq-model-bm-diffusivity", "quantityId": "diffusionCoefficient" }
+  ]
+}

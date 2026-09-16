@@ -1,45 +1,108 @@
+#!/usr/bin/env bun
+/**
+ * Content gate (am-cm-audit-scripts-d34): architecture, compiler checks,
+ * registered-check inventory, revision check, pinned assets.
+ *
+ * Rule 0 (the user's override prerogative) is not machine-checkable and is
+ * not pretended to be.
+ */
+
+import { execFileSync } from "node:child_process";
 import { existsSync } from "node:fs";
 import { resolve } from "node:path";
 import { fileURLToPath } from "node:url";
-import { compileContent } from "../src/content/compiler/compile.ts";
-import { verifySliceKernels } from "../src/content/kernel/verify.ts";
+import {
+  loadCommittedInventory,
+  RULE_0_HELP,
+  runVerifyContent,
+} from "../src/content/audits/verifyContent.ts";
+import { runArchitectureGateCli } from "./app-router-architecture.ts";
 import { loadReadingFiles } from "./build-content.ts";
+import { runRevisionCheck } from "./check-revisions.ts";
 
 const root = resolve(fileURLToPath(new URL("..", import.meta.url)));
-const issues: string[] = [];
 
-if (existsSync(resolve(root, "src/pages"))) {
-  issues.push("src/pages exists; App Router architecture forbids a Pages Router root.");
+function printHelp(): void {
+  console.log(`Usage: bun scripts/verify-content.ts [--base <ref>] [--require-local] [--help]
+
+Runs the architecture gate, the content compiler with every registered check,
+the committed check inventory, check-revisions (skipped when no --base and no
+git base ref exist), and pinned-asset presence.
+
+${RULE_0_HELP}
+
+The standalone voice-lint quality-gate step is folded into this command as
+the registered check family "voice".
+`);
 }
 
-const files = await loadReadingFiles(root);
-const compiled = await compileContent(files);
-if (!compiled.ok) {
-  for (const d of compiled.diagnostics.filter((x) => x.severity === "error")) {
-    issues.push(`${d.code}: ${d.path}: ${d.message}`);
+function parseArgs(argv: string[]): {
+  help: boolean;
+  baseRef?: string;
+  requireLocal: boolean;
+  skipArchitecture: boolean;
+} {
+  let help = false;
+  let baseRef: string | undefined;
+  let requireLocal = false;
+  let skipArchitecture = false;
+  for (let i = 0; i < argv.length; i += 1) {
+    const arg = argv[i];
+    if (arg === "--help" || arg === "-h") help = true;
+    else if (arg === "--require-local") requireLocal = true;
+    else if (arg === "--skip-architecture") skipArchitecture = true;
+    else if (arg === "--base" && argv[i + 1]) {
+      baseRef = argv[i + 1];
+      i += 1;
+    }
+  }
+  return { help, baseRef, requireLocal, skipArchitecture };
+}
+
+function gitBaseRef(): string | undefined {
+  try {
+    const ref = execFileSync("git", ["rev-parse", "--verify", "origin/main"], {
+      encoding: "utf8",
+      stdio: ["ignore", "pipe", "ignore"],
+    }).trim();
+    return ref.length > 0 ? "origin/main" : undefined;
+  } catch {
+    return undefined;
   }
 }
 
-const pinsPath = resolve(root, "src/content/kernel/pins.json");
-const kernels = verifySliceKernels({
+const args = parseArgs(process.argv.slice(2));
+if (args.help) {
+  printHelp();
+  process.exit(0);
+}
+
+const baseRef = args.baseRef ?? gitBaseRef();
+const result = await runVerifyContent({
   root,
-  revision: process.env.KERNEL_REVISION ?? "workspace",
-  pinsPath: existsSync(pinsPath) ? pinsPath : undefined,
-  writeManifestPath: resolve(root, "generated/kernel-sources.json"),
+  baseRef,
+  requireLocal: args.requireLocal,
+  architecture: () => (args.skipArchitecture ? 0 : runArchitectureGateCli(root)),
+  loadFiles: () => loadReadingFiles(root),
+  revisionCheck: async (ref) => {
+    if (!existsSync(resolve(root, ".git"))) return "skipped";
+    const ok = await runRevisionCheck(ref, resolve(root, "content"));
+    return ok;
+  },
+  inventory: loadCommittedInventory(root),
+  pinnedAssets: [],
 });
-if (!kernels.ok) {
-  for (const issue of kernels.issues) issues.push(`${issue.code}: ${issue.message}`);
-}
 
-if (issues.length > 0) {
-  for (const issue of issues) console.error(issue);
-  process.exit(1);
+for (const line of result.flags) console.log(`FLAG ${line}`);
+for (const line of result.skipped) console.log(line);
+for (const line of result.errors) console.error(line);
+if (result.ok) {
+  console.log(
+    JSON.stringify({
+      ok: true,
+      flags: result.flags.length,
+      skipped: result.skipped,
+    }),
+  );
 }
-
-console.log(
-  JSON.stringify({
-    ok: true,
-    papers: compiled.papers.length,
-    kernelFunctions: kernels.records.length,
-  }),
-);
+process.exit(result.exitCode);

@@ -1,0 +1,10 @@
+{
+  "assets": [
+    {
+      "id": "witness",
+      "path": "https://example.invalid/witness",
+      "publicationDecision": "reference-only"
+    }
+  ],
+  "present": []
+}

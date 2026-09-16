@@ -1,0 +1,17 @@
+[
+  {
+    "id": "bm-01",
+    "core": true,
+    "registered": true,
+    "dispatcherCase": true,
+    "inCoreCatalogue": true,
+    "inNonCoreList": false,
+    "probes": ["bm-01-radius-probe"],
+    "notModeled": [],
+    "tapeModelId": "bm-01@1",
+    "ownerTest": true,
+    "actionContracts": 1,
+    "predictEnabled": true,
+    "embeddable": true
+  }
+]

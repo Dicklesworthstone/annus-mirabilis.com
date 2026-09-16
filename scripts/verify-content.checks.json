@@ -1,0 +1,21 @@
+{
+  "beadId": "am-cm-audit-scripts-d34",
+  "checks": [
+    { "id": "structural-duplicate-id", "family": "structural" },
+    { "id": "structural-missing-source-block", "family": "structural" },
+    { "id": "structural-broken-alignment", "family": "structural" },
+    { "id": "structural-dangling-citation", "family": "structural" },
+    { "id": "structural-impossible-date-order", "family": "structural" },
+    { "id": "structural-equation-not-identical", "family": "structural" },
+    { "id": "structural-complete-while-missing", "family": "structural" },
+    { "id": "structural-hero-quote-unresolved", "family": "structural" },
+    { "id": "structural-ledger-marker-in-edition", "family": "structural" },
+    { "id": "structural-span-digest-mismatch", "family": "structural" },
+    { "id": "source-manifest-validator", "family": "manifest" },
+    { "id": "editorial.voice", "family": "voice" },
+    { "id": "coverage.print", "family": "coverage" },
+    { "id": "kernel-identifier-binding", "family": "audit" },
+    { "id": "coverage-ledger-validator", "family": "coverage" },
+    { "id": "i18n.lang-required", "family": "i18n" }
+  ]
+}

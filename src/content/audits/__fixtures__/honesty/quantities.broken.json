@@ -1,0 +1,4 @@
+{
+  "registered": ["diffusionCoefficient"],
+  "uses": [{ "from": "eq-model-bm-rms", "quantityId": "notARealQuantity" }]
+}

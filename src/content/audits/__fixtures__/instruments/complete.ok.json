@@ -1,0 +1,33 @@
+[
+  {
+    "id": "bm-01",
+    "core": true,
+    "registered": true,
+    "dispatcherCase": true,
+    "inCoreCatalogue": true,
+    "inNonCoreList": false,
+    "probes": ["bm-01-radius-probe"],
+    "notModeled": ["Molecular collisions (no collision bath owns the displacement)."],
+    "tapeModelId": "bm-01@1",
+    "ownerTest": true,
+    "actionContracts": 1,
+    "predictEnabled": true,
+    "embeddable": true
+  },
+  {
+    "id": "avogadro-lab",
+    "core": false,
+    "registered": true,
+    "dispatcherCase": true,
+    "inCoreCatalogue": false,
+    "inNonCoreList": true,
+    "probes": ["avogadro-count"],
+    "notModeled": ["A real historical plate count."],
+    "tapeModelId": "avogadro-lab@1",
+    "ownerTest": true,
+    "actionContracts": 1,
+    "predictEnabled": false,
+    "predictExemptionReason": "Static counting desk; no first-visit curve to hide.",
+    "embeddable": true
+  }
+]

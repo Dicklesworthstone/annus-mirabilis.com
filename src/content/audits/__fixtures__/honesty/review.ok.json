@@ -1,0 +1,17 @@
+[
+  {
+    "id": "arg-reviewed",
+    "kind": "argument",
+    "review": "accepted",
+    "hasAcceptedReviewRecord": true,
+    "emittedEditorialReviewPending": false,
+    "reviewer": "Ada Lovelace"
+  },
+  {
+    "id": "arg-draft-flagged",
+    "kind": "argument",
+    "review": "draft",
+    "hasAcceptedReviewRecord": false,
+    "emittedEditorialReviewPending": true
+  }
+]

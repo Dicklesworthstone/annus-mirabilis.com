@@ -1,0 +1,7 @@
+{
+  "defined": ["ap-17-549", "cit-millikan-1916"],
+  "uses": [
+    { "from": "arg-bm-observable", "citationId": "ap-17-549" },
+    { "from": "arg-lq-photoelectric", "citationId": "cit-millikan-1916" }
+  ]
+}

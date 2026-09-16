@@ -1,0 +1,20 @@
+{
+  "assets": [
+    {
+      "id": "ap-17-549-pdf",
+      "path": "public/papers/pdfs/ap-17-549.pdf",
+      "publicationDecision": "publish"
+    },
+    {
+      "id": "parent-scan",
+      "path": "sources/scans/ap-17-549.tif",
+      "publicationDecision": "pin-local-only"
+    },
+    {
+      "id": "witness",
+      "path": "https://example.invalid/witness",
+      "publicationDecision": "reference-only"
+    }
+  ],
+  "present": ["public/papers/pdfs/ap-17-549.pdf", "sources/scans/ap-17-549.tif"]
+}

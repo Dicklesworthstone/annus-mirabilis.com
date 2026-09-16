@@ -4,14 +4,14 @@
  * but not registered, is an error. The gate cannot quietly lose a family.
  */
 
-import { registerCoverageCheck } from "../coverage/check.ts";
+import { registerPrintCoverageCheck } from "../../platform/print/printCoverage.ts";
 import { registerI18nCheck } from "../checks/i18n/check.ts";
 import { registerStructuralChecks } from "../checks/structural/structural.ts";
 import { registerVoiceCheck } from "../checks/voice/check.ts";
 import { listRegisteredChecks } from "../compiler/checks/registry.ts";
+import { registerCoverageCheck } from "../coverage/check.ts";
 import { registerKernelBindingCheck } from "../kernel/check.ts";
 import { registerSourceManifestCheck } from "../manifest/check.ts";
-import { registerPrintCoverageCheck } from "../../platform/print/printCoverage.ts";
 import type { AuditFinding } from "./types.ts";
 
 export type InventoriedCheck = Readonly<{

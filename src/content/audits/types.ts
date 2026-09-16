@@ -40,6 +40,13 @@ export function summarize(audit: string, findings: readonly AuditFinding[]): Aud
   });
 }
 
+/** Error check codes only. Tests assert these, never message strings. */
+export function errorCheckCodes(report: AuditReport): readonly string[] {
+  return report.findings
+    .filter((finding) => finding.severity === "error")
+    .map((finding) => finding.check);
+}
+
 export function findingLine(finding: AuditFinding): string {
   const parts = [
     finding.severity.toUpperCase(),

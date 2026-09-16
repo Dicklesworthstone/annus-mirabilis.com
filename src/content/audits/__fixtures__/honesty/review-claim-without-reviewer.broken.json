@@ -1,0 +1,10 @@
+[
+  {
+    "id": "arg-claimed-without-reviewer",
+    "kind": "argument",
+    "review": "accepted",
+    "hasAcceptedReviewRecord": true,
+    "emittedEditorialReviewPending": false,
+    "reviewer": ""
+  }
+]

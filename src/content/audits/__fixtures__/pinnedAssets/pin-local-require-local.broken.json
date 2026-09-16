@@ -1,0 +1,11 @@
+{
+  "assets": [
+    {
+      "id": "parent-scan",
+      "path": "sources/scans/ap-17-549.tif",
+      "publicationDecision": "pin-local-only"
+    }
+  ],
+  "present": [],
+  "requireLocal": true
+}
