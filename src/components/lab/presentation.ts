@@ -18,7 +18,7 @@ export function array(snapshot: AcceptedSnapshot, id: string): NumericView {
 /** Presentation rounding and explicit unit conversion only; no physical laws live here. */
 export function display(value: number, factor = 1): string {
   if (!Number.isFinite(value) || !Number.isFinite(factor) || factor <= 0) throw new TypeError("A nonfinite display value was rejected.");
-  return formatScaledDecimal(Number(value.toPrecision(5)), Math.log10(factor));
+  return formatScaledDecimal(value, Math.log10(factor), 5);
 }
 export function identity(snapshot: AcceptedSnapshot) {
   return { "data-instance-id": snapshot.instanceId, "data-run-id": snapshot.runId, "data-snapshot-version": snapshot.snapshotVersion };

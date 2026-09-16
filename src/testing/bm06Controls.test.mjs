@@ -32,3 +32,9 @@ test("unit display does not fabricate infinity or zero at extreme scales", () =>
  assert.notEqual(display(Number.MIN_VALUE,1e-6),"0");
  assert.equal(display(4.294395645549615e-13,1e12),"0.42944");
 });
+
+test("rounding the largest finite value cannot overflow the reader's display", () => {
+ assert.equal(display(Number.MAX_VALUE), "1.7977e308");
+ assert.equal(display(Number.MAX_VALUE, 1e12), "1.7977e320");
+ assert.equal(display(-Number.MAX_VALUE, 1e-6), "-1.7977e302");
+});

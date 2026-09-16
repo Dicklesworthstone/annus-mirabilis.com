@@ -15,9 +15,14 @@ export function parseScaledDecimal(text: string, displayPower: number): number {
   if (value === 0 && /[1-9]/.test(coefficient)) throw new RangeError("The value is smaller than the calculation can represent.");
   return value;
 }
-export function formatScaledDecimal(value: number, displayPower: number): string {
+export function formatScaledDecimal(value: number, displayPower: number, significantDigits?: number): string {
   if (!Number.isFinite(value)) throw new TypeError("Only finite accepted values can be displayed.");
-  const scaled = shift(String(value), displayPower);
+  // Precision rounding can exceed binary64's range even when the input is finite.
+  // Keep that rounded decimal as text instead of parsing it back into a number.
+  const text = significantDigits === undefined ? String(value) : value.toPrecision(significantDigits);
+  const [mantissa, originalExponent] = text.split("e");
+  const compact = mantissa!.includes(".") ? mantissa!.replace(/0+$/, "").replace(/\.$/, "") : mantissa!;
+  const scaled = shift(originalExponent === undefined ? compact : `${compact}e${originalExponent}`, displayPower);
   const [coefficient, exponent] = scaled.split("e");
   const negative = coefficient!.startsWith("-");
   const unsigned = coefficient!.replace(/^[+-]/, "");
