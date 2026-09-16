@@ -21,7 +21,7 @@ export type PreparedLq08Example = Readonly<{
   simulationTime: number;
 }>;
 
-function evaluateOutputs(p: Lq08Parameters): ScientificResult[] {
+export function evaluateLq08(p: Lq08Parameters): ScientificResult[] {
   const qeRes = quantumEnergy(p.frequency);
   const tfRes = thresholdFrequencyFromEv(p.workFunction);
   const kmRes = kMax(p.frequency, p.workFunction * 1.602176634e-19);
@@ -212,7 +212,7 @@ export function createLq08Session(instanceId: string, example?: PreparedLq08Exam
 
   const initialOutputs = example?.results
     ? example.results.map(parseResult)
-    : evaluateOutputs(initialParams);
+    : evaluateLq08(initialParams);
 
   const token = store.issue("setup-change");
   store.publish({
@@ -256,7 +256,7 @@ export function createLq08Session(instanceId: string, example?: PreparedLq08Exam
       }
       request ??= store.issue("continue");
 
-      const computedOutputs = evaluateOutputs(parameters);
+      const computedOutputs = evaluateLq08(parameters);
       store.publish({
         ...request,
         outputs: computedOutputs,

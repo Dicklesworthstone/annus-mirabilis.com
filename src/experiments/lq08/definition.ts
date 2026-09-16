@@ -65,3 +65,53 @@ export const LQ08_OUTPUTS: Readonly<Record<string, OutputContract>> = Object.fre
     "outside-domain",
   ]),
 });
+
+export const LQ08_NOT_MODELED: readonly string[] = Object.freeze([
+  "Multi-photon absorption processes at ultra-high laser intensities",
+  "Detailed angular distribution of emitted photoelectrons and surface refraction",
+  "Surface oxidation layer work-function drift and patch potentials",
+  "Finite-temperature Fermi-Dirac tail thermal emission broadening",
+  "Contact potential differences between cathode and anode materials",
+  "Semiclassical wave-matter models without electromagnetic field quantization (Lamb & Scully 1969)",
+  "Bremsstrahlung reverse emission from accelerated photoelectrons",
+  "Space-charge accumulation and screening at high current densities",
+]);
+
+export const LQ08_PRESETS = Object.freeze({
+  sodiumStandard: Object.freeze({
+    id: "sodium-standard",
+    label: "Sodium Standard (Yellow-Green, 600 THz)",
+    description: "Monochromatic 600 THz (~500 nm) on fresh sodium (Phi = 2.2 eV).",
+    parameters: Object.freeze({
+      incidentPower: 0.001,
+      frequency: 6.0e14,
+      workFunction: 2.2,
+      quantumEfficiency: 0.1,
+      collectorPotential: 0.0,
+    }),
+  }),
+  subThreshold: Object.freeze({
+    id: "sub-threshold",
+    label: "Sub-Threshold (Red Light, 450 THz)",
+    description: "450 THz red light: photon energy 1.86 eV < 2.2 eV. No electrons emitted.",
+    parameters: Object.freeze({
+      incidentPower: 0.005,
+      frequency: 4.5e14,
+      workFunction: 2.2,
+      quantumEfficiency: 0.1,
+      collectorPotential: 0.0,
+    }),
+  }),
+  historicalCheck: Object.freeze({
+    id: "historical-check",
+    label: "Historical Spark Check (UV, 1030 THz, Phi=0)",
+    description: "Einstein's 1905 order-of-magnitude check with neglected escape work.",
+    parameters: Object.freeze({
+      incidentPower: 0.001,
+      frequency: 1.03e15,
+      workFunction: 0.0,
+      quantumEfficiency: 0.1,
+      collectorPotential: 0.0,
+    }),
+  }),
+});

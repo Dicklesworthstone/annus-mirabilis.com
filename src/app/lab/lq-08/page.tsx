@@ -1,6 +1,6 @@
 import type { Metadata } from "next";
 import { Formula } from "../../../components/edition/Formula.tsx";
-import { PhotoelectricLab } from "../../../components/lab/lq08/PhotoelectricLab.tsx";
+import { PhotoelectricComparison } from "../../../components/lab/lq08/PhotoelectricLab.tsx";
 import example from "../../../generated/lq08-example.json";
 
 export const metadata: Metadata = {
@@ -27,7 +27,7 @@ export default function PhotoelectricPage() {
         </p>
       </header>
 
-      <PhotoelectricLab example={example} />
+      <PhotoelectricComparison example={example} />
 
       <section className="reading" id="photoelectric-theory">
         <p className="eyebrow">The Physical Argument</p>
@@ -89,6 +89,23 @@ export default function PhotoelectricPage() {
           remarkable precision that every metal exhibits the exact same slope{" "}
           <Formula latex={String.raw`\frac{dV_s}{d\nu} = \frac{h}{e}`} />, varying only in the
           horizontal threshold cutoff intercept <Formula latex={String.raw`\nu_0`} />.
+        </p>
+
+        <h2>Epistemic Boundary: Deductive Consequences vs. Empirical Proof</h2>
+        <p>
+          A simulator programmed with an energy threshold does not prove that nature has a
+          threshold; it demonstrates the deductive consequences of single-quantum energy exchange
+          and surface escape work (<Formula latex={String.raw`E_q = h\nu`} />,{" "}
+          <Formula latex={String.raw`W = \Phi`} />
+          ). Independent experiments (such as Millikan’s 1916 precision dataset and later
+          single-photon anti-bunching measurements) test whether those assumptions describe the
+          physical world.
+        </p>
+        <p>
+          When <Formula latex={String.raw`\nu < \nu_0`} />, the stopping potential is strictly{" "}
+          <code>not-applicable</code> (a typed non-value), never zero, because no emitted
+          photoelectrons exist to be retarded. Millikan 1916 is later historical evidence on the
+          timeline, never an axiom of the 1905 derivation.
         </p>
 
         <div className="actions">

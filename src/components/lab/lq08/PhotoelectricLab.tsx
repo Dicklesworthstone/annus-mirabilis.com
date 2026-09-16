@@ -1,6 +1,6 @@
 "use client";
 
-import { useId, useMemo, useState, useSyncExternalStore } from "react";
+import { useEffect, useId, useMemo, useState, useSyncExternalStore } from "react";
 import { evaluateMillikanOverlay } from "../../../experiments/lq08/millikan.ts";
 import { createLq08Session, type PreparedLq08Example } from "../../../experiments/lq08/session.ts";
 import {
@@ -533,8 +533,42 @@ export function PhotoelectricLab({ example }: PhotoelectricLabProps) {
           <li>Detailed angular distribution of emitted photoelectrons.</li>
           <li>Surface oxidation layer work-function drift.</li>
           <li>Finite-temperature Fermi-Dirac tail thermal emission broadening.</li>
+          <li>Contact potential differences between cathode and anode materials.</li>
+          <li>
+            Semiclassical wave-matter models without electromagnetic field quantization (Lamb &amp;
+            Scully 1969).
+          </li>
+          <li>Bremsstrahlung reverse emission from accelerated photoelectrons.</li>
+          <li>Space-charge accumulation and screening at high current densities.</li>
         </ul>
       </div>
     </div>
+  );
+}
+
+export function PhotoelectricComparison({ example }: { example?: PreparedLq08Example }) {
+  const [second, setSecond] = useState(false);
+  const [ready, setReady] = useState(false);
+  useEffect(() => setReady(true), []);
+
+  return (
+    <>
+      <PhotoelectricLab example={example} />
+      <div className="comparison-toggle my-6 flex flex-col items-center gap-2">
+        <button
+          type="button"
+          className="text-xs px-3 py-1.5 rounded bg-slate-100 dark:bg-slate-800 hover:bg-slate-200 dark:hover:bg-slate-700 border border-slate-300 dark:border-slate-700 transition"
+          disabled={!ready}
+          onClick={() => setSecond(!second)}
+        >
+          {second ? "Close the second laboratory" : "Open an independent second laboratory"}
+        </button>
+        <p className="text-xs text-slate-500">
+          Compare two setups side by side in your reading. Each laboratory has its own settings,
+          stepwise state and accepted results.
+        </p>
+      </div>
+      {second && <PhotoelectricLab example={example} />}
+    </>
   );
 }
