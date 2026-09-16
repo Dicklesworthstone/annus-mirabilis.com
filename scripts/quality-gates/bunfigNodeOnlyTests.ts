@@ -4,11 +4,15 @@
  * list so package.json, CI, and tests cannot drift from bunfig.
  */
 
-import { type Dirent, existsSync, readdirSync } from "node:fs";
+import { type Dirent, existsSync, readdirSync, statSync } from "node:fs";
 import { join, relative } from "node:path";
 
 export const BUNFIG_RELATIVE_PATH = "bunfig.toml";
-export const NODE_SUITE_ALWAYS = ["scripts/e2e/**/*.test.ts"] as const;
+/** Extra node --test inputs that bunfig does not ignore. Globs are expanded to files. */
+export const NODE_SUITE_ALWAYS = [
+  "scripts/e2e/**/*.test.ts",
+  "scripts/quality-gates/bunfigNodeOnlyTests.test.ts",
+] as const;
 const SKIP_DIRS = new Set(["node_modules", ".git", ".next", "artifacts", "dist", "coverage"]);
 
 export function parsePathIgnorePatterns(bunfigText: string): string[] {
@@ -93,11 +97,25 @@ export function expandIgnorePatternsToTestFiles(
 export function nodeOnlyTestArgs(bunfigText: string, root: string): string[] {
   const patterns = parsePathIgnorePatterns(bunfigText);
   const fromBunfig = expandIgnorePatternsToTestFiles(patterns, root);
-  const e2eFiles = expandIgnorePatternsToTestFiles(NODE_SUITE_ALWAYS, root);
-  const allTestFiles = [...new Set([...e2eFiles, ...fromBunfig])].sort();
+  const extraFiles = expandIgnorePatternsToTestFiles(NODE_SUITE_ALWAYS, root);
+  const allTestFiles = [...new Set([...extraFiles, ...fromBunfig])].sort();
+  if (allTestFiles.length === 0) {
+    throw new Error("node-only test derivation produced an empty file list.");
+  }
   for (const path of allTestFiles) {
-    if (!existsSync(join(root, path)) && !existsSync(path)) {
+    if (path.includes("*") || path.endsWith("/")) {
+      throw new Error(
+        `node --test cannot consume a glob or directory; derivation left ${path} unexpanded.`,
+      );
+    }
+    const full = existsSync(join(root, path)) ? join(root, path) : path;
+    if (!existsSync(full)) {
       throw new Error(`node-only test path does not exist: ${path}`);
+    }
+    if (statSync(full).isDirectory()) {
+      throw new Error(
+        `node --test cannot consume a directory; derivation left ${path} unexpanded.`,
+      );
     }
   }
   return allTestFiles;
