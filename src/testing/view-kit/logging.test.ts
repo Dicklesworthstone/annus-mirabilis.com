@@ -1,12 +1,15 @@
 import { describe, expect, test } from "bun:test";
 import * as fs from "node:fs";
-import { getLogger, newRunIdentity } from "../log/logger.ts";
+import * as os from "node:os";
+import * as path from "node:path";
+import { newRunIdentity, TestLogger } from "../log/logger.ts";
 import { parseLogLine } from "../log/schema.ts";
 
 describe("view kit structured logging (am-inst-2d-view-kit-u75r)", () => {
   test("writes validated structured JSONL log events with extra scale and census fields", async () => {
+    const tmpDir = fs.mkdtempSync(path.join(os.tmpdir(), "view-kit-log-test-"));
     const logRunId = newRunIdentity();
-    const logger = getLogger("view-kit", logRunId);
+    const logger = new TestLogger("view-kit", logRunId, tmpDir);
 
     logger.log({
       testId: "view-kit-smoke-001",
