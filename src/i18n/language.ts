@@ -39,7 +39,10 @@ export function validateLanguageTag(tag: unknown, path = "lang"): string {
  */
 export function isRtlLanguage(lang: string): boolean {
   if (!lang || typeof lang !== "string") return false;
-  const primary = lang.split("-")[0].toLowerCase();
+  const parts = lang.split("-");
+  const first = parts[0];
+  if (first === undefined) return false;
+  const primary = first.toLowerCase();
   return RTL_PRIMARY_SUBTAGS.has(primary);
 }
 

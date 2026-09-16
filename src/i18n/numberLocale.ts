@@ -90,7 +90,12 @@ export function formatDecimalForLocale(
 
   if (shouldUseScientific && val !== 0) {
     const s = val.toExponential();
-    const [mStr, expStr] = s.split("e");
+    const eParts = s.split("e");
+    const mStr = eParts[0];
+    const expStr = eParts[1];
+    if (mStr === undefined || expStr === undefined) {
+      throw new Error(`Failed to extract exponential representation from ${val}`);
+    }
     const exp = Number.parseInt(expStr, 10);
     const mantissa = Number.parseFloat(mStr);
 
@@ -148,17 +153,21 @@ export function parseLocaleDecimal(input: string, locale: string): number {
   if (trimmed.includes("× 10") || trimmed.includes("x 10")) {
     const parts = trimmed.split(/[×x]\s*10/);
     if (parts.length === 2) {
-      const mantissaStr = parts[0].trim();
-      const expChars = Array.from(parts[1].trim())
-        .map((c) => SUPERSCRIPT_REVERSE_MAP[c] ?? c)
-        .join("");
-      const exp = Number.parseInt(expChars, 10);
-      if (Number.isNaN(exp)) {
-        throw new Error(`Invalid exponent in scientific notation: "${trimmed}".`);
+      const p0 = parts[0];
+      const p1 = parts[1];
+      if (p0 !== undefined && p1 !== undefined) {
+        const mantissaStr = p0.trim();
+        const expChars = Array.from(p1.trim())
+          .map((c) => SUPERSCRIPT_REVERSE_MAP[c] ?? c)
+          .join("");
+        const exp = Number.parseInt(expChars, 10);
+        if (Number.isNaN(exp)) {
+          throw new Error(`Invalid exponent in scientific notation: "${trimmed}".`);
+        }
+        const m = parseLocaleDecimal(mantissaStr, locale);
+        const res = m * 10 ** exp;
+        return Object.is(res, -0) ? 0 : res;
       }
-      const m = parseLocaleDecimal(mantissaStr, locale);
-      const res = m * 10 ** exp;
-      return Object.is(res, -0) ? 0 : res;
     }
   }
 
@@ -177,12 +186,13 @@ export function parseLocaleDecimal(input: string, locale: string): number {
     }
     if (s.includes(".") && !s.includes(",")) {
       const segments = s.split(".");
-      if (segments.length === 2 && segments[1].length === 3) {
+      const seg1 = segments[1];
+      if (segments.length === 2 && seg1 !== undefined && seg1.length === 3) {
         throw new Error(
           `Ambiguous grouping separator in input "${input}" for locale "de": period followed by 3 digits is ambiguous.`,
         );
       }
-      if (segments.length === 2 && segments[1].length !== 3) {
+      if (segments.length === 2 && seg1 !== undefined && seg1.length !== 3) {
         throw new Error(
           `Invalid decimal separator "." for locale "de": comma (",") is required as the decimal separator.`,
         );
@@ -193,14 +203,19 @@ export function parseLocaleDecimal(input: string, locale: string): number {
     // In en and default locales, period is decimal separator, comma is grouping separator
     if (s.includes(",")) {
       const parts = s.split(",");
-      if (parts.length === 2 && !s.includes(".") && parts[1].length !== 3) {
+      const p1 = parts[1];
+      if (parts.length === 2 && !s.includes(".") && p1 !== undefined && p1.length !== 3) {
         throw new Error(
           `Invalid decimal format for locale "${locale}": comma is not a valid decimal separator in this locale.`,
         );
       }
       for (let i = 1; i < parts.length; i++) {
-        const chunk = parts[i].split(".")[0];
-        if (chunk.length !== 3) {
+        const part = parts[i];
+        if (part === undefined) {
+          throw new Error(`Invalid grouping separator in input "${input}" for locale "${locale}".`);
+        }
+        const chunk = part.split(".")[0];
+        if (chunk === undefined || chunk.length !== 3) {
           throw new Error(`Invalid grouping separator in input "${input}" for locale "${locale}".`);
         }
       }

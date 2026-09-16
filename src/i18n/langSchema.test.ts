@@ -152,7 +152,10 @@ test("langSchema: Inline term annotation with lang='de' passes validation", () =
     termId: "thought-experiment",
     lang: "de",
   });
-  assert.equal(inlineWithLang.lang, "de");
+  assert.equal(inlineWithLang.kind, "term");
+  if (inlineWithLang.kind === "term") {
+    assert.equal(inlineWithLang.lang, "de");
+  }
 
   // Inline with invalid lang fails
   assert.throws(() =>

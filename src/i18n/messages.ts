@@ -20,8 +20,10 @@ export interface MessageCatalog {
   messages: Readonly<Record<string, string>>;
 }
 
+const DEFAULT_CATALOG: MessageCatalog = enMessages as MessageCatalog;
+
 const CATALOGS: Readonly<Record<string, MessageCatalog>> = {
-  en: enMessages as MessageCatalog,
+  en: DEFAULT_CATALOG,
   de: deMessages as MessageCatalog,
 };
 
@@ -29,8 +31,18 @@ const CATALOGS: Readonly<Record<string, MessageCatalog>> = {
  * Retrieves a message catalog for a given UI locale, falling back to English.
  */
 export function getMessageCatalog(uiLocale: string): MessageCatalog {
-  const norm = uiLocale.toLowerCase().split("-")[0];
-  return CATALOGS[norm] ?? CATALOGS.en;
+  if (!uiLocale || typeof uiLocale !== "string") {
+    return DEFAULT_CATALOG;
+  }
+  const parts = uiLocale.toLowerCase().split("-");
+  const norm = parts[0];
+  if (norm !== undefined && norm in CATALOGS) {
+    const found = CATALOGS[norm];
+    if (found !== undefined) {
+      return found;
+    }
+  }
+  return DEFAULT_CATALOG;
 }
 
 /**
@@ -41,7 +53,7 @@ export function getMessage(key: string, uiLocale: string, fallback?: string): st
   const msg = catalog.messages[key];
   if (msg !== undefined) return msg;
 
-  const enMsg = CATALOGS.en.messages[key];
+  const enMsg = DEFAULT_CATALOG.messages[key];
   if (enMsg !== undefined) return enMsg;
 
   return fallback ?? key;
