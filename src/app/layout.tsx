@@ -2,12 +2,13 @@ import type { Metadata } from "next";
 import type { ReactNode } from "react";
 import "katex/dist/katex.min.css";
 import "./globals.css";
+import { READER_PREPAINT } from "../reader/detail/prepaint";
 export const metadata: Metadata = {
   title: { default: "Annus Mirabilis — four papers, one year", template: "%s · Annus Mirabilis" },
   description: "An interactive edition in preparation. Begin with an executable Brownian-motion laboratory and a static, accessible first encounter.",
 };
 export default function RootLayout({ children }: { children: ReactNode }) {
-  return <html lang="en"><body>
+  return <html lang="en" suppressHydrationWarning><head><script dangerouslySetInnerHTML={{ __html: READER_PREPAINT }}/></head><body>
     <a className="skip-link" href="#main">Skip to the content</a>
     <header className="site-header"><a className="wordmark" href="/">Annus Mirabilis<span>Four papers. One year.</span></a><nav aria-label="Main navigation"><a href="/papers/">The papers</a><a href="/discover/brownian-motion/">Discover</a><a href="/lab/bm-06/">Laboratory</a></nav></header>
     <main id="main">{children}</main>
