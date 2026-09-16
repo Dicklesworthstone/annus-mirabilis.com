@@ -1,0 +1,32 @@
+name: Brownian laboratory preview
+on:
+  push:
+    branches: [main]
+  workflow_dispatch:
+permissions:
+  contents: read
+jobs:
+  laboratory:
+    runs-on: ubuntu-latest
+    timeout-minutes: 15
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          # This is the runtime actually exercised by the standalone reference tests.
+          # The ratified 22.13.4 runtime remains a separate compatibility obligation.
+          node-version: 22.16.0
+      - run: npm install --ignore-scripts --no-audit --no-fund
+      - run: npm run test:reference
+      - run: npm run typecheck
+      - run: npm run build
+        env:
+          NEXT_TELEMETRY_DISABLED: "1"
+      - run: npx playwright install --with-deps chromium
+      - run: npm run test:browser
+      - uses: actions/upload-artifact@v4
+        if: always()
+        with:
+          name: brownian-browser-evidence
+          path: artifacts/browser/
+          if-no-files-found: ignore
