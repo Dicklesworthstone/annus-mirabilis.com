@@ -1807,6 +1807,33 @@ export type DatasetAddressesResult = Readonly<{
   openQuestion?: string | undefined;
 }>;
 
+export type DatasetFitParameter = Readonly<{
+  name: string;
+  quantityId: string;
+  value: number;
+  unit: string;
+  uncertainty?: number | undefined;
+  source: "fitted-here" | "imported";
+  sourceCitation?: string | undefined;
+}>;
+
+export type DatasetFitExclusion = Readonly<{
+  rowIndex: number;
+  reason: string;
+}>;
+
+export type DatasetFit = Readonly<{
+  id: string;
+  seriesId?: string | undefined;
+  label: string;
+  fitObjective: string;
+  analysisDate: PaperDate;
+  rowsUsed: readonly number[];
+  rowsExcluded: readonly DatasetFitExclusion[];
+  parameters: readonly DatasetFitParameter[];
+  fitDescription?: string | undefined;
+}>;
+
 export type HistoricalDataset = Readonly<{
   id: string;
   title: string;
@@ -1836,6 +1863,7 @@ export type HistoricalDataset = Readonly<{
   calibrationIds?: readonly string[] | undefined;
   sharedInputIds?: readonly string[] | undefined;
   addressesResults?: readonly DatasetAddressesResult[] | undefined;
+  fits?: readonly DatasetFit[] | undefined;
 }>;
 
 export function validateDataCell(raw: unknown, path = "cell"): DataCell {
@@ -2087,12 +2115,23 @@ export function validateHistoricalDataset(
           `${sPath}.publicationId`,
         );
       }
+      let obsDate: PaperDate | undefined;
+      if (sRaw.observationDate) {
+        obsDate = validatePaperDate(sRaw.observationDate, sRaw.id as string, `${sPath}.observationDate`);
+        const pub = publications.find((p) => p.id === sRaw.publicationId);
+        if (pub && obsDate.earliest > pub.publicationDate.latest) {
+          throw new ExperimentValidationError(
+            "observation-after-publication",
+            `Series "${sRaw.id}" observationDate (${obsDate.earliest}) cannot be later than publicationDate (${pub.publicationDate.latest}).`,
+            "HistoricalDataset",
+            `${sPath}.observationDate`,
+          );
+        }
+      }
       seriesList.push({
         id: sRaw.id,
         publicationId: sRaw.publicationId,
-        observationDate: sRaw.observationDate
-          ? validatePaperDate(sRaw.observationDate, sRaw.id as string, `${sPath}.observationDate`)
-          : undefined,
+        observationDate: obsDate,
         description: (sRaw.description as string) || "",
       });
     }
@@ -2249,6 +2288,263 @@ export function validateHistoricalDataset(
     }
   }
 
+  // Fits
+  const fitsList: DatasetFit[] = [];
+  if (Array.isArray(o.fits)) {
+    for (let f = 0; f < o.fits.length; f++) {
+      const fRaw = o.fits[f] as Record<string, unknown>;
+      const fPath = `${path}.fits[${f}]`;
+      if (!fRaw || typeof fRaw !== "object") {
+        throw new ExperimentValidationError(
+          "invalid-fit",
+          "Fit must be an object.",
+          "HistoricalDataset",
+          fPath,
+        );
+      }
+      if (typeof fRaw.id !== "string" || !fRaw.id.trim()) {
+        throw new ExperimentValidationError(
+          "missing-fit-id",
+          "Fit id is required.",
+          "HistoricalDataset",
+          `${fPath}.id`,
+        );
+      }
+      if (typeof fRaw.label !== "string" || !fRaw.label.trim()) {
+        throw new ExperimentValidationError(
+          "missing-fit-label",
+          "Fit label is required.",
+          "HistoricalDataset",
+          `${fPath}.label`,
+        );
+      }
+      if (typeof fRaw.fitObjective !== "string" || !fRaw.fitObjective.trim()) {
+        throw new ExperimentValidationError(
+          "missing-fit-objective",
+          "Fit fitObjective is required.",
+          "HistoricalDataset",
+          `${fPath}.fitObjective`,
+        );
+      }
+      if (!fRaw.analysisDate) {
+        throw new ExperimentValidationError(
+          "missing-analysis-date",
+          `Fit "${fRaw.id}" requires analysisDate.`,
+          "HistoricalDataset",
+          `${fPath}.analysisDate`,
+        );
+      }
+      const analysisDate = validatePaperDate(
+        fRaw.analysisDate,
+        fRaw.id as string,
+        `${fPath}.analysisDate`,
+      );
+
+      const seriesId = typeof fRaw.seriesId === "string" ? fRaw.seriesId : undefined;
+      if (seriesId && !seriesIds.has(seriesId)) {
+        throw new ExperimentValidationError(
+          "fit-unknown-series-id",
+          `Fit "${fRaw.id}" references unknown seriesId "${seriesId}".`,
+          "HistoricalDataset",
+          `${fPath}.seriesId`,
+        );
+      }
+
+      // Determine series rows count to check partitioning
+      const seriesRows = seriesId ? rows.filter((r) => r.seriesId === seriesId) : rows;
+      const expectedRowCount = seriesRows.length;
+
+      if (!Array.isArray(fRaw.rowsUsed)) {
+        throw new ExperimentValidationError(
+          "missing-rows-used",
+          `Fit "${fRaw.id}" requires rowsUsed array.`,
+          "HistoricalDataset",
+          `${fPath}.rowsUsed`,
+        );
+      }
+      if (!Array.isArray(fRaw.rowsExcluded)) {
+        throw new ExperimentValidationError(
+          "missing-rows-excluded",
+          `Fit "${fRaw.id}" requires rowsExcluded array.`,
+          "HistoricalDataset",
+          `${fPath}.rowsExcluded`,
+        );
+      }
+
+      const usedSet = new Set<number>();
+      for (const u of fRaw.rowsUsed) {
+        if (typeof u !== "number" || !Number.isInteger(u) || u < 0 || u >= expectedRowCount) {
+          throw new ExperimentValidationError(
+            "invalid-row-used-index",
+            `Fit "${fRaw.id}" invalid rowsUsed index ${u} (expected 0..${expectedRowCount - 1}).`,
+            "HistoricalDataset",
+            `${fPath}.rowsUsed`,
+          );
+        }
+        if (usedSet.has(u)) {
+          throw new ExperimentValidationError(
+            "duplicate-row-used",
+            `Fit "${fRaw.id}" duplicate row ${u} in rowsUsed.`,
+            "HistoricalDataset",
+            `${fPath}.rowsUsed`,
+          );
+        }
+        usedSet.add(u);
+      }
+
+      const excludedSet = new Set<number>();
+      const exclusions: DatasetFitExclusion[] = [];
+      for (let eIdx = 0; eIdx < fRaw.rowsExcluded.length; eIdx++) {
+        const ex = fRaw.rowsExcluded[eIdx] as Record<string, unknown>;
+        const exPath = `${fPath}.rowsExcluded[${eIdx}]`;
+        if (!ex || typeof ex !== "object") {
+          throw new ExperimentValidationError(
+            "invalid-fit-exclusion",
+            "Fit exclusion must be an object.",
+            "HistoricalDataset",
+            exPath,
+          );
+        }
+        if (
+          typeof ex.rowIndex !== "number" ||
+          !Number.isInteger(ex.rowIndex) ||
+          ex.rowIndex < 0 ||
+          ex.rowIndex >= expectedRowCount
+        ) {
+          throw new ExperimentValidationError(
+            "invalid-row-excluded-index",
+            `Fit "${fRaw.id}" invalid rowsExcluded rowIndex ${ex.rowIndex}.`,
+            "HistoricalDataset",
+            `${exPath}.rowIndex`,
+          );
+        }
+        if (typeof ex.reason !== "string" || !ex.reason.trim()) {
+          throw new ExperimentValidationError(
+            "empty-exclusion-reason",
+            `Row ${ex.rowIndex} exclusion reason cannot be empty in fit "${fRaw.id}".`,
+            "HistoricalDataset",
+            `${exPath}.reason`,
+          );
+        }
+        if (excludedSet.has(ex.rowIndex)) {
+          throw new ExperimentValidationError(
+            "duplicate-row-excluded",
+            `Fit "${fRaw.id}" duplicate row ${ex.rowIndex} in rowsExcluded.`,
+            "HistoricalDataset",
+            exPath,
+          );
+        }
+        if (usedSet.has(ex.rowIndex)) {
+          throw new ExperimentValidationError(
+            "row-in-both-used-and-excluded",
+            `Row ${ex.rowIndex} of dataset "${o.id}" series "${seriesId ?? "default"}" appears in both rowsUsed and rowsExcluded in fit "${fRaw.id}".`,
+            "HistoricalDataset",
+            exPath,
+          );
+        }
+        excludedSet.add(ex.rowIndex);
+        exclusions.push({ rowIndex: ex.rowIndex, reason: ex.reason.trim() });
+      }
+
+      // Check that all rows in 0..expectedRowCount-1 are covered
+      for (let i = 0; i < expectedRowCount; i++) {
+        if (!usedSet.has(i) && !excludedSet.has(i)) {
+          throw new ExperimentValidationError(
+            "uncovered-fit-row",
+            `Row ${i} of dataset "${o.id}" series "${seriesId ?? "default"}" is neither in rowsUsed nor in rowsExcluded in fit "${fRaw.id}".`,
+            "HistoricalDataset",
+            fPath,
+          );
+        }
+      }
+
+      // Parameters
+      const parameters: DatasetFitParameter[] = [];
+      if (!Array.isArray(fRaw.parameters) || fRaw.parameters.length === 0) {
+        throw new ExperimentValidationError(
+          "missing-fit-parameters",
+          `Fit "${fRaw.id}" requires non-empty parameters array.`,
+          "HistoricalDataset",
+          `${fPath}.parameters`,
+        );
+      }
+      for (let pIdx = 0; pIdx < fRaw.parameters.length; pIdx++) {
+        const param = fRaw.parameters[pIdx] as Record<string, unknown>;
+        const pSubPath = `${fPath}.parameters[${pIdx}]`;
+        if (!param || typeof param !== "object") {
+          throw new ExperimentValidationError(
+            "invalid-fit-parameter",
+            "Fit parameter must be an object.",
+            "HistoricalDataset",
+            pSubPath,
+          );
+        }
+        if (typeof param.name !== "string" || !param.name.trim()) {
+          throw new ExperimentValidationError(
+            "missing-fit-parameter-name",
+            "Fit parameter name required.",
+            "HistoricalDataset",
+            `${pSubPath}.name`,
+          );
+        }
+        if (typeof param.quantityId !== "string" || !param.quantityId.trim()) {
+          throw new ExperimentValidationError(
+            "missing-fit-parameter-quantity-id",
+            "Fit parameter quantityId required.",
+            "HistoricalDataset",
+            `${pSubPath}.quantityId`,
+          );
+        }
+        if (typeof param.value !== "number" || isNaN(param.value)) {
+          throw new ExperimentValidationError(
+            "missing-fit-parameter-value",
+            "Fit parameter value required.",
+            "HistoricalDataset",
+            `${pSubPath}.value`,
+          );
+        }
+        if (typeof param.unit !== "string") {
+          throw new ExperimentValidationError(
+            "missing-fit-parameter-unit",
+            "Fit parameter unit required.",
+            "HistoricalDataset",
+            `${pSubPath}.unit`,
+          );
+        }
+        if (param.source !== "fitted-here" && param.source !== "imported") {
+          throw new ExperimentValidationError(
+            "invalid-fit-parameter-source",
+            `Fit parameter source must be "fitted-here" | "imported" (got "${param.source}").`,
+            "HistoricalDataset",
+            `${pSubPath}.source`,
+          );
+        }
+        parameters.push({
+          name: param.name as string,
+          quantityId: param.quantityId as string,
+          value: param.value as number,
+          unit: param.unit as string,
+          uncertainty: typeof param.uncertainty === "number" ? param.uncertainty : undefined,
+          source: param.source as "fitted-here" | "imported",
+          sourceCitation:
+            typeof param.sourceCitation === "string" ? param.sourceCitation : undefined,
+        });
+      }
+
+      fitsList.push({
+        id: fRaw.id as string,
+        seriesId,
+        label: fRaw.label as string,
+        fitObjective: fRaw.fitObjective as string,
+        analysisDate,
+        rowsUsed: [...fRaw.rowsUsed] as number[],
+        rowsExcluded: exclusions,
+        parameters,
+        fitDescription: typeof fRaw.fitDescription === "string" ? fRaw.fitDescription : undefined,
+      });
+    }
+  }
+
   return {
     id: o.id as string,
     title: o.title as string,
@@ -2272,6 +2568,7 @@ export function validateHistoricalDataset(
     calibrationIds: Array.isArray(o.calibrationIds) ? (o.calibrationIds as string[]) : undefined,
     sharedInputIds: Array.isArray(o.sharedInputIds) ? (o.sharedInputIds as string[]) : undefined,
     addressesResults: addressesResults.length > 0 ? addressesResults : undefined,
+    fits: fitsList.length > 0 ? fitsList : undefined,
   };
 }
 

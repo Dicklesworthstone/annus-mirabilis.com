@@ -80,18 +80,16 @@ export function convertSessionReportToReviewRecord(
   // 2. Validate all participant codes
   const parsedCodes: ParsedParticipantCode[] = [];
   for (const item of report.participantCodes) {
-    try {
-      const parsed = parseParticipantCode(item.code);
-      parsedCodes.push(parsed);
-    } catch (err: unknown) {
-      const msg = err instanceof Error ? err.message : String(err);
+    const parsed = parseParticipantCode(item.code);
+    if (!parsed.ok) {
       throw new BackfillError(
         "invalid-participant-code",
-        `Invalid participant code "${item.code}": ${msg}`,
+        `Invalid participant code "${item.code}": ${parsed.error}`,
         report.filePath,
         item.line,
       );
     }
+    parsedCodes.push(parsed);
   }
 
   const id = `review-${report.reviewType}-${report.paper}-${report.date.replace(/-/g, "")}`;
