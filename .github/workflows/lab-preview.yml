@@ -11,6 +11,12 @@ jobs:
     timeout-minutes: 15
     steps:
       - uses: actions/checkout@v4
+      - name: Retain exact public source for reproducible laboratory review
+        run: mkdir -p artifacts/review && git archive --format=tar HEAD > artifacts/review/source.tar
+      - uses: actions/upload-artifact@v4
+        with:
+          name: laboratory-review-source
+          path: artifacts/review/source.tar
       - uses: actions/setup-node@v4
         with:
           # This is the runtime actually exercised by the standalone reference tests.
@@ -22,6 +28,11 @@ jobs:
       - run: npm run build
         env:
           NEXT_TELEMETRY_DISABLED: "1"
+      - run: tar -cf artifacts/review/site.tar out
+      - uses: actions/upload-artifact@v4
+        with:
+          name: laboratory-static-preview
+          path: artifacts/review/site.tar
       - run: npx playwright install --with-deps chromium
       - run: npm run test:browser
       - uses: actions/upload-artifact@v4
