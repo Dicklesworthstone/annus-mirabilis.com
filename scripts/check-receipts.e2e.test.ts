@@ -14,8 +14,10 @@ type LogEntry = {
 };
 
 /**
- * Spawns the real CLI. EBADF is retried by spawnObserved; a persistent EBADF
- * fails naming fd exhaustion. This never falls back to runCheckReceipts().
+ * Spawns the real CLI under node. These tests are excluded from `bun test`
+ * (bunfig pathIgnorePatterns) because bun's runner cannot posix_spawn node
+ * on this host (EBADF). Run them with `bun run test:node`.
+ * spawnObserved retries EBADF then fails; it never calls runCheckReceipts().
  */
 function runCli(args: string[]): {
   code: number;
@@ -24,20 +26,14 @@ function runCli(args: string[]): {
   jsonl: LogEntry[];
 } {
   const logRunId = `e2e-run-${Date.now()}-${Math.random().toString(16).slice(2, 8)}`;
-  const isBun = typeof Bun !== "undefined";
-  const cliArgs = isBun
-    ? ["scripts/check-receipts.ts", ...args, "--log-run-id", logRunId]
-    : [
-        "--experimental-strip-types",
-        "scripts/check-receipts.ts",
-        ...args,
-        "--log-run-id",
-        logRunId,
-      ];
-  const result = spawnObserved(process.execPath, cliArgs, {
-    cwd: process.cwd(),
-    stdio: ["ignore", "pipe", "pipe"],
-  });
+  const result = spawnObserved(
+    "node",
+    ["--experimental-strip-types", "scripts/check-receipts.ts", ...args, "--log-run-id", logRunId],
+    {
+      cwd: process.cwd(),
+      stdio: ["ignore", "pipe", "pipe"],
+    },
+  );
   assert.equal(result.kind, "subprocess");
 
   const logFile = path.join("artifacts", "test-logs", "receipts", `${logRunId}.jsonl`);

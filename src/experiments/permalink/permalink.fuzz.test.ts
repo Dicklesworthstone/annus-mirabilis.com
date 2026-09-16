@@ -50,6 +50,9 @@ const FUZZ_CORPUS: readonly string[] = [
 ];
 
 test("permalink.fuzz: fixed corpus decodes safely within 5ms per input with zero unhandled exceptions", () => {
+  // Warm up JIT
+  decodeTapePermalink(FUZZ_CORPUS[0] ?? "");
+
   let maxDuration = 0;
   let totalDuration = 0;
 

@@ -1,0 +1,7 @@
+[test]
+# Subprocess-spawning e2e tests and node:test test suites run under `node --experimental-strip-types --test`
+# and are ignored by bun test to avoid runner mismatch / posix_spawn EBADF under worker threads.
+pathIgnorePatterns = [
+  "**/*.e2e.test.ts",
+  "scripts/quality-gates.test.ts",
+]
