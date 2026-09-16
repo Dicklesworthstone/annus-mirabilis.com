@@ -8,15 +8,20 @@
     "node": "22.13.4"
   },
   "scripts": {
-    "prebuild": "node --experimental-strip-types scripts/app-router-architecture.ts",
-    "check:architecture": "node --experimental-strip-types scripts/app-router-architecture.ts",
-    "prepare:lab": "node --experimental-strip-types scripts/generate-lab.mjs && node --experimental-strip-types scripts/generate-tracers.mjs && node --experimental-strip-types scripts/generate-walks.mjs && node --experimental-strip-types scripts/generate-inference.mjs",
-    "dev": "npm run prepare:content && npm run prepare:lab && next dev",
-    "build": "npm run prepare:content && npm run prepare:lab && next build",
-    "typecheck": "npm run prepare:content && npm run prepare:lab && tsc --noEmit",
-    "test:reference": "npm run prepare:content && npm run prepare:lab && node --experimental-strip-types --test src/testing/*.test.mjs",
-    "test:browser": "node scripts/test-lab-browser.mjs",
-    "prepare:content": "node --experimental-strip-types scripts/build-content.ts && node --experimental-strip-types scripts/build-equations.ts"
+    "prebuild": "bun scripts/app-router-architecture.ts",
+    "check:architecture": "bun scripts/app-router-architecture.ts",
+    "prepare:content": "bun scripts/build-content.ts && bun scripts/build-equations.ts",
+    "prepare:lab": "bun scripts/generate-lab.mjs && bun scripts/generate-tracers.mjs && bun scripts/generate-walks.mjs && bun scripts/generate-inference.mjs",
+    "dev": "bun run prepare:content && bun run prepare:lab && next dev",
+    "build": "bun run prepare:content && bun run prepare:lab && next build",
+    "start": "next start",
+    "typecheck": "bun run prepare:content && bun run prepare:lab && tsc --noEmit",
+    "lint": "biome check .",
+    "format": "biome format --write .",
+    "format:check": "biome format .",
+    "test": "bun run prepare:content && bun run prepare:lab && bun test --isolate --timeout 60000",
+    "test:reference": "bun run prepare:content && bun run prepare:lab && bun test src/testing/*.test.mjs",
+    "test:browser": "bun scripts/test-lab-browser.mjs"
   },
   "dependencies": {
     "next": "15.5.25",
