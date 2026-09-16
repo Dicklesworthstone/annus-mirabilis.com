@@ -5,8 +5,6 @@ import path from "node:path";
 import test from "node:test";
 import { artifactsRoot } from "../src/testing/log/logger.ts";
 
-import { runSummarizer } from "./summarize-test-logs.ts";
-
 const FIXTURE_ROOT = path.join(process.cwd(), "src/testing/fixtures/test-logs");
 
 function copyFixtureTree(): string {
@@ -16,37 +14,60 @@ function copyFixtureTree(): string {
   return workDir;
 }
 
-test("scripts/summarize-test-logs.ts runs end to end over a committed fixture log directory", async () => {
-  const workDir = copyFixtureTree();
+function isNodeError(error: unknown): error is NodeJS.ErrnoException {
+  return error instanceof Error && "code" in error;
+}
 
-  const proc = spawnSync("bun", ["scripts/summarize-test-logs.ts", "--root", workDir], {
-    cwd: process.cwd(),
-    encoding: "utf8",
-  });
-  let stdout = proc.stdout || "";
-  let stderr = proc.stderr || "";
-  let exitCode = proc.status;
-
-  if (proc.error && (proc.error as any).code === "EBADF") {
-    stdout = "";
-    stderr = "";
-    const origLog = console.log;
-    const origErr = console.error;
-    console.log = (...a: any[]) => {
-      stdout += a.join(" ") + "\n";
+function spawnSummarizer(workDir: string): { exitCode: number; stdout: string; stderr: string } {
+  if (typeof Bun !== "undefined" && typeof Bun.spawnSync === "function") {
+    const proc = Bun.spawnSync(["bun", "scripts/summarize-test-logs.ts", "--root", workDir], {
+      cwd: process.cwd(),
+      stdio: ["ignore", "pipe", "pipe"],
+    });
+    return {
+      exitCode: proc.exitCode,
+      stdout: proc.stdout.toString("utf8"),
+      stderr: proc.stderr.toString("utf8"),
     };
-    console.error = (...a: any[]) => {
-      stderr += a.join(" ") + "\n";
-    };
-    try {
-      exitCode = await runSummarizer(["--root", workDir]);
-    } finally {
-      console.log = origLog;
-      console.error = origErr;
-    }
   }
+  const maxAttempts = 3;
+  let lastError: unknown;
+  for (let attempt = 1; attempt <= maxAttempts; attempt++) {
+    const proc = spawnSync(
+      "node",
+      ["--experimental-strip-types", "scripts/summarize-test-logs.ts", "--root", workDir],
+      {
+        cwd: process.cwd(),
+        encoding: "utf8",
+        stdio: ["ignore", "pipe", "pipe"],
+      },
+    );
+    if (!proc.error) {
+      return {
+        exitCode: proc.status ?? (proc.signal ? 1 : 0),
+        stdout: proc.stdout || "",
+        stderr: proc.stderr || "",
+      };
+    }
+    lastError = proc.error;
+    if (isNodeError(proc.error) && proc.error.code === "EBADF" && attempt < maxAttempts) {
+      Atomics.wait(new Int32Array(new SharedArrayBuffer(4)), 0, 0, 50 * attempt);
+      continue;
+    }
+    throw new Error(
+      `Failed to spawn scripts/summarize-test-logs.ts (attempt ${attempt}/${maxAttempts}): ${proc.error.message}`,
+      { cause: proc.error },
+    );
+  }
+  throw new Error(`Failed to spawn scripts/summarize-test-logs.ts after ${maxAttempts} attempts`, {
+    cause: lastError,
+  });
+}
 
-  assert.equal(stderr, "", `expected no stderr, got: ${stderr}`);
+test("scripts/summarize-test-logs.ts runs end to end over a committed fixture log directory", () => {
+  const workDir = copyFixtureTree();
+  const { exitCode, stdout, stderr } = spawnSummarizer(workDir);
+  assert.equal(stderr, "");
   // fixture-suite-a has exactly one failing test, so the summarizer must exit non-zero.
   assert.equal(exitCode, 1);
 
