@@ -1,0 +1,65 @@
+{
+  "schemaVersion": 1,
+  "kind": "argument",
+  "id": "arg-tp-03",
+  "paper": "test-paper",
+  "section": "s2",
+  "title": "Transformation of Maxwell-Hertz Equations",
+  "question": "How do electromagnetic fields transform between inertial frames?",
+  "recap": "Maxwell equations retain their form under Lorentz transformation.",
+  "review": "draft",
+  "premises": [
+    "The laws of electrodynamics hold in all frames where mechanics holds."
+  ],
+  "limitations": [
+    "Valid in vacuum."
+  ],
+  "citations": ["cite-test-1905"],
+  "readings": {
+    "overview": [
+      {
+        "kind": "paragraph",
+        "text": "Electric and magnetic forces mix when changing frames."
+      }
+    ],
+    "full": [
+      {
+        "kind": "paragraph",
+        "text": "The electromotive force on a charge in motion is the electric field in its rest frame."
+      }
+    ],
+    "steps": [
+      {
+        "kind": "steps",
+        "items": [
+          "Apply coordinate transformation to field derivatives.",
+          "Identify transformed field components."
+        ]
+      }
+    ],
+    "margin": [
+      {
+        "kind": "paragraph",
+        "text": "The asymmetry between magnet and conductor disappears."
+      }
+    ]
+  },
+  "prerequisites": [
+    {
+      "id": "arg-tp-02",
+      "edge": "premise"
+    }
+  ],
+  "help": {
+    "why": "bridge-sum-average",
+    "missingStep": "bridge-sum-average",
+    "example": "bridge-sum-average"
+  },
+  "experiments": ["bm-01"],
+  "meaning": {
+    "logicalRole": "derivation",
+    "historicalStatus": "pedagogical-reconstruction",
+    "modelStatus": "exact-within-model",
+    "executionStatus": "static-illustration"
+  }
+}

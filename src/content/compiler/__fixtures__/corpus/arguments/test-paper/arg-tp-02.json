@@ -1,0 +1,65 @@
+{
+  "schemaVersion": 1,
+  "kind": "argument",
+  "id": "arg-tp-02",
+  "paper": "test-paper",
+  "section": "s1",
+  "title": "On the Relativity of Lengths and Times",
+  "question": "Does length depend on the observer's motion?",
+  "recap": "Moving rods are measured to be shorter than stationary rods.",
+  "review": "draft",
+  "premises": [
+    "Simultaneity is relative to the motion of the coordinate system."
+  ],
+  "limitations": [
+    "Applies to inertial frames."
+  ],
+  "citations": ["cite-test-1905"],
+  "readings": {
+    "overview": [
+      {
+        "kind": "paragraph",
+        "text": "A moving measuring rod has a contracted length in the stationary frame."
+      }
+    ],
+    "full": [
+      {
+        "kind": "paragraph",
+        "text": "The length of a moving rigid rod is contracted in the direction of motion."
+      }
+    ],
+    "steps": [
+      {
+        "kind": "steps",
+        "items": [
+          "Measure rod at rest.",
+          "Measure rod in motion using synchronized clocks."
+        ]
+      }
+    ],
+    "margin": [
+      {
+        "kind": "paragraph",
+        "text": "Contraction is kinematical rather than dynamical."
+      }
+    ]
+  },
+  "prerequisites": [
+    {
+      "id": "arg-tp-01",
+      "edge": "premise"
+    }
+  ],
+  "help": {
+    "why": "bridge-sum-average",
+    "missingStep": "bridge-sum-average",
+    "example": "bridge-sum-average"
+  },
+  "experiments": ["bm-01"],
+  "meaning": {
+    "logicalRole": "derivation",
+    "historicalStatus": "pedagogical-reconstruction",
+    "modelStatus": "exact-within-model",
+    "executionStatus": "static-illustration"
+  }
+}

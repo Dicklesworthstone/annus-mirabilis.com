@@ -1,0 +1,306 @@
+{
+  "arguments": [
+    {
+      "citations": [
+        "cite-test-1905"
+      ],
+      "experiments": [
+        "bm-01"
+      ],
+      "help": {
+        "example": "bridge-sum-average",
+        "missingStep": "bridge-sum-average",
+        "why": "bridge-sum-average"
+      },
+      "id": "arg-tp-01",
+      "kind": "argument",
+      "limitations": [
+        "Requires homogeneous isotropic propagation of light."
+      ],
+      "meaning": {
+        "executionStatus": "static-illustration",
+        "historicalStatus": "pedagogical-reconstruction",
+        "logicalRole": "definition",
+        "modelStatus": "exact-within-model"
+      },
+      "paper": "test-paper",
+      "premises": [
+        "Light propagation is isotropic and constant in all inertial frames."
+      ],
+      "prerequisites": [],
+      "question": "When are two distant events simultaneous?",
+      "readings": {
+        "full": [
+          {
+            "kind": "paragraph",
+            "text": "A ray of light emitted from A at time tA arrives at B at time tB and reflects back to A at time tA'."
+          }
+        ],
+        "margin": [
+          {
+            "kind": "paragraph",
+            "text": "Einstein defines common time operationally through light transit."
+          }
+        ],
+        "overview": [
+          {
+            "kind": "paragraph",
+            "text": "Clocks at A and B can be synchronized by sending light rays."
+          }
+        ],
+        "steps": [
+          {
+            "items": [
+              "Emit light pulse from clock A at tA.",
+              "Reflect pulse at clock B at tB.",
+              "Receive return pulse at clock A at tA'."
+            ],
+            "kind": "steps"
+          }
+        ]
+      },
+      "recap": "Simultaneity requires synchronized clocks linked by light signals.",
+      "review": "draft",
+      "schemaVersion": 1,
+      "section": "s1",
+      "title": "Definition of Simultaneity"
+    },
+    {
+      "citations": [
+        "cite-test-1905"
+      ],
+      "experiments": [
+        "bm-01"
+      ],
+      "help": {
+        "example": "bridge-sum-average",
+        "missingStep": "bridge-sum-average",
+        "why": "bridge-sum-average"
+      },
+      "id": "arg-tp-02",
+      "kind": "argument",
+      "limitations": [
+        "Applies to inertial frames."
+      ],
+      "meaning": {
+        "executionStatus": "static-illustration",
+        "historicalStatus": "pedagogical-reconstruction",
+        "logicalRole": "derivation",
+        "modelStatus": "exact-within-model"
+      },
+      "paper": "test-paper",
+      "premises": [
+        "Simultaneity is relative to the motion of the coordinate system."
+      ],
+      "prerequisites": [
+        {
+          "edge": "premise",
+          "id": "arg-tp-01"
+        }
+      ],
+      "question": "Does length depend on the observer's motion?",
+      "readings": {
+        "full": [
+          {
+            "kind": "paragraph",
+            "text": "The length of a moving rigid rod is contracted in the direction of motion."
+          }
+        ],
+        "margin": [
+          {
+            "kind": "paragraph",
+            "text": "Contraction is kinematical rather than dynamical."
+          }
+        ],
+        "overview": [
+          {
+            "kind": "paragraph",
+            "text": "A moving measuring rod has a contracted length in the stationary frame."
+          }
+        ],
+        "steps": [
+          {
+            "items": [
+              "Measure rod at rest.",
+              "Measure rod in motion using synchronized clocks."
+            ],
+            "kind": "steps"
+          }
+        ]
+      },
+      "recap": "Moving rods are measured to be shorter than stationary rods.",
+      "review": "draft",
+      "schemaVersion": 1,
+      "section": "s1",
+      "title": "On the Relativity of Lengths and Times"
+    },
+    {
+      "citations": [
+        "cite-test-1905"
+      ],
+      "experiments": [
+        "bm-01"
+      ],
+      "help": {
+        "example": "bridge-sum-average",
+        "missingStep": "bridge-sum-average",
+        "why": "bridge-sum-average"
+      },
+      "id": "arg-tp-03",
+      "kind": "argument",
+      "limitations": [
+        "Valid in vacuum."
+      ],
+      "meaning": {
+        "executionStatus": "static-illustration",
+        "historicalStatus": "pedagogical-reconstruction",
+        "logicalRole": "derivation",
+        "modelStatus": "exact-within-model"
+      },
+      "paper": "test-paper",
+      "premises": [
+        "The laws of electrodynamics hold in all frames where mechanics holds."
+      ],
+      "prerequisites": [
+        {
+          "edge": "premise",
+          "id": "arg-tp-02"
+        }
+      ],
+      "question": "How do electromagnetic fields transform between inertial frames?",
+      "readings": {
+        "full": [
+          {
+            "kind": "paragraph",
+            "text": "The electromotive force on a charge in motion is the electric field in its rest frame."
+          }
+        ],
+        "margin": [
+          {
+            "kind": "paragraph",
+            "text": "The asymmetry between magnet and conductor disappears."
+          }
+        ],
+        "overview": [
+          {
+            "kind": "paragraph",
+            "text": "Electric and magnetic forces mix when changing frames."
+          }
+        ],
+        "steps": [
+          {
+            "items": [
+              "Apply coordinate transformation to field derivatives.",
+              "Identify transformed field components."
+            ],
+            "kind": "steps"
+          }
+        ]
+      },
+      "recap": "Maxwell equations retain their form under Lorentz transformation.",
+      "review": "draft",
+      "schemaVersion": 1,
+      "section": "s2",
+      "title": "Transformation of Maxwell-Hertz Equations"
+    }
+  ],
+  "citations": [
+    {
+      "id": "cite-test-1905",
+      "kind": "citation",
+      "locator": "Ann. Phys. 17, 891",
+      "schemaVersion": 1,
+      "title": "Annalen der Physik (4) 17, 891–921",
+      "url": "https://example.org/ap-17-891"
+    }
+  ],
+  "equations": [
+    {
+      "argument": "arg-tp-01",
+      "explanation": "The time required for light to travel from A to B equals the time from B to A.",
+      "id": "eq-tp-01",
+      "kind": "equation",
+      "notes": [
+        {
+          "caption": "Time interval measured on local clock.",
+          "foundation": "bridge-sum-average",
+          "term": "time"
+        }
+      ],
+      "paper": "test-paper",
+      "schemaVersion": 1,
+      "spoken": "tB minus tA equals tPrimeA minus tB",
+      "title": "Light Transit Time Equality",
+      "tree": {
+        "kind": "relation",
+        "left": {
+          "id": "time",
+          "kind": "quantity"
+        },
+        "operator": "equals",
+        "right": {
+          "id": "time",
+          "kind": "quantity"
+        }
+      }
+    }
+  ],
+  "foundations": [
+    {
+      "citations": [
+        "cite-test-1905"
+      ],
+      "example": [
+        {
+          "kind": "paragraph",
+          "text": "Three values: 1, 2, 6 sum to 9; average is 3."
+        }
+      ],
+      "explanation": [
+        {
+          "kind": "paragraph",
+          "text": "An average distributes the total equally among all contributors."
+        }
+      ],
+      "id": "bridge-sum-average",
+      "kind": "foundation",
+      "prerequisites": [],
+      "question": "How do sums and averages relate?",
+      "review": "draft",
+      "schemaVersion": 1,
+      "stoppingPoint": "Count terms and divide.",
+      "summary": "Summing N items and dividing by N gives the arithmetic mean.",
+      "title": "Adding and averaging"
+    }
+  ],
+  "paper": {
+    "citation": "cite-test-1905",
+    "description": "Explanatory preview for the special relativity paper.",
+    "germanTitle": "Zur Elektrodynamik bewegter Körper",
+    "id": "test-paper",
+    "kind": "paper",
+    "schemaVersion": 1,
+    "sections": [
+      {
+        "arguments": [
+          "arg-tp-01",
+          "arg-tp-02"
+        ],
+        "id": "s1",
+        "title": "Kinematical Part"
+      },
+      {
+        "arguments": [
+          "arg-tp-03"
+        ],
+        "id": "s2",
+        "title": "Electrodynamical Part"
+      }
+    ],
+    "sourceNotice": "Facsimile and diplomatic transcription are in preparation.",
+    "sourceStatus": "in-preparation",
+    "status": "explanation-preview",
+    "title": "On the Electrodynamics of Moving Bodies"
+  },
+  "schemaVersion": 1
+}

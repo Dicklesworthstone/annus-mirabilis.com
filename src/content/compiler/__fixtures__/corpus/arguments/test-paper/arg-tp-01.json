@@ -1,0 +1,61 @@
+{
+  "schemaVersion": 1,
+  "kind": "argument",
+  "id": "arg-tp-01",
+  "paper": "test-paper",
+  "section": "s1",
+  "title": "Definition of Simultaneity",
+  "question": "When are two distant events simultaneous?",
+  "recap": "Simultaneity requires synchronized clocks linked by light signals.",
+  "review": "draft",
+  "premises": [
+    "Light propagation is isotropic and constant in all inertial frames."
+  ],
+  "limitations": [
+    "Requires homogeneous isotropic propagation of light."
+  ],
+  "citations": ["cite-test-1905"],
+  "readings": {
+    "overview": [
+      {
+        "kind": "paragraph",
+        "text": "Clocks at A and B can be synchronized by sending light rays."
+      }
+    ],
+    "full": [
+      {
+        "kind": "paragraph",
+        "text": "A ray of light emitted from A at time tA arrives at B at time tB and reflects back to A at time tA'."
+      }
+    ],
+    "steps": [
+      {
+        "kind": "steps",
+        "items": [
+          "Emit light pulse from clock A at tA.",
+          "Reflect pulse at clock B at tB.",
+          "Receive return pulse at clock A at tA'."
+        ]
+      }
+    ],
+    "margin": [
+      {
+        "kind": "paragraph",
+        "text": "Einstein defines common time operationally through light transit."
+      }
+    ]
+  },
+  "prerequisites": [],
+  "help": {
+    "why": "bridge-sum-average",
+    "missingStep": "bridge-sum-average",
+    "example": "bridge-sum-average"
+  },
+  "experiments": ["bm-01"],
+  "meaning": {
+    "logicalRole": "definition",
+    "historicalStatus": "pedagogical-reconstruction",
+    "modelStatus": "exact-within-model",
+    "executionStatus": "static-illustration"
+  }
+}

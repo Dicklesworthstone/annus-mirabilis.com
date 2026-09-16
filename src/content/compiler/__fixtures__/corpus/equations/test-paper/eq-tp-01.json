@@ -1,0 +1,29 @@
+{
+  "schemaVersion": 1,
+  "kind": "equation",
+  "id": "eq-tp-01",
+  "paper": "test-paper",
+  "argument": "arg-tp-01",
+  "title": "Light Transit Time Equality",
+  "spoken": "tB minus tA equals tPrimeA minus tB",
+  "explanation": "The time required for light to travel from A to B equals the time from B to A.",
+  "tree": {
+    "kind": "relation",
+    "operator": "equals",
+    "left": {
+      "kind": "quantity",
+      "id": "time"
+    },
+    "right": {
+      "kind": "quantity",
+      "id": "time"
+    }
+  },
+  "notes": [
+    {
+      "term": "time",
+      "foundation": "bridge-sum-average",
+      "caption": "Time interval measured on local clock."
+    }
+  ]
+}

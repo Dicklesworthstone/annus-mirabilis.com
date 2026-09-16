@@ -1,0 +1,16 @@
+# Fixture recorded flag reviews
+- fingerprint: "609e33ba4f7cbf981adf9db9959d80463229b243882461bfdfdb1a0ce6a482ec"
+  rule: "editorial-review-pending"
+  recordId: "arg-bm-diffusion-equation"
+  decision: "accepted-as-is"
+  reviewer: "jemanuel"
+  date: "2026-09-15"
+  note: "Initial argument structure checked and accepted."
+
+- fingerprint: "stale00000000000000000000000000000000000000000000000000000000000"
+  rule: "old-rule"
+  recordId: "removed-record"
+  decision: "accepted-as-is"
+  reviewer: "reviewer2"
+  date: "2026-09-10"
+  note: "This should be reported as a stale review."

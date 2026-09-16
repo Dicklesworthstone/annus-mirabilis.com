@@ -1,0 +1,24 @@
+{
+  "schemaVersion": 1,
+  "kind": "paper",
+  "id": "test-paper",
+  "title": "On the Electrodynamics of Moving Bodies",
+  "germanTitle": "Zur Elektrodynamik bewegter Körper",
+  "description": "Explanatory preview for the special relativity paper.",
+  "citation": "cite-test-1905",
+  "status": "explanation-preview",
+  "sourceStatus": "in-preparation",
+  "sourceNotice": "Facsimile and diplomatic transcription are in preparation.",
+  "sections": [
+    {
+      "id": "s1",
+      "title": "Kinematical Part",
+      "arguments": ["arg-tp-01", "arg-tp-02"]
+    },
+    {
+      "id": "s2",
+      "title": "Electrodynamical Part",
+      "arguments": ["arg-tp-03"]
+    }
+  ]
+}

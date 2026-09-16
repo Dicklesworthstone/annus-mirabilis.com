@@ -1,0 +1,24 @@
+{
+  "schemaVersion": 1,
+  "kind": "foundation",
+  "id": "bridge-sum-average",
+  "title": "Adding and averaging",
+  "question": "How do sums and averages relate?",
+  "summary": "Summing N items and dividing by N gives the arithmetic mean.",
+  "review": "draft",
+  "explanation": [
+    {
+      "kind": "paragraph",
+      "text": "An average distributes the total equally among all contributors."
+    }
+  ],
+  "example": [
+    {
+      "kind": "paragraph",
+      "text": "Three values: 1, 2, 6 sum to 9; average is 3."
+    }
+  ],
+  "prerequisites": [],
+  "stoppingPoint": "Count terms and divide.",
+  "citations": ["cite-test-1905"]
+}

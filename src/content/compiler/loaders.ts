@@ -175,14 +175,42 @@ export function parseContentYaml(text: string, path = "content"): unknown {
   checkNfc(text, path);
 
   const lines = text.split(/\r?\n/);
+  let blockScalarIndent: number | null = null;
 
   // Scan line-by-line for forbidden YAML syntax constructs before AST parsing
   for (let idx = 0; idx < lines.length; idx++) {
-    const line = lines[idx]!;
+    const rawLine = lines[idx]!;
     const lineNum = idx + 1;
+    const trimmed = rawLine.trim();
+
+    if (!trimmed || trimmed.startsWith("#")) {
+      continue;
+    }
+
+    const currentIndent = rawLine.search(/\S/);
+
+    // Check if we are exiting a block scalar
+    if (blockScalarIndent !== null) {
+      if (currentIndent > blockScalarIndent) {
+        // Still inside block scalar
+        continue;
+      } else {
+        blockScalarIndent = null;
+      }
+    }
+
+    // Check if this line starts a block scalar: `key: |` or `key: >` or `- |`
+    if (/:\s*[|>][+-]?\s*(?:#.*)?$/.test(trimmed) || /^-\s*[|>][+-]?\s*(?:#.*)?$/.test(trimmed)) {
+      blockScalarIndent = currentIndent;
+    }
+
+    // Strip comments and quoted substrings to only inspect structural YAML tokens
+    let structural = rawLine.replace(/#.*$/, "");
+    structural = structural.replace(/"(?:[^"\\]|\\.)*"/g, '""');
+    structural = structural.replace(/'(?:[^'\\]|\\.)*'/g, "''");
 
     // 1. Custom tags (e.g. !!js/function, !tag, !<...>)
-    if (/(?:^|\s)!(?:![a-zA-Z0-9_\-\/]+|<[^>]+>|[a-zA-Z0-9_\-]+)/.test(line)) {
+    if (/(?:^|\s)!(?:![a-zA-Z0-9_\-\/]+|<[^>]+>|[a-zA-Z0-9_\-]+)/.test(structural)) {
       throw new ContentError(
         "yaml-custom-tag",
         `${path}:${lineNum}`,
@@ -192,7 +220,7 @@ export function parseContentYaml(text: string, path = "content"): unknown {
     }
 
     // 2. Anchors (&anchor)
-    if (/(?:^|\s)&[a-zA-Z0-9_\-]+/.test(line)) {
+    if (/(?:^|\s)&[a-zA-Z0-9_\-]+/.test(structural)) {
       throw new ContentError(
         "yaml-anchor-forbidden",
         `${path}:${lineNum}`,
@@ -201,22 +229,22 @@ export function parseContentYaml(text: string, path = "content"): unknown {
       );
     }
 
-    // 3. Aliases (*alias)
-    if (/(?:^|\s)\*[a-zA-Z0-9_\-]+/.test(line)) {
-      throw new ContentError(
-        "yaml-alias-forbidden",
-        `${path}:${lineNum}`,
-        `YAML aliases (*) are prohibited at line ${lineNum}.`,
-        lineNum,
-      );
-    }
-
-    // 4. Merge keys (<<:)
-    if (/(?:^|\s)<<\s*:/.test(line)) {
+    // 3. Merge keys (<<:)
+    if (/(?:^|\s)<<\s*:/.test(structural)) {
       throw new ContentError(
         "yaml-merge-key-forbidden",
         `${path}:${lineNum}`,
         `YAML merge keys (<<:) are prohibited at line ${lineNum}.`,
+        lineNum,
+      );
+    }
+
+    // 4. Aliases (*alias)
+    if (/(?:^|\s)\*[a-zA-Z0-9_\-]+/.test(structural)) {
+      throw new ContentError(
+        "yaml-alias-forbidden",
+        `${path}:${lineNum}`,
+        `YAML aliases (*) are prohibited at line ${lineNum}.`,
         lineNum,
       );
     }
