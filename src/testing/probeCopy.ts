@@ -219,18 +219,23 @@ export function classifyProbeFailure(transcript: string): FailureClass {
   ) {
     return "toolchain-lld";
   }
-  const mentionsSibling = [...REQUIRED_SIBLINGS, "frankentorch"].some((name) => transcript.includes(name));
-  const looksMissing =
-    transcript.includes("No such file or directory") ||
-    transcript.includes("does not exist") ||
-    transcript.includes("failed to load manifest") ||
-    transcript.includes("failed to load source for dependency") ||
-    transcript.includes("missing-path-dependency") ||
-    /failed to get `[a-z0-9-]+` as a dependency/i.test(transcript);
-  if (mentionsSibling && looksMissing) return "absent-sibling";
-  for (const marker of ABSENT_SIBLING_MARKERS) {
-    if (transcript.includes(marker) && mentionsSibling) return "absent-sibling";
+  const subjectPaths: string[] = [];
+  for (const match of transcript.matchAll(/failed to read[\s`]*([^\s`]+)/g)) {
+    if (match[1]) subjectPaths.push(match[1]);
   }
+  for (const match of transcript.matchAll(/does not exist:\s+([^\s]+)/g)) {
+    if (match[1]) subjectPaths.push(match[1]);
+  }
+  for (const match of transcript.matchAll(/unable to update\s+([^\s]+)/g)) {
+    if (match[1]) subjectPaths.push(match[1]);
+  }
+  for (const match of transcript.matchAll(/cannot read required [^\n]*?(\/[^\s:]+): No such file/g)) {
+    if (match[1]) subjectPaths.push(match[1]);
+  }
+  const siblingHit = subjectPaths.some((path) =>
+    [...REQUIRED_SIBLINGS, "frankentorch"].some((name) => path.split("/").includes(name)),
+  );
+  if (siblingHit) return "absent-sibling";
   return "other";
 }
 

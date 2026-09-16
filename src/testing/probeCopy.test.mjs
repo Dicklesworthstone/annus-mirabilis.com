@@ -204,3 +204,10 @@ test("RCH-E415 naming frankentorch is an absent-sibling failure, not a compile e
   const transcript = `RCH-E415 missing-path-dependency: materialization dependency path does not exist: .../frankentorch/crates/ft-autograd`;
   assert.equal(classifyProbeFailure(transcript), "absent-sibling");
 });
+
+test("a missing constellation.lock is not an absent sibling even if asupersync compiled", () => {
+  const transcript = `   Compiling asupersync v0.5.0 (.../asupersync)
+cannot read required GEMM build-identity input .../frankensim/crates/fs-la/../../constellation.lock: No such file or directory (os error 2)
+`;
+  assert.equal(classifyProbeFailure(transcript), "other");
+});
