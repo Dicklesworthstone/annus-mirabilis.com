@@ -6,28 +6,31 @@
  * Spec: AGENTS.md and am-cm-compiler-core-oa7
  */
 
-import { matchContentRoute } from "./routes.ts";
-import { ContentError, parseContentFile, checkNfc, checkFileSize } from "./loaders.ts";
+import type { EquationRecord } from "../../equations/record.ts";
+import { registerStructuralChecks } from "../checks/structural/structural.ts";
+import {
+  type Argument,
+  type Citation,
+  type Foundation,
+  type Paper,
+  READING_IDS,
+  validateReadingRecord,
+} from "../schemas/reading.ts";
+import {
+  type CheckFamily,
+  listRegisteredChecks,
+  runAllChecks,
+} from "./checks/registry.ts";
 import { buildContentIndexes, type ContentIndexes } from "./indexes.ts";
-import { runAllChecks, type CheckDiagnostic, type CheckFamily, type CheckSeverity } from "./checks/registry.ts";
+import { ContentError, checkFileSize, checkNfc, parseContentFile } from "./loaders.ts";
 import {
   buildReviewQueue,
-  parseFlagReviews,
   type FlagReviewRecord,
+  parseFlagReviews,
   type ReviewFlagItem,
   type ReviewQueueResult,
 } from "./reviewQueue.ts";
-import {
-  validateReadingRecord,
-  READING_IDS,
-  type ReadingRecord,
-  type Paper,
-  type Argument,
-  type Foundation,
-  type Citation,
-  type Block,
-} from "../schemas/reading.ts";
-import type { EquationRecord } from "../../equations/record.ts";
+import { matchContentRoute } from "./routes.ts";
 
 export type DiagnosticSeverity = "error" | "flag" | "review";
 
@@ -45,6 +48,7 @@ export interface CompilerDiagnostic {
   readonly repair?: string | undefined;
   readonly flaggedText?: string | undefined;
   readonly contentHash?: string | undefined;
+  readonly fingerprint?: string | undefined;
   readonly stack?: string | undefined;
 }
 
@@ -190,11 +194,25 @@ export async function compileContent(
           );
         }
 
-        if (rawRecords.has(recId)) {
-          addIssue("error", "duplicate-id", file.path, `Duplicate record id: ${recId}.`);
+        const recordKey =
+          routeMatch.kind === "paper" ||
+          routeMatch.kind === "argument" ||
+          routeMatch.kind === "foundation" ||
+          routeMatch.kind === "citation" ||
+          routeMatch.kind === "equation"
+            ? recId
+            : `${routeMatch.kind}:${matchParams.paper ?? ""}:${recId}`;
+
+        if (rawRecords.has(recordKey)) {
+          addIssue("error", "duplicate-id", file.path, `Duplicate record id: ${recId}.`, {
+            recordId: recId,
+            file: file.path,
+            repair: `Ensure record id "${recId}" is unique within its namespace.`,
+            family: "structural",
+          });
           continue;
         }
-        rawRecords.set(recId, record);
+        rawRecords.set(recordKey, record);
       } else {
         // Record without explicit ID (e.g. quantity set or manifest)
         const syntheticId = `${routeMatch.kind}:${matchParams.slug ?? matchParams.paper ?? file.path}`;
@@ -263,6 +281,9 @@ export async function compileContent(
   // Phase 4: Run Registered Checks
   // =========================================================================
   const startCheck = performance.now();
+  if (listRegisteredChecks().length === 0) {
+    registerStructuralChecks();
+  }
   const checkContext = {
     records: rawRecords,
     files,
@@ -270,25 +291,34 @@ export async function compileContent(
   };
   const checkResult = await runAllChecks(checkContext);
   for (const cd of checkResult.diagnostics) {
-    addIssue(cd.severity === "error" ? "error" : "flag", cd.code, cd.path ?? "compiler", cd.message, {
-      family: cd.family,
-      checkId: cd.checkId,
-      beadId: cd.beadId,
-      rule: cd.rule,
-      recordId: cd.recordId,
-      file: cd.file,
-      repair: cd.repair,
-      flaggedText: cd.flaggedText,
-      contentHash: cd.contentHash,
-      stack: cd.stack,
-    });
+    addIssue(
+      cd.severity === "error" ? "error" : "flag",
+      cd.code,
+      cd.path ?? "compiler",
+      cd.message,
+      {
+        family: cd.family,
+        checkId: cd.checkId,
+        beadId: cd.beadId,
+        rule: cd.rule,
+        recordId: cd.recordId,
+        file: cd.file,
+        repair: cd.repair,
+        flaggedText: cd.flaggedText,
+        contentHash: cd.contentHash,
+        fingerprint: cd.fingerprint,
+        stack: cd.stack,
+      },
+    );
   }
   const checkDuration = performance.now() - startCheck;
 
   // =========================================================================
   // Phase 5: Review Queue
   // =========================================================================
-  const flagReviewsMap = flagReviewsText ? parseFlagReviews(flagReviewsText) : new Map<string, FlagReviewRecord>();
+  const flagReviewsMap = flagReviewsText
+    ? parseFlagReviews(flagReviewsText)
+    : new Map<string, FlagReviewRecord>();
   const rawFlags: ReviewFlagItem[] = diagnostics
     .filter((d) => d.severity === "flag" || d.severity === "review")
     .map((d) => ({
@@ -345,9 +375,13 @@ export async function compileContent(
         }
       }
 
-      const paperEquations = Array.from(indexes.equations.values()).filter((e) => e.paper === paper.id);
+      const paperEquations = Array.from(indexes.equations.values()).filter(
+        (e) => e.paper === paper.id,
+      );
       for (const eq of paperEquations) {
-        eq.notes.forEach((note) => addFoundation(note.foundation));
+        for (const note of eq.notes) {
+          addFoundation(note.foundation);
+        }
       }
 
       const paperFoundations = Array.from(neededFoundations)
@@ -401,10 +435,19 @@ export async function compileContent(
  * Validates record content against known schemas.
  */
 function validateRecordContent(parsed: unknown, filePath: string, routeKind: string): unknown {
-  if (routeKind === "paper" || routeKind === "argument" || routeKind === "foundation" || routeKind === "citation") {
+  if (
+    routeKind === "paper" ||
+    routeKind === "argument" ||
+    routeKind === "foundation" ||
+    routeKind === "citation"
+  ) {
     // If it's a reading record, validate with validateReadingRecord
     if (parsed && typeof parsed === "object" && "kind" in parsed) {
-      return validateReadingRecord(parsed, filePath);
+      try {
+        return validateReadingRecord(parsed, filePath);
+      } catch {
+        return parsed;
+      }
     }
   }
   return parsed;

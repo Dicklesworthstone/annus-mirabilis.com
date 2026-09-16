@@ -1,5 +1,11 @@
-import { describe, it, expect } from "bun:test";
-import { parseContentJson, parseContentYaml, checkNfc, checkFileSize, ContentError } from "../content/compiler/loaders.ts";
+import { describe, expect, it } from "bun:test";
+import {
+  ContentError,
+  checkFileSize,
+  checkNfc,
+  parseContentJson,
+  parseContentYaml,
+} from "../content/compiler/loaders.ts";
 import { getLogger } from "./log/logger.ts";
 
 describe("Loaders & Strict Parsing (am-cm-compiler-core-oa7)", () => {
@@ -19,10 +25,11 @@ describe("Loaders & Strict Parsing (am-cm-compiler-core-oa7)", () => {
     expect(() => parseContentYaml(yaml, "test.yaml")).toThrow(ContentError);
     try {
       parseContentYaml(yaml, "test.yaml");
-    } catch (e: any) {
-      expect(e.code).toBe("yaml-custom-tag");
-      expect(e.line).toBe(2);
-      expect(e.path).toContain("test.yaml:2");
+    } catch (e: unknown) {
+      const err = e as ContentError;
+      expect(err.code).toBe("yaml-custom-tag");
+      expect(err.line).toBe(2);
+      expect(err.path).toContain("test.yaml:2");
     }
     logTest("yaml-custom-tag", "passed", "Rejected YAML with custom tag !!js/function");
   });
@@ -32,18 +39,20 @@ describe("Loaders & Strict Parsing (am-cm-compiler-core-oa7)", () => {
     expect(() => parseContentYaml(anchorYaml, "anchor.yaml")).toThrow(ContentError);
     try {
       parseContentYaml(anchorYaml, "anchor.yaml");
-    } catch (e: any) {
-      expect(e.code).toBe("yaml-anchor-forbidden");
-      expect(e.line).toBe(1);
+    } catch (e: unknown) {
+      const err = e as ContentError;
+      expect(err.code).toBe("yaml-anchor-forbidden");
+      expect(err.line).toBe(1);
     }
 
     const aliasYaml = "service:\n  timeout: *def\n";
     expect(() => parseContentYaml(aliasYaml, "alias.yaml")).toThrow(ContentError);
     try {
       parseContentYaml(aliasYaml, "alias.yaml");
-    } catch (e: any) {
-      expect(e.code).toBe("yaml-alias-forbidden");
-      expect(e.line).toBe(2);
+    } catch (e: unknown) {
+      const err = e as ContentError;
+      expect(err.code).toBe("yaml-alias-forbidden");
+      expect(err.line).toBe(2);
     }
     logTest("yaml-anchor-alias", "passed", "Rejected YAML anchors and aliases");
   });
@@ -53,9 +62,10 @@ describe("Loaders & Strict Parsing (am-cm-compiler-core-oa7)", () => {
     expect(() => parseContentYaml(yaml, "merge.yaml")).toThrow(ContentError);
     try {
       parseContentYaml(yaml, "merge.yaml");
-    } catch (e: any) {
-      expect(e.code).toBe("yaml-merge-key-forbidden");
-      expect(e.line).toBe(4);
+    } catch (e: unknown) {
+      const err = e as ContentError;
+      expect(err.code).toBe("yaml-merge-key-forbidden");
+      expect(err.line).toBe(4);
     }
     logTest("yaml-merge-key", "passed", "Rejected YAML merge keys (<<:)");
   });
@@ -65,9 +75,10 @@ describe("Loaders & Strict Parsing (am-cm-compiler-core-oa7)", () => {
     expect(() => parseContentYaml(yaml, "duplicate.yaml")).toThrow(ContentError);
     try {
       parseContentYaml(yaml, "duplicate.yaml");
-    } catch (e: any) {
-      expect(e.code).toBe("duplicate-key");
-      expect(e.line).toBe(2);
+    } catch (e: unknown) {
+      const err = e as ContentError;
+      expect(err.code).toBe("duplicate-key");
+      expect(err.line).toBe(2);
     }
     logTest("yaml-duplicate-key", "passed", "Rejected duplicate key in YAML");
   });
@@ -77,8 +88,9 @@ describe("Loaders & Strict Parsing (am-cm-compiler-core-oa7)", () => {
     expect(() => parseContentJson(json, "duplicate.json")).toThrow(ContentError);
     try {
       parseContentJson(json, "duplicate.json");
-    } catch (e: any) {
-      expect(e.code).toBe("duplicate-key");
+    } catch (e: unknown) {
+      const err = e as ContentError;
+      expect(err.code).toBe("duplicate-key");
     }
     logTest("json-duplicate-key", "passed", "Rejected duplicate key in JSON");
   });
@@ -88,9 +100,10 @@ describe("Loaders & Strict Parsing (am-cm-compiler-core-oa7)", () => {
     expect(() => checkFileSize(bigString.length, "oversized.json")).toThrow(ContentError);
     try {
       checkFileSize(bigString.length, "oversized.json");
-    } catch (e: any) {
-      expect(e.code).toBe("file-budget");
-      expect(e.message).toContain("512 KiB");
+    } catch (e: unknown) {
+      const err = e as ContentError;
+      expect(err.code).toBe("file-budget");
+      expect(err.message).toContain("512 KiB");
     }
     logTest("oversized-file", "passed", "Rejected 600 KiB file exceeding 512 KiB cap");
   });
@@ -102,11 +115,12 @@ describe("Loaders & Strict Parsing (am-cm-compiler-core-oa7)", () => {
     expect(() => checkNfc(text, "german.txt")).toThrow(ContentError);
     try {
       checkNfc(text, "german.txt");
-    } catch (e: any) {
-      expect(e.code).toBe("non-nfc");
-      expect(e.line).toBe(2);
-      expect(e.path).toBe("german.txt:2");
-      expect(e.message).toContain("line 2");
+    } catch (e: unknown) {
+      const err = e as ContentError;
+      expect(err.code).toBe("non-nfc");
+      expect(err.line).toBe(2);
+      expect(err.path).toBe("german.txt:2");
+      expect(err.message).toContain("line 2");
     }
     logTest("nfd-rejection", "passed", "Rejected decomposed NFD German text with line number");
   });

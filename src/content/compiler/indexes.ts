@@ -5,9 +5,15 @@
  * Spec: AGENTS.md and am-cm-compiler-core-oa7
  */
 
-import type { ReadingRecord, Paper, Argument, Foundation, Citation, Block } from "../schemas/reading.ts";
-import { READING_IDS } from "../schemas/reading.ts";
 import type { EquationRecord } from "../../equations/record.ts";
+import type {
+  Argument,
+  Block,
+  Citation,
+  Foundation,
+  Paper,
+} from "../schemas/reading.ts";
+import { READING_IDS } from "../schemas/reading.ts";
 
 export interface ContentIndexes {
   readonly byId: ReadonlyMap<string, unknown>;
@@ -29,9 +35,7 @@ export interface BuildIndexesResult {
 /**
  * Builds indexes from parsed content records and verifies fundamental references.
  */
-export function buildContentIndexes(
-  records: ReadonlyMap<string, unknown>,
-): BuildIndexesResult {
+export function buildContentIndexes(records: ReadonlyMap<string, unknown>): BuildIndexesResult {
   const errors: { code: string; path: string; message: string }[] = [];
   const issue = (code: string, path: string, message: string) => {
     errors.push({ code, path, message });
@@ -61,7 +65,12 @@ export function buildContentIndexes(
       }
       list.push(record);
 
-      const paper = typeof rec.paper === "string" ? rec.paper : typeof rec.paperSlug === "string" ? rec.paperSlug : undefined;
+      const paper =
+        typeof rec.paper === "string"
+          ? rec.paper
+          : typeof rec.paperSlug === "string"
+            ? rec.paperSlug
+            : undefined;
       if (paper) {
         let pList = byPaper.get(paper);
         if (!pList) {
@@ -71,11 +80,16 @@ export function buildContentIndexes(
         pList.push(record);
       }
 
-      if (kind === "paper") papers.set(id, record as Paper);
-      else if (kind === "argument") args.set(id, record as Argument);
-      else if (kind === "foundation") foundations.set(id, record as Foundation);
-      else if (kind === "citation") citations.set(id, record as Citation);
-      else if (kind === "equation") equations.set(id, record as EquationRecord);
+      const rawId = typeof rec.id === "string" ? rec.id : id;
+      if (rawId !== id) {
+        byId.set(rawId, record);
+      }
+
+      if (kind === "paper") papers.set(rawId, record as Paper);
+      else if (kind === "argument") args.set(rawId, record as Argument);
+      else if (kind === "foundation") foundations.set(rawId, record as Foundation);
+      else if (kind === "citation") citations.set(rawId, record as Citation);
+      else if (kind === "equation") equations.set(rawId, record as EquationRecord);
     }
   }
 
@@ -94,14 +108,22 @@ export function buildContentIndexes(
 
       for (const argId of sec.arguments) {
         if (claimedArgs.has(argId)) {
-          issue("duplicate-placement", paper.id, `Argument appears more than once in outline: ${argId}`);
+          issue(
+            "duplicate-placement",
+            paper.id,
+            `Argument appears more than once in outline: ${argId}`,
+          );
         }
         claimedArgs.add(argId);
         const arg = args.get(argId);
         if (!arg) {
           issue("dangling-reference", paper.id, `Expected argument: ${argId}`);
         } else if (arg.paper !== paper.id || arg.section !== sec.id) {
-          issue("section-mismatch", argId, `Argument belongs to paper ${arg.paper} section ${arg.section}`);
+          issue(
+            "section-mismatch",
+            argId,
+            `Argument belongs to paper ${arg.paper} section ${arg.section}`,
+          );
         }
       }
     }
@@ -136,7 +158,11 @@ export function buildContentIndexes(
         const blocks = arg.readings[rKey] ?? [];
         for (const b of blocks) {
           if (b.kind === "foundation" && !foundations.has(b.id)) {
-            issue("dangling-reference", arg.id, `Foundation block references missing foundation: ${b.id}`);
+            issue(
+              "dangling-reference",
+              arg.id,
+              `Foundation block references missing foundation: ${b.id}`,
+            );
           }
         }
       }
@@ -152,12 +178,20 @@ export function buildContentIndexes(
       if (!arg) {
         issue("dangling-reference", eq.id, `Equation references unknown argument: ${eq.argument}`);
       } else if (arg.paper !== eq.paper) {
-        issue("equation-placement", eq.id, `Equation paper ${eq.paper} differs from argument paper ${arg.paper}`);
+        issue(
+          "equation-placement",
+          eq.id,
+          `Equation paper ${eq.paper} differs from argument paper ${arg.paper}`,
+        );
       }
     }
     for (const note of eq.notes ?? []) {
       if (note.foundation && !foundations.has(note.foundation)) {
-        issue("dangling-reference", eq.id, `Equation note references missing foundation: ${note.foundation}`);
+        issue(
+          "dangling-reference",
+          eq.id,
+          `Equation note references missing foundation: ${note.foundation}`,
+        );
       }
     }
   }
@@ -180,7 +214,11 @@ export function buildContentIndexes(
   const active = new Set<string>();
   function visitCycle(id: string): void {
     if (active.has(id)) {
-      issue("prerequisite-cycle", id, `A prerequisite cannot depend on its own conclusion: cycle at ${id}`);
+      issue(
+        "prerequisite-cycle",
+        id,
+        `A prerequisite cannot depend on its own conclusion: cycle at ${id}`,
+      );
       return;
     }
     if (done.has(id)) return;
@@ -199,9 +237,7 @@ export function buildContentIndexes(
 
     const a = args.get(id);
     if (a) {
-      const edges = (a.prerequisites ?? [])
-        .filter((p) => p.edge === "premise")
-        .map((p) => p.id);
+      const edges = (a.prerequisites ?? []).filter((p) => p.edge === "premise").map((p) => p.id);
       for (const e of edges) visitCycle(e);
     }
 

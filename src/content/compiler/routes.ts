@@ -55,11 +55,11 @@ export const CONTENT_ROUTES: readonly ContentRoute[] = [
     extractParams: () => ({ id: "readme" }),
   },
   {
-    pattern: /^(?:content\/)?docs\/([a-zA-Z0-9_\-\.]+)\.md$/,
+    pattern: /^(?:content\/)?docs\/([a-zA-Z0-9_\-.]+)\.md$/,
     kind: "documentation",
     schema: "markdown-doc",
     format: "markdown",
-    extractParams: (m) => ({ id: m[1]! }),
+    extractParams: (m) => ({ id: m[1] ?? "" }),
   },
 
   // 2. Paper records
@@ -68,7 +68,7 @@ export const CONTENT_ROUTES: readonly ContentRoute[] = [
     kind: "paper",
     schema: "Paper",
     format: "json",
-    extractParams: (m) => ({ slug: m[1]!, id: m[1]!, format: m[2]! }),
+    extractParams: (m) => ({ slug: m[1] ?? "", id: m[1] ?? "", format: m[2] ?? "" }),
   },
 
   // 3. Arguments
@@ -77,7 +77,7 @@ export const CONTENT_ROUTES: readonly ContentRoute[] = [
     kind: "argument",
     schema: "ArgumentNode",
     format: "json",
-    extractParams: (m) => ({ paper: m[1]!, id: m[2]!, format: m[3]! }),
+    extractParams: (m) => ({ paper: m[1] ?? "", id: m[2] ?? "", format: m[3] ?? "" }),
   },
 
   // 4. Equations
@@ -86,7 +86,7 @@ export const CONTENT_ROUTES: readonly ContentRoute[] = [
     kind: "equation",
     schema: "Equation",
     format: "json",
-    extractParams: (m) => ({ paper: m[1]!, id: m[2]!, format: m[3]! }),
+    extractParams: (m) => ({ paper: m[1] ?? "", id: m[2] ?? "", format: m[3] ?? "" }),
   },
 
   // 5. Foundations
@@ -95,7 +95,7 @@ export const CONTENT_ROUTES: readonly ContentRoute[] = [
     kind: "foundation",
     schema: "Foundation",
     format: "json",
-    extractParams: (m) => ({ id: m[1]!, format: m[2]! }),
+    extractParams: (m) => ({ id: m[1] ?? "", format: m[2] ?? "" }),
   },
 
   // 6. Bibliography / Citations
@@ -104,7 +104,7 @@ export const CONTENT_ROUTES: readonly ContentRoute[] = [
     kind: "citation",
     schema: "Citation",
     format: "json",
-    extractParams: (m) => ({ id: m[1]!, format: m[2]! }),
+    extractParams: (m) => ({ id: m[1] ?? "", format: m[2] ?? "" }),
   },
 
   // 7. Quantities
@@ -113,7 +113,7 @@ export const CONTENT_ROUTES: readonly ContentRoute[] = [
     kind: "quantity",
     schema: "QuantitySet",
     format: "yaml",
-    extractParams: (m) => ({ slug: m[1]!, id: m[1]!, format: m[2]! }),
+    extractParams: (m) => ({ slug: m[1] ?? "", id: m[1] ?? "", format: m[2] ?? "" }),
   },
 
   // 8. Misconceptions
@@ -122,14 +122,14 @@ export const CONTENT_ROUTES: readonly ContentRoute[] = [
     kind: "misconception",
     schema: "Misconception",
     format: "json",
-    extractParams: (m) => ({ paper: m[1]!, id: m[2]!, format: m[3]! }),
+    extractParams: (m) => ({ paper: m[1] ?? "", id: m[2] ?? "", format: m[3] ?? "" }),
   },
   {
     pattern: /^(?:content\/)?misconceptions\/([a-z0-9-]+)\.(json|yaml|yml)$/,
     kind: "misconception",
     schema: "Misconception",
     format: "json",
-    extractParams: (m) => ({ id: m[1]!, format: m[2]! }),
+    extractParams: (m) => ({ id: m[1] ?? "", format: m[2] ?? "" }),
   },
 
   // 9. Experiments
@@ -138,7 +138,7 @@ export const CONTENT_ROUTES: readonly ContentRoute[] = [
     kind: "experiment",
     schema: "ExperimentManifest",
     format: "json",
-    extractParams: (m) => ({ id: m[1]!, format: m[2]! }),
+    extractParams: (m) => ({ id: m[1] ?? "", format: m[2] ?? "" }),
   },
 
   // 10. Historical Premises
@@ -147,7 +147,7 @@ export const CONTENT_ROUTES: readonly ContentRoute[] = [
     kind: "historical-premise",
     schema: "HistoricalPremise",
     format: "json",
-    extractParams: (m) => ({ id: m[1]!, format: m[2]! }),
+    extractParams: (m) => ({ id: m[1] ?? "", format: m[2] ?? "" }),
   },
 
   // 11. Source Assets
@@ -156,7 +156,7 @@ export const CONTENT_ROUTES: readonly ContentRoute[] = [
     kind: "source-asset",
     schema: "SourceAsset",
     format: "json",
-    extractParams: (m) => ({ id: m[1]!, format: m[2]! }),
+    extractParams: (m) => ({ id: m[1] ?? "", format: m[2] ?? "" }),
   },
 
   // 12. Source Manifests
@@ -165,7 +165,7 @@ export const CONTENT_ROUTES: readonly ContentRoute[] = [
     kind: "source-manifest",
     schema: "SourceManifest",
     format: "yaml",
-    extractParams: (m) => ({ paper: m[1]!, format: m[2]! }),
+    extractParams: (m) => ({ paper: m[1] ?? "", format: m[2] ?? "" }),
   },
 
   // 13. Frozen ID Snapshots
@@ -174,7 +174,7 @@ export const CONTENT_ROUTES: readonly ContentRoute[] = [
     kind: "frozen-id-snapshot",
     schema: "FrozenIdSnapshot",
     format: "text",
-    extractParams: (m) => ({ paper: m[1]! }),
+    extractParams: (m) => ({ paper: m[1] ?? "" }),
   },
 
   // 14. Source Blocks
@@ -183,7 +183,7 @@ export const CONTENT_ROUTES: readonly ContentRoute[] = [
     kind: "source-block",
     schema: "SourceBlock",
     format: "json",
-    extractParams: (m) => ({ paper: m[1]!, id: m[2]!, format: m[3]! }),
+    extractParams: (m) => ({ paper: m[1] ?? "", id: m[2] ?? "", format: m[3] ?? "" }),
   },
 
   // 15. Translation Units
@@ -192,7 +192,7 @@ export const CONTENT_ROUTES: readonly ContentRoute[] = [
     kind: "translation-unit",
     schema: "TranslationUnit",
     format: "json",
-    extractParams: (m) => ({ paper: m[1]!, id: m[2]!, format: m[3]! }),
+    extractParams: (m) => ({ paper: m[1] ?? "", id: m[2] ?? "", format: m[3] ?? "" }),
   },
 
   // 16. Alignments
@@ -201,7 +201,19 @@ export const CONTENT_ROUTES: readonly ContentRoute[] = [
     kind: "alignment",
     schema: "Alignment",
     format: "json",
-    extractParams: (m) => ({ paper: m[1]!, id: m[2]!, format: m[3]! }),
+    extractParams: (m) => ({ paper: m[1] ?? "", id: m[2] ?? "", format: m[3] ?? "" }),
+  },
+  {
+    pattern: /^(?:content\/)?alignments\/([a-z0-9-]+)\.(json|yaml|yml)$/,
+    kind: "alignment",
+    schema: "Alignment",
+    format: "yaml",
+    extractParams: (m) => ({
+      paper: m[1] ?? "",
+      id: m[1] ?? "",
+      slug: m[1] ?? "",
+      format: m[2] ?? "",
+    }),
   },
 
   // 17. Gloss Units
@@ -210,7 +222,7 @@ export const CONTENT_ROUTES: readonly ContentRoute[] = [
     kind: "gloss-unit",
     schema: "GlossUnit",
     format: "json",
-    extractParams: (m) => ({ paper: m[1]!, id: m[2]!, format: m[3]! }),
+    extractParams: (m) => ({ paper: m[1] ?? "", id: m[2] ?? "", format: m[3] ?? "" }),
   },
 
   // 18. Editorial Notes
@@ -219,7 +231,7 @@ export const CONTENT_ROUTES: readonly ContentRoute[] = [
     kind: "editorial-note",
     schema: "EditorialNote",
     format: "json",
-    extractParams: (m) => ({ paper: m[1]!, id: m[2]!, format: m[3]! }),
+    extractParams: (m) => ({ paper: m[1] ?? "", id: m[2] ?? "", format: m[3] ?? "" }),
   },
 
   // 19. Aliases
@@ -228,7 +240,7 @@ export const CONTENT_ROUTES: readonly ContentRoute[] = [
     kind: "aliases",
     schema: "AliasManifest",
     format: "yaml",
-    extractParams: (m) => ({ slug: m[1]!, id: m[1]!, format: m[2]! }),
+    extractParams: (m) => ({ slug: m[1] ?? "", id: m[1] ?? "", format: m[2] ?? "" }),
   },
 
   // 20. Editorial: Flag Reviews
@@ -237,16 +249,16 @@ export const CONTENT_ROUTES: readonly ContentRoute[] = [
     kind: "flag-reviews",
     schema: "FlagReviews",
     format: "yaml",
-    extractParams: (m) => ({ id: "flag-reviews", format: m[1]! }),
+    extractParams: (m) => ({ id: "flag-reviews", format: m[1] ?? "" }),
   },
 
   // 21. Editorial: Readings Owners
   {
-    pattern: /^(?:content\/)?editorial\/readings-owners\/([a-zA-Z0-9_\-]+)\.(json|yaml|yml)$/,
+    pattern: /^(?:content\/)?editorial\/readings-owners\/([a-zA-Z0-9_-]+)\.(json|yaml|yml)$/,
     kind: "readings-owner",
     schema: "ReadingsOwner",
     format: "yaml",
-    extractParams: (m) => ({ ownerId: m[1]!, format: m[2]! }),
+    extractParams: (m) => ({ ownerId: m[1] ?? "", format: m[2] ?? "" }),
   },
 
   // 22. Editorial: Rules
@@ -255,7 +267,7 @@ export const CONTENT_ROUTES: readonly ContentRoute[] = [
     kind: "editorial-rules",
     schema: "EditorialRules",
     format: "yaml",
-    extractParams: (m) => ({ id: "editorial-rules", format: m[1]! }),
+    extractParams: (m) => ({ id: "editorial-rules", format: m[1] ?? "" }),
   },
 
   // 23. Editorial: Overrides
@@ -264,7 +276,7 @@ export const CONTENT_ROUTES: readonly ContentRoute[] = [
     kind: "editorial-overrides",
     schema: "EditorialOverrides",
     format: "yaml",
-    extractParams: (m) => ({ id: "editorial-overrides", format: m[1]! }),
+    extractParams: (m) => ({ id: "editorial-overrides", format: m[1] ?? "" }),
   },
 ];
 
@@ -312,5 +324,5 @@ export function matchContentRoute(filePath: string): RouteMatch | null {
     }
   }
 
-  return matches[0]!;
+  return matches[0] ?? null;
 }

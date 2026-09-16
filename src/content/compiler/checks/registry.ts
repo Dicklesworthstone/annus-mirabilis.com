@@ -37,6 +37,8 @@ export interface CheckReportItem {
   repair?: string | undefined;
   flaggedText?: string | undefined;
   contentHash?: string | undefined;
+  /** Stable SHA-256 fingerprint for review flags and tracking: SHA256(rule:recordId:flaggedText) */
+  fingerprint?: string | undefined;
 }
 
 export interface CheckContext {
@@ -69,6 +71,8 @@ export interface CheckDiagnostic {
   repair?: string | undefined;
   flaggedText?: string | undefined;
   contentHash?: string | undefined;
+  /** Stable SHA-256 fingerprint for review flags and tracking: SHA256(rule:recordId:flaggedText) */
+  fingerprint?: string | undefined;
   stack?: string | undefined;
 }
 
