@@ -352,53 +352,21 @@ export function runQualityGates(options: QualityGatesOptions = {}): QualityGates
     };
     try {
       const [cmd, ...args] = step.command;
-      procResult = spawnSync(cmd, args, {
+      let procResult = spawnSync(cmd, args, {
         cwd: rootDir,
         env: process.env,
         stdio: ["ignore", "pipe", "pipe"],
       });
-      if (
-        procResult.error &&
-        (procResult.error as any).code === "EBADF" &&
-        (cmd === "node" || cmd === "bun") &&
-        args[0] === "-e" &&
-        args[1]
-      ) {
-        const code = args[1];
-        let mockStdout = "";
-        let mockStderr = "";
-        let mockExit = 0;
-        const origLog = console.log;
-        const origErr = console.error;
-        console.log = (...a: any[]) => {
-          mockStdout += a.join(" ") + "\n";
-        };
-        console.error = (...a: any[]) => {
-          mockStderr += a.join(" ") + "\n";
-        };
-        try {
-          const fn = new Function("process", "console", code);
-          fn(
-            {
-              exit: (c: number) => {
-                mockExit = c;
-              },
-            },
-            console,
-          );
-        } catch (e: any) {
-          mockStderr += (e?.message ?? String(e)) + "\n";
-          mockExit = 1;
-        } finally {
-          console.log = origLog;
-          console.error = origErr;
+      if (procResult.error && (procResult.error as NodeJS.ErrnoException).code === "EBADF") {
+        for (let attempt = 1; attempt <= 3; attempt++) {
+          Atomics.wait(new Int32Array(new SharedArrayBuffer(4)), 0, 0, 50 * attempt);
+          procResult = spawnSync(cmd, args, {
+            cwd: rootDir,
+            env: process.env,
+            stdio: ["ignore", "pipe", "pipe"],
+          });
+          if (!procResult.error) break;
         }
-        procResult = {
-          status: mockExit,
-          signal: null,
-          stdout: Buffer.from(mockStdout),
-          stderr: Buffer.from(mockStderr),
-        };
       }
     } catch (err) {
       const stepDuration = Date.now() - stepStart;

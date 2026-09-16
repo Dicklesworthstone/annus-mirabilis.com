@@ -1,12 +1,13 @@
-import { describe, expect, test } from "bun:test";
+import assert from "node:assert/strict";
 import { readFileSync } from "node:fs";
 import { dirname, join } from "node:path";
+import { describe, it } from "node:test";
 import { fileURLToPath } from "node:url";
 import { getLastAnnouncement } from "../../a11y/announce.ts";
 import { AnnouncementManager } from "../../a11y/descriptions/announcementManager.ts";
 
 describe("announcementManager: Accessible Graph Announcement Manager (am-a11y-graph-descriptions-vxe1)", () => {
-  test("emits commit announcements with 1-second spacing and replaces queued summaries", () => {
+  it("emits commit announcements with 1-second spacing and replaces queued summaries", async () => {
     let simulatedTime = 1000;
     const announcements: string[] = [];
 
@@ -18,25 +19,25 @@ describe("announcementManager: Accessible Graph Announcement Manager (am-a11y-gr
 
     // Action 1: First commit announcement at t = 1000
     manager.emitCommitAnnouncement("Action 1: Boost set to 0.6c");
-    expect(announcements).toEqual(["Action 1: Boost set to 0.6c"]);
+    assert.deepEqual(announcements, ["Action 1: Boost set to 0.6c"]);
 
     // Action 2: Rapid commit at t = 1200 (< 1000ms elapsed) -> queued
     simulatedTime = 1200;
     manager.emitCommitAnnouncement("Action 2: Boost set to 0.7c");
-    expect(announcements).toEqual(["Action 1: Boost set to 0.6c"]);
+    assert.deepEqual(announcements, ["Action 1: Boost set to 0.6c"]);
 
     // Action 3: Another rapid commit at t = 1500 -> replaces Action 2 in the queue
     simulatedTime = 1500;
     manager.emitCommitAnnouncement("Action 3: Boost set to 0.8c");
-    expect(announcements).toEqual(["Action 1: Boost set to 0.6c"]);
+    assert.deepEqual(announcements, ["Action 1: Boost set to 0.6c"]);
 
     // Advance clock past the 1-second threshold and fire timers
     simulatedTime = 2100;
     // Let setTimeout callback process
-    return new Promise<void>((resolve) => {
+    await new Promise<void>((resolve) => {
       setTimeout(() => {
         // The queued action emitted must be the newest (Action 3), not Action 2
-        expect(announcements).toEqual([
+        assert.deepEqual(announcements, [
           "Action 1: Boost set to 0.6c",
           "Action 3: Boost set to 0.8c",
         ]);
@@ -46,7 +47,7 @@ describe("announcementManager: Accessible Graph Announcement Manager (am-a11y-gr
     });
   });
 
-  test("suppresses automatic announcements during running animation", () => {
+  it("suppresses automatic announcements during running animation", () => {
     let simulatedTime = 1000;
     const announcements: string[] = [];
 
@@ -57,7 +58,7 @@ describe("announcementManager: Accessible Graph Announcement Manager (am-a11y-gr
 
     // Start running continuous simulation
     manager.setAnimating(true);
-    expect(manager.getAnimating()).toBe(true);
+    assert.equal(manager.getAnimating(), true);
 
     // Continuous 60 Hz frame ticks occur
     for (let tick = 0; tick < 60; tick++) {
@@ -66,12 +67,12 @@ describe("announcementManager: Accessible Graph Announcement Manager (am-a11y-gr
     }
 
     // Must be ZERO automatic announcements
-    expect(announcements).toEqual([]);
+    assert.deepEqual(announcements, []);
 
     manager.dispose();
   });
 
-  test("Describe now bypasses animation suppression and rate limits immediately", () => {
+  it("Describe now bypasses animation suppression and rate limits immediately", () => {
     let simulatedTime = 1000;
     const announcements: string[] = [];
 
@@ -85,12 +86,12 @@ describe("announcementManager: Accessible Graph Announcement Manager (am-a11y-gr
 
     // Explicit user readout request
     manager.describeNow("On-demand summary: Mean squared displacement is 0.79 μm².");
-    expect(announcements).toEqual(["On-demand summary: Mean squared displacement is 0.79 μm²."]);
+    assert.deepEqual(announcements, ["On-demand summary: Mean squared displacement is 0.79 μm²."]);
 
     // Another immediate request
     simulatedTime = 1050; // Only 50ms later
     manager.describeNow("Second on-demand request.");
-    expect(announcements).toEqual([
+    assert.deepEqual(announcements, [
       "On-demand summary: Mean squared displacement is 0.79 μm².",
       "Second on-demand request.",
     ]);
@@ -98,7 +99,7 @@ describe("announcementManager: Accessible Graph Announcement Manager (am-a11y-gr
     manager.dispose();
   });
 
-  test("presentation changes produce zero automatic announcements", () => {
+  it("presentation changes produce zero automatic announcements", () => {
     const announcements: string[] = [];
 
     const manager = new AnnouncementManager({
@@ -106,19 +107,19 @@ describe("announcementManager: Accessible Graph Announcement Manager (am-a11y-gr
     });
 
     manager.handlePresentationChange();
-    expect(announcements).toEqual([]);
+    assert.deepEqual(announcements, []);
 
     manager.dispose();
   });
 
-  test("default dispatch uses the shared announce module, not a private live-region copy", () => {
+  it("default dispatch uses the shared announce module, not a private live-region copy", () => {
     const manager = new AnnouncementManager({ clock: () => 1000 });
     manager.describeNow("shared live region");
-    expect(getLastAnnouncement()).toBe("shared live region");
+    assert.equal(getLastAnnouncement(), "shared live region");
     manager.dispose();
   });
 
-  test("announcementManager.ts does not contain a private defaultAnnounce copy", () => {
+  it("announcementManager.ts does not contain a private defaultAnnounce copy", () => {
     const source = readFileSync(
       join(
         dirname(fileURLToPath(import.meta.url)),
@@ -126,7 +127,7 @@ describe("announcementManager: Accessible Graph Announcement Manager (am-a11y-gr
       ),
       "utf8",
     );
-    expect(source).toContain('from "../announce.ts"');
-    expect(source.includes("function defaultAnnounce")).toBe(false);
+    assert.equal(source.includes('from "../announce.ts"'), true);
+    assert.equal(source.includes("function defaultAnnounce"), false);
   });
 });
