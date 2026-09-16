@@ -39,6 +39,11 @@
  *   instead of `node:child_process`'s `spawnSync` directly, so a test can
  *   prove zero commands were invoked by injecting a recording spawn function
  *   and asserting its recorded call list stays empty.
+ * - Added `toolRunArtifactDirectory`: pure path construction (no filesystem
+ *   write) naming this pipeline's future structured-log directory with a
+ *   fresh `toolRunId` from scripts/runIds.ts, per AGENTS.md "Structured
+ *   logs" (a release is a tool run; its events carry `toolRunId`, never
+ *   `runId`).
  * - Removed `assertWrightManualEditionInWorkspace` and its call from
  *   `assertCompletePrebuiltArtifact`; it validated the donor's hand-prepared
  *   Wright Flyer archival edition, which has no equivalent here. The Build
@@ -67,6 +72,7 @@ import { createServer } from "node:net";
 import * as path from "node:path";
 import { fileURLToPath } from "node:url";
 import { CANONICAL_PRODUCTION_PROJECT, PROMOTION_REQUIRED_DOMAINS } from "./deployment-target";
+import { newToolRunId } from "./runIds";
 
 /**
  * Placeholder local deployment lock port. Deliberately not the donor's
@@ -101,6 +107,18 @@ export function __setSpawnForTesting(fn: SpawnFn): void {
 
 export function __resetSpawnForTesting(): void {
   activeSpawn = spawnSync;
+}
+
+/**
+ * The structured-log artifact directory this pipeline writes to once
+ * adapted, named by a fresh tool-run id per release attempt. A release is a
+ * tool run, not a test suite and not an experiment realization, so its
+ * events carry `toolRunId` (AGENTS.md "Structured logs"), never `runId`.
+ * Pure string construction; it performs no filesystem write itself, so
+ * calling it (including from a test) creates nothing on disk.
+ */
+export function toolRunArtifactDirectory(toolRunId: string = newToolRunId()): string {
+  return path.join(process.cwd(), "artifacts", "verified-production-deploy", toolRunId);
 }
 
 function run(

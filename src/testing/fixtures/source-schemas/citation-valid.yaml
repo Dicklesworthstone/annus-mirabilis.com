@@ -1,0 +1,11 @@
+id: cit-einstein-1905-bm
+type: article-journal
+title: "Über die von der molekularkinetischen Theorie der Wärme geforderte Bewegung von in ruhenden Flüssigkeiten suspendierten Teilchen"
+author:
+  - family: "Einstein"
+    given: "Albert"
+containerTitle: "Annalen der Physik"
+volume: 17
+page: "549-560"
+doi: "10.1002/andp.19053220806"
+role: primary

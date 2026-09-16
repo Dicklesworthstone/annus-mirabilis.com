@@ -1,0 +1,13 @@
+id: ed-bm-01-dispute
+kind: dispute
+claim: "Dispute regarding historical interpretation of suspended particle dynamics"
+author:
+  userId: "jemanuel"
+  role: author
+sourceSupport:
+  - citationId: cit-einstein-1905-bm
+    locator: "p. 549"
+    role: primary
+affectedIds:
+  - ap-17-549-p01
+reviewState: reviewed

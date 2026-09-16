@@ -193,6 +193,79 @@ export function validatePaper(raw: unknown, path = "Paper"): Paper {
 // 2. SOURCE ASSET
 export { type SourceAsset, type SourceAssetRights };
 
+export function validateSourceAsset(raw: unknown, path = "SourceAsset"): SourceAsset {
+  if (!raw || typeof raw !== "object") throw new SchemaValidationError("invalid-record", "SourceAsset must be an object.", "SourceAsset", path);
+  const o = raw as Record<string, unknown>;
+
+  if (typeof o.originUrl !== "string" || !o.originUrl.trim()) {
+    throw new SchemaValidationError("missing-origin-url", "originUrl is required.", "SourceAsset", `${path}.originUrl`);
+  }
+  if (typeof o.acquisitionDate !== "string" || !/^\d{4}-\d{2}-\d{2}$/.test(o.acquisitionDate)) {
+    throw new SchemaValidationError("invalid-acquisition-date", "acquisitionDate must be YYYY-MM-DD.", "SourceAsset", `${path}.acquisitionDate`);
+  }
+  if (typeof o.sha256 !== "string" || !/^[a-f0-9]{64}$/.test(o.sha256)) {
+    throw new SchemaValidationError("invalid-sha256", "sha256 must be a 64-character lowercase hex string.", "SourceAsset", `${path}.sha256`);
+  }
+  if (typeof o.mimeType !== "string" || !o.mimeType.includes("/")) {
+    throw new SchemaValidationError("invalid-mime-type", "mimeType is required.", "SourceAsset", `${path}.mimeType`);
+  }
+  if (typeof o.pageCount !== "number" || o.pageCount <= 0 || !Number.isInteger(o.pageCount)) {
+    throw new SchemaValidationError("invalid-page-count", "pageCount must be a positive integer.", "SourceAsset", `${path}.pageCount`);
+  }
+  if (!Array.isArray(o.pageMapping) || o.pageMapping.length === 0) {
+    throw new SchemaValidationError("missing-page-mapping", "pageMapping must be a non-empty array.", "SourceAsset", `${path}.pageMapping`);
+  }
+
+  // Validate rights
+  const r = o.rights as Record<string, unknown>;
+  if (!r || typeof r !== "object") {
+    throw new SchemaValidationError("missing-rights", "rights object is required.", "SourceAsset", `${path}.rights`);
+  }
+  if (!RIGHTS_STATUS_VALUES.includes(r.status as RightsStatus)) {
+    throw new SchemaValidationError("invalid-rights-status", `Invalid rights status "${r.status}".`, "SourceAsset", `${path}.rights.status`);
+  }
+  if (!REUSE_TERMS_VALUES.includes(r.reuseTerms as ReuseTerms)) {
+    throw new SchemaValidationError("invalid-reuse-terms", `Invalid reuse terms "${r.reuseTerms}".`, "SourceAsset", `${path}.rights.reuseTerms`);
+  }
+  if (typeof r.statement !== "string") {
+    throw new SchemaValidationError("missing-rights-statement", "rights.statement is required.", "SourceAsset", `${path}.rights.statement`);
+  }
+
+  // Validate publication decision & cloud processing
+  if (!PUBLICATION_DECISION_VALUES.includes(o.publicationDecision as PublicationDecision)) {
+    throw new SchemaValidationError("invalid-publication-decision", `Invalid publication decision "${o.publicationDecision}".`, "SourceAsset", `${path}.publicationDecision`);
+  }
+  if (!CLOUD_PROCESSING_VALUES.includes(o.cloudProcessing as CloudProcessing)) {
+    throw new SchemaValidationError("invalid-cloud-processing", `Invalid cloud processing "${o.cloudProcessing}".`, "SourceAsset", `${path}.cloudProcessing`);
+  }
+  if (typeof o.cloudProcessingBasis !== "string" || !o.cloudProcessingBasis.trim()) {
+    throw new SchemaValidationError("missing-cloud-processing-basis", "cloudProcessingBasis is required.", "SourceAsset", `${path}.cloudProcessingBasis`);
+  }
+
+  return {
+    originUrl: o.originUrl,
+    acquisitionDate: o.acquisitionDate,
+    sha256: o.sha256,
+    mimeType: o.mimeType,
+    pageCount: o.pageCount,
+    pageMapping: o.pageMapping as PageMapEntry[],
+    rights: {
+      status: r.status as RightsStatus,
+      statement: r.statement,
+      source: (r.source as string) || o.originUrl,
+      recordedAt: (r.recordedAt as string) || o.acquisitionDate,
+      reuseTerms: r.reuseTerms as ReuseTerms,
+      ...(r.credit ? { credit: r.credit as string } : {}),
+    },
+    publicationDecision: o.publicationDecision as PublicationDecision,
+    ...(o.publicationReason ? { publicationReason: o.publicationReason as string } : {}),
+    cloudProcessing: o.cloudProcessing as CloudProcessing,
+    cloudProcessingBasis: o.cloudProcessingBasis,
+    ...(o.parentSha256 ? { parentSha256: o.parentSha256 as string } : {}),
+    ...(o.parentPageIndices ? { parentPageIndices: o.parentPageIndices as number[] } : {}),
+  };
+}
+
 // 3. SOURCE BLOCK
 export const SOURCE_BLOCK_KINDS = [
   "masthead",

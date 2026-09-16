@@ -1,0 +1,54 @@
+slug: brownian-motion
+bibKey: ap-17-549
+titleGerman: "Über die von der molekularkinetischen Theorie der Wärme geforderte Bewegung von in ruhenden Flüssigkeiten suspendierten Teilchen"
+titleEnglishWorking: "On the Movement of Small Particles Suspended in Stationary Liquids Required by the Molecular-Kinetic Theory of Heat"
+editorialAdditions:
+  - phrase: "Small"
+    reason: "Disambiguates Teilchen in English title"
+    germanBasis: "Teilchen"
+authorLine: "A. Einstein"
+dates:
+  - type: received
+    text: "11. Mai 1905"
+    earliest: "1905-05-11"
+    latest: "1905-05-11"
+    precision: day
+    source: "Journal issue heading"
+    verifiedAt: "2026-09-15"
+    confirmedFromScan: true
+  - type: issue-publication
+    text: "18. Juli 1905"
+    earliest: "1905-07-18"
+    latest: "1905-07-18"
+    precision: day
+    source: "Journal issue masthead"
+    verifiedAt: "2026-09-15"
+    confirmedFromScan: true
+journal:
+  name: "Annalen der Physik"
+  series: 4
+  volume: 17
+  wholeSeriesVolume: 322
+  issue: 8
+  issueSource: "Table of contents"
+  pages:
+    first: 549
+    last: 560
+  doi: "10.1002/andp.19053220806"
+  doiVerifiedAt: "2026-09-15"
+collectedPapers:
+  volume: 2
+  document: 16
+orderedBlockIds:
+  - ap-17-549-masthead
+  - ap-17-549-p01
+  - ap-17-549-p02
+companion: false
+status: published
+sourceStatus: reviewed
+sourceNotice: ""
+sections:
+  - id: bm-sec-01
+    title: "1. Über den den suspendierten Teilchen zuzuschreibenden osmotischen Druck"
+    arguments:
+      - bm-arg-osmotic-pressure

@@ -1,0 +1,25 @@
+id: ap-17-549-p01
+kind: paragraph
+paper: brownian-motion
+section: bm-sec-01
+order: 1
+locators:
+  - pdfPageIndex: 0
+    printedPage: 549
+diplomaticText: "In dieser Arbeit soll gezeigt werden."
+inlines:
+  - kind: text
+    text: "In dieser Arbeit soll gezeigt werden."
+sentenceSpans:
+  - id: ap-17-549-p01-s01
+    span:
+      start: 0
+      end: 37
+      textDigest: "f90f5db553d54d67d4e4ee12018eec82b373916a4ccb77869783945de79f2270"
+      blockRevision: 1
+revision: 1
+status:
+  transcription: reviewed
+  mathTranscription: not-applicable
+  translation: reviewed
+  review: accepted

@@ -1,0 +1,41 @@
+sentenceId: ap-17-549-p01-s01
+revision: 1
+sourceRevision: 1
+sourceTextDigest: "f90f5db553d54d67d4e4ee12018eec82b373916a4ccb77869783945de79f2270"
+lang: en
+sourceLang: de
+attribution:
+  agent: "agent:claude-3-5-sonnet"
+  modelId: "claude-3-5-sonnet-20241022"
+  draftedBy: "agent:claude-3-5-sonnet"
+  role: author
+editor:
+  userId: "jemanuel"
+  role: editor
+  reviewedAt: "2026-09-15"
+reviewState: reviewed
+tokens:
+  - german: "In"
+    english: "In"
+  - german: "dieser"
+    english: "this"
+  - german: "Arbeit"
+    english: "paper"
+    lemma: "Arbeit"
+  - german: "soll"
+    english: "shall"
+    grammarNote: "Modal verb indicating intention"
+    noteClass: formula-phrase
+  - german: "gezeigt"
+    english: "shown"
+  - german: "werden"
+    english: "be"
+multiwordUnits:
+  - tokenIndices:
+      - 3
+      - 4
+      - 5
+    english: "it will be shown"
+    kind: fixed-phrase
+    grammarNote: "Passive periphrastic construction"
+    noteClass: formula-phrase

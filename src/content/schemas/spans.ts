@@ -61,21 +61,23 @@ export function validateSpanAnchor(
     );
   }
 
-  if (typeof o.blockRevision !== "number" || o.blockRevision <= 0 || !Number.isInteger(o.blockRevision)) {
+  const revision = typeof o.blockRevision === "number" ? o.blockRevision : typeof o.sourceRevision === "number" ? o.sourceRevision : undefined;
+
+  if (typeof revision !== "number" || revision <= 0 || !Number.isInteger(revision)) {
     throw new SpanValidationError("invalid-span-revision", "Span blockRevision must be a positive integer.", `${path}.blockRevision`);
   }
 
-  if (o.blockRevision < currentBlockRevision) {
+  if (revision < currentBlockRevision) {
     throw new SpanValidationError(
       "span-revision-stale",
-      `Span blockRevision (${o.blockRevision}) is stale compared to block revision (${currentBlockRevision}).`,
+      `Span blockRevision (${revision}) is stale compared to block revision (${currentBlockRevision}).`,
       `${path}.blockRevision`
     );
   }
-  if (o.blockRevision > currentBlockRevision) {
+  if (revision > currentBlockRevision) {
     throw new SpanValidationError(
       "span-revision-future",
-      `Span blockRevision (${o.blockRevision}) is ahead of current block revision (${currentBlockRevision}).`,
+      `Span blockRevision (${revision}) is ahead of current block revision (${currentBlockRevision}).`,
       `${path}.blockRevision`
     );
   }
@@ -90,9 +92,9 @@ export function validateSpanAnchor(
   }
 
   return {
-    start: o.start,
-    end: o.end,
-    blockRevision: o.blockRevision,
-    textDigest: o.textDigest,
+    start: o.start as number,
+    end: o.end as number,
+    blockRevision: revision,
+    textDigest: o.textDigest as string,
   };
 }

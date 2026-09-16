@@ -1,0 +1,9 @@
+id: align-bm-01
+paper: brownian-motion
+edges:
+  - source:
+      paper: brownian-motion
+      blockId: ap-17-549-p01
+      sentenceId: ap-17-549-p01-s01
+    target:
+      translationUnitId: tr-bm-01-01

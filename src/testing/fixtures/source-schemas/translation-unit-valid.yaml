@@ -1,0 +1,19 @@
+id: tr-bm-01-01
+sourceRefs:
+  - paper: brownian-motion
+    id: ap-17-549-p01-s01
+inlines:
+  - kind: text
+    text: "In this paper it will be shown."
+translator:
+  agent: "agent:claude-3-5-sonnet"
+  modelId: "claude-3-5-sonnet-20241022"
+  draftedBy: "agent:claude-3-5-sonnet"
+  role: translator
+editor:
+  userId: "jemanuel"
+  role: editor
+  reviewedAt: "2026-09-15"
+revision: 1
+unresolvedAlternatives: []
+reviewState: reviewed

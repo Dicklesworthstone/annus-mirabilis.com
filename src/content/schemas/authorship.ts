@@ -30,6 +30,9 @@ export class AuthorshipValidationError extends Error {
   }
 }
 
+export const AuthorshipGovernanceError = AuthorshipValidationError;
+export type AuthorshipGovernanceError = AuthorshipValidationError;
+
 export function validateAuthorshipEntry(
   raw: unknown,
   roleContext?: "reviewer" | "facilitator" | "tester" | "author" | "translator" | "editor",
@@ -41,11 +44,10 @@ export function validateAuthorshipEntry(
 
   const o = raw as Record<string, unknown>;
 
-  if (typeof o.id !== "string" || !o.id.trim()) {
+  let id = (typeof o.id === "string" ? o.id : typeof o.userId === "string" ? o.userId : typeof o.agent === "string" ? o.agent : "").trim();
+  if (!id) {
     throw new AuthorshipValidationError("missing-contributor-id", "Contributor id is required.", `${path}.id`);
   }
-
-  const id = o.id.trim();
 
   if (id.startsWith("model:")) {
     throw new AuthorshipValidationError(
@@ -55,7 +57,14 @@ export function validateAuthorshipEntry(
     );
   }
 
-  if (o.kind !== "human" && o.kind !== "model") {
+  let kind: AuthorshipKind;
+  if (o.kind === "human" || o.kind === "model") {
+    kind = o.kind;
+  } else if (o.agent || id.startsWith("agent:")) {
+    kind = "model";
+  } else if (o.userId) {
+    kind = "human";
+  } else {
     throw new AuthorshipValidationError(
       "invalid-authorship-kind",
       `Invalid authorship kind "${o.kind}". Expected "human" or "model".`,
@@ -63,10 +72,10 @@ export function validateAuthorshipEntry(
     );
   }
 
-  const kind = o.kind as AuthorshipKind;
+  let modelId = typeof o.modelId === "string" ? o.modelId : undefined;
 
   if (kind === "model") {
-    if (typeof o.modelId !== "string" || !o.modelId.trim()) {
+    if (!modelId || !modelId.trim()) {
       throw new AuthorshipValidationError(
         "missing-model-id",
         `Model authorship entry for id "${id}" requires a non-empty modelId.`,
@@ -75,12 +84,13 @@ export function validateAuthorshipEntry(
     }
   }
 
-  // Reject agent id as reviewer/facilitator/tester
+  // Reject agent id as reviewer/facilitator/tester/editor
   const isAgent = id.startsWith("agent:") || kind === "model";
-  if (isAgent && (roleContext === "reviewer" || roleContext === "facilitator" || roleContext === "tester")) {
+  const effectiveRole = (typeof o.role === "string" ? o.role : roleContext) as string | undefined;
+  if (isAgent && (effectiveRole === "reviewer" || effectiveRole === "facilitator" || effectiveRole === "tester" || effectiveRole === "editor")) {
     throw new AuthorshipValidationError(
       "agent-as-reviewer",
-      `Agent id "${id}" cannot serve as a ${roleContext}. Review roles require independent human evaluation.`,
+      `Agent id "${id}" cannot serve as a ${effectiveRole}. Review and editorial roles require independent human evaluation.`,
       `${path}.id`
     );
   }
@@ -89,7 +99,7 @@ export function validateAuthorshipEntry(
     id,
     ...(typeof o.name === "string" ? { name: o.name } : {}),
     kind,
-    ...(typeof o.modelId === "string" ? { modelId: o.modelId } : {}),
+    ...(modelId ? { modelId } : {}),
   };
 }
 
