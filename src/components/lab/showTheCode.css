@@ -67,3 +67,11 @@
 .equation-context[data-selected-quantity-id] .kernel-ident[data-selected="true"] {
   background: #efe0ad;
 }
+
+.show-the-code .kernel-refusal {
+  background: var(--refusal-bg, #fbf0f0);
+  border-left: 3px solid var(--refusal-border, #b3261e);
+  padding: 0.6rem 0.8rem;
+  margin: 0.5rem 0;
+  font-size: 0.88rem;
+}

@@ -50,6 +50,7 @@ export type ShowTheCodeProps = Readonly<{
   listings: readonly KernelListing[];
   producedCurrentSnapshot?: boolean | undefined;
   snapshotFunctionName?: string | undefined;
+  snapshotSourceDigest?: string | undefined;
   equationCard?: ReactNode;
   uid?: string | undefined;
 }>;
@@ -62,6 +63,7 @@ export function ShowTheCode({
   listings,
   producedCurrentSnapshot = false,
   snapshotFunctionName,
+  snapshotSourceDigest,
   equationCard,
   uid = "stc",
 }: ShowTheCodeProps) {
@@ -80,6 +82,11 @@ export function ShowTheCode({
           : [];
         const claimsSnapshot =
           producedCurrentSnapshot && snapshotFunctionName === listing.exportName;
+        const digestMismatch =
+          claimsSnapshot &&
+          Boolean(snapshotSourceDigest) &&
+          Boolean(listing.sourceHash) &&
+          listing.sourceHash !== snapshotSourceDigest;
         return (
           <article
             key={listing.exportName}
@@ -95,9 +102,11 @@ export function ShowTheCode({
               {listing.sourceHash ? ` · ${listing.sourceHash}` : ""}
             </p>
             <p className="kernel-header">
-              {claimsSnapshot
-                ? "This is the function that produced the current snapshot."
-                : "This function computes the listed outputs when it runs."}
+              {digestMismatch
+                ? "Listing refused: Source hash does not match current snapshot."
+                : claimsSnapshot
+                  ? "This is the function that produced the current snapshot."
+                  : "This function computes the listed outputs when it runs."}
             </p>
             <nav className="show-the-code-tabs" aria-label="Show the code">
               <a href={`#${id}-words`}>In words</a>
@@ -125,58 +134,75 @@ export function ShowTheCode({
               data-tab="implementation"
             >
               <h3>Implementation</h3>
-              {tokens.length > 0 ? (
-                <pre>
-                  <code data-language={listing.language ?? "ts"}>
-                    {tokens.map((token) => {
-                      if (token.kind === "ident" && token.quantityId) {
-                        return (
-                          <span
-                            key={token.start}
-                            className="kernel-ident"
-                            data-quantity-id={token.quantityId}
-                            style={{
-                              color: quantityHue(token.quantityId),
-                              textDecoration: "underline",
-                              textDecorationStyle: "dotted",
-                              textUnderlineOffset: "0.18em",
-                            }}
-                          >
-                            {token.text}
-                          </span>
-                        );
-                      }
-                      if (token.kind === "comment") {
-                        return (
-                          <span key={token.start} className="kernel-comment">
-                            {token.text}
-                          </span>
-                        );
-                      }
-                      if (token.kind === "string") {
-                        return (
-                          <span key={token.start} className="kernel-string">
-                            {token.text}
-                          </span>
-                        );
-                      }
-                      return <span key={token.start}>{token.text}</span>;
-                    })}
-                  </code>
-                </pre>
-              ) : null}
-              {listing.trace ? <TraceTable trace={listing.trace} /> : null}
-              {listing.independentReferences.length > 0 ? (
-                <ul>
-                  {listing.independentReferences.map((ref) => (
-                    <li key={`${ref.experimentId}/${ref.quantityId}`}>
-                      <a href={`/verification/${ref.experimentId}/${ref.quantityId}`}>
-                        how this number is checked
-                      </a>
-                    </li>
-                  ))}
-                </ul>
-              ) : null}
+              {digestMismatch ? (
+                <div
+                  className="kernel-refusal kernel-digest-mismatch"
+                  data-refusal-code="stale-kernel-listing"
+                  role="alert"
+                >
+                  <p>
+                    <strong>Source listing refused:</strong> The displayed kernel source hash (
+                    <code>{listing.sourceHash}</code>) does not match the digest of the source that
+                    produced the current snapshot (<code>{snapshotSourceDigest}</code>). A stale or
+                    mismatched listing is refused to prevent displaying inaccurate code.
+                  </p>
+                </div>
+              ) : (
+                <>
+                  {tokens.length > 0 ? (
+                    <pre>
+                      <code data-language={listing.language ?? "ts"}>
+                        {tokens.map((token) => {
+                          if (token.kind === "ident" && token.quantityId) {
+                            return (
+                              <span
+                                key={token.start}
+                                className="kernel-ident"
+                                data-quantity-id={token.quantityId}
+                                style={{
+                                  color: quantityHue(token.quantityId),
+                                  textDecoration: "underline",
+                                  textDecorationStyle: "dotted",
+                                  textUnderlineOffset: "0.18em",
+                                }}
+                              >
+                                {token.text}
+                              </span>
+                            );
+                          }
+                          if (token.kind === "comment") {
+                            return (
+                              <span key={token.start} className="kernel-comment">
+                                {token.text}
+                              </span>
+                            );
+                          }
+                          if (token.kind === "string") {
+                            return (
+                              <span key={token.start} className="kernel-string">
+                                {token.text}
+                              </span>
+                            );
+                          }
+                          return <span key={token.start}>{token.text}</span>;
+                        })}
+                      </code>
+                    </pre>
+                  ) : null}
+                  {listing.trace ? <TraceTable trace={listing.trace} /> : null}
+                  {listing.independentReferences.length > 0 ? (
+                    <ul>
+                      {listing.independentReferences.map((ref) => (
+                        <li key={`${ref.experimentId}/${ref.quantityId}`}>
+                          <a href={`/verification/${ref.experimentId}/${ref.quantityId}`}>
+                            how this number is checked
+                          </a>
+                        </li>
+                      ))}
+                    </ul>
+                  ) : null}
+                </>
+              )}
             </section>
           </article>
         );

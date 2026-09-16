@@ -139,4 +139,39 @@ describe("ShowTheCode", () => {
       message: "Trace markup is independent of the accepted snapshot header",
     });
   });
+
+  test("matching snapshotSourceDigest renders code implementation cleanly", () => {
+    const html = renderToStaticMarkup(
+      <ShowTheCode
+        listings={[baseListing]}
+        producedCurrentSnapshot={true}
+        snapshotFunctionName="evaluateStokesEinstein"
+        snapshotSourceDigest={baseListing.sourceHash}
+      />,
+    );
+    expect(html).toContain("This is the function that produced the current snapshot.");
+    expect(html).not.toContain("data-refusal-code");
+    expect(html).toContain("evaluateStokesEinstein");
+    expect(html).toContain("data-quantity-id");
+  });
+
+  test("mismatched snapshotSourceDigest produces a typed refusal and refuses to render code", () => {
+    const html = renderToStaticMarkup(
+      <ShowTheCode
+        listings={[baseListing]}
+        producedCurrentSnapshot={true}
+        snapshotFunctionName="evaluateStokesEinstein"
+        snapshotSourceDigest="sha256:0000000000000000000000000000000000000000000000000000000000000000"
+      />,
+    );
+    expect(html).toContain("Listing refused: Source hash does not match current snapshot.");
+    expect(html).toContain('data-refusal-code="stale-kernel-listing"');
+    expect(html).toContain("Source listing refused:");
+    expect(html).toContain(
+      "does not match the digest of the source that produced the current snapshot",
+    );
+    // Code tokens and trace should NOT be displayed when refused
+    expect(html).not.toContain("<code data-language");
+    expect(html).not.toContain("<table");
+  });
 });

@@ -169,7 +169,22 @@ if (invokedDirectly) {
     pinsPath: skipPins || writePins || !existsSync(pinsPath) ? undefined : pinsPath,
     writeManifestPath: resolve(root, "generated/kernel-sources.json"),
   });
-  if (writePins) writePinsFromExtraction(pinsPath, result.records);
+  if (writePins) {
+    writePinsFromExtraction(pinsPath, result.records);
+    // Re-verify immediately against the newly written pins to ensure zero false positives
+    const verifiedAfterWrite = verifySliceKernels({
+      root,
+      revision: process.env.KERNEL_REVISION ?? "workspace",
+      pinsPath,
+      writeManifestPath: resolve(root, "generated/kernel-sources.json"),
+    });
+    if (!verifiedAfterWrite.ok) {
+      for (const issue of verifiedAfterWrite.issues) {
+        console.error(JSON.stringify({ ...issue, beadId: "am-inst-show-the-code-4brv" }));
+      }
+      process.exit(1);
+    }
+  }
   if (!result.ok) {
     for (const issue of result.issues) {
       console.error(JSON.stringify({ ...issue, beadId: "am-inst-show-the-code-4brv" }));
@@ -177,6 +192,11 @@ if (invokedDirectly) {
     process.exit(1);
   }
   console.log(
-    JSON.stringify({ ok: true, functions: result.records.length, issues: result.issues.length }),
+    JSON.stringify({
+      ok: true,
+      functions: result.records.length,
+      issues: result.issues.length,
+      ...(writePins ? { pinsWritten: true } : {}),
+    }),
   );
 }
