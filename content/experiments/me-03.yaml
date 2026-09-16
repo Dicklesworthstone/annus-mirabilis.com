@@ -1,0 +1,360 @@
+id: me-03
+title: "ME-03: system-boundary energy ledger with cited energy-source cards"
+explanatoryQuestion: "When energy leaves a body, which system loses mass, and which does not?"
+sourceRefs:
+  - paper: mass-energy
+    id: s0
+argumentIds:
+  - arg-me-two-ledgers
+schemaVersion: 1
+parameters:
+  - id: boundary
+    label: "System boundary"
+    accessibleName: "Selection of objects enclosed in the evaluated thermodynamic boundary"
+    accessibleDescription: "Choose between evaluating the emitting body alone, the emitted radiation, or the combined isolated system."
+    quantityId: systemBoundary
+    displayUnit: ""
+    modelDomain:
+      enumerated:
+        - body-alone
+        - radiation
+        - combined-isolated-system
+      reason: "Three canonical thermodynamic boundaries defined in Paper 4."
+    visualRange:
+      min: 0
+      max: 2
+    default: "body-alone"
+    mapping:
+      kind: linear
+    role: independent
+    commandClass: measurement-change
+
+  - id: disposition
+    label: "Radiation disposition"
+    accessibleName: "Whether emitted radiation escapes the system or is retained/absorbed"
+    accessibleDescription: "Toggles between radiation escaping into the exterior environment versus being absorbed internally in an enclosure."
+    quantityId: radiationDisposition
+    displayUnit: ""
+    modelDomain:
+      enumerated:
+        - escapes
+        - retained
+        - partly-retained
+      reason: "Radiation either escapes across the boundary or is absorbed internally."
+    visualRange:
+      min: 0
+      max: 2
+    default: "escapes"
+    mapping:
+      kind: linear
+    role: independent
+    commandClass: setup-change
+
+  - id: emittedEnergy
+    label: "Emitted radiation energy L"
+    accessibleName: "Total energy emitted as radiation"
+    accessibleDescription: "Positive energy radiated by the source body."
+    quantityId: emittedEnergy
+    displayUnit: "J"
+    modelDomain:
+      min: 0
+      max: 1.0e28
+      minInclusive: false
+      maxInclusive: true
+      reason: "Emitted energy L must be positive."
+    visualRange:
+      min: 0.1
+      max: 10
+    default: 1.0
+    mapping:
+      kind: log
+      base: 10
+    role: independent
+    commandClass: setup-change
+
+  - id: inputEnergy
+    label: "External energy input Ein"
+    accessibleName: "Energy supplied from outside into the enclosure"
+    accessibleDescription: "Non-negative energy entering the system (e.g. electrical work through leads)."
+    quantityId: inputEnergy
+    displayUnit: "J"
+    modelDomain:
+      min: 0
+      max: 1.0e28
+      minInclusive: true
+      maxInclusive: true
+      reason: "Input energy cannot be negative."
+    visualRange:
+      min: 0
+      max: 10
+    default: 0.0
+    mapping:
+      kind: linear
+    role: independent
+    commandClass: setup-change
+
+  - id: cardId
+    label: "Energy-source card"
+    accessibleName: "Cited empirical energy-source case study"
+    accessibleDescription: "Selects one of five cited real-world energy-loss examples or ideal sealed-box scenarios."
+    quantityId: energySourceCard
+    displayUnit: ""
+    modelDomain:
+      enumerated:
+        - me-03-card-radium
+        - me-03-card-sun
+        - me-03-card-coal
+        - me-03-card-candle
+        - me-03-card-bulb
+        - me-03-heated-sealed-box
+        - me-03-sealed-lamp-and-mirror
+      reason: "Seven cited card case studies."
+    visualRange:
+      min: 0
+      max: 6
+    default: "me-03-card-radium"
+    mapping:
+      kind: linear
+    role: independent
+    commandClass: setup-change
+
+  - id: mode
+    label: "Formalism mode"
+    accessibleName: "1905 energy accounting ledger or modern four-momentum invariant mass"
+    accessibleDescription: "Selects 1905 paper 4 ledger mode or modern four-momentum invariant mass representation."
+    quantityId: formalismMode
+    displayUnit: ""
+    modelDomain:
+      enumerated:
+        - "1905"
+        - four-momentum
+      reason: "Historical 1905 ledger versus modern four-momentum formalism."
+    visualRange:
+      min: 0
+      max: 1
+    default: "1905"
+    mapping:
+      kind: linear
+    role: independent
+    commandClass: setup-change
+
+  - id: pulseSystem
+    label: "Pulse system geometry"
+    accessibleName: "Geometry of pulse system for invariant mass computation"
+    accessibleDescription: "Single pulse, two collinear pulses, or two opposite pulses."
+    quantityId: pulseSystem
+    displayUnit: ""
+    modelDomain:
+      enumerated:
+        - single-pulse
+        - two-collinear
+        - two-opposite
+      reason: "Three canonical radiation geometries."
+    visualRange:
+      min: 0
+      max: 2
+    default: "two-opposite"
+    mapping:
+      kind: linear
+    role: independent
+    commandClass: setup-change
+
+  - id: notation
+    label: "Notation style"
+    accessibleName: "1905 printed notation or modern notation"
+    accessibleDescription: "Renders formulas in historical printed style or modern symbols."
+    quantityId: notation
+    displayUnit: ""
+    modelDomain:
+      enumerated:
+        - printed
+        - modern
+      reason: "Notation representation switch."
+    visualRange:
+      min: 0
+      max: 1
+    default: "printed"
+    mapping:
+      kind: linear
+    role: independent
+    commandClass: presentation-change
+
+derivedOutputs:
+  - id: energyChange
+    label: "Energy change ΔE"
+    quantityId: energyChange
+    unit: "J"
+    displayUnit: "J"
+    semanticKind: "energy-change"
+    ownerId: "massEnergy.boundaryLedger"
+    statuses:
+      - value
+      - outside-domain
+
+  - id: massChange
+    label: "Mass change Δm"
+    quantityId: massChange
+    unit: "kg"
+    displayUnit: "kg"
+    semanticKind: "mass-change"
+    ownerId: "massEnergy.boundaryLedger"
+    statuses:
+      - value
+      - not-applicable
+      - outside-domain
+
+  - id: radiationEnergyChange
+    label: "Radiation energy ΔE_rad"
+    quantityId: radiationEnergyChange
+    unit: "J"
+    displayUnit: "J"
+    semanticKind: "radiation-energy-change"
+    ownerId: "massEnergy.boundaryLedger"
+    statuses:
+      - value
+      - outside-domain
+
+  - id: radiationMassChange
+    label: "Radiation mass Δm_rad"
+    quantityId: radiationMassChange
+    unit: "kg"
+    displayUnit: "kg"
+    semanticKind: "radiation-mass-change"
+    ownerId: "massEnergy.boundaryLedger"
+    statuses:
+      - not-applicable
+      - outside-domain
+
+  - id: systemEnergyChange
+    label: "Isolated system energy change"
+    quantityId: systemEnergyChange
+    unit: "J"
+    displayUnit: "J"
+    semanticKind: "system-energy-change"
+    ownerId: "massEnergy.boundaryLedger"
+    statuses:
+      - value
+      - outside-domain
+
+  - id: systemMassChange
+    label: "Isolated system mass change"
+    quantityId: systemMassChange
+    unit: "kg"
+    displayUnit: "kg"
+    semanticKind: "system-mass-change"
+    ownerId: "massEnergy.boundaryLedger"
+    statuses:
+      - value
+      - outside-domain
+
+  - id: invariantMass
+    label: "System invariant mass"
+    quantityId: invariantMass
+    unit: "kg"
+    displayUnit: "kg"
+    semanticKind: "invariant-mass"
+    ownerId: "massEnergy.fourMomentum"
+    statuses:
+      - value
+      - outside-domain
+
+presets:
+  - presetId: me-03-sealed-lamp-and-mirror
+    label: "Sealed lamp and mirror (Internal transfer)"
+    description: "Combined isolated system where light is emitted and absorbed inside the enclosure; mass change is exactly 0."
+    parameterValues:
+      boundary: combined-isolated-system
+      disposition: retained
+      cardId: me-03-sealed-lamp-and-mirror
+      mode: "1905"
+
+  - presetId: me-03-heated-sealed-box
+    label: "Heated sealed box (External energy input)"
+    description: "Energy enters through leads while no matter crosses the sealed boundary; mass increases by Ein/c^2."
+    parameterValues:
+      boundary: combined-isolated-system
+      disposition: retained
+      inputEnergy: 1.0
+      cardId: me-03-heated-sealed-box
+      mode: "1905"
+
+  - presetId: me-03-four-momentum-opposite-pulses
+    label: "Four-momentum: Two opposite pulses"
+    description: "Modern invariant mass of a system of two equal and opposite light pulses: m = L/c^2."
+    parameterValues:
+      mode: four-momentum
+      pulseSystem: two-opposite
+      emittedEnergy: 1.0
+
+  - presetId: me-03-card-radium
+    label: "Radium-226 Alpha Decay"
+    description: "Nuclear alpha decay Q = 4.871 MeV per event (5.229 mg per mole)."
+    parameterValues:
+      cardId: me-03-card-radium
+      boundary: body-alone
+      disposition: escapes
+
+  - presetId: me-03-card-sun
+    label: "The Sun (Radiated Luminosity)"
+    description: "Radiated power of 3.828 × 10^26 W carries away 4.259 × 10^9 kg each second."
+    parameterValues:
+      cardId: me-03-card-sun
+      boundary: body-alone
+      disposition: escapes
+
+  - presetId: me-03-card-coal
+    label: "Burning Coal (24–35 MJ/kg)"
+    description: "Combustion heat release carries away (2.670–3.894) × 10^-10 kg per kilogram burned."
+    parameterValues:
+      cardId: me-03-card-coal
+      boundary: body-alone
+      disposition: escapes
+
+  - presetId: me-03-card-candle
+    label: "A Burning Candle (80 W)"
+    description: "Heat output of 80 W for 1 hour carries off 3.20 ng of mass."
+    parameterValues:
+      cardId: me-03-card-candle
+      boundary: body-alone
+      disposition: escapes
+
+  - presetId: me-03-card-bulb
+    label: "100 W Light Bulb (1 Year)"
+    description: "100 W continuous operation for one Julian year carries off 35.1 µg."
+    parameterValues:
+      cardId: me-03-card-bulb
+      boundary: body-alone
+      disposition: escapes
+
+predictPrompts:
+  - promptId: me-03-predict-sealed-box
+    question: "A sealed box holds a battery-powered lamp and a mirror. When the lamp lights up inside, does the box's total mass change?"
+    candidates:
+      - id: decreases
+        label: "It decreases, because the lamp sends out energy."
+      - id: stays-the-same
+        label: "It stays the same, because the energy is still inside."
+      - id: increases
+        label: "It increases, because light has been added."
+    settledCandidateId: stays-the-same
+    explanation: "The energy only moves inside the boundary. Light emitted by the lamp is absorbed by the mirror and walls inside the sealed enclosure, so no energy crosses the outer boundary and the box's total mass is unchanged."
+
+teachingTapes:
+  - id: where-the-energy-went
+    title: "where the energy went"
+
+notModeled:
+  - "gravitational weighing"
+  - "wall stresses, or external work beyond declared inputs"
+  - "nuclear and chemical mechanisms beyond cited energies"
+  - "heat losses not declared"
+  - "neutrino and solar-wind mass loss"
+  - "the practical measurability of tiny mass changes"
+  - "the 1905 argument's premises (inherited, not re-derived)"
+  - "non-inertial or accelerated frames"
+
+captionReadings:
+  r0: "Energy that leaves a body takes mass with it. Draw the line around the body and its light together, and nothing is lost."
+  r1: "Three system boundaries: the emitting body alone, the emitted radiation, and the combined isolated enclosure. The energy-source cards trace mass loss across nuclear, radiant, chemical, and electrical transfers."
+  r2: "Each card's mass change Δm = ΔE / c² evaluated from its cited energy transfer. In closed but non-isolated systems (radium decay, light bulb), energy crosses without matter transfer; inside isolated systems, internal transfer leaves total mass unchanged."
+  r3: "Einstein 1905 paper 4 conditional conclusions on radium and inertia conveyance; modern four-momentum invariant mass of two opposite pulses P_μ P^μ = (L/c)² giving system invariant mass m = L/c²."

@@ -13,6 +13,7 @@
  * is not pinned, so that printed glyph is UNKNOWN and is not claimed here.
  */
 import type { DomainKind, ScientificResult } from "../../experiments/results/types.ts";
+import type { ConstantSet } from "./constants.ts";
 import { constantValue, getConstantSet } from "./constants.ts";
 import { gamma, gammaMinusOne } from "./kinematics.ts";
 
@@ -708,5 +709,676 @@ export function evaluateMe01(input: Me01Input): Me01Snapshot {
     subtractionDifference: asValue(ids.sub[0], ids.sub[1], ids.sub[2], ids.sub[3], subVal),
     kineticEnergyDifference: kinResult,
     additiveEnergyConstant: addConst,
+  });
+}
+
+// ============================================================================
+// ME-03: System boundary energy ledger with cited energy-source cards
+// ============================================================================
+
+export type Me03Boundary = "body-alone" | "radiation" | "combined-isolated-system";
+export type Me03RadiationDisposition = "escapes" | "retained" | "partly-retained";
+export type Me03Mode = "1905" | "four-momentum";
+export type Me03CardId =
+  | "me-03-card-radium"
+  | "me-03-card-sun"
+  | "me-03-card-coal"
+  | "me-03-card-candle"
+  | "me-03-card-bulb"
+  | "me-03-heated-sealed-box"
+  | "me-03-sealed-lamp-and-mirror";
+
+export type Me03PulseSystem = "single-pulse" | "two-collinear" | "two-opposite";
+
+export type EnergySourceCardBoundary = Readonly<{
+  systemBefore: string;
+  systemAfter: string;
+  matterCrossesBoundary: Readonly<{ crosses: boolean; note: string }>;
+  radiation: Readonly<{ disposition: "escapes" | "retained" | "partly-retained"; note: string }>;
+  referenceFrame: string;
+  energyFigure: Readonly<{
+    quantityId: string;
+    value: number;
+    unit: string;
+    kind:
+      | "decay-energy-per-event"
+      | "radiated-power"
+      | "heat-of-combustion"
+      | "heat-release-rate"
+      | "electrical-input"
+      | "stated-transfer";
+    citationId: string;
+  }>;
+  closedButNotIsolated: Readonly<{ value: boolean; note: string }>;
+}>;
+
+export type EnergySourceCard = Readonly<{
+  id: Me03CardId;
+  label: string;
+  description: string;
+  citation: string;
+  boundary: EnergySourceCardBoundary;
+  energyJoules: number;
+  massChangeKg: number;
+  massChangeSigned: ScientificResult;
+  massChangeFormatted: string;
+  energyFormatted: string;
+}>;
+
+export const ME03_CARD_IDS: readonly Me03CardId[] = Object.freeze([
+  "me-03-card-radium",
+  "me-03-card-sun",
+  "me-03-card-coal",
+  "me-03-card-candle",
+  "me-03-card-bulb",
+  "me-03-heated-sealed-box",
+  "me-03-sealed-lamp-and-mirror",
+]);
+
+/**
+ * Computes the energy and mass change for a specified system boundary and radiation disposition.
+ * In 1905 mode, body energies are never initialized as Mc^2 (non-circularity doctrine).
+ */
+export function evaluateBoundaryLedger(
+  boundary: Me03Boundary,
+  disposition: Me03RadiationDisposition,
+  emittedEnergy: number,
+  inputEnergy = 0,
+  set?: ConstantSet,
+): Readonly<{
+  energyChange: ScientificResult;
+  massChange: ScientificResult;
+  radiationEnergyChange: ScientificResult;
+  radiationMassChange: ScientificResult;
+  systemEnergyChange: ScientificResult;
+  systemMassChange: ScientificResult;
+}> {
+  const c = constantValue(set ?? getConstantSet("modern-si-2019"), "speedOfLight").value;
+  const cSq = c * c;
+
+  // Body alone
+  const bodyDeltaE = -emittedEnergy;
+  const bodyDeltaM = -emittedEnergy / cSq;
+
+  // Radiation alone
+  const radDeltaE = emittedEnergy;
+
+  // Combined isolated system
+  let sysDeltaE = 0;
+  let sysDeltaM = 0;
+
+  if (disposition === "retained") {
+    if (inputEnergy > 0) {
+      sysDeltaE = inputEnergy;
+      sysDeltaM = inputEnergy / cSq;
+    } else {
+      sysDeltaE = 0;
+      sysDeltaM = 0;
+    }
+  } else {
+    // Escapes: if we look at the combined isolated container holding body + light, before light leaves outer boundary it is 0
+    sysDeltaE = 0;
+    sysDeltaM = 0;
+  }
+
+  let activeDeltaE: number;
+  let activeMassResult: ScientificResult;
+
+  if (boundary === "body-alone") {
+    activeDeltaE = bodyDeltaE;
+    activeMassResult = asValue(
+      "massChange",
+      "kg",
+      "mass-change",
+      "massEnergy.boundaryLedger",
+      bodyDeltaM,
+    );
+  } else if (boundary === "radiation") {
+    activeDeltaE = radDeltaE;
+    activeMassResult = asNotApplicable(
+      "massChange",
+      "kg",
+      "mass-change",
+      "massEnergy.boundaryLedger",
+      "Free radiation is not assigned an inertial rest mass in 1905 kinematics.",
+    );
+  } else {
+    activeDeltaE = sysDeltaE;
+    activeMassResult = asValue(
+      "massChange",
+      "kg",
+      "mass-change",
+      "massEnergy.boundaryLedger",
+      sysDeltaM,
+    );
+  }
+
+  return Object.freeze({
+    energyChange: asValue(
+      "energyChange",
+      "J",
+      "energy-change",
+      "massEnergy.boundaryLedger",
+      activeDeltaE,
+    ),
+    massChange: activeMassResult,
+    radiationEnergyChange: asValue(
+      "radiationEnergyChange",
+      "J",
+      "radiation-energy-change",
+      "massEnergy.boundaryLedger",
+      radDeltaE,
+    ),
+    radiationMassChange: asNotApplicable(
+      "radiationMassChange",
+      "kg",
+      "radiation-mass-change",
+      "massEnergy.boundaryLedger",
+      "Free radiation is not assigned an inertial rest mass in 1905 kinematics.",
+    ),
+    systemEnergyChange: asValue(
+      "systemEnergyChange",
+      "J",
+      "system-energy-change",
+      "massEnergy.boundaryLedger",
+      sysDeltaE,
+    ),
+    systemMassChange: asValue(
+      "systemMassChange",
+      "kg",
+      "system-mass-change",
+      "massEnergy.boundaryLedger",
+      sysDeltaM,
+    ),
+  });
+}
+
+/**
+ * Modern four-momentum mode (labeled later formalism, model identity four-momentum-modern).
+ * - Single pulse: invariant mass 0
+ * - Two collinear pulses: invariant mass 0
+ * - Two equal opposite pulses with total energy L: invariant mass L/c^2
+ */
+export function evaluateFourMomentum(
+  pulseSystem: Me03PulseSystem,
+  totalEnergy: number,
+  set?: ConstantSet,
+): ScientificResult {
+  const c = constantValue(set ?? getConstantSet("modern-si-2019"), "speedOfLight").value;
+  const cSq = c * c;
+
+  if (pulseSystem === "single-pulse" || pulseSystem === "two-collinear") {
+    return asValue("invariantMass", "kg", "invariant-mass", "massEnergy.fourMomentum", 0);
+  }
+
+  // Two equal opposite pulses: total energy L, zero spatial momentum -> m = L/c^2
+  return asValue(
+    "invariantMass",
+    "kg",
+    "invariant-mass",
+    "massEnergy.fourMomentum",
+    totalEnergy / cSq,
+  );
+}
+
+/**
+ * Light complex volume transformation (Paper 3, §8):
+ * V* / V = gamma * (1 - beta * cos(phi))
+ * For a ray transverse in the stationary frame (cos(phi) = 0): V* / V = gamma (expands!).
+ * For a ray transverse in the moving frame (cos(phi*) = 0 <=> cos(phi) = beta): V* / V = 1/gamma.
+ */
+export function evaluateLightComplexVolumeRatio(beta: number, cosPhiStationary: number): number {
+  const g = 1 / Math.sqrt(Math.max(1e-12, 1 - beta * beta));
+  return g * (1 - beta * cosPhiStationary);
+}
+
+/**
+ * Material volume contraction along motion: V* / V = 1 / gamma = sqrt(1 - beta^2).
+ */
+export function evaluateMaterialVolumeRatio(beta: number): number {
+  return Math.sqrt(Math.max(0, 1 - beta * beta));
+}
+
+/**
+ * Generates the full definition and dynamic calculation for each cited energy-source card.
+ */
+export function evaluateEnergySourceCard(cardId: Me03CardId, set?: ConstantSet): EnergySourceCard {
+  const c = constantValue(set ?? getConstantSet("modern-si-2019"), "speedOfLight").value;
+  const cSq = c * c;
+  const eCharge = 1.602176634e-19; // J/eV
+
+  switch (cardId) {
+    case "me-03-card-radium": {
+      const qMev = 4.871;
+      const energyJ = qMev * 1e6 * eCharge;
+      const massChangeKgPerDecay = energyJ / cSq;
+
+      const boundary: EnergySourceCardBoundary = Object.freeze({
+        systemBefore: "Radium-226 nucleus at rest",
+        systemAfter: "Radon-222 nucleus and alpha particle after heat emission",
+        matterCrossesBoundary: Object.freeze({
+          crosses: false,
+          note: "The radon-222 nucleus and the alpha particle both stay inside the boundary.",
+        }),
+        radiation: Object.freeze({
+          disposition: "escapes" as const,
+          note: "The decay energy leaves as heat.",
+        }),
+        referenceFrame: "Rest frame of parent nucleus",
+        energyFigure: Object.freeze({
+          quantityId: "decayEnergy",
+          value: qMev,
+          unit: "MeV",
+          kind: "decay-energy-per-event" as const,
+          citationId: "nuclear-data-eval-radium",
+        }),
+        closedButNotIsolated: Object.freeze({
+          value: true,
+          note: "Nothing material crosses this boundary, but the system is not isolated: energy still enters or leaves it.",
+        }),
+      });
+
+      return Object.freeze({
+        id: "me-03-card-radium",
+        label: "Radium-226 Alpha Decay",
+        description: "Nuclear alpha decay Q = 4.871 MeV per event.",
+        citation:
+          "NuDat 3.0 / Evaluated Nuclear Structure Data File (ENSDF), Brookhaven National Laboratory (226Ra Q-alpha = 4.871 MeV).",
+        boundary,
+        energyJoules: energyJ,
+        massChangeKg: massChangeKgPerDecay,
+        massChangeSigned: asValue(
+          "massChange",
+          "kg",
+          "mass-change",
+          "massEnergy.cards",
+          -massChangeKgPerDecay,
+        ),
+        massChangeFormatted: "0.0052292 u/decay (5.229 mg/mol)",
+        energyFormatted: "4.871 MeV per decay",
+      });
+    }
+
+    case "me-03-card-sun": {
+      const luminosityW = 3.828e26;
+      const massLossKgPerSec = luminosityW / cSq;
+
+      const boundary: EnergySourceCardBoundary = Object.freeze({
+        systemBefore: "The Sun before one second of emission",
+        systemAfter: "The Sun after one second of radiant emission",
+        matterCrossesBoundary: Object.freeze({
+          crosses: true,
+          note: "Neutrinos and the solar wind carry matter and energy that the radiated power figure does not include.",
+        }),
+        radiation: Object.freeze({
+          disposition: "escapes" as const,
+          note: "Radiated power leaves the solar boundary.",
+        }),
+        referenceFrame: "Solar rest frame",
+        energyFigure: Object.freeze({
+          quantityId: "solarLuminosity",
+          value: luminosityW,
+          unit: "W",
+          kind: "radiated-power" as const,
+          citationId: "iau-2015-resolution-b3",
+        }),
+        closedButNotIsolated: Object.freeze({
+          value: false,
+          note: "System exchanges matter across its boundary.",
+        }),
+      });
+
+      return Object.freeze({
+        id: "me-03-card-sun",
+        label: "The Sun (Radiated Luminosity)",
+        description: "Solar radiant energy output of 3.828 × 10^26 W.",
+        citation:
+          "IAU 2015 Resolution B3 on Recommended Nominal Conversion Constants (Nominal Solar Luminosity = 3.828 × 10^26 W).",
+        boundary,
+        energyJoules: luminosityW,
+        massChangeKg: massLossKgPerSec,
+        massChangeSigned: asValue(
+          "massChange",
+          "kg",
+          "mass-change",
+          "massEnergy.cards",
+          -massLossKgPerSec,
+        ),
+        massChangeFormatted: "4.259 × 10^9 kg/s (4.3 million tonnes/s)",
+        energyFormatted: "3.828 × 10^26 W",
+      });
+    }
+
+    case "me-03-card-coal": {
+      const qCoalMidJ = 30.0e6; // 30 MJ/kg illustrative midpoint
+      const massLossKg = qCoalMidJ / cSq;
+
+      const boundary: EnergySourceCardBoundary = Object.freeze({
+        systemBefore: "Coal and required oxygen before combustion",
+        systemAfter: "Combustion ash and gases after heat release",
+        matterCrossesBoundary: Object.freeze({
+          crosses: true,
+          note: "Oxygen enters and combustion products leave.",
+        }),
+        radiation: Object.freeze({
+          disposition: "escapes" as const,
+          note: "The released heat leaves the furnace boundary.",
+        }),
+        referenceFrame: "Furnace rest frame",
+        energyFigure: Object.freeze({
+          quantityId: "heatOfCombustion",
+          value: 30.0,
+          unit: "MJ/kg",
+          kind: "heat-of-combustion" as const,
+          citationId: "crc-handbook-combustion-coal",
+        }),
+        closedButNotIsolated: Object.freeze({
+          value: false,
+          note: "System exchanges matter across its boundary.",
+        }),
+      });
+
+      return Object.freeze({
+        id: "me-03-card-coal",
+        label: "Burning Coal",
+        description: "Chemical combustion enthalpy 24–35 MJ per kilogram of coal.",
+        citation:
+          "CRC Handbook of Chemistry and Physics, 104th ed. (Higher heating values of coals: 24–35 MJ/kg).",
+        boundary,
+        energyJoules: qCoalMidJ,
+        massChangeKg: massLossKg,
+        massChangeSigned: asValue(
+          "massChange",
+          "kg",
+          "mass-change",
+          "massEnergy.cards",
+          -massLossKg,
+        ),
+        massChangeFormatted: "(2.670–3.894) × 10^-10 kg (0.27–0.39 µg/kg)",
+        energyFormatted: "24–35 MJ/kg (30 MJ nominal)",
+      });
+    }
+
+    case "me-03-card-candle": {
+      const powerW = 80.0;
+      const energyJ = powerW * 3600; // 288 kJ in 1 hour
+      const massLossKg = energyJ / cSq;
+
+      const boundary: EnergySourceCardBoundary = Object.freeze({
+        systemBefore: "Candle and ambient oxygen before 1 hour of burning",
+        systemAfter: "Remaining candle wax and gaseous products after 1 hour",
+        matterCrossesBoundary: Object.freeze({
+          crosses: true,
+          note: "The wax leaves as combustion products, which is matter, not the mass-energy effect.",
+        }),
+        radiation: Object.freeze({
+          disposition: "escapes" as const,
+          note: "Radiated heat and light leave the room.",
+        }),
+        referenceFrame: "Room rest frame",
+        energyFigure: Object.freeze({
+          quantityId: "candleHeatRate",
+          value: powerW,
+          unit: "W",
+          kind: "heat-release-rate" as const,
+          citationId: "sundstrom-candle-flame-power",
+        }),
+        closedButNotIsolated: Object.freeze({
+          value: false,
+          note: "System exchanges matter across its boundary.",
+        }),
+      });
+
+      return Object.freeze({
+        id: "me-03-card-candle",
+        label: "A Burning Candle",
+        description: "Heat-release rate near 80 W for one hour (288 kJ).",
+        citation:
+          "Sundström (1995), 'Heat release from candles', Fire Safety Science 4 (Nominal candle power ~ 80 W).",
+        boundary,
+        energyJoules: energyJ,
+        massChangeKg: massLossKg,
+        massChangeSigned: asValue(
+          "massChange",
+          "kg",
+          "mass-change",
+          "massEnergy.cards",
+          -massLossKg,
+        ),
+        massChangeFormatted: "3.20 ng (in 1 hour)",
+        energyFormatted: "80 W (288 kJ/h)",
+      });
+    }
+
+    case "me-03-card-bulb": {
+      const energyJ = 100 * 365.25 * 86400; // 3.15576 × 10^9 J
+      const massLossKg = energyJ / cSq;
+
+      const boundary: EnergySourceCardBoundary = Object.freeze({
+        systemBefore: "Light bulb at the start of one Julian year",
+        systemAfter: "Light bulb at the end of one Julian year",
+        matterCrossesBoundary: Object.freeze({
+          crosses: false,
+          note: "Energy arrives through the wires and leaves as light and heat without matter transfer.",
+        }),
+        radiation: Object.freeze({
+          disposition: "escapes" as const,
+          note: "Light and heat radiate away continuously.",
+        }),
+        referenceFrame: "Lamp rest frame",
+        energyFigure: Object.freeze({
+          quantityId: "bulbElectricalEnergy",
+          value: 3.15576e9,
+          unit: "J",
+          kind: "electrical-input" as const,
+          citationId: "si-joule-definition-bulb",
+        }),
+        closedButNotIsolated: Object.freeze({
+          value: true,
+          note: "Nothing material crosses this boundary, but the system is not isolated: energy still enters or leaves it.",
+        }),
+      });
+
+      return Object.freeze({
+        id: "me-03-card-bulb",
+        label: "100 W Light Bulb (1 Year)",
+        description: "100 W continuous electrical operation for one Julian year (3.156 × 10^9 J).",
+        citation:
+          "BIPM SI Brochure (9th ed., 2019) / Standard Julian Year: 365.25 days = 31,557,600 s; 100 W × 31,557,600 s = 3.15576 × 10^9 J.",
+        boundary,
+        energyJoules: energyJ,
+        massChangeKg: massLossKg,
+        massChangeSigned: asValue(
+          "massChange",
+          "kg",
+          "mass-change",
+          "massEnergy.cards",
+          -massLossKg,
+        ),
+        massChangeFormatted: "35.1 µg (in 1 year)",
+        energyFormatted: "100 W × 1 Julian year (3.156 × 10^9 J)",
+      });
+    }
+
+    case "me-03-heated-sealed-box": {
+      const energyJ = 1.0;
+      const massChangeKg = energyJ / cSq;
+
+      const boundary: EnergySourceCardBoundary = Object.freeze({
+        systemBefore: "Sealed enclosure with internal heater before electrical input",
+        systemAfter: "Sealed enclosure with internal heater after absorbing input energy",
+        matterCrossesBoundary: Object.freeze({
+          crosses: false,
+          note: "Energy enters through leads while no matter crosses the sealed boundary.",
+        }),
+        radiation: Object.freeze({
+          disposition: "retained" as const,
+          note: "All thermal radiation is absorbed and contained inside the enclosure.",
+        }),
+        referenceFrame: "Box rest frame",
+        energyFigure: Object.freeze({
+          quantityId: "electricalInput",
+          value: energyJ,
+          unit: "J",
+          kind: "stated-transfer" as const,
+          citationId: "einstein-1906-ann-phys-20-627",
+        }),
+        closedButNotIsolated: Object.freeze({
+          value: true,
+          note: "Nothing material crosses this boundary, but the system is not isolated: energy still enters or leaves it.",
+        }),
+      });
+
+      return Object.freeze({
+        id: "me-03-heated-sealed-box",
+        label: "Heated Sealed Box",
+        description: "Energy enters via electrical leads and is absorbed internally.",
+        citation:
+          "Einstein, A. (1906), 'Das Prinzip von der Erhaltung der Schwerpunktsbewegung und die Trägheit der Energie', Ann. Phys. 20, 627–633.",
+        boundary,
+        energyJoules: energyJ,
+        massChangeKg,
+        massChangeSigned: asValue(
+          "massChange",
+          "kg",
+          "mass-change",
+          "massEnergy.cards",
+          massChangeKg,
+        ),
+        massChangeFormatted: "+E / c^2 (+1.11 × 10^-17 kg/J)",
+        energyFormatted: "Declared electrical input Ein",
+      });
+    }
+
+    case "me-03-sealed-lamp-and-mirror": {
+      const energyJ = 1.0;
+
+      const boundary: EnergySourceCardBoundary = Object.freeze({
+        systemBefore: "Charged battery, cold lamp, and mirrors inside sealed box",
+        systemAfter: "Discharged battery and absorbed radiation inside sealed box",
+        matterCrossesBoundary: Object.freeze({
+          crosses: false,
+          note: "Battery, lamp, and mirror are all enclosed inside the sealed box.",
+        }),
+        radiation: Object.freeze({
+          disposition: "retained" as const,
+          note: "The radiation is emitted and absorbed inside the enclosure.",
+        }),
+        referenceFrame: "Box rest frame",
+        energyFigure: Object.freeze({
+          quantityId: "lampEmittedEnergy",
+          value: energyJ,
+          unit: "J",
+          kind: "stated-transfer" as const,
+          citationId: "einstein-1906-ann-phys-20-627",
+        }),
+        closedButNotIsolated: Object.freeze({
+          value: true,
+          note: "Nothing material crosses this boundary, but the system is not isolated: energy still enters or leaves it.",
+        }),
+      });
+
+      return Object.freeze({
+        id: "me-03-sealed-lamp-and-mirror",
+        label: "Sealed Lamp and Mirror",
+        description: "Combined isolated system where light is emitted and absorbed internally.",
+        citation:
+          "Einstein, A. (1906), 'Das Prinzip von der Erhaltung der Schwerpunktsbewegung und die Trägheit der Energie', Ann. Phys. 20, 627–633.",
+        boundary,
+        energyJoules: energyJ,
+        massChangeKg: 0,
+        massChangeSigned: asValue("massChange", "kg", "mass-change", "massEnergy.cards", 0),
+        massChangeFormatted: "0 (enclosure mass unchanged)",
+        energyFormatted: "Emitted energy L (internal transfer)",
+      });
+    }
+  }
+}
+
+export type Me03Input = Readonly<{
+  boundary?: Me03Boundary;
+  disposition?: Me03RadiationDisposition;
+  emittedEnergy?: number;
+  inputEnergy?: number;
+  cardId?: Me03CardId;
+  mode?: Me03Mode;
+  pulseSystem?: Me03PulseSystem;
+  constantSetId?: string;
+}>;
+
+export type Me03Snapshot = Readonly<{
+  boundary: Me03Boundary;
+  disposition: Me03RadiationDisposition;
+  emittedEnergy: number;
+  inputEnergy: number;
+  cardId: Me03CardId;
+  mode: Me03Mode;
+  pulseSystem: Me03PulseSystem;
+  speedOfLight: number;
+  energyChange: ScientificResult;
+  massChange: ScientificResult;
+  radiationEnergyChange: ScientificResult;
+  radiationMassChange: ScientificResult;
+  systemEnergyChange: ScientificResult;
+  systemMassChange: ScientificResult;
+  invariantMass: ScientificResult;
+  card: EnergySourceCard;
+  cards: Readonly<Record<Me03CardId, EnergySourceCard>>;
+  boundaryFacts: EnergySourceCardBoundary;
+}>;
+
+/**
+ * Main reference evaluator for ME-03.
+ */
+export function evaluateMe03(input: Me03Input = {}): Me03Snapshot {
+  const boundary = input.boundary ?? "body-alone";
+  const disposition = input.disposition ?? "escapes";
+  const emittedEnergy =
+    Number.isFinite(input.emittedEnergy) && (input.emittedEnergy ?? 1) > 0
+      ? (input.emittedEnergy ?? 1)
+      : 1;
+  const inputEnergy =
+    Number.isFinite(input.inputEnergy) && (input.inputEnergy ?? 0) >= 0
+      ? (input.inputEnergy ?? 0)
+      : 0;
+  const cardId = input.cardId ?? "me-03-card-radium";
+  const mode = input.mode ?? "1905";
+  const pulseSystem = input.pulseSystem ?? "two-opposite";
+  const set = getConstantSet(input.constantSetId ?? "modern-si-2019");
+  const c = constantValue(set, "speedOfLight").value;
+
+  const ledger = evaluateBoundaryLedger(boundary, disposition, emittedEnergy, inputEnergy, set);
+  const invariantMass = evaluateFourMomentum(pulseSystem, emittedEnergy, set);
+
+  const card = evaluateEnergySourceCard(cardId, set);
+  const cards: Record<Me03CardId, EnergySourceCard> = {
+    "me-03-card-radium": evaluateEnergySourceCard("me-03-card-radium", set),
+    "me-03-card-sun": evaluateEnergySourceCard("me-03-card-sun", set),
+    "me-03-card-coal": evaluateEnergySourceCard("me-03-card-coal", set),
+    "me-03-card-candle": evaluateEnergySourceCard("me-03-card-candle", set),
+    "me-03-card-bulb": evaluateEnergySourceCard("me-03-card-bulb", set),
+    "me-03-heated-sealed-box": evaluateEnergySourceCard("me-03-heated-sealed-box", set),
+    "me-03-sealed-lamp-and-mirror": evaluateEnergySourceCard("me-03-sealed-lamp-and-mirror", set),
+  };
+
+  return Object.freeze({
+    boundary,
+    disposition,
+    emittedEnergy,
+    inputEnergy,
+    cardId,
+    mode,
+    pulseSystem,
+    speedOfLight: c,
+    energyChange: ledger.energyChange,
+    massChange: ledger.massChange,
+    radiationEnergyChange: ledger.radiationEnergyChange,
+    radiationMassChange: ledger.radiationMassChange,
+    systemEnergyChange: ledger.systemEnergyChange,
+    systemMassChange: ledger.systemMassChange,
+    invariantMass,
+    card,
+    cards: Object.freeze(cards),
+    boundaryFacts: card.boundary,
   });
 }

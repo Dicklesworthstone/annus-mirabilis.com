@@ -1,0 +1,8 @@
+beadId: am-me-03-system-boundary-0arb
+targets:
+  - instrument: me-03
+    captions:
+      - r0
+      - r1
+      - r2
+      - r3

@@ -1,0 +1,62 @@
+tapeVersion: 2
+tapeId: where-the-energy-went
+experimentId: me-03
+mode: "me-03:default"
+title: "where the energy went"
+description: "Teaching tape demonstrating boundary energy balances: body alone loses mass, radiation carries energy, and the combined isolated system conserves total mass and energy."
+isTeachingSequence: true
+modelIdentity:
+  modelId: me-03-boundary-ledger-v1
+  modelVersion: "1"
+  artifactDigest: "host:sha256:me03-boundary-evaluateMe03"
+constantSetId: modern-si-2019
+seed: "0"
+streamVersion: 1
+allocationId: me-03.none.v1
+initialConditions:
+  boundary: "body-alone"
+  disposition: "escapes"
+  emittedEnergy: 1.0
+  inputEnergy: 0.0
+  cardId: "me-03-card-radium"
+  mode: "1905"
+events:
+  - kind: control
+    actionIndex: 1
+    commandClass: measurement-change
+    commandId: select-radiation-boundary
+    parameterId: boundary
+    value: "radiation"
+  - kind: control
+    actionIndex: 2
+    commandClass: measurement-change
+    commandId: select-combined-boundary
+    parameterId: boundary
+    value: "combined-isolated-system"
+  - kind: control
+    actionIndex: 3
+    commandClass: setup-change
+    commandId: set-retained-disposition
+    parameterId: disposition
+    value: "retained"
+checkpoints:
+  - actionIndex: 3
+    stepIndex: 0
+    simulatedTime: 0
+    digest: "host:sha256:me03-where-the-energy-went-check"
+    digestKind: host
+    checkpointVersion: 1
+    streamSemanticsVersion: 1
+    seed: "0"
+    streamPositions: []
+    label: combined-isolated-system-balance
+    teachingNote: Inside a combined isolated enclosure, radiation absorption leaves total system mass unchanged.
+    expectedDisplayValues:
+      - label: system energy change
+        value: 0
+        unit: "J"
+        constantSetId: modern-si-2019
+      - label: system mass change
+        value: 0
+        unit: "kg"
+        constantSetId: modern-si-2019
