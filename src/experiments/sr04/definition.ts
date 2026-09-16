@@ -1,6 +1,10 @@
 import type { ConstraintId } from "../../physics/reference/kinematics.ts";
 import type { OutputContract, ParameterClass } from "../store/instanceStore.ts";
 
+/** Re-exported so components read this type through the experiment layer, never by importing
+ * src/physics/reference/* directly (the import-boundary guard, src/testing/noPhysicsInComponents.test.ts). */
+export type { ConstraintId };
+
 export const ALL_CONSTRAINTS: readonly ConstraintId[] = Object.freeze([
   "right-moving-light",
   "left-moving-light",
