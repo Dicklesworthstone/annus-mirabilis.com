@@ -26,14 +26,14 @@ describe("LQ-06 Matching Entropy Coefficients Lab View & Route (am-lq-06-coeffic
     expect(html).toContain('data-instrument-id="lq-06"');
     expect(html).toContain("Side-by-Side Entropy Volume Laws");
     expect(html).toContain("Wien Monochromatic Radiation");
-    expect(html).toContain("Ideal Monatomic Gas");
-    expect(html).toContain("Mean Quantum Energy Comparison");
+    expect(html).toContain("Ideal Gas / Solute Molecules");
+    expect(html).toContain("Wien Spectrum Mean Quantum Energy");
     expect(html).toContain("1. Derivation (Algebra)");
     expect(html).toContain("2. Heuristic Inference");
-    expect(html).toContain("3. Further Physical Hypothesis");
+    expect(html).toContain("3. Further Hypothesis");
   });
 
-  test("session initializes with accepted snapshot and matches reference outputs", () => {
+  test("session initializes with accepted snapshot and updates correspondence verdict on selection", () => {
     const session = createLq06Session("test-lq06-session", example);
     const snap = session.getSnapshot().accepted;
     expect(snap).not.toBeNull();
@@ -45,8 +45,17 @@ describe("LQ-06 Matching Entropy Coefficients Lab View & Route (am-lq-06-coeffic
     expect(effectiveCountOut).toBeDefined();
     expect(effectiveCountOut?.status).toBe("value");
 
-    const verdictOut = snap?.outputs.find((o) => o.quantityId === "correspondenceVerdict");
-    expect(verdictOut).toBeDefined();
-    expect(verdictOut?.status).toBe("value");
+    const verdictInit = snap?.outputs.find((o) => o.quantityId === "correspondenceVerdict");
+    expect(verdictInit).toBeDefined();
+    expect(verdictInit?.status).toBe("not-applicable");
+
+    // After selecting matching subexpression:
+    session.apply({ selectedSubexpression: "N_E_over_R_beta_nu" });
+    const snapUpdated = session.getSnapshot().accepted;
+    const verdictMatch = snapUpdated?.outputs.find((o) => o.quantityId === "correspondenceVerdict");
+    expect(verdictMatch?.status).toBe("value");
+    if (verdictMatch?.status === "value") {
+      expect(verdictMatch.value).toBe(1);
+    }
   });
 });

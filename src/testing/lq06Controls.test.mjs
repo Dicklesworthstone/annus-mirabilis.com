@@ -72,7 +72,10 @@ test("draft conversion refuses non-numeric strings for numbers", () => {
 });
 
 test("validator enforces strictly positive energy, frequency, and valid choices", () => {
-  assert.equal(validateLq06Parameters({ ...LQ06_DEFAULTS, radiationEnergy: -1e-9 }).kind, "refused");
+  assert.equal(
+    validateLq06Parameters({ ...LQ06_DEFAULTS, radiationEnergy: -1e-9 }).kind,
+    "refused",
+  );
   assert.equal(validateLq06Parameters({ ...LQ06_DEFAULTS, frequency: 0 }).kind, "refused");
   assert.equal(validateLq06Parameters({ ...LQ06_DEFAULTS, gasParticles: -1 }).kind, "refused");
   assert.equal(validateLq06Parameters({ ...LQ06_DEFAULTS, volumeRatio: 0 }).kind, "refused");

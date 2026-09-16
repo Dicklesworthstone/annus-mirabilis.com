@@ -24,7 +24,7 @@ export function encodeLq06Settings(p: Lq06Parameters): string {
   q.set("elem", p.proposedEnergyElement);
   q.set("fork", p.forkAChoice);
   q.set("cset", p.constantSetId);
-  return q.toString();
+  return `?${q.toString()}`;
 }
 
 export function decodeLq06Settings(search: string): DecodedLq06Settings {
@@ -40,8 +40,11 @@ export function decodeLq06Settings(search: string): DecodedLq06Settings {
   const q = new URLSearchParams(raw);
   const requiredKeys = ["e", "nu", "n", "v", "t", "sub", "elem", "fork"];
   const allowed = new Set([...requiredKeys, "cset"]);
-  if (!requiredKeys.every((k) => q.getAll(k).length === 1) ||
-      [...q.keys()].some(k => !allowed.has(k) || q.getAll(k).length !== 1)) return invalid();
+  if (
+    !requiredKeys.every((k) => q.getAll(k).length === 1) ||
+    [...q.keys()].some((k) => !allowed.has(k) || q.getAll(k).length !== 1)
+  )
+    return invalid();
 
   try {
     const energy = parseScaledDecimal(q.get("e") ?? "", 9);

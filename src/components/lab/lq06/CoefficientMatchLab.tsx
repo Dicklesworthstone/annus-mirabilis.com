@@ -142,7 +142,18 @@ export function CoefficientMatchLab({ example }: CoefficientMatchLabProps) {
   };
 
   return (
-    <div className="lab-container max-w-5xl mx-auto p-4 space-y-6" data-instrument-id="lq-06">
+    <div
+      className="lab-container max-w-5xl mx-auto p-4 space-y-6"
+      data-instrument-id="lq-06"
+      data-testid="lq06-coefficient-match-lab"
+    >
+      <noscript>
+        <div className="bg-amber-50 border border-amber-200 text-amber-900 px-4 py-3 rounded-md text-xs mb-4">
+          <strong>JavaScript disabled:</strong> Viewing static worked example and reference
+          calculation. Interactive exploration, sliders, and predict mode require JavaScript.
+        </div>
+      </noscript>
+
       {/* Header & Presets */}
       <section className="bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-800 rounded-lg p-4 shadow-sm">
         <div className="flex flex-wrap items-center justify-between gap-3 mb-4">
