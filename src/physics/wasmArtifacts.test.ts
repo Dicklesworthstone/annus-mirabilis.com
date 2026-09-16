@@ -88,7 +88,7 @@ describe("WASM Artifact Verification Suite", () => {
       assert.equal(result.status, "drift-budget-exceeded");
       assert.equal(result.code, "drift-budget-exceeded");
       assert.ok(result.totalBundleBytes <= result.maxBytes);
-      assert.ok(result.driftRatio > 0.10);
+      assert.ok(result.driftRatio > 0.1);
       assert.equal(result.driftRatio, 0.25); // (25000 - 20000) / 20000 = 25% drift
     });
 
@@ -104,7 +104,7 @@ describe("WASM Artifact Verification Suite", () => {
       assert.equal(result.status, "ok");
       assert.equal(result.code, undefined);
       assert.ok(result.totalBundleBytes <= result.maxBytes);
-      assert.ok(result.driftRatio <= 0.10);
+      assert.ok(result.driftRatio <= 0.1);
     });
   });
 });
