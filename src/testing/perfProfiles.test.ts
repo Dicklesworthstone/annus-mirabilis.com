@@ -66,7 +66,9 @@ describe("negative fixtures", () => {
 
   test("unknown budget id", () => {
     const broken = clone(data);
-    broken.profiles[0]!.budgets.push("made-up-budget" as never);
+    const profile = broken.profiles[0];
+    if (!profile) throw new Error("fixture expects at least one profile");
+    profile.budgets.push("made-up-budget" as never);
     const issues = validateProfilesFile(broken, schema);
     expect(issues.some((i) => i.message.includes("unknown budget id") || i.message.includes("expected one of"))).toBe(
       true,
@@ -75,14 +77,19 @@ describe("negative fixtures", () => {
 
   test("CPU factor below 1", () => {
     const broken = clone(data);
-    broken.profiles[0]!.cpuSlowdown.factor = 0.5;
+    const profile = broken.profiles[0];
+    if (!profile) throw new Error("fixture expects at least one profile");
+    profile.cpuSlowdown.factor = 0.5;
     const issues = validateProfilesFile(broken, schema);
     expect(issues.some((i) => i.message.includes("below 1") || i.message.includes("expected >= 1"))).toBe(true);
   });
 
   test("viewport narrower than 320 px", () => {
     const broken = clone(data);
-    broken.profiles[0]!.viewports[0]!.width = 319;
+    const profile = broken.profiles[0];
+    const viewport = profile?.viewports[0];
+    if (!viewport) throw new Error("fixture expects at least one profile with a viewport");
+    viewport.width = 319;
     const issues = validateProfilesFile(broken, schema);
     expect(issues.some((i) => i.message.includes("narrower than 320") || i.message.includes("expected >= 320"))).toBe(
       true,

@@ -320,15 +320,24 @@ export function nearestRankPercentile(sortedAscending: number[], percentile: num
     throw new Error(`need at least ${minSamples} samples, got ${sortedAscending.length}`);
   }
   const rank = Math.ceil(percentile * sortedAscending.length);
-  return sortedAscending[rank - 1]!;
+  const value = sortedAscending[rank - 1];
+  if (value === undefined) throw new Error(`rank ${rank} out of bounds for ${sortedAscending.length} samples`);
+  return value;
 }
 
 export function median(values: number[]): number {
   if (values.length === 0) throw new Error("median of empty sample");
   const sorted = [...values].sort((a, b) => a - b);
   const mid = Math.floor(sorted.length / 2);
-  if (sorted.length % 2 === 1) return sorted[mid]!;
-  return (sorted[mid - 1]! + sorted[mid]!) / 2;
+  if (sorted.length % 2 === 1) {
+    const value = sorted[mid];
+    if (value === undefined) throw new Error(`median index ${mid} out of bounds`);
+    return value;
+  }
+  const lower = sorted[mid - 1];
+  const upper = sorted[mid];
+  if (lower === undefined || upper === undefined) throw new Error(`median indices ${mid - 1}/${mid} out of bounds`);
+  return (lower + upper) / 2;
 }
 
 export function frameRatePasses(opts: {
