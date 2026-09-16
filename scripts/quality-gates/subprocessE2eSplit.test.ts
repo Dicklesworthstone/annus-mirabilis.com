@@ -14,11 +14,11 @@ describe("subprocess tests run under node, not bun test", () => {
   };
   const workflow = readFileSync(".github/workflows/quality-gates.yml", "utf8");
 
-  test("bunfig.toml uses the bun 1.4.0 pathIgnorePatterns key with repo-relative paths", () => {
+  test("bunfig.toml uses the bun 1.4.0 pathIgnorePatterns key with repo-relative paths and globs", () => {
     const patterns = parsePathIgnorePatterns(bunfig);
     expect(patterns.includes("scripts/quality-gates.test.ts")).toBe(true);
-    expect(patterns.includes("scripts/check-receipts.e2e.test.ts")).toBe(true);
-    expect(patterns.includes("scripts/ocr-ledgers.e2e.test.ts")).toBe(true);
+    expect(patterns.includes("scripts/e2e")).toBe(true);
+    expect(patterns.includes("**/*.e2e.test.ts")).toBe(true);
     expect(patterns.includes("quality-gates.test.ts")).toBe(false);
   });
 
@@ -30,16 +30,15 @@ describe("subprocess tests run under node, not bun test", () => {
     expect(files.includes("scripts/summarize-test-logs.e2e.test.ts")).toBe(true);
     expect(files.includes("scripts/ocr-ledgers.e2e.test.ts")).toBe(true);
     expect(files.includes("scripts/quality-gates.test.ts")).toBe(true);
-    expect(files.includes("src/content/editions/brownian.manifest.e2e.test.ts")).toBe(false);
+    expect(files.includes("scripts/e2e/primitives.test.ts")).toBe(true);
   });
 
-  test("every file matched by bunfig's pathIgnorePatterns appears in the node-only execution set", () => {
+  test("every file matched by bunfig's pathIgnorePatterns appears in the node-only execution set (self-detecting guard)", () => {
     const patterns = parsePathIgnorePatterns(bunfig);
     const ignoredFiles = expandIgnorePatternsToTestFiles(patterns, process.cwd());
     const args = nodeOnlyTestArgs(bunfig, process.cwd());
-    const coveredByArgs = expandIgnorePatternsToTestFiles(args, process.cwd());
     for (const file of ignoredFiles) {
-      expect(coveredByArgs).toContain(file);
+      expect(args).toContain(file);
     }
   });
 

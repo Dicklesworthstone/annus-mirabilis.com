@@ -15,7 +15,7 @@ export function parsePathIgnorePatterns(bunfigText: string): string[] {
   const block = bunfigText.match(/pathIgnorePatterns\s*=\s*\[([\s\S]*?)\]/);
   if (block === null || block[1] === undefined) {
     throw new Error(
-      `bunfig.toml is missing [test].pathIgnorePatterns. Subprocess tests would run under bun test or nowhere.`,
+      "bunfig.toml is missing [test].pathIgnorePatterns. Subprocess tests would run under bun test or nowhere.",
     );
   }
   const patterns = [...block[1].matchAll(/"([^"]+)"/g)]
@@ -31,18 +31,31 @@ function posix(rel: string): string {
   return rel.replace(/\\/g, "/");
 }
 
-function matchGlob(relPath: string, pattern: string): boolean {
-  if (!pattern.includes("*")) {
-    return relPath === pattern;
+export function matchPattern(relPath: string, pattern: string): boolean {
+  const normalizedPath = posix(relPath);
+  const normalizedPattern = posix(pattern).replace(/\/+$/, "");
+
+  // 1. Exact match
+  if (normalizedPath === normalizedPattern) {
+    return true;
   }
-  const regexStr = pattern
+
+  // 2. Directory prefix match (e.g. pattern is "scripts/e2e")
+  if (!normalizedPattern.includes("*")) {
+    if (normalizedPath.startsWith(`${normalizedPattern}/`)) {
+      return true;
+    }
+  }
+
+  // 3. Glob matching
+  const regexStr = normalizedPattern
     .replace(/[.+^${}()|[\]\\]/g, "\\$&")
     .replace(/\/\*\*\//g, ":::SLASH_GLOBSTAR_SLASH:::")
     .replace(/\*\*/g, ":::GLOBSTAR:::")
     .replace(/\*/g, "[^/]*")
     .replace(/:::SLASH_GLOBSTAR_SLASH:::/g, "/(?:.*/)?")
     .replace(/:::GLOBSTAR:::/g, ".*");
-  return new RegExp(`^${regexStr}$`).test(relPath);
+  return new RegExp(`^${regexStr}$`).test(normalizedPath);
 }
 
 function walkFiles(dir: string, root: string, out: string[]): void {
@@ -72,7 +85,7 @@ export function expandIgnorePatternsToTestFiles(
   walkFiles(root, root, allFiles);
   const matched = allFiles.filter((rel) => {
     if (!/\.(test|spec)\.(ts|js|mjs|tsx|jsx)$/.test(rel)) return false;
-    return patterns.some((pattern) => matchGlob(rel, pattern));
+    return patterns.some((pattern) => matchPattern(rel, pattern));
   });
   return [...new Set(matched)].sort();
 }
