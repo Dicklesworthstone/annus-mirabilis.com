@@ -16,6 +16,19 @@ describe("Evidence Links Checker", () => {
     assert.equal(result.resolvedLinks, result.totalLinks);
   });
 
+  it("verifies all file references and bead IDs in docs/evidence/dod-brownian.md resolve cleanly", () => {
+    const docPath = "docs/evidence/dod-brownian.md";
+    const result = checkEvidenceLinksFile(docPath);
+
+    assert.equal(result.totalLinks > 0, true, "Expected links in dod-brownian.md");
+    assert.equal(
+      result.unresolvedLinks,
+      0,
+      `Unresolved links found in dod-brownian.md: ${JSON.stringify(result.links.filter((l) => !l.resolved))}`,
+    );
+    assert.equal(result.resolvedLinks, result.totalLinks);
+  });
+
   it("fails on broken file references and identifies the missing file", () => {
     const brokenContent = `
 # Broken Doc
