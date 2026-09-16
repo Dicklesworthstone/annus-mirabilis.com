@@ -18,8 +18,8 @@
 import { constantValue, getConstantSet } from "../../physics/reference/constants.ts";
 import {
   entropyWithUnfixedConstant,
-  radiationEntropyVolumeChange,
   type RadiationEntropyVolumeChangeResult,
+  radiationEntropyVolumeChange,
   regimeRelativeErrors,
   wienFrequencyEnergyDensity,
   wienSpectralEntropyDensity,

@@ -41,11 +41,7 @@ export function validateLq04Parameters(input: unknown): Computation<Lq04Paramete
   if (!Number.isFinite(p.bandwidth) || p.bandwidth < 1e9 || p.bandwidth > 1e14) {
     return bad("Band width must be between 1e9 Hz and 1e14 Hz.");
   }
-  if (
-    !Number.isFinite(p.referenceVolume) ||
-    p.referenceVolume < 1e-6 ||
-    p.referenceVolume > 1
-  ) {
+  if (!Number.isFinite(p.referenceVolume) || p.referenceVolume < 1e-6 || p.referenceVolume > 1) {
     return bad("Reference volume must be between 1e-6 m^3 and 1 m^3.");
   }
   if (
@@ -55,18 +51,10 @@ export function validateLq04Parameters(input: unknown): Computation<Lq04Paramete
   ) {
     return bad("Reference temperature must be between 500 K and 10000 K.");
   }
-  if (
-    !Number.isFinite(p.volumeRatio) ||
-    p.volumeRatio < 1e-4 ||
-    p.volumeRatio > 1e4
-  ) {
+  if (!Number.isFinite(p.volumeRatio) || p.volumeRatio < 1e-4 || p.volumeRatio > 1e4) {
     return bad("Volume ratio must be between 1e-4 and 1e4.");
   }
-  if (
-    !Number.isFinite(p.diluteThresholdX) ||
-    p.diluteThresholdX < 3 ||
-    p.diluteThresholdX > 10
-  ) {
+  if (!Number.isFinite(p.diluteThresholdX) || p.diluteThresholdX < 3 || p.diluteThresholdX > 10) {
     return bad("The dilute threshold x_min must be between 3 and 10.");
   }
   if (typeof p.showUnfixedConstantPanel !== "boolean") {

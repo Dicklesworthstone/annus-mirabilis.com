@@ -20,7 +20,10 @@ import {
   createLq04Session,
   type PreparedLq04Example,
 } from "../../../experiments/lq04/session.ts";
-import type { AcceptedSnapshot, PublishedResult } from "../../../experiments/store/instanceStore.ts";
+import type {
+  AcceptedSnapshot,
+  PublishedResult,
+} from "../../../experiments/store/instanceStore.ts";
 import { identity } from "../presentation.ts";
 import { ShowTheCode } from "../ShowTheCode.tsx";
 
@@ -65,12 +68,7 @@ function findOutput(snapshot: AcceptedSnapshot, id: string): PublishedResult | u
   return snapshot.outputs.find((o) => o.quantityId === id);
 }
 
-function valueText(
-  snapshot: AcceptedSnapshot,
-  id: string,
-  unit: string,
-  digits = 6,
-): string {
+function valueText(snapshot: AcceptedSnapshot, id: string, unit: string, digits = 6): string {
   const output = findOutput(snapshot, id);
   if (!output) return "(not available in this state)";
   if (output.status === "value" && typeof output.value === "number") {
@@ -94,7 +92,11 @@ export function EntropyWorkbenchLab({
   const [session] = useState(() =>
     createLq04Session(`lq04-${id}`, example?.parameters ?? LQ04_DEFAULTS),
   );
-  const view = useSyncExternalStore(session.subscribe, session.getSnapshot, session.getServerSnapshot);
+  const view = useSyncExternalStore(
+    session.subscribe,
+    session.getSnapshot,
+    session.getServerSnapshot,
+  );
 
   const fallback =
     session.getServerSnapshot().accepted ??
@@ -170,7 +172,8 @@ export function EntropyWorkbenchLab({
         <form onSubmit={submit} aria-label="Constrained-state comparison controls">
           <fieldset>
             <legend>Volume ratio V / V0</legend>
-            <div role="group" aria-label="Quick ratio presets">
+            <fieldset>
+              <legend>Quick ratio presets</legend>
               <button type="button" onClick={() => applyRatio(0.5)}>
                 Half
               </button>
@@ -180,7 +183,7 @@ export function EntropyWorkbenchLab({
               <button type="button" onClick={() => applyRatio(2)}>
                 Double
               </button>
-            </div>
+            </fieldset>
             <label htmlFor={`${id}-ratio`}>Enter any ratio</label>
             <input
               id={`${id}-ratio`}
@@ -241,9 +244,7 @@ export function EntropyWorkbenchLab({
               <input
                 type="checkbox"
                 checked={draft.showUnfixedConstantPanel}
-                onChange={(e) =>
-                  setDraft({ ...draft, showUnfixedConstantPanel: e.target.checked })
-                }
+                onChange={(e) => setDraft({ ...draft, showUnfixedConstantPanel: e.target.checked })}
               />
               Show what an unfixed integration constant would add
             </label>
@@ -283,10 +284,10 @@ export function EntropyWorkbenchLab({
             </p>
           ) : (
             <p role="status">
-              Delta S = {valueText(snapshot, "radiationEntropy", "J/K")} (closed form) ;{" "}
+              Delta S = {valueText(snapshot, "radiationEntropy", "J/K")} (closed form);{" "}
               {valueText(snapshot, "radiationEntropyNumeric", "J/K")} (numerical S(V) - S(V0));
-              coefficient E/(B nu) = {valueText(snapshot, "entropyVolumeCoefficient", "J/K")};
-              E/(h nu) = {valueText(snapshot, "effectiveIndependentCount", "", 6)} (never a count of
+              coefficient E/(B nu) = {valueText(snapshot, "entropyVolumeCoefficient", "J/K")}; E/(h
+              nu) = {valueText(snapshot, "effectiveIndependentCount", "", 6)} (never a count of
               particles).
             </p>
           )}
@@ -338,9 +339,9 @@ export function EntropyWorkbenchLab({
           <details>
             <summary>Action contract: the same action without dragging, color, or a canvas</summary>
             <p>
-              Every action here is typed text entry and a text result: choose half, same, or
-              double, or type any volume ratio, and read the entropy-change sentence and the state
-              table above. No control depends on color, drag gestures, or a canvas.
+              Every action here is typed text entry and a text result: choose half, same, or double,
+              or type any volume ratio, and read the entropy-change sentence and the state table
+              above. No control depends on color, drag gestures, or a canvas.
             </p>
           </details>
 

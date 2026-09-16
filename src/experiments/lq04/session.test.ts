@@ -88,7 +88,9 @@ describe("LQ-04 modern golden scenario (am-lq-04-entropy-workbench-senj)", () =>
       relative: 1e-9,
     });
     // The two are separate outputs with different dimensions; neither should be mistaken for the other.
-    expect(evaluation.entropyVolumeCoefficient).not.toBeCloseTo(evaluation.effectiveIndependentCount);
+    expect(evaluation.entropyVolumeCoefficient).not.toBeCloseTo(
+      evaluation.effectiveIndependentCount,
+    );
   });
 });
 
@@ -99,8 +101,7 @@ describe("LQ-04 identity: the owner's derivative d(s_nu)/d(rho_nu) equals 1/T", 
     const evaluation = evaluateLq04(LQ04_DEFAULTS);
     if (evaluation.status !== "value") throw new Error("expected a value, got a refusal");
 
-    const rho0Value =
-      evaluation.energy / (LQ04_DEFAULTS.referenceVolume * LQ04_DEFAULTS.bandwidth);
+    const rho0Value = evaluation.energy / (LQ04_DEFAULTS.referenceVolume * LQ04_DEFAULTS.bandwidth);
     const h = rho0Value * 1e-6;
     const sPlus = wienSpectralEntropyDensity(rho0Value + h, frequency, set);
     const sMinus = wienSpectralEntropyDensity(rho0Value - h, frequency, set);

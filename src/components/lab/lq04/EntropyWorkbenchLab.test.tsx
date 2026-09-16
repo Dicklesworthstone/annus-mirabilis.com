@@ -6,7 +6,10 @@ import { EntropyWorkbenchComparison } from "./EntropyWorkbenchLab.tsx";
 
 describe("EntropyWorkbenchLab: server-rendered markup shows real numbers without JavaScript (am-lq-04-entropy-workbench-senj)", () => {
   test("the default example renders the reference state, not an empty box", () => {
-    const example = { sourceDigest: "src/physics/reference/radiation.ts", parameters: LQ04_DEFAULTS };
+    const example = {
+      sourceDigest: "src/physics/reference/radiation.ts",
+      parameters: LQ04_DEFAULTS,
+    };
     const html = renderToStaticMarkup(<EntropyWorkbenchComparison example={example} />);
 
     expect(html).toContain('data-instrument-id="lq-04"');

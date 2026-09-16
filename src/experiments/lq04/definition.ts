@@ -30,18 +30,16 @@ export const LQ04_DEFAULTS: Lq04Parameters = Object.freeze({
   illustrativeC: 1.0e-15,
 });
 
-export const LQ04_CLASSES: Readonly<Record<keyof Lq04Parameters, ParameterClass>> = Object.freeze(
-  {
-    frequency: "input",
-    bandwidth: "input",
-    referenceVolume: "input",
-    referenceTemperature: "input",
-    volumeRatio: "measurement",
-    diluteThresholdX: "estimator",
-    showUnfixedConstantPanel: "presentation",
-    illustrativeC: "presentation",
-  },
-);
+export const LQ04_CLASSES: Readonly<Record<keyof Lq04Parameters, ParameterClass>> = Object.freeze({
+  frequency: "input",
+  bandwidth: "input",
+  referenceVolume: "input",
+  referenceTemperature: "input",
+  volumeRatio: "measurement",
+  diluteThresholdX: "estimator",
+  showUnfixedConstantPanel: "presentation",
+  illustrativeC: "presentation",
+});
 
 export const LQ04_MODEL = Object.freeze({
   id: "lq-04-host-v1",
