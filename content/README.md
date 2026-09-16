@@ -16,7 +16,7 @@ writes a file into them (git does not track empty directories).
 | Directory | Holds |
 |---|---|
 | `papers/` | `Paper` records: slug, bibliographic key, titles, dates, journal record, ordered source-block ids |
-| `source-blocks/` | `SourceBlock` records: immutable id, kind, diplomatic transcription, source locator, review state |
+| `source-blocks/` | `SourceBlock` records: immutable id, kind, diplomatic transcription, source locator, review state; plus `manifest.yaml` (`SourceManifest`: page range, page coverage, unit inventory, exports, imports, and frozen id timestamps) |
 | `translations/` | `TranslationUnit` records: stable id, source-block references, English text, attribution, revision |
 | `glosses/` | `GlossUnit` records: word-level German-to-English gloss, attributed |
 | `annotations/` | `EditorialNote` records: historian's margin, correction, typographical, dispute, side note |
@@ -34,4 +34,4 @@ writes a file into them (git does not track empty directories).
 
 See AGENTS.md ("The Content Model") for the full entity definitions and
 naming conventions, and `docs/CONTENT_IDS.md` for the sentence/anchor id
-grammar once it exists.
+grammar once it exists. Source manifests live at `content/source-blocks/<paper>/manifest.yaml`.
