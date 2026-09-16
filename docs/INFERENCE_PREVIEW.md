@@ -120,16 +120,18 @@ mode needs actual admitted observations and their independent physical inputs.
 
 ## Run and verify
 
+Use the repository's pinned Bun 1.4.0 installation:
+
 ```sh
-npm install --ignore-scripts --no-audit --no-fund
-npm run dev
+bun install --frozen-lockfile --ignore-scripts
+bun run dev
 # Open /lab/bm-07/ or the inference passage in /papers/brownian-motion/
 
-npm run test:reference
-npm run typecheck
-npm run build
-npx playwright install --with-deps chromium
-npm run test:browser
+bun run test:reference
+bun run typecheck
+bun run build
+bunx playwright install --with-deps chromium
+bun run test:browser
 ```
 
 The prepared example is generated from the same owners by
@@ -141,7 +143,10 @@ freedom procedure. Real-worker and production-browser tests exercise data reuse,
 coverage, refusals, identities, export, sharing, independent placements and reader
 returns. A workflow result applies to its exact commit only.
 
-The preview workflow uses Node 22.16.0 and Chromium. Firefox, WebKit, real devices,
-manual screen-reader and disabled-reader review remain outstanding. So do audited
-FrankenSim/WASM inference ownership, historical evidence, the full observation-
-error model and publication acceptance gates.
+The laboratory preview workflow installs Bun 1.4.0 and Node 22.16.0, runs the
+reference suite in both runtimes, and exercises the production export in Chromium.
+The reference command uses the full test command's isolated sixty-second budget;
+it does not reduce the statistical sample to fit a default five-second timeout.
+Firefox, WebKit, real devices, manual screen-reader and disabled-reader review
+remain outstanding. So do audited FrankenSim/WASM inference ownership, historical
+evidence, the full observation-error model and publication acceptance gates.
