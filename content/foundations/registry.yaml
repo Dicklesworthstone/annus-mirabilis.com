@@ -1,0 +1,302 @@
+# Canonical registry of foundation-library ids (am-found-library-infra-002t).
+#
+# Source of truth: the canonical id table and partition check in the epic
+# am-ep-foundations-z1e ("Canonical id table and partition"), which fixes
+# 36 nodes + 10 bridges = 46 ids, each with exactly one owning bead. This
+# file transcribes that table; it does not invent ids, owners, or clusters.
+#
+# `status` reflects the real, observed state of content/foundations/*.json
+# at the time this registry was written (2026-09-16), verified by reading
+# each file's own `id` field, not by filename alone:
+#   - 17 ids are `authored` (a matching content/foundations/<slug>.json
+#     record exists with that exact id).
+#   - `foundation:error-inference` is `planned`, even though
+#     content/foundations/error-and-inference.json exists: that file's
+#     internal id is "error-and-inference", not "error-inference", so it
+#     does not match this registry entry. Flagged, not silently renamed
+#     (renaming would edit a file owned by another bead's authoring lane).
+#     See docs/decisions/foundation-library-scope.md.
+#   - Every other id is `planned`: no matching file exists yet.
+#
+# `plannedCallers` is left empty for every entry. No real data exists yet
+# about which future paper sections will call which foundation; inventing
+# anchor ids would be exactly the fabrication AGENTS.md and the orchestrator
+# forbid. Owning beads add their own plannedCallers entries as they author.
+schemaVersion: 1
+entries:
+  - id: "foundation:quantities-units"
+    kind: node
+    cluster: quantities-magnitudes
+    ownerBead: am-found-quantities-magnitudes-igxe
+    status: planned
+    plannedCallers: []
+  - id: "foundation:ratios-scaling"
+    kind: node
+    cluster: quantities-magnitudes
+    ownerBead: am-found-quantities-magnitudes-igxe
+    status: planned
+    plannedCallers: []
+  - id: "foundation:orders-of-magnitude"
+    kind: node
+    cluster: quantities-magnitudes
+    ownerBead: am-found-quantities-magnitudes-igxe
+    status: planned
+    plannedCallers: []
+  - id: "foundation:unit-system-1905"
+    kind: node
+    cluster: quantities-magnitudes
+    ownerBead: am-found-quantities-magnitudes-igxe
+    status: planned
+    plannedCallers: []
+  - id: "foundation:functions-graphs"
+    kind: node
+    cluster: calculus
+    ownerBead: am-found-calculus-6agg
+    status: authored
+    plannedCallers: []
+  - id: "foundation:derivatives"
+    kind: node
+    cluster: calculus
+    ownerBead: am-found-calculus-6agg
+    status: authored
+    plannedCallers: []
+  - id: "foundation:partial-derivatives"
+    kind: node
+    cluster: calculus
+    ownerBead: am-found-calculus-6agg
+    status: authored
+    plannedCallers: []
+  - id: "foundation:exponentials"
+    kind: node
+    cluster: calculus
+    ownerBead: am-found-calculus-6agg
+    status: authored
+    plannedCallers: []
+  - id: "foundation:logarithms"
+    kind: node
+    cluster: calculus
+    ownerBead: am-found-calculus-6agg
+    status: authored
+    plannedCallers: []
+  - id: "foundation:integration"
+    kind: node
+    cluster: slice
+    ownerBead: am-bm-slice-foundations-f5z9
+    status: authored
+    plannedCallers: []
+  - id: "foundation:taylor-expansion"
+    kind: node
+    cluster: slice
+    ownerBead: am-bm-slice-foundations-f5z9
+    status: authored
+    plannedCallers: []
+  - id: "foundation:probability-independence"
+    kind: node
+    cluster: slice
+    ownerBead: am-bm-slice-foundations-f5z9
+    status: authored
+    plannedCallers: []
+  - id: "foundation:distributions"
+    kind: node
+    cluster: slice
+    ownerBead: am-bm-slice-foundations-f5z9
+    status: authored
+    plannedCallers: []
+  - id: "foundation:mean-variance-rms"
+    kind: node
+    cluster: slice
+    ownerBead: am-bm-slice-foundations-f5z9
+    status: authored
+    plannedCallers: []
+  - id: "foundation:gaussian-distributions"
+    kind: node
+    cluster: slice
+    ownerBead: am-bm-slice-foundations-f5z9
+    status: authored
+    plannedCallers: []
+  - id: "foundation:flux-continuity"
+    kind: node
+    cluster: slice
+    ownerBead: am-bm-slice-foundations-f5z9
+    status: authored
+    plannedCallers: []
+  - id: "foundation:diffusion-equation"
+    kind: node
+    cluster: slice
+    ownerBead: am-bm-slice-foundations-f5z9
+    status: authored
+    plannedCallers: []
+  - id: "foundation:random-walks"
+    kind: node
+    cluster: slice
+    ownerBead: am-bm-slice-foundations-f5z9
+    status: authored
+    plannedCallers: []
+  - id: "foundation:error-inference"
+    kind: node
+    cluster: statistics-inference
+    ownerBead: am-found-statistics-inference-pzqv
+    status: planned
+    plannedCallers: []
+  - id: "foundation:two-measurements-two-unknowns"
+    kind: node
+    cluster: statistics-inference
+    ownerBead: am-found-statistics-inference-pzqv
+    status: planned
+    plannedCallers: []
+  - id: "foundation:viscosity-stokes-drag"
+    kind: node
+    cluster: transport-thermo
+    ownerBead: am-found-transport-thermo-smv3
+    status: planned
+    plannedCallers: []
+  - id: "foundation:free-energy-osmotic-pressure"
+    kind: node
+    cluster: transport-thermo
+    ownerBead: am-found-transport-thermo-smv3
+    status: planned
+    plannedCallers: []
+  - id: "foundation:work-energy"
+    kind: node
+    cluster: transport-thermo
+    ownerBead: am-found-transport-thermo-smv3
+    status: planned
+    plannedCallers: []
+  - id: "foundation:temperature-thermal-energy"
+    kind: node
+    cluster: transport-thermo
+    ownerBead: am-found-transport-thermo-smv3
+    status: planned
+    plannedCallers: []
+  - id: "foundation:entropy-multiplicity"
+    kind: node
+    cluster: transport-thermo
+    ownerBead: am-found-transport-thermo-smv3
+    status: planned
+    plannedCallers: []
+  - id: "foundation:entropy-temperature"
+    kind: node
+    cluster: transport-thermo
+    ownerBead: am-found-transport-thermo-smv3
+    status: planned
+    plannedCallers: []
+  - id: "foundation:vectors-components"
+    kind: node
+    cluster: linear-geometry
+    ownerBead: am-found-linear-geometry-7w15
+    status: planned
+    plannedCallers: []
+  - id: "foundation:matrices-linear-maps"
+    kind: node
+    cluster: linear-geometry
+    ownerBead: am-found-linear-geometry-7w15
+    status: planned
+    plannedCallers: []
+  - id: "foundation:dot-cross-products"
+    kind: node
+    cluster: linear-geometry
+    ownerBead: am-found-linear-geometry-7w15
+    status: planned
+    plannedCallers: []
+  - id: "foundation:hyperbolic-functions-rapidity"
+    kind: node
+    cluster: linear-geometry
+    ownerBead: am-found-linear-geometry-7w15
+    status: planned
+    plannedCallers: []
+  - id: "foundation:conservation-symmetry"
+    kind: node
+    cluster: linear-geometry
+    ownerBead: am-found-linear-geometry-7w15
+    status: planned
+    plannedCallers: []
+  - id: "foundation:frames-events"
+    kind: node
+    cluster: fields-light
+    ownerBead: am-found-fields-light-cv3o
+    status: planned
+    plannedCallers: []
+  - id: "foundation:fields-waves"
+    kind: node
+    cluster: fields-light
+    ownerBead: am-found-fields-light-cv3o
+    status: planned
+    plannedCallers: []
+  - id: "foundation:electromagnetism-needed-here"
+    kind: node
+    cluster: fields-light
+    ownerBead: am-found-fields-light-cv3o
+    status: planned
+    plannedCallers: []
+  - id: "foundation:momentum-energy-light"
+    kind: node
+    cluster: fields-light
+    ownerBead: am-found-fields-light-cv3o
+    status: planned
+    plannedCallers: []
+  - id: "foundation:reading-german-physics-sentence"
+    kind: node
+    cluster: reading-german
+    ownerBead: am-found-reading-german-u8oc
+    status: planned
+    plannedCallers: []
+  - id: "foundation:bridge-letter-for-quantity"
+    kind: bridge
+    cluster: zero-algebra-rest
+    ownerBead: am-found-zero-algebra-rest-oipl
+    status: planned
+    plannedCallers: []
+  - id: "foundation:bridge-equals-sign-relationship"
+    kind: bridge
+    cluster: zero-algebra-rest
+    ownerBead: am-found-zero-algebra-rest-oipl
+    status: planned
+    plannedCallers: []
+  - id: "foundation:bridge-mathematical-punctuation"
+    kind: bridge
+    cluster: zero-algebra-rest
+    ownerBead: am-found-zero-algebra-rest-oipl
+    status: planned
+    plannedCallers: []
+  - id: "foundation:bridge-probability-notation"
+    kind: bridge
+    cluster: zero-algebra-rest
+    ownerBead: am-found-zero-algebra-rest-oipl
+    status: planned
+    plannedCallers: []
+  - id: "foundation:bridge-negative-numbers-direction"
+    kind: bridge
+    cluster: slice
+    ownerBead: am-bm-slice-foundations-f5z9
+    status: authored
+    plannedCallers: []
+  - id: "foundation:bridge-fractions-ratios"
+    kind: bridge
+    cluster: slice
+    ownerBead: am-bm-slice-foundations-f5z9
+    status: planned
+    plannedCallers: []
+  - id: "foundation:bridge-squaring-square-roots"
+    kind: bridge
+    cluster: slice
+    ownerBead: am-bm-slice-foundations-f5z9
+    status: authored
+    plannedCallers: []
+  - id: "foundation:bridge-scientific-notation-units"
+    kind: bridge
+    cluster: slice
+    ownerBead: am-bm-slice-foundations-f5z9
+    status: planned
+    plannedCallers: []
+  - id: "foundation:bridge-a-graph"
+    kind: bridge
+    cluster: slice
+    ownerBead: am-bm-slice-foundations-f5z9
+    status: planned
+    plannedCallers: []
+  - id: "foundation:bridge-sum-average"
+    kind: bridge
+    cluster: slice
+    ownerBead: am-bm-slice-foundations-f5z9
+    status: authored
+    plannedCallers: []
