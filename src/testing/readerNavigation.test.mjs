@@ -12,7 +12,7 @@ test('reader URL parsing respects valid explicit detail before storage and ignor
  assert.equal(parseReaderLocation('?open=foundation:absent','',registry).frames.length,0);
 });
 test('prepaint uses the same aliases and storage key, including blocked storage and prototype-shaped input',()=>{
- for(const [search,stored,want] of [['?detail=steps','0','2'],['?detail=0','2','0'],['?detail=constructor','2','2'],['?detail=bad',null,'1'],['?detail=2&detail=0','1','1']]){
+ for(const [search,stored,want] of [['?detail=steps','0','2'],['?detail=0','2','0'],['?detail=constructor','2','2'],['?detail=bad',null,'1'],['?detail=2&detail=0','1','1'],['?detail=steps&pad='+ 'x'.repeat(4096),'0','0']]){
   const document={documentElement:{dataset:{}}};vm.runInNewContext(READER_PREPAINT,{URLSearchParams,location:{search},document,localStorage:{getItem(key){assert.equal(key,DETAIL_STORAGE_KEY);if(stored===null)throw Error('blocked');return stored;}}});assert.equal(document.documentElement.dataset.detail,want);
  }
 });

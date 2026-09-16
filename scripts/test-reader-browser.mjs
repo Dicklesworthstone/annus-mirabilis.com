@@ -115,6 +115,24 @@ export async function checkReaderBrowser(browser, url, check) {
     assert.deepEqual(after, accepted); assert.equal(workers, 1);
     check("detail, face, clarification, Escape and browser history changes preserve the exact accepted laboratory snapshot");
 
+    // Opening from a scrolled-to passage must update the history entry we return to.
+    const other = page.locator("#arg-bm-independent-steps");
+    const otherWhy = other.getByRole("link", { name: "Why?", exact: true });
+    await otherWhy.click(); await dialog.waitFor({ state: "visible" });
+    await page.goBack(); await dialog.waitFor({ state: "hidden" });
+    assert.equal(new URL(page.url()).hash, "#arg-bm-independent-steps");
+    assert.equal(await page.evaluate(() => document.activeElement.id), await otherWhy.getAttribute("id"));
+    check("return history records the actual scrolled-to passage, not the last outline selection");
+
+    await detail.selectOption("1");
+    await passage.locator('[data-reading="1"] .foundation-link a').click();
+    await dialog.waitFor({ state: "visible" });
+    await dialog.getByRole("link", { name: "Argument synopsis", exact: true }).click();
+    await dialog.getByRole("button", { name: "Return to the exact step", exact: true }).click();
+    await dialog.waitFor({ state: "hidden" });
+    assert.equal(await page.evaluate(() => document.activeElement.id), firstId);
+    check("return from a changed face focuses the passage when its original inline trigger is hidden");
+
     await detail.selectOption("1");
     await page.locator('.reader-controls [data-view-link="german"]').click();
     assert.match(await passage.locator("[data-face-source]").innerText(), /not yet available/);

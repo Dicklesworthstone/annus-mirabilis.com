@@ -22,11 +22,12 @@ export function ReaderController({ registry, titles, questions }: Props) {
     }
     function focusReturn(previous: ReaderState) {
       const frame = previous.frames[state.frames.length];
-      const target = (frame?.triggerId ? document.getElementById(frame.triggerId) : null) ?? document.getElementById(state.anchor);
+      const origin = frame?.triggerId ? document.getElementById(frame.triggerId) : null;
+      const target = origin?.getClientRects().length ? origin : document.getElementById(state.anchor);
       if (!target) return;
       target.focus({ preventScroll: true });
       const behavior = document.documentElement.style.scrollBehavior; document.documentElement.style.scrollBehavior = "auto";
-      const delta = target.getBoundingClientRect().top - (frame?.relativeY ?? 0.15) * innerHeight;
+      const delta = target.getBoundingClientRect().top - (target === origin ? frame?.relativeY ?? 0.15 : 0.15) * innerHeight;
       if (dialog.open && dialog.contains(target)) dialog.scrollTop += delta; else window.scrollBy(0, delta);
       document.documentElement.style.scrollBehavior = behavior;
     }
@@ -70,6 +71,8 @@ export function ReaderController({ registry, titles, questions }: Props) {
         const anchor = control.closest<HTMLElement>(".reader-passage")?.id ?? state.anchor;
         if (!control.id) control.id = `reader-trigger-${++trigger}`;
         const base = { ...state, anchor };
+        // The reader may have scrolled here without using the outline. Seal the actual return anchor.
+        if (anchor !== state.anchor) { state = base; save(); }
         change(openFoundation(base, { foundationId: id, triggerId: control.id, relativeY: control.getBoundingClientRect().top / innerHeight }, registry), state.frames.length < MAX_CLARIFICATION_DEPTH, state.frames.length === MAX_CLARIFICATION_DEPTH ? "The deepest explanation was replaced; return to the argument is still available." : `Opened ${titles[id]}.`);
       } else if (control.dataset.viewLink && FACES.includes(control.dataset.viewLink as Face)) {
         event.preventDefault(); change({ ...state, view: control.dataset.viewLink as Face }, true, "Changed the reading face; the passage and laboratory are preserved.");

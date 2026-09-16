@@ -1,6 +1,8 @@
 import test from 'node:test';
 import assert from 'node:assert/strict';
-import { readFile } from 'node:fs/promises';
+import { readFile, cp, mkdir, mkdtemp, appendFile } from 'node:fs/promises';
+import { tmpdir } from 'node:os';
+import { resolve, dirname } from 'node:path';
 import { createHash } from 'node:crypto';
 import { loadReadingFiles, buildContent } from '../../scripts/build-content.ts';
 import { compileReadingContent } from '../content/compiler/compile.ts';
@@ -27,4 +29,22 @@ test('build outputs are reproducible, independently hashed and contain no fake s
  const first=await buildContent(),second=await buildContent();assert.deepEqual(first.index,second.index);
  for(const payload of first.index.payloads){const bytes=await readFile('generated/content/'+payload.file);assert.equal(bytes.length,payload.bytes);assert.equal(createHash('sha256').update(bytes).digest('hex'),payload.sha256);}
  const paper=first.papers[0];assert.equal(paper.paper.status,'explanation-preview');assert.ok(paper.arguments.every(a=>a.review==='draft'));assert.equal(first.index.payloads.length,13);
+});
+
+test('compiler revision changes produce new public URLs without changing the authored-input identity',async()=>{
+ const root=await mkdtemp(resolve(tmpdir(),'annus-reader-compiler-'));
+ await cp('content',resolve(root,'content'),{recursive:true});
+ for(const p of ['scripts/build-content.ts','src/content/compiler/compile.ts','src/content/compiler/json.ts','src/content/schemas/reading.ts']){
+  await mkdir(dirname(resolve(root,p)),{recursive:true});await cp(p,resolve(root,p));
+ }
+ const first=await buildContent(root);
+ await appendFile(resolve(root,'src/content/compiler/compile.ts'),'\n// A subsequent compiler revision.\n');
+ const second=await buildContent(root);
+ assert.equal(first.index.inputDigest,second.index.inputDigest);
+ assert.notEqual(first.index.compilerDigest,second.index.compilerDigest);
+ assert.notEqual(first.index.payloads[0].jsonUrl,second.index.payloads[0].jsonUrl);
+ // A failed future compile leaves the last complete manifest untouched.
+ await appendFile(resolve(root,'content/papers/brownian-motion.json'),'invalid trailing data');
+ const failed=await buildContent(root);assert.equal(failed.ok,false);
+ assert.deepEqual(JSON.parse(await readFile(resolve(root,'generated/content/index.json'),'utf8')),second.index);
 });

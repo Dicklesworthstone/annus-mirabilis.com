@@ -35,18 +35,22 @@ export async function buildContent(root = ROOT) {
   if (!result.ok) return { ...result, index: null };
   // Versioned output directories prevent stale, half-updated payload mixtures. Never delete prior output.
   const inputDigest = digest(files.map(f => `${f.path}\0${Buffer.byteLength(f.text)}\0${f.text}`).join(""));
-  const generated = resolve(root, "generated/content", inputDigest), publicRoot = resolve(root, "public/edition", inputDigest);
+  // Compiler changes must invalidate public URLs even when authored records are unchanged.
+  const compilerFiles = ["scripts/build-content.ts", "src/content/compiler/compile.ts", "src/content/compiler/json.ts", "src/content/schemas/reading.ts"];
+  const compilerDigest = digest((await Promise.all(compilerFiles.map(async path => `${path}\0${digest(await readFile(resolve(root, path)))}`))).join("\n"));
+  const buildDigest = digest(`${inputDigest}\0${compilerDigest}`);
+  const generated = resolve(root, "generated/content", buildDigest), publicRoot = resolve(root, "public/edition", buildDigest);
   await mkdir(generated, { recursive: true }); await mkdir(publicRoot, { recursive: true });
   const payloads: { id: string; kind: string; file: string; bytes: number; sha256: string; jsonUrl: string; markdownUrl: string }[] = [];
   async function emit(id: string, kind: string, data: unknown, markdown: string) {
     const file = `${kind}-${id}.json`, json = `${JSON.stringify(data, null, 2)}\n`;
     await writeFile(resolve(generated, file), json); await writeFile(resolve(publicRoot, file), json);
     await writeFile(resolve(publicRoot, `${kind}-${id}.md`), markdown);
-    payloads.push({ id, kind, file: `${inputDigest}/${file}`, bytes: Buffer.byteLength(json), sha256: digest(json), jsonUrl: `/edition/${inputDigest}/${file}`, markdownUrl: `/edition/${inputDigest}/${kind}-${id}.md` });
+    payloads.push({ id, kind, file: `${buildDigest}/${file}`, bytes: Buffer.byteLength(json), sha256: digest(json), jsonUrl: `/edition/${buildDigest}/${file}`, markdownUrl: `/edition/${buildDigest}/${kind}-${id}.md` });
   }
   for (const paper of result.papers) await emit(paper.paper.id, "paper", paper, markdownPaper(paper));
   for (const foundation of result.foundations) await emit(foundation.id, "foundation", foundation, `# ${foundation.title}\n\nAuthored explanation; editorial review pending.\n\n${markdownBlocks(foundation.explanation)}\n\n## Worked example\n\n${markdownBlocks(foundation.example)}\n\n${foundation.stoppingPoint}\n`);
-  const index = { schemaVersion: 1, inputDigest, payloads };
+  const index = { schemaVersion: 1, inputDigest, compilerDigest, buildDigest, payloads };
   await writeFile(resolve(generated, "diagnostics.jsonl"), result.diagnostics.map(d => JSON.stringify(d)).join("\n") + "\n");
   // Publish the manifest last, only after every referenced payload was written successfully.
   await writeFile(resolve(root, "generated/content/index.json"), `${JSON.stringify(index, null, 2)}\n`);
