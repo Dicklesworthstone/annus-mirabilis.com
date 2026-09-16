@@ -16,8 +16,8 @@ date, evidence, beads unblocked, and revisit trigger.
 - **Choice:** **Option C (Timeboxed)**.
 - **Reason:** Grounded directly in Master Plan §3.7 ("Status: companion record. It is not on the hero, it is not one of 'the four,' it is built only after the four are complete (§19), and it is scoped to the sections the Avogadro lab needs. It does not become a fifth flagship by accretion.") and §20 ("whether the companion record ships at launch or after"). Launching the four core papers must not be held hostage by the companion dissertation, yet if the companion's scoped translation, ledgers, and acceptance pass before the Batch H exit audit is complete, shipping it at launch enriches the Avogadro lab's third determination and connections material. Option C provides the exact balance: attempt within the defined timebox, but auto-trigger deferral if not ready.
 - **Prepared by:** `IvoryJay` (swarm agent, `am-gov-decision-companion-at-launch-936`), as a recommendation adopting the position stated in Master Plan §3.7 and §20.
-- **Decider:** not yet assigned. The bead requires the decider to be the project owner or the editorial owner named in `am-gov-owners-and-reviewers-hte`, which is an open human gate with no owner named.
-- **Status:** AWAITING RATIFICATION. This entry is a recommendation and is **not binding** until the project owner or a named editorial owner ratifies it. No dependent bead may cite it as a settled decision.
+- **Decider:** Jeff Emanuel, project owner. Ratified 2026-09-15 in the orchestration session; recorded by SandyCedar on the owner's explicit instruction. `docs/OWNERS.md` does not exist yet and remains owned by `am-gov-owners-and-reviewers-hte`; the project owner ratified directly, which the records' own wording permits ("the project owner **or** a named editorial owner").
+- **Status:** RATIFIED 2026-09-15 by the project owner. This entry is **binding**. Dependent beads may now cite it as a settled decision.
 - **Date:** 2026-09-15.
 - **Timebox Milestone:** When `am-disc-batch-h-exit-audit-r8xq` is otherwise complete (all non-companion discovery and connections criteria satisfied) and before `am-launch-readiness-audit-sc9b` starts. Specifically, `am-companion-review-pfh8` must be closed by this milestone. If `am-companion-review-pfh8` is closed by that milestone, the companion ships at launch. If it is open at that milestone, deferral executes immediately without delaying the launch audit.
 - **Deferral Procedure:**
@@ -93,8 +93,8 @@ date, evidence, beads unblocked, and revisit trigger.
 - **Choice:** **Option B (Locked Donor-Matched Stable Stack)**.
 - **Reason:** Grounded directly in Master Plan §2.4 ("A framework migration is never part of the scientific critical path. Select current supported, mutually compatible versions at kickoff after a compatibility and security review, then lock them."), Plan §20 ("framework and library versions to lock"), and the empirical compatibility probe executed in Chromium and WebKit. Locking stable, security-cleared versions matching the donor's proven extraction seams eliminates framework churn and unblocks application scaffolding.
 - **Prepared by:** `DarkSnow` (swarm agent, `am-gov-decision-stack-versions-6ax`), adopting the evidence from the session scratch compatibility probe.
-- **Decider:** not yet assigned. The bead requires the decider to be the project owner or the editorial owner named in `am-gov-owners-and-reviewers-hte`, which is an open human gate with no owner named.
-- **Status:** AWAITING RATIFICATION. This entry is a recommendation and is **not binding** until the project owner or a named editorial owner ratifies it. No dependent bead may cite it as a settled decision.
+- **Decider:** Jeff Emanuel, project owner. Ratified 2026-09-15 in the orchestration session; recorded by SandyCedar on the owner's explicit instruction. `docs/OWNERS.md` does not exist yet and remains owned by `am-gov-owners-and-reviewers-hte`; the project owner ratified directly, which the records' own wording permits ("the project owner **or** a named editorial owner").
+- **Status:** RATIFIED 2026-09-15 by the project owner. This entry is **binding**. Dependent beads may now cite it as a settled decision.
 - **Date:** 2026-09-15.
 
 ### 1. Locked Dependency and Tool Version Inventory
@@ -372,8 +372,8 @@ To prevent dependency drift, security regressions, and framework churn from dist
 - **Choice:** **Option B.**
 - **Reason:** Master Plan §16.4 says provisional budgets may change only with recorded measurements that name hardware, browser, viewport, network, and cache state. Several budgets are meaningless without that agreement (200 ms p75 interaction latency; 60 Hz desktop / 30 Hz mobile). The acceptance criteria allow closure without a phone: "calibrated or provisionally 4x CPU slowdown and a slow network." This entry takes the provisional form and leaves tester id and date empty. WebKit cannot apply Chromium CDP CPU throttling; that is documented below rather than papered over.
 - **Prepared by:** Grok 4.6 (grok-cli) for coordinator SandyCedar, bead `am-gov-decision-device-profiles-1zm`.
-- **Decider:** not yet assigned. Same human-gate pattern as `D-2026-09-15-stack-versions`: the project owner or the editorial owner named in `am-gov-owners-and-reviewers-hte`. `docs/OWNERS.md` does not exist yet (`ls` on that path failed).
-- **Status:** AWAITING RATIFICATION. Machine-readable `perf/profiles.json` is the file budget checks will read. Budgets stay provisional until the reference slice produces measurements. This entry does not loosen any number.
+- **Decider:** Jeff Emanuel, project owner. Ratified 2026-09-15 in the orchestration session; recorded by SandyCedar on the owner's explicit instruction. `docs/OWNERS.md` does not exist yet and remains owned by `am-gov-owners-and-reviewers-hte`; the project owner ratified directly, which the records' own wording permits ("the project owner **or** a named editorial owner").
+- **Status:** RATIFIED 2026-09-15 by the project owner. This entry is **binding**; dependent beads may cite it as settled. Machine-readable `perf/profiles.json` is the file budget checks will read. Budgets stay provisional until the reference slice produces measurements. This entry does not loosen any number.
 - **Date:** 2026-09-15.
 
 ### Profiles
