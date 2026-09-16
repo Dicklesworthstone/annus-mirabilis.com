@@ -320,15 +320,15 @@ export function nearestRankPercentile(sortedAscending: number[], percentile: num
     throw new Error(`need at least ${minSamples} samples, got ${sortedAscending.length}`);
   }
   const rank = Math.ceil(percentile * sortedAscending.length);
-  return sortedAscending[rank - 1];
+  return sortedAscending[rank - 1]!;
 }
 
 export function median(values: number[]): number {
   if (values.length === 0) throw new Error("median of empty sample");
   const sorted = [...values].sort((a, b) => a - b);
   const mid = Math.floor(sorted.length / 2);
-  if (sorted.length % 2 === 1) return sorted[mid];
-  return (sorted[mid - 1] + sorted[mid]) / 2;
+  if (sorted.length % 2 === 1) return sorted[mid]!;
+  return (sorted[mid - 1]! + sorted[mid]!) / 2;
 }
 
 export function frameRatePasses(opts: {
@@ -378,7 +378,7 @@ export function newLogRunId(): string {
   return `${stamp}-${hex}`;
 }
 
-if (import.meta.main) {
+if ((import.meta as ImportMeta & { main?: boolean }).main) {
   const { data, issues } = loadCommittedProfiles();
   if (issues.length > 0) {
     for (const issue of issues) {

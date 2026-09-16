@@ -1,7 +1,7 @@
 import test from "node:test";
 import assert from "node:assert/strict";
 import { readFileSync } from "node:fs";
-import { expectClose, expectBitwise, withTestLog } from "./assertions.ts";
+import { expectClose, expectBitwise, withTestLog, recordEvent } from "./assertions.ts";
 import { getLogger, newRunIdentity } from "./logger.ts";
 import { parseLogLine } from "./schema.ts";
 import { WITHIN_TOLERANCE_CASES, BITWISE_CASES } from "../../units/tolerance.cases.ts";
@@ -14,6 +14,15 @@ function lastEventFor(suite: string, logRunId: string, testId: string) {
   const events = lines.map(parseLogLine).filter((e) => e.testId === testId);
   return events.at(-1);
 }
+
+test("recordEvent writes any schema-valid event, routed by the event's own suite/logRunId", async () => {
+  const logRunId = newRunIdentity();
+  recordEvent({ suite: SUITE, logRunId, testId: "record-event-direct", outcome: "skipped", extra: { reason: "not-applicable-on-this-device" } });
+  await getLogger(SUITE, logRunId).flush();
+  const event = lastEventFor(SUITE, logRunId, "record-event-direct");
+  assert.equal(event?.outcome, "skipped");
+  assert.deepEqual(event?.extra, { reason: "not-applicable-on-this-device" });
+});
 
 test("expectClose rejects calls without a tolerance spec", () => {
   assert.throws(
