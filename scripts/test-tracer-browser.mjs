@@ -7,6 +7,7 @@ export async function checkTracerBrowser(browser, url, check) {
   const staticPage = await noJs.newPage();
   await staticPage.goto(`${url}/lab/bm-01/`);
   assert.equal(await staticPage.locator(".tracer-path").count(), 24);
+  assert.ok((await staticPage.locator("svg .axis").evaluateAll(nodes => nodes.map(n => getComputedStyle(n).fill))).every(fill => fill === "none"));
   assert.match(await staticPage.locator('[data-output="diffusionCoefficient"]').innerText(), /0\.42944/);
   assert.ok(await staticPage.getByRole("button", { name: "Apply trial settings", exact: true }).isDisabled());
   assert.ok(await staticPage.locator("math").count() >= 2);
