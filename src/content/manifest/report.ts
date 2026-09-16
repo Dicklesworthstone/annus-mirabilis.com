@@ -17,7 +17,12 @@ import type { ManifestReportData, SourceManifest } from "./types.ts";
 export function generateManifestReport(manifest: SourceManifest): ManifestReportData {
   const byKind: Record<string, number> = {};
   const byStatus: Record<string, number> = {};
-  const incompleteUnits: { id: string; kind: string; section?: string; status: string }[] = [];
+  const incompleteUnits: {
+    id: string;
+    kind: string;
+    section?: string | undefined;
+    status: string;
+  }[] = [];
 
   let inScopeCount = 0;
   let notInScopeCount = 0;
