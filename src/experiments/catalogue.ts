@@ -77,10 +77,10 @@ export const CATALOGUE_STATUS: Readonly<Record<CatalogueId, CatalogueStatus>> = 
   "sr-06": "registered",
   "sr-07": "registered",
   "sr-08": "registered",
-  "sr-09": "in-preparation",
+  "sr-09": "registered",
   "sr-10": "in-preparation",
-  "sr-11": "in-preparation",
-  "sr-12": "in-preparation",
+  "sr-11": "registered",
+  "sr-12": "registered",
   "sr-13": "in-preparation",
   "me-01": "registered",
   "me-02": "registered",
@@ -127,6 +127,8 @@ export const CATALOGUE_QUESTIONS: Readonly<Partial<Record<CatalogueId, string>>>
   "bm-05": "After many steps, what will changing the step law while keeping its variance do?",
   "sr-03":
     "How does relative motion affect the synchronization of clocks, the coordinate measurement of moving rods, and the invariant causal order of events?",
+  "sr-12":
+    "How do charge density and current density transform between inertial frames, and why is a neutral current-carrying wire charged in a moving frame?",
   "sr-06":
     "Why doesn't adding speeds preserve light speed, and what happens when the motions are not along one line?",
   "sr-07":
@@ -143,6 +145,10 @@ export const CATALOGUE_QUESTIONS: Readonly<Partial<Record<CatalogueId, string>>>
     "How can distant clocks acquire an operational common time, and do moving clocks share it?",
   "sr-08":
     "How do electric and magnetic descriptions change together under a boost, and what does a test charge experience in each frame?",
+  "sr-09": "How do the frequency and propagation direction of light transform between frames?",
+  "sr-10": "How do the energy and volume of a bounded light complex transform between frames?",
+  "sr-11":
+    "How do the frequency, angle, amplitude, and radiation pressure of light transform when reflected by a moving mirror, and how does energy balance between the light and the mirror's mechanical work?",
 });
 
 /** Runtime guard for an id read from a URL, permalink, or reader link: never assume the string is valid. */

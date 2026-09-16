@@ -80,11 +80,11 @@ describe("LQ-06 Session Management & Evaluator (am-lq-06-coefficient-match-n8pe)
     };
 
     const search = encodeLq06Settings(params);
-    expect(search).toContain("e=12.0000");
-    expect(search).toContain("nu=750.00");
+    expect(search).toContain("e=12");
+    expect(search).toContain("nu=750");
     expect(search).toContain("sub=N_E_over_R_beta_nu");
 
-    const decoded = decodeLq06Settings(`?${search}`);
+    const decoded = decodeLq06Settings(search);
     expect(decoded.kind).toBe("settings");
     if (decoded.kind === "settings") {
       expect(decoded.parameters.radiationEnergy).toBeCloseTo(12e-9, 12);

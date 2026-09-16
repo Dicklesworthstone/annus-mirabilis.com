@@ -152,9 +152,8 @@ describe("adversarial: the naive form fails where the stable form passes", () =>
     // A 40-digit-precision reference for beta^2/(1+sqrt(1-beta^2)) at beta=1e-4, computed
     // independently by hand (not by calling the evaluator under test): 5.0000000125000000078...e-9.
     const reference = 5.0000000125e-9;
-    const naiveRelativeError = Math.abs(naive - reference) / reference;
-    expect(naiveRelativeError).toBeGreaterThan(1e-8);
-    expect(naiveRelativeError).toBeLessThan(2e-8);
+    expect(withinTolerance(naive, reference, { relative: 2e-8, absolute: 1e-20 }).ok).toBe(true);
+    expect(withinTolerance(naive, reference, { relative: 1e-8, absolute: 1e-20 }).ok).toBe(false);
     expectClose(stable.value.exact, reference, 1e-12);
     // The assertion the naive form fails and the stable form passes:
     const naiveVerdict = withinTolerance(naive, reference, { relative: 1e-12, absolute: 1e-20 });

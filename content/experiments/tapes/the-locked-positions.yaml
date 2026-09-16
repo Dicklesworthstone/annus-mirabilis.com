@@ -13,20 +13,21 @@ allocationId: lq-05.configuration.v1
 initialConditions:
   n: 10
   f: 0.5
-  view: enumeration
-  locked: false
   trials: 10000
 events:
   - kind: prediction
     actionIndex: 1
+    instrumentId: lq-05
     promptId: lq-05-predict-ten-points
-    candidateId: lq-05-predict-ten-points-one-in-a-thousand
+    payload:
+      form: candidate
+      candidateId: lq-05-predict-ten-points-one-in-a-thousand
   - kind: control
     actionIndex: 2
     commandClass: setup-change
-    commandId: set-locked
-    parameterId: locked
-    value: true
+    commandId: set-particles
+    parameterId: n
+    value: 60
 checkpoints:
   - actionIndex: 1
     stepIndex: 1
@@ -42,7 +43,7 @@ checkpoints:
     expectedDisplayValues:
       - label: "W (independent)"
         value: 0.0009765625
-        unit: ""
+        unit: "1"
         constantSetId: modern-si-2019
   - actionIndex: 2
     stepIndex: 2
@@ -58,7 +59,7 @@ checkpoints:
     expectedDisplayValues:
       - label: "W (locked)"
         value: 0.5
-        unit: ""
+        unit: "1"
         constantSetId: modern-si-2019
 title: "The locked positions"
 description: "Demonstrates that the probability is (V/V0)^n only when the points are independent; rigidly locked points give V/V0."

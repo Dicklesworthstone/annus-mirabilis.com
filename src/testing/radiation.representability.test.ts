@@ -6,6 +6,7 @@ import {
   LOG_DOUBLE_MIN_NORMAL,
   planckFrequencyEnergyDensity,
 } from "../physics/reference/radiation.ts";
+import { withinTolerance } from "../units/tolerance.ts";
 import { newRunIdentity, TestLogger } from "./log/logger.ts";
 
 const SUITE = "reference-radiation";
@@ -104,8 +105,7 @@ describe("radiation.representability (am-ref-radiation-15c)", () => {
         expect(res.logFrequencyEnergyDensity).toBeDefined();
         if (res.linearRepresentable && res.logFrequencyEnergyDensity !== undefined) {
           const reconstructed = Math.exp(res.logFrequencyEnergyDensity);
-          const relDiff = Math.abs(reconstructed - res.value) / res.value;
-          expect(relDiff).toBeLessThan(1e-12);
+          expect(withinTolerance(reconstructed, res.value, { relative: 1e-12 }).ok).toBe(true);
         } else if (res.logFrequencyEnergyDensity !== undefined) {
           expect(res.logFrequencyEnergyDensity).toBeLessThanOrEqual(LOG_DOUBLE_MIN_NORMAL);
         }

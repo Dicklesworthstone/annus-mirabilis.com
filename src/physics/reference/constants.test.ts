@@ -1,4 +1,5 @@
 import { describe, expect, test } from "bun:test";
+import { withinTolerance } from "../../units/tolerance.ts";
 import {
   assertSameSet,
   type ConstantEntry,
@@ -81,7 +82,7 @@ describe("modern-si-2019", () => {
       "planckChargeQuotient",
     );
     const expected = 4.135667696923859e-15;
-    expect(Math.abs(hOverE.value - expected) / expected).toBeLessThan(1e-15);
+    expect(withinTolerance(hOverE.value, expected, { relative: 1e-15 }).ok).toBe(true);
     expect(hOverE.dependsOn).toEqual(["planckConstant", "elementaryCharge"]);
   });
 
@@ -98,7 +99,7 @@ describe("modern-si-2019", () => {
       modern.entries.find((e) => e.quantityId === "elementaryCharge"),
       "elementaryCharge",
     ).value;
-    expect(Math.abs(F.value - N_A * e) / (N_A * e)).toBeLessThan(1e-15);
+    expect(withinTolerance(F.value, N_A * e, { relative: 1e-15 }).ok).toBe(true);
   });
 
   test("thermalConstant on the modern set returns k_B directly, gas-constant-provenance defined", () => {
@@ -154,7 +155,7 @@ describe("scenario-gas-constant-measured", () => {
     const modernR = constantValue(getConstantSet("modern-si-2019"), "molarGasConstant");
     const scenarioR = constantValue(scenario, "molarGasConstant");
     const relativeDifference = (scenarioR.value - modernR.value) / modernR.value;
-    expect(Math.abs(relativeDifference)).toBeCloseTo(1.008e-6, 8);
+    expect(withinTolerance(relativeDifference, 1.008e-6, { absolute: 1e-8 }).ok).toBe(true);
   });
 
   test("a copy without uncertainty fails validation", () => {
@@ -412,7 +413,7 @@ describe("conversions", () => {
     ] as const) {
       const forward = convert(1, from, to);
       const back = convert(forward, to, from);
-      expect(Math.abs(back - 1)).toBeLessThanOrEqual(4 * Number.EPSILON);
+      expect(withinTolerance(back, 1, { absolute: 4 * Number.EPSILON }).ok).toBe(true);
     }
   });
 

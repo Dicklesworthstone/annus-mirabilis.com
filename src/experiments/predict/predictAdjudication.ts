@@ -3,6 +3,7 @@
  * Statuses are about the relation, never about the person. A form the
  * model cannot compare is `undetermined`, never a pass.
  */
+import { withinTolerance } from "../../units/tolerance.ts";
 import type { PredictionChoice } from "./predictState.ts";
 
 export const PREDICT_SCORE_STATUSES = ["match", "close", "not-close", "undetermined"] as const;
@@ -95,8 +96,12 @@ export function adjudicatePrediction(spec: AdjudicationSpec): PredictAdjudicatio
       break;
     }
     if (hit.value !== target.value) allExact = false;
-    const scale = Math.max(Math.abs(target.value), Math.abs(hit.value), 1e-18);
-    if (Math.abs(hit.value - target.value) > closeRelative * scale) allClose = false;
+    const verdict = withinTolerance(hit.value, target.value, {
+      relative: closeRelative,
+      relativeTo: "larger",
+      absolute: 1e-18,
+    });
+    if (!verdict.ok) allClose = false;
   }
   if (allExact) {
     return Object.freeze({

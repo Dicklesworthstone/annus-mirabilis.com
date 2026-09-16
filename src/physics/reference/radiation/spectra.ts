@@ -378,7 +378,7 @@ export function regimeRelativeErrors(
   } else if (x > 100) {
     rayleighJeansRelativeError = 1.0;
   } else {
-    rayleighJeansRelativeError = Math.abs(x / Math.expm1(x) - 1);
+    rayleighJeansRelativeError = 1 - x / Math.expm1(x);
   }
 
   const wienBoundaryX = Math.log(1 / epsilonW);

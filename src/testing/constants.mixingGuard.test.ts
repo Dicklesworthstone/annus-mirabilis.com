@@ -1,8 +1,8 @@
 import { describe, expect, test } from "bun:test";
 import {
   assertSameSet,
-  compareAcrossSets,
   ConstantSetError,
+  compareAcrossSets,
   constantValue,
   createDeclaredConstantSet,
   deriveScenarioSet,
@@ -10,6 +10,7 @@ import {
   withHistoricalGuard,
   withMode1904Guard,
 } from "../physics/reference/constants.ts";
+import { withinTolerance } from "../units/tolerance.ts";
 
 describe("the mixing guard: cross-set arithmetic never happens silently", () => {
   test("assertSameSet throws constant-set-mismatch across two different sets", () => {
@@ -136,7 +137,9 @@ describe("compareAcrossSets: a labeled comparison, never a mixed calculation", (
     });
     expect(comparison.leftSetId).toBe("scenario-gas-constant-measured");
     expect(comparison.rightSetId).toBe("modern-si-2019");
-    expect(Math.abs(comparison.relativeDifference - 1.008e-6)).toBeLessThan(2e-8);
+    expect(withinTolerance(comparison.relativeDifference, 1.008e-6, { absolute: 2e-8 }).ok).toBe(
+      true,
+    );
   });
 
   test("mismatched quantity ids throw comparison-quantity-mismatch", () => {

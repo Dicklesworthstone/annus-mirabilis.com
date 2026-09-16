@@ -4,7 +4,10 @@ import { scenarioKindLabel } from "./scenario-registry/labels.ts";
 
 describe("run-scenarios CLI", () => {
   test("exits 0 on the passing registry and counts not-available separately", () => {
-    const result = spawnSync("bun", ["scripts/run-scenarios.ts"], { encoding: "utf8" });
+    const result = spawnSync(process.execPath, ["scripts/run-scenarios.ts"], {
+      encoding: "utf8",
+      env: process.env,
+    });
     expect(result.status).toBe(0);
     const payload = JSON.parse(result.stdout);
     expect(payload.failed).toBe(0);

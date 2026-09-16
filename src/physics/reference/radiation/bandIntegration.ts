@@ -3,6 +3,7 @@
  * Specification: am-ref-radiation-15c.
  */
 
+import { withinTolerance } from "../../../units/tolerance.ts";
 import { type ConstantSet, constantValue, thermalConstant } from "../constants.ts";
 import {
   planckFrequencyEnergyDensity,
@@ -55,9 +56,11 @@ function adaptiveQuadrature(
 
     const kronrod = kronrodSum * half;
     const gauss = gaussSum * half;
-    const err = Math.abs(kronrod - gauss);
 
-    if (depth >= maxDepth || err <= Math.max(tolAbs, tolRel * Math.abs(kronrod))) {
+    if (
+      depth >= maxDepth ||
+      withinTolerance(kronrod, gauss, { relative: tolRel, absolute: tolAbs }).ok
+    ) {
       return kronrod;
     }
 

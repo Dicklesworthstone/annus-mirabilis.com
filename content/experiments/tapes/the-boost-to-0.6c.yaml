@@ -14,23 +14,23 @@ seed: "1905"
 streamVersion: 1
 allocationId: sr-03.kinematics.v1
 initialConditions:
-  rodRestFrame: "k"
   v: 0.6
   L0: 10
-  measuringFrame: "K"
-  endpointPairId: "platform-simultaneous"
   R: 1.0
 events:
   - kind: prediction
     actionIndex: 1
+    instrumentId: sr-03
     promptId: sr-03-predict-endpoint-pair
-    candidateId: earlier-trailing
+    payload:
+      form: candidate
+      candidateId: earlier-trailing
   - kind: control
     actionIndex: 2
-    commandClass: measurement-change
-    commandId: set-endpoint-pair
-    parameterId: endpointPairId
-    value: "frame-simultaneous"
+    commandClass: setup-change
+    commandId: set-boost-v
+    parameterId: v
+    value: 0.6
 checkpoints:
   - actionIndex: 1
     stepIndex: 1

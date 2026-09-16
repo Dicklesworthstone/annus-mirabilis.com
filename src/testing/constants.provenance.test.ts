@@ -4,6 +4,7 @@ import {
   createDeclaredConstantSet,
   getConstantSet,
 } from "../physics/reference/constants.ts";
+import { withinTolerance } from "../units/tolerance.ts";
 
 describe("gasConstantProvenance", () => {
   test("modern-si-2019 is defined", () => {
@@ -93,7 +94,7 @@ describe("scenario-gas-constant-measured: the standalone Moldover 1988 set", () 
       (e) => e.quantityId === "molarGasConstant",
     )!.value;
     const relativeDifference = (measured - exact) / exact;
-    expect(Math.abs(relativeDifference - 1.008e-6)).toBeLessThan(2e-8);
+    expect(withinTolerance(relativeDifference, 1.008e-6, { absolute: 2e-8 }).ok).toBe(true);
   });
 
   test("a declared set mixing a defined N_A with a measured R fails validation", () => {

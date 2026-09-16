@@ -9,6 +9,7 @@ import {
   TapeValidationError,
   validateControlTape,
 } from "../experiments/tapes/schema.ts";
+import { withinTolerance } from "../units/tolerance.ts";
 
 const ROOT = resolve(dirname(fileURLToPath(import.meta.url)), "../..");
 
@@ -129,8 +130,8 @@ describe("teachingTapes: Schema, Five-Name Audit, and Scientific Expectations (a
     const lambda_60s_microns = lambda_60s * 1e6;
 
     // Full precision 0.7947833... and 6.156365...
-    assert.ok(Math.abs(lambda_1s_microns - 0.7947833) < 1e-4);
-    assert.ok(Math.abs(lambda_60s_microns - 6.156365) < 1e-4);
+    assert.ok(withinTolerance(lambda_1s_microns, 0.7947833, { absolute: 1e-4 }).ok);
+    assert.ok(withinTolerance(lambda_60s_microns, 6.156365, { absolute: 1e-4 }).ok);
 
     // Two-figure display values: 0.79 and 6.2 microns (or 0.795 and 6.16 microns)
     assert.equal(Number(lambda_1s_microns.toPrecision(3)), 0.795);

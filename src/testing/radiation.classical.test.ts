@@ -6,6 +6,7 @@ import {
   classicalTotalEnergy,
   meanResonatorEnergy,
 } from "../physics/reference/radiation.ts";
+import { withinTolerance } from "../units/tolerance.ts";
 import { newRunIdentity, TestLogger } from "./log/logger.ts";
 
 const SUITE = "reference-radiation";
@@ -55,8 +56,7 @@ describe("radiation.classical (am-ref-radiation-15c)", () => {
       expect(res.status).toBe("value");
       if (res.status === "value") {
         const expected = (8 * Math.PI * kB * T * nu ** 3) / (3 * c ** 3);
-        const relDiff = Math.abs(res.value - expected) / expected;
-        expect(relDiff).toBeLessThan(1e-12);
+        expect(withinTolerance(res.value, expected, { relative: 1e-12 }).ok).toBe(true);
       }
     }
 

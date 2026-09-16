@@ -54,9 +54,13 @@ test("example rejects malformed inputs and the CLI reports an invalid invocation
     },
   ])
     assert.throws(() => runBrownianDemo(bad));
+  const isBun = typeof process.versions.bun === "string";
+  const execArgs = isBun
+    ? ["scripts/reference/brownian-demo.mjs", '{"unknown":1}']
+    : ["--experimental-strip-types", "scripts/reference/brownian-demo.mjs", '{"unknown":1}'];
   const child = spawnSync(
     process.execPath,
-    ["--experimental-strip-types", "scripts/reference/brownian-demo.mjs", '{"unknown":1}'],
+    execArgs,
     { cwd: new URL("../../", import.meta.url), encoding: "utf8" },
   );
   assert.equal(child.status, 1);

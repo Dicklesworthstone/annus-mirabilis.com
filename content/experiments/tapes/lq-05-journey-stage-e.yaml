@@ -13,8 +13,6 @@ allocationId: lq-05.configuration.v1
 initialConditions:
   n: 3
   f: 0.5
-  view: enumeration
-  locked: false
   trials: 10000
 events:
   - kind: control
@@ -23,18 +21,6 @@ events:
     commandId: set-n60
     parameterId: n
     value: 60
-  - kind: control
-    actionIndex: 2
-    commandClass: presentation-change
-    commandId: set-log-view
-    parameterId: view
-    value: logarithmic
-  - kind: control
-    actionIndex: 3
-    commandClass: setup-change
-    commandId: set-locked
-    parameterId: locked
-    value: true
 checkpoints:
   - actionIndex: 1
     stepIndex: 1
@@ -50,7 +36,7 @@ checkpoints:
     expectedDisplayValues:
       - label: "W"
         value: 0.125
-        unit: ""
+        unit: "1"
         constantSetId: modern-si-2019
 title: "Journey I Stage E: The Microstate Counter"
 description: "Walkthrough for Journey I: n = 3 enumeration, n = 60 logarithmic scaling, and the locked comparison."

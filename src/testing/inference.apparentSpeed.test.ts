@@ -1,9 +1,10 @@
 import assert from "node:assert/strict";
 import test, { describe } from "node:test";
 import { cameraMoments } from "../physics/reference/inference/observation.ts";
+import { withinTolerance as wt } from "../units/tolerance.ts";
 
 function withinTolerance(actual: number, expected: number, tol = 1e-9): boolean {
-  return Math.abs(actual - expected) <= tol * Math.max(Math.abs(expected), 1e-30);
+  return wt(actual, expected, { relative: tol, absolute: 1e-30 }).ok;
 }
 
 describe("inference.apparentSpeed: Apparent speed scaling and noise crossover (am-bm-08-measurement-bias-h1ye)", () => {
@@ -151,11 +152,10 @@ describe("inference.apparentSpeed: Apparent speed scaling and noise crossover (a
 
     const asymptoticSpeed = (Math.sqrt(2) * sigma) / dt; // 113.137085 um/s
     const measuredSpeed = res.data.measuredApparentSpeed;
-    const relDiff = Math.abs(measuredSpeed - asymptoticSpeed) / asymptoticSpeed;
 
     assert.ok(
-      relDiff < 0.015,
-      `Measured speed ${measuredSpeed} should approach noise asymptote ${asymptoticSpeed} within 1.5%, got ${(relDiff * 100).toFixed(3)}%`,
+      wt(measuredSpeed, asymptoticSpeed, { relative: 0.015 }).ok,
+      `Measured speed ${measuredSpeed} should approach noise asymptote ${asymptoticSpeed} within 1.5%`,
     );
   });
 

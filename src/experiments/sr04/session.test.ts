@@ -58,8 +58,7 @@ describe("SR-04 construction sequence against the bead's own worked numbers (am-
     const trueDifference = -6.6759e-14;
     // The naive path is not garbage -- it is measurably wrong at the ~1% level relative to the
     // true deviation, which is exactly why the owner's cancellation-free closed form exists.
-    const relativeError = Math.abs((naiveDifference - trueDifference) / trueDifference);
-    expect(relativeError).toBeGreaterThan(1e-4);
+    expect(withinTolerance(naiveDifference, trueDifference, { relative: 1e-4 }).ok).toBe(false);
   });
 
   test("step 3, light constraints only: underdetermined with b=a, d=-av/c^2", () => {

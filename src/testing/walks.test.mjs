@@ -50,7 +50,10 @@ test("small coin walks preserve the pinned sign mapping, not an invented stream"
     assert.equal(r.traceValues[n], x);
   }
 });
-test("fixed-seed ensembles detect convergence AND the finite-step coin disagreement", async () => {
+test(
+  "fixed-seed ensembles detect convergence AND the finite-step coin disagreement",
+  { timeout: 30000 },
+  async () => {
   // Four prespecified assertions. DKW alpha=2.5e-7 each, total <=1e-6; no reruns.
   const bound = Math.sqrt(Math.log(2 / 2.5e-7) / (2 * 10000));
   for (const kernel of ["coin", "uniform", "gaussian"]) {

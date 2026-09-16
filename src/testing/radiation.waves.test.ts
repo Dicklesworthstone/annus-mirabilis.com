@@ -9,6 +9,7 @@ import {
   shellPowerIdentity,
   twoSourceIntensity,
 } from "../physics/reference/radiation.ts";
+import { withinTolerance } from "../units/tolerance.ts";
 import { newRunIdentity, TestLogger } from "./log/logger.ts";
 
 const SUITE = "reference-radiation";
@@ -166,8 +167,7 @@ describe("radiation.waves (am-ref-radiation-15c)", () => {
     const res = shellPowerIdentity({ P, r });
     expect(res.status).toBe("value");
     if (res.status === "value") {
-      const relDiff = Math.abs(res.value - P) / P;
-      expect(relDiff).toBeLessThan(1e-12);
+      expect(withinTolerance(res.value, P, { relative: 1e-12 }).ok).toBe(true);
     }
 
     // Intensity at distance r

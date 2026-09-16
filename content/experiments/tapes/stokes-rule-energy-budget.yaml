@@ -1,49 +1,58 @@
+tapeVersion: 2
 tapeId: stokes-rule-energy-budget
-instrumentId: lq-07
+experimentId: lq-07
+mode: "lq-07:default"
+modelIdentity:
+  modelId: lq07-stokes-rule-v1
+  modelVersion: "1.0.0"
+  artifactDigest: "host:sha256:0000000000000000000000000000000000000000000000000000000000000000"
+constantSetId: modern-si-2019
+seed: "0"
+streamVersion: 1
+allocationId: lq-07.stokes-rule.v1
+initialConditions:
+  nu1: 850
+  nu2: 850
+  multiQuantumK: 1
+  absorbedPowerMicrowatts: 1.0
+  quantumYield: 0.5
+events:
+  - kind: control
+    actionIndex: 1
+    commandClass: setup-change
+    commandId: set-nu2-anti-stokes
+    parameterId: nu2
+    value: 900
+  - kind: control
+    actionIndex: 2
+    commandClass: setup-change
+    commandId: set-multi-quantum
+    parameterId: multiQuantumK
+    value: 2
+checkpoints:
+  - actionIndex: 1
+    stepIndex: 1
+    simulatedTime: 1
+    digest: "host:sha256:5555555555555555555555555555555555555555555555555555555555555555"
+    digestKind: host
+    checkpointVersion: 1
+    streamSemanticsVersion: 1
+    seed: "0"
+    streamPositions: []
+    label: "Anti-Stokes Disallowance"
+    teachingNote: "Emitting at nu2 = 900 THz requires 3.722 eV, exceeding the absorbed quantum."
+  - actionIndex: 2
+    stepIndex: 2
+    simulatedTime: 2
+    digest: "host:sha256:6666666666666666666666666666666666666666666666666666666666666666"
+    digestKind: host
+    checkpointVersion: 1
+    streamSemanticsVersion: 1
+    seed: "0"
+    streamPositions: []
+    label: "Multi-Quantum Absorption"
+    teachingNote: "If k = 2 quanta are absorbed per process, 7.031 eV is available."
 title: "Stokes's Rule as an Energy Budget"
 description: "Walkthrough of Einstein's 1905 §7 energy accounting for fluorescence emission and its deviation cases."
-checkpoints:
-  - id: step-1-incident
-    title: "1. Incident Light Quantum"
-    parameters:
-      nu1: 850
-      nu2: 850
-      regime: standard-stokes
-      multiQuantumK: 1
-      absorbedPowerMicrowatts: 1.0
-      quantumYield: 0.5
-      channels: light-plus-heat
-    caption: "Exciting UV light at nu1 = 850 THz supplies quanta of energy h*nu1 = 3.515 eV."
-  - id: step-2-anti-stokes-disallowed
-    title: "2. Anti-Stokes Disallowance"
-    parameters:
-      nu1: 850
-      nu2: 900
-      regime: standard-stokes
-      multiQuantumK: 1
-      absorbedPowerMicrowatts: 1.0
-      quantumYield: 0.5
-      channels: light-plus-heat
-    caption: "Emitting at nu2 = 900 THz requires 3.722 eV, exceeding the absorbed quantum by 0.207 eV and is disallowed under single-quantum Stokes assumptions."
-  - id: step-3-deviation-case-1
-    title: "3. Deviation Case 1: Multi-Quantum Absorption"
-    parameters:
-      nu1: 850
-      nu2: 900
-      regime: deviation-multi-quantum
-      multiQuantumK: 2
-      absorbedPowerMicrowatts: 1.0
-      quantumYield: 0.5
-      channels: light-plus-heat
-    caption: "If k = 2 quanta are absorbed per process, 7.031 eV is available, raising nu2,max to 1700 THz and allowing 900 THz emission."
-  - id: step-4-weak-illumination
-    title: "4. Weak-Illumination Linearity"
-    parameters:
-      nu1: 850
-      nu2: 750
-      regime: standard-stokes
-      multiQuantumK: 1
-      absorbedPowerMicrowatts: 0.000001
-      quantumYield: 0.5
-      channels: light-plus-heat
-    caption: "Even at extreme low power (10^-12 W), emission is strictly proportional to absorbed power with no threshold."
+isTeachingSequence: true
+

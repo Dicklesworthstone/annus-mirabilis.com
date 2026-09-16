@@ -6,6 +6,7 @@ import {
   wienSpectralEntropyDensity,
   wienTemperatureFromDensity,
 } from "../physics/reference/radiation.ts";
+import { withinTolerance } from "../units/tolerance.ts";
 import { newRunIdentity, TestLogger } from "./log/logger.ts";
 
 const SUITE = "reference-radiation";
@@ -64,8 +65,7 @@ describe("radiation.entropy (am-ref-radiation-15c)", () => {
     if (sPlus.status === "value" && sMinus.status === "value") {
       const numDeriv = (sPlus.value - sMinus.value) / (2 * hRho);
       const expectedReciprocalT = 1 / T;
-      const relDiff = Math.abs(numDeriv - expectedReciprocalT) / expectedReciprocalT;
-      expect(relDiff).toBeLessThan(1e-6);
+      expect(withinTolerance(numDeriv, expectedReciprocalT, { relative: 1e-6 }).ok).toBe(true);
     }
 
     logger.log({

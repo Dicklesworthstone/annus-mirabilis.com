@@ -1,29 +1,46 @@
-# Teaching tape for LQ-06: The Move (§6)
-tapeId: lq-06-the-move-walkthrough
-title: "The Move: From Entropy Law to Energy Quanta"
+tapeVersion: 2
+tapeId: the-move
 experimentId: lq-06
+mode: "lq-06:default"
+modelIdentity:
+  modelId: lq06-the-move-v1
+  modelVersion: "1.0.0"
+  artifactDigest: "host:sha256:0000000000000000000000000000000000000000000000000000000000000000"
+constantSetId: modern-si-2019
+seed: "0"
+streamVersion: 1
+allocationId: lq-06.the-move.v1
+initialConditions:
+  radiationEnergy: 9.055615e-9
+  frequency: 6.0e14
+  gasParticles: 10
+  volumeRatio: 0.5
+  temperature: 3000
 events:
-  - time: 0
-    kind: setup-change
-    parameters:
-      radiationEnergy: 9.055615e-9
-      frequency: 6.0e14
-      gasParticles: 10
-      volumeRatio: 0.5
-      temperature: 3000
-      selectedSubexpression: "none"
-      proposedEnergyElement: "none"
-      forkAChoice: "none"
-      constantSetId: "modern-si-2019"
-  - time: 1
-    kind: presentation-change
-    parameters:
-      selectedSubexpression: "N_E_over_R_beta_nu"
-  - time: 2
-    kind: presentation-change
-    parameters:
-      proposedEnergyElement: "h_nu"
-  - time: 3
-    kind: presentation-change
-    parameters:
-      forkAChoice: "independent-quanta"
+  - kind: control
+    actionIndex: 1
+    commandClass: setup-change
+    commandId: set-gas-particles
+    parameterId: gasParticles
+    value: 20
+checkpoints:
+  - actionIndex: 1
+    stepIndex: 1
+    simulatedTime: 1
+    digest: "host:sha256:4444444444444444444444444444444444444444444444444444444444444444"
+    digestKind: host
+    checkpointVersion: 1
+    streamSemanticsVersion: 1
+    seed: "0"
+    streamPositions: []
+    label: "Double the gas particles"
+    teachingNote: "Changing n to 20 doubles the exponent in the volume ratio."
+    expectedDisplayValues:
+      - label: "n"
+        value: 20
+        unit: "1"
+        constantSetId: modern-si-2019
+title: "The Move: From Entropy Law to Energy Quanta"
+description: "Teaching tape demonstrating the matching of the entropy coefficients between ideal gas and monochromatic radiation."
+isTeachingSequence: true
+

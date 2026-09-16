@@ -1,27 +1,45 @@
+tapeVersion: 2
 tapeId: lq-07-journey-stage-g
-instrumentId: lq-07
+experimentId: lq-07
+mode: "lq-07:default"
+modelIdentity:
+  modelId: lq07-journey-stage-g-v1
+  modelVersion: "1.0.0"
+  artifactDigest: "host:sha256:0000000000000000000000000000000000000000000000000000000000000000"
+constantSetId: modern-si-2019
+seed: "0"
+streamVersion: 1
+allocationId: lq-07.fluorescence.v1
+initialConditions:
+  nu1: 850
+  nu2: 850
+  multiQuantumK: 1
+  absorbedPowerMicrowatts: 1.0
+  quantumYield: 0.5
+events:
+  - kind: control
+    actionIndex: 1
+    commandClass: setup-change
+    commandId: set-nu2
+    parameterId: nu2
+    value: 900
+checkpoints:
+  - actionIndex: 1
+    stepIndex: 1
+    simulatedTime: 1
+    digest: "host:sha256:7777777777777777777777777777777777777777777777777777777777777777"
+    digestKind: host
+    checkpointVersion: 1
+    streamSemanticsVersion: 1
+    seed: "0"
+    streamPositions: []
+    label: "The Single-Quantum Ledger"
+    teachingNote: "Single-quantum energy accounting: h*nu1 = h*nu2 + E_other."
+    expectedDisplayValues:
+      - label: "nu2"
+        value: 900
+        unit: "THz"
+        constantSetId: modern-si-2019
 title: "Journey I Stage G: The Fluorescence Energy Accounting"
 description: "Interactive journey stage examining Stokes's rule, deviation cases, and weak-illumination proportionality."
-checkpoints:
-  - id: stage-g-1-budget
-    title: "The Single-Quantum Ledger"
-    parameters:
-      nu1: 850
-      nu2: 850
-      regime: standard-stokes
-      multiQuantumK: 1
-      absorbedPowerMicrowatts: 1.0
-      quantumYield: 0.5
-      channels: light-plus-heat
-    caption: "Single-quantum energy accounting: h*nu1 = h*nu2 + E_other."
-  - id: stage-g-2-deviation-cases
-    title: "The Deviation Cases in §7"
-    parameters:
-      nu1: 850
-      nu2: 900
-      regime: deviation-multi-quantum
-      multiQuantumK: 2
-      absorbedPowerMicrowatts: 1.0
-      quantumYield: 0.5
-      channels: light-plus-heat
-    caption: "Multi-quantum and thermal radiation caveats show Stokes's rule is an energy budget, not an absolute prohibition."
+isTeachingSequence: true

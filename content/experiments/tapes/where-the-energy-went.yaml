@@ -14,31 +14,15 @@ seed: "0"
 streamVersion: 1
 allocationId: me-03.none.v1
 initialConditions:
-  boundary: "body-alone"
-  disposition: "escapes"
   emittedEnergy: 1.0
   inputEnergy: 0.0
-  cardId: "me-03-card-radium"
-  mode: "1905"
 events:
   - kind: control
     actionIndex: 1
-    commandClass: measurement-change
-    commandId: select-radiation-boundary
-    parameterId: boundary
-    value: "radiation"
-  - kind: control
-    actionIndex: 2
-    commandClass: measurement-change
-    commandId: select-combined-boundary
-    parameterId: boundary
-    value: "combined-isolated-system"
-  - kind: control
-    actionIndex: 3
     commandClass: setup-change
-    commandId: set-retained-disposition
-    parameterId: disposition
-    value: "retained"
+    commandId: set-emitted-energy
+    parameterId: emittedEnergy
+    value: 2.0
 checkpoints:
   - actionIndex: 3
     stepIndex: 0

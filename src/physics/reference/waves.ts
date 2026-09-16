@@ -812,6 +812,206 @@ export function evaluateSr09(input: Sr09Input): Sr09EvaluationResult {
   });
 }
 
+export type Sr10Input = Readonly<{
+  beta: number;
+  propagationAngleDeg: number;
+  initialEnergyJ?: number;
+  initialVolumeM3?: number;
+  initialAmplitude?: number;
+  showCountermodel?: boolean;
+}>;
+
+export interface Sr10EvaluationResult {
+  beta: number;
+  gamma: number;
+  propagationAngleStationaryDeg: number;
+  propagationAngleStationaryRad: number;
+  propagationAngleMovingDeg: number;
+  propagationAngleMovingRad: number;
+  cosThetaStationary: number;
+  sinThetaStationary: number;
+  cosThetaMoving: number;
+  sinThetaMoving: number;
+  initialEnergyJ: number;
+  transformedEnergyJ: number;
+  initialVolumeM3: number;
+  transformedVolumeM3: number;
+  initialAmplitude: number;
+  transformedAmplitude: number;
+  energyFactor: number;
+  energyDensityFactor: number;
+  volumeFactor: number;
+  amplitudeFactor: number;
+  countermodelEnergyJ: number;
+  countermodelVolumeM3: number;
+  countermodelEnergyFactor: number;
+  countermodelVolumeFactor: number;
+  numericVolumeM3: number;
+  results: readonly ScientificResult[];
+  status: "value" | "outside-domain";
+}
+
+function sr10Outside(quantityId: string, unit: string, semanticKind: string): ScientificResult {
+  return Object.freeze({
+    quantityId,
+    unit,
+    semanticKind,
+    ownerId: OWNER_ID,
+    status: "outside-domain" as const,
+    condition: "superluminal-speed",
+    domainKind: "physical" as const,
+    reason: "No inertial observer at |v| >= c.",
+    boundary: { parameterId: "beta", value: 0.95 },
+  });
+}
+
+export function evaluateSr10(input: Sr10Input): Sr10EvaluationResult {
+  const beta = input.beta;
+  const thetaDeg = input.propagationAngleDeg;
+  const thetaRad = (thetaDeg * Math.PI) / 180;
+  const initialEnergyJ = input.initialEnergyJ ?? 1.0;
+  const initialVolumeM3 = input.initialVolumeM3 ?? 1.0;
+  const initialAmplitude = input.initialAmplitude ?? 1.0;
+
+  if (!Number.isFinite(beta) || Math.abs(beta) >= 1) {
+    return Object.freeze({
+      beta,
+      gamma: Number.NaN,
+      propagationAngleStationaryDeg: thetaDeg,
+      propagationAngleStationaryRad: thetaRad,
+      propagationAngleMovingDeg: Number.NaN,
+      propagationAngleMovingRad: Number.NaN,
+      cosThetaStationary: Number.NaN,
+      sinThetaStationary: Number.NaN,
+      cosThetaMoving: Number.NaN,
+      sinThetaMoving: Number.NaN,
+      initialEnergyJ,
+      transformedEnergyJ: Number.NaN,
+      initialVolumeM3,
+      transformedVolumeM3: Number.NaN,
+      initialAmplitude,
+      transformedAmplitude: Number.NaN,
+      energyFactor: Number.NaN,
+      energyDensityFactor: Number.NaN,
+      volumeFactor: Number.NaN,
+      amplitudeFactor: Number.NaN,
+      countermodelEnergyJ: Number.NaN,
+      countermodelVolumeM3: Number.NaN,
+      countermodelEnergyFactor: Number.NaN,
+      countermodelVolumeFactor: Number.NaN,
+      numericVolumeM3: Number.NaN,
+      results: [
+        sr10Outside("frameSpeed", "c", "speed"),
+        sr10Outside("propagationAngleStationary", "deg", "angle"),
+        sr10Outside("propagationAngleMoving", "deg", "angle"),
+        sr10Outside("lightComplexEnergyStationary", "J", "energy"),
+        sr10Outside("lightComplexEnergyMoving", "J", "energy"),
+        sr10Outside("lightComplexVolumeStationary", "m^3", "space-geometry"),
+        sr10Outside("lightComplexVolumeMoving", "m^3", "space-geometry"),
+        sr10Outside("lightAmplitudeStationary", "V/m", "field"),
+        sr10Outside("lightAmplitudeMoving", "V/m", "field"),
+        sr10Outside("dopplerFactor", "1", "ratio"),
+        sr10Outside("lorentzFactor", "1", "lorentz-factor"),
+        sr10Outside("energyDensityFactor", "1", "ratio"),
+        sr10Outside("volumeFactor", "1", "ratio"),
+        sr10Outside("countermodelEnergyMoving", "J", "energy"),
+        sr10Outside("countermodelVolumeMoving", "m^3", "space-geometry"),
+      ],
+      status: "outside-domain",
+    });
+  }
+
+  const gResult = gamma(beta);
+  const g = gResult.status === "value" ? gResult.value : Number.NaN;
+  const cosThetaK = Math.cos(thetaRad);
+  const sinThetaK = Math.sin(thetaRad);
+
+  const factors = lightComplexFactors(beta, thetaRad);
+  const q = factors.energyFactor;
+  const q2 = factors.energyDensityFactor;
+  const volFactor = factors.volumeFactor;
+
+  const ab = aberration(beta, thetaRad);
+  let theta_k_deg = (ab.thetaPrimeRad * 180) / Math.PI;
+  if (theta_k_deg < 0) theta_k_deg += 360;
+
+  const transformedEnergyJ = initialEnergyJ * q;
+  const transformedVolumeM3 = initialVolumeM3 * volFactor;
+  const transformedAmplitude = initialAmplitude * q;
+
+  const countermodel = lightComplexMaterialContractionCountermodel(beta, thetaRad);
+  const countermodelEnergyFactor = countermodel.factor;
+  const countermodelVolumeFactor = 1 / g;
+  const countermodelEnergyJ = initialEnergyJ * countermodelEnergyFactor;
+  const countermodelVolumeM3 = initialVolumeM3 * countermodelVolumeFactor;
+
+  const numericVolRatio = lightComplexVolumeNumeric(beta, thetaRad);
+  const numericVolumeM3 = initialVolumeM3 * numericVolRatio;
+
+  const val = (
+    quantityId: string,
+    unit: string,
+    semanticKind: string,
+    v: number,
+  ): ScientificResult =>
+    Object.freeze({
+      quantityId,
+      unit,
+      semanticKind,
+      ownerId: OWNER_ID,
+      status: "value" as const,
+      value: v,
+    });
+
+  const results: readonly ScientificResult[] = [
+    val("frameSpeed", "c", "speed", beta),
+    val("propagationAngleStationary", "deg", "angle", thetaDeg),
+    val("propagationAngleMoving", "deg", "angle", theta_k_deg),
+    val("lightComplexEnergyStationary", "J", "energy", initialEnergyJ),
+    val("lightComplexEnergyMoving", "J", "energy", transformedEnergyJ),
+    val("lightComplexVolumeStationary", "m^3", "space-geometry", initialVolumeM3),
+    val("lightComplexVolumeMoving", "m^3", "space-geometry", transformedVolumeM3),
+    val("lightAmplitudeStationary", "V/m", "field", initialAmplitude),
+    val("lightAmplitudeMoving", "V/m", "field", transformedAmplitude),
+    val("dopplerFactor", "1", "ratio", q),
+    val("lorentzFactor", "1", "lorentz-factor", g),
+    val("energyDensityFactor", "1", "ratio", q2),
+    val("volumeFactor", "1", "ratio", volFactor),
+    val("countermodelEnergyMoving", "J", "energy", countermodelEnergyJ),
+    val("countermodelVolumeMoving", "m^3", "space-geometry", countermodelVolumeM3),
+  ];
+
+  return Object.freeze({
+    beta,
+    gamma: g,
+    propagationAngleStationaryDeg: thetaDeg,
+    propagationAngleStationaryRad: thetaRad,
+    propagationAngleMovingDeg: theta_k_deg,
+    propagationAngleMovingRad: ab.thetaPrimeRad,
+    cosThetaStationary: cosThetaK,
+    sinThetaStationary: sinThetaK,
+    cosThetaMoving: ab.cosThetaPrime,
+    sinThetaMoving: ab.sinThetaPrime,
+    initialEnergyJ,
+    transformedEnergyJ,
+    initialVolumeM3,
+    transformedVolumeM3,
+    initialAmplitude,
+    transformedAmplitude,
+    energyFactor: q,
+    energyDensityFactor: q2,
+    volumeFactor: volFactor,
+    amplitudeFactor: q,
+    countermodelEnergyJ,
+    countermodelVolumeM3,
+    countermodelEnergyFactor,
+    countermodelVolumeFactor,
+    numericVolumeM3,
+    results,
+    status: "value",
+  });
+}
+
 export type Sr11Input = Readonly<{
   beta: number;
   incidentAngleDeg: number;

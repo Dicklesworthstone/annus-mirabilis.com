@@ -21,6 +21,7 @@ import {
   X_PEAK_LOG_INTERVAL,
   X_PEAK_WAVELENGTH,
 } from "../physics/reference/radiation.ts";
+import { withinTolerance } from "../units/tolerance.ts";
 import { newRunIdentity, TestLogger } from "./log/logger.ts";
 import {
   planckFrequencyBandSeries,
@@ -52,9 +53,8 @@ describe("radiation.spectra (am-ref-radiation-15c)", () => {
     expect(pHigh.status).toBe("value");
     expect(wHigh.status).toBe("value");
     if (pHigh.status === "value" && wHigh.status === "value") {
-      const relDiff = Math.abs(pHigh.value - wHigh.value) / pHigh.value;
       // At x = 10, e^-10 ~= 4.54e-5
-      expect(relDiff).toBeLessThan(1e-4);
+      expect(withinTolerance(wHigh.value, pHigh.value, { relative: 1e-4 }).ok).toBe(true);
     }
 
     // Wavelength basis Wien vs Planck in short-wavelength regime (e.g. 0.5 um at 1500 K => x ~= 19.2)
@@ -64,8 +64,7 @@ describe("radiation.spectra (am-ref-radiation-15c)", () => {
     expect(pWaveShort.status).toBe("value");
     expect(wWaveShort.status).toBe("value");
     if (pWaveShort.status === "value" && wWaveShort.status === "value") {
-      const relDiff = Math.abs(pWaveShort.value - wWaveShort.value) / pWaveShort.value;
-      expect(relDiff).toBeLessThan(1e-4);
+      expect(withinTolerance(wWaveShort.value, pWaveShort.value, { relative: 1e-4 }).ok).toBe(true);
     }
 
     // Low frequency (x = 0.001, Rayleigh-Jeans regime)
@@ -75,9 +74,8 @@ describe("radiation.spectra (am-ref-radiation-15c)", () => {
     expect(pLow.status).toBe("value");
     expect(rjLow.status).toBe("value");
     if (pLow.status === "value" && rjLow.status === "value") {
-      const relDiff = Math.abs(pLow.value - rjLow.value) / pLow.value;
       // At x = 0.001, |1 - x/(e^x - 1)| ~= x/2 = 5e-4
-      expect(relDiff).toBeLessThan(1e-3);
+      expect(withinTolerance(rjLow.value, pLow.value, { relative: 1e-3 }).ok).toBe(true);
     }
 
     // Long wavelength RJ vs Planck (e.g. 1000 um at 1500 K => x ~= 0.0096)
@@ -87,8 +85,7 @@ describe("radiation.spectra (am-ref-radiation-15c)", () => {
     expect(pWaveLong.status).toBe("value");
     expect(rjWaveLong.status).toBe("value");
     if (pWaveLong.status === "value" && rjWaveLong.status === "value") {
-      const relDiff = Math.abs(pWaveLong.value - rjWaveLong.value) / pWaveLong.value;
-      expect(relDiff).toBeLessThan(0.01);
+      expect(withinTolerance(rjWaveLong.value, pWaveLong.value, { relative: 0.01 }).ok).toBe(true);
     }
 
     logger.log({
@@ -115,8 +112,9 @@ describe("radiation.spectra (am-ref-radiation-15c)", () => {
       const transform = spectralDensityCoordinateTransform(uNuRes.value, nu, set);
       expect(transform.wavelength).toBeCloseTo(lambda, 12);
       expect(transform.jacobian).toBeCloseTo((nu * nu) / c, 6);
-      const relDiff = Math.abs(transform.uLambda - uLambdaRes.value) / uLambdaRes.value;
-      expect(relDiff).toBeLessThan(1e-12);
+      expect(withinTolerance(transform.uLambda, uLambdaRes.value, { relative: 1e-12 }).ok).toBe(
+        true,
+      );
     }
 
     logger.log({
@@ -140,8 +138,7 @@ describe("radiation.spectra (am-ref-radiation-15c)", () => {
     expect(waveLog.status).toBe("value");
 
     if (freqLog.status === "value" && waveLog.status === "value") {
-      const relDiff = Math.abs(freqLog.value - waveLog.value) / freqLog.value;
-      expect(relDiff).toBeLessThan(1e-12);
+      expect(withinTolerance(waveLog.value, freqLog.value, { relative: 1e-12 }).ok).toBe(true);
     }
 
     logger.log({
@@ -239,8 +236,7 @@ describe("radiation.spectra (am-ref-radiation-15c)", () => {
 
     expect(quadPlanck.status).toBe("value");
     if (quadPlanck.status === "value") {
-      const relDiff = Math.abs(quadPlanck.value - seriesPlanck) / seriesPlanck;
-      expect(relDiff).toBeLessThan(1e-7);
+      expect(withinTolerance(quadPlanck.value, seriesPlanck, { relative: 1e-7 }).ok).toBe(true);
     }
 
     const quadWien = wienBandEnergyDensity(nu1, nu2, T, set);
@@ -248,8 +244,7 @@ describe("radiation.spectra (am-ref-radiation-15c)", () => {
 
     expect(quadWien.status).toBe("value");
     if (quadWien.status === "value") {
-      const relDiff = Math.abs(quadWien.value - seriesWien) / seriesWien;
-      expect(relDiff).toBeLessThan(1e-7);
+      expect(withinTolerance(quadWien.value, seriesWien, { relative: 1e-7 }).ok).toBe(true);
     }
 
     // Wavelength band
@@ -260,8 +255,7 @@ describe("radiation.spectra (am-ref-radiation-15c)", () => {
 
     expect(quadWave.status).toBe("value");
     if (quadWave.status === "value") {
-      const relDiff = Math.abs(quadWave.value - seriesWave) / seriesWave;
-      expect(relDiff).toBeLessThan(1e-7);
+      expect(withinTolerance(quadWave.value, seriesWave, { relative: 1e-7 }).ok).toBe(true);
     }
 
     logger.log({
@@ -284,8 +278,7 @@ describe("radiation.spectra (am-ref-radiation-15c)", () => {
     expect(uTotalRes.status).toBe("value");
     if (uTotalRes.status === "value") {
       const expectedTotal = aExact * T ** 4;
-      const relDiff = Math.abs(uTotalRes.value - expectedTotal) / expectedTotal;
-      expect(relDiff).toBeLessThan(1e-12);
+      expect(withinTolerance(uTotalRes.value, expectedTotal, { relative: 1e-12 }).ok).toBe(true);
     }
 
     logger.log({
