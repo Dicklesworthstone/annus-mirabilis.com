@@ -798,10 +798,14 @@ Inherited from the donor's de-slopify rule and tightened. It applies to every vi
 ## Verification Commands (Available Once the Scaffold Lands)
 
 ```bash
+bun run gates                              # full local gate chain (bun scripts/quality-gates.ts --fail-fast --family fast)
+bun scripts/quality-gates.ts --profile scaffold  # scaffold release profile verification
+bun scripts/quality-gates.ts --profile preview   # preview release profile verification
+bun scripts/quality-gates.ts --profile launch    # launch release profile verification
 bun run typecheck                          # tsc --noEmit, strict
 bun run lint                               # Biome
 bun run format                             # Biome format
-bun run test                               # unit and integration tests
+bun run test                               # unit and integration tests (bun + node multi-runner)
 bun run build                              # production build, including the content compiler
 bun scripts/verify-content.ts              # every compiler rejection plus Rules 0 to 2
 bun scripts/verify-wasm-artifacts.ts       # digests, instantiation, exports, Philox cross-check, refusals

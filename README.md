@@ -190,7 +190,8 @@ Read [`AGENTS.md`](./AGENTS.md) before changing anything. Once the application s
 ```bash
 bun install
 bun run dev          # local development server
-bun run test         # unit and integration tests
+bun run gates        # quality gates chain: bun scripts/quality-gates.ts --fail-fast --family fast
+bun run test         # unit and integration tests (bun + node multi-runner)
 bun run typecheck    # strict TypeScript
 bun run lint         # Biome
 bun run build        # production build, including the content compiler
