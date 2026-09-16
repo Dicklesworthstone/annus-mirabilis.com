@@ -48,7 +48,7 @@ describe("catalogue: the 33 core ids and the 5 declared non-core ids", () => {
     }
   });
 
-  test("registered instruments currently include the Brownian slice, lq-08, and me-02", () => {
+  test("registered instruments currently include the Brownian slice, lq-01, lq-03, lq-08, and me-01/me-02", () => {
     expect([...REGISTERED_IDS].sort()).toEqual([
       "bm-01",
       "bm-02",
@@ -58,6 +58,8 @@ describe("catalogue: the 33 core ids and the 5 declared non-core ids", () => {
       "bm-06",
       "bm-07",
       "bm-08",
+      "lq-01",
+      "lq-03",
       "lq-08",
       "me-01",
       "me-02",

@@ -1,0 +1,327 @@
+# LQ-03 instrument manifest (am-lq-03-spectrum-08vz).
+#
+# Scope note (WildCrane, 2026-09-16): built alongside the real owner (src/physics/reference/
+# radiation.ts, am-ref-radiation-15c) and the /lab/lq-03 route + SpectrumLab component, per
+# BoldHarbor's route-first directive. content/papers/light-quanta.json does not exist yet (a
+# pre-existing gap shared with lq-01.yaml's manifest, which cites the same paper); sourceRefs
+# below name the sections the bead itself cites (S2, S4) in the same convention lq-01 already
+# uses, pending that paper file. Historical overlays, predict-mode candidate authoring, teaching
+# tapes, show-the-code, and permalink/embed wiring are NOT done -- see the bead comment for the
+# full list of genuine gaps.
+id: lq-03
+title: "LQ-03: Radiation Spectrum and Regime Comparison"
+explanatoryQuestion: "What does a measured radiation spectrum look like at a given temperature, in which regime is Wien's law or the classical law an accurate description, and what does a density plot actually measure?"
+sourceRefs:
+  - paper: light-quanta
+    id: s2
+  - paper: light-quanta
+    id: s4
+argumentIds: []
+schemaVersion: 1
+parameters:
+  - id: T
+    label: "Temperature"
+    accessibleName: "Cavity radiation temperature"
+    accessibleDescription: "Sets the equilibrium radiation temperature in Kelvin"
+    quantityId: temperature
+    displayUnit: "K"
+    modelDomain:
+      min: 500
+      max: 10000
+      minInclusive: true
+      maxInclusive: true
+      reason: "Teaching range; the owner's stable-evaluation guarantee covers a far wider domain, but the band-integration quadrature is only verified fast within this range (see BATCH_PENDING)"
+    visualRange:
+      min: 500
+      max: 10000
+    default: 5000
+    mapping:
+      kind: log
+      base: 10
+    role: independent
+    commandClass: setup-change
+  - id: nu1
+    label: "Band lower edge"
+    accessibleName: "Lower frequency edge of the selected band"
+    accessibleDescription: "The band's lower bound, entered in hertz"
+    quantityId: frequency
+    displayUnit: "Hz"
+    modelDomain:
+      min: 1e11
+      max: 1e16
+      minInclusive: true
+      maxInclusive: true
+      reason: "Teaching range for the selected band"
+    visualRange:
+      min: 1e11
+      max: 1e16
+    default: 4e14
+    mapping:
+      kind: log
+      base: 10
+    role: independent
+    commandClass: measurement-change
+  - id: nu2
+    label: "Band upper edge"
+    accessibleName: "Upper frequency edge of the selected band"
+    accessibleDescription: "The band's upper bound, entered in hertz"
+    quantityId: frequency
+    displayUnit: "Hz"
+    modelDomain:
+      min: 1e11
+      max: 1e16
+      minInclusive: true
+      maxInclusive: true
+      reason: "Teaching range for the selected band"
+    visualRange:
+      min: 1e11
+      max: 1e16
+    default: 6e14
+    mapping:
+      kind: log
+      base: 10
+    role: independent
+    commandClass: measurement-change
+  - id: probeNu
+    label: "Probe frequency"
+    accessibleName: "Frequency at which densities and the regime verdict are evaluated"
+    accessibleDescription: "The single frequency the density table and regime report are computed at"
+    quantityId: frequency
+    displayUnit: "Hz"
+    modelDomain:
+      min: 1e11
+      max: 1e16
+      minInclusive: true
+      maxInclusive: true
+      reason: "Teaching range"
+    visualRange:
+      min: 1e11
+      max: 1e16
+    default: 6e14
+    mapping:
+      kind: log
+      base: 10
+    role: independent
+    commandClass: measurement-change
+  - id: epsilon
+    label: "Regime tolerance"
+    accessibleName: "Relative-error tolerance defining the Wien and classical regimes"
+    accessibleDescription: "Fraction (not percent) defining how close a law must agree to count as admitted"
+    quantityId: relativeTolerance
+    displayUnit: ""
+    modelDomain:
+      min: 0.001
+      max: 0.1
+      minInclusive: true
+      maxInclusive: true
+      reason: "0.1% to 10% teaching range"
+    visualRange:
+      min: 0.001
+      max: 0.1
+    default: 0.01
+    mapping:
+      kind: log
+      base: 10
+    role: independent
+    commandClass: estimator-change
+  - id: coordinate
+    label: "Horizontal coordinate"
+    accessibleName: "Frequency or wavelength coordinate"
+    accessibleDescription: "Which physical coordinate the spectrum is shown against"
+    quantityId: spectralCoordinateChoice
+    displayUnit: ""
+    modelDomain:
+      enumerated: []
+      reason: "One of frequency, wavelength"
+    visualRange:
+      min: 0
+      max: 1
+    default: "frequency"
+    mapping:
+      kind: linear
+    role: independent
+    commandClass: presentation-change
+  - id: axisScale
+    label: "Axis scale"
+    accessibleName: "Linear or logarithmic horizontal axis"
+    accessibleDescription: "Presentation only; never changes what the vertical density means"
+    quantityId: axisScaleChoice
+    displayUnit: ""
+    modelDomain:
+      enumerated: []
+      reason: "One of linear, logarithmic"
+    visualRange:
+      min: 0
+      max: 1
+    default: "logarithmic"
+    mapping:
+      kind: linear
+    role: independent
+    commandClass: presentation-change
+  - id: convention
+    label: "Density convention"
+    accessibleName: "Per-Hz, per-m, per natural-log interval, or per-decade density"
+    accessibleDescription: "Which normalization the displayed density uses"
+    quantityId: densityConventionChoice
+    displayUnit: ""
+    modelDomain:
+      enumerated: []
+      reason: "One of per-hz, per-m, per-log, per-decade"
+    visualRange:
+      min: 0
+      max: 1
+    default: "per-hz"
+    mapping:
+      kind: linear
+    role: independent
+    commandClass: presentation-change
+outputs:
+  - id: frequencyEnergyDensity
+    quantityId: frequencyEnergyDensity
+    allowedStatuses:
+      - value
+      - outside-domain
+    primary: true
+  - id: wavelengthEnergyDensity
+    quantityId: wavelengthEnergyDensity
+    allowedStatuses:
+      - value
+      - outside-domain
+    primary: false
+  - id: bandEnergy
+    quantityId: bandEnergy
+    allowedStatuses:
+      - value
+      - outside-domain
+    primary: false
+  - id: peakFrequency
+    quantityId: peakFrequency
+    allowedStatuses:
+      - value
+    primary: false
+  - id: peakWavelength
+    quantityId: peakWavelength
+    allowedStatuses:
+      - value
+    primary: false
+assumptions:
+  - "Equilibrium blackbody radiation in a cavity"
+  - "Planck's 1900 formula is the accepted ideal model; Wien 1896 and the classical law (S1) are compared to it, never treated as independently correct"
+  - "modern-si-2019 constants only in this pass; historical evaluation under einstein-1905-light-quanta-printed is not implemented"
+admittedDomain: "Equilibrium thermal radiation at temperatures 500-10000 K, frequencies 1e11-1e16 Hz, compared against Planck's law with the Wien and classical approximations named honestly as regime-limited."
+notModeled:
+  - "Emissivity and cavity imperfections"
+  - "Detector and spectrometer response"
+  - "Polarization"
+  - "Non-equilibrium radiation"
+  - "Any photon or quantum-statistical model beyond the displayed formulas"
+owner:
+  kind: reference-evaluator
+  kernelFunctions:
+    - displayRole: reference-implementation
+      language: ts
+      module: "src/physics/reference/radiation/spectra.ts"
+      exportName: "planckFrequencyEnergyDensity"
+      independentReferences:
+        - experimentId: lq-03
+          quantityId: frequencyEnergyDensity
+    - displayRole: reference-implementation
+      language: ts
+      module: "src/physics/reference/radiation/spectra.ts"
+      exportName: "wienFrequencyEnergyDensity"
+    - displayRole: reference-implementation
+      language: ts
+      module: "src/physics/reference/radiation/spectra.ts"
+      exportName: "rayleighJeansFrequencyEnergyDensity"
+    - displayRole: reference-implementation
+      language: ts
+      module: "src/physics/reference/radiation/bandIntegration.ts"
+      exportName: "planckBandEnergyDensity"
+    - displayRole: reference-implementation
+      language: ts
+      module: "src/physics/reference/radiation/spectra.ts"
+      exportName: "regimeRelativeErrors"
+  identifierBindings:
+    - kernelFunction: planckFrequencyEnergyDensity
+      identifier: "nu"
+      quantityId: frequency
+    - kernelFunction: planckFrequencyEnergyDensity
+      identifier: "T"
+      quantityId: temperature
+    - kernelFunction: regimeRelativeErrors
+      identifier: "x"
+      quantityId: dimensionlessRatio
+  traceScenarioId: radiation-spectra-lq03
+  traceRows:
+    - label: "Band energy, 400-600 THz at 5000 K"
+      expression: "E = integral(u_nu(nu, T), nu, nu1, nu2)"
+      value: 0.1286853
+      unit: "J/m^3"
+      quantityId: bandEnergy
+views:
+  - id: spectrum-table
+    kind: table
+    consumes:
+      - frequencyEnergyDensity
+      - wavelengthEnergyDensity
+      - bandEnergy
+      - peakFrequency
+      - peakWavelength
+actions:
+  - actionId: lq-03-regime-verdict
+    family: radiation-entropy
+    question: "Is this frequency in the Wien regime at this temperature, or in the classical regime?"
+    inputs:
+      - probeNu
+      - T
+      - epsilon
+    commandClass: estimator-change
+    acceptedResult:
+      outputs:
+        - frequencyEnergyDensity
+      allowedStatuses:
+        - value
+        - outside-domain
+    visualAffordance: "Regime-shaded log-log spectrum with the probe point marked"
+    equivalentAffordance: "Type the probe frequency and temperature and read the x value, both relative errors, and the regime verdict sentence"
+    announcement: "Regime verdict updated"
+  - actionId: lq-03-band-energy
+    family: radiation-entropy
+    question: "What is the radiant energy density in this frequency band, and does it agree when computed in wavelength coordinates?"
+    inputs:
+      - nu1
+      - nu2
+      - T
+    commandClass: measurement-change
+    acceptedResult:
+      outputs:
+        - bandEnergy
+      allowedStatuses:
+        - value
+        - outside-domain
+    visualAffordance: "Shaded band region under the spectral curve with the two edge handles"
+    equivalentAffordance: "Type the band edges in hertz and read the band-energy value computed both ways"
+    announcement: "Band energy updated"
+acceptanceCases:
+  - radiation-spectra-lq03
+defaultScenario: radiation-spectra-lq03
+tapeModel:
+  modelId: "lq-03"
+  modelVersion: 1
+teachingTapes: []
+presets: []
+probes:
+  - lq-03-band-invariance-probe
+  - lq-03-peak-mismatch-probe
+  - lq-03-wien-shading-probe
+  - lq-03-classical-shading-probe
+weavePredicates:
+  - lq03-s4-wien-confirmed-within-limits
+  - lq03-s2-classical-regime
+historicalOverlays: []
+realRate:
+  natural: false
+embeddable: true
+predictMode:
+  exempt: true
+  reason: "Predict-mode candidate authoring and the tape event wiring belong to am-inst-predict-mode-ti7m (still open); the bead's two prompts (axis-switch peak location, band-energy invariance under axis switch) are named in the bead text but not authored as manifest predictMode.prompts here."

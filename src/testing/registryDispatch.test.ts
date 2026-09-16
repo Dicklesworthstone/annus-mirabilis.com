@@ -21,14 +21,17 @@ describe("owners: every registered id names exactly one real binding", () => {
   });
 
   test("assertOwnerBinding throws MissingOwnerError, naming the id, for a registered id with no binding", () => {
-    expect(() => assertOwnerBinding("lq-01", "registered")).toThrow(MissingOwnerError);
+    // lq-02 is still in-preparation with no owner binding today (unlike lq-01, which gained a
+    // binding since this test was first written); it stands in here for "a registered id with
+    // no binding" without asserting anything about its own real catalogue status.
+    expect(() => assertOwnerBinding("lq-02", "registered")).toThrow(MissingOwnerError);
     try {
-      assertOwnerBinding("lq-01", "registered");
+      assertOwnerBinding("lq-02", "registered");
       throw new Error("expected a throw");
     } catch (error) {
       expect(error).toBeInstanceOf(MissingOwnerError);
-      expect((error as MissingOwnerError).id).toBe("lq-01");
-      expect((error as Error).message).toContain("lq-01");
+      expect((error as MissingOwnerError).id).toBe("lq-02");
+      expect((error as Error).message).toContain("lq-02");
     }
   });
 });
@@ -54,10 +57,20 @@ describe("registry: built eagerly, one entry per catalogue id", () => {
     expect(registryParityViolations()).toEqual([]);
   });
 
-  test("only bm-05 carries an authored question in this repository today", () => {
+  test("only the ids with an authored CATALOGUE_QUESTIONS entry carry a question", () => {
+    const authored = new Set([
+      "bm-03",
+      "bm-04",
+      "bm-05",
+      "lq-01",
+      "lq-03",
+      "lq-08",
+      "me-01",
+      "me-02",
+    ]);
     for (const id of CATALOGUE_IDS) {
       const entry = registryEntry(id);
-      if (id === "bm-05") expect(entry.question).toBeTruthy();
+      if (authored.has(id)) expect(entry.question).toBeTruthy();
       else expect(entry.question).toBeUndefined();
     }
   });
@@ -73,8 +86,22 @@ describe("resolveExperimentDispatch: the pure resolution contract, no React requ
     }
   });
 
-  test("every catalogue id that is NOT one of the five registered ids resolves to 'unknown' or 'in-preparation', never 'registered'", () => {
-    const registeredSet = new Set(["bm-01", "bm-05", "bm-06", "bm-07", "bm-08"]);
+  test("every catalogue id that is NOT a currently-registered id resolves to 'unknown' or 'in-preparation', never 'registered'", () => {
+    const registeredSet = new Set([
+      "bm-01",
+      "bm-02",
+      "bm-03",
+      "bm-04",
+      "bm-05",
+      "bm-06",
+      "bm-07",
+      "bm-08",
+      "lq-01",
+      "lq-03",
+      "lq-08",
+      "me-01",
+      "me-02",
+    ]);
     for (const id of CATALOGUE_IDS) {
       if (registeredSet.has(id)) continue;
       const state = resolveExperimentDispatch(id);
@@ -83,7 +110,8 @@ describe("resolveExperimentDispatch: the pure resolution contract, no React requ
   });
 
   test("a catalogue id with no manifest resolves to in-preparation, carrying its authored question when present", () => {
-    const withQuestion = resolveExperimentDispatch("bm-02");
+    // sr-01 is still in-preparation with no authored question today.
+    const withQuestion = resolveExperimentDispatch("sr-01");
     expect(withQuestion.kind).toBe("in-preparation");
     if (withQuestion.kind === "in-preparation") expect(withQuestion.question).toBeUndefined();
   });
