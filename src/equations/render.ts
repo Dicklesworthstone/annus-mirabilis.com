@@ -15,8 +15,14 @@ export function compileEquation(input:EquationRecord):CompiledEquation {
       if(context.command==="\\htmlClass")return ["am-role-input","am-role-result","am-role-constant"].includes(String(context.class));
       if(context.command!=="\\htmlData")return false;
       const attributes=context.attributes as Record<string,string>;
-      return Object.keys(attributes).length===1 && Object.entries(attributes).every(([key,value])=>["term","op"].includes(key) && allowed.has(value) && nav.some(n=>n.id===value && (n.kind==="term"?"term":"op")===key));
+      return Object.keys(attributes).length===1 && Object.entries(attributes).every(([key,value])=>["data-term","data-op"].includes(key) && allowed.has(value) && nav.some(n=>n.id===value && (n.kind==="term"?"data-term":"data-op")===key));
     }});
+  // KaTeX formats an untrusted HTML command as unsupported text instead of throwing.
+  // Do not let a trust-policy mismatch silently publish a non-interactive formula.
+  for (const n of nav) {
+    const marker = `data-${n.kind === "term" ? "term" : "op"}="${n.id}"`;
+    if (!html.includes(marker)) throw new Error(`Equation rendering omitted ${n.id}.`);
+  }
   const mathml=renderToString(plain,{displayMode:true,output:"mathml",throwOnError:true,strict:"error",trust:false,maxExpand:1000,maxSize:20});
   const bindings=quantityBindings(eq.tree);
   return {...eq,html,mathml,plainLatex:plain,treeDigest:createHash("sha256").update(canonical(eq)).digest("hex"),navigation:nav,terms:bindings.map(t=>({...t,quantity:BROWNIAN_QUANTITIES[t.quantityId]!}))};
