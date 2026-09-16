@@ -57,7 +57,7 @@ export const CATALOGUE_STATUS: Readonly<Record<CatalogueId, CatalogueStatus>> = 
   "lq-03": "registered",
   "lq-04": "in-preparation",
   "lq-05": "registered",
-  "lq-06": "in-preparation",
+  "lq-06": "registered",
   "lq-07": "registered",
   "lq-08": "registered",
   "lq-09": "registered",
@@ -112,6 +112,8 @@ export const CATALOGUE_QUESTIONS: Readonly<Partial<Record<CatalogueId, string>>>
     "What does a measured radiation spectrum look like at a given temperature, in which regime is Wien's law or the classical law an accurate description, and what does a density plot actually measure?",
   "lq-05":
     "How does counting independent possibilities produce an entropy that depends on volume like n ln V, and what changes if the things are not independent?",
+  "lq-06":
+    "Why does comparing the radiation entropy volume law to the ideal gas entropy volume law suggest that monochromatic radiation behaves as independent energy quanta of magnitude R*beta*nu / N = h*nu?",
   "lq-07":
     "Why can the frequency of emitted fluorescent light not exceed that of the exciting light under the light-quantum hypothesis, and what are the exact conditions for exceptions?",
   "lq-08":
