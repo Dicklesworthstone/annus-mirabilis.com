@@ -3,6 +3,7 @@ import { mkdir, readFile, stat, writeFile } from "node:fs/promises";
 import { createServer } from "node:http";
 import { extname, resolve, sep } from "node:path";
 import AxeBuilder from "@axe-core/playwright";
+import { checkKitchenBrowser } from "./test-kitchen-browser.mjs";
 import { chromium } from "playwright";
 import { checkCameraBrowser } from "./test-camera-browser.mjs";
 import { checkEquationBrowser } from "./test-equation-browser.mjs";
@@ -52,6 +53,7 @@ const check = (name, details = {}) => {
 };
 await mkdir("artifacts/browser", { recursive: true });
 try {
+  await checkKitchenBrowser(browser, url, check);
   const noJs = await browser.newContext({
     javaScriptEnabled: false,
     viewport: { width: 320, height: 900 },
