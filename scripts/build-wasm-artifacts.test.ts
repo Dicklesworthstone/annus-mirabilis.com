@@ -1,5 +1,6 @@
 import assert from "node:assert/strict";
 import { existsSync, mkdirSync, mkdtempSync, readFileSync, writeFileSync } from "node:fs";
+import { tmpdir } from "node:os";
 import { join } from "node:path";
 import { describe, it } from "node:test";
 import type { WasmArtifactManifest } from "../src/workers/protocol/provenance.ts";
@@ -11,7 +12,10 @@ import {
 } from "./wasm-artifacts/sizeBudget.ts";
 
 describe("buildWasmArtifacts build, gates, and reproducibility", () => {
-  const tempBase = "/Volumes/USBNVME16TB/temp_agent_space";
+  const tempBase = process.env.AM_TEST_TMP ?? process.env.TMPDIR ?? tmpdir();
+  if (!existsSync(tempBase)) {
+    mkdirSync(tempBase, { recursive: true });
+  }
   const fixturesBase = join(import.meta.dirname, "../src/testing/fixtures/wasm");
 
   it("builds slim WASM artifact and writes content-addressed files matching manifest", async () => {
