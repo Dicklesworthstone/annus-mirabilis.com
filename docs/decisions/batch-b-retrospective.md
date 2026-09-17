@@ -19,7 +19,7 @@
 The Brownian reference slice proved five core architectural abstractions across reading, computation, compilation, and experiment state. Each is enforced by running automated suites and frozen for subsequent papers.
 
 ### 1.1 Instance-Scoped Accepted-Snapshot Store with 10 Rejection Reasons
-- **Implementation:** [`src/experiments/store/instanceStore.ts`](file:///Users/jemanuel/projects/annus-mirabilis_com/src/experiments/store/instanceStore.ts)
+- **Implementation:** [`src/experiments/store/instanceStore.ts`](../../src/experiments/store/instanceStore.ts)
 - **Ten Closed Rejection Reasons:**
   1. `wrong-instance`
   2. `no-request`
@@ -32,41 +32,41 @@ The Brownian reference slice proved five core architectural abstractions across 
   9. `non-monotone-step`
   10. `malformed-publication`
 - **Enforcing Tests:**
-  - [`src/testing/instanceStore.test.mjs`](file:///Users/jemanuel/projects/annus-mirabilis_com/src/testing/instanceStore.test.mjs)
-  - [`src/testing/useExperimentSnapshot.test.tsx`](file:///Users/jemanuel/projects/annus-mirabilis_com/src/testing/useExperimentSnapshot.test.tsx)
-  - [`src/testing/identityAttributes.test.tsx`](file:///Users/jemanuel/projects/annus-mirabilis_com/src/testing/identityAttributes.test.tsx)
+  - [`src/testing/instanceStore.test.mjs`](../../src/testing/instanceStore.test.mjs)
+  - [`src/testing/useExperimentSnapshot.test.tsx`](../../src/testing/useExperimentSnapshot.test.tsx)
+  - [`src/testing/identityAttributes.test.tsx`](../../src/testing/identityAttributes.test.tsx)
 
 ### 1.2 Worker Protocol Decode Boundary & Structured Transport
-- **Implementation:** [`src/workers/transport.ts`](file:///Users/jemanuel/projects/annus-mirabilis_com/src/workers/transport.ts) and [`src/workers/protocol/`](file:///Users/jemanuel/projects/annus-mirabilis_com/src/workers/protocol/)
+- **Implementation:** [`src/workers/transport.ts`](../../src/workers/transport.ts) and [`src/workers/protocol/`](../../src/workers/protocol/)
 - **Enforcing Tests:**
-  - [`src/testing/transport.test.ts`](file:///Users/jemanuel/projects/annus-mirabilis_com/src/testing/transport.test.ts)
-  - [`src/testing/protocolUnregisteredQuantity.test.mjs`](file:///Users/jemanuel/projects/annus-mirabilis_com/src/testing/protocolUnregisteredQuantity.test.mjs)
-  - [`src/testing/bm01Worker.test.mjs`](file:///Users/jemanuel/projects/annus-mirabilis_com/src/testing/bm01Worker.test.mjs)
-  - [`src/testing/bm05Worker.test.mjs`](file:///Users/jemanuel/projects/annus-mirabilis_com/src/testing/bm05Worker.test.mjs)
-  - [`src/testing/bm06Worker.test.mjs`](file:///Users/jemanuel/projects/annus-mirabilis_com/src/testing/bm06Worker.test.mjs)
+  - [`src/testing/transport.test.ts`](../../src/testing/transport.test.ts)
+  - [`src/testing/protocolUnregisteredQuantity.test.mjs`](../../src/testing/protocolUnregisteredQuantity.test.mjs)
+  - [`src/testing/bm01Worker.test.mjs`](../../src/testing/bm01Worker.test.mjs)
+  - [`src/testing/bm05Worker.test.mjs`](../../src/testing/bm05Worker.test.mjs)
+  - [`src/testing/bm06Worker.test.mjs`](../../src/testing/bm06Worker.test.mjs)
 
 ### 1.3 Typed Result Algebra with 7 Closed Statuses
-- **Implementation:** [`src/experiments/results/types.ts`](file:///Users/jemanuel/projects/annus-mirabilis_com/src/experiments/results/types.ts)
+- **Implementation:** [`src/experiments/results/types.ts`](../../src/experiments/results/types.ts)
 - **Seven Closed Statuses:** `value`, `refused`, `unobservable`, `indeterminate`, `divergent`, `zero-division`, `cancelled`.
 - **Enforcing Tests:**
-  - [`src/testing/results.test.mjs`](file:///Users/jemanuel/projects/annus-mirabilis_com/src/testing/results.test.mjs)
-  - [`src/testing/results.ids.test.ts`](file:///Users/jemanuel/projects/annus-mirabilis_com/src/testing/results.ids.test.ts)
-  - [`src/testing/results.examples.test.ts`](file:///Users/jemanuel/projects/annus-mirabilis_com/src/testing/results.examples.test.ts)
-  - [`src/testing/results.uncertainty.test.ts`](file:///Users/jemanuel/projects/annus-mirabilis_com/src/testing/results.uncertainty.test.ts)
-  - [`src/testing/results.voiceRules.test.ts`](file:///Users/jemanuel/projects/annus-mirabilis_com/src/testing/results.voiceRules.test.ts)
+  - [`src/testing/results.test.mjs`](../../src/testing/results.test.mjs)
+  - [`src/testing/results.ids.test.ts`](../../src/testing/results.ids.test.ts)
+  - [`src/testing/results.examples.test.ts`](../../src/testing/results.examples.test.ts)
+  - [`src/testing/results.uncertainty.test.ts`](../../src/testing/results.uncertainty.test.ts)
+  - [`src/testing/results.voiceRules.test.ts`](../../src/testing/results.voiceRules.test.ts)
 
 ### 1.4 Content Compiler's Unrouted-Content & Schema Validation
-- **Implementation:** [`src/content/compiler/compiler.ts`](file:///Users/jemanuel/projects/annus-mirabilis_com/src/content/compiler/compiler.ts), [`src/content/compiler/loaders.ts`](file:///Users/jemanuel/projects/annus-mirabilis_com/src/content/compiler/loaders.ts)
+- **Implementation:** [`src/content/compiler/compiler.ts`](../../src/content/compiler/compiler.ts), [`src/content/compiler/loaders.ts`](../../src/content/compiler/loaders.ts)
 - **Enforcing Tests:**
-  - [`src/testing/compiler.golden.test.ts`](file:///Users/jemanuel/projects/annus-mirabilis_com/src/testing/compiler.golden.test.ts)
-  - [`src/testing/compiler.determinism.test.ts`](file:///Users/jemanuel/projects/annus-mirabilis_com/src/testing/compiler.determinism.test.ts)
-  - [`src/testing/readingCompiler.test.mjs`](file:///Users/jemanuel/projects/annus-mirabilis_com/src/testing/readingCompiler.test.mjs)
+  - [`src/testing/compiler.golden.test.ts`](../../src/testing/compiler.golden.test.ts)
+  - [`src/testing/compiler.determinism.test.ts`](../../src/testing/compiler.determinism.test.ts)
+  - [`src/testing/readingCompiler.test.mjs`](../../src/testing/readingCompiler.test.mjs)
 
 ### 1.5 Reader's Return-Anchor & Focus-Restoration Navigation
-- **Implementation:** [`src/reader/navigation/state.ts`](file:///Users/jemanuel/projects/annus-mirabilis_com/src/reader/navigation/state.ts), [`src/reader/PaperReader.tsx`](file:///Users/jemanuel/projects/annus-mirabilis_com/src/reader/PaperReader.tsx), [`src/reader/ReaderController.tsx`](file:///Users/jemanuel/projects/annus-mirabilis_com/src/reader/ReaderController.tsx)
+- **Implementation:** [`src/reader/navigation/state.ts`](../../src/reader/navigation/state.ts), [`src/reader/PaperReader.tsx`](../../src/reader/PaperReader.tsx), [`src/reader/ReaderController.tsx`](../../src/reader/ReaderController.tsx)
 - **Enforcing Tests:**
-  - [`src/testing/readerNavigation.test.mjs`](file:///Users/jemanuel/projects/annus-mirabilis_com/src/testing/readerNavigation.test.mjs)
-  - [`src/testing/anchors.test.ts`](file:///Users/jemanuel/projects/annus-mirabilis_com/src/testing/anchors.test.ts)
+  - [`src/testing/readerNavigation.test.mjs`](../../src/testing/readerNavigation.test.mjs)
+  - [`src/testing/anchors.test.ts`](../../src/testing/anchors.test.ts)
 
 ---
 

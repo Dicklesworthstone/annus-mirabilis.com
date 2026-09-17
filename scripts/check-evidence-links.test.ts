@@ -1,6 +1,6 @@
 import assert from "node:assert/strict";
-import { describe, it } from "node:test";
 import path from "node:path";
+import { describe, it } from "node:test";
 import { pathToFileURL } from "node:url";
 import { checkEvidenceLinksFile, checkEvidenceLinksInContent } from "./check-evidence-links.ts";
 
@@ -10,17 +10,26 @@ describe("Evidence Links Checker", () => {
       "[manifest](../../package.json) [missing](../../missing-evidence.json) `scripts/check-evidence-links.ts`",
       "docs/evidence/probe.md",
     );
-    assert.deepEqual(result.links.map((link) => link.resolved), [true, false, true]);
+    assert.deepEqual(
+      result.links.map((link) => link.resolved),
+      [true, false, true],
+    );
   });
 
   it("decodes file URLs while rejecting missing and malformed targets", () => {
-    const existing = pathToFileURL(path.resolve("package.json")).href.replace("package.json", "%70ackage.json");
+    const existing = pathToFileURL(path.resolve("package.json")).href.replace(
+      "package.json",
+      "%70ackage.json",
+    );
     const missing = pathToFileURL(path.resolve("missing-evidence.json")).href;
     const result = checkEvidenceLinksInContent(
       `[existing](${existing}) [missing](${missing}) [malformed](file:///%ZZ)`,
       "probe.md",
     );
-    assert.deepEqual(result.links.map((link) => link.resolved), [true, false, false]);
+    assert.deepEqual(
+      result.links.map((link) => link.resolved),
+      [true, false, false],
+    );
   });
 
   it("verifies all file references and bead IDs in docs/decisions/batch-b-retrospective.md resolve cleanly", () => {
