@@ -16,8 +16,10 @@ afterEach(uninstallDom);
 
 describe("instrument-view: real dispatcher, fixture instrument", () => {
   test("a known id with a fixture view loader mounts the fixture view", async () => {
-    const def = getClarificationKind("instrument-view")!;
-    const parsed = def.parseId("bm-01")!;
+    const def = getClarificationKind("instrument-view");
+    if (!def) throw new Error("Kind instrument-view not registered");
+    const parsed = def.parseId("bm-01");
+    if (!parsed) throw new Error("Failed to parse id bm-01");
     const container = document.createElement("div");
     document.body.appendChild(container);
     const root = createRoot(container);
@@ -53,8 +55,10 @@ describe("instrument-view: real dispatcher, fixture instrument", () => {
   });
 
   test("a well-formed but unknown experiment id fails explicitly: the unknown-experiment notice, never another instrument", async () => {
-    const def = getClarificationKind("instrument-view")!;
-    const parsed = def.parseId("zz-99")!;
+    const def = getClarificationKind("instrument-view");
+    if (!def) throw new Error("Kind instrument-view not registered");
+    const parsed = def.parseId("zz-99");
+    if (!parsed) throw new Error("Failed to parse id zz-99");
     const container = document.createElement("div");
     document.body.appendChild(container);
     const root = createRoot(container);
@@ -74,8 +78,10 @@ describe("instrument-view: real dispatcher, fixture instrument", () => {
   });
 
   test("a known, real catalogue id with no view loader renders the in-preparation surface, never a fabricated result", async () => {
-    const def = getClarificationKind("instrument-view")!;
-    const parsed = def.parseId("bm-01")!;
+    const def = getClarificationKind("instrument-view");
+    if (!def) throw new Error("Kind instrument-view not registered");
+    const parsed = def.parseId("bm-01");
+    if (!parsed) throw new Error("Failed to parse id bm-01");
     const container = document.createElement("div");
     document.body.appendChild(container);
     const root = createRoot(container);
