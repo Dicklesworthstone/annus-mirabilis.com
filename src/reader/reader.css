@@ -45,11 +45,17 @@
   gap: 2rem;
   flex-wrap: wrap;
 }
-.reader-options > label {
+.reader-options > label,
+.reader-options .reader-option {
   font:
     0.9rem / 1.5 Arial,
     sans-serif;
   min-width: 12rem;
+}
+.reader-options .reader-option {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
 }
 .reader-options .check input {
   width: 20px;

@@ -36,13 +36,8 @@ const CONTROL_IN_LABEL = /<label\b[^>]*>([\s\S]*?)<\/label>/g;
 const VALUE_BEARING =
   /<(?:select|textarea)\b|<input\b[^>]*type="(?:text|number|file|search|email|url|tel|password)"/;
 
-/** Recorded 2026-09-17; lowered from 104 across 28 files the same day. May only shrink. */
-const BASELINE = new Map<string, number>([
-  ["src/reader/PaperPage.tsx", 1],
-  ["src/reader/PaperReader.tsx", 1],
-  ["src/reader/ReaderController.tsx", 1],
-  ["src/reader/actions/PassageActions.tsx", 1],
-]);
+/** Recorded 2026-09-17; lowered from 104 across 28 files to 0 the same day. May only shrink. */
+const BASELINE = new Map<string, number>([]);
 
 const ROOT = resolve(fileURLToPath(new URL("../../../", import.meta.url)));
 

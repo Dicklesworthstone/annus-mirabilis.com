@@ -165,14 +165,14 @@ export async function PaperPage(request: PaperRouteRequest) {
             <strong>The idea we opened:</strong> <span data-compass-idea />
           </p>
           <div className="reader-options">
-            <label>
-              Passage detail
-              <select data-detail-control defaultValue="1" disabled>
+            <div className="reader-option">
+              <label htmlFor="compass-detail-select">Passage detail</label>
+              <select id="compass-detail-select" data-detail-control defaultValue="1" disabled>
                 <option value="0">Overview</option>
                 <option value="1">Full explanation</option>
                 <option value="2">Show every step</option>
               </select>
-            </label>
+            </div>
             <label className="check">
               <input type="checkbox" data-lens-control disabled />
               Show modern qualifications

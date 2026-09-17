@@ -1,5 +1,5 @@
 "use client";
-import { useEffect } from "react";
+import { useEffect, useId } from "react";
 import {
   DETAIL_STORAGE_KEY,
   FACES,
@@ -26,6 +26,7 @@ export function ReaderController(props: Props) {
   // App Router history restoration may recreate equal object props. Do not remount
   // the navigation owner and steal focus from the trigger we just restored.
   const navigation = JSON.stringify(props);
+  const detailId = useId();
   useEffect(() => {
     const { registry, titles, questions } = JSON.parse(navigation) as Props;
     const rootEl = document.querySelector<HTMLElement>("[data-reader-root]");
@@ -369,14 +370,14 @@ export function ReaderController(props: Props) {
         </a>
       </nav>
       <div className="reader-options">
-        <label>
-          Detail
-          <select data-detail-control defaultValue="1" disabled>
+        <div className="reader-option">
+          <label htmlFor={detailId}>Detail</label>
+          <select id={detailId} data-detail-control defaultValue="1" disabled>
             <option value="0">Overview</option>
             <option value="1">Full explanation</option>
             <option value="2">Show every step</option>
           </select>
-        </label>
+        </div>
         <label className="check">
           <input type="checkbox" data-lens-control disabled />
           Show modern qualifications

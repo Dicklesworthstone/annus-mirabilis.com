@@ -120,16 +120,17 @@ export function PassageActions({
           Copy link
         </button>
         {copyStatus === "fallback" && (
-          <label>
-            Copy this link:
+          <>
+            <label htmlFor={`copy-input-${id}`}>Copy this link:</label>
             <input
+              id={`copy-input-${id}`}
               type="text"
               readOnly
               value={link}
               ref={(el) => el?.focus()}
               aria-label={`Link to ${passageLabel}`}
             />
-          </label>
+          </>
         )}
         <p aria-live="polite" data-copy-announcement id={`copy-announce-${id}`}>
           {announcement}
