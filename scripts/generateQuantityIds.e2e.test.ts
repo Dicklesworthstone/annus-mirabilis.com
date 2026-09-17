@@ -11,7 +11,7 @@ const EMPTY_LEGACY = `${REPO_ROOT}src/content/quantities/__fixtures__/empty-lega
  * Spawns the real CLI. Retries on EBADF if file descriptors are exhausted.
  */
 function spawnCheck(args: readonly string[]): { exitCode: number; stdout: string; stderr: string } {
-  const isBun = typeof Bun !== "undefined";
+  const isBun = "Bun" in globalThis;
   const cliArgs = isBun
     ? [`${REPO_ROOT}scripts/generate-quantity-ids.ts`, ...args]
     : ["--experimental-strip-types", `${REPO_ROOT}scripts/generate-quantity-ids.ts`, ...args];
