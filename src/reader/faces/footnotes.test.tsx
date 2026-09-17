@@ -5,13 +5,16 @@ import {
   FIXTURE_BROWNIAN_PAPER,
   FIXTURE_BROWNIAN_SOURCE_BLOCKS,
 } from "../../testing/fixtures/bilingual/brownianBilingualFixture.ts";
-import { FootnoteItem, FootnotesSection } from "./Footnote.tsx";
+import { FootnoteItem } from "./Footnote.tsx";
 import { GermanFace } from "./GermanFace.tsx";
 import { SourceBlock } from "./SourceBlock.tsx";
 
 describe("footnotes navigation and markup", () => {
-  const paragraphWithFootnote = FIXTURE_BROWNIAN_SOURCE_BLOCKS.find((b) => b.id === "bm-s5-p1")!;
-  const footnoteBlock = FIXTURE_BROWNIAN_SOURCE_BLOCKS.find((b) => b.id === "bm-s5-fn1")!;
+  const paragraphWithFootnote = FIXTURE_BROWNIAN_SOURCE_BLOCKS.find((b) => b.id === "bm-s5-p1");
+  const footnoteBlock = FIXTURE_BROWNIAN_SOURCE_BLOCKS.find((b) => b.id === "bm-s5-fn1");
+  if (!paragraphWithFootnote || !footnoteBlock) {
+    throw new Error("Missing footnote fixture blocks");
+  }
 
   test("paragraph renders footnote mark with forward link to footnote item", () => {
     const html = renderToStaticMarkup(
