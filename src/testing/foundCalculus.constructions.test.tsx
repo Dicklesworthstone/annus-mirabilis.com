@@ -31,7 +31,7 @@ test("foundCalculus.constructions: TableToPlotBuilder renders SSR markup, keyboa
   // Keyboard controls
   assert.ok(html.includes('aria-label="Plot builder controls"'));
   assert.ok(html.includes('aria-label="Plot next data point"'));
-  assert.ok(html.includes('aria-label="Plot all data points"'));
+  assert.ok(html.includes('aria-label="Plot every measurement in the table"'));
   assert.ok(html.includes('aria-label="Reset plot to first point"'));
   assert.ok(html.includes('aria-live="polite"'));
 
@@ -498,7 +498,7 @@ test("foundCalculus.constructions: E2E 2 - From Brownian §5, open foundation:fu
     // Plot all with keyboard
     const allBtn = mustQuery<HTMLButtonElement>(
       pageRoot,
-      'button[aria-label="Plot all data points"]',
+      'button[aria-label="Plot every measurement in the table"]',
     );
     await act(async () => {
       allBtn.focus();
