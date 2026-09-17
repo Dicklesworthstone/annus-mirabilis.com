@@ -192,7 +192,7 @@ export function validateConfig(config: unknown): ValidationResult {
     };
   }
 
-  const c = config as Record<string, any>;
+  const c = config as Record<string, unknown>;
 
   if (c.configVersion !== 1) {
     errors.push(`configVersion must be 1, found ${c.configVersion}`);
@@ -281,7 +281,7 @@ export function validateConfig(config: unknown): ValidationResult {
     if (ap.parentPageIndices !== undefined) {
       if (
         !Array.isArray(ap.parentPageIndices) ||
-        ap.parentPageIndices.some((idx: any) => typeof idx !== "number" || idx < 1)
+        ap.parentPageIndices.some((idx: unknown) => typeof idx !== "number" || idx < 1)
       ) {
         errors.push("parentPageIndices must be an array of positive 1-based integers");
       }
