@@ -90,14 +90,18 @@ describe("ControlTape Runtime Extraction", () => {
 
     const tape = recorder.exportTape("BM01 Diffusion Test", "Recording test");
     expect(tape.events.length).toBe(1);
-    expect(tape.events[0]!.tick).toBe(10);
-    expect(tape.events[0]!.paramId).toBe("temperatureK");
-    expect(tape.events[0]!.value).toBe(300.5);
-    expect(tape.events[0]!.previousValue).toBe(293.15);
+    const [firstEvent] = tape.events;
+    if (!firstEvent) throw new Error("expected at least one event in tape");
+    expect(firstEvent.tick).toBe(10);
+    expect(firstEvent.paramId).toBe("temperatureK");
+    expect(firstEvent.value).toBe(300.5);
+    expect(firstEvent.previousValue).toBe(293.15);
 
     expect(tape.checkpoints.length).toBe(2);
-    expect(tape.checkpoints[0]!.tick).toBe(0);
-    expect(tape.checkpoints[1]!.tick).toBe(60);
+    const [cp0, cp1] = tape.checkpoints;
+    if (!cp0 || !cp1) throw new Error("expected two checkpoints in tape");
+    expect(cp0.tick).toBe(0);
+    expect(cp1.tick).toBe(60);
     expect(tape.totalTicks).toBe(60);
 
     appendExtractionLog({
