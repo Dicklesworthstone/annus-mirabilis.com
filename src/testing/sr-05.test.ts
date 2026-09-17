@@ -235,9 +235,15 @@ describe("equator mode: the limit note and the real-geoid refusal", () => {
   });
 });
 
+function getPreset(id: keyof typeof SR05_PRESETS) {
+  const p = SR05_PRESETS[id];
+  if (!p) throw new Error(`Preset ${id} not found`);
+  return p.parameters;
+}
+
 describe("every preset reproduces its stated values", () => {
   test("sr-05-inertial-0.6c", () => {
-    const outputs = evaluateSr05(SR05_PRESETS["sr-05-inertial-0.6c"]!.parameters);
+    const outputs = evaluateSr05(getPreset("sr-05-inertial-0.6c"));
     const properTime = outputs.find((o) => o.quantityId === "properTime");
     const coordinateTime = outputs.find((o) => o.quantityId === "coordinateTime");
     expect(properTime?.status).toBe("value");
@@ -248,7 +254,7 @@ describe("every preset reproduces its stated values", () => {
   });
 
   test("sr-05-out-and-back-0.6c", () => {
-    const outputs = evaluateSr05(SR05_PRESETS["sr-05-out-and-back-0.6c"]!.parameters);
+    const outputs = evaluateSr05(getPreset("sr-05-out-and-back-0.6c"));
     const lag = outputs.find((o) => o.quantityId === "reunionExactLag");
     expect(lag?.status).toBe("value");
     if (lag?.status !== "value") throw new Error("expected value");
@@ -256,7 +262,7 @@ describe("every preset reproduces its stated values", () => {
   });
 
   test("sr-05-circle-0.6c", () => {
-    const outputs = evaluateSr05(SR05_PRESETS["sr-05-circle-0.6c"]!.parameters);
+    const outputs = evaluateSr05(getPreset("sr-05-circle-0.6c"));
     const properTime = outputs.find((o) => o.quantityId === "properTime");
     expect(properTime?.status).toBe("value");
     if (properTime?.status !== "value") throw new Error("expected value");
@@ -264,7 +270,7 @@ describe("every preset reproduces its stated values", () => {
   });
 
   test("sr-05-low-speed-1e-4", () => {
-    const outputs = evaluateSr05(SR05_PRESETS["sr-05-low-speed-1e-4"]!.parameters);
+    const outputs = evaluateSr05(getPreset("sr-05-low-speed-1e-4"));
     const exact = outputs.find((o) => o.quantityId === "dilationLossExact");
     expect(exact?.status).toBe("value");
     if (exact?.status !== "value") throw new Error("expected value");
@@ -272,7 +278,7 @@ describe("every preset reproduces its stated values", () => {
   });
 
   test("sr-05-daily-second", () => {
-    const outputs = evaluateSr05(SR05_PRESETS["sr-05-daily-second"]!.parameters);
+    const outputs = evaluateSr05(getPreset("sr-05-daily-second"));
     const exact = outputs.find((o) => o.quantityId === "dilationLossExact");
     expect(exact?.status).toBe("value");
     if (exact?.status !== "value") throw new Error("expected value");
@@ -281,7 +287,7 @@ describe("every preset reproduces its stated values", () => {
   });
 
   test("sr-05-light-clock-0.6c", () => {
-    const outputs = evaluateSr05(SR05_PRESETS["sr-05-light-clock-0.6c"]!.parameters);
+    const outputs = evaluateSr05(getPreset("sr-05-light-clock-0.6c"));
     const properTick = outputs.find((o) => o.quantityId === "lightClockProperTick");
     const coordinateTick = outputs.find((o) => o.quantityId === "lightClockCoordinateTick");
     expect(properTick?.status).toBe("value");
@@ -293,7 +299,7 @@ describe("every preset reproduces its stated values", () => {
   });
 
   test("sr-05-equator-note", () => {
-    const outputs = evaluateSr05(SR05_PRESETS["sr-05-equator-note"]!.parameters);
+    const outputs = evaluateSr05(getPreset("sr-05-equator-note"));
     const rate = outputs.find((o) => o.quantityId === "equatorFractionalRate");
     expect(rate?.status).toBe("value");
   });
