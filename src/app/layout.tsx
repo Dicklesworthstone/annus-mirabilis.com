@@ -9,8 +9,8 @@ import { ReadingSettingsPanel } from "../a11y/readingSettings/ReadingSettingsPan
 import { READER_PREPAINT } from "../reader/detail/prepaint";
 import { NotebookLauncher } from "../reader/notebook/NotebookLauncher.tsx";
 import { SearchLauncher } from "../search/SearchLauncher.tsx";
-import { THEME_INIT_SOURCE } from "./theme/themeInit.inline";
 import { ThemeToggle } from "./theme/ThemeToggle";
+import { THEME_INIT_SOURCE } from "./theme/themeInit.inline";
 export const metadata: Metadata = {
   metadataBase: new URL("https://annus-mirabilis.com"),
   title: { default: "Annus Mirabilis — four papers, one year", template: "%s · Annus Mirabilis" },
