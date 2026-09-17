@@ -47,7 +47,8 @@ export function isScriptResource(url: string, mimeType?: string): boolean {
       return true;
     }
   }
-  const cleanUrl = url.split("?")[0].split("#")[0];
+  const [withoutQuery = ""] = url.split("?");
+  const [cleanUrl = ""] = withoutQuery.split("#");
   return cleanUrl.endsWith(".js") || cleanUrl.endsWith(".mjs");
 }
 
