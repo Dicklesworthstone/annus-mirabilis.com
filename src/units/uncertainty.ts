@@ -30,8 +30,8 @@ export type UncertaintySpec =
   | Readonly<{ kind: "exact-definition"; definingRelation?: string }>;
 
 export interface UncertaintyFormatOptions {
-  readonly sigFigs?: number;
-  readonly locale?: string;
+  readonly sigFigs?: number | undefined;
+  readonly locale?: string | undefined;
 }
 
 /**

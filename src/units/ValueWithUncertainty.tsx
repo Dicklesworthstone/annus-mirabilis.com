@@ -48,9 +48,13 @@ export function ValueWithUncertainty({
     mainText = formatCleanNumber(value, 6, locale);
   }
 
-  const uncertaintyText = uncertainty ? formatUncertainty(uncertainty, { sigFigs, locale }) : "";
+  const formatOptions = {
+    ...(sigFigs !== undefined ? { sigFigs } : {}),
+    locale,
+  };
+  const uncertaintyText = uncertainty ? formatUncertainty(uncertainty, formatOptions) : "";
   const spokenValue = spokenQuantity(value, unit);
-  const spokenUncertaintyText = uncertainty ? spokenUncertainty(uncertainty, unit, { sigFigs, locale }) : "";
+  const spokenUncertaintyText = uncertainty ? spokenUncertainty(uncertainty, unit, formatOptions) : "";
 
   const fullSpokenLabel = [
     spokenValue,
