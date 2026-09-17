@@ -52,12 +52,16 @@ export function WalkLab({
 }) {
   const id = useId(),
     [session] = useState(() => createBm05Session(`bm05-${id}`, example, createBm05BrowserChannel));
+  const serverAccepted = session.getServerSnapshot().accepted;
+  if (!serverAccepted) {
+    throw new Error("Missing accepted walk snapshot");
+  }
   const view = useSyncExternalStore(
       session.subscribe,
       session.getSnapshot,
       session.getServerSnapshot,
     ),
-    snapshot = view.accepted!,
+    snapshot = view.accepted ?? serverAccepted,
     p = snapshot.parameters as Bm05Parameters;
   const [draft, setDraft] = useState(() => toWalkDraft(example.parameters)),
     [ready, setReady] = useState(false),
@@ -106,7 +110,9 @@ export function WalkLab({
   function newTrial() {
     try {
       const words = crypto.getRandomValues(new Uint32Array(2));
-      apply({ ...p, seed: ((BigInt(words[0]!) << 32n) | BigInt(words[1]!)).toString() });
+      const high = words[0] ?? 0;
+      const low = words[1] ?? 0;
+      apply({ ...p, seed: ((BigInt(high) << 32n) | BigInt(low)).toString() });
     } catch {
       setError(
         "A new random seed is unavailable on this device. Enter a different seed explicitly.",
@@ -127,9 +133,9 @@ export function WalkLab({
   const announcement = view.pending
     ? "Recording or re-observing the requested trial. Accepted results remain below."
     : view.status === "refused"
-      ? `${view.refusal!.message} The accepted trial is unchanged.`
+      ? `${view.refusal?.message ?? "The calculation was refused."} The accepted trial is unchanged.`
       : view.status === "unavailable"
-        ? `${view.outcome!.message} The accepted example remains readable.`
+        ? `${view.outcome?.message ?? "The calculation is unavailable."} The accepted example remains readable.`
         : view.status === "paused"
           ? "Calculation stopped. The accepted trial is unchanged."
           : `Accepted ${names[p.kernel]}: ${p.walkers} walkers after ${p.n} steps, model mean square ${display(scalar(snapshot, "modelMeanSquare"), 1e12)} square micrometres.`;
@@ -147,7 +153,7 @@ export function WalkLab({
       aria-labelledby={`${id}-title`}
       data-instrument-id="bm-05"
       {...identity(snapshot)}
-      data-input-revision={view.requested!.revisions.input}
+      data-input-revision={view.requested?.revisions.input ?? snapshot.revisions.input}
       data-accepted-input-revision={snapshot.revisions.input}
       data-pending={String(view.pending)}
       {...labelRootAttributes("host-accepted", view, "sampleRms")}
@@ -297,6 +303,7 @@ export function WalkLab({
             {[4, 16, 64, 400].map((n) => (
               <button
                 key={n}
+                type="button"
                 className="secondary"
                 disabled={!ready || n > p.runSteps}
                 onClick={() => apply({ ...p, n })}
@@ -333,10 +340,10 @@ export function WalkLab({
             </p>
           </details>
           <div className="actions">
-            <button className="secondary" disabled={!ready} onClick={newTrial}>
+            <button type="button" className="secondary" disabled={!ready} onClick={newTrial}>
               New independent trial
             </button>
-            <button className="secondary" disabled={!ready} onClick={share}>
+            <button type="button" className="secondary" disabled={!ready} onClick={share}>
               Copy accepted walk link
             </button>
           </div>
@@ -363,7 +370,7 @@ export function WalkLab({
                   ? view.outcome.details.reason
                   : "Reduce the walker count or recorded steps. This preview never silently reduces a trial."}
               </p>
-              <button className="secondary" onClick={() => apply(p)}>
+              <button type="button" className="secondary" onClick={() => apply(p)}>
                 Restore accepted settings
               </button>
             </div>
@@ -371,7 +378,7 @@ export function WalkLab({
           {view.refusal && (
             <div className="notice error">
               <p>{view.refusal.message}</p>
-              <button className="secondary" onClick={() => apply(p)}>
+              <button type="button" className="secondary" onClick={() => apply(p)}>
                 Restore accepted settings
               </button>
             </div>
@@ -503,22 +510,25 @@ export function WalkLab({
                   </tr>
                 </thead>
                 <tbody>
-                  {Array.from({ length: array(snapshot, "coinPositions").length }, (_, i) => (
-                    <tr key={i}>
-                      <th scope="row">{display(array(snapshot, "coinPositions").at(i), 1e6)}</th>
-                      <td>
-                        {array(snapshot, "coinNumerators").at(i)} /{" "}
-                        {scalar(snapshot, "coinDenominator")}
-                      </td>
-                    </tr>
-                  ))}
+                  {Array.from({ length: array(snapshot, "coinPositions").length }, (_, i) => {
+                    const pos = array(snapshot, "coinPositions").at(i);
+                    return (
+                      <tr key={`coin-pos-${pos}`}>
+                        <th scope="row">{display(pos, 1e6)}</th>
+                        <td>
+                          {array(snapshot, "coinNumerators").at(i)} /{" "}
+                          {scalar(snapshot, "coinDenominator")}
+                        </td>
+                      </tr>
+                    );
+                  })}
                 </tbody>
               </table>
             </details>
           )}
           <details>
             <summary>Read the histogram as counts and probabilities</summary>
-            <div className="table-scroll" tabIndex={0} role="region" aria-label="Histogram table">
+            <div className="table-scroll">
               <table>
                 <caption>
                   Every bin has the same boundaries for all three columns; the last right endpoint
@@ -536,7 +546,7 @@ export function WalkLab({
                 </thead>
                 <tbody>
                   {Array.from({ length: bins.length }, (_, i) => (
-                    <tr key={i}>
+                    <tr key={`bin-${edges.at(i)}-${edges.at(i + 1)}`}>
                       <th scope="row">
                         {display(edges.at(i), 1e6)} to {display(edges.at(i + 1), 1e6)}
                       </th>
@@ -575,6 +585,7 @@ export function WalkLab({
               : ""}
           </p>
           <button
+            type="button"
             className="secondary"
             disabled={!ready}
             onClick={() => apply({ ...p, bias: p.bias === 0.5 ? 0.6 : 0.5 })}
@@ -597,12 +608,7 @@ export function WalkLab({
           <p>
             <Reading snapshot={snapshot} id="continuumLimit" />
           </p>
-          <div
-            className="table-scroll"
-            tabIndex={0}
-            role="region"
-            aria-label="Continuum comparison table"
-          >
+          <div className="table-scroll">
             <table>
               <caption>Two limiting procedures, calculated from the accepted step scale</caption>
               <thead>
@@ -615,7 +621,7 @@ export function WalkLab({
               </thead>
               <tbody>
                 {Array.from({ length: intervals.length }, (_, i) => (
-                  <tr key={i}>
+                  <tr key={`interval-${intervals.at(i)}`}>
                     <th scope="row">{display(intervals.at(i))}</th>
                     <td>{display(fixed.at(i), 1e12)}</td>
                     <td>{display(scales.at(i), 1e6)}</td>
@@ -673,7 +679,7 @@ export function WalkComparison({ example }: { example: PreparedBm05Example }) {
     <>
       <WalkLab example={example} />
       <div className="actions">
-        <button className="secondary" onClick={() => setSecond(!second)}>
+        <button type="button" className="secondary" onClick={() => setSecond(!second)}>
           {second ? "Close second walk laboratory" : "Open an independent walk laboratory"}
         </button>
       </div>
