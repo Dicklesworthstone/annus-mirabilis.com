@@ -50,10 +50,12 @@ function parseArgs(args: string[]): {
   return { scenarioEvidencePath, reviewRecordsPath, outDir, json };
 }
 
-async function main() {
-  const { scenarioEvidencePath, reviewRecordsPath, outDir, json } = parseArgs(
-    process.argv.slice(2),
-  );
+export async function runCoverageReport(args: string[]): Promise<{
+  report: CoverageReport;
+  jsonPath: string;
+  mdPath: string;
+}> {
+  const { scenarioEvidencePath, reviewRecordsPath, outDir, json } = parseArgs(args);
 
   let scenarioEvidence:
     | { scenarioId: string; status: "passed" | "failed" | "skipped"; failureMessage?: string }[]
@@ -180,6 +182,12 @@ async function main() {
     console.log(formatCoverageMarkdown(report));
     console.log(`\nArtifacts written:\n- JSON: ${jsonPath}\n- Markdown: ${mdPath}`);
   }
+
+  return { report, jsonPath, mdPath };
+}
+
+async function main() {
+  await runCoverageReport(process.argv.slice(2));
 }
 
 if (import.meta.main || process.argv[1]?.endsWith("coverage-report.ts")) {

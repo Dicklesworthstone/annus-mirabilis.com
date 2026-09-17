@@ -105,6 +105,61 @@ describe("Coverage Ledger Validation and Computation Suite", () => {
     );
   });
 
+  it("planted negative: heuristic-inference node with omitted treatment fails central-inference-missing-treatment", () => {
+    const nodes: ArgumentNodeCoverage[] = [
+      {
+        id: "arg-heuristic-01",
+        paper: "light-quanta",
+        section: "s1",
+        logicalRole: "heuristic-inference",
+        readingsPresent: ["R0", "R1"],
+        treatment: {
+          kind: "omitted",
+          reason: "Heuristic assumption only",
+        },
+      },
+    ];
+
+    const diags = validateCoverageLedger({ argumentNodes: nodes });
+    const missingTreatment = diags.find((d) => d.rule === "central-inference-missing-treatment");
+    assert.ok(missingTreatment, "Expected central-inference-missing-treatment diagnostic");
+    assert.equal(missingTreatment.argumentId, "arg-heuristic-01");
+    logTest(
+      "planted-heuristic-inference-missing-treatment",
+      "passed",
+      "Heuristic inference node with omitted treatment rejected",
+    );
+  });
+
+  it("planted negative: instrument treatment whose experiment does not exist fails unknown-experiment-id", () => {
+    const nodes: ArgumentNodeCoverage[] = [
+      {
+        id: "arg-exp-missing",
+        paper: "brownian-motion",
+        section: "s2",
+        readingsPresent: ["R0", "R1"],
+        treatment: {
+          kind: "instrument",
+          experimentIds: ["bm-nonexistent-instrument"],
+        },
+      },
+    ];
+
+    const diags = validateCoverageLedger({
+      argumentNodes: nodes,
+      knownExperiments: new Set(["bm-01", "bm-05"]),
+    });
+    const unknownExp = diags.find((d) => d.rule === "unknown-experiment-id");
+    assert.ok(unknownExp, "Expected unknown-experiment-id diagnostic");
+    assert.equal(unknownExp.actual, "bm-nonexistent-instrument");
+    assert.equal(unknownExp.argumentId, "arg-exp-missing");
+    logTest(
+      "planted-unknown-experiment-id",
+      "passed",
+      "Instrument treatment referencing unknown experiment ID rejected",
+    );
+  });
+
   it("verifies omitted treatment with a valid written reason passes for non-central nodes", () => {
     const nodes: ArgumentNodeCoverage[] = [
       {

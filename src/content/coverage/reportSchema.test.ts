@@ -224,4 +224,62 @@ describe("Coverage Report Schema Suite", () => {
       "Forbidden aggregate keys matching /score|percent|completeness|overall/i rejected",
     );
   });
+
+  it("planted negative: catches any attempt to aggregate translation, instruments, review, and validation into a single completeness percentage", () => {
+    // Per AGENTS.md §10.4 and bead specification:
+    // An incomplete translation with working instruments is NOT 50% complete.
+    // Dimensions must remain separate and never aggregate into a single score or percentage.
+    const blendedAggregatePayloads = [
+      { completeness: 0.5 },
+      { completenessPercentage: 50.0 },
+      { overallCompleteness: 0.5 },
+      { blendedScore: 0.5 },
+      { totalPercent: 50.0 },
+      { combinedCompletenessScore: 0.5 },
+    ];
+
+    for (const badAggregate of blendedAggregatePayloads) {
+      const reportAttempt = {
+        logRunId: "20260917T000000Z-12345678",
+        generatedAt: new Date().toISOString(),
+        inputs: [],
+        sourceStatus: { byStatus: { reviewed: 100 }, totalUnits: 100, papers: {} },
+        translationReview: { byStatus: { "not-reviewed": 100 }, totalUnits: 100, papers: {} }, // 0% translation
+        argumentTreatment: { byKind: { instrument: 10 }, totalNodes: 10, papers: {} },
+        instrumentAvailability: {
+          byProvenance: { "accepted-frankensim-result-demonstrated": 10 },
+          totalInstruments: 10,
+          instruments: {},
+        }, // 100% instruments
+        accessibilityEquivalence: { byKind: { "action-contract": 10 }, totalNodes: 10, nodes: {} },
+        numericalValidation: { byStatus: { passing: 10 }, totalScenarios: 10, scenarios: {} },
+        editorialReview: { byStatus: { "not-reviewed": 5 }, totalReviews: 5, reviews: {} },
+        // An incomplete translation with working instruments is NOT 50% complete:
+        ...badAggregate,
+      };
+
+      const result = validateReportSchema(reportAttempt);
+      assert.equal(
+        result.valid,
+        false,
+        "Aggregated completeness percentage must fail schema validation",
+      );
+      assert.ok(
+        result.errors.some(
+          (e) =>
+            e.includes("Disallowed top-level key") ||
+            e.includes("Forbidden aggregate key matching") ||
+            e.includes("not allowed at top-level"),
+        ),
+        "Expected error rejecting aggregated completeness or score",
+      );
+    }
+
+    logTest(
+      "planted-no-aggregate-completeness-percentage",
+      "passed",
+      "Rejects any blended completeness percentage or score across dimensions (AGENTS.md §10.4)",
+    );
+  });
 });
+
