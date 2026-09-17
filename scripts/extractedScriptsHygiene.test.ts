@@ -25,7 +25,38 @@ const EXTRACTED_SOURCE_FILES = [
   "scripts/e2e/paper-e2e-contract.ts",
   "scripts/e2e/paper-e2e-contract.test.ts",
   "scripts/e2e-paper-vertical-slices.ts",
+  "scripts/app-router-architecture.ts",
+  "scripts/app-router-architecture.test.ts",
 ] as const;
+
+export interface HeaderValidationResult {
+  valid: boolean;
+  errors: string[];
+}
+
+/**
+ * Validates that an extracted source file begins with the mandatory section 9.2
+ * attribution and license notice header with the exact required fields.
+ */
+export function validateAttributionHeader(content: string): HeaderValidationResult {
+  const errors: string[] = [];
+  if (!content.startsWith("/**\n * Extracted from classic-patents.com\n")) {
+    errors.push("Missing required opening: '/**\\n * Extracted from classic-patents.com\\n'");
+  }
+  if (!content.includes("Source repository: https://github.com/Dicklesworthstone/classic-patents.com")) {
+    errors.push("Missing required 'Source repository: https://github.com/Dicklesworthstone/classic-patents.com'");
+  }
+  if (!content.includes("Pinned commit: da11ff475902728fd8dd1d9db9f3af37c16ec8a5")) {
+    errors.push("Missing required 'Pinned commit: da11ff475902728fd8dd1d9db9f3af37c16ec8a5'");
+  }
+  if (!content.includes("License: MIT License (with OpenAI/Anthropic Rider)")) {
+    errors.push("Missing required 'License: MIT License (with OpenAI/Anthropic Rider)'");
+  }
+  if (!content.includes("Preserved license text: /LICENSE")) {
+    errors.push("Missing required 'Preserved license text: /LICENSE'");
+  }
+  return { valid: errors.length === 0, errors };
+}
 
 const NON_COMMENTABLE_FIXTURE_FILES = [
   "scripts/fixtures/deployment-target/corrupt-project.txt",
@@ -136,11 +167,77 @@ describe("extracted donor identity hygiene", () => {
 
     test(`${relativePath}: begins with the section 9.2 attribution header`, () => {
       const content = fs.readFileSync(path.join(REPO_ROOT, relativePath), "utf8");
-      expect(content.startsWith("/**\n * Extracted from classic-patents.com\n")).toBe(true);
-      expect(content).toContain("Pinned commit: da11ff475902728fd8dd1d9db9f3af37c16ec8a5");
-      expect(content).toContain("Preserved license text: /LICENSE");
+      const validation = validateAttributionHeader(content);
+      expect(validation.valid).toBe(true);
+      expect(validation.errors).toEqual([]);
     });
   }
+
+  describe("planted negatives for attribution and license notice verification", () => {
+    test("rejects an extracted file with no attribution header", () => {
+      const unannotated = 'export const test = "no header";\n';
+      const result = validateAttributionHeader(unannotated);
+      expect(result.valid).toBe(false);
+      expect(result.errors.some((e) => e.includes("Missing required opening"))).toBe(true);
+    });
+
+    test("rejects an extracted file missing the source repository URL", () => {
+      const missingRepo = [
+        "/**",
+        " * Extracted from classic-patents.com",
+        " * Pinned commit: da11ff475902728fd8dd1d9db9f3af37c16ec8a5",
+        " * License: MIT License (with OpenAI/Anthropic Rider)",
+        " * Preserved license text: /LICENSE",
+        " */",
+      ].join("\n");
+      const result = validateAttributionHeader(missingRepo);
+      expect(result.valid).toBe(false);
+      expect(result.errors.some((e) => e.includes("Source repository"))).toBe(true);
+    });
+
+    test("rejects an extracted file missing the pinned commit", () => {
+      const missingCommit = [
+        "/**",
+        " * Extracted from classic-patents.com",
+        " * Source repository: https://github.com/Dicklesworthstone/classic-patents.com",
+        " * License: MIT License (with OpenAI/Anthropic Rider)",
+        " * Preserved license text: /LICENSE",
+        " */",
+      ].join("\n");
+      const result = validateAttributionHeader(missingCommit);
+      expect(result.valid).toBe(false);
+      expect(result.errors.some((e) => e.includes("Pinned commit"))).toBe(true);
+    });
+
+    test("rejects an extracted file missing the OpenAI/Anthropic Rider clause", () => {
+      const missingRider = [
+        "/**",
+        " * Extracted from classic-patents.com",
+        " * Source repository: https://github.com/Dicklesworthstone/classic-patents.com",
+        " * Pinned commit: da11ff475902728fd8dd1d9db9f3af37c16ec8a5",
+        " * License: MIT License",
+        " * Preserved license text: /LICENSE",
+        " */",
+      ].join("\n");
+      const result = validateAttributionHeader(missingRider);
+      expect(result.valid).toBe(false);
+      expect(result.errors.some((e) => e.includes("License: MIT License (with OpenAI/Anthropic Rider)"))).toBe(true);
+    });
+
+    test("rejects an extracted file missing the preserved license text reference", () => {
+      const missingLicenseText = [
+        "/**",
+        " * Extracted from classic-patents.com",
+        " * Source repository: https://github.com/Dicklesworthstone/classic-patents.com",
+        " * Pinned commit: da11ff475902728fd8dd1d9db9f3af37c16ec8a5",
+        " * License: MIT License (with OpenAI/Anthropic Rider)",
+        " */",
+      ].join("\n");
+      const result = validateAttributionHeader(missingLicenseText);
+      expect(result.valid).toBe(false);
+      expect(result.errors.some((e) => e.includes("Preserved license text"))).toBe(true);
+    });
+  });
 
   for (const relativePath of NON_COMMENTABLE_FIXTURE_FILES) {
     test(`${relativePath}: no forbidden donor identity anywhere (fixtures carry no header)`, () => {
