@@ -1,0 +1,22 @@
+# § 4. On the Irregular Motion of Suspended Particles
+
+**Paper:** `brownian-motion` | **Section:** `bm-sec-04`
+**Revision:** `golden-fixture-rev-1`
+**Status:** `draft` (Draft: true)
+
+---
+### Rights & Attribution
+- **Historical German:** The historical German texts of Albert Einstein's 1905–1906 papers in Annalen der Physik are in the public domain worldwide.
+- **English Translation:** English translation created directly from the historical German text. Governed by MIT License with OpenAI/Anthropic Rider. (MIT License with OpenAI/Anthropic Rider (see NOTICE.md and LICENSE))
+- **Explanations:** Authored explanations, reading levels (R0–R3), questions, and commentary. Governed by MIT License with OpenAI/Anthropic Rider.
+---
+
+## Parallel Text
+
+### [bm-s4-p1-s1]
+**DE:** Es sei ein Zeitintervall τ gegeben. Wir wollen annehmen, daß jedes einzelne Teilchen eine Verschiebung Δ erfahre.
+*Status:* `reviewed`
+
+### [bm-s4-p1-s2]
+**DE:** Es sei ein Zeitintervall τ gegeben. Wir wollen annehmen, daß jedes einzelne Teilchen eine Verschiebung Δ erfahre.
+*Status:* `draft`
