@@ -23,19 +23,16 @@ export function CameraLab({
   const id = useId(),
     [session] = useState(() => createBm08Session(`bm08-${id}`, example, createBm08BrowserChannel));
   const view = useSyncExternalStore(
-      session.subscribe,
-      session.getSnapshot,
-      session.getServerSnapshot,
-    ),
-    snapshot = view.accepted!,
-    p = snapshot.parameters as Bm08Parameters;
+    session.subscribe,
+    session.getSnapshot,
+    session.getServerSnapshot,
+  );
   const [draft, setDraft] = useState(() => toCameraDraft(example.parameters)),
     [ready, setReady] = useState(false),
     [dirty, setDirty] = useState(false),
     [error, setError] = useState(""),
     [note, setNote] = useState(""),
     [shareUrl, setShareUrl] = useState("");
-  const isStatic = snapshot === session.getServerSnapshot().accepted;
   useEffect(() => {
     setReady(true);
     const link = decodeBm08Settings(window.location.search);
@@ -48,6 +45,11 @@ export function CameraLab({
     } else if (link.kind === "invalid") setNote(link.message);
     return () => session.disconnect();
   }, [session]);
+  const serverAccepted = session.getServerSnapshot().accepted;
+  const snapshot = view.accepted ?? serverAccepted;
+  if (!snapshot) return null;
+  const p = snapshot.parameters as Bm08Parameters;
+  const isStatic = snapshot === serverAccepted;
   function edit(key: keyof CameraDraft, text: string) {
     setDraft((d) => ({ ...d, [key]: text }));
     setDirty(true);
@@ -78,9 +80,11 @@ export function CameraLab({
   function newTrial() {
     try {
       const seed = crypto.getRandomValues(new Uint32Array(2));
+      const high = seed[0] ?? 0;
+      const low = seed[1] ?? 0;
       apply({
         ...p,
-        seed: ((BigInt(seed[0]!) << 32n) | BigInt(seed[1]!)).toString(),
+        seed: ((BigInt(high) << 32n) | BigInt(low)).toString(),
         coverageTrials: 0,
       });
     } catch {
@@ -99,6 +103,7 @@ export function CameraLab({
     }
   }
   function exportFrames() {
+    if (!snapshot) return;
     const url = URL.createObjectURL(
       new Blob([cameraObservationCsv(snapshot, example.sourceDigest)], {
         type: "text/csv;charset=utf-8",
@@ -128,7 +133,7 @@ export function CameraLab({
     : view.status === "refused"
       ? "Request refused. The accepted path, observations and estimates are unchanged."
       : view.status === "unavailable"
-        ? `${view.outcome!.message} Accepted observations remain readable.`
+        ? `${view.outcome?.message ?? "Execution unavailable."} Accepted observations remain readable.`
         : view.status === "paused"
           ? "Calculation stopped. Accepted observations are unchanged."
           : isStatic
@@ -140,6 +145,29 @@ export function CameraLab({
     blurred = array(snapshot, "blurredPositions"),
     clicks = array(snapshot, "stationaryClicks"),
     speedTimes = array(snapshot, "speedTimes");
+  const coordColumns = [
+    { name: "x", axis: 0 },
+    { name: "y", axis: 1 },
+  ].slice(0, p.d);
+  const clickRows = Array.from({ length: p.clicks }, (_, i) => ({
+    clickNumber: i + 1,
+    offset: i * p.d,
+  }));
+  const frameRows = Array.from({ length: times.length }, (_, i) => ({
+    frameNumber: i + 1,
+    time: times.at(i) ?? 0,
+    offset: i * p.d,
+  }));
+  const speedColumns = [
+    { key: "idealSpeeds", factor: 1e6 },
+    { key: "cameraSpeeds", factor: 1e6 },
+    { key: "speedRatios", factor: 1 },
+  ] as const;
+  const speedRows = Array.from({ length: 6 }, (_, i) => ({
+    rowKey: `speed-row-${i + 1}`,
+    time: speedTimes.at(i) ?? 0,
+    offset: i,
+  }));
   return (
     <section
       className="laboratory camera-lab"
@@ -287,6 +315,7 @@ export function CameraLab({
           </form>
           <div className="actions camera-presets">
             <button
+              type="button"
               disabled={!ready}
               className="secondary"
               onClick={() =>
@@ -296,6 +325,7 @@ export function CameraLab({
               No camera error · same path
             </button>
             <button
+              type="button"
               disabled={!ready}
               className="secondary"
               onClick={() =>
@@ -305,6 +335,7 @@ export function CameraLab({
               Noise only · same path
             </button>
             <button
+              type="button"
               disabled={!ready}
               className="secondary"
               onClick={() =>
@@ -314,6 +345,7 @@ export function CameraLab({
               Exposure only · same path
             </button>
             <button
+              type="button"
               disabled={!ready}
               className="secondary"
               onClick={() => apply({ ...p, stageDrift: 0.5e-6, coverageTrials: 0 })}
@@ -326,13 +358,13 @@ export function CameraLab({
             camera-error comparison; fluid drift remains an explicit physical input.
           </p>
           <div className="actions">
-            <button disabled={!ready} className="secondary" onClick={newTrial}>
+            <button type="button" disabled={!ready} className="secondary" onClick={newTrial}>
               New independent physical trial
             </button>
-            <button disabled={!ready} className="secondary" onClick={share}>
+            <button type="button" disabled={!ready} className="secondary" onClick={share}>
               Copy accepted camera link
             </button>
-            <button disabled={!ready} className="secondary" onClick={exportFrames}>
+            <button type="button" disabled={!ready} className="secondary" onClick={exportFrames}>
               Download accepted camera frames
             </button>
           </div>
@@ -356,24 +388,28 @@ export function CameraLab({
           {view.refusal && (
             <div className="notice error" data-refusal-code={view.refusal.code}>
               <p>{String(view.refusal.details?.requirements ?? view.refusal.message)}</p>
-              {view.refusal.rankedRepairs.map(
-                (repair, i) =>
-                  repair.action && (
-                    <button
-                      key={i}
-                      className="secondary"
-                      onClick={() =>
-                        apply({
-                          ...(view.requested!.parameters as Bm08Parameters),
-                          [repair.action!.parameterId]: repair.action!.value,
-                        })
-                      }
-                    >
-                      {repair.label}
-                    </button>
-                  ),
-              )}
-              <button className="secondary" onClick={() => apply(p)}>
+              {view.refusal.rankedRepairs.map((repair) => {
+                const action = repair.action;
+                if (!action) return null;
+                const requestedParams =
+                  (view.requested?.parameters as Bm08Parameters | undefined) ?? p;
+                return (
+                  <button
+                    key={`${action.parameterId}-${repair.label}`}
+                    type="button"
+                    className="secondary"
+                    onClick={() =>
+                      apply({
+                        ...requestedParams,
+                        [action.parameterId]: action.value,
+                      })
+                    }
+                  >
+                    {repair.label}
+                  </button>
+                );
+              })}
+              <button type="button" className="secondary" onClick={() => apply(p)}>
                 Restore accepted settings
               </button>
             </div>
@@ -389,17 +425,19 @@ export function CameraLab({
           <table>
             <caption>Accepted diffusivity estimates (μm²/s)</caption>
             <tbody>
-              {[
-                ["Generating value", "modelDiffusion"],
-                ["Ignore camera error and drift", "naiveD"],
-                ["Fit drift, but ignore camera error", "centeredD"],
-                ["Covariance estimate; known synthetic drift removed", "covarianceD"],
-                ["Disjoint pairs; noise and exposure corrected", "pairD"],
-              ].map(([label, key]) => (
+              {(
+                [
+                  ["Generating value", "modelDiffusion"],
+                  ["Ignore camera error and drift", "naiveD"],
+                  ["Fit drift, but ignore camera error", "centeredD"],
+                  ["Covariance estimate; known synthetic drift removed", "covarianceD"],
+                  ["Disjoint pairs; noise and exposure corrected", "pairD"],
+                ] as const
+              ).map(([label, key]) => (
                 <tr key={key}>
                   <th scope="row">{label}</th>
                   <td>
-                    <Value snapshot={snapshot} id={key!} factor={1e12} />
+                    <Value snapshot={snapshot} id={key} factor={1e12} />
                   </td>
                 </tr>
               ))}
@@ -509,19 +547,21 @@ export function CameraLab({
               <thead>
                 <tr>
                   <th scope="col">Click</th>
-                  {Array.from({ length: p.d }, (_, c) => (
-                    <th key={c} scope="col">
-                      {c ? "y" : "x"}
+                  {coordColumns.map((col) => (
+                    <th key={`coord-header-${col.name}`} scope="col">
+                      {col.name}
                     </th>
                   ))}
                 </tr>
               </thead>
               <tbody>
-                {Array.from({ length: p.clicks }, (_, i) => (
-                  <tr key={i}>
-                    <th scope="row">{i + 1}</th>
-                    {Array.from({ length: p.d }, (_, c) => (
-                      <td key={c}>{display(clicks.at(i * p.d + c)!, 1e6)}</td>
+                {clickRows.map((row) => (
+                  <tr key={`stationary-click-${row.clickNumber}`}>
+                    <th scope="row">{row.clickNumber}</th>
+                    {coordColumns.map((col) => (
+                      <td key={`click-val-${col.name}`}>
+                        {display(clicks.at(row.offset + col.axis) ?? 0, 1e6)}
+                      </td>
                     ))}
                   </tr>
                 ))}
@@ -546,14 +586,14 @@ export function CameraLab({
                 </tr>
               </thead>
               <tbody>
-                {Array.from({ length: times.length }, (_, i) =>
-                  Array.from({ length: p.d }, (_, c) => (
-                    <tr key={`${i}-${c}`}>
-                      <th scope="row">{display(times.at(i)!)}</th>
-                      <td>{c ? "y" : "x"}</td>
-                      <td>{display(latent.at(i * p.d + c)!, 1e6)}</td>
-                      <td>{display(blurred.at(i * p.d + c)!, 1e6)}</td>
-                      <td>{display(observed.at(i * p.d + c)!, 1e6)}</td>
+                {frameRows.flatMap((frame) =>
+                  coordColumns.map((col) => (
+                    <tr key={`frame-${frame.frameNumber}-${col.name}`}>
+                      <th scope="row">{display(frame.time)}</th>
+                      <td>{col.name}</td>
+                      <td>{display(latent.at(frame.offset + col.axis) ?? 0, 1e6)}</td>
+                      <td>{display(blurred.at(frame.offset + col.axis) ?? 0, 1e6)}</td>
+                      <td>{display(observed.at(frame.offset + col.axis) ?? 0, 1e6)}</td>
                     </tr>
                   )),
                 )}
@@ -587,11 +627,13 @@ export function CameraLab({
             </tr>
           </thead>
           <tbody>
-            {Array.from({ length: 6 }, (_, i) => (
-              <tr key={i}>
-                <th scope="row">{display(speedTimes.at(i)!)}</th>
-                {["idealSpeeds", "cameraSpeeds", "speedRatios"].map((key, j) => (
-                  <td key={key}>{display(array(snapshot, key).at(i)!, j === 2 ? 1 : 1e6)}</td>
+            {speedRows.map((row) => (
+              <tr key={row.rowKey}>
+                <th scope="row">{display(row.time)}</th>
+                {speedColumns.map((col) => (
+                  <td key={col.key}>
+                    {display(array(snapshot, col.key).at(row.offset) ?? 0, col.factor)}
+                  </td>
                 ))}
               </tr>
             ))}
@@ -607,12 +649,14 @@ export function CameraLab({
         </p>
         <div className="actions">
           <button
+            type="button"
             disabled={!ready || view.pending}
             onClick={() => apply({ ...p, coverageTrials: 100 })}
           >
             Run 100 camera experiments
           </button>
           <button
+            type="button"
             disabled={!ready || view.pending || p.coverageTrials === 0}
             className="secondary"
             onClick={() => apply({ ...p, coverageTrials: 0 })}
@@ -666,7 +710,7 @@ export function CameraComparison({ example }: { example: PreparedBm08Example }) 
     <>
       <CameraLab example={example} />
       <div className="comparison-toggle">
-        <button className="secondary" onClick={() => setSecond((v) => !v)}>
+        <button type="button" className="secondary" onClick={() => setSecond((v) => !v)}>
           {second ? "Close the second camera" : "Open a separate camera laboratory"}
         </button>
         <p>Each placement has its own accepted settings, worker and observations.</p>
