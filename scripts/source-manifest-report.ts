@@ -32,7 +32,12 @@ async function main() {
   for (let i = 0; i < args.length; i++) {
     const arg = args[i];
     if (!arg) continue;
-    if (arg === "--json") {
+    if (arg === "--help" || arg === "-h") {
+      console.log(
+        "Usage: bun scripts/source-manifest-report.ts <paper-slug> [--json] [--corpus <dir>]",
+      );
+      process.exit(0);
+    } else if (arg === "--json") {
       jsonOutput = true;
     } else if (arg === "--corpus" && i + 1 < args.length) {
       const next = args[++i];
