@@ -11,8 +11,7 @@ import { mkdir, writeFile } from "node:fs/promises";
 import { resolve } from "node:path";
 import { expressionLatex } from "../../equations/latex.ts";
 import { BROWNIAN_QUANTITIES } from "../../equations/quantities.ts";
-import type { EquationRecord } from "../../equations/record.ts";
-import type { Argument, Block, Citation, Foundation, Paper } from "../schemas/reading.ts";
+import type { Block, Foundation } from "../schemas/reading.ts";
 import type { PaperPayload } from "./compile.ts";
 
 export interface PayloadManifestEntry {
@@ -47,7 +46,7 @@ export interface EmitOptions {
  * Deterministic JSON stringifier with sorted object keys.
  */
 export function canonicalJsonStringify(value: unknown, space = 2): string {
-  return JSON.stringify(sortKeysRecursively(value), null, space) + "\n";
+  return `${JSON.stringify(sortKeysRecursively(value), null, space)}\n`;
 }
 
 function sortKeysRecursively(value: unknown): unknown {
