@@ -2,7 +2,6 @@ import { describe, expect, test } from "bun:test";
 import { readdirSync, readFileSync } from "node:fs";
 import { join } from "node:path";
 import { fileURLToPath } from "node:url";
-import { checkVoice } from "../content/checks/voice/index.ts";
 import { checkJourney } from "./checks/journeyChecks.ts";
 import { FIXTURE_JOURNEY_BROWNIAN } from "./testing/fixtureJourney.ts";
 
@@ -16,20 +15,30 @@ describe("copyGuards: voice lint and phrase checks", () => {
   });
 
   test("a branch calling a proponent 'naive' triggers a mockery error", () => {
+    const fork0 = FIXTURE_JOURNEY_BROWNIAN.forks[0];
+    const fork1 = FIXTURE_JOURNEY_BROWNIAN.forks[1];
+    if (!fork0 || !fork1) {
+      throw new Error("Fixture journey must have at least two forks");
+    }
+    const branch0 = fork0.branches[0];
+    const branch1 = fork0.branches[1];
+    if (!branch0 || !branch1) {
+      throw new Error("Fixture fork must have at least two branches");
+    }
     const withMockery = {
       ...FIXTURE_JOURNEY_BROWNIAN,
       forks: [
         {
-          ...FIXTURE_JOURNEY_BROWNIAN.forks[0]!,
+          ...fork0,
           branches: [
             {
-              ...FIXTURE_JOURNEY_BROWNIAN.forks[0]!.branches[0]!,
+              ...branch0,
               hypothesis: "A naive proponent might think particles move in straight lines.",
             },
-            FIXTURE_JOURNEY_BROWNIAN.forks[0]!.branches[1]!,
+            branch1,
           ],
         },
-        FIXTURE_JOURNEY_BROWNIAN.forks[1]!,
+        fork1,
       ],
     };
     const findings = checkJourney(withMockery);
@@ -37,20 +46,30 @@ describe("copyGuards: voice lint and phrase checks", () => {
   });
 
   test("the statistical phrase 'naive estimate' is allowlisted and produces zero errors", () => {
+    const fork0 = FIXTURE_JOURNEY_BROWNIAN.forks[0];
+    const fork1 = FIXTURE_JOURNEY_BROWNIAN.forks[1];
+    if (!fork0 || !fork1) {
+      throw new Error("Fixture journey must have at least two forks");
+    }
+    const branch0 = fork0.branches[0];
+    const branch1 = fork0.branches[1];
+    if (!branch0 || !branch1) {
+      throw new Error("Fixture fork must have at least two branches");
+    }
     const withAllowlisted = {
       ...FIXTURE_JOURNEY_BROWNIAN,
       forks: [
         {
-          ...FIXTURE_JOURNEY_BROWNIAN.forks[0]!,
+          ...fork0,
           branches: [
             {
-              ...FIXTURE_JOURNEY_BROWNIAN.forks[0]!.branches[0]!,
+              ...branch0,
               hypothesis: "A naive estimate of the displacement neglects molecular collisions.",
             },
-            FIXTURE_JOURNEY_BROWNIAN.forks[0]!.branches[1]!,
+            branch1,
           ],
         },
-        FIXTURE_JOURNEY_BROWNIAN.forks[1]!,
+        fork1,
       ],
     };
     const findings = checkJourney(withAllowlisted);
