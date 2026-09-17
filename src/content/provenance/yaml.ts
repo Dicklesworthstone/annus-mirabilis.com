@@ -27,10 +27,11 @@ export function parseYaml(text: string): unknown {
   const lines: RawLine[] = [];
 
   for (let i = 0; i < allLines.length; i++) {
-    const raw = allLines[i]!;
+    const raw = allLines[i];
+    if (raw === undefined) continue;
     const match = raw.match(/^(\s*)(.*)$/);
-    const indent = match ? match[1]!.length : 0;
-    const content = match ? match[2]! : "";
+    const indent = match?.[1]?.length ?? 0;
+    const content = match?.[2] ?? "";
 
     lines.push({
       raw,
@@ -44,7 +45,8 @@ export function parseYaml(text: string): unknown {
 
   function skipBlankAndComments(): void {
     while (index < lines.length) {
-      const line = lines[index]!;
+      const line = lines[index];
+      if (!line) break;
       if (line.trimmed === "" || line.trimmed.startsWith("#")) {
         index++;
       } else {
@@ -57,8 +59,8 @@ export function parseYaml(text: string): unknown {
     skipBlankAndComments();
     if (index >= lines.length) return null;
 
-    const currentLine = lines[index]!;
-    if (currentLine.indent < minIndent) {
+    const currentLine = lines[index];
+    if (!currentLine || currentLine.indent < minIndent) {
       return null;
     }
 
@@ -76,8 +78,8 @@ export function parseYaml(text: string): unknown {
       skipBlankAndComments();
       if (index >= lines.length) break;
 
-      const line = lines[index]!;
-      if (line.indent < seqIndent) break;
+      const line = lines[index];
+      if (!line || line.indent < seqIndent) break;
       if (line.indent > seqIndent) {
         throw new YamlParseError(
           `Unexpected indentation in sequence`,
@@ -96,7 +98,8 @@ export function parseYaml(text: string): unknown {
 
       if (restOfLine === "") {
         skipBlankAndComments();
-        if (index < lines.length && lines[index]!.indent >= contentIndent) {
+        const next = lines[index];
+        if (next && next.indent >= contentIndent) {
           const itemVal = parseBlock(contentIndent);
           result.push(itemVal);
         } else {
@@ -111,7 +114,8 @@ export function parseYaml(text: string): unknown {
             mapObj[firstEntry.key] = parseMultilineScalar(contentIndent, firstEntry.valStr);
           } else {
             skipBlankAndComments();
-            if (index < lines.length && lines[index]!.indent >= contentIndent) {
+            const next = lines[index];
+            if (next && next.indent >= contentIndent) {
               mapObj[firstEntry.key] = parseBlock(contentIndent);
             } else {
               mapObj[firstEntry.key] = null;
@@ -124,8 +128,8 @@ export function parseYaml(text: string): unknown {
         while (index < lines.length) {
           skipBlankAndComments();
           if (index >= lines.length) break;
-          const nextLine = lines[index]!;
-          if (nextLine.indent < contentIndent) break;
+          const nextLine = lines[index];
+          if (!nextLine || nextLine.indent < contentIndent) break;
           if (nextLine.trimmed.startsWith("- ") || nextLine.trimmed === "-") break;
 
           const entry = parseMappingLine(nextLine.trimmed, nextLine.lineNum);
@@ -136,7 +140,8 @@ export function parseYaml(text: string): unknown {
               mapObj[entry.key] = parseMultilineScalar(nextLine.indent + 2, entry.valStr);
             } else {
               skipBlankAndComments();
-              if (index < lines.length && lines[index]!.indent > nextLine.indent) {
+              const next = lines[index];
+              if (next && next.indent > nextLine.indent) {
                 mapObj[entry.key] = parseBlock(nextLine.indent + 1);
               } else {
                 mapObj[entry.key] = null;
@@ -211,8 +216,8 @@ export function parseYaml(text: string): unknown {
       skipBlankAndComments();
       if (index >= lines.length) break;
 
-      const line = lines[index]!;
-      if (line.indent < mapIndent) break;
+      const line = lines[index];
+      if (!line || line.indent < mapIndent) break;
       if (line.indent > mapIndent) {
         throw new YamlParseError(
           `Unexpected indentation in mapping`,
@@ -231,7 +236,8 @@ export function parseYaml(text: string): unknown {
           result[key] = parseMultilineScalar(line.indent + 2, valStr);
         } else {
           skipBlankAndComments();
-          if (index < lines.length && lines[index]!.indent > mapIndent) {
+          const next = lines[index];
+          if (next && next.indent > mapIndent) {
             result[key] = parseBlock(mapIndent + 1);
           } else {
             result[key] = null;
@@ -250,7 +256,8 @@ export function parseYaml(text: string): unknown {
     let detectedIndent: number | null = null;
 
     while (index < lines.length) {
-      const line = lines[index]!;
+      const line = lines[index];
+      if (!line) break;
       if (line.trimmed === "") {
         chunkLines.push("");
         index++;
@@ -314,9 +321,15 @@ export function parseYaml(text: string): unknown {
     let inDouble = false;
     for (let i = 0; i < str.length; i++) {
       const ch = str[i];
+      const prev = i > 0 ? str[i - 1] : undefined;
       if (ch === "'" && !inDouble) inSingle = !inSingle;
       else if (ch === '"' && !inSingle) inDouble = !inDouble;
-      else if (ch === "#" && !inSingle && !inDouble && (i === 0 || /\s/.test(str[i - 1]!))) {
+      else if (
+        ch === "#" &&
+        !inSingle &&
+        !inDouble &&
+        (i === 0 || (prev !== undefined && /\s/.test(prev)))
+      ) {
         return str.slice(0, i);
       }
     }
@@ -333,8 +346,7 @@ export function parseYaml(text: string): unknown {
     let inDouble = false;
     let inBracket = 0;
 
-    for (let i = 0; i < inside.length; i++) {
-      const ch = inside[i]!;
+    for (const ch of inside) {
       if (ch === "'" && !inDouble) inSingle = !inSingle;
       else if (ch === '"' && !inSingle) inDouble = !inDouble;
       else if (ch === "[" && !inSingle && !inDouble) inBracket++;
@@ -361,8 +373,7 @@ export function parseYaml(text: string): unknown {
     let inDouble = false;
     let inBrace = 0;
 
-    for (let i = 0; i < inside.length; i++) {
-      const ch = inside[i]!;
+    for (const ch of inside) {
       if (ch === "'" && !inDouble) inSingle = !inSingle;
       else if (ch === '"' && !inSingle) inDouble = !inDouble;
       else if (ch === "{" && !inSingle && !inDouble) inBrace++;
