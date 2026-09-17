@@ -50,6 +50,21 @@ function deterministicPRNG(seed: number) {
   };
 }
 
+export type DrawTableEntry = Readonly<{
+  streamPurpose: "latent" | "noise";
+  tile: number;
+  index: number;
+  uniform: number;
+  normal: number;
+}>;
+
+export type DrawTable = Readonly<{
+  generator: string;
+  seed: string;
+  sha256: string;
+  entries: readonly DrawTableEntry[];
+}>;
+
 /**
  * Pre-generates the latent path on the base replay grid.
  */

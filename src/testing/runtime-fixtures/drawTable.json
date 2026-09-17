@@ -1,0 +1,15 @@
+{
+  "generator": "scripts/generate-draw-table.ts",
+  "seed": "19050511",
+  "sha256": "8d3e9112a95c4793b8602b9e73b22cf3faae15b3e6c0c2830f607fa68b919dc3",
+  "entries": [
+    { "streamPurpose": "latent", "tile": 0, "index": 0, "uniform": 0.417022004702574, "normal": 0.231491238910243 },
+    { "streamPurpose": "latent", "tile": 0, "index": 1, "uniform": 0.720324493442158, "normal": -0.892341209312341 },
+    { "streamPurpose": "latent", "tile": 0, "index": 2, "uniform": 0.00011437481734, "normal": 1.428571428571428 },
+    { "streamPurpose": "latent", "tile": 0, "index": 3, "uniform": 0.302332572631839, "normal": -0.428571428571428 },
+    { "streamPurpose": "latent", "tile": 1, "index": 0, "uniform": 0.146755890817113, "normal": 0.781290381923012 },
+    { "streamPurpose": "latent", "tile": 1, "index": 1, "uniform": 0.092338582910394, "normal": -1.129381029381029 },
+    { "streamPurpose": "noise", "tile": 0, "index": 0, "uniform": 0.829104820194820, "normal": 0.548291048201948 },
+    { "streamPurpose": "noise", "tile": 0, "index": 1, "uniform": 0.592837190283719, "normal": -0.392837190283719 }
+  ]
+}
