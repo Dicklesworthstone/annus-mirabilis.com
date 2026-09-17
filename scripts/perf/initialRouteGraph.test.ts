@@ -121,7 +121,9 @@ test("byte accounting: 204,800 bytes passes and 204,801 bytes fails", () => {
   assert.equal(failResult.byteAccounting?.overBudget, true);
   if (!failResult.ok) {
     assert.equal(failResult.violations.length, 1);
-    assert.equal(failResult.violations[0].kind, "byte-budget");
+    const [violation] = failResult.violations;
+    assert.ok(violation);
+    assert.equal(violation.kind, "byte-budget");
     assert.match(failResult.reason, /exceeds initial client JavaScript budget/);
   }
 });
@@ -156,6 +158,10 @@ test("seeded static import of facsimile viewer with pdfjs-dist in route graph fa
   assert.equal(result.ok, false);
   if (result.ok) return;
   assert.equal(result.violations.length, 1);
-  assert.equal(result.violations[0].kind, "module-trace");
-  assert.equal(result.violations[0].signature, "node_modules/pdfjs-dist/");
+  const [violation] = result.violations;
+  assert.ok(violation);
+  assert.equal(violation.kind, "module-trace");
+  if (violation.kind === "module-trace") {
+    assert.equal(violation.signature, "node_modules/pdfjs-dist/");
+  }
 });
