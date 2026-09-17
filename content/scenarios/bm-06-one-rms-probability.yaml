@@ -1,0 +1,47 @@
+# BM-06 regression fixture (am-bm-06-gaussian-spread-982y): "one-RMS probability", the bead's
+# own Test Plan number -- P(|x| <= lambda_x) = erf(1/sqrt2) = 0.682689492137 -- proven directly
+# against intervalProbability (src/physics/reference/diffusion/distributions.ts) through the
+# registered owner diffusion.gaussianIntervalProbability
+# (src/testing/scenario-registry/owners.ts), at the bead's own "modern golden" inputs
+# (D = 0.4294396 um^2/s, t = 1 s, interval = [-lambda_x, lambda_x] with
+# lambda_x = sqrt(2*D*t) = 0.9267573 um).
+#
+# This is a "value"-only fixture (t > 0, D > 0). The scenario-registry's OwnerFn contract
+# returns Record<string, number> and its runner (run.ts) never reads Scenario.expected.status,
+# so it cannot verify the t = 0 / D = 0 analytic-limit point-mass case -- that is proven
+# directly against gaussianPropagator/intervalProbability by existing diffusion.*.test.ts files
+# (see src/physics/reference/diffusion/distributions.ts's pointMass helper and its callers),
+# which this scenario does not duplicate. This fixture exists to satisfy validateExperiment's
+# rule that a manifest declaring any non-"value" allowedStatus (BM-06's manifest does, for
+# probabilityDensity: "analytic-limit" at t = 0 or D = 0, and several FTCS outputs:
+# "not-applicable" when the grid is off) must declare at least one non-empty acceptanceCases
+# scenario, with a real, independently-checkable number rather than a placeholder.
+id: bm-06-one-rms-probability
+kind: modern-golden
+title: "BM-06 modern golden: the one-RMS-displacement probability"
+description: "At D = 0.4294396 um^2/s and t = 1 s, the probability that |x| <= lambda_x (one RMS displacement, 0.9267573 um) is erf(1/sqrt(2)) = 0.682689492137, the bead's own stated Test Plan number."
+constantSetId: modern-si-2019
+owner: diffusion.gaussianIntervalProbability
+inputs:
+  diffusionCoefficient:
+    value: 4.294396e-13
+    unit: m2/s
+  elapsedTime:
+    value: 1
+    unit: s
+  lower:
+    value: -9.267573576724385e-7
+    unit: m
+  upper:
+    value: 9.267573576724385e-7
+    unit: m
+expected:
+  outputs:
+    - outputId: intervalProbability
+      value: 0.682689492137
+      comparisonKind: tolerance
+      tolerance:
+        relative: 1.0e-9
+        rationale: erf(1/sqrt(2)), the bead's own Test Plan number for this exact case, to 12 digits.
+modelVersion: 1
+schemaVersion: 1

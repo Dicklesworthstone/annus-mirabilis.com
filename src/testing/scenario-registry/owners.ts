@@ -7,6 +7,7 @@ import {
 } from "../../physics/reference/diffusion/walkLaws.ts";
 import {
   apparentSpeed,
+  intervalProbability,
   rmsDisplacement,
   stokesEinsteinD,
 } from "../../physics/reference/diffusion.ts";
@@ -131,6 +132,23 @@ function walkKernelDiffusivity(ctx: OwnerContext): Record<string, number> {
     diffusionCoefficient: diffusivity.diffusion.value,
   };
 }
+/**
+ * am-bm-06-gaussian-spread-982y: the Gaussian interval probability at t > 0, D > 0 (always
+ * "value" status; the t = 0 / D = 0 analytic-limit point-mass case is proven directly against
+ * gaussianPropagator/intervalProbability by src/testing/diffusion.*.test.ts files, not through
+ * this OwnerFn, which returns Record<string, number> and cannot represent a non-numeric status).
+ */
+function gaussianIntervalProbability(ctx: OwnerContext): Record<string, number> {
+  const D = num(ctx.inputs, "diffusionCoefficient");
+  const t = num(ctx.inputs, "elapsedTime");
+  const x1 = num(ctx.inputs, "lower");
+  const x2 = num(ctx.inputs, "upper");
+  const p = intervalProbability(x1, x2, t, D);
+  if (p.result.status !== "value" || typeof p.result.value !== "number") {
+    throw new Error("intervalProbability did not return a value.");
+  }
+  return { intervalProbability: p.result.value };
+}
 function diffusionRms(ctx: OwnerContext): Record<string, number> {
   const set =
     ctx.constantSetId === "modern-si-2019"
@@ -234,6 +252,11 @@ const OWNERS: OwnerRecord[] = [
     id: "diffusion.walkKernelDiffusivity",
     sourcePath: walkLawsPath,
     fn: walkKernelDiffusivity,
+  },
+  {
+    id: "diffusion.gaussianIntervalProbability",
+    sourcePath: diffusionPath,
+    fn: gaussianIntervalProbability,
   },
   {
     id: "diffusion.apparentSpeedRatio",

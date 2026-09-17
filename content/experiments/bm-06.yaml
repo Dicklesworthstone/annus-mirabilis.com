@@ -1,0 +1,550 @@
+# BM-06 instrument manifest (am-bm-06-gaussian-spread-982y).
+#
+# Scope note (RubyTiger, 2026-09-17): this manifest is being built where none existed. The
+# runtime (src/experiments/bm06/*, src/workers/operations/bm06.ts, src/app/lab/bm-06/*) was
+# already substantially built before this pass, most recently by a peer lane (e5a7486: 2D/3D
+# radial outputs, copy-D-from-BM01, weave predicate declarations, 67+5 tests passing), which
+# explicitly named "the full manifest/YAML rewrite (D as a direct parameter, dimension selector,
+# Einstein presets, R0-R3 captions)" as not attempted -- the same scope gap PlumHawk named for
+# BM-05 (am-bm-05-random-steps-ntzl), which this lane already closed the manifest-authoring half
+# of. This is that piece for BM-06.
+#
+# Real, structural mismatches between the bead's Controls table and the runtime this manifest
+# describes (named here rather than silently papered over, matching WildCrane's BM-01 manifest
+# precedent):
+#   - The bead lists "Diffusivity D" as a direct control (0.01-10 um^2/s). The runtime has no
+#     such field: Bm06Parameters computes D from T/eta/a via stokesEinsteinD (or from the
+#     copiedDiffusivity* fields when a value is copied from BM-01). This manifest's parameters
+#     list T/eta/a, matching what the runtime actually accepts.
+#   - The bead lists "Dimension" as a control (1D/2D/3D, default 1D). The runtime has no
+#     dimension-selector parameter: it always computes the 1D, 2D radial, and 3D radial outputs
+#     together (BM06_OUTPUTS' meanRadius2d/rmsRadius2d/mostLikelyRadius2d/meanRadius3d/
+#     rmsRadius3d), and a view chooses which to display. No parameter named "dimension" exists.
+#   - The bead lists "FTCS time step dt" as a direct control. The runtime derives it:
+#     dt = t / steps (src/workers/operations/bm06.ts), not an independent parameter.
+#   - The bead lists "FTCS profile" (spike, step, two spikes) as a control. The runtime always
+#     calls ftcs1d with profile: 0 (spike); step and two-spikes are not wired.
+#   - The bead's Einstein presets use constant set id "einstein-1905-brownian-printed". The only
+#     registered id for this historical constant set is "scenario-einstein-1905-brownian-printed"
+#     (src/physics/reference/constants.ts's resolveSet fallback, same one BM-01's manifest and
+#     content/scenarios/diffusion-einstein-1905-printed.yaml already use); this manifest uses
+#     that real id.
+#
+# Deferred, not attempted in this change (a much larger lift, the same scoping call made for
+# BM-01's and BM-05's manifests):
+#   - The R0-R3 caption texts and
+#     content/editorial/readings-owners/am-bm-06-gaussian-spread-982y.yaml. The bead requires
+#     that file to land in the SAME change as real caption text, never as an empty placeholder,
+#     so it is not started here.
+#   - Two registered predict prompts (bm-06-predict-within-one-typical-distance,
+#     bm-06-predict-radial-most-likely) with full separatingAssumption text for three candidates
+#     each -- predictMode is declared exempt here rather than fabricated, since
+#     am-inst-predict-mode-ti7m (the runtime this would wire into) is still open and the bead's
+#     own worked numbers for these prompts deserve a careful pass, not a rushed one.
+#   - weavePredicates: BM06_WEAVE_PREDICATES (src/experiments/bm06/definition.ts) already
+#     declares bm06-s4-solution and bm06-s4-grid-agreement, but its own comment says they predate
+#     the real am-read-result-weave-jex contract and were never run through it ("declared as data
+#     only... nothing here has been run through a real weave pass"). BM-05's own weave predicate
+#     was re-validated against that real contract after it landed (PlumHawk's pass); BM-06's has
+#     not been. Declaring these ids here without that re-validation would overstate what is
+#     proven, so weavePredicates is left empty and this gap is named instead.
+id: bm-06
+title: "BM-06: Gaussian Spread, the Point Distribution, and the Radial Law"
+explanatoryQuestion: "Where is a diffusing tracer likely to be after a time t, and how does a probability density differ from a probability?"
+sourceRefs:
+  - paper: brownian-motion
+    id: s4
+  - paper: brownian-motion
+    id: s5
+argumentIds:
+  - arg-bm-gaussian
+  - arg-bm-diffusion-equation
+  - arg-bm-displacement
+  - arg-bm-diffusion
+schemaVersion: 1
+parameters:
+  - id: T
+    label: "Temperature"
+    accessibleName: "Absolute temperature of the suspension fluid"
+    accessibleDescription: "Sets fluid temperature in Kelvin"
+    quantityId: temperature
+    displayUnit: "K"
+    modelDomain:
+      min: 1e-9
+      minInclusive: false
+      reason: "Positive temperature (src/experiments/bm06/parameters.ts)"
+    visualRange:
+      min: 273
+      max: 330
+    default: 293.15
+    mapping:
+      kind: linear
+    role: independent
+    commandClass: setup-change
+  - id: eta
+    label: "Viscosity"
+    accessibleName: "Dynamic viscosity of the suspension fluid"
+    accessibleDescription: "Sets fluid viscosity in pascal-seconds"
+    quantityId: viscosity
+    displayUnit: "mPa s"
+    modelDomain:
+      min: 1e-9
+      minInclusive: false
+      reason: "Positive viscosity (src/experiments/bm06/parameters.ts)"
+    visualRange:
+      min: 0.0005
+      max: 0.02
+    default: 0.001
+    mapping:
+      kind: linear
+    role: independent
+    commandClass: setup-change
+  - id: a
+    label: "Radius"
+    accessibleName: "Radius of the suspended tracer sphere"
+    accessibleDescription: "Hydrodynamic radius in meters"
+    quantityId: particleRadius
+    displayUnit: "um"
+    modelDomain:
+      min: 1e-9
+      minInclusive: false
+      reason: "Positive radius (src/experiments/bm06/parameters.ts)"
+    visualRange:
+      min: 1e-7
+      max: 5e-6
+    default: 5e-7
+    mapping:
+      kind: log
+      base: 10
+    role: independent
+    commandClass: setup-change
+  - id: t
+    label: "Elapsed time"
+    accessibleName: "Time since the tracer started at the origin"
+    accessibleDescription: "Sets the elapsed time in seconds; zero is the starting point"
+    quantityId: elapsedTime
+    displayUnit: "s"
+    modelDomain:
+      min: 0
+      minInclusive: true
+      reason: "Nonnegative elapsed time, including exactly zero (src/experiments/bm06/parameters.ts)"
+    visualRange:
+      min: 0
+      max: 600
+    default: 1
+    mapping:
+      kind: linear
+    role: independent
+    commandClass: measurement-change
+  - id: lower
+    label: "Interval lower bound"
+    accessibleName: "Lower end of the selected position interval"
+    accessibleDescription: "Sets the lower bound of the interval in meters"
+    quantityId: positionCoordinate1d
+    displayUnit: "um"
+    modelDomain:
+      enumerated: []
+      reason: "Any finite value not exceeding the upper bound (src/experiments/bm06/parameters.ts)"
+    visualRange:
+      min: -1e-5
+      max: 1e-5
+    default: -1e-6
+    mapping:
+      kind: linear
+    role: independent
+    commandClass: estimator-change
+  - id: upper
+    label: "Interval upper bound"
+    accessibleName: "Upper end of the selected position interval"
+    accessibleDescription: "Sets the upper bound of the interval in meters"
+    quantityId: positionCoordinate1d
+    displayUnit: "um"
+    modelDomain:
+      enumerated: []
+      reason: "Any finite value not less than the lower bound (src/experiments/bm06/parameters.ts)"
+    visualRange:
+      min: -1e-5
+      max: 1e-5
+    default: 1e-6
+    mapping:
+      kind: linear
+    role: independent
+    commandClass: estimator-change
+  - id: gridEnabled
+    label: "FTCS grid"
+    accessibleName: "Whether the numerical grid comparison is shown"
+    accessibleDescription: "Turns the finite-difference grid comparison on or off"
+    quantityId: gridEnabledFlag
+    displayUnit: ""
+    modelDomain:
+      enumerated: [0, 1]
+      reason: "Boolean switch (src/experiments/bm06/parameters.ts)"
+    visualRange:
+      min: 0
+      max: 1
+    default: 0
+    mapping:
+      kind: linear
+    role: independent
+    commandClass: setup-change
+  - id: n
+    label: "Grid cells"
+    accessibleName: "Number of cells in the FTCS grid"
+    accessibleDescription: "Integer count of grid cells spanning the numerical box"
+    quantityId: gridCellCount
+    displayUnit: "cells"
+    modelDomain:
+      min: 3
+      max: 4097
+      minInclusive: true
+      maxInclusive: true
+      reason: "Runtime bound (src/experiments/bm06/parameters.ts)"
+    visualRange:
+      min: 3
+      max: 4097
+    default: 101
+    mapping:
+      kind: linear
+    role: independent
+    commandClass: setup-change
+  - id: dx
+    label: "Grid spacing"
+    accessibleName: "Width of one FTCS grid cell"
+    accessibleDescription: "Sets the cell width in meters"
+    quantityId: gridSpacing
+    displayUnit: "um"
+    modelDomain:
+      min: 1e-9
+      minInclusive: false
+      reason: "Positive cell width (src/experiments/bm06/parameters.ts)"
+    visualRange:
+      min: 1e-8
+      max: 1e-6
+    default: 1e-7
+    mapping:
+      kind: log
+      base: 10
+    role: independent
+    commandClass: setup-change
+  - id: steps
+    label: "FTCS time steps"
+    accessibleName: "Number of time steps the grid takes to reach the elapsed time"
+    accessibleDescription: "Integer count of time steps; the step size is elapsed time divided by this count"
+    quantityId: gridStepCount
+    displayUnit: "steps"
+    modelDomain:
+      min: 1
+      max: 4000000
+      minInclusive: true
+      maxInclusive: true
+      reason: "Runtime bound (src/experiments/bm06/parameters.ts)"
+    visualRange:
+      min: 1
+      max: 10000
+    default: 250
+    mapping:
+      kind: log
+      base: 10
+    role: independent
+    commandClass: setup-change
+outputs:
+  - id: diffusionCoefficient
+    quantityId: diffusionCoefficient
+    allowedStatuses: ["value"]
+  - id: activeDiffusionCoefficient
+    quantityId: activeDiffusionCoefficient
+    allowedStatuses: ["value"]
+  - id: rmsDisplacement1d
+    quantityId: displacement1d
+    allowedStatuses: ["value"]
+  - id: meanSquareDisplacement1d
+    quantityId: meanSquareDisplacement1d
+    allowedStatuses: ["value"]
+  - id: probabilityDensity
+    quantityId: coordinateDensity
+    allowedStatuses: ["value", "analytic-limit"]
+    primary: true
+  - id: intervalProbability
+    quantityId: intervalProbability
+    allowedStatuses: ["value"]
+  - id: positionCoordinate1d
+    quantityId: positionCoordinate1d
+    allowedStatuses: ["value"]
+  - id: comparisonTimes
+    quantityId: comparisonTimes
+    allowedStatuses: ["value"]
+  - id: comparisonRms
+    quantityId: displacement1d
+    allowedStatuses: ["value"]
+  - id: meanRadius2d
+    quantityId: meanRadius2d
+    allowedStatuses: ["value"]
+  - id: rmsRadius2d
+    quantityId: rmsRadius2d
+    allowedStatuses: ["value"]
+  - id: mostLikelyRadius2d
+    quantityId: mostLikelyRadius2d
+    allowedStatuses: ["value"]
+  - id: meanRadius3d
+    quantityId: meanRadius3d
+    allowedStatuses: ["value"]
+  - id: rmsRadius3d
+    quantityId: rmsRadius3d
+    allowedStatuses: ["value"]
+  - id: gridDensity
+    quantityId: gridDensity
+    allowedStatuses: ["value", "not-applicable"]
+  - id: cellMasses
+    quantityId: cellMasses
+    allowedStatuses: ["value", "not-applicable"]
+  - id: cellProbabilities
+    quantityId: cellProbabilities
+    allowedStatuses: ["value", "not-applicable"]
+  - id: maxCellMassDifference
+    quantityId: maxCellMassDifference
+    allowedStatuses: ["value", "not-applicable"]
+  - id: wallContact
+    quantityId: wallContact
+    allowedStatuses: ["value", "not-applicable"]
+  - id: stabilityRatio
+    quantityId: stabilityRatio
+    allowedStatuses: ["value", "not-applicable"]
+  - id: gridTimeStep
+    quantityId: gridTimeStep
+    allowedStatuses: ["value", "not-applicable"]
+assumptions:
+  - "Free isotropic diffusion from a localized start on an unbounded domain, for the analytic curves"
+  - "A bounded box with reflecting (zero-flux) boundaries, for the FTCS grid, always labeled distinct from the unbounded line"
+  - "No drift, no walls other than the labeled FTCS box, and constant, position-independent D"
+admittedDomain: "Free, isotropic diffusion of a point-started tracer on an unbounded line (or its 2D/3D radial projections), at any nonnegative elapsed time including exactly zero; the FTCS grid comparison additionally assumes a bounded box with reflecting boundaries and the von Neumann stability limit D*dt/dx^2 <= 0.5 of the explicit scheme."
+notModeled:
+  - "Walls other than the labeled FTCS box"
+  - "Drift"
+  - "Time-dependent or position-dependent D"
+  - "Anomalous diffusion"
+  - "The ballistic regime"
+  - "Interactions"
+  - "Measurement noise"
+  - "Non-point initial conditions for the analytic curve"
+owner:
+  kind: reference-evaluator
+  kernelFunctions:
+    - displayRole: reference-implementation
+      language: ts
+      module: "src/physics/reference/diffusion/distributions.ts"
+      exportName: "gaussianPropagator"
+      independentReferences:
+        - experimentId: bm-06
+          quantityId: coordinateDensity
+    - displayRole: reference-implementation
+      language: ts
+      module: "src/physics/reference/diffusion/distributions.ts"
+      exportName: "intervalProbability"
+    - displayRole: reference-implementation
+      language: ts
+      module: "src/physics/reference/diffusion/distributions.ts"
+      exportName: "radialPropagator2d"
+    - displayRole: reference-implementation
+      language: ts
+      module: "src/physics/reference/diffusion/distributions.ts"
+      exportName: "radialPropagator3d"
+    - displayRole: reference-implementation
+      language: ts
+      module: "src/physics/reference/diffusion/distributions.ts"
+      exportName: "mostLikelyRadius2d"
+    - displayRole: reference-implementation
+      language: ts
+      module: "src/physics/reference/diffusion/distributions.ts"
+      exportName: "moments"
+    - displayRole: reference-implementation
+      language: ts
+      module: "src/physics/reference/diffusion/ftcs.ts"
+      exportName: "ftcs1d"
+  identifierBindings:
+    - kernelFunction: gaussianPropagator
+      identifier: "D"
+      quantityId: diffusionCoefficient
+    - kernelFunction: gaussianPropagator
+      identifier: "t"
+      quantityId: elapsedTime
+    - kernelFunction: ftcs1d
+      identifier: "dx"
+      quantityId: gridSpacing
+    - kernelFunction: ftcs1d
+      identifier: "dt"
+      quantityId: gridTimeStep
+  traceScenarioId: bm-06-one-rms-probability
+  traceRows:
+    - label: "One-RMS-displacement probability, modern golden inputs"
+      expression: "P(|x| <= lambda_x) = erf(1 / sqrt(2))"
+      value: 0.682689492137
+      unit: ""
+      quantityId: intervalProbability
+views:
+  - id: density-curve
+    kind: svg
+    consumes:
+      - probabilityDensity
+      - intervalProbability
+  - id: bin-probability-toggle
+    kind: svg
+    consumes:
+      - probabilityDensity
+      - cellProbabilities
+  - id: ftcs-paired-bars
+    kind: svg
+    consumes:
+      - cellMasses
+      - cellProbabilities
+      - maxCellMassDifference
+      - wallContact
+  - id: radial-rings
+    kind: svg
+    consumes:
+      - meanRadius2d
+      - rmsRadius2d
+      - mostLikelyRadius2d
+      - meanRadius3d
+      - rmsRadius3d
+  - id: moments-table
+    kind: table
+    consumes:
+      - diffusionCoefficient
+      - activeDiffusionCoefficient
+      - rmsDisplacement1d
+      - meanSquareDisplacement1d
+      - stabilityRatio
+actions:
+  - actionId: bm-06-select-interval
+    family: probability-diffusion
+    question: "What share of the tracers lies inside this position interval?"
+    inputs:
+      - lower
+      - upper
+    commandClass: estimator-change
+    acceptedResult:
+      outputs:
+        - intervalProbability
+      allowedStatuses:
+        - value
+    visualAffordance: "Shaded interval on the density curve with the interval probability printed beside it"
+    equivalentAffordance: "Type the lower and upper limits and read the interval probability in a table"
+    announcement: "Interval probability updated"
+  - actionId: bm-06-set-time-to-zero
+    family: probability-diffusion
+    question: "At exactly the starting instant, where is the tracer?"
+    inputs:
+      - t
+    commandClass: measurement-change
+    acceptedResult:
+      outputs:
+        - probabilityDensity
+        - intervalProbability
+      allowedStatuses:
+        - value
+        - analytic-limit
+    visualAffordance: "The density curve is replaced with a labeled point-distribution description"
+    equivalentAffordance: "Read the point-distribution description and the interval probability it implies"
+    announcement: "Point distribution at the origin"
+  - actionId: bm-06-compare-radial-dimensions
+    family: probability-diffusion
+    question: "How does the mean radius compare with the RMS radius in 2D and 3D?"
+    inputs:
+      - t
+    commandClass: measurement-change
+    acceptedResult:
+      outputs:
+        - meanRadius2d
+        - rmsRadius2d
+        - mostLikelyRadius2d
+        - meanRadius3d
+        - rmsRadius3d
+      allowedStatuses:
+        - value
+    visualAffordance: "Radial rings and a table of the five radial statistics"
+    equivalentAffordance: "Read the five radial statistics in a table with their explanations"
+    announcement: "Radial statistics available"
+  - actionId: bm-06-enable-ftcs-grid
+    family: probability-diffusion
+    question: "Does a numerically stepped grid solution agree with the exact bin probabilities of the analytic curve, and when does the explicit scheme refuse to run?"
+    inputs:
+      - gridEnabled
+      - dx
+      - steps
+    commandClass: setup-change
+    acceptedResult:
+      outputs:
+        - cellMasses
+        - cellProbabilities
+        - maxCellMassDifference
+        - stabilityRatio
+      allowedStatuses:
+        - value
+        - not-applicable
+    visualAffordance: "Paired bars for cell masses and exact bin probabilities, or a refusal message naming the stability limit"
+    equivalentAffordance: "Read the paired bar values in a table, or the refusal message and its repairs"
+    announcement: "Grid comparison updated"
+acceptanceCases:
+  - bm-06-one-rms-probability
+defaultScenario: bm-06-one-rms-probability
+tapeModel:
+  modelId: bm06-host-preview-v1
+  modelVersion: 1
+teachingTapes: []
+presets:
+  - presetId: bm-06-modern-one-second
+    label: "One second (modern golden)"
+    parameterValues:
+      T: 293.15
+      eta: 0.001
+      a: 5e-7
+      t: 1
+      lower: -9.267573576724385e-7
+      upper: 9.267573576724385e-7
+      gridEnabled: 0
+      n: 101
+      dx: 1e-7
+      steps: 250
+  - presetId: bm-06-point-distribution
+    label: "The starting point"
+    parameterValues:
+      T: 293.15
+      eta: 0.001
+      a: 5e-7
+      t: 0
+      lower: -1e-6
+      upper: 1e-6
+      gridEnabled: 0
+      n: 101
+      dx: 1e-7
+      steps: 250
+  - presetId: bm-06-ftcs-refusal
+    label: "Try a step that is too large"
+    parameterValues:
+      T: 293.15
+      eta: 0.001
+      a: 5e-7
+      t: 1
+      lower: -1e-6
+      upper: 1e-6
+      gridEnabled: 1
+      n: 101
+      dx: 1e-7
+      steps: 1
+probes:
+  - bm-06-time-zero-point-mass
+  - bm-06-radial-mean-vs-rms
+  - bm-06-ftcs-stability-refusal
+  - bm-06-copy-d-from-bm01
+weavePredicates: []
+historicalOverlays: []
+realRate:
+  natural: true
+  quantity: displacement1d
+  scaleBar:
+    length: 1e-6
+    unit: "m"
+embeddable: true
+predictMode:
+  exempt: true
+  reason: "am-inst-predict-mode-ti7m (the runtime this would wire into) is still open, and the bead's two prompts (bm-06-predict-within-one-typical-distance, bm-06-predict-radial-most-likely) need their full separatingAssumption text authored carefully against the bead's own worked numbers, not fabricated to fill this field. Deferred, named here rather than invented."
