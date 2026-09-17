@@ -60,7 +60,9 @@ export function createBm06Session(
       const validated = validateBm06Parameters(input);
       if (validated.kind !== "accepted") return validated;
       const parameters = validated.data;
-      const previous = store.getSnapshot().requested!.parameters;
+      const snapshot = store.getSnapshot();
+      const previous =
+        snapshot.requested?.parameters ?? snapshot.accepted?.parameters ?? example.parameters;
       const setup: Record<string, number | boolean | string> = {},
         measurement: Record<string, number> = {};
       for (const key of Object.keys(parameters) as (keyof Bm06Parameters)[]) {
@@ -86,7 +88,8 @@ export function createBm06Session(
         value: number;
       }>,
     ) {
-      const current = store.getSnapshot().accepted!.parameters as Parameters as Bm06Parameters;
+      const current = (store.getSnapshot().accepted?.parameters ??
+        example.parameters) as Parameters as Bm06Parameters;
       return this.apply({
         ...current,
         copiedDiffusivityInstanceId: source.instanceId,
@@ -104,6 +107,7 @@ export function createBm06Session(
       scheduler = null;
     },
     acceptedParameters: () =>
-      store.getSnapshot().accepted!.parameters as Parameters as Bm06Parameters,
+      (store.getSnapshot().accepted?.parameters ??
+        example.parameters) as Parameters as Bm06Parameters,
   });
 }
