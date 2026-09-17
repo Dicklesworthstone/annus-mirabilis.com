@@ -29,8 +29,8 @@ export function TrajectoryInspection({ trajectory }: { trajectory: ImportedTraje
         select data for the estimate or change its assumptions.
       </p>
       <div className="input-grid">
-        <label htmlFor={`${id}-track`}>
-          Track to inspect
+        <div className="input-field">
+          <label htmlFor={`${id}-track`}>Track to inspect</label>
           <select
             id={`${id}-track`}
             value={track}
@@ -45,9 +45,9 @@ export function TrajectoryInspection({ trajectory }: { trajectory: ImportedTraje
               </option>
             ))}
           </select>
-        </label>
-        <label htmlFor={`${id}-coordinate`}>
-          Coordinate to plot
+        </div>
+        <div className="input-field">
+          <label htmlFor={`${id}-coordinate`}>Coordinate to plot</label>
           <select
             id={`${id}-coordinate`}
             value={coordinate}
@@ -59,7 +59,7 @@ export function TrajectoryInspection({ trajectory }: { trajectory: ImportedTraje
               </option>
             ))}
           </select>
-        </label>
+        </div>
       </div>
       <figure>
         <svg viewBox="0 0 640 300" role="img" aria-labelledby={`${id}-plot-title ${id}-plot-desc`}>

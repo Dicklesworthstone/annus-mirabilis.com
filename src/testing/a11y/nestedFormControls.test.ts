@@ -48,7 +48,6 @@ const BASELINE = new Map<string, number>([
   ["src/components/lab/MeasuredTrajectoryLab.tsx", 1],
   ["src/components/lab/OsmoticPartitionLab.tsx", 5],
   ["src/components/lab/TracerLab.tsx", 6],
-  ["src/components/lab/TrajectoryInspection.tsx", 2],
   ["src/components/lab/WalkLab.tsx", 6],
   ["src/components/lab/bm03/ConfigurationLab.tsx", 5],
   ["src/components/lab/kitchen/KitchenControls.tsx", 5],
