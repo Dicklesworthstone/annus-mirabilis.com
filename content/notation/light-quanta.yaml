@@ -1,0 +1,1611 @@
+# Scoped Notation Concordance for Light Quanta (ap-17-132)
+# Specification: AGENTS.md, am-not-concordance-model-uag, am-not-entries-light-quanta-9cb.
+# Verification status: all entries are marked pending per honesty constraint
+# (no pinned facsimile scan is currently committed in the repository).
+# Glyphs and scopes follow AGENTS.md, the quantity registry, and the bead's
+# required list. They are not compared to page pixels. Absence is recorded;
+# invented facsimile readings are not admitted.
+# No parallel markdown ledger: pending/verified status lives on each entry.
+
+paper: light-quanta
+
+entries:
+  # =========================================================================
+  # Groups and constants
+  # =========================================================================
+  - id: lq.R.molarGasConstant
+    paper: light-quanta
+    scope: ["lq-s1", "lq-s2", "lq-s5", "lq-s6", "lq-s8", "lq-s9"]
+    glyph:
+      unicode: "R"
+      latex: "R"
+      variant: plain
+    meaning: "Universal molar gas constant, as printed"
+    binding:
+      quantityId: molarGasConstant
+    operation:
+      kind: rename
+      target:
+        form: symbol
+        modernGlyph: "R"
+    notes: "The value R = 8.31e7 erg/(mol·K) is an editorial input of the printed-historical constant set, not a concordance repair."
+    sources:
+      facsimilePage: 134
+      anchor: lq-s2-p1
+    verification:
+      printed: true
+      checkedAgainst: "Pending facsimile scan (ap-17-132)"
+      by: "Editorial Staff"
+      date: "2026-09-17"
+
+  - id: lq.N.avogadroConstant
+    paper: light-quanta
+    scope: ["lq-s1", "lq-s2", "lq-s5", "lq-s6", "lq-s8", "lq-s9"]
+    glyph:
+      unicode: "N"
+      latex: "N"
+      variant: plain
+    meaning: "Einstein's number of molecules in a gram-molecule, computed in §2 from Planck's constants"
+    binding:
+      quantityId: avogadroConstant
+    operation:
+      kind: rename
+      target:
+        form: symbol
+        modernGlyph: "N_A"
+    collision:
+      severity: caution
+      kind: cross-paper
+      collidesWith: ["magneticFieldComponent"]
+      collidesWithModern: ["magneticFieldComponent"]
+      firstUseAnchor: lq-s2-p1
+      firstUseBySection:
+        - sectionId: lq-s2
+          anchor: lq-s2-p1
+    notes: "Avogadro's number here and in paper 2. A magnetic-field component in paper 3. Printed 6.17e23 is a printed-historical constant-set entry, not a concordance correction."
+    sources:
+      facsimilePage: 134
+      anchor: lq-s2-p1
+    verification:
+      printed: true
+      checkedAgainst: "Pending facsimile scan (ap-17-132)"
+      by: "Editorial Staff"
+      date: "2026-09-17"
+
+  - id: lq.R_over_N.boltzmannConstant
+    paper: light-quanta
+    scope: ["lq-s1", "lq-s2", "lq-s5", "lq-s6"]
+    glyph:
+      unicode: "R/N"
+      latex: "R/N"
+      variant: plain
+    meaning: "The printed group R/N, Boltzmann's constant"
+    binding:
+      quantityId: boltzmannConstant
+    operation:
+      kind: rename
+      target:
+        form: group
+        pattern:
+          kind: divide
+          left:
+            kind: term
+            terms: ["molarGasConstant"]
+          right:
+            kind: term
+            terms: ["avogadroConstant"]
+        modernGlyph: "k_B"
+    collision:
+      severity: caution
+      kind: within-paper
+      collidesWith: ["lq.C.universalEntropyConstant"]
+      collidesWithModern: ["k_B"]
+      firstUseAnchor: lq-s1-p1
+      firstUseBySection:
+        - sectionId: lq-s1
+          anchor: lq-s1-p1
+        - sectionId: lq-s5
+          anchor: lq-s5-p1
+    notes: "Group rename matched on bound quantity ids, never on the characters R/N. k_B is not a printed symbol. §5's C is identified with this group later; the two quantity ids stay distinct until that identification."
+    sources:
+      facsimilePage: 133
+      anchor: lq-s1-p1
+    verification:
+      printed: true
+      checkedAgainst: "Pending facsimile scan (ap-17-132)"
+      by: "Editorial Staff"
+      date: "2026-09-17"
+
+  - id: lq.R_beta_N.planckConstant
+    paper: light-quanta
+    scope: ["lq-s2", "lq-s6", "lq-s8", "lq-s9"]
+    glyph:
+      unicode: "Rβ/N"
+      latex: "R\\beta/N"
+      variant: plain
+    meaning: "The printed group R beta / N, Planck's constant"
+    binding:
+      quantityId: planckConstant
+    operation:
+      kind: rename
+      target:
+        form: group
+        pattern:
+          kind: divide
+          left:
+            kind: multiply
+            terms: ["molarGasConstant", "wienConstantBeta"]
+          right:
+            kind: term
+            terms: ["avogadroConstant"]
+        modernGlyph: "h"
+    notes: "The paper never writes h. Group rename only. h is not a printed symbol."
+    sources:
+      facsimilePage: 134
+      anchor: lq-s2-p1
+    verification:
+      printed: true
+      checkedAgainst: "Pending facsimile scan (ap-17-132)"
+      by: "Editorial Staff"
+      date: "2026-09-17"
+
+  - id: lq.beta.wienConstant
+    paper: light-quanta
+    scope: ["lq-s2", "lq-s6", "lq-s8", "lq-s9"]
+    glyph:
+      unicode: "β"
+      latex: "\\beta"
+      variant: plain
+    meaning: "Wien's constant in the exponential, the modern h/k_B"
+    binding:
+      quantityId: wienConstantBeta
+    operation:
+      kind: rename
+      target:
+        form: expression
+        modernTree:
+          kind: divide
+          left:
+            kind: term
+            terms: ["planckConstant"]
+          right:
+            kind: term
+            terms: ["boltzmannConstant"]
+        modernGlyph: "h/k_B"
+    collision:
+      severity: danger
+      kind: cross-toggle
+      collidesWith: ["lorentzFactor", "speedRatio"]
+      collidesWithModern: ["\\gamma", "speedRatio"]
+      firstUseAnchor: lq-s2-p1
+      firstUseBySection:
+        - sectionId: lq-s2
+          anchor: lq-s2-p1
+        - sectionId: lq-s6
+          anchor: lq-s6-p1
+        - sectionId: lq-s8
+          anchor: lq-s8-p1
+        - sectionId: lq-s9
+          anchor: lq-s9-p1
+    notes: "The third meaning of beta. In paper 3 it is the Lorentz factor (modern gamma). It is not v/c. Assuming beta = v/c makes every later formula look plausible and be wrong. Rename of an expression, not a one-letter swap."
+    sources:
+      facsimilePage: 134
+      anchor: lq-s2-p1
+    verification:
+      printed: true
+      checkedAgainst: "Pending facsimile scan (ap-17-132)"
+      by: "Editorial Staff"
+      date: "2026-09-17"
+
+  - id: lq.alpha.wienConstant
+    paper: light-quanta
+    scope: ["lq-s1", "lq-s2"]
+    glyph:
+      unicode: "α"
+      latex: "\\alpha"
+      variant: plain
+    meaning: "Wien's prefactor constant in the radiation law"
+    binding:
+      quantityId: wienConstantAlpha
+    operation:
+      kind: rename
+      target:
+        form: expression
+        modernTree:
+          kind: divide
+          left:
+            kind: multiply
+            terms: ["8", "pi", "planckConstant"]
+          right:
+            kind: power
+            terms: ["speedOfLight"]
+            factor: 3
+        modernGlyph: "8\\pi h/c^{3}"
+    collision:
+      severity: caution
+      kind: within-paper
+      collidesWith: ["lq.alpha_nu.fourierPhase"]
+      collidesWithModern: ["fourierPhase"]
+      firstUseAnchor: lq-s1-p1
+      firstUseBySection:
+        - sectionId: lq-s1
+          anchor: lq-s1-p1
+        - sectionId: lq-s2
+          anchor: lq-s2-p1
+    notes: "Expression rename. This entry never carries or corrects a printed value. A suspected exponent misprint of alpha belongs to the provenance receipt, not here."
+    sources:
+      facsimilePage: 133
+      anchor: lq-s1-p1
+    verification:
+      printed: true
+      checkedAgainst: "Pending facsimile scan (ap-17-132)"
+      by: "Editorial Staff"
+      date: "2026-09-17"
+
+  - id: lq.L.speedOfLight
+    paper: light-quanta
+    scope: ["lq-s1", "lq-s2"]
+    glyph:
+      unicode: "L"
+      latex: "L"
+      variant: plain
+    meaning: "Speed of light in empty space, as printed in §§1–2"
+    binding:
+      quantityId: speedOfLight
+    operation:
+      kind: rename
+      target:
+        form: symbol
+        modernGlyph: "c"
+    collision:
+      severity: caution
+      kind: within-paper
+      collidesWith: ["lq.L.absorbedLightEnergy", "magneticFieldComponent", "emittedEnergyRestFrame"]
+      collidesWithModern: ["absorbedLightEnergy", "magneticFieldComponent", "emittedEnergyRestFrame"]
+      firstUseAnchor: lq-s1-p1
+      firstUseBySection:
+        - sectionId: lq-s1
+          anchor: lq-s1-p1
+        - sectionId: lq-s2
+          anchor: lq-s2-p1
+    notes: "Rename only. Speed of light here. A magnetic-field component in paper 3 §6. Emitted energy in paper 4. §9's L is a different entry. The value 3e10 cm/s is an editorial input of the constant set."
+    sources:
+      facsimilePage: 132
+      anchor: lq-s1-p1
+    verification:
+      printed: true
+      checkedAgainst: "Pending facsimile scan (ap-17-132)"
+      by: "Editorial Staff"
+      date: "2026-09-17"
+
+  - id: lq.rho_nu.frequencyEnergyDensity
+    paper: light-quanta
+    scope: ["lq-s1", "lq-s2", "lq-s3", "lq-s4", "lq-s6"]
+    glyph:
+      unicode: "ρ_ν"
+      latex: "\\rho_\\nu"
+      variant: plain
+    meaning: "Energy per volume per frequency interval, not radiance"
+    binding:
+      quantityId: frequencyEnergyDensity
+    operation:
+      kind: rename
+      target:
+        form: symbol
+        modernGlyph: "u_\\nu"
+    notes: "Binds frequencyEnergyDensity, never wavelengthEnergyDensity. Whether the edition also prints an un-subscripted rho is pending the facsimile; no un-subscripted rho entry is admitted without that check."
+    sources:
+      facsimilePage: 133
+      anchor: lq-s1-p1
+    verification:
+      printed: true
+      checkedAgainst: "Pending facsimile scan (ap-17-132)"
+      by: "Editorial Staff"
+      date: "2026-09-17"
+
+  - id: lq.phi.spectralEntropyDensity
+    paper: light-quanta
+    scope: ["lq-s3", "lq-s4"]
+    glyph:
+      unicode: "φ"
+      latex: "\\varphi"
+      variant: plain
+    meaning: "Spectral entropy density per frequency, as a function of rho and nu"
+    binding:
+      quantityId: spectralEntropyDensity
+    operation:
+      kind: rename
+      target:
+        form: symbol
+        modernGlyph: "s_\\nu"
+    collision:
+      severity: caution
+      kind: within-paper
+      collidesWith: ["lq.phi.entropyAsFunctionOfProbability", "transitionKernel", "volumeFraction"]
+      collidesWithModern: ["entropy", "transitionKernel", "volumeFraction"]
+      firstUseAnchor: lq-s3-p1
+      firstUseBySection:
+        - sectionId: lq-s3
+          anchor: lq-s3-p1
+        - sectionId: lq-s4
+          anchor: lq-s4-p1
+    notes: "Spectral entropy density here. Transition kernel in paper 2. An angle in paper 3. Volume fraction in the dissertation. §5's phi(W) is a different entry."
+    sources:
+      facsimilePage: 135
+      anchor: lq-s3-p1
+    verification:
+      printed: true
+      checkedAgainst: "Pending facsimile scan (ap-17-132)"
+      by: "Editorial Staff"
+      date: "2026-09-17"
+
+  # =========================================================================
+  # Entropy, energy, counting
+  # =========================================================================
+  - id: lq.S.radiationEntropy
+    paper: light-quanta
+    scope: ["lq-s3", "lq-s4"]
+    glyph:
+      unicode: "S"
+      latex: "S"
+      variant: plain
+    meaning: "Radiation entropy of a finite volume of radiation"
+    binding:
+      quantityId: radiationEntropy
+    operation:
+      kind: rename
+      target:
+        form: symbol
+        modernGlyph: "S"
+    collision:
+      severity: caution
+      kind: within-paper
+      collidesWith: ["lq.S.gasEntropy"]
+      collidesWithModern: ["entropy"]
+      firstUseAnchor: lq-s3-p1
+      firstUseBySection:
+        - sectionId: lq-s3
+          anchor: lq-s3-p1
+        - sectionId: lq-s4
+          anchor: lq-s4-p1
+    notes: "Radiation entropy in §§3–4. §5 reuses S for the entropy of a gas or dilute solution."
+    sources:
+      facsimilePage: 135
+      anchor: lq-s3-p1
+    verification:
+      printed: true
+      checkedAgainst: "Pending facsimile scan (ap-17-132)"
+      by: "Editorial Staff"
+      date: "2026-09-17"
+
+  - id: lq.S0.radiationEntropy
+    paper: light-quanta
+    scope: ["lq-s3", "lq-s4"]
+    glyph:
+      unicode: "S₀"
+      latex: "S_0"
+      variant: plain
+    meaning: "Reference radiation entropy"
+    binding:
+      quantityId: radiationEntropy
+    operation:
+      kind: rename
+      target:
+        form: symbol
+        modernGlyph: "S_0"
+    sources:
+      facsimilePage: 135
+      anchor: lq-s3-p1
+    verification:
+      printed: true
+      checkedAgainst: "Pending facsimile scan (ap-17-132)"
+      by: "Editorial Staff"
+      date: "2026-09-17"
+
+  - id: lq.S.gasEntropy
+    paper: light-quanta
+    scope: ["lq-s5"]
+    glyph:
+      unicode: "S"
+      latex: "S"
+      variant: plain
+    meaning: "Entropy of a gas or dilute solution"
+    binding:
+      quantityId: entropy
+    operation:
+      kind: rename
+      target:
+        form: symbol
+        modernGlyph: "S"
+    collision:
+      severity: caution
+      kind: within-paper
+      collidesWith: ["lq.S.radiationEntropy"]
+      collidesWithModern: ["radiationEntropy"]
+      firstUseAnchor: lq-s5-p1
+      firstUseBySection:
+        - sectionId: lq-s5
+          anchor: lq-s5-p1
+    notes: "Within-paper collision with radiation entropy of §§3–4. Same printed S, different quantity."
+    sources:
+      facsimilePage: 139
+      anchor: lq-s5-p1
+    verification:
+      printed: true
+      checkedAgainst: "Pending facsimile scan (ap-17-132)"
+      by: "Editorial Staff"
+      date: "2026-09-17"
+
+  - id: lq.S0.gasEntropy
+    paper: light-quanta
+    scope: ["lq-s5"]
+    glyph:
+      unicode: "S₀"
+      latex: "S_0"
+      variant: plain
+    meaning: "Reference entropy of a gas or dilute solution"
+    binding:
+      quantityId: entropy
+    operation:
+      kind: rename
+      target:
+        form: symbol
+        modernGlyph: "S_0"
+    sources:
+      facsimilePage: 139
+      anchor: lq-s5-p1
+    verification:
+      printed: true
+      checkedAgainst: "Pending facsimile scan (ap-17-132)"
+      by: "Editorial Staff"
+      date: "2026-09-17"
+
+  - id: lq.E.radiationEnergy
+    paper: light-quanta
+    scope: ["lq-s3", "lq-s4", "lq-s6"]
+    glyph:
+      unicode: "E"
+      latex: "E"
+      variant: plain
+    meaning: "Radiation energy in a frequency band"
+    binding:
+      quantityId: radiationEnergy
+    operation:
+      kind: rename
+      target:
+        form: symbol
+        modernGlyph: "E"
+    collision:
+      severity: caution
+      kind: within-paper
+      collidesWith: ["lq.E.systemEnergy", "lq.E.gramEquivalentCharge", "electricFieldStationary", "bodyEnergyRestBefore"]
+      collidesWithModern: ["systemEnergy", "gramEquivalentCharge", "electricFieldStationary"]
+      firstUseAnchor: lq-s3-p1
+      firstUseBySection:
+        - sectionId: lq-s3
+          anchor: lq-s3-p1
+        - sectionId: lq-s4
+          anchor: lq-s4-p1
+        - sectionId: lq-s6
+          anchor: lq-s6-p1
+    notes: "Radiation energy in §§3–4 and §6. Not the §5-footnote system energy and not the §8 gram-equivalent charge. An electric field in paper 3. A body's rest-frame energy in paper 4."
+    sources:
+      facsimilePage: 135
+      anchor: lq-s3-p1
+    verification:
+      printed: true
+      checkedAgainst: "Pending facsimile scan (ap-17-132)"
+      by: "Editorial Staff"
+      date: "2026-09-17"
+
+  - id: lq.v.volume
+    paper: light-quanta
+    scope: ["lq-s3", "lq-s4", "lq-s5", "lq-s6"]
+    glyph:
+      unicode: "v"
+      latex: "v"
+      variant: plain
+    meaning: "Volume of the radiation or of the gas, as printed"
+    binding:
+      quantityId: volume
+    operation:
+      kind: rename
+      target:
+        form: symbol
+        modernGlyph: "V"
+    notes: "Rename of the printed volume glyph to V. Whether the facsimile prints v or V is pending; this entry follows the bead's listed glyph."
+    sources:
+      facsimilePage: 135
+      anchor: lq-s3-p1
+    verification:
+      printed: true
+      checkedAgainst: "Pending facsimile scan (ap-17-132)"
+      by: "Editorial Staff"
+      date: "2026-09-17"
+
+  - id: lq.v0.volume
+    paper: light-quanta
+    scope: ["lq-s3", "lq-s4", "lq-s5", "lq-s6"]
+    glyph:
+      unicode: "v₀"
+      latex: "v_0"
+      variant: plain
+    meaning: "Reference volume"
+    binding:
+      quantityId: volume
+    operation:
+      kind: rename
+      target:
+        form: symbol
+        modernGlyph: "V_0"
+    sources:
+      facsimilePage: 135
+      anchor: lq-s3-p1
+    verification:
+      printed: true
+      checkedAgainst: "Pending facsimile scan (ap-17-132)"
+      by: "Editorial Staff"
+      date: "2026-09-17"
+
+  - id: lq.n.independentPointCount
+    paper: light-quanta
+    scope: ["lq-s5"]
+    glyph:
+      unicode: "n"
+      latex: "n"
+      variant: plain
+    meaning: "Number of independent points or molecules in the kinetic-theory analogy"
+    binding:
+      quantityId: independentPointCount
+    operation:
+      kind: rename
+      target:
+        form: symbol
+        modernGlyph: "n"
+    sources:
+      facsimilePage: 139
+      anchor: lq-s5-p1
+    verification:
+      printed: true
+      checkedAgainst: "Pending facsimile scan (ap-17-132)"
+      by: "Editorial Staff"
+      date: "2026-09-17"
+
+  - id: lq.W.configurationProbability
+    paper: light-quanta
+    scope: ["lq-s5"]
+    glyph:
+      unicode: "W"
+      latex: "W"
+      variant: plain
+    meaning: "Relative probability of a volume configuration"
+    binding:
+      quantityId: configurationProbability
+    operation:
+      kind: rename
+      target:
+        form: symbol
+        modernGlyph: "W"
+    sources:
+      facsimilePage: 139
+      anchor: lq-s5-p1
+    verification:
+      printed: true
+      checkedAgainst: "Pending facsimile scan (ap-17-132)"
+      by: "Editorial Staff"
+      date: "2026-09-17"
+
+  - id: lq.T.temperature
+    paper: light-quanta
+    scope: ["lq-s1", "lq-s2", "lq-s3", "lq-s4", "lq-s5", "lq-s6", "lq-s7", "lq-s8", "lq-s9"]
+    glyph:
+      unicode: "T"
+      latex: "T"
+      variant: plain
+    meaning: "Absolute thermodynamic temperature"
+    binding:
+      quantityId: temperature
+    operation:
+      kind: rename
+      target:
+        form: symbol
+        modernGlyph: "T"
+    collision:
+      severity: caution
+      kind: within-paper
+      collidesWith: ["lq.T.longAveragingInterval"]
+      collidesWithModern: ["longAveragingInterval"]
+      firstUseAnchor: lq-s1-p1
+      firstUseBySection:
+        - sectionId: lq-s1
+          anchor: lq-s1-p1
+        - sectionId: lq-s2
+          anchor: lq-s2-p1
+    notes: "Temperature in the body of the paper. The §1 footnote's long averaging interval is a different T."
+    sources:
+      facsimilePage: 132
+      anchor: lq-s1-p1
+    verification:
+      printed: true
+      checkedAgainst: "Pending facsimile scan (ap-17-132)"
+      by: "Editorial Staff"
+      date: "2026-09-17"
+
+  - id: lq.nu.frequency
+    paper: light-quanta
+    scope: ["lq-s1", "lq-s2", "lq-s3", "lq-s4", "lq-s5", "lq-s6", "lq-s7", "lq-s8", "lq-s9"]
+    glyph:
+      unicode: "ν"
+      latex: "\\nu"
+      variant: plain
+    meaning: "Cyclic frequency, counted in cycles per second"
+    binding:
+      quantityId: frequency
+    operation:
+      kind: rename
+      target:
+        form: symbol
+        modernGlyph: "\\nu"
+    collision:
+      severity: caution
+      kind: cross-paper
+      collidesWith: ["numberDensity"]
+      collidesWithModern: ["numberDensity"]
+      firstUseAnchor: lq-s1-p1
+      firstUseBySection:
+        - sectionId: lq-s1
+          anchor: lq-s1-p1
+        - sectionId: lq-s7
+          anchor: lq-s7-p1
+    notes: "Frequency here and in paper 3. Number density in paper 2. Cyclic, not angular; a missing 2 pi is invisible to dimensions."
+    sources:
+      facsimilePage: 132
+      anchor: lq-s1-p1
+    verification:
+      printed: true
+      checkedAgainst: "Pending facsimile scan (ap-17-132)"
+      by: "Editorial Staff"
+      date: "2026-09-17"
+
+  - id: lq.nu1.excitingFrequency
+    paper: light-quanta
+    scope: ["lq-s7"]
+    glyph:
+      unicode: "ν₁"
+      latex: "\\nu_1"
+      variant: subscripted
+    meaning: "Exciting frequency in Stokes fluorescence"
+    binding:
+      quantityId: frequency
+    operation:
+      kind: rename
+      target:
+        form: symbol
+        modernGlyph: "\\nu_1"
+    notes: "Same quantity as nu (cyclic frequency); the subscript records the exciting-beam role."
+    sources:
+      facsimilePage: 144
+      anchor: lq-s7-p1
+    verification:
+      printed: true
+      checkedAgainst: "Pending facsimile scan (ap-17-132)"
+      by: "Editorial Staff"
+      date: "2026-09-17"
+
+  - id: lq.nu2.emittedFrequency
+    paper: light-quanta
+    scope: ["lq-s7"]
+    glyph:
+      unicode: "ν₂"
+      latex: "\\nu_2"
+      variant: subscripted
+    meaning: "Emitted frequency in Stokes fluorescence"
+    binding:
+      quantityId: frequency
+    operation:
+      kind: rename
+      target:
+        form: symbol
+        modernGlyph: "\\nu_2"
+    notes: "Same quantity as nu (cyclic frequency); the subscript records the emitted-beam role."
+    sources:
+      facsimilePage: 144
+      anchor: lq-s7-p1
+    verification:
+      printed: true
+      checkedAgainst: "Pending facsimile scan (ap-17-132)"
+      by: "Editorial Staff"
+      date: "2026-09-17"
+
+  - id: lq.lg.logarithm
+    paper: light-quanta
+    scope: ["lq-s2", "lq-s3", "lq-s4", "lq-s5", "lq-s6", "lq-s8", "lq-s9"]
+    glyph:
+      unicode: "lg"
+      latex: "\\lg"
+      variant: plain
+    meaning: "Natural logarithm operator (base e), as printed throughout"
+    binding:
+      nonQuantityKind: operator
+    operation:
+      kind: rename
+      target:
+        form: symbol
+        modernGlyph: "\\ln"
+    notes: "Modern ISO 80000-2 (and DIN 1302) reads lg as log_10. In this paper lg is the natural logarithm."
+    sources:
+      facsimilePage: 134
+      anchor: lq-s2-p1
+    verification:
+      printed: true
+      checkedAgainst: "Pending facsimile scan (ap-17-132)"
+      by: "Editorial Staff"
+      date: "2026-09-17"
+
+  # =========================================================================
+  # §1 footnote on Planck's equilibrium condition
+  # =========================================================================
+  - id: lq.Z.radiationElectricField
+    paper: light-quanta
+    scope: ["lq-s1-fn1"]
+    glyph:
+      unicode: "Z"
+      latex: "Z"
+      variant: plain
+    meaning: "Component of the radiation's electric force at a point"
+    binding:
+      quantityId: radiationElectricField
+    operation:
+      kind: rename
+      target:
+        form: symbol
+        modernGlyph: "Z"
+    notes: "A vector component of radiationElectricField. The component is a term binding, not a second quantity id."
+    sources:
+      facsimilePage: 132
+      anchor: lq-s1-fn1
+    verification:
+      printed: true
+      checkedAgainst: "Pending facsimile scan (ap-17-132)"
+      by: "Editorial Staff"
+      date: "2026-09-17"
+
+  - id: lq.A_nu.fourierAmplitude
+    paper: light-quanta
+    scope: ["lq-s1-fn1"]
+    glyph:
+      unicode: "A_ν"
+      latex: "A_\\nu"
+      variant: subscripted
+    meaning: "Fourier amplitude of one component of the radiation electric force"
+    binding:
+      quantityId: fourierAmplitude
+    operation:
+      kind: rename
+      target:
+        form: symbol
+        modernGlyph: "A_\\nu"
+    sources:
+      facsimilePage: 132
+      anchor: lq-s1-fn1
+    verification:
+      printed: true
+      checkedAgainst: "Pending facsimile scan (ap-17-132)"
+      by: "Editorial Staff"
+      date: "2026-09-17"
+
+  - id: lq.alpha_nu.fourierPhase
+    paper: light-quanta
+    scope: ["lq-s1-fn1"]
+    glyph:
+      unicode: "α_ν"
+      latex: "\\alpha_\\nu"
+      variant: subscripted
+    meaning: "Phase angle of one Fourier component of the radiation electric force"
+    binding:
+      quantityId: fourierPhase
+    operation:
+      kind: rename
+      target:
+        form: symbol
+        modernGlyph: "\\alpha_\\nu"
+    collision:
+      severity: caution
+      kind: within-paper
+      collidesWith: ["lq.alpha.wienConstant"]
+      collidesWithModern: ["wienConstantAlpha"]
+      firstUseAnchor: lq-s1-fn1
+      firstUseBySection:
+        - sectionId: lq-s1-fn1
+          anchor: lq-s1-fn1
+    notes: "An angle, distinct from Planck's and Wien's alpha."
+    sources:
+      facsimilePage: 132
+      anchor: lq-s1-fn1
+    verification:
+      printed: true
+      checkedAgainst: "Pending facsimile scan (ap-17-132)"
+      by: "Editorial Staff"
+      date: "2026-09-17"
+
+  - id: lq.T.longAveragingInterval
+    paper: light-quanta
+    scope: ["lq-s1-fn1"]
+    glyph:
+      unicode: "T"
+      latex: "T"
+      variant: plain
+    meaning: "Long time interval of the Fourier expansion in the §1 footnote"
+    binding:
+      quantityId: longAveragingInterval
+    operation:
+      kind: rename
+      target:
+        form: symbol
+        modernGlyph: "T"
+    collision:
+      severity: caution
+      kind: within-paper
+      collidesWith: ["lq.T.temperature"]
+      collidesWithModern: ["temperature"]
+      firstUseAnchor: lq-s1-fn1
+      firstUseBySection:
+        - sectionId: lq-s1-fn1
+          anchor: lq-s1-fn1
+    notes: "Despite the printed T, this is never temperature."
+    sources:
+      facsimilePage: 132
+      anchor: lq-s1-fn1
+    verification:
+      printed: true
+      checkedAgainst: "Pending facsimile scan (ap-17-132)"
+      by: "Editorial Staff"
+      date: "2026-09-17"
+
+  - id: lq.t.elapsedTime
+    paper: light-quanta
+    scope: ["lq-s1-fn1"]
+    glyph:
+      unicode: "t"
+      latex: "t"
+      variant: plain
+    meaning: "Time in the Fourier expansion of the §1 footnote"
+    binding:
+      quantityId: elapsedTime
+    operation:
+      kind: rename
+      target:
+        form: symbol
+        modernGlyph: "t"
+    sources:
+      facsimilePage: 132
+      anchor: lq-s1-fn1
+    verification:
+      printed: true
+      checkedAgainst: "Pending facsimile scan (ap-17-132)"
+      by: "Editorial Staff"
+      date: "2026-09-17"
+
+  - id: lq.f.probabilityDensity
+    paper: light-quanta
+    scope: ["lq-s1-fn1"]
+    glyph:
+      unicode: "f"
+      latex: "f"
+      variant: plain
+    meaning: "Probability density in the factorization of the §1 footnote"
+    binding:
+      nonQuantityKind: function-label
+    operation:
+      kind: rename
+      target:
+        form: symbol
+        modernGlyph: "f"
+    sources:
+      facsimilePage: 132
+      anchor: lq-s1-fn1
+    verification:
+      printed: true
+      checkedAgainst: "Pending facsimile scan (ap-17-132)"
+      by: "Editorial Staff"
+      date: "2026-09-17"
+
+  - id: lq.F_nu.probabilityDensity
+    paper: light-quanta
+    scope: ["lq-s1-fn1"]
+    glyph:
+      unicode: "F_ν"
+      latex: "F_\\nu"
+      variant: subscripted
+    meaning: "Probability density F_nu in the factorization of the §1 footnote"
+    binding:
+      nonQuantityKind: function-label
+    operation:
+      kind: rename
+      target:
+        form: symbol
+        modernGlyph: "F_\\nu"
+    sources:
+      facsimilePage: 132
+      anchor: lq-s1-fn1
+    verification:
+      printed: true
+      checkedAgainst: "Pending facsimile scan (ap-17-132)"
+      by: "Editorial Staff"
+      date: "2026-09-17"
+
+  - id: lq.f_nu.probabilityDensity
+    paper: light-quanta
+    scope: ["lq-s1-fn1"]
+    glyph:
+      unicode: "f_ν"
+      latex: "f_\\nu"
+      variant: subscripted
+    meaning: "Probability density f_nu in the factorization of the §1 footnote"
+    binding:
+      nonQuantityKind: function-label
+    operation:
+      kind: rename
+      target:
+        form: symbol
+        modernGlyph: "f_\\nu"
+    sources:
+      facsimilePage: 132
+      anchor: lq-s1-fn1
+    verification:
+      printed: true
+      checkedAgainst: "Pending facsimile scan (ap-17-132)"
+      by: "Editorial Staff"
+      date: "2026-09-17"
+
+  - id: lq.dW.probabilityElement
+    paper: light-quanta
+    scope: ["lq-s1-fn1"]
+    glyph:
+      unicode: "dW"
+      latex: "dW"
+      variant: plain
+    meaning: "Probability element in the §1 footnote"
+    binding:
+      quantityId: configurationProbability
+    operation:
+      kind: rename
+      target:
+        form: symbol
+        modernGlyph: "\\mathrm{d}W"
+    sources:
+      facsimilePage: 132
+      anchor: lq-s1-fn1
+    verification:
+      printed: true
+      checkedAgainst: "Pending facsimile scan (ap-17-132)"
+      by: "Editorial Staff"
+      date: "2026-09-17"
+
+  # =========================================================================
+  # §3 Lagrange multiplier
+  # =========================================================================
+  - id: lq.lambda.lagrangeMultiplier
+    paper: light-quanta
+    scope: ["lq-s3"]
+    glyph:
+      unicode: "λ"
+      latex: "\\lambda"
+      variant: plain
+    meaning: "Lagrange multiplier of the fixed-energy constraint, identified with 1/T"
+    binding:
+      quantityId: lagrangeMultiplier
+    operation:
+      kind: rename
+      target:
+        form: symbol
+        modernGlyph: "\\lambda"
+    collision:
+      severity: caution
+      kind: within-paper
+      collidesWith: ["wavelength"]
+      collidesWithModern: ["wavelength"]
+      firstUseAnchor: lq-s3-p1
+      firstUseBySection:
+        - sectionId: lq-s3
+          anchor: lq-s3-p1
+    notes: "Never a wavelength. A printed wavelength in §9 is not admitted without the facsimile."
+    sources:
+      facsimilePage: 135
+      anchor: lq-s3-p1
+    verification:
+      printed: true
+      checkedAgainst: "Pending facsimile scan (ap-17-132)"
+      by: "Editorial Staff"
+      date: "2026-09-17"
+
+  # =========================================================================
+  # §5 entropy as a function of probability; footnote
+  # =========================================================================
+  - id: lq.phi.entropyAsFunctionOfProbability
+    paper: light-quanta
+    scope: ["lq-s5"]
+    glyph:
+      unicode: "φ"
+      latex: "\\varphi"
+      variant: plain
+    meaning: "Entropy as a function of probability, S = phi(W)"
+    binding:
+      quantityId: entropy
+    operation:
+      kind: rename
+      target:
+        form: symbol
+        modernGlyph: "S"
+    collision:
+      severity: caution
+      kind: within-paper
+      collidesWith: ["lq.phi.spectralEntropyDensity"]
+      collidesWithModern: ["spectralEntropyDensity"]
+      firstUseAnchor: lq-s5-p1
+      firstUseBySection:
+        - sectionId: lq-s5
+          anchor: lq-s5-p1
+    notes: "The values of phi(W) are the entropy. Distinct from the §§3–4 spectral entropy density."
+    sources:
+      facsimilePage: 139
+      anchor: lq-s5-p1
+    verification:
+      printed: true
+      checkedAgainst: "Pending facsimile scan (ap-17-132)"
+      by: "Editorial Staff"
+      date: "2026-09-17"
+
+  - id: lq.C.universalEntropyConstant
+    paper: light-quanta
+    scope: ["lq-s5"]
+    glyph:
+      unicode: "C"
+      latex: "C"
+      variant: plain
+    meaning: "Universal constant of the logarithmic solution, before it is identified with R/N"
+    binding:
+      quantityId: universalEntropyConstant
+    operation:
+      kind: rename
+      target:
+        form: symbol
+        modernGlyph: "k_B"
+    collision:
+      severity: caution
+      kind: within-paper
+      collidesWith: ["lq.R_over_N.boltzmannConstant"]
+      collidesWithModern: ["k_B"]
+      firstUseAnchor: lq-s5-p1
+      firstUseBySection:
+        - sectionId: lq-s5
+          anchor: lq-s5-p1
+    notes: "Identified with R/N later in §5. Distinct from entropyVolumeCoefficient."
+    sources:
+      facsimilePage: 139
+      anchor: lq-s5-p1
+    verification:
+      printed: true
+      checkedAgainst: "Pending facsimile scan (ap-17-132)"
+      by: "Editorial Staff"
+      date: "2026-09-17"
+
+  - id: lq.E.systemEnergy
+    paper: light-quanta
+    scope: ["lq-s5-fn1"]
+    glyph:
+      unicode: "E"
+      latex: "E"
+      variant: plain
+    meaning: "Energy of the gas or solution in -d(E - T S) = p dv"
+    binding:
+      quantityId: systemEnergy
+    operation:
+      kind: rename
+      target:
+        form: symbol
+        modernGlyph: "U"
+    collision:
+      severity: caution
+      kind: within-paper
+      collidesWith: ["lq.E.radiationEnergy", "lq.E.gramEquivalentCharge"]
+      collidesWithModern: ["radiationEnergy", "gramEquivalentCharge"]
+      firstUseAnchor: lq-s5-fn1
+      firstUseBySection:
+        - sectionId: lq-s5-fn1
+          anchor: lq-s5-fn1
+    notes: "System energy of the §5 footnote, never radiation energy and never the §8 gram-equivalent charge."
+    sources:
+      facsimilePage: 141
+      anchor: lq-s5-fn1
+    verification:
+      printed: true
+      checkedAgainst: "Pending facsimile scan (ap-17-132)"
+      by: "Editorial Staff"
+      date: "2026-09-17"
+
+  - id: lq.p.pressure
+    paper: light-quanta
+    scope: ["lq-s5-fn1"]
+    glyph:
+      unicode: "p"
+      latex: "p"
+      variant: plain
+    meaning: "Gas pressure in the §5 footnote"
+    binding:
+      quantityId: pressure
+    operation:
+      kind: rename
+      target:
+        form: symbol
+        modernGlyph: "p"
+    collision:
+      severity: caution
+      kind: within-paper
+      collidesWith: ["lq.P.workFunction", "lq.Pprime.workFunctionPerGramEquivalent"]
+      collidesWithModern: ["workFunction", "workFunctionPerGramEquivalent"]
+      firstUseAnchor: lq-s5-fn1
+      firstUseBySection:
+        - sectionId: lq-s5-fn1
+          anchor: lq-s5-fn1
+    notes: "Gas pressure. Not the §8 escape work P and not P-prime."
+    sources:
+      facsimilePage: 141
+      anchor: lq-s5-fn1
+    verification:
+      printed: true
+      checkedAgainst: "Pending facsimile scan (ap-17-132)"
+      by: "Editorial Staff"
+      date: "2026-09-17"
+
+  # =========================================================================
+  # Photoelectric symbols (§8)
+  # =========================================================================
+  - id: lq.Pi.stoppingPotentialMagnitude
+    paper: light-quanta
+    scope: ["lq-s8"]
+    glyph:
+      unicode: "Π"
+      latex: "\\Pi"
+      variant: plain
+    meaning: "Magnitude of the stopping potential"
+    binding:
+      quantityId: stoppingPotentialMagnitude
+    operation:
+      kind: rename
+      target:
+        form: symbol
+        modernGlyph: "V_{\\mathrm{s}}"
+    notes: "Never a signed collector potential. In the printed check Pi is in abvolts, and Pi · 10^{-8} is read as volts. This entry does not correct a printed number."
+    sources:
+      facsimilePage: 145
+      anchor: lq-s8-p1
+    verification:
+      printed: true
+      checkedAgainst: "Pending facsimile scan (ap-17-132)"
+      by: "Editorial Staff"
+      date: "2026-09-17"
+
+  - id: lq.varepsilon.elementaryCharge
+    paper: light-quanta
+    scope: ["lq-s8"]
+    glyph:
+      unicode: "ε"
+      latex: "\\varepsilon"
+      variant: plain
+    meaning: "Elementary charge"
+    binding:
+      quantityId: elementaryCharge
+    operation:
+      kind: rename
+      target:
+        form: symbol
+        modernGlyph: "e"
+    sources:
+      facsimilePage: 145
+      anchor: lq-s8-p1
+    verification:
+      printed: true
+      checkedAgainst: "Pending facsimile scan (ap-17-132)"
+      by: "Editorial Staff"
+      date: "2026-09-17"
+
+  - id: lq.P.workFunction
+    paper: light-quanta
+    scope: ["lq-s8"]
+    glyph:
+      unicode: "P"
+      latex: "P"
+      variant: plain
+    meaning: "Photoelectric work function, the escape work"
+    binding:
+      quantityId: workFunction
+    operation:
+      kind: rename
+      target:
+        form: symbol
+        modernGlyph: "\\Phi"
+    collision:
+      severity: caution
+      kind: cross-paper
+      collidesWith: ["particleRadius", "lq.Pprime.workFunctionPerGramEquivalent", "lq.p.pressure"]
+      collidesWithModern: ["particleRadius", "workFunctionPerGramEquivalent", "pressure"]
+      firstUseAnchor: lq-s8-p1
+      firstUseBySection:
+        - sectionId: lq-s8
+          anchor: lq-s8-p1
+    notes: "Work function here. Particle radius in paper 2. Distinct from P-prime (per gram-equivalent) and from the §5-footnote pressure p."
+    sources:
+      facsimilePage: 145
+      anchor: lq-s8-p1
+    verification:
+      printed: true
+      checkedAgainst: "Pending facsimile scan (ap-17-132)"
+      by: "Editorial Staff"
+      date: "2026-09-17"
+
+  - id: lq.E.gramEquivalentCharge
+    paper: light-quanta
+    scope: ["lq-s8"]
+    glyph:
+      unicode: "E"
+      latex: "E"
+      variant: plain
+    meaning: "Charge of a gram-equivalent of a monovalent ion, printed 9.6 · 10^3 in electromagnetic CGS"
+    binding:
+      quantityId: gramEquivalentCharge
+    operation:
+      kind: rename
+      target:
+        form: symbol
+        modernGlyph: "F"
+    collision:
+      severity: caution
+      kind: within-paper
+      collidesWith: ["lq.E.radiationEnergy", "lq.E.systemEnergy"]
+      collidesWithModern: ["radiationEnergy", "systemEnergy"]
+      firstUseAnchor: lq-s8-p1
+      firstUseBySection:
+        - sectionId: lq-s8
+          anchor: lq-s8-p1
+    notes: "Never an energy id. Modern glyph F, the Faraday constant. Printed 9.6e3 abcoulombs per gram-equivalent is 9.6e4 C/mol beside the modern Faraday constant 96485.33 C/mol. This entry does not correct the printed 9.6e3."
+    sources:
+      facsimilePage: 145
+      anchor: lq-s8-p1
+    verification:
+      printed: true
+      checkedAgainst: "Pending facsimile scan (ap-17-132)"
+      by: "Editorial Staff"
+      date: "2026-09-17"
+
+  - id: lq.Pprime.workFunctionPerGramEquivalent
+    paper: light-quanta
+    scope: ["lq-s8"]
+    glyph:
+      unicode: "P′"
+      latex: "P'"
+      variant: primed
+    meaning: "Escape work per gram-equivalent"
+    binding:
+      quantityId: workFunctionPerGramEquivalent
+    operation:
+      kind: rename
+      target:
+        form: symbol
+        modernGlyph: "\\Phi_{\\mathrm{m}}"
+    collision:
+      severity: caution
+      kind: within-paper
+      collidesWith: ["lq.P.workFunction", "lq.p.pressure"]
+      collidesWithModern: ["workFunction", "pressure"]
+      firstUseAnchor: lq-s8-p1
+      firstUseBySection:
+        - sectionId: lq-s8
+          anchor: lq-s8-p1
+    notes: "Modern glyph Phi_m, pending reviewer confirmation against the cross-toggle rule. Distinct from P and from p."
+    sources:
+      facsimilePage: 145
+      anchor: lq-s8-p1
+    verification:
+      printed: true
+      checkedAgainst: "Pending facsimile scan (ap-17-132)"
+      by: "Editorial Staff"
+      date: "2026-09-17"
+
+  # =========================================================================
+  # §9 ionization (the difficult closing section)
+  # =========================================================================
+  - id: lq.J.ionizationWorkPerGramEquivalent
+    paper: light-quanta
+    scope: ["lq-s9"]
+    glyph:
+      unicode: "J"
+      latex: "J"
+      variant: plain
+    meaning: "Ionization work per gram-equivalent"
+    binding:
+      quantityId: ionizationWorkPerGramEquivalent
+    operation:
+      kind: rename
+      target:
+        form: symbol
+        modernGlyph: "J"
+    sources:
+      facsimilePage: 147
+      anchor: lq-s9-p1
+    verification:
+      printed: true
+      checkedAgainst: "Pending facsimile scan (ap-17-132)"
+      by: "Editorial Staff"
+      date: "2026-09-17"
+
+  - id: lq.j.ionizedGramMolecules
+    paper: light-quanta
+    scope: ["lq-s9"]
+    glyph:
+      unicode: "j"
+      latex: "j"
+      variant: plain
+    meaning: "Number of gram-molecules ionized, j = L / (R beta nu)"
+    binding:
+      quantityId: ionizedGramMolecules
+    operation:
+      kind: rename
+      target:
+        form: symbol
+        modernGlyph: "j"
+    notes: "An amount of substance, never a rate."
+    sources:
+      facsimilePage: 147
+      anchor: lq-s9-p1
+    verification:
+      printed: true
+      checkedAgainst: "Pending facsimile scan (ap-17-132)"
+      by: "Editorial Staff"
+      date: "2026-09-17"
+
+  - id: lq.L.absorbedLightEnergy
+    paper: light-quanta
+    scope: ["lq-s9"]
+    glyph:
+      unicode: "L"
+      latex: "L"
+      variant: plain
+    meaning: "Absorbed light energy in j = L / (R beta nu)"
+    binding:
+      quantityId: absorbedLightEnergy
+    operation:
+      kind: rename
+      target:
+        form: symbol
+        modernGlyph: "L"
+    collision:
+      severity: caution
+      kind: within-paper
+      collidesWith: ["lq.L.speedOfLight", "speedOfLight"]
+      collidesWithModern: ["c", "speedOfLight"]
+      firstUseAnchor: lq-s9-p1
+      firstUseBySection:
+        - sectionId: lq-s9
+          anchor: lq-s9-p1
+    notes: "Never speedOfLight. The §§1–2 L is a different entry. Section 9 is not dropped behind the photoelectric headline."
+    sources:
+      facsimilePage: 147
+      anchor: lq-s9-p1
+    verification:
+      printed: true
+      checkedAgainst: "Pending facsimile scan (ap-17-132)"
+      by: "Editorial Staff"
+      date: "2026-09-17"
+
+  - id: lq.J_over_N.ionizationEnergyPerMolecule
+    paper: light-quanta
+    scope: ["lq-s9"]
+    glyph:
+      unicode: "J/N"
+      latex: "J/N"
+      variant: plain
+    meaning: "Ionization work per molecule, the per-molecule form of J"
+    binding:
+      quantityId: ionizationEnergyPerMolecule
+    operation:
+      kind: rename
+      target:
+        form: group
+        pattern:
+          kind: divide
+          left:
+            kind: term
+            terms: ["ionizationWorkPerGramEquivalent"]
+          right:
+            kind: term
+            terms: ["avogadroConstant"]
+        modernGlyph: "I"
+    notes: "Admitted as the per-molecule form named by the bead. Whether the facsimile prints J/N as a group is pending."
+    sources:
+      facsimilePage: 147
+      anchor: lq-s9-p1
+    verification:
+      printed: true
+      checkedAgainst: "Pending facsimile scan (ap-17-132)"
+      by: "Editorial Staff"
+      date: "2026-09-17"
+
+  # =========================================================================
+  # Historical units
+  # =========================================================================
+  - id: lq.erg.unitConversion
+    paper: light-quanta
+    scope: ["lq-s1", "lq-s2", "lq-s8", "lq-s9"]
+    glyph:
+      unicode: "erg"
+      latex: "\\mathrm{erg}"
+      variant: plain
+    meaning: "Mechanical CGS energy unit"
+    binding:
+      nonQuantityKind: unit-symbol
+    operation:
+      kind: unitConversion
+      fromSystem: cgs
+      toSystem: si
+      factor: 1.0e-7
+      exact: true
+    notes: "1 erg = 10^{-7} J. The concordance never repairs a printed number."
+    sources:
+      facsimilePage: 134
+      anchor: lq-s2-p1
+    verification:
+      printed: true
+      checkedAgainst: "Pending facsimile scan (ap-17-132)"
+      by: "Editorial Staff"
+      date: "2026-09-17"
+
+  - id: lq.cm.unitConversion
+    paper: light-quanta
+    scope: ["lq-s1", "lq-s2", "lq-s8", "lq-s9"]
+    glyph:
+      unicode: "cm"
+      latex: "\\mathrm{cm}"
+      variant: plain
+    meaning: "Centimeter"
+    binding:
+      nonQuantityKind: unit-symbol
+    operation:
+      kind: unitConversion
+      fromSystem: cgs
+      toSystem: si
+      factor: 0.01
+      exact: true
+    sources:
+      facsimilePage: 134
+      anchor: lq-s2-p1
+    verification:
+      printed: true
+      checkedAgainst: "Pending facsimile scan (ap-17-132)"
+      by: "Editorial Staff"
+      date: "2026-09-17"
+
+  - id: lq.g.unitConversion
+    paper: light-quanta
+    scope: ["lq-s1", "lq-s2", "lq-s8", "lq-s9"]
+    glyph:
+      unicode: "g"
+      latex: "\\mathrm{g}"
+      variant: plain
+    meaning: "Gram"
+    binding:
+      nonQuantityKind: unit-symbol
+    operation:
+      kind: unitConversion
+      fromSystem: cgs
+      toSystem: si
+      factor: 0.001
+      exact: true
+    sources:
+      facsimilePage: 134
+      anchor: lq-s2-p1
+    verification:
+      printed: true
+      checkedAgainst: "Pending facsimile scan (ap-17-132)"
+      by: "Editorial Staff"
+      date: "2026-09-17"
+
+  - id: lq.abvolt.unitConversion
+    paper: light-quanta
+    scope: ["lq-s8"]
+    glyph:
+      unicode: "abV"
+      latex: "\\mathrm{abV}"
+      variant: plain
+    meaning: "Abvolt, electromagnetic CGS potential; Pi · 10^{-8} is read as volts"
+    binding:
+      nonQuantityKind: unit-symbol
+    operation:
+      kind: unitConversion
+      fromSystem: emu-cgs
+      toSystem: si
+      factor: 1.0e-8
+      exact: false
+    notes: "Conventional factor: 1 abV ↔ 10^{-8} V. exactness is conventional, not a 2019 SI identity. Follows the printed representation of the 4.3 V check."
+    sources:
+      facsimilePage: 145
+      anchor: lq-s8-p1
+    verification:
+      printed: true
+      checkedAgainst: "Pending facsimile scan (ap-17-132)"
+      by: "Editorial Staff"
+      date: "2026-09-17"
+
+  - id: lq.abcoulomb.unitConversion
+    paper: light-quanta
+    scope: ["lq-s8"]
+    glyph:
+      unicode: "abC"
+      latex: "\\mathrm{abC}"
+      variant: plain
+    meaning: "Abcoulomb, electromagnetic CGS charge"
+    binding:
+      nonQuantityKind: unit-symbol
+    operation:
+      kind: unitConversion
+      fromSystem: emu-cgs
+      toSystem: si
+      factor: 10
+      exact: false
+    notes: "Conventional factor: 1 abC ↔ 10 C. Printed E = 9.6e3 abC per gram-equivalent is 9.6e4 C/mol. This entry does not correct 9.6e3."
+    sources:
+      facsimilePage: 145
+      anchor: lq-s8-p1
+    verification:
+      printed: true
+      checkedAgainst: "Pending facsimile scan (ap-17-132)"
+      by: "Editorial Staff"
+      date: "2026-09-17"
+
+  - id: lq.statvolt.unitConversion
+    paper: light-quanta
+    scope: ["lq-s8"]
+    glyph:
+      unicode: "statV"
+      latex: "\\mathrm{statV}"
+      variant: plain
+    meaning: "Statvolt, electrostatic CGS potential, documented modern restatement of the §8 check"
+    binding:
+      nonQuantityKind: unit-symbol
+    operation:
+      kind: unitConversion
+      fromSystem: gaussian-cgs
+      toSystem: si
+      factor: 299.792458
+      exact: false
+    notes: "Conventional factor 299.792458 V, not an exact 2019 SI identity. Historical calculations often use 300 V. Labeled a documented modern restatement, not a facsimile reading of an esu form of the check."
+    sources:
+      facsimilePage: 145
+      anchor: lq-s8-p1
+    verification:
+      printed: true
+      checkedAgainst: "Pending facsimile scan (ap-17-132)"
+      by: "Editorial Staff"
+      date: "2026-09-17"
+
+modernOnlySymbols:
+  - id: lq.modern.h
+    glyph:
+      unicode: "h"
+      latex: "h"
+      variant: plain
+    binding:
+      quantityId: planckConstant
+    scope: ["all"]
+    introducedBy: "group rename Rβ/N"
+    label: "Planck's constant, never printed in this paper"
+  - id: lq.modern.kB
+    glyph:
+      unicode: "k_B"
+      latex: "k_B"
+      variant: plain
+    binding:
+      quantityId: boltzmannConstant
+    scope: ["all"]
+    introducedBy: "group rename R/N"
+    label: "Boltzmann's constant, never printed in this paper"
