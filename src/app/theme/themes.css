@@ -1,0 +1,116 @@
+/**
+ * Theme tokens (am-design-themes-typography-288q). Values here must match
+ * src/app/theme/tokens.ts's THEME_TOKENS exactly -- tokensExport.test.ts
+ * parses this file and asserts that.
+ */
+
+:root,
+:root[data-theme="annalen"] {
+  --paper: #eee7d7;
+  --ink: #1a1916;
+  --muted: #5c554a;
+  --rule: #cbc1ac;
+  --accent: #ae2119;
+  --focus-ring: #1a1916;
+}
+
+:root[data-theme="kramgasse-night"] {
+  --paper: #1c2128;
+  --ink: #e8e6e1;
+  --muted: #9aa0a8;
+  --rule: #33393f;
+  --accent: #e0a458;
+  --focus-ring: #e8e6e1;
+}
+
+:root[data-theme="slate"] {
+  --paper: #14181a;
+  --ink: #f0efe7;
+  --muted: #a9b6ac;
+  --rule: #2c3630;
+  --accent: #e2726a;
+  --focus-ring: #f0efe7;
+}
+
+:root {
+  --font-serif: "Newsreader", "Iowan Old Style", "Palatino Linotype", Palatino, Georgia, serif;
+  --font-sans: "Plus Jakarta Sans", "Segoe UI", Helvetica, Arial, sans-serif;
+  --font-mono: "JetBrains Mono", "SF Mono", Menlo, Consolas, monospace;
+}
+
+/* Self-hosted, whole (not yet subset -- see fontGlyphs.ts's docblock and this
+   bead's BATCH_PENDING for the disclosed subsetting/Greek-coverage gap). */
+@font-face {
+  font-family: "Newsreader";
+  src: url("/fonts/newsreader/Newsreader-Variable.ttf") format("truetype-variations");
+  font-weight: 200 800;
+  font-style: normal;
+  font-display: swap;
+}
+
+@font-face {
+  font-family: "Plus Jakarta Sans";
+  src: url("/fonts/plus-jakarta-sans/PlusJakartaSans-Variable.ttf") format("truetype-variations");
+  font-weight: 200 800;
+  font-style: normal;
+  font-display: swap;
+}
+
+@font-face {
+  font-family: "JetBrains Mono";
+  src: url("/fonts/jetbrains-mono/JetBrainsMono-Variable.ttf") format("truetype-variations");
+  font-weight: 100 800;
+  font-style: normal;
+  font-display: swap;
+}
+
+body {
+  background: var(--paper);
+  color: var(--ink);
+  font-family: var(--font-serif);
+}
+
+:root:where([data-theme]) a {
+  color: var(--accent);
+}
+
+:where(button, [role="radio"], a, input, select, summary):focus-visible {
+  outline: 2px solid var(--focus-ring);
+  outline-offset: 2px;
+}
+
+/* forced-colors: yield to system colors; identity cues (the focus outline,
+   the accent underline on the current theme choice) stay as shape, never
+   color alone, so they still work when color tokens are overridden. */
+@media (forced-colors: active) {
+  :where(button, [role="radio"], a, input, select, summary):focus-visible {
+    outline: 2px solid CanvasText;
+  }
+}
+
+.theme-toggle {
+  display: flex;
+  align-items: center;
+  gap: 0.75rem;
+  font: 0.85rem / 1.4 var(--font-sans);
+  border: none;
+  padding: 0;
+}
+
+.theme-toggle legend {
+  font-weight: bold;
+}
+
+.theme-toggle label {
+  border: 1px solid var(--rule);
+  padding: 0.25rem 0.6rem;
+  cursor: pointer;
+  display: inline-flex;
+  align-items: center;
+  gap: 0.35rem;
+}
+
+.theme-toggle label:has(input:checked) {
+  border-color: var(--accent);
+  font-weight: bold;
+}
