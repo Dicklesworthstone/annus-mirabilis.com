@@ -5,8 +5,11 @@ import {
   adversarialCyclicRoute,
   adversarialHistoricalCitingModernOracle,
   adversarialIntegrationNoConstantOrBc,
+  adversarialLorentzDiscoveryMinkowskiAxiom,
   adversarialLorentzTransverseNoPremises,
   adversarialMassEnergyCircularRestEnergy,
+  adversarialMassEnergyGammaMc2,
+  adversarialProofRelyingOnConclusion,
   adversarialSquareRootNoBranch,
   fixtureBrownianPedagogicalReconstruction,
   fixtureBrownianSourceOrder,
@@ -49,6 +52,9 @@ test("chains.compiler.integration: rejects all adversarial chains", () => {
     adversarialSquareRootNoBranch,
     adversarialLorentzTransverseNoPremises,
     adversarialMassEnergyCircularRestEnergy,
+    adversarialMassEnergyGammaMc2,
+    adversarialLorentzDiscoveryMinkowskiAxiom,
+    adversarialProofRelyingOnConclusion,
   ];
 
   for (const adv of adversarialChains) {

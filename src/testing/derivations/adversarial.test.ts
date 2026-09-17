@@ -4,8 +4,11 @@ import {
   adversarialCyclicRoute,
   adversarialHistoricalCitingModernOracle,
   adversarialIntegrationNoConstantOrBc,
+  adversarialLorentzDiscoveryMinkowskiAxiom,
   adversarialLorentzTransverseNoPremises,
   adversarialMassEnergyCircularRestEnergy,
+  adversarialMassEnergyGammaMc2,
+  adversarialProofRelyingOnConclusion,
   adversarialSquareRootNoBranch,
 } from "../../equations/derivations/fixtures.ts";
 import { verifyChain } from "../../equations/derivations/verifyChain.ts";
@@ -53,5 +56,29 @@ test("adversarial.test: mass-energy chain initializing rest energy as Mc² fails
   const report = verifyChain(adversarialMassEnergyCircularRestEnergy);
   assert.equal(report.passed, false);
   assert.ok(report.errors.length > 0);
-  assert.match(report.errors[0] ?? "", /initializes body energy with Mc²/);
+  assert.match(report.errors[0] ?? "", /initializes body energy with Mc² or γMc²/);
+});
+
+test("adversarial.test: mass-energy chain initializing body energy as γMc² fails", () => {
+  const report = verifyChain(adversarialMassEnergyGammaMc2);
+  assert.equal(report.passed, false);
+  assert.ok(report.errors.length > 0);
+  assert.match(report.errors[0] ?? "", /initializes body energy with Mc² or γMc²/);
+});
+
+test("adversarial.test: Lorentz discovery route requiring Minkowski interval as axiom fails", () => {
+  const report = verifyChain(adversarialLorentzDiscoveryMinkowskiAxiom);
+  assert.equal(report.passed, false);
+  assert.ok(report.errors.length > 0);
+  assert.match(report.errors[0] ?? "", /illegally requires Minkowski interval/);
+});
+
+test("adversarial.test: derivation chain relying on its own conclusion fails", () => {
+  const report = verifyChain(adversarialProofRelyingOnConclusion);
+  assert.equal(report.passed, false);
+  assert.ok(report.errors.length > 0);
+  assert.match(report.errors[0] ?? "", /relies on its own conclusion/);
+  // Also caught by directed cycle detection in proof graph
+  assert.ok(report.graphIssues.length > 0);
+  assert.match(report.graphIssues[0] ?? "", /directed cycle on premise edges/);
 });

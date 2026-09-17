@@ -382,6 +382,7 @@ export const fixturePaper1WienEntropy: DerivationChain = Object.freeze({
         r1: "Invert Wien's spectral distribution law to relate entropy derivative to radiation density.",
         r2: "In Wien's high-frequency limit rho_nu = A nu^3 exp(-B nu / T), so 1/T = (ds_nu/drho_nu) = -(1/B nu) ln(rho_nu / A nu^3).",
       },
+      tool: "foundation:logarithms",
       premiseRefs: [{ ref: "premise-wien-radiation-law", edgeType: "historical-derivation" }],
       isMove: false,
       verification: { status: "verified" },
@@ -686,6 +687,7 @@ export const fixtureLorentzMapConstruction: DerivationChain = Object.freeze({
         r1: "Applying boost(-v) to boost(v) must return the original coordinates.",
         r2: "Since boost(-v) is the physical inverse of boost(v), direct substitution yields a(v) a(-v) (1 - v²/c²) = 1.",
       },
+      tool: "foundation:frames-events",
       premiseRefs: [
         { ref: "premise-relativity-principle", edgeType: "pedagogical-reconstruction" },
       ],
@@ -722,6 +724,7 @@ export const fixtureLorentzMapConstruction: DerivationChain = Object.freeze({
         r1: "Spatial isotropy requires scaling to depend only on velocity magnitude, so a(-v) = a(v).",
         r2: "Space is isotropic: reversing the coordinate axis cannot alter scale factors, hence a(v) = a(-v).",
       },
+      tool: "foundation:conservation-symmetry",
       premiseRefs: [{ ref: "premise-spatial-isotropy", edgeType: "pedagogical-reconstruction" }],
       isMove: false,
       verification: { status: "verified" },
@@ -792,6 +795,7 @@ export const fixtureLorentzMapConstruction: DerivationChain = Object.freeze({
         r1: "The Lorentz transformation preserves the Minkowski quadratic form c²t² - x².",
         r2: "As an independent modern verification oracle, calculating c²t'² - x'² confirms exact algebraic equality with c²t² - x².",
       },
+      tool: "foundation:frames-events",
       premiseRefs: [
         { ref: "minkowski-interval-preservation", edgeType: "modern-verification-oracle" },
       ],
@@ -1022,6 +1026,104 @@ export const adversarialMassEnergyCircularRestEnergy: DerivationChain = Object.f
         r2: "Circular proof of E=mc².",
       },
       premiseRefs: [{ ref: "premise-mc2-initialization", edgeType: "historical-derivation" }],
+      isMove: false,
+      verification: { status: "verified" },
+    },
+  ]),
+});
+
+/** 7. Mass-energy chain initializing body energy as γMc² (circular relativistic energy formula) */
+export const adversarialMassEnergyGammaMc2: DerivationChain = Object.freeze({
+  id: "chain-adv-mass-energy-gamma-mc2",
+  proofRouteId: "route-adv-mass-energy-gamma-mc2",
+  routeKind: "source-order",
+  target: "eq-adv-mass-energy-gamma",
+  entryAssumptions: [] as readonly PremiseRef[],
+  steps: Object.freeze<DerivationStep[]>([
+    {
+      id: "adv-step-me-gamma-1",
+      from: sym("E"),
+      to: prod(sym("gamma"), sym("M"), sym("c2")),
+      changedSubexpressionIds: ["E"],
+      rule: {
+        kind: "substitute" as const,
+        params: {
+          targetId: "E",
+          replacement: prod(sym("gamma"), sym("M"), sym("c2")),
+          citedEquality: "Assume E = gamma Mc² at start",
+        },
+      },
+      reasonKind: "physical-premise" as const,
+      reasons: {
+        r0: "Assume body energy is γMc².",
+        r1: "Circular relativistic energy formula.",
+        r2: "Circular proof of E=mc² assuming gamma Mc².",
+      },
+      premiseRefs: [{ ref: "premise-gamma-mc2-initialization", edgeType: "historical-derivation" }],
+      isMove: false,
+      verification: { status: "verified" },
+    },
+  ]),
+});
+
+/** 8. Lorentz transformation discovery route requiring Minkowski interval as unexplained axiom */
+export const adversarialLorentzDiscoveryMinkowskiAxiom: DerivationChain = Object.freeze({
+  id: "chain-adv-lorentz-discovery-minkowski",
+  proofRouteId: "route-adv-lorentz-discovery-minkowski",
+  routeKind: "discovery",
+  target: "eq-adv-lorentz-target",
+  entryAssumptions: [] as readonly PremiseRef[],
+  steps: Object.freeze<DerivationStep[]>([
+    {
+      id: "adv-step-minkowski-axiom-1",
+      from: sym("interval_ds2"),
+      to: rel("=", sym("s2"), sum(prod(sym("c2"), sym("t2")), prod(num("-1"), sym("x2")))),
+      changedSubexpressionIds: ["interval_ds2"],
+      rule: {
+        kind: "substitute" as const,
+        params: {
+          targetId: "interval_ds2",
+          replacement: rel("=", sym("s2"), sum(prod(sym("c2"), sym("t2")), prod(num("-1"), sym("x2")))),
+          citedEquality: "Postulate invariant spacetime interval",
+        },
+      },
+      reasonKind: "physical-premise" as const,
+      reasons: {
+        r0: "Assume Minkowski interval as axiom.",
+        r1: "Requiring Minkowski interval as unexplained axiom on 1904 discovery route.",
+        r2: "Anachronistic circular route assuming spacetime interval to discover Lorentz boost.",
+      },
+      premiseRefs: [{ ref: "premise-minkowski-interval-axiom", edgeType: "historical-derivation" }],
+      isMove: false,
+      verification: { status: "verified" },
+    },
+  ]),
+});
+
+/** 9. Derivation proof citing its own target conclusion as premise */
+export const adversarialProofRelyingOnConclusion: DerivationChain = Object.freeze({
+  id: "chain-adv-relying-on-conclusion",
+  proofRouteId: "route-adv-relying-on-conclusion",
+  routeKind: "source-order",
+  target: "eq-adv-conclusion-target",
+  entryAssumptions: [] as readonly PremiseRef[],
+  steps: Object.freeze<DerivationStep[]>([
+    {
+      id: "adv-step-cite-target-1",
+      from: sym("A"),
+      to: sym("B"),
+      changedSubexpressionIds: ["A"],
+      rule: {
+        kind: "substitute" as const,
+        params: { targetId: "A", replacement: sym("B"), citedEquality: "Use target as premise" },
+      },
+      reasonKind: "algebra" as const,
+      reasons: {
+        r0: "Cite conclusion as premise.",
+        r1: "Derivation step depends on target conclusion.",
+        r2: "Circular derivation relying on conclusion.",
+      },
+      premiseRefs: [{ ref: "eq-adv-conclusion-target", edgeType: "historical-derivation" }],
       isMove: false,
       verification: { status: "verified" },
     },

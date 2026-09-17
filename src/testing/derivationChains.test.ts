@@ -5,8 +5,11 @@ import {
   adversarialCyclicRoute,
   adversarialHistoricalCitingModernOracle,
   adversarialIntegrationNoConstantOrBc,
+  adversarialLorentzDiscoveryMinkowskiAxiom,
   adversarialLorentzTransverseNoPremises,
   adversarialMassEnergyCircularRestEnergy,
+  adversarialMassEnergyGammaMc2,
+  adversarialProofRelyingOnConclusion,
   adversarialSquareRootNoBranch,
   fixtureBrownianPedagogicalReconstruction,
   fixtureBrownianSourceOrder,
@@ -82,6 +85,9 @@ test("am-eq-derivation-chains-r4c: complete derivation chain test suite with str
     adversarialSquareRootNoBranch,
     adversarialLorentzTransverseNoPremises,
     adversarialMassEnergyCircularRestEnergy,
+    adversarialMassEnergyGammaMc2,
+    adversarialLorentzDiscoveryMinkowskiAxiom,
+    adversarialProofRelyingOnConclusion,
   ];
 
   for (const adv of adversarialChains) {

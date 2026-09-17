@@ -91,6 +91,16 @@ export function runAuditCli(argv: string[] = process.argv.slice(2)): {
               return String(f);
             }),
           );
+        } else if (Array.isArray(obj.entries)) {
+          registrySet = new Set(
+            obj.entries.map((e: unknown) => {
+              if (typeof e === "object" && e !== null) {
+                const item = e as Record<string, unknown>;
+                return String(item.id || (item.slug ? `foundation:${item.slug}` : ""));
+              }
+              return String(e);
+            }),
+          );
         } else {
           registrySet = new Set(Object.keys(data));
         }
@@ -106,14 +116,23 @@ export function runAuditCli(argv: string[] = process.argv.slice(2)): {
   mkdirSync(reportDir, { recursive: true });
   const reportPath = join(reportDir, "report.jsonl");
 
-  const lines: string[] = [];
+  const lines: string[] = [
+    JSON.stringify({
+      type: "audit-summary",
+      toolRunId,
+      totalSteps: report.totalSteps,
+      validSteps: report.validSteps,
+      pendingSteps: report.pending.length,
+      errorSteps: report.errors.length,
+    }),
+  ];
   for (const p of report.pending) {
     lines.push(JSON.stringify({ status: "pending", ...p, toolRunId }));
   }
   for (const e of report.errors) {
     lines.push(JSON.stringify({ status: "error", ...e, toolRunId }));
   }
-  writeFileSync(reportPath, lines.join("\n") + (lines.length > 0 ? "\n" : ""), "utf8");
+  writeFileSync(reportPath, lines.join("\n") + "\n", "utf8");
 
   // Format table output
   console.log(`\n=== Derivation Tool Audit (${toolRunId}) ===`);

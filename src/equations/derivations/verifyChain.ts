@@ -82,6 +82,50 @@ export function verifyChain(
   }
 
   // 3. Domain constraints & anti-circularity checks
+  // 3a. Derivation cannot rely on its own conclusion (target)
+  for (const step of chain.steps) {
+    for (const p of step.premiseRefs) {
+      if (p.ref === chain.target && p.edgeType !== "cross-reference") {
+        errors.push(
+          `derivation step "${step.id}" relies on its own conclusion "${chain.target}" as a premise.`,
+        );
+      }
+    }
+  }
+  for (const a of chain.entryAssumptions) {
+    if (a.ref === chain.target && a.edgeType !== "cross-reference") {
+      errors.push(
+        `derivation chain "${chain.id}" entry assumption relies on its own conclusion "${chain.target}".`,
+      );
+    }
+  }
+
+  // 3b. Lorentz transformation constraints
+  const isLorentzChain =
+    chain.id.includes("lorentz") ||
+    chain.id.includes("sr-") ||
+    chain.target.includes("lorentz") ||
+    chain.target.includes("sr-03");
+  const isHistoricalOrDiscovery =
+    chain.routeKind === "source-order" || chain.routeKind === "discovery";
+
+  if (isLorentzChain && isHistoricalOrDiscovery) {
+    for (const a of chain.entryAssumptions) {
+      const refLower = a.ref.toLowerCase();
+      if (
+        refLower.includes("minkowski") ||
+        refLower.includes("spacetime-interval") ||
+        refLower.includes("interval-invariance") ||
+        refLower.includes("interval-preservation") ||
+        refLower.includes("interval-axiom")
+      ) {
+        errors.push(
+          `historical/discovery Lorentz derivation chain "${chain.id}" illegally requires Minkowski interval "${a.ref}" as an entry assumption axiom; interval preservation is a modern verification oracle and not a 1904 discovery premise.`,
+        );
+      }
+    }
+  }
+
   for (const step of chain.steps) {
     // Lorentz transverse step constraint
     const isTransverseStep =
@@ -104,20 +148,58 @@ export function verifyChain(
       }
     }
 
-    // Mass-energy circular rest energy constraint
+    // Historical/discovery Lorentz route cannot require Minkowski interval as axiom
+    if (isLorentzChain && isHistoricalOrDiscovery) {
+      for (const p of step.premiseRefs) {
+        const refLower = p.ref.toLowerCase();
+        if (
+          refLower.includes("minkowski") ||
+          refLower.includes("spacetime-interval") ||
+          refLower.includes("interval-invariance") ||
+          refLower.includes("interval-preservation") ||
+          refLower.includes("interval-axiom")
+        ) {
+          errors.push(
+            `historical/discovery Lorentz derivation step "${step.id}" illegally requires Minkowski interval "${p.ref}" as an axiom; interval preservation is a modern verification oracle and not a 1904 discovery premise.`,
+          );
+        }
+      }
+    }
+
+    // Mass-energy circular rest energy constraint: cannot initialize body energy with Mc² or γMc²
     if (
       chain.id.includes("mass-energy") ||
       chain.id.includes("me-") ||
-      chain.target.includes("mass-energy")
+      chain.target.includes("mass-energy") ||
+      chain.target.includes("me-")
     ) {
       for (const p of step.premiseRefs) {
+        const refLower = p.ref.toLowerCase();
         if (
-          p.ref.includes("mc2-initialization") ||
-          p.ref.includes("rest-energy-mc2") ||
-          p.ref === "E0=Mc2"
+          refLower.includes("mc2-initialization") ||
+          refLower.includes("rest-energy-mc2") ||
+          refLower.includes("gamma-mc2") ||
+          refLower.includes("gammamc2") ||
+          refLower.includes("e0=mc2") ||
+          refLower.includes("e=gammamc2")
         ) {
           errors.push(
-            `mass-energy derivation step "${step.id}" initializes body energy with Mc² via premise "${p.ref}"; rest energy must remain symbolic or arbitrary.`,
+            `mass-energy derivation step "${step.id}" initializes body energy with Mc² or γMc² via premise "${p.ref}"; rest energy must remain symbolic or arbitrary.`,
+          );
+        }
+      }
+      if (step.rule.params && typeof step.rule.params.citedEquality === "string") {
+        const eqLower = step.rule.params.citedEquality.toLowerCase();
+        if (
+          (eqLower.includes("e0") || eqLower.includes("e =") || eqLower.includes("energy")) &&
+          (eqLower.includes("mc2") ||
+            eqLower.includes("mc²") ||
+            eqLower.includes("γmc²") ||
+            eqLower.includes("gamma mc") ||
+            eqLower.includes("gammamc"))
+        ) {
+          errors.push(
+            `mass-energy derivation step "${step.id}" initializes body energy with Mc² or γMc² via equality "${step.rule.params.citedEquality}"; rest energy must remain symbolic or arbitrary.`,
           );
         }
       }
