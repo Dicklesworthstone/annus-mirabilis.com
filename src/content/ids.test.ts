@@ -249,6 +249,11 @@ describe("source structure ids", () => {
     expectReject(parseParagraphId("s3-p0"), "s3-p0");
   });
 
+  test("AC1 boundary: an uppercase section letter is rejected while the lowercase paragraph id accepts", () => {
+    expectAccept(parseParagraphId("s3-p1"), "s3-p1");
+    expectReject(parseParagraphId("S3-p1"), "S3-p1");
+  });
+
   test("a related-document paragraph accepts the hyphenated <role>-<year>- prefix and rejects the unhyphenated form", () => {
     expectAccept(parseParagraphId("correction-1911-s0-p1"), "correction-1911-s0-p1");
     expectReject(parseParagraphId("correction1911-s0-p1"), "correction1911-s0-p1");
@@ -267,6 +272,11 @@ describe("source structure ids", () => {
     const r = parseFootnoteId("s3-fn1-s1");
     expectReject(r, "s3-fn1-s1");
     if (!r.ok) expect(r.rule).toBe("footnote-id-grammar");
+  });
+
+  test("AC1 boundary: footnote numbering is 1-indexed -- fn0 is rejected while fn1 accepts", () => {
+    expectAccept(parseFootnoteId("s3-fn1"), "s3-fn1");
+    expectReject(parseFootnoteId("s3-fn0"), "s3-fn0");
   });
 
   test("closings are the three named block ids, including closing-received; a sentence sub-id is rejected", () => {
@@ -335,6 +345,11 @@ describe("equations and printed-label normalization", () => {
       expectAccept(parseEquationAnchor(id), id);
     }
     expectReject(parseEquationAnchor("eq-"), "eq-");
+  });
+
+  test("AC1 boundary: unnumbered-display equation indices are 1-indexed -- d0 is rejected while d1 accepts", () => {
+    expectAccept(parseEquationAnchor("eq-s3-d1"), "eq-s3-d1");
+    expectReject(parseEquationAnchor("eq-s3-d0"), "eq-s3-d0");
   });
 
   test("global equation record ids embed the paper code and round-trip through the anchor form", () => {
