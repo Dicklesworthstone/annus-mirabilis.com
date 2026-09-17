@@ -5,12 +5,25 @@ import {
 } from "../../testing/fixtures/bilingual/brownianBilingualFixture.ts";
 import { evaluateUnitReviewState, isPaperTranslationUnreviewed } from "./reviewState.ts";
 
+function getUnit(id: string) {
+  const unit = FIXTURE_BROWNIAN_TRANSLATION_UNITS.find((u) => u.id === id);
+  if (!unit) throw new Error(`Missing unit fixture: ${id}`);
+  return unit;
+}
+
+function getRecord(index: number) {
+  const record = FIXTURE_REVIEW_RECORDS[index];
+  if (!record) throw new Error(`Missing review record fixture at index: ${index}`);
+  return record;
+}
+
 describe("reviewState: unit evaluation and stale review fallback", () => {
-  const reviewedUnit = FIXTURE_BROWNIAN_TRANSLATION_UNITS[0]!; // tr-bm-s4-h1, rev 1
-  const draftUnit = FIXTURE_BROWNIAN_TRANSLATION_UNITS.find((u) => u.id === "tr-bm-s4-p1-u2")!; // tr-bm-s4-p1-u2, draft
-  const validRecord = FIXTURE_REVIEW_RECORDS[0]!; // covers tr-bm-s4-h1 at rev 1
-  const staleRecord = FIXTURE_REVIEW_RECORDS[1]!; // covers tr-bm-s5-p1-u1 at rev 0 (unit is at rev 1)
-  const bumpedUnit = FIXTURE_BROWNIAN_TRANSLATION_UNITS.find((u) => u.id === "tr-bm-s5-p1-u1")!;
+  const reviewedUnit = FIXTURE_BROWNIAN_TRANSLATION_UNITS[0];
+  if (!reviewedUnit) throw new Error("Missing reviewedUnit fixture");
+  const draftUnit = getUnit("tr-bm-s4-p1-u2");
+  const validRecord = getRecord(0);
+  const staleRecord = getRecord(1);
+  const bumpedUnit = getUnit("tr-bm-s5-p1-u1");
 
   test("valid accepted review record emits 'Reviewed' with reviewer and date", () => {
     const badge = evaluateUnitReviewState(reviewedUnit, validRecord);
@@ -38,7 +51,7 @@ describe("reviewState: unit evaluation and stale review fallback", () => {
   });
 
   test("in-progress / corrected unit shows Edited draft", () => {
-    const inProgUnit = FIXTURE_BROWNIAN_TRANSLATION_UNITS.find((u) => u.id === "tr-bm-s5-h1")!;
+    const inProgUnit = getUnit("tr-bm-s5-h1");
     const badge = evaluateUnitReviewState(inProgUnit);
     expect(badge.label).toBe("Edited draft");
     expect(badge.isReviewed).toBe(false);
