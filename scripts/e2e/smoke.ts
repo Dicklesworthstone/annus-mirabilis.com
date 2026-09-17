@@ -114,35 +114,47 @@ export async function runSmokeJourney(options: RunSmokeOptions = {}): Promise<Sm
       });
     }
 
-    // 3. Theme toggle check (am-scaf-extract-ui-components-c31 integration)
+    // 3. Theme toggle (am-im0x). ThemeToggle renders a radio group, not a button,
+    // and writes document.documentElement.dataset.theme. An absent control is a
+    // failure: a check that passes when the feature is missing cannot fail for the
+    // reason it exists, and this one reported a pass for eleven months of a
+    // shipped toggle because it searched for [data-theme-toggle], which the
+    // component has never carried.
     const themeStarted = performance.now();
+    const THEME_SELECTOR = "fieldset.theme-toggle";
     try {
-      const themeToggle = page
-        .locator("[data-theme-toggle], button[aria-label*='theme' i]")
-        .first();
-      const count = await themeToggle.count();
-      if (count > 0 && (await themeToggle.isVisible())) {
-        const initialTheme = await page.evaluate(
-          () => document.documentElement.getAttribute("data-theme") ?? "light",
-        );
-        await themeToggle.click();
-        const updatedTheme = await page.evaluate(
-          () => document.documentElement.getAttribute("data-theme") ?? "light",
-        );
-        checks.push({
-          check: "theme-toggle",
-          ok: true,
-          message: `Theme toggled from ${initialTheme} to ${updatedTheme}`,
-          durationMs: performance.now() - themeStarted,
-        });
-      } else {
-        checks.push({
-          check: "theme-toggle",
-          ok: true,
-          message: "Theme toggle not yet mounted (am-scaf-extract-ui-components-c31 pending)",
-          durationMs: performance.now() - themeStarted,
-        });
+      // Check 2 left the page on the not-found route. Every check after it ran
+      // there, so the two chrome checks below were searching a page that has no
+      // chrome - which is the real reason they always took their absent branch.
+      await page.goto(baseUrl, { waitUntil: "domcontentloaded", timeout: 15_000 });
+      const themeToggle = page.locator(THEME_SELECTOR).first();
+      if ((await themeToggle.count()) === 0 || !(await themeToggle.isVisible())) {
+        throw new Error(`No visible theme control matched "${THEME_SELECTOR}"`);
       }
+      const read = () => page.evaluate(() => document.documentElement.getAttribute("data-theme"));
+      const before = await read();
+      // Two transitions, so the check cannot pass by the page already sitting on
+      // the expected theme.
+      const steps: readonly (readonly [string, string])[] = [
+        ["Slate", "slate"],
+        ["Annalen", "annalen"],
+      ];
+      const observed: string[] = [];
+      for (const [label, expected] of steps) {
+        await themeToggle.getByRole("radio", { name: label, exact: true }).check();
+        await page.waitForFunction(
+          (want) => document.documentElement.getAttribute("data-theme") === want,
+          expected,
+          { timeout: 5000 },
+        );
+        observed.push(expected);
+      }
+      checks.push({
+        check: "theme-toggle",
+        ok: true,
+        message: `data-theme started at ${before ?? "unset"} and followed the radio group through ${observed.join(" then ")}`,
+        durationMs: performance.now() - themeStarted,
+      });
     } catch (err) {
       checks.push({
         check: "theme-toggle",
@@ -171,10 +183,13 @@ export async function runSmokeJourney(options: RunSmokeOptions = {}): Promise<Sm
           durationMs: performance.now() - paletteStarted,
         });
       } else {
+        // am-im0x: an unmounted palette is a real gap in the built site, not a
+        // passing check. src/search/CommandPalette.tsx exists; nothing renders it.
         checks.push({
           check: "command-palette",
-          ok: true,
-          message: "Command palette not yet mounted (am-scaf-extract-ui-components-c31 pending)",
+          ok: false,
+          message:
+            "No visible palette trigger matched [data-command-palette-trigger] or button[aria-label*='search' i]. The component exists at src/search/CommandPalette.tsx but no page mounts it.",
           durationMs: performance.now() - paletteStarted,
         });
       }
