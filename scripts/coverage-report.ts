@@ -9,7 +9,8 @@
  */
 
 import { existsSync, readFileSync } from "node:fs";
-import { join } from "node:path";
+import { join, resolve } from "node:path";
+import { fileURLToPath } from "node:url";
 import {
   formatCoverageMarkdown,
   generateCoverageReport,
@@ -17,7 +18,7 @@ import {
   type LedgerContext,
   writeCoverageReportArtifacts,
 } from "../src/content/coverage/ledger.ts";
-import type { ArgumentNodeCoverage } from "../src/content/coverage/types.ts";
+import type { ArgumentNodeCoverage, CoverageReport } from "../src/content/coverage/types.ts";
 
 function parseArgs(args: string[]): {
   scenarioEvidencePath?: string;
@@ -47,7 +48,19 @@ function parseArgs(args: string[]): {
     }
   }
 
-  return { scenarioEvidencePath, reviewRecordsPath, outDir, json };
+  const result: {
+    scenarioEvidencePath?: string;
+    reviewRecordsPath?: string;
+    outDir: string;
+    json: boolean;
+  } = { outDir, json };
+  if (scenarioEvidencePath !== undefined) {
+    result.scenarioEvidencePath = scenarioEvidencePath;
+  }
+  if (reviewRecordsPath !== undefined) {
+    result.reviewRecordsPath = reviewRecordsPath;
+  }
+  return result;
 }
 
 export async function runCoverageReport(args: string[]): Promise<{
@@ -190,9 +203,14 @@ async function main() {
   await runCoverageReport(process.argv.slice(2));
 }
 
-if (import.meta.main || process.argv[1]?.endsWith("coverage-report.ts")) {
+const isMain =
+  process.argv[1] !== undefined &&
+  (process.argv[1].endsWith("coverage-report.ts") ||
+    resolve(process.argv[1]) === fileURLToPath(import.meta.url));
+
+if (isMain) {
   main().catch((err) => {
-    console.error(`Fatal error in coverage report CLI:`, err);
+    console.error("Fatal error in coverage report CLI:", err);
     process.exit(1);
   });
 }
