@@ -1,37 +1,25 @@
 import { describe, expect, it } from "bun:test";
-import { parseAnchor } from "../content/anchors.ts";
 import {
   parseBibKey,
   parseClosingId,
   parseConcordanceEntryId,
   parseEntranceId,
   parseEquationAnchor,
-  parseEquationRecordId,
   parseFootnoteId,
-  parseGenericRecordId,
   parseHeadingId,
-  parseInlineMathId,
   parseInstrumentId,
   parseModeId,
-  parsePaperCode,
   parseParagraphId,
   parsePredictPromptId,
   parsePremiseId,
   parsePresetId,
-  parseQuantityId,
-  parseReferenceId,
-  parseRouteSlug,
-  parseSectionId,
   parseSentenceId,
   parseTapeId,
   parseTranslationUnitId,
   validateSlug,
 } from "../content/ids.ts";
-import { newRunIdentity, TestLogger } from "./log/logger.ts";
 
 describe("Content IDs Grammar, Dot Rule, and Negative Characterizations", () => {
-  const logger = new TestLogger("content-ids", newRunIdentity());
-
   it("enforces the Dot Rule across instrument slugs", () => {
     // Valid: dot only between two digits
     expect(validateSlug("boost-0.6c").ok).toBe(true);
@@ -51,8 +39,9 @@ describe("Content IDs Grammar, Dot Rule, and Negative Characterizations", () => 
       ["Uppercase-Slug", "uppercase characters"],
     ];
 
-    for (const [slug, reason] of rejectedShapes) {
-      const res = validateSlug(slug!);
+    for (const [slug] of rejectedShapes) {
+      if (!slug) continue;
+      const res = validateSlug(slug);
       expect(res.ok).toBe(false);
       if (!res.ok) {
         expect(res.error).toBeDefined();
