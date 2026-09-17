@@ -67,6 +67,40 @@ describe("ModelNote", () => {
     expect(html).not.toContain("fallback");
   });
 
+  test("each fallback reason renders its ordinary-language sentence when present", () => {
+    const fallbackSentences = [
+      "The FrankenSim WebAssembly module could not be loaded; using host calculation.",
+      "The requested simulation capability is not registered in the loaded artifact.",
+      "The loaded artifact digest does not match the pinned release checksum.",
+      "The browser environment lacks required WebGL capabilities; using host calculation.",
+      "The calculation engine refused the requested parameter combination.",
+    ];
+    for (const fallbackSentence of fallbackSentences) {
+      const dataWithFallback: ModelNoteData = {
+        ...composite,
+        fallbackSentence,
+      };
+      const html = renderToStaticMarkup(createElement(ModelNote, { data: dataWithFallback }));
+      expect(html).toContain(fallbackSentence);
+    }
+  });
+
+  test("parity sentences render ordinary-language comparison kinds, rungs, and formatted differences", () => {
+    const paritySentences = [
+      "Cross-engine check: bitwise integer draw agreement at the generator rung.",
+      "Cross-engine check: normal distribution samples match within recorded tolerance 1e-7.",
+      "Cross-engine check: formatted strings differ at recorded precision (FrankenSim: 1.234567, Host: 1.234568, deciding digit: 7 vs 8).",
+    ];
+    const dataWithParity: ModelNoteData = {
+      ...composite,
+      paritySentences,
+    };
+    const html = renderToStaticMarkup(createElement(ModelNote, { data: dataWithParity }));
+    for (const sentence of paritySentences) {
+      expect(html).toContain(sentence);
+    }
+  });
+
   test("modelNoteFromView lists accepted owners and preserves a seed parameter as a string", () => {
     const store = createInstanceStore({
       experimentId: "bm-06",

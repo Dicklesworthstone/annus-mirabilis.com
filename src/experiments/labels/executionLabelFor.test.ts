@@ -65,6 +65,76 @@ describe("executionLabelFor: exhaustive mapping of the four public labels", () =
     expect(executionLabelFor(state).text).toBe("Ideal model, host calculation");
   });
 
+  test("FrankenSim primary outputs with host secondary outputs derive frankensim-accepted and show the FrankenSim label", () => {
+    // In the composite rule, secondary outputs (e.g., host ensembleMoments) do not enter primaryOutputs.
+    const state = deriveExecutionStateKind({
+      isStatic: false,
+      isUnavailable: false,
+      primaryOutputs: [
+        { outputId: "tracerPositions", ownerKind: "frankensim", acceptedThisSnapshot: true },
+      ],
+    });
+    expect(state).toBe("frankensim-accepted");
+    const info = executionLabelFor(state);
+    expect(info.text).toBe("Ideal model, computed with FrankenSim");
+    expect(info.dataExecutionLabel).toBe("frankensim");
+  });
+
+  test("mixed primary outputs (some FrankenSim, some host) derive host-accepted and show the host label", () => {
+    const state = deriveExecutionStateKind({
+      isStatic: false,
+      isUnavailable: false,
+      primaryOutputs: [
+        { outputId: "tracerPositions", ownerKind: "frankensim", acceptedThisSnapshot: true },
+        { outputId: "analyticDensity", ownerKind: "host-reference", acceptedThisSnapshot: true },
+      ],
+    });
+    expect(state).toBe("host-accepted");
+    const info = executionLabelFor(state);
+    expect(info.text).toBe("Ideal model, host calculation");
+    expect(info.dataExecutionLabel).toBe("host");
+  });
+
+  test("a snapshot whose WebGL view was replaced by a declared 2D view keeps its earned engine label", () => {
+    // When a live 2D view survives, isUnavailable is false; numbers were really computed.
+    const state = deriveExecutionStateKind({
+      isStatic: false,
+      isUnavailable: false,
+      primaryOutputs: [
+        { outputId: "tracerPositions", ownerKind: "frankensim", acceptedThisSnapshot: true },
+      ],
+    });
+    expect(state).toBe("frankensim-accepted");
+    expect(executionLabelFor(state).dataExecutionLabel).toBe("frankensim");
+  });
+
+  test("a mode with no live view the device can render reports environment-unsupported and derives unavailable", () => {
+    // When the active mode declares only WebGL and WebGL is unavailable, isUnavailable is true.
+    const state = deriveExecutionStateKind({
+      isStatic: false,
+      isUnavailable: true,
+      primaryOutputs: [
+        { outputId: "tracerPositions", ownerKind: "frankensim", acceptedThisSnapshot: true },
+      ],
+    });
+    expect(state).toBe("unavailable");
+    const info = executionLabelFor(state);
+    expect(info.text).toBe("This experiment is unavailable on this device");
+    expect(info.dataExecutionLabel).toBe("unavailable");
+  });
+
+  test("a static mode derives static-example and renders the static label", () => {
+    const state = deriveExecutionStateKind({
+      isStatic: true,
+      isUnavailable: false,
+      primaryOutputs: [],
+    });
+    expect(state).toBe("static-example");
+    const info = executionLabelFor(state);
+    expect(info.text).toBe("Static worked example");
+    expect(info.dataExecutionLabel).toBe("static");
+  });
+
   test("executionStateKindFromHostLabel never maps a host derivation onto frankensim-accepted", () => {
     expect(executionStateKindFromHostLabel("host")).toBe("host-accepted");
     expect(executionStateKindFromHostLabel("static")).toBe("static-example");
