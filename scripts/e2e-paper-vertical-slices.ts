@@ -218,7 +218,10 @@ export async function main() {
       const parsed = parseE2ECliArgs(argv);
       const baseUrl = parsed.baseUrl ?? process.env.E2E_BASE_URL ?? "http://127.0.0.1:3088";
       console.log(`Running smoke journey against target: ${baseUrl}`);
-      const result = await runSmokeJourney({ baseUrl, headed: parsed.headed });
+      const result = await runSmokeJourney({
+        baseUrl,
+        ...(parsed.headed !== undefined ? { headed: parsed.headed } : {}),
+      });
       for (const check of result.checks) {
         const marker = check.ok ? "PASS" : "FAIL";
         console.log(
