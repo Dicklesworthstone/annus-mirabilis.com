@@ -76,11 +76,15 @@ export function renderNotices(items: readonly LicenseItem[]): string {
       const escapedVer = item.version.replace(/\|/g, "\\|");
       const escapedLic = item.license.replace(/\|/g, "\\|");
       const escapedSrc = `\`${item.source.replace(/\|/g, "\\|")}\``;
-      const refOrNote = (item.licensePath ? `File: \`${item.licensePath}\`` : item.authorOrNotice || "")
+      const refOrNote = (
+        item.licensePath ? `File: \`${item.licensePath}\`` : item.authorOrNotice || ""
+      )
         .replace(/\|/g, "\\|")
         .replace(/\n/g, " ");
 
-      lines.push(`| ${escapedName} | ${escapedVer} | ${escapedLic} | ${escapedSrc} | ${refOrNote} |`);
+      lines.push(
+        `| ${escapedName} | ${escapedVer} | ${escapedLic} | ${escapedSrc} | ${refOrNote} |`,
+      );
     }
 
     lines.push("");

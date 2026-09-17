@@ -39,7 +39,10 @@ export function collectFonts(options: CollectFontsOptions): LicenseItem[] {
       if (exists(candFull)) {
         licensePath = join(relDir, c);
         licenseText = readText(candFull) || undefined;
-        if (licenseText && (licenseText.includes("SIL OPEN FONT LICENSE") || licenseText.includes("OFL"))) {
+        if (
+          licenseText &&
+          (licenseText.includes("SIL OPEN FONT LICENSE") || licenseText.includes("OFL"))
+        ) {
           license = "OFL-1.1";
         } else if (licenseText && licenseText.includes("MIT License")) {
           license = "MIT";

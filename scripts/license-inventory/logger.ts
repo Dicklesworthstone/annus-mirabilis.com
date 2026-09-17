@@ -6,7 +6,7 @@
 import { existsSync, mkdirSync, writeFileSync } from "node:fs";
 import { join } from "node:path";
 import { generateLogRunId } from "../app-router-architecture.ts";
-import type { EvaluatedItem, LicenseItemKind, PolicyViolation } from "./types.ts";
+import type { EvaluatedItem, PolicyViolation } from "./types.ts";
 
 export interface LogSummary {
   readonly total: number;
@@ -23,7 +23,8 @@ export function writeLicenseInventoryLogs(
   options?: { logRunId?: string; logsDir?: string },
 ): { logPath: string; logRunId: string } {
   const logRunId = options?.logRunId || generateLogRunId();
-  const baseLogsDir = options?.logsDir || join(rootDir, "artifacts", "test-logs", "license-inventory");
+  const baseLogsDir =
+    options?.logsDir || join(rootDir, "artifacts", "test-logs", "license-inventory");
   const logDir = baseLogsDir;
 
   if (!existsSync(logDir)) {
@@ -77,7 +78,10 @@ export function writeLicenseInventoryLogs(
     source: "all",
     rule: "inventory-complete",
     outcome: errors.length === 0 ? "passed" : "failed",
-    message: errors.length === 0 ? "All license checks passed." : `${errors.length} license policy violation(s) found.`,
+    message:
+      errors.length === 0
+        ? "All license checks passed."
+        : `${errors.length} license policy violation(s) found.`,
     extra: {
       totalItems: evaluatedItems.length,
       violations: errors.length,

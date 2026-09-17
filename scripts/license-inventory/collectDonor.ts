@@ -38,7 +38,9 @@ export function parseDonorAuditExtractedFiles(markdown: string): DonorExtractedE
 
     // Match table row with sourcePath and destPath
     // e.g. | `src/physics/controlTape.ts` | `src/experiments/tape/controlTape.ts` (`am-scaf-...`) | ... | header | ...
-    const match = line.match(/^\|\s*`([^`]+)`\s*\|\s*`([^`]+)`(?:\s*\([^)]*\))?\s*\|(?:[^|]*\|){5}\s*([^|]+)\s*\|/);
+    const match = line.match(
+      /^\|\s*`([^`]+)`\s*\|\s*`([^`]+)`(?:\s*\([^)]*\))?\s*\|(?:[^|]*\|){5}\s*([^|]+)\s*\|/,
+    );
     if (match) {
       const sourcePath = match[1].trim();
       const destPath = match[2].trim();
@@ -68,8 +70,12 @@ export function validateDonorAttributionHeader(content: string): HeaderValidatio
   if (!content.startsWith("/**\n * Extracted from classic-patents.com\n")) {
     errors.push("Missing required opening: '/**\\n * Extracted from classic-patents.com\\n'");
   }
-  if (!content.includes("Source repository: https://github.com/Dicklesworthstone/classic-patents.com")) {
-    errors.push("Missing required 'Source repository: https://github.com/Dicklesworthstone/classic-patents.com'");
+  if (
+    !content.includes("Source repository: https://github.com/Dicklesworthstone/classic-patents.com")
+  ) {
+    errors.push(
+      "Missing required 'Source repository: https://github.com/Dicklesworthstone/classic-patents.com'",
+    );
   }
   if (!content.includes("Pinned commit: da11ff475902728fd8dd1d9db9f3af37c16ec8a5")) {
     errors.push("Missing required 'Pinned commit: da11ff475902728fd8dd1d9db9f3af37c16ec8a5'");
@@ -106,7 +112,11 @@ export function collectDonor(options: CollectDonorOptions): LicenseItem[] {
     let license = "MIT with OpenAI/Anthropic Rider";
     let noticeError: string | undefined;
 
-    if (entry.noticeForm === "header" || entry.destPath.endsWith(".ts") || entry.destPath.endsWith(".js")) {
+    if (
+      entry.noticeForm === "header" ||
+      entry.destPath.endsWith(".ts") ||
+      entry.destPath.endsWith(".js")
+    ) {
       const headerCheck = validateDonorAttributionHeader(content);
       if (!headerCheck.valid) {
         license = "ATTRIBUTION-HEADER-INVALID";
@@ -120,7 +130,9 @@ export function collectDonor(options: CollectDonorOptions): LicenseItem[] {
       version: "da11ff4",
       license,
       source: entry.destPath,
-      authorOrNotice: noticeError || "Extracted from classic-patents.com at da11ff475902728fd8dd1d9db9f3af37c16ec8a5",
+      authorOrNotice:
+        noticeError ||
+        "Extracted from classic-patents.com at da11ff475902728fd8dd1d9db9f3af37c16ec8a5",
     });
   }
 

@@ -124,11 +124,17 @@ export function collectNpm(options: CollectNpmOptions): {
     const { licensePath, licenseText } = findLicenseFile(pkgDir, exists, readText);
 
     if (!license && licenseText) {
-      if (licenseText.includes("MIT License") || licenseText.includes("Permission is hereby granted, free of charge")) {
+      if (
+        licenseText.includes("MIT License") ||
+        licenseText.includes("Permission is hereby granted, free of charge")
+      ) {
         license = "MIT";
       } else if (licenseText.includes("Apache License") && licenseText.includes("Version 2.0")) {
         license = "Apache-2.0";
-      } else if (licenseText.includes("BSD 3-Clause") || licenseText.includes("Redistribution and use in source and binary forms")) {
+      } else if (
+        licenseText.includes("BSD 3-Clause") ||
+        licenseText.includes("Redistribution and use in source and binary forms")
+      ) {
         license = "BSD-3-Clause";
       } else if (licenseText.includes("ISC License")) {
         license = "ISC";

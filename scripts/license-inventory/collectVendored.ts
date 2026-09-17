@@ -24,7 +24,7 @@ export function collectVendored(options: CollectVendoredOptions): LicenseItem[] 
       join(pdfjsDir, "NOTICE"),
     ];
 
-    let license = "Apache-2.0";
+    const license = "Apache-2.0";
     let licensePath: string | undefined;
     let licenseText: string | undefined;
 

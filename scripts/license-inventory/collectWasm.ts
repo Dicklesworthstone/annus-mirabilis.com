@@ -14,7 +14,7 @@ export interface CollectWasmOptions {
 }
 
 export function collectWasm(options: CollectWasmOptions): LicenseItem[] {
-  const { rootDir, manifestJson, wasmFilesOnDisk } = options;
+  const { manifestJson, wasmFilesOnDisk } = options;
   const items: LicenseItem[] = [];
 
   const manifestFiles = new Set<string>();

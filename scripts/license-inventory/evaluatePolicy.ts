@@ -4,7 +4,13 @@
  */
 
 import { checkSpdxExpression } from "./spdx.ts";
-import type { EvaluatedItem, EvaluationResult, LicenseItem, LicensePolicy, PolicyViolation } from "./types.ts";
+import type {
+  EvaluatedItem,
+  EvaluationResult,
+  LicenseItem,
+  LicensePolicy,
+  PolicyViolation,
+} from "./types.ts";
 
 function versionMatchesRange(version: string, range?: string): boolean {
   if (!range || range === "*" || range === "any") return true;
@@ -76,9 +82,10 @@ export function evaluatePolicy(
 
     // 2. Production items (npm, font, vendored, donor, wasm)
     if (!item.license || item.license === "UNKNOWN" || item.license === "UNLICENSED") {
-      const chainInfo = item.dependencyChain && item.dependencyChain.length > 1
-        ? ` (dependency chain: ${item.dependencyChain.join(" -> ")})`
-        : "";
+      const chainInfo =
+        item.dependencyChain && item.dependencyChain.length > 1
+          ? ` (dependency chain: ${item.dependencyChain.join(" -> ")})`
+          : "";
       const msg = `Missing license metadata for production ${item.kind} '${item.name}' version '${item.version}' at '${item.source}'${chainInfo}.`;
       errors.push({
         item,
@@ -124,9 +131,10 @@ export function evaluatePolicy(
     }
 
     if (!matchedException) {
-      const chainInfo = item.dependencyChain && item.dependencyChain.length > 1
-        ? ` (dependency chain: ${item.dependencyChain.join(" -> ")})`
-        : "";
+      const chainInfo =
+        item.dependencyChain && item.dependencyChain.length > 1
+          ? ` (dependency chain: ${item.dependencyChain.join(" -> ")})`
+          : "";
       const failing = spdxResult.failingLicenses.join(", ");
       const msg = `License '${item.license}' (failing terms: [${failing}]) for production ${item.kind} '${item.name}' version '${item.version}' at '${item.source}' is not on the allowlist and has no reviewed exception${chainInfo}.`;
       errors.push({

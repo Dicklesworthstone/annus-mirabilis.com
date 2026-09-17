@@ -58,7 +58,9 @@ export function tokenizeSpdx(input: string): Token[] {
 
     // Special check for phrases like "MIT with OpenAI/Anthropic Rider" or "MIT License (with OpenAI/Anthropic Rider)"
     const remaining = s.slice(i);
-    const riderMatch = remaining.match(/^(?:MIT\s+(?:License\s+)?\(?with\s+OpenAI\/Anthropic\s+Rider\)?|MIT\+Rider)/i);
+    const riderMatch = remaining.match(
+      /^(?:MIT\s+(?:License\s+)?\(?with\s+OpenAI\/Anthropic\s+Rider\)?|MIT\+Rider)/i,
+    );
     if (riderMatch) {
       tokens.push({ type: "IDENT", value: "MIT with OpenAI/Anthropic Rider", start });
       i += riderMatch[0].length;
@@ -119,13 +121,17 @@ export function parseSpdx(input: string): SpdxNode {
       const node = parseOr();
       const closing = current();
       if (closing.type !== "RPAREN") {
-        throw new Error(`Unbalanced parentheses in SPDX expression '${input}' (expected ')' at pos ${closing.start})`);
+        throw new Error(
+          `Unbalanced parentheses in SPDX expression '${input}' (expected ')' at pos ${closing.start})`,
+        );
       }
       advance();
       return node;
     }
 
-    throw new Error(`Unexpected token '${tok.type}' in SPDX expression '${input}' at pos ${tok.start}`);
+    throw new Error(
+      `Unexpected token '${tok.type}' in SPDX expression '${input}' at pos ${tok.start}`,
+    );
   }
 
   function parseWith(): SpdxNode {
@@ -134,7 +140,9 @@ export function parseSpdx(input: string): SpdxNode {
       advance();
       const next = current();
       if (next.type !== "IDENT") {
-        throw new Error(`Expected exception identifier after WITH in SPDX expression '${input}' at pos ${next.start}`);
+        throw new Error(
+          `Expected exception identifier after WITH in SPDX expression '${input}' at pos ${next.start}`,
+        );
       }
       advance();
       return { type: "with", left, exception: next.value };
@@ -164,7 +172,9 @@ export function parseSpdx(input: string): SpdxNode {
 
   const root = parseOr();
   if (current().type !== "EOF") {
-    throw new Error(`Trailing token '${current().type}' in SPDX expression '${input}' at pos ${current().start}`);
+    throw new Error(
+      `Trailing token '${current().type}' in SPDX expression '${input}' at pos ${current().start}`,
+    );
   }
 
   return root;

@@ -5,12 +5,8 @@
 
 import { describe, expect, test } from "bun:test";
 import { join } from "node:path";
-import {
-  collectDonor,
-  validateDonorAttributionHeader,
-} from "./license-inventory/collectDonor.ts";
+import { validateDonorAttributionHeader } from "./license-inventory/collectDonor.ts";
 import { collectFonts } from "./license-inventory/collectFonts.ts";
-import { collectNpm } from "./license-inventory/collectNpm.ts";
 import { collectWasm } from "./license-inventory/collectWasm.ts";
 import { evaluatePolicy } from "./license-inventory/evaluatePolicy.ts";
 import {
