@@ -193,8 +193,11 @@ describe("Machine-Readable Exports (/exports/v1/) (am-cm-machine-readable-export
     expect(indexA.files.length).toBe(indexB.files.length);
 
     for (let i = 0; i < indexA.files.length; i++) {
-      const fileA = indexA.files[i]!;
-      const fileB = indexB.files[i]!;
+      const fileA = indexA.files[i];
+      const fileB = indexB.files[i];
+      if (!fileA || !fileB) {
+        throw new Error("Missing file in index");
+      }
       expect(fileA.path).toBe(fileB.path);
       expect(fileA.sha256).toBe(fileB.sha256);
       expect(fileA.bytes).toBe(fileB.bytes);
@@ -532,15 +535,17 @@ describe("Machine-Readable Exports (/exports/v1/) (am-cm-machine-readable-export
   it("generates correct discovery alternate link descriptors and HTML tags", () => {
     const paperLinks = getPaperExportLinks("brownian-motion");
     expect(paperLinks.length).toBe(4);
-    expect(paperLinks[0]!.type).toBe("application/json");
-    expect(paperLinks[0]!.href).toBe("/exports/v1/papers/brownian-motion.json");
+    const [p0] = paperLinks;
+    expect(p0?.type).toBe("application/json");
+    expect(p0?.href).toBe("/exports/v1/papers/brownian-motion.json");
 
     const sectionLinks = getSectionExportLinks("brownian-motion", "s4");
     expect(sectionLinks.length).toBe(2);
-    expect(sectionLinks[0]!.type).toBe("application/json");
-    expect(sectionLinks[0]!.href).toBe("/exports/v1/papers/brownian-motion/s4.json");
-    expect(sectionLinks[1]!.type).toBe("text/markdown");
-    expect(sectionLinks[1]!.href).toBe("/exports/v1/papers/brownian-motion/s4.md");
+    const [s0, s1] = sectionLinks;
+    expect(s0?.type).toBe("application/json");
+    expect(s0?.href).toBe("/exports/v1/papers/brownian-motion/s4.json");
+    expect(s1?.type).toBe("text/markdown");
+    expect(s1?.href).toBe("/exports/v1/papers/brownian-motion/s4.md");
 
     const html = formatExportLinkHtml(sectionLinks);
     expect(html).toContain(
@@ -580,7 +585,7 @@ describe("Machine-Readable Exports (/exports/v1/) (am-cm-machine-readable-export
       sourceBlocks: FIXTURE_BROWNIAN_SOURCE_BLOCKS.filter((b) => b.section === "bm-sec-04"),
       translationUnits: FIXTURE_BROWNIAN_TRANSLATION_UNITS,
       alignments: [FIXTURE_BROWNIAN_ALIGNMENT],
-      editorialNotes: FIXTURE_EDITORIAL_NOTES.filter((n: any) => n.section === "bm-sec-04"),
+      editorialNotes: FIXTURE_EDITORIAL_NOTES.filter((n) => n.section === "bm-sec-04"),
     });
 
     const producedJson = await readFile(
@@ -610,6 +615,72 @@ describe("Machine-Readable Exports (/exports/v1/) (am-cm-machine-readable-export
       "exports-golden-comparison",
       "passed",
       "Section JSON and Markdown matched golden references byte-for-byte.",
+    );
+  });
+
+  // 11. Governance & Un-Ratified Delegated Decision Rights Marker
+  it("fails schema validation if a layer governed by an un-ratified decision lacks the delegated status marker", () => {
+    // Valid section with un-ratified delegated decision marker passes
+    const validSection: SectionExport = {
+      schemaVersion: 1,
+      paperSlug: "brownian-motion",
+      sectionId: "s1",
+      title: "Section 1",
+      sentences: [],
+      blocks: [],
+      rights: {
+        translation: {
+          layer: "translation",
+          status: "site-original-prose",
+          statement: "English translation",
+          license: "MIT License with OpenAI/Anthropic Rider (see NOTICE.md and LICENSE)",
+          decisionRef: "D-2026-09-16-license-and-rider",
+          ratificationStatus: "delegated-not-owner-ratified",
+        },
+      },
+      contentRevision: "rev-1",
+    };
+    expect(() => validateExportRecord("section", validSection)).not.toThrow();
+
+    // Planted violation 1: Missing decisionRef
+    const missingDecisionRef: SectionExport = {
+      ...validSection,
+      rights: {
+        translation: {
+          layer: "translation",
+          status: "site-original-prose",
+          statement: "English translation flatly claiming MIT",
+          license: "MIT License with OpenAI/Anthropic Rider (see NOTICE.md and LICENSE)",
+          ratificationStatus: "delegated-not-owner-ratified",
+        },
+      },
+    };
+    expect(() => validateExportRecord("section", missingDecisionRef)).toThrow(
+      ExportValidationError,
+    );
+
+    // Planted violation 2: Missing or incorrect ratificationStatus (claiming owner-ratified when it is un-ratified)
+    const incorrectRatificationStatus: SectionExport = {
+      ...validSection,
+      rights: {
+        translation: {
+          layer: "translation",
+          status: "site-original-prose",
+          statement: "English translation falsely claiming owner ratification",
+          license: "MIT License with OpenAI/Anthropic Rider (see NOTICE.md and LICENSE)",
+          decisionRef: "D-2026-09-16-license-and-rider",
+          ratificationStatus: "owner-ratified",
+        },
+      },
+    };
+    expect(() => validateExportRecord("section", incorrectRatificationStatus)).toThrow(
+      ExportValidationError,
+    );
+
+    logOutcome(
+      "exports-delegated-rights-marker",
+      "passed",
+      "Schema validation rejects exports lacking explicit delegated-not-owner-ratified governance markers.",
     );
   });
 });

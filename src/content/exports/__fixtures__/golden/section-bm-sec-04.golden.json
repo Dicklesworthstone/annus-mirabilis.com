@@ -44,33 +44,40 @@
   "rights": {
     "code": {
       "copyright": "Copyright (c) 2026 Jeffrey Emanuel and contributors",
+      "decisionRef": "D-2026-09-16-license-and-rider",
       "layer": "code",
       "license": "MIT License with OpenAI/Anthropic Rider (see NOTICE.md and LICENSE)",
+      "ratificationStatus": "delegated-not-owner-ratified",
       "recordedAt": "2026-09-16",
-      "statement": "Application source code, schemas, and derivation definitions. Governed by MIT License with OpenAI/Anthropic Rider.",
+      "statement": "Application source code, schemas, and derivation definitions. Governed by MIT License with OpenAI/Anthropic Rider under delegated decision D-2026-09-16-license-and-rider (delegated-not-owner-ratified, re-openable by owner).",
       "status": "site-original-code"
     },
     "explanatoryProse": {
       "copyright": "Copyright (c) 2026 Jeffrey Emanuel and contributors",
+      "decisionRef": "D-2026-09-16-license-and-rider",
       "layer": "explanatory-prose",
       "license": "MIT License with OpenAI/Anthropic Rider (see NOTICE.md and LICENSE)",
+      "ratificationStatus": "delegated-not-owner-ratified",
       "recordedAt": "2026-09-16",
-      "statement": "Authored explanations, reading levels (R0–R3), questions, and commentary. Governed by MIT License with OpenAI/Anthropic Rider.",
+      "statement": "Authored explanations, reading levels (R0–R3), questions, and commentary. Governed by MIT License with OpenAI/Anthropic Rider under delegated decision D-2026-09-16-license-and-rider (delegated-not-owner-ratified, re-openable by owner).",
       "status": "site-original-prose"
     },
     "germanText": {
       "basis": "Published over 70 years after the death of the author (1879–1955) and past all statutory copyright terms in Germany, Switzerland, the United States, and internationally.",
       "layer": "german-text",
+      "ratificationStatus": "statutory-public-domain",
       "recordedAt": "2026-09-14",
       "statement": "The historical German texts of Albert Einstein's 1905–1906 papers in Annalen der Physik are in the public domain worldwide.",
       "status": "public-domain-text"
     },
     "translation": {
       "copyright": "Copyright (c) 2026 Jeffrey Emanuel and contributors",
+      "decisionRef": "D-2026-09-16-license-and-rider",
       "layer": "translation",
       "license": "MIT License with OpenAI/Anthropic Rider (see NOTICE.md and LICENSE)",
+      "ratificationStatus": "delegated-not-owner-ratified",
       "recordedAt": "2026-09-16",
-      "statement": "English translation created directly from the historical German text. Governed by MIT License with OpenAI/Anthropic Rider.",
+      "statement": "English translation created directly from the historical German text. Governed by MIT License with OpenAI/Anthropic Rider under delegated decision D-2026-09-16-license-and-rider (delegated-not-owner-ratified, re-openable by owner).",
       "status": "site-original-prose"
     }
   },

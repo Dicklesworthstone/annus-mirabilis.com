@@ -16,15 +16,22 @@ export type ContentLayer =
   | "scan"
   | "dataset";
 
+export type RatificationStatus =
+  | "delegated-not-owner-ratified"
+  | "owner-ratified"
+  | "statutory-public-domain";
+
 export interface RightsStatement {
   readonly layer: ContentLayer;
   readonly status: string;
   readonly statement: string;
-  readonly license?: string;
-  readonly basis?: string;
-  readonly recordedAt?: string;
-  readonly copyright?: string;
-  readonly credit?: string;
+  readonly license?: string | undefined;
+  readonly basis?: string | undefined;
+  readonly recordedAt?: string | undefined;
+  readonly copyright?: string | undefined;
+  readonly credit?: string | undefined;
+  readonly decisionRef?: string | undefined;
+  readonly ratificationStatus?: RatificationStatus | undefined;
 }
 
 export interface LayerRights {

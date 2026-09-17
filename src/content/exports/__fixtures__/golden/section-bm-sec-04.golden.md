@@ -7,8 +7,8 @@
 ---
 ### Rights & Attribution
 - **Historical German:** The historical German texts of Albert Einstein's 1905–1906 papers in Annalen der Physik are in the public domain worldwide.
-- **English Translation:** English translation created directly from the historical German text. Governed by MIT License with OpenAI/Anthropic Rider. (MIT License with OpenAI/Anthropic Rider (see NOTICE.md and LICENSE))
-- **Explanations:** Authored explanations, reading levels (R0–R3), questions, and commentary. Governed by MIT License with OpenAI/Anthropic Rider.
+- **English Translation:** English translation created directly from the historical German text. Governed by MIT License with OpenAI/Anthropic Rider under delegated decision D-2026-09-16-license-and-rider (delegated-not-owner-ratified, re-openable by owner). (MIT License with OpenAI/Anthropic Rider (see NOTICE.md and LICENSE)) [Decision: D-2026-09-16-license-and-rider, Ratification: delegated-not-owner-ratified]
+- **Explanations:** Authored explanations, reading levels (R0–R3), questions, and commentary. Governed by MIT License with OpenAI/Anthropic Rider under delegated decision D-2026-09-16-license-and-rider (delegated-not-owner-ratified, re-openable by owner). [Decision: D-2026-09-16-license-and-rider, Ratification: delegated-not-owner-ratified]
 ---
 
 ## Parallel Text

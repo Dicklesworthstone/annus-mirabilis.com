@@ -85,16 +85,24 @@ Every export file carries explicit rights statements per layer:
 1. **Historical German Text:**
    - **Status:** Public domain worldwide.
    - **Basis:** Albert Einstein died in 1955; the 1905 papers were published over 70 years ago, exceeding all statutory copyright terms (US, EU, Switzerland).
+   - **Ratification Status:** `statutory-public-domain`.
    - **Recorded Date:** 2026-09-14.
 2. **English Translations:**
    - **Status:** Copyright (c) 2026 Jeffrey Emanuel and contributors.
    - **License:** MIT License with OpenAI/Anthropic Rider (see `NOTICE.md` and `LICENSE`).
+   - **Decision Reference:** `D-2026-09-16-license-and-rider`.
+   - **Ratification Status:** `delegated-not-owner-ratified`.
+   - **Governance Note:** Decided under delegated authority (`agent:BoldHarbor`); binding for dependent beads and re-openable by the project owner at any time. Downstream consumers must not treat this layer as owner-ratified.
 3. **Explanatory Prose & Argument Graphs:**
    - **Status:** Copyright (c) 2026 Jeffrey Emanuel and contributors.
    - **License:** MIT License with OpenAI/Anthropic Rider.
+   - **Decision Reference:** `D-2026-09-16-license-and-rider`.
+   - **Ratification Status:** `delegated-not-owner-ratified`.
 4. **Code & Schemas:**
    - **Status:** Copyright (c) 2026 Jeffrey Emanuel and contributors.
    - **License:** MIT License with OpenAI/Anthropic Rider.
+   - **Decision Reference:** `D-2026-09-16-license-and-rider`.
+   - **Ratification Status:** `delegated-not-owner-ratified`.
 5. **Excluded Assets (Hard Policy):**
    - Source scans or assets whose `publicationDecision` is `pin-local-only` or `reference-only` are **strictly omitted** from exports and never appear in `index.json`.
 

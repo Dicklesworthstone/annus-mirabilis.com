@@ -67,12 +67,18 @@ export function generateSectionMarkdown(section: SectionExport): string {
     lines.push(`- **Historical German:** ${section.rights.germanText.statement}`);
   }
   if (section.rights.translation) {
+    const dec = section.rights.translation.decisionRef
+      ? ` [Decision: ${section.rights.translation.decisionRef}, Ratification: ${section.rights.translation.ratificationStatus}]`
+      : "";
     lines.push(
-      `- **English Translation:** ${section.rights.translation.statement} (${section.rights.translation.license})`,
+      `- **English Translation:** ${section.rights.translation.statement} (${section.rights.translation.license})${dec}`,
     );
   }
   if (section.rights.explanatoryProse) {
-    lines.push(`- **Explanations:** ${section.rights.explanatoryProse.statement}`);
+    const dec = section.rights.explanatoryProse.decisionRef
+      ? ` [Decision: ${section.rights.explanatoryProse.decisionRef}, Ratification: ${section.rights.explanatoryProse.ratificationStatus}]`
+      : "";
+    lines.push(`- **Explanations:** ${section.rights.explanatoryProse.statement}${dec}`);
   }
   lines.push("---");
   lines.push("");

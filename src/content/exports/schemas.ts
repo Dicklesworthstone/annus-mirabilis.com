@@ -438,6 +438,52 @@ export function assertExportSafety(data: unknown, path = "root"): void {
 }
 
 /**
+ * Validates that layers governed by un-ratified decisions carry explicit
+ * decisionRef and ratificationStatus markers.
+ */
+export function validateLayerRights(kind: string, rights: unknown): void {
+  if (!rights || typeof rights !== "object") {
+    throw new ExportValidationError(kind, "rights", "'rights' object is required.");
+  }
+
+  const rightsObj = rights as Record<string, Record<string, unknown> | undefined>;
+
+  // Layers governed by delegated decision D-2026-09-16-license-and-rider
+  for (const layerKey of ["translation", "explanatoryProse", "code", "dataset"] as const) {
+    const layer = rightsObj[layerKey];
+    if (layer) {
+      if (layer.license?.includes("MIT License with OpenAI/Anthropic Rider")) {
+        if (layer.decisionRef !== "D-2026-09-16-license-and-rider") {
+          throw new ExportValidationError(
+            kind,
+            `rights.${layerKey}.decisionRef`,
+            `Layer '${layerKey}' governed by un-ratified license decision must reference 'D-2026-09-16-license-and-rider'.`,
+          );
+        }
+        if (layer.ratificationStatus !== "delegated-not-owner-ratified") {
+          throw new ExportValidationError(
+            kind,
+            `rights.${layerKey}.ratificationStatus`,
+            `Layer '${layerKey}' governed by un-ratified license decision must declare ratificationStatus 'delegated-not-owner-ratified'.`,
+          );
+        }
+      }
+    }
+  }
+
+  // German text must be statutory-public-domain
+  if (rightsObj.germanText) {
+    if (rightsObj.germanText.ratificationStatus !== "statutory-public-domain") {
+      throw new ExportValidationError(
+        kind,
+        "rights.germanText.ratificationStatus",
+        "Historical German text must declare ratificationStatus 'statutory-public-domain'.",
+      );
+    }
+  }
+}
+
+/**
  * Validates data against a known schema structure.
  */
 export function validateExportRecord(
@@ -450,9 +496,13 @@ export function validateExportRecord(
     throw new ExportValidationError(kind, "root", "Export data must be an object.");
   }
 
-  const rec = data as Record<string, any>;
+  const rec = data as Record<string, unknown>;
   if (rec.schemaVersion !== 1) {
     throw new ExportValidationError(kind, "schemaVersion", "Expected schemaVersion === 1.");
+  }
+
+  if (kind !== "index") {
+    validateLayerRights(kind, rec.rights);
   }
 
   switch (kind) {

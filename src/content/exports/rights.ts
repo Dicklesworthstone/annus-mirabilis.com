@@ -15,46 +15,55 @@ export const GERMAN_TEXT_RIGHTS: RightsStatement = {
   basis:
     "Published over 70 years after the death of the author (1879–1955) and past all statutory copyright terms in Germany, Switzerland, the United States, and internationally.",
   recordedAt: "2026-09-14",
+  ratificationStatus: "statutory-public-domain",
 };
 
 export const TRANSLATION_RIGHTS: RightsStatement = {
   layer: "translation",
   status: "site-original-prose",
   statement:
-    "English translation created directly from the historical German text. Governed by MIT License with OpenAI/Anthropic Rider.",
+    "English translation created directly from the historical German text. Governed by MIT License with OpenAI/Anthropic Rider under delegated decision D-2026-09-16-license-and-rider (delegated-not-owner-ratified, re-openable by owner).",
   copyright: "Copyright (c) 2026 Jeffrey Emanuel and contributors",
   license: "MIT License with OpenAI/Anthropic Rider (see NOTICE.md and LICENSE)",
   recordedAt: "2026-09-16",
+  decisionRef: "D-2026-09-16-license-and-rider",
+  ratificationStatus: "delegated-not-owner-ratified",
 };
 
 export const EXPLANATORY_PROSE_RIGHTS: RightsStatement = {
   layer: "explanatory-prose",
   status: "site-original-prose",
   statement:
-    "Authored explanations, reading levels (R0–R3), questions, and commentary. Governed by MIT License with OpenAI/Anthropic Rider.",
+    "Authored explanations, reading levels (R0–R3), questions, and commentary. Governed by MIT License with OpenAI/Anthropic Rider under delegated decision D-2026-09-16-license-and-rider (delegated-not-owner-ratified, re-openable by owner).",
   copyright: "Copyright (c) 2026 Jeffrey Emanuel and contributors",
   license: "MIT License with OpenAI/Anthropic Rider (see NOTICE.md and LICENSE)",
   recordedAt: "2026-09-16",
+  decisionRef: "D-2026-09-16-license-and-rider",
+  ratificationStatus: "delegated-not-owner-ratified",
 };
 
 export const CODE_RIGHTS: RightsStatement = {
   layer: "code",
   status: "site-original-code",
   statement:
-    "Application source code, schemas, and derivation definitions. Governed by MIT License with OpenAI/Anthropic Rider.",
+    "Application source code, schemas, and derivation definitions. Governed by MIT License with OpenAI/Anthropic Rider under delegated decision D-2026-09-16-license-and-rider (delegated-not-owner-ratified, re-openable by owner).",
   copyright: "Copyright (c) 2026 Jeffrey Emanuel and contributors",
   license: "MIT License with OpenAI/Anthropic Rider (see NOTICE.md and LICENSE)",
   recordedAt: "2026-09-16",
+  decisionRef: "D-2026-09-16-license-and-rider",
+  ratificationStatus: "delegated-not-owner-ratified",
 };
 
 export const DATASET_RIGHTS: RightsStatement = {
   layer: "dataset",
   status: "curated-scientific-dataset",
   statement:
-    "Historical raw empirical data is in the public domain. Curated schema and digital representations governed by MIT License with OpenAI/Anthropic Rider.",
+    "Historical raw empirical data is in the public domain. Curated schema and digital representations governed by MIT License with OpenAI/Anthropic Rider under delegated decision D-2026-09-16-license-and-rider (delegated-not-owner-ratified, re-openable by owner).",
   copyright: "Copyright (c) 2026 Jeffrey Emanuel and contributors",
   license: "MIT License with OpenAI/Anthropic Rider",
   recordedAt: "2026-09-16",
+  decisionRef: "D-2026-09-16-license-and-rider",
+  ratificationStatus: "delegated-not-owner-ratified",
 };
 
 /**
