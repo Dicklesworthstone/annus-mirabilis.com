@@ -196,14 +196,26 @@ export function validateGlyph(raw: unknown, path = "glyph"): Glyph {
     return { unicode: raw, latex: raw, variant: "plain" };
   }
   if (!raw || typeof raw !== "object") {
-    throw new ConcordanceSchemaError("invalid-glyph", "Glyph must be an object or non-empty string.", path);
+    throw new ConcordanceSchemaError(
+      "invalid-glyph",
+      "Glyph must be an object or non-empty string.",
+      path,
+    );
   }
   const o = raw as Record<string, unknown>;
   if (typeof o.unicode !== "string" || !o.unicode.trim()) {
-    throw new ConcordanceSchemaError("missing-glyph-unicode", "glyph.unicode is required.", `${path}.unicode`);
+    throw new ConcordanceSchemaError(
+      "missing-glyph-unicode",
+      "glyph.unicode is required.",
+      `${path}.unicode`,
+    );
   }
   if (typeof o.latex !== "string" || !o.latex.trim()) {
-    throw new ConcordanceSchemaError("missing-glyph-latex", "glyph.latex is required.", `${path}.latex`);
+    throw new ConcordanceSchemaError(
+      "missing-glyph-latex",
+      "glyph.latex is required.",
+      `${path}.latex`,
+    );
   }
   let variant: GlyphVariant | undefined;
   if (o.variant !== undefined) {
@@ -231,7 +243,11 @@ export function validateBinding(raw: unknown, path = "binding"): ConcordanceBind
     return { quantityId: raw };
   }
   if (!raw || typeof raw !== "object") {
-    throw new ConcordanceSchemaError("invalid-binding", "binding must be a string or object.", path);
+    throw new ConcordanceSchemaError(
+      "invalid-binding",
+      "binding must be a string or object.",
+      path,
+    );
   }
   const o = raw as Record<string, unknown>;
   if (typeof o.nonQuantityKind === "string") {
@@ -245,7 +261,11 @@ export function validateBinding(raw: unknown, path = "binding"): ConcordanceBind
     return { nonQuantityKind: o.nonQuantityKind as NonQuantityKind };
   }
   if (typeof o.quantityId !== "string" || !o.quantityId.trim()) {
-    throw new ConcordanceSchemaError("missing-quantity-id", "binding requires quantityId or nonQuantityKind.", `${path}.quantityId`);
+    throw new ConcordanceSchemaError(
+      "missing-quantity-id",
+      "binding requires quantityId or nonQuantityKind.",
+      `${path}.quantityId`,
+    );
   }
   let scale: RationalScale | undefined;
   if (o.scale !== undefined) {
@@ -254,7 +274,9 @@ export function validateBinding(raw: unknown, path = "binding"): ConcordanceBind
   return {
     quantityId: o.quantityId,
     ...(scale ? { scale } : {}),
-    ...(typeof o.dimensionStatus === "string" ? { dimensionStatus: o.dimensionStatus as DimensionStatus } : {}),
+    ...(typeof o.dimensionStatus === "string"
+      ? { dimensionStatus: o.dimensionStatus as DimensionStatus }
+      : {}),
   };
 }
 
@@ -266,7 +288,11 @@ export function validateOperation(raw: unknown, path = "operation"): Concordance
   if (o.kind === "rename") {
     const t = (o.target ?? {}) as Record<string, unknown>;
     if (!t || typeof t !== "object") {
-      throw new ConcordanceSchemaError("missing-rename-target", "rename operation requires target object.", `${path}.target`);
+      throw new ConcordanceSchemaError(
+        "missing-rename-target",
+        "rename operation requires target object.",
+        `${path}.target`,
+      );
     }
     if (!RENAME_FORMS.includes(t.form as RenameForm)) {
       throw new ConcordanceSchemaError(
@@ -278,56 +304,88 @@ export function validateOperation(raw: unknown, path = "operation"): Concordance
     const form = t.form as RenameForm;
     if (form === "symbol") {
       if (!t.modernGlyph) {
-        throw new ConcordanceSchemaError("missing-modern-glyph", "symbol rename requires modernGlyph.", `${path}.target.modernGlyph`);
+        throw new ConcordanceSchemaError(
+          "missing-modern-glyph",
+          "symbol rename requires modernGlyph.",
+          `${path}.target.modernGlyph`,
+        );
       }
       return {
         kind: "rename",
         target: {
           form: "symbol",
-          modernGlyph: typeof t.modernGlyph === "string" ? t.modernGlyph : validateGlyph(t.modernGlyph, `${path}.target.modernGlyph`),
+          modernGlyph:
+            typeof t.modernGlyph === "string"
+              ? t.modernGlyph
+              : validateGlyph(t.modernGlyph, `${path}.target.modernGlyph`),
         },
       };
     }
     if (form === "group") {
       if (!t.pattern || typeof t.pattern !== "object") {
-        throw new ConcordanceSchemaError("missing-group-pattern", "group rename requires pattern object.", `${path}.target.pattern`);
+        throw new ConcordanceSchemaError(
+          "missing-group-pattern",
+          "group rename requires pattern object.",
+          `${path}.target.pattern`,
+        );
       }
       if (!t.modernGlyph) {
-        throw new ConcordanceSchemaError("missing-group-modern-glyph", "group rename requires modernGlyph.", `${path}.target.modernGlyph`);
+        throw new ConcordanceSchemaError(
+          "missing-group-modern-glyph",
+          "group rename requires modernGlyph.",
+          `${path}.target.modernGlyph`,
+        );
       }
       return {
         kind: "rename",
         target: {
           form: "group",
           pattern: t.pattern as GroupPattern,
-          modernGlyph: typeof t.modernGlyph === "string" ? t.modernGlyph : validateGlyph(t.modernGlyph, `${path}.target.modernGlyph`),
+          modernGlyph:
+            typeof t.modernGlyph === "string"
+              ? t.modernGlyph
+              : validateGlyph(t.modernGlyph, `${path}.target.modernGlyph`),
         },
       };
     }
     if (form === "expression" || form === "scaled") {
       if (!t.modernTree) {
-        throw new ConcordanceSchemaError("missing-modern-tree", `${form} rename requires modernTree.`, `${path}.target.modernTree`);
+        throw new ConcordanceSchemaError(
+          "missing-modern-tree",
+          `${form} rename requires modernTree.`,
+          `${path}.target.modernTree`,
+        );
       }
       return {
         kind: "rename",
         target: {
           form,
           modernTree: t.modernTree,
-          modernGlyph: t.modernGlyph ? (typeof t.modernGlyph === "string" ? t.modernGlyph : validateGlyph(t.modernGlyph, `${path}.target.modernGlyph`)) : undefined,
+          modernGlyph: t.modernGlyph
+            ? typeof t.modernGlyph === "string"
+              ? t.modernGlyph
+              : validateGlyph(t.modernGlyph, `${path}.target.modernGlyph`)
+            : undefined,
         },
       };
     }
   }
 
   if (o.kind === "unitConversion") {
-    if (typeof o.fromSystem !== "string" || !CONCORDANCE_UNIT_SYSTEMS.includes(o.fromSystem as ConcordanceUnitSystem)) {
+    if (
+      typeof o.fromSystem !== "string" ||
+      !CONCORDANCE_UNIT_SYSTEMS.includes(o.fromSystem as ConcordanceUnitSystem)
+    ) {
       throw new ConcordanceSchemaError(
         "invalid-unit-system",
         `fromSystem must be one of: ${CONCORDANCE_UNIT_SYSTEMS.join(", ")} (got "${String(o.fromSystem)}"). Loose names like 'gaussian' or 'emu' are rejected.`,
         `${path}.fromSystem`,
       );
     }
-    if (typeof o.toSystem !== "string" || !CONCORDANCE_UNIT_SYSTEMS.includes(o.toSystem as ConcordanceUnitSystem)) {
+    if (
+      typeof o.toSystem !== "string" ||
+      !CONCORDANCE_UNIT_SYSTEMS.includes(o.toSystem as ConcordanceUnitSystem)
+    ) {
       throw new ConcordanceSchemaError(
         "invalid-unit-system",
         `toSystem must be one of: ${CONCORDANCE_UNIT_SYSTEMS.join(", ")} (got "${String(o.toSystem)}"). Loose names like 'gaussian' or 'emu' are rejected.`,
@@ -348,14 +406,19 @@ export function validateOperation(raw: unknown, path = "operation"): Concordance
       toSystem: o.toSystem as ConcordanceUnitSystem,
       factor,
       exact: typeof o.exact === "boolean" ? o.exact : undefined,
-      conversionDerivationRef: typeof o.conversionDerivationRef === "string" ? o.conversionDerivationRef : undefined,
+      conversionDerivationRef:
+        typeof o.conversionDerivationRef === "string" ? o.conversionDerivationRef : undefined,
       modernTree: o.modernTree,
     };
   }
 
   if (o.kind === "modernization") {
     if (typeof o.modernLensRef !== "string" || !o.modernLensRef.trim()) {
-      throw new ConcordanceSchemaError("missing-modern-lens-ref", "modernization requires modernLensRef.", `${path}.modernLensRef`);
+      throw new ConcordanceSchemaError(
+        "missing-modern-lens-ref",
+        "modernization requires modernLensRef.",
+        `${path}.modernLensRef`,
+      );
     }
     if (typeof o.argumentChangeDescription !== "string" || !o.argumentChangeDescription.trim()) {
       throw new ConcordanceSchemaError(
@@ -380,11 +443,18 @@ export function validateOperation(raw: unknown, path = "operation"): Concordance
 
 export function validateCollision(raw: unknown, path = "collision"): CollisionRecord {
   if (!raw || typeof raw !== "object") {
-    throw new ConcordanceSchemaError("invalid-collision", "Collision record must be an object.", path);
+    throw new ConcordanceSchemaError(
+      "invalid-collision",
+      "Collision record must be an object.",
+      path,
+    );
   }
   const o = raw as Record<string, unknown>;
 
-  if (typeof o.severity !== "string" || !COLLISION_SEVERITIES.includes(o.severity as CollisionSeverity)) {
+  if (
+    typeof o.severity !== "string" ||
+    !COLLISION_SEVERITIES.includes(o.severity as CollisionSeverity)
+  ) {
     throw new ConcordanceSchemaError(
       "invalid-collision-severity",
       `Collision severity must be "danger" or "caution" (got "${String(o.severity)}").`,
@@ -400,7 +470,9 @@ export function validateCollision(raw: unknown, path = "collision"): CollisionRe
   }
 
   const collidesWith = Array.isArray(o.collidesWith) ? o.collidesWith.map((c) => String(c)) : [];
-  const collidesWithModern = Array.isArray(o.collidesWithModern) ? o.collidesWithModern.map((c) => String(c)) : undefined;
+  const collidesWithModern = Array.isArray(o.collidesWithModern)
+    ? o.collidesWithModern.map((c) => String(c))
+    : undefined;
 
   if (collidesWith.length === 0 && (!collidesWithModern || collidesWithModern.length === 0)) {
     throw new ConcordanceSchemaError(
@@ -411,7 +483,11 @@ export function validateCollision(raw: unknown, path = "collision"): CollisionRe
   }
 
   if (typeof o.firstUseAnchor !== "string" || !o.firstUseAnchor.trim()) {
-    throw new ConcordanceSchemaError("missing-first-use-anchor", "Collision record requires paper-level firstUseAnchor.", `${path}.firstUseAnchor`);
+    throw new ConcordanceSchemaError(
+      "missing-first-use-anchor",
+      "Collision record requires paper-level firstUseAnchor.",
+      `${path}.firstUseAnchor`,
+    );
   }
 
   if (!Array.isArray(o.firstUseBySection) || o.firstUseBySection.length === 0) {
@@ -425,14 +501,26 @@ export function validateCollision(raw: unknown, path = "collision"): CollisionRe
   const firstUseBySection = o.firstUseBySection.map((item, idx) => {
     const iPath = `${path}.firstUseBySection[${idx}]`;
     if (!item || typeof item !== "object") {
-      throw new ConcordanceSchemaError("invalid-first-use-section-item", "Section first-use item must be an object.", iPath);
+      throw new ConcordanceSchemaError(
+        "invalid-first-use-section-item",
+        "Section first-use item must be an object.",
+        iPath,
+      );
     }
     const io = item as Record<string, unknown>;
     if (typeof io.sectionId !== "string" || !io.sectionId.trim()) {
-      throw new ConcordanceSchemaError("missing-section-id", "Section first-use requires sectionId.", `${iPath}.sectionId`);
+      throw new ConcordanceSchemaError(
+        "missing-section-id",
+        "Section first-use requires sectionId.",
+        `${iPath}.sectionId`,
+      );
     }
     if (typeof io.anchor !== "string" || !io.anchor.trim()) {
-      throw new ConcordanceSchemaError("missing-anchor", "Section first-use requires anchor.", `${iPath}.anchor`);
+      throw new ConcordanceSchemaError(
+        "missing-anchor",
+        "Section first-use requires anchor.",
+        `${iPath}.anchor`,
+      );
     }
     return { sectionId: io.sectionId, anchor: io.anchor };
   });
@@ -467,15 +555,27 @@ export function validateConcordanceEntry(raw: unknown, path = "entry"): Concorda
   }
 
   if (typeof o.paper !== "string" || !o.paper.trim()) {
-    throw new ConcordanceSchemaError("missing-paper", "Concordance entry requires paper slug.", `${path}.paper`);
+    throw new ConcordanceSchemaError(
+      "missing-paper",
+      "Concordance entry requires paper slug.",
+      `${path}.paper`,
+    );
   }
 
   if (!Array.isArray(o.scope) || o.scope.length === 0) {
-    throw new ConcordanceSchemaError("missing-scope", "Concordance entry requires non-empty scope array.", `${path}.scope`);
+    throw new ConcordanceSchemaError(
+      "missing-scope",
+      "Concordance entry requires non-empty scope array.",
+      `${path}.scope`,
+    );
   }
   const scope = o.scope.map((s, idx) => {
     if (typeof s !== "string" || !s.trim()) {
-      throw new ConcordanceSchemaError("invalid-scope-id", "Scope entry must be a non-empty string.", `${path}.scope[${idx}]`);
+      throw new ConcordanceSchemaError(
+        "invalid-scope-id",
+        "Scope entry must be a non-empty string.",
+        `${path}.scope[${idx}]`,
+      );
     }
     return s;
   });
@@ -483,7 +583,11 @@ export function validateConcordanceEntry(raw: unknown, path = "entry"): Concorda
   const glyph = validateGlyph(o.glyph, `${path}.glyph`);
 
   if (typeof o.meaning !== "string" || !o.meaning.trim()) {
-    throw new ConcordanceSchemaError("missing-meaning", "Concordance entry requires meaning in plain words.", `${path}.meaning`);
+    throw new ConcordanceSchemaError(
+      "missing-meaning",
+      "Concordance entry requires meaning in plain words.",
+      `${path}.meaning`,
+    );
   }
 
   const binding = validateBinding(o.binding, `${path}.binding`);
@@ -497,7 +601,11 @@ export function validateConcordanceEntry(raw: unknown, path = "entry"): Concorda
   // Sources
   const src = (o.sources ?? {}) as Record<string, unknown>;
   if (!src || typeof src !== "object" || typeof src.anchor !== "string" || !src.anchor.trim()) {
-    throw new ConcordanceSchemaError("missing-sources-anchor", "Concordance entry requires sources.anchor.", `${path}.sources.anchor`);
+    throw new ConcordanceSchemaError(
+      "missing-sources-anchor",
+      "Concordance entry requires sources.anchor.",
+      `${path}.sources.anchor`,
+    );
   }
   const sources: ConcordanceSource = {
     anchor: src.anchor,
@@ -507,16 +615,32 @@ export function validateConcordanceEntry(raw: unknown, path = "entry"): Concorda
   // Verification
   const ver = (o.verification ?? {}) as Record<string, unknown>;
   if (!ver || typeof ver !== "object") {
-    throw new ConcordanceSchemaError("missing-verification", "Concordance entry requires verification object.", `${path}.verification`);
+    throw new ConcordanceSchemaError(
+      "missing-verification",
+      "Concordance entry requires verification object.",
+      `${path}.verification`,
+    );
   }
   if (typeof ver.checkedAgainst !== "string" || !ver.checkedAgainst.trim()) {
-    throw new ConcordanceSchemaError("missing-verification-checked-against", "verification.checkedAgainst is required.", `${path}.verification.checkedAgainst`);
+    throw new ConcordanceSchemaError(
+      "missing-verification-checked-against",
+      "verification.checkedAgainst is required.",
+      `${path}.verification.checkedAgainst`,
+    );
   }
   if (typeof ver.by !== "string" || !ver.by.trim()) {
-    throw new ConcordanceSchemaError("missing-verification-by", "verification.by is required.", `${path}.verification.by`);
+    throw new ConcordanceSchemaError(
+      "missing-verification-by",
+      "verification.by is required.",
+      `${path}.verification.by`,
+    );
   }
   if (typeof ver.date !== "string" || !ver.date.trim()) {
-    throw new ConcordanceSchemaError("missing-verification-date", "verification.date is required.", `${path}.verification.date`);
+    throw new ConcordanceSchemaError(
+      "missing-verification-date",
+      "verification.date is required.",
+      `${path}.verification.date`,
+    );
   }
   const verification: ConcordanceVerification = {
     printed: Boolean(ver.printed),
@@ -532,7 +656,10 @@ export function validateConcordanceEntry(raw: unknown, path = "entry"): Concorda
 
   let modernSymbol: string | Glyph | undefined;
   if (o.modernSymbol !== undefined) {
-    modernSymbol = typeof o.modernSymbol === "string" ? o.modernSymbol : validateGlyph(o.modernSymbol, `${path}.modernSymbol`);
+    modernSymbol =
+      typeof o.modernSymbol === "string"
+        ? o.modernSymbol
+        : validateGlyph(o.modernSymbol, `${path}.modernSymbol`);
   }
 
   return {
@@ -553,13 +680,24 @@ export function validateConcordanceEntry(raw: unknown, path = "entry"): Concorda
   };
 }
 
-export function validateModernOnlySymbol(raw: unknown, path = "modernOnlySymbol"): ModernOnlySymbol {
+export function validateModernOnlySymbol(
+  raw: unknown,
+  path = "modernOnlySymbol",
+): ModernOnlySymbol {
   if (!raw || typeof raw !== "object") {
-    throw new ConcordanceSchemaError("invalid-modern-only-symbol", "modernOnlySymbol must be an object.", path);
+    throw new ConcordanceSchemaError(
+      "invalid-modern-only-symbol",
+      "modernOnlySymbol must be an object.",
+      path,
+    );
   }
   const o = raw as Record<string, unknown>;
   if (typeof o.id !== "string" || !o.id.trim()) {
-    throw new ConcordanceSchemaError("missing-modern-only-id", "modernOnlySymbol requires id.", `${path}.id`);
+    throw new ConcordanceSchemaError(
+      "missing-modern-only-id",
+      "modernOnlySymbol requires id.",
+      `${path}.id`,
+    );
   }
   const glyph = validateGlyph(o.glyph, `${path}.glyph`);
   const binding = validateBinding(o.binding ?? o.id, `${path}.binding`);
@@ -579,11 +717,19 @@ export function validateModernOnlySymbol(raw: unknown, path = "modernOnlySymbol"
 
 export function validatePaperConcordance(raw: unknown, path = "concordance"): PaperConcordance {
   if (!raw || typeof raw !== "object") {
-    throw new ConcordanceSchemaError("invalid-paper-concordance", "Paper concordance must be an object.", path);
+    throw new ConcordanceSchemaError(
+      "invalid-paper-concordance",
+      "Paper concordance must be an object.",
+      path,
+    );
   }
   const o = raw as Record<string, unknown>;
   if (typeof o.paper !== "string" || !o.paper.trim()) {
-    throw new ConcordanceSchemaError("missing-paper", "Paper concordance requires paper slug.", `${path}.paper`);
+    throw new ConcordanceSchemaError(
+      "missing-paper",
+      "Paper concordance requires paper slug.",
+      `${path}.paper`,
+    );
   }
   const entries: ConcordanceEntry[] = [];
   if (Array.isArray(o.entries)) {
@@ -594,7 +740,9 @@ export function validatePaperConcordance(raw: unknown, path = "concordance"): Pa
   const modernOnlySymbols: ModernOnlySymbol[] = [];
   if (Array.isArray(o.modernOnlySymbols)) {
     for (let i = 0; i < o.modernOnlySymbols.length; i++) {
-      modernOnlySymbols.push(validateModernOnlySymbol(o.modernOnlySymbols[i], `${path}.modernOnlySymbols[${i}]`));
+      modernOnlySymbols.push(
+        validateModernOnlySymbol(o.modernOnlySymbols[i], `${path}.modernOnlySymbols[${i}]`),
+      );
     }
   }
 

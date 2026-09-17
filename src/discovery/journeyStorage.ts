@@ -30,7 +30,11 @@ export const DEFAULT_JOURNEY_STATE: JourneyStateDocument = {
  * Reads the journey state document, returning the stored document or a clean default state.
  */
 export function readJourneyState(ctx: StorageContext): ReadResult<JourneyStateDocument> {
-  const result = readDocument<JourneyStateDocument>(ctx, JOURNEY_STORAGE_NAMESPACE, JOURNEY_MIGRATION_CHAIN);
+  const result = readDocument<JourneyStateDocument>(
+    ctx,
+    JOURNEY_STORAGE_NAMESPACE,
+    JOURNEY_MIGRATION_CHAIN,
+  );
   if (result.status === "ok" && result.value) {
     return result;
   }

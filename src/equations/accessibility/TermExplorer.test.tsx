@@ -8,13 +8,55 @@ import { TermExplorer } from "./TermExplorer.tsx";
 
 describe("am-eq-spoken-forms-w4f: TermExplorer tests", () => {
   const sampleNavigation = [
-    { id: "D", parent: null, children: [], kind: "term" as const, quantityId: "diffusionCoefficient" },
-    { id: "op-divide", parent: null, children: ["kB", "T", "op-stokes-drag"], kind: "operation" as const, quantityId: null },
-    { id: "kB", parent: "op-divide", children: [], kind: "term" as const, quantityId: "boltzmannConstant" },
-    { id: "T", parent: "op-divide", children: [], kind: "term" as const, quantityId: "absoluteTemperature" },
-    { id: "op-stokes-drag", parent: "op-divide", children: ["eta", "a"], kind: "operation" as const, quantityId: null },
-    { id: "eta", parent: "op-stokes-drag", children: [], kind: "term" as const, quantityId: "viscosity" },
-    { id: "a", parent: "op-stokes-drag", children: [], kind: "term" as const, quantityId: "particleRadius" },
+    {
+      id: "D",
+      parent: null,
+      children: [],
+      kind: "term" as const,
+      quantityId: "diffusionCoefficient",
+    },
+    {
+      id: "op-divide",
+      parent: null,
+      children: ["kB", "T", "op-stokes-drag"],
+      kind: "operation" as const,
+      quantityId: null,
+    },
+    {
+      id: "kB",
+      parent: "op-divide",
+      children: [],
+      kind: "term" as const,
+      quantityId: "boltzmannConstant",
+    },
+    {
+      id: "T",
+      parent: "op-divide",
+      children: [],
+      kind: "term" as const,
+      quantityId: "absoluteTemperature",
+    },
+    {
+      id: "op-stokes-drag",
+      parent: "op-divide",
+      children: ["eta", "a"],
+      kind: "operation" as const,
+      quantityId: null,
+    },
+    {
+      id: "eta",
+      parent: "op-stokes-drag",
+      children: [],
+      kind: "term" as const,
+      quantityId: "viscosity",
+    },
+    {
+      id: "a",
+      parent: "op-stokes-drag",
+      children: [],
+      kind: "term" as const,
+      quantityId: "particleRadius",
+    },
   ];
 
   test("Renders TermExplorer with roving tabindex structure", () => {
@@ -30,7 +72,9 @@ describe("am-eq-spoken-forms-w4f: TermExplorer tests", () => {
     expect(markup).toContain('class="am-term-explorer"');
     expect(markup).toContain('data-term-explorer="eq-bm-einstein-relation"');
     expect(markup).toContain('role="region"');
-    expect(markup).toContain('aria-label="Terms and operations in Einstein Relation for the Diffusion Coefficient"');
+    expect(markup).toContain(
+      'aria-label="Terms and operations in Einstein Relation for the Diffusion Coefficient"',
+    );
 
     // First item has tabIndex="0", others have tabIndex="-1"
     expect(markup).toContain('data-node-id="D"');
@@ -51,7 +95,9 @@ describe("am-eq-spoken-forms-w4f: TermExplorer tests", () => {
       />,
     );
 
-    expect(markup).toContain('role="status" aria-live="polite" aria-atomic="true" data-a11y-live-status="true"');
+    expect(markup).toContain(
+      'role="status" aria-live="polite" aria-atomic="true" data-a11y-live-status="true"',
+    );
   });
 
   test("Renders inspector panel with term role, unit, and value details", () => {
@@ -86,7 +132,9 @@ describe("am-eq-spoken-forms-w4f: TermExplorer tests", () => {
       <TermExplorer
         equationId="eq-custom"
         title="Custom Equation"
-        navigation={[{ id: "custom-term", parent: null, children: [], kind: "term", quantityId: null }]}
+        navigation={[
+          { id: "custom-term", parent: null, children: [], kind: "term", quantityId: null },
+        ]}
         terms={customTerms}
       />,
     );

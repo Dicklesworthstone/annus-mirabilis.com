@@ -60,6 +60,8 @@ describe("ParallelFace render tests", () => {
       />,
     );
 
-    expect(html).toContain("Press <kbd>j</kbd> / <kbd>k</kbd> to step through sentences in reading order.");
+    expect(html).toContain(
+      "Press <kbd>j</kbd> / <kbd>k</kbd> to step through sentences in reading order.",
+    );
   });
 });

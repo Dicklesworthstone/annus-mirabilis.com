@@ -70,9 +70,7 @@ export function JourneyPage({ journey }: JourneyPageProps) {
           <span className="text-xs font-mono uppercase tracking-wider text-stone-400 block font-semibold">
             The Nagging Fact
           </span>
-          <p className="text-base sm:text-lg font-serif text-stone-100 italic">
-            "{naggingFact}"
-          </p>
+          <p className="text-base sm:text-lg font-serif text-stone-100 italic">"{naggingFact}"</p>
         </div>
 
         {/* First Honest Question */}

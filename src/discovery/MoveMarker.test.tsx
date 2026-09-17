@@ -12,7 +12,9 @@ describe("MoveMarker component rendering", () => {
     expect(html).toContain("Equipartition to Suspended Particles");
     expect(html).toContain("chain-bm-diffusion");
     expect(html).toContain("bm-step-move-osmotic");
-    expect(html).toContain("Treating suspended microscopic particles as gas molecules obeying the laws of heat relates their diffusion rate to Avogadro&#x27;s number.");
+    expect(html).toContain(
+      "Treating suspended microscopic particles as gas molecules obeying the laws of heat relates their diffusion rate to Avogadro&#x27;s number.",
+    );
     expect(html).toContain("reviewed");
   });
 });

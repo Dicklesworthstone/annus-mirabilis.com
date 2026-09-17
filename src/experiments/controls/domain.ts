@@ -56,7 +56,9 @@ export function validateDomain(spec: ParameterSpec, value: number): DomainValida
   // 2. Minimum bound
   if (modelDomain.min !== undefined) {
     const minInclusive = modelDomain.minInclusive !== false;
-    const violatesMin = minInclusive ? value < modelDomain.min - BOUNDARY_SLACK : value <= modelDomain.min + BOUNDARY_SLACK;
+    const violatesMin = minInclusive
+      ? value < modelDomain.min - BOUNDARY_SLACK
+      : value <= modelDomain.min + BOUNDARY_SLACK;
     if (violatesMin) {
       const reasonPrefix = modelDomain.reason ? `${modelDomain.reason}: ` : "";
       return {
@@ -73,7 +75,9 @@ export function validateDomain(spec: ParameterSpec, value: number): DomainValida
   // 3. Maximum bound
   if (modelDomain.max !== undefined) {
     const maxInclusive = modelDomain.maxInclusive !== false;
-    const violatesMax = maxInclusive ? value > modelDomain.max + BOUNDARY_SLACK : value >= modelDomain.max - BOUNDARY_SLACK;
+    const violatesMax = maxInclusive
+      ? value > modelDomain.max + BOUNDARY_SLACK
+      : value >= modelDomain.max - BOUNDARY_SLACK;
     if (violatesMax) {
       const reasonPrefix = modelDomain.reason ? `${modelDomain.reason}: ` : "";
       return {
@@ -89,14 +93,21 @@ export function validateDomain(spec: ParameterSpec, value: number): DomainValida
 
   // 4. Boundary check
   let isBoundary = false;
-  if (modelDomain.min !== undefined && withinTolerance(value, modelDomain.min, DOMAIN_COMPARISON_TOLERANCE).ok) {
+  if (
+    modelDomain.min !== undefined &&
+    withinTolerance(value, modelDomain.min, DOMAIN_COMPARISON_TOLERANCE).ok
+  ) {
     isBoundary = true;
   }
-  if (modelDomain.max !== undefined && withinTolerance(value, modelDomain.max, DOMAIN_COMPARISON_TOLERANCE).ok) {
+  if (
+    modelDomain.max !== undefined &&
+    withinTolerance(value, modelDomain.max, DOMAIN_COMPARISON_TOLERANCE).ok
+  ) {
     isBoundary = true;
   }
 
-  const isBeyondVisualTrack = value < visualRange.min - BOUNDARY_SLACK || value > visualRange.max + BOUNDARY_SLACK;
+  const isBeyondVisualTrack =
+    value < visualRange.min - BOUNDARY_SLACK || value > visualRange.max + BOUNDARY_SLACK;
 
   return {
     valid: true,
@@ -128,7 +139,9 @@ export function checkGridStep(
 
   const stepSize =
     gridStepOverride ??
-    ("size" in spec.mapping && typeof spec.mapping.size === "number" ? spec.mapping.size : spec.step) ??
+    ("size" in spec.mapping && typeof spec.mapping.size === "number"
+      ? spec.mapping.size
+      : spec.step) ??
     1;
 
   if (stepSize <= 0 || !Number.isFinite(stepSize)) {

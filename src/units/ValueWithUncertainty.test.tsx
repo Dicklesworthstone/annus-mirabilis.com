@@ -26,12 +26,7 @@ describe("ValueWithUncertainty Component (am-ver-precision-display-5e5)", () => 
 
   it("renders guard digit markup distinctly", () => {
     const html = renderToString(
-      <ValueWithUncertainty
-        value={6.156365}
-        unit="μm"
-        sigFigs={2}
-        guardDigit={true}
-      />,
+      <ValueWithUncertainty value={6.156365} unit="μm" sigFigs={2} guardDigit={true} />,
     );
 
     expect(html).toContain("guard-digit");
@@ -55,12 +50,7 @@ describe("ValueWithUncertainty Component (am-ver-precision-display-5e5)", () => 
 
   it("renders German locale with decimal comma", () => {
     const html = renderToString(
-      <ValueWithUncertainty
-        value={0.79478}
-        unit="μm"
-        sigFigs={3}
-        locale="de-DE"
-      />,
+      <ValueWithUncertainty value={0.79478} unit="μm" sigFigs={3} locale="de-DE" />,
     );
 
     expect(html).toContain("0,795");

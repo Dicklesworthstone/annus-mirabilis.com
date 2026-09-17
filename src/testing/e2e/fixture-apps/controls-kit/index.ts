@@ -195,11 +195,7 @@ export function ControlsKitFixtureApp() {
     for (const spec of FIXTURE_PARAMETER_SPECS) {
       init[spec.id] = spec.default;
     }
-    init.D = calculateDerivedDiffusivity(
-      init.T as number,
-      init.eta as number,
-      init.a as number,
-    );
+    init.D = calculateDerivedDiffusivity(init.T as number, init.eta as number, init.a as number);
     return init;
   });
 
@@ -251,11 +247,7 @@ export function ControlsKitFixtureApp() {
       } else {
         next.seed = generateSeed();
       }
-      next.D = calculateDerivedDiffusivity(
-        next.T as number,
-        next.eta as number,
-        next.a as number,
-      );
+      next.D = calculateDerivedDiffusivity(next.T as number, next.eta as number, next.a as number);
       return next;
     });
     setRunId(`run-ck-reset-${Date.now()}`);

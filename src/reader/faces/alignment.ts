@@ -1,4 +1,9 @@
-import type { Alignment, AlignmentEdge, SourceBlock, TranslationUnit } from "../../content/schemas/source.ts";
+import type {
+  Alignment,
+  AlignmentEdge,
+  SourceBlock,
+  TranslationUnit,
+} from "../../content/schemas/source.ts";
 
 export interface AlignmentIndex {
   readonly sourceToTarget: ReadonlyMap<string, readonly string[]>;

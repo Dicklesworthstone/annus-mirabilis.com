@@ -54,8 +54,7 @@ export function MovingMirrorPlot({
   const reflEndY = centerY - rayLength * Math.sin(phiReflRad);
 
   // Doppler color calculation
-  const reflColor =
-    frequencyRatio < 0.8 ? "#ef4444" : frequencyRatio > 1.2 ? "#3b82f6" : "#f59e0b";
+  const reflColor = frequencyRatio < 0.8 ? "#ef4444" : frequencyRatio > 1.2 ? "#3b82f6" : "#f59e0b";
   const incColor = "#f59e0b";
 
   // Power ledger max scale
@@ -215,7 +214,8 @@ export function MovingMirrorPlot({
                 className="fill-emerald-500 font-medium text-xs"
                 textAnchor="middle"
               >
-                v = {beta > 0 ? `+${beta.toFixed(2)}c (receding)` : `${beta.toFixed(2)}c (approaching)`}
+                v ={" "}
+                {beta > 0 ? `+${beta.toFixed(2)}c (receding)` : `${beta.toFixed(2)}c (approaching)`}
               </text>
             </g>
           )}
@@ -280,7 +280,8 @@ export function MovingMirrorPlot({
                 className="font-semibold text-xs"
                 style={{ fill: reflColor }}
               >
-                Reflected ray (ν′′′/ν = {frequencyRatio.toFixed(3)}, φ′′′ = {phiReflectedDeg.toFixed(1)}°)
+                Reflected ray (ν′′′/ν = {frequencyRatio.toFixed(3)}, φ′′′ ={" "}
+                {phiReflectedDeg.toFixed(1)}°)
               </text>
 
               {/* Angle arc for incident ray */}
@@ -356,7 +357,12 @@ export function MovingMirrorPlot({
                   <text x={25} y={190} className="fill-foreground text-[10px]" textAnchor="middle">
                     Incident
                   </text>
-                  <text x={25} y={205} className="fill-amber-500 font-bold text-[10px]" textAnchor="middle">
+                  <text
+                    x={25}
+                    y={205}
+                    className="fill-amber-500 font-bold text-[10px]"
+                    textAnchor="middle"
+                  >
                     {incidentPower.toFixed(3)}
                   </text>
                   <rect
@@ -371,7 +377,12 @@ export function MovingMirrorPlot({
                 </g>
 
                 {/* Balance Equals sign */}
-                <text x={80} y={110} className="fill-muted-foreground font-bold text-sm" textAnchor="middle">
+                <text
+                  x={80}
+                  y={110}
+                  className="fill-muted-foreground font-bold text-sm"
+                  textAnchor="middle"
+                >
                   =
                 </text>
 
@@ -380,7 +391,12 @@ export function MovingMirrorPlot({
                   <text x={25} y={190} className="fill-foreground text-[10px]" textAnchor="middle">
                     Refl + Work
                   </text>
-                  <text x={25} y={205} className="fill-blue-500 font-bold text-[10px]" textAnchor="middle">
+                  <text
+                    x={25}
+                    y={205}
+                    className="fill-blue-500 font-bold text-[10px]"
+                    textAnchor="middle"
+                  >
                     {(reflectedPower + workRate).toFixed(3)}
                   </text>
                   {/* Reflected power segment */}

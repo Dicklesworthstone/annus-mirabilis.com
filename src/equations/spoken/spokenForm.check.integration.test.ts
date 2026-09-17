@@ -50,7 +50,9 @@ describe("am-eq-spoken-forms-w4f: spokenForm.check.integration tests", () => {
 
     assert.equal(res.valid, false);
     const modernErr = res.errors.find(
-      (e) => e.rule === "missing-accessibility-alternative" && e.subKind === "missing-modern-spoken-form",
+      (e) =>
+        e.rule === "missing-accessibility-alternative" &&
+        e.subKind === "missing-modern-spoken-form",
     );
     assert.ok(modernErr, "Must emit missing-accessibility-alternative for missing modern variant");
   });
@@ -71,7 +73,9 @@ describe("am-eq-spoken-forms-w4f: spokenForm.check.integration tests", () => {
 
     assert.equal(res.valid, false);
     const altErr = res.errors.find(
-      (e) => e.rule === "missing-accessibility-alternative" && e.subKind === "missing-alternate-spoken-form",
+      (e) =>
+        e.rule === "missing-accessibility-alternative" &&
+        e.subKind === "missing-alternate-spoken-form",
     );
     assert.ok(altErr, "Must emit missing-accessibility-alternative for missing alternate form");
   });

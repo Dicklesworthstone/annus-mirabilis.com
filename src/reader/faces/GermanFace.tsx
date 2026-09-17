@@ -1,5 +1,10 @@
 import React from "react";
-import type { Alignment, EditorialNote, Paper, SourceBlock as SourceBlockData } from "../../content/schemas/source.ts";
+import type {
+  Alignment,
+  EditorialNote,
+  Paper,
+  SourceBlock as SourceBlockData,
+} from "../../content/schemas/source.ts";
 import { FACE_FALLBACK_IDS, faceLinkHref, paperPath } from "../paperRoutes.ts";
 import { ROOT_ARMING_SOURCE } from "../rootArming.inline.ts";
 import { AlignmentController } from "./AlignmentController.tsx";
@@ -46,20 +51,25 @@ export function GermanFace({
       {/* biome-ignore lint/security/noDangerouslySetInnerHtml: harness data-ready contract; source from a tested pure function. */}
       <script dangerouslySetInnerHTML={{ __html: ROOT_ARMING_SOURCE }} />
       <header className="page-intro" lang="de">
-        <p className="eyebrow">
-          Quelle · {paper.titleGerman}
-        </p>
+        <p className="eyebrow">Quelle · {paper.titleGerman}</p>
         <h1 className="source-paper-title">{paper.titleGerman}</h1>
         <p className="source-author-line">von {paper.authorLine}</p>
         {dateLine?.text && <p className="source-date-line">{dateLine.text}</p>}
         <p className="journal-citation fine">
-          {paper.journal.name} (4) {paper.journal.volume}, {paper.journal.pages.first}–{paper.journal.pages.last} ({paper.dates.find((d) => d.type === "issue-publication")?.earliest?.slice(0, 4) || "1905"}).
+          {paper.journal.name} (4) {paper.journal.volume}, {paper.journal.pages.first}–
+          {paper.journal.pages.last} (
+          {paper.dates.find((d) => d.type === "issue-publication")?.earliest?.slice(0, 4) || "1905"}
+          ).
         </p>
       </header>
 
       <nav className="reader-controls" aria-label="Reading face" lang="en">
         <a
-          href={sectionId ? faceLinkHref(paper.slug, "reading", sectionId) : faceLinkHref(paper.slug, "reading")}
+          href={
+            sectionId
+              ? faceLinkHref(paper.slug, "reading", sectionId)
+              : faceLinkHref(paper.slug, "reading")
+          }
           data-view-link="reading"
         >
           Explanation
@@ -67,7 +77,9 @@ export function GermanFace({
         {FACE_FALLBACK_IDS.map((id) => (
           <a
             key={id}
-            href={sectionId ? faceLinkHref(paper.slug, id, sectionId) : faceLinkHref(paper.slug, id)}
+            href={
+              sectionId ? faceLinkHref(paper.slug, id, sectionId) : faceLinkHref(paper.slug, id)
+            }
             data-view-link={id}
             aria-current={id === "german" ? "page" : undefined}
           >

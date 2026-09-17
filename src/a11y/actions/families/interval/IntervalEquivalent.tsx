@@ -26,7 +26,9 @@ export interface IntervalEquivalentProps {
   readonly minLimit?: number | undefined;
   readonly maxLimit?: number | undefined;
   readonly step?: number | undefined;
-  readonly onCommitInterval?: ((bounds: IntervalBounds, command: CanonicalActionCommand) => void) | undefined;
+  readonly onCommitInterval?:
+    | ((bounds: IntervalBounds, command: CanonicalActionCommand) => void)
+    | undefined;
   readonly className?: string | undefined;
 }
 
@@ -188,8 +190,7 @@ export function IntervalEquivalent({
               <strong>Interval B Probability:</strong> {probB}% ({expectedParticlesB} particles)
             </span>
             <span className="comparison-delta">
-              <strong>Ratio A / B:</strong>{" "}
-              {probB > 0 ? (probA / probB).toFixed(2) : "undefined"}
+              <strong>Ratio A / B:</strong> {probB > 0 ? (probA / probB).toFixed(2) : "undefined"}
             </span>
           </div>
         </fieldset>

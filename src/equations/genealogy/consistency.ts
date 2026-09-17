@@ -219,7 +219,9 @@ export function validateGenealogyConsistency(
     const outgoingCrossPaper = graph.edges.filter((e) => {
       if (!e.crossPaper) return false;
       const targetPaper = e.targetPaper ?? e.provenance?.sourcePaper;
-      return targetPaper !== undefined && targetPaper !== "special-relativity" && targetPaper !== "sr";
+      return (
+        targetPaper !== undefined && targetPaper !== "special-relativity" && targetPaper !== "sr"
+      );
     });
 
     if (outgoingCrossPaper.length === 0) {

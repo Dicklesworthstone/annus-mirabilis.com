@@ -86,9 +86,10 @@ export function scanContentForRetries(
 /**
  * Scans key project configuration files and statistical test files for retry options.
  */
-export function scanProjectForRetries(
-  rootDir: string = process.cwd(),
-): { violations: readonly RetryScanResult[]; passed: boolean } {
+export function scanProjectForRetries(rootDir: string = process.cwd()): {
+  violations: readonly RetryScanResult[];
+  passed: boolean;
+} {
   const violations: RetryScanResult[] = [];
 
   const candidateFiles: string[] = [
@@ -110,11 +111,7 @@ export function scanProjectForRetries(
   const statsDir = path.join(rootDir, "src", "testing", "stats");
   if (existsSync(statsDir)) {
     for (const file of readdirSync(statsDir)) {
-      if (
-        file.endsWith(".ts") &&
-        file !== "noRetries.ts" &&
-        file !== "noRetries.test.ts"
-      ) {
+      if (file.endsWith(".ts") && file !== "noRetries.ts" && file !== "noRetries.test.ts") {
         candidateFiles.push(path.join(statsDir, file));
       }
     }
@@ -123,10 +120,7 @@ export function scanProjectForRetries(
   for (const filePath of candidateFiles) {
     if (existsSync(filePath) && statSync(filePath).isFile()) {
       const content = readFileSync(filePath, "utf8");
-      const fileViolations = scanContentForRetries(
-        content,
-        path.relative(rootDir, filePath),
-      );
+      const fileViolations = scanContentForRetries(content, path.relative(rootDir, filePath));
       violations.push(...fileViolations);
     }
   }

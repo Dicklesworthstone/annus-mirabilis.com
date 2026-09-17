@@ -10,7 +10,9 @@ describe("Fork component rendering", () => {
   test("renders fork question and varies explanation", () => {
     const html = renderToStaticMarkup(<Fork fork={forkObservable} />);
 
-    expect(html).toContain("Which observable quantity should be measured to characterize the motion?");
+    expect(html).toContain(
+      "Which observable quantity should be measured to characterize the motion?",
+    );
     expect(html).toContain("The branches vary what quantity is defined as the primary observable.");
     expect(html).toContain("arg-fork-observable");
   });

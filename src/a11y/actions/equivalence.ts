@@ -27,15 +27,12 @@ export function compareActionEquivalence(
     });
   }
 
-  const commandHashMatches =
-    visualExecution.commandHash === equivalentExecution.commandHash;
-  const outputsHashMatches =
-    visualExecution.outputsHash === equivalentExecution.outputsHash;
+  const commandHashMatches = visualExecution.commandHash === equivalentExecution.commandHash;
+  const outputsHashMatches = visualExecution.outputsHash === equivalentExecution.outputsHash;
   const snapshotVersionMatches =
     visualExecution.snapshotVersion === equivalentExecution.snapshotVersion;
 
-  const equivalent =
-    commandHashMatches && outputsHashMatches && snapshotVersionMatches;
+  const equivalent = commandHashMatches && outputsHashMatches && snapshotVersionMatches;
 
   let mismatchReason: string | undefined;
   if (!equivalent) {

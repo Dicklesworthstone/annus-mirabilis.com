@@ -4,11 +4,7 @@ import {
   fixtureBrownianSourceOrder,
   fixturePaper1WienEntropy,
 } from "./fixtures.ts";
-import {
-  filterRoutesForPerspective,
-  getRouteLabel,
-  selectRoute,
-} from "./routeChooser.ts";
+import { filterRoutesForPerspective, getRouteLabel, selectRoute } from "./routeChooser.ts";
 import type { DerivationChain } from "./types.ts";
 
 describe("am-eq-derivation-renderer-9gd7: routeChooser", () => {
@@ -46,10 +42,7 @@ describe("am-eq-derivation-renderer-9gd7: routeChooser", () => {
   });
 
   test("modern-verification chain is filtered out under historical/paper perspective", () => {
-    const all = [
-      fixtureBrownianSourceOrder,
-      modernChain,
-    ];
+    const all = [fixtureBrownianSourceOrder, modernChain];
 
     const historicalRoutes = filterRoutesForPerspective(all, "historical");
     expect(historicalRoutes.some((c) => c.routeKind === "modern-verification")).toBe(false);
@@ -58,10 +51,7 @@ describe("am-eq-derivation-renderer-9gd7: routeChooser", () => {
   });
 
   test("modern-verification chain is included and labeled under modern perspective", () => {
-    const all = [
-      fixtureBrownianSourceOrder,
-      modernChain,
-    ];
+    const all = [fixtureBrownianSourceOrder, modernChain];
 
     const modernRoutes = filterRoutesForPerspective(all, "modern");
     expect(modernRoutes.some((c) => c.routeKind === "modern-verification")).toBe(true);

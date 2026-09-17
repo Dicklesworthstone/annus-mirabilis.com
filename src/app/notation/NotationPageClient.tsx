@@ -170,7 +170,9 @@ export function NotationPageClient({ initialData }: NotationPageClientProps) {
               onChange={(e) => setCollisionFilter(e.target.value)}
             >
               <option value="all">All entries</option>
-              <option value="danger">Danger collisions only ({initialData.dangerCollisionsCount})</option>
+              <option value="danger">
+                Danger collisions only ({initialData.dangerCollisionsCount})
+              </option>
               <option value="caution">Caution collisions only</option>
               <option value="any">All collisions ({initialData.totalCollisionsCount})</option>
             </select>
@@ -179,7 +181,8 @@ export function NotationPageClient({ initialData }: NotationPageClientProps) {
 
         <div className="filter-summary-row">
           <div className="results-count" aria-live="polite">
-            Showing {searchResult.totalMatches} of {initialData.totalEntriesCount} concordance entries
+            Showing {searchResult.totalMatches} of {initialData.totalEntriesCount} concordance
+            entries
             {hasActiveFilters && " (filtered)"}
           </div>
 
@@ -243,12 +246,14 @@ export function NotationPageClient({ initialData }: NotationPageClientProps) {
                 </div>
 
                 {/* Modern-only symbols section */}
-                {paper.modernOnlySymbols && paper.modernOnlySymbols.length > 0 && !hasActiveFilters && (
-                  <ModernOnlySymbolsView
-                    paperTitle={paper.paperTitle}
-                    symbols={paper.modernOnlySymbols}
-                  />
-                )}
+                {paper.modernOnlySymbols &&
+                  paper.modernOnlySymbols.length > 0 &&
+                  !hasActiveFilters && (
+                    <ModernOnlySymbolsView
+                      paperTitle={paper.paperTitle}
+                      symbols={paper.modernOnlySymbols}
+                    />
+                  )}
               </section>
             ))
           )}

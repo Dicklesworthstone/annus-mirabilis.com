@@ -88,7 +88,8 @@ export const FIXTURE_BROWNIAN_PAPER: Paper = validatePaper({
   sections: [
     {
       id: "bm-sec-04",
-      title: "§ 4. Über die ungeordnete Bewegung von in einer Flüssigkeit suspendierten Teilchen und deren Beziehung zur Diffusion",
+      title:
+        "§ 4. Über die ungeordnete Bewegung von in einer Flüssigkeit suspendierten Teilchen und deren Beziehung zur Diffusion",
       arguments: ["arg-bm-diffusion"],
     },
     {
@@ -105,10 +106,8 @@ const TEXT_BM_S4_P1_S2 =
 const TEXT_BM_S4_P1 = `${TEXT_BM_S4_P1_S1} ${TEXT_BM_S4_P1_S2}`;
 const DIGEST_BM_S4_P1 = spanTextDigest(TEXT_BM_S4_P1);
 
-const TEXT_BM_S5_P1_S1 =
-  "Wir wollen nun untersuchen, wie weit ein Teilchen im Mittel wandert.";
-const TEXT_BM_S5_P1_S2 =
-  "Die mittlere Verschiebung ist proportional zur Wurzel aus der Zeit.";
+const TEXT_BM_S5_P1_S1 = "Wir wollen nun untersuchen, wie weit ein Teilchen im Mittel wandert.";
+const TEXT_BM_S5_P1_S2 = "Die mittlere Verschiebung ist proportional zur Wurzel aus der Zeit.";
 const INLINES_BM_S5_P1: readonly Inline[] = [
   { kind: "text", text: TEXT_BM_S5_P1_S1 },
   { kind: "footnote-mark", mark: "1", footnoteId: "bm-s5-fn1" },
@@ -198,7 +197,8 @@ export const FIXTURE_BROWNIAN_SOURCE_BLOCKS: readonly SourceBlock[] = [
     order: 3,
     originalLabel: "1",
     locators: [{ pdfPageIndex: 8, printedPage: 557 }],
-    diplomaticText: "\\frac{\\partial \\nu}{\\partial t} = D \\frac{\\partial^2 \\nu}{\\partial x^2}",
+    diplomaticText:
+      "\\frac{\\partial \\nu}{\\partial t} = D \\frac{\\partial^2 \\nu}{\\partial x^2}",
     inlines: [
       {
         kind: "math",
@@ -566,7 +566,8 @@ export const FIXTURE_EDITORIAL_NOTES: readonly EditorialNote[] = [
       name: "Jeff Emanuel",
       role: "historian",
     },
-    claim: "Einstein submitted this paper without knowing whether Brownian motion had been experimentally verified with quantitative accuracy.",
+    claim:
+      "Einstein submitted this paper without knowing whether Brownian motion had been experimentally verified with quantitative accuracy.",
     sourceSupport: [],
     kind: "historian-margin",
     affectedIds: ["bm-s4-p1"],
@@ -586,7 +587,8 @@ export const FIXTURE_EDITORIAL_NOTES: readonly EditorialNote[] = [
     affectedIds: ["bm-s4-eq1"],
     reviewState: "reviewed",
     originalReading: "\\frac{\\partial \\nu}{\\partial t} = D \\frac{\\partial \\nu}{\\partial x}",
-    proposedReading: "\\frac{\\partial \\nu}{\\partial t} = D \\frac{\\partial^2 \\nu}{\\partial x^2}",
+    proposedReading:
+      "\\frac{\\partial \\nu}{\\partial t} = D \\frac{\\partial^2 \\nu}{\\partial x^2}",
     reasoning: "Second spatial derivative required for parabolic diffusion.",
     evidence: "Einstein's manuscript and 1906 reprint.",
     layer: "source",

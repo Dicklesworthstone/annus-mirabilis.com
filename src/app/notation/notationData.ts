@@ -41,7 +41,9 @@ export interface PaperNotationSection {
   readonly paperNumber: number;
   readonly locator: string;
   readonly entries: readonly EnrichedConcordanceEntry[];
-  readonly modernOnlySymbols: readonly (ModernOnlySymbol & { readonly glyphRendered: RenderedMath })[];
+  readonly modernOnlySymbols: readonly (ModernOnlySymbol & {
+    readonly glyphRendered: RenderedMath;
+  })[];
 }
 
 export interface NotationPageData {
@@ -58,10 +60,7 @@ export interface NotationPageData {
   };
 }
 
-const PAPER_METADATA: Record<
-  string,
-  { title: string; number: number; locator: string }
-> = {
+const PAPER_METADATA: Record<string, { title: string; number: number; locator: string }> = {
   "light-quanta": {
     title: "Light Quanta",
     number: 1,
@@ -142,7 +141,10 @@ export function extractSearchKeywords(entry: ConcordanceEntry, paperTitle: strin
   if ("quantityId" in entry.binding && entry.binding.quantityId) {
     tokens.add(entry.binding.quantityId.toLowerCase());
     // Split camelCase quantity ID
-    const parts = entry.binding.quantityId.replace(/([A-Z])/g, " $1").toLowerCase().split(" ");
+    const parts = entry.binding.quantityId
+      .replace(/([A-Z])/g, " $1")
+      .toLowerCase()
+      .split(" ");
     for (const p of parts) {
       if (p.length > 1) tokens.add(p);
     }
@@ -166,7 +168,11 @@ export function extractSearchKeywords(entry: ConcordanceEntry, paperTitle: strin
   }
 
   // Specific canonical group aliases
-  if (entry.id.includes("R_over_N") || entry.glyph.latex.includes("R/N") || entry.glyph.latex.includes("R\\beta/N")) {
+  if (
+    entry.id.includes("R_over_N") ||
+    entry.glyph.latex.includes("R/N") ||
+    entry.glyph.latex.includes("R\\beta/N")
+  ) {
     tokens.add("r/n");
     tokens.add("k_b");
     tokens.add("boltzmann");
@@ -301,8 +307,7 @@ export function loadNotationPageData(
   // Build collision clusters (glyphs with >1 entry or explicit collision record)
   const collisionClusters: CollisionCluster[] = [];
   for (const [gKey, entries] of glyphMap.entries()) {
-    const hasCollision =
-      entries.length > 1 || entries.some((e) => e.collision !== undefined);
+    const hasCollision = entries.length > 1 || entries.some((e) => e.collision !== undefined);
     if (!hasCollision) continue;
 
     const hasDanger = entries.some((e) => e.collision?.severity === "danger");

@@ -48,7 +48,9 @@ describe("GlossFace component rendering and interactions", () => {
 
     expect(htmlConfigured).toContain("gloss-entry-link-slot");
     expect(htmlConfigured).toContain('href="/foundations/reading-german-physics-sentence"');
-    expect(htmlConfigured).toContain('data-return-caption="Back to the gloss face at the same sentence"');
+    expect(htmlConfigured).toContain(
+      'data-return-caption="Back to the gloss face at the same sentence"',
+    );
     expect(htmlConfigured).toContain("Read the foundation on German physics sentences");
   });
 
@@ -64,14 +66,18 @@ describe("GlossFace component rendering and interactions", () => {
 
   test("sentence actions: 3 standard actions present in stable order; 4th action present only when toggle is on", () => {
     // Toggle OFF
-    const htmlOff = renderToStaticMarkup(<GlossFace {...defaultProps} initialReasoningWords={false} />);
+    const htmlOff = renderToStaticMarkup(
+      <GlossFace {...defaultProps} initialReasoningWords={false} />,
+    );
     expect(htmlOff).toContain('data-action="read-german"');
     expect(htmlOff).toContain('data-action="read-glosses"');
     expect(htmlOff).toContain('data-action="read-translation"');
     expect(htmlOff).not.toContain('data-action="read-reasoning"');
 
     // Toggle ON
-    const htmlOn = renderToStaticMarkup(<GlossFace {...defaultProps} initialReasoningWords={true} />);
+    const htmlOn = renderToStaticMarkup(
+      <GlossFace {...defaultProps} initialReasoningWords={true} />,
+    );
     expect(htmlOn).toContain('data-action="read-german"');
     expect(htmlOn).toContain('data-action="read-glosses"');
     expect(htmlOn).toContain('data-action="read-translation"');
@@ -79,7 +85,9 @@ describe("GlossFace component rendering and interactions", () => {
   });
 
   test("in-place reasoning words list: renders real static <ol> in token order when toggle is on", () => {
-    const htmlOn = renderToStaticMarkup(<GlossFace {...defaultProps} initialReasoningWords={true} />);
+    const htmlOn = renderToStaticMarkup(
+      <GlossFace {...defaultProps} initialReasoningWords={true} />,
+    );
 
     expect(htmlOn).toContain("reasoning-words-details");
     expect(htmlOn).toContain("List the reasoning words in this sentence");
@@ -94,7 +102,9 @@ describe("GlossFace component rendering and interactions", () => {
     );
 
     expect(htmlFallback).toContain('data-face-fallback="gloss"');
-    expect(htmlFallback).toContain("German source text and interlinear gloss for this paper are in preparation.");
+    expect(htmlFallback).toContain(
+      "German source text and interlinear gloss for this paper are in preparation.",
+    );
     expect(htmlFallback).not.toContain("gloss-pairs-container");
   });
 });

@@ -31,7 +31,8 @@ export async function generateMetadata({
   const profile = getBuildProfile();
 
   const isPartialInProd =
-    !journey || (journey.completeness === "partial" && (profile === "production" || profile === "preview"));
+    !journey ||
+    (journey.completeness === "partial" && (profile === "production" || profile === "preview"));
 
   return {
     title: `Discover · ${bib.englishTitle}`,

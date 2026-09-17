@@ -208,14 +208,14 @@ export function IndependentConfigurationsLab({
           <div className="mt-3 p-3 bg-background/80 rounded-lg border border-border/60 text-xs leading-relaxed">
             {predictAnswer === "1/1000" ? (
               <p className="text-emerald-700 dark:text-emerald-400 font-medium">
-                Because the particles move independently, their individual probabilities
-                multiply: W = (1/2)¹⁰ = 1/1 024 ≈ 0.0009765.
+                Because the particles move independently, their individual probabilities multiply: W
+                = (1/2)¹⁰ = 1/1 024 ≈ 0.0009765.
               </p>
             ) : (
               <p className="text-amber-700 dark:text-amber-400">
-                Notice: if the particles are independent, every additional particle halves the probability
-                again. 10 independent particles require 10 independent successes, giving (1/2)¹⁰ = 1/1
-                024.
+                Notice: if the particles are independent, every additional particle halves the
+                probability again. 10 independent particles require 10 independent successes, giving
+                (1/2)¹⁰ = 1/1 024.
               </p>
             )}
           </div>

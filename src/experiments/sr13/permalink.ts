@@ -33,7 +33,23 @@ export function decodeSr13Settings(
   | { kind: "invalid"; message: string } {
   if (!search || search === "?") return { kind: "none" };
   const q = new URLSearchParams(search);
-  const trackedKeys = ["ex", "ey", "ez", "bx", "by", "bz", "b", "dir", "dt", "conv", "lang", "part", "q", "m", "ds"];
+  const trackedKeys = [
+    "ex",
+    "ey",
+    "ez",
+    "bx",
+    "by",
+    "bz",
+    "b",
+    "dir",
+    "dt",
+    "conv",
+    "lang",
+    "part",
+    "q",
+    "m",
+    "ds",
+  ];
   if (![...q.keys()].some((k) => trackedKeys.includes(k))) return { kind: "none" };
 
   const candidate: Sr13Parameters = {

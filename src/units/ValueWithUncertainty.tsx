@@ -54,7 +54,9 @@ export function ValueWithUncertainty({
   };
   const uncertaintyText = uncertainty ? formatUncertainty(uncertainty, formatOptions) : "";
   const spokenValue = spokenQuantity(value, unit);
-  const spokenUncertaintyText = uncertainty ? spokenUncertainty(uncertainty, unit, formatOptions) : "";
+  const spokenUncertaintyText = uncertainty
+    ? spokenUncertainty(uncertainty, unit, formatOptions)
+    : "";
 
   const fullSpokenLabel = [
     spokenValue,

@@ -21,8 +21,8 @@ export default function CameraPage() {
         </h1>
         <p className="lead">
           A camera averages motion during exposure and adds uncertainty to every position. Discover
-          why those errors change what you can infer, even when the particle follows exactly the same
-          path.
+          why those errors change what you can infer, even when the particle follows exactly the
+          same path.
         </p>
         <p>
           <a href="/lab/bm-07/">Start with ideal molecular-number inference →</a> ·{" "}

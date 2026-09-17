@@ -135,7 +135,7 @@ export function ResultCard({ card }: { card: ResultCardData }) {
           <li>
             Selected route: <strong>{card.support.routeKind}</strong> ({card.support.proofRouteId})
             {card.support.verificationState.status === "authored-unverified" && (
-              <span className="notice"> — one step is not yet machine-checked.</span>
+              <span className="notice">: one step is not yet machine-checked.</span>
             )}
           </li>
           {card.support.entryAssumptions.map((a) => (

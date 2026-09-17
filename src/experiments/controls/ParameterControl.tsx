@@ -250,14 +250,15 @@ export function ParameterControl({
           ? spec.mapping.size
           : spec.step) ??
         1)
-      : spec.step ?? (displayMax - displayMin) / 100;
+      : (spec.step ?? (displayMax - displayMin) / 100);
 
   // Handle typed numeric input submit / change
   const handleInputChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     const text = e.target.value;
     setDraftText(text);
 
-    const options = dependentGridValue !== undefined ? { gridStepOverride: dependentGridValue } : undefined;
+    const options =
+      dependentGridValue !== undefined ? { gridStepOverride: dependentGridValue } : undefined;
     const parsed = parseParameterValue(spec, text, options);
 
     if (parsed.ok) {
@@ -274,7 +275,8 @@ export function ParameterControl({
   const handleSliderChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     const sliderNum = Number(e.target.value);
     const canonicalVal = toCanonicalValue(spec, sliderNum);
-    const options = dependentGridValue !== undefined ? { gridStepOverride: dependentGridValue } : undefined;
+    const options =
+      dependentGridValue !== undefined ? { gridStepOverride: dependentGridValue } : undefined;
     const parsed = parseParameterValue(spec, String(canonicalVal), options);
 
     if (parsed.ok) {
@@ -294,7 +296,8 @@ export function ParameterControl({
     const nextDisp = currentDisp + direction * stepIncrement;
     const nextCanonical = toCanonicalValue(spec, nextDisp);
 
-    const options = dependentGridValue !== undefined ? { gridStepOverride: dependentGridValue } : undefined;
+    const options =
+      dependentGridValue !== undefined ? { gridStepOverride: dependentGridValue } : undefined;
     const parsed = parseParameterValue(spec, String(nextCanonical), options);
 
     if (parsed.ok) {
@@ -310,7 +313,8 @@ export function ParameterControl({
 
   // Apply offered neighbour option
   const handleApplyNeighbour = (neighbour: number) => {
-    const options = dependentGridValue !== undefined ? { gridStepOverride: dependentGridValue } : undefined;
+    const options =
+      dependentGridValue !== undefined ? { gridStepOverride: dependentGridValue } : undefined;
     const parsed = parseParameterValue(spec, String(neighbour), options);
     if (parsed.ok) {
       setErrorExplanation(null);

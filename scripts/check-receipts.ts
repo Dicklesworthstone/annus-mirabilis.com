@@ -289,7 +289,8 @@ export async function runCheckReceipts(rawArgs: string[] = process.argv.slice(2)
 
 const isMainModule =
   process.argv[1] !== undefined &&
-  (import.meta.url === `file://${process.argv[1]}` || process.argv[1].endsWith("check-receipts.ts"));
+  (import.meta.url === `file://${process.argv[1]}` ||
+    process.argv[1].endsWith("check-receipts.ts"));
 if (isMainModule) {
   runCheckReceipts().then((code) => {
     if (code !== 0) {

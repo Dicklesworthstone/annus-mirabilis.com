@@ -9,7 +9,9 @@ import { FIXTURE_JOURNEY_BROWNIAN } from "./testing/fixtureJourney.ts";
 describe("copyGuards: voice lint and phrase checks", () => {
   test("shipped fixture copy produces zero voice lint errors in journey-branch context", () => {
     const findings = checkJourney(FIXTURE_JOURNEY_BROWNIAN);
-    const voiceErrors = findings.filter((f) => f.rule.startsWith("voice-") && f.severity === "error");
+    const voiceErrors = findings.filter(
+      (f) => f.rule.startsWith("voice-") && f.severity === "error",
+    );
     expect(voiceErrors.length).toBe(0);
   });
 
@@ -52,7 +54,9 @@ describe("copyGuards: voice lint and phrase checks", () => {
       ],
     };
     const findings = checkJourney(withAllowlisted);
-    const mockeryErrors = findings.filter((f) => f.rule === "voice-mockery" && f.severity === "error");
+    const mockeryErrors = findings.filter(
+      (f) => f.rule === "voice-mockery" && f.severity === "error",
+    );
     expect(mockeryErrors.length).toBe(0);
   });
 

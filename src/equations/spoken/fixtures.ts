@@ -31,7 +31,13 @@ export const EINSTEIN_RELATION_FIXTURE: EquationAccessibilityFixture = {
       "The rate of diffusion of microscopic suspended spheres is proportional to thermal energy and inversely proportional to Stokes hydrodynamic drag.",
     shortName: "Einstein relation for diffusion coefficient",
   },
-  boundTerms: ["diffusion coefficient", "Boltzmann's constant", "temperature", "viscosity", "radius"],
+  boundTerms: [
+    "diffusion coefficient",
+    "Boltzmann's constant",
+    "temperature",
+    "viscosity",
+    "radius",
+  ],
   terms: [
     {
       nodeId: "D",
@@ -258,7 +264,8 @@ export const MASS_ENERGY_KINETIC_FIXTURE: EquationAccessibilityFixture = {
       role: "model-result",
       unit: "Joules",
       status: "derived",
-      speechText: "Delta K: Difference in kinetic energy before and after radiation emission in Joules.",
+      speechText:
+        "Delta K: Difference in kinetic energy before and after radiation emission in Joules.",
     },
     {
       nodeId: "L",

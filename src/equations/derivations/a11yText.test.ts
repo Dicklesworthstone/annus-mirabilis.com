@@ -1,9 +1,5 @@
 import { describe, expect, test } from "bun:test";
-import {
-  expressionToSpokenText,
-  ruleInWords,
-  stepAccessibleText,
-} from "./a11yText.ts";
+import { expressionToSpokenText, ruleInWords, stepAccessibleText } from "./a11yText.ts";
 import { fixtureBrownianPedagogicalReconstruction } from "./fixtures.ts";
 
 describe("am-eq-derivation-renderer-9gd7: a11yText and ClearSpeak descriptions", () => {
@@ -61,6 +57,8 @@ describe("am-eq-derivation-renderer-9gd7: a11yText and ClearSpeak descriptions",
     const text = stepAccessibleText(moveStep, 2);
 
     expect(text).toContain("The move:");
-    expect(text).toContain("Cross terms average away because distinct displacements are independent");
+    expect(text).toContain(
+      "Cross terms average away because distinct displacements are independent",
+    );
   });
 });

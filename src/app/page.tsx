@@ -81,14 +81,10 @@ export default function Home() {
             </a>
           </p>
           <p>
-            <a href="/lab/sr-10/">
-              Transform the energy and volume of a finite light complex →
-            </a>
+            <a href="/lab/sr-10/">Transform the energy and volume of a finite light complex →</a>
           </p>
           <p>
-            <a href="/lab/sr-13/">
-              Examine electron dynamics and both force conventions →
-            </a>
+            <a href="/lab/sr-13/">Examine electron dynamics and both force conventions →</a>
           </p>
           <p>
             <a href="/lab/lq-06/">

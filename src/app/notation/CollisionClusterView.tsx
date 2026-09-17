@@ -23,9 +23,9 @@ export function CollisionClusterView({ clusters }: CollisionClusterViewProps) {
           <span>Collision Analysis: Overloaded & Colliding Notation</span>
         </h2>
         <p>
-          In 1905 physics, identical symbols represent fundamentally different quantities across papers,
-          within sections of the same paper, or when switching between historical and modern notation.
-          Danger collisions are marked with high-contrast text and icons.
+          In 1905 physics, identical symbols represent fundamentally different quantities across
+          papers, within sections of the same paper, or when switching between historical and modern
+          notation. Danger collisions are marked with high-contrast text and icons.
         </p>
       </div>
 
@@ -53,8 +53,15 @@ export function CollisionClusterView({ clusters }: CollisionClusterViewProps) {
 
               <div className="collision-entries-list">
                 {cluster.entries.map((e) => (
-                  <div key={e.id} className="collision-entry-summary" style={{ margin: "0.5rem 0", fontSize: "0.88rem" }}>
-                    <strong>{e.paperTitle} ({e.scope.join(", ")}):</strong> {e.meaning}
+                  <div
+                    key={e.id}
+                    className="collision-entry-summary"
+                    style={{ margin: "0.5rem 0", fontSize: "0.88rem" }}
+                  >
+                    <strong>
+                      {e.paperTitle} ({e.scope.join(", ")}):
+                    </strong>{" "}
+                    {e.meaning}
                     {" · "}
                     <a href={`#${e.id}`} className="card-anchor-link">
                       View full entry #{e.id}

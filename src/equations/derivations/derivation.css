@@ -67,7 +67,9 @@
   border: 1px solid var(--line, #bcb5a6);
   border-radius: 0.5rem;
   background: var(--paper, #faf7ef);
-  transition: outline 120ms ease, box-shadow 120ms ease;
+  transition:
+    outline 120ms ease,
+    box-shadow 120ms ease;
 }
 
 .derivation-step:focus-visible,

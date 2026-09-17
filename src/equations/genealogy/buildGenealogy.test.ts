@@ -127,10 +127,7 @@ describe("am-eq-genealogy-hmm: buildGenealogy", () => {
       },
     ];
 
-    const chains: DerivationChain[] = [
-      fixtureLorentzMapConstruction,
-      fixturePaper4TwoLedgers,
-    ];
+    const chains: DerivationChain[] = [fixtureLorentzMapConstruction, fixturePaper4TwoLedgers];
 
     const graph = buildGenealogy("special-relativity", srEquations, chains, {
       declaredRoots: [

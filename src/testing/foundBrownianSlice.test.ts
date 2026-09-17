@@ -162,8 +162,14 @@ describe("Foundations: Brownian Motion Slice (am-bm-slice-foundations-f5z9)", ()
     // Over [-2, 2] sigma is erf(sqrt(2)) ~ 0.954500
     const oneSigmaFraction = 0.682689;
     const twoSigmaFraction = 0.9545;
-    const vOneSigma = withinTolerance(oneSigmaFraction, 0.6827, { absolute: 0.001, relative: 1e-3 });
-    const vTwoSigma = withinTolerance(twoSigmaFraction, 0.9545, { absolute: 0.001, relative: 1e-3 });
+    const vOneSigma = withinTolerance(oneSigmaFraction, 0.6827, {
+      absolute: 0.001,
+      relative: 1e-3,
+    });
+    const vTwoSigma = withinTolerance(twoSigmaFraction, 0.9545, {
+      absolute: 0.001,
+      relative: 1e-3,
+    });
     assert.equal(vOneSigma.ok, true);
     assert.equal(vTwoSigma.ok, true);
 
@@ -180,7 +186,8 @@ describe("Foundations: Brownian Motion Slice (am-bm-slice-foundations-f5z9)", ()
       meanAbs2,
       meanSq2,
       rms2,
-      message: "Verified discrete arithmetic, doubled scaling, random walk spread, and Gaussian moments",
+      message:
+        "Verified discrete arithmetic, doubled scaling, random walk spread, and Gaussian moments",
     });
 
     fs.writeFileSync(logFile, `${logs.map((e) => JSON.stringify(e)).join("\n")}\n`);
@@ -214,23 +221,32 @@ describe("Foundations: Brownian Motion Slice (am-bm-slice-foundations-f5z9)", ()
     const meanSquareAlgebraic4x = 2 * D * tDoubled;
     const rmsAlgebraic4x = Math.sqrt(meanSquareAlgebraic4x);
 
-    assert.equal(meanSquareBridge4x, meanSquareAlgebraic4x, "Bridge 4x scaling equals algebraic 4x evaluation");
-    assert.equal(rmsBridge4x, rmsAlgebraic4x, "Bridge 2x RMS scaling equals algebraic 2x RMS evaluation");
+    assert.equal(
+      meanSquareBridge4x,
+      meanSquareAlgebraic4x,
+      "Bridge 4x scaling equals algebraic 4x evaluation",
+    );
+    assert.equal(
+      rmsBridge4x,
+      rmsAlgebraic4x,
+      "Bridge 2x RMS scaling equals algebraic 2x RMS evaluation",
+    );
   });
 
   it("tool-id audit: every step in Brownian derivation chains attaches a registered foundation tool", () => {
     const registry = loadRegistry();
     const registeredIds = new Set(registry.entries.map((e) => e.id));
 
-    const brownianChains = [
-      fixtureBrownianPedagogicalReconstruction,
-      fixtureBrownianSourceOrder,
-    ];
+    const brownianChains = [fixtureBrownianPedagogicalReconstruction, fixtureBrownianSourceOrder];
 
     const report = auditChainTools(brownianChains, registeredIds);
 
     assert.equal(report.totalSteps, 10, "Brownian chains must have 10 total derivation steps");
-    assert.equal(report.errors.length, 0, `No tool resolution errors allowed: ${JSON.stringify(report.errors)}`);
+    assert.equal(
+      report.errors.length,
+      0,
+      `No tool resolution errors allowed: ${JSON.stringify(report.errors)}`,
+    );
     assert.equal(
       report.pending.length,
       0,

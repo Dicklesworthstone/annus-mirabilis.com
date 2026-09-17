@@ -1,7 +1,4 @@
 {
-  "bunPathIgnorePatterns": [
-    "**/*.e2e.test.ts",
-    "scripts/quality-gates.test.ts"
-  ],
+  "bunPathIgnorePatterns": ["**/*.e2e.test.ts", "scripts/quality-gates.test.ts"],
   "nodeTestRoots": ["scripts/e2e"]
 }

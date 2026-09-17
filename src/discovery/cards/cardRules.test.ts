@@ -164,7 +164,8 @@ describe("am-disc-knowledge-cards-iw8j: card rules enforcement", () => {
       rule: "card-admitted-import-desk-forbidden",
       outcome: "pass",
       durationMs: Date.now() - start,
-      message: "Admitted 1905 import scoped strictly to declaring journey and excluded from 1904 desk.",
+      message:
+        "Admitted 1905 import scoped strictly to declaring journey and excluded from 1904 desk.",
     });
   });
 
@@ -309,7 +310,8 @@ describe("am-disc-knowledge-cards-iw8j: card rules enforcement", () => {
       rule: "card-einstein-knowledge-missing-citation",
       outcome: "pass",
       durationMs: Date.now() - start,
-      message: "Einstein knowledge claims require explicit evidence citations; prose claims flagged.",
+      message:
+        "Einstein knowledge claims require explicit evidence citations; prose claims flagged.",
     });
   });
 
@@ -379,7 +381,8 @@ describe("am-disc-knowledge-cards-iw8j: card rules enforcement", () => {
       rule: "card-date-earliest-after-latest",
       outcome: "pass",
       durationMs: Date.now() - start,
-      message: "Date consistency, earliest <= latest, latestYear matching, and parallel >= 1905 enforced.",
+      message:
+        "Date consistency, earliest <= latest, latestYear matching, and parallel >= 1905 enforced.",
     });
   });
 
@@ -424,7 +427,8 @@ describe("am-disc-knowledge-cards-iw8j: card rules enforcement", () => {
       rule: "card-duplicate-premise",
       outcome: "pass",
       durationMs: Date.now() - start,
-      message: "Duplicate cards detected by primary source key and normalized proposition with merge suggestion.",
+      message:
+        "Duplicate cards detected by primary source key and normalized proposition with merge suggestion.",
     });
   });
 });

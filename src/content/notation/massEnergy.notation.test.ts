@@ -126,7 +126,11 @@ describe("am-not-entries-mass-energy-wq2: mass-energy notation concordance", () 
     const qty = reg.quantities.get("additiveEnergyConstant");
     assert.ok(qty && qty.dimension, "additiveEnergyConstant with dimension must be in registry");
     const dimValues = qty.dimension.map((d) => d.num / d.den);
-    assert.deepEqual(dimValues, [2, 1, -2, 0, 0, 0], "C must have energy dimensions [2,1,-2,0,0,0]");
+    assert.deepEqual(
+      dimValues,
+      [2, 1, -2, 0, 0, 0],
+      "C must have energy dimensions [2,1,-2,0,0,0]",
+    );
     logPass("C-additive-energy-constant", "C binds additiveEnergyConstant with energy dimension");
   });
 
@@ -157,7 +161,10 @@ describe("am-not-entries-mass-energy-wq2: mass-energy notation concordance", () 
       entry?.notes?.includes("UNKNOWN pending direct facsimile verification"),
       "Notes must explicitly state printed form is UNKNOWN pending facsimile",
     );
-    logPass("lorentz-factor-group-unknown-pending", "Lorentz factor group maps to \\gamma with pending honesty note");
+    logPass(
+      "lorentz-factor-group-unknown-pending",
+      "Lorentz factor group maps to \\gamma with pending honesty note",
+    );
   });
 
   test("Unit conversion: 9e20 converts CGS ergs to grams with 0.14% note", () => {
@@ -180,9 +187,21 @@ describe("am-not-entries-mass-energy-wq2: mass-energy notation concordance", () 
     const k1 = resolveGlyph(paper, "me-s0", "K_1", emptyManifestIndex, file);
     const kDiff = resolveGlyph(paper, "me-s0", "K_0 - K_1", emptyManifestIndex, file);
 
-    assert.ok(k0.ok && "quantityId" in k0.entry.binding && k0.entry.binding.quantityId === "kineticEnergyBefore");
-    assert.ok(k1.ok && "quantityId" in k1.entry.binding && k1.entry.binding.quantityId === "kineticEnergyAfter");
-    assert.ok(kDiff.ok && "quantityId" in kDiff.entry.binding && kDiff.entry.binding.quantityId === "kineticEnergyDifference");
+    assert.ok(
+      k0.ok &&
+        "quantityId" in k0.entry.binding &&
+        k0.entry.binding.quantityId === "kineticEnergyBefore",
+    );
+    assert.ok(
+      k1.ok &&
+        "quantityId" in k1.entry.binding &&
+        k1.entry.binding.quantityId === "kineticEnergyAfter",
+    );
+    assert.ok(
+      kDiff.ok &&
+        "quantityId" in kDiff.entry.binding &&
+        kDiff.entry.binding.quantityId === "kineticEnergyDifference",
+    );
     logPass("kinetic-energies-bound", "K0, K1, and K0 - K1 bind correct kinetic energy quantities");
   });
 
@@ -191,8 +210,16 @@ describe("am-not-entries-mass-energy-wq2: mass-energy notation concordance", () 
     const vCap = resolveGlyph(paper, "me-s0", "V", emptyManifestIndex, file);
     const vSmall = resolveGlyph(paper, "me-s0", "v", emptyManifestIndex, file);
 
-    assert.ok(vCap.ok && "quantityId" in vCap.entry.binding && vCap.entry.binding.quantityId === "speedOfLight");
-    assert.ok(vSmall.ok && "quantityId" in vSmall.entry.binding && vSmall.entry.binding.quantityId === "frameSpeed");
+    assert.ok(
+      vCap.ok &&
+        "quantityId" in vCap.entry.binding &&
+        vCap.entry.binding.quantityId === "speedOfLight",
+    );
+    assert.ok(
+      vSmall.ok &&
+        "quantityId" in vSmall.entry.binding &&
+        vSmall.entry.binding.quantityId === "frameSpeed",
+    );
     assert.equal(modernSymbolFor(paper, "me-s0", "V", emptyManifestIndex, file), "c");
     assert.equal(modernSymbolFor(paper, "me-s0", "v", emptyManifestIndex, file), "v");
     logPass("V-and-v-bound", "V -> c and v -> v resolved correctly");
@@ -204,15 +231,22 @@ describe("am-not-entries-mass-energy-wq2: mass-energy notation concordance", () 
     assert.ok(res.ok, "L/V^2 must resolve");
     assert.ok("quantityId" in res.entry.binding);
     assert.equal(res.entry.binding.quantityId, "inertialMassDecrease");
-    assert.equal(modernSymbolFor(paper, "me-s0", "L/V^2", emptyManifestIndex, file), "\\frac{L}{c^2}");
+    assert.equal(
+      modernSymbolFor(paper, "me-s0", "L/V^2", emptyManifestIndex, file),
+      "\\frac{L}{c^2}",
+    );
     logPass("L_over_V2-inertial-mass-decrease", "L/V^2 binds inertialMassDecrease");
   });
 
   test("ModernOnlySymbols: contains invariantMassSystem and massChangeSigned", () => {
     const file = loadConcordanceForPaper(paper);
     assert.ok(file.modernOnlySymbols && file.modernOnlySymbols.length >= 2);
-    const invMass = file.modernOnlySymbols?.find((s) => "quantityId" in s.binding && s.binding.quantityId === "invariantMassSystem");
-    const deltaM = file.modernOnlySymbols?.find((s) => "quantityId" in s.binding && s.binding.quantityId === "massChangeSigned");
+    const invMass = file.modernOnlySymbols?.find(
+      (s) => "quantityId" in s.binding && s.binding.quantityId === "invariantMassSystem",
+    );
+    const deltaM = file.modernOnlySymbols?.find(
+      (s) => "quantityId" in s.binding && s.binding.quantityId === "massChangeSigned",
+    );
     assert.ok(invMass, "invariantMassSystem modern-only symbol must be present");
     assert.ok(deltaM, "massChangeSigned modern-only symbol must be present");
     logPass("modern-only-symbols", "Modern-only symbols present with non-1905 labels");
@@ -231,7 +265,8 @@ describe("am-not-entries-mass-energy-wq2: mass-energy notation concordance", () 
           `${entry.id} collision missing firstUseBySection`,
         );
         assert.ok(
-          entry.collision.collidesWith.length > 0 || (entry.collision.collidesWithModern?.length ?? 0) > 0,
+          entry.collision.collidesWith.length > 0 ||
+            (entry.collision.collidesWithModern?.length ?? 0) > 0,
           `${entry.id} collision has empty collision targets`,
         );
       }

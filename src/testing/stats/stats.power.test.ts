@@ -58,6 +58,8 @@ describe("Statistical Power & Sample Size (am-ver-statistical-policy-grj)", () =
 
   it("assertMinimumSampleSize passes when sample size is sufficient and throws when underpowered", () => {
     expect(() => assertMinimumSampleSize(1000, 500, "test-case")).not.toThrow();
-    expect(() => assertMinimumSampleSize(200, 500, "test-case")).toThrow(/Statistical sample size underpowered/);
+    expect(() => assertMinimumSampleSize(200, 500, "test-case")).toThrow(
+      /Statistical sample size underpowered/,
+    );
   });
 });

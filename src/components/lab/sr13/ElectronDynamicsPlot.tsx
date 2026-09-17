@@ -107,12 +107,34 @@ export function ElectronDynamicsPlot({
           {/* Grid Background */}
           <defs>
             <pattern id="grid-pattern" width="40" height="40" patternUnits="userSpaceOnUse">
-              <path d="M 40 0 L 0 0 0 40" fill="none" stroke="currentColor" className="text-border/20" strokeWidth="0.5" />
+              <path
+                d="M 40 0 L 0 0 0 40"
+                fill="none"
+                stroke="currentColor"
+                className="text-border/20"
+                strokeWidth="0.5"
+              />
             </pattern>
-            <marker id="arrow-beam" viewBox="0 0 10 10" refX="5" refY="5" markerWidth="6" markerHeight="6" orient="auto-start-reverse">
+            <marker
+              id="arrow-beam"
+              viewBox="0 0 10 10"
+              refX="5"
+              refY="5"
+              markerWidth="6"
+              markerHeight="6"
+              orient="auto-start-reverse"
+            >
               <path d="M 0 0 L 10 5 L 0 10 z" fill="#3b82f6" />
             </marker>
-            <marker id="arrow-field-e" viewBox="0 0 10 10" refX="5" refY="5" markerWidth="6" markerHeight="6" orient="auto-start-reverse">
+            <marker
+              id="arrow-field-e"
+              viewBox="0 0 10 10"
+              refX="5"
+              refY="5"
+              markerWidth="6"
+              markerHeight="6"
+              orient="auto-start-reverse"
+            >
               <path d="M 0 0 L 10 5 L 0 10 z" fill="#ef4444" />
             </marker>
           </defs>
@@ -136,13 +158,22 @@ export function ElectronDynamicsPlot({
             Uniform Field Chamber (E = {eMag.toExponential(1)} V/m, B = {bMag.toFixed(3)} T)
           </text>
           <text x={originX} y={65} className="fill-muted-foreground text-xs font-mono">
-            v₀ = {beta.toFixed(3)}c · γ = {gamma.toFixed(4)} · Convention: {forceConvention} ({massLanguage === "1905" ? "1905 masses" : "Modern momentum"})
+            v₀ = {beta.toFixed(3)}c · γ = {gamma.toFixed(4)} · Convention: {forceConvention} (
+            {massLanguage === "1905" ? "1905 masses" : "Modern momentum"})
           </text>
 
           {/* Field Vectors */}
           {eMag > 0 ? (
             <g transform="translate(700, 70)">
-              <line x1={0} y1={0} x2={0} y2={40} stroke="#ef4444" strokeWidth={2} markerEnd="url(#arrow-field-e)" />
+              <line
+                x1={0}
+                y1={0}
+                x2={0}
+                y2={40}
+                stroke="#ef4444"
+                strokeWidth={2}
+                markerEnd="url(#arrow-field-e)"
+              />
               <text x={10} y={25} className="fill-red-500 font-mono text-xs">
                 E_y
               </text>
@@ -160,25 +191,70 @@ export function ElectronDynamicsPlot({
           ) : null}
 
           {/* Coordinate Axes */}
-          <line x1={originX - 40} y1={originY} x2={width - 40} y2={originY} stroke="currentColor" className="text-border/60" strokeWidth={1} />
-          <line x1={originX} y1={30} x2={originX} y2={height - 30} stroke="currentColor" className="text-border/60" strokeWidth={1} />
-          <text x={width - 30} y={originY + 4} className="fill-muted-foreground text-[10px]">x</text>
-          <text x={originX} y={25} className="fill-muted-foreground text-[10px]" textAnchor="middle">y</text>
+          <line
+            x1={originX - 40}
+            y1={originY}
+            x2={width - 40}
+            y2={originY}
+            stroke="currentColor"
+            className="text-border/60"
+            strokeWidth={1}
+          />
+          <line
+            x1={originX}
+            y1={30}
+            x2={originX}
+            y2={height - 30}
+            stroke="currentColor"
+            className="text-border/60"
+            strokeWidth={1}
+          />
+          <text x={width - 30} y={originY + 4} className="fill-muted-foreground text-[10px]">
+            x
+          </text>
+          <text
+            x={originX}
+            y={25}
+            className="fill-muted-foreground text-[10px]"
+            textAnchor="middle"
+          >
+            y
+          </text>
 
           {/* Trajectory Curve */}
-          <path d={pathD} fill="none" stroke="#2563eb" strokeWidth={3} className="transition-all duration-200" />
+          <path
+            d={pathD}
+            fill="none"
+            stroke="#2563eb"
+            strokeWidth={3}
+            className="transition-all duration-200"
+          />
 
           {/* Initial Entry Point */}
           <circle cx={originX} cy={originY} r={5} fill="#1d4ed8" />
-          <text x={originX - 60} y={originY + 4} className="fill-primary text-xs font-mono font-medium">
+          <text
+            x={originX - 60}
+            y={originY + 4}
+            className="fill-primary text-xs font-mono font-medium"
+          >
             e⁻ entry
           </text>
 
           {/* End Particle Marker */}
           {points.length > 0 && points[points.length - 1] ? (
-            <g transform={`translate(${points[points.length - 1]!.x}, ${points[points.length - 1]!.y})`}>
+            <g
+              transform={`translate(${points[points.length - 1]!.x}, ${points[points.length - 1]!.y})`}
+            >
               <circle cx={0} cy={0} r={6} fill="#3b82f6" />
-              <circle cx={0} cy={0} r={10} fill="none" stroke="#3b82f6" strokeWidth={1} strokeDasharray="2 2" />
+              <circle
+                cx={0}
+                cy={0}
+                r={10}
+                fill="none"
+                stroke="#3b82f6"
+                strokeWidth={1}
+                strokeDasharray="2 2"
+              />
             </g>
           ) : null}
 
@@ -188,27 +264,77 @@ export function ElectronDynamicsPlot({
               {datasetOverlay === "kaufmann-1902-1906" ? (
                 <g>
                   {/* Kaufmann 1902-1906 empirical points */}
-                  {[{ x: 220, y: 185 }, { x: 340, y: 198 }, { x: 460, y: 220 }, { x: 580, y: 252 }, { x: 700, y: 295 }].map((pt, i) => (
+                  {[
+                    { x: 220, y: 185 },
+                    { x: 340, y: 198 },
+                    { x: 460, y: 220 },
+                    { x: 580, y: 252 },
+                    { x: 700, y: 295 },
+                  ].map((pt, i) => (
                     <g key={`kaufmann-${i}`}>
-                      <circle cx={pt.x} cy={pt.y} r={4} fill="#f59e0b" stroke="#b45309" strokeWidth={1.5} />
-                      <line x1={pt.x} y1={pt.y - 5} x2={pt.x} y2={pt.y + 5} stroke="#b45309" strokeWidth={1} />
+                      <circle
+                        cx={pt.x}
+                        cy={pt.y}
+                        r={4}
+                        fill="#f59e0b"
+                        stroke="#b45309"
+                        strokeWidth={1.5}
+                      />
+                      <line
+                        x1={pt.x}
+                        y1={pt.y - 5}
+                        x2={pt.x}
+                        y2={pt.y + 5}
+                        stroke="#b45309"
+                        strokeWidth={1}
+                      />
                     </g>
                   ))}
-                  <text x={originX + 20} y={height - 40} className="fill-amber-600 dark:fill-amber-400 text-[11px] font-mono font-medium">
+                  <text
+                    x={originX + 20}
+                    y={height - 40}
+                    className="fill-amber-600 dark:fill-amber-400 text-[11px] font-mono font-medium"
+                  >
                     ◆ Kaufmann 1902–1906 Radium β-ray Deflections (Ambiguous in 1905–1906)
                   </text>
                 </g>
               ) : (
                 <g>
                   {/* Bucherer 1908 velocity-filter points */}
-                  {[{ x: 220, y: 184 }, { x: 340, y: 196 }, { x: 460, y: 216 }, { x: 580, y: 246 }, { x: 700, y: 286 }].map((pt, i) => (
+                  {[
+                    { x: 220, y: 184 },
+                    { x: 340, y: 196 },
+                    { x: 460, y: 216 },
+                    { x: 580, y: 246 },
+                    { x: 700, y: 286 },
+                  ].map((pt, i) => (
                     <g key={`bucherer-${i}`}>
-                      <rect x={pt.x - 3.5} y={pt.y - 3.5} width={7} height={7} fill="#10b981" stroke="#047857" strokeWidth={1.5} />
-                      <line x1={pt.x} y1={pt.y - 4} x2={pt.x} y2={pt.y + 4} stroke="#047857" strokeWidth={1} />
+                      <rect
+                        x={pt.x - 3.5}
+                        y={pt.y - 3.5}
+                        width={7}
+                        height={7}
+                        fill="#10b981"
+                        stroke="#047857"
+                        strokeWidth={1.5}
+                      />
+                      <line
+                        x1={pt.x}
+                        y1={pt.y - 4}
+                        x2={pt.x}
+                        y2={pt.y + 4}
+                        stroke="#047857"
+                        strokeWidth={1}
+                      />
                     </g>
                   ))}
-                  <text x={originX + 20} y={height - 40} className="fill-emerald-600 dark:fill-emerald-400 text-[11px] font-mono font-medium">
-                    ■ Bucherer 1908 Crossed-Field Velocity Filter (Later Evidence favoring Lorentz–Einstein)
+                  <text
+                    x={originX + 20}
+                    y={height - 40}
+                    className="fill-emerald-600 dark:fill-emerald-400 text-[11px] font-mono font-medium"
+                  >
+                    ■ Bucherer 1908 Crossed-Field Velocity Filter (Later Evidence favoring
+                    Lorentz–Einstein)
                   </text>
                 </g>
               )}
@@ -234,7 +360,8 @@ export function ElectronDynamicsPlot({
             Transverse Mass: Comoving (Einstein 1905)
           </div>
           <div className="text-base font-mono font-semibold mt-1 text-amber-600 dark:text-amber-400">
-            {(transverseMassComovingKg / (particle === "electron" ? 9.1093837e-31 : 1)).toFixed(6)} m
+            {(transverseMassComovingKg / (particle === "electron" ? 9.1093837e-31 : 1)).toFixed(6)}{" "}
+            m
           </div>
           <div className="text-[11px] text-muted-foreground mt-1">
             Comoving force / Stationary acceleration: F′_y / a_y = γ²m
@@ -246,7 +373,10 @@ export function ElectronDynamicsPlot({
             Transverse Mass: Laboratory (Planck 1906)
           </div>
           <div className="text-base font-mono font-semibold mt-1 text-emerald-600 dark:text-emerald-400">
-            {(transverseMassLaboratoryKg / (particle === "electron" ? 9.1093837e-31 : 1)).toFixed(6)} m
+            {(transverseMassLaboratoryKg / (particle === "electron" ? 9.1093837e-31 : 1)).toFixed(
+              6,
+            )}{" "}
+            m
           </div>
           <div className="text-[11px] text-muted-foreground mt-1">
             Laboratory force / Stationary acceleration: F_y / a_y = γm
@@ -294,7 +424,9 @@ export function ElectronDynamicsPlot({
         <div className="p-2.5 rounded-md border border-border/40 bg-muted/20">
           <div className="text-muted-foreground">Magnetic Curvature Radius (R_m)</div>
           <div className="text-sm font-mono font-semibold mt-0.5">
-            {Number.isFinite(radiusCurvatureMagneticM) ? `${radiusCurvatureMagneticM.toFixed(4)} m` : "— (B = 0)"}
+            {Number.isFinite(radiusCurvatureMagneticM)
+              ? `${radiusCurvatureMagneticM.toFixed(4)} m`
+              : "— (B = 0)"}
           </div>
           <div className="text-[10px] text-muted-foreground mt-0.5">γmv / (|q|B)</div>
         </div>
@@ -302,7 +434,9 @@ export function ElectronDynamicsPlot({
         <div className="p-2.5 rounded-md border border-border/40 bg-muted/20">
           <div className="text-muted-foreground">Electric Curvature Radius (R_e)</div>
           <div className="text-sm font-mono font-semibold mt-0.5">
-            {Number.isFinite(radiusCurvatureElectricM) ? `${radiusCurvatureElectricM.toFixed(4)} m` : "— (E = 0)"}
+            {Number.isFinite(radiusCurvatureElectricM)
+              ? `${radiusCurvatureElectricM.toFixed(4)} m`
+              : "— (E = 0)"}
           </div>
           <div className="text-[10px] text-muted-foreground mt-0.5">γmv² / (|q|E)</div>
         </div>
@@ -314,7 +448,11 @@ export function ElectronDynamicsPlot({
           Force Definition Convention Independence
         </div>
         <p className="mt-1 text-blue-950/90 dark:text-blue-200/90">
-          Switching between Einstein&apos;s 1905 convention (comoving force / stationary acceleration, transverse coefficient 1.5625m at 0.6c) and Planck&apos;s 1906 convention (laboratory force, transverse coefficient 1.25m) alters only the named coefficient in the equation of motion. All physical observables (deflection radii, potentials, kinetic energy, and spatial trajectories) remain strictly identical under both conventions.
+          Switching between Einstein&apos;s 1905 convention (comoving force / stationary
+          acceleration, transverse coefficient 1.5625m at 0.6c) and Planck&apos;s 1906 convention
+          (laboratory force, transverse coefficient 1.25m) alters only the named coefficient in the
+          equation of motion. All physical observables (deflection radii, potentials, kinetic
+          energy, and spatial trajectories) remain strictly identical under both conventions.
         </p>
       </div>
     </div>

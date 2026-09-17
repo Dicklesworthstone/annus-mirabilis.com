@@ -9,8 +9,12 @@ describe("JourneyPage container component rendering", () => {
 
     expect(html).toContain('data-journey-id="brownian-motion"');
     expect(html).toContain('data-theme="slate"');
-    expect(html).toContain("Suspended microscopic particles in a liquid at rest never settle into permanent stillness.");
-    expect(html).toContain("How can the thermal agitation of invisible molecules produce observable microscopic motion?");
+    expect(html).toContain(
+      "Suspended microscopic particles in a liquid at rest never settle into permanent stillness.",
+    );
+    expect(html).toContain(
+      "How can the thermal agitation of invisible molecules produce observable microscopic motion?",
+    );
     expect(html).toContain("#card-osmotic-pressure");
     expect(html).toContain("The Consequential Move");
     expect(html).toContain("World Checks · Testing the Consequences");

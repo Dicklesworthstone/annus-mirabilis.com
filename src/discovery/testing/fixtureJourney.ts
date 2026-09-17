@@ -7,13 +7,15 @@ import type { Journey } from "../../content/schemas/journey.ts";
 
 export const FIXTURE_JOURNEY_BROWNIAN: Journey = {
   id: "brownian-motion",
-  paper: "Über die von der molekularkinetischen Theorie der Wärme geforderte Bewegung von in ruhenden Flüssigkeiten suspendierten Teilchen",
+  paper:
+    "Über die von der molekularkinetischen Theorie der Wärme geforderte Bewegung von in ruhenden Flüssigkeiten suspendierten Teilchen",
   revision: 1,
   completeness: "complete",
   shelf: ["card-osmotic-pressure", "card-stokes-law", "card-equipartition"],
   naggingFact:
     "Suspended microscopic particles in a liquid at rest never settle into permanent stillness.",
-  firstHonestQuestion: "How can the thermal agitation of invisible molecules produce observable microscopic motion?",
+  firstHonestQuestion:
+    "How can the thermal agitation of invisible molecules produce observable microscopic motion?",
   stages: [
     {
       id: "arg-bm-observable",
@@ -32,7 +34,13 @@ export const FIXTURE_JOURNEY_BROWNIAN: Journey = {
       support: {
         workedExample: {
           prompt: "Calculate the mean square displacement after 4 equal steps.",
-          steps: ["Step 1: x1 = +1", "Step 2: x2 = -1", "Step 3: x3 = +1", "Step 4: x4 = +1", "Sum of squares = 4"],
+          steps: [
+            "Step 1: x1 = +1",
+            "Step 2: x2 = -1",
+            "Step 3: x3 = +1",
+            "Step 4: x4 = +1",
+            "Sum of squares = 4",
+          ],
           result: "Mean square displacement is proportional to the number of steps.",
         },
         partialComparison: {
@@ -73,23 +81,34 @@ export const FIXTURE_JOURNEY_BROWNIAN: Journey = {
           id: "arg-branch-apparent-velocity",
           label: "Appren-velocity trajectory tracking",
           proponent: { name: "Exner", cardId: "card-exner-1900" },
-          hypothesis: "Measure distance divided by time between subsequent microscope observations.",
-          worksWhen: "When observation intervals are long and apparent speed is treated as an interval-dependent quantity.",
-          steps: [{ text: "Track position every 0.1 s." }, { text: "Divide path length by elapsed time." }],
+          hypothesis:
+            "Measure distance divided by time between subsequent microscope observations.",
+          worksWhen:
+            "When observation intervals are long and apparent speed is treated as an interval-dependent quantity.",
+          steps: [
+            { text: "Track position every 0.1 s." },
+            { text: "Divide path length by elapsed time." },
+          ],
           outcome: {
             type: "correct-but-weaker",
-            plainLanguage: "Accurate as an apparent speed over a chosen interval, but does not reveal an intrinsic molecular velocity.",
+            plainLanguage:
+              "Accurate as an apparent speed over a chosen interval, but does not reveal an intrinsic molecular velocity.",
           },
         },
         {
           id: "arg-branch-mean-square-displacement",
           label: "Mean-square displacement scaling",
-          hypothesis: "Measure the statistical spread across an ensemble as a function of elapsed time.",
+          hypothesis:
+            "Measure the statistical spread across an ensemble as a function of elapsed time.",
           worksWhen: "When steps are treated as independent stochastic fluctuations.",
-          steps: [{ text: "Record starting coordinates." }, { text: "Compute root-mean-square displacement." }],
+          steps: [
+            { text: "Record starting coordinates." },
+            { text: "Compute root-mean-square displacement." },
+          ],
           outcome: {
             type: "papers-route",
-            plainLanguage: "The relation lambda_x = sqrt(2Dt) connects microscopic diffusion to observable displacement.",
+            plainLanguage:
+              "The relation lambda_x = sqrt(2Dt) connects microscopic diffusion to observable displacement.",
           },
         },
       ],
@@ -103,24 +122,28 @@ export const FIXTURE_JOURNEY_BROWNIAN: Journey = {
         {
           id: "arg-branch-external-vibrations",
           label: "Ambient environmental vibrations",
-          hypothesis: "Building and floor vibrations transmitted through the vessel drive particle jiggling.",
+          hypothesis:
+            "Building and floor vibrations transmitted through the vessel drive particle jiggling.",
           worksWhen: "In non-isolated experimental apparatus.",
           steps: [{ text: "Place sample on heavy stone table in deep cellar." }],
           outcome: {
             type: "dead-end-on-constraint",
             constraintRef: "card-gouy-1888",
-            plainLanguage: "Gouy demonstrated that motion persists in isolated deep basements and sealed tubes indefinitely.",
+            plainLanguage:
+              "Gouy demonstrated that motion persists in isolated deep basements and sealed tubes indefinitely.",
           },
         },
         {
           id: "arg-branch-molecular-collisions",
           label: "Thermal molecular bombardment",
-          hypothesis: "Unbalanced instantaneous collisions from solvent molecules transfer momentum to suspended particles.",
+          hypothesis:
+            "Unbalanced instantaneous collisions from solvent molecules transfer momentum to suspended particles.",
           worksWhen: "When matter is atomic and heat is kinetic energy.",
           steps: [{ text: "Apply kinetic theory of heat to suspended particles." }],
           outcome: {
             type: "papers-route",
-            plainLanguage: "Particles in suspension exert osmotic pressure exactly like dissolved molecules of the same number.",
+            plainLanguage:
+              "Particles in suspension exert osmotic pressure exactly like dissolved molecules of the same number.",
           },
         },
       ],
@@ -172,7 +195,8 @@ export const FIXTURE_JOURNEY_BROWNIAN: Journey = {
     {
       id: "ex-bm-displacement-scaling",
       role: "instrumented",
-      prompt: "Find the factor by which mean square displacement increases when time is multiplied by nine.",
+      prompt:
+        "Find the factor by which mean square displacement increases when time is multiplied by nine.",
     },
     {
       id: "ex-bm-viscosity-dependence",
@@ -189,7 +213,8 @@ export const FIXTURE_JOURNEY_BROWNIAN: Journey = {
     promptId: "ppe-bm-chapter-end",
     task: "Predict what happens to displacement spread if particle radius is doubled.",
     perturbPrompt: "Change particle radius from 0.5 um to 1.0 um in the laboratory.",
-    explainPrompt: "Explain how Stokes drag reduces the diffusion coefficient inversely with radius.",
+    explainPrompt:
+      "Explain how Stokes drag reduces the diffusion coefficient inversely with radius.",
   },
   doors: {
     frontDoor: {

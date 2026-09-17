@@ -16,10 +16,8 @@ export const FORK_VARIES_KINDS = [
 export type ForkVariesKind = (typeof FORK_VARIES_KINDS)[number];
 
 export const FORK_VARIES_EXPLANATIONS: Readonly<Record<ForkVariesKind, string>> = {
-  "observable-definition":
-    "The branches vary what quantity is defined as the primary observable.",
-  "measurement-choice":
-    "The branches vary what physical quantity is chosen for measurement.",
+  "observable-definition": "The branches vary what quantity is defined as the primary observable.",
+  "measurement-choice": "The branches vary what physical quantity is chosen for measurement.",
   "theoretical-postulate":
     "The branches vary which theoretical principle is taken as a starting postulate.",
   "derivation-direction":
@@ -96,11 +94,13 @@ export type StageSupport = Readonly<{
     toComplete: string;
     explanation: string;
   }>;
-  prediction?: Readonly<{
-    prompt: string;
-    choices?: readonly string[] | undefined;
-    explanation: string;
-  }> | undefined;
+  prediction?:
+    | Readonly<{
+        prompt: string;
+        choices?: readonly string[] | undefined;
+        explanation: string;
+      }>
+    | undefined;
   explanation: string;
   transferCase?: TransferCase | undefined;
 }>;
@@ -194,7 +194,9 @@ export type WorldCheck = Readonly<{
   instrumentId: string;
   quantityId: string;
   expected: number | string;
-  tolerance?: Readonly<{ absolute?: number | undefined; relative?: number | undefined }> | undefined;
+  tolerance?:
+    | Readonly<{ absolute?: number | undefined; relative?: number | undefined }>
+    | undefined;
   laterEvidence?: WorldCheckLaterEvidence | undefined;
   staticWorkedExample: StaticWorkedExample;
   comparisonKind: "measured-fact" | "printed-prediction" | "theoretical-bound";
@@ -303,17 +305,33 @@ export function validateJourney(raw: unknown, path = "journey"): Journey {
     pendingElements = o.pendingElements.map((p, i) => {
       const pPath = `${path}.pendingElements[${i}]`;
       if (!p || typeof p !== "object") {
-        throw new JourneySchemaError("invalid-pending-element", "Pending element must be an object.", pPath);
+        throw new JourneySchemaError(
+          "invalid-pending-element",
+          "Pending element must be an object.",
+          pPath,
+        );
       }
       const pe = p as Record<string, unknown>;
       if (typeof pe.element !== "string" || !pe.element.trim()) {
-        throw new JourneySchemaError("missing-pending-element-name", "element name is required.", `${pPath}.element`);
+        throw new JourneySchemaError(
+          "missing-pending-element-name",
+          "element name is required.",
+          `${pPath}.element`,
+        );
       }
       if (typeof pe.reason !== "string" || !pe.reason.trim()) {
-        throw new JourneySchemaError("missing-pending-element-reason", "reason is required.", `${pPath}.reason`);
+        throw new JourneySchemaError(
+          "missing-pending-element-reason",
+          "reason is required.",
+          `${pPath}.reason`,
+        );
       }
       if (typeof pe.ownerBead !== "string" || !pe.ownerBead.trim()) {
-        throw new JourneySchemaError("missing-pending-element-owner", "ownerBead is required.", `${pPath}.ownerBead`);
+        throw new JourneySchemaError(
+          "missing-pending-element-owner",
+          "ownerBead is required.",
+          `${pPath}.ownerBead`,
+        );
       }
       return {
         element: pe.element,
@@ -329,17 +347,33 @@ export function validateJourney(raw: unknown, path = "journey"): Journey {
     admittedImports = o.admittedImports.map((imp, i) => {
       const impPath = `${path}.admittedImports[${i}]`;
       if (!imp || typeof imp !== "object") {
-        throw new JourneySchemaError("invalid-admitted-import", "Admitted import must be an object.", impPath);
+        throw new JourneySchemaError(
+          "invalid-admitted-import",
+          "Admitted import must be an object.",
+          impPath,
+        );
       }
       const impObj = imp as Record<string, unknown>;
       if (typeof impObj.importId !== "string" || !impObj.importId.trim()) {
-        throw new JourneySchemaError("missing-import-id", "importId is required.", `${impPath}.importId`);
+        throw new JourneySchemaError(
+          "missing-import-id",
+          "importId is required.",
+          `${impPath}.importId`,
+        );
       }
       if (typeof impObj.provenance !== "string" || !impObj.provenance.trim()) {
-        throw new JourneySchemaError("missing-import-provenance", "provenance is required.", `${impPath}.provenance`);
+        throw new JourneySchemaError(
+          "missing-import-provenance",
+          "provenance is required.",
+          `${impPath}.provenance`,
+        );
       }
       if (typeof impObj.sourceAnchor !== "string" || !impObj.sourceAnchor.trim()) {
-        throw new JourneySchemaError("missing-import-anchor", "sourceAnchor is required.", `${impPath}.sourceAnchor`);
+        throw new JourneySchemaError(
+          "missing-import-anchor",
+          "sourceAnchor is required.",
+          `${impPath}.sourceAnchor`,
+        );
       }
       return {
         importId: impObj.importId,
@@ -351,26 +385,46 @@ export function validateJourney(raw: unknown, path = "journey"): Journey {
 
   // Shelf
   if (!Array.isArray(o.shelf)) {
-    throw new JourneySchemaError("missing-shelf", "shelf must be an array of card IDs.", `${path}.shelf`);
+    throw new JourneySchemaError(
+      "missing-shelf",
+      "shelf must be an array of card IDs.",
+      `${path}.shelf`,
+    );
   }
   const shelf = o.shelf.map((s, i) => {
     if (typeof s !== "string" || !s.trim()) {
-      throw new JourneySchemaError("invalid-shelf-card-id", "shelf entry must be a non-empty card ID string.", `${path}.shelf[${i}]`);
+      throw new JourneySchemaError(
+        "invalid-shelf-card-id",
+        "shelf entry must be a non-empty card ID string.",
+        `${path}.shelf[${i}]`,
+      );
     }
     return s;
   });
 
   // Nagging Fact
   if (typeof o.naggingFact !== "string" || !o.naggingFact.trim()) {
-    throw new JourneySchemaError("missing-nagging-fact", "naggingFact is required.", `${path}.naggingFact`);
+    throw new JourneySchemaError(
+      "missing-nagging-fact",
+      "naggingFact is required.",
+      `${path}.naggingFact`,
+    );
   }
 
   // First Honest Question
   if (typeof o.firstHonestQuestion !== "string" || !o.firstHonestQuestion.trim()) {
-    throw new JourneySchemaError("missing-first-honest-question", "firstHonestQuestion is required.", `${path}.firstHonestQuestion`);
+    throw new JourneySchemaError(
+      "missing-first-honest-question",
+      "firstHonestQuestion is required.",
+      `${path}.firstHonestQuestion`,
+    );
   }
   if (!o.firstHonestQuestion.trim().endsWith("?")) {
-    throw new JourneySchemaError("first-honest-question-must-be-question", "firstHonestQuestion must end with a question mark.", `${path}.firstHonestQuestion`);
+    throw new JourneySchemaError(
+      "first-honest-question-must-be-question",
+      "firstHonestQuestion must end with a question mark.",
+      `${path}.firstHonestQuestion`,
+    );
   }
 
   // Stages
@@ -387,13 +441,25 @@ export function validateJourney(raw: unknown, path = "journey"): Journey {
       throw new JourneySchemaError("missing-stage-id", "stage id is required.", `${sPath}.id`);
     }
     if (typeof s.title !== "string" || !s.title.trim()) {
-      throw new JourneySchemaError("missing-stage-title", "stage title is required.", `${sPath}.title`);
+      throw new JourneySchemaError(
+        "missing-stage-title",
+        "stage title is required.",
+        `${sPath}.title`,
+      );
     }
     if (typeof s.question !== "string" || !s.question.trim()) {
-      throw new JourneySchemaError("missing-stage-question", "stage question is required.", `${sPath}.question`);
+      throw new JourneySchemaError(
+        "missing-stage-question",
+        "stage question is required.",
+        `${sPath}.question`,
+      );
     }
     if (typeof s.computeFromShelf !== "string" || !s.computeFromShelf.trim()) {
-      throw new JourneySchemaError("missing-compute-from-shelf", "computeFromShelf is required.", `${sPath}.computeFromShelf`);
+      throw new JourneySchemaError(
+        "missing-compute-from-shelf",
+        "computeFromShelf is required.",
+        `${sPath}.computeFromShelf`,
+      );
     }
 
     const premiseRefs: StagePremiseRef[] = Array.isArray(s.premiseRefs)
@@ -409,7 +475,11 @@ export function validateJourney(raw: unknown, path = "journey"): Journey {
               importId: typeof prObj.importId === "string" ? prObj.importId : undefined,
             };
           }
-          throw new JourneySchemaError("invalid-premise-ref", "Invalid stage premiseRef entry.", `${sPath}.premiseRefs[${j}]`);
+          throw new JourneySchemaError(
+            "invalid-premise-ref",
+            "Invalid stage premiseRef entry.",
+            `${sPath}.premiseRefs[${j}]`,
+          );
         })
       : [];
 
@@ -460,7 +530,9 @@ export function validateJourney(raw: unknown, path = "journey"): Journey {
       };
     }
 
-    let prediction: { prompt: string; choices?: readonly string[]; explanation: string } | undefined;
+    let prediction:
+      | { prompt: string; choices?: readonly string[]; explanation: string }
+      | undefined;
     if (sup.prediction && typeof sup.prediction === "object") {
       const pred = sup.prediction as Record<string, unknown>;
       prediction = {
@@ -514,14 +586,26 @@ export function validateJourney(raw: unknown, path = "journey"): Journey {
       throw new JourneySchemaError("missing-fork-id", "fork id is required.", `${fPath}.id`);
     }
     if (typeof f.afterStageId !== "string" || !f.afterStageId.trim()) {
-      throw new JourneySchemaError("missing-after-stage-id", "afterStageId is required.", `${fPath}.afterStageId`);
+      throw new JourneySchemaError(
+        "missing-after-stage-id",
+        "afterStageId is required.",
+        `${fPath}.afterStageId`,
+      );
     }
     if (typeof f.question !== "string" || !f.question.trim()) {
-      throw new JourneySchemaError("missing-fork-question", "fork question is required.", `${fPath}.question`);
+      throw new JourneySchemaError(
+        "missing-fork-question",
+        "fork question is required.",
+        `${fPath}.question`,
+      );
     }
 
     // varies check
-    if (!f.varies || typeof f.varies !== "string" || !FORK_VARIES_KINDS.includes(f.varies as ForkVariesKind)) {
+    if (
+      !f.varies ||
+      typeof f.varies !== "string" ||
+      !FORK_VARIES_KINDS.includes(f.varies as ForkVariesKind)
+    ) {
       throw new JourneySchemaError(
         "fork-varies-missing",
         `fork requires "varies" to be one of ${FORK_VARIES_KINDS.join(", ")} (got "${String(f.varies)}").`,
@@ -531,7 +615,11 @@ export function validateJourney(raw: unknown, path = "journey"): Journey {
     const varies = f.varies as ForkVariesKind;
 
     if (!Array.isArray(f.branches) || f.branches.length < 2) {
-      throw new JourneySchemaError("fork-too-few-branches", "fork must have at least 2 branches.", `${fPath}.branches`);
+      throw new JourneySchemaError(
+        "fork-too-few-branches",
+        "fork must have at least 2 branches.",
+        `${fPath}.branches`,
+      );
     }
 
     const branches: Branch[] = f.branches.map((br, j) => {
@@ -544,23 +632,43 @@ export function validateJourney(raw: unknown, path = "journey"): Journey {
         throw new JourneySchemaError("missing-branch-id", "branch id is required.", `${bPath}.id`);
       }
       if (typeof b.label !== "string" || !b.label.trim()) {
-        throw new JourneySchemaError("missing-branch-label", "branch label is required.", `${bPath}.label`);
+        throw new JourneySchemaError(
+          "missing-branch-label",
+          "branch label is required.",
+          `${bPath}.label`,
+        );
       }
       if (typeof b.hypothesis !== "string" || !b.hypothesis.trim()) {
-        throw new JourneySchemaError("missing-branch-hypothesis", "branch hypothesis is required.", `${bPath}.hypothesis`);
+        throw new JourneySchemaError(
+          "missing-branch-hypothesis",
+          "branch hypothesis is required.",
+          `${bPath}.hypothesis`,
+        );
       }
       if (typeof b.worksWhen !== "string" || !b.worksWhen.trim()) {
-        throw new JourneySchemaError("missing-branch-works-when", "branch worksWhen is required.", `${bPath}.worksWhen`);
+        throw new JourneySchemaError(
+          "missing-branch-works-when",
+          "branch worksWhen is required.",
+          `${bPath}.worksWhen`,
+        );
       }
 
       let proponent: BranchProponent | undefined;
       if (b.proponent && typeof b.proponent === "object") {
         const prop = b.proponent as Record<string, unknown>;
         if (typeof prop.name !== "string" || !prop.name.trim()) {
-          throw new JourneySchemaError("missing-proponent-name", "proponent requires name.", `${bPath}.proponent.name`);
+          throw new JourneySchemaError(
+            "missing-proponent-name",
+            "proponent requires name.",
+            `${bPath}.proponent.name`,
+          );
         }
         if (typeof prop.cardId !== "string" || !prop.cardId.trim()) {
-          throw new JourneySchemaError("missing-proponent-card-id", "proponent requires cardId.", `${bPath}.proponent.cardId`);
+          throw new JourneySchemaError(
+            "missing-proponent-card-id",
+            "proponent requires cardId.",
+            `${bPath}.proponent.cardId`,
+          );
         }
         proponent = { name: prop.name, cardId: prop.cardId };
       }
@@ -579,7 +687,11 @@ export function validateJourney(raw: unknown, path = "journey"): Journey {
 
       // Outcome validation
       const out = (b.outcome ?? {}) as Record<string, unknown>;
-      if (!out.type || typeof out.type !== "string" || !OUTCOME_TYPES.includes(out.type as OutcomeType)) {
+      if (
+        !out.type ||
+        typeof out.type !== "string" ||
+        !OUTCOME_TYPES.includes(out.type as OutcomeType)
+      ) {
         throw new JourneySchemaError(
           "invalid-outcome-type",
           `outcome type must be one of: ${OUTCOME_TYPES.join(", ")} (got "${String(out.type)}").`,
@@ -634,10 +746,18 @@ export function validateJourney(raw: unknown, path = "journey"): Journey {
         }
         const wwd = out.whatWouldDecide as Record<string, unknown>;
         if (typeof wwd.name !== "string" || !wwd.name.trim()) {
-          throw new JourneySchemaError("missing-what-would-decide-name", "whatWouldDecide requires name.", `${bPath}.outcome.whatWouldDecide.name`);
+          throw new JourneySchemaError(
+            "missing-what-would-decide-name",
+            "whatWouldDecide requires name.",
+            `${bPath}.outcome.whatWouldDecide.name`,
+          );
         }
         if (typeof wwd.recordId !== "string" || !wwd.recordId.trim()) {
-          throw new JourneySchemaError("missing-what-would-decide-record", "whatWouldDecide requires recordId.", `${bPath}.outcome.whatWouldDecide.recordId`);
+          throw new JourneySchemaError(
+            "missing-what-would-decide-record",
+            "whatWouldDecide requires recordId.",
+            `${bPath}.outcome.whatWouldDecide.recordId`,
+          );
         }
         whatWouldDecide = {
           name: wwd.name,
@@ -693,20 +813,40 @@ export function validateJourney(raw: unknown, path = "journey"): Journey {
   }
   const m = o.move as Record<string, unknown>;
   if (typeof m.label !== "string" || !m.label.trim()) {
-    throw new JourneySchemaError("missing-move-label", "move label is required.", `${path}.move.label`);
+    throw new JourneySchemaError(
+      "missing-move-label",
+      "move label is required.",
+      `${path}.move.label`,
+    );
   }
   if (typeof m.chainId !== "string" || !m.chainId.trim()) {
-    throw new JourneySchemaError("missing-move-chain-id", "move chainId is required.", `${path}.move.chainId`);
+    throw new JourneySchemaError(
+      "missing-move-chain-id",
+      "move chainId is required.",
+      `${path}.move.chainId`,
+    );
   }
   if (typeof m.stepId !== "string" || !m.stepId.trim()) {
-    throw new JourneySchemaError("missing-move-step-id", "move stepId is required.", `${path}.move.stepId`);
+    throw new JourneySchemaError(
+      "missing-move-step-id",
+      "move stepId is required.",
+      `${path}.move.stepId`,
+    );
   }
   if (!m.r0Summary || typeof m.r0Summary !== "object") {
-    throw new JourneySchemaError("missing-r0-summary", "move r0Summary is required.", `${path}.move.r0Summary`);
+    throw new JourneySchemaError(
+      "missing-r0-summary",
+      "move r0Summary is required.",
+      `${path}.move.r0Summary`,
+    );
   }
   const r0 = m.r0Summary as Record<string, unknown>;
   if (typeof r0.text !== "string") {
-    throw new JourneySchemaError("missing-r0-summary-text", "move.r0Summary.text is required.", `${path}.move.r0Summary.text`);
+    throw new JourneySchemaError(
+      "missing-r0-summary-text",
+      "move.r0Summary.text is required.",
+      `${path}.move.r0Summary.text`,
+    );
   }
   if (r0.reviewState !== "draft" && r0.reviewState !== "reviewed") {
     throw new JourneySchemaError(
@@ -730,7 +870,11 @@ export function validateJourney(raw: unknown, path = "journey"): Journey {
     ? o.worldChecks.map((wc, i) => {
         const wcPath = `${path}.worldChecks[${i}]`;
         if (!wc || typeof wc !== "object") {
-          throw new JourneySchemaError("invalid-world-check", "worldCheck must be an object.", wcPath);
+          throw new JourneySchemaError(
+            "invalid-world-check",
+            "worldCheck must be an object.",
+            wcPath,
+          );
         }
         const w = wc as Record<string, unknown>;
         let laterEvidence: WorldCheckLaterEvidence | undefined;
@@ -767,7 +911,11 @@ export function validateJourney(raw: unknown, path = "journey"): Journey {
     ? o.sourceJumps.map((sj, i) => {
         const sjPath = `${path}.sourceJumps[${i}]`;
         if (!sj || typeof sj !== "object") {
-          throw new JourneySchemaError("invalid-source-jump", "sourceJump must be an object.", sjPath);
+          throw new JourneySchemaError(
+            "invalid-source-jump",
+            "sourceJump must be an object.",
+            sjPath,
+          );
         }
         const j = sj as Record<string, unknown>;
         return {

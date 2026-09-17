@@ -212,8 +212,7 @@ export function layoutGenealogyGraph(graph: GenealogyGraph): GenealogyLayoutResu
   const layerMap = assignLayers(graph);
   const orderedLayers = orderLayersBarycentric(graph, layerMap);
 
-  const { NODE_WIDTH, NODE_HEIGHT, NODE_GAP_X, LAYER_GAP_Y, PADDING, MIN_WIDTH } =
-    LAYOUT_CONSTANTS;
+  const { NODE_WIDTH, NODE_HEIGHT, NODE_GAP_X, LAYER_GAP_Y, PADDING, MIN_WIDTH } = LAYOUT_CONSTANTS;
 
   let maxNodesInLayer = 0;
   for (const layer of orderedLayers) {
@@ -223,14 +222,11 @@ export function layoutGenealogyGraph(graph: GenealogyGraph): GenealogyLayoutResu
   }
 
   const contentWidth =
-    2 * PADDING +
-    maxNodesInLayer * NODE_WIDTH +
-    Math.max(0, maxNodesInLayer - 1) * NODE_GAP_X;
+    2 * PADDING + maxNodesInLayer * NODE_WIDTH + Math.max(0, maxNodesInLayer - 1) * NODE_GAP_X;
   const width = Math.max(MIN_WIDTH, contentWidth);
 
   const totalLayers = Math.max(1, orderedLayers.length);
-  const height =
-    2 * PADDING + totalLayers * NODE_HEIGHT + (totalLayers - 1) * LAYER_GAP_Y;
+  const height = 2 * PADDING + totalLayers * NODE_HEIGHT + (totalLayers - 1) * LAYER_GAP_Y;
 
   const layoutNodesMap = new Map<string, LayoutNode>();
   const layersResult: LayoutNode[][] = [];
@@ -238,8 +234,7 @@ export function layoutGenealogyGraph(graph: GenealogyGraph): GenealogyLayoutResu
   for (let l = 0; l < orderedLayers.length; l++) {
     const layer = orderedLayers[l]!;
     const layerNodeCount = layer.length;
-    const layerWidth =
-      layerNodeCount * NODE_WIDTH + Math.max(0, layerNodeCount - 1) * NODE_GAP_X;
+    const layerWidth = layerNodeCount * NODE_WIDTH + Math.max(0, layerNodeCount - 1) * NODE_GAP_X;
     const startX = Math.round((width - layerWidth) / 2);
     const y = PADDING + l * (NODE_HEIGHT + LAYER_GAP_Y);
 

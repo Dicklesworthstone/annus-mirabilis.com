@@ -63,54 +63,14 @@ const c = (
   Object.freeze({ unit, semanticKind, ownerId, statuses: Object.freeze([...statuses]) });
 
 export const SR11_OUTPUTS: Readonly<Record<string, OutputContract>> = Object.freeze({
-  frequencyRatio: c("1", "ratio", "waves", [
-    "value",
-    "not-applicable",
-    "outside-domain",
-  ]),
-  cosPhiReflected: c("1", "cosine", "waves", [
-    "value",
-    "not-applicable",
-    "outside-domain",
-  ]),
-  phiReflectedDeg: c("deg", "angle", "waves", [
-    "value",
-    "not-applicable",
-    "outside-domain",
-  ]),
-  amplitudeRatio: c("1", "ratio", "waves", [
-    "value",
-    "not-applicable",
-    "outside-domain",
-  ]),
-  radiationPressure: c("Pa", "pressure", "waves", [
-    "value",
-    "not-applicable",
-    "outside-domain",
-  ]),
-  radiationForce: c("N", "force", "waves", [
-    "value",
-    "not-applicable",
-    "outside-domain",
-  ]),
-  incidentPower: c("W", "power", "waves", [
-    "value",
-    "not-applicable",
-    "outside-domain",
-  ]),
-  reflectedPower: c("W", "power", "waves", [
-    "value",
-    "not-applicable",
-    "outside-domain",
-  ]),
-  workRate: c("W", "power", "waves", [
-    "value",
-    "not-applicable",
-    "outside-domain",
-  ]),
-  energyBalanceResidual: c("W", "power", "waves", [
-    "value",
-    "not-applicable",
-    "outside-domain",
-  ]),
+  frequencyRatio: c("1", "ratio", "waves", ["value", "not-applicable", "outside-domain"]),
+  cosPhiReflected: c("1", "cosine", "waves", ["value", "not-applicable", "outside-domain"]),
+  phiReflectedDeg: c("deg", "angle", "waves", ["value", "not-applicable", "outside-domain"]),
+  amplitudeRatio: c("1", "ratio", "waves", ["value", "not-applicable", "outside-domain"]),
+  radiationPressure: c("Pa", "pressure", "waves", ["value", "not-applicable", "outside-domain"]),
+  radiationForce: c("N", "force", "waves", ["value", "not-applicable", "outside-domain"]),
+  incidentPower: c("W", "power", "waves", ["value", "not-applicable", "outside-domain"]),
+  reflectedPower: c("W", "power", "waves", ["value", "not-applicable", "outside-domain"]),
+  workRate: c("W", "power", "waves", ["value", "not-applicable", "outside-domain"]),
+  energyBalanceResidual: c("W", "power", "waves", ["value", "not-applicable", "outside-domain"]),
 });

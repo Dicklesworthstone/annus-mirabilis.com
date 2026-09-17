@@ -43,9 +43,7 @@ function extractSectionFromId(id: string): string | undefined {
 
 function formatLabel(id: string): string {
   const parts = id.replace(/^(?:eq|premise|chain)-/, "").split("-");
-  return parts
-    .map((p) => (p.length > 0 ? p.charAt(0).toUpperCase() + p.slice(1) : p))
-    .join(" ");
+  return parts.map((p) => (p.length > 0 ? p.charAt(0).toUpperCase() + p.slice(1) : p)).join(" ");
 }
 
 /**
@@ -163,8 +161,7 @@ export function buildGenealogy(
     // Register entry assumptions
     for (const assumption of chain.entryAssumptions) {
       const assumptionPaper =
-        assumption.admittedImport?.sourcePaper ??
-        extractPaperFromId(assumption.ref, chainPaper);
+        assumption.admittedImport?.sourcePaper ?? extractPaperFromId(assumption.ref, chainPaper);
       const isRoot = declaredRootsSet.has(assumption.ref);
       const isExternal = assumptionPaper !== paper;
 
@@ -198,8 +195,7 @@ export function buildGenealogy(
 
       for (const pRef of step.premiseRefs) {
         const pRefPaper =
-          pRef.admittedImport?.sourcePaper ??
-          extractPaperFromId(pRef.ref, stepPaper);
+          pRef.admittedImport?.sourcePaper ?? extractPaperFromId(pRef.ref, stepPaper);
         const isRoot = declaredRootsSet.has(pRef.ref);
         const isExternal = pRefPaper !== paper;
 
@@ -287,10 +283,8 @@ export function buildGenealogy(
     for (const assumption of chain.entryAssumptions) {
       const isPremise = assumption.edgeType !== "cross-reference";
       const assumptionPaper =
-        assumption.admittedImport?.sourcePaper ??
-        extractPaperFromId(assumption.ref, chainPaper);
-      const crossPaper =
-        Boolean(assumption.admittedImport) || assumptionPaper !== targetPaper;
+        assumption.admittedImport?.sourcePaper ?? extractPaperFromId(assumption.ref, chainPaper);
+      const crossPaper = Boolean(assumption.admittedImport) || assumptionPaper !== targetPaper;
 
       addEdge({
         from: assumption.ref,
@@ -333,10 +327,8 @@ export function buildGenealogy(
       for (const pRef of step.premiseRefs) {
         const isPremise = pRef.edgeType !== "cross-reference";
         const pRefPaper =
-          pRef.admittedImport?.sourcePaper ??
-          extractPaperFromId(pRef.ref, chainPaper);
-        const crossPaper =
-          Boolean(pRef.admittedImport) || pRefPaper !== stepPaper;
+          pRef.admittedImport?.sourcePaper ?? extractPaperFromId(pRef.ref, chainPaper);
+        const crossPaper = Boolean(pRef.admittedImport) || pRefPaper !== stepPaper;
 
         addEdge({
           from: pRef.ref,

@@ -195,6 +195,7 @@ export function runPrintCoverageCheck(context: CheckContext): void {
       context.report({
         recordId: d.recordId,
         rule: d.rule,
+        severity: d.severity,
         message: d.message,
         path: d.path,
       });
@@ -208,6 +209,7 @@ export function runPrintCoverageCheck(context: CheckContext): void {
       context.report({
         recordId: d.recordId,
         rule: d.rule,
+        severity: d.severity,
         message: d.message,
         path: d.path,
       });

@@ -53,7 +53,9 @@ describe("Discover [paper] route contracts and page rendering", () => {
 
     expect(html).toContain('data-theme="slate"');
     expect(html).toContain('data-journey-id="brownian-motion"');
-    expect(html).toContain("Suspended microscopic particles in a liquid at rest never settle into permanent stillness.");
+    expect(html).toContain(
+      "Suspended microscopic particles in a liquid at rest never settle into permanent stillness.",
+    );
   });
 
   test("renders JourneyInPreparation for unpublished paper in production profile with bibliographic props", async () => {
@@ -66,8 +68,12 @@ describe("Discover [paper] route contracts and page rendering", () => {
       const html = renderToStaticMarkup(pageElement);
 
       expect(html).toContain("This journey is in preparation.");
-      expect(html).toContain("Über einen die Erzeugung und Verwandlung des Lichtes betreffenden heuristischen Gesichtspunkt");
-      expect(html).toContain("On a Heuristic Point of View Concerning the Production and Transformation of Light");
+      expect(html).toContain(
+        "Über einen die Erzeugung und Verwandlung des Lichtes betreffenden heuristischen Gesichtspunkt",
+      );
+      expect(html).toContain(
+        "On a Heuristic Point of View Concerning the Production and Transformation of Light",
+      );
       expect(html).toContain("Ann. Phys. (4) 17, 132–148 (1905)");
       expect(html).toContain('href="/papers/light-quanta/"');
     } finally {

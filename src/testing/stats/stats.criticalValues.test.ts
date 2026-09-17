@@ -20,7 +20,7 @@ describe("Critical Values Table & Spot Checks (am-ver-statistical-policy-grj)", 
 
   it("passes exact spot checks from acceptance criteria", () => {
     const spots = getSpotChecks();
-    
+
     // chi2(1, 0.975) = 5.0239
     expect(spots.chi2_1_0975!.toFixed(4)).toBe("5.0239");
     expect(getChi2Quantile(1, 0.975).toFixed(4)).toBe("5.0239");

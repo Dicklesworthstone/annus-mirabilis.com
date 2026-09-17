@@ -187,7 +187,10 @@ export function GlossFace({
                   {locators}
                   {block.sentenceSpans.map((sp) => {
                     const glossUnit = glossMap.get(sp.id);
-                    const germanSentenceText = block.diplomaticText.slice(sp.span.start, sp.span.end);
+                    const germanSentenceText = block.diplomaticText.slice(
+                      sp.span.start,
+                      sp.span.end,
+                    );
 
                     // Lookup aligned English translation if available
                     let englishText: string | undefined;
@@ -199,7 +202,9 @@ export function GlossFace({
                           .filter(Boolean) as TranslationUnit[];
                         if (trUnits.length > 0) {
                           englishText = trUnits
-                            .map((u) => u.inlines.map((inl) => ("text" in inl ? inl.text : "")).join(" "))
+                            .map((u) =>
+                              u.inlines.map((inl) => ("text" in inl ? inl.text : "")).join(" "),
+                            )
                             .join(" ");
                         }
                       }

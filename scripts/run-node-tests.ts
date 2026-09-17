@@ -13,9 +13,7 @@ export type SubprocessTestIgnore = Readonly<{
   nodeTestRoots: readonly string[];
 }>;
 
-export function loadSubprocessTestIgnore(
-  root: string = process.cwd(),
-): SubprocessTestIgnore {
+export function loadSubprocessTestIgnore(root: string = process.cwd()): SubprocessTestIgnore {
   const raw = JSON.parse(
     readFileSync(join(root, "scripts/subprocess-test-ignore.json"), "utf8"),
   ) as SubprocessTestIgnore;
@@ -89,10 +87,9 @@ const isMain =
 if (isMain) {
   const paths = nodeTestPaths();
   console.log(`node --experimental-strip-types --test ${paths.join(" ")}`);
-  const result = spawnSync(
-    process.execPath,
-    ["--experimental-strip-types", "--test", ...paths],
-    { cwd: process.cwd(), stdio: "inherit" },
-  );
+  const result = spawnSync(process.execPath, ["--experimental-strip-types", "--test", ...paths], {
+    cwd: process.cwd(),
+    stdio: "inherit",
+  });
   process.exit(result.status ?? 1);
 }

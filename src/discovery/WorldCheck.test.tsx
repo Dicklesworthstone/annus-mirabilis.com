@@ -9,7 +9,9 @@ describe("WorldCheck component rendering", () => {
   test("renders world check claim, static worked example, and instrument link", () => {
     const html = renderToStaticMarkup(<WorldCheck check={worldCheck} />);
 
-    expect(html).toContain("The diffusion equation yields Avogadro&#x27;s number within experimental precision.");
+    expect(html).toContain(
+      "The diffusion equation yields Avogadro&#x27;s number within experimental precision.",
+    );
     expect(html).toContain("Printed Prediction");
     expect(html).toContain("Perrin (1908) gamboge emulsion");
     expect(html).toContain("6.8e23");
@@ -23,6 +25,8 @@ describe("WorldCheck component rendering", () => {
 
     expect(html).toContain("Post-1904 Experimental Resolution (1908)");
     expect(html).toContain("#perrin-1908-data");
-    expect(html).toContain("Jean Perrin&#x27;s sedimentation equilibrium and displacement measurements.");
+    expect(html).toContain(
+      "Jean Perrin&#x27;s sedimentation equilibrium and displacement measurements.",
+    );
   });
 });

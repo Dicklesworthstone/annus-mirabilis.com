@@ -82,7 +82,13 @@ export async function PaperPage(request: PaperRouteRequest) {
               {args
                 .filter((a) => a.section === s.id)
                 .map((a) => (
-                  <article key={a.id} id={a.id} data-unit={a.id} tabIndex={-1} className="reader-passage">
+                  <article
+                    key={a.id}
+                    id={a.id}
+                    data-unit={a.id}
+                    tabIndex={-1}
+                    className="reader-passage"
+                  >
                     <p className="eyebrow">
                       {a.meaning.logicalRole} ·{" "}
                       {a.meaning.modelStatus === "approximation"

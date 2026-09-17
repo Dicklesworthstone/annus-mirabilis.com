@@ -55,7 +55,10 @@ export default function NotationPage() {
 
       {/* Static Fallback for No-JS Readers & Hydration Anchor */}
       <noscript>
-        <section className="no-js-concordance-view" aria-label="Full concordance catalogue (JavaScript disabled)">
+        <section
+          className="no-js-concordance-view"
+          aria-label="Full concordance catalogue (JavaScript disabled)"
+        >
           <CollisionClusterView clusters={data.collisionClusters} />
           {data.papers.map((p) => (
             <div key={p.paperSlug} className="paper-section">

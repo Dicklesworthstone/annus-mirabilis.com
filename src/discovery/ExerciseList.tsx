@@ -12,9 +12,7 @@ export function ExerciseList({ exercises }: ExerciseListProps) {
 
   return (
     <div className="discovery-exercises my-8 space-y-6">
-      <h3 className="text-xl font-serif font-bold text-stone-100">
-        Discovery Exercises & Checks
-      </h3>
+      <h3 className="text-xl font-serif font-bold text-stone-100">Discovery Exercises & Checks</h3>
 
       {instrumented.length > 0 && (
         <div className="space-y-3">

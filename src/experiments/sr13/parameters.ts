@@ -55,14 +55,15 @@ export function validateSr13Parameters(input: unknown): Sr13ParameterCheck {
       : SR13_DEFAULTS.initialDirectionDeg;
 
   const integrationInterval =
-    typeof o.integrationInterval === "number" && Number.isFinite(o.integrationInterval) && o.integrationInterval > 0
+    typeof o.integrationInterval === "number" &&
+    Number.isFinite(o.integrationInterval) &&
+    o.integrationInterval > 0
       ? o.integrationInterval
       : SR13_DEFAULTS.integrationInterval;
 
   const forceConvention =
     o.forceConvention === "laboratory" ? ("laboratory" as const) : ("source" as const);
-  const massLanguage =
-    o.massLanguage === "modern" ? ("modern" as const) : ("1905" as const);
+  const massLanguage = o.massLanguage === "modern" ? ("modern" as const) : ("1905" as const);
   const particle = o.particle === "custom" ? ("custom" as const) : ("electron" as const);
 
   const customCharge =

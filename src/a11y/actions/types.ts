@@ -30,7 +30,9 @@ export interface ActionContract {
   readonly visualAffordance: string;
   readonly equivalentAffordance: string;
   readonly announcement: string;
-  readonly modalities?: readonly ("keyboard" | "direct-entry" | "screen-reader" | "switch-control")[] | undefined;
+  readonly modalities?:
+    | readonly ("keyboard" | "direct-entry" | "screen-reader" | "switch-control")[]
+    | undefined;
 }
 
 export interface CanonicalActionCommand {

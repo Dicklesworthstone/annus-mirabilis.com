@@ -35,7 +35,12 @@ function val(r: ScientificResult | undefined): number {
   return r.value;
 }
 
-function expectClose(actual: number, expected: number, relTol: number = 1e-6, absFloor: number = 1e-12) {
+function expectClose(
+  actual: number,
+  expected: number,
+  relTol: number = 1e-6,
+  absFloor: number = 1e-12,
+) {
   const verdict = withinTolerance(actual, expected, {
     relative: relTol,
     absolute: absFloor,
@@ -177,8 +182,8 @@ describe("electron physics reference (am-ref-electron-kfy)", () => {
       const re = electricRadius(0.6, 1e5);
       expect(re.exact.status).toBe("value");
       expect(re.newtonian.status).toBe("value");
-      expectClose(val(re.exact), 2.29950, 1e-4);
-      expectClose(val(re.newtonian), 1.83960, 1e-4);
+      expectClose(val(re.exact), 2.2995, 1e-4);
+      expectClose(val(re.newtonian), 1.8396, 1e-4);
     });
 
     test("three printed relations from §10", () => {

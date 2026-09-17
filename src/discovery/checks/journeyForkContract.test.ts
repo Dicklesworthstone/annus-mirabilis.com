@@ -124,7 +124,11 @@ describe("journeyForkContract", () => {
       ],
     };
     const findings = checkJourney(invalid);
-    expect(findings.some((f) => f.rule === "fork-scope-note-trivial" || f.rule === "fork-scope-note-missing")).toBe(true);
+    expect(
+      findings.some(
+        (f) => f.rule === "fork-scope-note-trivial" || f.rule === "fork-scope-note-missing",
+      ),
+    ).toBe(true);
   });
 
   test("undecided-on-available-evidence requires insufficiency and post-1904 whatWouldDecide", () => {
@@ -145,7 +149,8 @@ describe("journeyForkContract", () => {
               steps: [{ text: "Step 1" }],
               outcome: {
                 type: "undecided-on-available-evidence" as const,
-                insufficiency: "Optical microscopes in 1904 could not resolve motion under 0.1 seconds.",
+                insufficiency:
+                  "Optical microscopes in 1904 could not resolve motion under 0.1 seconds.",
                 whatWouldDecide: {
                   name: "Perrin's quantitative emulsion data",
                   recordId: "dataset-perrin-1908",

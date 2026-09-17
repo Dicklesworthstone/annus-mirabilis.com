@@ -13,16 +13,69 @@ describe("am-eq-genealogy-hmm: Genealogy component rendering and navigation", ()
     paper: "special-relativity",
     perspective: "historical",
     nodes: [
-      { id: "postulate-1", paper: "sr", label: "Relativity Principle", type: "postulate", isRoot: true, isNumberedResult: false },
-      { id: "postulate-2", paper: "sr", label: "Constancy of Light Speed", type: "postulate", isRoot: true, isNumberedResult: false },
-      { id: "coord-boost", paper: "sr", label: "Lorentz Boost", type: "equation", isRoot: false, isNumberedResult: false },
-      { id: "light-energy", paper: "sr", label: "Light Energy §8", type: "result", isRoot: false, isNumberedResult: true },
-      { id: "mass-energy-premise", paper: "mass-energy", label: "Paper 4 Premise", type: "external", isRoot: false, isNumberedResult: false },
+      {
+        id: "postulate-1",
+        paper: "sr",
+        label: "Relativity Principle",
+        type: "postulate",
+        isRoot: true,
+        isNumberedResult: false,
+      },
+      {
+        id: "postulate-2",
+        paper: "sr",
+        label: "Constancy of Light Speed",
+        type: "postulate",
+        isRoot: true,
+        isNumberedResult: false,
+      },
+      {
+        id: "coord-boost",
+        paper: "sr",
+        label: "Lorentz Boost",
+        type: "equation",
+        isRoot: false,
+        isNumberedResult: false,
+      },
+      {
+        id: "light-energy",
+        paper: "sr",
+        label: "Light Energy §8",
+        type: "result",
+        isRoot: false,
+        isNumberedResult: true,
+      },
+      {
+        id: "mass-energy-premise",
+        paper: "mass-energy",
+        label: "Paper 4 Premise",
+        type: "external",
+        isRoot: false,
+        isNumberedResult: false,
+      },
     ],
     edges: [
-      { from: "postulate-1", to: "coord-boost", edgeType: "historical-derivation", isPremise: true, crossPaper: false },
-      { from: "postulate-2", to: "coord-boost", edgeType: "historical-derivation", isPremise: true, crossPaper: false },
-      { from: "coord-boost", to: "light-energy", edgeType: "historical-derivation", isPremise: true, crossPaper: false },
+      {
+        from: "postulate-1",
+        to: "coord-boost",
+        edgeType: "historical-derivation",
+        isPremise: true,
+        crossPaper: false,
+      },
+      {
+        from: "postulate-2",
+        to: "coord-boost",
+        edgeType: "historical-derivation",
+        isPremise: true,
+        crossPaper: false,
+      },
+      {
+        from: "coord-boost",
+        to: "light-energy",
+        edgeType: "historical-derivation",
+        isPremise: true,
+        crossPaper: false,
+      },
       {
         from: "light-energy",
         to: "mass-energy-premise",
@@ -158,7 +211,11 @@ describe("am-eq-genealogy-hmm: Genealogy component rendering and navigation", ()
     );
 
     expect(html).toContain('data-node-id="coord-boost" data-layer="1" data-selected="true"');
-    expect(html).toContain('data-node-id="postulate-1" data-layer="0" data-selected="false" data-lineage="true"');
-    expect(html).toContain('data-node-id="light-energy" data-layer="2" data-selected="false" data-lineage="false" data-impact="true"');
+    expect(html).toContain(
+      'data-node-id="postulate-1" data-layer="0" data-selected="false" data-lineage="true"',
+    );
+    expect(html).toContain(
+      'data-node-id="light-energy" data-layer="2" data-selected="false" data-lineage="false" data-impact="true"',
+    );
   });
 });

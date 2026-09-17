@@ -1,1 +1,155 @@
-.kitchen-lab label{display:block;margin:.7rem 0}.kitchen-lab input,.kitchen-lab select,.kitchen-lab textarea{display:block;width:100%;min-width:0;max-width:100%;padding:.65rem;border:1px solid var(--line);border-radius:.3rem;background:var(--panel);color:var(--ink);font:inherit}.kitchen-lab textarea{resize:vertical}.kitchen-lab fieldset{min-width:0;border:1px solid var(--line);padding:1rem;margin:1rem 0}.kitchen-lab legend{font-weight:700;padding:0 .4rem}.kitchen-lab .lab-columns>*{min-width:0}.kitchen-results table{table-layout:fixed;width:100%}.kitchen-results th,.kitchen-results td{overflow-wrap:anywhere}.kitchen-lab .table-scroll{max-width:100%;overflow:auto;max-height:30rem}.kitchen-observations table{min-width:64rem}.kitchen-lab table[data-kitchen-pairs]{min-width:32rem}.kitchen-measured{fill:var(--ink)}.kitchen-excluded{fill:none;stroke:var(--ink);stroke-width:1.5}.kitchen-interpolated{fill:none;stroke:var(--accent);stroke-width:1.5}.kitchen-provenance{overflow-wrap:anywhere;margin-top:1.5rem}.kitchen-provenance dl>div{display:grid;grid-template-columns:minmax(0,1fr) minmax(0,2fr);gap:1rem;border-bottom:1px solid var(--line);padding:.4rem}.kitchen-provenance dd{margin:0}.kitchen-import{border:1px solid var(--line);padding:1rem}.kitchen-results h3{margin-top:1.8rem}.kitchen-lab summary{overflow-wrap:anywhere}.kitchen-guide table{width:100%}.kitchen-guide th,.kitchen-guide td{overflow-wrap:anywhere}.kitchen-guide code{overflow-wrap:anywhere}.kitchen-worksheet table{min-width:75rem}.kitchen-schema{overflow:auto}.kitchen-guide .table-scroll{overflow:auto;max-width:100%}@media(max-width:600px){.kitchen-lab fieldset,.kitchen-import{padding:.65rem}.kitchen-provenance dl>div{display:block}.kitchen-results th,.kitchen-results td{padding:.5rem .35rem;font-size:.9rem}.kitchen-guide table{font-size:.85rem}}@media print{.kitchen-import,.kitchen-lab form,.kitchen-export,.kitchen-lab .actions,.comparison-toggle{display:none!important}.kitchen-lab .lab-columns{display:block}.kitchen-lab .table-scroll{max-height:none;overflow:visible}.kitchen-lab .kitchen-observations{display:none}.kitchen-provenance{font-size:9pt}.kitchen-lab .plot svg{max-height:14rem}.kitchen-guide .actions{display:none}}
+.kitchen-lab label {
+  display: block;
+  margin: 0.7rem 0;
+}
+.kitchen-lab input,
+.kitchen-lab select,
+.kitchen-lab textarea {
+  display: block;
+  width: 100%;
+  min-width: 0;
+  max-width: 100%;
+  padding: 0.65rem;
+  border: 1px solid var(--line);
+  border-radius: 0.3rem;
+  background: var(--panel);
+  color: var(--ink);
+  font: inherit;
+}
+.kitchen-lab textarea {
+  resize: vertical;
+}
+.kitchen-lab fieldset {
+  min-width: 0;
+  border: 1px solid var(--line);
+  padding: 1rem;
+  margin: 1rem 0;
+}
+.kitchen-lab legend {
+  font-weight: 700;
+  padding: 0 0.4rem;
+}
+.kitchen-lab .lab-columns > * {
+  min-width: 0;
+}
+.kitchen-results table {
+  table-layout: fixed;
+  width: 100%;
+}
+.kitchen-results th,
+.kitchen-results td {
+  overflow-wrap: anywhere;
+}
+.kitchen-lab .table-scroll {
+  max-width: 100%;
+  overflow: auto;
+  max-height: 30rem;
+}
+.kitchen-observations table {
+  min-width: 64rem;
+}
+.kitchen-lab table[data-kitchen-pairs] {
+  min-width: 32rem;
+}
+.kitchen-measured {
+  fill: var(--ink);
+}
+.kitchen-excluded {
+  fill: none;
+  stroke: var(--ink);
+  stroke-width: 1.5;
+}
+.kitchen-interpolated {
+  fill: none;
+  stroke: var(--accent);
+  stroke-width: 1.5;
+}
+.kitchen-provenance {
+  overflow-wrap: anywhere;
+  margin-top: 1.5rem;
+}
+.kitchen-provenance dl > div {
+  display: grid;
+  grid-template-columns: minmax(0, 1fr) minmax(0, 2fr);
+  gap: 1rem;
+  border-bottom: 1px solid var(--line);
+  padding: 0.4rem;
+}
+.kitchen-provenance dd {
+  margin: 0;
+}
+.kitchen-import {
+  border: 1px solid var(--line);
+  padding: 1rem;
+}
+.kitchen-results h3 {
+  margin-top: 1.8rem;
+}
+.kitchen-lab summary {
+  overflow-wrap: anywhere;
+}
+.kitchen-guide table {
+  width: 100%;
+}
+.kitchen-guide th,
+.kitchen-guide td {
+  overflow-wrap: anywhere;
+}
+.kitchen-guide code {
+  overflow-wrap: anywhere;
+}
+.kitchen-worksheet table {
+  min-width: 75rem;
+}
+.kitchen-schema {
+  overflow: auto;
+}
+.kitchen-guide .table-scroll {
+  overflow: auto;
+  max-width: 100%;
+}
+@media (max-width: 600px) {
+  .kitchen-lab fieldset,
+  .kitchen-import {
+    padding: 0.65rem;
+  }
+  .kitchen-provenance dl > div {
+    display: block;
+  }
+  .kitchen-results th,
+  .kitchen-results td {
+    padding: 0.5rem 0.35rem;
+    font-size: 0.9rem;
+  }
+  .kitchen-guide table {
+    font-size: 0.85rem;
+  }
+}
+@media print {
+  .kitchen-import,
+  .kitchen-lab form,
+  .kitchen-export,
+  .kitchen-lab .actions,
+  .comparison-toggle {
+    display: none !important;
+  }
+  .kitchen-lab .lab-columns {
+    display: block;
+  }
+  .kitchen-lab .table-scroll {
+    max-height: none;
+    overflow: visible;
+  }
+  .kitchen-lab .kitchen-observations {
+    display: none;
+  }
+  .kitchen-provenance {
+    font-size: 9pt;
+  }
+  .kitchen-lab .plot svg {
+    max-height: 14rem;
+  }
+  .kitchen-guide .actions {
+    display: none;
+  }
+}

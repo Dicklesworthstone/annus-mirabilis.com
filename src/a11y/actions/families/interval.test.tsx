@@ -41,7 +41,9 @@ describe("am-a11y-action-contracts-k75g: Interval Equivalent Component", () => {
     expect(html).toContain("Expected Particles:");
 
     // Commit button
-    expect(html).toContain('<button type="button" class="interval-commit-btn" aria-label="Apply and commit interval">');
+    expect(html).toContain(
+      '<button type="button" class="interval-commit-btn" aria-label="Apply and commit interval">',
+    );
     expect(html).toContain("Apply Interval");
 
     logger.log({

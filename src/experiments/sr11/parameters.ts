@@ -14,8 +14,7 @@ export function validateSr11Parameters(input: unknown): Sr11ParameterCheck {
   }
   const o = input as Record<string, unknown>;
   const beta = typeof o.beta === "number" ? o.beta : Number.NaN;
-  const incidentAngleDeg =
-    typeof o.incidentAngleDeg === "number" ? o.incidentAngleDeg : Number.NaN;
+  const incidentAngleDeg = typeof o.incidentAngleDeg === "number" ? o.incidentAngleDeg : Number.NaN;
   const incidentEnergyDensity =
     typeof o.incidentEnergyDensity === "number" ? o.incidentEnergyDensity : 1.0;
   const mirrorArea = typeof o.mirrorArea === "number" ? o.mirrorArea : 1.0;

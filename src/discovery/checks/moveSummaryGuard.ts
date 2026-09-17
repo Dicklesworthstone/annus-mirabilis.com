@@ -16,7 +16,24 @@ export interface MoveSummaryCheckResult {
   readonly issues: readonly MoveSummaryIssue[];
 }
 
-const FORBIDDEN_MATH_CHARS = ["=", "√", "∝", "±", "×", "÷", "^", "_", "′", "″", "≈", "≤", "≥", "<", ">", "⁄"];
+const FORBIDDEN_MATH_CHARS = [
+  "=",
+  "√",
+  "∝",
+  "±",
+  "×",
+  "÷",
+  "^",
+  "_",
+  "′",
+  "″",
+  "≈",
+  "≤",
+  "≥",
+  "<",
+  ">",
+  "⁄",
+];
 const GREEK_REGEX = /[\u0370-\u03FF\u1F00-\u1FFF]/;
 const SUPERSCRIPT_SUBSCRIPT_REGEX = /[⁰¹²³⁴⁵⁶⁷⁸⁹⁺⁻⁼⁽⁾ⁿ₀₁₂₃₄₅₆₇₈₉₊₋₌₍₎]/;
 const FORBIDDEN_PHRASES = [
@@ -50,7 +67,8 @@ export function checkMoveSummary(text: string): MoveSummaryCheckResult {
   if (!/[.?!]$/.test(trimmed)) {
     issues.push({
       rule: "move-summary-terminal-punctuation",
-      message: "Move summary must end with a terminal full stop, question mark, or exclamation mark.",
+      message:
+        "Move summary must end with a terminal full stop, question mark, or exclamation mark.",
       repair: "Add a terminal punctuation mark to the end of the sentence.",
       position: text.length,
     });
@@ -142,7 +160,9 @@ export function checkMoveSummary(text: string): MoveSummaryCheckResult {
 
   // 7. No standalone single-letter tokens other than "a", "A", "I"
   // Match single letters surrounded by non-alphanumeric, non-apostrophe boundaries
-  const singleLetterMatches = text.matchAll(/(?:^|[^a-zA-Z0-9'’])([b-hj-zB-HJ-Z])(?![a-zA-Z0-9'’])/g);
+  const singleLetterMatches = text.matchAll(
+    /(?:^|[^a-zA-Z0-9'’])([b-hj-zB-HJ-Z])(?![a-zA-Z0-9'’])/g,
+  );
   for (const match of singleLetterMatches) {
     if (match.index !== undefined && match[1]) {
       const charIndex = match[0].length > 1 ? match.index + 1 : match.index;
@@ -164,7 +184,8 @@ export function checkMoveSummary(text: string): MoveSummaryCheckResult {
       issues.push({
         rule: "move-summary-forbidden-phrase",
         message: `Move summary contains prohibited phrase "${phrase}".`,
-        repair: "Describe the argument's structural move, not Einstein's internal psychological state.",
+        repair:
+          "Describe the argument's structural move, not Einstein's internal psychological state.",
         token: text.slice(idx, idx + phrase.length),
         position: idx,
       });

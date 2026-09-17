@@ -39,9 +39,7 @@ export function WorldCheck({ check }: WorldCheckProps) {
         </span>
       </header>
 
-      <p className="text-sm font-serif text-stone-100 font-medium leading-relaxed">
-        {claim}
-      </p>
+      <p className="text-sm font-serif text-stone-100 font-medium leading-relaxed">{claim}</p>
 
       {/* Static Worked Example & Host Calculation */}
       <div className="grid grid-cols-1 sm:grid-cols-2 gap-3 text-xs">
@@ -63,7 +61,10 @@ export function WorldCheck({ check }: WorldCheckProps) {
             Live Instrument Check
           </span>
           <p className="text-stone-300">
-            Instrument: <a href={`/lab/${instrumentId}/`} className="font-mono text-amber-400 hover:underline">{instrumentId}</a>
+            Instrument:{" "}
+            <a href={`/lab/${instrumentId}/`} className="font-mono text-amber-400 hover:underline">
+              {instrumentId}
+            </a>
           </p>
           <p className="text-stone-300">
             Quantity: <span className="font-mono text-stone-200">{quantityId}</span>

@@ -3,7 +3,11 @@
  * Connects validated locators, receipt page mappings, and edition sections/equations.
  */
 
-import type { ContentsType, DisplayEquations, PageMapEntry } from "../../content/provenance/receiptSchema.ts";
+import type {
+  ContentsType,
+  DisplayEquations,
+  PageMapEntry,
+} from "../../content/provenance/receiptSchema.ts";
 
 export type FormattedPageEntry = Readonly<{
   pdfPageIndex: number;

@@ -108,7 +108,8 @@ export async function buildContent(
   options?: { corpusDir?: string; emit?: boolean; shouldEmit?: boolean },
 ) {
   const corpusDir = options?.corpusDir ?? "content";
-  const shouldEmit = options?.emit ?? options?.shouldEmit ?? (root !== ROOT || corpusDir === "content");
+  const shouldEmit =
+    options?.emit ?? options?.shouldEmit ?? (root !== ROOT || corpusDir === "content");
   const files = await loadReadingFiles(root, corpusDir);
 
   const result = await compileContent(files);

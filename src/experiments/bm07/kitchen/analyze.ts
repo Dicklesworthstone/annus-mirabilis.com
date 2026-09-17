@@ -1,125 +1,391 @@
 import { getConstantSet, type ConstantSet } from "../../../physics/reference/constants.ts";
-import { estimateIncrements, identifiabilityFamily, invertToMolecularNumber, type Assessment } from "../../../physics/reference/inference.ts";
-import { disjointPairsKnownNoiseInterval, stationaryClickNoiseEstimate } from "../../../physics/reference/inference/observation.ts";
+import {
+  estimateIncrements,
+  identifiabilityFamily,
+  invertToMolecularNumber,
+  type Assessment,
+} from "../../../physics/reference/inference.ts";
+import {
+  disjointPairsKnownNoiseInterval,
+  stationaryClickNoiseEstimate,
+} from "../../../physics/reference/inference/observation.ts";
 import { KITCHEN_LIMITS, type KitchenDocument, type KitchenPoint } from "./schema.ts";
 import type { ScientificResult } from "../../results/types.ts";
-import { KITCHEN_OUTPUTS, type KitchenOptions, type KitchenTrack, type KitchenAnalysis } from "./definition.ts";
+import {
+  KITCHEN_OUTPUTS,
+  type KitchenOptions,
+  type KitchenTrack,
+  type KitchenAnalysis,
+} from "./definition.ts";
 export { KITCHEN_OPTIONS, KITCHEN_OUTPUTS } from "./definition.ts";
 export type { KitchenOptions, KitchenTrack, KitchenAnalysis } from "./definition.ts";
 export function kitchenTracks(document: KitchenDocument): readonly KitchenTrack[] {
-  const tracks = new Map<string, { key: string; label: string; indices: number[] }>(), segments = new Map<string, number>();
+  const tracks = new Map<string, { key: string; label: string; indices: number[] }>(),
+    segments = new Map<string, number>();
   document.points.forEach((p, i) => {
     if (p.kind !== "particle") return;
     let segment = segments.get(p.objectId) ?? 0;
-    if (p.identityDecision === "new-object") { segment++; segments.set(p.objectId, segment); }
+    if (p.identityDecision === "new-object") {
+      segment++;
+      segments.set(p.objectId, segment);
+    }
     const key = JSON.stringify([p.objectId, segment]);
-    if (!tracks.has(key)) tracks.set(key, { key, label: segment ? `${p.objectId} · new object ${segment + 1}` : p.objectId, indices: [] });
+    if (!tracks.has(key))
+      tracks.set(key, {
+        key,
+        label: segment ? `${p.objectId} · new object ${segment + 1}` : p.objectId,
+        indices: [],
+      });
     tracks.get(key)!.indices.push(i);
   });
-  return Object.freeze([...tracks.values()].map(t => Object.freeze({ ...t, indices: Object.freeze(t.indices) })));
+  return Object.freeze(
+    [...tracks.values()].map((t) => Object.freeze({ ...t, indices: Object.freeze(t.indices) })),
+  );
 }
 function reason<T>(r: Assessment<T>): string {
-  return r.kind === "no-value" ? r.reason : r.kind === "refused" ? String(r.refusal.details?.requirements ?? r.refusal.message) : r.kind === "outcome" ? r.outcome.message : "";
+  return r.kind === "no-value"
+    ? r.reason
+    : r.kind === "refused"
+      ? String(r.refusal.details?.requirements ?? r.refusal.message)
+      : r.kind === "outcome"
+        ? r.outcome.message
+        : "";
 }
 /** One calibrated coordinate at a time. No pooling across particles or unequal axis errors. */
-export function analyzeKitchen(document: KitchenDocument, options: KitchenOptions): KitchenAnalysis {
-  if (!options || !["x", "y"].includes(options.axis) || !Number.isFinite(options.coverage) || options.coverage < .5 || options.coverage > .999 || !["metadata", "modern-si-2019", "scenario-gas-constant-measured"].includes(options.constantSet)) throw new TypeError("Choose one coordinate, a registered constant set and coverage from 50% to 99.9%.");
-  const tracks = kitchenTracks(document), track = options.track ? tracks.find(t => t.key === options.track) : tracks[0];
-  if (!track) throw new TypeError("Choose a particle track. Calibration marks and stationary features are not particle tracks.");
-  const m = document.metadata, points = track.indices.map(i => document.points[i]!), axis = options.axis;
-  const warnings = [...document.notes, "Stationary-feature and moving-particle localization errors are assumed to have the same variance; stationary clicks cannot establish that assumption."], intervalReasons: string[] = [];
-  let scale: number | null = m[`pixels_per_um_${axis}`] ? 1e-6 / Number(m[`pixels_per_um_${axis}`]) : null;
+export function analyzeKitchen(
+  document: KitchenDocument,
+  options: KitchenOptions,
+): KitchenAnalysis {
+  if (
+    !options ||
+    !["x", "y"].includes(options.axis) ||
+    !Number.isFinite(options.coverage) ||
+    options.coverage < 0.5 ||
+    options.coverage > 0.999 ||
+    !["metadata", "modern-si-2019", "scenario-gas-constant-measured"].includes(options.constantSet)
+  )
+    throw new TypeError(
+      "Choose one coordinate, a registered constant set and coverage from 50% to 99.9%.",
+    );
+  const tracks = kitchenTracks(document),
+    track = options.track ? tracks.find((t) => t.key === options.track) : tracks[0];
+  if (!track)
+    throw new TypeError(
+      "Choose a particle track. Calibration marks and stationary features are not particle tracks.",
+    );
+  const m = document.metadata,
+    points = track.indices.map((i) => document.points[i]!),
+    axis = options.axis;
+  const warnings = [
+      ...document.notes,
+      "Stationary-feature and moving-particle localization errors are assumed to have the same variance; stationary clicks cannot establish that assumption.",
+    ],
+    intervalReasons: string[] = [];
+  let scale: number | null = m[`pixels_per_um_${axis}`]
+    ? 1e-6 / Number(m[`pixels_per_um_${axis}`])
+    : null;
   let scaleSource: KitchenAnalysis["scaleSource"] = scale ? "measured" : "unknown";
   const other = axis === "x" ? "y" : "x";
   // A populated unmeasured axis is not silently promoted to an independent calibration.
   if (m.calibration_axes !== axis && m.calibration_axes !== "both") {
-    scale = m.pixel_aspect_ratio && m[`pixels_per_um_${other}`] ? (1e-6 / Number(m[`pixels_per_um_${other}`])) * (axis === "y" ? Number(m.pixel_aspect_ratio) : 1 / Number(m.pixel_aspect_ratio)) : null;
+    scale =
+      m.pixel_aspect_ratio && m[`pixels_per_um_${other}`]
+        ? (1e-6 / Number(m[`pixels_per_um_${other}`])) *
+          (axis === "y" ? Number(m.pixel_aspect_ratio) : 1 / Number(m.pixel_aspect_ratio))
+        : null;
     scaleSource = scale ? "derived" : "unknown";
   }
-  if (!scale) intervalReasons.push("The scale along this axis is not established. Select the measured axis or declare the pixel aspect ratio.");
-  if (scaleSource === "derived") warnings.push("This axis scale is derived from the measured axis and the declared pixel aspect ratio.");
+  if (!scale)
+    intervalReasons.push(
+      "The scale along this axis is not established. Select the measured axis or declare the pixel aspect ratio.",
+    );
+  if (scaleSource === "derived")
+    warnings.push(
+      "This axis scale is derived from the measured axis and the declared pixel aspect ratio.",
+    );
   if (m.calibration_axes === "both") {
     const ratio = Number(m.pixels_per_um_x) / Number(m.pixels_per_um_y);
     if (Math.abs(ratio - 1) > KITCHEN_LIMITS.anisotropy) {
-      warnings.push(`The axis scales differ. Using one scale for both axes would multiply a pooled diffusivity by ${(1 + ratio * ratio) / 2}. This instrument analyzes one coordinate, not that pooled statistic.`);
-      if (!m.pixel_aspect_ratio || Math.abs(Number(m.pixel_aspect_ratio) / ratio - 1) > KITCHEN_LIMITS.anisotropy) intervalReasons.push("Confirm the pixel aspect ratio against the two axis scales before admitting an interval.");
+      warnings.push(
+        `The axis scales differ. Using one scale for both axes would multiply a pooled diffusivity by ${(1 + ratio * ratio) / 2}. This instrument analyzes one coordinate, not that pooled statistic.`,
+      );
+      if (
+        !m.pixel_aspect_ratio ||
+        Math.abs(Number(m.pixel_aspect_ratio) / ratio - 1) > KITCHEN_LIMITS.anisotropy
+      )
+        intervalReasons.push(
+          "Confirm the pixel aspect ratio against the two axis scales before admitting an interval.",
+        );
     }
   }
-  const dt = Number(m.declared_interval_s), tolerance = Math.max(1 / Number(m.frame_rate_hz), .02 * dt), origin = points[0]!.time;
-  const slots = new Map<number, KitchenPoint>(); let irregular = false, rounded = false;
+  const dt = Number(m.declared_interval_s),
+    tolerance = Math.max(1 / Number(m.frame_rate_hz), 0.02 * dt),
+    origin = points[0]!.time;
+  const slots = new Map<number, KitchenPoint>();
+  let irregular = false,
+    rounded = false;
   for (const p of points) {
-    const tick = Math.round((p.time - origin) / dt), error = Math.abs(p.time - origin - tick * dt);
+    const tick = Math.round((p.time - origin) / dt),
+      error = Math.abs(p.time - origin - tick * dt);
     if (error > tolerance || slots.has(tick)) irregular = true;
     if (error > 1e-9) rounded = true;
     if (!slots.has(tick)) slots.set(tick, p);
   }
-  if (irregular) intervalReasons.push("Irregular timing: actual timestamps do not support the declared equal-spacing model.");
-  else if (rounded) intervalReasons.push("Timestamps are within the frame-rounding allowance but not equally spaced. A validated unequal-time camera interval is not available.");
-  if (m.timing_source === "declared-rate") warnings.push("Timestamps are inferred from the declared frame rate. Per-frame presentation timing was not verified.");
-  const calibrationIds = new Set(points.map(p => p.calibrationId));
-  if (calibrationIds.size !== 1) intervalReasons.push("This track uses multiple calibration IDs, but the CSV supplies only one calibration record. Separate those segments before inference.");
-  const counts = { measured: 0, interpolated: 0, excluded: 0, lost: 0, attemptedPairs: 0, retainedPairs: 0, stationary: 0 };
+  if (irregular)
+    intervalReasons.push(
+      "Irregular timing: actual timestamps do not support the declared equal-spacing model.",
+    );
+  else if (rounded)
+    intervalReasons.push(
+      "Timestamps are within the frame-rounding allowance but not equally spaced. A validated unequal-time camera interval is not available.",
+    );
+  if (m.timing_source === "declared-rate")
+    warnings.push(
+      "Timestamps are inferred from the declared frame rate. Per-frame presentation timing was not verified.",
+    );
+  const calibrationIds = new Set(points.map((p) => p.calibrationId));
+  if (calibrationIds.size !== 1)
+    intervalReasons.push(
+      "This track uses multiple calibration IDs, but the CSV supplies only one calibration record. Separate those segments before inference.",
+    );
+  const counts = {
+    measured: 0,
+    interpolated: 0,
+    excluded: 0,
+    lost: 0,
+    attemptedPairs: 0,
+    retainedPairs: 0,
+    stationary: 0,
+  };
   for (const p of points) counts[p.status]++;
-  const lostPairs: Record<string, number> = Object.create(null), paired: number[] = [], pairTimes: number[] = [], increments: number[] = [];
+  const lostPairs: Record<string, number> = Object.create(null),
+    paired: number[] = [],
+    pairTimes: number[] = [],
+    increments: number[] = [];
   const lastTick = Math.round((points.at(-1)!.time - origin) / dt);
   // Anchored slots, not adjacent rows: exclusions and gaps must not shift later pairing.
   for (let tick = 0; tick <= lastTick; tick += 2) {
     counts.attemptedPairs++;
-    const a = slots.get(tick), b = slots.get(tick + 1);
+    const a = slots.get(tick),
+      b = slots.get(tick + 1);
     const defects = new Set<string>();
-    for (const p of [a, b]) if (!p) defects.add("missing-frame"); else if (p.status !== "measured") defects.add(p.status === "lost" ? p.lossReason : p.status);
-    if (a && b && (a.calibrationId !== b.calibrationId || b.identityDecision)) defects.add("identity-or-calibration-gap");
+    for (const p of [a, b])
+      if (!p) defects.add("missing-frame");
+      else if (p.status !== "measured") defects.add(p.status === "lost" ? p.lossReason : p.status);
+    if (a && b && (a.calibrationId !== b.calibrationId || b.identityDecision))
+      defects.add("identity-or-calibration-gap");
     if (a && b && Math.abs(b.time - a.time - dt) > 1e-9) defects.add("irregular-timing");
-    if (defects.size) { for (const r of defects) lostPairs[r] = (lostPairs[r] ?? 0) + 1; continue; }
-    if (scale && a && b) { paired.push(a[axis]! * scale, b[axis]! * scale); pairTimes.push(a.time, b.time); increments.push((b[axis]! - a[axis]!) * scale); counts.retainedPairs++; }
+    if (defects.size) {
+      for (const r of defects) lostPairs[r] = (lostPairs[r] ?? 0) + 1;
+      continue;
+    }
+    if (scale && a && b) {
+      paired.push(a[axis]! * scale, b[axis]! * scale);
+      pairTimes.push(a.time, b.time);
+      increments.push((b[axis]! - a[axis]!) * scale);
+      counts.retainedPairs++;
+    }
   }
   const edgeShare = (lostPairs.edge ?? 0) / counts.attemptedPairs;
-  if (edgeShare > KITCHEN_LIMITS.edgeLossShare) intervalReasons.push("More than 20% of attempted pairs have an edge loss; no interval is admitted.");
-  if (Object.keys(lostPairs).length) warnings.push("Incomplete pairs are omitted without shifting later pairs. Selection, exclusions and edge losses can bias inference; intervals conditional on the retained data do not correct censoring.");
+  if (edgeShare > KITCHEN_LIMITS.edgeLossShare)
+    intervalReasons.push(
+      "More than 20% of attempted pairs have an edge loss; no interval is admitted.",
+    );
+  if (Object.keys(lostPairs).length)
+    warnings.push(
+      "Incomplete pairs are omitted without shifting later pairs. Selection, exclusions and edge losses can bias inference; intervals conditional on the retained data do not correct censoring.",
+    );
   // Conservatively withhold a coverage claim when a reader selects the sample by exclusion.
-  if (counts.excluded) intervalReasons.push("Excluded observations may select on displacement. The estimate is shown, but this preview does not assign interval coverage after manual exclusions.");
-  if (edgeShare > 0 && edgeShare <= KITCHEN_LIMITS.edgeLossShare) warnings.push("The retained-sample interval may be biased low by edge losses; nominal coverage is not a guarantee for censored tracks.");
-  const stationary = document.points.filter(p => p.kind === "stationary" && p.status === "measured" && calibrationIds.has(p.calibrationId));
+  if (counts.excluded)
+    intervalReasons.push(
+      "Excluded observations may select on displacement. The estimate is shown, but this preview does not assign interval coverage after manual exclusions.",
+    );
+  if (edgeShare > 0 && edgeShare <= KITCHEN_LIMITS.edgeLossShare)
+    warnings.push(
+      "The retained-sample interval may be biased low by edge losses; nominal coverage is not a guarantee for censored tracks.",
+    );
+  const stationary = document.points.filter(
+    (p) =>
+      p.kind === "stationary" && p.status === "measured" && calibrationIds.has(p.calibrationId),
+  );
   counts.stationary = stationary.length;
-  const stationIds = new Set(stationary.map(p => p.objectId));
-  if (stationary.length < KITCHEN_LIMITS.stationaryClicks || stationIds.size !== 1) intervalReasons.push("Localization error unknown: provide at least ten clicks on one stationary feature using this calibration.");
-  if (!m.exposure_s) intervalReasons.push("Declare the exposure duration; a missing exposure is not an instantaneous camera.");
+  const stationIds = new Set(stationary.map((p) => p.objectId));
+  if (stationary.length < KITCHEN_LIMITS.stationaryClicks || stationIds.size !== 1)
+    intervalReasons.push(
+      "Localization error unknown: provide at least ten clicks on one stationary feature using this calibration.",
+    );
+  if (!m.exposure_s)
+    intervalReasons.push(
+      "Declare the exposure duration; a missing exposure is not an instantaneous camera.",
+    );
   const results = new Map<string, ScientificResult>();
-  const val = (id: keyof typeof KITCHEN_OUTPUTS, value: number | Float64Array) => { const c = KITCHEN_OUTPUTS[id]; results.set(id, { quantityId: id, unit: c.unit, ownerId: c.ownerId, semanticKind: c.semanticKind, status: "value", value }); };
-  const no = (id: keyof typeof KITCHEN_OUTPUTS, why: string, status: "underdetermined" | "not-applicable" = "not-applicable") => { const c = KITCHEN_OUTPUTS[id]; results.set(id, { quantityId: id, unit: c.unit, ownerId: c.ownerId, semanticKind: c.semanticKind, ...(status === "underdetermined" ? { status, compatibleFamily: why, neededInformation: ["Supply the missing observations or independent physical inputs."] } : { status, reason: why }) }); };
-  val("pairCount", counts.retainedPairs); val("pairDegrees", Math.max(0, counts.retainedPairs - 1)); val("pairs", Float64Array.from(paired)); val("pairTimes", Float64Array.from(pairTimes));
-  for (const id of Object.keys(KITCHEN_OUTPUTS) as (keyof typeof KITCHEN_OUTPUTS)[]) if (!results.has(id)) no(id, "This result needs admitted observations and declared inputs.", "underdetermined");
-  const naive = estimateIncrements(Float64Array.from(increments), dt, 1, "independent-increment-known-zero-drift");
+  const val = (id: keyof typeof KITCHEN_OUTPUTS, value: number | Float64Array) => {
+    const c = KITCHEN_OUTPUTS[id];
+    results.set(id, {
+      quantityId: id,
+      unit: c.unit,
+      ownerId: c.ownerId,
+      semanticKind: c.semanticKind,
+      status: "value",
+      value,
+    });
+  };
+  const no = (
+    id: keyof typeof KITCHEN_OUTPUTS,
+    why: string,
+    status: "underdetermined" | "not-applicable" = "not-applicable",
+  ) => {
+    const c = KITCHEN_OUTPUTS[id];
+    results.set(id, {
+      quantityId: id,
+      unit: c.unit,
+      ownerId: c.ownerId,
+      semanticKind: c.semanticKind,
+      ...(status === "underdetermined"
+        ? {
+            status,
+            compatibleFamily: why,
+            neededInformation: ["Supply the missing observations or independent physical inputs."],
+          }
+        : { status, reason: why }),
+    });
+  };
+  val("pairCount", counts.retainedPairs);
+  val("pairDegrees", Math.max(0, counts.retainedPairs - 1));
+  val("pairs", Float64Array.from(paired));
+  val("pairTimes", Float64Array.from(pairTimes));
+  for (const id of Object.keys(KITCHEN_OUTPUTS) as (keyof typeof KITCHEN_OUTPUTS)[])
+    if (!results.has(id))
+      no(id, "This result needs admitted observations and declared inputs.", "underdetermined");
+  const naive = estimateIncrements(
+    Float64Array.from(increments),
+    dt,
+    1,
+    "independent-increment-known-zero-drift",
+  );
   if (naive.kind === "accepted") val("naiveD", naive.data.dHat);
-  const noise = scale && stationary.length >= KITCHEN_LIMITS.stationaryClicks && stationIds.size === 1 ? stationaryClickNoiseEstimate(Float64Array.from(stationary, p => p[axis]! * scale!), { d: 1 }) : null;
+  const noise =
+    scale && stationary.length >= KITCHEN_LIMITS.stationaryClicks && stationIds.size === 1
+      ? stationaryClickNoiseEstimate(
+          Float64Array.from(stationary, (p) => p[axis]! * scale!),
+          { d: 1 },
+        )
+      : null;
   if (noise?.kind === "accepted") val("noiseVariance", noise.data.sigma2);
-  const pair = noise?.kind === "accepted" && m.exposure_s && counts.retainedPairs >= 2 ? disjointPairsKnownNoiseInterval({ positions: Float64Array.from(paired), dt, exposure: Number(m.exposure_s), d: 1, alpha: 1 - options.coverage, noise: { kind: "stationary-clicks", estimate: noise.data } }) : null;
+  const pair =
+    noise?.kind === "accepted" && m.exposure_s && counts.retainedPairs >= 2
+      ? disjointPairsKnownNoiseInterval({
+          positions: Float64Array.from(paired),
+          dt,
+          exposure: Number(m.exposure_s),
+          d: 1,
+          alpha: 1 - options.coverage,
+          noise: { kind: "stationary-clicks", estimate: noise.data },
+        })
+      : null;
   if (pair?.kind === "accepted") val("correctedD", pair.data.estimate);
   const centered = estimateIncrements(Float64Array.from(increments), dt, 1, "drift-centered");
   if (centered.kind === "accepted") val("drift", centered.data.drift[0]!);
-  if (counts.retainedPairs < 2) intervalReasons.push("At least two complete disjoint pairs are required after fitting drift.");
+  if (counts.retainedPairs < 2)
+    intervalReasons.push("At least two complete disjoint pairs are required after fitting drift.");
   if (pair && pair.kind !== "accepted") intervalReasons.push(reason(pair));
-  if (pair?.kind === "accepted" && pair.data.empty) intervalReasons.push("The physical confidence set is empty. Keep this outcome; do not replace it with a positive interval.");
+  if (pair?.kind === "accepted" && pair.data.empty)
+    intervalReasons.push(
+      "The physical confidence set is empty. Keep this outcome; do not replace it with a positive interval.",
+    );
   const band = pair?.kind === "accepted" ? pair.data.interval : null;
-  if (band && !intervalReasons.length) val("diffusionInterval", Float64Array.of(band.lower, band.upper));
-  else no("diffusionInterval", intervalReasons.join(" ") || "A noise-aware interval is unavailable.");
-  if (m.radius_um && m.radius_provenance !== "independent") warnings.push("No molecular number is calculated without an explicit independent-radius declaration. A radius derived from these displacements would be circular.");
-  const constantSetId = options.constantSet === "metadata" ? m.constant_set_id : options.constantSet;
-  let set: ConstantSet | null = null, numberMeaning: KitchenAnalysis["numberMeaning"] = "unavailable";
-  try { set = getConstantSet(constantSetId); } catch { warnings.push("The requested constant set is not registered. No historical constant or molecular number has been invented."); }
+  if (band && !intervalReasons.length)
+    val("diffusionInterval", Float64Array.of(band.lower, band.upper));
+  else
+    no("diffusionInterval", intervalReasons.join(" ") || "A noise-aware interval is unavailable.");
+  if (m.radius_um && m.radius_provenance !== "independent")
+    warnings.push(
+      "No molecular number is calculated without an explicit independent-radius declaration. A radius derived from these displacements would be circular.",
+    );
+  const constantSetId =
+    options.constantSet === "metadata" ? m.constant_set_id : options.constantSet;
+  let set: ConstantSet | null = null,
+    numberMeaning: KitchenAnalysis["numberMeaning"] = "unavailable";
+  try {
+    set = getConstantSet(constantSetId);
+  } catch {
+    warnings.push(
+      "The requested constant set is not registered. No historical constant or molecular number has been invented.",
+    );
+  }
   const dHat = pair?.kind === "accepted" ? pair.data.estimate : null;
   if (set && dHat !== null && dHat > 0 && m.temperature_k && m.viscosity_mpa_s) {
-    const family = identifiabilityFamily({ D: dHat, T: Number(m.temperature_k), eta: Number(m.viscosity_mpa_s) * .001, radiusRange: [1e-8, 1e-5], synthetic: m.data_origin === "synthetic" }, set);
-    if (family.kind === "accepted") { numberMeaning = family.data.semanticKind; val("radiusNumberProduct", family.data.product); }
+    const family = identifiabilityFamily(
+      {
+        D: dHat,
+        T: Number(m.temperature_k),
+        eta: Number(m.viscosity_mpa_s) * 0.001,
+        radiusRange: [1e-8, 1e-5],
+        synthetic: m.data_origin === "synthetic",
+      },
+      set,
+    );
+    if (family.kind === "accepted") {
+      numberMeaning = family.data.semanticKind;
+      val("radiusNumberProduct", family.data.product);
+    }
     if (m.radius_um && m.radius_provenance === "independent" && band && !intervalReasons.length) {
-      const inverse = invertToMolecularNumber({ dHat, T: Number(m.temperature_k), eta: Number(m.viscosity_mpa_s) * .001, a: Number(m.radius_um) * 1e-6, radiusProvenance: "independently-declared", interval: band, synthetic: m.data_origin === "synthetic" }, set);
+      const inverse = invertToMolecularNumber(
+        {
+          dHat,
+          T: Number(m.temperature_k),
+          eta: Number(m.viscosity_mpa_s) * 0.001,
+          a: Number(m.radius_um) * 1e-6,
+          radiusProvenance: "independently-declared",
+          interval: band,
+          synthetic: m.data_origin === "synthetic",
+        },
+        set,
+      );
       if (inverse.kind === "accepted") {
-        val("molecularNumber", inverse.data.estimate); val("molecularInterval", Float64Array.of(inverse.data.interval.lower, inverse.data.interval.upper));
-        if (inverse.data.consistencyRatio !== null) val("consistencyRatio", inverse.data.consistencyRatio);
-        if (inverse.data.estimatedBoltzmannConstant !== null) val("estimatedBoltzmannConstant", inverse.data.estimatedBoltzmannConstant);
-      } else { no("molecularNumber", reason(inverse)); no("molecularInterval", reason(inverse)); }
-    } else { no("molecularNumber", "Radius and molecular number are not separately identified by displacement. Declare the radius and its independent provenance, then obtain an admitted positive diffusion interval.", "underdetermined"); no("molecularInterval", "A declared radius and an admitted, strictly positive diffusion interval are required."); }
+        val("molecularNumber", inverse.data.estimate);
+        val(
+          "molecularInterval",
+          Float64Array.of(inverse.data.interval.lower, inverse.data.interval.upper),
+        );
+        if (inverse.data.consistencyRatio !== null)
+          val("consistencyRatio", inverse.data.consistencyRatio);
+        if (inverse.data.estimatedBoltzmannConstant !== null)
+          val("estimatedBoltzmannConstant", inverse.data.estimatedBoltzmannConstant);
+      } else {
+        no("molecularNumber", reason(inverse));
+        no("molecularInterval", reason(inverse));
+      }
+    } else {
+      no(
+        "molecularNumber",
+        "Radius and molecular number are not separately identified by displacement. Declare the radius and its independent provenance, then obtain an admitted positive diffusion interval.",
+        "underdetermined",
+      );
+      no(
+        "molecularInterval",
+        "A declared radius and an admitted, strictly positive diffusion interval are required.",
+      );
+    }
   }
-  warnings.push("All confidence bounds are conditional on the stated axis scale, exposure, constant drift, Gaussian localization errors and physical model. Calibration, radius, temperature, viscosity and gas-constant uncertainty are not included.");
-  return { options, tracks, selectedTrack: track.key, outputs: [...results.values()], warnings, intervalReasons, counts, lostPairs, scale, scaleSource, constantSetId, gasConstantProvenance: set?.gasConstantProvenance ?? "unavailable", numberMeaning, combinedIntervalReason: "No combined interval is reported: the imported calibration and physical-input declarations do not establish simultaneous coverage for all required inputs. A standard uncertainty or a range alone is not a coverage guarantee." };
+  warnings.push(
+    "All confidence bounds are conditional on the stated axis scale, exposure, constant drift, Gaussian localization errors and physical model. Calibration, radius, temperature, viscosity and gas-constant uncertainty are not included.",
+  );
+  return {
+    options,
+    tracks,
+    selectedTrack: track.key,
+    outputs: [...results.values()],
+    warnings,
+    intervalReasons,
+    counts,
+    lostPairs,
+    scale,
+    scaleSource,
+    constantSetId,
+    gasConstantProvenance: set?.gasConstantProvenance ?? "unavailable",
+    numberMeaning,
+    combinedIntervalReason:
+      "No combined interval is reported: the imported calibration and physical-input declarations do not establish simultaneous coverage for all required inputs. A standard uncertainty or a range alone is not a coverage guarantee.",
+  };
 }

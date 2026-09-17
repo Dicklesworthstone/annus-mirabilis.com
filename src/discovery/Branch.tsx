@@ -102,7 +102,10 @@ export function Branch({ branch }: BranchProps) {
         {outcome.constraintRef && (
           <p className="text-rose-400">
             <span className="font-semibold">Contradicted by evidence / constraint: </span>
-            <a href={`#${outcome.constraintRef}`} className="underline hover:text-rose-300 font-mono">
+            <a
+              href={`#${outcome.constraintRef}`}
+              className="underline hover:text-rose-300 font-mono"
+            >
               #{outcome.constraintRef}
             </a>
           </p>

@@ -81,10 +81,7 @@ describe("Content Compiler Determinism & Incremental Stability (am-cm-compiler-c
     const clean = await buildContent(tempRoot, { corpusDir });
     expect(clean.ok).toBe(true);
 
-    const targetFile = resolve(
-      tempRoot,
-      "corpus/arguments/test-paper/arg-tp-01.json",
-    );
+    const targetFile = resolve(tempRoot, "corpus/arguments/test-paper/arg-tp-01.json");
     const originalContent = await readFile(targetFile, "utf8");
 
     // Make an edit in isolated temp workspace

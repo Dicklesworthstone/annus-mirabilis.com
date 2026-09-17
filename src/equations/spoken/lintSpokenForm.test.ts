@@ -30,9 +30,12 @@ describe("am-eq-spoken-forms-w4f: lintSpokenForm tests", () => {
   });
 
   test("warns on 'x prime' for moving-frame coordinate in relativity context", () => {
-    const res = lintSpokenForm("The moving coordinate x prime transforms as gamma times x minus v t", {
-      notationContext: "special-relativity",
-    });
+    const res = lintSpokenForm(
+      "The moving coordinate x prime transforms as gamma times x minus v t",
+      {
+        notationContext: "special-relativity",
+      },
+    );
     assert.equal(res.valid, true); // warning does not invalidate
     assert.ok(res.warnings.some((w) => w.rule === "no-x-prime-for-xi"));
   });
@@ -44,7 +47,9 @@ describe("am-eq-spoken-forms-w4f: lintSpokenForm tests", () => {
   });
 
   test("passes on integral with explicit integration variable", () => {
-    const res = lintSpokenForm("The total energy equals the integral of radiation intensity with respect to frequency from zero to infinity");
+    const res = lintSpokenForm(
+      "The total energy equals the integral of radiation intensity with respect to frequency from zero to infinity",
+    );
     assert.equal(res.valid, true);
     assert.equal(res.warnings.filter((w) => w.rule === "unstated-integral-variable").length, 0);
   });
@@ -60,8 +65,12 @@ describe("am-eq-spoken-forms-w4f: lintSpokenForm tests", () => {
       boundTerms: ["temperature", "viscosity", "radius"],
     });
     assert.equal(res.valid, true);
-    assert.ok(res.warnings.some((w) => w.rule === "unmentioned-bound-term" && w.match === "viscosity"));
-    assert.ok(res.warnings.some((w) => w.rule === "unmentioned-bound-term" && w.match === "radius"));
+    assert.ok(
+      res.warnings.some((w) => w.rule === "unmentioned-bound-term" && w.match === "viscosity"),
+    );
+    assert.ok(
+      res.warnings.some((w) => w.rule === "unmentioned-bound-term" && w.match === "radius"),
+    );
   });
 
   test("clean spoken text passes with 0 errors and 0 warnings", () => {

@@ -23,7 +23,9 @@ export interface DiscoveryPaperBibliographicInfo {
   readonly citation: string;
 }
 
-export const DISCOVERY_PAPERS: Readonly<Record<DiscoveryPaperSlug, DiscoveryPaperBibliographicInfo>> = {
+export const DISCOVERY_PAPERS: Readonly<
+  Record<DiscoveryPaperSlug, DiscoveryPaperBibliographicInfo>
+> = {
   "light-quanta": {
     paperId: "light-quanta",
     bibKey: "ap-17-132",
@@ -73,9 +75,7 @@ export function getBuildProfile(): "production" | "preview" | "draft" {
 /**
  * In-memory journey repository. Future journey-authoring beads register complete records here.
  */
-const JOURNEY_MAP = new Map<string, Journey>([
-  ["brownian-motion", FIXTURE_JOURNEY_BROWNIAN],
-]);
+const JOURNEY_MAP = new Map<string, Journey>([["brownian-motion", FIXTURE_JOURNEY_BROWNIAN]]);
 
 export function getDiscoveryJourney(paperId: string): Journey | null {
   return JOURNEY_MAP.get(paperId) ?? null;

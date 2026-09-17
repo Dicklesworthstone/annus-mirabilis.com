@@ -46,7 +46,9 @@ export function GlossPair({
   const isReasoningMarked =
     Boolean(showReasoningWords) && isModalityClass(activeNoteClass, modalityClasses);
 
-  const modalityLabel = activeNoteClass ? (MODALITY_LABELS[activeNoteClass] ?? activeNoteClass) : undefined;
+  const modalityLabel = activeNoteClass
+    ? (MODALITY_LABELS[activeNoteClass] ?? activeNoteClass)
+    : undefined;
 
   let renderedMath: string | null = null;
   if (isMath) {
@@ -88,10 +90,7 @@ export function GlossPair({
           dir="ltr"
         >
           {renderedMath ? (
-            <span
-              className="inline-math"
-              dangerouslySetInnerHTML={{ __html: renderedMath }}
-            />
+            <span className="inline-math" dangerouslySetInnerHTML={{ __html: renderedMath }} />
           ) : (
             token.german
           )}

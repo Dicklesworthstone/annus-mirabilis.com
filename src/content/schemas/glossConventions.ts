@@ -73,7 +73,8 @@ export function parseModalityClassesFromContent(
  * Falls back to default modality classes with recorded warning if file is missing or lacks modalityClasses.
  */
 export function loadGlossConventions(customPath?: string): GlossConventions {
-  const resolvedPath = customPath ?? path.resolve(process.cwd(), "docs/editorial/GLOSS_CONVENTIONS.md");
+  const resolvedPath =
+    customPath ?? path.resolve(process.cwd(), "docs/editorial/GLOSS_CONVENTIONS.md");
   const warnings: string[] = [];
 
   if (!fs.existsSync(resolvedPath)) {

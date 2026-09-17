@@ -25,7 +25,7 @@ export function evaluateUnitReviewState(
   // If a review record is supplied:
   if (reviewRecord) {
     const isAccepted = reviewRecord.result === "accepted";
-    
+
     // Check if review record covers this unit and revision in scope or acceptedRevisions
     let recordCoveredRevision: number | undefined;
     if (reviewRecord.reviewType === "cross-projection") {

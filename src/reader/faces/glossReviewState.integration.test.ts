@@ -71,10 +71,9 @@ describe("glossReviewState: review state validation for gloss units and translat
   });
 
   test("isPaperTranslationUnreviewed returns true when draft units exist in paper", () => {
-    const hasUnreviewed = isPaperTranslationUnreviewed(
-      FIXTURE_MASS_ENERGY_TRANSLATION_UNITS,
-      [validRecord],
-    );
+    const hasUnreviewed = isPaperTranslationUnreviewed(FIXTURE_MASS_ENERGY_TRANSLATION_UNITS, [
+      validRecord,
+    ]);
     expect(hasUnreviewed).toBe(true);
   });
 });

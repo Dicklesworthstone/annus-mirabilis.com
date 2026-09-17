@@ -26,7 +26,13 @@ describe("auditReadings (am-cm-audit-scripts-d34)", () => {
     ownerBeadId: "am-bm-readings-s4-s5-uqbb",
     fileName: "am-bm-readings-s4-s5-uqbb.yaml",
     paper: "brownian-motion",
-    targetKinds: ["paragraph" as const, "equation" as const, "derivation-step" as const, "instrument-caption" as const, "closing" as const],
+    targetKinds: [
+      "paragraph" as const,
+      "equation" as const,
+      "derivation-step" as const,
+      "instrument-caption" as const,
+      "closing" as const,
+    ],
     targetIds: ["s4-p1", "s4-eq1", "s4-step1", "caption-bm01", "closing-bm"],
   };
 

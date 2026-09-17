@@ -11,7 +11,10 @@ import {
 
 describe("glossModality: modality classes loading, fallback, and validation", () => {
   test("falls back to default [konjunktiv-i, konjunktiv-ii] with recorded warning when file is missing", () => {
-    const nonExistentPath = path.resolve(process.cwd(), "docs/editorial/NON_EXISTENT_GLOSS_CONVENTIONS.md");
+    const nonExistentPath = path.resolve(
+      process.cwd(),
+      "docs/editorial/NON_EXISTENT_GLOSS_CONVENTIONS.md",
+    );
     const result = loadGlossConventions(nonExistentPath);
 
     expect(result.modalityClasses).toEqual(DEFAULT_MODALITY_CLASSES);
@@ -60,7 +63,9 @@ modalityClasses:
 `;
     expect(() => {
       parseModalityClassesFromContent(invalidContent, "GLOSS_CONVENTIONS.md");
-    }).toThrow(/\[GLOSS_CONVENTIONS\.md -> source\.ts\] Class "made-up-fake-class" in modalityClasses is not a valid GlossNoteClass/);
+    }).toThrow(
+      /\[GLOSS_CONVENTIONS\.md -> source\.ts\] Class "made-up-fake-class" in modalityClasses is not a valid GlossNoteClass/,
+    );
   });
 
   test("isModalityClass returns true for declared modality classes and false for non-modality classes", () => {

@@ -41,7 +41,9 @@ function refuseSeparation(name: keyof Sr01Parameters, value: number): Sr01Parame
       refusal: makeRefusal(
         "invalid-parameter",
         { parameterIds: [name] },
-        { details: { requirements: `${name} must be a finite, positive number of light-seconds.` } },
+        {
+          details: { requirements: `${name} must be a finite, positive number of light-seconds.` },
+        },
       ),
     };
   }

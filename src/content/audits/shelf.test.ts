@@ -142,7 +142,11 @@ describe("auditShelf (am-cm-audit-scripts-d34)", () => {
     };
     const report = auditShelf(input);
     expect(report.ok).toBe(true);
-    expect(report.findings.some((f) => f.check === "shelf-world-check-evidence" && f.severity === "flag")).toBe(true);
+    expect(
+      report.findings.some(
+        (f) => f.check === "shelf-world-check-evidence" && f.severity === "flag",
+      ),
+    ).toBe(true);
   });
 
   test("PLANTED: open queue item for a verified card fails with shelf-queue-card-disagreement", () => {

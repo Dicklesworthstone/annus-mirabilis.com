@@ -336,25 +336,27 @@ export function DopplerAberrationPlot({
         </div>
 
         {earthOrbitAberrationFormatted ? (
-        <div className="p-2.5 rounded-md border border-border/40 bg-muted/20">
-          <div className="text-muted-foreground">Earth orbit aberration</div>
-          <div className="text-sm font-mono font-semibold mt-0.5 text-amber-600 dark:text-amber-400">
-            {earthOrbitAberrationFormatted}
+          <div className="p-2.5 rounded-md border border-border/40 bg-muted/20">
+            <div className="text-muted-foreground">Earth orbit aberration</div>
+            <div className="text-sm font-mono font-semibold mt-0.5 text-amber-600 dark:text-amber-400">
+              {earthOrbitAberrationFormatted}
+            </div>
+            <div className="text-[10px] text-muted-foreground mt-0.5">
+              Modern calculation at 29.8 km/s
+            </div>
           </div>
-          <div className="text-[10px] text-muted-foreground mt-0.5">
-            Modern calculation at 29.8 km/s
-          </div>
-        </div>
         ) : null}
 
         {Number.isFinite(secondOrderShift) ? (
-        <div className="p-2.5 rounded-md border border-border/40 bg-muted/20">
-          <div className="text-muted-foreground">2nd-order shift γ - 1</div>
-          <div className="text-sm font-mono font-semibold mt-0.5 text-blue-600 dark:text-blue-400">
-            {secondOrderShift.toExponential(4)}
+          <div className="p-2.5 rounded-md border border-border/40 bg-muted/20">
+            <div className="text-muted-foreground">2nd-order shift γ - 1</div>
+            <div className="text-sm font-mono font-semibold mt-0.5 text-blue-600 dark:text-blue-400">
+              {secondOrderShift.toExponential(4)}
+            </div>
+            <div className="text-[10px] text-muted-foreground mt-0.5">
+              Ives–Stilwell 1938 overlay
+            </div>
           </div>
-          <div className="text-[10px] text-muted-foreground mt-0.5">Ives–Stilwell 1938 overlay</div>
-        </div>
         ) : null}
       </div>
     </div>

@@ -39,9 +39,7 @@ export function MoveMarker({ move }: MoveMarkerProps) {
 
       <div>
         <h3 className="text-xl font-serif font-bold text-stone-100 mb-2">{label}</h3>
-        <p className="text-base text-stone-200 leading-relaxed font-serif">
-          {r0Summary.text}
-        </p>
+        <p className="text-base text-stone-200 leading-relaxed font-serif">{r0Summary.text}</p>
       </div>
     </aside>
   );

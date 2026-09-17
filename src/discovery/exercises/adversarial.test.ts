@@ -29,7 +29,8 @@ describe("am-disc-exercise-checker-i4h2: adversarial corpus and boundary tests",
       sampleFamily: "philox",
       outcome: "pass",
       durationMs: Date.now() - start,
-      message: "Adversarial high-frequency grid-aliasing function rejected by Philox random point set.",
+      message:
+        "Adversarial high-frequency grid-aliasing function rejected by Philox random point set.",
     });
   });
 

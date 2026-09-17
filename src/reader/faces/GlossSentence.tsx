@@ -35,11 +35,9 @@ export function extractReasoningWords(
 
   for (let i = 0; i < glossUnit.tokens.length; i++) {
     const token = glossUnit.tokens[i]!;
-    
+
     // Check if part of a multiword unit
-    const multiword = glossUnit.multiwordUnits?.find((mw) =>
-      mw.tokenIndices.includes(i),
-    );
+    const multiword = glossUnit.multiwordUnits?.find((mw) => mw.tokenIndices.includes(i));
 
     if (multiword) {
       if (isModalityClass(multiword.noteClass, modalityClasses)) {
@@ -87,7 +85,11 @@ export function GlossSentence({
   // If no gloss unit is available, render German text with an honest coverage notice and link to parallel face
   if (!glossUnit) {
     return (
-      <div className="gloss-sentence gloss-sentence-missing" id={sentenceId} data-sentence-id={sentenceId}>
+      <div
+        className="gloss-sentence gloss-sentence-missing"
+        id={sentenceId}
+        data-sentence-id={sentenceId}
+      >
         <div className="sentence-german-unadorned" lang="de">
           {germanText}
         </div>
@@ -172,9 +174,7 @@ export function GlossSentence({
       {/* Interlinear word pairs layout */}
       <div className="gloss-pairs-container" data-pairs-container="true">
         {glossUnit.tokens.map((token, idx) => {
-          const multiword = glossUnit.multiwordUnits?.find((mw) =>
-            mw.tokenIndices.includes(idx),
-          );
+          const multiword = glossUnit.multiwordUnits?.find((mw) => mw.tokenIndices.includes(idx));
           const isMultiwordFirst = multiword ? multiword.tokenIndices[0] === idx : true;
 
           return (
@@ -199,10 +199,17 @@ export function GlossSentence({
           </summary>
           <ol className="reasoning-words-ol">
             {reasoningWords.map((item, i) => (
-              <li key={`${sentenceId}-rw-${i}`} className="reasoning-word-item" data-token-index={item.tokenIndex}>
-                <strong className="rw-german" lang="de">{item.german}</strong>
-                {" "}
-                <span className="rw-english" lang="en">({item.english})</span>
+              <li
+                key={`${sentenceId}-rw-${i}`}
+                className="reasoning-word-item"
+                data-token-index={item.tokenIndex}
+              >
+                <strong className="rw-german" lang="de">
+                  {item.german}
+                </strong>{" "}
+                <span className="rw-english" lang="en">
+                  ({item.english})
+                </span>
                 {" — "}
                 <span className="rw-class">[{item.noteClass}]</span>
                 {item.grammarNote && <span className="rw-note">: {item.grammarNote}</span>}

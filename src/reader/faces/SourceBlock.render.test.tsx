@@ -26,9 +26,7 @@ describe("SourceBlock render tests", () => {
 
   test("renders locators linking to facsimile page", () => {
     const block = FIXTURE_BROWNIAN_SOURCE_BLOCKS.find((b) => b.id === "bm-s4-p1")!;
-    const html = renderToStaticMarkup(
-      <SourceBlock block={block} paperSlug="brownian-motion" />,
-    );
+    const html = renderToStaticMarkup(<SourceBlock block={block} paperSlug="brownian-motion" />);
 
     expect(html).toContain('data-facsimile-link="556"');
     expect(html).toContain('href="/papers/brownian-motion/?view=facsimile#page-556"');
@@ -37,9 +35,7 @@ describe("SourceBlock render tests", () => {
 
   test("renders equation in printed notation only", () => {
     const block = FIXTURE_BROWNIAN_SOURCE_BLOCKS.find((b) => b.id === "bm-s4-eq1")!;
-    const html = renderToStaticMarkup(
-      <SourceBlock block={block} paperSlug="brownian-motion" />,
-    );
+    const html = renderToStaticMarkup(<SourceBlock block={block} paperSlug="brownian-motion" />);
 
     expect(html).toContain('data-kind="equation"');
     expect(html).toContain('data-printed-notation="true"');

@@ -28,7 +28,8 @@ export function printedBrownianConstantSet() {
     era: 1905,
     provenance:
       "Chosen teaching inputs from the project plan: R = 8.31 J mol^-1 K^-1 and N = 6e23 mol^-1. These are not measurements or checked transcriptions. The reserved historical set remains unavailable.",
-    precisionNote: "Declared decimal inputs; neither measurement uncertainties nor source review are asserted.",
+    precisionNote:
+      "Declared decimal inputs; neither measurement uncertainties nor source review are asserted.",
     gasConstantProvenance: "not-applicable",
     entries: [
       {

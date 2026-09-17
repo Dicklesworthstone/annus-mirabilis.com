@@ -172,15 +172,8 @@ export function FacsimileViewer({
         </div>
       </div>
 
-      <div
-        className="facsimile-canvas-container"
-        data-zoom={zoom}
-        aria-label={accessibleLabel}
-      >
-        <div
-          className="facsimile-page-frame"
-          style={{ width: `${zoom}%` }}
-        >
+      <div className="facsimile-canvas-container" data-zoom={zoom} aria-label={accessibleLabel}>
+        <div className="facsimile-page-frame" style={{ width: `${zoom}%` }}>
           <div className="facsimile-page-preview" aria-hidden="true">
             <div className="facsimile-page-header-info">
               <span>PDF Page {currentPage}</span>

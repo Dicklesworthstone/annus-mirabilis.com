@@ -1,9 +1,5 @@
 import { describe, expect, it } from "bun:test";
-import {
-  formatUncertainty,
-  spokenUncertainty,
-  type UncertaintySpec,
-} from "./uncertainty.ts";
+import { formatUncertainty, spokenUncertainty, type UncertaintySpec } from "./uncertainty.ts";
 
 describe("Uncertainty Kinds and Formatting (am-ver-precision-display-5e5)", () => {
   it("formats standard uncertainty (1-sigma) with ± and correct spoken form", () => {
@@ -15,7 +11,9 @@ describe("Uncertainty Kinds and Formatting (am-ver-precision-display-5e5)", () =
   it("formats coverage-95 (expanded 2-sigma) with explicit coverage label", () => {
     const spec: UncertaintySpec = { kind: "coverage-95", value: 0.1 };
     expect(formatUncertainty(spec)).toBe("± 0.1 (95% coverage)");
-    expect(spokenUncertainty(spec, "s")).toBe("plus or minus 0.1 seconds at ninety-five percent confidence");
+    expect(spokenUncertainty(spec, "s")).toBe(
+      "plus or minus 0.1 seconds at ninety-five percent confidence",
+    );
   });
 
   it("formats strict bounds with enclosure brackets and distinct spoken wording", () => {

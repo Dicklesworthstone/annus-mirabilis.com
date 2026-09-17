@@ -102,7 +102,9 @@
   font-family: inherit;
   font-size: 1.1rem;
   text-decoration: none;
-  transition: background 0.15s ease, border-color 0.15s ease;
+  transition:
+    background 0.15s ease,
+    border-color 0.15s ease;
 }
 
 .glyph-nav-item a:hover {
@@ -348,7 +350,9 @@
   border: 1px solid var(--line);
   border-radius: 6px;
   padding: 1.25rem;
-  transition: border-color 0.2s ease, box-shadow 0.2s ease;
+  transition:
+    border-color 0.2s ease,
+    box-shadow 0.2s ease;
   position: relative;
 }
 

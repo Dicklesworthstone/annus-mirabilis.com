@@ -53,17 +53,22 @@ describe("Precision & Format Display (am-ver-precision-display-5e5)", () => {
     const comparisonT1 = formatConstantSetComparison(historicalT1, modernT1, "μm", { sigFigs: 3 });
     expect(comparisonT1).toBe("0.795 vs. 0.794 μm (below input precision)");
 
-    const comparisonT60 = formatConstantSetComparison(historicalT60, modernT60, "μm", { sigFigs: 3 });
+    const comparisonT60 = formatConstantSetComparison(historicalT60, modernT60, "μm", {
+      sigFigs: 3,
+    });
     expect(comparisonT60).toBe("6.16 vs. 6.15 μm (below input precision)");
   });
 
   it("formats constant-set-dependent quantities with explicit labels", () => {
-    const formatted = formatConstantSetDependentValue({
-      value: 0.7947833,
-      unit: "μm",
-      constantSetId: "einstein-1905-brownian-printed",
-      constantSetLabel: "Einstein 1905",
-    }, { sigFigs: 2 });
+    const formatted = formatConstantSetDependentValue(
+      {
+        value: 0.7947833,
+        unit: "μm",
+        constantSetId: "einstein-1905-brownian-printed",
+        constantSetLabel: "Einstein 1905",
+      },
+      { sigFigs: 2 },
+    );
     expect(formatted).toBe("0.79 μm (Einstein 1905)");
   });
 

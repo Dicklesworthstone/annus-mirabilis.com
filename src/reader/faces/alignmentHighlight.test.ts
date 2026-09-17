@@ -10,11 +10,7 @@ import {
   getAlignedTargets,
   isSourceAlignedToTarget,
 } from "./alignment.ts";
-import {
-  computeHighlights,
-  nextSentenceId,
-  prevSentenceId,
-} from "./alignmentHighlight.ts";
+import { computeHighlights, nextSentenceId, prevSentenceId } from "./alignmentHighlight.ts";
 
 describe("alignment indexing and lookups (many-to-many)", () => {
   const index = buildAlignmentIndex(

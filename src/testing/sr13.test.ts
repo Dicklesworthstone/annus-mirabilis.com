@@ -25,7 +25,12 @@ function val(r: ScientificResult | undefined): number {
   return r.value;
 }
 
-function expectClose(actual: number, expected: number, relTol: number = 1e-5, absFloor: number = 1e-12) {
+function expectClose(
+  actual: number,
+  expected: number,
+  relTol: number = 1e-5,
+  absFloor: number = 1e-12,
+) {
   const verdict = withinTolerance(actual, expected, {
     relative: relTol,
     absolute: absFloor,
@@ -77,8 +82,8 @@ describe("SR-13 Acceptance Criteria & Numerical Rigor (am-sr-13-electron-dynamic
     const re = electricRadius(beta, 1e5);
     expect(re.exact.status).toBe("value");
     expect(re.newtonian.status).toBe("value");
-    expectClose(val(re.exact), 2.29950, 1e-4);
-    expectClose(val(re.newtonian), 1.83960, 1e-4);
+    expectClose(val(re.exact), 2.2995, 1e-4);
+    expectClose(val(re.newtonian), 1.8396, 1e-4);
 
     // High speed at beta = 0.95
     const ke95 = kineticEnergy(m, 0.95);

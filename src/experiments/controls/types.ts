@@ -22,12 +22,7 @@ export type {
   VisualRange,
 };
 
-export type ControlDomainStatus =
-  | "inside"
-  | "boundary"
-  | "outside"
-  | "beyond-track"
-  | "off-grid";
+export type ControlDomainStatus = "inside" | "boundary" | "outside" | "beyond-track" | "off-grid";
 
 export interface DomainValidationResult {
   readonly valid: boolean;

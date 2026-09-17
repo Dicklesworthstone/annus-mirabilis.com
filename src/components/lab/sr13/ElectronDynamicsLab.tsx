@@ -113,8 +113,8 @@ export function ElectronDynamicsLab({
       <noscript>
         <p className="notice">
           JavaScript is off. This is a complete worked example calculated when the site was built.
-          Kinetic energy, accelerating potential, mass coefficients, and deflection curves remain available;
-          changing the parameters requires JavaScript.
+          Kinetic energy, accelerating potential, mass coefficients, and deflection curves remain
+          available; changing the parameters requires JavaScript.
         </p>
       </noscript>
       <p data-detail="0">{SR13_CAPTION.r0}</p>
@@ -128,9 +128,9 @@ export function ElectronDynamicsLab({
       <p>
         Section 10 examines the motion of a slowly accelerated electron in electromagnetic fields.
         By combining rest-frame dynamics with stationary coordinate measurements, Einstein derives
-        longitudinal mass μγ³ and transverse mass μγ². Planck&apos;s laboratory force convention yields
-        transverse mass μγ. Both conventions make identical predictions for physical deflections,
-        potentials, and trajectories.
+        longitudinal mass μγ³ and transverse mass μγ². Planck&apos;s laboratory force convention
+        yields transverse mass μγ. Both conventions make identical predictions for physical
+        deflections, potentials, and trajectories.
       </p>
       <div className="lab-columns">
         <form onSubmit={submit} aria-label="Electron dynamics controls">

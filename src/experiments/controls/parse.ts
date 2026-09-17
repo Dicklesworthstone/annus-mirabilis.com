@@ -56,7 +56,12 @@ export function getCanonicalBaseUnit(spec: ParameterSpec): string {
   ) {
     return "m";
   }
-  if (normDisplay === "ev" || normDisplay === "erg" || normDisplay === "j" || spec.quantityId === "energy") {
+  if (
+    normDisplay === "ev" ||
+    normDisplay === "erg" ||
+    normDisplay === "j" ||
+    spec.quantityId === "energy"
+  ) {
     return "J";
   }
   if (normDisplay === "thz" || normDisplay === "hz" || spec.quantityId === "frequency") {
@@ -93,7 +98,11 @@ export function toDisplayUnitValue(spec: ParameterSpec, canonicalValue: number):
 /**
  * Converts a display unit value into the canonical SI representation.
  */
-export function toCanonicalValue(spec: ParameterSpec, displayValue: number, fromUnit?: string): number {
+export function toCanonicalValue(
+  spec: ParameterSpec,
+  displayValue: number,
+  fromUnit?: string,
+): number {
   if (!Number.isFinite(displayValue)) return displayValue;
   const baseUnit = getCanonicalBaseUnit(spec);
   const sourceUnit = normalizeUnit(fromUnit ?? spec.displayUnit);
@@ -193,7 +202,9 @@ export function parseParameterValue(
 
   // 2. Parse numeric value with optional unit suffix
   // Matches e.g. "1.35e-3", "-2.5", "1.35 mPa*s", "500 nm", "0.02 s"
-  const match = /^([+-]?(?:\d+\.?\d*|\.\d+)(?:[eE][+-]?\d+)?)\s*([a-zA-Z*·/µμ°%^0-9\s-]*)$/.exec(trimmed);
+  const match = /^([+-]?(?:\d+\.?\d*|\.\d+)(?:[eE][+-]?\d+)?)\s*([a-zA-Z*·/µμ°%^0-9\s-]*)$/.exec(
+    trimmed,
+  );
   if (!match) {
     return {
       ok: false,

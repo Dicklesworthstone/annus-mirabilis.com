@@ -24,8 +24,8 @@ export default function ElectronDynamicsPage() {
           of the slowly accelerated electron.
         </h1>
         <p className="lead">
-          What force, work, energy, and deflection relations follow for a slowly accelerated electron,
-          and why do two different &ldquo;transverse masses&rdquo; appear?
+          What force, work, energy, and deflection relations follow for a slowly accelerated
+          electron, and why do two different &ldquo;transverse masses&rdquo; appear?
         </p>
         <p>
           <a href="/papers/special-relativity/#s10">Read §10 of the 1905 relativity paper →</a>
@@ -38,24 +38,24 @@ export default function ElectronDynamicsPage() {
         <h2>Worked case (readable without JavaScript)</h2>
         <p>
           Consider an electron of mass m = 9.109 &times; 10<sup>&minus;31</sup> kg and charge
-          &minus;e = &minus;1.602 &times; 10<sup>&minus;19</sup> C moving at initial speed
-          v = 0.6c (&beta; = 0.6, &gamma; = 1.25) through a transverse electric field
-          E<sub>y</sub> = 10<sup>5</sup> V/m.
+          &minus;e = &minus;1.602 &times; 10<sup>&minus;19</sup> C moving at initial speed v = 0.6c
+          (&beta; = 0.6, &gamma; = 1.25) through a transverse electric field E<sub>y</sub> = 10
+          <sup>5</sup> V/m.
         </p>
         <p>
-          In §10, Einstein transforms Newton&apos;s second law from the electron&apos;s instantaneous
-          rest frame back to the stationary coordinate system. When defining force as the field times
-          charge in the comoving frame (the source convention), the equations of motion in stationary
-          coordinates become:
+          In §10, Einstein transforms Newton&apos;s second law from the electron&apos;s
+          instantaneous rest frame back to the stationary coordinate system. When defining force as
+          the field times charge in the comoving frame (the source convention), the equations of
+          motion in stationary coordinates become:
         </p>
         <Formula
           latex={String.raw`\frac{d^2x}{dt^2} = \frac{\varepsilon}{\mu}\frac{1}{\beta^3}X,\qquad \frac{d^2y}{dt^2} = \frac{\varepsilon}{\mu}\frac{1}{\beta}\left(Y - \frac{v}{V}N\right)`}
         />
         <p>
-          Comparing comoving force components to stationary accelerations gives the longitudinal mass
-          m&gamma;<sup>3</sup> = 1.953125m and the transverse mass m&gamma;<sup>2</sup> = 1.5625m.
-          In contrast, Planck&apos;s 1906 laboratory convention (F = dp/dt) yields transverse mass
-          m&gamma; = 1.25m.
+          Comparing comoving force components to stationary accelerations gives the longitudinal
+          mass m&gamma;<sup>3</sup> = 1.953125m and the transverse mass m&gamma;<sup>2</sup> =
+          1.5625m. In contrast, Planck&apos;s 1906 laboratory convention (F = dp/dt) yields
+          transverse mass m&gamma; = 1.25m.
         </p>
         <p>
           Crucially, both definitions predict the exact same physical trajectory and radius of
@@ -71,9 +71,9 @@ export default function ElectronDynamicsPage() {
           latex={String.raw`W = m c^2 (\gamma - 1) = 0.25 m c^2 \approx 127.75\text{ keV}\implies P = \frac{W}{e} \approx 127.75\text{ kV}`}
         />
         <p>
-          Because &gamma; &minus; 1 grows without bound as v &rarr; c, an infinite accelerating potential
-          would be required to reach the speed of light: superluminal velocities have no physical possibility
-          of existence for material particles.
+          Because &gamma; &minus; 1 grows without bound as v &rarr; c, an infinite accelerating
+          potential would be required to reach the speed of light: superluminal velocities have no
+          physical possibility of existence for material particles.
         </p>
         <div className="actions">
           <a className="button" href="/papers/special-relativity/#s10">

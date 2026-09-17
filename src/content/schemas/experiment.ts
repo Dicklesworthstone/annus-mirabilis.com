@@ -210,7 +210,9 @@ export type ActionContract = Readonly<{
   visualAffordance: string;
   equivalentAffordance: string;
   announcement: string;
-  modalities?: readonly ("keyboard" | "direct-entry" | "screen-reader" | "switch-control")[] | undefined;
+  modalities?:
+    | readonly ("keyboard" | "direct-entry" | "screen-reader" | "switch-control")[]
+    | undefined;
 }>;
 
 export const VALID_ACTION_STATUSES = [
@@ -2424,7 +2426,11 @@ export function validateHistoricalDataset(
       }
       let obsDate: PaperDate | undefined;
       if (sRaw.observationDate) {
-        obsDate = validatePaperDate(sRaw.observationDate, sRaw.id as string, `${sPath}.observationDate`);
+        obsDate = validatePaperDate(
+          sRaw.observationDate,
+          sRaw.id as string,
+          `${sPath}.observationDate`,
+        );
         const pub = publications.find((p) => p.id === sRaw.publicationId);
         if (pub && obsDate.earliest > pub.publicationDate.latest) {
           throw new ExperimentValidationError(

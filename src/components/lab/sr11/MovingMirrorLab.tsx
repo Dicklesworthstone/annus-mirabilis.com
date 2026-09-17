@@ -97,8 +97,7 @@ export function MovingMirrorLab({
 
   const isApplicable = freqRatio !== null;
   const notApplicableItem = result(snapshot, "frequencyRatio");
-  const notApplicableReason =
-    "reason" in notApplicableItem ? notApplicableItem.reason : undefined;
+  const notApplicableReason = "reason" in notApplicableItem ? notApplicableItem.reason : undefined;
 
   return (
     <section
@@ -135,9 +134,9 @@ export function MovingMirrorLab({
       </p>
 
       <p>
-        Set the mirror velocity ratio β = v/c and incident angle φ, or select a preset scenario.
-        The reflection modifies frequency, ray direction, and amplitude, while radiation pressure
-        does mechanical work that conserves energy across reference frames.
+        Set the mirror velocity ratio β = v/c and incident angle φ, or select a preset scenario. The
+        reflection modifies frequency, ray direction, and amplitude, while radiation pressure does
+        mechanical work that conserves energy across reference frames.
       </p>
 
       <div className="lab-columns">

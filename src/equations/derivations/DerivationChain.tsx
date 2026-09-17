@@ -8,16 +8,8 @@
 
 import React, { useEffect, useRef, useState } from "react";
 import { DerivationStepComponent } from "./DerivationStepComponent.tsx";
-import {
-  filterRoutesForPerspective,
-  getRouteLabel,
-  selectRoute,
-} from "./routeChooser.ts";
-import {
-  announceStepExpanded,
-  handleStepKeyDown,
-  parseDerivationStepParam,
-} from "./stepFocus.ts";
+import { filterRoutesForPerspective, getRouteLabel, selectRoute } from "./routeChooser.ts";
+import { announceStepExpanded, handleStepKeyDown, parseDerivationStepParam } from "./stepFocus.ts";
 import type { DerivationChain } from "./types.ts";
 import "./derivation.css";
 

@@ -30,8 +30,8 @@ export function JourneyInPreparation({
       <section className="in-preparation-notice" data-in-preparation-notice>
         <h2>This journey is in preparation.</h2>
         <p>
-          The discovery journey for this paper has not yet been published. The critical reading edition
-          and companion materials remain available.
+          The discovery journey for this paper has not yet been published. The critical reading
+          edition and companion materials remain available.
         </p>
         <p className="actions">
           <a className="button" href={`/papers/${paperId}/`}>

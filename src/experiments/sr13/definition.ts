@@ -62,7 +62,7 @@ export const SR13_CLASSES: Readonly<Record<keyof Sr13Parameters, ParameterClass>
 });
 
 export const SR13_QUESTION =
-  "What force, work, energy, and deflection relations follow for a slowly accelerated electron, and why do two different \"transverse masses\" appear?";
+  'What force, work, energy, and deflection relations follow for a slowly accelerated electron, and why do two different "transverse masses" appear?';
 
 export const SR13_NOT_MODELED = Object.freeze([
   "radiation reaction from accelerated charges",
@@ -96,34 +96,17 @@ const c = (
 
 export const SR13_OUTPUTS: Readonly<Record<string, OutputContract>> = Object.freeze({
   longitudinalMass: c("kg", "mass", "electron", ["value", "outside-domain"]),
-  transverseMassComoving: c("kg", "mass", "electron", [
-    "value",
-    "outside-domain",
-  ]),
-  transverseMassLaboratory: c("kg", "mass", "electron", [
-    "value",
-    "outside-domain",
-  ]),
+  transverseMassComoving: c("kg", "mass", "electron", ["value", "outside-domain"]),
+  transverseMassLaboratory: c("kg", "mass", "electron", ["value", "outside-domain"]),
   kineticEnergy: c("J", "energy", "electron", ["value", "outside-domain"]),
   kineticEnergyNewtonian: c("J", "energy", "electron", ["value", "outside-domain"]),
-  acceleratingPotential: c("V", "electric-potential", "electron", [
+  acceleratingPotential: c("V", "electric-potential", "electron", ["value", "outside-domain"]),
+  acceleratingPotentialNewtonian: c("V", "electric-potential", "electron", [
     "value",
     "outside-domain",
   ]),
-  acceleratingPotentialNewtonian: c(
-    "V",
-    "electric-potential",
-    "electron",
-    ["value", "outside-domain"],
-  ),
-  radiusCurvatureMagnetic: c("m", "length", "electron", [
-    "value",
-    "outside-domain",
-  ]),
-  radiusCurvatureElectric: c("m", "length", "electron", [
-    "value",
-    "outside-domain",
-  ]),
+  radiusCurvatureMagnetic: c("m", "length", "electron", ["value", "outside-domain"]),
+  radiusCurvatureElectric: c("m", "length", "electron", ["value", "outside-domain"]),
   lorentzFactor: c("1", "dimensionless", "electron", ["value", "outside-domain"]),
   speedRatio: c("1", "ratio", "electron", ["value", "outside-domain"]),
 });

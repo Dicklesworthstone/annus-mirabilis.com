@@ -1,10 +1,5 @@
 import { describe, expect, it } from "bun:test";
-import {
-  classifyWithTolerance,
-  compareBitwise,
-  roundsTo,
-  withinTolerance,
-} from "./tolerance.ts";
+import { classifyWithTolerance, compareBitwise, roundsTo, withinTolerance } from "./tolerance.ts";
 import {
   formatBitwiseVerdict,
   formatClassificationVerdict,

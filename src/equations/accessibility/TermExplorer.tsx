@@ -41,9 +41,7 @@ export function TermExplorer({
     store.getServerSnapshot,
   );
 
-  const [activeNodeId, setActiveNodeId] = useState<string | null>(
-    navigation[0]?.id ?? null,
-  );
+  const [activeNodeId, setActiveNodeId] = useState<string | null>(navigation[0]?.id ?? null);
   const [liveAnnouncement, setLiveAnnouncement] = useState<string>("");
   const chipRefs = useRef<Map<string, HTMLButtonElement>>(new Map());
   const rootRef = useRef<HTMLDivElement>(null);
@@ -52,26 +50,30 @@ export function TermExplorer({
   const activeTerm = terms.find((t) => t.nodeId === activeNodeId);
 
   // Sync active term details into polite live announcement
-  const updateAnnouncement = useCallback((nodeId: string | null) => {
-    if (!nodeId) {
-      setLiveAnnouncement("Selection cleared.");
-      return;
-    }
-    const t = terms.find((item) => item.nodeId === nodeId);
-    const n = navigation.find((item) => item.id === nodeId);
-    if (!t && !n) return;
+  const updateAnnouncement = useCallback(
+    (nodeId: string | null) => {
+      if (!nodeId) {
+        setLiveAnnouncement("Selection cleared.");
+        return;
+      }
+      const t = terms.find((item) => item.nodeId === nodeId);
+      const n = navigation.find((item) => item.id === nodeId);
+      if (!t && !n) return;
 
-    const name = t?.name ?? n?.id ?? "Term";
-    const role = t?.role ?? (n?.kind === "term" ? "Term" : "Operation");
-    const unit = t?.unit ? `Unit: ${t.unit}.` : "";
-    const value = t?.value ? `Value: ${t.value}.` : "";
-    const status = t?.status && t.status !== "numeric" ? `Status: ${t.status}.` : "";
-    const state = t?.fixedOrChanging ? `State: ${t.fixedOrChanging}.` : "";
-    const details = t?.speechText ? ` ${t.speechText}` : "";
+      const name = t?.name ?? n?.id ?? "Term";
+      const role = t?.role ?? (n?.kind === "term" ? "Term" : "Operation");
+      const unit = t?.unit ? `Unit: ${t.unit}.` : "";
+      const value = t?.value ? `Value: ${t.value}.` : "";
+      const status = t?.status && t.status !== "numeric" ? `Status: ${t.status}.` : "";
+      const state = t?.fixedOrChanging ? `State: ${t.fixedOrChanging}.` : "";
+      const details = t?.speechText ? ` ${t.speechText}` : "";
 
-    const announcement = `${name}. Role: ${role}. ${unit} ${value} ${status} ${state}${details}`.trim();
-    setLiveAnnouncement(announcement);
-  }, [terms, navigation]);
+      const announcement =
+        `${name}. Role: ${role}. ${unit} ${value} ${status} ${state}${details}`.trim();
+      setLiveAnnouncement(announcement);
+    },
+    [terms, navigation],
+  );
 
   const selectNode = useCallback(
     (id: string | null, focusElement = true) => {
@@ -155,11 +157,7 @@ export function TermExplorer({
       </div>
 
       {/* Roving tabindex chip list */}
-      <div
-        className="am-term-chips"
-        role="group"
-        aria-label="Equation components"
-      >
+      <div className="am-term-chips" role="group" aria-label="Equation components">
         {navigation.map((n) => {
           const t = terms.find((item) => item.nodeId === n.id);
           const isSelected = activeNodeId === n.id;

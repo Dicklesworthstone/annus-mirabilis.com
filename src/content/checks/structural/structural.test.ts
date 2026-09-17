@@ -10,6 +10,7 @@
 
 import { afterAll, beforeEach, describe, expect, it } from "bun:test";
 import { TestLogger } from "../../../testing/log/logger.ts";
+import { clearRegisteredChecksForTests } from "../../compiler/checks/registry.ts";
 import { compileContent } from "../../compiler/compiler.ts";
 import { spanTextDigest } from "../../schemas/spans.ts";
 import { registerStructuralChecks } from "./structural.ts";
@@ -23,6 +24,7 @@ afterAll(async () => {
 
 describe("Structural Compiler Rejections", () => {
   beforeEach(() => {
+    clearRegisteredChecksForTests();
     registerStructuralChecks();
   });
 
@@ -157,6 +159,7 @@ describe("Structural Compiler Rejections", () => {
           sourceRefs: [{ paper: "test-paper", id: "s9-p1" }], // Missing source block
           inlines: [{ kind: "text", text: "Translation of missing block" }],
           translator: { name: "A. Translator", role: "translator" },
+          lang: "en",
           revision: 1,
           reviewState: "reviewed",
         }),
@@ -375,6 +378,7 @@ describe("Structural Compiler Rejections", () => {
           sourceRefs: [{ paper: "test-paper", id: "s1-p1-s1" }],
           inlines: [{ kind: "text", text: "Lone suffix a" }],
           translator: { name: "A. Translator", role: "translator" },
+          lang: "en",
           revision: 1,
           reviewState: "reviewed",
         }),
@@ -388,6 +392,7 @@ describe("Structural Compiler Rejections", () => {
           sourceRefs: [{ paper: "test-paper", id: "s1-fn1" }],
           inlines: [{ kind: "text", text: "Lone footnote suffix a" }],
           translator: { name: "A. Translator", role: "translator" },
+          lang: "en",
           revision: 1,
           reviewState: "reviewed",
         }),
@@ -748,6 +753,7 @@ describe("Structural Compiler Rejections", () => {
           inlines: [{ kind: "math", latex: "E = m c^2 " }], // Extra space in math
           latex: "E = m c^2 ",
           translator: { name: "A. Translator", role: "translator" },
+          lang: "en",
           revision: 1,
           reviewState: "reviewed",
         }),
@@ -830,6 +836,7 @@ describe("Structural Compiler Rejections", () => {
           sourceRefs: [{ paper: "test-paper", id: "s1-p1-s1" }],
           inlines: [{ kind: "text", text: "Machine draft text" }],
           translator: { name: "Machine", role: "translator" },
+          lang: "en",
           revision: 1,
           reviewState: "draft", // Unreviewed draft
         }),

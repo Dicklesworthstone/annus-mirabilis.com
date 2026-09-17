@@ -31,7 +31,9 @@ export function checkNoScanFurniture(content: string): ScanFurnitureCheckResult 
   for (const pattern of FORBIDDEN_SCAN_FURNITURE_PATTERNS) {
     const match = content.match(pattern);
     if (match) {
-      violations.push(`Found forbidden scan furniture matching ${pattern.toString()}: "${match[0]}"`);
+      violations.push(
+        `Found forbidden scan furniture matching ${pattern.toString()}: "${match[0]}"`,
+      );
     }
   }
 

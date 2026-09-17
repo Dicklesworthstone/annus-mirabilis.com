@@ -8,10 +8,7 @@ import { describe, expect, it } from "bun:test";
 import { randomBytes } from "node:crypto";
 import { mkdirSync, writeFileSync } from "node:fs";
 import { join } from "node:path";
-import {
-  generateCoverageReport,
-  validateCoverageLedger,
-} from "../content/coverage/ledger.ts";
+import { generateCoverageReport, validateCoverageLedger } from "../content/coverage/ledger.ts";
 import type { ArgumentNodeCoverage, ExecutionProvenanceState } from "../content/coverage/types.ts";
 
 function generateLogRunId(date: Date = new Date()): string {
@@ -257,11 +254,7 @@ describe("Coverage Ledger Bun Verification (am-cm-coverage-ledger-0ip)", () => {
     expect(rev?.physicsReview).toBe("not-reviewed");
     expect(rev?.r2Readability).toBe("accepted");
 
-    logTest(
-      "review-status-cells-distinct",
-      "passed",
-      "Review status cells reported distinctly",
-    );
+    logTest("review-status-cells-distinct", "passed", "Review status cells reported distinctly");
   });
 
   it("distinguishes artifact-loaded from accepted-frankensim-result-demonstrated", () => {

@@ -414,10 +414,7 @@ test("Experiment: Planted Negative - duplicate actionId in actions fails", () =>
   const yaml = fs.readFileSync(path.join(FIXTURES_DIR, "experiment-valid.yaml"), "utf8");
   const raw = strictParse(yaml, "yaml") as any;
 
-  raw.actions = [
-    raw.actions[0],
-    { ...raw.actions[0] },
-  ];
+  raw.actions = [raw.actions[0], { ...raw.actions[0] }];
 
   assert.throws(
     () => validateExperiment(raw),

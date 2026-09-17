@@ -21,7 +21,9 @@ describe("checkJourney: complete and partial journeys", () => {
       worldChecks: [],
     };
     const findings = checkJourney(invalid);
-    const missingWorld = findings.find((f) => f.rule === "journey-complete-missing-element" && f.element === "worldChecks");
+    const missingWorld = findings.find(
+      (f) => f.rule === "journey-complete-missing-element" && f.element === "worldChecks",
+    );
     expect(missingWorld).toBeDefined();
   });
 
@@ -31,7 +33,9 @@ describe("checkJourney: complete and partial journeys", () => {
       shelf: [], // shelf missing but not listed in pendingElements
     };
     const findings = checkJourney(invalid);
-    const undeclared = findings.find((f) => f.rule === "journey-partial-undeclared-pending-element" && f.element === "shelf");
+    const undeclared = findings.find(
+      (f) => f.rule === "journey-partial-undeclared-pending-element" && f.element === "shelf",
+    );
     expect(undeclared).toBeDefined();
   });
 
@@ -48,7 +52,9 @@ describe("checkJourney: complete and partial journeys", () => {
       ],
     };
     const findings = checkJourney(invalid);
-    const alreadyPresent = findings.find((f) => f.rule === "journey-pending-element-already-present" && f.element === "stages");
+    const alreadyPresent = findings.find(
+      (f) => f.rule === "journey-pending-element-already-present" && f.element === "stages",
+    );
     expect(alreadyPresent).toBeDefined();
   });
 

@@ -26,9 +26,7 @@ describe("printedOnlyEquations: notation is never modernized on source or transl
     const germanHtml = renderToStaticMarkup(
       <SourceBlock block={germanEqBlock} paperSlug="brownian-motion" />,
     );
-    const englishHtml = renderToStaticMarkup(
-      <TranslationUnit unit={englishEqUnit} />,
-    );
+    const englishHtml = renderToStaticMarkup(<TranslationUnit unit={englishEqUnit} />);
 
     // Both contain the exact same printed formula mathml/html content
     expect(germanHtml).toContain("katex");

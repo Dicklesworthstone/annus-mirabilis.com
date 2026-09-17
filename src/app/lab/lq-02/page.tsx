@@ -45,8 +45,8 @@ export default function ModeAllocationPage() {
         <h2>Why the paper calls this a difficulty, not just an approximation</h2>
         <p>
           §1 draws two conclusions from this, not one: the classical allocation disagrees with the
-          measured spectrum, and, independently, it rules out any equilibrium between matter and
-          the radiation field at all, because the total grows without bound as the resonator range
+          measured spectrum, and, independently, it rules out any equilibrium between matter and the
+          radiation field at all, because the total grows without bound as the resonator range
           widens. This instrument's "remove the upper limit" action shows that second conclusion
           directly, as a typed refusal rather than a number that quietly becomes huge.
         </p>

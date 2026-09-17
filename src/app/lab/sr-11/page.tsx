@@ -39,17 +39,15 @@ export default function MovingMirrorPage() {
         <h2>Worked case (readable without JavaScript)</h2>
         <p>
           Consider monochromatic radiation of energy density <em>u</em> encountering a perfectly
-          reflecting mirror of area <em>A</em><sub>m</sub> moving at velocity <em>v</em> = 0.6<em>c</em> (β = 0.6, γ = 1.25) along the surface normal (φ = 0°).
+          reflecting mirror of area <em>A</em>
+          <sub>m</sub> moving at velocity <em>v</em> = 0.6<em>c</em> (β = 0.6, γ = 1.25) along the
+          surface normal (φ = 0°).
         </p>
-        <p>
-          The reflected wave frequency undergoes a double Doppler transformation:
-        </p>
+        <p>The reflected wave frequency undergoes a double Doppler transformation:</p>
         <Formula
           latex={String.raw`\frac{\nu'''}{\nu} = \frac{1 - 2\beta\cos\varphi + \beta^2}{1 - \beta^2} = \frac{1 - 2(0.6)(1) + 0.36}{1 - 0.36} = \frac{0.16}{0.64} = 0.25`}
         />
-        <p>
-          The radiation pressure on the mirror is:
-        </p>
+        <p>The radiation pressure on the mirror is:</p>
         <Formula
           latex={String.raw`P = 2u\,\frac{(\cos\varphi - \beta)^2}{1 - \beta^2} = 2u\,\frac{(1 - 0.6)^2}{1 - 0.36} = 2u\,\frac{0.16}{0.64} = 0.5\,u`}
         />

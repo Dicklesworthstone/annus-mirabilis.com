@@ -56,8 +56,14 @@ describe("am-a11y-action-contracts-k75g: Action Equivalence Harness", () => {
   });
 
   test("detects command hash mismatch between affordances", () => {
-    const cmd1 = buildActionCommand(fixtureIntervalContract, { interval_lower: -1.0, interval_upper: 1.0 });
-    const cmd2 = buildActionCommand(fixtureIntervalContract, { interval_lower: -0.5, interval_upper: 1.0 });
+    const cmd1 = buildActionCommand(fixtureIntervalContract, {
+      interval_lower: -1.0,
+      interval_upper: 1.0,
+    });
+    const cmd2 = buildActionCommand(fixtureIntervalContract, {
+      interval_lower: -0.5,
+      interval_upper: 1.0,
+    });
 
     const outputs = { interval_probability: 68.27 };
     const outHash = hashOutputs(outputs);
@@ -90,7 +96,10 @@ describe("am-a11y-action-contracts-k75g: Action Equivalence Harness", () => {
   });
 
   test("detects snapshotVersion mismatch between affordances", () => {
-    const cmd = buildActionCommand(fixtureIntervalContract, { interval_lower: -1.0, interval_upper: 1.0 });
+    const cmd = buildActionCommand(fixtureIntervalContract, {
+      interval_lower: -1.0,
+      interval_upper: 1.0,
+    });
     const cmdHash = hashCommand(cmd);
     const outputs = { interval_probability: 68.27 };
     const outHash = hashOutputs(outputs);

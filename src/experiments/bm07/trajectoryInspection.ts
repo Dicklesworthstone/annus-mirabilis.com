@@ -25,7 +25,8 @@ export function trajectoryTrackIds(trajectory: ImportedTrajectory): readonly str
 }
 
 function bounds(values: readonly number[]): readonly [number, number] {
-  let lower = Infinity, upper = -Infinity;
+  let lower = Infinity,
+    upper = -Infinity;
   for (const value of values) {
     if (!Number.isFinite(value)) throw new RangeError("An inspection coordinate must be finite.");
     lower = Math.min(lower, value);
@@ -35,7 +36,7 @@ function bounds(values: readonly number[]): readonly [number, number] {
 }
 /** Avoid an overflowing high-low span without losing subnormal finite spans. */
 function fraction(value: number, [lower, upper]: readonly [number, number]): number {
-  if (lower === upper) return .5;
+  if (lower === upper) return 0.5;
   const span = upper - lower;
   return Number.isFinite(span)
     ? (value - lower) / span
@@ -58,13 +59,23 @@ export function inspectTrajectory(
   const timeRange = bounds(accepted.map((point) => point.time));
   const coordinateRange = bounds(accepted.map((point) => point.coordinates[coordinate]!));
   const start = (page - 1) * TRAJECTORY_PAGE_SIZE;
-  const points = accepted.slice(start, start + TRAJECTORY_PAGE_SIZE).map((source) => Object.freeze({
-    source,
-    horizontal: fraction(source.time, timeRange),
-    vertical: fraction(source.coordinates[coordinate]!, coordinateRange),
-  }));
+  const points = accepted.slice(start, start + TRAJECTORY_PAGE_SIZE).map((source) =>
+    Object.freeze({
+      source,
+      horizontal: fraction(source.time, timeRange),
+      vertical: fraction(source.coordinates[coordinate]!, coordinateRange),
+    }),
+  );
   return Object.freeze({
-    track, coordinate, page, pages, total: accepted.length, start: start + 1,
-    end: start + points.length, timeRange, coordinateRange, points: Object.freeze(points),
+    track,
+    coordinate,
+    page,
+    pages,
+    total: accepted.length,
+    start: start + 1,
+    end: start + points.length,
+    timeRange,
+    coordinateRange,
+    points: Object.freeze(points),
   });
 }

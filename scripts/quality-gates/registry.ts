@@ -78,7 +78,7 @@ export const QUALITY_GATE_STEPS: readonly GateStep[] = [
   {
     id: "lint",
     title: "Biome linter check",
-    command: ["bun", "x", "@biomejs/biome", "check"],
+    command: ["bun", "run", "lint"],
     family: "fast",
     cadence: "every-run",
     requiredInCi: true,
@@ -93,7 +93,7 @@ export const QUALITY_GATE_STEPS: readonly GateStep[] = [
   {
     id: "format-check",
     title: "Biome format check",
-    command: ["bun", "x", "@biomejs/biome", "format"],
+    command: ["bun", "run", "format:check"],
     family: "fast",
     cadence: "every-run",
     requiredInCi: true,
@@ -108,13 +108,13 @@ export const QUALITY_GATE_STEPS: readonly GateStep[] = [
   {
     id: "unit-tests",
     title: "Unit and integration test suites",
-    command: ["bun", "scripts/quality-gates/test-runner.ts"],
+    command: ["bun", "run", "test"],
     family: "fast",
     cadence: "every-run",
     requiredInCi: true,
     requiredInProfiles: ["scaffold", "preview", "launch"],
     availability: {
-      scriptPath: "scripts/quality-gates/test-runner.ts",
+      scriptPath: "package.json",
     },
     owner: "am-scaf-quality-gates-ci-4xx",
   },

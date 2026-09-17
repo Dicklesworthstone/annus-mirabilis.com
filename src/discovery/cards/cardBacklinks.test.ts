@@ -51,7 +51,8 @@ describe("am-disc-knowledge-cards-iw8j: card backlinks computation", () => {
       cardId: "fick-1855-diffusion",
       outcome: "pass",
       durationMs: Date.now() - start,
-      message: "Backlinks correctly inverted and computed across stages, desk objects, timeline, and world checks.",
+      message:
+        "Backlinks correctly inverted and computed across stages, desk objects, timeline, and world checks.",
     });
   });
 });

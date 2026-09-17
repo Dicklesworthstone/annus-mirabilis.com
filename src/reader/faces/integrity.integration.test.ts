@@ -21,9 +21,7 @@ describe("facsimile integrity and receipt verification (am-read-facsimile-face-e
       configDir: join(fixturesDir, "facsimile-sources"),
     });
     expect(result.ok).toBe(false);
-    expect(
-      result.errors.some((e) => e.rule === "receipt-config-digest-mismatch"),
-    ).toBe(true);
+    expect(result.errors.some((e) => e.rule === "receipt-config-digest-mismatch")).toBe(true);
   });
 
   it("absent pin-local-only file is flagged as not-available without crashing receipt checker", () => {
@@ -35,8 +33,6 @@ describe("facsimile integrity and receipt verification (am-read-facsimile-face-e
     });
     // Should be ok under non-requireLocal mode, with a flag recorded
     expect(result.ok).toBe(true);
-    expect(
-      result.flags.some((f) => f.rule === "receipt-local-file-not-available"),
-    ).toBe(true);
+    expect(result.flags.some((f) => f.rule === "receipt-local-file-not-available")).toBe(true);
   });
 });

@@ -29,7 +29,9 @@ describe("am-eq-derivation-renderer-9gd7: DerivationChain static rendering", () 
     expect(html).toContain('data-is-move="true"');
     expect(html).toContain('class="the-move-box"');
     expect(html).toContain("The move:");
-    expect(html).toContain("Cross terms average away because distinct displacements are independent");
+    expect(html).toContain(
+      "Cross terms average away because distinct displacements are independent",
+    );
   });
 
   test("renders all three reason readings with data-detail attributes", () => {
@@ -64,22 +66,15 @@ describe("am-eq-derivation-renderer-9gd7: DerivationChain static rendering", () 
   });
 
   test("renders approximation text and scope change when present in step", () => {
-    const html = renderToStaticMarkup(
-      <DerivationChain chains={[fixturePaper4TwoLedgers]} />,
-    );
+    const html = renderToStaticMarkup(<DerivationChain chains={[fixturePaper4TwoLedgers]} />);
 
     expect(html).toContain('data-approximation="true"');
     expect(html).toContain("Approximation:");
   });
 
   test("renders route choices with stable labels when multiple routes are supplied", () => {
-    const chains = [
-      fixtureBrownianSourceOrder,
-      fixtureBrownianPedagogicalReconstruction,
-    ];
-    const html = renderToStaticMarkup(
-      <DerivationChain chains={chains} />,
-    );
+    const chains = [fixtureBrownianSourceOrder, fixtureBrownianPedagogicalReconstruction];
+    const html = renderToStaticMarkup(<DerivationChain chains={chains} />);
 
     expect(html).toContain('class="derivation-routes"');
     expect(html).toContain("Original 1905 Derivation");

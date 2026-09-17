@@ -18,10 +18,22 @@ describe("am-eq-spoken-forms-w4f: spokenForm.schema tests", () => {
       assert.ok(fix.title && fix.title.length > 0, `${fix.id} must have a title`);
 
       const forms = fix.spokenForms;
-      assert.ok(forms.printed && forms.printed.trim().length > 10, `${fix.id} printed spoken form must be substantial`);
-      assert.ok(forms.modern && forms.modern.trim().length > 10, `${fix.id} modern spoken form must be substantial`);
-      assert.ok(forms.alternate && forms.alternate.trim().length > 10, `${fix.id} alternate spoken form must be substantial`);
-      assert.ok(forms.shortName && forms.shortName.trim().length > 0, `${fix.id} shortName must be present`);
+      assert.ok(
+        forms.printed && forms.printed.trim().length > 10,
+        `${fix.id} printed spoken form must be substantial`,
+      );
+      assert.ok(
+        forms.modern && forms.modern.trim().length > 10,
+        `${fix.id} modern spoken form must be substantial`,
+      );
+      assert.ok(
+        forms.alternate && forms.alternate.trim().length > 10,
+        `${fix.id} alternate spoken form must be substantial`,
+      );
+      assert.ok(
+        forms.shortName && forms.shortName.trim().length > 0,
+        `${fix.id} shortName must be present`,
+      );
     }
   });
 
@@ -66,13 +78,28 @@ describe("am-eq-spoken-forms-w4f: spokenForm.schema tests", () => {
         assert.ok(t.nodeId && t.nodeId.trim().length > 0, "Term must have nodeId");
         assert.ok(t.name && t.name.trim().length > 0, `Term ${t.nodeId} must have name`);
         assert.ok(
-          ["input", "constant", "model-result", "operation", "parameter", "coordinate", "field"].includes(t.role),
+          [
+            "input",
+            "constant",
+            "model-result",
+            "operation",
+            "parameter",
+            "coordinate",
+            "field",
+          ].includes(t.role),
           `Term ${t.nodeId} has invalid role ${t.role}`,
         );
-        assert.ok(t.speechText && t.speechText.trim().length > 5, `Term ${t.nodeId} must have detailed speechText`);
+        assert.ok(
+          t.speechText && t.speechText.trim().length > 5,
+          `Term ${t.nodeId} must have detailed speechText`,
+        );
 
         const termLint = lintSpokenForm(t.speechText);
-        assert.equal(termLint.errors.length, 0, `Term ${t.nodeId} speechText has lint errors: ${JSON.stringify(termLint.errors)}`);
+        assert.equal(
+          termLint.errors.length,
+          0,
+          `Term ${t.nodeId} speechText has lint errors: ${JSON.stringify(termLint.errors)}`,
+        );
       }
     }
   });
@@ -80,7 +107,10 @@ describe("am-eq-spoken-forms-w4f: spokenForm.schema tests", () => {
   test("Distinguishes 1905 printed and modern symbols in spoken forms", () => {
     const einstein = ALL_SPOKEN_FIXTURES.find((f) => f.id === "eq-bm-einstein-relation")!;
     // In printed form, mentions R and k (viscosity) and N
-    assert.ok(einstein.spokenForms.printed.includes("viscosity k") || einstein.spokenForms.printed.includes("gas constant R"));
+    assert.ok(
+      einstein.spokenForms.printed.includes("viscosity k") ||
+        einstein.spokenForms.printed.includes("gas constant R"),
+    );
     // In modern form, mentions k sub B and dynamic viscosity eta
     assert.ok(einstein.spokenForms.modern.includes("Boltzmann's constant k sub B"));
     assert.ok(einstein.spokenForms.modern.includes("viscosity eta"));

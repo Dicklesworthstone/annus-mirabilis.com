@@ -272,7 +272,9 @@ export function assertNonGaussianMeanSquare(
     upperBound = expectedSecondMoment + z * se;
   }
 
-  const passed = Math.abs(m2Observed - expectedSecondMoment) <= 1e-12 || (m2Observed >= lowerBound && m2Observed <= upperBound);
+  const passed =
+    Math.abs(m2Observed - expectedSecondMoment) <= 1e-12 ||
+    (m2Observed >= lowerBound && m2Observed <= upperBound);
   const message = passed
     ? `Non-Gaussian mean square ${m2Observed.toPrecision(6)} is within [${lowerBound.toPrecision(6)}, ${upperBound.toPrecision(6)}] for expected second moment ${expectedSecondMoment} (n=${n}, alpha=${alpha}).`
     : `Non-Gaussian mean square ${m2Observed.toPrecision(6)} failed critical bounds [${lowerBound.toPrecision(6)}, ${upperBound.toPrecision(6)}] for expected second moment ${expectedSecondMoment} (n=${n}, alpha=${alpha}).`;
@@ -305,9 +307,7 @@ export function assertNonGaussianMeanSquare(
 /**
  * Asserts success proportion against binomial/Wilson bounds.
  */
-export function assertProportion(
-  options: AssertProportionOptions,
-): StatisticalAssertionResult {
+export function assertProportion(options: AssertProportionOptions): StatisticalAssertionResult {
   const { successes, trials, expectedProbability, testId } = options;
   if (trials <= 0) throw new RangeError("trials must be positive.");
   if (successes < 0 || successes > trials) {
@@ -358,9 +358,7 @@ export function assertProportion(
 /**
  * Asserts goodness-of-fit of a frequency histogram against expected cell probabilities.
  */
-export function assertHistogramFit(
-  options: AssertHistogramFitOptions,
-): StatisticalAssertionResult {
+export function assertHistogramFit(options: AssertHistogramFitOptions): StatisticalAssertionResult {
   const { observedCounts, expectedProbabilities, testId } = options;
   const k = observedCounts.length;
   if (k < 2) throw new RangeError("Histogram must contain at least 2 bins.");
@@ -491,9 +489,7 @@ export function assertCorrelationNearZero(
 /**
  * Asserts moment growth <x^2> = 2Dt for Brownian position ensembles.
  */
-export function assertMomentGrowth(
-  options: AssertMomentGrowthOptions,
-): StatisticalAssertionResult {
+export function assertMomentGrowth(options: AssertMomentGrowthOptions): StatisticalAssertionResult {
   const { positions, diffusionCoefficient, time, testId } = options;
   const m = positions.length;
   if (m === 0) throw new RangeError("positions ensemble must be non-empty.");

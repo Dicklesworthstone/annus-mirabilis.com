@@ -1,8 +1,5 @@
 import { describe, expect, test } from "bun:test";
-import {
-  SETTINGS_KEY_PREFIX,
-  storageKeyRegistry,
-} from "../../platform/storage/keys.ts";
+import { SETTINGS_KEY_PREFIX, storageKeyRegistry } from "../../platform/storage/keys.ts";
 
 describe("glossReasoningWordsSetting: registry, prePaint declarations, and store isolation", () => {
   const glossKey = `${SETTINGS_KEY_PREFIX}glossReasoningWords`;

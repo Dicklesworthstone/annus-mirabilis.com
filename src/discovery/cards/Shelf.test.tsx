@@ -152,7 +152,8 @@ describe("am-disc-knowledge-cards-iw8j: Shelf component and sort order", () => {
       testId: "shelf-render-disclaimer-legend-exclusion",
       outcome: "pass",
       durationMs: Date.now() - start,
-      message: "Shelf rendered pedagogical disclaimer note, status legend, and excluded later cards.",
+      message:
+        "Shelf rendered pedagogical disclaimer note, status legend, and excluded later cards.",
     });
   });
 });

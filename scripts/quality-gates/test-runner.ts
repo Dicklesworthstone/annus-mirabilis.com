@@ -226,10 +226,14 @@ export function runAllTests(options: { rootDir?: string; targetFiles?: readonly 
   // 1. Run Bun tests
   if (partition.bunFiles.length > 0) {
     console.log(`\n▶ Running ${partition.bunFiles.length} Bun test files (bun test)...`);
-    const bunResult = spawnSync("bun", ["test", ...partition.bunFiles], {
-      cwd: rootDir,
-      stdio: "inherit",
-    });
+    const bunResult = spawnSync(
+      "bun",
+      ["test", "--isolate", "--timeout", "60000", ...partition.bunFiles],
+      {
+        cwd: rootDir,
+        stdio: "inherit",
+      },
+    );
 
     if (bunResult.status !== 0) {
       console.error(`✖ Bun test suite failed with exit code ${bunResult.status}`);

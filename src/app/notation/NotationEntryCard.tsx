@@ -35,7 +35,11 @@ export function NotationEntryCard({ entry }: NotationEntryCardProps) {
           <span
             className="detail-val inline-math"
             dangerouslySetInnerHTML={{
-              __html: entry.modernRendered?.html || (typeof target.modernGlyph === "string" ? target.modernGlyph : target.modernGlyph.latex),
+              __html:
+                entry.modernRendered?.html ||
+                (typeof target.modernGlyph === "string"
+                  ? target.modernGlyph
+                  : target.modernGlyph.latex),
             }}
           />
         </div>
@@ -49,7 +53,11 @@ export function NotationEntryCard({ entry }: NotationEntryCardProps) {
             <span
               className="inline-math"
               dangerouslySetInnerHTML={{
-                __html: entry.modernRendered?.html || (typeof target.modernGlyph === "string" ? target.modernGlyph : target.modernGlyph.latex),
+                __html:
+                  entry.modernRendered?.html ||
+                  (typeof target.modernGlyph === "string"
+                    ? target.modernGlyph
+                    : target.modernGlyph.latex),
               }}
             />
           </span>
@@ -69,7 +77,8 @@ export function NotationEntryCard({ entry }: NotationEntryCardProps) {
       <div className="detail-item">
         <span className="detail-label">Unit system conversion</span>
         <span className="detail-val">
-          {op.fromSystem.toUpperCase()} → {op.toSystem.toUpperCase()} (factor: {typeof op.factor === "number" ? op.factor : `${op.factor.num}/${op.factor.den}`})
+          {op.fromSystem.toUpperCase()} → {op.toSystem.toUpperCase()} (factor:{" "}
+          {typeof op.factor === "number" ? op.factor : `${op.factor.num}/${op.factor.den}`})
         </span>
       </div>
     );
@@ -92,7 +101,11 @@ export function NotationEntryCard({ entry }: NotationEntryCardProps) {
             aria-label={entry.spokenName}
             dangerouslySetInnerHTML={{ __html: entry.glyphRendered.html }}
           />
-          <a href={`#${entry.id}`} className="card-anchor-link" aria-label={`Anchor link for ${entry.id}`}>
+          <a
+            href={`#${entry.id}`}
+            className="card-anchor-link"
+            aria-label={`Anchor link for ${entry.id}`}
+          >
             #{entry.id}
           </a>
         </div>
@@ -164,7 +177,8 @@ export function NotationEntryCard({ entry }: NotationEntryCardProps) {
 
       <footer className="card-footer-row">
         <span className="verification-status">
-          <strong>Status:</strong> {entry.verification.checkedAgainst} · Checked {entry.verification.date}
+          <strong>Status:</strong> {entry.verification.checkedAgainst} · Checked{" "}
+          {entry.verification.date}
         </span>
         <a
           href={entry.firstUseUrl}

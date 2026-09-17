@@ -65,7 +65,11 @@ export const SR01_OUTPUTS: Readonly<Record<string, OutputContract>> = Object.fre
   criterionOffset: contract("s", "criterion-offset", "events.synchronizationRound"),
   chaseOutboundLeg: contract("s", "rod-chase-outbound-leg", "events.movingRodLegs"),
   chaseReturnLeg: contract("s", "rod-chase-return-leg", "events.movingRodLegs"),
-  desynchronization: contract("s", "desynchronization-magnitude", "events.desynchronizationObserved"),
+  desynchronization: contract(
+    "s",
+    "desynchronization-magnitude",
+    "events.desynchronizationObserved",
+  ),
   oneWayLightSpeed: contract("ls/s", "one-way-light-speed", "events.byConvention", [
     "not-applicable",
   ]),
@@ -154,21 +158,24 @@ export const SR01_PREDICT_MOVING_PAIR: PredictPrompt = Object.freeze({
     Object.freeze({
       id: "they-agree",
       label: "They agree with ours",
-      description: "The moving pair's clocks read the same as ours at every moment we compare them.",
+      description:
+        "The moving pair's clocks read the same as ours at every moment we compare them.",
       separatingAssumption:
         "That would hold only if simultaneity itself did not depend on the frame doing the judging -- but the same light-signal procedure, applied by observers in relative motion, assigns different remote times to the same pair of events.",
     }),
     Object.freeze({
       id: "leading-clock-ahead",
       label: "The leading clock is ahead",
-      description: "The clock at the front of the moving pair, in its direction of travel, reads later than the trailing one.",
+      description:
+        "The clock at the front of the moving pair, in its direction of travel, reads later than the trailing one.",
       separatingAssumption:
         "This is the mirror image of what the platform frame actually finds for a pair moving in the positive direction: vL/c^2 puts the trailing clock ahead, not the leading one, for positive v.",
     }),
     Object.freeze({
       id: "trailing-clock-ahead",
       label: "The trailing clock is ahead",
-      description: "The clock at the back of the moving pair, in its direction of travel, reads later than the leading one.",
+      description:
+        "The clock at the back of the moving pair, in its direction of travel, reads later than the leading one.",
       separatingAssumption:
         "This is what vL/c^2 gives directly: for a positive velocity, the trailing clock is observed ahead in the platform frame, by an amount that grows with both the speed and the proper separation.",
     }),

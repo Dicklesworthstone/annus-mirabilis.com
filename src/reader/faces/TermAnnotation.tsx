@@ -12,13 +12,7 @@ export interface TermAnnotationProps {
  * Renders an archaic/period term annotation.
  * Displays period vocabulary with accessible title / definition tooltip.
  */
-export function TermAnnotation({
-  termId,
-  text,
-  definition,
-  lang,
-  dir,
-}: TermAnnotationProps) {
+export function TermAnnotation({ termId, text, definition, lang, dir }: TermAnnotationProps) {
   return (
     <abbr
       className="term-annotation"

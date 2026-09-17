@@ -6,7 +6,13 @@
 import { type ToleranceSpec, withinTolerance } from "../../units/tolerance.ts";
 import { evaluate } from "./evaluate.ts";
 import type { Expr } from "./grammar.ts";
-import { boundaryPoints, type Domain, haltonPoints, philoxPoints, type SamplePoint } from "./samplePoints.ts";
+import {
+  boundaryPoints,
+  type Domain,
+  haltonPoints,
+  philoxPoints,
+  type SamplePoint,
+} from "./samplePoints.ts";
 
 export type EquivalenceOutcome =
   | Readonly<{ status: "equivalent"; acceptedPointCount: number; label: string }>
@@ -31,13 +37,20 @@ export function checkEquivalence(
   options: Readonly<{ seed?: string | bigint }> = {},
 ): EquivalenceOutcome {
   try {
-    if (!tolerance || (tolerance.relativeTo !== undefined &&
-        !["reference", "larger"].includes(tolerance.relativeTo)))
+    if (
+      !tolerance ||
+      (tolerance.relativeTo !== undefined &&
+        !["reference", "larger"].includes(tolerance.relativeTo))
+    )
       return unable("The exercise has an invalid tolerance specification.");
     const groups = [
       { name: "boundary", points: boundaryPoints(domains), minimum: 0 },
       { name: "Halton", points: haltonPoints(domains, CANDIDATE_POOL), minimum: MIN_ACCEPTED },
-      { name: "Philox", points: philoxPoints(domains, CANDIDATE_POOL, options.seed ?? "0"), minimum: MIN_ACCEPTED },
+      {
+        name: "Philox",
+        points: philoxPoints(domains, CANDIDATE_POOL, options.seed ?? "0"),
+        minimum: MIN_ACCEPTED,
+      },
     ];
     const names = Object.keys(domains).sort();
     const allAccepted = new Set<string>();
@@ -51,20 +64,32 @@ export function checkEquivalence(
         if (expected.status !== "value") continue;
         const actual = evaluate(reader, point);
         if (actual.status !== "value") {
-          const at = names.map((name) => `${name}=${point[name]}`).join(", ") || "the constant input";
-          return unable(`Your expression is undefined or nonfinite at ${at}, where the reference is finite. This point cannot be discarded.`);
+          const at =
+            names.map((name) => `${name}=${point[name]}`).join(", ") || "the constant input";
+          return unable(
+            `Your expression is undefined or nonfinite at ${at}, where the reference is finite. This point cannot be discarded.`,
+          );
         }
         const compared = withinTolerance(actual.value, expected.value, tolerance);
         if (compared.kind === "invalid-spec")
-          return unable(`The exercise tolerance cannot compare this point: ${compared.issues.map((i) => i.message).join(" ")}`);
+          return unable(
+            `The exercise tolerance cannot compare this point: ${compared.issues.map((i) => i.message).join(" ")}`,
+          );
         if (!compared.ok)
-          return { status: "not-equivalent", point, readerValue: actual.value, referenceValue: expected.value };
+          return {
+            status: "not-equivalent",
+            point,
+            readerValue: actual.value,
+            referenceValue: expected.value,
+          };
         accepted.add(key);
         allAccepted.add(key);
       }
       const minimum = names.length ? group.minimum : 1;
       if (accepted.size < minimum)
-        return unable(`Only ${accepted.size} distinct ${group.name} points had finite reference values; ${minimum} are required. Check the domain and numeric resolution.`);
+        return unable(
+          `Only ${accepted.size} distinct ${group.name} points had finite reference values; ${minimum} are required. Check the domain and numeric resolution.`,
+        );
     }
     return {
       status: "equivalent",

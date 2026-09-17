@@ -2,7 +2,12 @@ import React from "react";
 import Link from "next/link";
 import { FacsimileViewer } from "./FacsimileViewer.tsx";
 import { buildPageMapIndex } from "./pageMap.ts";
-import type { PageMapEntry, PublicationDecision, RightsStatus, ReuseTerms } from "../../content/provenance/receiptSchema.ts";
+import type {
+  PageMapEntry,
+  PublicationDecision,
+  RightsStatus,
+  ReuseTerms,
+} from "../../content/provenance/receiptSchema.ts";
 
 export interface FacsimileSourceAsset {
   readonly originUrl?: string | undefined;
@@ -11,14 +16,16 @@ export interface FacsimileSourceAsset {
   readonly mimeType?: string | undefined;
   readonly pageCount: number;
   readonly pageMapping: readonly PageMapEntry[];
-  readonly rights?: {
-    readonly status: RightsStatus;
-    readonly statement?: string | undefined;
-    readonly source?: string | undefined;
-    readonly recordedAt?: string | undefined;
-    readonly reuseTerms: ReuseTerms;
-    readonly credit?: string | undefined;
-  } | undefined;
+  readonly rights?:
+    | {
+        readonly status: RightsStatus;
+        readonly statement?: string | undefined;
+        readonly source?: string | undefined;
+        readonly recordedAt?: string | undefined;
+        readonly reuseTerms: ReuseTerms;
+        readonly credit?: string | undefined;
+      }
+    | undefined;
   readonly publicationDecision: PublicationDecision;
   readonly publicationReason?: string | undefined;
   readonly embeddedTextLayer?: string | undefined;
@@ -115,8 +122,9 @@ export function FacsimileFace({
       {isPublished && hasEmbeddedTextLayer && (
         <div className="facsimile-notice text-layer-notice" role="note">
           <p>
-            <strong>Third-Party Text Layer Notice:</strong> The library scan contains a machine-read text layer.
-            That text layer is third-party OCR output, not the reviewed edition. The edition is rendered from diplomatic transcription.
+            <strong>Third-Party Text Layer Notice:</strong> The library scan contains a machine-read
+            text layer. That text layer is third-party OCR output, not the reviewed edition. The
+            edition is rendered from diplomatic transcription.
           </p>
         </div>
       )}
@@ -125,7 +133,8 @@ export function FacsimileFace({
         <div className="facsimile-notice local-only-notice" role="note">
           <h3>Local Verification Scan</h3>
           <p>
-            This scan is pinned locally for verification only and is not distributed publicly under its source terms.
+            This scan is pinned locally for verification only and is not distributed publicly under
+            its source terms.
           </p>
           {sourceAsset.rights?.statement && (
             <blockquote className="verbatim-rights-statement">
@@ -134,7 +143,10 @@ export function FacsimileFace({
           )}
           {sourceAsset.originUrl && (
             <p className="institution-link">
-              Source: <a href={sourceAsset.originUrl} rel="noopener noreferrer" target="_blank">{sourceAsset.originUrl}</a>
+              Source:{" "}
+              <a href={sourceAsset.originUrl} rel="noopener noreferrer" target="_blank">
+                {sourceAsset.originUrl}
+              </a>
             </p>
           )}
         </div>
@@ -151,7 +163,10 @@ export function FacsimileFace({
           )}
           {sourceAsset.originUrl && (
             <p className="institution-link">
-              Source: <a href={sourceAsset.originUrl} rel="noopener noreferrer" target="_blank">{sourceAsset.originUrl}</a>
+              Source:{" "}
+              <a href={sourceAsset.originUrl} rel="noopener noreferrer" target="_blank">
+                {sourceAsset.originUrl}
+              </a>
             </p>
           )}
         </div>
@@ -178,7 +193,8 @@ export function FacsimileFace({
                   target="_blank"
                   rel="noopener noreferrer"
                 >
-                  Opens the scan in your browser's PDF viewer, which may show the library's machine-read text layer; that text is not the edition.
+                  Opens the scan in your browser's PDF viewer, which may show the library's
+                  machine-read text layer; that text is not the edition.
                 </a>
               </p>
             </div>
@@ -224,11 +240,11 @@ export function FacsimileFace({
                       )}
                     </td>
                     <td className="col-printed-page">
-                      {entry.printedPage !== null ? `p. ${entry.printedPage}` : entry.printedPageLabel}
+                      {entry.printedPage !== null
+                        ? `p. ${entry.printedPage}`
+                        : entry.printedPageLabel}
                     </td>
-                    <td className="col-contents">
-                      {entry.contents.join(", ")}
-                    </td>
+                    <td className="col-contents">{entry.contents.join(", ")}</td>
                     <td className="col-sections">
                       {entry.sectionIds.length > 0 ? (
                         <ul className="inline-link-list">
@@ -244,7 +260,7 @@ export function FacsimileFace({
                           ))}
                         </ul>
                       ) : (
-                        <span className="text-muted">—</span>
+                        <span className="text-muted">–</span>
                       )}
                     </td>
                     <td className="col-equations">
@@ -273,14 +289,14 @@ export function FacsimileFace({
                           ))}
                         </ul>
                       ) : (
-                        <span className="text-muted">—</span>
+                        <span className="text-muted">–</span>
                       )}
                     </td>
                     <td className="col-footnotes">
                       {entry.footnoteMarks.length > 0 ? (
                         entry.footnoteMarks.join(", ")
                       ) : (
-                        <span className="text-muted">—</span>
+                        <span className="text-muted">–</span>
                       )}
                     </td>
                   </tr>

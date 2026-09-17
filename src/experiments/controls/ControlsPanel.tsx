@@ -74,10 +74,7 @@ export function ControlsPanel({
 
       {/* Advanced Parameters Drawer */}
       {advancedSpecs.length > 0 && (
-        <details
-          className="experiment-settings-drawer"
-          data-testid="experiment-settings-drawer"
-        >
+        <details className="experiment-settings-drawer" data-testid="experiment-settings-drawer">
           <summary className="settings-drawer-summary" data-testid="settings-drawer-summary">
             Experiment settings
           </summary>

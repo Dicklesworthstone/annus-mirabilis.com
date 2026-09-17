@@ -27,16 +27,12 @@ export function PpeTask({ task }: PpeTaskProps) {
 
       <div className="grid grid-cols-1 md:grid-cols-3 gap-4 text-xs">
         <div className="p-3.5 rounded bg-stone-900/80 border border-stone-800 space-y-1">
-          <span className="font-bold text-amber-400 block uppercase tracking-wide">
-            1. Predict
-          </span>
+          <span className="font-bold text-amber-400 block uppercase tracking-wide">1. Predict</span>
           <p className="text-stone-200">{taskPrompt}</p>
         </div>
 
         <div className="p-3.5 rounded bg-stone-900/80 border border-stone-800 space-y-1">
-          <span className="font-bold text-cyan-400 block uppercase tracking-wide">
-            2. Perturb
-          </span>
+          <span className="font-bold text-cyan-400 block uppercase tracking-wide">2. Perturb</span>
           <p className="text-stone-200">{perturbPrompt}</p>
         </div>
 

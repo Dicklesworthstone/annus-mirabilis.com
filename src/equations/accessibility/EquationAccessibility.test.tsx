@@ -15,9 +15,7 @@ describe("am-eq-spoken-forms-w4f: EquationAccessibility tests", () => {
   };
 
   test("Pattern A renders sr-only span with visual and MathML aria-hidden", () => {
-    const markup = renderToStaticMarkup(
-      <EquationAccessibility {...sampleProps} pattern="A" />,
-    );
+    const markup = renderToStaticMarkup(<EquationAccessibility {...sampleProps} pattern="A" />);
 
     expect(markup).toContain('data-pattern="A"');
     expect(markup).toContain('data-a11y-name-source="sr-only-text"');
@@ -28,27 +26,27 @@ describe("am-eq-spoken-forms-w4f: EquationAccessibility tests", () => {
   });
 
   test("Pattern B renders role='math' and aria-label on container with children aria-hidden", () => {
-    const markup = renderToStaticMarkup(
-      <EquationAccessibility {...sampleProps} pattern="B" />,
-    );
+    const markup = renderToStaticMarkup(<EquationAccessibility {...sampleProps} pattern="B" />);
 
     expect(markup).toContain('role="math"');
     expect(markup).toContain('data-pattern="B"');
     expect(markup).toContain('data-a11y-name-source="container-aria-label"');
-    expect(markup).toContain('aria-label="D, the diffusion coefficient, equals Boltzmann&#x27;s constant');
+    expect(markup).toContain(
+      'aria-label="D, the diffusion coefficient, equals Boltzmann&#x27;s constant',
+    );
     expect(markup).toContain('class="equation-visual" aria-hidden="true"');
     expect(markup).toContain('class="equation-mathml" aria-hidden="true"');
   });
 
   test("Pattern C renders aria-label on MathML element and visual KaTeX aria-hidden", () => {
-    const markup = renderToStaticMarkup(
-      <EquationAccessibility {...sampleProps} pattern="C" />,
-    );
+    const markup = renderToStaticMarkup(<EquationAccessibility {...sampleProps} pattern="C" />);
 
     expect(markup).toContain('data-pattern="C"');
     expect(markup).toContain('data-a11y-name-source="mathml-aria-label"');
     expect(markup).toContain('class="equation-visual" aria-hidden="true"');
-    expect(markup).toContain('<math aria-label="D, the diffusion coefficient, equals Boltzmann\'s constant');
+    expect(markup).toContain(
+      "<math aria-label=\"D, the diffusion coefficient, equals Boltzmann's constant",
+    );
   });
 
   test("Guarantees visual KaTeX HTML is always aria-hidden in all patterns", () => {
@@ -83,6 +81,8 @@ describe("am-eq-spoken-forms-w4f: EquationAccessibility tests", () => {
       pattern: "B",
       hasVisibleCaption: true,
     });
-    expect(evalWithCaption.accessibleName).toContain("Einstein Diffusion Relation: D, the diffusion coefficient");
+    expect(evalWithCaption.accessibleName).toContain(
+      "Einstein Diffusion Relation: D, the diffusion coefficient",
+    );
   });
 });

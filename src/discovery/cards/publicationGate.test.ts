@@ -159,7 +159,10 @@ describe("am-disc-knowledge-cards-iw8j: publication gate verification", () => {
 
     // Assert that production-rendered HTML of verified card has NO unverified marker text
     const html = renderToStaticMarkup(React.createElement(CardDetail, { card: verifiedCard }));
-    assert.ok(!html.includes(UNVERIFIED_RESEARCH_MARKER), "Verified card HTML must not contain unverified marker");
+    assert.ok(
+      !html.includes(UNVERIFIED_RESEARCH_MARKER),
+      "Verified card HTML must not contain unverified marker",
+    );
 
     globalKnowledgeCardsLogger.log({
       testId: "gate-verified-passes-all-profiles-no-marker",
@@ -204,7 +207,11 @@ describe("am-disc-knowledge-cards-iw8j: publication gate verification", () => {
       [{ cardId: cardWithoutVerification.id, citedBy: "stage-bm-01", sourceType: "journey-stage" }],
       "production",
     );
-    assert.equal(prodResult.ok, false, "Card blocked by rule 9 must fail production publication gate");
+    assert.equal(
+      prodResult.ok,
+      false,
+      "Card blocked by rule 9 must fail production publication gate",
+    );
 
     globalKnowledgeCardsLogger.log({
       testId: "gate-rule-9-blocks-production",

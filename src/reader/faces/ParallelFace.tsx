@@ -1,6 +1,12 @@
 import React from "react";
 import type { ReviewRecord } from "../../content/schemas/review.ts";
-import type { Alignment, EditorialNote, Paper, SourceBlock, TranslationUnit } from "../../content/schemas/source.ts";
+import type {
+  Alignment,
+  EditorialNote,
+  Paper,
+  SourceBlock,
+  TranslationUnit,
+} from "../../content/schemas/source.ts";
 import { FACE_FALLBACK_IDS, faceLinkHref } from "../paperRoutes.ts";
 import { ROOT_ARMING_SOURCE } from "../rootArming.inline.ts";
 import { AlignmentController } from "./AlignmentController.tsx";
@@ -60,9 +66,7 @@ export function ParallelFace({
       {/* biome-ignore lint/security/noDangerouslySetInnerHtml: harness data-ready contract; source from a tested pure function. */}
       <script dangerouslySetInnerHTML={{ __html: ROOT_ARMING_SOURCE }} />
       <header className="page-intro">
-        <p className="eyebrow">
-          Parallel Edition · {paper.titleEnglishWorking}
-        </p>
+        <p className="eyebrow">Parallel Edition · {paper.titleEnglishWorking}</p>
         <h1 className="parallel-paper-title">{paper.titleEnglishWorking}</h1>
         <p className="parallel-german-title" lang="de">
           <em>{paper.titleGerman}</em>
@@ -74,7 +78,11 @@ export function ParallelFace({
 
       <nav className="reader-controls" aria-label="Reading face">
         <a
-          href={sectionId ? faceLinkHref(paper.slug, "reading", sectionId) : faceLinkHref(paper.slug, "reading")}
+          href={
+            sectionId
+              ? faceLinkHref(paper.slug, "reading", sectionId)
+              : faceLinkHref(paper.slug, "reading")
+          }
           data-view-link="reading"
         >
           Explanation
@@ -82,7 +90,9 @@ export function ParallelFace({
         {FACE_FALLBACK_IDS.map((id) => (
           <a
             key={id}
-            href={sectionId ? faceLinkHref(paper.slug, id, sectionId) : faceLinkHref(paper.slug, id)}
+            href={
+              sectionId ? faceLinkHref(paper.slug, id, sectionId) : faceLinkHref(paper.slug, id)
+            }
             data-view-link={id}
             aria-current={id === "parallel" ? "page" : undefined}
           >
@@ -93,7 +103,8 @@ export function ParallelFace({
 
       <div className="parallel-help-bar fine" aria-label="Alignment guidance">
         <p>
-          Hover or focus a sentence to highlight its aligned counterpart. Press <kbd>j</kbd> / <kbd>k</kbd> to step through sentences in reading order.
+          Hover or focus a sentence to highlight its aligned counterpart. Press <kbd>j</kbd> /{" "}
+          <kbd>k</kbd> to step through sentences in reading order.
         </p>
       </div>
 

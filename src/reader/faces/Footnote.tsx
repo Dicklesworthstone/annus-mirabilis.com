@@ -23,7 +23,8 @@ export function FootnoteItem({ footnote }: FootnoteItemProps) {
           aria-label={`Back to reference for footnote ${label}`}
           data-footnote-backlink={footnote.id}
         >
-          {" "}↩
+          {" "}
+          ↩
         </a>
       </div>
     </li>
@@ -35,10 +36,7 @@ export interface FootnotesSectionProps {
   readonly heading?: string | undefined;
 }
 
-export function FootnotesSection({
-  footnotes,
-  heading = "Footnotes",
-}: FootnotesSectionProps) {
+export function FootnotesSection({ footnotes, heading = "Footnotes" }: FootnotesSectionProps) {
   if (footnotes.length === 0) return null;
 
   return (

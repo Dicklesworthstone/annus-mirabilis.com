@@ -12,7 +12,9 @@ import {
 const ROOT = resolve(dirname(fileURLToPath(import.meta.url)), "..");
 
 describe("OCR Guard (Hard Resource Policy)", () => {
-  it("passes on the real codebase with zero forbidden OCR violations", { timeout: 30000 }, async () => {
+  it("passes on the real codebase with zero forbidden OCR violations", {
+    timeout: 30000,
+  }, async () => {
     const result = await scanRepositoryForForbiddenOcr(ROOT);
     assert.equal(
       result.ok,

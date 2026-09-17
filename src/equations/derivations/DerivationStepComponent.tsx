@@ -130,8 +130,9 @@ export function DerivationStepComponent({
       {/* Scope Change */}
       {step.scopeChange && (
         <div className="step-scope-change" data-scope-change="true">
-          <strong>Scope change:</strong> from <span className="scope-from">{step.scopeChange.from}</span>{" "}
-          to <span className="scope-to">{step.scopeChange.to}</span>{" "}
+          <strong>Scope change:</strong> from{" "}
+          <span className="scope-from">{step.scopeChange.from}</span> to{" "}
+          <span className="scope-to">{step.scopeChange.to}</span>{" "}
           <a
             href={`#${step.scopeChange.bridgeId}`}
             className="bridge-link"

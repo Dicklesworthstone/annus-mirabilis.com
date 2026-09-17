@@ -43,7 +43,9 @@ export function AlignmentController({
       clearHighlights();
 
       if (kind === "source") {
-        const sourceEl = root.querySelector(`[data-sentence-id="${id}"]`) || root.querySelector(`[data-block-id="${id}"]`);
+        const sourceEl =
+          root.querySelector(`[data-sentence-id="${id}"]`) ||
+          root.querySelector(`[data-block-id="${id}"]`);
         if (sourceEl) {
           sourceEl.setAttribute("data-aligned-active", "true");
         }
@@ -67,7 +69,9 @@ export function AlignmentController({
 
         const sources = getAlignedSources(index, id);
         for (const sid of sources) {
-          const sourceEl = root.querySelector(`[data-sentence-id="${sid}"]`) || root.querySelector(`[data-block-id="${sid}"]`);
+          const sourceEl =
+            root.querySelector(`[data-sentence-id="${sid}"]`) ||
+            root.querySelector(`[data-block-id="${sid}"]`);
           if (sourceEl) {
             sourceEl.setAttribute("data-aligned-partner", "true");
           }

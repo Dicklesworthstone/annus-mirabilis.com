@@ -134,6 +134,7 @@ function scanRecordText(
       context.report({
         recordId,
         rule: f.rule,
+        severity: f.severity === "info" ? "flag" : f.severity,
         path: basePath,
         message: `Voice violation [${f.rule}]: ${f.suggestion}`,
         repair: f.suggestion,

@@ -24,9 +24,7 @@ describe("am-disc-exercise-checker-i4h2: security and safety scans", () => {
     for (const file of files) {
       const content = readFileSync(join(dir, file), "utf8");
       for (const pattern of forbiddenPatterns) {
-        expect(pattern.test(content)).toBe(
-          false,
-        );
+        expect(pattern.test(content)).toBe(false);
       }
     }
 
@@ -34,7 +32,8 @@ describe("am-disc-exercise-checker-i4h2: security and safety scans", () => {
       testId: "security-zero-eval-function-with",
       outcome: "pass",
       durationMs: Date.now() - start,
-      message: "Static code scan confirmed zero dynamic code execution patterns across exercise checker files.",
+      message:
+        "Static code scan confirmed zero dynamic code execution patterns across exercise checker files.",
     });
   });
 
@@ -65,7 +64,8 @@ describe("am-disc-exercise-checker-i4h2: security and safety scans", () => {
       testId: "security-nested-parens-bounded-time",
       outcome: "pass",
       durationMs: Date.now() - start,
-      message: "Deeply nested expression handled safely within performance budget without stack overflow.",
+      message:
+        "Deeply nested expression handled safely within performance budget without stack overflow.",
     });
   });
 

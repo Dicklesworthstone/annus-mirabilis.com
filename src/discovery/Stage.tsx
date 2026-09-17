@@ -76,7 +76,8 @@ export function Stage({ stage, index }: StageProps) {
         <div className="p-4 rounded-lg bg-stone-950/80 border border-stone-800 flex flex-wrap items-center justify-between gap-3 text-xs">
           <div>
             <span className="font-semibold text-stone-300 block">
-              Physical Instrument: <span className="font-mono text-amber-400">{instrument.instrumentId}</span>
+              Physical Instrument:{" "}
+              <span className="font-mono text-amber-400">{instrument.instrumentId}</span>
             </span>
             {instrument.presetId && (
               <span className="text-stone-400">Preset: {instrument.presetId}</span>

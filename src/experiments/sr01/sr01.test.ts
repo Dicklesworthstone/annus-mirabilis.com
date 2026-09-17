@@ -7,7 +7,10 @@ import {
   snapshotOutputs,
 } from "./session.ts";
 
-function outputByQuantityId(outputs: readonly ReturnType<typeof snapshotOutputs>[number][], id: string) {
+function outputByQuantityId(
+  outputs: readonly ReturnType<typeof snapshotOutputs>[number][],
+  id: string,
+) {
   const found = outputs.find((o) => o.quantityId === id);
   if (!found) throw new Error(`no output ${id}`);
   return found;
@@ -137,7 +140,9 @@ describe("computeSr01Ledger", () => {
   test("each clock's own reading at an event is unchanged by an observer change", () => {
     const rest = computeSr01Ledger(SR01_DEFAULTS);
     const moving = computeSr01Ledger({ ...SR01_DEFAULTS, frameBeta: 0.5 });
-    expect(moving.rows.map((r) => r.ownClockReading)).toEqual(rest.rows.map((r) => r.ownClockReading));
+    expect(moving.rows.map((r) => r.ownClockReading)).toEqual(
+      rest.rows.map((r) => r.ownClockReading),
+    );
     expect(moving.rows.map((r) => r.id)).toEqual(rest.rows.map((r) => r.id));
   });
 

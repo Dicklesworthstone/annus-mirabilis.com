@@ -1,6 +1,11 @@
 import React from "react";
 import type { ReviewRecord } from "../../content/schemas/review.ts";
-import type { Alignment, EditorialNote, Paper, TranslationUnit } from "../../content/schemas/source.ts";
+import type {
+  Alignment,
+  EditorialNote,
+  Paper,
+  TranslationUnit,
+} from "../../content/schemas/source.ts";
 import { FACE_FALLBACK_IDS, faceLinkHref } from "../paperRoutes.ts";
 import { ROOT_ARMING_SOURCE } from "../rootArming.inline.ts";
 import { AlignmentController } from "./AlignmentController.tsx";
@@ -39,7 +44,8 @@ export function EnglishFace({
   }
 
   // Get primary translator info from first unit if available
-  const primaryTranslator = units[0]?.translator?.name || units[0]?.translator?.id || "Translation team";
+  const primaryTranslator =
+    units[0]?.translator?.name || units[0]?.translator?.id || "Translation team";
 
   return (
     <div
@@ -53,9 +59,7 @@ export function EnglishFace({
       {/* biome-ignore lint/security/noDangerouslySetInnerHtml: harness data-ready contract; source from a tested pure function. */}
       <script dangerouslySetInnerHTML={{ __html: ROOT_ARMING_SOURCE }} />
       <header className="page-intro" lang="en">
-        <p className="eyebrow">
-          Translation · {paper.titleEnglishWorking}
-        </p>
+        <p className="eyebrow">Translation · {paper.titleEnglishWorking}</p>
         <h1 className="translation-paper-title">{paper.titleEnglishWorking}</h1>
         <p className="translation-author-line">By {paper.authorLine}</p>
         <p className="translator-credit fine">Translated by {primaryTranslator}</p>
@@ -65,7 +69,11 @@ export function EnglishFace({
 
       <nav className="reader-controls" aria-label="Reading face">
         <a
-          href={sectionId ? faceLinkHref(paper.slug, "reading", sectionId) : faceLinkHref(paper.slug, "reading")}
+          href={
+            sectionId
+              ? faceLinkHref(paper.slug, "reading", sectionId)
+              : faceLinkHref(paper.slug, "reading")
+          }
           data-view-link="reading"
         >
           Explanation
@@ -73,7 +81,9 @@ export function EnglishFace({
         {FACE_FALLBACK_IDS.map((id) => (
           <a
             key={id}
-            href={sectionId ? faceLinkHref(paper.slug, id, sectionId) : faceLinkHref(paper.slug, id)}
+            href={
+              sectionId ? faceLinkHref(paper.slug, id, sectionId) : faceLinkHref(paper.slug, id)
+            }
             data-view-link={id}
             aria-current={id === "english" ? "page" : undefined}
           >

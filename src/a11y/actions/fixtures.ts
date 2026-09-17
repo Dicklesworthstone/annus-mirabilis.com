@@ -19,16 +19,20 @@ export const fixtureIntervalContract: ActionContract = Object.freeze({
     outputs: ["interval_probability", "expected_particles", "sample_variance"],
     allowedStatuses: ["value", "outside-domain", "analytic-limit"],
   },
-  visualAffordance: "Drag lower and upper boundary handles on the 1D diffusion distribution slider.",
-  equivalentAffordance: "Type lower and upper limit values into numeric stepper fields and select interval comparison.",
-  announcement: "Interval set to [{interval_lower}, {interval_upper}] µm: Probability {interval_probability}%, expected {expected_particles} particles.",
+  visualAffordance:
+    "Drag lower and upper boundary handles on the 1D diffusion distribution slider.",
+  equivalentAffordance:
+    "Type lower and upper limit values into numeric stepper fields and select interval comparison.",
+  announcement:
+    "Interval set to [{interval_lower}, {interval_upper}] µm: Probability {interval_probability}%, expected {expected_particles} particles.",
   modalities: ["keyboard", "direct-entry", "screen-reader", "switch-control"] as const,
 });
 
 export const fixtureEventTableContract: ActionContract = Object.freeze({
   actionId: "sr03-select-clock-event",
   family: "event-table",
-  question: "Select spacetime event to evaluate simultaneity and coordinate transformation across frames.",
+  question:
+    "Select spacetime event to evaluate simultaneity and coordinate transformation across frames.",
   inputs: ["event_id", "reference_frame"],
   commandClass: "observer-change",
   acceptedResult: {
@@ -36,7 +40,8 @@ export const fixtureEventTableContract: ActionContract = Object.freeze({
     allowedStatuses: ["value", "outside-domain"],
   },
   visualAffordance: "Click event point on Minkowski spacetime diagram.",
-  equivalentAffordance: "Select event row from the accessible events table and choose observer frame from dropdown.",
+  equivalentAffordance:
+    "Select event row from the accessible events table and choose observer frame from dropdown.",
   announcement: "Event {event_id} in frame {reference_frame}: t' = {t_prime} s, x' = {x_prime} m.",
   modalities: ["keyboard", "screen-reader"] as const,
 });
@@ -52,15 +57,18 @@ export const fixtureRatioContract: ActionContract = Object.freeze({
     allowedStatuses: ["value", "analytic-limit"],
   },
   visualAffordance: "Adjust continuous frequency ratio slider with logarithmic curve.",
-  equivalentAffordance: "Choose ratio from predefined buttons (half, same, double) or type exact numeric ratio.",
-  announcement: "Frequency ratio set to {frequency_ratio} in band {spectral_band}: Energy density ratio is {energy_density_ratio}.",
+  equivalentAffordance:
+    "Choose ratio from predefined buttons (half, same, double) or type exact numeric ratio.",
+  announcement:
+    "Frequency ratio set to {frequency_ratio} in band {spectral_band}: Energy density ratio is {energy_density_ratio}.",
   modalities: ["keyboard", "direct-entry", "screen-reader"] as const,
 });
 
 export const fixtureAxisComponentContract: ActionContract = Object.freeze({
   actionId: "sr06-select-field-component",
   family: "axis-component",
-  question: "Select electromagnetic field vector component to evaluate Lorentz field transformation.",
+  question:
+    "Select electromagnetic field vector component to evaluate Lorentz field transformation.",
   inputs: ["field_axis", "component_magnitude", "frame_velocity"],
   commandClass: "setup-change",
   acceptedResult: {
@@ -68,15 +76,18 @@ export const fixtureAxisComponentContract: ActionContract = Object.freeze({
     allowedStatuses: ["value", "outside-domain"],
   },
   visualAffordance: "Rotate 3D field vector arrow in spatial coordinates.",
-  equivalentAffordance: "Select axis component (X, Y, Z) via radio group and type signed field magnitude.",
-  announcement: "Component {field_axis} magnitude {component_magnitude} V/m at v={frame_velocity}c: E'={transformed_e_field}, B'={transformed_b_field}.",
+  equivalentAffordance:
+    "Select axis component (X, Y, Z) via radio group and type signed field magnitude.",
+  announcement:
+    "Component {field_axis} magnitude {component_magnitude} V/m at v={frame_velocity}c: E'={transformed_e_field}, B'={transformed_b_field}.",
   modalities: ["keyboard", "direct-entry", "screen-reader"] as const,
 });
 
 export const fixtureObjectInclusionContract: ActionContract = Object.freeze({
   actionId: "me03-toggle-emitter-boundary",
   family: "object-inclusion",
-  question: "Include or exclude radiating emitter from system control volume to compute mass-energy transfer.",
+  question:
+    "Include or exclude radiating emitter from system control volume to compute mass-energy transfer.",
   inputs: ["object_id", "included_in_boundary"],
   commandClass: "estimator-change",
   acceptedResult: {
@@ -85,7 +96,8 @@ export const fixtureObjectInclusionContract: ActionContract = Object.freeze({
   },
   visualAffordance: "Draw or resize system boundary polygon around radiation source.",
   equivalentAffordance: "Toggle object inclusion checkbox in the system boundary checklist table.",
-  announcement: "Object {object_id} {included_in_boundary}: Total system energy is {total_system_energy} J, mass change Δm is {net_mass_change} kg.",
+  announcement:
+    "Object {object_id} {included_in_boundary}: Total system energy is {total_system_energy} J, mass change Δm is {net_mass_change} kg.",
   modalities: ["keyboard", "screen-reader"] as const,
 });
 
@@ -100,8 +112,10 @@ export const fixtureSubexpressionContract: ActionContract = Object.freeze({
     allowedStatuses: ["value", "refused"],
   },
   visualAffordance: "Click or highlight subexpression token in mathematical formula visual.",
-  equivalentAffordance: "Select subexpression from ordered list with role description and press step advance button.",
-  announcement: "Applied rule {rule_id} to subexpression {subexpression_id}: New expression {resulting_expression}.",
+  equivalentAffordance:
+    "Select subexpression from ordered list with role description and press step advance button.",
+  announcement:
+    "Applied rule {rule_id} to subexpression {subexpression_id}: New expression {resulting_expression}.",
   modalities: ["keyboard", "screen-reader"] as const,
 });
 

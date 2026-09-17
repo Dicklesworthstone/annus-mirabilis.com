@@ -18,9 +18,7 @@ export function ModernOnlySymbolsView({ paperTitle, symbols }: ModernOnlySymbols
 
   return (
     <section className="modern-only-section" aria-labelledby={`modern-symbols-${paperTitle}`}>
-      <h3 id={`modern-symbols-${paperTitle}`}>
-        Modern-Layer Symbols in {paperTitle}
-      </h3>
+      <h3 id={`modern-symbols-${paperTitle}`}>Modern-Layer Symbols in {paperTitle}</h3>
       <p className="disclaimer">
         These symbols appear in modern educational lenses, worked derivations, or explanatory notes.
         <strong> They were never printed by Albert Einstein in the 1905 edition.</strong>

@@ -17,7 +17,13 @@ function copyFixtureTree(): string {
 function spawnSummarizer(workDir: string): { exitCode: number; stdout: string; stderr: string } {
   return spawnObserved(
     "node",
-    ["--no-warnings", "--experimental-strip-types", "scripts/summarize-test-logs.ts", "--root", workDir],
+    [
+      "--no-warnings",
+      "--experimental-strip-types",
+      "scripts/summarize-test-logs.ts",
+      "--root",
+      workDir,
+    ],
     {
       cwd: process.cwd(),
       stdio: ["ignore", "pipe", "pipe"],

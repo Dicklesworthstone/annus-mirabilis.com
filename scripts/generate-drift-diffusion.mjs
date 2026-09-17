@@ -70,4 +70,3 @@ export { generateLab as generateDriftDiffusion };
 if (process.argv[1] && resolve(process.argv[1]) === fileURLToPath(import.meta.url)) {
   console.log(JSON.stringify(await generateLab()));
 }
-

@@ -87,8 +87,7 @@ export function requiredSampleSizeForProportion(options: SampleSizeForProportion
   }
   const zAlpha = getNormalQuantile(1 - alpha / 2);
   const zPower = getNormalQuantile(power);
-  const numerator =
-    zAlpha * Math.sqrt(p0 * (1 - p0)) + zPower * Math.sqrt(p1 * (1 - p1));
+  const numerator = zAlpha * Math.sqrt(p0 * (1 - p0)) + zPower * Math.sqrt(p1 * (1 - p1));
   const n = Math.pow(numerator / diff, 2);
   return Math.max(2, Math.ceil(n));
 }
@@ -111,7 +110,11 @@ export function requiredSampleSizeForRmsScaling(options: SampleSizeForRmsScaling
 /**
  * Asserts that the actual sample size meets or exceeds the required sample size for the declared power.
  */
-export function assertMinimumSampleSize(actualN: number, requiredN: number, context?: string): void {
+export function assertMinimumSampleSize(
+  actualN: number,
+  requiredN: number,
+  context?: string,
+): void {
   if (actualN < requiredN) {
     throw new Error(
       `Statistical sample size underpowered: actual N = ${actualN} is less than required N = ${requiredN} ` +

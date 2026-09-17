@@ -178,7 +178,11 @@ describe("checkKernelBindings: BM-05's real kernel functions", () => {
 
   const bindings: IdentifierBinding[] = [
     { kernelFunction: "kernelDiffusivity", identifier: "tau", quantityId: "observationInterval" },
-    { kernelFunction: "randomWalkMoments", identifier: "stepRms", quantityId: "stepDisplacementRms" },
+    {
+      kernelFunction: "randomWalkMoments",
+      identifier: "stepRms",
+      quantityId: "stepDisplacementRms",
+    },
     { kernelFunction: "randomWalkMoments", identifier: "n", quantityId: "stepCount" },
     { kernelFunction: "coinWalkDistribution", identifier: "ell", quantityId: "stepLength" },
   ];
@@ -188,7 +192,12 @@ describe("checkKernelBindings: BM-05's real kernel functions", () => {
   test("BM-05's real bindings against real extracted source pass with zero violations", () => {
     const violations = checkKernelBindings({
       instrumentId: "bm-05",
-      liveTermQuantityIds: ["observationInterval", "stepDisplacementRms", "stepCount", "stepLength"],
+      liveTermQuantityIds: [
+        "observationInterval",
+        "stepDisplacementRms",
+        "stepCount",
+        "stepLength",
+      ],
       kernelFunctions,
       identifierBindings: bindings,
       extractedByExportName: map,
@@ -218,7 +227,11 @@ describe("checkKernelBindings: BM-06's real kernel functions", () => {
     "src/physics/reference/diffusion/distributions.ts",
     "radialPropagator3d",
   );
-  const ftcs1d = extractFromRepoFile(REPO_ROOT, "src/physics/reference/diffusion/ftcs.ts", "ftcs1d");
+  const ftcs1d = extractFromRepoFile(
+    REPO_ROOT,
+    "src/physics/reference/diffusion/ftcs.ts",
+    "ftcs1d",
+  );
 
   const kernelFunctions: KernelFunctionRef[] = [
     { language: "ts", module: gaussianPropagator.module, exportName: "gaussianPropagator" },
@@ -238,12 +251,24 @@ describe("checkKernelBindings: BM-06's real kernel functions", () => {
     { kernelFunction: "ftcs1d", identifier: "dt", quantityId: "timeStep" },
   ];
 
-  const map = extractedMap([gaussianPropagator, intervalProbability, radialPropagator2d, radialPropagator3d, ftcs1d]);
+  const map = extractedMap([
+    gaussianPropagator,
+    intervalProbability,
+    radialPropagator2d,
+    radialPropagator3d,
+    ftcs1d,
+  ]);
 
   test("BM-06's real bindings against real extracted source pass with zero violations", () => {
     const violations = checkKernelBindings({
       instrumentId: "bm-06",
-      liveTermQuantityIds: ["position", "diffusionCoefficient", "radialDistance", "gridSpacing", "timeStep"],
+      liveTermQuantityIds: [
+        "position",
+        "diffusionCoefficient",
+        "radialDistance",
+        "gridSpacing",
+        "timeStep",
+      ],
       kernelFunctions,
       identifierBindings: bindings,
       extractedByExportName: map,

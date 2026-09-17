@@ -1,6 +1,10 @@
 import { describe, expect, test } from "bun:test";
 import { getLogger } from "../../testing/log/logger.ts";
-import { auditMisconceptions, type MisconceptionAuditInput, type MisconceptionEntry } from "./misconceptions.ts";
+import {
+  auditMisconceptions,
+  type MisconceptionAuditInput,
+  type MisconceptionEntry,
+} from "./misconceptions.ts";
 import { errorCheckCodes } from "./types.ts";
 
 const logger = getLogger("verify-content-tests");

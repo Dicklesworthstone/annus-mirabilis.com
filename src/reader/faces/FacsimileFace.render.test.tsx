@@ -49,9 +49,7 @@ describe("FacsimileFace rendering (am-read-facsimile-face-er0)", () => {
   };
 
   it("renders published facsimile with viewer, page map, embedded text layer notice, and fallback direct-link", () => {
-    const html = renderToString(
-      <FacsimileFace paper={paper} sourceAsset={mockPublishAsset} />,
-    );
+    const html = renderToString(<FacsimileFace paper={paper} sourceAsset={mockPublishAsset} />);
 
     // Title & citation
     expect(html).toContain("Brownian Motion");
@@ -116,9 +114,7 @@ describe("FacsimileFace rendering (am-read-facsimile-face-er0)", () => {
       ],
     };
 
-    const html = renderToString(
-      <FacsimileFace paper={paper} sourceAsset={mockPinLocalAsset} />,
-    );
+    const html = renderToString(<FacsimileFace paper={paper} sourceAsset={mockPinLocalAsset} />);
 
     // Identity and metadata
     expect(html).toContain("Brownian Motion");
@@ -131,9 +127,7 @@ describe("FacsimileFace rendering (am-read-facsimile-face-er0)", () => {
     expect(html).toContain(
       "This scan is pinned locally for verification only and is not distributed publicly under its source terms.",
     );
-    expect(html).toContain(
-      "Digital reproduction reserved for accredited research institutions.",
-    );
+    expect(html).toContain("Digital reproduction reserved for accredited research institutions.");
     expect(html).toContain("https://example.org/restricted/scan-01");
 
     // NO interactive viewer or direct download link
@@ -163,9 +157,7 @@ describe("FacsimileFace rendering (am-read-facsimile-face-er0)", () => {
       ],
     };
 
-    const html = renderToString(
-      <FacsimileFace paper={paper} sourceAsset={mockRefAsset} />,
-    );
+    const html = renderToString(<FacsimileFace paper={paper} sourceAsset={mockRefAsset} />);
 
     expect(html).toContain("Reference Only Document");
     expect(html).toContain("Reference only; scan not hosted.");

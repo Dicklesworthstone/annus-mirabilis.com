@@ -1,6 +1,15 @@
 import assert from "node:assert/strict";
 import { createHash } from "node:crypto";
-import { appendFile, cp, mkdir, mkdtemp, readFile, symlink, unlink, writeFile } from "node:fs/promises";
+import {
+  appendFile,
+  cp,
+  mkdir,
+  mkdtemp,
+  readFile,
+  symlink,
+  unlink,
+  writeFile,
+} from "node:fs/promises";
 import { tmpdir } from "node:os";
 import { dirname, resolve } from "node:path";
 import test from "node:test";

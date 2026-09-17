@@ -53,12 +53,16 @@ describe("moveSummaryGuard", () => {
     const withN = "Where N is the number of molecules in a gram mole.";
     const resN = checkMoveSummary(withN);
     expect(resN.valid).toBe(false);
-    expect(resN.issues.some((i) => i.rule === "move-summary-no-lone-symbols" && i.token === "N")).toBe(true);
+    expect(
+      resN.issues.some((i) => i.rule === "move-summary-no-lone-symbols" && i.token === "N"),
+    ).toBe(true);
 
     const withC = "The velocity c represents the speed of light.";
     const resC = checkMoveSummary(withC);
     expect(resC.valid).toBe(false);
-    expect(resC.issues.some((i) => i.rule === "move-summary-no-lone-symbols" && i.token === "c")).toBe(true);
+    expect(
+      resC.issues.some((i) => i.rule === "move-summary-no-lone-symbols" && i.token === "c"),
+    ).toBe(true);
   });
 
   test("rejects superscript/subscript characters like 10⁻³", () => {

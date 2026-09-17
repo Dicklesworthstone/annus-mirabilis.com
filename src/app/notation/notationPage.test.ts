@@ -39,7 +39,10 @@ describe("Notation Concordance Page (am-not-notation-page-2us)", () => {
     expect(papers).toContain("brownian-motion");
     expect(papers).toContain("special-relativity");
 
-    logTestPass("all-entries-loaded", `Loaded ${data.allEntries.length} entries across ${data.papers.length} papers.`);
+    logTestPass(
+      "all-entries-loaded",
+      `Loaded ${data.allEntries.length} entries across ${data.papers.length} papers.`,
+    );
   });
 
   it("every first-use link resolves to a valid paper reading URL with an anchor", () => {
@@ -91,7 +94,12 @@ describe("Notation Concordance Page (am-not-notation-page-2us)", () => {
           binding: { quantityId: "gravitationalConstant" },
           operation: { kind: "rename", target: { form: "symbol", modernGlyph: "G" } },
           sources: { anchor: "lq-s2-p1" },
-          verification: { printed: false, checkedAgainst: "Unprinted in AP", by: "Rev", date: "2026-09-17" },
+          verification: {
+            printed: false,
+            checkedAgainst: "Unprinted in AP",
+            by: "Rev",
+            date: "2026-09-17",
+          },
         },
       ],
     };
@@ -121,7 +129,10 @@ describe("Notation Concordance Page (am-not-notation-page-2us)", () => {
     expect(hasSection3).toBe(true);
     expect(hasWaveSection).toBe(true);
 
-    logTestPass("phi-collision-cluster", "Phi collision cluster properly identifies within-paper collisions in SR.");
+    logTestPass(
+      "phi-collision-cluster",
+      "Phi collision cluster properly identifies within-paper collisions in SR.",
+    );
   });
 
   it("collision view data for beta includes danger collision with Lorentz factor", () => {
@@ -137,17 +148,31 @@ describe("Notation Concordance Page (am-not-notation-page-2us)", () => {
     expect(srBeta!.collision?.collidesWith).toContain("speedRatio");
     expect(srBeta!.collision?.collidesWith).toContain("wienConstantBeta");
 
-    logTestPass("beta-danger-collision", "Beta carries explicit danger collision against modern speedRatio (v/c).");
+    logTestPass(
+      "beta-danger-collision",
+      "Beta carries explicit danger collision against modern speedRatio (v/c).",
+    );
   });
 
   it("search records for group renames index both printed and modern keys (e.g. R/N and k_B)", () => {
     const rnSearch = filterNotationEntries(data.allEntries, { query: "R/N" });
     expect(rnSearch.filteredEntries.length).toBeGreaterThan(0);
-    expect(rnSearch.filteredEntries.some((e) => e.id.includes("R_over_N") || e.glyph.latex.includes("R/N"))).toBe(true);
+    expect(
+      rnSearch.filteredEntries.some(
+        (e) => e.id.includes("R_over_N") || e.glyph.latex.includes("R/N"),
+      ),
+    ).toBe(true);
 
     const kbSearch = filterNotationEntries(data.allEntries, { query: "k_B" });
     expect(kbSearch.filteredEntries.length).toBeGreaterThan(0);
-    expect(kbSearch.filteredEntries.some((e) => e.id.includes("R_over_N") || e.glyph.latex.includes("R/N") || e.meaning.toLowerCase().includes("boltzmann"))).toBe(true);
+    expect(
+      kbSearch.filteredEntries.some(
+        (e) =>
+          e.id.includes("R_over_N") ||
+          e.glyph.latex.includes("R/N") ||
+          e.meaning.toLowerCase().includes("boltzmann"),
+      ),
+    ).toBe(true);
 
     logTestPass("group-rename-search", "Searching R/N and k_B returns group rename entries.");
   });
@@ -161,7 +186,10 @@ describe("Notation Concordance Page (am-not-notation-page-2us)", () => {
       expect(e.scope.length).toBeGreaterThan(0);
     }
 
-    logTestPass("scope-aware-search", `Searching 'beta' returns ${search.filteredEntries.length} distinct entries.`);
+    logTestPass(
+      "scope-aware-search",
+      `Searching 'beta' returns ${search.filteredEntries.length} distinct entries.`,
+    );
   });
 
   it("search for viscosity returns k in Brownian motion with danger collision notice", () => {
@@ -178,7 +206,10 @@ describe("Notation Concordance Page (am-not-notation-page-2us)", () => {
       expect(kEntry!.operation.target.modernGlyph).toBe("\\eta");
     }
 
-    logTestPass("viscosity-search", "Found k viscosity in Brownian Motion with danger collision against Boltzmann constant and modern \\eta.");
+    logTestPass(
+      "viscosity-search",
+      "Found k viscosity in Brownian Motion with danger collision against Boltzmann constant and modern \\eta.",
+    );
   });
 
   it("search for speed of light returns V in Special Relativity", () => {
@@ -206,13 +237,22 @@ describe("Notation Concordance Page (am-not-notation-page-2us)", () => {
     expect(dangerOnly.filteredEntries.every((e) => e.collision?.severity === "danger")).toBe(true);
     expect(dangerOnly.filteredEntries.length).toBe(data.dangerCollisionsCount);
 
-    logTestPass("faceted-filters", "All facet filters (paper, operation, collision) operate accurately.");
+    logTestPass(
+      "faceted-filters",
+      "All facet filters (paper, operation, collision) operate accurately.",
+    );
   });
 
   it("honesty notice asserts pending facsimile verification", () => {
     expect(data.honestyNotice.isPendingFacsimile).toBe(true);
     expect(data.honestyNotice.message).toContain("pending facsimile verification");
-    expect(data.allEntries.every((e) => e.verification.checkedAgainst.includes("Pending") || e.verification.checkedAgainst.length > 0)).toBe(true);
+    expect(
+      data.allEntries.every(
+        (e) =>
+          e.verification.checkedAgainst.includes("Pending") ||
+          e.verification.checkedAgainst.length > 0,
+      ),
+    ).toBe(true);
 
     logTestPass("honesty-notice-verified", "Honesty notice is explicitly present.");
   });

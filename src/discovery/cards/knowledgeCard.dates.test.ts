@@ -52,7 +52,8 @@ describe("am-disc-knowledge-cards-iw8j: event kinds, prior events, and date sema
       rule: "card-invalid-event-kind",
       outcome: "pass",
       durationMs: Date.now() - start,
-      message: "Valid premise event kinds accepted; timeline kinds (letter, awarded, appointed) rejected.",
+      message:
+        "Valid premise event kinds accepted; timeline kinds (letter, awarded, appointed) rejected.",
     });
   });
 
@@ -281,7 +282,8 @@ describe("am-disc-knowledge-cards-iw8j: event kinds, prior events, and date sema
       priorEventLatest: "1827",
       outcome: "pass",
       durationMs: Date.now() - start,
-      message: "Journey II fixture cards with priorEvent validate cleanly; latestYear correctly computed.",
+      message:
+        "Journey II fixture cards with priorEvent validate cleanly; latestYear correctly computed.",
     });
   });
 });

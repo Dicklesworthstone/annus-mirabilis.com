@@ -466,13 +466,7 @@ export function Genealogy({
                   >
                     {badgeText}
                   </text>
-                  <text
-                    x={8}
-                    y={38}
-                    fontFamily="sans-serif"
-                    fontSize={12}
-                    fill="#1c1917"
-                  >
+                  <text x={8} y={38} fontFamily="sans-serif" fontSize={12} fill="#1c1917">
                     {n.node.label}
                   </text>
                 </g>

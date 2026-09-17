@@ -67,8 +67,10 @@ export function filterNotationEntries(
   const query = options.query ?? "";
   const paper = options.paper && options.paper !== "all" ? options.paper : undefined;
   const section = options.section && options.section !== "all" ? options.section : undefined;
-  const operation = options.operation && options.operation !== "all" ? options.operation : undefined;
-  const collision = options.collision && options.collision !== "all" ? options.collision : undefined;
+  const operation =
+    options.operation && options.operation !== "all" ? options.operation : undefined;
+  const collision =
+    options.collision && options.collision !== "all" ? options.collision : undefined;
   const glyph = options.glyph && options.glyph !== "all" ? options.glyph : undefined;
 
   let activeFilters = 0;

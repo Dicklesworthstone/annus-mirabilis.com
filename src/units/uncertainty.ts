@@ -73,9 +73,7 @@ export function formatUncertainty(
     case "discrete-count":
       return "(exact count)";
     case "exact-definition":
-      return spec.definingRelation
-        ? `(exact: ${spec.definingRelation})`
-        : "(exact by definition)";
+      return spec.definingRelation ? `(exact: ${spec.definingRelation})` : "(exact by definition)";
   }
 }
 

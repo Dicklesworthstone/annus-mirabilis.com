@@ -13,12 +13,7 @@ import type { AdmittedImport } from "../derivations/types.ts";
 
 export type GenealogyPerspective = "historical" | "modern";
 
-export type GenealogyNodeType =
-  | "postulate"
-  | "equation"
-  | "result"
-  | "premise"
-  | "external";
+export type GenealogyNodeType = "postulate" | "equation" | "result" | "premise" | "external";
 
 export interface GenealogyNode {
   readonly id: string;

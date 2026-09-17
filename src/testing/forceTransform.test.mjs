@@ -22,16 +22,25 @@ test("zero boost preserves force and coordinate time", () => {
 });
 test("a stationary particle's transverse force scales by inverse gamma", () => {
   const out = admitted();
-  near(out.force.x, 2); near(out.force.y, 2.4); near(out.force.z, -4);
+  near(out.force.x, 2);
+  near(out.force.y, 2.4);
+  near(out.force.z, -4);
   near(out.dtPrimeOverDt, 1.25);
 });
 test("a comoving particle's transverse force scales by gamma", () => {
   const out = admitted({ ...base, velocity: { x: 0.6, y: 0, z: 0 } });
-  near(out.force.x, 2); near(out.force.y, 3.75); near(out.force.z, -6.25);
+  near(out.force.x, 2);
+  near(out.force.y, 3.75);
+  near(out.force.z, -6.25);
   near(out.dtPrimeOverDt, 0.8);
 });
 test("longitudinal force remains unchanged at near-null collinear speeds", () => {
-  const out = admitted({ ...base, force: { x: 7, y: 0, z: 0 }, beta: 0.999999999999, velocity: { x: 0.999999999999, y: 0, z: 0 } });
+  const out = admitted({
+    ...base,
+    force: { x: 7, y: 0, z: 0 },
+    beta: 0.999999999999,
+    velocity: { x: 0.999999999999, y: 0, z: 0 },
+  });
   assert.equal(out.force.x, 7);
 });
 for (const beta of [-0.9, -0.6, -0.1, 0.1, 0.6, 0.9]) {
@@ -46,8 +55,8 @@ for (const beta of [-0.9, -0.6, -0.1, 0.1, 0.6, 0.9]) {
     const KxPrime = observerGamma * (Kx - beta * K0);
     const particleGammaPrime = observerGamma * particleGamma * (1 - beta * u.x);
     near(out.force.x, KxPrime / particleGammaPrime);
-    near(out.force.y, particleGamma * F.y / particleGammaPrime);
-    near(out.force.z, particleGamma * F.z / particleGammaPrime);
+    near(out.force.y, (particleGamma * F.y) / particleGammaPrime);
+    near(out.force.z, (particleGamma * F.z) / particleGammaPrime);
   });
 }
 test("inverse boost recovers the same force when velocity is also transformed", () => {
@@ -71,16 +80,33 @@ test("zero force stays zero without suppressing the time transformation", () => 
   near(out.dtPrimeOverDt, 1.25);
 });
 for (const beta of [-2, -1, 1, 2]) {
-  test(`refuse non-inertial beta=${beta}`, () => assert.equal(transformThreeForce({ ...base, beta }).domainKind, "physical"));
+  test(`refuse non-inertial beta=${beta}`, () =>
+    assert.equal(transformThreeForce({ ...base, beta }).domainKind, "physical"));
 }
-for (const velocity of [{ x: 1, y: 0, z: 0 }, { x: 0.8, y: 0.8, z: 0 }]) {
-  test(`refuse total massive-particle speed ${JSON.stringify(velocity)}`, () => assert.equal(transformThreeForce({ ...base, velocity }).domainKind, "physical"));
+for (const velocity of [
+  { x: 1, y: 0, z: 0 },
+  { x: 0.8, y: 0.8, z: 0 },
+]) {
+  test(`refuse total massive-particle speed ${JSON.stringify(velocity)}`, () =>
+    assert.equal(transformThreeForce({ ...base, velocity }).domainKind, "physical"));
 }
-for (const patch of [{ c: 0 }, { c: -1 }, { c: NaN }, { beta: Infinity }, { force: { ...zero, x: NaN } }, { velocity: { ...zero, y: Infinity } }]) {
-  test(`refuse non-finite/invalid input ${JSON.stringify(patch)}`, () => assert.equal(transformThreeForce({ ...base, ...patch }).domainKind, "input"));
+for (const patch of [
+  { c: 0 },
+  { c: -1 },
+  { c: NaN },
+  { beta: Infinity },
+  { force: { ...zero, x: NaN } },
+  { velocity: { ...zero, y: Infinity } },
+]) {
+  test(`refuse non-finite/invalid input ${JSON.stringify(patch)}`, () =>
+    assert.equal(transformThreeForce({ ...base, ...patch }).domainKind, "input"));
 }
 test("overflow is a numerical refusal, never an accepted infinite force", () => {
-  const out = transformThreeForce({ ...base, force: { x: 0, y: Number.MAX_VALUE, z: 0 }, velocity: { x: 0.6, y: 0, z: 0 } });
+  const out = transformThreeForce({
+    ...base,
+    force: { x: 0, y: Number.MAX_VALUE, z: 0 },
+    velocity: { x: 0.6, y: 0, z: 0 },
+  });
   assert.equal(out.status, "outside-domain");
   assert.equal(out.domainKind, "numerical");
 });
@@ -89,7 +115,8 @@ test("published result and vector are immutable; caller inputs are unchanged", (
   const before = structuredClone(input);
   const out = admitted(input);
   assert.deepEqual(input, before);
-  assert.ok(Object.isFrozen(out)); assert.ok(Object.isFrozen(out.force));
+  assert.ok(Object.isFrozen(out));
+  assert.ok(Object.isFrozen(out.force));
   input.force.x = 10;
   assert.equal(out.force.x, 2);
 });

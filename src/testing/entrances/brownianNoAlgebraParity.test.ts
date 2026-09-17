@@ -33,11 +33,16 @@ describe("Brownian First Encounter: No-Algebra Parity & Bridge Contract (am-bm-f
 
     // Assert newSkill has NO mathematical symbols (no LaTeX, no backslashes, no equations)
     const skill = record.bridge.newSkill;
-    assert.equal(/[\$\\^_=\+\-\*\/]/.test(skill), false, `newSkill must not contain math symbols: "${skill}"`);
+    assert.equal(
+      /[\$\\^_=\+\-\*\/]/.test(skill),
+      false,
+      `newSkill must not contain math symbols: "${skill}"`,
+    );
 
     // Assert whyUsefulHere explicitly names Section 5
     assert.ok(
-      record.bridge.whyUsefulHere.includes("Section 5") || record.bridge.whyUsefulHere.includes("§5"),
+      record.bridge.whyUsefulHere.includes("Section 5") ||
+        record.bridge.whyUsefulHere.includes("§5"),
       "whyUsefulHere must cite Section 5 of the Brownian paper",
     );
 
@@ -56,8 +61,15 @@ describe("Brownian First Encounter: No-Algebra Parity & Bridge Contract (am-bm-f
     const derivationTarget = fixtureBrownianSourceOrder.target; // "eq-bm-04-variance"
     const pedTarget = fixtureBrownianPedagogicalReconstruction.target; // "eq-bm-04-variance"
 
-    assert.equal(derivationTarget, pedTarget, "Source-order and pedagogical derivations target the same equation");
-    assert.ok(record.bridge.whyUsefulHere?.includes("Section 5"), "No-algebra bridge links to Section 5");
+    assert.equal(
+      derivationTarget,
+      pedTarget,
+      "Source-order and pedagogical derivations target the same equation",
+    );
+    assert.ok(
+      record.bridge.whyUsefulHere?.includes("Section 5"),
+      "No-algebra bridge links to Section 5",
+    );
 
     // 2. Physical claim equivalence under both routes:
     // Route 1: No-Algebra Entrance (Discrete & Ensemble Scaling Law)
@@ -89,7 +101,11 @@ describe("Brownian First Encounter: No-Algebra Parity & Bridge Contract (am-bm-f
       // At t=240s (4x time): RMS doubles to ~ 15.8 um
       if (sc.t === 60.0) {
         const v60 = withinTolerance(rmsAlg * 1e6, 7.9, { absolute: 0.1, relative: 0.05 });
-        assert.equal(v60.ok, true, `Einstein §5 1-minute RMS ~ 7.9 um, got ${(rmsAlg * 1e6).toFixed(2)} um`);
+        assert.equal(
+          v60.ok,
+          true,
+          `Einstein §5 1-minute RMS ~ 7.9 um, got ${(rmsAlg * 1e6).toFixed(2)} um`,
+        );
       }
       if (sc.t === 240.0) {
         const rms60 = Math.sqrt(2 * sc.D * 60.0);
@@ -121,7 +137,10 @@ describe("Brownian First Encounter: No-Algebra Parity & Bridge Contract (am-bm-f
     assert.equal(doubledTotals.signedSum, 0);
     assert.equal(doubledTotals.meanAbsolute, 4); // 2x distance
     assert.equal(doubledTotals.meanSquare, 20); // 4x mean square (2^2 = 4)
-    assert.equal(withinTolerance(doubledTotals.rootMeanSquare, 4.472136, { absolute: 1e-5 }).ok, true); // 2x RMS
+    assert.equal(
+      withinTolerance(doubledTotals.rootMeanSquare, 4.472136, { absolute: 1e-5 }).ok,
+      true,
+    ); // 2x RMS
 
     // (4) Cross-term cancellation demonstration:
     // For 2 independent +/-1 steps:
@@ -141,7 +160,11 @@ describe("Brownian First Encounter: No-Algebra Parity & Bridge Contract (am-bm-f
     const avgSqSum = sqSums.reduce((a, b) => a + b, 0) / sqSums.length;
 
     assert.equal(avgSum, 0, "Average 2-step displacement is 0");
-    assert.equal(avgSqSum, 2, "Average 2-step squared displacement is 2 (sum of individual variances)");
+    assert.equal(
+      avgSqSum,
+      2,
+      "Average 2-step squared displacement is 2 (sum of individual variances)",
+    );
   });
 
   it("writes structured test log for the Brownian first encounter suite", () => {
@@ -166,7 +189,8 @@ describe("Brownian First Encounter: No-Algebra Parity & Bridge Contract (am-bm-f
       continueWithTargets: ["foundation:mean-variance-rms", "instrument:bm-01"],
       targetResolution: "resolved",
       outcome: "pass",
-      message: "Verified no-algebra first encounter parity with algebraic derivation chain and bridge contract",
+      message:
+        "Verified no-algebra first encounter parity with algebraic derivation chain and bridge contract",
     };
 
     fs.writeFileSync(logFile, `${JSON.stringify(logEntry)}\n`);

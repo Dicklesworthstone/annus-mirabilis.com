@@ -19,14 +19,18 @@ import {
 } from "../../../experiments/sr01/session.ts";
 import type { PublishedResult } from "../../../experiments/store/instanceStore.ts";
 
-function outputByQuantityId(outputs: readonly PublishedResult[], id: string): PublishedResult | undefined {
+function outputByQuantityId(
+  outputs: readonly PublishedResult[],
+  id: string,
+): PublishedResult | undefined {
   return outputs.find((o) => o.quantityId === id);
 }
 
 function formatOutput(output: PublishedResult | undefined): string {
   if (!output) return "unavailable";
   if (output.status === "value") return String(output.value);
-  if (output.status === "not-applicable") return `not applicable (${output.reason ?? "by convention"})`;
+  if (output.status === "not-applicable")
+    return `not applicable (${output.reason ?? "by convention"})`;
   if (output.status === "outside-domain") return `outside domain`;
   return output.status;
 }
@@ -43,7 +47,11 @@ export function ClockSyncLab({
     createSr01Session(`sr01-${id}`, example?.parameters ?? SR01_DEFAULTS),
   );
 
-  const view = useSyncExternalStore(session.subscribe, session.getSnapshot, session.getServerSnapshot);
+  const view = useSyncExternalStore(
+    session.subscribe,
+    session.getSnapshot,
+    session.getServerSnapshot,
+  );
   const fallbackParams = example?.parameters ?? SR01_DEFAULTS;
   const accepted = view.accepted;
   const p = (accepted?.parameters ?? fallbackParams) as Sr01Parameters;
@@ -141,7 +149,12 @@ export function ClockSyncLab({
       <div className="presets-bar">
         <span className="presets-label">Presets:</span>
         {SR01_PRESETS.map((pr) => (
-          <button key={pr.presetId} type="button" className="button-preset" onClick={() => loadPreset(pr.presetId)}>
+          <button
+            key={pr.presetId}
+            type="button"
+            className="button-preset"
+            onClick={() => loadPreset(pr.presetId)}
+          >
             {pr.label}
           </button>
         ))}
@@ -336,7 +349,10 @@ export function ClockSyncLab({
               {predictAnswer === settledAnswer ? "✓ Correct prediction!" : "Outcome:"}
             </p>
             <p>
-              {SR01_PREDICT_MOVING_PAIR.candidates.find((c) => c.id === settledAnswer)?.separatingAssumption}
+              {
+                SR01_PREDICT_MOVING_PAIR.candidates.find((c) => c.id === settledAnswer)
+                  ?.separatingAssumption
+              }
             </p>
           </section>
         )}

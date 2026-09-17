@@ -1,9 +1,5 @@
 import { describe, expect, test } from "bun:test";
-import {
-  evaluateSr11,
-  mirrorFrameLedger,
-  movingMirror,
-} from "../physics/reference/waves.ts";
+import { evaluateSr11, mirrorFrameLedger, movingMirror } from "../physics/reference/waves.ts";
 
 describe("SR-11 Reference Physics: Moving Mirror Reflection & Radiation Pressure", () => {
   test("Normal incidence receding mirror at beta = 0.6", () => {
@@ -147,8 +143,7 @@ describe("SR-11 Reference Physics: Moving Mirror Reflection & Radiation Pressure
 
     // Plausible wrong formula: incident power evaluated without the (1 - beta) factor
     const naiveFixedSurfaceIncidentPower = u * c * Am; // 1.0 instead of 0.4
-    const naiveResidual =
-      naiveFixedSurfaceIncidentPower - res.reflectedPower - res.workRate;
+    const naiveResidual = naiveFixedSurfaceIncidentPower - res.reflectedPower - res.workRate;
 
     // 1.0 - 0.1 - 0.3 = 0.6 != 0
     expect(Math.abs(naiveResidual)).toBeGreaterThan(0.5);

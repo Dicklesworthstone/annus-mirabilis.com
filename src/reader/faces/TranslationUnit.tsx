@@ -25,9 +25,7 @@ export function TranslationUnitComponent({
   const isHighlighted = highlightedUnitIds?.has(unit.id) ?? false;
   const lang = unit.lang ?? "en";
 
-  const matchingNotes = editorialNotes.filter((n) =>
-    n.affectedIds.includes(unit.id),
-  );
+  const matchingNotes = editorialNotes.filter((n) => n.affectedIds.includes(unit.id));
 
   return (
     <article
@@ -52,18 +50,23 @@ export function TranslationUnitComponent({
         </span>
       </div>
 
-      <div className="unit-body">
-        {renderInlines(unit.inlines, undefined, `tr-${unit.id}`)}
-      </div>
+      <div className="unit-body">{renderInlines(unit.inlines, undefined, `tr-${unit.id}`)}</div>
 
       {unit.unresolvedAlternatives && unit.unresolvedAlternatives.length > 0 && (
-        <details className="unresolved-alternatives" data-alternatives-count={unit.unresolvedAlternatives.length}>
+        <details
+          className="unresolved-alternatives"
+          data-alternatives-count={unit.unresolvedAlternatives.length}
+        >
           <summary>Alternative translations ({unit.unresolvedAlternatives.length})</summary>
           <ul className="alternatives-list">
             {unit.unresolvedAlternatives.map((alt, i) => (
               <li key={`${unit.id}-alt-${i}`}>
-                <p className="alternative-text"><strong>Option:</strong> {alt.text}</p>
-                <p className="alternative-rationale"><em>Rationale:</em> {alt.rationale}</p>
+                <p className="alternative-text">
+                  <strong>Option:</strong> {alt.text}
+                </p>
+                <p className="alternative-rationale">
+                  <em>Rationale:</em> {alt.rationale}
+                </p>
               </li>
             ))}
           </ul>

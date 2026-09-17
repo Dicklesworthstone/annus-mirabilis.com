@@ -7,10 +7,7 @@ import { buildPageMapIndex, formatPrintedPageLabel } from "./pageMap.ts";
 import type { PageMapEntry } from "../../content/provenance/receiptSchema.ts";
 
 describe("pageMap lookups and indexing (am-read-facsimile-face-er0)", () => {
-  const fixturePath = join(
-    process.cwd(),
-    "src/testing/fixtures/provenance/ap-99-001.md",
-  );
+  const fixturePath = join(process.cwd(), "src/testing/fixtures/provenance/ap-99-001.md");
   const parsed = parseReceipt(readFileSync(fixturePath, "utf8"), fixturePath);
   const sourceAsset = receiptToSourceAsset(parsed.frontMatter!);
 

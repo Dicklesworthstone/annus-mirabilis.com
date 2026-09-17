@@ -13,12 +13,7 @@ import type { KinematicResult } from "../../physics/reference/kinematics/types.t
 import { encodeResult, parseResult } from "../results/codec.ts";
 import type { ScientificResult } from "../results/types.ts";
 import { createInstanceStore, type Parameters } from "../store/instanceStore.ts";
-import {
-  SR01_CLASSES,
-  SR01_DEFAULTS,
-  SR01_OUTPUTS,
-  type Sr01Parameters,
-} from "./definition.ts";
+import { SR01_CLASSES, SR01_DEFAULTS, SR01_OUTPUTS, type Sr01Parameters } from "./definition.ts";
 import { validateSr01Parameters } from "./parameters.ts";
 
 function identity(
@@ -37,7 +32,11 @@ function asValue(
   ownerId: string,
   value: number,
 ): ScientificResult {
-  return Object.freeze({ ...identity(quantityId, unit, semanticKind, ownerId), status: "value" as const, value });
+  return Object.freeze({
+    ...identity(quantityId, unit, semanticKind, ownerId),
+    status: "value" as const,
+    value,
+  });
 }
 
 function asOutside(
@@ -81,42 +80,120 @@ export function snapshotOutputs(p: Sr01Parameters): ScientificResult[] {
 
   if (round.status === "value") {
     outputs.push(
-      asValue("assignedRemoteTime", "s", "assigned-remote-time", "events.synchronizationRound", round.value.assignedRemoteTime),
-      asValue("roundTripSpeed", "ls/s", "round-trip-speed", "events.synchronizationRound", round.value.roundTripSpeedLsPerS),
+      asValue(
+        "assignedRemoteTime",
+        "s",
+        "assigned-remote-time",
+        "events.synchronizationRound",
+        round.value.assignedRemoteTime,
+      ),
+      asValue(
+        "roundTripSpeed",
+        "ls/s",
+        "round-trip-speed",
+        "events.synchronizationRound",
+        round.value.roundTripSpeedLsPerS,
+      ),
       // The criterion check the reader actually probes: B's own independently-declared clock
       // (clockOffsetB) against the procedure's assignment. Zero exactly when clockOffsetB is
       // zero ("synchronized by definition"); the degenerate criterionOffset the owner itself
       // returns is always zero by construction and is not what a reader adjusting the offset
       // control needs to see.
-      asValue("criterionOffset", "s", "criterion-offset", "events.synchronizationRound", 2 * p.clockOffsetB),
+      asValue(
+        "criterionOffset",
+        "s",
+        "criterion-offset",
+        "events.synchronizationRound",
+        2 * p.clockOffsetB,
+      ),
     );
   } else {
     outputs.push(
-      asOutside("assignedRemoteTime", "s", "assigned-remote-time", "events.synchronizationRound", "stationSeparationLs", round),
-      asOutside("roundTripSpeed", "ls/s", "round-trip-speed", "events.synchronizationRound", "stationSeparationLs", round),
-      asOutside("criterionOffset", "s", "criterion-offset", "events.synchronizationRound", "stationSeparationLs", round),
+      asOutside(
+        "assignedRemoteTime",
+        "s",
+        "assigned-remote-time",
+        "events.synchronizationRound",
+        "stationSeparationLs",
+        round,
+      ),
+      asOutside(
+        "roundTripSpeed",
+        "ls/s",
+        "round-trip-speed",
+        "events.synchronizationRound",
+        "stationSeparationLs",
+        round,
+      ),
+      asOutside(
+        "criterionOffset",
+        "s",
+        "criterion-offset",
+        "events.synchronizationRound",
+        "stationSeparationLs",
+        round,
+      ),
     );
   }
 
   if (chase.status === "value") {
     outputs.push(
-      asValue("chaseOutboundLeg", "s", "rod-chase-outbound-leg", "events.movingRodLegs", chase.value.outboundLegS),
-      asValue("chaseReturnLeg", "s", "rod-chase-return-leg", "events.movingRodLegs", chase.value.returnLegS),
+      asValue(
+        "chaseOutboundLeg",
+        "s",
+        "rod-chase-outbound-leg",
+        "events.movingRodLegs",
+        chase.value.outboundLegS,
+      ),
+      asValue(
+        "chaseReturnLeg",
+        "s",
+        "rod-chase-return-leg",
+        "events.movingRodLegs",
+        chase.value.returnLegS,
+      ),
     );
   } else {
     outputs.push(
-      asOutside("chaseOutboundLeg", "s", "rod-chase-outbound-leg", "events.movingRodLegs", "rodBeta", chase),
-      asOutside("chaseReturnLeg", "s", "rod-chase-return-leg", "events.movingRodLegs", "rodBeta", chase),
+      asOutside(
+        "chaseOutboundLeg",
+        "s",
+        "rod-chase-outbound-leg",
+        "events.movingRodLegs",
+        "rodBeta",
+        chase,
+      ),
+      asOutside(
+        "chaseReturnLeg",
+        "s",
+        "rod-chase-return-leg",
+        "events.movingRodLegs",
+        "rodBeta",
+        chase,
+      ),
     );
   }
 
   if (desync.status === "value") {
     outputs.push(
-      asValue("desynchronization", "s", "desynchronization-magnitude", "events.desynchronizationObserved", desync.value.desyncMagnitudeS),
+      asValue(
+        "desynchronization",
+        "s",
+        "desynchronization-magnitude",
+        "events.desynchronizationObserved",
+        desync.value.desyncMagnitudeS,
+      ),
     );
   } else {
     outputs.push(
-      asOutside("desynchronization", "s", "desynchronization-magnitude", "events.desynchronizationObserved", "pairBeta", desync),
+      asOutside(
+        "desynchronization",
+        "s",
+        "desynchronization-magnitude",
+        "events.desynchronizationObserved",
+        "pairBeta",
+        desync,
+      ),
     );
   }
 
@@ -134,7 +211,10 @@ export function snapshotOutputs(p: Sr01Parameters): ScientificResult[] {
 
 /** The predict prompt's answer, read from the accepted snapshot's own output, never authored text. */
 export function predictAnswerFor(p: Sr01Parameters): DesynchronizationVerdict | null {
-  const result = desynchronizationObserved({ properSeparationLs: p.pairSeparationLs, beta: p.pairBeta });
+  const result = desynchronizationObserved({
+    properSeparationLs: p.pairSeparationLs,
+    beta: p.pairBeta,
+  });
   return result.status === "value" ? result.value.verdict : null;
 }
 
@@ -198,7 +278,10 @@ export function computeSr01Ledger(p: Sr01Parameters): Sr01Ledger {
     }),
   ]);
 
-  const described = p.frameBeta === 0 ? { status: "value" as const, value: events } : redescribe(events, p.frameBeta);
+  const described =
+    p.frameBeta === 0
+      ? { status: "value" as const, value: events }
+      : redescribe(events, p.frameBeta);
   const rows = described.status === "value" ? toRows(described.value) : toRows(events);
 
   const transitivity = synchronizationTransitivity([
@@ -280,8 +363,11 @@ export function createSr01Session(
         else setup[key] = next[key];
       });
 
-      let request = Object.keys(setup).length ? store.issue("setup-change", setup as Parameters) : null;
-      if (Object.keys(observer).length) request = store.issue("observer-change", observer as Parameters);
+      let request = Object.keys(setup).length
+        ? store.issue("setup-change", setup as Parameters)
+        : null;
+      if (Object.keys(observer).length)
+        request = store.issue("observer-change", observer as Parameters);
       request ??= store.issue("continue");
 
       const outputs = snapshotOutputs(request.parameters as unknown as Sr01Parameters);

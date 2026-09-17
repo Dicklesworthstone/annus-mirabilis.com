@@ -51,8 +51,16 @@ export function EditorialNoteMarker({ note, inline = false }: EditorialNoteMarke
               <strong>Proposed reading:</strong> <code>{note.proposedReading}</code>
             </div>
           )}
-          {note.reasoning && <p className="note-reasoning"><em>Reasoning:</em> {note.reasoning}</p>}
-          {note.evidence && <p className="note-evidence"><em>Evidence:</em> {note.evidence}</p>}
+          {note.reasoning && (
+            <p className="note-reasoning">
+              <em>Reasoning:</em> {note.reasoning}
+            </p>
+          )}
+          {note.evidence && (
+            <p className="note-evidence">
+              <em>Evidence:</em> {note.evidence}
+            </p>
+          )}
         </div>
       )}
 

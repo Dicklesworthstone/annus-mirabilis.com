@@ -3,16 +3,11 @@ import {
   FIXTURE_BROWNIAN_TRANSLATION_UNITS,
   FIXTURE_REVIEW_RECORDS,
 } from "../../testing/fixtures/bilingual/brownianBilingualFixture.ts";
-import {
-  evaluateUnitReviewState,
-  isPaperTranslationUnreviewed,
-} from "./reviewState.ts";
+import { evaluateUnitReviewState, isPaperTranslationUnreviewed } from "./reviewState.ts";
 
 describe("reviewState: unit evaluation and stale review fallback", () => {
   const reviewedUnit = FIXTURE_BROWNIAN_TRANSLATION_UNITS[0]!; // tr-bm-s4-h1, rev 1
-  const draftUnit = FIXTURE_BROWNIAN_TRANSLATION_UNITS.find(
-    (u) => u.id === "tr-bm-s4-p1-u2",
-  )!; // tr-bm-s4-p1-u2, draft
+  const draftUnit = FIXTURE_BROWNIAN_TRANSLATION_UNITS.find((u) => u.id === "tr-bm-s4-p1-u2")!; // tr-bm-s4-p1-u2, draft
   const validRecord = FIXTURE_REVIEW_RECORDS[0]!; // covers tr-bm-s4-h1 at rev 1
   const staleRecord = FIXTURE_REVIEW_RECORDS[1]!; // covers tr-bm-s5-p1-u1 at rev 0 (unit is at rev 1)
   const bumpedUnit = FIXTURE_BROWNIAN_TRANSLATION_UNITS.find((u) => u.id === "tr-bm-s5-p1-u1")!;

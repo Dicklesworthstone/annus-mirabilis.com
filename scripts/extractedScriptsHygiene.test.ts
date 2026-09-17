@@ -43,8 +43,12 @@ export function validateAttributionHeader(content: string): HeaderValidationResu
   if (!content.startsWith("/**\n * Extracted from classic-patents.com\n")) {
     errors.push("Missing required opening: '/**\\n * Extracted from classic-patents.com\\n'");
   }
-  if (!content.includes("Source repository: https://github.com/Dicklesworthstone/classic-patents.com")) {
-    errors.push("Missing required 'Source repository: https://github.com/Dicklesworthstone/classic-patents.com'");
+  if (
+    !content.includes("Source repository: https://github.com/Dicklesworthstone/classic-patents.com")
+  ) {
+    errors.push(
+      "Missing required 'Source repository: https://github.com/Dicklesworthstone/classic-patents.com'",
+    );
   }
   if (!content.includes("Pinned commit: da11ff475902728fd8dd1d9db9f3af37c16ec8a5")) {
     errors.push("Missing required 'Pinned commit: da11ff475902728fd8dd1d9db9f3af37c16ec8a5'");
@@ -221,7 +225,9 @@ describe("extracted donor identity hygiene", () => {
       ].join("\n");
       const result = validateAttributionHeader(missingRider);
       expect(result.valid).toBe(false);
-      expect(result.errors.some((e) => e.includes("License: MIT License (with OpenAI/Anthropic Rider)"))).toBe(true);
+      expect(
+        result.errors.some((e) => e.includes("License: MIT License (with OpenAI/Anthropic Rider)")),
+      ).toBe(true);
     });
 
     test("rejects an extracted file missing the preserved license text reference", () => {

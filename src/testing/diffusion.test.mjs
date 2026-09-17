@@ -40,11 +40,7 @@ const near = (actual, expected, relative = 1e-12, absolute = 0) => {
   }
   const spec = {
     ...(relative > 0 && expected !== 0 ? { relative } : {}),
-    ...(absolute > 0
-      ? { absolute }
-      : expected === 0 && relative > 0
-        ? { absolute: relative }
-        : {}),
+    ...(absolute > 0 ? { absolute } : expected === 0 && relative > 0 ? { absolute: relative } : {}),
   };
   const verdict = withinTolerance(actual, expected, spec);
   assert.ok(
