@@ -20,10 +20,12 @@ export interface Candidate {
   hostFileName: string;
   hostFileSource: HostFileSource;
   derivativeReason?: string | null | undefined;
-  hostChecksums?: {
-    md5?: string | null | undefined;
-    sha1?: string | null | undefined;
-  } | undefined;
+  hostChecksums?:
+    | {
+        md5?: string | null | undefined;
+        sha1?: string | null | undefined;
+      }
+    | undefined;
   termsStatementUrls: string[];
   expectedPageCountRange: {
     min: number;
@@ -58,12 +60,14 @@ export interface PinnedRecord {
   hostFileSource: HostFileSource;
   hostChecksumsVerified: ("md5" | "sha1")[];
   embeddedTextLayer: EmbeddedTextLayerStatus;
-  parent?: {
-    sha256: string;
-    pageCount: number;
-    path: string;
-    parentPageIndices: number[];
-  } | undefined;
+  parent?:
+    | {
+        sha256: string;
+        pageCount: number;
+        path: string;
+        parentPageIndices: number[];
+      }
+    | undefined;
   pdfLibrary: {
     name: string;
     version: string;
@@ -157,7 +161,8 @@ export const FORBIDDEN_HOSTS: Record<string, string> = {
   "wikisource.org": "Community wiki transcription witness, not original archive source",
   "de.wikisource.org": "Community wiki transcription witness, not original archive source",
   "onlinelibrary.wiley.com": "Publisher site under commercial subscription/paywall terms",
-  "bibliothek.uni-augsburg.de": "Augsburg facsimile host; witness only / redistribution restriction",
+  "bibliothek.uni-augsburg.de":
+    "Augsburg facsimile host; witness only / redistribution restriction",
 };
 
 export function isForbiddenHost(hostname: string): { forbidden: boolean; reason?: string } {
@@ -180,7 +185,11 @@ export interface ValidationResult {
 export function validateConfig(config: unknown): ValidationResult {
   const errors: string[] = [];
   if (!config || typeof config !== "object") {
-    return { valid: false, errors: ["Configuration root must be an object"], refusalCode: "INVALID_CONFIG" };
+    return {
+      valid: false,
+      errors: ["Configuration root must be an object"],
+      refusalCode: "INVALID_CONFIG",
+    };
   }
 
   const c = config as Record<string, any>;
@@ -214,16 +223,25 @@ export function validateConfig(config: unknown): ValidationResult {
       };
     }
 
-    if (rights.rightsStatus === "scan-terms-restrict-redistribution" && rights.publicationDecision === "publish") {
+    if (
+      rights.rightsStatus === "scan-terms-restrict-redistribution" &&
+      rights.publicationDecision === "publish"
+    ) {
       return {
         valid: false,
-        errors: ["Scans with terms restricting redistribution must not be published (must be pin-local-only or reference-only)"],
+        errors: [
+          "Scans with terms restricting redistribution must not be published (must be pin-local-only or reference-only)",
+        ],
         refusalCode: "RIGHTS_VOCABULARY_INVALID",
       };
     }
 
     if (rights.publicationDecision === "pin-local-only") {
-      if (!rights.publicationReason || typeof rights.publicationReason !== "string" || rights.publicationReason.trim() === "") {
+      if (
+        !rights.publicationReason ||
+        typeof rights.publicationReason !== "string" ||
+        rights.publicationReason.trim() === ""
+      ) {
         return {
           valid: false,
           errors: ["publicationDecision: pin-local-only requires a non-empty publicationReason"],
@@ -232,7 +250,12 @@ export function validateConfig(config: unknown): ValidationResult {
       }
     }
 
-    if (rights.cloudProcessing && (!rights.cloudProcessingBasis || typeof rights.cloudProcessingBasis !== "string" || rights.cloudProcessingBasis.trim() === "")) {
+    if (
+      rights.cloudProcessing &&
+      (!rights.cloudProcessingBasis ||
+        typeof rights.cloudProcessingBasis !== "string" ||
+        rights.cloudProcessingBasis.trim() === "")
+    ) {
       return {
         valid: false,
         errors: ["cloudProcessing requires a non-empty cloudProcessingBasis"],
@@ -246,11 +269,20 @@ export function validateConfig(config: unknown): ValidationResult {
     errors.push("Missing articlePages section");
   } else {
     const ap = c.articlePages;
-    if (typeof ap.printedFirst !== "number" || typeof ap.printedLast !== "number" || ap.printedLast < ap.printedFirst) {
-      errors.push("articlePages must specify printedFirst and printedLast with printedLast >= printedFirst");
+    if (
+      typeof ap.printedFirst !== "number" ||
+      typeof ap.printedLast !== "number" ||
+      ap.printedLast < ap.printedFirst
+    ) {
+      errors.push(
+        "articlePages must specify printedFirst and printedLast with printedLast >= printedFirst",
+      );
     }
     if (ap.parentPageIndices !== undefined) {
-      if (!Array.isArray(ap.parentPageIndices) || ap.parentPageIndices.some((idx: any) => typeof idx !== "number" || idx < 1)) {
+      if (
+        !Array.isArray(ap.parentPageIndices) ||
+        ap.parentPageIndices.some((idx: any) => typeof idx !== "number" || idx < 1)
+      ) {
         errors.push("parentPageIndices must be an array of positive 1-based integers");
       }
     }
@@ -277,7 +309,9 @@ export function validateConfig(config: unknown): ValidationResult {
           if (hostCheck.forbidden) {
             return {
               valid: false,
-              errors: [`candidates[${i}].url uses forbidden host '${parsedUrl.hostname}': ${hostCheck.reason}`],
+              errors: [
+                `candidates[${i}].url uses forbidden host '${parsedUrl.hostname}': ${hostCheck.reason}`,
+              ],
               refusalCode: "WITNESS_OR_PUBLISHER_HOST",
             };
           }
@@ -287,7 +321,9 @@ export function validateConfig(config: unknown): ValidationResult {
           if (parsedUrl.protocol !== "https:" && !isLoopbackTest) {
             return {
               valid: false,
-              errors: [`candidates[${i}].url must use HTTPS protocol, found '${parsedUrl.protocol}'`],
+              errors: [
+                `candidates[${i}].url must use HTTPS protocol, found '${parsedUrl.protocol}'`,
+              ],
               refusalCode: "HTTP_NOT_HTTPS",
             };
           }
@@ -298,7 +334,11 @@ export function validateConfig(config: unknown): ValidationResult {
 
       // Derivative reason check
       if (candidate.hostFileSource === "derivative") {
-        if (!candidate.derivativeReason || typeof candidate.derivativeReason !== "string" || candidate.derivativeReason.trim() === "") {
+        if (
+          !candidate.derivativeReason ||
+          typeof candidate.derivativeReason !== "string" ||
+          candidate.derivativeReason.trim() === ""
+        ) {
           return {
             valid: false,
             errors: [`candidates[${i}] with hostFileSource 'derivative' requires derivativeReason`],
@@ -308,7 +348,10 @@ export function validateConfig(config: unknown): ValidationResult {
       }
 
       // Expected page count range check
-      if (!candidate.expectedPageCountRange || typeof candidate.expectedPageCountRange !== "object") {
+      if (
+        !candidate.expectedPageCountRange ||
+        typeof candidate.expectedPageCountRange !== "object"
+      ) {
         errors.push(`candidates[${i}] missing expectedPageCountRange`);
       } else {
         const { min, max } = candidate.expectedPageCountRange;

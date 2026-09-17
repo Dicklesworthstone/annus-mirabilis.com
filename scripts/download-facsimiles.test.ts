@@ -446,7 +446,13 @@ describe("11. verifyPins reporting", () => {
     const cfg1 = {
       configVersion: 1,
       key: "ap-99-001",
-      candidates: [{ url: "https://example.org/1.pdf", kind: "article", expectedPageCountRange: { min: 1, max: 2 } }],
+      candidates: [
+        {
+          url: "https://example.org/1.pdf",
+          kind: "article",
+          expectedPageCountRange: { min: 1, max: 2 },
+        },
+      ],
       articlePages: { printedFirst: 1, printedLast: 2 },
       rights: { rightsStatus: "scan-open-terms", publicationDecision: "publish" },
       pinned: { path: "public/papers/pdfs/ap-99-001.pdf", sha256: pdfSha },
@@ -461,7 +467,13 @@ describe("11. verifyPins reporting", () => {
     const cfg2 = {
       configVersion: 1,
       key: "ap-99-002",
-      candidates: [{ url: "https://example.org/2.pdf", kind: "article", expectedPageCountRange: { min: 1, max: 2 } }],
+      candidates: [
+        {
+          url: "https://example.org/2.pdf",
+          kind: "article",
+          expectedPageCountRange: { min: 1, max: 2 },
+        },
+      ],
       articlePages: { printedFirst: 1, printedLast: 2 },
       rights: { rightsStatus: "scan-open-terms", publicationDecision: "publish" },
       pinned: { path: "public/papers/pdfs/ap-99-002.pdf", sha256: pdfSha },
@@ -472,7 +484,13 @@ describe("11. verifyPins reporting", () => {
     const cfg3 = {
       configVersion: 1,
       key: "ap-99-003",
-      candidates: [{ url: "https://example.org/3.pdf", kind: "article", expectedPageCountRange: { min: 1, max: 2 } }],
+      candidates: [
+        {
+          url: "https://example.org/3.pdf",
+          kind: "article",
+          expectedPageCountRange: { min: 1, max: 2 },
+        },
+      ],
       articlePages: { printedFirst: 1, printedLast: 2 },
       rights: { rightsStatus: "scan-open-terms", publicationDecision: "publish" },
       pinned: { path: "public/papers/pdfs/ap-99-003.pdf", sha256: pdfSha },
@@ -483,9 +501,19 @@ describe("11. verifyPins reporting", () => {
     const cfg4 = {
       configVersion: 1,
       key: "ap-99-004",
-      candidates: [{ url: "https://example.org/4.pdf", kind: "article", expectedPageCountRange: { min: 1, max: 2 } }],
+      candidates: [
+        {
+          url: "https://example.org/4.pdf",
+          kind: "article",
+          expectedPageCountRange: { min: 1, max: 2 },
+        },
+      ],
       articlePages: { printedFirst: 1, printedLast: 2 },
-      rights: { rightsStatus: "scan-open-terms", publicationDecision: "pin-local-only", publicationReason: "Local study" },
+      rights: {
+        rightsStatus: "scan-open-terms",
+        publicationDecision: "pin-local-only",
+        publicationReason: "Local study",
+      },
       pinned: { path: "sources/pinned/ap-99-004.pdf", sha256: pdfSha },
     };
     fs.writeFileSync(path.join(configDir, "ap-99-004.yaml"), JSON.stringify(cfg4));
@@ -557,10 +585,7 @@ describe("12. Loopback HTTP network test server", () => {
 
   test("fetches PDF across redirect chain on loopback test server", async () => {
     const stagingPath = path.join(REPO_ROOT, "artifacts", "test-tmp", "net-test", "staged.pdf");
-    const res = await fetchToStaging(
-      `http://127.0.0.1:${serverPort}/redirect-chain`,
-      stagingPath,
-    );
+    const res = await fetchToStaging(`http://127.0.0.1:${serverPort}/redirect-chain`, stagingPath);
     expect(res.httpStatus).toBe(200);
     expect(res.redirects.length).toBe(1);
     expect(validatePdf(fs.readFileSync(stagingPath)).valid).toBe(true);
@@ -569,10 +594,7 @@ describe("12. Loopback HTTP network test server", () => {
   test("refuses redirect to non-loopback insecure HTTP with REDIRECT_TO_HTTP", async () => {
     const stagingPath = path.join(REPO_ROOT, "artifacts", "test-tmp", "net-test", "insecure.pdf");
     try {
-      await fetchToStaging(
-        `http://127.0.0.1:${serverPort}/redirect-insecure`,
-        stagingPath,
-      );
+      await fetchToStaging(`http://127.0.0.1:${serverPort}/redirect-insecure`, stagingPath);
       expect(true).toBe(false); // unreachable
     } catch (e: any) {
       expect(e).toBeInstanceOf(FacsimileError);
@@ -583,10 +605,7 @@ describe("12. Loopback HTTP network test server", () => {
   test("retries on 503 and succeeds on 3rd attempt", async () => {
     retryCount = 0;
     const stagingPath = path.join(REPO_ROOT, "artifacts", "test-tmp", "net-test", "retry.pdf");
-    const res = await fetchToStaging(
-      `http://127.0.0.1:${serverPort}/retry-flaky`,
-      stagingPath,
-    );
+    const res = await fetchToStaging(`http://127.0.0.1:${serverPort}/retry-flaky`, stagingPath);
     expect(res.httpStatus).toBe(200);
     expect(retryCount).toBe(3);
   });
@@ -594,10 +613,7 @@ describe("12. Loopback HTTP network test server", () => {
   test("fails on 404 with HTTP_STATUS", async () => {
     const stagingPath = path.join(REPO_ROOT, "artifacts", "test-tmp", "net-test", "missing.pdf");
     try {
-      await fetchToStaging(
-        `http://127.0.0.1:${serverPort}/missing.pdf`,
-        stagingPath,
-      );
+      await fetchToStaging(`http://127.0.0.1:${serverPort}/missing.pdf`, stagingPath);
       expect(true).toBe(false);
     } catch (e: any) {
       expect(e).toBeInstanceOf(FacsimileError);
@@ -608,11 +624,9 @@ describe("12. Loopback HTTP network test server", () => {
   test("aborts and throws SIZE_LIMIT_EXCEEDED when body exceeds maxBytes", async () => {
     const stagingPath = path.join(REPO_ROOT, "artifacts", "test-tmp", "net-test", "oversize.pdf");
     try {
-      await fetchToStaging(
-        `http://127.0.0.1:${serverPort}/oversize.pdf`,
-        stagingPath,
-        { maxBytes: 500 },
-      );
+      await fetchToStaging(`http://127.0.0.1:${serverPort}/oversize.pdf`, stagingPath, {
+        maxBytes: 500,
+      });
       expect(true).toBe(false);
     } catch (e: any) {
       expect(e).toBeInstanceOf(FacsimileError);
@@ -630,8 +644,19 @@ describe("13. Identity and runId discipline", () => {
   test("receipt stub contains downloadLog and no literal runId field", () => {
     const cfg: any = {
       key: "ap-99-001",
-      candidates: [{ url: "https://example.org/1.pdf", institution: "Archive", hostItemId: "item", hostFileName: "1.pdf" }],
-      rights: { rightsStatus: "scan-open-terms", publicationDecision: "publish", cloudProcessing: "permitted" },
+      candidates: [
+        {
+          url: "https://example.org/1.pdf",
+          institution: "Archive",
+          hostItemId: "item",
+          hostFileName: "1.pdf",
+        },
+      ],
+      rights: {
+        rightsStatus: "scan-open-terms",
+        publicationDecision: "publish",
+        cloudProcessing: "permitted",
+      },
       pinned: {
         path: "public/papers/pdfs/ap-99-001.pdf",
         sha256: "0123456789abcdef0123456789abcdef0123456789abcdef0123456789abcdef",
@@ -648,7 +673,10 @@ describe("13. Identity and runId discipline", () => {
 
 describe("14. Static guard against local OCR and text extraction APIs", () => {
   test("scripts/download-facsimiles.ts imports only standard libraries and local helpers", () => {
-    const content = fs.readFileSync(path.join(REPO_ROOT, "scripts", "download-facsimiles.ts"), "utf8");
+    const content = fs.readFileSync(
+      path.join(REPO_ROOT, "scripts", "download-facsimiles.ts"),
+      "utf8",
+    );
     const fromMatches = content.match(/from\s+["'][^"']+["']/g) || [];
     expect(fromMatches.length).toBeGreaterThan(0);
     for (const match of fromMatches) {
@@ -670,7 +698,6 @@ describe("14. Static guard against local OCR and text extraction APIs", () => {
     expect(exportedKeys).not.toContain("ocr");
   });
 });
-
 
 describe("15. Quality gate checkAllConfigs and planted bad input refusal", () => {
   test("validates all real production facsimile source configs cleanly", () => {
@@ -712,4 +739,3 @@ rights:
     expect(results["ap-99-999.yaml"].errors[0]).toContain("onlinelibrary.wiley.com");
   });
 });
-

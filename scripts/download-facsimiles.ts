@@ -20,28 +20,28 @@ import { newToolRunId } from "./runIds";
 import {
   type Candidate,
   type EmbeddedTextLayerStatus,
+  FacsimileError,
   type FacsimileErrorCode,
   type FacsimileRights,
   type FacsimileSourceConfig,
-  type PinnedRecord,
-  type ValidationResult,
-  FacsimileError,
   FORBIDDEN_HOSTS,
   isForbiddenHost,
+  type PinnedRecord,
+  type ValidationResult,
   validateConfig,
 } from "./sources/facsimileSourceSchema";
 
 export {
+  type Candidate,
+  type EmbeddedTextLayerStatus,
   FacsimileError,
   type FacsimileErrorCode,
-  type FacsimileSourceConfig,
-  type Candidate,
   type FacsimileRights,
-  type PinnedRecord,
-  type EmbeddedTextLayerStatus,
-  type ValidationResult,
+  type FacsimileSourceConfig,
   FORBIDDEN_HOSTS,
   isForbiddenHost,
+  type PinnedRecord,
+  type ValidationResult,
   validateConfig,
 };
 
@@ -76,15 +76,30 @@ export function loadConfig(configPathOrKey: string, configDir?: string): Facsimi
   const validation = validateConfig(parsed);
   if (!validation.valid) {
     const code = validation.refusalCode || "INVALID_CONFIG";
-    throw new FacsimileError(code, `Invalid configuration in ${fullPath}: ${validation.errors.join("; ")}`);
+    throw new FacsimileError(
+      code,
+      `Invalid configuration in ${fullPath}: ${validation.errors.join("; ")}`,
+    );
   }
   return parsed;
 }
 
-export function checkAllConfigs(configDir?: string): { valid: boolean; results: Record<string, ValidationResult> } {
+export function checkAllConfigs(configDir?: string): {
+  valid: boolean;
+  results: Record<string, ValidationResult>;
+} {
   const dir = configDir || getDefaultConfigDir();
   if (!fs.existsSync(dir)) {
-    return { valid: false, results: { [dir]: { valid: false, errors: [`Config directory ${dir} does not exist`], refusalCode: "INVALID_CONFIG" } } };
+    return {
+      valid: false,
+      results: {
+        [dir]: {
+          valid: false,
+          errors: [`Config directory ${dir} does not exist`],
+          refusalCode: "INVALID_CONFIG",
+        },
+      },
+    };
   }
   const files = fs.readdirSync(dir).filter((f) => f.endsWith(".yaml") || f.endsWith(".yml"));
   const results: Record<string, ValidationResult> = {};
@@ -118,7 +133,8 @@ export function acquireKeyClaim(
   toolRunId: string,
   options?: { locksDir?: string },
 ): { claimPath: string; acquired: boolean; currentClaim?: any } {
-  const baseLocksDir = options?.locksDir || path.join(getRepoRoot(), "artifacts", "locks", "download-facsimiles");
+  const baseLocksDir =
+    options?.locksDir || path.join(getRepoRoot(), "artifacts", "locks", "download-facsimiles");
   const keyLocksDir = path.join(baseLocksDir, key);
   fs.mkdirSync(keyLocksDir, { recursive: true });
 
@@ -137,7 +153,10 @@ export function acquireKeyClaim(
           isAlive = false;
         }
         if (isAlive) {
-          throw new FacsimileError("LOCK_HELD", `Active lock held for key '${key}' by PID ${data.pid} (run ${data.toolRunId}) in ${claimFile}`);
+          throw new FacsimileError(
+            "LOCK_HELD",
+            `Active lock held for key '${key}' by PID ${data.pid} (run ${data.toolRunId}) in ${claimFile}`,
+          );
         }
       }
     } catch (e: any) {
@@ -153,7 +172,10 @@ export function acquireKeyClaim(
     state: "held",
     acquiredAt: new Date().toISOString(),
   };
-  fs.writeFileSync(claimPath, JSON.stringify(claimData, null, 2) + "\n", { encoding: "utf8", flag: "wx" });
+  fs.writeFileSync(claimPath, JSON.stringify(claimData, null, 2) + "\n", {
+    encoding: "utf8",
+    flag: "wx",
+  });
   return { claimPath, acquired: true, currentClaim: claimData };
 }
 
@@ -217,7 +239,9 @@ export function validatePdf(
   expectedRange?: { min: number; max: number },
 ): { valid: boolean; pageCount: number; errorCode?: FacsimileErrorCode; message?: string } {
   // Sniff for HTML, XML, or JSON
-  const initialText = Buffer.from(buffer.subarray(0, Math.min(buffer.length, 1024))).toString("utf8").trim();
+  const initialText = Buffer.from(buffer.subarray(0, Math.min(buffer.length, 1024)))
+    .toString("utf8")
+    .trim();
   if (
     initialText.startsWith("<!DOCTYPE") ||
     initialText.startsWith("<html") ||
@@ -291,11 +315,11 @@ export function detectEmbeddedTextLayer(
   try {
     const text = Buffer.from(buffer).toString("latin1");
     // Find all /Type /Page objects
-    const pageObjRegex = /(\d+)\s+(\d+)\s+obj\s*<<([\s\S]*?)>>\s*(?:stream[\s\S]*?endstream\s*)?endobj/g;
+    const pageObjRegex =
+      /(\d+)\s+(\d+)\s+obj\s*<<([\s\S]*?)>>\s*(?:stream[\s\S]*?endstream\s*)?endobj/g;
     const pageObjects: Array<{ id: number; content: string }> = [];
 
-    let match: RegExpExecArray | null = null;
-    while ((match = pageObjRegex.exec(text)) !== null) {
+    for (let match = pageObjRegex.exec(text); match !== null; match = pageObjRegex.exec(text)) {
       const dict = match[3];
       if (/\/Type\s*\/Page\b/.test(dict) && !/\/Type\s*\/Pages\b/.test(dict)) {
         pageObjects.push({ id: Number.parseInt(match[1], 10), content: match[0] });
@@ -304,9 +328,8 @@ export function detectEmbeddedTextLayer(
 
     if (pageObjects.length === 0) return "unknown";
 
-    const targetIndices = pageIndices && pageIndices.length > 0
-      ? pageIndices
-      : pageObjects.map((_, i) => i + 1);
+    const targetIndices =
+      pageIndices && pageIndices.length > 0 ? pageIndices : pageObjects.map((_, i) => i + 1);
 
     let hasFont = false;
     for (const pIdx of targetIndices) {
@@ -336,8 +359,7 @@ export function extractArticle(
   const objects: Map<number, string> = new Map();
   const pageObjIds: number[] = [];
 
-  let match: RegExpExecArray | null = null;
-  while ((match = objRegex.exec(text)) !== null) {
+  for (let match = objRegex.exec(text); match !== null; match = objRegex.exec(text)) {
     const id = Number.parseInt(match[1], 10);
     const body = match[3].trim();
     objects.set(id, body);
@@ -351,7 +373,10 @@ export function extractArticle(
   for (const idx of parentPageIndices) {
     const id = pageObjIds[idx - 1];
     if (id === undefined) {
-      throw new FacsimileError("PARENT_PAGE_INDEX_MISSING", `Parent PDF has ${pageObjIds.length} pages; requested 1-based page ${idx} does not exist.`);
+      throw new FacsimileError(
+        "PARENT_PAGE_INDEX_MISSING",
+        `Parent PDF has ${pageObjIds.length} pages; requested 1-based page ${idx} does not exist.`,
+      );
     }
     selectedPageIds.push(id);
   }
@@ -360,8 +385,11 @@ export function extractArticle(
   const collectedIds = new Set<number>();
   function collectReferences(objText: string) {
     const refRegex = /(\d+)\s+(\d+)\s+R/g;
-    let refMatch: RegExpExecArray | null = null;
-    while ((refMatch = refRegex.exec(objText)) !== null) {
+    for (
+      let refMatch = refRegex.exec(objText);
+      refMatch !== null;
+      refMatch = refRegex.exec(objText)
+    ) {
       const refId = Number.parseInt(refMatch[1], 10);
       if (!collectedIds.has(refId) && objects.has(refId)) {
         // Skip Catalog and Pages tree objects
@@ -391,7 +419,9 @@ export function extractArticle(
     idMap.set(pageId, nextId++);
   }
 
-  const sortedCollected = Array.from(collectedIds).filter((id) => !idMap.has(id)).sort((a, b) => a - b);
+  const sortedCollected = Array.from(collectedIds)
+    .filter((id) => !idMap.has(id))
+    .sort((a, b) => a - b);
   for (const id of sortedCollected) {
     idMap.set(id, nextId++);
   }
@@ -530,7 +560,10 @@ export function updatePinnedRecord(configPath: string, pinned: PinnedRecord): vo
   const reloaded = yaml.load(fs.readFileSync(tmpPath, "utf8"));
   const validation = validateConfig(reloaded);
   if (!validation.valid) {
-    throw new FacsimileError("INVALID_CONFIG", `Failed to validate updated config: ${validation.errors.join("; ")}`);
+    throw new FacsimileError(
+      "INVALID_CONFIG",
+      `Failed to validate updated config: ${validation.errors.join("; ")}`,
+    );
   }
 
   fs.renameSync(tmpPath, configPath);
@@ -590,7 +623,15 @@ export function verifyPins(options?: {
     ? [`${options.key}.yaml`]
     : fs.readdirSync(dir).filter((f) => f.endsWith(".yaml") || f.endsWith(".yml"));
 
-  const results: Record<string, { status: "ok" | "mismatch" | "missing" | "not-available"; path: string; expected?: string; actual?: string }> = {};
+  const results: Record<
+    string,
+    {
+      status: "ok" | "mismatch" | "missing" | "not-available";
+      path: string;
+      expected?: string;
+      actual?: string;
+    }
+  > = {};
   let allOk = true;
 
   for (const file of files) {
@@ -600,7 +641,9 @@ export function verifyPins(options?: {
     const key = cfg.key;
     if (!cfg.pinned) continue;
 
-    const fullPath = path.isAbsolute(cfg.pinned.path) ? cfg.pinned.path : path.join(root, cfg.pinned.path);
+    const fullPath = path.isAbsolute(cfg.pinned.path)
+      ? cfg.pinned.path
+      : path.join(root, cfg.pinned.path);
     if (!fs.existsSync(fullPath)) {
       if (cfg.rights.publicationDecision === "publish") {
         results[key] = {
@@ -655,11 +698,16 @@ export async function restorePin(
 ): Promise<{ restored: boolean; sha256: string }> {
   const cfg = loadConfig(key, options?.configDir);
   if (!cfg.pinned) {
-    throw new FacsimileError("INVALID_CONFIG", `No pinned record found for key '${key}' to restore.`);
+    throw new FacsimileError(
+      "INVALID_CONFIG",
+      `No pinned record found for key '${key}' to restore.`,
+    );
   }
 
   const root = options?.repoRoot || getRepoRoot();
-  const destPath = path.isAbsolute(cfg.pinned.path) ? cfg.pinned.path : path.join(root, cfg.pinned.path);
+  const destPath = path.isAbsolute(cfg.pinned.path)
+    ? cfg.pinned.path
+    : path.join(root, cfg.pinned.path);
 
   if (fs.existsSync(destPath)) {
     const existingSha = sha256File(destPath);
@@ -669,14 +717,18 @@ export async function restorePin(
   }
 
   const runId = newToolRunId();
-  const stagingBase = options?.stagingDir || path.join(root, "artifacts", "facsimile-staging", key, runId);
+  const stagingBase =
+    options?.stagingDir || path.join(root, "artifacts", "facsimile-staging", key, runId);
   fs.mkdirSync(stagingBase, { recursive: true });
   const downloadPath = path.join(stagingBase, "restore-download.pdf");
 
   const fetchFn = options?.fetchFn || fetch;
   const res = await fetchFn(cfg.pinned.originUrl, { method: "GET" });
   if (res.status !== 200) {
-    throw new FacsimileError("HTTP_STATUS", `Restore download from ${cfg.pinned.originUrl} returned HTTP ${res.status}`);
+    throw new FacsimileError(
+      "HTTP_STATUS",
+      `Restore download from ${cfg.pinned.originUrl} returned HTTP ${res.status}`,
+    );
   }
 
   const bytes = await res.arrayBuffer();
@@ -733,7 +785,10 @@ export async function fetchToStaging(
       (parsed.hostname === "127.0.0.1" || parsed.hostname === "localhost");
     if (parsed.protocol !== "https:" && !isLoopback) {
       if (redirects.length > 0) {
-        throw new FacsimileError("REDIRECT_TO_HTTP", `Redirect chain diverted to insecure HTTP: ${currentUrl}`);
+        throw new FacsimileError(
+          "REDIRECT_TO_HTTP",
+          `Redirect chain diverted to insecure HTTP: ${currentUrl}`,
+        );
       }
       throw new FacsimileError("HTTP_NOT_HTTPS", `Candidate URL is not HTTPS: ${currentUrl}`);
     }
@@ -748,7 +803,10 @@ export async function fetchToStaging(
       if (res.status >= 300 && res.status < 400) {
         const location = res.headers.get("location");
         if (!location) {
-          throw new FacsimileError("HTTP_STATUS", `Redirect HTTP ${res.status} missing Location header`);
+          throw new FacsimileError(
+            "HTTP_STATUS",
+            `Redirect HTTP ${res.status} missing Location header`,
+          );
         }
         const nextUrl = new URL(location, currentUrl).toString();
         redirects.push(currentUrl);
@@ -762,7 +820,10 @@ export async function fetchToStaging(
           await new Promise((resolve) => setTimeout(resolve, delay));
           continue;
         }
-        throw new FacsimileError("NETWORK_RETRIES_EXHAUSTED", `HTTP ${res.status} after ${attempts} retries`);
+        throw new FacsimileError(
+          "NETWORK_RETRIES_EXHAUSTED",
+          `HTTP ${res.status} after ${attempts} retries`,
+        );
       }
 
       if (res.status !== 200) {
@@ -777,7 +838,10 @@ export async function fetchToStaging(
         await new Promise((resolve) => setTimeout(resolve, delay));
         continue;
       }
-      throw new FacsimileError("NETWORK_RETRIES_EXHAUSTED", `Fetch failed after ${attempts} attempts: ${err.message}`);
+      throw new FacsimileError(
+        "NETWORK_RETRIES_EXHAUSTED",
+        `Fetch failed after ${attempts} attempts: ${err.message}`,
+      );
     }
   }
 
@@ -914,7 +978,9 @@ export async function main(): Promise<void> {
       } else if (r.status === "not-available") {
         console.log(`⚠️ ${k}: NOT AVAILABLE (local-only pin at ${r.path})`);
       } else if (r.status === "mismatch") {
-        console.error(`❌ ${k}: DIGEST MISMATCH at ${r.path} (expected ${r.expected}, got ${r.actual})`);
+        console.error(
+          `❌ ${k}: DIGEST MISMATCH at ${r.path} (expected ${r.expected}, got ${r.actual})`,
+        );
       } else {
         console.error(`❌ ${k}: MISSING file at ${r.path}`);
       }
@@ -968,11 +1034,16 @@ export async function main(): Promise<void> {
     const cfg = loadConfig(configPath);
     const candidate = cfg.candidates[candidateIndex];
     if (!candidate) {
-      throw new FacsimileError("INVALID_CONFIG", `No candidate found at index ${candidateIndex} for key ${key}`);
+      throw new FacsimileError(
+        "INVALID_CONFIG",
+        `No candidate found at index ${candidateIndex} for key ${key}`,
+      );
     }
 
     if (dryRun) {
-      console.log(`[dry-run] Validated config for ${key}, candidate ${candidateIndex}: ${candidate.url}`);
+      console.log(
+        `[dry-run] Validated config for ${key}, candidate ${candidateIndex}: ${candidate.url}`,
+      );
       writeStructuredLog(logPath, {
         suite: "download-facsimiles",
         toolRunId,
@@ -1002,13 +1073,19 @@ export async function main(): Promise<void> {
       sha1: fetchRes.sha1,
     });
     if (!checksumCheck.ok) {
-      throw new FacsimileError("HOST_CHECKSUM_MISMATCH", checksumCheck.error || "Host checksum verification failed");
+      throw new FacsimileError(
+        "HOST_CHECKSUM_MISMATCH",
+        checksumCheck.error || "Host checksum verification failed",
+      );
     }
 
     const fileBuf = fs.readFileSync(downloadPath);
     const valPdf = validatePdf(fileBuf, candidate.expectedPageCountRange);
     if (!valPdf.valid) {
-      throw new FacsimileError(valPdf.errorCode || "NOT_A_PDF", valPdf.message || "PDF validation failed");
+      throw new FacsimileError(
+        valPdf.errorCode || "NOT_A_PDF",
+        valPdf.message || "PDF validation failed",
+      );
     }
 
     const textLayer = detectEmbeddedTextLayer(fileBuf, cfg.articlePages.parentPageIndices);
@@ -1018,7 +1095,10 @@ export async function main(): Promise<void> {
 
     if (candidate.kind === "whole-volume" || candidate.kind === "whole-issue") {
       if (!cfg.articlePages.parentPageIndices || cfg.articlePages.parentPageIndices.length === 0) {
-        throw new FacsimileError("PARENT_PAGE_INDEX_MISSING", "Whole-volume/whole-issue candidate requires configured parentPageIndices");
+        throw new FacsimileError(
+          "PARENT_PAGE_INDEX_MISSING",
+          "Whole-volume/whole-issue candidate requires configured parentPageIndices",
+        );
       }
 
       // Retain parent scan under sources/parents/<parent-sha256>.pdf
@@ -1039,9 +1119,10 @@ export async function main(): Promise<void> {
     }
 
     const finalSha256 = sha256File(finalPinBuf);
-    const targetRelPath = cfg.rights.publicationDecision === "publish"
-      ? `public/papers/pdfs/${key}.pdf`
-      : `sources/pinned/${key}.pdf`;
+    const targetRelPath =
+      cfg.rights.publicationDecision === "publish"
+        ? `public/papers/pdfs/${key}.pdf`
+        : `sources/pinned/${key}.pdf`;
     const targetAbsPath = path.join(root, targetRelPath);
 
     const extractedStagingPath = path.join(stagingDir, `${key}.pdf`);
@@ -1100,7 +1181,9 @@ export async function main(): Promise<void> {
       durationMs: Date.now() - startTime,
     });
 
-    console.log(`\n🎉 Success! Pinned scan for ${key} to ${targetRelPath} (action: ${pinRes.action})`);
+    console.log(
+      `\n🎉 Success! Pinned scan for ${key} to ${targetRelPath} (action: ${pinRes.action})`,
+    );
     console.log(`SHA-256: ${finalSha256}`);
     console.log(`Receipt stub written to ${receiptStubPath}`);
     process.exit(0);
