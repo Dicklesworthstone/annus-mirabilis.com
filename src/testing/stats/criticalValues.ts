@@ -120,7 +120,7 @@ function approximateNormalQuantile(p: number): number {
   if (p === 0.5) return 0;
   if (p < 0.5) return -approximateNormalQuantile(1 - p);
 
-  const a = [
+  const a: readonly [number, number, number, number, number, number] = [
     -3.969683028665376e1,
     2.209460984245205e2,
     -2.759285104469687e2,
@@ -128,14 +128,14 @@ function approximateNormalQuantile(p: number): number {
     -3.066479806614716e1,
     2.506628277459239,
   ];
-  const b = [
+  const b: readonly [number, number, number, number, number] = [
     -5.447609879822406e1,
     1.615858368580409e2,
     -1.556989798598866e2,
     6.680131188771972e1,
     -1.328068155288572e1,
   ];
-  const c = [
+  const c: readonly [number, number, number, number, number, number] = [
     -7.784894002430293e-3,
     -3.223964580411365e-1,
     -2.400758277161838,
@@ -143,7 +143,7 @@ function approximateNormalQuantile(p: number): number {
     4.374664141464968,
     2.938163982698783,
   ];
-  const d = [
+  const d: readonly [number, number, number, number] = [
     7.784695709041462e-3,
     3.224671290700398e-1,
     2.445134137142996,
