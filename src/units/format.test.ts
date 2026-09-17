@@ -1,4 +1,5 @@
-import { describe, expect, it } from "bun:test";
+import { afterAll, describe, expect, it } from "bun:test";
+import { getLogger } from "../testing/log/logger.ts";
 import {
   applyLocale,
   formatCleanNumber,
@@ -9,11 +10,23 @@ import {
   formatSignificantFigures,
 } from "./format.ts";
 
+const logger = getLogger("precision");
+const BEAD_ID = "am-ver-precision-display-5e5";
+
 describe("Precision & Format Display (am-ver-precision-display-5e5)", () => {
+  afterAll(async () => {
+    await logger.flush();
+  });
   it("suppresses IEEE-754 floating noise", () => {
     expect(formatCleanNumber(0.1 + 0.2)).toBe("0.3");
     expect(formatCleanNumber(0.30000000000000004)).toBe("0.3");
     expect(formatCleanNumber(1.0000000000000002)).toBe("1");
+    logger.log({
+      testId: "floating-noise-suppression",
+      beadId: BEAD_ID,
+      outcome: "passed",
+      message: "IEEE-754 floating noise suppressed cleanly",
+    });
   });
 
   it("formats Einstein Brownian displacement examples under historical and modern constant sets", () => {
@@ -57,6 +70,20 @@ describe("Precision & Format Display (am-ver-precision-display-5e5)", () => {
       sigFigs: 3,
     });
     expect(comparisonT60).toBe("6.16 vs. 6.15 μm (below input precision)");
+
+    logger.log({
+      testId: "precision-brownian-displacement-comparison",
+      beadId: BEAD_ID,
+      outcome: "passed",
+      message: "Einstein 1905 vs Modern SI 2019 displacement comparison and guard digits verified",
+      extra: {
+        historicalT1,
+        historicalT60,
+        modernT1,
+        modernT60,
+        unit: "μm",
+      },
+    });
   });
 
   it("formats constant-set-dependent quantities with explicit labels", () => {
@@ -70,15 +97,33 @@ describe("Precision & Format Display (am-ver-precision-display-5e5)", () => {
       { sigFigs: 2 },
     );
     expect(formatted).toBe("0.79 μm (Einstein 1905)");
+    logger.log({
+      testId: "precision-constant-set-labels",
+      beadId: BEAD_ID,
+      outcome: "passed",
+      message: "Constant-set dependent quantity formatted with explicit era label",
+    });
   });
 
   it("formats scientific notation for very small and very large magnitudes", () => {
     expect(formatSignificantFigures(5.2e-13, 3)).toBe("5.20 × 10^-13");
     expect(formatSignificantFigures(3.0e8, 3)).toBe("3.00 × 10^8");
+    logger.log({
+      testId: "precision-scientific-notation",
+      beadId: BEAD_ID,
+      outcome: "passed",
+      message: "Scientific notation thresholds and formatting verified",
+    });
   });
 
   it("supports German locale with decimal comma without changing numeric transport", () => {
     expect(formatSignificantFigures(0.79478, 3, { locale: "de-DE" })).toBe("0,795");
     expect(formatCleanNumber(12.345, 3, "de-DE")).toBe("12,345");
+    logger.log({
+      testId: "precision-german-locale",
+      beadId: BEAD_ID,
+      outcome: "passed",
+      message: "German locale formatted with decimal comma; numeric transport unchanged",
+    });
   });
 });
