@@ -222,9 +222,9 @@ export function PredictOverlay({
             data-overlay-curve="result"
           />
         ) : null}
-        {resultPoints.map(([rx, ry], i) => (
+        {resultPoints.map(([rx, ry]) => (
           <circle
-            key={`res-pt-${i}`}
+            key={`res-pt-${rx}-${ry}`}
             cx={toSvgX(rx)}
             cy={toSvgY(ry)}
             r="4"
@@ -244,9 +244,9 @@ export function PredictOverlay({
             data-overlay-curve="prediction"
           />
         ) : null}
-        {predPoints.map(([px, py], i) => (
+        {predPoints.map(([px, py]) => (
           <rect
-            key={`pred-pt-${i}`}
+            key={`pred-pt-${px}-${py}`}
             x={toSvgX(px) - 4}
             y={toSvgY(py) - 4}
             width="8"

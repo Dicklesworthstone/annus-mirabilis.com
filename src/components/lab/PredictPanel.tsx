@@ -10,7 +10,6 @@ import {
   moveSketchCursor,
   placeSketchPoint,
   processSketchPoints,
-  type SketchPoint,
   undoSketchPoint,
 } from "../../experiments/predict/predictSketch.ts";
 import type {
@@ -339,11 +338,18 @@ export function PredictPanel({
               />
             )}
             {/* Draw points */}
-            {sketchState.points.map(([x, y], idx) => {
+            {sketchState.points.map(([x, y]) => {
               const sx = ((x - xRange[0]) / (xRange[1] - xRange[0])) * 320;
               const sy = (1 - (y - yRange[0]) / (yRange[1] - yRange[0])) * 200;
               return (
-                <rect key={idx} x={sx - 3} y={sy - 3} width={6} height={6} fill="currentColor" />
+                <rect
+                  key={`pt-${x}-${y}`}
+                  x={sx - 3}
+                  y={sy - 3}
+                  width={6}
+                  height={6}
+                  fill="currentColor"
+                />
               );
             })}
             {/* Draw active cursor crosshair */}

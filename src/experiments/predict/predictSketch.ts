@@ -80,11 +80,12 @@ export function ramerDouglasPeucker(
   let maxDistance = 0;
   let index = 0;
   const end = points.length - 1;
-  const p0 = points[0]!;
-  const pEnd = points[end]!;
+  const p0 = points[0] ?? [0, 0];
+  const pEnd = points[end] ?? [0, 0];
 
   for (let i = 1; i < end; i++) {
-    const pi = points[i]!;
+    const pi = points[i];
+    if (!pi) continue;
     const d = perpendicularDistance(pi, p0, pEnd);
     if (d > maxDistance) {
       maxDistance = d;
@@ -109,11 +110,13 @@ export function ramerDouglasPeucker(
  */
 export function deduplicatePoints(points: readonly SketchPoint[]): SketchPoint[] {
   if (points.length === 0) return [];
-  const result: SketchPoint[] = [points[0]!];
+  const first = points[0];
+  if (!first) return [];
+  const result: SketchPoint[] = [first];
   for (let i = 1; i < points.length; i++) {
-    const prev = result[result.length - 1]!;
-    const curr = points[i]!;
-    if (prev[0] !== curr[0] || prev[1] !== curr[1]) {
+    const prev = result[result.length - 1];
+    const curr = points[i];
+    if (prev && curr && (prev[0] !== curr[0] || prev[1] !== curr[1])) {
       result.push(curr);
     }
   }
@@ -160,7 +163,8 @@ export function processSketchPoints(
     const sampled: SketchPoint[] = [];
     for (let i = 0; i < maxPoints; i++) {
       const idx = Math.min(Math.round(i * step), simplified.length - 1);
-      sampled.push(simplified[idx]!);
+      const pt = simplified[idx];
+      if (pt) sampled.push(pt);
     }
     simplified = sampled;
   }
@@ -176,7 +180,8 @@ export function processSketchPoints(
 
   // If deduplication removed too much (e.g. collapsed all into 0 points), keep at least 1 point
   if (deduped.length === 0 && quantized.length > 0) {
-    return [quantized[0]!];
+    const first = quantized[0];
+    return first ? [first] : [];
   }
 
   return deduped;

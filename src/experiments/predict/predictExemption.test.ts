@@ -64,7 +64,7 @@ describe("predictExemption & manifest validation (am-inst-predict-mode-ti7m)", (
     };
     const targetCandidateId = String(predictMode.prompts[0]!.candidates[1]!.id);
     const targetPromptId = predictMode.prompts[0]!.promptId;
-    delete (predictMode.prompts[0]!.candidates[1]! as Record<string, unknown>).separatingAssumption;
+    delete predictMode.prompts[0]!.candidates[1]!.separatingAssumption;
 
     expect(() => validateExperiment(raw)).toThrow(ExperimentValidationError);
     try {
