@@ -1,0 +1,917 @@
+# Scoped Notation Concordance for Mass-Energy Equivalence (ap-18-639)
+# Specification: AGENTS.md, am-not-concordance-model-uag, am-not-entries-mass-energy-wq2.
+# Verification status: all entries are marked pending per honesty constraint
+# (no pinned facsimile scan is currently committed in the repository).
+# Glyphs and scopes follow AGENTS.md, the quantity registry, and the paper's
+# printed text. They reflect checked period transcriptions rather than direct
+# pixel verifications. Absence is recorded; invented facsimile readings
+# are not admitted.
+# No parallel markdown ledger: pending/verified status lives on each entry.
+
+paper: mass-energy
+
+entries:
+  # =========================================================================
+  # Constants, Kinematics, and Reference Frames
+  # =========================================================================
+  - id: me.V.speedOfLight
+    paper: mass-energy
+    scope: ["me-s0"]
+    glyph:
+      unicode: "V"
+      latex: "V"
+      variant: plain
+    meaning: "Speed of light in empty space, as printed"
+    binding:
+      quantityId: speedOfLight
+    operation:
+      kind: rename
+      target:
+        form: symbol
+        modernGlyph: "c"
+    collision:
+      severity: caution
+      kind: cross-paper
+      collidesWith: ["volume"]
+      collidesWithModern: ["volume"]
+      firstUseAnchor: me-s0-p1
+      firstUseBySection:
+        - sectionId: me-s0
+          anchor: me-s0-p1
+    notes: "Speed of light in vacuum. In modern notation written c. Collides with volume V in papers 1 and 2."
+    sources:
+      facsimilePage: 639
+      anchor: me-s0-p1
+    verification:
+      printed: true
+      checkedAgainst: "Pending facsimile scan (ap-18-639)"
+      by: "Editorial Staff"
+      date: "2026-09-17"
+
+  - id: me.v.frameSpeed
+    paper: mass-energy
+    scope: ["me-s0"]
+    glyph:
+      unicode: "v"
+      latex: "v"
+      variant: plain
+    meaning: "Relative speed of coordinate systems K and k along the x-axis"
+    binding:
+      quantityId: frameSpeed
+    operation:
+      kind: rename
+      target:
+        form: symbol
+        modernGlyph: "v"
+    collision:
+      severity: caution
+      kind: cross-paper
+      collidesWith: ["frequency", "waveSpeed"]
+      collidesWithModern: ["frequency"]
+      firstUseAnchor: me-s0-p1
+      firstUseBySection:
+        - sectionId: me-s0
+          anchor: me-s0-p1
+    notes: "Relative velocity between the stationary system (x, y, z) and the moving system (xi, eta, zeta)."
+    sources:
+      facsimilePage: 639
+      anchor: me-s0-p1
+    verification:
+      printed: true
+      checkedAgainst: "Pending facsimile scan (ap-18-639)"
+      by: "Editorial Staff"
+      date: "2026-09-17"
+
+  - id: me.K.stationarySystem
+    paper: mass-energy
+    scope: ["me-s0-p1", "me-s0-p2"]
+    glyph:
+      unicode: "K"
+      latex: "K"
+      variant: plain
+    meaning: "The stationary coordinate system (x, y, z)"
+    binding:
+      nonQuantityKind: coordinate-system-label
+    operation:
+      kind: rename
+      target:
+        form: symbol
+        modernGlyph: "S"
+    collision:
+      severity: caution
+      kind: within-paper
+      collidesWith: ["me.K0.kineticEnergyBefore", "me.K1.kineticEnergyAfter", "dragForce"]
+      collidesWithModern: ["kineticEnergy", "dragForce"]
+      firstUseAnchor: me-s0-p1
+      firstUseBySection:
+        - sectionId: me-s0
+          anchor: me-s0-p1
+    notes: "Stationary coordinate system label. Collides with kinetic energy K within this paper and force K in paper 2."
+    sources:
+      facsimilePage: 639
+      anchor: me-s0-p1
+    verification:
+      printed: true
+      checkedAgainst: "Pending facsimile scan (ap-18-639)"
+      by: "Editorial Staff"
+      date: "2026-09-17"
+
+  - id: me.k.movingSystem
+    paper: mass-energy
+    scope: ["me-s0"]
+    glyph:
+      unicode: "k"
+      latex: "k"
+      variant: plain
+    meaning: "The moving coordinate system (xi, eta, zeta)"
+    binding:
+      nonQuantityKind: coordinate-system-label
+    operation:
+      kind: rename
+      target:
+        form: symbol
+        modernGlyph: "S'"
+    collision:
+      severity: caution
+      kind: cross-paper
+      collidesWith: ["viscosity", "boltzmannConstant"]
+      collidesWithModern: ["viscosity", "boltzmannConstant"]
+      firstUseAnchor: me-s0-p1
+      firstUseBySection:
+        - sectionId: me-s0
+          anchor: me-s0-p1
+    notes: "Moving coordinate system label. Not viscosity (paper 2) and not Boltzmann constant."
+    sources:
+      facsimilePage: 639
+      anchor: me-s0-p1
+    verification:
+      printed: true
+      checkedAgainst: "Pending facsimile scan (ap-18-639)"
+      by: "Editorial Staff"
+      date: "2026-09-17"
+
+  - id: me.xyz.coordinateAxesStationary
+    paper: mass-energy
+    scope: ["me-s0"]
+    glyph:
+      unicode: "(x, y, z)"
+      latex: "(x, y, z)"
+      variant: plain
+    meaning: "Coordinate axes of the stationary system K"
+    binding:
+      nonQuantityKind: coordinate-system-label
+    operation:
+      kind: rename
+      target:
+        form: symbol
+        modernGlyph: "(x, y, z)"
+    sources:
+      facsimilePage: 639
+      anchor: me-s0-p1
+    verification:
+      printed: true
+      checkedAgainst: "Pending facsimile scan (ap-18-639)"
+      by: "Editorial Staff"
+      date: "2026-09-17"
+
+  - id: me.xi_eta_zeta.coordinateAxesMoving
+    paper: mass-energy
+    scope: ["me-s0"]
+    glyph:
+      unicode: "(ξ, η, ζ)"
+      latex: "(\\xi, \\eta, \\zeta)"
+      variant: plain
+    meaning: "Coordinate axes of the moving system k"
+    binding:
+      nonQuantityKind: coordinate-system-label
+    operation:
+      kind: rename
+      target:
+        form: symbol
+        modernGlyph: "(x', y', z')"
+    sources:
+      facsimilePage: 639
+      anchor: me-s0-p1
+    verification:
+      printed: true
+      checkedAgainst: "Pending facsimile scan (ap-18-639)"
+      by: "Editorial Staff"
+      date: "2026-09-17"
+
+  # =========================================================================
+  # Citation from Paper 3 §8 (Electrodynamics Doppler/Aberration Transformation)
+  # =========================================================================
+  - id: me.l.lightComplexEnergyStationary
+    paper: mass-energy
+    scope: ["me-s0-p1"]
+    glyph:
+      unicode: "l"
+      latex: "l"
+      variant: plain
+    meaning: "Energy of a light complex in the stationary system, as cited from paper 3 §8"
+    binding:
+      quantityId: lightComplexEnergyStationary
+    frameOrReference: stationary-system
+    operation:
+      kind: rename
+      target:
+        form: symbol
+        modernGlyph: "E_{\\text{light}}"
+    collision:
+      severity: caution
+      kind: cross-paper
+      collidesWith: ["length", "meanFreePath"]
+      collidesWithModern: ["length"]
+      firstUseAnchor: me-s0-p1
+      firstUseBySection:
+        - sectionId: me-s0
+          anchor: me-s0-p1
+    notes: "Energy of a light complex in §8 citation. Not a spatial length l."
+    sources:
+      facsimilePage: 639
+      anchor: me-s0-p1
+    verification:
+      printed: true
+      checkedAgainst: "Pending facsimile scan (ap-18-639)"
+      by: "Editorial Staff"
+      date: "2026-09-17"
+
+  - id: me.lstar.lightComplexEnergyMoving
+    paper: mass-energy
+    scope: ["me-s0-p1"]
+    glyph:
+      unicode: "l*"
+      latex: "l^*"
+      variant: plain
+    meaning: "Energy of a light complex in the moving system, as cited from paper 3 §8"
+    binding:
+      quantityId: lightComplexEnergyMoving
+    frameOrReference: moving-system
+    operation:
+      kind: rename
+      target:
+        form: symbol
+        modernGlyph: "E'_{\\text{light}}"
+    sources:
+      facsimilePage: 639
+      anchor: me-s0-p1
+    verification:
+      printed: true
+      checkedAgainst: "Pending facsimile scan (ap-18-639)"
+      by: "Editorial Staff"
+      date: "2026-09-17"
+
+  - id: me.phi.propagationAngleStationary
+    paper: mass-energy
+    scope: ["me-s0-p1"]
+    glyph:
+      unicode: "φ"
+      latex: "\\varphi"
+      variant: plain
+    meaning: "Angle between light ray direction and x-axis in the stationary system, in cited §8 formula"
+    binding:
+      quantityId: propagationAngleStationary
+    operation:
+      kind: rename
+      target:
+        form: symbol
+        modernGlyph: "\\varphi"
+    collision:
+      severity: caution
+      kind: within-paper
+      collidesWith: ["me.phi.emissionAngle"]
+      collidesWithModern: ["emissionAngle"]
+      firstUseAnchor: me-s0-p1
+      firstUseBySection:
+        - sectionId: me-s0
+          anchor: me-s0-p1
+    notes: "Propagation angle in cited §8 transformation formula. Scoped strictly to citation anchor me-s0-p1. Distinct from emission angle in me-s0-p2..p6."
+    sources:
+      facsimilePage: 639
+      anchor: me-s0-p1
+    verification:
+      printed: true
+      checkedAgainst: "Pending facsimile scan (ap-18-639)"
+      by: "Editorial Staff"
+      date: "2026-09-17"
+
+  - id: me.cos_phi.directionCosine
+    paper: mass-energy
+    scope: ["me-s0"]
+    glyph:
+      unicode: "cos φ"
+      latex: "\\cos\\varphi"
+      variant: plain
+    meaning: "Cosine of angle phi"
+    binding:
+      nonQuantityKind: operator
+    operation:
+      kind: rename
+      target:
+        form: symbol
+        modernGlyph: "\\cos\\varphi"
+    sources:
+      facsimilePage: 639
+      anchor: me-s0-p1
+    verification:
+      printed: true
+      checkedAgainst: "Pending facsimile scan (ap-18-639)"
+      by: "Editorial Staff"
+      date: "2026-09-17"
+
+  # =========================================================================
+  # The Lorentz Factor (Pending Facsimile Verification)
+  # =========================================================================
+  - id: me.root.lorentzFactor
+    paper: mass-energy
+    scope: ["me-s0"]
+    glyph:
+      unicode: "1/√(1 - v²/V²)"
+      latex: "\\frac{1}{\\sqrt{1 - v^2/V^2}}"
+      variant: plain
+    meaning: "The Lorentz factor; printed form unconfirmed (explicit radical vs. beta) pending facsimile"
+    binding:
+      quantityId: lorentzFactor
+    operation:
+      kind: rename
+      target:
+        form: group
+        pattern:
+          kind: divide
+          left:
+            kind: number
+            value: 1
+          right:
+            kind: root
+            terms: ["speedOfLight", "frameSpeed"]
+        modernGlyph: "\\gamma"
+    collision:
+      severity: caution
+      kind: cross-paper
+      collidesWith: ["wienConstantBeta", "speedRatio"]
+      collidesWithModern: ["speedRatio"]
+      firstUseAnchor: me-s0-p1
+      firstUseBySection:
+        - sectionId: me-s0
+          anchor: me-s0-p1
+    notes: "The printed form in paper 4 (whether written as an explicit radical 1/\\sqrt{1 - v^2/V^2} or as shorthand \\beta) is UNKNOWN pending direct facsimile verification against ap-18-639. In modern notation, this expression maps to \\gamma."
+    sources:
+      facsimilePage: 639
+      anchor: me-s0-p1
+    verification:
+      printed: true
+      checkedAgainst: "Pending facsimile scan (ap-18-639)"
+      by: "Editorial Staff"
+      date: "2026-09-17"
+
+  # =========================================================================
+  # Emitted Radiation Energy & Emission Angles
+  # =========================================================================
+  - id: me.L.emittedEnergyRestFrame
+    paper: mass-energy
+    scope: ["me-s0"]
+    glyph:
+      unicode: "L"
+      latex: "L"
+      variant: plain
+    meaning: "Total energy emitted by the body as light radiation, measured in the body's rest frame"
+    binding:
+      quantityId: emittedEnergyRestFrame
+    operation:
+      kind: rename
+      target:
+        form: symbol
+        modernGlyph: "L"
+    collision:
+      severity: caution
+      kind: cross-paper
+      collidesWith: ["speedOfLight", "magneticFieldComponent"]
+      collidesWithModern: ["speedOfLight", "magneticFieldComponent"]
+      firstUseAnchor: me-s0-p2
+      firstUseBySection:
+        - sectionId: me-s0
+          anchor: me-s0-p2
+    notes: "Total emitted energy in rest frame. Not the speed of light (paper 1) and not a magnetic-field component (paper 3 §6). A reader carrying paper 1's L into paper 4 misreads the central result as being about light speed when it is about radiated energy."
+    sources:
+      facsimilePage: 639
+      anchor: me-s0-p2
+    verification:
+      printed: true
+      checkedAgainst: "Pending facsimile scan (ap-18-639)"
+      by: "Editorial Staff"
+      date: "2026-09-17"
+
+  - id: me.half_L.emittedPulseEnergy
+    paper: mass-energy
+    scope: ["me-s0"]
+    glyph:
+      unicode: "L/2"
+      latex: "L/2"
+      variant: plain
+    meaning: "Energy of each of the two emitted light pulses in the rest frame"
+    binding:
+      quantityId: emittedEnergyRestFrame
+      scale:
+        num: 1
+        den: 2
+    operation:
+      kind: rename
+      target:
+        form: symbol
+        modernGlyph: "\\frac{L}{2}"
+    sources:
+      facsimilePage: 639
+      anchor: me-s0-p2
+    verification:
+      printed: true
+      checkedAgainst: "Pending facsimile scan (ap-18-639)"
+      by: "Editorial Staff"
+      date: "2026-09-17"
+
+  - id: me.phi.emissionAngle
+    paper: mass-energy
+    scope: ["me-s0-p2", "me-s0-p3", "me-s0-p4", "me-s0-p5", "me-s0-p6"]
+    glyph:
+      unicode: "φ"
+      latex: "\\varphi"
+      variant: plain
+    meaning: "Angle at which radiation is emitted relative to the direction of motion"
+    binding:
+      quantityId: emissionAngle
+    operation:
+      kind: rename
+      target:
+        form: symbol
+        modernGlyph: "\\theta_{\\text{emit}}"
+    collision:
+      severity: caution
+      kind: within-paper
+      collidesWith: ["me.phi.propagationAngleStationary"]
+      collidesWithModern: ["propagationAngleStationary"]
+      firstUseAnchor: me-s0-p2
+      firstUseBySection:
+        - sectionId: me-s0
+          anchor: me-s0-p2
+    notes: "Angle of emission relative to the x-axis. Light is emitted at angles phi and phi + pi simultaneously in opposite directions."
+    sources:
+      facsimilePage: 639
+      anchor: me-s0-p2
+    verification:
+      printed: true
+      checkedAgainst: "Pending facsimile scan (ap-18-639)"
+      by: "Editorial Staff"
+      date: "2026-09-17"
+
+  # =========================================================================
+  # Body Energies in Stationary and Moving Reference Frames
+  # =========================================================================
+  - id: me.E0.bodyEnergyRestBefore
+    paper: mass-energy
+    scope: ["me-s0"]
+    glyph:
+      unicode: "E_0"
+      latex: "E_0"
+      variant: subscripted
+    meaning: "Body energy in the stationary system before radiation emission"
+    binding:
+      quantityId: bodyEnergyRestBefore
+    frameOrReference: stationary-system
+    operation:
+      kind: rename
+      target:
+        form: symbol
+        modernGlyph: "E_0"
+    collision:
+      severity: caution
+      kind: cross-paper
+      collidesWith: ["electricFieldStationary", "lightComplexEnergyStationary"]
+      collidesWithModern: ["electricFieldStationary"]
+      firstUseAnchor: me-s0-p2
+      firstUseBySection:
+        - sectionId: me-s0
+          anchor: me-s0-p2
+    notes: "Body energy in stationary system before emission. E carries frame: stationary-system, not electric field."
+    sources:
+      facsimilePage: 639
+      anchor: me-s0-p2
+    verification:
+      printed: true
+      checkedAgainst: "Pending facsimile scan (ap-18-639)"
+      by: "Editorial Staff"
+      date: "2026-09-17"
+
+  - id: me.E1.bodyEnergyRestAfter
+    paper: mass-energy
+    scope: ["me-s0"]
+    glyph:
+      unicode: "E_1"
+      latex: "E_1"
+      variant: subscripted
+    meaning: "Body energy in the stationary system after radiation emission"
+    binding:
+      quantityId: bodyEnergyRestAfter
+    frameOrReference: stationary-system
+    operation:
+      kind: rename
+      target:
+        form: symbol
+        modernGlyph: "E_1"
+    sources:
+      facsimilePage: 639
+      anchor: me-s0-p2
+    verification:
+      printed: true
+      checkedAgainst: "Pending facsimile scan (ap-18-639)"
+      by: "Editorial Staff"
+      date: "2026-09-17"
+
+  - id: me.E.bodyEnergyRest
+    paper: mass-energy
+    scope: ["me-s0"]
+    glyph:
+      unicode: "E"
+      latex: "E"
+      variant: plain
+    meaning: "Body energy in the stationary system, as printed in H - E = K + C"
+    binding:
+      quantityId: bodyEnergyRestBefore
+    frameOrReference: stationary-system
+    operation:
+      kind: rename
+      target:
+        form: symbol
+        modernGlyph: "E"
+    collision:
+      severity: caution
+      kind: cross-paper
+      collidesWith: ["electricFieldStationary", "lightComplexEnergyStationary"]
+      collidesWithModern: ["electricFieldStationary"]
+      firstUseAnchor: me-s0-p2
+      firstUseBySection:
+        - sectionId: me-s0
+          anchor: me-s0-p2
+    notes: "Body rest-frame energy. Collides with electric field E in modern usage and light complex energy in paper 3."
+    sources:
+      facsimilePage: 640
+      anchor: me-s0-p3
+    verification:
+      printed: true
+      checkedAgainst: "Pending facsimile scan (ap-18-639)"
+      by: "Editorial Staff"
+      date: "2026-09-17"
+
+  - id: me.H0.bodyEnergyMovingBefore
+    paper: mass-energy
+    scope: ["me-s0"]
+    glyph:
+      unicode: "H_0"
+      latex: "H_0"
+      variant: subscripted
+    meaning: "Body energy in the moving system before radiation emission"
+    binding:
+      quantityId: bodyEnergyMovingBefore
+    frameOrReference: moving-system
+    operation:
+      kind: rename
+      target:
+        form: symbol
+        modernGlyph: "H_0"
+    collision:
+      severity: caution
+      kind: cross-paper
+      collidesWith: ["magneticFieldStationary", "hamiltonian"]
+      collidesWithModern: ["magneticFieldStationary"]
+      firstUseAnchor: me-s0-p2
+      firstUseBySection:
+        - sectionId: me-s0
+          anchor: me-s0-p2
+    notes: "Body energy in moving system before emission. Not magnetic field H or Hamiltonian."
+    sources:
+      facsimilePage: 639
+      anchor: me-s0-p2
+    verification:
+      printed: true
+      checkedAgainst: "Pending facsimile scan (ap-18-639)"
+      by: "Editorial Staff"
+      date: "2026-09-17"
+
+  - id: me.H1.bodyEnergyMovingAfter
+    paper: mass-energy
+    scope: ["me-s0"]
+    glyph:
+      unicode: "H_1"
+      latex: "H_1"
+      variant: subscripted
+    meaning: "Body energy in the moving system after radiation emission"
+    binding:
+      quantityId: bodyEnergyMovingAfter
+    frameOrReference: moving-system
+    operation:
+      kind: rename
+      target:
+        form: symbol
+        modernGlyph: "H_1"
+    sources:
+      facsimilePage: 639
+      anchor: me-s0-p2
+    verification:
+      printed: true
+      checkedAgainst: "Pending facsimile scan (ap-18-639)"
+      by: "Editorial Staff"
+      date: "2026-09-17"
+
+  - id: me.H.bodyEnergyMoving
+    paper: mass-energy
+    scope: ["me-s0"]
+    glyph:
+      unicode: "H"
+      latex: "H"
+      variant: plain
+    meaning: "Body energy in the moving system, as printed in H - E = K + C"
+    binding:
+      quantityId: bodyEnergyMovingBefore
+    frameOrReference: moving-system
+    operation:
+      kind: rename
+      target:
+        form: symbol
+        modernGlyph: "H"
+    sources:
+      facsimilePage: 640
+      anchor: me-s0-p3
+    verification:
+      printed: true
+      checkedAgainst: "Pending facsimile scan (ap-18-639)"
+      by: "Editorial Staff"
+      date: "2026-09-17"
+
+  # =========================================================================
+  # Kinetic Energy and Additive Constant
+  # =========================================================================
+  - id: me.K0.kineticEnergyBefore
+    paper: mass-energy
+    scope: ["me-s0"]
+    glyph:
+      unicode: "K_0"
+      latex: "K_0"
+      variant: subscripted
+    meaning: "Kinetic energy of the body relative to the moving system before emission"
+    binding:
+      quantityId: kineticEnergyBefore
+    frameOrReference: moving-system
+    operation:
+      kind: rename
+      target:
+        form: symbol
+        modernGlyph: "K_0"
+    collision:
+      severity: caution
+      kind: within-paper
+      collidesWith: ["me.K.stationarySystem"]
+      collidesWithModern: ["dragForce"]
+      firstUseAnchor: me-s0-p3
+      firstUseBySection:
+        - sectionId: me-s0
+          anchor: me-s0-p3
+    notes: "Kinetic energy of the body in the moving system before emission. Collides with stationary coordinate system K."
+    sources:
+      facsimilePage: 640
+      anchor: me-s0-p3
+    verification:
+      printed: true
+      checkedAgainst: "Pending facsimile scan (ap-18-639)"
+      by: "Editorial Staff"
+      date: "2026-09-17"
+
+  - id: me.K1.kineticEnergyAfter
+    paper: mass-energy
+    scope: ["me-s0"]
+    glyph:
+      unicode: "K_1"
+      latex: "K_1"
+      variant: subscripted
+    meaning: "Kinetic energy of the body relative to the moving system after emission"
+    binding:
+      quantityId: kineticEnergyAfter
+    frameOrReference: moving-system
+    operation:
+      kind: rename
+      target:
+        form: symbol
+        modernGlyph: "K_1"
+    sources:
+      facsimilePage: 640
+      anchor: me-s0-p3
+    verification:
+      printed: true
+      checkedAgainst: "Pending facsimile scan (ap-18-639)"
+      by: "Editorial Staff"
+      date: "2026-09-17"
+
+  - id: me.K.kineticEnergy
+    paper: mass-energy
+    scope: ["me-s0-p3", "me-s0-p4", "me-s0-p5", "me-s0-p6"]
+    glyph:
+      unicode: "K"
+      latex: "K"
+      variant: plain
+    meaning: "Kinetic energy of the body relative to the moving system, as printed in H - E = K + C"
+    binding:
+      quantityId: kineticEnergyBefore
+    frameOrReference: moving-system
+    operation:
+      kind: rename
+      target:
+        form: symbol
+        modernGlyph: "K"
+    collision:
+      severity: caution
+      kind: within-paper
+      collidesWith: ["me.K.stationarySystem"]
+      collidesWithModern: ["dragForce"]
+      firstUseAnchor: me-s0-p3
+      firstUseBySection:
+        - sectionId: me-s0
+          anchor: me-s0-p3
+    notes: "Kinetic energy relative to moving system. Within paper, collides with stationary coordinate system K; in paper 2, collides with force K."
+    sources:
+      facsimilePage: 640
+      anchor: me-s0-p3
+    verification:
+      printed: true
+      checkedAgainst: "Pending facsimile scan (ap-18-639)"
+      by: "Editorial Staff"
+      date: "2026-09-17"
+
+  - id: me.K0_minus_K1.kineticEnergyDifference
+    paper: mass-energy
+    scope: ["me-s0"]
+    glyph:
+      unicode: "K_0 - K_1"
+      latex: "K_0 - K_1"
+      variant: plain
+    meaning: "Difference between kinetic energy before and after radiation emission"
+    binding:
+      quantityId: kineticEnergyDifference
+    frameOrReference: moving-system
+    operation:
+      kind: rename
+      target:
+        form: symbol
+        modernGlyph: "\\Delta K"
+    sources:
+      facsimilePage: 640
+      anchor: me-s0-p3
+    verification:
+      printed: true
+      checkedAgainst: "Pending facsimile scan (ap-18-639)"
+      by: "Editorial Staff"
+      date: "2026-09-17"
+
+  - id: me.C.additiveEnergyConstant
+    paper: mass-energy
+    scope: ["me-s0"]
+    glyph:
+      unicode: "C"
+      latex: "C"
+      variant: plain
+    meaning: "Additive energy constant relating stationary and moving system energies (depends on v and energy zero)"
+    binding:
+      quantityId: additiveEnergyConstant
+    operation:
+      kind: rename
+      target:
+        form: symbol
+        modernGlyph: "C"
+    collision:
+      severity: caution
+      kind: cross-paper
+      collidesWith: ["capacitance", "integrationConstant"]
+      collidesWithModern: ["capacitance"]
+      firstUseAnchor: me-s0-p3
+      firstUseBySection:
+        - sectionId: me-s0
+          anchor: me-s0-p3
+    notes: "Additive constant in H - E = K + C. Cancels in differences H0 - H1 and E0 - E1 because C depends on v and arbitrary energy baseline, which are unchanged by emission."
+    sources:
+      facsimilePage: 640
+      anchor: me-s0-p3
+    verification:
+      printed: true
+      checkedAgainst: "Pending facsimile scan (ap-18-639)"
+      by: "Editorial Staff"
+      date: "2026-09-17"
+
+  # =========================================================================
+  # Inertial Mass Decrease and Quadratic Approximation
+  # =========================================================================
+  - id: me.half_L_v2_over_V2.quadraticKineticDifference
+    paper: mass-energy
+    scope: ["me-s0"]
+    glyph:
+      unicode: "1/2 (L/V²) v²"
+      latex: "\\frac{1}{2}\\frac{L}{V^2}v^2"
+      variant: plain
+    meaning: "Second-order approximation of kinetic energy decrease to order (v/V)^2"
+    binding:
+      quantityId: quadraticKineticDifference
+    frameOrReference: moving-system
+    operation:
+      kind: rename
+      target:
+        form: symbol
+        modernGlyph: "\\frac{1}{2}\\frac{L}{c^2}v^2"
+    sources:
+      facsimilePage: 640
+      anchor: me-s0-p4
+    verification:
+      printed: true
+      checkedAgainst: "Pending facsimile scan (ap-18-639)"
+      by: "Editorial Staff"
+      date: "2026-09-17"
+
+  - id: me.L_over_V2.inertialMassDecrease
+    paper: mass-energy
+    scope: ["me-s0"]
+    glyph:
+      unicode: "L/V²"
+      latex: "L/V^2"
+      variant: plain
+    meaning: "Decrease in inertial mass of a body emitting radiation energy L"
+    binding:
+      quantityId: inertialMassDecrease
+    operation:
+      kind: rename
+      target:
+        form: symbol
+        modernGlyph: "\\frac{L}{c^2}"
+    notes: "The central result: if a body gives off energy L in radiation, its mass decreases by L/V^2 (in modern notation, Delta m = L/c^2)."
+    sources:
+      facsimilePage: 641
+      anchor: me-s0-p5
+    verification:
+      printed: true
+      checkedAgainst: "Pending facsimile scan (ap-18-639)"
+      by: "Editorial Staff"
+      date: "2026-09-17"
+
+  # =========================================================================
+  # Unit Conversion (CGS ergs to grams with rounded speed of light)
+  # =========================================================================
+  - id: me.9e20.cgsConversion
+    paper: mass-energy
+    scope: ["me-s0"]
+    glyph:
+      unicode: "9 · 10²⁰"
+      latex: "9\\cdot 10^{20}"
+      variant: plain
+    meaning: "Printed factor (3·10^10 cm/s)^2 in CGS converting energy in ergs to mass in grams"
+    binding:
+      nonQuantityKind: unit-symbol
+    operation:
+      kind: unitConversion
+      fromSystem: cgs
+      toSystem: si
+      factor: 1e-17
+      conversionDerivationRef: "Printed 9e20 (cm/s)^2 rounds V to 3e10 cm/s. In SI, 1/c^2 = 1/(2.99792e8 m/s)^2 = 1.11265e-17 kg/J. The printed value 1/(9e20 erg/g) = 1/(9e20 * 1e-7 J / 1e-3 kg) = 1/(9e16 J/kg) = 1.11111e-17 kg/J, which is 0.14% above exact modern 1/c^2 because Einstein rounded V."
+    notes: "Unit-conversion entry for the paper's printed 9*10^20 factor. That is 0.14 percent above modern c^2 = 8.98755*10^20 cm^2/s^2 because the paper rounds V to 3*10^10 cm/s."
+    sources:
+      facsimilePage: 641
+      anchor: me-s0-p6
+    verification:
+      printed: true
+      checkedAgainst: "Pending facsimile scan (ap-18-639)"
+      by: "Editorial Staff"
+      date: "2026-09-17"
+
+modernOnlySymbols:
+  - id: me.m_inv.invariantMassSystem
+    glyph:
+      unicode: "m_inv"
+      latex: "m_{\\text{inv}}"
+      variant: plain
+    binding:
+      quantityId: invariantMassSystem
+    scope: ["me-s0"]
+    introducedBy: "mass-energy-modern-lens"
+    label: "Invariant mass of a system of particles or radiation. A modern-lens quantity, not printed in 1905."
+  - id: me.Delta_m.massChangeSigned
+    glyph:
+      unicode: "Δm"
+      latex: "\\Delta m"
+      variant: plain
+    binding:
+      quantityId: massChangeSigned
+    scope: ["me-s0"]
+    introducedBy: "mass-energy-modern-lens"
+    label: "Signed change in mass accompanying energy exchange. Modern notation for Einstein's L/V^2."
+  - id: me.box_M.boxMass
+    glyph:
+      unicode: "M_box"
+      latex: "M_{\\text{box}}"
+      variant: plain
+    binding:
+      quantityId: boxMass
+    scope: ["me-s0"]
+    introducedBy: "mass-energy-box-extension"
+    label: "Mass of the box in the 1906 thought experiment extension."
