@@ -1,3 +1,4 @@
+import { renderInferenceFamily } from "./inferenceView.ts";
 import type { Bm07Parameters } from "../../experiments/bm07/definition.ts";
 import type { AcceptedSnapshot } from "../../experiments/store/instanceStore.ts";
 import { array, display, identity, result } from "./presentation.ts";
@@ -112,112 +113,9 @@ export function InferencePath({ snapshot }: { snapshot: AcceptedSnapshot }) {
   );
 }
 
+/** Shared with the fixed-observation inference workbench; no duplicate family view. */
 export function InferenceFamily({ snapshot }: { snapshot: AcceptedSnapshot }) {
-  if (result(snapshot, "familyNumbers").status !== "value")
-    return (
-      <p className="notice">
-        <InferenceValue snapshot={snapshot} id="familyNumbers" />
-      </p>
-    );
-  const radii = array(snapshot, "familyRadii"),
-    numbers = array(snapshot, "familyNumbers");
-
-  const rFirst = radii.length > 0 ? radii.at(0) : undefined;
-  const rLast = radii.length > 0 ? radii.at(radii.length - 1) : undefined;
-  const nFirst = numbers.length > 0 ? numbers.at(0) : undefined;
-  const nLast = numbers.length > 0 ? numbers.at(numbers.length - 1) : undefined;
-
-  if (rFirst === undefined || rLast === undefined || nFirst === undefined || nLast === undefined) {
-    return (
-      <p className="notice">
-        <InferenceValue snapshot={snapshot} id="familyNumbers" />
-      </p>
-    );
-  }
-
-  const loX = Math.log10(rFirst),
-    hiX = Math.log10(rLast);
-  const loY = Math.log10(nLast),
-    hiY = Math.log10(nFirst);
-  const spanX = hiX - loX !== 0 ? hiX - loX : 1;
-  const spanY = hiY - loY !== 0 ? hiY - loY : 1;
-  const x = (a: number) => 72 + (458 * (Math.log10(a) - loX)) / spanX;
-  const y = (n: number) => 240 - (205 * (Math.log10(n) - loY)) / spanY;
-  const indices = [0, 20, 40];
-
-  const samplePoints = indices
-    .map((idx) => {
-      const r = radii.at(idx);
-      const n = numbers.at(idx);
-      return r !== undefined && n !== undefined ? { idx, r, n } : null;
-    })
-    .filter((pt): pt is { idx: number; r: number; n: number } => pt !== null);
-
-  const familyPairs = Array.from({ length: radii.length }, (_, i) => {
-    const r = radii.at(i);
-    const n = numbers.at(i);
-    return r !== undefined && n !== undefined ? { r, n, i } : null;
-  }).filter((p): p is { r: number; n: number; i: number } => p !== null);
-
-  return (
-    <figure className="plot" {...identity(snapshot)}>
-      <svg
-        role="img"
-        viewBox="0 0 570 300"
-        aria-label="Compatible radius and molecular-number pairs on logarithmic axes. A larger assumed radius gives a smaller inferred molecular number."
-      >
-        <path className="axis" d="M72 25V245H530" />
-        {samplePoints.map((pt) => (
-          <g key={`sample-point-${pt.idx}`}>
-            <text x={x(pt.r)} y="265" textAnchor="middle">
-              {display(pt.r, 1e6)}
-            </text>
-            <text x="64" y={y(pt.n) + 4} textAnchor="end">
-              {display(pt.n, 1e-23)}
-            </text>
-          </g>
-        ))}
-        <polyline
-          className="curve"
-          data-family-curve
-          points={familyPairs.map((p) => `${x(p.r)} ${y(p.n)}`).join(" ")}
-        />
-        <text x="72" y="17">
-          N (10²³ mol⁻¹); logarithmic axes
-        </text>
-        <text x="300" y="292" textAnchor="middle">
-          Assumed radius (μm)
-        </text>
-      </svg>
-      <figcaption>
-        Each pair gives the same point estimate of diffusivity at the assumed temperature and
-        viscosity. This is a compatible family, not a confidence region and not a second measurement
-        of the radius.
-      </figcaption>
-      <details>
-        <summary>Read all compatible pairs</summary>
-        <div className="table-scroll">
-          <table>
-            <caption>Radius–number family for this accepted estimate</caption>
-            <thead>
-              <tr>
-                <th scope="col">Radius (μm)</th>
-                <th scope="col">N (10²³ mol⁻¹)</th>
-              </tr>
-            </thead>
-            <tbody>
-              {familyPairs.map((pair) => (
-                <tr key={`radius-row-${pair.i}-${pair.r}`}>
-                  <th scope="row">{display(pair.r, 1e6)}</th>
-                  <td>{display(pair.n, 1e-23)}</td>
-                </tr>
-              ))}
-            </tbody>
-          </table>
-        </div>
-      </details>
-    </figure>
-  );
+  return <div {...{ dangerouslySetInnerHTML: { __html: renderInferenceFamily(snapshot) } }} />;
 }
 
 export function InferenceCoverage({

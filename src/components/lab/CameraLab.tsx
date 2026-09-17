@@ -10,6 +10,7 @@ import type { Bm08Parameters } from "../../experiments/bm08/definition.ts";
 import { cameraObservationCsv } from "../../experiments/bm08/export.ts";
 import { decodeBm08Settings, encodeBm08Settings } from "../../experiments/bm08/permalink.ts";
 import { createBm08Session, type PreparedBm08Example } from "../../experiments/bm08/session.ts";
+import { CameraMomentTable } from "./CameraMomentTable.tsx";
 import { CameraCoverage, CameraPath, CameraSpeed } from "./CameraPlots.tsx";
 import { InferenceInterval as Interval, InferenceValue as Value } from "./InferencePlots.tsx";
 import { array, display, identity, scalar } from "./presentation.ts";
@@ -491,43 +492,7 @@ export function CameraLab({
           averaging creates a different correlation. A variance alone cannot distinguish these
           effects.
         </p>
-        <table>
-          <caption>Per-coordinate moments after subtracting known synthetic drift; μm²</caption>
-          <thead>
-            <tr>
-              <th scope="col">Moment</th>
-              <th scope="col">Sample</th>
-              <th scope="col">Camera model</th>
-              <th scope="col">Asymptotic sampling SD</th>
-            </tr>
-          </thead>
-          <tbody>
-            <tr>
-              <th scope="row">Increment variance</th>
-              <td>
-                <Value snapshot={snapshot} id="sampleVariance" factor={1e12} />
-              </td>
-              <td>
-                <Value snapshot={snapshot} id="expectedVariance" factor={1e12} />
-              </td>
-              <td>
-                <Value snapshot={snapshot} id="sdVariance" factor={1e12} />
-              </td>
-            </tr>
-            <tr>
-              <th scope="row">Adjacent-increment covariance</th>
-              <td>
-                <Value snapshot={snapshot} id="sampleCovariance" factor={1e12} />
-              </td>
-              <td>
-                <Value snapshot={snapshot} id="expectedCovariance" factor={1e12} />
-              </td>
-              <td>
-                <Value snapshot={snapshot} id="sdCovariance" factor={1e12} />
-              </td>
-            </tr>
-          </tbody>
-        </table>
+        <CameraMomentTable snapshot={snapshot} />
         <p className="fine">
           The last column is a large-sample MA(1) approximation for the moment estimates, not a
           confidence interval for D. It is particularly unreliable for very small samples. Expected
