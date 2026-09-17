@@ -78,13 +78,17 @@ export function mountCountermodelWorkbench(
   form.addEventListener("submit", submit);
   input.addEventListener("input", edit);
   reset.addEventListener("click", restore);
-  toggles.forEach((toggle) => toggle.addEventListener("change", change));
+  toggles.forEach((toggle) => {
+    toggle.addEventListener("change", change);
+  });
   return () => {
     unsubscribe();
     form.removeEventListener("submit", submit);
     input.removeEventListener("input", edit);
     reset.removeEventListener("click", restore);
-    toggles.forEach((toggle) => toggle.removeEventListener("change", change));
+    toggles.forEach((toggle) => {
+      toggle.removeEventListener("change", change);
+    });
     fieldsets.forEach((fieldset) => {
       fieldset.disabled = true;
     });

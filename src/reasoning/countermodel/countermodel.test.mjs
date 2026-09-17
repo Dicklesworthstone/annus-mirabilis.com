@@ -219,9 +219,11 @@ test("the copy uses the shared voice rules and marks Poincare as parallel work",
     strings.push(spec.title, spec.question, spec.scope);
     for (const c of spec.candidates) strings.push(c.label, c.circumstances);
     for (const t of spec.tests) strings.push(t.label, t.explanation, t.tolerance.reason);
-    cells(spec, session(spec)).forEach((row) =>
-      row.forEach((c, j) => strings.push(cellOutcomeText(c, spec.tests[j]))),
-    );
+    cells(spec, session(spec)).forEach((row) => {
+      row.forEach((c, j) => {
+        strings.push(cellOutcomeText(c, spec.tests[j]));
+      });
+    });
   }
   for (const text of strings) {
     const errors = checkVoice(text, { context: "countermodel-cell" }).filter(

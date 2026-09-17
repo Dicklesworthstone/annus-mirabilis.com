@@ -32,8 +32,8 @@ export function cellQuantity(
 }
 export function caseOutputs(spec: CountermodelCase): Readonly<Record<string, OutputContract>> {
   const entries: [string, OutputContract][] = [];
-  spec.candidates.forEach((candidate, i) =>
-    spec.tests.forEach((test, j) =>
+  spec.candidates.forEach((candidate, i) => {
+    spec.tests.forEach((test, j) => {
       OUTPUT_PARTS.forEach((part) => {
         entries.push([
           cellQuantity(i, j, part),
@@ -44,9 +44,9 @@ export function caseOutputs(spec: CountermodelCase): Readonly<Record<string, Out
             statuses: ["value", "outside-domain"],
           },
         ]);
-      }),
-    ),
-  );
+      });
+    });
+  });
   return Object.freeze(Object.fromEntries(entries));
 }
 export function cellSampleLabels(test: CountermodelTest): readonly string[] {
