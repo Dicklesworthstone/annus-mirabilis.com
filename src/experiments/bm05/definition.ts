@@ -158,6 +158,33 @@ export const BM05_OUTPUTS: Readonly<Record<string, OutputContract>> = Object.fre
   fixedRatioSteps: c("m", "fixed-diffusion-step-sequence", "bm05.measure"),
   fixedRatioCoefficients: c("m2/s", "fixed-ratio-coefficient-sequence", "diffusion.continuumLimit"),
 });
+/**
+ * Declared as data only (am-read-result-weave-jex, the weave compiler and evaluator this must
+ * validate against, does not exist yet -- see the BM-06 precedent in
+ * src/experiments/bm06/definition.ts for the same honesty caveat). `sampleCountField` names a
+ * parameter rather than a BM05_OUTPUTS key because the walker count W is Bm05Parameters.walkers,
+ * not a derived output; every other reference is a real, already-published output.
+ */
+export const BM05_WEAVE_PREDICATES = Object.freeze([
+  Object.freeze({
+    id: "bm05-s4-second-moment",
+    targetSentenceId: "s4-second-moment",
+    pointerText:
+      "the sampled histogram agrees with the Gaussian of the same second moment within the stated bound.",
+    conditions: Object.freeze([
+      Object.freeze({
+        kind: "agreement",
+        statisticOutputId: "kolmogorovDistance",
+        sampleCountField: "walkers",
+        minimumSampleCount: 400,
+        offsetOutputId: "shapeTerm",
+        boundFamily: "dkw",
+        alphaEnter: 1e-3,
+        alphaExit: 1e-4,
+      }),
+    ]),
+  }),
+]);
 export function bm05BinCount(p: Bm05Parameters): number {
   return p.n === 0 ? 1 : p.kernel === "coin" ? Math.min(41, p.n + 1) : 40;
 }
