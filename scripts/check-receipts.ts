@@ -87,11 +87,11 @@ type StructuredLogEntry = {
   rule: string;
   severity: "error" | "flag" | "info";
   path: string;
-  expected?: string;
-  actual?: string;
+  expected?: string | undefined;
+  actual?: string | undefined;
   outcome: "pass" | "fail" | "flagged";
   message: string;
-  repair?: string;
+  repair?: string | undefined;
 };
 
 export async function runCheckReceipts(rawArgs: string[] = process.argv.slice(2)): Promise<number> {
