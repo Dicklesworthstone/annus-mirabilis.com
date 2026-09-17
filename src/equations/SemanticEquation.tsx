@@ -1,6 +1,7 @@
 "use client";
 import {
   type KeyboardEvent,
+  useCallback,
   useEffect,
   useId,
   useRef,
@@ -26,8 +27,8 @@ export function SemanticEquation({ equation }: { equation: CompiledEquation }) {
   const [ready, setReady] = useState(false),
     [pattern, setPattern] = useState(false),
     root = useRef<HTMLDivElement>(null),
-    formula = useRef<HTMLDivElement>(null);
-  const qualified = (id: string) => `${equation.paper}/${id}`;
+    formula = useRef<HTMLElement>(null);
+  const qualified = useCallback((id: string) => `${equation.paper}/${id}`, [equation.paper]);
   const current = selected?.nodeId.startsWith(`${equation.paper}/${equation.id}.`)
     ? selected.nodeId.slice(equation.paper.length + 1)
     : null;
@@ -52,7 +53,7 @@ export function SemanticEquation({ equation }: { equation: CompiledEquation }) {
           (!!t && !!selected?.quantityId && t.quantityId === selected.quantityId),
       );
     }
-  }, [selected, equation]);
+  }, [selected, equation, qualified]);
   function select(id: string | null) {
     const node = equation.navigation.find((n) => n.id === id);
     store.select(
@@ -96,10 +97,9 @@ export function SemanticEquation({ equation }: { equation: CompiledEquation }) {
         <p className="eyebrow">Explore the equation · Modern model notation</p>
         <h3>{equation.title}</h3>
       </header>
-      <div
+      <section
         ref={formula}
         className="equation-formula"
-        role="group"
         tabIndex={ready ? 0 : undefined}
         aria-label={`Explore ${equation.title}`}
         aria-describedby={`${uid}-keys`}
@@ -116,13 +116,19 @@ export function SemanticEquation({ equation }: { equation: CompiledEquation }) {
         <div
           className="equation-visual"
           aria-hidden="true"
-          dangerouslySetInnerHTML={{ __html: equation.html }}
+          {...{ dangerouslySetInnerHTML: { __html: equation.html } }}
         />
-        <div className="equation-mathml" dangerouslySetInnerHTML={{ __html: equation.mathml }} />
-      </div>
+        <div
+          className="equation-mathml"
+          {...{ dangerouslySetInnerHTML: { __html: equation.mathml } }}
+        />
+      </section>
       <p className="equation-sentence">
-        {equation.sentence.map((f, i) => (
-          <span key={i} data-selected={String(!!selectedNode(f.nodeId))}>
+        {equation.sentence.map((f) => (
+          <span
+            key={`${f.nodeId ?? "frag"}-${f.text}`}
+            data-selected={String(!!selectedNode(f.nodeId))}
+          >
             {f.text}
           </span>
         ))}
@@ -142,6 +148,7 @@ export function SemanticEquation({ equation }: { equation: CompiledEquation }) {
       </p>
       <div className="equation-tools">
         <button
+          type="button"
           className="secondary"
           disabled={!ready}
           onClick={() => setPattern(!pattern)}
@@ -150,6 +157,7 @@ export function SemanticEquation({ equation }: { equation: CompiledEquation }) {
           Monochrome and patterns
         </button>
         <button
+          type="button"
           className="secondary"
           disabled={!ready || !selected}
           onClick={() => {
@@ -160,25 +168,29 @@ export function SemanticEquation({ equation }: { equation: CompiledEquation }) {
           Clear equation selection
         </button>
       </div>
-      <div className="equation-chips" role="group" aria-label="Terms and operations">
-        {equation.navigation.map((n) => (
-          <button
-            type="button"
-            className={`secondary eq-chip eq-${n.kind}`}
-            key={n.id}
-            data-node-id={n.id}
-            data-quantity-id={n.quantityId ?? undefined}
-            data-selected={String(!!selectedNode(n.id))}
-            disabled={!ready}
-            aria-label={`${equation.notes.find((note) => note.nodeId === n.id)!.title} ${n.kind}`}
-            aria-pressed={!!selectedNode(n.id)}
-            onClick={() => select(n.id)}
-          >
-            {equation.notes.find((note) => note.nodeId === n.id)!.title}
-            <span className="eq-kind">{n.kind === "term" ? "term" : "operation"}</span>
-          </button>
-        ))}
-      </div>
+      <nav className="equation-chips" aria-label="Terms and operations">
+        {equation.navigation.map((n) => {
+          const noteEntry = equation.notes.find((note) => note.nodeId === n.id);
+          const noteTitle = noteEntry?.title ?? n.id;
+          return (
+            <button
+              type="button"
+              className={`secondary eq-chip eq-${n.kind}`}
+              key={n.id}
+              data-node-id={n.id}
+              data-quantity-id={n.quantityId ?? undefined}
+              data-selected={String(!!selectedNode(n.id))}
+              disabled={!ready}
+              aria-label={`${noteTitle} ${n.kind}`}
+              aria-pressed={!!selectedNode(n.id)}
+              onClick={() => select(n.id)}
+            >
+              {noteTitle}
+              <span className="eq-kind">{n.kind === "term" ? "term" : "operation"}</span>
+            </button>
+          );
+        })}
+      </nav>
       {note && (
         <section
           className="equation-inspector"
@@ -203,7 +215,11 @@ export function SemanticEquation({ equation }: { equation: CompiledEquation }) {
             </a>
           </p>
           {term?.quantity.role === "input" && scope?.editQuantity && (
-            <button className="secondary" onClick={() => scope.editQuantity?.(term.quantityId)}>
+            <button
+              type="button"
+              className="secondary"
+              onClick={() => scope.editQuantity?.(term.quantityId)}
+            >
               Edit this input in the laboratory
             </button>
           )}
