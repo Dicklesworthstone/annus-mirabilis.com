@@ -17,18 +17,13 @@ import {
   type RightsStatus,
 } from "../provenance/receiptSchema.ts";
 import type { SourceAsset, SourceAssetRights } from "../provenance/receiptToSourceAsset.ts";
-import {
-  type AuthorshipBlock,
-  type AuthorshipEntry,
-  validateAuthorshipBlock,
-  validateAuthorshipEntry,
-} from "./authorship.ts";
+import { type AuthorshipEntry, validateAuthorshipEntry } from "./authorship.ts";
 import { type PaperDate, validateChronology, validatePaperDate } from "./dates.ts";
 import { type Inline, plainText, validateInline } from "./inlines.ts";
 
 export { type Inline, plainText, validateInline } from "./inlines.ts";
 
-import { type SpanAnchor, spanTextDigest, validateSpanAnchor } from "./spans.ts";
+import { type SpanAnchor, validateSpanAnchor } from "./spans.ts";
 
 export { type SpanAnchor, spanTextDigest, validateSpanAnchor } from "./spans.ts";
 
@@ -519,10 +514,11 @@ export function validateSourceBlock(raw: unknown, path = "SourceBlock"): SourceB
   if (o.lang !== undefined) {
     try {
       lang = validateLanguageTag(o.lang, `${path}.lang`);
-    } catch (err: any) {
+    } catch (err: unknown) {
+      const message = err instanceof Error ? err.message : String(err);
       throw new SchemaValidationError(
         "invalid-language-tag",
-        err.message,
+        message,
         "SourceBlock",
         `${path}.lang`,
       );
@@ -533,13 +529,9 @@ export function validateSourceBlock(raw: unknown, path = "SourceBlock"): SourceB
   if (o.dir !== undefined) {
     try {
       dir = validateDirection(o.dir, `${path}.dir`);
-    } catch (err: any) {
-      throw new SchemaValidationError(
-        "invalid-direction",
-        err.message,
-        "SourceBlock",
-        `${path}.dir`,
-      );
+    } catch (err: unknown) {
+      const message = err instanceof Error ? err.message : String(err);
+      throw new SchemaValidationError("invalid-direction", message, "SourceBlock", `${path}.dir`);
     }
   }
 
@@ -627,10 +619,10 @@ export function validateSourceBlock(raw: unknown, path = "SourceBlock"): SourceB
     sentenceSpans,
     revision: o.revision as number,
     status: {
-      transcription: st.transcription as any,
-      mathTranscription: st.mathTranscription as any,
-      translation: st.translation as any,
-      review: st.review as any,
+      transcription: st.transcription as SourceBlockStatus["transcription"],
+      mathTranscription: st.mathTranscription as SourceBlockStatus["mathTranscription"],
+      translation: st.translation as SourceBlockStatus["translation"],
+      review: st.review as SourceBlockStatus["review"],
     },
     ...(lang ? { lang } : {}),
     ...(dir ? { dir } : {}),
@@ -702,10 +694,11 @@ export function validateTranslationUnit(raw: unknown, path = "TranslationUnit"):
   let lang: string;
   try {
     lang = validateLanguageTag(o.lang, `${path}.lang`);
-  } catch (err: any) {
+  } catch (err: unknown) {
+    const message = err instanceof Error ? err.message : String(err);
     throw new SchemaValidationError(
       "invalid-language-tag",
-      err.message,
+      message,
       "TranslationUnit",
       `${path}.lang`,
     );
@@ -715,10 +708,11 @@ export function validateTranslationUnit(raw: unknown, path = "TranslationUnit"):
   if (o.dir !== undefined) {
     try {
       dir = validateDirection(o.dir, `${path}.dir`);
-    } catch (err: any) {
+    } catch (err: unknown) {
+      const message = err instanceof Error ? err.message : String(err);
       throw new SchemaValidationError(
         "invalid-direction",
-        err.message,
+        message,
         "TranslationUnit",
         `${path}.dir`,
       );
@@ -767,7 +761,7 @@ export function validateTranslationUnit(raw: unknown, path = "TranslationUnit"):
     editor,
     revision: o.revision as number,
     unresolvedAlternatives,
-    reviewState: reviewState as any,
+    reviewState: reviewState as TranslationUnit["reviewState"],
     lang,
     ...(dir ? { dir } : {}),
   };
@@ -959,13 +953,9 @@ export function validateGlossUnit(raw: unknown, path = "GlossUnit"): GlossUnit {
   if (o.lang !== undefined) {
     try {
       lang = validateLanguageTag(o.lang, `${path}.lang`);
-    } catch (err: any) {
-      throw new SchemaValidationError(
-        "invalid-language-tag",
-        err.message,
-        "GlossUnit",
-        `${path}.lang`,
-      );
+    } catch (err: unknown) {
+      const message = err instanceof Error ? err.message : String(err);
+      throw new SchemaValidationError("invalid-language-tag", message, "GlossUnit", `${path}.lang`);
     }
   }
 
@@ -973,10 +963,11 @@ export function validateGlossUnit(raw: unknown, path = "GlossUnit"): GlossUnit {
   if (o.sourceLang !== undefined) {
     try {
       sourceLang = validateLanguageTag(o.sourceLang, `${path}.sourceLang`);
-    } catch (err: any) {
+    } catch (err: unknown) {
+      const message = err instanceof Error ? err.message : String(err);
       throw new SchemaValidationError(
         "invalid-language-tag",
-        err.message,
+        message,
         "GlossUnit",
         `${path}.sourceLang`,
       );
@@ -987,8 +978,9 @@ export function validateGlossUnit(raw: unknown, path = "GlossUnit"): GlossUnit {
   if (o.dir !== undefined) {
     try {
       dir = validateDirection(o.dir, `${path}.dir`);
-    } catch (err: any) {
-      throw new SchemaValidationError("invalid-direction", err.message, "GlossUnit", `${path}.dir`);
+    } catch (err: unknown) {
+      const message = err instanceof Error ? err.message : String(err);
+      throw new SchemaValidationError("invalid-direction", message, "GlossUnit", `${path}.dir`);
     }
   }
 
@@ -1054,7 +1046,7 @@ export function validateGlossUnit(raw: unknown, path = "GlossUnit"): GlossUnit {
         return {
           tokenIndices: mw.tokenIndices as number[],
           english: mw.english as string,
-          kind: mw.kind as any,
+          kind: mw.kind as MultiwordUnit["kind"],
           grammarNote: (mw.grammarNote as string) || undefined,
           noteClass: (mw.noteClass as string) || undefined,
         };
@@ -1070,7 +1062,7 @@ export function validateGlossUnit(raw: unknown, path = "GlossUnit"): GlossUnit {
     sourceLang,
     attribution,
     editor,
-    reviewState: (o.reviewState as any) || "draft",
+    reviewState: (o.reviewState as GlossUnit["reviewState"]) || "draft",
     tokens,
     multiwordUnits,
     ...(dir ? { dir } : {}),
@@ -1144,10 +1136,11 @@ export function validateEditorialNote(raw: unknown, path = "EditorialNote"): Edi
   if (o.lang !== undefined) {
     try {
       lang = validateLanguageTag(o.lang, `${path}.lang`);
-    } catch (err: any) {
+    } catch (err: unknown) {
+      const message = err instanceof Error ? err.message : String(err);
       throw new SchemaValidationError(
         "invalid-language-tag",
-        err.message,
+        message,
         "EditorialNote",
         `${path}.lang`,
       );
@@ -1158,13 +1151,9 @@ export function validateEditorialNote(raw: unknown, path = "EditorialNote"): Edi
   if (o.dir !== undefined) {
     try {
       dir = validateDirection(o.dir, `${path}.dir`);
-    } catch (err: any) {
-      throw new SchemaValidationError(
-        "invalid-direction",
-        err.message,
-        "EditorialNote",
-        `${path}.dir`,
-      );
+    } catch (err: unknown) {
+      const message = err instanceof Error ? err.message : String(err);
+      throw new SchemaValidationError("invalid-direction", message, "EditorialNote", `${path}.dir`);
     }
   }
 
@@ -1211,12 +1200,12 @@ export function validateEditorialNote(raw: unknown, path = "EditorialNote"): Edi
     sourceSupport,
     kind,
     affectedIds: Array.isArray(o.affectedIds) ? (o.affectedIds as string[]) : [],
-    reviewState: (o.reviewState as any) || "draft",
+    reviewState: (o.reviewState as EditorialNote["reviewState"]) || "draft",
     originalReading: (o.originalReading as string) || undefined,
     proposedReading: (o.proposedReading as string) || undefined,
     reasoning: (o.reasoning as string) || undefined,
     evidence: (o.evidence as string) || undefined,
-    layer: (o.layer as any) || undefined,
+    layer: (o.layer as EditorialNote["layer"]) || undefined,
     ...(lang ? { lang } : {}),
     ...(dir ? { dir } : {}),
   };
@@ -1288,17 +1277,17 @@ export function validateCitation(raw: unknown, path = "Citation"): Citation {
     id: o.id,
     type: (o.type as string) || "article-journal",
     title: o.title,
-    author: o.author as any,
+    author: o.author as Citation["author"],
     containerTitle: (o.containerTitle as string) || undefined,
     volume: (o.volume as string | number) || undefined,
     issue: (o.issue as string | number) || undefined,
     page: (o.page as string) || undefined,
-    issued: o.issued as any,
+    issued: o.issued as Citation["issued"],
     doi: (o.doi as string) || undefined,
     url: (o.url as string) || undefined,
     accessed,
-    role: o.role as any,
-    locator: (o.locator as any) || undefined,
+    role: o.role as Citation["role"],
+    locator: (o.locator as Citation["locator"]) || undefined,
   };
 }
 
@@ -1394,10 +1383,11 @@ export function validateTranslationEdition(
   let language: string;
   try {
     language = validateLanguageTag(rawLang, `${path}.language`);
-  } catch (err: any) {
+  } catch (err: unknown) {
+    const message = err instanceof Error ? err.message : String(err);
     throw new SchemaValidationError(
       "invalid-language-tag",
-      err.message,
+      message,
       "TranslationEdition",
       `${path}.language`,
     );
@@ -1436,7 +1426,7 @@ export function validateTranslationEdition(
     translator,
     editor,
     license: o.license as string,
-    reviewState: reviewState as any,
+    reviewState: reviewState as TranslationEdition["reviewState"],
     units,
     missingUnitsNotice: typeof o.missingUnitsNotice === "string" ? o.missingUnitsNotice : undefined,
   };
