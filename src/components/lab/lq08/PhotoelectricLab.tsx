@@ -165,7 +165,7 @@ const PREDICT_PROMPTS: readonly PredictPrompt[] = [
     candidates: [
       {
         id: "lines-parallel",
-        label: "Parallel, with different starting points",
+        label: "Parallel, with different starting thresholds",
         description:
           "The slope is a universal constant of radiation and charge, while the work function shifts the starting threshold.",
         separatingAssumption:
@@ -538,7 +538,9 @@ export function PhotoelectricLab({ example }: PhotoelectricLabProps) {
         </h3>
         <div className="space-y-3 text-xs text-slate-700 dark:text-slate-300">
           <div className="p-2.5 rounded bg-amber-50/60 dark:bg-amber-950/30 border border-amber-200 dark:border-amber-900/50">
-            <span className="font-semibold text-amber-900 dark:text-amber-200">What was neglected: </span>
+            <span className="font-semibold text-amber-900 dark:text-amber-200">
+              What was neglected:{" "}
+            </span>
             {einsteinPrintedStoppingCheck().readoutStatements.neglectStatement}
           </div>
           <div className="p-2.5 rounded bg-blue-50/60 dark:bg-blue-950/30 border border-blue-200 dark:border-blue-900/50">
@@ -551,10 +553,16 @@ export function PhotoelectricLab({ example }: PhotoelectricLabProps) {
                 Representation A (Printed Form):
               </div>
               <p className="font-mono text-xs">
-                &Pi; = (R &middot; &beta; &middot; &nu;) / E = {einsteinPrintedStoppingCheck().representationA.stoppingPotentialVolts.toFixed(4)} V ({einsteinPrintedStoppingCheck().representationA.printedText})
+                &Pi; = (R &middot; &beta; &middot; &nu;) / E ={" "}
+                {einsteinPrintedStoppingCheck().representationA.stoppingPotentialVolts.toFixed(4)} V
+                ({einsteinPrintedStoppingCheck().representationA.printedText})
               </p>
               <p className="text-[11px] text-slate-500 mt-1">
-                Slope: {einsteinPrintedStoppingCheck().representationA.slopeVsPerHz.toExponential(4)} V&middot;s (modern h/e = {einsteinPrintedStoppingCheck().representationA.modernSlopeVsPerHz.toExponential(4)} V&middot;s)
+                Slope:{" "}
+                {einsteinPrintedStoppingCheck().representationA.slopeVsPerHz.toExponential(4)}{" "}
+                V&middot;s (modern h/e ={" "}
+                {einsteinPrintedStoppingCheck().representationA.modernSlopeVsPerHz.toExponential(4)}{" "}
+                V&middot;s)
               </p>
             </div>
             <div className="p-2.5 rounded bg-white dark:bg-slate-800/80 border border-slate-200 dark:border-slate-700">
@@ -562,10 +570,27 @@ export function PhotoelectricLab({ example }: PhotoelectricLabProps) {
                 Live Hypothetical Comparison:
               </div>
               <p className="font-mono text-xs">
-                &nu; = {(einsteinPrintedStoppingCheck().readoutStatements.hypotheticalComparison.frequencyHz / 1e12).toFixed(1)} THz &rarr; h&nu; = {einsteinPrintedStoppingCheck().readoutStatements.hypotheticalComparison.quantumEnergyEv.toFixed(6)} eV
+                &nu; ={" "}
+                {(
+                  einsteinPrintedStoppingCheck().readoutStatements.hypotheticalComparison
+                    .frequencyHz / 1e12
+                ).toFixed(1)}{" "}
+                THz &rarr; h&nu; ={" "}
+                {einsteinPrintedStoppingCheck().readoutStatements.hypotheticalComparison.quantumEnergyEv.toFixed(
+                  6,
+                )}{" "}
+                eV
               </p>
               <p className="text-[11px] text-slate-500 mt-1">
-                Hypothetical &Phi; = {einsteinPrintedStoppingCheck().readoutStatements.hypotheticalComparison.hypotheticalWorkFunctionEv.toFixed(1)} eV &rarr; V_s = {einsteinPrintedStoppingCheck().readoutStatements.hypotheticalComparison.stoppingPotentialVolts.toFixed(6)} V ({einsteinPrintedStoppingCheck().readoutStatements.hypotheticalComparison.label})
+                Hypothetical &Phi; ={" "}
+                {einsteinPrintedStoppingCheck().readoutStatements.hypotheticalComparison.hypotheticalWorkFunctionEv.toFixed(
+                  1,
+                )}{" "}
+                eV &rarr; V_s ={" "}
+                {einsteinPrintedStoppingCheck().readoutStatements.hypotheticalComparison.stoppingPotentialVolts.toFixed(
+                  6,
+                )}{" "}
+                V ({einsteinPrintedStoppingCheck().readoutStatements.hypotheticalComparison.label})
               </p>
             </div>
           </div>

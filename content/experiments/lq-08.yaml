@@ -358,7 +358,7 @@ predictMode:
       question: "Two different metals are lit by the same lamp. Plotted against frequency, are their stopping-potential lines parallel, crossing, or identical?"
       candidates:
         - id: lines-parallel
-          label: "Parallel, with different starting points"
+          label: "Parallel, with different starting thresholds"
           description: "The slope is a universal constant of radiation and charge, while the work function shifts the starting threshold."
           separatingAssumption: "Universal quantum slope: the stopping line slope is universal and independent of the material."
         - id: lines-crossing
