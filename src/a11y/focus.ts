@@ -31,8 +31,20 @@ export function getFocusableElements(container: HTMLElement): HTMLElement[] {
   if (!container) return [];
   const rawList = Array.from(container.querySelectorAll<HTMLElement>(FOCUSABLE_SELECTOR));
   return rawList.filter((el) => {
-    // Exclude hidden elements
-    return !(el.offsetWidth === 0 && el.offsetHeight === 0) && el.style.visibility !== "hidden";
+    // Exclude explicitly hidden elements
+    if (el.hasAttribute("hidden") || el.getAttribute("aria-hidden") === "true") {
+      return false;
+    }
+    if (el.style.display === "none" || el.style.visibility === "hidden") {
+      return false;
+    }
+    if (typeof window !== "undefined" && typeof window.getComputedStyle === "function") {
+      const computed = window.getComputedStyle(el);
+      if (computed.display === "none" || computed.visibility === "hidden") {
+        return false;
+      }
+    }
+    return true;
   });
 }
 
