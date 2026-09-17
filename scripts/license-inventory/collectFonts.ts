@@ -60,16 +60,17 @@ export function collectFonts(options: CollectFontsOptions): LicenseItem[] {
       .map((w) => w.charAt(0).toUpperCase() + w.slice(1))
       .join(" ");
 
-    items.push({
+    const item: LicenseItem = {
       kind: "font",
       name: `${familyName} (${fileName})`,
       version: "variable",
       license: license || "UNLICENSED",
       source: relPath,
-      licensePath,
-      licenseText,
       authorOrNotice: `Hosted subset font under ${relDir}`,
-    });
+      ...(licensePath !== undefined ? { licensePath } : {}),
+      ...(licenseText !== undefined ? { licenseText } : {}),
+    };
+    items.push(item);
   }
 
   return items;
