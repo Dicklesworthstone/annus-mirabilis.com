@@ -565,7 +565,7 @@ export function parseInlineMathId(raw: string): ParseResult<InlineMathId> {
 
 export function parseReferenceId(raw: string): ParseResult<ReferenceId> {
   const match = raw.match(/^(.+)-r([1-9]\d*)$/);
-  if (match && match[1]) {
+  if (match?.[1]) {
     const unitResult = parseAlignableUnitId(match[1]);
     if (unitResult.ok) {
       return { ok: true, value: raw as ReferenceId };
@@ -647,7 +647,7 @@ export function parseEquationAnchor(raw: string): ParseResult<EquationAnchor> {
 
 export function parseEquationRecordId(raw: string): ParseResult<EquationRecordId> {
   const match = raw.match(/^eq-(lq|bm|sr|me|md)-(.+)$/);
-  if (match && match[2]) {
+  if (match?.[2]) {
     const anchorForm = `eq-${match[2]}`;
     if (parseEquationAnchor(anchorForm).ok) {
       return { ok: true, value: raw as EquationRecordId };
@@ -755,7 +755,7 @@ export function allocateEquationIds(
 
 export function parseEquationTermId(raw: string): ParseResult<EquationTermId> {
   const match = raw.match(/^(.+)\.t\.([a-zA-Z0-9_-]+)$/);
-  if (match && match[1] && parseEquationRecordId(match[1]).ok) {
+  if (match?.[1] && parseEquationRecordId(match[1]).ok) {
     return { ok: true, value: raw as EquationTermId };
   }
   return {
@@ -767,7 +767,7 @@ export function parseEquationTermId(raw: string): ParseResult<EquationTermId> {
 
 export function parseEquationOpId(raw: string): ParseResult<EquationOpId> {
   const match = raw.match(/^(.+)\.op\.([a-zA-Z0-9_-]+)$/);
-  if (match && match[1] && parseEquationRecordId(match[1]).ok) {
+  if (match?.[1] && parseEquationRecordId(match[1]).ok) {
     return { ok: true, value: raw as EquationOpId };
   }
   return {

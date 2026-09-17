@@ -15,7 +15,10 @@ export function parseScaledDecimal(text: string, displayPower: number): number {
   if (!Number.isFinite(value))
     throw new RangeError("The value is outside the finite calculation range.");
   // Refuse nonzero decimal input that underflows, rather than teaching a fabricated zero.
-  const coefficient = text.trim().split(/[eE]/)[0]!;
+  const coefficient = text.trim().split(/[eE]/)[0];
+  if (!coefficient) {
+    throw new TypeError("Enter a finite decimal number.");
+  }
   if (value === 0 && /[1-9]/.test(coefficient))
     throw new RangeError("The value is smaller than the calculation can represent.");
   return value;
@@ -31,16 +34,22 @@ export function formatScaledDecimal(
   const text =
     significantDigits === undefined ? String(value) : value.toPrecision(significantDigits);
   const [mantissa, originalExponent] = text.split("e");
-  const compact = mantissa!.includes(".")
-    ? mantissa!.replace(/0+$/, "").replace(/\.$/, "")
-    : mantissa!;
+  if (!mantissa) {
+    throw new TypeError("Only finite accepted values can be displayed.");
+  }
+  const compact = mantissa.includes(".")
+    ? mantissa.replace(/0+$/, "").replace(/\.$/, "")
+    : mantissa;
   const scaled = shift(
     originalExponent === undefined ? compact : `${compact}e${originalExponent}`,
     displayPower,
   );
   const [coefficient, exponent] = scaled.split("e");
-  const negative = coefficient!.startsWith("-");
-  const unsigned = coefficient!.replace(/^[+-]/, "");
+  if (!coefficient) {
+    throw new RangeError("Unsupported decimal unit scale.");
+  }
+  const negative = coefficient.startsWith("-");
+  const unsigned = coefficient.replace(/^[+-]/, "");
   const digits = unsigned.replace(".", "");
   const point =
     (unsigned.includes(".") ? unsigned.indexOf(".") : unsigned.length) + Number(exponent);
