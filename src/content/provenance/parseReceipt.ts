@@ -48,7 +48,7 @@ export function parseReceipt(markdownText: string, filePath: string): ParsedRece
 
   // 1. Split front matter
   const fmMatch = markdownText.match(/^---\r?\n([\s\S]*?)\r?\n---\r?\n([\s\S]*)$/);
-  if (!fmMatch) {
+  if (!fmMatch || fmMatch[1] === undefined || fmMatch[2] === undefined) {
     err(
       "receipt-format-structure",
       "front-matter",
@@ -57,8 +57,8 @@ export function parseReceipt(markdownText: string, filePath: string): ParsedRece
     return { ok: false, bodySections: [], diagnostics };
   }
 
-  const rawFrontMatter = fmMatch[1]!;
-  const body = fmMatch[2]!;
+  const rawFrontMatter = fmMatch[1];
+  const body = fmMatch[2];
 
   // 2. Parse YAML
   let frontMatterRaw: unknown;
@@ -84,7 +84,7 @@ export function parseReceipt(markdownText: string, filePath: string): ParsedRece
   const foundHeadings: { title: string; lineIndex: number; lineNumber: number }[] = [];
 
   for (let i = 0; i < lines.length; i++) {
-    const line = lines[i]!.trim();
+    const line = lines[i]?.trim() ?? "";
     if (line.startsWith("## ")) {
       foundHeadings.push({
         title: line,
@@ -95,9 +95,7 @@ export function parseReceipt(markdownText: string, filePath: string): ParsedRece
   }
 
   // 4. Validate heading presence and order
-  let headingOrderValid = true;
   if (foundHeadings.length !== REQUIRED_RECEIPT_HEADINGS.length) {
-    headingOrderValid = false;
     err(
       "receipt-headings-mismatch",
       "body.headings",
@@ -107,10 +105,10 @@ export function parseReceipt(markdownText: string, filePath: string): ParsedRece
     );
   } else {
     for (let i = 0; i < REQUIRED_RECEIPT_HEADINGS.length; i++) {
-      const expected = REQUIRED_RECEIPT_HEADINGS[i]!;
+      const expected = REQUIRED_RECEIPT_HEADINGS[i];
+      if (!expected) continue;
       const actual = foundHeadings[i]?.title;
       if (actual !== expected) {
-        headingOrderValid = false;
         err(
           "receipt-headings-order",
           `body.headings[${i}]`,
@@ -125,9 +123,10 @@ export function parseReceipt(markdownText: string, filePath: string): ParsedRece
   // 5. Extract section contents
   const bodySections: ReceiptBodySection[] = [];
   for (let i = 0; i < foundHeadings.length; i++) {
-    const cur = foundHeadings[i]!;
-    const nextLineIndex =
-      i + 1 < foundHeadings.length ? foundHeadings[i + 1]!.lineIndex : lines.length;
+    const cur = foundHeadings[i];
+    if (!cur) continue;
+    const nextHeading = i + 1 < foundHeadings.length ? foundHeadings[i + 1] : undefined;
+    const nextLineIndex = nextHeading ? nextHeading.lineIndex : lines.length;
     const contentLines = lines.slice(cur.lineIndex + 1, nextLineIndex);
     const content = contentLines.join("\n").trim();
 
