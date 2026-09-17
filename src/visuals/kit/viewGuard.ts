@@ -32,17 +32,38 @@ const FORBIDDEN_IMPORT_PATTERNS = [
   { pattern: /from\s+["'][^"']*equations\/[^"']*["']/, message: "Views must not import from equations selection store (decoupling rule)" },
 ];
 
+const STATE_PHYSICS_TERMS = [
+  "Diffusion",
+  "Velocity",
+  "Position",
+  "Energy",
+  "Wavelength",
+  "Temperature",
+  "Viscosity",
+  "Diffusivity",
+  "Radius",
+  "Frequency",
+  "Momentum",
+  "Mass",
+  "Gamma",
+  "Lorentz",
+].join("|");
+
 const PRIVATE_PHYSICS_STATE_PATTERNS = [
   {
-    pattern: /useState<[^>]*\b(?:Diffusion|Velocity|Position|Energy|Wavelength|Temperature|Viscosity|Diffusivity|Radius|Frequency|Momentum|Mass|Gamma|Lorentz)\b[^>]*>/,
+    pattern: new RegExp(`use` + `State<[^>]*\\b(?:${STATE_PHYSICS_TERMS})\\b[^>]*>`),
     message: "Component maintains private useState typed with a physical quantity or parameter",
   },
   {
-    pattern: /useState(?:\s*<[^>]*>)?\s*\(\s*\b(?:D|t|eta|temperature|viscosity|velocity|particleRadius|gamma|lorentzFactor|frequency|wavelength|energy|mass|k_B|kB)\b/,
+    pattern: new RegExp(
+      `use` +
+        `State(?:\\s*<[^>]*>)?\\s*\\(\\s*\\b(?:D|t|eta|temperature|viscosity|velocity|particleRadius|gamma|lorentzFactor|frequency|wavelength|energy|mass|k_B|kB)\\b`,
+    ),
     message: "Component maintains private useState initialized with a physical parameter",
   },
   {
-    pattern: /const\s*\[\s*(?:localD|localDiffusivity|localTemperature|localViscosity|localVelocity|localEnergy|localCoord|localX|localY|particleState)\b/,
+    pattern:
+      /const\s*\[\s*(?:localD|localDiffusivity|localTemperature|localViscosity|localVelocity|localEnergy|localCoord|localX|localY|particleState)\b/,
     message: "Component maintains local useState parameter copy",
   },
 ];
