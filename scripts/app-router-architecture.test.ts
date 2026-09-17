@@ -64,6 +64,21 @@ const BASE_ALLOWLIST: Allowlist = {
   ".github": "GitHub Actions CI/CD workflows and repository automation",
 };
 
+/**
+ * Indexed access under noUncheckedIndexedAccess is `T | undefined`, and these tests
+ * read the element straight after asserting how many there are. Asserting presence
+ * here turns "possibly undefined" into a real check with a message, instead of a
+ * TypeError at the property access (am-7mp8).
+ */
+function at<T>(items: readonly T[], index: number): T {
+  const value = items[index];
+  assert.ok(
+    value !== undefined,
+    `expected an element at index ${index}, but the list holds ${items.length}`,
+  );
+  return value;
+}
+
 describe("App Router Architecture Gate", () => {
   describe("Clean repository fixture", () => {
     it("accepts a clean App Router repository with zero violations", () => {
@@ -98,18 +113,18 @@ describe("App Router Architecture Gate", () => {
       const entries: RepoEntry[] = [{ path: "src/pages", kind: "directory" }];
       const violations = checkArchitecture(entries, () => false, BASE_ALLOWLIST);
       assert.equal(violations.length, 1);
-      assert.equal(violations[0].rule, "rule-1-pages-router");
-      assert.equal(violations[0].path, "src/pages");
-      assert.match(violations[0].message, /All routes belong in 'src\/app\/'/);
-      assert.match(violations[0].repair, /move route definitions to 'src\/app\/'/);
+      assert.equal(at(violations, 0).rule, "rule-1-pages-router");
+      assert.equal(at(violations, 0).path, "src/pages");
+      assert.match(at(violations, 0).message, /All routes belong in 'src\/app\/'/);
+      assert.match(at(violations, 0).repair, /move route definitions to 'src\/app\/'/);
     });
 
     it("rejects src/pages/.keep", () => {
       const entries: RepoEntry[] = [{ path: "src/pages/.keep", kind: "file" }];
       const violations = checkArchitecture(entries, () => false, BASE_ALLOWLIST);
       assert.equal(violations.length, 1);
-      assert.equal(violations[0].rule, "rule-1-pages-router");
-      assert.equal(violations[0].path, "src/pages/.keep");
+      assert.equal(at(violations, 0).rule, "rule-1-pages-router");
+      assert.equal(at(violations, 0).path, "src/pages/.keep");
     });
 
     it("rejects src/pages/.keep even when ignore predicate returns true", () => {
@@ -117,15 +132,15 @@ describe("App Router Architecture Gate", () => {
       // Even if gitignore ignores src/pages, rule 1 MUST fail
       const violations = checkArchitecture(entries, () => true, BASE_ALLOWLIST);
       assert.equal(violations.length, 1);
-      assert.equal(violations[0].rule, "rule-1-pages-router");
+      assert.equal(at(violations, 0).rule, "rule-1-pages-router");
     });
 
     it("rejects root pages/index.tsx", () => {
       const entries: RepoEntry[] = [{ path: "pages/index.tsx", kind: "file" }];
       const violations = checkArchitecture(entries, () => false, BASE_ALLOWLIST);
       assert.equal(violations.length, 1);
-      assert.equal(violations[0].rule, "rule-1-pages-router");
-      assert.equal(violations[0].path, "pages/index.tsx");
+      assert.equal(at(violations, 0).rule, "rule-1-pages-router");
+      assert.equal(at(violations, 0).path, "pages/index.tsx");
     });
   });
 
@@ -143,25 +158,25 @@ describe("App Router Architecture Gate", () => {
       const entries: RepoEntry[] = [{ path: "src/other/layout.tsx", kind: "file" }];
       const violations = checkArchitecture(entries, () => false, BASE_ALLOWLIST);
       assert.equal(violations.length, 1);
-      assert.equal(violations[0].rule, "rule-2-second-app-root");
-      assert.equal(violations[0].path, "src/other/layout.tsx");
-      assert.match(violations[0].repair, /ReaderLayout\.tsx/);
+      assert.equal(at(violations, 0).rule, "rule-2-second-app-root");
+      assert.equal(at(violations, 0).path, "src/other/layout.tsx");
+      assert.match(at(violations, 0).repair, /ReaderLayout\.tsx/);
     });
 
     it("rejects src/reader/route.ts", () => {
       const entries: RepoEntry[] = [{ path: "src/reader/route.ts", kind: "file" }];
       const violations = checkArchitecture(entries, () => false, BASE_ALLOWLIST);
       assert.equal(violations.length, 1);
-      assert.equal(violations[0].rule, "rule-2-second-app-root");
-      assert.equal(violations[0].path, "src/reader/route.ts");
+      assert.equal(at(violations, 0).rule, "rule-2-second-app-root");
+      assert.equal(at(violations, 0).path, "src/reader/route.ts");
     });
 
     it("rejects docs/site/next.config.mjs", () => {
       const entries: RepoEntry[] = [{ path: "docs/site/next.config.mjs", kind: "file" }];
       const violations = checkArchitecture(entries, () => false, BASE_ALLOWLIST);
       assert.equal(violations.length, 1);
-      assert.equal(violations[0].rule, "rule-2-second-app-root");
-      assert.equal(violations[0].path, "docs/site/next.config.mjs");
+      assert.equal(at(violations, 0).rule, "rule-2-second-app-root");
+      assert.equal(at(violations, 0).path, "docs/site/next.config.mjs");
     });
 
     it("accepts valid route groups and component names inside and outside src/app/", () => {
@@ -179,8 +194,8 @@ describe("App Router Architecture Gate", () => {
       const entries: RepoEntry[] = [{ path: "ios/App/pages/index.swift", kind: "file" }];
       const violations = checkArchitecture(entries, () => false, BASE_ALLOWLIST);
       assert.equal(violations.length, 1);
-      assert.equal(violations[0].rule, "rule-2-second-app-root");
-      assert.equal(violations[0].path, "ios/App/pages/index.swift");
+      assert.equal(at(violations, 0).rule, "rule-2-second-app-root");
+      assert.equal(at(violations, 0).path, "ios/App/pages/index.swift");
     });
   });
 
@@ -189,24 +204,24 @@ describe("App Router Architecture Gate", () => {
       const entries: RepoEntry[] = [{ path: "src/components/_document.tsx", kind: "file" }];
       const violations = checkArchitecture(entries, () => false, BASE_ALLOWLIST);
       assert.equal(violations.length, 1);
-      assert.equal(violations[0].rule, "rule-3-legacy-files");
-      assert.equal(violations[0].path, "src/components/_document.tsx");
+      assert.equal(at(violations, 0).rule, "rule-3-legacy-files");
+      assert.equal(at(violations, 0).path, "src/components/_document.tsx");
     });
 
     it("rejects src/app/_error.jsx", () => {
       const entries: RepoEntry[] = [{ path: "src/app/_error.jsx", kind: "file" }];
       const violations = checkArchitecture(entries, () => false, BASE_ALLOWLIST);
       assert.equal(violations.length, 1);
-      assert.equal(violations[0].rule, "rule-3-legacy-files");
-      assert.equal(violations[0].path, "src/app/_error.jsx");
+      assert.equal(at(violations, 0).rule, "rule-3-legacy-files");
+      assert.equal(at(violations, 0).path, "src/app/_error.jsx");
     });
 
     it("rejects src/_app.tsx", () => {
       const entries: RepoEntry[] = [{ path: "src/_app.tsx", kind: "file" }];
       const violations = checkArchitecture(entries, () => false, BASE_ALLOWLIST);
       assert.equal(violations.length, 1);
-      assert.equal(violations[0].rule, "rule-3-legacy-files");
-      assert.equal(violations[0].path, "src/_app.tsx");
+      assert.equal(at(violations, 0).rule, "rule-3-legacy-files");
+      assert.equal(at(violations, 0).path, "src/_app.tsx");
     });
   });
 
@@ -215,16 +230,16 @@ describe("App Router Architecture Gate", () => {
       const entries: RepoEntry[] = [{ path: "scratch.ts", kind: "file" }];
       const violations = checkArchitecture(entries, () => false, BASE_ALLOWLIST);
       assert.equal(violations.length, 1);
-      assert.equal(violations[0].rule, "rule-4-root-allowlist");
-      assert.equal(violations[0].path, "scratch.ts");
+      assert.equal(at(violations, 0).rule, "rule-4-root-allowlist");
+      assert.equal(at(violations, 0).path, "scratch.ts");
     });
 
     it("fails on unignored stray fix_script.py at root", () => {
       const entries: RepoEntry[] = [{ path: "fix_script.py", kind: "file" }];
       const violations = checkArchitecture(entries, () => false, BASE_ALLOWLIST);
       assert.equal(violations.length, 1);
-      assert.equal(violations[0].rule, "rule-4-root-allowlist");
-      assert.equal(violations[0].path, "fix_script.py");
+      assert.equal(at(violations, 0).rule, "rule-4-root-allowlist");
+      assert.equal(at(violations, 0).path, "fix_script.py");
     });
 
     it("passes ignored root entries (e.g. node_modules, artifacts, generated)", () => {
@@ -251,7 +266,7 @@ describe("App Router Architecture Gate", () => {
       // Without tailwind in allowlist -> fails
       const violationsBefore = checkArchitecture(entries, () => false, BASE_ALLOWLIST);
       assert.equal(violationsBefore.length, 1);
-      assert.equal(violationsBefore[0].rule, "rule-4-root-allowlist");
+      assert.equal(at(violationsBefore, 0).rule, "rule-4-root-allowlist");
 
       // With tailwind in allowlist -> passes
       const updatedAllowlist = {
@@ -276,8 +291,8 @@ describe("App Router Architecture Gate", () => {
       // Not ignored: fails with explicit must-be-ignored message
       const violationsNotIgnored = checkArchitecture(entries, () => false, BASE_ALLOWLIST);
       assert.equal(violationsNotIgnored.length, 1);
-      assert.equal(violationsNotIgnored[0].rule, "rule-4-root-allowlist");
-      assert.match(violationsNotIgnored[0].message, /must never be committed/);
+      assert.equal(at(violationsNotIgnored, 0).rule, "rule-4-root-allowlist");
+      assert.match(at(violationsNotIgnored, 0).message, /must never be committed/);
     });
 
     it("passes source-layer paths inside allowlisted directories (scripts/sources, docs/)", () => {
@@ -297,24 +312,24 @@ describe("App Router Architecture Gate", () => {
       const entries: RepoEntry[] = [{ path: "src/physics/fix_units.py", kind: "file" }];
       const violations = checkArchitecture(entries, () => false, BASE_ALLOWLIST);
       assert.equal(violations.length, 1);
-      assert.equal(violations[0].rule, "rule-5-scratch-files");
-      assert.equal(violations[0].path, "src/physics/fix_units.py");
+      assert.equal(at(violations, 0).rule, "rule-5-scratch-files");
+      assert.equal(at(violations, 0).path, "src/physics/fix_units.py");
     });
 
     it("fails on content/equations/notes.wip.md", () => {
       const entries: RepoEntry[] = [{ path: "content/equations/notes.wip.md", kind: "file" }];
       const violations = checkArchitecture(entries, () => false, BASE_ALLOWLIST);
       assert.equal(violations.length, 1);
-      assert.equal(violations[0].rule, "rule-5-scratch-files");
-      assert.equal(violations[0].path, "content/equations/notes.wip.md");
+      assert.equal(at(violations, 0).rule, "rule-5-scratch-files");
+      assert.equal(at(violations, 0).path, "content/equations/notes.wip.md");
     });
 
     it("fails on public/figures/diagram.orig", () => {
       const entries: RepoEntry[] = [{ path: "public/figures/diagram.orig", kind: "file" }];
       const violations = checkArchitecture(entries, () => false, BASE_ALLOWLIST);
       assert.equal(violations.length, 1);
-      assert.equal(violations[0].rule, "rule-5-scratch-files");
-      assert.equal(violations[0].path, "public/figures/diagram.orig");
+      assert.equal(at(violations, 0).rule, "rule-5-scratch-files");
+      assert.equal(at(violations, 0).path, "public/figures/diagram.orig");
     });
 
     it("fails on scratch/tmp_/debug_ files in src/", () => {
@@ -396,12 +411,12 @@ describe("App Router Architecture Gate", () => {
       const lines = content.trim().split("\n");
       assert.equal(lines.length, 3); // 2 violations + 1 summary
 
-      const v1 = JSON.parse(lines[0]);
+      const v1 = JSON.parse(at(lines, 0));
       assert.equal(v1.suite, "architecture");
       assert.equal(v1.logRunId, logRunId);
       assert.equal(v1.rule, "rule-1-pages-router");
 
-      const summary = JSON.parse(lines[2]);
+      const summary = JSON.parse(at(lines, 2));
       assert.equal(summary.outcome, "failed");
       assert.equal(summary.violations, 2);
       assert.equal(summary.entriesScanned, 2);

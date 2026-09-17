@@ -12,10 +12,15 @@ export async function checkWalkBrowser(browser, url, check) {
   const staticLab = staticPage.locator('[data-instrument-id="bm-05"]');
   assert.equal(await staticLab.locator(".walk-trace").count(), 20);
   assert.equal(
-    await staticLab.locator('[data-quantity-id="diffusionCoefficient"]').innerText(),
+    await staticLab
+      .locator('[data-quantity-id="diffusionCoefficient"]:not(.kernel-ident)')
+      .innerText(),
     "1.25",
   );
-  assert.equal(await staticLab.locator('[data-quantity-id="modelMeanSquare"]').innerText(), "1");
+  assert.equal(
+    await staticLab.locator('[data-quantity-id="modelMeanSquare"]:not(.kernel-ident)').innerText(),
+    "1",
+  );
   assert.match(await staticLab.innerText(), /Binomial counts out of 16/);
   assert.equal(
     await staticLab.getByRole("button", { name: "Apply walk settings", exact: true }).isDisabled(),
@@ -52,7 +57,10 @@ export async function checkWalkBrowser(browser, url, check) {
     assert.deepEqual(errors, []);
     check("BM-05: hydration preserves the worked example without starting a random trial");
     const value = (id) =>
-      lab.locator(`[data-quantity-id="${id}"]`).first().getAttribute("data-value");
+      lab
+        .locator(`[data-quantity-id="${id}"]:not(.kernel-ident)`)
+        .first()
+        .getAttribute("data-value");
     async function accepted(action, target = lab) {
       const before = Number(await target.getAttribute("data-snapshot-version")),
         id = await target.getAttribute("data-instance-id");
@@ -129,12 +137,12 @@ export async function checkWalkBrowser(browser, url, check) {
     assert.equal(await value("biasedDiffusion"), "1.25e-12");
     await lab.getByText("Remove finite variance: Cauchy steps", { exact: true }).click();
     assert.match(
-      await lab.locator('[data-quantity-id="cauchyDiffusion"]').innerText(),
+      await lab.locator('[data-quantity-id="cauchyDiffusion"]:not(.kernel-ident)').innerText(),
       /Cauchy variance is not finite/,
     );
     await lab.getByText("Shrink the interval: what must stay fixed?", { exact: true }).click();
     assert.match(
-      await lab.locator('[data-quantity-id="continuumLimit"]').innerText(),
+      await lab.locator('[data-quantity-id="continuumLimit"]:not(.kernel-ident)').innerText(),
       /grow without bound/,
     );
     check(
