@@ -5,10 +5,6 @@ import { fileURLToPath } from "node:url";
 import { renderToString } from "katex";
 import { INLINE_SCRIPT_REGISTRY } from "../src/app/inline-scripts/registry.ts";
 import {
-  buildInlineScriptHashManifest,
-  serializeInlineScriptHashManifest,
-} from "./build/inline-script-hashes.ts";
-import {
   loadContentIndex,
   loadFoundationPayload,
   loadPaperPayload,
@@ -27,6 +23,10 @@ import {
   offlineProfile,
   publishOfflineChapters,
 } from "../src/platform/offline/server.ts";
+import {
+  buildInlineScriptHashManifest,
+  serializeInlineScriptHashManifest,
+} from "./build/inline-script-hashes.ts";
 
 /** Consume only built-in prepared results, never a user's current lab or notebook. */
 async function preparedExamples(root: string): Promise<readonly OfflineWorkedExample[]> {
@@ -190,21 +190,26 @@ export async function buildOfflineChapters(
   };
   // Use the shared registry and serializer, not a second script hash manifest format.
   const buildRevision = execFileSync("git", ["rev-parse", "HEAD"], {
-    cwd: root, encoding: "utf8",
+    cwd: root,
+    encoding: "utf8",
   }).trim();
   const generatedAt = execFileSync("git", ["log", "-1", "--format=%cI"], {
-    cwd: root, encoding: "utf8",
+    cwd: root,
+    encoding: "utf8",
   }).trim();
   const scriptManifest = buildInlineScriptHashManifest(INLINE_SCRIPT_REGISTRY, {
-    buildRevision, generatedAt,
+    buildRevision,
+    generatedAt,
   });
   const detailScript = scriptManifest.scripts.find((entry) => entry.id === "offline-detail");
   if (!detailScript || files.some((file) => file.scriptHash !== detailScript.sha256))
     throw new Error("Offline script bytes do not match the shared inline-script registry.");
   await publishOfflineChapters(root, manifest, files);
   await mkdir(resolve(root, "artifacts/build"), { recursive: true });
-  await writeFile(resolve(root, "artifacts/build/inline-script-hashes.json"),
-    serializeInlineScriptHashManifest(scriptManifest));
+  await writeFile(
+    resolve(root, "artifacts/build/inline-script-hashes.json"),
+    serializeInlineScriptHashManifest(scriptManifest),
+  );
   return manifest;
 }
 if (process.argv[1] && resolve(process.argv[1]) === fileURLToPath(import.meta.url)) {
