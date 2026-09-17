@@ -5,6 +5,8 @@ import { parseTrajectoryCsv, TRAJECTORY_LIMITS, trajectorySiCsv } from "../../ex
 import { trajectoryAnalysisJson, type TrajectoryAnalysis } from "../../experiments/bm07/trajectoryAnalysis.ts";
 import { EMPTY_TRAJECTORY_DRAFT, readTrajectoryDraft, type TrajectoryDraft } from "../../experiments/bm07/trajectoryDraft.ts";
 
+import { TrajectoryInspection } from "./TrajectoryInspection.tsx";
+
 const estimatorNames = {
   "drift-centered": "Fit a common drift · unbiased spread",
   "maximum-likelihood-centered": "Fit a common drift · maximum likelihood",
@@ -261,23 +263,7 @@ export function MeasuredTrajectoryLab() {
             <tr><th scope="row">Estimated Boltzmann constant</th><td>{a.molecular.estimatedBoltzmannConstant === null ? "Not available" : `${display(a.molecular.estimatedBoltzmannConstant)} J/K`}</td></tr>
           </tbody>
         </table>}
-        <details>
-          <summary>Inspect the accepted positions and calibration</summary>
-          <div style={{ overflowX: "auto" }}>
-            <table className="inference-summary">
-              <caption>First {Math.min(12, a.trajectory.points.length)} of {a.trajectory.points.length} accepted positions, converted to SI. Analysis uses every admitted position, not only this preview.</caption>
-              <thead><tr><th scope="col">CSV row</th><th scope="col">Track</th><th scope="col">Time (s)</th>
-                {["x", "y", "z"].slice(0, a.trajectory.dimension).map((axis) => <th scope="col" key={axis}>{axis} (m)</th>)}</tr></thead>
-              <tbody>{a.trajectory.points.slice(0, 12).map((point) => <tr key={point.row}>
-                <th scope="row">{point.row}</th><td>{point.track}</td><td>{display(point.time)}</td>
-                {point.coordinates.map((coordinate, index) => <td key={index}>{display(coordinate)}</td>)}
-              </tr>)}</tbody>
-            </table>
-          </div>
-          <p>The full JSON export includes the accepted observations, unit conversion, physical
-            assumptions, result statuses and limitations. Numeric CSV exports use SI-labelled
-            columns and replace track labels with numeric IDs for spreadsheet safety.</p>
-        </details>
+        <TrajectoryInspection key={accepted.run} trajectory={a.trajectory} />
         <div className="actions">
           <button type="button" onClick={() => download("json")}>Download accepted analysis and observations (JSON)</button>
           <button type="button" className="secondary" onClick={() => download("csv")}>Download accepted SI observations (CSV)</button>
