@@ -29,7 +29,7 @@
  * ============================================================================
  */
 
-import { mkdir, readFile } from "node:fs/promises";
+import { mkdir, readFile, writeFile } from "node:fs/promises";
 import { dirname, resolve } from "node:path";
 import { fileURLToPath } from "node:url";
 import { loadAdapter } from "./ocr-adapters/loader.ts";
@@ -115,6 +115,12 @@ export async function runOcrOrchestrator(
   const toolRunId = options.resumeToolRunId ?? options.toolRunId ?? generateToolRunId();
   const runDir = resolve(ROOT, "artifacts/ocr-runs", plan.key, toolRunId);
   await mkdir(runDir, { recursive: true });
+  const evidenceMarker = resolve(runDir, "RESEARCH_EVIDENCE_ONLY");
+  await writeFile(
+    evidenceMarker,
+    "Cloud OCR drafts in this directory are research evidence only. They are not the source face, not the reviewed ledger, and never accepted for an equation.\n",
+    "utf-8",
+  );
 
   // If summarize-only
   if (options.summarizeOnly) {
@@ -201,6 +207,7 @@ export async function runOcrOrchestrator(
   const resumeState = await resumeRun(runDir, plan, {
     resubmitChunkIndex: options.resubmitChunkIndex,
     resubmitReason: options.resubmitReason,
+    adapterName: adapter.name,
   });
 
   const checkpointContext: CheckpointContext = {
@@ -209,6 +216,7 @@ export async function runOcrOrchestrator(
     logRunId,
     adapter: adapter.name,
     instructionsVersion: plan.instructionsVersion,
+    facsimileSha256: plan.facsimileSha256,
     renderedPages: renderedPagesMap,
   };
 

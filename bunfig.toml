@@ -9,4 +9,5 @@ pathIgnorePatterns = [
   "scripts/e2e",
   "**/*.e2e.test.ts",
   "scripts/quality-gates.test.ts",
+  "scripts/ocr-ledgers.test.ts",
 ]

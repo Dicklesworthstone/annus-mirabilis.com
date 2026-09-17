@@ -106,6 +106,11 @@ describe("OCR Orchestrator: End-to-End Pipeline Test", () => {
       // Assert Receipt Block
       assert.ok(res2.receiptBlock?.includes(toolRunId));
       assert.ok(res2.receiptBlock?.includes("research evidence only"));
+      assert.ok(existsSync(resolve(runDir, "RESEARCH_EVIDENCE_ONLY")));
+      const page1 = await readFile(resolve(runDir, "pages/page-1.md"), "utf-8");
+      assert.ok(page1.includes("SYNTHETIC OCR FIXTURE"));
+      assert.ok(!page1.includes("Einstein"));
+      assert.ok(!page1.includes("Annalen der Physik"));
 
       // Assert Ordered run.jsonl statuses
       const runLogPath = resolve(runDir, "run.jsonl");

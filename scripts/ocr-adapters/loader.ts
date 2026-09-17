@@ -65,11 +65,18 @@ export function loadAdapter(
   }
 
   if (normalized === "fixture") {
+    const env = options.nodeEnv ?? process.env.NODE_ENV;
+    if (env !== "test") {
+      throw new OcrRefusalError(
+        "FIXTURE_ADAPTER_OUTSIDE_TEST",
+        `Fixture adapter loads only when NODE_ENV=test (got ${JSON.stringify(env ?? "")}). See docs/OCR_DISPATCH.md.`,
+      );
+    }
     return new FixtureAdapter(options);
   }
 
   throw new OcrRefusalError(
     "NO_ADAPTER",
-    `Unknown OCR adapter: "${name}". Cloud adapters must be implemented in scripts/ocr-adapters/ and registered. See docs/OCR_DISPATCH.md.`,
+    `Unknown OCR adapter: "${name}". No cloud adapter is committed. The dispatch interface is waiting on the user (am-src-ocr-dispatch-interface-m1ur). See docs/OCR_DISPATCH.md.`,
   );
 }

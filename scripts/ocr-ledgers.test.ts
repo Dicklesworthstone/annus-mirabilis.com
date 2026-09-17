@@ -1,10 +1,15 @@
 import assert from "node:assert";
+import { createHash } from "node:crypto";
 import { existsSync } from "node:fs";
-import { readFile, writeFile } from "node:fs/promises";
+import { mkdir, readFile, writeFile } from "node:fs/promises";
 import { dirname, resolve } from "node:path";
 import { describe, it } from "node:test";
 import { fileURLToPath } from "node:url";
-import { FixtureAdapter } from "./ocr-adapters/fixture-adapter.ts";
+import {
+  FixtureAdapter,
+  SYNTHETIC_FIXTURE_BANNER,
+  syntheticFixtureDraft,
+} from "./ocr-adapters/fixture-adapter.ts";
 import { loadAdapter } from "./ocr-adapters/loader.ts";
 import { OcrRefusalError } from "./ocr-adapters/types.ts";
 import {
@@ -148,6 +153,24 @@ describe("OCR Orchestrator: Unit and Integration Tests", () => {
       );
     });
 
+    it("refuses fixture adapter when NODE_ENV is development or unset", () => {
+      assert.throws(
+        () => loadAdapter("fixture", { nodeEnv: "development" }),
+        (err: any) =>
+          err instanceof OcrRefusalError && err.refusalCode === "FIXTURE_ADAPTER_OUTSIDE_TEST",
+      );
+      assert.throws(
+        () => loadAdapter({ adapterName: "fixture", nodeEnv: "" }),
+        (err: any) =>
+          err instanceof OcrRefusalError && err.refusalCode === "FIXTURE_ADAPTER_OUTSIDE_TEST",
+      );
+    });
+
+    it("loads the fixture adapter only when NODE_ENV=test", () => {
+      const adapter = loadAdapter("fixture", { nodeEnv: "test" });
+      assert.equal(adapter.name, "fixture");
+    });
+
     it("refuses worker identity that differs from the plan with WORKER_IDENTITY_MISMATCH", async () => {
       const adapter = new FixtureAdapter({ workerIdentity: "unauthorized-worker-identity" });
       const planPath = "scripts/sources/ocr-plans/fixture-3p.yaml";
@@ -239,6 +262,10 @@ describe("OCR Orchestrator: Unit and Integration Tests", () => {
       assert.equal(adapter1.getSubmissionCount(0), 1);
       assert.equal(adapter1.getSubmissionCount(1), 1);
 
+      const runDir = resolve(ROOT, "artifacts/ocr-runs/fixture-31p", toolRunId);
+      const page1Path = resolve(runDir, "pages/page-1.md");
+      const page1AfterFirst = await readFile(page1Path, "utf-8");
+
       // Second attempt: resume with working adapter
       const adapter2 = new FixtureAdapter();
       const res2 = await runOcrOrchestrator({
@@ -255,6 +282,67 @@ describe("OCR Orchestrator: Unit and Integration Tests", () => {
       assert.equal(adapter2.getSubmissionCount(1), 0);
       // Chunk 2 and subsequent should be submitted
       assert.equal(adapter2.getSubmissionCount(2), 1);
+
+      const page1AfterResume = await readFile(page1Path, "utf-8");
+      assert.equal(
+        page1AfterResume,
+        page1AfterFirst,
+        "Resume must not rewrite a page it already wrote",
+      );
+      assert.ok(existsSync(resolve(runDir, "RESEARCH_EVIDENCE_ONLY")));
+    });
+
+    it("a 400-page run interrupted after page 300 resumes at page 301 and does not mark 301 complete", async () => {
+      const digest = "ab".repeat(32);
+      const plan = {
+        planVersion: 1 as const,
+        key: "fixture-400",
+        facsimilePath: "src/testing/fixtures/ocr/fixture-3p.pdf",
+        facsimileSha256: digest,
+        pdfPageRange: [1, 400] as [number, number],
+        chunkSize: 1,
+        maxConcurrency: 1,
+        cloudProcessing: "permitted" as const,
+        cloudProcessingBasisRef: "test",
+        render: { dpi: 300, format: "png" as const },
+        instructionsVersion: "v1",
+        expectedWorkerIdentity: "gpt-5.6-luna",
+      };
+      const runDir = resolve(ROOT, "artifacts/ocr-runs/fixture-400", `resume-301-${Date.now()}`);
+      const pagesDir = resolve(runDir, "pages");
+      await mkdir(pagesDir, { recursive: true });
+
+      for (let page = 1; page <= 300; page++) {
+        const body = syntheticFixtureDraft(page, plan.key);
+        const textSha256 = createHash("sha256").update(body).digest("hex");
+        const content =
+          [
+            "---",
+            `key: ${plan.key}`,
+            `pdfPage: ${page}`,
+            `facsimileSha256: ${digest}`,
+            `toolRunId: resume-301`,
+            `logRunId: process-1`,
+            `chunkIndex: ${page - 1}`,
+            `jobId: fixture-job-${page}`,
+            `adapter: fixture`,
+            `workerIdentity: gpt-5.6-luna`,
+            `model: gpt-5.6-luna-2026-03-01`,
+            `instructionsVersion: v1`,
+            `imageSha256: ${"cd".repeat(32)}`,
+            `textSha256: ${textSha256}`,
+            `receivedAt: 2026-09-17T00:00:00.000Z`,
+            "---",
+            "",
+          ].join("\n") + body;
+        await writeFile(resolve(pagesDir, `page-${page}.md`), content);
+      }
+
+      const resumeState = await resumeRun(runDir, plan, { adapterName: "fixture" });
+      assert.equal(resumeState.completedChunkIndices.size, 300);
+      assert.ok(resumeState.completedChunkIndices.has(299), "chunk for page 300 is complete");
+      assert.ok(!resumeState.completedChunkIndices.has(300), "chunk for page 301 is not complete");
+      assert.ok(!resumeState.existingPages.has(301));
     });
 
     it("resubmits an incomplete chunk if a page body no longer matches textSha256", async () => {
@@ -390,6 +478,18 @@ describe("OCR Orchestrator: Unit and Integration Tests", () => {
 
       assert.ok(!redacted.includes(secretToken), "Redacted text must not contain raw secret token");
       assert.ok(redacted.includes("[REDACTED]"));
+    });
+  });
+
+  describe("Synthetic fixtures are not source text", () => {
+    it("fixture drafts carry a synthetic banner and do not quote Einstein or the Annalen", () => {
+      const draft = syntheticFixtureDraft(12, "fixture-31p");
+      assert.ok(draft.includes(SYNTHETIC_FIXTURE_BANNER));
+      assert.ok(draft.includes("[[SYNTHETIC-FIXTURE"));
+      assert.ok(!draft.includes("Einstein"));
+      assert.ok(!draft.includes("Annalen"));
+      assert.ok(!draft.includes("molekularkinetischen"));
+      assert.ok(!draft.includes("Elektrodynamik"));
     });
   });
 });

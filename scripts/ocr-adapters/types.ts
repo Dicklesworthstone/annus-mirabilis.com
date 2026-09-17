@@ -118,6 +118,16 @@ export interface DescribeResult {
   workerIdentity?: string | undefined;
 }
 
+/**
+ * Injected cloud OCR dispatch port.
+ *
+ * The orchestrator never constructs a vendor client. A production run
+ * receives an adapter through `OCR_ADAPTER` / `--adapter`, or it refuses
+ * with `NO_ADAPTER`. There is no local implementation of this port, and
+ * none may be added. The concrete Luna adapter is
+ * `am-src-ocr-cloud-adapter-7wa1`, blocked on
+ * `am-src-ocr-dispatch-interface-m1ur`.
+ */
 export interface CloudOcrAdapter {
   readonly name: string;
   describe(): Promise<DescribeResult> | DescribeResult;
@@ -125,3 +135,6 @@ export interface CloudOcrAdapter {
   poll(jobId: string): Promise<PollResult>;
   fetchResult(jobId: string): Promise<FetchResult>;
 }
+
+/** Alias that names the injection seam. Same object as `CloudOcrAdapter`. */
+export type OcrDispatchPort = CloudOcrAdapter;

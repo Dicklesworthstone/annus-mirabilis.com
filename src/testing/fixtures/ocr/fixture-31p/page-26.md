@@ -1,9 +1,10 @@
-[[RUNNING-HEAD Annalen der Physik (4) 17]]
-[[PAGE-NUMBER 916]]
-Zur [[SPERR]]Elektrodynamik[[/SPERR]] bewegter Körper.
-Daß die Elektrodynamik Maxwells — wie dieselbe gegenwärtig aufgefaßt zu werden pflegt — in ihrer Anwendung auf bewegte Körper zu Asymmetrien führt.
-[[FN-MARK 1)]]
+<!-- SYNTHETIC OCR FIXTURE — NOT SOURCE — NOT LEDGER — NOT EDITION -->
+[[SYNTHETIC-FIXTURE key=fixture-31p pdfPage=26]]
+This is test-double output for the OCR dispatch port.
+It is not a transcription of any printed page and must never be copied into a ledger.
+[[PAGE-NUMBER 26]]
 [[MATH-REGION page=26]]
-% unverified draft
-$$ \tau = t \sqrt{1 - (v/V)^2} $$
-[[FN 1)]] A. Einstein, Ann. d. Phys. 17. p. 891. 1905.
+% unverified synthetic draft — not a historical equation
+$$ x_{\mathrm{fixture}} = 26 $$
+[[FN-MARK 1)]]
+[[FN 1)]] synthetic footnote for coverage counts only.

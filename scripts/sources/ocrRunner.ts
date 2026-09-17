@@ -463,6 +463,7 @@ export interface CheckpointContext {
   logRunId: string;
   adapter: string;
   instructionsVersion: string;
+  facsimileSha256: string;
   renderedPages: Map<number, RenderedPage>;
 }
 
@@ -483,6 +484,7 @@ export async function writeCheckpoint(
       "---",
       `key: ${context.key}`,
       `pdfPage: ${page.pdfPage}`,
+      `facsimileSha256: ${context.facsimileSha256}`,
       `toolRunId: ${context.toolRunId}`,
       `logRunId: ${context.logRunId}`,
       `chunkIndex: ${chunk.chunkIndex}`,
@@ -536,6 +538,7 @@ export interface ParsedPageCheckpoint {
   workerIdentity: string;
   model: string;
   instructionsVersion: string;
+  facsimileSha256: string;
   imageSha256: string;
   textSha256: string;
   body: string;
@@ -569,6 +572,7 @@ export function parsePageCheckpoint(content: string): ParsedPageCheckpoint | nul
     workerIdentity: meta.workerIdentity,
     model: meta.model,
     instructionsVersion: meta.instructionsVersion,
+    facsimileSha256: meta.facsimileSha256 ?? "",
     imageSha256: meta.imageSha256,
     textSha256: meta.textSha256,
     body,
@@ -578,6 +582,7 @@ export function parsePageCheckpoint(content: string): ParsedPageCheckpoint | nul
 export interface ResumeOptions {
   resubmitChunkIndex?: number | undefined;
   resubmitReason?: string | undefined;
+  adapterName?: string | undefined;
 }
 
 export interface ResumeState {
@@ -629,8 +634,18 @@ export async function resumeRun(
         break;
       }
 
-      // Check plan metadata compatibility
+      // Check plan metadata compatibility. A completed chunk is skipped
+      // only when facsimile digest, page index, instructions, and adapter
+      // still match; otherwise it must be submitted again.
       if (pageData.instructionsVersion !== plan.instructionsVersion) {
+        chunkComplete = false;
+        break;
+      }
+      if (pageData.facsimileSha256 !== plan.facsimileSha256) {
+        chunkComplete = false;
+        break;
+      }
+      if (options.adapterName && pageData.adapter !== options.adapterName) {
         chunkComplete = false;
         break;
       }

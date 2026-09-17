@@ -1,9 +1,10 @@
-[[RUNNING-HEAD Annalen der Physik (4) 17]]
-[[PAGE-NUMBER 549]]
-Über die von der molekularkinetischen Theorie der Wärme geforderte [[SPERR]]Bewegung[[/SPERR]] von suspendierten Teilchen.
-In dieser Arbeit wird gezeigt, daß nach der molekularkinetischen Theorie der Wärme mikroskopisch sichtbare Körper eine Bewegung ausführen müssen.
-[[FN-MARK 1)]]
+<!-- SYNTHETIC OCR FIXTURE — NOT SOURCE — NOT LEDGER — NOT EDITION -->
+[[SYNTHETIC-FIXTURE key=fixture-3p pdfPage=1]]
+This is test-double output for the OCR dispatch port.
+It is not a transcription of any printed page and must never be copied into a ledger.
+[[PAGE-NUMBER 1]]
 [[MATH-REGION page=1]]
-% unverified draft
-$$ \lambda_x = \sqrt{2 D t} = \sqrt{t} \cdot \sqrt{\frac{R T}{N} \frac{1}{3 \pi k r}} $$
-[[FN 1)]] A. Einstein, Ann. d. Phys. 17. p. 549. 1905.
+% unverified synthetic draft — not a historical equation
+$$ x_{\mathrm{fixture}} = 1 $$
+[[FN-MARK 1)]]
+[[FN 1)]] synthetic footnote for coverage counts only.

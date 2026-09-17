@@ -1,6 +1,3 @@
-import { readFile } from "node:fs/promises";
-import { dirname, resolve } from "node:path";
-import { fileURLToPath } from "node:url";
 import {
   AdapterAuthError,
   AdapterBadResponseError,
@@ -16,7 +13,24 @@ import {
   type SubmitResult,
 } from "./types.ts";
 
-const ROOT = resolve(dirname(fileURLToPath(import.meta.url)), "../..");
+export const SYNTHETIC_FIXTURE_BANNER =
+  "SYNTHETIC OCR FIXTURE — NOT SOURCE — NOT LEDGER — NOT EDITION";
+
+/** Obviously synthetic dispatch-port output. Never a stand-in for Annalen text. */
+export function syntheticFixtureDraft(pdfPage: number, key: string): string {
+  return [
+    `<!-- ${SYNTHETIC_FIXTURE_BANNER} -->`,
+    `[[SYNTHETIC-FIXTURE key=${key} pdfPage=${pdfPage}]]`,
+    "This is test-double output for the OCR dispatch port.",
+    "It is not a transcription of any printed page and must never be copied into a ledger.",
+    `[[PAGE-NUMBER ${pdfPage}]]`,
+    `[[MATH-REGION page=${pdfPage}]]`,
+    "% unverified synthetic draft — not a historical equation",
+    `$$ x_{\\mathrm{fixture}} = ${pdfPage} $$`,
+    "[[FN-MARK 1)]]",
+    "[[FN 1)]] synthetic footnote for coverage counts only.",
+  ].join("\n");
+}
 
 export interface FixtureAdapterOptions {
   fixtureDir?: string | undefined;
@@ -42,7 +56,6 @@ export class FixtureAdapter implements CloudOcrAdapter {
   readonly workerIdentity: string;
   readonly model: string;
   readonly costUnits: number;
-  private fixtureDir: string;
   private failAtChunkIndex: number | null;
   private failWithCode: string | null;
   private timeoutsBeforeSuccess: number;
@@ -63,7 +76,6 @@ export class FixtureAdapter implements CloudOcrAdapter {
       );
     }
 
-    this.fixtureDir = options.fixtureDir ?? resolve(ROOT, "src/testing/fixtures/ocr");
     this.workerIdentity = options.workerIdentity ?? "gpt-5.6-luna";
     this.model = options.model ?? "gpt-5.6-luna-2026-03-01";
     this.costUnits = options.costUnits ?? 1.0;
@@ -138,30 +150,7 @@ export class FixtureAdapter implements CloudOcrAdapter {
     const pages: { pdfPage: number; text: string }[] = [];
 
     for (const pageNum of chunk.pdfPages) {
-      let pageText = this.customPageText[pageNum];
-      if (!pageText) {
-        // Try reading from fixture directory
-        const candidatePaths = [
-          resolve(this.fixtureDir, chunk.key, `page-${pageNum}.md`),
-          resolve(this.fixtureDir, "fixture-3p", `page-${pageNum}.md`),
-          resolve(this.fixtureDir, "fixture-31p", `page-${pageNum}.md`),
-        ];
-        let loaded = false;
-        for (const p of candidatePaths) {
-          try {
-            pageText = await readFile(p, "utf-8");
-            loaded = true;
-            break;
-          } catch {
-            // try next
-          }
-        }
-        if (!loaded || !pageText) {
-          // Default synthetic fixture text matching diplomatic markup
-          pageText = `[[RUNNING-HEAD Annalen der Physik (4) 17]]\n[[PAGE-NUMBER ${pageNum}]]\nDies ist eine diplomatische Transkription von Seite ${pageNum}.\n[[SPERR]]Bewegung[[/SPERR]] von suspendierten Teilchen.\n[[FN-MARK 1)]]\n[[MATH-REGION page=${pageNum}]]\n$$ \\lambda = \\sqrt{\\frac{R T}{N} \\frac{t}{3 \\pi k r}} $$\n[[FN 1)]] Ann. d. Phys. 17. p. 549. 1905.`;
-        }
-      }
-
+      const pageText = this.customPageText[pageNum] ?? syntheticFixtureDraft(pageNum, chunk.key);
       pages.push({
         pdfPage: pageNum,
         text: pageText,
