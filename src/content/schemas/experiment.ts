@@ -2324,6 +2324,19 @@ export function validateHistoricalDataset(
     }
     pubIds.add(pRaw.id);
 
+    if (
+      !pRaw.citation ||
+      (typeof pRaw.citation === "string" && !pRaw.citation.trim()) ||
+      (typeof pRaw.citation !== "string" && typeof pRaw.citation !== "object")
+    ) {
+      throw new ExperimentValidationError(
+        "missing-publication-citation",
+        "Publication requires a full citation string or Citation object; uncited datasets are rejected.",
+        "HistoricalDataset",
+        `${pPath}.citation`,
+      );
+    }
+
     if (!pRaw.locator || typeof pRaw.locator !== "object") {
       throw new ExperimentValidationError(
         "missing-publication-locator",

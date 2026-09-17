@@ -3,6 +3,7 @@ import {
   DatasetValidationError,
   loadHistoricalDatasetFromYaml,
 } from "../../content/datasets/loader.ts";
+import { ExperimentValidationError } from "../../content/schemas/experiment.ts";
 
 const VALID_DATASET_YAML = `id: test-dataset-1909
 title: "Perrin (1909) Granule Displacements"
@@ -114,5 +115,30 @@ describe("datasetLoader (am-inst-dataset-overlay-ra9r)", () => {
         csvContent: "col1,col2\n1,2",
       }),
     ).toThrow(DatasetValidationError);
+  });
+
+  test("uncited dataset fails with missing-publication-citation", () => {
+    const uncitedYaml = VALID_DATASET_YAML.replace(
+      'citation: "Perrin, J. (1909). Annales de Chimie et de Physique 18: 5-114."',
+      "# citation omitted",
+    );
+    expect(() => loadHistoricalDatasetFromYaml(uncitedYaml)).toThrow(ExperimentValidationError);
+    try {
+      loadHistoricalDatasetFromYaml(uncitedYaml);
+    } catch (err) {
+      expect((err as ExperimentValidationError).code).toBe("missing-publication-citation");
+    }
+  });
+
+  test("missing table/figure number on locator fails with missing-table-figure-number", () => {
+    const missingNumberYaml = VALID_DATASET_YAML.replace("number: 1", "# number omitted");
+    expect(() => loadHistoricalDatasetFromYaml(missingNumberYaml)).toThrow(
+      ExperimentValidationError,
+    );
+    try {
+      loadHistoricalDatasetFromYaml(missingNumberYaml);
+    } catch (err) {
+      expect((err as ExperimentValidationError).code).toBe("missing-table-figure-number");
+    }
   });
 });

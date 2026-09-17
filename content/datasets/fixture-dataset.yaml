@@ -1,0 +1,69 @@
+id: fixture-dataset
+title: Fixture Historical Dataset
+evidenceStatus: historical-measurement
+publications:
+  - id: pub-1900
+    citation: 'Lummer, O. & Pringsheim, E. (1900). Verh. Dtsch. Phys. Ges. 2: 163-180.'
+    locator:
+      kind: table
+      number: 1
+    publicationDate:
+      type: issue-publication
+      text: '1900'
+      earliest: '1900-01-01'
+      latest: '1900-12-31'
+      precision: year
+      source: Verh. Dtsch. Phys. Ges.
+      verifiedAt: '2026-09-17'
+primaryPublicationId: pub-1900
+digitizer:
+  name: Fixture Pipeline
+  method: Automated test keying
+  date: '2026-09-17'
+  sourcePageImage: fixture-p1.png
+  digitizationRevision: 1
+columns:
+  - name: Radius
+    quantityId: particleRadius
+    unit: m
+    role: controlled
+  - name: Displacement
+    quantityId: rmsDisplacement1d
+    unit: m
+    role: observed
+rows:
+  - cells:
+      - kind: number
+        value: 0.000001
+        originalToken: '1e-6'
+      - kind: number
+        value: 0.000002
+        originalToken: '2e-6'
+  - cells:
+      - kind: number
+        value: 0.000002
+        originalToken: '2e-6'
+      - kind: missing
+        reason: not reported
+  - cells:
+      - kind: number
+        value: 0.000003
+        originalToken: '3e-6'
+      - kind: bound
+        direction: upper
+        value: 0.000004
+uncertainty:
+  type: none
+  description: Fixture test uncertainty
+notes: Pipeline fixture dataset exercising end-to-end extraction
+rights:
+  status: public-domain-image
+  statement: Public domain
+  source: https://archive.org
+  recordedAt: '2026-09-17'
+  reuseTerms: named-license
+allowedInferenceModelIds:
+  - evaluateStokesEinstein
+calibrationIds: []
+sharedInputIds: []
+csvDigest: ac25e87b8976d3e84ae74ad47cc883dde16a8b3fbfe0de97e09c565b6ed8775f

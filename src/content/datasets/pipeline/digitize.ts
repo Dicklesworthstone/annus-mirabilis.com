@@ -46,6 +46,7 @@ export interface DigitizationPipelineInput {
 export interface DigitizationPipelineResult {
   readonly dataset: HistoricalDataset;
   readonly csvDigest: string;
+  readonly canonicalCsv: string;
   readonly toolRunId: string;
   readonly passedSpotCheck: boolean;
   readonly loggedEvent: Record<string, unknown>;
@@ -132,6 +133,7 @@ export function executeDigitizationPipeline(
   return {
     dataset,
     csvDigest,
+    canonicalCsv: dataString,
     toolRunId,
     passedSpotCheck,
     loggedEvent,
