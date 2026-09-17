@@ -70,7 +70,14 @@ body {
   font-family: var(--font-serif);
 }
 
-:root:where([data-theme]) a {
+/*
+ * A link styled as a button paints its own foreground on var(--ink); this rule's
+ * specificity (0,1,1) beat .button's (0,1,0) and repainted the text with the
+ * accent, leaving #ae2119 on #1a1916 - a contrast of 2.53 against the 4.5 AA
+ * threshold - on all 36 a.button links across 34 built pages, in the default
+ * Annalen theme. Found when the browser suite finally reached its axe audit.
+ */
+:root:where([data-theme]) a:not(.button) {
   color: var(--accent);
 }
 
