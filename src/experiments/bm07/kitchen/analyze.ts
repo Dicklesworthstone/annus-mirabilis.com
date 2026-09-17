@@ -125,10 +125,7 @@ export function analyzeKitchen(
     }
   }
   const firstPoint = points[0];
-  if (!firstPoint)
-    throw new TypeError(
-      "Choose a particle track. Calibration marks and stationary features are not particle tracks.",
-    );
+  if (!firstPoint) throw new TypeError("Selected track has no points.");
   const dt = Number(m.declared_interval_s),
     tolerance = Math.max(1 / Number(m.frame_rate_hz), 0.02 * dt),
     origin = firstPoint.time;
@@ -174,7 +171,7 @@ export function analyzeKitchen(
     pairTimes: number[] = [],
     increments: number[] = [];
   const lastPoint = points.at(-1);
-  const lastTick = lastPoint ? Math.round((lastPoint.time - origin) / dt) : 0;
+  const lastTick = Math.round(((lastPoint?.time ?? origin) - origin) / dt);
   // Anchored slots, not adjacent rows: exclusions and gaps must not shift later pairing.
   for (let tick = 0; tick <= lastTick; tick += 2) {
     counts.attemptedPairs++;
@@ -191,15 +188,21 @@ export function analyzeKitchen(
       for (const r of defects) lostPairs[r] = (lostPairs[r] ?? 0) + 1;
       continue;
     }
-    if (scale && a && b) {
-      const aCoord = a[axis];
-      const bCoord = b[axis];
-      if (aCoord !== null && bCoord !== null) {
-        paired.push(aCoord * scale, bCoord * scale);
-        pairTimes.push(a.time, b.time);
-        increments.push((bCoord - aCoord) * scale);
-        counts.retainedPairs++;
-      }
+    const aCoord = a?.[axis];
+    const bCoord = b?.[axis];
+    if (
+      scale &&
+      a &&
+      b &&
+      aCoord !== null &&
+      aCoord !== undefined &&
+      bCoord !== null &&
+      bCoord !== undefined
+    ) {
+      paired.push(aCoord * scale, bCoord * scale);
+      pairTimes.push(a.time, b.time);
+      increments.push((bCoord - aCoord) * scale);
+      counts.retainedPairs++;
     }
   }
   const edgeShare = (lostPairs.edge ?? 0) / counts.attemptedPairs;
