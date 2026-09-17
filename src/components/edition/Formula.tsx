@@ -8,5 +8,5 @@ export function Formula({ latex }: { latex: string }) {
     strict: "error",
     trust: false,
   });
-  return <div className="formula" dangerouslySetInnerHTML={{ __html: html }} />;
+  return <div className="formula" {...{ dangerouslySetInnerHTML: { __html: html } }} />;
 }
