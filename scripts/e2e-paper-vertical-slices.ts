@@ -158,9 +158,33 @@ class RunRecorder {
 }
 
 export async function main() {
+  const argv = process.argv.slice(2);
+  if (argv.includes("--fixtures")) {
+    const { parseE2ECliArgs } = await import("./e2e/cli.ts");
+    const { runRuntimeConformance } = await import("./e2e/runtime-conformance/run.ts");
+    try {
+      const parsed = parseE2ECliArgs(argv);
+      const journey = parsed.journey ?? "runtime-conformance";
+      if (journey !== "runtime-conformance" && journey !== "runtime-conformance-canary") {
+        throw new Error(
+          `unknown fixture journey "${journey}"; known: runtime-conformance, runtime-conformance-canary`,
+        );
+      }
+      const result = await runRuntimeConformance({
+        canary: journey === "runtime-conformance-canary",
+      });
+      console.log(`runtime-conformance log: ${result.logPath}`);
+      process.exitCode = result.ok ? 0 : 1;
+    } catch (error) {
+      console.error(error instanceof Error ? error.message : String(error));
+      process.exitCode = 2;
+    }
+    return;
+  }
+
   let options: PaperE2EOptions;
   try {
-    options = parsePaperE2EArgs(process.argv.slice(2));
+    options = parsePaperE2EArgs(argv);
   } catch (error) {
     if (error instanceof PaperE2EHelpRequested) {
       console.log(paperE2EUsage());

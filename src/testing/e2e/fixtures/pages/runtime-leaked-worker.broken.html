@@ -1,0 +1,24 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <title>Planted leaked worker</title>
+</head>
+<body data-reader-root="true" data-ready="true" data-view="runtime">
+  <p>This page starts a worker and never terminates it on route change.</p>
+  <script>
+    window.__plantedWorkers = window.__plantedWorkers || [];
+    window.__plantedWorkers.push(new Worker(URL.createObjectURL(new Blob(["self.postMessage(1)"], { type: "text/javascript" }))));
+    window.__amRuntimeConformance = {
+      readCounters() {
+        return { liveWorkers: window.__plantedWorkers.length, workerMessages: {} };
+      }
+    };
+    function updateView() {
+      document.body.setAttribute("data-view", location.hash === "#/reading" ? "reading" : "runtime");
+    }
+    window.addEventListener("hashchange", updateView);
+    updateView();
+  </script>
+</body>
+</html>

@@ -1,0 +1,21 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <title>Planted randomness on navigation</title>
+</head>
+<body data-reader-root="true" data-ready="true" data-view="runtime"
+      data-instrument-id="rt-01" data-instance-id="runtime-analytic-a"
+      data-run-id="runtime-analytic-a/run/1" data-snapshot-version="1"
+      data-input-revision="1" data-accepted-input-revision="1"
+      data-pending="false" data-execution-label="host" data-result-status="value">
+  <div data-latent-draws="4">4</div>
+  <script>
+    window.__amRuntimeConformance = {
+      readExperimentView() {
+        return { accepted: { outputs: [{ quantityId: "latentDraws", status: "value", value: 4 }] } };
+      }
+    };
+  </script>
+</body>
+</html>

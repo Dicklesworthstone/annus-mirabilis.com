@@ -1,0 +1,20 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <title>Planted stale snapshot after teardown</title>
+</head>
+<body data-reader-root="true" data-ready="true" data-view="reading">
+  <div data-instrument-id="rt-01" data-instance-id="runtime-analytic-a"
+       data-run-id="runtime-analytic-a/run/1" data-snapshot-version="9"
+       data-input-revision="9" data-accepted-input-revision="9"
+       data-pending="false" data-execution-label="host" data-result-status="value">
+    <p data-probe-value>12345</p>
+  </div>
+  <script>
+    window.__amRuntimeConformance = {
+      publishAfterTeardown() { return true; }
+    };
+  </script>
+</body>
+</html>

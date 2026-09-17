@@ -180,6 +180,23 @@ export const CONTROLS_KIT_FIXTURE_ENTRY: FixtureAppEntry = Object.freeze({
   owner: "am-inst-parameter-controls-cmj9",
 });
 
+export const RUNTIME_FIXTURE_ENTRY: FixtureAppEntry = Object.freeze({
+  id: "runtime",
+  entry: "src/testing/runtime-fixtures/app/",
+  outDir: "artifacts/e2e-fixtures/runtime/",
+  owner: "am-rt-browser-conformance-09i5",
+  staticInputs: [
+    {
+      from: "public/wasm/fs-annus-diffusion/105d7ffc15414de5/fs_annus_diffusion_bg.wasm",
+      servedPath: "fs-annus-diffusion/105d7ffc15414de5/fs_annus_diffusion_bg.wasm",
+    },
+    {
+      from: "public/wasm/manifest.json",
+      servedPath: "manifest.json",
+    },
+  ],
+});
+
 /**
  * The registry of interactive fixture applications.
  */
@@ -187,4 +204,5 @@ export const FIXTURE_APP_REGISTRY: readonly FixtureAppEntry[] = Object.freeze([
   SELFTEST_FIXTURE_ENTRY,
   VIEW_KIT_FIXTURE_ENTRY,
   CONTROLS_KIT_FIXTURE_ENTRY,
+  RUNTIME_FIXTURE_ENTRY,
 ]);
