@@ -46,6 +46,19 @@ import { FacsimileError, getExitCodeForError } from "./sources/facsimileSourceSc
 const REPO_ROOT = getRepoRoot();
 const FIXTURES_DIR = path.join(REPO_ROOT, "src", "testing", "fixtures", "pdf");
 
+/**
+ * A record entry the test asserts on. Reading `entry(results, "x").status` is
+ * `T | undefined` under noUncheckedIndexedAccess (am-7mp8); this names the absent
+ * key instead of failing with "cannot read property of undefined", and it keeps
+ * the assertion that the key exists at all.
+ */
+function entry<T>(record: Record<string, T>, key: string): T {
+  const value = record[key];
+  if (value === undefined)
+    throw new Error(`No entry for ${key}; the record holds ${Object.keys(record).join(", ")}`);
+  return value;
+}
+
 describe("1. validatePdf structural verification", () => {
   test("accepts valid-2page.pdf with page count 2", () => {
     const buf = fs.readFileSync(path.join(FIXTURES_DIR, "valid-2page.pdf"));
@@ -90,6 +103,8 @@ describe("2. sha256File digest computation", () => {
     for (const line of lines) {
       if (!line.trim()) continue;
       const [expectedSha, fileName] = line.trim().split(/\s+/);
+      if (expectedSha === undefined || fileName === undefined)
+        throw new Error(`SHA256SUMS line is not "<sha> <file>": ${line}`);
       const computed = sha256File(path.join(FIXTURES_DIR, fileName));
       expect(computed).toBe(expectedSha);
     }
@@ -528,10 +543,10 @@ describe("11. verifyPins reporting", () => {
 
   test("reports ok for intact, mismatch for changed byte, missing for publish, not-available for local-only", () => {
     const { results, allOk } = verifyPins({ configDir, repoRoot: testRoot, requireLocal: false });
-    expect(results["ap-99-001"].status).toBe("ok");
-    expect(results["ap-99-002"].status).toBe("mismatch");
-    expect(results["ap-99-003"].status).toBe("missing");
-    expect(results["ap-99-004"].status).toBe("not-available");
+    expect(entry(results, "ap-99-001").status).toBe("ok");
+    expect(entry(results, "ap-99-002").status).toBe("mismatch");
+    expect(entry(results, "ap-99-003").status).toBe("missing");
+    expect(entry(results, "ap-99-004").status).toBe("not-available");
     expect(allOk).toBe(false);
   });
 });
@@ -541,7 +556,7 @@ describe("12. Loopback HTTP network test server", () => {
   let serverPort: number;
   let retryCount = 0;
 
-  beforeAll((done) => {
+  beforeAll(async () => {
     server = http.createServer((req, res) => {
       const url = new URL(req.url || "/", `http://127.0.0.1:${serverPort}`);
 
@@ -577,17 +592,21 @@ describe("12. Loopback HTTP network test server", () => {
       }
     });
 
-    server.listen(0, "127.0.0.1", () => {
-      const addr = server.address();
-      if (addr && typeof addr === "object") {
-        serverPort = addr.port;
-      }
-      done();
+    await new Promise<void>((resolve) => {
+      server.listen(0, "127.0.0.1", () => {
+        const addr = server.address();
+        if (addr && typeof addr === "object") {
+          serverPort = addr.port;
+        }
+        resolve();
+      });
     });
   });
 
-  afterAll((done) => {
-    server.close(done);
+  afterAll(async () => {
+    await new Promise<void>((resolve, reject) => {
+      server.close((error) => (error ? reject(error) : resolve()));
+    });
   });
 
   test("fetches PDF across redirect chain on loopback test server", async () => {
@@ -711,7 +730,7 @@ describe("15. Quality gate checkAllConfigs and planted bad input refusal", () =>
     const { valid, results } = checkAllConfigs();
     expect(valid).toBe(true);
     expect(Object.keys(results).length).toBeGreaterThanOrEqual(6);
-    expect(results["ap-17-549.yaml"].valid).toBe(true);
+    expect(entry(results, "ap-17-549.yaml").valid).toBe(true);
   });
 
   test("fails quality gate on a planted bad config (publisher under subscription license)", () => {
@@ -741,9 +760,9 @@ rights:
     fs.writeFileSync(path.join(tempDir, "ap-99-999.yaml"), badYaml, "utf8");
     const { valid, results } = checkAllConfigs(tempDir);
     expect(valid).toBe(false);
-    expect(results["ap-99-999.yaml"].valid).toBe(false);
-    expect(results["ap-99-999.yaml"].refusalCode).toBe("WITNESS_OR_PUBLISHER_HOST");
-    expect(results["ap-99-999.yaml"].errors[0]).toContain("onlinelibrary.wiley.com");
+    expect(entry(results, "ap-99-999.yaml").valid).toBe(false);
+    expect(entry(results, "ap-99-999.yaml").refusalCode).toBe("WITNESS_OR_PUBLISHER_HOST");
+    expect(entry(results, "ap-99-999.yaml").errors[0]).toContain("onlinelibrary.wiley.com");
   });
 });
 
