@@ -10,6 +10,7 @@
  */
 import type { Misconception } from "../../content/schemas/argument.ts";
 import type { ReviewRecord } from "../../content/schemas/review.ts";
+import type { InterventionStatus } from "./MisconceptionCallout.tsx";
 
 export type BuildProfile = "production" | "preview" | "draft";
 
@@ -95,4 +96,15 @@ export function checkIntervention(
  * renders the "not yet reviewed" marker (MisconceptionCallout's own job) instead. */
 export function interventionBlocksBuild(verdict: GateVerdict, profile: BuildProfile): boolean {
   return !verdict.ok && profile !== "draft";
+}
+
+/**
+ * Bridges a gate verdict to the status `MisconceptionCallout` renders. In `production`/`preview`
+ * a bad verdict never reaches render (`interventionBlocksBuild` fails the build first); a caller
+ * that renders anyway -- a `draft` build, or a preview of what production would show -- gets the
+ * same "not yet reviewed" marker either way. One function connects the two, so no caller
+ * re-derives the mapping by hand.
+ */
+export function interventionStatusForRender(verdict: GateVerdict): InterventionStatus {
+  return verdict.ok ? { state: "reviewed" } : { state: "not-yet-reviewed" };
 }

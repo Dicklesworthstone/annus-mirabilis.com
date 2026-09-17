@@ -1,4 +1,5 @@
 import { describe, expect, test } from "bun:test";
+import { renderToStaticMarkup } from "react-dom/server";
 import type { ReviewRecord } from "../content/schemas/review.ts";
 import {
   fixtureHalvingDiffusivity,
@@ -7,7 +8,9 @@ import {
 import {
   checkIntervention,
   interventionBlocksBuild,
+  interventionStatusForRender,
 } from "../reader/misconceptions/interventionGate.ts";
+import { MisconceptionCallout } from "../reader/misconceptions/MisconceptionCallout.tsx";
 
 /**
  * am-read-misconception-callouts-a3o's publication gate, composed from the real ReviewRecord
@@ -134,5 +137,54 @@ describe("interventionBlocksBuild", () => {
     expect(interventionBlocksBuild(goodVerdict, "production")).toBe(false);
     expect(interventionBlocksBuild(goodVerdict, "preview")).toBe(false);
     expect(interventionBlocksBuild(goodVerdict, "draft")).toBe(false);
+  });
+});
+
+describe("interventionStatusForRender: the gate verdict reaches the rendered marker", () => {
+  test("a failing verdict maps to not-yet-reviewed", () => {
+    const badVerdict = checkIntervention(fixtureHalvingDiffusivity, []);
+    expect(interventionStatusForRender(badVerdict)).toEqual({ state: "not-yet-reviewed" });
+  });
+
+  test("a passing verdict maps to reviewed", () => {
+    const goodVerdict = checkIntervention(fixtureHalvingDiffusivity, [acceptedRecord()]);
+    expect(interventionStatusForRender(goodVerdict)).toEqual({ state: "reviewed" });
+  });
+
+  test("end to end: a fixture with a stale reviewRecordId renders the draft marker in MisconceptionCallout", () => {
+    // Acceptance criterion: "A fixture entry whose reviewRecordId is absent, stale, or not
+    // accepted fails the publication gate and renders the draft marker in a draft build." This
+    // wires checkIntervention -> interventionStatusForRender -> the real component, rather than
+    // asserting the two halves separately and trusting they compose.
+    const verdict = checkIntervention(fixtureHalvingDiffusivity, []); // no records at all: not-found
+    expect(verdict.ok).toBe(false);
+    expect(interventionBlocksBuild(verdict, "draft")).toBe(false); // draft never fails the build
+
+    const markup = renderToStaticMarkup(
+      <MisconceptionCallout
+        misconception={fixtureHalvingDiffusivity}
+        detail={1}
+        modernLens={false}
+        interventionStatus={interventionStatusForRender(verdict)}
+        instrumentHref="/instruments/bm-06"
+      />,
+    );
+    expect(markup).toContain('data-intervention-status="not-yet-reviewed"');
+    expect(markup).toContain("not yet reviewed against this misconception");
+  });
+
+  test("end to end: an accepted, covering record renders no marker at all", () => {
+    const verdict = checkIntervention(fixtureHalvingDiffusivity, [acceptedRecord()]);
+    expect(verdict.ok).toBe(true);
+    const markup = renderToStaticMarkup(
+      <MisconceptionCallout
+        misconception={fixtureHalvingDiffusivity}
+        detail={1}
+        modernLens={false}
+        interventionStatus={interventionStatusForRender(verdict)}
+        instrumentHref="/instruments/bm-06"
+      />,
+    );
+    expect(markup).not.toContain("data-intervention-status");
   });
 });

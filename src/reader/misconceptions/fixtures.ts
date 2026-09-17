@@ -70,10 +70,14 @@ export const fixtureStaticTreatmentOnly: Misconception = Object.freeze({
   sources: [],
   intervention: {
     defaultsReviewed: {
-      model: "N/A -- no instrument is attached to this entry.",
-      labels: "N/A -- no instrument is attached to this entry.",
-      defaultControls: "N/A -- no instrument is attached to this entry.",
-      feedback: "N/A -- no instrument is attached to this entry.",
+      model:
+        "The running text states the inference chain in the order measurement leads to N_A (D, eta, T, a first, N_A last), so the reader never meets N_A before seeing what it was derived from.",
+      labels:
+        "The prose consistently says 'inferred' or 'determined' next to N_A and never 'counted' or 'observed', so the static text does not itself use the tempting word.",
+      defaultControls:
+        "There is no interactive control to default; the derivation is presented in the fixed order above every time, so no reader sees a truncated or reordered version that omits the inference step.",
+      feedback:
+        "The reader can independently recompute N_A = RT/(3 pi eta a D) from the numbers already on the page, so the 'inferred, not counted' claim is checkable against the surrounding derivation rather than asserted only in prose.",
     },
     reviewRecordId: "rr-misc-molecular-number",
   },
@@ -90,19 +94,20 @@ export const fixtureLengthContraction: Misconception = Object.freeze({
   ],
   whyTempting:
     "Both readings try to keep 'length' as a single frame-independent fact: one keeps the rod's rest-frame length as the real one and demotes the moving-frame measurement to an illusion; the other keeps the moving-frame measurement as real and treats it as a mechanical effect of motion, by analogy with a physically compressed object.",
-  whereItIsTrue: "none",
+  whereItIsTrue:
+    "'Illusion' is defensible if it means only that the rod's own rest-frame proper length never changes -- no reading in the rod's own frame shows any change, so nothing happens 'to the rod itself'. 'Squashed' is defensible if the rod is actually accelerated (not merely compared between two inertial frames already in relative motion): a rod that is sped up really does develop internal stress during the acceleration, the way Bell's spaceship problem shows -- but that stress is a dynamical effect of the acceleration, not the kinematic effect §4 derives for an already-uniformly-moving rod.",
   whatIsTrue: {
     r0: "The rod really is shorter as measured in a frame where it moves -- not an illusion of perspective, and not a mechanical squashing. Length is a relation between the rod and a frame, not a single fact about the rod.",
     r1: "Length contraction is a real disagreement between frames' simultaneity conventions, not a compression: each frame measures the rod's endpoints at times that are simultaneous in that frame, and frames disagree about which pairs of events are simultaneous.",
     r2: "L' = L0 / gamma, where L0 is the rest length and gamma = 1/sqrt(1 - v^2/c^2); the measurement in the moving frame uses that frame's own simultaneity slice, not a distorted view of the rest-frame slice.",
     r3: "Both 'illusion' and 'squash' presuppose an observer-independent length exists and treat the Lorentz transformation as a correction to it; paper 3 replaces that premise with the relativity of simultaneity itself.",
   },
-  instrumentIds: ["sr-length-contraction"],
+  instrumentIds: ["sr-03"],
   anchors: ["s4"],
   resultIds: [],
   sources: [],
   intervention: {
-    instrumentId: "sr-length-contraction",
+    instrumentId: "sr-03",
     defaultsReviewed: {
       model:
         "The default view shows both frames' simultaneity slices side by side, so neither the rest-frame nor the moving-frame length is presented as the single true one.",

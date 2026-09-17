@@ -82,13 +82,29 @@ describe("MisconceptionCallout: the correction is bound to the wrong turn", () =
   test("whereItIsTrue: 'none' renders an explicit statement, not a blank section", () => {
     const markup = renderToStaticMarkup(
       <MisconceptionCallout
-        misconception={fixtureLengthContraction}
+        misconception={fixtureStaticTreatmentOnly}
         detail={1}
         modernLens={false}
         interventionStatus={{ state: "reviewed" }}
       />,
     );
     expect(markup).toContain("no reading under which this is a correct thing to say");
+  });
+
+  test("the two-opposites fixture names a real condition under which each opposite is reasonable", () => {
+    const markup = renderToStaticMarkup(
+      <MisconceptionCallout
+        misconception={fixtureLengthContraction}
+        detail={1}
+        modernLens={false}
+        interventionStatus={{ state: "reviewed" }}
+      />,
+    );
+    // Acceptance criterion: "names a condition under which each opposite is a reasonable thing to
+    // say" -- not the literal "none" this fixture used before this fix.
+    expect(markup).not.toContain("no reading under which this is a correct thing to say");
+    expect(markup).toContain("rest-frame proper length never changes");
+    expect(markup).toContain("spaceship problem"); // Bell's -- apostrophe is HTML-escaped in markup
   });
 
   test("whereItIsTrue with real text renders that text, positioned after whyTempting", () => {
