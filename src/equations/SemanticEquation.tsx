@@ -168,7 +168,10 @@ export function SemanticEquation({ equation }: { equation: CompiledEquation }) {
           Clear equation selection
         </button>
       </div>
-      <nav className="equation-chips" aria-label="Terms and operations">
+      <nav
+        className="equation-chips"
+        aria-label={`Terms and operations in ${equation.title || equation.id}`}
+      >
         {equation.navigation.map((n) => {
           const noteEntry = equation.notes.find((note) => note.nodeId === n.id);
           const noteTitle = noteEntry?.title ?? n.id;
