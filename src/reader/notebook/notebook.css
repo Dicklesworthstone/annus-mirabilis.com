@@ -25,6 +25,7 @@
   white-space: normal;
 }
 .notebook-dialog [hidden] { display: none !important; }
+.notebook-dialog input[type="file"] { display: block; width: 100%; max-width: 100%; min-width: 0; box-sizing: border-box; margin-block: 0.5rem; }
 .notebook-dialog textarea { display: block; width: 100%; max-width: 100%; box-sizing: border-box; font: inherit; margin-block: 0.5rem; }
 .notebook-dialog form { margin-block: 1rem; }
 .notebook-entry { border-top: 1px solid var(--line, currentColor); padding-block: 1rem; }
