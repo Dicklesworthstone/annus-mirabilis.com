@@ -60,7 +60,7 @@ export async function checkReaderBrowser(browser, url, check) {
     });
     await beforeHydration.route("**/_next/**/*.js", (request) => request.abort());
     const page = await beforeHydration.newPage();
-    await page.goto(url + route + "?detail=steps");
+    await page.goto(`${url}${route}?detail=steps`);
     assert.equal(await page.locator("html").getAttribute("data-detail"), "2");
     assert.ok(await page.locator(`#${firstId} [data-reading="2"]`).isVisible());
     assert.ok(await page.locator(".reader-controls [data-detail-control]").isDisabled());
@@ -93,13 +93,13 @@ export async function checkReaderBrowser(browser, url, check) {
     let workers = 0;
     page.on("pageerror", (e) => errors.push(String(e)));
     page.on("worker", () => workers++);
-    await page.goto(url + route + "?note=private&tape=private#" + firstId);
+    await page.goto(`${url}${route}?note=private&tape=private#${firstId}`);
     await page.locator('[data-reader-root][data-enhanced="true"]').waitFor();
     assert.equal(workers, 0);
     assert.deepEqual(errors, []);
     assert.equal(
       await page.locator('link[rel="canonical"]').getAttribute("href"),
-      "https://annus-mirabilis.com" + route,
+      `https://annus-mirabilis.com${route}`,
     );
     const passage = page.locator(`#${firstId}`),
       dialog = page.locator("[data-clarification-dialog]");
@@ -229,7 +229,7 @@ export async function checkReaderBrowser(browser, url, check) {
     const copied = page.locator("[data-copy-fallback] input");
     await copied.waitFor({ state: "visible" });
     const href = new URL(await copied.inputValue());
-    assert.equal(href.hash, "#" + firstId);
+    assert.equal(href.hash, `#${firstId}`);
     assert.equal(href.pathname, route);
     assert.ok(
       [...href.searchParams.keys()].every((key) => ["view", "detail", "lens"].includes(key)),
@@ -309,7 +309,7 @@ export async function checkReaderBrowser(browser, url, check) {
     assert.equal(await page.locator(".reader-passage").count(), 2);
     await page.keyboard.press("Escape");
     await page.locator("dialog").waitFor({ state: "hidden" });
-    assert.equal(new URL(page.url()).pathname, route + "s5/");
+    assert.equal(new URL(page.url()).pathname, `${route}s5/`);
     assert.equal(await page.evaluate(() => document.activeElement.id), "arg-bm-inference");
     await page.goto(`${url}${route}?view=bogus&detail=constructor&open=foundation:missing`);
     await page.locator('[data-reader-root][data-enhanced="true"]').waitFor();
