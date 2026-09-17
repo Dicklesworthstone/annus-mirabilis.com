@@ -1,5 +1,5 @@
 {
-  "//": "am-7mp8: scripts/ is outside the program tsconfig.json checks, so 179 of its 195 .ts files were never typechecked and 254 strict errors accumulated there, including 48 in the gate runner. This config runs the repository's own strict options over scripts/ as well, so the debt can be measured and driven down. It loosens nothing: compilerOptions are inherited unchanged. When the count reaches zero, fold scripts/**/*.ts into the root tsconfig include and delete this file.",
+  "//": "SUPERSEDED on 2026-09-17. The count reached zero and scripts/**/*.ts now sits in the root tsconfig include, so `bun run typecheck` checks this tree directly and this file adds nothing. Its header used to say to delete it at zero; AGENTS.md Rule 1 forbids deleting a file without the user's express written permission, so it stays until they say otherwise. Nothing references it.",
   "extends": "../tsconfig.json",
   "compilerOptions": {
     "baseUrl": "..",
