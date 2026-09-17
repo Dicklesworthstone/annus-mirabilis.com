@@ -191,12 +191,21 @@ export function buildLicenseInventory(
     }
   }
 
+  if (diffDetails !== undefined) {
+    return {
+      items: allItems,
+      evaluation,
+      renderedNotices,
+      committedNoticesMatch,
+      committedNoticesDiff: diffDetails,
+    };
+  }
+
   return {
     items: allItems,
     evaluation,
     renderedNotices,
     committedNoticesMatch,
-    committedNoticesDiff: diffDetails,
   };
 }
 
@@ -247,10 +256,19 @@ export function runLicenseInventoryCheck(options: CheckOptions = {}): {
     });
   }
 
-  const { logPath } = writeLicenseInventoryLogs(rootDir, evaluation.evaluatedItems, errors, {
-    logRunId: options.logRunId,
-    logsDir: options.logsDir,
-  });
+  const logOptions: { logRunId?: string; logsDir?: string } = {};
+  if (options.logRunId !== undefined) {
+    logOptions.logRunId = options.logRunId;
+  }
+  if (options.logsDir !== undefined) {
+    logOptions.logsDir = options.logsDir;
+  }
+  const { logPath } = writeLicenseInventoryLogs(
+    rootDir,
+    evaluation.evaluatedItems,
+    errors,
+    logOptions,
+  );
 
   const success = errors.length === 0;
 
