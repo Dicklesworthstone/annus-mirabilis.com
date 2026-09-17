@@ -54,8 +54,8 @@ export function SourceBlockComponent({
       block.sentenceSpans.some((sp) => n.affectedIds.includes(sp.id)),
   );
 
-  const locators = block.locators.map((loc, i) => (
-    <span key={`${loc.printedPage}-${i}`} className="block-locator">
+  const locators = block.locators.map((loc) => (
+    <span key={`${block.id}-loc-${loc.printedPage}`} className="block-locator">
       <a
         href={`/papers/${paperSlug}/?view=facsimile#page-${loc.printedPage}`}
         data-facsimile-link={loc.printedPage}
@@ -178,7 +178,6 @@ export function SourceBlockComponent({
       );
       break;
 
-    case "paragraph":
     default: {
       // Check if sentence spans exist for sentence-level alignment
       if (block.sentenceSpans && block.sentenceSpans.length > 0) {

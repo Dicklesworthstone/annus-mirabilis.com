@@ -1,5 +1,4 @@
 import { renderToString } from "katex";
-import React from "react";
 import type { ReviewRecord } from "../../content/schemas/review.ts";
 import type { EditorialNote, TranslationUnit } from "../../content/schemas/source.ts";
 import { EditorialNoteMarker } from "./EditorialNoteMarker.tsx";
@@ -59,12 +58,13 @@ export function TranslationUnitComponent({
       data-kind={isEquation ? "equation" : undefined}
       data-equation-id={mathNode?.equationId}
       className={`translation-unit ${isEquation ? "translation-equation" : ""} ${isActive ? "is-active" : ""} ${isHighlighted ? "is-highlighted" : ""}`}
-      tabIndex={0}
+      tabIndex={-1}
       lang={lang}
     >
       <div className="unit-header">
         <span
           className={`review-badge badge-${badge.reviewClass}`}
+          role="status"
           data-review-badge={badge.label}
           title={badge.description}
           aria-label={`Review status: ${badge.label}`}
@@ -104,8 +104,8 @@ export function TranslationUnitComponent({
         >
           <summary>Alternative translations ({unit.unresolvedAlternatives.length})</summary>
           <ul className="alternatives-list">
-            {unit.unresolvedAlternatives.map((alt, i) => (
-              <li key={`${unit.id}-alt-${i}`}>
+            {unit.unresolvedAlternatives.map((alt) => (
+              <li key={`${unit.id}-alt-${alt.text}`}>
                 <p className="alternative-text">
                   <strong>Option:</strong> {alt.text}
                 </p>
