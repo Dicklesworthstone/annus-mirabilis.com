@@ -6,7 +6,7 @@
  * Bead: am-cm-dimension-validator-aoz
  */
 
-import { type Dimension, dimension, parseRational } from "./rational.ts";
+import { type Dimension, dimension } from "./rational.ts";
 
 export type UnitSystemContext = "si" | "gaussian-cgs" | "emu-cgs";
 
@@ -80,8 +80,8 @@ export function resolveQuantityDimension(
   }
 
   // Current slot is index 4 in [length, mass, time, temperature, current, amount]
-  const currentExp = siDim[4]!;
-  const hasCurrent = currentExp.num !== 0n;
+  const currentExp = siDim[4];
+  const hasCurrent = currentExp !== undefined && currentExp.num !== 0n;
 
   if (!hasCurrent) {
     // Pure mechanical/thermal quantities share dimensions across systems
@@ -89,7 +89,7 @@ export function resolveQuantityDimension(
   }
 
   if (context === "gaussian-cgs") {
-    if (!q.gaussianDimension || q.gaussianDimension.length !== 6) {
+    if (q.gaussianDimension?.length !== 6) {
       return {
         ok: false,
         status: "unsupported-check",
@@ -100,7 +100,7 @@ export function resolveQuantityDimension(
   }
 
   if (context === "emu-cgs") {
-    if (!q.emuDimension || q.emuDimension.length !== 6) {
+    if (q.emuDimension?.length !== 6) {
       return {
         ok: false,
         status: "unsupported-check",
