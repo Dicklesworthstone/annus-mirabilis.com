@@ -12,12 +12,16 @@ export async function generateStaticParams() {
 }
 
 /** Enumerated, content-addressed artifacts only; no arbitrary filesystem or remote fetch. */
-export async function GET(_request: Request, context: {
-  params: Promise<{ paper: string; file: string }>;
-}) {
+export async function GET(
+  _request: Request,
+  context: {
+    params: Promise<{ paper: string; file: string }>;
+  },
+) {
   const { paper, file } = await context.params;
   const chapter = await loadOfflineChapter(paper, file);
-  if (!chapter) return new Response("This chapter is not available in this build.", { status: 404 });
+  if (!chapter)
+    return new Response("This chapter is not available in this build.", { status: 404 });
   return new Response(chapter.html, {
     headers: {
       "Content-Type": "text/html; charset=utf-8",
