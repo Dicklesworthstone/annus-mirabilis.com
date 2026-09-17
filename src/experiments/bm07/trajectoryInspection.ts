@@ -57,13 +57,13 @@ export function inspectTrajectory(
     throw new RangeError("Choose an available inspection page.");
   // Domains cover the whole selected track and stay fixed while paging.
   const timeRange = bounds(accepted.map((point) => point.time));
-  const coordinateRange = bounds(accepted.map((point) => point.coordinates[coordinate]!));
+  const coordinateRange = bounds(accepted.map((point) => point.coordinates[coordinate] ?? 0));
   const start = (page - 1) * TRAJECTORY_PAGE_SIZE;
   const points = accepted.slice(start, start + TRAJECTORY_PAGE_SIZE).map((source) =>
     Object.freeze({
       source,
       horizontal: fraction(source.time, timeRange),
-      vertical: fraction(source.coordinates[coordinate]!, coordinateRange),
+      vertical: fraction(source.coordinates[coordinate] ?? 0, coordinateRange),
     }),
   );
   return Object.freeze({
