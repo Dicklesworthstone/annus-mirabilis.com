@@ -38,6 +38,7 @@ export interface ExtractionLogEntry {
     token?: string;
     line?: number;
     excerpt?: string;
+    [key: string]: unknown;
   };
 }
 

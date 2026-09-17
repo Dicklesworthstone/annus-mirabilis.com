@@ -172,12 +172,12 @@ export async function readFragmentManifest(rootDir: string): Promise<FragmentMan
     throw error;
   }
   for (const paper of papers) {
-    if (paper.startsWith("._") || paper.startsWith(".")) continue;
+    if (paper.startsWith("._") || paper === ".DS_Store") continue;
     const paperDir = path.join(rootDir, paper);
     const files = await readdir(paperDir);
     const sections: Record<string, Record<string, StoredFragment>> = {};
     for (const file of files) {
-      if (file.startsWith("._") || file.startsWith(".") || !file.endsWith(".json")) continue;
+      if (file.startsWith("._") || file === ".DS_Store" || !file.endsWith(".json")) continue;
       const section = file.slice(0, -".json".length);
       const raw = await readFile(path.join(paperDir, file), "utf8");
       sections[section] = JSON.parse(raw) as Record<string, StoredFragment>;

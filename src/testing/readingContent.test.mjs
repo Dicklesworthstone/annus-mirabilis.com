@@ -1,6 +1,6 @@
 import assert from "node:assert/strict";
 import { createHash } from "node:crypto";
-import { appendFile, cp, mkdir, mkdtemp, readFile } from "node:fs/promises";
+import { appendFile, cp, mkdir, mkdtemp, readFile, symlink, unlink, writeFile } from "node:fs/promises";
 import { tmpdir } from "node:os";
 import { dirname, resolve } from "node:path";
 import test from "node:test";
@@ -104,4 +104,38 @@ test("compiler revision changes produce new public URLs without changing the aut
     JSON.parse(await readFile(resolve(root, "generated/content/index.json"), "utf8")),
     second.index,
   );
+});
+
+test("content symlinks are strictly refused regardless of filename prefix (including dot-named and AppleDouble symlinks)", async () => {
+  const root = await mkdtemp(resolve(tmpdir(), "annus-symlink-test-"));
+  await mkdir(resolve(root, "content/papers"), { recursive: true });
+  const realFile = resolve(root, "content/papers/real.json");
+  await writeFile(realFile, JSON.stringify({ id: "real" }));
+
+  // Dot-named symlink
+  const dotSymlink = resolve(root, "content/papers/.dot-symlink.json");
+  await symlink(realFile, dotSymlink);
+  await assert.rejects(
+    async () => loadReadingFiles(root, "content"),
+    /Content symlinks are not admitted/,
+  );
+  await unlink(dotSymlink);
+
+  // AppleDouble-prefixed symlink
+  const adSymlink = resolve(root, "content/papers/._ad-symlink.json");
+  await symlink(realFile, adSymlink);
+  await assert.rejects(
+    async () => loadReadingFiles(root, "content"),
+    /Content symlinks are not admitted/,
+  );
+  await unlink(adSymlink);
+
+  // Regular symlink
+  const regularSymlink = resolve(root, "content/papers/symlinked.json");
+  await symlink(realFile, regularSymlink);
+  await assert.rejects(
+    async () => loadReadingFiles(root, "content"),
+    /Content symlinks are not admitted/,
+  );
+  await unlink(regularSymlink);
 });

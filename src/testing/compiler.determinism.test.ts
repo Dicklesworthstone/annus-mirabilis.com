@@ -1,8 +1,13 @@
 import { beforeEach, describe, expect, it } from "bun:test";
-import { cp, mkdir, mkdtemp, readFile, writeFile } from "node:fs/promises";
+import { cp, mkdir, mkdtemp, readFile, symlink, unlink, writeFile } from "node:fs/promises";
 import { tmpdir } from "node:os";
 import { dirname, resolve } from "node:path";
-import { buildContent, CONTENT_COMPILER_FILES } from "../../scripts/build-content.ts";
+import {
+  buildContent,
+  CONTENT_COMPILER_FILES,
+  loadAllContentFiles,
+  loadReadingFiles,
+} from "../../scripts/build-content.ts";
 import { clearRegisteredChecksForTests } from "../content/compiler/checks/registry.ts";
 import { getLogger } from "./log/logger.ts";
 
@@ -114,6 +119,62 @@ describe("Content Compiler Determinism & Incremental Stability (am-cm-compiler-c
       "edit-revert-determinism",
       "passed",
       "Reverted edit returned to byte-identical build digest and payload bytes.",
+    );
+  });
+
+  it("strictly refuses content symlinks regardless of filename prefix, including dot-named and AppleDouble symlinks", async () => {
+    const { tempRoot, corpusDir } = await createFixtureWorkspace();
+    const targetFile = resolve(tempRoot, "corpus/arguments/test-paper/arg-tp-01.json");
+    const dotSymlink = resolve(tempRoot, "corpus/arguments/test-paper/.hidden-symlink.json");
+    const regularSymlink = resolve(tempRoot, "corpus/arguments/test-paper/symlinked.json");
+    const appleDoubleSymlink = resolve(
+      tempRoot,
+      "corpus/arguments/test-paper/._apple-double-symlink.json",
+    );
+
+    // Test dot-named symlink
+    await symlink(targetFile, dotSymlink);
+    expect(loadReadingFiles(tempRoot, corpusDir)).rejects.toThrow(
+      /Content symlinks are not admitted/,
+    );
+    expect(loadAllContentFiles(tempRoot, corpusDir)).rejects.toThrow(
+      /Content symlinks are not admitted/,
+    );
+    expect(buildContent(tempRoot, { corpusDir })).rejects.toThrow(
+      /Content symlinks are not admitted/,
+    );
+    await unlink(dotSymlink);
+
+    // Test AppleDouble-prefixed symlink
+    await symlink(targetFile, appleDoubleSymlink);
+    expect(loadReadingFiles(tempRoot, corpusDir)).rejects.toThrow(
+      /Content symlinks are not admitted/,
+    );
+    expect(loadAllContentFiles(tempRoot, corpusDir)).rejects.toThrow(
+      /Content symlinks are not admitted/,
+    );
+    expect(buildContent(tempRoot, { corpusDir })).rejects.toThrow(
+      /Content symlinks are not admitted/,
+    );
+    await unlink(appleDoubleSymlink);
+
+    // Test regular symlink
+    await symlink(targetFile, regularSymlink);
+    expect(loadReadingFiles(tempRoot, corpusDir)).rejects.toThrow(
+      /Content symlinks are not admitted/,
+    );
+    expect(loadAllContentFiles(tempRoot, corpusDir)).rejects.toThrow(
+      /Content symlinks are not admitted/,
+    );
+    expect(buildContent(tempRoot, { corpusDir })).rejects.toThrow(
+      /Content symlinks are not admitted/,
+    );
+    await unlink(regularSymlink);
+
+    logTest(
+      "symlink-gate-planted-negatives",
+      "passed",
+      "Content symlinks (dot-named, AppleDouble-prefixed, and regular) are strictly refused.",
     );
   });
 });
