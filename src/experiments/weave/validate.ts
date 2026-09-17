@@ -110,7 +110,7 @@ function validateCondition(
         statisticQuantityId,
         sampleCountQuantityId,
         minimumSampleSize: o.minimumSampleSize,
-        boundFamily: o.boundFamily,
+        boundFamily: o.boundFamily as (typeof BOUND_FAMILIES)[number],
         enterAlpha: o.enterAlpha,
         exitAlpha: o.exitAlpha,
         ...(typeof o.offsetQuantityId === "string" ? { offsetQuantityId: o.offsetQuantityId } : {}),
