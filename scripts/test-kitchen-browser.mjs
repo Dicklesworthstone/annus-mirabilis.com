@@ -14,7 +14,7 @@ export async function checkKitchenBrowser(browser, url, check) {
   });
   try {
     const page = await noJs.newPage();
-    await page.goto(url + "/kitchen/");
+    await page.goto(`${url}/kitchen/`);
     assert.equal(await page.locator("[data-kitchen-stages] tbody tr").count(), 3);
     await page
       .getByText("Reader-filled columns and blank observation rows", { exact: true })
@@ -27,7 +27,7 @@ export async function checkKitchenBrowser(browser, url, check) {
       .click();
     assert.equal(await page.locator(".kitchen-schema").innerText(), KITCHEN_COLUMNS.join(","));
     assert.ok(await page.evaluate(() => document.documentElement.scrollWidth <= innerWidth + 1));
-    const downloaded = await page.request.get(url + "/edition/kitchen/practice.csv");
+    const downloaded = await page.request.get(`${url}/edition/kitchen/practice.csv`);
     assert.ok(downloaded.ok());
     assert.equal(parseKitchenCsv(await downloaded.text()).points.length, 130);
     await page.screenshot({
@@ -82,8 +82,7 @@ export async function checkKitchenBrowser(browser, url, check) {
       ({ before, index }) => {
         const el = document.querySelectorAll('[data-instrument-id="bm-07-kitchen"]')[index];
         return (
-          el &&
-          el.dataset.documentDigest &&
+          el?.dataset.documentDigest &&
           el.dataset.snapshotVersion !== before.version &&
           el.dataset.pending === "false"
         );
