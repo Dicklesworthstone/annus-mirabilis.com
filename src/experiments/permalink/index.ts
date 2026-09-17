@@ -7,6 +7,7 @@ export * from "./canonical.ts";
 export * from "./codec.ts";
 export * from "./compatibility.ts";
 export * from "./fixture.ts";
+export * from "./PermalinkRobotsManager.tsx";
 export * from "./replay.ts";
 export * from "./ShareControl.tsx";
 export * from "./schema.ts";

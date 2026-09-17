@@ -6,6 +6,7 @@ import "./theme/themes.css";
 import "../a11y/readingSettings/readingSettings.css";
 import { READING_SETTINGS_PREPAINT } from "../a11y/readingSettings/prepaint";
 import { ReadingSettingsPanel } from "../a11y/readingSettings/ReadingSettingsPanel";
+import { PermalinkRobotsManager } from "../experiments/permalink/PermalinkRobotsManager.tsx";
 import { READER_PREPAINT } from "../reader/detail/prepaint";
 import { NotebookLauncher } from "../reader/notebook/NotebookLauncher.tsx";
 import { SearchLauncher } from "../search/SearchLauncher.tsx";
@@ -46,6 +47,7 @@ export default function RootLayout({ children }: { children: ReactNode }) {
           <ReadingSettingsPanel />
           <ThemeToggle />
         </header>
+        <PermalinkRobotsManager />
         <main id="main">{children}</main>
         <footer className="site-footer">
           <p>

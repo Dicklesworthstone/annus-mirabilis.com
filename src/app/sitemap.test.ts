@@ -1,4 +1,5 @@
 import { describe, expect, test } from "bun:test";
+import { isSitemapExemptUrl } from "../experiments/permalink/canonical.ts";
 import {
   absoluteUrl,
   faceFallbackPath,
@@ -21,5 +22,18 @@ describe("sitemap", () => {
       expect(urls).not.toContain(absoluteUrl(faceFallbackPath(paperId, "results")));
     }
     expect(urls.some((url) => url.includes("ap-17-549"))).toBe(false);
+  });
+
+  test("strictly filters out tape permalinks and export paths via isSitemapExemptUrl", async () => {
+    const entries = await sitemap();
+    for (const entry of entries) {
+      expect(isSitemapExemptUrl(entry.url)).toBe(false);
+      expect(entry.url).not.toContain("tape=");
+      expect(entry.url).not.toContain("/export");
+      expect(entry.url.endsWith(".json")).toBe(false);
+    }
+    expect(isSitemapExemptUrl("https://annus-mirabilis.com/lab/bm-01/?tape=abc123")).toBe(true);
+    expect(isSitemapExemptUrl("https://annus-mirabilis.com/lab/bm-01?x=1&tape=abc123")).toBe(true);
+    expect(isSitemapExemptUrl("https://annus-mirabilis.com/export/data.json")).toBe(true);
   });
 });
