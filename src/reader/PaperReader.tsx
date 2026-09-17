@@ -6,22 +6,19 @@ import type { CompiledEquation } from "../equations/viewTypes";
 import type { PreparedBm01Example } from "../experiments/bm01/session";
 import tracerExample from "../generated/bm01-example.json";
 import equationPayload from "../generated/brownian-equations.json";
-import { FoundationBody, FoundationLink, ReadingBlocks } from "./Blocks";
+import { passageActionsFromArgument } from "./actions/fromArgument.ts";
+import { PassageActionsBar } from "./actions/PassageActionsBar.tsx";
+import { FoundationBody, ReadingBlocks } from "./Blocks";
 import { BrownianFirstEncounter } from "./entrances/BrownianFirstEncounter";
 import { Companion } from "./layout/Companion.tsx";
 import { type CompanionKind, resolveCompanionKind } from "./layout/companionKind.ts";
 import { ReaderLayout } from "./layout/ReaderLayout.tsx";
 import { StickyLabRegion } from "./layout/StickyLabRegion.tsx";
+import "./actions/kindRegistration.ts";
 import { ReaderController } from "./ReaderController";
 import { ROOT_ARMING_SOURCE } from "./rootArming.inline";
 import "./reader.css";
 
-const labNames: Record<string, string> = {
-  "bm-01": "Tracer ensemble",
-  "bm-05": "Random steps",
-  "bm-06": "Spreading probability",
-  "bm-07": "Molecular-number inference",
-};
 function companionKindFromQuery(raw: string | undefined): CompanionKind {
   try {
     return resolveCompanionKind(raw);
@@ -143,7 +140,13 @@ export async function PaperReader({
               {args
                 .filter((a) => a.section === s.id)
                 .map((a) => (
-                  <article key={a.id} id={a.id} tabIndex={-1} className="reader-passage">
+                  <article
+                    key={a.id}
+                    id={a.id}
+                    data-unit={a.id}
+                    tabIndex={-1}
+                    className="reader-passage"
+                  >
                     <p className="eyebrow">
                       {a.meaning.logicalRole} ·{" "}
                       {a.meaning.modelStatus === "approximation"
@@ -224,36 +227,12 @@ export async function PaperReader({
                         </p>
                       )}
                     </details>
-                    <nav className="passage-actions" aria-label={`Actions for ${a.title}`}>
-                      <FoundationLink
-                        id={a.help.why}
-                        title="Why?"
-                        caption={`Return to ${a.title}.`}
-                      />
-                      <FoundationLink
-                        id={a.help.missingStep}
-                        title="Show the missing step"
-                        caption={`Return to ${a.title}.`}
-                      />
-                      <FoundationLink
-                        id={a.help.example}
-                        title="Show me one example first"
-                        caption={`Return to ${a.title}.`}
-                      />
-                      {a.experiments.map((id) => (
-                        <a key={id} href={`/lab/${id}/`}>
-                          Try it: {labNames[id]}
-                        </a>
-                      ))}
-                      <a href={`/papers/${paper.id}/#${a.id}`}>Link to this passage</a>
-                      <button
-                        type="button"
-                        className="secondary enhanced-only"
-                        data-copy-passage={a.id}
-                      >
-                        Copy passage link
-                      </button>
-                    </nav>
+                    <PassageActionsBar
+                      paperId={paper.id}
+                      passageId={a.id}
+                      passageLabel={a.title}
+                      actions={passageActionsFromArgument(a)}
+                    />
                     <p className="fine">
                       Source context:{" "}
                       {a.citations.map((id) => {
