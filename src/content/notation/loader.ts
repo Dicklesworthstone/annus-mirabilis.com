@@ -5,11 +5,10 @@
 
 import { existsSync, readdirSync, readFileSync } from "node:fs";
 import { extname, join } from "node:path";
-import { fileURLToPath } from "node:url";
 import { type PaperConcordance, validatePaperConcordance } from "../schemas/concordance.ts";
 import { strictParse } from "../schemas/strictParse.ts";
 
-export const NOTATION_DIR = fileURLToPath(new URL("../../../content/notation/", import.meta.url));
+export const NOTATION_DIR = join(process.cwd(), "content", "notation");
 
 const concordanceCache = new Map<string, PaperConcordance>();
 

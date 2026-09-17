@@ -41,7 +41,7 @@ export interface PaperNotationSection {
   readonly paperNumber: number;
   readonly locator: string;
   readonly entries: readonly EnrichedConcordanceEntry[];
-  readonly modernOnlySymbols: readonly ModernOnlySymbol[];
+  readonly modernOnlySymbols: readonly (ModernOnlySymbol & { readonly glyphRendered: RenderedMath })[];
 }
 
 export interface NotationPageData {
@@ -288,7 +288,10 @@ export function loadNotationPageData(
       paperNumber: meta.number,
       locator: meta.locator,
       entries: paperEntries,
-      modernOnlySymbols: pc.modernOnlySymbols ?? [],
+      modernOnlySymbols: (pc.modernOnlySymbols ?? []).map((symbol) => ({
+        ...symbol,
+        glyphRendered: renderStaticKatex(symbol.glyph.latex || symbol.glyph.unicode),
+      })),
     });
   }
 

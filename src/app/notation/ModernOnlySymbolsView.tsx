@@ -4,12 +4,11 @@
  */
 
 import React from "react";
-import type { ModernOnlySymbol } from "../../content/schemas/concordance.ts";
-import { renderStaticKatex } from "./notationData.ts";
+import type { PaperNotationSection } from "./notationData.ts";
 
 export interface ModernOnlySymbolsViewProps {
   readonly paperTitle: string;
-  readonly symbols: readonly ModernOnlySymbol[];
+  readonly symbols: PaperNotationSection["modernOnlySymbols"];
 }
 
 export function ModernOnlySymbolsView({ paperTitle, symbols }: ModernOnlySymbolsViewProps) {
@@ -39,14 +38,13 @@ export function ModernOnlySymbolsView({ paperTitle, symbols }: ModernOnlySymbols
         </thead>
         <tbody>
           {symbols.map((sym) => {
-            const rendered = renderStaticKatex(sym.glyph.latex || sym.glyph.unicode);
             const qId = "quantityId" in sym.binding ? sym.binding.quantityId : sym.id;
             return (
               <tr key={sym.id}>
                 <td>
                   <span
                     className="inline-math"
-                    dangerouslySetInnerHTML={{ __html: rendered.html }}
+                    dangerouslySetInnerHTML={{ __html: sym.glyphRendered.html }}
                   />
                 </td>
                 <td>{sym.label}</td>
