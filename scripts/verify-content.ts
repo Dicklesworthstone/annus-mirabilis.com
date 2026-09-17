@@ -56,7 +56,12 @@ function parseArgs(argv: string[]): {
       i += 1;
     }
   }
-  return { help, baseRef, requireLocal, skipArchitecture };
+  return {
+    help,
+    requireLocal,
+    skipArchitecture,
+    ...(baseRef !== undefined ? { baseRef } : {}),
+  };
 }
 
 function gitBaseRef(): string | undefined {
@@ -80,7 +85,7 @@ if (args.help) {
 const baseRef = args.baseRef ?? gitBaseRef();
 const result = await runVerifyContent({
   root,
-  baseRef,
+  ...(baseRef !== undefined ? { baseRef } : {}),
   requireLocal: args.requireLocal,
   architecture: () => (args.skipArchitecture ? 0 : runArchitectureGateCli(root)),
   loadFiles: () => loadReadingFiles(root),
