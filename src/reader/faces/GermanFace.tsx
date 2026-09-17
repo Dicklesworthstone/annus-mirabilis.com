@@ -1,11 +1,10 @@
-import React from "react";
 import type {
   Alignment,
   EditorialNote,
   Paper,
   SourceBlock as SourceBlockData,
 } from "../../content/schemas/source.ts";
-import { FACE_FALLBACK_IDS, faceLinkHref, paperPath } from "../paperRoutes.ts";
+import { FACE_FALLBACK_IDS, faceLinkHref } from "../paperRoutes.ts";
 import { ROOT_ARMING_SOURCE } from "../rootArming.inline.ts";
 import { AlignmentController } from "./AlignmentController.tsx";
 import { buildAlignmentIndex } from "./alignment.ts";
