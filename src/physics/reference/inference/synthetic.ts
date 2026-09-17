@@ -117,7 +117,8 @@ export async function recordInferencePath(
       });
       // Coordinate c consumes draw indices 2c and 2c+1 in this substep's stream.
       for (let c = 0; c < 2; c++) {
-        const x = positions[s * 2 + c]! + scale * stream.nextNormal();
+        const prev = positions[s * 2 + c] ?? 0;
+        const x = prev + scale * stream.nextNormal();
         if (!Number.isFinite(x)) return bad("The generated path exceeds the numerical range.");
         positions[(s + 1) * 2 + c] = x;
       }
@@ -195,8 +196,12 @@ export function observeInferencePath(
   for (let i = 0; i <= M; i++) {
     times[i] = i * dt;
     for (let c = 0; c < d; c++) {
-      positions[i * d + c] = recording.positions[i * grid.data * 2 + c]!;
-      if (i > 0) increments[(i - 1) * d + c] = positions[i * d + c]! - positions[(i - 1) * d + c]!;
+      const pos = recording.positions[i * grid.data * 2 + c] ?? 0;
+      positions[i * d + c] = pos;
+      if (i > 0) {
+        const prev = positions[(i - 1) * d + c] ?? 0;
+        increments[(i - 1) * d + c] = pos - prev;
+      }
     }
   }
   return { kind: "accepted", data: { increments, positions, times } };
