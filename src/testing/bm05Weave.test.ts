@@ -1,9 +1,9 @@
 import { describe, expect, test } from "bun:test";
 import { BM05_OUTPUTS, BM05_WEAVE_PREDICATES } from "../experiments/bm05/definition.ts";
-import { dkwBound, kolmogorovShapeTerm } from "../physics/reference/diffusion/walkLaws.ts";
 import { createWeaveEvaluator } from "../experiments/weave/evaluate.ts";
 import type { WeaveSnapshotView } from "../experiments/weave/types.ts";
 import { validateWeavePredicate } from "../experiments/weave/validate.ts";
+import { dkwBound, kolmogorovShapeTerm } from "../physics/reference/diffusion/walkLaws.ts";
 
 /**
  * am-bm-05-random-steps-ntzl's own test plan (bm05.weave.integration.test.ts): "with the weave's
@@ -50,9 +50,7 @@ describe("BM-05 weave predicate bm05-s4-second-moment (real compiler pass and ev
   test("removing the shape-term output from the instrument's declared outputs fails validation", () => {
     const predicate = BM05_WEAVE_PREDICATES[0];
     const withoutShapeTerm = {
-      instrumentOutputIds: new Set(
-        [...CTX.instrumentOutputIds].filter((id) => id !== "shapeTerm"),
-      ),
+      instrumentOutputIds: new Set([...CTX.instrumentOutputIds].filter((id) => id !== "shapeTerm")),
       resolvableTargetIds: CTX.resolvableTargetIds,
     };
     expect(() => validateWeavePredicate(predicate, withoutShapeTerm)).toThrow(

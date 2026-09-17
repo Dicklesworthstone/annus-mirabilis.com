@@ -81,7 +81,7 @@ describe("aliasIdsForLocation: static alias anchors emitted at the new location"
       record({ retiredId: "sec-3", kind: "retired", replacementIds: ["s3"] }),
       record({ retiredId: "s4-h", kind: "retired", replacementIds: ["s4"] }),
     ];
-    expect(aliasIdsForLocation("s3", aliases).sort()).toEqual(["s3-h", "sec-3"]);
+    expect([...aliasIdsForLocation("s3", aliases)].sort()).toEqual(["s3-h", "sec-3"]);
   });
 
   test("a location with no retired ids pointing at it gets an empty list", () => {
