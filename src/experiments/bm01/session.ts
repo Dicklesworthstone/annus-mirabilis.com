@@ -6,6 +6,13 @@ import { BM01_CLASSES, BM01_OUTPUTS, type Bm01Parameters } from "./definition.ts
 import { validateBm01Parameters } from "./parameters.ts";
 export type PreparedBm01Example = Readonly<{
   sourceDigest: string;
+  /**
+   * The function that produced this example, and the hash of its source when the
+   * example was generated. ShowTheCode compares the hash against the listing's own
+   * sourceHash, which a different prepare step writes from the same file (am-70h7).
+   */
+  snapshotFunctionName: string;
+  snapshotFunctionHash: string;
   parameters: Bm01Parameters;
   results: readonly string[];
   stepIndex: number;

@@ -3,6 +3,7 @@ import { mkdir, readFile, writeFile } from "node:fs/promises";
 import { dirname, relative, resolve } from "node:path";
 import { fileURLToPath } from "node:url";
 import { BM06_DEFAULTS } from "../src/experiments/bm06/definition.ts";
+import { hashSnapshotFunction } from "./snapshotFunctionHash.mjs";
 import { encodeResult } from "../src/experiments/results/codec.ts";
 import { evaluateBm06 } from "../src/workers/operations/bm06.ts";
 
@@ -28,6 +29,11 @@ export async function evaluatorSources() {
   );
   return [...seen].sort(([a], [b]) => a.localeCompare(b, "en"));
 }
+const SNAPSHOT_FUNCTION = {
+  exportName: "gaussianPropagator",
+  filePath: "src/physics/reference/diffusion/distributions.ts",
+};
+
 export async function generateLab() {
   const sources = await evaluatorSources();
   const hash = createHash("sha256");
@@ -39,6 +45,8 @@ export async function generateLab() {
     throw new Error("The static worked example did not evaluate successfully.");
   const example = {
     sourceDigest,
+    snapshotFunctionName: SNAPSHOT_FUNCTION.exportName,
+    snapshotFunctionHash: await hashSnapshotFunction(root, SNAPSHOT_FUNCTION),
     parameters: BM06_DEFAULTS,
     stepIndex: evaluated.data.stepIndex,
     simulationTime: evaluated.data.simulationTime,

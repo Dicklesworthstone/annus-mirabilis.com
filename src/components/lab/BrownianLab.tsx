@@ -527,9 +527,9 @@ export function BrownianLab({
         </p>
         <ShowTheCode
           listings={getKernelListingsForInstrument("bm-06")}
-          snapshotSourceDigest={example.sourceDigest}
+          snapshotSourceDigest={example.snapshotFunctionHash}
           producedCurrentSnapshot={true}
-          snapshotFunctionName="gaussianPropagator"
+          snapshotFunctionName={example.snapshotFunctionName}
           uid={`stc-${id}`}
         />
       </details>

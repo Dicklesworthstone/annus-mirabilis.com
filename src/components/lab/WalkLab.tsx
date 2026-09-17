@@ -667,9 +667,9 @@ export function WalkLab({
           </p>
           <ShowTheCode
             listings={getKernelListingsForInstrument("bm-05")}
-            snapshotSourceDigest={example.sourceDigest}
+            snapshotSourceDigest={example.snapshotFunctionHash}
             producedCurrentSnapshot={true}
-            snapshotFunctionName="kernelDiffusivity"
+            snapshotFunctionName={example.snapshotFunctionName}
             uid={`stc-${id}`}
           />
         </details>

@@ -4,9 +4,14 @@ import { dirname, relative, resolve } from "node:path";
 import { fileURLToPath } from "node:url";
 import { BM01_DEFAULTS } from "../src/experiments/bm01/definition.ts";
 import { encodeResult } from "../src/experiments/results/codec.ts";
+import { hashSnapshotFunction } from "./snapshotFunctionHash.mjs";
 import { createBm01Recording, measureBm01 } from "../src/workers/operations/bm01.ts";
 
 const root = resolve(dirname(fileURLToPath(import.meta.url)), "..");
+const SNAPSHOT_FUNCTION = {
+  exportName: "stokesEinsteinD",
+  filePath: "src/physics/reference/diffusion/distributions.ts",
+};
 /** Hash the actual local import closure, including type contracts and this generator. */
 export async function evaluatorSources() {
   const seen = new Map();
@@ -41,6 +46,8 @@ export async function generateLab() {
     throw new Error("The static worked example did not evaluate successfully.");
   const example = {
     sourceDigest,
+    snapshotFunctionName: SNAPSHOT_FUNCTION.exportName,
+    snapshotFunctionHash: await hashSnapshotFunction(root, SNAPSHOT_FUNCTION),
     parameters: BM01_DEFAULTS,
     stepIndex: evaluated.data.stepIndex,
     simulationTime: evaluated.data.simulationTime,

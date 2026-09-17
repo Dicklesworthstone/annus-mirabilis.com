@@ -24,6 +24,11 @@ export async function generateBrownianComparison(
     return {
       example: {
         sourceDigest: original.sourceDigest,
+        // Carried from the bm-01 example these comparisons vary, so every prepared
+        // example names the function that produced it (am-70h7). This lab does not
+        // render Show the Code, but the contract is one shape, not two.
+        snapshotFunctionName: original.snapshotFunctionName,
+        snapshotFunctionHash: original.snapshotFunctionHash,
         parameters,
         results: result.data.outputs.map(encodeResult),
         stepIndex: result.data.stepIndex,

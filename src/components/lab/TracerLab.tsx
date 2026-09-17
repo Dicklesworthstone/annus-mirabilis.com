@@ -578,9 +578,9 @@ export function TracerLab({
             <p className="fine digest">Evaluator source digest: {example.sourceDigest}</p>
             <ShowTheCode
               listings={getKernelListingsForInstrument("bm-01")}
-              snapshotSourceDigest={example.sourceDigest}
+              snapshotSourceDigest={example.snapshotFunctionHash}
               producedCurrentSnapshot={true}
-              snapshotFunctionName="stokesEinsteinD"
+              snapshotFunctionName={example.snapshotFunctionName}
               uid={`stc-${id}`}
             />
           </section>

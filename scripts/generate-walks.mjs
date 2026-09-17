@@ -4,9 +4,14 @@ import { dirname, relative, resolve } from "node:path";
 import { fileURLToPath } from "node:url";
 import { BM05_DEFAULTS } from "../src/experiments/bm05/definition.ts";
 import { encodeResult } from "../src/experiments/results/codec.ts";
+import { hashSnapshotFunction } from "./snapshotFunctionHash.mjs";
 import { createBm05Recording, measureBm05 } from "../src/workers/operations/bm05.ts";
 
 const root = resolve(dirname(fileURLToPath(import.meta.url)), "..");
+const SNAPSHOT_FUNCTION = {
+  exportName: "kernelDiffusivity",
+  filePath: "src/physics/reference/diffusion/walkLaws.ts",
+};
 /** Hash the actual local import closure, including type contracts and this generator. */
 export async function evaluatorSources() {
   const seen = new Map();
@@ -41,6 +46,8 @@ export async function generateLab() {
     throw new Error("The static worked example did not evaluate successfully.");
   const example = {
     sourceDigest,
+    snapshotFunctionName: SNAPSHOT_FUNCTION.exportName,
+    snapshotFunctionHash: await hashSnapshotFunction(root, SNAPSHOT_FUNCTION),
     parameters: BM05_DEFAULTS,
     stepIndex: evaluated.data.stepIndex,
     simulationTime: evaluated.data.simulationTime,
