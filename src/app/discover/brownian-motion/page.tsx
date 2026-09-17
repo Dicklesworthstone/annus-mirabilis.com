@@ -4,8 +4,238 @@ import {
   type ExpressionExercisePart,
 } from "../../../components/discover/ExercisePart.tsx";
 import { Formula } from "../../../components/edition/Formula.tsx";
+import { Shelf } from "../../../discovery/cards/Shelf.tsx";
+import type { KnowledgeCard } from "../../../discovery/cards/types.ts";
 
 export const metadata: Metadata = { title: "A first encounter with Brownian motion" };
+
+const BROWNIAN_SHELF_CARDS: readonly KnowledgeCard[] = [
+  {
+    id: "brown-1828-microscopical-observations",
+    proposition:
+      "Fragments from within pollen grains, and inorganic particles suspended in water, move irregularly without dying away.",
+    status: "available",
+    sources: [
+      {
+        title: "A brief account of microscopical observations",
+        date: "1828",
+        locator: "Phil. Mag. 4 (1828) 161",
+      },
+    ],
+    date: {
+      earliest: "1828",
+      latest: "1828",
+      precision: "year",
+      latestYear: 1828,
+      eventKind: "published",
+    },
+    priorEvent: {
+      eventKind: "performed",
+      earliest: "1827",
+      latest: "1827",
+      precision: "year",
+    },
+    admittedStages: ["stage-01", "stage-02"],
+    verification: {
+      verifiedBy: "Editorial Staff",
+      verifierKind: "human",
+      date: "2026-08-20",
+      method: "bound volume",
+      evidenceLocator: "https://doi.org/10.1080/14786442808674769",
+    },
+  },
+  {
+    id: "stokes-1851-sphere-drag",
+    proposition:
+      "Hydrodynamic drag force on a slowly moving sphere in a viscous fluid is F = 6πηav.",
+    status: "available",
+    sources: [{ title: "Trans. Camb. Phil. Soc. 9", locator: "p. 8", date: "1851" }],
+    date: {
+      earliest: "1851",
+      latest: "1851",
+      precision: "year",
+      latestYear: 1851,
+      eventKind: "published",
+    },
+    admittedStages: ["stage-03"],
+    verification: {
+      verifiedBy: "Editorial Staff",
+      verifierKind: "human",
+      date: "2026-08-20",
+      method: "bound volume",
+      evidenceLocator: "Cambridge Philosophical Society Trans. 9 (1851) 8-106",
+    },
+  },
+  {
+    id: "fick-1855-diffusion-equation",
+    proposition:
+      "Macroscopic diffusion equation relating spatial concentration gradients to matter flux.",
+    status: "available",
+    sources: [{ title: "Ann. Phys. (Pogg.) 94", locator: "p. 59", date: "1855" }],
+    date: {
+      earliest: "1855",
+      latest: "1855",
+      precision: "year",
+      latestYear: 1855,
+      eventKind: "published",
+    },
+    admittedStages: ["stage-03"],
+    verification: {
+      verifiedBy: "Editorial Staff",
+      verifierKind: "human",
+      date: "2026-08-20",
+      method: "bound volume",
+      evidenceLocator: "Poggendorffs Annalen 94 (1855) 59-86",
+    },
+  },
+  {
+    id: "maxwell-1860-equipartition",
+    proposition:
+      "In thermal equilibrium the mean translational kinetic energy is 3/2 k_B T for every suspended particle.",
+    status: "available",
+    sources: [{ title: "Phil. Mag. 19", locator: "p. 19", date: "1860" }],
+    date: {
+      earliest: "1860",
+      latest: "1879",
+      precision: "range",
+      latestYear: 1879,
+      eventKind: "published",
+    },
+    admittedStages: ["stage-01", "stage-02"],
+    verification: {
+      verifiedBy: "Editorial Staff",
+      verifierKind: "human",
+      date: "2026-08-20",
+      method: "bound volume",
+      evidenceLocator: "Phil. Mag. 19 (1860) 19-32",
+    },
+  },
+  {
+    id: "gouy-1888-brownian-motion",
+    proposition:
+      "The motion is intrinsic and persistent; faster for smaller particles and in warmer, less viscous liquids.",
+    status: "available",
+    sources: [{ title: "J. Phys. Théor. Appl. (2) 7", locator: "p. 561", date: "1888" }],
+    date: {
+      earliest: "1888",
+      latest: "1888",
+      precision: "year",
+      latestYear: 1888,
+      eventKind: "published",
+    },
+    admittedStages: ["stage-01"],
+    verification: {
+      verifiedBy: "Editorial Staff",
+      verifierKind: "human",
+      date: "2026-08-20",
+      method: "bound volume",
+      evidenceLocator: "Journal de Physique (2) 7 (1888) 561-564",
+    },
+  },
+  {
+    id: "exner-1900-particle-speeds",
+    proposition:
+      "Measured apparent particle speeds over observation intervals, finding values far below kinetic-theory molecular speeds.",
+    status: "available",
+    sources: [{ title: "Ann. Phys. (4) 2", locator: "p. 843", date: "1900" }],
+    date: {
+      earliest: "1900",
+      latest: "1900",
+      precision: "year",
+      latestYear: 1900,
+      eventKind: "published",
+    },
+    admittedStages: ["stage-01"],
+    verification: {
+      verifiedBy: "Editorial Staff",
+      verifierKind: "human",
+      date: "2026-08-20",
+      method: "bound volume",
+      evidenceLocator: "Annalen der Physik (4) 2 (1900) 843-847",
+    },
+  },
+  {
+    id: "siedentopf-1903-ultramicroscope",
+    proposition:
+      "The ultramicroscope illuminates colloidal particles from the side, making sub-micron particles visible against a dark field.",
+    status: "available",
+    sources: [{ title: "Ann. Phys. (4) 10", locator: "p. 1", date: "1903" }],
+    date: {
+      earliest: "1903",
+      latest: "1903",
+      precision: "year",
+      latestYear: 1903,
+      eventKind: "published",
+    },
+    priorEvent: {
+      eventKind: "performed",
+      earliest: "1902",
+      latest: "1902",
+      precision: "year",
+    },
+    admittedStages: ["stage-01"],
+    verification: {
+      verifiedBy: "Editorial Staff",
+      verifierKind: "human",
+      date: "2026-08-20",
+      method: "bound volume",
+      evidenceLocator: "Annalen der Physik (4) 10 (1903) 1-39",
+    },
+  },
+  {
+    id: "sutherland-1904-dunedin",
+    proposition:
+      "The same diffusion formula with a slip correction presented at Dunedin in January 1904.",
+    status: "available",
+    sources: [
+      {
+        title: "Australasian Association for the Advancement of Science",
+        locator: "Dunedin Meeting",
+        date: "1904",
+      },
+    ],
+    date: {
+      earliest: "1904-01",
+      latest: "1904-01",
+      precision: "month",
+      latestYear: 1904,
+      eventKind: "presented",
+    },
+    relatedCardId: "sutherland-1905-phil-mag",
+    admittedStages: ["stage-03"],
+    verification: {
+      verifiedBy: "Editorial Staff",
+      verifierKind: "human",
+      date: "2026-08-20",
+      method: "bound volume",
+      evidenceLocator: "AAAS 10th Meeting Dunedin (1904)",
+    },
+  },
+  {
+    id: "sutherland-1905-phil-mag",
+    proposition: "Diffusion formula with slip correction published in Philosophical Magazine.",
+    status: "parallel-work",
+    parallelWorkBasis:
+      "The June 1905 Philosophical Magazine publication falls between Annalen's receipt of Einstein's paper on 11 May 1905 and its publication on 18 July 1905.",
+    sources: [{ title: "Phil. Mag. (6) 9", locator: "p. 781", date: "1905" }],
+    date: {
+      earliest: "1905-06",
+      latest: "1905-06",
+      precision: "month",
+      latestYear: 1905,
+      eventKind: "published",
+    },
+    relatedCardId: "sutherland-1904-dunedin",
+    admittedStages: ["stage-03"],
+    verification: {
+      verifiedBy: "Editorial Staff",
+      verifierKind: "human",
+      date: "2026-08-20",
+      method: "bound volume",
+      evidenceLocator: "Philosophical Magazine (6) 9 (1905) 781-785",
+    },
+  },
+];
 
 const DISPLACEMENT_SCALE_EXERCISE: ExpressionExercisePart = {
   id: "bm-displacement-scale-rewrite",
@@ -137,6 +367,9 @@ export default function BrownianEncounter() {
           text.
         </p>
         <ExercisePart part={DISPLACEMENT_SCALE_EXERCISE} />
+      </section>
+      <section>
+        <Shelf cards={BROWNIAN_SHELF_CARDS} />
       </section>
       <aside className="notice">
         <h2>The model is not the evidence.</h2>

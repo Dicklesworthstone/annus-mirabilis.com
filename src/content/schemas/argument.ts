@@ -41,6 +41,16 @@ import {
   validateRationalScale,
 } from "./dimensionBasis.ts";
 
+export type { TextDirection } from "../../i18n/language.ts";
+export type { AuthorshipBlock } from "./authorship.ts";
+export type { PremiseStatus } from "./meanings.ts";
+
+export type VerificationMethod =
+  | "library scan"
+  | "bound volume"
+  | "publisher facsimile"
+  | "comparison edition";
+
 export const ARGUMENT_SCHEMA_VERSION = 1;
 
 import {
@@ -213,19 +223,47 @@ export function validateMeanings(
 }
 
 // ============================================================================
-// 2. HistoricalPremise (Knowledge Card)
-// ============================================================================
+export type PremiseEventKind = "presented" | "published" | "performed";
+
+export type PriorEvent = Readonly<{
+  eventKind: PremiseEventKind;
+  earliest: string;
+  latest: string;
+  precision: "day" | "month" | "year" | "range";
+  sources?: readonly unknown[] | undefined;
+}>;
+
+export type PremiseVerification = Readonly<{
+  verifiedBy: string;
+  verifierKind: "human" | "agent";
+  date: string;
+  method: "library scan" | "bound volume" | "publisher facsimile" | "comparison edition";
+  evidenceLocator: string;
+  printedCitation?: string | undefined;
+  discrepancies?: readonly string[] | undefined;
+  reviewRecordId?: string | undefined;
+}>;
+
+export type AdmittedImportInfo = Readonly<{
+  declaringJourney: string;
+  sourceKey?: string | undefined;
+  anchor?: string | undefined;
+  provenance?: string | undefined;
+}>;
 
 export type PremiseDate = Readonly<{
   earliest: string;
   latest: string;
-  precision: "day" | "month" | "year";
+  precision: "day" | "month" | "year" | "range";
   latestYear: number;
+  eventKind?: PremiseEventKind | undefined;
 }>;
 
 export type PaperCitationRef = Readonly<{
   paper: string;
-  ids: readonly string[];
+  ids?: readonly string[] | undefined;
+  anchor?: string | undefined;
+  note?: string | undefined;
 }>;
 
 export type HistoricalPremise = Readonly<{
@@ -235,10 +273,15 @@ export type HistoricalPremise = Readonly<{
   sources: readonly unknown[];
   date: PremiseDate;
   claimsEinsteinKnew: boolean;
+  limits?: string | undefined;
+  priorEvent?: PriorEvent | undefined;
+  relatedCardId?: string | undefined;
+  parallelWorkBasis?: string | undefined;
   einsteinKnowledgeEvidence?: readonly unknown[] | undefined;
   paperCitesOrAsserts?: readonly PaperCitationRef[] | undefined;
   admittedStages?: readonly string[] | undefined;
-  admittedImport?: boolean | undefined;
+  admittedImport?: boolean | AdmittedImportInfo | undefined;
+  verification?: PremiseVerification | undefined;
   verifier?: string | undefined;
   dateVerified?: string | undefined;
   evidenceLocator?: string | undefined;
@@ -325,15 +368,15 @@ export function validateHistoricalPremise(
       `${path}.date`,
     );
   }
-  if (!["day", "month", "year"].includes(d.precision as string)) {
+  if (!["day", "month", "year", "range"].includes(d.precision as string)) {
     throw new ArgumentSchemaError(
       "invalid-date-precision",
-      `Invalid date precision "${d.precision}". Expected day, month, or year.`,
+      `Invalid date precision "${d.precision}". Expected day, month, year, or range.`,
       "HistoricalPremise",
       `${path}.date.precision`,
     );
   }
-  const precision = d.precision as "day" | "month" | "year";
+  const precision = d.precision as "day" | "month" | "year" | "range";
   const earliest = typeof d.earliest === "string" ? d.earliest : "";
   const latest = typeof d.latest === "string" ? d.latest : "";
 
@@ -366,6 +409,22 @@ export function validateHistoricalPremise(
     }
   }
 
+  let eventKind: PremiseEventKind | undefined;
+  if (d.eventKind !== undefined) {
+    if (
+      typeof d.eventKind !== "string" ||
+      !["presented", "published", "performed"].includes(d.eventKind)
+    ) {
+      throw new ArgumentSchemaError(
+        "invalid-event-kind",
+        `Invalid eventKind "${d.eventKind}". Expected presented, published, or performed.`,
+        "HistoricalPremise",
+        `${path}.date.eventKind`,
+      );
+    }
+    eventKind = d.eventKind as PremiseEventKind;
+  }
+
   if (typeof d.latestYear !== "number" || !Number.isInteger(d.latestYear)) {
     throw new ArgumentSchemaError(
       "missing-latest-year",
@@ -384,6 +443,46 @@ export function validateHistoricalPremise(
     );
   }
 
+  // Prior event validation
+  let priorEvent: PriorEvent | undefined;
+  if (o.priorEvent !== undefined && o.priorEvent !== null) {
+    if (typeof o.priorEvent !== "object" || Array.isArray(o.priorEvent)) {
+      throw new ArgumentSchemaError(
+        "invalid-prior-event",
+        "priorEvent must be an object.",
+        "HistoricalPremise",
+        `${path}.priorEvent`,
+      );
+    }
+    const pe = o.priorEvent as Record<string, unknown>;
+    if (
+      typeof pe.eventKind !== "string" ||
+      !["presented", "published", "performed"].includes(pe.eventKind)
+    ) {
+      throw new ArgumentSchemaError(
+        "invalid-prior-event-kind",
+        `priorEvent.eventKind must be presented, published, or performed (got "${pe.eventKind}").`,
+        "HistoricalPremise",
+        `${path}.priorEvent.eventKind`,
+      );
+    }
+    if (typeof pe.latest === "string" && pe.latest > latest) {
+      throw new ArgumentSchemaError(
+        "card-prior-event-not-prior",
+        `priorEvent latest (${pe.latest}) must not be after date latest (${latest}).`,
+        "HistoricalPremise",
+        `${path}.priorEvent.latest`,
+      );
+    }
+    priorEvent = {
+      eventKind: pe.eventKind as PremiseEventKind,
+      earliest: String(pe.earliest ?? ""),
+      latest: String(pe.latest ?? ""),
+      precision: (pe.precision as "day" | "month" | "year" | "range") || "year",
+      sources: Array.isArray(pe.sources) ? (pe.sources as readonly unknown[]) : undefined,
+    };
+  }
+
   // Category 2: Einstein Knowledge
   const claimsEinsteinKnew = Boolean(o.claimsEinsteinKnew);
   let einsteinKnowledgeEvidence: unknown[] | undefined;
@@ -400,7 +499,31 @@ export function validateHistoricalPremise(
   }
 
   // Admitted Import validation
-  const admittedImport = typeof o.admittedImport === "boolean" ? o.admittedImport : undefined;
+  let admittedImport: boolean | AdmittedImportInfo | undefined;
+  if (typeof o.admittedImport === "boolean") {
+    admittedImport = o.admittedImport;
+  } else if (
+    o.admittedImport &&
+    typeof o.admittedImport === "object" &&
+    !Array.isArray(o.admittedImport)
+  ) {
+    const ai = o.admittedImport as Record<string, unknown>;
+    if (typeof ai.declaringJourney !== "string" || !ai.declaringJourney.trim()) {
+      throw new ArgumentSchemaError(
+        "admitted-import-missing-declaring-journey",
+        "admittedImport object requires declaringJourney.",
+        "HistoricalPremise",
+        `${path}.admittedImport.declaringJourney`,
+      );
+    }
+    admittedImport = {
+      declaringJourney: ai.declaringJourney,
+      sourceKey: typeof ai.sourceKey === "string" ? ai.sourceKey : undefined,
+      anchor: typeof ai.anchor === "string" ? ai.anchor : undefined,
+      provenance: typeof ai.provenance === "string" ? ai.provenance : undefined,
+    };
+  }
+
   if (admittedImport) {
     if (o.status !== "available") {
       throw new ArgumentSchemaError(
@@ -421,6 +544,66 @@ export function validateHistoricalPremise(
   }
 
   // Verification validation
+  let verification: PremiseVerification | undefined;
+  if (o.verification && typeof o.verification === "object" && !Array.isArray(o.verification)) {
+    const v = o.verification as Record<string, unknown>;
+    if (typeof v.verifiedBy !== "string" || !v.verifiedBy.trim()) {
+      throw new ArgumentSchemaError(
+        "verified-premise-missing-verifier",
+        "verification requires verifiedBy.",
+        "HistoricalPremise",
+        `${path}.verification.verifiedBy`,
+      );
+    }
+    if (v.verifierKind !== "human" && v.verifierKind !== "agent") {
+      throw new ArgumentSchemaError(
+        "verified-premise-invalid-verifier-kind",
+        `verifierKind must be "human" or "agent" (got "${v.verifierKind}").`,
+        "HistoricalPremise",
+        `${path}.verification.verifierKind`,
+      );
+    }
+    if (typeof v.date !== "string" || !v.date.trim()) {
+      throw new ArgumentSchemaError(
+        "verified-premise-missing-date",
+        "verification requires date.",
+        "HistoricalPremise",
+        `${path}.verification.date`,
+      );
+    }
+    if (
+      typeof v.method !== "string" ||
+      !["library scan", "bound volume", "publisher facsimile", "comparison edition"].includes(
+        v.method,
+      )
+    ) {
+      throw new ArgumentSchemaError(
+        "verified-premise-invalid-method",
+        `verification method must be one of: "library scan", "bound volume", "publisher facsimile", "comparison edition".`,
+        "HistoricalPremise",
+        `${path}.verification.method`,
+      );
+    }
+    if (typeof v.evidenceLocator !== "string" || !v.evidenceLocator.trim()) {
+      throw new ArgumentSchemaError(
+        "verified-premise-missing-locator",
+        "verification requires evidenceLocator.",
+        "HistoricalPremise",
+        `${path}.verification.evidenceLocator`,
+      );
+    }
+    verification = {
+      verifiedBy: v.verifiedBy,
+      verifierKind: v.verifierKind,
+      date: v.date,
+      method: v.method as VerificationMethod,
+      evidenceLocator: v.evidenceLocator,
+      printedCitation: typeof v.printedCitation === "string" ? v.printedCitation : undefined,
+      discrepancies: Array.isArray(v.discrepancies) ? (v.discrepancies as string[]) : undefined,
+      reviewRecordId: typeof v.reviewRecordId === "string" ? v.reviewRecordId : undefined,
+    };
+  }
+
   const verifier = typeof o.verifier === "string" ? o.verifier : undefined;
   const dateVerified =
     typeof o.dateVerified === "string"
@@ -482,14 +665,20 @@ export function validateHistoricalPremise(
       latest,
       precision,
       latestYear: d.latestYear as number,
+      ...(eventKind ? { eventKind } : {}),
     },
     claimsEinsteinKnew,
+    limits: typeof o.limits === "string" ? o.limits : undefined,
+    priorEvent,
+    relatedCardId: typeof o.relatedCardId === "string" ? o.relatedCardId : undefined,
+    parallelWorkBasis: typeof o.parallelWorkBasis === "string" ? o.parallelWorkBasis : undefined,
     einsteinKnowledgeEvidence,
     paperCitesOrAsserts: Array.isArray(o.paperCitesOrAsserts)
       ? (o.paperCitesOrAsserts as PaperCitationRef[])
       : undefined,
     admittedStages: Array.isArray(o.admittedStages) ? (o.admittedStages as string[]) : undefined,
     admittedImport,
+    verification,
     verifier,
     dateVerified,
     evidenceLocator,
