@@ -1,27 +1,15 @@
 import assert from "node:assert/strict";
 import test from "node:test";
 import { compareDates, DatePrecisionError, formatDate, formatDateStrict } from "../dates.ts";
-import {
-  AuthorshipValidationError,
-  authorshipOf,
-  validateAuthorshipBlock,
-  validateAuthorshipEntry,
-} from "./authorship.ts";
+import { validateAuthorshipEntry } from "./authorship.ts";
 import {
   DateValidationError,
   type PaperDate,
   validateChronology,
   validatePaperDate,
 } from "./dates.ts";
+import { codePointLength, codePointSlice } from "./inlines.ts";
 import {
-  codePointLength,
-  codePointSlice,
-  type Inline,
-  plainText,
-  validateInline,
-} from "./inlines.ts";
-import {
-  SchemaValidationError,
   validateAlignment,
   validateCitation,
   validateEditorialNote,
@@ -32,8 +20,8 @@ import {
   validateTranslationUnit,
   verifyEquationTranslation,
 } from "./source.ts";
-import { SpanValidationError, spanTextDigest, validateSpanAnchor } from "./spans.ts";
-import { StrictParseError, strictParse } from "./strictParse.ts";
+import { spanTextDigest } from "./spans.ts";
+import { strictParse } from "./strictParse.ts";
 
 // ==========================================
 // 1. PAPER TESTS
