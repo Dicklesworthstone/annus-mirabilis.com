@@ -25,12 +25,11 @@ export function closed(
     typeof input !== "object" ||
     ![Object.prototype, null].includes(Object.getPrototypeOf(input)) ||
     Reflect.ownKeys(input).length !== keys.length ||
-    Reflect.ownKeys(input).some(
-      (k) =>
-        typeof k !== "string" ||
-        !keys.includes(k) ||
-        !Object.hasOwn(Object.getOwnPropertyDescriptor(input, k)!, "value"),
-    )
+    Reflect.ownKeys(input).some((k) => {
+      if (typeof k !== "string" || !keys.includes(k)) return true;
+      const desc = Object.getOwnPropertyDescriptor(input, k);
+      return !desc || !Object.hasOwn(desc, "value");
+    })
   )
     throw new TypeError("Unrecognized data contract.");
 }
@@ -270,7 +269,15 @@ export function decodeKitchenResponse(
       throw new TypeError("Wrong pair degrees of freedom.");
     if (["diffusionInterval", "molecularInterval"].includes(output.quantityId)) {
       const b = output.value as Float64Array;
-      if (a.intervalReasons.length || b[0]! < 0 || b[0]! > b[1]!)
+      const lower = b[0];
+      const upper = b[1];
+      if (
+        lower === undefined ||
+        upper === undefined ||
+        a.intervalReasons.length ||
+        lower < 0 ||
+        lower > upper
+      )
         throw new TypeError("Inadmissible confidence set.");
     }
     if (
