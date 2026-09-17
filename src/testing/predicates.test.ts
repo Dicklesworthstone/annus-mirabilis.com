@@ -1,10 +1,5 @@
 import { describe, expect, test } from "bun:test";
-import {
-  evaluateResultClauses,
-  globalResultClauseRegistry,
-  ResultClauseRegistry,
-  ResultPredicateClause,
-} from "../reader/weave/predicates.ts";
+import { ResultClauseRegistry } from "../reader/weave/predicates.ts";
 import { appendExtractionLog, newExtractionLogRunId } from "./extractionLogging.ts";
 
 const logRunId = newExtractionLogRunId();
@@ -15,7 +10,7 @@ describe("Result Predicates Weave Mechanism", () => {
     const registry = new ResultClauseRegistry();
 
     registry.register("bm-01-diffusion", (params) => {
-      const temp = Number(params["temperatureK"] ?? 293.15);
+      const temp = Number(params.temperatureK ?? 293.15);
       const isWarm = temp >= 273.15;
       return [
         {
@@ -32,13 +27,17 @@ describe("Result Predicates Weave Mechanism", () => {
 
     const warmClauses = registry.evaluate("bm-01-diffusion", { temperatureK: 300 });
     expect(warmClauses).toHaveLength(1);
-    expect(warmClauses[0]!.active).toBe(true);
-    expect(warmClauses[0]!.tone).toBe("live");
+    const warmClause = warmClauses[0];
+    if (!warmClause) throw new Error("Expected warm clause");
+    expect(warmClause.active).toBe(true);
+    expect(warmClause.tone).toBe("live");
 
     const coldClauses = registry.evaluate("bm-01-diffusion", { temperatureK: 250 });
     expect(coldClauses).toHaveLength(1);
-    expect(coldClauses[0]!.active).toBe(false);
-    expect(coldClauses[0]!.tone).toBe("broken");
+    const coldClause = coldClauses[0];
+    if (!coldClause) throw new Error("Expected cold clause");
+    expect(coldClause.active).toBe(false);
+    expect(coldClause.tone).toBe("broken");
 
     const unknownClauses = registry.evaluate("unknown-experiment", {});
     expect(unknownClauses).toEqual([]);
