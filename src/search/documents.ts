@@ -105,7 +105,8 @@ function familyPaper(id: string): string | null {
     sr: "special-relativity",
     me: "mass-energy",
   };
-  return papers[id.split("-")[0]!] ?? null;
+  const prefix = id.split("-")[0];
+  return prefix ? (papers[prefix] ?? null) : null;
 }
 
 /**
@@ -206,6 +207,7 @@ export function documentsFromCompiled(
       const argument = argumentsById.get(equation.argument);
       if (!argument)
         throw new TypeError(`Search equation has no rendered argument: ${equation.id}.`);
+      const terms = equationTerms[equation.id];
       add({
         ...base,
         id: `equation:${equation.id}`,
@@ -225,7 +227,7 @@ export function documentsFromCompiled(
         terms: [
           equation.id,
           equation.spoken,
-          ...(equationTerms[equation.id] ? [equationTerms[equation.id]!] : []),
+          ...(terms ? [terms] : []),
         ],
       });
     }

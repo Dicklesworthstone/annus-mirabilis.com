@@ -2,10 +2,7 @@ import { notFound } from "next/navigation";
 import { loadPaper } from "../content/server.ts";
 import { FoundationBody, ReadingBlocks } from "./Blocks.tsx";
 import { FaceFallback } from "./FaceFallback.tsx";
-import { FACE_REGISTRY } from "./faces/registry.ts";
 import {
-  FACE_FALLBACK_IDS,
-  faceLinkHref,
   isFaceFallbackId,
   type PaperRouteRequest,
   paperPath,
