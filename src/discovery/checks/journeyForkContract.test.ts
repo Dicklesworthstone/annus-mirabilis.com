@@ -2,6 +2,11 @@ import { describe, expect, test } from "bun:test";
 import { FIXTURE_JOURNEY_BROWNIAN } from "../testing/fixtureJourney.ts";
 import { checkJourney } from "./journeyChecks.ts";
 
+const [fixtureFork0, fixtureFork1] = FIXTURE_JOURNEY_BROWNIAN.forks;
+if (!fixtureFork0 || !fixtureFork1) {
+  throw new Error("FIXTURE_JOURNEY_BROWNIAN must have at least 2 forks");
+}
+
 describe("journeyForkContract", () => {
   test("all four varies values are valid", () => {
     const variesValues = [
@@ -16,10 +21,10 @@ describe("journeyForkContract", () => {
         ...FIXTURE_JOURNEY_BROWNIAN,
         forks: [
           {
-            ...FIXTURE_JOURNEY_BROWNIAN.forks[0]!,
+            ...fixtureFork0,
             varies: v,
           },
-          FIXTURE_JOURNEY_BROWNIAN.forks[1]!,
+          fixtureFork1,
         ],
       };
       const findings = checkJourney(journey);
@@ -33,10 +38,10 @@ describe("journeyForkContract", () => {
       ...FIXTURE_JOURNEY_BROWNIAN,
       forks: [
         {
-          ...FIXTURE_JOURNEY_BROWNIAN.forks[0]!,
+          ...fixtureFork0,
           varies: "invalid-varies" as any,
         },
-        FIXTURE_JOURNEY_BROWNIAN.forks[1]!,
+        fixtureFork1,
       ],
     };
     const findings = checkJourney(invalid);
@@ -78,7 +83,7 @@ describe("journeyForkContract", () => {
             },
           ],
         },
-        FIXTURE_JOURNEY_BROWNIAN.forks[1]!,
+        fixtureFork1,
       ],
     };
     const findings = checkJourney(invalid);
@@ -120,7 +125,7 @@ describe("journeyForkContract", () => {
             },
           ],
         },
-        FIXTURE_JOURNEY_BROWNIAN.forks[1]!,
+        fixtureFork1,
       ],
     };
     const findings = checkJourney(invalid);
@@ -173,24 +178,33 @@ describe("journeyForkContract", () => {
             },
           ],
         },
-        FIXTURE_JOURNEY_BROWNIAN.forks[1]!,
+        fixtureFork1,
       ],
     };
 
     const findingsValid = checkJourney(validUndecided);
     expect(findingsValid.filter((f) => f.severity === "error").length).toBe(0);
 
+    const [validFork0, validFork1] = validUndecided.forks;
+    if (!validFork0 || !validFork1) {
+      throw new Error("validUndecided must have at least 2 forks");
+    }
+    const [validBranch0, validBranch1] = validFork0.branches;
+    if (!validBranch0 || !validBranch1) {
+      throw new Error("validFork0 must have at least 2 branches");
+    }
+
     // If whatWouldDecide points to pre-1905 evidence (e.g. 1902), it fails
     const invalidPre1905 = {
       ...validUndecided,
       forks: [
         {
-          ...validUndecided.forks[0]!,
+          ...validFork0,
           branches: [
             {
-              ...validUndecided.forks[0]!.branches[0]!,
+              ...validBranch0,
               outcome: {
-                ...validUndecided.forks[0]!.branches[0]!.outcome,
+                ...validBranch0.outcome,
                 whatWouldDecide: {
                   name: "Exner 1900 report",
                   recordId: "card-exner-1900",
@@ -199,10 +213,10 @@ describe("journeyForkContract", () => {
                 },
               },
             },
-            validUndecided.forks[0]!.branches[1]!,
+            validBranch1,
           ],
         },
-        validUndecided.forks[1]!,
+        validFork1,
       ],
     };
     const findingsInvalid = checkJourney(invalidPre1905);
