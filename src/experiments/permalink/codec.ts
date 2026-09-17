@@ -13,6 +13,9 @@ export const MAX_PERMALINK_URL_LENGTH = 2048;
  * Converts a Uint8Array to a URL-safe Base64URL string (RFC 4648 §5).
  */
 export function bytesToBase64Url(bytes: Uint8Array): string {
+  if (typeof Buffer !== "undefined") {
+    return Buffer.from(bytes.buffer, bytes.byteOffset, bytes.byteLength).toString("base64url");
+  }
   let binary = "";
   const len = bytes.byteLength;
   for (let i = 0; i < len; i++) {
@@ -33,6 +36,10 @@ export function base64UrlToBytes(base64url: string): Uint8Array {
   // Reject characters that are not part of Base64URL
   if (!/^[A-Za-z0-9_-]*$/.test(base64url)) {
     throw new Error("Invalid base64url characters.");
+  }
+  if (typeof Buffer !== "undefined") {
+    const buf = Buffer.from(base64url, "base64url");
+    return new Uint8Array(buf.buffer, buf.byteOffset, buf.byteLength);
   }
   let base64 = base64url.replace(/-/g, "+").replace(/_/g, "/");
   while (base64.length % 4) {
