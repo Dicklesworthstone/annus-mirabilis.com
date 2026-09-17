@@ -155,6 +155,7 @@ export function verifyPublicationContract(
     // Run contract test suites
     for (let i = 0; i < testsToRun.length; i++) {
       const testFile = testsToRun[i];
+      if (testFile === undefined) continue;
       const stepHeader = `[${i + 1}/${testsToRun.length}] ${testFile}`;
       const stepStart = Date.now();
 
