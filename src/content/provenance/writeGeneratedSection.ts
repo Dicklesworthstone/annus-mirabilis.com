@@ -68,8 +68,14 @@ export function replaceGeneratedContent(
     );
   }
 
-  const startPos = startIndices[0]!;
-  const endPos = endIndices[0]!;
+  const startPos = startIndices[0];
+  const endPos = endIndices[0];
+  if (startPos === undefined || endPos === undefined) {
+    throw new GeneratedSectionError(
+      "unbalanced-markers",
+      `Markers for section "${sectionId}" could not be located.`,
+    );
+  }
 
   if (startPos > endPos) {
     throw new GeneratedSectionError(
