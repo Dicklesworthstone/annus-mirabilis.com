@@ -70,7 +70,8 @@ export function checkConcordance(
     const seenEntryIds = new Set<string>();
 
     for (let i = 0; i < pc.entries.length; i++) {
-      const entry = pc.entries[i]!;
+      const entry = pc.entries[i];
+      if (!entry) continue;
 
       // 1. Duplicate Entry IDs
       if (seenEntryIds.has(entry.id)) {
@@ -176,7 +177,7 @@ export function checkConcordance(
           });
         }
 
-        if (!col.firstUseAnchor || !col.firstUseAnchor.trim()) {
+        if (!col.firstUseAnchor?.trim()) {
           diagnostics.push({
             severity: "error",
             rule: "collision-missing-first-use",
@@ -229,7 +230,8 @@ export function checkConcordance(
 
       // 6. Cross-entry checks (Scope overlap and modern glyph collision)
       for (let j = i + 1; j < pc.entries.length; j++) {
-        const other = pc.entries[j]!;
+        const other = pc.entries[j];
+        if (!other) continue;
         const samePrinted = normalizeGlyph(entry.glyph) === normalizeGlyph(other.glyph);
 
         // Check scope overlap between different entries with identical printed glyph
@@ -344,7 +346,7 @@ export function checkConcordance(
  * Validates a concordance file/record and returns the diagnostic list.
  */
 export function validateConcordanceFile(
-  file: PaperConcordance | any,
+  file: PaperConcordance,
   options?: {
     manifestIndex?: SourceManifestIndex;
     knownQuantityIds?: readonly string[];
