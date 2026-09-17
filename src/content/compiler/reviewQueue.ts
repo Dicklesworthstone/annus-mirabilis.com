@@ -86,7 +86,7 @@ export function computeFlagFingerprint(input: FlagFingerprintInput): string {
  */
 export function parseFlagReviews(text: string): Map<string, FlagReviewRecord> {
   const map = new Map<string, FlagReviewRecord>();
-  if (!text || !text.trim()) return map;
+  if (!text?.trim()) return map;
 
   const parsed = parseYaml(text);
   if (!parsed || typeof parsed !== "object") return map;
@@ -198,7 +198,7 @@ export function buildReviewQueue(
     staleReviews,
   };
 
-  const jsonContent = JSON.stringify(queueData, null, 2) + "\n";
+  const jsonContent = `${JSON.stringify(queueData, null, 2)}\n`;
   const markdownContent = formatReviewQueueMarkdown(queueData);
 
   return {
@@ -251,12 +251,14 @@ function formatReviewQueueMarkdown(data: {
     const paperTitle = paper === "global" ? "Global / Unassigned" : `Paper: ${paper}`;
     lines.push(`## ${paperTitle}\n`);
 
-    const ruleMap = byPaper.get(paper)!;
+    const ruleMap = byPaper.get(paper);
+    if (!ruleMap) continue;
     const sortedRules = Array.from(ruleMap.keys()).sort();
 
     for (const rule of sortedRules) {
       lines.push(`### Rule: \`${rule}\`\n`);
-      const flags = ruleMap.get(rule)!;
+      const flags = ruleMap.get(rule);
+      if (!flags) continue;
 
       for (const flag of flags) {
         if (flag.status === "reviewed" && flag.review) {
@@ -288,5 +290,5 @@ function formatReviewQueueMarkdown(data: {
     lines.push("");
   }
 
-  return lines.join("\n") + "\n";
+  return `${lines.join("\n")}\n`;
 }
