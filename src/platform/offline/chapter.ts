@@ -79,11 +79,15 @@ function sourceLink(citation: Citation): string {
 }
 function inlineCss(css: string): string {
   // CSS comes from the build's own stylesheet and font inliner, not authored prose.
-  if (
-    /<\/style|@import|expression\s*\(|(?:https?:)?\/\//iu.test(css) ||
-    /url\(\s*["']?(?!data:font\/woff2;base64,)/iu.test(css)
-  ) {
+  if (/<\/style|@import|expression\s*\(/iu.test(css))
     throw new TypeError("Offline styles must contain only embedded WOFF2 resources.");
+  const urls = [...css.matchAll(/url\(\s*([^)]*?)\s*\)/giu)];
+  if (urls.length !== (css.match(/url\(/giu) ?? []).length)
+    throw new TypeError("Malformed offline stylesheet URL.");
+  for (const match of urls) {
+    const value = (match[1] ?? "").replace(/^["']|["']$/gu, "");
+    if (!/^data:font\/woff2;base64,[A-Za-z0-9+/]+={0,2}$/u.test(value))
+      throw new TypeError("Offline styles must contain only embedded WOFF2 resources.");
   }
   return css;
 }
