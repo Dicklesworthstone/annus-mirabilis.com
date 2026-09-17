@@ -36,6 +36,9 @@ export type PhotoelectricUnderdetermined = Readonly<{
   status: "underdetermined";
   compatibleFamily: string;
   neededInformation: readonly string[];
+  upperBound?: number | undefined;
+  unit?: string | undefined;
+  citation?: string | undefined;
 }>;
 
 export type PhotoelectricResult<T> =
@@ -63,11 +66,15 @@ export function outsideDomain(
 export function underdetermined(
   compatibleFamily: string,
   neededInformation: readonly string[],
+  extra?: Readonly<{ upperBound?: number; unit?: string; citation?: string }>,
 ): PhotoelectricUnderdetermined {
   return Object.freeze({
     status: "underdetermined",
     compatibleFamily,
     neededInformation: Object.freeze([...neededInformation]),
+    ...(extra?.upperBound !== undefined ? { upperBound: extra.upperBound } : {}),
+    ...(extra?.unit !== undefined ? { unit: extra.unit } : {}),
+    ...(extra?.citation !== undefined ? { citation: extra.citation } : {}),
   });
 }
 
@@ -141,17 +148,21 @@ export function thresholdFrequencyFromEv(
   return thresholdFrequency(workFunctionEv * e, set);
 }
 
+export type EnergyTransferMode = "complete" | "partial";
+
 /**
  * Maximum kinetic energy of emitted photoelectrons: K_max = h * nu - Phi (in Joules).
  *
  * Epistemic rule:
  * When nu < nu_0, K_max is NOT negative or zero; it is `not-applicable`
  * with reason "no emitted electron in this model".
+ * Under partial transfer, returns `underdetermined` with upperBound = h * nu - Phi.
  */
 export function kMax(
   nu: number,
   workFunctionJoules: number,
   set?: ConstantSet,
+  transferModel: EnergyTransferMode = "complete",
 ): PhotoelectricResult<number> {
   if (!Number.isFinite(nu)) {
     return outsideDomain("nonfinite-frequency", "input", "Frequency must be a finite number.");
@@ -181,6 +192,18 @@ export function kMax(
     return notApplicable("no emitted electron in this model");
   }
 
+  if (transferModel === "partial") {
+    return underdetermined(
+      "partial-energy-transfer-bound",
+      ["single-quantum-transfer-fraction"],
+      {
+        upperBound: eq - workFunctionJoules,
+        unit: "J",
+        citation: "Pi * E + P' <= R * beta * nu",
+      },
+    );
+  }
+
   return ok(eq - workFunctionJoules, "J");
 }
 
@@ -191,9 +214,20 @@ export function kMaxEv(
   nu: number,
   workFunctionEv: number,
   set?: ConstantSet,
+  transferModel: EnergyTransferMode = "complete",
 ): PhotoelectricResult<number> {
   const e = getElementaryCharge(set);
-  const res = kMax(nu, workFunctionEv * e, set);
+  const res = kMax(nu, workFunctionEv * e, set, transferModel);
+  if (res.status === "underdetermined") {
+    const extra: { upperBound?: number; unit?: string; citation?: string } = { unit: "eV" };
+    if (res.upperBound !== undefined) extra.upperBound = res.upperBound / e;
+    if (res.citation !== undefined) extra.citation = res.citation;
+    return underdetermined(
+      res.compatibleFamily,
+      res.neededInformation,
+      extra,
+    );
+  }
   if (res.status !== "value") return res;
   return ok(res.value / e, "eV");
 }
@@ -204,13 +238,26 @@ export function kMaxEv(
  * Epistemic rule:
  * When nu < nu_0, stopping potential is `not-applicable` with reason
  * "no emitted electron in this model".
+ * Under partial transfer, returns `underdetermined` with upperBound = (h * nu - Phi) / e.
  */
 export function stoppingPotentialMagnitude(
   nu: number,
   workFunctionJoules: number,
   set?: ConstantSet,
+  transferModel: EnergyTransferMode = "complete",
 ): PhotoelectricResult<number> {
-  const kResult = kMax(nu, workFunctionJoules, set);
+  const kResult = kMax(nu, workFunctionJoules, set, transferModel);
+  if (kResult.status === "underdetermined") {
+    const e = getElementaryCharge(set);
+    const extra: { upperBound?: number; unit?: string; citation?: string } = { unit: "V" };
+    if (kResult.upperBound !== undefined) extra.upperBound = kResult.upperBound / e;
+    if (kResult.citation !== undefined) extra.citation = kResult.citation;
+    return underdetermined(
+      kResult.compatibleFamily,
+      kResult.neededInformation,
+      extra,
+    );
+  }
   if (kResult.status !== "value") return kResult;
   const e = getElementaryCharge(set);
   return ok(kResult.value / e, "V");
@@ -223,9 +270,10 @@ export function stoppingPotentialFromEv(
   nu: number,
   workFunctionEv: number,
   set?: ConstantSet,
+  transferModel: EnergyTransferMode = "complete",
 ): PhotoelectricResult<number> {
   const e = getElementaryCharge(set);
-  return stoppingPotentialMagnitude(nu, workFunctionEv * e, set);
+  return stoppingPotentialMagnitude(nu, workFunctionEv * e, set, transferModel);
 }
 
 /**
@@ -235,6 +283,7 @@ export function signedEnergyBudget(
   nu: number,
   workFunctionJoules: number,
   set?: ConstantSet,
+  transferModel: EnergyTransferMode = "complete",
 ): Readonly<{
   quantumEnergy: number;
   workFunction: number;
@@ -254,7 +303,7 @@ export function signedEnergyBudget(
     excessJoules: excess,
     excessEv: excess / e,
     emitted,
-    kMax: kMax(nu, workFunctionJoules, set),
+    kMax: kMax(nu, workFunctionJoules, set, transferModel),
   });
 }
 
@@ -334,6 +383,8 @@ export function emissionRate(
   return ok(quantumEfficiency * qRateRes.value, "s^-1");
 }
 
+export type ElectronDistributionModel = "none" | "all-at-kmax" | "uniform";
+
 /**
  * Collector photocurrent I(U_c) in Amperes.
  *
@@ -342,7 +393,10 @@ export function emissionRate(
  * - When nu >= nu_0:
  *   - For U_c >= 0 (accelerating / neutral): saturation current I_sat = e * N_dot_e.
  *   - For U_c <= -V_s (full retarding): I = 0.
- *   - For -V_s < U_c < 0: underdetermined without an explicit electron energy distribution model.
+ *   - For -V_s < U_c < 0:
+ *     - If distributionModel === "all-at-kmax": I = I_sat.
+ *     - If distributionModel === "uniform": I = I_sat * (1 - e*|U_c|/K_max).
+ *     - If distributionModel === "none": underdetermined.
  */
 export function photocurrent(
   incidentPowerWatts: number,
@@ -351,6 +405,7 @@ export function photocurrent(
   quantumEfficiency: number,
   collectorPotentialVolts: number,
   set?: ConstantSet,
+  distributionModel: ElectronDistributionModel = "none",
 ): PhotoelectricResult<number> {
   if (!Number.isFinite(collectorPotentialVolts)) {
     return outsideDomain(
@@ -384,6 +439,15 @@ export function photocurrent(
     return ok(0, "A");
   }
 
+  if (distributionModel === "all-at-kmax") {
+    return ok(iSat, "A");
+  }
+
+  if (distributionModel === "uniform") {
+    const fraction = 1 - Math.abs(collectorPotentialVolts) / vs;
+    return ok(iSat * Math.max(0, Math.min(1, fraction)), "A");
+  }
+
   return underdetermined("retarded-photoelectron-current", [
     "electron-energy-distribution-in-emitter",
     "collector-geometry",
@@ -400,6 +464,7 @@ export function collectorSweep(
   quantumEfficiency: number,
   potentialRange: Readonly<{ min: number; max: number; steps: number }>,
   set?: ConstantSet,
+  distributionModel: ElectronDistributionModel = "none",
 ): readonly Readonly<{
   collectorPotential: number;
   result: PhotoelectricResult<number>;
@@ -418,6 +483,7 @@ export function collectorSweep(
       quantumEfficiency,
       uc,
       set,
+      distributionModel,
     );
     points.push(Object.freeze({ collectorPotential: uc, result: res }));
   }
@@ -425,28 +491,53 @@ export function collectorSweep(
   return Object.freeze(points);
 }
 
+export type StoppingPoint = Readonly<{
+  frequency: number;
+  stoppingPotential: number;
+}>;
+
+export type StoppingLinePoints = readonly StoppingPoint[] &
+  Readonly<{
+    slope: number;
+    intercept: number;
+    thresholdFrequency: number;
+  }>;
+
 /**
  * Theoretical stopping potential line V_s(nu) = (h/e)*nu - (Phi/e).
  * Only evaluated for nu >= nu_0.
+ * Returns array of points with bitwise exact slope h/e and intercept -Phi/e.
  */
 export function stoppingLine(
   workFunctionJoules: number,
   nuRange: Readonly<{ min: number; max: number; steps: number }>,
   set?: ConstantSet,
-): readonly Readonly<{
-  frequency: number;
-  stoppingPotential: number;
-}>[] {
+): StoppingLinePoints {
+  const h = getPlanckConstant(set);
+  const e = getElementaryCharge(set);
+  const slope = h / e;
+  const intercept = -workFunctionJoules / e;
+
   const threshRes = thresholdFrequency(workFunctionJoules, set);
-  if (threshRes.status !== "value") return Object.freeze([]);
+  if (threshRes.status !== "value") {
+    const empty: StoppingPoint[] = [];
+    return Object.freeze(
+      Object.assign(empty, { slope, intercept, thresholdFrequency: 0 }),
+    ) as unknown as StoppingLinePoints;
+  }
   const nu0 = threshRes.value;
 
   const { min, max, steps } = nuRange;
   const clampedSteps = Math.max(2, Math.floor(steps));
   const effectiveMin = Math.max(min, nu0);
-  if (effectiveMin > max) return Object.freeze([]);
+  if (effectiveMin > max) {
+    const empty: StoppingPoint[] = [];
+    return Object.freeze(
+      Object.assign(empty, { slope, intercept, thresholdFrequency: nu0 }),
+    ) as unknown as StoppingLinePoints;
+  }
 
-  const points: { frequency: number; stoppingPotential: number }[] = [];
+  const points: StoppingPoint[] = [];
   const delta = (max - effectiveMin) / (clampedSteps - 1);
 
   for (let i = 0; i < clampedSteps; i++) {
@@ -457,7 +548,9 @@ export function stoppingLine(
     }
   }
 
-  return Object.freeze(points);
+  return Object.freeze(
+    Object.assign(points, { slope, intercept, thresholdFrequency: nu0 }),
+  ) as unknown as StoppingLinePoints;
 }
 
 /**
@@ -543,54 +636,201 @@ export function visibleColor(nu: number): Readonly<{
  * Documented modern alternative in ESU:
  *   Pi = 4.3057 V.
  */
-export function einsteinPrintedStoppingCheck(): Readonly<{
+export type EinsteinPrintedStoppingCheckResult = Readonly<{
+  printedRepresentation: "representation-a";
+  transcriptionStatus: "pending";
+  transcriptionPendingReason: string;
   representationA: Readonly<{
     molarGasConstantErg: number;
+    modernMolarGasConstantErg: number;
     wienBetaSecDeg: number;
     gramEquivalentChargeEmu: number;
     frequencyHz: number;
     workFunctionPerGramEquivalent: number;
     stoppingPotentialAbV: number;
     stoppingPotentialVolts: number;
+    stoppingPotentialModernRVolts: number;
     slopeVsPerHz: number;
+    modernSlopeVsPerHz: number;
     printedText: string;
+    unitSystem: "emu-cgs";
+    isPrinted: true;
   }>;
   representationB: Readonly<{
+    elementaryChargeEsu: number;
+    avogadroN: number;
+    conventionalConversionVoltsPerStatvolt: number;
+    historicalConversionVoltsPerStatvolt: number;
     stoppingPotentialVolts: number;
+    stoppingPotentialVoltsConventional: number;
+    stoppingPotentialVoltsHistorical300: number;
+    isPrinted: false;
+    label: string;
     description: string;
   }>;
+  documentedAlternatives: readonly Readonly<{
+    quantityId: string;
+    value: number;
+    printedRepresentation: string;
+    reason: string;
+  }>[];
+  suspectedTypographicalError: Readonly<{
+    comparisonWitnessPrintedText: string;
+    numericalConventionVolts: string;
+    provenanceReference: string;
+    note: string;
+  }>;
+  adversarialSlips: Readonly<{
+    chargeEmuSlipE96e4Volts: number;
+    chargeEsuSlipEps44e10Volts: number;
+    reason: "transcription-slip";
+  }>;
+  readoutStatements: Readonly<{
+    neglectStatement: string;
+    notNamedMetalStatement: string;
+    hypotheticalComparison: Readonly<{
+      frequencyHz: number;
+      hypotheticalWorkFunctionEv: number;
+      quantumEnergyEv: number;
+      stoppingPotentialVolts: number;
+      label: "hypothetical";
+    }>;
+  }>;
   historicalNote: string;
-}> {
+}>;
+
+/**
+ * Historical regression check: Einstein 1905 paper 1, §8.
+ *
+ * Representation A:
+ * Printed gram-equivalent form:
+ *   R = 8.31e7 erg/(mol K)
+ *   beta = 4.866e-11 K s
+ *   E = 9.6e3 emu (gram-equivalent charge)
+ *   nu = 1.03e15 s^-1 (ultraviolet light from spark source)
+ *   P_prime = 0 (escape work per gram-equivalent neglected for order-of-magnitude check)
+ *
+ * Calculated stopping potential:
+ *   Pi = (R * beta * nu) / E = (8.31e7 * 4.866e-11 * 1.03e15) / 9.6e3
+ *      = 4.3384951875e8 abV = 4.3385 V.
+ *   Einstein printed: "ca. 4,3 Volt".
+ *
+ * Representation B:
+ * Documented modern alternative in ESU:
+ *   Pi = 4.3057 V (conventional 299.792458 V/statV) or 4.3087 V (historical 300 V/statV).
+ */
+export function einsteinPrintedStoppingCheck(): EinsteinPrintedStoppingCheckResult {
   const R = 8.31e7; // erg / (mol K)
+  const R_modern = 8.314e7; // erg / (mol K)
   const beta = 4.866e-11; // K s
   const E_emu = 9.6e3; // emu / mol
   const nu = 1.03e15; // s^-1
   const P_prime = 0;
 
+  // Modern reference values for slope comparison
+  const h_modern = 6.62607015e-34;
+  const e_modern = 1.602176634e-19;
+  const modernSlope = h_modern / e_modern;
+
   // Pi in abvolts (1 abV = 10^-8 V)
   const piAbV = (R * beta * nu - P_prime) / E_emu;
   const piV = piAbV * 1e-8;
+  const piModernRV = (((R_modern * beta * nu - P_prime) / E_emu) * 1e-8);
   const slope = ((R * beta) / E_emu) * 1e-8;
 
+  // Representation B: ESU calculation
+  const eps = 4.7e-10; // esu
+  const N_A = 6.17e23; // Avogadro
+  const k_B = R / N_A;
+  const h_esu = k_B * beta;
+  const hnu_erg = h_esu * nu;
+  const vStatvolt = hnu_erg / eps;
+  const vConv = vStatvolt * 299.792458;
+  const vHist300 = vStatvolt * 300;
+
+  // Adversarial slips
+  const slipE96e4 = (((R * beta * nu) / 9.6e4) * 1e-8);
+  const slipEps44e10 = (hnu_erg / 4.4e-10) * 299.792458;
+
+  // Live hypothetical comparison at 1.03e15 Hz with hypothetical Phi = 2.0 eV
+  const hypQuantumEnergyEv = (h_modern * nu) / e_modern;
+  const hypWorkFunctionEv = 2.0;
+  const hypVs = hypQuantumEnergyEv - hypWorkFunctionEv;
+
+  const neglectStatement =
+    "Einstein sets P' = 0 as a deliberate neglect of escape work for order-of-magnitude " +
+    "comparison against Lenard's spark-potential observations, not as a physical prediction for a named metal.";
+  const notNamedMetalStatement =
+    "This is not a prediction for any named metal; any real substance has P' > 0, " +
+    "so its stopping potential at this frequency is lower by exactly the amount the work function contributes.";
+
   return Object.freeze({
+    printedRepresentation: "representation-a" as const,
+    transcriptionStatus: "pending" as const,
+    transcriptionPendingReason:
+      "Pinned facsimile for paper 1 is not reviewed in this repository yet; historical scenario reports not-available until verification.",
     representationA: Object.freeze({
       molarGasConstantErg: R,
+      modernMolarGasConstantErg: R_modern,
       wienBetaSecDeg: beta,
       gramEquivalentChargeEmu: E_emu,
       frequencyHz: nu,
       workFunctionPerGramEquivalent: P_prime,
       stoppingPotentialAbV: piAbV,
       stoppingPotentialVolts: piV,
+      stoppingPotentialModernRVolts: piModernRV,
       slopeVsPerHz: slope,
+      modernSlopeVsPerHz: modernSlope,
       printedText: "ca. 4,3 Volt",
+      unitSystem: "emu-cgs" as const,
+      isPrinted: true as const,
     }),
     representationB: Object.freeze({
-      stoppingPotentialVolts: 4.3057,
+      elementaryChargeEsu: eps,
+      avogadroN: N_A,
+      conventionalConversionVoltsPerStatvolt: 299.792458,
+      historicalConversionVoltsPerStatvolt: 300,
+      stoppingPotentialVolts: vConv,
+      stoppingPotentialVoltsConventional: vConv,
+      stoppingPotentialVoltsHistorical300: vHist300,
+      isPrinted: false as const,
+      label: "not printed; documented alternative",
       description: "Documented alternative electrostatic CGS representation.",
     }),
-    historicalNote:
-      "Einstein sets P' = 0 as a deliberate neglect of escape work for order-of-magnitude " +
-      "comparison against Lenard's spark-potential observations, not as a physical prediction for a named metal.",
+    documentedAlternatives: Object.freeze([
+      Object.freeze({
+        quantityId: "stoppingPotentialMagnitude",
+        value: vConv,
+        printedRepresentation: "not-printed-documented-alternative",
+        reason: "not printed; documented alternative",
+      }),
+    ]),
+    suspectedTypographicalError: Object.freeze({
+      comparisonWitnessPrintedText: "Π·10^7 = 4.3 Volt",
+      numericalConventionVolts: "Π·10^-8 V",
+      provenanceReference: "docs/provenance/ap-17-132.md",
+      note:
+        "The comparison witness prints 'Π·10^7 = 4.3 Volt'; if the facsimile shows that exponent, " +
+        "docs/provenance/ap-17-132.md records a suspected typographical error, the source face keeps the original, " +
+        "and the numerical binding uses the stated convention Π·10^-8 volts.",
+    }),
+    adversarialSlips: Object.freeze({
+      chargeEmuSlipE96e4Volts: slipE96e4,
+      chargeEsuSlipEps44e10Volts: slipEps44e10,
+      reason: "transcription-slip" as const,
+    }),
+    readoutStatements: Object.freeze({
+      neglectStatement,
+      notNamedMetalStatement,
+      hypotheticalComparison: Object.freeze({
+        frequencyHz: nu,
+        hypotheticalWorkFunctionEv: hypWorkFunctionEv,
+        quantumEnergyEv: hypQuantumEnergyEv,
+        stoppingPotentialVolts: hypVs,
+        label: "hypothetical" as const,
+      }),
+    }),
+    historicalNote: neglectStatement,
   });
 }
 

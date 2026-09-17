@@ -1,7 +1,7 @@
 # LQ-08 instrument manifest (am-lq-08-photoelectric-va5a).
 id: lq-08
 title: "LQ-08: Photoelectric Apparatus and Stopping Potential"
-explanatoryQuestion: "Why does increasing light intensity release more electrons without increasing their individual energy, while increasing frequency increases electron energy without requiring higher intensity?"
+explanatoryQuestion: "What changes the energy of the emitted electrons, and what changes their number?"
 sourceRefs:
   - paper: light-quanta
     id: s8
@@ -165,11 +165,15 @@ assumptions:
   - "The fastest photoelectrons originate at the Fermi surface and undergo no inelastic collisions before escape."
 admittedDomain: "Monochromatic light on clean metallic cathode in vacuum under single-photon photoelectric regime"
 notModeled:
-  - "Multi-photon absorption processes at ultra-high laser intensities."
-  - "Detailed angular distribution of emitted photoelectrons."
-  - "Sub-surface electron-electron scattering and energy degradation spectrum."
-  - "Surface oxidation layer work-function drift."
-  - "Thermal tail of electron Fermi-Dirac distribution at T > 0 K."
+  - "Real-material electron energy distributions and yields"
+  - "Contact potentials and surface states"
+  - "Space charge"
+  - "Reflection losses"
+  - "Emission angles"
+  - "Multi-photon or thermionic emission"
+  - "The timing of individual emissions"
+  - "Energy transfer models beyond the declared complete or partial cases"
+  - "Any claim that the moving marks depict photons"
 owner:
   kind: reference-evaluator
   kernelFunctions:
@@ -271,7 +275,7 @@ acceptanceCases:
   - photoelectric-power-energy-invariance
 defaultScenario: photoelectric-einstein-1905-printed
 tapeModel:
-  modelId: photoelectric-apparatus-reference
+  modelId: lq-08
   modelVersion: 1
 teachingTapes:
   - tapeId: photoelectric-millikan-walkthrough
@@ -280,9 +284,9 @@ presets:
   - presetId: lq-08-intensity-probe
     label: "The intensity probe (rate vs energy)"
     parameterValues:
-      incidentPower: 0.002
+      incidentPower: 0.001
       frequency: 6e14
-      workFunction: 2.2
+      workFunction: 2.0
       quantumEfficiency: 0.1
       collectorPotential: 0
   - presetId: lq-08-historical-check
@@ -294,11 +298,11 @@ presets:
       quantumEfficiency: 0.1
       collectorPotential: 0
   - presetId: lq-08-two-metals
-    label: "Two metals comparison (Sodium vs Platinum)"
+    label: "Two metals comparison (2.0 eV vs 3.0 eV)"
     parameterValues:
       incidentPower: 0.001
       frequency: 8e14
-      workFunction: 5.65
+      workFunction: 3.0
       quantumEfficiency: 0.1
       collectorPotential: 0
 probes:
@@ -319,49 +323,49 @@ predictMode:
   prompts:
     - promptId: lq-08-predict-double-power
       controlId: incidentPower
-      question: "If you double the incident light intensity while keeping frequency constant, does the maximum electron kinetic energy increase, decrease, or remain unchanged?"
+      question: "Make the lamp twice as bright without changing its frequency. What happens to the energy of the fastest electrons?"
       candidates:
-        - id: lq-08-predict-double-power-increases
-          label: "Maximum kinetic energy increases"
-          description: "Higher wave intensity delivers greater wave amplitude and thus more kinetic energy per electron"
-          separatingAssumption: "Classical wave assumption: energy transfer depends on wave intensity (electric field amplitude squared)."
-        - id: lq-08-predict-double-power-unchanged
-          label: "Maximum kinetic energy is unchanged"
-          description: "Each electron absorbs exactly one quantum h*nu whose energy is determined by frequency alone"
-          separatingAssumption: "Light-quantum assumption: one quantum transfers h*nu to one electron, changing emission rate but not individual energy."
-        - id: lq-08-predict-double-power-decreases
-          label: "Maximum kinetic energy decreases"
-          description: "Crowding more photoelectrons in the beam slows individual electrons down through space charge"
-          separatingAssumption: "Space-charge assumption: assumes collective electron repulsion degrades individual peak kinetic energies."
+        - id: energy-increases
+          label: "It increases"
+          description: "Greater wave intensity delivers more energy per electron."
+          separatingAssumption: "Classical wave assumption: energy transfer depends on light intensity."
+        - id: energy-unchanged
+          label: "It stays the same"
+          description: "Each electron absorbs exactly one light quantum whose energy depends on frequency alone."
+          separatingAssumption: "Light-quantum assumption: one quantum transfers its energy to one electron, changing emission rate but not individual energy."
+        - id: energy-decreases
+          label: "It decreases"
+          description: "Crowding more electrons slows individual electrons down through space charge."
+          separatingAssumption: "Space-charge assumption: assumes collective electron repulsion degrades individual peak kinetic energy."
     - promptId: lq-08-predict-raise-frequency
       controlId: frequency
-      question: "If you raise the frequency of the light while holding total optical power constant, does the photoelectron emission rate rise, fall, or stay unchanged?"
+      question: "Raise the frequency while keeping the lamp's power the same. What happens to the number of quanta arriving each second?"
       candidates:
-        - id: lq-08-predict-raise-frequency-rate-rises
-          label: "Emission rate rises"
-          description: "Higher-frequency light has greater penetrating power and frees electrons more readily"
-          separatingAssumption: "Assumes higher photon energy increases the cross-section or yield per unit power."
-        - id: lq-08-predict-raise-frequency-rate-falls
-          label: "Emission rate falls"
-          description: "At fixed total power P, higher frequency means each quantum carries more energy h*nu, so there are fewer quanta per second (N_dot = P / h*nu)"
-          separatingAssumption: "Light-quantum accounting: total power equals quantum rate times quantum energy, so N_dot scales as 1/nu."
-        - id: lq-08-predict-raise-frequency-rate-unchanged
-          label: "Emission rate stays unchanged"
-          description: "Total power determines the total energy entering the metal per second, so the electron count is conserved"
-          separatingAssumption: "Assumes light delivers continuous energy that produces electrons at a rate proportional to power alone."
+        - id: rate-rises
+          label: "More arrive each second"
+          description: "Higher-frequency light has greater penetrating power and frees electrons more readily."
+          separatingAssumption: "Assumes higher frequency increases the quantum count per unit power."
+        - id: rate-falls
+          label: "Fewer arrive each second"
+          description: "At fixed power, each quantum carries more energy, so fewer quanta arrive each second."
+          separatingAssumption: "Light-quantum accounting: total power equals quantum rate times quantum energy, so rate falls as frequency rises."
+        - id: rate-unchanged
+          label: "The same number arrive each second"
+          description: "Total power determines the total energy entering the metal per second, so the quantum count is conserved."
+          separatingAssumption: "Assumes light delivers continuous energy with constant quantum rate at fixed power."
     - promptId: lq-08-predict-two-metals
       controlId: workFunction
-      question: "When measuring stopping potential vs frequency for two different cathode metals, how will their stopping lines V_s(nu) relate?"
+      question: "Two different metals are lit by the same lamp. Plotted against frequency, are their stopping-potential lines parallel, crossing, or identical?"
       candidates:
-        - id: lq-08-predict-two-metals-parallel
-          label: "Parallel lines with identical slope"
-          description: "The slope is the universal constant h/e, while the work function Phi shifts the threshold frequency intercept"
-          separatingAssumption: "Universal quantum slope: dV_s/dnu = h/e is a universal constant of radiation and charge, independent of the material."
-        - id: lq-08-predict-two-metals-crossing
-          label: "Lines with different slopes that cross"
-          description: "Different metals couple differently to light, so each metal has its own characteristic slope"
-          separatingAssumption: "Material-specific coupling: assumes the frequency sensitivity depends on the metal's electron structure."
-        - id: lq-08-predict-two-metals-identical
-          label: "Completely identical lines"
-          description: "The photoelectric response is a universal property of free electrons in all conductors"
+        - id: lines-parallel
+          label: "Parallel, with different starting points"
+          description: "The slope is a universal constant of radiation and charge, while the work function shifts the starting threshold."
+          separatingAssumption: "Universal quantum slope: the stopping line slope is universal and independent of the material."
+        - id: lines-crossing
+          label: "Crossing"
+          description: "Different metals couple differently to light, so each metal has its own characteristic slope."
+          separatingAssumption: "Material-specific coupling: assumes frequency sensitivity depends on the metal electron structure."
+        - id: lines-identical
+          label: "Identical"
+          description: "The photoelectric response is a universal property of free electrons in all conductors."
           separatingAssumption: "Free electron assumption: ignores the material-dependent surface escape barrier."

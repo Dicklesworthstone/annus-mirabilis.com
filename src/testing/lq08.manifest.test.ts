@@ -18,12 +18,32 @@ describe("LQ-08 Experiment Manifest (am-lq-08-photoelectric-va5a)", () => {
     expect(experiment.id).toBe("lq-08");
     expect(experiment.title).toContain("Photoelectric");
     expect(experiment.schemaVersion).toBe(1);
+    expect(experiment.explanatoryQuestion).toBe(
+      "What changes the energy of the emitted electrons, and what changes their number?",
+    );
   });
 
-  it("declares non-empty notModeled limitations (epistemic integrity)", () => {
+  it("declares exact notModeled limitations from bead specification", () => {
     const experiment = validateExperiment(rawYaml, "lq-08");
-    expect(Array.isArray(experiment.notModeled)).toBe(true);
-    expect(experiment.notModeled.length).toBeGreaterThanOrEqual(3);
+    const expectedNotModeled = [
+      "Real-material electron energy distributions and yields",
+      "Contact potentials and surface states",
+      "Space charge",
+      "Reflection losses",
+      "Emission angles",
+      "Multi-photon or thermionic emission",
+      "The timing of individual emissions",
+      "Energy transfer models beyond the declared complete or partial cases",
+      "Any claim that the moving marks depict photons",
+    ];
+    expect(experiment.notModeled).toEqual(expectedNotModeled);
+  });
+
+  it("declares tapeModel as lq-08@1", () => {
+    const experiment = validateExperiment(rawYaml, "lq-08");
+    expect(experiment.tapeModel?.modelId).toBe("lq-08");
+    expect(experiment.tapeModel?.modelVersion).toBe(1);
+    expect(`${experiment.tapeModel?.modelId}@${experiment.tapeModel?.modelVersion}`).toBe("lq-08@1");
   });
 
   it("declares all required parameters with correct command classes", () => {

@@ -37,3 +37,9 @@ expected:
       qualifier: about
 modelVersion: 1
 schemaVersion: 1
+printedRepresentation: representation-a
+documentedAlternatives:
+  - quantityId: stoppingPotentialMagnitude
+    value: 4.3057
+    printedRepresentation: not-printed-documented-alternative
+    reason: "not printed; documented alternative electrostatic CGS representation"

@@ -34,7 +34,7 @@ describe("LQ-08 Photoelectric Apparatus Lab View & Route", () => {
     expect(html).toContain('data-view-id="lq-08-iv-curve"');
     expect(html).toContain("Accepted Laboratory Snapshot");
     expect(html).toContain("Limits of this Reference Model (Not Modeled)");
-    expect(html).toContain("Multi-photon absorption processes");
+    expect(html).toContain("Multi-photon or thermionic emission");
   });
 
   test("lab component renders with static worked example and displays defaults", () => {
@@ -103,8 +103,11 @@ describe("LQ-08 Photoelectric Apparatus Lab View & Route", () => {
   test("notModeled items are non-empty and properly disclosed", () => {
     const html = renderToStaticMarkup(<PhotoelectricLab example={example} />);
     expect(html).toContain("Limits of this Reference Model (Not Modeled)");
-    expect(html).toContain("Multi-photon absorption processes at ultra-high laser intensities.");
-    expect(html).toContain("Detailed angular distribution of emitted photoelectrons.");
-    expect(html).toContain("Surface oxidation layer work-function drift.");
+    expect(html).toContain("Multi-photon or thermionic emission");
+    expect(html).toContain("Contact potentials and surface states");
+    expect(html).toContain("Space charge");
+    expect(html).toContain("Historical Readout: Einstein 1905 §8 Order-of-Magnitude Check");
+    expect(html).toContain("What was neglected:");
+    expect(html).toContain("What it is not:");
   });
 });

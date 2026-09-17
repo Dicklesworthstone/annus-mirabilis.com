@@ -1,8 +1,10 @@
 "use client";
 
 import { useEffect, useId, useMemo, useState, useSyncExternalStore } from "react";
+import { LQ08_NOT_MODELED } from "../../../experiments/lq08/definition.ts";
 import { evaluateMillikanOverlay } from "../../../experiments/lq08/millikan.ts";
 import { createLq08Session, type PreparedLq08Example } from "../../../experiments/lq08/session.ts";
+import { einsteinPrintedStoppingCheck } from "../../../physics/reference/photoelectric.ts";
 import {
   CurrentVoltagePlot,
   EnergyLadderPlot,
@@ -14,6 +16,7 @@ export type PhotoelectricLabProps = Readonly<{
 }>;
 
 type Preset = Readonly<{
+  id: string;
   name: string;
   description: string;
   patch: Readonly<{
@@ -27,29 +30,20 @@ type Preset = Readonly<{
 
 const PRESETS: readonly Preset[] = [
   {
-    name: "Sodium Standard (Yellow-Green, 600 THz)",
-    description: "Monochromatic 600 THz (~500 nm) on fresh sodium (Phi = 2.2 eV).",
+    id: "lq-08-intensity-probe",
+    name: "The Intensity Probe (Rate vs Energy)",
+    description: "Monochromatic 600 THz on hypothetical Phi = 2.0 eV with 1 mW incident power.",
     patch: {
       incidentPower: 0.001,
       frequency: 6.0e14,
-      workFunction: 2.2,
+      workFunction: 2.0,
       quantumEfficiency: 0.1,
       collectorPotential: 0.0,
     },
   },
   {
-    name: "Sub-Threshold (Red Light, 450 THz)",
-    description: "450 THz red light: photon energy 1.86 eV < 2.2 eV. No electrons emitted.",
-    patch: {
-      incidentPower: 0.005,
-      frequency: 4.5e14,
-      workFunction: 2.2,
-      quantumEfficiency: 0.1,
-      collectorPotential: 0.0,
-    },
-  },
-  {
-    name: "Historical Spark Check (UV, 1030 THz, Phi=0)",
+    id: "lq-08-historical-check",
+    name: "Einstein 1905 §8 Check (UV Spark, P'=0)",
     description: "Einstein's 1905 order-of-magnitude check with neglected escape work.",
     patch: {
       incidentPower: 0.001,
@@ -59,65 +53,146 @@ const PRESETS: readonly Preset[] = [
       collectorPotential: 0.0,
     },
   },
+  {
+    id: "lq-08-two-metals",
+    name: "Two Metals Comparison (2.0 eV vs 3.0 eV)",
+    description: "Compare stopping line slopes and threshold shifts between two metals.",
+    patch: {
+      incidentPower: 0.001,
+      frequency: 8.0e14,
+      workFunction: 3.0,
+      quantumEfficiency: 0.1,
+      collectorPotential: 0.0,
+    },
+  },
 ];
 
-type PredictPrompt = Readonly<{
+type PredictCandidate = Readonly<{
   id: string;
+  label: string;
+  description: string;
+  separatingAssumption: string;
+  correct: boolean;
+}>;
+
+type PredictPrompt = Readonly<{
+  promptId: string;
+  controlId: string;
   question: string;
-  options: readonly { text: string; correct: boolean }[];
+  candidates: readonly PredictCandidate[];
   explanation: string;
 }>;
 
 const PREDICT_PROMPTS: readonly PredictPrompt[] = [
   {
-    id: "power-invariance",
+    promptId: "lq-08-predict-double-power",
+    controlId: "incidentPower",
     question:
-      "What happens to maximum electron kinetic energy (K_max) if you double the optical power?",
-    options: [
-      { text: "K_max doubles because more wave energy impinges on the surface.", correct: false },
+      "Make the lamp twice as bright without changing its frequency. What happens to the energy of the fastest electrons?",
+    candidates: [
       {
-        text: "K_max stays exactly unchanged; only the photon flux and electron count double.",
+        id: "energy-increases",
+        label: "It increases",
+        description: "Greater wave intensity delivers more energy per electron.",
+        separatingAssumption:
+          "Classical wave assumption: energy transfer depends on light intensity.",
+        correct: false,
+      },
+      {
+        id: "energy-unchanged",
+        label: "It stays the same",
+        description:
+          "Each electron absorbs exactly one light quantum whose energy depends on frequency alone.",
+        separatingAssumption:
+          "Light-quantum assumption: one quantum transfers its energy to one electron, changing emission rate but not individual energy.",
         correct: true,
       },
-      { text: "K_max increases by sqrt(2).", correct: false },
+      {
+        id: "energy-decreases",
+        label: "It decreases",
+        description:
+          "Crowding more electrons slows individual electrons down through space charge.",
+        separatingAssumption:
+          "Space-charge assumption: assumes collective electron repulsion degrades individual peak kinetic energy.",
+        correct: false,
+      },
     ],
     explanation:
-      "In the quantum hypothesis, each electron absorbs exactly one light quantum (h*nu). Radiant power only governs the rate of incoming photons (N_dot = P / h*nu), not the energy carried by individual quanta.",
+      "In the light-quantum hypothesis, each electron absorbs exactly one quantum. Radiant power changes the arrival rate, not the energy of individual quanta.",
   },
   {
-    id: "sub-threshold",
-    question: "What happens to the photocurrent if light frequency is below threshold (nu < nu_0)?",
-    options: [
+    promptId: "lq-08-predict-raise-frequency",
+    controlId: "frequency",
+    question:
+      "Raise the frequency while keeping the lamp's power the same. What happens to the number of quanta arriving each second?",
+    candidates: [
       {
-        text: "Photocurrent is zero, regardless of how intense or long the illumination is.",
+        id: "rate-rises",
+        label: "More arrive each second",
+        description:
+          "Higher-frequency light has greater penetrating power and frees electrons more readily.",
+        separatingAssumption:
+          "Assumes higher frequency increases the quantum count per unit power.",
+        correct: false,
+      },
+      {
+        id: "rate-falls",
+        label: "Fewer arrive each second",
+        description:
+          "At fixed power, each quantum carries more energy, so fewer quanta arrive each second.",
+        separatingAssumption:
+          "Light-quantum accounting: total power equals quantum rate times quantum energy, so rate falls as frequency rises.",
         correct: true,
       },
       {
-        text: "A small current flows if you make the light beam sufficiently bright.",
-        correct: false,
-      },
-      {
-        text: "Electrons emerge after a time lag required to accumulate enough energy.",
+        id: "rate-unchanged",
+        label: "The same number arrive each second",
+        description:
+          "Total power determines the total energy entering the metal per second, so the quantum count is conserved.",
+        separatingAssumption:
+          "Assumes light delivers continuous energy with constant quantum rate at fixed power.",
         correct: false,
       },
     ],
     explanation:
-      "Classical wave theory predicts energy accumulates over time until an electron escapes. The quantum law requires h*nu >= Phi in a single collision event; if h*nu < Phi, no electron can escape.",
+      "Because total power P = N_dot * h * nu, higher frequency means each quantum carries more energy, so fewer quanta arrive each second at fixed total power.",
   },
   {
-    id: "slope-universality",
+    promptId: "lq-08-predict-two-metals",
+    controlId: "workFunction",
     question:
-      "How does the slope of stopping potential versus frequency (dVs/dnu) compare across different metals?",
-    options: [
+      "Two different metals are lit by the same lamp. Plotted against frequency, are their stopping-potential lines parallel, crossing, or identical?",
+    candidates: [
       {
-        text: "Different metals have different slopes depending on their electrical conductivity.",
+        id: "lines-parallel",
+        label: "Parallel, with different starting points",
+        description:
+          "The slope is a universal constant of radiation and charge, while the work function shifts the starting threshold.",
+        separatingAssumption:
+          "Universal quantum slope: the stopping line slope is universal and independent of the material.",
+        correct: true,
+      },
+      {
+        id: "lines-crossing",
+        label: "Crossing",
+        description:
+          "Different metals couple differently to light, so each metal has its own characteristic slope.",
+        separatingAssumption:
+          "Material-specific coupling: assumes frequency sensitivity depends on the metal electron structure.",
         correct: false,
       },
-      { text: "Every metal has the exact same universal slope: h/e.", correct: true },
-      { text: "The slope is proportional to the work function of the metal.", correct: false },
+      {
+        id: "lines-identical",
+        label: "Identical",
+        description:
+          "The photoelectric response is a universal property of free electrons in all conductors.",
+        separatingAssumption:
+          "Free electron assumption: ignores the material-dependent surface escape barrier.",
+        correct: false,
+      },
     ],
     explanation:
-      "Because e*Vs = h*nu - Phi, differentiating with respect to frequency gives dVs/dnu = h/e, a fundamental constant of nature independent of the cathode material.",
+      "The slope dVs/dnu = h/e is a universal constant of radiation and charge, independent of the metal. Only the threshold frequency nu_0 = Phi / h differs.",
   },
 ];
 
@@ -456,6 +531,47 @@ export function PhotoelectricLab({ example }: PhotoelectricLabProps) {
         </div>
       </div>
 
+      {/* Historical Readout: Einstein 1905 §8 Order-of-Magnitude Check */}
+      <div className="bg-slate-50 dark:bg-slate-900 border border-slate-200 dark:border-slate-800 rounded-lg p-4">
+        <h3 className="text-sm font-semibold mb-2 text-slate-800 dark:text-slate-100">
+          Historical Readout: Einstein 1905 §8 Order-of-Magnitude Check
+        </h3>
+        <div className="space-y-3 text-xs text-slate-700 dark:text-slate-300">
+          <div className="p-2.5 rounded bg-amber-50/60 dark:bg-amber-950/30 border border-amber-200 dark:border-amber-900/50">
+            <span className="font-semibold text-amber-900 dark:text-amber-200">What was neglected: </span>
+            {einsteinPrintedStoppingCheck().readoutStatements.neglectStatement}
+          </div>
+          <div className="p-2.5 rounded bg-blue-50/60 dark:bg-blue-950/30 border border-blue-200 dark:border-blue-900/50">
+            <span className="font-semibold text-blue-900 dark:text-blue-200">What it is not: </span>
+            {einsteinPrintedStoppingCheck().readoutStatements.notNamedMetalStatement}
+          </div>
+          <div className="grid grid-cols-1 md:grid-cols-2 gap-3 pt-1">
+            <div className="p-2.5 rounded bg-white dark:bg-slate-800/80 border border-slate-200 dark:border-slate-700">
+              <div className="font-semibold text-slate-800 dark:text-slate-200 mb-1">
+                Representation A (Printed Form):
+              </div>
+              <p className="font-mono text-xs">
+                &Pi; = (R &middot; &beta; &middot; &nu;) / E = {einsteinPrintedStoppingCheck().representationA.stoppingPotentialVolts.toFixed(4)} V ({einsteinPrintedStoppingCheck().representationA.printedText})
+              </p>
+              <p className="text-[11px] text-slate-500 mt-1">
+                Slope: {einsteinPrintedStoppingCheck().representationA.slopeVsPerHz.toExponential(4)} V&middot;s (modern h/e = {einsteinPrintedStoppingCheck().representationA.modernSlopeVsPerHz.toExponential(4)} V&middot;s)
+              </p>
+            </div>
+            <div className="p-2.5 rounded bg-white dark:bg-slate-800/80 border border-slate-200 dark:border-slate-700">
+              <div className="font-semibold text-slate-800 dark:text-slate-200 mb-1">
+                Live Hypothetical Comparison:
+              </div>
+              <p className="font-mono text-xs">
+                &nu; = {(einsteinPrintedStoppingCheck().readoutStatements.hypotheticalComparison.frequencyHz / 1e12).toFixed(1)} THz &rarr; h&nu; = {einsteinPrintedStoppingCheck().readoutStatements.hypotheticalComparison.quantumEnergyEv.toFixed(6)} eV
+              </p>
+              <p className="text-[11px] text-slate-500 mt-1">
+                Hypothetical &Phi; = {einsteinPrintedStoppingCheck().readoutStatements.hypotheticalComparison.hypotheticalWorkFunctionEv.toFixed(1)} eV &rarr; V_s = {einsteinPrintedStoppingCheck().readoutStatements.hypotheticalComparison.stoppingPotentialVolts.toFixed(6)} V ({einsteinPrintedStoppingCheck().readoutStatements.hypotheticalComparison.label})
+              </p>
+            </div>
+          </div>
+        </div>
+      </div>
+
       {/* Discovery Predict Mode */}
       <div className="bg-amber-50/50 dark:bg-amber-950/20 border border-amber-200 dark:border-amber-900/50 rounded-lg p-4">
         <h3 className="text-sm font-semibold mb-2 text-amber-900 dark:text-amber-200">
@@ -467,7 +583,7 @@ export function PhotoelectricLab({ example }: PhotoelectricLabProps) {
         <div className="flex flex-wrap gap-2 mb-3">
           {PREDICT_PROMPTS.map((p, idx) => (
             <button
-              key={p.id}
+              key={p.promptId}
               type="button"
               onClick={() => {
                 setActivePromptIndex(idx);
@@ -490,21 +606,22 @@ export function PhotoelectricLab({ example }: PhotoelectricLabProps) {
               {PREDICT_PROMPTS[activePromptIndex]?.question}
             </p>
             <div className="flex flex-col gap-2 mb-3">
-              {PREDICT_PROMPTS[activePromptIndex]?.options.map((opt, oIdx) => (
+              {PREDICT_PROMPTS[activePromptIndex]?.candidates.map((cand, oIdx) => (
                 <button
-                  key={opt.text}
+                  key={cand.id}
                   type="button"
                   onClick={() => setSelectedAnswer(oIdx)}
                   className={`text-left text-xs p-2.5 rounded border transition ${
                     selectedAnswer === oIdx
-                      ? opt.correct
+                      ? cand.correct
                         ? "bg-emerald-50 dark:bg-emerald-950/50 border-emerald-500 text-emerald-900 dark:text-emerald-100"
                         : "bg-rose-50 dark:bg-rose-950/50 border-rose-500 text-rose-900 dark:text-rose-100"
                       : "bg-slate-50 dark:bg-slate-800/50 border-slate-200 dark:border-slate-700 text-slate-700 dark:text-slate-300 hover:bg-slate-100"
                   }`}
                 >
                   <span className="font-mono mr-2">{String.fromCharCode(65 + oIdx)}.</span>
-                  {opt.text}
+                  <span className="font-medium">{cand.label}</span> &mdash;{" "}
+                  <span className="text-slate-500 dark:text-slate-400">{cand.description}</span>
                 </button>
               ))}
             </div>
@@ -529,17 +646,9 @@ export function PhotoelectricLab({ example }: PhotoelectricLabProps) {
           microscopic surface physics and are explicitly <strong>not modeled</strong>:
         </p>
         <ul className="text-xs text-slate-600 dark:text-slate-400 list-disc list-inside space-y-1">
-          <li>Multi-photon absorption processes at ultra-high laser intensities.</li>
-          <li>Detailed angular distribution of emitted photoelectrons.</li>
-          <li>Surface oxidation layer work-function drift.</li>
-          <li>Finite-temperature Fermi-Dirac tail thermal emission broadening.</li>
-          <li>Contact potential differences between cathode and anode materials.</li>
-          <li>
-            Semiclassical wave-matter models without electromagnetic field quantization (Lamb &amp;
-            Scully 1969).
-          </li>
-          <li>Bremsstrahlung reverse emission from accelerated photoelectrons.</li>
-          <li>Space-charge accumulation and screening at high current densities.</li>
+          {LQ08_NOT_MODELED.map((item) => (
+            <li key={item}>{item}</li>
+          ))}
         </ul>
       </div>
     </div>

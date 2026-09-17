@@ -1,0 +1,42 @@
+# Readings owner file for LQ-08 (am-lq-08-photoelectric-va5a).
+ownerBeadId: am-lq-08-photoelectric-va5a
+paper: light-quanta
+targetKinds:
+  - instrument-caption
+scope:
+  instrumentIds:
+    - lq-08
+entries:
+  - id: lq-08-neglect-statement
+    targetKind: instrument-caption
+    instrumentId: lq-08
+    paper: light-quanta
+    readings:
+      r0: "Setting escape work to zero was a deliberate choice by Einstein for an order-of-magnitude check, not a claim about any real metal."
+      r1: "Einstein set escape work P' = 0 in section 8 as an order-of-magnitude check against Lenard's spark observations, not as a prediction for any specific cathode material."
+      r2: "In section 8 of the 1905 paper, Einstein evaluates the stopping potential formula under the simplifying condition P' = 0. He explains that this neglect allows a rough order-of-magnitude comparison with Philipp Lenard's observations on spark-induced potentials, without requiring detailed knowledge of surface escape barriers."
+      r3: "Einstein (1905, §8, p. 147) evaluates Pi = R*beta*nu / E with P' = 0 for ultraviolet light at nu = 1.03e15 s^-1. He notes the resulting value of approximately 4.3 volts agrees in order of magnitude with Lenard's observations of spark-induced cathode potentials."
+      r3Citations:
+        - "Einstein, A. (1905). Über einen die Erzeugung und Verwandlung des Lichtes betreffenden heuristischen Gesichtspunkt. Annalen der Physik 17, 132–148 (§8)."
+  - id: lq-08-not-named-metal-statement
+    targetKind: instrument-caption
+    instrumentId: lq-08
+    paper: light-quanta
+    readings:
+      r0: "Real metals require energy for electrons to escape, so their stopping potentials are always lower than the zero-work estimate."
+      r1: "Because real metals always have a positive work function, measured stopping potentials at ultraviolet frequencies are strictly lower than 4.3 volts."
+      r2: "Any real conducting substance has a strictly positive surface escape work P' > 0. Consequently, the retarding potential required to halt all photoelectrons is reduced below the zero-work value by exactly the work function divided by the electron charge."
+      r3: "The printed check Pi ≈ 4.3 V is not a prediction for any named metal. Real metals have positive work functions ranging from approximately two to six electron-volts, which shift the stopping potential downward by Phi / e."
+      r3Citations:
+        - "Einstein, A. (1905). Über einen die Erzeugung und Verwandlung des Lichtes betreffenden heuristischen Gesichtspunkt. Annalen der Physik 17, 132–148 (§8)."
+  - id: lq-08-hypothetical-comparison
+    targetKind: instrument-caption
+    instrumentId: lq-08
+    paper: light-quanta
+    readings:
+      r0: "For a hypothetical metal with a two-volt escape barrier, the fastest electrons need about two and a quarter volts to turn back."
+      r1: "At 1030 terahertz with a hypothetical work function of 2.0 eV, the photon energy is 4.26 eV and the stopping potential is 2.26 volts."
+      r2: "At frequency nu = 1.03e15 Hz, modern constants yield a single-quantum energy of 4.259738 eV. For a hypothetical cathode with work function Phi = 2.0 eV, the resulting stopping potential is exactly 2.259738 V, illustrating how a real escape barrier lowers the observable potential."
+      r3: "Evaluation using 2019 SI constants at nu = 1.03e15 s^-1 gives h*nu = 4.259738 eV. With hypothetical Phi = 2.0 eV, the stopping potential is V_s = 2.259738 V, demonstrating that the 4.3 V zero-work estimate exceeds real-material thresholds."
+      r3Citations:
+        - "CODATA 2018 / 2019 SI exact Planck constant h = 6.62607015e-34 J s and elementary charge e = 1.602176634e-19 C."

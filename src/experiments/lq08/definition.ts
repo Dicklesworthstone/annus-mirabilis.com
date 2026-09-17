@@ -67,17 +67,55 @@ export const LQ08_OUTPUTS: Readonly<Record<string, OutputContract>> = Object.fre
 });
 
 export const LQ08_NOT_MODELED: readonly string[] = Object.freeze([
-  "Multi-photon absorption processes at ultra-high laser intensities",
-  "Detailed angular distribution of emitted photoelectrons and surface refraction",
-  "Surface oxidation layer work-function drift and patch potentials",
-  "Finite-temperature Fermi-Dirac tail thermal emission broadening",
-  "Contact potential differences between cathode and anode materials",
-  "Semiclassical wave-matter models without electromagnetic field quantization (Lamb & Scully 1969)",
-  "Bremsstrahlung reverse emission from accelerated photoelectrons",
-  "Space-charge accumulation and screening at high current densities",
+  "Real-material electron energy distributions and yields",
+  "Contact potentials and surface states",
+  "Space charge",
+  "Reflection losses",
+  "Emission angles",
+  "Multi-photon or thermionic emission",
+  "The timing of individual emissions",
+  "Energy transfer models beyond the declared complete or partial cases",
+  "Any claim that the moving marks depict photons",
 ]);
 
 export const LQ08_PRESETS = Object.freeze({
+  intensityProbe: Object.freeze({
+    id: "lq-08-intensity-probe",
+    label: "The intensity probe (rate vs energy)",
+    description: "Monochromatic 600 THz on hypothetical Phi = 2.0 eV with 1 mW incident power.",
+    parameters: Object.freeze({
+      incidentPower: 0.001,
+      frequency: 6.0e14,
+      workFunction: 2.0,
+      quantumEfficiency: 0.1,
+      collectorPotential: 0.0,
+    }),
+  }),
+  historicalCheck: Object.freeze({
+    id: "lq-08-historical-check",
+    label: "Einstein 1905 §8 check (Lenard spark order-of-magnitude)",
+    description: "Einstein's 1905 order-of-magnitude check with neglected escape work (P' = 0).",
+    parameters: Object.freeze({
+      incidentPower: 0.001,
+      frequency: 1.03e15,
+      workFunction: 0.0,
+      quantumEfficiency: 0.1,
+      collectorPotential: 0.0,
+    }),
+  }),
+  twoMetals: Object.freeze({
+    id: "lq-08-two-metals",
+    label: "Two metals comparison (2.0 eV vs 3.0 eV)",
+    description: "Compare stopping line slopes and threshold shifts between two metals.",
+    parameters: Object.freeze({
+      incidentPower: 0.001,
+      frequency: 8.0e14,
+      workFunction: 3.0,
+      quantumEfficiency: 0.1,
+      collectorPotential: 0.0,
+    }),
+  }),
+  // Aliases for backwards compatibility
   sodiumStandard: Object.freeze({
     id: "sodium-standard",
     label: "Sodium Standard (Yellow-Green, 600 THz)",
@@ -98,18 +136,6 @@ export const LQ08_PRESETS = Object.freeze({
       incidentPower: 0.005,
       frequency: 4.5e14,
       workFunction: 2.2,
-      quantumEfficiency: 0.1,
-      collectorPotential: 0.0,
-    }),
-  }),
-  historicalCheck: Object.freeze({
-    id: "historical-check",
-    label: "Historical Spark Check (UV, 1030 THz, Phi=0)",
-    description: "Einstein's 1905 order-of-magnitude check with neglected escape work.",
-    parameters: Object.freeze({
-      incidentPower: 0.001,
-      frequency: 1.03e15,
-      workFunction: 0.0,
       quantumEfficiency: 0.1,
       collectorPotential: 0.0,
     }),

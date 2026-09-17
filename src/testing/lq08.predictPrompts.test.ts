@@ -31,13 +31,9 @@ describe("LQ-08 Predict-Mode Prompts (am-lq-08-photoelectric-va5a)", () => {
     expect(prompt?.candidates.length).toBe(3);
 
     const candIds = prompt?.candidates.map((c) => c.id);
-    expect(candIds).toContain("lq-08-predict-double-power-increases");
-    expect(candIds).toContain("lq-08-predict-double-power-unchanged");
-    expect(candIds).toContain("lq-08-predict-double-power-decreases");
+    expect(candIds).toEqual(["energy-increases", "energy-unchanged", "energy-decreases"]);
 
-    const unchangedCand = prompt?.candidates.find(
-      (c) => c.id === "lq-08-predict-double-power-unchanged",
-    );
+    const unchangedCand = prompt?.candidates.find((c) => c.id === "energy-unchanged");
     expect(unchangedCand?.separatingAssumption).toContain("Light-quantum assumption");
   });
 
@@ -51,13 +47,9 @@ describe("LQ-08 Predict-Mode Prompts (am-lq-08-photoelectric-va5a)", () => {
     expect(prompt?.candidates.length).toBe(3);
 
     const candIds = prompt?.candidates.map((c) => c.id);
-    expect(candIds).toContain("lq-08-predict-raise-frequency-rate-rises");
-    expect(candIds).toContain("lq-08-predict-raise-frequency-rate-falls");
-    expect(candIds).toContain("lq-08-predict-raise-frequency-rate-unchanged");
+    expect(candIds).toEqual(["rate-rises", "rate-falls", "rate-unchanged"]);
 
-    const fallsCand = prompt?.candidates.find(
-      (c) => c.id === "lq-08-predict-raise-frequency-rate-falls",
-    );
+    const fallsCand = prompt?.candidates.find((c) => c.id === "rate-falls");
     expect(fallsCand?.separatingAssumption).toContain("Light-quantum accounting");
   });
 
@@ -71,13 +63,43 @@ describe("LQ-08 Predict-Mode Prompts (am-lq-08-photoelectric-va5a)", () => {
     expect(prompt?.candidates.length).toBe(3);
 
     const candIds = prompt?.candidates.map((c) => c.id);
-    expect(candIds).toContain("lq-08-predict-two-metals-parallel");
-    expect(candIds).toContain("lq-08-predict-two-metals-crossing");
-    expect(candIds).toContain("lq-08-predict-two-metals-identical");
+    expect(candIds).toEqual(["lines-parallel", "lines-crossing", "lines-identical"]);
 
-    const parallelCand = prompt?.candidates.find(
-      (c) => c.id === "lq-08-predict-two-metals-parallel",
-    );
+    const parallelCand = prompt?.candidates.find((c) => c.id === "lines-parallel");
     expect(parallelCand?.separatingAssumption).toContain("Universal quantum slope");
+  });
+
+  it("symbolScan: questions, labels, and descriptions are completely free of mathematical symbols", () => {
+    if (!("enabled" in experiment.predictMode)) return;
+    const symbolPattern = /[\$\\\{\}\^_\*\/=<>]|\b(nu|phi|beta|hnu|hbar)\b/i;
+
+    for (const prompt of experiment.predictMode.prompts) {
+      expect(symbolPattern.test(prompt.question)).toBe(false);
+      for (const cand of prompt.candidates) {
+        expect(symbolPattern.test(cand.label)).toBe(false);
+        expect(symbolPattern.test(cand.description)).toBe(false);
+      }
+    }
+  });
+
+  it("Negative validations: 2 candidates, duplicated id, or invalid id fails manifest schema", () => {
+    const baseYaml = JSON.parse(JSON.stringify(rawYaml));
+    const prompts = baseYaml.predictMode.prompts;
+
+    // 2 candidates
+    const twoCandYaml = JSON.parse(JSON.stringify(baseYaml));
+    twoCandYaml.predictMode.prompts[0].candidates.pop();
+    expect(() => validateExperiment(twoCandYaml, "lq-08")).toThrow();
+
+    // duplicated candidate id
+    const dupCandYaml = JSON.parse(JSON.stringify(baseYaml));
+    dupCandYaml.predictMode.prompts[0].candidates[1].id = "energy-increases";
+    expect(() => validateExperiment(dupCandYaml, "lq-08")).toThrow();
+
+    // prompt missing controlId and actionId
+    const missingTargetYaml = JSON.parse(JSON.stringify(baseYaml));
+    delete missingTargetYaml.predictMode.prompts[0].controlId;
+    delete missingTargetYaml.predictMode.prompts[0].actionId;
+    expect(() => validateExperiment(missingTargetYaml, "lq-08")).toThrow();
   });
 });
