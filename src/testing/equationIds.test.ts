@@ -38,6 +38,35 @@ describe("Equation ID Allocation and Repeated Label Qualification", () => {
     });
   });
 
+  it("falls back to the editorial eq-s<n>-d<j> form when a printed label repeats WITHIN one section (am-cm-id-scheme-8bn)", () => {
+    // Two equations both printed "(1)" in section 3: section-qualification alone would give both
+    // the same id (eq-s3-1), so each instead takes the editorial displayed-equation form.
+    const fixtureEquations = [
+      { section: "s3", printedLabel: "(1)" },
+      { section: "s3", printedLabel: "(1)" },
+      { section: "s3", displayIndex: 5 },
+    ];
+
+    const allocated = allocateEquationIds("sr", fixtureEquations);
+
+    expect(allocated[0]?.localId).toBe("eq-s3-d1");
+    expect(allocated[0]?.originalLabel).toBe("(1)");
+    expect(allocated[1]?.localId).toBe("eq-s3-d2");
+    expect(allocated[1]?.originalLabel).toBe("(1)");
+    expect(new Set(allocated.map((a) => a.localId)).size).toBe(3);
+    expect(allocated[2]?.localId).toBe("eq-s3-d5");
+
+    logger.log({
+      testId: "same-section-duplicate-label-editorial-fallback",
+      beadId: "am-cm-id-scheme-8bn",
+      expected: ["eq-s3-d1", "eq-s3-d2", "eq-s3-d5"],
+      actual: allocated.map((a) => a.localId),
+      comparisonKind: "bitwise",
+      outcome: "passed",
+      extra: { rule: "same-section-duplicate-label-forces-editorial-form" },
+    });
+  });
+
   it("allocates unnumbered display equation IDs in section order", () => {
     const fixture = [
       { section: "s3", displayIndex: 1 },

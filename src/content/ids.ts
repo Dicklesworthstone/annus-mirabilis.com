@@ -387,7 +387,7 @@ export type InlineMathId = Brand<string, "InlineMathId">;
 export type ReferenceId = Brand<string, "ReferenceId">;
 
 export const SECTION_ID_PATTERN = /^s\d+$/;
-export const PARAGRAPH_ID_PATTERN = /^s\d+-p[1-9]\d*$/;
+export const PARAGRAPH_ID_PATTERN = /^(?:[a-z]+-\d{4}-)?s\d+-p[1-9]\d*$/;
 export const SENTENCE_ID_PATTERN = /^(?:[a-z]+-\d{4}-)?s\d+-p[1-9]\d*-s[1-9]\d*$/;
 export const FOOTNOTE_ID_PATTERN = /^(?:[a-z]+-\d{4}-)?s\d+-fn[1-9]\d*$/;
 export const CLOSING_ID_PATTERN = /^(?:[a-z]+-\d{4}-)?closing-(dateline|ack|received)$/;
@@ -674,8 +674,12 @@ export interface AllocatedEquationId {
 }
 
 /**
- * Allocates canonical equation IDs across a paper, enforcing section-qualification
- * when printed labels repeat within a document.
+ * Allocates canonical equation IDs across a paper. A printed label repeated across sections
+ * forces the section-qualified form for every equation sharing it; a printed label repeated
+ * WITHIN one section still collides after section-qualification (both would read
+ * `eq-s<n>-<norm>`), so every equation in that section+label group instead takes the editorial
+ * displayed-equation form `eq-s<n>-d<j>`, keeping its printed label in `originalLabel` (am-cm-id-
+ * scheme-8bn: "if they also share a section, each takes the editorial eq-s<n>-d<j> form").
  */
 export function allocateEquationIds(
   paper: PaperCode | RouteSlug,
@@ -685,49 +689,66 @@ export function allocateEquationIds(
     ? (paper as PaperCode)
     : ROUTE_SLUG_TO_PAPER_CODE[paper as RouteSlug];
 
-  // Count frequencies of normalized printed labels across document
-  const labelFrequencies = new Map<string, number>();
+  const sectionOf = (eq: RawEquationInput): string =>
+    eq.section.startsWith("s") ? eq.section : `s${eq.section}`;
+
+  // Frequency of each normalized printed label across the whole document, and within one
+  // section, tracked separately so a same-section duplicate can be told apart from a label that
+  // merely recurs in a different section (which section-qualification already disambiguates).
+  const labelFrequency = new Map<string, number>();
+  const labelFrequencyInSection = new Map<string, number>();
   for (const eq of equations) {
-    if (eq.printedLabel) {
-      const norm = normalizePrintedLabel(eq.printedLabel);
-      labelFrequencies.set(norm, (labelFrequencies.get(norm) ?? 0) + 1);
-    }
+    if (!eq.printedLabel) continue;
+    const norm = normalizePrintedLabel(eq.printedLabel);
+    labelFrequency.set(norm, (labelFrequency.get(norm) ?? 0) + 1);
+    const sectionKey = `${sectionOf(eq)} ${norm}`;
+    labelFrequencyInSection.set(sectionKey, (labelFrequencyInSection.get(sectionKey) ?? 0) + 1);
   }
 
-  // Display counters per section
+  // Editorial displayed-equation counters per section, shared between genuinely unnumbered
+  // equations and same-section duplicate-label equations falling back to this form, so their
+  // d<j> indices never collide with each other.
   const sectionDisplayCounters = new Map<string, number>();
+  const nextDisplayIndex = (section: string): number => {
+    const next = (sectionDisplayCounters.get(section) ?? 0) + 1;
+    sectionDisplayCounters.set(section, next);
+    return next;
+  };
 
   return equations.map((eq) => {
-    let suffix = "";
+    const section = sectionOf(eq);
+
     if (eq.printedLabel) {
       const norm = normalizePrintedLabel(eq.printedLabel);
-      const freq = labelFrequencies.get(norm) ?? 1;
-      if (freq > 1) {
-        // Section-qualified form for repeated labels
-        const s = eq.section.startsWith("s") ? eq.section : `s${eq.section}`;
-        suffix = `${s}-${norm}`;
-      } else {
-        // Unique printed label
-        suffix = norm;
+      const globalFreq = labelFrequency.get(norm) ?? 1;
+      const sectionFreq = labelFrequencyInSection.get(`${section} ${norm}`) ?? 1;
+
+      if (globalFreq > 1 && sectionFreq > 1) {
+        const suffix = `${section}-d${nextDisplayIndex(section)}`;
+        return {
+          localId: `eq-${suffix}`,
+          globalRecordId: `eq-${paperCode}-${suffix}`,
+          pageAnchor: `#eq-${suffix}`,
+          originalLabel: eq.printedLabel,
+        };
       }
-    } else {
-      // Unnumbered display
-      const s = eq.section.startsWith("s") ? eq.section : `s${eq.section}`;
-      const nextD = (sectionDisplayCounters.get(s) ?? 0) + 1;
-      sectionDisplayCounters.set(s, nextD);
-      const dIndex = eq.displayIndex ?? nextD;
-      suffix = `${s}-d${dIndex}`;
+
+      const suffix = globalFreq > 1 ? `${section}-${norm}` : norm;
+      return {
+        localId: `eq-${suffix}`,
+        globalRecordId: `eq-${paperCode}-${suffix}`,
+        pageAnchor: `#eq-${suffix}`,
+        originalLabel: eq.printedLabel,
+      };
     }
 
-    const localId = `eq-${suffix}`;
-    const globalRecordId = `eq-${paperCode}-${suffix}`;
-    const pageAnchor = `#eq-${suffix}`;
-
+    const counted = nextDisplayIndex(section);
+    const dIndex = eq.displayIndex ?? counted;
+    const suffix = `${section}-d${dIndex}`;
     return {
-      localId,
-      globalRecordId,
-      pageAnchor,
-      ...(eq.printedLabel ? { originalLabel: eq.printedLabel } : {}),
+      localId: `eq-${suffix}`,
+      globalRecordId: `eq-${paperCode}-${suffix}`,
+      pageAnchor: `#eq-${suffix}`,
     };
   });
 }
