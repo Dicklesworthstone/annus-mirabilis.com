@@ -135,7 +135,7 @@ export type SurveyDiagnostic = Readonly<{
 
 export function validateSurveyFrontMatter(
   raw: unknown,
-  filePath: string,
+  _filePath: string,
 ): { data?: SurveyFrontMatter | undefined; diagnostics: readonly SurveyDiagnostic[] } {
   const diagnostics: SurveyDiagnostic[] = [];
   const err = (rule: string, path: string, message: string, expected?: string, actual?: string) => {
@@ -333,9 +333,24 @@ export function validateSurveyRecord(
     };
   }
 
+  const yamlContent = match[1];
+  if (yamlContent === undefined) {
+    return {
+      ok: false,
+      diagnostics: [
+        {
+          rule: "survey-front-matter",
+          severity: "error",
+          path: "front-matter",
+          message: "Front matter content could not be extracted.",
+        },
+      ],
+    };
+  }
+
   let parsedYaml: unknown;
   try {
-    parsedYaml = parseYaml(match[1]!);
+    parsedYaml = parseYaml(yamlContent);
   } catch (e) {
     return {
       ok: false,
