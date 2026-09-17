@@ -91,7 +91,7 @@ export function validateAuthorshipEntry(
   const modelId = typeof o.modelId === "string" ? o.modelId : undefined;
 
   if (kind === "model") {
-    if (!modelId || !modelId.trim()) {
+    if (!modelId?.trim()) {
       throw new AuthorshipValidationError(
         "missing-model-id",
         `Model authorship entry for id "${id}" requires a non-empty modelId.`,
@@ -166,7 +166,7 @@ export function validateAuthorshipBlock(raw: unknown, path = "authorship"): Auth
 /**
  * Derives canonical AuthorshipBlock from source entity records.
  */
-export function authorshipOf(record: any): AuthorshipBlock {
+export function authorshipOf(record: unknown): AuthorshipBlock {
   if (!record || typeof record !== "object") {
     throw new AuthorshipValidationError(
       "invalid-record",
@@ -174,16 +174,16 @@ export function authorshipOf(record: any): AuthorshipBlock {
     );
   }
 
-  if (record.authorship) {
-    return validateAuthorshipBlock(record.authorship);
+  const rec = record as Record<string, unknown>;
+
+  if (rec.authorship) {
+    return validateAuthorshipBlock(rec.authorship);
   }
 
   // TranslationUnit mapping
-  if (record.translator) {
-    const translatorEntry = validateAuthorshipEntry(record.translator, "translator");
-    const editorEntry = record.editor
-      ? validateAuthorshipEntry(record.editor, "editor")
-      : undefined;
+  if (rec.translator) {
+    const translatorEntry = validateAuthorshipEntry(rec.translator, "translator");
+    const editorEntry = rec.editor ? validateAuthorshipEntry(rec.editor, "editor") : undefined;
     return {
       draftedBy: [translatorEntry],
       translatedBy: [translatorEntry],
@@ -192,19 +192,17 @@ export function authorshipOf(record: any): AuthorshipBlock {
   }
 
   // EditorialNote mapping
-  if (record.author) {
-    const authorEntry = validateAuthorshipEntry(record.author, "author");
+  if (rec.author) {
+    const authorEntry = validateAuthorshipEntry(rec.author, "author");
     return {
       draftedBy: [authorEntry],
     };
   }
 
   // GlossUnit mapping
-  if (record.attribution) {
-    const glossatorEntry = validateAuthorshipEntry(record.attribution, "author");
-    const editorEntry = record.editor
-      ? validateAuthorshipEntry(record.editor, "editor")
-      : undefined;
+  if (rec.attribution) {
+    const glossatorEntry = validateAuthorshipEntry(rec.attribution, "author");
+    const editorEntry = rec.editor ? validateAuthorshipEntry(rec.editor, "editor") : undefined;
     return {
       draftedBy: [glossatorEntry],
       ...(editorEntry ? { editedBy: [editorEntry] } : {}),
