@@ -801,7 +801,7 @@ export function integrateBoris(
     }),
   ];
 
-  let initialKE = mc2 * (g0 - 1);
+  const initialKE = mc2 * (g0 - 1);
   let workDone = 0;
 
   for (let i = 1; i <= steps; i++) {

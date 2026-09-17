@@ -193,15 +193,11 @@ export function kMax(
   }
 
   if (transferModel === "partial") {
-    return underdetermined(
-      "partial-energy-transfer-bound",
-      ["single-quantum-transfer-fraction"],
-      {
-        upperBound: eq - workFunctionJoules,
-        unit: "J",
-        citation: "Pi * E + P' <= R * beta * nu",
-      },
-    );
+    return underdetermined("partial-energy-transfer-bound", ["single-quantum-transfer-fraction"], {
+      upperBound: eq - workFunctionJoules,
+      unit: "J",
+      citation: "Pi * E + P' <= R * beta * nu",
+    });
   }
 
   return ok(eq - workFunctionJoules, "J");
@@ -222,11 +218,7 @@ export function kMaxEv(
     const extra: { upperBound?: number; unit?: string; citation?: string } = { unit: "eV" };
     if (res.upperBound !== undefined) extra.upperBound = res.upperBound / e;
     if (res.citation !== undefined) extra.citation = res.citation;
-    return underdetermined(
-      res.compatibleFamily,
-      res.neededInformation,
-      extra,
-    );
+    return underdetermined(res.compatibleFamily, res.neededInformation, extra);
   }
   if (res.status !== "value") return res;
   return ok(res.value / e, "eV");
@@ -252,11 +244,7 @@ export function stoppingPotentialMagnitude(
     const extra: { upperBound?: number; unit?: string; citation?: string } = { unit: "V" };
     if (kResult.upperBound !== undefined) extra.upperBound = kResult.upperBound / e;
     if (kResult.citation !== undefined) extra.citation = kResult.citation;
-    return underdetermined(
-      kResult.compatibleFamily,
-      kResult.neededInformation,
-      extra,
-    );
+    return underdetermined(kResult.compatibleFamily, kResult.neededInformation, extra);
   }
   if (kResult.status !== "value") return kResult;
   const e = getElementaryCharge(set);
@@ -735,7 +723,7 @@ export function einsteinPrintedStoppingCheck(): EinsteinPrintedStoppingCheckResu
   // Pi in abvolts (1 abV = 10^-8 V)
   const piAbV = (R * beta * nu - P_prime) / E_emu;
   const piV = piAbV * 1e-8;
-  const piModernRV = (((R_modern * beta * nu - P_prime) / E_emu) * 1e-8);
+  const piModernRV = ((R_modern * beta * nu - P_prime) / E_emu) * 1e-8;
   const slope = ((R * beta) / E_emu) * 1e-8;
 
   // Representation B: ESU calculation
@@ -749,7 +737,7 @@ export function einsteinPrintedStoppingCheck(): EinsteinPrintedStoppingCheckResu
   const vHist300 = vStatvolt * 300;
 
   // Adversarial slips
-  const slipE96e4 = (((R * beta * nu) / 9.6e4) * 1e-8);
+  const slipE96e4 = ((R * beta * nu) / 9.6e4) * 1e-8;
   const slipEps44e10 = (hnu_erg / 4.4e-10) * 299.792458;
 
   // Live hypothetical comparison at 1.03e15 Hz with hypothetical Phi = 2.0 eV

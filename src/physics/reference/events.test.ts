@@ -1,4 +1,5 @@
 import { describe, expect, test } from "bun:test";
+import { withinTolerance } from "../../units/tolerance.ts";
 import {
   classifySimultaneity,
   desynchronizationObserved,
@@ -9,7 +10,6 @@ import {
   synchronizationRound,
   synchronizationTransitivity,
 } from "./events.ts";
-import { withinTolerance } from "../../units/tolerance.ts";
 
 function expectClose(actual: number, expected: number, relativeTolerance = 1e-12): void {
   const verdict = withinTolerance(actual, expected, {

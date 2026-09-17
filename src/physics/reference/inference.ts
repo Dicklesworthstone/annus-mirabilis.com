@@ -652,16 +652,6 @@ export function empiricalCoverageFraction(input: {
 }
 
 export {
-  bartlettBandsMA1,
-  cameraMoments,
-  type CameraModel,
-  type ClickNoise,
-  covarianceEstimator,
-  disjointPairsKnownNoiseInterval,
-  type PairInterval,
-  stationaryClickNoiseEstimate,
-} from "./inference/observation.ts";
-export {
   CAMERA_GRID_DT,
   CAMERA_GRID_STEPS,
   CAMERA_KERNELS,
@@ -674,3 +664,13 @@ export {
   observeCameraPath,
   recordCameraPath,
 } from "./inference/camera.ts";
+export {
+  bartlettBandsMA1,
+  type CameraModel,
+  type ClickNoise,
+  cameraMoments,
+  covarianceEstimator,
+  disjointPairsKnownNoiseInterval,
+  type PairInterval,
+  stationaryClickNoiseEstimate,
+} from "./inference/observation.ts";

@@ -498,7 +498,7 @@ export function initializeMassEnergyLedger(
   const isCircular = (val: unknown): boolean => {
     if (val === undefined || val === null) return false;
     if (typeof val === "string") {
-      const lower = val.toLowerCase().replace(/[\s\_\*\^\·\×]/g, "");
+      const lower = val.toLowerCase().replace(/[\s_*^·×]/g, "");
       if (
         lower.includes("mc2") ||
         lower.includes("mc²") ||
@@ -518,10 +518,7 @@ export function initializeMassEnergyLedger(
     return false;
   };
 
-  if (
-    isCircular(seed?.restEnergyBefore) ||
-    isCircular(seed?.movingEnergyBefore)
-  ) {
+  if (isCircular(seed?.restEnergyBefore) || isCircular(seed?.movingEnergyBefore)) {
     throw new Error(
       "Circularity violation: the mass-energy ledger must NEVER initialise a body's energy with Mc^2 or gamma Mc^2.",
     );

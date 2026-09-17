@@ -6,18 +6,18 @@
  */
 
 import {
-  alignedBoost,
-  desynchronization as kinematicDesynchronization,
-  gamma as computeGamma,
-  transformEvent,
-} from "./kinematics.ts";
-import {
   type Boost,
   type Event,
   type KinematicResult,
   ok,
   outsideDomain,
 } from "./kinematics/types.ts";
+import {
+  alignedBoost,
+  gamma as computeGamma,
+  desynchronization as kinematicDesynchronization,
+  transformEvent,
+} from "./kinematics.ts";
 
 /** c = 1 light-second per second by construction of this module's natural unit system. */
 const C = 1.0;
