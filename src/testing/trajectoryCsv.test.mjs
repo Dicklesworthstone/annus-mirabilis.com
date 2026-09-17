@@ -115,12 +115,11 @@ test("file byte limit accounts for UTF-8, not only JS character count", () => {
   reject("é".repeat(TRAJECTORY_LIMITS.bytes / 2 + 1), "UTF-8 bytes");
 });
 test("track budget is enforced before analysis", () => {
-  const csv =
-    "track,time,x\n" + Array.from({ length: 65 }, (_, i) => `${i},0,0\n${i},1,1`).join("\n");
+  const csv = `track,time,x\n${Array.from({ length: 65 }, (_, i) => `${i},0,0\n${i},1,1`).join("\n")}`;
   reject(csv, "64 distinct");
 });
 test("coordinate budget matches the numerical owner's 10000 limit", () => {
-  const csv = "time,x,y,z\n" + Array.from({ length: 3335 }, (_, i) => `${i},0,0,0`).join("\n");
+  const csv = `time,x,y,z\n${Array.from({ length: 3335 }, (_, i) => `${i},0,0,0`).join("\n")}`;
   reject(csv, "10000 displacement");
 });
 test("SI conversion and subtraction overflow fail loudly", () => {
