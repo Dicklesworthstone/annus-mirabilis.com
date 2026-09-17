@@ -7,9 +7,12 @@ import {
 import { evaluateUnitReviewState, isPaperTranslationUnreviewed } from "./reviewState.ts";
 
 describe("glossReviewState: review state validation for gloss units and translations", () => {
-  const reviewedUnit = FIXTURE_MASS_ENERGY_TRANSLATION_UNITS[0]!; // tr-me-p1-u1, rev 1
-  const draftUnit = FIXTURE_MASS_ENERGY_TRANSLATION_UNITS[2]!; // tr-me-p2-u1, draft
-  const glossDraft = FIXTURE_MASS_ENERGY_GLOSS_UNITS.find((g) => g.sentenceId === "me-p2-s1")!;
+  const reviewedUnit = FIXTURE_MASS_ENERGY_TRANSLATION_UNITS[0]; // tr-me-p1-u1, rev 1
+  if (!reviewedUnit) throw new Error("Missing reviewedUnit");
+  const draftUnit = FIXTURE_MASS_ENERGY_TRANSLATION_UNITS[2]; // tr-me-p2-u1, draft
+  if (!draftUnit) throw new Error("Missing draftUnit");
+  const glossDraft = FIXTURE_MASS_ENERGY_GLOSS_UNITS.find((g) => g.sentenceId === "me-p2-s1");
+  if (!glossDraft) throw new Error("Missing glossDraft");
 
   const validRecord: ReviewRecord = {
     id: "rev-me-p1-u1",
