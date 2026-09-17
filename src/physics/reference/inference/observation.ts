@@ -121,11 +121,16 @@ export function covarianceEstimator(
     covariance = 0;
   for (let c = 0; c < d; c++)
     for (let i = 0; i < M; i++) {
-      const a = increments[i * d + c]! - (c === 0 ? knownDrift * dt : 0);
+      const incA = increments[i * d + c];
+      if (incA === undefined) continue;
+      const a = incA - (c === 0 ? knownDrift * dt : 0);
       variance += (a * a) / (d * M);
       if (i < M - 1) {
-        const b = increments[(i + 1) * d + c]! - (c === 0 ? knownDrift * dt : 0);
-        covariance += (a * b) / (d * (M - 1));
+        const incB = increments[(i + 1) * d + c];
+        if (incB !== undefined) {
+          const b = incB - (c === 0 ? knownDrift * dt : 0);
+          covariance += (a * b) / (d * (M - 1));
+        }
       }
     }
   const R = exposure / (6 * dt),
@@ -235,8 +240,13 @@ export function disjointPairsKnownNoiseInterval(
     return invalid("Localization variance must be finite and nonnegative.");
   const increments = new Float64Array(pairs * d);
   for (let k = 0; k < pairs; k++)
-    for (let c = 0; c < d; c++)
-      increments[k * d + c] = positions[(2 * k + 1) * d + c]! - positions[2 * k * d + c]!;
+    for (let c = 0; c < d; c++) {
+      const posNext = positions[(2 * k + 1) * d + c];
+      const posPrev = positions[2 * k * d + c];
+      if (posNext !== undefined && posPrev !== undefined) {
+        increments[k * d + c] = posNext - posPrev;
+      }
+    }
   const e = estimateIncrements(increments, 0.5, d, "drift-centered");
   if (e.kind !== "accepted") return e;
   const estimatedNoise = noise.kind === "stationary-clicks",
