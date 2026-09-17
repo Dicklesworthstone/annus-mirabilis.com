@@ -82,8 +82,8 @@ export function mountReplayView(host: HTMLElement, entry: NotebookReplayEntry, s
     const busy = ["checking", "baseline", "variant"].includes(state.phase);
     start.disabled = busy; stop.disabled = !busy; fresh.dataset.phase = state.phase;
     if (state.phase === "complete" && state.baseline && state.variant) {
-      fresh.replaceChildren(node("h5", "New run — current evaluator results"),
-        node("p", state.message), comparison(state.baseline, state.variant, "New accepted comparison — not the saved evidence"),
+      fresh.replaceChildren(node("h5", "New run: current evaluator results"),
+        node("p", state.message), comparison(state.baseline, state.variant, "New accepted comparison: not the saved evidence"),
         rawEvidence("New run identities and full-precision outputs", {baseline:state.baseline,variant:state.variant}));
     }
   }

@@ -25,7 +25,7 @@ function replayHtml(entry: NotebookReplayEntry): string {
     return `<tr><th scope="row">${escapeHtml(spec.label)}</th><td>${escapeHtml(spec.displayUnit)}</td><td>${escapeHtml(value(a))}</td><td>${escapeHtml(value(b))}</td></tr>`;
   }).join("");
   return `<section><h3>What you saw on ${escapeHtml(entry.createdAt)} (model ${escapeHtml(replay.baseline.identity.modelVersion)})</h3>
-<p>Saved synthetic scalar readouts, not current results or a complete trajectory archive. Display: ${replay.displaySignificantDigits} significant digits.</p>
+<p>Saved synthetic scalar readouts, not current results or a complete trajectory archive. This table uses five significant digits; the saved display precision was ${replay.displaySignificantDigits}. Full-precision values are retained below.</p>
 <p>Prediction: ${escapeHtml(Object.hasOwn(REPLAY_PREDICTIONS, candidate) ? REPLAY_PREDICTIONS[candidate as keyof typeof REPLAY_PREDICTIONS] : "None recorded before this request")}</p>
 <p>${escapeHtml(replay.statement)}</p><table><caption>Saved accepted comparison</caption><thead><tr><th scope="col">Quantity</th><th scope="col">Unit</th><th scope="col">Baseline</th><th scope="col">Variant</th></tr></thead><tbody>${rows}</tbody></table>
 <h3>Your explanation before</h3><pre>${escapeHtml(replay.explanationBefore)}</pre>

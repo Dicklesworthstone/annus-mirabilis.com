@@ -1,5 +1,6 @@
 import type { Metadata } from "next";
 import { BrownianComparisonLab } from "../../../../components/lab/BrownianComparisonLab.tsx";
+import replayCatalogue from "../../../../generated/notebook-replay.json";
 import example from "../../../../generated/bm01-comparison.json";
 
 export const metadata: Metadata = {
@@ -28,7 +29,7 @@ export default function BrownianComparisonPage() {
           </a>
         </div>
       </header>
-      <BrownianComparisonLab example={example} />
+      <BrownianComparisonLab example={example} passage={replayCatalogue.passages["arg-bm-observable"]} />
     </>
   );
 }
