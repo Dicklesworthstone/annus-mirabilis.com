@@ -373,9 +373,14 @@ export function assertHistogramFit(options: AssertHistogramFitOptions): Statisti
 
   let chi2 = 0;
   for (let i = 0; i < k; i++) {
-    const expected = totalObserved * expectedProbabilities[i]!;
+    const expectedProb = expectedProbabilities[i];
+    const observedCount = observedCounts[i];
+    if (expectedProb === undefined || observedCount === undefined) {
+      throw new RangeError(`Missing histogram data for bin ${i}.`);
+    }
+    const expected = totalObserved * expectedProb;
     if (expected <= 0) throw new RangeError(`Expected count for bin ${i} must be positive.`);
-    const diff = observedCounts[i]! - expected;
+    const diff = observedCount - expected;
     chi2 += (diff * diff) / expected;
   }
 
@@ -436,8 +441,13 @@ export function assertCorrelationNearZero(
   let denX = 0;
   let denY = 0;
   for (let i = 0; i < n; i++) {
-    const dx = x[i]! - meanX;
-    const dy = y[i]! - meanY;
+    const xi = x[i];
+    const yi = y[i];
+    if (xi === undefined || yi === undefined) {
+      throw new RangeError(`Missing data point at index ${i}.`);
+    }
+    const dx = xi - meanX;
+    const dy = yi - meanY;
     num += dx * dy;
     denX += dx * dx;
     denY += dy * dy;
