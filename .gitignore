@@ -85,3 +85,4 @@ src/generated/
 # Versioned reading payloads and public machine-readable exports
 generated/
 public/edition/
+.env*
