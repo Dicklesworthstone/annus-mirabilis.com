@@ -11,7 +11,6 @@ import {
   passageHref,
   type ReaderRegistry,
   type ReaderState,
-  readerHref,
   restoreReaderState,
 } from "./navigation/state";
 import "./actions/kindRegistration.ts";
@@ -56,9 +55,30 @@ export function ReaderController(props: Props) {
     [...detailControls, ...lensControls].forEach((control) => {
       control.disabled = false;
     });
+    /**
+     * The next history URL for the current `state`. Starts from the real
+     * current `location.href` -- never from a fresh `URLSearchParams()`
+     * built only out of the fields this reader tracks -- so a query key
+     * this reader does not know about (a search term, an experiment flag
+     * added by a future bead) survives a face change instead of being
+     * silently dropped (am-read-shell-routes-3ua; see
+     * readerViewSwitchHistory.test.ts for the direct assertion).
+     * `passageHref`/`readerHref` stay as they are for the "copy passage
+     * link" feature below, which intentionally builds a clean, portable
+     * link rather than echoing the current URL's ambient state.
+     */
     function url() {
-      const u = new URL(readerHref(registry, state), location.origin);
-      u.pathname = location.pathname;
+      const u = new URL(location.href);
+      if (state.view === "reading") u.searchParams.delete("view");
+      else u.searchParams.set("view", state.view);
+      if (state.detail === 1) u.searchParams.delete("detail");
+      else u.searchParams.set("detail", String(state.detail));
+      if (state.lens) u.searchParams.set("lens", "modern");
+      else u.searchParams.delete("lens");
+      const frame = state.frames.at(-1);
+      if (frame) u.searchParams.set("open", `foundation:${frame.foundationId}`);
+      else u.searchParams.delete("open");
+      u.hash = `#${state.anchor}`;
       return u.pathname + u.search + u.hash;
     }
     function save(push = false) {
