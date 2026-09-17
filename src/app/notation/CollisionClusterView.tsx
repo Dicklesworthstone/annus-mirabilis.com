@@ -3,7 +3,6 @@
  * Specification: AGENTS.md, am-not-concordance-model-uag.
  */
 
-import React from "react";
 import type { CollisionCluster } from "./notationData.ts";
 
 export interface CollisionClusterViewProps {
@@ -41,7 +40,7 @@ export function CollisionClusterView({ clusters }: CollisionClusterViewProps) {
               <div className="collision-card-top">
                 <span
                   className="collision-glyph"
-                  dangerouslySetInnerHTML={{ __html: cluster.glyphRendered.html }}
+                  {...{ dangerouslySetInnerHTML: { __html: cluster.glyphRendered.html } }}
                 />
                 <span className={`collision-severity-tag ${cluster.severity}`}>
                   <span aria-hidden="true">{isDanger ? "⚠️" : "⚡"}</span>

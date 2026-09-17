@@ -3,7 +3,6 @@
  * Specification: AGENTS.md, am-not-concordance-model-uag.
  */
 
-import React from "react";
 import type { PaperNotationSection } from "./notationData.ts";
 
 export interface ModernOnlySymbolsViewProps {
@@ -42,7 +41,7 @@ export function ModernOnlySymbolsView({ paperTitle, symbols }: ModernOnlySymbols
                 <td>
                   <span
                     className="inline-math"
-                    dangerouslySetInnerHTML={{ __html: sym.glyphRendered.html }}
+                    {...{ dangerouslySetInnerHTML: { __html: sym.glyphRendered.html } }}
                   />
                 </td>
                 <td>{sym.label}</td>
