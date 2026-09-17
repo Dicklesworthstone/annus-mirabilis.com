@@ -24,9 +24,14 @@ export function navigationTree(tree: Expression): readonly NavigationNode[] {
         kind: n.kind === "symbol" ? "term" : "operation",
         quantityId: n.kind === "symbol" ? n.quantityId : null,
       });
-      if (parent) nodes.find((x) => x.id === parent)!.children.push(id);
+      if (parent) {
+        const parentNode = nodes.find((x) => x.id === parent);
+        parentNode?.children.push(id);
+      }
     }
-    children(n).forEach((c) => visit(c, id ?? parent));
+    for (const c of children(n)) {
+      visit(c, id ?? parent);
+    }
   }
   visit(tree, null);
   return nodes;
@@ -39,21 +44,21 @@ export function navigate(
 ): string | null {
   const n = nodes.find((n) => n.id === selected);
   if (!n) return key === "Escape" ? null : (nodes[0]?.id ?? null);
-  const siblings = nodes.filter((x) => x.parent === n.parent),
-    i = siblings.findIndex((x) => x.id === n.id);
+  const siblings = nodes.filter((x) => x.parent === n.parent);
+  const i = siblings.findIndex((x) => x.id === n.id);
   switch (key) {
     case "ArrowLeft":
-      return siblings[Math.max(0, i - 1)]!.id;
+      return siblings[Math.max(0, i - 1)]?.id ?? n.id;
     case "ArrowRight":
-      return siblings[Math.min(siblings.length - 1, i + 1)]!.id;
+      return siblings[Math.min(siblings.length - 1, i + 1)]?.id ?? n.id;
     case "ArrowDown":
       return n.children[0] ?? n.id;
     case "ArrowUp":
       return n.parent ?? n.id;
     case "Home":
-      return siblings[0]!.id;
+      return siblings[0]?.id ?? n.id;
     case "End":
-      return siblings.at(-1)!.id;
+      return siblings.at(-1)?.id ?? n.id;
     case "Escape":
       return null;
     default:
