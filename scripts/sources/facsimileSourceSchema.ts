@@ -191,6 +191,17 @@ export interface ValidationResult {
   refusalCode?: FacsimileErrorCode | undefined;
 }
 
+/**
+ * A parsed-JSON object whose properties are still unknown, so each one keeps its
+ * own typeof check. `typeof value === "object"` alone narrows to `object`, which
+ * carries no index signature, so every property read below was a TS2339 once
+ * scripts/ entered a typecheck program (am-7mp8). This predicate narrows to the
+ * shape the validator actually walks, without casting away a single check.
+ */
+function isRecord(value: unknown): value is Record<string, unknown> {
+  return typeof value === "object" && value !== null;
+}
+
 export function validateConfig(config: unknown): ValidationResult {
   const errors: string[] = [];
   if (!config || typeof config !== "object") {
@@ -274,7 +285,7 @@ export function validateConfig(config: unknown): ValidationResult {
   }
 
   // Article pages validation
-  if (!c.articlePages || typeof c.articlePages !== "object") {
+  if (!isRecord(c.articlePages)) {
     errors.push("Missing articlePages section");
   } else {
     const ap = c.articlePages;
@@ -373,7 +384,7 @@ export function validateConfig(config: unknown): ValidationResult {
 
   // Pinned record validation (if present)
   if (c.pinned !== undefined) {
-    if (typeof c.pinned !== "object" || c.pinned === null) {
+    if (!isRecord(c.pinned)) {
       errors.push("pinned must be an object if present");
     } else {
       const p = c.pinned;
