@@ -54,7 +54,7 @@ export function checkEquationAccessibility(
   const alternateSpoken = spokenForms?.alternate;
 
   // 1. Primary spoken form must be present
-  if (!printedSpoken || !printedSpoken.trim()) {
+  if (!printedSpoken?.trim()) {
     diagnostics.push({
       severity: "error",
       rule: "missing-spoken-form",
@@ -70,7 +70,7 @@ export function checkEquationAccessibility(
     plainLatexPrinted?.trim() !== plainLatexModern?.trim();
 
   if (hasDistinctModernLatex) {
-    if (!spokenForms?.modern || !spokenForms.modern.trim()) {
+    if (!spokenForms?.modern?.trim()) {
       diagnostics.push({
         severity: "error",
         rule: "missing-accessibility-alternative",
@@ -82,7 +82,7 @@ export function checkEquationAccessibility(
   }
 
   // 3. Check alternate spoken form if required
-  if (options?.requireAlternate && (!alternateSpoken || !alternateSpoken.trim())) {
+  if (options?.requireAlternate && !alternateSpoken?.trim()) {
     diagnostics.push({
       severity: "error",
       rule: "missing-accessibility-alternative",
