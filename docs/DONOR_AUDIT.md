@@ -1091,6 +1091,7 @@ native SceneKit tab (`ios/Sources/NativePatentSceneView.swift`), and the hand-ty
 (`ios/Sources/Theme.swift`).
 - `src/physics/lie.ts`: Implements SO(3) Euler equations with moments of inertia for aircraft rigid-body flight dynamics (Wright flyer fallback in donor). It does not implement Lorentz boosts or relativistic velocity composition; relativistic transformations belong in FrankenSim and paper-specific reference evaluators.
 - `src/physics/telemetryData.ts`: Module-global UI tick counter and patent-scoped telemetry maps replaced by instance-scoped snapshot stores (`am-rt-snapshot-store-aft`).
+- `src/physics/usePatentPhysics.ts`: Module-global maps keyed by patent ID and control-change ticks that count UI events rather than physical steps; replaced by instance-scoped snapshot stores (`am-rt-snapshot-store-aft`).
 
 ### 11.5 A blanket rename is not an extraction
 
