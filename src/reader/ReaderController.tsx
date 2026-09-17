@@ -289,9 +289,11 @@ export function ReaderController(props: Props) {
       );
       // A foundation-kind ?open= value is handled entirely by parseReaderLocation/render above;
       // this only ever resolves a kind this bead registers (instrument-view, term), so the two
-      // paths never collide (am-read-return-stack-oxa).
+      // paths never collide (am-read-return-stack-oxa). Deferred one microtask: it mounts a
+      // separate React root via flushSync, which React refuses to run synchronously from inside
+      // another component's own commit (a "flushSync inside a lifecycle method" conflict).
       closeDirectOpenDialog(document);
-      openFromSearch(document, location.search);
+      queueMicrotask(() => openFromSearch(document, location.search));
     };
     root.addEventListener("click", click);
     root.addEventListener("change", changeControl);
@@ -299,7 +301,7 @@ export function ReaderController(props: Props) {
     window.addEventListener("popstate", pop);
     save();
     render();
-    openFromSearch(document, location.search);
+    queueMicrotask(() => openFromSearch(document, location.search));
     return () => {
       cancelReturn();
       root.removeEventListener("click", click);

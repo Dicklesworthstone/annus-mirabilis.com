@@ -60,8 +60,10 @@ export function closeDirectOpenDialog(doc: Document): void {
  * bead's "Invalid values" requirement ("ignored without breaking the page").
  */
 export function openFromSearch(doc: Document, search: string): boolean {
+  console.log("DEBUG openFromSearch called with search:", search);
   const params = new URLSearchParams(search);
   const resolved = resolveOpenParam(params.get("open"));
+  console.log("DEBUG resolved:", resolved ? resolved.kind : null);
   if (!resolved) return false;
 
   if (!resolved.definition.descends) {
@@ -70,7 +72,8 @@ export function openFromSearch(doc: Document, search: string): boolean {
     return true;
   }
 
-  if (!resolved.definition.render) return false;
+  const renderKind = resolved.definition.render;
+  if (!renderKind) return false;
 
   const { dialog, mount } = ensureDialog(doc);
   const frame: StackFrame = {
@@ -90,6 +93,11 @@ export function openFromSearch(doc: Document, search: string): boolean {
     lab: null,
   };
 
+  const child = renderKind({
+    parsed: resolved.parsedId,
+    instanceId: `${resolved.kind}:${resolved.rawId}`,
+  });
+
   activeRoot?.unmount();
   const root = createRoot(mount);
   activeRoot = root;
@@ -103,10 +111,7 @@ export function openFromSearch(doc: Document, search: string): boolean {
         "div",
         null,
         createElement(Compass, { frame, onReturn: () => closeDirectOpenDialog(doc) }),
-        resolved.definition.render({
-          parsed: resolved.parsedId,
-          instanceId: `${resolved.kind}:${resolved.rawId}`,
-        }),
+        child,
       ),
     );
   });
