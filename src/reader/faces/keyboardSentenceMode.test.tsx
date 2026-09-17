@@ -9,7 +9,12 @@ import {
   FIXTURE_EDITORIAL_NOTES,
   FIXTURE_REVIEW_RECORDS,
 } from "../../testing/fixtures/bilingual/brownianBilingualFixture.ts";
-import { createContainer, installDom, removeContainer, uninstallDom } from "../../testing/reactDom.ts";
+import {
+  createContainer,
+  installDom,
+  removeContainer,
+  uninstallDom,
+} from "../../testing/reactDom.ts";
 import { ParallelFace } from "./ParallelFace.tsx";
 
 describe("keyboard sentence mode and alignment interactions", () => {
@@ -88,9 +93,7 @@ describe("keyboard sentence mode and alignment interactions", () => {
       window.dispatchEvent(new KeyboardEvent("keydown", { key: "ArrowDown", bubbles: true }));
     });
 
-    const secondSentence = container.querySelector<HTMLElement>(
-      '[data-sentence-id="bm-s4-p1-s2"]',
-    );
+    const secondSentence = container.querySelector<HTMLElement>('[data-sentence-id="bm-s4-p1-s2"]');
     expect(secondSentence?.getAttribute("data-aligned-active")).toBe("true");
     expect(document.activeElement).toBe(secondSentence);
 

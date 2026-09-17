@@ -1,5 +1,5 @@
 import { describe, expect, it } from "bun:test";
-import { getFacsimileViewerConfig, DEFAULT_PDFJS_WORKER_SRC } from "./viewerConfig.ts";
+import { DEFAULT_PDFJS_WORKER_SRC, getFacsimileViewerConfig } from "./viewerConfig.ts";
 
 describe("viewerConfig (am-read-facsimile-face-er0)", () => {
   it("disables text and annotation layers, disables find, and sets isEvalSupported: false", () => {

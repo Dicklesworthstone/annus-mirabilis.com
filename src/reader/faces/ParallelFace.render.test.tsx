@@ -108,4 +108,3 @@ describe("ParallelFace render tests", () => {
     expect(html).toContain("tr-bm-s4-p1-u1");
   });
 });
-

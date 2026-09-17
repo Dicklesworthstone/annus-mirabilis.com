@@ -1,5 +1,5 @@
-import React from "react";
 import { renderToString } from "katex";
+import React from "react";
 import type { ReviewRecord } from "../../content/schemas/review.ts";
 import type { EditorialNote, TranslationUnit } from "../../content/schemas/source.ts";
 import { EditorialNoteMarker } from "./EditorialNoteMarker.tsx";

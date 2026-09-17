@@ -1,6 +1,7 @@
 "use client";
 
-import React, { useState, useEffect, useCallback } from "react";
+import type React from "react";
+import { useCallback, useEffect, useState } from "react";
 import type { FormattedPageEntry } from "./pageMap.ts";
 
 export interface FacsimileViewerProps {
@@ -83,11 +84,9 @@ export function FacsimileViewer({
   const accessibleLabel = `${paperTitle}, printed page ${printedLabel} (PDF page ${currentPage} of ${totalPages})`;
 
   return (
-    <div
+    <section
       className={`facsimile-viewer ${className ?? ""}`}
-      tabIndex={0}
       onKeyDown={handleKeyDown}
-      role="region"
       aria-label={`Facsimile viewer for ${paperTitle}`}
     >
       <div className="facsimile-viewer-toolbar" role="toolbar" aria-label="Viewer controls">

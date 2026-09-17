@@ -2,9 +2,9 @@ import { describe, expect, it } from "bun:test";
 import { readFileSync } from "node:fs";
 import { join } from "node:path";
 import { parseReceipt } from "../../content/provenance/parseReceipt.ts";
+import type { PageMapEntry } from "../../content/provenance/receiptSchema.ts";
 import { receiptToSourceAsset } from "../../content/provenance/receiptToSourceAsset.ts";
 import { buildPageMapIndex, formatPrintedPageLabel } from "./pageMap.ts";
-import type { PageMapEntry } from "../../content/provenance/receiptSchema.ts";
 
 describe("pageMap lookups and indexing (am-read-facsimile-face-er0)", () => {
   const fixturePath = join(process.cwd(), "src/testing/fixtures/provenance/ap-99-001.md");

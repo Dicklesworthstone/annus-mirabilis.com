@@ -4,10 +4,10 @@ import type { ReviewRecord } from "../../content/schemas/review.ts";
 import type {
   Alignment,
   EditorialNote,
+  GlossUnit,
   Paper,
   SourceBlock,
   TranslationUnit,
-  GlossUnit,
 } from "../../content/schemas/source.ts";
 import { buildAlignmentIndex } from "./alignment.ts";
 import { EditorialNoteMarker } from "./EditorialNoteMarker.tsx";

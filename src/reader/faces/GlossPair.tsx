@@ -1,5 +1,5 @@
-import React from "react";
 import { renderToString } from "katex";
+import React from "react";
 import { isModalityClass } from "../../content/schemas/glossConventions.ts";
 import type { GlossToken, MultiwordUnit } from "../../content/schemas/source.ts";
 

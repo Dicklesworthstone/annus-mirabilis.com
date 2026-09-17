@@ -1,8 +1,8 @@
 import { describe, expect, it } from "bun:test";
 import React from "react";
 import { renderToString } from "react-dom/server";
-import { FacsimileFace } from "./FacsimileFace.tsx";
 import type { FacsimileSourceAsset } from "./FacsimileFace.tsx";
+import { FacsimileFace } from "./FacsimileFace.tsx";
 
 describe("FacsimileFace rendering (am-read-facsimile-face-er0)", () => {
   const mockPublishAsset: FacsimileSourceAsset = {

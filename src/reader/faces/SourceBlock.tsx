@@ -1,5 +1,5 @@
-import React from "react";
 import { renderToString } from "katex";
+import type React from "react";
 import type { Inline } from "../../content/schemas/inlines.ts";
 import { plainText } from "../../content/schemas/inlines.ts";
 import type { EditorialNote, SourceBlock, SpanAnchor } from "../../content/schemas/source.ts";

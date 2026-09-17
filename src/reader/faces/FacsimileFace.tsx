@@ -1,13 +1,13 @@
-import React from "react";
 import Link from "next/link";
-import { FacsimileViewer } from "./FacsimileViewer.tsx";
-import { buildPageMapIndex } from "./pageMap.ts";
+import React from "react";
 import type {
   PageMapEntry,
   PublicationDecision,
-  RightsStatus,
   ReuseTerms,
+  RightsStatus,
 } from "../../content/provenance/receiptSchema.ts";
+import { FacsimileViewer } from "./FacsimileViewer.tsx";
+import { buildPageMapIndex } from "./pageMap.ts";
 
 export interface FacsimileSourceAsset {
   readonly originUrl?: string | undefined;
