@@ -201,8 +201,11 @@ export function matchWordListRule(
     for (const m of findPhraseMatches(text, word)) {
       if (overlapsAny(m.index, m.matchedText.length, exceptionRanges)) continue;
       if (overlapsAny(m.index, m.matchedText.length, allowlistRanges)) continue;
-      const severity =
+      let severity =
         isQuotation && rule.quotationDowngrade ? rule.quotationDowngrade : baseSeverity;
+      if (source.layer === "translation" && severity === "error") {
+        severity = "flag";
+      }
       findings.push(
         finding(
           ruleId,
@@ -220,8 +223,12 @@ export function matchWordListRule(
       if (rule.markWordsProseExempt && context === "prose") continue;
       for (const m of findPhraseMatches(text, word)) {
         if (overlapsAny(m.index, m.matchedText.length, allowlistRanges)) continue;
+        let markSeverity = baseSeverity;
+        if (source.layer === "translation" && markSeverity === "error") {
+          markSeverity = "flag";
+        }
         findings.push(
-          finding(ruleId, baseSeverity, context, m, "Describe the result instead of grading it."),
+          finding(ruleId, markSeverity, context, m, "Describe the result instead of grading it."),
         );
       }
     }
@@ -235,12 +242,16 @@ export function matchPhraseListRule(
   rule: PhraseListRule,
   ruleId: RuleId,
   context: VoiceContext,
+  source: MatchSource = {},
 ): VoiceFinding[] {
-  const severity = severityByContext(
+  let severity = severityByContext(
     context,
     rule.severityByContext,
     rule.defaultSeverity ?? "error",
   );
+  if (source.layer === "translation" && severity === "error") {
+    severity = "flag";
+  }
   const findings: VoiceFinding[] = [];
   for (const phrase of rule.phrases) {
     for (const m of findPhraseMatches(text, phrase)) {
@@ -316,7 +327,10 @@ export function matchOverclaim(
 ): VoiceFinding[] {
   const isQuotation = source.layer === "quotation";
   if (isQuotation && rule.quotationExempt) return [];
-  const severity = severityByContext(context, rule.severityByContext, "flag");
+  let severity = severityByContext(context, rule.severityByContext, "flag");
+  if (source.layer === "translation" && severity === "error") {
+    severity = "flag";
+  }
   const findings: VoiceFinding[] = [];
   for (const phrase of rule.phrases) {
     for (const m of findPhraseMatches(text, phrase)) {

@@ -21,6 +21,7 @@ import { EXCLUDED_FIELDS } from "../src/content/checks/voice/check.ts";
 import { extractAllComponentStrings } from "../src/content/checks/voice/componentText.ts";
 import { resolveVoiceContext } from "../src/content/checks/voice/contexts.ts";
 import { checkVoice } from "../src/content/checks/voice/index.ts";
+import { scanRealTreeForParallelDenyLists } from "../src/content/checks/voice/noParallelDenyLists.ts";
 import {
   findStaleOverrides,
   loadVoiceOverrides,
@@ -271,7 +272,85 @@ export async function runVoiceLint(): Promise<{
     }
   }
 
-  // 3. Check for Stale Overrides
+  // 3. Scan Interface Message Catalogs
+  const messagesDir = path.join(ROOT, "src", "i18n", "messages");
+  if (existsSync(messagesDir)) {
+    for (const file of readdirSync(messagesDir)) {
+      if (file.endsWith(".json") && file !== "de.json") {
+        const fullPath = path.join(messagesDir, file);
+        const relPath = path.relative(ROOT, fullPath);
+        const raw = readFileSync(fullPath, "utf8");
+        allTargetTexts.set(relPath, raw);
+        let parsed: unknown;
+        try {
+          parsed = JSON.parse(raw);
+        } catch {
+          continue;
+        }
+        if (parsed && typeof parsed === "object" && "messages" in parsed) {
+          const msgs = (parsed as { messages?: Record<string, unknown> }).messages;
+          if (msgs && typeof msgs === "object") {
+            for (const [msgKey, msgVal] of Object.entries(msgs)) {
+              if (typeof msgVal === "string") {
+                totalScanned++;
+                const voiceCtx = resolveVoiceContext("message-catalog", msgKey);
+                const findings = checkVoice(msgVal, { context: voiceCtx });
+                for (const f of findings) {
+                  if (
+                    isOverridden(overrides, relPath, f.rule, f.matchedText) ||
+                    isOverridden(overrides, msgKey, f.rule, f.matchedText)
+                  ) {
+                    continue;
+                  }
+                  if (f.severity === "error") errorCount++;
+                  else if (f.severity === "flag") flagCount++;
+                  else if (f.severity === "info") infoCount++;
+
+                  countsByRule[f.rule] = (countsByRule[f.rule] ?? 0) + 1;
+                  countsByContext[f.context] = (countsByContext[f.context] ?? 0) + 1;
+
+                  logEntries.push({
+                    timestamp,
+                    suite: "voice-lint",
+                    logRunId,
+                    rule: f.rule,
+                    severity: f.severity,
+                    context: f.context,
+                    file: relPath,
+                    path: msgKey,
+                    matchedText: f.matchedText,
+                    suggestion: f.suggestion,
+                  });
+                }
+              }
+            }
+          }
+        }
+      }
+    }
+  }
+
+  // 4. Scan for Parallel Deny Lists
+  const parallelFindings = scanRealTreeForParallelDenyLists(ROOT);
+  for (const pf of parallelFindings) {
+    errorCount++;
+    countsByRule["no-parallel-deny-lists"] = (countsByRule["no-parallel-deny-lists"] ?? 0) + 1;
+    logEntries.push({
+      timestamp,
+      suite: "voice-lint",
+      logRunId,
+      rule: "no-parallel-deny-lists",
+      severity: "error",
+      context: "prose",
+      file: pf.file,
+      line: pf.line,
+      matchedText: pf.matchedTerms.join(", "),
+      suggestion:
+        "Remove parallel deny list. Use checkVoice from src/content/checks/voice instead.",
+    });
+  }
+
+  // 5. Check for Stale Overrides
   const staleOverrides = findStaleOverrides(overrides, (t) => allTargetTexts.get(t));
   for (const stale of staleOverrides) {
     flagCount++;

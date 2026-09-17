@@ -3,6 +3,17 @@
  * is generated at runtime or lives outside compiled records call this directly in their own copy
  * tests instead of keeping a private vocabulary list — see content/editorial/voice-rules.yaml for
  * the one list per kind of vocabulary this module enforces.
+ *
+ * Documented callers (Requirement 5):
+ * - The reading notebook (am-read-notebook-tde)
+ * - The explanation replay (am-reason-explanation-replay-35ds)
+ * - Chapter-end tasks and teach-back prompts (am-disc-ppe-teachback-wnp7)
+ * - Capstone worksheets (am-disc-capstones-infra-3352)
+ * - Tours (am-tours-infra-g518)
+ * - Journey branches (am-disc-journey-framework-umbg)
+ * - Countermodel workbench (am-reason-countermodel-workbench-t07q)
+ * - Predict mode (am-inst-predict-mode-ti7m)
+ * Every exception for these surfaces goes through content/editorial/voice-overrides.yaml.
  */
 
 import type { MatchSource, VoiceFinding } from "./matchers.ts";
@@ -88,6 +99,7 @@ export function checkVoice(text: string, options: CheckVoiceOptions): VoiceFindi
       rules.rules.condescension as PhraseListRule,
       "condescension",
       context,
+      source,
     ),
   );
   findings.push(
@@ -96,6 +108,7 @@ export function checkVoice(text: string, options: CheckVoiceOptions): VoiceFindi
       rules.rules["effortless-promise"] as PhraseListRule,
       "effortless-promise",
       context,
+      source,
     ),
   );
   findings.push(
@@ -104,6 +117,7 @@ export function checkVoice(text: string, options: CheckVoiceOptions): VoiceFindi
       rules.rules["persona-label"] as PhraseListRule,
       "persona-label",
       context,
+      source,
     ),
   );
   findings.push(
@@ -112,6 +126,7 @@ export function checkVoice(text: string, options: CheckVoiceOptions): VoiceFindi
       rules.rules["level-assignment"] as PhraseListRule,
       "level-assignment",
       context,
+      source,
     ),
   );
   findings.push(
@@ -145,6 +160,7 @@ export function checkVoice(text: string, options: CheckVoiceOptions): VoiceFindi
       rules.rules["pedagogy-claim"] as PhraseListRule,
       "pedagogy-claim",
       context,
+      source,
     ),
   );
 

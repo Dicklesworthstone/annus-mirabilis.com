@@ -1,5 +1,7 @@
 import assert from "node:assert/strict";
 import { describe, it } from "node:test";
+import type { CheckContext, CheckReportItem } from "../../compiler/checks/registry.ts";
+import { validateVoiceRecords } from "./check.ts";
 import { checkVoice, type VoiceFinding } from "./index.ts";
 
 function rulesOf(findings: readonly VoiceFinding[]): string[] {
@@ -49,6 +51,13 @@ describe("ascii-dash", () => {
   it('"wave -- particle" in prose fails', () => {
     const findings = checkVoice("This is a wave -- particle duality.", { context: "prose" });
     assert.equal(has(findings, "ascii-dash", "error"), true);
+  });
+  it("an attributed quotation containing ascii dash is exempt", () => {
+    const findings = checkVoice("This was a wave -- particle duality.", {
+      context: "prose",
+      source: { layer: "quotation", attribution: "lorentz-1904" },
+    });
+    assert.equal(has(findings, "ascii-dash"), false);
   });
 });
 
@@ -392,3 +401,92 @@ describe("pedagogy-claim", () => {
     assert.equal(has(findings2, "pedagogy-claim"), false);
   });
 });
+
+describe("translation layer and German source block policy (AC2)", () => {
+  it("a translation unit rendering offenbar as 'evidently' passes and 'clearly' produces a flag, not an error", () => {
+    const passing = checkVoice("It evidently follows from the kinetic theory.", {
+      context: "prose",
+      source: { layer: "translation" },
+    });
+    assert.equal(has(passing, "condescension"), false);
+    assert.equal(passing.length, 0);
+
+    const flagged = checkVoice("It clearly follows from the kinetic theory.", {
+      context: "prose",
+      source: { layer: "translation" },
+    });
+    assert.equal(has(flagged, "condescension", "flag"), true);
+    assert.equal(has(flagged, "condescension", "error"), false);
+  });
+
+  it("a translation unit with 'pivotal' produces a flag, not an error", () => {
+    const flagged = checkVoice("This was a pivotal result for the foundation.", {
+      context: "prose",
+      source: { layer: "translation" },
+    });
+    assert.equal(has(flagged, "hype-word", "flag"), true);
+    assert.equal(has(flagged, "hype-word", "error"), false);
+  });
+
+  it("German source blocks and lang=de records are never scanned", () => {
+    const reports: CheckReportItem[] = [];
+    const mockContext: CheckContext = {
+      records: new Map<string, unknown>([
+        [
+          "source-ap-17-549-p01",
+          {
+            id: "source-ap-17-549-p01",
+            kind: "source-block",
+            lang: "de",
+            text: "Eine sehr revolutionäre Betrachtung, pivotal and clearly so.",
+          },
+        ],
+        [
+          "german-transcription-01",
+          {
+            id: "german-transcription-01",
+            kind: "reviewed-transcription",
+            lang: "de",
+            body: "Der Begriff ist revolutionär — zweifellos.",
+          },
+        ],
+      ]),
+      files: [],
+      indexes: {},
+      report: (item: CheckReportItem) => {
+        reports.push(item);
+      },
+    };
+
+    validateVoiceRecords(mockContext);
+    assert.equal(reports.length, 0, "German source blocks must produce zero diagnostics");
+
+    // Planted comparison: an English prose record fails on the same words
+    const failingReports: CheckReportItem[] = [];
+    const englishContext: CheckContext = {
+      records: new Map<string, unknown>([
+        [
+          "reading-bm-p01",
+          {
+            id: "reading-bm-p01",
+            kind: "reading",
+            lang: "en",
+            body: "This is a pivotal and revolutionary idea — clearly so.",
+          },
+        ],
+      ]),
+      files: [],
+      indexes: {},
+      report: (item: CheckReportItem) => {
+        failingReports.push(item);
+      },
+    };
+
+    validateVoiceRecords(englishContext);
+    assert.ok(failingReports.length >= 3, "English record must produce voice errors");
+    assert.ok(failingReports.some((r) => r.rule === "hype-word"));
+    assert.ok(failingReports.some((r) => r.rule === "em-dash"));
+    assert.ok(failingReports.some((r) => r.rule === "condescension"));
+  });
+});
+

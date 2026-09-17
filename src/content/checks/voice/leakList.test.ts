@@ -1,5 +1,7 @@
 import assert from "node:assert/strict";
 import { describe, it } from "node:test";
+import { executionOutcomeRegistry } from "../../../experiments/results/outcomes.ts";
+import { refusalCodeRegistry } from "../../../experiments/results/refusalCodes.ts";
 import type { StatusEnumLeakRule } from "./rules.ts";
 import { loadVoiceRules } from "./rules.ts";
 
@@ -97,5 +99,33 @@ describe("status-enum-leak data lists", () => {
       statusEnumLeak.ids.statuses.filter((id) => !id.includes("-")),
       ["underdetermined"],
     );
+  });
+
+  it("completeness test (requirement 11): all live registered refusal codes are listed in voice-rules.yaml", () => {
+    const liveCodes = Object.keys(refusalCodeRegistry);
+    for (const code of liveCodes) {
+      assert.ok(
+        statusEnumLeak.ids.refusalCodes.includes(code),
+        `Live refusal code "${code}" from refusalCodeRegistry must be listed in status-enum-leak.ids.refusalCodes`,
+      );
+    }
+  });
+
+  it("completeness test: all live hyphenated execution outcomes are listed in voice-rules.yaml", () => {
+    const liveOutcomes = Object.keys(executionOutcomeRegistry).filter((o) => o.includes("-"));
+    for (const outcome of liveOutcomes) {
+      assert.ok(
+        statusEnumLeak.ids.executionOutcomes.includes(outcome),
+        `Live execution outcome "${outcome}" from executionOutcomeRegistry must be listed in status-enum-leak.ids.executionOutcomes`,
+      );
+    }
+  });
+
+  it("completeness check fails and names the missing ID when a fixture rules file has one code removed", () => {
+    const droppedCode = "ftcs-unstable";
+    const corruptedCodes = statusEnumLeak.ids.refusalCodes.filter((c) => c !== droppedCode);
+    const liveCodes = Object.keys(refusalCodeRegistry);
+    const missing = liveCodes.filter((c) => !corruptedCodes.includes(c));
+    assert.deepEqual(missing, [droppedCode]);
   });
 });
