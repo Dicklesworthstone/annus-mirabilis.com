@@ -2,14 +2,19 @@ import { describe, expect, test } from "bun:test";
 import { renderToStaticMarkup } from "react-dom/server";
 import {
   FIXTURE_BROWNIAN_TRANSLATION_UNITS,
-  FIXTURE_EDITORIAL_NOTES,
   FIXTURE_REVIEW_RECORDS,
 } from "../../testing/fixtures/bilingual/brownianBilingualFixture.ts";
 import { TranslationUnit } from "./TranslationUnit.tsx";
 
+function getUnit(id: string) {
+  const unit = FIXTURE_BROWNIAN_TRANSLATION_UNITS.find((u) => u.id === id);
+  if (!unit) throw new Error(`Missing fixture translation unit ${id}`);
+  return unit;
+}
+
 describe("TranslationUnit render tests", () => {
   test("renders translation unit with lang='en' and review badge", () => {
-    const unit = FIXTURE_BROWNIAN_TRANSLATION_UNITS.find((u) => u.id === "tr-bm-s4-h1")!;
+    const unit = getUnit("tr-bm-s4-h1");
     const reviewRecord = FIXTURE_REVIEW_RECORDS.find((r) =>
       r.scope.some((s) => s.recordId === unit.id),
     );
@@ -23,7 +28,7 @@ describe("TranslationUnit render tests", () => {
   });
 
   test("renders machine draft unit with draft badge", () => {
-    const unit = FIXTURE_BROWNIAN_TRANSLATION_UNITS.find((u) => u.id === "tr-bm-s4-p1-u2")!;
+    const unit = getUnit("tr-bm-s4-p1-u2");
     const html = renderToStaticMarkup(<TranslationUnit unit={unit} />);
 
     expect(html).toContain('data-review-badge="Machine draft"');
@@ -32,7 +37,7 @@ describe("TranslationUnit render tests", () => {
   });
 
   test("renders unresolved alternatives disclosure when present", () => {
-    const unit = FIXTURE_BROWNIAN_TRANSLATION_UNITS.find((u) => u.id === "tr-bm-s4-p1-u2")!;
+    const unit = getUnit("tr-bm-s4-p1-u2");
     const html = renderToStaticMarkup(<TranslationUnit unit={unit} />);
 
     expect(html).toContain("Alternative translations (1)");
