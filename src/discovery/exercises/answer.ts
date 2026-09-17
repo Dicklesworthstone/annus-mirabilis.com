@@ -63,7 +63,10 @@ export function snapshotExercise(part: ExpressionExercisePart): ExpressionExerci
   const domains = Object.freeze(
     Object.fromEntries(
       variables.map((name) => {
-        const domain = rawDomains[name]!;
+        const domain = rawDomains[name];
+        if (!domain) {
+          throw new TypeError(`Missing domain for variable: ${name}`);
+        }
         return [
           name,
           Object.freeze({ min: domain.min, max: domain.max, scale: domain.scale ?? "linear" }),
@@ -76,13 +79,13 @@ export function snapshotExercise(part: ExpressionExercisePart): ExpressionExerci
     throw new TypeError("Invalid exercise tolerance.");
   const fields = Object.getOwnPropertyDescriptors(rawTolerance);
   if (
-    Reflect.ownKeys(rawTolerance).some(
-      (k) =>
-        typeof k !== "string" ||
-        !["absolute", "relative", "relativeTo"].includes(k) ||
-        !fields[k]?.enumerable ||
-        !Object.hasOwn(fields[k]!, "value"),
-    )
+    Reflect.ownKeys(rawTolerance).some((k) => {
+      if (typeof k !== "string" || !["absolute", "relative", "relativeTo"].includes(k)) {
+        return true;
+      }
+      const desc = fields[k];
+      return !desc?.enumerable || !Object.hasOwn(desc, "value");
+    })
   )
     throw new TypeError("Invalid exercise tolerance field.");
   if (
@@ -97,7 +100,8 @@ export function snapshotExercise(part: ExpressionExercisePart): ExpressionExerci
     relativeTo: fields.relativeTo?.value ?? "reference",
   });
   if (
-    !["reference", "larger"].includes(tolerance.relativeTo!) ||
+    !tolerance.relativeTo ||
+    !["reference", "larger"].includes(tolerance.relativeTo) ||
     validateToleranceSpec(tolerance, 1).length
   )
     throw new TypeError("The exercise tolerance is invalid.");
