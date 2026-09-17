@@ -25,8 +25,11 @@ import {
 } from "./authorship.ts";
 import { type PaperDate, validateChronology, validatePaperDate } from "./dates.ts";
 import { type Inline, plainText, validateInline } from "./inlines.ts";
+
 export { type Inline, plainText, validateInline } from "./inlines.ts";
+
 import { type SpanAnchor, spanTextDigest, validateSpanAnchor } from "./spans.ts";
+
 export { type SpanAnchor, spanTextDigest, validateSpanAnchor } from "./spans.ts";
 
 export class SchemaValidationError extends Error {

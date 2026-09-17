@@ -27,16 +27,20 @@ export function replaceGeneratedContent(
 
   const startIndices: number[] = [];
   let pos = 0;
-  while ((pos = originalText.indexOf(startMarker, pos)) !== -1) {
-    startIndices.push(pos);
-    pos += startMarker.length;
+  while (true) {
+    const next = originalText.indexOf(startMarker, pos);
+    if (next === -1) break;
+    startIndices.push(next);
+    pos = next + startMarker.length;
   }
 
   const endIndices: number[] = [];
   pos = 0;
-  while ((pos = originalText.indexOf(endMarker, pos)) !== -1) {
-    endIndices.push(pos);
-    pos += endMarker.length;
+  while (true) {
+    const next = originalText.indexOf(endMarker, pos);
+    if (next === -1) break;
+    endIndices.push(next);
+    pos = next + endMarker.length;
   }
 
   if (startIndices.length === 0) {

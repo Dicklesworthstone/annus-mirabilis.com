@@ -1,32 +1,31 @@
-import test from "node:test";
 import assert from "node:assert/strict";
 import fs from "node:fs";
 import path from "node:path";
+import test from "node:test";
 import { fileURLToPath } from "node:url";
-
+import { newRunIdentity, TestLogger } from "../../testing/log/logger.ts";
 import {
-  validateHistoricalPremise,
-  validateArgumentNode,
-  validateQuantity,
-  validateSemanticEquation,
-  validateReadingSet,
-  validateFoundationOrBridge,
-  validateMisconception,
-  validateObstacleResponses,
-  ArgumentSchemaError,
-  type HistoricalPremise,
   type ArgumentNode,
-  type Quantity,
-  type SemanticEquation,
-  type ReadingSet,
-  type Foundation,
+  ArgumentSchemaError,
   type Bridge,
+  type Foundation,
+  type HistoricalPremise,
   type Misconception,
   type ObstacleResponses,
+  type Quantity,
+  type ReadingSet,
+  type SemanticEquation,
+  validateArgumentNode,
+  validateFoundationOrBridge,
+  validateHistoricalPremise,
+  validateMisconception,
+  validateObstacleResponses,
+  validateQuantity,
+  validateReadingSet,
+  validateSemanticEquation,
 } from "./argument.ts";
 import { DimensionSchemaError } from "./dimensionBasis.ts";
 import { strictParse } from "./strictParse.ts";
-import { TestLogger, newRunIdentity } from "../../testing/log/logger.ts";
 
 const SUITE = "content-schemas-argument";
 const BEAD_ID = "am-cm-schemas-argument-llm";
@@ -202,7 +201,7 @@ test("Integration: Valid YAML fixtures parsed via strictParse pass all argument 
   const obsYaml = fs.readFileSync(path.join(FIXTURES_DIR, "obstacle-responses-valid.yaml"), "utf8");
   const rawObs = strictParse(obsYaml, "yaml");
   const obs = validateObstacleResponses(rawObs);
-  assert.equal(obs.unfamiliarWordOrSymbol?.explanation.length! > 0, true);
+  assert.equal((obs.unfamiliarWordOrSymbol?.explanation.length ?? 0) > 0, true);
 
   logger.log({
     testId: "integration-all-fixtures-valid",

@@ -1,43 +1,43 @@
-import test from "node:test";
 import assert from "node:assert/strict";
+import test from "node:test";
+import { newRunIdentity, TestLogger } from "../../testing/log/logger.ts";
 import {
-  validateMeanings,
-  validateHistoricalPremise,
+  type ArgumentNode,
+  ArgumentSchemaError,
+  type Bridge,
+  checkProofRouteAcyclicity,
+  type Foundation,
+  type HistoricalPremise,
+  type Misconception,
+  type Quantity,
+  type ReadingSet,
+  type SemanticEquation,
   validateArgumentNode,
+  validateAuthoringContract,
+  validateFoundationLink,
+  validateFoundationOrBridge,
+  validateHistoricalPremise,
+  validateMeanings,
+  validateMisconception,
+  validateObstacleResponses,
   validateProof,
   validateQuantity,
-  validateSemanticEquation,
   validateReadingSet,
-  validateAuthoringContract,
-  validateObstacleResponses,
-  validateFoundationLink,
+  validateSemanticEquation,
   validateWorkedExample,
-  validateFoundationOrBridge,
-  validateMisconception,
-  checkProofRouteAcyclicity,
-  ArgumentSchemaError,
-  type HistoricalPremise,
-  type ArgumentNode,
-  type Quantity,
-  type SemanticEquation,
-  type ReadingSet,
-  type Foundation,
-  type Bridge,
-  type Misconception,
 } from "./argument.ts";
 import {
-  validateRationalScale,
-  validateRationalDimension,
   DimensionSchemaError,
+  validateRationalDimension,
+  validateRationalScale,
 } from "./dimensionBasis.ts";
 import {
-  LOGICAL_ROLES,
-  HISTORICAL_STATUSES,
-  MODEL_STATUSES,
   EXECUTION_STATUSES,
+  HISTORICAL_STATUSES,
+  LOGICAL_ROLES,
+  MODEL_STATUSES,
   OBSTACLE_KIND_IDS,
 } from "./meanings.ts";
-import { TestLogger, newRunIdentity } from "../../testing/log/logger.ts";
 
 const SUITE = "content-schemas-argument";
 const BEAD_ID = "am-cm-schemas-argument-llm";
@@ -1617,7 +1617,7 @@ test("Misconception: valid misconception with whereItIsTrue 'none' and staticTre
 
   const misc = validateMisconception(raw);
   assert.equal(misc.whereItIsTrue.startsWith("none"), true);
-  assert.equal(misc.staticTreatment?.reason.length! > 0, true);
+  assert.equal((misc.staticTreatment?.reason.length ?? 0) > 0, true);
 
   logger.log({
     testId: "misconception-where-true-none-static-pass",
@@ -1739,7 +1739,7 @@ test("ObstacleResponses: valid camelCase obstacle responses pass", () => {
   };
 
   const resp = validateObstacleResponses(raw);
-  assert.equal(resp.unfamiliarWordOrSymbol?.explanation.length! > 0, true);
+  assert.equal((resp.unfamiliarWordOrSymbol?.explanation.length ?? 0) > 0, true);
   assert.equal(resp.exampleFirst?.workedExampleRef, "found-stokes-viscosity");
 
   logger.log({

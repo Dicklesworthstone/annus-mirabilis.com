@@ -5,7 +5,7 @@
 
 export * from "../schemas/concordance.ts";
 export {
+  ConcordanceSchemaError as NotationSchemaError,
   validateConcordanceEntry,
   validatePaperConcordance as validateNotationConcordanceFile,
-  ConcordanceSchemaError as NotationSchemaError,
 } from "../schemas/concordance.ts";

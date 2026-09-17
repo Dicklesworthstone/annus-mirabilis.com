@@ -3,7 +3,6 @@
  * Specification: AGENTS.md, am-not-concordance-model-uag, am-not-entries-brownian-1rq.
  */
 
-export * from "./resolve.ts";
 export {
   clearConcordanceCache,
   loadAllConcordances,
@@ -11,3 +10,4 @@ export {
   NOTATION_DIR,
   registerConcordance,
 } from "./loader.ts";
+export * from "./resolve.ts";
