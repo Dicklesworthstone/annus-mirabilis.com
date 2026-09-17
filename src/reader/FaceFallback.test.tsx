@@ -27,7 +27,10 @@ describe("FaceFallback", () => {
     const paperId = await compiledPaperId();
     const payload = await (await import("../content/server.ts")).loadPaper(paperId);
     const section = payload.paper.sections[0]?.id;
-    const html = renderToStaticMarkup(await FaceFallback({ paperId, section, face: "results" }));
+    expect(section).toBeDefined();
+    const html = renderToStaticMarkup(
+      await FaceFallback({ paperId, section: section ?? "s4", face: "results" }),
+    );
     expect(html).toContain('data-view="results"');
     expect(html).toContain(`/papers/${paperId}/${section}/view/german/`);
   });
