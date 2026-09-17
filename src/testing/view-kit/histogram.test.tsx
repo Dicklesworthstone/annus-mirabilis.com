@@ -242,4 +242,3 @@ describe("Histogram explicit owner-bin contract (am-inst-2d-view-kit-u75r)", () 
     }
   });
 });
-

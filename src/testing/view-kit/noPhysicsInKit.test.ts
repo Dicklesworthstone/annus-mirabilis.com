@@ -4,13 +4,9 @@ import * as path from "node:path";
 import { fileURLToPath } from "node:url";
 import { act, createElement } from "react";
 import { createRoot } from "react-dom/client";
-import {
-  auditViewComponentSource,
-  auditViewKitDirectory,
-} from "../../visuals/kit/viewGuard.ts";
+import { auditViewComponentSource, auditViewKitDirectory } from "../../visuals/kit/viewGuard.ts";
 import { findPhysicsImportViolations } from "../noPhysicsInComponents.test.ts";
 import { createContainer, installDom, removeContainer, uninstallDom } from "../reactDom.ts";
-import { PlantedLorentzView } from "./fixtures/PlantedLorentzView.fixture.tsx";
 import { PlantedRecomputingView } from "./fixtures/PlantedRecomputingView.fixture.tsx";
 
 const REPO_ROOT = path.resolve(path.dirname(fileURLToPath(import.meta.url)), "../../..");

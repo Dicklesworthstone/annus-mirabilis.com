@@ -30,7 +30,8 @@ export function PlantedLorentzView({
 
   // DEFECT 2: Independent local recomputation of transformed coordinates
   const c = 299792458;
-  const localXPrime = (x - localVelocity * t) / Math.sqrt(1 - (localVelocity * localVelocity) / (c * c));
+  const localXPrime =
+    (x - localVelocity * t) / Math.sqrt(1 - (localVelocity * localVelocity) / (c * c));
 
   return (
     <div

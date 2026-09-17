@@ -143,7 +143,9 @@ describe("AccessibleGraphView: 3 layers and scale facts (am-inst-2d-view-kit-u75
       });
 
       // 1. Toggle data table button is a real keyboard-focusable button
-      const toggleTableBtn = container.querySelector(".toggle-table-btn") as HTMLButtonElement | null;
+      const toggleTableBtn = container.querySelector(
+        ".toggle-table-btn",
+      ) as HTMLButtonElement | null;
       expect(toggleTableBtn).not.toBeNull();
       expect(toggleTableBtn?.tagName.toLowerCase()).toBe("button");
       expect(toggleTableBtn?.getAttribute("aria-expanded")).toBe("true");
@@ -236,10 +238,14 @@ describe("AccessibleGraphView: 3 layers and scale facts (am-inst-2d-view-kit-u75
               summary: "Responsive layout.",
               scale,
             },
-            createElement("div", {
-              className: "chart-inner",
-              style: { maxWidth: "100%", overflowX: "hidden" },
-            }, "Responsive chart content"),
+            createElement(
+              "div",
+              {
+                className: "chart-inner",
+                style: { maxWidth: "100%", overflowX: "hidden" },
+              },
+              "Responsive chart content",
+            ),
           ),
         );
       });
@@ -267,7 +273,7 @@ describe("AccessibleGraphView: 3 layers and scale facts (am-inst-2d-view-kit-u75
       headers: ["Tracer ID", "Displacement (μm)", "Quantity"],
       rows: [
         { key: "tr-1", cells: ["#1", 1.45, selectedQuantityId] },
-        { key: "tr-2", cells: ["#2", 2.10, selectedQuantityId] },
+        { key: "tr-2", cells: ["#2", 2.1, selectedQuantityId] },
       ],
     };
 
@@ -285,7 +291,8 @@ describe("AccessibleGraphView: 3 layers and scale facts (am-inst-2d-view-kit-u75
             },
             createElement("canvas", {
               role: "img",
-              "aria-label": "Tracer paths: 95 visible in viewport, 5 offscreen out of 100 total ensemble.",
+              "aria-label":
+                "Tracer paths: 95 visible in viewport, 5 offscreen out of 100 total ensemble.",
               width: 600,
               height: 400,
               style: { maxWidth: "100%", height: "auto" },
