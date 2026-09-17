@@ -23,7 +23,7 @@ export function parseModalityClassesFromContent(
 
   // Match YAML block or frontmatter: modalityClasses:\n  - item1\n  - item2
   const yamlMatch = content.match(/modalityClasses:\s*\n((?:\s*-\s*[^\n]+\n*)+)/);
-  if (yamlMatch && yamlMatch[1]) {
+  if (yamlMatch?.[1]) {
     const rawItems = yamlMatch[1]
       .split("\n")
       .map((line) => line.replace(/^\s*-\s*/, "").trim())
@@ -48,7 +48,7 @@ export function parseModalityClassesFromContent(
     const foundClasses: string[] = [];
     for (const row of tableMatches) {
       const match = row.match(/\|\s*`?([a-z0-9-]+)`?\s*\|/);
-      if (match && match[1]) {
+      if (match?.[1]) {
         const cls = match[1];
         if ((GLOSS_NOTE_CLASSES as readonly string[]).includes(cls)) {
           if (!foundClasses.includes(cls)) {
@@ -100,11 +100,12 @@ export function loadGlossConventions(customPath?: string): GlossConventions {
       modalityClasses: DEFAULT_MODALITY_CLASSES,
       warnings: Object.freeze([...warnings, ...parsed.warnings]),
     };
-  } catch (err: any) {
-    if (err.message?.includes("is not a valid GlossNoteClass")) {
+  } catch (err: unknown) {
+    const message = err instanceof Error ? err.message : String(err);
+    if (message.includes("is not a valid GlossNoteClass")) {
       throw err;
     }
-    warnings.push(`Error reading ${resolvedPath}: ${err.message}`);
+    warnings.push(`Error reading ${resolvedPath}: ${message}`);
     return {
       modalityClasses: DEFAULT_MODALITY_CLASSES,
       warnings: Object.freeze(warnings),
