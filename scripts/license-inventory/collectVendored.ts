@@ -31,21 +31,45 @@ export function collectVendored(options: CollectVendoredOptions): LicenseItem[] 
     for (const c of licensePathCandidates) {
       if (exists(c)) {
         licensePath = "public/pdfjs/LICENSE";
-        licenseText = readText(c) || undefined;
+        const text = readText(c);
+        if (text) {
+          licenseText = text;
+        }
         break;
       }
     }
 
-    items.push({
-      kind: "vendored",
-      name: "PDF.js",
-      version: "upstream",
-      license,
-      source: "public/pdfjs",
-      licensePath,
-      licenseText,
-      authorOrNotice: "Mozilla Foundation (Apache License 2.0)",
-    });
+    if (licensePath !== undefined && licenseText !== undefined) {
+      items.push({
+        kind: "vendored",
+        name: "PDF.js",
+        version: "upstream",
+        license,
+        source: "public/pdfjs",
+        licensePath,
+        licenseText,
+        authorOrNotice: "Mozilla Foundation (Apache License 2.0)",
+      });
+    } else if (licensePath !== undefined) {
+      items.push({
+        kind: "vendored",
+        name: "PDF.js",
+        version: "upstream",
+        license,
+        source: "public/pdfjs",
+        licensePath,
+        authorOrNotice: "Mozilla Foundation (Apache License 2.0)",
+      });
+    } else {
+      items.push({
+        kind: "vendored",
+        name: "PDF.js",
+        version: "upstream",
+        license,
+        source: "public/pdfjs",
+        authorOrNotice: "Mozilla Foundation (Apache License 2.0)",
+      });
+    }
   }
 
   return items;
