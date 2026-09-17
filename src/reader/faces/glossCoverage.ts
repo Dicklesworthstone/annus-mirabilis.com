@@ -51,13 +51,15 @@ export function computeGlossCoverageReport(
           const processedMultiwordIndices = new Set<number>();
 
           for (let i = 0; i < unit.tokens.length; i++) {
-            const token = unit.tokens[i]!;
+            const token = unit.tokens[i];
+            if (!token) continue;
             const mw = unit.multiwordUnits?.find((m) => m.tokenIndices.includes(i));
 
             if (mw) {
-              if (isModalityClass(mw.noteClass, modalityClasses)) {
-                if (!processedMultiwordIndices.has(mw.tokenIndices[0]!)) {
-                  processedMultiwordIndices.add(mw.tokenIndices[0]!);
+              const firstIdx = mw.tokenIndices[0];
+              if (firstIdx !== undefined && isModalityClass(mw.noteClass, modalityClasses)) {
+                if (!processedMultiwordIndices.has(firstIdx)) {
+                  processedMultiwordIndices.add(firstIdx);
                   markedTokens++;
                   const cls = mw.noteClass || "modality";
                   modalityCounts[cls] = (modalityCounts[cls] || 0) + 1;
