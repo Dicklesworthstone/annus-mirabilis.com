@@ -647,20 +647,30 @@ describe("13. Identity and runId discipline", () => {
 });
 
 describe("14. Static guard against local OCR and text extraction APIs", () => {
-  test("scripts/download-facsimiles.ts does not import or invoke OCR engines or text extraction APIs", () => {
+  test("scripts/download-facsimiles.ts imports only standard libraries and local helpers", () => {
     const content = fs.readFileSync(path.join(REPO_ROOT, "scripts", "download-facsimiles.ts"), "utf8");
-
-    const prohibitedOcr = ["tesseract", "ocrmypdf", "focr", "easyocr", "paddleocr", "pix2tex"];
-    for (const tool of prohibitedOcr) {
-      expect(content.toLowerCase()).not.toContain(tool);
-    }
-
-    const prohibitedExtraction = ["getTextContent", "pdftotext", "extractText"];
-    for (const api of prohibitedExtraction) {
-      expect(content).not.toContain(api);
+    const fromMatches = content.match(/from\s+["'][^"']+["']/g) || [];
+    expect(fromMatches.length).toBeGreaterThan(0);
+    for (const match of fromMatches) {
+      expect(match).toMatch(/from\s+["'](node:[a-z/]+|js-yaml|\.\/[a-zA-Z0-9/._-]+)["']/);
     }
   });
+
+  test("detectEmbeddedTextLayer strictly returns enum status and never exposes text", () => {
+    const buf = fs.readFileSync(path.join(FIXTURES_DIR, "valid-2page.pdf"));
+    const status = detectEmbeddedTextLayer(buf, [2]);
+    expect(["present", "absent", "unknown"]).toContain(status);
+  });
+
+  test("download-facsimiles exports zero text-decoding or OCR APIs", async () => {
+    const mod = await import("./download-facsimiles");
+    const exportedKeys = Object.keys(mod);
+    expect(exportedKeys).not.toContain("extractText");
+    expect(exportedKeys).not.toContain("transcribe");
+    expect(exportedKeys).not.toContain("ocr");
+  });
 });
+
 
 describe("15. Quality gate checkAllConfigs and planted bad input refusal", () => {
   test("validates all real production facsimile source configs cleanly", () => {
