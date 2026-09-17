@@ -20,7 +20,7 @@
  */
 
 import { afterAll, beforeAll, describe, expect, test } from "bun:test";
-import { createHash, randomBytes } from "node:crypto";
+import { createHash } from "node:crypto";
 import * as fs from "node:fs";
 import * as http from "node:http";
 import * as path from "node:path";
@@ -32,12 +32,9 @@ import {
   extractArticle,
   fetchToStaging,
   getRepoRoot,
-  loadConfig,
   pinFile,
   releaseKeyClaim,
-  restorePin,
   sha256File,
-  updatePinnedRecord,
   validateConfig,
   validatePdf,
   verifyHostChecksums,
@@ -158,13 +155,23 @@ describe("4. extractArticle determinism and image stream equivalence", () => {
 
     // Verify image streams from pages 2 and 3 equal the parent page's
     const parentText = Buffer.from(parentBuf).toString("latin1");
-    const parentImg2 = parentText.match(/8 0 obj[\s\S]*?stream\r?\n([\s\S]*?)\r?\nendstream/)![1];
-    const extractedImg2 = text1.match(/5 0 obj[\s\S]*?stream\r?\n([\s\S]*?)\r?\nendstream/)![1];
-    expect(extractedImg2).toBe(parentImg2);
+    const parentMatch2 = parentText.match(/8 0 obj[\s\S]*?stream\r?\n([\s\S]*?)\r?\nendstream/);
+    const extractedMatch2 = text1.match(/5 0 obj[\s\S]*?stream\r?\n([\s\S]*?)\r?\nendstream/);
+    expect(parentMatch2).not.toBeNull();
+    expect(extractedMatch2).not.toBeNull();
+    if (!parentMatch2 || !extractedMatch2) {
+      throw new Error("Expected stream matches for page 2 image objects");
+    }
+    expect(extractedMatch2[1]).toBe(parentMatch2[1]);
 
-    const parentImg3 = parentText.match(/9 0 obj[\s\S]*?stream\r?\n([\s\S]*?)\r?\nendstream/)![1];
-    const extractedImg3 = text1.match(/6 0 obj[\s\S]*?stream\r?\n([\s\S]*?)\r?\nendstream/)![1];
-    expect(extractedImg3).toBe(parentImg3);
+    const parentMatch3 = parentText.match(/9 0 obj[\s\S]*?stream\r?\n([\s\S]*?)\r?\nendstream/);
+    const extractedMatch3 = text1.match(/6 0 obj[\s\S]*?stream\r?\n([\s\S]*?)\r?\nendstream/);
+    expect(parentMatch3).not.toBeNull();
+    expect(extractedMatch3).not.toBeNull();
+    if (!parentMatch3 || !extractedMatch3) {
+      throw new Error("Expected stream matches for page 3 image objects");
+    }
+    expect(extractedMatch3[1]).toBe(parentMatch3[1]);
   });
 });
 
