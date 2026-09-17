@@ -112,14 +112,16 @@ describe("negative fixtures", () => {
     const broken = clone(data);
     const mobile = broken.profiles.find((p) => p.id === "mobile-low-cost");
     expect(mobile).toBeDefined();
-    mobile!.viewports = mobile!.viewports.filter((v) => v.width !== 320);
+    if (!mobile) throw new Error("Missing mobile-low-cost profile");
+    mobile.viewports = mobile.viewports.filter((v) => v.width !== 320);
     const issues = validateDomain(broken);
     expect(issues.some((i) => i.message.includes("320-pixel viewport"))).toBe(true);
   });
 
   test("measured calibration missing host, phone model, or tester id", () => {
     const broken = clone(data);
-    const mobile = broken.profiles.find((p) => p.id === "mobile-low-cost")!;
+    const mobile = broken.profiles.find((p) => p.id === "mobile-low-cost");
+    if (!mobile) throw new Error("Missing mobile-low-cost profile");
     mobile.cpuSlowdown.calibration = "measured";
     mobile.cpuSlowdown.phoneModel = "";
     mobile.cpuSlowdown.host = "";
@@ -180,7 +182,8 @@ describe("provisional calibration stays empty", () => {
   test("filling testerId while calibration is provisional fails", () => {
     const { data } = loadCommittedProfiles();
     const broken: ProfilesFile = clone(data);
-    const mobile = broken.profiles.find((p) => p.id === "mobile-low-cost")!;
+    const mobile = broken.profiles.find((p) => p.id === "mobile-low-cost");
+    if (!mobile) throw new Error("Missing mobile-low-cost profile");
     mobile.cpuSlowdown.testerId = "someone";
     const issues = validateDomain(broken);
     expect(issues.some((i) => i.message.includes("testerId must stay empty"))).toBe(true);
