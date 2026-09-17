@@ -5,3 +5,6 @@ export * from "./diffusion/ftcs.ts";
 export * from "./diffusion/routeA.ts";
 export * from "./diffusion/statistics.ts";
 export * from "./diffusion/tracers.ts";
+export * from "./diffusion/walkLaws.ts";
+export * from "./diffusion/walks.ts";
+export * from "./diffusion/brownianFrames.ts";
