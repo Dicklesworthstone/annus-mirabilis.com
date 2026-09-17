@@ -11,6 +11,7 @@ import { checkInferenceBrowser } from "./test-inference-browser.mjs";
 import { checkReaderBrowser } from "./test-reader-browser.mjs";
 import { checkTracerBrowser } from "./test-tracer-browser.mjs";
 import { checkWalkBrowser } from "./test-walk-browser.mjs";
+import { checkTrajectoryBrowser } from "./test-trajectory-browser.mjs";
 
 const root = resolve("out");
 const types = {
@@ -53,6 +54,7 @@ const check = (name, details = {}) => {
 };
 await mkdir("artifacts/browser", { recursive: true });
 try {
+  await checkTrajectoryBrowser(browser, url, check);
   await checkKitchenBrowser(browser, url, check);
   const noJs = await browser.newContext({
     javaScriptEnabled: false,
