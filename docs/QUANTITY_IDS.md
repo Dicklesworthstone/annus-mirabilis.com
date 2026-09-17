@@ -2,7 +2,7 @@
 
 Generated from `content/quantities/*.yaml` by `scripts/generate-quantity-ids.ts`. Do not hand-edit; run `bun scripts/generate-quantity-ids.ts` to regenerate, and `--check` in CI to confirm this file is fresh.
 
-Total: 242 quantities, 45 rejected spellings, 2 reserved spellings.
+Total: 243 quantities, 45 rejected spellings, 2 reserved spellings.
 
 ## Registered quantities
 
@@ -46,6 +46,7 @@ Total: 242 quantities, 45 rejected spellings, 2 reserved spellings.
 | configurationIntegral | Configuration integral | symbolic | not-applicable | scalar | — |
 | configurationIntegralFactor | Configuration integral factor | symbolic | not-applicable | scalar | — |
 | configurationProbability | Configuration probability | 0,0,0,0,0,0 | not-applicable | scalar | independentPointsProbability, multiplicity, statisticalProbability |
+| conversionYield | Fluorescent conversion yield | 0,0,0,0,0,0 | not-applicable | scalar | — |
 | coordinatePositionMoving | Coordinate position (moving system) | 1,0,0,0,0,0 | moving-system | vector | — |
 | coordinatePositionStationary | Coordinate position (stationary system) | 1,0,0,0,0,0 | stationary-system | vector | — |
 | coordinateTimeMoving | Coordinate time (moving system) | 0,0,1,0,0,0 | moving-system | scalar | coordinateTime |

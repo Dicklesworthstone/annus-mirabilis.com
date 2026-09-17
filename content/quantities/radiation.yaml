@@ -305,6 +305,16 @@
   frame: not-applicable
   colorRole: statistical
 
+- id: conversionYield
+  name: Fluorescent conversion yield
+  description: The dimensionless ratio of emitted fluorescent quanta to absorbed quanta.
+  dimensionStatus: declared
+  dimension: [0, 0, 0, 0, 0, 0]
+  dimensionlessKind: ratio
+  mathematicalKind: scalar
+  frame: not-applicable
+  colorRole: statistical
+
 - id: photocurrent
   name: Photocurrent
   description: The electric current of photoelectrons reaching the collector in a photoelectric circuit.
