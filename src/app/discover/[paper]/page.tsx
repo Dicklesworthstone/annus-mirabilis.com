@@ -1,5 +1,7 @@
 import type { Metadata } from "next";
 import { notFound } from "next/navigation";
+import { JourneyInPreparation } from "../../../discovery/JourneyInPreparation.tsx";
+import { JourneyPage } from "../../../discovery/JourneyPage.tsx";
 import {
   DISCOVERY_PAPER_SLUGS,
   DISCOVERY_PAPERS,
@@ -7,8 +9,6 @@ import {
   getDiscoveryJourney,
   isDiscoveryPaperSlug,
 } from "../../../discovery/journeyRegistry.ts";
-import { JourneyInPreparation } from "../../../discovery/JourneyInPreparation.tsx";
-import { JourneyPage } from "../../../discovery/JourneyPage.tsx";
 
 export const dynamicParams = false;
 

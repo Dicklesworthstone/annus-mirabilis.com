@@ -26,10 +26,11 @@
  * let a NEW uncovered glyph land silently: remove an entry once it is
  * fixed, and the test will tell you if it is still needed.
  */
+
+import { describe, expect, test } from "bun:test";
+import { readFileSync } from "node:fs";
 import { dirname, join, resolve } from "node:path";
 import { fileURLToPath } from "node:url";
-import { readFileSync } from "node:fs";
-import { describe, expect, test } from "bun:test";
 import { scanContentGlyphUsage } from "./contentGlyphUsage";
 import { loadCmap } from "./fontGlyphs";
 

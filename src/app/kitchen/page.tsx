@@ -1,11 +1,23 @@
-import "../lab/bm-07/kitchen/kitchen.css";
 import type { Metadata } from "next";
+import "../lab/bm-07/kitchen/kitchen.css";
 import {
   KITCHEN_COLUMNS,
-  KITCHEN_READER_COLUMNS,
   KITCHEN_METADATA_KEYS,
+  KITCHEN_READER_COLUMNS,
 } from "../../experiments/bm07/kitchen/schema.ts";
 export const metadata: Metadata = { title: "Observe, measure, and question Brownian motion" };
+
+const BLANK_ROW_IDS = [
+  "row-1",
+  "row-2",
+  "row-3",
+  "row-4",
+  "row-5",
+  "row-6",
+  "row-7",
+  "row-8",
+] as const;
+
 export default function KitchenGuide() {
   return (
     <div className="kitchen-guide">
@@ -137,10 +149,8 @@ export default function KitchenGuide() {
         </p>
         <details>
           <summary>Reader-filled columns and blank observation rows</summary>
-          <div
+          <section
             className="table-scroll kitchen-worksheet"
-            role="region"
-            tabIndex={0}
             aria-label="Blank observation worksheet"
           >
             <table>
@@ -157,8 +167,8 @@ export default function KitchenGuide() {
                 </tr>
               </thead>
               <tbody>
-                {Array.from({ length: 8 }, (_, i) => (
-                  <tr key={i}>
+                {BLANK_ROW_IDS.map((rowId) => (
+                  <tr key={rowId}>
                     {KITCHEN_READER_COLUMNS.map((k) => (
                       <td key={k}>________</td>
                     ))}
@@ -166,7 +176,7 @@ export default function KitchenGuide() {
                 ))}
               </tbody>
             </table>
-          </div>
+          </section>
         </details>
         <details>
           <summary>Required CSV header and metadata declaration keys</summary>
@@ -174,9 +184,7 @@ export default function KitchenGuide() {
             The complete import header includes the schema-version column. Every observation row
             starts with 2.
           </p>
-          <pre className="kitchen-schema" tabIndex={0}>
-            {KITCHEN_COLUMNS.join(",")}
-          </pre>
+          <pre className="kitchen-schema">{KITCHEN_COLUMNS.join(",")}</pre>
           <dl>
             {KITCHEN_METADATA_KEYS.map((k) => (
               <div key={k}>
