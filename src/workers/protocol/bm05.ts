@@ -193,7 +193,11 @@ export function decodeLabResponse(
         },
       ).outputs;
       for (const output of outputs) {
-        const c = BM05_OUTPUTS[output.quantityId]!;
+        const c = BM05_OUTPUTS[output.quantityId];
+        if (!c) {
+          fail(`Undeclared output quantity: ${output.quantityId}`);
+          continue;
+        }
         if (
           output.ownerId !== c.ownerId ||
           output.semanticKind !== c.semanticKind ||
