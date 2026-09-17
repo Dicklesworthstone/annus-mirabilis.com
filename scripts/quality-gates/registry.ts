@@ -228,6 +228,19 @@ export const QUALITY_GATE_STEPS: readonly GateStep[] = [
     owner: "am-gov-license-inventory-w6yz",
   },
   {
+    id: "coverage-report",
+    title: "Multi-dimensional coverage ledger report",
+    command: ["bun", "scripts/coverage-report.ts"],
+    family: "fast",
+    cadence: "every-run",
+    requiredInCi: true,
+    requiredInProfiles: ["preview", "launch"],
+    availability: {
+      scriptPath: "scripts/coverage-report.ts",
+    },
+    owner: "am-cm-coverage-ledger-0ip",
+  },
+  {
     id: "scenarios",
     title: "Scenario registry verification",
     command: ["bun", "scripts/run-scenarios.ts"],

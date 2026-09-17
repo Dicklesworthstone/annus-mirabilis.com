@@ -57,7 +57,7 @@ describe("Brownian First Encounter: No-Algebra Parity & Bridge Contract (am-bm-f
     const pedTarget = fixtureBrownianPedagogicalReconstruction.target; // "eq-bm-04-variance"
 
     assert.equal(derivationTarget, pedTarget, "Source-order and pedagogical derivations target the same equation");
-    assert.ok(record.bridge.whyUsefulHere.includes("Section 5"), "No-algebra bridge links to Section 5");
+    assert.ok(record.bridge.whyUsefulHere?.includes("Section 5"), "No-algebra bridge links to Section 5");
 
     // 2. Physical claim equivalence under both routes:
     // Route 1: No-Algebra Entrance (Discrete & Ensemble Scaling Law)
@@ -128,7 +128,7 @@ describe("Brownian First Encounter: No-Algebra Parity & Bridge Contract (am-bm-f
     // (+1,+1)->(+2, sq 4), (+1,-1)->(0, sq 0), (-1,+1)->(0, sq 0), (-1,-1)->(-2, sq 4)
     // Mean displacement = (2 + 0 + 0 - 2)/4 = 0
     // Mean square = (4 + 0 + 0 + 4)/4 = 2 (which is 1^2 + 1^2 = 2)
-    const stepCombinations = [
+    const stepCombinations: readonly (readonly [number, number])[] = [
       [1, 1],
       [1, -1],
       [-1, 1],
