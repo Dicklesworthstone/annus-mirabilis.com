@@ -57,22 +57,33 @@ export function createBm07Session(
     apply(input: unknown) {
       const checked = validateBm07Parameters(input);
       if (checked.kind !== "accepted") return checked;
-      const previous = store.getSnapshot().requested!.parameters,
-        p = checked.data;
+      const snapshot = store.getSnapshot();
+      const previous =
+        snapshot.requested?.parameters ?? snapshot.accepted?.parameters ?? example.parameters;
+      const p = checked.data;
       const groups: Record<string, Record<string, number | string | boolean>> = {
         input: {},
         measurement: {},
         estimator: {},
       };
-      for (const key of Object.keys(p) as (keyof Bm07Parameters)[])
-        if (!Object.is(p[key], previous[key])) groups[BM07_CLASSES[key]]![key] = p[key];
+      for (const key of Object.keys(p) as (keyof Bm07Parameters)[]) {
+        const cls = BM07_CLASSES[key];
+        const targetGroup = groups[cls];
+        if (targetGroup && !Object.is(p[key], previous[key])) {
+          targetGroup[key] = p[key];
+        }
+      }
       let request = null;
       for (const [group, command] of [
         ["input", "setup-change"],
         ["measurement", "measurement-change"],
         ["estimator", "estimator-change"],
-      ] as const)
-        if (Object.keys(groups[group]!).length) request = store.issue(command, groups[group]!);
+      ] as const) {
+        const groupObj = groups[group];
+        if (groupObj && Object.keys(groupObj).length) {
+          request = store.issue(command, groupObj);
+        }
+      }
       request ??= store.issue("continue");
       scheduler ??= createHostScheduler(store, workerFactory, example.sourceDigest, {
         version: BM07_PROTOCOL,
@@ -89,6 +100,7 @@ export function createBm07Session(
       scheduler?.dispose();
       scheduler = null;
     },
-    acceptedParameters: () => store.getSnapshot().accepted!.parameters as Bm07Parameters,
+    acceptedParameters: () =>
+      (store.getSnapshot().accepted?.parameters ?? example.parameters) as Bm07Parameters,
   });
 }
