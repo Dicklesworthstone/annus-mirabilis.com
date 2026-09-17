@@ -139,10 +139,12 @@ describe("Structural Compiler Rejections", () => {
     });
 
     expect(dupErrors.length).toBeGreaterThanOrEqual(1);
+    const firstDupError = dupErrors[0];
+    if (!firstDupError) throw new Error("expected duplicate error");
     expect(dupErrors.some((e) => e.recordId === "s1-p1-s1" || e.recordId === "arg-tp-01")).toBe(
       true,
     );
-    expect(dupErrors[0]!.repair).toBeDefined();
+    expect(firstDupError.repair).toBeDefined();
   });
 
   // 2. missing-source-block
@@ -460,8 +462,10 @@ describe("Structural Compiler Rejections", () => {
     });
 
     expect(citErrors.length).toBeGreaterThanOrEqual(1);
-    expect(citErrors[0]!.message).toContain("pais-1982");
-    expect(citErrors[0]!.repair).toBeDefined();
+    const firstCitError = citErrors[0];
+    if (!firstCitError) throw new Error("expected citation error");
+    expect(firstCitError.message).toContain("pais-1982");
+    expect(firstCitError.repair).toBeDefined();
   });
 
   // 5. impossible-date-order
@@ -533,7 +537,9 @@ describe("Structural Compiler Rejections", () => {
     });
 
     expect(dateErrors.length).toBeGreaterThanOrEqual(1);
-    expect(dateErrors[0]!.message).toContain("strictly after received date");
+    const firstDateError = dateErrors[0];
+    if (!firstDateError) throw new Error("expected date error");
+    expect(firstDateError.message).toContain("strictly after received date");
   });
 
   it("passes date-line 'Bern, Mai 1905' with receipt on 11 May 1905, and fails 'Bern, Juni 1905' with receipt on 11 May 1905", async () => {
@@ -794,7 +800,9 @@ describe("Structural Compiler Rejections", () => {
     });
 
     expect(eqErrors.length).toBeGreaterThanOrEqual(1);
-    expect(eqErrors[0]!.repair).toBeDefined();
+    const firstEqError = eqErrors[0];
+    if (!firstEqError) throw new Error("expected equation error");
+    expect(firstEqError.repair).toBeDefined();
   });
 
   // 7. complete-while-missing
@@ -862,7 +870,9 @@ describe("Structural Compiler Rejections", () => {
     });
 
     expect(completeErrors.length).toBeGreaterThanOrEqual(1);
-    expect(completeErrors[0]!.message).toContain("marked complete");
+    const firstCompleteError = completeErrors[0];
+    if (!firstCompleteError) throw new Error("expected complete error");
+    expect(firstCompleteError.message).toContain("marked complete");
   });
 
   // 8. hero-quote-unresolved
@@ -975,8 +985,10 @@ describe("Structural Compiler Rejections", () => {
     });
 
     expect(ledgerErrors.length).toBeGreaterThanOrEqual(1);
-    expect(ledgerErrors[0]!.message).toContain("ledger scan marker");
-    expect(ledgerErrors[0]!.repair).toContain("Remove scan page furniture");
+    const firstLedgerError = ledgerErrors[0];
+    if (!firstLedgerError) throw new Error("expected ledger error");
+    expect(firstLedgerError.message).toContain("ledger scan marker");
+    expect(firstLedgerError.repair).toContain("Remove scan page furniture");
   });
 
   // 10. span-digest-mismatch
@@ -1024,8 +1036,10 @@ describe("Structural Compiler Rejections", () => {
     );
 
     expect(digestErrors.length).toBeGreaterThanOrEqual(1);
-    expect(digestErrors[0]!.recordId).toBe("s1-p1");
-    expect(digestErrors[0]!.repair).toContain("Re-measure the spans");
+    const firstDigestError = digestErrors[0];
+    if (!firstDigestError) throw new Error("expected digest error");
+    expect(firstDigestError.recordId).toBe("s1-p1");
+    expect(firstDigestError.repair).toContain("Re-measure the spans");
 
     // Fix: Re-measure spans with true computed digest
     const newText = "Dies ist neu editierter Satz.";
