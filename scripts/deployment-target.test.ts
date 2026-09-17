@@ -23,6 +23,7 @@
 
 import { describe, expect, test } from "bun:test";
 import * as path from "node:path";
+import { fileURLToPath } from "node:url";
 import {
   assertCanonicalProjectIdentity,
   assertDeploymentReadyAndAliased,
@@ -30,6 +31,8 @@ import {
   PROMOTION_REQUIRED_DOMAINS,
   parseDeploymentInspect,
 } from "./deployment-target";
+
+const currentDir = path.dirname(fileURLToPath(import.meta.url));
 
 describe("deployment-target canonical project identity", () => {
   test("lists exactly the three annus-mirabilis hostnames", () => {
@@ -65,7 +68,7 @@ describe("deployment-target canonical project identity", () => {
     // a workspace linked to the real annus-mirabilis project still refuses
     // until am-rel-vercel-setup-ituk replaces these three constants.
     const plausibleFile = path.join(
-      import.meta.dir,
+      currentDir,
       "fixtures/deployment-target/plausible-real-project.json",
     );
     expect(() => assertCanonicalProjectIdentity(plausibleFile)).toThrow(
@@ -80,15 +83,12 @@ describe("deployment-target canonical project identity", () => {
   });
 
   test("rejects configuration linked to a mismatched project", () => {
-    const wrongFile = path.join(import.meta.dir, "fixtures/deployment-target/wrong-project.json");
+    const wrongFile = path.join(currentDir, "fixtures/deployment-target/wrong-project.json");
     expect(() => assertCanonicalProjectIdentity(wrongFile)).toThrow(/Deployment target mismatch/);
   });
 
   test("rejects corrupt JSON project file", () => {
-    const corruptFile = path.join(
-      import.meta.dir,
-      "fixtures/deployment-target/corrupt-project.txt",
-    );
+    const corruptFile = path.join(currentDir, "fixtures/deployment-target/corrupt-project.txt");
     expect(() => assertCanonicalProjectIdentity(corruptFile)).toThrow(/invalid JSON/);
   });
 });
