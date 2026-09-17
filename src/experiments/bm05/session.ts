@@ -1,7 +1,7 @@
 import { BM05_PROTOCOL, decodeLabHello, decodeLabResponse } from "../../workers/protocol/bm05.ts";
 import { createHostScheduler, type WorkerChannel } from "../../workers/scheduler/hostScheduler.ts";
 import { parseResult } from "../results/codec.ts";
-import { createInstanceStore } from "../store/instanceStore.ts";
+import { createInstanceStore, type ParameterClass } from "../store/instanceStore.ts";
 import { BM05_CLASSES, BM05_OUTPUTS, type Bm05Parameters } from "./definition.ts";
 import { validateBm05Parameters } from "./parameters.ts";
 export type PreparedBm05Example = Readonly<{
@@ -57,22 +57,34 @@ export function createBm05Session(
     apply(input: unknown) {
       const checked = validateBm05Parameters(input);
       if (checked.kind !== "accepted") return checked;
-      const previous = store.getSnapshot().requested!.parameters,
-        p = checked.data;
-      const groups: Record<string, Record<string, number | string>> = {
+      const snapshot = store.getSnapshot();
+      const previous = snapshot.requested?.parameters;
+      if (!previous) {
+        throw new Error("Missing requested parameters in snapshot.");
+      }
+      const p = checked.data;
+      const groups: Record<ParameterClass, Record<string, number | string>> = {
         input: {},
+        observer: {},
         measurement: {},
         estimator: {},
+        presentation: {},
       };
-      for (const key of Object.keys(p) as (keyof Bm05Parameters)[])
-        if (!Object.is(p[key], previous[key])) groups[BM05_CLASSES[key]]![key] = p[key];
+      for (const key of Object.keys(p) as (keyof Bm05Parameters)[]) {
+        if (!Object.is(p[key], previous[key])) {
+          const cls = BM05_CLASSES[key];
+          groups[cls][key] = p[key];
+        }
+      }
       let request = null;
       for (const [group, command] of [
         ["input", "setup-change"],
         ["measurement", "measurement-change"],
         ["estimator", "estimator-change"],
-      ] as const)
-        if (Object.keys(groups[group]!).length) request = store.issue(command, groups[group]!);
+      ] as const) {
+        const payload = groups[group];
+        if (Object.keys(payload).length) request = store.issue(command, payload);
+      }
       request ??= store.issue("continue");
       scheduler ??= createHostScheduler(store, workerFactory, example.sourceDigest, {
         version: BM05_PROTOCOL,
@@ -89,6 +101,12 @@ export function createBm05Session(
       scheduler?.dispose();
       scheduler = null;
     },
-    acceptedParameters: () => store.getSnapshot().accepted!.parameters as Bm05Parameters,
+    acceptedParameters: () => {
+      const accepted = store.getSnapshot().accepted;
+      if (!accepted) {
+        throw new Error("Missing accepted parameters in snapshot.");
+      }
+      return accepted.parameters as Bm05Parameters;
+    },
   });
 }
