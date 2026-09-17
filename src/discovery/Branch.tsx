@@ -81,8 +81,8 @@ export function Branch({ branch }: BranchProps) {
             Deductive steps ({steps.length})
           </summary>
           <ol className="list-decimal list-inside space-y-1.5 mt-2 p-3 rounded bg-stone-950/40 border border-stone-800 text-stone-300">
-            {steps.map((step, idx) => (
-              <li key={idx} className="leading-relaxed">
+            {steps.map((step) => (
+              <li key={`${id}-step-${step.presetId ?? step.text}`} className="leading-relaxed">
                 <span>{step.text}</span>
                 {step.presetId && (
                   <span className="ml-2 font-mono text-[10px] text-amber-400/80">

@@ -8,8 +8,8 @@ import {
   type ReadResult,
   readDocument,
   type StorageContext,
-  writeDocument,
   type WriteResult,
+  writeDocument,
 } from "../platform/storage/store.ts";
 
 export const JOURNEY_STORAGE_NAMESPACE = "am:journeys:v1";

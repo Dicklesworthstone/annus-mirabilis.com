@@ -50,9 +50,9 @@ export function Stage({ stage, index }: StageProps) {
         {premiseRefs && premiseRefs.length > 0 && (
           <div className="flex flex-wrap items-center gap-2 pt-1">
             <span className="font-semibold text-stone-400">Premises cited:</span>
-            {premiseRefs.map((pRef, idx) => (
+            {premiseRefs.map((pRef) => (
               <span
-                key={idx}
+                key={pRef.importId ? `import-${pRef.importId}` : `card-${pRef.cardId}`}
                 className="px-2 py-0.5 rounded bg-stone-800 text-amber-300 border border-stone-700 font-mono text-[11px]"
               >
                 {pRef.importId ? (
@@ -96,9 +96,9 @@ export function Stage({ stage, index }: StageProps) {
       {prerequisites && prerequisites.length > 0 && (
         <div className="flex flex-wrap items-center gap-2 text-xs">
           <span className="font-semibold text-stone-400">Foundations:</span>
-          {prerequisites.map((prereq, idx) => (
+          {prerequisites.map((prereq) => (
             <a
-              key={idx}
+              key={prereq}
               href={`/foundations/${prereq}/`}
               className="px-2 py-0.5 rounded bg-stone-800 hover:bg-stone-700 text-stone-300 border border-stone-700 font-mono text-[11px]"
             >
@@ -115,8 +115,11 @@ export function Stage({ stage, index }: StageProps) {
             Formal reasoning references ({reasoning.length})
           </summary>
           <ul className="space-y-1.5 mt-2 p-3 rounded bg-stone-950/40 border border-stone-800 text-stone-300">
-            {reasoning.map((r, idx) => (
-              <li key={idx} className="font-mono text-[11px]">
+            {reasoning.map((r) => (
+              <li
+                key={`${r.chainId ?? ""}-${r.stepId ?? ""}-${r.foundationId ?? ""}-${r.missingStepId ?? ""}`}
+                className="font-mono text-[11px]"
+              >
                 {r.chainId && <span>Chain: {r.chainId} </span>}
                 {r.stepId && <span>Step: {r.stepId} </span>}
                 {r.foundationId && <span>Foundation: {r.foundationId} </span>}

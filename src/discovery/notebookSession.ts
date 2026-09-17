@@ -1,12 +1,12 @@
 import {
   createImportGuard,
+  type DiscoveryNotebook,
   decodeNotebook,
   emptyNotebook,
   encodeNotebook,
+  type NoteManifest,
   recordObservation,
   recordPrediction,
-  type DiscoveryNotebook,
-  type NoteManifest,
 } from "./notebook.ts";
 
 /** The adapter delegates to platform/storage. The session owns notes, never browser key spelling. */

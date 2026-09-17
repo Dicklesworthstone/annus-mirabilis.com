@@ -22,8 +22,8 @@ export function SupportLadder({ support }: SupportLadderProps) {
           <p className="font-medium text-sm text-stone-100 mb-2">{workedExample.prompt}</p>
           {workedExample.steps.length > 0 && (
             <ol className="list-decimal list-inside space-y-1 text-xs text-stone-300 mb-2">
-              {workedExample.steps.map((step, idx) => (
-                <li key={idx}>{step}</li>
+              {workedExample.steps.map((step) => (
+                <li key={step}>{step}</li>
               ))}
             </ol>
           )}
@@ -67,9 +67,9 @@ export function SupportLadder({ support }: SupportLadderProps) {
           <p className="font-medium text-sm text-stone-100 mb-2">{prediction.prompt}</p>
           {prediction.choices && prediction.choices.length > 0 && (
             <ul className="space-y-1.5 mb-3 text-xs">
-              {prediction.choices.map((choice, idx) => (
+              {prediction.choices.map((choice) => (
                 <li
-                  key={idx}
+                  key={choice}
                   className="px-3 py-1.5 rounded bg-stone-900/60 border border-stone-700/60 text-stone-200"
                 >
                   {choice}

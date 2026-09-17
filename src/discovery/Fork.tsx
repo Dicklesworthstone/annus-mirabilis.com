@@ -1,4 +1,4 @@
-import { type Fork as ForkType, FORK_VARIES_EXPLANATIONS } from "../content/schemas/journey.ts";
+import { FORK_VARIES_EXPLANATIONS, type Fork as ForkType } from "../content/schemas/journey.ts";
 import { Branch } from "./Branch.tsx";
 
 export interface ForkProps {

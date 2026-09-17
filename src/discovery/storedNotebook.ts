@@ -1,9 +1,9 @@
 import { DISCOVERY_NOTE_KEYS } from "../platform/storage/keys.ts";
 import {
+  type CreateStorageContextOptions,
   createStorageContext,
   readRaw,
   writeRaw,
-  type CreateStorageContextOptions,
 } from "../platform/storage/store.ts";
 import type { NoteManifest } from "./notebook.ts";
 import { createNotebookSession } from "./notebookSession.ts";

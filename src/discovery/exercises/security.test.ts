@@ -1,7 +1,7 @@
+import { describe, expect, test } from "bun:test";
 import { readdirSync, readFileSync } from "node:fs";
 import { dirname, join } from "node:path";
 import { fileURLToPath } from "node:url";
-import { describe, expect, test } from "bun:test";
 import { checkExerciseAnswer, type ExpressionExercisePart } from "./answer.ts";
 import { globalExerciseCheckerLogger } from "./exerciseCheckerLogger.ts";
 import { parse } from "./grammar.ts";

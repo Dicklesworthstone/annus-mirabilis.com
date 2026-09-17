@@ -54,8 +54,11 @@ export function JourneyPage({ journey }: JourneyPageProps) {
               Draft Journey · Pending Elements Declared
             </span>
             <ul className="space-y-1 text-stone-300">
-              {pendingElements.map((pe, idx) => (
-                <li key={idx} className="flex flex-wrap items-baseline gap-2">
+              {pendingElements.map((pe) => (
+                <li
+                  key={`${pe.ownerBead}-${pe.element}`}
+                  className="flex flex-wrap items-baseline gap-2"
+                >
                   <span className="font-mono text-amber-400 font-semibold">{pe.element}:</span>
                   <span>{pe.reason}</span>
                   <span className="text-stone-500 font-mono text-[11px]">({pe.ownerBead})</span>
