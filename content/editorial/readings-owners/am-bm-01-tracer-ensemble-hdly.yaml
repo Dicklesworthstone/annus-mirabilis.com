@@ -1,0 +1,8 @@
+beadId: am-bm-01-tracer-ensemble-hdly
+targets:
+  - instrument: bm-01
+    captions:
+      - r0
+      - r1
+      - r2
+      - r3

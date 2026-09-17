@@ -5,6 +5,8 @@ import {
   TRACE_POINTS,
 } from "../../experiments/bm01/definition.ts";
 import type { AcceptedSnapshot } from "../../experiments/store/instanceStore.ts";
+import { ScaleBar } from "../../visuals/kit/ScaleBar.tsx";
+import type { RepresentationScale } from "../../visuals/kit/types.ts";
 import { array, display, identity, scalar } from "./presentation.ts";
 
 export function TracerPaths({ snapshot, zoom }: { snapshot: AcceptedSnapshot; zoom: number }) {
@@ -14,12 +16,19 @@ export function TracerPaths({ snapshot, zoom }: { snapshot: AcceptedSnapshot; zo
     positions = array(snapshot, "tracerPositions");
   const halfWidth = 5e-6 / zoom,
     coord = (x: number) => 150 + (x / halfWidth) * 125;
+  const representationScale: RepresentationScale = {
+    spatialMagnification: { appliesTo: "scene", factor: zoom },
+    simulatedElapsedTime: { quantityId: "elapsedTime", value: p.interval, unit: "s" },
+    playbackMultiplier: 1,
+    glyphSize: { drawnPx: 3, represents: "none" },
+    quantityNormalization: { kind: "none" },
+  };
   let outside = 0;
   for (let i = 0; i < p.M; i++)
     if (Math.abs(positions.at(i * 3)) > halfWidth || Math.abs(positions.at(i * 3 + 1)) > halfWidth)
       outside++;
   return (
-    <figure className="plot" {...identity(snapshot)} data-result-status="value">
+    <figure className="plot" {...identity(snapshot)} data-result-status="value" data-scale-bar="1um">
       <svg
         viewBox="0 0 300 300"
         role="img"
@@ -43,6 +52,14 @@ export function TracerPaths({ snapshot, zoom }: { snapshot: AcceptedSnapshot; zo
           })}
         </g>
         <circle cx="150" cy="150" r="3" />
+        <ScaleBar
+          scale={representationScale}
+          physicalLength={1}
+          unit="μm"
+          basePixelsPerUnit={25}
+          x={35}
+          y={260}
+        />
         <text x="25" y="293">
           −{display(halfWidth, 1e6)} μm
         </text>

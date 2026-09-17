@@ -20,6 +20,8 @@ import { labelRootAttributes } from "../../experiments/labels/resultAttributes.t
 import { deriveHostExecution } from "../../experiments/provenance/executionState.ts";
 import type { AcceptedSnapshot } from "../../experiments/store/instanceStore.ts";
 import equationPayload from "../../generated/brownian-equations.json";
+import { TimeLegend } from "../../visuals/kit/TimeLegend.tsx";
+import type { RepresentationScale } from "../../visuals/kit/types.ts";
 import { array, display, identity, result, scalar } from "./presentation.ts";
 import { ShowTheCode } from "./ShowTheCode.tsx";
 import { PLOT_KINDS, TracerHistogram, TracerPaths, TracerScaling } from "./TracerPlots.tsx";
@@ -411,6 +413,25 @@ export function TracerLab({
               2019.
             </p>
             <TracerPaths snapshot={snapshot} zoom={zoom} />
+            <div className="real-rate-card" data-real-rate-card="true">
+              <div className="rate-indicators">
+                <TimeLegend
+                  scale={{
+                    spatialMagnification: { appliesTo: "scene", factor: zoom },
+                    simulatedElapsedTime: { quantityId: "interval", value: p.interval, unit: "s" },
+                    playbackMultiplier: 1,
+                    glyphSize: { drawnPx: 3, represents: "none" },
+                    quantityNormalization: { kind: "none" },
+                  }}
+                />
+                <span className="rate-annotation" data-rate-mode="natural">
+                  Natural rate: ~0.8 μm per second Brownian walk (scale bar: 1 μm)
+                </span>
+                <span className="rate-comparison fine" data-rate-mode="sped-up">
+                  Simulation view: accelerated snapshot across {p.H} s
+                </span>
+              </div>
+            </div>
             <div className="actions">
               <button
                 className="secondary"
