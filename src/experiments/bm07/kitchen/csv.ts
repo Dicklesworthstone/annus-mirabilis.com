@@ -40,7 +40,8 @@ function rows(text: string, firstLine: number): { cells: string[]; line: number 
     start = line + 1;
   }
   for (let i = 0; i < text.length; i++) {
-    const c = text[i]!;
+    const c = text[i];
+    if (c === undefined) break;
     if (quoted) {
       if (c === '"') {
         if (text[i + 1] === '"') {
@@ -158,7 +159,8 @@ export function parseKitchenCsv(text: string): KitchenDocument {
       ].some((k) => Object.hasOwn(metadata, k))
     )
       throw new KitchenInputError(0, "calibration", "do not mix deprecated and per-axis scales.");
-    metadata.pixels_per_um_x = metadata.pixels_per_um_y = metadata.pixels_per_um!;
+    const deprecatedScale = metadata.pixels_per_um ?? "";
+    metadata.pixels_per_um_x = metadata.pixels_per_um_y = deprecatedScale;
     metadata.pixels_per_um_x_uncertainty = metadata.pixels_per_um_y_uncertainty =
       metadata.pixels_per_um_uncertainty ?? "";
     metadata.calibration_axes = "both";
@@ -198,38 +200,47 @@ export function parseKitchenCsv(text: string): KitchenDocument {
   for (const { cells: c, line } of parsed) {
     if (c.length !== KITCHEN_COLUMNS.length)
       throw new KitchenInputError(line, "columns", "every row must have exactly twelve cells.");
-    if (c[0] !== KITCHEN_SCHEMA_VERSION)
+    const [
+      c0 = "",
+      c1 = "",
+      c2 = "",
+      c3 = "",
+      c4 = "",
+      c5 = "",
+      c6 = "",
+      c7 = "",
+      c8 = "",
+      c9 = "",
+      c10 = "",
+      c11 = "",
+    ] = c;
+    if (c0 !== KITCHEN_SCHEMA_VERSION)
       throw new KitchenInputError(
         line,
         "schema_version",
         `this importer reads schema ${KITCHEN_SCHEMA_VERSION}.`,
       );
-    const kind = choice(c[1]!, ["particle", "stationary", "calibration"] as const, "kind", line);
-    const objectId = safeText(c[2]!, "object_id", line, 80),
-      calibrationId = safeText(c[10]!, "calibration_id", line, 80);
+    const kind = choice(c1, ["particle", "stationary", "calibration"] as const, "kind", line);
+    const objectId = safeText(c2, "object_id", line, 80),
+      calibrationId = safeText(c10, "calibration_id", line, 80);
     if (!objectId.trim() || !calibrationId.trim())
       throw new KitchenInputError(
         line,
         "identity",
         "object_id and calibration_id must not be empty.",
       );
-    const time = kitchenNumber(c[3]!, "frame_time_s", line);
+    const time = kitchenNumber(c3, "frame_time_s", line);
     if (time < 0 || time > KITCHEN_LIMITS.duration)
       throw new KitchenInputError(line, "frame_time_s", "use actual times from 0 to 600 seconds.");
     const status = choice<PointStatus>(
-      c[8]!,
+      c8,
       ["measured", "interpolated", "excluded", "lost"],
       "point_status",
       line,
     );
-    const lossReason = choice(
-      c[7]!,
-      ["", "edge", "focus", "occluded"] as const,
-      "loss_reason",
-      line,
-    );
-    const exclusionReason = safeText(c[9]!, "exclusion_reason", line);
-    if (c[6] !== (status === "lost" ? "1" : "0") || (status === "lost") !== (lossReason !== ""))
+    const lossReason = choice(c7, ["", "edge", "focus", "occluded"] as const, "loss_reason", line);
+    const exclusionReason = safeText(c9, "exclusion_reason", line);
+    if (c6 !== (status === "lost" ? "1" : "0") || (status === "lost") !== (lossReason !== ""))
       throw new KitchenInputError(line, "lost", "lost, point_status and loss_reason must agree.");
     if ((status === "excluded") !== !!exclusionReason.trim())
       throw new KitchenInputError(
@@ -248,10 +259,10 @@ export function parseKitchenCsv(text: string): KitchenDocument {
         );
       return n;
     };
-    const x = coordinate(c[4]!, "x_px"),
-      y = coordinate(c[5]!, "y_px");
+    const x = coordinate(c4, "x_px"),
+      y = coordinate(c5, "y_px");
     const identityDecision = choice(
-      c[11]!,
+      c11,
       ["", "reacquired-same", "new-object"] as const,
       "identity_decision",
       line,
