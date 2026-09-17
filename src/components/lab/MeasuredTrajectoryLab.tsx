@@ -217,8 +217,12 @@ export function MeasuredTrajectoryLab() {
       <form onSubmit={submit} noValidate>
         <fieldset disabled={!ready}>
           <legend>1 · Supply positions, not overlapping displacements</legend>
-          <label htmlFor={`${id}-file`}>
-            Local CSV file (maximum 256 KiB)
+          {/* Controls are siblings of their labels, never children. A control nested
+              inside its label contributes its own value to the label's accessible name,
+              so once this textarea held CSV the field announced "Or paste CSV text"
+              followed by the pasted data. htmlFor/id keeps the association. */}
+          <div className="input-field">
+            <label htmlFor={`${id}-file`}>Local CSV file (maximum 256 KiB)</label>
             <input
               ref={fileInput}
               id={`${id}-file`}
@@ -226,9 +230,9 @@ export function MeasuredTrajectoryLab() {
               accept=".csv,text/csv,text/plain"
               onChange={load}
             />
-          </label>
-          <label htmlFor={`${id}-csv`}>
-            Or paste CSV text
+          </div>
+          <div className="input-field">
+            <label htmlFor={`${id}-csv`}>Or paste CSV text</label>
             <textarea
               id={`${id}-csv`}
               rows={7}
@@ -243,7 +247,7 @@ export function MeasuredTrajectoryLab() {
                 setSource("Pasted CSV");
               }}
             />
-          </label>
+          </div>
           <p id={`${id}-format`} className="fine">
             Required columns: <code>time,x</code>. Optional:
             <code> y,z,track</code>; z requires y. Use decimal numbers and elapsed timestamps.
@@ -253,8 +257,12 @@ export function MeasuredTrajectoryLab() {
             metres selected; conflicting units are rejected.
           </p>
           <div className="input-grid">
-            <label htmlFor={`${id}-timeUnit`}>
-              Time unit
+            {/* The select is a sibling of its label, not a child. Nesting it made the
+                control's accessible name include every option text, so a screen reader
+                announced "Time unit Choose explicitly Seconds Milliseconds" as the field
+                name. htmlFor/id keeps the association. */}
+            <div className="input-field">
+              <label htmlFor={`${id}-timeUnit`}>Time unit</label>
               <select
                 id={`${id}-timeUnit`}
                 value={draft.timeUnit}
@@ -266,9 +274,9 @@ export function MeasuredTrajectoryLab() {
                 <option value="s">Seconds</option>
                 <option value="ms">Milliseconds</option>
               </select>
-            </label>
-            <label htmlFor={`${id}-positionUnit`}>
-              Position unit
+            </div>
+            <div className="input-field">
+              <label htmlFor={`${id}-positionUnit`}>Position unit</label>
               <select
                 id={`${id}-positionUnit`}
                 value={draft.positionUnit}
@@ -282,7 +290,7 @@ export function MeasuredTrajectoryLab() {
                 <option value="nm">Nanometres</option>
                 <option value="px">Pixels</option>
               </select>
-            </label>
+            </div>
             {draft.positionUnit === "px" &&
               numberField("micrometresPerPixel", "Independent calibration (μm per pixel)")}
           </div>
@@ -321,8 +329,10 @@ export function MeasuredTrajectoryLab() {
               "Position-localization standard deviation (nm; blank = unknown)",
             )}
             {numberField("exposureMilliseconds", "Camera exposure (ms; blank = unknown)")}
-            <label htmlFor={`${id}-censored`}>
-              Were observations selected, censored or motion-filtered?
+            <div className="input-field">
+              <label htmlFor={`${id}-censored`}>
+                Were observations selected, censored or motion-filtered?
+              </label>
               <select
                 id={`${id}-censored`}
                 value={draft.censored}
@@ -334,9 +344,9 @@ export function MeasuredTrajectoryLab() {
                 <option value="yes">Yes</option>
                 <option value="no">No</option>
               </select>
-            </label>
-            <label htmlFor={`${id}-estimator`}>
-              Estimator
+            </div>
+            <div className="input-field">
+              <label htmlFor={`${id}-estimator`}>Estimator</label>
               <select
                 id={`${id}-estimator`}
                 value={draft.estimator}
@@ -350,7 +360,7 @@ export function MeasuredTrajectoryLab() {
                   </option>
                 ))}
               </select>
-            </label>
+            </div>
             {numberField("coveragePercent", "Conditional interval coverage (50–99.9%)")}
           </div>
         </fieldset>
