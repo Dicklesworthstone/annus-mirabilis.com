@@ -770,6 +770,20 @@ export function checkReceipt(
           "transcription.ledgerStatus",
           "ledgerStatus: reviewed requires a German source review acceptance record in the editorial acceptance section.",
         );
+      } else {
+        // AGENTS.md treats reviewer identity as a human gate: acceptance is recorded with
+        // reviewer names and a date, never a bare trigger word a generator could emit on its
+        // own. "accepted" alone (with no "by <name>" and no date) satisfies hasGermanReviewRecord
+        // above but names no human and no when, so it fails here on its own separate rule.
+        const hasReviewerName = /\bby\s+\S{2,}/i.test(acceptance);
+        const hasIsoDate = /\b\d{4}-\d{2}-\d{2}\b/.test(acceptance);
+        if (!hasReviewerName || !hasIsoDate) {
+          addError(
+            "receipt-reviewed-acceptance-unsigned",
+            "transcription.ledgerStatus",
+            'ledgerStatus: reviewed requires the editorial acceptance section to name the reviewer ("... by <name> ...") and an ISO date (YYYY-MM-DD); machinery may not sign its own acceptance.',
+          );
+        }
       }
 
       // Check watchlist: no items can be pending

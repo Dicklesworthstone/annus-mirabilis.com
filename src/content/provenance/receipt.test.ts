@@ -123,6 +123,8 @@ const errorTestCases = [
   { file: "err-unbalanced-markers.md", rule: "receipt-generated-markers" },
   { file: "err-reviewed-no-acceptance.md", rule: "receipt-reviewed-no-acceptance" },
   { file: "err-reviewed-pending-watchlist.md", rule: "receipt-reviewed-pending-watchlist" },
+  { file: "err-reviewed-acceptance-unsigned.md", rule: "receipt-reviewed-acceptance-unsigned" },
+  { file: "err-scan-sha256-missing.md", rule: "receipt-scan-sha256-invalid" },
   { file: "err-ledger-pdf-sha-mismatch.md", rule: "receipt-ledger-source-pdf-sha256-mismatch" },
   { file: "err-typo-no-evidence.md", rule: "receipt-typo-no-evidence" },
   { file: "err-tool-run-id-invalid.md", rule: "receipt-tool-run-id-invalid" },
@@ -130,6 +132,8 @@ const errorTestCases = [
   { file: "err-fifth-reuse-terms.md", rule: "receipt-reuse-terms-invalid" },
   { file: "err-local-only-named-license.md", rule: "receipt-nonpublish-no-reuse" },
   { file: "err-pd-image-no-credit.md", rule: "receipt-image-credit-required" },
+  { file: "err-pin-local-path-invalid.md", rule: "receipt-pin-local-path" },
+  { file: "err-named-license-no-source.md", rule: "receipt-named-license-source-required" },
 ];
 
 for (const tc of errorTestCases) {
@@ -228,6 +232,36 @@ test("The SAME local file, with scan.sha256 set to its real digest, passes -- pr
   assert.equal(result.ok, true, `Expected ok=true, got errors: ${JSON.stringify(result.errors)}`);
   assert.equal(
     result.errors.some((e) => e.rule === "receipt-local-file-digest-mismatch"),
+    false,
+  );
+});
+
+// AGENTS.md treats reviewer identity as a human gate: acceptance is recorded with reviewer names,
+// never signed by the machinery itself. "accepted." alone satisfies the old trigger-word check but
+// names no human and no when; naming a reviewer and an ISO date is what makes it a human signature
+// rather than a confident-looking record (am-src-receipt-format-npo5).
+test("A reviewed receipt whose acceptance section names no reviewer and no date refuses (paired with err-reviewed-acceptance-unsigned.md above)", () => {
+  const filePath = path.join(FIXTURES_DIR, "err-reviewed-acceptance-unsigned.md");
+  const content = fs.readFileSync(filePath, "utf8");
+  const result = checkReceipt(content, filePath);
+  assert.equal(result.ok, false);
+  assert.equal(
+    result.errors.some((e) => e.rule === "receipt-reviewed-acceptance-unsigned"),
+    true,
+  );
+});
+
+test("The SAME reviewed receipt, with the acceptance section naming a reviewer and an ISO date, passes cleanly", () => {
+  const filePath = path.join(FIXTURES_DIR, "valid-reviewed-with-acceptance.md");
+  const content = fs.readFileSync(filePath, "utf8");
+  const result = checkReceipt(content, filePath);
+  assert.equal(result.ok, true, `Expected ok=true, got errors: ${JSON.stringify(result.errors)}`);
+  assert.equal(
+    result.errors.some((e) => e.rule === "receipt-reviewed-acceptance-unsigned"),
+    false,
+  );
+  assert.equal(
+    result.errors.some((e) => e.rule === "receipt-reviewed-no-acceptance"),
     false,
   );
 });
