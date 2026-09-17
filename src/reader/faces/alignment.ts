@@ -1,9 +1,4 @@
-import type {
-  Alignment,
-  AlignmentEdge,
-  SourceBlock,
-  TranslationUnit,
-} from "../../content/schemas/source.ts";
+import type { Alignment, SourceBlock, TranslationUnit } from "../../content/schemas/source.ts";
 
 export interface AlignmentIndex {
   readonly sourceToTarget: ReadonlyMap<string, readonly string[]>;
@@ -29,21 +24,31 @@ export function buildAlignmentIndex(
       const tgtId = edge.target.translationUnitId;
 
       if (srcId && tgtId) {
-        if (!sourceToTarget.has(srcId)) sourceToTarget.set(srcId, new Set());
-        sourceToTarget.get(srcId)!.add(tgtId);
+        let targets = sourceToTarget.get(srcId);
+        if (!targets) {
+          targets = new Set();
+          sourceToTarget.set(srcId, targets);
+        }
+        targets.add(tgtId);
 
         // Also index by blockId if sentenceId was used
         if (edge.source.sentenceId && edge.source.blockId) {
-          if (!sourceToTarget.has(edge.source.blockId)) {
-            sourceToTarget.set(edge.source.blockId, new Set());
+          let blockTargets = sourceToTarget.get(edge.source.blockId);
+          if (!blockTargets) {
+            blockTargets = new Set();
+            sourceToTarget.set(edge.source.blockId, blockTargets);
           }
-          sourceToTarget.get(edge.source.blockId)!.add(tgtId);
+          blockTargets.add(tgtId);
         }
 
-        if (!targetToSource.has(tgtId)) targetToSource.set(tgtId, new Set());
-        targetToSource.get(tgtId)!.add(srcId);
+        let sources = targetToSource.get(tgtId);
+        if (!sources) {
+          sources = new Set();
+          targetToSource.set(tgtId, sources);
+        }
+        sources.add(srcId);
         if (edge.source.sentenceId && edge.source.blockId) {
-          targetToSource.get(tgtId)!.add(edge.source.blockId);
+          sources.add(edge.source.blockId);
         }
       }
     }
@@ -117,7 +122,7 @@ export function isSourceAlignedToTarget(
   targetId: string,
 ): boolean {
   const targets = index.sourceToTarget.get(sourceId);
-  return targets !== undefined && targets.includes(targetId);
+  return targets?.includes(targetId) ?? false;
 }
 
 export function getSentenceIndex(index: AlignmentIndex, sentenceId: string): number {
