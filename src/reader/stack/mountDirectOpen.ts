@@ -14,6 +14,7 @@
  */
 import { createElement } from "react";
 import { createRoot, type Root } from "react-dom/client";
+import { flushSync } from "react-dom";
 import { Compass } from "./Compass.tsx";
 import { resolveOpenParam } from "./history.ts";
 import type { StackFrame } from "./stackStore.ts";
@@ -90,18 +91,25 @@ export function openFromSearch(doc: Document, search: string): boolean {
   };
 
   activeRoot?.unmount();
-  activeRoot = createRoot(mount);
-  activeRoot.render(
-    createElement(
-      "div",
-      null,
-      createElement(Compass, { frame, onReturn: () => closeDirectOpenDialog(doc) }),
-      resolved.definition.render({
-        parsed: resolved.parsedId,
-        instanceId: `${resolved.kind}:${resolved.rawId}`,
-      }),
-    ),
-  );
+  const root = createRoot(mount);
+  activeRoot = root;
+  // Synchronous commit, not the default concurrent scheduling: a reader following a direct link
+  // must see the dialog's real content the instant it opens, never an empty flash, and tests
+  // that call this from inside another component's effect need the nested root fully settled
+  // before they can assert on it.
+  flushSync(() => {
+    root.render(
+      createElement(
+        "div",
+        null,
+        createElement(Compass, { frame, onReturn: () => closeDirectOpenDialog(doc) }),
+        resolved.definition.render({
+          parsed: resolved.parsedId,
+          instanceId: `${resolved.kind}:${resolved.rawId}`,
+        }),
+      ),
+    );
+  });
   if (!dialog.open) dialog.showModal();
   return true;
 }
