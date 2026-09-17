@@ -330,9 +330,16 @@ export function detectEmbeddedTextLayer(
     const pageObjects: Array<{ id: number; content: string }> = [];
 
     for (let match = pageObjRegex.exec(text); match !== null; match = pageObjRegex.exec(text)) {
-      const dict = match[3];
+      const [whole, idText, , dict] = match;
+      // The pattern always captures these; a match without them means the scan and
+      // the pattern have drifted apart, which is a parse failure, not a page to skip.
+      if (idText === undefined || dict === undefined)
+        throw new FacsimileError(
+          "PDF_PARSE_FAILED",
+          "A PDF object matched without its id or dictionary.",
+        );
       if (/\/Type\s*\/Page\b/.test(dict) && !/\/Type\s*\/Pages\b/.test(dict)) {
-        pageObjects.push({ id: Number.parseInt(match[1], 10), content: match[0] });
+        pageObjects.push({ id: Number.parseInt(idText, 10), content: whole });
       }
     }
 
@@ -370,8 +377,11 @@ export function extractArticle(
   const pageObjIds: number[] = [];
 
   for (let match = objRegex.exec(text); match !== null; match = objRegex.exec(text)) {
-    const id = Number.parseInt(match[1], 10);
-    const body = match[3].trim();
+    const [, idText, , rawBody] = match;
+    if (idText === undefined || rawBody === undefined)
+      throw new FacsimileError("PDF_PARSE_FAILED", "A PDF object matched without its id or body.");
+    const id = Number.parseInt(idText, 10);
+    const body = rawBody.trim();
     objects.set(id, body);
     if (/\/Type\s*\/Page\b/.test(body) && !/\/Type\s*\/Pages\b/.test(body)) {
       pageObjIds.push(id);
@@ -400,7 +410,10 @@ export function extractArticle(
       refMatch !== null;
       refMatch = refRegex.exec(objText)
     ) {
-      const refId = Number.parseInt(refMatch[1], 10);
+      const refIdText = refMatch[1];
+      if (refIdText === undefined)
+        throw new FacsimileError("PDF_PARSE_FAILED", "An object reference matched without its id.");
+      const refId = Number.parseInt(refIdText, 10);
       const targetBody = objects.get(refId);
       if (!collectedIds.has(refId) && targetBody !== undefined) {
         // Skip Catalog and Pages tree objects
@@ -519,9 +532,9 @@ export function extractArticle(
   const offsets: number[] = [0];
   let currentOffset = Buffer.byteLength(header, "utf8");
 
-  for (let i = 0; i < newObjects.length; i++) {
+  for (const object of newObjects) {
     offsets.push(currentOffset);
-    const objStr = `${newObjects[i].id} 0 obj\n${newObjects[i].body}\nendobj\n`;
+    const objStr = `${object.id} 0 obj\n${object.body}\nendobj\n`;
     bodyStr += objStr;
     currentOffset += Buffer.byteLength(objStr, "utf8");
   }
@@ -1023,11 +1036,14 @@ export async function main(): Promise<void> {
   // 3. --restore mode
   if (args.includes("--restore")) {
     const keyIdx = args.indexOf("--key");
-    if (keyIdx === -1 || !args[keyIdx + 1]) {
+    const key = args[keyIdx + 1];
+    // Bind first, then check the binding: the truthiness test on args[...] does not
+    // narrow a later indexed read, which is the whole of this file's TS2345 cluster.
+    // process.exit returns never, so `key` is a string below, exactly as before.
+    if (keyIdx === -1 || key === undefined || key === "") {
       console.error("--restore requires --key <key>");
       process.exit(1);
     }
-    const key = args[keyIdx + 1];
     try {
       const res = await restorePin(key, { configDir });
       console.log(`Restored pin for ${key}: ${res.sha256}`);
@@ -1041,15 +1057,16 @@ export async function main(): Promise<void> {
 
   // 4. Download and pin mode
   const keyIdx = args.indexOf("--key");
-  if (keyIdx === -1 || !args[keyIdx + 1]) {
+  const key = args[keyIdx + 1];
+  if (keyIdx === -1 || key === undefined || key === "") {
     console.error("Missing required --key or mode flag (--check-config, --verify, --restore)");
     process.exit(1);
   }
-  const key = args[keyIdx + 1];
   let candidateIndex = 0;
   const candIdx = args.indexOf("--candidate");
-  if (candIdx !== -1 && args[candIdx + 1]) {
-    candidateIndex = Number.parseInt(args[candIdx + 1], 10);
+  const candidateText = args[candIdx + 1];
+  if (candIdx !== -1 && candidateText !== undefined && candidateText !== "") {
+    candidateIndex = Number.parseInt(candidateText, 10);
   }
   const dryRun = args.includes("--dry-run");
 
