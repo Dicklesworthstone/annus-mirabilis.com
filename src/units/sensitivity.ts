@@ -3,7 +3,7 @@
  * (am-ver-precision-display-5e5)
  */
 
-import { formatCleanNumber, type FormatNumberOptions, formatSignificantFigures } from "./format.ts";
+import { type FormatNumberOptions, formatCleanNumber, formatSignificantFigures } from "./format.ts";
 
 const LENGTH_SCALE_TO_METRES: Readonly<Record<string, number>> = {
   m: 1,
@@ -38,21 +38,21 @@ export function convertSensitivity(
   if (fromUnitX === toUnitX) return sensitivity;
 
   // Length conversion
-  if (LENGTH_SCALE_TO_METRES[fromUnitX] && LENGTH_SCALE_TO_METRES[toUnitX]) {
-    const scaleFrom = LENGTH_SCALE_TO_METRES[fromUnitX]!;
-    const scaleTo = LENGTH_SCALE_TO_METRES[toUnitX]!;
+  const scaleFromLength = LENGTH_SCALE_TO_METRES[fromUnitX];
+  const scaleToLength = LENGTH_SCALE_TO_METRES[toUnitX];
+  if (scaleFromLength !== undefined && scaleToLength !== undefined) {
     // If x_from is in m and x_to is in μm, 1 μm = 1e-6 m.
     // dy/d(μm) = dy/d(m) * 1e-6.
-    return sensitivity * (scaleTo / scaleFrom);
+    return sensitivity * (scaleToLength / scaleFromLength);
   }
 
   // Time conversion
-  if (TIME_SCALE_TO_SECONDS[fromUnitX] && TIME_SCALE_TO_SECONDS[toUnitX]) {
-    const scaleFrom = TIME_SCALE_TO_SECONDS[fromUnitX]!;
-    const scaleTo = TIME_SCALE_TO_SECONDS[toUnitX]!;
+  const scaleFromTime = TIME_SCALE_TO_SECONDS[fromUnitX];
+  const scaleToTime = TIME_SCALE_TO_SECONDS[toUnitX];
+  if (scaleFromTime !== undefined && scaleToTime !== undefined) {
     // If t_from is in s and t_to is in ms, 1 ms = 1e-3 s.
     // dy/d(ms) = dy/d(s) * 1e-3.
-    return sensitivity * (scaleTo / scaleFrom);
+    return sensitivity * (scaleToTime / scaleFromTime);
   }
 
   throw new Error(`Unsupported sensitivity unit conversion from "${fromUnitX}" to "${toUnitX}"`);
