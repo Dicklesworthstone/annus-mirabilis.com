@@ -120,6 +120,40 @@ describe("CorrectionGraph", () => {
     assert.equal(graph.getNode("s1-p1")?.revision, 1);
   });
 
+  it("asymmetry: an instrument or visual change does not mark source or translation reviews stale", () => {
+    const graph = new CorrectionGraph();
+
+    graph.addNode({
+      id: "s1-p1",
+      type: "source-block",
+      layer: "source",
+      revision: 1,
+    });
+
+    graph.addNode({
+      id: "s1-p1-tr",
+      type: "translation-unit",
+      layer: "translation",
+      revision: 1,
+      dependencies: ["s1-p1"],
+    });
+
+    graph.addNode({
+      id: "bm-01",
+      type: "instrument",
+      layer: "instrument",
+      revision: 1,
+      dependencies: ["s1-p1-tr"],
+    });
+
+    // Correct instrument bm-01
+    const report = graph.recordCorrection("bm-01", 2, "instrument");
+
+    assert.equal(report.staleNodeIds.includes("s1-p1"), false);
+    assert.equal(report.staleNodeIds.includes("s1-p1-tr"), false);
+    assert.equal(report.staleReviewTypes.includes("german-source"), false);
+  });
+
   it("planted negative: correcting an unknown node fails", () => {
     const graph = new CorrectionGraph();
     assert.throws(
