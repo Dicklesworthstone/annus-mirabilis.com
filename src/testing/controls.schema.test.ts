@@ -1,7 +1,6 @@
 import { describe, expect, test } from "bun:test";
-import React, { createElement } from "react";
+import { createElement } from "react";
 import { renderToString } from "react-dom/server";
-import type { ParameterSpec } from "../content/schemas/experiment.ts";
 import { ControlsPanel } from "../experiments/controls/ControlsPanel.tsx";
 import { ParameterControl } from "../experiments/controls/ParameterControl.tsx";
 import { FIXTURE_PARAMETER_SPECS } from "./e2e/fixture-apps/controls-kit/index.ts";
@@ -40,7 +39,9 @@ describe("Parameter Controls Schema & Component Generation (am-inst-parameter-co
   });
 
   test("derived parameters are strictly read-only and display owner value", () => {
-    const derivedSpec = FIXTURE_PARAMETER_SPECS.find((s) => s.id === "D")!;
+    const derivedSpec = FIXTURE_PARAMETER_SPECS.find((s) => s.id === "D");
+    expect(derivedSpec).toBeDefined();
+    if (!derivedSpec) throw new Error("Missing parameter spec D");
     expect(derivedSpec.role).toBe("derived");
 
     const html = renderToString(
@@ -85,7 +86,9 @@ describe("Parameter Controls Schema & Component Generation (am-inst-parameter-co
   });
 
   test("a value beyond visual range but inside model domain is marked beyond-track", () => {
-    const tSpec = FIXTURE_PARAMETER_SPECS.find((s) => s.id === "T")!;
+    const tSpec = FIXTURE_PARAMETER_SPECS.find((s) => s.id === "T");
+    expect(tSpec).toBeDefined();
+    if (!tSpec) throw new Error("Missing parameter spec T");
     // Visual range: [273, 330], Model domain: [270, 350]
     // Value 340 is inside model domain but outside visual range
     const html = renderToString(
