@@ -72,19 +72,28 @@ describe("SR-02 instrument contract", () => {
 
   test("an observer change keeps the run identity", () => {
     const session = createSr02Session();
-    const before = session.getSnapshot().accepted!.runId;
+    const beforeAccepted = session.getSnapshot().accepted;
+    expect(beforeAccepted).toBeDefined();
+    if (!beforeAccepted) throw new Error("Expected initial accepted snapshot");
+    const before = beforeAccepted.runId;
     const applied = session.apply({
       ...session.acceptedParameters(),
       descriptionFrame: "conductor-rest",
     });
     expect(applied.kind).toBe("accepted");
-    expect(session.getSnapshot().accepted!.runId).toBe(before);
+    const afterAccepted = session.getSnapshot().accepted;
+    expect(afterAccepted).toBeDefined();
+    if (!afterAccepted) throw new Error("Expected after accepted snapshot");
+    expect(afterAccepted.runId).toBe(before);
   });
 
   test("0.6c electromotive forces are not equal", () => {
     const session = createSr02Session();
     session.apply({ ...session.acceptedParameters(), speed: 0.6 * C_SI });
-    const outputs = session.getSnapshot().accepted!.outputs;
+    const accepted = session.getSnapshot().accepted;
+    expect(accepted).toBeDefined();
+    if (!accepted) throw new Error("Expected accepted snapshot");
+    const outputs = accepted.outputs;
     const magnet = outputs.find((o) => o.quantityId === "electromotiveForceMagnetFrame");
     const conductor = outputs.find((o) => o.quantityId === "electromotiveForceConductorFrame");
     expect(magnet?.status).toBe("value");
