@@ -213,17 +213,17 @@ export async function launchLaneSession(
 
   const browser = await launcher.launch({
     headless: options.headless ?? true,
-    args: launchArgs,
+    ...(launchArgs !== undefined ? { args: launchArgs } : {}),
   });
 
   const context = await browser.newContext({
     viewport: lane.viewport,
-    deviceScaleFactor: lane.deviceScaleFactor,
-    hasTouch: lane.hasTouch,
-    isMobile: lane.isMobile,
+    ...(lane.deviceScaleFactor !== undefined ? { deviceScaleFactor: lane.deviceScaleFactor } : {}),
+    ...(lane.hasTouch !== undefined ? { hasTouch: lane.hasTouch } : {}),
+    ...(lane.isMobile !== undefined ? { isMobile: lane.isMobile } : {}),
     reducedMotion: lane.reducedMotion ?? "no-preference",
     javaScriptEnabled: lane.javaScriptEnabled ?? true,
-    baseURL: options.baseURL,
+    ...(options.baseURL !== undefined ? { baseURL: options.baseURL } : {}),
   });
 
   const page = await context.newPage();
