@@ -19,19 +19,39 @@
  * - Added structured JSONL logging under a `<tool-run-id>` artifact
  *   directory (AGENTS.md "Structured logs": a smoke test is a tool run, and
  *   its events carry `toolRunId`, never `runId`).
+ * - Wrapped the top-level execution in an `isMainModule` guard and exported
+ *   helpers (`checkUrl`, `runSmokeTests`, `logEvent`, `__setLogWriterForTesting`,
+ *   `__resetLogWriterForTesting`) so the module can be safely imported by tests
+ *   without firing network requests or creating artifact files on disk.
  */
 
 import * as fs from "node:fs";
 import * as path from "node:path";
+import { fileURLToPath } from "node:url";
 import { newToolRunId } from "./runIds";
 
-const BASE_URL = process.env.BASE_URL || "https://annus-mirabilis.com";
+export const BASE_URL = process.env.BASE_URL || "https://annus-mirabilis.com";
 
-const toolRunId = newToolRunId();
-const artifactDirectory = path.join(process.cwd(), "artifacts", "smoke-test-deployment", toolRunId);
-const logPath = path.join(artifactDirectory, "events.jsonl");
+export const toolRunId = newToolRunId();
+export const artifactDirectory = path.join(process.cwd(), "artifacts", "smoke-test-deployment", toolRunId);
+export const logPath = path.join(artifactDirectory, "events.jsonl");
 
-function logEvent(step: string, outcome: "pass" | "fail", message: string): void {
+export type LogWriter = (step: string, outcome: "pass" | "fail", message: string) => void;
+let activeLogWriter: LogWriter | null = null;
+
+export function __setLogWriterForTesting(writer: LogWriter | null): void {
+  activeLogWriter = writer;
+}
+
+export function __resetLogWriterForTesting(): void {
+  activeLogWriter = null;
+}
+
+export function logEvent(step: string, outcome: "pass" | "fail", message: string): void {
+  if (activeLogWriter) {
+    activeLogWriter(step, outcome, message);
+    return;
+  }
   fs.mkdirSync(artifactDirectory, { recursive: true });
   const line = JSON.stringify({
     timestamp: new Date().toISOString(),
@@ -44,10 +64,14 @@ function logEvent(step: string, outcome: "pass" | "fail", message: string): void
   fs.appendFileSync(logPath, `${line}\n`, "utf8");
 }
 
-async function checkUrl(routePath: string): Promise<boolean> {
-  const url = `${BASE_URL}${routePath}`;
+export async function checkUrl(
+  routePath: string,
+  baseUrl: string = BASE_URL,
+  fetchFn: typeof fetch = fetch,
+): Promise<boolean> {
+  const url = `${baseUrl}${routePath}`;
   try {
-    const res = await fetch(url, { method: "GET" });
+    const res = await fetchFn(url, { method: "GET" });
     if (res.status !== 200) {
       const message = `${url} returned HTTP ${res.status}`;
       console.error(`❌ FAILED: ${message}`);
@@ -74,33 +98,46 @@ async function checkUrl(routePath: string): Promise<boolean> {
   }
 }
 
-async function runSmokeTests() {
+export async function runSmokeTests(
+  routes: readonly string[] = ["/"],
+  baseUrl: string = BASE_URL,
+  fetchFn: typeof fetch = fetch,
+  exitOnFailure: boolean = true,
+): Promise<boolean> {
   console.log("=== Annus Mirabilis Production Smoke Test Gate ===");
-  console.log(`Target: ${BASE_URL}`);
+  console.log(`Target: ${baseUrl}`);
   console.log(`Tool run: ${toolRunId}\n`);
 
   let allPassed = true;
 
   // Core top-level routes. Grows as content ships; the home page is the only
   // route guaranteed to exist until then.
-  const coreRoutes = ["/"];
-  for (const route of coreRoutes) {
-    const ok = await checkUrl(route);
+  for (const route of routes) {
+    const ok = await checkUrl(route, baseUrl, fetchFn);
     if (!ok) allPassed = false;
   }
 
   if (!allPassed) {
     console.error("\n🚨 PRODUCTION SMOKE TEST FAILED! One or more routes did not return HTTP 200.");
     logEvent("summary", "fail", "one or more routes did not return HTTP 200");
-    process.exit(1);
+    if (exitOnFailure) {
+      process.exit(1);
+    }
+    return false;
   }
 
   console.log("\n🎉 ALL PRODUCTION ROUTES VERIFIED HEALTHY (HTTP 200 OK across all tested routes)");
   logEvent("summary", "pass", "all tested routes returned HTTP 200");
+  return true;
 }
 
-runSmokeTests().catch((err) => {
-  console.error("Fatal smoke test error:", err);
-  logEvent("summary", "fail", `fatal error: ${err instanceof Error ? err.message : String(err)}`);
-  process.exit(1);
-});
+export const isMainModule =
+  process.argv[1] !== undefined && fileURLToPath(import.meta.url) === path.resolve(process.argv[1]);
+
+if (isMainModule) {
+  runSmokeTests().catch((err) => {
+    console.error("Fatal smoke test error:", err);
+    logEvent("summary", "fail", `fatal error: ${err instanceof Error ? err.message : String(err)}`);
+    process.exit(1);
+  });
+}
