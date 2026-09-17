@@ -46,7 +46,10 @@ function shape(p: Bm05Parameters, n: number): Computation<ShapeTerm> {
   if (cached) return { kind: "accepted", data: cached };
   const r = kolmogorovShapeTerm(p.kernel, n);
   if (r.kind === "accepted") {
-    if (shapes.size >= 128) shapes.delete(shapes.keys().next().value!);
+    if (shapes.size >= 128) {
+      const oldestKey = shapes.keys().next().value;
+      if (oldestKey !== undefined) shapes.delete(oldestKey);
+    }
     shapes.set(key, r.data);
   }
   return r;
@@ -65,7 +68,8 @@ function unwrap<T>(r: Computation<T>): T {
   return r.data;
 }
 function number(id: string, v: number | Float64Array): ScientificResult {
-  const c = BM05_OUTPUTS[id]!;
+  const c = BM05_OUTPUTS[id];
+  if (!c) throw new RangeError(`Unknown BM05 output: ${id}`);
   if (typeof v === "number" ? !Number.isFinite(v) : !v.every(Number.isFinite))
     throw new RangeError("A result is not finite.");
   return {
@@ -78,7 +82,8 @@ function number(id: string, v: number | Float64Array): ScientificResult {
   };
 }
 function notApplicable(id: string, reason: string): ScientificResult {
-  const c = BM05_OUTPUTS[id]!;
+  const c = BM05_OUTPUTS[id];
+  if (!c) throw new RangeError(`Unknown BM05 output: ${id}`);
   return {
     quantityId: id,
     unit: c.unit,
@@ -159,7 +164,9 @@ export async function measureBm05(
       D = kernelDiffusivity(k, p.tau).diffusion;
     const model = unwrap(randomWalkMoments(p.stepRms, p.tau, p.n));
     const samples = observation.data.positions,
-      stats = unwrap(ensembleMoments({ displacements: samples, d: 1 })).axes[0]!;
+      axes = unwrap(ensembleMoments({ displacements: samples, d: 1 })).axes,
+      stats = axes[0];
+    if (!stats) throw new RangeError("Missing 1D ensemble moments axis.");
     const sampling = unwrap(dkwBound(p.walkers, 0.001));
     const outputs: ScientificResult[] = [
       km.mean,
@@ -220,32 +227,39 @@ export async function measureBm05(
         (_, i) => ((2 * i) / count - 1) * 5 * model.rms,
       );
     const hist = unwrap(displacementHistogram(samples, edges));
-    const gaussian = Float64Array.from({ length: count }, (_, i) =>
-      p.n === 0
+    const gaussian = Float64Array.from({ length: count }, (_, i) => {
+      const e0 = edges[i] ?? 0,
+        e1 = edges[i + 1] ?? 0;
+      return p.n === 0
         ? 1
-        : scalar(
-            intervalProbability(edges[i]!, edges[i + 1]!, p.n, model.diffusion * p.tau).result,
-          ),
-    );
+        : scalar(intervalProbability(e0, e1, p.n, model.diffusion * p.tau).result);
+    });
     let exact: Float64Array;
     if (p.n === 0) exact = new Float64Array([1]);
     else if (p.kernel === "coin") {
       const law = unwrap(coinWalkDistribution(p.n, p.stepRms));
       exact = new Float64Array(count);
       for (let i = 0; i < law.positions.length; i++) {
-        const x = law.positions[i]!;
-        for (let j = 0; j < count; j++)
-          if (x >= edges[j]! && (x < edges[j + 1]! || (j === count - 1 && x === edges[j + 1]!))) {
-            exact[j] = exact[j]! + law.probabilities[i]!;
+        const x = law.positions[i];
+        if (x === undefined) continue;
+        const prob = law.probabilities[i] ?? 0;
+        for (let j = 0; j < count; j++) {
+          const ej0 = edges[j] ?? 0,
+            ej1 = edges[j + 1] ?? 0;
+          if (x >= ej0 && (x < ej1 || (j === count - 1 && x === ej1))) {
+            exact[j] = (exact[j] ?? 0) + prob;
             break;
           }
+        }
       }
     } else if (p.kernel === "gaussian") exact = gaussian.slice();
     else {
       const width = 2 * Math.sqrt(3) * p.stepRms;
       exact = Float64Array.from({ length: count }, (_, i) => {
-        const lo = p.n / 2 + edges[i]! / width,
-          hi = p.n / 2 + edges[i + 1]! / width;
+        const ei0 = edges[i] ?? 0,
+          ei1 = edges[i + 1] ?? 0;
+        const lo = p.n / 2 + ei0 / width,
+          hi = p.n / 2 + ei1 / width;
         return lo >= p.n / 2
           ? uniformSumDistribution(p.n, p.n - lo).cdf - uniformSumDistribution(p.n, p.n - hi).cdf
           : uniformSumDistribution(p.n, hi).cdf - uniformSumDistribution(p.n, lo).cdf;
@@ -265,10 +279,13 @@ export async function measureBm05(
     );
     if (p.kernel === "coin" && p.n <= 16) {
       const coin = unwrap(coinWalkDistribution(p.n, p.stepRms));
+      const numerators = coin.coefficients
+        ? Float64Array.from(coin.coefficients, Number)
+        : new Float64Array(0);
       outputs.push(
         number("coinPositions", coin.positions),
         number("coinProbabilities", coin.probabilities),
-        number("coinNumerators", Float64Array.from(coin.coefficients!, Number)),
+        number("coinNumerators", numerators),
         number("coinDenominator", Number(coin.denominator)),
       );
     } else
@@ -285,7 +302,7 @@ export async function measureBm05(
       const step = Math.floor((p.n * j) / (WALK_TRACE_POINTS - 1));
       times[j] = step * p.tau;
       for (let i = 0; i < Math.min(20, p.walkers); i++)
-        traces[i * WALK_TRACE_POINTS + j] = recording.traceValues[i * (p.runSteps + 1) + step]!;
+        traces[i * WALK_TRACE_POINTS + j] = recording.traceValues[i * (p.runSteps + 1) + step] ?? 0;
     }
     outputs.push(number("traceTimes", times), number("traceDisplacements", traces));
     const indices = walkComparisonSteps(p),
@@ -300,14 +317,18 @@ export async function measureBm05(
           kind: "outcome",
           outcome: { outcome: "cancelled", ...executionOutcomeRegistry.cancelled },
         };
-      const n = indices[i]!,
-        seen = await observeWalks(recording, n, options);
+      const n = indices[i];
+      if (n === undefined) continue;
+      const seen = await observeWalks(recording, n, options);
       if (seen.kind !== "accepted") return seen;
       replayed += seen.data.replayedDraws;
-      msd[i] = unwrap(ensembleMoments({ displacements: seen.data.positions, d: 1 }))
-        .axes[0]!.meanSquare;
-      theory[i] = unwrap(randomWalkMoments(p.stepRms, p.tau, n)).meanSquare;
-      distances[i] = unwrap(kolmogorovDistanceToGaussian(seen.data.positions, theory[i]!));
+      const momAxes = unwrap(ensembleMoments({ displacements: seen.data.positions, d: 1 })).axes;
+      const mom0 = momAxes[0];
+      if (!mom0) throw new RangeError("Missing ensemble moments axis.");
+      msd[i] = mom0.meanSquare;
+      const th = unwrap(randomWalkMoments(p.stepRms, p.tau, n)).meanSquare;
+      theory[i] = th;
+      distances[i] = unwrap(kolmogorovDistanceToGaussian(seen.data.positions, th));
       const term = shape(p, n);
       if (term.kind !== "accepted") return term;
       terms[i] = term.data.distance;
@@ -342,14 +363,14 @@ export async function measureBm05(
       ratios = new Float64Array(4);
     for (let i = 0; i < 4; i++) {
       const factor = 10 ** i;
-      intervals[i] = p.tau / factor;
-      stepSizes[i] = p.stepRms / Math.sqrt(factor);
+      const tau_i = p.tau / factor;
+      const step_i = p.stepRms / Math.sqrt(factor);
+      intervals[i] = tau_i;
+      stepSizes[i] = step_i;
       fixed[i] = scalar(
-        continuumLimit({ stepScale: p.stepRms, tau: intervals[i]!, scaling: "fixed-ratio" }),
+        continuumLimit({ stepScale: p.stepRms, tau: tau_i, scaling: "fixed-ratio" }),
       );
-      ratios[i] = scalar(
-        continuumLimit({ stepScale: stepSizes[i]!, tau: intervals[i]!, scaling: "fixed-ratio" }),
-      );
+      ratios[i] = scalar(continuumLimit({ stepScale: step_i, tau: tau_i, scaling: "fixed-ratio" }));
     }
     outputs.push(
       number("continuumIntervals", intervals),
