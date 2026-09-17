@@ -674,7 +674,7 @@ export function validateJourney(raw: unknown, path = "journey"): Journey {
       }
 
       const steps: BranchStep[] = Array.isArray(b.steps)
-        ? b.steps.map((st, k) => {
+        ? b.steps.map((st) => {
             if (typeof st === "string") return { text: st };
             const sObj = st as Record<string, unknown>;
             return {
@@ -887,13 +887,27 @@ export function validateJourney(raw: unknown, path = "journey"): Journey {
           };
         }
         const swe = (w.staticWorkedExample ?? {}) as Record<string, unknown>;
+        let tolerance:
+          | Readonly<{ absolute?: number | undefined; relative?: number | undefined }>
+          | undefined;
+        if (w.tolerance && typeof w.tolerance === "object") {
+          const tol = w.tolerance as Record<string, unknown>;
+          tolerance = {
+            absolute: typeof tol.absolute === "number" ? tol.absolute : undefined,
+            relative: typeof tol.relative === "number" ? tol.relative : undefined,
+          };
+        }
+        const comparisonKind: WorldCheck["comparisonKind"] =
+          w.comparisonKind === "printed-prediction" || w.comparisonKind === "theoretical-bound"
+            ? w.comparisonKind
+            : "measured-fact";
         return {
           id: String(w.id ?? ""),
           claim: String(w.claim ?? ""),
           instrumentId: String(w.instrumentId ?? ""),
           quantityId: String(w.quantityId ?? ""),
           expected: (w.expected as number | string) ?? 0,
-          tolerance: w.tolerance as any,
+          tolerance,
           laterEvidence,
           staticWorkedExample: {
             label: String(swe.label ?? ""),
@@ -901,7 +915,7 @@ export function validateJourney(raw: unknown, path = "journey"): Journey {
             unit: String(swe.unit ?? ""),
             constantSetId: String(swe.constantSetId ?? ""),
           },
-          comparisonKind: (w.comparisonKind as any) ?? "measured-fact",
+          comparisonKind,
         };
       })
     : [];
