@@ -140,14 +140,19 @@ export function estimateIncrements(
     drift = new Float64Array(d);
   if (scale > 0)
     for (let i = 0; i < M; i++)
-      for (let c = 0; c < d; c++)
-        means[c] = means[c]! + (increments[i * d + c]! / scale - means[c]!) / (i + 1);
+      for (let c = 0; c < d; c++) {
+        const meanC = means[c] ?? 0;
+        const inc = increments[i * d + c] ?? 0;
+        means[c] = meanC + (inc / scale - meanC) / (i + 1);
+      }
   let sum = 0,
     compensation = 0;
   if (scale > 0)
     for (let i = 0; i < M; i++)
       for (let c = 0; c < d; c++) {
-        const x = increments[i * d + c]! / scale - (centered ? means[c]! : 0);
+        const inc = increments[i * d + c] ?? 0;
+        const meanC = means[c] ?? 0;
+        const x = inc / scale - (centered ? meanC : 0);
         const term = x * x - compensation,
           next = sum + term;
         compensation = next - sum - term;
@@ -159,7 +164,7 @@ export function estimateIncrements(
   const sumSquares = sum * scale * scale,
     unbiasedDHat = sumSquares / (2 * observationInterval) / q,
     dHat = sumSquares / (2 * observationInterval) / normalization;
-  for (let c = 0; c < d; c++) drift[c] = (means[c]! * scale) / dt;
+  for (let c = 0; c < d; c++) drift[c] = ((means[c] ?? 0) * scale) / dt;
   if (
     ![sumSquares, unbiasedDHat, dHat, ...drift].every(Number.isFinite) ||
     (sum > 0 && (sumSquares === 0 || dHat === 0 || unbiasedDHat === 0))
@@ -357,14 +362,11 @@ export function invertToMolecularNumber(
   const estimatedBoltzmannConstant = modern
     ? (6 * Math.PI * input.eta * input.a * input.dHat) / input.T
     : null;
-  if (
-    ![
-      estimate,
-      lower,
-      upper,
-      ...(modern ? [consistencyRatio!, estimatedBoltzmannConstant!] : []),
-    ].every(positive)
-  )
+  const modernMetrics =
+    modern && consistencyRatio !== null && estimatedBoltzmannConstant !== null
+      ? [consistencyRatio, estimatedBoltzmannConstant]
+      : [];
+  if (![estimate, lower, upper, ...modernMetrics].every(positive))
     return invalid("The inverse result cannot be represented at this numerical scale.");
   return {
     kind: "accepted",
