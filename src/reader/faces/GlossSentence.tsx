@@ -1,6 +1,5 @@
-import React from "react";
 import { isModalityClass } from "../../content/schemas/glossConventions.ts";
-import type { GlossToken, GlossUnit, MultiwordUnit } from "../../content/schemas/source.ts";
+import type { GlossUnit } from "../../content/schemas/source.ts";
 import { GlossPair } from "./GlossPair.tsx";
 
 export interface GlossSentenceProps {
@@ -34,20 +33,22 @@ export function extractReasoningWords(
   const processedMultiwordIndices = new Set<number>();
 
   for (let i = 0; i < glossUnit.tokens.length; i++) {
-    const token = glossUnit.tokens[i]!;
+    const token = glossUnit.tokens[i];
+    if (!token) continue;
 
     // Check if part of a multiword unit
     const multiword = glossUnit.multiwordUnits?.find((mw) => mw.tokenIndices.includes(i));
 
     if (multiword) {
-      if (isModalityClass(multiword.noteClass, modalityClasses)) {
-        if (!processedMultiwordIndices.has(multiword.tokenIndices[0]!)) {
-          processedMultiwordIndices.add(multiword.tokenIndices[0]!);
+      const firstIdx = multiword.tokenIndices[0];
+      if (firstIdx !== undefined && isModalityClass(multiword.noteClass, modalityClasses)) {
+        if (!processedMultiwordIndices.has(firstIdx)) {
+          processedMultiwordIndices.add(firstIdx);
           const combinedGerman = multiword.tokenIndices
             .map((idx) => glossUnit.tokens[idx]?.german || "")
             .join(" ");
           items.push({
-            tokenIndex: multiword.tokenIndices[0]!,
+            tokenIndex: firstIdx,
             german: combinedGerman,
             english: multiword.english,
             noteClass: multiword.noteClass || "modality",
@@ -173,13 +174,13 @@ export function GlossSentence({
 
       {/* Interlinear word pairs layout */}
       <div className="gloss-pairs-container" data-pairs-container="true">
-        {glossUnit.tokens.map((token, idx) => {
+        {Array.from(glossUnit.tokens.entries()).map(([idx, token]) => {
           const multiword = glossUnit.multiwordUnits?.find((mw) => mw.tokenIndices.includes(idx));
           const isMultiwordFirst = multiword ? multiword.tokenIndices[0] === idx : true;
 
           return (
             <GlossPair
-              key={`${sentenceId}-tok-${idx}`}
+              key={`${sentenceId}-tok-${idx}-${token.german}`}
               token={token}
               tokenIndex={idx}
               multiwordUnit={multiword}
@@ -198,9 +199,9 @@ export function GlossSentence({
             List the reasoning words in this sentence ({reasoningWords.length})
           </summary>
           <ol className="reasoning-words-ol">
-            {reasoningWords.map((item, i) => (
+            {reasoningWords.map((item) => (
               <li
-                key={`${sentenceId}-rw-${i}`}
+                key={`${sentenceId}-rw-${item.tokenIndex}-${item.german}`}
                 className="reasoning-word-item"
                 data-token-index={item.tokenIndex}
               >
