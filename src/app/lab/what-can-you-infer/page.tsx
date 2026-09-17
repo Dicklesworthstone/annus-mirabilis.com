@@ -48,7 +48,7 @@ export default function InferenceWorkbenchPage() {
         </p>
       )}
       <section className="reading">
-        <h2>What the calculation does—and does not—establish</h2>
+        <h2>What the calculation does and does not establish</h2>
         <p>
           The first case assumes independent Gaussian increments and known zero drift. Its
           conservative molecular-number interval combines diffusion uncertainty with a separately

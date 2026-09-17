@@ -78,7 +78,7 @@ export function TableToPlotBuilder() {
           type="button"
           onClick={plotAll}
           disabled={plottedCount >= BROWNIAN_PLOT_POINTS.length}
-          aria-label="Plot all data points"
+          aria-label="Plot every measurement in the table"
         >
           Plot all
         </button>
