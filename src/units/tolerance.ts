@@ -226,9 +226,13 @@ export function ieee754Hex(value: number): string {
   return `0x${float64Bits(value).toString(16).padStart(16, "0")}`;
 }
 
-function bitwiseEqualScalar(a: number | bigint, b: number | bigint): boolean {
-  if (typeof a === "bigint" || typeof b === "bigint") return a === b;
-  return float64Bits(a) === float64Bits(b);
+function bitwiseEqualScalar(a: unknown, b: unknown): boolean {
+  if (typeof a === "number" && typeof b === "number") {
+    return float64Bits(a) === float64Bits(b);
+  }
+  if (typeof a === "bigint" && typeof b === "bigint") return a === b;
+  if (typeof a === "string" && typeof b === "string") return a === b;
+  return false;
 }
 
 function isNumericArrayLike(x: unknown): x is ArrayLike<number | bigint> {

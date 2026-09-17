@@ -130,6 +130,25 @@ describe("compareBitwise", () => {
     const v = compareBitwise(Uint32Array.of(1, 2, 3, 4), Uint32Array.of(1, 2, 999, 4));
     expect(v.detail).toContain("index: 2");
   });
+
+  test("compares array digests exactly instead of coercing them to NaN", () => {
+    expect(compareBitwise(["digest-a"], ["digest-a"]).ok).toBe(true);
+    const mismatch = compareBitwise(["same", "digest-a"], ["same", "digest-b"]);
+    expect(mismatch.ok).toBe(false);
+    expect(mismatch.detail).toContain("index: 1");
+  });
+
+  test("rejects mixed numeric types and unsupported array elements without coercion", () => {
+    expect(compareBitwise([1], ["1"]).ok).toBe(false);
+    expect(compareBitwise([1n], [1]).ok).toBe(false);
+    const coercible = {
+      valueOf: () => {
+        throw new Error("must not coerce");
+      },
+    };
+    expect(compareBitwise([coercible], [coercible]).ok).toBe(false);
+    expect(compareBitwise([null], [0]).ok).toBe(false);
+  });
 });
 
 describe("classifyWithTolerance", () => {

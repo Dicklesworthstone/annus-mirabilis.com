@@ -14,21 +14,81 @@ export function validateSr08Parameters(input: unknown): Sr08ParameterCheck {
     };
   }
   const o = input as Record<string, unknown>;
-  const boost = typeof o.boost === "number" ? o.boost : Number.NaN;
-  const testCharge = typeof o.testCharge === "number" ? o.testCharge : Number.NaN;
-  const detectorSpeed = typeof o.detectorSpeed === "number" ? o.detectorSpeed : 0;
+  const boost =
+    typeof o.boost === "number"
+      ? o.boost
+      : o.boost === undefined
+        ? SR08_DEFAULTS.boost
+        : Number.NaN;
+  const testCharge =
+    typeof o.testCharge === "number"
+      ? o.testCharge
+      : o.testCharge === undefined
+        ? SR08_DEFAULTS.testCharge
+        : Number.NaN;
+  const detectorSpeed =
+    typeof o.detectorSpeed === "number"
+      ? o.detectorSpeed
+      : o.detectorSpeed === undefined
+        ? SR08_DEFAULTS.detectorSpeed
+        : Number.NaN;
 
-  const electricFieldX = typeof o.electricFieldX === "number" ? o.electricFieldX : 0;
-  const electricFieldY = typeof o.electricFieldY === "number" ? o.electricFieldY : Number.NaN;
-  const electricFieldZ = typeof o.electricFieldZ === "number" ? o.electricFieldZ : 0;
+  const electricFieldX =
+    typeof o.electricFieldX === "number"
+      ? o.electricFieldX
+      : o.electricFieldX === undefined
+        ? SR08_DEFAULTS.electricFieldX
+        : Number.NaN;
+  const electricFieldY =
+    typeof o.electricFieldY === "number"
+      ? o.electricFieldY
+      : o.electricFieldY === undefined
+        ? SR08_DEFAULTS.electricFieldY
+        : Number.NaN;
+  const electricFieldZ =
+    typeof o.electricFieldZ === "number"
+      ? o.electricFieldZ
+      : o.electricFieldZ === undefined
+        ? SR08_DEFAULTS.electricFieldZ
+        : Number.NaN;
 
-  const magneticFieldX = typeof o.magneticFieldX === "number" ? o.magneticFieldX : 0;
-  const magneticFieldY = typeof o.magneticFieldY === "number" ? o.magneticFieldY : 0;
-  const magneticFieldZ = typeof o.magneticFieldZ === "number" ? o.magneticFieldZ : 0;
+  const magneticFieldX =
+    typeof o.magneticFieldX === "number"
+      ? o.magneticFieldX
+      : o.magneticFieldX === undefined
+        ? SR08_DEFAULTS.magneticFieldX
+        : Number.NaN;
+  const magneticFieldY =
+    typeof o.magneticFieldY === "number"
+      ? o.magneticFieldY
+      : o.magneticFieldY === undefined
+        ? SR08_DEFAULTS.magneticFieldY
+        : Number.NaN;
+  const magneticFieldZ =
+    typeof o.magneticFieldZ === "number"
+      ? o.magneticFieldZ
+      : o.magneticFieldZ === undefined
+        ? SR08_DEFAULTS.magneticFieldZ
+        : Number.NaN;
 
-  const chargeVelocityX = typeof o.chargeVelocityX === "number" ? o.chargeVelocityX : 0;
-  const chargeVelocityY = typeof o.chargeVelocityY === "number" ? o.chargeVelocityY : 0;
-  const chargeVelocityZ = typeof o.chargeVelocityZ === "number" ? o.chargeVelocityZ : 0;
+  const chargeVelocityX =
+    typeof o.chargeVelocityX === "number"
+      ? o.chargeVelocityX
+      : o.chargeVelocityX === undefined
+        ? SR08_DEFAULTS.chargeVelocityX
+        : Number.NaN;
+  const chargeVelocityY =
+    typeof o.chargeVelocityY === "number"
+      ? o.chargeVelocityY
+      : o.chargeVelocityY === undefined
+        ? SR08_DEFAULTS.chargeVelocityY
+        : Number.NaN;
+  const chargeVelocityZ =
+    typeof o.chargeVelocityZ === "number"
+      ? o.chargeVelocityZ
+      : o.chargeVelocityZ === undefined
+        ? SR08_DEFAULTS.chargeVelocityZ
+        : Number.NaN;
 
   if (!Number.isFinite(boost) || Math.abs(boost) >= C_SI) {
     return {
@@ -42,22 +102,64 @@ export function validateSr08Parameters(input: unknown): Sr08ParameterCheck {
       refusal: makeRefusal("invalid-parameter", { parameterIds: ["testCharge"] }),
     };
   }
-  if (![electricFieldX, electricFieldY, electricFieldZ].every(Number.isFinite)) {
+  if (!Number.isFinite(electricFieldX)) {
+    return {
+      kind: "refused",
+      refusal: makeRefusal("invalid-parameter", { parameterIds: ["electricFieldX"] }),
+    };
+  }
+  if (!Number.isFinite(electricFieldY)) {
     return {
       kind: "refused",
       refusal: makeRefusal("invalid-parameter", { parameterIds: ["electricFieldY"] }),
     };
   }
-  if (![magneticFieldX, magneticFieldY, magneticFieldZ].every(Number.isFinite)) {
+  if (!Number.isFinite(electricFieldZ)) {
+    return {
+      kind: "refused",
+      refusal: makeRefusal("invalid-parameter", { parameterIds: ["electricFieldZ"] }),
+    };
+  }
+  if (!Number.isFinite(magneticFieldX)) {
+    return {
+      kind: "refused",
+      refusal: makeRefusal("invalid-parameter", { parameterIds: ["magneticFieldX"] }),
+    };
+  }
+  if (!Number.isFinite(magneticFieldY)) {
+    return {
+      kind: "refused",
+      refusal: makeRefusal("invalid-parameter", { parameterIds: ["magneticFieldY"] }),
+    };
+  }
+  if (!Number.isFinite(magneticFieldZ)) {
     return {
       kind: "refused",
       refusal: makeRefusal("invalid-parameter", { parameterIds: ["magneticFieldZ"] }),
     };
   }
-  if (![chargeVelocityX, chargeVelocityY, chargeVelocityZ].every(Number.isFinite)) {
+  if (!Number.isFinite(chargeVelocityX)) {
     return {
       kind: "refused",
       refusal: makeRefusal("invalid-parameter", { parameterIds: ["chargeVelocityX"] }),
+    };
+  }
+  if (!Number.isFinite(chargeVelocityY)) {
+    return {
+      kind: "refused",
+      refusal: makeRefusal("invalid-parameter", { parameterIds: ["chargeVelocityY"] }),
+    };
+  }
+  if (!Number.isFinite(chargeVelocityZ)) {
+    return {
+      kind: "refused",
+      refusal: makeRefusal("invalid-parameter", { parameterIds: ["chargeVelocityZ"] }),
+    };
+  }
+  if (!Number.isFinite(detectorSpeed)) {
+    return {
+      kind: "refused",
+      refusal: makeRefusal("invalid-parameter", { parameterIds: ["detectorSpeed"] }),
     };
   }
 
