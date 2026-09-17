@@ -23,6 +23,11 @@ export default function BrownianLabPage() {
             Read the argument and open its missing steps →
           </a>
         </p>
+        <p>
+          <a className="button" href="/discover/brownian-motion/investigate/">
+            Start from a pinned tracer trial and bring its D into this question →
+          </a>
+        </p>
       </header>
       <BrownianComparison example={example} />
       <section className="reading" id="model">
