@@ -6,7 +6,7 @@
  * approximation text, tool/source links, and the computational disclosure slot.
  */
 
-import React, { useState } from "react";
+import { useState } from "react";
 import { ruleInWords, stepAccessibleText } from "./a11yText.ts";
 import { codeSlotFor } from "./hooks.ts";
 import { renderExpressionMarkup } from "./mathRenderer.ts";
@@ -51,7 +51,7 @@ export function DerivationStepComponent({
       data-step-id={step.id}
       data-is-move={step.isMove ? "true" : undefined}
       className={`derivation-step ${step.isMove ? "is-move" : ""} ${isFocused ? "is-focused" : ""}`}
-      tabIndex={0}
+      tabIndex={-1}
       onFocus={onStepFocus}
       aria-label={a11yLabel}
     >
@@ -64,14 +64,13 @@ export function DerivationStepComponent({
 
       {/* The Marked Move Box */}
       {step.isMove && (
-        <div
+        <aside
           className="the-move-box"
-          role="region"
           aria-label={`The move: ${step.moveLabel ?? "Key non-obvious step"}`}
         >
           <strong>The move:</strong>
           <span>{step.moveLabel}</span>
-        </div>
+        </aside>
       )}
 
       {/* Step Header */}
@@ -113,8 +112,8 @@ export function DerivationStepComponent({
       </div>
 
       {/* Per-Step Local "Show every step" Expansion */}
-      <details className="step-local-steps" open={isLocallyExpanded}>
-        <summary onClick={onToggleLocalExpand}>Show every step here</summary>
+      <details className="step-local-steps" open={isLocallyExpanded} onToggle={onToggleLocalExpand}>
+        <summary>Show every step here</summary>
         <div className="step-r2-content">{step.reasons.r2}</div>
       </details>
 

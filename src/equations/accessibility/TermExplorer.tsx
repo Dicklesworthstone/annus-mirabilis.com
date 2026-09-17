@@ -141,7 +141,6 @@ export function TermExplorer({
       ref={rootRef}
       className={`am-term-explorer ${className}`.trim()}
       data-term-explorer={equationId}
-      role="region"
       aria-label={`Terms and operations in ${title}`}
       onKeyDown={handleKeyDown}
     >

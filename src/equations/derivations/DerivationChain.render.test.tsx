@@ -4,7 +4,6 @@ import { DerivationChain } from "./DerivationChain.tsx";
 import {
   fixtureBrownianPedagogicalReconstruction,
   fixtureBrownianSourceOrder,
-  fixtureLorentzMapConstruction,
   fixturePaper4TwoLedgers,
 } from "./fixtures.ts";
 
@@ -16,7 +15,7 @@ describe("am-eq-derivation-renderer-9gd7: DerivationChain static rendering", () 
 
     expect(html).toContain('<details class="derivation-disclosure" open=""');
     expect(html).toContain("<summary>Show the derivation</summary>");
-    expect(html).toContain('<ol class="derivation-steps-list" role="list">');
+    expect(html).toContain('<ol class="derivation-steps-list">');
     expect(html).toContain('data-step-id="bm-ped-step-1"');
     expect(html).toContain('data-step-id="bm-ped-step-2"');
   });
@@ -61,7 +60,9 @@ describe("am-eq-derivation-renderer-9gd7: DerivationChain static rendering", () 
       <DerivationChain chains={[fixtureBrownianPedagogicalReconstruction]} />,
     );
 
-    const step1 = fixtureBrownianPedagogicalReconstruction.steps[0]!;
+    const [step1] = fixtureBrownianPedagogicalReconstruction.steps;
+    expect(step1).toBeDefined();
+    if (!step1) throw new Error("step1 missing");
     expect(html).toContain(`data-highlight-ids="${step1.changedSubexpressionIds.join(",")}"`);
   });
 

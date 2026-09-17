@@ -1,19 +1,18 @@
-import React from "react";
+import type React from "react";
 import { type EquationPatternKind, evaluatePatternAccessibility } from "./patterns.ts";
 
 export interface EquationAccessibilityProps {
   readonly equationId: string;
+  readonly title: string;
   readonly spokenText: string;
   readonly html: string;
   readonly mathml: string;
-  readonly pattern?: EquationPatternKind;
-  readonly title?: string;
-  readonly hasVisibleCaption?: boolean;
-  readonly className?: string;
-  readonly children?: React.ReactNode;
-  readonly onKeyDown?: (e: React.KeyboardEvent<HTMLElement>) => void;
-  readonly onClick?: (e: React.MouseEvent<HTMLElement>) => void;
-  readonly tabIndex?: number;
+  readonly pattern?: EquationPatternKind | undefined;
+  readonly className?: string | undefined;
+  readonly tabIndex?: number | undefined;
+  readonly onKeyDown?: ((e: React.KeyboardEvent<HTMLElement>) => void) | undefined;
+  readonly onClick?: ((e: React.MouseEvent<HTMLElement>) => void) | undefined;
+  readonly children?: React.ReactNode | undefined;
 }
 
 /**
@@ -26,47 +25,41 @@ function injectMathMlAriaLabel(mathml: string, label: string): string {
 }
 
 /**
- * Accessible formula wrapper implementing candidate patterns A, B, and C.
- *
- * Guarantees:
- * 1. KaTeX visual HTML is always aria-hidden="true".
- * 2. Exactly one accessible-name source exists per formula.
- * 3. Prevents duplicate speech announcements when a visible title/caption is present.
+ * Universal accessible math component implementing the 3 research-backed patterns (am-eq-spoken-forms-w4f):
+ * - Pattern A: Visually hidden screen reader text span (.sr-only), math visual & mathml aria-hidden.
+ * - Pattern B: Container aria-label with role="math", internal math visual & mathml aria-hidden.
+ * - Pattern C: MathML element itself annotated with aria-label, KaTeX visual HTML aria-hidden.
  */
 export function EquationAccessibility({
   equationId,
+  title,
   spokenText,
   html,
   mathml,
   pattern = "B",
-  title,
-  hasVisibleCaption = false,
   className = "",
-  children,
+  tabIndex,
   onKeyDown,
   onClick,
-  tabIndex,
+  children,
 }: EquationAccessibilityProps) {
   const evalResult = evaluatePatternAccessibility({
     pattern,
     spokenText,
     html,
     mathml,
-    hasVisibleCaption,
     title,
     equationId,
   });
-
   const baseClassName = `am-eq-accessible pattern-${pattern} ${className}`.trim();
 
   if (pattern === "A") {
     return (
-      <div
+      <figure
         className={baseClassName}
         data-equation-id={equationId}
         data-pattern="A"
         data-a11y-name-source="sr-only-text"
-        role="group"
         tabIndex={tabIndex}
         onKeyDown={onKeyDown}
         onClick={onClick}
@@ -85,7 +78,7 @@ export function EquationAccessibility({
           dangerouslySetInnerHTML={{ __html: mathml }}
         />
         {children}
-      </div>
+      </figure>
     );
   }
 
@@ -121,7 +114,7 @@ export function EquationAccessibility({
   const mathmlAnnotated = injectMathMlAriaLabel(mathml, evalResult.accessibleName);
 
   return (
-    <div
+    <figure
       className={baseClassName}
       data-equation-id={equationId}
       data-pattern="C"
@@ -141,6 +134,6 @@ export function EquationAccessibility({
         dangerouslySetInnerHTML={{ __html: mathmlAnnotated }}
       />
       {children}
-    </div>
+    </figure>
   );
 }

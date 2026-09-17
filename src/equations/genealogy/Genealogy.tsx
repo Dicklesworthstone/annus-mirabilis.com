@@ -8,14 +8,10 @@
  * 4. Distinct visualization for cross-paper outgoing edge (e.g. Paper 3 §8 light energy -> Paper 4).
  */
 
-import React, { useState } from "react";
+import type React from "react";
+import { useState } from "react";
 import { layoutGenealogyGraph } from "./layoutLayers.ts";
-import type {
-  GenealogyGraph,
-  GenealogyLayoutResult,
-  GenealogyNavDirection,
-  GenealogyNode,
-} from "./types.ts";
+import type { GenealogyGraph, GenealogyLayoutResult, GenealogyNode } from "./types.ts";
 
 export interface GenealogyProps {
   readonly graph: GenealogyGraph;
@@ -70,8 +66,8 @@ export function handleGenealogyKeyDown(
   switch (event.key) {
     case "ArrowUp": {
       event.preventDefault?.();
-      if (parents.length > 0) {
-        const nextId = parents[0]!;
+      const nextId = parents[0];
+      if (nextId) {
         callbacks.onFocusNode?.(nextId);
         callbacks.onSelectNode?.(nextId);
         return true;
@@ -81,8 +77,8 @@ export function handleGenealogyKeyDown(
 
     case "ArrowDown": {
       event.preventDefault?.();
-      if (children.length > 0) {
-        const nextId = children[0]!;
+      const nextId = children[0];
+      if (nextId) {
         callbacks.onFocusNode?.(nextId);
         callbacks.onSelectNode?.(nextId);
         return true;
@@ -258,7 +254,8 @@ export function Genealogy({
     // In-edges / parents DFS
     const queueUp = [selectedId];
     while (queueUp.length > 0) {
-      const curr = queueUp.shift()!;
+      const curr = queueUp.shift();
+      if (!curr) break;
       for (const e of graph.edges) {
         if (e.to === curr && e.isPremise && !ancestors.has(e.from)) {
           ancestors.add(e.from);
@@ -270,7 +267,8 @@ export function Genealogy({
     // Out-edges / children DFS
     const queueDown = [selectedId];
     while (queueDown.length > 0) {
-      const curr = queueDown.shift()!;
+      const curr = queueDown.shift();
+      if (!curr) break;
       for (const e of graph.edges) {
         if (e.from === curr && e.isPremise && !descendants.has(e.to)) {
           descendants.add(e.to);
@@ -289,10 +287,8 @@ export function Genealogy({
   };
 
   return (
-    <div
+    <section
       className={`genealogy-container ${className}`.trim()}
-      tabIndex={0}
-      role="region"
       aria-label={`Equation genealogy for ${graph.paper}`}
       onKeyDown={onKeyDown}
     >
@@ -442,9 +438,9 @@ export function Genealogy({
                   transform={`translate(${n.x},${n.y})`}
                   onClick={() => handleSelect(n.id)}
                   style={{ cursor: "pointer" }}
-                  role="button"
+                  role="treeitem"
                   tabIndex={0}
-                  aria-pressed={isSelected}
+                  aria-selected={isSelected}
                   aria-label={`${badgeText}: ${n.node.label}`}
                 >
                   <rect
@@ -483,6 +479,6 @@ export function Genealogy({
           onSelectNode={handleSelect}
         />
       )}
-    </div>
+    </section>
   );
 }

@@ -6,7 +6,8 @@
  * and detail-axis reason switching.
  */
 
-import React, { useEffect, useRef, useState } from "react";
+import type React from "react";
+import { useEffect, useRef, useState } from "react";
 import { DerivationStepComponent } from "./DerivationStepComponent.tsx";
 import { filterRoutesForPerspective, getRouteLabel, selectRoute } from "./routeChooser.ts";
 import { announceStepExpanded, handleStepKeyDown, parseDerivationStepParam } from "./stepFocus.ts";
@@ -112,9 +113,10 @@ export function DerivationChainComponent({
   }
 
   return (
-    <div
+    <section
       ref={containerRef}
       className="derivation-container"
+      aria-label="Derivation chain"
       data-derivation-chain={currentChain.id}
       data-route-id={currentChain.proofRouteId}
       data-route-kind={currentChain.routeKind}
@@ -148,7 +150,7 @@ export function DerivationChainComponent({
         )}
 
         {/* Ordered Step List */}
-        <ol className="derivation-steps-list" role="list">
+        <ol className="derivation-steps-list">
           {currentChain.steps.map((step, index) => (
             <DerivationStepComponent
               key={step.id}
@@ -165,7 +167,7 @@ export function DerivationChainComponent({
           ))}
         </ol>
       </details>
-    </div>
+    </section>
   );
 }
 

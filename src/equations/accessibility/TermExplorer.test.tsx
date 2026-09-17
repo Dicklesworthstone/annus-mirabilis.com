@@ -1,7 +1,5 @@
 import { describe, expect, test } from "bun:test";
-import React from "react";
 import { renderToStaticMarkup } from "react-dom/server";
-import { navigationTree } from "../navigation.ts";
 import { createSelectionStore } from "../selectionStore.ts";
 import { EINSTEIN_RELATION_FIXTURE } from "../spoken/fixtures.ts";
 import { TermExplorer } from "./TermExplorer.tsx";
@@ -71,7 +69,7 @@ describe("am-eq-spoken-forms-w4f: TermExplorer tests", () => {
 
     expect(markup).toContain('class="am-term-explorer"');
     expect(markup).toContain('data-term-explorer="eq-bm-einstein-relation"');
-    expect(markup).toContain('role="region"');
+    expect(markup).toContain('<section class="am-term-explorer"');
     expect(markup).toContain(
       'aria-label="Terms and operations in Einstein Relation for the Diffusion Coefficient"',
     );
