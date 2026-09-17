@@ -7,6 +7,7 @@ import {
   formatGuardDigit,
   formatSignificantFigures,
 } from "./format.ts";
+import { type ToleranceSpec, withinTolerance } from "./tolerance.ts";
 
 const logger = getLogger("precision");
 const BEAD_ID = "am-ver-precision-display-5e5";
@@ -122,6 +123,76 @@ describe("Precision & Format Display (am-ver-precision-display-5e5)", () => {
       beadId: BEAD_ID,
       outcome: "passed",
       message: "German locale formatted with decimal comma; numeric transport unchanged",
+    });
+  });
+
+  it("catches a formatted value being reused as if it were the stored value (negative test)", () => {
+    // Stored full-precision value from Einstein 1905 Brownian displacement at t = 60 s
+    const storedValue = 6.156365; // μm
+    const formattedDisplay = formatSignificantFigures(storedValue, 2); // "6.2" μm
+    const reusedAsStored = Number(formattedDisplay); // 6.2
+
+    // Expected reference from theory (identical to storedValue)
+    const reference = 6.156365;
+    const strictSpec: ToleranceSpec = { relative: 1e-4 };
+
+    // 1. The stored value satisfies the physical tolerance check against reference
+    const storedVerdict = withinTolerance(storedValue, reference, strictSpec);
+    expect(storedVerdict.ok).toBe(true);
+    expect(storedVerdict.kind).toBe("within");
+
+    // 2. NEGATIVE TEST: Reusing the formatted value (6.2) in place of the stored value
+    // introduces an artificial ~0.71% error (|6.2 - 6.156365| / 6.156365 ≈ 0.007088),
+    // which FAILS the tolerance check and is caught as "outside".
+    const reusedVerdict = withinTolerance(reusedAsStored, reference, strictSpec);
+    expect(reusedVerdict.ok).toBe(false);
+    expect(reusedVerdict.kind).toBe("outside");
+    expect(reusedVerdict.diff).toBeGreaterThan(reusedVerdict.allowed);
+
+    // 3. Reusing formatted value in downstream physical derivation (diffusion coefficient D = x^2 / (2t))
+    const t = 60; // seconds
+    const trueD = (storedValue * 1e-6) ** 2 / (2 * t); // ~ 3.1584e-13 m^2/s
+    const corruptedD = (reusedAsStored * 1e-6) ** 2 / (2 * t); // ~ 3.2033e-13 m^2/s
+    const dSpec: ToleranceSpec = { relative: 1e-3 };
+
+    const trueDVerdict = withinTolerance(trueD, trueD, dSpec);
+    expect(trueDVerdict.ok).toBe(true);
+
+    const corruptedDVerdict = withinTolerance(corruptedD, trueD, dSpec);
+    expect(corruptedDVerdict.ok).toBe(false);
+    expect(corruptedDVerdict.kind).toBe("outside");
+
+    // 4. Demonstrate that string comparison of formatted values hides real differences,
+    // proving why formatted values must never be compared in place of tolerance checks.
+    const historicalT1 = 0.7947833;
+    const modernT1 = 0.7935339;
+    const formattedHistorical = formatSignificantFigures(historicalT1, 2); // "0.79"
+    const formattedModern = formatSignificantFigures(modernT1, 2); // "0.79"
+    // Formatted strings falsely appear identical:
+    expect(formattedHistorical).toBe(formattedModern);
+    // But tolerance comparison correctly detects they differ by more than 1e-4:
+    const physicalComparison = withinTolerance(historicalT1, modernT1, { relative: 1e-4 });
+    expect(physicalComparison.ok).toBe(false);
+    expect(physicalComparison.kind).toBe("outside");
+
+    logger.log({
+      testId: "negative-test-formatted-value-reuse-rejection",
+      beadId: BEAD_ID,
+      outcome: "passed",
+      expected: "outside",
+      actual: reusedVerdict.kind,
+      tolerance: strictSpec.relative,
+      comparisonKind: "tolerance",
+      message:
+        "Negative test confirmed: reusing formatted/rounded value in place of stored value fails tolerance checks",
+      extra: {
+        storedValue,
+        formatted: formattedDisplay,
+        reusedValue: reusedAsStored,
+        discrepancy: reusedVerdict.diff,
+        allowed: reusedVerdict.allowed,
+        verdictKind: reusedVerdict.kind,
+      },
     });
   });
 });
