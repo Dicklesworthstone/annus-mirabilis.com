@@ -1,0 +1,1154 @@
+# Scoped Notation Concordance for Brownian Motion (ap-17-549)
+# Specification: AGENTS.md, am-not-concordance-model-uag, am-not-entries-brownian-1rq.
+# Verification status: all entries are marked pending per honesty constraint
+# (no pinned facsimile scan is currently committed in the repository).
+
+paper: brownian-motion
+
+entries:
+  # =========================================================================
+  # §1: On the osmotic pressure of suspended particles
+  # =========================================================================
+  - id: bm.V.totalVolume
+    paper: brownian-motion
+    scope: ["bm-s1"]
+    glyph:
+      unicode: "V"
+      latex: "V"
+      variant: plain
+    meaning: "Total volume of the liquid solution"
+    binding:
+      quantityId: volume
+    operation:
+      kind: rename
+      target:
+        form: symbol
+        modernGlyph: "V"
+    sources:
+      facsimilePage: 549
+      anchor: bm-s1-p1
+    verification:
+      printed: true
+      checkedAgainst: "Pending facsimile scan (ap-17-549)"
+      by: "Editorial Staff"
+      date: "2026-09-17"
+
+  - id: bm.Vstar.partialVolume
+    paper: brownian-motion
+    scope: ["bm-s1", "bm-s2"]
+    glyph:
+      unicode: "V*"
+      latex: "V^*"
+      variant: plain
+    meaning: "Partial volume containing suspended particles"
+    binding:
+      quantityId: volume
+    operation:
+      kind: rename
+      target:
+        form: symbol
+        modernGlyph: "V^*"
+    sources:
+      facsimilePage: 549
+      anchor: bm-s1-p1
+    verification:
+      printed: true
+      checkedAgainst: "Pending facsimile scan (ap-17-549)"
+      by: "Editorial Staff"
+      date: "2026-09-17"
+
+  - id: bm.z.soluteAmount
+    paper: brownian-motion
+    scope: ["bm-s1"]
+    glyph:
+      unicode: "z"
+      latex: "z"
+      variant: plain
+    meaning: "Amount of solute in gram-molecules (moles)"
+    binding:
+      quantityId: soluteAmount
+    operation:
+      kind: rename
+      target:
+        form: symbol
+        modernGlyph: "n_{\\text{mol}}"
+    sources:
+      facsimilePage: 549
+      anchor: bm-s1-p1
+    verification:
+      printed: true
+      checkedAgainst: "Pending facsimile scan (ap-17-549)"
+      by: "Editorial Staff"
+      date: "2026-09-17"
+
+  - id: bm.p.osmoticPressure
+    paper: brownian-motion
+    scope: ["bm-s1", "bm-s2"]
+    glyph:
+      unicode: "p"
+      latex: "p"
+      variant: plain
+    meaning: "Osmotic pressure driving diffusion of suspended particles"
+    binding:
+      quantityId: osmoticPressure
+    operation:
+      kind: rename
+      target:
+        form: symbol
+        modernGlyph: "\\Pi"
+    collision:
+      severity: caution
+      kind: within-paper
+      collidesWith: ["bm.p_nu.stateVariable", "p_\\nu"]
+      collidesWithModern: ["osmoticPressure"]
+      firstUseAnchor: bm-s1-p1
+      firstUseBySection:
+        - sectionId: bm-s1
+          anchor: bm-s1-p1
+        - sectionId: bm-s2
+          anchor: bm-s2-p2
+    sources:
+      facsimilePage: 549
+      anchor: bm-s1-p1
+    verification:
+      printed: true
+      checkedAgainst: "Pending facsimile scan (ap-17-549)"
+      by: "Editorial Staff"
+      date: "2026-09-17"
+
+  - id: bm.T.temperature
+    paper: brownian-motion
+    scope: ["all"]
+    glyph:
+      unicode: "T"
+      latex: "T"
+      variant: plain
+    meaning: "Absolute thermodynamic temperature"
+    binding:
+      quantityId: temperature
+    operation:
+      kind: rename
+      target:
+        form: symbol
+        modernGlyph: "T"
+    sources:
+      facsimilePage: 549
+      anchor: bm-s1-p1
+    verification:
+      printed: true
+      checkedAgainst: "Pending facsimile scan (ap-17-549)"
+      by: "Editorial Staff"
+      date: "2026-09-17"
+
+  - id: bm.R.molarGasConstant
+    paper: brownian-motion
+    scope: ["all"]
+    glyph:
+      unicode: "R"
+      latex: "R"
+      variant: plain
+    meaning: "Universal molar gas constant"
+    binding:
+      quantityId: molarGasConstant
+    operation:
+      kind: rename
+      target:
+        form: symbol
+        modernGlyph: "R"
+    sources:
+      facsimilePage: 549
+      anchor: bm-s1-p1
+    verification:
+      printed: true
+      checkedAgainst: "Pending facsimile scan (ap-17-549)"
+      by: "Editorial Staff"
+      date: "2026-09-17"
+
+  - id: bm.n.particleCount
+    paper: brownian-motion
+    scope: ["bm-s1", "bm-s2"]
+    glyph:
+      unicode: "n"
+      latex: "n"
+      variant: plain
+    meaning: "Total count of suspended particles in partial volume V*"
+    binding:
+      quantityId: particleCount
+    operation:
+      kind: rename
+      target:
+        form: symbol
+        modernGlyph: "N_{\\text{particles}}"
+    collision:
+      severity: caution
+      kind: cross-toggle
+      collidesWith: ["numberDensity", "bm.nu.numberDensity"]
+      collidesWithModern: ["numberDensity"]
+      firstUseAnchor: bm-s1-p2
+      firstUseBySection:
+        - sectionId: bm-s1
+          anchor: bm-s1-p2
+        - sectionId: bm-s2
+          anchor: bm-s2-p2
+    sources:
+      facsimilePage: 550
+      anchor: bm-s1-p2
+    verification:
+      printed: true
+      checkedAgainst: "Pending facsimile scan (ap-17-549)"
+      by: "Editorial Staff"
+      date: "2026-09-17"
+
+  - id: bm.nu.numberDensity
+    paper: brownian-motion
+    scope: ["bm-s1", "bm-s3"]
+    glyph:
+      unicode: "ν"
+      latex: "\\nu"
+      variant: plain
+    meaning: "Number density of suspended particles (nu = n / V*)"
+    binding:
+      quantityId: numberDensity
+    operation:
+      kind: rename
+      target:
+        form: symbol
+        modernGlyph: "n"
+    collision:
+      severity: caution
+      kind: cross-paper
+      collidesWith: ["frequency", "particleCount"]
+      collidesWithModern: ["frequency", "particleCount"]
+      firstUseAnchor: bm-s1-p2
+      firstUseBySection:
+        - sectionId: bm-s1
+          anchor: bm-s1-p2
+        - sectionId: bm-s3
+          anchor: bm-s3-p1
+    sources:
+      facsimilePage: 550
+      anchor: bm-s1-p2
+    verification:
+      printed: true
+      checkedAgainst: "Pending facsimile scan (ap-17-549)"
+      by: "Editorial Staff"
+      date: "2026-09-17"
+
+  - id: bm.N.avogadroConstant
+    paper: brownian-motion
+    scope: ["all"]
+    glyph:
+      unicode: "N"
+      latex: "N"
+      variant: plain
+    meaning: "Avogadro's number of molecules per gram-molecule"
+    binding:
+      quantityId: avogadroConstant
+    operation:
+      kind: rename
+      target:
+        form: symbol
+        modernGlyph: "N_A"
+    collision:
+      severity: caution
+      kind: cross-paper
+      collidesWith: ["magneticFieldComponent"]
+      collidesWithModern: ["magneticFieldComponent"]
+      firstUseAnchor: bm-s1-p2
+      firstUseBySection:
+        - sectionId: bm-s1
+          anchor: bm-s1-p2
+        - sectionId: bm-s3
+          anchor: bm-s3-p1
+        - sectionId: bm-s5
+          anchor: bm-s5-p2
+    sources:
+      facsimilePage: 550
+      anchor: bm-s1-p2
+    verification:
+      printed: true
+      checkedAgainst: "Pending facsimile scan (ap-17-549)"
+      by: "Editorial Staff"
+      date: "2026-09-17"
+
+  # =========================================================================
+  # §2: Osmotic pressure from molecular-kinetic theory of heat
+  # =========================================================================
+  - id: bm.p_nu.stateVariable
+    paper: brownian-motion
+    scope: ["bm-s2"]
+    glyph:
+      unicode: "p_ν"
+      latex: "p_\\nu"
+      variant: plain
+    meaning: "Generalized state variable (phase-space coordinate) of the system"
+    binding:
+      quantityId: stateVariable
+    operation:
+      kind: rename
+      target:
+        form: symbol
+        modernGlyph: "p_\\nu"
+    collision:
+      severity: caution
+      kind: within-paper
+      collidesWith: ["bm.p.osmoticPressure", "osmoticPressure"]
+      collidesWithModern: ["osmoticPressure"]
+      firstUseAnchor: bm-s2-p1
+      firstUseBySection:
+        - sectionId: bm-s2
+          anchor: bm-s2-p1
+    sources:
+      facsimilePage: 551
+      anchor: bm-s2-p1
+    verification:
+      printed: true
+      checkedAgainst: "Pending facsimile scan (ap-17-549)"
+      by: "Editorial Staff"
+      date: "2026-09-17"
+
+  - id: bm.nu.index
+    paper: brownian-motion
+    scope: ["bm-s2"]
+    glyph:
+      unicode: "ν"
+      latex: "\\nu"
+      variant: plain
+    meaning: "Discrete index 1 ... l running over generalized state variables"
+    binding:
+      nonQuantityKind: index
+    operation:
+      kind: rename
+      target:
+        form: symbol
+        modernGlyph: "\\nu"
+    sources:
+      facsimilePage: 551
+      anchor: bm-s2-p1
+    verification:
+      printed: true
+      checkedAgainst: "Pending facsimile scan (ap-17-549)"
+      by: "Editorial Staff"
+      date: "2026-09-17"
+
+  - id: bm.phi_nu.stateVariableRate
+    paper: brownian-motion
+    scope: ["bm-s2"]
+    glyph:
+      unicode: "φ_ν"
+      latex: "\\varphi_\\nu"
+      variant: plain
+    meaning: "Time rate of change of generalized state variable p_nu (dp_nu / dt)"
+    binding:
+      quantityId: stateVariableRate
+    operation:
+      kind: rename
+      target:
+        form: symbol
+        modernGlyph: "\\dot{p}_\\nu"
+    collision:
+      severity: caution
+      kind: within-paper
+      collidesWith: ["bm.phi.transitionKernel", "\\varphi(\\Delta)"]
+      collidesWithModern: ["transitionKernel"]
+      firstUseAnchor: bm-s2-p1
+      firstUseBySection:
+        - sectionId: bm-s2
+          anchor: bm-s2-p1
+    sources:
+      facsimilePage: 551
+      anchor: bm-s2-p1
+    verification:
+      printed: true
+      checkedAgainst: "Pending facsimile scan (ap-17-549)"
+      by: "Editorial Staff"
+      date: "2026-09-17"
+
+  - id: bm.Ebar.systemEnergy
+    paper: brownian-motion
+    scope: ["bm-s2"]
+    glyph:
+      unicode: "Ē"
+      latex: "\\bar{E}"
+      variant: plain
+    meaning: "Mean thermodynamic energy of the system"
+    binding:
+      quantityId: systemEnergy
+    operation:
+      kind: rename
+      target:
+        form: symbol
+        modernGlyph: "\\langle E \\rangle"
+    sources:
+      facsimilePage: 551
+      anchor: bm-s2-p1
+    verification:
+      printed: true
+      checkedAgainst: "Pending facsimile scan (ap-17-549)"
+      by: "Editorial Staff"
+      date: "2026-09-17"
+
+  - id: bm.E.microstateEnergy
+    paper: brownian-motion
+    scope: ["bm-s2"]
+    glyph:
+      unicode: "E"
+      latex: "E"
+      variant: plain
+    meaning: "Energy of the system as a function of generalized state variables"
+    binding:
+      quantityId: microstateEnergy
+    operation:
+      kind: rename
+      target:
+        form: symbol
+        modernGlyph: "E"
+    sources:
+      facsimilePage: 551
+      anchor: bm-s2-p1
+    verification:
+      printed: true
+      checkedAgainst: "Pending facsimile scan (ap-17-549)"
+      by: "Editorial Staff"
+      date: "2026-09-17"
+
+  - id: bm.S.entropy
+    paper: brownian-motion
+    scope: ["all"]
+    glyph:
+      unicode: "S"
+      latex: "S"
+      variant: plain
+    meaning: "Thermodynamic and statistical entropy"
+    binding:
+      quantityId: entropy
+    operation:
+      kind: rename
+      target:
+        form: symbol
+        modernGlyph: "S"
+    sources:
+      facsimilePage: 551
+      anchor: bm-s2-p1
+    verification:
+      printed: true
+      checkedAgainst: "Pending facsimile scan (ap-17-549)"
+      by: "Editorial Staff"
+      date: "2026-09-17"
+
+  - id: bm.kappa.entropyConstant
+    paper: brownian-motion
+    scope: ["bm-s2"]
+    glyph:
+      unicode: "κ"
+      latex: "\\kappa"
+      variant: plain
+    meaning: "Statistical constant satisfying 2*kappa*N = R (half of Boltzmann's constant)"
+    binding:
+      quantityId: boltzmannConstant
+      scale:
+        num: 1
+        den: 2
+    operation:
+      kind: rename
+      target:
+        form: scaled
+        modernTree:
+          kind: multiply
+          factor:
+            num: 1
+            den: 2
+          term: "k_B"
+        modernGlyph: "\\tfrac{1}{2}k_B"
+    collision:
+      severity: caution
+      kind: cross-toggle
+      collidesWith: ["boltzmannConstant"]
+      collidesWithModern: ["boltzmannConstant"]
+      firstUseAnchor: bm-s2-p2
+      firstUseBySection:
+        - sectionId: bm-s2
+          anchor: bm-s2-p2
+    sources:
+      facsimilePage: 551
+      anchor: bm-s2-p2
+    verification:
+      printed: true
+      checkedAgainst: "Pending facsimile scan (ap-17-549)"
+      by: "Editorial Staff"
+      date: "2026-09-17"
+
+  - id: bm.2kappa.groupBoltzmann
+    paper: brownian-motion
+    scope: ["bm-s2"]
+    glyph:
+      unicode: "2κ"
+      latex: "2\\kappa"
+      variant: plain
+    meaning: "Product 2*kappa representing Boltzmann's constant k_B"
+    binding:
+      quantityId: boltzmannConstant
+    operation:
+      kind: rename
+      target:
+        form: group
+        pattern:
+          kind: multiply
+          factor: 2
+          terms: ["\\kappa"]
+        modernGlyph: "k_B"
+    sources:
+      facsimilePage: 551
+      anchor: bm-s2-p2
+    verification:
+      printed: true
+      checkedAgainst: "Pending facsimile scan (ap-17-549)"
+      by: "Editorial Staff"
+      date: "2026-09-17"
+
+  - id: bm.lg.logarithm
+    paper: brownian-motion
+    scope: ["bm-s2"]
+    glyph:
+      unicode: "lg"
+      latex: "\\lg"
+      variant: plain
+    meaning: "Natural logarithm operator (base e)"
+    binding:
+      nonQuantityKind: operator
+    operation:
+      kind: rename
+      target:
+        form: symbol
+        modernGlyph: "\\ln"
+    notes: "ISO 80000-2 / DIN 1302 note: Einstein's 'lg' notation represents the natural logarithm (base e), rendered as \\ln in modern standards."
+    sources:
+      facsimilePage: 551
+      anchor: bm-s2-p2
+    verification:
+      printed: true
+      checkedAgainst: "Pending facsimile scan (ap-17-549)"
+      by: "Editorial Staff"
+      date: "2026-09-17"
+
+  - id: bm.F.freeEnergy
+    paper: brownian-motion
+    scope: ["bm-s2", "bm-s3"]
+    glyph:
+      unicode: "F"
+      latex: "F"
+      variant: plain
+    meaning: "Helmholtz free energy (F = E - T*S)"
+    binding:
+      quantityId: freeEnergy
+    operation:
+      kind: rename
+      target:
+        form: symbol
+        modernGlyph: "F"
+    collision:
+      severity: caution
+      kind: cross-toggle
+      collidesWith: ["externalForcePerParticle", "dragForce"]
+      collidesWithModern: ["externalForcePerParticle", "dragForce"]
+      firstUseAnchor: bm-s2-p2
+      firstUseBySection:
+        - sectionId: bm-s2
+          anchor: bm-s2-p2
+        - sectionId: bm-s3
+          anchor: bm-s3-p1
+    sources:
+      facsimilePage: 552
+      anchor: bm-s2-p2
+    verification:
+      printed: true
+      checkedAgainst: "Pending facsimile scan (ap-17-549)"
+      by: "Editorial Staff"
+      date: "2026-09-17"
+
+  - id: bm.B.configurationIntegral
+    paper: brownian-motion
+    scope: ["bm-s2"]
+    glyph:
+      unicode: "B"
+      latex: "B"
+      variant: plain
+    meaning: "Configuration integral over phase space"
+    binding:
+      quantityId: configurationIntegral
+      dimensionStatus: state-dependent
+    operation:
+      kind: rename
+      target:
+        form: symbol
+        modernGlyph: "B"
+    sources:
+      facsimilePage: 552
+      anchor: bm-s2-p2
+    verification:
+      printed: true
+      checkedAgainst: "Pending facsimile scan (ap-17-549)"
+      by: "Editorial Staff"
+      date: "2026-09-17"
+
+  - id: bm.J.integralFactor
+    paper: brownian-motion
+    scope: ["bm-s2"]
+    glyph:
+      unicode: "J"
+      latex: "J"
+      variant: plain
+    meaning: "Spatial position-independent factor in the configuration integral"
+    binding:
+      quantityId: configurationIntegralFactor
+      dimensionStatus: state-dependent
+    operation:
+      kind: rename
+      target:
+        form: symbol
+        modernGlyph: "J"
+    sources:
+      facsimilePage: 552
+      anchor: bm-s2-p2
+    verification:
+      printed: true
+      checkedAgainst: "Pending facsimile scan (ap-17-549)"
+      by: "Editorial Staff"
+      date: "2026-09-17"
+
+  - id: bm.delta.variationOperator
+    paper: brownian-motion
+    scope: ["bm-s2", "bm-s3"]
+    glyph:
+      unicode: "δ"
+      latex: "\\delta"
+      variant: plain
+    meaning: "Virtual variation operator"
+    binding:
+      nonQuantityKind: operator
+    operation:
+      kind: rename
+      target:
+        form: symbol
+        modernGlyph: "\\delta"
+    sources:
+      facsimilePage: 552
+      anchor: bm-s2-p2
+    verification:
+      printed: true
+      checkedAgainst: "Pending facsimile scan (ap-17-549)"
+      by: "Editorial Staff"
+      date: "2026-09-17"
+
+  # =========================================================================
+  # §3: Theory of diffusion of suspended particles
+  # =========================================================================
+  - id: bm.K.externalForce
+    paper: brownian-motion
+    scope: ["bm-s3"]
+    glyph:
+      unicode: "K"
+      latex: "K"
+      variant: plain
+    meaning: "External force acting on a single suspended particle"
+    binding:
+      quantityId: externalForcePerParticle
+    operation:
+      kind: rename
+      target:
+        form: symbol
+        modernGlyph: "F_{\\text{ext}}"
+    collision:
+      severity: caution
+      kind: cross-toggle
+      collidesWith: ["freeEnergy"]
+      collidesWithModern: ["freeEnergy"]
+      firstUseAnchor: bm-s3-p1
+      firstUseBySection:
+        - sectionId: bm-s3
+          anchor: bm-s3-p1
+    sources:
+      facsimilePage: 553
+      anchor: bm-s3-p1
+    verification:
+      printed: true
+      checkedAgainst: "Pending facsimile scan (ap-17-549)"
+      by: "Editorial Staff"
+      date: "2026-09-17"
+
+  - id: bm.x.coordinate
+    paper: brownian-motion
+    scope: ["all"]
+    glyph:
+      unicode: "x"
+      latex: "x"
+      variant: plain
+    meaning: "Spatial coordinate along the 1D axis of diffusion"
+    binding:
+      nonQuantityKind: coordinate-system-label
+    operation:
+      kind: rename
+      target:
+        form: symbol
+        modernGlyph: "x"
+    sources:
+      facsimilePage: 553
+      anchor: bm-s3-p1
+    verification:
+      printed: true
+      checkedAgainst: "Pending facsimile scan (ap-17-549)"
+      by: "Editorial Staff"
+      date: "2026-09-17"
+
+  - id: bm.l.columnLength
+    paper: brownian-motion
+    scope: ["bm-s3"]
+    glyph:
+      unicode: "l"
+      latex: "l"
+      variant: plain
+    meaning: "Length of the cylindrical liquid column along the x-axis"
+    binding:
+      quantityId: columnLength
+    operation:
+      kind: rename
+      target:
+        form: symbol
+        modernGlyph: "L"
+    collision:
+      severity: caution
+      kind: cross-paper
+      collidesWith: ["columnLength"]
+      collidesWithModern: ["columnLength"]
+      firstUseAnchor: bm-s3-p1
+      firstUseBySection:
+        - sectionId: bm-s3
+          anchor: bm-s3-p1
+    sources:
+      facsimilePage: 553
+      anchor: bm-s3-p1
+    verification:
+      printed: true
+      checkedAgainst: "Pending facsimile scan (ap-17-549)"
+      by: "Editorial Staff"
+      date: "2026-09-17"
+
+  - id: bm.k.viscosity
+    paper: brownian-motion
+    scope: ["bm-s3", "bm-s5"]
+    glyph:
+      unicode: "k"
+      latex: "k"
+      variant: plain
+    meaning: "Fluid dynamic viscosity (eta)"
+    binding:
+      quantityId: viscosity
+    operation:
+      kind: rename
+      target:
+        form: symbol
+        modernGlyph: "\\eta"
+    collision:
+      severity: danger
+      kind: cross-toggle
+      collidesWith: ["boltzmannConstant"]
+      collidesWithModern: ["boltzmannConstant"]
+      firstUseAnchor: bm-s3-p2
+      firstUseBySection:
+        - sectionId: bm-s3
+          anchor: bm-s3-p2
+        - sectionId: bm-s5
+          anchor: bm-s5-p2
+    sources:
+      facsimilePage: 554
+      anchor: bm-s3-p2
+    verification:
+      printed: true
+      checkedAgainst: "Pending facsimile scan (ap-17-549)"
+      by: "Editorial Staff"
+      date: "2026-09-17"
+
+  - id: bm.P.particleRadius
+    paper: brownian-motion
+    scope: ["bm-s3", "bm-s5"]
+    glyph:
+      unicode: "P"
+      latex: "P"
+      variant: plain
+    meaning: "Radius of spherical suspended particle"
+    binding:
+      quantityId: particleRadius
+    operation:
+      kind: rename
+      target:
+        form: symbol
+        modernGlyph: "a"
+    collision:
+      severity: caution
+      kind: cross-paper
+      collidesWith: ["osmoticPressure"]
+      collidesWithModern: ["osmoticPressure"]
+      firstUseAnchor: bm-s3-p2
+      firstUseBySection:
+        - sectionId: bm-s3
+          anchor: bm-s3-p2
+        - sectionId: bm-s5
+          anchor: bm-s5-p2
+    sources:
+      facsimilePage: 554
+      anchor: bm-s3-p2
+    verification:
+      printed: true
+      checkedAgainst: "Pending facsimile scan (ap-17-549)"
+      by: "Editorial Staff"
+      date: "2026-09-17"
+
+  - id: bm.mu.particleMass
+    paper: brownian-motion
+    scope: ["bm-s3"]
+    glyph:
+      unicode: "μ"
+      latex: "\\mu"
+      variant: plain
+    meaning: "Mass of an individual suspended particle"
+    binding:
+      quantityId: particleMass
+    operation:
+      kind: rename
+      target:
+        form: symbol
+        modernGlyph: "m"
+    collision:
+      severity: caution
+      kind: cross-toggle
+      collidesWith: ["mobility", "Mikron"]
+      collidesWithModern: ["mobility"]
+      firstUseAnchor: bm-s3-p2
+      firstUseBySection:
+        - sectionId: bm-s3
+          anchor: bm-s3-p2
+    sources:
+      facsimilePage: 555
+      anchor: bm-s3-p2
+    verification:
+      printed: true
+      checkedAgainst: "Pending facsimile scan (ap-17-549)"
+      by: "Editorial Staff"
+      date: "2026-09-17"
+
+  - id: bm.D.diffusionCoefficient
+    paper: brownian-motion
+    scope: ["all"]
+    glyph:
+      unicode: "D"
+      latex: "D"
+      variant: plain
+    meaning: "Diffusion coefficient of suspended particles"
+    binding:
+      quantityId: diffusionCoefficient
+    operation:
+      kind: rename
+      target:
+        form: symbol
+        modernGlyph: "D"
+    sources:
+      facsimilePage: 555
+      anchor: bm-s3-p2
+    verification:
+      printed: true
+      checkedAgainst: "Pending facsimile scan (ap-17-549)"
+      by: "Editorial Staff"
+      date: "2026-09-17"
+
+  - id: bm.v.driftVelocity
+    paper: brownian-motion
+    scope: ["bm-s3"]
+    glyph:
+      unicode: "v"
+      latex: "v"
+      variant: plain
+    meaning: "Drift velocity imparted by external force (K / (6*pi*k*P))"
+    binding:
+      quantityId: driftVelocity
+    operation:
+      kind: rename
+      target:
+        form: symbol
+        modernGlyph: "v_{\\text{drift}}"
+    sources:
+      facsimilePage: 554
+      anchor: bm-s3-p2
+    verification:
+      printed: true
+      checkedAgainst: "Pending facsimile scan (ap-17-549)"
+      by: "Editorial Staff"
+      date: "2026-09-17"
+
+  - id: bm.RN.groupBoltzmann
+    paper: brownian-motion
+    scope: ["all"]
+    glyph:
+      unicode: "R/N"
+      latex: "R/N"
+      variant: plain
+    meaning: "Ratio of molar gas constant to Avogadro constant (Boltzmann's constant k_B)"
+    binding:
+      quantityId: boltzmannConstant
+    operation:
+      kind: rename
+      target:
+        form: group
+        pattern:
+          kind: divide
+          terms: ["R", "N"]
+        modernGlyph: "k_B"
+    sources:
+      facsimilePage: 555
+      anchor: bm-s3-p2
+    verification:
+      printed: true
+      checkedAgainst: "Pending facsimile scan (ap-17-549)"
+      by: "Editorial Staff"
+      date: "2026-09-17"
+
+  # =========================================================================
+  # §4: Irregular movement of suspended particles and relation to diffusion
+  # =========================================================================
+  - id: bm.tau.observationInterval
+    paper: brownian-motion
+    scope: ["bm-s4"]
+    glyph:
+      unicode: "τ"
+      latex: "\\tau"
+      variant: plain
+    meaning: "Small observation time interval during which particle steps occur"
+    binding:
+      quantityId: observationInterval
+    operation:
+      kind: rename
+      target:
+        form: symbol
+        modernGlyph: "\\tau"
+    collision:
+      severity: caution
+      kind: cross-paper
+      collidesWith: ["coordinateTimeMoving"]
+      collidesWithModern: ["coordinateTimeMoving"]
+      firstUseAnchor: bm-s4-p1
+      firstUseBySection:
+        - sectionId: bm-s4
+          anchor: bm-s4-p1
+    sources:
+      facsimilePage: 556
+      anchor: bm-s4-p1
+    verification:
+      printed: true
+      checkedAgainst: "Pending facsimile scan (ap-17-549)"
+      by: "Editorial Staff"
+      date: "2026-09-17"
+
+  - id: bm.Delta.displacement
+    paper: brownian-motion
+    scope: ["bm-s4"]
+    glyph:
+      unicode: "Δ"
+      latex: "\\Delta"
+      variant: plain
+    meaning: "1D spatial displacement increment of a particle in interval tau"
+    binding:
+      quantityId: displacementIncrement
+    operation:
+      kind: rename
+      target:
+        form: symbol
+        modernGlyph: "\\Delta x"
+    sources:
+      facsimilePage: 556
+      anchor: bm-s4-p1
+    verification:
+      printed: true
+      checkedAgainst: "Pending facsimile scan (ap-17-549)"
+      by: "Editorial Staff"
+      date: "2026-09-17"
+
+  - id: bm.phi.transitionKernel
+    paper: brownian-motion
+    scope: ["bm-s4"]
+    glyph:
+      unicode: "φ(Δ)"
+      latex: "\\varphi(\\Delta)"
+      variant: plain
+    meaning: "Transition probability density of displacement (dimension L^-1)"
+    binding:
+      quantityId: transitionKernel
+    operation:
+      kind: rename
+      target:
+        form: symbol
+        modernGlyph: "\\phi(\\Delta x)"
+    collision:
+      severity: caution
+      kind: within-paper
+      collidesWith: ["bm.phi_nu.stateVariableRate", "\\varphi_\\nu"]
+      collidesWithModern: ["emissionAngle", "fieldScaleFactorUnknown"]
+      firstUseAnchor: bm-s4-p1
+      firstUseBySection:
+        - sectionId: bm-s4
+          anchor: bm-s4-p1
+    sources:
+      facsimilePage: 556
+      anchor: bm-s4-p1
+    verification:
+      printed: true
+      checkedAgainst: "Pending facsimile scan (ap-17-549)"
+      by: "Editorial Staff"
+      date: "2026-09-17"
+
+  - id: bm.f.numberDensity
+    paper: brownian-motion
+    scope: ["bm-s4"]
+    glyph:
+      unicode: "f"
+      latex: "f"
+      variant: plain
+    meaning: "Particle number density per unit length (dn = f(x,t) dx, normalized to total count n)"
+    binding:
+      quantityId: numberDensity
+    operation:
+      kind: rename
+      target:
+        form: symbol
+        modernGlyph: "n"
+    notes: "Einstein's f(x,t) represents number density with integral over space equaling total particle count n. Renaming to probability density p(x,t) is an argument modernization."
+    sources:
+      facsimilePage: 556
+      anchor: bm-s4-p1
+    verification:
+      printed: true
+      checkedAgainst: "Pending facsimile scan (ap-17-549)"
+      by: "Editorial Staff"
+      date: "2026-09-17"
+
+  - id: bm.t.elapsedTime
+    paper: brownian-motion
+    scope: ["all"]
+    glyph:
+      unicode: "t"
+      latex: "t"
+      variant: plain
+    meaning: "Elapsed observation time"
+    binding:
+      quantityId: elapsedTime
+    operation:
+      kind: rename
+      target:
+        form: symbol
+        modernGlyph: "t"
+    sources:
+      facsimilePage: 556
+      anchor: bm-s4-p1
+    verification:
+      printed: true
+      checkedAgainst: "Pending facsimile scan (ap-17-549)"
+      by: "Editorial Staff"
+      date: "2026-09-17"
+
+  # =========================================================================
+  # §5: Formula for mean displacement of suspended particles
+  # =========================================================================
+  - id: bm.lambda_x.rmsDisplacement
+    paper: brownian-motion
+    scope: ["bm-s5"]
+    glyph:
+      unicode: "λ_x"
+      latex: "\\lambda_x"
+      variant: plain
+    meaning: "Mean square root displacement (RMS displacement scale) along x-axis"
+    binding:
+      quantityId: rmsDisplacement1d
+    operation:
+      kind: rename
+      target:
+        form: symbol
+        modernGlyph: "\\sqrt{\\langle x^2 \\rangle}"
+    sources:
+      facsimilePage: 559
+      anchor: bm-s5-p1
+    verification:
+      printed: true
+      checkedAgainst: "Pending facsimile scan (ap-17-549)"
+      by: "Editorial Staff"
+      date: "2026-09-17"
+
+  - id: bm.poise.viscosityUnitConversion
+    paper: brownian-motion
+    scope: ["bm-s5"]
+    glyph:
+      unicode: "1.35*10^-2"
+      latex: "1.35 \\times 10^{-2}"
+      variant: plain
+    meaning: "Dynamic viscosity of water at 17 C in CGS poise converting to SI Pa*s"
+    binding:
+      quantityId: viscosity
+    operation:
+      kind: unitConversion
+      fromSystem: cgs
+      toSystem: si
+      factor: 0.1
+      conversionDerivationRef: "1 poise = 0.1 Pa*s"
+    sources:
+      facsimilePage: 559
+      anchor: bm-s5-p2
+    verification:
+      printed: true
+      checkedAgainst: "Pending facsimile scan (ap-17-549)"
+      by: "Editorial Staff"
+      date: "2026-09-17"
+
+  - id: bm.Mikron.unitSymbol
+    paper: brownian-motion
+    scope: ["bm-s5"]
+    glyph:
+      unicode: "Mikron"
+      latex: "\\text{Mikron}"
+      variant: plain
+    meaning: "Printed unit word for micrometre (10^-6 m)"
+    binding:
+      nonQuantityKind: unit-symbol
+    operation:
+      kind: rename
+      target:
+        form: symbol
+        modernGlyph: "\\mu\\text{m}"
+    sources:
+      facsimilePage: 559
+      anchor: bm-s5-p2
+    verification:
+      printed: true
+      checkedAgainst: "Pending facsimile scan (ap-17-549)"
+      by: "Editorial Staff"
+      date: "2026-09-17"
+
+  - id: bm.Sek.unitSymbol
+    paper: brownian-motion
+    scope: ["bm-s5"]
+    glyph:
+      unicode: "Sek."
+      latex: "\\text{Sek.}"
+      variant: plain
+    meaning: "Printed abbreviation for second"
+    binding:
+      nonQuantityKind: unit-symbol
+    operation:
+      kind: rename
+      target:
+        form: symbol
+        modernGlyph: "\\text{s}"
+    sources:
+      facsimilePage: 559
+      anchor: bm-s5-p2
+    verification:
+      printed: true
+      checkedAgainst: "Pending facsimile scan (ap-17-549)"
+      by: "Editorial Staff"
+      date: "2026-09-17"
