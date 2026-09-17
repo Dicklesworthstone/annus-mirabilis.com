@@ -191,6 +191,9 @@ Read [`AGENTS.md`](./AGENTS.md) before changing anything. Once the application s
 bun install
 bun run dev          # local development server
 bun run gates        # quality gates chain: bun scripts/quality-gates.ts --fail-fast --family fast
+bun scripts/quality-gates.ts --profile scaffold  # scaffold release profile verification
+bun scripts/quality-gates.ts --profile preview   # preview release profile verification
+bun scripts/quality-gates.ts --profile launch    # launch release profile verification
 bun run test         # unit and integration tests (bun + node multi-runner)
 bun run typecheck    # strict TypeScript
 bun run lint         # Biome
