@@ -1,67 +1,115 @@
 import { describe, expect, test } from "bun:test";
 import { BM05_OUTPUTS, BM05_WEAVE_PREDICATES } from "../experiments/bm05/definition.ts";
 import { dkwBound, kolmogorovShapeTerm } from "../physics/reference/diffusion/walkLaws.ts";
+import { createWeaveEvaluator } from "../experiments/weave/evaluate.ts";
+import type { WeaveSnapshotView } from "../experiments/weave/types.ts";
+import { validateWeavePredicate } from "../experiments/weave/validate.ts";
 
 /**
- * am-bm-05-random-steps-ntzl: "the weave predicates do not exist" -- same gap and same honesty
- * caveat as BM-06's (src/testing/bm06Weave.test.ts): am-read-result-weave-jex, the compiler and
- * evaluator bm05-s4-second-moment must validate against, does not exist yet. This is a
- * structural test over declared data plus a numeric cross-check against the real owner
- * functions the bead's own text cites (kolmogorovShapeTerm, dkwBound) -- it does not run the
- * predicate through a real weave pass.
+ * am-bm-05-random-steps-ntzl's own test plan (bm05.weave.integration.test.ts): "with the weave's
+ * real compiler pass and evaluator on scripted accepted snapshots ... the predicate validates
+ * ... enters at a distance of 0.0630 and holds at 0.0660 ... then exits at 0.0700; W=399 leaves
+ * it unlit as not-evaluable; removing the shape-term output from the manifest fails validation."
+ * This is that test, now that the real weave (am-read-result-weave-jex) exists.
  */
-describe("BM-05 weave predicate declaration (data only, no real weave compiler exists yet)", () => {
-  test("bm05-s4-second-moment is declared with a single agreement condition", () => {
-    expect(BM05_WEAVE_PREDICATES).toHaveLength(1);
+const CTX = {
+  instrumentOutputIds: new Set(Object.keys(BM05_OUTPUTS)),
+  resolvableTargetIds: new Set(["s4-second-moment"]),
+};
+
+function snapshot(
+  runId: string,
+  snapshotVersion: number,
+  overrides: Readonly<{ distance?: number; walkerCount?: number; shapeTerm?: number }> = {},
+): WeaveSnapshotView {
+  const outputs: Record<string, { quantityId: string; status: "value"; value: number }> = {};
+  const set = (quantityId: string, value: number | undefined) => {
+    if (value !== undefined) outputs[quantityId] = { quantityId, status: "value", value };
+  };
+  set("kolmogorovDistance", overrides.distance);
+  set("walkerCount", overrides.walkerCount ?? 2000);
+  set("shapeTerm", overrides.shapeTerm ?? kolmogorovShapeTermAt400());
+  return { runId, snapshotVersion, outputs, refused: false };
+}
+
+function kolmogorovShapeTermAt400(): number {
+  const shape = kolmogorovShapeTerm("coin", 400);
+  if (shape.kind !== "accepted") throw new Error("expected an accepted shape term");
+  return shape.data.distance;
+}
+
+describe("BM-05 weave predicate bm05-s4-second-moment (real compiler pass and evaluator)", () => {
+  test("validates against the real weave contract", () => {
     const predicate = BM05_WEAVE_PREDICATES[0];
-    expect(predicate?.id).toBe("bm05-s4-second-moment");
-    expect(predicate?.conditions).toHaveLength(1);
-    expect(predicate?.conditions[0]?.kind).toBe("agreement");
+    const validated = validateWeavePredicate(predicate, CTX);
+    expect(validated.id).toBe("bm05-s4-second-moment");
+    expect(validated.instrumentId).toBe("bm-05");
+    expect(validated.meaning).toBe("agreement-within-stated-bound");
   });
 
-  test("the statistic and offset outputs it names are real, already-published BM05_OUTPUTS keys", () => {
-    const condition = BM05_WEAVE_PREDICATES[0]?.conditions[0];
-    if (!condition || condition.kind !== "agreement")
-      throw new Error("expected an agreement condition");
-    expect(Object.hasOwn(BM05_OUTPUTS, condition.statisticOutputId)).toBe(true);
-    expect(Object.hasOwn(BM05_OUTPUTS, condition.offsetOutputId)).toBe(true);
-    expect(condition.statisticOutputId).toBe("kolmogorovDistance");
-    expect(condition.offsetOutputId).toBe("shapeTerm");
-    // walkers is a parameter (Bm05Parameters.walkers), never a BM05_OUTPUTS key -- documented
-    // in the definition.ts comment beside the declaration.
-    expect(Object.hasOwn(BM05_OUTPUTS, condition.sampleCountField)).toBe(false);
-    expect(condition.sampleCountField).toBe("walkers");
-    expect(condition.minimumSampleCount).toBe(400);
-    expect(condition.boundFamily).toBe("dkw");
+  test("removing the shape-term output from the instrument's declared outputs fails validation", () => {
+    const predicate = BM05_WEAVE_PREDICATES[0];
+    const withoutShapeTerm = {
+      instrumentOutputIds: new Set(
+        [...CTX.instrumentOutputIds].filter((id) => id !== "shapeTerm"),
+      ),
+      resolvableTargetIds: CTX.resolvableTargetIds,
+    };
+    expect(() => validateWeavePredicate(predicate, withoutShapeTerm)).toThrow(
+      /weave-condition-quantity-not-output/,
+    );
   });
 
-  test("the bead's own stated enter/exit numbers for the coin kernel at n=400, W=2000 reproduce from the real owner functions", () => {
-    const condition = BM05_WEAVE_PREDICATES[0]?.conditions[0];
-    if (!condition || condition.kind !== "agreement")
-      throw new Error("expected an agreement condition");
+  test("the bead's own scripted sequence: enters at 0.0630, holds at 0.0660, exits at 0.0700, all at W=2000 coin/n=400", () => {
+    const predicate = validateWeavePredicate(BM05_WEAVE_PREDICATES[0], CTX);
+    const evaluator = createWeaveEvaluator([predicate]);
+
+    const entering = evaluator.evaluate(snapshot("run-1", 1, { distance: 0.063 }));
+    expect(entering.flags["bm05-s4-second-moment"]?.lit).toBe(true);
+    expect(entering.flags["bm05-s4-second-moment"]?.state).toBe("enter");
+
+    const holding = evaluator.evaluate(snapshot("run-1", 2, { distance: 0.066 }));
+    expect(holding.flags["bm05-s4-second-moment"]?.lit).toBe(true);
+    expect(holding.flags["bm05-s4-second-moment"]?.state).toBe("hold");
+
+    const exiting = evaluator.evaluate(snapshot("run-1", 3, { distance: 0.07 }));
+    expect(exiting.flags["bm05-s4-second-moment"]?.lit).toBe(false);
+    expect(exiting.flags["bm05-s4-second-moment"]?.state).toBe("exit");
+  });
+
+  test("W = 399 (below the minimum sample size) leaves the predicate unlit as not-evaluable", () => {
+    const predicate = validateWeavePredicate(BM05_WEAVE_PREDICATES[0], CTX);
+    const evaluator = createWeaveEvaluator([predicate]);
+    const result = evaluator.evaluate(snapshot("run-2", 1, { distance: 0.02, walkerCount: 399 }));
+    expect(result.flags["bm05-s4-second-moment"]?.lit).toBe(false);
+    expect(result.flags["bm05-s4-second-moment"]?.state).toBe("not-evaluable");
+  });
+
+  test("a typed refusal leaves the predicate unlit regardless of the underlying numbers", () => {
+    const predicate = validateWeavePredicate(BM05_WEAVE_PREDICATES[0], CTX);
+    const evaluator = createWeaveEvaluator([predicate]);
+    const result = evaluator.evaluate({
+      runId: "run-3",
+      snapshotVersion: 1,
+      outputs: {
+        kolmogorovDistance: { quantityId: "kolmogorovDistance", status: "value", value: 0.001 },
+        walkerCount: { quantityId: "walkerCount", status: "value", value: 2000 },
+        shapeTerm: { quantityId: "shapeTerm", status: "value", value: 0 },
+      },
+      refused: true,
+    });
+    expect(result.flags["bm05-s4-second-moment"]?.lit).toBe(false);
+    expect(result.flags["bm05-s4-second-moment"]?.state).toBe("not-evaluable");
+  });
+
+  test("the bead's stated enter/exit bounds (0.0635 / 0.0697) reproduce from the real owner functions, independent of the evaluator", () => {
     const shape = kolmogorovShapeTerm("coin", 400);
     if (shape.kind !== "accepted") throw new Error("expected an accepted shape term");
-    const enterDkw = dkwBound(2000, condition.alphaEnter);
-    const exitDkw = dkwBound(2000, condition.alphaExit);
+    const enterDkw = dkwBound(2000, 1e-3);
+    const exitDkw = dkwBound(2000, 1e-4);
     if (enterDkw.kind !== "accepted" || exitDkw.kind !== "accepted")
       throw new Error("expected accepted DKW bounds");
-    const enterBound = shape.data.distance + enterDkw.data;
-    const exitBound = shape.data.distance + exitDkw.data;
-    // Bead text: "enter ... at or below 0.019935 + 0.043592 = 0.0635"; "exit ... 0.0498 at W=2000"
-    // combined with the shape term reads 0.019935 + 0.049758 = 0.0697.
-    expect(shape.data.distance).toBeCloseTo(0.019935, 5);
-    expect(enterDkw.data).toBeCloseTo(0.043592, 5);
-    expect(exitDkw.data).toBeCloseTo(0.049758, 5);
-    expect(enterBound).toBeCloseTo(0.0635, 3);
-    expect(exitBound).toBeCloseTo(0.0697, 3);
-    expect(enterBound).toBeLessThan(exitBound);
-  });
-
-  test("declarations are frozen data, not executable predicates", () => {
-    for (const predicate of BM05_WEAVE_PREDICATES) {
-      expect(Object.isFrozen(predicate)).toBe(true);
-      expect(Object.isFrozen(predicate.conditions)).toBe(true);
-      expect(typeof (predicate as unknown as { evaluate?: unknown }).evaluate).not.toBe("function");
-    }
+    expect(shape.data.distance + enterDkw.data).toBeCloseTo(0.0635, 3);
+    expect(shape.data.distance + exitDkw.data).toBeCloseTo(0.0697, 3);
   });
 });
