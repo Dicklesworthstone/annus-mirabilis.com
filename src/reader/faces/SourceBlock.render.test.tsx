@@ -6,9 +6,15 @@ import {
 } from "../../testing/fixtures/bilingual/brownianBilingualFixture.ts";
 import { SourceBlock } from "./SourceBlock.tsx";
 
+function getBlock(id: string) {
+  const block = FIXTURE_BROWNIAN_SOURCE_BLOCKS.find((b) => b.id === id);
+  if (!block) throw new Error(`Missing fixture block ${id}`);
+  return block;
+}
+
 describe("SourceBlock render tests", () => {
   test("renders paragraph with sentence spans and lang='de'", () => {
-    const block = FIXTURE_BROWNIAN_SOURCE_BLOCKS.find((b) => b.id === "bm-s4-p1")!;
+    const block = getBlock("bm-s4-p1");
     const html = renderToStaticMarkup(
       <SourceBlock
         block={block}
@@ -25,7 +31,7 @@ describe("SourceBlock render tests", () => {
   });
 
   test("renders locators linking to facsimile page", () => {
-    const block = FIXTURE_BROWNIAN_SOURCE_BLOCKS.find((b) => b.id === "bm-s4-p1")!;
+    const block = getBlock("bm-s4-p1");
     const html = renderToStaticMarkup(<SourceBlock block={block} paperSlug="brownian-motion" />);
 
     expect(html).toContain('data-facsimile-link="556"');
@@ -34,7 +40,7 @@ describe("SourceBlock render tests", () => {
   });
 
   test("renders equation in printed notation only", () => {
-    const block = FIXTURE_BROWNIAN_SOURCE_BLOCKS.find((b) => b.id === "bm-s4-eq1")!;
+    const block = getBlock("bm-s4-eq1");
     const html = renderToStaticMarkup(<SourceBlock block={block} paperSlug="brownian-motion" />);
 
     expect(html).toContain('data-kind="equation"');
@@ -45,14 +51,14 @@ describe("SourceBlock render tests", () => {
   });
 
   test("renders headings and closing dateline", () => {
-    const headingBlock = FIXTURE_BROWNIAN_SOURCE_BLOCKS.find((b) => b.id === "bm-s4-h1")!;
+    const headingBlock = getBlock("bm-s4-h1");
     const headingHtml = renderToStaticMarkup(
       <SourceBlock block={headingBlock} paperSlug="brownian-motion" />,
     );
     expect(headingHtml).toContain("<h2");
     expect(headingHtml).toContain("§ 4.");
 
-    const closingBlock = FIXTURE_BROWNIAN_SOURCE_BLOCKS.find((b) => b.id === "bm-closing")!;
+    const closingBlock = getBlock("bm-closing");
     const closingHtml = renderToStaticMarkup(
       <SourceBlock block={closingBlock} paperSlug="brownian-motion" />,
     );
@@ -60,7 +66,7 @@ describe("SourceBlock render tests", () => {
   });
 
   test("renders editorial notes attached to block", () => {
-    const block = FIXTURE_BROWNIAN_SOURCE_BLOCKS.find((b) => b.id === "bm-s4-p1")!;
+    const block = getBlock("bm-s4-p1");
     const html = renderToStaticMarkup(
       <SourceBlock
         block={block}
