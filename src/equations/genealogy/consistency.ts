@@ -39,8 +39,9 @@ function findCycleInAdjacency(adj: Map<string, string[]>): string[] | null {
       const neighbors = adj.get(top.u) ?? [];
 
       if (top.edgeIdx < neighbors.length) {
-        const v = neighbors[top.edgeIdx]!;
+        const v = neighbors[top.edgeIdx];
         top.edgeIdx += 1;
+        if (!v) continue;
 
         if (inStack.has(v)) {
           const cycle: string[] = [v];
@@ -120,10 +121,12 @@ export function validateGenealogyConsistency(
     }
 
     for (let i = 0; i < chain.steps.length; i++) {
-      const step = chain.steps[i]!;
+      const step = chain.steps[i];
+      if (!step) continue;
 
       if (i > 0) {
-        const prevStep = chain.steps[i - 1]!;
+        const prevStep = chain.steps[i - 1];
+        if (!prevStep) continue;
         authorizedEdges.add(`${prevStep.id}->${step.id}`);
         const isModernOracle = chain.routeKind === "modern-verification";
         if (!(graph.perspective === "historical" && isModernOracle)) {
@@ -153,16 +156,18 @@ export function validateGenealogyConsistency(
     }
 
     if (chain.steps.length > 0 && chain.target) {
-      const lastStep = chain.steps[chain.steps.length - 1]!;
-      authorizedEdges.add(`${lastStep.id}->${chain.target}`);
-      const isModernOracle = chain.routeKind === "modern-verification";
-      if (!(graph.perspective === "historical" && isModernOracle)) {
-        if (!edgeSet.has(`${lastStep.id}->${chain.target}`)) {
-          diagnostics.push({
-            code: "missing-premise-edge",
-            message: `Derivation chain "${chain.id}" target connection "${lastStep.id}" -> "${chain.target}" is missing in genealogy.`,
-            edge: { from: lastStep.id, to: chain.target },
-          });
+      const lastStep = chain.steps[chain.steps.length - 1];
+      if (lastStep) {
+        authorizedEdges.add(`${lastStep.id}->${chain.target}`);
+        const isModernOracle = chain.routeKind === "modern-verification";
+        if (!(graph.perspective === "historical" && isModernOracle)) {
+          if (!edgeSet.has(`${lastStep.id}->${chain.target}`)) {
+            diagnostics.push({
+              code: "missing-premise-edge",
+              message: `Derivation chain "${chain.id}" target connection "${lastStep.id}" -> "${chain.target}" is missing in genealogy.`,
+              edge: { from: lastStep.id, to: chain.target },
+            });
+          }
         }
       }
     }
@@ -236,14 +241,16 @@ export function validateGenealogyConsistency(
         message: `Special Relativity (Paper 3) must have exactly one outgoing cross-paper edge to Paper 4, but found ${outgoingCrossPaper.length} edges.`,
       });
     } else {
-      const singleEdge = outgoingCrossPaper[0]!;
-      const targetPaper = singleEdge.targetPaper ?? singleEdge.provenance?.sourcePaper;
-      if (targetPaper !== "mass-energy" && targetPaper !== "me" && targetPaper !== "ap-18-639") {
-        diagnostics.push({
-          code: "invalid-cross-paper-edge-set",
-          message: `Special Relativity (Paper 3) outgoing cross-paper edge must target Paper 4 ('mass-energy'), but targets '${targetPaper}'.`,
-          edge: { from: singleEdge.from, to: singleEdge.to },
-        });
+      const singleEdge = outgoingCrossPaper[0];
+      if (singleEdge) {
+        const targetPaper = singleEdge.targetPaper ?? singleEdge.provenance?.sourcePaper;
+        if (targetPaper !== "mass-energy" && targetPaper !== "me" && targetPaper !== "ap-18-639") {
+          diagnostics.push({
+            code: "invalid-cross-paper-edge-set",
+            message: `Special Relativity (Paper 3) outgoing cross-paper edge must target Paper 4 ('mass-energy'), but targets '${targetPaper}'.`,
+            edge: { from: singleEdge.from, to: singleEdge.to },
+          });
+        }
       }
     }
   }
