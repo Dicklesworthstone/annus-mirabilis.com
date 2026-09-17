@@ -75,10 +75,13 @@ describe("ReaderController: the direct-open wiring this bead added", () => {
       reactRoot.render(
         createElement(ReaderController, { registry: REGISTRY, titles: {}, questions: {} }),
       );
-      // ReaderController defers openFromSearch one microtask so flushSync is not
-      // nested inside this island's own commit. Drain that turn inside act.
-      await Promise.resolve();
-      await Promise.resolve();
+      // ReaderController queues openFromSearch on a microtask so flushSync is not
+      // nested inside this island's own commit. One macrotask is the first point
+      // both the effect and that deferred mount have run; Promise.resolve() is
+      // the same queue as the deferred mount and loses the race.
+      await new Promise<void>((resolve) => {
+        setTimeout(resolve, 0);
+      });
     });
     const instrumentDialog = document.querySelector("[data-instrument-clarification-dialog]");
     expect(instrumentDialog).not.toBeNull();
