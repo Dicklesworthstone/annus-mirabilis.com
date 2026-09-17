@@ -83,9 +83,14 @@ export function parseEquationRecord(input: unknown, path: string): EquationRecor
   const dimensions = checkDimensions(tree, BROWNIAN_QUANTITIES);
   if (dimensions.status !== "consistent") fail(path, dimensions.reason);
   if (tree.kind !== "relation") fail(path, "A displayed equation must be a relation.");
-  const selectable = new Map(nodes.flatMap((n) => (nodeId(n) ? [[nodeId(n)!, n] as const] : []))),
-    notes = new Set<string>(),
-    bindings = new Set<string>();
+  const selectable = new Map(
+    nodes.flatMap((n) => {
+      const id = nodeId(n);
+      return id ? ([[id, n]] as const) : [];
+    }),
+  );
+  const notes = new Set<string>();
+  const bindings = new Set<string>();
   list(o.notes, path);
   for (const n of o.notes) {
     const v = record(n, path, ["nodeId", "title", "explanation", "foundation"]);
@@ -110,8 +115,9 @@ export function parseEquationRecord(input: unknown, path: string): EquationRecor
       bindings.has(String(v.termId))
     )
       fail(path, "Binding must resolve the exact term, quantity, output and instance slot.");
-    const q = BROWNIAN_QUANTITIES[n.quantityId]!,
-      c = BM01_OUTPUTS[String(v.outputId)];
+    const q = BROWNIAN_QUANTITIES[n.quantityId];
+    if (!q) fail(path, "Binding must resolve the exact term, quantity, output and instance slot.");
+    const c = BM01_OUTPUTS[String(v.outputId)];
     if (!c || c.unit !== q.unit || c.semanticKind !== q.semanticKind)
       fail(path, "The output contract does not have this quantity's units and meaning.");
     bindings.add(n.termId);
@@ -126,6 +132,8 @@ export function parseEquationRecord(input: unknown, path: string): EquationRecor
   }
   list(o.assumptions, path);
   if (o.assumptions.length === 0) fail(path, "State the model assumptions.");
-  o.assumptions.forEach((x) => text(x, path));
+  for (const x of o.assumptions) {
+    text(x, path);
+  }
   return { ...(structuredClone(input) as EquationRecord), tree };
 }
