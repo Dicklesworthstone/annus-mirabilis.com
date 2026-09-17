@@ -7,6 +7,7 @@ import "../a11y/readingSettings/readingSettings.css";
 import { READING_SETTINGS_PREPAINT } from "../a11y/readingSettings/prepaint";
 import { ReadingSettingsPanel } from "../a11y/readingSettings/ReadingSettingsPanel";
 import { READER_PREPAINT } from "../reader/detail/prepaint";
+import { SearchLauncher } from "../search/SearchLauncher.tsx";
 import { THEME_INIT_SOURCE } from "./theme/themeInit.inline";
 import { ThemeToggle } from "./theme/ThemeToggle";
 export const metadata: Metadata = {
@@ -38,6 +39,7 @@ export default function RootLayout({ children }: { children: ReactNode }) {
             <a href="/papers/">The papers</a>
             <a href="/discover/brownian-motion/">Discover</a>
             <a href="/lab/bm-06/">Laboratory</a>
+            <SearchLauncher />
           </nav>
           <ReadingSettingsPanel />
           <ThemeToggle />
