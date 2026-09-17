@@ -1,0 +1,31 @@
+# Third-Party License Policy for annus-mirabilis.com
+# Bead: am-gov-license-inventory-w6yz
+#
+# Production material passes when its SPDX expression is satisfied by this allowlist
+# or covered by an explicit, reviewed exception below.
+# OR expressions pass if any branch is allowed; AND expressions require every term.
+
+allowlist:
+  - MIT
+  - ISC
+  - BSD-2-Clause
+  - BSD-3-Clause
+  - Apache-2.0
+  - 0BSD
+  - BlueOak-1.0.0
+  - CC0-1.0
+  - OFL-1.1
+  - MIT with OpenAI/Anthropic Rider
+
+exceptions:
+  - package: "argparse"
+    versionRange: "^2.0.0"
+    reason: "Permissive Python Software Foundation License 2.0 for argparse CLI argument parsing library bundled transitively with js-yaml."
+    reviewer: "TanElk"
+    date: "2026-09-17"
+
+  - package: "caniuse-lite"
+    versionRange: "*"
+    reason: "Permissive Creative Commons Attribution 4.0 International license for browser support dataset bundled transitively with Next.js."
+    reviewer: "TanElk"
+    date: "2026-09-17"
