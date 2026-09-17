@@ -6,6 +6,26 @@
 import { existsSync } from "node:fs";
 import { dirname, resolve } from "node:path";
 
+declare global {
+  interface ImportMeta {
+    readonly main?: boolean;
+  }
+  const Bun: {
+    build: (options: {
+      entrypoints: readonly string[];
+      outdir: string;
+      naming?: string;
+      sourcemap?: string;
+      target?: string;
+      format?: string;
+      plugins?: readonly unknown[];
+    }) => Promise<{
+      success: boolean;
+      logs: readonly unknown[];
+    }>;
+  };
+}
+
 export function relativeTsResolverPlugin(): {
   name: string;
   setup: (build: {
