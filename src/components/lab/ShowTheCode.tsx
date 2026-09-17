@@ -150,7 +150,12 @@ export function ShowTheCode({
               ) : (
                 <>
                   {tokens.length > 0 ? (
-                    <pre>
+                    // biome-ignore lint/a11y/noNoninteractiveTabindex: the code block
+                    // scrolls horizontally, so a keyboard-only reader must be able to
+                    // focus it to scroll it (WCAG 2.1 SC 2.1.1). Axe reported
+                    // scrollable-region-focusable on all five listings once they began
+                    // rendering and the grid stopped widening to fit them.
+                    <pre tabIndex={0} aria-label={`${listing.exportName} source`}>
                       <code data-language={listing.language ?? "ts"}>
                         {tokens.map((token) => {
                           if (token.kind === "ident" && token.quantityId) {

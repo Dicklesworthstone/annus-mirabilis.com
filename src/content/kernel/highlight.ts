@@ -23,8 +23,16 @@ function hueForQuantity(quantityId: string): number {
   return h % 360;
 }
 
+/**
+ * Lightness is 28%, not 32%, because the hue is chosen by hashing the quantity id
+ * and must clear WCAG AA at every hue it can produce. Against the code block's
+ * --wash (#e8eadf) the worst hue is 60deg: 3.91 at L=32%, 4.34 at 30%, 4.83 at
+ * 28%. Axe measured 4.14 on the shipped 32% for rmsDisplacement1d once the
+ * listings began rendering. src/content/kernel/identContrast.test.ts holds the
+ * threshold over all 360 hues.
+ */
 export function quantityHue(quantityId: string): string {
-  return `hsl(${hueForQuantity(quantityId)} 45% 32%)`;
+  return `hsl(${hueForQuantity(quantityId)} 45% 28%)`;
 }
 
 export function quantityColorStyle(quantityId: string): string {
