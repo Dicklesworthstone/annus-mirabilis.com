@@ -27,6 +27,7 @@ export interface ParallelFaceProps {
   readonly editorialNotes?: readonly EditorialNote[] | undefined;
   readonly reviewRecords?: readonly ReviewRecord[] | undefined;
   readonly sectionId?: string | undefined;
+  readonly layout?: "side-by-side" | "stacked" | undefined;
 }
 
 export function ParallelFace({
@@ -37,8 +38,10 @@ export function ParallelFace({
   editorialNotes = [],
   reviewRecords = [],
   sectionId,
+  layout = "side-by-side",
 }: ParallelFaceProps) {
   const isUnreviewed = isPaperTranslationUnreviewed(units, reviewRecords);
+  const isStacked = layout === "stacked";
   const alignmentIndex = buildAlignmentIndex(alignment, blocks, units);
 
   const filteredBlocks = sectionId
@@ -61,8 +64,18 @@ export function ParallelFace({
       data-ready="true"
       data-view="parallel"
       data-face="parallel"
-      className="reader-root face-parallel"
+      data-layout={layout}
+      data-stacked-at-320="true"
+      className={`reader-root face-parallel ${isStacked ? "layout-stacked" : ""}`}
     >
+      <noscript>
+        <div className="no-js-reading-lane" data-no-js="true">
+          <p>
+            JavaScript is disabled. The bilingual edition is rendered in full static reading order
+            with complete source text and translations.
+          </p>
+        </div>
+      </noscript>
       {/* biome-ignore lint/security/noDangerouslySetInnerHtml: harness data-ready contract; source from a tested pure function. */}
       <script dangerouslySetInnerHTML={{ __html: ROOT_ARMING_SOURCE }} />
       <header className="page-intro">
@@ -108,7 +121,12 @@ export function ParallelFace({
         </p>
       </div>
 
-      <div className="parallel-grid" data-parallel-grid>
+      <div
+        className={`parallel-grid ${isStacked ? "parallel-stacked" : ""}`}
+        data-parallel-grid
+        data-layout={isStacked ? "stacked" : "side-by-side"}
+        data-stacked-layout={isStacked ? "true" : "responsive"}
+      >
         <section
           className="parallel-column parallel-german"
           aria-label="German source face"

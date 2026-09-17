@@ -1,5 +1,6 @@
 import { describe, expect, test } from "bun:test";
 import { renderToStaticMarkup } from "react-dom/server";
+import { verifyEquationTranslation } from "../../content/schemas/source.ts";
 import {
   FIXTURE_BROWNIAN_SOURCE_BLOCKS,
   FIXTURE_BROWNIAN_TRANSLATION_UNITS,
@@ -32,5 +33,58 @@ describe("printedOnlyEquations: notation is never modernized on source or transl
     expect(germanHtml).toContain("katex");
     expect(englishHtml).toContain("katex");
     expect(germanHtml).toContain("eq-diffusion-1d");
+
+    // Extract the equation-body content from each
+    const extractBody = (html: string) => {
+      const match = html.match(/<div class="equation-body"[^>]*>([\s\S]*?)<\/div>/);
+      return match ? match[1] : "";
+    };
+
+    const germanBody = extractBody(germanHtml);
+    const englishBody = extractBody(englishHtml);
+
+    expect(germanBody.length).toBeGreaterThan(0);
+    expect(englishBody.length).toBeGreaterThan(0);
+    // Byte-for-byte exact match of KaTeX display math
+    expect(englishBody).toBe(germanBody);
+  });
+
+  test("NEGATIVE: English equation with translated notation fails byte-identity and throws", () => {
+    // Attempting to translate notation (e.g. replacing \nu with n or V with c in 1905 equations)
+    // 1. Render check fails byte-identity
+    const modifiedEnglishUnit = {
+      ...englishEqUnit,
+      inlines: [
+        {
+          kind: "math" as const,
+          latex: "\\frac{\\partial n}{\\partial t} = D \\frac{\\partial^2 n}{\\partial x^2}",
+          equationId: "eq-diffusion-1d",
+        },
+      ],
+    };
+
+    const germanHtml = renderToStaticMarkup(
+      <SourceBlock block={germanEqBlock} paperSlug="brownian-motion" />,
+    );
+    const modifiedEnglishHtml = renderToStaticMarkup(
+      <TranslationUnit unit={modifiedEnglishUnit} />,
+    );
+
+    const extractBody = (html: string) => {
+      const match = html.match(/<div class="equation-body"[^>]*>([\s\S]*?)<\/div>/);
+      return match ? match[1] : "";
+    };
+
+    expect(extractBody(modifiedEnglishHtml)).not.toBe(extractBody(germanHtml));
+
+    // 2. Schema / compiler verification throws typed error
+    expect(() =>
+      verifyEquationTranslation(
+        "\\frac{\\partial \\nu}{\\partial t} = D \\frac{\\partial^2 \\nu}{\\partial x^2}",
+        "\\frac{\\partial n}{\\partial t} = D \\frac{\\partial^2 n}{\\partial x^2}",
+        "eq-diffusion-1d",
+      ),
+    ).toThrow("Notation must never be translated.");
   });
 });
+

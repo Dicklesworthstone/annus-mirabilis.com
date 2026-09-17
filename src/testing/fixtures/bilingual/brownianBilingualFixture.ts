@@ -644,3 +644,125 @@ export const FIXTURE_REVIEW_RECORDS: readonly ReviewRecord[] = [
     },
   },
 ];
+
+/**
+ * Fixture 1:2 split sentence: one German source sentence split into two English translation units (s3-p2-s1 -> s3-p2-s1a, s3-p2-s1b).
+ */
+export const FIXTURE_1_TO_2_SOURCE_BLOCK: SourceBlock = validateSourceBlock({
+  id: "s3-p2",
+  kind: "paragraph",
+  paper: "brownian-motion",
+  order: 10,
+  locators: [{ pdfPageIndex: 5, printedPage: 554 }],
+  diplomaticText:
+    "Man kann diese Bewegung als eine Diffusion auffassen, welche durch die ungeordnete Wärmebewegung hervorgerufen wird.",
+  inlines: [
+    {
+      kind: "text",
+      text: "Man kann diese Bewegung als eine Diffusion auffassen, welche durch die ungeordnete Wärmebewegung hervorgerufen wird.",
+    },
+  ],
+  sentenceSpans: [
+    {
+      id: "s3-p2-s1",
+      span: {
+        start: 0,
+        end: 116,
+        textDigest: spanTextDigest(
+          "Man kann diese Bewegung als eine Diffusion auffassen, welche durch die ungeordnete Wärmebewegung hervorgerufen wird.",
+        ),
+        blockRevision: 1,
+      },
+    },
+  ],
+  revision: 1,
+  status: {
+    transcription: "reviewed",
+    mathTranscription: "not-applicable",
+    translation: "reviewed",
+    review: "accepted",
+  },
+  lang: "de",
+});
+
+export const FIXTURE_1_TO_2_TRANSLATION_UNITS: readonly TranslationUnit[] = [
+  validateTranslationUnit({
+    id: "s3-p2-s1a",
+    sourceRefs: [{ paper: "brownian-motion", id: "s3-p2-s1" }],
+    inlines: [
+      {
+        kind: "text",
+        text: "This movement can be conceived as a diffusion process.",
+      },
+    ],
+    translator: {
+      userId: "ad-cowper",
+      name: "A. D. Cowper",
+      role: "translator",
+    },
+    editor: {
+      userId: "jemanuel",
+      name: "Jeff Emanuel",
+      role: "editor",
+      reviewedAt: "2026-09-15",
+    },
+    revision: 1,
+    unresolvedAlternatives: [],
+    reviewState: "reviewed",
+    lang: "en",
+  }),
+  validateTranslationUnit({
+    id: "s3-p2-s1b",
+    sourceRefs: [{ paper: "brownian-motion", id: "s3-p2-s1" }],
+    inlines: [
+      {
+        kind: "text",
+        text: "It is produced by the irregular thermal agitation.",
+      },
+    ],
+    translator: {
+      userId: "ad-cowper",
+      name: "A. D. Cowper",
+      role: "translator",
+    },
+    editor: {
+      userId: "jemanuel",
+      name: "Jeff Emanuel",
+      role: "editor",
+      reviewedAt: "2026-09-15",
+    },
+    revision: 1,
+    unresolvedAlternatives: [],
+    reviewState: "reviewed",
+    lang: "en",
+  }),
+];
+
+export const FIXTURE_1_TO_2_ALIGNMENT: Alignment = validateAlignment({
+  id: "align-bm-s3-1to2",
+  paper: "brownian-motion",
+  revision: 1,
+  edges: [
+    {
+      source: {
+        paper: "brownian-motion",
+        blockId: "s3-p2",
+        sentenceId: "s3-p2-s1",
+      },
+      target: {
+        translationUnitId: "s3-p2-s1a",
+      },
+    },
+    {
+      source: {
+        paper: "brownian-motion",
+        blockId: "s3-p2",
+        sentenceId: "s3-p2-s1",
+      },
+      target: {
+        translationUnitId: "s3-p2-s1b",
+      },
+    },
+  ],
+});
+

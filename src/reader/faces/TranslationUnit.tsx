@@ -1,4 +1,5 @@
 import React from "react";
+import { renderToString } from "katex";
 import type { ReviewRecord } from "../../content/schemas/review.ts";
 import type { EditorialNote, TranslationUnit } from "../../content/schemas/source.ts";
 import { EditorialNoteMarker } from "./EditorialNoteMarker.tsx";
@@ -25,6 +26,26 @@ export function TranslationUnitComponent({
   const isHighlighted = highlightedUnitIds?.has(unit.id) ?? false;
   const lang = unit.lang ?? "en";
 
+  const isEquation = unit.inlines.length === 1 && unit.inlines[0]?.kind === "math";
+  const mathNode = isEquation
+    ? (unit.inlines[0] as { kind: "math"; latex: string; equationId?: string })
+    : undefined;
+
+  let renderedMath: string | undefined;
+  if (isEquation && mathNode) {
+    try {
+      renderedMath = renderToString(mathNode.latex, {
+        displayMode: true,
+        output: "htmlAndMathml",
+        throwOnError: false,
+        strict: "warn",
+        trust: false,
+      });
+    } catch {
+      renderedMath = `<code class="math-fallback">${mathNode.latex}</code>`;
+    }
+  }
+
   const matchingNotes = editorialNotes.filter((n) => n.affectedIds.includes(unit.id));
 
   return (
@@ -35,7 +56,9 @@ export function TranslationUnitComponent({
       data-aligned-partner={!isActive && isHighlighted ? "true" : undefined}
       data-review-state={unit.reviewState}
       data-is-reviewed={badge.isReviewed ? "true" : "false"}
-      className={`translation-unit ${isActive ? "is-active" : ""} ${isHighlighted ? "is-highlighted" : ""}`}
+      data-kind={isEquation ? "equation" : undefined}
+      data-equation-id={mathNode?.equationId}
+      className={`translation-unit ${isEquation ? "translation-equation" : ""} ${isActive ? "is-active" : ""} ${isHighlighted ? "is-highlighted" : ""}`}
       tabIndex={0}
       lang={lang}
     >
@@ -48,9 +71,31 @@ export function TranslationUnitComponent({
         >
           {badge.label}
         </span>
+        <button
+          type="button"
+          className="show-aligned-action visually-hidden-focusable"
+          data-action="show-aligned-source"
+          data-unit-id={unit.id}
+          aria-label="Show the German source of this sentence"
+          tabIndex={-1}
+        >
+          Show the German source
+        </button>
       </div>
 
-      <div className="unit-body">{renderInlines(unit.inlines, undefined, `tr-${unit.id}`)}</div>
+      <div className="unit-body">
+        {isEquation && renderedMath ? (
+          <div className="equation-container">
+            <div
+              className="equation-body"
+              data-printed-notation="true"
+              dangerouslySetInnerHTML={{ __html: renderedMath }}
+            />
+          </div>
+        ) : (
+          renderInlines(unit.inlines, undefined, `tr-${unit.id}`)
+        )}
+      </div>
 
       {unit.unresolvedAlternatives && unit.unresolvedAlternatives.length > 0 && (
         <details

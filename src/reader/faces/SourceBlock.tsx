@@ -191,6 +191,15 @@ export function SourceBlockComponent({
             lang={lang}
           >
             {locators}
+            <button
+              type="button"
+              className="align-sentences-btn visually-hidden-focusable"
+              data-align-sentences-control="true"
+              data-block-id={block.id}
+              aria-label={`Align sentences for paragraph ${block.id}`}
+            >
+              Align sentences
+            </button>
             {block.sentenceSpans.map((span) => {
               const isActive = activeSentenceId === span.id;
               const isHighlighted = highlightedSentenceIds?.has(span.id) ?? false;
@@ -212,6 +221,16 @@ export function SourceBlockComponent({
                   tabIndex={0}
                 >
                   {content}{" "}
+                  <button
+                    type="button"
+                    className="show-aligned-action visually-hidden-focusable"
+                    data-action="show-aligned-target"
+                    data-source-id={span.id}
+                    aria-label="Show the English translation of this sentence"
+                    tabIndex={-1}
+                  >
+                    Show English translation
+                  </button>
                 </span>
               );
             })}
