@@ -11,7 +11,12 @@ import "./showTheCode.css";
 
 function TraceTable({ trace }: { trace: WorkedTrace }) {
   return (
-    <div className="kernel-trace-wrap">
+    <section
+      className="kernel-trace-wrap"
+      aria-label={`Worked example table, constant set ${trace.constantSetLabel}`}
+      // biome-ignore lint/a11y/noNoninteractiveTabindex: a scrollable region must be focusable
+      tabIndex={0}
+    >
       <table
         className="kernel-trace"
         data-constant-set={trace.constantSetLabel}
@@ -42,7 +47,7 @@ function TraceTable({ trace }: { trace: WorkedTrace }) {
       {trace.terminatedAtRow !== undefined ? (
         <p>{trace.refusalMessage ?? "The calculation stopped at this row."}</p>
       ) : null}
-    </div>
+    </section>
   );
 }
 

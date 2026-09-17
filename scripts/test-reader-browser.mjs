@@ -181,10 +181,10 @@ export async function checkReaderBrowser(browser, url, check) {
     );
 
     await dialog.getByRole("link", { name: "Argument synopsis", exact: true }).click();
-    assert.equal(await page.locator("html").getAttribute("data-reader-view"), "results");
+    assert.equal(await page.locator("html").getAttribute("data-view"), "results");
     assert.ok(await dialog.isVisible());
     await page.goBack();
-    assert.equal(await page.locator("html").getAttribute("data-reader-view"), "reading");
+    assert.equal(await page.locator("html").getAttribute("data-view"), "reading");
     assert.ok(await dialog.isVisible());
     await page.keyboard.press("Escape");
     await dialog.waitFor({ state: "hidden" });
@@ -230,7 +230,7 @@ export async function checkReaderBrowser(browser, url, check) {
     assert.match(await passage.locator("[data-face-source]").innerText(), /not yet available/);
     assert.ok(!(await passage.locator("[data-face-reading]").isVisible()));
     await page.locator('.reader-controls [data-view-link="reading"]').click();
-    await passage.getByRole("button", { name: "Copy passage link", exact: true }).click();
+    await passage.getByRole("button", { name: /^Copy a link to this passage:/u }).click();
     const copied = page.locator("[data-copy-fallback] input");
     await copied.waitFor({ state: "visible" });
     const href = new URL(await copied.inputValue());
@@ -248,25 +248,39 @@ export async function checkReaderBrowser(browser, url, check) {
       .include("#main")
       .withTags(["wcag2a", "wcag2aa", "wcag21aa"])
       .analyze();
+    const mainSerious = mainAudit.violations.filter((v) =>
+      ["serious", "critical"].includes(v.impact),
+    );
     assert.deepEqual(
-      mainAudit.violations
-        .filter((v) => ["serious", "critical"].includes(v.impact))
-        .map((v) => v.id),
+      mainSerious.map((v) => v.id),
       [],
+      // Name the offending elements: an id alone cannot be acted on.
+      mainSerious
+        .map((v) => `${v.id} -> ${v.nodes.map((n) => n.target.join(" ")).join(" ; ")}`)
+        .join(" | "),
     );
     await why.click();
     await dialog.waitFor({ state: "visible" });
     const audit = await new AxeBuilder({ page })
-      .include("dialog")
+      .include("[data-clarification-dialog]")
       .withTags(["wcag2a", "wcag2aa", "wcag21aa"])
       .analyze();
+    const dialogSerious = audit.violations.filter((v) =>
+      ["serious", "critical"].includes(v.impact),
+    );
     assert.deepEqual(
-      audit.violations.filter((v) => ["serious", "critical"].includes(v.impact)).map((v) => v.id),
+      dialogSerious.map((v) => v.id),
       [],
+      // Name the offending elements: an id alone cannot be acted on.
+      dialogSerious
+        .map((v) => `${v.id} -> ${v.nodes.map((n) => n.target.join(" ")).join(" ; ")}`)
+        .join(" | "),
     );
     await page.keyboard.press("Tab");
     assert.ok(
-      await page.evaluate(() => document.querySelector("dialog").contains(document.activeElement)),
+      await page.evaluate(() =>
+        document.querySelector("[data-clarification-dialog]").contains(document.activeElement),
+      ),
     );
     await page.setViewportSize({ width: 320, height: 900 });
     assert.ok(await page.evaluate(() => document.documentElement.scrollWidth <= innerWidth + 1));
@@ -313,13 +327,13 @@ export async function checkReaderBrowser(browser, url, check) {
     await page.locator("dialog[open]").waitFor();
     assert.equal(await page.locator(".reader-passage").count(), 2);
     await page.keyboard.press("Escape");
-    await page.locator("dialog").waitFor({ state: "hidden" });
+    await page.locator("[data-clarification-dialog]").waitFor({ state: "hidden" });
     assert.equal(new URL(page.url()).pathname, `${route}s5/`);
     assert.equal(await page.evaluate(() => document.activeElement.id), "arg-bm-inference");
     await page.goto(`${url}${route}?view=bogus&detail=constructor&open=foundation:missing`);
     await page.locator('[data-reader-root][data-enhanced="true"]').waitFor();
-    assert.ok(!(await page.locator("dialog").isVisible()));
-    assert.equal(await page.locator("html").getAttribute("data-reader-view"), "reading");
+    assert.ok(!(await page.locator("[data-clarification-dialog]").isVisible()));
+    assert.equal(await page.locator("html").getAttribute("data-view"), "reading");
     check(
       "static section routes, direct clarification links, all foundations and machine-readable exports resolve safely",
     );
@@ -329,7 +343,7 @@ export async function checkReaderBrowser(browser, url, check) {
         url: location.href,
         active: document.activeElement?.id,
         history: history.state?.annusReader,
-        dialogOpen: document.querySelector("dialog")?.open,
+        dialogOpen: document.querySelector("[data-clarification-dialog]")?.open,
         focusLog: window.readerFocusLog,
         triggers: [...document.querySelectorAll('[id^="reader-trigger-"]')].map((el) => ({
           id: el.id,
