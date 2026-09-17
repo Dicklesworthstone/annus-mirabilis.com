@@ -139,7 +139,9 @@ function published(result: ScientificResult): PublishedResult {
     at(index: number): number {
       if (!Number.isSafeInteger(index) || index < 0 || index >= data.length)
         throw new RangeError("Numeric view index out of range.");
-      return data[index]!;
+      const val = data[index];
+      if (val === undefined) throw new RangeError("Numeric view index out of range.");
+      return val;
     },
     copy: () => data.slice(),
   });
@@ -370,17 +372,19 @@ export function createInstanceStore(options: {
         { expectedRevisions: revisions, statuses, allowPartial },
       );
       for (const output of batch.outputs) {
-        const expected = contracts[output.quantityId]!;
+        const expected = contracts[output.quantityId];
         if (
+          !expected ||
           output.unit !== expected.unit ||
           output.semanticKind !== expected.semanticKind ||
           output.ownerId !== expected.ownerId
         )
           return denied("malformed-publication");
       }
+      if (!view.requested) return denied("no-request");
       if (snapshotVersion === Number.MAX_SAFE_INTEGER) return denied("malformed-publication");
       const accepted: AcceptedSnapshot = freeze({
-        ...view.requested!,
+        ...view.requested,
         stepIndex: message.stepIndex,
         simulationTime: message.simulationTime,
         final: message.final,
