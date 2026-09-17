@@ -5,7 +5,10 @@ import { withinTolerance } from "../../units/tolerance.ts";
 import { gammaMinusOne } from "./kinematics.ts";
 import {
   C_SI,
+  evaluateLedgers,
+  evaluateMe01,
   evaluateMe02,
+  initializeMassEnergyLedger,
   MASS_ENERGY_PRINTED_FACTOR_SCENARIO,
   naiveGammaMinusOne,
   PRINTED_FACTOR_WORDING,
@@ -147,5 +150,94 @@ describe("ME-02 coefficient owner", () => {
 
   test("modern SI c is the exact defined speed of light, not a measured 3e8", () => {
     expect(C_SI).toBe(299792458);
+  });
+
+  describe("circularity ban on mass-energy ledger", () => {
+    test("the mass-energy ledger must NEVER initialise a body's energy with Mc^2 or gamma Mc^2 (negative tests)", () => {
+      // 1. Direct string attempt with Mc^2 must throw circularity violation
+      expect(() => initializeMassEnergyLedger({ restEnergyBefore: "Mc^2" })).toThrow(
+        "Circularity violation: the mass-energy ledger must NEVER initialise a body's energy with Mc^2 or gamma Mc^2.",
+      );
+      expect(() => initializeMassEnergyLedger({ restEnergyBefore: "M*c^2" })).toThrow(
+        "Circularity violation",
+      );
+      expect(() => initializeMassEnergyLedger({ restEnergyBefore: "M c²" })).toThrow(
+        "Circularity violation",
+      );
+
+      // 2. gamma Mc^2 attempt must throw
+      expect(() => initializeMassEnergyLedger({ movingEnergyBefore: "gamma*Mc^2" })).toThrow(
+        "Circularity violation",
+      );
+      expect(() => initializeMassEnergyLedger({ movingEnergyBefore: "γMc²" })).toThrow(
+        "Circularity violation",
+      );
+
+      // 3. Structured numericFrom / formula objects must throw
+      expect(() =>
+        initializeMassEnergyLedger({ restEnergyBefore: { numericFrom: "mc2" } }),
+      ).toThrow("Circularity violation");
+      expect(() =>
+        initializeMassEnergyLedger({ restEnergyBefore: { formula: "E₀ = Mc²" } }),
+      ).toThrow("Circularity violation");
+      expect(() =>
+        initializeMassEnergyLedger({ movingEnergyBefore: { numericFrom: "gamma-mc2" } }),
+      ).toThrow("Circularity violation");
+
+      // 4. evaluateLedgers rejects initial body energy with Mc^2
+      expect(() => evaluateLedgers(1.0, 0.6, 0, "Mc^2")).toThrow("Circularity violation");
+
+      // 5. evaluateMe01 rejects initial body energy with Mc^2
+      expect(() =>
+        evaluateMe01({
+          emittedEnergyRestFrame: 1.0,
+          frameSpeed: 0.6,
+          emissionAngle: 0,
+          initialBodyEnergy: "Mc^2",
+        }),
+      ).toThrow("Circularity violation");
+
+      // 6. Valid ledger initialization retains symbolic status without numeric Mc^2 seeding
+      const validLedger = initializeMassEnergyLedger();
+      expect(validLedger.restBodyBefore.status).toBe("symbolic");
+      expect(validLedger.restBodyAfter.status).toBe("symbolic");
+      expect(validLedger.movingBodyBefore.status).toBe("symbolic");
+      expect(validLedger.movingBodyAfter.status).toBe("symbolic");
+    });
+  });
+
+  describe("adversarial fixture: low-speed proxy is not the exact mass coefficient at every speed", () => {
+    test("low-speed proxy fails as exact mass coefficient at 0.6c and all finite speeds", () => {
+      // True physics: finiteSpeedProxy = (2 * L * (gamma - 1)) / (beta^2 * c^2)
+      // Series: (L / c^2) * (1 + (3/4)beta^2 + (5/8)beta^4 + ...)
+      // Limiting mass coefficient: L / c^2
+      // Naive claim: finiteSpeedProxy === limitingCoefficient at all speeds
+      const snap60 = evaluateMe02({ beta: 0.6, emittedEnergy: 1, speedOfLight: 1 });
+      expect(proxyEqualsLimit(snap60)).toBe(false);
+      expect(val(snap60.finiteSpeedProxy)).toBeCloseTo(1.3888889, 6);
+      expect(val(snap60.proxyExcess)).toBeCloseTo(0.3888889, 6);
+
+      // At 0.1c, excess is still positive (~0.00756 > 0)
+      const snap10 = evaluateMe02({ beta: 0.1, emittedEnergy: 1, speedOfLight: 1 });
+      expect(proxyEqualsLimit(snap10)).toBe(false);
+      expect(val(snap10.proxyExcess)).toBeGreaterThan(0.0075);
+
+      // Adversarial claim asserting proxy equals limit at finite speed MUST FAIL
+      const proxyEqualsExactMass = (beta: number) => {
+        const snap = evaluateMe02({ beta, emittedEnergy: 1, speedOfLight: 1 });
+        if (Math.abs(val(snap.finiteSpeedProxy) - 1.0) > 1e-6) {
+          throw new Error(
+            `Adversarial fixture failed as expected: proxy ${val(snap.finiteSpeedProxy)} exceeds exact mass coefficient 1.0 at beta = ${beta}.`,
+          );
+        }
+      };
+
+      expect(() => proxyEqualsExactMass(0.6)).toThrow(
+        "Adversarial fixture failed as expected: proxy",
+      );
+      expect(() => proxyEqualsExactMass(0.1)).toThrow(
+        "Adversarial fixture failed as expected: proxy",
+      );
+    });
   });
 });

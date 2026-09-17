@@ -388,6 +388,7 @@ export type Me01Input = Readonly<{
   cancellations?: Me01Cancellations;
   notation?: Me01Notation;
   speedOfLight?: number;
+  initialBodyEnergy?: MassEnergyLedgerSeed;
 }>;
 
 export type Me01Snapshot = Readonly<{
@@ -455,7 +456,111 @@ export function evaluatePulseEnergies(
 }
 
 /**
- * Kernel function: evaluates the energy balances for rest and moving systems (Paper 4, §1).
+ * Kernel function: evaluates the rest-frame and moving-frame energy balances (Paper 4, §1).
+ * Rest frame balance: E0 - E1 = L
+ * Moving frame balance: H0 - H1 = gamma * L
+ */
+export type MassEnergyLedgerSeed =
+  | string
+  | number
+  | Readonly<{
+      kind?: string;
+      formula?: string;
+      numericFrom?: string;
+      id?: string;
+      expr?: unknown;
+    }>;
+
+export type MassEnergyLedgerInit = Readonly<{
+  restEnergyBefore?: MassEnergyLedgerSeed;
+  movingEnergyBefore?: MassEnergyLedgerSeed;
+  historicalMode?: boolean;
+}>;
+
+export type InitializedMassEnergyLedger = Readonly<{
+  restBodyBefore: ScientificResult;
+  restBodyAfter: ScientificResult;
+  movingBodyBefore: ScientificResult;
+  movingBodyAfter: ScientificResult;
+}>;
+
+/**
+ * Validates and initializes the mass-energy ledger.
+ *
+ * Enforces the non-circularity doctrine (Paper 4 / AGENTS.md):
+ * The mass-energy ledger must NEVER initialise a body's energy with Mc^2 or gamma Mc^2.
+ * Rest energy and moving body energy on the historical route must remain symbolic (E₀, H₀).
+ * Any attempt to seed the ledger with Mc^2 or gamma Mc^2 is rejected with an Error.
+ */
+export function initializeMassEnergyLedger(
+  seed?: MassEnergyLedgerInit,
+): InitializedMassEnergyLedger {
+  const isCircular = (val: unknown): boolean => {
+    if (val === undefined || val === null) return false;
+    if (typeof val === "string") {
+      const lower = val.toLowerCase().replace(/[\s\_\*\^\·\×]/g, "");
+      if (
+        lower.includes("mc2") ||
+        lower.includes("mc²") ||
+        lower.includes("gammamc") ||
+        lower.includes("γmc")
+      ) {
+        return true;
+      }
+    }
+    if (typeof val === "object") {
+      const rec = val as Record<string, unknown>;
+      if (rec.numericFrom === "mc2" || rec.numericFrom === "gamma-mc2") return true;
+      if (typeof rec.formula === "string" && isCircular(rec.formula)) return true;
+      if (typeof rec.id === "string" && isCircular(rec.id)) return true;
+      if (typeof rec.kind === "string" && isCircular(rec.kind)) return true;
+    }
+    return false;
+  };
+
+  if (
+    isCircular(seed?.restEnergyBefore) ||
+    isCircular(seed?.movingEnergyBefore)
+  ) {
+    throw new Error(
+      "Circularity violation: the mass-energy ledger must NEVER initialise a body's energy with Mc^2 or gamma Mc^2.",
+    );
+  }
+
+  return Object.freeze({
+    restBodyBefore: asSymbolic(
+      "bodyEnergyRestBefore",
+      "J",
+      "rest-body-energy-before",
+      "massEnergy.restBodyBefore",
+      "E₀",
+    ),
+    restBodyAfter: asSymbolic(
+      "bodyEnergyRestAfter",
+      "J",
+      "rest-body-energy-after",
+      "massEnergy.restBodyAfter",
+      "E₁",
+    ),
+    movingBodyBefore: asSymbolic(
+      "bodyEnergyMovingBefore",
+      "J",
+      "moving-body-energy-before",
+      "massEnergy.movingBodyBefore",
+      "H₀",
+    ),
+    movingBodyAfter: asSymbolic(
+      "bodyEnergyMovingAfter",
+      "J",
+      "moving-body-energy-after",
+      "massEnergy.movingBodyAfter",
+      "H₁",
+    ),
+  });
+}
+
+/**
+ * Kernel function: evaluates the rest-frame and moving-frame energy balances (Paper 4, §1).
  * Rest frame balance: E0 - E1 = L
  * Moving frame balance: H0 - H1 = gamma * L
  */
@@ -463,11 +568,15 @@ export function evaluateLedgers(
   emittedEnergyRestFrame: number,
   frameSpeed: number,
   _emissionAngleRad: number,
+  initialBodyEnergy?: MassEnergyLedgerSeed,
 ): Readonly<{
   restBalanceLight: number;
   movingBalanceLight: number;
   lorentzFactor: number;
 }> {
+  if (initialBodyEnergy !== undefined) {
+    initializeMassEnergyLedger({ restEnergyBefore: initialBodyEnergy });
+  }
   const g = 1 / Math.sqrt(1 - frameSpeed * frameSpeed);
   return Object.freeze({
     restBalanceLight: emittedEnergyRestFrame,
@@ -508,6 +617,9 @@ export function evaluateSubtraction(
  * are represented symbolically, never assigned numerical values or initialized with Mc^2.
  */
 export function evaluateMe01(input: Me01Input): Me01Snapshot {
+  if (input.initialBodyEnergy !== undefined) {
+    initializeMassEnergyLedger({ restEnergyBefore: input.initialBodyEnergy });
+  }
   const L = input.emittedEnergyRestFrame;
   const beta = input.frameSpeed;
   const angleInput = input.emissionAngle;

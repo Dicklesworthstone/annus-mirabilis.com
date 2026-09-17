@@ -1,0 +1,8 @@
+beadId: am-me-02-coefficient-dtmi
+targets:
+  - instrument: me-02
+    captions:
+      - r0
+      - r1
+      - r2
+      - r3
