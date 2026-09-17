@@ -157,7 +157,14 @@ export async function checkCameraBrowser(browser, url, check) {
     const prior = await identity(lab);
     await lab.locator('[name="exposure"]').fill("0.3");
     await lab.getByRole("button", { name: "Apply camera settings", exact: true }).click();
-    await lab.locator('[data-refusal-code="off-replay-grid"]').waitFor();
+    // The refusal surfaces twice by design: the execution-currency chrome marks the
+    // accepted readouts stale, and the notice explains it. Naming each surface is
+    // stronger than an attribute selector that matched either one and, under
+    // Playwright strict mode, neither.
+    await lab.locator('.notice[data-refusal-code="off-replay-grid"]').waitFor();
+    await lab
+      .locator('[data-currency-state="refused"][data-refusal-code="off-replay-grid"]')
+      .waitFor();
     assert.deepEqual(await identity(lab), prior);
     await preset(lab, "Use the preceding recorded exposure");
     assert.equal(await lab.locator('[name="exposure"]').inputValue(), "0.25");

@@ -103,6 +103,14 @@ export type FacsimileErrorCode =
   | "PARENT_PAGE_INDEX_MISSING"
   | "HOST_CHECKSUM_MISMATCH"
   | "EXTRACTION_NONDETERMINISTIC"
+  // Thrown by the page-extraction path in download-facsimiles.ts when a page
+  // object or a mapped object id is missing from the source PDF. It was absent
+  // from this union, so getExitCodeForError fell through to its default and
+  // classified a PDF-structure failure as a general failure (1) instead of a
+  // validation failure (3), alongside PDF_PARSE_FAILED and
+  // PARENT_PAGE_INDEX_MISSING. scripts/ is outside the typecheck program
+  // (am-7mp8), so nothing reported the missing member.
+  | "EXTRACTION_ERROR"
   // Network failures (exit code 4)
   | "HTTP_NOT_HTTPS"
   | "REDIRECT_TO_HTTP"
@@ -131,6 +139,7 @@ export function getExitCodeForError(code: FacsimileErrorCode): number {
     case "PARENT_PAGE_INDEX_MISSING":
     case "HOST_CHECKSUM_MISMATCH":
     case "EXTRACTION_NONDETERMINISTIC":
+    case "EXTRACTION_ERROR":
       return 3;
     case "HTTP_NOT_HTTPS":
     case "REDIRECT_TO_HTTP":

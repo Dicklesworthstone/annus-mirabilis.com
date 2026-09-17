@@ -41,7 +41,7 @@ import {
   verifyPins,
 } from "./download-facsimiles";
 import { newToolRunId } from "./runIds";
-import { FacsimileError } from "./sources/facsimileSourceSchema";
+import { FacsimileError, getExitCodeForError } from "./sources/facsimileSourceSchema";
 
 const REPO_ROOT = getRepoRoot();
 const FIXTURES_DIR = path.join(REPO_ROOT, "src", "testing", "fixtures", "pdf");
@@ -744,5 +744,34 @@ rights:
     expect(results["ap-99-999.yaml"].valid).toBe(false);
     expect(results["ap-99-999.yaml"].refusalCode).toBe("WITNESS_OR_PUBLISHER_HOST");
     expect(results["ap-99-999.yaml"].errors[0]).toContain("onlinelibrary.wiley.com");
+  });
+});
+
+describe("16. Error codes are classified, not defaulted (am-7mp8)", () => {
+  test("every code the script throws is a member of the union and lands in its class", () => {
+    // EXTRACTION_ERROR is thrown three times in the page-extraction path. It was
+    // missing from FacsimileErrorCode, so getExitCodeForError fell through to its
+    // default and reported a PDF-structure failure as a general failure. scripts/
+    // is outside the typecheck program, so nothing said so.
+    expect(new FacsimileError("EXTRACTION_ERROR", "missing page object").exitCode).toBe(3);
+    for (const code of [
+      "PDF_PARSE_FAILED",
+      "PARENT_PAGE_INDEX_MISSING",
+      "EXTRACTION_NONDETERMINISTIC",
+    ] as const) {
+      expect(getExitCodeForError(code)).toBe(3);
+    }
+  });
+
+  test("policy refusals and network failures keep their own classes", () => {
+    expect(getExitCodeForError("PINNED_DIGEST_CONFLICT")).toBe(2);
+    expect(getExitCodeForError("NETWORK_RETRIES_EXHAUSTED")).toBe(4);
+  });
+
+  test("a code outside the union still falls back to a general failure", () => {
+    // Planted negative: the fallback must remain reachable, or this test would
+    // pass for any code at all and prove nothing about the mapping.
+    expect(getExitCodeForError("NOT_A_REAL_CODE" as never)).toBe(1);
+    expect(getExitCodeForError("UNEXPECTED_ERROR")).toBe(1);
   });
 });

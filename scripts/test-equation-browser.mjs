@@ -184,7 +184,14 @@ export async function checkEquationBrowser(browser, url, check) {
     const oldRms = await value(lab, "rms", "rms").innerText();
     await lab.locator('[name="interval"]').fill("0.015");
     await apply.click();
-    await lab.locator('[data-refusal-code="off-replay-grid"]').waitFor();
+    // The refusal surfaces twice by design: the execution-currency chrome marks the
+    // accepted readouts stale, and the notice explains it. Naming each surface is
+    // stronger than an attribute selector that matched either one and, under
+    // Playwright strict mode, neither.
+    await lab.locator('.notice[data-refusal-code="off-replay-grid"]').waitFor();
+    await lab
+      .locator('[data-currency-state="refused"][data-refusal-code="off-replay-grid"]')
+      .waitFor();
     assert.equal(await value(lab, "rms", "rms").innerText(), oldRms);
     assert.deepEqual(await identity(lab), acceptedIdentity);
     assert.match(

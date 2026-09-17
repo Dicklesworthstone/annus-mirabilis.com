@@ -109,7 +109,14 @@ export async function checkTracerBrowser(browser, url, check) {
 
     await lab.locator('[name="interval"]').fill("0.015");
     await apply.click();
-    await lab.locator('[data-refusal-code="off-replay-grid"]').waitFor();
+    // The refusal surfaces twice by design: the execution-currency chrome marks the
+    // accepted readouts stale, and the notice explains it. Naming each surface is
+    // stronger than an attribute selector that matched either one and, under
+    // Playwright strict mode, neither.
+    await lab.locator('.notice[data-refusal-code="off-replay-grid"]').waitFor();
+    await lab
+      .locator('[data-currency-state="refused"][data-refusal-code="off-replay-grid"]')
+      .waitFor();
     assert.equal(await lab.getAttribute("data-snapshot-version"), zoomVersion);
     assert.equal(await lab.locator('[data-output="sampleMean"]').innerText(), originalMean);
     await accepted(() =>
