@@ -120,13 +120,19 @@ function parseArgs(argv: readonly string[]): CollectOptions {
   const options: CollectOptions = {};
   for (let i = 0; i < argv.length; i++) {
     const arg = argv[i];
-    if (arg === "--run") options.logRunId = argv[++i];
-    else if (arg === "--suite") options.suite = argv[++i];
-    else if (arg === "--tool-run") options.toolRunId = argv[++i];
-    // Not part of AGENTS.md's documented CLI; lets tests and CI point the
-    // summarizer at a fixture or archived log directory instead of the live
-    // artifacts/test-logs tree.
-    else if (arg === "--root") options.root = argv[++i];
+    if (arg === "--run") {
+      const val = argv[++i];
+      if (val !== undefined) options.logRunId = val;
+    } else if (arg === "--suite") {
+      const val = argv[++i];
+      if (val !== undefined) options.suite = val;
+    } else if (arg === "--tool-run") {
+      const val = argv[++i];
+      if (val !== undefined) options.toolRunId = val;
+    } else if (arg === "--root") {
+      const val = argv[++i];
+      if (val !== undefined) options.root = val;
+    }
   }
   return options;
 }
