@@ -6,11 +6,7 @@ import { SemanticEquation } from "../../equations/SemanticEquation.tsx";
 import type { CompiledEquation } from "../../equations/viewTypes.ts";
 import { createBm01BrowserChannel } from "../../experiments/bm01/browser.ts";
 import { BM01_FIELDS, fromTracerDraft, toTracerDraft } from "../../experiments/bm01/controls.ts";
-import {
-  BM01_MODEL,
-  BM01_OUTPUTS,
-  type Bm01Parameters,
-} from "../../experiments/bm01/definition.ts";
+import { BM01_OUTPUTS, type Bm01Parameters } from "../../experiments/bm01/definition.ts";
 import { decodeBm01Settings, encodeBm01Settings } from "../../experiments/bm01/permalink.ts";
 import { createBm01Session, type PreparedBm01Example } from "../../experiments/bm01/session.ts";
 import { ExecutionChrome } from "../../experiments/labels/ExecutionChrome.tsx";
@@ -21,7 +17,6 @@ import { deriveHostExecution } from "../../experiments/provenance/executionState
 import type { AcceptedSnapshot } from "../../experiments/store/instanceStore.ts";
 import equationPayload from "../../generated/brownian-equations.json";
 import { TimeLegend } from "../../visuals/kit/TimeLegend.tsx";
-import type { RepresentationScale } from "../../visuals/kit/types.ts";
 import { array, display, identity, result, scalar } from "./presentation.ts";
 import { ShowTheCode } from "./ShowTheCode.tsx";
 import { PLOT_KINDS, TracerHistogram, TracerPaths, TracerScaling } from "./TracerPlots.tsx";
@@ -65,12 +60,16 @@ export function TracerLab({
   const [session] = useState(() =>
     createBm01Session(`bm01-${id}`, example, createBm01BrowserChannel),
   );
+  const serverAccepted = session.getServerSnapshot().accepted;
+  if (!serverAccepted) {
+    throw new Error("Missing accepted tracer snapshot");
+  }
   const view = useSyncExternalStore(
       session.subscribe,
       session.getSnapshot,
       session.getServerSnapshot,
     ),
-    snapshot = view.accepted!,
+    snapshot = view.accepted ?? serverAccepted,
     p = snapshot.parameters as Bm01Parameters;
   const [draft, setDraft] = useState(() => toTracerDraft(example.parameters)),
     [ready, setReady] = useState(false),
@@ -120,7 +119,11 @@ export function TracerLab({
   function newTrial() {
     try {
       const words = crypto.getRandomValues(new Uint32Array(2));
-      apply({ ...p, seed: ((BigInt(words[0]!) << 32n) | BigInt(words[1]!)).toString() });
+      const w0 = words[0];
+      const w1 = words[1];
+      if (w0 !== undefined && w1 !== undefined) {
+        apply({ ...p, seed: ((BigInt(w0) << 32n) | BigInt(w1)).toString() });
+      }
     } catch {
       setError(
         "A new random seed is unavailable on this device. Enter a different seed explicitly.",
@@ -141,9 +144,9 @@ export function TracerLab({
   const announcement = view.pending
     ? "Recording or remeasuring the requested trial. The accepted result remains below."
     : view.status === "refused"
-      ? `${view.refusal!.message} The accepted trial is unchanged.`
+      ? `${view.refusal?.message ?? "Trial refused."} The accepted trial is unchanged.`
       : view.status === "unavailable"
-        ? `${view.outcome!.message} The accepted example remains readable.`
+        ? `${view.outcome?.message ?? "Calculation unavailable."} The accepted example remains readable.`
         : view.status === "paused"
           ? "Calculation stopped. The accepted trial is unchanged."
           : `Accepted synthetic trial: ${p.M} tracers, ${display(p.interval)} seconds, coordinate mean ${display(scalar(snapshot, "sampleMean"), 1e6)} micrometres and coordinate RMS ${display(scalar(snapshot, "sampleRms"), 1e6)} micrometres.`;
@@ -177,7 +180,7 @@ export function TracerLab({
         aria-labelledby={`${id}-title`}
         data-instrument-id="bm-01"
         {...identity(snapshot)}
-        data-input-revision={view.requested!.revisions.input}
+        data-input-revision={view.requested?.revisions.input ?? snapshot.revisions.input}
         data-accepted-input-revision={snapshot.revisions.input}
         data-pending={String(view.pending)}
         {...labelRootAttributes(executionKind, view, "tracerPositions")}
@@ -325,10 +328,11 @@ export function TracerLab({
               </p>
             )}
             <div className="actions">
-              <button className="secondary" disabled={!ready} onClick={newTrial}>
+              <button type="button" className="secondary" disabled={!ready} onClick={newTrial}>
                 New independent trial
               </button>
               <button
+                type="button"
                 className="secondary"
                 disabled={!ready}
                 onClick={() => apply({ ...p, eta: p.eta * 2 })}
@@ -361,6 +365,7 @@ export function TracerLab({
             </details>
             <div className="actions">
               <button
+                type="button"
                 className="secondary"
                 disabled={!ready || p.H < 1}
                 onClick={() => apply({ ...p, interval: 1 })}
@@ -368,6 +373,7 @@ export function TracerLab({
                 Observe at 1 second
               </button>
               <button
+                type="button"
                 className="secondary"
                 disabled={!ready || p.H < 4}
                 onClick={() => apply({ ...p, interval: 4 })}
@@ -387,23 +393,26 @@ export function TracerLab({
             {view.refusal && (
               <div className="notice error" data-refusal-code={view.refusal.code}>
                 <p>{view.refusal.message}</p>
-                {view.refusal.rankedRepairs.map((repair, i) => (
-                  <button
-                    className="secondary"
-                    key={i}
-                    onClick={() =>
-                      repair.action &&
-                      apply({
-                        ...p,
-                        ...view.requested!.parameters,
-                        [repair.action.parameterId]: repair.action.value,
-                      } as Bm01Parameters)
-                    }
-                    disabled={!repair.action}
-                  >
-                    {repair.label}
-                  </button>
-                ))}
+                {view.refusal.rankedRepairs.map((repair) => {
+                  const action = repair.action;
+                  if (!action) return null;
+                  return (
+                    <button
+                      key={`${repair.label}-${action.parameterId}`}
+                      type="button"
+                      className="secondary"
+                      onClick={() => {
+                        const baseParams = (view.requested?.parameters ?? p) as Bm01Parameters;
+                        apply({
+                          ...baseParams,
+                          [action.parameterId]: action.value,
+                        });
+                      }}
+                    >
+                      {repair.label}
+                    </button>
+                  );
+                })}
               </div>
             )}
             <p className="accepted-caption">
@@ -434,6 +443,7 @@ export function TracerLab({
             </div>
             <div className="actions">
               <button
+                type="button"
                 className="secondary"
                 disabled={!ready}
                 onClick={() => setZoom(zoom === 1 ? 2 : 1)}
@@ -588,14 +598,18 @@ export function TracerLab({
                 <th scope="row">Below the plotted range</th>
                 <td>{scalar(snapshot, "underflow")}</td>
               </tr>
-              {Array.from({ length: counts.length }, (_, i) => (
-                <tr key={i}>
-                  <th scope="row">
-                    {display(edges.at(i), 1e6)} to {display(edges.at(i + 1), 1e6)}
-                  </th>
-                  <td>{counts.at(i)}</td>
-                </tr>
-              ))}
+              {Array.from({ length: counts.length }, (_, i) => {
+                const low = edges.at(i);
+                const high = edges.at(i + 1);
+                return (
+                  <tr key={`bin-${low}-${high}`}>
+                    <th scope="row">
+                      {display(low, 1e6)} to {display(high, 1e6)}
+                    </th>
+                    <td>{counts.at(i)}</td>
+                  </tr>
+                );
+              })}
               <tr>
                 <th scope="row">Above the plotted range</th>
                 <td>{scalar(snapshot, "overflow")}</td>
@@ -607,7 +621,7 @@ export function TracerLab({
             </tbody>
           </table>
         </details>
-        <button className="secondary" disabled={!ready} onClick={() => void share()}>
+        <button type="button" className="secondary" disabled={!ready} onClick={() => void share()}>
           Share accepted trial
         </button>
         {note && <p className="notice">{note}</p>}
@@ -631,7 +645,7 @@ export function TracerComparison({ example }: { example: PreparedBm01Example }) 
           Separate controls and workers; both start with the same worked-example seed. Choose a new
           trial to compare independently seeded realizations.
         </p>
-        <button className="secondary" onClick={() => setSecond(!second)}>
+        <button type="button" className="secondary" onClick={() => setSecond(!second)}>
           {second ? "Close the second tracer ensemble" : "Open a second separate ensemble"}
         </button>
       </div>
