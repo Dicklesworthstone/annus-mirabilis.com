@@ -60,14 +60,22 @@ export function BrownianInvestigation({
     session.getSnapshot,
     session.getServerSnapshot,
   );
-  const snapshot = view.accepted!;
+  const accepted = view.accepted ?? session.getServerSnapshot().accepted;
+  if (!accepted) {
+    throw new Error("Missing accepted snapshot for BrownianInvestigation");
+  }
+  const snapshot = accepted;
   const parameters = snapshot.parameters as Bm01Parameters;
   const current = snapshot.final
     ? captureTracerEvidence(snapshot, tracerExample.sourceDigest)
     : null;
-  const [baseline, setBaseline] = useState(() =>
-    captureTracerEvidence(session.getServerSnapshot().accepted!, tracerExample.sourceDigest),
-  );
+  const [baseline, setBaseline] = useState(() => {
+    const initAccepted = session.getServerSnapshot().accepted;
+    if (!initAccepted) {
+      throw new Error("Missing initial accepted snapshot for baseline");
+    }
+    return captureTracerEvidence(initAccepted, tracerExample.sourceDigest);
+  });
   const [records, setRecords] = useState<readonly TracerEvidence[]>([baseline]);
   const [draft, setDraft] = useState(() => toTracerDraft(tracerExample.parameters));
   const [ready, setReady] = useState(false);
@@ -188,7 +196,7 @@ export function BrownianInvestigation({
         data-instrument-id="bm-01"
         {...identity(snapshot)}
         data-pending={String(view.pending)}
-        data-input-revision={view.requested!.revisions.input}
+        data-input-revision={view.requested?.revisions.input ?? snapshot.revisions.input}
         data-accepted-input-revision={snapshot.revisions.input}
         {...labelRootAttributes(executionKind, view, "tracerPositions")}
       >
@@ -314,18 +322,20 @@ export function BrownianInvestigation({
             Optional prediction: at four times the pinned baseline interval, the coordinate RMS will
             be…
           </legend>
-          {[
-            ["same", "About the same"],
-            ["twice", "About twice as large"],
-            ["four", "About four times as large"],
-          ].map(([value, label]) => (
+          {(
+            [
+              ["same", "About the same"],
+              ["twice", "About twice as large"],
+              ["four", "About four times as large"],
+            ] as const
+          ).map(([value, label]) => (
             <label className="check" key={value}>
               <input
                 type="radio"
                 name={`${id}-prediction`}
                 value={value}
                 checked={prediction === value}
-                onChange={() => setPrediction(value!)}
+                onChange={() => setPrediction(value)}
               />
               {label}
             </label>
