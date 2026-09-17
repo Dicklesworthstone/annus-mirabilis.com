@@ -53,31 +53,50 @@ entries:
     cluster: calculus
     ownerBead: am-found-calculus-6agg
     status: authored
-    plannedCallers: []
+    plannedCallers:
+      - "light-quanta:s1"
+      - "light-quanta:s2"
+      - "light-quanta:s3"
+      - "light-quanta:s4"
+      - "light-quanta:s8"
+      - "brownian-motion:s5"
   - id: "foundation:derivatives"
     kind: node
     cluster: calculus
     ownerBead: am-found-calculus-6agg
     status: authored
-    plannedCallers: []
+    plannedCallers:
+      - "light-quanta:s8"
+      - "brownian-motion:s4"
+      - "special-relativity:s5"
+      - "mass-energy"
   - id: "foundation:partial-derivatives"
     kind: node
     cluster: calculus
     ownerBead: am-found-calculus-6agg
     status: authored
-    plannedCallers: []
+    plannedCallers:
+      - "light-quanta:s3"
+      - "brownian-motion:s3"
+      - "brownian-motion:s4"
+      - "special-relativity:s6"
   - id: "foundation:exponentials"
     kind: node
     cluster: calculus
     ownerBead: am-found-calculus-6agg
     status: authored
-    plannedCallers: []
+    plannedCallers:
+      - "light-quanta:s4"
+      - "brownian-motion:s4"
   - id: "foundation:logarithms"
     kind: node
     cluster: calculus
     ownerBead: am-found-calculus-6agg
     status: authored
-    plannedCallers: []
+    plannedCallers:
+      - "light-quanta:s4"
+      - "light-quanta:s5"
+      - "brownian-motion:s2"
   - id: "foundation:integration"
     kind: node
     cluster: slice
@@ -89,7 +108,9 @@ entries:
     cluster: slice
     ownerBead: am-bm-slice-foundations-f5z9
     status: authored
-    plannedCallers: []
+    plannedCallers:
+      - "special-relativity:s4"
+      - "mass-energy"
   - id: "foundation:probability-independence"
     kind: node
     cluster: slice

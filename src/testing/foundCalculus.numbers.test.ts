@@ -7,6 +7,7 @@ import {
   PLANCK_TO_ELEMENTARY_CHARGE_RATIO,
 } from "../foundations/calculus.ts";
 import { withinTolerance } from "../units/tolerance.ts";
+import { writeCalculusLog } from "./foundCalculus.logger.ts";
 
 test("foundCalculus.numbers: Planck-to-elementary-charge ratio h/e matches CODATA reference", () => {
   const reference = 4.135667697e-15;
@@ -14,6 +15,17 @@ test("foundCalculus.numbers: Planck-to-elementary-charge ratio h/e matches CODAT
     relative: 1e-8,
   });
   assert.equal(verdict.ok, true, `h/e comparison failed: diff=${verdict.diff}`);
+
+  writeCalculusLog({
+    testId: "planck-elementary-charge-ratio-he",
+    foundationId: "derivatives",
+    callingAnchor: "light-quanta:s8",
+    expected: reference,
+    actual: PLANCK_TO_ELEMENTARY_CHARGE_RATIO,
+    tolerance: { relative: 1e-8 },
+    outcome: "passed",
+    message: "Verified Planck-to-elementary-charge ratio h/e against CODATA reference",
+  });
 });
 
 test("foundCalculus.numbers: ln(2) approx 0.693147 vs log10(2) approx 0.301030", () => {
@@ -29,6 +41,18 @@ test("foundCalculus.numbers: ln(2) approx 0.693147 vs log10(2) approx 0.301030",
 
   // In 1905 notation, printed lg 2 was ln 2 (~0.693147), not log10 2 (~0.301030)
   assert.notEqual(Math.round(LN_2 * 1000), Math.round(LOG10_2 * 1000));
+
+  writeCalculusLog({
+    testId: "ln2-vs-log10-2-historical-notation",
+    foundationId: "logarithms",
+    callingAnchor: "light-quanta:s4",
+    expected: { ln2: Number("0.693147"), log10_2: Number("0.30103") },
+    actual: { ln2: LN_2, log10_2: LOG10_2 },
+    tolerance: { absolute: 1e-5 },
+    outcome: "passed",
+    message:
+      "Verified 1905 German printed lg 2 is ln 2 (~0.693147), distinct from ISO log10(2) (~0.301030)",
+  });
 });
 
 test("foundCalculus.numbers: logarithm identity ln(f^n) = n ln(f) for n = 10, f = 1/2", () => {
@@ -43,4 +67,15 @@ test("foundCalculus.numbers: logarithm identity ln(f^n) = n ln(f) for n = 10, f 
   // Exact identity verification
   const exact = Math.log(f ** n);
   assert.equal(Math.abs(result - exact) < 1e-14, true);
+
+  writeCalculusLog({
+    testId: "logarithm-identity-power-of-half",
+    foundationId: "logarithms",
+    callingAnchor: "light-quanta:s5",
+    expected,
+    actual: result,
+    tolerance: { absolute: 1e-5 },
+    outcome: "passed",
+    message: "Verified logarithm power law ln(f^n) = n ln(f) for n=10, f=0.5 (-6.931472)",
+  });
 });

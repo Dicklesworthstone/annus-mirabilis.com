@@ -1,4 +1,6 @@
 import assert from "node:assert/strict";
+import fs from "node:fs";
+import path from "node:path";
 import test from "node:test";
 import {
   binomialPartialSumsGamma,
@@ -6,6 +8,7 @@ import {
   gammaMinusOneNaive,
 } from "../foundations/calculus.ts";
 import { withinTolerance } from "../units/tolerance.ts";
+import { writeCalculusLog } from "./foundCalculus.logger.ts";
 
 test("foundCalculus.binomial: partial sums at x = 0.36 match 0.18, 0.2286, 0.24318, 0.247773 against exact 0.25", () => {
   const x = 0.36; // corresponding to v/c = 0.6
@@ -24,6 +27,18 @@ test("foundCalculus.binomial: partial sums at x = 0.36 match 0.18, 0.2286, 0.243
 
   // Term 1+2+3+4 (0.24318 + 35/128 * 0.36^4 = 0.2477727...)
   assert.equal(withinTolerance(res.partialSums[3], 0.247773, { absolute: 1e-5 }).ok, true);
+
+  writeCalculusLog({
+    testId: "binomial-partial-sums-gamma-x036",
+    foundationId: "taylor-expansion",
+    callingAnchor: "special-relativity:s4",
+    expected: [0.18, 0.2286, 0.24318, 0.247773],
+    actual: res.partialSums,
+    tolerance: { absolute: 1e-5 },
+    outcome: "passed",
+    message:
+      "Verified binomial series partial sums for (1 - x)^(-1/2) - 1 at x = 0.36 against exact 0.25",
+  });
 });
 
 test("foundCalculus.binomial: cancellation-free gamma - 1 at v/c = 1e-4 gives 5.0000000375e-9", () => {
@@ -62,4 +77,43 @@ test("foundCalculus.binomial: cancellation-free gamma - 1 at v/c = 1e-4 gives 5.
     true,
     "Naive relative difference (approx 3.83e-8) is over 5x too large compared to true 7.5e-9",
   );
+
+  // Retain planted failure evidence beside logs
+  const evidenceDir = path.resolve(process.cwd(), "artifacts/test-logs/found-calculus/evidence");
+  fs.mkdirSync(evidenceDir, { recursive: true });
+  const evidenceFile = path.join(evidenceDir, "naive-cancellation-failure.json");
+  const evidenceData = {
+    exampleId: "binomial-gamma-minus-one-naive",
+    vOverC,
+    expectedVal,
+    expectedRelDiff,
+    actualNaiveVal: naiveVal,
+    actualNaiveRelDiff: naiveRelDiff,
+    evaluationRouteUsed: "naive-floating-point-subtraction: 1/sqrt(1 - x) - 1",
+    stableEvaluationRoute: "cancellation-free-expansion: x / (sqrt(1 - x) * (1 + sqrt(1 - x)))",
+    failureExplanation:
+      "Direct subtraction of 1 from 1/sqrt(1 - 1e-8) in IEEE-754 binary64 suffers catastrophic cancellation, yielding 5.0000001917e-9 instead of true 5.0000000375e-9",
+    timestamp: new Date().toISOString(),
+  };
+  fs.writeFileSync(evidenceFile, JSON.stringify(evidenceData, null, 2), "utf8");
+
+  writeCalculusLog({
+    testId: "cancellation-free-gamma-minus-one",
+    foundationId: "taylor-expansion",
+    callingAnchor: "mass-energy",
+    expected: { gammaMinusOne: expectedVal, relDiff: expectedRelDiff },
+    actual: {
+      stableVal,
+      stableRelDiff: relDiff,
+      plantedNaiveVal: naiveVal,
+      plantedNaiveRelDiff: naiveRelDiff,
+    },
+    tolerance: { absolute: 1e-18, relative: 1e-10 },
+    outcome: "passed",
+    evidence: {
+      path: "artifacts/test-logs/found-calculus/evidence/naive-cancellation-failure.json",
+    },
+    message:
+      "Verified cancellation-free gamma - 1 gives 5.0000000375e-9; planted naive route fails assertion and failure evidence is retained",
+  });
 });
