@@ -50,8 +50,7 @@ describe("checkEquivalence: near-misses fail, with the first differing point", (
 });
 
 describe("checkEquivalence: honest refusal, never a guess", () => {
-  test("too few points accepted inside the domain reports could-not-compare, not a verdict", () => {
-    // sqrt(-x) has no real value anywhere on a positive x domain: every candidate is skipped.
+  test("a reader expression undefined on the reference domain reports could-not-compare", () => {
     const outcome = checkEquivalence(
       mustParse("sqrt(-x)"),
       mustParse("x"),
@@ -68,19 +67,15 @@ describe("checkEquivalence: honest refusal, never a guess", () => {
   });
 });
 
-describe("KNOWN, DISCLOSED GAP: this Halton-only checker is fooled by a grid-tuned adversarial pair", () => {
-  test("x^2 vs x^2 + sin(32*pi*x) on [0,1) is wrongly reported 'equivalent' -- the bead's own adversarial fixture, which the second (Philox) point set this pass does not build exists specifically to catch", () => {
+describe("regression: the Philox second set catches the Halton-grid counterexample", () => {
+  test("x^2 versus x^2 + sin(32*pi*x) is not equivalent", () => {
     const outcome = checkEquivalence(
       mustParse("x^2+sin(32*pi*x)", ["x", "pi"]),
       mustParse("x^2", ["x", "pi"]),
       { x: { min: 0, max: 1 } },
       { absolute: 1e-9, relative: 1e-9 },
     );
-    // This assertion documents the vulnerability, not a passing security property:
-    // a correct, fully-built checker (with the Philox second set) MUST report
-    // "not-equivalent" here. Recording the true current behavior so the gap is
-    // visible in CI rather than silently assumed closed.
-    expect(outcome.status).toBe("equivalent");
+    expect(outcome.status).toBe("not-equivalent");
   });
 
   test("off the Halton grid, at x = 21/64, the two expressions actually differ by about 1", () => {

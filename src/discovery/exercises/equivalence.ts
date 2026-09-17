@@ -1,33 +1,18 @@
-/**
- * Numerical equivalence over deterministic sample points
- * (am-disc-exercise-checker-i4h2), reported with an honest label: agreement
- * at sampled points, never a proof.
- *
- * KNOWN, DISCLOSED GAP: the bead specifies TWO deterministic point sets --
- * a fixed, checked-in Halton sequence for coverage, and a second,
- * per-exercise set drawn from the TypeScript Philox port
- * (am-fs-philox-ts-port-7kp) for unpredictability, because the Halton
- * sequence alone is a published, fixed grid: its first 16 base-2 points
- * are all m/32, so a periodic function like sin(32*pi*x) can vanish on
- * every one of them (to about 1.08e-14) while differing from the true
- * reference by a full unit just off the grid. This module implements the
- * Halton set only -- the Philox integration (a registered exercise stream
- * kernel id, a SHA-256-derived seed per exercise part) is real integration
- * work this pass does not do. equivalence.test.ts's
- * "known-gap-not-a-success" test proves this checker is currently fooled
- * by that exact construction, so the gap is demonstrated, not hidden.
+/** Two-set numerical comparison (am-disc-exercise-checker-i4h2).
+ * Both sample families must supply enough DISTINCT valid reference points.
+ * Reader-only domain failures never disappear by intersecting the domains.
+ * Deterministic sampling can still miss differences; success is never a proof.
  */
-
-import { type ToleranceSpec, withinTolerance } from "../../units/tolerance";
-import { evaluate } from "./evaluate";
-import type { Expr } from "./grammar";
-import { type Domain, haltonPoints } from "./samplePoints";
+import { type ToleranceSpec, withinTolerance } from "../../units/tolerance.ts";
+import { evaluate } from "./evaluate.ts";
+import type { Expr } from "./grammar.ts";
+import { boundaryPoints, type Domain, haltonPoints, philoxPoints, type SamplePoint } from "./samplePoints.ts";
 
 export type EquivalenceOutcome =
   | Readonly<{ status: "equivalent"; acceptedPointCount: number; label: string }>
   | Readonly<{
       status: "not-equivalent";
-      point: Readonly<Record<string, number>>;
+      point: SamplePoint;
       readerValue: number;
       referenceValue: number;
     }>
@@ -36,49 +21,57 @@ export type EquivalenceOutcome =
 const CANDIDATE_POOL = 64;
 const TARGET_ACCEPTED = 16;
 const MIN_ACCEPTED = 12;
+const unable = (reason: string): EquivalenceOutcome => ({ status: "could-not-compare", reason });
 
-/**
- * Checks `reader` against `reference` over `domains` at up to
- * `TARGET_ACCEPTED` Halton points accepted from a pool of `CANDIDATE_POOL`
- * candidates (a candidate is skipped, not counted, when either side is
- * nonfinite or undefined there). `tolerance` is the part's declared
- * combined absolute/relative spec, compared through
- * `src/units/tolerance.ts`, never a bespoke `Math.abs` check.
- */
 export function checkEquivalence(
   reader: Expr,
   reference: Expr,
   domains: Readonly<Record<string, Domain>>,
   tolerance: ToleranceSpec,
+  options: Readonly<{ seed?: string | bigint }> = {},
 ): EquivalenceOutcome {
-  const candidates = haltonPoints(domains, CANDIDATE_POOL);
-  const accepted: Array<Readonly<Record<string, number>>> = [];
-  for (const point of candidates) {
-    if (accepted.length >= TARGET_ACCEPTED) break;
-    const readerResult = evaluate(reader, point);
-    const referenceResult = evaluate(reference, point);
-    if (readerResult.status !== "value" || referenceResult.status !== "value") continue;
-    accepted.push(point);
-    if (!withinTolerance(readerResult.value, referenceResult.value, tolerance).ok) {
-      return {
-        status: "not-equivalent",
-        point,
-        readerValue: readerResult.value,
-        referenceValue: referenceResult.value,
-      };
+  try {
+    if (!tolerance || (tolerance.relativeTo !== undefined &&
+        !["reference", "larger"].includes(tolerance.relativeTo)))
+      return unable("The exercise has an invalid tolerance specification.");
+    const groups = [
+      { name: "boundary", points: boundaryPoints(domains), minimum: 0 },
+      { name: "Halton", points: haltonPoints(domains, CANDIDATE_POOL), minimum: MIN_ACCEPTED },
+      { name: "Philox", points: philoxPoints(domains, CANDIDATE_POOL, options.seed ?? "0"), minimum: MIN_ACCEPTED },
+    ];
+    const names = Object.keys(domains).sort();
+    const allAccepted = new Set<string>();
+    for (const group of groups) {
+      const accepted = new Set<string>();
+      for (const point of group.points) {
+        if (group.name !== "boundary" && accepted.size >= TARGET_ACCEPTED) break;
+        const key = JSON.stringify(names.map((name) => point[name]));
+        if (accepted.has(key)) continue;
+        const expected = evaluate(reference, point);
+        if (expected.status !== "value") continue;
+        const actual = evaluate(reader, point);
+        if (actual.status !== "value") {
+          const at = names.map((name) => `${name}=${point[name]}`).join(", ") || "the constant input";
+          return unable(`Your expression is undefined or nonfinite at ${at}, where the reference is finite. This point cannot be discarded.`);
+        }
+        const compared = withinTolerance(actual.value, expected.value, tolerance);
+        if (compared.kind === "invalid-spec")
+          return unable(`The exercise tolerance cannot compare this point: ${compared.issues.map((i) => i.message).join(" ")}`);
+        if (!compared.ok)
+          return { status: "not-equivalent", point, readerValue: actual.value, referenceValue: expected.value };
+        accepted.add(key);
+        allAccepted.add(key);
+      }
+      const minimum = names.length ? group.minimum : 1;
+      if (accepted.size < minimum)
+        return unable(`Only ${accepted.size} distinct ${group.name} points had finite reference values; ${minimum} are required. Check the domain and numeric resolution.`);
     }
-  }
-  if (accepted.length < MIN_ACCEPTED) {
     return {
-      status: "could-not-compare",
-      reason: `Only ${accepted.length} of ${CANDIDATE_POOL} candidate points fell inside both expressions' domain; at least ${MIN_ACCEPTED} are needed to compare.`,
+      status: "equivalent",
+      acceptedPointCount: allAccepted.size,
+      label: `Numerically equivalent at ${allAccepted.size} distinct points using boundary, Halton and Philox checks in the stated ranges. This is a numerical check, not a proof.`,
     };
+  } catch (error) {
+    return unable(error instanceof Error ? error.message : "The exercise could not be compared.");
   }
-  return {
-    status: "equivalent",
-    acceptedPointCount: accepted.length,
-    label:
-      `Numerically equivalent at ${accepted.length} Halton points in the stated ranges. ` +
-      "This is a numerical check, not a proof.",
-  };
 }
