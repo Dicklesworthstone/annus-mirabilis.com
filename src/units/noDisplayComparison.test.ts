@@ -1,6 +1,6 @@
+import { describe, expect, it } from "bun:test";
 import { readFileSync } from "node:fs";
 import path from "node:path";
-import { describe, expect, it } from "bun:test";
 
 const FORBIDDEN_PATTERNS = [
   /Math\.abs\s*\([^)]+-[^)]+\)\s*<=\s*([a-zA-Z0-9_]+|0\.\d+)/,
@@ -13,8 +13,7 @@ function scanFileForComparisons(filePath: string): { line: number; match: string
   const lines = content.split("\n");
   const matches: { line: number; match: string }[] = [];
 
-  for (let i = 0; i < lines.length; i++) {
-    const line = lines[i]!;
+  for (const [i, line] of lines.entries()) {
     if (line.trim().startsWith("//") || line.trim().startsWith("*")) continue;
 
     for (const pattern of FORBIDDEN_PATTERNS) {

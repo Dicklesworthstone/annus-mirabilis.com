@@ -1,4 +1,3 @@
-import React from "react";
 import { describe, expect, it } from "bun:test";
 import { renderToString } from "react-dom/server";
 import { ValueWithUncertainty } from "./ValueWithUncertainty.tsx";

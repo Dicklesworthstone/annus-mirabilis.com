@@ -5,9 +5,8 @@
  * guard digits, and constant-set provenance.
  */
 
-import React from "react";
 import { formatCleanNumber, formatGuardDigit, formatSignificantFigures } from "./format.ts";
-import { spokenQuantity, spokenUnit } from "./spoken.ts";
+import { spokenQuantity } from "./spoken.ts";
 import { formatUncertainty, spokenUncertainty, type UncertaintySpec } from "./uncertainty.ts";
 
 export interface ValueWithUncertaintyProps {
@@ -71,6 +70,7 @@ export function ValueWithUncertainty({
 
   return (
     <span
+      role="img"
       className={`value-with-uncertainty ${className}`.trim()}
       aria-label={fullSpokenLabel}
       data-value={value}

@@ -1,5 +1,5 @@
 import { describe, it } from "bun:test";
-import { formatConstantSetDependentValue, type ConstantSetDependentValue } from "./format.ts";
+import { type ConstantSetDependentValue, formatConstantSetDependentValue } from "./format.ts";
 
 describe("Type-level tests for ConstantSetDependentValue (am-ver-precision-display-5e5)", () => {
   it("compiles when constantSetId is provided", () => {
