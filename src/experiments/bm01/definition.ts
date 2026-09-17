@@ -1,4 +1,5 @@
 import type { OutputContract, ParameterClass } from "../store/instanceStore.ts";
+import type { WeavePredicate } from "../weave/types.ts";
 export type Bm01Parameters = Readonly<{
   T: number;
   eta: number;
@@ -110,6 +111,42 @@ export const BM01_OUTPUTS: Readonly<Record<string, OutputContract>> = Object.fre
   ),
   recordingDraws: c("1", "logical-recording-draws", "diffusion.recordTracers"),
   reusedRecording: c("1", "recording-reuse-indicator", "bm01.measure"),
+  ensembleSize: c("1", "sample-count", "bm01.acceptedInputs"),
+  signedMean: c("m", "sample-coordinate-mean", "diffusion.ensembleMoments"),
+  signedMeanLowerBand: c("m", "model-sampling-mean-lower-band", "diffusion.ensembleMomentBands", [
+    "value",
+    "underdetermined",
+    "analytic-limit",
+  ]),
+  signedMeanUpperBand: c("m", "model-sampling-mean-upper-band", "diffusion.ensembleMomentBands", [
+    "value",
+    "underdetermined",
+    "analytic-limit",
+  ]),
+  meanSquare: c("m2", "sample-coordinate-second-moment", "diffusion.ensembleMoments", [
+    "value",
+    "analytic-limit",
+  ]),
+  meanSquareLowerBand: c(
+    "m2",
+    "model-sampling-second-moment-lower-band",
+    "diffusion.ensembleMomentBands",
+    ["value", "underdetermined", "analytic-limit"],
+  ),
+  meanSquareUpperBand: c(
+    "m2",
+    "model-sampling-second-moment-upper-band",
+    "diffusion.ensembleMomentBands",
+    ["value", "underdetermined", "analytic-limit"],
+  ),
+  kolmogorovDistance: c(
+    "1",
+    "distribution-convergence-distance",
+    "diffusion.displacementHistogram",
+    ["value", "not-applicable"],
+  ),
+  lambdaX1s: c("m", "one-second-rms-displacement", "diffusion.rmsDisplacement"),
+  lambdaX60s: c("m", "sixty-second-rms-displacement", "diffusion.rmsDisplacement"),
 });
 /** Recorded index selection is data layout, not a physical calculation. */
 export function comparisonIndices(steps: number): readonly number[] {
@@ -131,3 +168,92 @@ export function bm01Layout(id: string, p: Bm01Parameters): number | null {
   if (["meanBand", "secondMomentBand"].includes(id)) return 2;
   return null;
 }
+
+export const BM01_WEAVE_PREDICATES: readonly WeavePredicate[] = Object.freeze([
+  Object.freeze({
+    id: "bm01-s4-cancellation",
+    instrumentId: "bm-01",
+    meaning: "agreement-within-stated-bound" as const,
+    conditions: Object.freeze([
+      Object.freeze({
+        kind: "threshold" as const,
+        quantityId: "ensembleSize",
+        direction: "at-least" as const,
+        enter: 100,
+        exit: 100,
+      }),
+      Object.freeze({
+        kind: "agreement" as const,
+        statisticQuantityId: "signedMean",
+        sampleCountQuantityId: "ensembleSize",
+        minimumSampleSize: 100,
+        boundFamily: "owner-band" as const,
+        enterAlpha: 1e-3,
+        exitAlpha: 1e-4,
+        lowerBoundQuantityId: "signedMeanLowerBand",
+        upperBoundQuantityId: "signedMeanUpperBand",
+      }),
+      Object.freeze({
+        kind: "agreement" as const,
+        statisticQuantityId: "meanSquare",
+        sampleCountQuantityId: "ensembleSize",
+        minimumSampleSize: 100,
+        boundFamily: "owner-band" as const,
+        enterAlpha: 1e-3,
+        exitAlpha: 1e-4,
+        lowerBoundQuantityId: "meanSquareLowerBand",
+        upperBoundQuantityId: "meanSquareUpperBand",
+      }),
+    ]),
+    targets: Object.freeze(["bm-s4-cancellation"]),
+    pointerText:
+      "The signed mean and the mean square agree with the model band at the stated significance level, sample size 400, seed 1905.",
+  }),
+  Object.freeze({
+    id: "bm01-s5-distribution-agreement",
+    instrumentId: "bm-01",
+    meaning: "agreement-within-stated-bound" as const,
+    conditions: Object.freeze([
+      Object.freeze({
+        kind: "agreement" as const,
+        statisticQuantityId: "kolmogorovDistance",
+        sampleCountQuantityId: "ensembleSize",
+        minimumSampleSize: 100,
+        boundFamily: "dkw" as const,
+        enterAlpha: 1e-3,
+        exitAlpha: 1e-4,
+      }),
+    ]),
+    targets: Object.freeze(["bm-s5-lambda-x"]),
+    pointerText:
+      "The sampled displacement histogram agrees with the model Gaussian within the stated bound, sample size 400, seed 1905.",
+  }),
+  Object.freeze({
+    id: "bm01-s5-printed-numbers",
+    instrumentId: "bm-01",
+    meaning: "assumption-active" as const,
+    conditions: Object.freeze([
+      Object.freeze({
+        kind: "regime" as const,
+        on: "constantSet",
+        equals: "einstein-1905-brownian-printed",
+      }),
+      Object.freeze({
+        kind: "threshold" as const,
+        quantityId: "lambdaX1s",
+        direction: "at-least" as const,
+        enter: 0.75,
+        exit: 0.75,
+      }),
+      Object.freeze({
+        kind: "threshold" as const,
+        quantityId: "lambdaX60s",
+        direction: "at-least" as const,
+        enter: 5.5,
+        exit: 5.5,
+      }),
+    ]),
+    targets: Object.freeze(["bm-s5-printed-numbers"]),
+    pointerText: "The historical constant set einstein-1905-brownian-printed is currently active.",
+  }),
+]);

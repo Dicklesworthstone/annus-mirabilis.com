@@ -251,6 +251,56 @@ outputs:
     allowedStatuses:
       - value
       - not-applicable
+  - id: ensembleSize
+    quantityId: ensembleSize
+    allowedStatuses:
+      - value
+  - id: signedMean
+    quantityId: meanDisplacement1d
+    allowedStatuses:
+      - value
+  - id: signedMeanLowerBand
+    quantityId: displacement1d
+    allowedStatuses:
+      - value
+      - underdetermined
+      - analytic-limit
+  - id: signedMeanUpperBand
+    quantityId: displacement1d
+    allowedStatuses:
+      - value
+      - underdetermined
+      - analytic-limit
+  - id: meanSquare
+    quantityId: displacementVariance1d
+    allowedStatuses:
+      - value
+      - analytic-limit
+  - id: meanSquareLowerBand
+    quantityId: displacementVariance1d
+    allowedStatuses:
+      - value
+      - underdetermined
+      - analytic-limit
+  - id: meanSquareUpperBand
+    quantityId: displacementVariance1d
+    allowedStatuses:
+      - value
+      - underdetermined
+      - analytic-limit
+  - id: kolmogorovDistance
+    quantityId: kolmogorovDistance
+    allowedStatuses:
+      - value
+      - not-applicable
+  - id: lambdaX1s
+    quantityId: displacement1d
+    allowedStatuses:
+      - value
+  - id: lambdaX60s
+    quantityId: displacement1d
+    allowedStatuses:
+      - value
 assumptions:
   - "Dilute, approximately spherical tracers in a homogeneous Newtonian fluid"
   - "Low Reynolds number, free unbounded isotropic diffusion without drift"

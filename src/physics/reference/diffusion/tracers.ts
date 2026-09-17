@@ -114,7 +114,37 @@ export async function recordTracers(
   }
   const workUnits = p.M * 3 * p.steps,
     allocationBytes = p.M * 3 * (p.steps + 1) * 8;
-  if (workUnits > TRACER_BUDGET.workUnits || allocationBytes > TRACER_BUDGET.allocationBytes)
+  if (workUnits > TRACER_BUDGET.workUnits || allocationBytes > TRACER_BUDGET.allocationBytes) {
+    const safeM = Math.max(
+      1,
+      Math.min(
+        Math.floor(TRACER_BUDGET.workUnits / (3 * p.steps)),
+        Math.floor(TRACER_BUDGET.allocationBytes / (3 * (p.steps + 1) * 8)),
+      ),
+    );
+    const safeSteps = Math.max(
+      1,
+      Math.min(
+        Math.floor(TRACER_BUDGET.workUnits / (p.M * 3)),
+        Math.floor(TRACER_BUDGET.allocationBytes / (p.M * 3 * 8)) - 1,
+      ),
+    );
+    const safeH = Number((safeSteps * p.h).toFixed(2));
+    const safeCoarseH = Number(((p.steps * p.h) / safeSteps).toFixed(4));
+    const rankedRepairs = [
+      {
+        label: `Reduce ensemble size to ${safeM} tracers.`,
+        action: { parameterId: "M", value: safeM },
+      },
+      {
+        label: `Reduce observation duration to ${safeH} seconds.`,
+        action: { parameterId: "H", value: safeH },
+      },
+      {
+        label: `Coarsen time resolution to ${safeCoarseH} seconds.`,
+        action: { parameterId: "h", value: safeCoarseH },
+      },
+    ];
     return {
       kind: "outcome",
       outcome: {
@@ -122,8 +152,10 @@ export async function recordTracers(
         ...executionOutcomeRegistry["budget-exhausted"],
         requested: { workUnits, allocationBytes },
         allowed: TRACER_BUDGET,
+        details: { rankedRepairs },
       },
     };
+  }
   const chunk = options.chunkSeries ?? 6;
   if (!Number.isSafeInteger(chunk) || chunk < 1 || chunk > 128)
     return invalid(["chunkSeries"], "Choose 1–128 series per chunk.");

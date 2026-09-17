@@ -21,6 +21,7 @@ import {
   type TracerRecording,
   tracerDisplacements,
 } from "../../physics/reference/diffusion/tracers.ts";
+import { kolmogorovDistanceToGaussian } from "../../physics/reference/diffusion/walkLaws.ts";
 import {
   apparentSpeed,
   intervalProbability,
@@ -299,7 +300,63 @@ export function measureBm01(
     outputs.push(
       number("recordingDraws", recording.draws),
       number("reusedRecording", reused ? 1 : 0),
+      number("ensembleSize", p.M),
+      number("signedMean", axis.mean),
+      number("meanSquare", axis.meanSquare),
+      number("lambdaX1s", value(rmsDisplacement(D, 1).result)),
+      number("lambdaX60s", value(rmsDisplacement(D, 60).result)),
     );
+    if (p.M < 2 || p.interval === 0) {
+      for (const id of [
+        "signedMeanLowerBand",
+        "signedMeanUpperBand",
+        "meanSquareLowerBand",
+        "meanSquareUpperBand",
+      ]) {
+        const c = BM01_OUTPUTS[id];
+        if (!c) continue;
+        const common = {
+          quantityId: id,
+          unit: c.unit,
+          semanticKind: c.semanticKind,
+          ownerId: c.ownerId,
+        };
+        outputs.push(
+          p.M < 2
+            ? {
+                ...common,
+                status: "underdetermined",
+                compatibleFamily: "One realization is not an ensemble sampling comparison.",
+                neededInformation: ["Use at least two tracers."],
+              }
+            : {
+                ...common,
+                status: "analytic-limit",
+                description:
+                  "At the starting point all displacements and their sampling spread are zero.",
+                representation: { kind: "coefficient", value: 0 },
+              },
+        );
+      }
+    } else {
+      const bands = unwrap(
+        ensembleMomentBands({ M: p.M, d: p.d, modelVariance: sigma * sigma, alphas: [0.001] }),
+      );
+      const band = bands[0];
+      if (!band) throw new RangeError("Missing ensemble moment band");
+      outputs.push(
+        number("signedMeanLowerBand", -band.meanHalfWidth),
+        number("signedMeanUpperBand", band.meanHalfWidth),
+        number("meanSquareLowerBand", band.totalMeanSquare[0] ?? 0),
+        number("meanSquareUpperBand", band.totalMeanSquare[1] ?? 0),
+      );
+    }
+    if (p.interval === 0) {
+      outputs.push(notApplicable("kolmogorovDistance", "Interval is 0"));
+    } else {
+      const kd = unwrap(kolmogorovDistanceToGaussian(samples, sigma * sigma));
+      outputs.push(number("kolmogorovDistance", kd));
+    }
     return {
       kind: "accepted",
       data: { outputs, stepIndex: recording.setup.steps, simulationTime: p.H },

@@ -1,8 +1,58 @@
+ownerBeadId: am-bm-01-tracer-ensemble-hdly
 beadId: am-bm-01-tracer-ensemble-hdly
 targets:
-  - instrument: bm-01
-    captions:
-      - r0
-      - r1
-      - r2
-      - r3
+  - kind: caption
+    id: bm-01
+    readings:
+      r0: "Each path wanders unpredictably, but the ensemble reveals lawful spreading."
+      r1: "The signed mean stays near zero through cancellation, while the mean square displacement grows proportionally with elapsed time."
+      r2: "At each time step, thermal collisions from the fluid molecules impart independent random kicks to the suspended particle. Along each Cartesian coordinate, positive and negative displacements occur with equal probability and cancel in the aggregate sample average. In contrast, squared displacements are strictly non-negative and accumulate monotonically over time, yielding a dispersed cloud whose root-mean-square displacement scales with the square root of time according to the Stokes-Einstein relation."
+      r3: "Einstein's 1905 Brownian motion paper, sections 4 and 5."
+      r3Citations:
+        - "Einstein, A. (1905). Über die von der molekularkinetischen Theorie der Wärme geforderte Bewegung von in ruhenden Flüssigkeiten suspendierten Teilchen. Annalen der Physik 17, 549–560 (§4–§5)."
+  - kind: caption
+    id: bm-01-velocity-trap
+    readings:
+      r0: "Measuring speed across shorter observation intervals makes the apparent speed diverge."
+      r1: "Apparent speed scales inversely with the square root of observation time, proving it is not a genuine physical velocity."
+      r2: "Franz Exner attempted to determine the physical speed of microscopic Brownian particles by dividing observed displacements by the visual inspection interval. Because diffusive displacement grows with the square root of time rather than linearly, dividing by elapsed time introduces an artificial factor of one over the square root of time. Shortening the interval from one second to one quarter second doubles the apparent speed, demonstrating that fine-scale polylines do not measure a true particle velocity."
+      r3: "Exner (1900); Einstein (1905, section 5); Poincaré (1900)."
+      r3Citations:
+        - "Exner, F. (1900). Notiz zu Browns Molecularbewegung. Annalen der Physik 2, 843–847."
+        - "Einstein, A. (1905). Annalen der Physik 17, 549–560 (§5)."
+  - kind: caption
+    id: bm-01-radius-probe
+    readings:
+      r0: "Doubling particle radius doubles hydrodynamic drag, which cuts diffusivity in half and scales typical displacements by one over the square root of two."
+      r1: "Stokes drag increases directly with radius, reducing the diffusion coefficient to half its baseline value."
+      r2: "Stokes drag on a dilute sphere of radius a in a fluid of viscosity eta is given by 6 pi eta a. When the particle radius doubles from 0.5 microns to 1.0 micron while holding temperature and fluid viscosity constant, the frictional resistance doubles, cutting the Stokes-Einstein diffusion coefficient exactly in half. Because the typical root-mean-square displacement scales with the square root of diffusivity, the observed displacement at one second falls by a factor of 1 / sqrt(2), reaching approximately 0.56 microns."
+      r3: "Einstein (1905, section 5, equation for D and lambda_x)."
+      r3Citations:
+        - "Einstein, A. (1905). Annalen der Physik 17, 549–560 (§5)."
+  - kind: caption
+    id: bm-01-viscosity-comparison
+    readings:
+      r0: "Doubling fluid viscosity produces the identical displacement reduction using common random numbers."
+      r1: "Diffusivity depends on the product of viscosity and radius, so doubling viscosity scales displacements by exactly one over root two."
+      r2: "Because the Stokes-Einstein diffusion coefficient depends symmetrically on the product of viscosity eta and radius a in its denominator, doubling the dynamic viscosity from 1.35 to 2.70 mPa s reduces diffusivity by the same factor of two as doubling the radius. In this laboratory preset, the comparison uses common random numbers, replaying identical underlying pseudo-random Gaussian kicks to isolate the deterministic physical scaling from stochastic realization noise."
+      r3: "Common random numbers comparison isolating parameter sensitivity from stochastic realization noise."
+      r3Citations:
+        - "Einstein, A. (1905). Annalen der Physik 17, 549–560 (§5)."
+  - kind: caption
+    id: bm-01-predict-observation-interval
+    readings:
+      r0: "If you watch four times as long, does the typical distance from the start become four times as large, two times as large, or stay unchanged?"
+      r1: "Candidates: Four times as large (linear drift), Two times as large (diffusive square root), It stays the same (fixed particle speed)."
+      r2: "A prediction of four times assumes linear accumulation of displacement with time, as occurs in directional drift. A prediction of unchanged assumes displacement is an intrinsic particle property independent of observation duration. The correct answer is two times: because diffusion is governed by a random walk, variance accumulates linearly with time, making typical displacement scale as the square root of observation time."
+      r3: "Predictive prompt evaluating understanding of diffusive square-root scaling versus linear ballistic motion."
+      r3Citations:
+        - "Einstein, A. (1905). Annalen der Physik 17, 549–560 (§4)."
+  - kind: caption
+    id: bm-01-predict-viscosity
+    readings:
+      r0: "In a liquid twice as viscous, after the same time, does the typical distance become half as large, about 0.71 times as large, or unchanged?"
+      r1: "Candidates: Half as large (linear in D), About 0.71 times as large (square root of D), Unchanged (fluid affects frequency, not distance)."
+      r2: "Doubling viscosity doubles the hydrodynamic drag, which halves the diffusion coefficient D. A reader predicting half assumes displacement is directly proportional to D. The correct answer is about 0.71 times: root-mean-square displacement scales with the square root of diffusivity, so halving D multiplies displacement by 1 / sqrt(2), which is approximately 0.7071."
+      r3: "Predictive prompt evaluating understanding of diffusivity versus displacement scaling."
+      r3Citations:
+        - "Einstein, A. (1905). Annalen der Physik 17, 549–560 (§5)."

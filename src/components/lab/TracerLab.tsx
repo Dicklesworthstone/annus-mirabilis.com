@@ -6,14 +6,13 @@ import { SemanticEquation } from "../../equations/SemanticEquation.tsx";
 import type { CompiledEquation } from "../../equations/viewTypes.ts";
 import { createBm01BrowserChannel } from "../../experiments/bm01/browser.ts";
 import { BM01_FIELDS, fromTracerDraft, toTracerDraft } from "../../experiments/bm01/controls.ts";
-import { BM01_OUTPUTS, type Bm01Parameters } from "../../experiments/bm01/definition.ts";
+import type { Bm01Parameters } from "../../experiments/bm01/definition.ts";
 import { decodeBm01Settings, encodeBm01Settings } from "../../experiments/bm01/permalink.ts";
 import { createBm01Session, type PreparedBm01Example } from "../../experiments/bm01/session.ts";
 import { ExecutionChrome } from "../../experiments/labels/ExecutionChrome.tsx";
-import { executionStateKindFromHostLabel } from "../../experiments/labels/executionLabelFor.ts";
 import { modelNoteFromView } from "../../experiments/labels/modelNoteData.ts";
 import { labelRootAttributes } from "../../experiments/labels/resultAttributes.ts";
-import { deriveHostExecution } from "../../experiments/provenance/executionState.ts";
+import type { ExecutionStateKind } from "../../experiments/provenance/executionState.ts";
 import type { AcceptedSnapshot } from "../../experiments/store/instanceStore.ts";
 import equationPayload from "../../generated/brownian-equations.json";
 import { TimeLegend } from "../../visuals/kit/TimeLegend.tsx";
@@ -152,13 +151,43 @@ export function TracerLab({
           : `Accepted synthetic trial: ${p.M} tracers, ${display(p.interval)} seconds, coordinate mean ${display(scalar(snapshot, "sampleMean"), 1e6)} micrometres and coordinate RMS ${display(scalar(snapshot, "sampleRms"), 1e6)} micrometres.`;
   const edges = array(snapshot, "histogramEdges"),
     counts = array(snapshot, "histogramCounts");
-  const execution = deriveHostExecution(
-    view,
-    BM01_OUTPUTS,
-    example.sourceDigest,
-    snapshot === session.getServerSnapshot().accepted,
-  );
-  const executionKind = executionStateKindFromHostLabel(execution.label);
+  const isStatic = snapshot === session.getServerSnapshot().accepted;
+  const primaryOwner = (
+    snapshot.outputs as readonly { quantityId: string; ownerId: string }[] | undefined
+  )?.find((o) => o.quantityId === "tracerPositions")?.ownerId;
+  const isFrankenSim = primaryOwner === "fs-wasm.brownian_frames";
+  const executionKind: ExecutionStateKind = isStatic
+    ? "static-example"
+    : view.status === "unavailable"
+      ? "unavailable"
+      : isFrankenSim
+        ? "frankensim-accepted"
+        : "host-accepted";
+  const isEinsteinHistorical =
+    Math.abs(p.T - 290.15) < 1e-4 &&
+    Math.abs(p.eta - 0.00135) < 1e-6 &&
+    Math.abs(p.a - 0.5e-6) < 1e-9;
+  const constantSetId = isEinsteinHistorical ? "einstein-1905-brownian-printed" : "modern-si-2019";
+  const constantSetLabel =
+    constantSetId === "einstein-1905-brownian-printed"
+      ? "Einstein 1905 (Annalen der Physik)"
+      : "modern SI 2019";
+
+  const execution = {
+    label: isStatic ? ("static" as const) : ("host" as const),
+    text: isStatic
+      ? "Static worked example"
+      : isFrankenSim
+        ? "Ideal model, computed with FrankenSim"
+        : "Ideal model, host calculation",
+    sourceDigest: example.sourceDigest,
+    owners: [
+      ...new Set(
+        (snapshot.outputs as readonly { ownerId: string }[] | undefined)?.map((o) => o.ownerId) ??
+          [],
+      ),
+    ],
+  };
   const editQuantity = (quantityId: string) => {
     const name = (
       {
@@ -198,6 +227,28 @@ export function TracerLab({
             modelNote={modelNoteFromView(view, {
               notModeled: "Molecular collisions (no collision bath owns the displacement).",
               showTheCodeHref: `#stc-${id}`,
+              roles: {
+                tracerPositions: "primary",
+                sampleMean: "secondary",
+                sampleMeanAbsolute: "secondary",
+                sampleMeanSquare: "secondary",
+                sampleRms: "secondary",
+                sampleMeanNorm: "secondary",
+                sampleMeanSquareNorm: "secondary",
+                sampleRmsNorm: "secondary",
+              },
+              engineSentences: {
+                tracerPositions: isFrankenSim
+                  ? "Computed with FrankenSim (brownian_frames)."
+                  : "Host reference calculation (recordTracers).",
+                sampleMean: "Host reduction (ensembleMoments).",
+                sampleMeanAbsolute: "Host reduction (ensembleMoments).",
+                sampleMeanSquare: "Host reduction (ensembleMoments).",
+                sampleRms: "Host reduction (ensembleMoments).",
+                sampleMeanNorm: "Host reduction (ensembleMoments).",
+                sampleMeanSquareNorm: "Host reduction (ensembleMoments).",
+                sampleRmsNorm: "Host reduction (ensembleMoments).",
+              },
             })}
           />
         </header>
@@ -422,8 +473,8 @@ export function TracerLab({
             <p className="accepted-caption">
               Accepted trial: seed {p.seed}; {p.M} tracers; {display(p.T)} K; viscosity{" "}
               {display(p.eta, 1e3)} mPa·s; radius {display(p.a, 1e6)} μm. Observe at{" "}
-              {display(p.interval)} s in a {display(p.H)}-second recording. Constants: modern SI
-              2019.
+              {display(p.interval)} s in a {display(p.H)}-second recording. Constants:{" "}
+              <span data-constant-set-id={constantSetId}>{constantSetLabel}</span>.
             </p>
             <TracerPaths snapshot={snapshot} zoom={zoom} />
             <div className="real-rate-card" data-real-rate-card="true">
@@ -472,12 +523,20 @@ export function TracerLab({
                 <tr>
                   <th scope="row">Signed mean (sample)</th>
                   <td data-output="sampleMean">
-                    {display(scalar(snapshot, "sampleMean"), 1e6)} μm
+                    {display(scalar(snapshot, "sampleMean"), 1e6)} μm{" "}
+                    <span className="fine font-mono text-xs" data-constant-set-id={constantSetId}>
+                      ({constantSetId})
+                    </span>
                   </td>
                 </tr>
                 <tr>
                   <th scope="row">Mean absolute coordinate displacement</th>
-                  <td>{display(scalar(snapshot, "sampleMeanAbsolute"), 1e6)} μm</td>
+                  <td>
+                    {display(scalar(snapshot, "sampleMeanAbsolute"), 1e6)} μm{" "}
+                    <span className="fine font-mono text-xs" data-constant-set-id={constantSetId}>
+                      ({constantSetId})
+                    </span>
+                  </td>
                 </tr>
                 <tr>
                   <th scope="row">Mean-square coordinate displacement</th>
@@ -489,6 +548,9 @@ export function TracerLab({
                     {display(scalar(snapshot, "sampleRms"), 1e6)} /{" "}
                     <span data-quantity-id="rmsDisplacement1d">
                       {display(scalar(snapshot, "rmsDisplacement1d"), 1e6)} μm
+                    </span>{" "}
+                    <span className="fine font-mono text-xs" data-constant-set-id={constantSetId}>
+                      ({constantSetId})
                     </span>
                   </td>
                 </tr>
@@ -496,7 +558,10 @@ export function TracerLab({
                   <th scope="row">Mean distance (sample / model)</th>
                   <td>
                     {display(scalar(snapshot, "sampleMeanNorm"), 1e6)} /{" "}
-                    {display(scalar(snapshot, "modelMeanNorm"), 1e6)} μm
+                    {display(scalar(snapshot, "modelMeanNorm"), 1e6)} μm{" "}
+                    <span className="fine font-mono text-xs" data-constant-set-id={constantSetId}>
+                      ({constantSetId})
+                    </span>
                   </td>
                 </tr>
                 <tr>
