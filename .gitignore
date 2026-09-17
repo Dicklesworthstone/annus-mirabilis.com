@@ -49,6 +49,11 @@ playwright-report/
 blob-report/
 /coverage/
 
+# Retained non-published sources (local-only pins and parent scans; am-src-download-script-15ar).
+# Local-only pins and parent scans in sources/ are permanent local artifacts and never deleted.
+/sources/
+
+
 # Scratch work belongs in a session scratch directory, never in the repository
 tmp
 tmp/

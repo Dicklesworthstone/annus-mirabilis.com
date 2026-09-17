@@ -1,0 +1,5 @@
+{
+  "status": "error",
+  "code": 404,
+  "message": "Item not found on archive host"
+}
