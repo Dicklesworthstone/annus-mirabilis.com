@@ -54,9 +54,6 @@ export function MovingMirrorLab({
     session.getSnapshot,
     session.getServerSnapshot,
   );
-  const snapshot = view.accepted ?? session.getServerSnapshot().accepted;
-  if (!snapshot) return null;
-  const p = snapshot.parameters as Sr11Parameters;
   const [draft, setDraft] = useState(() => ({ ...example.parameters }));
   const [ready, setReady] = useState(false);
   const [error, setError] = useState("");
@@ -64,6 +61,10 @@ export function MovingMirrorLab({
   useEffect(() => {
     setReady(true);
   }, []);
+
+  const snapshot = view.accepted ?? session.getServerSnapshot().accepted;
+  if (!snapshot) return null;
+  const p = snapshot.parameters as Sr11Parameters;
 
   function apply(parameters: Sr11Parameters) {
     const outcome = session.apply(parameters);
