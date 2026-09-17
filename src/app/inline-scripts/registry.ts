@@ -16,6 +16,7 @@
  * style produces a different hash.
  */
 
+import { READING_SETTINGS_PREPAINT } from "../../a11y/readingSettings/prepaint.ts";
 import { READER_PREPAINT } from "../../reader/detail/prepaint.ts";
 import { ROOT_ARMING_SOURCE } from "../../reader/rootArming.inline.ts";
 
@@ -71,6 +72,13 @@ export const INLINE_SCRIPT_REGISTRY: InlineScriptRegistry = Object.freeze([
     ownerBeadId: "am-read-detail-axis-sfc",
     module: "src/reader/detail/prepaint.ts",
     source: READER_PREPAINT,
+    routes: "all",
+  }),
+  Object.freeze({
+    id: "reading-settings",
+    ownerBeadId: "am-a11y-reading-only-6wwd",
+    module: "src/a11y/readingSettings/prepaint.ts",
+    source: READING_SETTINGS_PREPAINT,
     routes: "all",
   }),
 ]);

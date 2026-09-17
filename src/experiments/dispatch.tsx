@@ -26,6 +26,8 @@
  */
 
 import { type ComponentType, lazy, Suspense } from "react";
+import { ReadingOnlyKeepContent } from "../a11y/readingSettings/KeepContent.tsx";
+import { ReadingOnlyView } from "../a11y/readingSettings/ReadingOnlyView.tsx";
 import type { CatalogueAddressErrorCode, CatalogueId } from "./catalogue.ts";
 import { resolveCatalogueAddress } from "./catalogue.ts";
 import type { OwnerBinding } from "./owners.ts";
@@ -104,6 +106,8 @@ export interface ExperimentDispatchProps {
   readonly presentation?: "standard" | "tour";
   readonly viewLoaders?: ViewLoaders;
   readonly sourceHref?: string;
+  /** When true, the live view waits for "Load this experiment". Static case stays. */
+  readonly readingOnly?: boolean;
 }
 
 /**
@@ -118,6 +122,7 @@ export function ExperimentDispatch({
   presentation = "standard",
   viewLoaders = {},
   sourceHref,
+  readingOnly,
 }: ExperimentDispatchProps) {
   const state = resolveExperimentDispatch(id, viewLoaders);
 
@@ -153,9 +158,18 @@ export function ExperimentDispatch({
   const LazyView = lazy(state.view);
   return (
     <div data-instrument-id={address}>
-      <Suspense fallback={<InPreparationNotice id={address} sourceHref={sourceHref} />}>
-        <LazyView instanceId={instanceId} mode={state.mode} presentation={presentation} />
-      </Suspense>
+      <ReadingOnlyKeepContent
+        explanation={
+          state.question ??
+          "This instrument answers a stated question with an owned, tested response."
+        }
+        workedCase="The static worked case stays in the page when reading-only is on. Loading the experiment does not remove it."
+      />
+      <ReadingOnlyView {...(readingOnly !== undefined ? { readingOnly } : {})}>
+        <Suspense fallback={<InPreparationNotice id={address} sourceHref={sourceHref} />}>
+          <LazyView instanceId={instanceId} mode={state.mode} presentation={presentation} />
+        </Suspense>
+      </ReadingOnlyView>
     </div>
   );
 }

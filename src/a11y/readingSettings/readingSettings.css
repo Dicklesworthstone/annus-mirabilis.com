@@ -1,0 +1,115 @@
+/* Reading-only and layout preferences (am-a11y-reading-only-6wwd).
+   Content is never hidden. Measure is capped at the viewport.
+   Type scale applies to reading content, not the site chrome, so 150 percent
+   cannot blow the header off a 320 px screen. */
+
+html {
+  --reader-measure: 40rem;
+  --reader-type-scale: 1;
+  --reader-paragraph-gap: 1em;
+}
+
+html[data-measure="narrow"] {
+  --reader-measure: 32rem;
+}
+html[data-measure="default"] {
+  --reader-measure: 40rem;
+}
+html[data-measure="wide"] {
+  --reader-measure: 48rem;
+}
+
+html[data-measure="narrow"] .reader-anatomy-host {
+  --reader-measure: 32rem;
+}
+html[data-measure="default"] .reader-anatomy-host {
+  --reader-measure: 40rem;
+}
+html[data-measure="wide"] .reader-anatomy-host {
+  --reader-measure: 48rem;
+}
+
+html[data-type-scale="100"] {
+  --reader-type-scale: 1;
+}
+html[data-type-scale="112"] {
+  --reader-type-scale: 1.12;
+}
+html[data-type-scale="125"] {
+  --reader-type-scale: 1.25;
+}
+html[data-type-scale="150"] {
+  --reader-type-scale: 1.5;
+}
+
+html[data-paragraph-spacing="relaxed"] {
+  --reader-paragraph-gap: 1.75em;
+}
+
+html[data-contrast="high"] {
+  --ink: #000000;
+  --paper: #ffffff;
+  --muted: #222222;
+  --line: #444444;
+  --panel: #ffffff;
+}
+html[data-theme="kramgasse-night"][data-contrast="high"],
+html[data-theme="slate"][data-contrast="high"] {
+  --ink: #ffffff;
+  --paper: #000000;
+  --muted: #dddddd;
+  --line: #888888;
+  --panel: #111111;
+}
+
+.reader-root {
+  font-size: calc(1em * var(--reader-type-scale));
+}
+
+.reading-column,
+.reader-main {
+  max-width: min(var(--reader-measure), 100%);
+}
+
+.reader-root p,
+.reading-column p,
+.reader-main p {
+  margin-block: var(--reader-paragraph-gap);
+}
+
+.reader-layout,
+.reader-anatomy {
+  max-width: 100%;
+}
+
+html[data-reading-only="on"] {
+  scroll-behavior: auto;
+}
+
+html[data-reading-only="on"] [data-decorative-motion],
+html[data-reading-only="on"] [data-autoplay] {
+  animation: none;
+  transition: none;
+}
+
+.reading-settings {
+  font-family: Arial, Helvetica, sans-serif;
+  font-size: 0.95rem;
+}
+.reading-settings fieldset {
+  border: 1px solid var(--line);
+  margin: 0.75rem 0;
+  padding: 0.75rem 1rem;
+}
+.reading-settings legend {
+  font-weight: bold;
+}
+.reading-settings label {
+  display: block;
+  margin: 0.35rem 0;
+  min-height: 24px;
+}
+.reading-settings .hint {
+  color: var(--muted);
+  margin: 0.25rem 0 0;
+}

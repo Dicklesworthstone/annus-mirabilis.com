@@ -164,13 +164,11 @@ function document_(
 }
 
 /**
- * Seed registrations. `allowedValues`/`defaultValue` for the nine settings whose owning bead has
- * not landed yet (theme, perspective, notation, units, readingOnly, measure, typeScale, contrast,
- * paragraphSpacing) are provisional placeholders sourced from AGENTS.md's own text where it names
- * concrete values (the three themes), and a minimal honest two-value placeholder otherwise.
- * `prePaint` and `ownerBeadId` for every setting, and the full `predictEntry`/`glossReasoningWords`
- * value sets, are load-bearing and taken verbatim from this bead's own table — those are never
- * placeholders.
+ * Seed registrations. `allowedValues`/`defaultValue` for theme, perspective, notation, and units
+ * remain provisional until those owning beads land. The five `am-a11y-reading-only-6wwd` keys
+ * (`readingOnly`, `measure`, `typeScale`, `contrast`, `paragraphSpacing`) carry that bead's
+ * tested value sets. `prePaint` and `ownerBeadId` for every setting, and the full
+ * `predictEntry`/`glossReasoningWords` value sets, are load-bearing.
  *
  * `detail`'s three values (`am-read-detail-axis-sfc`, landed) are load-bearing too, not a
  * placeholder: AGENTS.md's Detail axis has four readings, R0–R3, but R3 ("Historian's margin")
@@ -240,7 +238,7 @@ export const SEED_ENTRIES: readonly KeyRegistration[] = [
     "measure",
     "am-a11y-reading-only-6wwd",
     true,
-    ["default", "narrow"],
+    ["narrow", "default", "wide"],
     "default",
     "Line measure",
   ),
@@ -248,8 +246,8 @@ export const SEED_ENTRIES: readonly KeyRegistration[] = [
     "typeScale",
     "am-a11y-reading-only-6wwd",
     true,
-    ["default", "large"],
-    "default",
+    ["100", "112", "125", "150"],
+    "100",
     "Type scale",
   ),
   setting(
@@ -264,7 +262,7 @@ export const SEED_ENTRIES: readonly KeyRegistration[] = [
     "paragraphSpacing",
     "am-a11y-reading-only-6wwd",
     true,
-    ["default", "roomy"],
+    ["default", "relaxed"],
     "default",
     "Paragraph spacing",
   ),

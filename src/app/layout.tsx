@@ -2,6 +2,9 @@ import type { Metadata } from "next";
 import type { ReactNode } from "react";
 import "katex/dist/katex.min.css";
 import "./globals.css";
+import "../a11y/readingSettings/readingSettings.css";
+import { READING_SETTINGS_PREPAINT } from "../a11y/readingSettings/prepaint";
+import { ReadingSettingsPanel } from "../a11y/readingSettings/ReadingSettingsPanel";
 import { READER_PREPAINT } from "../reader/detail/prepaint";
 export const metadata: Metadata = {
   metadataBase: new URL("https://annus-mirabilis.com"),
@@ -15,6 +18,8 @@ export default function RootLayout({ children }: { children: ReactNode }) {
       <head>
         {/* biome-ignore lint/security/noDangerouslySetInnerHtml: pre-paint detail/theme scripts must run before hydration; hash-based CSP replaces unsafe-inline in am-plat-security-f644 */}
         <script dangerouslySetInnerHTML={{ __html: READER_PREPAINT }} />
+        {/* biome-ignore lint/security/noDangerouslySetInnerHtml: reading-only and layout preferences must apply before first paint */}
+        <script dangerouslySetInnerHTML={{ __html: READING_SETTINGS_PREPAINT }} />
       </head>
       <body>
         <a className="skip-link" href="#main">
@@ -29,6 +34,7 @@ export default function RootLayout({ children }: { children: ReactNode }) {
             <a href="/discover/brownian-motion/">Discover</a>
             <a href="/lab/bm-06/">Laboratory</a>
           </nav>
+          <ReadingSettingsPanel />
         </header>
         <main id="main">{children}</main>
         <footer className="site-footer">

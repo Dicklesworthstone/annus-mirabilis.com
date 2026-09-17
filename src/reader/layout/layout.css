@@ -19,7 +19,7 @@
 
 .reader-main {
   min-width: 0;
-  max-width: var(--reader-measure);
+  max-width: min(var(--reader-measure), 100%);
 }
 
 .reader-companion-column,
@@ -94,7 +94,7 @@
 /* Wide: outline | main | companion column. Hide the sheet. */
 @container reader (min-width: 64em) {
   .reader-anatomy {
-    grid-template-columns: 12rem minmax(0, 65ch) minmax(16rem, 1fr);
+    grid-template-columns: minmax(0, 12rem) minmax(0, var(--reader-measure)) minmax(0, 1fr);
     align-items: start;
   }
   .reader-outline {
@@ -115,7 +115,7 @@
 /* Medium: main + collapsible companion column. */
 @container reader (min-width: 48em) and (max-width: 63.98em) {
   .reader-anatomy {
-    grid-template-columns: minmax(0, 65ch) minmax(14rem, 1fr);
+    grid-template-columns: minmax(0, var(--reader-measure)) minmax(0, 1fr);
   }
   .reader-outline {
     grid-column: 1 / -1;
