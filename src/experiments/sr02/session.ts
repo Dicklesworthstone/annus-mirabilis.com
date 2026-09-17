@@ -80,12 +80,15 @@ export function createSr02Session(
     subscribe: store.subscribe,
     evaluate: evaluateSr02,
     acceptedParameters(): Sr02Parameters {
-      return store.getSnapshot().accepted!.parameters as Sr02Parameters;
+      return (store.getSnapshot().accepted?.parameters ?? example.parameters) as Sr02Parameters;
     },
     apply(input: unknown) {
       const checked = validateSr02Parameters(input);
       if (checked.kind !== "accepted") return checked;
-      const previous = store.getSnapshot().requested!.parameters as Sr02Parameters;
+      const snapshot = store.getSnapshot();
+      const previous = (snapshot.requested?.parameters ??
+        snapshot.accepted?.parameters ??
+        example.parameters) as Sr02Parameters;
       const next = checked.data;
       const setup: Record<string, number | string | boolean> = {};
       const observer: Record<string, number | string | boolean> = {};
