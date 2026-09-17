@@ -210,7 +210,8 @@ export function parseTrajectoryCsv(text: string, units: TrajectoryUnits): Import
     }
     header = header.map((column) => siLabels[column] ?? column);
   }
-  if (new Set(header).size !== header.length) return fail("Duplicate column names.", headerRecord.row);
+  if (new Set(header).size !== header.length)
+    return fail("Duplicate column names.", headerRecord.row);
   if (
     header.some((column) => !["time", "x", "y", "z", "track"].includes(column)) ||
     !header.includes("time") ||
@@ -240,17 +241,19 @@ export function parseTrajectoryCsv(text: string, units: TrajectoryUnits): Import
     if (fields.length !== header.length)
       return fail(`Expected ${header.length} fields; found ${fields.length}.`, row);
 
-    const track = trackColumn === -1 ? "1" : fields[trackColumn]!.trim();
+    const track = trackColumn === -1 ? "1" : (fields[trackColumn]?.trim() ?? "");
     if (!track || track.length > 80 || hasControlChar(track)) {
       return fail("Track IDs must contain 1–80 printable characters.", row);
     }
     if (!previous.has(track) && previous.size >= TRAJECTORY_LIMITS.tracks)
       return fail("At most 64 distinct tracks are supported.", row);
-    const time = scaled(number(fields[timeColumn]!, "time", row), scale.time, "time", row);
+    const rawTime = fields[timeColumn] ?? "";
+    const time = scaled(number(rawTime, "time", row), scale.time, "time", row);
     const coordinates = Object.freeze(
-      axes.map((axis) =>
-        scaled(number(fields[header.indexOf(axis)]!, axis, row), scale.position, axis, row),
-      ),
+      axes.map((axis) => {
+        const rawCoord = fields[header.indexOf(axis)] ?? "";
+        return scaled(number(rawCoord, axis, row), scale.position, axis, row);
+      }),
     );
     const point = Object.freeze({ track, time, coordinates, row });
     const last = previous.get(track);
@@ -273,7 +276,12 @@ export function parseTrajectoryCsv(text: string, units: TrajectoryUnits): Import
           "The sampling interval differs within or between tracks. This equal-spacing inference model cannot analyze it; no samples were resampled or discarded.";
       }
       for (let c = 0; c < dimension; c++) {
-        const displacement = coordinates[c]! - last.coordinates[c]!;
+        const currentCoord = coordinates[c];
+        const lastCoord = last.coordinates[c];
+        if (currentCoord === undefined || lastCoord === undefined) {
+          return fail("Coordinate dimension mismatch.", row);
+        }
+        const displacement = currentCoord - lastCoord;
         if (!Number.isFinite(displacement))
           return fail("A displacement exceeds the finite numeric range.", row);
         increments.push(displacement);
@@ -314,8 +322,12 @@ export function trajectorySiCsv(trajectory: ImportedTrajectory): string {
   const axes = ["x_m", "y_m", "z_m"].slice(0, trajectory.dimension);
   const lines = [`track_id,time_s,${axes.join(",")}`];
   for (const point of trajectory.points) {
-    if (!ids.has(point.track)) ids.set(point.track, ids.size + 1);
-    lines.push([ids.get(point.track)!, point.time, ...point.coordinates].join(","));
+    let trackId = ids.get(point.track);
+    if (trackId === undefined) {
+      trackId = ids.size + 1;
+      ids.set(point.track, trackId);
+    }
+    lines.push([trackId, point.time, ...point.coordinates].join(","));
   }
   return `${lines.join("\r\n")}\r\n`;
 }
