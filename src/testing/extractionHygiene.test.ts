@@ -67,6 +67,41 @@ export const FORBIDDEN_DONOR_CONSTANTS = [
   "teslaTransformer",
 ];
 
+export interface HeaderValidationResult {
+  valid: boolean;
+  errors: string[];
+}
+
+/**
+ * Validates that an extracted runtime file begins with the mandatory section 9.2
+ * attribution and license notice header with the exact required fields. Matches
+ * scripts/extractedScriptsHygiene.test.ts's validateAttributionHeader (55b63a7) so the
+ * two extraction hygiene gates use one checking shape, not two.
+ */
+export function validateAttributionHeader(content: string): HeaderValidationResult {
+  const errors: string[] = [];
+  if (!content.startsWith("/**\n * Extracted from classic-patents.com\n")) {
+    errors.push("Missing required opening: '/**\\n * Extracted from classic-patents.com\\n'");
+  }
+  if (
+    !content.includes("Source repository: https://github.com/Dicklesworthstone/classic-patents.com")
+  ) {
+    errors.push(
+      "Missing required 'Source repository: https://github.com/Dicklesworthstone/classic-patents.com'",
+    );
+  }
+  if (!content.includes("Pinned commit: da11ff475902728fd8dd1d9db9f3af37c16ec8a5")) {
+    errors.push("Missing required 'Pinned commit: da11ff475902728fd8dd1d9db9f3af37c16ec8a5'");
+  }
+  if (!content.includes("License: MIT License (with OpenAI/Anthropic Rider)")) {
+    errors.push("Missing required 'License: MIT License (with OpenAI/Anthropic Rider)'");
+  }
+  if (!content.includes("Preserved license text: /LICENSE")) {
+    errors.push("Missing required 'Preserved license text: /LICENSE'");
+  }
+  return { valid: errors.length === 0, errors };
+}
+
 export interface HygieneViolation {
   path: string;
   line: number;
@@ -158,10 +193,10 @@ describe("Extraction Hygiene and Attribution Gate", () => {
       const fullPath = join(root, relPath);
       const content = readFileSync(fullPath, "utf-8");
 
-      // Verify attribution header is present
-      expect(content).toContain("Extracted from classic-patents.com");
-      expect(content).toContain("da11ff475902728fd8dd1d9db9f3af37c16ec8a5");
-      expect(content).toContain("MIT License (with OpenAI/Anthropic Rider)");
+      // Verify attribution header is present and complete
+      const headerValidation = validateAttributionHeader(content);
+      expect(headerValidation.valid).toBe(true);
+      expect(headerValidation.errors).toEqual([]);
 
       const violations = scanCodeForHygiene(relPath, content);
       for (const v of violations) {
@@ -228,6 +263,89 @@ const kernel = "wrightKernel";
         },
       });
     }
+  });
+
+  describe("planted negatives for attribution and license notice verification", () => {
+    test("rejects an extracted file with no attribution header", () => {
+      const unannotated = 'export const test = "no header";\n';
+      const result = validateAttributionHeader(unannotated);
+      expect(result.valid).toBe(false);
+      expect(result.errors.some((e) => e.includes("Missing required opening"))).toBe(true);
+    });
+
+    test("rejects an extracted file missing the source repository URL", () => {
+      const missingRepo = [
+        "/**",
+        " * Extracted from classic-patents.com",
+        " * Pinned commit: da11ff475902728fd8dd1d9db9f3af37c16ec8a5",
+        " * License: MIT License (with OpenAI/Anthropic Rider)",
+        " * Preserved license text: /LICENSE",
+        " */",
+      ].join("\n");
+      const result = validateAttributionHeader(missingRepo);
+      expect(result.valid).toBe(false);
+      expect(result.errors.some((e) => e.includes("Source repository"))).toBe(true);
+    });
+
+    test("rejects an extracted file missing the pinned commit", () => {
+      const missingCommit = [
+        "/**",
+        " * Extracted from classic-patents.com",
+        " * Source repository: https://github.com/Dicklesworthstone/classic-patents.com",
+        " * License: MIT License (with OpenAI/Anthropic Rider)",
+        " * Preserved license text: /LICENSE",
+        " */",
+      ].join("\n");
+      const result = validateAttributionHeader(missingCommit);
+      expect(result.valid).toBe(false);
+      expect(result.errors.some((e) => e.includes("Pinned commit"))).toBe(true);
+    });
+
+    test("rejects an extracted file missing the OpenAI/Anthropic Rider clause", () => {
+      const missingRider = [
+        "/**",
+        " * Extracted from classic-patents.com",
+        " * Source repository: https://github.com/Dicklesworthstone/classic-patents.com",
+        " * Pinned commit: da11ff475902728fd8dd1d9db9f3af37c16ec8a5",
+        " * License: MIT License",
+        " * Preserved license text: /LICENSE",
+        " */",
+      ].join("\n");
+      const result = validateAttributionHeader(missingRider);
+      expect(result.valid).toBe(false);
+      expect(
+        result.errors.some((e) => e.includes("License: MIT License (with OpenAI/Anthropic Rider)")),
+      ).toBe(true);
+    });
+
+    test("rejects an extracted file missing the preserved license text reference", () => {
+      const missingLicenseText = [
+        "/**",
+        " * Extracted from classic-patents.com",
+        " * Source repository: https://github.com/Dicklesworthstone/classic-patents.com",
+        " * Pinned commit: da11ff475902728fd8dd1d9db9f3af37c16ec8a5",
+        " * License: MIT License (with OpenAI/Anthropic Rider)",
+        " */",
+      ].join("\n");
+      const result = validateAttributionHeader(missingLicenseText);
+      expect(result.valid).toBe(false);
+      expect(result.errors.some((e) => e.includes("Preserved license text"))).toBe(true);
+    });
+
+    test("accepts a complete, correctly-ordered header", () => {
+      const complete = [
+        "/**",
+        " * Extracted from classic-patents.com",
+        " * Source repository: https://github.com/Dicklesworthstone/classic-patents.com",
+        " * Pinned commit: da11ff475902728fd8dd1d9db9f3af37c16ec8a5",
+        " * License: MIT License (with OpenAI/Anthropic Rider)",
+        " * Preserved license text: /LICENSE",
+        " */",
+      ].join("\n");
+      const result = validateAttributionHeader(complete);
+      expect(result.valid).toBe(true);
+      expect(result.errors).toEqual([]);
+    });
   });
 
   test("SI unit 'tesla' is allowed in units code and does not trigger false positive", () => {
