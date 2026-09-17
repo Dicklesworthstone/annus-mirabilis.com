@@ -36,6 +36,7 @@ import {
 } from "../src/workers/protocol/provenance.ts";
 import { parseCapabilityMatrix } from "./wasm-artifacts/capabilityMatrix.ts";
 import { evaluateSizeBudget } from "./wasm-artifacts/sizeBudget.ts";
+import { newRunIdentity } from "../src/testing/log/logger.ts";
 
 export interface VerificationCheckResult {
   readonly testId: string;
@@ -50,10 +51,7 @@ export interface VerificationCheckResult {
 }
 
 export function newLogRunId(): string {
-  const now = new Date();
-  const timestamp = now.toISOString().replace(/[-:]/g, "").replace(/\..+/, "Z");
-  const randomSuffix = Math.random().toString(16).slice(2, 10);
-  return `${timestamp}-${randomSuffix}`;
+  return newRunIdentity();
 }
 
 export interface VerificationOptions {

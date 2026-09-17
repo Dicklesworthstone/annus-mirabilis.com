@@ -17,20 +17,10 @@ import {
 } from "../src/content/manifest/report.ts";
 import { validateSourceManifest } from "../src/content/manifest/schema.ts";
 import { parseYaml } from "../src/content/provenance/yaml.ts";
+import { newRunIdentity } from "../src/testing/log/logger.ts";
 
 function generateToolRunId(): string {
-  const pad = (n: number) => String(n).padStart(2, "0");
-  const now = new Date();
-  const year = now.getUTCFullYear();
-  const month = pad(now.getUTCMonth() + 1);
-  const day = pad(now.getUTCDate());
-  const hours = pad(now.getUTCHours());
-  const minutes = pad(now.getUTCMinutes());
-  const seconds = pad(now.getUTCSeconds());
-  const rand = Math.floor(Math.random() * 0xffffffff)
-    .toString(16)
-    .padStart(8, "0");
-  return `${year}${month}${day}T${hours}${minutes}${seconds}Z-${rand}`;
+  return newRunIdentity();
 }
 
 async function main() {

@@ -23,6 +23,7 @@ import {
   buildJsGlueSource,
   buildWasmBinary,
 } from "./wasm-artifacts/wasmArtifactGenerator.ts";
+import { newRunIdentity } from "../src/testing/log/logger.ts";
 
 export interface BuildOptions {
   readonly runDir?: string;
@@ -43,10 +44,7 @@ export interface BuildOutputSummary {
 }
 
 export function newLogRunId(): string {
-  const now = new Date();
-  const timestamp = now.toISOString().replace(/[-:]/g, "").replace(/\..+/, "Z");
-  const randomSuffix = Math.random().toString(16).slice(2, 10);
-  return `${timestamp}-${randomSuffix}`;
+  return newRunIdentity();
 }
 
 export async function buildWasmArtifacts(options: BuildOptions = {}): Promise<BuildOutputSummary> {

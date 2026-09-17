@@ -5,6 +5,7 @@
 
 import fs from "node:fs";
 import path from "node:path";
+import { newRunIdentity } from "../../testing/log/logger.ts";
 
 export type ReviewRecordLogEntry = {
   timestamp: string;
@@ -45,7 +46,7 @@ export class ReviewRecordsLogger {
   private readonly logFilePath: string;
 
   constructor(logRunId?: string) {
-    this.logRunId = logRunId ?? `run-${Date.now()}-${Math.random().toString(16).slice(2, 8)}`;
+    this.logRunId = logRunId ?? newRunIdentity();
     const dir = path.join("artifacts", "test-logs", "review-records");
     fs.mkdirSync(dir, { recursive: true });
     this.logFilePath = path.join(dir, `${this.logRunId}.jsonl`);

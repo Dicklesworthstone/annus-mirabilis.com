@@ -1,6 +1,7 @@
 import { appendFileSync, mkdirSync, readFileSync } from "node:fs";
 import { dirname, join } from "node:path";
 import { fileURLToPath } from "node:url";
+import { newRunIdentity } from "./log/logger.ts";
 
 export const BUDGET_IDS = [
   "initial-route-js",
@@ -427,15 +428,7 @@ export function appendPerfProfilesLog(entry: {
 }
 
 export function newLogRunId(): string {
-  const now = new Date();
-  const stamp = now
-    .toISOString()
-    .replace(/[-:]/g, "")
-    .replace(/\.\d+Z$/, "Z");
-  const hex = Math.floor(Math.random() * 0xffffffff)
-    .toString(16)
-    .padStart(8, "0");
-  return `${stamp}-${hex}`;
+  return newRunIdentity();
 }
 
 if ((import.meta as ImportMeta & { main?: boolean }).main) {

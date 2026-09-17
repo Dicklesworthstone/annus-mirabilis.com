@@ -14,22 +14,12 @@
  * src/testing/perfProfiles.ts so directory names sort chronologically.
  */
 
-function newRunStamp(): string {
-  const now = new Date();
-  const stamp = now
-    .toISOString()
-    .replace(/[-:]/g, "")
-    .replace(/\.\d+Z$/, "Z");
-  const hex = Math.floor(Math.random() * 0xffffffff)
-    .toString(16)
-    .padStart(8, "0");
-  return `${stamp}-${hex}`;
-}
+import { newRunIdentity } from "../src/testing/log/logger.ts";
 
 export function newLogRunId(): string {
-  return newRunStamp();
+  return newRunIdentity();
 }
 
 export function newToolRunId(): string {
-  return newRunStamp();
+  return newRunIdentity();
 }

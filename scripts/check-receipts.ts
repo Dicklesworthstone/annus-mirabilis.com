@@ -10,6 +10,7 @@ import fs from "node:fs";
 import path from "node:path";
 import { type CheckResult, checkReceipt } from "../src/content/provenance/checkReceipt.ts";
 import { validateSurveyRecord } from "../src/content/provenance/surveySchema.ts";
+import { newRunIdentity } from "../src/testing/log/logger.ts";
 
 type CliOptions = {
   key?: string;
@@ -27,7 +28,7 @@ function parseArgs(args: string[]): CliOptions {
     surveysDir: "docs/provenance/survey",
     checkSurveys: false,
     requireLocal: false,
-    logRunId: `run-${Date.now()}-${Math.random().toString(16).slice(2, 8)}`,
+    logRunId: newRunIdentity(),
   };
 
   for (let i = 0; i < args.length; i++) {

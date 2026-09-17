@@ -47,7 +47,7 @@ function formatDimension(q: Quantity): string {
   return dimensionText(dimension(q.dimension.map((slot) => `${slot.num}/${slot.den}`)));
 }
 
-function generateMarkdown(
+export function generateMarkdown(
   registry: QuantityRegistry,
   legacySpellings: ReadonlyMap<string, LegacySpellingEntry>,
 ): string {
