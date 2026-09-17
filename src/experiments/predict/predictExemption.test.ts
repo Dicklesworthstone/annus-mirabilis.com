@@ -21,7 +21,9 @@ describe("predictExemption & manifest validation (am-inst-predict-mode-ti7m)", (
   test("manifest with fewer than 3 candidates fails with predict-candidates-count", () => {
     const raw = loadValidExperiment();
     const predictMode = raw.predictMode as { prompts: Array<{ candidates: unknown[] }> };
-    predictMode.prompts[0]!.candidates.pop(); // now 2 candidates
+    const firstPrompt = predictMode.prompts[0];
+    if (!firstPrompt) throw new Error("expected prompt in fixture");
+    firstPrompt.candidates.pop(); // now 2 candidates
 
     expect(() => validateExperiment(raw)).toThrow(ExperimentValidationError);
     try {
@@ -40,11 +42,15 @@ describe("predictExemption & manifest validation (am-inst-predict-mode-ti7m)", (
     const predictMode = raw.predictMode as {
       prompts: Array<{ candidates: Array<Record<string, unknown>> }>;
     };
+    const firstPrompt = predictMode.prompts[0];
+    if (!firstPrompt) throw new Error("expected prompt in fixture");
+    const firstCandidate = firstPrompt.candidates[0];
+    if (!firstCandidate) throw new Error("expected candidate in fixture");
     const extraCandidate = {
-      ...predictMode.prompts[0]!.candidates[0]!,
+      ...firstCandidate,
       id: "extra-candidate-4",
     };
-    predictMode.prompts[0]!.candidates.push(extraCandidate);
+    firstPrompt.candidates.push(extraCandidate);
 
     expect(() => validateExperiment(raw)).toThrow(ExperimentValidationError);
     try {
@@ -62,9 +68,13 @@ describe("predictExemption & manifest validation (am-inst-predict-mode-ti7m)", (
     const predictMode = raw.predictMode as {
       prompts: Array<{ promptId: string; candidates: Array<Record<string, unknown>> }>;
     };
-    const targetCandidateId = String(predictMode.prompts[0]!.candidates[1]!.id);
-    const targetPromptId = predictMode.prompts[0]!.promptId;
-    delete predictMode.prompts[0]!.candidates[1]!.separatingAssumption;
+    const firstPrompt = predictMode.prompts[0];
+    if (!firstPrompt) throw new Error("expected prompt in fixture");
+    const targetCandidate = firstPrompt.candidates[1];
+    if (!targetCandidate) throw new Error("expected candidate in fixture");
+    const targetCandidateId = String(targetCandidate.id);
+    const targetPromptId = firstPrompt.promptId;
+    delete targetCandidate.separatingAssumption;
 
     expect(() => validateExperiment(raw)).toThrow(ExperimentValidationError);
     try {
@@ -85,7 +95,11 @@ describe("predictExemption & manifest validation (am-inst-predict-mode-ti7m)", (
     const predictMode = raw.predictMode as {
       prompts: Array<{ candidates: Array<Record<string, unknown>> }>;
     };
-    predictMode.prompts[0]!.candidates[0]!.separatingAssumption = "   ";
+    const firstPrompt = predictMode.prompts[0];
+    if (!firstPrompt) throw new Error("expected prompt in fixture");
+    const firstCandidate = firstPrompt.candidates[0];
+    if (!firstCandidate) throw new Error("expected candidate in fixture");
+    firstCandidate.separatingAssumption = "   ";
 
     expect(() => validateExperiment(raw)).toThrow(ExperimentValidationError);
     try {
