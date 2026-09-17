@@ -6,7 +6,6 @@
 import { renderToString } from "katex";
 import { loadAllConcordances } from "../../content/notation/loader.ts";
 import type {
-  CollisionRecord,
   ConcordanceEntry,
   ModernOnlySymbol,
   PaperConcordance,
@@ -311,7 +310,8 @@ export function loadNotationPageData(
     if (!hasCollision) continue;
 
     const hasDanger = entries.some((e) => e.collision?.severity === "danger");
-    const sample = entries[0]!;
+    const sample = entries[0];
+    if (!sample) continue;
 
     let desc = "";
     if (entries.length > 1) {
