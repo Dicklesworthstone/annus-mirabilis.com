@@ -14,10 +14,12 @@ import {
 import {
   classifyWithTolerance,
   compareBitwise,
+  ieee754Hex,
   validateToleranceSpec,
   validateToleranceSpecAcross,
   withinTolerance,
 } from "./tolerance.ts";
+import type { ToleranceIssueCode } from "./tolerance.ts";
 
 describe("validateToleranceSpec", () => {
   for (const c of VALIDATE_SPEC_CASES) {
@@ -37,12 +39,38 @@ describe("validateToleranceSpecAcross", () => {
   }
 });
 
+describe("validation issue-code coverage", () => {
+  test("every issue code has at least one failing and one passing named case", () => {
+    const passingCaseByCode: Record<ToleranceIssueCode, string> = {
+      "no-positive-tolerance": "no-positive-tolerance-passes-with-positive-absolute",
+      "invalid-number": "invalid-number-passes-with-well-formed-spec",
+      "relative-only-at-zero": "relative-only-away-from-zero-passes",
+      "absolute-below-resolution": "absolute-only-well-resolved-passes",
+      "absolute-only-across-magnitudes": "absolute-only-within-1000x-passes",
+    };
+    const allCases = [...VALIDATE_SPEC_CASES, ...VALIDATE_ACROSS_CASES];
+    for (const [code, passingName] of Object.entries(passingCaseByCode) as [
+      ToleranceIssueCode,
+      string,
+    ][]) {
+      const failing = allCases.filter((c) => c.expectedCodes.includes(code));
+      const passing = allCases.find((c) => c.name === passingName);
+      expect(failing.length).toBeGreaterThan(0);
+      expect(passing).toBeDefined();
+      expect(passing?.expectedCodes).toEqual([]);
+    }
+  });
+});
+
 describe("withinTolerance", () => {
   for (const c of WITHIN_TOLERANCE_CASES) {
     test(c.name, () => {
       const v = withinTolerance(c.actual, c.reference, c.spec);
-      expect(v.kind).toBe(c.expectedKind);
-      expect(v.ok).toBe(c.expectedKind === "within");
+      if (v.kind !== c.expectedKind || v.ok !== (c.expectedKind === "within")) {
+        throw new Error(
+          `${c.name}: actual=${c.actual} (${ieee754Hex(c.actual)}) reference=${c.reference} (${ieee754Hex(c.reference)}) spec=${JSON.stringify(c.spec)} verdict=${JSON.stringify(v)}`,
+        );
+      }
     });
   }
 
@@ -151,22 +179,6 @@ describe("single tolerance module: no duplicate comparison logic elsewhere", () 
       [
         "src/physics/reference/special/erf.ts",
         "Continued-fraction convergence threshold internal to erfc's own algorithm, not a comparison between two independently computed scientific results.",
-      ],
-      [
-        "src/testing/diffusion.test.mjs",
-        "Pre-existing ad hoc near() helper predating am-ver-tolerance-module-ho90, duplicating this module's job; tracked as migration debt for the assertion-helpers bead (am-test-logging-standard-l3cp), not introduced or endorsed here.",
-      ],
-      [
-        "src/testing/kinematics/kinematics.velocity.test.ts",
-        "Kinematics reference verification comparison.",
-      ],
-      [
-        "src/testing/kinematics/kinematics.factors.test.ts",
-        "Kinematics reference verification comparison.",
-      ],
-      [
-        "src/testing/kinematics/kinematics.composition.test.ts",
-        "Kinematics reference verification comparison.",
       ],
     ]);
     const repoRoot = dirname(dirname(dirname(fileURLToPath(import.meta.url))));

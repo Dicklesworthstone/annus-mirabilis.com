@@ -223,6 +223,13 @@ export const WITHIN_TOLERANCE_CASES: readonly WithinToleranceCase[] = [
     spec: { relative: 1e-6 },
     expectedKind: "within",
   },
+  {
+    name: "printed-avogadro-relative",
+    actual: 6.17e23 * (1 + 1e-9),
+    reference: 6.17e23,
+    spec: { relative: 1e-6 },
+    expectedKind: "within",
+  },
 ] as const;
 
 /** Ten fixed pairs with no zero (validation of a relative-only spec against an exact zero

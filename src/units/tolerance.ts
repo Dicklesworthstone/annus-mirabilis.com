@@ -221,6 +221,11 @@ function float64Bits(value: number): bigint {
   return bits;
 }
 
+/** Canonical 16-digit hex of a double's IEEE-754 bits, for failing named-case diagnostics. */
+export function ieee754Hex(value: number): string {
+  return `0x${float64Bits(value).toString(16).padStart(16, "0")}`;
+}
+
 function bitwiseEqualScalar(a: number | bigint, b: number | bigint): boolean {
   if (typeof a === "bigint" || typeof b === "bigint") return a === b;
   return float64Bits(a) === float64Bits(b);
