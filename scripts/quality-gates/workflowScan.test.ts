@@ -31,6 +31,11 @@ const FORBIDDEN_TOKENS = [
     message: "Cloudflare actions or secrets are forbidden in CI workflows.",
   },
   {
+    token: "dns",
+    rule: "no-dns",
+    message: "DNS management commands are forbidden in CI workflows.",
+  },
+  {
     token: "pull_request_target",
     rule: "no-pull-request-target",
     message: "pull_request_target trigger is strictly forbidden due to privilege escalation risks.",
@@ -82,6 +87,48 @@ export function scanWorkflowContent(filename: string, content: string): Workflow
     });
   }
 
+  // Ensure concurrency group is present
+  if (!/concurrency:\s*[\s\S]*?cancel-in-progress:\s*true/i.test(content)) {
+    violations.push({
+      file: filename,
+      rule: "require-concurrency-cancel",
+      message: "Workflow must declare concurrency group with cancel-in-progress: true.",
+    });
+  }
+
+  // Ensure all third-party actions are pinned to 40-character commit SHAs
+  const usesMatches = content.matchAll(/uses:\s*([^\s#]+)/g);
+  for (const match of usesMatches) {
+    const actionRef = match[1];
+    if (!actionRef || actionRef.startsWith("./")) continue;
+    const atIdx = actionRef.indexOf("@");
+    if (atIdx === -1) {
+      violations.push({
+        file: filename,
+        rule: "pin-action-sha",
+        message: `Action '${actionRef}' is unpinned. Must be pinned to a 40-character commit SHA.`,
+      });
+    } else {
+      const ref = actionRef.slice(atIdx + 1);
+      if (!/^[0-9a-f]{40}$/i.test(ref)) {
+        violations.push({
+          file: filename,
+          rule: "pin-action-sha",
+          message: `Action '${actionRef}' is pinned to tag/branch '${ref}' instead of a 40-character commit SHA.`,
+        });
+      }
+    }
+  }
+
+  // Ensure no secrets are used in CI workflows
+  if (/\${{\s*secrets\./i.test(content)) {
+    violations.push({
+      file: filename,
+      rule: "no-secrets",
+      message: "CI workflows must not access repository or environment secrets.",
+    });
+  }
+
   return violations;
 }
 
@@ -112,6 +159,9 @@ on:
     branches: [main]
 permissions:
   contents: read
+concurrency:
+  group: test
+  cancel-in-progress: true
 jobs:
   deploy:
     runs-on: ubuntu-latest
@@ -123,6 +173,27 @@ jobs:
     expect(violations.some((v) => v.rule === "no-deploy")).toBe(true);
   });
 
+  it("fails on fixture workflow containing 'dns' command", () => {
+    const fixtureYaml = `
+name: DNS Workflow
+on:
+  push:
+    branches: [main]
+permissions:
+  contents: read
+concurrency:
+  group: test
+  cancel-in-progress: true
+jobs:
+  dns-update:
+    runs-on: ubuntu-latest
+    steps:
+      - run: cloudflare dns update
+`;
+    const violations = scanWorkflowContent("dns-fixture.yml", fixtureYaml);
+    expect(violations.some((v) => v.rule === "no-dns")).toBe(true);
+  });
+
   it("fails on fixture workflow containing 'pull_request_target'", () => {
     const fixtureYaml = `
 name: PR Target
@@ -131,6 +202,9 @@ on:
     branches: [main]
 permissions:
   contents: read
+concurrency:
+  group: test
+  cancel-in-progress: true
 jobs:
   test:
     runs-on: ubuntu-latest
@@ -149,6 +223,9 @@ on:
     branches: [main]
 permissions:
   contents: write
+concurrency:
+  group: test
+  cancel-in-progress: true
 jobs:
   test:
     runs-on: ubuntu-latest
@@ -167,6 +244,9 @@ on:
     branches: [main]
 permissions:
   contents: read
+concurrency:
+  group: test
+  cancel-in-progress: true
 jobs:
   apple:
     runs-on: macos-latest
@@ -175,5 +255,47 @@ jobs:
 `;
     const violations = scanWorkflowContent("apple-fixture.yml", fixtureYaml);
     expect(violations.some((v) => v.rule === "no-apple-family-in-ci")).toBe(true);
+  });
+
+  it("fails on fixture workflow with unpinned action tag", () => {
+    const fixtureYaml = `
+name: Unpinned Action
+on:
+  push:
+    branches: [main]
+permissions:
+  contents: read
+concurrency:
+  group: test
+  cancel-in-progress: true
+jobs:
+  test:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+`;
+    const violations = scanWorkflowContent("unpinned-fixture.yml", fixtureYaml);
+    expect(violations.some((v) => v.rule === "pin-action-sha")).toBe(true);
+  });
+
+  it("fails on fixture workflow accessing secrets", () => {
+    const fixtureYaml = `
+name: Secret Access
+on:
+  push:
+    branches: [main]
+permissions:
+  contents: read
+concurrency:
+  group: test
+  cancel-in-progress: true
+jobs:
+  test:
+    runs-on: ubuntu-latest
+    steps:
+      - run: echo "\${{ secrets.API_TOKEN }}"
+`;
+    const violations = scanWorkflowContent("secrets-fixture.yml", fixtureYaml);
+    expect(violations.some((v) => v.rule === "no-secrets")).toBe(true);
   });
 });

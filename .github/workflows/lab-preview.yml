@@ -5,26 +5,37 @@ on:
   workflow_dispatch:
 permissions:
   contents: read
+
+concurrency:
+  group: ${{ github.workflow }}-${{ github.ref }}
+  cancel-in-progress: true
+
 jobs:
   laboratory:
     runs-on: ubuntu-latest
     timeout-minutes: 15
     steps:
-      - uses: actions/checkout@v4
+      - name: Checkout repository
+        uses: actions/checkout@11bd71901bbe5b1630ceea73d27597364c9af683 # v4.2.2
+        with:
+          persist-credentials: false
       - name: Retain exact public source for reproducible laboratory review
         run: mkdir -p artifacts/review artifacts/browser && git archive --format=tar HEAD > artifacts/review/source.tar
-      - uses: actions/upload-artifact@v4
+      - name: Upload review source artifact
+        uses: actions/upload-artifact@4cec3d8aa04e39d1a68397de0c4cd6fb99ba841c # v4.6.1
         with:
           name: laboratory-review-source
           path: artifacts/review/source.tar
-      - uses: actions/setup-node@v4
+      - name: Setup Node.js
+        uses: actions/setup-node@1e60f620b9541d16abce96c5465dc8ee9832be0b # v4.1.0
         with:
           # This is the runtime actually exercised by the standalone reference tests.
           # The ratified 22.13.4 runtime remains a separate compatibility obligation.
           node-version: 22.16.0
-      - uses: oven-sh/setup-bun@v2
+      - name: Setup Bun
+        uses: oven-sh/setup-bun@4bc047ad259df6fc24a6c9b0f9a0cb08cf17fbe5 # v2.0.1
         with:
-          bun-version: 1.4.0
+          bun-version: "1.4.0"
       - run: bun install --frozen-lockfile --ignore-scripts
       - run: bun run test:reference
       - name: Verify the reference owners under Node as well
@@ -37,13 +48,15 @@ jobs:
         env:
           NEXT_TELEMETRY_DISABLED: "1"
       - run: tar -cf artifacts/review/site.tar out
-      - uses: actions/upload-artifact@v4
+      - name: Upload static preview artifact
+        uses: actions/upload-artifact@4cec3d8aa04e39d1a68397de0c4cd6fb99ba841c # v4.6.1
         with:
           name: laboratory-static-preview
           path: artifacts/review/site.tar
       - run: bunx playwright install --with-deps chromium
       - run: bun run test:browser
-      - uses: actions/upload-artifact@v4
+      - name: Upload browser evidence
+        uses: actions/upload-artifact@4cec3d8aa04e39d1a68397de0c4cd6fb99ba841c # v4.6.1
         if: always()
         with:
           name: brownian-browser-evidence

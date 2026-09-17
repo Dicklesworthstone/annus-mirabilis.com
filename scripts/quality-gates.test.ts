@@ -317,10 +317,57 @@ describe("Quality Gates Runner Engine", () => {
     expect(summary.outcome).toBe("refused");
     expect(summary.exitCode).toBe(2);
     expect(summary.refusedCount).toBe(1);
+    expect(summary.passedCount).toBe(0);
     expect(summary.results[0]?.outcome).toBe("refused");
+    expect(summary.results[0]?.reason).toBe("script-missing");
+    expect(summary.results[0]?.message).toContain("unimplemented-future-script.ts");
   });
 
-  it("skips steps when tool is unavailable on PATH in non-profile mode", () => {
+  it("planted negative: refuses with exit code 2 and names the missing tool in profile mode (e.g. ubs under --profile scaffold)", () => {
+    const fixtureSteps: GateStep[] = [
+      {
+        id: "ubs-diff",
+        title: "Ultimate Bug Scanner (diff)",
+        command: ["non_existent_ubs_scanner", "--diff"],
+        family: "fast",
+        cadence: "every-run",
+        requiredInCi: false,
+        requiredInProfiles: ["scaffold", "preview", "launch"],
+        availability: {
+          tool: "non_existent_ubs_scanner",
+        },
+        owner: "am-scaf-quality-gates-ci-4xx",
+      },
+      {
+        id: "subsequent-step",
+        title: "Should not execute after refusal",
+        command: ["bun", "-e", "process.exit(0)"],
+        family: "fast",
+        cadence: "every-run",
+        requiredInCi: true,
+        requiredInProfiles: ["scaffold"],
+        availability: {},
+        owner: "test-owner",
+      },
+    ];
+
+    const summary = runQualityGates({
+      steps: fixtureSteps,
+      profile: "scaffold",
+      silent: true,
+    });
+
+    expect(summary.outcome).toBe("refused");
+    expect(summary.exitCode).toBe(2);
+    expect(summary.refusedCount).toBe(1);
+    expect(summary.passedCount).toBe(0);
+    expect(summary.results.length).toBe(1); // preflight halts before executing any step
+    expect(summary.results[0]?.outcome).toBe("refused");
+    expect(summary.results[0]?.reason).toBe("tool-unavailable");
+    expect(summary.results[0]?.message).toContain("non_existent_ubs_scanner");
+  });
+
+  it("skips steps when tool is unavailable on PATH in non-profile mode without counting as passing", () => {
     const fixtureSteps: GateStep[] = [
       {
         id: "rare-tool-step",
@@ -344,8 +391,10 @@ describe("Quality Gates Runner Engine", () => {
     });
 
     expect(summary.skippedCount).toBe(1);
+    expect(summary.passedCount).toBe(0);
     expect(summary.results[0]?.outcome).toBe("skipped");
     expect(summary.results[0]?.reason).toBe("tool-unavailable");
+    expect(summary.results[0]?.message).toContain("non_existent_tool_12345");
   });
 
   it("skips nightly cadence steps under --cadence every-run and runs them under --cadence nightly", () => {
