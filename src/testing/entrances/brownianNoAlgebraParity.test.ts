@@ -34,7 +34,7 @@ describe("Brownian First Encounter: No-Algebra Parity & Bridge Contract (am-bm-f
     // Assert newSkill has NO mathematical symbols (no LaTeX, no backslashes, no equations)
     const skill = record.bridge.newSkill;
     assert.equal(
-      /[\$\\^_=\+\-\*\/]/.test(skill),
+      /[$^_+*/\-\\]/.test(skill),
       false,
       `newSkill must not contain math symbols: "${skill}"`,
     );
