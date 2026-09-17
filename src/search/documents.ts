@@ -15,7 +15,9 @@ export const SEARCH_COVERAGE = Object.freeze({
 export function assertSearchCoverage(kinds: readonly string[]): void {
   for (const kind of kinds) {
     if (!Object.hasOwn(SEARCH_COVERAGE, kind))
-      throw new TypeError(`Unclassified compiled search payload kind: ${kind}. Add its builder or an explicit exclusion.`);
+      throw new TypeError(
+        `Unclassified compiled search payload kind: ${kind}. Add its builder or an explicit exclusion.`,
+      );
   }
 }
 
@@ -27,45 +29,81 @@ type Block = Readonly<
 >;
 /** Structural input projections; the content compiler remains the schema owner. */
 export type SearchFoundationProjection = Readonly<{
-  id: string; title: string; question: string; summary: string; review: string;
-  explanation: readonly Block[]; example: readonly Block[]; stoppingPoint: string;
+  id: string;
+  title: string;
+  question: string;
+  summary: string;
+  review: string;
+  explanation: readonly Block[];
+  example: readonly Block[];
+  stoppingPoint: string;
 }>;
 export type SearchPaperProjection = Readonly<{
   schemaVersion: number;
   paper: Readonly<{
-    id: string; title: string; germanTitle: string; description: string; status: string;
+    id: string;
+    title: string;
+    germanTitle: string;
+    description: string;
+    status: string;
     sections: readonly Readonly<{ id: string; title: string; arguments: readonly string[] }>[];
   }>;
   arguments: readonly Readonly<{
-    id: string; section: string; title: string; question: string; recap: string; review: string;
-    premises: readonly string[]; limitations: readonly string[]; experiments: readonly string[];
+    id: string;
+    section: string;
+    title: string;
+    question: string;
+    recap: string;
+    review: string;
+    premises: readonly string[];
+    limitations: readonly string[];
+    experiments: readonly string[];
     readings: Readonly<Record<"overview" | "full" | "steps" | "margin", readonly Block[]>>;
   }>[];
   equations: readonly Readonly<{
-    id: string; title: string; argument: string; spoken: string; explanation: string;
-    review: string; notation: string; tree: unknown;
+    id: string;
+    title: string;
+    argument: string;
+    spoken: string;
+    explanation: string;
+    review: string;
+    notation: string;
+    tree: unknown;
     assumptions: readonly string[];
     notes: readonly Readonly<{ title: string; explanation: string }>[];
   }>[];
 }>;
 export type SearchInstrumentProjection = Readonly<{
-  id: string; status: string; title: string; question?: string;
+  id: string;
+  status: string;
+  title: string;
+  question?: string;
 }>;
 
 function blocksText(blocks: readonly Block[]): string {
-  return blocks.map((block) => {
-    switch (block.kind) {
-      case "paragraph": return block.text;
-      case "formula": return `${block.spoken} ${block.latex}`;
-      case "steps": return block.items.join(" ");
-      case "foundation": return block.returnCaption;
-      default: throw new TypeError("Unclassified compiled block in search.");
-    }
-  }).join(" ");
+  return blocks
+    .map((block) => {
+      switch (block.kind) {
+        case "paragraph":
+          return block.text;
+        case "formula":
+          return `${block.spoken} ${block.latex}`;
+        case "steps":
+          return block.items.join(" ");
+        case "foundation":
+          return block.returnCaption;
+        default:
+          throw new TypeError("Unclassified compiled block in search.");
+      }
+    })
+    .join(" ");
 }
 function familyPaper(id: string): string | null {
   const papers: Readonly<Record<string, string>> = {
-    bm: "brownian-motion", lq: "light-quanta", sr: "special-relativity", me: "mass-energy",
+    bm: "brownian-motion",
+    lq: "light-quanta",
+    sr: "special-relativity",
+    me: "mass-energy",
   };
   return papers[id.split("-")[0]!] ?? null;
 }
@@ -94,28 +132,70 @@ export function documentsFromCompiled(
   for (const payload of papers) {
     const { paper } = payload;
     const route = `/papers/${paper.id}/`;
-    const base = { paper: paper.id, section: "", lang: "en", route, anchor: "", face: "reading",
-      scopeLabel: `${paper.title} · explanatory preview; source review pending` };
-    add({ ...base, id: `paper:${paper.id}`, type: "paper", title: paper.title,
-      text: paper.description, terms: [paper.germanTitle, paper.id] });
+    const base = {
+      paper: paper.id,
+      section: "",
+      lang: "en",
+      route,
+      anchor: "",
+      face: "reading",
+      scopeLabel: `${paper.title} · explanatory preview; source review pending`,
+    };
+    add({
+      ...base,
+      id: `paper:${paper.id}`,
+      type: "paper",
+      title: paper.title,
+      text: paper.description,
+      terms: [paper.germanTitle, paper.id],
+    });
     for (const section of paper.sections) {
-      add({ ...base, id: `section:${paper.id}:${section.id}`, type: "section", section: section.id,
-        anchor: section.id, title: section.title, text: section.title, terms: [section.id] });
+      add({
+        ...base,
+        id: `section:${paper.id}:${section.id}`,
+        type: "section",
+        section: section.id,
+        anchor: section.id,
+        title: section.title,
+        text: section.title,
+        terms: [section.id],
+      });
     }
     const argumentsById = new Map(payload.arguments.map((argument) => [argument.id, argument]));
     for (const argument of payload.arguments) {
-      const section = paper.sections.find((s) => s.id === argument.section && s.arguments.includes(argument.id));
+      const section = paper.sections.find(
+        (s) => s.id === argument.section && s.arguments.includes(argument.id),
+      );
       if (!section) throw new TypeError(`Search argument has no rendered section: ${argument.id}.`);
       const readings = ["overview", "full", "steps"] as const;
-      add({ ...base, id: `argument:${argument.id}`, type: "argument", anchor: argument.id,
-        section: section.id, title: argument.title, terms: [argument.id],
-        text: [argument.question, ...readings.map((r) => blocksText(argument.readings[r])),
-          ...argument.premises, ...argument.limitations].join(" ") });
+      add({
+        ...base,
+        id: `argument:${argument.id}`,
+        type: "argument",
+        anchor: argument.id,
+        section: section.id,
+        title: argument.title,
+        terms: [argument.id],
+        text: [
+          argument.question,
+          ...readings.map((r) => blocksText(argument.readings[r])),
+          ...argument.premises,
+          ...argument.limitations,
+        ].join(" "),
+      });
       // This is a synopsis, not a source-aligned historical result card.
-      add({ ...base, id: `result:${argument.id}`, type: "result", anchor: argument.id,
-        section: section.id, face: "results", title: argument.title,
+      add({
+        ...base,
+        id: `result:${argument.id}`,
+        type: "result",
+        anchor: argument.id,
+        section: section.id,
+        face: "results",
+        title: argument.title,
         scopeLabel: `${paper.title} · authored argument synopsis, not a printed result`,
-        text: argument.recap, terms: [] });
+        text: argument.recap,
+        terms: [],
+      });
       for (const experiment of argument.experiments) {
         const terms = termsByInstrument.get(experiment) ?? new Set<string>();
         terms.add(argument.title);
@@ -124,35 +204,75 @@ export function documentsFromCompiled(
     }
     for (const equation of payload.equations) {
       const argument = argumentsById.get(equation.argument);
-      if (!argument) throw new TypeError(`Search equation has no rendered argument: ${equation.id}.`);
-      add({ ...base, id: `equation:${equation.id}`, type: "equation", anchor: equation.argument,
-        section: argument.section, title: equation.title,
+      if (!argument)
+        throw new TypeError(`Search equation has no rendered argument: ${equation.id}.`);
+      add({
+        ...base,
+        id: `equation:${equation.id}`,
+        type: "equation",
+        anchor: equation.argument,
+        section: argument.section,
+        title: equation.title,
         // The existing semantic renderer owns equation anchors; the parent argument is
         // always present even in the no-JavaScript reading shell.
         scopeLabel: `${paper.title} · modern teaching equation, not printed notation`,
-        text: [equation.spoken, equation.explanation, ...equation.assumptions,
-          ...equation.notes.map((note) => `${note.title} ${note.explanation}`)].join(" "),
-        terms: [equation.id, equation.spoken, ...(equationTerms[equation.id] ? [equationTerms[equation.id]!] : [])] });
+        text: [
+          equation.spoken,
+          equation.explanation,
+          ...equation.assumptions,
+          ...equation.notes.map((note) => `${note.title} ${note.explanation}`),
+        ].join(" "),
+        terms: [
+          equation.id,
+          equation.spoken,
+          ...(equationTerms[equation.id] ? [equationTerms[equation.id]!] : []),
+        ],
+      });
     }
   }
   for (const foundation of foundations) {
-    add({ id: `foundation:${foundation.id}`, type: "foundation", paper: "cross-paper", section: "",
-      lang: "en", route: `/foundations/${foundation.id}/`, anchor: "", face: "",
-      title: foundation.title, scopeLabel: "Foundation · authored explanation; review pending",
-      text: [foundation.question, foundation.summary, blocksText(foundation.explanation),
-        blocksText(foundation.example), foundation.stoppingPoint].join(" "), terms: [foundation.id] });
+    add({
+      id: `foundation:${foundation.id}`,
+      type: "foundation",
+      paper: "cross-paper",
+      section: "",
+      lang: "en",
+      route: `/foundations/${foundation.id}/`,
+      anchor: "",
+      face: "",
+      title: foundation.title,
+      scopeLabel: "Foundation · authored explanation; review pending",
+      text: [
+        foundation.question,
+        foundation.summary,
+        blocksText(foundation.explanation),
+        blocksText(foundation.example),
+        foundation.stoppingPoint,
+      ].join(" "),
+      terms: [foundation.id],
+    });
   }
   for (const instrument of instruments) {
     if (instrument.status !== "registered") continue;
     const paper = familyPaper(instrument.id);
-    if (!paper) throw new TypeError(`Registered instrument needs a search paper mapping: ${instrument.id}.`);
-    add({ id: `instrument:${instrument.id}`, type: "instrument", paper, section: "", lang: "en",
-      route: `/lab/${instrument.id}/`, anchor: "", face: "", title: instrument.title,
+    if (!paper)
+      throw new TypeError(`Registered instrument needs a search paper mapping: ${instrument.id}.`);
+    add({
+      id: `instrument:${instrument.id}`,
+      type: "instrument",
+      paper,
+      section: "",
+      lang: "en",
+      route: `/lab/${instrument.id}/`,
+      anchor: "",
+      face: "",
+      title: instrument.title,
       text: instrument.question ?? instrument.title,
       terms: [instrument.id, ...(termsByInstrument.get(instrument.id) ?? [])],
-      scopeLabel: `${paper.replaceAll("-", " ")} · host-calculation laboratory` });
+      scopeLabel: `${paper.replaceAll("-", " ")} · host-calculation laboratory`,
+    });
   }
-  return documents.sort((a, b) => a.id < b.id ? -1 : a.id > b.id ? 1 : 0);
+  return documents.sort((a, b) => (a.id < b.id ? -1 : a.id > b.id ? 1 : 0));
 }
 
 /** Editorial search aids, not claims that these words occur in a 1905 source. */
