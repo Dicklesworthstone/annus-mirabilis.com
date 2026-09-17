@@ -1,7 +1,8 @@
-import test from "node:test";
 import assert from "node:assert/strict";
+import test from "node:test";
 import { transformThreeForce } from "../physics/reference/forceTransform.ts";
 import { withinTolerance } from "../units/tolerance.ts";
+
 const zero = Object.freeze({ x: 0, y: 0, z: 0 });
 const base = Object.freeze({ force: { x: 2, y: 3, z: -5 }, velocity: zero, beta: 0.6, c: 1 });
 function admitted(input = base) {

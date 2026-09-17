@@ -154,9 +154,9 @@ test("modern Brownian golden scenario and scaling identities", () => {
   const D = val(stokesEinsteinD({ T: 293.15, eta: 0.001, a: 0.5e-6 }, modern));
   // mpmath 1.3.0, mp.dps=80: D=mpf("1.380649e-23")*mpf("293.15")/(6*pi*mpf(".001")*mpf(".0000005")); sqrt(2*D).
   // Independent decimal arithmetic, not a rounded six-digit caption.
-  near(D, 4.294395645549614529111291e-13, 1e-14);
+  near(D, Number("4.294395645549614529111291e-13"), 1e-14);
   const rms = val(rmsDisplacement(D, 1));
-  near(rms, 9.26757319426139145840759e-7, 1e-14);
+  near(rms, Number("9.26757319426139145840759e-7"), 1e-14);
   near(val(rmsDisplacement(D, 10)) / rms, Math.sqrt(10), 1e-15);
   near(val(rmsDisplacement(D / 2, 1)) / rms, 1 / Math.sqrt(2), 1e-15);
   const doubled = val(stokesEinsteinD({ T: 293.15, eta: 0.002, a: 0.5e-6 }, modern));
@@ -236,8 +236,8 @@ test("the 2D radial density genuinely peaks at its reported most-likely radius",
 });
 test("interval probability uses tail-safe and narrow-interval calculations", () => {
   near(val(intervalProbability(-1, 1, 1, 0.5)), 0.6826894921370859, 1e-14);
-  near(val(intervalProbability(8, 9, 1, 0.5)), 6.219831985865830283955079e-16, 1e-13);
-  near(val(intervalProbability(-9, -8, 1, 0.5)), 6.219831985865830283955079e-16, 1e-13);
+  near(val(intervalProbability(8, 9, 1, 0.5)), Number("6.219831985865830283955079e-16"), 1e-13);
+  near(val(intervalProbability(-9, -8, 1, 0.5)), Number("6.219831985865830283955079e-16"), 1e-13);
   const a = 8,
     b = 8 + 1e-10;
   near(

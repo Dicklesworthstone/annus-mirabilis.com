@@ -1,12 +1,12 @@
 import assert from "node:assert/strict";
 import test from "node:test";
 import { createInstanceStore } from "../experiments/store/instanceStore.ts";
+import { shouldInitializeWorker } from "../workers/scheduler/loadOnDemand.ts";
 import {
   createDedicatedScheduler,
   type HostProtocol,
   type WorkerChannel,
 } from "../workers/scheduler/scheduler.ts";
-import { shouldInitializeWorker } from "../workers/scheduler/loadOnDemand.ts";
 
 const SOURCE_DIGEST = "bm06-source-digest-test";
 
@@ -278,9 +278,21 @@ test("Face & 2D/3D Switches: switching between 2D and 3D or changing faces mid-r
 
   const snapshot2 = store.getSnapshot();
   assert.equal(snapshot2.status, "accepted");
-  assert.equal(snapshot2.accepted?.runId, initialRunId, "runId must be preserved across 2D/3D switch");
-  assert.equal(snapshot2.accepted?.stepIndex, 10, "stepIndex must continue unchanged across 2D/3D switch");
-  assert.equal(snapshot2.accepted?.simulationTime, 1.0, "simulationTime must continue unchanged across 2D/3D switch");
+  assert.equal(
+    snapshot2.accepted?.runId,
+    initialRunId,
+    "runId must be preserved across 2D/3D switch",
+  );
+  assert.equal(
+    snapshot2.accepted?.stepIndex,
+    10,
+    "stepIndex must continue unchanged across 2D/3D switch",
+  );
+  assert.equal(
+    snapshot2.accepted?.simulationTime,
+    1.0,
+    "simulationTime must continue unchanged across 2D/3D switch",
+  );
   assert.equal(snapshot2.accepted?.parameters.viewMode, "3d");
   assert.equal(snapshot2.accepted?.parameters.face, "reading");
 
@@ -293,9 +305,21 @@ test("Face & 2D/3D Switches: switching between 2D and 3D or changing faces mid-r
 
   const snapshot3 = store.getSnapshot();
   assert.equal(snapshot3.status, "accepted");
-  assert.equal(snapshot3.accepted?.runId, initialRunId, "runId must be preserved across face change");
-  assert.equal(snapshot3.accepted?.stepIndex, 10, "stepIndex must continue unchanged across face change");
-  assert.equal(snapshot3.accepted?.simulationTime, 1.0, "simulationTime must continue unchanged across face change");
+  assert.equal(
+    snapshot3.accepted?.runId,
+    initialRunId,
+    "runId must be preserved across face change",
+  );
+  assert.equal(
+    snapshot3.accepted?.stepIndex,
+    10,
+    "stepIndex must continue unchanged across face change",
+  );
+  assert.equal(
+    snapshot3.accepted?.simulationTime,
+    1.0,
+    "simulationTime must continue unchanged across face change",
+  );
   assert.equal(snapshot3.accepted?.parameters.viewMode, "3d");
   assert.equal(snapshot3.accepted?.parameters.face, "source");
 
@@ -445,13 +469,25 @@ test("Refused Update: a refused update preserves the previous accepted snapshot 
   // Invariant from AGENTS.md:
   // "a refused update preserves the previous accepted snapshot while clearly distinguishing it from the requested settings; never display old numbers beneath new labels"
   assert.equal(snapshotRefused.requested?.actionIndex, 2);
-  assert.equal(snapshotRefused.requested?.parameters.interval, 99, "Requested settings preserved in requested");
+  assert.equal(
+    snapshotRefused.requested?.parameters.interval,
+    99,
+    "Requested settings preserved in requested",
+  );
   assert.equal(snapshotRefused.accepted?.actionIndex, 1, "Previous accepted actionIndex preserved");
-  assert.equal(snapshotRefused.accepted?.parameters.interval, 1, "Previous accepted parameters preserved");
+  assert.equal(
+    snapshotRefused.accepted?.parameters.interval,
+    1,
+    "Previous accepted parameters preserved",
+  );
   assert.equal(snapshotRefused.accepted?.parameters.diffusivity, 2.0);
   const acceptedOutput = snapshotRefused.accepted?.outputs[0];
   assert.ok(acceptedOutput && acceptedOutput.status === "value");
-  assert.equal((acceptedOutput as { value: number }).value, 2.0, "Accepted output values preserved without corruption");
+  assert.equal(
+    (acceptedOutput as { value: number }).value,
+    2.0,
+    "Accepted output values preserved without corruption",
+  );
 });
 
 test("On-Demand Loading: with reading-only on, no worker loads until an explicit action", () => {

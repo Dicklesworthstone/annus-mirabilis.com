@@ -1,17 +1,18 @@
-import test from "node:test";
 import assert from "node:assert/strict";
+import test from "node:test";
 import {
-  emptyNotebook,
-  validateNotebook,
-  recordPrediction,
-  recordObservation,
-  encodeNotebook,
-  decodeNotebook,
   createImportGuard,
-  NOTE_TEXT_LIMIT,
+  decodeNotebook,
+  emptyNotebook,
+  encodeNotebook,
   NOTE_ATTEMPT_LIMIT,
   NOTE_FILE_LIMIT,
+  NOTE_TEXT_LIMIT,
+  recordObservation,
+  recordPrediction,
+  validateNotebook,
 } from "../discovery/notebook.ts";
+
 const manifest = {
   paper: "mass-energy",
   revision: "draft-one",

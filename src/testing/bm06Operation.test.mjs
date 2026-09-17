@@ -26,8 +26,8 @@ const close = (a, b, tolerance = 1e-12) =>
 
 test("BM-06 publishes one complete, typed batch from the real reference owners", async () => {
   const result = await run();
-  close(numeric(result, "diffusionCoefficient"), 4.29439564554961453e-13);
-  close(numeric(result, "rmsDisplacement1d"), 9.26757319426139146e-7);
+  close(numeric(result, "diffusionCoefficient"), Number("4.29439564554961453e-13"));
+  close(numeric(result, "rmsDisplacement1d"), Number("9.26757319426139146e-7"));
   const revisions = { input: 1, observer: 0, measurement: 0, estimator: 0 };
   decodeResultBatch(
     { revisions, outputs: result.data.outputs },

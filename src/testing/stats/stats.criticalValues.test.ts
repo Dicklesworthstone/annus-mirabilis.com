@@ -1,10 +1,10 @@
 import { describe, expect, it } from "bun:test";
 import {
+  getChi2Quantile,
   getCriticalValuesDigest,
   getCriticalValuesProvenance,
-  getSpotChecks,
   getNormalQuantile,
-  getChi2Quantile,
+  getSpotChecks,
   getStudentTQuantile,
 } from "./criticalValues.ts";
 

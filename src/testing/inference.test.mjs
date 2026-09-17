@@ -97,7 +97,7 @@ test("chi-square intervals match independent SciPy 1.17.0 fixtures including fra
 });
 test("molecular inversion reverses interval endpoints and modern SI is only a consistency check", () => {
   const r = ok(inverse());
-  close(r.estimate, 6.0221346536491352128468028878143274e23, 1e-10);
+  close(r.estimate, Number("6.0221346536491352128468028878143274e23"), 1e-10);
   close(r.interval.lower, 4.46974e23, 2e-6);
   close(r.interval.upper, 7.80235e23, 2e-6);
   assert.equal(r.semanticKind, "consistency-check");

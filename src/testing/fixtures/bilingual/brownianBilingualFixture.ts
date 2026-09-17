@@ -765,4 +765,3 @@ export const FIXTURE_1_TO_2_ALIGNMENT: Alignment = validateAlignment({
     },
   ],
 });
-

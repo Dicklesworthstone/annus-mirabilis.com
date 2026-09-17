@@ -223,7 +223,10 @@ describe("LQ-08 Energy Budget and Rates (am-lq-08-photoelectric-va5a)", () => {
     if (pcUniform.status === "value" && pSat?.result.status === "value") {
       const vs = 0.4814006;
       const expectedFraction = 1 - 0.2 / vs;
-      expect(withinTolerance(pcUniform.value, pSat.result.value * expectedFraction, { relative: 1e-4 }).ok).toBe(true);
+      expect(
+        withinTolerance(pcUniform.value, pSat.result.value * expectedFraction, { relative: 1e-4 })
+          .ok,
+      ).toBe(true);
     }
 
     logger.log({
@@ -259,8 +262,12 @@ describe("LQ-08 Energy Budget and Rates (am-lq-08-photoelectric-va5a)", () => {
     expect(lines1.slope).toBe(lines2.slope);
     expect(Object.is(lines1.slope, hOverE)).toBe(true);
 
-    const slope1 = (lines1[1]!.stoppingPotential - lines1[0]!.stoppingPotential) / (lines1[1]!.frequency - lines1[0]!.frequency);
-    const slope2 = (lines2[1]!.stoppingPotential - lines2[0]!.stoppingPotential) / (lines2[1]!.frequency - lines2[0]!.frequency);
+    const slope1 =
+      (lines1[1]!.stoppingPotential - lines1[0]!.stoppingPotential) /
+      (lines1[1]!.frequency - lines1[0]!.frequency);
+    const slope2 =
+      (lines2[1]!.stoppingPotential - lines2[0]!.stoppingPotential) /
+      (lines2[1]!.frequency - lines2[0]!.frequency);
     expect(withinTolerance(slope1, hOverE, { relative: 1e-12 }).ok).toBe(true);
     expect(withinTolerance(slope2, hOverE, { relative: 1e-12 }).ok).toBe(true);
 
@@ -313,7 +320,9 @@ describe("LQ-08 Energy Budget and Rates (am-lq-08-photoelectric-va5a)", () => {
     // False classical claim: "higher intensity delivers faster electrons"
     const assertClassicalMyth = (k1: number, k2: number) => {
       if (Object.is(k1, k2)) {
-        throw new Error("Brighter light does not produce faster electrons; energy is strictly independent of power.");
+        throw new Error(
+          "Brighter light does not produce faster electrons; energy is strictly independent of power.",
+        );
       }
     };
 

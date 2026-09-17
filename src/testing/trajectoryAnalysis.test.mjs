@@ -2,11 +2,11 @@
 // Numerical owner integration has its own test file and requires the complete repository.
 import assert from "node:assert/strict";
 import test from "node:test";
-import { parseTrajectoryCsv } from "../experiments/bm07/trajectoryCsv.ts";
 import {
   analyzeTrajectory,
   trajectoryAnalysisJson,
 } from "../experiments/bm07/trajectoryAnalysis.ts";
+import { parseTrajectoryCsv } from "../experiments/bm07/trajectoryCsv.ts";
 
 const trajectory = parseTrajectoryCsv("time,x,y\n0,0,0\n1,1,2\n2,3,1", {
   time: "s",

@@ -316,13 +316,13 @@ describe("radiation.spectra (am-ref-radiation-15c)", () => {
           );
         }
       };
-      expect(directRelabelAssert).toThrow(
-        "Coordinate relabeling failed: u_nu",
-      );
+      expect(directRelabelAssert).toThrow("Coordinate relabeling failed: u_nu");
 
       // Coordinate transformation with Jacobian MUST hold
       const jacobian = c / (lambda * lambda);
-      expect(withinTolerance(uLambda.value, uNu.value * jacobian, { relative: 1e-12 }).ok).toBe(true);
+      expect(withinTolerance(uLambda.value, uNu.value * jacobian, { relative: 1e-12 }).ok).toBe(
+        true,
+      );
     }
 
     logger.log({

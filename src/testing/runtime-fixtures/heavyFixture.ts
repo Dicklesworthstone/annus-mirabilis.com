@@ -6,8 +6,8 @@
  * memory growth, buffer ownership, and concurrency suspension.
  */
 
-import { lifecycleDiagnostics } from "../../experiments/lifecycle/diagnostics.ts";
 import type { ReplayableLabState } from "../../experiments/lifecycle/concurrency.ts";
+import { lifecycleDiagnostics } from "../../experiments/lifecycle/diagnostics.ts";
 import { OwnedBuffer } from "../../experiments/memory/buffers.ts";
 import { createPhiloxStream } from "../../physics/reference/philox.ts";
 

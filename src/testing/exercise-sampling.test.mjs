@@ -1,5 +1,5 @@
-import test from "node:test";
 import assert from "node:assert/strict";
+import test from "node:test";
 import { checkEquivalence } from "../discovery/exercises/equivalence.ts";
 import {
   boundaryPoints,
@@ -136,7 +136,7 @@ test("Philox points use exact 64-bit seeds, reproduce, and separate exercise str
   const b = philoxPoints(domain, 16, "9007199254740993");
   assert.notDeepEqual(a, b);
   assert.deepEqual(b, philoxPoints(domain, 16, "9007199254740993"));
-  assert.throws(() => philoxPoints(domain, 1, 9007199254740993));
+  assert.throws(() => philoxPoints(domain, 1, Number.MAX_SAFE_INTEGER + 2));
 });
 test("no simulation stream is consumed and no Math.random fallback is used", () => {
   const stream = createPhiloxStream({ seed: "42", kernel: 1, tile: 0 });

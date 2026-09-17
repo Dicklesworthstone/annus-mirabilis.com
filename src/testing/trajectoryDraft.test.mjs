@@ -4,6 +4,7 @@ import {
   EMPTY_TRAJECTORY_DRAFT as empty,
   readTrajectoryDraft as read,
 } from "../experiments/bm07/trajectoryDraft.ts";
+
 const declared = { ...empty, timeUnit: "s", positionUnit: "um" };
 test("units require an explicit choice", () => {
   assert.throws(() => read(empty), /Choose both/);

@@ -9,10 +9,10 @@ import {
 import { createInstanceStore } from "../experiments/store/instanceStore.ts";
 import { evaluateSr03 } from "../workers/operations/sr03.ts";
 import {
-  SR03_PROTOCOL,
   decodeLabHello,
   decodeLabResponse,
   labHello,
+  SR03_PROTOCOL,
 } from "../workers/protocol/sr03.ts";
 import { createSr03Scheduler } from "../workers/scheduler/sr03Scheduler.ts";
 

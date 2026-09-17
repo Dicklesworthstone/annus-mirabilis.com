@@ -1,6 +1,6 @@
 import { describe, expect, test } from "bun:test";
-import { fluorescenceBudget, fluorescenceRates } from "../physics/reference/photoelectric.ts";
 import { getConstantSet } from "../physics/reference/constants.ts";
+import { fluorescenceBudget, fluorescenceRates } from "../physics/reference/photoelectric.ts";
 
 describe("LQ-07 Fluorescence Energy Budget & Rates (Paper 1, §7)", () => {
   const set = getConstantSet("modern-si-2019");

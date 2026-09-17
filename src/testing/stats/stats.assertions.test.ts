@@ -92,7 +92,7 @@ describe("Statistical Assertion Helpers (am-ver-statistical-policy-grj)", () => 
     const resUniform = assertNonGaussianMeanSquare({
       samples: uniformSamples,
       expectedSecondMoment: (a * a) / 3,
-      fourthMoment: Math.pow(a, 4) / 5,
+      fourthMoment: a ** 4 / 5,
       alpha: 1e-4,
       testId: "non-gaussian-uniform-steps",
       seed,

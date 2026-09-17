@@ -207,9 +207,7 @@ describe("radiation.entropy (am-ref-radiation-15c)", () => {
         }
       };
 
-      expect(assertConstantCancels).toThrow(
-        "Arbitrary entropy-density constant failed to cancel",
-      );
+      expect(assertConstantCancels).toThrow("Arbitrary entropy-density constant failed to cancel");
       expect(Math.abs(res.deltaSWithC - res.deltaS)).toBeGreaterThan(0);
       expect(res.extraTerm).toBeCloseTo(params.dNu * params.C * (params.V - params.V0), 15);
     }

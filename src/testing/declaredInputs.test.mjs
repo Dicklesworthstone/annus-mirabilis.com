@@ -1,15 +1,16 @@
-import test from "node:test";
 import assert from "node:assert/strict";
+import test from "node:test";
+import {
+  computeBm01StokesEinsteinTrace,
+  printedBrownianConstantSet,
+} from "../content/kernel/trace.ts";
 import {
   createDeclaredConstantSet,
-  freezeConstantSet,
   evidentialRoleText,
+  freezeConstantSet,
 } from "../physics/reference/constants.ts";
 import { identifiabilityFamily } from "../physics/reference/inference.ts";
-import {
-  printedBrownianConstantSet,
-  computeBm01StokesEinsteinTrace,
-} from "../content/kernel/trace.ts";
+
 test("teaching trace evaluates declared inputs without claiming measured or reviewed constants", () => {
   const set = printedBrownianConstantSet(),
     trace = computeBm01StokesEinsteinTrace();

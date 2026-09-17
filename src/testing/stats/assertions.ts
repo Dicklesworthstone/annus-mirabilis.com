@@ -7,8 +7,8 @@ import { mkdirSync, writeFileSync } from "node:fs";
 import path from "node:path";
 import { getLogger } from "../log/logger.ts";
 import {
-  getCriticalValuesDigest,
   getChi2Quantile,
+  getCriticalValuesDigest,
   getNormalQuantile,
   getStudentTQuantile,
 } from "./criticalValues.ts";

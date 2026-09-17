@@ -1,14 +1,15 @@
-import test from "node:test";
 import assert from "node:assert/strict";
-import { parseKitchenCsv } from "../experiments/bm07/kitchen/csv.ts";
+import test from "node:test";
 import {
   analyzeKitchen,
-  kitchenTracks,
   KITCHEN_OPTIONS,
   KITCHEN_OUTPUTS,
+  kitchenTracks,
 } from "../experiments/bm07/kitchen/analyze.ts";
-import { kitchenFixture } from "./kitchen/fixture.mjs";
+import { parseKitchenCsv } from "../experiments/bm07/kitchen/csv.ts";
 import { decodeResultBatch } from "../experiments/results/codec.ts";
+import { kitchenFixture } from "./kitchen/fixture.mjs";
+
 const doc = (patch = {}) => parseKitchenCsv(kitchenFixture(patch));
 const a = (d = doc(), patch = {}) => analyzeKitchen(d, { ...KITCHEN_OPTIONS, ...patch });
 const out = (r, id) => r.outputs.find((o) => o.quantityId === id);

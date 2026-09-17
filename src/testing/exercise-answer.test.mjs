@@ -1,6 +1,6 @@
-import test from "node:test";
 import assert from "node:assert/strict";
 import { createHash } from "node:crypto";
+import test from "node:test";
 import {
   checkExerciseAnswer,
   deriveExerciseSeed,

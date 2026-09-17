@@ -82,16 +82,22 @@ describe("radiation.quanta (am-ref-radiation-15c)", () => {
     // AC 9 verification: returns integrationRange, wienAdmittedBoundaryX, energyShareBelowBoundary = 0.675136, countShareBelowBoundary = 0.837910
     expect(res.integrationRange).toBe("all-positive-frequencies");
     expect(res.wienAdmittedBoundaryX).toBeCloseTo(Math.log(100), 10);
-    expect(withinTolerance(res.energyShareBelowBoundary, 0.675136, { relative: 1e-5 }).ok).toBe(true);
-    expect(withinTolerance(res.countShareBelowBoundary, 0.837910, { relative: 1e-5 }).ok).toBe(true);
+    expect(withinTolerance(res.energyShareBelowBoundary, 0.675136, { relative: 1e-5 }).ok).toBe(
+      true,
+    );
+    expect(withinTolerance(res.countShareBelowBoundary, 0.83791, { relative: 1e-5 }).ok).toBe(true);
     expect(res.modelStatus).toBe("stipulated-model-extrapolated-beyond-admitted-regime");
 
     // Cross-check shares against independent adaptive quadrature in this test file
     const x0 = Math.log(100);
     const indepEnergyBelow = independentQuadrature((x) => x ** 3 * Math.exp(-x), 0, x0) / 6;
     const indepCountBelow = independentQuadrature((x) => x ** 2 * Math.exp(-x), 0, x0) / 2;
-    expect(withinTolerance(res.energyShareBelowBoundary, indepEnergyBelow, { relative: 1e-9 }).ok).toBe(true);
-    expect(withinTolerance(res.countShareBelowBoundary, indepCountBelow, { relative: 1e-9 }).ok).toBe(true);
+    expect(
+      withinTolerance(res.energyShareBelowBoundary, indepEnergyBelow, { relative: 1e-9 }).ok,
+    ).toBe(true);
+    expect(
+      withinTolerance(res.countShareBelowBoundary, indepCountBelow, { relative: 1e-9 }).ok,
+    ).toBe(true);
 
     logger.log({
       testId: "quanta-mean-wien-energy-and-ratio",
@@ -121,18 +127,25 @@ describe("radiation.quanta (am-ref-radiation-15c)", () => {
     expect(resAdmitted.status).toBe("value");
     if (resAdmitted.status === "value") {
       const expectedAdmitted = 6.012671 * kB * T;
-      expect(withinTolerance(resAdmitted.meanQuantumEnergyWien, expectedAdmitted, { relative: 1e-5 }).ok).toBe(true);
+      expect(
+        withinTolerance(resAdmitted.meanQuantumEnergyWien, expectedAdmitted, { relative: 1e-5 }).ok,
+      ).toBe(true);
 
       // Compare against independent quadrature over tail [x0, 40]
       const indepTailEnergy = independentQuadrature((x) => x ** 3 * Math.exp(-x), x0, 40);
       const indepTailCount = independentQuadrature((x) => x ** 2 * Math.exp(-x), x0, 40);
       const indepRatio = indepTailEnergy / indepTailCount;
       const indepExpectedJoules = kB * T * indepRatio;
-      expect(withinTolerance(resAdmitted.meanQuantumEnergyWien, indepExpectedJoules, { relative: 1e-9 }).ok).toBe(true);
+      expect(
+        withinTolerance(resAdmitted.meanQuantumEnergyWien, indepExpectedJoules, { relative: 1e-9 })
+          .ok,
+      ).toBe(true);
     }
 
     // Boundary matches regimeRelativeErrors
-    const regReport = regimeRelativeErrors((x0 * kB * T) / (6.62607015e-34), T, set, { epsilonW: 0.01 });
+    const regReport = regimeRelativeErrors((x0 * kB * T) / 6.62607015e-34, T, set, {
+      epsilonW: 0.01,
+    });
     expect(resFull.wienAdmittedBoundaryX).toBeCloseTo(regReport.wienBoundaryX, 10);
 
     // Changing epsilonW to 0.05 (x0 = ln 20 = 2.995732) changes both shares consistently with independent quadrature
@@ -141,8 +154,12 @@ describe("radiation.quanta (am-ref-radiation-15c)", () => {
     expect(resEps05.wienAdmittedBoundaryX).toBeCloseTo(x0_05, 10);
     const indepEnergy05 = independentQuadrature((x) => x ** 3 * Math.exp(-x), 0, x0_05) / 6;
     const indepCount05 = independentQuadrature((x) => x ** 2 * Math.exp(-x), 0, x0_05) / 2;
-    expect(withinTolerance(resEps05.energyShareBelowBoundary, indepEnergy05, { relative: 1e-9 }).ok).toBe(true);
-    expect(withinTolerance(resEps05.countShareBelowBoundary, indepCount05, { relative: 1e-9 }).ok).toBe(true);
+    expect(
+      withinTolerance(resEps05.energyShareBelowBoundary, indepEnergy05, { relative: 1e-9 }).ok,
+    ).toBe(true);
+    expect(
+      withinTolerance(resEps05.countShareBelowBoundary, indepCount05, { relative: 1e-9 }).ok,
+    ).toBe(true);
 
     logger.log({
       testId: "quanta-band-limited-incomplete-gamma",
@@ -198,7 +215,9 @@ describe("radiation.quanta (am-ref-radiation-15c)", () => {
       path.resolve(process.cwd(), "src/physics/reference/radiation/quanta.ts"),
       "utf8",
     );
-    const bareSpellingMatches = quantaSource.match(/\bexport\s+(const|function|type)\s+meanQuantumEnergy\b/g);
+    const bareSpellingMatches = quantaSource.match(
+      /\bexport\s+(const|function|type)\s+meanQuantumEnergy\b/g,
+    );
     expect(bareSpellingMatches).toBeNull();
 
     logger.log({

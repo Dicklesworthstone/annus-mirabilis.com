@@ -1,13 +1,14 @@
-import test from "node:test";
 import assert from "node:assert/strict";
-import { createNotebookSession } from "../discovery/notebookSession.ts";
+import test from "node:test";
 import {
   emptyNotebook,
-  recordPrediction,
   encodeNotebook,
   NOTE_FILE_LIMIT,
+  recordPrediction,
 } from "../discovery/notebook.ts";
-import { storageKeyRegistry, DISCOVERY_NOTE_KEYS } from "../platform/storage/keys.ts";
+import { createNotebookSession } from "../discovery/notebookSession.ts";
+import { DISCOVERY_NOTE_KEYS, storageKeyRegistry } from "../platform/storage/keys.ts";
+
 const manifest = {
   paper: "mass-energy",
   revision: "draft-one",

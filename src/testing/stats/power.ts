@@ -50,7 +50,7 @@ export function requiredSampleSizeForMean(options: SampleSizeForMeanOptions): nu
   const zAlpha = getNormalQuantile(1 - alpha / 2);
   const zPower = getNormalQuantile(power);
   const standardizedEffect = effectSize / stdDev;
-  const n = Math.pow((zAlpha + zPower) / standardizedEffect, 2);
+  const n = ((zAlpha + zPower) / standardizedEffect) ** 2;
   return Math.max(2, Math.ceil(n));
 }
 
@@ -68,7 +68,7 @@ export function requiredSampleSizeForVariance(options: SampleSizeForVarianceOpti
   const zAlpha = getNormalQuantile(1 - alpha / 2);
   const zPower = getNormalQuantile(power);
   const logRatio = Math.abs(Math.log(1 + delta));
-  const n = 1 + 2 * Math.pow((zAlpha + zPower) / logRatio, 2);
+  const n = 1 + 2 * ((zAlpha + zPower) / logRatio) ** 2;
   return Math.max(3, Math.ceil(n));
 }
 
@@ -88,7 +88,7 @@ export function requiredSampleSizeForProportion(options: SampleSizeForProportion
   const zAlpha = getNormalQuantile(1 - alpha / 2);
   const zPower = getNormalQuantile(power);
   const numerator = zAlpha * Math.sqrt(p0 * (1 - p0)) + zPower * Math.sqrt(p1 * (1 - p1));
-  const n = Math.pow(numerator / diff, 2);
+  const n = (numerator / diff) ** 2;
   return Math.max(2, Math.ceil(n));
 }
 

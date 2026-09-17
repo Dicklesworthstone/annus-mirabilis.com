@@ -12,9 +12,9 @@
  */
 import { describe, expect, test } from "bun:test";
 import {
-  checkPrintedConsistency,
-  ConstantSetError,
   type ConstantEntry,
+  ConstantSetError,
+  checkPrintedConsistency,
   freezeConstantSet,
   getConstantSet,
   RESERVED_SET_IDS,

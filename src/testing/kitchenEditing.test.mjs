@@ -1,15 +1,16 @@
-import test from "node:test";
 import assert from "node:assert/strict";
+import test from "node:test";
 import { parseKitchenCsv } from "../experiments/bm07/kitchen/csv.ts";
-import { kitchenFixture } from "./kitchen/fixture.mjs";
 import {
-  setKitchenExclusion,
   kitchenInputDraft,
   reviseKitchenInputs,
+  setKitchenExclusion,
 } from "../experiments/bm07/kitchen/edit.ts";
 import { kitchenAnalysisJson } from "../experiments/bm07/kitchen/export.ts";
-import { createKitchenSession } from "../experiments/bm07/kitchen/session.ts";
 import { createKitchenHost } from "../experiments/bm07/kitchen/host.ts";
+import { createKitchenSession } from "../experiments/bm07/kitchen/session.ts";
+import { kitchenFixture } from "./kitchen/fixture.mjs";
+
 const document = () => parseKitchenCsv(kitchenFixture());
 test("observation editing preserves every coordinate, time and identity and can restore an excluded row", () => {
   const d = document(),

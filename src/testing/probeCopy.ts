@@ -268,7 +268,7 @@ function listCargoTomls(root: string): string[] {
       if (name === ".git" || name === "target" || name === "artifacts" || name === "node_modules")
         continue;
       const full = join(dir, name);
-      let stat;
+      let stat: ReturnType<typeof statSync>;
       try {
         stat = statSync(full);
       } catch {

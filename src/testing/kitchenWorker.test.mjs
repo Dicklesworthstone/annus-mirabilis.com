@@ -1,10 +1,11 @@
-import test from "node:test";
 import assert from "node:assert/strict";
+import test from "node:test";
 import { Worker } from "node:worker_threads";
-import { createKitchenSession } from "../experiments/bm07/kitchen/session.ts";
-import { KITCHEN_OPTIONS } from "../experiments/bm07/kitchen/definition.ts";
 import { exportKitchenCsv } from "../experiments/bm07/kitchen/csv.ts";
+import { KITCHEN_OPTIONS } from "../experiments/bm07/kitchen/definition.ts";
+import { createKitchenSession } from "../experiments/bm07/kitchen/session.ts";
 import { kitchenFixture } from "./kitchen/fixture.mjs";
+
 const sourceDigest = `source:sha256:${"a".repeat(64)}`;
 const value = (a, id) => a.snapshot.outputs.find((o) => o.quantityId === id);
 function factory(counts, extra = {}) {

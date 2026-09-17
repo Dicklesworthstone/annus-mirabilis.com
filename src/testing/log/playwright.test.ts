@@ -36,11 +36,12 @@ test("logPlaywrightStep records the journey lane fields on a passing step", asyn
   );
   await logger.flush();
   const [event] = eventsFor(SUITE, logRunId);
-  assert.equal(event!.browser, "chromium");
-  assert.equal(event!.lane, "desktop");
-  assert.equal(event!.journey, "brownian-slice");
-  assert.equal(event!.step, "enter-deep-passage");
-  assert.equal(event!.outcome, "passed");
+  assert.ok(event);
+  assert.equal(event.browser, "chromium");
+  assert.equal(event.lane, "desktop");
+  assert.equal(event.journey, "brownian-slice");
+  assert.equal(event.step, "enter-deep-passage");
+  assert.equal(event.outcome, "passed");
 });
 
 test("THE FAILURE-REPORTING PATH IS ITSELF TESTED: a failing browser step without evidence is rejected", () => {
@@ -92,12 +93,13 @@ test("THE FAILURE-REPORTING PATH IS ITSELF TESTED: a failing browser step with e
   );
   await logger.flush();
   const [event] = eventsFor(SUITE, logRunId);
-  assert.equal(event!.outcome, "failed");
-  assert.ok(event!.evidence?.screenshot);
-  assert.ok(event!.evidence?.trace);
-  assert.ok(event!.evidence?.dom);
-  assert.ok(event!.evidence?.console);
-  assert.equal(event!.message, "instrument did not respond to the drag gesture");
+  assert.ok(event);
+  assert.equal(event.outcome, "failed");
+  assert.ok(event.evidence?.screenshot);
+  assert.ok(event.evidence?.trace);
+  assert.ok(event.evidence?.dom);
+  assert.ok(event.evidence?.console);
+  assert.equal(event.message, "instrument did not respond to the drag gesture");
 });
 
 test("createJourneyLoggingFixture logs through a fixed suite/log-run id and flushes", async () => {
@@ -115,8 +117,9 @@ test("createJourneyLoggingFixture logs through a fixed suite/log-run id and flus
   );
   await fixture.flush();
   const [event] = eventsFor(SUITE, logRunId);
-  assert.equal(event!.testId, "fixture-step");
-  assert.equal(event!.outcome, "passed");
+  assert.ok(event);
+  assert.equal(event.testId, "fixture-step");
+  assert.equal(event.outcome, "passed");
 });
 
 test("TestLogReporter.onTestEnd maps a passing Playwright result including project viewport/reducedMotion/jsEnabled", async () => {

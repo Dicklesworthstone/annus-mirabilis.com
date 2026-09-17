@@ -43,7 +43,9 @@ describe("LQ-08 Experiment Manifest (am-lq-08-photoelectric-va5a)", () => {
     const experiment = validateExperiment(rawYaml, "lq-08");
     expect(experiment.tapeModel?.modelId).toBe("lq-08");
     expect(experiment.tapeModel?.modelVersion).toBe(1);
-    expect(`${experiment.tapeModel?.modelId}@${experiment.tapeModel?.modelVersion}`).toBe("lq-08@1");
+    expect(`${experiment.tapeModel?.modelId}@${experiment.tapeModel?.modelVersion}`).toBe(
+      "lq-08@1",
+    );
   });
 
   it("declares all required parameters with correct command classes", () => {

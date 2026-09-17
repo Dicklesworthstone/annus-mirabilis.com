@@ -1,7 +1,8 @@
-import test from "node:test";
 import assert from "node:assert/strict";
-import { readVector3, readScalar } from "../experiments/sr08/readings.ts";
-import { sr08Draft, parseSr08Draft, SR08_NUMBER_FIELDS } from "../experiments/sr08/draft.ts";
+import test from "node:test";
+import { parseSr08Draft, SR08_NUMBER_FIELDS, sr08Draft } from "../experiments/sr08/draft.ts";
+import { readScalar, readVector3 } from "../experiments/sr08/readings.ts";
+
 const c = 299792458;
 const base = {
   boost: 0.6 * c,

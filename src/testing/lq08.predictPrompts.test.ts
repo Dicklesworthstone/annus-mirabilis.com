@@ -71,7 +71,7 @@ describe("LQ-08 Predict-Mode Prompts (am-lq-08-photoelectric-va5a)", () => {
 
   it("symbolScan: questions, labels, and descriptions are completely free of mathematical symbols", () => {
     if (!("enabled" in experiment.predictMode)) return;
-    const symbolPattern = /[\$\\\{\}\^_\*\/=<>]|\b(nu|phi|beta|hnu|hbar)\b/i;
+    const symbolPattern = /[$\\{}^_*/=<>]|\b(nu|phi|beta|hnu|hbar)\b/i;
 
     for (const prompt of experiment.predictMode.prompts) {
       expect(symbolPattern.test(prompt.question)).toBe(false);

@@ -19,7 +19,7 @@ test("camera moments reproduce the independent Berglund fixture and cancellation
   const m = data(cameraMoments(p));
   near(m.variance, 0.7207333333333333e-12);
   near(m.covariance, 0.06907333333333333e-12);
-  near(m.naiveExpectation, 0.36036666666666665e-12);
+  near(m.naiveExpectation, Number("0.36036666666666665e-12"));
   for (const exposure of [0, 0.25, 0.5, 1])
     for (const sigma of [0, 0.05e-6, 0.2e-6, 0.5e-6]) {
       const x = data(cameraMoments({ ...p, exposure, sigma }));

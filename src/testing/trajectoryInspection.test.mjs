@@ -3,8 +3,8 @@ import test from "node:test";
 import { parseTrajectoryCsv } from "../experiments/bm07/trajectoryCsv.ts";
 import {
   inspectTrajectory,
-  trajectoryTrackIds,
   TRAJECTORY_PAGE_SIZE,
+  trajectoryTrackIds,
 } from "../experiments/bm07/trajectoryInspection.ts";
 
 const parse = (csv) => parseTrajectoryCsv(csv, { time: "s", position: "m" });

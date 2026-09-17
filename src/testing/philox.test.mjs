@@ -68,7 +68,7 @@ test("canonical u64 values refuse lossy numbers, signs, whitespace, and overflow
   for (const v of [
     0,
     1,
-    9007199254740993,
+    Number.MAX_SAFE_INTEGER + 2,
     "01",
     "-1",
     "+1",

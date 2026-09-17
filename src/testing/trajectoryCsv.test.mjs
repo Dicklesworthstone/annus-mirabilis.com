@@ -2,9 +2,9 @@ import assert from "node:assert/strict";
 import test from "node:test";
 import {
   parseTrajectoryCsv as parse,
-  trajectorySiCsv,
-  TrajectoryImportError,
   TRAJECTORY_LIMITS,
+  TrajectoryImportError,
+  trajectorySiCsv,
 } from "../experiments/bm07/trajectoryCsv.ts";
 
 const units = { time: "s", position: "um" };
@@ -40,7 +40,9 @@ test("interleaved tracks never create cross-particle displacements", () => {
   const t = parse("track,time,x,y\na,0,0,0\nb,0,100,200\na,1,1,2\nb,1,103,204", units);
   assert.equal(t.trackCount, 2);
   assert.equal(t.incrementCount, 2);
-  t.increments.forEach((n, i) => equal(n, [1e-6, 2e-6, 3e-6, 4e-6][i]));
+  t.increments.forEach((n, i) => {
+    equal(n, [1e-6, 2e-6, 3e-6, 4e-6][i]);
+  });
 });
 test("quoted comma and escaped quote track labels work without prototype keys", () => {
   const t = parse('track,time,x\n"__proto__,a""b",0,0\n"__proto__,a""b",1,2', units);

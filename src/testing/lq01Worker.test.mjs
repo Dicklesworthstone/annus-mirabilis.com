@@ -5,9 +5,9 @@ import { LQ01_CLASSES, LQ01_DEFAULTS, LQ01_OUTPUTS } from "../experiments/lq01/d
 import { createInstanceStore } from "../experiments/store/instanceStore.ts";
 import { evaluateLq01 } from "../workers/operations/lq01.ts";
 import {
-  LQ01_PROTOCOL,
   decodeLabHello,
   decodeLabResponse,
+  LQ01_PROTOCOL,
   labHello,
 } from "../workers/protocol/lq01.ts";
 import { createLq01Scheduler } from "../workers/scheduler/lq01Scheduler.ts";

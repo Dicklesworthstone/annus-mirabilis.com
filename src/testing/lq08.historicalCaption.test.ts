@@ -1,10 +1,10 @@
 import { describe, expect, it } from "bun:test";
 import { readFileSync } from "node:fs";
 import { resolve } from "node:path";
+import { auditReadings, type ReadingsAuditInput } from "../content/audits/readings.ts";
 import { checkVoice } from "../content/checks/voice/index.ts";
 import { parseYaml } from "../content/provenance/yaml.ts";
 import { validateExperiment } from "../content/schemas/experiment.ts";
-import { auditReadings, type ReadingsAuditInput } from "../content/audits/readings.ts";
 import { createLq08Session } from "../experiments/lq08/session.ts";
 import { einsteinPrintedStoppingCheck } from "../physics/reference/photoelectric.ts";
 import { withinTolerance } from "../units/tolerance.ts";
@@ -21,7 +21,7 @@ describe("LQ-08 Historical Caption & Readout Texts (am-lq-08-photoelectric-va5a)
   const ownerRaw = parseYaml(readFileSync(readingsOwnerPath, "utf-8")) as {
     ownerBeadId: string;
     paper: string;
-    targetKinds: readonly ("instrument-caption")[];
+    targetKinds: readonly "instrument-caption"[];
     entries: readonly {
       id: string;
       targetKind: "instrument-caption";
@@ -96,7 +96,9 @@ describe("LQ-08 Historical Caption & Readout Texts (am-lq-08-photoelectric-va5a)
     expect(readoutStatements.neglectStatement).toContain("Lenard");
 
     // Not a named metal statement
-    expect(readoutStatements.notNamedMetalStatement).toContain("not a prediction for any named metal");
+    expect(readoutStatements.notNamedMetalStatement).toContain(
+      "not a prediction for any named metal",
+    );
     expect(readoutStatements.notNamedMetalStatement).toContain("P' > 0");
     expect(readoutStatements.notNamedMetalStatement).toContain("work function contributes");
   });
@@ -170,9 +172,11 @@ describe("LQ-08 Historical Caption & Readout Texts (am-lq-08-photoelectric-va5a)
     // A static literal caption validator fails the retyping guard
     function guardRetyping(readoutProducer: (f: number) => number): void {
       const vA = readoutProducer(1.03e15);
-      const vB = readoutProducer(1.20e15);
+      const vB = readoutProducer(1.2e15);
       if (vA === vB) {
-        throw new Error("Retyping guard violation: stopping potential literal is frozen across parameter changes");
+        throw new Error(
+          "Retyping guard violation: stopping potential literal is frozen across parameter changes",
+        );
       }
     }
 
@@ -185,7 +189,9 @@ describe("LQ-08 Historical Caption & Readout Texts (am-lq-08-photoelectric-va5a)
       label?: string;
     }): boolean {
       if (readout.label !== "hypothetical") {
-        throw new Error("Readout invariant violation: hypothetical comparison must carry hypothetical label");
+        throw new Error(
+          "Readout invariant violation: hypothetical comparison must carry hypothetical label",
+        );
       }
       return true;
     }

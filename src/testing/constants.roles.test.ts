@@ -1,9 +1,9 @@
 import { describe, expect, test } from "bun:test";
 import { checkVoice } from "../content/checks/voice/index.ts";
 import {
-  constantValue,
-  ConstantSetError,
   type ConstantEntry,
+  ConstantSetError,
+  constantValue,
   evidentialRoleText,
   freezeConstantSet,
   printedReadingOf,

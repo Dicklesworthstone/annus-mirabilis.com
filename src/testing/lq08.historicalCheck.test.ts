@@ -133,7 +133,9 @@ describe("LQ-08 Historical Check & Representation Regressions (am-lq-08-photoele
     // A readout asserting representation B as printed must fail validation
     function validateReadoutRepresentation(rep: { isPrinted: boolean; label?: string }): boolean {
       if (rep.label?.includes("documented alternative") && rep.isPrinted) {
-        throw new Error("Label invariant violation: documented alternative cannot be labeled printed");
+        throw new Error(
+          "Label invariant violation: documented alternative cannot be labeled printed",
+        );
       }
       return true;
     }
