@@ -289,7 +289,7 @@ if (isMain) {
   const cliArgs = process.argv.slice(2).filter((arg) => !arg.startsWith("-"));
   const result = runAllTests({
     rootDir: process.cwd(),
-    targetFiles: cliArgs.length > 0 ? cliArgs : undefined,
+    ...(cliArgs.length > 0 ? { targetFiles: cliArgs } : {}),
   });
   if (result.exitCode !== 0) {
     process.exit(result.exitCode);
