@@ -4,7 +4,6 @@ import {
   acceleratingPotential,
   C_SI,
   ELECTRON_MASS,
-  ELEMENTARY_CHARGE,
   electricRadius,
   evaluateSr13,
   integrateBoris,
@@ -19,7 +18,7 @@ import {
 import { withinTolerance } from "../units/tolerance.ts";
 
 function val(r: ScientificResult | undefined): number {
-  if (!r || r.status !== "value" || typeof r.value !== "number") {
+  if (r?.status !== "value" || typeof r.value !== "number") {
     throw new Error(`Expected ScientificResult with numeric value, got: ${JSON.stringify(r)}`);
   }
   return r.value;
@@ -95,9 +94,10 @@ describe("SR-13 Acceptance Criteria & Numerical Rigor (am-sr-13-electron-dynamic
     const pts = transverseFieldTrajectory(1e5, 0.6 * C_SI, 2e-9, 100);
     const last = pts[pts.length - 1];
     expect(last).toBeDefined();
-    expectClose(last!.x, 0.359225, 1e-4);
-    expectClose(last!.y, -0.0280794, 1e-4);
-    expectClose(last!.speedRatio, 0.60464, 1e-4);
+    if (!last) throw new Error("Expected trajectory point");
+    expectClose(last.x, 0.359225, 1e-4);
+    expectClose(last.y, -0.0280794, 1e-4);
+    expectClose(last.speedRatio, 0.60464, 1e-4);
   });
 
   test("Switching conventions leaves radii, potentials, and trajectories unchanged", () => {
@@ -148,6 +148,7 @@ describe("SR-13 Acceptance Criteria & Numerical Rigor (am-sr-13-electron-dynamic
     const res = integrateBoris(eField, bField, v0, 2e-9, 500);
     expect(res.observedOrder).toBe(2);
     expect(res.energyResidual).toBeDefined();
-    expect(res.energyResidual!).toBeLessThan(1e-15);
+    if (res.energyResidual === undefined) throw new Error("Expected energyResidual");
+    expect(res.energyResidual).toBeLessThan(1e-15);
   });
 });
