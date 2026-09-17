@@ -41,8 +41,9 @@ describe("PredictOverlay (am-inst-predict-mode-ti7m)", () => {
     expect(html).toContain("[■ - - -]");
     expect(html).toContain("[● ───]");
 
-    // Screen reader accessible descriptions
-    expect(html).toContain('role="figure"');
+    // Screen reader accessible descriptions and figure
+    expect(html).toContain('<figure class="predict-overlay"');
+    expect(html).toContain('data-predict-overlay=""');
     expect(html).toContain("Prediction &amp; Result Comparison");
     expect(html).toContain(
       "Distinguished by pattern: prediction is dashed with square markers; result is solid with circular markers.",
