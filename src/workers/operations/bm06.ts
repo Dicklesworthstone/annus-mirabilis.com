@@ -227,7 +227,8 @@ export async function evaluateBm06(
       );
     } else
       for (const quantityId of gridKeys) {
-        const c = BM06_OUTPUTS[quantityId]!;
+        const c = BM06_OUTPUTS[quantityId];
+        if (!c) continue;
         outputs.push({
           quantityId,
           unit: c.unit,

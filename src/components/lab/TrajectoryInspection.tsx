@@ -14,7 +14,7 @@ const axisNames = ["x", "y", "z"] as const;
 export function TrajectoryInspection({ trajectory }: { trajectory: ImportedTrajectory }) {
   const id = useId();
   const tracks = useMemo(() => trajectoryTrackIds(trajectory), [trajectory]);
-  const [track, setTrack] = useState(tracks[0]!);
+  const [track, setTrack] = useState(tracks[0] ?? "");
   const [coordinate, setCoordinate] = useState(0);
   const [page, setPage] = useState(1);
   const view = useMemo(
@@ -84,7 +84,7 @@ export function TrajectoryInspection({ trajectory }: { trajectory: ImportedTraje
             >
               <title>
                 CSV row {source.row}: {number(source.time)} s,{" "}
-                {number(source.coordinates[coordinate]!)} m
+                {number(source.coordinates[coordinate] ?? 0)} m
               </title>
             </circle>
           ))}
@@ -120,20 +120,15 @@ export function TrajectoryInspection({ trajectory }: { trajectory: ImportedTraje
         Track {track}: positions {view.start}–{view.end} of {view.total}. Page {view.page} of{" "}
         {view.pages}.
       </p>
-      <div className="actions" aria-label="Accepted position pages">
+      <nav className="actions" aria-label="Accepted position pages">
         <button type="button" onClick={() => setPage(page - 1)} disabled={page === 1}>
           Previous positions
         </button>
         <button type="button" onClick={() => setPage(page + 1)} disabled={page === view.pages}>
           Next positions
         </button>
-      </div>
-      <div
-        className="trajectory-table-scroll"
-        tabIndex={0}
-        role="region"
-        aria-label="Accepted positions in SI units"
-      >
+      </nav>
+      <section className="trajectory-table-scroll" aria-label="Accepted positions in SI units">
         <table>
           <caption>
             Track {track}, positions {view.start}–{view.end}: the table and plot use the same
@@ -162,7 +157,7 @@ export function TrajectoryInspection({ trajectory }: { trajectory: ImportedTraje
             ))}
           </tbody>
         </table>
-      </div>
+      </section>
       <p>
         Analysis uses every admitted observation, not only the displayed page or track. The JSON
         export retains original track labels; the SI CSV uses numeric track IDs for spreadsheet

@@ -2,14 +2,14 @@
 
 import { type ChangeEvent, type FormEvent, useEffect, useId, useRef, useState } from "react";
 import {
+  type TrajectoryAnalysis,
+  trajectoryAnalysisJson,
+} from "../../experiments/bm07/trajectoryAnalysis.ts";
+import {
   parseTrajectoryCsv,
   TRAJECTORY_LIMITS,
   trajectorySiCsv,
 } from "../../experiments/bm07/trajectoryCsv.ts";
-import {
-  trajectoryAnalysisJson,
-  type TrajectoryAnalysis,
-} from "../../experiments/bm07/trajectoryAnalysis.ts";
 import {
   EMPTY_TRAJECTORY_DRAFT,
   readTrajectoryDraft,

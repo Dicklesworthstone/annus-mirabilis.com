@@ -20,15 +20,14 @@ export function WalkPaths({ snapshot }: { snapshot: AcceptedSnapshot }) {
         aria-label="The first twenty recorded walks, or all walks when fewer than twenty are requested. Time is horizontal and signed displacement is vertical. The statistics include every walker."
       >
         <path d="M38 35V210H270M38 122H270" className="axis" />
-        {Array.from({ length: traces.length / length }, (_, i) => (
-          <path
-            key={i}
-            d={Array.from(
-              { length },
-              (_, j) => `${j ? "L" : "M"}${x(j)},${y(traces.at(i * length + j))}`,
-            ).join(" ")}
-            className="walk-trace"
-          />
+        {Array.from({ length: traces.length / length }, (_, i) => ({
+          id: `walk-trace-${i}`,
+          d: Array.from(
+            { length },
+            (_, j) => `${j ? "L" : "M"}${x(j)},${y(traces.at(i * length + j))}`,
+          ).join(" "),
+        })).map((trace) => (
+          <path key={trace.id} d={trace.d} className="walk-trace" />
         ))}
         {p.n === 0 && <circle cx="38" cy="122" r="4" className="histogram-bar" />}
         <text x="38" y="20">
@@ -79,16 +78,22 @@ export function WalkHistogram({ snapshot }: { snapshot: AcceptedSnapshot }) {
         }
       >
         <path d="M38 35V207H270" className="axis" />
-        {Array.from({ length: count }, (_, i) => (
-          <g key={i}>
+        {Array.from({ length: count }, (_, i) => ({
+          id: `hist-bin-${i}`,
+          xVal: x(i),
+          yObs: y(observed.at(i)),
+          yExact: y(exact.at(i)),
+          nextX: x(i + 1),
+        })).map((bin) => (
+          <g key={bin.id}>
             <rect
-              x={x(i)}
-              y={y(observed.at(i))}
+              x={bin.xVal}
+              y={bin.yObs}
               width={232 / count - 1}
-              height={207 - y(observed.at(i))}
+              height={207 - bin.yObs}
               className="histogram-bar"
             />
-            <path d={`M${x(i) + 1} ${y(exact.at(i))}H${x(i + 1) - 1}`} className="walk-exact" />
+            <path d={`M${bin.xVal + 1} ${bin.yExact}H${bin.nextX - 1}`} className="walk-exact" />
           </g>
         ))}
         {p.n > 0 && (
@@ -150,8 +155,12 @@ export function WalkConvergence({ snapshot }: { snapshot: AcceptedSnapshot }) {
           <path d="M38 35V204H270" className="axis" />
           <path d={path(sample)} className="curve" />
           <path d={path(shape)} className="comparison-curve" />
-          {Array.from({ length: ns.length }, (_, i) => (
-            <circle key={i} cx={x(ns.at(i))} cy={y(sample.at(i))} r="3" className="histogram-bar" />
+          {Array.from({ length: ns.length }, (_, i) => ({
+            id: `step-circle-${ns.at(i)}`,
+            cx: x(ns.at(i)),
+            cy: y(sample.at(i)),
+          })).map((pt) => (
+            <circle key={pt.id} cx={pt.cx} cy={pt.cy} r="3" className="histogram-bar" />
           ))}
           <text x="38" y="20">
             Cumulative-probability gap
@@ -172,7 +181,7 @@ export function WalkConvergence({ snapshot }: { snapshot: AcceptedSnapshot }) {
           counts; fluctuations in a finite sample need not decrease at every observation.
         </figcaption>
       </figure>
-      <div className="table-scroll" tabIndex={0} role="region" aria-label="Step comparison table">
+      <section className="table-scroll" aria-label="Step comparison table">
         <table>
           <caption>Same recorded trial: shape and spread at each comparison</caption>
           <thead>
@@ -185,18 +194,25 @@ export function WalkConvergence({ snapshot }: { snapshot: AcceptedSnapshot }) {
             </tr>
           </thead>
           <tbody>
-            {Array.from({ length: ns.length }, (_, i) => (
-              <tr key={i}>
-                <th scope="row">{ns.at(i)}</th>
-                <td>{display(sample.at(i))}</td>
-                <td>{display(shape.at(i))}</td>
-                <td>{display(msd.at(i), 1e12)}</td>
-                <td>{display(model.at(i), 1e12)}</td>
+            {Array.from({ length: ns.length }, (_, i) => ({
+              id: `step-row-${ns.at(i)}`,
+              n: ns.at(i),
+              sampleVal: display(sample.at(i)),
+              shapeVal: display(shape.at(i)),
+              msdVal: display(msd.at(i), 1e12),
+              modelVal: display(model.at(i), 1e12),
+            })).map((row) => (
+              <tr key={row.id}>
+                <th scope="row">{row.n}</th>
+                <td>{row.sampleVal}</td>
+                <td>{row.shapeVal}</td>
+                <td>{row.msdVal}</td>
+                <td>{row.modelVal}</td>
               </tr>
             ))}
           </tbody>
         </table>
-      </div>
+      </section>
     </section>
   );
 }

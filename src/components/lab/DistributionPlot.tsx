@@ -147,11 +147,16 @@ export function GridComparison({ snapshot }: { snapshot: AcceptedSnapshot }) {
               </tr>
             </thead>
             <tbody>
-              {Array.from({ length: grid.length }, (_, i) => (
-                <tr key={i}>
-                  <th scope="row">{i}</th>
-                  <td>{display(grid.at(i))}</td>
-                  <td>{display(analytic.at(i))}</td>
+              {Array.from({ length: grid.length }, (_, i) => ({
+                id: `cell-row-${i}`,
+                cell: i,
+                numerical: display(grid.at(i)),
+                analyticProb: display(analytic.at(i)),
+              })).map((row) => (
+                <tr key={row.id}>
+                  <th scope="row">{row.cell}</th>
+                  <td>{row.numerical}</td>
+                  <td>{row.analyticProb}</td>
                 </tr>
               ))}
             </tbody>
