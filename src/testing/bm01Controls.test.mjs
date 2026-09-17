@@ -22,14 +22,14 @@ test("accepted trial settings roundtrip with version, seed and explicit grid", (
 test("links refuse ambiguous, incomplete, nonfinite, and lossy seed data", () => {
   const q = encodeBm01Settings(BM01_DEFAULTS);
   for (const invalid of [
-    q + "&seed=42",
-    q + "&extra=1",
+    `${q}&seed=42`,
+    `${q}&extra=1`,
     q.replace("tracers=1", "tracers=2"),
     q.replace("seed=1905", "seed=01"),
     q.replace("seed=1905", "seed=1e5"),
     q.replace("T=293.15", "T=1e400"),
     q.replace("&H=10", ""),
-    "?" + "x".repeat(4096),
+    `?${"x".repeat(4096)}`,
   ])
     assert.equal(decodeBm01Settings(invalid).kind, "invalid", invalid);
   assert.throws(() => encodeBm01Settings({ ...BM01_DEFAULTS, seed: 42 }));
