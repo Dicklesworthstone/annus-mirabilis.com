@@ -46,8 +46,12 @@ jobs:
       - name: Install system dependencies for rendering
         run: sudo apt-get update && sudo apt-get install -y poppler-utils
 
-      - name: Install Playwright Chromium
-        run: bunx playwright install --with-deps chromium
+      - name: Install Playwright browsers (chromium and webkit)
+        # scripts/e2e/lanes.ts declares a real webkit lane ("webkit-real"); AGENTS.md
+        # requires a real WebKit/Safari lane in the browser acceptance matrix. Installing
+        # chromium alone made lanes.test.ts:111 fail on main with
+        # "Executable doesn't exist at .../webkit-2336/pw_run.sh".
+        run: bunx playwright install --with-deps chromium webkit
 
       - name: Prepare content and lab artifacts
         run: bun run prepare:content && bun run prepare:lab

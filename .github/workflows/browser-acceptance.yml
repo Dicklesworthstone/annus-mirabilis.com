@@ -41,7 +41,7 @@ jobs:
         run: bun install --frozen-lockfile
 
       - name: Install Playwright Chromium
-        run: bunx playwright install --with-deps chromium
+        run: bunx playwright install --with-deps chromium webkit
 
       - name: Run browser acceptance harness
         run: node --experimental-strip-types --test scripts/e2e/checks/*.test.ts scripts/e2e/*.test.ts scripts/e2e/fixtures/*.test.ts
