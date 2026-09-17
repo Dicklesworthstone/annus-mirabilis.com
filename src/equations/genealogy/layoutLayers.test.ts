@@ -2,7 +2,6 @@ import { describe, expect, test } from "bun:test";
 import { getLogger } from "../../testing/log/logger.ts";
 import {
   assignLayers,
-  generateDeterministicSvg,
   LAYOUT_CONSTANTS,
   layoutGenealogyGraph,
   orderLayersBarycentric,
@@ -218,8 +217,11 @@ describe("am-eq-genealogy-hmm: layoutLayers", () => {
 
     expect(layers1.length).toBe(3);
     for (let i = 0; i < layers1.length; i++) {
-      const ids1 = layers1[i]!.map((n) => n.id);
-      const ids2 = layers2[i]!.map((n) => n.id);
+      const layer1 = layers1[i];
+      const layer2 = layers2[i];
+      if (!layer1 || !layer2) throw new Error(`Missing layer at index ${i}`);
+      const ids1 = layer1.map((n) => n.id);
+      const ids2 = layer2.map((n) => n.id);
       expect(ids1).toEqual(ids2);
     }
   });
