@@ -8,7 +8,8 @@
  */
 
 import { readdirSync, readFileSync } from "node:fs";
-import { join } from "node:path";
+import { join, resolve } from "node:path";
+import { fileURLToPath } from "node:url";
 import { ComprehensionLogger } from "../src/comprehension/logger.ts";
 import { auditCorpusReachability } from "../src/comprehension/reachability.ts";
 import type { Argument } from "../src/content/schemas/reading.ts";
@@ -89,6 +90,9 @@ export function runReachabilityAuditCli(): void {
   process.exit(0);
 }
 
-if (import.meta.main) {
+const isMain =
+  process.argv[1] !== undefined && resolve(process.argv[1]) === fileURLToPath(import.meta.url);
+
+if (isMain) {
   runReachabilityAuditCli();
 }
