@@ -53,7 +53,9 @@ describe("scenario-gas-constant-measured: the standalone Moldover 1988 set", () 
     const set = getConstantSet("scenario-gas-constant-measured");
     expect(set.era).toBe(1988);
     expect(set.gasConstantProvenance).toBe("measured-without-counting-molecules");
-    const R = set.entries.find((e) => e.quantityId === "molarGasConstant")!;
+    const R = set.entries.find((e) => e.quantityId === "molarGasConstant");
+    expect(R).toBeDefined();
+    if (!R) throw new Error("Missing molarGasConstant entry in set");
     expect(R.value).toBe(8.314471);
     expect(R.uncertainty).toBe(0.000014);
     expect(R.evidentialRole).toBe("measured-observation");
@@ -89,10 +91,16 @@ describe("scenario-gas-constant-measured: the standalone Moldover 1988 set", () 
   });
 
   test("its relative difference from the 2019 exact R is about 1.008e-6", () => {
-    const measured = getConstantSet("scenario-gas-constant-measured").entries[0]!.value;
-    const exact = getConstantSet("modern-si-2019").entries.find(
+    const measuredEntry = getConstantSet("scenario-gas-constant-measured").entries[0];
+    expect(measuredEntry).toBeDefined();
+    if (!measuredEntry) throw new Error("Missing measured entry");
+    const measured = measuredEntry.value;
+    const exactEntry = getConstantSet("modern-si-2019").entries.find(
       (e) => e.quantityId === "molarGasConstant",
-    )!.value;
+    );
+    expect(exactEntry).toBeDefined();
+    if (!exactEntry) throw new Error("Missing exact molarGasConstant entry");
+    const exact = exactEntry.value;
     const relativeDifference = (measured - exact) / exact;
     expect(withinTolerance(relativeDifference, 1.008e-6, { absolute: 2e-8 }).ok).toBe(true);
   });
