@@ -3,9 +3,11 @@ export type CompanionKind = (typeof COMPANION_KINDS)[number];
 
 export class CompanionKindError extends Error {
   readonly code = "unknown-companion-kind" as const;
-  constructor(readonly raw: string) {
+  readonly raw: string;
+  constructor(raw: string) {
     super(`Unknown companion kind "${raw}". Use original, explanation, equation, or laboratory.`);
     this.name = "CompanionKindError";
+    this.raw = raw;
   }
 }
 
