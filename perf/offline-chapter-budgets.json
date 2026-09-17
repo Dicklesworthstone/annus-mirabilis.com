@@ -1,0 +1,7 @@
+{
+  "schemaVersion": 1,
+  "provisional": true,
+  "ownerBeadId": "am-plat-offline-chapter-un8i",
+  "reason": "Initial per-chapter limits from the offline chapter bead. Includes embedded math fonts, static results, all reading depths, and transitive foundations.",
+  "default": { "rawBytes": 2097152, "gzipBytes": 700000 }
+}
