@@ -487,7 +487,7 @@ predictMode:
         - id: bm-01-predict-viscosity-half
           label: "Half as large"
           description: "Displacement follows the diffusivity directly, which halves"
-          separatingAssumption: "Assumes displacement is proportional to D rather than to sqrt(D)."
+          separatingAssumption: "That would hold if the displacement were proportional to D. It is proportional to sqrt(2Dt), so halving D multiplies the typical displacement by 1/sqrt(2), about 0.7071067812, not by 0.5."
         - id: bm-01-predict-viscosity-root-two
           label: "About 0.71 times as large"
           description: "Displacement follows the square root of the diffusivity, so it falls by 1/sqrt(2)"

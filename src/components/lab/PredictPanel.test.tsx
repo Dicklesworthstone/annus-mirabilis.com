@@ -76,4 +76,42 @@ describe("PredictPanel", () => {
     expect(html).toContain("data-predict-after-the-fact");
     expect(html).toContain("The original prediction is unchanged.");
   });
+
+  test("predict tabs offer candidate, sketch, and verbal options", () => {
+    const html = renderToStaticMarkup(
+      <PredictPanel
+        prompt={ME02_PREDICT_PROMPT}
+        record={beginPrompt(ME02_PREDICT_PROMPT.promptId)}
+        onRecord={noop}
+        onSkip={noop}
+        onKeepToSelf={noop}
+        onAmend={noop}
+      />,
+    );
+    expect(html).toContain('role="tablist"');
+    expect(html).toContain("Candidate relation");
+    expect(html).toContain("Sketch curve");
+    expect(html).toContain("Verbal prediction");
+  });
+
+  test("reveal displays recorded verbal or sketch or values predictions", () => {
+    const verbalRecord = reveal(
+      submitPrediction(beginPrompt(ME02_PREDICT_PROMPT.promptId), {
+        form: "verbal",
+        directionId: "increases",
+        shapeId: "linear",
+      }),
+    );
+    const html = renderToStaticMarkup(
+      <PredictPanel
+        prompt={ME02_PREDICT_PROMPT}
+        record={verbalRecord}
+        onRecord={noop}
+        onSkip={noop}
+        onKeepToSelf={noop}
+        onAmend={noop}
+      />,
+    );
+    expect(html).toContain("Recorded prediction: increases, linear");
+  });
 });
