@@ -9,20 +9,15 @@
 
 import {
   type InstrumentId,
-  type ModeId,
-  type PredictPromptId,
-  type PresetId,
   parseInstrumentId,
   parseModeId,
   parsePredictPromptId,
   parsePresetId,
-  parseTapeId,
-  type TapeId,
 } from "../ids.ts";
 import type { SourceAssetRights } from "../provenance/receiptToSourceAsset.ts";
 import { type PaperDate, validatePaperDate } from "./dates.ts";
-import { type Citation, validateCitation } from "./source.ts";
-import { U64ValidationError, validateU64String } from "./u64String.ts";
+import type { Citation } from "./source.ts";
+import { validateU64String } from "./u64String.ts";
 
 export class ExperimentValidationError extends Error {
   readonly code: string;
@@ -210,10 +205,16 @@ export type ActionContract = Readonly<{
   visualAffordance: string;
   equivalentAffordance: string;
   announcement: string;
-  modalities?:
-    | readonly ("keyboard" | "direct-entry" | "screen-reader" | "switch-control")[]
-    | undefined;
+  modalities?: readonly ActionModality[] | undefined;
 }>;
+
+export const VALID_ACTION_MODALITIES = [
+  "keyboard",
+  "direct-entry",
+  "screen-reader",
+  "switch-control",
+] as const;
+export type ActionModality = (typeof VALID_ACTION_MODALITIES)[number];
 
 export const VALID_ACTION_STATUSES = [
   "value",
@@ -470,7 +471,14 @@ export function validateActionContract(
     visualAffordance,
     equivalentAffordance,
     announcement,
-    modalities: Array.isArray(o.modalities) ? Object.freeze(o.modalities as any) : undefined,
+    modalities: Array.isArray(o.modalities)
+      ? Object.freeze(
+          o.modalities.filter(
+            (m): m is ActionModality =>
+              typeof m === "string" && (VALID_ACTION_MODALITIES as readonly string[]).includes(m),
+          ),
+        )
+      : undefined,
   });
 }
 
@@ -553,8 +561,8 @@ export type ExperimentMode = Readonly<{
   historicalStatus: HistoricalStatus;
   lensLabel?: string | undefined;
   notModeledAdditions?: readonly string[] | undefined;
-  parameterOverrides?: Record<string, any> | undefined;
-  outputOverrides?: Record<string, any> | undefined;
+  parameterOverrides?: Record<string, unknown> | undefined;
+  outputOverrides?: Record<string, unknown> | undefined;
   ownerOverride?: ExperimentOwner | undefined;
 }>;
 
@@ -592,7 +600,7 @@ export type Experiment = Readonly<{
   embeddable: boolean;
   predictMode: PredictMode;
   modes?: readonly ExperimentMode[] | undefined;
-  provenance?: any | undefined;
+  provenance?: unknown | undefined;
 }>;
 
 export function validateExperiment(raw: unknown, path = "Experiment"): Experiment {
@@ -930,10 +938,11 @@ export function validateExperiment(raw: unknown, path = "Experiment"): Experimen
     );
   }
   const ow = o.owner as Record<string, unknown>;
-  if (!["reference-evaluator", "frankensim", "static"].includes(ow.kind as string)) {
+  const ownerKind = ow.kind;
+  if (ownerKind !== "reference-evaluator" && ownerKind !== "frankensim" && ownerKind !== "static") {
     throw new ExperimentValidationError(
       "invalid-owner-kind",
-      `Invalid owner kind "${ow.kind}".`,
+      `Invalid owner kind "${String(ow.kind)}".`,
       "Experiment",
       `${path}.owner.kind`,
     );
@@ -1026,7 +1035,26 @@ export function validateExperiment(raw: unknown, path = "Experiment"): Experimen
           );
         }
       }
-      kernelFunctions.push(k as any);
+      const kRef: KernelFunctionRef = {
+        displayRole: role,
+        language:
+          typeof k.language === "string" && (k.language === "ts" || k.language === "rust")
+            ? k.language
+            : undefined,
+        module: typeof k.module === "string" ? k.module : undefined,
+        exportName: typeof k.exportName === "string" ? k.exportName : undefined,
+        crate: typeof k.crate === "string" ? k.crate : undefined,
+        path: typeof k.path === "string" ? k.path : undefined,
+        fnName: typeof k.fnName === "string" ? k.fnName : undefined,
+        revision: typeof k.revision === "string" ? k.revision : undefined,
+        independentReferences: Array.isArray(k.independentReferences)
+          ? (k.independentReferences as readonly Readonly<{
+              experimentId: string;
+              quantityId: string;
+            }>[])
+          : undefined,
+      };
+      kernelFunctions.push(kRef);
     }
   }
 
@@ -1045,7 +1073,7 @@ export function validateExperiment(raw: unknown, path = "Experiment"): Experimen
   }
 
   const owner: ExperimentOwner = {
-    kind: ow.kind as any,
+    kind: ownerKind,
     ...(typeof ow.capabilityId === "string" ? { capabilityId: ow.capabilityId } : {}),
     ...(typeof ow.staticReason === "string" ? { staticReason: ow.staticReason } : {}),
     kernelFunctions,
@@ -1363,13 +1391,21 @@ export function validateExperiment(raw: unknown, path = "Experiment"): Experimen
         });
       }
 
+      let sketchAxes: Readonly<{ x: string; y: string }> | undefined;
+      if (pr.sketchAxes && typeof pr.sketchAxes === "object" && !Array.isArray(pr.sketchAxes)) {
+        const sa = pr.sketchAxes as Record<string, unknown>;
+        if (typeof sa.x === "string" && typeof sa.y === "string") {
+          sketchAxes = Object.freeze({ x: sa.x, y: sa.y });
+        }
+      }
+
       prompts.push({
         promptId: pr.promptId,
         controlId: (pr.controlId as string) || undefined,
         actionId: (pr.actionId as string) || undefined,
         question: (pr.question as string) || "",
         candidates,
-        sketchAxes: pr.sketchAxes as any,
+        sketchAxes,
         verbalChoices: Array.isArray(pr.verbalChoices) ? (pr.verbalChoices as string[]) : undefined,
         valueTargets: Array.isArray(pr.valueTargets) ? (pr.valueTargets as number[]) : undefined,
       });
@@ -1425,10 +1461,25 @@ export function validateExperiment(raw: unknown, path = "Experiment"): Experimen
           `${psPath}.scenarioId`,
         );
       }
+      let parameterValues: Record<string, number | string> = {};
+      if (
+        ps.parameterValues &&
+        typeof ps.parameterValues === "object" &&
+        !Array.isArray(ps.parameterValues)
+      ) {
+        const pvRaw = ps.parameterValues as Record<string, unknown>;
+        const pv: Record<string, number | string> = {};
+        for (const [k, v] of Object.entries(pvRaw)) {
+          if (typeof v === "number" || typeof v === "string") {
+            pv[k] = v;
+          }
+        }
+        parameterValues = pv;
+      }
       presets.push({
         presetId: ps.presetId,
         label: (ps.label as string) || ps.presetId,
-        parameterValues: (ps.parameterValues as Record<string, any>) || {},
+        parameterValues,
         scenarioId: (ps.scenarioId as string) || undefined,
       });
     }
@@ -1495,7 +1546,31 @@ export function validateExperiment(raw: unknown, path = "Experiment"): Experimen
           );
         }
       }
-      modes.push(m as any);
+      modes.push({
+        id: m.id,
+        label: (m.label as string) || m.id,
+        historicalStatus: m.historicalStatus as HistoricalStatus,
+        lensLabel: typeof m.lensLabel === "string" ? m.lensLabel : undefined,
+        notModeledAdditions: Array.isArray(m.notModeledAdditions)
+          ? (m.notModeledAdditions as readonly string[])
+          : undefined,
+        parameterOverrides:
+          m.parameterOverrides &&
+          typeof m.parameterOverrides === "object" &&
+          !Array.isArray(m.parameterOverrides)
+            ? (m.parameterOverrides as Record<string, unknown>)
+            : undefined,
+        outputOverrides:
+          m.outputOverrides &&
+          typeof m.outputOverrides === "object" &&
+          !Array.isArray(m.outputOverrides)
+            ? (m.outputOverrides as Record<string, unknown>)
+            : undefined,
+        ownerOverride:
+          m.ownerOverride && typeof m.ownerOverride === "object"
+            ? (m.ownerOverride as ExperimentOwner)
+            : undefined,
+      });
     }
   }
 
@@ -1607,7 +1682,7 @@ export type DiscriminationHypothesis = Readonly<{
 
 export type DiscriminationObservation = Readonly<{
   observableId: string;
-  inputs: Record<string, any>;
+  inputs: Record<string, unknown>;
   procedure: string;
 }>;
 
@@ -1646,7 +1721,7 @@ export type Scenario = Readonly<{
         time?: number | undefined;
         event: string;
         commandClass: string;
-        parameters?: Record<string, any> | undefined;
+        parameters?: Record<string, unknown> | undefined;
       }>[]
     | undefined;
   expected: ScenarioExpected;
@@ -1799,8 +1874,25 @@ export function validateScenario(raw: unknown, path = "Scenario"): Scenario {
           `${path}.transcription`,
         );
       }
+      transcription = {
+        status: "verified-suspected-misprint",
+        facsimilePage: Number(tr.facsimilePage) || 0,
+        printedReading: String(tr.printedReading),
+        correctedReading: String(tr.correctedReading ?? ""),
+        reasoning: String(tr.reasoning ?? ""),
+        receiptRef: String(tr.receiptRef),
+      };
+    } else if (tr.status === "verified") {
+      transcription = {
+        status: "verified",
+        facsimilePage: Number(tr.facsimilePage) || 0,
+      };
+    } else if (tr.status === "pending") {
+      transcription = {
+        status: "pending",
+        reason: String(tr.reason ?? ""),
+      };
     }
-    transcription = tr as any;
   }
 
   // Editorial inputs & documented alternatives check
@@ -2004,7 +2096,7 @@ export function validateScenario(raw: unknown, path = "Scenario"): Scenario {
           `${eoPath}.comparisonKind`,
         );
       }
-      expectedOutputs.push(eoRaw as any);
+      expectedOutputs.push(eoRaw as ExpectedOutput);
     }
   }
 
@@ -2014,29 +2106,51 @@ export function validateScenario(raw: unknown, path = "Scenario"): Scenario {
     title: (o.title as string) || (o.id as string),
     description: (o.description as string) || "",
     experimentId: (o.experimentId as string) || undefined,
-    provenance: o.provenance as any,
+    provenance: o.provenance
+      ? (o.provenance as Readonly<{
+          paper: string;
+          sectionId: string;
+          printedPage: number;
+          locator?: string | undefined;
+        }>)
+      : undefined,
     constantSetId: o.constantSetId as string,
-    constantSetMixing: o.constantSetMixing as any,
-    inputs: (o.inputs as any) || {},
+    constantSetMixing: o.constantSetMixing
+      ? (o.constantSetMixing as Readonly<{ declared: true; reason: string }>)
+      : undefined,
+    inputs: (o.inputs as Record<string, Readonly<{ value: number | string; unit: string }>>) || {},
     equations: Array.isArray(o.equations) ? (o.equations as string[]) : undefined,
     owner: (o.owner as string) || "",
-    seedPolicy: o.seedPolicy as any,
+    seedPolicy: o.seedPolicy as "fixed" | "new-trial-recorded" | undefined,
     seed,
     streamVersion: typeof o.streamVersion === "number" ? o.streamVersion : undefined,
     allocationId: (o.allocationId as string) || undefined,
-    actions: Array.isArray(o.actions) ? (o.actions as any[]) : undefined,
+    actions: Array.isArray(o.actions)
+      ? (o.actions as readonly Readonly<{
+          time?: number | undefined;
+          event: string;
+          commandClass: string;
+          parameters?: Record<string, unknown> | undefined;
+        }>[])
+      : undefined,
     expected: {
       outputs: expectedOutputs.length > 0 ? expectedOutputs : undefined,
-      status: exp.status as any,
-      invariants: Array.isArray(exp.invariants) ? (exp.invariants as any[]) : undefined,
-      outcome: exp.outcome as any,
+      status: exp.status as
+        | Readonly<{ outputId: string; status: string; reasonCode: string }>
+        | undefined,
+      invariants: Array.isArray(exp.invariants)
+        ? (exp.invariants as readonly Readonly<{ expression: string; description: string }>[])
+        : undefined,
+      outcome: exp.outcome as "indistinguishable" | "discriminates" | undefined,
     },
     modelVersion: typeof o.modelVersion === "number" ? o.modelVersion : 1,
     schemaVersion: typeof o.schemaVersion === "number" ? o.schemaVersion : 1,
     transcription,
-    editorialInputs: Array.isArray(o.editorialInputs) ? (o.editorialInputs as any[]) : undefined,
+    editorialInputs: Array.isArray(o.editorialInputs)
+      ? (o.editorialInputs as Scenario["editorialInputs"])
+      : undefined,
     documentedAlternatives: Array.isArray(o.documentedAlternatives)
-      ? (o.documentedAlternatives as any[])
+      ? (o.documentedAlternatives as Scenario["documentedAlternatives"])
       : undefined,
     routes,
     hypotheses,
@@ -2196,7 +2310,7 @@ export function validateDataCell(raw: unknown, path = "cell"): DataCell {
   const kind = o.kind as string;
 
   if (kind === "number") {
-    if (typeof o.value !== "number" || isNaN(o.value)) {
+    if (typeof o.value !== "number" || Number.isNaN(o.value)) {
       throw new ExperimentValidationError(
         "missing-cell-number-value",
         'DataCell of kind "number" requires numeric value.',
@@ -2228,7 +2342,7 @@ export function validateDataCell(raw: unknown, path = "cell"): DataCell {
         `${path}.direction`,
       );
     }
-    if (typeof o.value !== "number" || isNaN(o.value)) {
+    if (typeof o.value !== "number" || Number.isNaN(o.value)) {
       throw new ExperimentValidationError(
         "missing-bound-value",
         'DataCell of kind "bound" requires numeric value.',
@@ -2388,10 +2502,29 @@ export function validateHistoricalDataset(
       `${pPath}.publicationDate`,
     );
 
+    let locator: DatasetPublicationLocator;
+    if (loc.kind === "table") {
+      locator = { kind: "table", number: loc.number as number | string };
+    } else if (loc.kind === "figure") {
+      locator = { kind: "figure", number: loc.number as number | string };
+    } else if (loc.kind === "unnumbered-table") {
+      locator = {
+        kind: "unnumbered-table",
+        page: loc.page as number,
+        caption: typeof loc.caption === "string" ? loc.caption : undefined,
+      };
+    } else {
+      locator = {
+        kind: "text",
+        page: loc.page as number,
+        sentence: loc.sentence as number | string,
+      };
+    }
+
     publications.push({
-      id: pRaw.id,
-      citation: pRaw.citation as any,
-      locator: loc as any,
+      id: pRaw.id as string,
+      citation: pRaw.citation as Citation | string,
+      locator,
       publicationDate: pubDate,
     });
   }
@@ -2821,7 +2954,7 @@ export function validateHistoricalDataset(
             `${pSubPath}.quantityId`,
           );
         }
-        if (typeof param.value !== "number" || isNaN(param.value)) {
+        if (typeof param.value !== "number" || Number.isNaN(param.value)) {
           throw new ExperimentValidationError(
             "missing-fit-parameter-value",
             "Fit parameter value required.",
@@ -2874,20 +3007,23 @@ export function validateHistoricalDataset(
   return {
     id: o.id as string,
     title: o.title as string,
-    evidenceStatus: o.evidenceStatus as any,
+    evidenceStatus: o.evidenceStatus as "historical-measurement" | "modern-observation",
     publications,
     primaryPublicationId: o.primaryPublicationId as string,
     series: seriesList.length > 0 ? seriesList : undefined,
     digitizer: {
       name: dig.name as string,
       method: dig.method as string,
-      date: dig.date as any,
+      date: dig.date as string | PaperDate,
       sourcePageImage: dig.sourcePageImage as string,
       digitizationRevision: dig.digitizationRevision as number,
     },
     columns,
     rows,
-    uncertainty: (o.uncertainty as any) || { type: "none", description: "None reported" },
+    uncertainty: (o.uncertainty as HistoricalDataset["uncertainty"]) || {
+      type: "none",
+      description: "None reported",
+    },
     notes: (o.notes as string) || "",
     rights: o.rights as SourceAssetRights,
     allowedInferenceModelIds: o.allowedInferenceModelIds as string[],
@@ -2929,14 +3065,14 @@ export type Tour = Readonly<{
   completionStatement: string;
   steps: readonly TourStep[];
   requiresEquations: boolean;
-  syllabus?:
-    | readonly Readonly<{
-        session: number;
-        title: string;
-        prerequisites?: readonly string[] | undefined;
-        steps: readonly string[];
-      }>[]
-    | undefined;
+  syllabus?: readonly TourSyllabusSession[] | undefined;
+}>;
+
+export type TourSyllabusSession = Readonly<{
+  session: number;
+  title: string;
+  prerequisites?: readonly string[] | undefined;
+  steps: readonly string[];
 }>;
 
 export function validateTour(raw: unknown, path = "Tour"): Tour {
@@ -3075,7 +3211,9 @@ export function validateTour(raw: unknown, path = "Tour"): Tour {
     completionStatement: o.completionStatement as string,
     steps,
     requiresEquations,
-    syllabus: Array.isArray(o.syllabus) ? (o.syllabus as any[]) : undefined,
+    syllabus: Array.isArray(o.syllabus)
+      ? (o.syllabus as readonly TourSyllabusSession[])
+      : undefined,
   };
 }
 
@@ -3274,7 +3412,8 @@ export function validateConstantSet(raw: unknown, path = "ConstantSet"): Constan
       value: eRaw.value as number,
       exactDecimal: (eRaw.exactDecimal as string) || String(eRaw.value),
       kind,
-      printedStatus: eRaw.printedStatus as any,
+      printedStatus:
+        typeof eRaw.printedStatus === "string" ? (eRaw.printedStatus as PrintedStatus) : undefined,
       printedReading: (eRaw.printedReading as string) || undefined,
       reason: (eRaw.reason as string) || undefined,
       sensitivity: (eRaw.sensitivity as string) || undefined,
@@ -3284,9 +3423,14 @@ export function validateConstantSet(raw: unknown, path = "ConstantSet"): Constan
       era: (eRaw.era as string) || "",
       provenance: (eRaw.provenance as string) || "",
       precision: (eRaw.precision as string) || "",
-      uncertainty: eRaw.uncertainty as any,
+      uncertainty:
+        typeof eRaw.uncertainty === "number" || typeof eRaw.uncertainty === "string"
+          ? eRaw.uncertainty
+          : undefined,
       dependsOn: Array.isArray(eRaw.dependsOn) ? (eRaw.dependsOn as string[]) : undefined,
-      transcriptionStatus: (eRaw.transcriptionStatus as any) || "transcribed-and-checked",
+      transcriptionStatus:
+        (eRaw.transcriptionStatus as "transcribed-and-checked" | "pending-transcription") ||
+        "transcribed-and-checked",
       checkedBy: (eRaw.checkedBy as string) || undefined,
       checkedAt: (eRaw.checkedAt as string) || undefined,
     });
@@ -3297,7 +3441,10 @@ export function validateConstantSet(raw: unknown, path = "ConstantSet"): Constan
     era: (o.era as string) || "",
     provenance: (o.provenance as string) || "",
     precisionNote: (o.precisionNote as string) || "",
-    gasConstantProvenance: o.gasConstantProvenance as any,
+    gasConstantProvenance: o.gasConstantProvenance as
+      | "defined"
+      | "measured-without-counting-molecules"
+      | "not-applicable",
     entries,
   };
 }
