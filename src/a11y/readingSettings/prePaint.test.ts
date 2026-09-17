@@ -4,6 +4,7 @@ import {
   applyReadingSettingsPrepaint,
   READING_SETTINGS_PREPAINT,
   readingOnlyPrePaintRows,
+  TABLE,
 } from "./prepaint.ts";
 import { READING_SETTINGS_STORAGE_KEYS } from "./schema.ts";
 
@@ -34,7 +35,7 @@ afterEach(() => {
 describe("applyReadingSettingsPrepaint", () => {
   test("writes defaults when storage is empty", () => {
     const { dataset } = stub();
-    applyReadingSettingsPrepaint();
+    applyReadingSettingsPrepaint(TABLE);
     expect(dataset.readingOnly).toBe("off");
     expect(dataset.measure).toBe("default");
     expect(dataset.typeScale).toBe("100");
@@ -56,7 +57,7 @@ describe("applyReadingSettingsPrepaint", () => {
       [READING_SETTINGS_STORAGE_KEYS.contrast]: "high",
       [READING_SETTINGS_STORAGE_KEYS.paragraphSpacing]: "relaxed",
     });
-    applyReadingSettingsPrepaint();
+    applyReadingSettingsPrepaint(TABLE);
     expect(dataset.readingOnly).toBe("on");
     expect(dataset.measure).toBe("wide");
     expect(dataset.typeScale).toBe("150");
@@ -75,7 +76,7 @@ describe("applyReadingSettingsPrepaint", () => {
     const { dataset } = stub({
       [READING_SETTINGS_STORAGE_KEYS.typeScale]: "200",
     });
-    applyReadingSettingsPrepaint();
+    applyReadingSettingsPrepaint(TABLE);
     expect(dataset.typeScale).toBe("100");
     logger.log({
       testId: "prepaint-untested-fallback",
@@ -96,7 +97,7 @@ describe("applyReadingSettingsPrepaint", () => {
         },
       },
     );
-    expect(() => applyReadingSettingsPrepaint()).not.toThrow();
+    expect(() => applyReadingSettingsPrepaint(TABLE)).not.toThrow();
     expect(dataset.readingOnly).toBe("off");
     expect(dataset.measure).toBe("default");
     logger.log({
@@ -111,7 +112,7 @@ describe("applyReadingSettingsPrepaint", () => {
   test("never throws when document is missing", () => {
     (globalThis as { document: unknown }).document = undefined;
     (globalThis as { localStorage: unknown }).localStorage = { getItem: () => null };
-    expect(() => applyReadingSettingsPrepaint()).not.toThrow();
+    expect(() => applyReadingSettingsPrepaint(TABLE)).not.toThrow();
     logger.log({
       testId: "prepaint-no-document",
       beadId: BEAD,
@@ -123,10 +124,11 @@ describe("applyReadingSettingsPrepaint", () => {
 
 describe("READING_SETTINGS_PREPAINT", () => {
   test("is a self-contained IIFE that embeds the registry rows, not a hand-copied key list", () => {
-    expect(READING_SETTINGS_PREPAINT.startsWith("(function applyReadingSettingsPrepaint()")).toBe(
+    expect(READING_SETTINGS_PREPAINT.startsWith("(function applyReadingSettingsPrepaint(")).toBe(
       true,
     );
-    expect(READING_SETTINGS_PREPAINT.trimEnd().endsWith(")();")).toBe(true);
+    expect(READING_SETTINGS_PREPAINT.trimEnd().endsWith(");")).toBe(true);
+    expect(READING_SETTINGS_PREPAINT).not.toContain("TABLE");
     expect(READING_SETTINGS_PREPAINT).not.toContain("import ");
     for (const key of Object.values(READING_SETTINGS_STORAGE_KEYS)) {
       expect(READING_SETTINGS_PREPAINT).toContain(JSON.stringify(key));

@@ -25,30 +25,34 @@ if (!registration) {
   throw new Error(`Storage registry has no entry for "${SETTINGS_KEY_PREFIX}theme".`);
 }
 export const THEME_STORAGE_KEY: string = registration.key;
-const THEME_FOLLOW_SYSTEM = FOLLOW_SYSTEM_VALUE;
-const KNOWN_THEME_IDS: readonly string[] = THEME_IDS;
+export const THEME_FOLLOW_SYSTEM = FOLLOW_SYSTEM_VALUE;
+export const KNOWN_THEME_IDS: readonly string[] = THEME_IDS;
 
-export function initTheme(): void {
+export function initTheme(
+  storageKey: string,
+  followSystem: string,
+  knownThemeIds: readonly string[],
+): void {
   try {
     let stored: string | null = null;
     try {
-      stored = localStorage.getItem(THEME_STORAGE_KEY);
+      stored = localStorage.getItem(storageKey);
     } catch {
       /* Reading works without storage. */
     }
     let resolved: string | undefined;
-    if (stored === THEME_FOLLOW_SYSTEM) {
+    if (stored === followSystem) {
       resolved =
         typeof matchMedia === "function" && matchMedia("(prefers-color-scheme: dark)").matches
           ? "kramgasse-night"
           : "annalen";
-    } else if (stored !== null && KNOWN_THEME_IDS.indexOf(stored) !== -1) {
+    } else if (stored !== null && knownThemeIds.indexOf(stored) !== -1) {
       resolved = stored;
     }
     if (resolved === undefined) {
       const routeDefault = document.documentElement.getAttribute("data-route-theme");
       resolved =
-        routeDefault !== null && KNOWN_THEME_IDS.indexOf(routeDefault) !== -1
+        routeDefault !== null && knownThemeIds.indexOf(routeDefault) !== -1
           ? routeDefault
           : "annalen";
     }
@@ -58,8 +62,6 @@ export function initTheme(): void {
   }
 }
 
-export const THEME_INIT_SOURCE = `(${initTheme
-  .toString()
-  .replace(/THEME_STORAGE_KEY/g, JSON.stringify(THEME_STORAGE_KEY))
-  .replace(/THEME_FOLLOW_SYSTEM/g, JSON.stringify(THEME_FOLLOW_SYSTEM))
-  .replace(/KNOWN_THEME_IDS/g, JSON.stringify(KNOWN_THEME_IDS))})();`;
+export const THEME_INIT_SOURCE = `(${initTheme.toString()})(${JSON.stringify(
+  THEME_STORAGE_KEY,
+)},${JSON.stringify(THEME_FOLLOW_SYSTEM)},${JSON.stringify(KNOWN_THEME_IDS)});`;

@@ -32,15 +32,14 @@ export function readingOnlyPrePaintRows(
     }));
 }
 
-const TABLE: readonly PrePaintSettingRow[] = readingOnlyPrePaintRows();
+export const TABLE: readonly PrePaintSettingRow[] = readingOnlyPrePaintRows();
 
 /**
  * Sets data-reading-only, data-measure, data-type-scale, data-contrast, and
  * data-paragraph-spacing from storage (or defaults). Storage throws are ignored.
  */
-export function applyReadingSettingsPrepaint(): void {
+export function applyReadingSettingsPrepaint(table: readonly PrePaintSettingRow[]): void {
   try {
-    const table = TABLE;
     const root = document.documentElement;
     for (let i = 0; i < table.length; i++) {
       const row = table[i];
@@ -60,6 +59,6 @@ export function applyReadingSettingsPrepaint(): void {
   }
 }
 
-export const READING_SETTINGS_PREPAINT = `(${applyReadingSettingsPrepaint
-  .toString()
-  .replace("TABLE", JSON.stringify(TABLE))})();`;
+export const READING_SETTINGS_PREPAINT = `(${applyReadingSettingsPrepaint.toString()})(${JSON.stringify(
+  TABLE,
+)});`;

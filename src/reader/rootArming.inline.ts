@@ -18,9 +18,9 @@
  */
 import { FACE_IDS } from "./faces/registry.ts";
 
-const KNOWN_FACE_IDS: readonly string[] = FACE_IDS;
+export const KNOWN_FACE_IDS: readonly string[] = FACE_IDS;
 
-export function armReaderRoot(): void {
+export function armReaderRoot(knownFaceIds: readonly string[]): void {
   try {
     const script = document.currentScript;
     const root = script?.parentElement;
@@ -28,12 +28,12 @@ export function armReaderRoot(): void {
     root.dataset.ready = "false";
     const requested = document.documentElement.dataset.view;
     root.dataset.view =
-      requested !== undefined && KNOWN_FACE_IDS.indexOf(requested) !== -1 ? requested : "reading";
+      requested !== undefined && knownFaceIds.indexOf(requested) !== -1 ? requested : "reading";
   } catch {
     /* A failed arm leaves data-ready unset; the harness reports that as not-ready, correctly. */
   }
 }
 
-export const ROOT_ARMING_SOURCE = `(${armReaderRoot
-  .toString()
-  .replace("KNOWN_FACE_IDS", JSON.stringify(KNOWN_FACE_IDS))})();`;
+export const ROOT_ARMING_SOURCE = `(${armReaderRoot.toString()})(${JSON.stringify(
+  KNOWN_FACE_IDS,
+)});`;
