@@ -1,67 +1,95 @@
 /**
- * Alias resolution for retired anchor spellings, for
- * am-read-anchors-navigation-a6o. Built on top of the real retirement
- * detection already in src/content/anchors.ts's `parseAnchor` (never a
- * duplicate set of regexes), this module derives, where the retirement is
- * unambiguous, the one real replacement location.
- *
- * No real content in this repository has ever retired or split an id yet
- * (every paper is newly authored), so there is no live fixture of a real
- * alias to wire a face renderer against today. These functions are tested
- * against synthetic retired forms that `parseAnchor` already recognizes as
- * retired, not against invented "this id used to exist" history.
+ * Alias redirects for am-read-anchors-navigation-a6o: a thin consumer of
+ * `src/content/aliases.ts`'s `resolveAlias` (cycle detection, dangling-link
+ * detection, and chain resolution already solved there). This module adds
+ * only the reader-navigation policy: a split id resolves to its first
+ * successor (noted, per the bead's own wording), a static alias anchor is
+ * placed at a retired id's resolved location so old links work without
+ * JavaScript, and with JavaScript `location.hash` is rewritten via
+ * `history.replaceState` (the actual browser call belongs to whichever
+ * module mounts the reader shell; this file only computes the target).
  */
 
-import { parseAnchor } from "../../content/anchors";
-import type { ParseResult } from "../../content/ids";
+import { type AliasRecord, resolveAlias } from "../../content/aliases.ts";
 
-export interface AliasResolution {
-  /** The retired fragment, including '#'. */
-  readonly from: string;
-  /** The current, real fragment, including '#'. */
-  readonly to: string;
+export interface AliasRedirect {
+  readonly requestedId: string;
+  readonly resolvedId: string;
+  readonly allTargetIds: readonly string[];
+  /** Present only when more than one successor existed and the first was chosen. */
+  readonly note?: string;
 }
 
-const HEADING_PATTERN = /^(s\d+)-h$/;
-const FOOTNOTE_SENTENCE_PATTERN = /^(s\d+-fn\d+)-s\d+$/;
+export type AliasRedirectOutcome =
+  | Readonly<{ kind: "no-alias" }>
+  | Readonly<{ kind: "redirect"; redirect: AliasRedirect }>
+  | Readonly<{ kind: "error"; error: string; code: "cycle" | "dangling" | "invalid" }>;
+
+function findAliasRecord(
+  id: string,
+  aliasRecords: readonly AliasRecord[],
+): AliasRecord | undefined {
+  return aliasRecords.find((a) => a.retiredId === id);
+}
+
+/** Resolves a requested id through the alias chain, or reports it was never retired at all. */
+export function resolveNavigationAlias(
+  id: string,
+  aliasRecords: readonly AliasRecord[],
+  validCorpusIds?: readonly string[] | Set<string>,
+): AliasRedirectOutcome {
+  if (!findAliasRecord(id, aliasRecords)) return { kind: "no-alias" };
+  const result = resolveAlias(id, aliasRecords, validCorpusIds);
+  if (!result.ok) return { kind: "error", error: result.error, code: result.code };
+  const [first, ...restIds] = result.targetIds;
+  if (first === undefined) {
+    return { kind: "error", error: `Alias '${id}' resolved to no targets`, code: "dangling" };
+  }
+  return {
+    kind: "redirect",
+    redirect: {
+      requestedId: id,
+      resolvedId: first,
+      allTargetIds: result.targetIds,
+      ...(restIds.length > 0
+        ? { note: `resolved to the first of ${result.targetIds.length} successors` }
+        : {}),
+    },
+  };
+}
 
 /**
- * Resolves a retired anchor to its real current location, when the
- * retirement is unambiguous. Returns null both when the fragment is not
- * retired at all (parses fine on its own) and when it is retired but
- * genuinely ambiguous (a bare `#entrance`/`#entry` never named a paper,
- * so there is no single replacement to guess).
+ * Every retired or split id whose resolved location is `contentId` -- the
+ * static alias anchors a face renderer must also emit there, so an old link
+ * lands on the current content without JavaScript.
  */
-export function resolveAlias(fragment: string): AliasResolution | null {
-  const clean = fragment.startsWith("#") ? fragment : `#${fragment}`;
-  const parsed: ParseResult<unknown> = parseAnchor(clean);
-  if (parsed.ok) return null;
-  const target = clean.slice(1);
-
-  if (parsed.rule === "retired-heading-anchor") {
-    const match = target.match(HEADING_PATTERN);
-    if (match?.[1]) return { from: clean, to: `#${match[1]}` };
+export function aliasIdsForLocation(
+  contentId: string,
+  aliasRecords: readonly AliasRecord[],
+  validCorpusIds?: readonly string[] | Set<string>,
+): readonly string[] {
+  const matches: string[] = [];
+  for (const record of aliasRecords) {
+    const outcome = resolveNavigationAlias(record.retiredId, aliasRecords, validCorpusIds);
+    if (outcome.kind === "redirect" && outcome.redirect.resolvedId === contentId) {
+      matches.push(record.retiredId);
+    }
   }
-
-  if (parsed.rule === "retired-footnote-sentence-anchor") {
-    const match = target.match(FOOTNOTE_SENTENCE_PATTERN);
-    if (match?.[1]) return { from: clean, to: `#${match[1]}` };
-  }
-
-  return null;
-}
-
-/** The bare id (no '#') a static alias element should carry at the new location. */
-export function aliasElementId(resolution: AliasResolution): string {
-  return resolution.from.slice(1);
+  return matches;
 }
 
 /**
- * The hash string a JavaScript-enabled reader's location should be
- * rewritten to with `history.replaceState` -- never `pushState`, so
- * following an old link never adds a history entry the back button would
- * have to skip past.
+ * The hash `history.replaceState` should rewrite `location.hash` to, or
+ * `null` when the current hash needs no rewrite (not a retired id, or
+ * already current). Pure: the browser call itself belongs to the caller.
  */
-export function rewriteHashTarget(resolution: AliasResolution): string {
-  return resolution.to;
+export function rewrittenHashFor(
+  currentHash: string,
+  aliasRecords: readonly AliasRecord[],
+  validCorpusIds?: readonly string[] | Set<string>,
+): string | null {
+  const id = currentHash.startsWith("#") ? currentHash.slice(1) : currentHash;
+  if (!id) return null;
+  const outcome = resolveNavigationAlias(id, aliasRecords, validCorpusIds);
+  return outcome.kind === "redirect" ? `#${outcome.redirect.resolvedId}` : null;
 }
