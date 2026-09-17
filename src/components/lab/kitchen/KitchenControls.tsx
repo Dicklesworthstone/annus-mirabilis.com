@@ -139,8 +139,8 @@ export function KitchenInputs({ accepted, busy, revise, onError }: Actions) {
   }
   const change = (key: KitchenInputKey, value: string) => setDraft({ ...draft, [key]: value });
   const field = (key: KitchenInputKey) => (
-    <label key={key} htmlFor={`${id}-${key}`}>
-      {labels[key]}
+    <div className="input-field" key={key}>
+      <label htmlFor={`${id}-${key}`}>{labels[key]}</label>
       {key === "calibration_axes" ? (
         <select
           id={`${id}-${key}`}
@@ -184,7 +184,7 @@ export function KitchenInputs({ accepted, busy, revise, onError }: Actions) {
           onChange={(e) => change(key, e.target.value)}
         />
       )}
-    </label>
+    </div>
   );
   return (
     <details className="kitchen-inputs">

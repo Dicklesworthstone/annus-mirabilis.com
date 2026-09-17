@@ -553,15 +553,16 @@ export function ConfigurationLab({
         </button>
       </div>
       {sharedUrl && (
-        <label className="share-field" style={{ marginTop: "0.5rem" }}>
-          Accepted-settings link
+        <div className="share-field" style={{ marginTop: "0.5rem" }}>
+          <label htmlFor={`${id}-shared-url`}>Accepted-settings link</label>
           <input
+            id={`${id}-shared-url`}
             type="text"
             readOnly
             value={sharedUrl}
             onFocus={(event) => event.target.select()}
           />
-        </label>
+        </div>
       )}
       {linkNote && <p className="notice">{linkNote}</p>}
     </section>
