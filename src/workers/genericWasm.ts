@@ -108,6 +108,26 @@ function setGenericKernelSource(next: GenericKernelSource): void {
   for (const listener of [...sourceListeners]) listener();
 }
 
+/**
+ * Test-only: resets the module's load state to "unloaded" with no pending load promise, so a
+ * test can observe a real transition through each state instead of inheriting whatever a prior
+ * test (or a prior import in the same process) left behind. Source, loadPromise, the cached
+ * kernel function pointers, and extraWasmFns are all module-level singletons with no other reset
+ * path. Never called from production code -- grep for this name before removing that assumption.
+ */
+export function __resetGenericWasmForTesting(): void {
+  source = "unloaded";
+  loadPromise = null;
+  gaFn = null;
+  heatFn = null;
+  waveFn = null;
+  fluidFn = null;
+  cyclicFn = null;
+  modesFn = null;
+  clearExtraWasmFns();
+  clearKernelCaches();
+}
+
 export function ensureGenericWasm(): Promise<GenericKernelSource> {
   loadPromise ??= initializeGenericWasm();
   return loadPromise;
