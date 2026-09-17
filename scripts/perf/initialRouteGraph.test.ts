@@ -142,4 +142,3 @@ test("byte accounting on gzip encoding option", () => {
   assert.equal(result.byteAccounting?.effectiveBytes, 45_000);
   assert.equal(result.byteAccounting?.encoding, "gzip");
 });
-

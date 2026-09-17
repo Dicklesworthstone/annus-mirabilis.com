@@ -1,8 +1,5 @@
 import { describe, expect, test } from "bun:test";
-import {
-  type PerformanceMarkRecord,
-  evaluateInstrumentFeedback,
-} from "./instrumentFeedback.ts";
+import { evaluateInstrumentFeedback, type PerformanceMarkRecord } from "./instrumentFeedback.ts";
 
 describe("Instrument Feedback Mark Matching", () => {
   test("matches am:input, am:accepted, and am:painted by instanceId, actionIndex, and snapshotVersion", () => {

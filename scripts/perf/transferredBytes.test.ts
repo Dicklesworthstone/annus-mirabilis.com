@@ -1,5 +1,5 @@
 import { describe, expect, test } from "bun:test";
-import { type HarLog, analyzeTransferredBytes } from "./transferredBytes.ts";
+import { analyzeTransferredBytes, type HarLog } from "./transferredBytes.ts";
 
 describe("Transferred Bytes Analysis", () => {
   const fixtureHar: HarLog = {

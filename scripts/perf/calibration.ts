@@ -23,9 +23,7 @@ export interface CalibrationResult {
  * With a calibration record, the factor is the phone time divided by the host time.
  * Otherwise, the factor is 4 and calibration is labeled "provisional".
  */
-export function computeCalibration(
-  record?: Partial<CalibrationRecord> | null,
-): CalibrationResult {
+export function computeCalibration(record?: Partial<CalibrationRecord> | null): CalibrationResult {
   if (
     record &&
     typeof record.phoneBenchmarkMs === "number" &&

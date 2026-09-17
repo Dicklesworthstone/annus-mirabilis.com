@@ -2,24 +2,25 @@ import { describe, expect, test } from "bun:test";
 import { readFileSync } from "node:fs";
 import { dirname, join } from "node:path";
 import { fileURLToPath } from "node:url";
-import { QUALITY_GATE_STEPS, type GateStep } from "../quality-gates/registry.ts";
+import { type GateStep, QUALITY_GATE_STEPS } from "../quality-gates/registry.ts";
 
 const here = dirname(fileURLToPath(import.meta.url));
 const ROOT = join(here, "../..");
 
-export function validateStepRegistration(step: GateStep, expected: {
-  id: string;
-  family: string;
-  cadence: string;
-  owner: string;
-}): void {
+export function validateStepRegistration(
+  step: GateStep,
+  expected: {
+    id: string;
+    family: string;
+    cadence: string;
+    owner: string;
+  },
+): void {
   if (step.id !== expected.id) {
     throw new Error(`Expected step id '${expected.id}', but got '${step.id}'`);
   }
   if (step.family !== expected.family) {
-    throw new Error(
-      `Step '${step.id}' has family '${step.family}', expected '${expected.family}'`,
-    );
+    throw new Error(`Step '${step.id}' has family '${step.family}', expected '${expected.family}'`);
   }
   if (step.cadence !== expected.cadence) {
     throw new Error(

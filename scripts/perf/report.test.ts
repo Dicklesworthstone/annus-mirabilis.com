@@ -62,7 +62,9 @@ describe("Performance Report Validation", () => {
       ...validReport,
       conditions: { ...validReport.conditions, calibrationState: "" as never },
     };
-    expect(() => validatePerfReport(missingCalibration)).toThrow("missing calibrationState condition");
+    expect(() => validatePerfReport(missingCalibration)).toThrow(
+      "missing calibrationState condition",
+    );
   });
 
   test("refuses report if route fails to report total transfer separately from JavaScript", () => {

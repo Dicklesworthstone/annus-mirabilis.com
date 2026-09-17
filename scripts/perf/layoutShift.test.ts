@@ -1,5 +1,5 @@
 import { describe, expect, test } from "bun:test";
-import { type LayoutShiftEntry, evaluateLayoutShift } from "./layoutShift.ts";
+import { evaluateLayoutShift, type LayoutShiftEntry } from "./layoutShift.ts";
 
 describe("Layout Shift Evaluation", () => {
   test("excludes entries where hadRecentInput is true", () => {
@@ -51,9 +51,7 @@ describe("Layout Shift Evaluation", () => {
   });
 
   test("fails on planted over-budget input (> 0.1)", () => {
-    const entries: LayoutShiftEntry[] = [
-      { startTime: 500, value: 0.12, hadRecentInput: false },
-    ];
+    const entries: LayoutShiftEntry[] = [{ startTime: 500, value: 0.12, hadRecentInput: false }];
 
     const result = evaluateLayoutShift(entries);
     expect(result.maxSessionWindowScore).toBe(0.12);

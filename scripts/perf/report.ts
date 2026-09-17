@@ -55,7 +55,11 @@ export function validatePerfReport(report: PerfReport): void {
   if (!c.hardware) throw new Error("PerfReport missing hardware condition");
   if (!c.browser) throw new Error("PerfReport missing browser condition");
   if (!c.browserVersion) throw new Error("PerfReport missing browserVersion condition");
-  if (!c.viewport || typeof c.viewport.width !== "number" || typeof c.viewport.height !== "number") {
+  if (
+    !c.viewport ||
+    typeof c.viewport.width !== "number" ||
+    typeof c.viewport.height !== "number"
+  ) {
     throw new Error("PerfReport missing viewport dimensions");
   }
   if (!c.networkProfile) throw new Error("PerfReport missing networkProfile condition");
@@ -73,10 +77,7 @@ export function validatePerfReport(report: PerfReport): void {
   }
 }
 
-export function writePerfReport(
-  report: PerfReport,
-  dir = DEFAULT_BUDGETS_ARTIFACTS_DIR,
-): string {
+export function writePerfReport(report: PerfReport, dir = DEFAULT_BUDGETS_ARTIFACTS_DIR): string {
   validatePerfReport(report);
   mkdirSync(dir, { recursive: true });
   const filename = `perf-${report.toolRunId}.json`;

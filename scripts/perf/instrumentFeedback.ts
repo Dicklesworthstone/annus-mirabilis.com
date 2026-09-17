@@ -96,9 +96,7 @@ export function evaluateInstrumentFeedback(
 
     const candidatePaints = paintedMarks.get(key) ?? [];
     // Match first am:painted whose snapshotVersion is the accepted snapshot for that action
-    const matchingPaint = candidatePaints.find(
-      (p) => p.detail.snapshotVersion === acceptedVersion,
-    );
+    const matchingPaint = candidatePaints.find((p) => p.detail.snapshotVersion === acceptedVersion);
     if (!matchingPaint) continue;
 
     const inputToAcceptedMs = Number((acceptedMark.startTime - inputMark.startTime).toFixed(2));

@@ -2,7 +2,7 @@ import { execSync } from "node:child_process";
 import { existsSync, readdirSync, readFileSync } from "node:fs";
 import { dirname, join } from "node:path";
 import { fileURLToPath } from "node:url";
-import { type BudgetDefinition, type BudgetsFile, loadCommittedBudgets } from "./budgets.ts";
+import type { BudgetDefinition, BudgetsFile } from "./budgets.ts";
 
 export interface BudgetDiffItem {
   id: string;
