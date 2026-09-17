@@ -4,6 +4,7 @@
 
 import type { CheckContext, CheckReportItem } from "../../compiler/checks/registry.ts";
 import { computeFlagFingerprint } from "../../compiler/reviewQueue.ts";
+import { validateProof } from "../../schemas/argument.ts";
 import {
   type ConstantSetLike,
   circularMolecularCount,
@@ -56,10 +57,14 @@ function asProofs(context: CheckContext): ProofRecord[] {
   const proofs: ProofRecord[] = [];
   eachRecord(context, (id, rec) => {
     if (!isProofRecord(rec)) return;
-    proofs.push({
+    const validated = validateProof(
+      { ...rec, id: typeof rec.id === "string" && rec.id.trim() ? rec.id : id },
       id,
-      route: String(rec.route),
-      argumentNodeIds: rec.argumentNodeIds as string[],
+    );
+    proofs.push({
+      id: validated.id,
+      route: validated.route,
+      argumentNodeIds: validated.argumentNodeIds,
     });
   });
   return proofs;

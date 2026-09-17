@@ -3,19 +3,23 @@ import test from "node:test";
 import { newRunIdentity, TestLogger } from "../../testing/log/logger.ts";
 import {
   type ArgumentNode,
+  ArgumentSchemaError,
   type Bridge,
   checkProofRouteAcyclicity,
   type Foundation,
   validateArgumentNode,
   validateAuthoringContract,
+  validateFoundationLink,
   validateFoundationOrBridge,
   validateHistoricalPremise,
   validateMeanings,
   validateMisconception,
   validateObstacleResponses,
+  validateProof,
   validateQuantity,
   validateReadingSet,
   validateSemanticEquation,
+  validateWorkedExample,
 } from "./argument.ts";
 import { validateRationalDimension, validateRationalScale } from "./dimensionBasis.ts";
 
@@ -1758,4 +1762,199 @@ test("ObstacleResponses: Planted Negative - kebab-case key unfamiliar-word-or-sy
     durationMs: Date.now() - start,
     extra: { rule: "obstacle-kind-ids-kebab-rejected" },
   });
+});
+
+// ============================================================================
+// PROOF, WORKED EXAMPLE, AND FOUNDATION LINK TESTS (am-mhdj)
+// ============================================================================
+
+test("Proof: well-formed proof record is accepted", () => {
+  const raw = {
+    id: "proof-test-1",
+    route: "source-order",
+    argumentNodeIds: ["arg-1", "arg-2"],
+    orderedSteps: ["step-1"],
+    entryAssumptions: ["assump-1"],
+    moveTypes: ["deduction"],
+    sourceMapping: [{ paper: "ap-17-549", id: "p1" }],
+  };
+  const proof = validateProof(raw);
+  assert.equal(proof.id, "proof-test-1");
+  assert.equal(proof.route, "source-order");
+  assert.deepEqual(proof.argumentNodeIds, ["arg-1", "arg-2"]);
+  assert.deepEqual(proof.orderedSteps, ["step-1"]);
+});
+
+test("Proof: Planted Negative - non-array argumentNodeIds is refused with typed error", () => {
+  const rawString = {
+    id: "proof-bad-nodes-1",
+    route: "source-order",
+    argumentNodeIds: "not-an-array",
+  };
+  assert.throws(
+    () => validateProof(rawString),
+    (err: unknown) => {
+      assert.ok(err instanceof ArgumentSchemaError);
+      assert.equal(err.code, "invalid-argument-nodes");
+      return true;
+    },
+  );
+
+  const rawNumber = {
+    id: "proof-bad-nodes-2",
+    route: "source-order",
+    argumentNodeIds: 42,
+  };
+  assert.throws(
+    () => validateProof(rawNumber),
+    (err: unknown) => {
+      assert.ok(err instanceof ArgumentSchemaError);
+      assert.equal(err.code, "invalid-argument-nodes");
+      return true;
+    },
+  );
+
+  const rawMissing = {
+    id: "proof-bad-nodes-3",
+    route: "source-order",
+  };
+  assert.throws(
+    () => validateProof(rawMissing),
+    (err: unknown) => {
+      assert.ok(err instanceof ArgumentSchemaError);
+      assert.equal(err.code, "invalid-argument-nodes");
+      return true;
+    },
+  );
+});
+
+test("Proof: Planted Negative - argumentNodeIds containing non-string elements is refused", () => {
+  const rawMixed = {
+    id: "proof-bad-nodes-4",
+    route: "source-order",
+    argumentNodeIds: ["arg-1", 123, "arg-3"],
+  };
+  assert.throws(
+    () => validateProof(rawMixed),
+    (err: unknown) => {
+      assert.ok(err instanceof ArgumentSchemaError);
+      assert.equal(err.code, "invalid-argument-nodes");
+      return true;
+    },
+  );
+
+  const rawEmptyString = {
+    id: "proof-bad-nodes-5",
+    route: "source-order",
+    argumentNodeIds: ["arg-1", "   "],
+  };
+  assert.throws(
+    () => validateProof(rawEmptyString),
+    (err: unknown) => {
+      assert.ok(err instanceof ArgumentSchemaError);
+      assert.equal(err.code, "invalid-argument-nodes");
+      return true;
+    },
+  );
+});
+
+test("Proof: Planted Negative - invalid route is refused", () => {
+  const raw = {
+    id: "proof-bad-route",
+    route: "unsupported-route",
+    argumentNodeIds: ["arg-1"],
+  };
+  assert.throws(
+    () => validateProof(raw),
+    (err: unknown) => {
+      assert.ok(err instanceof ArgumentSchemaError);
+      assert.equal(err.code, "invalid-proof-route");
+      return true;
+    },
+  );
+});
+
+test("WorkedExample: well-formed worked example is accepted", () => {
+  const raw = {
+    question: "How does Brownian motion relate to diffusion?",
+    given: "The particle radius and solvent viscosity are known.",
+    plausibleFirstThought: "Compute molecular collisions individually.",
+    decisiveStep: "Apply the Stokes-Einstein relation and diffusion equation.",
+    limitation: "Valid only for spherical particles in Newtonian fluids.",
+  };
+  const example = validateWorkedExample(raw);
+  assert.equal(example.question, raw.question);
+  assert.equal(example.given, raw.given);
+  assert.equal(example.plausibleFirstThought, raw.plausibleFirstThought);
+  assert.equal(example.decisiveStep, raw.decisiveStep);
+  assert.equal(example.limitation, raw.limitation);
+});
+
+test("WorkedExample: Planted Negative - non-object is refused", () => {
+  assert.throws(
+    () => validateWorkedExample("string-not-object"),
+    (err: unknown) => {
+      assert.ok(err instanceof ArgumentSchemaError);
+      assert.equal(err.code, "worked-example-not-object");
+      return true;
+    },
+  );
+});
+
+test("WorkedExample: Planted Negative - missing required part is refused", () => {
+  const rawIncomplete = {
+    question: "A question?",
+    given: "Given data.",
+    plausibleFirstThought: "A first thought.",
+    // missing decisiveStep
+    limitation: "A limitation.",
+  };
+  assert.throws(
+    () => validateWorkedExample(rawIncomplete),
+    (err: unknown) => {
+      assert.ok(err instanceof ArgumentSchemaError);
+      assert.equal(err.code, "missing-worked-example-part");
+      return true;
+    },
+  );
+});
+
+test("FoundationLink: well-formed foundation link is accepted", () => {
+  const raw = {
+    foundationId: "diffusion-basics",
+    callingAnchor: "arg-bm-01",
+    returnCaption: "Return to Brownian motion argument",
+  };
+  const link = validateFoundationLink(raw);
+  assert.equal(link.foundationId, "diffusion-basics");
+  assert.equal(link.callingAnchor, "arg-bm-01");
+  assert.equal(link.returnCaption, "Return to Brownian motion argument");
+});
+
+test("FoundationLink: Planted Negative - missing foundationId is refused", () => {
+  const raw = {
+    callingAnchor: "arg-bm-01",
+  };
+  assert.throws(
+    () => validateFoundationLink(raw),
+    (err: unknown) => {
+      assert.ok(err instanceof ArgumentSchemaError);
+      assert.equal(err.code, "missing-foundation-id");
+      return true;
+    },
+  );
+});
+
+test("FoundationLink: Planted Negative - missing callingAnchor is refused", () => {
+  const raw = {
+    foundationId: "diffusion-basics",
+  };
+  assert.throws(
+    () => validateFoundationLink(raw),
+    (err: unknown) => {
+      assert.ok(err instanceof ArgumentSchemaError);
+      assert.equal(err.code, "missing-calling-anchor");
+      return true;
+    },
+  );
 });

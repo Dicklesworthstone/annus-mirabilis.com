@@ -1064,9 +1064,21 @@ export function validateProof(raw: unknown, path = "Proof"): Proof {
     );
   }
 
+  if (
+    !Array.isArray(o.argumentNodeIds) ||
+    !o.argumentNodeIds.every((id) => typeof id === "string" && id.trim().length > 0)
+  ) {
+    throw new ArgumentSchemaError(
+      "invalid-argument-nodes",
+      "Proof argumentNodeIds must be an array of non-empty strings.",
+      "Proof",
+      `${path}.argumentNodeIds`,
+    );
+  }
+
   return {
-    id: o.id,
-    argumentNodeIds: Array.isArray(o.argumentNodeIds) ? (o.argumentNodeIds as string[]) : [],
+    id: o.id.trim(),
+    argumentNodeIds: o.argumentNodeIds as string[],
     orderedSteps: Array.isArray(o.orderedSteps) ? (o.orderedSteps as string[]) : [],
     entryAssumptions: Array.isArray(o.entryAssumptions) ? (o.entryAssumptions as string[]) : [],
     moveTypes: Array.isArray(o.moveTypes) ? (o.moveTypes as string[]) : [],

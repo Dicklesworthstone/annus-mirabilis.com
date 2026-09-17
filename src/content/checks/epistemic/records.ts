@@ -22,9 +22,7 @@ export function isArgumentNodeRecord(rec: Record<string, unknown>): boolean {
 }
 
 export function isProofRecord(rec: Record<string, unknown>): boolean {
-  return (
-    rec.kind === "proof" && typeof rec.route === "string" && Array.isArray(rec.argumentNodeIds)
-  );
+  return rec.kind === "proof";
 }
 
 export function isJourneyRecord(rec: Record<string, unknown>): boolean {
