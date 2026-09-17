@@ -223,11 +223,15 @@ export async function observeWalks(
   }
   let start = 0;
   for (const saved of recording.checkpoints.keys()) if (saved < n && saved > start) start = saved;
-  const previous = recording.checkpoints.get(start)!;
+  const previous = recording.checkpoints.get(start);
+  if (!previous) return failed("A base checkpoint is missing from the recording.");
   const positions = new Float64Array(p.walkers);
   let work = 0;
   for (let walker = 0; walker < p.walkers; walker++) {
-    let x = previous[walker]!;
+    const startX = previous[walker];
+    if (startX === undefined)
+      return failed("A base checkpoint has fewer walker positions than expected.");
+    let x = startX;
     const next = sampler(p, walker, start);
     for (let step = start; step < n; step++) {
       if (work % config.chunk === 0) {
