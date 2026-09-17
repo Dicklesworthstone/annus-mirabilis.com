@@ -7,6 +7,7 @@ import { makeRefusal } from "../../experiments/results/refusals.ts";
 import { type ConstantSet, constantValue } from "./constants.ts";
 import type { Computation } from "./diffusion/ftcs.ts";
 import { chiSquareQuantile } from "./diffusion.ts";
+import { createPhiloxStream, parseU64 } from "./philox.ts";
 
 export type Assessment<T> =
   | Computation<T>
@@ -584,6 +585,69 @@ export function invertSensitivities(input: {
         n(input.T, input.eta, input.a, input.calibrationScale * (1 + rel), input.dHat),
       ),
     }),
+  };
+}
+
+/** Empirical coverage fraction across repeated synthetic realizations of the chi-square interval. */
+export function empiricalCoverageFraction(input: {
+  trials: number;
+  nominalCoverage?: number | undefined;
+  degreesOfFreedom?: number | undefined;
+  seed?: string | undefined;
+}): Assessment<number> {
+  const trials = input.trials;
+  const nominalCoverage = input.nominalCoverage ?? 0.95;
+  const degreesOfFreedom = input.degreesOfFreedom ?? 100;
+  const seed = input.seed ?? "1905";
+
+  if (
+    !Number.isSafeInteger(trials) ||
+    trials < 1 ||
+    !Number.isFinite(nominalCoverage) ||
+    nominalCoverage <= 0 ||
+    nominalCoverage >= 1 ||
+    !Number.isFinite(degreesOfFreedom) ||
+    degreesOfFreedom < 1
+  ) {
+    return invalid(
+      "Positive integer trials, positive degrees of freedom and nominal coverage in (0, 1) are required.",
+    );
+  }
+
+  try {
+    parseU64(seed);
+  } catch {
+    return invalid("Seed must be a valid unsigned 64-bit integer string.");
+  }
+
+  const alpha = 1 - nominalCoverage;
+  const q = Math.round(degreesOfFreedom);
+  const lo = chiSquareQuantile(q, alpha / 2);
+  const hi = chiSquareQuantile(q, 1 - alpha / 2);
+  if (lo.kind !== "accepted") return lo;
+  if (hi.kind !== "accepted") return hi;
+
+  const stream = createPhiloxStream({
+    seed,
+    kernel: 0x19050003,
+    tile: 0,
+  });
+
+  let covered = 0;
+  for (let i = 0; i < trials; i++) {
+    let sumSq = 0;
+    for (let k = 0; k < q; k++) {
+      const z = stream.nextNormal();
+      sumSq += z * z;
+    }
+    if (sumSq >= lo.data && sumSq <= hi.data) {
+      covered++;
+    }
+  }
+
+  return {
+    kind: "accepted",
+    data: covered / trials,
   };
 }
 

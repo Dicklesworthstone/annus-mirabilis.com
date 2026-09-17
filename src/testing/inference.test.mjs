@@ -5,6 +5,7 @@ import {
   chiSquareInterval,
   combinedMolecularNumberInterval,
   driftCenteredEstimator,
+  empiricalCoverageFraction,
   estimatorInterval,
   INFERENCE_SENSITIVITIES,
   identifiabilityFamily,
@@ -236,4 +237,29 @@ test("the independent interval fails closed for noise, blur, overlap, irregular 
   });
   for (const word of ["irregular", "overlapping", "localization", "blur", "censored"])
     assert.match(all.reason, new RegExp(word));
+});
+
+test("empiricalCoverageFraction produces expected coverage and rejects invalid parameters", () => {
+  const result = ok(
+    empiricalCoverageFraction({
+      trials: 100,
+      nominalCoverage: 0.95,
+      degreesOfFreedom: 100,
+      seed: "1905",
+    }),
+  );
+  assert.equal(result, 0.95);
+
+  // Rejects non-positive or non-integer trials
+  assert.equal(empiricalCoverageFraction({ trials: 0 }).kind, "refused");
+  assert.equal(empiricalCoverageFraction({ trials: -5 }).kind, "refused");
+  assert.equal(empiricalCoverageFraction({ trials: 12.5 }).kind, "refused");
+
+  // Rejects invalid nominal coverage
+  assert.equal(empiricalCoverageFraction({ trials: 10, nominalCoverage: 0 }).kind, "refused");
+  assert.equal(empiricalCoverageFraction({ trials: 10, nominalCoverage: 1 }).kind, "refused");
+  assert.equal(empiricalCoverageFraction({ trials: 10, nominalCoverage: -0.1 }).kind, "refused");
+
+  // Rejects invalid seed
+  assert.equal(empiricalCoverageFraction({ trials: 10, seed: "not-a-number" }).kind, "refused");
 });

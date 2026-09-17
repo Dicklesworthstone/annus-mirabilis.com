@@ -13,6 +13,7 @@ import {
 } from "../../physics/reference/diffusion.ts";
 import {
   chiSquareInterval,
+  empiricalCoverageFraction,
   identifiabilityFamily,
   inverseBias,
   invertToMolecularNumber,
@@ -391,6 +392,16 @@ const OWNERS: OwnerRecord[] = [
       if (typeof ctx.inputs.degreesOfFreedom === "number") {
         const bias = inverseBias(ctx.inputs.degreesOfFreedom);
         if (bias.kind === "accepted") out.inverseBiasFactor = bias.data.meanFactor;
+      }
+      if (typeof ctx.inputs.coverageTrials === "number") {
+        const res = empiricalCoverageFraction({
+          trials: ctx.inputs.coverageTrials,
+          nominalCoverage: ctx.inputs.nominalCoverage,
+          degreesOfFreedom: ctx.inputs.degreesOfFreedom,
+        });
+        if (res.kind === "accepted") {
+          out.empiricalCoverageFraction = res.data;
+        }
       }
       if (typeof ctx.inputs.diffusionCoefficient !== "number") return out;
       const set = getConstantSet(ctx.constantSetId);
