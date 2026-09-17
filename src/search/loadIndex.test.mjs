@@ -98,6 +98,51 @@ test("failed partial downloads never become an offline cache and can be retried"
   assert.equal(result.engine.size, 2);
   assert.equal(n.calls.filter((c) => c.path === "/search/index-manifest.json").length, 2);
 });
+test("corrupt shard triggers cache-busting reload and retries with cache: reload, while healthy shards use force-cache (am-uzr9)", async () => {
+  const n = network(),
+    loader = createSearchLoader(n.fetcher),
+    broken = n.pack.files[1];
+
+  // Healthy initial fetch uses force-cache
+  const healthyCalls = [];
+  const healthyFetcher = async (path, options) => {
+    healthyCalls.push({ path, options });
+    return n.fetcher(path, options);
+  };
+  const healthyLoader = createSearchLoader(healthyFetcher);
+  await healthyLoader.load();
+  const healthyShardCalls = healthyCalls.filter((c) => c.path.startsWith("/search/s-"));
+  assert.ok(healthyShardCalls.length > 0);
+  assert.ok(
+    healthyShardCalls.every((c) => c.options.cache === "force-cache"),
+    "Healthy shards must use force-cache, never blanket no-store or reload",
+  );
+
+  // Corrupt shard scenario
+  n.files.set(broken.descriptor.path, "invalid");
+  await assert.rejects(loader.load(), /match/u);
+
+  // Verify that upon detecting corrupt bytes under force-cache, an inline reload was attempted
+  const corruptCalls = n.calls.filter((c) => c.path === broken.descriptor.path);
+  assert.ok(
+    corruptCalls.some((c) => c.options.cache === "reload"),
+    "Corrupt shard must attempt reload to bypass/bust poisoned cache",
+  );
+
+  // Server fixes the corrupt file
+  n.files.set(broken.descriptor.path, broken.text);
+
+  // Retry after failure uses cache: reload
+  const retryResult = await loader.load();
+  assert.equal(retryResult.engine.size, 2);
+  const retryShardCalls = n.calls
+    .slice(n.calls.findLastIndex((c) => c.path === "/search/index-manifest.json"))
+    .filter((c) => c.path.startsWith("/search/s-"));
+  assert.ok(
+    retryShardCalls.some((c) => c.options.cache === "reload"),
+    "Retry after failure must request with reload to bust poisoned cache entries",
+  );
+});
 test("truncated and oversized shards are refused before parsing", async () => {
   for (const change of [(s) => s.slice(1), (s) => `${s} `]) {
     const n = network(),

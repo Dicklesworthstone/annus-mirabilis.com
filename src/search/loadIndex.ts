@@ -53,7 +53,8 @@ export type LoadedSearch = Readonly<{
 export function createSearchLoader(fetcher: typeof fetch = (...args) => globalThis.fetch(...args)) {
   let pending: Promise<LoadedSearch> | null = null;
   let loaded: LoadedSearch | null = null;
-  async function fetchAll(): Promise<LoadedSearch> {
+  let hasFailed = false;
+  async function fetchAll(forceReload = false): Promise<LoadedSearch> {
     const controller = new AbortController();
     const timeout = setTimeout(() => controller.abort(), 30000);
     try {
@@ -69,13 +70,28 @@ export function createSearchLoader(fetcher: typeof fetch = (...args) => globalTh
       const documents: SearchDocument[] = [],
         aliases: SearchAlias[] = [];
       for (const descriptor of manifest.shards) {
-        const response = await fetcher(descriptor.path, {
-          cache: "force-cache",
+        let shardResponse = await fetcher(descriptor.path, {
+          cache: forceReload ? "reload" : "force-cache",
           credentials: "omit",
           redirect: "error",
           signal: controller.signal,
         });
-        const bytes = await readSearchResponse(response, descriptor.bytes);
+        let bytes = await readSearchResponse(shardResponse, descriptor.bytes);
+        if (
+          !forceReload &&
+          (bytes.byteLength !== descriptor.bytes ||
+            (await searchBytesDigest(bytes)) !== descriptor.sha256)
+        ) {
+          // A cached response under force-cache was corrupt or poisoned in browser cache.
+          // Bypass the cache with a fresh reload to recover from the network and update the cache.
+          shardResponse = await fetcher(descriptor.path, {
+            cache: "reload",
+            credentials: "omit",
+            redirect: "error",
+            signal: controller.signal,
+          });
+          bytes = await readSearchResponse(shardResponse, descriptor.bytes);
+        }
         if (
           bytes.byteLength !== descriptor.bytes ||
           (await searchBytesDigest(bytes)) !== descriptor.sha256
@@ -100,10 +116,17 @@ export function createSearchLoader(fetcher: typeof fetch = (...args) => globalTh
     load(): Promise<LoadedSearch> {
       if (loaded) return Promise.resolve(loaded);
       if (!pending) {
-        pending = fetchAll().then((result) => {
-          loaded = result;
-          return result;
-        });
+        const isRetry = hasFailed;
+        pending = fetchAll(isRetry)
+          .then((result) => {
+            loaded = result;
+            hasFailed = false;
+            return result;
+          })
+          .catch((error) => {
+            hasFailed = true;
+            throw error;
+          });
         // Clear both success and failure in-flight state; failures remain retryable.
         void pending.then(
           () => {
