@@ -8,7 +8,7 @@ import { checkVoice } from "../../content/checks/voice/index.ts";
 import {
   FORK_VARIES_KINDS,
   type Journey,
-  OUTCOME_TYPES,
+  JourneySchemaError,
   validateJourney,
 } from "../../content/schemas/journey.ts";
 import { checkMoveSummary } from "./moveSummaryGuard.ts";
@@ -79,14 +79,25 @@ export function checkJourney(
   // 1. Structure validation
   try {
     validateJourney(journey);
-  } catch (err: any) {
-    findings.push({
-      rule: err.code || "journey-schema-error",
-      severity: "error",
-      message: err.message,
-      path: err.path || "journey",
-      journeyId: jId,
-    });
+  } catch (err: unknown) {
+    if (err instanceof JourneySchemaError) {
+      findings.push({
+        rule: err.code || "journey-schema-error",
+        severity: "error",
+        message: err.message,
+        path: err.path || "journey",
+        journeyId: jId,
+      });
+    } else {
+      const message = err instanceof Error ? err.message : String(err);
+      findings.push({
+        rule: "journey-schema-error",
+        severity: "error",
+        message,
+        path: "journey",
+        journeyId: jId,
+      });
+    }
     return findings;
   }
 
@@ -137,28 +148,20 @@ export function checkJourney(
     "doors.sideDoors",
   ];
 
-  const hasShelf = journey.shelf && journey.shelf.length > 0;
-  const hasNaggingFact = Boolean(journey.naggingFact && journey.naggingFact.trim());
-  const hasFirstHonestQuestion = Boolean(
-    journey.firstHonestQuestion && journey.firstHonestQuestion.trim(),
-  );
+  const hasShelf = Boolean(journey.shelf && journey.shelf.length > 0);
+  const hasNaggingFact = Boolean(journey.naggingFact?.trim());
+  const hasFirstHonestQuestion = Boolean(journey.firstHonestQuestion?.trim());
   const hasStages = Array.isArray(journey.stages) && journey.stages.length >= 1;
   const hasForks =
     Array.isArray(journey.forks) && journey.forks.length >= 2 && journey.forks.length <= 3;
-  const hasMove = Boolean(
-    journey.move && journey.move.label && journey.move.chainId && journey.move.stepId,
-  );
-  const hasMoveSummary = Boolean(
-    journey.move?.r0Summary?.text && journey.move.r0Summary.text.trim(),
-  );
+  const hasMove = Boolean(journey.move?.label && journey.move.chainId && journey.move.stepId);
+  const hasMoveSummary = Boolean(journey.move?.r0Summary?.text?.trim());
   const hasWorldChecks = Array.isArray(journey.worldChecks) && journey.worldChecks.length >= 1;
   const hasSourceJumps = Array.isArray(journey.sourceJumps) && journey.sourceJumps.length >= 1;
   const instrumentedCount = journey.exercises?.filter((e) => e.role === "instrumented").length ?? 0;
   const explanationCount = journey.exercises?.filter((e) => e.role === "explanation").length ?? 0;
   const hasInstrumentedExercises = instrumentedCount >= 2 && instrumentedCount <= 5;
-  const hasPpeTask = Boolean(
-    journey.ppeTask && journey.ppeTask.task && journey.ppeTask.task.trim(),
-  );
+  const hasPpeTask = Boolean(journey.ppeTask?.task?.trim());
   const hasFrontDoor = Boolean(journey.doors?.frontDoor?.id);
   const hasSideDoors =
     Array.isArray(journey.doors?.sideDoors) && journey.doors.sideDoors.length >= 1;
@@ -273,7 +276,8 @@ export function checkJourney(
   // 5. Forks & Branches
   if (Array.isArray(journey.forks)) {
     for (let fIdx = 0; fIdx < journey.forks.length; fIdx++) {
-      const fork = journey.forks[fIdx]!;
+      const fork = journey.forks[fIdx];
+      if (!fork) continue;
       const fPath = `journey.forks[${fIdx}]`;
 
       if (fork.question) {
@@ -293,7 +297,8 @@ export function checkJourney(
 
       let papersRouteCount = 0;
       for (let bIdx = 0; bIdx < fork.branches.length; bIdx++) {
-        const branch = fork.branches[bIdx]!;
+        const branch = fork.branches[bIdx];
+        if (!branch) continue;
         const bPath = `${fPath}.branches[${bIdx}]`;
 
         if (branch.outcome.type === "papers-route") {
@@ -346,7 +351,7 @@ export function checkJourney(
 
         // Empirically equivalent requires non-trivial scopeNote
         if (branch.outcome.type === "empirically-equivalent-not-refuted") {
-          if (!branch.outcome.scopeNote || !branch.outcome.scopeNote.trim()) {
+          if (!branch.outcome.scopeNote?.trim()) {
             findings.push({
               rule: "fork-scope-note-missing",
               severity: "error",
@@ -372,7 +377,7 @@ export function checkJourney(
 
         // Undecided requires insufficiency and whatWouldDecide
         if (branch.outcome.type === "undecided-on-available-evidence") {
-          if (!branch.outcome.insufficiency || !branch.outcome.insufficiency.trim()) {
+          if (!branch.outcome.insufficiency?.trim()) {
             findings.push({
               rule: "fork-undecided-missing-insufficiency",
               severity: "error",
@@ -395,8 +400,8 @@ export function checkJourney(
           } else {
             const wwd = branch.outcome.whatWouldDecide;
             // Check if whatWouldDecide resolves to something already available
-            if (options.cards && options.cards[wwd.recordId]) {
-              const card = options.cards[wwd.recordId]!;
+            const card = options.cards?.[wwd.recordId];
+            if (card) {
               if (
                 card.status === "available" ||
                 (card.date?.latestYear && card.date.latestYear <= 1904)
@@ -441,7 +446,8 @@ export function checkJourney(
   const admittedImportSet = new Set(journey.admittedImports?.map((imp) => imp.importId) ?? []);
   if (Array.isArray(journey.stages)) {
     for (let sIdx = 0; sIdx < journey.stages.length; sIdx++) {
-      const stage = journey.stages[sIdx]!;
+      const stage = journey.stages[sIdx];
+      if (!stage) continue;
       const sPath = `journey.stages[${sIdx}]`;
 
       if (stage.title) findings.push(...checkForbiddenPhrases(stage.title, `${sPath}.title`, jId));
@@ -509,36 +515,38 @@ export function checkJourney(
               repair: `Declare "${pRef.importId}" in journey.admittedImports.`,
             });
           }
-        } else if (options.cards && options.cards[pRef.cardId]) {
-          const card = options.cards[pRef.cardId]!;
-          const status =
-            card.status === "parallel-work" ||
-            card.status === "later" ||
-            card.status === "available"
-              ? card.status
-              : "available";
-          const decision = evaluateShelfDate(
-            {
-              id: stage.id,
-              kind: "chain",
-              parallelWorkAcknowledged: pRef.parallelWorkAcknowledged === true,
-            },
-            {
-              id: pRef.cardId,
-              status,
-              latestYear: card.date?.latestYear ?? 0,
-            },
-            { id: jId, admittedImports: [...admittedImportSet] },
-          );
-          if (!decision.ok) {
-            findings.push({
-              rule: "shelf-date-violation",
-              severity: "error",
-              message: `Stage "${stage.id}" cites premise "${pRef.cardId}" (${decision.reason}).`,
-              path: `${sPath}.premiseRefs`,
-              journeyId: jId,
-              repair: decision.repair,
-            });
+        } else {
+          const card = options.cards?.[pRef.cardId];
+          if (card) {
+            const status =
+              card.status === "parallel-work" ||
+              card.status === "later" ||
+              card.status === "available"
+                ? card.status
+                : "available";
+            const decision = evaluateShelfDate(
+              {
+                id: stage.id,
+                kind: "chain",
+                parallelWorkAcknowledged: pRef.parallelWorkAcknowledged === true,
+              },
+              {
+                id: pRef.cardId,
+                status,
+                latestYear: card.date?.latestYear ?? 0,
+              },
+              { id: jId, admittedImports: [...admittedImportSet] },
+            );
+            if (!decision.ok) {
+              findings.push({
+                rule: "shelf-date-violation",
+                severity: "error",
+                message: `Stage "${stage.id}" cites premise "${pRef.cardId}" (${decision.reason}).`,
+                path: `${sPath}.premiseRefs`,
+                journeyId: jId,
+                repair: decision.repair,
+              });
+            }
           }
         }
       }
@@ -567,7 +575,8 @@ export function checkJourney(
     const arrivesAt = journey.doors.frontDoor?.arrivesAtEquationId;
     if (arrivesAt && Array.isArray(journey.doors.sideDoors)) {
       for (let dIdx = 0; dIdx < journey.doors.sideDoors.length; dIdx++) {
-        const sd = journey.doors.sideDoors[dIdx]!;
+        const sd = journey.doors.sideDoors[dIdx];
+        if (!sd) continue;
         if (sd.arrivesAtEquationId !== arrivesAt) {
           findings.push({
             rule: "doors-arrives-at-mismatch",
@@ -585,7 +594,8 @@ export function checkJourney(
   // 8. World Checks
   if (Array.isArray(journey.worldChecks)) {
     for (let wIdx = 0; wIdx < journey.worldChecks.length; wIdx++) {
-      const wc = journey.worldChecks[wIdx]!;
+      const wc = journey.worldChecks[wIdx];
+      if (!wc) continue;
       const wPath = `journey.worldChecks[${wIdx}]`;
       if (wc.laterEvidence && wc.laterEvidence.year <= 1904) {
         findings.push({
