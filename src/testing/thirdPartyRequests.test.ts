@@ -199,10 +199,17 @@ function findScannableFiles(dir: string): string[] {
       if (stat.isDirectory()) {
         files.push(...findScannableFiles(fullPath));
       } else if (/\.(ts|tsx|js|mjs|jsx|html|css)$/.test(entry)) {
-        // Exclude the hygiene test files themselves from scanning their own fixture strings
+        // Exclude the hygiene test files themselves from scanning their own fixture strings.
+        // src/platform/offline/chapter.test.mjs joins them for the same reason: its
+        // "styles cannot load external resources or escape their element" case feeds
+        // '@import "https://example.org/x.css";', "a{background:url(/remote.png)}" and
+        // "</style><script>bad()</script>" to build() and asserts each one THROWS. The
+        // forbidden strings are the planted negatives that prove the offline builder
+        // rejects remote assets; scanning them would flag the guard's own proof.
         if (
           !fullPath.endsWith("thirdPartyRequests.test.ts") &&
-          !fullPath.endsWith("extractionHygiene.test.ts")
+          !fullPath.endsWith("extractionHygiene.test.ts") &&
+          !fullPath.endsWith("src/platform/offline/chapter.test.mjs")
         ) {
           files.push(fullPath);
         }
