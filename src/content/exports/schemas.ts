@@ -452,7 +452,11 @@ export function validateLayerRights(kind: string, rights: unknown): void {
   for (const layerKey of ["translation", "explanatoryProse", "code", "dataset"] as const) {
     const layer = rightsObj[layerKey];
     if (layer) {
-      if (layer.license?.includes("MIT License with OpenAI/Anthropic Rider")) {
+      const license = layer.license;
+      if (
+        typeof license === "string" &&
+        license.includes("MIT License with OpenAI/Anthropic Rider")
+      ) {
         if (layer.decisionRef !== "D-2026-09-16-license-and-rider") {
           throw new ExportValidationError(
             kind,

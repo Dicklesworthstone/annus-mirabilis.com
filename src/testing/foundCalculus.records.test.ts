@@ -177,6 +177,10 @@ test("foundCalculus.records: prerequisite typing (cross-link vs proof-edge, miss
     ...baseFoundation,
     prerequisites: [{ foundationId: "foundation:derivatives", kind: "proof-edge" }],
   });
+  // The validator returns Foundation | Bridge; only Foundation carries prerequisites.
+  // Assert the discriminant so a wrong return kind fails loudly instead of being cast away.
+  assert.equal(parsedProof.kind, "foundation");
+  assert.ok(parsedProof.kind === "foundation");
   assert.equal(parsedProof.prerequisites.length, 1);
   assert.equal(parsedProof.prerequisites[0]?.kind, "proof-edge");
 
@@ -185,6 +189,8 @@ test("foundCalculus.records: prerequisite typing (cross-link vs proof-edge, miss
     ...baseFoundation,
     prerequisites: [{ foundationId: "foundation:functions-graphs", kind: "cross-link" }],
   });
+  assert.equal(parsedCross.kind, "foundation");
+  assert.ok(parsedCross.kind === "foundation");
   assert.equal(parsedCross.prerequisites[0]?.kind, "cross-link");
 
   // 3. Prerequisite missing kind is rejected with invalid-prerequisite-shape or invalid-prerequisite-kind

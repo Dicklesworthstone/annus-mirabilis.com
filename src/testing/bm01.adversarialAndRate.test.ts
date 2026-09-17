@@ -188,9 +188,16 @@ describe("BM-01 True Physical Rate and Scale Bar (am-bm-01-tracer-ensemble-hdly)
     const raw = readFileSync("content/experiments/bm-01.yaml", "utf8");
     const manifest = strictParse(raw, "yaml") as Record<string, unknown>;
     expect(manifest.realRate).toBeDefined();
-    expect(manifest.realRate.natural).toBe(true);
-    expect(manifest.realRate.quantity).toBe("displacement1d");
-    expect(manifest.realRate.scaleBar).toEqual({ length: 1e-6, unit: "m" });
+    // strictParse yields Record<string, unknown>; narrow through a runtime guard so a
+    // wrong shape fails loudly here rather than being cast away.
+    const realRate = manifest.realRate;
+    if (typeof realRate !== "object" || realRate === null || Array.isArray(realRate)) {
+      throw new Error("bm-01.yaml realRate must be a mapping");
+    }
+    const rr = realRate as Record<string, unknown>;
+    expect(rr.natural).toBe(true);
+    expect(rr.quantity).toBe("displacement1d");
+    expect(rr.scaleBar).toEqual({ length: 1e-6, unit: "m" });
   });
 
   test("natural physical rate is ~0.8 um per second under historical constants and modern SI", () => {

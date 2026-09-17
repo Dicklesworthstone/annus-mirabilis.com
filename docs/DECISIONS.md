@@ -625,3 +625,17 @@ Schema-test JSONL (gitignored artifacts): `artifacts/test-logs/perf-profiles/202
   3. **`am-rel-preview-policy-cf6g`:** Validates that published preview content adheres to the ratified licensing layers in `NOTICE.md`.
   4. **`am-design-sources-about-zumd`:** `/about` and `/sources` project the 11-layer notice structure and exact attribution text.
   5. **`am-launch-readiness-audit-sc9b`:** Audits that `NOTICE.md`, `LICENSE`, and `README.md` are ratified and non-provisional.
+
+## D-2026-09-17-remove-task-to-epic-dependency-edges
+
+- **Question:** Tasks and features in the beads graph carried a dependency on their own parent epic. An epic cannot close until its children close, and a child could not close while it depended on the open epic. Should those edges be removed?
+- **Evidence:** Measured by orchestrator TanElk on 2026-09-17. Of 115 non-closed beads sampled for dependencies, **114 depended on an open epic**. Across the whole tracker, **411 task-to-epic edges** existed over 31 epics. The observable consequence: 468 beads, 800+ commits, and only 18 closures ever recorded; `br ready` returned 3, of which 3 were human-gate. Representative chain traced by hand: `am-rt-typed-results-mqb` -> `am-rt-snapshot-store-aft` -> `am-test-e2e-harness-bqmh` -> `am-scaf-extract-scripts-7jm` -> `am-ep-scaffold-5wh` (its own epic, open).
+- **Options:** (A) remove the task-to-epic edges; (B) canary one edge first; (C) leave the graph and close with `--force` each time, recording a policy bypass per closure; (D) leave it and accept near-zero closure.
+- **Choice:** **Option A.**
+- **Reason:** The edge direction is backwards. An epic is a parent aggregate, not a prerequisite: its children are what make it done. `--force` would have worked but would have stamped a policy bypass on every legitimate closure, degrading the audit trail precisely where it matters most. Removing the edges restores the intended semantics and leaves every genuine task-to-task prerequisite intact.
+- **Decider:** `agent:TanElk` (Claude Opus 5 orchestrator) acting on the project owner's explicit answer in the current session. The owner was shown the measurement (114/115) and four options and selected "Remove task->epic edges (Recommended)". The owner did not author the wording of this record.
+- **Status:** APPLIED 2026-09-17 under owner selection.
+- **What was done:** 411 edges removed with `br dep remove <issue> <epic> --actor TanElk`; 411 succeeded, 0 failed. Only edges whose target `issue_type` was `epic` were removed; every task-to-task edge was left untouched.
+- **Verification:** `br dep cycles --json` -> `{"cycles":[],"count":0}`. `br ready` went from **3 to 34**. A spot check confirmed real prerequisites survive: `am-rt-typed-results-mqb` still reports blocked by `am-cm-schemas-experiment-fuu`, `am-edit-voice-lint-trmf`, `am-rt-snapshot-store-aft`, none of which is an epic.
+- **Reversibility:** Fully reversible. The exact edge list is preserved at `scratchpad/epic-edges.json` for this session, and `.beads/issues.jsonl` was backed up before the change. Any edge can be restored with `br dep add <issue> <epic>`.
+- **Revisit trigger:** If the project deliberately wants epics to gate their children, restore the edges and instead close epics first; note that this reintroduces the deadlock unless epics are exempted from the blocker check.

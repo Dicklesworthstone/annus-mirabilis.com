@@ -585,7 +585,14 @@ describe("Machine-Readable Exports (/exports/v1/) (am-cm-machine-readable-export
       sourceBlocks: FIXTURE_BROWNIAN_SOURCE_BLOCKS.filter((b) => b.section === "bm-sec-04"),
       translationUnits: FIXTURE_BROWNIAN_TRANSLATION_UNITS,
       alignments: [FIXTURE_BROWNIAN_ALIGNMENT],
-      editorialNotes: FIXTURE_EDITORIAL_NOTES.filter((n) => n.section === "bm-sec-04"),
+      // EditorialNote has no `section`; it addresses blocks by affectedIds. Select the
+      // notes that actually touch a block in this section rather than a field that
+      // does not exist on the record.
+      editorialNotes: FIXTURE_EDITORIAL_NOTES.filter((n) =>
+        n.affectedIds.some((id) =>
+          FIXTURE_BROWNIAN_SOURCE_BLOCKS.some((b) => b.section === "bm-sec-04" && b.id === id),
+        ),
+      ),
     });
 
     const producedJson = await readFile(

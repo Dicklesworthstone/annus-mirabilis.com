@@ -37,7 +37,7 @@ describe("printedOnlyEquations: notation is never modernized on source or transl
     // Extract the equation-body content from each
     const extractBody = (html: string) => {
       const match = html.match(/<div class="equation-body"[^>]*>([\s\S]*?)<\/div>/);
-      return match ? match[1] : "";
+      return match?.[1] ?? "";
     };
 
     const germanBody = extractBody(germanHtml);
@@ -87,4 +87,3 @@ describe("printedOnlyEquations: notation is never modernized on source or transl
     ).toThrow("Notation must never be translated.");
   });
 });
-
