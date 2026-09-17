@@ -14,9 +14,9 @@ export interface PatternRenderConfig {
   readonly spokenText: string;
   readonly html: string;
   readonly mathml: string;
-  readonly hasVisibleCaption?: boolean;
-  readonly equationId?: string;
-  readonly title?: string;
+  readonly hasVisibleCaption?: boolean | undefined;
+  readonly equationId?: string | undefined;
+  readonly title?: string | undefined;
 }
 
 export interface PatternAccessibilityResult {
