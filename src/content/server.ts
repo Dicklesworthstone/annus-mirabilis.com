@@ -1,8 +1,11 @@
 import { createHash } from "node:crypto";
 import { readFile } from "node:fs/promises";
-import { resolve } from "node:path";
+import { dirname, resolve } from "node:path";
+import { fileURLToPath } from "node:url";
 import type { PaperPayload } from "./compiler/compile.ts";
 import type { Foundation } from "./schemas/reading.ts";
+
+const CONTENT_ROOT = resolve(dirname(fileURLToPath(import.meta.url)), "../../generated/content");
 
 type Entry = {
   id: string;
@@ -14,7 +17,7 @@ type Entry = {
   markdownUrl: string;
 };
 export async function contentIndex(): Promise<{ payloads: Entry[] }> {
-  return JSON.parse(await readFile(resolve("generated/content/index.json"), "utf8"));
+  return JSON.parse(await readFile(resolve(CONTENT_ROOT, "index.json"), "utf8"));
 }
 async function payload<T>(
   kind: string,
@@ -24,7 +27,7 @@ async function payload<T>(
     entry = index.payloads.find((e) => e.kind === kind && e.id === id);
   if (!entry || !/^[a-f0-9]{64}\/[a-z0-9-]+\.json$/.test(entry.file))
     throw new Error(`No compiled ${kind}: ${id}.`);
-  const bytes = await readFile(resolve("generated/content", entry.file));
+  const bytes = await readFile(resolve(CONTENT_ROOT, entry.file));
   if (
     bytes.length !== entry.bytes ||
     createHash("sha256").update(bytes).digest("hex") !== entry.sha256
