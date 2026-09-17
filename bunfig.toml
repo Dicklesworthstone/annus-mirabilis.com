@@ -11,4 +11,5 @@ pathIgnorePatterns = [
   "scripts/quality-gates.test.ts",
   "scripts/ocr-ledgers.test.ts",
   "src/testing/a11y/accessibleNamesBrowser.test.mjs",
+  "src/testing/foundCalculus.browser.test.mjs",
 ]
