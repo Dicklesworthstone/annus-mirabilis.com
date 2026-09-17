@@ -300,6 +300,17 @@ export const SEED_ENTRIES: readonly KeyRegistration[] = [
   document_("am:notebook:v1", "am-read-notebook-tde", 1, "Notebook"),
   document_("am:tours:v1", "am-tours-infra-g518", 1, "Tour progress"),
   document_("am:predictions:v1", "am-inst-predict-mode-ti7m", 1, "Saved predictions"),
+  document_(
+    "am:journeys:v1",
+    "am-disc-journey-framework-umbg",
+    1,
+    "Discovery journey choices and local progress",
+    {
+      exportable: true,
+      clearable: true,
+      maxBytes: 64_000,
+    },
+  ),
   document_("am:clarity:v1", "am-plat-clarity-signal-nlwr", 1, "Clarity signal record"),
 ];
 

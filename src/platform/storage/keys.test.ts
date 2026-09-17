@@ -141,12 +141,13 @@ describe("the real storage key registry", () => {
     expect(prePaintKeys).not.toContain("am:settings:v1:glossReasoningWords");
   });
 
-  test("seeds the four named document namespaces, one owner each", () => {
+  test("seeds the named document namespaces, one owner each", () => {
     const documents = storageKeyRegistry.documents();
     const byKey = Object.fromEntries(documents.map((d) => [d.key, d.ownerBeadId]));
     expect(byKey["am:notebook:v1"]).toBe("am-read-notebook-tde");
     expect(byKey["am:tours:v1"]).toBe("am-tours-infra-g518");
     expect(byKey["am:predictions:v1"]).toBe("am-inst-predict-mode-ti7m");
+    expect(byKey["am:journeys:v1"]).toBe("am-disc-journey-framework-umbg");
     expect(byKey["am:clarity:v1"]).toBe("am-plat-clarity-signal-nlwr");
   });
 
