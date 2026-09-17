@@ -28,7 +28,12 @@ export function TracerPaths({ snapshot, zoom }: { snapshot: AcceptedSnapshot; zo
     if (Math.abs(positions.at(i * 3)) > halfWidth || Math.abs(positions.at(i * 3 + 1)) > halfWidth)
       outside++;
   return (
-    <figure className="plot" {...identity(snapshot)} data-result-status="value" data-scale-bar="1um">
+    <figure
+      className="plot"
+      {...identity(snapshot)}
+      data-result-status="value"
+      data-scale-bar="1um"
+    >
       <svg
         viewBox="0 0 300 300"
         role="img"
@@ -48,7 +53,7 @@ export function TracerPaths({ snapshot, zoom }: { snapshot: AcceptedSnapshot; zo
               (_, k) =>
                 `${k ? "L" : "M"}${coord(trace.at((i * TRACE_POINTS + k) * 2))},${300 - coord(trace.at((i * TRACE_POINTS + k) * 2 + 1))}`,
             ).join(" ");
-            return <path key={i} d={path} className="curve tracer-path" />;
+            return <path key={path} d={path} className="curve tracer-path" />;
           })}
         </g>
         <circle cx="150" cy="150" r="3" />
@@ -96,16 +101,19 @@ export function TracerHistogram({ snapshot }: { snapshot: AcceptedSnapshot }) {
         aria-label="Histogram of every tracer's signed coordinate displacement. Solid bars are sampled proportions; the dashed line gives model probabilities for the same bins."
       >
         <path d="M35 35V205H275" className="axis" />
-        {Array.from({ length: observed.length }, (_, i) => (
-          <rect
-            key={i}
-            x={x(i)}
-            y={y(observed.at(i))}
-            width={240 / observed.length - 0.5}
-            height={205 - y(observed.at(i))}
-            className="histogram-bar"
-          />
-        ))}
+        {Array.from({ length: observed.length }, (_, i) => {
+          const xPos = x(i);
+          return (
+            <rect
+              key={xPos}
+              x={xPos}
+              y={y(observed.at(i))}
+              width={240 / observed.length - 0.5}
+              height={205 - y(observed.at(i))}
+              className="histogram-bar"
+            />
+          );
+        })}
         <path
           d={Array.from(
             { length: model.length },
@@ -221,13 +229,16 @@ export function TracerScaling({ snapshot }: { snapshot: AcceptedSnapshot }) {
             </tr>
           </thead>
           <tbody>
-            {Array.from({ length: times.length }, (_, i) => (
-              <tr key={i}>
-                <th scope="row">{display(times.at(i))}</th>
-                <td>{display(sample.at(i), kind.factor)}</td>
-                <td>{display(model.at(i), kind.factor)}</td>
-              </tr>
-            ))}
+            {Array.from({ length: times.length }, (_, i) => {
+              const timeVal = display(times.at(i));
+              return (
+                <tr key={timeVal}>
+                  <th scope="row">{timeVal}</th>
+                  <td>{display(sample.at(i), kind.factor)}</td>
+                  <td>{display(model.at(i), kind.factor)}</td>
+                </tr>
+              );
+            })}
           </tbody>
         </table>
       </details>

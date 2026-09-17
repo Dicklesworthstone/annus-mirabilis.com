@@ -1,19 +1,28 @@
 import assert from "node:assert/strict";
 import test from "node:test";
 import {
-  captureTracerEvidence, compareTracerEvidence, diffusivitySource,
-  tracerEvidenceCsv, TRACER_EVIDENCE_QUANTITIES,
+  captureTracerEvidence,
+  compareTracerEvidence,
+  diffusivitySource,
+  TRACER_EVIDENCE_QUANTITIES,
+  tracerEvidenceCsv,
 } from "./evidence.ts";
 
 function snapshot(patch = {}) {
   const values = [0.4e-12, 1, -0.1e-6, 0.8e-12, 0.9e-6, 0.894e-6, 0.9e-6, 0.894e-6];
   const units = ["m2/s", "s", "m", "m2", "m", "m", "m/s", "m/s"];
   return {
-    experimentId: "bm-01", instanceId: "tracer-a", runId: "run-1",
-    snapshotVersion: 1, final: true,
+    experimentId: "bm-01",
+    instanceId: "tracer-a",
+    runId: "run-1",
+    snapshotVersion: 1,
+    final: true,
     parameters: { seed: "18446744073709551615", interval: 1, d: 1, axis: 0 },
     outputs: TRACER_EVIDENCE_QUANTITIES.map((quantityId, i) => ({
-      quantityId, status: "value", value: values[i], unit: units[i],
+      quantityId,
+      status: "value",
+      value: values[i],
+      unit: units[i],
     })),
     ...patch,
   };
@@ -35,8 +44,13 @@ test("preserves full unsigned 64-bit seeds through JSON", () => {
   assert.equal(JSON.parse(JSON.stringify(capture())).parameters.seed, "18446744073709551615");
 });
 test("refuses an unfinished, foreign or unidentified snapshot", () => {
-  for (const patch of [{ final: false }, { experimentId: "bm-06" },
-    { snapshotVersion: NaN }, { snapshotVersion: 0 }, { runId: "" }]) {
+  for (const patch of [
+    { final: false },
+    { experimentId: "bm-06" },
+    { snapshotVersion: NaN },
+    { snapshotVersion: 0 },
+    { runId: "" },
+  ]) {
     assert.throws(() => capture(snapshot(patch)), TypeError);
   }
 });
@@ -45,7 +59,8 @@ test("refuses missing, duplicate and nonfinite scalar outputs", () => {
   assert.throws(() => capture({ ...input, outputs: input.outputs.slice(1) }));
   assert.throws(() => capture({ ...input, outputs: [...input.outputs, input.outputs[0]] }));
   for (const value of [NaN, Infinity, new Float64Array([1])]) {
-    const bad = snapshot(); bad.outputs[0].value = value;
+    const bad = snapshot();
+    bad.outputs[0].value = value;
     assert.throws(() => capture(bad), TypeError);
   }
 });
@@ -54,23 +69,30 @@ test("typed nonnumeric results are not converted to zero", () => {
   input.outputs[7] = { quantityId: "modelApparentSpeed", status: "not-applicable", unit: "m/s" };
   const record = capture(input);
   assert.deepEqual(record.outputs.modelApparentSpeed, {
-    status: "not-applicable", unit: "m/s", value: null,
+    status: "not-applicable",
+    unit: "m/s",
+    value: null,
   });
   assert.equal(compareTracerEvidence(record, record).modelApparentSpeedRatio, null);
 });
 test("diffusivity handoff retains the exact source identity and value", () => {
   assert.deepEqual(diffusivitySource(capture()), {
-    instanceId: "tracer-a", runId: "run-1", snapshotVersion: 1, value: 0.4e-12,
+    instanceId: "tracer-a",
+    runId: "run-1",
+    snapshotVersion: 1,
+    value: 0.4e-12,
   });
 });
 test("handoff rejects wrong units, zero and nonnumeric diffusivity", () => {
   for (const patch of [{ unit: "m2" }, { value: 0 }, { status: "not-applicable" }]) {
-    const input = snapshot(); Object.assign(input.outputs[0], patch);
+    const input = snapshot();
+    Object.assign(input.outputs[0], patch);
     assert.throws(() => diffusivitySource(capture(input)), TypeError);
   }
 });
 test("same-recording comparisons use accepted readouts, not an idealized recomputation", () => {
-  const before = capture(), input = snapshot({ snapshotVersion: 2 });
+  const before = capture(),
+    input = snapshot({ snapshotVersion: 2 });
   input.parameters.interval = 4;
   input.outputs[1].value = 4;
   input.outputs[4].value = 1.73e-6;
@@ -84,16 +106,19 @@ test("same-recording comparisons use accepted readouts, not an idealized recompu
 });
 test("changing trial, placement, build or projection invalidates paired ratios", () => {
   const baseline = capture();
-  const variants = [capture(snapshot({ runId: "new-trial" })),
+  const variants = [
+    capture(snapshot({ runId: "new-trial" })),
     capture(snapshot({ instanceId: "tracer-b" })),
     captureTracerEvidence(snapshot(), "other-build"),
-    capture(snapshot({ parameters: { ...snapshot().parameters, axis: 1 } }))];
+    capture(snapshot({ parameters: { ...snapshot().parameters, axis: 1 } })),
+  ];
   for (const current of variants) {
     assert.equal(compareTracerEvidence(baseline, current).sampleRmsRatio, null);
   }
 });
 test("zero baseline never yields infinity or a fabricated ratio", () => {
-  const input = snapshot(); input.outputs[4].value = 0;
+  const input = snapshot();
+  input.outputs[4].value = 0;
   assert.equal(compareTracerEvidence(capture(input), capture()).sampleRmsRatio, null);
 });
 test("CSV carries units, status, provenance, negative measurements and exact settings", () => {

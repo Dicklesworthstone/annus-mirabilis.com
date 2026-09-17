@@ -161,11 +161,7 @@ export function checkReceipt(
 
   for (const k of Object.keys(fm)) {
     if (!KNOWN_TOP_LEVEL_KEYS.has(k)) {
-      addError(
-        "receipt-unknown-top-level-key",
-        k,
-        `Unknown top-level front matter key "${k}".`,
-      );
+      addError("receipt-unknown-top-level-key", k, `Unknown top-level front matter key "${k}".`);
     }
   }
 

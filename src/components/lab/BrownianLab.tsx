@@ -262,12 +262,22 @@ export function BrownianLab({
                 Stop calculation
               </button>
               {externalDiffusivitySource && (
-                <button type="button" className="secondary" disabled={dirty || view.pending} onClick={copyDiffusivity}>
+                <button
+                  type="button"
+                  className="secondary"
+                  disabled={dirty || view.pending}
+                  onClick={copyDiffusivity}
+                >
                   Copy D from {externalDiffusivitySource.instanceId}
                 </button>
               )}
               {p.copiedDiffusivityValue > 0 && (
-                <button type="button" className="secondary" disabled={dirty || view.pending} onClick={usePhysicalDiffusivity}>
+                <button
+                  type="button"
+                  className="secondary"
+                  disabled={dirty || view.pending}
+                  onClick={usePhysicalDiffusivity}
+                >
                   Calculate D from physical settings
                 </button>
               )}
@@ -309,11 +319,11 @@ export function BrownianLab({
                 {display(view.requested!.parameters.t as number)} seconds. The values below retain
                 their accepted settings.
               </p>
-              {view.refusal.rankedRepairs.map((repair, i) => (
+              {view.refusal.rankedRepairs.map((repair) => (
                 <button
                   type="button"
                   className="secondary"
-                  key={i}
+                  key={repair.label}
                   onClick={() => {
                     if (!repair.action) return;
                     const corrected = {
@@ -336,7 +346,8 @@ export function BrownianLab({
             {display(p.T)} K · {display(p.eta, 1000)} mPa·s · radius {display(p.a, 1e6)} μm ·
             elapsed {display(p.t)} s<br />
             Constants: modern SI (2019). Viscosity is a declared input, not inferred from
-            temperature. {p.copiedDiffusivityValue > 0
+            temperature.{" "}
+            {p.copiedDiffusivityValue > 0
               ? "D is the explicitly copied value, not a calculation from these physical inputs."
               : "D is calculated from these physical inputs."}
           </div>
@@ -410,12 +421,15 @@ export function BrownianLab({
               </tr>
             </thead>
             <tbody>
-              {Array.from({ length: times.length }, (_, i) => (
-                <tr key={i}>
-                  <th scope="row">{display(times.at(i))} s</th>
-                  <td>{display(spreads.at(i), 1e6)} μm</td>
-                </tr>
-              ))}
+              {Array.from({ length: times.length }, (_, i) => {
+                const timeVal = display(times.at(i));
+                return (
+                  <tr key={timeVal}>
+                    <th scope="row">{timeVal} s</th>
+                    <td>{display(spreads.at(i), 1e6)} μm</td>
+                  </tr>
+                );
+              })}
             </tbody>
           </table>
         </section>
