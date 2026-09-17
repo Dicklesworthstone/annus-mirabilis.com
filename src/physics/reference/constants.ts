@@ -196,7 +196,10 @@ export function freezeConstantSet(set: ConstantSet): ConstantSet {
       );
 
     if (entry.evidentialRole === "declared-input" && entry.kind !== "declared-scenario")
-      reject("invalid-evidential-role", "A chosen scenario input cannot stand in for a measurement or historical transcription.");
+      reject(
+        "invalid-evidential-role",
+        "A chosen scenario input cannot stand in for a measurement or historical transcription.",
+      );
 
     if (entry.kind === "measured") {
       if (

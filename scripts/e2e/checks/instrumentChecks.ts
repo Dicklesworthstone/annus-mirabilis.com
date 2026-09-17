@@ -14,10 +14,7 @@
  */
 
 import type { Page } from "playwright";
-import {
-  parseInstrumentRoot,
-  parseInstrumentView,
-} from "../domContract.ts";
+import { parseInstrumentRoot, parseInstrumentView } from "../domContract.ts";
 import { checkSameSnapshotIdentity, type SnapshotIdentityAttrs } from "./measure.ts";
 
 export interface InstrumentCheckResult {

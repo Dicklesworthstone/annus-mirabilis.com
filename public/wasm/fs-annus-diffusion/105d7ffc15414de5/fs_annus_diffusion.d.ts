@@ -9,7 +9,7 @@ export function philox_normals(
   stream_kernel: number,
   tile: number,
   start_index: string | bigint | number,
-  count: number
+  count: number,
 ): Float64Array;
 
 export function brownian_frames(
@@ -18,7 +18,7 @@ export function brownian_frames(
   step_kernel: number,
   seed: string | bigint | number,
   diffusion: number,
-  dt: number
+  dt: number,
 ): Float64Array;
 
 export function brownian_frames_window(
@@ -29,7 +29,7 @@ export function brownian_frames_window(
   seed: string | bigint | number,
   diffusion: number,
   dt: number,
-  start_positions: Float64Array | readonly number[]
+  start_positions: Float64Array | readonly number[],
 ): Float64Array;
 
 export function diffusion1d_frames(
@@ -39,7 +39,7 @@ export function diffusion1d_frames(
   diffusion: number,
   dx: number,
   dt: number,
-  profile: number
+  profile: number,
 ): Float64Array;
 
 export type InitInput = RequestInfo | URL | Response | BufferSource | WebAssembly.Module;
@@ -53,6 +53,9 @@ export interface InitOutput {
 }
 
 export default function __wbg_init(
-  module_or_path?: { module_or_path: InitInput | Promise<InitInput> } | InitInput | Promise<InitInput>,
-  maybe_memory?: WebAssembly.Memory
+  module_or_path?:
+    | { module_or_path: InitInput | Promise<InitInput> }
+    | InitInput
+    | Promise<InitInput>,
+  maybe_memory?: WebAssembly.Memory,
 ): Promise<InitOutput>;

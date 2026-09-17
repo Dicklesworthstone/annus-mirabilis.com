@@ -21,15 +21,8 @@
       "releaseArtifact": "fs-annus-diffusion",
       "acceptanceState": "owner-decided",
       "determinismClass": "Deterministic",
-      "streamKernelIds": [
-        419758081,
-        419758082,
-        419758083,
-        419758084
-      ],
-      "exportSignatures": [
-        "brownian_frames"
-      ]
+      "streamKernelIds": [419758081, 419758082, 419758083, 419758084],
+      "exportSignatures": ["brownian_frames"]
     },
     {
       "capabilityId": "diffusion.philox-normals",
@@ -37,15 +30,8 @@
       "releaseArtifact": "fs-annus-diffusion",
       "acceptanceState": "owner-decided",
       "determinismClass": "Deterministic",
-      "streamKernelIds": [
-        419758081,
-        419758082,
-        419758083,
-        419758084
-      ],
-      "exportSignatures": [
-        "philox_normals"
-      ]
+      "streamKernelIds": [419758081, 419758082, 419758083, 419758084],
+      "exportSignatures": ["philox_normals"]
     },
     {
       "capabilityId": "diffusion.ftcs-1d",
@@ -53,15 +39,8 @@
       "releaseArtifact": "fs-annus-diffusion",
       "acceptanceState": "owner-decided",
       "determinismClass": "Deterministic",
-      "streamKernelIds": [
-        419758081,
-        419758082,
-        419758083,
-        419758084
-      ],
-      "exportSignatures": [
-        "diffusion1d_frames"
-      ]
+      "streamKernelIds": [419758081, 419758082, 419758083, 419758084],
+      "exportSignatures": ["diffusion1d_frames"]
     }
   ],
   "sizeBudget": {
@@ -91,9 +70,7 @@
   },
   "build": {
     "command": "wasm-pack build --release --target web -- --locked",
-    "flags": [
-      "--remap-path-prefix"
-    ],
+    "flags": ["--remap-path-prefix"],
     "timestamp": "2026-09-16T21:40:09.774Z"
   }
 }

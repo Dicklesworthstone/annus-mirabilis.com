@@ -12,11 +12,7 @@ export async function generateMetadata({ params }: { params: Promise<{ section: 
     alternates: { canonical: `https://annus-mirabilis.com/papers/brownian-motion/${section}/` },
   };
 }
-export default async function Page({
-  params,
-}: {
-  params: Promise<{ section: string }>;
-}) {
+export default async function Page({ params }: { params: Promise<{ section: string }> }) {
   const { section } = await params;
   if (!(await loadPaper("brownian-motion")).paper.sections.some((s) => s.id === section))
     notFound();

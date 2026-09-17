@@ -858,14 +858,7 @@ export type FluorescenceRatesResult = Readonly<{
  * \dot{N}_2 = Y * \dot{N}_1 with zero threshold.
  */
 export function fluorescenceRates(input: FluorescenceRatesInput): FluorescenceRatesResult {
-  const {
-    nu1,
-    nu2,
-    absorbedPowerWatts,
-    quantumYield,
-    regime = "standard-stokes",
-    set,
-  } = input;
+  const { nu1, nu2, absorbedPowerWatts, quantumYield, regime = "standard-stokes", set } = input;
 
   if (regime === "deviation-multi-quantum") {
     return Object.freeze({
@@ -1225,7 +1218,11 @@ export function ionizationCount(input: IonizationCountInput): IonizationCountRes
   }
 
   if (pOpt < 0 || pAbs < 0 || !Number.isFinite(pOpt) || !Number.isFinite(pAbs)) {
-    const refusal = outsideDomain("negative-power", "physical", "Power values must be non-negative finite numbers.");
+    const refusal = outsideDomain(
+      "negative-power",
+      "physical",
+      "Power values must be non-negative finite numbers.",
+    );
     return Object.freeze({
       status: "outside-domain",
       bounds,
@@ -1271,7 +1268,11 @@ export function ionizationCount(input: IonizationCountInput): IonizationCountRes
   }
 
   if (durationSeconds < 0 || !Number.isFinite(durationSeconds)) {
-    const refusal = outsideDomain("negative-duration", "physical", "Duration must be non-negative.");
+    const refusal = outsideDomain(
+      "negative-duration",
+      "physical",
+      "Duration must be non-negative.",
+    );
     return Object.freeze({
       status: "outside-domain",
       bounds,
@@ -1420,7 +1421,8 @@ export function ionizationCount(input: IonizationCountInput): IonizationCountRes
     ionizedGramMolecules: ok(jMol, "mol"),
     ionsPerAbsorbedQuantumUpperBound: 1.0,
     absorptionConditionLabel: "all-absorbed-ionizes",
-    reason: "Under Einstein's §9 hypothesis that every absorbed light quantum ionizes one molecule: j = L / (R*beta*nu).",
+    reason:
+      "Under Einstein's §9 hypothesis that every absorbed light quantum ionizes one molecule: j = L / (R*beta*nu).",
   });
 }
 
@@ -1532,4 +1534,3 @@ export function einsteinPrintedIonizationChecks(): Readonly<{
       "Einstein (§9) uses Lenard's observation of air ionization at lambda < 190 nm and Stark's cathode-ray ionization potential (ca. 10 V) to verify that single-quantum energy quanta R*beta*nu match the energy scale of gas ionization.",
   });
 }
-

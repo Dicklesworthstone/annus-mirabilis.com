@@ -25,10 +25,7 @@ export const ELECTRON_MASS = constantValue(
   "electronMass",
 ).value;
 
-export const CONSTANT_SET_IDS = Object.freeze([
-  "modern-si-2019",
-  "modern-codata-2022",
-] as const);
+export const CONSTANT_SET_IDS = Object.freeze(["modern-si-2019", "modern-codata-2022"] as const);
 
 export type Vec3 = Readonly<{ x: number; y: number; z: number }>;
 
@@ -214,7 +211,11 @@ export function transformForce(force: Force, beta: number, targetFrame: Frame): 
  * a'_y = gamma^2 * a_y
  * a'_z = gamma^2 * a_z
  */
-export function transformAcceleration(acc: Acceleration, beta: number, targetFrame: Frame): Acceleration {
+export function transformAcceleration(
+  acc: Acceleration,
+  beta: number,
+  targetFrame: Frame,
+): Acceleration {
   if (acc.frame === targetFrame) return acc;
   const gRes = gamma(beta);
   if (gRes.status !== "value") {
@@ -730,7 +731,7 @@ export function transverseFieldTrajectory(
     // u_x = dx/dt = (p0 c^2) / hyp
     // u_y = dy/dt = signY * (qE c^2 t) / hyp
     const vx = (p0c * C_SI) / hyp;
-    const vy = signY * (qE * C_SI * C_SI * t) / hyp;
+    const vy = (signY * (qE * C_SI * C_SI * t)) / hyp;
     const uMag = Math.hypot(vx, vy);
     const speedRatio = uMag / C_SI;
     const g = hyp / mc2;
@@ -877,7 +878,7 @@ export function integrateBoris(
   }
 
   const finalKE = points[points.length - 1]?.kineticEnergy ?? initialKE;
-  const energyResidual = Math.abs((finalKE - initialKE) - workDone);
+  const energyResidual = Math.abs(finalKE - initialKE - workDone);
 
   // Approximate error bound by comparing with exact transverse solution if pure Ey
   const errorBound = Math.max(1e-12, dt * dt * 1e-4);
