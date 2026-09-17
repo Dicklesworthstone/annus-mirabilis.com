@@ -1,5 +1,4 @@
 import { describe, expect, test } from "bun:test";
-import React from "react";
 import { renderToStaticMarkup } from "react-dom/server";
 import { getLogger } from "../../../testing/log/logger.ts";
 import { buildActionCommand, hashCommand } from "../commandBuilder.ts";
@@ -20,7 +19,7 @@ describe("am-a11y-action-contracts-k75g: Interval Equivalent Component", () => {
 
     // Accessible container
     expect(html).toContain('class="interval-equivalent-panel"');
-    expect(html).toContain('role="region"');
+    expect(html).toContain("<section");
     expect(html).toContain('aria-label="Accessible spatial interval selector"');
 
     // Fieldset and question

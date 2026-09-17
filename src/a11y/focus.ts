@@ -87,7 +87,7 @@ export function pushFocusScope(
  */
 export function popFocusScope(): HTMLElement | null {
   const scope = focusStack.pop();
-  if (scope && scope.returnTarget && typeof scope.returnTarget.focus === "function") {
+  if (scope?.returnTarget && typeof scope.returnTarget.focus === "function") {
     scope.returnTarget.focus();
     return scope.returnTarget;
   }

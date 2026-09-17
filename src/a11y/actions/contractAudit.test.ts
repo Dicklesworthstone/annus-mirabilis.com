@@ -43,7 +43,7 @@ describe("am-a11y-action-contracts-k75g: Contract Audit Engine", () => {
 
     const diags = auditInstrumentManifestContracts(manifest);
     expect(diags.length).toBe(1);
-    expect(diags[0]!.code).toBe("missing-action-contract");
+    expect(diags[0]?.code).toBe("missing-action-contract");
   });
 
   test("strictly rejects drag-only equivalent affordances", () => {
@@ -51,7 +51,7 @@ describe("am-a11y-action-contracts-k75g: Contract Audit Engine", () => {
     const dragErrors = diags.filter((d) => d.code === "drag-only-action-forbidden");
 
     expect(dragErrors.length).toBeGreaterThan(0);
-    expect(dragErrors[0]!.message).toContain("drag");
+    expect(dragErrors[0]?.message).toContain("drag");
   });
 
   test("strictly rejects contracts missing assistive announcements", () => {
@@ -78,7 +78,7 @@ describe("am-a11y-action-contracts-k75g: Contract Audit Engine", () => {
     const insufficientErrors = diags.filter((d) => d.code === "action-equivalent-insufficient");
 
     expect(insufficientErrors.length).toBe(1);
-    expect(insufficientErrors[0]!.code).toBe("action-equivalent-insufficient");
+    expect(insufficientErrors[0]?.code).toBe("action-equivalent-insufficient");
   });
 
   test("rejects result outputs not declared in instrument manifest", () => {
@@ -95,6 +95,6 @@ describe("am-a11y-action-contracts-k75g: Contract Audit Engine", () => {
     const outputErrors = diags.filter((d) => d.code === "result-outputs-mismatch");
 
     expect(outputErrors.length).toBe(1);
-    expect(outputErrors[0]!.message).toContain("nonexistent_output_id");
+    expect(outputErrors[0]?.message).toContain("nonexistent_output_id");
   });
 });

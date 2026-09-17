@@ -60,11 +60,14 @@ export function onReducedMotionChange(listener: MotionListener): () => void {
 
   if (mediaQuery.addEventListener) {
     mediaQuery.addEventListener("change", handler);
-    return () => mediaQuery.removeEventListener("change", handler);
-  } else if ("addListener" in mediaQuery) {
-    // Older Safari / WebKit support
-    (mediaQuery as any).addListener(handler);
-    return () => (mediaQuery as any).removeListener(handler);
+  }
+  const legacyQuery = mediaQuery as unknown as {
+    addListener?: (fn: (e: MediaQueryListEvent) => void) => void;
+    removeListener?: (fn: (e: MediaQueryListEvent) => void) => void;
+  };
+  if (typeof legacyQuery.addListener === "function") {
+    legacyQuery.addListener(handler);
+    return () => legacyQuery.removeListener?.(handler);
   }
 
   return () => {};

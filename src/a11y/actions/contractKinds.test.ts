@@ -6,7 +6,6 @@ import {
   ALL_FIXTURE_ACTION_CONTRACTS,
   fixtureAxisComponentContract,
   fixtureEventTableContract,
-  fixtureIntervalContract,
   fixtureObjectInclusionContract,
   fixtureRatioContract,
   fixtureSubexpressionContract,

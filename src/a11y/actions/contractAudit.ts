@@ -129,7 +129,9 @@ export function auditInstrumentManifestContracts(
   }
 
   const outputIds = new Set<string>(
-    Array.isArray(manifest.outputs) ? manifest.outputs.map((o: any) => String(o.id ?? "")) : [],
+    Array.isArray(manifest.outputs)
+      ? manifest.outputs.map((o: { id?: unknown }) => String(o.id ?? ""))
+      : [],
   );
 
   for (const c of contracts) {

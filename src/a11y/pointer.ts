@@ -41,7 +41,7 @@ export interface PointerCommitController<T = void> {
     clientX: number;
     clientY: number;
     pointerId?: number;
-    target?: any;
+    target?: EventTarget | null | undefined;
   }) => void;
   readonly handlePointerMove: (event: { clientX: number; clientY: number }) => void;
   readonly handlePointerUp: (event: { clientX: number; clientY: number }, payload?: T) => boolean;
@@ -56,7 +56,7 @@ export function createPointerCommitController<T = void>(
   options: PointerCommitOptions<T>,
 ): PointerCommitController<T> {
   let pending = false;
-  let startPoint: Point | null = null;
+  let _startPoint: Point | null = null;
 
   const setPending = (val: boolean) => {
     if (pending !== val) {
@@ -82,7 +82,7 @@ export function createPointerCommitController<T = void>(
     isPending: () => pending,
 
     handlePointerDown: (event) => {
-      startPoint = { x: event.clientX, y: event.clientY };
+      _startPoint = { x: event.clientX, y: event.clientY };
       setPending(true);
     },
 
@@ -109,13 +109,13 @@ export function createPointerCommitController<T = void>(
     handlePointerCancel: () => {
       if (!pending) return;
       setPending(false);
-      startPoint = null;
+      _startPoint = null;
       options.onCancel?.();
     },
 
     reset: () => {
       setPending(false);
-      startPoint = null;
+      _startPoint = null;
     },
   };
 }

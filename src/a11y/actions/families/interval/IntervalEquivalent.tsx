@@ -9,7 +9,8 @@
  * 5. Single command path calling buildActionCommand and live-region announcement.
  */
 
-import React, { useState } from "react";
+import type React from "react";
+import { useState } from "react";
 import { announce } from "../../../announce.ts";
 import { buildActionCommand } from "../../commandBuilder.ts";
 import { fixtureIntervalContract } from "../../fixtures.ts";
@@ -83,9 +84,8 @@ export function IntervalEquivalent({
   };
 
   return (
-    <div
+    <section
       className={`interval-equivalent-panel ${className}`.trim()}
-      role="region"
       aria-label="Accessible spatial interval selector"
     >
       <div className="interval-question">
@@ -209,6 +209,6 @@ export function IntervalEquivalent({
           Committed: [{committedBounds.lower}, {committedBounds.upper}] µm
         </span>
       </div>
-    </div>
+    </section>
   );
 }
