@@ -6,9 +6,9 @@ import { generateLogRunId } from "./app-router-architecture.ts";
 import {
   type GateCadence,
   type GateFamily,
+  type GateProfile,
   type GateStep,
   QUALITY_GATE_STEPS,
-  type ReleaseProfile,
   validateRegistry,
 } from "./quality-gates/registry.ts";
 import { classifyTestFile, partitionTestFiles } from "./quality-gates/test-runner.ts";
@@ -113,7 +113,7 @@ describe("Quality Gates Registry & Validator", () => {
       family: "fast",
       cadence: "every-run",
       requiredInCi: true,
-      requiredInProfiles: ["staging" as unknown as ReleaseProfile],
+      requiredInProfiles: ["staging" as unknown as GateProfile],
       availability: {},
       owner: "bead-1",
     };
