@@ -1,5 +1,6 @@
 import { notFound } from "next/navigation";
 import { loadPaper } from "../../../../content/server";
+import { OfflineChapterLinks } from "../../../../platform/offline/OfflineChapterLinks.tsx";
 import { PaperReader } from "../../../../reader/PaperReader";
 export const dynamicParams = false;
 export async function generateStaticParams() {
@@ -16,5 +17,10 @@ export default async function Page({ params }: { params: Promise<{ section: stri
   const { section } = await params;
   if (!(await loadPaper("brownian-motion")).paper.sections.some((s) => s.id === section))
     notFound();
-  return <PaperReader section={section} />;
+  return (
+    <>
+      <PaperReader section={section} />
+      <OfflineChapterLinks paperId="brownian-motion" section={section} />
+    </>
+  );
 }

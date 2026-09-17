@@ -1,5 +1,5 @@
 /**
- * The one registry of inline pre-paint scripts the root layout injects.
+ * The one registry of inline scripts emitted by layouts and offline chapters.
  *
  * Every reader/platform bead that adds a `data-` attribute to `<html>` before
  * first paint (theme, Detail, view/root-arming, perspective/notation/units,
@@ -17,6 +17,7 @@
  */
 
 import { READING_SETTINGS_PREPAINT } from "../../a11y/readingSettings/prepaint.ts";
+import { OFFLINE_DETAIL_SOURCE } from "../../platform/offline/detail.inline.ts";
 import { READER_PREPAINT } from "../../reader/detail/prepaint.ts";
 import { ROOT_ARMING_SOURCE } from "../../reader/rootArming.inline.ts";
 import { THEME_INIT_SOURCE } from "../theme/themeInit.inline.ts";
@@ -35,8 +36,11 @@ export type InlineScriptRegistry = readonly InlineScriptRegistryEntry[];
 
 /**
  * Still-future ids, so later beads keep them stable (they appear in the
- * manifest and in failure messages): "perspective", "storage-keys",
- * "offline-detail".
+ * manifest and in failure messages): "perspective", "storage-keys".
+ *
+ * "offline-detail" is emitted only in self-contained chapter downloads. Its
+ * content-addressed route names are determined by the chapter build, and its
+ * own document CSP authorizes exactly the registered bytes.
  *
  * "theme" (am-design-themes-typography-288q) is
  * `src/app/theme/themeInit.inline.ts`'s `THEME_INIT_SOURCE`, injected
@@ -68,6 +72,13 @@ export type InlineScriptRegistry = readonly InlineScriptRegistryEntry[];
  * to match this bead's contract, in the same change.
  */
 export const INLINE_SCRIPT_REGISTRY: InlineScriptRegistry = Object.freeze([
+  Object.freeze({
+    id: "offline-detail",
+    ownerBeadId: "am-plat-offline-chapter-un8i",
+    module: "src/platform/offline/detail.inline.ts",
+    source: OFFLINE_DETAIL_SOURCE,
+    routes: "all",
+  }),
   Object.freeze({
     id: "root-arming",
     ownerBeadId: "am-read-shell-routes-3ua",

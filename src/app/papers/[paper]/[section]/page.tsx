@@ -1,3 +1,4 @@
+import { OfflineChapterLinks } from "../../../../platform/offline/OfflineChapterLinks.tsx";
 import { PaperPage } from "../../../../reader/PaperPage.tsx";
 import { paperMetadata, sectionStaticParams } from "../../../../reader/paperRoutes.ts";
 
@@ -22,5 +23,10 @@ export default async function Page({
   params: Promise<{ paper: string; section: string }>;
 }) {
   const { paper, section } = await params;
-  return <PaperPage paperId={paper} section={section} />;
+  return (
+    <>
+      <PaperPage paperId={paper} section={section} />
+      <OfflineChapterLinks paperId={paper} section={section} />
+    </>
+  );
 }

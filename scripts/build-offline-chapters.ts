@@ -1,8 +1,13 @@
 import { execFileSync } from "node:child_process";
-import { readdir, readFile } from "node:fs/promises";
+import { mkdir, readdir, readFile, writeFile } from "node:fs/promises";
 import { resolve } from "node:path";
 import { fileURLToPath } from "node:url";
 import { renderToString } from "katex";
+import { INLINE_SCRIPT_REGISTRY } from "../src/app/inline-scripts/registry.ts";
+import {
+  buildInlineScriptHashManifest,
+  serializeInlineScriptHashManifest,
+} from "./build/inline-script-hashes.ts";
 import {
   loadContentIndex,
   loadFoundationPayload,
@@ -183,7 +188,23 @@ export async function buildOfflineChapters(
     profile,
     chapters: files.map((file) => file.entry),
   };
+  // Use the shared registry and serializer, not a second script hash manifest format.
+  const buildRevision = execFileSync("git", ["rev-parse", "HEAD"], {
+    cwd: root, encoding: "utf8",
+  }).trim();
+  const generatedAt = execFileSync("git", ["log", "-1", "--format=%cI"], {
+    cwd: root, encoding: "utf8",
+  }).trim();
+  const scriptManifest = buildInlineScriptHashManifest(INLINE_SCRIPT_REGISTRY, {
+    buildRevision, generatedAt,
+  });
+  const detailScript = scriptManifest.scripts.find((entry) => entry.id === "offline-detail");
+  if (!detailScript || files.some((file) => file.scriptHash !== detailScript.sha256))
+    throw new Error("Offline script bytes do not match the shared inline-script registry.");
   await publishOfflineChapters(root, manifest, files);
+  await mkdir(resolve(root, "artifacts/build"), { recursive: true });
+  await writeFile(resolve(root, "artifacts/build/inline-script-hashes.json"),
+    serializeInlineScriptHashManifest(scriptManifest));
   return manifest;
 }
 if (process.argv[1] && resolve(process.argv[1]) === fileURLToPath(import.meta.url)) {
