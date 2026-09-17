@@ -9,7 +9,8 @@
  */
 
 import { existsSync, readFileSync } from "node:fs";
-import { join } from "node:path";
+import { join, resolve } from "node:path";
+import { fileURLToPath } from "node:url";
 import {
   formatManifestReportText,
   generateManifestReport,
@@ -104,7 +105,13 @@ async function main() {
   }
 }
 
-if (import.meta.main || process.argv[1]?.endsWith("source-manifest-report.ts")) {
+const isMain =
+  ("main" in import.meta && Reflect.get(import.meta, "main") === true) ||
+  (process.argv[1] !== undefined &&
+    (resolve(process.argv[1]) === fileURLToPath(import.meta.url) ||
+      process.argv[1].endsWith("source-manifest-report.ts")));
+
+if (isMain) {
   main().catch((err) => {
     console.error(`Fatal error in source manifest report:`, err);
     process.exit(1);
