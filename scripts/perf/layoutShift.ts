@@ -26,7 +26,8 @@ export function evaluateLayoutShift(
   budget: number = LAYOUT_SHIFT_BUDGET,
 ): LayoutShiftResult {
   const eligible = entries.filter((e) => !e.hadRecentInput);
-  if (eligible.length === 0) {
+  const firstEntry = eligible[0];
+  if (!firstEntry) {
     return {
       maxSessionWindowScore: 0,
       sessionWindowsCount: 0,
@@ -37,8 +38,8 @@ export function evaluateLayoutShift(
 
   let maxScore = 0;
   let currentWindowScore = 0;
-  let windowStartTime = eligible[0].startTime;
-  let prevEntryTime = eligible[0].startTime;
+  let windowStartTime = firstEntry.startTime;
+  let prevEntryTime = firstEntry.startTime;
   let windowCount = 1;
 
   for (const entry of eligible) {
