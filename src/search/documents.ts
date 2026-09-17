@@ -224,11 +224,7 @@ export function documentsFromCompiled(
           ...equation.assumptions,
           ...equation.notes.map((note) => `${note.title} ${note.explanation}`),
         ].join(" "),
-        terms: [
-          equation.id,
-          equation.spoken,
-          ...(terms ? [terms] : []),
-        ],
+        terms: [equation.id, equation.spoken, ...(terms ? [terms] : [])],
       });
     }
   }
