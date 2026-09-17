@@ -130,13 +130,13 @@ test("versioned SI settings links roundtrip and reject duplicates, unknown field
   assert.deepEqual(decodeBm06Settings(link), { kind: "settings", parameters: BM06_DEFAULTS });
   assert.equal(decodeBm06Settings("").kind, "absent");
   for (const bad of [
-    link + "&T=300",
-    link + "&rogue=1",
+    `${link}&T=300`,
+    `${link}&rogue=1`,
     link.replace("bm=1", "bm=2"),
     link.replace("T=293.15", "T=Infinity"),
     link.replace("T=293.15", "T=1e400"),
     link.replace("gridEnabled=0", "gridEnabled=false"),
-    "?" + "a".repeat(2100),
+    `?${"a".repeat(2100)}`,
   ])
     assert.equal(decodeBm06Settings(bad).kind, "invalid");
 });
