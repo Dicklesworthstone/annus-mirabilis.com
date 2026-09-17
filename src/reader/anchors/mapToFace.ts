@@ -8,7 +8,7 @@
  * this against).
  */
 
-import { sourceSentenceId, splitSentenceIds } from "../../content/anchors";
+import { sourceSentenceId, splitSentenceIds } from "../../content/anchors.ts";
 
 export interface StructureUnit {
   readonly id: string;
