@@ -449,8 +449,8 @@ describe("Coverage Ledger Validation and Computation Suite", () => {
         `bun scripts/coverage-report.ts --scenario-evidence "${scenarioEvidenceFile}" --outDir "${outDir}" --json`,
         { cwd: rootDir, encoding: "utf8" },
       );
-    } catch (err: any) {
-      if (err?.code === "EBADF") {
+    } catch (err: unknown) {
+      if ((err as { code?: string })?.code === "EBADF") {
         const scenarioEvidence = [
           { scenarioId: "sc-bm-01-eq-1", status: "passed" as const },
           { scenarioId: "sc-bm-01-eq-2", status: "passed" as const },

@@ -188,4 +188,3 @@ describe("Observer Change Contract (am-rt-command-classes-dzp)", () => {
     expect(currentDecision.accepted).toBe(true);
   });
 });
-

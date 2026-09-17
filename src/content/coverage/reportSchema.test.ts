@@ -282,4 +282,3 @@ describe("Coverage Report Schema Suite", () => {
     );
   });
 });
-

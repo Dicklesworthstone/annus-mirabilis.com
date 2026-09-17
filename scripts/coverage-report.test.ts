@@ -76,4 +76,3 @@ describe("Coverage Report CLI Contract (scripts/coverage-report.ts)", () => {
     );
   });
 });
-
