@@ -123,21 +123,27 @@ export interface SectionExport {
   readonly title: string;
   readonly sentences: readonly SectionSentenceExport[];
   readonly blocks: readonly SectionBlockExport[];
-  readonly readings?: {
-    readonly overview?: readonly SectionReadingBlockExport[] | undefined;
-    readonly full?: readonly SectionReadingBlockExport[] | undefined;
-    readonly steps?: readonly SectionReadingBlockExport[] | undefined;
-    readonly margin?: readonly SectionReadingBlockExport[] | undefined;
-  } | undefined;
-  readonly footnotes?: readonly {
-    readonly id: string;
-    readonly text: string;
-  }[] | undefined;
-  readonly editorialNotes?: readonly {
-    readonly id: string;
-    readonly title: string;
-    readonly text: string;
-  }[] | undefined;
+  readonly readings?:
+    | {
+        readonly overview?: readonly SectionReadingBlockExport[] | undefined;
+        readonly full?: readonly SectionReadingBlockExport[] | undefined;
+        readonly steps?: readonly SectionReadingBlockExport[] | undefined;
+        readonly margin?: readonly SectionReadingBlockExport[] | undefined;
+      }
+    | undefined;
+  readonly footnotes?:
+    | readonly {
+        readonly id: string;
+        readonly text: string;
+      }[]
+    | undefined;
+  readonly editorialNotes?:
+    | readonly {
+        readonly id: string;
+        readonly title: string;
+        readonly text: string;
+      }[]
+    | undefined;
   readonly reviewState?: string | undefined;
   readonly draft?: boolean | undefined;
   readonly rights: LayerRights;

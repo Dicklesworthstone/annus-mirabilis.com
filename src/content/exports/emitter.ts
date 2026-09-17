@@ -9,17 +9,14 @@
 import { createHash } from "node:crypto";
 import { mkdir, writeFile } from "node:fs/promises";
 import { dirname, resolve } from "node:path";
-import { canonicalJsonStringify } from "../compiler/emitter.ts";
 import { getLogger } from "../../testing/log/logger.ts";
+import { canonicalJsonStringify } from "../compiler/emitter.ts";
 import { getPaperExportLinks } from "./discovery.ts";
 import { generateJsonLd } from "./jsonld.ts";
 import { generateSectionMarkdown } from "./markdown.ts";
 import { generateParallelCorpusTsv } from "./parallelCorpus.ts";
 import { isAssetPublishable, resolveLayerRights } from "./rights.ts";
-import {
-  assertExportSafety,
-  validateExportRecord,
-} from "./schemas.ts";
+import { assertExportSafety, validateExportRecord } from "./schemas.ts";
 import { generateTeiXml } from "./tei.ts";
 import type {
   ArgumentExport,
@@ -214,22 +211,23 @@ export async function emitMachineReadableExports(
         }
       : defaultJournal;
 
-    const paperDates = rawPaper.dates && rawPaper.dates.length > 0
-      ? rawPaper.dates
-      : [
-          {
-            type: "received",
-            earliest: "1905-05-11",
-            latest: "1905-05-11",
-            precision: "day",
-            source: "Annalen der Physik (4) 17, p. 549",
-            verifiedAt: "2026-09-14",
-          },
-        ];
+    const paperDates =
+      rawPaper.dates && rawPaper.dates.length > 0
+        ? rawPaper.dates
+        : [
+            {
+              type: "received",
+              earliest: "1905-05-11",
+              latest: "1905-05-11",
+              precision: "day",
+              source: "Annalen der Physik (4) 17, p. 549",
+              verifiedAt: "2026-09-14",
+            },
+          ];
 
-    const paperSections = (rawPaper.sections ?? [
-      { id: "s1", title: "Section 1", arguments: [] },
-    ]).map((s) => ({
+    const paperSections = (
+      rawPaper.sections ?? [{ id: "s1", title: "Section 1", arguments: [] }]
+    ).map((s) => ({
       id: s.id,
       title: s.title,
       arguments: s.arguments ?? [],
@@ -290,7 +288,7 @@ export async function emitMachineReadableExports(
 
       for (const b of secBlocks) {
         let isBlockDraft = false;
-        let blockReviewState: string | undefined = undefined;
+        let blockReviewState: string | undefined;
 
         if (b.status) {
           blockReviewState = b.status.review ?? b.status.translation;
@@ -319,14 +317,15 @@ export async function emitMachineReadableExports(
         // Check sentence spans
         for (const span of b.sentenceSpans ?? []) {
           const sentId = span.id;
-          let englishText: string | undefined = undefined;
+          let englishText: string | undefined;
           let tuDraft = false;
-          let tuReviewState: string | undefined = undefined;
+          let tuReviewState: string | undefined;
 
           // Find corresponding translation unit
           for (const tu of options.translationUnits ?? []) {
             if (tu.sourceRefs?.some((sr: any) => sr.id === sentId || sr.id === b.id)) {
-              englishText = typeof tu.inlines === "string" ? tu.inlines : tu.diplomaticText ?? tu.text;
+              englishText =
+                typeof tu.inlines === "string" ? tu.inlines : (tu.diplomaticText ?? tu.text);
               tuReviewState = tu.reviewState;
               tuDraft = tuReviewState === "draft" || tuReviewState === "machine-draft";
               break;
@@ -362,18 +361,16 @@ export async function emitMachineReadableExports(
       }
 
       // Readings from arguments associated with this section
-      const secArgs = (sec.arguments ?? [])
-        .map((argId) => argsById.get(argId))
-        .filter(Boolean);
+      const secArgs = (sec.arguments ?? []).map((argId) => argsById.get(argId)).filter(Boolean);
 
-      let readingsObj: any = undefined;
+      let readingsObj: any;
       if (secArgs.length > 0 && secArgs[0].readings) {
         readingsObj = secArgs[0].readings;
       }
 
       // Check section draft state
       let secDraft = false;
-      let secReviewState: string | undefined = undefined;
+      let secReviewState: string | undefined;
       for (const sent of sentences) {
         if (sent.draft) {
           secDraft = true;
@@ -398,7 +395,9 @@ export async function emitMachineReadableExports(
               })),
             }
           : {}),
-        ...(secDraft ? { draft: true, ...(secReviewState ? { reviewState: secReviewState } : {}) } : {}),
+        ...(secDraft
+          ? { draft: true, ...(secReviewState ? { reviewState: secReviewState } : {}) }
+          : {}),
         rights: paperRights,
         contentRevision: options.contentRevision,
         ...(assetDigest ? { sourceAssetDigest: assetDigest } : {}),

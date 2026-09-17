@@ -34,7 +34,7 @@ export function escapeMarkdownSourceText(text: string): string {
  */
 export function formatFormulaMarkdown(latex: string, spoken?: string): string {
   const parts = [`$$\n${latex.trim()}\n$$`];
-  if (spoken && spoken.trim()) {
+  if (spoken?.trim()) {
     parts.push(escapeMarkdownSourceText(spoken.trim()));
   }
   return parts.join("\n\n");
@@ -50,9 +50,13 @@ export function generateSectionMarkdown(section: SectionExport): string {
   lines.push(`# ${escapeMarkdownSourceText(section.title)}`);
   lines.push("");
   lines.push(`**Paper:** \`${section.paperSlug}\` | **Section:** \`${section.sectionId}\``);
-  lines.push(`**Revision:** \`${section.contentRevision}\`${section.translationRevision ? ` | **Translation Revision:** \`${section.translationRevision}\`` : ""}`);
+  lines.push(
+    `**Revision:** \`${section.contentRevision}\`${section.translationRevision ? ` | **Translation Revision:** \`${section.translationRevision}\`` : ""}`,
+  );
   if (section.draft || section.reviewState) {
-    lines.push(`**Status:** \`${section.reviewState ?? "draft"}\` (Draft: ${section.draft ? "true" : "false"})`);
+    lines.push(
+      `**Status:** \`${section.reviewState ?? "draft"}\` (Draft: ${section.draft ? "true" : "false"})`,
+    );
   }
   lines.push("");
 
@@ -63,7 +67,9 @@ export function generateSectionMarkdown(section: SectionExport): string {
     lines.push(`- **Historical German:** ${section.rights.germanText.statement}`);
   }
   if (section.rights.translation) {
-    lines.push(`- **English Translation:** ${section.rights.translation.statement} (${section.rights.translation.license})`);
+    lines.push(
+      `- **English Translation:** ${section.rights.translation.statement} (${section.rights.translation.license})`,
+    );
   }
   if (section.rights.explanatoryProse) {
     lines.push(`- **Explanations:** ${section.rights.explanatoryProse.statement}`);
@@ -126,7 +132,9 @@ export function generateSectionMarkdown(section: SectionExport): string {
           lines.push(formatFormulaMarkdown(b.latex, b.spoken));
           lines.push("");
         } else if (b.kind === "steps" && b.items) {
-          lines.push(b.items.map((item, i) => `${i + 1}. ${escapeMarkdownSourceText(item)}`).join("\n"));
+          lines.push(
+            b.items.map((item, i) => `${i + 1}. ${escapeMarkdownSourceText(item)}`).join("\n"),
+          );
           lines.push("");
         }
       }
@@ -138,7 +146,9 @@ export function generateSectionMarkdown(section: SectionExport): string {
     lines.push("## Editorial Notes");
     lines.push("");
     for (const note of section.editorialNotes) {
-      lines.push(`- **${escapeMarkdownSourceText(note.title)}:** ${escapeMarkdownSourceText(note.text)}`);
+      lines.push(
+        `- **${escapeMarkdownSourceText(note.title)}:** ${escapeMarkdownSourceText(note.text)}`,
+      );
     }
     lines.push("");
   }

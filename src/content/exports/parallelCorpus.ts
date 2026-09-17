@@ -20,7 +20,9 @@ export function generateParallelCorpusTsv(
 
   lines.push(`# corpus: Annus Mirabilis Bilingual Parallel Corpus (1905–2026)`);
   lines.push(`# paper: ${paper.slug} (${paper.titleGerman})`);
-  lines.push(`# license: German text Public Domain; English translation MIT + Rider (see NOTICE.md)`);
+  lines.push(
+    `# license: German text Public Domain; English translation MIT + Rider (see NOTICE.md)`,
+  );
   lines.push(`id\tgerman\tenglish`);
 
   for (const sec of sections) {

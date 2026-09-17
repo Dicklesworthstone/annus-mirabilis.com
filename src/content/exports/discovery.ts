@@ -68,9 +68,6 @@ export function getSectionExportLinks(
  */
 export function formatExportLinkHtml(descriptors: readonly ExportLinkDescriptor[]): string {
   return descriptors
-    .map(
-      (d) =>
-        `<link rel="${d.rel}" type="${d.type}" href="${d.href}" title="${d.title}" />`,
-    )
+    .map((d) => `<link rel="${d.rel}" type="${d.type}" href="${d.href}" title="${d.title}" />`)
     .join("\n");
 }

@@ -17,10 +17,7 @@ function escapeXml(str: string): string {
     .replace(/'/g, "&apos;");
 }
 
-export function generateTeiXml(
-  paper: PaperExport,
-  sections: readonly SectionExport[],
-): string {
+export function generateTeiXml(paper: PaperExport, sections: readonly SectionExport[]): string {
   const lines: string[] = [];
 
   lines.push('<?xml version="1.0" encoding="UTF-8"?>');
@@ -56,10 +53,14 @@ export function generateTeiXml(
   lines.push(`            <title level="j">${escapeXml(paper.journal.name)}</title>`);
   lines.push(`            <biblScope unit="series">${paper.journal.series}</biblScope>`);
   lines.push(`            <biblScope unit="volume">${paper.journal.volume}</biblScope>`);
-  lines.push(`            <biblScope unit="issue">${escapeXml(String(paper.journal.issue))}</biblScope>`);
-  lines.push(`            <biblScope unit="page" from="${paper.journal.pages.first}" to="${paper.journal.pages.last}">${paper.journal.pages.first}–${paper.journal.pages.last}</biblScope>`);
+  lines.push(
+    `            <biblScope unit="issue">${escapeXml(String(paper.journal.issue))}</biblScope>`,
+  );
+  lines.push(
+    `            <biblScope unit="page" from="${paper.journal.pages.first}" to="${paper.journal.pages.last}">${paper.journal.pages.first}–${paper.journal.pages.last}</biblScope>`,
+  );
   lines.push("            <imprint>");
-  lines.push("              <date when=\"1905\">1905</date>");
+  lines.push('              <date when="1905">1905</date>');
   lines.push("            </imprint>");
   lines.push("          </monogr>");
   if (paper.journal.doi) {
@@ -84,7 +85,9 @@ export function generateTeiXml(
   lines.push('      <text xml:lang="de">');
   lines.push("        <body>");
   for (const sec of sections) {
-    lines.push(`          <div type="section" xml:id="de-${sec.sectionId}" n="${escapeXml(sec.title)}">`);
+    lines.push(
+      `          <div type="section" xml:id="de-${sec.sectionId}" n="${escapeXml(sec.title)}">`,
+    );
     lines.push(`            <head>${escapeXml(sec.title)}</head>`);
     lines.push("            <p>");
     if (sec.sentences.length > 0) {
@@ -93,7 +96,9 @@ export function generateTeiXml(
       }
     } else {
       for (const block of sec.blocks) {
-        lines.push(`              <s xml:id="${escapeXml(block.id)}">${escapeXml(block.diplomaticText)}</s>`);
+        lines.push(
+          `              <s xml:id="${escapeXml(block.id)}">${escapeXml(block.diplomaticText)}</s>`,
+        );
       }
     }
     lines.push("            </p>");
@@ -106,19 +111,25 @@ export function generateTeiXml(
   lines.push('      <text xml:lang="en">');
   lines.push("        <body>");
   for (const sec of sections) {
-    lines.push(`          <div type="section" xml:id="en-${sec.sectionId}" n="${escapeXml(sec.title)}">`);
+    lines.push(
+      `          <div type="section" xml:id="en-${sec.sectionId}" n="${escapeXml(sec.title)}">`,
+    );
     lines.push(`            <head>${escapeXml(sec.title)}</head>`);
     lines.push("            <p>");
     if (sec.sentences.length > 0) {
       for (const sent of sec.sentences) {
         if (sent.english) {
-          lines.push(`              <s xml:id="en-${escapeXml(sent.id)}" corresp="#${escapeXml(sent.id)}">${escapeXml(sent.english)}</s>`);
+          lines.push(
+            `              <s xml:id="en-${escapeXml(sent.id)}" corresp="#${escapeXml(sent.id)}">${escapeXml(sent.english)}</s>`,
+          );
         }
       }
     } else {
       for (const block of sec.blocks) {
         if (block.translation) {
-          lines.push(`              <s xml:id="en-${escapeXml(block.id)}" corresp="#${escapeXml(block.id)}">${escapeXml(block.translation)}</s>`);
+          lines.push(
+            `              <s xml:id="en-${escapeXml(block.id)}" corresp="#${escapeXml(block.id)}">${escapeXml(block.translation)}</s>`,
+          );
         }
       }
     }

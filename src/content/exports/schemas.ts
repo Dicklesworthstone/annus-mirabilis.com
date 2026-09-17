@@ -419,11 +419,19 @@ export function assertExportSafety(data: unknown, path = "root"): void {
       if (key === "notes" && (path.includes("Equation") || path.includes("Section"))) {
         // ok
       } else {
-        throw new ExportValidationError("SafetyCheck", `${path}.${key}`, `Forbidden private or executable key '${key}'.`);
+        throw new ExportValidationError(
+          "SafetyCheck",
+          `${path}.${key}`,
+          `Forbidden private or executable key '${key}'.`,
+        );
       }
     }
     if (typeof value === "function") {
-      throw new ExportValidationError("SafetyCheck", `${path}.${key}`, "Functions are forbidden in exports.");
+      throw new ExportValidationError(
+        "SafetyCheck",
+        `${path}.${key}`,
+        "Functions are forbidden in exports.",
+      );
     }
     assertExportSafety(value, `${path}.${key}`);
   }
@@ -480,7 +488,11 @@ export function validateExportRecord(
         }
       }
       if (typeof rec.latexModern !== "string" || !rec.latexModern) {
-        throw new ExportValidationError(kind, "latexModern", "latexModern must be non-empty string.");
+        throw new ExportValidationError(
+          kind,
+          "latexModern",
+          "latexModern must be non-empty string.",
+        );
       }
       break;
     }
@@ -521,7 +533,11 @@ export function validateExportRecord(
           throw new ExportValidationError(kind, `files[${i}]`, "Invalid file index entry.");
         }
         if (!/^[a-f0-9]{64}$/.test(f.sha256)) {
-          throw new ExportValidationError(kind, `files[${i}].sha256`, "Invalid SHA-256 digest format.");
+          throw new ExportValidationError(
+            kind,
+            `files[${i}].sha256`,
+            "Invalid SHA-256 digest format.",
+          );
         }
       }
       break;

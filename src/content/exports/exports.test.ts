@@ -1,6 +1,6 @@
 import { describe, expect, it } from "bun:test";
 import { createHash } from "node:crypto";
-import { mkdir, mkdtemp, readFile, writeFile } from "node:fs/promises";
+import { mkdtemp, readFile } from "node:fs/promises";
 import { tmpdir } from "node:os";
 import { resolve } from "node:path";
 import {
@@ -10,19 +10,11 @@ import {
   FIXTURE_BROWNIAN_TRANSLATION_UNITS,
   FIXTURE_EDITORIAL_NOTES,
 } from "../../testing/fixtures/bilingual/brownianBilingualFixture.ts";
-import { getLogger, newRunIdentity } from "../../testing/log/logger.ts";
-import {
-  formatExportLinkHtml,
-  getPaperExportLinks,
-  getSectionExportLinks,
-} from "./discovery.ts";
+import { getLogger } from "../../testing/log/logger.ts";
+import { formatExportLinkHtml, getPaperExportLinks, getSectionExportLinks } from "./discovery.ts";
 import { emitMachineReadableExports } from "./emitter.ts";
 import { escapeMarkdownSourceText, generateSectionMarkdown } from "./markdown.ts";
-import {
-  assertExportSafety,
-  ExportValidationError,
-  validateExportRecord,
-} from "./schemas.ts";
+import { assertExportSafety, ExportValidationError, validateExportRecord } from "./schemas.ts";
 import type { ExportIndex, SectionExport } from "./types.ts";
 
 const sha256Hex = (buf: string | Uint8Array): string =>
@@ -108,7 +100,14 @@ describe("Machine-Readable Exports (/exports/v1/) (am-cm-machine-readable-export
           title: "Stokes-Einstein Diffusion Instrument",
           kind: "simulation",
           parameters: [
-            { id: "temperature", name: "Temperature", unit: "K", default: 293.15, min: 270, max: 370 },
+            {
+              id: "temperature",
+              name: "Temperature",
+              unit: "K",
+              default: 293.15,
+              min: 270,
+              max: 370,
+            },
             { id: "viscosity", name: "Viscosity", unit: "Pa*s", default: 0.001 },
           ],
         },
@@ -144,7 +143,11 @@ describe("Machine-Readable Exports (/exports/v1/) (am-cm-machine-readable-export
       }
     }
 
-    logOutcome("exports-schema-validation", "passed", "All exports generated and validated against schemas.");
+    logOutcome(
+      "exports-schema-validation",
+      "passed",
+      "All exports generated and validated against schemas.",
+    );
   });
 
   // 2. Determinism Test
@@ -206,7 +209,11 @@ describe("Machine-Readable Exports (/exports/v1/) (am-cm-machine-readable-export
     const indexContentB = await readFile(resolve(dirB, "exports/v1/index.json"), "utf8");
     expect(indexContentA).toBe(indexContentB);
 
-    logOutcome("exports-determinism", "passed", "Two separate builds produced byte-identical files and index.");
+    logOutcome(
+      "exports-determinism",
+      "passed",
+      "Two separate builds produced byte-identical files and index.",
+    );
   });
 
   // 3. Rights Filtering Test
@@ -248,16 +255,26 @@ describe("Machine-Readable Exports (/exports/v1/) (am-cm-machine-readable-export
 
     // Check that none of the files mention the pin-local or reference-only digests
     const indexStr = JSON.stringify(index);
-    expect(indexStr.includes("1111111111111111111111111111111111111111111111111111111111111111")).toBe(false);
-    expect(indexStr.includes("2222222222222222222222222222222222222222222222222222222222222222")).toBe(false);
+    expect(
+      indexStr.includes("1111111111111111111111111111111111111111111111111111111111111111"),
+    ).toBe(false);
+    expect(
+      indexStr.includes("2222222222222222222222222222222222222222222222222222222222222222"),
+    ).toBe(false);
 
     // Only the public scan digest is admitted
     const paperJson = JSON.parse(
       await readFile(resolve(tempRoot, "exports/v1/papers/brownian-motion.json"), "utf8"),
     );
-    expect(paperJson.sourceAssetDigest).toBe("3333333333333333333333333333333333333333333333333333333333333333");
+    expect(paperJson.sourceAssetDigest).toBe(
+      "3333333333333333333333333333333333333333333333333333333333333333",
+    );
 
-    logOutcome("exports-rights-filtering", "passed", "pin-local-only and reference-only assets omitted.");
+    logOutcome(
+      "exports-rights-filtering",
+      "passed",
+      "pin-local-only and reference-only assets omitted.",
+    );
   });
 
   // 4. Profile Filtering Test
@@ -290,7 +307,13 @@ describe("Machine-Readable Exports (/exports/v1/) (am-cm-machine-readable-export
       rootDir: previewDir,
       contentRevision: "rev-preview",
       releaseProfile: "preview",
-      papers: [{ id: "brownian-motion", title: "Brownian Motion", sections: [{ id: "s4", title: "Section 4" }] }],
+      papers: [
+        {
+          id: "brownian-motion",
+          title: "Brownian Motion",
+          sections: [{ id: "s4", title: "Section 4" }],
+        },
+      ],
       sourceBlocks: [draftBlock],
       translationUnits: [draftTranslation],
     });
@@ -308,7 +331,13 @@ describe("Machine-Readable Exports (/exports/v1/) (am-cm-machine-readable-export
       rootDir: prodDir,
       contentRevision: "rev-prod",
       releaseProfile: "production",
-      papers: [{ id: "brownian-motion", title: "Brownian Motion", sections: [{ id: "s4", title: "Section 4" }] }],
+      papers: [
+        {
+          id: "brownian-motion",
+          title: "Brownian Motion",
+          sections: [{ id: "s4", title: "Section 4" }],
+        },
+      ],
       sourceBlocks: [draftBlock],
       translationUnits: [draftTranslation],
     });
@@ -392,7 +421,11 @@ describe("Machine-Readable Exports (/exports/v1/) (am-cm-machine-readable-export
     expect(md).toContain("\\*stets\\*");
     expect(md.includes("<tag>")).toBe(false);
 
-    logOutcome("exports-markdown-escaping", "passed", "Markdown text escaping verified without HTML.");
+    logOutcome(
+      "exports-markdown-escaping",
+      "passed",
+      "Markdown text escaping verified without HTML.",
+    );
   });
 
   // 7. Index SHA-256 and byte counts accuracy
@@ -434,7 +467,11 @@ describe("Machine-Readable Exports (/exports/v1/) (am-cm-machine-readable-export
       expect(computedSha).toBe(fileEntry.sha256);
     }
 
-    logOutcome("exports-sha256-verification", "passed", "Every SHA-256 and byte count in index matched disk bytes.");
+    logOutcome(
+      "exports-sha256-verification",
+      "passed",
+      "Every SHA-256 and byte count in index matched disk bytes.",
+    );
   });
 
   // 8. TEI XML, JSON-LD, and Parallel Corpus Verification
@@ -484,7 +521,11 @@ describe("Machine-Readable Exports (/exports/v1/) (am-cm-machine-readable-export
     const lines = tsvContent.trim().split("\n");
     expect(lines.length).toBeGreaterThan(3);
 
-    logOutcome("exports-extra-formats", "passed", "TEI XML, JSON-LD, and Parallel Corpus verified.");
+    logOutcome(
+      "exports-extra-formats",
+      "passed",
+      "TEI XML, JSON-LD, and Parallel Corpus verified.",
+    );
   });
 
   // 9. Discovery Link Helpers
@@ -502,8 +543,12 @@ describe("Machine-Readable Exports (/exports/v1/) (am-cm-machine-readable-export
     expect(sectionLinks[1]!.href).toBe("/exports/v1/papers/brownian-motion/s4.md");
 
     const html = formatExportLinkHtml(sectionLinks);
-    expect(html).toContain('<link rel="alternate" type="application/json" href="/exports/v1/papers/brownian-motion/s4.json"');
-    expect(html).toContain('<link rel="alternate" type="text/markdown" href="/exports/v1/papers/brownian-motion/s4.md"');
+    expect(html).toContain(
+      '<link rel="alternate" type="application/json" href="/exports/v1/papers/brownian-motion/s4.json"',
+    );
+    expect(html).toContain(
+      '<link rel="alternate" type="text/markdown" href="/exports/v1/papers/brownian-motion/s4.md"',
+    );
 
     logOutcome("exports-discovery-links", "passed", "Discovery link helpers verified.");
   });
@@ -527,7 +572,9 @@ describe("Machine-Readable Exports (/exports/v1/) (am-cm-machine-readable-export
           bibKey: FIXTURE_BROWNIAN_PAPER.bibKey,
           dates: FIXTURE_BROWNIAN_PAPER.dates,
           journal: FIXTURE_BROWNIAN_PAPER.journal,
-          sections: [{ id: "bm-sec-04", title: "§ 4. On the Irregular Motion of Suspended Particles" }],
+          sections: [
+            { id: "bm-sec-04", title: "§ 4. On the Irregular Motion of Suspended Particles" },
+          ],
         },
       ],
       sourceBlocks: FIXTURE_BROWNIAN_SOURCE_BLOCKS.filter((b) => b.section === "bm-sec-04"),
@@ -541,7 +588,10 @@ describe("Machine-Readable Exports (/exports/v1/) (am-cm-machine-readable-export
       "utf8",
     );
     const goldenJson = await readFile(
-      resolve(process.cwd(), "src/content/exports/__fixtures__/golden/section-bm-sec-04.golden.json"),
+      resolve(
+        process.cwd(),
+        "src/content/exports/__fixtures__/golden/section-bm-sec-04.golden.json",
+      ),
       "utf8",
     );
     expect(producedJson).toBe(goldenJson);
@@ -556,6 +606,10 @@ describe("Machine-Readable Exports (/exports/v1/) (am-cm-machine-readable-export
     );
     expect(producedMd).toBe(goldenMd);
 
-    logOutcome("exports-golden-comparison", "passed", "Section JSON and Markdown matched golden references byte-for-byte.");
+    logOutcome(
+      "exports-golden-comparison",
+      "passed",
+      "Section JSON and Markdown matched golden references byte-for-byte.",
+    );
   });
 });
