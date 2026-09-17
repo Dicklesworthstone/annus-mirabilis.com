@@ -1,0 +1,107 @@
+/**
+ * Renders one Misconception as a "common wrong turn" callout (am-read-misconception-callouts-a3o).
+ * Reads the real `Misconception` entity (src/content/schemas/argument.ts) only -- it never
+ * authors content, never recomputes physics, and never touches the review-record gate itself
+ * (that is `interventionGate.ts`'s job; this component only renders whatever status it is given).
+ *
+ * Static structure only: a native <details> disclosure, so the callout works without JavaScript
+ * and the collapsed/expanded state survives print. Both tempting opposites, when present, render
+ * with equal prominence -- neither is listed first as "the" claim.
+ */
+import type { Misconception } from "../../content/schemas/argument.ts";
+import { parseWhatIsTrue, textForDetail } from "./types.ts";
+
+export type InterventionStatus =
+  | Readonly<{ state: "reviewed" }>
+  | Readonly<{ state: "not-yet-reviewed" }>;
+
+export function MisconceptionCallout({
+  misconception,
+  detail,
+  modernLens,
+  expanded = false,
+  interventionStatus,
+  instrumentHref,
+}: {
+  misconception: Misconception;
+  detail: 0 | 1 | 2;
+  modernLens: boolean;
+  expanded?: boolean;
+  interventionStatus: InterventionStatus;
+  /** Supplied by the caller, which owns instrument-address resolution
+   * (src/experiments/catalogue.ts) -- this component never resolves a route itself. */
+  instrumentHref?: string | undefined;
+}) {
+  const whatIsTrue = parseWhatIsTrue(misconception.whatIsTrue, misconception.id);
+  const { text: whatIsTrueText, margin } = textForDetail(whatIsTrue, detail, modernLens);
+
+  return (
+    <aside
+      className="misconception-callout"
+      id={`misconception-${misconception.id}`}
+      data-misconception-id={misconception.id}
+      data-detail={detail}
+      data-lens={modernLens ? "modern" : "printed"}
+    >
+      <details open={expanded}>
+        <summary>A common wrong turn: {misconception.temptingClaims[0]}</summary>
+
+        <div className="misconception-body">
+          <h4 className="sr-only">Tempting claims</h4>
+          <ul
+            className="misconception-tempting-claims"
+            data-claim-count={misconception.temptingClaims.length}
+          >
+            {misconception.temptingClaims.map((claim) => (
+              <li key={claim}>{claim}</li>
+            ))}
+          </ul>
+
+          <p className="misconception-why-tempting" data-section="why-tempting">
+            {misconception.whyTempting}
+          </p>
+
+          <p className="misconception-where-true" data-section="where-it-is-true">
+            {misconception.whereItIsTrue === "none" ? (
+              <em>There is no reading under which this is a correct thing to say.</em>
+            ) : (
+              misconception.whereItIsTrue
+            )}
+          </p>
+
+          <p className="misconception-what-is-true" data-section="what-is-true">
+            {whatIsTrueText}
+            {margin && (
+              <span className="misconception-margin" data-margin="r3">
+                {" "}
+                {margin}
+              </span>
+            )}
+          </p>
+
+          {misconception.instrumentIds &&
+            misconception.instrumentIds.length > 0 &&
+            instrumentHref && (
+              <p className="misconception-instrument-link">
+                <a href={instrumentHref}>See it in the instrument</a>
+                {interventionStatus.state === "not-yet-reviewed" && (
+                  <span className="notice" data-intervention-status="not-yet-reviewed">
+                    {" "}
+                    (this instrument's default view is not yet reviewed against this misconception)
+                  </span>
+                )}
+              </p>
+            )}
+
+          {misconception.staticTreatment && (
+            <p className="misconception-static-treatment">{misconception.staticTreatment.reason}</p>
+          )}
+
+          {misconception.sources.length > 0 && (
+            <p className="misconception-sources">Sources: {misconception.sources.join("; ")}</p>
+          )}
+        </div>
+      </details>
+    </aside>
+  );
+}
