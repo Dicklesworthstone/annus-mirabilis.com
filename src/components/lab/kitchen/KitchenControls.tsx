@@ -72,16 +72,17 @@ export function KitchenAnalysisControls({
               <option value="y">y only</option>
             </select>
           </div>
-          <label htmlFor={`${id}-coverage`}>
-            Target coverage (%)
+          <div className="input-field">
+            <label htmlFor={`${id}-coverage`}>Target coverage (%)</label>
             <input
               id={`${id}-coverage`}
+              type="text"
               name="coverage"
               inputMode="decimal"
               value={coverage}
               onChange={(e) => setCoverage(e.target.value)}
             />
-          </label>
+          </div>
           <div className="input-field">
             <label htmlFor={`${id}-constant`}>Gas-constant source</label>
             <select

@@ -34,7 +34,7 @@ import { fileURLToPath } from "node:url";
 
 const CONTROL_IN_LABEL = /<label\b[^>]*>([\s\S]*?)<\/label>/g;
 const VALUE_BEARING =
-  /<(?:select|textarea)\b|<input\b[^>]*type="(?:text|number|file|search|email|url|tel|password)"/;
+  /<(?:select|textarea)\b|<input\b(?![^>]*type="(?:checkbox|radio|hidden|button|submit|reset|image)")/i;
 
 /** Recorded 2026-09-17; lowered from 104 across 28 files to 0 the same day. May only shrink. */
 const BASELINE = new Map<string, number>([]);
@@ -96,6 +96,8 @@ describe("nested value-bearing form controls (am-qt1j)", () => {
   test("the detector actually fires on a nested select", () => {
     const planted = '<label htmlFor="x">Unit<select id="x"><option>s</option></select></label>';
     assert.equal(countNested(planted), 1);
+    const untypedInput = '<label htmlFor="x">Link<input id="x" readOnly value="abc" /></label>';
+    assert.equal(countNested(untypedInput), 1);
     const sibling = '<label htmlFor="x">Unit</label><select id="x"><option>s</option></select>';
     assert.equal(countNested(sibling), 0);
     const checkbox = '<label><input type="checkbox" />Agree</label>';

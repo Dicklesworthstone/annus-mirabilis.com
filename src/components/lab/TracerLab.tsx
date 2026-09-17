@@ -630,10 +630,16 @@ export function TracerLab({
         </button>
         {note && <p className="notice">{note}</p>}
         {url && (
-          <label className="share-field">
-            Accepted trial link
-            <input readOnly value={url} onFocus={(e) => e.target.select()} />
-          </label>
+          <div className="share-field">
+            <label htmlFor={`${id}-share`}>Accepted trial link</label>
+            <input
+              id={`${id}-share`}
+              type="text"
+              readOnly
+              value={url}
+              onFocus={(e) => e.target.select()}
+            />
+          </div>
         )}
       </section>
     </EquationScope>

@@ -352,10 +352,16 @@ export function WalkLab({
             </button>
           </div>
           {url && (
-            <label htmlFor={`${id}-share`}>
-              Accepted trial link
-              <input id={`${id}-share`} readOnly value={url} onFocus={(e) => e.target.select()} />
-            </label>
+            <div className="share-field">
+              <label htmlFor={`${id}-share`}>Accepted trial link</label>
+              <input
+                id={`${id}-share`}
+                type="text"
+                readOnly
+                value={url}
+                onFocus={(e) => e.target.select()}
+              />
+            </div>
           )}
           {note && <p className="notice">{note}</p>}
           <p className="fine">

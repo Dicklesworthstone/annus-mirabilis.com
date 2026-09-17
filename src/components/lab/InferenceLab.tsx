@@ -423,15 +423,16 @@ export function InferenceLab({
             </button>
           </div>
           {shareUrl && (
-            <label className="share-field" htmlFor={`${id}-share`}>
-              Accepted inference link
+            <div className="share-field">
+              <label htmlFor={`${id}-share`}>Accepted inference link</label>
               <input
                 id={`${id}-share`}
+                type="text"
                 readOnly
                 value={shareUrl}
                 onFocus={(e) => e.target.select()}
               />
-            </label>
+            </div>
           )}
           {note && <p className="notice">{note}</p>}
           <p className="fine">

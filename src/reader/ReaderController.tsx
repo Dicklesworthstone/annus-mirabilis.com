@@ -27,6 +27,7 @@ export function ReaderController(props: Props) {
   // the navigation owner and steal focus from the trigger we just restored.
   const navigation = JSON.stringify(props);
   const detailId = useId();
+  const copyFallbackId = useId();
   useEffect(() => {
     const { registry, titles, questions } = JSON.parse(navigation) as Props;
     const rootEl = document.querySelector<HTMLElement>("[data-reader-root]");
@@ -390,10 +391,10 @@ export function ReaderController(props: Props) {
         aria-atomic="true"
         data-reader-announcement
       />
-      <label className="share-field" data-copy-fallback hidden>
-        Passage link
-        <input readOnly />
-      </label>
+      <div className="share-field" data-copy-fallback hidden>
+        <label htmlFor={copyFallbackId}>Passage link</label>
+        <input id={copyFallbackId} type="text" readOnly />
+      </div>
     </div>
   );
 }
