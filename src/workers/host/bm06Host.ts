@@ -39,7 +39,7 @@ export function createBm06Host(
     active = message;
     cancelled = false;
     const parameters = message.token.parameters as Bm06Parameters;
-    let result;
+    let result: LabResponse["result"];
     try {
       const reused =
         cache?.runId === message.token.runId

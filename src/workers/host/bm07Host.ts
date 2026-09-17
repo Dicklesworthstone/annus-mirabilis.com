@@ -38,18 +38,20 @@ export function createBm07Host(
     active = message;
     cancelled = false;
     const p = message.token.parameters as Bm07Parameters;
-    let result;
+    let result: LabResponse["result"];
     try {
+      const activeCache = cache;
       const reused =
-        cache !== null &&
-        cache.runId === message.token.runId &&
+        activeCache !== null &&
+        activeCache.runId === message.token.runId &&
         (Object.keys(BM07_CLASSES) as (keyof Bm07Parameters)[]).every(
-          (k) => BM07_CLASSES[k] !== "input" || Object.is(p[k], cache!.parameters[k]),
+          (k) => BM07_CLASSES[k] !== "input" || Object.is(p[k], activeCache.parameters[k]),
         );
       const options = { cancelled: () => cancelled || stopped };
-      const recording = reused
-        ? { kind: "accepted" as const, data: cache!.recording }
-        : await createBm07Recording(p, options);
+      const recording =
+        reused && activeCache !== null
+          ? { kind: "accepted" as const, data: activeCache.recording }
+          : await createBm07Recording(p, options);
       if (recording.kind !== "accepted") result = recording;
       else {
         result = await measureBm07(recording.data, p, reused, options);

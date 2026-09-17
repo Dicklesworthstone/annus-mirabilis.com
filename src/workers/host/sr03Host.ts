@@ -1,5 +1,5 @@
-import type { Sr03Parameters } from "../../experiments/sr03/definition.ts";
 import { executionOutcomeRegistry } from "../../experiments/results/outcomes.ts";
+import type { Sr03Parameters } from "../../experiments/sr03/definition.ts";
 import type { Computation } from "../../physics/reference/diffusion/ftcs.ts";
 import { evaluateSr03, type Sr03Evaluation } from "../operations/sr03.ts";
 import {
@@ -7,8 +7,8 @@ import {
   type LabHello,
   type LabRequest,
   type LabResponse,
-  SR03_PROTOCOL,
   labHello,
+  SR03_PROTOCOL,
 } from "../protocol/sr03.ts";
 
 /** One host service per dedicated worker, with one bounded cached realization. */

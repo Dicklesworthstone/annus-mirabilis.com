@@ -46,24 +46,28 @@ export function createBm08Host(
     active = message;
     cancelled = false;
     const p = message.token.parameters as Bm08Parameters;
-    let result;
+    let result: LabResponse["result"];
     try {
+      const activeCache = cache;
       const same = (group: string) =>
-        cache !== null &&
+        activeCache !== null &&
         (Object.keys(BM08_CLASSES) as (keyof Bm08Parameters)[]).every(
-          (k) => BM08_CLASSES[k] !== group || Object.is(p[k], cache!.parameters[k]),
+          (k) => BM08_CLASSES[k] !== group || Object.is(p[k], activeCache.parameters[k]),
         );
-      const reused = cache !== null && cache.runId === message.token.runId && same("input"),
+      const reused =
+          activeCache !== null && activeCache.runId === message.token.runId && same("input"),
         reobserved = reused && same("measurement");
       const options = { cancelled: () => cancelled || stopped };
-      const recording = reused
-        ? { kind: "accepted" as const, data: cache!.recording }
-        : await createBm08Recording(p, options);
+      const recording =
+        reused && activeCache !== null
+          ? { kind: "accepted" as const, data: activeCache.recording }
+          : await createBm08Recording(p, options);
       if (recording.kind !== "accepted") result = recording;
       else {
-        const frames = reobserved
-          ? { kind: "accepted" as const, data: cache!.frames }
-          : observeCameraPath(recording.data, p);
+        const frames =
+          reobserved && activeCache !== null
+            ? { kind: "accepted" as const, data: activeCache.frames }
+            : observeCameraPath(recording.data, p);
         if (frames.kind !== "accepted") result = frames;
         else {
           result = await measureBm08(recording.data, p, reused, options, frames.data);

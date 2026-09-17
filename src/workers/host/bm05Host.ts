@@ -37,18 +37,20 @@ export function createBm05Host(
     active = message;
     cancelled = false;
     const p = message.token.parameters as Bm05Parameters;
-    let result;
+    let result: LabResponse["result"];
     try {
+      const activeCache = cache;
       const reused =
-        cache !== null &&
-        cache.runId === message.token.runId &&
+        activeCache !== null &&
+        activeCache.runId === message.token.runId &&
         (Object.keys(BM05_CLASSES) as (keyof Bm05Parameters)[]).every(
-          (k) => BM05_CLASSES[k] !== "input" || Object.is(p[k], cache!.parameters[k]),
+          (k) => BM05_CLASSES[k] !== "input" || Object.is(p[k], activeCache.parameters[k]),
         );
       const options = { cancelled: () => cancelled || stopped };
-      const recording = reused
-        ? { kind: "accepted" as const, data: cache!.recording }
-        : await createBm05Recording(p, options);
+      const recording =
+        reused && activeCache !== null
+          ? { kind: "accepted" as const, data: activeCache.recording }
+          : await createBm05Recording(p, options);
       if (recording.kind !== "accepted") result = recording;
       else {
         result = await measureBm05(recording.data, p, reused, options);

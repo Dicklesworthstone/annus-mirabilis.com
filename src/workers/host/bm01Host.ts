@@ -39,17 +39,19 @@ export function createBm01Host(
     active = message;
     cancelled = false;
     const p = message.token.parameters as Bm01Parameters;
-    let result;
+    let result: LabResponse["result"];
     try {
+      const activeCache = cache;
       const reused =
-        cache !== null &&
-        cache.runId === message.token.runId &&
+        activeCache !== null &&
+        activeCache.runId === message.token.runId &&
         (Object.keys(BM01_CLASSES) as (keyof Bm01Parameters)[]).every(
-          (k) => BM01_CLASSES[k] !== "input" || Object.is(p[k], cache!.parameters[k]),
+          (k) => BM01_CLASSES[k] !== "input" || Object.is(p[k], activeCache.parameters[k]),
         );
-      const recording = reused
-        ? { kind: "accepted" as const, data: cache!.recording }
-        : await createBm01Recording(p, { cancelled: () => cancelled || stopped });
+      const recording =
+        reused && activeCache !== null
+          ? { kind: "accepted" as const, data: activeCache.recording }
+          : await createBm01Recording(p, { cancelled: () => cancelled || stopped });
       if (recording.kind !== "accepted") result = recording;
       else {
         result = measureBm01(recording.data, p, reused);
