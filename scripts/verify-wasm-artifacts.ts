@@ -479,8 +479,17 @@ export async function runWasmVerification(options: VerificationOptions = {}): Pr
     const digestAdmitted = isAdmittedWasmDigest(manifest.wasmDigest);
     assertAdmittedWasmDigest(manifest.wasmDigest);
 
-    const capAdmitted = isAdmittedCapability("diffusion.brownian-frames");
-    assertAdmittedCapability("diffusion.brownian-frames");
+    let allDeclaredCapsAdmitted = true;
+    for (const cap of manifest.capabilities) {
+      if (!isAdmittedCapability(cap.capabilityId)) {
+        allDeclaredCapsAdmitted = false;
+        break;
+      }
+      assertAdmittedCapability(cap.capabilityId);
+    }
+
+    // Unadmitted capabilities (like diffusion.brownian-frames which is not exported by WASM) must NOT be admitted
+    const unadmittedRejected = !isAdmittedCapability("diffusion.brownian-frames");
 
     const bogusRejected = !isAdmittedWasmDigest(
       "0000000000000000000000000000000000000000000000000000000000000000",
@@ -488,12 +497,17 @@ export async function runWasmVerification(options: VerificationOptions = {}): Pr
 
     checks.push({
       testId: "provenance-registry-admission",
-      passed: digestAdmitted && capAdmitted && bogusRejected,
+      passed: digestAdmitted && allDeclaredCapsAdmitted && unadmittedRejected && bogusRejected,
       comparisonKind: "structural",
       message:
-        "Provenance registry correctly admits manifest digests/capabilities and rejects foreign digests.",
-      expected: { digestAdmitted: true, capAdmitted: true, bogusRejected: true },
-      actual: { digestAdmitted, capAdmitted, bogusRejected },
+        "Provenance registry correctly admits manifest digests/declared capabilities and rejects unadmitted capabilities and foreign digests.",
+      expected: {
+        digestAdmitted: true,
+        allDeclaredCapsAdmitted: true,
+        unadmittedRejected: true,
+        bogusRejected: true,
+      },
+      actual: { digestAdmitted, allDeclaredCapsAdmitted, unadmittedRejected, bogusRejected },
     });
   } catch (err) {
     checks.push({

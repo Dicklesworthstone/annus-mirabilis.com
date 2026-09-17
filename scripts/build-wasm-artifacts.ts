@@ -154,22 +154,25 @@ export async function buildWasmArtifacts(options: BuildOptions = {}): Promise<Bu
       frankensim: "5bbbfae6f7de614422f6f97f5798a3e00f8ad813",
       asupersync: "5adf01082b14de1d7bd2c9d9da9779d5502cb4bc",
     },
-    toolchain: "nightly-2026-07-06",
-    wasmPackVersion: "0.13.1",
-    wasmBindgenVersion: "0.2",
     streamSemanticsVersion: 1,
     refusalMappingDigest: computeArtifactDigest(
       Buffer.from("refusal-mapping:am-fs-capability-audit-byc:v1", "utf8"),
     ),
-    capabilities: gateResult.admitted.map((adm) => ({
-      capabilityId: adm.capabilityId,
-      browserExport: adm.export,
-      releaseArtifact: adm.releaseArtifact,
-      acceptanceState: adm.acceptanceState,
-      determinismClass: "Deterministic",
-      streamKernelIds: [0x19050001, 0x19050002, 0x19050003, 0x19050004],
-      exportSignatures: [adm.export],
-    })),
+    capabilities: (() => {
+      const wasmModule = new WebAssembly.Module(wasmBytes);
+      const actualWasmExports = new Set(WebAssembly.Module.exports(wasmModule).map((e) => e.name));
+      return gateResult.admitted
+        .filter((adm) => actualWasmExports.has(adm.export))
+        .map((adm) => ({
+          capabilityId: adm.capabilityId,
+          browserExport: adm.export,
+          releaseArtifact: adm.releaseArtifact,
+          acceptanceState: adm.acceptanceState,
+          determinismClass: "Deterministic",
+          streamKernelIds: [0x19050001, 0x19050002, 0x19050003, 0x19050004],
+          exportSignatures: [adm.export],
+        }));
+    })(),
     sizeBudget: {
       // 500 KB (500,000 bytes) is a CHOSEN policy budget limit (editorial/delivery constraint),
       // NOT a physical measurement or hardware threshold.
@@ -181,8 +184,10 @@ export async function buildWasmArtifacts(options: BuildOptions = {}): Promise<Bu
     },
     files: filesRecord,
     build: {
-      command: "wasm-pack build --release --target web -- --locked",
-      flags: ["--remap-path-prefix"],
+      generator: "scripts/wasm-artifacts/wasmArtifactGenerator.ts",
+      generatorType: "synthetic-placeholder",
+      description:
+        "Hand-assembled WebAssembly placeholder binary and JS glue; not a compiled Rust build",
       timestamp: new Date().toISOString(),
     },
   };

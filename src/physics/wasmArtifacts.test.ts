@@ -107,4 +107,123 @@ describe("WASM Artifact Verification Suite", () => {
       assert.ok(result.driftRatio <= 0.1);
     });
   });
+
+  describe("anti-RH-2 honesty and capability export invariants (am-a11y-action-contracts-n68n)", () => {
+    it("manifest does not assert false build step, toolchain, wasm-pack or wasm-bindgen version", () => {
+      const rawManifest = manifest as unknown as Record<string, unknown>;
+      assert.equal(
+        rawManifest.toolchain,
+        undefined,
+        "Manifest must not claim a false toolchain",
+      );
+      assert.equal(
+        rawManifest.wasmPackVersion,
+        undefined,
+        "Manifest must not claim a false wasm-pack version",
+      );
+      assert.equal(
+        rawManifest.wasmBindgenVersion,
+        undefined,
+        "Manifest must not claim a false wasm-bindgen version",
+      );
+      assert.equal(
+        manifest.build?.generator,
+        "scripts/wasm-artifacts/wasmArtifactGenerator.ts",
+        "Manifest must truthfully identify the placeholder generator",
+      );
+      assert.equal(
+        manifest.build?.generatorType,
+        "synthetic-placeholder",
+        "Manifest must truthfully label artifact as synthetic placeholder",
+      );
+      assert.equal(
+        (manifest.build as Record<string, unknown> | undefined)?.command,
+        undefined,
+        "Manifest must not assert a false build command",
+      );
+    });
+
+    it("every capability declared in the manifest corresponds to an actual export in the WASM binary", async () => {
+      const bytes = await loadWasmBytes(wasmPath);
+      const wasmModule = new WebAssembly.Module(bytes);
+      const actualExports = new Set(WebAssembly.Module.exports(wasmModule).map((e) => e.name));
+
+      for (const cap of manifest.capabilities) {
+        assert.ok(
+          actualExports.has(cap.browserExport),
+          `Manifest declares capability "${cap.capabilityId}" with browserExport "${cap.browserExport}", but WASM binary only exports: [${Array.from(actualExports).join(", ")}]`,
+        );
+      }
+    });
+
+    it("export validation fails if a declared capability is missing from the WASM binary exports", async () => {
+      const bytes = await loadWasmBytes(wasmPath);
+      const wasmModule = new WebAssembly.Module(bytes);
+      const actualExports = new Set(WebAssembly.Module.exports(wasmModule).map((e) => e.name));
+
+      function validateCapabilitiesAgainstWasm(
+        caps: readonly { capabilityId: string; browserExport: string }[],
+        exportsSet: Set<string>,
+      ): void {
+        for (const cap of caps) {
+          if (!exportsSet.has(cap.browserExport)) {
+            throw new Error(
+              `Missing export: capability "${cap.capabilityId}" requires "${cap.browserExport}", which is absent from WASM exports [${Array.from(exportsSet).join(", ")}]`,
+            );
+          }
+        }
+      }
+
+      // Must validate cleanly for active manifest
+      assert.doesNotThrow(() =>
+        validateCapabilitiesAgainstWasm(manifest.capabilities, actualExports),
+      );
+
+      // Must throw for unexported capabilities (e.g. brownian_frames or bogus export)
+      assert.throws(
+        () =>
+          validateCapabilitiesAgainstWasm(
+            [{ capabilityId: "diffusion.brownian-frames", browserExport: "brownian_frames" }],
+            actualExports,
+          ),
+        /Missing export: capability "diffusion\.brownian-frames" requires "brownian_frames"/,
+      );
+      assert.throws(
+        () =>
+          validateCapabilitiesAgainstWasm(
+            [{ capabilityId: "bogus.cap", browserExport: "bogus_missing_export" }],
+            actualExports,
+          ),
+        /Missing export: capability "bogus\.cap" requires "bogus_missing_export"/,
+      );
+    });
+
+    it("acceptanceState: owner-decided is not claimed for unaccepted capabilities", () => {
+      for (const cap of manifest.capabilities) {
+        assert.notEqual(
+          cap.acceptanceState,
+          "owner-decided",
+          `Capability "${cap.capabilityId}" falsely asserts acceptanceState "owner-decided"`,
+        );
+      }
+    });
+
+    it("no instrument reports WASM provenance or FrankenSim execution from this placeholder stub", async () => {
+      const { OWNER_BINDINGS } = await import("../experiments/owners.ts");
+      for (const [id, binding] of Object.entries(OWNER_BINDINGS)) {
+        assert.notEqual(
+          binding?.kind,
+          "frankensim",
+          `Instrument ${id} falsely claims "frankensim" owner binding`,
+        );
+      }
+
+      const { createInitialCoverageSummary } = await import(
+        "../content/coverage/coverageManifest.ts"
+      );
+      const coverage = createInitialCoverageSummary();
+      assert.equal(coverage.genericWasm, 0);
+      assert.equal(coverage.experimentSpecificWasm, 0);
+    });
+  });
 });

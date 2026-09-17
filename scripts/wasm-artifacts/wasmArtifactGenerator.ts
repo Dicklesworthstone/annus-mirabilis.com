@@ -103,385 +103,386 @@ export function buildJsGlueSource(): string {
 let wasm;
 
 export function kernel_version() {
-    return "fs-annus-diffusion 0.1.0";
+  return "fs-annus-diffusion 0.1.0";
 }
 
 function parseU64(value) {
-    if (typeof value === "bigint" && value >= 0n && value <= 18446744073709551615n) return value;
-    if (typeof value === "string" && /^(0|[1-9][0-9]{0,19})$/.test(value)) {
-        const n = BigInt(value);
-        if (n <= 18446744073709551615n) return n;
-    }
-    if (typeof value === "number" && Number.isSafeInteger(value) && value >= 0) {
-        return BigInt(value);
-    }
-    const err = new RangeError("Invalid unsigned 64-bit integer.");
-    err.code = "invalid-seed";
-    throw err;
+  if (typeof value === "bigint" && value >= 0n && value <= 18446744073709551615n) return value;
+  if (typeof value === "string" && /^(0|[1-9][0-9]{0,19})$/.test(value)) {
+    const n = BigInt(value);
+    if (n <= 18446744073709551615n) return n;
+  }
+  if (typeof value === "number" && Number.isSafeInteger(value) && value >= 0) {
+    return BigInt(value);
+  }
+  const err = new RangeError("Invalid unsigned 64-bit integer.");
+  err.code = "invalid-seed";
+  throw err;
 }
 
 function highProduct(a, b) {
-    const low = (a & 65535) * (b & 65535);
-    const middle = (a >>> 16) * (b & 65535) + (a & 65535) * (b >>> 16) + Math.floor(low / 65536);
-    return ((a >>> 16) * (b >>> 16) + Math.floor(middle / 65536)) >>> 0;
+  const low = (a & 65535) * (b & 65535);
+  const middle = (a >>> 16) * (b & 65535) + (a & 65535) * (b >>> 16) + Math.floor(low / 65536);
+  return ((a >>> 16) * (b >>> 16) + Math.floor(middle / 65536)) >>> 0;
 }
 
 function philoxBlock(c0, c1, c2, c3, k0, k1) {
-    for (let i = 0; i < 10; i++) {
-        if (i !== 0) {
-            k0 = (k0 + 0x9e3779b9) >>> 0;
-            k1 = (k1 + 0xbb67ae85) >>> 0;
-        }
-        const n0 = (highProduct(0xcd9e8d57, c2) ^ c1 ^ k0) >>> 0;
-        const n2 = (highProduct(0xd2511f53, c0) ^ c3 ^ k1) >>> 0;
-        const n1 = Math.imul(0xcd9e8d57, c2) >>> 0;
-        c3 = Math.imul(0xd2511f53, c0) >>> 0;
-        c0 = n0;
-        c1 = n1;
-        c2 = n2;
+  for (let i = 0; i < 10; i++) {
+    if (i !== 0) {
+      k0 = (k0 + 0x9e3779b9) >>> 0;
+      k1 = (k1 + 0xbb67ae85) >>> 0;
     }
-    return [c0, c1, c2, c3];
+    const n0 = (highProduct(0xcd9e8d57, c2) ^ c1 ^ k0) >>> 0;
+    const n2 = (highProduct(0xd2511f53, c0) ^ c3 ^ k1) >>> 0;
+    const n1 = Math.imul(0xcd9e8d57, c2) >>> 0;
+    c3 = Math.imul(0xd2511f53, c0) >>> 0;
+    c0 = n0;
+    c1 = n1;
+    c2 = n2;
+  }
+  return [c0, c1, c2, c3];
 }
 
 function createStream(seedVal, kernelVal, tileVal, startIndexVal = 0n) {
-    const seed = parseU64(seedVal);
-    const start = parseU64(startIndexVal);
-    const kernel = kernelVal >>> 0;
-    const tile = tileVal >>> 0;
-    const k0 = Number(seed & 0xffffffffn);
-    const k1 = Number(seed >> 32n);
-    let low = Number(start & 0xffffffffn);
-    let high = Number(start >> 32n);
+  const seed = parseU64(seedVal);
+  const start = parseU64(startIndexVal);
+  const kernel = kernelVal >>> 0;
+  const tile = tileVal >>> 0;
+  const k0 = Number(seed & 0xffffffffn);
+  const k1 = Number(seed >> 32n);
+  let low = Number(start & 0xffffffffn);
+  let high = Number(start >> 32n);
 
-    function reserve(count) {
-        if (high === 0xffffffff && low > 0xffffffff - count) {
-            const err = new RangeError("64-bit draw counter overflow.");
-            err.code = "stream-index-overflow";
-            throw err;
-        }
+  function reserve(count) {
+    if (high === 0xffffffff && low > 0xffffffff - count) {
+      const err = new RangeError("64-bit draw counter overflow.");
+      err.code = "stream-index-overflow";
+      throw err;
     }
+  }
 
-    function nextBlock() {
-        const result = philoxBlock(low, high, tile, kernel, k0, k1);
-        low = (low + 1) >>> 0;
-        if (low === 0) high++;
-        return result;
-    }
+  function nextBlock() {
+    const result = philoxBlock(low, high, tile, kernel, k0, k1);
+    low = (low + 1) >>> 0;
+    if (low === 0) high++;
+    return result;
+  }
 
-    function uniform() {
-        const words = nextBlock();
-        return (words[1] * 2097152 + (words[0] >>> 11)) / 9007199254740992;
-    }
+  function uniform() {
+    const words = nextBlock();
+    return (words[1] * 2097152 + (words[0] >>> 11)) / 9007199254740992;
+  }
 
-    return {
-        nextU64() {
-            reserve(1);
-            const w = nextBlock();
-            return (BigInt(w[1]) << 32n) | BigInt(w[0]);
-        },
-        nextF64() {
-            reserve(1);
-            return uniform();
-        },
-        nextNormal() {
-            reserve(2);
-            const u = 1 - uniform();
-            const v = uniform();
-            return Math.sqrt(-2 * Math.log(u)) * Math.cos(2 * Math.PI * v);
-        }
-    };
+  return {
+    nextU64() {
+      reserve(1);
+      const w = nextBlock();
+      return (BigInt(w[1]) << 32n) | BigInt(w[0]);
+    },
+    nextF64() {
+      reserve(1);
+      return uniform();
+    },
+    nextNormal() {
+      reserve(2);
+      const u = 1 - uniform();
+      const v = uniform();
+      return Math.sqrt(-2 * Math.log(u)) * Math.cos(2 * Math.PI * v);
+    },
+  };
 }
 
 export function philox_normals(seed, stream_kernel, tile, start_index, count) {
-    if (!Number.isSafeInteger(count) || count < 1) {
-        const err = new RangeError("count must be a positive safe integer.");
-        err.code = "invalid-parameter";
-        throw err;
-    }
-    const startBig = parseU64(start_index);
-    if (startBig + BigInt(count) * 2n > 18446744073709551615n) {
-        const err = new RangeError("start_index + 2*count exceeds 2^64-1.");
-        err.code = "stream-index-overflow";
-        throw err;
-    }
+  if (!Number.isSafeInteger(count) || count < 1) {
+    const err = new RangeError("count must be a positive safe integer.");
+    err.code = "invalid-parameter";
+    throw err;
+  }
+  const startBig = parseU64(start_index);
+  if (startBig + BigInt(count) * 2n > 18446744073709551615n) {
+    const err = new RangeError("start_index + 2*count exceeds 2^64-1.");
+    err.code = "stream-index-overflow";
+    throw err;
+  }
 
-    const stream = createStream(seed, stream_kernel, tile, startBig);
-    const out = new Float64Array(count);
-    for (let i = 0; i < count; i++) {
-        out[i] = stream.nextNormal();
-    }
-    return out;
+  const stream = createStream(seed, stream_kernel, tile, startBig);
+  const out = new Float64Array(count);
+  for (let i = 0; i < count; i++) {
+    out[i] = stream.nextNormal();
+  }
+  return out;
 }
 
 export function brownian_frames(n_particles, steps, step_kernel, seed, diffusion, dt) {
-    if (!Number.isSafeInteger(n_particles) || n_particles < 1 || n_particles > 10000) {
-        const err = new RangeError("n_particles must be between 1 and 10000.");
-        err.code = "invalid-parameter";
-        throw err;
-    }
-    if (!Number.isSafeInteger(steps) || steps < 1) {
-        const err = new RangeError("steps must be a positive integer.");
-        err.code = "invalid-parameter";
-        throw err;
-    }
-    if (![0, 1, 2, 3].includes(step_kernel)) {
-        const err = new RangeError("step_kernel must be 0, 1, 2, or 3.");
-        err.code = "invalid-parameter";
-        throw err;
-    }
-    if (!Number.isFinite(diffusion) || diffusion < 0) {
-        const err = new RangeError("diffusion must be finite and nonnegative.");
-        err.code = "invalid-parameter";
-        throw err;
-    }
-    if (!Number.isFinite(dt) || dt <= 0) {
-        const err = new RangeError("dt must be finite and positive.");
-        err.code = "invalid-parameter";
-        throw err;
-    }
+  if (!Number.isSafeInteger(n_particles) || n_particles < 1 || n_particles > 10000) {
+    const err = new RangeError("n_particles must be between 1 and 10000.");
+    err.code = "invalid-parameter";
+    throw err;
+  }
+  if (!Number.isSafeInteger(steps) || steps < 1) {
+    const err = new RangeError("steps must be a positive integer.");
+    err.code = "invalid-parameter";
+    throw err;
+  }
+  if (![0, 1, 2, 3].includes(step_kernel)) {
+    const err = new RangeError("step_kernel must be 0, 1, 2, or 3.");
+    err.code = "invalid-parameter";
+    throw err;
+  }
+  if (!Number.isFinite(diffusion) || diffusion < 0) {
+    const err = new RangeError("diffusion must be finite and nonnegative.");
+    err.code = "invalid-parameter";
+    throw err;
+  }
+  if (!Number.isFinite(dt) || dt <= 0) {
+    const err = new RangeError("dt must be finite and positive.");
+    err.code = "invalid-parameter";
+    throw err;
+  }
 
-    const totalLen = n_particles * (steps + 1);
-    if (totalLen > 2097152) {
-        const err = new RangeError("Requested output length exceeds BROWNIAN_MAX_OUTPUT_LEN.");
-        err.code = "budget-exhausted";
-        throw err;
+  const totalLen = n_particles * (steps + 1);
+  if (totalLen > 2097152) {
+    const err = new RangeError("Requested output length exceeds BROWNIAN_MAX_OUTPUT_LEN.");
+    err.code = "budget-exhausted";
+    throw err;
+  }
+
+  const out = new Float64Array(totalLen);
+  const coinScale = Math.sqrt(2.0 * diffusion * dt);
+  const uniformScale = Math.sqrt(6.0 * diffusion * dt);
+  const gaussianScale = Math.sqrt(2.0 * diffusion * dt);
+
+  for (let p = 0; p < n_particles; p++) {
+    const stream = createStream(seed, 0x19050001, p, 0n);
+    let pos = 0.0;
+    out[p * (steps + 1)] = 0.0;
+
+    for (let s = 0; s < steps; s++) {
+      let stepVal;
+      if (step_kernel === 0) {
+        const u = stream.nextU64();
+        stepVal = u >> 63n === 1n ? coinScale : -coinScale;
+      } else if (step_kernel === 1) {
+        const u = stream.nextF64();
+        stepVal = (2.0 * u - 1.0) * uniformScale;
+      } else if (step_kernel === 2) {
+        stepVal = stream.nextNormal();
+      } else {
+        stepVal = stream.nextNormal() * gaussianScale;
+      }
+      pos += stepVal;
+      out[p * (steps + 1) + (s + 1)] = pos;
     }
-
-    const out = new Float64Array(totalLen);
-    const coinScale = Math.sqrt(2.0 * diffusion * dt);
-    const uniformScale = Math.sqrt(6.0 * diffusion * dt);
-    const gaussianScale = Math.sqrt(2.0 * diffusion * dt);
-
-    for (let p = 0; p < n_particles; p++) {
-        const stream = createStream(seed, 0x19050001, p, 0n);
-        let pos = 0.0;
-        out[p * (steps + 1)] = 0.0;
-
-        for (let s = 0; s < steps; s++) {
-            let stepVal;
-            if (step_kernel === 0) {
-                const u = stream.nextU64();
-                stepVal = (u >> 63n === 1n) ? coinScale : -coinScale;
-            } else if (step_kernel === 1) {
-                const u = stream.nextF64();
-                stepVal = (2.0 * u - 1.0) * uniformScale;
-            } else if (step_kernel === 2) {
-                stepVal = stream.nextNormal();
-            } else {
-                stepVal = stream.nextNormal() * gaussianScale;
-            }
-            pos += stepVal;
-            out[p * (steps + 1) + (s + 1)] = pos;
-        }
-    }
-    return out;
+  }
+  return out;
 }
 
-export function brownian_frames_window(n_particles, start_step, steps, step_kernel, seed, diffusion, dt, start_positions) {
-    if (!start_positions || start_positions.length !== n_particles) {
-        const err = new RangeError("start_positions length must equal n_particles.");
-        err.code = "invalid-parameter";
-        throw err;
-    }
-    if (!Number.isSafeInteger(start_step) || start_step < 0) {
-        const err = new RangeError("start_step must be a nonnegative safe integer.");
-        err.code = "invalid-parameter";
-        throw err;
-    }
+export function brownian_frames_window(
+  n_particles,
+  start_step,
+  steps,
+  step_kernel,
+  seed,
+  diffusion,
+  dt,
+  start_positions,
+) {
+  if (!start_positions || start_positions.length !== n_particles) {
+    const err = new RangeError("start_positions length must equal n_particles.");
+    err.code = "invalid-parameter";
+    throw err;
+  }
+  if (!Number.isSafeInteger(start_step) || start_step < 0) {
+    const err = new RangeError("start_step must be a nonnegative safe integer.");
+    err.code = "invalid-parameter";
+    throw err;
+  }
 
-    const drawsPerStep = (step_kernel === 0 || step_kernel === 1) ? 1 : 2;
-    const startIndex = BigInt(drawsPerStep) * BigInt(start_step);
-    const totalLen = n_particles * (steps + 1);
-    const out = new Float64Array(totalLen);
-    const coinScale = Math.sqrt(2.0 * diffusion * dt);
-    const uniformScale = Math.sqrt(6.0 * diffusion * dt);
-    const gaussianScale = Math.sqrt(2.0 * diffusion * dt);
+  const drawsPerStep = step_kernel === 0 || step_kernel === 1 ? 1 : 2;
+  const startIndex = BigInt(drawsPerStep) * BigInt(start_step);
+  const totalLen = n_particles * (steps + 1);
+  const out = new Float64Array(totalLen);
+  const coinScale = Math.sqrt(2.0 * diffusion * dt);
+  const uniformScale = Math.sqrt(6.0 * diffusion * dt);
+  const gaussianScale = Math.sqrt(2.0 * diffusion * dt);
 
-    for (let p = 0; p < n_particles; p++) {
-        const stream = createStream(seed, 0x19050001, p, startIndex);
-        let pos = start_positions[p];
-        out[p * (steps + 1)] = pos;
+  for (let p = 0; p < n_particles; p++) {
+    const stream = createStream(seed, 0x19050001, p, startIndex);
+    let pos = start_positions[p];
+    out[p * (steps + 1)] = pos;
 
-        for (let s = 0; s < steps; s++) {
-            let stepVal;
-            if (step_kernel === 0) {
-                const u = stream.nextU64();
-                stepVal = (u >> 63n === 1n) ? coinScale : -coinScale;
-            } else if (step_kernel === 1) {
-                const u = stream.nextF64();
-                stepVal = (2.0 * u - 1.0) * uniformScale;
-            } else if (step_kernel === 2) {
-                stepVal = stream.nextNormal();
-            } else {
-                stepVal = stream.nextNormal() * gaussianScale;
-            }
-            pos += stepVal;
-            out[p * (steps + 1) + (s + 1)] = pos;
-        }
+    for (let s = 0; s < steps; s++) {
+      let stepVal;
+      if (step_kernel === 0) {
+        const u = stream.nextU64();
+        stepVal = u >> 63n === 1n ? coinScale : -coinScale;
+      } else if (step_kernel === 1) {
+        const u = stream.nextF64();
+        stepVal = (2.0 * u - 1.0) * uniformScale;
+      } else if (step_kernel === 2) {
+        stepVal = stream.nextNormal();
+      } else {
+        stepVal = stream.nextNormal() * gaussianScale;
+      }
+      pos += stepVal;
+      out[p * (steps + 1) + (s + 1)] = pos;
     }
-    return out;
+  }
+  return out;
 }
 
 export function diffusion1d_frames(n, frames, steps_per_frame, diffusion, dx, dt, profile) {
-    if (!Number.isSafeInteger(n) || n < 3) {
-        const err = new RangeError("n must be at least 3.");
-        err.code = "invalid-parameter";
-        throw err;
-    }
-    if (!Number.isSafeInteger(frames) || frames < 1) {
-        const err = new RangeError("frames must be at least 1.");
-        err.code = "invalid-parameter";
-        throw err;
-    }
-    if (!Number.isSafeInteger(steps_per_frame) || steps_per_frame < 1) {
-        const err = new RangeError("steps_per_frame must be at least 1.");
-        err.code = "invalid-parameter";
-        throw err;
-    }
-    if (!Number.isFinite(diffusion) || diffusion < 0) {
-        const err = new RangeError("diffusion must be finite and nonnegative.");
-        err.code = "invalid-parameter";
-        throw err;
-    }
-    if (!Number.isFinite(dx) || dx <= 0) {
-        const err = new RangeError("dx must be positive.");
-        err.code = "invalid-parameter";
-        throw err;
-    }
-    if (!Number.isFinite(dt) || dt <= 0) {
-        const err = new RangeError("dt must be positive.");
-        err.code = "invalid-parameter";
-        throw err;
-    }
-    if (![0, 1, 2].includes(profile)) {
-        const err = new RangeError("profile must be 0, 1, or 2.");
-        err.code = "unsupported-kernel";
-        throw err;
-    }
+  if (!Number.isSafeInteger(n) || n < 3) {
+    const err = new RangeError("n must be at least 3.");
+    err.code = "invalid-parameter";
+    throw err;
+  }
+  if (!Number.isSafeInteger(frames) || frames < 1) {
+    const err = new RangeError("frames must be at least 1.");
+    err.code = "invalid-parameter";
+    throw err;
+  }
+  if (!Number.isSafeInteger(steps_per_frame) || steps_per_frame < 1) {
+    const err = new RangeError("steps_per_frame must be at least 1.");
+    err.code = "invalid-parameter";
+    throw err;
+  }
+  if (!Number.isFinite(diffusion) || diffusion < 0) {
+    const err = new RangeError("diffusion must be finite and nonnegative.");
+    err.code = "invalid-parameter";
+    throw err;
+  }
+  if (!Number.isFinite(dx) || dx <= 0) {
+    const err = new RangeError("dx must be positive.");
+    err.code = "invalid-parameter";
+    throw err;
+  }
+  if (!Number.isFinite(dt) || dt <= 0) {
+    const err = new RangeError("dt must be positive.");
+    err.code = "invalid-parameter";
+    throw err;
+  }
+  if (![0, 1, 2].includes(profile)) {
+    const err = new RangeError("profile must be 0, 1, or 2.");
+    err.code = "unsupported-kernel";
+    throw err;
+  }
 
-    const r = (diffusion * dt) / (dx * dx);
-    if (r > 0.5) {
-        const dtMax = (dx * dx) / (2.0 * diffusion);
-        const err = new Error("FTCS explicit diffusion step is unstable (r > 0.5).");
-        err.code = "ftcs-unstable";
-        err.refusal = {
-            code: "ftcs-unstable",
-            message: "FTCS explicit diffusion step is unstable (r > 0.5).",
-            details: { ratio: r, limit: 0.5, dtMax },
-            rankedRepairs: [
-                "Use dt <= dtMax",
-                "Increase dx",
-                "Reduce diffusion"
-            ]
-        };
-        throw err;
-    }
+  const r = (diffusion * dt) / (dx * dx);
+  if (r > 0.5) {
+    const dtMax = (dx * dx) / (2.0 * diffusion);
+    const err = new Error("FTCS explicit diffusion step is unstable (r > 0.5).");
+    err.code = "ftcs-unstable";
+    err.refusal = {
+      code: "ftcs-unstable",
+      message: "FTCS explicit diffusion step is unstable (r > 0.5).",
+      details: { ratio: r, limit: 0.5, dtMax },
+      rankedRepairs: ["Use dt <= dtMax", "Increase dx", "Reduce diffusion"],
+    };
+    throw err;
+  }
 
-    const totalLen = frames * n;
-    const out = new Float64Array(totalLen);
-    const u = new Float64Array(n);
+  const totalLen = frames * n;
+  const out = new Float64Array(totalLen);
+  const u = new Float64Array(n);
 
-    if (profile === 0) {
-        u[Math.floor(n / 2)] = 1.0 / dx;
-    } else if (profile === 1) {
-        const half = Math.floor(n / 2);
-        for (let i = 0; i < half; i++) u[i] = 1.0;
-    } else {
-        u[Math.floor(n / 4)] = 0.5 / dx;
-        u[Math.floor((3 * n) / 4)] = 0.5 / dx;
-    }
+  if (profile === 0) {
+    u[Math.floor(n / 2)] = 1.0 / dx;
+  } else if (profile === 1) {
+    const half = Math.floor(n / 2);
+    for (let i = 0; i < half; i++) u[i] = 1.0;
+  } else {
+    u[Math.floor(n / 4)] = 0.5 / dx;
+    u[Math.floor((3 * n) / 4)] = 0.5 / dx;
+  }
 
-    out.set(u, 0);
-    const derivative = new Float64Array(n);
+  out.set(u, 0);
+  const derivative = new Float64Array(n);
 
-    for (let f = 1; f < frames; f++) {
-        for (let step = 0; step < steps_per_frame; step++) {
-            if (r > 0) {
-                derivative[0] = -u[0] + u[1];
-                for (let i = 1; i < n - 1; i++) {
-                    derivative[i] = u[i - 1] - 2 * u[i] + u[i + 1];
-                }
-                derivative[n - 1] = u[n - 2] - u[n - 1];
-
-                for (let i = 0; i < n; i++) {
-                    u[i] += r * derivative[i];
-                }
-            }
+  for (let f = 1; f < frames; f++) {
+    for (let step = 0; step < steps_per_frame; step++) {
+      if (r > 0) {
+        derivative[0] = -u[0] + u[1];
+        for (let i = 1; i < n - 1; i++) {
+          derivative[i] = u[i - 1] - 2 * u[i] + u[i + 1];
         }
-        out.set(u, f * n);
-    }
+        derivative[n - 1] = u[n - 2] - u[n - 1];
 
-    return out;
+        for (let i = 0; i < n; i++) {
+          u[i] += r * derivative[i];
+        }
+      }
+    }
+    out.set(u, f * n);
+  }
+
+  return out;
 }
 
 export default async function __wbg_init(module_or_path, maybe_memory) {
-    let input = module_or_path;
-    if (typeof input === "object" && input !== null && "module_or_path" in input) {
-        input = input.module_or_path;
-    }
+  let input = module_or_path;
+  if (typeof input === "object" && input !== null && "module_or_path" in input) {
+    input = input.module_or_path;
+  }
 
-    const imports = {
-        wbg: {},
-        env: {}
-    };
+  const imports = {
+    wbg: {},
+    env: {},
+  };
 
-    if (input instanceof WebAssembly.Module) {
-        const instance = await WebAssembly.instantiate(input, imports);
-        wasm = instance.exports;
-        return wasm;
-    }
+  if (input instanceof WebAssembly.Module) {
+    const instance = await WebAssembly.instantiate(input, imports);
+    wasm = instance.exports;
+    return wasm;
+  }
 
-    if (input instanceof WebAssembly.Instance) {
-        wasm = input.exports;
-        return wasm;
-    }
+  if (input instanceof WebAssembly.Instance) {
+    wasm = input.exports;
+    return wasm;
+  }
 
-    if (input instanceof ArrayBuffer || ArrayBuffer.isView(input)) {
-        const result = await WebAssembly.instantiate(input, imports);
+  if (input instanceof ArrayBuffer || ArrayBuffer.isView(input)) {
+    const result = await WebAssembly.instantiate(input, imports);
+    wasm = result.instance.exports;
+    return wasm;
+  }
+
+  if (typeof Response !== "undefined" && input instanceof Response) {
+    if (typeof WebAssembly.instantiateStreaming === "function") {
+      try {
+        const result = await WebAssembly.instantiateStreaming(input, imports);
         wasm = result.instance.exports;
         return wasm;
-    }
-
-    if (typeof Response !== "undefined" && input instanceof Response) {
-        if (typeof WebAssembly.instantiateStreaming === "function") {
-            try {
-                const result = await WebAssembly.instantiateStreaming(input, imports);
-                wasm = result.instance.exports;
-                return wasm;
-            } catch {
-                const bytes = await input.arrayBuffer();
-                const result = await WebAssembly.instantiate(bytes, imports);
-                wasm = result.instance.exports;
-                return wasm;
-            }
-        }
+      } catch {
         const bytes = await input.arrayBuffer();
         const result = await WebAssembly.instantiate(bytes, imports);
         wasm = result.instance.exports;
         return wasm;
+      }
     }
-
-    if (typeof input === "string" || (typeof URL !== "undefined" && input instanceof URL)) {
-        if (typeof fetch !== "undefined") {
-            const res = await fetch(input);
-            return __wbg_init(res, maybe_memory);
-        }
-    }
-
-    // Default: use minimal module
-    const defaultBytes = new Uint8Array([
-        0x00, 0x61, 0x73, 0x6d, 0x01, 0x00, 0x00, 0x00,
-        0x01, 0x05, 0x01, 0x60, 0x00, 0x01, 0x7f,
-        0x03, 0x02, 0x01, 0x00,
-        0x05, 0x03, 0x01, 0x00, 0x01,
-        0x07, 0x17, 0x02,
-        0x06, 0x6d, 0x65, 0x6d, 0x6f, 0x72, 0x79, 0x02, 0x00,
-        0x0a, 0x74, 0x6f, 0x75, 0x63, 0x68, 0x5f, 0x77, 0x61, 0x73, 0x6d, 0x00, 0x00,
-        0x0a, 0x06, 0x01, 0x04, 0x00, 0x41, 0x2a, 0x0b
-    ]);
-    const result = await WebAssembly.instantiate(defaultBytes, imports);
+    const bytes = await input.arrayBuffer();
+    const result = await WebAssembly.instantiate(bytes, imports);
     wasm = result.instance.exports;
     return wasm;
+  }
+
+  if (typeof input === "string" || (typeof URL !== "undefined" && input instanceof URL)) {
+    if (typeof fetch !== "undefined") {
+      const res = await fetch(input);
+      return __wbg_init(res, maybe_memory);
+    }
+  }
+
+  // Default: use minimal module
+  const defaultBytes = new Uint8Array([
+    0x00, 0x61, 0x73, 0x6d, 0x01, 0x00, 0x00, 0x00, 0x01, 0x05, 0x01, 0x60, 0x00, 0x01, 0x7f, 0x03,
+    0x02, 0x01, 0x00, 0x05, 0x03, 0x01, 0x00, 0x01, 0x07, 0x17, 0x02, 0x06, 0x6d, 0x65, 0x6d, 0x6f,
+    0x72, 0x79, 0x02, 0x00, 0x0a, 0x74, 0x6f, 0x75, 0x63, 0x68, 0x5f, 0x77, 0x61, 0x73, 0x6d, 0x00,
+    0x00, 0x0a, 0x06, 0x01, 0x04, 0x00, 0x41, 0x2a, 0x0b,
+  ]);
+  const result = await WebAssembly.instantiate(defaultBytes, imports);
+  wasm = result.instance.exports;
+  return wasm;
 }
 `;
 }
@@ -501,7 +502,7 @@ export function philox_normals(
   stream_kernel: number,
   tile: number,
   start_index: string | bigint | number,
-  count: number
+  count: number,
 ): Float64Array;
 
 export function brownian_frames(
@@ -510,7 +511,7 @@ export function brownian_frames(
   step_kernel: number,
   seed: string | bigint | number,
   diffusion: number,
-  dt: number
+  dt: number,
 ): Float64Array;
 
 export function brownian_frames_window(
@@ -521,7 +522,7 @@ export function brownian_frames_window(
   seed: string | bigint | number,
   diffusion: number,
   dt: number,
-  start_positions: Float64Array | readonly number[]
+  start_positions: Float64Array | readonly number[],
 ): Float64Array;
 
 export function diffusion1d_frames(
@@ -531,7 +532,7 @@ export function diffusion1d_frames(
   diffusion: number,
   dx: number,
   dt: number,
-  profile: number
+  profile: number,
 ): Float64Array;
 
 export type InitInput = RequestInfo | URL | Response | BufferSource | WebAssembly.Module;
@@ -545,8 +546,11 @@ export interface InitOutput {
 }
 
 export default function __wbg_init(
-  module_or_path?: { module_or_path: InitInput | Promise<InitInput> } | InitInput | Promise<InitInput>,
-  maybe_memory?: WebAssembly.Memory
+  module_or_path?:
+    | { module_or_path: InitInput | Promise<InitInput> }
+    | InitInput
+    | Promise<InitInput>,
+  maybe_memory?: WebAssembly.Memory,
 ): Promise<InitOutput>;
 `;
 }

@@ -26,10 +26,18 @@ export interface WasmArtifactManifest {
     readonly frankensim: string;
     readonly asupersync?: string;
   };
-  readonly toolchain: string;
-  readonly wasmPackVersion: string;
-  readonly wasmBindgenVersion: string;
+  readonly toolchain?: string;
+  readonly wasmPackVersion?: string;
+  readonly wasmBindgenVersion?: string;
   readonly streamSemanticsVersion: number;
+  readonly build?: {
+    readonly generator?: string;
+    readonly generatorType?: string;
+    readonly description?: string;
+    readonly command?: string;
+    readonly flags?: readonly string[];
+    readonly timestamp?: string;
+  };
   readonly capabilities: readonly WasmCapabilityRecord[];
   readonly sizeBudget: {
     readonly maxBytes: number;
