@@ -1,14 +1,7 @@
-import { describe, expect, mock, test } from "bun:test";
+import { describe, expect, test } from "bun:test";
 import { renderToStaticMarkup } from "react-dom/server";
-import { ShowTheCode } from "../components/lab/ShowTheCode.tsx";
 import { getKernelListingsForInstrument } from "../content/kernel/listings.ts";
-
-mock.module("../components/lab/TracerLab", () => ({
-  TracerLab: () => (
-    <ShowTheCode listings={getKernelListingsForInstrument("bm-01")} uid="stc-bm-01" />
-  ),
-}));
-
+import { PaperPage } from "./PaperPage.tsx";
 import { PaperReader } from "./PaperReader.tsx";
 
 export type ExtractedLink = {
@@ -46,6 +39,14 @@ export function groupLinksByName(links: readonly ExtractedLink[]): Map<string, S
   return map;
 }
 
+export const BENIGN_SAME_TARGET_NAMES = new Set([
+  "Zero average is not no movement",
+  "Why the square grows with time",
+  "From a step law to a density law",
+  "What the spreading curve predicts",
+  "Why viscosity changes the spread",
+]);
+
 describe("PaperReader link accessible names (am-jmma)", () => {
   test("re-measurement: every name with genuinely differing destinations reaches exactly 1 destination", async () => {
     const jsx = await PaperReader({});
@@ -58,14 +59,6 @@ describe("PaperReader link accessible names (am-jmma)", () => {
 
     // All remaining multi-destination names must be the triaged benign set
     // where outline and prerequisite heading point to the SAME section anchor
-    const BENIGN_SAME_TARGET_NAMES = new Set([
-      "Zero average is not no movement",
-      "Why the square grows with time",
-      "From a step law to a density law",
-      "What the spreading curve predicts",
-      "Why viscosity changes the spread",
-    ]);
-
     for (const [name, hrefs] of multi) {
       expect(BENIGN_SAME_TARGET_NAMES.has(name)).toBe(true);
       // Verify both hrefs actually resolve to the exact same hash anchor target
@@ -103,7 +96,39 @@ describe("PaperReader link accessible names (am-jmma)", () => {
     expect(byName.get("Explanation")?.size).toBe(1);
   });
 
+  test("PaperPage on brownian-motion also isolates distinct destinations cleanly", async () => {
+    const jsx = await PaperPage({ paperId: "brownian-motion" });
+    const html = renderToStaticMarkup(jsx);
+    const links = extractLinks(html);
+    const byName = groupLinksByName(links);
+
+    const multi = [...byName.entries()].filter(([_, hrefs]) => hrefs.size > 1);
+    for (const [name, hrefs] of multi) {
+      expect(BENIGN_SAME_TARGET_NAMES.has(name)).toBe(true);
+      const targets = [...hrefs].map((h) => {
+        const hashIdx = h.indexOf("#");
+        return hashIdx >= 0 ? h.slice(hashIdx) : h;
+      });
+      const uniqueTargets = new Set(targets);
+      expect(uniqueTargets.size).toBe(1);
+    }
+  });
+
   describe("AC4 negative: naive fixes fail link accessibility isolation", () => {
+    test("planted negative: reverting section aria-label on real rendered markup fails verification", async () => {
+      const jsx = await PaperReader({});
+      let html = renderToStaticMarkup(jsx);
+      // Strip aria-label from section-only reading links so they collapse to 'Section-only reading →'
+      html = html.replace(/aria-label="Section-only reading: [^"]*"/g, "");
+      const links = extractLinks(html);
+      const byName = groupLinksByName(links);
+
+      const multi = [...byName.entries()].filter(([_, hrefs]) => hrefs.size > 1);
+      const unTriagedMulti = multi.filter(([name]) => !BENIGN_SAME_TARGET_NAMES.has(name));
+      expect(unTriagedMulti.length).toBeGreaterThan(0);
+      expect(byName.get("Section-only reading →")?.size).toBe(2);
+    });
+
     test("two sections offering the same action type without section title collide", () => {
       // Simulates a naive fix that adds aria-label="Section-only reading" without the section title
       const naiveHtml = `
