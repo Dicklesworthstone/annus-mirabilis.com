@@ -4,9 +4,10 @@ import { type FormEvent, useEffect, useId, useRef, useState } from "react";
 import {
   type AnswerVerdict,
   checkExerciseAnswer,
-  exerciseDefinitionKey,
   type ExpressionExercisePart,
+  exerciseDefinitionKey,
 } from "../../discovery/exercises/answer.ts";
+
 export type { ExpressionExercisePart } from "../../discovery/exercises/answer.ts";
 
 /** A changed computational definition remounts the form instead of relabelling its verdict. */
