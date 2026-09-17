@@ -131,6 +131,19 @@ describe("compareBitwise", () => {
     expect(v.detail).toContain("index: 2");
   });
 
+  test("distinguishes +0 from -0 by IEEE-754 bit pattern, paired with +0 vs +0 matching so the assertion discriminates", () => {
+    const negativeVsPositive = compareBitwise(0, -0);
+    expect(negativeVsPositive.ok).toBe(false);
+    expect(negativeVsPositive.kind).toBe("mismatch");
+    expect(negativeVsPositive.detail).toContain("bit patterns differ");
+    expect(negativeVsPositive.detail).toContain("0x0");
+    expect(negativeVsPositive.detail).toContain("0x8000000000000000");
+
+    const positiveVsPositive = compareBitwise(0, 0);
+    expect(positiveVsPositive.ok).toBe(true);
+    expect(positiveVsPositive.kind).toBe("match");
+  });
+
   test("compares array digests exactly instead of coercing them to NaN", () => {
     expect(compareBitwise(["digest-a"], ["digest-a"]).ok).toBe(true);
     const mismatch = compareBitwise(["same", "digest-a"], ["same", "digest-b"]);
