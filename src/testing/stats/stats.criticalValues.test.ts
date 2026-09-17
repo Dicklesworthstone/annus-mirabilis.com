@@ -20,29 +20,41 @@ describe("Critical Values Table & Spot Checks (am-ver-statistical-policy-grj)", 
 
   it("passes exact spot checks from acceptance criteria", () => {
     const spots = getSpotChecks();
+    const { chi2_1_0975, chi2_10_0025, chi2_10_0975, chi2_100_0025, chi2_100_0975, z_09995 } =
+      spots;
+    if (
+      chi2_1_0975 === undefined ||
+      chi2_10_0025 === undefined ||
+      chi2_10_0975 === undefined ||
+      chi2_100_0025 === undefined ||
+      chi2_100_0975 === undefined ||
+      z_09995 === undefined
+    ) {
+      throw new Error("Missing spot checks in critical values table");
+    }
 
     // chi2(1, 0.975) = 5.0239
-    expect(spots.chi2_1_0975!.toFixed(4)).toBe("5.0239");
+    expect(chi2_1_0975.toFixed(4)).toBe("5.0239");
     expect(getChi2Quantile(1, 0.975).toFixed(4)).toBe("5.0239");
 
     // chi2(10, 0.025) = 3.2470
-    expect(spots.chi2_10_0025!.toFixed(4)).toBe("3.2470");
+    expect(chi2_10_0025.toFixed(4)).toBe("3.2470");
     expect(getChi2Quantile(10, 0.025).toFixed(4)).toBe("3.2470");
 
     // chi2(10, 0.975) = 20.4832
-    expect(spots.chi2_10_0975!.toFixed(4)).toBe("20.4832");
+    expect(chi2_10_0975.toFixed(4)).toBe("20.4832");
     expect(getChi2Quantile(10, 0.975).toFixed(4)).toBe("20.4832");
 
     // chi2(100, 0.025) = 74.2219
-    expect(spots.chi2_100_0025!.toFixed(4)).toBe("74.2219");
+    expect(chi2_100_0025.toFixed(4)).toBe("74.2219");
     expect(getChi2Quantile(100, 0.025).toFixed(4)).toBe("74.2219");
 
     // chi2(100, 0.975) = 129.5612
-    expect(spots.chi2_100_0975!.toFixed(4)).toBe("129.5612");
+    expect(chi2_100_0975.toFixed(4)).toBe("129.5612");
     expect(getChi2Quantile(100, 0.975).toFixed(4)).toBe("129.5612");
 
     // z(0.9995) = 3.2905
-    expect(spots.z_09995!.toFixed(4)).toBe("3.2905");
+    expect(z_09995.toFixed(4)).toBe("3.2905");
     expect(getNormalQuantile(0.9995).toFixed(4)).toBe("3.2905");
   });
 
