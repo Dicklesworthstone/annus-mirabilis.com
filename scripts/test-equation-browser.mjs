@@ -67,19 +67,19 @@ export async function checkEquationBrowser(browser, url, check) {
     const formula = rms.locator(".equation-formula");
     await formula.focus();
     await formula.press("Enter");
-    assert.equal(await rms.getAttribute("data-selected-node-id"), eqId("rms") + ".op.equality");
+    assert.equal(await rms.getAttribute("data-selected-node-id"), `${eqId("rms")}.op.equality`);
     await formula.press("ArrowDown");
-    assert.equal(await rms.getAttribute("data-selected-node-id"), eqId("rms") + ".t.rms");
+    assert.equal(await rms.getAttribute("data-selected-node-id"), `${eqId("rms")}.t.rms`);
     await formula.press("ArrowRight");
-    assert.equal(await rms.getAttribute("data-selected-node-id"), eqId("rms") + ".op.squareRoot");
+    assert.equal(await rms.getAttribute("data-selected-node-id"), `${eqId("rms")}.op.squareRoot`);
     assert.match(
       await rms.locator(".equation-inspector").innerText(),
       /positive square root has units of length/,
     );
     await formula.press("ArrowDown");
-    assert.equal(await rms.getAttribute("data-selected-node-id"), eqId("rms") + ".op.meanSquare");
+    assert.equal(await rms.getAttribute("data-selected-node-id"), `${eqId("rms")}.op.meanSquare`);
     await formula.press("ArrowUp");
-    assert.equal(await rms.getAttribute("data-selected-node-id"), eqId("rms") + ".op.squareRoot");
+    assert.equal(await rms.getAttribute("data-selected-node-id"), `${eqId("rms")}.op.squareRoot`);
     await formula.press("Escape");
     assert.equal(await rms.getAttribute("data-selected-node-id"), null);
     await formula.press("Tab");
@@ -101,7 +101,7 @@ export async function checkEquationBrowser(browser, url, check) {
       ).every((value) => value === "none"),
     );
     await rms.locator('.equation-visual [data-term="eq-model-bm-rms.t.diffusion"]').click();
-    assert.equal(await rms.getAttribute("data-selected-node-id"), eqId("rms") + ".t.diffusion");
+    assert.equal(await rms.getAttribute("data-selected-node-id"), `${eqId("rms")}.t.diffusion`);
     await page.waitForFunction(
       () =>
         document.querySelector(
@@ -281,7 +281,7 @@ export async function checkEquationBrowser(browser, url, check) {
     await page.waitForFunction((id) => document.activeElement.id === id, triggerId);
     assert.equal(
       await readerRms.getAttribute("data-selected-node-id"),
-      eqId("rms") + ".op.squareRoot",
+      `${eqId("rms")}.op.squareRoot`,
     );
     assert.equal(workers, workersBefore);
     assert.deepEqual(errors, []);
