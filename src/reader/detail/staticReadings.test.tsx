@@ -31,6 +31,11 @@ describe("am-read-detail-axis-sfc: static reading emission", () => {
     // No-JS per-unit expansion disclosure exists statically
     expect(html).toContain('<details class="local-steps">');
     expect(html).toContain("<summary>Show every step here:");
+
+    // Passage actions include Why? link for arg-bm-observable (am-10ba)
+    expect(html).toContain('href="/foundations/mean-variance-rms/"');
+    expect(html).toContain('data-foundation="mean-variance-rms"');
+    expect(html).toContain(">Why?</a>");
   });
 
   test("PaperPage emits all four readings statically for generic paper routes", async () => {
@@ -55,5 +60,23 @@ describe("am-read-detail-axis-sfc: static reading emission", () => {
     // No-JS local-steps disclosure exists statically
     expect(html).toContain('<details class="local-steps">');
     expect(html).toContain("<summary>Show every step here:");
+
+    // Passage actions include Why? link for arg-bm-observable (am-10ba)
+    expect(html).toContain('href="/foundations/mean-variance-rms/"');
+    expect(html).toContain('data-foundation="mean-variance-rms"');
+    expect(html).toContain(">Why?</a>");
+  });
+
+  test("planted negative: removing the Why? link from the paper index fails detection", async () => {
+    const readerHtml = renderToStaticMarkup(await PaperReader({}));
+    const pageHtml = renderToStaticMarkup(await PaperPage({ paperId: "brownian-motion" }));
+
+    // Real render contains the link
+    expect(readerHtml).toContain(">Why?</a>");
+    expect(pageHtml).toContain(">Why?</a>");
+
+    // Planted negative: if the link were omitted or stripped from index, detection fails
+    const corruptedIndex = readerHtml.replaceAll(">Why?</a>", "");
+    expect(corruptedIndex.includes(">Why?</a>")).toBe(false);
   });
 });

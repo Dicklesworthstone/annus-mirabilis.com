@@ -1,5 +1,7 @@
 import { notFound } from "next/navigation";
 import { loadPaper } from "../content/server.ts";
+import { passageActionsFromArgument } from "./actions/fromArgument.ts";
+import { PassageActionsBar } from "./actions/PassageActionsBar.tsx";
 import { FoundationBody, ReadingBlocks } from "./Blocks.tsx";
 import { FaceFallback } from "./FaceFallback.tsx";
 import {
@@ -148,7 +150,33 @@ export async function PaperPage(request: PaperRouteRequest) {
                           <li key={x}>{x}</li>
                         ))}
                       </ul>
+                      {a.prerequisites.length > 0 && (
+                        <p>
+                          Earlier step:{" "}
+                          {a.prerequisites.map((x) => {
+                            const prereq = payload.arguments.find((p) => p.id === x.id);
+                            return (
+                              <a key={x.id} href={`/papers/${paper.id}/#${x.id}`}>
+                                {prereq?.title ?? x.id}
+                              </a>
+                            );
+                          })}
+                        </p>
+                      )}
                     </details>
+                    <PassageActionsBar
+                      paperId={paper.id}
+                      passageId={a.id}
+                      passageLabel={a.title}
+                      actions={passageActionsFromArgument(a)}
+                    />
+                    <p className="fine">
+                      Source context:{" "}
+                      <a href={`/papers/${paper.id}/view/german/#${a.id}`}>German source</a> ·{" "}
+                      <a href={`/papers/${paper.id}/view/english/#${a.id}`}>English</a> ·{" "}
+                      <a href={`/papers/${paper.id}/view/gloss/#${a.id}`}>Interlinear gloss</a> ·{" "}
+                      <a href={`/papers/${paper.id}/view/facsimile/#${a.id}`}>Facsimile</a>
+                    </p>
                   </article>
                 ))}
             </section>

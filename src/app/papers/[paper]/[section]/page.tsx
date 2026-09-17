@@ -1,5 +1,6 @@
 import { OfflineChapterLinks } from "../../../../platform/offline/OfflineChapterLinks.tsx";
 import { PaperPage } from "../../../../reader/PaperPage.tsx";
+import { PaperReader } from "../../../../reader/PaperReader.tsx";
 import { paperMetadata, sectionStaticParams } from "../../../../reader/paperRoutes.ts";
 
 export const dynamicParams = false;
@@ -23,6 +24,14 @@ export default async function Page({
   params: Promise<{ paper: string; section: string }>;
 }) {
   const { paper, section } = await params;
+  if (paper === "brownian-motion") {
+    return (
+      <>
+        <PaperReader section={section} />
+        <OfflineChapterLinks paperId="brownian-motion" section={section} />
+      </>
+    );
+  }
   return (
     <>
       <PaperPage paperId={paper} section={section} />
