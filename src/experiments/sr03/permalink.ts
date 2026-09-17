@@ -1,5 +1,5 @@
 import { parseScaledDecimal } from "../../units/decimalScale.ts";
-import { type Sr03Parameters } from "./definition.ts";
+import type { Sr03Parameters } from "./definition.ts";
 import { validateSr03Parameters } from "./parameters.ts";
 
 const requiredKeys = ["rodRestFrame", "v", "L0", "measuringFrame", "endpointPairId", "R"] as const;
@@ -50,13 +50,21 @@ export function decodeSr03Settings(search: string): Sr03SettingsLink {
   raw.endpointPairId = q.get("endpointPairId");
 
   try {
-    raw.v = parseScaledDecimal(q.get("v")!, 0);
-    raw.L0 = parseScaledDecimal(q.get("L0")!, 0);
-    raw.R = parseScaledDecimal(q.get("R")!, 0);
-    if (q.has("customT1")) raw.customT1 = parseScaledDecimal(q.get("customT1")!, 0);
-    if (q.has("customX1")) raw.customX1 = parseScaledDecimal(q.get("customX1")!, 0);
-    if (q.has("customT2")) raw.customT2 = parseScaledDecimal(q.get("customT2")!, 0);
-    if (q.has("customX2")) raw.customX2 = parseScaledDecimal(q.get("customX2")!, 0);
+    const vStr = q.get("v");
+    const l0Str = q.get("L0");
+    const rStr = q.get("R");
+    if (vStr === null || l0Str === null || rStr === null) return invalid();
+    raw.v = parseScaledDecimal(vStr, 0);
+    raw.L0 = parseScaledDecimal(l0Str, 0);
+    raw.R = parseScaledDecimal(rStr, 0);
+    const customT1 = q.get("customT1");
+    if (customT1 !== null) raw.customT1 = parseScaledDecimal(customT1, 0);
+    const customX1 = q.get("customX1");
+    if (customX1 !== null) raw.customX1 = parseScaledDecimal(customX1, 0);
+    const customT2 = q.get("customT2");
+    if (customT2 !== null) raw.customT2 = parseScaledDecimal(customT2, 0);
+    const customX2 = q.get("customX2");
+    if (customX2 !== null) raw.customX2 = parseScaledDecimal(customX2, 0);
   } catch {
     return invalid();
   }
