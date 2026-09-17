@@ -10,4 +10,5 @@ export * from "./fixture.ts";
 export * from "./replay.ts";
 export * from "./schema.ts";
 export * from "./shareForms.ts";
+export * from "./ShareControl.tsx";
 export * from "./types.ts";
