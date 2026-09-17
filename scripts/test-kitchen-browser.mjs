@@ -331,7 +331,10 @@ export async function checkKitchenBrowser(browser, url, check) {
     assert.deepEqual(await identity(lab), beforeExport);
     const pasteDetails = lab
       .locator("details")
-      .filter({ has: lab.getByText("Paste an observation CSV instead", { exact: true }) });
+      // The inner locator of filter({ has }) must be rooted at the page, not at the
+      // outer locator: lab.getByText(...) here matched 0 elements while
+      // page.getByText(...) matches 1. Exactness is unchanged.
+      .filter({ has: page.getByText("Paste an observation CSV instead", { exact: true }) });
     await pasteDetails.locator("summary").click();
     await lab
       .getByLabel("CSV text", { exact: true })
