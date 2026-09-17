@@ -1,8 +1,8 @@
 {
   "$schema": "https://openapi.vercel.sh/vercel.json",
   "framework": "nextjs",
-  "buildCommand": "bun run build",
-  "installCommand": "bun install",
+  "buildCommand": "git init --initial-branch=main && npx --yes bun@1.4.0 run build",
+  "installCommand": "npx --yes bun@1.4.0 install --frozen-lockfile",
   "git": {
     "deploymentEnabled": false
   }
