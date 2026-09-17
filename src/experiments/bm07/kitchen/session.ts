@@ -168,10 +168,13 @@ export function createKitchenSession(
             final: true,
           });
           if (!decision.accepted) throw new TypeError("The observation publication was rejected.");
+          if (!document) throw new TypeError("Missing accepted observation document.");
+          const acceptedSnapshot = store.getSnapshot().accepted;
+          if (!acceptedSnapshot) throw new TypeError("Missing accepted snapshot.");
           accepted = frozen({
-            document: document!,
+            document,
             report,
-            snapshot: store.getSnapshot().accepted!,
+            snapshot: acceptedSnapshot,
             sourceId: String(job.token.parameters.sourceId),
             documentDigest: String(job.token.parameters.documentDigest),
             csv: job.csv,
