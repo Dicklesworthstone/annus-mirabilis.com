@@ -4,6 +4,7 @@ import {
   type ExplicitEdge,
   edgeStillPointsAtPair,
   insertGermanUnit,
+  validateDisplayByteIdentity,
   validateManyToManyAlignment,
 } from "../../content/editions/alignment.ts";
 import { getLogger } from "../log/logger.ts";
@@ -89,5 +90,20 @@ describe("alignment is by permanent id, not array position", () => {
       message:
         "inserting a paragraph leaves id-edges pointing at the same sentence pair; donor indices shift",
     });
+  });
+
+  test("PLANTED: English display must be byte-identical to German; an extra space fails", () => {
+    const german = "$$ x_{\\mathrm{fixture}} = 1 $$";
+    expect(validateDisplayByteIdentity(german, german)).toBeNull();
+    const extraSpace = validateDisplayByteIdentity(german, `${german} `);
+    expect(extraSpace?.code).toBe("math-atoms-differ");
+  });
+
+  test("PLANTED: renaming V to c in a display is not alignment", () => {
+    const german = "$$ V = 1 $$";
+    const modernized = "$$ c = 1 $$";
+    const issue = validateDisplayByteIdentity(german, modernized);
+    expect(issue?.code).toBe("math-atoms-differ");
+    expect(issue?.message).toContain("Notation is not translated");
   });
 });

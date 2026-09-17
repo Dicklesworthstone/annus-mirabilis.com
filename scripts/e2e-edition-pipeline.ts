@@ -5,7 +5,11 @@
  */
 
 import { assertEditionContract } from "../src/content/editions/editionContract.ts";
-import { inspectLedgerPresence } from "../src/content/editions/ledgerPresence.ts";
+import {
+  inspectLedgerPresence,
+  type TranslationCompleteness,
+  translationCompleteness,
+} from "../src/content/editions/ledgerPresence.ts";
 import { parseRouteSlug, type RouteSlug } from "../src/content/ids.ts";
 
 export type PipelineStage = "ledger" | "segment" | "align" | "contract" | "static-html";
@@ -23,13 +27,25 @@ function argValue(flag: string): string | undefined {
   return process.argv[i + 1];
 }
 
+export type PipelineRun = Readonly<{
+  exitCode: number;
+  slug: RouteSlug;
+  translationCompleteness: TranslationCompleteness;
+  stages: readonly StageResult[];
+}>;
+
 export function runEditionPipeline(options: {
   slug: RouteSlug;
   requireStage?: PipelineStage | undefined;
   root?: string | undefined;
-}): { exitCode: number; stages: readonly StageResult[] } {
+}): PipelineRun {
   const stages: StageResult[] = [];
   const presence = inspectLedgerPresence(options.slug, options.root);
+  const completeness = translationCompleteness({
+    ledger: presence.presence,
+    translationUnitCount: 0,
+    germanAlignableCount: 0,
+  });
   if (presence.presence === "absent") {
     stages.push({
       stage: "ledger",
@@ -83,11 +99,21 @@ export function runEditionPipeline(options: {
   if (options.requireStage) {
     const required = stages.find((s) => s.stage === options.requireStage);
     if (required?.outcome !== "passed") {
-      return { exitCode: 1, stages: Object.freeze(stages) };
+      return {
+        exitCode: 1,
+        slug: options.slug,
+        translationCompleteness: completeness,
+        stages: Object.freeze(stages),
+      };
     }
   }
   const failed = stages.some((s) => s.outcome === "failed");
-  return { exitCode: failed ? 1 : 0, stages: Object.freeze(stages) };
+  return {
+    exitCode: failed ? 1 : 0,
+    slug: options.slug,
+    translationCompleteness: completeness,
+    stages: Object.freeze(stages),
+  };
 }
 
 const isMain = process.argv[1] !== undefined && import.meta.url === `file://${process.argv[1]}`;

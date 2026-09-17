@@ -13,7 +13,8 @@ export type AlignmentIssue = Readonly<{
     | "missing-target-id"
     | "unknown-source"
     | "unknown-target"
-    | "empty-alignment";
+    | "empty-alignment"
+    | "math-atoms-differ";
   message: string;
   sourceId?: string | undefined;
   targetId?: string | undefined;
@@ -99,6 +100,22 @@ export function validateManyToManyAlignment(input: {
     }
   }
   return Object.freeze(issues);
+}
+
+/**
+ * Notation is not translated. An English display must be byte-identical
+ * to the aligned German display. A rename such as V → c is not alignment.
+ */
+export function validateDisplayByteIdentity(
+  germanDisplay: string,
+  englishDisplay: string,
+): AlignmentIssue | null {
+  if (germanDisplay === englishDisplay) return null;
+  return {
+    code: "math-atoms-differ",
+    message:
+      "English display is not byte-identical to the German display. Notation is not translated.",
+  };
 }
 
 /**
