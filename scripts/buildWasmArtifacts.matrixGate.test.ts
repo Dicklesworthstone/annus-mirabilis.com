@@ -1,5 +1,5 @@
 import assert from "node:assert/strict";
-import { existsSync, mkdtempSync, readFileSync, writeFileSync } from "node:fs";
+import { mkdtempSync, readFileSync, writeFileSync } from "node:fs";
 import path from "node:path";
 import { describe, it } from "node:test";
 import { fileURLToPath } from "node:url";
@@ -239,7 +239,9 @@ describe("manifest values recorded and verification against moved rows (am-fs-sl
 
     // Write a fixture manifest recording acceptanceState: owner-decided
     const fixtureManifestPath = path.join(tempDir, "manifest.json");
-    const activeManifest = JSON.parse(readFileSync(path.join(currentDir, "..", "public", "wasm", "manifest.json"), "utf8"));
+    const activeManifest = JSON.parse(
+      readFileSync(path.join(currentDir, "..", "public", "wasm", "manifest.json"), "utf8"),
+    );
     const fixtureManifest = {
       ...activeManifest,
       capabilities: [

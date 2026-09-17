@@ -112,11 +112,7 @@ describe("WASM Artifact Verification Suite", () => {
   describe("anti-RH-2 honesty and capability export invariants (am-a11y-action-contracts-n68n)", () => {
     it("manifest does not assert false build step, toolchain, wasm-pack or wasm-bindgen version", () => {
       const rawManifest = manifest as unknown as Record<string, unknown>;
-      assert.equal(
-        rawManifest.toolchain,
-        undefined,
-        "Manifest must not claim a false toolchain",
-      );
+      assert.equal(rawManifest.toolchain, undefined, "Manifest must not claim a false toolchain");
       assert.equal(
         rawManifest.wasmPackVersion,
         undefined,

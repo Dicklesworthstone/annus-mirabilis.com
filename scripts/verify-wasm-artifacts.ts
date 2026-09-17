@@ -21,6 +21,7 @@
 import { existsSync, mkdirSync, readFileSync, writeFileSync } from "node:fs";
 import { join, resolve } from "node:path";
 import { fileURLToPath } from "node:url";
+import { newRunIdentity } from "../src/testing/log/logger.ts";
 import {
   computeArtifactDigest,
   loadWasmBytes,
@@ -36,7 +37,6 @@ import {
 } from "../src/workers/protocol/provenance.ts";
 import { parseCapabilityMatrix } from "./wasm-artifacts/capabilityMatrix.ts";
 import { evaluateSizeBudget } from "./wasm-artifacts/sizeBudget.ts";
-import { newRunIdentity } from "../src/testing/log/logger.ts";
 
 export interface VerificationCheckResult {
   readonly testId: string;
@@ -325,7 +325,9 @@ export async function runWasmVerification(options: VerificationOptions = {}): Pr
         ? "Exported capabilities agree with docs/FRANKENSIM_BINDING.md capability matrix rows."
         : `Capability matrix agreement failed: ${failureReason}`,
       expected: { releaseArtifact: manifest.bundleId, acceptanceStateNot: "not-started" },
-      actual: matrixAgrees ? { matrixAgrees: true } : { matrixAgrees: false, reason: failureReason },
+      actual: matrixAgrees
+        ? { matrixAgrees: true }
+        : { matrixAgrees: false, reason: failureReason },
       failureDetails: matrixAgrees
         ? undefined
         : {
@@ -543,8 +545,24 @@ export async function runWasmVerification(options: VerificationOptions = {}): Pr
         : {
             refusalCode,
             caseInputs: {
-              stable: { n: 11, frames: 4, steps_per_frame: 2, d: 0.1, dx: 0.1, dt: 0.05, profile: 0 },
-              unstable: { n: 11, frames: 4, steps_per_frame: 2, d: 0.1, dx: 0.1, dt: 0.0500001, profile: 0 },
+              stable: {
+                n: 11,
+                frames: 4,
+                steps_per_frame: 2,
+                d: 0.1,
+                dx: 0.1,
+                dt: 0.05,
+                profile: 0,
+              },
+              unstable: {
+                n: 11,
+                frames: 4,
+                steps_per_frame: 2,
+                d: 0.1,
+                dx: 0.1,
+                dt: 0.0500001,
+                profile: 0,
+              },
             },
           },
     });
