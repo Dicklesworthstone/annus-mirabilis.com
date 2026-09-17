@@ -107,7 +107,7 @@ export async function recordCameraPath(
     options.yieldControl ?? (() => new Promise<void>((resolve) => setTimeout(resolve, 0)));
   for (let step = 0; step < steps; step++) {
     for (let c = 0; c < 2; c++) {
-      const a = positions[step * 2 + c]!;
+      const a = positions[step * 2 + c] ?? 0;
       const b = a + (c === 0 ? setup.flowDrift * CAMERA_GRID_DT : 0) + scale * latent.nextNormal();
       positions[(step + 1) * 2 + c] = b;
       averages[step * 2 + c] = (a + b) / 2 + bridgeScale * bridge.nextNormal();
@@ -212,20 +212,23 @@ export function observeCameraPath(
       const error = noise.nextNormal();
       if (c >= p.d) continue;
       const at = i * p.d + c;
-      ideal[at] = recording.positions[index * 2 + c]!;
-      let average = ideal[at]!;
+      ideal[at] = recording.positions[index * 2 + c] ?? 0;
+      let average = ideal[at] ?? 0;
       if (exposureSteps) {
         average = 0;
         for (let k = 0; k < exposureSteps; k++)
-          average += recording.averages[(index + k) * 2 + c]! / exposureSteps;
+          average += (recording.averages[(index + k) * 2 + c] ?? 0) / exposureSteps;
       }
       blurred[at] = average;
       observed[at] =
-        average + p.sigma * error + (c === 0 ? p.stageDrift * (times[i]! + p.exposure / 2) : 0);
+        average +
+        p.sigma * error +
+        (c === 0 ? p.stageDrift * ((times[i] ?? 0) + p.exposure / 2) : 0);
     }
   }
   const increments = new Float64Array(p.M * p.d);
-  for (let i = 0; i < increments.length; i++) increments[i] = observed[i + p.d]! - observed[i]!;
+  for (let i = 0; i < increments.length; i++)
+    increments[i] = (observed[i + p.d] ?? 0) - (observed[i] ?? 0);
   const stationary = new Float64Array(p.clicks * p.d);
   for (let i = 0; i < p.clicks; i++) {
     const click = createPhiloxStream(
