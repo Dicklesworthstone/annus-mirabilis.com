@@ -155,6 +155,7 @@ All instrument sub-identifiers build upon canonical slugs:
 ### 6.2 Knowledge Card (Premise) IDs
 - **Format:** `^[a-z]+(-[a-z]+)*-\d{4}-[a-z0-9]+(-[a-z0-9]+)*$` (max 80 chars)
 - **Convention:** `<first-author>-<year>-<topic>`
+- **Anchor:** `#card-<id>` (e.g. `#card-rayleigh-1900-radiation-law`, `#card-sutherland-1904-dunedin`)
 - **Examples:** `rayleigh-1900-radiation-law`, `sutherland-1904-dunedin`, `poincare-1900-fictitious-fluid`.
 
 ### 6.3 First-Encounter Records & Entry Anchors

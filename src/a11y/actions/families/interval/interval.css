@@ -1,0 +1,129 @@
+/**
+ * Styling for accessible Interval Equivalent component.
+ */
+
+.interval-equivalent-panel {
+  display: flex;
+  flex-direction: column;
+  gap: 1.25rem;
+  padding: 1.25rem;
+  background: #fdfbf7;
+  border: 1px solid #bcb5a6;
+  border-radius: 0.5rem;
+  font-family: inherit;
+  color: #2b2621;
+}
+
+.interval-question h4 {
+  margin: 0;
+  font-size: 1.05rem;
+  color: #3b332a;
+}
+
+.interval-fieldset {
+  border: 1px solid #dcd5c7;
+  border-radius: 0.35rem;
+  padding: 1rem;
+  margin: 0;
+}
+
+.interval-fieldset legend {
+  font-weight: 600;
+  font-size: 0.9rem;
+  padding: 0 0.4rem;
+  color: #5c5346;
+}
+
+.interval-controls-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(11rem, 1fr));
+  gap: 1rem;
+}
+
+.interval-input-group {
+  display: flex;
+  flex-direction: column;
+  gap: 0.35rem;
+}
+
+.interval-input-group label {
+  font-size: 0.85rem;
+  font-weight: 500;
+}
+
+.interval-number-input {
+  min-height: 2.25rem; /* >= 24x24 px */
+  padding: 0.4rem 0.6rem;
+  font-size: 1rem;
+  font-family: inherit;
+  border: 1px solid #bcb5a6;
+  border-radius: 0.25rem;
+  background: #ffffff;
+}
+
+.interval-number-input:focus-visible {
+  outline: 2px solid #9b6b27;
+}
+
+.interval-readout {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 1.5rem;
+  margin-top: 0.75rem;
+  padding-top: 0.75rem;
+  border-top: 1px dashed #e0d9cb;
+  font-size: 0.9rem;
+}
+
+.interval-compare-toggle {
+  display: flex;
+  align-items: center;
+}
+
+.toggle-label {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.5rem;
+  cursor: pointer;
+  font-size: 0.9rem;
+}
+
+.compare-checkbox {
+  width: 1.25rem;
+  height: 1.25rem; /* >= 20px */
+}
+
+.interval-actions {
+  display: flex;
+  align-items: center;
+  gap: 1rem;
+  margin-top: 0.5rem;
+}
+
+.interval-commit-btn {
+  min-height: 2.5rem; /* >= 24px target rule */
+  min-width: 7rem;
+  padding: 0.5rem 1.25rem;
+  font-size: 0.95rem;
+  font-weight: 600;
+  font-family: inherit;
+  color: #ffffff;
+  background: #7b5326;
+  border: none;
+  border-radius: 0.35rem;
+  cursor: pointer;
+}
+
+.interval-commit-btn:hover {
+  background: #63421c;
+}
+
+.interval-commit-btn:focus-visible {
+  outline: 2px solid #3b332a;
+  outline-offset: 2px;
+}
+
+.committed-status {
+  font-size: 0.85rem;
+  color: #6b6357;
+}
