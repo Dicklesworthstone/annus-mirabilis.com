@@ -1,5 +1,6 @@
 import fs from "node:fs";
 import path from "node:path";
+import { fileURLToPath } from "node:url";
 
 export interface EvidenceLink {
   ref: string;
@@ -24,6 +25,7 @@ export function checkEvidenceLinksInContent(
 ): LinkCheckResult {
   const lines = content.split("\n");
   const links: EvidenceLink[] = [];
+  const documentDir = path.dirname(path.resolve(baseDir, filePath));
 
   for (let lineNum = 1; lineNum <= lines.length; lineNum++) {
     const line = lines[lineNum - 1] || "";
@@ -34,7 +36,19 @@ export function checkEvidenceLinksInContent(
       const url = mdMatch[2];
       if (!url) continue;
       if (url.startsWith("file://")) {
-        const targetPath = url.replace("file://", "");
+        let targetPath: string;
+        try {
+          targetPath = fileURLToPath(url);
+        } catch {
+          links.push({
+            ref: url,
+            kind: "file",
+            line: lineNum,
+            resolved: false,
+            message: "Invalid file URL",
+          });
+          continue;
+        }
         const exists = fs.existsSync(targetPath);
         links.push({
           ref: url,
@@ -48,7 +62,7 @@ export function checkEvidenceLinksInContent(
         !url.startsWith("https://") &&
         !url.startsWith("#")
       ) {
-        const targetPath = path.isAbsolute(url) ? url : path.resolve(baseDir, url);
+        const targetPath = path.isAbsolute(url) ? url : path.resolve(documentDir, url);
         const exists = fs.existsSync(targetPath);
         links.push({
           ref: url,
