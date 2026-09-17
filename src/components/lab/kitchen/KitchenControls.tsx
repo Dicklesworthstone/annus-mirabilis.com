@@ -1,14 +1,14 @@
 "use client";
-import { useId, useState, type FormEvent } from "react";
-import type { KitchenAccepted } from "../../../experiments/bm07/kitchen/session.ts";
+import { type FormEvent, useId, useState } from "react";
 import type { KitchenOptions } from "../../../experiments/bm07/kitchen/definition.ts";
-import type { KitchenDocument } from "../../../experiments/bm07/kitchen/schema.ts";
 import {
+  type KitchenInputKey,
   kitchenInputDraft,
   reviseKitchenInputs,
   setKitchenExclusion,
-  type KitchenInputKey,
 } from "../../../experiments/bm07/kitchen/edit.ts";
+import type { KitchenDocument } from "../../../experiments/bm07/kitchen/schema.ts";
+import type { KitchenAccepted } from "../../../experiments/bm07/kitchen/session.ts";
 import { display, identity } from "../presentation.ts";
 
 type Actions = {
@@ -247,7 +247,13 @@ export function KitchenObservationTable({ accepted, busy, revise, onError }: Act
   const points = accepted.document.points,
     first = page * 50,
     visible = points.slice(first, first + 50),
-    point = selected === null ? null : points[selected]!;
+    point = selected === null ? null : (points[selected] ?? null);
+  const visibleRows = visible.map((p, i) => ({
+    p,
+    rowIdx: first + i,
+    rowNum: first + i + 1,
+    rowId: `kitchen-row-${first + i}-${p.objectId}`,
+  }));
   function exclude(restore = false) {
     if (selected === null) return;
     try {
@@ -281,10 +287,8 @@ export function KitchenObservationTable({ accepted, busy, revise, onError }: Act
           Next observations
         </button>
       </div>
-      <div
+      <section
         className="table-scroll"
-        role="region"
-        tabIndex={0}
         aria-label="Observation table, scroll horizontally for all columns"
       >
         <table data-kitchen-observations>
@@ -310,9 +314,9 @@ export function KitchenObservationTable({ accepted, busy, revise, onError }: Act
             </tr>
           </thead>
           <tbody>
-            {visible.map((p, i) => (
-              <tr key={first + i} data-kitchen-row={first + i} data-point-status={p.status}>
-                <th scope="row">{first + i + 1}</th>
+            {visibleRows.map(({ p, rowIdx, rowNum, rowId }) => (
+              <tr key={rowId} data-kitchen-row={rowIdx} data-point-status={p.status}>
+                <th scope="row">{rowNum}</th>
                 <td>
                   {p.kind}: {p.objectId}
                 </td>
@@ -334,13 +338,13 @@ export function KitchenObservationTable({ accepted, busy, revise, onError }: Act
                     <button
                       type="button"
                       className="secondary"
-                      aria-pressed={selected === first + i}
+                      aria-pressed={selected === rowIdx}
                       onClick={() => {
-                        setSelected(first + i);
+                        setSelected(rowIdx);
                         setReason(p.exclusionReason);
                       }}
                     >
-                      Inspect row {first + i + 1}
+                      Inspect row {rowNum}
                     </button>
                   ) : (
                     "Retained"
@@ -350,7 +354,7 @@ export function KitchenObservationTable({ accepted, busy, revise, onError }: Act
             ))}
           </tbody>
         </table>
-      </div>
+      </section>
       {point && selected !== null && (
         <div className="notice">
           <h4>

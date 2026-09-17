@@ -1,20 +1,24 @@
 import type { KitchenAccepted } from "../../../experiments/bm07/kitchen/session.ts";
+import { InferenceInterval as Interval, InferenceValue as Value } from "../InferencePlots.tsx";
 import { array, display, identity } from "../presentation.ts";
-import { InferenceValue as Value, InferenceInterval as Interval } from "../InferencePlots.tsx";
 
 export function KitchenPlot({ accepted }: { accepted: KitchenAccepted }) {
   const { document, report, snapshot } = accepted;
-  const indices = report.tracks.find((t) => t.key === report.selectedTrack)!.indices;
-  const points = indices.slice(0, 1000).map((i) => document.points[i]!);
-  const values = points.flatMap((p) =>
-    p[report.options.axis] === null ? [] : [p[report.options.axis]!],
-  );
+  const indices = report.tracks.find((t) => t.key === report.selectedTrack)?.indices ?? [];
+  const points = indices
+    .slice(0, 1000)
+    .map((i) => document.points[i])
+    .filter((p): p is NonNullable<typeof p> => p !== undefined);
+  const values = points.flatMap((p) => {
+    const val = p[report.options.axis];
+    return val === null ? [] : [val];
+  });
   const min = Math.min(...values, 0),
     max = Math.max(...values, min + 1);
-  const first = points[0]!.time,
-    last = Math.max(first + 1, points.at(-1)!.time);
-  const x = (t: number) => 65 + (475 * (t - first)) / (last - first);
-  const y = (v: number) => 230 - (190 * (v - min)) / (max - min);
+  const first = points[0]?.time ?? 0,
+    last = Math.max(first + 1, points.at(-1)?.time ?? first + 1);
+  const x = (t: number) => 65 + (475 * (t - first)) / (last - first || 1);
+  const y = (v: number) => 230 - (190 * (v - min)) / (max - min || 1);
   return (
     <figure className="plot" {...identity(snapshot)}>
       <svg
@@ -33,19 +37,42 @@ export function KitchenPlot({ accepted }: { accepted: KitchenAccepted }) {
             </text>
           </g>
         ))}
-        {points.map((p, i) => {
-          const coordinate = p[report.options.axis];
-          if (coordinate === null || p.status === "lost") return null;
-          const cx = x(p.time),
-            cy = y(coordinate);
-          return p.status === "measured" ? (
-            <circle key={i} cx={cx} cy={cy} r="2.6" className="kitchen-measured" />
-          ) : p.status === "excluded" ? (
-            <path key={i} d={`M${cx - 3} ${cy - 3}l6 6m0 -6l-6 6`} className="kitchen-excluded" />
-          ) : (
-            <path key={i} d={`M${cx} ${cy - 4}l4 7h-8z`} className="kitchen-interpolated" />
-          );
-        })}
+        {points
+          .flatMap((p, i) => {
+            const coordinate = p[report.options.axis];
+            if (coordinate === null || p.status === "lost") return [];
+            return [
+              {
+                id: `kitchen-point-${i}-${p.objectId}`,
+                status: p.status,
+                cx: x(p.time),
+                cy: y(coordinate),
+              },
+            ];
+          })
+          .map((item) =>
+            item.status === "measured" ? (
+              <circle
+                key={item.id}
+                cx={item.cx}
+                cy={item.cy}
+                r="2.6"
+                className="kitchen-measured"
+              />
+            ) : item.status === "excluded" ? (
+              <path
+                key={item.id}
+                d={`M${item.cx - 3} ${item.cy - 3}l6 6m0 -6l-6 6`}
+                className="kitchen-excluded"
+              />
+            ) : (
+              <path
+                key={item.id}
+                d={`M${item.cx} ${item.cy - 4}l4 7h-8z`}
+                className="kitchen-interpolated"
+              />
+            ),
+          )}
         <text x="65" y="17">
           {report.options.axis} position (source pixels)
         </text>
@@ -58,14 +85,16 @@ export function KitchenPlot({ accepted }: { accepted: KitchenAccepted }) {
         path through missing observations.{" "}
         {indices.length > 1000
           ? "The plot shows the first 1,000 rows of this track; analysis and export use the entire accepted track."
-          : "The plot shows every row of this track with a recorded position."}
+          : "Every observation in the accepted track is drawn above."}
       </figcaption>
     </figure>
   );
 }
 
 export function KitchenResults({ accepted }: { accepted: KitchenAccepted }) {
-  const { report: r, snapshot: s, document: d } = accepted;
+  const s = accepted.snapshot,
+    d = accepted.document,
+    r = accepted.report;
   const meaning =
     r.numberMeaning === "synthetic-recovery"
       ? "Synthetic recovery, not an experimental molecular count"
@@ -83,8 +112,8 @@ export function KitchenResults({ accepted }: { accepted: KitchenAccepted }) {
       </p>
       <p className="accepted-caption">
         Accepted sample: {d.metadata.sample || "Unnamed"}. Track:{" "}
-        {r.tracks.find((t) => t.key === r.selectedTrack)!.label}. Coordinate: {r.options.axis}.
-        Scale:{" "}
+        {r.tracks.find((t) => t.key === r.selectedTrack)?.label ?? r.selectedTrack}. Coordinate:{" "}
+        {r.options.axis}. Scale:{" "}
         {r.scale === null
           ? "unknown"
           : `${display(r.scale, 1e6)} μm per source pixel (${r.scaleSource})`}
@@ -197,8 +226,8 @@ export function KitchenResults({ accepted }: { accepted: KitchenAccepted }) {
           </p>
         )}
         {r.intervalReasons.length > 0 && <p className="notice">{r.intervalReasons.join(" ")}</p>}
-        {r.warnings.map((warning, i) => (
-          <p key={i}>{warning}</p>
+        {r.warnings.map((warning) => (
+          <p key={warning}>{warning}</p>
         ))}
       </details>
       <details>
@@ -216,14 +245,25 @@ export function KitchenResults({ accepted }: { accepted: KitchenAccepted }) {
               </tr>
             </thead>
             <tbody>
-              {Array.from({ length: r.counts.retainedPairs }, (_, i) => (
-                <tr key={i}>
-                  <th scope="row">{i + 1}</th>
-                  {["pairTimes", "pairs"].flatMap((id) =>
-                    [0, 1].map((c) => (
-                      <td key={`${id}-${c}`}>{display(array(s, id).at(2 * i + c)!)}</td>
-                    )),
-                  )}
+              {Array.from({ length: r.counts.retainedPairs }, (_, i) => {
+                const pairIndex = i + 1;
+                const pairTimes = array(s, "pairTimes");
+                const pairs = array(s, "pairs");
+                return {
+                  id: `retained-pair-${pairIndex}`,
+                  pairIndex,
+                  startTime: display(pairTimes.at(2 * i)),
+                  endTime: display(pairTimes.at(2 * i + 1)),
+                  startPos: display(pairs.at(2 * i)),
+                  endPos: display(pairs.at(2 * i + 1)),
+                };
+              }).map((pair) => (
+                <tr key={pair.id}>
+                  <th scope="row">{pair.pairIndex}</th>
+                  <td>{pair.startTime}</td>
+                  <td>{pair.endTime}</td>
+                  <td>{pair.startPos}</td>
+                  <td>{pair.endPos}</td>
                 </tr>
               ))}
             </tbody>

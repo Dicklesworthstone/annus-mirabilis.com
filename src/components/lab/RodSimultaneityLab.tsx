@@ -2,20 +2,17 @@
 
 import { type FormEvent, useEffect, useId, useState, useSyncExternalStore } from "react";
 import { createSr03BrowserChannel } from "../../experiments/sr03/browser.ts";
-import { fromSr03Draft, toSr03Draft, type Sr03Draft } from "../../experiments/sr03/controls.ts";
+import { fromSr03Draft, type Sr03Draft, toSr03Draft } from "../../experiments/sr03/controls.ts";
 import {
-  SR03_DEFAULTS,
   SR03_MODEL,
   SR03_PRESETS,
   SR03_PROMPTS,
-  type EndpointPairChoice,
-  type FrameId,
   type Sr03Parameters,
   type Sr03PromptKey,
 } from "../../experiments/sr03/definition.ts";
 import { decodeSr03Settings, encodeSr03Settings } from "../../experiments/sr03/permalink.ts";
 import { createSr03Session, type PreparedSr03Example } from "../../experiments/sr03/session.ts";
-import { identity, result } from "./presentation.ts";
+import { identity } from "./presentation.ts";
 import {
   MinkowskiDiagramPlot,
   RodStripPlot,
@@ -125,11 +122,8 @@ export function RodSimultaneityLab({
   const dtKOut = snapshot.outputs.find((o) => o.quantityId === "temporalSeparationK");
   const dxkOut = snapshot.outputs.find((o) => o.quantityId === "spatialSeparationKPrime");
   const dtkOut = snapshot.outputs.find((o) => o.quantityId === "temporalSeparationKPrime");
-  const simKOut = snapshot.outputs.find((o) => o.quantityId === "simultaneityK");
-  const simkOut = snapshot.outputs.find((o) => o.quantityId === "simultaneityKPrime");
   const measOut = snapshot.outputs.find((o) => o.quantityId === "measuredLength");
   const s2Out = snapshot.outputs.find((o) => o.quantityId === "spacetimeIntervalSquared");
-  const causalOut = snapshot.outputs.find((o) => o.quantityId === "causalOrder");
   const gammaOut = snapshot.outputs.find((o) => o.quantityId === "gammaFactor");
   const longAxisOut = snapshot.outputs.find((o) => o.quantityId === "ellipsoidAxisLongitudinal");
   const transYOut = snapshot.outputs.find((o) => o.quantityId === "ellipsoidAxisTransverseY");

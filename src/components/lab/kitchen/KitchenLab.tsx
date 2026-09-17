@@ -1,21 +1,21 @@
 "use client";
 import { useEffect, useId, useRef, useState, useSyncExternalStore } from "react";
-import { createKitchenSession } from "../../../experiments/bm07/kitchen/session.ts";
 import { createKitchenBrowserChannel } from "../../../experiments/bm07/kitchen/browser.ts";
+import { exportKitchenCsv } from "../../../experiments/bm07/kitchen/csv.ts";
 import {
   KITCHEN_OPTIONS,
   type KitchenOptions,
 } from "../../../experiments/bm07/kitchen/definition.ts";
-import { KITCHEN_LIMITS, type KitchenDocument } from "../../../experiments/bm07/kitchen/schema.ts";
-import { exportKitchenCsv } from "../../../experiments/bm07/kitchen/csv.ts";
 import { kitchenAnalysisJson } from "../../../experiments/bm07/kitchen/export.ts";
-import { KitchenResults } from "./KitchenResults.tsx";
+import { KITCHEN_LIMITS, type KitchenDocument } from "../../../experiments/bm07/kitchen/schema.ts";
+import { createKitchenSession } from "../../../experiments/bm07/kitchen/session.ts";
+import { identity } from "../presentation.ts";
 import {
   KitchenAnalysisControls,
   KitchenInputs,
   KitchenObservationTable,
 } from "./KitchenControls.tsx";
-import { identity } from "../presentation.ts";
+import { KitchenResults } from "./KitchenResults.tsx";
 
 export type KitchenPractice = Readonly<{ csv: string; sourceDigest: string }>;
 export function KitchenLab({
@@ -49,7 +49,9 @@ export function KitchenLab({
     return () => {
       fileGeneration.current++;
       session.disconnect();
-      downloads.current.forEach((url) => URL.revokeObjectURL(url));
+      downloads.current.forEach((url) => {
+        URL.revokeObjectURL(url);
+      });
       downloads.current.clear();
     };
   }, [session]);
