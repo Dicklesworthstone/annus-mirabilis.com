@@ -1,4 +1,3 @@
-import React from "react";
 import type { EditorialNote, EditorialNoteKind } from "../../content/schemas/source.ts";
 
 const NOTE_KIND_LABELS: Readonly<Record<EditorialNoteKind, string>> = {
@@ -68,8 +67,8 @@ export function EditorialNoteMarker({ note, inline = false }: EditorialNoteMarke
         <div className="note-dispute-sources">
           <strong>Primary & comparison sources:</strong>
           <ul>
-            {note.sourceSupport.map((src, i) => (
-              <li key={`${src.citationId}-${i}`}>
+            {note.sourceSupport.map((src) => (
+              <li key={`${note.id}-${src.citationId}-${src.role ?? "ref"}-${src.locator ?? "loc"}`}>
                 {src.role ? <span className="source-role">[{src.role}] </span> : null}
                 <cite>{src.citationId}</cite>
                 {src.locator ? ` (${src.locator})` : ""}
