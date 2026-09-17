@@ -23,7 +23,9 @@ describe("Instrument Feedback Mark Matching", () => {
 
     const result = evaluateInstrumentFeedback(marks);
     expect(result.actions).toHaveLength(1);
-    const action = result.actions[0];
+    const [action] = result.actions;
+    expect(action).toBeDefined();
+    if (!action) throw new Error("Expected action to be defined");
     expect(action.inputToAcceptedMs).toBe(40);
     expect(action.acceptedToPaintedMs).toBe(35);
     expect(action.totalFeedbackMs).toBe(75);
@@ -64,7 +66,9 @@ describe("Instrument Feedback Mark Matching", () => {
 
     const result = evaluateInstrumentFeedback(marks);
     expect(result.actions).toHaveLength(1);
-    const action = result.actions[0];
+    const [action] = result.actions;
+    expect(action).toBeDefined();
+    if (!action) throw new Error("Expected action to be defined");
     expect(action.acceptedSnapshotVersion).toBe(5);
     expect(action.paintedStartTime).toBe(270);
     expect(action.totalFeedbackMs).toBe(70);
@@ -92,7 +96,10 @@ describe("Instrument Feedback Mark Matching", () => {
     const result = evaluateInstrumentFeedback(marks);
     expect(result.actions).toHaveLength(0);
     expect(result.supersededExclusions).toHaveLength(1);
-    expect(result.supersededExclusions[0].reason).toContain("superseded action 3");
+    const [exclusion] = result.supersededExclusions;
+    expect(exclusion).toBeDefined();
+    if (!exclusion) throw new Error("Expected exclusion to be defined");
+    expect(exclusion.reason).toContain("superseded action 3");
   });
 
   test("fails on planted over-budget latency (> 100 ms)", () => {
@@ -115,7 +122,10 @@ describe("Instrument Feedback Mark Matching", () => {
     ];
 
     const result = evaluateInstrumentFeedback(marks);
-    expect(result.actions[0].totalFeedbackMs).toBe(110);
+    const [action] = result.actions;
+    expect(action).toBeDefined();
+    if (!action) throw new Error("Expected action to be defined");
+    expect(action.totalFeedbackMs).toBe(110);
     expect(result.overBudget).toBe(true);
   });
 });
