@@ -143,11 +143,12 @@ test("TestLogReporter.onTestEnd maps a passing Playwright result including proje
   );
   await getLogger(SUITE, logRunId).flush();
   const [event] = eventsFor(SUITE, logRunId);
-  assert.equal(event!.browser, "webkit-mobile");
-  assert.equal(event!.viewport, "375x667");
-  assert.equal(event!.reducedMotion, true);
-  assert.equal(event!.jsEnabled, true);
-  assert.equal(event!.durationMs, 123);
+  assert.ok(event);
+  assert.equal(event.browser, "webkit-mobile");
+  assert.equal(event.viewport, "375x667");
+  assert.equal(event.reducedMotion, true);
+  assert.equal(event.jsEnabled, true);
+  assert.equal(event.durationMs, 123);
 });
 
 test("TestLogReporter.onTestEnd on a failing result attaches screenshot/trace/dom/console evidence paths", async () => {
@@ -177,10 +178,11 @@ test("TestLogReporter.onTestEnd on a failing result attaches screenshot/trace/do
   );
   await getLogger(SUITE, logRunId).flush();
   const [event] = eventsFor(SUITE, logRunId);
-  assert.equal(event!.outcome, "failed");
-  assert.equal(event!.message, "locator not found");
-  assert.equal(event!.evidence?.screenshot, "artifacts/test-logs/test-logging/evidence/e.png");
-  assert.equal(event!.evidence?.dom, "artifacts/test-logs/test-logging/evidence/e.dom.html");
+  assert.ok(event);
+  assert.equal(event.outcome, "failed");
+  assert.equal(event.message, "locator not found");
+  assert.equal(event.evidence?.screenshot, "artifacts/test-logs/test-logging/evidence/e.png");
+  assert.equal(event.evidence?.dom, "artifacts/test-logs/test-logging/evidence/e.dom.html");
 });
 
 test("TestLogReporter.onTestEnd on a failing result WITHOUT evidence attachments surfaces the schema rejection rather than silently dropping the failure", async () => {
