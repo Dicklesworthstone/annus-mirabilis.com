@@ -149,6 +149,22 @@ describe("compareBitwise", () => {
     expect(compareBitwise([coercible], [coercible]).ok).toBe(false);
     expect(compareBitwise([null], [0]).ok).toBe(false);
   });
+
+  test("reports unsupported element types without invoking conversion hooks", () => {
+    let conversions = 0;
+    const unsupported = {
+      [Symbol.toPrimitive]() {
+        conversions += 1;
+        throw new Error("comparison must not convert unsupported elements");
+      },
+    };
+    const verdict = compareBitwise(["same", unsupported], ["same", 0]);
+    expect(verdict.ok).toBe(false);
+    expect(verdict.kind).toBe("mismatch");
+    expect(verdict.detail).toContain("index: 1");
+    expect(conversions).toBe(0);
+    expect(compareBitwise([Object.create(null)], [0]).ok).toBe(false);
+  });
 });
 
 describe("classifyWithTolerance", () => {

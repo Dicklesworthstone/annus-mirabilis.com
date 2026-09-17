@@ -235,7 +235,7 @@ function bitwiseEqualScalar(a: unknown, b: unknown): boolean {
   return false;
 }
 
-function isNumericArrayLike(x: unknown): x is ArrayLike<number | bigint> {
+function isNumericArrayLike(x: unknown): x is ArrayLike<unknown> {
   return x instanceof Uint32Array || x instanceof Float64Array || Array.isArray(x);
 }
 
@@ -248,8 +248,8 @@ function describeBitwiseType(x: unknown): string {
 }
 
 function compareArraysBitwise(
-  actual: ArrayLike<number | bigint>,
-  expected: ArrayLike<number | bigint>,
+  actual: ArrayLike<unknown>,
+  expected: ArrayLike<unknown>,
 ): BitwiseVerdict {
   if (actual.length !== expected.length) {
     return Object.freeze({
@@ -266,7 +266,7 @@ function compareArraysBitwise(
       return Object.freeze({
         ok: false,
         kind: "mismatch" as const,
-        detail: `first differing index: ${i} (${String(a)} vs ${String(b)})`,
+        detail: `first differing index: ${i} (${describeBitwiseType(a)} vs ${describeBitwiseType(b)})`,
       });
     }
   }
