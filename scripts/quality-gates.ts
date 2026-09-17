@@ -66,7 +66,7 @@ export interface StepExecutionResult {
 export interface QualityGatesSummary {
   readonly logRunId: string;
   readonly mode: RunnerMode;
-  readonly profile?: GateProfile;
+  readonly profile?: GateProfile | undefined;
   readonly cadence: GateCadence | "all";
   readonly family: GateFamily | "all";
   readonly outcome: "passed" | "failed" | "refused";
@@ -79,7 +79,7 @@ export interface QualityGatesSummary {
   readonly refusedCount: number;
   readonly durationMs: number;
   readonly results: readonly StepExecutionResult[];
-  readonly logPath?: string;
+  readonly logPath?: string | undefined;
 }
 
 /**
@@ -114,7 +114,11 @@ export interface AvailabilityCheckResult {
  */
 export function checkStepAvailability(step: GateStep, rootDir: string): AvailabilityCheckResult {
   if (!step.availability) {
-    return { available: true };
+    return {
+      available: true,
+      kind: "available",
+      details: "The step declares no availability requirement, so it always runs.",
+    };
   }
   if (step.availability.scriptPath) {
     const fullScriptPath = resolve(rootDir, step.availability.scriptPath);
@@ -272,8 +276,7 @@ export function runQualityGates(options: QualityGatesOptions = {}): QualityGates
   // 3. Execute steps
   let hasFailed = false;
 
-  for (let i = 0; i < selectedSteps.length; i++) {
-    const step = selectedSteps[i];
+  for (const [i, step] of selectedSteps.entries()) {
     const stepHeader = `[${i + 1}/${selectedSteps.length}] ${step.title} (${step.id})`;
 
     // Check cadence filter
