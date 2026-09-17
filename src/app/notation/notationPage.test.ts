@@ -6,13 +6,8 @@
 import { describe, expect, it } from "bun:test";
 import type { PaperConcordance } from "../../content/schemas/concordance.ts";
 import { getLogger, newRunIdentity } from "../../testing/log/logger.ts";
-import {
-  extractSearchKeywords,
-  generateSpokenName,
-  loadNotationPageData,
-  renderStaticKatex,
-} from "./notationData.ts";
-import { filterNotationEntries, matchesQuery } from "./notationSearch.ts";
+import { loadNotationPageData, renderStaticKatex } from "./notationData.ts";
+import { filterNotationEntries } from "./notationSearch.ts";
 
 const logRunId = newRunIdentity();
 const logger = getLogger("notation-page", logRunId);
@@ -116,9 +111,12 @@ describe("Notation Concordance Page (am-not-notation-page-2us)", () => {
       (c) => c.glyphKey === "\\varphi" || c.glyphKey === "φ" || c.glyphKey === "\\phi",
     );
     expect(phiCluster).toBeDefined();
-    expect(phiCluster!.entries.length).toBeGreaterThanOrEqual(2);
+    if (!phiCluster) {
+      throw new Error("Expected phiCluster to be defined");
+    }
+    expect(phiCluster.entries.length).toBeGreaterThanOrEqual(2);
 
-    const srEntries = phiCluster!.entries.filter((e) => e.paper === "special-relativity");
+    const srEntries = phiCluster.entries.filter((e) => e.paper === "special-relativity");
     expect(srEntries.length).toBeGreaterThanOrEqual(2);
 
     // One in §3 (function), one in §§7-8 (angle)
@@ -140,13 +138,19 @@ describe("Notation Concordance Page (am-not-notation-page-2us)", () => {
       (c) => c.glyphKey === "\\beta" || c.glyphKey === "β",
     );
     expect(betaCluster).toBeDefined();
-    expect(betaCluster!.severity).toBe("danger");
+    if (!betaCluster) {
+      throw new Error("Expected betaCluster to be defined");
+    }
+    expect(betaCluster.severity).toBe("danger");
 
-    const srBeta = betaCluster!.entries.find((e) => e.id === "sr.beta.lorentzFactor");
+    const srBeta = betaCluster.entries.find((e) => e.id === "sr.beta.lorentzFactor");
     expect(srBeta).toBeDefined();
-    expect(srBeta!.collision?.severity).toBe("danger");
-    expect(srBeta!.collision?.collidesWith).toContain("speedRatio");
-    expect(srBeta!.collision?.collidesWith).toContain("wienConstantBeta");
+    if (!srBeta) {
+      throw new Error("Expected srBeta to be defined");
+    }
+    expect(srBeta.collision?.severity).toBe("danger");
+    expect(srBeta.collision?.collidesWith).toContain("speedRatio");
+    expect(srBeta.collision?.collidesWith).toContain("wienConstantBeta");
 
     logTestPass(
       "beta-danger-collision",
@@ -198,12 +202,15 @@ describe("Notation Concordance Page (am-not-notation-page-2us)", () => {
 
     const kEntry = search.filteredEntries.find((e) => e.id === "bm.k.viscosity");
     expect(kEntry).toBeDefined();
-    expect(kEntry!.glyph.latex).toBe("k");
-    expect(kEntry!.collision?.severity).toBe("danger");
-    expect(kEntry!.collision?.collidesWith).toContain("boltzmannConstant");
-    expect(kEntry!.operation.kind).toBe("rename");
-    if (kEntry!.operation.kind === "rename" && kEntry!.operation.target.form === "symbol") {
-      expect(kEntry!.operation.target.modernGlyph).toBe("\\eta");
+    if (!kEntry) {
+      throw new Error("Expected kEntry to be defined");
+    }
+    expect(kEntry.glyph.latex).toBe("k");
+    expect(kEntry.collision?.severity).toBe("danger");
+    expect(kEntry.collision?.collidesWith).toContain("boltzmannConstant");
+    expect(kEntry.operation.kind).toBe("rename");
+    if (kEntry.operation.kind === "rename" && kEntry.operation.target.form === "symbol") {
+      expect(kEntry.operation.target.modernGlyph).toBe("\\eta");
     }
 
     logTestPass(
@@ -218,7 +225,10 @@ describe("Notation Concordance Page (am-not-notation-page-2us)", () => {
 
     const vLight = search.filteredEntries.find((e) => e.id === "sr.V.speedOfLight");
     expect(vLight).toBeDefined();
-    expect(vLight!.glyph.latex).toBe("V");
+    if (!vLight) {
+      throw new Error("Expected vLight to be defined");
+    }
+    expect(vLight.glyph.latex).toBe("V");
 
     logTestPass("speed-of-light-search", "Found V speed of light in Special Relativity.");
   });
