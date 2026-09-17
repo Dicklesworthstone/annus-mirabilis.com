@@ -243,9 +243,20 @@ export function checkInitialRouteGraph(input: RouteGraphInput): RouteGraphResult
     const reason = violations.some((v) => v.kind === "byte-budget")
       ? `route ${route} exceeds initial client JavaScript budget (${byteAccounting?.effectiveBytes} > ${byteAccounting?.budgetBytes} bytes)`
       : `route ${route} loads forbidden dependencies`;
-    return { ok: false, route, reason, violations, byteAccounting };
+    return {
+      ok: false,
+      route,
+      reason,
+      violations,
+      ...(byteAccounting !== undefined ? { byteAccounting } : {}),
+    };
   }
-  return { ok: true, route, chunks, byteAccounting };
+  return {
+    ok: true,
+    route,
+    chunks,
+    ...(byteAccounting !== undefined ? { byteAccounting } : {}),
+  };
 }
 
 export function formatRouteGraphViolation(violation: RouteGraphViolation): string {
