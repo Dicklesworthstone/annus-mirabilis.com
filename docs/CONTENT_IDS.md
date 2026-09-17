@@ -165,9 +165,46 @@ All instrument sub-identifiers build upon canonical slugs:
 
 ---
 
-## 7. Aliases, Frozen ID Snapshots, and Revision Invariants
+## 7. Anchors
 
-### 7.1 Alias Records (`content/aliases/<slug>.yaml`)
+Every anchor is a URL fragment (`#...`) that is a real HTML `id` needing no percent-encoding. `parseAnchor` in `src/content/anchors.ts` accepts exactly these forms and no other; `emitAnchor` in `src/reader/anchors/emitAnchor.ts` is the emission direction, round-tripped through `parseAnchor` before it returns.
+
+### 7.1 Page Anchors (source structure)
+The local source-structure ids of §3, used directly as fragments: `#s3` (the section; its first element is its heading block), `#s3-p2`, `#s3-p2-s1`, `#s3-fn1`, `#part-1`, `#masthead-title`, `#closing-dateline`, `#closing-received`.
+
+### 7.2 Equation Anchors
+`#eq-<suffix>` in every form of §4.1: `#eq-7`, `#eq-s3-1`, `#eq-s3-d2`, `#eq-roman-2`.
+
+### 7.3 Other Anchors
+| Anchor | Target | Example |
+|---|---|---|
+| `#result-<kebab-slug>` | A named result | `#result-lorentz-transformation` |
+| `#arg-<paperCode>-<name>` | An argument node or journey stage | `#arg-sr-03`, `#arg-bm-variance-of-sum` |
+| `#lab-<instrumentId>` | A core or declared non-core instrument | `#lab-bm-06`, `#lab-shelf-fizeau`, `#lab-avogadro-lab` |
+| `#card-<premiseId>` | A knowledge card, identical on the `/1904` desk, timeline, shelves, and journeys | `#card-rayleigh-1900-radiation-law` |
+| `#object-<kebab-name>` | An object of the `/1904` desk | `#object-radiation-spectrum` |
+| `#entry-<paperSlug>` | A paper's first-encounter record (§6.3); the slug is always the full route slug | `#entry-brownian-motion` |
+
+### 7.4 Retired Forms
+Rejected, each with a message naming the current form: the short `#entry-brownian-motion`-style abbreviation and the bare `#entrance` (use `#entry-<full paper slug>`); `#s3-h` (use `#s3`); any `-fn<k>-s<j>` footnote-sentence form (footnotes align at block level only).
+
+### 7.5 Query Parameters Are Never Part Of An Id
+`?view=`, `?detail=`, `?tape=`, and every other query parameter are reading preferences, never identity. `rel=canonical` omits them. All ids are lowercase ASCII except quantity ids and the glyph segment of concordance entry ids, which are case-sensitive.
+
+---
+
+## 8. Generic Record ID Registry
+
+Every entity not covered by a grammar above (foundations, bridges, misconceptions, knowledge cards, scenarios, datasets, tours, citations, notes, reviews, constant sets) uses the base pattern `^[a-z0-9]+(-[a-z0-9]+)*$`, at most 80 characters, unique within its own entity namespace (`parseGenericRecordId`). An owning schema bead may narrow this grammar for its entity and must add its line here. Two narrowings are recorded:
+
+- **Knowledge-card (premise) ids** — see §6.2: `<first-author>-<year>-<topic>`.
+- **Foundation and bridge ids** are kebab slugs under the base pattern above; a **bridge** id additionally begins with `bridge-` (e.g. `bridge-negative-numbers-direction`). The reader's drawer deep link `?open=foundation:<id>` is a URL parameter value, never part of the id itself.
+
+---
+
+## 9. Aliases, Frozen ID Snapshots, and Revision Invariants
+
+### 9.1 Alias Records (`content/aliases/<slug>.yaml`)
 When a published ID is retired, split, or merged:
 ```yaml
 - retiredId: s2-p2
@@ -179,7 +216,7 @@ When a published ID is retired, split, or merged:
   editor: "ed-albert"
 ```
 
-### 7.2 Frozen ID Snapshots (`content/source-blocks/<slug>/manifest.ids.snapshot.txt`)
+### 9.2 Frozen ID Snapshots (`content/source-blocks/<slug>/manifest.ids.snapshot.txt`)
 - Frozen snapshots contain one ID per line in manifest order.
 - Lines beginning with `#` (e.g. `# s4-s5`) are ignored comments.
 - `validateFrozenIds` enforces:
@@ -187,7 +224,7 @@ When a published ID is retired, split, or merged:
   2. No current ID can reuse a retired ID.
   3. New IDs are flagged for review.
 
-### 7.3 Revision Lineage and Cross-Commit Checks
+### 9.3 Revision Lineage and Cross-Commit Checks
 - Every record has a positive integer `revision` and a `lineage[]` documenting previous revisions.
 - `scripts/check-revisions.ts --base <git-ref>` compares base and head revisions:
   - If substantive content changes, `revision` must increase.
