@@ -262,12 +262,16 @@ describe("LQ-08 Energy Budget and Rates (am-lq-08-photoelectric-va5a)", () => {
     expect(lines1.slope).toBe(lines2.slope);
     expect(Object.is(lines1.slope, hOverE)).toBe(true);
 
+    const [p1_0, p1_1] = lines1;
+    const [p2_0, p2_1] = lines2;
+    if (!p1_0 || !p1_1 || !p2_0 || !p2_1) {
+      throw new Error("Expected at least two points on each stopping line");
+    }
+
     const slope1 =
-      (lines1[1]!.stoppingPotential - lines1[0]!.stoppingPotential) /
-      (lines1[1]!.frequency - lines1[0]!.frequency);
+      (p1_1.stoppingPotential - p1_0.stoppingPotential) / (p1_1.frequency - p1_0.frequency);
     const slope2 =
-      (lines2[1]!.stoppingPotential - lines2[0]!.stoppingPotential) /
-      (lines2[1]!.frequency - lines2[0]!.frequency);
+      (p2_1.stoppingPotential - p2_0.stoppingPotential) / (p2_1.frequency - p2_0.frequency);
     expect(withinTolerance(slope1, hOverE, { relative: 1e-12 }).ok).toBe(true);
     expect(withinTolerance(slope2, hOverE, { relative: 1e-12 }).ok).toBe(true);
 
