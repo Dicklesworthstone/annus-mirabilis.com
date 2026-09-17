@@ -1,8 +1,8 @@
 /** Route-local discovery records. These are authored reconstructions, never source editions.
  * The same validator runs in the content compiler and the server route. No physics lives here.
  */
-import { ALLOWED_FUNCTIONS, parse } from "../../discovery/exercises/grammar.ts";
 import { evaluate } from "../../discovery/exercises/evaluate.ts";
+import { ALLOWED_FUNCTIONS, parse } from "../../discovery/exercises/grammar.ts";
 
 export const DISCOVERY_PAPERS = [
   "light-quanta",
@@ -130,13 +130,28 @@ function record(
   }
   return input as Record<string, unknown>;
 }
+function hasDisallowedControlChars(str: string): boolean {
+  for (let i = 0; i < str.length; i++) {
+    const code = str.charCodeAt(i);
+    if (
+      code <= 0x08 ||
+      code === 0x0b ||
+      code === 0x0c ||
+      (code >= 0x0e && code <= 0x1f) ||
+      code === 0x7f
+    ) {
+      return true;
+    }
+  }
+  return false;
+}
 function text(input: unknown, path: string, limit = 2400): string {
   if (
     typeof input !== "string" ||
     !input.trim() ||
     input.length > limit ||
     input !== input.normalize("NFC") ||
-    /[\u0000-\u0008\u000b\u000c\u000e-\u001f\u007f]/u.test(input)
+    hasDisallowedControlChars(input)
   )
     return fail(path, `Expected nonempty NFC text, at most ${limit} characters.`);
   return input;
@@ -346,16 +361,18 @@ function exercise(input: unknown, path: string): DiscoveryExercise {
   // of finiteness throughout the domain or an independent physics validation.
   const points = Array.from({ length: 2 ** declaredNames.length }, (_, mask) =>
     Object.fromEntries(
-      declaredNames.map((name, i) => [
-        name,
-        mask & (1 << i) ? domains[name]!.max : domains[name]!.min,
-      ]),
+      declaredNames.map((name, i) => {
+        const d = domains[name];
+        if (!d) return fail(path, `Missing domain for ${name}`);
+        return [name, mask & (1 << i) ? d.max : d.min];
+      }),
     ),
   );
   points.push(
     Object.fromEntries(
       declaredNames.map((name) => {
-        const d = domains[name]!;
+        const d = domains[name];
+        if (!d) return fail(path, `Missing domain for ${name}`);
         return [
           name,
           d.scale === "log"

@@ -89,11 +89,26 @@ function array(input: unknown, maximum: number): readonly unknown[] {
   }
   return copy;
 }
+function hasDisallowedControlChars(str: string): boolean {
+  for (let i = 0; i < str.length; i++) {
+    const code = str.charCodeAt(i);
+    if (
+      code <= 0x08 ||
+      code === 0x0b ||
+      code === 0x0c ||
+      (code >= 0x0e && code <= 0x1f) ||
+      code === 0x7f
+    ) {
+      return true;
+    }
+  }
+  return false;
+}
 function text(input: unknown): string {
   if (
     typeof input !== "string" ||
     input.length > NOTE_TEXT_LIMIT ||
-    /[\u0000-\u0008\u000b\u000c\u000e-\u001f\u007f]/u.test(input)
+    hasDisallowedControlChars(input)
   )
     return fail(`Each note must be text of at most ${NOTE_TEXT_LIMIT} characters.`);
   return input;
