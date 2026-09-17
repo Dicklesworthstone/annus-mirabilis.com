@@ -11,9 +11,12 @@ export function CameraPath({ snapshot }: { snapshot: AcceptedSnapshot }) {
     values: array(snapshot, id),
   }));
   const values = series.flatMap((s) =>
-    Array.from({ length: t.length }, (_, i) => s.values.at(i * p.d)),
+    Array.from({ length: t.length }, (_, i) => {
+      const idx = i * p.d;
+      return idx < s.values.length ? s.values.at(idx) : 0;
+    }),
   );
-  const tEnd = t.at(t.length - 1);
+  const tEnd = t.length > 0 ? t.at(t.length - 1) : 1;
   const lo = Math.min(0, ...values),
     hi = Math.max(1e-30, ...values),
     x = (v: number) => 70 + (460 * v) / (tEnd || 1),
@@ -27,12 +30,12 @@ export function CameraPath({ snapshot }: { snapshot: AcceptedSnapshot }) {
       >
         <path className="axis" d="M70 25V245H530" />
         {[0, 0.5, 1].map((f) => (
-          <g key={`frac-${f}`}>
+          <g key={`fraction-${f}`}>
             <text x="63" y={y(lo + f * (hi - lo)) + 4} textAnchor="end">
               {display(lo + f * (hi - lo), 1e6)}
             </text>
             <text x={70 + 460 * f} y="267" textAnchor="middle">
-              {display((tEnd ?? 1) * f)}
+              {display(tEnd * f)}
             </text>
           </g>
         ))}
@@ -41,10 +44,12 @@ export function CameraPath({ snapshot }: { snapshot: AcceptedSnapshot }) {
             key={s.id}
             data-camera-series={s.id}
             className={["camera-ideal", "camera-blurred", "curve"][j]}
-            points={Array.from(
-              { length: t.length },
-              (_, i) => `${x(t.at(i))} ${y(s.values.at(i * p.d))}`,
-            ).join(" ")}
+            points={Array.from({ length: t.length }, (_, i) => {
+              const xVal = t.at(i);
+              const idx = i * p.d;
+              const yVal = idx < s.values.length ? s.values.at(idx) : 0;
+              return `${x(xVal)} ${y(yVal)}`;
+            }).join(" ")}
           />
         ))}
         <text x="70" y="17">
@@ -67,14 +72,14 @@ export function CameraSpeed({ snapshot }: { snapshot: AcceptedSnapshot }) {
   const times = array(snapshot, "speedTimes"),
     a = array(snapshot, "idealSpeeds"),
     b = array(snapshot, "cameraSpeeds");
-  const t0 = times.at(0);
-  const t5 = times.at(5);
-  const a0 = a.at(0);
-  const b5 = b.at(5);
-  const left = Math.log10(t5 || 1),
-    right = Math.log10(t0 || 1e-6),
-    bottom = Math.log10(a0 || 1),
-    top = Math.max(Math.log10(b5 || 1), bottom + 1);
+  const t0 = times.length > 0 ? times.at(0) : 1e-6;
+  const t5 = times.length > 5 ? times.at(5) : 1;
+  const a0 = a.length > 0 ? a.at(0) : 1;
+  const b5 = b.length > 5 ? b.at(5) : 1;
+  const left = Math.log10(t5),
+    right = Math.log10(t0),
+    bottom = Math.log10(a0),
+    top = Math.max(Math.log10(b5), bottom + 1);
   const x = (v: number) => 70 + (460 * (Math.log10(v) - left)) / (right - left || 1),
     y = (v: number) => 238 - (200 * (Math.log10(v) - bottom)) / (top - bottom || 1);
   return (
@@ -85,10 +90,10 @@ export function CameraSpeed({ snapshot }: { snapshot: AcceptedSnapshot }) {
         aria-label="Hypothetical zero-exposure apparent speeds on logarithmic axes. Localization error increases the apparent spread per interval. Numerical values follow."
       >
         <path className="axis" d="M70 25V242H530" />
-        {[0, 2, 5].map((i) => {
-          const tVal = times.at(i);
+        {[0, 2, 5].map((idx) => {
+          const tVal = idx < times.length ? times.at(idx) : 0;
           return (
-            <text key={`time-tick-${i}`} x={x(tVal || 1e-6)} y="265" textAnchor="middle">
+            <text key={`time-tick-${idx}`} x={x(tVal || 1e-6)} y="265" textAnchor="middle">
               {display(tVal)}
             </text>
           );
@@ -98,14 +103,18 @@ export function CameraSpeed({ snapshot }: { snapshot: AcceptedSnapshot }) {
             {display(10 ** v, 1e6)}
           </text>
         ))}
-        {[a, b].map((values, i) => (
+        {[
+          { id: "ideal-speeds", curveClass: "camera-ideal", values: a },
+          { id: "camera-speeds", curveClass: "curve", values: b },
+        ].map((series) => (
           <polyline
-            key={i === 0 ? "ideal-speeds" : "camera-speeds"}
-            className={i ? "curve" : "camera-ideal"}
-            points={Array.from(
-              { length: times.length },
-              (_, j) => `${x(times.at(j) || 1e-6)} ${y(values.at(j))}`,
-            ).join(" ")}
+            key={series.id}
+            className={series.curveClass}
+            points={Array.from({ length: times.length }, (_, j) => {
+              const tVal = times.at(j);
+              const val = j < series.values.length ? series.values.at(j) : 0;
+              return `${x(tVal || 1e-6)} ${y(val)}`;
+            }).join(" ")}
           />
         ))}
         <text x="70" y="17">
@@ -132,7 +141,7 @@ export function CameraCoverage({ snapshot }: { snapshot: AcceptedSnapshot }) {
       </p>
     );
   const values = array(snapshot, "coverageIntervals"),
-    n = values.length / 6;
+    n = Math.floor(values.length / 6);
 
   const trials = [];
   for (let idx = 0; idx < n; idx++) {
@@ -199,9 +208,13 @@ export function CameraCoverage({ snapshot }: { snapshot: AcceptedSnapshot }) {
               )}
             </g>
           ))}
-          {[0, 1, max].map((v) => (
-            <text key={`coverage-bound-${v}`} x={x(v)} y="344" textAnchor="middle">
-              {display(v)}
+          {[
+            { id: "bound-0", val: 0 },
+            { id: "bound-1", val: 1 },
+            { id: "bound-max", val: max },
+          ].map((bound) => (
+            <text key={bound.id} x={x(bound.val)} y="344" textAnchor="middle">
+              {display(bound.val)}
             </text>
           ))}
           <text x="280" y="362" textAnchor="middle">
