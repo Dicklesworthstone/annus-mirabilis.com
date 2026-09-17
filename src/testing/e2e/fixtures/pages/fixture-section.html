@@ -29,7 +29,7 @@
 
       <p id="s1-p2" data-anchor="s1-p2">
         <span id="s1-p2-s1" data-anchor="s1-p2-s1">We shall investigate what state of dynamic equilibrium will be established when a thermodynamic force acts upon each particle.</span>
-        The suspended particles experience a drag determined by the fluid <span data-term-id="viscosity" class="linked-term">viscosity</span> <sup id="fnref-1"><a href="#fn1" class="footnote-mark">1</a></sup>.
+        The suspended particles experience a drag determined by the fluid <span data-term-id="viscosity" class="linked-term" tabindex="0" role="button">viscosity</span> <sup id="fnref-1"><a href="#fn1" class="footnote-mark">1</a></sup>.
       </p>
 
       <div class="equation" data-equation-id="diff-eq-1">
@@ -73,8 +73,15 @@
     const term = document.querySelector('[data-term-id="viscosity"]');
     const termDetails = document.getElementById('term-details-viscosity');
     if (term && termDetails) {
-      term.addEventListener('click', () => {
+      const toggle = () => {
         termDetails.style.display = termDetails.style.display === 'none' ? 'block' : 'none';
+      };
+      term.addEventListener('click', toggle);
+      term.addEventListener('keydown', (e) => {
+        if (e.key === 'Enter' || e.key === ' ') {
+          e.preventDefault();
+          toggle();
+        }
       });
     }
 
