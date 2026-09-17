@@ -44,7 +44,7 @@ export function createCountermodelSession(instanceId: string, example: PreparedC
       const published=store.publish({...request,...evaluated,final:true});
       if(!published.accepted) throw new Error("The countermodel publication did not match its request.");
       emit({view:store.getSnapshot(),live:true,lastCommand:"observer-change",
-        message:`Accepted host calculation at v/c = ${beta}. The specified events and test requirements are unchanged.`});
+        message:`Accepted host calculation at v/c = ${beta}. The authored event list and test definitions are unchanged.`});
       return {ok:true as const};
     },
     toggle(testId:string,enabled:boolean){
