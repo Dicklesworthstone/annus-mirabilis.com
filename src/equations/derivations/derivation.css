@@ -1,0 +1,305 @@
+/**
+ * Derivation Chain and Step Styles (am-eq-derivation-renderer-9gd7).
+ *
+ * Implements boxed move treatments, subexpression highlights with distinct
+ * borders that survive greyscale, detail-level reason switching, and accessible step lists.
+ */
+
+.derivation-container {
+  margin: 1.5rem 0;
+  padding: 1rem;
+  border: 1px solid var(--line, #bcb5a6);
+  border-radius: 0.5rem;
+  background: var(--paper-subtle, #fcfbf7);
+}
+
+.derivation-disclosure {
+  margin: 0;
+}
+
+.derivation-disclosure > summary {
+  font-weight: 600;
+  font-size: 1.05rem;
+  cursor: pointer;
+  padding: 0.5rem 0;
+  user-select: none;
+}
+
+.derivation-routes {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.5rem;
+  margin: 1rem 0 1.5rem;
+  padding-bottom: 0.75rem;
+  border-bottom: 1px solid var(--line, #bcb5a6);
+}
+
+.route-tab-btn {
+  padding: 0.4rem 0.8rem;
+  font-size: 0.85rem;
+  font-weight: 500;
+  border: 1px solid var(--line, #bcb5a6);
+  border-radius: 4px;
+  background: var(--paper, #faf7ef);
+  cursor: pointer;
+  transition: all 120ms ease;
+}
+
+.route-tab-btn[aria-selected="true"],
+.route-tab-btn.is-active {
+  background: var(--accent, #7b5326);
+  color: #ffffff;
+  border-color: var(--accent, #7b5326);
+}
+
+.derivation-steps-list {
+  list-style: none;
+  padding: 0;
+  margin: 0;
+  display: flex;
+  flex-direction: column;
+  gap: 1.5rem;
+}
+
+.derivation-step {
+  position: relative;
+  padding: 1.25rem;
+  border: 1px solid var(--line, #bcb5a6);
+  border-radius: 0.5rem;
+  background: var(--paper, #faf7ef);
+  transition: outline 120ms ease, box-shadow 120ms ease;
+}
+
+.derivation-step:focus-visible,
+.derivation-step.is-focused {
+  outline: 3px solid var(--accent, #7b5326);
+  outline-offset: 2px;
+}
+
+/* The marked move */
+.derivation-step[data-is-move="true"],
+.derivation-step.is-move {
+  border: 2px solid #b91c1c;
+  background: #fef2f2;
+}
+
+.the-move-box {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.5rem;
+  padding: 0.35rem 0.75rem;
+  margin-bottom: 0.75rem;
+  font-size: 0.85rem;
+  font-weight: 700;
+  text-transform: uppercase;
+  letter-spacing: 0.04em;
+  color: #991b1b;
+  border: 1.5px solid #b91c1c;
+  border-radius: 4px;
+  background: #fee2e2;
+}
+
+/* Dark mode (Kramgasse Night) theme override */
+[data-theme="kramgasse"] .derivation-step[data-is-move="true"] {
+  border-color: #f59e0b;
+  background: #451a03;
+}
+[data-theme="kramgasse"] .the-move-box {
+  color: #fbbf24;
+  border-color: #f59e0b;
+  background: #78350f;
+}
+
+/* Slate / Chalkboard theme override */
+[data-theme="slate"] .derivation-step[data-is-move="true"] {
+  border: 2px dashed #f1f5f9;
+  background: #1e293b;
+}
+[data-theme="slate"] .the-move-box {
+  color: #f8fafc;
+  border-color: #f1f5f9;
+  background: #334155;
+}
+
+.step-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 0.75rem;
+}
+
+.step-number {
+  font-weight: 700;
+  font-size: 0.95rem;
+  color: var(--muted, #595349);
+}
+
+.step-rule {
+  font-size: 0.75rem;
+  font-weight: 600;
+  padding: 0.15rem 0.5rem;
+  border-radius: 3px;
+  background: var(--surface, #eee7d8);
+  border: 1px solid var(--line, #bcb5a6);
+}
+
+.unverified-marker {
+  display: inline-block;
+  font-size: 0.75rem;
+  font-weight: 600;
+  color: #854d0e;
+  background: #fef9c3;
+  border: 1px dashed #ca8a04;
+  padding: 0.15rem 0.5rem;
+  border-radius: 3px;
+  margin-bottom: 0.5rem;
+}
+
+.step-math-comparison {
+  display: grid;
+  grid-template-columns: 1fr auto 1fr;
+  gap: 1rem;
+  align-items: center;
+  margin: 1rem 0;
+  padding: 0.75rem;
+  background: var(--surface, #ffffff);
+  border: 1px solid var(--line, #bcb5a6);
+  border-radius: 4px;
+}
+
+.step-arrow {
+  font-size: 1.5rem;
+  color: var(--muted, #595349);
+  user-select: none;
+}
+
+.step-math {
+  overflow-x: auto;
+  min-width: 0;
+}
+
+/* Subexpression highlight */
+.derivation-subexpression-highlight {
+  outline: 2px solid #b91c1c;
+  outline-offset: 1px;
+  border-bottom: 2px solid #b91c1c;
+  background: #fef2f2;
+}
+
+.step-reasons {
+  margin: 0.75rem 0;
+  font-size: 0.95rem;
+  line-height: 1.5;
+}
+
+.step-reason {
+  margin: 0.35rem 0;
+}
+
+.step-local-steps {
+  margin-top: 0.5rem;
+  font-size: 0.85rem;
+}
+
+.step-local-steps > summary {
+  cursor: pointer;
+  color: var(--accent, #7b5326);
+  text-decoration: underline;
+}
+
+.step-r2-content {
+  margin-top: 0.5rem;
+  padding: 0.5rem;
+  border-left: 2px solid var(--accent, #7b5326);
+  background: var(--surface, #eee7d8);
+}
+
+.step-approximation,
+.step-scope-change {
+  margin: 0.5rem 0;
+  padding: 0.4rem 0.6rem;
+  font-size: 0.8rem;
+  border-radius: 3px;
+  background: #f8fafc;
+  border: 1px solid #cbd5e1;
+}
+
+.step-scope-change {
+  border-left: 3px solid #6366f1;
+}
+
+.step-links {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 1rem;
+  margin-top: 0.75rem;
+  font-size: 0.8rem;
+}
+
+.step-tool-link,
+.step-source-link {
+  color: var(--accent, #7b5326);
+  text-decoration: underline;
+  text-underline-offset: 2px;
+}
+
+/* Computational justification ("Show the code" slot) */
+.step-disclosure-slot {
+  margin-top: 1rem;
+  border: 1px solid var(--line, #bcb5a6);
+  border-radius: 4px;
+  overflow: hidden;
+}
+
+.disclosure-tabs {
+  display: flex;
+  border-bottom: 1px solid var(--line, #bcb5a6);
+  background: var(--surface, #eee7d8);
+}
+
+.disclosure-tab {
+  padding: 0.4rem 0.8rem;
+  font-size: 0.8rem;
+  font-weight: 500;
+  border: none;
+  background: transparent;
+  cursor: pointer;
+}
+
+.disclosure-tab[aria-selected="true"] {
+  background: var(--paper, #ffffff);
+  font-weight: 600;
+  border-bottom: 2px solid var(--accent, #7b5326);
+}
+
+.disclosure-tabpanel {
+  padding: 0.75rem;
+  font-size: 0.85rem;
+}
+
+@media (max-width: 640px) {
+  .step-math-comparison {
+    grid-template-columns: 1fr;
+    gap: 0.5rem;
+  }
+  .step-arrow {
+    transform: rotate(90deg);
+    text-align: center;
+  }
+}
+
+@media print {
+  .derivation-disclosure > summary {
+    display: none;
+  }
+  .derivation-routes {
+    display: none;
+  }
+  .derivation-step {
+    break-inside: avoid;
+  }
+  .step-links,
+  .step-local-steps {
+    display: none;
+  }
+}

@@ -20,6 +20,14 @@ export interface DerivationLogRecord {
   readonly routeKind?: RouteKind | undefined;
   readonly essentialForPrint?: boolean | undefined;
   readonly stepId?: string | undefined;
+  readonly isMove?: boolean | undefined;
+  readonly detail?: string | undefined;
+  readonly perspective?: string | undefined;
+  readonly highlightIds?: readonly string[] | undefined;
+  readonly toolPresent?: boolean | undefined;
+  readonly toolLinkOpened?: boolean | undefined;
+  readonly returnFocusRestored?: boolean | undefined;
+  readonly announcementCount?: number | undefined;
   readonly rule?: RuleKind | string | undefined;
   readonly verification?: ("verified" | "authored-unverified" | "failed") | undefined;
   readonly toolId?: string | undefined;
@@ -34,6 +42,12 @@ export interface DerivationLogRecord {
   readonly expected?: unknown;
   readonly actual?: unknown;
   readonly comparisonKind?: ("bitwise" | "tolerance" | "formatted") | undefined;
+  readonly browser?: string | undefined;
+  readonly viewport?: string | undefined;
+  readonly reducedMotion?: boolean | undefined;
+  readonly jsEnabled?: boolean | undefined;
+  readonly paper?: string | undefined;
+  readonly anchor?: string | undefined;
   readonly durationMs?: number | undefined;
   readonly outcome: "pass" | "fail";
   readonly message: string;
@@ -67,6 +81,33 @@ export class DerivationLogger {
       suite: "equations-derivations",
       logRunId: this.logRunId,
       beadId: "am-eq-derivation-chains-r4c",
+      ...record,
+    };
+
+    mkdirSync(dirname(this.logFilePath), { recursive: true });
+    appendFileSync(this.logFilePath, `${JSON.stringify(fullRecord)}\n`, "utf8");
+  }
+}
+
+export class DerivationRendererLogger {
+  readonly logRunId: string;
+  readonly logFilePath: string;
+
+  constructor(logRunId?: string, rootDir: string = process.cwd()) {
+    this.logRunId = logRunId ?? newLogRunId();
+    this.logFilePath = join(
+      rootDir,
+      "artifacts/test-logs/equations-derivation-renderer",
+      `${this.logRunId}.jsonl`,
+    );
+  }
+
+  log(record: Omit<DerivationLogRecord, "suite" | "logRunId" | "beadId">): void {
+    const fullRecord: DerivationLogRecord = {
+      timestamp: record.timestamp ?? new Date().toISOString(),
+      suite: "equations-derivation-renderer",
+      logRunId: this.logRunId,
+      beadId: "am-eq-derivation-renderer-9gd7",
       ...record,
     };
 
