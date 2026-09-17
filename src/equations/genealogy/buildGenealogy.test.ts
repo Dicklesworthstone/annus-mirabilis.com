@@ -37,7 +37,8 @@ describe("am-eq-genealogy-hmm: buildGenealogy", () => {
     expect(graph.nodes.length).toBe(2);
     expect(graph.edges.length).toBe(1);
 
-    const edge = graph.edges[0]!;
+    const edge = graph.edges[0];
+    if (!edge) throw new Error("Missing expected edge");
     expect(edge.from).toBe("eq-sr-01-definition");
     expect(edge.to).toBe("eq-sr-03-lorentz-boost");
     expect(edge.edgeType).toBe("historical-derivation");
@@ -151,7 +152,8 @@ describe("am-eq-genealogy-hmm: buildGenealogy", () => {
 
     // 4. Cross-paper edge leaving Paper 3 to Paper 4
     expect(graph.crossPaperEdges.length).toBe(1);
-    const crossEdge = graph.crossPaperEdges[0]!;
+    const crossEdge = graph.crossPaperEdges[0];
+    if (!crossEdge) throw new Error("Missing expected cross-paper edge");
     expect(crossEdge.crossPaper).toBe(true);
     expect(crossEdge.from).toBe("premise-sr-light-energy-transformation");
     expect(crossEdge.to).toBe("me-step-1");
@@ -201,7 +203,9 @@ describe("am-eq-genealogy-hmm: buildGenealogy", () => {
     );
 
     expect(historicalGraph.edges.length).toBe(1);
-    expect(historicalGraph.edges[0]!.edgeType).toBe("historical-derivation");
+    const firstEdge = historicalGraph.edges[0];
+    if (!firstEdge) throw new Error("Missing expected historical edge");
+    expect(firstEdge.edgeType).toBe("historical-derivation");
 
     const modernGraph = buildGenealogy(
       "special-relativity",
