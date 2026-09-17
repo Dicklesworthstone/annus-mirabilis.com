@@ -179,6 +179,13 @@ function document_(
  * `detail`. `data-detail` itself, set by `src/reader/detail/prepaint.ts`'s `READER_PREPAINT`,
  * only ever takes "0" | "1" | "2".
  */
+export const DISCOVERY_NOTE_KEYS = Object.freeze({
+  "light-quanta": "am:discovery-notes:v1:light-quanta",
+  "brownian-motion": "am:discovery-notes:v1:brownian-motion",
+  "special-relativity": "am:discovery-notes:v1:special-relativity",
+  "mass-energy": "am:discovery-notes:v1:mass-energy",
+});
+
 export const SEED_ENTRIES: readonly KeyRegistration[] = [
   // Pre-paint settings (data attributes on <html> before first paint).
   setting(
@@ -277,6 +284,11 @@ export const SEED_ENTRIES: readonly KeyRegistration[] = [
     ["on", "off"],
     "off",
     "Gloss reasoning-words toggle",
+  ),
+
+  // Separate documents: discovery drafts never overwrite the general notebook or predictions.
+  ...Object.entries(DISCOVERY_NOTE_KEYS).map(([paper, key]) =>
+    document_(key, "am-read-notebook-tde", 1, `Discovery notes: ${paper}`, { maxBytes: 128_000 }),
   ),
 
   // Documents.
