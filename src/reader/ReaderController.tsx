@@ -1,5 +1,6 @@
 "use client";
 import { useEffect } from "react";
+import { type AddressableRect, capturePlace, restoreDelta } from "./anchors/placeKeeper";
 import {
   DETAIL_STORAGE_KEY,
   FACES,
@@ -52,6 +53,10 @@ export function ReaderController(props: Props) {
       returnAnimation = 0;
     };
     root.dataset.enhanced = "true";
+    // Scroll position is restored relative to an anchor (placeKeeper), never from the
+    // browser's own absolute-pixel history restoration, which breaks under font loading,
+    // a Detail change, or zoom between visits (am-read-anchors-navigation-a6o).
+    if ("scrollRestoration" in history) history.scrollRestoration = "manual";
     [...detailControls, ...lensControls].forEach((control) => {
       control.disabled = false;
     });
@@ -272,6 +277,11 @@ export function ReaderController(props: Props) {
         );
     };
     const pop = () => {
+      // Captured before save() below: save() calls history.replaceState through the closed
+      // allowlist of passageHref/readerHref, which does not carry an instrument-view or term
+      // ?open= value (only foundation:), and would silently overwrite it in location.search
+      // before a deferred read ever saw it.
+      const openSearchAtPop = location.search;
       const previous = state,
         restored =
           restoreReaderState(history.state?.annusReader?.state, registry) ??
@@ -293,15 +303,18 @@ export function ReaderController(props: Props) {
       // separate React root via flushSync, which React refuses to run synchronously from inside
       // another component's own commit (a "flushSync inside a lifecycle method" conflict).
       closeDirectOpenDialog(document);
-      queueMicrotask(() => openFromSearch(document, location.search));
+      queueMicrotask(() => openFromSearch(document, openSearchAtPop));
     };
     root.addEventListener("click", click);
     root.addEventListener("change", changeControl);
     dialog.addEventListener("cancel", cancel);
     window.addEventListener("popstate", pop);
+    // Captured before save() below overwrites location.search through its closed allowlist --
+    // see the identical note in pop() above.
+    const openSearchOnMount = location.search;
     save();
     render();
-    queueMicrotask(() => openFromSearch(document, location.search));
+    queueMicrotask(() => openFromSearch(document, openSearchOnMount));
     return () => {
       cancelReturn();
       root.removeEventListener("click", click);
