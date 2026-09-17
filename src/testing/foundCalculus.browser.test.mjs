@@ -14,7 +14,7 @@ const MIME_TYPES = {
 };
 
 describe("browser E2E foundation calculus verification (am-found-calculus-6agg)", () => {
-  test("E2E 3 (Chromium): Open foundation:logarithms with JavaScript disabled in real browser and assert 'lg' note renders", async () => {
+  test("AC6 (Chromium): No-JavaScript rendering completeness across all 5 calculus foundations", async () => {
     const root = resolve("out");
     const outStat = await stat(root).catch(() => null);
     if (!outStat?.isDirectory()) {
@@ -42,44 +42,168 @@ describe("browser E2E foundation calculus verification (am-found-calculus-6agg)"
     await new Promise((resolveListening) => server.listen(0, "127.0.0.1", resolveListening));
     const address = server.address();
     assert.ok(address && typeof address === "object");
-    const url = `http://127.0.0.1:${address.port}/foundations/logarithms/`;
+    const baseUrl = `http://127.0.0.1:${address.port}`;
 
     const browser = await chromium.launch();
     try {
       // Launch context with JavaScript explicitly disabled
       const context = await browser.newContext({ javaScriptEnabled: false });
       const page = await context.newPage();
-      await page.goto(url, { waitUntil: "domcontentloaded" });
 
-      const text = await page.innerText("body");
+      const foundations = [
+        {
+          id: "functions-graphs",
+          expectedTitle: "Functions and graphs",
+          expectedContent: [
+            "continuous curve",
+            "One worked example",
+            "2Dt",
+            "A stopping point:",
+            "Textual summary of the construction",
+          ],
+        },
+        {
+          id: "derivatives",
+          expectedTitle: "Rates of change and derivatives",
+          expectedContent: ["One worked example", "A stopping point:"],
+        },
+        {
+          id: "partial-derivatives",
+          expectedTitle: "Partial derivatives and held-fixed quantities",
+          expectedContent: ["One worked example", "A stopping point:"],
+        },
+        {
+          id: "exponentials",
+          expectedTitle: "Exponentials and continuous scaling",
+          expectedContent: ["One worked example", "A stopping point:"],
+        },
+        {
+          id: "logarithms",
+          expectedTitle: "Logarithms and product-to-sum relations",
+          expectedContent: ["One worked example", "0.693147", "0.301030", "A stopping point:"],
+        },
+      ];
 
-      // Verify 1905 historical note and numeric values
-      assert.ok(
-        text.includes("lg") || text.includes("natural logarithm"),
-        "Historical note on 1905 German 'lg' must render without JavaScript",
-      );
-      assert.ok(
-        text.includes("0.693147"),
-        "Natural logarithm ln 2 ≈ 0.693147 must render without JavaScript",
-      );
-      assert.ok(
-        text.includes("0.301030"),
-        "Common logarithm log10 2 ≈ 0.301030 must render without JavaScript",
-      );
+      for (const f of foundations) {
+        await page.goto(`${baseUrl}/foundations/${f.id}/`, { waitUntil: "domcontentloaded" });
+        const bodyText = await page.innerText("body");
+
+        assert.ok(
+          bodyText.includes(f.expectedTitle),
+          `foundation:${f.id} must render title "${f.expectedTitle}" without JavaScript`,
+        );
+
+        for (const str of f.expectedContent) {
+          assert.ok(
+            bodyText.includes(str),
+            `foundation:${f.id} must render content "${str}" without JavaScript`,
+          );
+        }
+      }
 
       writeCalculusLog({
-        testId: "browser-e2e-logarithms-no-javascript",
-        foundationId: "logarithms",
-        callingAnchor: "light-quanta:s5",
-        jsEnabled: false,
-        expected: "1905 'lg' note and values rendered in Chromium with javaScriptEnabled: false",
-        actual: "Rendered cleanly, all assertions met in Chromium DOM",
+        testId: "browser-no-javascript-completeness-all-foundations",
+        expected:
+          "All 5 calculus foundations render complete titles, math, and stopping points with JS disabled",
+        actual:
+          "All 5 foundation routes verified complete in Chromium DOM with javaScriptEnabled: false",
         outcome: "passed",
         message:
-          "Verified in real Chromium with JS disabled that foundation:logarithms renders 1905 'lg' note",
+          "AC6 No-JS completeness: Verified all 5 calculus foundations render completely with JS disabled",
       });
 
       await context.close();
+    } finally {
+      await browser.close();
+      server.close();
+    }
+  });
+
+  test("AC6 (Chromium): Print media rendering completeness on calculus foundations", async () => {
+    const root = resolve("out");
+    const outStat = await stat(root).catch(() => null);
+    if (!outStat?.isDirectory()) {
+      console.log("[foundCalculus.browser] out/ directory not present; skipping browser check");
+      return;
+    }
+
+    const server = createServer(async (req, res) => {
+      let file = resolve(
+        root,
+        `.${decodeURIComponent(new URL(req.url ?? "/", "http://localhost").pathname)}`,
+      );
+      if ((await stat(file).catch(() => null))?.isDirectory()) {
+        file = resolve(file, "index.html");
+      }
+      try {
+        res.setHeader("Content-Type", MIME_TYPES[extname(file)] ?? "application/octet-stream");
+        res.end(await readFile(file));
+      } catch {
+        res.writeHead(404);
+        res.end("Not found");
+      }
+    });
+
+    await new Promise((resolveListening) => server.listen(0, "127.0.0.1", resolveListening));
+    const address = server.address();
+    assert.ok(address && typeof address === "object");
+    const baseUrl = `http://127.0.0.1:${address.port}`;
+
+    const browser = await chromium.launch();
+    try {
+      const page = await browser.newPage();
+      // Emulate print media
+      await page.emulateMedia({ media: "print" });
+
+      // Test partial-derivatives under print media
+      await page.goto(`${baseUrl}/foundations/partial-derivatives/`, {
+        waitUntil: "domcontentloaded",
+      });
+      const pdText = await page.innerText("body");
+
+      assert.ok(
+        pdText.includes("Partial derivatives and held-fixed quantities"),
+        "Print rendering of partial-derivatives must include complete title",
+      );
+      assert.ok(
+        pdText.includes("One worked example"),
+        "Print rendering must include worked example section",
+      );
+      assert.ok(
+        pdText.includes("A stopping point:"),
+        "Print rendering must include stopping point notice",
+      );
+
+      // Verify page element visibility under print media
+      const isArticleVisible = await page.isVisible("article.foundation-page");
+      assert.equal(
+        isArticleVisible,
+        true,
+        "Foundation article must remain visible under print media",
+      );
+
+      // Test logarithms under print media
+      await page.goto(`${baseUrl}/foundations/logarithms/`, { waitUntil: "domcontentloaded" });
+      const logText = await page.innerText("body");
+      assert.ok(
+        logText.includes("Logarithms and product-to-sum relations"),
+        "Print rendering of logarithms must include title",
+      );
+      assert.ok(
+        logText.includes("0.693147") && logText.includes("0.301030"),
+        "Print rendering must preserve 1905 vs ISO numerical comparison",
+      );
+
+      writeCalculusLog({
+        testId: "browser-print-rendering-completeness",
+        expected:
+          "Complete prose, mathematics, worked examples, and stopping points preserved under print media",
+        actual:
+          "All elements verified visible and complete in Chromium under emulateMedia({ media: 'print' })",
+        outcome: "passed",
+        message:
+          "AC6 Print completeness: Verified calculus foundations render completely under print media emulation",
+      });
     } finally {
       await browser.close();
       server.close();

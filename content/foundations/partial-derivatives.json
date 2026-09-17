@@ -23,12 +23,30 @@
   "example": [
     {
       "kind": "formula",
-      "latex": "\\frac{\\partial f}{\\partial t} = D \\frac{\\partial^2 f}{\\partial x^2}",
-      "spoken": "Partial derivative of density with respect to time equals diffusion coefficient times second spatial partial derivative."
+      "latex": "\\left(\\frac{\\partial f}{\\partial x}\\right)_t = -\\frac{x}{2Dt} f(x, t)",
+      "spoken": "Spatial partial derivative of density with respect to x holding time t fixed."
     },
     {
       "kind": "paragraph",
-      "text": "For density f(x, t) = (4 pi D t)^(-1/2) exp(-x^2 / (4Dt)), taking the derivative with respect to x holding t fixed gives ∂f/∂x = -x/(2Dt) f(x,t). Taking the derivative with respect to t holding x fixed gives ∂f/∂t = (-1/(2t) + x^2/(4Dt^2)) f(x,t). A direct calculation verifies ∂f/∂t = D ∂^2f/∂x^2."
+      "text": "Example 1 (Time fixed when moving through space): For diffusion profile f(x, t) = (4 pi D t)^(-1/2) exp(-x^2 / (4Dt)), the spatial gradient quantifies concentration variation along a channel. Here, elapsed time t is strictly fixed as the held-fixed parameter. A spatial snapshot taken at one fixed instant evaluates to ∂f/∂x = -x/(2Dt) f(x, t)."
+    },
+    {
+      "kind": "formula",
+      "latex": "\\left(\\frac{\\partial f}{\\partial t}\\right)_x = \\left(-\\frac{1}{2t} + \\frac{x^2}{4Dt^2}\\right) f(x, t)",
+      "spoken": "Time partial derivative of density with respect to time holding position x fixed."
+    },
+    {
+      "kind": "paragraph",
+      "text": "Example 2 (Position fixed when tracking time): The time accumulation rate records concentration changes at a fixed location. Here, spatial position x is strictly fixed as the held-fixed parameter. A stationary probe at one coordinate records accumulation rate ∂f/∂t = (-1/(2t) + x^2/(4Dt^2)) f(x, t). Equating accumulation to spatial flux divergence yields ∂f/∂t = D ∂^2f/∂x^2."
+    },
+    {
+      "kind": "formula",
+      "latex": "\\left(\\frac{\\partial V}{\\partial p}\\right)_T \\quad\\text{versus}\\quad \\left(\\frac{\\partial V}{\\partial p}\\right)_S",
+      "spoken": "Isothermal volume derivative with respect to pressure holding temperature T fixed versus adiabatic volume derivative holding entropy S fixed."
+    },
+    {
+      "kind": "paragraph",
+      "text": "Example 3 (Thermodynamic derivatives: isothermal versus adiabatic): In gas thermodynamics, the volume response to pressure depends on thermal boundary conditions. The isothermal derivative (∂V/∂p)_T explicitly names temperature T as the held-fixed quantity while heat exchanges freely with a bath. Conversely, the adiabatic derivative (∂V/∂p)_S explicitly names entropy S as the held-fixed quantity under thermal insulation. Because isothermal compression permits heat release, the isothermal compressibility exceeds the adiabatic compressibility. Writing ∂V/∂p without identifying the held-fixed parameter is physically incomplete."
     }
   ],
   "prerequisites": [

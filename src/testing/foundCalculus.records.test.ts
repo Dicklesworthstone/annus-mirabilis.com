@@ -293,34 +293,72 @@ test("foundCalculus.records: voice lint rejects 'obviously', 'clearly', 'simply'
   });
 });
 
-test("foundCalculus.records: partial-derivatives explicitly names held-fixed quantities", () => {
+test("foundCalculus.records: partial-derivatives explicitly names held-fixed quantities in each example", () => {
   const filePath = path.join(FOUNDATIONS_DIR, "partial-derivatives.json");
   const content = fs.readFileSync(filePath, "utf8");
   const parsed = JSON.parse(content);
 
-  // Check that held-fixed quantities are explicitly named in explanation and example
+  // Check general explanation
   const fullText = JSON.stringify(parsed);
   assert.ok(
     fullText.includes("holding time t strictly fixed"),
-    "Must explicitly state holding time t fixed",
+    "Must explicitly state holding time t fixed in explanation",
   );
   assert.ok(
-    fullText.includes("holding x fixed") || fullText.includes("fixed position x"),
-    "Must explicitly state holding x fixed or fixed position x",
+    fullText.includes("fixed position x"),
+    "Must explicitly state fixed position x in explanation",
+  );
+
+  // Check EACH example explicitly names its own fixed quantities
+  const examples = parsed.example as Array<{ kind: string; text?: string; latex?: string }>;
+  const exampleText = examples
+    .filter((e) => e.kind === "paragraph")
+    .map((e) => e.text ?? "")
+    .join("\n");
+
+  // Example 1: Time fixed when moving through space
+  assert.ok(
+    exampleText.includes("Example 1 (Time fixed when moving through space)"),
+    "Example 1 must name time fixed when moving through space",
   );
   assert.ok(
-    fullText.includes("isothermal") && fullText.includes("adiabatic"),
-    "Must mention thermodynamic held-fixed states (isothermal, adiabatic)",
+    exampleText.includes("time t is strictly fixed") || exampleText.includes("t is strictly fixed"),
+    "Example 1 must explicitly name time t as held-fixed parameter",
+  );
+
+  // Example 2: Position fixed when tracking time
+  assert.ok(
+    exampleText.includes("Example 2 (Position fixed when tracking time)"),
+    "Example 2 must name position fixed when tracking time",
+  );
+  assert.ok(
+    exampleText.includes("position x is strictly fixed"),
+    "Example 2 must explicitly name position x as held-fixed parameter",
+  );
+
+  // Example 3: Thermodynamic derivatives (isothermal vs adiabatic)
+  assert.ok(
+    exampleText.includes("Example 3 (Thermodynamic derivatives: isothermal versus adiabatic)"),
+    "Example 3 must distinguish isothermal versus adiabatic derivatives",
+  );
+  assert.ok(
+    exampleText.includes("names temperature T as the held-fixed quantity"),
+    "Example 3 must name temperature T held fixed for isothermal derivative",
+  );
+  assert.ok(
+    exampleText.includes("names entropy S as the held-fixed quantity"),
+    "Example 3 must name entropy S held fixed for adiabatic derivative",
   );
 
   writeCalculusLog({
     testId: "partial-derivatives-held-fixed-explicit",
     foundationId: "partial-derivatives",
     callingAnchor: "brownian-motion:s4",
-    expected: "held-fixed quantities (t, x, T, S) explicitly named",
-    actual: "explicitly named in explanation and worked example",
+    expected: "each example explicitly names its own held-fixed quantities (t, x, T, S)",
+    actual: "Example 1 names t, Example 2 names x, Example 3 names T and S",
     outcome: "passed",
-    message: "Verified partial-derivatives record explicitly identifies held-fixed quantities",
+    message:
+      "Verified each held-fixed example in partial-derivatives explicitly identifies its fixed quantities",
   });
 });
 
