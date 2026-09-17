@@ -1,6 +1,26 @@
 import type { Metadata } from "next";
+import {
+  ExercisePart,
+  type ExpressionExercisePart,
+} from "../../../components/discover/ExercisePart.tsx";
 import { Formula } from "../../../components/edition/Formula.tsx";
+
 export const metadata: Metadata = { title: "A first encounter with Brownian motion" };
+
+const DISPLACEMENT_SCALE_EXERCISE: ExpressionExercisePart = {
+  id: "bm-displacement-scale-rewrite",
+  prompt:
+    "The root-mean-square displacement scale is often written 2·sqrt(D·t). Write it a different way, as sqrt(4·D·t).",
+  declaredNames: ["D", "t"],
+  domains: {
+    D: { min: 1e-14, max: 1e-10, scale: "log" },
+    t: { min: 0.1, max: 100, scale: "log" },
+  },
+  referenceSource: "2*sqrt(D*t)",
+  tolerance: { absolute: 1e-9, relative: 1e-9 },
+  workedExplanation:
+    "sqrt(4*D*t) = sqrt(4)*sqrt(D*t) = 2*sqrt(D*t), since 4 is a perfect square and the square root of a product is the product of the square roots for nonnegative D and t.",
+};
 export default function BrownianEncounter() {
   return (
     <article className="reading encounter">
@@ -106,6 +126,17 @@ export default function BrownianEncounter() {
           intervals miss.
         </p>
         <a href="/lab/bm-07/">Explore the molecular-number inference laboratory →</a>
+      </section>
+      <section>
+        <p className="step-number">05 / Try it yourself</p>
+        <h2>Same quantity, written two ways</h2>
+        <p>
+          A displacement scale can be written more than one way without changing what it means. Try
+          rewriting it yourself; the checker compares your expression to the reference numerically,
+          at real sample points across the same ranges the tracer laboratory uses, never by matching
+          text.
+        </p>
+        <ExercisePart part={DISPLACEMENT_SCALE_EXERCISE} />
       </section>
       <aside className="notice">
         <h2>The model is not the evidence.</h2>

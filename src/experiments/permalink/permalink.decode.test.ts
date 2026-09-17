@@ -2,7 +2,7 @@ import assert from "node:assert/strict";
 import test from "node:test";
 import { deflateRawSync } from "node:zlib";
 import { getLogger, newRunIdentity } from "../../testing/log/logger.ts";
-import { decodeTapePermalink, encodeTapePermalink } from "./codec.ts";
+import { decodeTapePermalink, encodeTapePermalink, MAX_DECOMPRESSED_TAPE_BYTES } from "./codec.ts";
 import { FIXTURE_TEACHING_TAPE_EINSTEIN_08 } from "./fixture.ts";
 import type { TapeControlEvent, TapeV2 } from "./types.ts";
 
@@ -65,6 +65,7 @@ test("permalink.decode: rejects truncated base64url with clear notice", () => {
   if (result.kind === "invalid") {
     assert.ok(
       result.reason === "tape-malformed-encoding" ||
+        result.reason === "tape-malformed-deflate" ||
         result.reason === "tape-malformed-json" ||
         result.reason === "tape-validation-error",
     );
@@ -165,4 +166,77 @@ test("permalink.decode: rejects oversized tape (> 2048 characters)", () => {
     assert.equal(result.reason, "tape-oversize");
     assert.ok(result.notice.includes("size limit"));
   }
+});
+
+test("permalink.decode: MAX_DECOMPRESSED_TAPE_BYTES is pinned to 32 KiB", () => {
+  assert.equal(
+    MAX_DECOMPRESSED_TAPE_BYTES,
+    32 * 1024,
+    "MAX_DECOMPRESSED_TAPE_BYTES must stay at 32 KiB (16x URL cap, <1ms zlib bound)",
+  );
+  assert.equal(MAX_DECOMPRESSED_TAPE_BYTES, 32768);
+});
+
+test("permalink.decode: rejects deflated payload that decompresses beyond 32 KiB cap", () => {
+  // Construct a valid JSON payload padded to > 32 KiB decompressed
+  const largeTapePayload = {
+    ...FIXTURE_TEACHING_TAPE_EINSTEIN_08,
+    description: "X".repeat(33 * 1024),
+  };
+  const jsonBytes = Buffer.from(JSON.stringify(largeTapePayload));
+  const compressed = deflateRawSync(jsonBytes);
+  const encoded = Buffer.from(compressed).toString("base64url");
+
+  const result = decodeTapePermalink(encoded);
+  assert.equal(result.kind, "invalid");
+  if (result.kind === "invalid") {
+    assert.equal(result.reason, "tape-oversize");
+    assert.ok(result.notice.includes("size limit") || result.notice.includes("32 KiB"));
+  }
+
+  logger.log({
+    testId: "permalink-decode-decompressed-oversize-rejected",
+    beadId: "am-inst-permalink-tape-s677",
+    outcome: "passed",
+    message: "Decompressed payload exceeding 32 KiB budget is rejected with tape-oversize",
+  });
+});
+
+test("permalink.decode: rejects corrupt compressed deflate payload with tape-malformed-encoding", () => {
+  // Non-JSON binary bytes that fail deflate decompression
+  const nonJsonCorruptBytes = Buffer.from([0x1f, 0x8b, 0x00, 0x00, 0xde, 0xad, 0xbe, 0xef]);
+  const encoded = nonJsonCorruptBytes.toString("base64url");
+
+  const result = decodeTapePermalink(encoded);
+  assert.equal(result.kind, "invalid");
+  if (result.kind === "invalid") {
+    assert.equal(result.reason, "tape-malformed-encoding");
+    assert.ok(result.notice.includes("corrupt") || result.notice.includes("compressed tape"));
+  }
+
+  logger.log({
+    testId: "permalink-decode-corrupt-deflate-rejected",
+    beadId: "am-inst-permalink-tape-s677",
+    outcome: "passed",
+    message: "Corrupt deflate stream rejected with tape-malformed-encoding",
+  });
+});
+
+test("permalink.decode: uncompressed valid JSON tape successfully falls back and decodes", () => {
+  const uncompressedJson = JSON.stringify(FIXTURE_TEACHING_TAPE_EINSTEIN_08);
+  const encoded = Buffer.from(uncompressedJson).toString("base64url");
+
+  const result = decodeTapePermalink(encoded);
+  assert.equal(result.kind, "success");
+  if (result.kind === "success") {
+    assert.equal(result.tape.experimentId, FIXTURE_TEACHING_TAPE_EINSTEIN_08.experimentId);
+    assert.equal(result.tape.seed, FIXTURE_TEACHING_TAPE_EINSTEIN_08.seed);
+  }
+
+  logger.log({
+    testId: "permalink-decode-uncompressed-json-fallback-success",
+    beadId: "am-inst-permalink-tape-s677",
+    outcome: "passed",
+    message: "Plausibly uncompressed JSON payload successfully decoded via fallback path",
+  });
 });

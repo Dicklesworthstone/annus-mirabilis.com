@@ -5,7 +5,11 @@ import { parse } from "./grammar";
 const NO_VARS: ReadonlySet<string> = new Set();
 const XY = new Set(["x", "y"]);
 
-function evalText(text: string, names: ReadonlySet<string> = NO_VARS, env: Record<string, number> = {}) {
+function evalText(
+  text: string,
+  names: ReadonlySet<string> = NO_VARS,
+  env: Record<string, number> = {},
+) {
   const parsed = parse(text, names);
   if (!parsed.ok) throw new Error(`parse failed: ${parsed.message} at ${parsed.position}`);
   const result = evaluate(parsed.expr, env);
@@ -90,11 +94,11 @@ describe("grammar: number literals", () => {
 
 describe("grammar: limits", () => {
   test("an expression over the length limit is rejected", () => {
-    const parsed = parse("1+".repeat(150) + "1", NO_VARS);
+    const parsed = parse(`${"1+".repeat(150)}1`, NO_VARS);
     expect(parsed.ok).toBe(false);
   });
   test("deep parenthesis nesting past the depth limit is rejected", () => {
-    const parsed = parse("(".repeat(40) + "1" + ")".repeat(40), NO_VARS);
+    const parsed = parse(`${"(".repeat(40)}1${")".repeat(40)}`, NO_VARS);
     expect(parsed.ok).toBe(false);
   });
 });

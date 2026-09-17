@@ -60,7 +60,8 @@ function tokenize(text: string): Token[] | ParseError {
       while (i < text.length && /[0-9]/.test(text[i] as string)) i++;
       if (text[i] === ".") {
         i++;
-        if (!/[0-9]/.test(text[i] ?? "")) return fail(i, "Expected a digit after the decimal point.");
+        if (!/[0-9]/.test(text[i] ?? ""))
+          return fail(i, "Expected a digit after the decimal point.");
         while (i < text.length && /[0-9]/.test(text[i] as string)) i++;
       }
       if (text[i] === "e" || text[i] === "E") {
@@ -166,7 +167,11 @@ class Parser {
     if (isParseError(expr)) return expr;
     const trailing = this.peek();
     if (trailing.type !== "end") {
-      if (trailing.type === "number" || trailing.type === "identifier" || trailing.type === "lparen") {
+      if (
+        trailing.type === "number" ||
+        trailing.type === "identifier" ||
+        trailing.type === "lparen"
+      ) {
         return fail(
           trailing.position,
           `Implicit multiplication is not allowed; write an explicit '*' before '${trailing.value || "("}'.`,
@@ -267,7 +272,10 @@ class Parser {
       if ((ALLOWED_FUNCTIONS as readonly string[]).includes(tok.value)) {
         const open = this.peek();
         if (open.type !== "lparen") {
-          return fail(open.position, `'${tok.value}' is a function and needs parentheses, for example '${tok.value}(x)'.`);
+          return fail(
+            open.position,
+            `'${tok.value}' is a function and needs parentheses, for example '${tok.value}(x)'.`,
+          );
         }
         this.advance();
         const arg = this.parseExpression(depth + 1);
@@ -277,7 +285,10 @@ class Parser {
         return this.node({ kind: "call", name: tok.value as FunctionName, arg });
       }
       if (!this.declaredNames.has(tok.value)) {
-        return fail(tok.position, `'${tok.value}' is not a declared variable or constant for this exercise.`);
+        return fail(
+          tok.position,
+          `'${tok.value}' is not a declared variable or constant for this exercise.`,
+        );
       }
       return this.node({ kind: "identifier", name: tok.value });
     }

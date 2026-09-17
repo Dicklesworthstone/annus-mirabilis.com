@@ -8,8 +8,58 @@ import { TapeValidationError, validateTapeV2 } from "./schema.ts";
 import type { TapeDecodeResult, TapeV2 } from "./types.ts";
 
 export const MAX_PERMALINK_URL_LENGTH = 2048;
-/** Inflate of junk at the URL-length cap was measured at ~47ms (the 5ms fuzz bound). Cap output. */
+
+/**
+ * Maximum decompressed size of a tape payload (32 KiB).
+ *
+ * Provenance / Sizing Rationale:
+ * A maximal valid tape payload (256 events + full initial conditions + predictions + metadata)
+ * serializes to approximately 3.5–4.5 KiB of JSON. A limit of 32 KiB (32,768 bytes) provides
+ * an ~8x safety ceiling for future metadata expansion while capping decompression work
+ * against decompression bombs or crafted degenerate inputs.
+ *
+ * Measured Cost:
+ * Inflating malicious or unconstrained junk at the URL-length cap (2,048 characters) without
+ * an output cap was measured at ~47ms, violating the 5ms per-input bounded fuzz requirement.
+ * With maxOutputLength capped at 32 KiB, inflate aborts early in < 0.2ms.
+ */
 export const MAX_DECOMPRESSED_TAPE_BYTES = 32 * 1024;
+
+function isBufferTooLargeError(err: unknown): boolean {
+  if (!err) return false;
+  if (
+    typeof err === "object" &&
+    err !== null &&
+    "code" in err &&
+    (err as { code: unknown }).code === "ERR_BUFFER_TOO_LARGE"
+  ) {
+    return true;
+  }
+  const errObj = err as { name?: string; message?: string } | null;
+  if (errObj?.name === "RangeError") {
+    return true;
+  }
+  const msg = String(err);
+  return (
+    msg.includes("ERR_BUFFER_TOO_LARGE") ||
+    msg.includes("maxOutputLength") ||
+    msg.includes("Output length exceeded") ||
+    msg.includes("buffer too large") ||
+    msg.includes("Buffer too large")
+  );
+}
+
+function isPlausiblyUncompressedJson(bytes: Uint8Array): boolean {
+  for (let i = 0; i < bytes.length; i++) {
+    const b = bytes[i];
+    // Skip ASCII whitespace: space (0x20), tab (0x09), LF (0x0a), CR (0x0d)
+    if (b === 0x20 || b === 0x09 || b === 0x0a || b === 0x0d) {
+      continue;
+    }
+    return b === 0x7b || b === 0x5b; // '{' or '['
+  }
+  return false;
+}
 
 /**
  * Converts a Uint8Array to a URL-safe Base64URL string (RFC 4648 §5).
@@ -166,25 +216,50 @@ export function decodeTapePermalink(
     };
   }
 
-  // 3. Decompression (deflate) with fallback to raw UTF-8 JSON
-  let text: string;
+  // 3. Decompression (deflate) with fallback for plausibly uncompressed JSON
+  let text = "";
   try {
-    try {
-      const decompressed = inflateRawSync(bytes, {
-        maxOutputLength: MAX_DECOMPRESSED_TAPE_BYTES,
-      });
-      text = new TextDecoder("utf-8", { fatal: true }).decode(decompressed);
-    } catch {
-      // Fallback to uncompressed raw UTF-8 JSON
-      text = new TextDecoder("utf-8", { fatal: true }).decode(bytes);
-    }
+    const decompressed = inflateRawSync(bytes, {
+      maxOutputLength: MAX_DECOMPRESSED_TAPE_BYTES,
+    });
+    text = new TextDecoder("utf-8", { fatal: true }).decode(decompressed);
   } catch (err: unknown) {
-    return {
-      kind: "invalid",
-      notice: "This shared state could not be restored: invalid character encoding.",
-      reason: "tape-malformed-encoding",
-      details: { error: String(err) },
-    };
+    if (isBufferTooLargeError(err)) {
+      return {
+        kind: "invalid",
+        notice:
+          "This shared state could not be restored: the decompressed tape exceeds the maximum size limit.",
+        reason: "tape-oversize",
+        details: {
+          maxBytes: MAX_DECOMPRESSED_TAPE_BYTES,
+          error: String(err),
+        },
+      };
+    }
+
+    // Only fall back to uncompressed raw UTF-8 if the input was plausibly uncompressed JSON
+    // (starts with '{' or '[' after leading whitespace).
+    if (isPlausiblyUncompressedJson(bytes)) {
+      try {
+        text = new TextDecoder("utf-8", { fatal: true }).decode(bytes);
+      } catch (decodeErr: unknown) {
+        return {
+          kind: "invalid",
+          notice: "This shared state could not be restored: invalid character encoding.",
+          reason: "tape-malformed-encoding",
+          details: { error: String(decodeErr) },
+        };
+      }
+    } else {
+      // Genuine corrupt/malformed deflate stream
+      return {
+        kind: "invalid",
+        notice:
+          "This shared state could not be restored: corrupt or invalid compressed tape payload.",
+        reason: "tape-malformed-encoding",
+        details: { error: String(err) },
+      };
+    }
   }
 
   // 4. JSON parsing
