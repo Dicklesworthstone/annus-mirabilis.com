@@ -5,8 +5,8 @@
  * from the content index; a paper without a payload is not a route.
  */
 import type { Metadata } from "next";
-import { contentIndex, loadPaper } from "../content/server.ts";
 import { PAPER_SLUGS } from "../content/schemas/source.ts";
+import { contentIndex, loadPaper } from "../content/server.ts";
 import { DEFAULT_FACE, FACE_REGISTRY, type FaceId } from "./faces/registry.ts";
 
 export const SITE_ORIGIN = "https://annus-mirabilis.com";
@@ -53,9 +53,7 @@ export type PaperRouteResult = PaperRouteOk | PaperRouteErr;
 const BIBLIOGRAPHIC_KEY = /^ap-\d+-\d+$/;
 
 export function isFaceFallbackId(value: unknown): value is FaceFallbackId {
-  return (
-    typeof value === "string" && (FACE_FALLBACK_IDS as readonly string[]).includes(value)
-  );
+  return typeof value === "string" && (FACE_FALLBACK_IDS as readonly string[]).includes(value);
 }
 
 export function classifyPaperParam(raw: string): "slug" | "bibliographic-key" | "invalid" {
@@ -65,9 +63,7 @@ export function classifyPaperParam(raw: string): "slug" | "bibliographic-key" | 
 }
 
 export function paperPath(paperId: string, section?: string): string {
-  return section === undefined
-    ? `/papers/${paperId}/`
-    : `/papers/${paperId}/${section}/`;
+  return section === undefined ? `/papers/${paperId}/` : `/papers/${paperId}/${section}/`;
 }
 
 export function faceFallbackPath(paperId: string, face: FaceFallbackId, section?: string): string {
@@ -238,5 +234,3 @@ export async function readerSitemapEntries(): Promise<
   }
   return entries;
 }
-
-

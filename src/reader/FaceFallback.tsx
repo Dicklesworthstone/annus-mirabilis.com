@@ -1,11 +1,6 @@
 import { loadPaper } from "../content/server.ts";
 import { FACE_REGISTRY, type FaceId } from "./faces/registry.ts";
-import {
-  FACE_FALLBACK_IDS,
-  type FaceFallbackId,
-  faceLinkHref,
-  paperPath,
-} from "./paperRoutes.ts";
+import { FACE_FALLBACK_IDS, type FaceFallbackId, faceLinkHref, paperPath } from "./paperRoutes.ts";
 import { ROOT_ARMING_SOURCE } from "./rootArming.inline.ts";
 import "./reader.css";
 
@@ -56,7 +51,12 @@ export async function FaceFallback({
       </nav>
       {face === "split" ? (
         <div className="reader-split" data-split="">
-          <div className="reader-split-tabs" data-split-tabs="" role="tablist" aria-label="Split reading faces">
+          <div
+            className="reader-split-tabs"
+            data-split-tabs=""
+            role="tablist"
+            aria-label="Split reading faces"
+          >
             <a role="tab" href={faceLinkHref(paperId, "parallel", section)} aria-selected="true">
               Parallel bilingual
             </a>

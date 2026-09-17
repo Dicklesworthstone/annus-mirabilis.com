@@ -1,9 +1,10 @@
 import assert from "node:assert";
-import test, { describe, it } from "node:test";
 import { execFileSync } from "node:child_process";
 import { randomBytes } from "node:crypto";
 import { mkdirSync, writeFileSync } from "node:fs";
+import { tmpdir } from "node:os";
 import path from "node:path";
+import test, { describe, it } from "node:test";
 import { runRevisionCheck } from "../../scripts/check-revisions.ts";
 import { newRunIdentity, TestLogger } from "./log/logger.ts";
 
@@ -11,7 +12,8 @@ describe("check-revisions Integration with Git Repository", () => {
   const logger = new TestLogger("check-revisions", newRunIdentity());
 
   it("detects unbumped revisions across git commits in a test repository", async () => {
-    const tempRoot = "/Volumes/USBNVME16TB/temp_agent_space";
+    const tempRoot = process.env.AM_TEST_TMP ?? tmpdir();
+    mkdirSync(tempRoot, { recursive: true });
     const runId = `git-rev-test-${Date.now()}-${randomBytes(4).toString("hex")}`;
     const testRepoDir = path.join(tempRoot, runId);
 

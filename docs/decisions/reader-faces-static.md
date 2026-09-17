@@ -149,3 +149,14 @@ section above**, unaffected by this resolution: the modular routes, static
 fallback pages, split-view rendering (two real panes), canonical/`hreflang`
 output, the sitemap policy, and the e2e spec. Those still depend on
 `am-cm-compiler-core-oa7` and `am-test-e2e-harness-bqmh`.
+
+## Routes landed (am-read-shell-routes-3ua, later pass)
+
+App Router routes now exist and are paper-agnostic:
+
+- `/papers/[paper]` and `/papers/[paper]/[section]` from the compiled content index
+- `/papers/[paper]/view/[face]` and `/papers/[paper]/[section]/view/[face]` for the seven no-JavaScript fallback faces
+- dedicated `/papers/brownian-motion/view/[face]` (and section) siblings so the existing brownian-motion tree does not swallow `view` as a section id
+
+`src/reader/paperRoutes.ts` is the single resolver: bibliographic keys (`ap-17-549`) refuse, unknown slugs and sections 404, `reading` is not a fallback page. Canonical / hreflang / sitemap follow the policy in this bead. Face contents for German/English/gloss/facsimile remain honest "not yet available" notices until those face beads land. The full browser spec through `am-test-e2e-harness-bqmh` is still that harness's work.
+

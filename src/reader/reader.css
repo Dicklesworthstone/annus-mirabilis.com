@@ -193,6 +193,24 @@ html:is(
   [data-face-source] {
   display: block;
 }
+.reader-split-panes {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 2rem;
+}
+.reader-split-tabs {
+  display: none;
+}
+@media (max-width: 48em) {
+  .reader-split-panes {
+    display: none;
+  }
+  .reader-split-tabs {
+    display: flex;
+    gap: 1rem;
+    flex-wrap: wrap;
+  }
+}
 .enhanced-only {
   display: none;
 }

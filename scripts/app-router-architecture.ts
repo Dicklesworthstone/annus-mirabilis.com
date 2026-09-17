@@ -292,7 +292,7 @@ export function checkArchitecture(
             rule: "rule-5-scratch-files",
             path: rawPath,
             message: `Forbidden scratch/temporary file '${rawPath}' found in source tree.`,
-            repair: `Remove '${rawPath}' from the repository. Use session scratch directories (/Volumes/USBNVME16TB/temp_agent_space) or proper typed test fixtures.`,
+            repair: `Remove '${rawPath}' from the repository. Use a session scratch directory (honour TMPDIR) or proper typed test fixtures.`,
           });
         }
       }

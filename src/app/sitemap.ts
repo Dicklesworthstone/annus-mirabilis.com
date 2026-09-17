@@ -1,13 +1,14 @@
 import type { MetadataRoute } from "next";
+import { readerSitemapEntries } from "../reader/paperRoutes.ts";
 
-// This metadata route has no request-time inputs; emit it in the static export.
 export const dynamic = "force-static";
 
 /**
- * Empty-corpus baseline: lists only the canonical home URL. The real route
- * inventory (papers, discover, lab) is built from the canonical-URL
- * registry by am-route-canonical-registry-57b6, which depends on this bead.
+ * Canonical URLs only: home, compiled papers, their sections, and the German
+ * and English face pages. Query-parameter faces and other fallbacks are omitted
+ * (am-read-shell-routes-3ua).
  */
-export default function sitemap(): MetadataRoute.Sitemap {
-  return [{ url: "https://annus-mirabilis.com/" }];
+export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
+  const papers = await readerSitemapEntries();
+  return [{ url: "https://annus-mirabilis.com/" }, ...papers];
 }

@@ -95,9 +95,7 @@ describe("resolvePaperRoute", () => {
 describe("face fallback hrefs", () => {
   test("reading stays on the paper or section route; other faces use /view/[face]/", () => {
     expect(faceLinkHref("brownian-motion", "reading")).toBe("/papers/brownian-motion/");
-    expect(faceLinkHref("brownian-motion", "german")).toBe(
-      "/papers/brownian-motion/view/german/",
-    );
+    expect(faceLinkHref("brownian-motion", "german")).toBe("/papers/brownian-motion/view/german/");
     expect(faceLinkHref("brownian-motion", "results", "s4")).toBe(
       "/papers/brownian-motion/s4/view/results/",
     );
@@ -109,9 +107,7 @@ describe("face fallback hrefs", () => {
     expect(FACE_FALLBACK_IDS).not.toContain("reading");
     for (const id of FACE_FALLBACK_IDS) {
       expect(isFaceFallbackId(id)).toBe(true);
-      expect(faceFallbackPath("brownian-motion", id)).toBe(
-        `/papers/brownian-motion/view/${id}/`,
-      );
+      expect(faceFallbackPath("brownian-motion", id)).toBe(`/papers/brownian-motion/view/${id}/`);
     }
   });
 });
