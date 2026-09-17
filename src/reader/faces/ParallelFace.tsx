@@ -1,4 +1,3 @@
-import React from "react";
 import type { ReviewRecord } from "../../content/schemas/review.ts";
 import type {
   Alignment,
@@ -114,12 +113,12 @@ export function ParallelFace({
         ))}
       </nav>
 
-      <div className="parallel-help-bar fine" aria-label="Alignment guidance">
+      <aside className="parallel-help-bar fine" aria-label="Alignment guidance">
         <p>
           Hover or focus a sentence to highlight its aligned counterpart. Press <kbd>j</kbd> /{" "}
           <kbd>k</kbd> to step through sentences in reading order.
         </p>
-      </div>
+      </aside>
 
       <div
         className={`parallel-grid ${isStacked ? "parallel-stacked" : ""}`}

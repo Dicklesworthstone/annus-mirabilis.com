@@ -218,7 +218,7 @@ export function SourceBlockComponent({
                   data-aligned-active={isActive ? "true" : undefined}
                   data-aligned-partner={!isActive && isHighlighted ? "true" : undefined}
                   className={`source-sentence ${isActive ? "is-active" : ""} ${isHighlighted ? "is-highlighted" : ""}`}
-                  tabIndex={0}
+                  tabIndex={-1}
                 >
                   {content}{" "}
                   <button
