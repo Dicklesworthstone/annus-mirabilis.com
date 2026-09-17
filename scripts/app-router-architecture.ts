@@ -12,7 +12,7 @@
  * - Added root allowlist parser and validation.
  */
 
-import { execFileSync } from "node:child_process";
+import { spawnSync } from "node:child_process";
 import { randomBytes } from "node:crypto";
 import { existsSync, mkdirSync, readdirSync, readFileSync, writeFileSync } from "node:fs";
 import { basename, extname, join, normalize, relative } from "node:path";
@@ -360,21 +360,113 @@ function walkDirectoryRecursive(dir: string, rootDir: string, entries: RepoEntry
 }
 
 /**
+ * Parses gitignore file content and creates a pattern-matching predicate.
+ */
+export function parseGitIgnorePatterns(gitignoreContent: string): (path: string) => boolean {
+  const lines = gitignoreContent
+    .split(/\r?\n/)
+    .map((l) => l.trim())
+    .filter((l) => l.length > 0 && !l.startsWith("#"));
+
+  const rules: { regex: RegExp; isNegation: boolean }[] = [];
+
+  for (const line of lines) {
+    let pat = line;
+    let isNegation = false;
+    if (pat.startsWith("!")) {
+      isNegation = true;
+      pat = pat.slice(1).trim();
+    }
+    if (pat.endsWith("/")) {
+      pat = pat.slice(0, -1);
+    }
+    if (pat.startsWith("/")) {
+      pat = pat.slice(1);
+    }
+
+    const escaped = pat
+      .replace(/[.+^${}()|[\]\\]/g, "\\$&")
+      .replace(/\*\*/g, ".*")
+      .replace(/\*/g, "[^/]*")
+      .replace(/\?/g, "[^/]");
+
+    const regex = new RegExp(`^(?:.*/)?${escaped}(?:/.*)?$`);
+    rules.push({ regex, isNegation });
+  }
+
+  return (testPath: string): boolean => {
+    let ignored = false;
+    const normalized = testPath.replace(/\\/g, "/").replace(/^\//, "").replace(/\/$/, "");
+    for (const rule of rules) {
+      if (rule.regex.test(normalized)) {
+        ignored = !rule.isNegation;
+      }
+    }
+    return ignored;
+  };
+}
+
+/**
  * Creates a git check-ignore query predicate against the given working directory.
+ * Falls back to in-memory .gitignore parsing if child process spawning is not available.
  */
 export function createGitIgnorePredicate(cwd: string): (path: string) => boolean {
+  let fileMatcher: ((path: string) => boolean) | undefined;
+  const gitignorePath = join(cwd, ".gitignore");
+  if (existsSync(gitignorePath)) {
+    try {
+      const content = readFileSync(gitignorePath, "utf8");
+      fileMatcher = parseGitIgnorePatterns(content);
+    } catch {
+      fileMatcher = undefined;
+    }
+  }
+
   return (testPath: string): boolean => {
     try {
-      const out = execFileSync("git", ["check-ignore", testPath], {
-        cwd,
-        encoding: "utf8",
-        stdio: ["pipe", "pipe", "ignore"],
-      });
-      return out.trim().length > 0;
+      if (typeof (globalThis as any).Bun !== "undefined") {
+        const proc = (globalThis as any).Bun.spawnSync(["git", "check-ignore", testPath], {
+          cwd,
+          env: process.env,
+          stdin: "ignore",
+          stdout: "pipe",
+          stderr: "ignore",
+        });
+        if (proc.exitCode === 0 && proc.stdout.toString().trim().length > 0) {
+          return true;
+        }
+      } else {
+        const res = spawnSync("git", ["check-ignore", testPath], {
+          cwd,
+          env: process.env,
+          encoding: "utf8",
+          stdio: ["ignore", "pipe", "ignore"],
+        });
+        if (res.status === 0 && Boolean(res.stdout && res.stdout.trim().length > 0)) {
+          return true;
+        }
+      }
     } catch {
-      return false;
+      // ignore process spawn failure
     }
+
+    if (fileMatcher) {
+      return fileMatcher(testPath);
+    }
+    return false;
   };
+}
+
+/**
+ * Scans the repository for entries and sets up the git check-ignore predicate.
+ */
+export function scanRepository(rootDir: string = process.cwd()): {
+  entries: RepoEntry[];
+  isIgnored: (path: string) => boolean;
+} {
+  const isIgnored = createGitIgnorePredicate(rootDir);
+  const entries = collectRepoEntries(rootDir, isIgnored);
+  return { entries, isIgnored };
 }
 
 /**
@@ -385,7 +477,7 @@ export function writeGateLog(
   logRunId: string,
   entries: readonly RepoEntry[],
   violations: readonly ArchitectureViolation[],
-): { logPath: string; evidenceDir?: string } {
+): { logPath: string; evidenceDir?: string | undefined } {
   const logDir = join(artifactsDir, "test-logs", "architecture");
   mkdirSync(logDir, { recursive: true });
 
