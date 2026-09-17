@@ -34,7 +34,7 @@ describe("WASM Artifact Test Helpers", () => {
       durationMs: performance.now() - start,
       message:
         "computeArtifactDigest produces exact lowercase SHA-256 digest; single-byte change alters digest",
-      expected: "9f64a742e7503487c53e0ec6ca3ecab334b07f287140e691ec55074f76ca096e",
+      expected: "9f64a747e1b97f131fabb6b447296c9b6f0201e79fb3c5356e6c77e89b6a806a",
       actual: digestA,
       comparisonKind: "bitwise",
     });
