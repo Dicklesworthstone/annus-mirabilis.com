@@ -2,10 +2,13 @@ import type { Metadata } from "next";
 import type { ReactNode } from "react";
 import "katex/dist/katex.min.css";
 import "./globals.css";
+import "./theme/themes.css";
 import "../a11y/readingSettings/readingSettings.css";
 import { READING_SETTINGS_PREPAINT } from "../a11y/readingSettings/prepaint";
 import { ReadingSettingsPanel } from "../a11y/readingSettings/ReadingSettingsPanel";
 import { READER_PREPAINT } from "../reader/detail/prepaint";
+import { THEME_INIT_SOURCE } from "./theme/themeInit.inline";
+import { ThemeToggle } from "./theme/ThemeToggle";
 export const metadata: Metadata = {
   metadataBase: new URL("https://annus-mirabilis.com"),
   title: { default: "Annus Mirabilis — four papers, one year", template: "%s · Annus Mirabilis" },
@@ -20,6 +23,8 @@ export default function RootLayout({ children }: { children: ReactNode }) {
         <script dangerouslySetInnerHTML={{ __html: READER_PREPAINT }} />
         {/* biome-ignore lint/security/noDangerouslySetInnerHtml: reading-only and layout preferences must apply before first paint */}
         <script dangerouslySetInnerHTML={{ __html: READING_SETTINGS_PREPAINT }} />
+        {/* biome-ignore lint/security/noDangerouslySetInnerHtml: sets data-theme on <html> before first paint so no wrong theme flashes; source is a tested pure function, never hand-authored HTML */}
+        <script dangerouslySetInnerHTML={{ __html: THEME_INIT_SOURCE }} />
       </head>
       <body>
         <a className="skip-link" href="#main">
@@ -35,6 +40,7 @@ export default function RootLayout({ children }: { children: ReactNode }) {
             <a href="/lab/bm-06/">Laboratory</a>
           </nav>
           <ReadingSettingsPanel />
+          <ThemeToggle />
         </header>
         <main id="main">{children}</main>
         <footer className="site-footer">

@@ -9,7 +9,12 @@
  */
 import assert from "node:assert/strict";
 import test from "node:test";
-import { validateSourceBlock, validateTranslationUnit } from "./source.ts";
+import {
+  validateEditorialNote,
+  validateGlossUnit,
+  validateSourceBlock,
+  validateTranslationUnit,
+} from "./source.ts";
 
 const validSourceBlock = {
   id: "s1-p1",
@@ -91,6 +96,86 @@ test("layer boundary: swapping only the discriminating fields does not make eith
   assert.throws(
     () => validateTranslationUnit(grafted),
     (err: any) => {
+      assert.equal(err.code, "missing-source-refs");
+      return true;
+    },
+  );
+});
+
+const validGlossUnit = {
+  sentenceId: "s1-p1-s1",
+  revision: 1,
+  sourceRevision: 1,
+  sourceTextDigest: "abc",
+  attribution: { id: "jemanuel", kind: "human" },
+  tokens: [{ german: "In", english: "in" }],
+  multiwordUnits: [],
+};
+
+const validEditorialNote = {
+  id: "note-s1-p1-1",
+  author: { id: "jemanuel", kind: "human" },
+  claim: "The printed date-line reads Bern, den 17. März 1905.",
+  sourceSupport: [],
+  kind: "side-note",
+  affectedIds: ["s1-p1"],
+  reviewState: "draft",
+};
+
+test("layer boundary: a well-formed GlossUnit is refused when validated as a SourceBlock or a TranslationUnit", () => {
+  // Control: the same record validates cleanly as what it actually is.
+  const gloss = validateGlossUnit(validGlossUnit);
+  assert.equal(gloss.sentenceId, "s1-p1-s1");
+
+  // The gloss unit has no id (it is addressed by sentenceId instead), no kind, no locators, no
+  // sourceRefs, and no translator -- it carries tokens and an attribution instead, so it must
+  // never occupy either layer's slot.
+  assert.throws(
+    () => validateSourceBlock(validGlossUnit),
+    (err: any) => {
+      assert.equal(err.name, "SchemaValidationError");
+      assert.ok(
+        err.code === "missing-id" || err.code === "invalid-kind" || err.code === "missing-locators",
+        `expected missing-id, invalid-kind, or missing-locators, got ${err.code}`,
+      );
+      return true;
+    },
+  );
+  assert.throws(
+    () => validateTranslationUnit(validGlossUnit),
+    (err: any) => {
+      assert.equal(err.name, "SchemaValidationError");
+      assert.ok(
+        err.code === "missing-id" || err.code === "missing-source-refs",
+        `expected missing-id or missing-source-refs, got ${err.code}`,
+      );
+      return true;
+    },
+  );
+});
+
+test("layer boundary: a well-formed EditorialNote is refused when validated as a SourceBlock or a TranslationUnit", () => {
+  // Control: the same record validates cleanly as what it actually is.
+  const note = validateEditorialNote(validEditorialNote);
+  assert.equal(note.id, "note-s1-p1-1");
+
+  // The editorial note carries a claim and affectedIds, not a locators list or sourceRefs -- an
+  // annotation about the source is not the source, and it is not a translation of it either.
+  assert.throws(
+    () => validateSourceBlock(validEditorialNote),
+    (err: any) => {
+      assert.equal(err.name, "SchemaValidationError");
+      assert.ok(
+        err.code === "invalid-kind" || err.code === "missing-locators",
+        `expected invalid-kind or missing-locators, got ${err.code}`,
+      );
+      return true;
+    },
+  );
+  assert.throws(
+    () => validateTranslationUnit(validEditorialNote),
+    (err: any) => {
+      assert.equal(err.name, "SchemaValidationError");
       assert.equal(err.code, "missing-source-refs");
       return true;
     },

@@ -19,6 +19,7 @@
 import { READING_SETTINGS_PREPAINT } from "../../a11y/readingSettings/prepaint.ts";
 import { READER_PREPAINT } from "../../reader/detail/prepaint.ts";
 import { ROOT_ARMING_SOURCE } from "../../reader/rootArming.inline.ts";
+import { THEME_INIT_SOURCE } from "../theme/themeInit.inline.ts";
 
 export type InlineScriptRoutes = "all" | readonly string[];
 
@@ -34,8 +35,15 @@ export type InlineScriptRegistry = readonly InlineScriptRegistryEntry[];
 
 /**
  * Still-future ids, so later beads keep them stable (they appear in the
- * manifest and in failure messages): "theme", "perspective",
- * "storage-keys", "offline-detail".
+ * manifest and in failure messages): "perspective", "storage-keys",
+ * "offline-detail".
+ *
+ * "theme" (am-design-themes-typography-288q) is
+ * `src/app/theme/themeInit.inline.ts`'s `THEME_INIT_SOURCE`, injected
+ * verbatim by `src/app/layout.tsx` via
+ * `dangerouslySetInnerHTML={{ __html: THEME_INIT_SOURCE }}` in `<head>` on
+ * every route, alongside "detail" and "reading-settings" below: each sets
+ * only its own `data-` attribute and reads only its own storage key.
  *
  * "detail" (am-read-detail-axis-sfc) is `src/reader/detail/prepaint.ts`'s
  * `READER_PREPAINT` — the combined detail/lens/view pre-paint script,
@@ -79,6 +87,13 @@ export const INLINE_SCRIPT_REGISTRY: InlineScriptRegistry = Object.freeze([
     ownerBeadId: "am-a11y-reading-only-6wwd",
     module: "src/a11y/readingSettings/prepaint.ts",
     source: READING_SETTINGS_PREPAINT,
+    routes: "all",
+  }),
+  Object.freeze({
+    id: "theme",
+    ownerBeadId: "am-design-themes-typography-288q",
+    module: "src/app/theme/themeInit.inline.ts",
+    source: THEME_INIT_SOURCE,
     routes: "all",
   }),
 ]);
