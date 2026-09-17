@@ -1,4 +1,6 @@
-.notebook-host { display: contents; }
+.notebook-host {
+  display: contents;
+}
 .notebook-dialog {
   width: min(46rem, calc(100vw - 2rem));
   max-width: calc(100vw - 2rem);
@@ -11,28 +13,85 @@
   color: var(--ink, black);
   overflow-wrap: anywhere;
 }
-.notebook-dialog:not([open]) { display: none; }
-.notebook-dialog::backdrop { background: rgb(0 0 0 / 45%); }
-.notebook-dialog .actions, .notebook-passage-actions {
+.notebook-dialog:not([open]) {
+  display: none;
+}
+.notebook-dialog::backdrop {
+  background: rgb(0 0 0 / 45%);
+}
+.notebook-dialog .actions,
+.notebook-passage-actions {
   display: flex;
   flex-wrap: wrap;
   align-items: start;
   gap: 0.5rem;
 }
-.notebook-dialog button, .notebook-passage-actions button, .notebook-recap button {
+.notebook-dialog button,
+.notebook-passage-actions button,
+.notebook-recap button {
   min-height: 44px;
   max-width: 100%;
   white-space: normal;
 }
-.notebook-dialog [hidden] { display: none !important; }
-.notebook-dialog input[type="file"] { display: block; width: 100%; max-width: 100%; min-width: 0; box-sizing: border-box; margin-block: 0.5rem; }
-.notebook-dialog textarea { display: block; width: 100%; max-width: 100%; box-sizing: border-box; font: inherit; margin-block: 0.5rem; }
-.notebook-dialog form { margin-block: 1rem; }
-.notebook-entry { border-top: 1px solid var(--line, currentColor); padding-block: 1rem; }
-.notebook-entry button { margin: 0.25rem; }
-.notebook-text { white-space: pre-wrap; overflow-wrap: anywhere; }
-.notebook-recap { border: 1px solid var(--line, currentColor); padding: 1rem; margin-block: 1rem; }
-.notebook-recap button { display: block; margin-top: 0.5rem; }
-.notebook-action-note { flex-basis: 100%; font-size: 0.9rem; }
-.notebook-announcement { position: absolute; width: 1px; height: 1px; overflow: hidden; clip-path: inset(50%); white-space: nowrap; }
-@media print { .notebook-dialog, .notebook-passage-actions, .notebook-recap, .notebook-announcement { display: none !important; } }
+.notebook-dialog [hidden] {
+  display: none !important;
+}
+.notebook-dialog input[type="file"] {
+  display: block;
+  width: 100%;
+  max-width: 100%;
+  min-width: 0;
+  box-sizing: border-box;
+  margin-block: 0.5rem;
+}
+.notebook-dialog textarea {
+  display: block;
+  width: 100%;
+  max-width: 100%;
+  box-sizing: border-box;
+  font: inherit;
+  margin-block: 0.5rem;
+}
+.notebook-dialog form {
+  margin-block: 1rem;
+}
+.notebook-entry {
+  border-top: 1px solid var(--line, currentColor);
+  padding-block: 1rem;
+}
+.notebook-entry button {
+  margin: 0.25rem;
+}
+.notebook-text {
+  white-space: pre-wrap;
+  overflow-wrap: anywhere;
+}
+.notebook-recap {
+  border: 1px solid var(--line, currentColor);
+  padding: 1rem;
+  margin-block: 1rem;
+}
+.notebook-recap button {
+  display: block;
+  margin-top: 0.5rem;
+}
+.notebook-action-note {
+  flex-basis: 100%;
+  font-size: 0.9rem;
+}
+.notebook-announcement {
+  position: absolute;
+  width: 1px;
+  height: 1px;
+  overflow: hidden;
+  clip-path: inset(50%);
+  white-space: nowrap;
+}
+@media print {
+  .notebook-dialog,
+  .notebook-passage-actions,
+  .notebook-recap,
+  .notebook-announcement {
+    display: none !important;
+  }
+}

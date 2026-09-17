@@ -1,19 +1,27 @@
-import { notebookFrameHref, parseNotebookDocument, type NotebookDocument } from "./schema.ts";
+import { type NotebookDocument, notebookFrameHref, parseNotebookDocument } from "./schema.ts";
 
 export function exportNotebookJson(document: NotebookDocument): string {
   return `${JSON.stringify(parseNotebookDocument(document), null, 2)}\n`;
 }
 function escapeHtml(value: string): string {
-  return value.replaceAll("&", "&amp;").replaceAll("<", "&lt;").replaceAll(">", "&gt;")
-    .replaceAll('"', "&quot;").replaceAll("'", "&#39;");
+  return value
+    .replaceAll("&", "&amp;")
+    .replaceAll("<", "&lt;")
+    .replaceAll(">", "&gt;")
+    .replaceAll('"', "&quot;")
+    .replaceAll("'", "&#39;");
 }
 /** Self-contained, script-free private export. Text is never interpreted as HTML or Markdown. */
 export function exportNotebookHtml(input: NotebookDocument): string {
   const document = parseNotebookDocument(input);
-  const entries = document.entries.map((entry) => `<article><h2>${escapeHtml(entry.title)}</h2>
+  const entries = document.entries
+    .map(
+      (entry) => `<article><h2>${escapeHtml(entry.title)}</h2>
 <p>${escapeHtml(entry.kind === "nextStep" ? "Next step" : entry.kind)} · ${escapeHtml(entry.frame.paper.replaceAll("-", " "))}</p>
 <pre>${escapeHtml(entry.text)}</pre>
-<a href="${escapeHtml(`https://annus-mirabilis.com${notebookFrameHref(entry.frame)}`)}">Return to this reading location</a></article>`).join("\n");
+<a href="${escapeHtml(`https://annus-mirabilis.com${notebookFrameHref(entry.frame)}`)}">Return to this reading location</a></article>`,
+    )
+    .join("\n");
   const last = document.lastPlace;
   return `<!doctype html><html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1">
 <meta http-equiv="Content-Security-Policy" content="default-src 'none'; style-src 'unsafe-inline'; base-uri 'none'; form-action 'none'">
