@@ -42,9 +42,11 @@ export function parseDonorAuditExtractedFiles(markdown: string): DonorExtractedE
       /^\|\s*`([^`]+)`\s*\|\s*`([^`]+)`(?:\s*\([^)]*\))?\s*\|(?:[^|]*\|){5}\s*([^|]+)\s*\|/,
     );
     if (match) {
-      const sourcePath = match[1].trim();
-      const destPath = match[2].trim();
-      const noticeForm = match[3].trim().toLowerCase();
+      const [, rawSource, rawDest, rawNotice] = match;
+      if (!rawSource || !rawDest || !rawNotice) continue;
+      const sourcePath = rawSource.trim();
+      const destPath = rawDest.trim();
+      const noticeForm = rawNotice.trim().toLowerCase();
 
       // Skip header row
       if (sourcePath === "sourcePath" || sourcePath.startsWith("-")) continue;
