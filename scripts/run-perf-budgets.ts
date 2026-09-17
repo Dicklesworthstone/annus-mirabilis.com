@@ -70,7 +70,8 @@ export async function runPerformanceBudgets(
   }
 
   const cpus = os.cpus();
-  const cpuModel = cpus.length > 0 ? cpus[0].model : "generic";
+  const firstCpu = cpus[0];
+  const cpuModel = firstCpu !== undefined ? firstCpu.model : "generic";
   const hardwareDesc = `${cpuModel} (${cpus.length} cores, ${os.platform()} ${os.arch()})`;
 
   const metrics: Record<string, MetricReportEntry> = {};
@@ -85,7 +86,11 @@ export async function runPerformanceBudgets(
     unit: string,
     notes?: string,
   ) {
-    metrics[id] = { id, budget, actual, unit, passed, notes };
+    if (notes !== undefined) {
+      metrics[id] = { id, budget, actual, unit, passed, notes };
+    } else {
+      metrics[id] = { id, budget, actual, unit, passed };
+    }
     if (!passed) {
       failedMetrics.push(id);
     }
@@ -400,11 +405,19 @@ export async function runPerformanceBudgets(
 }
 
 async function main(): Promise<void> {
+  const options: RunPerfBudgetsOptions = {};
   const plantViolationArg = process.argv.indexOf("--plant-violation");
-  const plantViolationRow =
-    plantViolationArg !== -1 ? parseInt(process.argv[plantViolationArg + 1], 10) : undefined;
+  if (plantViolationArg !== -1) {
+    const rawVal = process.argv[plantViolationArg + 1];
+    if (rawVal !== undefined) {
+      const parsed = Number.parseInt(rawVal, 10);
+      if (!Number.isNaN(parsed)) {
+        options.plantViolationRow = parsed;
+      }
+    }
+  }
 
-  const result = await runPerformanceBudgets({ plantViolationRow });
+  const result = await runPerformanceBudgets(options);
   if (!result.ok) {
     process.exit(1);
   }
