@@ -424,8 +424,24 @@ export function createGitIgnorePredicate(cwd: string): (path: string) => boolean
 
   return (testPath: string): boolean => {
     try {
-      if (typeof (globalThis as any).Bun !== "undefined") {
-        const proc = (globalThis as any).Bun.spawnSync(["git", "check-ignore", testPath], {
+      const bunGlobal = (
+        globalThis as unknown as {
+          Bun?: {
+            spawnSync: (
+              args: string[],
+              options: {
+                cwd: string;
+                env: NodeJS.ProcessEnv;
+                stdin: "ignore";
+                stdout: "pipe";
+                stderr: "ignore";
+              },
+            ) => { exitCode: number; stdout: { toString: () => string } };
+          };
+        }
+      ).Bun;
+      if (typeof bunGlobal !== "undefined") {
+        const proc = bunGlobal.spawnSync(["git", "check-ignore", testPath], {
           cwd,
           env: process.env,
           stdin: "ignore",

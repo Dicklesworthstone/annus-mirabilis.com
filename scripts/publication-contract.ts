@@ -262,7 +262,7 @@ export function verifyPublicationContract(
     },
   };
   logLines.push(JSON.stringify(summaryEvent));
-  writeFileSync(logPath, logLines.join("\n") + "\n", "utf8");
+  writeFileSync(logPath, `${logLines.join("\n")}\n`, "utf8");
 
   if (!silent) {
     console.log("\n======================================================");
