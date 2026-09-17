@@ -5,9 +5,9 @@
 
 import { readFileSync } from "node:fs";
 import { join } from "node:path";
-import { inspectLedgerPresence, type RouteSlug } from "../src/content/editions/ledgerPresence.ts";
+import { inspectLedgerPresence } from "../src/content/editions/ledgerPresence.ts";
 import { germanAlignableIds, segmentLedger } from "../src/content/editions/segmentLedger.ts";
-import { parseRouteSlug } from "../src/content/ids.ts";
+import { parseRouteSlug, type RouteSlug } from "../src/content/ids.ts";
 
 function argValue(flag: string): string | undefined {
   const i = process.argv.indexOf(flag);
