@@ -14,6 +14,7 @@ import {
   readerHref,
   restoreReaderState,
 } from "./navigation/state";
+import { closeDirectOpenDialog, openFromSearch } from "./stack/mountDirectOpen.ts";
 
 type Props = {
   registry: ReaderRegistry;
@@ -286,6 +287,11 @@ export function ReaderController(props: Props) {
           ? `Returned to ${titles[state.frames.at(-1)!.foundationId]}.`
           : "Returned to the argument.",
       );
+      // A foundation-kind ?open= value is handled entirely by parseReaderLocation/render above;
+      // this only ever resolves a kind this bead registers (instrument-view, term), so the two
+      // paths never collide (am-read-return-stack-oxa).
+      closeDirectOpenDialog(document);
+      openFromSearch(document, location.search);
     };
     root.addEventListener("click", click);
     root.addEventListener("change", changeControl);
@@ -293,12 +299,14 @@ export function ReaderController(props: Props) {
     window.addEventListener("popstate", pop);
     save();
     render();
+    openFromSearch(document, location.search);
     return () => {
       cancelReturn();
       root.removeEventListener("click", click);
       root.removeEventListener("change", changeControl);
       dialog.removeEventListener("cancel", cancel);
       window.removeEventListener("popstate", pop);
+      closeDirectOpenDialog(document);
     };
   }, [navigation]);
   return (
