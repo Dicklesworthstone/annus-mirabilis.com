@@ -86,7 +86,8 @@ export async function measureBm08(
     a = analyze(f, p),
     outputs: ScientificResult[] = [];
   function value(id: string, n: number | Float64Array) {
-    const c = BM08_OUTPUTS[id]!;
+    const c = BM08_OUTPUTS[id];
+    if (!c) throw new RangeError(`Unknown BM08 output: ${id}`);
     outputs.push({
       quantityId: id,
       unit: c.unit,
@@ -97,7 +98,8 @@ export async function measureBm08(
     });
   }
   function unavailable(id: string, reason: string) {
-    const c = BM08_OUTPUTS[id]!;
+    const c = BM08_OUTPUTS[id];
+    if (!c) throw new RangeError(`Unknown BM08 output: ${id}`);
     outputs.push({
       quantityId: id,
       unit: c.unit,
@@ -193,8 +195,9 @@ export async function measureBm08(
     noisy = ideal.slice(),
     ratios = ideal.slice();
   for (let i = 0; i < 6; i++) {
+    const dt = speedTimes[i] ?? 0;
     const speed = requireValue(
-      cameraMoments({ D: p.D, dt: speedTimes[i]!, exposure: 0, sigma: p.sigma, drift: 0, d: 1 }),
+      cameraMoments({ D: p.D, dt, exposure: 0, sigma: p.sigma, drift: 0, d: 1 }),
     );
     ideal[i] = speed.idealApparentSpeed;
     noisy[i] = speed.measuredApparentSpeed;
