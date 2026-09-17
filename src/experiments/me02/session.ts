@@ -95,12 +95,15 @@ export function createMe02Session(
     evaluate: evaluateMe02,
     convertPrintedMass: (erg: number) => printedMassConversion({ emittedEnergyErg: erg }),
     acceptedParameters(): Me02Parameters {
-      return store.getSnapshot().accepted!.parameters as Me02Parameters;
+      return (store.getSnapshot().accepted?.parameters ?? example.parameters) as Me02Parameters;
     },
     apply(input: unknown) {
       const checked = validateMe02Parameters(input);
       if (checked.kind !== "accepted") return checked;
-      const previous = store.getSnapshot().requested!.parameters as Me02Parameters;
+      const snapshot = store.getSnapshot();
+      const previous = (snapshot.requested?.parameters ??
+        snapshot.accepted?.parameters ??
+        example.parameters) as Me02Parameters;
       const next = checked.data;
       const setup: Record<string, number | string | boolean> = {};
       const observer: Record<string, number | string | boolean> = {};
