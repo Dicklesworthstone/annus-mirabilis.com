@@ -2,8 +2,8 @@ import { executionOutcomeRegistry } from "../../../experiments/results/outcomes.
 import { makeRefusal } from "../../../experiments/results/refusals.ts";
 import {
   BM01_ALLOCATION,
-  bm01Tile,
   BM05_ALLOCATION,
+  bm01Tile,
   bm05Tile,
 } from "../../../experiments/streams/allocation.ts";
 import { createPhiloxStream, parseU64 } from "../philox.ts";

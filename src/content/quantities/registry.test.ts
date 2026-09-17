@@ -641,15 +641,15 @@ describe("strict binding invariants: anti-glyph, anti-label, and anti-token matc
       // Flaw 1: glyph mapping
       const glyphTable: Record<string, string> = {
         c: "speedOfLight",
-        "𝑐": "speedOfLight",
+        𝑐: "speedOfLight",
         k: "boltzmannConstant",
-        "𝑘": "boltzmannConstant",
+        𝑘: "boltzmannConstant",
         R: "molarGasConstant",
-        "𝑅": "molarGasConstant",
+        𝑅: "molarGasConstant",
         "\\eta": "suspensionViscosityCoefficient",
-        "η": "suspensionViscosityCoefficient",
+        η: "suspensionViscosityCoefficient",
         "\\nu": "frequency",
-        "ν": "frequency",
+        ν: "frequency",
       };
       if (glyphTable[key]) return glyphTable[key];
 

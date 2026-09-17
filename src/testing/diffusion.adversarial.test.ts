@@ -66,7 +66,7 @@ describe("Adversarial Fixtures & Historical Regressions (am-ref-diffusion-lr3)",
     const naiveHalvedRms = 0.5 * baselineRms;
     const naiveRelativeError = Math.abs(naiveHalvedRms - trueHalvedRms) / trueHalvedRms;
     expect(naiveRelativeError).toBeGreaterThan(0.29);
-    expect(naiveRelativeError).toBeLessThan(0.30);
+    expect(naiveRelativeError).toBeLessThan(0.3);
 
     // A tolerance test at 1e-4 fails decisively on the naive linear scaling
     const verdict = withinTolerance(naiveHalvedRms, trueHalvedRms, { relative: 1e-4 });
@@ -193,7 +193,9 @@ describe("Adversarial Fixtures & Historical Regressions (am-ref-diffusion-lr3)",
       for (let i = 0; i < nSeries; i++) {
         expect(buf[i * (steps + 1)]).toBe(0.0); // start at 0
         for (let step = 1; step <= steps; step++) {
-          const delta = buf[i * (steps + 1) + step]! - buf[i * (steps + 1) + step - 1]!;
+          const prev = buf[i * (steps + 1) + step - 1] ?? 0;
+          const curr = buf[i * (steps + 1) + step] ?? 0;
+          const delta = curr - prev;
           expect(Math.abs(Math.abs(delta) - s)).toBeLessThan(1e-15);
         }
       }
@@ -224,14 +226,25 @@ describe("Adversarial Fixtures & Historical Regressions (am-ref-diffusion-lr3)",
       const s = Math.sqrt(2.0 * diffusion * dt);
       // Under fixed seed, k3 steps are k2 steps scaled by s
       for (let step = 1; step <= 5; step++) {
-        const delta2 = k2.data[step]! - k2.data[step - 1]!;
-        const delta3 = k3.data[step]! - k3.data[step - 1]!;
+        const d2_cur = k2.data[step] ?? 0;
+        const d2_prev = k2.data[step - 1] ?? 0;
+        const d3_cur = k3.data[step] ?? 0;
+        const d3_prev = k3.data[step - 1] ?? 0;
+        const delta2 = d2_cur - d2_prev;
+        const delta3 = d3_cur - d3_prev;
         expect(Math.abs(delta3 - delta2 * s)).toBeLessThan(1e-15);
       }
     }
 
     // 4. diffusion = 0 returns all zeros
-    const zeroResult = brownianFrames({ nSeries: 2, steps: 5, stepKernel: 0, seed, diffusion: 0, dt });
+    const zeroResult = brownianFrames({
+      nSeries: 2,
+      steps: 5,
+      stepKernel: 0,
+      seed,
+      diffusion: 0,
+      dt,
+    });
     expect(zeroResult.kind).toBe("accepted");
     if (zeroResult.kind === "accepted") {
       expect(zeroResult.data.every((x) => x === 0)).toBe(true);
