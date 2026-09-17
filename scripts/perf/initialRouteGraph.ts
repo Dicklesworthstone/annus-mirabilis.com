@@ -1,6 +1,7 @@
 import { readFile } from "node:fs/promises";
 import { dirname, resolve } from "node:path";
 import { fileURLToPath } from "node:url";
+import { brotliCompressSync, gzipSync } from "node:zlib";
 import {
   appendLogLine,
   evidenceDirFor,
@@ -12,6 +13,8 @@ import {
 const ROOT = resolve(dirname(fileURLToPath(import.meta.url)), "../..");
 const SUITE = "initial-route-graph";
 const BEAD_ID = "am-scaf-nextjs-app-bu2";
+
+export const INITIAL_ROUTE_JS_BUDGET_BYTES = 204_800; // 200 KiB
 
 // ---------------------------------------------------------------------------
 // Pure functions over parsed inputs (the app-build-manifest.json shape Next
@@ -65,11 +68,38 @@ export type SignatureViolation = {
 };
 export type ChunkFileViolation = { kind: "chunk-filename"; chunk: string; signature: string };
 export type ModuleTraceViolation = { kind: "module-trace"; module: string; signature: string };
-export type RouteGraphViolation = SignatureViolation | ChunkFileViolation | ModuleTraceViolation;
+export type ByteBudgetViolation = {
+  kind: "byte-budget";
+  route: string;
+  compressedBytes: number;
+  budgetBytes: number;
+  encoding: string;
+};
+export type RouteGraphViolation =
+  | SignatureViolation
+  | ChunkFileViolation
+  | ModuleTraceViolation
+  | ByteBudgetViolation;
+
+export type ByteAccounting = {
+  rawBytes: number;
+  gzipBytes: number;
+  brotliBytes: number;
+  effectiveBytes: number;
+  encoding: "brotli" | "gzip";
+  budgetBytes: number;
+  overBudget: boolean;
+};
 
 export type RouteGraphResult =
-  | { ok: true; route: string; chunks: readonly string[] }
-  | { ok: false; route: string; reason: string; violations: readonly RouteGraphViolation[] };
+  | { ok: true; route: string; chunks: readonly string[]; byteAccounting?: ByteAccounting }
+  | {
+      ok: false;
+      route: string;
+      reason: string;
+      violations: readonly RouteGraphViolation[];
+      byteAccounting?: ByteAccounting;
+    };
 
 export type RouteGraphInput = {
   route: string;
@@ -78,6 +108,12 @@ export type RouteGraphInput = {
   chunkContents?: Readonly<Record<string, string>>;
   /** optional list of module file paths pulled into the route's bundle */
   moduleTrace?: readonly string[];
+  /** optional explicit chunk sizes in bytes */
+  chunkSizes?: Readonly<Record<string, { raw?: number; gzip?: number; brotli?: number }>>;
+  /** optional budget override in bytes (default: 204,800) */
+  budgetBytes?: number;
+  /** preferred encoding for budget accounting (default: "brotli") */
+  preferredEncoding?: "brotli" | "gzip";
 };
 
 function excerptAround(text: string, index: number, length = 200): string {
@@ -149,10 +185,67 @@ export function checkInitialRouteGraph(input: RouteGraphInput): RouteGraphResult
     }
   }
 
-  if (violations.length > 0) {
-    return { ok: false, route, reason: `route ${route} loads forbidden dependencies`, violations };
+  // Byte accounting (brotli and gzip) across chunks
+  let totalRaw = 0;
+  let totalGzip = 0;
+  let totalBrotli = 0;
+  let hasByteInfo = false;
+
+  for (const chunk of chunks) {
+    if (input.chunkSizes?.[chunk]) {
+      hasByteInfo = true;
+      const s = input.chunkSizes[chunk];
+      const raw = s.raw ?? 0;
+      const gz = s.gzip ?? raw;
+      const br = s.brotli ?? gz;
+      totalRaw += raw;
+      totalGzip += gz;
+      totalBrotli += br;
+    } else if (input.chunkContents?.[chunk] !== undefined) {
+      hasByteInfo = true;
+      const content = input.chunkContents[chunk];
+      const buf = Buffer.from(content, "utf8");
+      totalRaw += buf.byteLength;
+      totalGzip += gzipSync(buf).length;
+      totalBrotli += brotliCompressSync(buf).length;
+    }
   }
-  return { ok: true, route, chunks };
+
+  let byteAccounting: ByteAccounting | undefined;
+  if (hasByteInfo) {
+    const budgetBytes = input.budgetBytes ?? INITIAL_ROUTE_JS_BUDGET_BYTES;
+    const encoding = input.preferredEncoding ?? "brotli";
+    const effectiveBytes = encoding === "brotli" ? totalBrotli : totalGzip;
+    const overBudget = effectiveBytes > budgetBytes;
+
+    byteAccounting = {
+      rawBytes: totalRaw,
+      gzipBytes: totalGzip,
+      brotliBytes: totalBrotli,
+      effectiveBytes,
+      encoding,
+      budgetBytes,
+      overBudget,
+    };
+
+    if (overBudget) {
+      violations.push({
+        kind: "byte-budget",
+        route,
+        compressedBytes: effectiveBytes,
+        budgetBytes,
+        encoding,
+      });
+    }
+  }
+
+  if (violations.length > 0) {
+    const reason = violations.some((v) => v.kind === "byte-budget")
+      ? `route ${route} exceeds initial client JavaScript budget (${byteAccounting?.effectiveBytes} > ${byteAccounting?.budgetBytes} bytes)`
+      : `route ${route} loads forbidden dependencies`;
+    return { ok: false, route, reason, violations, byteAccounting };
+  }
+  return { ok: true, route, chunks, byteAccounting };
 }
 
 export function formatRouteGraphViolation(violation: RouteGraphViolation): string {
@@ -161,6 +254,9 @@ export function formatRouteGraphViolation(violation: RouteGraphViolation): strin
   }
   if (violation.kind === "chunk-filename") {
     return `chunk ${violation.chunk} is itself a forbidden asset (${violation.signature})`;
+  }
+  if (violation.kind === "byte-budget") {
+    return `route ${violation.route} emitted client JavaScript (${violation.compressedBytes} bytes ${violation.encoding}) exceeds the budget of ${violation.budgetBytes} bytes`;
   }
   return `module trace includes forbidden dependency "${violation.module}" (matched "${violation.signature}")`;
 }

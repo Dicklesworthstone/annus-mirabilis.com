@@ -1,0 +1,86 @@
+{
+  "schemaVersion": 1,
+  "budgets": {
+    "initial-route-js": {
+      "id": "initial-route-js",
+      "value": 204800,
+      "displayValue": 200,
+      "unit": "bytes",
+      "displayUnit": "KiB",
+      "comparison": "<=",
+      "provisional": true,
+      "owningBead": "am-plat-perf-budgets-s3ww",
+      "decisionId": "D-2026-09-15-device-profiles"
+    },
+    "reading-face-html": {
+      "id": "reading-face-html",
+      "value": 250000,
+      "displayValue": 250,
+      "unit": "bytes",
+      "displayUnit": "kB",
+      "comparison": "<=",
+      "provisional": true,
+      "owningBead": "am-read-detail-axis-sfc",
+      "decisionId": "D-2026-09-15-device-profiles"
+    },
+    "visible-text-math": {
+      "id": "visible-text-math",
+      "value": true,
+      "unit": "boolean",
+      "comparison": "==",
+      "provisional": true,
+      "owningBead": "am-plat-perf-budgets-s3ww",
+      "decisionId": "D-2026-09-15-device-profiles"
+    },
+    "interaction-latency-p75": {
+      "id": "interaction-latency-p75",
+      "value": 200,
+      "unit": "ms",
+      "comparison": "<=",
+      "provisional": true,
+      "owningBead": "am-plat-perf-budgets-s3ww",
+      "decisionId": "D-2026-09-15-device-profiles"
+    },
+    "layout-shift": {
+      "id": "layout-shift",
+      "value": 0.1,
+      "unit": "score",
+      "comparison": "<=",
+      "provisional": true,
+      "owningBead": "am-plat-perf-budgets-s3ww",
+      "decisionId": "D-2026-09-15-device-profiles"
+    },
+    "instrument-feedback": {
+      "id": "instrument-feedback",
+      "value": 100,
+      "unit": "ms",
+      "comparison": "<=",
+      "provisional": true,
+      "owningBead": "am-plat-perf-budgets-s3ww",
+      "decisionId": "D-2026-09-15-device-profiles"
+    },
+    "animation-frame-rate": {
+      "id": "animation-frame-rate",
+      "value": {
+        "desktopMedianMaxMs": 16.7,
+        "desktopLongMaxFraction": 0.05,
+        "mobileMedianMaxMs": 33.4,
+        "mobileLongMaxFraction": 0.05
+      },
+      "unit": "ms",
+      "comparison": "<=",
+      "provisional": true,
+      "owningBead": "am-plat-perf-budgets-s3ww",
+      "decisionId": "D-2026-09-15-device-profiles"
+    },
+    "resource-lifecycle": {
+      "id": "resource-lifecycle",
+      "value": "no-leak",
+      "unit": "status",
+      "comparison": "==",
+      "provisional": true,
+      "owningBead": "am-plat-resource-stress-9zgu",
+      "decisionId": "D-2026-09-15-device-profiles"
+    }
+  }
+}

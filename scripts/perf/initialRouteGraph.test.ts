@@ -88,3 +88,58 @@ test("a route whose manifest lists no chunks fails", () => {
   if (result.ok) return;
   assert.match(result.reason, /lists no chunks/);
 });
+
+test("byte accounting: 204,800 bytes passes and 204,801 bytes fails", () => {
+  // Boundary test: exactly 204,800 bytes
+  const passManifest: AppBuildManifest = {
+    pages: { page: ["static/chunks/exact-budget.js"] },
+  };
+  const passResult = checkInitialRouteGraph({
+    route: "/",
+    manifest: passManifest,
+    chunkSizes: {
+      "static/chunks/exact-budget.js": { raw: 400_000, gzip: 250_000, brotli: 204_800 },
+    },
+  });
+  assert.equal(passResult.ok, true);
+  assert.equal(passResult.byteAccounting?.effectiveBytes, 204_800);
+  assert.equal(passResult.byteAccounting?.overBudget, false);
+
+  // Boundary test: 204,801 bytes (1 byte over budget)
+  const failManifest: AppBuildManifest = {
+    pages: { page: ["static/chunks/over-budget.js"] },
+  };
+  const failResult = checkInitialRouteGraph({
+    route: "/",
+    manifest: failManifest,
+    chunkSizes: {
+      "static/chunks/over-budget.js": { raw: 400_000, gzip: 250_000, brotli: 204_801 },
+    },
+  });
+  assert.equal(failResult.ok, false);
+  assert.equal(failResult.byteAccounting?.effectiveBytes, 204_801);
+  assert.equal(failResult.byteAccounting?.overBudget, true);
+  if (!failResult.ok) {
+    assert.equal(failResult.violations.length, 1);
+    assert.equal(failResult.violations[0].kind, "byte-budget");
+    assert.match(failResult.reason, /exceeds initial client JavaScript budget/);
+  }
+});
+
+test("byte accounting on gzip encoding option", () => {
+  const manifest: AppBuildManifest = {
+    pages: { page: ["static/chunks/app.js"] },
+  };
+  const result = checkInitialRouteGraph({
+    route: "/",
+    manifest,
+    preferredEncoding: "gzip",
+    chunkSizes: {
+      "static/chunks/app.js": { raw: 100_000, gzip: 45_000, brotli: 35_000 },
+    },
+  });
+  assert.equal(result.ok, true);
+  assert.equal(result.byteAccounting?.effectiveBytes, 45_000);
+  assert.equal(result.byteAccounting?.encoding, "gzip");
+});
+
