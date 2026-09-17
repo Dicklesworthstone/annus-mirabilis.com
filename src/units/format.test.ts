@@ -1,12 +1,10 @@
 import { afterAll, describe, expect, it } from "bun:test";
 import { getLogger } from "../testing/log/logger.ts";
 import {
-  applyLocale,
   formatCleanNumber,
   formatConstantSetComparison,
   formatConstantSetDependentValue,
   formatGuardDigit,
-  formatQuantityValue,
   formatSignificantFigures,
 } from "./format.ts";
 
