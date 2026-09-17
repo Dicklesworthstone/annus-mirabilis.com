@@ -13,7 +13,7 @@ describe("am-eq-spoken-forms-w4f: spokenForm.schema tests", () => {
     assert.ok(ALL_SPOKEN_FIXTURES.length >= 5, "Expected at least 5 standard fixtures");
 
     for (const fix of ALL_SPOKEN_FIXTURES) {
-      assert.ok(fix.id && fix.id.startsWith("eq-"), `${fix.id} must have valid eq- prefix`);
+      assert.ok(fix.id?.startsWith("eq-"), `${fix.id} must have valid eq- prefix`);
       assert.ok(fix.paper && fix.paper.length > 0, `${fix.id} must specify paper`);
       assert.ok(fix.title && fix.title.length > 0, `${fix.id} must have a title`);
 
@@ -59,14 +59,16 @@ describe("am-eq-spoken-forms-w4f: spokenForm.schema tests", () => {
         `${fix.id} modern form has lint errors: ${JSON.stringify(modernLint.errors)}`,
       );
 
-      const altLint = lintSpokenForm(fix.spokenForms.alternate!, {
-        notationContext: fix.paper,
-      });
-      assert.equal(
-        altLint.errors.length,
-        0,
-        `${fix.id} alternate form has lint errors: ${JSON.stringify(altLint.errors)}`,
-      );
+      if (fix.spokenForms.alternate) {
+        const altLint = lintSpokenForm(fix.spokenForms.alternate, {
+          notationContext: fix.paper,
+        });
+        assert.equal(
+          altLint.errors.length,
+          0,
+          `${fix.id} alternate form has lint errors: ${JSON.stringify(altLint.errors)}`,
+        );
+      }
     }
   });
 
@@ -105,7 +107,8 @@ describe("am-eq-spoken-forms-w4f: spokenForm.schema tests", () => {
   });
 
   test("Distinguishes 1905 printed and modern symbols in spoken forms", () => {
-    const einstein = ALL_SPOKEN_FIXTURES.find((f) => f.id === "eq-bm-einstein-relation")!;
+    const einstein = ALL_SPOKEN_FIXTURES.find((f) => f.id === "eq-bm-einstein-relation");
+    assert.ok(einstein, "Missing eq-bm-einstein-relation fixture");
     // In printed form, mentions R and k (viscosity) and N
     assert.ok(
       einstein.spokenForms.printed.includes("viscosity k") ||
@@ -115,7 +118,8 @@ describe("am-eq-spoken-forms-w4f: spokenForm.schema tests", () => {
     assert.ok(einstein.spokenForms.modern.includes("Boltzmann's constant k sub B"));
     assert.ok(einstein.spokenForms.modern.includes("viscosity eta"));
 
-    const lorentz = ALL_SPOKEN_FIXTURES.find((f) => f.id === "eq-sr-lorentz-factor")!;
+    const lorentz = ALL_SPOKEN_FIXTURES.find((f) => f.id === "eq-sr-lorentz-factor");
+    assert.ok(lorentz, "Missing eq-sr-lorentz-factor fixture");
     assert.ok(lorentz.spokenForms.printed.includes("beta"));
     assert.ok(lorentz.spokenForms.printed.includes("speed of light"));
     assert.ok(lorentz.spokenForms.modern.includes("gamma"));
