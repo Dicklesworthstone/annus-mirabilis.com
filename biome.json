@@ -17,7 +17,8 @@
       "!src/generated",
       "!artifacts",
       "!.beads",
-      "!docs/design/placeholder"
+      "!docs/design/placeholder",
+      "!public/pdfjs"
     ]
   },
   "formatter": {
