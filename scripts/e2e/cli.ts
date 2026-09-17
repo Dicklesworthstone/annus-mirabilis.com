@@ -24,6 +24,8 @@ export interface E2ECliOptions {
   readonly mode: E2ECliMode;
   readonly lane: string | undefined;
   readonly journey: string | undefined;
+  readonly baseUrl?: string | undefined;
+  readonly headed?: boolean | undefined;
 }
 
 function requireValue(flag: string, value: string | undefined): string {
@@ -45,6 +47,8 @@ export function parseE2ECliArgs(
   let mode: E2ECliMode | undefined;
   let lane: string | undefined;
   let journey: string | undefined;
+  let baseUrl: string | undefined;
+  let headed: boolean | undefined;
 
   for (let index = 0; index < argv.length; index += 1) {
     const argument = argv[index];
@@ -72,11 +76,25 @@ export function parseE2ECliArgs(
     } else if (argument === "--journey") {
       journey = requireValue("--journey", value);
       index += 1;
+    } else if (argument === "--base-url") {
+      baseUrl = requireValue("--base-url", value);
+      index += 1;
+    } else if (argument === "--headed") {
+      headed = true;
     } else {
       throw new Error(`unknown option "${argument}"`);
     }
   }
 
   if (!mode) throw new Error("select exactly one of --paper <slug>, --fixtures, or --smoke");
-  return { mode, lane, journey };
+  const result: {
+    mode: E2ECliMode;
+    lane: string | undefined;
+    journey: string | undefined;
+    baseUrl?: string;
+    headed?: boolean;
+  } = { mode, lane, journey };
+  if (baseUrl !== undefined) result.baseUrl = baseUrl;
+  if (headed !== undefined) result.headed = headed;
+  return result;
 }

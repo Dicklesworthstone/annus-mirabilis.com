@@ -165,9 +165,34 @@ export async function main() {
     try {
       const parsed = parseE2ECliArgs(argv);
       const journey = parsed.journey ?? "runtime-conformance";
+      if (journey === "lanes" || journey === "fixture-journeys") {
+        const { LANES, runFixtureJourneyOnLane } = await import("./e2e/lanes.ts");
+        const { bundleFixtureApps } = await import("./e2e/fixtures/bundleFixtures.ts");
+        const { FIXTURE_APP_REGISTRY } = await import("./e2e/fixtures/fixtureApps.ts");
+        const { startFixtureServer } = await import("./e2e/fixtures/fixtureServer.ts");
+        const { resolve } = await import("node:path");
+        await bundleFixtureApps(FIXTURE_APP_REGISTRY);
+        const server = await startFixtureServer({
+          staticRoot: resolve("src/testing/e2e/fixtures/pages"),
+          appsRoot: resolve("artifacts/e2e-fixtures"),
+        });
+        let failedLanes = 0;
+        try {
+          const selectedLanes = parsed.lane ? [LANES.find((l) => l.name === parsed.lane)!] : LANES;
+          for (const lane of selectedLanes) {
+            const res = await runFixtureJourneyOnLane(lane, server.url);
+            console.log(`[${res.ok ? "PASS" : "FAIL"}] lane ${res.lane}: ${res.message ?? ""}`);
+            if (!res.ok) failedLanes += 1;
+          }
+        } finally {
+          await server.close();
+        }
+        process.exitCode = failedLanes === 0 ? 0 : 1;
+        return;
+      }
       if (journey !== "runtime-conformance" && journey !== "runtime-conformance-canary") {
         throw new Error(
-          `unknown fixture journey "${journey}"; known: runtime-conformance, runtime-conformance-canary`,
+          `unknown fixture journey "${journey}"; known: runtime-conformance, runtime-conformance-canary, lanes, fixture-journeys`,
         );
       }
       const result = await runRuntimeConformance({
@@ -177,6 +202,26 @@ export async function main() {
       process.exitCode = result.ok ? 0 : 1;
     } catch (error) {
       console.error(error instanceof Error ? error.message : String(error));
+      process.exitCode = 2;
+    }
+    return;
+  }
+
+  if (argv.includes("--smoke")) {
+    const { parseE2ECliArgs } = await import("./e2e/cli.ts");
+    const { runSmokeJourney } = await import("./e2e/smoke.ts");
+    try {
+      const parsed = parseE2ECliArgs(argv);
+      const baseUrl = parsed.baseUrl ?? process.env.E2E_BASE_URL ?? "http://127.0.0.1:3088";
+      console.log(`Running smoke journey against target: ${baseUrl}`);
+      const result = await runSmokeJourney({ baseUrl, headed: parsed.headed });
+      for (const check of result.checks) {
+        const marker = check.ok ? "PASS" : "FAIL";
+        console.log(`[${marker}] smoke ${check.check} (${Math.round(check.durationMs)}ms): ${check.message ?? ""}`);
+      }
+      process.exitCode = result.ok ? 0 : 1;
+    } catch (error) {
+      console.error("Smoke journey execution error:", error instanceof Error ? error.message : String(error));
       process.exitCode = 2;
     }
     return;

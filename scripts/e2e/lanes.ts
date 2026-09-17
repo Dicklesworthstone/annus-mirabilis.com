@@ -14,6 +14,8 @@
  * exercised directly with fixed fixtures.
  */
 
+import { type Browser, type BrowserContext, chromium, type Page, webkit } from "playwright";
+
 export type BrowserEngine = "chromium" | "webkit" | "firefox";
 
 export interface LaneViewport {
@@ -186,3 +188,209 @@ export function createLaneActions(lane: LaneDefinition, delegate: LaneActionDele
     drag: guardPointerAction("drag", delegate.drag.bind(delegate)),
   };
 }
+
+export interface LaneSession {
+  readonly lane: LaneDefinition;
+  readonly browser: Browser;
+  readonly context: BrowserContext;
+  readonly page: Page;
+  readonly actions: LaneActions;
+  close(): Promise<void>;
+}
+
+export interface LaunchLaneOptions {
+  headless?: boolean;
+  baseURL?: string;
+}
+
+export async function launchLaneSession(
+  lane: LaneDefinition,
+  options: LaunchLaneOptions = {},
+): Promise<LaneSession> {
+  const isChromium = lane.browser === "chromium";
+  const launcher = isChromium ? chromium : webkit;
+  const launchArgs = lane.chromiumArgs ? [...lane.chromiumArgs] : undefined;
+
+  const browser = await launcher.launch({
+    headless: options.headless ?? true,
+    args: launchArgs,
+  });
+
+  const context = await browser.newContext({
+    viewport: lane.viewport,
+    deviceScaleFactor: lane.deviceScaleFactor,
+    hasTouch: lane.hasTouch,
+    isMobile: lane.isMobile,
+    reducedMotion: lane.reducedMotion ?? "no-preference",
+    javaScriptEnabled: lane.javaScriptEnabled ?? true,
+    baseURL: options.baseURL,
+  });
+
+  const page = await context.newPage();
+
+  if (lane.media) {
+    await page.emulateMedia({ media: lane.media });
+  }
+
+  if (lane.injectedStylesheet) {
+    const css = lane.injectedStylesheet;
+    await page.addInitScript((styleContent) => {
+      const style = document.createElement("style");
+      style.textContent = styleContent;
+      document.head?.appendChild(style);
+    }, css);
+  }
+
+  const delegate: LaneActionDelegate = {
+    press: (key: string) => {
+      void page.keyboard.press(key);
+    },
+    type: (text: string) => {
+      void page.keyboard.type(text);
+    },
+    click: () => {
+      void page.mouse.click(lane.viewport.width / 2, lane.viewport.height / 2);
+    },
+    drag: () => {
+      void page.mouse.down();
+      void page.mouse.up();
+    },
+  };
+
+  const actions = createLaneActions(lane, delegate);
+
+  return {
+    lane,
+    browser,
+    context,
+    page,
+    actions,
+    close: async () => {
+      await page.close().catch(() => {});
+      await context.close().catch(() => {});
+      await browser.close().catch(() => {});
+    },
+  };
+}
+
+export interface FixtureJourneyLaneResult {
+  readonly ok: boolean;
+  readonly lane: string;
+  readonly message?: string;
+}
+
+export async function runFixtureJourneyOnLane(
+  lane: LaneDefinition,
+  fixtureServerUrl: string,
+  options: LaunchLaneOptions = {},
+): Promise<FixtureJourneyLaneResult> {
+  const session = await launchLaneSession(lane, options);
+  try {
+    const sectionUrl = `${fixtureServerUrl}/fixture-section.html#s1-p2-s1`;
+    await session.page.goto(sectionUrl, { waitUntil: "domcontentloaded", timeout: 15_000 });
+
+    await session.page.waitForSelector("[data-reader-root]", { state: "attached", timeout: 15_000 });
+    await session.page.waitForSelector("#s1-p2-s1, [data-anchor='s1-p2-s1']", { state: "attached", timeout: 15_000 });
+
+    const mathCount = await session.page.locator("math").count();
+    if (mathCount === 0) {
+      throw new Error(`Lane ${lane.name}: MathML element <math> not found in fixture section`);
+    }
+
+    const textContent = await session.page.locator("[data-reader-root]").textContent();
+    if (!textContent || !textContent.includes("Osmotic Pressure")) {
+      throw new Error(`Lane ${lane.name}: Fixture section text not read correctly`);
+    }
+
+    // Lane-specific assertions
+    if (lane.javaScriptEnabled === false) {
+      // AC 5: The JavaScript-disabled lane reads fixture section text and equation MathML from the static document.
+      return {
+        ok: true,
+        lane: lane.name,
+        message: "Static document successfully read text and equation MathML with JS disabled",
+      };
+    }
+
+    if (lane.disableWebGL) {
+      // AC 6: The no-WebGL lane confirms WebGL is unavailable and the page stays usable.
+      const hasWebgl = await session.page.evaluate(() => {
+        const canvas = document.createElement("canvas");
+        return !!(canvas.getContext("webgl") || canvas.getContext("webgl2") || canvas.getContext("experimental-webgl"));
+      });
+      if (hasWebgl) {
+        throw new Error(`Lane ${lane.name}: WebGL context is available despite disabling flags`);
+      }
+      const isUsable = (await session.page.locator("a, button").count()) > 0;
+      if (!isUsable) {
+        throw new Error(`Lane ${lane.name}: Page is not usable`);
+      }
+    }
+
+    // Interaction steps for interactive lanes
+    if (lane.keyboardOnly) {
+      let clickFailed = false;
+      try {
+        session.actions.click();
+      } catch (err) {
+        if (err instanceof Error && err.message.includes("keyboard-only")) {
+          clickFailed = true;
+        }
+      }
+      if (!clickFailed) {
+        throw new Error(`Lane ${lane.name}: Pointer action was not rejected in keyboard-only lane`);
+      }
+      await session.page.keyboard.press("Tab");
+      const activeTag = await session.page.evaluate(() => document.activeElement?.tagName);
+      if (!activeTag || activeTag === "BODY") {
+        throw new Error(`Lane ${lane.name}: Keyboard Tab navigation did not focus an element`);
+      }
+    } else {
+      const term = session.page.locator("[data-term-id='viscosity']").first();
+      await term.click();
+      await session.page.waitForSelector("[data-active-term='viscosity']", { timeout: 5000 });
+
+      const parallelLink = session.page.locator("a[href*='view=parallel']").first();
+      if ((await parallelLink.count()) > 0) {
+        await parallelLink.click();
+        await session.page.waitForSelector("[data-reader-root][data-view='parallel']", { timeout: 5000 });
+      }
+
+      const sourceLink = session.page.locator("a[href*='view=source']").first();
+      if ((await sourceLink.count()) > 0) {
+        await sourceLink.click();
+        await session.page.waitForSelector("[data-reader-root][data-view='source']", { timeout: 5000 });
+      }
+    }
+
+    // Navigate to selftest instrument
+    const selftestUrl = `${fixtureServerUrl}/harness-selftest.html?mode=apparatus`;
+    await session.page.goto(selftestUrl, { waitUntil: "domcontentloaded", timeout: 15_000 });
+    await session.page.waitForSelector("[data-instrument-id='harness-selftest:apparatus']", {
+      state: "attached",
+      timeout: 15_000,
+    });
+
+    const input = session.page.locator("#selftest-input").first();
+    if ((await input.count()) > 0) {
+      await input.fill("42");
+      await input.dispatchEvent("change");
+      const rev = await session.page.getAttribute(
+        "[data-instrument-id='harness-selftest:apparatus']",
+        "data-input-revision",
+      );
+      if (Number(rev) < 1) {
+        throw new Error(`Lane ${lane.name}: Instrument data-input-revision not updated`);
+      }
+    }
+
+    return {
+      ok: true,
+      lane: lane.name,
+      message: `Completed full fixture journey on ${lane.name}`,
+    };
+  } finally {
+    await session.close();
+  }
+}
+
