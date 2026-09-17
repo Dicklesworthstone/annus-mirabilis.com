@@ -115,10 +115,11 @@ export function checkAllConfigs(configDir?: string): {
       if (!res.valid) {
         allValid = false;
       }
-    } catch (err: any) {
+    } catch (err: unknown) {
+      const message = err instanceof Error ? err.message : String(err);
       results[file] = {
         valid: false,
-        errors: [`Failed to parse YAML: ${err.message}`],
+        errors: [`Failed to parse YAML: ${message}`],
         refusalCode: "INVALID_CONFIG",
       };
       allValid = false;
@@ -128,11 +129,20 @@ export function checkAllConfigs(configDir?: string): {
   return { valid: allValid, results };
 }
 
+export interface KeyClaim {
+  pid: number;
+  toolRunId: string;
+  key: string;
+  state: string;
+  acquiredAt: string;
+  releasedAt?: string;
+}
+
 export function acquireKeyClaim(
   key: string,
   toolRunId: string,
   options?: { locksDir?: string },
-): { claimPath: string; acquired: boolean; currentClaim?: any } {
+): { claimPath: string; acquired: boolean; currentClaim?: KeyClaim } {
   const baseLocksDir =
     options?.locksDir || path.join(getRepoRoot(), "artifacts", "locks", "download-facsimiles");
   const keyLocksDir = path.join(baseLocksDir, key);
@@ -159,20 +169,20 @@ export function acquireKeyClaim(
           );
         }
       }
-    } catch (e: any) {
+    } catch (e: unknown) {
       if (e instanceof FacsimileError) throw e;
     }
   }
 
   const claimPath = path.join(keyLocksDir, `${toolRunId}.claim`);
-  const claimData = {
+  const claimData: KeyClaim = {
     pid: process.pid,
     toolRunId,
     key,
     state: "held",
     acquiredAt: new Date().toISOString(),
   };
-  fs.writeFileSync(claimPath, JSON.stringify(claimData, null, 2) + "\n", {
+  fs.writeFileSync(claimPath, `${JSON.stringify(claimData, null, 2)}\n`, {
     encoding: "utf8",
     flag: "wx",
   });
@@ -185,7 +195,7 @@ export function releaseKeyClaim(claimPath: string): void {
     const data = JSON.parse(fs.readFileSync(claimPath, "utf8"));
     data.state = "released";
     data.releasedAt = new Date().toISOString();
-    fs.writeFileSync(claimPath, JSON.stringify(data, null, 2) + "\n", "utf8");
+    fs.writeFileSync(claimPath, `${JSON.stringify(data, null, 2)}\n`, "utf8");
   } catch {
     // preserve file
   }
@@ -391,9 +401,9 @@ export function extractArticle(
       refMatch = refRegex.exec(objText)
     ) {
       const refId = Number.parseInt(refMatch[1], 10);
-      if (!collectedIds.has(refId) && objects.has(refId)) {
+      const targetBody = objects.get(refId);
+      if (!collectedIds.has(refId) && targetBody !== undefined) {
         // Skip Catalog and Pages tree objects
-        const targetBody = objects.get(refId)!;
         if (/\/Type\s*\/Catalog\b/.test(targetBody) || /\/Type\s*\/Pages\b/.test(targetBody)) {
           continue;
         }
@@ -404,7 +414,11 @@ export function extractArticle(
   }
 
   for (const pageId of selectedPageIds) {
-    collectReferences(objects.get(pageId)!);
+    const pageBody = objects.get(pageId);
+    if (!pageBody) {
+      throw new FacsimileError("EXTRACTION_ERROR", `Missing page object ${pageId} in source PDF`);
+    }
+    collectReferences(pageBody);
   }
 
   // Renumber objects deterministically:
@@ -457,18 +471,32 @@ export function extractArticle(
 
   // Add Page objects
   for (const pageId of selectedPageIds) {
-    const originalBody = objects.get(pageId)!;
+    const originalBody = objects.get(pageId);
+    const newId = idMap.get(pageId);
+    if (!originalBody || newId === undefined) {
+      throw new FacsimileError(
+        "EXTRACTION_ERROR",
+        `Missing page object or mapped ID for page ${pageId}`,
+      );
+    }
     newObjects.push({
-      id: idMap.get(pageId)!,
+      id: newId,
       body: rewriteReferences(originalBody, true),
     });
   }
 
   // Add Dependency objects (images, fonts, etc.) preserving exact stream bytes
   for (const id of sortedCollected) {
-    const originalBody = objects.get(id)!;
+    const originalBody = objects.get(id);
+    const newId = idMap.get(id);
+    if (!originalBody || newId === undefined) {
+      throw new FacsimileError(
+        "EXTRACTION_ERROR",
+        `Missing dependency object or mapped ID for object ${id}`,
+      );
+    }
     newObjects.push({
-      id: idMap.get(id)!,
+      id: newId,
       body: rewriteReferences(originalBody, false),
     });
   }
@@ -816,7 +844,7 @@ export async function fetchToStaging(
 
       if (res.status === 429 || (res.status >= 500 && res.status <= 599)) {
         if (attempts <= maxRetries) {
-          const delay = Math.min(100 * Math.pow(2, attempts - 1), 1000);
+          const delay = Math.min(100 * 2 ** (attempts - 1), 1000);
           await new Promise((resolve) => setTimeout(resolve, delay));
           continue;
         }
@@ -831,21 +859,22 @@ export async function fetchToStaging(
       }
 
       break;
-    } catch (err: any) {
+    } catch (err: unknown) {
       if (err instanceof FacsimileError) throw err;
       if (attempts <= maxRetries) {
-        const delay = Math.min(100 * Math.pow(2, attempts - 1), 1000);
+        const delay = Math.min(100 * 2 ** (attempts - 1), 1000);
         await new Promise((resolve) => setTimeout(resolve, delay));
         continue;
       }
+      const message = err instanceof Error ? err.message : String(err);
       throw new FacsimileError(
         "NETWORK_RETRIES_EXHAUSTED",
-        `Fetch failed after ${attempts} attempts: ${err.message}`,
+        `Fetch failed after ${attempts} attempts: ${message}`,
       );
     }
   }
 
-  if (!res || res.status !== 200) {
+  if (res?.status !== 200) {
     throw new FacsimileError("HTTP_STATUS", `Failed to retrieve 200 OK for ${url}`);
   }
 
@@ -920,7 +949,7 @@ export function writeStructuredLog(
     timestamp: new Date().toISOString(),
     ...event,
   };
-  fs.appendFileSync(logPath, JSON.stringify(payload) + "\n", "utf8");
+  fs.appendFileSync(logPath, `${JSON.stringify(payload)}\n`, "utf8");
 }
 
 export async function main(): Promise<void> {
@@ -1003,8 +1032,9 @@ export async function main(): Promise<void> {
       const res = await restorePin(key, { configDir });
       console.log(`Restored pin for ${key}: ${res.sha256}`);
       process.exit(0);
-    } catch (e: any) {
-      console.error(`Restore failed: ${e.message}`);
+    } catch (e: unknown) {
+      const message = e instanceof Error ? e.message : String(e);
+      console.error(`Restore failed: ${message}`);
       process.exit(e instanceof FacsimileError ? e.exitCode : 1);
     }
   }
@@ -1187,10 +1217,11 @@ export async function main(): Promise<void> {
     console.log(`SHA-256: ${finalSha256}`);
     console.log(`Receipt stub written to ${receiptStubPath}`);
     process.exit(0);
-  } catch (err: any) {
+  } catch (err: unknown) {
     const exitCode = err instanceof FacsimileError ? err.exitCode : 1;
     const errorCode = err instanceof FacsimileError ? err.code : "UNEXPECTED_ERROR";
-    console.error(`\n❌ Pinning failed (${errorCode}): ${err.message}`);
+    const message = err instanceof Error ? err.message : String(err);
+    console.error(`\n❌ Pinning failed (${errorCode}): ${message}`);
 
     writeStructuredLog(logPath, {
       suite: "download-facsimiles",
@@ -1200,7 +1231,7 @@ export async function main(): Promise<void> {
       action: "refused",
       errorCode,
       exitCode,
-      message: err.message,
+      message,
       durationMs: Date.now() - startTime,
     });
 
