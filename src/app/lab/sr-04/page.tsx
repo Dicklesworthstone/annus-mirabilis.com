@@ -34,6 +34,11 @@ export default function LorentzMapPage() {
         </p>
       </header>
 
+      <p className="reading">
+        <a className="button" href="/lab/countermodels/">
+          Compare competing models: which observations can actually decide?
+        </a>
+      </p>
       <LorentzMapComparison example={example} />
 
       <section className="reading" id="lorentz-map-argument">

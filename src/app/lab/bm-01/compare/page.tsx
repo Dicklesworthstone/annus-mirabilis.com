@@ -23,6 +23,7 @@ export default function BrownianComparisonPage() {
         <div className="actions">
           <a href="/lab/bm-01/">Full tracer laboratory</a>
           <a href="/discover/brownian-motion/investigate/">Guided interval investigation</a>
+          <a href="/lab/countermodels/">Next: compare competing models, not just one changed input</a>
         </div>
       </header>
       <BrownianComparisonLab example={example} />
