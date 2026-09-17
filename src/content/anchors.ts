@@ -10,7 +10,6 @@ import {
   ENTRANCE_PAPER_SLUGS,
   type EntranceId,
   type EquationRecordId,
-  PAPER_CODE_TO_ROUTE_SLUG,
   PAPER_CODES,
   type PaperCode,
   type ParseResult,
@@ -58,7 +57,7 @@ const INLINE_EQUATION_PATTERN = /^s\d+-p\d+-s\d+-m\d+$/;
 /** The unsuffixed source sentence id for `s3-p2-s1a` / `s3-p2-s1b` / `s3-p2-s1` alike. */
 export function sourceSentenceId(id: string): string {
   const match = id.match(SENTENCE_PATTERN);
-  if (!match || !match[1]) throw new Error(`Not a sentence id: '${id}'`);
+  if (!match?.[1]) throw new Error(`Not a sentence id: '${id}'`);
   return match[1];
 }
 
@@ -76,7 +75,7 @@ export function splitSentenceIds(sourceId: string): readonly [string, string] {
  */
 export function equationAnchorForRecord(recordId: string): string {
   const match = recordId.match(/^eq-(?:lq|bm|sr|me|md)-(.+)$/);
-  if (!match || !match[1]) {
+  if (!match?.[1]) {
     throw new Error(`Cannot derive anchor from invalid equation record ID '${recordId}'`);
   }
   return `#eq-${match[1]}`;
@@ -92,7 +91,7 @@ export function equationRecordForAnchor(
 ): EquationRecordId {
   const cleanAnchor = anchor.startsWith("#") ? anchor.slice(1) : anchor;
   const match = cleanAnchor.match(/^eq-(.+)$/);
-  if (!match || !match[1]) {
+  if (!match?.[1]) {
     throw new Error(`Cannot derive equation record from invalid anchor '${anchor}'`);
   }
   const paperCode: PaperCode = (PAPER_CODES as readonly string[]).includes(paper)
@@ -119,7 +118,7 @@ export function entryAnchorForEntrance(entranceId: string): string {
   const match = entranceId.match(
     /^entrance-(light-quanta|brownian-motion|special-relativity|mass-energy)$/,
   );
-  if (!match || !match[1]) {
+  if (!match?.[1]) {
     throw new Error(`Cannot derive entry anchor from invalid entrance ID '${entranceId}'`);
   }
   return `#entry-${match[1]}`;
@@ -137,7 +136,7 @@ export function entranceForEntryAnchor(anchor: string): EntranceId {
   const match = clean.match(
     /^entry-(light-quanta|brownian-motion|special-relativity|mass-energy)$/,
   );
-  if (!match || !match[1]) {
+  if (!match?.[1]) {
     throw new Error(
       `Cannot derive entrance ID from anchor '${anchor}': must be '#entry-<paper-slug>' for one of the four main papers`,
     );
