@@ -35,7 +35,18 @@
       "text": "Natural log of 2 is ln(2) approx 0.693147, whereas common log of 2 is log_10(2) approx 0.301030. For W_1 = 4 and W_2 = 8, W = 32: ln(4) approx 1.386294, ln(8) approx 2.079442, and ln(32) approx 3.465736 = 1.386294 + 2.079442."
     }
   ],
-  "prerequisites": ["exponentials"],
+  "prerequisites": [
+    {
+      "foundationId": "foundation:exponentials",
+      "kind": "cross-link"
+    }
+  ],
+  "returnCaptions": [
+    {
+      "callingAnchor": "brownian-motion:s2",
+      "caption": "Return to Brownian §2 osmotic pressure and free energy"
+    }
+  ],
   "stoppingPoint": "The natural logarithm is the unique continuous function mapping independent product states to additive thermodynamic quantities; 1905 printed 'lg' denotes the natural logarithm.",
   "citations": []
 }

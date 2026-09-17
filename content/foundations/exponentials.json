@@ -31,7 +31,22 @@
       "text": "At the center x = 0, the exponential factor exp(0) = 1. At one standard deviation x = sqrt(2Dt), the exponent is -1/2 and exp(-0.5) approx 0.6065. At x = sqrt(4Dt), the exponent is -1 and exp(-1) approx 0.367879, showing symmetric bell-shaped decay."
     }
   ],
-  "prerequisites": ["derivatives"],
+  "prerequisites": [
+    {
+      "foundationId": "foundation:derivatives",
+      "kind": "proof-edge"
+    },
+    {
+      "foundationId": "foundation:logarithms",
+      "kind": "cross-link"
+    }
+  ],
+  "returnCaptions": [
+    {
+      "callingAnchor": "brownian-motion:s4",
+      "caption": "Return to Brownian §4 Gaussian distribution and exponential solution"
+    }
+  ],
   "stoppingPoint": "The argument inside an exponential function must always be a dimensionless pure number.",
   "citations": []
 }

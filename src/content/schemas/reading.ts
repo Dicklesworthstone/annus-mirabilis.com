@@ -14,6 +14,18 @@ export type ReadingId = (typeof READING_IDS)[number];
 type Header = Readonly<{ schemaVersion: typeof READING_SCHEMA_VERSION; id: string }>;
 export type Citation = Header &
   Readonly<{ kind: "citation"; title: string; locator: string; url: string }>;
+export type TypedPrerequisiteRef = Readonly<{
+  foundationId: string;
+  kind: "proof-edge" | "cross-link";
+}>;
+
+export type PrerequisiteRef = string | TypedPrerequisiteRef;
+
+export type ReturnCaption = Readonly<{
+  callingAnchor: string;
+  caption: string;
+}>;
+
 export type Foundation = Header &
   Readonly<{
     kind: "foundation";
@@ -23,9 +35,11 @@ export type Foundation = Header &
     review: "draft";
     explanation: readonly Block[];
     example: readonly Block[];
-    prerequisites: readonly string[];
+    prerequisites: readonly PrerequisiteRef[];
     stoppingPoint: string;
     citations: readonly string[];
+    returnCaptions?: readonly ReturnCaption[];
+    extension?: readonly Block[];
   }>;
 export type Argument = Header &
   Readonly<{
@@ -243,7 +257,7 @@ export function validateReadingRecord(input: unknown, path: string): ReadingReco
       1,
     );
   } else if (o.kind === "foundation") {
-    keys(o, path, [
+    const required = [
       ...common,
       "question",
       "summary",
@@ -253,13 +267,44 @@ export function validateReadingRecord(input: unknown, path: string): ReadingReco
       "prerequisites",
       "stoppingPoint",
       "citations",
-    ]);
+    ];
+    const optional = ["returnCaptions", "extension"];
+    const allAllowed = [...required, ...optional];
+    const oObj = object(o, path);
+    for (const k of Object.keys(oObj)) {
+      if (!allAllowed.includes(k)) error(`${path}.${k}`, "Unknown field.");
+    }
+    for (const k of required) {
+      if (!Object.hasOwn(oObj, k)) error(`${path}.${k}`, "Missing field.");
+    }
     for (const k of ["question", "summary", "stoppingPoint"]) text(o[k], `${path}.${k}`);
     choice(o.review, path, ["draft"]);
     list(o.explanation, path, block, 1);
     list(o.example, path, block, 1);
-    list(o.prerequisites, path, id);
+    list(o.prerequisites, `${path}.prerequisites`, (pr, p) => {
+      if (typeof pr === "string") {
+        id(pr, p);
+      } else if (pr && typeof pr === "object") {
+        const pro = object(pr, p);
+        keys(pro, p, ["foundationId", "kind"]);
+        text(pro.foundationId, `${p}.foundationId`);
+        choice(pro.kind, `${p}.kind`, ["proof-edge", "cross-link"]);
+      } else {
+        error(p, "Expected string id or typed prerequisite object.");
+      }
+    });
     list(o.citations, path, id);
+    if (o.returnCaptions !== undefined) {
+      list(o.returnCaptions, `${path}.returnCaptions`, (rc, p) => {
+        const rco = object(rc, p);
+        keys(rco, p, ["callingAnchor", "caption"]);
+        text(rco.callingAnchor, `${p}.callingAnchor`);
+        text(rco.caption, `${p}.caption`);
+      });
+    }
+    if (o.extension !== undefined) {
+      list(o.extension, `${path}.extension`, block, 1);
+    }
   } else if (o.kind === "argument") {
     keys(o, path, [
       ...common,

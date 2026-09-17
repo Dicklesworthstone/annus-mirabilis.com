@@ -119,31 +119,58 @@ test("foundCalculus.records: registry entries, status authored, owner bead, and 
 });
 
 test("foundCalculus.records: prerequisites and dependency graph are properly connected", () => {
-  const records = new Map<string, { prerequisites?: string[] }>();
+  const records = new Map<string, { prerequisites?: unknown[]; returnCaptions?: unknown[] }>();
   for (const id of CALCULUS_FOUNDATION_IDS) {
     const filePath = path.join(FOUNDATIONS_DIR, `${id}.json`);
     const content = JSON.parse(fs.readFileSync(filePath, "utf8"));
     records.set(id, content);
   }
 
-  // derivatives requires functions-graphs
-  assert.deepEqual(records.get("derivatives")?.prerequisites, ["functions-graphs"]);
+  // functions-graphs requires bridge-a-graph as proof-edge
+  assert.deepEqual(records.get("functions-graphs")?.prerequisites, [
+    { foundationId: "foundation:bridge-a-graph", kind: "proof-edge" },
+  ]);
 
-  // partial-derivatives requires derivatives
-  assert.deepEqual(records.get("partial-derivatives")?.prerequisites, ["derivatives"]);
+  // derivatives requires functions-graphs as proof-edge
+  assert.deepEqual(records.get("derivatives")?.prerequisites, [
+    { foundationId: "foundation:functions-graphs", kind: "proof-edge" },
+  ]);
 
-  // exponentials requires derivatives
-  assert.deepEqual(records.get("exponentials")?.prerequisites, ["derivatives"]);
+  // partial-derivatives requires derivatives as proof-edge
+  assert.deepEqual(records.get("partial-derivatives")?.prerequisites, [
+    { foundationId: "foundation:derivatives", kind: "proof-edge" },
+  ]);
 
-  // logarithms requires exponentials
-  assert.deepEqual(records.get("logarithms")?.prerequisites, ["exponentials"]);
+  // exponentials requires derivatives (proof-edge) and logarithms (cross-link)
+  assert.deepEqual(records.get("exponentials")?.prerequisites, [
+    { foundationId: "foundation:derivatives", kind: "proof-edge" },
+    { foundationId: "foundation:logarithms", kind: "cross-link" },
+  ]);
+
+  // logarithms requires exponentials (cross-link)
+  assert.deepEqual(records.get("logarithms")?.prerequisites, [
+    { foundationId: "foundation:exponentials", kind: "cross-link" },
+  ]);
+
+  // Verify returnCaptions on all 5 authored records
+  for (const id of CALCULUS_FOUNDATION_IDS) {
+    const rec = records.get(id);
+    assert.ok(
+      Array.isArray(rec?.returnCaptions) && rec.returnCaptions.length > 0,
+      `Foundation ${id} must carry returnCaptions[] for existing callers`,
+    );
+    for (const rc of rec.returnCaptions as { callingAnchor: string; caption: string }[]) {
+      assert.ok(typeof rc.callingAnchor === "string" && rc.callingAnchor.length > 0);
+      assert.ok(typeof rc.caption === "string" && rc.caption.length > 0);
+    }
+  }
 
   writeCalculusLog({
     testId: "calculus-prerequisites-graph",
-    expected: "derivatives->functions-graphs, partial->derivatives, exp->derivatives, log->exp",
-    actual: "connected",
+    expected: "typed proof-edge and cross-link prerequisites and returnCaptions on all 5 files",
+    actual: "connected with typed prerequisites and returnCaptions",
     outcome: "passed",
-    message: "Verified calculus prerequisite chain connections",
+    message: "Verified calculus typed prerequisite connections and returnCaptions",
   });
 });
 

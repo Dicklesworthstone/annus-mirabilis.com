@@ -191,7 +191,11 @@ export function buildContentIndexes(records: ReadonlyMap<string, unknown>): Buil
   }
 
   for (const f of foundations.values()) {
-    for (const pId of f.prerequisites ?? []) {
+    for (const p of f.prerequisites ?? []) {
+      const pId =
+        typeof p === "string"
+          ? p
+          : (p as { foundationId: string }).foundationId.replace(/^foundation:/, "");
       if (!foundations.has(pId)) {
         issue("dangling-reference", f.id, `Foundation prerequisite not found: ${pId}`);
       }
@@ -221,7 +225,9 @@ export function buildContentIndexes(records: ReadonlyMap<string, unknown>): Buil
     const f = foundations.get(id);
     if (f) {
       const edges = [
-        ...f.prerequisites,
+        ...f.prerequisites
+          .filter((p) => (typeof p === "string" ? true : p.kind !== "cross-link"))
+          .map((p) => (typeof p === "string" ? p : p.foundationId.replace(/^foundation:/, ""))),
         ...[...f.explanation, ...f.example]
           .filter((b): b is Extract<Block, { kind: "foundation" }> => b.kind === "foundation")
           .map((b) => b.id),

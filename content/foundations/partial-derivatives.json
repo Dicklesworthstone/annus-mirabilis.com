@@ -31,7 +31,22 @@
       "text": "For density f(x, t) = (4 pi D t)^(-1/2) exp(-x^2 / (4Dt)), taking the derivative with respect to x holding t fixed gives ∂f/∂x = -x/(2Dt) f(x,t). Taking the derivative with respect to t holding x fixed gives ∂f/∂t = (-1/(2t) + x^2/(4Dt^2)) f(x,t). A direct calculation verifies ∂f/∂t = D ∂^2f/∂x^2."
     }
   ],
-  "prerequisites": ["derivatives"],
+  "prerequisites": [
+    {
+      "foundationId": "foundation:derivatives",
+      "kind": "proof-edge"
+    }
+  ],
+  "returnCaptions": [
+    {
+      "callingAnchor": "brownian-motion:s3",
+      "caption": "Return to Brownian §3 osmotic equilibrium"
+    },
+    {
+      "callingAnchor": "brownian-motion:s4",
+      "caption": "Return to Brownian §4 diffusion equation derivation"
+    }
+  ],
   "stoppingPoint": "A partial derivative is mathematically and physically undefined until every held-fixed parameter is explicitly identified.",
   "citations": []
 }

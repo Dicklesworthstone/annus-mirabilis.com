@@ -111,7 +111,8 @@ export function compileReadingContent(files: readonly Readonly<{ path: string; t
         routeMatch.kind === "frozen-id-snapshot" ||
         routeMatch.kind === "source-manifest" ||
         routeMatch.kind === "source-block" ||
-        routeMatch.kind === "aliases"
+        routeMatch.kind === "aliases" ||
+        routeMatch.kind === "foundation-extension"
       ) {
         continue;
       }
@@ -293,7 +294,10 @@ export function compileReadingContent(files: readonly Readonly<{ path: string; t
           issue("unavailable-experiment", r.id, `No implemented preview route for ${id}.`);
     }
     if (r.kind === "foundation") {
-      for (const p of r.prerequisites) ref(p, "foundation", r.id);
+      for (const p of r.prerequisites) {
+        const pId = typeof p === "string" ? p : p.foundationId.replace(/^foundation:/, "");
+        ref(pId, "foundation", r.id);
+      }
       foundationRefs([...r.explanation, ...r.example], r.id);
     }
   }
@@ -316,7 +320,9 @@ export function compileReadingContent(files: readonly Readonly<{ path: string; t
     const edges =
       r.kind === "foundation"
         ? [
-            ...r.prerequisites,
+            ...r.prerequisites
+              .filter((p) => typeof p === "string" || p.kind === "proof-edge")
+              .map((p) => (typeof p === "string" ? p : p.foundationId.replace(/^foundation:/, ""))),
             ...[...r.explanation, ...r.example]
               .filter((b): b is Extract<Block, { kind: "foundation" }> => b.kind === "foundation")
               .map((b) => b.id),
@@ -344,7 +350,10 @@ export function compileReadingContent(files: readonly Readonly<{ path: string; t
           needed.add(id);
           const f = records.get(id) as Foundation;
           if (f) {
-            f.prerequisites.forEach(add);
+            f.prerequisites.forEach((p) => {
+              const pId = typeof p === "string" ? p : p.foundationId.replace(/^foundation:/, "");
+              add(pId);
+            });
             for (const b of [...f.explanation, ...f.example])
               if (b.kind === "foundation") add(b.id);
           }

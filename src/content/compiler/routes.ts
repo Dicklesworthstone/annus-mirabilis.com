@@ -19,6 +19,7 @@ export type ContentRouteKind =
   | "entrance"
   | "equation"
   | "foundation"
+  | "foundation-extension"
   | "citation"
   | "quantity"
   | "misconception"
@@ -109,6 +110,13 @@ export const CONTENT_ROUTES: readonly ContentRoute[] = [
     pattern: /^(?:content\/)?foundations\/([a-z0-9-]+)\.(json|yaml|yml)$/,
     kind: "foundation",
     schema: "Foundation",
+    format: "json",
+    extractParams: (m) => ({ id: m[1] ?? "", format: m[2] ?? "" }),
+  },
+  {
+    pattern: /^(?:content\/)?foundations\/extensions\/([a-z0-9-]+)\.(json|yaml|yml)$/,
+    kind: "foundation-extension",
+    schema: "FoundationExtension",
     format: "json",
     extractParams: (m) => ({ id: m[1] ?? "", format: m[2] ?? "" }),
   },

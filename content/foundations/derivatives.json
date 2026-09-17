@@ -31,7 +31,18 @@
       "text": "If position x(t) = c t^2 with c = 3 metres per second squared, the change between t and t + Δt is c(t+Δt)^2 - ct^2 = 2ctΔt + c(Δt)^2. Dividing by Δt gives 2ct + cΔt. In the limit Δt -> 0, the instantaneous velocity is exactly 2ct = 6t metres per second."
     }
   ],
-  "prerequisites": ["functions-graphs"],
+  "prerequisites": [
+    {
+      "foundationId": "foundation:functions-graphs",
+      "kind": "proof-edge"
+    }
+  ],
+  "returnCaptions": [
+    {
+      "callingAnchor": "brownian-motion:s4",
+      "caption": "Return to Brownian §4 diffusion rate derivation"
+    }
+  ],
   "stoppingPoint": "A derivative is an instantaneous rate bearing explicit units; it is not a fraction of two separate isolated zeros.",
   "citations": []
 }

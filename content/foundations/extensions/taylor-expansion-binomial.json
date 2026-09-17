@@ -1,0 +1,41 @@
+{
+  "schemaVersion": 1,
+  "kind": "foundation-extension",
+  "id": "taylor-expansion-binomial",
+  "targetFoundation": "foundation:taylor-expansion",
+  "title": "Binomial series expansion for relativistic gamma",
+  "ownerBead": "am-found-calculus-6agg",
+  "plannedCallers": ["special-relativity:s4", "mass-energy"],
+  "seriesLatex": "(1 - x)^{-1/2} = 1 + \\frac{1}{2}x + \\frac{3}{8}x^2 + \\frac{5}{16}x^3 + \\frac{35}{128}x^4 + \\ldots",
+  "seriesSpoken": "Quantity one minus x to the power minus one half equals one plus half x plus three eighths x squared plus five sixteenths x cubed plus thirty-five over one hundred twenty-eight x to the fourth, followed by higher order terms.",
+  "convergenceCondition": "|x| < 1, with x = (v/c)^2",
+  "explanation": [
+    {
+      "kind": "paragraph",
+      "text": "The Lorentz factor gamma equals (1 - v^2/c^2)^(-1/2). For speeds v strictly less than the speed of light c, the variable x = (v/c)^2 satisfies |x| < 1. Expanding gamma in a binomial series reveals how relativistic kinetic terms connect directly to classical mechanics and mass-energy equivalence."
+    },
+    {
+      "kind": "paragraph",
+      "text": "At v/c = 0.6 (where x = 0.36), the partial sums of gamma - 1 are: first term 0.18, through quadratic 0.2286, through cubic 0.24318, and through quartic 0.247773, converging toward the exact value 0.25. The leading quadratic term 0.18 corresponds to the 0.18L mass-energy fixture beside the exact 0.25L, demonstrating both the retained term and the neglected remainder."
+    },
+    {
+      "kind": "paragraph",
+      "text": "At low speeds, floating-point subtraction gamma - 1 suffers from catastrophic subtractive cancellation. For example, at v/c = 10^(-4) (x = 10^(-8)), the exact value of gamma - 1 is 5.0000000375e-9, which matches the leading term 5.0e-9 to a relative difference of 7.5e-9. A cancellation-free evaluation using expm1 and log1p reproduces this exact value. In contrast, naive subtraction 1/sqrt(1-x) - 1 in standard double precision yields 5.0000001917e-9 with a relative error of 3.83e-8, five times too large. The cancellation-free route is required for trustworthy numerical evaluation."
+    }
+  ],
+  "evaluationRule": {
+    "method": "cancellation-free via expm1(-0.5 * log1p(-x))",
+    "speedFraction": 0.0001,
+    "cancellationFreeValue": 5.0000000375e-9,
+    "naiveValue": 5.0000001917e-9,
+    "relativeDifferenceFirstTerm": 7.5e-9,
+    "relativeDifferenceNaive": 3.833e-8,
+    "trustworthy": "cancellation-free"
+  },
+  "partialSumsAt036": {
+    "x": 0.36,
+    "vOverC": 0.6,
+    "exact": 0.25,
+    "sums": [0.18, 0.2286, 0.24318, 0.247773]
+  }
+}

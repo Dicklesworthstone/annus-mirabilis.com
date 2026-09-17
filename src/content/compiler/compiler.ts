@@ -365,7 +365,10 @@ export async function compileContent(
         neededFoundations.add(id);
         const f = indexes.foundations.get(id);
         if (f) {
-          f.prerequisites.forEach(addFoundation);
+          f.prerequisites.forEach((p) => {
+            const pId = typeof p === "string" ? p : p.foundationId.replace(/^foundation:/, "");
+            addFoundation(pId);
+          });
           for (const b of [...f.explanation, ...f.example]) {
             if (b.kind === "foundation") addFoundation(b.id);
           }

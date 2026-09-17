@@ -122,7 +122,12 @@ export function collectChapterFoundations(
     const foundation = byId.get(name);
     if (!foundation) throw new TypeError(`Missing offline foundation: ${name}.`);
     active.add(name);
-    for (const next of foundation.prerequisites) visit(next);
+    for (const next of foundation.prerequisites) {
+      if (typeof next !== "string" && next.kind === "cross-link") continue;
+      const nextId =
+        typeof next === "string" ? next : next.foundationId.replace(/^foundation:/, "");
+      visit(nextId);
+    }
     for (const block of [...foundation.explanation, ...foundation.example])
       if (block.kind === "foundation") visit(block.id);
     active.delete(name);
@@ -233,7 +238,12 @@ export function packageOfflineChapter(
   const appendix = foundations
     .map((foundation) => {
       for (const name of foundation.citations) neededCitations.add(name);
-      return `<section id="foundation-${id(foundation.id)}" tabindex="-1"><h3>${e(foundation.title)}</h3><p class="question">${e(foundation.question)}</p>${blocks(foundation.explanation)}<h4>Worked example</h4>${blocks(foundation.example)}<p>Stopping point: ${e(foundation.stoppingPoint)}</p>${foundation.prerequisites.map((name) => `<p><a href="#foundation-${id(name)}">Prerequisite: ${e(name)}</a></p>`).join("")}<a href="#${section.id}">Return to the chapter</a></section>`;
+      return `<section id="foundation-${id(foundation.id)}" tabindex="-1"><h3>${e(foundation.title)}</h3><p class="question">${e(foundation.question)}</p>${blocks(foundation.explanation)}<h4>Worked example</h4>${blocks(foundation.example)}<p>Stopping point: ${e(foundation.stoppingPoint)}</p>${foundation.prerequisites
+        .map((p) => {
+          const pId = typeof p === "string" ? p : p.foundationId.replace(/^foundation:/, "");
+          return `<p><a href="#foundation-${id(pId)}">Prerequisite: ${e(pId)}</a></p>`;
+        })
+        .join("")}<a href="#${section.id}">Return to the chapter</a></section>`;
     })
     .join("\n");
   const worked = [...instrumentIds]
