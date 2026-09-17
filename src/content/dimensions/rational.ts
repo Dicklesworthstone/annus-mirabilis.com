@@ -62,7 +62,10 @@ export function parseRational(text: string): Rational {
     throw new TypeError(`Invalid exact rational '${text}'.`);
   }
   const [numStr, denStr = "1"] = trimmed.split("/");
-  return rational(BigInt(numStr!), BigInt(denStr));
+  if (!numStr) {
+    throw new TypeError(`Invalid exact rational '${text}'.`);
+  }
+  return rational(BigInt(numStr), BigInt(denStr));
 }
 
 export const add = (a: Rational, b: Rational): Rational =>
@@ -106,7 +109,13 @@ export function combine(a: Dimension, b: Dimension, sign: 1 | -1 = 1): Dimension
   if (a.length !== DIMENSION_BASIS.length || b.length !== DIMENSION_BASIS.length) {
     throw new TypeError("Dimension vectors must have length 6.");
   }
-  return Object.freeze(a.map((v, i) => add(v, multiply(b[i]!, rational(BigInt(sign))))));
+  return Object.freeze(
+    a.map((v, i) => {
+      const bi = b[i];
+      if (!bi) throw new TypeError("Dimension vectors must have length 6.");
+      return add(v, multiply(bi, rational(BigInt(sign))));
+    }),
+  );
 }
 
 /**
@@ -121,7 +130,10 @@ export function power(d: Dimension, e: Rational): Dimension {
  */
 export function sameDimension(a: Dimension, b: Dimension): boolean {
   if (a.length !== b.length) return false;
-  return a.every((v, i) => v.num === b[i]!.num && v.den === b[i]!.den);
+  return a.every((v, i) => {
+    const bi = b[i];
+    return bi !== undefined && v.num === bi.num && v.den === bi.den;
+  });
 }
 
 /**
@@ -158,10 +170,14 @@ export function dimensionMismatches(
   }
   const mismatches: DimensionSlotMismatch[] = [];
   for (let i = 0; i < DIMENSION_BASIS.length; i++) {
-    const a = lhs[i]!;
-    const b = rhs[i]!;
+    const a = lhs[i];
+    const b = rhs[i];
+    const base = DIMENSION_BASIS[i];
+    if (!a || !b || !base) {
+      throw new TypeError("Dimension vectors must have length 6.");
+    }
     if (a.num !== b.num || a.den !== b.den) {
-      mismatches.push({ base: DIMENSION_BASIS[i]!, lhs: a, rhs: b });
+      mismatches.push({ base, lhs: a, rhs: b });
     }
   }
   return Object.freeze(mismatches);
