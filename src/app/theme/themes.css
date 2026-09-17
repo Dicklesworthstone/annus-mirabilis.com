@@ -90,6 +90,13 @@ body {
 
 .theme-toggle {
   display: flex;
+  /* The four theme options plus the legend exceed a 320px viewport in one row
+     (measured 443px, pushing documentElement.scrollWidth to 459px). AGENTS.md
+     requires every surface to work at 320px, so the row wraps rather than
+     overflowing. Wrapping keeps every control reachable; hiding the overflow
+     would leave "Follow system" unreachable on a narrow screen. */
+  flex-wrap: wrap;
+  max-width: 100%;
   align-items: center;
   gap: 0.75rem;
   font: 0.85rem / 1.4 var(--font-sans);
