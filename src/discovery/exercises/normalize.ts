@@ -18,6 +18,7 @@ const MINUS_SIGNS = new Set(["−"]);
 const MULTIPLY_SIGNS = new Set(["×", "⋅", "·"]);
 const NARROW_SPACES = new Set([" ", " "]);
 const SUPERSCRIPT_DIGITS: Readonly<Record<string, string>> = {
+  "⁻": "-",
   "⁰": "0",
   "¹": "1",
   "²": "2",
