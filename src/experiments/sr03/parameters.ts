@@ -1,9 +1,10 @@
 import type { Computation } from "../../physics/reference/diffusion/ftcs.ts";
 import { makeRefusal } from "../results/refusals.ts";
-import { type EndpointPairChoice, type FrameId, type Sr03Parameters } from "./definition.ts";
+import type { EndpointPairChoice, FrameId, Sr03Parameters } from "./definition.ts";
 
 const requiredKeys = ["rodRestFrame", "v", "L0", "measuringFrame", "endpointPairId", "R"] as const;
 const optionalKeys = ["customT1", "customX1", "customT2", "customX2"] as const;
+const allowedKeys = new Set<string>([...requiredKeys, ...optionalKeys]);
 
 function refused(parameterIds: readonly string[], requirements: string): Computation<never> {
   return {
@@ -25,7 +26,7 @@ export function validateSr03Parameters(input: unknown): Computation<Sr03Paramete
   const ownKeys = Reflect.ownKeys(raw);
   for (const k of ownKeys) {
     if (typeof k !== "string") return refused(requiredKeys, "Keys must be strings.");
-    if (!requiredKeys.includes(k as any) && !optionalKeys.includes(k as any)) {
+    if (!allowedKeys.has(k)) {
       return refused(requiredKeys, `Unknown setting '${k}'.`);
     }
   }
