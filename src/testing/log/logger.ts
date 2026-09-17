@@ -85,6 +85,15 @@ export class TestLogger {
     return event;
   }
 
+  info(message: string, extra?: Record<string, unknown>): LogEvent {
+    return this.log({
+      testId: (extra?.testId as string) || message,
+      message,
+      outcome: "passed",
+      extra,
+    });
+  }
+
   /** Flushes the buffer as one append call, serialized against concurrent flushes. */
   flush(): Promise<void> {
     if (this.buffer.length === 0) return this.writeQueue;

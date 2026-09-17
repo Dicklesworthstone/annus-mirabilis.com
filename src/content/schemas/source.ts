@@ -876,6 +876,11 @@ export const GLOSS_NOTE_CLASSES = [
   "ordinal",
   "unit",
   "term",
+  "hedge",
+  "necessity",
+  "condition",
+  "consequence",
+  "restriction",
 ] as const;
 export type GlossNoteClass = (typeof GLOSS_NOTE_CLASSES)[number];
 

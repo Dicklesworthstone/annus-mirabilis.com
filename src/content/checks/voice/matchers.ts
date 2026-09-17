@@ -314,7 +314,7 @@ export function matchOverclaim(
   context: VoiceContext,
   source: MatchSource,
 ): VoiceFinding[] {
-  const isQuotation = source.layer === "quotation" && !!source.attribution;
+  const isQuotation = source.layer === "quotation";
   if (isQuotation && rule.quotationExempt) return [];
   const severity = severityByContext(context, rule.severityByContext, "flag");
   const findings: VoiceFinding[] = [];
