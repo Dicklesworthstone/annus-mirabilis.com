@@ -179,8 +179,8 @@ export function KitchenLab({
         </p>
       </noscript>
       <div className="kitchen-import">
-        <label htmlFor={`${id}-file`}>
-          Observation CSV
+        <div className="input-field">
+          <label htmlFor={`${id}-file`}>Observation CSV</label>
           <input
             ref={fileInput}
             id={`${id}-file`}
@@ -193,7 +193,7 @@ export function KitchenLab({
               setError("");
             }}
           />
-        </label>
+        </div>
         <div className="actions">
           <button
             type="button"
@@ -219,8 +219,8 @@ export function KitchenLab({
         </div>
         <details>
           <summary>Paste an observation CSV instead</summary>
-          <label htmlFor={`${id}-paste`}>
-            CSV text
+          <div className="input-field">
+            <label htmlFor={`${id}-paste`}>CSV text</label>
             <textarea
               id={`${id}-paste`}
               spellCheck={false}
@@ -229,7 +229,7 @@ export function KitchenLab({
               maxLength={KITCHEN_LIMITS.bytes}
               onChange={(e) => setPaste(e.target.value)}
             />
-          </label>
+          </div>
           <button
             type="button"
             disabled={!ready || busy || !paste.trim()}

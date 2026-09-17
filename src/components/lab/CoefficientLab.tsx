@@ -254,9 +254,10 @@ export function CoefficientLab({
           <fieldset disabled={!ready}>
             <legend>Set the observer speed and the emitted energy</legend>
             <div className="input-grid">
-              <label>
-                Observer speed v/c
+              <div className="input-field">
+                <label htmlFor={`${id}-beta`}>Observer speed v/c</label>
                 <input
+                  id={`${id}-beta`}
                   type="number"
                   name="beta"
                   inputMode="decimal"
@@ -268,10 +269,11 @@ export function CoefficientLab({
                     setDraft({ ...draft, beta: Number(event.currentTarget.value) })
                   }
                 />
-              </label>
-              <label>
-                Emitted energy L
+              </div>
+              <div className="input-field">
+                <label htmlFor={`${id}-emittedEnergy`}>Emitted energy L</label>
                 <input
+                  id={`${id}-emittedEnergy`}
                   type="number"
                   name="emittedEnergy"
                   inputMode="decimal"
@@ -282,10 +284,11 @@ export function CoefficientLab({
                     setDraft({ ...draft, emittedEnergy: Number(event.currentTarget.value) })
                   }
                 />
-              </label>
-              <label>
-                Energy unit
+              </div>
+              <div className="input-field">
+                <label htmlFor={`${id}-energyUnit`}>Energy unit</label>
                 <select
+                  id={`${id}-energyUnit`}
                   name="energyUnit"
                   value={draft.energyUnit}
                   onChange={(event) =>
@@ -299,7 +302,7 @@ export function CoefficientLab({
                   <option value="erg">erg</option>
                   <option value="joule">joule</option>
                 </select>
-              </label>
+              </div>
             </div>
             <div className="preset-list">
               <button

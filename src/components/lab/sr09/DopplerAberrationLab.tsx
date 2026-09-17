@@ -128,9 +128,10 @@ export function DopplerAberrationLab({
           <fieldset disabled={!ready}>
             <legend>Set the observer and the ray</legend>
             <div className="input-grid">
-              <label>
-                Observer speed β = v/c
+              <div className="input-field">
+                <label htmlFor={`${id}-beta`}>Observer speed β = v/c</label>
                 <input
+                  id={`${id}-beta`}
                   type="number"
                   name="beta"
                   inputMode="decimal"
@@ -142,10 +143,13 @@ export function DopplerAberrationLab({
                     setDraft({ ...draft, beta: Number(event.currentTarget.value) })
                   }
                 />
-              </label>
-              <label>
-                Propagation angle θ in K (degrees)
+              </div>
+              <div className="input-field">
+                <label htmlFor={`${id}-propagationAngleDeg`}>
+                  Propagation angle θ in K (degrees)
+                </label>
                 <input
+                  id={`${id}-propagationAngleDeg`}
                   type="number"
                   name="propagationAngleDeg"
                   inputMode="decimal"
@@ -157,10 +161,11 @@ export function DopplerAberrationLab({
                     setDraft({ ...draft, propagationAngleDeg: Number(event.currentTarget.value) })
                   }
                 />
-              </label>
-              <label>
-                Frequency in K (THz)
+              </div>
+              <div className="input-field">
+                <label htmlFor={`${id}-frequencyTHz`}>Frequency in K (THz)</label>
                 <input
+                  id={`${id}-frequencyTHz`}
                   type="number"
                   name="frequencyTHz"
                   inputMode="decimal"
@@ -170,7 +175,7 @@ export function DopplerAberrationLab({
                     setDraft({ ...draft, frequencyTHz: Number(event.currentTarget.value) })
                   }
                 />
-              </label>
+              </div>
             </div>
             <div className="preset-list">
               <button

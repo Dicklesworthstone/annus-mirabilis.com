@@ -194,8 +194,8 @@ export function WalkLab({
             <fieldset disabled={!ready}>
               <legend>Choose a step law and observe</legend>
               <div className="input-grid">
-                <label htmlFor={`${id}-kernel`}>
-                  Step law
+                <div className="input-field">
+                  <label htmlFor={`${id}-kernel`}>Step law</label>
                   <select
                     id={`${id}-kernel`}
                     name="kernel"
@@ -211,9 +211,9 @@ export function WalkLab({
                       </option>
                     ))}
                   </select>
-                </label>
-                <label htmlFor={`${id}-n`}>
-                  Observe after (whole steps)
+                </div>
+                <div className="input-field">
+                  <label htmlFor={`${id}-n`}>Observe after (whole steps)</label>
                   <input
                     id={`${id}-n`}
                     name="n"
@@ -225,10 +225,12 @@ export function WalkLab({
                       setDirty(true);
                     }}
                   />
-                </label>
+                </div>
                 {BM05_FIELDS.map(([key, label, unit]) => (
-                  <label key={key} htmlFor={`${id}-${key}`}>
-                    {label} <span>({unit})</span>
+                  <div className="input-field" key={key}>
+                    <label htmlFor={`${id}-${key}`}>
+                      {label} <span>({unit})</span>
+                    </label>
                     <input
                       id={`${id}-${key}`}
                       name={key}
@@ -240,10 +242,10 @@ export function WalkLab({
                         setDirty(true);
                       }}
                     />
-                  </label>
+                  </div>
                 ))}
-                <label htmlFor={`${id}-seed`}>
-                  Trial seed (unsigned 64-bit integer)
+                <div className="input-field">
+                  <label htmlFor={`${id}-seed`}>Trial seed (unsigned 64-bit integer)</label>
                   <input
                     id={`${id}-seed`}
                     name="seed"
@@ -255,9 +257,11 @@ export function WalkLab({
                       setDirty(true);
                     }}
                   />
-                </label>
-                <label htmlFor={`${id}-bias`}>
-                  Right-step probability in the separate bias example
+                </div>
+                <div className="input-field">
+                  <label htmlFor={`${id}-bias`}>
+                    Right-step probability in the separate bias example
+                  </label>
                   <input
                     id={`${id}-bias`}
                     name="bias"
@@ -269,7 +273,7 @@ export function WalkLab({
                       setDirty(true);
                     }}
                   />
-                </label>
+                </div>
               </div>
               <p className="fine">
                 All three sampled laws have the stated step RMS. The bias example below is
@@ -318,8 +322,8 @@ export function WalkLab({
           </p>
           <details>
             <summary>Make a prediction</summary>
-            <label htmlFor={`${id}-prediction`}>
-              {BM05_PROMPT.question}
+            <div className="input-field">
+              <label htmlFor={`${id}-prediction`}>{BM05_PROMPT.question}</label>
               <select
                 id={`${id}-prediction`}
                 value={prediction}
@@ -332,7 +336,7 @@ export function WalkLab({
                   </option>
                 ))}
               </select>
-            </label>
+            </div>
             <p>
               First inspect four steps. Then keep the step RMS and interval unchanged while
               comparing the laws at 400 steps. Use both the mean square and the shape gap below; a

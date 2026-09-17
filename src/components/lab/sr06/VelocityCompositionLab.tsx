@@ -142,8 +142,8 @@ export function VelocityCompositionLab({
         <form onSubmit={submit} noValidate>
           <fieldset>
             <legend>Compose two motions</legend>
-            <label htmlFor={`${id}-v`}>
-              Frame speed v/c
+            <div className="input-field">
+              <label htmlFor={`${id}-v`}>Frame speed v/c</label>
               <input
                 id={`${id}-v`}
                 name="frameBeta"
@@ -154,9 +154,9 @@ export function VelocityCompositionLab({
                 value={draft.frameBeta}
                 onChange={(e) => setDraft({ ...draft, frameBeta: e.target.value })}
               />
-            </label>
-            <label htmlFor={`${id}-w`}>
-              Moving-frame speed w/c
+            </div>
+            <div className="input-field">
+              <label htmlFor={`${id}-w`}>Moving-frame speed w/c</label>
               <input
                 id={`${id}-w`}
                 name="movingSpeed"
@@ -167,9 +167,9 @@ export function VelocityCompositionLab({
                 value={draft.movingSpeed}
                 onChange={(e) => setDraft({ ...draft, movingSpeed: e.target.value })}
               />
-            </label>
-            <label htmlFor={`${id}-alpha`}>
-              Angle α in the moving frame (degrees)
+            </div>
+            <div className="input-field">
+              <label htmlFor={`${id}-alpha`}>Angle α in the moving frame (degrees)</label>
               <input
                 id={`${id}-alpha`}
                 name="alphaDeg"
@@ -178,7 +178,7 @@ export function VelocityCompositionLab({
                 value={draft.alphaDeg}
                 onChange={(e) => setDraft({ ...draft, alphaDeg: e.target.value })}
               />
-            </label>
+            </div>
             <fieldset>
               <legend>Mode</legend>
               {(["collinear", "angled", "two-boosts"] as const).map((mode) => (
@@ -195,8 +195,8 @@ export function VelocityCompositionLab({
             </fieldset>
             {p.mode === "two-boosts" ? (
               <>
-                <label htmlFor={`${id}-v2`}>
-                  Second boost speed / c
+                <div className="input-field">
+                  <label htmlFor={`${id}-v2`}>Second boost speed / c</label>
                   <input
                     id={`${id}-v2`}
                     type="number"
@@ -206,9 +206,9 @@ export function VelocityCompositionLab({
                     value={draft.secondBeta}
                     onChange={(e) => setDraft({ ...draft, secondBeta: e.target.value })}
                   />
-                </label>
-                <label htmlFor={`${id}-a2`}>
-                  Second boost angle (degrees)
+                </div>
+                <div className="input-field">
+                  <label htmlFor={`${id}-a2`}>Second boost angle (degrees)</label>
                   <input
                     id={`${id}-a2`}
                     type="number"
@@ -216,7 +216,7 @@ export function VelocityCompositionLab({
                     value={draft.secondAngleDeg}
                     onChange={(e) => setDraft({ ...draft, secondAngleDeg: e.target.value })}
                   />
-                </label>
+                </div>
               </>
             ) : null}
             <label>

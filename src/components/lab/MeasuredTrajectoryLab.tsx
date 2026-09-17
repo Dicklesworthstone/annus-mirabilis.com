@@ -176,8 +176,8 @@ export function MeasuredTrajectoryLab() {
     >,
     label: string,
   ) => (
-    <label htmlFor={`${id}-${key}`}>
-      {label}
+    <div className="input-field">
+      <label htmlFor={`${id}-${key}`}>{label}</label>
       <input
         id={`${id}-${key}`}
         name={key}
@@ -186,7 +186,7 @@ export function MeasuredTrajectoryLab() {
         value={draft[key]}
         onChange={(event) => edit(key, event.target.value)}
       />
-    </label>
+    </div>
   );
   const a = accepted?.analysis;
   return (

@@ -36,32 +36,12 @@ const CONTROL_IN_LABEL = /<label\b[^>]*>([\s\S]*?)<\/label>/g;
 const VALUE_BEARING =
   /<(?:select|textarea)\b|<input\b[^>]*type="(?:text|number|file|search|email|url|tel|password)"/;
 
-/** Recorded 2026-09-17. May only shrink. */
+/** Recorded 2026-09-17; lowered from 104 across 28 files the same day. May only shrink. */
 const BASELINE = new Map<string, number>([
-  ["src/components/discover/BrownianInvestigation.tsx", 2],
-  ["src/components/lab/BrownianLab.tsx", 3],
-  ["src/components/lab/CameraLab.tsx", 4],
-  ["src/components/lab/CoefficientLab.tsx", 3],
-  ["src/components/lab/DriftDiffusionLab.tsx", 2],
-  ["src/components/lab/InferenceLab.tsx", 5],
-  ["src/components/lab/MagnetConductorLab.tsx", 3],
-  ["src/components/lab/MeasuredTrajectoryLab.tsx", 1],
-  ["src/components/lab/OsmoticPartitionLab.tsx", 5],
-  ["src/components/lab/TracerLab.tsx", 6],
-  ["src/components/lab/WalkLab.tsx", 6],
-  ["src/components/lab/bm03/ConfigurationLab.tsx", 5],
-  ["src/components/lab/kitchen/KitchenControls.tsx", 5],
-  ["src/components/lab/kitchen/KitchenLab.tsx", 2],
-  ["src/components/lab/lq03/SpectrumLab.tsx", 8],
-  ["src/components/lab/sr04/LorentzMapLab.tsx", 7],
-  ["src/components/lab/sr06/VelocityCompositionLab.tsx", 5],
-  ["src/components/lab/sr07/FieldEquationsLab.tsx", 4],
-  ["src/components/lab/sr08/FieldFrameChangeLab.tsx", 3],
-  ["src/components/lab/sr09/DopplerAberrationLab.tsx", 3],
-  ["src/components/lab/sr10/LightComplexLab.tsx", 4],
-  ["src/components/lab/sr11/MovingMirrorLab.tsx", 5],
+  ["src/components/lab/BrownianLab.tsx", 1],
+  ["src/components/lab/bm03/ConfigurationLab.tsx", 1],
+  ["src/components/lab/kitchen/KitchenControls.tsx", 1],
   ["src/components/lab/sr12/ChargeCurrentLab.tsx", 3],
-  ["src/components/lab/sr13/ElectronDynamicsLab.tsx", 6],
   ["src/reader/PaperPage.tsx", 1],
   ["src/reader/PaperReader.tsx", 1],
   ["src/reader/ReaderController.tsx", 1],

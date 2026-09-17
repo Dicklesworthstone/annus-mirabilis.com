@@ -2,6 +2,12 @@
   display: block;
   margin: 0.7rem 0;
 }
+.kitchen-lab .input-field {
+  margin: 0.7rem 0;
+}
+.kitchen-lab .input-field > label {
+  margin: 0;
+}
 .kitchen-lab input,
 .kitchen-lab select,
 .kitchen-lab textarea {

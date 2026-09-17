@@ -43,8 +43,8 @@ export function KitchenAnalysisControls({
       <fieldset disabled={busy}>
         <legend>Choose the question, keep the observations</legend>
         <div className="input-grid">
-          <label htmlFor={`${id}-track`}>
-            Particle track
+          <div className="input-field">
+            <label htmlFor={`${id}-track`}>Particle track</label>
             <select
               id={`${id}-track`}
               name="track"
@@ -57,9 +57,9 @@ export function KitchenAnalysisControls({
                 </option>
               ))}
             </select>
-          </label>
-          <label htmlFor={`${id}-axis`}>
-            Coordinate
+          </div>
+          <div className="input-field">
+            <label htmlFor={`${id}-axis`}>Coordinate</label>
             <select
               id={`${id}-axis`}
               name="axis"
@@ -71,7 +71,7 @@ export function KitchenAnalysisControls({
               <option value="x">x only</option>
               <option value="y">y only</option>
             </select>
-          </label>
+          </div>
           <label htmlFor={`${id}-coverage`}>
             Target coverage (%)
             <input
@@ -82,8 +82,8 @@ export function KitchenAnalysisControls({
               onChange={(e) => setCoverage(e.target.value)}
             />
           </label>
-          <label htmlFor={`${id}-constant`}>
-            Gas-constant source
+          <div className="input-field">
+            <label htmlFor={`${id}-constant`}>Gas-constant source</label>
             <select
               id={`${id}-constant`}
               name="constantSet"
@@ -96,7 +96,7 @@ export function KitchenAnalysisControls({
               <option value="scenario-gas-constant-measured">Measured from gases</option>
               <option value="modern-si-2019">Modern SI: consistency check</option>
             </select>
-          </label>
+          </div>
         </div>
         <button type="submit">Apply analysis choices</button>
         <p className="fine">
@@ -365,15 +365,15 @@ export function KitchenObservationTable({ accepted, busy, revise, onError }: Act
             after manual selection. Restoring an excluded row explicitly treats its recorded
             coordinates as measured again.
           </p>
-          <label htmlFor={`${id}-reason`}>
-            Reason for exclusion
+          <div className="input-field">
+            <label htmlFor={`${id}-reason`}>Reason for exclusion</label>
             <textarea
               id={`${id}-reason`}
               maxLength={200}
               value={reason}
               onChange={(e) => setReason(e.target.value)}
             />
-          </label>
+          </div>
           <div className="actions">
             <button type="button" disabled={busy} onClick={() => exclude()}>
               Exclude selected observation

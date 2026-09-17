@@ -134,8 +134,10 @@ export function InferenceLab({
     setTimeout(() => URL.revokeObjectURL(url), 1000);
   }
   const field = (key: keyof InferenceDraft, label: string) => (
-    <label key={key} htmlFor={`${id}-${key}`}>
-      {label}
+    <div className="input-field">
+      <label key={key} htmlFor={`${id}-${key}`}>
+        {label}
+      </label>
       <input
         id={`${id}-${key}`}
         name={key}
@@ -144,7 +146,7 @@ export function InferenceLab({
         value={draft[key]}
         onChange={(e) => edit(key, e.target.value)}
       />
-    </label>
+    </div>
   );
   const intervalKind =
     p.intervalKind === "conditional"
@@ -205,8 +207,8 @@ export function InferenceLab({
           <form className="inference-controls" onSubmit={submit} noValidate>
             <fieldset disabled={!ready}>
               <legend>Observation set</legend>
-              <label htmlFor={`${id}-observationSet`}>
-                Which displacements
+              <div className="input-field">
+                <label htmlFor={`${id}-observationSet`}>Which displacements</label>
                 <select
                   id={`${id}-observationSet`}
                   name="observationSet"
@@ -217,7 +219,7 @@ export function InferenceLab({
                   <option value="perrin-1909">Perrin 1909 historical dataset</option>
                   <option value="kitchen">Kitchen classroom CSV (handed off)</option>
                 </select>
-              </label>
+              </div>
               <p className="fine">
                 The synthetic set checks inference machinery on data made with a hidden number. It
                 is not evidence that molecules exist. Perrin 1909 waits on the admitted
@@ -231,8 +233,8 @@ export function InferenceLab({
               <div className="input-grid">
                 {field("M", "Non-overlapping displacements (1–1000)")}
                 {field("dt", "Observation spacing (s; multiples of 0.25)")}
-                <label htmlFor={`${id}-d`}>
-                  Observed coordinates
+                <div className="input-field">
+                  <label htmlFor={`${id}-d`}>Observed coordinates</label>
                   <select
                     id={`${id}-d`}
                     name="d"
@@ -242,9 +244,11 @@ export function InferenceLab({
                     <option value="1">One: x</option>
                     <option value="2">Two: x and y</option>
                   </select>
-                </label>
-                <label className="wide" htmlFor={`${id}-estimator`}>
-                  Estimator
+                </div>
+                <div className="input-field">
+                  <label className="wide" htmlFor={`${id}-estimator`}>
+                    Estimator
+                  </label>
                   <select
                     id={`${id}-estimator`}
                     name="estimator"
@@ -257,7 +261,7 @@ export function InferenceLab({
                       </option>
                     ))}
                   </select>
-                </label>
+                </div>
               </div>
               <p className="fine">
                 The fixed recording lasts 1024 seconds. Spacing, coordinate count, sample count and
@@ -288,8 +292,8 @@ export function InferenceLab({
                 recorded position. A radius derived from these same displacements using an assumed
                 molecular number would be circular, not independent information.
               </p>
-              <label htmlFor={`${id}-intervalKind`}>
-                Molecular-number interval
+              <div className="input-field">
+                <label htmlFor={`${id}-intervalKind`}>Molecular-number interval</label>
                 <select
                   id={`${id}-intervalKind`}
                   name="intervalKind"
@@ -299,7 +303,7 @@ export function InferenceLab({
                   <option value="conditional">Conditional: inputs held exact</option>
                   <option value="combined">Combined: declared input intervals</option>
                 </select>
-              </label>
+              </div>
               <details>
                 <summary>Declare input uncertainty</summary>
                 <p className="fine">

@@ -230,8 +230,10 @@ export function BrownianInvestigation({
               <legend>Record and observe</legend>
               <div className="input-grid">
                 {BM01_FIELDS.map(([key, label, unit]) => (
-                  <label key={key} htmlFor={`${id}-${key}`}>
-                    {label} ({unit})
+                  <div className="input-field" key={key}>
+                    <label htmlFor={`${id}-${key}`}>
+                      {label} ({unit})
+                    </label>
                     <input
                       id={`${id}-${key}`}
                       name={key}
@@ -243,10 +245,10 @@ export function BrownianInvestigation({
                         setDirty(true);
                       }}
                     />
-                  </label>
+                  </div>
                 ))}
-                <label htmlFor={`${id}-seed`}>
-                  Trial seed (unsigned 64-bit integer)
+                <div className="input-field">
+                  <label htmlFor={`${id}-seed`}>Trial seed (unsigned 64-bit integer)</label>
                   <input
                     id={`${id}-seed`}
                     name="seed"
@@ -258,7 +260,7 @@ export function BrownianInvestigation({
                       setDirty(true);
                     }}
                   />
-                </label>
+                </div>
               </div>
               <p id={`${id}-settings-note`} className="fine">
                 Only the observation interval changes the measurement of an existing recording.

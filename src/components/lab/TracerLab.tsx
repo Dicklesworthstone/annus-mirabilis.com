@@ -219,8 +219,10 @@ export function TracerLab({
                 <legend>Record and observe</legend>
                 <div className="input-grid">
                   {BM01_FIELDS.map(([key, label, unit]) => (
-                    <label key={key} htmlFor={`${id}-${key}`}>
-                      {label} <span>({unit})</span>
+                    <div className="input-field" key={key}>
+                      <label htmlFor={`${id}-${key}`}>
+                        {label} <span>({unit})</span>
+                      </label>
                       <input
                         id={`${id}-${key}`}
                         name={key}
@@ -232,10 +234,10 @@ export function TracerLab({
                           setDirty(true);
                         }}
                       />
-                    </label>
+                    </div>
                   ))}
-                  <label htmlFor={`${id}-seed`}>
-                    Trial seed (unsigned 64-bit integer)
+                  <div className="input-field">
+                    <label htmlFor={`${id}-seed`}>Trial seed (unsigned 64-bit integer)</label>
                     <input
                       id={`${id}-seed`}
                       name="seed"
@@ -247,9 +249,9 @@ export function TracerLab({
                         setDirty(true);
                       }}
                     />
-                  </label>
-                  <label htmlFor={`${id}-axis`}>
-                    Signed coordinate
+                  </div>
+                  <div className="input-field">
+                    <label htmlFor={`${id}-axis`}>Signed coordinate</label>
                     <select
                       id={`${id}-axis`}
                       name="axis"
@@ -263,9 +265,9 @@ export function TracerLab({
                       <option value="1">y</option>
                       <option value="2">z</option>
                     </select>
-                  </label>
-                  <label htmlFor={`${id}-d`}>
-                    Coordinates in the total distance
+                  </div>
+                  <div className="input-field">
+                    <label htmlFor={`${id}-d`}>Coordinates in the total distance</label>
                     <select
                       id={`${id}-d`}
                       name="d"
@@ -279,9 +281,9 @@ export function TracerLab({
                       <option value="2">Two: x and y</option>
                       <option value="3">Three: x, y and z</option>
                     </select>
-                  </label>
-                  <label htmlFor={`${id}-statistic`}>
-                    Statistic to compare over time
+                  </div>
+                  <div className="input-field">
+                    <label htmlFor={`${id}-statistic`}>Statistic to compare over time</label>
                     <select
                       id={`${id}-statistic`}
                       name="statistic"
@@ -297,7 +299,7 @@ export function TracerLab({
                         </option>
                       ))}
                     </select>
-                  </label>
+                  </div>
                 </div>
                 <p className="fine">
                   The preview records at most 8 MiB of latent paths. Its default is 400 tracers for
@@ -345,8 +347,10 @@ export function TracerLab({
             </p>
             <details>
               <summary>Predict before comparing observation times</summary>
-              <label className="fine" htmlFor={`${id}-predict`}>
-                Watching four times as long: how does the typical distance change?
+              <div className="input-field">
+                <label className="fine" htmlFor={`${id}-predict`}>
+                  Watching four times as long: how does the typical distance change?
+                </label>
                 <select
                   id={`${id}-predict`}
                   value={prediction}
@@ -357,7 +361,7 @@ export function TracerLab({
                   <option value="twice">Twice as large</option>
                   <option value="same">Unchanged</option>
                 </select>
-              </label>
+              </div>
               <p>
                 The independent-step model predicts four times the mean square, hence twice its
                 square root. Your prediction never locks the explanation or controls.

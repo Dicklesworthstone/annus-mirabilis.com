@@ -204,8 +204,10 @@ export function DriftDiffusionLab({
 
             <div className="input-grid">
               {BM04_FIELDS.map((field) => (
-                <label key={field.key} htmlFor={`${id}-${field.key}`}>
-                  {field.label} {field.unit ? <span>({field.unit})</span> : null}
+                <div className="input-field" key={field.key}>
+                  <label htmlFor={`${id}-${field.key}`}>
+                    {field.label} {field.unit ? <span>({field.unit})</span> : null}
+                  </label>
                   <input
                     id={`${id}-${field.key}`}
                     name={field.key}
@@ -217,11 +219,11 @@ export function DriftDiffusionLab({
                       setDirty(true);
                     }}
                   />
-                </label>
+                </div>
               ))}
 
-              <label htmlFor={`${id}-profile`}>
-                Initial profile
+              <div className="input-field">
+                <label htmlFor={`${id}-profile`}>Initial profile</label>
                 <select
                   id={`${id}-profile`}
                   name="profile"
@@ -239,7 +241,7 @@ export function DriftDiffusionLab({
                   <option value="equilibrium">Osmotic equilibrium</option>
                   <option value="spike">Delta spike at center</option>
                 </select>
-              </label>
+              </div>
             </div>
 
             <div className="button-row">

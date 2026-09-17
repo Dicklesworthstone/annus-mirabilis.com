@@ -183,8 +183,10 @@ export function LorentzMapLab({
           <fieldset disabled={!ready}>
             <legend>Frame speed and slow case</legend>
             <div className="input-grid">
-              <label htmlFor={`${id}-vOverC`}>
-                Frame speed v <span>(fraction of c, |v/c| &le; 0.95)</span>
+              <div className="input-field">
+                <label htmlFor={`${id}-vOverC`}>
+                  Frame speed v <span>(fraction of c, |v/c| &le; 0.95)</span>
+                </label>
                 <input
                   id={`${id}-vOverC`}
                   name="vOverC"
@@ -193,9 +195,11 @@ export function LorentzMapLab({
                   value={draft.vOverC}
                   onChange={(e) => setDraft({ ...draft, vOverC: e.target.value })}
                 />
-              </label>
-              <label htmlFor={`${id}-observerSpeed`}>
-                Slow-case observer speed <span>(m/s)</span>
+              </div>
+              <div className="input-field">
+                <label htmlFor={`${id}-observerSpeed`}>
+                  Slow-case observer speed <span>(m/s)</span>
+                </label>
                 <input
                   id={`${id}-observerSpeed`}
                   name="observerSpeed"
@@ -204,9 +208,11 @@ export function LorentzMapLab({
                   value={draft.observerSpeed}
                   onChange={(e) => setDraft({ ...draft, observerSpeed: e.target.value })}
                 />
-              </label>
-              <label htmlFor={`${id}-objectSpeed`}>
-                Slow-case object speed <span>(m/s)</span>
+              </div>
+              <div className="input-field">
+                <label htmlFor={`${id}-objectSpeed`}>
+                  Slow-case object speed <span>(m/s)</span>
+                </label>
                 <input
                   id={`${id}-objectSpeed`}
                   name="objectSpeed"
@@ -215,7 +221,7 @@ export function LorentzMapLab({
                   value={draft.objectSpeed}
                   onChange={(e) => setDraft({ ...draft, objectSpeed: e.target.value })}
                 />
-              </label>
+              </div>
             </div>
             <button type="submit">Apply settings</button>
           </fieldset>
@@ -251,8 +257,8 @@ export function LorentzMapLab({
               Test this candidate against the enabled constraints
             </label>
             <div className="input-grid">
-              <label htmlFor={`${id}-candidateA`}>
-                a{" "}
+              <div className="input-field">
+                <label htmlFor={`${id}-candidateA`}>a </label>
                 <input
                   id={`${id}-candidateA`}
                   type="text"
@@ -260,9 +266,9 @@ export function LorentzMapLab({
                   value={draft.candidateA}
                   onChange={(e) => setDraft({ ...draft, candidateA: e.target.value })}
                 />
-              </label>
-              <label htmlFor={`${id}-candidateB`}>
-                b{" "}
+              </div>
+              <div className="input-field">
+                <label htmlFor={`${id}-candidateB`}>b </label>
                 <input
                   id={`${id}-candidateB`}
                   type="text"
@@ -270,9 +276,9 @@ export function LorentzMapLab({
                   value={draft.candidateB}
                   onChange={(e) => setDraft({ ...draft, candidateB: e.target.value })}
                 />
-              </label>
-              <label htmlFor={`${id}-candidateD`}>
-                d (s/m){" "}
+              </div>
+              <div className="input-field">
+                <label htmlFor={`${id}-candidateD`}>d (s/m) </label>
                 <input
                   id={`${id}-candidateD`}
                   type="text"
@@ -280,9 +286,9 @@ export function LorentzMapLab({
                   value={draft.candidateD}
                   onChange={(e) => setDraft({ ...draft, candidateD: e.target.value })}
                 />
-              </label>
-              <label htmlFor={`${id}-candidateK`}>
-                transverse scale{" "}
+              </div>
+              <div className="input-field">
+                <label htmlFor={`${id}-candidateK`}>transverse scale </label>
                 <input
                   id={`${id}-candidateK`}
                   type="text"
@@ -290,7 +296,7 @@ export function LorentzMapLab({
                   value={draft.candidateTransverseScale}
                   onChange={(e) => setDraft({ ...draft, candidateTransverseScale: e.target.value })}
                 />
-              </label>
+              </div>
             </div>
             <button type="submit">Apply candidate</button>
           </fieldset>

@@ -224,8 +224,10 @@ export function OsmoticPartitionLab({
           <fieldset>
             <legend>Settings: type exact values (no dragging required)</legend>
             <div className="input-grid">
-              <label htmlFor={`${id}-Np`}>
-                Particle count N_p <span>(count, whole number)</span>
+              <div className="input-field">
+                <label htmlFor={`${id}-Np`}>
+                  Particle count N_p <span>(count, whole number)</span>
+                </label>
                 <input
                   id={`${id}-Np`}
                   name="Np"
@@ -234,9 +236,11 @@ export function OsmoticPartitionLab({
                   value={draft.Np}
                   onChange={(e) => setDraft({ ...draft, Np: e.target.value })}
                 />
-              </label>
-              <label htmlFor={`${id}-V`}>
-                Accessible volume V <span>(μm³)</span>
+              </div>
+              <div className="input-field">
+                <label htmlFor={`${id}-V`}>
+                  Accessible volume V <span>(μm³)</span>
+                </label>
                 <input
                   id={`${id}-V`}
                   name="V"
@@ -245,9 +249,11 @@ export function OsmoticPartitionLab({
                   value={draft.V_um3}
                   onChange={(e) => setDraft({ ...draft, V_um3: e.target.value })}
                 />
-              </label>
-              <label htmlFor={`${id}-T`}>
-                Temperature T <span>(K)</span>
+              </div>
+              <div className="input-field">
+                <label htmlFor={`${id}-T`}>
+                  Temperature T <span>(K)</span>
+                </label>
                 <input
                   id={`${id}-T`}
                   name="T"
@@ -256,9 +262,11 @@ export function OsmoticPartitionLab({
                   value={draft.T}
                   onChange={(e) => setDraft({ ...draft, T: e.target.value })}
                 />
-              </label>
-              <label htmlFor={`${id}-a`}>
-                Particle radius a <span>(μm; 0.0005 = 0.5 nm)</span>
+              </div>
+              <div className="input-field">
+                <label htmlFor={`${id}-a`}>
+                  Particle radius a <span>(μm; 0.0005 = 0.5 nm)</span>
+                </label>
                 <input
                   id={`${id}-a`}
                   name="a"
@@ -267,9 +275,11 @@ export function OsmoticPartitionLab({
                   value={draft.a_um}
                   onChange={(e) => setDraft({ ...draft, a_um: e.target.value })}
                 />
-              </label>
-              <label htmlFor={`${id}-A`}>
-                Partition area A <span>(μm²)</span>
+              </div>
+              <div className="input-field">
+                <label htmlFor={`${id}-A`}>
+                  Partition area A <span>(μm²)</span>
+                </label>
                 <input
                   id={`${id}-A`}
                   name="A"
@@ -278,7 +288,7 @@ export function OsmoticPartitionLab({
                   value={draft.A_um2}
                   onChange={(e) => setDraft({ ...draft, A_um2: e.target.value })}
                 />
-              </label>
+              </div>
             </div>
 
             <div className="model-toggle">

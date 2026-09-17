@@ -14,6 +14,12 @@
   display: block;
   margin-bottom: 1rem;
 }
+.measured-trajectory-lab .input-field {
+  margin-bottom: 1rem;
+}
+.measured-trajectory-lab .input-field > label {
+  margin-bottom: 0;
+}
 .measured-trajectory-lab input:not([type="checkbox"]),
 .measured-trajectory-lab select,
 .measured-trajectory-lab textarea {

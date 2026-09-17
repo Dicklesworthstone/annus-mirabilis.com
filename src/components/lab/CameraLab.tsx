@@ -116,8 +116,10 @@ export function CameraLab({
     setTimeout(() => URL.revokeObjectURL(url), 1000);
   }
   const field = (key: keyof CameraDraft, label: string) => (
-    <label key={key} htmlFor={`${id}-${key}`}>
-      {label}
+    <div className="input-field">
+      <label key={key} htmlFor={`${id}-${key}`}>
+        {label}
+      </label>
       <input
         id={`${id}-${key}`}
         name={key}
@@ -126,7 +128,7 @@ export function CameraLab({
         value={draft[key]}
         onChange={(e) => edit(key, e.target.value)}
       />
-    </label>
+    </div>
   );
   const status = view.pending
     ? "Calculating. Every displayed value still belongs to the accepted camera settings."
@@ -208,8 +210,8 @@ export function CameraLab({
               <legend>1 · Re-observe the same path</legend>
               <div className="input-grid">
                 {field("M", "Displacements (3–1000)")}
-                <label htmlFor={`${id}-dt`}>
-                  Frame spacing (s)
+                <div className="input-field">
+                  <label htmlFor={`${id}-dt`}>Frame spacing (s)</label>
                   <select
                     id={`${id}-dt`}
                     name="dt"
@@ -222,9 +224,9 @@ export function CameraLab({
                       </option>
                     ))}
                   </select>
-                </label>
-                <label htmlFor={`${id}-d`}>
-                  Observed coordinates
+                </div>
+                <div className="input-field">
+                  <label htmlFor={`${id}-d`}>Observed coordinates</label>
                   <select
                     id={`${id}-d`}
                     name="d"
@@ -234,7 +236,7 @@ export function CameraLab({
                     <option value="1">One: x</option>
                     <option value="2">Two: x and y</option>
                   </select>
-                </label>
+                </div>
                 {field("exposure", "Uniform exposure (s; multiples of 0.25)")}
                 {field("sigma", "Localization standard deviation (μm)")}
                 {field("stageDrift", "Stage drift in x (μm/s)")}
@@ -248,8 +250,10 @@ export function CameraLab({
             <fieldset disabled={!ready}>
               <legend>2 · Declare what is known about noise</legend>
               <div className="input-grid">
-                <label className="wide" htmlFor={`${id}-noiseMethod`}>
-                  Pair-interval noise procedure
+                <div className="input-field">
+                  <label className="wide" htmlFor={`${id}-noiseMethod`}>
+                    Pair-interval noise procedure
+                  </label>
                   <select
                     id={`${id}-noiseMethod`}
                     name="noiseMethod"
@@ -263,7 +267,7 @@ export function CameraLab({
                       Declare the synthetic noise variance exactly known
                     </option>
                   </select>
-                </label>
+                </div>
                 {field("clicks", "Stationary clicks (5–200)")}
                 {field("clickSeed", "Stationary-click seed (unsigned 64-bit)")}
                 {field("coverage", "Target interval coverage (%)")}

@@ -180,9 +180,10 @@ export function MagnetConductorLab({
               </label>
             </fieldset>
             <div className="input-grid">
-              <label>
-                Relative speed (m/s)
+              <div className="input-field">
+                <label htmlFor={`${id}-speed`}>Relative speed (m/s)</label>
                 <input
+                  id={`${id}-speed`}
                   type="number"
                   name="speed"
                   inputMode="decimal"
@@ -191,10 +192,11 @@ export function MagnetConductorLab({
                     setDraft({ ...draft, speed: Number(event.currentTarget.value) })
                   }
                 />
-              </label>
-              <label>
-                Uniform B (T)
+              </div>
+              <div className="input-field">
+                <label htmlFor={`${id}-magneticField`}>Uniform B (T)</label>
                 <input
+                  id={`${id}-magneticField`}
                   type="number"
                   name="magneticField"
                   inputMode="decimal"
@@ -203,10 +205,11 @@ export function MagnetConductorLab({
                     setDraft({ ...draft, magneticField: Number(event.currentTarget.value) })
                   }
                 />
-              </label>
-              <label>
-                Segment length (m)
+              </div>
+              <div className="input-field">
+                <label htmlFor={`${id}-segmentLength`}>Segment length (m)</label>
                 <input
+                  id={`${id}-segmentLength`}
                   type="number"
                   name="segmentLength"
                   inputMode="decimal"
@@ -215,7 +218,7 @@ export function MagnetConductorLab({
                     setDraft({ ...draft, segmentLength: Number(event.currentTarget.value) })
                   }
                 />
-              </label>
+              </div>
             </div>
             <div className="preset-list">
               <button

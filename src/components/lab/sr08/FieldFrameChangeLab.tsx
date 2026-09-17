@@ -189,9 +189,10 @@ export function FieldFrameChangeLab({
             </fieldset>
 
             <div className="input-grid">
-              <label>
-                Boost v/c
+              <div className="input-field">
+                <label htmlFor={`${id}-boost`}>Boost v/c</label>
                 <input
+                  id={`${id}-boost`}
                   type="number"
                   name="boost"
                   step="0.05"
@@ -205,10 +206,11 @@ export function FieldFrameChangeLab({
                     })
                   }
                 />
-              </label>
-              <label>
-                Electric Ey (V/m)
+              </div>
+              <div className="input-field">
+                <label htmlFor={`${id}-ey`}>Electric Ey (V/m)</label>
                 <input
+                  id={`${id}-ey`}
                   type="number"
                   name="ey"
                   step="0.1"
@@ -220,10 +222,11 @@ export function FieldFrameChangeLab({
                     })
                   }
                 />
-              </label>
-              <label>
-                Magnetic Bz (T)
+              </div>
+              <div className="input-field">
+                <label htmlFor={`${id}-bz`}>Magnetic Bz (T)</label>
                 <input
+                  id={`${id}-bz`}
                   type="number"
                   name="bz"
                   step="1e-9"
@@ -235,7 +238,7 @@ export function FieldFrameChangeLab({
                     })
                   }
                 />
-              </label>
+              </div>
             </div>
 
             <div className="preset-list">

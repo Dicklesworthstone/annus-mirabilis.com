@@ -314,6 +314,15 @@ legend {
 .input-grid input {
   margin-top: 0.3rem;
 }
+/* am-qt1j: a value-bearing control must never sit inside its own <label> - its
+   value is appended to the label text in the computed accessible name, so a
+   screen reader announces every <option> or the reader's own pasted data as the
+   field's name. The label and the control are siblings inside .input-field; these
+   rules reproduce the spacing the nested markup produced. */
+.input-field {
+  display: block;
+  min-width: 0;
+}
 .preset-list {
   display: flex;
   flex-wrap: wrap;

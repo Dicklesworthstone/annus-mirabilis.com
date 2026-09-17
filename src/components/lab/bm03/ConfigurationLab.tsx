@@ -237,8 +237,10 @@ export function ConfigurationLab({
             </div>
 
             <div className="input-grid">
-              <label htmlFor={`${id}-Np`}>
-                Particle count Np <span>(count)</span>
+              <div className="input-field">
+                <label htmlFor={`${id}-Np`}>
+                  Particle count Np <span>(count)</span>
+                </label>
                 <input
                   id={`${id}-Np`}
                   name="Np"
@@ -250,10 +252,12 @@ export function ConfigurationLab({
                     setDirty(true);
                   }}
                 />
-              </label>
+              </div>
 
-              <label htmlFor={`${id}-volumeRatio`}>
-                Volume ratio V/V₀ <span>(ratio)</span>
+              <div className="input-field">
+                <label htmlFor={`${id}-volumeRatio`}>
+                  Volume ratio V/V₀ <span>(ratio)</span>
+                </label>
                 <input
                   id={`${id}-volumeRatio`}
                   name="volumeRatio"
@@ -265,10 +269,12 @@ export function ConfigurationLab({
                     setDirty(true);
                   }}
                 />
-              </label>
+              </div>
 
-              <label htmlFor={`${id}-V0`}>
-                Reference volume V₀ <span>(μm³)</span>
+              <div className="input-field">
+                <label htmlFor={`${id}-V0`}>
+                  Reference volume V₀ <span>(μm³)</span>
+                </label>
                 <input
                   id={`${id}-V0`}
                   name="V0"
@@ -280,10 +286,12 @@ export function ConfigurationLab({
                     setDirty(true);
                   }}
                 />
-              </label>
+              </div>
 
-              <label htmlFor={`${id}-T`}>
-                Temperature T <span>(K)</span>
+              <div className="input-field">
+                <label htmlFor={`${id}-T`}>
+                  Temperature T <span>(K)</span>
+                </label>
                 <input
                   id={`${id}-T`}
                   name="T"
@@ -295,7 +303,7 @@ export function ConfigurationLab({
                     setDirty(true);
                   }}
                 />
-              </label>
+              </div>
             </div>
 
             <div style={{ marginTop: "1rem" }}>

@@ -144,9 +144,10 @@ export function MovingMirrorLab({
           <fieldset disabled={!ready}>
             <legend>Set mirror motion and incident ray</legend>
             <div className="input-grid">
-              <label>
-                Mirror velocity β = v/c
+              <div className="input-field">
+                <label htmlFor={`${id}-beta`}>Mirror velocity β = v/c</label>
                 <input
+                  id={`${id}-beta`}
                   type="number"
                   name="beta"
                   inputMode="decimal"
@@ -158,11 +159,12 @@ export function MovingMirrorLab({
                     setDraft({ ...draft, beta: Number(event.currentTarget.value) })
                   }
                 />
-              </label>
+              </div>
 
-              <label>
-                Incident angle φ (degrees)
+              <div className="input-field">
+                <label htmlFor={`${id}-incidentAngleDeg`}>Incident angle φ (degrees)</label>
                 <input
+                  id={`${id}-incidentAngleDeg`}
                   type="number"
                   name="incidentAngleDeg"
                   inputMode="decimal"
@@ -174,11 +176,12 @@ export function MovingMirrorLab({
                     setDraft({ ...draft, incidentAngleDeg: Number(event.currentTarget.value) })
                   }
                 />
-              </label>
+              </div>
 
-              <label>
-                Incident energy density u
+              <div className="input-field">
+                <label htmlFor={`${id}-incidentEnergyDensity`}>Incident energy density u</label>
                 <input
+                  id={`${id}-incidentEnergyDensity`}
                   type="number"
                   name="incidentEnergyDensity"
                   inputMode="decimal"
@@ -190,11 +193,12 @@ export function MovingMirrorLab({
                     setDraft({ ...draft, incidentEnergyDensity: Number(event.currentTarget.value) })
                   }
                 />
-              </label>
+              </div>
 
-              <label>
-                Mirror surface area Am
+              <div className="input-field">
+                <label htmlFor={`${id}-mirrorArea`}>Mirror surface area Am</label>
                 <input
+                  id={`${id}-mirrorArea`}
                   type="number"
                   name="mirrorArea"
                   inputMode="decimal"
@@ -206,11 +210,12 @@ export function MovingMirrorLab({
                     setDraft({ ...draft, mirrorArea: Number(event.currentTarget.value) })
                   }
                 />
-              </label>
+              </div>
 
-              <label>
-                Description frame
+              <div className="input-field">
+                <label htmlFor={`${id}-frame`}>Description frame</label>
                 <select
+                  id={`${id}-frame`}
                   name="frame"
                   value={draft.frame}
                   onChange={(event) =>
@@ -220,7 +225,7 @@ export function MovingMirrorLab({
                   <option value="lab">Laboratory frame (K)</option>
                   <option value="mirror">Mirror rest frame (k)</option>
                 </select>
-              </label>
+              </div>
             </div>
 
             <div className="preset-list">

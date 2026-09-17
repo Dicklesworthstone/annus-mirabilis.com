@@ -137,9 +137,10 @@ export function ElectronDynamicsLab({
           <fieldset disabled={!ready}>
             <legend>Set field strengths, initial speed, and conventions</legend>
             <div className="input-grid">
-              <label>
-                Initial speed β = v/c
+              <div className="input-field">
+                <label htmlFor={`${id}-initialSpeed`}>Initial speed β = v/c</label>
                 <input
+                  id={`${id}-initialSpeed`}
                   type="number"
                   name="initialSpeed"
                   inputMode="decimal"
@@ -151,10 +152,11 @@ export function ElectronDynamicsLab({
                     setDraft({ ...draft, initialSpeed: Number(event.currentTarget.value) })
                   }
                 />
-              </label>
-              <label>
-                Electric field Ey (V/m)
+              </div>
+              <div className="input-field">
+                <label htmlFor={`${id}-electricFieldY`}>Electric field Ey (V/m)</label>
                 <input
+                  id={`${id}-electricFieldY`}
                   type="number"
                   name="electricFieldY"
                   inputMode="decimal"
@@ -164,10 +166,11 @@ export function ElectronDynamicsLab({
                     setDraft({ ...draft, electricFieldY: Number(event.currentTarget.value) })
                   }
                 />
-              </label>
-              <label>
-                Magnetic field Bz (Tesla)
+              </div>
+              <div className="input-field">
+                <label htmlFor={`${id}-magneticFieldZ`}>Magnetic field Bz (Tesla)</label>
                 <input
+                  id={`${id}-magneticFieldZ`}
                   type="number"
                   name="magneticFieldZ"
                   inputMode="decimal"
@@ -177,10 +180,11 @@ export function ElectronDynamicsLab({
                     setDraft({ ...draft, magneticFieldZ: Number(event.currentTarget.value) })
                   }
                 />
-              </label>
-              <label>
-                Force convention
+              </div>
+              <div className="input-field">
+                <label htmlFor={`${id}-forceConvention`}>Force convention</label>
                 <select
+                  id={`${id}-forceConvention`}
                   name="forceConvention"
                   value={draft.forceConvention}
                   onChange={(event) =>
@@ -193,10 +197,11 @@ export function ElectronDynamicsLab({
                   <option value="source">Source (Einstein 1905: comoving force)</option>
                   <option value="laboratory">Laboratory (Planck 1906: F = dp/dt)</option>
                 </select>
-              </label>
-              <label>
-                Mass language
+              </div>
+              <div className="input-field">
+                <label htmlFor={`${id}-massLanguage`}>Mass language</label>
                 <select
+                  id={`${id}-massLanguage`}
                   name="massLanguage"
                   value={draft.massLanguage}
                   onChange={(event) =>
@@ -209,10 +214,11 @@ export function ElectronDynamicsLab({
                   <option value="1905">1905 Velocity-dependent masses</option>
                   <option value="modern">Modern invariant mass + momentum</option>
                 </select>
-              </label>
-              <label>
-                Historical dataset overlay
+              </div>
+              <div className="input-field">
+                <label htmlFor={`${id}-datasetOverlay`}>Historical dataset overlay</label>
                 <select
+                  id={`${id}-datasetOverlay`}
                   name="datasetOverlay"
                   value={draft.datasetOverlay}
                   onChange={(event) =>
@@ -229,7 +235,7 @@ export function ElectronDynamicsLab({
                   <option value="kaufmann-1902-1906">Kaufmann 1902–1906 (Radium β-rays)</option>
                   <option value="bucherer-1908">Bucherer 1908 (Velocity filter)</option>
                 </select>
-              </label>
+              </div>
             </div>
             <div className="preset-list">
               <button

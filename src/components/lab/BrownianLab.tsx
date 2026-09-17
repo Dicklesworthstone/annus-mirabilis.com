@@ -203,8 +203,10 @@ export function BrownianLab({
             </div>
             <div className="input-grid">
               {fields.slice(0, 6).map((field) => (
-                <label key={field.key} htmlFor={`${id}-${field.key}`}>
-                  {field.label} <span>({field.unit})</span>
+                <div className="input-field" key={field.key}>
+                  <label htmlFor={`${id}-${field.key}`}>
+                    {field.label} <span>({field.unit})</span>
+                  </label>
                   <input
                     id={`${id}-${field.key}`}
                     name={field.key}
@@ -216,7 +218,7 @@ export function BrownianLab({
                       setDirty(true);
                     }}
                   />
-                </label>
+                </div>
               ))}
             </div>
             <label className="check">
@@ -233,8 +235,10 @@ export function BrownianLab({
             {draft.gridEnabled && (
               <div className="input-grid">
                 {fields.slice(6).map((field) => (
-                  <label key={field.key} htmlFor={`${id}-${field.key}`}>
-                    {field.label} <span>({field.unit})</span>
+                  <div className="input-field" key={field.key}>
+                    <label htmlFor={`${id}-${field.key}`}>
+                      {field.label} <span>({field.unit})</span>
+                    </label>
                     <input
                       id={`${id}-${field.key}`}
                       name={field.key}
@@ -246,7 +250,7 @@ export function BrownianLab({
                         setDirty(true);
                       }}
                     />
-                  </label>
+                  </div>
                 ))}
               </div>
             )}

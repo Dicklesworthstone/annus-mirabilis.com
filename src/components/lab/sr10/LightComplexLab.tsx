@@ -144,9 +144,10 @@ export function LightComplexLab({
           <fieldset disabled={!ready}>
             <legend>Set observer speed and packet parameters</legend>
             <div className="input-grid">
-              <label>
-                Observer speed β = v/c
+              <div className="input-field">
+                <label htmlFor={`${id}-beta`}>Observer speed β = v/c</label>
                 <input
+                  id={`${id}-beta`}
                   type="number"
                   name="beta"
                   inputMode="decimal"
@@ -158,10 +159,13 @@ export function LightComplexLab({
                     setDraft({ ...draft, beta: Number(event.currentTarget.value) })
                   }
                 />
-              </label>
-              <label>
-                Propagation angle φ in K (degrees)
+              </div>
+              <div className="input-field">
+                <label htmlFor={`${id}-propagationAngleDeg`}>
+                  Propagation angle φ in K (degrees)
+                </label>
                 <input
+                  id={`${id}-propagationAngleDeg`}
                   type="number"
                   name="propagationAngleDeg"
                   inputMode="decimal"
@@ -173,10 +177,11 @@ export function LightComplexLab({
                     setDraft({ ...draft, propagationAngleDeg: Number(event.currentTarget.value) })
                   }
                 />
-              </label>
-              <label>
-                Initial energy in K (Joules)
+              </div>
+              <div className="input-field">
+                <label htmlFor={`${id}-initialEnergyJ`}>Initial energy in K (Joules)</label>
                 <input
+                  id={`${id}-initialEnergyJ`}
                   type="number"
                   name="initialEnergyJ"
                   inputMode="decimal"
@@ -187,10 +192,11 @@ export function LightComplexLab({
                     setDraft({ ...draft, initialEnergyJ: Number(event.currentTarget.value) })
                   }
                 />
-              </label>
-              <label>
-                Initial volume in K (m³)
+              </div>
+              <div className="input-field">
+                <label htmlFor={`${id}-initialVolumeM3`}>Initial volume in K (m³)</label>
                 <input
+                  id={`${id}-initialVolumeM3`}
                   type="number"
                   name="initialVolumeM3"
                   inputMode="decimal"
@@ -201,7 +207,7 @@ export function LightComplexLab({
                     setDraft({ ...draft, initialVolumeM3: Number(event.currentTarget.value) })
                   }
                 />
-              </label>
+              </div>
             </div>
             <div className="checkbox-row" style={{ marginTop: "0.5rem" }}>
               <label style={{ display: "flex", alignItems: "center", gap: "0.5rem" }}>

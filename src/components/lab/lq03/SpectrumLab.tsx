@@ -182,8 +182,10 @@ export function SpectrumLab({
           <fieldset disabled={!ready}>
             <legend>Temperature, band, and probe</legend>
             <div className="input-grid">
-              <label htmlFor={`${id}-T`}>
-                Temperature T <span>(K, 500-10000)</span>
+              <div className="input-field">
+                <label htmlFor={`${id}-T`}>
+                  Temperature T <span>(K, 500-10000)</span>
+                </label>
                 <input
                   id={`${id}-T`}
                   name="T"
@@ -192,9 +194,11 @@ export function SpectrumLab({
                   value={draft.T}
                   onChange={(e) => setDraft({ ...draft, T: e.target.value })}
                 />
-              </label>
-              <label htmlFor={`${id}-nu1`}>
-                Band lower edge &nu;<sub>1</sub> <span>(Hz)</span>
+              </div>
+              <div className="input-field">
+                <label htmlFor={`${id}-nu1`}>
+                  Band lower edge &nu;<sub>1</sub> <span>(Hz)</span>
+                </label>
                 <input
                   id={`${id}-nu1`}
                   name="nu1"
@@ -203,9 +207,11 @@ export function SpectrumLab({
                   value={draft.nu1}
                   onChange={(e) => setDraft({ ...draft, nu1: e.target.value })}
                 />
-              </label>
-              <label htmlFor={`${id}-nu2`}>
-                Band upper edge &nu;<sub>2</sub> <span>(Hz)</span>
+              </div>
+              <div className="input-field">
+                <label htmlFor={`${id}-nu2`}>
+                  Band upper edge &nu;<sub>2</sub> <span>(Hz)</span>
+                </label>
                 <input
                   id={`${id}-nu2`}
                   name="nu2"
@@ -214,9 +220,11 @@ export function SpectrumLab({
                   value={draft.nu2}
                   onChange={(e) => setDraft({ ...draft, nu2: e.target.value })}
                 />
-              </label>
-              <label htmlFor={`${id}-probeNu`}>
-                Probe frequency <span>(Hz)</span>
+              </div>
+              <div className="input-field">
+                <label htmlFor={`${id}-probeNu`}>
+                  Probe frequency <span>(Hz)</span>
+                </label>
                 <input
                   id={`${id}-probeNu`}
                   name="probeNu"
@@ -225,9 +233,11 @@ export function SpectrumLab({
                   value={draft.probeNu}
                   onChange={(e) => setDraft({ ...draft, probeNu: e.target.value })}
                 />
-              </label>
-              <label htmlFor={`${id}-epsilon`}>
-                Regime tolerance &epsilon; <span>(%, 0.1-99)</span>
+              </div>
+              <div className="input-field">
+                <label htmlFor={`${id}-epsilon`}>
+                  Regime tolerance &epsilon; <span>(%, 0.1-99)</span>
+                </label>
                 <input
                   id={`${id}-epsilon`}
                   name="epsilon"
@@ -236,9 +246,9 @@ export function SpectrumLab({
                   value={draft.epsilon}
                   onChange={(e) => setDraft({ ...draft, epsilon: e.target.value })}
                 />
-              </label>
-              <label htmlFor={`${id}-coordinate`}>
-                Horizontal coordinate
+              </div>
+              <div className="input-field">
+                <label htmlFor={`${id}-coordinate`}>Horizontal coordinate</label>
                 <select
                   id={`${id}-coordinate`}
                   name="coordinate"
@@ -253,9 +263,9 @@ export function SpectrumLab({
                   <option value="frequency">Frequency</option>
                   <option value="wavelength">Wavelength</option>
                 </select>
-              </label>
-              <label htmlFor={`${id}-axisScale`}>
-                Axis scale
+              </div>
+              <div className="input-field">
+                <label htmlFor={`${id}-axisScale`}>Axis scale</label>
                 <select
                   id={`${id}-axisScale`}
                   name="axisScale"
@@ -267,9 +277,9 @@ export function SpectrumLab({
                   <option value="logarithmic">Logarithmic</option>
                   <option value="linear">Linear</option>
                 </select>
-              </label>
-              <label htmlFor={`${id}-convention`}>
-                Density convention
+              </div>
+              <div className="input-field">
+                <label htmlFor={`${id}-convention`}>Density convention</label>
                 <select
                   id={`${id}-convention`}
                   name="convention"
@@ -286,7 +296,7 @@ export function SpectrumLab({
                   <option value="per-log">Per natural-log interval</option>
                   <option value="per-decade">Per decade</option>
                 </select>
-              </label>
+              </div>
             </div>
             <div className="input-grid">
               <label>

@@ -145,8 +145,8 @@ export function FieldEquationsLab({
       <form onSubmit={submit}>
         <fieldset>
           <legend>Equation and step</legend>
-          <label htmlFor={`${id}-eq`}>
-            Maxwell-Hertz equation
+          <div className="input-field">
+            <label htmlFor={`${id}-eq`}>Maxwell-Hertz equation</label>
             <select
               id={`${id}-eq`}
               value={p.equationId}
@@ -160,7 +160,7 @@ export function FieldEquationsLab({
                 </option>
               ))}
             </select>
-          </label>
+          </div>
           <p
             className="sr07-equation"
             data-equation-id={p.equationId}
@@ -208,8 +208,8 @@ export function FieldEquationsLab({
             />
             Modern SI (labeled conversion)
           </label>
-          <label htmlFor={`${id}-wave`}>
-            Validation wave
+          <div className="input-field">
+            <label htmlFor={`${id}-wave`}>Validation wave</label>
             <select
               id={`${id}-wave`}
               value={p.wave}
@@ -221,9 +221,9 @@ export function FieldEquationsLab({
                 </option>
               ))}
             </select>
-          </label>
-          <label htmlFor={`${id}-pol`}>
-            Polarization
+          </div>
+          <div className="input-field">
+            <label htmlFor={`${id}-pol`}>Polarization</label>
             <select
               id={`${id}-pol`}
               value={p.polarization}
@@ -235,9 +235,9 @@ export function FieldEquationsLab({
                 </option>
               ))}
             </select>
-          </label>
-          <label htmlFor={`${id}-beta`}>
-            Validation boost v/c
+          </div>
+          <div className="input-field">
+            <label htmlFor={`${id}-beta`}>Validation boost v/c</label>
             <input
               id={`${id}-beta`}
               name="boostBeta"
@@ -248,7 +248,7 @@ export function FieldEquationsLab({
               value={betaDraft}
               onChange={(e) => setBetaDraft(e.target.value)}
             />
-          </label>
+          </div>
           <button type="submit">Apply boost</button>
         </fieldset>
       </form>
