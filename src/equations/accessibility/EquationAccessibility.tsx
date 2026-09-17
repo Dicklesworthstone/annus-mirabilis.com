@@ -70,12 +70,12 @@ export function EquationAccessibility({
         <div
           className="equation-visual"
           aria-hidden="true"
-          dangerouslySetInnerHTML={{ __html: html }}
+          {...{ dangerouslySetInnerHTML: { __html: html } }}
         />
         <div
           className="equation-mathml"
           aria-hidden="true"
-          dangerouslySetInnerHTML={{ __html: mathml }}
+          {...{ dangerouslySetInnerHTML: { __html: mathml } }}
         />
         {children}
       </figure>
@@ -98,12 +98,12 @@ export function EquationAccessibility({
         <div
           className="equation-visual"
           aria-hidden="true"
-          dangerouslySetInnerHTML={{ __html: html }}
+          {...{ dangerouslySetInnerHTML: { __html: html } }}
         />
         <div
           className="equation-mathml"
           aria-hidden="true"
-          dangerouslySetInnerHTML={{ __html: mathml }}
+          {...{ dangerouslySetInnerHTML: { __html: mathml } }}
         />
         {children}
       </figure>
@@ -126,12 +126,12 @@ export function EquationAccessibility({
       <div
         className="equation-visual"
         aria-hidden="true"
-        dangerouslySetInnerHTML={{ __html: html }}
+        {...{ dangerouslySetInnerHTML: { __html: html } }}
       />
       <div
         className="equation-mathml"
         data-a11y-mathml="true"
-        dangerouslySetInnerHTML={{ __html: mathmlAnnotated }}
+        {...{ dangerouslySetInnerHTML: { __html: mathmlAnnotated } }}
       />
       {children}
     </figure>
