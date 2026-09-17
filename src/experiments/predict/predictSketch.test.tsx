@@ -10,7 +10,6 @@ import {
   processSketchPoints,
   quantizeAxisValue,
   ramerDouglasPeucker,
-  SKETCH_QUANTUM,
   type SketchPoint,
   undoSketchPoint,
 } from "./predictSketch.ts";

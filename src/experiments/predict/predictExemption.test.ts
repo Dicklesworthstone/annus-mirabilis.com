@@ -7,9 +7,9 @@ import { strictParse } from "../../content/schemas/strictParse.ts";
 
 const FIXTURES_DIR = path.resolve(__dirname, "../../content/schemas/__fixtures__/experiment");
 
-function loadValidExperiment(): any {
+function loadValidExperiment(): Record<string, unknown> {
   const yaml = fs.readFileSync(path.join(FIXTURES_DIR, "experiment-valid.yaml"), "utf8");
-  return strictParse(yaml, "yaml");
+  return strictParse(yaml, "yaml") as Record<string, unknown>;
 }
 
 describe("predictExemption & manifest validation (am-inst-predict-mode-ti7m)", () => {
@@ -20,57 +20,81 @@ describe("predictExemption & manifest validation (am-inst-predict-mode-ti7m)", (
 
   test("manifest with fewer than 3 candidates fails with predict-candidates-count", () => {
     const raw = loadValidExperiment();
-    raw.predictMode.prompts[0].candidates.pop(); // now 2 candidates
+    const predictMode = raw.predictMode as { prompts: Array<{ candidates: unknown[] }> };
+    predictMode.prompts[0]!.candidates.pop(); // now 2 candidates
 
     expect(() => validateExperiment(raw)).toThrow(ExperimentValidationError);
     try {
       validateExperiment(raw);
-    } catch (err: any) {
-      expect(err.code).toBe("predict-candidates-count");
-      expect(err.message).toContain("must provide exactly 3 plausible candidates");
+    } catch (err: unknown) {
+      expect(err instanceof ExperimentValidationError).toBe(true);
+      if (err instanceof ExperimentValidationError) {
+        expect(err.code).toBe("predict-candidates-count");
+        expect(err.message).toContain("must provide exactly 3 plausible candidates");
+      }
     }
   });
 
   test("manifest with more than 3 candidates fails with predict-candidates-count", () => {
     const raw = loadValidExperiment();
+    const predictMode = raw.predictMode as {
+      prompts: Array<{ candidates: Array<Record<string, unknown>> }>;
+    };
     const extraCandidate = {
-      ...raw.predictMode.prompts[0].candidates[0],
+      ...predictMode.prompts[0]!.candidates[0]!,
       id: "extra-candidate-4",
     };
-    raw.predictMode.prompts[0].candidates.push(extraCandidate);
+    predictMode.prompts[0]!.candidates.push(extraCandidate);
 
     expect(() => validateExperiment(raw)).toThrow(ExperimentValidationError);
     try {
       validateExperiment(raw);
-    } catch (err: any) {
-      expect(err.code).toBe("predict-candidates-count");
+    } catch (err: unknown) {
+      expect(err instanceof ExperimentValidationError).toBe(true);
+      if (err instanceof ExperimentValidationError) {
+        expect(err.code).toBe("predict-candidates-count");
+      }
     }
   });
 
   test("candidate missing separatingAssumption fails naming instrument, prompt, and candidate", () => {
     const raw = loadValidExperiment();
-    delete raw.predictMode.prompts[0].candidates[1].separatingAssumption;
+    const predictMode = raw.predictMode as {
+      prompts: Array<{ promptId: string; candidates: Array<Record<string, unknown>> }>;
+    };
+    const targetCandidateId = String(predictMode.prompts[0]!.candidates[1]!.id);
+    const targetPromptId = predictMode.prompts[0]!.promptId;
+    delete (predictMode.prompts[0]!.candidates[1]! as Record<string, unknown>).separatingAssumption;
 
     expect(() => validateExperiment(raw)).toThrow(ExperimentValidationError);
     try {
       validateExperiment(raw);
-    } catch (err: any) {
-      expect(err.code).toBe("missing-separating-assumption");
-      expect(err.message).toContain("separatingAssumption");
-      expect(err.message).toContain(raw.predictMode.prompts[0].candidates[1].id);
-      expect(err.message).toContain(raw.predictMode.prompts[0].promptId);
+    } catch (err: unknown) {
+      expect(err instanceof ExperimentValidationError).toBe(true);
+      if (err instanceof ExperimentValidationError) {
+        expect(err.code).toBe("missing-separating-assumption");
+        expect(err.message).toContain("separatingAssumption");
+        expect(err.message).toContain(targetCandidateId);
+        expect(err.message).toContain(targetPromptId);
+      }
     }
   });
 
   test("empty or whitespace separatingAssumption fails", () => {
     const raw = loadValidExperiment();
-    raw.predictMode.prompts[0].candidates[0].separatingAssumption = "   ";
+    const predictMode = raw.predictMode as {
+      prompts: Array<{ candidates: Array<Record<string, unknown>> }>;
+    };
+    predictMode.prompts[0]!.candidates[0]!.separatingAssumption = "   ";
 
     expect(() => validateExperiment(raw)).toThrow(ExperimentValidationError);
     try {
       validateExperiment(raw);
-    } catch (err: any) {
-      expect(err.code).toBe("missing-separating-assumption");
+    } catch (err: unknown) {
+      expect(err instanceof ExperimentValidationError).toBe(true);
+      if (err instanceof ExperimentValidationError) {
+        expect(err.code).toBe("missing-separating-assumption");
+      }
     }
   });
 
@@ -81,9 +105,12 @@ describe("predictExemption & manifest validation (am-inst-predict-mode-ti7m)", (
     expect(() => validateExperiment(raw)).toThrow(ExperimentValidationError);
     try {
       validateExperiment(raw);
-    } catch (err: any) {
-      expect(err.code).toBe("missing-predict-exemption-reason");
-      expect(err.message).toContain("predictMode exemption requires a non-empty reason");
+    } catch (err: unknown) {
+      expect(err instanceof ExperimentValidationError).toBe(true);
+      if (err instanceof ExperimentValidationError) {
+        expect(err.code).toBe("missing-predict-exemption-reason");
+        expect(err.message).toContain("predictMode exemption requires a non-empty reason");
+      }
     }
   });
 

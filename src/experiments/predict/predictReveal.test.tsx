@@ -69,16 +69,22 @@ describe("predictReveal (am-inst-predict-mode-ti7m)", () => {
       />,
     );
 
-    const smallerCand = ME02_PREDICT_PROMPT.candidates.find((c) => c.id === "smaller")!;
-    const largerCand = ME02_PREDICT_PROMPT.candidates.find((c) => c.id === "larger")!;
-    const equalCand = ME02_PREDICT_PROMPT.candidates.find((c) => c.id === "equal")!;
+    const smallerCand = ME02_PREDICT_PROMPT.candidates.find((c) => c.id === "smaller");
+    const largerCand = ME02_PREDICT_PROMPT.candidates.find((c) => c.id === "larger");
+    const equalCand = ME02_PREDICT_PROMPT.candidates.find((c) => c.id === "equal");
 
-    // Chosen non-supported candidate assumption is rendered
-    expect(html).toContain(smallerCand.separatingAssumption);
+    expect(smallerCand).toBeDefined();
+    expect(largerCand).toBeDefined();
+    expect(equalCand).toBeDefined();
 
-    // Unchosen candidates' assumptions are NOT rendered
-    expect(html).not.toContain(equalCand.separatingAssumption);
-    expect(html).not.toContain(largerCand.separatingAssumption);
+    if (smallerCand && largerCand && equalCand) {
+      // Chosen non-supported candidate assumption is rendered
+      expect(html).toContain(smallerCand.separatingAssumption);
+
+      // Unchosen candidates' assumptions are NOT rendered
+      expect(html).not.toContain(equalCand.separatingAssumption);
+      expect(html).not.toContain(largerCand.separatingAssumption);
+    }
   });
 
   test("supported candidate does not render a separating assumption miss explanation", () => {
@@ -109,19 +115,26 @@ describe("predictReveal (am-inst-predict-mode-ti7m)", () => {
 
   test("diffusivity candidate in bm-01.yaml states 1/sqrt(2), 0.7071067812, and denies 0.5", () => {
     const yamlPath = path.resolve(process.cwd(), "content/experiments/bm-01.yaml");
-    const raw = strictParse(fs.readFileSync(yamlPath, "utf8"), "yaml") as any;
+    const raw = strictParse(fs.readFileSync(yamlPath, "utf8"), "yaml") as {
+      predictMode: {
+        prompts: Array<{
+          promptId: string;
+          candidates: Array<{ id: string; separatingAssumption: string }>;
+        }>;
+      };
+    };
 
     const viscosityPrompt = raw.predictMode.prompts.find(
-      (p: any) => p.promptId === "bm-01-predict-viscosity",
+      (p) => p.promptId === "bm-01-predict-viscosity",
     );
     expect(viscosityPrompt).toBeDefined();
 
-    const halfCand = viscosityPrompt.candidates.find(
-      (c: any) => c.id === "bm-01-predict-viscosity-half",
+    const halfCand = viscosityPrompt?.candidates.find(
+      (c) => c.id === "bm-01-predict-viscosity-half",
     );
     expect(halfCand).toBeDefined();
 
-    const assumption = halfCand.separatingAssumption;
+    const assumption = halfCand?.separatingAssumption ?? "";
     expect(assumption).toContain("1/sqrt(2)");
     expect(assumption).toContain("0.7071067812");
     expect(assumption).toContain("not by 0.5");

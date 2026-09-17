@@ -88,7 +88,18 @@ describe("predictVoice (am-inst-predict-mode-ti7m)", () => {
 
     test("BM-01 authored predict prompts and separating assumptions pass voice lint", () => {
       const yamlPath = path.resolve(process.cwd(), "content/experiments/bm-01.yaml");
-      const raw = strictParse(fs.readFileSync(yamlPath, "utf8"), "yaml") as any;
+      const raw = strictParse(fs.readFileSync(yamlPath, "utf8"), "yaml") as {
+        predictMode: {
+          prompts: Array<{
+            question: string;
+            candidates: Array<{
+              label: string;
+              description: string;
+              separatingAssumption: string;
+            }>;
+          }>;
+        };
+      };
 
       for (const prompt of raw.predictMode.prompts) {
         expect(hasError(checkVoice(prompt.question, { context: "task-feedback" }))).toBe(false);

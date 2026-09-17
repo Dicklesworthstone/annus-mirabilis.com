@@ -28,7 +28,6 @@ export function PredictExportPreview({
   includePredictions,
   onToggleIncludePredictions,
 }: PredictExportPreviewProps) {
-  const effectiveDoc = includePredictions ? doc : withoutPredictions(doc);
   const previewLines = includePredictions ? exportPreviewLines(doc, lookups) : [];
 
   return (
@@ -82,6 +81,6 @@ export function PredictExportPreview({
           <p>Predictions are omitted from this export.</p>
         </div>
       )}
-    </div>
+    </section>
   );
 }
