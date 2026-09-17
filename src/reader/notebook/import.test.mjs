@@ -2,7 +2,7 @@ import assert from "node:assert/strict";
 import test from "node:test";
 import { mergeNotebook } from "./import.ts";
 import { createNotebookStore } from "./notebookStore.ts";
-import { emptyNotebook } from "./schema.ts";
+import { emptyNotebook, NOTEBOOK_LIMITS } from "./schema.ts";
 
 const frame = {
   paper: "brownian-motion",
@@ -65,9 +65,9 @@ test("future or unknown shapes are refused by the same persisted-document valida
     assert.throws(() => mergeNotebook(document(), input));
 });
 test("merged entry count is bounded without truncation", () => {
-  const imported = document(Array.from({ length: 100 }, (_, i) => entry(`n${i}`)));
+  const imported = document(Array.from({ length: NOTEBOOK_LIMITS.entries }, (_, i) => entry(`n${i}`)));
   assert.throws(() => mergeNotebook(document([entry("existing")]), imported));
-  assert.equal(imported.entries.length, 100);
+  assert.equal(imported.entries.length, NOTEBOOK_LIMITS.entries);
 });
 test("confirmed import uses persistence limits and preserves memory on storage failure", () => {
   let raw = null;

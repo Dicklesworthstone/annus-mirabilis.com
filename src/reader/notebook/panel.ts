@@ -27,6 +27,7 @@ export const NOTEBOOK_KIND_LABELS = {
   example: "Example",
   nextStep: "Next step",
   note: "Note",
+  replay: "Comparison replay",
 } as const;
 export type NotebookDraft = Readonly<{ frame: NotebookFrame; title: string }>;
 
@@ -146,7 +147,6 @@ export function mountNotebookPanel(
   importFile.accept = ".json,application/json";
   importFile.id = "reading-notebook-import";
   importLabel.htmlFor = importFile.id;
-  importLabel.append(importFile);
   dialog.append(
     close,
     heading,
@@ -155,6 +155,7 @@ export function mountNotebookPanel(
     error,
     controls,
     importLabel,
+    importFile,
     confirmation,
     form,
     list,
@@ -164,6 +165,9 @@ export function mountNotebookPanel(
     draft: NotebookDraft | null = null,
     editing: string | null = null;
   let renderedEntries: readonly NotebookEntry[] | null = null;
+  const replays: (() => void)[] = [];
+  let replayGeneration = 0;
+  function clearReplays() { replayGeneration++; for (const dispose of replays.splice(0)) dispose(); }
   const urls = new Map<string, ReturnType<typeof setTimeout>>();
   let disposed = false,
     importGeneration = 0;
@@ -171,7 +175,7 @@ export function mountNotebookPanel(
     const generation = ++importGeneration;
     const file = importFile.files?.[0];
     if (!file) return;
-    if (file.size > 128_000) {
+    if (file.size > 4 * 1_048_576) {
       error.textContent = "This file is too large for a reading notebook. Nothing was imported.";
       importFile.value = "";
       return;
@@ -251,6 +255,7 @@ export function mountNotebookPanel(
     clear.disabled = state.persistence === "conflict";
     if (state.document.entries === renderedEntries) return;
     renderedEntries = state.document.entries;
+    clearReplays();
     list.replaceChildren();
     if (!renderedEntries.length)
       list.append(
@@ -285,6 +290,7 @@ export function mountNotebookPanel(
           draft = { frame: entry.frame, title: entry.title };
           editing = entry.id;
           frameLabel.textContent = entry.title;
+          textarea.maxLength = entry.kind === "replay" ? 10000 : NOTEBOOK_LIMITS.text;
           textarea.value = entry.text;
           save.textContent = "Save changes";
           form.hidden = false;
@@ -299,7 +305,21 @@ export function mountNotebookPanel(
             report(store.remove(entry.id));
           }),
         );
-        article.append(node("h4", NOTEBOOK_KIND_LABELS[entry.kind]), link, body, edit, remove);
+        article.append(node("h4", NOTEBOOK_KIND_LABELS[entry.kind]), link, body);
+        if (entry.kind === "replay") {
+          const evidenceHost = node("div");
+          const inspect = button("Open saved evidence and replay", () => {
+            const request = replayGeneration; inspect.disabled = true;
+            void Promise.all([import("./replayView.ts"), import("./replayCurrent.ts")]).then(([view, current]) => {
+              if (disposed || request !== replayGeneration || !dialog.open) return;
+              const mounted = view.mountReplayView(evidenceHost, entry, store, current.replayEnvironment(entry.replay));
+              replays.push(mounted.dispose); inspect.hidden = true;
+            }).catch(() => { if (!disposed && request === replayGeneration) { inspect.disabled = false; error.textContent = "Could not open the replay view. Your entry is preserved and can be exported."; } });
+          });
+          inspect.dataset.replayInspect = entry.id;
+          article.append(inspect, evidenceHost);
+        } else article.append(edit);
+        article.append(remove);
         section.append(article);
       }
       list.append(section);
@@ -321,7 +341,7 @@ export function mountNotebookPanel(
     }
   });
   function add(
-    kind: NotebookEntry["kind"],
+    kind: Exclude<NotebookEntry["kind"], "replay">,
     frame: NotebookFrame,
     title: string,
     text: string,
@@ -365,6 +385,8 @@ export function mountNotebookPanel(
   function closePanel() {
     if (!dialog.open) return;
     importGeneration++;
+    clearReplays();
+    renderedEntries = null;
     dialog.close();
     confirmation.hidden = true;
     if (previousFocus?.isConnected) previousFocus.focus({ preventScroll: true });
