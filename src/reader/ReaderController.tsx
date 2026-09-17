@@ -1,6 +1,5 @@
 "use client";
 import { useEffect } from "react";
-import { type AddressableRect, capturePlace, restoreDelta } from "./anchors/placeKeeper";
 import {
   DETAIL_STORAGE_KEY,
   FACES,
@@ -53,10 +52,6 @@ export function ReaderController(props: Props) {
       returnAnimation = 0;
     };
     root.dataset.enhanced = "true";
-    // Scroll position is restored relative to an anchor (placeKeeper), never from the
-    // browser's own absolute-pixel history restoration, which breaks under font loading,
-    // a Detail change, or zoom between visits (am-read-anchors-navigation-a6o).
-    if ("scrollRestoration" in history) history.scrollRestoration = "manual";
     [...detailControls, ...lensControls].forEach((control) => {
       control.disabled = false;
     });

@@ -24,8 +24,8 @@ export async function PaperPage(request: PaperRouteRequest) {
     return (
       <FaceFallback
         paperId={resolved.paperId}
-        {...(resolved.section ? { section: resolved.section } : {})}
         face={resolved.face}
+        {...(resolved.section !== undefined ? { section: resolved.section } : {})}
       />
     );
   }
