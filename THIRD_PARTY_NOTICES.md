@@ -49,6 +49,7 @@ This inventory does not state or imply rights to scans, photographs, historical 
 | Package / Asset | Version | License | Source Path | Notes / Reference |
 |---|---|---|---|---|
 | docs/PAPER_E2E_HARNESS.md | da11ff4 | MIT with OpenAI/Anthropic Rider | `docs/PAPER_E2E_HARNESS.md` | Extracted from classic-patents.com at da11ff475902728fd8dd1d9db9f3af37c16ec8a5 |
+| public/pdfjs | da11ff4 | MIT with OpenAI/Anthropic Rider | `public/pdfjs` | Extracted from classic-patents.com at da11ff475902728fd8dd1d9db9f3af37c16ec8a5 |
 | scripts/app-router-architecture.test.ts | da11ff4 | MIT with OpenAI/Anthropic Rider | `scripts/app-router-architecture.test.ts` | Extracted from classic-patents.com at da11ff475902728fd8dd1d9db9f3af37c16ec8a5 |
 | scripts/app-router-architecture.ts | da11ff4 | MIT with OpenAI/Anthropic Rider | `scripts/app-router-architecture.ts` | Extracted from classic-patents.com at da11ff475902728fd8dd1d9db9f3af37c16ec8a5 |
 | scripts/deployment-target.test.ts | da11ff4 | MIT with OpenAI/Anthropic Rider | `scripts/deployment-target.test.ts` | Extracted from classic-patents.com at da11ff475902728fd8dd1d9db9f3af37c16ec8a5 |
@@ -62,18 +63,36 @@ This inventory does not state or imply rights to scans, photographs, historical 
 | scripts/fixtures/deployment-target/wrong-project.json | da11ff4 | MIT with OpenAI/Anthropic Rider | `scripts/fixtures/deployment-target/wrong-project.json` | Extracted from classic-patents.com at da11ff475902728fd8dd1d9db9f3af37c16ec8a5 |
 | scripts/smoke-test-deployment.ts | da11ff4 | MIT with OpenAI/Anthropic Rider | `scripts/smoke-test-deployment.ts` | Extracted from classic-patents.com at da11ff475902728fd8dd1d9db9f3af37c16ec8a5 |
 | scripts/verified-production-deploy.ts | da11ff4 | MIT with OpenAI/Anthropic Rider | `scripts/verified-production-deploy.ts` | Extracted from classic-patents.com at da11ff475902728fd8dd1d9db9f3af37c16ec8a5 |
+| src/app/opengraph-image.tsx | da11ff4 | MIT with OpenAI/Anthropic Rider | `src/app/opengraph-image.tsx` | Extracted from classic-patents.com at da11ff475902728fd8dd1d9db9f3af37c16ec8a5 |
 | src/content/coverage/coverageManifest.ts | da11ff4 | MIT with OpenAI/Anthropic Rider | `src/content/coverage/coverageManifest.ts` | Extracted from classic-patents.com at da11ff475902728fd8dd1d9db9f3af37c16ec8a5 |
+| src/equations/colorPalette.ts | da11ff4 | MIT with OpenAI/Anthropic Rider | `src/equations/colorPalette.ts` | Extracted from classic-patents.com at da11ff475902728fd8dd1d9db9f3af37c16ec8a5 |
+| src/equations/legacy/ColorizedEquation.tsx | da11ff4 | MIT with OpenAI/Anthropic Rider | `src/equations/legacy/ColorizedEquation.tsx` | Extracted from classic-patents.com at da11ff475902728fd8dd1d9db9f3af37c16ec8a5 |
+| src/equations/legacy/equationTypes.ts | da11ff4 | MIT with OpenAI/Anthropic Rider | `src/equations/legacy/equationTypes.ts` | Extracted from classic-patents.com at da11ff475902728fd8dd1d9db9f3af37c16ec8a5 |
+| src/equations/render/LatexRenderer.tsx | da11ff4 | MIT with OpenAI/Anthropic Rider | `src/equations/render/LatexRenderer.tsx` | Extracted from classic-patents.com at da11ff475902728fd8dd1d9db9f3af37c16ec8a5 |
+| src/equations/valueFormatting.ts | da11ff4 | MIT with OpenAI/Anthropic Rider | `src/equations/valueFormatting.ts` | Extracted from classic-patents.com at da11ff475902728fd8dd1d9db9f3af37c16ec8a5 |
 | src/experiments/paramAliases.ts | da11ff4 | MIT with OpenAI/Anthropic Rider | `src/experiments/paramAliases.ts` | Extracted from classic-patents.com at da11ff475902728fd8dd1d9db9f3af37c16ec8a5 |
 | src/experiments/scheduler/tickScheduler.ts | da11ff4 | MIT with OpenAI/Anthropic Rider | `src/experiments/scheduler/tickScheduler.ts` | Extracted from classic-patents.com at da11ff475902728fd8dd1d9db9f3af37c16ec8a5 |
 | src/experiments/tape/controlTape.ts | da11ff4 | MIT with OpenAI/Anthropic Rider | `src/experiments/tape/controlTape.ts` | Extracted from classic-patents.com at da11ff475902728fd8dd1d9db9f3af37c16ec8a5 |
 | src/physics/energyLedger.ts | da11ff4 | MIT with OpenAI/Anthropic Rider | `src/physics/energyLedger.ts` | Extracted from classic-patents.com at da11ff475902728fd8dd1d9db9f3af37c16ec8a5 |
 | src/physics/intervals.ts | da11ff4 | MIT with OpenAI/Anthropic Rider | `src/physics/intervals.ts` | Extracted from classic-patents.com at da11ff475902728fd8dd1d9db9f3af37c16ec8a5 |
+| src/reader/facsimile/PinnedPdfFacsimile.tsx | da11ff4 | MIT with OpenAI/Anthropic Rider | `src/reader/facsimile/PinnedPdfFacsimile.tsx` | Extracted from classic-patents.com at da11ff475902728fd8dd1d9db9f3af37c16ec8a5 |
+| src/reader/facsimile/pinnedPdfFacsimileState.ts | da11ff4 | MIT with OpenAI/Anthropic Rider | `src/reader/facsimile/pinnedPdfFacsimileState.ts` | Extracted from classic-patents.com at da11ff475902728fd8dd1d9db9f3af37c16ec8a5 |
+| src/reader/facsimile/usePinnedPdfFacsimile.ts | da11ff4 | MIT with OpenAI/Anthropic Rider | `src/reader/facsimile/usePinnedPdfFacsimile.ts` | Extracted from classic-patents.com at da11ff475902728fd8dd1d9db9f3af37c16ec8a5 |
 | src/reader/weave/predicates.ts | da11ff4 | MIT with OpenAI/Anthropic Rider | `src/reader/weave/predicates.ts` | Extracted from classic-patents.com at da11ff475902728fd8dd1d9db9f3af37c16ec8a5 |
+| src/search/CommandPalette.tsx | da11ff4 | MIT with OpenAI/Anthropic Rider | `src/search/CommandPalette.tsx` | Extracted from classic-patents.com at da11ff475902728fd8dd1d9db9f3af37c16ec8a5 |
 | src/testing/wasm/artifactHelpers.ts | da11ff4 | MIT with OpenAI/Anthropic Rider | `src/testing/wasm/artifactHelpers.ts` | Extracted from classic-patents.com at da11ff475902728fd8dd1d9db9f3af37c16ec8a5 |
 | src/units/qty.ts | da11ff4 | MIT with OpenAI/Anthropic Rider | `src/units/qty.ts` | Extracted from classic-patents.com at da11ff475902728fd8dd1d9db9f3af37c16ec8a5 |
+| src/visuals/three/StudioKernelChips.tsx | da11ff4 | MIT with OpenAI/Anthropic Rider | `src/visuals/three/StudioKernelChips.tsx` | Extracted from classic-patents.com at da11ff475902728fd8dd1d9db9f3af37c16ec8a5 |
+| src/visuals/three/ThreeStudioScene.ts | da11ff4 | MIT with OpenAI/Anthropic Rider | `src/visuals/three/ThreeStudioScene.ts` | Extracted from classic-patents.com at da11ff475902728fd8dd1d9db9f3af37c16ec8a5 |
 | src/workers/genericWasm.ts | da11ff4 | MIT with OpenAI/Anthropic Rider | `src/workers/genericWasm.ts` | Extracted from classic-patents.com at da11ff475902728fd8dd1d9db9f3af37c16ec8a5 |
 | src/workers/transport.ts | da11ff4 | MIT with OpenAI/Anthropic Rider | `src/workers/transport.ts` | Extracted from classic-patents.com at da11ff475902728fd8dd1d9db9f3af37c16ec8a5 |
 | src/workers/useGenericWasmSource.ts | da11ff4 | MIT with OpenAI/Anthropic Rider | `src/workers/useGenericWasmSource.ts` | Extracted from classic-patents.com at da11ff475902728fd8dd1d9db9f3af37c16ec8a5 |
+
+## 5. Vendored Browser Assets
+
+| Package / Asset | Version | License | Source Path | Notes / Reference |
+|---|---|---|---|---|
+| PDF.js | upstream | Apache-2.0 | `public/pdfjs` | Mozilla Foundation (Apache License 2.0) |
 
 ## 6. Build and Test Tooling (devDependencies)
 
