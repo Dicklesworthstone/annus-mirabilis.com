@@ -46,8 +46,11 @@ export function closeDirectOpenDialog(doc: Document): void {
   const dialog = doc.querySelector<HTMLDialogElement>(`[${DIALOG_ATTR}]`);
   if (dialog?.open) dialog.close();
   if (activeRoot) {
-    activeRoot.unmount();
+    const rootToUnmount = activeRoot;
     activeRoot = null;
+    queueMicrotask(() => {
+      rootToUnmount.unmount();
+    });
   }
 }
 
