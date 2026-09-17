@@ -274,7 +274,7 @@ entries:
     kind: bridge
     cluster: slice
     ownerBead: am-bm-slice-foundations-f5z9
-    status: planned
+    status: authored
     plannedCallers: []
   - id: "foundation:bridge-squaring-square-roots"
     kind: bridge
@@ -286,13 +286,13 @@ entries:
     kind: bridge
     cluster: slice
     ownerBead: am-bm-slice-foundations-f5z9
-    status: planned
+    status: authored
     plannedCallers: []
   - id: "foundation:bridge-a-graph"
     kind: bridge
     cluster: slice
     ownerBead: am-bm-slice-foundations-f5z9
-    status: planned
+    status: authored
     plannedCallers: []
   - id: "foundation:bridge-sum-average"
     kind: bridge

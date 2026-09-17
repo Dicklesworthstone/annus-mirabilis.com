@@ -35,12 +35,12 @@ export type FoundationRegistry = Readonly<{
 }>;
 
 export class RegistryError extends Error {
-  constructor(
-    readonly code: string,
-    message: string,
-  ) {
+  readonly code: string;
+
+  constructor(code: string, message: string) {
     super(message);
     this.name = "RegistryError";
+    this.code = code;
   }
 }
 

@@ -1,0 +1,32 @@
+{
+  "schemaVersion": 1,
+  "kind": "foundation",
+  "id": "bridge-fractions-ratios",
+  "title": "Fractions and ratios",
+  "question": "How does dividing into parts compare two quantities?",
+  "summary": "A fraction compares a part to a whole or one quantity to another. Scaling numerator and denominator by the same factor preserves the ratio.",
+  "review": "draft",
+  "explanation": [
+    {
+      "kind": "paragraph",
+      "text": "A fraction a/b compares quantity a to quantity b, or tells us how many parts of size 1/b make up a. When b is not zero, dividing a by b calculates how many units of b are contained within a."
+    },
+    {
+      "kind": "paragraph",
+      "text": "In physical science, a ratio often carries units: dividing displacement in micrometres by time in seconds produces a rate in micrometres per second. A dimensionless ratio occurs when both quantities share the same units, such as the fraction of an ensemble that moves in a given direction."
+    }
+  ],
+  "example": [
+    {
+      "kind": "steps",
+      "items": [
+        "If 1 particle out of 4 moves by 3 units, the proportion is 1/4 = 0.25.",
+        "If the ensemble doubles to 8 particles and 2 move by 3 units, the proportion is 2/8 = 0.25.",
+        "Multiplying both the count and the total by 2 preserves the underlying ratio."
+      ]
+    }
+  ],
+  "prerequisites": ["bridge-sum-average"],
+  "stoppingPoint": "A ratio compares relative magnitudes; always state whether the physical units cancel or combine.",
+  "citations": []
+}
