@@ -24,6 +24,11 @@ export default function TracerPage() {
             Read the argument and open its missing steps →
           </a>
         </p>
+        <p>
+          <a className="button" href="/discover/brownian-motion/investigate/">
+            Pin a trial, compare intervals, and carry D into the spreading lab →
+          </a>
+        </p>
       </header>
       <TracerComparison example={example} />
       <section className="reading">
