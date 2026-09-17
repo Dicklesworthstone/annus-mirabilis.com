@@ -47,14 +47,14 @@ test("accepted SI settings links retain the exact seed and all step parameters",
 test("settings links reject missing, duplicate, unknown, oversized and malformed data", () => {
   const link = encodeBm05Settings(BM05_DEFAULTS);
   for (const broken of [
-    link + "&n=4",
-    link + "&extra=1",
+    `${link}&n=4`,
+    `${link}&extra=1`,
     link.replace("walk=1", "walk=2"),
     link.replace("n=4", "n=NaN"),
     link.replace("&seed=1905", ""),
     link.replace("seed=1905", "seed=01"),
     "x".repeat(4097),
-    link + "&walk=1",
+    `${link}&walk=1`,
   ])
     assert.equal(decodeBm05Settings(broken).kind, "invalid", broken);
   assert.throws(() => encodeBm05Settings({ ...BM05_DEFAULTS, kernel: "cauchy" }));
