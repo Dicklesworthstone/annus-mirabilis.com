@@ -4,14 +4,22 @@
  */
 
 import { describe, expect, test } from "bun:test";
-import { checkSpdxExpression, parseSpdx } from "./license-inventory/spdx.ts";
-import { collectNpm } from "./license-inventory/collectNpm.ts";
+import { join } from "node:path";
+import {
+  collectDonor,
+  validateDonorAttributionHeader,
+} from "./license-inventory/collectDonor.ts";
 import { collectFonts } from "./license-inventory/collectFonts.ts";
-import { collectDonor, validateDonorAttributionHeader } from "./license-inventory/collectDonor.ts";
+import { collectNpm } from "./license-inventory/collectNpm.ts";
 import { collectWasm } from "./license-inventory/collectWasm.ts";
 import { evaluatePolicy } from "./license-inventory/evaluatePolicy.ts";
+import {
+  buildLicenseInventory,
+  type FilesystemAdapters,
+  runLicenseInventoryCheck,
+} from "./license-inventory/index.ts";
 import { renderNotices } from "./license-inventory/renderNotices.ts";
-import { buildLicenseInventory, runLicenseInventoryCheck } from "./license-inventory/index.ts";
+import { checkSpdxExpression, parseSpdx } from "./license-inventory/spdx.ts";
 import type { LicenseItem, LicensePolicy } from "./license-inventory/types.ts";
 
 const BASE_POLICY: LicensePolicy = {
@@ -190,10 +198,7 @@ describe("evaluatePolicy and exception handling", () => {
 
 describe("Font and WASM collection", () => {
   test("a font file without a license file fails check", () => {
-    const files = [
-      "public/fonts/good-font/GoodFont.ttf",
-      "public/fonts/bad-font/BadFont.ttf",
-    ];
+    const files = ["public/fonts/good-font/GoodFont.ttf", "public/fonts/bad-font/BadFont.ttf"];
 
     const mockFs = {
       "public/fonts/good-font/OFL.txt": "SIL OPEN FONT LICENSE Version 1.1",
@@ -255,7 +260,9 @@ describe("Font and WASM collection", () => {
 
     const evalRes = evaluatePolicy(wasmItems, BASE_POLICY);
     expect(evalRes.valid).toBe(false);
-    expect(evalRes.errors.some((e) => e.item.source.includes("unregistered_rogue_artifact"))).toBe(true);
+    expect(evalRes.errors.some((e) => e.item.source.includes("unregistered_rogue_artifact"))).toBe(
+      true,
+    );
   });
 
   test("a manifest artifact without a license/revision entry fails", () => {
@@ -326,8 +333,20 @@ describe("Deterministic notices rendering and stale comparison", () => {
   test("rendering the same item set twice yields byte-identical text", () => {
     const items: LicenseItem[] = [
       { kind: "npm", name: "b-lib", version: "1.0", license: "MIT", source: "node_modules/b-lib" },
-      { kind: "npm", name: "a-lib", version: "2.0", license: "Apache-2.0", source: "node_modules/a-lib" },
-      { kind: "font", name: "MyFont", version: "1.0", license: "OFL-1.1", source: "public/fonts/MyFont.ttf" },
+      {
+        kind: "npm",
+        name: "a-lib",
+        version: "2.0",
+        license: "Apache-2.0",
+        source: "node_modules/a-lib",
+      },
+      {
+        kind: "font",
+        name: "MyFont",
+        version: "1.0",
+        license: "OFL-1.1",
+        source: "public/fonts/MyFont.ttf",
+      },
     ];
 
     const out1 = renderNotices(items);
@@ -341,13 +360,104 @@ describe("Deterministic notices rendering and stale comparison", () => {
   });
 
   test("a changed item makes committed-inventory comparison fail", () => {
-    const rootDir = process.cwd();
-    const inventory = buildLicenseInventory(rootDir);
-    expect(inventory.committedNoticesMatch).toBe(true);
+    // In-memory fixture representing a minimal valid repository state per AGENTS.md Rule 1
+    const policyYaml = "allowlist:\n  - MIT\n  - Apache-2.0\nexceptions: []\n";
 
-    // Simulate changed committed text
-    const modifiedCommitted = inventory.renderedNotices + "\n<!-- extra line -->\n";
-    expect(modifiedCommitted === inventory.renderedNotices).toBe(false);
+    let itemVersion = "1.0.0";
+    const itemLicense = "MIT";
+
+    // Baseline: Generate the committed notices for demo-library@1.0.0 (MIT)
+    const baselineItems: LicenseItem[] = [
+      {
+        kind: "npm",
+        name: "demo-library",
+        version: "1.0.0",
+        license: "MIT",
+        source: "node_modules/demo-library",
+      },
+    ];
+    const committedNotices = renderNotices(baselineItems);
+
+    const fixtureFs: FilesystemAdapters = {
+      readText: (p: string) => {
+        if (p.endsWith("package.json") && !p.includes("node_modules")) {
+          return JSON.stringify({
+            dependencies: {
+              "demo-library": `^${itemVersion}`,
+            },
+          });
+        }
+        if (p.endsWith("node_modules/demo-library/package.json")) {
+          return JSON.stringify({
+            name: "demo-library",
+            version: itemVersion,
+            license: itemLicense,
+          });
+        }
+        if (p.endsWith("docs/license-policy.yaml")) {
+          return policyYaml;
+        }
+        if (p.endsWith("THIRD_PARTY_NOTICES.md")) {
+          return committedNotices;
+        }
+        return null;
+      },
+      exists: (p: string) => {
+        if (p.endsWith("package.json")) return true;
+        if (p.endsWith("node_modules/demo-library")) return true;
+        if (p.endsWith("docs/license-policy.yaml")) return true;
+        if (p.endsWith("THIRD_PARTY_NOTICES.md")) return true;
+        return false;
+      },
+      findFiles: () => [],
+    };
+
+    // 1. With identical items, committed inventory matches and check succeeds
+    const baselineInventory = buildLicenseInventory("/fixture-root", fixtureFs);
+    expect(baselineInventory.committedNoticesMatch).toBe(true);
+    expect(baselineInventory.committedNoticesDiff).toBeUndefined();
+
+    const baselineCheck = runLicenseInventoryCheck({
+      rootDir: "/fixture-root",
+      fs: fixtureFs,
+      silent: true,
+      logsDir: join(process.cwd(), "artifacts/test-logs/license-inventory"),
+    });
+    expect(baselineCheck.success).toBe(true);
+    expect(baselineCheck.exitCode).toBe(0);
+
+    // 2. Change one item: bump version from 1.0.0 to 1.0.1
+    itemVersion = "1.0.1";
+
+    const changedInventory = buildLicenseInventory("/fixture-root", fixtureFs);
+    expect(changedInventory.committedNoticesMatch).toBe(false);
+    expect(changedInventory.committedNoticesDiff).toBeDefined();
+    expect(changedInventory.committedNoticesDiff).toContain("differs from newly generated notices");
+
+    const changedCheck = runLicenseInventoryCheck({
+      rootDir: "/fixture-root",
+      fs: fixtureFs,
+      silent: true,
+      logsDir: join(process.cwd(), "artifacts/test-logs/license-inventory"),
+    });
+    expect(changedCheck.success).toBe(false);
+    expect(changedCheck.exitCode).toBe(1);
+
+    // 3. Revert item back to 1.0.0: check passes again
+    itemVersion = "1.0.0";
+
+    const revertedInventory = buildLicenseInventory("/fixture-root", fixtureFs);
+    expect(revertedInventory.committedNoticesMatch).toBe(true);
+    expect(revertedInventory.committedNoticesDiff).toBeUndefined();
+
+    const revertedCheck = runLicenseInventoryCheck({
+      rootDir: "/fixture-root",
+      fs: fixtureFs,
+      silent: true,
+      logsDir: join(process.cwd(), "artifacts/test-logs/license-inventory"),
+    });
+    expect(revertedCheck.success).toBe(true);
+    expect(revertedCheck.exitCode).toBe(0);
   });
 });
 

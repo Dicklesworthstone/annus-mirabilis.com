@@ -17,44 +17,46 @@ export function collectWasm(options: CollectWasmOptions): LicenseItem[] {
   const { rootDir, manifestJson, wasmFilesOnDisk } = options;
   const items: LicenseItem[] = [];
 
-  const manifest = manifestJson || {};
   const manifestFiles = new Set<string>();
 
-  const bundleId = manifest.bundleId || "unknown-bundle";
-  const revisions = manifest.revisions || {};
-  const frankensimRev = revisions.frankensim;
+  if (manifestJson) {
+    const manifest = manifestJson;
+    const bundleId = manifest.bundleId || "unknown-bundle";
+    const revisions = manifest.revisions || {};
+    const frankensimRev = revisions.frankensim;
 
-  const filesObj = manifest.files || {};
-  const bundleDir = manifest.bundleDir || "";
+    const filesObj = manifest.files || {};
+    const bundleDir = manifest.bundleDir || "";
 
-  // Record manifest artifacts
-  for (const fileName of Object.keys(filesObj)) {
-    if (fileName.endsWith(".wasm")) {
-      const expectedRelPath = normalize(join(bundleDir, fileName));
-      manifestFiles.add(expectedRelPath);
-      // Also index by basename in case relative path differs in representation
-      manifestFiles.add(fileName);
+    // Record manifest artifacts
+    for (const fileName of Object.keys(filesObj)) {
+      if (fileName.endsWith(".wasm")) {
+        const expectedRelPath = normalize(join(bundleDir, fileName));
+        manifestFiles.add(expectedRelPath);
+        // Also index by basename in case relative path differs in representation
+        manifestFiles.add(fileName);
+      }
     }
+
+    // Check that the manifest has revisions and license
+    let artifactLicense = "MIT with OpenAI/Anthropic Rider";
+    if (!frankensimRev) {
+      artifactLicense = "MISSING-FRANKENSIM-REVISION";
+    }
+
+    // Each declared capability in manifest
+    const capabilities = Array.isArray(manifest.capabilities) ? manifest.capabilities : [];
+    const capList = capabilities.map((c: any) => c.capabilityId || c.browserExport).join(", ");
+
+    items.push({
+      kind: "wasm",
+      name: `${bundleId} (FrankenSim WASM artifact)`,
+      version: frankensimRev ? String(frankensimRev).slice(0, 7) : "unknown",
+      license: artifactLicense,
+      source: bundleDir || "public/wasm",
+      authorOrNotice: `FrankenSim upstream revision ${frankensimRev || "missing"}; capabilities: [${capList}]`,
+    });
   }
-
-  // Check that the manifest has revisions and license
-  let artifactLicense = "MIT with OpenAI/Anthropic Rider";
-  if (!frankensimRev) {
-    artifactLicense = "MISSING-FRANKENSIM-REVISION";
-  }
-
-  // Each declared capability in manifest
-  const capabilities = Array.isArray(manifest.capabilities) ? manifest.capabilities : [];
-  const capList = capabilities.map((c: any) => c.capabilityId || c.browserExport).join(", ");
-
-  items.push({
-    kind: "wasm",
-    name: `${bundleId} (FrankenSim WASM artifact)`,
-    version: frankensimRev ? String(frankensimRev).slice(0, 7) : "unknown",
-    license: artifactLicense,
-    source: bundleDir || "public/wasm",
-    authorOrNotice: `FrankenSim upstream revision ${frankensimRev || "missing"}; capabilities: [${capList}]`,
-  });
 
   // Check every *.wasm file on disk against the manifest
   for (const diskWasm of wasmFilesOnDisk) {

@@ -168,7 +168,16 @@ export function buildLicenseInventory(
     if (!committedText) {
       diffDetails = "Committed 'THIRD_PARTY_NOTICES.md' does not exist.";
     } else {
-      diffDetails = "Committed 'THIRD_PARTY_NOTICES.md' differs from newly generated notices.";
+      const committedLines = committedText.split("\n");
+      const renderedLines = renderedNotices.split("\n");
+      let diffLine = -1;
+      for (let i = 0; i < Math.max(committedLines.length, renderedLines.length); i++) {
+        if (committedLines[i] !== renderedLines[i]) {
+          diffLine = i + 1;
+          break;
+        }
+      }
+      diffDetails = `Committed 'THIRD_PARTY_NOTICES.md' differs from newly generated notices at line ${diffLine}.`;
     }
   }
 
@@ -187,17 +196,20 @@ export interface CheckOptions {
   readonly silent?: boolean;
   readonly logRunId?: string;
   readonly logsDir?: string;
+  readonly fs?: FilesystemAdapters;
 }
 
 export function runLicenseInventoryCheck(options: CheckOptions = {}): {
   success: boolean;
   exitCode: number;
   logPath: string;
+  inventory: InventoryResult;
 } {
   const rootDir = options.rootDir || process.cwd();
   const silent = !!options.silent;
+  const fs = options.fs || defaultFsAdapters;
 
-  const inventory = buildLicenseInventory(rootDir);
+  const inventory = buildLicenseInventory(rootDir, fs);
 
   // If write/generate requested
   if (options.write) {
@@ -234,7 +246,9 @@ export function runLicenseInventoryCheck(options: CheckOptions = {}): {
 
   if (!silent) {
     if (success) {
-      console.log(`✔ Third-party license inventory check passed. (${inventory.items.length} items evaluated)`);
+      console.log(
+        `✔ Third-party license inventory check passed. (${inventory.items.length} items evaluated)`,
+      );
       console.log(`  Structured log: ${logPath}`);
     } else {
       console.error(`✖ Third-party license inventory check FAILED:`);
@@ -249,5 +263,6 @@ export function runLicenseInventoryCheck(options: CheckOptions = {}): {
     success,
     exitCode: success ? 0 : 1,
     logPath,
+    inventory,
   };
 }
