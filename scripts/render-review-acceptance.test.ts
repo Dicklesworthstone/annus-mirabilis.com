@@ -44,6 +44,10 @@ describe("render-review-acceptance", () => {
     });
 
     assert.equal(rendered.includes("### Verified Review Records"), true);
+    assert.equal(
+      rendered.includes("German source review: accepted by Dr. Hans Schmidt on 2026-09-16."),
+      true,
+    );
     assert.equal(rendered.includes("Dr. Hans Schmidt (`rev-de-1`)"), true);
     assert.equal(rendered.includes("`german-source`"), true);
     assert.equal(rendered.includes("`accepted`"), true);
@@ -87,10 +91,35 @@ describe("render-review-acceptance", () => {
     // Verify written receipt passes checkReceipt
     const updatedContent = fs.readFileSync(targetReceiptCopy, "utf8");
     assert.equal(updatedContent.includes("### Verified Review Records"), true);
+    assert.equal(
+      updatedContent.includes(
+        "German source review: accepted by Dr. Hans Schmidt on 2026-09-16.",
+      ),
+      true,
+    );
     assert.equal(updatedContent.includes("Dr. Hans Schmidt"), true);
 
     const checkRes = checkReceipt(updatedContent, targetReceiptCopy);
     assert.equal(checkRes.errors.length, 0);
+
+    // Also verify when ledgerStatus is 'reviewed', checkReceipt passes with signed acceptance
+    const reviewedReceiptCopy = path.join(logDir, "ap-99-001-reviewed.md");
+    const reviewedContentRaw = fs.readFileSync(fixtureReceiptSource, "utf8")
+      .replace("ledgerStatus: in-progress", "ledgerStatus: reviewed");
+    fs.writeFileSync(reviewedReceiptCopy, reviewedContentRaw, "utf8");
+
+    // Before acceptance is rendered, checkReceipt fails with receipt-reviewed-no-acceptance
+    const checkBefore = checkReceipt(reviewedContentRaw, reviewedReceiptCopy);
+    assert.equal(
+      checkBefore.errors.some((e) => e.rule === "receipt-reviewed-no-acceptance"),
+      true,
+    );
+
+    // After updating acceptance section with signed German review record, checkReceipt passes
+    updateReceiptEditorialAcceptanceSync(reviewedReceiptCopy, [record], registry);
+    const updatedReviewedContent = fs.readFileSync(reviewedReceiptCopy, "utf8");
+    const checkAfter = checkReceipt(updatedReviewedContent, reviewedReceiptCopy);
+    assert.equal(checkAfter.errors.length, 0);
   });
 
   it("refuses to write and throws GeneratedSectionError if markers are missing", () => {

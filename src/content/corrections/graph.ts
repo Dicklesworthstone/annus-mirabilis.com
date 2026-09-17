@@ -184,6 +184,24 @@ export class CorrectionGraph {
     };
   }
 
+  /**
+   * Validates that a staleness report does not mark unrelated nodes stale.
+   * Throws CorrectionGraphError("unrelated-invalidation") if any unrelated node is marked stale.
+   */
+  validateStalenessBoundary(
+    report: StalenessReport,
+    unrelatedNodeIds: readonly string[],
+  ): void {
+    for (const unrelatedId of unrelatedNodeIds) {
+      if (report.staleNodeIds.includes(unrelatedId)) {
+        throw new CorrectionGraphError(
+          "unrelated-invalidation",
+          `Correction of "${report.correctedId}" wrongly invalidated unrelated node "${unrelatedId}".`,
+        );
+      }
+    }
+  }
+
   getSourceCorrections(): readonly CorrectionEdge[] {
     return Object.freeze(this.edges.filter((e) => e.layer === "source"));
   }

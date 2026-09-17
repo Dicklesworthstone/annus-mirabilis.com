@@ -1,4 +1,6 @@
 import assert from "node:assert/strict";
+import fs from "node:fs";
+import path from "node:path";
 import { describe, it } from "node:test";
 import {
   getReviewStateCheck,
@@ -43,5 +45,56 @@ describe("Review State Check Registration Seam", () => {
     const resReset = getReviewStateCheck()(checkContext);
     assert.equal(resReset.ok, false);
     assert.equal(resReset.code, "review-records-not-available");
+  });
+
+  it("static scan confirms exactly one registration call site in align-editions.ts and editionContract.ts with no bypass", () => {
+    const alignScriptPath = path.resolve(process.cwd(), "scripts/align-editions.ts");
+    const editionContractPath = path.resolve(
+      process.cwd(),
+      "src/testing/editions/editionContract.ts",
+    );
+
+    const alignScriptSource = fs.readFileSync(alignScriptPath, "utf8");
+    const editionContractSource = fs.readFileSync(editionContractPath, "utf8");
+
+    // Each must have exactly one call to registerEditionReviewState()
+    const alignMatches = alignScriptSource.match(/\bregisterEditionReviewState\s*\(\s*\)/g) ?? [];
+    assert.equal(
+      alignMatches.length,
+      1,
+      "scripts/align-editions.ts must have exactly one registerEditionReviewState() call site",
+    );
+
+    const contractMatches =
+      editionContractSource.match(/\bregisterEditionReviewState\s*\(\s*\)/g) ?? [];
+    assert.equal(
+      contractMatches.length,
+      1,
+      "src/testing/editions/editionContract.ts must have exactly one registerEditionReviewState() call site",
+    );
+
+    // Neither should call registerReviewStateCheck directly (they must use registerEditionReviewState)
+    assert.equal(
+      /\bregisterReviewStateCheck\b/.test(alignScriptSource),
+      false,
+      "scripts/align-editions.ts must not call registerReviewStateCheck directly",
+    );
+    assert.equal(
+      /\bregisterReviewStateCheck\b/.test(editionContractSource),
+      false,
+      "src/testing/editions/editionContract.ts must not call registerReviewStateCheck directly",
+    );
+
+    // Neither should locally implement a ReviewStateCheck
+    assert.equal(
+      /function\s+\w+Check|\bconst\s+\w+Check\s*=\s*\([^)]*\)\s*=>/.test(alignScriptSource),
+      false,
+      "scripts/align-editions.ts must not define a local review-state check",
+    );
+    assert.equal(
+      /function\s+\w+Check|\bconst\s+\w+Check\s*=\s*\([^)]*\)\s*=>/.test(editionContractSource),
+      false,
+      "src/testing/editions/editionContract.ts must not define a local review-state check",
+    );
   });
 });

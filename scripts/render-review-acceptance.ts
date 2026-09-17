@@ -33,6 +33,18 @@ export function renderEditorialAcceptanceContent(
     return lines.join("\n");
   }
 
+  const germanAccepted = records.filter(
+    (r) => r.reviewType === "german-source" && r.result === "accepted",
+  );
+  for (const record of germanAccepted) {
+    const owner = ownersRegistry.getOwner(record.reviewer);
+    const displayName = owner?.displayName || record.reviewer;
+    lines.push(`German source review: accepted by ${displayName} on ${record.date}.`);
+  }
+  if (germanAccepted.length > 0) {
+    lines.push("");
+  }
+
   lines.push("### Verified Review Records");
   lines.push("");
 

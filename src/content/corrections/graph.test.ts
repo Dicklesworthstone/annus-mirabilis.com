@@ -161,4 +161,44 @@ describe("CorrectionGraph", () => {
       (err: unknown) => err instanceof CorrectionGraphError && err.code === "unknown-node",
     );
   });
+
+  it("negative test: a source correction that wrongly invalidates unrelated visual work must fail validation", () => {
+    const graph = new CorrectionGraph();
+
+    // Source block
+    graph.addNode({
+      id: "s2-p3",
+      type: "source-block",
+      layer: "source",
+      revision: 1,
+    });
+
+    // Unrelated visual / instrument node
+    graph.addNode({
+      id: "bm-06",
+      type: "instrument",
+      layer: "instrument",
+      revision: 1,
+    });
+
+    const report = graph.recordCorrection("s2-p3", 2, "source");
+
+    // The genuine report preserves unrelated visual work bm-06
+    assert.equal(report.staleNodeIds.includes("bm-06"), false);
+    assert.doesNotThrow(() => graph.validateStalenessBoundary(report, ["bm-06"]));
+
+    // An invalid report that wrongly marks unrelated visual work bm-06 stale fails validation
+    const invalidReport = {
+      ...report,
+      staleNodeIds: [...report.staleNodeIds, "bm-06"],
+    };
+
+    assert.throws(
+      () => graph.validateStalenessBoundary(invalidReport, ["bm-06"]),
+      (err: unknown) =>
+        err instanceof CorrectionGraphError &&
+        err.code === "unrelated-invalidation" &&
+        err.message.includes('wrongly invalidated unrelated node "bm-06"'),
+    );
+  });
 });

@@ -3,8 +3,11 @@
  * Usage: bun scripts/align-editions.ts
  */
 
+import { registerEditionReviewState } from "../src/content/checks/review/editionReviewState.ts";
 import { inspectAllLedgers } from "../src/content/editions/ledgerPresence.ts";
 import { getReviewStateCheck } from "../src/content/editions/reviewState.ts";
+
+registerEditionReviewState();
 
 const presence = inspectAllLedgers();
 const check = getReviewStateCheck();
