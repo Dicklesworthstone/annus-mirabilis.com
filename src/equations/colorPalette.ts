@@ -1,0 +1,412 @@
+/**
+ * Extracted from classic-patents.com
+ * Source repository: https://github.com/Dicklesworthstone/classic-patents.com
+ * Source path: src/components/ui/colorPalette.ts
+ * Pinned commit: da11ff475902728fd8dd1d9db9f3af37c16ec8a5
+ * License: MIT License (with OpenAI/Anthropic Rider)
+ * Preserved license text: /LICENSE
+ *
+ * Modifications:
+ * - Decoupled from patent types; exports standalone ColorVariant and semantic color structures.
+ * - Text color hexes calibrated to guarantee WCAG AA contrast (>= 4.5:1) against Annalen (#eee7d7),
+ *   Kramgasse Night (#1c2128), and Slate (#14181a) theme backgrounds.
+ * - Preserved prepareInteractiveLatex, KaTeX color wrappers, and balanced group parser.
+ */
+
+export type ColorVariant =
+  | "crimson"
+  | "sapphire"
+  | "emerald"
+  | "amber"
+  | "amethyst"
+  | "cyan"
+  | "coral"
+  | "rose"
+  | "teal";
+
+export interface ColorStyleConfig {
+  readonly name: string;
+  readonly badgeLabel: string;
+  // KaTeX hex codes
+  readonly hexLight: string;
+  readonly hexDark: string;
+  // Accessible text color hexes meeting WCAG AA (>= 4.5:1)
+  readonly textHexLight: string;
+  readonly textHexDark: string;
+  // CSS styling classes
+  readonly textClass: string;
+  readonly badgeBg: string;
+  readonly borderClass: string;
+  readonly glowClass: string;
+  readonly activeRing: string;
+  readonly underlineClass: string;
+}
+
+export const COLOR_STYLES: Record<ColorVariant, ColorStyleConfig> = {
+  crimson: {
+    name: "Crimson",
+    badgeLabel: "Penalty / Thermal / Flux Sink",
+    hexLight: "#dc2626",
+    hexDark: "#f87171",
+    textHexLight: "#b91c1c", // Red-700: 5.25:1 on Annalen
+    textHexDark: "#f87171", // Red-400: 5.85:1 on Kramgasse, 6.46:1 on Slate
+    textClass: "text-red-700 dark:text-red-400",
+    badgeBg: "bg-red-50 dark:bg-red-950/50 border-red-200 dark:border-red-800/80",
+    borderClass: "border-red-400 dark:border-red-500",
+    glowClass: "shadow-[0_0_16px_rgba(239,68,68,0.35)]",
+    activeRing: "ring-2 ring-red-500/80 bg-red-100/90 dark:bg-red-950/80",
+    underlineClass: "decoration-red-500 underline-offset-4",
+  },
+  sapphire: {
+    name: "Sapphire",
+    badgeLabel: "Core Velocity / Voltage / Wave",
+    hexLight: "#2563eb",
+    hexDark: "#60a5fa",
+    textHexLight: "#1d4ed8", // Blue-700: 5.44:1 on Annalen
+    textHexDark: "#60a5fa", // Blue-400: 6.37:1 on Kramgasse, 7.03:1 on Slate
+    textClass: "text-blue-700 dark:text-blue-400",
+    badgeBg: "bg-blue-50 dark:bg-blue-950/50 border-blue-200 dark:border-blue-800/80",
+    borderClass: "border-blue-400 dark:border-blue-500",
+    glowClass: "shadow-[0_0_16px_rgba(59,130,246,0.35)]",
+    activeRing: "ring-2 ring-blue-500/80 bg-blue-100/90 dark:bg-blue-950/80",
+    underlineClass: "decoration-blue-500 underline-offset-4",
+  },
+  emerald: {
+    name: "Emerald",
+    badgeLabel: "Output / Lift / Work / Power",
+    hexLight: "#059669",
+    hexDark: "#34d399",
+    textHexLight: "#065f46", // Emerald-800: 6.24:1 on Annalen
+    textHexDark: "#34d399", // Emerald-400: 8.42:1 on Kramgasse, 9.29:1 on Slate
+    textClass: "text-emerald-800 dark:text-emerald-400",
+    badgeBg: "bg-emerald-50 dark:bg-emerald-950/50 border-emerald-200 dark:border-emerald-800/80",
+    borderClass: "border-emerald-400 dark:border-emerald-500",
+    glowClass: "shadow-[0_0_16px_rgba(16,185,129,0.35)]",
+    activeRing: "ring-2 ring-emerald-500/80 bg-emerald-100/90 dark:bg-emerald-950/80",
+    underlineClass: "decoration-emerald-500 underline-offset-4",
+  },
+  amber: {
+    name: "Amber",
+    badgeLabel: "Frequency / Geometry / Geometry Constant",
+    hexLight: "#d97706",
+    hexDark: "#fbbf24",
+    textHexLight: "#92400e", // Amber-800: 5.76:1 on Annalen
+    textHexDark: "#fbbf24", // Amber-400: 9.69:1 on Kramgasse, 10.70:1 on Slate
+    textClass: "text-amber-800 dark:text-amber-400",
+    badgeBg: "bg-amber-50 dark:bg-amber-950/50 border-amber-200 dark:border-amber-800/80",
+    borderClass: "border-amber-400 dark:border-amber-500",
+    glowClass: "shadow-[0_0_16px_rgba(245,158,11,0.35)]",
+    activeRing: "ring-2 ring-amber-500/80 bg-amber-100/90 dark:bg-amber-950/80",
+    underlineClass: "decoration-amber-500 underline-offset-4",
+  },
+  amethyst: {
+    name: "Amethyst",
+    badgeLabel: "Energy / State Vector / Identity",
+    hexLight: "#9333ea",
+    hexDark: "#c084fc",
+    textHexLight: "#7e22ce", // Purple-700: 5.67:1 on Annalen
+    textHexDark: "#c084fc", // Purple-400: 6.12:1 on Kramgasse, 6.76:1 on Slate
+    textClass: "text-purple-700 dark:text-purple-400",
+    badgeBg: "bg-purple-50 dark:bg-purple-950/50 border-purple-200 dark:border-purple-800/80",
+    borderClass: "border-purple-400 dark:border-purple-500",
+    glowClass: "shadow-[0_0_16px_rgba(168,85,247,0.35)]",
+    activeRing: "ring-2 ring-purple-500/80 bg-purple-100/90 dark:bg-purple-950/80",
+    underlineClass: "decoration-purple-500 underline-offset-4",
+  },
+  cyan: {
+    name: "Cyan",
+    badgeLabel: "Flux Density / Capacitance / Charge",
+    hexLight: "#0891b2",
+    hexDark: "#22d3ee",
+    textHexLight: "#155e75", // Cyan-800: 5.90:1 on Annalen
+    textHexDark: "#22d3ee", // Cyan-400: 8.96:1 on Kramgasse, 9.89:1 on Slate
+    textClass: "text-cyan-800 dark:text-cyan-400",
+    badgeBg: "bg-cyan-50 dark:bg-cyan-950/50 border-cyan-200 dark:border-cyan-800/80",
+    borderClass: "border-cyan-400 dark:border-cyan-500",
+    glowClass: "shadow-[0_0_16px_rgba(6,182,212,0.35)]",
+    activeRing: "ring-2 ring-cyan-500/80 bg-cyan-100/90 dark:bg-cyan-950/80",
+    underlineClass: "decoration-cyan-500 underline-offset-4",
+  },
+  coral: {
+    name: "Coral",
+    badgeLabel: "Current / Resistance / Acceleration",
+    hexLight: "#ea580c",
+    hexDark: "#fb923c",
+    textHexLight: "#9a3412", // Orange-800: 5.93:1 on Annalen
+    textHexDark: "#fb923c", // Orange-400: 7.15:1 on Kramgasse, 7.89:1 on Slate
+    textClass: "text-orange-800 dark:text-orange-400",
+    badgeBg: "bg-orange-50 dark:bg-orange-950/50 border-orange-200 dark:border-orange-800/80",
+    borderClass: "border-orange-400 dark:border-orange-500",
+    glowClass: "shadow-[0_0_16px_rgba(249,115,22,0.35)]",
+    activeRing: "ring-2 ring-orange-500/80 bg-orange-100/90 dark:bg-orange-950/80",
+    underlineClass: "decoration-orange-500 underline-offset-4",
+  },
+  rose: {
+    name: "Rose",
+    badgeLabel: "Time Rate / Decay / Radiation",
+    hexLight: "#e11d48",
+    hexDark: "#fb7185",
+    textHexLight: "#be123c", // Rose-700: 5.10:1 on Annalen
+    textHexDark: "#fb7185", // Rose-400: 6.01:1 on Kramgasse, 6.64:1 on Slate
+    textClass: "text-rose-700 dark:text-rose-400",
+    badgeBg: "bg-rose-50 dark:bg-rose-950/50 border-rose-200 dark:border-rose-800/80",
+    borderClass: "border-rose-400 dark:border-rose-500",
+    glowClass: "shadow-[0_0_16px_rgba(244,63,94,0.35)]",
+    activeRing: "ring-2 ring-rose-500/80 bg-rose-100/90 dark:bg-rose-950/80",
+    underlineClass: "decoration-rose-500 underline-offset-4",
+  },
+  teal: {
+    name: "Teal",
+    badgeLabel: "Material Constant / Permeability",
+    hexLight: "#0d9488",
+    hexDark: "#2dd4bf",
+    textHexLight: "#115e59", // Teal-800: 6.16:1 on Annalen
+    textHexDark: "#2dd4bf", // Teal-400: 8.69:1 on Kramgasse, 9.60:1 on Slate
+    textClass: "text-teal-800 dark:text-teal-400",
+    badgeBg: "bg-teal-50 dark:bg-teal-950/50 border-teal-200 dark:border-teal-800/80",
+    borderClass: "border-teal-400 dark:border-teal-500",
+    glowClass: "shadow-[0_0_16px_rgba(20,184,166,0.35)]",
+    activeRing: "ring-2 ring-teal-500/80 bg-teal-100/90 dark:bg-teal-950/80",
+    underlineClass: "decoration-teal-500 underline-offset-4",
+  },
+};
+
+/**
+ * Returns KaTeX formatted LaTeX wrapped in \textcolor{#hex}{symbol}
+ */
+export function wrapKatexColor(symbolLatex: string, color: ColorVariant, isDark = false): string {
+  const cfg = COLOR_STYLES[color];
+  const hex = isDark ? cfg.hexDark : cfg.hexLight;
+  return `\\textcolor{${hex}}{${symbolLatex}}`;
+}
+
+/**
+ * Returns KaTeX formatted LaTeX wrapped with interactive class, data attribute, and color
+ */
+export function wrapInteractiveKatexTerm(
+  varId: string,
+  symbolLatex: string,
+  color: ColorVariant,
+  isDark = false,
+): string {
+  const cfg = COLOR_STYLES[color];
+  const hex = isDark ? cfg.hexDark : cfg.hexLight;
+  return `\\htmlClass{eq-term eq-term-${varId} eq-term-${color}}{\\htmlData{var=${varId}}{\\textcolor{${hex}}{${symbolLatex}}}}`;
+}
+
+export const COLOR_HEX_ALIASES: Record<ColorVariant, readonly string[]> = {
+  crimson: ["#dc2626", "#ef4444", "#f87171", "#b91c1c"],
+  sapphire: ["#2563eb", "#3b82f6", "#60a5fa", "#1d4ed8"],
+  emerald: ["#059669", "#10b981", "#34d399", "#065f46"],
+  amber: ["#d97706", "#f59e0b", "#fbbf24", "#92400e"],
+  amethyst: ["#9333ea", "#a855f7", "#c084fc", "#7e22ce"],
+  cyan: ["#0891b2", "#06b6d4", "#22d3ee", "#155e75"],
+  coral: ["#ea580c", "#f97316", "#fb923c", "#9a3412"],
+  rose: ["#e11d48", "#f43f5e", "#fb7185", "#be123c"],
+  teal: ["#0d9488", "#14b8a6", "#2dd4bf", "#115e59"],
+};
+
+function findBalancedGroupEnd(latex: string, openIdx: number): number {
+  let depth = 0;
+  for (let i = openIdx; i < latex.length; i++) {
+    const ch = latex[i];
+    if (ch === "\\") {
+      i++;
+      continue;
+    }
+    if (ch === "{") depth++;
+    else if (ch === "}") {
+      depth--;
+      if (depth === 0) return i;
+    }
+  }
+  return -1;
+}
+
+function collectProtectedRanges(latex: string): Array<[number, number]> {
+  const ranges: Array<[number, number]> = [];
+  const markers: Array<{ text: string; protectBody: boolean; wholeCommand: boolean }> = [
+    { text: "\\text{", protectBody: false, wholeCommand: true },
+    { text: "\\textcolor{", protectBody: false, wholeCommand: false },
+    { text: "\\htmlClass{", protectBody: false, wholeCommand: false },
+    { text: "\\htmlData{", protectBody: true, wholeCommand: false },
+  ];
+  for (const marker of markers) {
+    let idx = latex.indexOf(marker.text);
+    while (idx !== -1) {
+      const argOpen = idx + marker.text.length - 1;
+      const argEnd = findBalancedGroupEnd(latex, argOpen);
+      if (argEnd === -1) break;
+      ranges.push([marker.wholeCommand ? idx : argOpen, argEnd]);
+      if (marker.protectBody && latex[argEnd + 1] === "{") {
+        const bodyEnd = findBalancedGroupEnd(latex, argEnd + 1);
+        if (bodyEnd !== -1) ranges.push([argEnd + 1, bodyEnd]);
+      }
+      idx = latex.indexOf(marker.text, argEnd + 1);
+    }
+  }
+  return ranges;
+}
+
+function replaceOutsideProtected(latex: string, re: RegExp, replacement: string): string {
+  const ranges = collectProtectedRanges(latex);
+  const isProtected = (pos: number): boolean =>
+    ranges.some(([start, end]) => pos >= start && pos <= end);
+
+  let out = "";
+  let last = 0;
+  re.lastIndex = 0;
+  let m: RegExpExecArray | null = re.exec(latex);
+  while (m !== null) {
+    if (m[0].length === 0) {
+      re.lastIndex++;
+    } else if (!isProtected(m.index)) {
+      out += latex.slice(last, m.index) + replacement;
+      last = m.index + m[0].length;
+    }
+    m = re.exec(latex);
+  }
+  return out + latex.slice(last);
+}
+
+function escapeRegExp(value: string): string {
+  return value.replace(/[.*+?^${}()|[\]\\]/g, "\\$&");
+}
+
+function sourceSymbolIds(
+  latex: string,
+  variables: readonly { id: string; symbol: string }[],
+): Set<string> {
+  const idsBySymbol = new Map<string, string[]>();
+  for (const variable of variables) {
+    if (!variable.symbol) continue;
+    const ids = idsBySymbol.get(variable.symbol);
+    if (ids) ids.push(variable.id);
+    else idsBySymbol.set(variable.symbol, [variable.id]);
+  }
+
+  const alternatives: string[] = [];
+  for (const symbol of idsBySymbol.keys()) alternatives.push(escapeRegExp(symbol));
+  if (alternatives.length === 0) return new Set();
+
+  const present = new Set<string>();
+  const matcher = new RegExp(alternatives.join("|"), "g");
+  for (const match of latex.matchAll(matcher)) {
+    const ids = idsBySymbol.get(match[0]);
+    if (!ids) continue;
+    for (const id of ids) present.add(id);
+  }
+  return present;
+}
+
+export function prepareInteractiveLatex(equation: {
+  readonly colorizedLatex?: string;
+  readonly rawLatex: string;
+  readonly variables: ReadonlyArray<{
+    readonly id: string;
+    readonly symbol: string;
+    readonly color: ColorVariant;
+  }>;
+}): string {
+  let latex = equation.colorizedLatex || equation.rawLatex;
+  const sourceSymbols = sourceSymbolIds(latex, equation.variables);
+
+  const colorOwnerCount = new Map<ColorVariant, number>();
+  for (const v of equation.variables) {
+    colorOwnerCount.set(v.color, (colorOwnerCount.get(v.color) ?? 0) + 1);
+  }
+
+  const isAlreadyClaimed = (s: string, idx: number): boolean =>
+    idx >= 2 &&
+    s[idx - 1] === "{" &&
+    s[idx - 2] === "}" &&
+    /\\htmlData\{var=[^{}]*\}\{$/.test(s.slice(0, idx));
+
+  const wrapMatchingColorGroups = (
+    input: string,
+    v: { readonly id: string; readonly color: ColorVariant },
+    accept: (colorSpec: string, content: string) => boolean,
+  ): { latex: string; found: boolean } => {
+    let out = input;
+    let found = false;
+    const colorTargetPrefix = "\\textcolor{";
+    let searchIdx = out.indexOf(colorTargetPrefix, 0);
+
+    while (searchIdx !== -1) {
+      const closeBraceColor = out.indexOf("}", searchIdx + colorTargetPrefix.length);
+      if (closeBraceColor === -1) break;
+
+      const openBraceContent = out.indexOf("{", closeBraceColor);
+      if (openBraceContent !== closeBraceColor + 1) {
+        searchIdx = out.indexOf(colorTargetPrefix, closeBraceColor + 1);
+        continue;
+      }
+
+      const colorSpec = out.slice(searchIdx + colorTargetPrefix.length, closeBraceColor);
+      const contentEnd = findBalancedGroupEnd(out, openBraceContent);
+      if (contentEnd === -1) break;
+
+      const content = out.slice(openBraceContent + 1, contentEnd);
+      if (!isAlreadyClaimed(out, searchIdx) && accept(colorSpec, content)) {
+        const termClass = `eq-term eq-term-${v.id} eq-term-${v.color}`;
+        const fullColoredMatch = out.slice(searchIdx, contentEnd + 1);
+        const replacement = `\\htmlClass{${termClass}}{\\htmlData{var=${v.id}}{${fullColoredMatch}}}`;
+        out = out.slice(0, searchIdx) + replacement + out.slice(contentEnd + 1);
+        found = true;
+        searchIdx = out.indexOf(colorTargetPrefix, searchIdx + replacement.length);
+        continue;
+      }
+      searchIdx = out.indexOf(colorTargetPrefix, closeBraceColor + 1);
+    }
+    return { latex: out, found };
+  };
+
+  const alreadyPrepared = (v: { readonly id: string }): boolean =>
+    new RegExp(`\\beq-term-${v.id}\\b`).test(latex);
+  const wrappedByGroup = new Set<string>();
+
+  for (const v of equation.variables) {
+    if (alreadyPrepared(v)) continue;
+    const res = wrapMatchingColorGroups(latex, v, (_spec, content) => content === v.symbol);
+    latex = res.latex;
+    if (res.found) wrappedByGroup.add(v.id);
+  }
+
+  for (const v of equation.variables) {
+    if (alreadyPrepared(v) && !wrappedByGroup.has(v.id)) continue;
+    if (colorOwnerCount.get(v.color) !== 1) continue;
+    const hexAliases = new Set(COLOR_HEX_ALIASES[v.color].map((h) => h.toLowerCase()));
+    const res = wrapMatchingColorGroups(latex, v, (spec) => hexAliases.has(spec.toLowerCase()));
+    latex = res.latex;
+    if (res.found) wrappedByGroup.add(v.id);
+  }
+
+  for (const v of equation.variables) {
+    if (wrappedByGroup.has(v.id) || alreadyPrepared(v)) continue;
+
+    const cfg = COLOR_STYLES[v.color];
+    const hex = cfg.hexLight;
+    const termClass = `eq-term eq-term-${v.id} eq-term-${v.color}`;
+
+    if (sourceSymbols.has(v.id)) {
+      const rawReplacement = `\\htmlClass{${termClass}}{\\htmlData{var=${v.id}}{\\textcolor{${hex}}{${v.symbol}}}}`;
+
+      const isAlphaNumStart = /^[a-zA-Z0-9]/.test(v.symbol);
+      const isAlphaNumEnd = /[a-zA-Z0-9]$/.test(v.symbol);
+
+      const prefix = isAlphaNumStart ? "(?<![a-zA-Z0-9\\\\_])" : "";
+      const suffix = isAlphaNumEnd ? "(?![a-zA-Z0-9])" : "";
+      const escapedSymbol = escapeRegExp(v.symbol);
+
+      let re: RegExp;
+      try {
+        re = new RegExp(`${prefix}${escapedSymbol}${suffix}`, "g");
+      } catch (_e) {
+        re = new RegExp(`${escapedSymbol}${suffix}`, "g");
+      }
+      latex = replaceOutsideProtected(latex, re, rawReplacement);
+    }
+  }
+
+  return latex;
+}

@@ -142,3 +142,20 @@ test("byte accounting on gzip encoding option", () => {
   assert.equal(result.byteAccounting?.effectiveBytes, 45_000);
   assert.equal(result.byteAccounting?.encoding, "gzip");
 });
+
+test("seeded static import of facsimile viewer with pdfjs-dist in route graph fails (AC 4)", () => {
+  const result = checkInitialRouteGraph({
+    route: "/",
+    manifest: CLEAN_MANIFEST,
+    moduleTrace: [
+      "src/app/page.tsx",
+      "src/reader/facsimile/PinnedPdfFacsimile.tsx",
+      "node_modules/pdfjs-dist/build/pdf.mjs",
+    ],
+  });
+  assert.equal(result.ok, false);
+  if (result.ok) return;
+  assert.equal(result.violations.length, 1);
+  assert.equal(result.violations[0].kind, "module-trace");
+  assert.equal(result.violations[0].signature, "node_modules/pdfjs-dist/");
+});
