@@ -3,10 +3,11 @@
  * this test creates and owns (mkdtemp) -- never against content/ or the shared fixture corpus
  * under src/content/compiler/__fixtures__/corpus, which other tests' golden files depend on.
  */
+
+import { afterEach, beforeEach, describe, expect, test } from "bun:test";
 import { mkdirSync, mkdtempSync, rmSync } from "node:fs";
 import { tmpdir } from "node:os";
 import { join } from "node:path";
-import { afterEach, beforeEach, describe, expect, test } from "bun:test";
 import { runContentCompileOnce, watchContentCompile } from "../../scripts/build-content.ts";
 
 let tempCorpus: string;
