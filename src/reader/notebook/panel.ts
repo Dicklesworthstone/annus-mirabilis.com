@@ -1,6 +1,7 @@
+import { mergeNotebook } from "./import.ts";
 import { exportNotebookHtml, exportNotebookJson } from "./export.ts";
 import type { NotebookChange, NotebookStore } from "./notebookStore.ts";
-import { notebookFrameHref, NOTEBOOK_LIMITS, NOTEBOOK_PAPERS, type NotebookEntry, type NotebookFrame } from "./schema.ts";
+import { notebookFrameHref, NOTEBOOK_LIMITS, NOTEBOOK_PAPERS, parseNotebookDocument, type NotebookEntry, type NotebookFrame } from "./schema.ts";
 
 function node<K extends keyof HTMLElementTagNameMap>(tag: K, text = ""): HTMLElementTagNameMap[K] {
   const element = document.createElement(tag); element.textContent = text; return element;
@@ -49,10 +50,39 @@ export function mountNotebookPanel(host: HTMLElement, store: NotebookStore, onCl
   controls.append(button("Export notebook JSON", () => download(exportNotebookJson(store.getSnapshot().document), "annus-reading-notebook.json", "application/json")),
     button("Export readable notebook", () => download(exportNotebookHtml(store.getSnapshot().document), "annus-reading-notebook.html", "text/html;charset=utf-8")),
     retry, recovery, load, clear);
-  dialog.append(close, heading, intro, status, error, controls, confirmation, form, list); host.append(dialog);
+  const importLabel = node("label", "Import an exported notebook JSON file");
+  const importFile = node("input"); importFile.type = "file"; importFile.accept = ".json,application/json";
+  importFile.id = "reading-notebook-import"; importLabel.htmlFor = importFile.id;
+  importLabel.append(importFile);
+  dialog.append(close, heading, intro, status, error, controls, importLabel, confirmation, form, list); host.append(dialog);
   let previousFocus: HTMLElement | null = null, draft: NotebookDraft | null = null, editing: string | null = null;
   let renderedEntries: readonly NotebookEntry[] | null = null;
   const urls = new Map<string, ReturnType<typeof setTimeout>>();
+  let disposed = false, importGeneration = 0;
+  importFile.addEventListener("change", () => {
+    const generation = ++importGeneration;
+    const file = importFile.files?.[0];
+    if (!file) return;
+    if (file.size > 128_000) {
+      error.textContent = "This file is too large for a reading notebook. Nothing was imported.";
+      importFile.value = ""; return;
+    }
+    void file.text().then((text) => {
+      if (disposed || generation !== importGeneration) return;
+      const imported = parseNotebookDocument(JSON.parse(text));
+      const preview = mergeNotebook(store.getSnapshot().document, imported);
+      error.textContent = "";
+      confirm(`Import ${preview.added} new entries? ${preview.duplicates} identical entries are already here and will not be duplicated. Existing notes and the current reading place are kept. Nothing is uploaded.`, () => {
+        // Recheck against the current document, not the potentially stale preview.
+        report(store.importConfirmed(imported));
+      });
+    }).catch(() => {
+      if (!disposed && generation === importGeneration)
+        error.textContent = "This file is unsupported, malformed, or conflicts with an existing entry. No entries were imported. Keep the original file.";
+    }).finally(() => {
+      if (!disposed && generation === importGeneration) importFile.value = "";
+    });
+  });
   function report(result: NotebookChange) {
     error.textContent = result.ok ? "" : result.message;
     if (result.ok) status.textContent = store.getSnapshot().message;
@@ -125,7 +155,7 @@ export function mountNotebookPanel(host: HTMLElement, store: NotebookStore, onCl
   }
   function closePanel() {
     if (!dialog.open) return;
-    dialog.close(); confirmation.hidden = true;
+    importGeneration++; dialog.close(); confirmation.hidden = true;
     if (previousFocus?.isConnected) previousFocus.focus({ preventScroll: true });
   }
   const onCancel = (event: Event) => { event.preventDefault(); closePanel(); };
@@ -136,7 +166,7 @@ export function mountNotebookPanel(host: HTMLElement, store: NotebookStore, onCl
     add,
     isOpen: () => dialog.open,
     dispose() {
-      unsubscribe(); closePanel(); dialog.removeEventListener("cancel", onCancel); dialog.remove();
+      disposed = true; importGeneration++; unsubscribe(); closePanel(); dialog.removeEventListener("cancel", onCancel); dialog.remove();
       for (const [url, timeout] of urls) { clearTimeout(timeout); URL.revokeObjectURL(url); }
       urls.clear();
     },
