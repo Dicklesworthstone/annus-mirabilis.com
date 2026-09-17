@@ -20,6 +20,7 @@ export interface FilesystemAdapters {
   readonly readText: (path: string) => string | null;
   readonly exists: (path: string) => boolean;
   readonly findFiles: (dir: string, pattern: RegExp) => string[];
+  readonly listDir: (dir: string) => readonly string[];
 }
 
 export const defaultFsAdapters: FilesystemAdapters = {
@@ -35,6 +36,14 @@ export const defaultFsAdapters: FilesystemAdapters = {
   },
   exists(path: string): boolean {
     return existsSync(path);
+  },
+  listDir(dir: string): readonly string[] {
+    if (!existsSync(dir)) return [];
+    try {
+      return readdirSync(dir);
+    } catch {
+      return [];
+    }
   },
   findFiles(dir: string, pattern: RegExp): string[] {
     const results: string[] = [];
@@ -90,6 +99,7 @@ export function buildLicenseInventory(
     packageJson,
     readText: fs.readText,
     exists: fs.exists,
+    listDir: fs.listDir,
   });
 
   // 4. Collect Fonts

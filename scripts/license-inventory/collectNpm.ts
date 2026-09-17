@@ -14,8 +14,17 @@ export interface CollectNpmOptions {
   };
   readonly readText: (path: string) => string | null;
   readonly exists: (path: string) => boolean;
+  /** Entry names of one directory, or [] when it does not exist. */
+  readonly listDir: (dir: string) => readonly string[];
 }
 
+/**
+ * Compared case-insensitively against the real directory entries, never probed by
+ * name. `next` ships `license.md`; a case-insensitive macOS filesystem answers a
+ * probe for `LICENSE.md` while Linux does not, so name probing recorded a
+ * different row on each platform and the committed notices could never match a
+ * regeneration in CI (stale-committed-inventory at the `next` row).
+ */
 const LICENSE_FILENAMES = [
   "LICENSE",
   "LICENSE.md",
@@ -46,16 +55,17 @@ function extractLicenseFromPkgJson(pkgData: Record<string, unknown>): string {
 
 function findLicenseFile(
   pkgDir: string,
-  exists: (p: string) => boolean,
+  listDir: (dir: string) => readonly string[],
   readText: (p: string) => string | null,
 ): { licensePath?: string; licenseText?: string } {
+  const entries = [...listDir(pkgDir)].sort();
   for (const name of LICENSE_FILENAMES) {
-    const fullPath = join(pkgDir, name);
-    if (exists(fullPath)) {
-      const text = readText(fullPath);
-      if (text) {
-        return { licensePath: fullPath, licenseText: text };
-      }
+    const entry = entries.find((candidate) => candidate.toLowerCase() === name.toLowerCase());
+    if (entry === undefined) continue;
+    const fullPath = join(pkgDir, entry);
+    const text = readText(fullPath);
+    if (text) {
+      return { licensePath: fullPath, licenseText: text };
     }
   }
   return {};
@@ -65,7 +75,7 @@ export function collectNpm(options: CollectNpmOptions): {
   production: LicenseItem[];
   tools: LicenseItem[];
 } {
-  const { rootDir, packageJson, readText, exists } = options;
+  const { rootDir, packageJson, readText, exists, listDir } = options;
   const productionItems = new Map<string, LicenseItem>();
   const toolItems = new Map<string, LicenseItem>();
 
@@ -121,7 +131,7 @@ export function collectNpm(options: CollectNpmOptions): {
     }
 
     let license = extractLicenseFromPkgJson(pkgData);
-    const found = findLicenseFile(pkgDir, exists, readText);
+    const found = findLicenseFile(pkgDir, listDir, readText);
     const { licenseText } = found;
     // Record the licence file repo-relative. An absolute path embeds the machine that
     // generated the notices, so the committed THIRD_PARTY_NOTICES.md could never match
@@ -201,7 +211,7 @@ export function collectNpm(options: CollectNpmOptions): {
           // ignore
         }
       }
-      const lf = findLicenseFile(pkgDir, exists, readText);
+      const lf = findLicenseFile(pkgDir, listDir, readText);
       // Repo-relative for the same reason as the production branch above.
       licensePath = lf.licensePath === undefined ? undefined : relative(rootDir, lf.licensePath);
       licenseText = lf.licenseText;

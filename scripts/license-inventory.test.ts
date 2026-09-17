@@ -406,6 +406,7 @@ describe("Deterministic notices rendering and stale comparison", () => {
         return false;
       },
       findFiles: () => [],
+      listDir: () => [],
     };
 
     // 1. With identical items, committed inventory matches and check succeeds

@@ -20,14 +20,14 @@ This inventory does not state or imply rights to scans, photographs, historical 
 | js-yaml | 4.1.0 | MIT | `node_modules/js-yaml` | File: `node_modules/js-yaml/LICENSE` |
 | katex | 0.18.4 | MIT | `node_modules/katex` | File: `node_modules/katex/LICENSE` |
 | nanoid | 3.3.19 | MIT | `node_modules/nanoid` | File: `node_modules/nanoid/LICENSE` |
-| next | 15.5.25 | MIT | `node_modules/next` | File: `node_modules/next/LICENSE.md` |
+| next | 15.5.25 | MIT | `node_modules/next` | File: `node_modules/next/license.md` |
 | picocolors | 1.1.1 | ISC | `node_modules/picocolors` | File: `node_modules/picocolors/LICENSE` |
 | postcss | 8.5.26 | MIT | `node_modules/postcss` | File: `node_modules/postcss/LICENSE` |
 | react | 19.0.0 | MIT | `node_modules/react` | File: `node_modules/react/LICENSE` |
 | react-dom | 19.0.0 | MIT | `node_modules/react-dom` | File: `node_modules/react-dom/LICENSE` |
 | scheduler | 0.25.0 | MIT | `node_modules/scheduler` | File: `node_modules/scheduler/LICENSE` |
 | source-map-js | 1.2.1 | BSD-3-Clause | `node_modules/source-map-js` | File: `node_modules/source-map-js/LICENSE` |
-| styled-jsx | 5.1.6 | MIT | `node_modules/styled-jsx` | File: `node_modules/styled-jsx/LICENSE.md` |
+| styled-jsx | 5.1.6 | MIT | `node_modules/styled-jsx` | File: `node_modules/styled-jsx/license.md` |
 | tslib | 2.8.1 | 0BSD | `node_modules/tslib` | File: `node_modules/tslib/LICENSE.txt` |
 
 ## 2. Typefaces and Fonts
