@@ -1,0 +1,32 @@
+[
+  {
+    "id": "eq-ratio-equals-pure-number",
+    "paper": "light-quanta",
+    "quantities": {
+      "volumeRatio": {
+        "id": "volumeRatio",
+        "dimension": ["0", "0", "0", "0", "0", "0"],
+        "dimensionlessKind": "ratio"
+      },
+      "pureNumber": {
+        "id": "pureNumber",
+        "dimension": ["0", "0", "0", "0", "0", "0"],
+        "dimensionlessKind": "pure-number"
+      }
+    },
+    "tree": {
+      "kind": "relation",
+      "operator": "=",
+      "left": {
+        "kind": "symbol",
+        "quantityId": "volumeRatio",
+        "id": "t.volumeRatio"
+      },
+      "right": {
+        "kind": "symbol",
+        "quantityId": "pureNumber",
+        "id": "t.pureNumber"
+      }
+    }
+  }
+]

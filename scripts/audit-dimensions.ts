@@ -148,10 +148,11 @@ export async function runDimensionAudit(
   };
 }
 
-// CLI Execution
-if (process.argv[1]?.endsWith("audit-dimensions.ts")) {
+export async function mainAuditDimensions(
+  args: string[],
+): Promise<{ exitCode: number; summary: DimensionAuditSummary }> {
   const { values } = parseArgs({
-    args: process.argv.slice(2),
+    args,
     options: {
       corpus: { type: "string" },
     },
@@ -164,16 +165,21 @@ if (process.argv[1]?.endsWith("audit-dimensions.ts")) {
     entries = JSON.parse(raw);
   }
 
-  runDimensionAudit(entries)
-    .then((summary) => {
+  const summary = await runDimensionAudit(entries);
+  return {
+    exitCode: summary.ok ? 0 : 1,
+    summary,
+  };
+}
+
+// CLI Execution
+if (process.argv[1]?.endsWith("audit-dimensions.ts")) {
+  mainAuditDimensions(process.argv.slice(2))
+    .then(({ exitCode, summary }) => {
       console.log(
         `Dimension audit: ${summary.total} total (${summary.consistent} consistent, ${summary.unsupportedCheck} review flags, ${summary.inconsistent} errors, ${summary.semanticMismatch} semantic mismatches)`,
       );
-      if (!summary.ok) {
-        process.exit(1);
-      } else {
-        process.exit(0);
-      }
+      process.exit(exitCode);
     })
     .catch((err) => {
       console.error("audit-dimensions failed:", err);

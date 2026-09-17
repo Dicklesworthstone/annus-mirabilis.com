@@ -1,0 +1,30 @@
+[
+  {
+    "id": "eq-energy-equals-force",
+    "paper": "brownian-motion",
+    "quantities": {
+      "energy": {
+        "id": "energy",
+        "dimension": ["2", "1", "-2", "0", "0", "0"]
+      },
+      "force": {
+        "id": "force",
+        "dimension": ["1", "1", "-2", "0", "0", "0"]
+      }
+    },
+    "tree": {
+      "kind": "relation",
+      "operator": "=",
+      "left": {
+        "kind": "symbol",
+        "quantityId": "energy",
+        "id": "t.energy"
+      },
+      "right": {
+        "kind": "symbol",
+        "quantityId": "force",
+        "id": "t.force"
+      }
+    }
+  }
+]

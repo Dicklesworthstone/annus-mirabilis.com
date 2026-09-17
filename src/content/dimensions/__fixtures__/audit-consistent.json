@@ -1,0 +1,57 @@
+[
+  {
+    "id": "eq-stokes-einstein",
+    "paper": "brownian-motion",
+    "quantities": {
+      "boltzmannConstant": {
+        "id": "boltzmannConstant",
+        "dimension": ["2", "1", "-2", "-1", "0", "0"]
+      },
+      "temperature": {
+        "id": "temperature",
+        "dimension": ["0", "0", "0", "1", "0", "0"]
+      },
+      "viscosity": {
+        "id": "viscosity",
+        "dimension": ["-1", "1", "-1", "0", "0", "0"]
+      },
+      "particleRadius": {
+        "id": "particleRadius",
+        "dimension": ["1", "0", "0", "0", "0", "0"]
+      }
+    },
+    "tree": {
+      "kind": "quotient",
+      "numerator": {
+        "kind": "product",
+        "args": [
+          {
+            "kind": "symbol",
+            "quantityId": "boltzmannConstant",
+            "id": "t.boltzmannConstant"
+          },
+          {
+            "kind": "symbol",
+            "quantityId": "temperature",
+            "id": "t.temperature"
+          }
+        ]
+      },
+      "denominator": {
+        "kind": "product",
+        "args": [
+          {
+            "kind": "symbol",
+            "quantityId": "viscosity",
+            "id": "t.viscosity"
+          },
+          {
+            "kind": "symbol",
+            "quantityId": "particleRadius",
+            "id": "t.particleRadius"
+          }
+        ]
+      }
+    }
+  }
+]

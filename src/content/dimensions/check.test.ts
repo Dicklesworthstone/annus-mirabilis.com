@@ -507,6 +507,17 @@ describe("Exact Rational Dimension Validator and Semantic Kind Checker", () => {
     // Fails in SI context because E and B have different dimensions in SI
     const siCheck = checkDimensions(transformExpr, REGISTRY, { context: "si" });
     expect(siCheck.status).toBe("inconsistent");
+
+    // A field component lacking gaussianDimension in gaussian-cgs context yields unsupported-check
+    const missingGaussianExpr = sym("fieldWithoutGaussian");
+    const checkMissingGaussian = checkDimensions(missingGaussianExpr, REGISTRY, {
+      context: "gaussian-cgs",
+    });
+    expect(checkMissingGaussian.status).toBe("unsupported-check");
+    if (checkMissingGaussian.status === "unsupported-check") {
+      expect(checkMissingGaussian.reason).toContain("fieldWithoutGaussian");
+      expect(checkMissingGaussian.reason).toContain("Gaussian");
+    }
   });
 
   it("validates paper 1 §8 in EMU-CGS context: Pi * E = R*beta*nu - P' is energy per mole", () => {
