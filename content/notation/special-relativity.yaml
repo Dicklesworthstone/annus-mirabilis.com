@@ -1,0 +1,1715 @@
+# Scoped Notation Concordance for Special Relativity (ap-17-891)
+# Specification: AGENTS.md, am-not-concordance-model-uag, am-not-entries-relativity-f6e.
+# Verification status: all entries are marked pending per honesty constraint
+# (no pinned facsimile scan is currently committed in the repository).
+# Glyphs and scopes follow AGENTS.md and the quantity registry; they are not
+# compared to page pixels. Absence is recorded; invented facsimile readings
+# are not admitted.
+
+paper: special-relativity
+
+entries:
+  # =========================================================================
+  # Frames and kinematics (introduction and §§1–5)
+  # =========================================================================
+  - id: sr.V.speedOfLight
+    paper: special-relativity
+    scope: ["sr-s0", "sr-s1", "sr-s2", "sr-s3", "sr-s4", "sr-s5", "sr-s6", "sr-s7", "sr-s8", "sr-s9", "sr-s10"]
+    glyph:
+      unicode: "V"
+      latex: "V"
+      variant: plain
+    meaning: "Speed of light in empty space, as printed"
+    binding:
+      quantityId: speedOfLight
+    operation:
+      kind: rename
+      target:
+        form: symbol
+        modernGlyph: "c"
+    collision:
+      severity: caution
+      kind: cross-paper
+      collidesWith: ["volume"]
+      collidesWithModern: ["volume"]
+      firstUseAnchor: sr-s0-p1
+      firstUseBySection:
+        - sectionId: sr-s0
+          anchor: sr-s0-p1
+    notes: "Rename only. Not a unit conversion and not a change of argument."
+    sources:
+      facsimilePage: 891
+      anchor: sr-s0-p1
+    verification:
+      printed: true
+      checkedAgainst: "Pending facsimile scan (ap-17-891)"
+      by: "Editorial Staff"
+      date: "2026-09-17"
+
+  - id: sr.v.frameSpeed
+    paper: special-relativity
+    scope: ["sr-s0", "sr-s1", "sr-s2", "sr-s3", "sr-s4", "sr-s5", "sr-s6", "sr-s7", "sr-s8", "sr-s9", "sr-s10"]
+    glyph:
+      unicode: "v"
+      latex: "v"
+      variant: plain
+    meaning: "Speed of the moving system k relative to the stationary system K"
+    binding:
+      quantityId: frameSpeed
+    operation:
+      kind: rename
+      target:
+        form: symbol
+        modernGlyph: "v"
+    sources:
+      facsimilePage: 891
+      anchor: sr-s0-p1
+    verification:
+      printed: true
+      checkedAgainst: "Pending facsimile scan (ap-17-891)"
+      by: "Editorial Staff"
+      date: "2026-09-17"
+
+  - id: sr.K.stationarySystem
+    paper: special-relativity
+    scope: ["sr-s0", "sr-s1", "sr-s2", "sr-s3", "sr-s4", "sr-s5", "sr-s6", "sr-s7", "sr-s8", "sr-s9", "sr-s10"]
+    glyph:
+      unicode: "K"
+      latex: "K"
+      variant: plain
+    meaning: "The stationary coordinate system"
+    binding:
+      nonQuantityKind: coordinate-system-label
+    operation:
+      kind: rename
+      target:
+        form: symbol
+        modernGlyph: "S"
+    collision:
+      severity: caution
+      kind: cross-paper
+      collidesWith: ["dragForce", "kineticEnergy"]
+      collidesWithModern: ["dragForce", "kineticEnergy"]
+      firstUseAnchor: sr-s0-p1
+      firstUseBySection:
+        - sectionId: sr-s0
+          anchor: sr-s0-p1
+    notes: "A system label, not a force (paper 2) and not kinetic energy (paper 4)."
+    sources:
+      facsimilePage: 891
+      anchor: sr-s0-p1
+    verification:
+      printed: true
+      checkedAgainst: "Pending facsimile scan (ap-17-891)"
+      by: "Editorial Staff"
+      date: "2026-09-17"
+
+  - id: sr.k.movingSystem
+    paper: special-relativity
+    scope: ["sr-s0", "sr-s1", "sr-s2", "sr-s3", "sr-s4", "sr-s5", "sr-s6", "sr-s7", "sr-s8", "sr-s9", "sr-s10"]
+    glyph:
+      unicode: "k"
+      latex: "k"
+      variant: plain
+    meaning: "The moving coordinate system"
+    binding:
+      nonQuantityKind: coordinate-system-label
+    operation:
+      kind: rename
+      target:
+        form: symbol
+        modernGlyph: "S'"
+    collision:
+      severity: caution
+      kind: cross-paper
+      collidesWith: ["viscosity"]
+      collidesWithModern: ["viscosity"]
+      firstUseAnchor: sr-s0-p1
+      firstUseBySection:
+        - sectionId: sr-s0
+          anchor: sr-s0-p1
+    notes: "A system label. Never viscosity (paper 2). The modern ansatz transverse coefficient is not written k."
+    sources:
+      facsimilePage: 891
+      anchor: sr-s0-p1
+    verification:
+      printed: true
+      checkedAgainst: "Pending facsimile scan (ap-17-891)"
+      by: "Editorial Staff"
+      date: "2026-09-17"
+
+  - id: sr.x.coordinatePositionStationary
+    paper: special-relativity
+    scope: ["sr-s1", "sr-s2", "sr-s3", "sr-s4", "sr-s5", "sr-s6", "sr-s7", "sr-s8", "sr-s9", "sr-s10"]
+    glyph:
+      unicode: "x"
+      latex: "x"
+      variant: plain
+    meaning: "Spatial x-coordinate in the stationary system K"
+    binding:
+      quantityId: coordinatePositionStationary
+    frameOrReference: stationary-system
+    operation:
+      kind: rename
+      target:
+        form: symbol
+        modernGlyph: "x"
+    sources:
+      facsimilePage: 892
+      anchor: sr-s1-p1
+    verification:
+      printed: true
+      checkedAgainst: "Pending facsimile scan (ap-17-891)"
+      by: "Editorial Staff"
+      date: "2026-09-17"
+
+  - id: sr.y.coordinatePositionStationary
+    paper: special-relativity
+    scope: ["sr-s1", "sr-s2", "sr-s3", "sr-s4", "sr-s5", "sr-s6", "sr-s7", "sr-s8", "sr-s9", "sr-s10"]
+    glyph:
+      unicode: "y"
+      latex: "y"
+      variant: plain
+    meaning: "Spatial y-coordinate in the stationary system K"
+    binding:
+      quantityId: coordinatePositionStationary
+    frameOrReference: stationary-system
+    operation:
+      kind: rename
+      target:
+        form: symbol
+        modernGlyph: "y"
+    sources:
+      facsimilePage: 892
+      anchor: sr-s1-p1
+    verification:
+      printed: true
+      checkedAgainst: "Pending facsimile scan (ap-17-891)"
+      by: "Editorial Staff"
+      date: "2026-09-17"
+
+  - id: sr.z.coordinatePositionStationary
+    paper: special-relativity
+    scope: ["sr-s1", "sr-s2", "sr-s3", "sr-s4", "sr-s5", "sr-s6", "sr-s7", "sr-s8", "sr-s9", "sr-s10"]
+    glyph:
+      unicode: "z"
+      latex: "z"
+      variant: plain
+    meaning: "Spatial z-coordinate in the stationary system K"
+    binding:
+      quantityId: coordinatePositionStationary
+    frameOrReference: stationary-system
+    operation:
+      kind: rename
+      target:
+        form: symbol
+        modernGlyph: "z"
+    sources:
+      facsimilePage: 892
+      anchor: sr-s1-p1
+    verification:
+      printed: true
+      checkedAgainst: "Pending facsimile scan (ap-17-891)"
+      by: "Editorial Staff"
+      date: "2026-09-17"
+
+  - id: sr.t.coordinateTimeStationary
+    paper: special-relativity
+    scope: ["sr-s1", "sr-s2", "sr-s3", "sr-s4", "sr-s5", "sr-s6", "sr-s7", "sr-s8", "sr-s9", "sr-s10"]
+    glyph:
+      unicode: "t"
+      latex: "t"
+      variant: plain
+    meaning: "Time coordinate in the stationary system K"
+    binding:
+      quantityId: coordinateTimeStationary
+    frameOrReference: stationary-system
+    operation:
+      kind: rename
+      target:
+        form: symbol
+        modernGlyph: "t"
+    sources:
+      facsimilePage: 892
+      anchor: sr-s1-p1
+    verification:
+      printed: true
+      checkedAgainst: "Pending facsimile scan (ap-17-891)"
+      by: "Editorial Staff"
+      date: "2026-09-17"
+
+  - id: sr.tA.coordinateTimeStationary
+    paper: special-relativity
+    scope: ["sr-s1"]
+    glyph:
+      unicode: "t_A"
+      latex: "t_A"
+      variant: subscripted
+    meaning: "Clock reading at event A in K"
+    binding:
+      quantityId: coordinateTimeStationary
+    frameOrReference: stationary-system
+    operation:
+      kind: rename
+      target:
+        form: symbol
+        modernGlyph: "t_A"
+    sources:
+      facsimilePage: 893
+      anchor: sr-s1-p1
+    verification:
+      printed: true
+      checkedAgainst: "Pending facsimile scan (ap-17-891)"
+      by: "Editorial Staff"
+      date: "2026-09-17"
+
+  - id: sr.tB.coordinateTimeStationary
+    paper: special-relativity
+    scope: ["sr-s1"]
+    glyph:
+      unicode: "t_B"
+      latex: "t_B"
+      variant: subscripted
+    meaning: "Clock reading at event B in K"
+    binding:
+      quantityId: coordinateTimeStationary
+    frameOrReference: stationary-system
+    operation:
+      kind: rename
+      target:
+        form: symbol
+        modernGlyph: "t_B"
+    sources:
+      facsimilePage: 893
+      anchor: sr-s1-p1
+    verification:
+      printed: true
+      checkedAgainst: "Pending facsimile scan (ap-17-891)"
+      by: "Editorial Staff"
+      date: "2026-09-17"
+
+  - id: sr.tAret.returnTimeAtA
+    paper: special-relativity
+    scope: ["sr-s1"]
+    glyph:
+      unicode: "t′_A"
+      latex: "t'_A"
+      variant: primed
+    meaning: "Return-time reading at A in K, after the signal has been to B and back"
+    binding:
+      quantityId: coordinateTimeStationary
+    frameOrReference: stationary-system
+    operation:
+      kind: rename
+      target:
+        form: symbol
+        modernGlyph: "t_A^{\\mathrm{ret}}"
+    collision:
+      severity: danger
+      kind: cross-toggle
+      collidesWith: ["sr.tau.coordinateTimeMoving"]
+      collidesWithModern: ["t'"]
+      firstUseAnchor: sr-s1-p1
+      firstUseBySection:
+        - sectionId: sr-s1
+          anchor: sr-s1-p1
+    notes: "Printed t'_A is a return time in K. It must not render as the moving-system time t'."
+    sources:
+      facsimilePage: 893
+      anchor: sr-s1-p1
+    verification:
+      printed: true
+      checkedAgainst: "Pending facsimile scan (ap-17-891)"
+      by: "Editorial Staff"
+      date: "2026-09-17"
+
+  - id: sr.AB.eventSeparationSpatial
+    paper: special-relativity
+    scope: ["sr-s1"]
+    glyph:
+      unicode: "AB"
+      latex: "\\overline{AB}"
+      variant: plain
+    meaning: "Spatial separation of the stations A and B"
+    binding:
+      quantityId: eventSeparationSpatial
+    operation:
+      kind: rename
+      target:
+        form: symbol
+        modernGlyph: "\\overline{AB}"
+    sources:
+      facsimilePage: 893
+      anchor: sr-s1-p1
+    verification:
+      printed: true
+      checkedAgainst: "Pending facsimile scan (ap-17-891)"
+      by: "Editorial Staff"
+      date: "2026-09-17"
+
+  - id: sr.rAB.lengthMeasuredStationary
+    paper: special-relativity
+    scope: ["sr-s2"]
+    glyph:
+      unicode: "r_AB"
+      latex: "r_{AB}"
+      variant: subscripted
+    meaning: "Length of the moving rod measured in the stationary system"
+    binding:
+      quantityId: lengthMeasuredStationary
+    frameOrReference: stationary-system
+    operation:
+      kind: rename
+      target:
+        form: symbol
+        modernGlyph: "L"
+    sources:
+      facsimilePage: 895
+      anchor: sr-s2-p1
+    verification:
+      printed: true
+      checkedAgainst: "Pending facsimile scan (ap-17-891)"
+      by: "Editorial Staff"
+      date: "2026-09-17"
+
+  - id: sr.l.lengthProper
+    paper: special-relativity
+    scope: ["sr-s2", "sr-s3"]
+    glyph:
+      unicode: "l"
+      latex: "l"
+      variant: plain
+    meaning: "The rod's length in its own rest system"
+    binding:
+      quantityId: lengthProper
+    frameOrReference: object-rest
+    operation:
+      kind: rename
+      target:
+        form: symbol
+        modernGlyph: "\\ell"
+    collision:
+      severity: caution
+      kind: within-paper
+      collidesWith: ["sr.l.directionCosineStationary"]
+      firstUseAnchor: sr-s2-p1
+      firstUseBySection:
+        - sectionId: sr-s2
+          anchor: sr-s2-p1
+        - sectionId: sr-s3
+          anchor: sr-s3-p1
+    notes: "Lowercase l here is a length. In §§7–8, l is a direction cosine."
+    sources:
+      facsimilePage: 895
+      anchor: sr-s2-p1
+    verification:
+      printed: true
+      checkedAgainst: "Pending facsimile scan (ap-17-891)"
+      by: "Editorial Staff"
+      date: "2026-09-17"
+
+  - id: sr.xi.coordinatePositionMoving
+    paper: special-relativity
+    scope: ["sr-s3", "sr-s4", "sr-s5", "sr-s6", "sr-s7", "sr-s8", "sr-s9", "sr-s10"]
+    glyph:
+      unicode: "ξ"
+      latex: "\\xi"
+      variant: plain
+    meaning: "Spatial x-coordinate in the moving system k"
+    binding:
+      quantityId: coordinatePositionMoving
+    frameOrReference: moving-system
+    operation:
+      kind: rename
+      target:
+        form: symbol
+        modernGlyph: "x'"
+    collision:
+      severity: danger
+      kind: cross-toggle
+      collidesWith: ["sr.xprime.auxiliaryGalileanCoordinate"]
+      collidesWithModern: ["\\tilde{x}"]
+      firstUseAnchor: sr-s3-p1
+      firstUseBySection:
+        - sectionId: sr-s3
+          anchor: sr-s3-p1
+    notes: "Modern x' is the moving-frame coordinate. Einstein's printed x' in §3 is a different quantity."
+    sources:
+      facsimilePage: 897
+      anchor: sr-s3-p1
+    verification:
+      printed: true
+      checkedAgainst: "Pending facsimile scan (ap-17-891)"
+      by: "Editorial Staff"
+      date: "2026-09-17"
+
+  - id: sr.eta.coordinatePositionMoving
+    paper: special-relativity
+    scope: ["sr-s3", "sr-s4", "sr-s5", "sr-s6", "sr-s7", "sr-s8", "sr-s9", "sr-s10"]
+    glyph:
+      unicode: "η"
+      latex: "\\eta"
+      variant: plain
+    meaning: "Spatial y-coordinate in the moving system k"
+    binding:
+      quantityId: coordinatePositionMoving
+    frameOrReference: moving-system
+    operation:
+      kind: rename
+      target:
+        form: symbol
+        modernGlyph: "y'"
+    sources:
+      facsimilePage: 897
+      anchor: sr-s3-p1
+    verification:
+      printed: true
+      checkedAgainst: "Pending facsimile scan (ap-17-891)"
+      by: "Editorial Staff"
+      date: "2026-09-17"
+
+  - id: sr.zeta.coordinatePositionMoving
+    paper: special-relativity
+    scope: ["sr-s3", "sr-s4", "sr-s5", "sr-s6", "sr-s7", "sr-s8", "sr-s9", "sr-s10"]
+    glyph:
+      unicode: "ζ"
+      latex: "\\zeta"
+      variant: plain
+    meaning: "Spatial z-coordinate in the moving system k"
+    binding:
+      quantityId: coordinatePositionMoving
+    frameOrReference: moving-system
+    operation:
+      kind: rename
+      target:
+        form: symbol
+        modernGlyph: "z'"
+    sources:
+      facsimilePage: 897
+      anchor: sr-s3-p1
+    verification:
+      printed: true
+      checkedAgainst: "Pending facsimile scan (ap-17-891)"
+      by: "Editorial Staff"
+      date: "2026-09-17"
+
+  - id: sr.tau.coordinateTimeMoving
+    paper: special-relativity
+    scope: ["sr-s3", "sr-s4", "sr-s5", "sr-s6", "sr-s7", "sr-s8", "sr-s9", "sr-s10"]
+    glyph:
+      unicode: "τ"
+      latex: "\\tau"
+      variant: plain
+    meaning: "Time coordinate in the moving system k, never elapsed proper time"
+    binding:
+      quantityId: coordinateTimeMoving
+    frameOrReference: moving-system
+    operation:
+      kind: rename
+      target:
+        form: symbol
+        modernGlyph: "t'"
+    collision:
+      severity: danger
+      kind: cross-toggle
+      collidesWith: ["properTimeElapsed", "sr.tAret.returnTimeAtA"]
+      collidesWithModern: ["properTimeElapsed"]
+      firstUseAnchor: sr-s3-p1
+      firstUseBySection:
+        - sectionId: sr-s3
+          anchor: sr-s3-p1
+    notes: "tau is the moving system's coordinate time. It is never properTimeElapsed."
+    sources:
+      facsimilePage: 897
+      anchor: sr-s3-p1
+    verification:
+      printed: true
+      checkedAgainst: "Pending facsimile scan (ap-17-891)"
+      by: "Editorial Staff"
+      date: "2026-09-17"
+
+  - id: sr.xprime.auxiliaryGalileanCoordinate
+    paper: special-relativity
+    scope: ["sr-s3"]
+    glyph:
+      unicode: "x′"
+      latex: "x'"
+      variant: primed
+    meaning: "Galilean auxiliary coordinate x - vt, not the moving-frame coordinate xi"
+    binding:
+      quantityId: auxiliaryGalileanCoordinate
+    operation:
+      kind: rename
+      target:
+        form: symbol
+        modernGlyph: "\\tilde{x}"
+    collision:
+      severity: danger
+      kind: cross-toggle
+      collidesWith: ["sr.xi.coordinatePositionMoving"]
+      collidesWithModern: ["x'"]
+      firstUseAnchor: sr-s3-p1
+      firstUseBySection:
+        - sectionId: sr-s3
+          anchor: sr-s3-p1
+    notes: "Printed x' = x - vt is an auxiliary. Modern x' is reserved for xi. The two must not share a glyph in a modern rendering of §3."
+    sources:
+      facsimilePage: 898
+      anchor: sr-s3-p1
+    verification:
+      printed: true
+      checkedAgainst: "Pending facsimile scan (ap-17-891)"
+      by: "Editorial Staff"
+      date: "2026-09-17"
+
+  - id: sr.beta.lorentzFactor
+    paper: special-relativity
+    scope: ["sr-s3", "sr-s4", "sr-s5", "sr-s6", "sr-s7", "sr-s8", "sr-s9", "sr-s10"]
+    glyph:
+      unicode: "β"
+      latex: "\\beta"
+      variant: plain
+    meaning: "The factor 1/sqrt(1 - v^2/V^2); the modern gamma"
+    binding:
+      quantityId: lorentzFactor
+    operation:
+      kind: rename
+      target:
+        form: symbol
+        modernGlyph: "\\gamma"
+    collision:
+      severity: danger
+      kind: cross-toggle
+      collidesWith: ["speedRatio", "wienConstantBeta"]
+      collidesWithModern: ["speedRatio"]
+      firstUseAnchor: sr-s3-p1
+      firstUseBySection:
+        - sectionId: sr-s3
+          anchor: sr-s3-p1
+    notes: "Rename only. Einstein's beta is the modern gamma. It is not v/c, and it is not paper 1's Wien constant h/k_B. Assuming beta = v/c makes every later formula look plausible and be wrong."
+    sources:
+      facsimilePage: 898
+      anchor: sr-s3-p1
+    verification:
+      printed: true
+      checkedAgainst: "Pending facsimile scan (ap-17-891)"
+      by: "Editorial Staff"
+      date: "2026-09-17"
+
+  - id: sr.a.transformationCoefficientA
+    paper: special-relativity
+    scope: ["sr-s3"]
+    glyph:
+      unicode: "a"
+      latex: "a"
+      variant: plain
+    meaning: "Undetermined function of v in the §3 transformation, before it is fixed"
+    binding:
+      quantityId: transformationCoefficientA
+    operation:
+      kind: rename
+      target:
+        form: symbol
+        modernGlyph: "a(v)"
+    notes: "Printed a is not the modern side-door ansatz a(v), which is a modernOnlySymbols record."
+    sources:
+      facsimilePage: 898
+      anchor: sr-s3-p1
+    verification:
+      printed: true
+      checkedAgainst: "Pending facsimile scan (ap-17-891)"
+      by: "Editorial Staff"
+      date: "2026-09-17"
+
+  - id: sr.varphi.scaleFactorUnknown
+    paper: special-relativity
+    scope: ["sr-s3"]
+    glyph:
+      unicode: "φ"
+      latex: "\\varphi"
+      variant: plain
+    meaning: "Unknown scale function phi(v), later shown to equal 1"
+    binding:
+      quantityId: scaleFactorUnknown
+    operation:
+      kind: rename
+      target:
+        form: symbol
+        modernGlyph: "\\varphi(v)"
+    collision:
+      severity: caution
+      kind: within-paper
+      collidesWith: ["sr.varphi.propagationAngleStationary"]
+      firstUseAnchor: sr-s3-p1
+      firstUseBySection:
+        - sectionId: sr-s3
+          anchor: sr-s3-p1
+    notes: "In §§7–8 the same glyph is an angle. Distinct from §6's psi(v)."
+    sources:
+      facsimilePage: 900
+      anchor: sr-s3-p1
+    verification:
+      printed: true
+      checkedAgainst: "Pending facsimile scan (ap-17-891)"
+      by: "Editorial Staff"
+      date: "2026-09-17"
+
+  - id: sr.R.sphereRadius
+    paper: special-relativity
+    scope: ["sr-s4"]
+    glyph:
+      unicode: "R"
+      latex: "R"
+      variant: plain
+    meaning: "Radius of the rigid sphere measured at rest"
+    binding:
+      quantityId: sphereRadius
+    operation:
+      kind: rename
+      target:
+        form: symbol
+        modernGlyph: "R"
+    collision:
+      severity: caution
+      kind: within-paper
+      collidesWith: ["sr.R.lightSphereRadius"]
+      firstUseAnchor: sr-s4-p1
+      firstUseBySection:
+        - sectionId: sr-s4
+          anchor: sr-s4-p1
+    sources:
+      facsimilePage: 903
+      anchor: sr-s4-p1
+    verification:
+      printed: true
+      checkedAgainst: "Pending facsimile scan (ap-17-891)"
+      by: "Editorial Staff"
+      date: "2026-09-17"
+
+  - id: sr.w.velocityInMovingFrame
+    paper: special-relativity
+    scope: ["sr-s5"]
+    glyph:
+      unicode: "w"
+      latex: "w"
+      variant: plain
+    meaning: "Velocity of a point relative to k"
+    binding:
+      quantityId: velocityInMovingFrame
+    frameOrReference: moving-system
+    operation:
+      kind: rename
+      target:
+        form: symbol
+        modernGlyph: "u'"
+    sources:
+      facsimilePage: 905
+      anchor: sr-s5-p1
+    verification:
+      printed: true
+      checkedAgainst: "Pending facsimile scan (ap-17-891)"
+      by: "Editorial Staff"
+      date: "2026-09-17"
+
+  - id: sr.U.velocityComposed
+    paper: special-relativity
+    scope: ["sr-s5"]
+    glyph:
+      unicode: "U"
+      latex: "U"
+      variant: plain
+    meaning: "The composed velocity in K"
+    binding:
+      quantityId: velocityComposed
+    frameOrReference: stationary-system
+    operation:
+      kind: rename
+      target:
+        form: symbol
+        modernGlyph: "u"
+    sources:
+      facsimilePage: 905
+      anchor: sr-s5-p1
+    verification:
+      printed: true
+      checkedAgainst: "Pending facsimile scan (ap-17-891)"
+      by: "Editorial Staff"
+      date: "2026-09-17"
+
+  - id: sr.alpha.velocityDirectionAngle
+    paper: special-relativity
+    scope: ["sr-s5"]
+    glyph:
+      unicode: "α"
+      latex: "\\alpha"
+      variant: plain
+    meaning: "Angle between w and the direction of motion"
+    binding:
+      quantityId: velocityDirectionAngle
+    operation:
+      kind: rename
+      target:
+        form: symbol
+        modernGlyph: "\\alpha"
+    sources:
+      facsimilePage: 905
+      anchor: sr-s5-p1
+    verification:
+      printed: true
+      checkedAgainst: "Pending facsimile scan (ap-17-891)"
+      by: "Editorial Staff"
+      date: "2026-09-17"
+
+  - id: sr.kappa.speedDeficitFromLight
+    paper: special-relativity
+    scope: ["sr-s5"]
+    glyph:
+      unicode: "κ"
+      latex: "\\kappa"
+      variant: plain
+    meaning: "Speed by which v falls short of V, in v = V - kappa"
+    binding:
+      quantityId: speedDeficitFromLight
+    operation:
+      kind: rename
+      target:
+        form: symbol
+        modernGlyph: "\\kappa"
+    notes: "A speed, not a ratio. Binding it as dimensionless makes the printed inequality fail a dimension check."
+    sources:
+      facsimilePage: 906
+      anchor: sr-s5-p1
+    verification:
+      printed: true
+      checkedAgainst: "Pending facsimile scan (ap-17-891)"
+      by: "Editorial Staff"
+      date: "2026-09-17"
+
+  - id: sr.lambda.speedDeficitFromLight
+    paper: special-relativity
+    scope: ["sr-s5"]
+    glyph:
+      unicode: "λ"
+      latex: "\\lambda"
+      variant: plain
+    meaning: "Speed by which w falls short of V, in w = V - lambda"
+    binding:
+      quantityId: speedDeficitFromLight
+    operation:
+      kind: rename
+      target:
+        form: symbol
+        modernGlyph: "\\lambda"
+    notes: "A speed, not a ratio, and not wavelength."
+    sources:
+      facsimilePage: 906
+      anchor: sr-s5-p1
+    verification:
+      printed: true
+      checkedAgainst: "Pending facsimile scan (ap-17-891)"
+      by: "Editorial Staff"
+      date: "2026-09-17"
+
+  # =========================================================================
+  # Electrodynamics (§§6–10)
+  # =========================================================================
+  - id: sr.X.electricFieldStationary
+    paper: special-relativity
+    scope: ["sr-s6", "sr-s7", "sr-s8", "sr-s9", "sr-s10"]
+    glyph:
+      unicode: "X"
+      latex: "X"
+      variant: plain
+    meaning: "x-component of the electric force in K (Gaussian)"
+    binding:
+      quantityId: electricFieldStationary
+    frameOrReference: stationary-system
+    operation:
+      kind: rename
+      target:
+        form: symbol
+        modernGlyph: "E_x"
+    notes: "Rename only. Gaussian-to-SI conversion E_G = sqrt(4 pi epsilon_0) E_SI is a unitConversion, not applied by the notation toggle. fromSystem gaussian-cgs, toSystem si."
+    sources:
+      facsimilePage: 907
+      anchor: sr-s6-p1
+    verification:
+      printed: true
+      checkedAgainst: "Pending facsimile scan (ap-17-891)"
+      by: "Editorial Staff"
+      date: "2026-09-17"
+
+  - id: sr.Y.electricFieldStationary
+    paper: special-relativity
+    scope: ["sr-s6", "sr-s7", "sr-s8", "sr-s9", "sr-s10"]
+    glyph:
+      unicode: "Y"
+      latex: "Y"
+      variant: plain
+    meaning: "y-component of the electric force in K (Gaussian)"
+    binding:
+      quantityId: electricFieldStationary
+    frameOrReference: stationary-system
+    operation:
+      kind: rename
+      target:
+        form: symbol
+        modernGlyph: "E_y"
+    notes: "Rename only. Gaussian-to-SI conversion is a separate unitConversion (gaussian-cgs to si). The SI transformation is E'_y = gamma (E_y - v B_z), not a string substitution on the Gaussian formula."
+    sources:
+      facsimilePage: 907
+      anchor: sr-s6-p1
+    verification:
+      printed: true
+      checkedAgainst: "Pending facsimile scan (ap-17-891)"
+      by: "Editorial Staff"
+      date: "2026-09-17"
+
+  - id: sr.Z.electricFieldStationary
+    paper: special-relativity
+    scope: ["sr-s6", "sr-s7", "sr-s8", "sr-s9", "sr-s10"]
+    glyph:
+      unicode: "Z"
+      latex: "Z"
+      variant: plain
+    meaning: "z-component of the electric force in K (Gaussian)"
+    binding:
+      quantityId: electricFieldStationary
+    frameOrReference: stationary-system
+    operation:
+      kind: rename
+      target:
+        form: symbol
+        modernGlyph: "E_z"
+    notes: "Rename only. Gaussian-to-SI is unitConversion, gaussian-cgs to si."
+    sources:
+      facsimilePage: 907
+      anchor: sr-s6-p1
+    verification:
+      printed: true
+      checkedAgainst: "Pending facsimile scan (ap-17-891)"
+      by: "Editorial Staff"
+      date: "2026-09-17"
+
+  - id: sr.L.magneticFieldStationary
+    paper: special-relativity
+    scope: ["sr-s6", "sr-s7", "sr-s8", "sr-s9", "sr-s10"]
+    glyph:
+      unicode: "L"
+      latex: "L"
+      variant: plain
+    meaning: "x-component of the magnetic force in K (Gaussian)"
+    binding:
+      quantityId: magneticFieldStationary
+    frameOrReference: stationary-system
+    operation:
+      kind: rename
+      target:
+        form: symbol
+        modernGlyph: "B_x"
+    collision:
+      severity: danger
+      kind: cross-paper
+      collidesWith: ["speedOfLight", "emittedEnergyRestFrame"]
+      collidesWithModern: ["speedOfLight", "emittedEnergyRestFrame"]
+      firstUseAnchor: sr-s6-p1
+      firstUseBySection:
+        - sectionId: sr-s6
+          anchor: sr-s6-p1
+    notes: "A magnetic-field component. Not the speed of light (paper 1) and not emitted energy (paper 4). Rename only; Gaussian-to-SI is unitConversion B_G = c sqrt(4 pi epsilon_0) B_SI."
+    sources:
+      facsimilePage: 907
+      anchor: sr-s6-p1
+    verification:
+      printed: true
+      checkedAgainst: "Pending facsimile scan (ap-17-891)"
+      by: "Editorial Staff"
+      date: "2026-09-17"
+
+  - id: sr.M.magneticFieldStationary
+    paper: special-relativity
+    scope: ["sr-s6", "sr-s7", "sr-s8", "sr-s9", "sr-s10"]
+    glyph:
+      unicode: "M"
+      latex: "M"
+      variant: plain
+    meaning: "y-component of the magnetic force in K (Gaussian)"
+    binding:
+      quantityId: magneticFieldStationary
+    frameOrReference: stationary-system
+    operation:
+      kind: rename
+      target:
+        form: symbol
+        modernGlyph: "B_y"
+    notes: "Rename only. SI form B'_y = gamma (B_y + v E_z / c^2) is not a string substitution on the Gaussian formula."
+    sources:
+      facsimilePage: 907
+      anchor: sr-s6-p1
+    verification:
+      printed: true
+      checkedAgainst: "Pending facsimile scan (ap-17-891)"
+      by: "Editorial Staff"
+      date: "2026-09-17"
+
+  - id: sr.N.magneticFieldStationary
+    paper: special-relativity
+    scope: ["sr-s6", "sr-s7", "sr-s8", "sr-s9", "sr-s10"]
+    glyph:
+      unicode: "N"
+      latex: "N"
+      variant: plain
+    meaning: "z-component of the magnetic force in K (Gaussian)"
+    binding:
+      quantityId: magneticFieldStationary
+    frameOrReference: stationary-system
+    operation:
+      kind: rename
+      target:
+        form: symbol
+        modernGlyph: "B_z"
+    collision:
+      severity: danger
+      kind: cross-paper
+      collidesWith: ["avogadroConstant"]
+      collidesWithModern: ["avogadroConstant"]
+      firstUseAnchor: sr-s6-p1
+      firstUseBySection:
+        - sectionId: sr-s6
+          anchor: sr-s6-p1
+    notes: "A magnetic-field component. Not Avogadro's number (papers 1 and 2)."
+    sources:
+      facsimilePage: 907
+      anchor: sr-s6-p1
+    verification:
+      printed: true
+      checkedAgainst: "Pending facsimile scan (ap-17-891)"
+      by: "Editorial Staff"
+      date: "2026-09-17"
+
+  - id: sr.Yprime.electricFieldMoving
+    paper: special-relativity
+    scope: ["sr-s6", "sr-s7", "sr-s8", "sr-s9"]
+    glyph:
+      unicode: "Y′"
+      latex: "Y'"
+      variant: primed
+    meaning: "y-component of the electric force in k (Gaussian)"
+    binding:
+      quantityId: electricFieldMoving
+    frameOrReference: moving-system
+    operation:
+      kind: rename
+      target:
+        form: symbol
+        modernGlyph: "E'_y"
+    notes: "Rename of the printed glyph. Gaussian-to-SI conversion (fromSystem gaussian-cgs, toSystem si) is a unitConversion and is not applied by the notation toggle. The SI law is E'_y = gamma (E_y - v B_z)."
+    sources:
+      facsimilePage: 907
+      anchor: sr-s6-p1
+    verification:
+      printed: true
+      checkedAgainst: "Pending facsimile scan (ap-17-891)"
+      by: "Editorial Staff"
+      date: "2026-09-17"
+
+  - id: sr.gaussianE.unitConversion
+    paper: special-relativity
+    scope: ["sr-s6"]
+    glyph:
+      unicode: "E_G"
+      latex: "E_{\\mathrm{G}}"
+      variant: plain
+    meaning: "Gaussian electric-field magnitude, for the unit-system conversion only"
+    binding:
+      quantityId: electricFieldStationary
+    operation:
+      kind: unitConversion
+      fromSystem: gaussian-cgs
+      toSystem: si
+      factor: 1
+      exact: false
+      conversionDerivationRef: "E_G = sqrt(4 pi epsilon_0) E_SI"
+    notes: "This entry records the unit-system conversion. It does not rename a printed glyph. The toggle must not apply it."
+    sources:
+      facsimilePage: 907
+      anchor: sr-s6-p1
+    verification:
+      printed: true
+      checkedAgainst: "Pending facsimile scan (ap-17-891)"
+      by: "Editorial Staff"
+      date: "2026-09-17"
+
+  - id: sr.psi.fieldScaleFactorUnknown
+    paper: special-relativity
+    scope: ["sr-s6"]
+    glyph:
+      unicode: "ψ"
+      latex: "\\psi"
+      variant: plain
+    meaning: "Common undetermined factor of the transformed fields, later shown to equal 1"
+    binding:
+      quantityId: fieldScaleFactorUnknown
+    operation:
+      kind: rename
+      target:
+        form: symbol
+        modernGlyph: "\\psi(v)"
+    notes: "A different record from §3's phi(v). Different argument, only later both equal to 1."
+    sources:
+      facsimilePage: 908
+      anchor: sr-s6-p1
+    verification:
+      printed: true
+      checkedAgainst: "Pending facsimile scan (ap-17-891)"
+      by: "Editorial Staff"
+      date: "2026-09-17"
+
+  - id: sr.Phi.wavePhase
+    paper: special-relativity
+    scope: ["sr-s7"]
+    glyph:
+      unicode: "Φ"
+      latex: "\\Phi"
+      variant: plain
+    meaning: "Phase of a plane wave"
+    binding:
+      quantityId: wavePhase
+    operation:
+      kind: rename
+      target:
+        form: symbol
+        modernGlyph: "\\Phi"
+    sources:
+      facsimilePage: 909
+      anchor: sr-s7-p1
+    verification:
+      printed: true
+      checkedAgainst: "Pending facsimile scan (ap-17-891)"
+      by: "Editorial Staff"
+      date: "2026-09-17"
+
+  - id: sr.omega.waveAngularFrequencyStationary
+    paper: special-relativity
+    scope: ["sr-s7", "sr-s8"]
+    glyph:
+      unicode: "ω"
+      latex: "\\omega"
+      variant: plain
+    meaning: "Angular frequency in K"
+    binding:
+      quantityId: waveAngularFrequencyStationary
+    frameOrReference: stationary-system
+    operation:
+      kind: rename
+      target:
+        form: symbol
+        modernGlyph: "\\omega"
+    sources:
+      facsimilePage: 909
+      anchor: sr-s7-p1
+    verification:
+      printed: true
+      checkedAgainst: "Pending facsimile scan (ap-17-891)"
+      by: "Editorial Staff"
+      date: "2026-09-17"
+
+  - id: sr.nu.waveFrequencyStationary
+    paper: special-relativity
+    scope: ["sr-s7", "sr-s8"]
+    glyph:
+      unicode: "ν"
+      latex: "\\nu"
+      variant: plain
+    meaning: "Cyclic frequency in K"
+    binding:
+      quantityId: waveFrequencyStationary
+    frameOrReference: stationary-system
+    operation:
+      kind: rename
+      target:
+        form: symbol
+        modernGlyph: "\\nu"
+    collision:
+      severity: caution
+      kind: cross-paper
+      collidesWith: ["numberDensity"]
+      collidesWithModern: ["numberDensity"]
+      firstUseAnchor: sr-s7-p1
+      firstUseBySection:
+        - sectionId: sr-s7
+          anchor: sr-s7-p1
+    notes: "Frequency here. Number density in paper 2."
+    sources:
+      facsimilePage: 909
+      anchor: sr-s7-p1
+    verification:
+      printed: true
+      checkedAgainst: "Pending facsimile scan (ap-17-891)"
+      by: "Editorial Staff"
+      date: "2026-09-17"
+
+  - id: sr.nuprime.waveFrequencyMoving
+    paper: special-relativity
+    scope: ["sr-s7", "sr-s8"]
+    glyph:
+      unicode: "ν′"
+      latex: "\\nu'"
+      variant: primed
+    meaning: "Cyclic frequency in k"
+    binding:
+      quantityId: waveFrequencyMoving
+    frameOrReference: moving-system
+    operation:
+      kind: rename
+      target:
+        form: symbol
+        modernGlyph: "\\nu'"
+    sources:
+      facsimilePage: 909
+      anchor: sr-s7-p1
+    verification:
+      printed: true
+      checkedAgainst: "Pending facsimile scan (ap-17-891)"
+      by: "Editorial Staff"
+      date: "2026-09-17"
+
+  - id: sr.l.directionCosineStationary
+    paper: special-relativity
+    scope: ["sr-s7", "sr-s8"]
+    glyph:
+      unicode: "l"
+      latex: "l"
+      variant: plain
+    meaning: "Direction cosine of the wave normal in K"
+    binding:
+      quantityId: directionCosineStationary
+    frameOrReference: stationary-system
+    operation:
+      kind: rename
+      target:
+        form: symbol
+        modernGlyph: "n_x"
+    collision:
+      severity: caution
+      kind: within-paper
+      collidesWith: ["sr.l.lengthProper"]
+      firstUseAnchor: sr-s7-p1
+      firstUseBySection:
+        - sectionId: sr-s7
+          anchor: sr-s7-p1
+    notes: "In §§2–3, lowercase l is the rod length."
+    sources:
+      facsimilePage: 909
+      anchor: sr-s7-p1
+    verification:
+      printed: true
+      checkedAgainst: "Pending facsimile scan (ap-17-891)"
+      by: "Editorial Staff"
+      date: "2026-09-17"
+
+  - id: sr.m.directionCosineStationary
+    paper: special-relativity
+    scope: ["sr-s7", "sr-s8"]
+    glyph:
+      unicode: "m"
+      latex: "m"
+      variant: plain
+    meaning: "Direction cosine of the wave normal in K"
+    binding:
+      quantityId: directionCosineStationary
+    frameOrReference: stationary-system
+    operation:
+      kind: rename
+      target:
+        form: symbol
+        modernGlyph: "n_y"
+    sources:
+      facsimilePage: 909
+      anchor: sr-s7-p1
+    verification:
+      printed: true
+      checkedAgainst: "Pending facsimile scan (ap-17-891)"
+      by: "Editorial Staff"
+      date: "2026-09-17"
+
+  - id: sr.n.directionCosineStationary
+    paper: special-relativity
+    scope: ["sr-s7", "sr-s8"]
+    glyph:
+      unicode: "n"
+      latex: "n"
+      variant: plain
+    meaning: "Direction cosine of the wave normal in K"
+    binding:
+      quantityId: directionCosineStationary
+    frameOrReference: stationary-system
+    operation:
+      kind: rename
+      target:
+        form: symbol
+        modernGlyph: "n_z"
+    sources:
+      facsimilePage: 909
+      anchor: sr-s7-p1
+    verification:
+      printed: true
+      checkedAgainst: "Pending facsimile scan (ap-17-891)"
+      by: "Editorial Staff"
+      date: "2026-09-17"
+
+  - id: sr.varphi.propagationAngleStationary
+    paper: special-relativity
+    scope: ["sr-s7", "sr-s8"]
+    glyph:
+      unicode: "φ"
+      latex: "\\varphi"
+      variant: plain
+    meaning: "Angle between the wave normal and the direction of motion in K"
+    binding:
+      quantityId: propagationAngleStationary
+    frameOrReference: stationary-system
+    operation:
+      kind: rename
+      target:
+        form: symbol
+        modernGlyph: "\\vartheta"
+    collision:
+      severity: caution
+      kind: within-paper
+      collidesWith: ["sr.varphi.scaleFactorUnknown"]
+      firstUseAnchor: sr-s7-p1
+      firstUseBySection:
+        - sectionId: sr-s7
+          anchor: sr-s7-p1
+    notes: "In §3, phi is the unknown scale function. Spectral entropy density in paper 1; transition kernel in paper 2."
+    sources:
+      facsimilePage: 910
+      anchor: sr-s7-p1
+    verification:
+      printed: true
+      checkedAgainst: "Pending facsimile scan (ap-17-891)"
+      by: "Editorial Staff"
+      date: "2026-09-17"
+
+  - id: sr.A.lightAmplitudeStationary
+    paper: special-relativity
+    scope: ["sr-s7", "sr-s8"]
+    glyph:
+      unicode: "A"
+      latex: "A"
+      variant: plain
+    meaning: "Amplitude of the light complex in K (Gaussian)"
+    binding:
+      quantityId: lightAmplitudeStationary
+    frameOrReference: stationary-system
+    operation:
+      kind: rename
+      target:
+        form: symbol
+        modernGlyph: "A"
+    notes: "Gaussian amplitude. Energy density A^2/8pi is Gaussian; converting it is unitConversion, not a rename."
+    sources:
+      facsimilePage: 910
+      anchor: sr-s7-p1
+    verification:
+      printed: true
+      checkedAgainst: "Pending facsimile scan (ap-17-891)"
+      by: "Editorial Staff"
+      date: "2026-09-17"
+
+  - id: sr.Aprime.lightAmplitudeMoving
+    paper: special-relativity
+    scope: ["sr-s7", "sr-s8"]
+    glyph:
+      unicode: "A′"
+      latex: "A'"
+      variant: primed
+    meaning: "Amplitude of the light complex in k (Gaussian)"
+    binding:
+      quantityId: lightAmplitudeMoving
+    frameOrReference: moving-system
+    operation:
+      kind: rename
+      target:
+        form: symbol
+        modernGlyph: "A'"
+    sources:
+      facsimilePage: 910
+      anchor: sr-s7-p1
+    verification:
+      printed: true
+      checkedAgainst: "Pending facsimile scan (ap-17-891)"
+      by: "Editorial Staff"
+      date: "2026-09-17"
+
+  - id: sr.R.lightSphereRadius
+    paper: special-relativity
+    scope: ["sr-s8"]
+    glyph:
+      unicode: "R"
+      latex: "R"
+      variant: plain
+    meaning: "Radius of the sphere that moves with the light"
+    binding:
+      quantityId: lightSphereRadius
+    operation:
+      kind: rename
+      target:
+        form: symbol
+        modernGlyph: "R_{\\mathrm{light}}"
+    collision:
+      severity: caution
+      kind: within-paper
+      collidesWith: ["sr.R.sphereRadius"]
+      firstUseAnchor: sr-s8-p1
+      firstUseBySection:
+        - sectionId: sr-s8
+          anchor: sr-s8-p1
+    notes: "Expected glyph R, pending facsimile. Distinct from §4's rest-sphere radius."
+    sources:
+      facsimilePage: 911
+      anchor: sr-s8-p1
+    verification:
+      printed: true
+      checkedAgainst: "Pending facsimile scan (ap-17-891)"
+      by: "Editorial Staff"
+      date: "2026-09-17"
+
+  - id: sr.E.lightComplexEnergyStationary
+    paper: special-relativity
+    scope: ["sr-s8"]
+    glyph:
+      unicode: "E"
+      latex: "E"
+      variant: plain
+    meaning: "Energy of the light complex in K"
+    binding:
+      quantityId: lightComplexEnergyStationary
+    frameOrReference: stationary-system
+    operation:
+      kind: rename
+      target:
+        form: symbol
+        modernGlyph: "\\mathcal{E}"
+    collision:
+      severity: caution
+      kind: within-paper
+      collidesWith: ["sr.X.electricFieldStationary"]
+      collidesWithModern: ["electricFieldStationary"]
+      firstUseAnchor: sr-s8-p1
+      firstUseBySection:
+        - sectionId: sr-s8
+          anchor: sr-s8-p1
+    notes: "Energy of a light complex here. Electric-field components in this paper are X, Y, Z, not E."
+    sources:
+      facsimilePage: 912
+      anchor: sr-s8-p1
+    verification:
+      printed: true
+      checkedAgainst: "Pending facsimile scan (ap-17-891)"
+      by: "Editorial Staff"
+      date: "2026-09-17"
+
+  - id: sr.Eprime.lightComplexEnergyMoving
+    paper: special-relativity
+    scope: ["sr-s8"]
+    glyph:
+      unicode: "E′"
+      latex: "E'"
+      variant: primed
+    meaning: "Energy of the light complex in k"
+    binding:
+      quantityId: lightComplexEnergyMoving
+    frameOrReference: moving-system
+    operation:
+      kind: rename
+      target:
+        form: symbol
+        modernGlyph: "\\mathcal{E}'"
+    sources:
+      facsimilePage: 912
+      anchor: sr-s8-p1
+    verification:
+      printed: true
+      checkedAgainst: "Pending facsimile scan (ap-17-891)"
+      by: "Editorial Staff"
+      date: "2026-09-17"
+
+  - id: sr.P.radiationPressureMirror
+    paper: special-relativity
+    scope: ["sr-s8"]
+    glyph:
+      unicode: "P"
+      latex: "P"
+      variant: plain
+    meaning: "Radiation pressure on a perfectly reflecting mirror"
+    binding:
+      quantityId: radiationPressureMirror
+    operation:
+      kind: rename
+      target:
+        form: symbol
+        modernGlyph: "P"
+    sources:
+      facsimilePage: 913
+      anchor: sr-s8-p1
+    verification:
+      printed: true
+      checkedAgainst: "Pending facsimile scan (ap-17-891)"
+      by: "Editorial Staff"
+      date: "2026-09-17"
+
+  - id: sr.rho.chargeDensityStationary
+    paper: special-relativity
+    scope: ["sr-s9"]
+    glyph:
+      unicode: "ρ"
+      latex: "\\rho"
+      variant: plain
+    meaning: "Printed 4-pi times the Gaussian electric-force divergence; not a plain charge density"
+    binding:
+      quantityId: chargeDensityStationary
+    frameOrReference: stationary-system
+    operation:
+      kind: unitConversion
+      fromSystem: gaussian-cgs
+      toSystem: si
+      factor: 1
+      exact: false
+      conversionDerivationRef: "rho_printed = 4 pi rho_Gaussian = sqrt(4 pi / epsilon_0) rho_SI"
+    notes: "The toggle must not display the printed rho as the modern SI charge density. Comparison witness: 4-pi-fache Dichte der Elektrizitat, pending facsimile."
+    sources:
+      facsimilePage: 914
+      anchor: sr-s9-p1
+    verification:
+      printed: true
+      checkedAgainst: "Pending facsimile scan (ap-17-891)"
+      by: "Editorial Staff"
+      date: "2026-09-17"
+
+  - id: sr.rhoprime.chargeDensityMoving
+    paper: special-relativity
+    scope: ["sr-s9"]
+    glyph:
+      unicode: "ρ′"
+      latex: "\\rho'"
+      variant: primed
+    meaning: "The same printed density, in k"
+    binding:
+      quantityId: chargeDensityMoving
+    frameOrReference: moving-system
+    operation:
+      kind: unitConversion
+      fromSystem: gaussian-cgs
+      toSystem: si
+      factor: 1
+      exact: false
+      conversionDerivationRef: "rho_printed = 4 pi rho_Gaussian = sqrt(4 pi / epsilon_0) rho_SI"
+    sources:
+      facsimilePage: 914
+      anchor: sr-s9-p1
+    verification:
+      printed: true
+      checkedAgainst: "Pending facsimile scan (ap-17-891)"
+      by: "Editorial Staff"
+      date: "2026-09-17"
+
+  - id: sr.uxi.chargeVelocityMoving
+    paper: special-relativity
+    scope: ["sr-s9"]
+    glyph:
+      unicode: "u_ξ"
+      latex: "u_\\xi"
+      variant: subscripted
+    meaning: "Charge-velocity component in k"
+    binding:
+      quantityId: chargeVelocityMoving
+    frameOrReference: moving-system
+    operation:
+      kind: rename
+      target:
+        form: symbol
+        modernGlyph: "u'_x"
+    sources:
+      facsimilePage: 915
+      anchor: sr-s9-p1
+    verification:
+      printed: true
+      checkedAgainst: "Pending facsimile scan (ap-17-891)"
+      by: "Editorial Staff"
+      date: "2026-09-17"
+
+  - id: sr.varepsilon.electronCharge
+    paper: special-relativity
+    scope: ["sr-s10"]
+    glyph:
+      unicode: "ε"
+      latex: "\\varepsilon"
+      variant: plain
+    meaning: "The electron's charge (Gaussian)"
+    binding:
+      quantityId: electronCharge
+    operation:
+      kind: rename
+      target:
+        form: symbol
+        modernGlyph: "e"
+    notes: "Gaussian charge. Converting to SI is unitConversion, not this rename."
+    sources:
+      facsimilePage: 917
+      anchor: sr-s10-p1
+    verification:
+      printed: true
+      checkedAgainst: "Pending facsimile scan (ap-17-891)"
+      by: "Editorial Staff"
+      date: "2026-09-17"
+
+  - id: sr.mu.electronMass
+    paper: special-relativity
+    scope: ["sr-s10"]
+    glyph:
+      unicode: "μ"
+      latex: "\\mu"
+      variant: plain
+    meaning: "The electron's mass as printed"
+    binding:
+      quantityId: electronMass
+    operation:
+      kind: rename
+      target:
+        form: symbol
+        modernGlyph: "m"
+    sources:
+      facsimilePage: 917
+      anchor: sr-s10-p1
+    verification:
+      printed: true
+      checkedAgainst: "Pending facsimile scan (ap-17-891)"
+      by: "Editorial Staff"
+      date: "2026-09-17"
+
+  - id: sr.transverse.transverseMassComoving
+    paper: special-relativity
+    scope: ["sr-s10"]
+    glyph:
+      unicode: "transversale Masse"
+      latex: "\\mu\\beta^{2}"
+      variant: plain
+    meaning: "The printed transverse-mass coefficient under the paper's comoving-force convention"
+    binding:
+      quantityId: transverseMassComoving
+    frameOrReference: object-rest
+    operation:
+      kind: modernization
+      modernLensRef: "sr-10-modern-force-convention"
+      argumentChangeDescription: "The source's transverse coefficient is m gamma^2 under its comoving-force convention. The laboratory convention gives m gamma (transverseMassLaboratory). That is a change of force convention, not a rename of beta and not a Gaussian-to-SI conversion."
+    notes: "The notation toggle must not apply this entry. Glyph pending facsimile; expected form is the printed transverse-mass coefficient."
+    sources:
+      facsimilePage: 919
+      anchor: sr-s10-p1
+    verification:
+      printed: true
+      checkedAgainst: "Pending facsimile scan (ap-17-891)"
+      by: "Editorial Staff"
+      date: "2026-09-17"
+
+  - id: sr.longitudinal.longitudinalMass
+    paper: special-relativity
+    scope: ["sr-s10"]
+    glyph:
+      unicode: "longitudinale Masse"
+      latex: "\\mu\\beta^{3}"
+      variant: plain
+    meaning: "The printed longitudinal-mass coefficient"
+    binding:
+      quantityId: longitudinalMass
+    operation:
+      kind: modernization
+      modernLensRef: "sr-10-modern-force-convention"
+      argumentChangeDescription: "The printed longitudinal coefficient is tied to the paper's force convention. Modern invariant-mass dynamics does not keep a direction-dependent mass as a primitive."
+    notes: "Glyph pending facsimile. Toggle must not apply this entry."
+    sources:
+      facsimilePage: 919
+      anchor: sr-s10-p1
+    verification:
+      printed: true
+      checkedAgainst: "Pending facsimile scan (ap-17-891)"
+      by: "Editorial Staff"
+      date: "2026-09-17"
+
+  - id: sr.W.electronWork
+    paper: special-relativity
+    scope: ["sr-s10"]
+    glyph:
+      unicode: "W"
+      latex: "W"
+      variant: plain
+    meaning: "Work done on the electron"
+    binding:
+      quantityId: electronWork
+    operation:
+      kind: rename
+      target:
+        form: symbol
+        modernGlyph: "W"
+    sources:
+      facsimilePage: 919
+      anchor: sr-s10-p1
+    verification:
+      printed: true
+      checkedAgainst: "Pending facsimile scan (ap-17-891)"
+      by: "Editorial Staff"
+      date: "2026-09-17"
+
+modernOnlySymbols:
+  - id: sr.chi.rapidity
+    glyph:
+      unicode: "χ"
+      latex: "\\chi"
+      variant: plain
+    binding:
+      quantityId: rapidity
+    scope: ["sr-s3", "sr-s5"]
+    introducedBy: "kinematics-modern-lens"
+    label: "Rapidity, whose tanh is the speed ratio. Not printed."
+  - id: sr.ansatz.spatialScale
+    glyph:
+      unicode: "a_ans(v)"
+      latex: "a_{\\mathrm{ans}}(v)"
+      variant: plain
+    binding:
+      quantityId: ansatzSpatialScale
+    scope: ["sr-s3"]
+    introducedBy: "kinematics-modern-lens"
+    label: "Modern ansatz spatial scale. Distinct from printed §3 a."
+  - id: sr.ansatz.timeScale
+    glyph:
+      unicode: "b_ans(v)"
+      latex: "b_{\\mathrm{ans}}(v)"
+      variant: plain
+    binding:
+      quantityId: ansatzTimeScale
+    scope: ["sr-s3"]
+    introducedBy: "kinematics-modern-lens"
+    label: "Modern ansatz time scale."
+  - id: sr.ansatz.timeSpaceCoefficient
+    glyph:
+      unicode: "d_ans(v)"
+      latex: "d_{\\mathrm{ans}}(v)"
+      variant: plain
+    binding:
+      quantityId: ansatzTimeSpaceCoefficient
+    scope: ["sr-s3"]
+    introducedBy: "kinematics-modern-lens"
+    label: "Modern ansatz time-space coefficient."
+  - id: sr.ansatz.transverseScale
+    glyph:
+      unicode: "a_⊥"
+      latex: "a_{\\perp}"
+      variant: plain
+    binding:
+      quantityId: ansatzTransverseScale
+    scope: ["sr-s3"]
+    introducedBy: "kinematics-modern-lens"
+    label: "Modern ansatz transverse coefficient. NEVER written k; k is the moving system."
