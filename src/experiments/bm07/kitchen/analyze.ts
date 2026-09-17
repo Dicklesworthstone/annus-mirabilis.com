@@ -31,13 +31,16 @@ export function kitchenTracks(document: KitchenDocument): readonly KitchenTrack[
       segments.set(p.objectId, segment);
     }
     const key = JSON.stringify([p.objectId, segment]);
-    if (!tracks.has(key))
-      tracks.set(key, {
+    let track = tracks.get(key);
+    if (!track) {
+      track = {
         key,
         label: segment ? `${p.objectId} · new object ${segment + 1}` : p.objectId,
         indices: [],
-      });
-    tracks.get(key)!.indices.push(i);
+      };
+      tracks.set(key, track);
+    }
+    track.indices.push(i);
   });
   return Object.freeze(
     [...tracks.values()].map((t) => Object.freeze({ ...t, indices: Object.freeze(t.indices) })),
@@ -75,7 +78,9 @@ export function analyzeKitchen(
       "Choose a particle track. Calibration marks and stationary features are not particle tracks.",
     );
   const m = document.metadata,
-    points = track.indices.map((i) => document.points[i]!),
+    points = track.indices
+      .map((i) => document.points[i])
+      .filter((p): p is KitchenPoint => p !== undefined),
     axis = options.axis;
   const warnings = [
       ...document.notes,
@@ -119,9 +124,14 @@ export function analyzeKitchen(
         );
     }
   }
+  const firstPoint = points[0];
+  if (!firstPoint)
+    throw new TypeError(
+      "Choose a particle track. Calibration marks and stationary features are not particle tracks.",
+    );
   const dt = Number(m.declared_interval_s),
     tolerance = Math.max(1 / Number(m.frame_rate_hz), 0.02 * dt),
-    origin = points[0]!.time;
+    origin = firstPoint.time;
   const slots = new Map<number, KitchenPoint>();
   let irregular = false,
     rounded = false;
@@ -163,7 +173,8 @@ export function analyzeKitchen(
     paired: number[] = [],
     pairTimes: number[] = [],
     increments: number[] = [];
-  const lastTick = Math.round((points.at(-1)!.time - origin) / dt);
+  const lastPoint = points.at(-1);
+  const lastTick = lastPoint ? Math.round((lastPoint.time - origin) / dt) : 0;
   // Anchored slots, not adjacent rows: exclusions and gaps must not shift later pairing.
   for (let tick = 0; tick <= lastTick; tick += 2) {
     counts.attemptedPairs++;
@@ -181,10 +192,14 @@ export function analyzeKitchen(
       continue;
     }
     if (scale && a && b) {
-      paired.push(a[axis]! * scale, b[axis]! * scale);
-      pairTimes.push(a.time, b.time);
-      increments.push((b[axis]! - a[axis]!) * scale);
-      counts.retainedPairs++;
+      const aCoord = a[axis];
+      const bCoord = b[axis];
+      if (aCoord !== null && bCoord !== null) {
+        paired.push(aCoord * scale, bCoord * scale);
+        pairTimes.push(a.time, b.time);
+        increments.push((bCoord - aCoord) * scale);
+        counts.retainedPairs++;
+      }
     }
   }
   const edgeShare = (lostPairs.edge ?? 0) / counts.attemptedPairs;
@@ -265,10 +280,11 @@ export function analyzeKitchen(
     "independent-increment-known-zero-drift",
   );
   if (naive.kind === "accepted") val("naiveD", naive.data.dHat);
+  const currentScale = scale;
   const noise =
-    scale && stationary.length >= KITCHEN_LIMITS.stationaryClicks && stationIds.size === 1
+    currentScale && stationary.length >= KITCHEN_LIMITS.stationaryClicks && stationIds.size === 1
       ? stationaryClickNoiseEstimate(
-          Float64Array.from(stationary, (p) => p[axis]! * scale!),
+          Float64Array.from(stationary, (p) => (p[axis] ?? 0) * currentScale),
           { d: 1 },
         )
       : null;
@@ -286,7 +302,10 @@ export function analyzeKitchen(
       : null;
   if (pair?.kind === "accepted") val("correctedD", pair.data.estimate);
   const centered = estimateIncrements(Float64Array.from(increments), dt, 1, "drift-centered");
-  if (centered.kind === "accepted") val("drift", centered.data.drift[0]!);
+  if (centered.kind === "accepted") {
+    const drift0 = centered.data.drift[0];
+    if (drift0 !== undefined) val("drift", drift0);
+  }
   if (counts.retainedPairs < 2)
     intervalReasons.push("At least two complete disjoint pairs are required after fitting drift.");
   if (pair && pair.kind !== "accepted") intervalReasons.push(reason(pair));
