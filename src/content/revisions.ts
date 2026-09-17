@@ -36,7 +36,7 @@ export interface ContentEntityIdentities {
  * Validates that distinct identity dimensions remain separate and are not collapsed.
  */
 export function validateDistinctIdentities(identities: Record<string, unknown>): ParseResult<true> {
-  const allowedKeys = new Set([
+  const _allowedKeys = new Set([
     "contentRevision",
     "sourceAssetDigest",
     "translationRevision",
@@ -92,8 +92,7 @@ export function validateRecordLineage(record: VersionedRecord): ParseResult<true
   const maxLineageRev = lineage[lineage.length - 1]?.revision ?? 0;
 
   // Lineage must cover revisions 1 through (record.revision - 1) or 1 through record.revision
-  for (let i = 0; i < lineage.length; i++) {
-    const entry = lineage[i]!;
+  for (const [i, entry] of lineage.entries()) {
     if (entry.revision !== expectedRevision) {
       return {
         ok: false,
