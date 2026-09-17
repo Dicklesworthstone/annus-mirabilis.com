@@ -50,7 +50,7 @@ export async function PaperReader({
       <script dangerouslySetInnerHTML={{ __html: ROOT_ARMING_SOURCE }} />
       <header className="page-intro">
         <p className="eyebrow">Read · Brownian motion · Explanation preview</p>
-        <h1>{section ? sections[0]!.title : paper.title}</h1>
+        <h1>{section ? (sections[0]?.title ?? paper.title) : paper.title}</h1>
         <p className="lead">{paper.description}</p>
         <p className="notice" data-source-status>
           {paper.sourceNotice}
@@ -219,11 +219,14 @@ export async function PaperReader({
                       {a.prerequisites.length > 0 && (
                         <p>
                           Earlier step:{" "}
-                          {a.prerequisites.map((x) => (
-                            <a key={x.id} href={`/papers/${paper.id}/#${x.id}`}>
-                              {payload.arguments.find((p) => p.id === x.id)!.title}
-                            </a>
-                          ))}
+                          {a.prerequisites.map((x) => {
+                            const prereq = payload.arguments.find((p) => p.id === x.id);
+                            return (
+                              <a key={x.id} href={`/papers/${paper.id}/#${x.id}`}>
+                                {prereq?.title ?? x.id}
+                              </a>
+                            );
+                          })}
                         </p>
                       )}
                     </details>
@@ -236,7 +239,8 @@ export async function PaperReader({
                     <p className="fine">
                       Source context:{" "}
                       {a.citations.map((id) => {
-                        const c = payload.citations.find((c) => c.id === id)!;
+                        const c = payload.citations.find((c) => c.id === id);
+                        if (!c) return null;
                         return (
                           <a key={id} href={c.url}>
                             {c.locator}
