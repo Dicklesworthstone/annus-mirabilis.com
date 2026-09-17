@@ -90,7 +90,8 @@ export function kitchenNumber(raw: string, field: string, row = 0): number {
   if (!/^[+-]?(?:\d+(?:\.\d*)?|\.\d+)(?:[eE][+-]?\d+)?$/.test(raw))
     throw new KitchenInputError(row, field, "enter a finite decimal number, not a formula.");
   const n = Number(raw);
-  if (!Number.isFinite(n) || (n === 0 && /[1-9]/.test(raw.split(/[eE]/)[0]!)))
+  const mantissa = raw.split(/[eE]/)[0] ?? "";
+  if (!Number.isFinite(n) || (n === 0 && /[1-9]/.test(mantissa)))
     throw new KitchenInputError(row, field, "the number is outside the supported range.");
   return n;
 }
@@ -98,8 +99,10 @@ export function intervalMetadata(raw: string, field: string): readonly [number, 
   if (!raw) return null;
   const m = /^\[([^,]+),([^,]+)\]$/.exec(raw);
   if (!m) throw new KitchenInputError(0, field, "use [lower,upper] or leave it blank.");
-  const a = kitchenNumber(m[1]!.trim(), field),
-    b = kitchenNumber(m[2]!.trim(), field);
+  const [_, rawA, rawB] = m;
+  if (!rawA || !rawB) throw new KitchenInputError(0, field, "use [lower,upper] or leave it blank.");
+  const a = kitchenNumber(rawA.trim(), field),
+    b = kitchenNumber(rawB.trim(), field);
   if (!(a > 0 && b >= a))
     throw new KitchenInputError(0, field, "bounds must be positive and ordered.");
   return Object.freeze([a, b]);
