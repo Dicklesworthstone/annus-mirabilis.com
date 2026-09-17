@@ -1,4 +1,5 @@
-import { describe, expect, test } from "bun:test";
+import assert from "node:assert";
+import { describe, it } from "node:test";
 import { explainResult } from "../experiments/results/explanations.ts";
 import {
   lq02DivergentExample,
@@ -21,19 +22,19 @@ import { type OutputStatus, outputStatusRegistry } from "../experiments/results/
  * onto another would not be caught by any existing test.
  */
 describe("results.statusTextDistinct: no two output statuses render the same reader text", () => {
-  test("the bead's own named pair: LQ-02 divergent vs LQ-08 not-applicable (below threshold) render distinct text", () => {
+  it("the bead's own named pair: LQ-02 divergent vs LQ-08 not-applicable (below threshold) render distinct text", () => {
     const divergent = explainResult(lq02DivergentExample);
     const notApplicable = explainResult(notApplicableExample);
-    expect(divergent.message).not.toBe(notApplicable.message);
-    expect(divergent.nextAction).not.toBe(notApplicable.nextAction);
+    assert.notEqual(divergent.message, notApplicable.message);
+    assert.notEqual(divergent.nextAction, notApplicable.nextAction);
     // The specific failure mode named: neither collapses to a generic "error" label.
-    expect(divergent.message.toLowerCase()).not.toContain("error");
-    expect(notApplicable.message.toLowerCase()).not.toContain("error");
-    expect(divergent.message).toContain("classical spectral energy density");
-    expect(notApplicable.message).toContain("Below threshold frequency");
+    assert.ok(!divergent.message.toLowerCase().includes("error"));
+    assert.ok(!notApplicable.message.toLowerCase().includes("error"));
+    assert.ok(divergent.message.includes("classical spectral energy density"));
+    assert.ok(notApplicable.message.includes("Below threshold frequency"));
   });
 
-  test("every one of the bead's plan-example payloads renders reader text distinct from every other", () => {
+  it("every one of the bead's plan-example payloads renders reader text distinct from every other", () => {
     const resolved = planStatusExamples.map((example) => ({
       status: example.status,
       quantityId: example.quantityId,
@@ -53,26 +54,27 @@ describe("results.statusTextDistinct: no two output statuses render the same rea
     }
   });
 
-  test("the seven generic fallback messages (used when a payload carries no authored/rate/reason text) are pairwise distinct", () => {
+  it("the seven generic fallback messages (used when a payload carries no authored/rate/reason text) are pairwise distinct", () => {
     // This is the insurance test: it does not depend on any fixture's authored text, only on
     // outputStatusRegistry itself, so a copy-paste that made two statuses share a fallback
     // message would fail here even before any instrument's fixture caught it.
     const statuses = Object.keys(outputStatusRegistry) as OutputStatus[];
-    expect(statuses).toHaveLength(7);
+    assert.equal(statuses.length, 7);
     const messages = statuses.map((s) => outputStatusRegistry[s].message);
     const nextActions = statuses.map((s) => outputStatusRegistry[s].nextAction);
-    expect(new Set(messages).size).toBe(statuses.length);
-    expect(new Set(nextActions).size).toBe(statuses.length);
+    assert.equal(new Set(messages).size, statuses.length);
+    assert.equal(new Set(nextActions).size, statuses.length);
     // Named explicitly, since these are the two the bead calls out as most likely to collapse.
-    expect(outputStatusRegistry.divergent.message).not.toBe(
+    assert.notEqual(
+      outputStatusRegistry.divergent.message,
       outputStatusRegistry["not-applicable"].message,
     );
   });
 
-  test("two different payloads sharing one status (both analytic-limit) still render distinct text, because the payload's own description is used, not a shared template", () => {
+  it("two different payloads sharing one status (both analytic-limit) still render distinct text, because the payload's own description is used, not a shared template", () => {
     const analyticLimitExamples = planStatusExamples.filter((e) => e.status === "analytic-limit");
-    expect(analyticLimitExamples.length).toBeGreaterThanOrEqual(2);
+    assert.ok(analyticLimitExamples.length >= 2);
     const texts = analyticLimitExamples.map((e) => explainResult(e).message);
-    expect(new Set(texts).size).toBe(analyticLimitExamples.length);
+    assert.equal(new Set(texts).size, analyticLimitExamples.length);
   });
 });
