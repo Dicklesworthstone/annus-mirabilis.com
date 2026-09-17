@@ -219,11 +219,14 @@ export function evaluateSpdxNode(
   }
 
   if (node.type === "or") {
-    const leftRes = evaluateSpdxNode(node.left!, allowlistSet);
+    if (!node.left || !node.right) {
+      return { allowed: false, failingLicenses: ["<malformed-or>"] };
+    }
+    const leftRes = evaluateSpdxNode(node.left, allowlistSet);
     if (leftRes.allowed) {
       return { allowed: true, failingLicenses: [] };
     }
-    const rightRes = evaluateSpdxNode(node.right!, allowlistSet);
+    const rightRes = evaluateSpdxNode(node.right, allowlistSet);
     if (rightRes.allowed) {
       return { allowed: true, failingLicenses: [] };
     }
@@ -234,8 +237,11 @@ export function evaluateSpdxNode(
   }
 
   if (node.type === "and") {
-    const leftRes = evaluateSpdxNode(node.left!, allowlistSet);
-    const rightRes = evaluateSpdxNode(node.right!, allowlistSet);
+    if (!node.left || !node.right) {
+      return { allowed: false, failingLicenses: ["<malformed-and>"] };
+    }
+    const leftRes = evaluateSpdxNode(node.left, allowlistSet);
+    const rightRes = evaluateSpdxNode(node.right, allowlistSet);
     const allowed = leftRes.allowed && rightRes.allowed;
     return {
       allowed,
@@ -244,7 +250,10 @@ export function evaluateSpdxNode(
   }
 
   if (node.type === "with") {
-    const leftRes = evaluateSpdxNode(node.left!, allowlistSet);
+    if (!node.left) {
+      return { allowed: false, failingLicenses: ["<malformed-with>"] };
+    }
+    const leftRes = evaluateSpdxNode(node.left, allowlistSet);
     // Base license must be allowed
     if (!leftRes.allowed) {
       return leftRes;
