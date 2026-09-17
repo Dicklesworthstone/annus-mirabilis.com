@@ -19,7 +19,6 @@ import {
   RECEIPT_FORMAT_VERSION,
   REUSE_TERMS_VALUES,
   type Receipt,
-  type ReceiptFrontMatter,
   RIGHTS_STATUS_VALUES,
   WITNESS_KINDS,
 } from "./receiptSchema.ts";
@@ -402,7 +401,7 @@ export function checkReceipt(
 
     if (
       (scan.rightsStatus === "public-domain-image" || scan.rightsStatus === "cleared-image") &&
-      (!scan.credit || !scan.credit.trim())
+      !scan.credit?.trim()
     ) {
       addError(
         "receipt-image-credit-required",
@@ -419,10 +418,7 @@ export function checkReceipt(
       );
     }
 
-    if (
-      scan.publicationDecision !== "publish" &&
-      (!scan.publicationReason || !scan.publicationReason.trim())
-    ) {
+    if (scan.publicationDecision !== "publish" && !scan.publicationReason?.trim()) {
       addError(
         "receipt-nonpublish-reason-required",
         "scan.publicationReason",
@@ -430,7 +426,7 @@ export function checkReceipt(
       );
     }
 
-    if (scan.reuseTerms === "named-license" && (!scan.originUrl || !scan.originUrl.trim())) {
+    if (scan.reuseTerms === "named-license" && !scan.originUrl?.trim()) {
       addError(
         "receipt-named-license-source-required",
         "scan.originUrl",
@@ -623,7 +619,8 @@ export function checkReceipt(
     let lastArticlePrintedPage: number | null = null;
 
     for (let i = 0; i < pageMap.length; i++) {
-      const entry = pageMap[i]!;
+      const entry = pageMap[i];
+      if (!entry) continue;
       const p = `pageMap[${i}]`;
 
       if (typeof entry.pdfPageIndex !== "number") {
@@ -750,7 +747,8 @@ export function checkReceipt(
     let hasWikisource = false;
 
     for (let i = 0; i < witnesses.length; i++) {
-      const w = witnesses[i]!;
+      const w = witnesses[i];
+      if (!w) continue;
       const p = `witnesses[${i}]`;
 
       if (!WITNESS_KINDS.includes(w.kind)) {
@@ -826,7 +824,8 @@ export function checkReceipt(
     if (Array.isArray(transcription.ocrRuns)) {
       const seenToolRunIds = new Set<string>();
       for (let i = 0; i < transcription.ocrRuns.length; i++) {
-        const run = transcription.ocrRuns[i]!;
+        const run = transcription.ocrRuns[i];
+        if (!run) continue;
         const p = `transcription.ocrRuns[${i}]`;
 
         if (typeof run.toolRunId !== "string" || !isValidToolRunId(run.toolRunId)) {
@@ -881,7 +880,8 @@ export function checkReceipt(
       // Check watchlist: no items can be pending
       if (Array.isArray(fm.watchList)) {
         for (let i = 0; i < fm.watchList.length; i++) {
-          const item = fm.watchList[i]!;
+          const item = fm.watchList[i];
+          if (!item) continue;
           if (item.result === "pending") {
             addError(
               "receipt-reviewed-pending-watchlist",
@@ -897,9 +897,10 @@ export function checkReceipt(
   // 9. Typographical Errors
   if (Array.isArray(fm.typographicalErrors)) {
     for (let i = 0; i < fm.typographicalErrors.length; i++) {
-      const typo = fm.typographicalErrors[i]!;
+      const typo = fm.typographicalErrors[i];
+      if (!typo) continue;
       const p = `typographicalErrors[${i}]`;
-      if (!typo.evidence || !typo.evidence.trim()) {
+      if (!typo.evidence?.trim()) {
         addError(
           "receipt-typo-no-evidence",
           `${p}.evidence`,
@@ -912,7 +913,8 @@ export function checkReceipt(
   // 10. Watchlist Flags (when not reviewed)
   if (transcription?.ledgerStatus !== "reviewed" && Array.isArray(fm.watchList)) {
     for (let i = 0; i < fm.watchList.length; i++) {
-      const item = fm.watchList[i]!;
+      const item = fm.watchList[i];
+      if (!item) continue;
       if (item.result === "pending") {
         addFlag(
           "receipt-watchlist-pending",
@@ -926,7 +928,8 @@ export function checkReceipt(
   // 11. Pending Section Flags
   if (Array.isArray(fm.pending) && fm.pending.length > 0) {
     for (let i = 0; i < fm.pending.length; i++) {
-      const pend = fm.pending[i]!;
+      const pend = fm.pending[i];
+      if (!pend) continue;
       addFlag(
         "receipt-section-pending",
         `pending[${i}]`,
