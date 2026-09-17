@@ -6,7 +6,7 @@
 import { mkdirSync, mkdtempSync, rmSync } from "node:fs";
 import { tmpdir } from "node:os";
 import { join } from "node:path";
-import { afterAll, afterEach, beforeEach, describe, expect, test } from "bun:test";
+import { afterEach, beforeEach, describe, expect, test } from "bun:test";
 import { runContentCompileOnce, watchContentCompile } from "../../scripts/build-content.ts";
 
 let tempCorpus: string;
@@ -17,10 +17,6 @@ beforeEach(() => {
 
 afterEach(() => {
   rmSync(tempCorpus, { recursive: true, force: true });
-});
-
-afterAll(async () => {
-  await runContentCompileOnce("content");
 });
 
 /** Polls until `predicate()` is true or `deadlineMs` elapses. fs.watch delivery is a real
