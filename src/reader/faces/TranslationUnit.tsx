@@ -89,7 +89,7 @@ export function TranslationUnitComponent({
             <div
               className="equation-body"
               data-printed-notation="true"
-              dangerouslySetInnerHTML={{ __html: renderedMath }}
+              {...{ dangerouslySetInnerHTML: { __html: renderedMath } }}
             />
           </div>
         ) : (

@@ -148,7 +148,7 @@ export function SourceBlockComponent({
             <div
               className="equation-body"
               data-printed-notation="true"
-              dangerouslySetInnerHTML={{ __html: renderedMath }}
+              {...{ dangerouslySetInnerHTML: { __html: renderedMath } }}
             />
             {block.originalLabel && (
               <span className="equation-label" data-equation-label={block.originalLabel}>

@@ -52,7 +52,7 @@ export function renderInlines(
               className="inline-math"
               data-equation-id={node.equationId}
               data-inline-id={node.inlineId}
-              dangerouslySetInnerHTML={{ __html: html }}
+              {...{ dangerouslySetInnerHTML: { __html: html } }}
             />
           );
         } catch {

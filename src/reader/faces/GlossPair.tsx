@@ -89,7 +89,10 @@ export function GlossPair({
           dir="ltr"
         >
           {renderedMath ? (
-            <span className="inline-math" dangerouslySetInnerHTML={{ __html: renderedMath }} />
+            <span
+              className="inline-math"
+              {...{ dangerouslySetInnerHTML: { __html: renderedMath } }}
+            />
           ) : (
             token.german
           )}

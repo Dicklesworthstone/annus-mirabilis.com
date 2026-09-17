@@ -86,7 +86,7 @@ export function DerivationStepComponent({
         <div
           className="step-math step-from"
           data-highlight-ids={step.changedSubexpressionIds.join(",")}
-          dangerouslySetInnerHTML={{ __html: fromMarkup.html }}
+          {...{ dangerouslySetInnerHTML: { __html: fromMarkup.html } }}
         />
         <span className="step-arrow" aria-hidden="true">
           →
@@ -94,7 +94,7 @@ export function DerivationStepComponent({
         <div
           className="step-math step-to"
           data-highlight-ids={step.changedSubexpressionIds.join(",")}
-          dangerouslySetInnerHTML={{ __html: toMarkup.html }}
+          {...{ dangerouslySetInnerHTML: { __html: toMarkup.html } }}
         />
       </div>
 
