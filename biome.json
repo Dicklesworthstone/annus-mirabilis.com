@@ -8,12 +8,7 @@
   "files": {
     "ignoreUnknown": false,
     "includes": [
-      "src/**",
-      "scripts/**",
-      "*.ts",
-      "*.js",
-      "*.json",
-      "*.mjs",
+      "**",
       "!.next",
       "!out",
       "!generated",
@@ -22,10 +17,7 @@
       "!src/generated",
       "!artifacts",
       "!.beads",
-      "!docs",
-      "!content",
-      "!sources",
-      "!src/physics/reference"
+      "!docs/design/placeholder"
     ]
   },
   "formatter": {
@@ -37,7 +29,7 @@
   "linter": {
     "enabled": true,
     "rules": {
-      "recommended": false
+      "preset": "recommended"
     }
   },
   "javascript": {
@@ -47,6 +39,11 @@
     }
   },
   "assist": {
-    "enabled": false
+    "enabled": true,
+    "actions": {
+      "source": {
+        "organizeImports": "on"
+      }
+    }
   }
 }
