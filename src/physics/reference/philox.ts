@@ -77,8 +77,23 @@ export function philox4x32_10(
       "invalid-parameter",
       "Philox requires four counter words and two key words.",
     );
-  for (const word of [...counter, ...key]) u32(word);
-  return block(counter[0]!, counter[1]!, counter[2]!, counter[3]!, key[0]!, key[1]!);
+  const [c0, c1, c2, c3] = counter;
+  const [k0, k1] = key;
+  if (
+    c0 === undefined ||
+    c1 === undefined ||
+    c2 === undefined ||
+    c3 === undefined ||
+    k0 === undefined ||
+    k1 === undefined
+  ) {
+    throw new StreamInputError(
+      "invalid-parameter",
+      "Philox requires four counter words and two key words.",
+    );
+  }
+  for (const word of [c0, c1, c2, c3, k0, k1]) u32(word);
+  return block(c0, c1, c2, c3, k0, k1);
 }
 /** Series identity is in tile, not iteration order. Draw count is not step count. */
 export function createPhiloxStream(key: StreamKey, startIndex: string | bigint = "0") {
