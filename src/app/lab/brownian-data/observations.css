@@ -1,0 +1,20 @@
+.measured-trajectory-lab { overflow-wrap: anywhere; }
+.measured-trajectory-lab fieldset { min-width: 0; margin: 1.5rem 0; padding: 1rem; border: 1px solid var(--line); }
+.measured-trajectory-lab legend { font-weight: 600; }
+.measured-trajectory-lab label { display: block; margin-bottom: 1rem; }
+.measured-trajectory-lab input:not([type="checkbox"]),
+.measured-trajectory-lab select,
+.measured-trajectory-lab textarea { display: block; width: 100%; max-width: 100%; margin-top: .4rem; box-sizing: border-box; font: inherit; }
+.measured-trajectory-lab .input-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(min(100%, 16rem), 1fr)); gap: 1rem; }
+.measured-trajectory-lab .check { display: flex; align-items: flex-start; gap: .6rem; }
+.measured-trajectory-lab .check input { flex: none; margin-top: .35rem; }
+.measured-trajectory-lab .inference-summary { width: 100%; table-layout: fixed; }
+.measured-trajectory-lab .inference-summary th,
+.measured-trajectory-lab .inference-summary td { overflow-wrap: anywhere; }
+.measured-trajectory-lab .actions { flex-wrap: wrap; }
+.measured-trajectory-lab button { white-space: normal; }
+.measured-trajectory-lab pre { white-space: pre-wrap; }
+@media print {
+  .measured-trajectory-lab form, .measured-trajectory-lab button { display: none; }
+  .measured-trajectory-lab details > * { display: block !important; }
+}

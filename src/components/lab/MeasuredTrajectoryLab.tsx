@@ -1,0 +1,288 @@
+"use client";
+
+import { type ChangeEvent, type FormEvent, useEffect, useId, useRef, useState } from "react";
+import { parseTrajectoryCsv, TRAJECTORY_LIMITS, trajectorySiCsv } from "../../experiments/bm07/trajectoryCsv.ts";
+import { trajectoryAnalysisJson, type TrajectoryAnalysis } from "../../experiments/bm07/trajectoryAnalysis.ts";
+import { EMPTY_TRAJECTORY_DRAFT, readTrajectoryDraft, type TrajectoryDraft } from "../../experiments/bm07/trajectoryDraft.ts";
+
+const estimatorNames = {
+  "drift-centered": "Fit a common drift · unbiased spread",
+  "maximum-likelihood-centered": "Fit a common drift · maximum likelihood",
+  "independent-increment-known-zero-drift": "Independently known zero drift · unbiased",
+};
+const display = (value: number) => value === 0 ? "0" : value.toExponential(5);
+type Accepted = Readonly<{ analysis: TrajectoryAnalysis; source: string; run: number }>;
+
+/** Measurements never enter a synthetic-recovery snapshot or a shared URL. */
+export function MeasuredTrajectoryLab() {
+  const id = useId();
+  const [csv, setCsv] = useState("");
+  const [source, setSource] = useState("Pasted CSV");
+  const [draft, setDraft] = useState<TrajectoryDraft>(EMPTY_TRAJECTORY_DRAFT);
+  const [accepted, setAccepted] = useState<Accepted | null>(null);
+  const [ready, setReady] = useState(false);
+  const [pending, setPending] = useState(false);
+  const [dirty, setDirty] = useState(false);
+  const [error, setError] = useState("");
+  const [notice, setNotice] = useState("");
+  const epoch = useRef(0), run = useRef(0), fileInput = useRef<HTMLInputElement>(null);
+  useEffect(() => {
+    setReady(true);
+    return () => { epoch.current++; };
+  }, []);
+  function invalidate() {
+    epoch.current++;
+    setPending(false);
+    setDirty(true);
+    setError("");
+    setNotice("");
+  }
+  function edit<K extends keyof TrajectoryDraft>(key: K, value: TrajectoryDraft[K]) {
+    invalidate();
+    setDraft((current) => ({ ...current, [key]: value }));
+  }
+  async function load(event: ChangeEvent<HTMLInputElement>) {
+    const file = event.currentTarget.files?.[0];
+    if (!file) return;
+    invalidate();
+    const token = epoch.current;
+    if (file.size > TRAJECTORY_LIMITS.bytes) {
+      setError("The CSV must be at most 256 KiB. The existing accepted result has not changed.");
+      return;
+    }
+    setPending(true);
+    try {
+      const bytes = await file.arrayBuffer();
+      const text = new TextDecoder("utf-8", { fatal: true }).decode(bytes);
+      if (token !== epoch.current) return;
+      setCsv(text);
+      setSource(file.name);
+      setNotice("File loaded into the draft only. Choose units, declare the model and apply to analyze it.");
+    } catch {
+      if (token === epoch.current) setError("The file could not be read. Paste CSV text instead. The accepted result is unchanged.");
+    } finally {
+      if (token === epoch.current) setPending(false);
+    }
+  }
+  async function submit(event: FormEvent<HTMLFormElement>) {
+    event.preventDefault();
+    const token = ++epoch.current;
+    setPending(true);
+    setError("");
+    setNotice("");
+    try {
+      const request = readTrajectoryDraft(draft);
+      const trajectory = parseTrajectoryCsv(csv, request.units);
+      // The numerical reference owner is not loaded until an explicit request.
+      const { analyzeImportedTrajectory } = await import("../../experiments/bm07/trajectoryHost.ts");
+      if (token !== epoch.current) return;
+      const analysis = analyzeImportedTrajectory(trajectory, request.assumptions);
+      setAccepted({ analysis, source, run: ++run.current });
+      setDirty(false);
+      setNotice(analysis.kind === "analyzed"
+        ? "Accepted the supplied observations and declared model. Results are conditional on those assumptions."
+        : "Accepted the observations for inspection. The declared model does not supply an estimate; see the explanation below.");
+    } catch (caught) {
+      if (token === epoch.current) setError(`${caught instanceof Error ? caught.message : "This request could not be analyzed."} The accepted result is unchanged.`);
+    } finally {
+      if (token === epoch.current) setPending(false);
+    }
+  }
+  function clear() {
+    invalidate();
+    setCsv("");
+    setSource("Pasted CSV");
+    setDraft(EMPTY_TRAJECTORY_DRAFT);
+    setAccepted(null);
+    setDirty(false);
+    if (fileInput.current) fileInput.current.value = "";
+    setNotice("The imported data and result have been cleared from this page. Any files you explicitly downloaded remain on your device.");
+  }
+  function download(kind: "json" | "csv") {
+    if (!accepted) return;
+    let url: string | null = null;
+    try {
+      const text = kind === "json" ? trajectoryAnalysisJson(accepted.analysis) : trajectorySiCsv(accepted.analysis.trajectory);
+      url = URL.createObjectURL(new Blob([text], { type: kind === "json" ? "application/json" : "text/csv;charset=utf-8" }));
+      const link = document.createElement("a");
+      link.href = url;
+      link.download = `brownian-accepted-${accepted.run}-${kind === "csv" ? "SI-observations" : "analysis"}.${kind}`;
+      document.body.appendChild(link);
+      try { link.click(); } finally { link.remove(); }
+      setNotice(`Exported accepted result ${accepted.run}, not the current draft. The export contains your supplied observations.`);
+    } catch {
+      setError("The accepted result could not be downloaded in this browser. It remains available on this page.");
+    } finally {
+      if (url) { const issued = url; setTimeout(() => URL.revokeObjectURL(issued), 1000); }
+    }
+  }
+  const numberField = (key: keyof Pick<TrajectoryDraft,
+    "micrometresPerPixel" | "coveragePercent" | "localizationNanometres" | "exposureMilliseconds" |
+    "temperatureKelvin" | "viscosityMillipascalSeconds" | "radiusMicrometres">, label: string) => (
+    <label htmlFor={`${id}-${key}`}>
+      {label}
+      <input id={`${id}-${key}`} name={key} type="text" inputMode="decimal"
+        value={draft[key]} onChange={(event) => edit(key, event.target.value)} />
+    </label>
+  );
+  const a = accepted?.analysis;
+  return (
+    <section className="laboratory measured-trajectory-lab" aria-labelledby={`${id}-title`}
+      data-semantic-kind="user-supplied-observations" data-pending={String(pending)}
+      data-ready={String(ready)} data-instance-id={`bm07-observations-${id}`}
+      data-snapshot-version={accepted?.run ?? 0}>
+      <header className="lab-heading">
+        <h2 id={`${id}-title`}>From your observations to a conditional estimate</h2>
+        <span className="badge">Local CSV · reference host calculation</span>
+      </header>
+      <p>Data stay in this browser tab unless you explicitly download an export. This tool does not
+        upload or persist the observations, and they never appear in a share link. Importing a file
+        does not verify that it is a measurement or that the physical model applies.</p>
+      <noscript><p className="notice">JavaScript is required for local CSV analysis. The format,
+        limitations and inference argument remain readable. No file has been read or uploaded.</p></noscript>
+      <form onSubmit={submit} noValidate>
+        <fieldset disabled={!ready}>
+          <legend>1 · Supply positions, not overlapping displacements</legend>
+          <label htmlFor={`${id}-file`}>Local CSV file (maximum 256 KiB)
+            <input ref={fileInput} id={`${id}-file`} type="file" accept=".csv,text/csv,text/plain" onChange={load} />
+          </label>
+          <label htmlFor={`${id}-csv`}>Or paste CSV text
+            <textarea id={`${id}-csv`} rows={7} spellCheck={false} maxLength={TRAJECTORY_LIMITS.bytes}
+              style={{ width: "100%" }} value={csv} aria-describedby={`${id}-format`}
+              onChange={(event) => { invalidate(); setCsv(event.target.value); setSource("Pasted CSV"); }} />
+          </label>
+          <p id={`${id}-format`} className="fine">Required columns: <code>time,x</code>. Optional:
+            <code> y,z,track</code>; z requires y. Use decimal numbers and elapsed timestamps.
+            Tracks may be interleaved, but times must increase within each track. No observations
+            are sorted, resampled, deduplicated or silently dropped. At most 64 tracks and 10000
+            displacement coordinates are admitted. SI exports can be re-imported with seconds
+            and metres selected; conflicting units are rejected.</p>
+          <div className="input-grid">
+            <label htmlFor={`${id}-timeUnit`}>Time unit
+              <select id={`${id}-timeUnit`} value={draft.timeUnit} onChange={(event) => edit("timeUnit", event.target.value as TrajectoryDraft["timeUnit"])}>
+                <option value="">Choose explicitly</option><option value="s">Seconds</option><option value="ms">Milliseconds</option>
+              </select>
+            </label>
+            <label htmlFor={`${id}-positionUnit`}>Position unit
+              <select id={`${id}-positionUnit`} value={draft.positionUnit} onChange={(event) => edit("positionUnit", event.target.value as TrajectoryDraft["positionUnit"])}>
+                <option value="">Choose explicitly</option><option value="m">Metres</option><option value="um">Micrometres</option><option value="nm">Nanometres</option><option value="px">Pixels</option>
+              </select>
+            </label>
+            {draft.positionUnit === "px" && numberField("micrometresPerPixel", "Independent calibration (μm per pixel)")}
+          </div>
+        </fieldset>
+        <fieldset disabled={!ready}>
+          <legend>2 · Declare what the ideal model leaves out</legend>
+          <label className="check" htmlFor={`${id}-independent`}>
+            <input id={`${id}-independent`} type="checkbox" checked={draft.independentIsotropic}
+              onChange={(event) => edit("independentIsotropic", event.target.checked)} />
+            I am explicitly assuming independent, isotropic Gaussian increments.
+          </label>
+          <label className="check" htmlFor={`${id}-pooled`}>
+            <input id={`${id}-pooled`} type="checkbox" checked={draft.commonDriftAndDiffusion}
+              onChange={(event) => edit("commonDriftAndDiffusion", event.target.checked)} />
+            For multiple tracks, I am assuming the same drift and diffusion coefficient for all particles.
+          </label>
+          <p className="fine">These are declarations, not findings from the CSV. Different-sized
+            particles, confinement, correlated motion or tracking errors can invalidate them.
+            Leave unknown measurements blank. Entering zero is an explicit idealization, not a
+            way to correct camera data. Nonzero noise, nonzero exposure, censoring or irregular
+            sampling require a validated observation model and receive no estimate here.</p>
+          <div className="input-grid">
+            {numberField("localizationNanometres", "Position-localization standard deviation (nm; blank = unknown)")}
+            {numberField("exposureMilliseconds", "Camera exposure (ms; blank = unknown)")}
+            <label htmlFor={`${id}-censored`}>Were observations selected, censored or motion-filtered?
+              <select id={`${id}-censored`} value={draft.censored} onChange={(event) => edit("censored", event.target.value as TrajectoryDraft["censored"])}>
+                <option value="unknown">Unknown</option><option value="yes">Yes</option><option value="no">No</option>
+              </select>
+            </label>
+            <label htmlFor={`${id}-estimator`}>Estimator
+              <select id={`${id}-estimator`} value={draft.estimator} onChange={(event) => edit("estimator", event.target.value as TrajectoryDraft["estimator"])}>
+                {Object.entries(estimatorNames).map(([key, label]) => <option key={key} value={key}>{label}</option>)}
+              </select>
+            </label>
+            {numberField("coveragePercent", "Conditional interval coverage (50–99.9%)")}
+          </div>
+        </fieldset>
+        <fieldset disabled={!ready}>
+          <legend>3 · Optional modern-SI consistency comparison</legend>
+          <label className="check" htmlFor={`${id}-radius`}>
+            <input id={`${id}-radius`} type="checkbox" checked={draft.radiusIndependent}
+              onChange={(event) => edit("radiusIndependent", event.target.checked)} />
+            I have an independently measured particle radius, not one inferred from these displacements.
+          </label>
+          {draft.radiusIndependent && <div className="input-grid">
+            {numberField("temperatureKelvin", "Temperature (K)")}
+            {numberField("viscosityMillipascalSeconds", "Dynamic viscosity (mPa s)")}
+            {numberField("radiusMicrometres", "Independent particle radius (μm)")}
+          </div>}
+          <p className="fine">Diffusion alone cannot determine molecular number independently of
+            particle radius. With modern SI constants, the optional inverse result is a consistency
+            check, not an independent count of molecules. Its interval holds all declared physical
+            inputs and the calibration exact.</p>
+        </fieldset>
+        <div className="actions">
+          <button type="submit" disabled={!ready || pending}>{pending ? "Reading or calculating…" : "Apply observations and assumptions"}</button>
+          <button type="button" className="secondary" disabled={!ready} onClick={clear}>Clear imported data</button>
+        </div>
+      </form>
+      {dirty && <p className="draft-note">Edits are a draft. Any results and downloads below still
+        describe the last accepted observations and assumptions.</p>}
+      <p role="status" aria-live="polite">{pending ? "A request is pending. The accepted result is unchanged." : notice}</p>
+      {error && <p className="notice error" role="alert">{error}</p>}
+      {a && accepted && <section aria-labelledby={`${id}-result`} data-accepted-run={accepted.run}
+        data-result-status={a.kind} data-semantic-kind="user-supplied-not-independently-verified">
+        <h3 id={`${id}-result`}>Accepted result {accepted.run}</h3>
+        <p>Source: {accepted.source}. {a.trajectory.points.length} positions in {a.trajectory.trackCount}
+          {" "}track(s), {a.trajectory.incrementCount} non-overlapping displacements, {a.trajectory.dimension}
+          {" "}coordinate(s). Sampling interval: {a.trajectory.dt === null ? "not admitted as equally spaced" : `${display(a.trajectory.dt)} s`}.</p>
+        <p>Accepted estimator: {estimatorNames[a.assumptions.estimator]}. Requested coverage:
+          {" "}{(a.assumptions.coverage * 100).toFixed(1)}%. Input units: {a.trajectory.units.time},
+          {" "}{a.trajectory.units.position}{a.trajectory.units.position === "px" ? `; ${a.trajectory.units.micrometresPerPixel} μm per pixel` : ""}.</p>
+        <p className="notice">{a.message}</p>
+        {a.estimate && <table className="inference-summary">
+          <caption>Accepted diffusion analysis · host reference calculation · SI units</caption>
+          <thead><tr><th scope="col">Quantity</th><th scope="col">Result</th></tr></thead>
+          <tbody>
+            <tr><th scope="row">Diffusion estimate</th><td>{display(a.estimate.dHat)} m²/s</td></tr>
+            <tr><th scope="row">Unbiased diffusion estimate used for the interval</th><td>{display(a.estimate.unbiasedDHat)} m²/s</td></tr>
+            <tr><th scope="row">Degrees of freedom</th><td>{a.estimate.q}</td></tr>
+            <tr><th scope="row">Sample mean velocity by coordinate</th><td>{Array.from(a.estimate.drift, display).join(", ")} m/s</td></tr>
+            <tr><th scope="row">Conditional diffusion interval</th><td>{a.interval ? `[${display(a.interval.lower)}, ${display(a.interval.upper)}] m²/s` : "Not available; no interval is implied."}</td></tr>
+          </tbody>
+        </table>}
+        <p>{a.molecularMessage}</p>
+        {a.molecular && <table className="inference-summary" data-semantic-kind="consistency-check">
+          <caption>Modern-SI consistency check · inputs held exact · not an independent molecular count</caption>
+          <tbody>
+            <tr><th scope="row">Inverse molecular-number estimate</th><td>{display(a.molecular.estimate)} mol⁻¹</td></tr>
+            <tr><th scope="row">Conditional inverse interval</th><td>[{display(a.molecular.interval.lower)}, {display(a.molecular.interval.upper)}] mol⁻¹</td></tr>
+            <tr><th scope="row">Ratio to the defined Avogadro constant</th><td>{a.molecular.consistencyRatio === null ? "Not available" : display(a.molecular.consistencyRatio)}</td></tr>
+            <tr><th scope="row">Estimated Boltzmann constant</th><td>{a.molecular.estimatedBoltzmannConstant === null ? "Not available" : `${display(a.molecular.estimatedBoltzmannConstant)} J/K`}</td></tr>
+          </tbody>
+        </table>}
+        <details>
+          <summary>Inspect the accepted positions and calibration</summary>
+          <div style={{ overflowX: "auto" }}>
+            <table className="inference-summary">
+              <caption>First {Math.min(12, a.trajectory.points.length)} of {a.trajectory.points.length} accepted positions, converted to SI. Analysis uses every admitted position, not only this preview.</caption>
+              <thead><tr><th scope="col">CSV row</th><th scope="col">Track</th><th scope="col">Time (s)</th>
+                {["x", "y", "z"].slice(0, a.trajectory.dimension).map((axis) => <th scope="col" key={axis}>{axis} (m)</th>)}</tr></thead>
+              <tbody>{a.trajectory.points.slice(0, 12).map((point) => <tr key={point.row}>
+                <th scope="row">{point.row}</th><td>{point.track}</td><td>{display(point.time)}</td>
+                {point.coordinates.map((coordinate, index) => <td key={index}>{display(coordinate)}</td>)}
+              </tr>)}</tbody>
+            </table>
+          </div>
+          <p>The full JSON export includes the accepted observations, unit conversion, physical
+            assumptions, result statuses and limitations. Numeric CSV exports use SI-labelled
+            columns and replace track labels with numeric IDs for spreadsheet safety.</p>
+        </details>
+        <div className="actions">
+          <button type="button" onClick={() => download("json")}>Download accepted analysis and observations (JSON)</button>
+          <button type="button" className="secondary" onClick={() => download("csv")}>Download accepted SI observations (CSV)</button>
+        </div>
+      </section>}
+    </section>
+  );
+}

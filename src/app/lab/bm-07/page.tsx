@@ -25,6 +25,9 @@ export default function InferencePage() {
         <p>
           <a href="/papers/brownian-motion/#arg-bm-inference">Read the inference argument →</a>
         </p>
+        <p>
+          <a href="/lab/brownian-data/">Bring your own calibrated trajectory CSV →</a>
+        </p>
       </header>
       <InferenceComparison example={{ ...example, parameters: checked.data }} />
       <section className="reading" id="inference-argument">
