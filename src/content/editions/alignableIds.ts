@@ -10,8 +10,10 @@ import {
   type AlignableUnitId,
   parseAlignableUnitId,
   parseClosingId,
+  parseEquationAnchor,
   parseFootnoteId,
   parseHeadingId,
+  parseParagraphId,
   parseSentenceId,
   parseTranslationUnitId,
   SENTENCE_ID_PATTERN,
@@ -61,6 +63,21 @@ export function isPermanentGermanId(raw: string): boolean {
 
 export function isPermanentEnglishId(raw: string): boolean {
   return parseTranslationUnitId(raw).ok;
+}
+
+/** Paragraph ids come from `parseParagraphId`; alignment does not re-spell them. */
+export function isPermanentParagraphId(raw: string): boolean {
+  return parseParagraphId(raw).ok;
+}
+
+/** Footnote ids come from `parseFootnoteId`; numbering is 1-indexed. */
+export function isPermanentFootnoteId(raw: string): boolean {
+  return parseFootnoteId(raw).ok;
+}
+
+/** Equation anchors come from `parseEquationAnchor`; display indices are 1-indexed. */
+export function isPermanentEquationAnchor(raw: string): boolean {
+  return parseEquationAnchor(raw).ok;
 }
 
 /** German source units never carry a split letter suffix. */

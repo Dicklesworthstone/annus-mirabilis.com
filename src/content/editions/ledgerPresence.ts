@@ -17,6 +17,18 @@ export const PAPER_BIB_KEYS: Readonly<Record<RouteSlug, string>> = Object.freeze
   "molecular-dimensions": "ap-19-289",
 });
 
+/**
+ * Papers 1, 3, 4, and 5 have no reviewed ledger until cloud OCR lands
+ * (`am-src-ocr-dispatch-interface-m1ur`). Their translations do not exist.
+ * Completeness is not defined for this set.
+ */
+export const PAPERS_WAITING_ON_CLOUD_OCR = [
+  "light-quanta",
+  "special-relativity",
+  "mass-energy",
+  "molecular-dimensions",
+] as const satisfies readonly RouteSlug[];
+
 export type LedgerPresence = "present" | "absent";
 
 export type LedgerPresenceRecord = Readonly<{
