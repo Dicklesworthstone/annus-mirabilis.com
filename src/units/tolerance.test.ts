@@ -199,6 +199,10 @@ describe("single tolerance module: no duplicate comparison logic elsewhere", () 
         "src/physics/reference/special/erf.ts",
         "Continued-fraction convergence threshold internal to erfc's own algorithm, not a comparison between two independently computed scientific results.",
       ],
+      [
+        "src/experiments/bm07/trajectoryCsv.ts",
+        "Floating-point resolution check computing representable precision threshold at absolute epoch magnitude to refuse unresolvable equal-interval interpretations rather than widening tolerance; not a comparison between two independently computed scientific results.",
+      ],
     ]);
     const repoRoot = dirname(dirname(dirname(fileURLToPath(import.meta.url))));
     const offenders: string[] = [];

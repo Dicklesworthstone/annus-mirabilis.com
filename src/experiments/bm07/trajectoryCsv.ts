@@ -1,3 +1,5 @@
+import { withinTolerance } from "../../units/tolerance.ts";
+
 /** Local trajectory ingestion only: this module does not fit a physical model.
  * Adjacent positions from the same track define non-overlapping increments.
  * Units are explicit; no missing sample, coordinate, or calibration is invented.
@@ -48,14 +50,21 @@ const fail = (message: string, row: number | null = null): never => {
 /** Bounded RFC-4180-style reader. Quoted labels may contain commas/newlines;
  * stray quotes and ragged records fail instead of silently changing columns. */
 function records(text: string): { fields: string[]; row: number }[] {
-  if (text.length > TRAJECTORY_LIMITS.bytes ||
-      new TextEncoder().encode(text).byteLength > TRAJECTORY_LIMITS.bytes) {
+  if (
+    text.length > TRAJECTORY_LIMITS.bytes ||
+    new TextEncoder().encode(text).byteLength > TRAJECTORY_LIMITS.bytes
+  ) {
     return fail(`The CSV must be at most ${TRAJECTORY_LIMITS.bytes} UTF-8 bytes.`);
   }
   const input = text.replace(/^\uFEFF/, "").replace(/\r\n?/g, "\n");
   const rows: { fields: string[]; row: number }[] = [];
-  let fields: string[] = [], field = "", line = 1, start = 1;
-  let quoted = false, closed = false, touched = false;
+  let fields: string[] = [],
+    field = "",
+    line = 1,
+    start = 1;
+  let quoted = false,
+    closed = false,
+    touched = false;
   function cell() {
     fields.push(field);
     if (fields.length > 5) fail("At most time, x, y, z and track columns are supported.", start);
@@ -75,17 +84,27 @@ function records(text: string): { fields: string[]; row: number }[] {
     const c = input[i]!;
     if (quoted) {
       if (c === '"') {
-        if (input[i + 1] === '"') { field += '"'; i++; }
-        else { quoted = false; closed = true; }
+        if (input[i + 1] === '"') {
+          field += '"';
+          i++;
+        } else {
+          quoted = false;
+          closed = true;
+        }
       } else {
         field += c;
         if (c === "\n") line++;
       }
       continue;
     }
-    if (c === ",") { cell(); touched = true; }
-    else if (c === "\n") { record(); line++; start = line; }
-    else if (c === '"') {
+    if (c === ",") {
+      cell();
+      touched = true;
+    } else if (c === "\n") {
+      record();
+      line++;
+      start = line;
+    } else if (c === '"') {
       if (field.length || closed) fail("A quote must begin a field.", start);
       quoted = true;
       touched = true;
@@ -103,7 +122,8 @@ function records(text: string): { fields: string[]; row: number }[] {
 const decimal = /^[+-]?(?:\d+(?:\.\d*)?|\.\d+)(?:[eE][+-]?\d+)?$/;
 function number(field: string, label: string, row: number): number {
   const text = field.trim();
-  if (!decimal.test(text)) return fail(`${label} must be a finite decimal number, not a blank or formula.`, row);
+  if (!decimal.test(text))
+    return fail(`${label} must be a finite decimal number, not a blank or formula.`, row);
   const value = Number(text);
   if (!Number.isFinite(value)) return fail(`${label} is outside the finite numeric range.`, row);
   // Number("1e-999") becomes zero. It is not a measured zero.
@@ -120,22 +140,34 @@ function scaled(value: number, scale: number, label: string, row: number): numbe
   return result === 0 ? 0 : result;
 }
 function unitScales(units: TrajectoryUnits): { time: number; position: number } {
-  if (!units || !["s", "ms"].includes(units.time) ||
-      !["m", "um", "nm", "px"].includes(units.position)) {
+  if (
+    !units ||
+    !["s", "ms"].includes(units.time) ||
+    !["m", "um", "nm", "px"].includes(units.position)
+  ) {
     return fail("Choose explicit time and position units.");
   }
   let position: number;
   switch (units.position) {
-    case "m": position = 1; break;
-    case "um": position = 1e-6; break;
-    case "nm": position = 1e-9; break;
+    case "m":
+      position = 1;
+      break;
+    case "um":
+      position = 1e-6;
+      break;
+    case "nm":
+      position = 1e-9;
+      break;
     case "px": {
       const calibration = units.micrometresPerPixel;
       if (typeof calibration !== "number" || !Number.isFinite(calibration) || calibration <= 0) {
-        return fail("Pixel coordinates require a positive independent calibration in micrometres per pixel.");
+        return fail(
+          "Pixel coordinates require a positive independent calibration in micrometres per pixel.",
+        );
       }
       position = calibration * 1e-6;
-      if (!Number.isFinite(position) || position === 0) return fail("Pixel calibration cannot be represented in metres.");
+      if (!Number.isFinite(position) || position === 0)
+        return fail("Pixel calibration cannot be represented in metres.");
     }
   }
   return { time: units.time === "s" ? 1 : 1e-3, position };
@@ -143,15 +175,23 @@ function unitScales(units: TrajectoryUnits): { time: number; position: number } 
 
 export function parseTrajectoryCsv(text: string, units: TrajectoryUnits): ImportedTrajectory {
   if (typeof text !== "string") return fail("Supply CSV text.");
-  const scale = unitScales(units), rows = records(text);
+  const scale = unitScales(units),
+    rows = records(text);
   if (rows.length < 3) return fail("Provide a header and at least two positions.");
   let header = rows[0]!.fields.map((field) => field.trim().toLowerCase());
   const siLabels: Readonly<Record<string, string>> = {
-    time_s: "time", x_m: "x", y_m: "y", z_m: "z", track_id: "track",
+    time_s: "time",
+    x_m: "x",
+    y_m: "y",
+    z_m: "z",
+    track_id: "track",
   };
   if (header.some((column) => Object.hasOwn(siLabels, column))) {
     if (units.time !== "s" || units.position !== "m") {
-      return fail("SI-labelled CSV requires seconds and metres; the declared units conflict with the header.", rows[0]!.row);
+      return fail(
+        "SI-labelled CSV requires seconds and metres; the declared units conflict with the header.",
+        rows[0]!.row,
+      );
     }
     if (header.some((column) => !Object.hasOwn(siLabels, column))) {
       return fail("Do not mix SI-labelled and unlabelled column names.", rows[0]!.row);
@@ -159,52 +199,87 @@ export function parseTrajectoryCsv(text: string, units: TrajectoryUnits): Import
     header = header.map((column) => siLabels[column]!);
   }
   if (new Set(header).size !== header.length) return fail("Duplicate column names.", rows[0]!.row);
-  if (header.some((column) => !["time", "x", "y", "z", "track"].includes(column)) ||
-      !header.includes("time") || !header.includes("x") || (header.includes("z") && !header.includes("y"))) {
-    return fail("Use time,x with optional y, z and track columns. z requires y; no extra columns are silently discarded.", rows[0]!.row);
+  if (
+    header.some((column) => !["time", "x", "y", "z", "track"].includes(column)) ||
+    !header.includes("time") ||
+    !header.includes("x") ||
+    (header.includes("z") && !header.includes("y"))
+  ) {
+    return fail(
+      "Use time,x with optional y, z and track columns. z requires y; no extra columns are silently discarded.",
+      rows[0]!.row,
+    );
   }
-  const axes = ["x", ...(header.includes("y") ? ["y"] : []), ...(header.includes("z") ? ["z"] : [])];
+  const axes = [
+    "x",
+    ...(header.includes("y") ? ["y"] : []),
+    ...(header.includes("z") ? ["z"] : []),
+  ];
   const dimension = axes.length as 1 | 2 | 3;
-  const timeColumn = header.indexOf("time"), trackColumn = header.indexOf("track");
-  const points: TrajectoryPoint[] = [], increments: number[] = [];
-  const previous = new Map<string, TrajectoryPoint>(), counts = new Map<string, number>();
-  let firstDt: number | null = null, timingIssue: string | null = null;
+  const timeColumn = header.indexOf("time"),
+    trackColumn = header.indexOf("track");
+  const points: TrajectoryPoint[] = [],
+    increments: number[] = [];
+  const previous = new Map<string, TrajectoryPoint>(),
+    counts = new Map<string, number>();
+  let firstDt: number | null = null,
+    timingIssue: string | null = null;
   for (const { fields, row } of rows.slice(1)) {
-    if (fields.length !== header.length) return fail(`Expected ${header.length} fields; found ${fields.length}.`, row);
+    if (fields.length !== header.length)
+      return fail(`Expected ${header.length} fields; found ${fields.length}.`, row);
     const track = trackColumn === -1 ? "1" : fields[trackColumn]!.trim();
     if (!track || track.length > 80 || /[\u0000-\u001F\u007F]/.test(track)) {
       return fail("Track IDs must contain 1–80 printable characters.", row);
     }
-    if (!previous.has(track) && previous.size >= TRAJECTORY_LIMITS.tracks) return fail("At most 64 distinct tracks are supported.", row);
+    if (!previous.has(track) && previous.size >= TRAJECTORY_LIMITS.tracks)
+      return fail("At most 64 distinct tracks are supported.", row);
     const time = scaled(number(fields[timeColumn]!, "time", row), scale.time, "time", row);
-    const coordinates = Object.freeze(axes.map((axis) =>
-      scaled(number(fields[header.indexOf(axis)]!, axis, row), scale.position, axis, row)));
+    const coordinates = Object.freeze(
+      axes.map((axis) =>
+        scaled(number(fields[header.indexOf(axis)]!, axis, row), scale.position, axis, row),
+      ),
+    );
     const point = Object.freeze({ track, time, coordinates, row });
     const last = previous.get(track);
     if (last) {
       const dt = time - last.time;
-      if (!Number.isFinite(dt) || dt <= 0) return fail("Times must strictly increase within each track; timestamps are never sorted or deduplicated.", row);
+      if (!Number.isFinite(dt) || dt <= 0)
+        return fail(
+          "Times must strictly increase within each track; timestamps are never sorted or deduplicated.",
+          row,
+        );
       // A large absolute epoch can make nominally equal intervals unresolvable.
       // Refuse an exact-interval interpretation rather than widening tolerance.
       const resolution = 8 * Number.EPSILON * Math.max(Math.abs(time), Math.abs(last.time));
-      if (resolution > dt * 1e-7) timingIssue ??= "Timestamps are not sufficiently resolved. Use elapsed times relative to the recording start, not a large absolute epoch.";
+      if (resolution > dt * 1e-7)
+        timingIssue ??=
+          "Timestamps are not sufficiently resolved. Use elapsed times relative to the recording start, not a large absolute epoch.";
       firstDt ??= dt;
-      if (Math.abs(dt - firstDt) > Math.max(dt, firstDt) * 1e-7) {
-        timingIssue ??= "The sampling interval differs within or between tracks. This equal-spacing inference model cannot analyze it; no samples were resampled or discarded.";
+      if (!withinTolerance(dt, firstDt, { relative: 1e-7, relativeTo: "larger" }).ok) {
+        timingIssue ??=
+          "The sampling interval differs within or between tracks. This equal-spacing inference model cannot analyze it; no samples were resampled or discarded.";
       }
       for (let c = 0; c < dimension; c++) {
         const displacement = coordinates[c]! - last.coordinates[c]!;
-        if (!Number.isFinite(displacement)) return fail("A displacement exceeds the finite numeric range.", row);
+        if (!Number.isFinite(displacement))
+          return fail("A displacement exceeds the finite numeric range.", row);
         increments.push(displacement);
       }
-      if (increments.length > TRAJECTORY_LIMITS.incrementCoordinates) return fail("At most 10000 displacement coordinates are supported. Import a smaller, explicitly selected recording.", row);
+      if (increments.length > TRAJECTORY_LIMITS.incrementCoordinates)
+        return fail(
+          "At most 10000 displacement coordinates are supported. Import a smaller, explicitly selected recording.",
+          row,
+        );
     }
     previous.set(track, point);
     counts.set(track, (counts.get(track) ?? 0) + 1);
     points.push(point);
   }
   for (const [track, count] of counts) {
-    if (count < 2) return fail(`Track ${JSON.stringify(track)} has only one position; no track is silently dropped.`);
+    if (count < 2)
+      return fail(
+        `Track ${JSON.stringify(track)} has only one position; no track is silently dropped.`,
+      );
   }
   return Object.freeze({
     kind: "user-supplied-trajectory",
