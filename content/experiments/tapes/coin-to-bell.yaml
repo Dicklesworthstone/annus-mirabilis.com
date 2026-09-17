@@ -1,0 +1,115 @@
+# Teaching tape "coin to bell" (am-bm-05-random-steps-ntzl). Steps a coin-kernel walk through
+# n = 4, 16, 64, 400, then switches to the uniform and Gaussian kernels at the same seed and step
+# count -- a common-random-numbers comparison, labeled as such by this comment and by the bead's
+# own reveal text, never presented as three independent trials. Reaching n = 400 on the coin
+# kernel is what settles the registered predict prompt bm-05-predict-step-shape (its
+# step-distribution control is exactly what this tape's kernel-switch events change), per the
+# bead's own "the tape commands the step-distribution control that bm-05-predict-step-shape is
+# attached to, its reveal settles that prompt" rule.
+#
+# `kernel` is not a number in Bm05Parameters (it is "coin" | "uniform" | "gaussian"), but the
+# tape schema (src/experiments/tapes/schema.ts, am-rt-control-tapes-0gc) requires every
+# initialConditions and control-event value to be a finite number. This tape reuses the existing
+# canonical numeric encoding from WALK_KERNELS in src/physics/reference/diffusion/walkLaws.ts
+# (coin = 0, uniform = 1, gaussian = 3 -- id 2 is reserved for the dimensionless teaching
+# Gaussian BM-05 does not use here) rather than inventing a second one.
+#
+# This file is validated for schema conformance only (src/testing/bm05Tape.test.ts, using the
+# real validateControlTape). It has not been replayed end to end through BM-05's session: the
+# tape-to-session integration is am-inst-permalink-tape-s677, which this bead's own dependency
+# list carries as an open blocker. Do not read a passing schema-conformance test as proof this
+# tape replays correctly in the browser.
+tapeVersion: 2
+tapeId: coin-to-bell
+experimentId: bm-05
+mode: "bm-05"
+title: "coin to bell"
+isTeachingSequence: true
+modelIdentity:
+  modelId: bm05-host-preview-v1
+  modelVersion: "1.0.0"
+  artifactDigest: "host:sha256:0000000000000000000000000000000000000000000000000000000000000000"
+constantSetId: not-applicable
+seed: "1905"
+streamVersion: 1
+allocationId: bm-05.walk.v1
+initialConditions:
+  stepRms: 5.0e-7
+  tau: 0.1
+  walkers: 2000
+  runSteps: 400
+  n: 0
+  bias: 0.6
+  kernel: 0
+events:
+  - kind: control
+    actionIndex: 1
+    commandClass: measurement-change
+    commandId: advance-steps-shown
+    parameterId: n
+    value: 4
+  - kind: control
+    actionIndex: 2
+    commandClass: measurement-change
+    commandId: advance-steps-shown
+    parameterId: n
+    value: 16
+  - kind: control
+    actionIndex: 3
+    commandClass: measurement-change
+    commandId: advance-steps-shown
+    parameterId: n
+    value: 64
+  - kind: control
+    actionIndex: 4
+    commandClass: measurement-change
+    commandId: advance-steps-shown
+    parameterId: n
+    value: 400
+  - kind: control
+    actionIndex: 5
+    commandClass: setup-change
+    commandId: select-kernel
+    parameterId: kernel
+    value: 1
+    previousValue: 0
+  - kind: control
+    actionIndex: 6
+    commandClass: setup-change
+    commandId: select-kernel
+    parameterId: kernel
+    value: 3
+    previousValue: 1
+checkpoints:
+  - actionIndex: 4
+    stepIndex: 400
+    simulatedTime: 40
+    digest: "host:sha256:1111111111111111111111111111111111111111111111111111111111111111"
+    digestKind: host
+    checkpointVersion: 1
+    streamSemanticsVersion: 1
+    seed: "1905"
+    streamPositions: []
+    label: "Coin kernel, 400 steps: the predict prompt settles here"
+    teachingNote: "The histogram at 400 coin steps is the state that settles bm-05-predict-step-shape (same-bell-shape), read from this accepted snapshot's histogram and second-moment outputs, never from stored text."
+    expectedDisplayValues:
+      - label: "kernel"
+        value: 0
+        unit: "1"
+        constantSetId: not-applicable
+  - actionIndex: 6
+    stepIndex: 400
+    simulatedTime: 40
+    digest: "host:sha256:2222222222222222222222222222222222222222222222222222222222222222"
+    digestKind: host
+    checkpointVersion: 1
+    streamSemanticsVersion: 1
+    seed: "1905"
+    streamPositions: []
+    label: "Gaussian kernel, same seed and step count: the same bell"
+    teachingNote: "Common random numbers: same seed, same step count, a different kernel. The second moment and histogram width agree with the coin-kernel checkpoint within the declared statistical band; the shapes differ at small n and agree at n = 400."
+    expectedDisplayValues:
+      - label: "kernel"
+        value: 3
+        unit: "1"
+        constantSetId: not-applicable
