@@ -1,10 +1,5 @@
 import { describe, expect, test } from "bun:test";
-import {
-  mapToFace,
-  mapToFacsimilePage,
-  mapToResultsFace,
-  type StructureIndex,
-} from "./mapToFace";
+import { mapToFace, mapToFacsimilePage, mapToResultsFace, type StructureIndex } from "./mapToFace";
 
 const FIXTURE: StructureIndex = {
   units: [
@@ -46,13 +41,27 @@ describe("mapToFace: nearest-ancestor mapping across faces", () => {
   });
 
   test("a German source sentence maps back to its first English half when only the halves are present", () => {
-    expect(mapToFace("s3-p1-s1", FIXTURE, new Set(["s3-p1-s1a", "s3-p1-s1b"]))).toBe(
-      "s3-p1-s1a",
-    );
+    expect(mapToFace("s3-p1-s1", FIXTURE, new Set(["s3-p1-s1a", "s3-p1-s1b"]))).toBe("s3-p1-s1a");
   });
 
   test("an id not in the structure index at all still climbs by string-derived parentage for a sentence, then reports undefined past the fixture's known units", () => {
     expect(mapToFace("s9-p1-s1", FIXTURE, new Set(["s3"]))).toBeUndefined();
+  });
+
+  test("a shared sentence id is identical on the German and English faces", () => {
+    const german = new Set(["s4-p2-s1", "s4-p2"]);
+    const english = new Set(["s4-p2-s1", "s4-p2-s1a", "s4-p2-s1b", "s4-p2"]);
+    const index: StructureIndex = {
+      units: [
+        { id: "s4" },
+        { id: "s4-p2", parentId: "s4" },
+        { id: "s4-p2-s1", parentId: "s4-p2" },
+        { id: "s4-p2-s1a", parentId: "s4-p2-s1" },
+        { id: "s4-p2-s1b", parentId: "s4-p2-s1" },
+      ],
+    };
+    expect(mapToFace("s4-p2-s1", index, german)).toBe("s4-p2-s1");
+    expect(mapToFace("s4-p2-s1", index, english)).toBe("s4-p2-s1");
   });
 });
 

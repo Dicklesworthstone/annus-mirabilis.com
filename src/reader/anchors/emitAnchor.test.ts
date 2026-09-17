@@ -19,12 +19,8 @@ describe("emitAnchor: the full grammar", () => {
   });
 
   test("sentence, English split suffixes a and b", () => {
-    expect(emitAnchor({ kind: "sentence", n: 4, m: 2, k: 1, splitSuffix: "a" })).toBe(
-      "#s4-p2-s1a",
-    );
-    expect(emitAnchor({ kind: "sentence", n: 4, m: 2, k: 1, splitSuffix: "b" })).toBe(
-      "#s4-p2-s1b",
-    );
+    expect(emitAnchor({ kind: "sentence", n: 4, m: 2, k: 1, splitSuffix: "a" })).toBe("#s4-p2-s1a");
+    expect(emitAnchor({ kind: "sentence", n: 4, m: 2, k: 1, splitSuffix: "b" })).toBe("#s4-p2-s1b");
   });
 
   test("substantive inline equation, attached to a sentence", () => {

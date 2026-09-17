@@ -1,3 +1,6 @@
+import type { AliasRecord } from "../../content/aliases.ts";
+import { resolveRegistryAnchor } from "../anchors/resolve.ts";
+
 export const DETAIL_STORAGE_KEY = "am:settings:v1:detail";
 export const MAX_CLARIFICATION_DEPTH = 12;
 export const FACES = [
@@ -24,6 +27,8 @@ export type ReaderRegistry = Readonly<{
   paperId: string;
   anchors: readonly string[];
   foundations: readonly string[];
+  /** Retired and split ids. parseReaderLocation consumes these; they are not decoration. */
+  aliases?: readonly AliasRecord[];
 }>;
 export function parseDetail(input: string | null): Detail | null {
   return input === "0" || input === "overview"
@@ -50,7 +55,7 @@ export function parseReaderLocation(
   } catch {
     /* Unrecognized anchors use the first authored passage. */
   }
-  const anchor = registry.anchors.includes(rawAnchor) ? rawAnchor : (registry.anchors[0] ?? "");
+  const anchor = resolveRegistryAnchor(rawAnchor, registry.anchors, registry.aliases ?? []);
   const open = single("open");
   const foundationId =
     open && open.length <= 200 && open.startsWith("foundation:") ? open.slice(11) : "";

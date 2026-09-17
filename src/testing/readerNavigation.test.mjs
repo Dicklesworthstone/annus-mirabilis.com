@@ -17,6 +17,29 @@ const registry = {
   anchors: ["arg-bm-observable", "arg-bm-independent-steps"],
   foundations: ["mean-variance-rms", "bridge-sum-average"],
 };
+test("a retired hash is resolved through the alias table to its living successor, not the first passage", () => {
+  const withAliases = {
+    ...registry,
+    aliases: [
+      {
+        retiredId: "arg-bm-observable-old",
+        kind: "retired",
+        replacementIds: ["arg-bm-observable"],
+        reason: "renamed",
+        date: "2026-01-01",
+        editor: "test",
+      },
+    ],
+  };
+  assert.equal(
+    parseReaderLocation("", "#arg-bm-observable-old", withAliases).anchor,
+    "arg-bm-observable",
+  );
+  assert.notEqual(
+    parseReaderLocation("", "#arg-bm-observable-old", withAliases).anchor,
+    "arg-bm-independent-steps",
+  );
+});
 test("reader URL parsing respects valid explicit detail before storage and ignores duplicate or unknown values", () => {
   assert.equal(
     parseReaderLocation("?detail=steps", "#arg-bm-independent-steps", registry, "0").detail,

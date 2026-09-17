@@ -67,10 +67,7 @@ export function mapToFace(
 }
 
 /** The result anchors a section's results face shows, or an empty list if none are declared. */
-export function mapToResultsFace(
-  sectionId: string,
-  index: StructureIndex,
-): readonly string[] {
+export function mapToResultsFace(sectionId: string, index: StructureIndex): readonly string[] {
   return index.resultsBySection?.[sectionId] ?? [];
 }
 

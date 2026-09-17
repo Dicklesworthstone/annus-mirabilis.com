@@ -16,7 +16,7 @@
  */
 
 import { entryAnchorForEntrance, parseAnchor } from "../../content/anchors.ts";
-import { ENTRANCE_PAPER_SLUGS } from "../../content/ids.ts";
+import type { ENTRANCE_PAPER_SLUGS } from "../../content/ids.ts";
 
 export type EntrancePaperSlug = (typeof ENTRANCE_PAPER_SLUGS)[number];
 
