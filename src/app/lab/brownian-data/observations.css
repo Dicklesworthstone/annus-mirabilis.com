@@ -18,3 +18,12 @@
   .measured-trajectory-lab form, .measured-trajectory-lab button { display: none; }
   .measured-trajectory-lab details > * { display: block !important; }
 }
+
+.trajectory-inspection { margin-block: 2rem; border-top: 1px solid var(--line); padding-top: 1rem; }
+.trajectory-inspection figure { margin-inline: 0; }
+.trajectory-inspection svg { display: block; width: 100%; height: auto; }
+.trajectory-inspection figcaption { font-size: .9rem; }
+.trajectory-table-scroll { max-width: 100%; overflow-x: auto; }
+.trajectory-table-scroll table { width: 100%; font-variant-numeric: tabular-nums; }
+.trajectory-table-scroll th { width: auto !important; }
+@media print { .trajectory-inspection .input-grid, .trajectory-inspection .actions { display: none; } }
