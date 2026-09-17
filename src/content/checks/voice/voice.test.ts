@@ -250,6 +250,42 @@ describe("theater", () => {
     );
     assert.equal(has(checkVoice("step 3 of 7", { context: "reader-progress" }), "theater"), false);
   });
+  it('technical uses of points ("data points", "plot points", "sample points", "grid points") pass allowlist in ui-label and prose', () => {
+    assert.equal(
+      has(checkVoice("Plot all data points", { context: "ui-label" }), "theater"),
+      false,
+    );
+    assert.equal(
+      has(checkVoice("connect the plot points", { context: "prose" }), "theater"),
+      false,
+    );
+    assert.equal(
+      has(checkVoice("sample points along the curve", { context: "prose" }), "theater"),
+      false,
+    );
+    assert.equal(
+      has(checkVoice("interpolate between grid points", { context: "prose" }), "theater"),
+      false,
+    );
+  });
+  it("planted negative (am-a33s AC2): genuine gamification uses of points still fail", () => {
+    assert.equal(
+      has(
+        checkVoice("earn points for each passage", { context: "task-feedback" }),
+        "theater",
+        "error",
+      ),
+      true,
+    );
+    assert.equal(
+      has(checkVoice("You scored 10 points", { context: "ui-label" }), "theater", "error"),
+      true,
+    );
+    assert.equal(
+      has(checkVoice("collect points", { context: "reader-progress" }), "theater", "error"),
+      true,
+    );
+  });
 });
 
 describe("mockery", () => {

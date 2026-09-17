@@ -215,6 +215,15 @@ rules:
       - "✓"
       - "✗"
     markWordsProseExempt: true
+    allowlist:
+      - data points
+      - data point
+      - plot points
+      - plot point
+      - sample points
+      - sample point
+      - grid points
+      - grid point
     severityByContext:
       task-feedback: error
       reader-progress: error
