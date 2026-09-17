@@ -24,6 +24,7 @@ import {
   stokesEinsteinD,
 } from "../physics/reference/diffusion/distributions.ts";
 import { erf, erfc } from "../physics/reference/special/erf.ts";
+import { compareBitwise, withinTolerance } from "../units/tolerance.ts";
 
 const val = (evaluation) => {
   decodeResult(evaluation.result);
@@ -31,11 +32,22 @@ const val = (evaluation) => {
   assert.equal(typeof evaluation.result.value, "number");
   return evaluation.result.value;
 };
-const near = (actual, expected, relative = 1e-12, absolute = 0) =>
+const near = (actual, expected, relative = 1e-12, absolute = 0) => {
+  if (relative === 0 && absolute === 0) {
+    const bits = compareBitwise(actual, expected);
+    assert.ok(bits.ok, `${actual} != ${expected} (${bits.detail})`);
+    return;
+  }
+  const spec = {
+    ...(relative > 0 ? { relative } : {}),
+    ...(absolute > 0 ? { absolute } : {}),
+  };
+  const verdict = withinTolerance(actual, expected, spec);
   assert.ok(
-    Math.abs(actual - expected) <= Math.max(absolute, relative * Math.abs(expected)),
-    `${actual} != ${expected}`,
+    verdict.ok,
+    `${actual} != ${expected} kind=${verdict.kind} diff=${verdict.diff} allowed=${verdict.allowed}`,
   );
+};
 const modern = getConstantSet("modern-si-2019");
 const entry = (quantityId, exactDecimal, unit, dependsOn = []) => ({
   quantityId,
