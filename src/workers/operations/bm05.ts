@@ -174,6 +174,7 @@ export async function measureBm05(
       number("modelRms", model.rms),
       number("elapsedTime", model.elapsedTime),
       number("samplingTerm", sampling),
+      number("walkerCount", p.walkers),
       number("walkPositions", samples),
     ];
     if (p.n === 0)

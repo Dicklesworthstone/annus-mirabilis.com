@@ -109,6 +109,7 @@ export const BM05_OUTPUTS: Readonly<Record<string, OutputContract>> = Object.fre
     "not-applicable",
   ]),
   samplingTerm: c("1", "dkw-sampling-bound", "diffusion.dkwBound"),
+  walkerCount: c("1", "sample-count", "bm05.measure"),
   agreementBound: c("1", "shape-plus-sampling-bound", "bm05.measure", ["value", "not-applicable"]),
   withinBound: c("1", "sample-within-declared-bound", "bm05.measure", ["value", "not-applicable"]),
   walkPositions: c("m", "synthetic-walk-endpoints", "diffusion.recordWalks"),
@@ -159,28 +160,33 @@ export const BM05_OUTPUTS: Readonly<Record<string, OutputContract>> = Object.fre
   fixedRatioCoefficients: c("m2/s", "fixed-ratio-coefficient-sequence", "diffusion.continuumLimit"),
 });
 /**
- * Declared as data only (am-read-result-weave-jex, the weave compiler and evaluator this must
- * validate against, does not exist yet -- see the BM-06 precedent in
- * src/experiments/bm06/definition.ts for the same honesty caveat). `sampleCountField` names a
- * parameter rather than a BM05_OUTPUTS key because the walker count W is Bm05Parameters.walkers,
- * not a derived output; every other reference is a real, already-published output.
+ * Validated against the real am-read-result-weave-jex contract (src/experiments/weave/types.ts,
+ * validate.ts): `walkerCount` is a real BM05_OUTPUTS key (added alongside this declaration,
+ * wired in src/workers/operations/bm05.ts) rather than a bare parameter reference, because
+ * validateWeavePredicate requires every agreement condition's quantity ids to resolve to a
+ * declared instrument output. `targets` names a placeholder sentence id: am-edn-inventory-
+ * brownian-slg (the Brownian source-id inventory) is still open, so no real §4 sentence id
+ * exists yet to cite. src/testing/bm05Weave.test.ts proves this against the real validator and
+ * evaluator on scripted snapshots, not just its shape.
  */
 export const BM05_WEAVE_PREDICATES = Object.freeze([
   Object.freeze({
     id: "bm05-s4-second-moment",
-    targetSentenceId: "s4-second-moment",
+    instrumentId: "bm-05",
+    meaning: "agreement-within-stated-bound" as const,
+    targets: Object.freeze(["s4-second-moment"]),
     pointerText:
       "the sampled histogram agrees with the Gaussian of the same second moment within the stated bound.",
     conditions: Object.freeze([
       Object.freeze({
-        kind: "agreement",
-        statisticOutputId: "kolmogorovDistance",
-        sampleCountField: "walkers",
-        minimumSampleCount: 400,
-        offsetOutputId: "shapeTerm",
-        boundFamily: "dkw",
-        alphaEnter: 1e-3,
-        alphaExit: 1e-4,
+        kind: "agreement" as const,
+        statisticQuantityId: "kolmogorovDistance",
+        sampleCountQuantityId: "walkerCount",
+        minimumSampleSize: 400,
+        offsetQuantityId: "shapeTerm",
+        boundFamily: "dkw" as const,
+        enterAlpha: 1e-3,
+        exitAlpha: 1e-4,
       }),
     ]),
   }),
