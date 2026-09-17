@@ -35,6 +35,7 @@ function identityFields(meta: AssertionMeta): Record<string, unknown> {
 /** Converts a value into something the JSONL schema can serialize as-is. */
 function toLoggable(value: unknown): unknown {
   if (typeof value === "bigint") return value.toString();
+  if (Array.isArray(value)) return value.map(toLoggable);
   if (ArrayBuffer.isView(value) && !(value instanceof DataView)) {
     return Array.from(value as unknown as Iterable<number | bigint>, (v) =>
       typeof v === "bigint" ? v.toString() : v,

@@ -121,6 +121,26 @@ test("identical Uint32Array Philox-style outputs pass bitwise and an off-by-one 
   );
 });
 
+test("plain bigint arrays preserve exact identities in passing and failing JSONL comparisons", () => {
+  const logRunId = newRunIdentity();
+  const actual = [9007199254740993n, 18446744073709551615n];
+  const meta = { suite: SUITE, logRunId, testId: "bigint-array-pass" };
+  assert.equal(expectBitwise(actual, [...actual], meta).ok, true);
+  const passed = lastEventFor(SUITE, logRunId, meta.testId);
+  assert.equal(passed?.outcome, "passed");
+  assert.deepEqual(passed?.actual, ["9007199254740993", "18446744073709551615"]);
+  assert.deepEqual(passed?.expected, passed?.actual);
+
+  const failedMeta = { ...meta, testId: "bigint-array-fail" };
+  assert.throws(
+    () => expectBitwise(actual, [9007199254740992n, actual[1]], failedMeta),
+    /expectBitwise failed/,
+  );
+  const failed = lastEventFor(SUITE, logRunId, failedMeta.testId);
+  assert.equal(failed?.outcome, "failed");
+  assert.deepEqual(failed?.expected, ["9007199254740992", "18446744073709551615"]);
+});
+
 // WITHIN_TOLERANCE_CASES (actual/reference/spec/expectedKind) and BITWISE_CASES
 // (actual/expected/expectedKind) are the two named tables in tolerance.cases.ts
 // shaped for expectClose and expectBitwise respectively; VALIDATE_SPEC_CASES,
