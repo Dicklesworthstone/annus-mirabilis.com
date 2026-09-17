@@ -20,16 +20,12 @@ export function buildCanonicalDocumentUrl(urlOrPath: string): string {
       ? new URL(urlOrPath)
       : new URL(urlOrPath, "https://annus-mirabilis.com");
 
-    // Remove ?tape= and presentation parameters that do not belong in the canonical document URL
-    parsed.searchParams.delete("tape");
-    parsed.searchParams.delete("view");
-    parsed.searchParams.delete("detail");
-    parsed.searchParams.delete("lens");
-    parsed.searchParams.delete("notation");
-    parsed.searchParams.delete("units");
-
-    const search = parsed.searchParams.toString();
-    const cleanSearch = search ? `?${search}` : "";
+    // Drop EVERY query parameter. A canonical identifies the document, and no
+    // query parameter on this site forms part of that identity. This was a
+    // denylist (tape/view/detail/lens/notation/units), which leaked by default:
+    // `note` survived it and reached the canonical, publishing a private reader
+    // note identifier to crawlers. An allowlist of nothing cannot leak.
+    const cleanSearch = "";
 
     if (isFullUrl) {
       return `${parsed.origin}${parsed.pathname}${cleanSearch}${parsed.hash}`;

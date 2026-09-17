@@ -4,6 +4,7 @@ import { useEffect } from "react";
 import { getPermalinkRobotsPolicy, type RobotsPolicy } from "./canonical.ts";
 
 export const PERMALINK_ROBOTS_DATA_ATTR = "data-permalink-robots";
+export const PERMALINK_ROBOTS_ORIGINAL_ATTR = "data-permalink-robots-original";
 
 /**
  * Applies the permalink robots policy to the document head:
@@ -38,23 +39,36 @@ export function applyPermalinkRobots(
     }
     metaRobots.setAttribute("content", policy.robots);
 
-    let canonicalLink = head.querySelector<HTMLLinkElement>(
-      `link[rel="canonical"][${PERMALINK_ROBOTS_DATA_ATTR}="true"]`,
-    );
+    // Update ANY existing canonical in place. Querying only our own marked link
+    // meant a canonical emitted by page metadata was invisible here and a second
+    // one was appended, leaving two rel=canonical elements on the page.
+    let canonicalLink = head.querySelector<HTMLLinkElement>('link[rel="canonical"]');
     if (!canonicalLink) {
       canonicalLink = document.createElement("link");
       canonicalLink.setAttribute("rel", "canonical");
       canonicalLink.setAttribute(PERMALINK_ROBOTS_DATA_ATTR, "true");
       head.appendChild(canonicalLink);
+    } else if (!canonicalLink.hasAttribute(PERMALINK_ROBOTS_ORIGINAL_ATTR)) {
+      // Remember the page's own href so removing the tape parameter restores it
+      // rather than deleting a canonical this manager did not create.
+      canonicalLink.setAttribute(
+        PERMALINK_ROBOTS_ORIGINAL_ATTR,
+        canonicalLink.getAttribute("href") ?? "",
+      );
     }
     canonicalLink.setAttribute("href", policy.canonicalUrl);
   } else if (metaRobots) {
     metaRobots.remove();
-    const canonicalLink = head.querySelector<HTMLLinkElement>(
-      `link[rel="canonical"][${PERMALINK_ROBOTS_DATA_ATTR}="true"]`,
-    );
+    const canonicalLink = head.querySelector<HTMLLinkElement>('link[rel="canonical"]');
     if (canonicalLink) {
-      canonicalLink.remove();
+      const original = canonicalLink.getAttribute(PERMALINK_ROBOTS_ORIGINAL_ATTR);
+      if (original !== null) {
+        // The page owned this canonical; restore it instead of removing it.
+        canonicalLink.setAttribute("href", original);
+        canonicalLink.removeAttribute(PERMALINK_ROBOTS_ORIGINAL_ATTR);
+      } else if (canonicalLink.getAttribute(PERMALINK_ROBOTS_DATA_ATTR) === "true") {
+        canonicalLink.remove();
+      }
     }
   }
 

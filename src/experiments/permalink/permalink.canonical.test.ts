@@ -49,3 +49,21 @@ test("permalink.canonical: sitemaps exempt tape permalinks and export paths", ()
     message: "Canonical URL stripping, noindex policy, and sitemap exclusion verified",
   });
 });
+
+test("negative: no private or unknown query parameter survives into the canonical", () => {
+  // This was a denylist (tape/view/detail/lens/notation/units), so anything it
+  // did not name leaked. `note` is a private reader identifier and reached the
+  // canonical, which is a link addressed to crawlers.
+  const withNote = buildCanonicalDocumentUrl(
+    "https://annus-mirabilis.com/papers/brownian-motion/?note=private&tape=tok#arg-bm-observable",
+  );
+  assert.equal(withNote, "https://annus-mirabilis.com/papers/brownian-motion/#arg-bm-observable");
+  assert.ok(!withNote.includes("note"), "canonical must not carry a note parameter");
+
+  // A parameter nobody has thought of yet must also not survive.
+  const withUnknown = buildCanonicalDocumentUrl(
+    "https://annus-mirabilis.com/lab/bm-01/?someFutureParam=secret",
+  );
+  assert.equal(withUnknown, "https://annus-mirabilis.com/lab/bm-01/");
+  assert.ok(!withUnknown.includes("secret"), "canonical must not carry an unknown parameter");
+});
