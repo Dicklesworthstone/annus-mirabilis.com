@@ -35,8 +35,18 @@ describe("PassageActionsBar", () => {
     expect(html).toContain("Read the original");
     expect(html).toContain("/papers/brownian-motion/view/german/");
     expect(html).toContain('data-copy-passage="arg-bm-observable"');
-    expect(html).toContain('data-passage-label="Zero average is not no movement"');
-    expect(html).toContain("Copy a link to this passage: Zero average is not no movement");
+    expect(html).toContain('aria-label="Why?: Zero average is not no movement"');
+    expect(html).toContain('aria-label="Show the missing step: Zero average is not no movement"');
+    expect(html).toContain(
+      'aria-label="Show me one example first: Zero average is not no movement"',
+    );
+    expect(html).toContain('aria-label="Try it: Tracer ensemble"');
+    expect(html).toContain(
+      'aria-label="Read the original German: Zero average is not no movement"',
+    );
+    expect(html).toContain(
+      'aria-label="Copy a link to this passage: Zero average is not no movement"',
+    );
     const defaultHref = "/papers/brownian-motion/#arg-bm-observable";
     expect(html).toContain(`href="${defaultHref}"`);
     expect(
@@ -50,6 +60,63 @@ describe("PassageActionsBar", () => {
         axes: { view: "reading", detail: 1, lens: false, anchor: "arg-bm-observable" },
       }),
     ).toBe(`https://annus-mirabilis.com${defaultHref}`);
+  });
+
+  test("tryIt for bm-07 renders accessible name 'Try it: Molecular-number inference' (AC2)", () => {
+    const html = renderToStaticMarkup(
+      <PassageActionsBar
+        paperId="brownian-motion"
+        passageId="arg-bm-inference"
+        passageLabel="What would let us count molecules?"
+        actions={validatePassageActions({
+          hard: false,
+          tryIt: { instrumentId: "bm-07" },
+        })}
+      />,
+    );
+    expect(html).toContain('aria-label="Try it: Molecular-number inference"');
+  });
+
+  test("two passages offering the same action types never receive identical accessible names (AC4)", () => {
+    const html1 = renderToStaticMarkup(
+      <PassageActionsBar
+        paperId="brownian-motion"
+        passageId="arg-bm-observable"
+        passageLabel="Zero average is not no movement"
+        actions={ACTIONS}
+      />,
+    );
+    const html2 = renderToStaticMarkup(
+      <PassageActionsBar
+        paperId="brownian-motion"
+        passageId="arg-bm-independent-steps"
+        passageLabel="Why the square grows with time"
+        actions={validatePassageActions({
+          hard: false,
+          why: "probability-independence",
+          missingStep: "random-walks",
+          example: "random-walks",
+          tryIt: { instrumentId: "bm-05" },
+          original: ["arg-bm-independent-steps"],
+        })}
+      />,
+    );
+
+    const extractLinkAriaLabels = (markup: string) => {
+      const matches = [...markup.matchAll(/<a\s+[^>]*aria-label="([^"]+)"/g)];
+      return matches.map((m) => m[1]);
+    };
+
+    const labels1 = extractLinkAriaLabels(html1);
+    const labels2 = extractLinkAriaLabels(html2);
+
+    expect(labels1.length).toBeGreaterThan(0);
+    expect(labels2.length).toBeGreaterThan(0);
+
+    // Negative assertion: two passages that offer the same action types must not share any accessible names
+    for (const label of labels1) {
+      expect(labels2).not.toContain(label);
+    }
   });
 
   test("an action with no content is omitted, never filled with a generic page", () => {

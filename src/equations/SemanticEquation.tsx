@@ -293,7 +293,13 @@ export function SemanticEquation({ equation }: { equation: CompiledEquation }) {
             <div key={n.nodeId}>
               <dt>{n.title}</dt>
               <dd>
-                {n.explanation} <a href={`/foundations/${n.foundation}/`}>Read the prerequisite</a>
+                {n.explanation}{" "}
+                <a
+                  href={`/foundations/${n.foundation}/`}
+                  aria-label={`Read the prerequisite: ${n.title}`}
+                >
+                  Read the prerequisite
+                </a>
               </dd>
             </div>
           ))}

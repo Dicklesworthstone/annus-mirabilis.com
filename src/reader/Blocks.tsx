@@ -1,16 +1,24 @@
 import { Formula } from "../components/edition/Formula";
+import { FoundationConstruction } from "../components/foundations/FoundationConstruction.tsx";
 import type { Block, Foundation } from "../content/schemas/reading";
 export function FoundationLink({
   id,
   title,
   caption,
+  ariaLabel,
 }: {
   id: string;
   title: string;
   caption?: string;
+  ariaLabel?: string;
 }) {
   return (
-    <a href={`/foundations/${id}/`} data-foundation={id} data-return-caption={caption}>
+    <a
+      href={`/foundations/${id}/`}
+      data-foundation={id}
+      data-return-caption={caption}
+      aria-label={ariaLabel}
+    >
       {title}
     </a>
   );
@@ -82,15 +90,19 @@ export function FoundationBody({
       <h3>One worked example</h3>
       <ReadingBlocks blocks={foundation.example} foundations={foundations} />
       <p className="notice">A stopping point: {foundation.stoppingPoint}</p>
+      <FoundationConstruction foundationId={foundation.id} />
       {foundation.prerequisites.length > 0 && (
         <nav className="prerequisites" aria-label={`Prerequisites for ${foundation.title}`}>
-          {foundation.prerequisites.map((id) => (
-            <FoundationLink
-              key={id}
-              id={id}
-              title={foundations.find((f) => f.id === id)?.title ?? id}
-            />
-          ))}
+          {foundation.prerequisites.map((p) => {
+            const prereqId = typeof p === "string" ? p : p.foundationId.replace(/^foundation:/, "");
+            return (
+              <FoundationLink
+                key={prereqId}
+                id={prereqId}
+                title={foundations.find((f) => f.id === prereqId)?.title ?? prereqId}
+              />
+            );
+          })}
         </nav>
       )}
     </>

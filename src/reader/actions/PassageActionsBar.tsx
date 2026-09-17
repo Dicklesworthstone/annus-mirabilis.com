@@ -3,6 +3,13 @@ import { faceLinkHref } from "../paperRoutes.ts";
 import { ObstacleMenu } from "./ObstacleMenu.tsx";
 import type { PassageActions } from "./passageActions.schema.ts";
 
+const LAB_NAMES: Record<string, string> = {
+  "bm-01": "Tracer ensemble",
+  "bm-05": "Random steps",
+  "bm-06": "Spreading probability",
+  "bm-07": "Molecular-number inference",
+};
+
 export function PassageActionsBar({
   paperId,
   passageId,
@@ -15,17 +22,28 @@ export function PassageActionsBar({
   actions: PassageActions;
 }) {
   const defaultLink = `/papers/${paperId}/#${passageId}`;
+  const tryItLabel =
+    actions.tryIt?.kind === "instrument"
+      ? (actions.tryIt.label ?? LAB_NAMES[actions.tryIt.instrumentId] ?? actions.tryIt.instrumentId)
+      : undefined;
+
   return (
     <>
       <nav className="passage-actions" aria-label={`Actions for ${passageLabel}`}>
         {actions.why ? (
-          <FoundationLink id={actions.why} title="Why?" caption={`Return to ${passageLabel}.`} />
+          <FoundationLink
+            id={actions.why}
+            title="Why?"
+            caption={`Return to ${passageLabel}.`}
+            ariaLabel={`Why?: ${passageLabel}`}
+          />
         ) : null}
         {actions.missingStep ? (
           <FoundationLink
             id={actions.missingStep}
             title="Show the missing step"
             caption={`Return to ${passageLabel}.`}
+            ariaLabel={`Show the missing step: ${passageLabel}`}
           />
         ) : null}
         {actions.example ? (
@@ -33,16 +51,29 @@ export function PassageActionsBar({
             id={actions.example}
             title="Show me one example first"
             caption={`Return to ${passageLabel}.`}
+            ariaLabel={`Show me one example first: ${passageLabel}`}
           />
         ) : null}
         {actions.tryIt?.kind === "instrument" ? (
-          <a href={`/lab/${actions.tryIt.instrumentId}/`}>Try it</a>
+          <a href={`/lab/${actions.tryIt.instrumentId}/`} aria-label={`Try it: ${tryItLabel}`}>
+            Try it
+          </a>
         ) : null}
         {actions.tryIt?.kind === "static" ? (
-          <a href={`#${actions.tryIt.staticExampleId}`}>Try it: static worked example</a>
+          <a
+            href={`#${actions.tryIt.staticExampleId}`}
+            aria-label={`Try it: ${actions.tryIt.label ?? `static worked example for ${passageLabel}`}`}
+          >
+            Try it: static worked example
+          </a>
         ) : null}
         {actions.original ? (
-          <a href={`${faceLinkHref(paperId, "german")}#${passageId}`}>Read the original</a>
+          <a
+            href={`${faceLinkHref(paperId, "german")}#${passageId}`}
+            aria-label={`Read the original German: ${passageLabel}`}
+          >
+            Read the original
+          </a>
         ) : null}
         <a
           href={defaultLink}

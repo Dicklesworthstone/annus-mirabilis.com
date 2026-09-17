@@ -36,8 +36,13 @@ export class PassageActionsSchemaError extends Error {
 }
 
 export type TryItAction =
-  | Readonly<{ kind: "instrument"; instrumentId: string; presetOrModeId?: string | undefined }>
-  | Readonly<{ kind: "static"; staticExampleId: string }>;
+  | Readonly<{
+      kind: "instrument";
+      instrumentId: string;
+      presetOrModeId?: string | undefined;
+      label?: string | undefined;
+    }>
+  | Readonly<{ kind: "static"; staticExampleId: string; label?: string | undefined }>;
 
 export interface PassageActions {
   readonly why?: string | undefined;
@@ -79,6 +84,18 @@ function validateTryIt(raw: unknown, path: string): TryItAction {
   }
   const o = raw as Record<string, unknown>;
 
+  let label: string | undefined;
+  if (o.label !== undefined) {
+    if (typeof o.label !== "string" || !o.label.trim()) {
+      throw new PassageActionsSchemaError(
+        "invalid-try-it",
+        `${path}.label must be a non-empty string.`,
+        `${path}.label`,
+      );
+    }
+    label = o.label.trim();
+  }
+
   if (typeof o.staticExampleId === "string") {
     if (!o.staticExampleId.trim()) {
       throw new PassageActionsSchemaError(
@@ -87,7 +104,11 @@ function validateTryIt(raw: unknown, path: string): TryItAction {
         `${path}.staticExampleId`,
       );
     }
-    return { kind: "static", staticExampleId: o.staticExampleId };
+    return {
+      kind: "static",
+      staticExampleId: o.staticExampleId,
+      ...(label !== undefined ? { label } : {}),
+    };
   }
 
   if (typeof o.instrumentId !== "string") {
@@ -131,6 +152,7 @@ function validateTryIt(raw: unknown, path: string): TryItAction {
     kind: "instrument",
     instrumentId: o.instrumentId,
     ...(presetOrModeId !== undefined ? { presetOrModeId } : {}),
+    ...(label !== undefined ? { label } : {}),
   };
 }
 

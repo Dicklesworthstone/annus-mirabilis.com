@@ -20,6 +20,13 @@ import { buildPassageLink, type PassageLinkAxes } from "./buildPassageLink.ts";
 import { ObstacleMenu } from "./ObstacleMenu.tsx";
 import type { PassageActions as PassageActionsData } from "./passageActions.schema.ts";
 
+const LAB_NAMES: Record<string, string> = {
+  "bm-01": "Tracer ensemble",
+  "bm-05": "Random steps",
+  "bm-06": "Spreading probability",
+  "bm-07": "Molecular-number inference",
+};
+
 export interface PassageActionsProps {
   readonly actions: PassageActionsData;
   /** For accessible names, e.g. "section 4, paragraph 2, sentence 1". */
@@ -97,13 +104,23 @@ export function PassageActions({
       )}
 
       {actions.tryIt && tryItHref && (
-        <a className="passage-action" data-action="try-it" href={tryItHref}>
+        <a
+          className="passage-action"
+          data-action="try-it"
+          href={tryItHref}
+          aria-label={`Try it: ${actions.tryIt.label ?? (actions.tryIt.kind === "instrument" ? (LAB_NAMES[actions.tryIt.instrumentId] ?? actions.tryIt.instrumentId) : passageLabel)}`}
+        >
           Try it
         </a>
       )}
 
       {actions.original && originalHref && (
-        <a className="passage-action" data-action="read-original" href={originalHref}>
+        <a
+          className="passage-action"
+          data-action="read-original"
+          href={originalHref}
+          aria-label={`Read the original German: ${passageLabel}`}
+        >
           Read the original
         </a>
       )}

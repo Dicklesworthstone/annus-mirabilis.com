@@ -366,7 +366,7 @@ export async function checkInferenceBrowser(browser, url, check) {
       manualScreenReaderReview: "not performed",
     });
 
-    await page.goto(url + "/papers/brownian-motion/#arg-bm-inference");
+    await page.goto(`${url}/papers/brownian-motion/#arg-bm-inference`);
     await page.locator('[data-reader-root][data-enhanced="true"]').waitFor();
     const passage = page.locator("#arg-bm-inference");
     assert.equal(
@@ -375,13 +375,13 @@ export async function checkInferenceBrowser(browser, url, check) {
         .getAttribute("href"),
       route,
     );
-    await passage.getByRole("link", { name: "Why?", exact: true }).click();
+    await passage.getByRole("link", { name: /^Why\?:/u }).click();
     const dialog = page.locator("dialog[open]");
     await dialog.waitFor();
     assert.equal(await dialog.getAttribute("aria-labelledby"), "clarification-error-and-inference");
     await page.keyboard.press("Escape");
     await page.locator("dialog").waitFor({ state: "hidden" });
-    const whyId = await passage.getByRole("link", { name: "Why?", exact: true }).getAttribute("id");
+    const whyId = await passage.getByRole("link", { name: /^Why\?:/u }).getAttribute("id");
     await page.waitForFunction((id) => document.activeElement?.id === id, whyId);
     check(
       "BM-07: the paper links to the instrument and opens a returnable uncertainty-and-inference foundation",

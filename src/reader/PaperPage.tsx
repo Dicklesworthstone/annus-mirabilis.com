@@ -172,10 +172,33 @@ export async function PaperPage(request: PaperRouteRequest) {
                     />
                     <p className="fine">
                       Source context:{" "}
-                      <a href={`/papers/${paper.id}/view/german/#${a.id}`}>German source</a> ·{" "}
-                      <a href={`/papers/${paper.id}/view/english/#${a.id}`}>English</a> ·{" "}
-                      <a href={`/papers/${paper.id}/view/gloss/#${a.id}`}>Interlinear gloss</a> ·{" "}
-                      <a href={`/papers/${paper.id}/view/facsimile/#${a.id}`}>Facsimile</a>
+                      <a
+                        href={`/papers/${paper.id}/view/german/#${a.id}`}
+                        aria-label={`German source: ${a.title}`}
+                      >
+                        German source
+                      </a>{" "}
+                      ·{" "}
+                      <a
+                        href={`/papers/${paper.id}/view/english/#${a.id}`}
+                        aria-label={`English translation: ${a.title}`}
+                      >
+                        English
+                      </a>{" "}
+                      ·{" "}
+                      <a
+                        href={`/papers/${paper.id}/view/gloss/#${a.id}`}
+                        aria-label={`Interlinear gloss: ${a.title}`}
+                      >
+                        Interlinear gloss
+                      </a>{" "}
+                      ·{" "}
+                      <a
+                        href={`/papers/${paper.id}/view/facsimile/#${a.id}`}
+                        aria-label={`Facsimile scan: ${a.title}`}
+                      >
+                        Facsimile
+                      </a>
                     </p>
                   </article>
                 ))}
@@ -231,7 +254,12 @@ export async function PaperPage(request: PaperRouteRequest) {
             </h2>
             <FoundationBody foundation={f} foundations={foundations} />
             <p>
-              <a href={`/foundations/${f.id}/`}>Open this as a full reading page →</a>
+              <a
+                href={`/foundations/${f.id}/`}
+                aria-label={`Open ${f.title} as a full reading page`}
+              >
+                Open this as a full reading page →
+              </a>
             </p>
           </section>
         ))}

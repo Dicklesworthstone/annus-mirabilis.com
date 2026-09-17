@@ -71,6 +71,7 @@ export function ObstacleMenu({ responses, passageLabel, passageId, hard }: Obsta
                         href={`/foundations/${link.foundationId}/`}
                         data-foundation={link.foundationId}
                         data-return-caption={link.returnCaption ?? `Return to ${passageLabel}.`}
+                        aria-label={`Open the explanation that addresses this: ${OBSTACLE_LABELS[kind]}`}
                       >
                         Open the explanation that addresses this
                       </a>

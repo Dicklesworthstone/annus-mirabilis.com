@@ -326,7 +326,12 @@ export async function PaperReader({
             </h2>
             <FoundationBody foundation={f} foundations={foundations} />
             <p>
-              <a href={`/foundations/${f.id}/`}>Open this as a full reading page →</a>
+              <a
+                href={`/foundations/${f.id}/`}
+                aria-label={`Open ${f.title} as a full reading page`}
+              >
+                Open this as a full reading page →
+              </a>
             </p>
           </section>
         ))}
