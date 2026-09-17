@@ -9,7 +9,6 @@
  */
 
 import type { DomainKind, ScientificResult } from "../../experiments/results/types.ts";
-import { classifyWithTolerance } from "../../units/tolerance.ts";
 import { constantValue, getConstantSet } from "./constants.ts";
 import { gamma, gammaMinusOne } from "./kinematics.ts";
 
@@ -905,13 +904,6 @@ export function evaluateSr13(input: Sr13Input): Readonly<Record<string, Scientif
       ? input.customMass
       : ELECTRON_MASS;
 
-  const vMag = input.initialSpeed * C_SI;
-  const rad = (input.initialDirectionDeg * Math.PI) / 180;
-  const v0 = {
-    x: vMag * Math.cos(rad),
-    y: vMag * Math.sin(rad),
-    z: 0,
-  };
   const beta = Math.abs(input.initialSpeed);
 
   if (beta >= 1) {
