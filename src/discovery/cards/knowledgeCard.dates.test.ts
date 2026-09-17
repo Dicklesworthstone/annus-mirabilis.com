@@ -1,10 +1,12 @@
 import assert from "node:assert/strict";
 import test, { describe } from "node:test";
 import { validateCardIntrinsicRules } from "./cardRules.ts";
+import { globalKnowledgeCardsLogger } from "./knowledgeCardsLogger.ts";
 import type { KnowledgeCard } from "./types.ts";
 
 describe("am-disc-knowledge-cards-iw8j: event kinds, prior events, and date semantics", () => {
   test("all three eventKind values validate; forbidden timeline kinds are rejected", () => {
+    const start = Date.now();
     for (const kind of ["presented", "published", "performed"] as const) {
       const card: KnowledgeCard = {
         id: `test-card-${kind}`,
@@ -44,9 +46,18 @@ describe("am-disc-knowledge-cards-iw8j: event kinds, prior events, and date sema
         `Timeline kind "${forbidden}" must be rejected on premise`,
       );
     }
+
+    globalKnowledgeCardsLogger.log({
+      testId: "event-kinds-valid-and-forbidden",
+      rule: "card-invalid-event-kind",
+      outcome: "pass",
+      durationMs: Date.now() - start,
+      message: "Valid premise event kinds accepted; timeline kinds (letter, awarded, appointed) rejected.",
+    });
   });
 
   test("missing date.eventKind fails with card-event-kind-missing", () => {
+    const start = Date.now();
     const card: KnowledgeCard = {
       id: "test-missing-kind",
       proposition: "Test proposition.",
@@ -63,9 +74,19 @@ describe("am-disc-knowledge-cards-iw8j: event kinds, prior events, and date sema
     const missing = diags.find((d) => d.rule === "card-event-kind-missing");
     assert.ok(missing, "Missing eventKind must produce card-event-kind-missing");
     assert.ok(missing?.message.includes("test-missing-kind"));
+
+    globalKnowledgeCardsLogger.log({
+      testId: "missing-event-kind-fails",
+      cardId: card.id,
+      rule: "card-event-kind-missing",
+      outcome: "pass",
+      durationMs: Date.now() - start,
+      message: "Missing eventKind rejected with card-event-kind-missing.",
+    });
   });
 
   test("priorEvent.latest after date.latest fails with card-prior-event-not-prior", () => {
+    const start = Date.now();
     const card: KnowledgeCard = {
       id: "test-bad-prior-event",
       proposition: "Prior event occurred in 1905 but published in 1903.",
@@ -90,9 +111,21 @@ describe("am-disc-knowledge-cards-iw8j: event kinds, prior events, and date sema
       diags.some((d) => d.rule === "card-prior-event-not-prior"),
       "priorEvent latest after date latest must fail with card-prior-event-not-prior",
     );
+
+    globalKnowledgeCardsLogger.log({
+      testId: "prior-event-not-prior-fails",
+      cardId: card.id,
+      rule: "card-prior-event-not-prior",
+      priorEventLatest: "1905",
+      dateLatest: "1903",
+      outcome: "pass",
+      durationMs: Date.now() - start,
+      message: "priorEvent dated after availability date rejected.",
+    });
   });
 
   test("relatedCardId must resolve and be reciprocal; one-sided link fails", () => {
+    const start = Date.now();
     const cardA: KnowledgeCard = {
       id: "sutherland-1904-dunedin",
       proposition: "Diffusion formula presented at Dunedin.",
@@ -144,9 +177,20 @@ describe("am-disc-knowledge-cards-iw8j: event kinds, prior events, and date sema
       diags.some((d) => d.rule === "card-related-card-not-reciprocal"),
       "One-sided relatedCardId link must fail with card-related-card-not-reciprocal",
     );
+
+    globalKnowledgeCardsLogger.log({
+      testId: "related-card-reciprocity",
+      cardId: cardA.id,
+      relatedCardId: cardB.id,
+      rule: "card-related-card-not-reciprocal",
+      outcome: "pass",
+      durationMs: Date.now() - start,
+      message: "Reciprocal relatedCardId links validated; one-sided links rejected.",
+    });
   });
 
   test("parallel-work card without parallelWorkBasis fails with card-parallel-basis-missing", () => {
+    const start = Date.now();
     const card: KnowledgeCard = {
       id: "poincare-1905-sur-la-dynamique",
       proposition: "Lorentz group structure and four-vector formulation.",
@@ -165,9 +209,21 @@ describe("am-disc-knowledge-cards-iw8j: event kinds, prior events, and date sema
       diags.some((d) => d.rule === "card-parallel-basis-missing"),
       "Parallel work without parallelWorkBasis must produce card-parallel-basis-missing",
     );
+
+    globalKnowledgeCardsLogger.log({
+      testId: "parallel-basis-missing-fails",
+      cardId: card.id,
+      rule: "card-parallel-basis-missing",
+      status: "parallel-work",
+      parallelBasisPresent: false,
+      outcome: "pass",
+      durationMs: Date.now() - start,
+      message: "Parallel work without parallelWorkBasis rejected.",
+    });
   });
 
   test("fixture Journey II cards validate cleanly with priorEvent and latestYear", () => {
+    const start = Date.now();
     // Brown 1828
     const brown1828: KnowledgeCard = {
       id: "brown-1828-microscopical-observations",
@@ -217,5 +273,15 @@ describe("am-disc-knowledge-cards-iw8j: event kinds, prior events, and date sema
     };
     assert.equal(validateCardIntrinsicRules(siedentopf1903).length, 0);
     assert.equal(siedentopf1903.date.latestYear, 1903, "latestYear comes from date.latest (1903)");
+
+    globalKnowledgeCardsLogger.log({
+      testId: "fixture-journey-ii-cards-validate",
+      cardId: "brown-1828-microscopical-observations",
+      priorEventKind: "performed",
+      priorEventLatest: "1827",
+      outcome: "pass",
+      durationMs: Date.now() - start,
+      message: "Journey II fixture cards with priorEvent validate cleanly; latestYear correctly computed.",
+    });
   });
 });

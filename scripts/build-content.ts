@@ -1,4 +1,5 @@
 import { createHash } from "node:crypto";
+import { watch } from "node:fs";
 import { lstat, mkdir, readdir, readFile, writeFile } from "node:fs/promises";
 import { dirname, relative, resolve } from "node:path";
 import { fileURLToPath } from "node:url";
@@ -102,8 +103,12 @@ export async function loadAllContentFiles(root = ROOT, corpusDir = "content") {
   return files;
 }
 
-export async function buildContent(root = ROOT, options?: { corpusDir?: string }) {
+export async function buildContent(
+  root = ROOT,
+  options?: { corpusDir?: string; emit?: boolean; shouldEmit?: boolean },
+) {
   const corpusDir = options?.corpusDir ?? "content";
+  const shouldEmit = options?.emit ?? options?.shouldEmit ?? (root !== ROOT || corpusDir === "content");
   const files = await loadReadingFiles(root, corpusDir);
 
   const result = await compileContent(files);
@@ -152,7 +157,7 @@ export async function buildContent(root = ROOT, options?: { corpusDir?: string }
   const buildDigest = digest(`${inputDigest}\0${compilerDigest}`);
 
   // If review queue exists, write artifacts/content-review-queue.json and .md
-  if (result.reviewQueue) {
+  if (result.reviewQueue && shouldEmit) {
     const artifactsDir = resolve(root, "artifacts");
     await mkdir(artifactsDir, { recursive: true });
     await writeFile(
@@ -201,23 +206,27 @@ export async function buildContent(root = ROOT, options?: { corpusDir?: string }
   }
 
   // Emit payloads
-  const startEmit = performance.now();
-  const index = await emitPayloads({
-    rootDir: root,
-    inputDigest,
-    compilerDigest,
-    buildDigest,
-    papers: result.papers,
-    foundations: result.foundations,
-  });
-  const emitMs = performance.now() - startEmit;
+  let index = null;
+  let emitMs = 0;
+  if (shouldEmit) {
+    const startEmit = performance.now();
+    index = await emitPayloads({
+      rootDir: root,
+      inputDigest,
+      compilerDigest,
+      buildDigest,
+      papers: result.papers,
+      foundations: result.foundations,
+    });
+    emitMs = performance.now() - startEmit;
 
-  // Diagnostics output in generated folder
-  const generatedDir = resolve(root, "generated/content", buildDigest);
-  await writeFile(
-    resolve(generatedDir, "diagnostics.jsonl"),
-    `${result.diagnostics.map((d) => JSON.stringify(d)).join("\n")}\n`,
-  );
+    // Diagnostics output in generated folder
+    const generatedDir = resolve(root, "generated/content", buildDigest);
+    await writeFile(
+      resolve(generatedDir, "diagnostics.jsonl"),
+      `${result.diagnostics.map((d) => JSON.stringify(d)).join("\n")}\n`,
+    );
+  }
 
   // Log success summary
   logger.log({
@@ -253,10 +262,121 @@ export async function buildContent(root = ROOT, options?: { corpusDir?: string }
   return { ...result, index };
 }
 
+/**
+ * Runs one compile and prints its diagnostics. Returns whether the compile was clean, never
+ * throws -- a caller in watch mode uses the return value to decide whether to set a nonzero
+ * process exit code, and keeps watching either way (this bead's own rule: "never let the
+ * generated directory become a second source of truth" implies a bad edit must be reported
+ * loudly, not crash the watcher a content author is relying on).
+ */
+export async function runContentCompileOnce(
+  corpusDir: string,
+  options: { root?: string | undefined; shouldEmit?: boolean | undefined } = {},
+): Promise<boolean> {
+  const result = await buildContent(options.root ?? ROOT, {
+    corpusDir,
+    emit: options.shouldEmit ?? true,
+  });
+  for (const diagnostic of result.diagnostics) {
+    if (diagnostic.severity === "error") {
+      console.error(JSON.stringify(diagnostic));
+    } else {
+      console.log(JSON.stringify(diagnostic));
+    }
+  }
+
+  if (result.ok) {
+    console.log(
+      JSON.stringify({
+        event: "content-compiled",
+        papers: result.papers.length,
+        foundations: result.foundations.length,
+        inputDigest: result.index?.inputDigest,
+        buildDigest: result.index?.buildDigest,
+      }),
+    );
+  }
+  return result.ok;
+}
+
+/**
+ * Watches `corpusDir` and re-runs a full compile on every change, debounced so a batch of saves
+ * (an editor writing several files, or a git checkout) triggers one recompile instead of one per
+ * file. Never throws out of the watch loop: a compile that fails is reported (runContentCompileOnce
+ * already prints its diagnostics) and the watcher keeps running, exactly like a real content
+ * author expects from `bun run dev` -- a broken edit should not kill the dev server.
+ */
+export function watchContentCompile(
+  corpusDir: string,
+  options: {
+    root?: string;
+    debounceMs?: number;
+    onCompile?: (ok: boolean) => void;
+    shouldEmit?: boolean;
+  } = {},
+): { close: () => void } {
+  const debounceMs = options.debounceMs ?? 150;
+  const watchRoot = resolve(options.root ?? ROOT, corpusDir);
+  let timer: ReturnType<typeof setTimeout> | null = null;
+  let running = false;
+  let rerunQueued = false;
+
+  function scheduleRun(): void {
+    if (timer) clearTimeout(timer);
+    timer = setTimeout(() => {
+      timer = null;
+      void runOnceGuarded();
+    }, debounceMs);
+  }
+
+  async function runOnceGuarded(): Promise<void> {
+    if (running) {
+      rerunQueued = true;
+      return;
+    }
+    running = true;
+    try {
+      const ok = await runContentCompileOnce(corpusDir, {
+        root: options.root,
+        shouldEmit: options.shouldEmit,
+      });
+      options.onCompile?.(ok);
+    } catch (error) {
+      console.error(
+        JSON.stringify({
+          severity: "error",
+          code: "watch-compile-crashed",
+          path: "cli",
+          message: error instanceof Error ? error.message : String(error),
+        }),
+      );
+      options.onCompile?.(false);
+    } finally {
+      running = false;
+      if (rerunQueued) {
+        rerunQueued = false;
+        scheduleRun();
+      }
+    }
+  }
+
+  const watcher = watch(watchRoot, { recursive: true }, () => {
+    scheduleRun();
+  });
+
+  return {
+    close: () => {
+      if (timer) clearTimeout(timer);
+      watcher.close();
+    },
+  };
+}
+
 // CLI Execution
 if (process.argv[1] && resolve(process.argv[1]) === fileURLToPath(import.meta.url)) {
   const args = process.argv.slice(2);
   let corpusDir = "content";
+  let watchMode = false;
   for (let i = 0; i < args.length; i++) {
     if (args[i] === "--corpus") {
       const nextArg = args[i + 1];
@@ -274,29 +394,20 @@ if (process.argv[1] && resolve(process.argv[1]) === fileURLToPath(import.meta.ur
       }
       corpusDir = nextArg;
       i++;
+    } else if (args[i] === "--watch") {
+      watchMode = true;
     }
   }
 
-  const result = await buildContent(ROOT, { corpusDir });
-  for (const diagnostic of result.diagnostics) {
-    if (diagnostic.severity === "error") {
-      console.error(JSON.stringify(diagnostic));
-    } else {
-      console.log(JSON.stringify(diagnostic));
-    }
-  }
+  const firstRunOk = await runContentCompileOnce(corpusDir);
 
-  if (!result.ok) {
-    process.exitCode = 1;
-  } else {
+  if (watchMode) {
     console.log(
-      JSON.stringify({
-        event: "content-compiled",
-        papers: result.papers.length,
-        foundations: result.foundations.length,
-        inputDigest: result.index?.inputDigest,
-        buildDigest: result.index?.buildDigest,
-      }),
+      JSON.stringify({ event: "content-watch-started", corpusDir: resolve(ROOT, corpusDir) }),
     );
+    watchContentCompile(corpusDir);
+    // Keep the process alive; the watcher above is the only thing keeping the event loop busy.
+  } else if (!firstRunOk) {
+    process.exitCode = 1;
   }
 }

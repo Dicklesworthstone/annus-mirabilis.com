@@ -1,5 +1,6 @@
 import assert from "node:assert/strict";
 import test, { describe } from "node:test";
+import { globalKnowledgeCardsLogger } from "./knowledgeCardsLogger.ts";
 import type { KnowledgeCard, VerificationQueueItem } from "./types.ts";
 import {
   crossValidateQueueWithCards,
@@ -10,6 +11,7 @@ import {
 
 describe("am-disc-knowledge-cards-iw8j: verification queue validation", () => {
   test("validates a well-formed queue item and file", () => {
+    const start = Date.now();
     const rawFile = {
       group: "brownian",
       items: [
@@ -28,9 +30,19 @@ describe("am-disc-knowledge-cards-iw8j: verification queue validation", () => {
     assert.equal(parsed.group, "brownian");
     assert.equal(parsed.items.length, 1);
     assert.equal(parsed.items[0]?.id, "q-sutherland-dunedin");
+
+    globalKnowledgeCardsLogger.log({
+      testId: "queue-schema-well-formed-file",
+      queueId: "q-sutherland-dunedin",
+      queueStatus: "open",
+      outcome: "pass",
+      durationMs: Date.now() - start,
+      message: "Well-formed verification queue YAML file validated.",
+    });
   });
 
   test("Rule 9: card with an open queue item cannot carry a verification record", () => {
+    const start = Date.now();
     const verifiedCard: KnowledgeCard = {
       id: "sutherland-1904-dunedin",
       proposition: "Diffusion formula presented at Dunedin.",
@@ -69,9 +81,21 @@ describe("am-disc-knowledge-cards-iw8j: verification queue validation", () => {
       diags.some((d) => d.rule === "card-open-queue-blocks-verification"),
       "Card with verification and open queue item must produce error",
     );
+
+    globalKnowledgeCardsLogger.log({
+      testId: "rule-9-open-queue-blocks-verification",
+      cardId: verifiedCard.id,
+      queueId: openQueueItem.id,
+      queueStatus: "open",
+      rule: "card-open-queue-blocks-verification",
+      outcome: "pass",
+      durationMs: Date.now() - start,
+      message: "Open verification queue item blocked card verification record.",
+    });
   });
 
   test("narrowed queue item without explanation is rejected", () => {
+    const start = Date.now();
     const rawNarrowed = {
       id: "q-narrowed-test",
       question: "Could we locate the original manuscript?",
@@ -89,9 +113,20 @@ describe("am-disc-knowledge-cards-iw8j: verification queue validation", () => {
         return true;
       },
     );
+
+    globalKnowledgeCardsLogger.log({
+      testId: "queue-narrowed-requires-explanation",
+      queueId: "q-narrowed-test",
+      queueStatus: "narrowed",
+      rule: "card-queue-narrowed-missing-explanation",
+      outcome: "pass",
+      durationMs: Date.now() - start,
+      message: "Narrowed queue item without explanation rejected.",
+    });
   });
 
   test("queue item naming an unknown card is reported as error", () => {
+    const start = Date.now();
     const queueItem: VerificationQueueItem = {
       id: "q-unknown-card",
       question: "Did author check the data?",
@@ -106,9 +141,20 @@ describe("am-disc-knowledge-cards-iw8j: verification queue validation", () => {
       diags.some((d) => d.rule === "card-queue-unknown-card"),
       "Queue item naming unknown card must produce card-queue-unknown-card",
     );
+
+    globalKnowledgeCardsLogger.log({
+      testId: "queue-unknown-card-fails",
+      queueId: queueItem.id,
+      cardId: "nonexistent-card-id",
+      rule: "card-queue-unknown-card",
+      outcome: "pass",
+      durationMs: Date.now() - start,
+      message: "Queue item naming nonexistent card reported as error.",
+    });
   });
 
   test("queue item with no cards is accepted when landsIn names a receiving bead", () => {
+    const start = Date.now();
     const beadRecipientItem = {
       id: "q-timeline-question",
       question: "Was the appointment letter received before or after publication?",
@@ -134,9 +180,18 @@ describe("am-disc-knowledge-cards-iw8j: verification queue validation", () => {
         return true;
       },
     );
+
+    globalKnowledgeCardsLogger.log({
+      testId: "queue-empty-cards-requires-recipient-bead",
+      queueId: beadRecipientItem.id,
+      outcome: "pass",
+      durationMs: Date.now() - start,
+      message: "Empty cards array accepted only when landsIn targets a receiving bead ID.",
+    });
   });
 
   test("resolved entry targeting empty card field yields warning; targeting populated priorEvent passes", () => {
+    const start = Date.now();
     const cardWithoutLimits: KnowledgeCard = {
       id: "card-limits-test",
       proposition: "Some proposition.",
@@ -203,5 +258,15 @@ describe("am-disc-knowledge-cards-iw8j: verification queue validation", () => {
       new Map([[siedentopfCard.id, siedentopfCard]]),
     );
     assert.equal(siedeDiags.length, 0, "Resolved item with populated priorEvent passes cleanly");
+
+    globalKnowledgeCardsLogger.log({
+      testId: "queue-resolved-lands-in-validation",
+      cardId: siedentopfCard.id,
+      queueId: siedentopfQ6.id,
+      queueStatus: "resolved",
+      outcome: "pass",
+      durationMs: Date.now() - start,
+      message: "Resolved queue item targeting empty field warned; populated priorEvent validated.",
+    });
   });
 });

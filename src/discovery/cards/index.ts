@@ -2,6 +2,7 @@ export * from "./CardDetail.tsx";
 export * from "./cardBacklinks.ts";
 export * from "./cardRules.ts";
 export * from "./KnowledgeCard.tsx";
+export * from "./knowledgeCardsLogger.ts";
 export * from "./publicationGate.ts";
 export * from "./Shelf.tsx";
 export * from "./StatusLabel.tsx";

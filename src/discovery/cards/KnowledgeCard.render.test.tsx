@@ -1,7 +1,8 @@
 import { describe, expect, test } from "bun:test";
 import { renderToStaticMarkup } from "react-dom/server";
-import { CardDetail } from "./CardDetail.tsx";
+import { CardDetail, formatEventDateLine } from "./CardDetail.tsx";
 import { KnowledgeCardView } from "./KnowledgeCard.tsx";
+import { globalKnowledgeCardsLogger } from "./knowledgeCardsLogger.ts";
 import { StatusLabel } from "./StatusLabel.tsx";
 import type { KnowledgeCard, VerificationQueueItem } from "./types.ts";
 
@@ -32,34 +33,108 @@ describe("am-disc-knowledge-cards-iw8j: KnowledgeCard and CardDetail rendering",
   };
 
   test("renders compact card with date line, proposition, and status label", () => {
+    const start = Date.now();
     const html = renderToStaticMarkup(<KnowledgeCardView card={sampleCard} />);
     expect(html).toContain("Published 1855");
     expect(html).toContain("Macroscopic diffusion equation");
     expect(html).toContain("Available by the end of 1904");
     expect(html).toContain('id="card-fick-1855-diffusion"');
+
+    globalKnowledgeCardsLogger.log({
+      testId: "render-compact-card",
+      cardId: sampleCard.id,
+      status: sampleCard.status,
+      eventKind: sampleCard.date.eventKind,
+      outcome: "pass",
+      durationMs: Date.now() - start,
+      message: "Rendered compact card with date line and status label.",
+    });
   });
 
-  test("status labels render distinct SVG icon shapes and text for all 4 states", () => {
+  test("status labels render distinct SVG icon shapes and text for all 4 states (never color alone)", () => {
+    const start = Date.now();
     const availHtml = renderToStaticMarkup(<StatusLabel status="available" />);
     expect(availHtml).toContain("Available by the end of 1904");
     expect(availHtml).toContain("<svg");
+    expect(availHtml).toContain('data-status="available"');
 
     const parallelHtml = renderToStaticMarkup(<StatusLabel status="parallel-work" />);
     expect(parallelHtml).toContain("Parallel work: not available to a 1904 reader");
     expect(parallelHtml).toContain("<svg");
+    expect(parallelHtml).toContain('data-status="parallel-work"');
 
     const laterHtml = renderToStaticMarkup(<StatusLabel status="later" />);
     expect(laterHtml).toContain("Later confirmation");
     expect(laterHtml).toContain("<svg");
+    expect(laterHtml).toContain('data-status="later"');
 
     const importHtml = renderToStaticMarkup(
       <StatusLabel status="available" admittedImport={true} />,
     );
     expect(importHtml).toContain("Admitted 1905 import");
     expect(importHtml).toContain("<svg");
+    expect(importHtml).toContain('data-status="admitted-import"');
+
+    globalKnowledgeCardsLogger.log({
+      testId: "render-status-labels-icon-text",
+      outcome: "pass",
+      durationMs: Date.now() - start,
+      message: "All 4 status labels render distinct textual strings and icon shapes.",
+    });
+  });
+
+  test("compact date lines format accurately at day, month, year, and range precision", () => {
+    const start = Date.now();
+    // Day
+    const dayLine = formatEventDateLine({
+      earliest: "1904-05-15",
+      latest: "1904-05-15",
+      precision: "day",
+      latestYear: 1904,
+      eventKind: "performed",
+    });
+    expect(dayLine).toBe("Performed, 1904-05-15");
+
+    // Month
+    const monthLine = formatEventDateLine({
+      earliest: "1904-01",
+      latest: "1904-01",
+      precision: "month",
+      latestYear: 1904,
+      eventKind: "presented",
+    });
+    expect(monthLine).toBe("Presented, 1904-01");
+
+    // Year
+    const yearLine = formatEventDateLine({
+      earliest: "1903",
+      latest: "1903",
+      precision: "year",
+      latestYear: 1903,
+      eventKind: "published",
+    });
+    expect(yearLine).toBe("Published 1903");
+
+    // Range
+    const rangeLine = formatEventDateLine({
+      earliest: "1860",
+      latest: "1879",
+      precision: "range",
+      latestYear: 1879,
+      eventKind: "published",
+    });
+    expect(rangeLine).toBe("Published, 1860–1879");
+
+    globalKnowledgeCardsLogger.log({
+      testId: "render-compact-date-precisions",
+      outcome: "pass",
+      durationMs: Date.now() - start,
+      message: "Formatted compact date lines across day, month, year, and range precisions.",
+    });
   });
 
   test("renders the four labeled historical statement sections", () => {
+    const start = Date.now();
     const cardWithEinstein: KnowledgeCard = {
       ...sampleCard,
       claimsEinsteinKnew: true,
@@ -96,6 +171,14 @@ describe("am-disc-knowledge-cards-iw8j: KnowledgeCard and CardDetail rendering",
     expect(html).toContain("desk-fick-cylinder");
     expect(html).toContain("tl-1855");
     expect(html).toContain("wc-diffusion");
+
+    globalKnowledgeCardsLogger.log({
+      testId: "render-four-historical-sections",
+      cardId: cardWithEinstein.id,
+      outcome: "pass",
+      durationMs: Date.now() - start,
+      message: "Rendered all four canonical historical statement sections.",
+    });
   });
 
   test("Section 3 is omitted when Einstein knowledge is not claimed", () => {
@@ -104,6 +187,7 @@ describe("am-disc-knowledge-cards-iw8j: KnowledgeCard and CardDetail rendering",
   });
 
   test("renders priorEvent line and relatedCardId line when present", () => {
+    const start = Date.now();
     const cardWithPriorAndRelated: KnowledgeCard = {
       id: "sutherland-1904-dunedin",
       proposition: "Diffusion formula presented at Dunedin.",
@@ -130,6 +214,17 @@ describe("am-disc-knowledge-cards-iw8j: KnowledgeCard and CardDetail rendering",
     expect(html).toContain("Performed 1903");
     expect(html).toContain("Related card: ");
     expect(html).toContain("#sutherland-1905-phil-mag");
+
+    globalKnowledgeCardsLogger.log({
+      testId: "render-prior-event-and-related-card",
+      cardId: cardWithPriorAndRelated.id,
+      priorEventKind: "performed",
+      priorEventLatest: "1903",
+      relatedCardId: "sutherland-1905-phil-mag",
+      outcome: "pass",
+      durationMs: Date.now() - start,
+      message: "Rendered prior event and related card lines in detail view.",
+    });
   });
 
   test("parallel-work card renders parallelWorkBasis in status explanation", () => {

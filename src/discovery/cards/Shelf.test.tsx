@@ -1,5 +1,6 @@
 import { describe, expect, test } from "bun:test";
 import { renderToStaticMarkup } from "react-dom/server";
+import { globalKnowledgeCardsLogger } from "./knowledgeCardsLogger.ts";
 import { SHELF_DISCLAIMER_NOTE, Shelf, sortShelfCards } from "./Shelf.tsx";
 import type { KnowledgeCard } from "./types.ts";
 
@@ -103,6 +104,7 @@ describe("am-disc-knowledge-cards-iw8j: Shelf component and sort order", () => {
   };
 
   test("sortShelfCards orders cards by earliest date, latestYear, and breaks ties by id", () => {
+    const start = Date.now();
     const unsorted = [card1904DayZ, card1855, card1904Month, card1828, card1860Range, card1904DayA];
 
     const sorted = sortShelfCards(unsorted);
@@ -116,9 +118,17 @@ describe("am-disc-knowledge-cards-iw8j: Shelf component and sort order", () => {
       "alpha-1904-experiment", // 1904-05-15 (id alpha before zeta)
       "zeta-1904-experiment", // 1904-05-15
     ]);
+
+    globalKnowledgeCardsLogger.log({
+      testId: "shelf-sort-order-deterministic",
+      outcome: "pass",
+      durationMs: Date.now() - start,
+      message: "Shelf cards sorted by earliest date, latestYear, and deterministic ID tie-breaker.",
+    });
   });
 
   test("Shelf component renders disclaimer note, status legend, and excludes later cards", () => {
+    const start = Date.now();
     const allCards = [card1828, card1855, card1909Later];
     const html = renderToStaticMarkup(<Shelf cards={allCards} />);
 
@@ -137,5 +147,12 @@ describe("am-disc-knowledge-cards-iw8j: Shelf component and sort order", () => {
 
     // Later card 1909 is excluded from the shelf
     expect(html).not.toContain("perrin-1909-sedimentation");
+
+    globalKnowledgeCardsLogger.log({
+      testId: "shelf-render-disclaimer-legend-exclusion",
+      outcome: "pass",
+      durationMs: Date.now() - start,
+      message: "Shelf rendered pedagogical disclaimer note, status legend, and excluded later cards.",
+    });
   });
 });

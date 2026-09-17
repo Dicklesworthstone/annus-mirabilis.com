@@ -1,9 +1,11 @@
 import assert from "node:assert/strict";
 import test, { describe } from "node:test";
 import { buildCardBacklinks, getCardBacklinks } from "./cardBacklinks.ts";
+import { globalKnowledgeCardsLogger } from "./knowledgeCardsLogger.ts";
 
 describe("am-disc-knowledge-cards-iw8j: card backlinks computation", () => {
   test("computes backlinks from journeys, desk objects, timeline entries, and world checks", () => {
+    const start = Date.now();
     const backlinksMap = buildCardBacklinks({
       journeys: [
         {
@@ -43,5 +45,13 @@ describe("am-disc-knowledge-cards-iw8j: card backlinks computation", () => {
     assert.deepEqual(emptyBacklinks.deskObjectIds, []);
     assert.deepEqual(emptyBacklinks.timelineEntryIds, []);
     assert.deepEqual(emptyBacklinks.worldCheckIds, []);
+
+    globalKnowledgeCardsLogger.log({
+      testId: "backlinks-computation-all-sources",
+      cardId: "fick-1855-diffusion",
+      outcome: "pass",
+      durationMs: Date.now() - start,
+      message: "Backlinks correctly inverted and computed across stages, desk objects, timeline, and world checks.",
+    });
   });
 });

@@ -5,10 +5,12 @@ import {
   validateCardCitation,
   validateCardIntrinsicRules,
 } from "./cardRules.ts";
+import { globalKnowledgeCardsLogger } from "./knowledgeCardsLogger.ts";
 import type { KnowledgeCard } from "./types.ts";
 
 describe("am-disc-knowledge-cards-iw8j: card rules enforcement", () => {
   test("Rule 1 & Planted Negative: available card dated 1905 cited by a stage fails with shelf-date-violation", () => {
+    const start = Date.now();
     const card1905: KnowledgeCard = {
       id: "test-1905-late-paper",
       proposition: "Some claim published after 1904 cutoff.",
@@ -33,9 +35,22 @@ describe("am-disc-knowledge-cards-iw8j: card rules enforcement", () => {
     assert.ok(refusal, "Must yield typed refusal shelf-date-violation for available 1905 premise");
     assert.equal(refusal?.severity, "refusal");
     assert.ok(refusal?.message.includes("1905"));
+
+    globalKnowledgeCardsLogger.log({
+      testId: "rule-1-planted-negative-shelf-date-violation",
+      cardId: card1905.id,
+      stageId: "stage-1",
+      rule: "shelf-date-violation",
+      status: "available",
+      latestYear: 1905,
+      outcome: "refusal",
+      durationMs: Date.now() - start,
+      message: "Available 1905 premise cited by stage refused by shelf-date-violation.",
+    });
   });
 
   test("Rule 1: parallel-work card requires parallelWorkAcknowledged on citing stage", () => {
+    const start = Date.now();
     const parallelCard: KnowledgeCard = {
       id: "sutherland-1905-phil-mag",
       proposition: "Diffusion formula with slip correction in Phil. Mag. June 1905.",
@@ -68,9 +83,21 @@ describe("am-disc-knowledge-cards-iw8j: card rules enforcement", () => {
       parallelWorkAcknowledged: true,
     });
     assert.equal(diagWithAck.length, 0, "Acknowledged parallel work must be admitted cleanly");
+
+    globalKnowledgeCardsLogger.log({
+      testId: "rule-1-parallel-work-acknowledgment",
+      cardId: parallelCard.id,
+      stageId: "stage-sutherland",
+      rule: "card-parallel-work-unacknowledged",
+      status: "parallel-work",
+      outcome: "pass",
+      durationMs: Date.now() - start,
+      message: "Parallel work admitted only with explicit parallelWorkAcknowledged.",
+    });
   });
 
   test("Rule 1 & Rule 6: admittedImport constraints across journeys and desk", () => {
+    const start = Date.now();
     const importCard: KnowledgeCard = {
       id: "abraham-1905-light-energy",
       proposition: "Section 8 light energy transformation.",
@@ -129,9 +156,20 @@ describe("am-disc-knowledge-cards-iw8j: card rules enforcement", () => {
       deskDiag.some((d) => d.rule === "card-admitted-import-desk-forbidden"),
       "Must refuse 1905 admitted import on strictly 1904 desk",
     );
+
+    globalKnowledgeCardsLogger.log({
+      testId: "rule-1-rule-6-admitted-import-journey-desk-isolation",
+      cardId: importCard.id,
+      admittedImport: "journey-mass-energy",
+      rule: "card-admitted-import-desk-forbidden",
+      outcome: "pass",
+      durationMs: Date.now() - start,
+      message: "Admitted 1905 import scoped strictly to declaring journey and excluded from 1904 desk.",
+    });
   });
 
   test("Rule 4: later card cited on shelf, desk, or as stage premise is refused", () => {
+    const start = Date.now();
     const laterCard: KnowledgeCard = {
       id: "perrin-1909-sedimentation",
       proposition: "Experimental confirmation of Avogadro number via sedimentation.",
@@ -163,9 +201,20 @@ describe("am-disc-knowledge-cards-iw8j: card rules enforcement", () => {
       stageDiag.some((d) => d.rule === "card-later-on-shelf"),
       "Later card must be rejected as a 1904 stage premise",
     );
+
+    globalKnowledgeCardsLogger.log({
+      testId: "rule-4-later-cards-excluded-from-shelves",
+      cardId: laterCard.id,
+      status: "later",
+      rule: "card-later-on-shelf",
+      outcome: "pass",
+      durationMs: Date.now() - start,
+      message: "Later confirmation cards refused on 1904 shelf, desk, and stage premises.",
+    });
   });
 
   test("Rule 2: permission in both directions (admittedStages validation)", () => {
+    const start = Date.now();
     const card: KnowledgeCard = {
       id: "fick-1855-diffusion",
       proposition: "Macroscopic diffusion equation.",
@@ -201,9 +250,19 @@ describe("am-disc-knowledge-cards-iw8j: card rules enforcement", () => {
       unknownStageDiag.some((d) => d.rule === "card-unknown-admitted-stage"),
       "Must fail when card lists a stage unknown to the corpus",
     );
+
+    globalKnowledgeCardsLogger.log({
+      testId: "rule-2-permission-both-directions",
+      cardId: card.id,
+      rule: "card-missing-citing-stage",
+      outcome: "pass",
+      durationMs: Date.now() - start,
+      message: "Bidirectional stage citation permissions enforced.",
+    });
   });
 
   test("Rule 5: Einstein knowledge claims require citations and flag prose in proposition", () => {
+    const start = Date.now();
     const cardWithMissingCit: KnowledgeCard = {
       id: "planck-1900-quanta",
       proposition: "Blackbody distribution formula with energy quanta.",
@@ -243,9 +302,19 @@ describe("am-disc-knowledge-cards-iw8j: card rules enforcement", () => {
       proseDiag.some((d) => d.rule === "card-einstein-knowledge-in-proposition"),
       "Must flag proposition prose claiming Einstein knew",
     );
+
+    globalKnowledgeCardsLogger.log({
+      testId: "rule-5-einstein-knowledge-evidence-and-prose-flag",
+      cardId: cardWithMissingCit.id,
+      rule: "card-einstein-knowledge-missing-citation",
+      outcome: "pass",
+      durationMs: Date.now() - start,
+      message: "Einstein knowledge claims require explicit evidence citations; prose claims flagged.",
+    });
   });
 
   test("Rule 7: Date consistency checks and year constraints", () => {
+    const start = Date.now();
     // earliest after latest
     const badRange: KnowledgeCard = {
       id: "bad-date-card-1",
@@ -304,9 +373,18 @@ describe("am-disc-knowledge-cards-iw8j: card rules enforcement", () => {
         (d) => d.rule === "card-parallel-work-too-early",
       ),
     );
+
+    globalKnowledgeCardsLogger.log({
+      testId: "rule-7-date-consistency-and-year-constraints",
+      rule: "card-date-earliest-after-latest",
+      outcome: "pass",
+      durationMs: Date.now() - start,
+      message: "Date consistency, earliest <= latest, latestYear matching, and parallel >= 1905 enforced.",
+    });
   });
 
   test("Rule 8: duplicate cards detection with merge suggestion", () => {
+    const start = Date.now();
     const cardA: KnowledgeCard = {
       id: "maxwell-1860-equipartition-a",
       proposition: "In thermal equilibrium mean kinetic energy is 3/2 k_B T.",
@@ -339,5 +417,14 @@ describe("am-disc-knowledge-cards-iw8j: card rules enforcement", () => {
     assert.equal(dupeDiag.length, 1);
     assert.equal(dupeDiag[0]?.rule, "card-duplicate-premise");
     assert.ok(dupeDiag[0]?.repair?.includes("Merge"));
+
+    globalKnowledgeCardsLogger.log({
+      testId: "rule-8-duplicate-cards-detection",
+      cardId: cardB.id,
+      rule: "card-duplicate-premise",
+      outcome: "pass",
+      durationMs: Date.now() - start,
+      message: "Duplicate cards detected by primary source key and normalized proposition with merge suggestion.",
+    });
   });
 });
