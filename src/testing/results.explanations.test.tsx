@@ -19,6 +19,7 @@ import {
   ftcsUnstableRefusalExample,
   lq02DivergentExample,
   planStatusExamples,
+  valueExample,
 } from "../experiments/results/planExamples.ts";
 import { ResultStatusNote } from "../experiments/results/ResultStatusNote.tsx";
 import { ResultValue } from "../experiments/results/ResultValue.tsx";
@@ -166,7 +167,7 @@ describe("results.explanations: Reader-Facing Language & ResultStatusNote Compon
 
   it("ResultValue shows a finite number for value payloads and a status note otherwise", () => {
     const valueHtml = renderToStaticMarkup(
-      <ResultValue result={planStatusExamples[0]!} snapshotVersion={7} />,
+      <ResultValue result={valueExample} snapshotVersion={7} />,
     );
     assert.ok(valueHtml.includes("result-value"));
     assert.ok(valueHtml.includes('data-snapshot-version="7"'));

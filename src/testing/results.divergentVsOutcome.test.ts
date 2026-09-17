@@ -87,65 +87,11 @@ const TABLE: readonly Readonly<{ id: string; payload: unknown; expected: Channel
 ];
 
 describe("results.divergentVsOutcome: eight conditions map to exactly one channel", () => {
-  it("unbounded classical integral is divergent, not a refusal or outcome", () => {
-    assert.deepEqual(classify(lq02DivergentExample), {
-      channel: "output-status",
-      status: "divergent",
+  for (const row of TABLE) {
+    it(`${row.id} maps to ${row.expected.channel}`, () => {
+      assert.deepEqual(classify(row.payload), row.expected);
     });
-  });
-
-  it("FTCS ratio above 0.5 is a numerical refusal, not divergent", () => {
-    assert.deepEqual(classify(ftcsUnstableRefusalExample), {
-      channel: "refusal",
-      code: "ftcs-unstable",
-      domainKind: "numerical",
-    });
-  });
-
-  it("exhausted work budget is an execution outcome", () => {
-    assert.deepEqual(classify(budgetExhaustedOutcomeExample), {
-      channel: "execution-outcome",
-      outcome: "budget-exhausted",
-    });
-  });
-
-  it("missing artifact is an execution outcome", () => {
-    assert.deepEqual(classify(missingArtifactOutcomeExample), {
-      channel: "execution-outcome",
-      outcome: "missing-artifact",
-    });
-  });
-
-  it("nonfinite input is an input refusal", () => {
-    const row = TABLE.find((entry) => entry.id === "nonfinite input");
-    assert.ok(row);
-    assert.deepEqual(classify(row.payload), {
-      channel: "refusal",
-      code: "nonfinite-input",
-      domainKind: "input",
-    });
-  });
-
-  it("Wien formula in a dense state is outside-domain", () => {
-    assert.deepEqual(classify(outsideDomainExample), {
-      channel: "output-status",
-      status: "outside-domain",
-    });
-  });
-
-  it("stopping potential below threshold is not-applicable", () => {
-    assert.deepEqual(classify(notApplicableExample), {
-      channel: "output-status",
-      status: "not-applicable",
-    });
-  });
-
-  it("radius and molecular number from diffusivity alone is underdetermined", () => {
-    assert.deepEqual(classify(underdeterminedExample), {
-      channel: "output-status",
-      status: "underdetermined",
-    });
-  });
+  }
 
   it("encoding a divergence as budget-exhausted, outside-domain, or a refusal names divergent", () => {
     assert.throws(
