@@ -1,0 +1,157 @@
+/* Reader anatomy (am-read-page-anatomy-l0b). Tiers are container queries in em. */
+
+.reader-anatomy-host {
+  container-type: inline-size;
+  container-name: reader;
+  --reader-narrow-max: 48em;
+  --reader-wide-min: 64em;
+  --reader-sticky-lab-max: 40vh;
+  --reader-scroll-padding: 3rem;
+  --reader-measure: 65ch;
+}
+
+.reader-anatomy {
+  display: grid;
+  grid-template-columns: minmax(0, 1fr);
+  gap: 1.5rem;
+  scroll-padding-top: var(--reader-scroll-padding);
+}
+
+.reader-main {
+  min-width: 0;
+  max-width: var(--reader-measure);
+}
+
+.reader-companion-column,
+.reader-bottom-sheet {
+  background: var(--panel);
+  border: 1px solid var(--line);
+  padding: 1rem 1.2rem;
+}
+
+.reader-companion-nav {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.75rem 1.25rem;
+  margin-bottom: 1rem;
+  font:
+    0.9rem / 1.4 Arial,
+    sans-serif;
+}
+
+.reader-companion-nav a[aria-current="page"] {
+  font-weight: bold;
+}
+
+.reader-bottom-sheet {
+  position: sticky;
+  bottom: 0;
+  max-height: min(var(--reader-sticky-lab-max), 70vh);
+  overflow: auto;
+  padding-bottom: max(1rem, env(safe-area-inset-bottom, 0px));
+}
+
+.reader-bottom-sheet > summary {
+  min-height: 44px;
+  cursor: pointer;
+  font:
+    1rem / 1.4 Arial,
+    sans-serif;
+}
+
+.reader-sticky-lab {
+  position: sticky;
+  top: var(--reader-scroll-padding);
+  max-height: var(--reader-sticky-lab-max);
+  overflow: auto;
+}
+
+.reader-split-tabs {
+  display: flex;
+  gap: 1rem;
+  margin-bottom: 1rem;
+}
+
+.reader-split-tabs a {
+  min-height: 44px;
+  padding: 0.4rem 0;
+}
+
+.reader-local-overflow {
+  max-width: 100%;
+  overflow-x: auto;
+  overscroll-behavior-x: contain;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .reader-anatomy,
+  .reader-bottom-sheet,
+  .reader-companion-column {
+    transition: none;
+  }
+}
+
+/* Wide: outline | main | companion column. Hide the sheet. */
+@container reader (min-width: 64em) {
+  .reader-anatomy {
+    grid-template-columns: 12rem minmax(0, 65ch) minmax(16rem, 1fr);
+    align-items: start;
+  }
+  .reader-outline {
+    grid-column: 1;
+  }
+  .reader-main {
+    grid-column: 2;
+  }
+  .reader-companion-column {
+    grid-column: 3;
+    display: block;
+  }
+  .reader-bottom-sheet {
+    display: none;
+  }
+}
+
+/* Medium: main + collapsible companion column. */
+@container reader (min-width: 48em) and (max-width: 63.98em) {
+  .reader-anatomy {
+    grid-template-columns: minmax(0, 65ch) minmax(14rem, 1fr);
+  }
+  .reader-outline {
+    grid-column: 1 / -1;
+    position: static;
+  }
+  .reader-main {
+    grid-column: 1;
+  }
+  .reader-companion-column {
+    grid-column: 2;
+    display: block;
+  }
+  .reader-bottom-sheet {
+    display: none;
+  }
+}
+
+/* Narrow: one column; companion is the bottom sheet. */
+@container reader (max-width: 47.98em) {
+  .reader-companion-column {
+    display: none;
+  }
+  .reader-bottom-sheet {
+    display: block;
+  }
+  .reader-sticky-lab {
+    position: static;
+    max-height: none;
+  }
+  .reader-split-tabs {
+    display: flex;
+  }
+}
+
+@container reader (min-width: 48em) {
+  .reader-split-tabs {
+    display: none;
+  }
+}

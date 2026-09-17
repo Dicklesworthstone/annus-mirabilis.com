@@ -8,6 +8,10 @@ import tracerExample from "../generated/bm01-example.json";
 import equationPayload from "../generated/brownian-equations.json";
 import { FoundationBody, FoundationLink, ReadingBlocks } from "./Blocks";
 import { BrownianFirstEncounter } from "./entrances/BrownianFirstEncounter";
+import { Companion } from "./layout/Companion.tsx";
+import { type CompanionKind, resolveCompanionKind } from "./layout/companionKind.ts";
+import { ReaderLayout } from "./layout/ReaderLayout.tsx";
+import { StickyLabRegion } from "./layout/StickyLabRegion.tsx";
 import { ReaderController } from "./ReaderController";
 import { ROOT_ARMING_SOURCE } from "./rootArming.inline";
 import "./reader.css";
@@ -18,7 +22,22 @@ const labNames: Record<string, string> = {
   "bm-06": "Spreading probability",
   "bm-07": "Molecular-number inference",
 };
-export async function PaperReader({ section }: { section?: string }) {
+function companionKindFromQuery(raw: string | undefined): CompanionKind {
+  try {
+    return resolveCompanionKind(raw);
+  } catch {
+    return "explanation";
+  }
+}
+
+export async function PaperReader({
+  section,
+  companion,
+}: {
+  section?: string | undefined;
+  companion?: string | undefined;
+}) {
+  const companionKind = companionKindFromQuery(companion);
   const payload = await loadPaper("brownian-motion"),
     { paper, foundations } = payload;
   const sections = section ? paper.sections.filter((s) => s.id === section) : paper.sections;
@@ -53,32 +72,65 @@ export async function PaperReader({ section }: { section?: string }) {
           embedded laboratory remains a static worked example.
         </p>
       </noscript>
-      <div className="reader-layout">
-        <aside className="reader-outline">
-          <h2>Follow the argument</h2>
-          <nav aria-label="Argument outline">
-            {sections.map((s) => (
-              <div key={s.id}>
-                <a data-reader-anchor={s.id} href={`#${s.id}`}>
-                  {s.title}
-                </a>
-                {args
-                  .filter((a) => a.section === s.id)
-                  .map((a) => (
-                    <a key={a.id} data-reader-anchor={a.id} href={`#${a.id}`}>
-                      {a.title}
-                    </a>
-                  ))}
-                <a className="fine" href={`/papers/${paper.id}/${s.id}/`}>
-                  Section-only reading →
-                </a>
+      <ReaderLayout
+        outline={
+          <>
+            <h2>Follow the argument</h2>
+            <nav aria-label="Argument outline">
+              {sections.map((s) => (
+                <div key={s.id}>
+                  <a data-reader-anchor={s.id} href={`#${s.id}`}>
+                    {s.title}
+                  </a>
+                  {args
+                    .filter((a) => a.section === s.id)
+                    .map((a) => (
+                      <a key={a.id} data-reader-anchor={a.id} href={`#${a.id}`}>
+                        {a.title}
+                      </a>
+                    ))}
+                  <a className="fine" href={`/papers/${paper.id}/${s.id}/`}>
+                    Section-only reading →
+                  </a>
+                </div>
+              ))}
+            </nav>
+            <p className="fine">
+              These are explanatory anchors, not invented source-sentence identifiers.
+            </p>
+          </>
+        }
+        companion={
+          <Companion kind={companionKind}>
+            {companionKind === "original" ? (
+              <p className="notice">
+                The reviewed German and aligned English for this passage are not yet available. The
+                explanation does not stand in for those source layers.
+              </p>
+            ) : companionKind === "equation" ? (
+              <p>
+                Equations stay in the passage. Pin one from the derivation when you need it beside
+                the next step.
+              </p>
+            ) : companionKind === "laboratory" ? (
+              <p>
+                The tracer ensemble is on this page, in a bounded region that yields on a phone.{" "}
+                <a href="#lab-bm-01">Jump to the laboratory</a> or{" "}
+                <a href="/lab/bm-01/">open it full page</a>.
+              </p>
+            ) : (
+              <div>
+                <h2>Beside this passage</h2>
+                <p>
+                  Margin notes, assumptions, and the laboratory stay here so the German argument
+                  keeps the main column.
+                </p>
+                <a href="#lab-bm-01">Keep the tracer ensemble in view</a>
               </div>
-            ))}
-          </nav>
-          <p className="fine">
-            These are explanatory anchors, not invented source-sentence identifiers.
-          </p>
-        </aside>
+            )}
+          </Companion>
+        }
+      >
         <div className="reader-body">
           {paper.id === "brownian-motion" && (!section || section === "s4") && (
             <section className="reader-entrance-section" aria-label="First encounter">
@@ -194,7 +246,11 @@ export async function PaperReader({ section }: { section?: string }) {
                         </a>
                       ))}
                       <a href={`/papers/${paper.id}/#${a.id}`}>Link to this passage</a>
-                      <button className="secondary enhanced-only" data-copy-passage={a.id}>
+                      <button
+                        type="button"
+                        className="secondary enhanced-only"
+                        data-copy-passage={a.id}
+                      >
                         Copy passage link
                       </button>
                     </nav>
@@ -214,22 +270,24 @@ export async function PaperReader({ section }: { section?: string }) {
             </section>
           ))}
         </div>
-      </div>
-      <section id="lab-bm-01" className="reader-inline-lab">
-        <h2>Keep the experiment beside the argument</h2>
-        <p>
-          This laboratory stays mounted while you change detail or open a foundation. Applying its
-          controls explicitly starts a host calculation; opening an explanation never starts or
-          restarts a trial.
-        </p>
-        <details>
-          <summary>Open the tracer ensemble in this reading</summary>
-          <TracerLab
-            example={tracerExample as PreparedBm01Example}
-            title="Investigate the displacement argument"
-          />
-        </details>
-      </section>
+        <StickyLabRegion>
+          <section id="lab-bm-01" className="reader-inline-lab">
+            <h2>Keep the experiment beside the argument</h2>
+            <p>
+              This laboratory stays mounted while you change detail or open a foundation. Applying
+              its controls explicitly starts a host calculation; opening an explanation never starts
+              or restarts a trial.
+            </p>
+            <details>
+              <summary>Open the tracer ensemble in this reading</summary>
+              <TracerLab
+                example={tracerExample as PreparedBm01Example}
+                title="Investigate the displacement argument"
+              />
+            </details>
+          </section>
+        </StickyLabRegion>
+      </ReaderLayout>
       <section className="reader-downloads">
         <h2>Read in another form</h2>
         <p>
@@ -270,10 +328,12 @@ export async function PaperReader({ section }: { section?: string }) {
             </a>
           </p>
           <div className="actions">
-            <button className="secondary" data-reader-back>
+            <button type="button" className="secondary" data-reader-back>
               Back one step
             </button>
-            <button data-reader-close>Return to the exact step</button>
+            <button type="button" data-reader-close>
+              Return to the exact step
+            </button>
           </div>
         </nav>
         {foundations.map((f) => (

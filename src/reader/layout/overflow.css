@@ -1,0 +1,21 @@
+/* Local overflow only. Never insert equation line breaks here. */
+
+.reader-local-overflow {
+  max-width: 100%;
+  overflow-x: auto;
+  overscroll-behavior-x: contain;
+}
+
+.reader-local-overflow[data-overflow-affordance="true"]::after {
+  content: "Scroll sideways to see the rest of this table or equation.";
+  display: block;
+  font:
+    0.85rem / 1.4 Arial,
+    sans-serif;
+  color: var(--muted);
+  margin-top: 0.4rem;
+}
+
+.reader-multiline-equation {
+  overflow: visible;
+}
