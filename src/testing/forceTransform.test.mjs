@@ -1,6 +1,7 @@
 import test from "node:test";
 import assert from "node:assert/strict";
 import { transformThreeForce } from "../physics/reference/forceTransform.ts";
+import { withinTolerance } from "../units/tolerance.ts";
 const zero = Object.freeze({ x: 0, y: 0, z: 0 });
 const base = Object.freeze({ force: { x: 2, y: 3, z: -5 }, velocity: zero, beta: 0.6, c: 1 });
 function admitted(input = base) {
@@ -9,7 +10,9 @@ function admitted(input = base) {
   return out;
 }
 function near(a, b, relative = 1e-12) {
-  assert.ok(Math.abs(a - b) <= relative * Math.max(1, Math.abs(a), Math.abs(b)), `${a} != ${b}`);
+  const spec = b === 0 ? { absolute: relative } : { relative };
+  const verdict = withinTolerance(a, b, spec);
+  assert.ok(verdict.ok, `${a} != ${b} (${verdict.kind})`);
 }
 test("zero boost preserves force and coordinate time", () => {
   const out = admitted({ ...base, beta: 0, velocity: { x: 0.2, y: 0.3, z: -0.4 } });
