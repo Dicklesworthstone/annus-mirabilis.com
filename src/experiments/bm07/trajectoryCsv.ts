@@ -173,6 +173,14 @@ function unitScales(units: TrajectoryUnits): { time: number; position: number } 
   return { time: units.time === "s" ? 1 : 1e-3, position };
 }
 
+function hasControlChar(s: string): boolean {
+  for (let i = 0; i < s.length; i++) {
+    const code = s.charCodeAt(i);
+    if (code <= 31 || code === 127) return true;
+  }
+  return false;
+}
+
 export function parseTrajectoryCsv(text: string, units: TrajectoryUnits): ImportedTrajectory {
   if (typeof text !== "string") return fail("Supply CSV text.");
   const scale = unitScales(units),
@@ -227,8 +235,9 @@ export function parseTrajectoryCsv(text: string, units: TrajectoryUnits): Import
   for (const { fields, row } of rows.slice(1)) {
     if (fields.length !== header.length)
       return fail(`Expected ${header.length} fields; found ${fields.length}.`, row);
+
     const track = trackColumn === -1 ? "1" : fields[trackColumn]!.trim();
-    if (!track || track.length > 80 || /[\u0000-\u001F\u007F]/.test(track)) {
+    if (!track || track.length > 80 || hasControlChar(track)) {
       return fail("Track IDs must contain 1–80 printable characters.", row);
     }
     if (!previous.has(track) && previous.size >= TRAJECTORY_LIMITS.tracks)

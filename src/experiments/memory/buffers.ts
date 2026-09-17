@@ -44,7 +44,9 @@ export class DetachedBufferInvariantViolationError extends Error {
 }
 
 export class PoolExhaustedRefusalError extends Error {
-  constructor(message = "Buffer pool exhausted: all buffers are currently held by live snapshots or active leases.") {
+  constructor(
+    message = "Buffer pool exhausted: all buffers are currently held by live snapshots or active leases.",
+  ) {
     super(message);
     this.name = "PoolExhaustedRefusalError";
   }
@@ -138,10 +140,7 @@ export class OwnedBuffer<T extends ArrayBufferView = Float64Array> {
    */
   transfer(): ArrayBuffer {
     if (this._snapshotVersions.size > 0 || this._holders.size > 0) {
-      throw new BufferTransferRefusedError(
-        Array.from(this._snapshotVersions),
-        this.refCount,
-      );
+      throw new BufferTransferRefusedError(Array.from(this._snapshotVersions), this.refCount);
     }
     if (this._isTransferred) {
       throw new Error(`Buffer ${this.id} has already been transferred.`);
@@ -159,7 +158,9 @@ export class OwnedBuffer<T extends ArrayBufferView = Float64Array> {
         throw new DetachedBufferInvariantViolationError(Array.from(this._snapshotVersions));
       }
       if (!this._isTransferred && this._holders.size > 0) {
-        throw new Error(`Buffer ${this.id} was detached while held by ${this._holders.size} active holders.`);
+        throw new Error(
+          `Buffer ${this.id} was detached while held by ${this._holders.size} active holders.`,
+        );
       }
     }
   }
@@ -172,7 +173,9 @@ export class OwnedBuffer<T extends ArrayBufferView = Float64Array> {
     const TypedArrayConstructor = this._buffer.constructor as new (length: number) => T;
     const len = (this._buffer as unknown as { length: number }).length;
     const copy = new TypedArrayConstructor(len);
-    new Uint8Array(copy.buffer).set(new Uint8Array(this._buffer.buffer, this._buffer.byteOffset, this._buffer.byteLength));
+    new Uint8Array(copy.buffer).set(
+      new Uint8Array(this._buffer.buffer, this._buffer.byteOffset, this._buffer.byteLength),
+    );
     return new OwnedBuffer<T>(copy, { label: `${this.label}-copy` });
   }
 }
@@ -191,7 +194,10 @@ export class SnapshotBufferPool {
   readonly capacity: number;
   readonly elements: number;
   private readonly _pool: OwnedBuffer<Float64Array>[] = [];
-  private readonly _activeLeases = new Map<string, { buffer: OwnedBuffer<Float64Array>; tick: number }>();
+  private readonly _activeLeases = new Map<
+    string,
+    { buffer: OwnedBuffer<Float64Array>; tick: number }
+  >();
   private _leaseCounter = 0;
   private _totalAllocated = 0;
 
@@ -229,9 +235,15 @@ export class SnapshotBufferPool {
    * Acquires an available buffer with refCount === 0.
    * If all are in use, attempts to evict the oldest active lease ONLY if that lease is NOT exposed to any snapshot.
    */
-  acquire(tick: number): { leaseId: string; buffer: OwnedBuffer<Float64Array>; release: () => void } {
+  acquire(tick: number): {
+    leaseId: string;
+    buffer: OwnedBuffer<Float64Array>;
+    release: () => void;
+  } {
     // 1. Check for a free buffer in pool with refCount === 0
-    let candidateIdx = this._pool.findIndex((b) => b.refCount === 0 && !b.isTransferred && b.byteLength > 0);
+    const candidateIdx = this._pool.findIndex(
+      (b) => b.refCount === 0 && !b.isTransferred && b.byteLength > 0,
+    );
     let buf: OwnedBuffer<Float64Array>;
 
     if (candidateIdx >= 0) {

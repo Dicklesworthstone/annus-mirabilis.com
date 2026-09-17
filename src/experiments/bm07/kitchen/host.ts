@@ -2,9 +2,9 @@ import { analyzeKitchen } from "./analyze.ts";
 import { parseKitchenCsv } from "./csv.ts";
 import {
   decodeKitchenRequest,
-  optionsFromToken,
   KITCHEN_PROTOCOL,
   type KitchenResponse,
+  optionsFromToken,
 } from "./protocol.ts";
 import type { KitchenDocument } from "./schema.ts";
 /** Dedicated local owner. One bounded document cache; no network or persistent storage. */

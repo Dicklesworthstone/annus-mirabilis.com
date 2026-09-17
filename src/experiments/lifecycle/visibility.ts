@@ -10,7 +10,12 @@
  *   state stays visible and manual stepping remains available.
  */
 
-export type PauseReason = "document-hidden" | "off-screen" | "pagehide" | "reduced-motion" | "user-pause";
+export type PauseReason =
+  | "document-hidden"
+  | "off-screen"
+  | "pagehide"
+  | "reduced-motion"
+  | "user-pause";
 
 export interface LaboratoryRunState {
   readonly runId: string;

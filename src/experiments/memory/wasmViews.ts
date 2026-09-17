@@ -198,7 +198,11 @@ export function copyOutF64(
     throw new WasmMemoryDetachedBufferError();
   }
   const result = new Float64Array(elementCount);
-  const srcBytes = new Uint8Array(memory.buffer, byteOffset, elementCount * Float64Array.BYTES_PER_ELEMENT);
+  const srcBytes = new Uint8Array(
+    memory.buffer,
+    byteOffset,
+    elementCount * Float64Array.BYTES_PER_ELEMENT,
+  );
   new Uint8Array(result.buffer).set(srcBytes);
   return result;
 }
@@ -207,11 +211,7 @@ export function copyOutF64(
  * Standard copy-out function for Vec<f64> pointers (wasm-bindgen style).
  * Returns a new independent Float64Array copy whose buffer is not memory.buffer.
  */
-export function copyOutVecF64(
-  memory: WebAssembly.Memory,
-  ptr: number,
-  len: number,
-): Float64Array {
+export function copyOutVecF64(memory: WebAssembly.Memory, ptr: number, len: number): Float64Array {
   return copyOutF64(memory, ptr, len);
 }
 

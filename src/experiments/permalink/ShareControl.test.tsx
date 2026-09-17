@@ -2,15 +2,13 @@ import { describe, expect, test } from "bun:test";
 import { renderToStaticMarkup } from "react-dom/server";
 import { decodeTapePermalink } from "./codec.ts";
 import { FIXTURE_TEACHING_TAPE_EINSTEIN_08 } from "./fixture.ts";
-import { SHARE_FORMS } from "./shareForms.ts";
 import { ShareControl } from "./ShareControl.tsx";
+import { SHARE_FORMS } from "./shareForms.ts";
 import type { TapeV2 } from "./types.ts";
 
 describe("ShareControl (am-inst-permalink-tape-s677)", () => {
   test("names the form it produces and labels the copy action correctly", () => {
-    const html = renderToStaticMarkup(
-      <ShareControl tape={FIXTURE_TEACHING_TAPE_EINSTEIN_08} />,
-    );
+    const html = renderToStaticMarkup(<ShareControl tape={FIXTURE_TEACHING_TAPE_EINSTEIN_08} />);
 
     // Names the form it produces: "Experiment preset"
     expect(html).toContain(SHARE_FORMS["experiment-preset"].name);
@@ -64,9 +62,7 @@ describe("ShareControl (am-inst-permalink-tape-s677)", () => {
   });
 
   test("the emitted URL in the selectable field decodes to a valid TapeV2", () => {
-    const html = renderToStaticMarkup(
-      <ShareControl tape={FIXTURE_TEACHING_TAPE_EINSTEIN_08} />,
-    );
+    const html = renderToStaticMarkup(<ShareControl tape={FIXTURE_TEACHING_TAPE_EINSTEIN_08} />);
 
     const match = html.match(/value="([^"]+)"/);
     expect(match).not.toBeNull();

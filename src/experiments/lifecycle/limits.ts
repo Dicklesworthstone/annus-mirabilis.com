@@ -25,11 +25,9 @@ export function detectDeviceConcurrencyLimit(injected?: {
 }): DeviceProfile {
   const cores =
     injected?.hardwareConcurrency ??
-    (typeof navigator !== "undefined" ? navigator.hardwareConcurrency ?? 4 : 4);
+    (typeof navigator !== "undefined" ? (navigator.hardwareConcurrency ?? 4) : 4);
 
-  const width =
-    injected?.innerWidth ??
-    (typeof window !== "undefined" ? window.innerWidth : 1200);
+  const width = injected?.innerWidth ?? (typeof window !== "undefined" ? window.innerWidth : 1200);
 
   // Mobile heuristic: narrow viewport (< 768px) or constrained cores (<= 2)
   const isMobile = width < 768 || cores <= 2;

@@ -1,8 +1,9 @@
 /** Orchestration for imported observations. All numerical estimation, interval
  * construction, model admission and constant interpretation stay with the
  * existing reference owner. Dependency injection makes refusal paths testable. */
-import type * as Inference from "../../physics/reference/inference.ts";
+
 import type { ConstantSet } from "../../physics/reference/constants.ts";
+import type * as Inference from "../../physics/reference/inference.ts";
 import type { ImportedTrajectory } from "./trajectoryCsv.ts";
 
 export type TrajectoryReference = Pick<

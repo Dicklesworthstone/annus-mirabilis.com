@@ -60,7 +60,7 @@ export function ShareControl({
   };
 
   return (
-    <div
+    <section
       className="share-control"
       data-share-form="experiment-preset"
       aria-label={formSpec.name}
@@ -125,6 +125,6 @@ export function ShareControl({
           onFocus={(e) => e.target.select()}
         />
       </div>
-    </div>
+    </section>
   );
 }

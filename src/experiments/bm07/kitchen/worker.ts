@@ -1,5 +1,6 @@
-import { createKitchenHost } from "./host.ts";
 import { KITCHEN_SOURCE_DIGEST } from "../../../generated/kitchen-provenance.ts";
+import { createKitchenHost } from "./host.ts";
+
 const scope = self as unknown as {
   postMessage(message: unknown): void;
   addEventListener(event: "message", fn: (event: MessageEvent<unknown>) => void): void;

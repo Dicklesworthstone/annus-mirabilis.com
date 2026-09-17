@@ -1,14 +1,14 @@
 import {
   KITCHEN_COLUMNS,
+  KITCHEN_LIMITS,
   KITCHEN_METADATA_KEYS,
   KITCHEN_SCHEMA_VERSION,
-  KITCHEN_LIMITS,
-  KitchenInputError,
-  kitchenNumber,
-  validateKitchenMetadata,
   type KitchenDocument,
+  KitchenInputError,
   type KitchenPoint,
+  kitchenNumber,
   type PointStatus,
+  validateKitchenMetadata,
 } from "./schema.ts";
 
 /** Bounded RFC-4180 cells with physical line numbers, no eval and no permissive repair. */
@@ -81,9 +81,25 @@ function rows(text: string, firstLine: number): { cells: string[]; line: number 
 }
 const unprotect = (s: string) => (/^'[=+\-@'\t\r]/.test(s) ? s.slice(1) : s);
 const protect = (s: string) => (/^[=+\-@'\t\r]/.test(s) ? `'${s}` : s);
+function hasForbiddenControlChar(s: string): boolean {
+  for (let i = 0; i < s.length; i++) {
+    const code = s.charCodeAt(i);
+    if (
+      (code >= 0 && code <= 8) ||
+      code === 11 ||
+      code === 12 ||
+      (code >= 14 && code <= 31) ||
+      code === 127
+    ) {
+      return true;
+    }
+  }
+  return false;
+}
+
 function safeText(raw: string, field: string, line: number, max = 200): string {
   const s = unprotect(raw);
-  if (s.length > max || /[\u0000-\u0008\u000b\u000c\u000e-\u001f\u007f]/.test(s))
+  if (s.length > max || hasForbiddenControlChar(s))
     throw new KitchenInputError(
       line,
       field,

@@ -205,22 +205,34 @@ class DiagnosticsRegistry {
 
     const leaks: string[] = [];
     if (current.liveWorkers !== expected.liveWorkers) {
-      leaks.push(`liveWorkers leaked: expected ${expected.liveWorkers}, got ${current.liveWorkers}`);
+      leaks.push(
+        `liveWorkers leaked: expected ${expected.liveWorkers}, got ${current.liveWorkers}`,
+      );
     }
     if (current.activeWebGLContexts !== expected.activeWebGLContexts) {
-      leaks.push(`activeWebGLContexts leaked: expected ${expected.activeWebGLContexts}, got ${current.activeWebGLContexts}`);
+      leaks.push(
+        `activeWebGLContexts leaked: expected ${expected.activeWebGLContexts}, got ${current.activeWebGLContexts}`,
+      );
     }
     if (current.trackedListeners !== expected.trackedListeners) {
-      leaks.push(`trackedListeners leaked: expected ${expected.trackedListeners}, got ${current.trackedListeners}`);
+      leaks.push(
+        `trackedListeners leaked: expected ${expected.trackedListeners}, got ${current.trackedListeners}`,
+      );
     }
     if (current.animationFrames !== expected.animationFrames) {
-      leaks.push(`animationFrames leaked: expected ${expected.animationFrames}, got ${current.animationFrames}`);
+      leaks.push(
+        `animationFrames leaked: expected ${expected.animationFrames}, got ${current.animationFrames}`,
+      );
     }
     if (current.activeObservers !== expected.activeObservers) {
-      leaks.push(`activeObservers leaked: expected ${expected.activeObservers}, got ${current.activeObservers}`);
+      leaks.push(
+        `activeObservers leaked: expected ${expected.activeObservers}, got ${current.activeObservers}`,
+      );
     }
     if (current.liveBufferBytes !== expected.liveBufferBytes) {
-      leaks.push(`liveBufferBytes leaked: expected ${expected.liveBufferBytes}, got ${current.liveBufferBytes}`);
+      leaks.push(
+        `liveBufferBytes leaked: expected ${expected.liveBufferBytes}, got ${current.liveBufferBytes}`,
+      );
     }
 
     if (leaks.length > 0) {

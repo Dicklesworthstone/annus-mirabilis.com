@@ -1,5 +1,5 @@
-import type { KitchenAccepted } from "./session.ts";
 import { exportKitchenCsv } from "./csv.ts";
+import type { KitchenAccepted } from "./session.ts";
 
 /** This is an analysis receipt, not an importable session or a claim of reviewed experimental provenance. */
 export function kitchenAnalysisJson(accepted: KitchenAccepted, sourceDigest: string): string {

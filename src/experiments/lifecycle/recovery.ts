@@ -107,12 +107,16 @@ export function decodeStreamCheckpoint(bytes: Uint8Array): StreamCheckpointData 
 
   const magic = new TextDecoder().decode(bytes.subarray(0, 8));
   if (magic !== STREAM_CHECKPOINT_MAGIC) {
-    throw new Error(`Invalid checkpoint magic: expected "${STREAM_CHECKPOINT_MAGIC}", got "${magic}".`);
+    throw new Error(
+      `Invalid checkpoint magic: expected "${STREAM_CHECKPOINT_MAGIC}", got "${magic}".`,
+    );
   }
 
   const domain = new TextDecoder().decode(bytes.subarray(8, 51));
   if (domain !== STREAM_CHECKPOINT_DOMAIN) {
-    throw new Error(`Invalid checkpoint domain: expected "${STREAM_CHECKPOINT_DOMAIN}", got "${domain}".`);
+    throw new Error(
+      `Invalid checkpoint domain: expected "${STREAM_CHECKPOINT_DOMAIN}", got "${domain}".`,
+    );
   }
 
   const view = new DataView(bytes.buffer, bytes.byteOffset, bytes.byteLength);

@@ -8,7 +8,7 @@ export * from "./codec.ts";
 export * from "./compatibility.ts";
 export * from "./fixture.ts";
 export * from "./replay.ts";
+export * from "./ShareControl.tsx";
 export * from "./schema.ts";
 export * from "./shareForms.ts";
-export * from "./ShareControl.tsx";
 export * from "./types.ts";
