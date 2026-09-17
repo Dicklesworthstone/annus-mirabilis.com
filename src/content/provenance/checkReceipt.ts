@@ -144,6 +144,31 @@ export function checkReceipt(
   }
 
   // 3. Schema & Format Version
+  const KNOWN_TOP_LEVEL_KEYS = new Set([
+    "receiptFormatVersion",
+    "receiptKind",
+    "key",
+    "slug",
+    "paper",
+    "scan",
+    "pageMap",
+    "witnesses",
+    "transcription",
+    "typographicalErrors",
+    "watchList",
+    "pending",
+  ]);
+
+  for (const k of Object.keys(fm)) {
+    if (!KNOWN_TOP_LEVEL_KEYS.has(k)) {
+      addError(
+        "receipt-unknown-top-level-key",
+        k,
+        `Unknown top-level front matter key "${k}".`,
+      );
+    }
+  }
+
   if (fm.receiptFormatVersion !== RECEIPT_FORMAT_VERSION) {
     addError(
       "receipt-format-version",
@@ -492,6 +517,77 @@ export function checkReceipt(
               "receipt-config-pagecount-mismatch",
               "scan.pageCount",
               `scan.pageCount (${scan.pageCount}) disagrees with configuration record (${pinnedCfg.pageCount}).`,
+            );
+          }
+
+          const expectedOriginUrl = (pinnedCfg.originUrl ||
+            (Array.isArray(cfg.candidates) &&
+            typeof pinnedCfg.candidateIndex === "number" &&
+            cfg.candidates[pinnedCfg.candidateIndex]
+              ? (cfg.candidates[pinnedCfg.candidateIndex] as Record<string, unknown>).url
+              : undefined)) as string | undefined;
+
+          if (expectedOriginUrl && expectedOriginUrl !== scan.originUrl) {
+            addError(
+              "receipt-config-origin-url-mismatch",
+              "scan.originUrl",
+              `scan.originUrl (${scan.originUrl}) disagrees with configuration record (${expectedOriginUrl}).`,
+              expectedOriginUrl,
+              scan.originUrl,
+            );
+          }
+
+          if (pinnedCfg.acquisitionDate && pinnedCfg.acquisitionDate !== scan.acquisitionDate) {
+            addError(
+              "receipt-config-acquisition-date-mismatch",
+              "scan.acquisitionDate",
+              `scan.acquisitionDate (${scan.acquisitionDate}) disagrees with configuration record (${pinnedCfg.acquisitionDate}).`,
+              String(pinnedCfg.acquisitionDate),
+              String(scan.acquisitionDate),
+            );
+          }
+
+          const cfgRights = ((pinnedCfg.rights as Record<string, unknown>) ||
+            (cfg.rights as Record<string, unknown>) ||
+            pinnedCfg) as Record<string, unknown>;
+
+          if (cfgRights.rightsStatus && cfgRights.rightsStatus !== scan.rightsStatus) {
+            addError(
+              "receipt-config-rights-mismatch",
+              "scan.rightsStatus",
+              `scan.rightsStatus (${scan.rightsStatus}) disagrees with configuration record (${cfgRights.rightsStatus}).`,
+              String(cfgRights.rightsStatus),
+              String(scan.rightsStatus),
+            );
+          }
+          if (
+            cfgRights.publicationDecision &&
+            cfgRights.publicationDecision !== scan.publicationDecision
+          ) {
+            addError(
+              "receipt-config-rights-mismatch",
+              "scan.publicationDecision",
+              `scan.publicationDecision (${scan.publicationDecision}) disagrees with configuration record (${cfgRights.publicationDecision}).`,
+              String(cfgRights.publicationDecision),
+              String(scan.publicationDecision),
+            );
+          }
+          if (cfgRights.cloudProcessing && cfgRights.cloudProcessing !== scan.cloudProcessing) {
+            addError(
+              "receipt-config-rights-mismatch",
+              "scan.cloudProcessing",
+              `scan.cloudProcessing (${scan.cloudProcessing}) disagrees with configuration record (${cfgRights.cloudProcessing}).`,
+              String(cfgRights.cloudProcessing),
+              String(scan.cloudProcessing),
+            );
+          }
+          if (cfgRights.reuseTerms && cfgRights.reuseTerms !== scan.reuseTerms) {
+            addError(
+              "receipt-config-rights-mismatch",
+              "scan.reuseTerms",
+              `scan.reuseTerms (${scan.reuseTerms}) disagrees with configuration record (${cfgRights.reuseTerms}).`,
+              String(cfgRights.reuseTerms),
+              String(scan.reuseTerms),
             );
           }
         } catch (e) {

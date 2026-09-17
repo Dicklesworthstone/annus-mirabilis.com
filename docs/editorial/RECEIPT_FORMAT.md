@@ -118,6 +118,16 @@ key: ap-99-001
 - `downloadLog`: Relative path to pinning tool log (`artifacts/facsimile-logs/<key>/<tool-run-id>.jsonl`).
 - `termsStatements`: Array of `{ url: string, retrievedAt: string, text: string }` quoting terms verbatim.
 
+### 3.3.1. Facsimile Configuration Consistency
+
+When verified with `--config-dir` (or during default verification against `scripts/sources/facsimile-sources/`), the receipt's `scan` block must remain strictly consistent with the pinned source configuration record:
+- `scan.sha256`: Must match `pinned.sha256` (`receipt-config-digest-mismatch`).
+- `scan.pageCount`: Must match `pinned.pageCount` (`receipt-config-pagecount-mismatch`).
+- `scan.originUrl`: Must match `pinned.originUrl` or candidate URL (`receipt-config-origin-url-mismatch`).
+- `scan.acquisitionDate`: Must match `pinned.acquisitionDate` (`receipt-config-acquisition-date-mismatch`).
+- Rights fields (`rightsStatus`, `publicationDecision`, `cloudProcessing`, `reuseTerms`): Must match `config.rights` or `pinned` (`receipt-config-rights-mismatch`).
+- Missing configuration: If the receipt claims a pinned scan (`publish` or `pin-local-only`), a corresponding `<key>.yaml` file must exist (`receipt-config-missing`).
+
 ### 3.4. Page Map (`pageMap`)
 
 Each entry represents exactly one PDF page (1-based `pdfPageIndex` matching the viewer):

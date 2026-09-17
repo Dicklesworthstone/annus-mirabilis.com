@@ -65,6 +65,14 @@ function parseArgs(args: string[]): CliOptions {
     }
   }
 
+  if (
+    !options.configDir &&
+    options.dir === "docs/provenance" &&
+    fs.existsSync("scripts/sources/facsimile-sources")
+  ) {
+    options.configDir = "scripts/sources/facsimile-sources";
+  }
+
   return options;
 }
 

@@ -134,6 +134,39 @@ const errorTestCases = [
   { file: "err-pd-image-no-credit.md", rule: "receipt-image-credit-required" },
   { file: "err-pin-local-path-invalid.md", rule: "receipt-pin-local-path" },
   { file: "err-named-license-no-source.md", rule: "receipt-named-license-source-required" },
+  {
+    file: "err-config-pagecount-mismatch.md",
+    rule: "receipt-config-pagecount-mismatch",
+    options: { configDir: CONFIG_DIR },
+  },
+  {
+    file: "err-config-origin-url-mismatch.md",
+    rule: "receipt-config-origin-url-mismatch",
+    options: { configDir: CONFIG_DIR },
+  },
+  {
+    file: "err-config-acquisition-date-mismatch.md",
+    rule: "receipt-config-acquisition-date-mismatch",
+    options: { configDir: CONFIG_DIR },
+  },
+  {
+    file: "err-config-rights-mismatch.md",
+    rule: "receipt-config-rights-mismatch",
+    options: { configDir: CONFIG_DIR },
+  },
+  { file: "err-unknown-top-level-key.md", rule: "receipt-unknown-top-level-key" },
+  { file: "err-journal-first-page-mismatch.md", rule: "receipt-journal-first-page" },
+  { file: "err-parent-sha256-invalid.md", rule: "receipt-parent-sha256-invalid" },
+  {
+    file: "err-ledger-source-pdf-sha256-invalid.md",
+    rule: "receipt-ledger-source-pdf-sha256-invalid",
+  },
+  { file: "err-date-verified-missing.md", rule: "receipt-date-verified" },
+  { file: "err-journal-doi-verified-missing.md", rule: "receipt-journal-doi-verified" },
+  { file: "err-pagemap-count-mismatch.md", rule: "receipt-pagemap-count" },
+  { file: "err-pagemap-index-invalid.md", rule: "receipt-pagemap-index" },
+  { file: "err-pagemap-printed-page-range.md", rule: "receipt-pagemap-printed-page-range" },
+  { file: "err-pagemap-printed-page-missing.md", rule: "receipt-pagemap-printed-page" },
 ];
 
 for (const tc of errorTestCases) {
