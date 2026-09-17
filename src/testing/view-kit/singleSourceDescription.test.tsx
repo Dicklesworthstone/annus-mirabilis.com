@@ -245,8 +245,7 @@ describe("Single-Source Visual and Accessible Description Parity (am-inst-2d-vie
 
       // 4. Accessible Layer 2 relation summary verification
       const layer2 = container.querySelector(".graph-layer-2-region");
-      expect(layer2?.getAttribute("role")).toBe("status");
-      expect(layer2?.getAttribute("aria-live")).toBe("polite");
+      expect(layer2?.getAttribute("aria-live")).toBeNull();
       expect(layer2?.textContent).toContain("Tracer root-mean-square displacement is");
       expect(layer2?.textContent).toContain("1.021763 μm"); // sqrt(2 * 5.22e-13 * 1.0) * 1e6 ≈ 1.021763 μm
       expect(layer2?.textContent).toContain("5.220000 × 10^-13 m^2/s");

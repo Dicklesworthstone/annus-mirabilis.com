@@ -1,4 +1,4 @@
-import { type ReactElement, type ReactNode, useEffect, useMemo, useRef, useState } from "react";
+import { type ReactElement, type ReactNode, useMemo } from "react";
 import {
   GraphDescriptionContainer,
   type GraphDescriptionContainerProps,
@@ -37,10 +37,6 @@ export interface AccessibleGraphViewProps {
   readonly scale?: RepresentationScale | undefined;
   /** Visual chart / canvas content. */
   readonly children?: ReactNode | undefined;
-  /** Live region announcement text. */
-  readonly liveAnnouncement?: string | undefined;
-  /** Throttle interval in ms for live region updates (default 1000ms). */
-  readonly liveThrottleMs?: number | undefined;
   /** Accepted snapshot version. */
   readonly snapshotVersion?: string | number | undefined;
   /** Run ID of the current calculation. */
@@ -61,7 +57,7 @@ export interface AccessibleGraphViewProps {
  * Layer 1: High-level statement of comparison.
  * Layer 2: Key findings / current relation summary (via template or string summary).
  * Layer 3: Collapsible inspectable data table.
- * Includes scale facts table and throttled live-region stream.
+ * Announcements are commit-or-request only, never a throttled frame stream.
  */
 export function AccessibleGraphView({
   title,
@@ -73,8 +69,6 @@ export function AccessibleGraphView({
   tableData,
   scale,
   children,
-  liveAnnouncement,
-  liveThrottleMs = 1000,
   snapshotVersion = "1",
   runId,
   instrumentId,
@@ -82,34 +76,6 @@ export function AccessibleGraphView({
   animated = false,
   className = "accessible-graph-view",
 }: AccessibleGraphViewProps): ReactElement {
-  const [throttledAnnouncement, setThrottledAnnouncement] = useState<string>(
-    liveAnnouncement ?? "",
-  );
-  const lastAnnounceTimeRef = useRef<number>(0);
-  const pendingTimerRef = useRef<ReturnType<typeof setTimeout> | null>(null);
-
-  useEffect(() => {
-    if (!liveAnnouncement) return;
-
-    const now = Date.now();
-    const elapsed = now - lastAnnounceTimeRef.current;
-
-    if (elapsed >= liveThrottleMs) {
-      lastAnnounceTimeRef.current = now;
-      setThrottledAnnouncement(liveAnnouncement);
-    } else {
-      if (pendingTimerRef.current) clearTimeout(pendingTimerRef.current);
-      pendingTimerRef.current = setTimeout(() => {
-        lastAnnounceTimeRef.current = Date.now();
-        setThrottledAnnouncement(liveAnnouncement);
-      }, liveThrottleMs - elapsed);
-    }
-
-    return () => {
-      if (pendingTimerRef.current) clearTimeout(pendingTimerRef.current);
-    };
-  }, [liveAnnouncement, liveThrottleMs]);
-
   const layer1Statement = description ? `${title}. ${description}` : title;
   const layer2Template = template ?? summary ?? "";
   const mergedTemplateData: TemplateData = useMemo(() => {
@@ -155,11 +121,6 @@ export function AccessibleGraphView({
       className={`accessible-graph-view ${className}`}
     >
       {children}
-      {throttledAnnouncement && (
-        <div className="sr-only live-region" aria-live="polite" aria-atomic="true">
-          {throttledAnnouncement}
-        </div>
-      )}
     </GraphDescriptionContainer>
   );
 }

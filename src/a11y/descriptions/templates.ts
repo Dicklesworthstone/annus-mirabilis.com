@@ -106,7 +106,7 @@ export function formatScaleFact(
     }
     case "simulatedElapsedTime": {
       const timeVal = formatCleanNumber(scale.simulatedElapsedTime.value);
-      return spokenQuantity(timeVal, scale.simulatedElapsedTime.unit);
+      return `this frame shows ${spokenQuantity(timeVal, scale.simulatedElapsedTime.unit)} of model time`;
     }
     case "playbackMultiplier": {
       return formatPlaybackRate(scale.playbackMultiplier);
@@ -121,7 +121,10 @@ export function formatScaleFact(
       if (scale.quantityNormalization.kind === "none") {
         return "unnormalized counts/values";
       }
-      return scale.quantityNormalization.kind;
+      if (scale.quantityNormalization.kind === "per-bin-width") {
+        return "counts per bin width";
+      }
+      return scale.quantityNormalization.kind.replace(/-/g, " ");
     }
   }
 }

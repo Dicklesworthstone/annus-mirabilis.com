@@ -40,16 +40,17 @@ export function DataTable({
   columns,
   rows,
   snapshotVersion,
-  pageSize = 10,
+  pageSize = 20,
   scale,
   className = "inspectable-data-table-container",
 }: DataTableProps): ReactElement {
   const [currentPage, setCurrentPage] = useState<number>(0);
 
-  const totalPages = Math.max(1, Math.ceil(rows.length / pageSize));
+  const boundedPageSize = Math.min(100, Math.max(1, pageSize));
+  const totalPages = Math.max(1, Math.ceil(rows.length / boundedPageSize));
   const safePage = Math.min(currentPage, totalPages - 1);
-  const startIdx = safePage * pageSize;
-  const pageRows = rows.slice(startIdx, startIdx + pageSize);
+  const startIdx = safePage * boundedPageSize;
+  const pageRows = rows.slice(startIdx, startIdx + boundedPageSize);
 
   const scaleRows = scale ? getScaleFactRows(scale) : [];
 
@@ -91,7 +92,19 @@ export function DataTable({
       </div>
 
       {totalPages > 1 && (
-        <nav className="table-pagination" aria-label={`Pagination for ${caption}`}>
+        <nav
+          className="table-pagination"
+          aria-label={`Pagination for ${caption}`}
+          onKeyDown={(event) => {
+            if (event.key === "ArrowLeft") {
+              event.preventDefault();
+              setCurrentPage((p) => Math.max(0, p - 1));
+            } else if (event.key === "ArrowRight") {
+              event.preventDefault();
+              setCurrentPage((p) => Math.min(totalPages - 1, p + 1));
+            }
+          }}
+        >
           <button
             type="button"
             className="pagination-btn prev-btn"

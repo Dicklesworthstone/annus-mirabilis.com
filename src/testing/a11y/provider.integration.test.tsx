@@ -87,10 +87,9 @@ describe("GraphDescriptionContainer Integration: Three-layer accessible provider
       const layer1 = container.querySelector(".graph-layer-1");
       expect(layer1?.textContent).toContain("Brownian tracer position histogram");
 
-      // Layer 2
+      // Layer 2 is a persistent description, not a live region.
       const layer2 = container.querySelector(".graph-layer-2-region");
-      expect(layer2?.getAttribute("role")).toBe("status");
-      expect(layer2?.getAttribute("aria-live")).toBe("polite");
+      expect(layer2?.getAttribute("aria-live")).toBeNull();
       expect(layer2?.textContent).toContain("0.794783 μm");
       expect(layer2?.textContent).toContain("Scene magnified ×1,000");
 
@@ -177,6 +176,71 @@ describe("GraphDescriptionContainer Integration: Three-layer accessible provider
       expect(toggleTableBtn.getAttribute("aria-expanded")).toBe("false");
       expect(container.querySelector(".inspectable-table")).toBeNull();
     } finally {
+      await act(() => {
+        root.unmount();
+      });
+      removeContainer(container);
+    }
+  });
+
+  test("planted negative: a 60 Hz snapshot stream during animation does not mutate the live region", async () => {
+    const container = createContainer();
+    const root = createRoot(container);
+    const announcements: string[] = [];
+    const customManager = new AnnouncementManager({
+      onAnnounce: (msg) => announcements.push(msg),
+    });
+
+    const liveMutations: string[] = [];
+    const observer = new MutationObserver((records) => {
+      for (const record of records) {
+        const target = record.target as HTMLElement;
+        const liveHost =
+          target.closest?.("[aria-live]") ??
+          (target instanceof HTMLElement && target.getAttribute("aria-live") ? target : null);
+        if (liveHost) liveMutations.push(liveHost.textContent ?? "");
+      }
+    });
+    observer.observe(document.body, {
+      subtree: true,
+      childList: true,
+      characterData: true,
+    });
+
+    try {
+      for (let frame = 0; frame < 60; frame++) {
+        await act(() => {
+          root.render(
+            createElement(GraphDescriptionContainer, {
+              layer1Statement: "Animated random walk.",
+              layer2Template: "Step {step}.",
+              templateData: { statistics: { step: String(frame) } },
+              snapshotVersion: frame,
+              animated: true,
+              announcementManager: customManager,
+              viewId: "walk",
+            }),
+          );
+        });
+      }
+
+      expect(announcements).toEqual([]);
+      const liveRegionUpdates = liveMutations.filter((text) => text.includes("Step"));
+      expect(liveRegionUpdates).toEqual([]);
+      expect(
+        container.querySelector(".graph-layer-2-region")?.getAttribute("aria-live"),
+      ).toBeNull();
+
+      const describeNowBtn = container.querySelector(
+        "button.describe-now-btn",
+      ) as HTMLButtonElement;
+      await act(() => {
+        describeNowBtn.click();
+      });
+      expect(announcements).toEqual(["Step 59."]);
+    } finally {
+      observer.disconnect();
+      customManager.dispose();
       await act(() => {
         root.unmount();
       });

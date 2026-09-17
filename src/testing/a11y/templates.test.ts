@@ -8,6 +8,21 @@ import type { ScientificResult } from "../../experiments/results/types.ts";
 import type { RepresentationScale } from "../../visuals/kit/types.ts";
 
 describe("templates: Layer 2 accessible graph description template engine (am-a11y-graph-descriptions-vxe1)", () => {
+  test("renders quantityNormalization and elapsed time in ordinary language", () => {
+    const scale: RepresentationScale = {
+      spatialMagnification: { appliesTo: "scene", factor: 1 },
+      simulatedElapsedTime: { quantityId: "t", value: 12, unit: "s" },
+      playbackMultiplier: 1,
+      glyphSize: { drawnPx: 4, represents: "none" },
+      quantityNormalization: { kind: "per-bin-width", note: "per μm" },
+    };
+    const filled = fillTemplate("{simulatedElapsedTime}. {quantityNormalization}.", { scale });
+    expect(filled).toContain("this frame shows");
+    expect(filled).toContain("of model time");
+    expect(filled).toContain("counts per bin width");
+    expect(filled).not.toContain("per-bin-width");
+  });
+
   test("fills template with quantity values, units, and constant-set naming", () => {
     const template =
       "Tracer root-mean-square displacement is {lambda_x} after {t} under {constantSet}. Status: {status}";
@@ -112,6 +127,6 @@ describe("templates: Layer 2 accessible graph description template engine (am-a1
     expect(filled).toContain("1 second");
     expect(filled).toContain("true rate (1 s/s)");
     expect(filled).toContain("4 px marker (uncalibrated marker, not a physical particle size)");
-    expect(filled).toContain("per-bin-width");
+    expect(filled).toContain("counts per bin width");
   });
 });

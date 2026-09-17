@@ -206,4 +206,46 @@ describe("DataTable: Layer 3 inspectable table component (am-a11y-graph-descript
       removeContainer(container);
     }
   });
+
+  test("defaults to 20 rows per page and never lists more than 100", async () => {
+    const container = createContainer();
+    const root = createRoot(container);
+    const manyRows: readonly DataTableRow[] = Array.from({ length: 250 }, (_, i) => ({
+      id: `row-${i}`,
+      label: `Point ${i + 1}`,
+      values: [i],
+    }));
+
+    try {
+      await act(() => {
+        root.render(
+          createElement(DataTable, {
+            caption: "Default page size",
+            columns: [{ id: "x", header: "x", unit: "1" }],
+            rows: manyRows,
+            snapshotVersion: 1,
+          }),
+        );
+      });
+      expect(container.querySelectorAll("tbody tr").length).toBe(20);
+
+      await act(() => {
+        root.render(
+          createElement(DataTable, {
+            caption: "Clamped page size",
+            columns: [{ id: "x", header: "x", unit: "1" }],
+            rows: manyRows,
+            snapshotVersion: 1,
+            pageSize: 500,
+          }),
+        );
+      });
+      expect(container.querySelectorAll("tbody tr").length).toBe(100);
+    } finally {
+      await act(() => {
+        root.unmount();
+      });
+      removeContainer(container);
+    }
+  });
 });

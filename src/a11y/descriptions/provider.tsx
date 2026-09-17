@@ -17,6 +17,7 @@ import {
   useContext,
   useEffect,
   useMemo,
+  useRef,
   useState,
 } from "react";
 import type { RepresentationScale } from "../../visuals/kit/types.ts";
@@ -122,11 +123,14 @@ export function GraphDescriptionContainer({
     manager.setAnimating(animated && !isPaused);
   }, [animated, isPaused, manager]);
 
-  // Announce committed changes when snapshotVersion changes (if not running continuous animation)
+  // Announce only when the accepted snapshot identity changes — never on mount,
+  // never on a presentation-only layer-two rewrite, and never while animating
+  // (the manager suppresses those). A 60 Hz snapshot stream is not a commit.
+  const previousSnapshotVersion = useRef(snapshotVersion);
   useEffect(() => {
-    if (snapshotVersion !== undefined && snapshotVersion !== null) {
-      manager.emitCommitAnnouncement(layer2Summary);
-    }
+    if (previousSnapshotVersion.current === snapshotVersion) return;
+    previousSnapshotVersion.current = snapshotVersion;
+    manager.emitCommitAnnouncement(layer2Summary);
   }, [snapshotVersion, layer2Summary, manager]);
 
   const togglePause = () => {
@@ -171,12 +175,13 @@ export function GraphDescriptionContainer({
           <h4 className="layer-1-statement">{layer1Statement}</h4>
         </figcaption>
 
-        {/* Layer 2: Relation Summary & Live Region readout */}
+        {/* Layer 2 is the persistent description, not a live region. A 60 Hz
+            animation that rewrites this text must not produce a 60 Hz
+            live-region stream. Announcements go through AnnouncementManager. */}
         <div
           className="graph-layer-2 graph-layer-2-region"
           data-layer="2"
-          role="status"
-          aria-live="polite"
+          {...(viewId ? { id: `graph-layer-2-${viewId}` } : {})}
         >
           <p className="layer-2-text">{layer2Summary}</p>
         </div>
@@ -223,7 +228,12 @@ export function GraphDescriptionContainer({
         </div>
 
         {/* Visual View Canvas/SVG container */}
-        <div className="graph-visual-canvas-container" role="img" aria-label={layer1Statement}>
+        <div
+          className="graph-visual-canvas-container"
+          role="img"
+          aria-label={layer1Statement}
+          {...(viewId ? { "aria-describedby": `graph-layer-2-${viewId}` } : {})}
+        >
           {children}
         </div>
 

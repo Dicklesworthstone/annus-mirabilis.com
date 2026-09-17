@@ -61,7 +61,7 @@ describe("AccessibleGraphView: 3 layers and scale facts (am-inst-2d-view-kit-u75
 
       // Layer 2
       const layer2 = container.querySelector(".graph-layer-2");
-      expect(layer2?.getAttribute("role")).toBe("status");
+      expect(layer2?.getAttribute("aria-live")).toBeNull();
       expect(layer2?.textContent).toContain("grows strictly linearly with time");
 
       // Layer 3
@@ -82,7 +82,7 @@ describe("AccessibleGraphView: 3 layers and scale facts (am-inst-2d-view-kit-u75
     }
   });
 
-  test("live region throttles rapid updates to prevent 60 Hz flooding", async () => {
+  test("planted negative: AccessibleGraphView has no per-frame live region", async () => {
     const container = createContainer();
     const root = createRoot(container);
 
@@ -95,16 +95,18 @@ describe("AccessibleGraphView: 3 layers and scale facts (am-inst-2d-view-kit-u75
               title: "Live Walk",
               description: "Real-time particle walk.",
               summary: "Step 0.",
-              liveAnnouncement: "Initial state",
-              liveThrottleMs: 200,
+              animated: true,
+              snapshotVersion: 0,
             },
             createElement("div", {}, "Chart"),
           ),
         );
       });
 
-      const liveRegion = container.querySelector(".live-region");
-      expect(liveRegion?.textContent).toBe("Initial state");
+      expect(container.querySelector(".live-region")).toBeNull();
+      expect(
+        container.querySelector(".graph-layer-2-region")?.getAttribute("aria-live"),
+      ).toBeNull();
     } finally {
       await act(() => {
         root.unmount();
