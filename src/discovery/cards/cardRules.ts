@@ -8,6 +8,7 @@
  * Specification: am-disc-knowledge-cards-iw8j, am-ep-discovery-33u
  */
 
+import { evaluateShelfDate } from "../../content/checks/epistemic/shelfDate.ts";
 import type { CardRuleDiagnostic, KnowledgeCard, VerificationQueueItem } from "./types.ts";
 
 export type StageCitationContext = Readonly<{
@@ -230,21 +231,45 @@ export function validateCardCitation(
     return diagnostics;
   }
 
-  // Rule 1 / Rule 13: Stage acceptance and shelf date violation
-  // Note: priorEvent is completely ignored for admission; only date.latestYear is used.
-  const admissionYear = card.date.latestYear;
-
-  if (card.status === "available" && !card.admittedImport) {
-    if (admissionYear > 1904) {
-      diagnostics.push({
-        severity: "refusal",
-        rule: "shelf-date-violation",
-        cardId: card.id,
-        stageId: context.stageId,
-        message: `Shelf date violation: card "${card.id}" is dated ${admissionYear} (> 1904) and is not admitted to a 1904 discovery stage.`,
-        repair: "Use an available <= 1904 premise or flag as parallel-work / admittedImport.",
-      });
-    }
+  // Rule 1 / Rule 13: Stage acceptance and shelf date violation.
+  // One implementation: evaluateShelfDate. priorEvent is ignored; only latestYear counts.
+  const admitted =
+    card.admittedImport === true
+      ? true
+      : card.admittedImport && typeof card.admittedImport === "object"
+        ? {
+            resultId: card.id,
+            declaringJourney: card.admittedImport.declaringJourney,
+          }
+        : undefined;
+  const shelfDecision = evaluateShelfDate(
+    {
+      id: context.stageId,
+      kind: "chain",
+      parallelWorkAcknowledged: context.parallelWorkAcknowledged,
+    },
+    {
+      id: card.id,
+      status: card.status,
+      latestYear: card.date.latestYear,
+      admittedImport: admitted,
+    },
+    context.journeyId
+      ? {
+          id: context.journeyId,
+          admittedImports: context.journeyAdmittedImports,
+        }
+      : undefined,
+  );
+  if (!shelfDecision.ok) {
+    diagnostics.push({
+      severity: "refusal",
+      rule: "shelf-date-violation",
+      cardId: card.id,
+      stageId: context.stageId,
+      message: `Shelf date violation: card "${card.id}" (latestYear ${card.date.latestYear}) is not admitted to stage "${context.stageId}" (${shelfDecision.reason}).`,
+      repair: shelfDecision.repair,
+    });
   }
 
   // Rule 1: Parallel-work requires parallelWorkAcknowledged

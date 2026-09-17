@@ -146,6 +146,7 @@ export async function runAllChecks(
         repair: item.repair,
         flaggedText: item.flaggedText,
         contentHash: item.contentHash,
+        fingerprint: item.fingerprint,
       });
     };
 

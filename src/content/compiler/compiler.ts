@@ -8,6 +8,7 @@
 
 import type { EquationRecord } from "../../equations/record.ts";
 import { registerPrintCoverageCheck } from "../../platform/print/printCoverage.ts";
+import { registerEpistemicChecks } from "../checks/epistemic/register.ts";
 import { registerStructuralChecks } from "../checks/structural/structural.ts";
 import { registerVoiceCheck } from "../checks/voice/check.ts";
 import { registerKernelBindingCheck } from "../kernel/check.ts";
@@ -287,6 +288,7 @@ export async function compileContent(
     registerVoiceCheck();
     registerPrintCoverageCheck();
     registerKernelBindingCheck();
+    registerEpistemicChecks();
   }
   const checkContext = {
     records: rawRecords,

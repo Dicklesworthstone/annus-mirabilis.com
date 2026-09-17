@@ -16,6 +16,19 @@
     { "id": "coverage.print", "family": "coverage" },
     { "id": "kernel-identifier-binding", "family": "audit" },
     { "id": "coverage-ledger-validator", "family": "coverage" },
-    { "id": "i18n.lang-required", "family": "i18n" }
+    { "id": "i18n.lang-required", "family": "i18n" },
+    { "id": "epistemic.proof-cycle", "family": "epistemic" },
+    { "id": "epistemic.oracle-in-historical-route", "family": "epistemic" },
+    { "id": "epistemic.shelf-date-violation", "family": "epistemic" },
+    { "id": "epistemic.later-evidence-unlabeled", "family": "epistemic" },
+    { "id": "epistemic.missing-accessibility-alternative", "family": "epistemic" },
+    { "id": "epistemic.missing-not-modeled", "family": "epistemic" },
+    { "id": "epistemic.coverage-without-owner", "family": "epistemic" },
+    { "id": "epistemic.misconception-minimum", "family": "epistemic" },
+    { "id": "epistemic.approximation-unlabeled", "family": "epistemic" },
+    { "id": "epistemic.circular-molecular-count", "family": "epistemic" },
+    { "id": "epistemic.circular-rest-energy", "family": "epistemic" },
+    { "id": "epistemic.simulation-as-evidence", "family": "epistemic" },
+    { "id": "epistemic.flags", "family": "epistemic" }
   ]
 }

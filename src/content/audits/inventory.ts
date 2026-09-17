@@ -5,6 +5,7 @@
  */
 
 import { registerPrintCoverageCheck } from "../../platform/print/printCoverage.ts";
+import { registerEpistemicChecks } from "../checks/epistemic/register.ts";
 import { registerI18nCheck } from "../checks/i18n/check.ts";
 import { registerStructuralChecks } from "../checks/structural/structural.ts";
 import { registerVoiceCheck } from "../checks/voice/check.ts";
@@ -27,6 +28,7 @@ export function registerVerifyContentChecks(): void {
   registerKernelBindingCheck();
   registerCoverageCheck();
   registerI18nCheck();
+  registerEpistemicChecks();
 }
 
 export function compareCheckInventory(

@@ -18,6 +18,11 @@ const MOCK_CARD_CONTEXT: CardLookupContext = {
     date: { latestYear: 1906 },
     status: "later",
   },
+  "card-sutherland-1905": {
+    id: "card-sutherland-1905",
+    date: { latestYear: 1905 },
+    status: "parallel-work",
+  },
 };
 
 describe("journeyEpistemic: integration checks", () => {
@@ -35,15 +40,27 @@ describe("journeyEpistemic: integration checks", () => {
     expect(findings.some((f) => f.rule === "shelf-date-violation")).toBe(true);
   });
 
-  test("the same post-1904 card cited with parallelWorkAcknowledged: true passes", () => {
+  test("a later card remains refused as a chain premise even with parallelWorkAcknowledged", () => {
+    const acknowledgedLater = {
+      ...FIXTURE_JOURNEY_BROWNIAN,
+      stages: [
+        {
+          ...FIXTURE_JOURNEY_BROWNIAN.stages[0]!,
+          premiseRefs: [{ cardId: "card-smoluchowski-1906", parallelWorkAcknowledged: true }],
+        },
+      ],
+    };
+    const findings = checkJourney(acknowledgedLater, { cards: MOCK_CARD_CONTEXT });
+    expect(findings.some((f) => f.rule === "shelf-date-violation")).toBe(true);
+  });
+
+  test("a parallel-work card cited with parallelWorkAcknowledged: true passes", () => {
     const acknowledged = {
       ...FIXTURE_JOURNEY_BROWNIAN,
       stages: [
         {
           ...FIXTURE_JOURNEY_BROWNIAN.stages[0]!,
-          premiseRefs: [
-            { cardId: "card-smoluchowski-1906", parallelWorkAcknowledged: true },
-          ],
+          premiseRefs: [{ cardId: "card-sutherland-1905", parallelWorkAcknowledged: true }],
         },
       ],
     };

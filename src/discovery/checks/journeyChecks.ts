@@ -3,6 +3,7 @@
  * Specification: am-disc-journey-framework-umbg, AGENTS.md (§7.1–7.4)
  */
 
+import { evaluateShelfDate } from "../../content/checks/epistemic/shelfDate.ts";
 import { checkVoice } from "../../content/checks/voice/index.ts";
 import {
   FORK_VARIES_KINDS,
@@ -57,7 +58,8 @@ function checkForbiddenPhrases(text: string, path: string, journeyId: string): J
         message: `Forbidden phrase "${phrase}" found in journey content.`,
         path,
         journeyId,
-        repair: "Describe the logical and physical argument rather than Einstein's internal thoughts.",
+        repair:
+          "Describe the logical and physical argument rather than Einstein's internal thoughts.",
       });
     }
   }
@@ -67,7 +69,10 @@ function checkForbiddenPhrases(text: string, path: string, journeyId: string): J
 /**
  * Validates a Journey record against all compiler rules.
  */
-export function checkJourney(journey: Journey, options: JourneyCheckOptions = {}): JourneyFinding[] {
+export function checkJourney(
+  journey: Journey,
+  options: JourneyCheckOptions = {},
+): JourneyFinding[] {
   const findings: JourneyFinding[] = [];
   const jId = journey.id;
 
@@ -90,12 +95,29 @@ export function checkJourney(journey: Journey, options: JourneyCheckOptions = {}
     findings.push(...checkForbiddenPhrases(journey.naggingFact, "journey.naggingFact", jId));
   }
   if (journey.firstHonestQuestion) {
-    findings.push(...checkForbiddenPhrases(journey.firstHonestQuestion, "journey.firstHonestQuestion", jId));
+    findings.push(
+      ...checkForbiddenPhrases(journey.firstHonestQuestion, "journey.firstHonestQuestion", jId),
+    );
   }
   if (journey.ppeTask) {
-    if (journey.ppeTask.task) findings.push(...checkForbiddenPhrases(journey.ppeTask.task, "journey.ppeTask.task", jId));
-    if (journey.ppeTask.perturbPrompt) findings.push(...checkForbiddenPhrases(journey.ppeTask.perturbPrompt, "journey.ppeTask.perturbPrompt", jId));
-    if (journey.ppeTask.explainPrompt) findings.push(...checkForbiddenPhrases(journey.ppeTask.explainPrompt, "journey.ppeTask.explainPrompt", jId));
+    if (journey.ppeTask.task)
+      findings.push(...checkForbiddenPhrases(journey.ppeTask.task, "journey.ppeTask.task", jId));
+    if (journey.ppeTask.perturbPrompt)
+      findings.push(
+        ...checkForbiddenPhrases(
+          journey.ppeTask.perturbPrompt,
+          "journey.ppeTask.perturbPrompt",
+          jId,
+        ),
+      );
+    if (journey.ppeTask.explainPrompt)
+      findings.push(
+        ...checkForbiddenPhrases(
+          journey.ppeTask.explainPrompt,
+          "journey.ppeTask.explainPrompt",
+          jId,
+        ),
+      );
   }
 
   // 2. Completeness & Pending Elements
@@ -117,19 +139,29 @@ export function checkJourney(journey: Journey, options: JourneyCheckOptions = {}
 
   const hasShelf = journey.shelf && journey.shelf.length > 0;
   const hasNaggingFact = Boolean(journey.naggingFact && journey.naggingFact.trim());
-  const hasFirstHonestQuestion = Boolean(journey.firstHonestQuestion && journey.firstHonestQuestion.trim());
+  const hasFirstHonestQuestion = Boolean(
+    journey.firstHonestQuestion && journey.firstHonestQuestion.trim(),
+  );
   const hasStages = Array.isArray(journey.stages) && journey.stages.length >= 1;
-  const hasForks = Array.isArray(journey.forks) && journey.forks.length >= 2 && journey.forks.length <= 3;
-  const hasMove = Boolean(journey.move && journey.move.label && journey.move.chainId && journey.move.stepId);
-  const hasMoveSummary = Boolean(journey.move?.r0Summary?.text && journey.move.r0Summary.text.trim());
+  const hasForks =
+    Array.isArray(journey.forks) && journey.forks.length >= 2 && journey.forks.length <= 3;
+  const hasMove = Boolean(
+    journey.move && journey.move.label && journey.move.chainId && journey.move.stepId,
+  );
+  const hasMoveSummary = Boolean(
+    journey.move?.r0Summary?.text && journey.move.r0Summary.text.trim(),
+  );
   const hasWorldChecks = Array.isArray(journey.worldChecks) && journey.worldChecks.length >= 1;
   const hasSourceJumps = Array.isArray(journey.sourceJumps) && journey.sourceJumps.length >= 1;
   const instrumentedCount = journey.exercises?.filter((e) => e.role === "instrumented").length ?? 0;
   const explanationCount = journey.exercises?.filter((e) => e.role === "explanation").length ?? 0;
   const hasInstrumentedExercises = instrumentedCount >= 2 && instrumentedCount <= 5;
-  const hasPpeTask = Boolean(journey.ppeTask && journey.ppeTask.task && journey.ppeTask.task.trim());
+  const hasPpeTask = Boolean(
+    journey.ppeTask && journey.ppeTask.task && journey.ppeTask.task.trim(),
+  );
   const hasFrontDoor = Boolean(journey.doors?.frontDoor?.id);
-  const hasSideDoors = Array.isArray(journey.doors?.sideDoors) && journey.doors.sideDoors.length >= 1;
+  const hasSideDoors =
+    Array.isArray(journey.doors?.sideDoors) && journey.doors.sideDoors.length >= 1;
 
   const elementPresentMap: Record<string, boolean> = {
     shelf: hasShelf,
@@ -269,7 +301,9 @@ export function checkJourney(journey: Journey, options: JourneyCheckOptions = {}
         }
 
         // Voice lint on branch texts
-        const stepTexts = (branch.steps ?? []).map((s: { text?: string } | string) => (typeof s === "string" ? s : s?.text ?? ""));
+        const stepTexts = (branch.steps ?? []).map((s: { text?: string } | string) =>
+          typeof s === "string" ? s : (s?.text ?? ""),
+        );
         const textsToVoiceCheck = [
           branch.label,
           branch.hypothesis,
@@ -296,7 +330,10 @@ export function checkJourney(journey: Journey, options: JourneyCheckOptions = {}
         }
 
         // Measurement-choice fork cannot dead-end
-        if (fork.varies === "measurement-choice" && branch.outcome.type === "dead-end-on-constraint") {
+        if (
+          fork.varies === "measurement-choice" &&
+          branch.outcome.type === "dead-end-on-constraint"
+        ) {
           findings.push({
             rule: "fork-measurement-choice-cannot-dead-end",
             severity: "error",
@@ -360,7 +397,10 @@ export function checkJourney(journey: Journey, options: JourneyCheckOptions = {}
             // Check if whatWouldDecide resolves to something already available
             if (options.cards && options.cards[wwd.recordId]) {
               const card = options.cards[wwd.recordId]!;
-              if (card.status === "available" || (card.date?.latestYear && card.date.latestYear <= 1904)) {
+              if (
+                card.status === "available" ||
+                (card.date?.latestYear && card.date.latestYear <= 1904)
+              ) {
                 findings.push({
                   rule: "fork-undecided-already-decidable",
                   severity: "error",
@@ -405,14 +445,56 @@ export function checkJourney(journey: Journey, options: JourneyCheckOptions = {}
       const sPath = `journey.stages[${sIdx}]`;
 
       if (stage.title) findings.push(...checkForbiddenPhrases(stage.title, `${sPath}.title`, jId));
-      if (stage.question) findings.push(...checkForbiddenPhrases(stage.question, `${sPath}.question`, jId));
-      if (stage.computeFromShelf) findings.push(...checkForbiddenPhrases(stage.computeFromShelf, `${sPath}.computeFromShelf`, jId));
-      if (stage.support?.explanation) findings.push(...checkForbiddenPhrases(stage.support.explanation, `${sPath}.support.explanation`, jId));
-      if (stage.support?.workedExample?.prompt) findings.push(...checkForbiddenPhrases(stage.support.workedExample.prompt, `${sPath}.support.workedExample.prompt`, jId));
-      if (stage.support?.partialComparison?.explanation) findings.push(...checkForbiddenPhrases(stage.support.partialComparison.explanation, `${sPath}.support.partialComparison.explanation`, jId));
-      if (stage.support?.prediction?.prompt) findings.push(...checkForbiddenPhrases(stage.support.prediction.prompt, `${sPath}.support.prediction.prompt`, jId));
-      if (stage.support?.prediction?.explanation) findings.push(...checkForbiddenPhrases(stage.support.prediction.explanation, `${sPath}.support.prediction.explanation`, jId));
-      if (stage.support?.transferCase?.explanation) findings.push(...checkForbiddenPhrases(stage.support.transferCase.explanation, `${sPath}.support.transferCase.explanation`, jId));
+      if (stage.question)
+        findings.push(...checkForbiddenPhrases(stage.question, `${sPath}.question`, jId));
+      if (stage.computeFromShelf)
+        findings.push(
+          ...checkForbiddenPhrases(stage.computeFromShelf, `${sPath}.computeFromShelf`, jId),
+        );
+      if (stage.support?.explanation)
+        findings.push(
+          ...checkForbiddenPhrases(stage.support.explanation, `${sPath}.support.explanation`, jId),
+        );
+      if (stage.support?.workedExample?.prompt)
+        findings.push(
+          ...checkForbiddenPhrases(
+            stage.support.workedExample.prompt,
+            `${sPath}.support.workedExample.prompt`,
+            jId,
+          ),
+        );
+      if (stage.support?.partialComparison?.explanation)
+        findings.push(
+          ...checkForbiddenPhrases(
+            stage.support.partialComparison.explanation,
+            `${sPath}.support.partialComparison.explanation`,
+            jId,
+          ),
+        );
+      if (stage.support?.prediction?.prompt)
+        findings.push(
+          ...checkForbiddenPhrases(
+            stage.support.prediction.prompt,
+            `${sPath}.support.prediction.prompt`,
+            jId,
+          ),
+        );
+      if (stage.support?.prediction?.explanation)
+        findings.push(
+          ...checkForbiddenPhrases(
+            stage.support.prediction.explanation,
+            `${sPath}.support.prediction.explanation`,
+            jId,
+          ),
+        );
+      if (stage.support?.transferCase?.explanation)
+        findings.push(
+          ...checkForbiddenPhrases(
+            stage.support.transferCase.explanation,
+            `${sPath}.support.transferCase.explanation`,
+            jId,
+          ),
+        );
 
       // Check premise citations
       for (const pRef of stage.premiseRefs) {
@@ -429,14 +511,33 @@ export function checkJourney(journey: Journey, options: JourneyCheckOptions = {}
           }
         } else if (options.cards && options.cards[pRef.cardId]) {
           const card = options.cards[pRef.cardId]!;
-          if (card.date?.latestYear && card.date.latestYear > 1904 && !pRef.parallelWorkAcknowledged) {
+          const status =
+            card.status === "parallel-work" ||
+            card.status === "later" ||
+            card.status === "available"
+              ? card.status
+              : "available";
+          const decision = evaluateShelfDate(
+            {
+              id: stage.id,
+              kind: "chain",
+              parallelWorkAcknowledged: pRef.parallelWorkAcknowledged === true,
+            },
+            {
+              id: pRef.cardId,
+              status,
+              latestYear: card.date?.latestYear ?? 0,
+            },
+            { id: jId, admittedImports: [...admittedImportSet] },
+          );
+          if (!decision.ok) {
             findings.push({
               rule: "shelf-date-violation",
               severity: "error",
-              message: `Stage "${stage.id}" cites post-1904 premise "${pRef.cardId}" (${card.date.latestYear}) without parallelWorkAcknowledged.`,
+              message: `Stage "${stage.id}" cites premise "${pRef.cardId}" (${decision.reason}).`,
               path: `${sPath}.premiseRefs`,
               journeyId: jId,
-              repair: "Acknowledge parallel work or remove the post-1904 citation.",
+              repair: decision.repair,
             });
           }
         }
@@ -452,7 +553,8 @@ export function checkJourney(journey: Journey, options: JourneyCheckOptions = {}
               message: `Stage "${stage.id}" prediction choice "${choice}" is a raw numeric literal.`,
               path: `${sPath}.support.prediction.choices`,
               journeyId: jId,
-              repair: "Use conceptual or proportional options; numeric values come from live models.",
+              repair:
+                "Use conceptual or proportional options; numeric values come from live models.",
             });
           }
         }
