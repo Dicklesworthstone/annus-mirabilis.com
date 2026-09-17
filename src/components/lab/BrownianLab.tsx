@@ -35,9 +35,8 @@ export function BrownianLab({
 }: {
   example: PreparedBm06Example;
   title?: string;
-  /** A named BM-01 instance's accepted snapshot, offered by whichever page renders both
-   * instruments together (am-bm-slice-discovery-route-tias, not yet built) -- BrownianLab never
-   * reaches out for this itself. Undefined here means no source is available on this page today. */
+  /** A named BM-01 instance's accepted snapshot, offered by a page such as the guided
+   * investigation. BrownianLab never reaches out for this itself; copying remains explicit. */
   externalDiffusivitySource?: ExternalDiffusivitySource;
 }) {
   const id = useId();
@@ -69,19 +68,26 @@ export function BrownianLab({
     } else if (shared.kind === "invalid") setLinkNote(shared.message);
     return () => session.disconnect();
   }, [session]);
-  function apply(parameters: Bm06Parameters) {
-    const outcome = session.apply(parameters);
-    if (outcome.kind === "refused") {
+  function reflectRequest(outcome: ReturnType<typeof session.apply>) {
+    if (outcome.kind !== "accepted") {
       setError(
-        typeof outcome.refusal.details?.requirements === "string"
-          ? outcome.refusal.details.requirements
-          : outcome.refusal.message,
+        outcome.kind === "refused"
+          ? typeof outcome.refusal.details?.requirements === "string"
+            ? outcome.refusal.details.requirements
+            : outcome.refusal.message
+          : outcome.outcome.message,
       );
       return;
     }
+    // The worker has not accepted this result yet. Copy the issued request, not the
+    // previous accepted parameters: otherwise the next edit silently loses copied D.
+    setDraft(toDraft(outcome.data.parameters as Bm06Parameters));
     setError("");
     setDirty(false);
     setLinkNote("");
+  }
+  function apply(parameters: Bm06Parameters) {
+    reflectRequest(session.apply(parameters));
   }
   function submit(event: FormEvent<HTMLFormElement>) {
     event.preventDefault();
@@ -97,18 +103,18 @@ export function BrownianLab({
     setError("");
   }
   function copyDiffusivity() {
-    if (!externalDiffusivitySource) return;
-    const outcome = session.copyDiffusivityFrom(externalDiffusivitySource);
-    if (outcome.kind === "refused") {
-      setError(
-        typeof outcome.refusal.details?.requirements === "string"
-          ? outcome.refusal.details.requirements
-          : outcome.refusal.message,
-      );
-      return;
-    }
-    setDraft(toDraft(session.acceptedParameters()));
-    setError("");
+    if (!externalDiffusivitySource || dirty || view.pending) return;
+    reflectRequest(session.copyDiffusivityFrom(externalDiffusivitySource));
+  }
+  function usePhysicalDiffusivity() {
+    if (dirty || view.pending) return;
+    apply({
+      ...session.acceptedParameters(),
+      copiedDiffusivityInstanceId: "",
+      copiedDiffusivityRunId: "",
+      copiedDiffusivitySnapshotVersion: 0,
+      copiedDiffusivityValue: 0,
+    });
   }
   async function share() {
     const url = new URL(window.location.pathname, window.location.origin);
@@ -256,17 +262,26 @@ export function BrownianLab({
                 Stop calculation
               </button>
               {externalDiffusivitySource && (
-                <button type="button" className="secondary" onClick={copyDiffusivity}>
+                <button type="button" className="secondary" disabled={dirty || view.pending} onClick={copyDiffusivity}>
                   Copy D from {externalDiffusivitySource.instanceId}
                 </button>
               )}
+              {p.copiedDiffusivityValue > 0 && (
+                <button type="button" className="secondary" disabled={dirty || view.pending} onClick={usePhysicalDiffusivity}>
+                  Calculate D from physical settings
+                </button>
+              )}
             </div>
+            {(externalDiffusivitySource || p.copiedDiffusivityValue > 0) && dirty && (
+              <p className="fine">Apply the edited settings before changing the source of D.</p>
+            )}
             {p.copiedDiffusivityValue > 0 && (
               <p className="fine">
                 Diffusivity copied from instance {p.copiedDiffusivityInstanceId}, run{" "}
                 {p.copiedDiffusivityRunId}, snapshot version {p.copiedDiffusivitySnapshotVersion}: a
                 one-time value, not a live link. A later change in that instance will not change
-                this one.
+                this one. Temperature, viscosity and radius do not determine D while this copied
+                value is active; choose “Calculate D from physical settings” to use them again.
               </p>
             )}
           </fieldset>
@@ -321,7 +336,9 @@ export function BrownianLab({
             {display(p.T)} K · {display(p.eta, 1000)} mPa·s · radius {display(p.a, 1e6)} μm ·
             elapsed {display(p.t)} s<br />
             Constants: modern SI (2019). Viscosity is a declared input, not inferred from
-            temperature.
+            temperature. {p.copiedDiffusivityValue > 0
+              ? "D is the explicitly copied value, not a calculation from these physical inputs."
+              : "D is calculated from these physical inputs."}
           </div>
           <DistributionPlot
             snapshot={snapshot}
