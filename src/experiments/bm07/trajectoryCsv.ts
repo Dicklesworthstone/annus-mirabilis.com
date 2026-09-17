@@ -73,7 +73,7 @@ function records(text: string): { fields: string[]; row: number }[] {
   }
   function record() {
     cell();
-    if (touched || fields.length > 1 || fields[0]!.trim()) {
+    if (touched || fields.length > 1 || fields[0]?.trim()) {
       rows.push({ fields, row: start });
       if (rows.length > TRAJECTORY_LIMITS.rows) fail("Too many CSV records.", start);
     }
@@ -81,7 +81,8 @@ function records(text: string): { fields: string[]; row: number }[] {
     touched = false;
   }
   for (let i = 0; i < input.length; i++) {
-    const c = input[i]!;
+    const c = input[i];
+    if (c === undefined) break;
     if (quoted) {
       if (c === '"') {
         if (input[i + 1] === '"') {
@@ -127,7 +128,8 @@ function number(field: string, label: string, row: number): number {
   const value = Number(text);
   if (!Number.isFinite(value)) return fail(`${label} is outside the finite numeric range.`, row);
   // Number("1e-999") becomes zero. It is not a measured zero.
-  if (value === 0 && /[1-9]/.test(text.split(/[eE]/)[0]!)) {
+  const mantissa = text.split(/[eE]/)[0];
+  if (value === 0 && mantissa && /[1-9]/.test(mantissa)) {
     return fail(`${label} is too small to represent.`, row);
   }
   return value;
@@ -186,7 +188,9 @@ export function parseTrajectoryCsv(text: string, units: TrajectoryUnits): Import
   const scale = unitScales(units),
     rows = records(text);
   if (rows.length < 3) return fail("Provide a header and at least two positions.");
-  let header = rows[0]!.fields.map((field) => field.trim().toLowerCase());
+  const headerRecord = rows[0];
+  if (!headerRecord) return fail("Provide a header and at least two positions.");
+  let header = headerRecord.fields.map((field) => field.trim().toLowerCase());
   const siLabels: Readonly<Record<string, string>> = {
     time_s: "time",
     x_m: "x",
@@ -198,15 +202,15 @@ export function parseTrajectoryCsv(text: string, units: TrajectoryUnits): Import
     if (units.time !== "s" || units.position !== "m") {
       return fail(
         "SI-labelled CSV requires seconds and metres; the declared units conflict with the header.",
-        rows[0]!.row,
+        headerRecord.row,
       );
     }
     if (header.some((column) => !Object.hasOwn(siLabels, column))) {
-      return fail("Do not mix SI-labelled and unlabelled column names.", rows[0]!.row);
+      return fail("Do not mix SI-labelled and unlabelled column names.", headerRecord.row);
     }
-    header = header.map((column) => siLabels[column]!);
+    header = header.map((column) => siLabels[column] ?? column);
   }
-  if (new Set(header).size !== header.length) return fail("Duplicate column names.", rows[0]!.row);
+  if (new Set(header).size !== header.length) return fail("Duplicate column names.", headerRecord.row);
   if (
     header.some((column) => !["time", "x", "y", "z", "track"].includes(column)) ||
     !header.includes("time") ||
@@ -215,7 +219,7 @@ export function parseTrajectoryCsv(text: string, units: TrajectoryUnits): Import
   ) {
     return fail(
       "Use time,x with optional y, z and track columns. z requires y; no extra columns are silently discarded.",
-      rows[0]!.row,
+      headerRecord.row,
     );
   }
   const axes = [
