@@ -12,6 +12,7 @@ import {
   FRAME_SUFFIXES,
   getQuantity,
   getQuantityRegistry,
+  isRegisteredQuantityId,
   RESERVED_SPELLINGS,
   UnknownQuantityError,
 } from "./registry.ts";
@@ -482,5 +483,221 @@ describe("unknown ids", () => {
     expect(() => getQuantity("totallyUnknownQuantity")).toThrow(UnknownQuantityError);
     expect(() => getQuantity("SpeedOfLight")).toThrow(UnknownQuantityError); // wrong case never matches
     expect(() => getQuantity("speedOf")).toThrow(UnknownQuantityError); // a prefix never matches
+  });
+});
+
+describe("strict binding invariants: anti-glyph, anti-label, and anti-token matching", () => {
+  // Hard rule from AGENTS.md: "A similar glyph is never a binding key."
+  test("mathematical glyphs, TeX symbols, Greek letters, and Unicode lookalikes are never binding keys", () => {
+    const glyphs = [
+      // TeX macro strings
+      "\\eta",
+      "\\nu",
+      "\\lambda",
+      "\\lambda_x",
+      "\\beta",
+      "\\gamma",
+      "\\tau",
+      "\\phi",
+      "\\varphi",
+      "\\rho",
+      "\\kappa",
+      "\\Delta t",
+      "\\Delta x",
+      // Unicode Greek letters
+      "η",
+      "ν",
+      "λ",
+      "β",
+      "γ",
+      "τ",
+      "φ",
+      "ρ",
+      "κ",
+      // Unicode mathematical italic letters (homoglyphs)
+      "𝑐",
+      "𝑘",
+      "𝑁",
+      "𝑅",
+      "𝑇",
+      "𝐸",
+      "𝑃",
+      "𝑉",
+      "𝑣",
+      "𝑤",
+      "𝐷",
+      "𝜂",
+      "𝜈",
+      "𝜆",
+      "𝛽",
+      // Single ASCII character symbols from historical papers
+      "c",
+      "V",
+      "k",
+      "N",
+      "R",
+      "T",
+      "E",
+      "P",
+      "v",
+      "w",
+      "D",
+      "h",
+      "A",
+      "B",
+      "L",
+    ];
+
+    for (const glyph of glyphs) {
+      expect(() => getQuantity(glyph)).toThrow(UnknownQuantityError);
+      expect(isRegisteredQuantityId(glyph)).toBe(false);
+      const res = resolveQuantityId(glyph);
+      expect(res.ok).toBe(false);
+      if (!res.ok) {
+        expect(res.kind).toBe("unregistered");
+      }
+    }
+  });
+
+  test("lookup by human label or display name is strictly rejected", () => {
+    const registry = getQuantityRegistry();
+    const labels = [
+      "Speed of Light",
+      "Speed of light",
+      "Viscosity",
+      "Dynamic Viscosity",
+      "Dynamic viscosity",
+      "Diffusion Coefficient",
+      "Diffusion coefficient",
+      "Boltzmann Constant",
+      "Avogadro's Number",
+      "Avogadro Constant",
+      "Molar Gas Constant",
+      "Wavelength",
+      "Frequency",
+      "Temperature",
+      "Absolute Temperature",
+      "Radiation Energy",
+      "Radiation Entropy",
+    ];
+
+    for (const label of labels) {
+      expect(() => getQuantity(label)).toThrow(UnknownQuantityError);
+      expect(isRegisteredQuantityId(label)).toBe(false);
+      const res = resolveQuantityId(label);
+      if (res.ok) {
+        throw new Error(`Human label "${label}" unexpectedly resolved to a quantity.`);
+      }
+    }
+
+    // Exhaustive check across every registered quantity: its human name is never a valid lookup key
+    for (const q of registry.quantities.values()) {
+      expect(() => getQuantity(q.name)).toThrow(UnknownQuantityError);
+      expect(isRegisteredQuantityId(q.name)).toBe(false);
+    }
+  });
+
+  test("donor defect: variableId.startsWith('var_' + id) and token prefix matching are strictly rejected", () => {
+    const registry = getQuantityRegistry();
+    const sampleIds = [
+      "speedOfLight",
+      "diffusionCoefficient",
+      "temperature",
+      "frequency",
+      "molarGasConstant",
+      "boltzmannConstant",
+      "avogadroConstant",
+    ];
+
+    for (const id of sampleIds) {
+      expect(registry.quantities.has(id)).toBe(true);
+
+      // Donor Classic Patents defect pattern: startsWith("var_" + id)
+      const varId = `var_${id}`;
+      expect(() => getQuantity(varId)).toThrow(UnknownQuantityError);
+      expect(isRegisteredQuantityId(varId)).toBe(false);
+      expect(resolveQuantityId(varId)).toEqual({ ok: false, kind: "unregistered" });
+
+      // Partial prefixes
+      const half = id.slice(0, Math.floor(id.length / 2));
+      if (half.length > 2) {
+        expect(() => getQuantity(half)).toThrow(UnknownQuantityError);
+        expect(isRegisteredQuantityId(half)).toBe(false);
+      }
+
+      // Suffix modifications
+      const suffixed = `${id}_value`;
+      expect(() => getQuantity(suffixed)).toThrow(UnknownQuantityError);
+      expect(isRegisteredQuantityId(suffixed)).toBe(false);
+    }
+  });
+
+  test("adversarial negative test: catches and refuses a naive donor/glyph binding resolver", () => {
+    // A hypothetical naive/permissive donor resolver simulating Classic Patents flaws:
+    // 1) glyph table fallback (e.g. "c" -> speedOfLight)
+    // 2) donor variable prefix stripping: startsWith("var_")
+    // 3) case-insensitive or human label normalization
+    function naiveDonorResolver(key: string, registryIds: readonly string[]): string | undefined {
+      // Flaw 1: glyph mapping
+      const glyphTable: Record<string, string> = {
+        c: "speedOfLight",
+        "𝑐": "speedOfLight",
+        k: "boltzmannConstant",
+        "𝑘": "boltzmannConstant",
+        R: "molarGasConstant",
+        "𝑅": "molarGasConstant",
+        "\\eta": "suspensionViscosityCoefficient",
+        "η": "suspensionViscosityCoefficient",
+        "\\nu": "frequency",
+        "ν": "frequency",
+      };
+      if (glyphTable[key]) return glyphTable[key];
+
+      // Flaw 2: Classic Patents startsWith("var_") prefix matching
+      if (key.startsWith("var_")) {
+        const stripped = key.slice(4);
+        if (registryIds.includes(stripped)) return stripped;
+      }
+
+      // Flaw 3: lowercase / label fuzzy matching
+      const norm = key.toLowerCase().replace(/[\s_-]+/g, "");
+      for (const id of registryIds) {
+        if (id.toLowerCase() === norm) return id;
+      }
+      return undefined;
+    }
+
+    const registry = getQuantityRegistry();
+    const testCases: readonly [string, string][] = [
+      ["c", "speedOfLight"],
+      ["𝑐", "speedOfLight"],
+      ["k", "boltzmannConstant"],
+      ["𝑘", "boltzmannConstant"],
+      ["R", "molarGasConstant"],
+      ["𝑅", "molarGasConstant"],
+      ["\\eta", "suspensionViscosityCoefficient"],
+      ["η", "suspensionViscosityCoefficient"],
+      ["\\nu", "frequency"],
+      ["ν", "frequency"],
+      ["var_speedOfLight", "speedOfLight"],
+      ["var_diffusionCoefficient", "diffusionCoefficient"],
+      ["Speed of Light", "speedOfLight"],
+      ["Diffusion Coefficient", "diffusionCoefficient"],
+    ];
+
+    for (const [permissiveKey, expectedTarget] of testCases) {
+      // 1. Prove the adversarial condition: the naive donor resolver would incorrectly accept and bind this key
+      const naiveMatch = naiveDonorResolver(permissiveKey, registry.ids);
+      expect(naiveMatch).toBe(expectedTarget);
+
+      // 2. Prove the canonical registry invariant: strictly rejects with UnknownQuantityError and unregistered
+      expect(() => getQuantity(permissiveKey)).toThrow(UnknownQuantityError);
+      expect(isRegisteredQuantityId(permissiveKey)).toBe(false);
+      const resolved = resolveQuantityId(permissiveKey);
+      expect(resolved.ok).toBe(false);
+      if (!resolved.ok && resolved.kind !== "legacy-spelling") {
+        expect(resolved.kind).toBe("unregistered");
+      }
+    }
   });
 });
