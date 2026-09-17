@@ -22,14 +22,12 @@
 import { HeavyLaboratoryManager } from "../src/experiments/lifecycle/concurrency.ts";
 import { lifecycleDiagnostics } from "../src/experiments/lifecycle/diagnostics.ts";
 import {
-  decodeStreamCheckpoint,
   encodeStreamCheckpoint,
   evaluateCheckpointRecovery,
   STREAM_CHECKPOINT_FRAME_LENGTH,
 } from "../src/experiments/lifecycle/recovery.ts";
 import {
   BufferTransferRefusedError,
-  DetachedBufferInvariantViolationError,
   OwnedBuffer,
   SnapshotBufferPool,
 } from "../src/experiments/memory/buffers.ts";
@@ -114,8 +112,8 @@ export function runWasmMemoryGrowthStress(): ScenarioResult {
   const initialF64 = new Float64Array(memory.buffer, 0, 4);
   initialF64[0] = 42.0;
   initialF64[1] = 137.035999;
-  initialF64[2] = 2.71828;
-  initialF64[3] = 3.14159;
+  initialF64[2] = Math.E;
+  initialF64[3] = Math.PI;
 
   // Create tracked view and safe copy-out
   const trackedView = tracker.createFloat64View(0, 4);
