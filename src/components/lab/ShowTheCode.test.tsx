@@ -60,7 +60,8 @@ describe("ShowTheCode", () => {
     expect(html).toContain('data-quantity-id="diffusionCoefficient"');
     expect(html).toContain('data-quantity-id="viscosity"');
     expect(html).toContain(KERNEL_DISPLAY_ROLE_LABELS["reference-implementation"]);
-    expect(html).toContain('data-equation-id="eq-model-bm-diffusivity"');
+    expect(html).toContain('data-equation-ref="eq-model-bm-diffusivity"');
+    expect(html).not.toContain('data-equation-id="eq-model-bm-diffusivity"');
     expect(html).not.toContain("\\frac");
     logger.log({
       testId: "show-the-code-static",

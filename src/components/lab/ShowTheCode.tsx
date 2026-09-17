@@ -130,7 +130,7 @@ export function ShowTheCode({
               <h3>Mathematics</h3>
               {equationCard ??
                 (listing.equationId ? (
-                  <div data-equation-card="" data-equation-id={listing.equationId} />
+                  <div data-equation-card="" data-equation-ref={listing.equationId} />
                 ) : null)}
             </section>
             <section
