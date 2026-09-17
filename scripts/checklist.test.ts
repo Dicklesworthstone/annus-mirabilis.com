@@ -143,11 +143,14 @@ describe("checklist generator", () => {
   });
 
   it("fails checklist when Question 5 has comprehension rounds but missing cross-projection records", () => {
-    const evidence = getSampleEvidence();
+    const base = getSampleEvidence();
     // Empty cross projection records
-    evidence.q5 = {
-      ...evidence.q5,
-      crossProjectionRecords: [],
+    const evidence: ReleaseCandidateEvidence = {
+      ...base,
+      q5: {
+        ...base.q5,
+        crossProjectionRecords: [],
+      },
     };
 
     const result = generateChecklistMarkdown(evidence);
@@ -159,7 +162,7 @@ describe("checklist generator", () => {
   });
 
   it("blocks checklist when cross-projection record has open findings and lists owning bead ids", () => {
-    const evidence = getSampleEvidence();
+    const base = getSampleEvidence();
     const openXproj = validateCrossProjectionRecord(
       {
         id: "xproj-02",
@@ -200,9 +203,12 @@ describe("checklist generator", () => {
       { skipOwnerRoleCheck: true },
     );
 
-    evidence.q5 = {
-      ...evidence.q5,
-      crossProjectionRecords: [openXproj],
+    const evidence: ReleaseCandidateEvidence = {
+      ...base,
+      q5: {
+        ...base.q5,
+        crossProjectionRecords: [openXproj],
+      },
     };
 
     const result = generateChecklistMarkdown(evidence);
