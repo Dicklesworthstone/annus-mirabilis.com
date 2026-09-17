@@ -1,0 +1,363 @@
+# Scoped Notation Concordance for Molecular Dimensions (ap-19-289, companion)
+# and the 1911 viscosity-law correction (ap-34-591).
+# Specification: AGENTS.md, am-not-concordance-model-uag.
+# There is no br issue am-not-entries-molecular-dimensions; this file is the
+# companion's concordance so the k-as-viscosity pair with paper 2 is complete.
+# Verification status: all entries are marked pending per honesty constraint
+# (no pinned facsimile scan is currently committed in the repository).
+# Glyphs follow AGENTS.md, PLAN_MINING_DECISIONS.md, and the quantity registry.
+# They are not compared to page pixels. Absence is recorded; invented
+# facsimile readings are not admitted.
+# No parallel markdown ledger: pending/verified status lives on each entry.
+
+paper: molecular-dimensions
+
+entries:
+  # =========================================================================
+  # Viscosity: solvent, suspension, and the coefficient of phi
+  # =========================================================================
+  - id: md.k.viscosity
+    paper: molecular-dimensions
+    scope: ["md-s1", "md-s2", "md-s3", "md-s4", "md-1906", "md-1911"]
+    glyph:
+      unicode: "k"
+      latex: "k"
+      variant: plain
+    meaning: "Solvent viscosity in the dilute-suspension law, as printed"
+    binding:
+      quantityId: viscosity
+    operation:
+      kind: rename
+      target:
+        form: symbol
+        modernGlyph: "\\eta"
+    collision:
+      severity: danger
+      kind: cross-toggle
+      collidesWith: ["boltzmannConstant"]
+      collidesWithModern: ["boltzmannConstant"]
+      firstUseAnchor: md-s1-p1
+      firstUseBySection:
+        - sectionId: md-s1
+          anchor: md-s1-p1
+        - sectionId: md-1906
+          anchor: md-1906-p1
+        - sectionId: md-1911
+          anchor: md-1911-p1
+    notes: "The same danger collision as paper 2: Einstein's k is viscosity, never Boltzmann's constant. The coefficient of phi in the viscosity law is never called k."
+    sources:
+      facsimilePage: 289
+      anchor: md-s1-p1
+    verification:
+      printed: true
+      checkedAgainst: "Pending facsimile scan (ap-19-289)"
+      by: "Editorial Staff"
+      date: "2026-09-17"
+
+  - id: md.kstar.effectiveViscosity
+    paper: molecular-dimensions
+    scope: ["md-s1", "md-s2", "md-1906", "md-1911"]
+    glyph:
+      unicode: "k*"
+      latex: "k^*"
+      variant: plain
+    meaning: "Effective viscosity of the dilute suspension, as printed"
+    binding:
+      quantityId: effectiveViscosity
+    operation:
+      kind: rename
+      target:
+        form: symbol
+        modernGlyph: "\\eta^*"
+    notes: "k-star is the suspension viscosity. The solvent viscosity is k. Neither is Boltzmann's constant."
+    sources:
+      facsimilePage: 289
+      anchor: md-s1-p1
+    verification:
+      printed: true
+      checkedAgainst: "Pending facsimile scan (ap-19-289)"
+      by: "Editorial Staff"
+      date: "2026-09-17"
+
+  - id: md.phi.volumeFraction
+    paper: molecular-dimensions
+    scope: ["md-s1", "md-s2", "md-s3", "md-1906", "md-1911"]
+    glyph:
+      unicode: "φ"
+      latex: "\\varphi"
+      variant: plain
+    meaning: "Volume fraction of suspended spheres in the dilute-suspension viscosity law"
+    binding:
+      quantityId: volumeFraction
+    operation:
+      kind: rename
+      target:
+        form: symbol
+        modernGlyph: "\\varphi"
+    collision:
+      severity: caution
+      kind: cross-paper
+      collidesWith: ["spectralEntropyDensity", "transitionKernel", "propagationAngleStationary"]
+      collidesWithModern: ["spectralEntropyDensity", "transitionKernel", "propagationAngleStationary"]
+      firstUseAnchor: md-s1-p1
+      firstUseBySection:
+        - sectionId: md-s1
+          anchor: md-s1-p1
+    notes: "Volume fraction here. Spectral entropy density in paper 1, transition kernel in paper 2, an angle in paper 3."
+    sources:
+      facsimilePage: 289
+      anchor: md-s1-p1
+    verification:
+      printed: true
+      checkedAgainst: "Pending facsimile scan (ap-19-289)"
+      by: "Editorial Staff"
+      date: "2026-09-17"
+
+  - id: md.one.viscosityLawCoefficient1906
+    paper: molecular-dimensions
+    scope: ["md-1906"]
+    glyph:
+      unicode: "1"
+      latex: "1"
+      variant: plain
+    meaning: "Coefficient of phi in the 1906 viscosity law k-star = k(1 + phi), printed as 1"
+    binding:
+      quantityId: suspensionViscosityCoefficient
+    operation:
+      kind: rename
+      target:
+        form: symbol
+        modernGlyph: "1"
+    collision:
+      severity: danger
+      kind: cross-toggle
+      collidesWith: ["md.k.viscosity"]
+      collidesWithModern: ["k", "\\eta"]
+      firstUseAnchor: md-1906-p1
+      firstUseBySection:
+        - sectionId: md-1906
+          anchor: md-1906-p1
+    notes: "The 1906 printing. Not k. The 1911 correction prints 5/2 for the same coefficient; that is a different entry under md-1911. Modern [eta] is 5/2 for rigid spheres and must not be substituted here, or the 1906 error is hidden."
+    sources:
+      facsimilePage: 289
+      anchor: md-1906-p1
+    verification:
+      printed: true
+      checkedAgainst: "Pending facsimile scan (ap-19-289)"
+      by: "Editorial Staff"
+      date: "2026-09-17"
+
+  - id: md.fiveHalves.viscosityLawCoefficient1911
+    paper: molecular-dimensions
+    scope: ["md-1911"]
+    glyph:
+      unicode: "5/2"
+      latex: "\\frac{5}{2}"
+      variant: plain
+    meaning: "Coefficient of phi after the 1911 correction, printed as 5/2"
+    binding:
+      quantityId: suspensionViscosityCoefficient
+    operation:
+      kind: rename
+      target:
+        form: symbol
+        modernGlyph: "\\frac{5}{2}"
+    collision:
+      severity: danger
+      kind: cross-toggle
+      collidesWith: ["md.k.viscosity"]
+      collidesWithModern: ["k", "\\eta"]
+      firstUseAnchor: md-1911-p1
+      firstUseBySection:
+        - sectionId: md-1911
+          anchor: md-1911-p1
+    notes: "Ann. Phys. (4) 34, 591-592. Not k. N scales as the square root of this coefficient. This value is not silently back-ported onto the 1906 printing."
+    sources:
+      facsimilePage: 591
+      anchor: md-1911-p1
+    verification:
+      printed: true
+      checkedAgainst: "Pending facsimile scan (ap-34-591)"
+      by: "Editorial Staff"
+      date: "2026-09-17"
+
+  - id: md.relative.relativeViscosity
+    paper: molecular-dimensions
+    scope: ["md-s1", "md-1906", "md-1911"]
+    glyph:
+      unicode: "k*/k"
+      latex: "k^*/k"
+      variant: plain
+    meaning: "Ratio of suspension viscosity to solvent viscosity"
+    binding:
+      quantityId: relativeViscosity
+    operation:
+      kind: rename
+      target:
+        form: symbol
+        modernGlyph: "\\eta^*/\\eta"
+    notes: "The ratio k-star/k. Distinct from the coefficient of phi."
+    sources:
+      facsimilePage: 289
+      anchor: md-s1-p1
+    verification:
+      printed: true
+      checkedAgainst: "Pending facsimile scan (ap-19-289)"
+      by: "Editorial Staff"
+      date: "2026-09-17"
+
+  # =========================================================================
+  # Particles, counts, and related printed symbols
+  # =========================================================================
+  - id: md.P.particleRadius
+    paper: molecular-dimensions
+    scope: ["md-s1", "md-s2", "md-s3", "md-s4"]
+    glyph:
+      unicode: "P"
+      latex: "P"
+      variant: plain
+    meaning: "Radius of a suspended sphere"
+    binding:
+      quantityId: particleRadius
+    operation:
+      kind: rename
+      target:
+        form: symbol
+        modernGlyph: "a"
+    collision:
+      severity: caution
+      kind: cross-paper
+      collidesWith: ["workFunction"]
+      collidesWithModern: ["workFunction"]
+      firstUseAnchor: md-s1-p1
+      firstUseBySection:
+        - sectionId: md-s1
+          anchor: md-s1-p1
+    notes: "Radius here and in paper 2. Work function in paper 1. Glyph pending facsimile."
+    sources:
+      facsimilePage: 289
+      anchor: md-s1-p1
+    verification:
+      printed: true
+      checkedAgainst: "Pending facsimile scan (ap-19-289)"
+      by: "Editorial Staff"
+      date: "2026-09-17"
+
+  - id: md.N.avogadroConstant
+    paper: molecular-dimensions
+    scope: ["md-s1", "md-s2", "md-s3", "md-s4"]
+    glyph:
+      unicode: "N"
+      latex: "N"
+      variant: plain
+    meaning: "Number of molecules in a gram-molecule"
+    binding:
+      quantityId: avogadroConstant
+    operation:
+      kind: rename
+      target:
+        form: symbol
+        modernGlyph: "N_A"
+    collision:
+      severity: caution
+      kind: cross-paper
+      collidesWith: ["magneticFieldStationary"]
+      collidesWithModern: ["magneticFieldStationary"]
+      firstUseAnchor: md-s3-p1
+      firstUseBySection:
+        - sectionId: md-s3
+          anchor: md-s3-p1
+    notes: "Avogadro's number here and in papers 1 and 2. A magnetic-field component in paper 3. N scales as the square root of the coefficient of phi."
+    sources:
+      facsimilePage: 300
+      anchor: md-s3-p1
+    verification:
+      printed: true
+      checkedAgainst: "Pending facsimile scan (ap-19-289)"
+      by: "Editorial Staff"
+      date: "2026-09-17"
+
+  - id: md.D.diffusionCoefficient
+    paper: molecular-dimensions
+    scope: ["md-s3", "md-s4"]
+    glyph:
+      unicode: "D"
+      latex: "D"
+      variant: plain
+    meaning: "Diffusion coefficient of the dissolved substance"
+    binding:
+      quantityId: diffusionCoefficient
+    operation:
+      kind: rename
+      target:
+        form: symbol
+        modernGlyph: "D"
+    notes: "Glyph pending facsimile. Used with Stokes drag and osmotic pressure to infer molecular size."
+    sources:
+      facsimilePage: 300
+      anchor: md-s3-p1
+    verification:
+      printed: true
+      checkedAgainst: "Pending facsimile scan (ap-19-289)"
+      by: "Editorial Staff"
+      date: "2026-09-17"
+
+  - id: md.T.temperature
+    paper: molecular-dimensions
+    scope: ["md-s3", "md-s4"]
+    glyph:
+      unicode: "T"
+      latex: "T"
+      variant: plain
+    meaning: "Absolute temperature"
+    binding:
+      quantityId: temperature
+    operation:
+      kind: rename
+      target:
+        form: symbol
+        modernGlyph: "T"
+    sources:
+      facsimilePage: 300
+      anchor: md-s3-p1
+    verification:
+      printed: true
+      checkedAgainst: "Pending facsimile scan (ap-19-289)"
+      by: "Editorial Staff"
+      date: "2026-09-17"
+
+  - id: md.R.molarGasConstant
+    paper: molecular-dimensions
+    scope: ["md-s3", "md-s4"]
+    glyph:
+      unicode: "R"
+      latex: "R"
+      variant: plain
+    meaning: "Universal molar gas constant"
+    binding:
+      quantityId: molarGasConstant
+    operation:
+      kind: rename
+      target:
+        form: symbol
+        modernGlyph: "R"
+    sources:
+      facsimilePage: 300
+      anchor: md-s3-p1
+    verification:
+      printed: true
+      checkedAgainst: "Pending facsimile scan (ap-19-289)"
+      by: "Editorial Staff"
+      date: "2026-09-17"
+
+modernOnlySymbols:
+  - id: md.intrinsicViscosity
+    glyph:
+      unicode: "[η]"
+      latex: "[\\eta]"
+      variant: plain
+    binding:
+      quantityId: suspensionViscosityCoefficient
+    scope: ["md-1911"]
+    introducedBy: "modern-notation"
+    label: "Modern intrinsic viscosity. Equal to 5/2 for rigid spheres; never substituted for the 1906 printed 1, and never called k."
