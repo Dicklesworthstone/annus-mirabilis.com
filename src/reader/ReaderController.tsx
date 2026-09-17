@@ -14,6 +14,7 @@ import {
   readerHref,
   restoreReaderState,
 } from "./navigation/state";
+import "./actions/kindRegistration.ts";
 import { closeDirectOpenDialog, openFromSearch } from "./stack/mountDirectOpen.ts";
 
 type Props = {
@@ -241,9 +242,10 @@ export function ReaderController(props: Props) {
           input.select();
           announcement.textContent = "Copy the passage link from the selected field.";
         };
+        const label = control.dataset.passageLabel?.trim();
         if (navigator.clipboard?.writeText)
           void navigator.clipboard.writeText(href).then(() => {
-            announcement.textContent = "Passage link copied.";
+            announcement.textContent = `Link to ${label && label.length > 0 ? label : "this passage"} copied.`;
           }, fallback);
         else fallback();
       }

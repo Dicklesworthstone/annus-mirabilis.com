@@ -1,58 +1,58 @@
 import { describe, expect, test } from "bun:test";
 import { renderToStaticMarkup } from "react-dom/server";
 import { ObstacleMenu } from "./ObstacleMenu.tsx";
-import type { ObstacleResponses } from "./passageActions.schema.ts";
+import { OBSTACLE_KIND_IDS } from "./passageActions.schema.ts";
 
 describe("ObstacleMenu", () => {
-  test("renders nothing when no obstacle response exists", () => {
+  test("a hard passage offers every kind; missing answers are unavailable, not invented", () => {
     const html = renderToStaticMarkup(
-      <ObstacleMenu responses={undefined} passageLabel="section 4, paragraph 2, sentence 1" />,
-    );
-    expect(html).toBe("");
-  });
-
-  test("renders only the choices with an authored response, never all six", () => {
-    const responses: ObstacleResponses = {
-      tooMuchAtOnce: { explanation: "Break it into three smaller claims." },
-      physicalReason: { explanation: "Viscosity resists the tracer's motion." },
-    };
-    const html = renderToStaticMarkup(
-      <ObstacleMenu responses={responses} passageLabel="section 4, paragraph 2" />,
-    );
-    expect(html).toContain("Simply too much at once");
-    expect(html).toContain("The physical reason for a step");
-    expect(html).not.toContain("An unfamiliar word or symbol");
-    expect(html).not.toContain("An algebraic move");
-  });
-
-  test("the response explanation text is present inside its own disclosure", () => {
-    const responses: ObstacleResponses = {
-      algebraicMove: { explanation: "Multiply both sides by the same factor." },
-    };
-    const html = renderToStaticMarkup(
-      <ObstacleMenu responses={responses} passageLabel="section 3, paragraph 1" />,
-    );
-    expect(html).toContain("Multiply both sides by the same factor.");
-  });
-
-  test("each choice's accessible name names both the obstacle and the passage", () => {
-    const responses: ObstacleResponses = {
-      connectionToPicture: { explanation: "The arrows in the diagram are the same displacements." },
-    };
-    const html = renderToStaticMarkup(
-      <ObstacleMenu responses={responses} passageLabel="section 4, paragraph 2, sentence 1" />,
-    );
-    expect(html).toMatch(
-      /aria-label="The connection to the picture: section 4, paragraph 2, sentence 1"/,
-    );
-  });
-
-  test("the menu itself is a labeled disclosure, not a set of pre-expanded panels", () => {
-    const responses: ObstacleResponses = { tooMuchAtOnce: { explanation: "test" } };
-    const html = renderToStaticMarkup(
-      <ObstacleMenu responses={responses} passageLabel="section 1" />,
+      <ObstacleMenu
+        hard
+        passageId="arg-bm-observable"
+        passageLabel="Zero average is not no movement"
+        responses={{
+          algebraicMove: {
+            explanation: "Square first.",
+            foundationLinks: [
+              {
+                foundationId: "bridge-squaring-square-roots",
+                callingAnchor: "arg-bm-observable",
+                returnCaption: "Return to the argument.",
+              },
+            ],
+          },
+        }}
+      />,
     );
     expect(html).toContain("What is getting in the way?");
-    expect(html).toMatch(/<details[^>]*data-obstacle-menu/);
+    expect(html).toContain("data-obstacle-menu");
+    for (const kind of OBSTACLE_KIND_IDS) {
+      expect(html).toContain(`data-obstacle-kind="${kind}"`);
+    }
+    expect(html).toContain("Square first.");
+    expect(html).toContain("/foundations/bridge-squaring-square-roots/");
+    expect(html).toContain('data-foundation="bridge-squaring-square-roots"');
+    expect(html).toContain("data-obstacle-unavailable");
+    expect(html).toContain("This answer is not yet authored for this passage.");
+    expect(html).not.toContain("see the foundations page");
+  });
+
+  test("a hard passage with no authored answers still offers every kind as unavailable", () => {
+    const html = renderToStaticMarkup(
+      <ObstacleMenu hard passageId="arg-hard" passageLabel="A hard step" responses={undefined} />,
+    );
+    expect(html).toContain("What is getting in the way?");
+    for (const kind of OBSTACLE_KIND_IDS) {
+      expect(html).toContain(`data-obstacle-kind="${kind}"`);
+      expect(html).toContain("data-obstacle-unavailable");
+    }
+    expect(html).not.toContain("see the foundations page");
+  });
+
+  test("planted negative: no menu when the passage is not hard and has no responses", () => {
+    const html = renderToStaticMarkup(
+      <ObstacleMenu hard={false} passageId="arg-x" passageLabel="x" responses={undefined} />,
+    );
+    expect(html).toBe("");
   });
 });

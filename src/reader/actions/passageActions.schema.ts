@@ -127,7 +127,11 @@ function validateTryIt(raw: unknown, path: string): TryItAction {
     presetOrModeId = o.presetOrModeId;
   }
 
-  return { kind: "instrument", instrumentId: o.instrumentId, presetOrModeId };
+  return {
+    kind: "instrument",
+    instrumentId: o.instrumentId,
+    ...(presetOrModeId !== undefined ? { presetOrModeId } : {}),
+  };
 }
 
 const OBSTACLE_ALLOWED_KEYS: ReadonlySet<string> = new Set<string>([

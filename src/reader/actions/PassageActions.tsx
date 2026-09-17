@@ -136,7 +136,12 @@ export function PassageActions({
         </p>
       </span>
 
-      <ObstacleMenu responses={actions.obstacleResponses} passageLabel={passageLabel} />
+      <ObstacleMenu
+        responses={actions.obstacleResponses}
+        passageLabel={passageLabel}
+        passageId={axes.anchor}
+        hard={actions.hard}
+      />
     </div>
   );
 }

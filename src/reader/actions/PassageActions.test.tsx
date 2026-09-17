@@ -122,8 +122,14 @@ describe("PassageActions: obstacle menu integration", () => {
     expect(html).toContain("What is getting in the way?");
   });
 
-  test("the obstacle menu is absent when no obstacle responses are declared", () => {
+  test("a hard passage still offers the obstacle menu when no responses are authored", () => {
     const html = render({ hard: true });
+    expect(html).toContain("What is getting in the way?");
+    expect(html).toContain("This answer is not yet authored for this passage.");
+  });
+
+  test("the obstacle menu is absent when the passage is not hard and has no responses", () => {
+    const html = render({ hard: false });
     expect(html).not.toContain("What is getting in the way?");
   });
 });
