@@ -149,7 +149,7 @@ export async function paperMetadata(request: PaperRouteRequest): Promise<Metadat
   const resolved = await resolvePaperRoute(request);
   if (!resolved.ok) return { title: "Not in the edition" };
   const payload = await loadPaper(resolved.paperId);
-  const sectionId = "section" in resolved ? resolved.section : undefined;
+  const sectionId = resolved.section;
   const sectionTitle = sectionId
     ? payload.paper.sections.find((s) => s.id === sectionId)?.title
     : undefined;

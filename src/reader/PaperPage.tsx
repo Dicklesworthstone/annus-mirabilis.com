@@ -5,6 +5,7 @@ import { FACE_REGISTRY } from "./faces/registry.ts";
 import {
   FACE_FALLBACK_IDS,
   faceLinkHref,
+  isFaceFallbackId,
   type PaperRouteRequest,
   paperPath,
   resolvePaperRoute,
@@ -21,16 +22,18 @@ export async function PaperPage(request: PaperRouteRequest) {
   const resolved = await resolvePaperRoute(request);
   if (!resolved.ok) notFound();
   if (resolved.face !== "reading") {
-    if ("section" in resolved) {
-      return (
-        <FaceFallback paperId={resolved.paperId} section={resolved.section} face={resolved.face} />
-      );
-    }
-    return <FaceFallback paperId={resolved.paperId} face={resolved.face} />;
+    if (!isFaceFallbackId(resolved.face)) notFound();
+    return (
+      <FaceFallback
+        paperId={resolved.paperId}
+        face={resolved.face}
+        {...(resolved.section !== undefined ? { section: resolved.section } : {})}
+      />
+    );
   }
   const payload = await loadPaper(resolved.paperId);
   const { paper, foundations } = payload;
-  const sectionId = "section" in resolved ? resolved.section : undefined;
+  const sectionId = resolved.section;
   const sections = sectionId ? paper.sections.filter((s) => s.id === sectionId) : paper.sections;
   const args = payload.arguments.filter((a) => sections.some((s) => s.id === a.section));
   return (

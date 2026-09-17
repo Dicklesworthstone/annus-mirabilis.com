@@ -10,10 +10,13 @@ import { afterEach, beforeEach, describe, expect, test } from "bun:test";
 import { act, createElement } from "react";
 import { createRoot } from "react-dom/client";
 import { ReaderController } from "./../reader/ReaderController.tsx";
-import "../reader/stack/kinds.ts";
+import { registerDefaultClarificationKinds } from "../reader/stack/kinds.ts";
 import { installDom, uninstallDom } from "./reactDom.ts";
 
-beforeEach(installDom);
+beforeEach(async () => {
+  await installDom();
+  registerDefaultClarificationKinds();
+});
 afterEach(uninstallDom);
 
 const REGISTRY = Object.freeze({
@@ -72,8 +75,9 @@ describe("ReaderController: the direct-open wiring this bead added", () => {
       reactRoot.render(
         createElement(ReaderController, { registry: REGISTRY, titles: {}, questions: {} }),
       );
-    });
-    await act(async () => {
+      // ReaderController defers openFromSearch one microtask so flushSync is not
+      // nested inside this island's own commit. Drain that turn inside act.
+      await Promise.resolve();
       await Promise.resolve();
     });
     const instrumentDialog = document.querySelector("[data-instrument-clarification-dialog]");

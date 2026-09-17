@@ -4,12 +4,32 @@
  * one of the bead's registered rule ids.
  */
 import {
+  BOUND_FAMILIES,
+  type BoundFamily,
   type SnapshotOutput,
   WEAVE_MEANINGS,
   type WeaveCondition,
   type WeaveMeaning,
   type WeavePredicate,
 } from "./types.ts";
+
+const SNAPSHOT_STATUSES: readonly SnapshotOutput["status"][] = [
+  "value",
+  "outside-domain",
+  "not-applicable",
+  "analytic-limit",
+  "symbolic",
+  "underdetermined",
+  "divergent",
+];
+
+function isSnapshotStatus(value: unknown): value is SnapshotOutput["status"] {
+  return typeof value === "string" && (SNAPSHOT_STATUSES as readonly string[]).includes(value);
+}
+
+function isBoundFamily(value: unknown): value is BoundFamily {
+  return typeof value === "string" && (BOUND_FAMILIES as readonly string[]).includes(value);
+}
 
 export class WeaveValidationError extends Error {
   readonly rule: string;
@@ -100,23 +120,14 @@ function validateCondition(
     }
     case "status": {
       const quantityId = requireOutput(o.quantityId, "quantityId");
-      const statuses = [
-        "value",
-        "outside-domain",
-        "not-applicable",
-        "analytic-limit",
-        "symbolic",
-        "underdetermined",
-        "divergent",
-      ];
-      if (typeof o.equals !== "string" || !statuses.includes(o.equals))
+      if (!isSnapshotStatus(o.equals))
         fail(
           "weave-condition-invalid",
-          `status.equals must be one of ${statuses.join(", ")}.`,
+          `status.equals must be one of ${SNAPSHOT_STATUSES.join(", ")}.`,
           predicateId,
           instrumentId,
         );
-      return { kind: "status", quantityId, equals: o.equals as SnapshotOutput["status"] };
+      return { kind: "status", quantityId, equals: o.equals };
     }
     case "agreement": {
       const statisticQuantityId = requireOutput(o.statisticQuantityId, "statisticQuantityId");
@@ -135,7 +146,7 @@ function validateCondition(
           predicateId,
           instrumentId,
         );
-      if (o.boundFamily !== "dkw" && o.boundFamily !== "owner-band")
+      if (!isBoundFamily(o.boundFamily))
         fail(
           "weave-unknown-bound-family",
           `Unknown bound family "${String(o.boundFamily)}".`,
