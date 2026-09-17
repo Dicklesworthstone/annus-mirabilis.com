@@ -78,14 +78,15 @@ export function record(
   )
     return fail(path, "Expected a plain record.");
   const descriptors = Object.getOwnPropertyDescriptors(x);
-  for (const key of Reflect.ownKeys(x))
-    if (
-      typeof key !== "string" ||
-      ![...required, ...optional].includes(key) ||
-      !descriptors[key]?.enumerable ||
-      !Object.hasOwn(descriptors[key]!, "value")
-    )
+  for (const key of Reflect.ownKeys(x)) {
+    if (typeof key !== "string" || ![...required, ...optional].includes(key)) {
       fail(path, "Unexpected field or accessor.");
+    }
+    const descriptor = descriptors[key];
+    if (!descriptor?.enumerable || !Object.hasOwn(descriptor, "value")) {
+      fail(path, "Unexpected field or accessor.");
+    }
+  }
   for (const key of required)
     if (!Object.hasOwn(descriptors, key)) fail(path, `Missing field ${key}.`);
   return x as Record<string, unknown>;
@@ -146,10 +147,12 @@ export function parseExpression(
     };
     if (typeof kind !== "string" || !Object.hasOwn(fields, kind))
       fail(path, "Unsupported expression kind.");
+    const kindFields = fields[kind];
+    if (!kindFields) fail(path, "Unsupported expression kind.");
     const o = record(
       x,
       path,
-      ["kind", ...fields[kind]!],
+      ["kind", ...kindFields],
       kind === "symbol" ? ["scale"] : ["number", "constant"].includes(kind) ? [] : ["opId"],
     );
     if (kind === "symbol") {
@@ -172,9 +175,11 @@ export function parseExpression(
       if (kind === "sum" || kind === "product") {
         if (!Array.isArray(o.args) || o.args.length < 2 || o.args.length > 32)
           fail(path, "Expected 2–32 operands.");
-        o.args.forEach((v, i) => parse(v, `${path}.args[${i}]`, depth + 1));
+        o.args.forEach((v, i) => {
+          parse(v, `${path}.args[${i}]`, depth + 1);
+        });
       } else {
-        for (const key of fields[kind]!)
+        for (const key of kindFields)
           if (!["degree", "exponent", "name", "operator", "order", "partial"].includes(key))
             parse(o[key], `${path}.${key}`, depth + 1);
       }
