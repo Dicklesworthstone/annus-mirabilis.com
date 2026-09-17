@@ -254,6 +254,32 @@ export const QUALITY_GATE_STEPS: readonly GateStep[] = [
     owner: "am-ver-scenario-registry-om3",
   },
   {
+    id: "audit-derivation-tools",
+    title: "Derivation tool attachment and registry resolution audit",
+    command: ["bun", "scripts/audit-derivation-tools.ts"],
+    family: "fast",
+    cadence: "every-run",
+    requiredInCi: true,
+    requiredInProfiles: ["preview", "launch"],
+    availability: {
+      scriptPath: "scripts/audit-derivation-tools.ts",
+    },
+    owner: "am-eq-derivation-chains-r4c",
+  },
+  {
+    id: "audit-dimensions",
+    title: "Rational-exponent dimensional consistency audit",
+    command: ["bun", "scripts/audit-dimensions.ts"],
+    family: "fast",
+    cadence: "every-run",
+    requiredInCi: true,
+    requiredInProfiles: ["preview", "launch"],
+    availability: {
+      scriptPath: "scripts/audit-dimensions.ts",
+    },
+    owner: "am-cm-dimension-validator-aoz",
+  },
+  {
     id: "receipts",
     title: "Provenance receipt check",
     command: ["bun", "scripts/check-receipts.ts", "--surveys"],
