@@ -25,8 +25,12 @@
 .show-the-code-panel {
   margin: 0.8rem 0;
 }
-.show-the-code-panel pre {
+.show-the-code-scroll {
   overflow: auto;
+  max-width: 100%;
+  min-width: 0;
+}
+.show-the-code-panel pre {
   max-width: 100%;
   padding: 0.7rem;
   background: var(--wash, #e8eadf);

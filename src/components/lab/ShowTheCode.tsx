@@ -149,50 +149,58 @@ export function ShowTheCode({
                 </div>
               ) : (
                 <>
+                  {/* The code scrolls horizontally, so a keyboard-only reader must be able to
+                      focus the scrolling box (WCAG 2.1 SC 2.1.1); axe reported
+                      scrollable-region-focusable on all five listings once they began
+                      rendering. A named section is the shape .comparison-scroll already uses:
+                      a pre has no role that accepts a name, and a role attribute here only
+                      trades one lint rule for another. */}
                   {tokens.length > 0 ? (
-                    // biome-ignore lint/a11y/noNoninteractiveTabindex: the code block
-                    // scrolls horizontally, so a keyboard-only reader must be able to
-                    // focus it to scroll it (WCAG 2.1 SC 2.1.1). Axe reported
-                    // scrollable-region-focusable on all five listings once they began
-                    // rendering and the grid stopped widening to fit them.
-                    <pre tabIndex={0} aria-label={`${listing.exportName} source`}>
-                      <code data-language={listing.language ?? "ts"}>
-                        {tokens.map((token) => {
-                          if (token.kind === "ident" && token.quantityId) {
-                            return (
-                              <span
-                                key={token.start}
-                                className="kernel-ident"
-                                data-quantity-id={token.quantityId}
-                                style={{
-                                  color: quantityHue(token.quantityId),
-                                  textDecoration: "underline",
-                                  textDecorationStyle: "dotted",
-                                  textUnderlineOffset: "0.18em",
-                                }}
-                              >
-                                {token.text}
-                              </span>
-                            );
-                          }
-                          if (token.kind === "comment") {
-                            return (
-                              <span key={token.start} className="kernel-comment">
-                                {token.text}
-                              </span>
-                            );
-                          }
-                          if (token.kind === "string") {
-                            return (
-                              <span key={token.start} className="kernel-string">
-                                {token.text}
-                              </span>
-                            );
-                          }
-                          return <span key={token.start}>{token.text}</span>;
-                        })}
-                      </code>
-                    </pre>
+                    <section
+                      className="show-the-code-scroll"
+                      aria-label={`${listing.exportName} source`}
+                      // biome-ignore lint/a11y/noNoninteractiveTabindex: a scrollable region must be focusable
+                      tabIndex={0}
+                    >
+                      <pre>
+                        <code data-language={listing.language ?? "ts"}>
+                          {tokens.map((token) => {
+                            if (token.kind === "ident" && token.quantityId) {
+                              return (
+                                <span
+                                  key={token.start}
+                                  className="kernel-ident"
+                                  data-quantity-id={token.quantityId}
+                                  style={{
+                                    color: quantityHue(token.quantityId),
+                                    textDecoration: "underline",
+                                    textDecorationStyle: "dotted",
+                                    textUnderlineOffset: "0.18em",
+                                  }}
+                                >
+                                  {token.text}
+                                </span>
+                              );
+                            }
+                            if (token.kind === "comment") {
+                              return (
+                                <span key={token.start} className="kernel-comment">
+                                  {token.text}
+                                </span>
+                              );
+                            }
+                            if (token.kind === "string") {
+                              return (
+                                <span key={token.start} className="kernel-string">
+                                  {token.text}
+                                </span>
+                              );
+                            }
+                            return <span key={token.start}>{token.text}</span>;
+                          })}
+                        </code>
+                      </pre>
+                    </section>
                   ) : null}
                   {listing.trace ? <TraceTable trace={listing.trace} /> : null}
                   {listing.independentReferences.length > 0 ? (
