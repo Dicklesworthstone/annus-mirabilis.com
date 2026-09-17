@@ -5,10 +5,10 @@
  * this one is scoped to the wiring this bead added, plus a baseline regression check that the
  * existing foundation-only behavior still mounts and renders without error.
  */
-import { act } from "react";
-import { createRoot } from "react-dom/client";
+
 import { afterEach, beforeEach, describe, expect, test } from "bun:test";
-import { createElement } from "react";
+import { act, createElement } from "react";
+import { createRoot } from "react-dom/client";
 import { ReaderController } from "./../reader/ReaderController.tsx";
 import { installDom, uninstallDom } from "./reactDom.ts";
 

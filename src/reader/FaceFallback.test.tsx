@@ -6,7 +6,9 @@ import { listReadablePapers } from "./paperRoutes.ts";
 async function compiledPaperId(): Promise<string> {
   const papers = await listReadablePapers();
   expect(papers.length).toBeGreaterThan(0);
-  return papers[0]!;
+  const paperId = papers[0];
+  if (paperId === undefined) throw new Error("no compiled papers");
+  return paperId;
 }
 
 describe("FaceFallback", () => {
@@ -25,9 +27,7 @@ describe("FaceFallback", () => {
     const paperId = await compiledPaperId();
     const payload = await (await import("../content/server.ts")).loadPaper(paperId);
     const section = payload.paper.sections[0]?.id;
-    const html = renderToStaticMarkup(
-      await FaceFallback({ paperId, section, face: "results" }),
-    );
+    const html = renderToStaticMarkup(await FaceFallback({ paperId, section, face: "results" }));
     expect(html).toContain('data-view="results"');
     expect(html).toContain(`/papers/${paperId}/${section}/view/german/`);
   });

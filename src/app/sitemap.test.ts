@@ -1,4 +1,10 @@
 import { describe, expect, test } from "bun:test";
+import {
+  absoluteUrl,
+  faceFallbackPath,
+  listReadablePapers,
+  paperPath,
+} from "../reader/paperRoutes.ts";
 import sitemap from "./sitemap.ts";
 
 describe("sitemap", () => {
@@ -6,11 +12,14 @@ describe("sitemap", () => {
     const entries = await sitemap();
     const urls = entries.map((e) => e.url);
     expect(urls[0]).toBe("https://annus-mirabilis.com/");
-    expect(urls).toContain("https://annus-mirabilis.com/papers/brownian-motion/");
-    expect(urls).toContain("https://annus-mirabilis.com/papers/brownian-motion/s4/");
-    expect(urls).toContain("https://annus-mirabilis.com/papers/brownian-motion/view/german/");
-    expect(urls).toContain("https://annus-mirabilis.com/papers/brownian-motion/view/english/");
-    expect(urls).not.toContain("https://annus-mirabilis.com/papers/brownian-motion/view/results/");
+    const papers = await listReadablePapers();
+    expect(papers.length).toBeGreaterThan(0);
+    for (const paperId of papers) {
+      expect(urls).toContain(absoluteUrl(paperPath(paperId)));
+      expect(urls).toContain(absoluteUrl(faceFallbackPath(paperId, "german")));
+      expect(urls).toContain(absoluteUrl(faceFallbackPath(paperId, "english")));
+      expect(urls).not.toContain(absoluteUrl(faceFallbackPath(paperId, "results")));
+    }
     expect(urls.some((url) => url.includes("ap-17-549"))).toBe(false);
   });
 });

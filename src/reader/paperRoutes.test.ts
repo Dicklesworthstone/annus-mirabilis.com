@@ -14,7 +14,9 @@ import {
 async function compiledPaperId(): Promise<string> {
   const papers = await listReadablePapers();
   expect(papers.length).toBeGreaterThan(0);
-  return papers.includes("brownian-motion") ? "brownian-motion" : papers[0]!;
+  const paperId = papers.includes("brownian-motion") ? "brownian-motion" : papers[0];
+  if (paperId === undefined) throw new Error("no compiled papers");
+  return paperId;
 }
 
 describe("classifyPaperParam", () => {
@@ -121,9 +123,7 @@ describe("face fallback hrefs", () => {
     expect(FACE_FALLBACK_IDS).not.toContain("reading");
     for (const id of FACE_FALLBACK_IDS) {
       expect(isFaceFallbackId(id)).toBe(true);
-      expect(faceFallbackPath("brownian-motion", id)).toBe(
-        `/papers/brownian-motion/view/${id}/`,
-      );
+      expect(faceFallbackPath("brownian-motion", id)).toBe(`/papers/brownian-motion/view/${id}/`);
     }
   });
 });

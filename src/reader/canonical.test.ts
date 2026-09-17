@@ -2,6 +2,7 @@ import { describe, expect, test } from "bun:test";
 import {
   absoluteUrl,
   faceFallbackPath,
+  listReadablePapers,
   paperMetadata,
   paperPath,
   readerSitemapEntries,
@@ -9,44 +10,55 @@ import {
 
 describe("canonical and hreflang policy", () => {
   test("the reading face is canonical at the paper and section routes", async () => {
-    const paper = await paperMetadata({ paperId: "brownian-motion" });
-    expect(paper.alternates?.canonical).toBe(absoluteUrl(paperPath("brownian-motion")));
-    const section = await paperMetadata({ paperId: "brownian-motion", section: "s4" });
-    expect(section.alternates?.canonical).toBe(absoluteUrl(paperPath("brownian-motion", "s4")));
+    const papers = await listReadablePapers();
+    expect(papers.length).toBeGreaterThan(0);
+    const paperId = papers[0];
+    if (paperId === undefined) throw new Error("no compiled papers");
+    const paper = await paperMetadata({ paperId });
+    expect(paper.alternates?.canonical).toBe(absoluteUrl(paperPath(paperId)));
+    const payload = await (await import("../content/server.ts")).loadPaper(paperId);
+    const sectionId = payload.paper.sections[0]?.id;
+    expect(sectionId).toBeDefined();
+    const section = await paperMetadata({ paperId, section: sectionId });
+    expect(section.alternates?.canonical).toBe(absoluteUrl(paperPath(paperId, sectionId)));
   });
 
   test("german and english fallbacks are self-canonical with hreflang alternates", async () => {
-    const german = await paperMetadata({ paperId: "brownian-motion", face: "german" });
-    expect(german.alternates?.canonical).toBe(
-      absoluteUrl(faceFallbackPath("brownian-motion", "german")),
-    );
+    const papers = await listReadablePapers();
+    const paperId = papers[0];
+    if (paperId === undefined) throw new Error("no compiled papers");
+    const german = await paperMetadata({ paperId, face: "german" });
+    expect(german.alternates?.canonical).toBe(absoluteUrl(faceFallbackPath(paperId, "german")));
     expect(german.alternates?.languages).toEqual({
-      de: absoluteUrl(faceFallbackPath("brownian-motion", "german")),
-      en: absoluteUrl(faceFallbackPath("brownian-motion", "english")),
+      de: absoluteUrl(faceFallbackPath(paperId, "german")),
+      en: absoluteUrl(faceFallbackPath(paperId, "english")),
     });
-    const english = await paperMetadata({ paperId: "brownian-motion", face: "english" });
-    expect(english.alternates?.canonical).toBe(
-      absoluteUrl(faceFallbackPath("brownian-motion", "english")),
-    );
+    const english = await paperMetadata({ paperId, face: "english" });
+    expect(english.alternates?.canonical).toBe(absoluteUrl(faceFallbackPath(paperId, "english")));
   });
 
   test("results, gloss, parallel, split, and facsimile fallbacks canonicalise to the paper route", async () => {
+    const papers = await listReadablePapers();
+    const paperId = papers[0];
+    if (paperId === undefined) throw new Error("no compiled papers");
     for (const face of ["results", "gloss", "parallel", "split", "facsimile"] as const) {
-      const meta = await paperMetadata({ paperId: "brownian-motion", face });
-      expect(meta.alternates?.canonical).toBe(absoluteUrl(paperPath("brownian-motion")));
+      const meta = await paperMetadata({ paperId, face });
+      expect(meta.alternates?.canonical).toBe(absoluteUrl(paperPath(paperId)));
       expect(meta.alternates?.languages).toBeUndefined();
     }
   });
 
   test("the sitemap lists papers, sections, and the German and English faces, not other fallbacks", async () => {
+    const papers = await listReadablePapers();
     const entries = await readerSitemapEntries();
     const urls = entries.map((e) => e.url);
-    expect(urls).toContain(absoluteUrl(paperPath("brownian-motion")));
-    expect(urls).toContain(absoluteUrl(paperPath("brownian-motion", "s4")));
-    expect(urls).toContain(absoluteUrl(faceFallbackPath("brownian-motion", "german")));
-    expect(urls).toContain(absoluteUrl(faceFallbackPath("brownian-motion", "english")));
-    expect(urls).not.toContain(absoluteUrl(faceFallbackPath("brownian-motion", "results")));
-    expect(urls).not.toContain(absoluteUrl(faceFallbackPath("brownian-motion", "split")));
+    for (const paperId of papers) {
+      expect(urls).toContain(absoluteUrl(paperPath(paperId)));
+      expect(urls).toContain(absoluteUrl(faceFallbackPath(paperId, "german")));
+      expect(urls).toContain(absoluteUrl(faceFallbackPath(paperId, "english")));
+      expect(urls).not.toContain(absoluteUrl(faceFallbackPath(paperId, "results")));
+      expect(urls).not.toContain(absoluteUrl(faceFallbackPath(paperId, "split")));
+    }
     expect(urls.some((url) => url.includes("ap-17-549"))).toBe(false);
   });
 });
