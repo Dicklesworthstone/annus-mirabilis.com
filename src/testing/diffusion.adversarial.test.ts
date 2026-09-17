@@ -64,13 +64,13 @@ describe("Adversarial Fixtures & Historical Regressions (am-ref-diffusion-lr3)",
 
     // 2. The naive linear scaling prediction (0.5 * baselineRms) fails by ~29.3%
     const naiveHalvedRms = 0.5 * baselineRms;
-    const naiveRelativeError = Math.abs(naiveHalvedRms - trueHalvedRms) / trueHalvedRms;
-    expect(naiveRelativeError).toBeGreaterThan(0.29);
-    expect(naiveRelativeError).toBeLessThan(0.3);
+    expect(withinTolerance(naiveHalvedRms, trueHalvedRms, { relative: 0.29 }).ok).toBe(false);
+    expect(withinTolerance(naiveHalvedRms, trueHalvedRms, { relative: 0.3 }).ok).toBe(true);
 
     // A tolerance test at 1e-4 fails decisively on the naive linear scaling
     const verdict = withinTolerance(naiveHalvedRms, trueHalvedRms, { relative: 1e-4 });
     expect(verdict.ok).toBe(false);
+    expect(verdict.kind).toBe("outside");
   });
 
   test("adversarial fixture: 'doubling viscosity halves displacement' FAILS for intended reason", () => {
@@ -89,9 +89,11 @@ describe("Adversarial Fixtures & Historical Regressions (am-ref-diffusion-lr3)",
     // True RMS scales by 1/sqrt(2)
     expect(Math.abs(rms_doubledEta / (rms_base / Math.SQRT2) - 1)).toBeLessThan(1e-14);
 
-    // Naive 0.5x scaling fails
+    // Naive 0.5x scaling fails: outside 29% relative tolerance, within 30%
     const naiveRms = 0.5 * rms_base;
-    expect(Math.abs(naiveRms - rms_doubledEta) / rms_doubledEta).toBeGreaterThan(0.29);
+    expect(withinTolerance(naiveRms, rms_doubledEta, { relative: 0.29 }).ok).toBe(false);
+    expect(withinTolerance(naiveRms, rms_doubledEta, { relative: 0.3 }).ok).toBe(true);
+    expect(withinTolerance(naiveRms, rms_doubledEta, { relative: 1e-4 }).ok).toBe(false);
   });
 
   test("adversarial fixture: a 1 um radius gives ~0.562 um (printed) or ~0.561 um (modern), not 0.8 um", () => {

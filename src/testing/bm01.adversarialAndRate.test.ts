@@ -1,7 +1,7 @@
 import { describe, expect, test } from "bun:test";
 import { readFileSync } from "node:fs";
 import { strictParse } from "../content/schemas/strictParse.ts";
-import { BM01_CLASSES, BM01_DEFAULTS, BM01_OUTPUTS } from "../experiments/bm01/definition.ts";
+import { BM01_CLASSES, BM01_DEFAULTS } from "../experiments/bm01/definition.ts";
 import { createInstanceStore } from "../experiments/store/instanceStore.ts";
 import { createDeclaredConstantSet, getConstantSet } from "../physics/reference/constants.ts";
 import {
@@ -50,8 +50,6 @@ function printedSet() {
 }
 
 describe("BM-01 Adversarial Fixtures (am-bm-01-tracer-ensemble-hdly)", () => {
-  const modern = getConstantSet("modern-si-2019");
-
   test("adversarial fixture 1: 'halving diffusivity halves displacement' FAILS for intended reason", () => {
     // True physics: lambda_x = sqrt(2 * D * t).
     // Halving D to D/2 gives lambda_x' = sqrt(2 * (D/2) * t) = lambda_x / sqrt(2) ~= 0.7071068 * lambda_x.
@@ -65,14 +63,14 @@ describe("BM-01 Adversarial Fixtures (am-bm-01-tracer-ensemble-hdly)", () => {
     const trueRatio = trueHalvedRms / baselineRms;
     expect(Math.abs(trueRatio - 1 / Math.SQRT2)).toBeLessThan(1e-14);
 
-    // Naive linear scaling assertion must fail
+    // Naive linear scaling assertion must fail: outside 29% relative tolerance, within 30%
     const naiveHalvedRms = 0.5 * baselineRms;
-    const naiveRelativeError = Math.abs(naiveHalvedRms - trueHalvedRms) / trueHalvedRms;
-    expect(naiveRelativeError).toBeGreaterThan(0.29);
-    expect(naiveRelativeError).toBeLessThan(0.30);
+    expect(withinTolerance(naiveHalvedRms, trueHalvedRms, { relative: 0.29 }).ok).toBe(false);
+    expect(withinTolerance(naiveHalvedRms, trueHalvedRms, { relative: 0.3 }).ok).toBe(true);
 
     const verdict = withinTolerance(naiveHalvedRms, trueHalvedRms, { relative: 1e-4 });
     expect(verdict.ok).toBe(false);
+    expect(verdict.kind).toBe("outside");
   });
 
   test("adversarial fixture 2: 'a radial distribution is an ordinary Gaussian' FAILS for intended reason", () => {
@@ -151,7 +149,7 @@ describe("BM-01 Adversarial Fixtures (am-bm-01-tracer-ensemble-hdly)", () => {
     });
     expect(decision.accepted).toBe(true);
 
-    const runIdBefore = store.getSnapshot().accepted!.runId;
+    const runIdBefore = store.getSnapshot().accepted?.runId;
     expect(runIdBefore).toBe("inst-test-observer/run/1");
 
     // Observer change 1: change observation interval
@@ -188,7 +186,7 @@ describe("BM-01 Adversarial Fixtures (am-bm-01-tracer-ensemble-hdly)", () => {
 describe("BM-01 True Physical Rate and Scale Bar (am-bm-01-tracer-ensemble-hdly)", () => {
   test("manifest declares realRate with natural rate and 1 um scale bar", () => {
     const raw = readFileSync("content/experiments/bm-01.yaml", "utf8");
-    const manifest = strictParse(raw, "yaml") as Record<string, any>;
+    const manifest = strictParse(raw, "yaml") as Record<string, unknown>;
     expect(manifest.realRate).toBeDefined();
     expect(manifest.realRate.natural).toBe(true);
     expect(manifest.realRate.quantity).toBe("displacement1d");
