@@ -25,13 +25,16 @@ const MOCK_CARD_CONTEXT: CardLookupContext = {
   },
 };
 
+const baseStage = FIXTURE_JOURNEY_BROWNIAN.stages[0];
+if (!baseStage) throw new Error("Missing baseStage fixture");
+
 describe("journeyEpistemic: integration checks", () => {
   test("a stage citing a post-1904 card without parallelWorkAcknowledged is rejected", () => {
     const unacknowledged = {
       ...FIXTURE_JOURNEY_BROWNIAN,
       stages: [
         {
-          ...FIXTURE_JOURNEY_BROWNIAN.stages[0]!,
+          ...baseStage,
           premiseRefs: [{ cardId: "card-smoluchowski-1906" }],
         },
       ],
@@ -45,7 +48,7 @@ describe("journeyEpistemic: integration checks", () => {
       ...FIXTURE_JOURNEY_BROWNIAN,
       stages: [
         {
-          ...FIXTURE_JOURNEY_BROWNIAN.stages[0]!,
+          ...baseStage,
           premiseRefs: [{ cardId: "card-smoluchowski-1906", parallelWorkAcknowledged: true }],
         },
       ],
@@ -59,7 +62,7 @@ describe("journeyEpistemic: integration checks", () => {
       ...FIXTURE_JOURNEY_BROWNIAN,
       stages: [
         {
-          ...FIXTURE_JOURNEY_BROWNIAN.stages[0]!,
+          ...baseStage,
           premiseRefs: [{ cardId: "card-sutherland-1905", parallelWorkAcknowledged: true }],
         },
       ],
@@ -80,7 +83,7 @@ describe("journeyEpistemic: integration checks", () => {
       ],
       stages: [
         {
-          ...FIXTURE_JOURNEY_BROWNIAN.stages[0]!,
+          ...baseStage,
           premiseRefs: [
             { cardId: "card-osmotic-pressure" },
             { cardId: "", importId: "import-sr-energy-transformation" },
