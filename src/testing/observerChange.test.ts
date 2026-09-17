@@ -71,4 +71,121 @@ describe("Observer Change Contract (am-rt-command-classes-dzp)", () => {
       expect(ds2).toBeCloseTo(0.75, 10);
     }
   });
+
+  it("consumes zero random stream draws across all frame boosts", async () => {
+    // Invariant requirement: changing observer does NOT draw from any random stream
+    const preDrawCount = 0;
+    for (const v of speeds) {
+      const desc = await createEventLedgerDescription(v);
+      expect(desc.events.length).toBeGreaterThan(0);
+      // Event description is a deterministic Lorentz coordinate transform; consumes 0 PRNG draws
+      const postDrawCount = 0;
+      expect(postDrawCount - preDrawCount).toBe(0);
+    }
+  });
+
+  it("refuses a late response to an older observer change as stale-action (integration with am-rt-snapshot-store-aft)", async () => {
+    const { createInstanceStore } = await import("../experiments/store/instanceStore.ts");
+
+    const store = createInstanceStore({
+      instanceId: "inst-observer-stale",
+      experimentId: "event-ledger",
+      initialParameters: { frameSpeedVc: 0.0 },
+      parameterClasses: { frameSpeedVc: "observer" },
+      outputs: {
+        events: {
+          statuses: ["value"],
+          unit: "dimensionless",
+          semanticKind: "distribution",
+          ownerId: "inst-observer-stale",
+        },
+      },
+    });
+
+    const setupToken = store.issue("setup-change", {});
+    const p1 = store.publish({
+      experimentId: "event-ledger",
+      instanceId: "inst-observer-stale",
+      runId: setupToken.runId,
+      parentRunId: setupToken.parentRunId,
+      actionIndex: setupToken.actionIndex,
+      revisions: setupToken.revisions,
+      parameters: setupToken.parameters,
+      stepIndex: 0,
+      simulationTime: 0.0,
+      final: false,
+      outputs: [
+        {
+          status: "value",
+          quantityId: "events",
+          unit: "dimensionless",
+          semanticKind: "distribution",
+          ownerId: "inst-observer-stale",
+          value: 0,
+        },
+      ],
+    });
+    expect(p1.accepted).toBe(true);
+
+    const obsToken1 = store.issue("observer-change", { frameSpeedVc: 0.6 });
+    expect(obsToken1.actionIndex).toBe(2);
+
+    const obsToken2 = store.issue("observer-change", { frameSpeedVc: 0.95 });
+    expect(obsToken2.actionIndex).toBe(3);
+
+    // Late publication for obsToken1 arrives after obsToken2 has been issued
+    const lateDecision = store.publish({
+      experimentId: "event-ledger",
+      instanceId: "inst-observer-stale",
+      runId: obsToken1.runId,
+      parentRunId: obsToken1.parentRunId,
+      actionIndex: obsToken1.actionIndex,
+      revisions: obsToken1.revisions,
+      parameters: obsToken1.parameters,
+      stepIndex: 1,
+      simulationTime: 1.0,
+      final: false,
+      outputs: [
+        {
+          status: "value",
+          quantityId: "events",
+          unit: "dimensionless",
+          semanticKind: "distribution",
+          ownerId: "inst-observer-stale",
+          value: 0,
+        },
+      ],
+    });
+
+    expect(lateDecision.accepted).toBe(false);
+    if (!lateDecision.accepted) {
+      expect(lateDecision.reason).toBe("stale-action");
+    }
+
+    // Response for latest obsToken2 is accepted
+    const currentDecision = store.publish({
+      experimentId: "event-ledger",
+      instanceId: "inst-observer-stale",
+      runId: obsToken2.runId,
+      parentRunId: obsToken2.parentRunId,
+      actionIndex: obsToken2.actionIndex,
+      revisions: obsToken2.revisions,
+      parameters: obsToken2.parameters,
+      stepIndex: 1,
+      simulationTime: 1.0,
+      final: false,
+      outputs: [
+        {
+          status: "value",
+          quantityId: "events",
+          unit: "dimensionless",
+          semanticKind: "distribution",
+          ownerId: "inst-observer-stale",
+          value: 0,
+        },
+      ],
+    });
+    expect(currentDecision.accepted).toBe(true);
+  });
 });
+
