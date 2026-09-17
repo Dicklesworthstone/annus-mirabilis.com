@@ -16,6 +16,7 @@ import {
 
 const FIXTURES_DIR = path.resolve("src/testing/fixtures/provenance");
 const CONFIG_DIR = path.join(FIXTURES_DIR, "facsimile-sources");
+const LOCAL_FILES_ROOT = path.join(FIXTURES_DIR, "local-files");
 
 test("ap-99-001.md valid receipt passes checker and matches SourceAsset golden", () => {
   const filePath = path.join(FIXTURES_DIR, "ap-99-001.md");
@@ -200,6 +201,34 @@ test("Flags: absent local-only file is reported as flag, but escalates to error 
   assert.equal(
     resErr.errors.some((e) => e.rule === "receipt-local-file-missing"),
     true,
+  );
+});
+
+// A receipt cannot be produced for a source that was never pinned: a missing or mismatched
+// SHA-256 against the ACTUAL bytes on disk refuses, paired with the matching digest passing, so
+// the assertion discriminates rather than merely rejecting (am-src-receipt-format-npo5).
+test("A pin-local-only receipt whose actual local file digest disagrees with scan.sha256 refuses", () => {
+  const filePath = path.join(FIXTURES_DIR, "err-local-file-digest-mismatch.md");
+  const content = fs.readFileSync(filePath, "utf8");
+  const result = checkReceipt(content, filePath, { rootDir: LOCAL_FILES_ROOT });
+
+  assert.equal(result.ok, false, "expected the digest disagreement to refuse the receipt");
+  assert.equal(
+    result.errors.some((e) => e.rule === "receipt-local-file-digest-mismatch"),
+    true,
+    `expected rule "receipt-local-file-digest-mismatch", found: ${result.errors.map((e) => e.rule).join(", ")}`,
+  );
+});
+
+test("The SAME local file, with scan.sha256 set to its real digest, passes -- proving the check discriminates", () => {
+  const filePath = path.join(FIXTURES_DIR, "valid-local-file-digest-match.md");
+  const content = fs.readFileSync(filePath, "utf8");
+  const result = checkReceipt(content, filePath, { rootDir: LOCAL_FILES_ROOT });
+
+  assert.equal(result.ok, true, `Expected ok=true, got errors: ${JSON.stringify(result.errors)}`);
+  assert.equal(
+    result.errors.some((e) => e.rule === "receipt-local-file-digest-mismatch"),
+    false,
   );
 });
 
