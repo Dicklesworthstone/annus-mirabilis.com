@@ -27,8 +27,9 @@ test("instrumentChecks: contract validation on ok and broken fixtures", async ()
   try {
     try {
       browser = await chromium.launch({ headless: true });
-    } catch (err: any) {
-      if (err?.code === "EBADF" || err?.message?.includes("EBADF")) return;
+    } catch (err: unknown) {
+      const e = err as { code?: string; message?: string } | null;
+      if (e?.code === "EBADF" || e?.message?.includes("EBADF")) return;
       throw err;
     }
     const page = await browser.newPage();
@@ -62,8 +63,9 @@ test("instrumentChecks: snapshot identity across views on ok and broken fixtures
   try {
     try {
       browser = await chromium.launch({ headless: true });
-    } catch (err: any) {
-      if (err?.code === "EBADF" || err?.message?.includes("EBADF")) return;
+    } catch (err: unknown) {
+      const e = err as { code?: string; message?: string } | null;
+      if (e?.code === "EBADF" || e?.message?.includes("EBADF")) return;
       throw err;
     }
     const page = await browser.newPage();
@@ -93,8 +95,9 @@ test("instrumentChecks: stale response rejection on ok and broken fixtures", asy
   try {
     try {
       browser = await chromium.launch({ headless: true });
-    } catch (err: any) {
-      if (err?.code === "EBADF" || err?.message?.includes("EBADF")) return;
+    } catch (err: unknown) {
+      const e = err as { code?: string; message?: string } | null;
+      if (e?.code === "EBADF" || e?.message?.includes("EBADF")) return;
       throw err;
     }
     const page = await browser.newPage();
@@ -125,8 +128,9 @@ test("instrumentChecks: interactive harness-selftest application execution in re
   try {
     try {
       browser = await chromium.launch({ headless: true });
-    } catch (err: any) {
-      if (err?.code === "EBADF" || err?.message?.includes("EBADF")) return;
+    } catch (err: unknown) {
+      const e = err as { code?: string; message?: string } | null;
+      if (e?.code === "EBADF" || e?.message?.includes("EBADF")) return;
       throw err;
     }
     const page = await browser.newPage();

@@ -7,10 +7,14 @@ test("runSmokeJourney: passes against server serving home page and 404 page", as
   const server = createServer((req, res) => {
     if (req.url === "/") {
       res.writeHead(200, { "Content-Type": "text/html; charset=utf-8" });
-      res.end("<!DOCTYPE html><html><head><title>Annus Mirabilis: 1905</title></head><body><h1>Annus Mirabilis</h1><nav><a href='/paper/brownian-motion'>Brownian Motion</a></nav></body></html>");
+      res.end(
+        "<!DOCTYPE html><html><head><title>Annus Mirabilis: 1905</title></head><body><h1>Annus Mirabilis</h1><nav><a href='/paper/brownian-motion'>Brownian Motion</a></nav></body></html>",
+      );
     } else {
       res.writeHead(404, { "Content-Type": "text/html; charset=utf-8" });
-      res.end("<!DOCTYPE html><html><head><title>404 Not Found</title></head><body><h1>404 Not Found</h1></body></html>");
+      res.end(
+        "<!DOCTYPE html><html><head><title>404 Not Found</title></head><body><h1>404 Not Found</h1></body></html>",
+      );
     }
   });
 
@@ -37,9 +41,11 @@ test("runSmokeJourney: passes against server serving home page and 404 page", as
 });
 
 test("runSmokeJourney: fails when home page does not contain product identity", async () => {
-  const server = createServer((req, res) => {
+  const server = createServer((_req, res) => {
     res.writeHead(200, { "Content-Type": "text/html; charset=utf-8" });
-    res.end("<!DOCTYPE html><html><head><title>Generic Page</title></head><body><h1>Hello World</h1></body></html>");
+    res.end(
+      "<!DOCTYPE html><html><head><title>Generic Page</title></head><body><h1>Hello World</h1></body></html>",
+    );
   });
 
   await new Promise<void>((resolve) => server.listen(0, "127.0.0.1", () => resolve()));

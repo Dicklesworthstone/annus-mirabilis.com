@@ -289,8 +289,14 @@ export async function runFixtureJourneyOnLane(
     const sectionUrl = `${fixtureServerUrl}/fixture-section.html#s1-p2-s1`;
     await session.page.goto(sectionUrl, { waitUntil: "domcontentloaded", timeout: 15_000 });
 
-    await session.page.waitForSelector("[data-reader-root]", { state: "attached", timeout: 15_000 });
-    await session.page.waitForSelector("#s1-p2-s1, [data-anchor='s1-p2-s1']", { state: "attached", timeout: 15_000 });
+    await session.page.waitForSelector("[data-reader-root]", {
+      state: "attached",
+      timeout: 15_000,
+    });
+    await session.page.waitForSelector("#s1-p2-s1, [data-anchor='s1-p2-s1']", {
+      state: "attached",
+      timeout: 15_000,
+    });
 
     const mathCount = await session.page.locator("math").count();
     if (mathCount === 0) {
@@ -298,7 +304,7 @@ export async function runFixtureJourneyOnLane(
     }
 
     const textContent = await session.page.locator("[data-reader-root]").textContent();
-    if (!textContent || !textContent.includes("Osmotic Pressure")) {
+    if (!textContent?.includes("Osmotic Pressure")) {
       throw new Error(`Lane ${lane.name}: Fixture section text not read correctly`);
     }
 
@@ -316,7 +322,11 @@ export async function runFixtureJourneyOnLane(
       // AC 6: The no-WebGL lane confirms WebGL is unavailable and the page stays usable.
       const hasWebgl = await session.page.evaluate(() => {
         const canvas = document.createElement("canvas");
-        return !!(canvas.getContext("webgl") || canvas.getContext("webgl2") || canvas.getContext("experimental-webgl"));
+        return !!(
+          canvas.getContext("webgl") ||
+          canvas.getContext("webgl2") ||
+          canvas.getContext("experimental-webgl")
+        );
       });
       if (hasWebgl) {
         throw new Error(`Lane ${lane.name}: WebGL context is available despite disabling flags`);
@@ -353,13 +363,17 @@ export async function runFixtureJourneyOnLane(
       const parallelLink = session.page.locator("a[href*='view=parallel']").first();
       if ((await parallelLink.count()) > 0) {
         await parallelLink.click();
-        await session.page.waitForSelector("[data-reader-root][data-view='parallel']", { timeout: 5000 });
+        await session.page.waitForSelector("[data-reader-root][data-view='parallel']", {
+          timeout: 5000,
+        });
       }
 
       const sourceLink = session.page.locator("a[href*='view=source']").first();
       if ((await sourceLink.count()) > 0) {
         await sourceLink.click();
-        await session.page.waitForSelector("[data-reader-root][data-view='source']", { timeout: 5000 });
+        await session.page.waitForSelector("[data-reader-root][data-view='source']", {
+          timeout: 5000,
+        });
       }
     }
 
@@ -393,4 +407,3 @@ export async function runFixtureJourneyOnLane(
     await session.close();
   }
 }
-

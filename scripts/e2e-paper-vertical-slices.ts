@@ -178,7 +178,11 @@ export async function main() {
         });
         let failedLanes = 0;
         try {
-          const selectedLanes = parsed.lane ? [LANES.find((l) => l.name === parsed.lane)!] : LANES;
+          const singleLane = parsed.lane ? LANES.find((l) => l.name === parsed.lane) : undefined;
+          if (parsed.lane && !singleLane) {
+            throw new Error(`Unknown lane: ${parsed.lane}`);
+          }
+          const selectedLanes = singleLane ? [singleLane] : LANES;
           for (const lane of selectedLanes) {
             const res = await runFixtureJourneyOnLane(lane, server.url);
             console.log(`[${res.ok ? "PASS" : "FAIL"}] lane ${res.lane}: ${res.message ?? ""}`);
@@ -217,11 +221,16 @@ export async function main() {
       const result = await runSmokeJourney({ baseUrl, headed: parsed.headed });
       for (const check of result.checks) {
         const marker = check.ok ? "PASS" : "FAIL";
-        console.log(`[${marker}] smoke ${check.check} (${Math.round(check.durationMs)}ms): ${check.message ?? ""}`);
+        console.log(
+          `[${marker}] smoke ${check.check} (${Math.round(check.durationMs)}ms): ${check.message ?? ""}`,
+        );
       }
       process.exitCode = result.ok ? 0 : 1;
     } catch (error) {
-      console.error("Smoke journey execution error:", error instanceof Error ? error.message : String(error));
+      console.error(
+        "Smoke journey execution error:",
+        error instanceof Error ? error.message : String(error),
+      );
       process.exitCode = 2;
     }
     return;

@@ -4,7 +4,14 @@ import test from "node:test";
 import { bundleFixtureApps } from "./fixtures/bundleFixtures.ts";
 import { FIXTURE_APP_REGISTRY } from "./fixtures/fixtureApps.ts";
 import { type RunningFixtureServer, startFixtureServer } from "./fixtures/fixtureServer.ts";
-import { createLaneActions, LANES, laneByName, launchLaneSession, runFixtureJourneyOnLane } from "./lanes.ts";
+import {
+  createLaneActions,
+  LANES,
+  type LaneSession,
+  laneByName,
+  launchLaneSession,
+  runFixtureJourneyOnLane,
+} from "./lanes.ts";
 
 const STATIC_ROOT = resolve("src/testing/e2e/fixtures/pages");
 const APPS_ROOT = resolve("artifacts/e2e-fixtures");
@@ -101,7 +108,9 @@ test("every lane has a unique name", () => {
   assert.equal(new Set(names).size, names.length);
 });
 
-test("AC 1: all 11 lanes run fixture journeys and pass on correct fixtures", { timeout: 120000 }, async () => {
+test("AC 1: all 11 lanes run fixture journeys and pass on correct fixtures", {
+  timeout: 120000,
+}, async () => {
   await bundleFixtureApps(FIXTURE_APP_REGISTRY);
   const server: RunningFixtureServer = await startFixtureServer({
     staticRoot: STATIC_ROOT,
@@ -133,7 +142,7 @@ test("AC 5: the JavaScript-disabled lane reads fixture section text and equation
   });
   try {
     const lane = laneByName("js-disabled");
-    let session;
+    let session: LaneSession;
     try {
       session = await launchLaneSession(lane);
     } catch (err: unknown) {
@@ -154,7 +163,10 @@ test("AC 5: the JavaScript-disabled lane reads fixture section text and equation
 
       // Assert fixture section text is readable from static DOM
       const text = await session.page.locator("#s1-p2-s1, [data-anchor='s1-p2-s1']").textContent();
-      assert.ok(text && text.includes("Osmotic Pressure") || text?.length! > 0, "Section text must be readable with JS disabled");
+      assert.ok(
+        text?.includes("Osmotic Pressure") || (text?.length ?? 0) > 0,
+        "Section text must be readable with JS disabled",
+      );
 
       // Assert equation MathML is present in static DOM
       const mathCount = await session.page.locator("math").count();
@@ -181,7 +193,7 @@ test("AC 6: the no-WebGL lane confirms WebGL is unavailable and the page stays u
   });
   try {
     const lane = laneByName("no-webgl");
-    let session;
+    let session: LaneSession;
     try {
       session = await launchLaneSession(lane);
     } catch (err: unknown) {
@@ -199,7 +211,11 @@ test("AC 6: the no-WebGL lane confirms WebGL is unavailable and the page stays u
       // Confirm WebGL context creation returns null
       const webgl = await session.page.evaluate(() => {
         const canvas = document.createElement("canvas");
-        return canvas.getContext("webgl") || canvas.getContext("webgl2") || canvas.getContext("experimental-webgl");
+        return (
+          canvas.getContext("webgl") ||
+          canvas.getContext("webgl2") ||
+          canvas.getContext("experimental-webgl")
+        );
       });
       assert.equal(webgl, null, "WebGL contexts must return null in no-webgl lane");
 
@@ -217,4 +233,3 @@ test("AC 6: the no-WebGL lane confirms WebGL is unavailable and the page stays u
     await server.close();
   }
 });
-

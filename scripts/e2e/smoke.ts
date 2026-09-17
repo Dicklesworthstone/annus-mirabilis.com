@@ -11,7 +11,7 @@
  *    otherwise records an informative pass noting they are pending that bead.
  */
 
-import { type Browser, chromium, type Page } from "playwright";
+import { type Browser, chromium } from "playwright";
 
 export interface SmokeCheckResult {
   readonly check: string;
@@ -41,7 +41,13 @@ export async function runSmokeJourney(options: RunSmokeOptions = {}): Promise<Sm
   const checks: SmokeCheckResult[] = [];
 
   let ownBrowser: Browser | null = null;
-  const browser = options.browser ?? (ownBrowser = await chromium.launch({ headless: options.headed !== true }));
+  let browser: Browser;
+  if (options.browser) {
+    browser = options.browser;
+  } else {
+    ownBrowser = await chromium.launch({ headless: options.headed !== true });
+    browser = ownBrowser;
+  }
 
   try {
     const page = await browser.newPage({
@@ -111,12 +117,18 @@ export async function runSmokeJourney(options: RunSmokeOptions = {}): Promise<Sm
     // 3. Theme toggle check (am-scaf-extract-ui-components-c31 integration)
     const themeStarted = performance.now();
     try {
-      const themeToggle = page.locator("[data-theme-toggle], button[aria-label*='theme' i]").first();
+      const themeToggle = page
+        .locator("[data-theme-toggle], button[aria-label*='theme' i]")
+        .first();
       const count = await themeToggle.count();
       if (count > 0 && (await themeToggle.isVisible())) {
-        const initialTheme = await page.evaluate(() => document.documentElement.getAttribute("data-theme") ?? "light");
+        const initialTheme = await page.evaluate(
+          () => document.documentElement.getAttribute("data-theme") ?? "light",
+        );
         await themeToggle.click();
-        const updatedTheme = await page.evaluate(() => document.documentElement.getAttribute("data-theme") ?? "light");
+        const updatedTheme = await page.evaluate(
+          () => document.documentElement.getAttribute("data-theme") ?? "light",
+        );
         checks.push({
           check: "theme-toggle",
           ok: true,
@@ -143,11 +155,15 @@ export async function runSmokeJourney(options: RunSmokeOptions = {}): Promise<Sm
     // 4. Command palette check (am-scaf-extract-ui-components-c31 integration)
     const paletteStarted = performance.now();
     try {
-      const paletteTrigger = page.locator("[data-command-palette-trigger], button[aria-label*='search' i]").first();
+      const paletteTrigger = page
+        .locator("[data-command-palette-trigger], button[aria-label*='search' i]")
+        .first();
       const count = await paletteTrigger.count();
       if (count > 0 && (await paletteTrigger.isVisible())) {
         await paletteTrigger.click();
-        await page.waitForSelector("[data-command-palette-dialog], [role='dialog']", { timeout: 2000 });
+        await page.waitForSelector("[data-command-palette-dialog], [role='dialog']", {
+          timeout: 2000,
+        });
         checks.push({
           check: "command-palette",
           ok: true,
