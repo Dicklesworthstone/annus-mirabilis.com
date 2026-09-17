@@ -35,8 +35,8 @@ export function checkNfc(text: string, path = "content"): void {
     const lines = text.split(/\r?\n/);
     let lineNum = 1;
     for (let i = 0; i < lines.length; i++) {
-      const line = lines[i]!;
-      if (line !== line.normalize("NFC")) {
+      const line = lines[i];
+      if (line !== undefined && line !== line.normalize("NFC")) {
         lineNum = i + 1;
         break;
       }
@@ -182,7 +182,8 @@ export function parseContentYaml(text: string, path = "content"): unknown {
 
   // Scan line-by-line for forbidden YAML syntax constructs before AST parsing
   for (let idx = 0; idx < lines.length; idx++) {
-    const rawLine = lines[idx]!;
+    const rawLine = lines[idx];
+    if (rawLine === undefined) continue;
     const lineNum = idx + 1;
     const trimmed = rawLine.trim();
 
@@ -275,7 +276,8 @@ function parseYamlStrict(text: string, path: string): unknown {
   const indentKeyStacks = new Map<number, Set<string>>();
 
   for (let idx = 0; idx < lines.length; idx++) {
-    const line = lines[idx]!;
+    const line = lines[idx];
+    if (line === undefined) continue;
     const lineNum = idx + 1;
     const trimmed = line.trim();
     if (!trimmed || trimmed.startsWith("#")) continue;
@@ -288,8 +290,9 @@ function parseYamlStrict(text: string, path: string): unknown {
 
     // Check if line is a mapping key: `key:` or `"key":` or `'key':`
     const match = line.match(/^(\s*)([a-zA-Z0-9_\-"']+)\s*:/);
-    if (match && !trimmed.startsWith("- ")) {
-      const rawKey = match[2]!.replace(/^["']|["']$/g, "");
+    const keyMatch = match?.[2];
+    if (keyMatch && !trimmed.startsWith("- ")) {
+      const rawKey = keyMatch.replace(/^["']|["']$/g, "");
       let set = indentKeyStacks.get(indent);
       if (!set) {
         set = new Set<string>();
@@ -355,7 +358,8 @@ export function validateConstrainedMarkdown(
   const admittedFigures = options?.admittedFigureIds ?? new Set<string>();
 
   for (let idx = 0; idx < lines.length; idx++) {
-    const line = lines[idx]!;
+    const line = lines[idx];
+    if (line === undefined) continue;
     const lineNum = idx + 1;
 
     // 1. Check for <script>
@@ -403,10 +407,11 @@ export function validateConstrainedMarkdown(
     // 5. Check for Markdown image syntax: ![alt](url)
     const imgMatches = line.matchAll(/!\[([^\]]*)\]\(([^)]+)\)/g);
     for (const match of imgMatches) {
-      const url = match[2]!;
+      const url = match[2];
+      if (!url) continue;
       // An admitted image must have an id in admittedFigures or be a recognized internal figure path
       const figureIdMatch = url.match(/^(?:(?:figure|fig)\/|\/figures\/)?([a-zA-Z0-9_-]+)$/);
-      const figureId = figureIdMatch ? figureIdMatch[1]! : url;
+      const figureId = figureIdMatch?.[1] ?? url;
       if (!admittedFigures.has(figureId) && !admittedFigures.has(url)) {
         issues.push({
           code: "image-forbidden",
