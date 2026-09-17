@@ -70,12 +70,14 @@ export function EquationAccessibility({
         <div
           className="equation-visual"
           aria-hidden="true"
-          {...{ dangerouslySetInnerHTML: { __html: html } }}
+          // biome-ignore lint/security/noDangerouslySetInnerHtml: build-time KaTeX output. src/equations/render.ts pins trust to \\htmlClass with three whitelisted classes and \\htmlData with one constrained attribute, everything else false, plus throwOnError, maxExpand 1000 and maxSize 20. No content record or reader input reaches this string.
+          dangerouslySetInnerHTML={{ __html: html }}
         />
         <div
           className="equation-mathml"
           aria-hidden="true"
-          {...{ dangerouslySetInnerHTML: { __html: mathml } }}
+          // biome-ignore lint/security/noDangerouslySetInnerHtml: build-time KaTeX output. src/equations/render.ts pins trust to \\htmlClass with three whitelisted classes and \\htmlData with one constrained attribute, everything else false, plus throwOnError, maxExpand 1000 and maxSize 20. No content record or reader input reaches this string.
+          dangerouslySetInnerHTML={{ __html: mathml }}
         />
         {children}
       </figure>
@@ -98,12 +100,14 @@ export function EquationAccessibility({
         <div
           className="equation-visual"
           aria-hidden="true"
-          {...{ dangerouslySetInnerHTML: { __html: html } }}
+          // biome-ignore lint/security/noDangerouslySetInnerHtml: build-time KaTeX output. src/equations/render.ts pins trust to \\htmlClass with three whitelisted classes and \\htmlData with one constrained attribute, everything else false, plus throwOnError, maxExpand 1000 and maxSize 20. No content record or reader input reaches this string.
+          dangerouslySetInnerHTML={{ __html: html }}
         />
         <div
           className="equation-mathml"
           aria-hidden="true"
-          {...{ dangerouslySetInnerHTML: { __html: mathml } }}
+          // biome-ignore lint/security/noDangerouslySetInnerHtml: build-time KaTeX output. src/equations/render.ts pins trust to \\htmlClass with three whitelisted classes and \\htmlData with one constrained attribute, everything else false, plus throwOnError, maxExpand 1000 and maxSize 20. No content record or reader input reaches this string.
+          dangerouslySetInnerHTML={{ __html: mathml }}
         />
         {children}
       </figure>
@@ -126,12 +130,14 @@ export function EquationAccessibility({
       <div
         className="equation-visual"
         aria-hidden="true"
-        {...{ dangerouslySetInnerHTML: { __html: html } }}
+        // biome-ignore lint/security/noDangerouslySetInnerHtml: build-time KaTeX output. src/equations/render.ts pins trust to \\htmlClass with three whitelisted classes and \\htmlData with one constrained attribute, everything else false, plus throwOnError, maxExpand 1000 and maxSize 20. No content record or reader input reaches this string.
+        dangerouslySetInnerHTML={{ __html: html }}
       />
       <div
         className="equation-mathml"
         data-a11y-mathml="true"
-        {...{ dangerouslySetInnerHTML: { __html: mathmlAnnotated } }}
+        // biome-ignore lint/security/noDangerouslySetInnerHtml: build-time KaTeX output. src/equations/render.ts pins trust to \\htmlClass with three whitelisted classes and \\htmlData with one constrained attribute, everything else false, plus throwOnError, maxExpand 1000 and maxSize 20. No content record or reader input reaches this string.
+        dangerouslySetInnerHTML={{ __html: mathmlAnnotated }}
       />
       {children}
     </figure>
