@@ -16,6 +16,7 @@ const FIXTURE_OWNERS = `| id | displayName | roles | scope | status | consentToB
 | rev-device-1 | Device Tester | real-device-tester | brownian-motion | assigned | yes | jemanuel | 2026-09-16 |
 | trans-1 | Translator Person | translator | brownian-motion | assigned | yes | jemanuel | 2026-09-16 |
 | rev-task-1 | Transfer Reviewer | transfer-task-reviewer | brownian-motion | assigned | yes | jemanuel | 2026-09-16 |
+| open-german-source-brownian-motion | | german-source-reviewer | brownian-motion | open: recruiting | not-applicable | jemanuel | 2026-09-16 |
 `;
 
 const registry = parseOwners(FIXTURE_OWNERS);
@@ -148,7 +149,67 @@ describe("Review Schema and Status Checks", () => {
           result: "accepted",
           scope: [{ recordId: "bm-s1-p1" }],
         }),
-      ReviewValidationError,
+      (err: unknown) => err instanceof ReviewValidationError && err.code === "model-reviewer",
+    );
+  });
+
+  it("planted negative: a record that claims review without a reviewer is refused", () => {
+    assert.throws(
+      () =>
+        validateReviewRecord({
+          id: "rev-no-reviewer",
+          reviewType: "german-source",
+          date: "2026-09-16",
+          result: "accepted",
+          scope: [{ recordId: "bm-s1-p1" }],
+        }),
+      (err: unknown) => err instanceof ReviewValidationError && err.code === "missing-reviewer",
+    );
+    assert.throws(
+      () =>
+        validateReviewRecord({
+          id: "rev-empty-reviewer",
+          reviewType: "german-source",
+          reviewer: "   ",
+          date: "2026-09-16",
+          result: "accepted",
+          scope: [{ recordId: "bm-s1-p1" }],
+        }),
+      (err: unknown) => err instanceof ReviewValidationError && err.code === "missing-reviewer",
+    );
+  });
+
+  it("planted negative: an unfilled recruiting slot cannot sign a review", () => {
+    assert.throws(
+      () =>
+        validateReviewRecord(
+          {
+            id: "rev-open-slot",
+            reviewType: "german-source",
+            reviewer: "open-german-source-brownian-motion",
+            date: "2026-09-16",
+            result: "accepted",
+            scope: [{ recordId: "bm-s1-p1" }],
+          },
+          { ownersRegistry: registry },
+        ),
+      (err: unknown) =>
+        err instanceof ReviewValidationError && err.code === "reviewer-not-assigned",
+    );
+  });
+
+  it("planted negative: an agent id cannot sign a review", () => {
+    assert.throws(
+      () =>
+        validateReviewRecord({
+          id: "rev-agent-1",
+          reviewType: "physics-math",
+          reviewer: "agent:IcyCardinal",
+          date: "2026-09-16",
+          result: "accepted",
+          scope: [{ recordId: "arg-01" }],
+        }),
+      (err: unknown) => err instanceof ReviewValidationError && err.code === "model-reviewer",
     );
   });
 

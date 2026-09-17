@@ -1,6 +1,10 @@
 /**
  * Correction Graph and Staleness Propagation.
  * Specification: am-edit-review-records-hofz (§17.2, §17.7, §4.3)
+ *
+ * A correction is an edge that records the prior state. Nodes are never
+ * silently overwritten: adding a node twice fails, and recording a correction
+ * appends history rather than replacing it.
  */
 
 export type CorrectionLayer =
@@ -25,7 +29,15 @@ export type GraphNode = Readonly<{
   layer: CorrectionLayer;
   revision: number | string;
   unitHash?: string | undefined;
-  dependencies: readonly string[]; // IDs of upstream nodes this node depends on
+  dependencies: readonly string[];
+}>;
+
+export type CorrectionEdge = Readonly<{
+  nodeId: string;
+  layer: CorrectionLayer;
+  fromRevision: number | string;
+  toRevision: number | string;
+  timestamp: string;
 }>;
 
 export type StalenessReport = Readonly<{
@@ -33,21 +45,22 @@ export type StalenessReport = Readonly<{
   correctedLayer: CorrectionLayer;
   staleNodeIds: readonly string[];
   staleReviewTypes: readonly string[];
+  edge: CorrectionEdge;
 }>;
+
+export class CorrectionGraphError extends Error {
+  readonly code: string;
+  constructor(code: string, message: string) {
+    super(message);
+    this.name = "CorrectionGraphError";
+    this.code = code;
+  }
+}
 
 export class CorrectionGraph {
   private readonly nodes = new Map<string, GraphNode>();
-  private readonly dependents = new Map<string, Set<string>>(); // upstream -> downstream
-  private readonly sourceCorrections: Array<{
-    id: string;
-    revision: number | string;
-    timestamp: string;
-  }> = [];
-  private readonly translationCorrections: Array<{
-    id: string;
-    revision: number | string;
-    timestamp: string;
-  }> = [];
+  private readonly dependents = new Map<string, Set<string>>();
+  private readonly edges: CorrectionEdge[] = [];
 
   addNode(node: {
     id: string;
@@ -57,13 +70,19 @@ export class CorrectionGraph {
     unitHash?: string | undefined;
     dependencies?: readonly string[] | undefined;
   }): void {
+    if (this.nodes.has(node.id)) {
+      throw new CorrectionGraphError(
+        "duplicate-node",
+        `Node "${node.id}" is already in the correction graph. Corrections are edges; they do not overwrite a node.`,
+      );
+    }
     const deps = node.dependencies ?? [];
     const fullNode: GraphNode = {
       id: node.id,
       type: node.type,
       layer: node.layer,
       revision: node.revision,
-      unitHash: node.unitHash,
+      ...(node.unitHash !== undefined ? { unitHash: node.unitHash } : {}),
       dependencies: Object.freeze([...deps]),
     };
 
@@ -83,19 +102,38 @@ export class CorrectionGraph {
     return this.nodes.get(id);
   }
 
+  getEdges(): readonly CorrectionEdge[] {
+    return Object.freeze([...this.edges]);
+  }
+
   recordCorrection(
     id: string,
     newRevision: number | string,
     layer: CorrectionLayer,
     timestamp = new Date().toISOString(),
   ): StalenessReport {
-    if (layer === "source") {
-      this.sourceCorrections.push({ id, revision: newRevision, timestamp });
-    } else if (layer === "translation") {
-      this.translationCorrections.push({ id, revision: newRevision, timestamp });
+    const existing = this.nodes.get(id);
+    if (!existing) {
+      throw new CorrectionGraphError(
+        "unknown-node",
+        `Cannot correct "${id}": it is not in the graph.`,
+      );
     }
 
-    // Traverse dependents
+    const edge: CorrectionEdge = Object.freeze({
+      nodeId: id,
+      layer,
+      fromRevision: existing.revision,
+      toRevision: newRevision,
+      timestamp,
+    });
+    this.edges.push(edge);
+
+    this.nodes.set(id, {
+      ...existing,
+      revision: newRevision,
+    });
+
     const visited = new Set<string>();
     const queue = [...(this.dependents.get(id) ?? [])];
 
@@ -107,7 +145,6 @@ export class CorrectionGraph {
       const node = this.nodes.get(current);
       if (!node) continue;
 
-      // Rule: Instrument / visual changes DO NOT stale translation or source reviews
       if (
         layer === "instrument" &&
         (node.type === "source-block" || node.type === "translation-unit")
@@ -115,7 +152,6 @@ export class CorrectionGraph {
         continue;
       }
 
-      // Add downstream dependents to queue
       const nextDeps = this.dependents.get(current);
       if (nextDeps) {
         for (const dep of nextDeps) {
@@ -126,7 +162,6 @@ export class CorrectionGraph {
       }
     }
 
-    // Determine affected review types
     const staleReviewTypes = new Set<string>();
     for (const staleId of visited) {
       const n = this.nodes.get(staleId);
@@ -145,18 +180,15 @@ export class CorrectionGraph {
       correctedLayer: layer,
       staleNodeIds: Object.freeze(Array.from(visited)),
       staleReviewTypes: Object.freeze(Array.from(staleReviewTypes)),
+      edge,
     };
   }
 
-  getSourceCorrections(): readonly { id: string; revision: number | string; timestamp: string }[] {
-    return Object.freeze([...this.sourceCorrections]);
+  getSourceCorrections(): readonly CorrectionEdge[] {
+    return Object.freeze(this.edges.filter((e) => e.layer === "source"));
   }
 
-  getTranslationCorrections(): readonly {
-    id: string;
-    revision: number | string;
-    timestamp: string;
-  }[] {
-    return Object.freeze([...this.translationCorrections]);
+  getTranslationCorrections(): readonly CorrectionEdge[] {
+    return Object.freeze(this.edges.filter((e) => e.layer === "translation"));
   }
 }

@@ -1,6 +1,6 @@
 import assert from "node:assert/strict";
 import { describe, it } from "node:test";
-import { CorrectionGraph } from "./graph.ts";
+import { CorrectionGraph, CorrectionGraphError } from "./graph.ts";
 
 describe("CorrectionGraph", () => {
   it("propagates staleness from source correction to translation units and readings, but not unrelated instruments", () => {
@@ -41,9 +41,14 @@ describe("CorrectionGraph", () => {
     });
 
     // Record typographical correction to source block s2-p3
-    const report = graph.recordCorrection("s2-p3", 2, "source");
+    const report = graph.recordCorrection("s2-p3", 2, "source", "2026-09-17T00:00:00.000Z");
 
     assert.equal(report.correctedId, "s2-p3");
+    assert.equal(report.edge.fromRevision, 1);
+    assert.equal(report.edge.toRevision, 2);
+    assert.equal(report.edge.layer, "source");
+    assert.equal(graph.getNode("s2-p3")?.revision, 2);
+    assert.equal(graph.getEdges().length, 1);
     assert.equal(report.staleNodeIds.includes("s2-p3-tr"), true);
     assert.equal(report.staleNodeIds.includes("reading-r1-s2-p3"), true);
     assert.equal(report.staleNodeIds.includes("bm-06"), false);
@@ -90,5 +95,36 @@ describe("CorrectionGraph", () => {
     const report = graph.recordCorrection("isolated-block", 2, "source");
     assert.equal(report.staleNodeIds.length, 0);
     assert.equal(report.staleReviewTypes.length, 0);
+    assert.equal(report.edge.fromRevision, 1);
+    assert.equal(report.edge.toRevision, 2);
+  });
+
+  it("planted negative: adding a node twice fails rather than overwriting", () => {
+    const graph = new CorrectionGraph();
+    graph.addNode({
+      id: "s1-p1",
+      type: "source-block",
+      layer: "source",
+      revision: 1,
+    });
+    assert.throws(
+      () =>
+        graph.addNode({
+          id: "s1-p1",
+          type: "source-block",
+          layer: "source",
+          revision: 99,
+        }),
+      (err: unknown) => err instanceof CorrectionGraphError && err.code === "duplicate-node",
+    );
+    assert.equal(graph.getNode("s1-p1")?.revision, 1);
+  });
+
+  it("planted negative: correcting an unknown node fails", () => {
+    const graph = new CorrectionGraph();
+    assert.throws(
+      () => graph.recordCorrection("missing", 2, "source"),
+      (err: unknown) => err instanceof CorrectionGraphError && err.code === "unknown-node",
+    );
   });
 });

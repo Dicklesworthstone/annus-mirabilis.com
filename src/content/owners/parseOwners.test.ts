@@ -143,5 +143,8 @@ describe("parseOwners", () => {
     assert.ok(reg.rows.length > 10);
     assert.equal(reg.hasRole("jemanuel", "editorial-owner"), true);
     assert.equal(reg.hasRole("jemanuel", "implementation-owner"), true);
+    assert.equal(reg.isAssigned("jemanuel"), true);
+    assert.equal(reg.isAssigned("open-german-source-brownian-motion"), false);
+    assert.equal(reg.hasRole("open-german-source-brownian-motion", "german-source-reviewer"), true);
   });
 });

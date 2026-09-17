@@ -143,6 +143,62 @@ export class ReviewValidationError extends Error {
 const ISO_DATE_REGEX = /^\d{4}-\d{2}-\d{2}$/;
 const BEAD_ID_REGEX = /^am-[a-z0-9-]+$/;
 
+function assertHumanReviewer(reviewer: string, path: string): void {
+  if (reviewer.startsWith("model:") || reviewer.startsWith("agent:")) {
+    throw new ReviewValidationError(
+      "model-reviewer",
+      `Reviewer "${reviewer}" is a model/agent. Review records must be signed by qualified human reviewers.`,
+      `${path}.reviewer`,
+    );
+  }
+}
+
+function assertReviewerRole(
+  reviewer: string,
+  reviewType: ReviewType,
+  options: ValidateReviewOptions | undefined,
+  path: string,
+): void {
+  if (!options?.ownersRegistry || options.skipOwnerRoleCheck) return;
+  const registry = options.ownersRegistry;
+  const owner = registry.getOwner(reviewer);
+  if (!owner) {
+    throw new ReviewValidationError(
+      "unknown-reviewer",
+      `Reviewer "${reviewer}" is not found in docs/OWNERS.md.`,
+      `${path}.reviewer`,
+    );
+  }
+  if (!registry.isAssigned(reviewer)) {
+    throw new ReviewValidationError(
+      "reviewer-not-assigned",
+      `Reviewer "${reviewer}" is listed in OWNERS.md but is not assigned (status "${owner.status}"). Unfilled recruiting slots cannot sign a review.`,
+      `${path}.reviewer`,
+    );
+  }
+  if (reviewType === "cross-projection") {
+    if (!registry.hasRole(reviewer, "cross-projection-reviewer")) {
+      throw new ReviewValidationError(
+        "invalid-reviewer-role",
+        `Reviewer "${reviewer}" does not hold role "cross-projection-reviewer".`,
+        `${path}.reviewer`,
+      );
+    }
+    return;
+  }
+  const roles = registry.rolesOf(reviewer);
+  const allowedReviewTypes = roles
+    .map((r) => ROLE_TO_REVIEW_TYPE[r as keyof typeof ROLE_TO_REVIEW_TYPE])
+    .filter(Boolean);
+  if (!allowedReviewTypes.includes(reviewType)) {
+    throw new ReviewValidationError(
+      "invalid-reviewer-role",
+      `Reviewer "${reviewer}" has roles [${roles.join(", ")}] which do not permit reviewType "${reviewType}".`,
+      `${path}.reviewer`,
+    );
+  }
+}
+
 export type ValidateReviewOptions = {
   ownersRegistry?: OwnersRegistry | undefined;
   skipOwnerRoleCheck?: boolean | undefined;
@@ -226,33 +282,8 @@ export function validateCrossProjectionRecord(
     );
   }
 
-  if (reviewer.startsWith("model:") || reviewer.startsWith("agent:")) {
-    throw new ReviewValidationError(
-      "model-reviewer",
-      `Reviewer "${reviewer}" is a model/agent. Review records must be signed by qualified human reviewers.`,
-      `${path}.reviewer`,
-    );
-  }
-
-  // Check reviewer in registry if provided
-  if (options?.ownersRegistry && !options.skipOwnerRoleCheck) {
-    const registry = options.ownersRegistry;
-    const owner = registry.getOwner(reviewer);
-    if (!owner) {
-      throw new ReviewValidationError(
-        "unknown-reviewer",
-        `Reviewer "${reviewer}" is not found in docs/OWNERS.md.`,
-        `${path}.reviewer`,
-      );
-    }
-    if (!registry.hasRole(reviewer, "cross-projection-reviewer")) {
-      throw new ReviewValidationError(
-        "invalid-reviewer-role",
-        `Reviewer "${reviewer}" does not hold role "cross-projection-reviewer".`,
-        `${path}.reviewer`,
-      );
-    }
-  }
+  assertHumanReviewer(reviewer, path);
+  assertReviewerRole(reviewer, "cross-projection", options, path);
 
   const date = typeof o.date === "string" ? o.date.trim() : "";
   if (!ISO_DATE_REGEX.test(date)) {
@@ -568,38 +599,8 @@ export function validateReviewRecord(
     );
   }
 
-  if (reviewer.startsWith("model:") || reviewer.startsWith("agent:")) {
-    throw new ReviewValidationError(
-      "model-reviewer",
-      `Reviewer "${reviewer}" is a model/agent. Review records must be signed by qualified human reviewers.`,
-      `${path}.reviewer`,
-    );
-  }
-
-  // Check reviewer in registry if provided
-  if (options?.ownersRegistry && !options.skipOwnerRoleCheck) {
-    const registry = options.ownersRegistry;
-    const owner = registry.getOwner(reviewer);
-    if (!owner) {
-      throw new ReviewValidationError(
-        "unknown-reviewer",
-        `Reviewer "${reviewer}" is not found in docs/OWNERS.md.`,
-        `${path}.reviewer`,
-      );
-    }
-    const roles = registry.rolesOf(reviewer);
-    const allowedReviewTypes = roles
-      .map((r) => ROLE_TO_REVIEW_TYPE[r as keyof typeof ROLE_TO_REVIEW_TYPE])
-      .filter(Boolean);
-
-    if (!allowedReviewTypes.includes(reviewType)) {
-      throw new ReviewValidationError(
-        "invalid-reviewer-role",
-        `Reviewer "${reviewer}" has roles [${roles.join(", ")}] which do not permit reviewType "${reviewType}".`,
-        `${path}.reviewer`,
-      );
-    }
-  }
+  assertHumanReviewer(reviewer, path);
+  assertReviewerRole(reviewer, reviewType, options, path);
 
   const date = typeof o.date === "string" ? o.date.trim() : "";
   if (!ISO_DATE_REGEX.test(date)) {

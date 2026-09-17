@@ -59,6 +59,8 @@ export type OwnersRegistry = Readonly<{
   rolesOf: (id: string) => readonly OwnerRole[];
   hasRole: (id: string, role: string) => boolean;
   getOwner: (id: string) => OwnerRow | undefined;
+  /** True only for a filled, assigned row. Recruiting slots cannot sign a review. */
+  isAssigned: (id: string) => boolean;
 }>;
 
 export class OwnersParseError extends Error {
@@ -299,12 +301,17 @@ export function parseOwners(markdownText: string): OwnersRegistry {
     return byId.get(id);
   };
 
+  const isAssigned = (id: string): boolean => {
+    return byId.get(id)?.status === "assigned";
+  };
+
   return {
     rows: frozenRows,
     byId,
     rolesOf,
     hasRole,
     getOwner,
+    isAssigned,
   };
 }
 
