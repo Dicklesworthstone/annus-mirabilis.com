@@ -133,13 +133,12 @@ export const AUDITED_SCROLL_CLASSES = [
 
 /**
  * Baseline recorded post-fix for am-bc6s (2026-09-17).
- * The fixed files (kitchen/page.tsx, DerivationStepComponent.tsx, SplitTabs.tsx, FacsimileFace.tsx)
+ * The fixed files (kitchen/page.tsx, DerivationStepComponent.tsx, SplitTabs.tsx, FacsimileFace.tsx, edition/Formula.tsx)
  * are at 0 and omitted from this map.
  * May only shrink.
  */
 export const BASELINE = new Map<string, number>([
   ["src/components/discover/BrownianInvestigation.tsx", 1],
-  ["src/components/edition/Formula.tsx", 1],
   ["src/components/lab/bm03/ConfigurationLab.tsx", 1],
   ["src/components/lab/BrownianLab.tsx", 2],
   ["src/components/lab/CameraLab.tsx", 2],
