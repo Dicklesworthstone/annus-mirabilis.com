@@ -1,0 +1,161 @@
+schemaVersion: 1
+id: case-galilean-lorentz
+title: Which constraint makes the difference?
+question: Does a model that works for slow objects also keep the light speed unchanged?
+scope: The low-speed check, the light-speed postulate, and the inverse test ask different questions. Deselecting a requirement changes which questions count; it does not change a computed prediction or disprove classical mechanics.
+review: draft
+defaultBeta: 0.6
+sources:
+  - id: einstein-1905-kinematics
+    label: Einstein (1905), Zur Elektrodynamik bewegter Körper, §§2–5
+    url: https://doi.org/10.1002/andp.19053221004
+    parallelWork: false
+candidates:
+  - id: galilean
+    label: Galilean absolute time
+    modelVersion: galilean-absolute-time-v1
+    circumstances: Ordinary low-speed mechanics with a shared absolute time. A change of coordinates has an inverse; retaining absolute time need not preserve the measured light speed.
+    historicalStatus: available-before-cutoff
+    sourceIds:
+      - einstein-1905-kinematics
+  - id: lorentz
+    label: Einstein’s inertial-frame kinematics
+    modelVersion: lorentz-1905-kinematics-v1
+    circumstances: Aligned inertial frames with the relativity and light-speed postulates. This comparison tests consequences of the resulting map; it does not derive the map from its own predictions.
+    historicalStatus: introduced-in-current-paper
+    sourceIds:
+      - einstein-1905-kinematics
+tests:
+  - id: low-speed
+    label: 'Low-speed composition: 10 m/s plus 10 m/s'
+    kind: constraint
+    test: low-speed
+    inputs:
+      u: 10
+      v: 10
+    tolerance:
+      absolute: 1.0e-09
+      relative: 1.0e-12
+      reason: A stated numerical comparison threshold, not a measurement uncertainty or a confidence interval. The absolute floor also covers zero components.
+    explanation: Both candidates are compared with ordinary addition at the stated low speeds. The relativistic residual uses a cancellation-free expression so rounding two nearly equal speeds does not conceal the difference. This check keeps its own speeds when the main observer setting changes.
+  - id: light-speed
+    label: Light-speed postulate
+    kind: constraint
+    test: light-speed
+    inputs: {}
+    tolerance:
+      absolute: 1.0e-06
+      relative: 1.0e-12
+      reason: A stated numerical comparison threshold, not a measurement uncertainty or a confidence interval. The absolute floor also covers zero components.
+    explanation: Transform the two events on a light ray and divide their spatial separation by their time separation. The required reference is the light speed, not a result copied from the competing candidate.
+  - id: inverse
+    label: Forward map followed by its inverse
+    kind: constraint
+    test: inverse
+    inputs:
+      events:
+        - id: event-1
+          t: -2.25
+          x: -200000000
+          y: -7
+          z: 10
+        - id: event-2
+          t: -2.0
+          x: -100000000
+          y: -6
+          z: 9
+        - id: event-3
+          t: -1.75
+          x: 0
+          y: -5
+          z: 8
+        - id: event-4
+          t: -1.5
+          x: 100000000
+          y: -4
+          z: 7
+        - id: event-5
+          t: -1.25
+          x: 200000000
+          y: -3
+          z: 6
+        - id: event-6
+          t: -1.0
+          x: -200000000
+          y: -2
+          z: 5
+        - id: event-7
+          t: -0.75
+          x: -100000000
+          y: -1
+          z: 4
+        - id: event-8
+          t: -0.5
+          x: 0
+          y: 0
+          z: 3
+        - id: event-9
+          t: -0.25
+          x: 100000000
+          y: 1
+          z: 2
+        - id: event-10
+          t: 0.0
+          x: 200000000
+          y: 2
+          z: 1
+        - id: event-11
+          t: 0.25
+          x: -200000000
+          y: 3
+          z: 0
+        - id: event-12
+          t: 0.5
+          x: -100000000
+          y: 4
+          z: -1
+        - id: event-13
+          t: 0.75
+          x: 0
+          y: 5
+          z: -2
+        - id: event-14
+          t: 1.0
+          x: 100000000
+          y: 6
+          z: -3
+        - id: event-15
+          t: 1.25
+          x: 200000000
+          y: 7
+          z: -4
+        - id: event-16
+          t: 1.5
+          x: -200000000
+          y: 8
+          z: -5
+        - id: event-17
+          t: 1.75
+          x: -100000000
+          y: 9
+          z: -6
+        - id: event-18
+          t: 2.0
+          x: 0
+          y: 10
+          z: -7
+        - id: event-19
+          t: 2.25
+          x: 100000000
+          y: 11
+          z: -8
+        - id: event-20
+          t: 2.5
+          x: 200000000
+          y: 12
+          z: -9
+    tolerance:
+      absolute: 1.0e-06
+      relative: 1.0e-12
+      reason: A stated numerical comparison threshold, not a measurement uncertainty or a confidence interval. The absolute floor also covers zero components.
+    explanation: Transform each event and then reverse the frame velocity with the same candidate. Compare with the original event. Invertibility alone does not establish the light-speed postulate. Time is reported as ct in metres for a common unit, not as an additional physical premise.

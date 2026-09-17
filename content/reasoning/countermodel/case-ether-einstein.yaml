@@ -1,0 +1,180 @@
+schemaVersion: 1
+id: case-ether-einstein
+title: When the chosen observations cannot decide
+question: Can these kinematic measurements distinguish a privileged-frame interpretation?
+scope: These are predicted outcomes of specified measurements, not historical datasets. Compare each candidate with the other. Numerical agreement under these observations does not decide whether an ether exists; disagreement elsewhere would require another stated test. The historical source links are references, not reviewed edition text.
+review: draft
+defaultBeta: 0.6
+sources:
+  - id: einstein-1905-kinematics
+    label: Einstein (1905), Zur Elektrodynamik bewegter Körper, §§2–5
+    url: https://doi.org/10.1002/andp.19053221004
+    parallelWork: false
+  - id: lorentz-1904-transformation
+    label: Lorentz (1904), Electromagnetic phenomena, §§3–4, 8; relative coordinates and local time
+    url: https://en.wikisource.org/wiki/Electromagnetic_phenomena
+    parallelWork: false
+  - id: poincare-1905-june-note
+    label: Poincaré, 5 June 1905, Sur la dynamique de l’électron, pp. 1504–1508; parallel work
+    url: https://fr.wikisource.org/wiki/Sur_la_dynamique_de_l’électron_(juin)
+    parallelWork: true
+candidates:
+  - id: lorentz-ether
+    label: Lorentz’s ether-based kinematics
+    modelVersion: lorentz-1904-local-time-l1-v1
+    circumstances: Relative coordinates, contraction and local time with Lorentz’s scale factor set to one, interpreted with a privileged frame. Velocity composition also uses the group property associated with Poincaré’s June 1905 parallel work.
+    historicalStatus: available-before-cutoff
+    sourceIds:
+      - lorentz-1904-transformation
+      - poincare-1905-june-note
+  - id: lorentz
+    label: Einstein’s inertial-frame kinematics
+    modelVersion: lorentz-1905-kinematics-v1
+    circumstances: Aligned inertial frames with the relativity and light-speed postulates. This comparison tests consequences of the resulting map; it does not derive the map from its own predictions.
+    historicalStatus: introduced-in-current-paper
+    sourceIds:
+      - einstein-1905-kinematics
+tests:
+  - id: events
+    label: Coordinates of twenty specified events
+    kind: observation
+    test: events
+    inputs:
+      events:
+        - id: event-1
+          t: -2.25
+          x: -200000000
+          y: -7
+          z: 10
+        - id: event-2
+          t: -2.0
+          x: -100000000
+          y: -6
+          z: 9
+        - id: event-3
+          t: -1.75
+          x: 0
+          y: -5
+          z: 8
+        - id: event-4
+          t: -1.5
+          x: 100000000
+          y: -4
+          z: 7
+        - id: event-5
+          t: -1.25
+          x: 200000000
+          y: -3
+          z: 6
+        - id: event-6
+          t: -1.0
+          x: -200000000
+          y: -2
+          z: 5
+        - id: event-7
+          t: -0.75
+          x: -100000000
+          y: -1
+          z: 4
+        - id: event-8
+          t: -0.5
+          x: 0
+          y: 0
+          z: 3
+        - id: event-9
+          t: -0.25
+          x: 100000000
+          y: 1
+          z: 2
+        - id: event-10
+          t: 0.0
+          x: 200000000
+          y: 2
+          z: 1
+        - id: event-11
+          t: 0.25
+          x: -200000000
+          y: 3
+          z: 0
+        - id: event-12
+          t: 0.5
+          x: -100000000
+          y: 4
+          z: -1
+        - id: event-13
+          t: 0.75
+          x: 0
+          y: 5
+          z: -2
+        - id: event-14
+          t: 1.0
+          x: 100000000
+          y: 6
+          z: -3
+        - id: event-15
+          t: 1.25
+          x: 200000000
+          y: 7
+          z: -4
+        - id: event-16
+          t: 1.5
+          x: -200000000
+          y: 8
+          z: -5
+        - id: event-17
+          t: 1.75
+          x: -100000000
+          y: 9
+          z: -6
+        - id: event-18
+          t: 2.0
+          x: 0
+          y: 10
+          z: -7
+        - id: event-19
+          t: 2.25
+          x: 100000000
+          y: 11
+          z: -8
+        - id: event-20
+          t: 2.5
+          x: 200000000
+          y: 12
+          z: -9
+    tolerance:
+      absolute: 1.0e-06
+      relative: 1.0e-12
+      reason: A stated numerical comparison threshold, not a measurement uncertainty or a confidence interval. The absolute floor also covers zero components.
+    explanation: One route first forms the Galilean relative coordinate, then applies Lorentz’s scaling and local time. The other uses the existing Lorentz boost owner. Neither route calls the other to produce these event coordinates. Components use ct, x, y and z in metres.
+  - id: rod
+    label: Simultaneous endpoint measurement of a 100 m rod
+    kind: observation
+    test: rod
+    inputs:
+      properLength: 100
+    tolerance:
+      absolute: 1.0e-10
+      relative: 1.0e-12
+      reason: A stated numerical comparison threshold, not a measurement uncertainty or a confidence interval. The absolute floor also covers zero components.
+    explanation: The endpoints are fixed in the rod frame. Each candidate’s inverse map selects the endpoint times that are simultaneous in the laboratory. Equal times in the rod frame would answer a different length question.
+  - id: clock
+    label: Moving-clock seconds per laboratory second
+    kind: observation
+    test: clock
+    inputs: {}
+    tolerance:
+      absolute: 1.0e-12
+      relative: 1.0e-12
+      reason: A stated numerical comparison threshold, not a measurement uncertainty or a confidence interval. The absolute floor also covers zero components.
+    explanation: Transform two events on the moving clock’s worldline. Compare the elapsed rest-frame time per laboratory second. This is an inertial clock-rate comparison, not a round-trip or acceleration experiment.
+  - id: composition
+    label: Collinear composition with an object at 0.6c
+    kind: observation
+    test: composition
+    inputs:
+      worldlineBeta: 0.6
+    tolerance:
+      absolute: 1.0e-06
+      relative: 1.0e-12
+      reason: A stated numerical comparison threshold, not a measurement uncertainty or a confidence interval. The absolute floor also covers zero components.
+    explanation: Transform a rest-frame worldline back to the laboratory with each candidate’s inverse map. The reference is the other candidate’s prediction. Poincaré’s June 1905 contribution is parallel work, not knowledge placed on the 1904 shelf.
