@@ -152,6 +152,8 @@ export default function KitchenGuide() {
           <section
             className="table-scroll kitchen-worksheet"
             aria-label="Blank observation worksheet"
+            // biome-ignore lint/a11y/noNoninteractiveTabindex: a scrollable region must be focusable
+            tabIndex={0}
           >
             <table>
               <caption>
@@ -184,7 +186,14 @@ export default function KitchenGuide() {
             The complete import header includes the schema-version column. Every observation row
             starts with 2.
           </p>
-          <pre className="kitchen-schema">{KITCHEN_COLUMNS.join(",")}</pre>
+          <section
+            className="kitchen-schema"
+            aria-label="Required CSV header and metadata declaration keys"
+            // biome-ignore lint/a11y/noNoninteractiveTabindex: a scrollable region must be focusable
+            tabIndex={0}
+          >
+            <pre>{KITCHEN_COLUMNS.join(",")}</pre>
+          </section>
           <dl>
             {KITCHEN_METADATA_KEYS.map((k) => (
               <div key={k}>

@@ -37,6 +37,8 @@ export function OverflowRegion({
       className="reader-local-overflow"
       data-overflow-affordance="true"
       aria-label="Wide equation or table. Scroll sideways from the keyboard."
+      // biome-ignore lint/a11y/noNoninteractiveTabindex: a scrollable region must be focusable
+      tabIndex={0}
     >
       {children}
     </section>

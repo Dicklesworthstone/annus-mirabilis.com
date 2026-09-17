@@ -83,17 +83,23 @@ export function DerivationStepComponent({
 
       {/* Math Transformation (Before & After) */}
       <div className="step-math-comparison">
-        <div
+        <section
           className="step-math step-from"
           data-highlight-ids={step.changedSubexpressionIds.join(",")}
+          aria-label={`Step ${index + 1} initial mathematical expression`}
+          // biome-ignore lint/a11y/noNoninteractiveTabindex: a scrollable region must be focusable
+          tabIndex={0}
           {...{ dangerouslySetInnerHTML: { __html: fromMarkup.html } }}
         />
         <span className="step-arrow" aria-hidden="true">
           →
         </span>
-        <div
+        <section
           className="step-math step-to"
           data-highlight-ids={step.changedSubexpressionIds.join(",")}
+          aria-label={`Step ${index + 1} transformed mathematical expression`}
+          // biome-ignore lint/a11y/noNoninteractiveTabindex: a scrollable region must be focusable
+          tabIndex={0}
           {...{ dangerouslySetInnerHTML: { __html: toMarkup.html } }}
         />
       </div>

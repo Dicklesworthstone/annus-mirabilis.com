@@ -205,7 +205,12 @@ export function FacsimileFace({
       {/* Page Map Table */}
       <section className="facsimile-pagemap-section" aria-label="Facsimile page map and jumps">
         <h2 className="pagemap-heading">Page Map & Content Concordance</h2>
-        <div className="pagemap-table-container">
+        <section
+          className="pagemap-table-container"
+          aria-label="Facsimile page map concordance"
+          // biome-ignore lint/a11y/noNoninteractiveTabindex: a scrollable region must be focusable
+          tabIndex={0}
+        >
           <table className="facsimile-pagemap-table">
             <thead>
               <tr>
@@ -304,7 +309,7 @@ export function FacsimileFace({
               })}
             </tbody>
           </table>
-        </div>
+        </section>
       </section>
     </article>
   );
