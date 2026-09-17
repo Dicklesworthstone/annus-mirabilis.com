@@ -47,16 +47,33 @@ export interface PlanValidationResult {
 
 const ROOT = resolve(dirname(fileURLToPath(import.meta.url)), "../..");
 
+function toExpectedPageCounts(val: unknown): ExpectedPageCounts {
+  if (!val || typeof val !== "object" || Array.isArray(val)) {
+    return {};
+  }
+  const obj = val as Record<string, unknown>;
+  const counts: ExpectedPageCounts = {};
+  if (typeof obj.displayEquations === "number") {
+    counts.displayEquations = obj.displayEquations;
+  }
+  if (typeof obj.footnoteMarkers === "number") {
+    counts.footnoteMarkers = obj.footnoteMarkers;
+  }
+  if (typeof obj.illegible === "number") {
+    counts.illegible = obj.illegible;
+  }
+  return counts;
+}
+
 export function parseYamlOrJson(text: string): unknown {
   const trimmed = text.trim();
   if (trimmed.startsWith("{")) {
     return JSON.parse(text);
   }
 
-  const result: Record<string, any> = {};
+  const result: Record<string, unknown> = {};
   const lines = text.split("\n");
-  let currentKey = "";
-  let currentObj: Record<string, any> | null = null;
+  let currentObj: Record<string, unknown> | null = null;
   let inExpectedCounts = false;
   let expectedCountsObj: Record<number, ExpectedPageCounts> = {};
 
@@ -69,12 +86,15 @@ export function parseYamlOrJson(text: string): unknown {
     if (inExpectedCounts && indent >= 2) {
       const matchPage = line.trim().match(/^(\d+):\s*(.*)$/);
       if (matchPage) {
-        const pageNum = parseInt(matchPage[1]!, 10);
-        const rest = matchPage[2]?.trim();
-        if (rest) {
-          expectedCountsObj[pageNum] = parsePrimitive(rest);
-        } else {
-          expectedCountsObj[pageNum] = {};
+        const pageStr = matchPage[1];
+        if (pageStr !== undefined) {
+          const pageNum = parseInt(pageStr, 10);
+          const rest = matchPage[2]?.trim();
+          if (rest) {
+            expectedCountsObj[pageNum] = toExpectedPageCounts(parsePrimitive(rest));
+          } else {
+            expectedCountsObj[pageNum] = {};
+          }
         }
         continue;
       }
@@ -96,12 +116,10 @@ export function parseYamlOrJson(text: string): unknown {
       }
 
       if (valStr === "") {
-        currentKey = key;
         currentObj = {};
         result[key] = currentObj;
       } else {
         result[key] = parsePrimitive(valStr);
-        currentKey = "";
         currentObj = null;
       }
     } else if (indent >= 2 && currentObj) {
@@ -116,10 +134,10 @@ export function parseYamlOrJson(text: string): unknown {
   return result;
 }
 
-function parseInlineMapping(str: string): Record<string, any> {
+function parseInlineMapping(str: string): Record<string, unknown> {
   const inner = str.trim().replace(/^\{/, "").replace(/\}$/, "").trim();
   if (!inner) return {};
-  const res: Record<string, any> = {};
+  const res: Record<string, unknown> = {};
   const parts = inner.split(",");
   for (const part of parts) {
     const colonIdx = part.indexOf(":");
@@ -131,7 +149,7 @@ function parseInlineMapping(str: string): Record<string, any> {
   return res;
 }
 
-function parsePrimitive(val: string): any {
+function parsePrimitive(val: string): unknown {
   val = val.trim();
   if (val.startsWith("{") && val.endsWith("}")) {
     return parseInlineMapping(val);
@@ -166,7 +184,7 @@ export function validatePlan(
     };
   }
 
-  const obj = raw as Record<string, any>;
+  const obj = raw as Record<string, unknown>;
 
   // Check for multi-source plan (e.g. keys array or multiple keys declared)
   if (
@@ -202,7 +220,7 @@ export function validatePlan(
     return {
       valid: false,
       errors: [
-        `cloudProcessing is '${obj.cloudProcessing}', but must be 'permitted'. OCR paused by policy.`,
+        `cloudProcessing is '${String(obj.cloudProcessing)}', but must be 'permitted'. OCR paused by policy.`,
       ],
       refusalCode: "CLOUD_PROCESSING_NOT_PERMITTED",
     };
@@ -213,6 +231,7 @@ export function validatePlan(
   }
 
   // Page range validation
+  let validatedPageRange: [number, number] | undefined;
   if (!Array.isArray(obj.pdfPageRange) || obj.pdfPageRange.length !== 2) {
     errors.push("pdfPageRange must be [firstPage, lastPage].");
   } else {
@@ -221,7 +240,7 @@ export function validatePlan(
       return {
         valid: false,
         errors: [
-          `Invalid pdfPageRange: [${first}, ${last}]. Pages must be >= 1 and first <= last.`,
+          `Invalid pdfPageRange: [${String(first)}, ${String(last)}]. Pages must be >= 1 and first <= last.`,
         ],
         refusalCode: "PAGE_RANGE_OUT_OF_BOUNDS",
       };
@@ -236,31 +255,41 @@ export function validatePlan(
         refusalCode: "PAGE_RANGE_OUT_OF_BOUNDS",
       };
     }
+    validatedPageRange = [first, last];
   }
 
   // Chunk size validation (max 4, min 1)
-  const chunkSize = obj.chunkSize ?? 2;
+  const rawChunk = obj.chunkSize;
+  const chunkSize = rawChunk === undefined ? 2 : rawChunk;
   if (typeof chunkSize !== "number" || chunkSize < 1 || chunkSize > 4) {
     return {
       valid: false,
-      errors: [`chunkSize ${chunkSize} is invalid. Must be between 1 and 4.`],
+      errors: [`chunkSize ${String(chunkSize)} is invalid. Must be between 1 and 4.`],
       refusalCode: "CHUNK_TOO_LARGE",
     };
   }
 
   // Concurrency validation (max 2, min 1)
-  const maxConcurrency = obj.maxConcurrency ?? 1;
+  const rawConcurrency = obj.maxConcurrency;
+  const maxConcurrency = rawConcurrency === undefined ? 1 : rawConcurrency;
   if (typeof maxConcurrency !== "number" || maxConcurrency < 1 || maxConcurrency > 2) {
     return {
       valid: false,
-      errors: [`maxConcurrency ${maxConcurrency} exceeds allowed limit (maximum 2).`],
+      errors: [`maxConcurrency ${String(maxConcurrency)} exceeds allowed limit (maximum 2).`],
       refusalCode: "CONCURRENCY_TOO_HIGH",
     };
   }
 
   // Render options
-  const render = obj.render ?? { dpi: 300, format: "png" };
-  if (typeof render !== "object" || render.dpi !== 300 || render.format !== "png") {
+  let validRender = false;
+  const render = obj.render === undefined ? { dpi: 300, format: "png" } : obj.render;
+  if (render && typeof render === "object" && !Array.isArray(render)) {
+    const rObj = render as Record<string, unknown>;
+    if (rObj.dpi === 300 && rObj.format === "png") {
+      validRender = true;
+    }
+  }
+  if (!validRender) {
     errors.push("render must specify { dpi: 300, format: 'png' }.");
   }
 
@@ -273,49 +302,61 @@ export function validatePlan(
   }
 
   // Facsimile digest check if requested
-  if (options.pinnedDigest && obj.facsimileSha256) {
-    if (obj.facsimileSha256.toLowerCase() !== options.pinnedDigest.toLowerCase()) {
-      return {
-        valid: false,
-        errors: [
-          `facsimileSha256 ${obj.facsimileSha256} does not match pinned digest ${options.pinnedDigest}.`,
-        ],
-        refusalCode: "FACSIMILE_DIGEST_MISMATCH",
-      };
+  if (typeof obj.facsimileSha256 === "string") {
+    if (options.pinnedDigest && obj.facsimileSha256) {
+      if (obj.facsimileSha256.toLowerCase() !== options.pinnedDigest.toLowerCase()) {
+        return {
+          valid: false,
+          errors: [
+            `facsimileSha256 ${obj.facsimileSha256} does not match pinned digest ${options.pinnedDigest}.`,
+          ],
+          refusalCode: "FACSIMILE_DIGEST_MISMATCH",
+        };
+      }
+    }
+
+    if (options.facsimileBuffer && obj.facsimileSha256) {
+      const computedDigest = createHash("sha256").update(options.facsimileBuffer).digest("hex");
+      if (obj.facsimileSha256.toLowerCase() !== computedDigest.toLowerCase()) {
+        return {
+          valid: false,
+          errors: [
+            `facsimileSha256 ${obj.facsimileSha256} does not match computed digest ${computedDigest}.`,
+          ],
+          refusalCode: "FACSIMILE_DIGEST_MISMATCH",
+        };
+      }
     }
   }
 
-  if (options.facsimileBuffer && obj.facsimileSha256) {
-    const computedDigest = createHash("sha256").update(options.facsimileBuffer).digest("hex");
-    if (obj.facsimileSha256.toLowerCase() !== computedDigest.toLowerCase()) {
-      return {
-        valid: false,
-        errors: [
-          `facsimileSha256 ${obj.facsimileSha256} does not match computed digest ${computedDigest}.`,
-        ],
-        refusalCode: "FACSIMILE_DIGEST_MISMATCH",
-      };
-    }
-  }
-
-  if (errors.length > 0) {
+  if (errors.length > 0 || !validatedPageRange) {
     return { valid: false, errors };
   }
 
+  const expectedCounts =
+    obj.expectedCounts &&
+    typeof obj.expectedCounts === "object" &&
+    !Array.isArray(obj.expectedCounts)
+      ? (obj.expectedCounts as Record<number, ExpectedPageCounts>)
+      : undefined;
+
   const plan: OcrPlan = {
     planVersion: 1,
-    key: obj.key,
-    facsimilePath: obj.facsimilePath,
-    facsimileSha256: obj.facsimileSha256.toLowerCase(),
-    pdfPageRange: [obj.pdfPageRange[0], obj.pdfPageRange[1]],
+    key: typeof obj.key === "string" ? obj.key : "",
+    facsimilePath: typeof obj.facsimilePath === "string" ? obj.facsimilePath : "",
+    facsimileSha256:
+      typeof obj.facsimileSha256 === "string" ? obj.facsimileSha256.toLowerCase() : "",
+    pdfPageRange: validatedPageRange,
     chunkSize,
     maxConcurrency,
     cloudProcessing: "permitted",
-    cloudProcessingBasisRef: obj.cloudProcessingBasisRef,
+    cloudProcessingBasisRef:
+      typeof obj.cloudProcessingBasisRef === "string" ? obj.cloudProcessingBasisRef : "",
     render: { dpi: 300, format: "png" },
-    instructionsVersion: obj.instructionsVersion,
-    expectedWorkerIdentity: obj.expectedWorkerIdentity,
-    expectedCounts: obj.expectedCounts,
+    instructionsVersion: typeof obj.instructionsVersion === "string" ? obj.instructionsVersion : "",
+    expectedWorkerIdentity:
+      typeof obj.expectedWorkerIdentity === "string" ? obj.expectedWorkerIdentity : "",
+    expectedCounts,
   };
 
   return { valid: true, plan, errors: [] };
@@ -331,10 +372,12 @@ export async function loadPlan(
 
   let buffer: Buffer | undefined;
   if (options.checkFacsimile) {
-    const rawObj = raw as Record<string, any>;
-    if (rawObj && typeof rawObj.facsimilePath === "string") {
-      const facPath = resolve(ROOT, rawObj.facsimilePath);
-      buffer = await readFile(facPath);
+    if (raw && typeof raw === "object" && !Array.isArray(raw)) {
+      const rawObj = raw as Record<string, unknown>;
+      if (typeof rawObj.facsimilePath === "string") {
+        const facPath = resolve(ROOT, rawObj.facsimilePath);
+        buffer = await readFile(facPath);
+      }
     }
   }
 
