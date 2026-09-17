@@ -164,8 +164,8 @@ export function validateRationalDimension(
           slotPath,
         );
       }
-      const [numStr, denStr = "1"] = slot.split("/");
-      const num = parseInt(numStr!, 10);
+      const [numStr = "0", denStr = "1"] = slot.split("/");
+      const num = parseInt(numStr, 10);
       const den = parseInt(denStr, 10);
       return validateRationalScale({ num, den }, slotPath, true);
     } else if (typeof slot === "number" && Number.isInteger(slot)) {
@@ -176,7 +176,14 @@ export function validateRationalDimension(
   });
 
   if (isCgs) {
-    const currentSlot = result[4]!;
+    const currentSlot = result[4];
+    if (!currentSlot) {
+      throw new DimensionSchemaError(
+        "invalid-dimension-length",
+        `Missing current dimension slot at index 4.`,
+        `${path}[4]`,
+      );
+    }
     if (currentSlot.num !== 0) {
       throw new DimensionSchemaError(
         "cgs-nonzero-current",
