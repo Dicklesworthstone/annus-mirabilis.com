@@ -7,6 +7,7 @@ import "../a11y/readingSettings/readingSettings.css";
 import { READING_SETTINGS_PREPAINT } from "../a11y/readingSettings/prepaint";
 import { ReadingSettingsPanel } from "../a11y/readingSettings/ReadingSettingsPanel";
 import { READER_PREPAINT } from "../reader/detail/prepaint";
+import { NotebookLauncher } from "../reader/notebook/NotebookLauncher.tsx";
 import { SearchLauncher } from "../search/SearchLauncher.tsx";
 import { THEME_INIT_SOURCE } from "./theme/themeInit.inline";
 import { ThemeToggle } from "./theme/ThemeToggle";
@@ -40,6 +41,7 @@ export default function RootLayout({ children }: { children: ReactNode }) {
             <a href="/discover/brownian-motion/">Discover</a>
             <a href="/lab/bm-06/">Laboratory</a>
             <SearchLauncher />
+            <NotebookLauncher />
           </nav>
           <ReadingSettingsPanel />
           <ThemeToggle />
