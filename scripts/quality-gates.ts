@@ -375,7 +375,7 @@ export function runQualityGates(options: QualityGatesOptions = {}): QualityGates
       if (!silent) {
         console.error(`✖  ${stepHeader} FAILED in ${stepDuration}ms: ${errorMsg}`);
       }
-      if (rawMode === "fail-fast") {
+      if (rawMode === "fail-fast" || rawMode === "profile") {
         break;
       }
       continue;
@@ -428,7 +428,7 @@ export function runQualityGates(options: QualityGatesOptions = {}): QualityGates
           console.error(`--- stdout ---\n${stdoutText}\n--------------`);
         }
       }
-      if (rawMode === "fail-fast") {
+      if (rawMode === "fail-fast" || rawMode === "profile") {
         break;
       }
     }
@@ -440,15 +440,35 @@ export function runQualityGates(options: QualityGatesOptions = {}): QualityGates
   const skippedCount = results.filter((r) => r.outcome === "skipped").length;
   const refusedCount = results.filter((r) => r.outcome === "refused").length;
 
+  // Ensure that in CI (--all), any step with requiredInCi: true that did not pass is treated as a hard failure
+  // to prevent silently downgrading missing/unavailable required steps to a green run.
+  const unmetRequiredSteps =
+    rawMode === "all"
+      ? results.filter((r) => {
+          const stepDef = allSteps.find((s) => s.id === r.stepId);
+          return stepDef?.requiredInCi && r.reason !== "cadence" && r.outcome !== "passed";
+        })
+      : [];
+
   let overallOutcome: "passed" | "failed" | "refused" = "passed";
   let exitCode = 0;
 
   if (refusedCount > 0) {
     overallOutcome = "refused";
     exitCode = 2;
-  } else if (failedCount > 0 || hasFailed) {
+  } else if (failedCount > 0 || hasFailed || unmetRequiredSteps.length > 0) {
     overallOutcome = "failed";
     exitCode = 1;
+    if (unmetRequiredSteps.length > 0 && !silent) {
+      console.error(
+        `\n🚨 CI Quality Gate Failure: ${unmetRequiredSteps.length} required step(s) did not pass:`,
+      );
+      for (const r of unmetRequiredSteps) {
+        console.error(
+          `   - ${r.stepId} (${r.title}): outcome '${r.outcome}' (${r.message || r.reason || "unmet"})`,
+        );
+      }
+    }
   }
 
   const summary: QualityGatesSummary = {

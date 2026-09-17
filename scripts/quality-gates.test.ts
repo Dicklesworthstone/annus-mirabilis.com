@@ -270,8 +270,8 @@ describe("Quality Gates Runner Engine", () => {
         command: ["bun", "scripts/non-existent-script-xyz.ts"],
         family: "fast",
         cadence: "every-run",
-        requiredInCi: true,
-        requiredInProfiles: ["scaffold"],
+        requiredInCi: false,
+        requiredInProfiles: [],
         availability: {
           scriptPath: "scripts/non-existent-script-xyz.ts",
         },
@@ -285,10 +285,78 @@ describe("Quality Gates Runner Engine", () => {
       silent: true,
     });
 
-    expect(summary.outcome).toBe("passed"); // no hard failures, but not-available is recorded
+    expect(summary.outcome).toBe("passed"); // no hard failures and not required in CI, but not-available is recorded
     expect(summary.notAvailableCount).toBe(1);
     expect(summary.passedCount).toBe(0);
     expect(summary.results[0]?.outcome).toBe("not-available");
+  });
+
+  it("fails with exit code 1 in --all mode when a requiredInCi step is not available (no silent downgrade in CI)", () => {
+    const fixtureSteps: GateStep[] = [
+      {
+        id: "missing-required-script-step",
+        title: "Missing required script step",
+        command: ["bun", "scripts/non-existent-required.ts"],
+        family: "fast",
+        cadence: "every-run",
+        requiredInCi: true,
+        requiredInProfiles: [],
+        availability: {
+          scriptPath: "scripts/non-existent-required.ts",
+        },
+        owner: "test-owner",
+      },
+    ];
+
+    const summary = runQualityGates({
+      steps: fixtureSteps,
+      mode: "all",
+      silent: true,
+    });
+
+    expect(summary.outcome).toBe("failed");
+    expect(summary.exitCode).toBe(1);
+    expect(summary.notAvailableCount).toBe(1);
+    expect(summary.passedCount).toBe(0);
+    expect(summary.results[0]?.outcome).toBe("not-available");
+  });
+
+  it("stops at first failure in profile mode (fail-fast)", () => {
+    const fixtureSteps: GateStep[] = [
+      {
+        id: "failing-step",
+        title: "Failing step",
+        command: ["bun", "-e", "process.exit(1)"],
+        family: "fast",
+        cadence: "every-run",
+        requiredInCi: true,
+        requiredInProfiles: ["scaffold"],
+        availability: {},
+        owner: "test-owner",
+      },
+      {
+        id: "subsequent-step",
+        title: "Should not execute",
+        command: ["bun", "-e", "process.exit(0)"],
+        family: "fast",
+        cadence: "every-run",
+        requiredInCi: true,
+        requiredInProfiles: ["scaffold"],
+        availability: {},
+        owner: "test-owner",
+      },
+    ];
+
+    const summary = runQualityGates({
+      steps: fixtureSteps,
+      profile: "scaffold",
+      silent: true,
+    });
+
+    expect(summary.outcome).toBe("failed");
+    expect(summary.exitCode).toBe(1);
+    expect(summary.failedCount).toBe(1);
+    expect(summary.results.length).toBe(1); // stopped after first failure
   });
 
   it("refuses with exit code 2 in profile mode when a required step is missing or unavailable", () => {
