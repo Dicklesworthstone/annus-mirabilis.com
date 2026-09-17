@@ -33,6 +33,23 @@
 .countermodel-selection label {
   padding-block: 0.5rem;
 }
+.countermodel-scroll {
+  max-width: 100%;
+  overflow-x: auto;
+  margin-block: 0.8rem;
+}
+.countermodel-scroll table {
+  border-collapse: collapse;
+  font-size: 0.8rem;
+  width: 100%;
+  min-width: 28rem;
+}
+.countermodel-scroll th,
+.countermodel-scroll td {
+  border: 1px solid var(--line);
+  padding: 0.4rem;
+  text-align: left;
+}
 .countermodel-matrix {
   width: 100%;
   table-layout: fixed;
@@ -80,23 +97,6 @@
   cursor: pointer;
   min-height: 44px;
   padding-block: 0.7rem;
-}
-.countermodel-scroll {
-  max-width: 100%;
-  overflow-x: auto;
-  margin-block: 0.8rem;
-}
-.countermodel-scroll table {
-  border-collapse: collapse;
-  font-size: 0.8rem;
-  width: 100%;
-  min-width: 28rem;
-}
-.countermodel-scroll th,
-.countermodel-scroll td {
-  border: 1px solid var(--line);
-  padding: 0.4rem;
-  text-align: left;
 }
 .countermodel-digest {
   font-size: 0.8rem;
