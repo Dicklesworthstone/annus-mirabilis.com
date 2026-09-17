@@ -48,6 +48,20 @@ export const analyticLimitExample: ScientificResult = Object.freeze({
   }),
 });
 
+/** ME-02: the rest-frame mass coefficient at v = 0 is L/c^2, not a new experiment. */
+export const me02AnalyticLimitExample: ScientificResult = Object.freeze({
+  quantityId: "massCoefficient",
+  unit: "kg/J",
+  semanticKind: "coefficient",
+  ownerId: "massEnergy.limitingCoefficient",
+  status: "analytic-limit",
+  description: "At v = 0 the mass coefficient is the rest-frame factor L/c^2.",
+  representation: Object.freeze({
+    kind: "coefficient",
+    value: 1.1126500560536184e-17,
+  }),
+});
+
 export const underdeterminedExample: ScientificResult = Object.freeze({
   quantityId: "particle-radius",
   unit: "m",
@@ -128,10 +142,27 @@ export const lq02FiniteCutoffExample: ScientificResult = Object.freeze({
   }),
 });
 
+/** Same classical integral at ν_max = 10^16 Hz: ten times the cutoff cubes the total. */
+export const lq02FiniteCutoff1e16Example: ScientificResult = Object.freeze({
+  quantityId: "spectral-energy-density-total",
+  unit: "J/m^3",
+  semanticKind: "density",
+  ownerId: "radiation.rayleighJeansModeEnergy",
+  status: "value",
+  value: 2.146396e4,
+  uncertainty: Object.freeze({
+    kind: "numerical-error-estimate",
+    magnitude: 1e-3,
+    method: "quadrature-tolerance",
+    guarantee: "bound",
+  }),
+});
+
 export const planStatusExamples: readonly ScientificResult[] = Object.freeze([
   valueExample,
   symbolicExample,
   analyticLimitExample,
+  me02AnalyticLimitExample,
   underdeterminedExample,
   notApplicableExample,
   outsideDomainExample,
@@ -150,7 +181,7 @@ export const ftcsUnstableRefusalExample: RequestRefusal = Object.freeze({
     }),
   ]),
   details: Object.freeze({
-    ratio: 0.55,
+    ratio: 0.5000001,
     limit: 0.5,
     dtMax: 0.0116,
   }),
@@ -167,6 +198,9 @@ export const superluminalObserverRefusalExample: RequestRefusal = Object.freeze(
       action: Object.freeze({ parameterId: "v", value: 0.8 }),
     }),
   ]),
+  details: Object.freeze({
+    beta: 1,
+  }),
 });
 
 export const outsideWienDomainRefusalExample: RequestRefusal = Object.freeze({
@@ -192,6 +226,43 @@ export const invalidSeedRefusalExample: RequestRefusal = Object.freeze({
       action: Object.freeze({ parameterId: "seed", value: "1337" }),
     }),
   ]),
+  details: Object.freeze({
+    input: "01",
+  }),
+});
+
+export const streamIndexOverflowRefusalExample: RequestRefusal = Object.freeze({
+  code: "stream-index-overflow",
+  domainKind: "input",
+  affected: Object.freeze({ parameterIds: Object.freeze(["startIndex"]) }),
+  message: "This request would exceed the random stream's 64-bit draw counter.",
+  rankedRepairs: Object.freeze([
+    Object.freeze({
+      label: "Request fewer draws, or start a new identified stream.",
+    }),
+  ]),
+  details: Object.freeze({
+    startIndex: "18446744073709551614",
+    draws: 1,
+    maxIndex: "18446744073709551615",
+  }),
+});
+
+export const invalidParameterZeroParticlesRefusalExample: RequestRefusal = Object.freeze({
+  code: "invalid-parameter",
+  domainKind: "input",
+  affected: Object.freeze({ parameterIds: Object.freeze(["particleCount"]) }),
+  message: "These inputs do not meet the calculation's stated requirements.",
+  rankedRepairs: Object.freeze([
+    Object.freeze({
+      label: "Use the stated range and input combination.",
+      action: Object.freeze({ parameterId: "particleCount", value: 1 }),
+    }),
+  ]),
+  details: Object.freeze({
+    parameterId: "particleCount",
+    value: 0,
+  }),
 });
 
 export const budgetExhaustedOutcomeExample: ExecutionOutcome = Object.freeze({

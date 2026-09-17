@@ -236,7 +236,19 @@ function jsonDetails(v: unknown, p: string): void {
   object(v, p);
   visit(v, p, 0);
 }
+function rejectMisfiledOutputStatus(input: unknown, channel: "refusal" | "outcome"): void {
+  if (input === null || typeof input !== "object") return;
+  const status = (input as { status?: unknown }).status;
+  if (typeof status === "string" && Object.hasOwn(outputStatusRegistry, status)) {
+    fail(
+      channel,
+      `this is a ${status} output status, not ${channel === "outcome" ? "an execution outcome" : "a request refusal"}`,
+    );
+  }
+}
+
 export function decodeRefusal(input: unknown): RequestRefusal {
+  rejectMisfiledOutputStatus(input, "refusal");
   record(
     {
       code: choices(...Object.keys(refusalCodeRegistry)),
@@ -265,6 +277,7 @@ export function decodeRefusal(input: unknown): RequestRefusal {
 }
 const workBudget = record({ workUnits: count, allocationBytes: count });
 export function decodeOutcome(input: unknown): ExecutionOutcome {
+  rejectMisfiledOutputStatus(input, "outcome");
   const o = object(input, "outcome");
   const required: Record<string, Check> = {
     outcome: choices(...Object.keys(executionOutcomeRegistry)),
