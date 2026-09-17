@@ -1,10 +1,12 @@
 import { describe, expect, test } from "bun:test";
 import {
   classifyAlignableUnit,
+  isGermanSentenceId,
   isPermanentEquationAnchor,
   isPermanentFootnoteId,
   isPermanentGermanId,
   isPermanentParagraphId,
+  paragraphIdOfSentence,
 } from "../../content/editions/alignableIds.ts";
 import { validateManyToManyAlignment } from "../../content/editions/alignment.ts";
 import { getLogger } from "../log/logger.ts";
@@ -77,5 +79,23 @@ describe("alignment consumes the id-scheme reject examples, paired with their si
       outcome: "passed",
       message: "eq-s3-d0 is not an equation anchor; eq-s3-d1 is",
     });
+  });
+
+  test("masthead and part headings classify through the closed id-scheme patterns", () => {
+    expect(classifyAlignableUnit("masthead-title")?.kind).toBe("masthead");
+    expect(classifyAlignableUnit("masthead-author")?.alignsAt).toBe("block");
+    expect(classifyAlignableUnit("part-1")?.kind).toBe("part-heading");
+    expect(classifyAlignableUnit("part-2")?.kind).toBe("part-heading");
+    expect(classifyAlignableUnit("part-3")).toBeNull();
+    expect(classifyAlignableUnit("s3")?.kind).toBe("heading");
+  });
+
+  test("paragraphIdOfSentence uses parseSentenceId then parseParagraphId, including related-document prefix", () => {
+    expect(paragraphIdOfSentence("s3-p1-s2")).toBe("s3-p1");
+    expect(paragraphIdOfSentence("correction-1911-s0-p1-s1")).toBe("correction-1911-s0-p1");
+    expect(paragraphIdOfSentence("S3-p1-s1")).toBeNull();
+    expect(paragraphIdOfSentence("s3-p1")).toBeNull();
+    expect(isGermanSentenceId("s3-p2-s1")).toBe(true);
+    expect(isGermanSentenceId("s3-p2-s1a")).toBe(false);
   });
 });

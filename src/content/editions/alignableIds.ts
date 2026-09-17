@@ -8,6 +8,8 @@
 
 import {
   type AlignableUnitId,
+  MASTHEAD_ID_PATTERN,
+  PART_HEADING_ID_PATTERN,
   parseAlignableUnitId,
   parseClosingId,
   parseEquationAnchor,
@@ -16,7 +18,6 @@ import {
   parseParagraphId,
   parseSentenceId,
   parseTranslationUnitId,
-  SENTENCE_ID_PATTERN,
 } from "../ids.ts";
 
 export type AlignableKind =
@@ -45,10 +46,10 @@ export function classifyAlignableUnit(raw: string): AlignableClassification | nu
   if (parseClosingId(raw).ok) {
     return { id: raw, kind: "closing", alignsAt: "block" };
   }
-  if (/^masthead-(title|author)$/.test(raw)) {
+  if (MASTHEAD_ID_PATTERN.test(raw)) {
     return { id: raw, kind: "masthead", alignsAt: "block" };
   }
-  if (/^part-[12]$/.test(raw)) {
+  if (PART_HEADING_ID_PATTERN.test(raw)) {
     return { id: raw, kind: "part-heading", alignsAt: "block" };
   }
   if (parseHeadingId(raw).ok) {
@@ -82,7 +83,7 @@ export function isPermanentEquationAnchor(raw: string): boolean {
 
 /** German source units never carry a split letter suffix. */
 export function isGermanSentenceId(raw: string): boolean {
-  return SENTENCE_ID_PATTERN.test(raw) && parseSentenceId(raw).ok;
+  return parseSentenceId(raw).ok;
 }
 
 export function requireAlignableId(raw: string): AlignableUnitId {
@@ -94,6 +95,7 @@ export function requireAlignableId(raw: string): AlignableUnitId {
 }
 
 export function paragraphIdOfSentence(sentenceId: string): string | null {
-  const match = sentenceId.match(/^(s\d+-p[1-9]\d*)-s[1-9]\d*$/);
-  return match?.[1] ?? null;
+  if (!parseSentenceId(sentenceId).ok) return null;
+  const paragraphId = sentenceId.replace(/-s[1-9]\d*$/, "");
+  return parseParagraphId(paragraphId).ok ? paragraphId : null;
 }
