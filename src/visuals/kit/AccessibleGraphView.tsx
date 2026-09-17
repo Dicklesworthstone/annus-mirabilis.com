@@ -47,6 +47,8 @@ export interface AccessibleGraphViewProps {
   readonly viewId?: string | undefined;
   /** Indicates if this is an animated/continuous simulation view. */
   readonly animated?: boolean | undefined;
+  /** Force reduced motion (pauses simulation animation and presents static state). */
+  readonly reducedMotion?: boolean | undefined;
   readonly className?: string | undefined;
 }
 
@@ -74,6 +76,7 @@ export function AccessibleGraphView({
   instrumentId,
   viewId,
   animated = false,
+  reducedMotion,
   className = "accessible-graph-view",
 }: AccessibleGraphViewProps): ReactElement {
   const layer1Statement = description ? `${title}. ${description}` : title;
@@ -117,6 +120,7 @@ export function AccessibleGraphView({
       tableData={resolvedTableData}
       scale={scale}
       animated={animated}
+      reducedMotion={reducedMotion}
       initialTableOpen={true}
       className={`accessible-graph-view ${className}`}
     >

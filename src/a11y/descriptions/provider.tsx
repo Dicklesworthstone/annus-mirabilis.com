@@ -80,6 +80,8 @@ export interface GraphDescriptionContainerProps {
   readonly scale?: RepresentationScale | undefined;
   /** Indicates if this is an animated/continuous simulation view. */
   readonly animated?: boolean | undefined;
+  /** Force reduced motion (pauses simulation animation and presents static state). */
+  readonly reducedMotion?: boolean | undefined;
   /** Initial open state of Layer 3 data table (default false). */
   readonly initialTableOpen?: boolean | undefined;
   /** Visual chart / canvas / SVG children. */
@@ -100,13 +102,40 @@ export function GraphDescriptionContainer({
   tableData,
   scale,
   animated = false,
+  reducedMotion,
   initialTableOpen = false,
   children,
   announcementManager,
   className = "accessible-graph-container",
 }: GraphDescriptionContainerProps): ReactElement {
-  const [isPaused, setIsPaused] = useState<boolean>(false);
+  const [isPaused, setIsPaused] = useState<boolean>(() => {
+    if (reducedMotion) return true;
+    if (typeof window !== "undefined" && window.matchMedia) {
+      return window.matchMedia("(prefers-reduced-motion: reduce)").matches;
+    }
+    return false;
+  });
   const [isTableOpen, setIsTableOpen] = useState<boolean>(initialTableOpen);
+
+  useEffect(() => {
+    if (reducedMotion) {
+      setIsPaused(true);
+      return;
+    }
+    if (typeof window !== "undefined" && window.matchMedia) {
+      const mql = window.matchMedia("(prefers-reduced-motion: reduce)");
+      if (mql.matches) {
+        setIsPaused(true);
+      }
+      const onChange = (e: MediaQueryListEvent) => {
+        if (e.matches) setIsPaused(true);
+      };
+      mql.addEventListener?.("change", onChange);
+      return () => {
+        mql.removeEventListener?.("change", onChange);
+      };
+    }
+  }, [reducedMotion]);
 
   // Initialize or memoize the announcement manager
   const manager = useMemo(() => {
@@ -169,6 +198,8 @@ export function GraphDescriptionContainer({
         data-instrument-id={instrumentId}
         data-view-id={viewId}
         data-run-id={runId}
+        data-reduced-motion={reducedMotion || isPaused ? "true" : undefined}
+        style={{ maxWidth: "100%", margin: 0, boxSizing: "border-box" }}
       >
         {/* Layer 1: Header / Accessible name */}
         <figcaption className="graph-layer-1" data-layer="1">

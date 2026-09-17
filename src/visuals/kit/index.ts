@@ -23,3 +23,4 @@ export * from "./scale.ts";
 export * from "./TimeLegend.tsx";
 export * from "./TrajectoryLayer.tsx";
 export * from "./types.ts";
+export * from "./viewGuard.ts";

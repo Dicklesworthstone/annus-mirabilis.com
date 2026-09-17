@@ -127,6 +127,7 @@ export function TrajectoryLayer({
       data-offscreen-count={offscreenCount}
       data-ensemble-count={effectiveTotal}
       data-quantity-id={quantityId}
+      style={{ maxWidth: "100%", overflowX: "hidden", boxSizing: "border-box" }}
     >
       {mode === "canvas" ? (
         <canvas
@@ -134,15 +135,18 @@ export function TrajectoryLayer({
           width={width}
           height={height}
           className="trajectory-canvas"
+          role="img"
           aria-label={`Tracer paths: ${drawnCount} visible in viewport, ${offscreenCount} offscreen out of ${effectiveTotal} total ensemble.`}
+          style={{ maxWidth: "100%", height: "auto", display: "block" }}
         />
       ) : (
         <svg
           viewBox={`0 0 ${width} ${height}`}
-          width={width}
-          height={height}
+          width="100%"
+          height="auto"
           className="trajectory-svg"
           aria-label={`Tracer paths: ${drawnCount} visible, ${offscreenCount} offscreen.`}
+          style={{ maxWidth: "100%", display: "block" }}
         >
           {tracers.map((tracer) => {
             const pos = tracer.positions;

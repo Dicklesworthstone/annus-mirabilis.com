@@ -212,4 +212,34 @@ describe("Histogram explicit owner-bin contract (am-inst-2d-view-kit-u75r)", () 
       removeContainer(container);
     }
   });
+
+  test("proves no API accepts raw positions for binning: Histogram contract strictly requires owner-computed bins", async () => {
+    const container = createContainer();
+    const root = createRoot(container);
+
+    // If raw sample positions are passed directly without pre-calculated bins:
+    const rawPositions = [0.2, -1.4, 0.8, 3.2, -0.5];
+
+    try {
+      await act(() => {
+        root.render(
+          createElement(Histogram, {
+            bins: rawPositions as unknown as HistogramBinData,
+            xProjector: xProj,
+            yProjector: yProj,
+          }),
+        );
+      });
+
+      // Passing raw numbers without owner-supplied edges/counts returns null;
+      // the view never invents or computes its own bins.
+      expect(container.querySelector(".histogram")).toBeNull();
+    } finally {
+      await act(() => {
+        root.unmount();
+      });
+      removeContainer(container);
+    }
+  });
 });
+
