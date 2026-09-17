@@ -3,7 +3,7 @@
  * Bead: am-gov-license-inventory-w6yz
  */
 
-import { join } from "node:path";
+import { join, relative } from "node:path";
 import type { LicenseItem } from "./types.ts";
 
 export interface CollectNpmOptions {
@@ -121,7 +121,14 @@ export function collectNpm(options: CollectNpmOptions): {
     }
 
     let license = extractLicenseFromPkgJson(pkgData);
-    const { licensePath, licenseText } = findLicenseFile(pkgDir, exists, readText);
+    const found = findLicenseFile(pkgDir, exists, readText);
+    const { licenseText } = found;
+    // Record the licence file repo-relative. An absolute path embeds the machine that
+    // generated the notices, so the committed THIRD_PARTY_NOTICES.md could never match
+    // a regeneration on any other checkout (CI failed with stale-committed-inventory
+    // at the first row carrying a File: note).
+    const licensePath =
+      found.licensePath === undefined ? undefined : relative(rootDir, found.licensePath);
 
     if (!license && licenseText) {
       if (
@@ -195,7 +202,8 @@ export function collectNpm(options: CollectNpmOptions): {
         }
       }
       const lf = findLicenseFile(pkgDir, exists, readText);
-      licensePath = lf.licensePath;
+      // Repo-relative for the same reason as the production branch above.
+      licensePath = lf.licensePath === undefined ? undefined : relative(rootDir, lf.licensePath);
       licenseText = lf.licenseText;
     }
 

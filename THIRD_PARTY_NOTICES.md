@@ -12,23 +12,23 @@ This inventory does not state or imply rights to scans, photographs, historical 
 | Package / Asset | Version | License | Source Path | Notes / Reference |
 |---|---|---|---|---|
 | @next/env | 15.5.25 | MIT | `node_modules/@next/env` |  |
-| @swc/helpers | 0.5.15 | Apache-2.0 | `node_modules/@swc/helpers` | File: `/Users/jemanuel/projects/annus-mirabilis.com/node_modules/@swc/helpers/LICENSE` |
-| argparse | 2.0.1 | Python-2.0 | `node_modules/argparse` | File: `/Users/jemanuel/projects/annus-mirabilis.com/node_modules/argparse/LICENSE` |
-| caniuse-lite | 1.0.30001810 | CC-BY-4.0 | `node_modules/caniuse-lite` | File: `/Users/jemanuel/projects/annus-mirabilis.com/node_modules/caniuse-lite/LICENSE` |
+| @swc/helpers | 0.5.15 | Apache-2.0 | `node_modules/@swc/helpers` | File: `node_modules/@swc/helpers/LICENSE` |
+| argparse | 2.0.1 | Python-2.0 | `node_modules/argparse` | File: `node_modules/argparse/LICENSE` |
+| caniuse-lite | 1.0.30001810 | CC-BY-4.0 | `node_modules/caniuse-lite` | File: `node_modules/caniuse-lite/LICENSE` |
 | client-only | 0.0.1 | MIT | `node_modules/client-only` |  |
-| commander | 8.3.0 | MIT | `node_modules/commander` | File: `/Users/jemanuel/projects/annus-mirabilis.com/node_modules/commander/LICENSE` |
-| js-yaml | 4.1.0 | MIT | `node_modules/js-yaml` | File: `/Users/jemanuel/projects/annus-mirabilis.com/node_modules/js-yaml/LICENSE` |
-| katex | 0.18.4 | MIT | `node_modules/katex` | File: `/Users/jemanuel/projects/annus-mirabilis.com/node_modules/katex/LICENSE` |
-| nanoid | 3.3.19 | MIT | `node_modules/nanoid` | File: `/Users/jemanuel/projects/annus-mirabilis.com/node_modules/nanoid/LICENSE` |
-| next | 15.5.25 | MIT | `node_modules/next` | File: `/Users/jemanuel/projects/annus-mirabilis.com/node_modules/next/LICENSE.md` |
-| picocolors | 1.1.1 | ISC | `node_modules/picocolors` | File: `/Users/jemanuel/projects/annus-mirabilis.com/node_modules/picocolors/LICENSE` |
-| postcss | 8.5.26 | MIT | `node_modules/postcss` | File: `/Users/jemanuel/projects/annus-mirabilis.com/node_modules/postcss/LICENSE` |
-| react | 19.0.0 | MIT | `node_modules/react` | File: `/Users/jemanuel/projects/annus-mirabilis.com/node_modules/react/LICENSE` |
-| react-dom | 19.0.0 | MIT | `node_modules/react-dom` | File: `/Users/jemanuel/projects/annus-mirabilis.com/node_modules/react-dom/LICENSE` |
-| scheduler | 0.25.0 | MIT | `node_modules/scheduler` | File: `/Users/jemanuel/projects/annus-mirabilis.com/node_modules/scheduler/LICENSE` |
-| source-map-js | 1.2.1 | BSD-3-Clause | `node_modules/source-map-js` | File: `/Users/jemanuel/projects/annus-mirabilis.com/node_modules/source-map-js/LICENSE` |
-| styled-jsx | 5.1.6 | MIT | `node_modules/styled-jsx` | File: `/Users/jemanuel/projects/annus-mirabilis.com/node_modules/styled-jsx/LICENSE.md` |
-| tslib | 2.8.1 | 0BSD | `node_modules/tslib` | File: `/Users/jemanuel/projects/annus-mirabilis.com/node_modules/tslib/LICENSE.txt` |
+| commander | 8.3.0 | MIT | `node_modules/commander` | File: `node_modules/commander/LICENSE` |
+| js-yaml | 4.1.0 | MIT | `node_modules/js-yaml` | File: `node_modules/js-yaml/LICENSE` |
+| katex | 0.18.4 | MIT | `node_modules/katex` | File: `node_modules/katex/LICENSE` |
+| nanoid | 3.3.19 | MIT | `node_modules/nanoid` | File: `node_modules/nanoid/LICENSE` |
+| next | 15.5.25 | MIT | `node_modules/next` | File: `node_modules/next/LICENSE.md` |
+| picocolors | 1.1.1 | ISC | `node_modules/picocolors` | File: `node_modules/picocolors/LICENSE` |
+| postcss | 8.5.26 | MIT | `node_modules/postcss` | File: `node_modules/postcss/LICENSE` |
+| react | 19.0.0 | MIT | `node_modules/react` | File: `node_modules/react/LICENSE` |
+| react-dom | 19.0.0 | MIT | `node_modules/react-dom` | File: `node_modules/react-dom/LICENSE` |
+| scheduler | 0.25.0 | MIT | `node_modules/scheduler` | File: `node_modules/scheduler/LICENSE` |
+| source-map-js | 1.2.1 | BSD-3-Clause | `node_modules/source-map-js` | File: `node_modules/source-map-js/LICENSE` |
+| styled-jsx | 5.1.6 | MIT | `node_modules/styled-jsx` | File: `node_modules/styled-jsx/LICENSE.md` |
+| tslib | 2.8.1 | 0BSD | `node_modules/tslib` | File: `node_modules/tslib/LICENSE.txt` |
 
 ## 2. Typefaces and Fonts
 
@@ -98,13 +98,13 @@ This inventory does not state or imply rights to scans, photographs, historical 
 
 | Package / Asset | Version | License | Source Path | Notes / Reference |
 |---|---|---|---|---|
-| @axe-core/playwright | 4.10.1 | MPL-2.0 | `node_modules/@axe-core/playwright` | File: `/Users/jemanuel/projects/annus-mirabilis.com/node_modules/@axe-core/playwright/LICENSE` |
+| @axe-core/playwright | 4.10.1 | MPL-2.0 | `node_modules/@axe-core/playwright` | File: `node_modules/@axe-core/playwright/LICENSE` |
 | @biomejs/biome | 2.5.8 | MIT OR Apache-2.0 | `node_modules/@biomejs/biome` |  |
-| @happy-dom/global-registrator | 20.14.5 | MIT | `node_modules/@happy-dom/global-registrator` | File: `/Users/jemanuel/projects/annus-mirabilis.com/node_modules/@happy-dom/global-registrator/LICENSE` |
-| @types/js-yaml | 4.0.9 | MIT | `node_modules/@types/js-yaml` | File: `/Users/jemanuel/projects/annus-mirabilis.com/node_modules/@types/js-yaml/LICENSE` |
-| @types/katex | 0.16.7 | MIT | `node_modules/@types/katex` | File: `/Users/jemanuel/projects/annus-mirabilis.com/node_modules/@types/katex/LICENSE` |
-| @types/node | 22.13.4 | MIT | `node_modules/@types/node` | File: `/Users/jemanuel/projects/annus-mirabilis.com/node_modules/@types/node/LICENSE` |
-| @types/react | 19.0.0 | MIT | `node_modules/@types/react` | File: `/Users/jemanuel/projects/annus-mirabilis.com/node_modules/@types/react/LICENSE` |
-| @types/react-dom | 19.0.0 | MIT | `node_modules/@types/react-dom` | File: `/Users/jemanuel/projects/annus-mirabilis.com/node_modules/@types/react-dom/LICENSE` |
-| playwright | 1.62.1 | Apache-2.0 | `node_modules/playwright` | File: `/Users/jemanuel/projects/annus-mirabilis.com/node_modules/playwright/LICENSE` |
-| typescript | 5.7.3 | Apache-2.0 | `node_modules/typescript` | File: `/Users/jemanuel/projects/annus-mirabilis.com/node_modules/typescript/LICENSE.txt` |
+| @happy-dom/global-registrator | 20.14.5 | MIT | `node_modules/@happy-dom/global-registrator` | File: `node_modules/@happy-dom/global-registrator/LICENSE` |
+| @types/js-yaml | 4.0.9 | MIT | `node_modules/@types/js-yaml` | File: `node_modules/@types/js-yaml/LICENSE` |
+| @types/katex | 0.16.7 | MIT | `node_modules/@types/katex` | File: `node_modules/@types/katex/LICENSE` |
+| @types/node | 22.13.4 | MIT | `node_modules/@types/node` | File: `node_modules/@types/node/LICENSE` |
+| @types/react | 19.0.0 | MIT | `node_modules/@types/react` | File: `node_modules/@types/react/LICENSE` |
+| @types/react-dom | 19.0.0 | MIT | `node_modules/@types/react-dom` | File: `node_modules/@types/react-dom/LICENSE` |
+| playwright | 1.62.1 | Apache-2.0 | `node_modules/playwright` | File: `node_modules/playwright/LICENSE` |
+| typescript | 5.7.3 | Apache-2.0 | `node_modules/typescript` | File: `node_modules/typescript/LICENSE.txt` |
