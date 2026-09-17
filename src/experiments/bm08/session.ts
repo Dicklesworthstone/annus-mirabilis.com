@@ -1,7 +1,7 @@
 import { BM08_PROTOCOL, decodeLabHello, decodeLabResponse } from "../../workers/protocol/bm08.ts";
 import { createHostScheduler, type WorkerChannel } from "../../workers/scheduler/hostScheduler.ts";
 import { parseResult } from "../results/codec.ts";
-import { createInstanceStore } from "../store/instanceStore.ts";
+import { createInstanceStore, type ParameterClass } from "../store/instanceStore.ts";
 import { BM08_CLASSES, BM08_OUTPUTS, type Bm08Parameters } from "./definition.ts";
 import { validateBm08Parameters } from "./parameters.ts";
 export type PreparedBm08Example = Readonly<{
@@ -66,20 +66,28 @@ export function createBm08Session(
       const checked = validateBm08Parameters(merged);
       if (checked.kind !== "accepted") return checked;
       const p = checked.data;
-      const groups: Record<string, Record<string, number | string | boolean>> = {
+      const groups: Record<ParameterClass, Record<string, number | string | boolean>> = {
         input: {},
+        observer: {},
         measurement: {},
         estimator: {},
+        presentation: {},
       };
-      for (const key of Object.keys(p) as (keyof Bm08Parameters)[])
-        if (!Object.is(p[key], previous[key])) groups[BM08_CLASSES[key]]![key] = p[key];
+      for (const key of Object.keys(p) as (keyof Bm08Parameters)[]) {
+        if (!Object.is(p[key], previous[key])) {
+          const cls = BM08_CLASSES[key];
+          groups[cls][key] = p[key];
+        }
+      }
       let request = null;
       for (const [group, command] of [
         ["input", "setup-change"],
         ["measurement", "measurement-change"],
         ["estimator", "estimator-change"],
-      ] as const)
-        if (Object.keys(groups[group]!).length) request = store.issue(command, groups[group]!);
+      ] as const) {
+        const payload = groups[group];
+        if (Object.keys(payload).length) request = store.issue(command, payload);
+      }
       request ??= store.issue("continue");
       if (workerFactory) {
         scheduler ??= createHostScheduler(store, workerFactory, example.sourceDigest, {
@@ -98,6 +106,12 @@ export function createBm08Session(
       scheduler?.dispose();
       scheduler = null;
     },
-    acceptedParameters: () => store.getSnapshot().accepted!.parameters as Bm08Parameters,
+    acceptedParameters: () => {
+      const accepted = store.getSnapshot().accepted;
+      if (!accepted) {
+        throw new Error("Missing accepted parameters in snapshot.");
+      }
+      return accepted.parameters as Bm08Parameters;
+    },
   });
 }
