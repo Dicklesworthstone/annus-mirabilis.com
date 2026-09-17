@@ -442,7 +442,7 @@ export function createGitIgnorePredicate(cwd: string): (path: string) => boolean
           encoding: "utf8",
           stdio: ["ignore", "pipe", "ignore"],
         });
-        if (res.status === 0 && Boolean(res.stdout && res.stdout.trim().length > 0)) {
+        if (res.status === 0 && res.stdout && res.stdout.trim().length > 0) {
           return true;
         }
       }

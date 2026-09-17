@@ -7,11 +7,11 @@
 
 import { afterEach, beforeEach, describe, expect, test } from "bun:test";
 import {
-  BASE_URL,
-  type LogWriter,
   __resetLogWriterForTesting,
   __setLogWriterForTesting,
+  BASE_URL,
   checkUrl,
+  type LogWriter,
   logEvent,
   runSmokeTests,
   toolRunId,

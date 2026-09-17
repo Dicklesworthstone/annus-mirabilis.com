@@ -12,7 +12,7 @@
  * - Fails closed on any contract violation or test failure.
  */
 
-import { existsSync, mkdirSync, readFileSync, writeFileSync } from "node:fs";
+import { existsSync, mkdirSync, writeFileSync } from "node:fs";
 import { join } from "node:path";
 import { pathToFileURL } from "node:url";
 import {
@@ -113,7 +113,8 @@ export function verifyPublicationContract(
         target: "scripts/app-router-architecture.ts",
         outcome: "passed",
         durationMs: Date.now() - archStart,
-        message: "Architecture contract verified (App Router purity, root allowlist, no legacy files).",
+        message:
+          "Architecture contract verified (App Router purity, root allowlist, no legacy files).",
       });
       if (!silent) {
         console.log("✔ Preflight architecture check PASSED");
@@ -216,7 +217,8 @@ export function verifyPublicationContract(
   const exitCode = hasRefusal ? 2 : hasFailure ? 1 : 0;
 
   // Write structured JSONL logs
-  const baseLogsDir = options.logsDir || join(rootDir, "artifacts", "test-logs", "publication-contract");
+  const baseLogsDir =
+    options.logsDir || join(rootDir, "artifacts", "test-logs", "publication-contract");
   if (!existsSync(baseLogsDir)) {
     mkdirSync(baseLogsDir, { recursive: true });
   }
@@ -248,7 +250,9 @@ export function verifyPublicationContract(
     beadId: "am-rel-verified-deploy-qndt",
     outcome: success ? "passed" : hasRefusal ? "refused" : "failed",
     durationMs: Date.now() - startTime,
-    message: success ? "All publication contracts satisfied." : "Publication contract check failed.",
+    message: success
+      ? "All publication contracts satisfied."
+      : "Publication contract check failed.",
     extra: {
       total: results.length,
       passed: passedCount,
@@ -262,7 +266,9 @@ export function verifyPublicationContract(
 
   if (!silent) {
     console.log("\n======================================================");
-    console.log(`📊 Publication Contract Summary: ${success ? "PASSED" : "FAILED"} (exit: ${exitCode})`);
+    console.log(
+      `📊 Publication Contract Summary: ${success ? "PASSED" : "FAILED"} (exit: ${exitCode})`,
+    );
     console.log(`   Passed: ${passedCount} | Failed: ${failedCount} | Refused: ${refusedCount}`);
     console.log(`   Structured log: ${logPath}`);
     console.log("======================================================\n");

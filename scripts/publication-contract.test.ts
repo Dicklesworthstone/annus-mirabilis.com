@@ -5,10 +5,7 @@
 
 import { describe, expect, test } from "bun:test";
 import { existsSync, readFileSync } from "node:fs";
-import {
-  PUBLICATION_CONTRACT_TESTS,
-  verifyPublicationContract,
-} from "./publication-contract.ts";
+import { PUBLICATION_CONTRACT_TESTS, verifyPublicationContract } from "./publication-contract.ts";
 import type { ObservedSubprocess } from "./spawnObserved.ts";
 
 describe("Publication Contract Verification Suite", () => {
@@ -20,7 +17,7 @@ describe("Publication Contract Verification Suite", () => {
   });
 
   test("runs successfully with an injected mock runner returning exit code 0", () => {
-    const mockSpawn = (cmd: string, args: readonly string[]): ObservedSubprocess => {
+    const mockSpawn = (_cmd: string, _args: readonly string[]): ObservedSubprocess => {
       return {
         kind: "subprocess",
         exitCode: 0,
@@ -61,7 +58,7 @@ describe("Publication Contract Verification Suite", () => {
   });
 
   test("fails with exit code 1 if an executed contract test returns non-zero", () => {
-    const failingSpawn = (cmd: string, args: readonly string[]): ObservedSubprocess => {
+    const failingSpawn = (_cmd: string, _args: readonly string[]): ObservedSubprocess => {
       return {
         kind: "subprocess",
         exitCode: 1,
@@ -97,6 +94,8 @@ describe("Publication Contract Verification Suite", () => {
 
     expect(summary.success).toBe(false);
     expect(summary.exitCode).toBe(1);
-    expect(summary.results.some((r) => r.message?.includes("Simulated subprocess launch failure"))).toBe(true);
+    expect(
+      summary.results.some((r) => r.message?.includes("Simulated subprocess launch failure")),
+    ).toBe(true);
   });
 });

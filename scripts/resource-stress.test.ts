@@ -299,7 +299,11 @@ describe("Resource Stress and Memory Lifecycle Contracts (am-rt-memory-lifecycle
 
       assert.equal(coord.isPaused, true);
       assert.equal(coord.pauseReason, "reduced-motion");
-      assert.equal(coord.canStepManually, true, "Manual stepping must remain enabled under reduced-motion");
+      assert.equal(
+        coord.canStepManually,
+        true,
+        "Manual stepping must remain enabled under reduced-motion",
+      );
     });
   });
 
@@ -318,8 +322,26 @@ describe("Resource Stress and Memory Lifecycle Contracts (am-rt-memory-lifecycle
         scientificDigest: `digest-${id}`,
       });
 
-      manager.register("lab-1", () => dummyState("lab-1"), (s) => { suspendedLabId = s.laboratoryId; }, (s) => { resumedLabId = s.laboratoryId; });
-      manager.register("lab-2", () => dummyState("lab-2"), (s) => { suspendedLabId = s.laboratoryId; }, (s) => { resumedLabId = s.laboratoryId; });
+      manager.register(
+        "lab-1",
+        () => dummyState("lab-1"),
+        (s) => {
+          suspendedLabId = s.laboratoryId;
+        },
+        (s) => {
+          resumedLabId = s.laboratoryId;
+        },
+      );
+      manager.register(
+        "lab-2",
+        () => dummyState("lab-2"),
+        (s) => {
+          suspendedLabId = s.laboratoryId;
+        },
+        (s) => {
+          resumedLabId = s.laboratoryId;
+        },
+      );
 
       assert.equal(manager.activeCount, 2);
       assert.equal(manager.suspendedCount, 0);
@@ -328,7 +350,16 @@ describe("Resource Stress and Memory Lifecycle Contracts (am-rt-memory-lifecycle
       manager.touch("lab-2");
 
       // Register lab-3 -> exceeds limit 2, so lab-1 must be suspended
-      manager.register("lab-3", () => dummyState("lab-3"), (s) => { suspendedLabId = s.laboratoryId; }, (s) => { resumedLabId = s.laboratoryId; });
+      manager.register(
+        "lab-3",
+        () => dummyState("lab-3"),
+        (s) => {
+          suspendedLabId = s.laboratoryId;
+        },
+        (s) => {
+          resumedLabId = s.laboratoryId;
+        },
+      );
 
       assert.equal(suspendedLabId, "lab-1");
       assert.equal(manager.activeCount, 2);

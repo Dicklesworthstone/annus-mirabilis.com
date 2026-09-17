@@ -13,8 +13,6 @@ import {
   type AppBuildManifest,
   checkInitialRouteGraph,
   INITIAL_ROUTE_JS_BUDGET_BYTES,
-  normalizeAppManifestKey,
-  normalizeRoute,
 } from "./perf/initialRouteGraph.ts";
 import { evaluateInstrumentFeedback } from "./perf/instrumentFeedback.ts";
 import { evaluateInteractionLatency } from "./perf/interactionLatency.ts";
@@ -57,7 +55,7 @@ export async function runPerformanceBudgets(
   const toolRunId = opts.toolRunId ?? newLogRunId();
   const logPath = logPathFor(SUITE, logRunId, root);
 
-  const budgetsFile = loadCommittedBudgets(resolve(root, "perf/budgets.json"));
+  const _budgetsFile = loadCommittedBudgets(resolve(root, "perf/budgets.json"));
   const profilesFile = loadCommittedProfiles();
   const calibration = computeCalibration();
 
@@ -196,9 +194,10 @@ export async function runPerformanceBudgets(
   // -------------------------------------------------------------------------
   // Row 3: Visible text and math on mobile-low-cost (cold cache, no JS)
   // -------------------------------------------------------------------------
-  const mathHtmlSample = opts.plantViolationRow === 3
-    ? "<html><body><p>Missing mathml</p><div class='katex'>no math tag</div></body></html>"
-    : `<html>
+  const mathHtmlSample =
+    opts.plantViolationRow === 3
+      ? "<html><body><p>Missing mathml</p><div class='katex'>no math tag</div></body></html>"
+      : `<html>
         <head>
           <style>
             @font-face {
@@ -231,25 +230,25 @@ export async function runPerformanceBudgets(
   // -------------------------------------------------------------------------
   // Row 4: Interaction latency p75 on mobile-low-cost (<= 200 ms)
   // -------------------------------------------------------------------------
-  const sampleLatencyDurations = opts.plantViolationRow === 4
-    ? Array.from({ length: 20 }, (_, i) => ({
-        name: "click",
-        entryType: "event",
-        startTime: i * 100,
-        duration: 220, // Planted over budget
-        interactionId: i + 1,
-      }))
-    : Array.from({ length: 20 }, (_, i) => ({
-        name: "click",
-        entryType: "event",
-        startTime: i * 100,
-        duration: 30 + i * 4, // 30ms to 106ms (15th is 86ms <= 200ms)
-        interactionId: i + 1,
-      }));
+  const sampleLatencyDurations =
+    opts.plantViolationRow === 4
+      ? Array.from({ length: 20 }, (_, i) => ({
+          name: "click",
+          entryType: "event",
+          startTime: i * 100,
+          duration: 220, // Planted over budget
+          interactionId: i + 1,
+        }))
+      : Array.from({ length: 20 }, (_, i) => ({
+          name: "click",
+          entryType: "event",
+          startTime: i * 100,
+          duration: 30 + i * 4, // 30ms to 106ms (15th is 86ms <= 200ms)
+          interactionId: i + 1,
+        }));
 
-  let interactionLatencyResult;
   try {
-    interactionLatencyResult = evaluateInteractionLatency(sampleLatencyDurations);
+    const interactionLatencyResult = evaluateInteractionLatency(sampleLatencyDurations);
     recordMetric(
       "interaction-latency-p75",
       !interactionLatencyResult.overBudget,
@@ -259,24 +258,19 @@ export async function runPerformanceBudgets(
       `p75 latency ${interactionLatencyResult.p75LatencyMs} ms across ${interactionLatencyResult.interactionCount} interactions`,
     );
   } catch (err) {
-    recordMetric(
-      "interaction-latency-p75",
-      false,
-      200,
-      String(err),
-      "ms",
-    );
+    recordMetric("interaction-latency-p75", false, 200, String(err), "ms");
   }
 
   // -------------------------------------------------------------------------
   // Row 5: Cumulative layout shift (<= 0.1)
   // -------------------------------------------------------------------------
-  const sampleLayoutShifts = opts.plantViolationRow === 5
-    ? [{ startTime: 100, value: 0.15, hadRecentInput: false }] // Planted over budget
-    : [
-        { startTime: 100, value: 0.02, hadRecentInput: false },
-        { startTime: 250, value: 0.01, hadRecentInput: false },
-      ];
+  const sampleLayoutShifts =
+    opts.plantViolationRow === 5
+      ? [{ startTime: 100, value: 0.15, hadRecentInput: false }] // Planted over budget
+      : [
+          { startTime: 100, value: 0.02, hadRecentInput: false },
+          { startTime: 250, value: 0.01, hadRecentInput: false },
+        ];
 
   const layoutShiftResult = evaluateLayoutShift(sampleLayoutShifts);
   recordMetric(
@@ -291,17 +285,34 @@ export async function runPerformanceBudgets(
   // -------------------------------------------------------------------------
   // Row 6: Instrument feedback (input to accepted paint <= 100 ms)
   // -------------------------------------------------------------------------
-  const sampleMarks = opts.plantViolationRow === 6
-    ? [
-        { name: "am:input", startTime: 100, detail: { instanceId: "inst-1", actionIndex: 1 } },
-        { name: "am:accepted", startTime: 180, detail: { instanceId: "inst-1", actionIndex: 1, snapshotVersion: 1 } },
-        { name: "am:painted", startTime: 250, detail: { instanceId: "inst-1", actionIndex: 1, snapshotVersion: 1 } }, // 150 ms > 100 ms
-      ]
-    : [
-        { name: "am:input", startTime: 100, detail: { instanceId: "inst-1", actionIndex: 1 } },
-        { name: "am:accepted", startTime: 130, detail: { instanceId: "inst-1", actionIndex: 1, snapshotVersion: 1 } },
-        { name: "am:painted", startTime: 165, detail: { instanceId: "inst-1", actionIndex: 1, snapshotVersion: 1 } }, // 65 ms <= 100 ms
-      ];
+  const sampleMarks =
+    opts.plantViolationRow === 6
+      ? [
+          { name: "am:input", startTime: 100, detail: { instanceId: "inst-1", actionIndex: 1 } },
+          {
+            name: "am:accepted",
+            startTime: 180,
+            detail: { instanceId: "inst-1", actionIndex: 1, snapshotVersion: 1 },
+          },
+          {
+            name: "am:painted",
+            startTime: 250,
+            detail: { instanceId: "inst-1", actionIndex: 1, snapshotVersion: 1 },
+          }, // 150 ms > 100 ms
+        ]
+      : [
+          { name: "am:input", startTime: 100, detail: { instanceId: "inst-1", actionIndex: 1 } },
+          {
+            name: "am:accepted",
+            startTime: 130,
+            detail: { instanceId: "inst-1", actionIndex: 1, snapshotVersion: 1 },
+          },
+          {
+            name: "am:painted",
+            startTime: 165,
+            detail: { instanceId: "inst-1", actionIndex: 1, snapshotVersion: 1 },
+          }, // 65 ms <= 100 ms
+        ];
 
   const instrumentFeedbackResult = evaluateInstrumentFeedback(sampleMarks);
   recordMetric(
@@ -316,9 +327,10 @@ export async function runPerformanceBudgets(
   // -------------------------------------------------------------------------
   // Row 7: Animation frame timing (desktop <= 16.7 ms, mobile <= 33.4 ms)
   // -------------------------------------------------------------------------
-  const sampleFrameIntervals = opts.plantViolationRow === 7
-    ? Array.from({ length: 60 }, () => 45.0) // Planted: 45ms median > 33.4ms
-    : Array.from({ length: 60 }, () => 16.6); // 16.6 ms steady 60 Hz
+  const sampleFrameIntervals =
+    opts.plantViolationRow === 7
+      ? Array.from({ length: 60 }, () => 45.0) // Planted: 45ms median > 33.4ms
+      : Array.from({ length: 60 }, () => 16.6); // 16.6 ms steady 60 Hz
 
   const frameTimingResult = evaluateFrameTiming("desktop-capable", sampleFrameIntervals);
   recordMetric(
@@ -389,7 +401,8 @@ export async function runPerformanceBudgets(
 
 async function main(): Promise<void> {
   const plantViolationArg = process.argv.indexOf("--plant-violation");
-  const plantViolationRow = plantViolationArg !== -1 ? parseInt(process.argv[plantViolationArg + 1], 10) : undefined;
+  const plantViolationRow =
+    plantViolationArg !== -1 ? parseInt(process.argv[plantViolationArg + 1], 10) : undefined;
 
   const result = await runPerformanceBudgets({ plantViolationRow });
   if (!result.ok) {

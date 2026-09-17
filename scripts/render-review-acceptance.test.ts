@@ -92,9 +92,7 @@ describe("render-review-acceptance", () => {
     const updatedContent = fs.readFileSync(targetReceiptCopy, "utf8");
     assert.equal(updatedContent.includes("### Verified Review Records"), true);
     assert.equal(
-      updatedContent.includes(
-        "German source review: accepted by Dr. Hans Schmidt on 2026-09-16.",
-      ),
+      updatedContent.includes("German source review: accepted by Dr. Hans Schmidt on 2026-09-16."),
       true,
     );
     assert.equal(updatedContent.includes("Dr. Hans Schmidt"), true);
@@ -104,7 +102,8 @@ describe("render-review-acceptance", () => {
 
     // Also verify when ledgerStatus is 'reviewed', checkReceipt passes with signed acceptance
     const reviewedReceiptCopy = path.join(logDir, "ap-99-001-reviewed.md");
-    const reviewedContentRaw = fs.readFileSync(fixtureReceiptSource, "utf8")
+    const reviewedContentRaw = fs
+      .readFileSync(fixtureReceiptSource, "utf8")
       .replace("ledgerStatus: in-progress", "ledgerStatus: reviewed");
     fs.writeFileSync(reviewedReceiptCopy, reviewedContentRaw, "utf8");
 

@@ -33,7 +33,12 @@ import { newToolRunId } from "./runIds";
 export const BASE_URL = process.env.BASE_URL || "https://annus-mirabilis.com";
 
 export const toolRunId = newToolRunId();
-export const artifactDirectory = path.join(process.cwd(), "artifacts", "smoke-test-deployment", toolRunId);
+export const artifactDirectory = path.join(
+  process.cwd(),
+  "artifacts",
+  "smoke-test-deployment",
+  toolRunId,
+);
 export const logPath = path.join(artifactDirectory, "events.jsonl");
 
 export type LogWriter = (step: string, outcome: "pass" | "fail", message: string) => void;
@@ -90,8 +95,9 @@ export async function checkUrl(
     console.log(`✓ OK: ${message}`);
     logEvent(`check:${routePath}`, "pass", message);
     return true;
-  } catch (err: any) {
-    const message = `${url} - ${err.message}`;
+  } catch (err: unknown) {
+    const errMessage = err instanceof Error ? err.message : String(err);
+    const message = `${url} - ${errMessage}`;
     console.error(`❌ NETWORK ERROR: ${message}`);
     logEvent(`check:${routePath}`, "fail", message);
     return false;
