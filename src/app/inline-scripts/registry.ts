@@ -17,6 +17,7 @@
  */
 
 import { READING_SETTINGS_PREPAINT } from "../../a11y/readingSettings/prepaint.ts";
+import { FORMULA_OVERFLOW_SOURCE } from "../../components/edition/formulaOverflow.inline.ts";
 import { OFFLINE_DETAIL_SOURCE } from "../../platform/offline/detail.inline.ts";
 import { READER_PREPAINT } from "../../reader/detail/prepaint.ts";
 import { ROOT_ARMING_SOURCE } from "../../reader/rootArming.inline.ts";
@@ -105,6 +106,13 @@ export const INLINE_SCRIPT_REGISTRY: InlineScriptRegistry = Object.freeze([
     ownerBeadId: "am-design-themes-typography-288q",
     module: "src/app/theme/themeInit.inline.ts",
     source: THEME_INIT_SOURCE,
+    routes: "all",
+  }),
+  Object.freeze({
+    id: "formula-overflow",
+    ownerBeadId: "am-bc6s",
+    module: "src/components/edition/formulaOverflow.inline.ts",
+    source: FORMULA_OVERFLOW_SOURCE,
     routes: "all",
   }),
 ]);

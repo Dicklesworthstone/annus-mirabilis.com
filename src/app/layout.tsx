@@ -6,6 +6,7 @@ import "./theme/themes.css";
 import "../a11y/readingSettings/readingSettings.css";
 import { READING_SETTINGS_PREPAINT } from "../a11y/readingSettings/prepaint";
 import { ReadingSettingsPanel } from "../a11y/readingSettings/ReadingSettingsPanel";
+import { FORMULA_OVERFLOW_SOURCE } from "../components/edition/formulaOverflow.inline";
 import { PermalinkRobotsManager } from "../experiments/permalink/PermalinkRobotsManager.tsx";
 import { READER_PREPAINT } from "../reader/detail/prepaint";
 import { NotebookLauncher } from "../reader/notebook/NotebookLauncher.tsx";
@@ -28,6 +29,8 @@ export default function RootLayout({ children }: { children: ReactNode }) {
         <script dangerouslySetInnerHTML={{ __html: READING_SETTINGS_PREPAINT }} />
         {/* biome-ignore lint/security/noDangerouslySetInnerHtml: sets data-theme on <html> before first paint so no wrong theme flashes; source is a tested pure function, never hand-authored HTML */}
         <script dangerouslySetInnerHTML={{ __html: THEME_INIT_SOURCE }} />
+        {/* biome-ignore lint/security/noDangerouslySetInnerHtml: ensures overflowing formulas are keyboard-reachable with distinct accessible names without bulk-applying tabindex (am-bc6s) */}
+        <script dangerouslySetInnerHTML={{ __html: FORMULA_OVERFLOW_SOURCE }} />
       </head>
       <body>
         <a className="skip-link" href="#main">
