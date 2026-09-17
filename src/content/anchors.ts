@@ -26,6 +26,7 @@ export type AnchorKind =
   | "section"
   | "paragraph"
   | "sentence"
+  | "inline-equation"
   | "footnote"
   | "part"
   | "masthead"
@@ -42,6 +43,31 @@ export interface ParsedAnchor {
   readonly kind: AnchorKind;
   readonly fragment: string;
   readonly targetId: string;
+  /**
+   * Present only for a "sentence" anchor that is one half of an English
+   * split sentence (`s3-p2-s1a` / `s3-p2-s1b`). `targetId` is always the
+   * unsuffixed source sentence id -- the id the German face renders --
+   * never the suffixed English-only id.
+   */
+  readonly splitHalf?: "a" | "b";
+}
+
+const SENTENCE_PATTERN = /^(s\d+-p\d+-s\d+)([ab])?$/;
+const INLINE_EQUATION_PATTERN = /^s\d+-p\d+-s\d+-m\d+$/;
+
+/** The unsuffixed source sentence id for `s3-p2-s1a` / `s3-p2-s1b` / `s3-p2-s1` alike. */
+export function sourceSentenceId(id: string): string {
+  const match = id.match(SENTENCE_PATTERN);
+  if (!match || !match[1]) throw new Error(`Not a sentence id: '${id}'`);
+  return match[1];
+}
+
+/** The two English split-sentence ids for a source sentence id, in document order. */
+export function splitSentenceIds(sourceId: string): readonly [string, string] {
+  if (!/^s\d+-p\d+-s\d+$/.test(sourceId)) {
+    throw new Error(`Not an unsuffixed source sentence id: '${sourceId}'`);
+  }
+  return [`${sourceId}a`, `${sourceId}b`];
 }
 
 /**
@@ -277,8 +303,21 @@ export function parseAnchor(raw: string): ParseResult<ParsedAnchor> {
   if (/^s\d+-p\d+$/.test(target)) {
     return { ok: true, value: { kind: "paragraph", fragment, targetId: target } };
   }
-  if (/^s\d+-p\d+-s\d+$/.test(target)) {
-    return { ok: true, value: { kind: "sentence", fragment, targetId: target } };
+  if (INLINE_EQUATION_PATTERN.test(target)) {
+    return { ok: true, value: { kind: "inline-equation", fragment, targetId: target } };
+  }
+  const sentenceMatch = target.match(SENTENCE_PATTERN);
+  if (sentenceMatch?.[1]) {
+    const splitHalf = sentenceMatch[2] as "a" | "b" | undefined;
+    return {
+      ok: true,
+      value: {
+        kind: "sentence",
+        fragment,
+        targetId: sentenceMatch[1],
+        ...(splitHalf ? { splitHalf } : {}),
+      },
+    };
   }
   if (/^s\d+-fn\d+$/.test(target)) {
     return { ok: true, value: { kind: "footnote", fragment, targetId: target } };

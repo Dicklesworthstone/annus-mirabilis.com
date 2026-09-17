@@ -6,6 +6,8 @@ import {
   equationAnchorForRecord,
   equationRecordForAnchor,
   parseAnchor,
+  sourceSentenceId,
+  splitSentenceIds,
 } from "../content/anchors.ts";
 import { ENTRANCE_PAPER_SLUGS } from "../content/ids.ts";
 import { newRunIdentity, TestLogger } from "./log/logger.ts";
@@ -77,6 +79,42 @@ describe("Anchors and Mappings", () => {
 
     const retiredFnSentence = parseAnchor("#s3-fn1-s1");
     expect(retiredFnSentence.ok).toBe(false);
+  });
+
+  it("parses a substantive inline equation anchor, distinct from a bare sentence anchor", () => {
+    const inline = parseAnchor("#s3-p2-s1-m1");
+    expect(inline.ok).toBe(true);
+    if (inline.ok) {
+      expect(inline.value.kind).toBe("inline-equation");
+      expect(inline.value.targetId).toBe("s3-p2-s1-m1");
+    }
+  });
+
+  it("resolves an English split-sentence anchor to its unsuffixed German source id", () => {
+    const half = parseAnchor("#s3-p2-s1a");
+    expect(half.ok).toBe(true);
+    if (half.ok) {
+      expect(half.value.kind).toBe("sentence");
+      expect(half.value.targetId).toBe("s3-p2-s1");
+      expect(half.value.splitHalf).toBe("a");
+    }
+
+    const other = parseAnchor("#s3-p2-s1b");
+    expect(other.ok).toBe(true);
+    if (other.ok) expect(other.value.splitHalf).toBe("b");
+
+    const unsplit = parseAnchor("#s3-p2-s1");
+    expect(unsplit.ok).toBe(true);
+    if (unsplit.ok) expect(unsplit.value.splitHalf).toBeUndefined();
+  });
+
+  it("round-trips source sentence ids and their split halves", () => {
+    expect(sourceSentenceId("s3-p2-s1a")).toBe("s3-p2-s1");
+    expect(sourceSentenceId("s3-p2-s1b")).toBe("s3-p2-s1");
+    expect(sourceSentenceId("s3-p2-s1")).toBe("s3-p2-s1");
+    expect(splitSentenceIds("s3-p2-s1")).toEqual(["s3-p2-s1a", "s3-p2-s1b"]);
+    expect(() => sourceSentenceId("s3-p2")).toThrow();
+    expect(() => splitSentenceIds("s3-p2-s1a")).toThrow();
   });
 
   it("ensures every generated anchor is a valid URL fragment without percent-encoding", () => {
