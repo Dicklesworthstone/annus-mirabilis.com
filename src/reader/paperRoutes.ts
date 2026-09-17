@@ -83,7 +83,7 @@ export function absoluteUrl(path: string): string {
 export async function listReadablePapers(): Promise<readonly string[]> {
   const index = await contentIndex();
   return index.payloads
-    .filter((entry) => entry.kind === "paper")
+    .filter((entry) => entry.kind === "paper" && classifyPaperParam(entry.id) === "slug")
     .map((entry) => entry.id)
     .sort();
 }
