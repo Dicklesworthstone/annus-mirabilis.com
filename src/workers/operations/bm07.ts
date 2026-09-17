@@ -30,7 +30,9 @@ export type Bm07Evaluation = Readonly<{
   simulationTime: number;
 }>;
 const identity = (id: string) => {
-  const { statuses: _, ...c } = BM07_OUTPUTS[id]!;
+  const meta = BM07_OUTPUTS[id];
+  if (!meta) throw new RangeError(`Unknown BM07 output: ${id}`);
+  const { statuses: _, ...c } = meta;
   return { quantityId: id, ...c };
 };
 function number(
