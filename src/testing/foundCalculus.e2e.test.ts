@@ -70,7 +70,9 @@ test("foundCalculus.e2e: E2E 1 - From Brownian §4, static route linkage to foun
     assert.equal(paperRes.status, 200, "Brownian motion paper route must return 200");
     const paperHtml = await paperRes.text();
     assert.ok(
-      paperHtml.includes("partial-derivatives") || paperHtml.includes("Diffusion equation") || paperHtml.includes("diffusion"),
+      paperHtml.includes("partial-derivatives") ||
+        paperHtml.includes("Diffusion equation") ||
+        paperHtml.includes("diffusion"),
       "Brownian motion paper must reference diffusion equation context",
     );
 
@@ -89,7 +91,9 @@ test("foundCalculus.e2e: E2E 1 - From Brownian §4, static route linkage to foun
       "Page must contain partial derivative symbols",
     );
     assert.ok(
-      foundHtml.includes("held fixed") || foundHtml.includes("held constant") || foundHtml.includes("strictly held"),
+      foundHtml.includes("held fixed") ||
+        foundHtml.includes("held constant") ||
+        foundHtml.includes("strictly held"),
       "Page must explicitly explain held-fixed quantities",
     );
     assert.ok(
@@ -102,9 +106,11 @@ test("foundCalculus.e2e: E2E 1 - From Brownian §4, static route linkage to foun
       foundationId: "partial-derivatives",
       callingAnchor: "brownian-motion:s4#arg-bm-diffusion-eq",
       expected: "Brownian §4 to partial-derivatives navigation and mathematical content verified",
-      actual: "All titles, symbols, held-fixed notices, and prerequisite links verified in static HTML",
+      actual:
+        "All titles, symbols, held-fixed notices, and prerequisite links verified in static HTML",
       outcome: "passed",
-      message: "E2E 1: Successfully verified static route and content for foundation:partial-derivatives",
+      message:
+        "E2E 1: Successfully verified static route and content for foundation:partial-derivatives",
     });
   } finally {
     await server.close();
@@ -128,12 +134,10 @@ test("foundCalculus.e2e: E2E 2 - From Brownian §5, static route linkage to foun
     assert.equal(foundRes.status, 200, "foundation:functions-graphs must return 200");
     const foundHtml = await foundRes.text();
 
+    assert.ok(foundHtml.includes("Functions and graphs"), "Foundation page must carry full title");
     assert.ok(
-      foundHtml.includes("Functions and graphs"),
-      "Foundation page must carry full title",
-    );
-    assert.ok(
-      foundHtml.includes("/foundations/bridge-negative-numbers-direction/") || foundHtml.includes("/foundations/bridge-"),
+      foundHtml.includes("/foundations/bridge-negative-numbers-direction/") ||
+        foundHtml.includes("/foundations/bridge-"),
       "Page must carry prerequisite link to bridge foundation",
     );
 
@@ -144,7 +148,8 @@ test("foundCalculus.e2e: E2E 2 - From Brownian §5, static route linkage to foun
       expected: "Brownian §5 to functions-graphs linkage and prerequisite link verified",
       actual: "Title, prerequisite links, and navigation verified in static HTML",
       outcome: "passed",
-      message: "E2E 2: Successfully verified static route and content for foundation:functions-graphs",
+      message:
+        "E2E 2: Successfully verified static route and content for foundation:functions-graphs",
     });
   } finally {
     await server.close();
