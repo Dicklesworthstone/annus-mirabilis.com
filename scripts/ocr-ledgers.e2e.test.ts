@@ -5,7 +5,9 @@ import { dirname, resolve } from "node:path";
 import { describe, it } from "node:test";
 import { fileURLToPath } from "node:url";
 import { FixtureAdapter } from "./ocr-adapters/fixture-adapter.ts";
-import { runOcrOrchestrator } from "./ocr-ledgers.ts";
+import { runOcrOrchestrator, syntheticPageRenderer } from "./ocr-ledgers.ts";
+
+const SYNTHETIC_RENDER = { customRenderer: syntheticPageRenderer };
 
 const ROOT = resolve(dirname(fileURLToPath(import.meta.url)), "..");
 
@@ -27,6 +29,7 @@ describe("OCR Orchestrator: End-to-End Pipeline Test", () => {
         planPath,
         toolRunId,
         adapter: adapter1,
+        renderOptions: SYNTHETIC_RENDER,
       });
 
       process1LogRunId = res1.logRunId;
@@ -50,6 +53,7 @@ describe("OCR Orchestrator: End-to-End Pipeline Test", () => {
         planPath,
         resumeToolRunId: toolRunId,
         adapter: adapter2,
+        renderOptions: SYNTHETIC_RENDER,
       });
 
       process2LogRunId = res2.logRunId;

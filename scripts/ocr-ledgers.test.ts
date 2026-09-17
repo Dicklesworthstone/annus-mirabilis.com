@@ -15,14 +15,17 @@ import { OcrRefusalError } from "./ocr-adapters/types.ts";
 import {
   loadPlan,
   planChunks,
+  probePdftoppm,
   redact,
   renderPages,
   resumeRun,
   runOcrOrchestrator,
+  syntheticPageRenderer,
   validatePlan,
 } from "./ocr-ledgers.ts";
 
 const ROOT = resolve(dirname(fileURLToPath(import.meta.url)), "..");
+const SYNTHETIC_RENDER = { customRenderer: syntheticPageRenderer };
 
 describe("OCR Orchestrator: Unit and Integration Tests", () => {
   describe("Chunk Planning", () => {
@@ -180,6 +183,7 @@ describe("OCR Orchestrator: Unit and Integration Tests", () => {
           await runOcrOrchestrator({
             planPath,
             adapter,
+            renderOptions: SYNTHETIC_RENDER,
           });
         },
         (err: any) =>
@@ -189,8 +193,37 @@ describe("OCR Orchestrator: Unit and Integration Tests", () => {
   });
 
   describe("Rendering", () => {
-    it("renders committed 3-page fixture PDF to three PNGs whose dimensions equal page boxes at 300 dpi (2550 x 3300) with renderer recorded", async () => {
+    it("refuses with RENDERER_UNAVAILABLE when pdftoppm is not on PATH", async () => {
+      const outputDir = resolve(ROOT, "artifacts/test-runs/render-missing-binary");
+      await assert.rejects(
+        () =>
+          renderPages("src/testing/fixtures/ocr/fixture-3p.pdf", [1, 2, 3], outputDir, {
+            dpi: 300,
+            pdftoppmCommand: "pdftoppm-not-on-path-for-test",
+          }),
+        (err: unknown) =>
+          err instanceof OcrRefusalError &&
+          err.refusalCode === "RENDERER_UNAVAILABLE" &&
+          err.message.includes("renderer step refused") &&
+          !err.message.includes("ENOENT"),
+      );
+    });
+
+    it("renders the 3-page fixture with pdftoppm when present, or names the refusal when absent", async () => {
       const outputDir = resolve(ROOT, "artifacts/test-runs/render-test");
+      const probe = await probePdftoppm();
+      if (!probe.available) {
+        await assert.rejects(
+          () =>
+            renderPages("src/testing/fixtures/ocr/fixture-3p.pdf", [1, 2, 3], outputDir, {
+              dpi: 300,
+            }),
+          (err: unknown) =>
+            err instanceof OcrRefusalError && err.refusalCode === "RENDERER_UNAVAILABLE",
+        );
+        return;
+      }
+
       const rendered = await renderPages(
         "src/testing/fixtures/ocr/fixture-3p.pdf",
         [1, 2, 3],
@@ -200,7 +233,8 @@ describe("OCR Orchestrator: Unit and Integration Tests", () => {
 
       assert.equal(rendered.length, 3);
       for (let i = 0; i < 3; i++) {
-        const item = rendered[i]!;
+        const item = rendered[i];
+        assert.ok(item);
         assert.equal(item.pdfPage, i + 1);
         assert.equal(item.dpi, 300);
         assert.equal(item.width, 2550);
@@ -226,6 +260,7 @@ describe("OCR Orchestrator: Unit and Integration Tests", () => {
         planPath,
         toolRunId,
         adapter,
+        renderOptions: SYNTHETIC_RENDER,
       });
 
       assert.equal(result.ok, false);
@@ -257,6 +292,7 @@ describe("OCR Orchestrator: Unit and Integration Tests", () => {
         planPath,
         toolRunId,
         adapter: adapter1,
+        renderOptions: SYNTHETIC_RENDER,
       });
       assert.equal(res1.ok, false);
       assert.equal(adapter1.getSubmissionCount(0), 1);
@@ -272,6 +308,7 @@ describe("OCR Orchestrator: Unit and Integration Tests", () => {
         planPath,
         resumeToolRunId: toolRunId,
         adapter: adapter2,
+        renderOptions: SYNTHETIC_RENDER,
       });
 
       assert.equal(res2.ok, true);
@@ -355,6 +392,7 @@ describe("OCR Orchestrator: Unit and Integration Tests", () => {
         planPath,
         toolRunId,
         adapter,
+        renderOptions: SYNTHETIC_RENDER,
       });
       assert.equal(res1.ok, true);
 
@@ -396,6 +434,7 @@ describe("OCR Orchestrator: Unit and Integration Tests", () => {
         planPath,
         toolRunId,
         adapter,
+        renderOptions: SYNTHETIC_RENDER,
       });
 
       assert.equal(res.ok, true);
@@ -415,6 +454,7 @@ describe("OCR Orchestrator: Unit and Integration Tests", () => {
         planPath,
         toolRunId,
         adapter,
+        renderOptions: SYNTHETIC_RENDER,
       });
 
       assert.equal(res.ok, false);
@@ -439,6 +479,7 @@ describe("OCR Orchestrator: Unit and Integration Tests", () => {
         planPath,
         toolRunId,
         adapter,
+        renderOptions: SYNTHETIC_RENDER,
       });
 
       assert.equal(res.ok, true);

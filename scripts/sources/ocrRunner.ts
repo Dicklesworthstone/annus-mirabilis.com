@@ -132,6 +132,8 @@ export interface RenderedPage {
 export interface RenderOptions {
   dpi?: number | undefined;
   rendererVersion?: string | undefined;
+  /** Override the pdftoppm binary name; tests use a missing command to prove the refusal. */
+  pdftoppmCommand?: string | undefined;
   customRenderer?:
     | ((
         pdfPath: string,
@@ -139,6 +141,44 @@ export interface RenderOptions {
         outPath: string,
       ) => Promise<{ width: number; height: number; buffer: Buffer }>)
     | undefined;
+}
+
+export type PdftoppmProbe =
+  | { readonly available: true; readonly version: string; readonly command: string }
+  | {
+      readonly available: false;
+      readonly code: "RENDERER_UNAVAILABLE";
+      readonly command: string;
+      readonly message: string;
+    };
+
+export async function probePdftoppm(command = "pdftoppm"): Promise<PdftoppmProbe> {
+  try {
+    const { stdout, stderr } = await execFileAsync(command, ["-v"]);
+    const out = `${stdout}${stderr}`;
+    const match = out.match(/version\s+([\d.]+)/i);
+    return { available: true, version: match?.[1] ?? "unknown", command };
+  } catch (err) {
+    const nodeErr = err as NodeJS.ErrnoException;
+    const reason = nodeErr.code === "ENOENT" ? "not on PATH" : (nodeErr.message ?? "failed");
+    return {
+      available: false,
+      code: "RENDERER_UNAVAILABLE",
+      command,
+      message: `pdftoppm unavailable (${reason}), renderer step refused. Install poppler-utils. Local OCR is not a substitute.`,
+    };
+  }
+}
+
+/** Test-double page image. Not a facsimile render and not OCR. */
+export async function syntheticPageRenderer(
+  _pdfPath: string,
+  pageNum: number,
+  outPath: string,
+): Promise<{ width: number; height: number; buffer: Buffer }> {
+  const buffer = Buffer.from(`synthetic-page-${pageNum}-not-a-facsimile-render`, "utf8");
+  await writeFile(outPath, buffer);
+  return { width: 1, height: 1, buffer };
 }
 
 export async function renderPages(
@@ -151,25 +191,8 @@ export async function renderPages(
   const dpi = options.dpi ?? 300;
   const fullFacPath = resolve(ROOT, facsimilePath);
 
-  const renderer = "pdftoppm";
-  let rendererVersion = options.rendererVersion ?? "unknown";
-
-  if (!options.customRenderer) {
-    try {
-      const { stdout, stderr } = await execFileAsync("pdftoppm", ["-v"]);
-      const out = (stdout || stderr).toString();
-      const match = out.match(/version\s+([\d.]+)/i);
-      if (match) {
-        rendererVersion = match[1]!;
-      }
-    } catch {
-      // pdftoppm might not be in path
-    }
-  }
-
   const rendered: RenderedPage[] = [];
 
-  // If customRenderer is provided
   if (options.customRenderer) {
     for (const pageNum of pdfPages) {
       const pngPath = resolve(outputDir, `page-${pageNum}.png`);
@@ -183,13 +206,20 @@ export async function renderPages(
         height: res.height,
         dpi,
         renderer: "custom-renderer",
-        rendererVersion: rendererVersion || "1.0.0",
+        rendererVersion: options.rendererVersion ?? "synthetic",
       });
     }
     return rendered;
   }
 
-  // Check if any pages need rendering with pdftoppm
+  const command = options.pdftoppmCommand ?? "pdftoppm";
+  const probe = await probePdftoppm(command);
+  if (!probe.available) {
+    throw new OcrRefusalError("RENDERER_UNAVAILABLE", probe.message);
+  }
+  const renderer = command;
+  const rendererVersion = options.rendererVersion ?? probe.version;
+
   const missingPages = pdfPages.filter((p) => !existsSync(resolve(outputDir, `page-${p}.png`)));
 
   if (missingPages.length > 0) {
@@ -198,7 +228,7 @@ export async function renderPages(
     const batchPrefix = resolve(outputDir, "tmp_batch");
 
     try {
-      await execFileAsync("pdftoppm", [
+      await execFileAsync(command, [
         "-png",
         "-r",
         String(dpi),
@@ -209,17 +239,18 @@ export async function renderPages(
         fullFacPath,
         batchPrefix,
       ]);
-    } catch (err: any) {
-      if (err?.code === "EBADF") {
-        for (const p of missingPages) {
-          const mockPngPath = resolve(outputDir, `page-${p}.png`);
-          await writeFile(mockPngPath, Buffer.from([137, 80, 78, 71, 13, 10, 26, 10]));
-        }
-      } else {
-        throw new Error(
-          `Failed to render pages ${minPage}..${maxPage} with pdftoppm: ${err.message}`,
+    } catch (err) {
+      const nodeErr = err as NodeJS.ErrnoException;
+      if (nodeErr.code === "ENOENT") {
+        throw new OcrRefusalError(
+          "RENDERER_UNAVAILABLE",
+          `pdftoppm unavailable (not on PATH), renderer step refused. Install poppler-utils. Local OCR is not a substitute.`,
         );
       }
+      throw new OcrRefusalError(
+        "RENDERER_UNAVAILABLE",
+        `pdftoppm unavailable (${nodeErr.message}), renderer step refused. Install poppler-utils. Local OCR is not a substitute.`,
+      );
     }
 
     // Rename generated files to page-<pageNum>.png
@@ -239,7 +270,10 @@ export async function renderPages(
   for (const pageNum of pdfPages) {
     const pngPath = resolve(outputDir, `page-${pageNum}.png`);
     if (!existsSync(pngPath)) {
-      throw new Error(`Rendered page image missing at ${pngPath}`);
+      throw new OcrRefusalError(
+        "RENDERER_UNAVAILABLE",
+        `pdftoppm unavailable (no image at ${pngPath}), renderer step refused. Install poppler-utils. Local OCR is not a substitute.`,
+      );
     }
     const pngBuffer = await readFile(pngPath);
     const sha256 = createHash("sha256").update(pngBuffer).digest("hex");

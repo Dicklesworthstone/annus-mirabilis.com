@@ -48,6 +48,7 @@ import {
   generateLogRunId,
   generateToolRunId,
   planChunks,
+  probePdftoppm,
   type RenderedPage,
   type RenderOptions,
   type RunSummaryResult,
@@ -56,6 +57,7 @@ import {
   resumeRun,
   runChunk,
   summarizeRun,
+  syntheticPageRenderer,
   writeCheckpoint,
 } from "./sources/ocrRunner.ts";
 
@@ -66,11 +68,13 @@ export {
   loadAdapter,
   loadPlan,
   planChunks,
+  probePdftoppm,
   redact,
   renderPages,
   resumeRun,
   runChunk,
   summarizeRun,
+  syntheticPageRenderer,
   validatePlan,
   writeCheckpoint,
 };

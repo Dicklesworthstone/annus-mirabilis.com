@@ -32,6 +32,12 @@ an injected `adapter` object in tests.
 | Name matches a local OCR engine | `FORBIDDEN_ADAPTER_NAME` |
 | `fixture` when `NODE_ENV` is not `test` | `FIXTURE_ADAPTER_OUTSIDE_TEST` |
 | Named adapter has no committed module | `NO_ADAPTER` |
+| `pdftoppm` not on PATH | `RENDERER_UNAVAILABLE` |
+
+Page-image rendering uses `pdftoppm` (poppler-utils). That is rendering, not
+OCR. If the binary is missing the orchestrator refuses with
+`RENDERER_UNAVAILABLE` and does not fall back to a local OCR engine, parsed
+PDF text, or a silent mock image.
 
 There is no local adapter and no configuration value that can select one.
 If the cloud path is unavailable the orchestrator pauses, keeps
