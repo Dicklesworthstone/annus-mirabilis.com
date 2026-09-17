@@ -43,12 +43,16 @@ export function BrownianLab({
   const [session] = useState(() =>
     createBm06Session(`bm06-${id}`, example, createBm06BrowserChannel),
   );
+  const serverAccepted = session.getServerSnapshot().accepted;
+  if (!serverAccepted) {
+    throw new Error("Missing accepted Brownian motion snapshot");
+  }
   const view = useSyncExternalStore(
     session.subscribe,
     session.getSnapshot,
     session.getServerSnapshot,
   );
-  const snapshot = view.accepted!;
+  const snapshot = view.accepted ?? serverAccepted;
   const p = snapshot.parameters as Bm06Parameters;
   const [draft, setDraft] = useState(() => toDraft(example.parameters));
   const [ready, setReady] = useState(false),
@@ -132,9 +136,9 @@ export function BrownianLab({
   const announcement = view.pending
     ? "Calculating the requested settings. The last accepted result remains below."
     : view.status === "refused"
-      ? `${view.refusal!.message} The last accepted result is unchanged.`
+      ? `${view.refusal?.message ?? "Calculation refused."} The last accepted result is unchanged.`
       : view.status === "unavailable"
-        ? `${view.outcome!.message} The worked result remains readable.`
+        ? `${view.outcome?.message ?? "Calculation unavailable."} The worked result remains readable.`
         : view.status === "paused"
           ? "Calculation stopped. The last accepted result is unchanged."
           : `Accepted result: RMS displacement ${display(rms, 1e6)} micrometres; selected interval probability ${display(probability, 100)} percent.`;
@@ -146,7 +150,7 @@ export function BrownianLab({
       aria-labelledby={`${id}-title`}
       data-instrument-id="bm-06"
       {...identity(snapshot)}
-      data-input-revision={view.requested!.revisions.input}
+      data-input-revision={view.requested?.revisions.input ?? snapshot.revisions.input}
       data-accepted-input-revision={snapshot.revisions.input}
       data-pending={String(view.pending)}
       {...labelRootAttributes("host-accepted", view, "probabilityDensity")}
@@ -314,11 +318,13 @@ export function BrownianLab({
             <div className="notice error" data-refusal-code={view.refusal.code}>
               <h3>Requested calculation not accepted</h3>
               <p>{view.refusal.message}</p>
-              <p>
-                Requested: {String(view.requested!.parameters.steps)} time steps,{" "}
-                {display(view.requested!.parameters.t as number)} seconds. The values below retain
-                their accepted settings.
-              </p>
+              {view.requested && (
+                <p>
+                  Requested: {String(view.requested.parameters.steps)} time steps,{" "}
+                  {display(view.requested.parameters.t as number)} seconds. The values below retain
+                  their accepted settings.
+                </p>
+              )}
               {view.refusal.rankedRepairs.map((repair) => (
                 <button
                   type="button"
@@ -326,8 +332,9 @@ export function BrownianLab({
                   key={repair.label}
                   onClick={() => {
                     if (!repair.action) return;
+                    const baseParams = (view.requested?.parameters ?? p) as Bm06Parameters;
                     const corrected = {
-                      ...view.requested!.parameters,
+                      ...baseParams,
                       [repair.action.parameterId]: repair.action.value,
                     } as Bm06Parameters;
                     setDraft(toDraft(corrected));
