@@ -13,6 +13,7 @@ import {
  * server will not serve.
  */
 export const dynamic = "force-static";
+export const dynamicParams = false;
 
 const MANIFEST_ROOT = "src/generated/reading-fragments";
 
@@ -20,7 +21,11 @@ export async function generateStaticParams(): Promise<
   { paper: string; section: string; hash: string }[]
 > {
   const manifest = await readFragmentManifest(MANIFEST_ROOT);
-  return [...listFragmentReferences(manifest)];
+  const refs = listFragmentReferences(manifest);
+  if (refs.length === 0) {
+    return [{ paper: "_none", section: "_none", hash: "_none" }];
+  }
+  return [...refs];
 }
 
 export async function GET(

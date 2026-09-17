@@ -493,6 +493,20 @@ test("Citation: accessed date required when url is present and doi is absent", (
   assert.equal(cit.id, "cit-web-1");
 });
 
+test("Citation: a DOI-only citation validates without an accessed date", () => {
+  const rawDoiOnly = {
+    id: "cit-doi-1",
+    title: "On the Electrodynamics of Moving Bodies",
+    author: "A. Einstein",
+    doi: "10.1002/andp.19053221004",
+    role: "primary",
+  };
+  const cit = validateCitation(rawDoiOnly);
+  assert.equal(cit.id, "cit-doi-1");
+  assert.equal(cit.doi, "10.1002/andp.19053221004");
+  assert.equal(cit.accessed, undefined);
+});
+
 // ==========================================
 // 8. EQUATION BYTE-IDENTITY TEST
 // ==========================================
@@ -624,6 +638,173 @@ test("Dates: chronological comparison handles overlapping intervals as indetermi
 
   // June 1905 strictly follows May 1905 -> 1
   assert.equal(compareDates(june1905, may1905), 1);
+});
+
+test("Dates: a year-precision date and a day-precision date within it compare indeterminate", () => {
+  // The exact bug plain "1904-01-01" storage would have hidden: a year-precision date and a day
+  // reading that falls within that year genuinely have no established order.
+  const year1904: PaperDate = {
+    type: "date-line",
+    earliest: "1904-01-01",
+    latest: "1904-12-31",
+    precision: "year",
+    source: "s",
+    verifiedAt: "2026-09-15",
+  };
+  const jan3_1904: PaperDate = {
+    type: "received",
+    earliest: "1904-01-03",
+    latest: "1904-01-03",
+    precision: "day",
+    source: "s",
+    verifiedAt: "2026-09-15",
+  };
+  assert.equal(compareDates(year1904, jan3_1904), "indeterminate");
+});
+
+test("PaperDate: coarse-precision dates carrying a single instant field are rejected", () => {
+  assert.throws(
+    () =>
+      validatePaperDate({
+        type: "date-line",
+        instant: "1905-03-17",
+        precision: "day",
+        source: "s",
+        verifiedAt: "2026-09-15",
+      }),
+    (err: any) => {
+      assert.ok(err instanceof DateValidationError);
+      assert.equal(err.code, "date-precision-instant");
+      return true;
+    },
+  );
+});
+
+test("PaperDate: interval must span exactly the period the precision names", () => {
+  // day precision requires earliest === latest
+  assert.throws(
+    () =>
+      validatePaperDate({
+        type: "date-line",
+        earliest: "1905-03-17",
+        latest: "1905-03-18",
+        precision: "day",
+        source: "s",
+        verifiedAt: "2026-09-15",
+      }),
+    (err: any) => {
+      assert.equal(err.code, "date-precision-interval-mismatch");
+      return true;
+    },
+  );
+
+  // year precision requires Jan 1 to Dec 31 of the same year
+  assert.throws(
+    () =>
+      validatePaperDate({
+        type: "date-line",
+        earliest: "1904-01-01",
+        latest: "1904-06-30",
+        precision: "year",
+        source: "s",
+        verifiedAt: "2026-09-15",
+      }),
+    (err: any) => {
+      assert.equal(err.code, "date-precision-interval-mismatch");
+      return true;
+    },
+  );
+
+  // valid year-precision date passes
+  const validYear = validatePaperDate({
+    type: "date-line",
+    earliest: "1904-01-01",
+    latest: "1904-12-31",
+    precision: "year",
+    source: "s",
+    verifiedAt: "2026-09-15",
+  });
+  assert.equal(validYear.precision, "year");
+});
+
+test("PaperDate: earliest after latest is rejected as an inverted interval", () => {
+  assert.throws(
+    () =>
+      validatePaperDate({
+        type: "date-line",
+        earliest: "1905-05-31",
+        latest: "1905-05-01",
+        precision: "day",
+        source: "s",
+        verifiedAt: "2026-09-15",
+      }),
+    (err: any) => {
+      assert.equal(err.code, "date-precision-inverted");
+      return true;
+    },
+  );
+});
+
+test("Chronology: received before date-line and published before received are rejected", () => {
+  const dateline: PaperDate = {
+    type: "date-line",
+    earliest: "1905-06-01",
+    latest: "1905-06-30",
+    precision: "month",
+    source: "s",
+    verifiedAt: "2026-09-15",
+  };
+  const receivedBeforeDateline: PaperDate = {
+    type: "received",
+    earliest: "1905-05-01",
+    latest: "1905-05-31",
+    precision: "month",
+    source: "s",
+    verifiedAt: "2026-09-15",
+  };
+  assert.throws(
+    () => validateChronology([dateline, receivedBeforeDateline]),
+    (err: any) => {
+      assert.ok(err instanceof DateValidationError);
+      assert.equal(err.code, "chronology-received-before-dateline");
+      return true;
+    },
+  );
+
+  const received: PaperDate = {
+    type: "received",
+    earliest: "1905-06-10",
+    latest: "1905-06-10",
+    precision: "day",
+    source: "s",
+    verifiedAt: "2026-09-15",
+  };
+  const publishedBeforeReceived: PaperDate = {
+    type: "issue-publication",
+    earliest: "1905-06-01",
+    latest: "1905-06-01",
+    precision: "day",
+    source: "s",
+    verifiedAt: "2026-09-15",
+  };
+  assert.throws(
+    () => validateChronology([dateline, received, publishedBeforeReceived]),
+    (err: any) => {
+      assert.equal(err.code, "chronology-published-before-received");
+      return true;
+    },
+  );
+
+  // Correctly ordered dates validate without throwing.
+  const publishedAfterReceived: PaperDate = {
+    type: "issue-publication",
+    earliest: "1905-07-01",
+    latest: "1905-07-01",
+    precision: "day",
+    source: "s",
+    verifiedAt: "2026-09-15",
+  };
+  assert.doesNotThrow(() => validateChronology([dateline, received, publishedAfterReceived]));
 });
 
 // ==========================================
