@@ -1,14 +1,15 @@
 import { createHash } from "node:crypto";
-import { readFile, writeFile, mkdir } from "node:fs/promises";
-import { dirname, resolve, relative } from "node:path";
+import { mkdir, readFile, writeFile } from "node:fs/promises";
+import { dirname, relative, resolve } from "node:path";
 import { fileURLToPath } from "node:url";
-import { recordCameraPath, observeCameraPath } from "../src/physics/reference/inference/camera.ts";
+import { analyzeKitchen, KITCHEN_OPTIONS } from "../src/experiments/bm07/kitchen/analyze.ts";
 import { exportKitchenCsv, parseKitchenCsv } from "../src/experiments/bm07/kitchen/csv.ts";
 import {
   KITCHEN_METADATA_KEYS,
   KITCHEN_READER_COLUMNS,
 } from "../src/experiments/bm07/kitchen/schema.ts";
-import { analyzeKitchen, KITCHEN_OPTIONS } from "../src/experiments/bm07/kitchen/analyze.ts";
+import { observeCameraPath, recordCameraPath } from "../src/physics/reference/inference/camera.ts";
+
 const root = resolve(dirname(fileURLToPath(import.meta.url)), "..");
 export async function generateKitchen() {
   const sources = new Map();

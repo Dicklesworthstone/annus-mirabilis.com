@@ -2,8 +2,8 @@ import { createHash } from "node:crypto";
 import { mkdir, readFile, writeFile } from "node:fs/promises";
 import { dirname, relative, resolve } from "node:path";
 import { fileURLToPath } from "node:url";
-import { SR03_DEFAULTS } from "../src/experiments/sr03/definition.ts";
 import { encodeResult } from "../src/experiments/results/codec.ts";
+import { SR03_DEFAULTS } from "../src/experiments/sr03/definition.ts";
 import { evaluateSr03 } from "../src/workers/operations/sr03.ts";
 
 const root = resolve(dirname(fileURLToPath(import.meta.url)), "..");

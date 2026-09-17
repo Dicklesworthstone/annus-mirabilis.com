@@ -14,6 +14,7 @@
 import { existsSync, mkdirSync, readdirSync, readFileSync, writeFileSync } from "node:fs";
 import { join, resolve } from "node:path";
 import { fileURLToPath } from "node:url";
+import { newRunIdentity } from "../src/testing/log/logger.ts";
 import { computeArtifactDigest } from "../src/testing/wasm/artifactHelpers.ts";
 import { parseCapabilityMatrix } from "./wasm-artifacts/capabilityMatrix.ts";
 import { admitExportsForBundle } from "./wasm-artifacts/matrixGate.ts";
@@ -23,7 +24,6 @@ import {
   buildJsGlueSource,
   buildWasmBinary,
 } from "./wasm-artifacts/wasmArtifactGenerator.ts";
-import { newRunIdentity } from "../src/testing/log/logger.ts";
 
 export interface BuildOptions {
   readonly runDir?: string;

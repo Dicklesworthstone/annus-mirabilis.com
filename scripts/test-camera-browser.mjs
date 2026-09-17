@@ -262,9 +262,11 @@ export async function checkCameraBrowser(browser, url, check) {
     await page.getByRole("button", { name: "Close the second camera", exact: true }).click();
     check("BM-08: separate placements own independent workers, settings and camera snapshots");
 
-    await lab
-      .locator("details[open]")
-      .evaluateAll((nodes) => nodes.forEach((n) => n.removeAttribute("open")));
+    await lab.locator("details[open]").evaluateAll((nodes) => {
+      nodes.forEach((n) => {
+        n.removeAttribute("open");
+      });
+    });
     const audit = await new AxeBuilder({ page })
       .include("#main")
       .withTags(["wcag2a", "wcag2aa", "wcag21aa"])

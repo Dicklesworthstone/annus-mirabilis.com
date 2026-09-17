@@ -3,15 +3,15 @@ import { mkdir, readFile, stat, writeFile } from "node:fs/promises";
 import { createServer } from "node:http";
 import { extname, resolve, sep } from "node:path";
 import AxeBuilder from "@axe-core/playwright";
-import { checkKitchenBrowser } from "./test-kitchen-browser.mjs";
 import { chromium } from "playwright";
 import { checkCameraBrowser } from "./test-camera-browser.mjs";
 import { checkEquationBrowser } from "./test-equation-browser.mjs";
 import { checkInferenceBrowser } from "./test-inference-browser.mjs";
+import { checkKitchenBrowser } from "./test-kitchen-browser.mjs";
 import { checkReaderBrowser } from "./test-reader-browser.mjs";
 import { checkTracerBrowser } from "./test-tracer-browser.mjs";
-import { checkWalkBrowser } from "./test-walk-browser.mjs";
 import { checkTrajectoryBrowser } from "./test-trajectory-browser.mjs";
+import { checkWalkBrowser } from "./test-walk-browser.mjs";
 
 const root = resolve("out");
 const types = {

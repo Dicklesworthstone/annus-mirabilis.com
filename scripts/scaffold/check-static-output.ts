@@ -53,8 +53,9 @@ export function findCrossOriginReferences(
   const pageOriginValue = new URL(pageOrigin).origin;
   const found: CrossOriginReference[] = [];
   const tagPattern = /<(script|link|img)\b[^>]*>/gi;
-  let match: RegExpExecArray | null;
-  while ((match = tagPattern.exec(html)) !== null) {
+  while (true) {
+    const match = tagPattern.exec(html);
+    if (!match) break;
     const tagName = match[1];
     if (!tagName) continue;
     const tag = tagName.toLowerCase() as CrossOriginReference["tag"];

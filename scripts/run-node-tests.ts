@@ -5,7 +5,7 @@
  * bunfig.toml and package.json "test" --path-ignore-patterns must match it.
  */
 import { spawnSync } from "node:child_process";
-import { readdirSync, readFileSync, statSync } from "node:fs";
+import { type Dirent, readdirSync, readFileSync, statSync } from "node:fs";
 import { join, relative } from "node:path";
 
 export type SubprocessTestIgnore = Readonly<{
@@ -30,7 +30,7 @@ function globStarE2e(root: string): string[] {
   const found: string[] = [];
   const skip = new Set(["node_modules", ".git", ".next", "artifacts", "dist", "coverage"]);
   function walk(dir: string): void {
-    let entries;
+    let entries: Dirent[];
     try {
       entries = readdirSync(dir, { withFileTypes: true });
     } catch {
