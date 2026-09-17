@@ -26,11 +26,15 @@ test("retainEvidence copies fixture files without mutating the originals, and th
 
   assert.equal(missing.length, 0);
   assert.equal(copied.length, 2);
+  const [copiedStdout, copiedConfig] = copied;
+  if (!copiedStdout || !copiedConfig) {
+    throw new Error("expected two copied evidence files");
+  }
   const expectedDir = evidenceDir(SUITE, logRunId, testId);
   assert.ok(copied.every((p) => p.startsWith(expectedDir)));
 
-  assert.deepEqual(readFileSync(copied[0]!), originalStdoutBytes);
-  assert.deepEqual(readFileSync(copied[1]!), originalConfigBytes);
+  assert.deepEqual(readFileSync(copiedStdout), originalStdoutBytes);
+  assert.deepEqual(readFileSync(copiedConfig), originalConfigBytes);
 
   // The originals themselves must be untouched: same bytes, same mtime.
   assert.deepEqual(readFileSync(STDOUT_FIXTURE), originalStdoutBytes);
@@ -43,10 +47,12 @@ test("retainEvidence copies fixture files without mutating the originals, and th
     .split("\n")
     .filter((l) => l.length > 0);
   const event = lines.map(parseLogLine).find((e) => e.testId === testId);
-  assert.ok(event, "expected a log event for retain-evidence-basic");
-  assert.equal(event!.outcome, "failed");
-  assert.deepEqual(event!.evidence?.files, copied);
-  assert.equal(event!.message, "captured failure output");
+  if (!event) {
+    throw new Error("expected a log event for retain-evidence-basic");
+  }
+  assert.equal(event.outcome, "failed");
+  assert.deepEqual(event.evidence?.files, copied);
+  assert.equal(event.message, "captured failure output");
 });
 
 test("a missing evidence source is reported in the event message and never skipped silently", async () => {
@@ -67,7 +73,9 @@ test("a missing evidence source is reported in the event message and never skipp
     .split("\n")
     .filter((l) => l.length > 0);
   const event = lines.map(parseLogLine).find((e) => e.testId === testId);
-  assert.ok(event, "expected a log event for retain-evidence-missing-source");
-  assert.match(event!.message ?? "", /Missing evidence source\(s\)/);
-  assert.match(event!.message ?? "", /does-not-exist\.txt/);
+  if (!event) {
+    throw new Error("expected a log event for retain-evidence-missing-source");
+  }
+  assert.match(event.message ?? "", /Missing evidence source\(s\)/);
+  assert.match(event.message ?? "", /does-not-exist\.txt/);
 });
