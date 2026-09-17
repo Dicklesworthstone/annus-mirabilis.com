@@ -122,11 +122,11 @@ export function buildLicenseInventory(
 
   // 7. Collect WASM artifacts
   const wasmManifestPath = join(rootDir, "public/wasm/manifest.json");
-  let manifestJson: any = null;
+  let manifestJson: Parameters<typeof collectWasm>[0]["manifestJson"] = null;
   const manifestText = fs.readText(wasmManifestPath);
   if (manifestText) {
     try {
-      manifestJson = JSON.parse(manifestText);
+      manifestJson = JSON.parse(manifestText) as Parameters<typeof collectWasm>[0]["manifestJson"];
     } catch {
       manifestJson = null;
     }

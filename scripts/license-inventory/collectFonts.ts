@@ -44,7 +44,7 @@ export function collectFonts(options: CollectFontsOptions): LicenseItem[] {
           (licenseText.includes("SIL OPEN FONT LICENSE") || licenseText.includes("OFL"))
         ) {
           license = "OFL-1.1";
-        } else if (licenseText && licenseText.includes("MIT License")) {
+        } else if (licenseText?.includes("MIT License")) {
           license = "MIT";
         } else if (licenseText) {
           license = "OFL-1.1";

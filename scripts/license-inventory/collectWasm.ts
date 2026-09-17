@@ -6,9 +6,22 @@
 import { basename, join, normalize } from "node:path";
 import type { LicenseItem } from "./types.ts";
 
+export interface WasmCapability {
+  readonly capabilityId?: string;
+  readonly browserExport?: string;
+}
+
+export interface WasmManifest {
+  readonly bundleId?: string;
+  readonly bundleDir?: string;
+  readonly revisions?: { readonly frankensim?: string; [key: string]: unknown };
+  readonly capabilities?: readonly WasmCapability[];
+  readonly artifacts?: readonly { readonly path?: string }[];
+}
+
 export interface CollectWasmOptions {
   readonly rootDir: string;
-  readonly manifestJson: any; // parsed public/wasm/manifest.json
+  readonly manifestJson: WasmManifest | null; // parsed public/wasm/manifest.json
   readonly wasmFilesOnDisk: readonly string[]; // relative paths to all *.wasm files under public/wasm
   readonly readText: (path: string) => string | null;
 }
@@ -46,7 +59,10 @@ export function collectWasm(options: CollectWasmOptions): LicenseItem[] {
 
     // Each declared capability in manifest
     const capabilities = Array.isArray(manifest.capabilities) ? manifest.capabilities : [];
-    const capList = capabilities.map((c: any) => c.capabilityId || c.browserExport).join(", ");
+    const capList = capabilities
+      .map((c) => c.capabilityId || c.browserExport)
+      .filter(Boolean)
+      .join(", ");
 
     items.push({
       kind: "wasm",

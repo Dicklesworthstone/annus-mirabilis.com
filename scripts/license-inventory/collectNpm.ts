@@ -27,13 +27,13 @@ const LICENSE_FILENAMES = [
   "COPYING.txt",
 ];
 
-function extractLicenseFromPkgJson(pkgData: any): string {
+function extractLicenseFromPkgJson(pkgData: Record<string, unknown>): string {
   if (typeof pkgData.license === "string" && pkgData.license.trim().length > 0) {
     return pkgData.license.trim();
   }
   if (Array.isArray(pkgData.licenses) && pkgData.licenses.length > 0) {
     const types = pkgData.licenses
-      .map((l: any) => (typeof l === "string" ? l : l?.type))
+      .map((l: unknown) => (typeof l === "string" ? l : (l as { type?: string } | undefined)?.type))
       .filter(Boolean);
     if (types.length === 1) return types[0];
     if (types.length > 1) return `(${types.join(" OR ")})`;
@@ -110,7 +110,7 @@ export function collectNpm(options: CollectNpmOptions): {
     }
 
     const pkgJsonPath = join(pkgDir, "package.json");
-    let pkgData: any = {};
+    let pkgData: Record<string, unknown> = {};
     if (exists(pkgJsonPath)) {
       try {
         const text = readText(pkgJsonPath);
