@@ -29,6 +29,11 @@ export default function TracerPage() {
             Pin a trial, compare intervals, and carry D into the spreading lab →
           </a>
         </p>
+        <p>
+          <a className="button" href="/lab/bm-01/compare/">
+            Change one input: compare radius, viscosity, temperature or observation interval →
+          </a>
+        </p>
       </header>
       <TracerComparison example={example} />
       <section className="reading">

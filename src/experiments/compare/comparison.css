@@ -1,0 +1,17 @@
+.controlled-comparison { min-width: 0; }
+.controlled-comparison .comparison-controls { display: flex; flex-wrap: wrap; gap: 1rem; }
+.controlled-comparison .comparison-controls > div { flex: 1 1 15rem; min-width: 0; }
+.controlled-comparison select { display: block; width: 100%; min-height: 44px; font: inherit; }
+.controlled-comparison .comparison-scroll { max-width: 100%; overflow-x: auto; margin-block: 1rem; }
+.controlled-comparison .comparison-scroll table { width: 100%; }
+.controlled-comparison .comparison-scroll th, .controlled-comparison .comparison-scroll td { vertical-align: top; min-width: 5rem; }
+.controlled-comparison .comparison-scroll th:first-child { min-width: 12rem; }
+.controlled-comparison .comparison-plot { margin-inline: 0; }
+.controlled-comparison .comparison-plot svg { display: block; width: 100%; height: auto; }
+.controlled-comparison .comparison-identity, .controlled-comparison .comparison-status { overflow-wrap: anywhere; }
+.controlled-comparison button { white-space: normal; max-width: 100%; }
+@media print {
+  .controlled-comparison form, .controlled-comparison .actions, .controlled-comparison [role="status"] { display: none; }
+  .controlled-comparison .comparison-scroll { overflow: visible; }
+  .controlled-comparison table { font-size: 8pt; }
+}
