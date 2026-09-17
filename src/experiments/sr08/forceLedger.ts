@@ -53,7 +53,11 @@ const unpack = (result: ScientificResult): Vec3 | null => {
     !result.value.every(Number.isFinite)
   )
     return null;
-  return { x: result.value[0]!, y: result.value[1]!, z: result.value[2]! };
+  const x = result.value[0];
+  const y = result.value[1];
+  const z = result.value[2];
+  if (x === undefined || y === undefined || z === undefined) return null;
+  return { x, y, z };
 };
 const vector = (v: Vec3) => new Float64Array([v.x, v.y, v.z]);
 const identity = (quantityId: ForceLedgerId) => {
