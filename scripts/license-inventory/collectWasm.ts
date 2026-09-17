@@ -17,6 +17,7 @@ export interface WasmManifest {
   readonly revisions?: { readonly frankensim?: string; [key: string]: unknown };
   readonly capabilities?: readonly WasmCapability[];
   readonly artifacts?: readonly { readonly path?: string }[];
+  readonly files?: Record<string, { readonly sha256?: string; readonly bytes?: number }>;
 }
 
 export interface CollectWasmOptions {
