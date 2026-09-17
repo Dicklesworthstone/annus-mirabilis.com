@@ -1,5 +1,4 @@
 import type { Metadata } from "next";
-import React from "react";
 import "./notation.css";
 import { CollisionClusterView } from "./CollisionClusterView.tsx";
 import { NotationEntryCard } from "./NotationEntryCard.tsx";

@@ -5,7 +5,7 @@
  * Specification: AGENTS.md, am-not-notation-page-2us.
  */
 
-import React, { useMemo, useState } from "react";
+import { useMemo, useState } from "react";
 import { CollisionClusterView } from "./CollisionClusterView.tsx";
 import { ModernOnlySymbolsView } from "./ModernOnlySymbolsView.tsx";
 import { NotationEntryCard } from "./NotationEntryCard.tsx";
