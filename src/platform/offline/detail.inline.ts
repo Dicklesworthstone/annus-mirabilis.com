@@ -11,7 +11,8 @@ export function initializeOfflineDetail() {
     root.dataset.detail = value;
     root.dataset.lens = modern.checked ? "modern" : "paper";
     for (const block of document.querySelectorAll<HTMLElement>("[data-reading]")) {
-      block.hidden = block.dataset.reading === "3" ? !modern.checked : block.dataset.reading !== value;
+      block.hidden =
+        block.dataset.reading === "3" ? !modern.checked : block.dataset.reading !== value;
     }
     if (announce && status) {
       status.textContent = `${detail.selectedOptions[0]?.textContent ?? "Full explanation"}. ${modern.checked ? "Modern qualifications shown." : "Modern qualifications hidden."}`;
@@ -19,7 +20,8 @@ export function initializeOfflineDetail() {
   }
   const initial = new URLSearchParams(location.search).get("detail");
   const aliases: Record<string, string> = { overview: "0", full: "1", steps: "2" };
-  detail.value = initial && ["0", "1", "2"].includes(initial) ? initial : aliases[initial ?? ""] ?? "1";
+  detail.value =
+    initial && ["0", "1", "2"].includes(initial) ? initial : (aliases[initial ?? ""] ?? "1");
   detail.disabled = false;
   modern.disabled = false;
   detail.addEventListener("change", () => apply(true));
