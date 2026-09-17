@@ -148,6 +148,38 @@ describe("OCR Orchestrator: Unit and Integration Tests", () => {
       );
     });
 
+    it("refuses any local OCR engine adapter name with typed FORBIDDEN_ADAPTER_NAME", () => {
+      const forbiddenNames = [
+        "local",
+        "local-ocr",
+        "tesseract",
+        "local-tesseract",
+        "ocrmypdf",
+        "focr",
+        "easyocr",
+        "paddleocr",
+        "pix2tex",
+        "latex-ocr",
+        "surya",
+        "kraken",
+        "doctr",
+        "rapidocr",
+        "ollama",
+        "llava",
+        "llama.cpp",
+      ];
+      for (const name of forbiddenNames) {
+        assert.throws(
+          () => loadAdapter(name),
+          (err: any) =>
+            err instanceof OcrRefusalError &&
+            err.refusalCode === "FORBIDDEN_ADAPTER_NAME" &&
+            err.message.includes("matches a forbidden local recognition tool"),
+          `Expected FORBIDDEN_ADAPTER_NAME refusal for "${name}"`,
+        );
+      }
+    });
+
     it("refuses fixture adapter when NODE_ENV=production with FIXTURE_ADAPTER_OUTSIDE_TEST", () => {
       assert.throws(
         () => loadAdapter("fixture", { nodeEnv: "production" }),

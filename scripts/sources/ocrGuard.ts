@@ -37,6 +37,60 @@ export async function loadDenylist(root = ROOT): Promise<DenylistConfig> {
   return JSON.parse(content) as DenylistConfig;
 }
 
+interface CompiledMatcher {
+  entry: DenylistEntry;
+  patternLower: string;
+  importRegex?: RegExp | undefined;
+  spawnRegex?: RegExp | undefined;
+  binaryRegex?: RegExp | undefined;
+  symbolRegex?: RegExp | undefined;
+}
+
+function compileMatchers(denylist: DenylistEntry[]): CompiledMatcher[] {
+  return denylist.map((entry) => {
+    const p = entry.pattern;
+    const matcher: CompiledMatcher = {
+      entry,
+      patternLower: p.toLowerCase(),
+    };
+
+    if (entry.category === "dependency-or-import" || entry.category === "import-or-spawn") {
+      matcher.importRegex = new RegExp(
+        `(?:import\\s+(?:(?:[\\w*\\s{},$]+)\\s+from\\s+)?['"\`][^'"\`]*${escapeRegex(p)}[^'"\`]*['"\`]|require\\s*\\(\\s*['"\`][^'"\`]*${escapeRegex(p)}[^'"\`]*['"\`])`,
+        "i",
+      );
+    }
+
+    if (entry.category === "binary-or-spawn" || entry.category === "import-or-spawn") {
+      matcher.spawnRegex = new RegExp(
+        `(?:spawn|exec|execSync|execFile|fork)\\s*\\(\\s*['"\`]${escapeRegex(p)}['"\`]`,
+        "i",
+      );
+      matcher.binaryRegex = new RegExp(
+        `(?:spawn|exec|execSync|execFile)\\s*\\([^)]*['"\`]\\s*${escapeRegex(p)}\\b`,
+        "i",
+      );
+    }
+
+    if (entry.category === "code-symbol") {
+      matcher.symbolRegex = new RegExp(`\\b${escapeRegex(p)}\\b`);
+    }
+
+    return matcher;
+  });
+}
+
+const matcherCache = new WeakMap<DenylistEntry[], CompiledMatcher[]>();
+
+function getCompiledMatchers(denylist: DenylistEntry[]): CompiledMatcher[] {
+  let matchers = matcherCache.get(denylist);
+  if (!matchers) {
+    matchers = compileMatchers(denylist);
+    matcherCache.set(denylist, matchers);
+  }
+  return matchers;
+}
+
 export function scanContentForViolations(
   filePath: string,
   content: string,
@@ -71,6 +125,8 @@ export function scanContentForViolations(
     }
   }
 
+  const matchers = getCompiledMatchers(denylist);
+
   // Scan line by line for imports, spawns, or code symbols
   for (let i = 0; i < lines.length; i++) {
     const line = lines[i]!;
@@ -84,36 +140,32 @@ export function scanContentForViolations(
       continue;
     }
 
-    for (const entry of denylist) {
-      const p = entry.pattern;
+    const lineLower = line.toLowerCase();
+
+    for (const m of matchers) {
+      const p = m.entry.pattern;
+
+      // Fast path: if pattern isn't even in line, skip all regexes
+      if (!lineLower.includes(m.patternLower)) {
+        continue;
+      }
+
       let matched = false;
 
-      if (entry.category === "dependency-or-import" || entry.category === "import-or-spawn") {
-        // match import ... from "..." or import "..." or require("...")
-        const importRegex = new RegExp(
-          `(?:import\\s+(?:(?:[\\w*\\s{},$]+)\\s+from\\s+)?['"\`][^'"\`]*${escapeRegex(p)}[^'"\`]*['"\`]|require\\s*\\(\\s*['"\`][^'"\`]*${escapeRegex(p)}[^'"\`]*['"\`])`,
-          "i",
-        );
-        if (importRegex.test(line)) matched = true;
+      if (m.importRegex && m.importRegex.test(line)) {
+        matched = true;
       }
 
-      if (entry.category === "binary-or-spawn" || entry.category === "import-or-spawn") {
-        // match spawn/exec/execSync/execFile of the binary
-        const spawnRegex = new RegExp(
-          `(?:spawn|exec|execSync|execFile|fork)\\s*\\(\\s*['"\`]${escapeRegex(p)}['"\`]`,
-          "i",
-        );
-        const binaryInvocationRegex = new RegExp(
-          `(?:spawn|exec|execSync|execFile)\\s*\\([^)]*['"\`]\\s*${escapeRegex(p)}\\b`,
-          "i",
-        );
-        if (spawnRegex.test(line) || binaryInvocationRegex.test(line)) matched = true;
+      if (!matched && m.spawnRegex && m.spawnRegex.test(line)) {
+        matched = true;
       }
 
-      if (entry.category === "code-symbol") {
-        // match direct symbol invocation or reference
-        const symbolRegex = new RegExp(`\\b${escapeRegex(p)}\\b`);
-        if (symbolRegex.test(line)) matched = true;
+      if (!matched && m.binaryRegex && m.binaryRegex.test(line)) {
+        matched = true;
+      }
+
+      if (!matched && m.symbolRegex && m.symbolRegex.test(line)) {
+        matched = true;
       }
 
       if (matched) {
@@ -121,7 +173,7 @@ export function scanContentForViolations(
           file: filePath,
           line: i + 1,
           pattern: p,
-          reason: entry.reason,
+          reason: m.entry.reason,
           snippet: line.trim(),
         });
       }
