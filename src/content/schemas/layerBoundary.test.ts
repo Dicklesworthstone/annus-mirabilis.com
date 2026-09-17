@@ -12,6 +12,7 @@ import test from "node:test";
 import {
   validateEditorialNote,
   validateGlossUnit,
+  validateSourceAsset,
   validateSourceBlock,
   validateTranslationUnit,
 } from "./source.ts";
@@ -177,6 +178,71 @@ test("layer boundary: a well-formed EditorialNote is refused when validated as a
     (err: any) => {
       assert.equal(err.name, "SchemaValidationError");
       assert.equal(err.code, "missing-source-refs");
+      return true;
+    },
+  );
+});
+
+const validSourceAsset = {
+  originUrl: "https://example.org/scans/ap-17-549.pdf",
+  acquisitionDate: "2026-09-15",
+  sha256: "a".repeat(64),
+  mimeType: "application/pdf",
+  pageCount: 12,
+  pageMapping: [{ pdfPageIndex: 1, printedPage: 549, contents: ["article-text"] }],
+  rights: {
+    status: "public-domain-text",
+    statement: "Public domain per life-plus-70.",
+    reuseTerms: "no-reuse-offered",
+  },
+  publicationDecision: "reference-only",
+  publicationReason: "Consulted only.",
+  cloudProcessing: "unknown",
+  cloudProcessingBasis: "Not yet examined.",
+};
+
+test("layer boundary: a well-formed SourceAsset (the pinned facsimile) is refused when validated as a SourceBlock or a TranslationUnit", () => {
+  // Control: the same record validates cleanly as what it actually is.
+  const asset = validateSourceAsset(validSourceAsset);
+  assert.equal(asset.sha256, "a".repeat(64));
+
+  // The pinned facsimile carries no id, no kind, no locators, no sourceRefs, and no translator --
+  // it carries bytes, rights, and a page mapping instead, so it must never occupy the German
+  // source-block slot or the English translation-unit slot. A later layer never substitutes for
+  // an earlier one, and the earliest layer never substitutes for a later one either.
+  assert.throws(
+    () => validateSourceBlock(validSourceAsset),
+    (err: any) => {
+      assert.equal(err.name, "SchemaValidationError");
+      assert.ok(
+        err.code === "missing-id" || err.code === "invalid-kind" || err.code === "missing-locators",
+        `expected missing-id, invalid-kind, or missing-locators, got ${err.code}`,
+      );
+      return true;
+    },
+  );
+  assert.throws(
+    () => validateTranslationUnit(validSourceAsset),
+    (err: any) => {
+      assert.equal(err.name, "SchemaValidationError");
+      assert.ok(
+        err.code === "missing-id" || err.code === "missing-source-refs",
+        `expected missing-id or missing-source-refs, got ${err.code}`,
+      );
+      return true;
+    },
+  );
+});
+
+test("layer boundary: a well-formed SourceBlock is refused when validated as a SourceAsset", () => {
+  // The reverse direction: the German diplomatic text is not a pinned facsimile either. It
+  // carries none of a SourceAsset's own required fields (originUrl, acquisitionDate, sha256,
+  // mimeType, pageCount, pageMapping, rights).
+  assert.throws(
+    () => validateSourceAsset(validSourceBlock),
+    (err: any) => {
+      assert.equal(err.name, "SchemaValidationError");
+      assert.equal(err.code, "missing-origin-url");
       return true;
     },
   );
