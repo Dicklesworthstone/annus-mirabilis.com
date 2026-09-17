@@ -62,10 +62,16 @@ button,
   cursor: pointer;
   font-family: Arial, Helvetica, sans-serif;
 }
-button.secondary {
+button.secondary,
+.button.secondary {
   background: transparent;
   color: var(--ink);
   border-color: #91998d;
+}
+.button-group {
+  display: flex;
+  gap: 0.5rem;
+  flex-wrap: wrap;
 }
 button:hover:not(:disabled),
 .button:hover {

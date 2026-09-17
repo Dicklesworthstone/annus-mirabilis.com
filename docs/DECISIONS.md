@@ -639,3 +639,28 @@ Schema-test JSONL (gitignored artifacts): `artifacts/test-logs/perf-profiles/202
 - **Verification:** `br dep cycles --json` -> `{"cycles":[],"count":0}`. `br ready` went from **3 to 34**. A spot check confirmed real prerequisites survive: `am-rt-typed-results-mqb` still reports blocked by `am-cm-schemas-experiment-fuu`, `am-edit-voice-lint-trmf`, `am-rt-snapshot-store-aft`, none of which is an epic.
 - **Reversibility:** Fully reversible. The exact edge list is preserved at `scratchpad/epic-edges.json` for this session, and `.beads/issues.jsonl` was backed up before the change. Any edge can be restored with `br dep add <issue> <epic>`.
 - **Revisit trigger:** If the project deliberately wants epics to gate their children, restore the edges and instead close epics first; note that this reintroduces the deadlock unless epics are exempted from the blocker check.
+
+---
+
+## D-2026-09-17-tailwind-styling-resolution
+
+- **Question:** How does the project address the 8,339 Tailwind-shaped utility class names across 61 components when no Tailwind dependency or configuration exists in the repository?
+- **Evidence:** Measured by orchestrator TanElk on 2026-09-17 on bead `am-vw1o`. Static scan of `className="..."` literals across `src/**/*.tsx` revealed 683 distinct Tailwind-shaped tokens across 61 components with 0 matching rules in any project stylesheet. Real browser measurements on `/lab/sr-12/` and `/papers/brownian-motion/` showed controls rendering with default browser inline flow (e.g. 153x18px links with no padding, no background, and missing the 44px touch-target requirement).
+- **Options:**
+  - **1. Install and configure Tailwind:** Add `tailwindcss`, `postcss`, `autoprefixer`, and configure dual systems. *Risk:* Introduces substantial package churn, dual competing layout rules, CSS specificity conflicts with the three journal themes (Annalen, Kramgasse Night, Slate), and bundle bloat.
+  - **2. Semantic CSS migration with ratchet gate (Recommended):** Retain semantic CSS as the sole styling system. Pin existing legacy utility tokens in an automated ratchet gate (`src/testing/styles/declaredClassesRatchet.test.ts`) that strictly permits baseline counts to shrink and forbids any new undeclared class tokens. Component by component, translate legacy utility classes into clean semantic CSS classes declared in project stylesheets.
+  - **3. Mark affected components as drafts:** Label affected components as incomplete drafts without modifying styling. *Risk:* Leaves interactive controls and touch targets broken in production builds without fixing the defects.
+- **Choice:** **Option 2 (Semantic CSS migration with ratchet gate)**.
+- **Reason:** Annus Mirabilis already maintains a comprehensive semantic stylesheet architecture (175+ modular `.css` files and semantic tokens in `src/app/globals.css`). The dead Tailwind tokens were artifacts of prototype code ported into a repository that deliberately has no Tailwind dependency. Standardizing on semantic CSS preserves clean theme inheritance, avoids framework churn, and ensures accessible touch targets (>= 44px min-height) without dual styling systems.
+- **Decider:** `agent:pane20` on bead `am-vw1o`.
+- **Status:** RATIFIED 2026-09-17.
+- **What was done:**
+  1. Implemented `src/testing/styles/declaredClassesRatchet.test.ts` and `declaredClassesBaseline.json` (AC2), verifying that no file exceeds its baseline, no new file introduces undeclared classes, and planted negatives fire reliably.
+  2. Enhanced `src/app/globals.css` with `.button.secondary` and `.button-group`.
+  3. Refactored `src/reader/entrances/BrownianFirstEncounter.tsx` BM-01 action buttons from inert Tailwind classes to semantic `.button` and `.button.secondary` (lowering its baseline from 687 to 654).
+  4. Verified in `src/testing/styles/computedStylesLayout.test.ts` via headless browser that the buttons compute to >=44px touch targets with proper ink/panel tokens.
+- **Verification:**
+  - `node --experimental-strip-types --test src/testing/styles/declaredClassesRatchet.test.ts` (4 pass, 0 fail)
+  - `node --experimental-strip-types --test src/testing/styles/computedStylesLayout.test.ts` (1 pass, 0 fail)
+- **Revisit trigger:** If the project owner explicitly decides to adopt Tailwind via an updated `package.json` and `tailwind.config.js`.
+

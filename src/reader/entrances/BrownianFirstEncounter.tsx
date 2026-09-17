@@ -650,7 +650,7 @@ export function BrownianFirstEncounter({
                     Einstein’s §5 displacement passage.
                   </p>
                 </div>
-                <div className="flex gap-2 flex-wrap">
+                <div className="button-group">
                   <a
                     href="/lab/bm-01"
                     data-instrument-id="bm-01"
@@ -660,14 +660,11 @@ export function BrownianFirstEncounter({
                         onNavigateInstrument("bm-01");
                       }
                     }}
-                    className="inline-flex items-center justify-center text-xs px-3 py-1.5 bg-primary text-primary-foreground font-medium rounded hover:bg-primary/90 transition-colors text-center flex-1"
+                    className="button"
                   >
                     Open BM-01 Lab →
                   </a>
-                  <a
-                    href="/papers/brownian-motion/s5/#s5-p1"
-                    className="inline-flex items-center justify-center text-xs px-3 py-1.5 bg-muted hover:bg-muted/80 text-foreground font-medium rounded border border-border transition-colors text-center flex-1"
-                  >
+                  <a href="/papers/brownian-motion/s5/#s5-p1" className="button secondary">
                     Go to §5 Passage →
                   </a>
                 </div>
