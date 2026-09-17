@@ -1,45 +1,33 @@
 import { execFile } from "node:child_process";
 import { createHash, randomBytes } from "node:crypto";
-import { existsSync, readFileSync } from "node:fs";
-import { appendFile, lstat, mkdir, readdir, readFile, rename, writeFile } from "node:fs/promises";
+import { existsSync } from "node:fs";
+import { appendFile, mkdir, readdir, readFile, rename, writeFile } from "node:fs/promises";
 import { basename, dirname, resolve } from "node:path";
 import { fileURLToPath } from "node:url";
 import { promisify } from "node:util";
-import { type LoadAdapterOptions, loadAdapter } from "../ocr-adapters/loader.ts";
 import {
-  AdapterAuthError,
   AdapterBadResponseError,
-  AdapterQuotaError,
   AdapterTimeoutError,
-  AdapterUnavailableError,
   type ChunkImage,
   type ChunkSubmission,
   type CloudOcrAdapter,
-  OcrAdapterError,
-  type OcrRefusalCode,
   OcrRefusalError,
 } from "../ocr-adapters/types.ts";
-import {
-  type ExpectedPageCounts,
-  loadPlan,
-  type OcrPlan,
-  type ValidatePlanOptions,
-  validatePlan,
-} from "./ocrPlanSchema.ts";
+import type { ExpectedPageCounts, OcrPlan } from "./ocrPlanSchema.ts";
 
 const execFileAsync = promisify(execFile);
 const ROOT = resolve(dirname(fileURLToPath(import.meta.url)), "../..");
 
 export function generateToolRunId(): string {
   const d = new Date();
-  const dateStr = d.toISOString().replace(/[-:]/g, "").slice(0, 15) + "Z";
+  const dateStr = `${d.toISOString().replace(/[-:]/g, "").slice(0, 15)}Z`;
   const hex = randomBytes(4).toString("hex");
   return `${dateStr}-${hex}`;
 }
 
 export function generateLogRunId(): string {
   const d = new Date();
-  const dateStr = d.toISOString().replace(/[-:]/g, "").slice(0, 15) + "Z";
+  const dateStr = `${d.toISOString().replace(/[-:]/g, "").slice(0, 15)}Z`;
   const hex = randomBytes(4).toString("hex");
   return `${dateStr}-${hex}`;
 }
@@ -259,7 +247,7 @@ export async function renderPages(
       if (file.startsWith("tmp_batch-") && file.endsWith(".png")) {
         const numStr = file.replace(/^tmp_batch-0*/, "").replace(/\.png$/, "");
         const actualPageNum = parseInt(numStr, 10);
-        if (!isNaN(actualPageNum)) {
+        if (!Number.isNaN(actualPageNum)) {
           const target = resolve(outputDir, `page-${actualPageNum}.png`);
           await rename(resolve(outputDir, file), target);
         }
@@ -343,7 +331,7 @@ export async function appendStructuredLog(
   logRunId: string,
   entry: RunLogEntry,
 ): Promise<void> {
-  const line = redact(JSON.stringify(entry)) + "\n";
+  const line = `${redact(JSON.stringify(entry))}\n`;
   const runLogPath = resolve(runDir, "run.jsonl");
   await mkdir(runDir, { recursive: true });
   await appendFile(runLogPath, line, "utf-8");
@@ -424,13 +412,17 @@ export async function runChunk(
         retry: retries,
       });
       break;
-    } catch (err: any) {
+    } catch (err: unknown) {
+      const errRecord =
+        typeof err === "object" && err !== null ? (err as Record<string, unknown>) : undefined;
       const isRetryable =
         err instanceof AdapterTimeoutError ||
         err instanceof AdapterBadResponseError ||
-        err?.retryable === true;
+        errRecord?.retryable === true;
       if (isRetryable && retries < maxRetries) {
         retries++;
+        const message = err instanceof Error ? err.message : String(err);
+        const errorCode = typeof errRecord?.code === "string" ? errRecord.code : "RETRY";
         await appendStructuredLog(runDir, logRunId, {
           timestamp: new Date().toISOString(),
           suite: "ocr-ledgers",
@@ -444,8 +436,8 @@ export async function runChunk(
           adapter: adapter.name,
           status: "retried",
           retry: retries,
-          errorCode: err?.code ?? "RETRY",
-          message: err.message,
+          errorCode,
+          message,
         });
         await new Promise((r) => setTimeout(r, 10 * retries));
         continue;
@@ -454,8 +446,12 @@ export async function runChunk(
     }
   }
 
+  if (!submitRes) {
+    throw new Error(`Chunk submission failed for chunk ${chunk.chunkIndex} of ${plan.key}`);
+  }
+
   // Poll
-  const jobId = submitRes!.jobId;
+  const jobId = submitRes.jobId;
   const pollRes = await adapter.poll(jobId);
   if (pollRes.status === "failed") {
     throw new AdapterBadResponseError(`Cloud OCR job ${jobId} failed during processing.`);
@@ -586,7 +582,7 @@ export function parsePageCheckpoint(content: string): ParsedPageCheckpoint | nul
   const fmText = content.slice(4, endIdx);
   const body = content.slice(endIdx + 5);
 
-  const meta: Record<string, any> = {};
+  const meta: Record<string, string> = {};
   for (const line of fmText.split("\n")) {
     const colon = line.indexOf(":");
     if (colon === -1) continue;
@@ -596,19 +592,19 @@ export function parsePageCheckpoint(content: string): ParsedPageCheckpoint | nul
   }
 
   return {
-    key: meta.key,
-    pdfPage: parseInt(meta.pdfPage, 10),
-    toolRunId: meta.toolRunId,
-    logRunId: meta.logRunId,
-    chunkIndex: parseInt(meta.chunkIndex, 10),
-    jobId: meta.jobId,
-    adapter: meta.adapter,
-    workerIdentity: meta.workerIdentity,
-    model: meta.model,
-    instructionsVersion: meta.instructionsVersion,
+    key: meta.key ?? "",
+    pdfPage: parseInt(meta.pdfPage ?? "0", 10),
+    toolRunId: meta.toolRunId ?? "",
+    logRunId: meta.logRunId ?? "",
+    chunkIndex: parseInt(meta.chunkIndex ?? "0", 10),
+    jobId: meta.jobId ?? "",
+    adapter: meta.adapter ?? "",
+    workerIdentity: meta.workerIdentity ?? "",
+    model: meta.model ?? "",
+    instructionsVersion: meta.instructionsVersion ?? "",
     facsimileSha256: meta.facsimileSha256 ?? "",
-    imageSha256: meta.imageSha256,
-    textSha256: meta.textSha256,
+    imageSha256: meta.imageSha256 ?? "",
+    textSha256: meta.textSha256 ?? "",
     body,
   };
 }
@@ -778,14 +774,16 @@ export async function summarizeRun(
   if (existsSync(runLogPath)) {
     const logContent = await readFile(runLogPath, "utf-8");
     const lines = logContent.trim().split("\n");
-    if (lines.length > 0 && lines[0]) {
+    const firstLine = lines[0];
+    if (firstLine) {
       try {
-        startedAt = JSON.parse(lines[0]).timestamp;
+        startedAt = JSON.parse(firstLine).timestamp;
       } catch {}
     }
-    if (lines.length > 0 && lines[lines.length - 1]) {
+    const lastLine = lines[lines.length - 1];
+    if (lastLine) {
       try {
-        completedAt = JSON.parse(lines[lines.length - 1]!).timestamp;
+        completedAt = JSON.parse(lastLine).timestamp;
       } catch {}
     }
     for (const line of lines) {
@@ -805,8 +803,7 @@ export async function summarizeRun(
   const imageSha256s: Record<number, string> = {};
   const textSha256s: Record<number, string> = {};
 
-  for (const pageNum of Array.from(existingPages.keys())) {
-    const page = existingPages.get(pageNum)!;
+  for (const [pageNum, page] of existingPages.entries()) {
     sampleWorker = page.workerIdentity || sampleWorker;
     sampleModel = page.model || sampleModel;
     sampleAdapter = page.adapter || sampleAdapter;
@@ -928,15 +925,15 @@ export async function summarizeRun(
   // Save to run directory
   await writeFile(
     resolve(runDir, "summary.json"),
-    JSON.stringify(summary, null, 2) + "\n",
+    `${JSON.stringify(summary, null, 2)}\n`,
     "utf-8",
   );
   await writeFile(
     resolve(runDir, "coverage.json"),
-    JSON.stringify(coverage, null, 2) + "\n",
+    `${JSON.stringify(coverage, null, 2)}\n`,
     "utf-8",
   );
-  await writeFile(resolve(runDir, "receipt-block.md"), receiptBlock + "\n", "utf-8");
+  await writeFile(resolve(runDir, "receipt-block.md"), `${receiptBlock}\n`, "utf-8");
 
   return { summary, coverage, receiptBlock };
 }
