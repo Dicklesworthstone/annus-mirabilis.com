@@ -14,14 +14,11 @@ export async function generateMetadata({ params }: { params: Promise<{ section: 
 }
 export default async function Page({
   params,
-  searchParams,
 }: {
   params: Promise<{ section: string }>;
-  searchParams: Promise<{ companion?: string }>;
 }) {
   const { section } = await params;
-  const query = await searchParams;
   if (!(await loadPaper("brownian-motion")).paper.sections.some((s) => s.id === section))
     notFound();
-  return <PaperReader section={section} companion={query.companion} />;
+  return <PaperReader section={section} />;
 }

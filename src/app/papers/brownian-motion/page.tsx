@@ -6,11 +6,6 @@ export const metadata: Metadata = {
     "An explanatory preview with linked foundations and three working laboratories; source transcription and translation remain in preparation.",
   alternates: { canonical: "https://annus-mirabilis.com/papers/brownian-motion/" },
 };
-export default async function Page({
-  searchParams,
-}: {
-  searchParams: Promise<{ companion?: string }>;
-}) {
-  const query = await searchParams;
-  return <PaperReader companion={query.companion} />;
+export default function Page() {
+  return <PaperReader />;
 }
