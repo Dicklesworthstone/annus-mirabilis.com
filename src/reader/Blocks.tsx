@@ -26,20 +26,20 @@ export function ReadingBlocks({
 }) {
   return (
     <>
-      {blocks.map((block, i) => {
-        if (block.kind === "paragraph") return <p key={i}>{block.text}</p>;
+      {blocks.map((block) => {
+        if (block.kind === "paragraph") return <p key={`p-${block.text}`}>{block.text}</p>;
         if (block.kind === "formula")
           return (
-            <div key={i}>
+            <div key={`formula-${block.latex}`}>
               <Formula latex={block.latex} />
               <p className="spoken-math">{block.spoken}</p>
             </div>
           );
         if (block.kind === "steps")
           return (
-            <ol className="derivation-steps" key={i}>
-              {block.items.map((item, j) => (
-                <li key={j}>{item}</li>
+            <ol className="derivation-steps" key={`steps-${block.items.join("|")}`}>
+              {block.items.map((item) => (
+                <li key={item}>{item}</li>
               ))}
             </ol>
           );
@@ -48,7 +48,7 @@ export function ReadingBlocks({
         return embed ? (
           <aside
             className="foundation-inline"
-            key={i}
+            key={`foundation-${block.id}`}
             aria-label={`Foundation: ${foundation.title}`}
           >
             <p className="eyebrow">A tool for this step</p>
@@ -56,7 +56,7 @@ export function ReadingBlocks({
             <FoundationBody foundation={foundation} foundations={foundations} />
           </aside>
         ) : (
-          <p className="foundation-link" key={i}>
+          <p className="foundation-link" key={`foundation-link-${block.id}`}>
             <FoundationLink
               id={block.id}
               title={`Open the foundation: ${foundation.title}`}
