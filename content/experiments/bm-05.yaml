@@ -1,0 +1,563 @@
+# BM-05 instrument manifest (am-bm-05-random-steps-ntzl).
+#
+# Scope note (RubyTiger, 2026-09-17): this manifest is being built where none existed. The
+# runtime (src/experiments/bm05/*, src/workers/operations/bm05.ts, src/app/lab/bm-05/*) was
+# already substantially built and tested by a peer lane (PlumHawk) before this pass -- 13
+# pre-existing tests, plus the kernel-id resolution test, the coin-to-bell teaching tape, and
+# the bm05-s4-second-moment weave predicate PlumHawk added this cycle. This manifest reuses
+# that runtime's own parameter ids, domains, defaults, output ids, predict prompt, teaching
+# tape, and weave predicate verbatim (checked field-for-field by
+# src/testing/bm05Manifest.test.ts), rather than restating a second, possibly-drifted copy.
+#
+# Deferred, not attempted in this change (a much larger lift, same scoping call PlumHawk made
+# for this bead's runtime pass and WildCrane made for BM-01's manifest):
+#   - The R0-R3 caption texts and content/editorial/readings-owners/am-bm-05-random-steps-ntzl.yaml.
+#     The bead requires the readings-owners file to be added in the SAME change as real caption
+#     text, never as an empty placeholder, so it is not started here. This is real editorial
+#     writing across the histogram/overlay, sample-paths, moments-table, and step-counter
+#     captions, the model-note headline, four typed-label summaries, and every preset/tape
+#     description -- on the order of dozens of authored texts, not a mechanical transcription.
+#   - predictMode's runtime wiring (am-inst-predict-mode-ti7m is still open); this manifest
+#     declares the registered prompt bm-05-predict-step-shape so the shape exists to wire to.
+#   - End-to-end tape replay through BM-05's session (am-inst-permalink-tape-s677 not built);
+#     the coin-to-bell tape is schema-valid only (src/testing/bm05Tape.test.ts), per PlumHawk's
+#     own note in content/experiments/tapes/coin-to-bell.yaml.
+#   - Real §4 sentence ids for the weave predicate's targets (am-edn-inventory-brownian-slg
+#     hasn't frozen them yet); the placeholder id "s4-second-moment" is reused verbatim from
+#     src/experiments/bm05/definition.ts's BM05_WEAVE_PREDICATES, not invented here.
+#
+# outputs[].quantityId reuses each output's own BM05_OUTPUTS key as its quantity id (for example
+# "stepSecondMoment", "kolmogorovDistance"), the same convention the bead's own prose uses for
+# identifierBindings ("stepRms" bound to itself). A number of these do not yet have a separate
+# entry in a canonical quantity registry (am-not-quantity-registry-2f7 is still open; see
+# docs/FRANKENSIM_BINDING.md's own note that "walkStepCoordinate1d" has no existing id to bind
+# to). "diffusionCoefficient" is the one exception, reusing BM-01's own registered quantity id
+# for the same physical concept.
+#
+# acceptanceCases must be non-empty because several declared outputs allow a non-"value" status
+# (kolmogorovDistance, shapeTerm, sumKurtosis, agreementBound, withinBound: "not-applicable" at
+# n = 0, a point mass rather than a finite-width Gaussian comparison, exactly the "typed status,
+# not a rendering accident" pattern; biasedDiffusion, cauchyDiffusion, continuumLimit:
+# "outside-domain" for a nonzero-mean, infinite-variance, or ill-posed limiting request).
+# content/scenarios/bm-05-gaussian-step-diffusivity.yaml is a real, value-only regression fixture
+# (proving D = stepRms^2/(2*tau) = 1.25 um^2/s at BM-05's own defaults, the bead's own stated
+# number) added in this same change, registered as diffusion.walkKernelDiffusivity in
+# src/testing/scenario-registry/owners.ts. It cannot itself prove the non-"value" statuses:
+# Scenario.expected.status exists in the schema (src/content/schemas/experiment.ts) but
+# src/testing/scenario-registry/run.ts never reads it -- a real, pre-existing gap in that
+# runner, not something this pass fabricates around. Those statuses are already proven directly
+# against kernelDiffusivity/continuumLimit/coinWalkDistribution by
+# src/testing/walkLaws.test.mjs's "analytical deviations distinguish drift, infinite variance,
+# and the wrong continuum limit", which this manifest's tests cite rather than duplicate.
+id: bm-05
+title: "BM-05: Random Steps to Diffusion"
+explanatoryQuestion: "How do many small independent random steps produce a deterministic spreading law, and what part of the step distribution sets the rate?"
+sourceRefs:
+  - paper: brownian-motion
+    id: s4
+  - paper: brownian-motion
+    id: s5
+argumentIds:
+  - arg-bm-independent-steps
+  - arg-bm-variance-of-sum
+  - arg-bm-gaussian
+  - arg-bm-diffusivity
+  - arg-bm-diffusion-equation
+schemaVersion: 1
+parameters:
+  - id: kernel
+    label: "Step distribution"
+    accessibleName: "Per-step random distribution"
+    accessibleDescription: "Which symmetric, finite-variance step law each walker draws from"
+    quantityId: stepDistribution
+    displayUnit: ""
+    modelDomain:
+      enumerated: ["coin", "uniform", "gaussian"]
+      reason: "Symmetric, finite-variance step laws with a registered export kernel (src/physics/reference/diffusion/walkLaws.ts)"
+    visualRange:
+      min: 0
+      max: 1
+    default: "coin"
+    mapping:
+      kind: linear
+    role: independent
+    commandClass: setup-change
+  - id: stepRms
+    label: "Per-step RMS"
+    accessibleName: "Root-mean-square size of one step"
+    accessibleDescription: "Sets the step scale in micrometers"
+    quantityId: stepRms
+    displayUnit: "um"
+    modelDomain:
+      min: 1e-9
+      max: 1e-3
+      minInclusive: true
+      maxInclusive: true
+      reason: "Positive, finite step scale (src/experiments/bm05/parameters.ts)"
+    visualRange:
+      min: 1e-8
+      max: 5e-6
+    default: 5e-7
+    mapping:
+      kind: log
+      base: 10
+    role: independent
+    commandClass: setup-change
+  - id: tau
+    label: "Interval between steps"
+    accessibleName: "Time interval between successive steps"
+    accessibleDescription: "Sets the step interval in seconds"
+    quantityId: stepInterval
+    displayUnit: "s"
+    modelDomain:
+      min: 1e-6
+      max: 1e4
+      minInclusive: true
+      maxInclusive: true
+      reason: "Positive, finite step interval (src/experiments/bm05/parameters.ts)"
+    visualRange:
+      min: 0.001
+      max: 10
+    default: 0.1
+    mapping:
+      kind: log
+      base: 10
+    role: independent
+    commandClass: setup-change
+  - id: n
+    label: "Steps shown"
+    accessibleName: "Number of steps advanced so far"
+    accessibleDescription: "How far into the recorded run the displayed statistics are read"
+    quantityId: stepsShown
+    displayUnit: "steps"
+    modelDomain:
+      min: 0
+      max: 10000
+      minInclusive: true
+      maxInclusive: true
+      reason: "Must not exceed the recorded run length runSteps (src/experiments/bm05/parameters.ts)"
+    visualRange:
+      min: 0
+      max: 400
+    default: 4
+    mapping:
+      kind: linear
+    role: independent
+    commandClass: measurement-change
+  - id: walkers
+    label: "Walkers"
+    accessibleName: "Number of independent walkers"
+    accessibleDescription: "Integer count of independent walkers in the ensemble"
+    quantityId: walkerCount
+    displayUnit: "walkers"
+    modelDomain:
+      min: 1
+      max: 10000
+      minInclusive: true
+      maxInclusive: true
+      reason: "Runtime work-budget bound (src/experiments/bm05/parameters.ts)"
+    visualRange:
+      min: 1
+      max: 10000
+    default: 2000
+    mapping:
+      kind: log
+      base: 10
+    role: independent
+    commandClass: setup-change
+  - id: runSteps
+    label: "Recorded steps per walker"
+    accessibleName: "Total recorded run length"
+    accessibleDescription: "How many steps are recorded before the run stops, in steps"
+    quantityId: runLength
+    displayUnit: "steps"
+    modelDomain:
+      min: 1
+      max: 10000
+      minInclusive: true
+      maxInclusive: true
+      reason: "Runtime work-budget bound (src/experiments/bm05/parameters.ts)"
+    visualRange:
+      min: 1
+      max: 400
+    default: 400
+    mapping:
+      kind: log
+      base: 10
+    role: independent
+    commandClass: setup-change
+  - id: seed
+    label: "Seed"
+    accessibleName: "Random stream seed"
+    accessibleDescription: "64-bit decimal seed identifying this run's random draws"
+    quantityId: streamSeed
+    displayUnit: ""
+    modelDomain:
+      enumerated: []
+      reason: "Any canonical unsigned 64-bit decimal string; recorded, never guessed."
+    visualRange:
+      min: 0
+      max: 1
+    default: "1905"
+    mapping:
+      kind: linear
+    role: independent
+    commandClass: setup-change
+  - id: bias
+    label: "Asymmetric-deviation bias"
+    accessibleName: "Biased-coin probability for the labeled asymmetric teaching deviation"
+    accessibleDescription: "Probability of the positive step, used only by the analytic asymmetric-kernel deviation, never by the pure-diffusion model"
+    quantityId: biasedStepProbability
+    displayUnit: ""
+    modelDomain:
+      min: 0
+      max: 1
+      minInclusive: true
+      maxInclusive: true
+      reason: "A probability (src/experiments/bm05/parameters.ts)"
+    visualRange:
+      min: 0.5
+      max: 1
+    default: 0.6
+    mapping:
+      kind: linear
+    role: independent
+    commandClass: estimator-change
+outputs:
+  - id: stepMean
+    quantityId: stepMean
+    allowedStatuses: ["value"]
+  - id: stepSecondMoment
+    quantityId: stepSecondMoment
+    allowedStatuses: ["value"]
+  - id: stepFourthMoment
+    quantityId: stepFourthMoment
+    allowedStatuses: ["value"]
+  - id: stepKurtosis
+    quantityId: stepKurtosis
+    allowedStatuses: ["value"]
+  - id: sumKurtosis
+    quantityId: sumKurtosis
+    allowedStatuses: ["value", "not-applicable"]
+  - id: diffusionCoefficient
+    quantityId: diffusionCoefficient
+    allowedStatuses: ["value", "outside-domain"]
+  - id: sampleMean
+    quantityId: sampleMean
+    allowedStatuses: ["value"]
+  - id: sampleMeanSquare
+    quantityId: sampleMeanSquare
+    allowedStatuses: ["value"]
+  - id: sampleRms
+    quantityId: sampleRms
+    allowedStatuses: ["value"]
+  - id: modelMeanSquare
+    quantityId: modelMeanSquare
+    allowedStatuses: ["value"]
+  - id: modelRms
+    quantityId: modelRms
+    allowedStatuses: ["value"]
+  - id: elapsedTime
+    quantityId: observationInterval
+    allowedStatuses: ["value"]
+  - id: kolmogorovDistance
+    quantityId: kolmogorovDistance
+    allowedStatuses: ["value", "not-applicable"]
+  - id: shapeTerm
+    quantityId: shapeTerm
+    allowedStatuses: ["value", "not-applicable"]
+  - id: samplingTerm
+    quantityId: samplingTerm
+    allowedStatuses: ["value"]
+  - id: walkerCount
+    quantityId: walkerCount
+    allowedStatuses: ["value"]
+  - id: agreementBound
+    quantityId: agreementBound
+    allowedStatuses: ["value", "not-applicable"]
+  - id: withinBound
+    quantityId: withinBound
+    allowedStatuses: ["value", "not-applicable"]
+  - id: walkPositions
+    quantityId: walkPositions
+    allowedStatuses: ["value"]
+    primary: true
+  - id: traceTimes
+    quantityId: traceTimes
+    allowedStatuses: ["value"]
+  - id: traceDisplacements
+    quantityId: traceDisplacements
+    allowedStatuses: ["value"]
+  - id: histogramEdges
+    quantityId: histogramEdges
+    allowedStatuses: ["value"]
+  - id: histogramCounts
+    quantityId: histogramCounts
+    allowedStatuses: ["value"]
+  - id: histogramFrequencies
+    quantityId: histogramFrequencies
+    allowedStatuses: ["value"]
+  - id: histogramGaussian
+    quantityId: histogramGaussian
+    allowedStatuses: ["value"]
+  - id: histogramExact
+    quantityId: histogramExact
+    allowedStatuses: ["value"]
+  - id: underflow
+    quantityId: underflow
+    allowedStatuses: ["value"]
+  - id: overflow
+    quantityId: overflow
+    allowedStatuses: ["value"]
+  - id: coinPositions
+    quantityId: coinPositions
+    allowedStatuses: ["value", "not-applicable"]
+  - id: coinProbabilities
+    quantityId: coinProbabilities
+    allowedStatuses: ["value", "not-applicable"]
+  - id: biasedMean
+    quantityId: biasedMean
+    allowedStatuses: ["value"]
+  - id: biasedDrift
+    quantityId: biasedDrift
+    allowedStatuses: ["value"]
+  - id: biasedCenteredDiffusion
+    quantityId: biasedCenteredDiffusion
+    allowedStatuses: ["value"]
+  - id: biasedDiffusion
+    quantityId: biasedDiffusion
+    allowedStatuses: ["value", "outside-domain"]
+  - id: cauchyDiffusion
+    quantityId: cauchyDiffusion
+    allowedStatuses: ["outside-domain"]
+  - id: continuumLimit
+    quantityId: continuumDiffusionCoefficient
+    allowedStatuses: ["value", "outside-domain"]
+assumptions:
+  - "Independent steps, a symmetric finite-variance kernel, an unbounded line"
+  - "No memory between steps and no drift in the pure-diffusion model"
+  - "Fixed jumps are a mathematical device, not a claim about what a liquid does to a tracer"
+admittedDomain: "Any symmetric, finite-variance, independent step law on an unbounded line, at a fixed step interval; the labeled asymmetric, heavy-tailed, and shrinking-interval deviations are explicitly outside this domain and computed analytically, never simulated."
+notModeled:
+  - "Collision mechanics"
+  - "Correlated or remembered steps"
+  - "Drift, except the labeled analytic asymmetric-kernel deviation"
+  - "Boundaries"
+  - "The ballistic regime"
+  - "Heavy-tailed Levy flights (refused)"
+  - "Interactions between walkers"
+  - "Sampled biased or heavy-tailed walks (no registered upstream kernel exists for them)"
+owner:
+  kind: reference-evaluator
+  kernelFunctions:
+    - displayRole: reference-implementation
+      language: ts
+      module: "src/physics/reference/diffusion/walkLaws.ts"
+      exportName: "kernelMoments"
+      independentReferences:
+        - experimentId: bm-05
+          quantityId: stepSecondMoment
+    - displayRole: reference-implementation
+      language: ts
+      module: "src/physics/reference/diffusion/walkLaws.ts"
+      exportName: "kernelDiffusivity"
+    - displayRole: reference-implementation
+      language: ts
+      module: "src/physics/reference/diffusion/walkLaws.ts"
+      exportName: "continuumLimit"
+    - displayRole: reference-implementation
+      language: ts
+      module: "src/physics/reference/diffusion/walkLaws.ts"
+      exportName: "randomWalkMoments"
+    - displayRole: reference-implementation
+      language: ts
+      module: "src/physics/reference/diffusion/walkLaws.ts"
+      exportName: "coinWalkDistribution"
+    - displayRole: reference-implementation
+      language: ts
+      module: "src/physics/reference/diffusion/walkLaws.ts"
+      exportName: "kolmogorovShapeTerm"
+    - displayRole: reference-implementation
+      language: ts
+      module: "src/physics/reference/diffusion/walks.ts"
+      exportName: "recordWalks"
+    - displayRole: reference-implementation
+      language: ts
+      module: "src/physics/reference/diffusion/walks.ts"
+      exportName: "observeWalks"
+  identifierBindings:
+    - kernelFunction: kernelMoments
+      identifier: "stepRms"
+      quantityId: stepRms
+    - kernelFunction: kernelDiffusivity
+      identifier: "tau"
+      quantityId: stepInterval
+    - kernelFunction: continuumLimit
+      identifier: "stepScale"
+      quantityId: stepRms
+  traceScenarioId: bm-05-gaussian-step-diffusivity
+  traceRows:
+    - label: "Diffusivity, Gaussian kernel at defaults"
+      expression: "D = stepRms^2 / (2 * tau)"
+      value: 1.25
+      unit: "um^2/s"
+      quantityId: diffusionCoefficient
+views:
+  - id: histogram-overlay
+    kind: svg
+    consumes:
+      - histogramEdges
+      - histogramCounts
+      - histogramGaussian
+      - histogramExact
+      - walkerCount
+  - id: sample-paths
+    kind: svg
+    consumes:
+      - traceTimes
+      - traceDisplacements
+  - id: moments-table
+    kind: table
+    consumes:
+      - stepMean
+      - stepSecondMoment
+      - stepFourthMoment
+      - diffusionCoefficient
+      - sampleMean
+      - sampleMeanSquare
+      - sampleRms
+      - modelMeanSquare
+      - modelRms
+      - kolmogorovDistance
+      - shapeTerm
+      - samplingTerm
+  - id: step-counter
+    kind: text
+    consumes:
+      - elapsedTime
+      - walkerCount
+actions:
+  - actionId: bm-05-select-kernel
+    family: probability-diffusion
+    question: "At the same per-step variance, does switching the step distribution change the long-run histogram?"
+    inputs:
+      - kernel
+    commandClass: setup-change
+    acceptedResult:
+      outputs:
+        - histogramCounts
+        - kolmogorovDistance
+      allowedStatuses:
+        - value
+        - not-applicable
+    visualAffordance: "Histogram and Gaussian overlay redraw for the chosen step distribution"
+    equivalentAffordance: "Choose a step distribution from a list and read the bin counts in a table"
+    announcement: "Step distribution changed; histogram updated"
+  - actionId: bm-05-advance-steps
+    family: probability-diffusion
+    question: "As more steps accumulate, does the sampled histogram converge to the Gaussian of the same variance?"
+    inputs:
+      - n
+    commandClass: measurement-change
+    acceptedResult:
+      outputs:
+        - kolmogorovDistance
+        - shapeTerm
+      allowedStatuses:
+        - value
+        - not-applicable
+    visualAffordance: "Step counter and convergence distance update for the chosen step count"
+    equivalentAffordance: "Type or step through a step count and read the convergence distance and its bound in a table"
+    announcement: "Steps shown updated"
+  - actionId: bm-05-read-teaching-deviations
+    family: probability-diffusion
+    question: "What happens to the diffusion coefficient when the step law has a nonzero mean, infinite variance, or a badly taken continuum limit?"
+    inputs:
+      - bias
+    commandClass: estimator-change
+    acceptedResult:
+      outputs:
+        - biasedDrift
+        - biasedCenteredDiffusion
+        - biasedDiffusion
+        - cauchyDiffusion
+        - continuumLimit
+      allowedStatuses:
+        - value
+        - outside-domain
+    visualAffordance: "Labeled analytic values and refusal explanations appear beside the moments table"
+    equivalentAffordance: "Read each teaching deviation's labeled value or refusal explanation in the accessible text"
+    announcement: "Teaching deviation values available"
+acceptanceCases:
+  - bm-05-gaussian-step-diffusivity
+defaultScenario: bm-05-gaussian-step-diffusivity
+tapeModel:
+  modelId: bm05-host-preview-v1
+  modelVersion: 1
+teachingTapes:
+  - tapeId: coin-to-bell
+    title: "coin to bell"
+presets:
+  - presetId: bm-05-coin-to-bell
+    label: "Coin to bell (the central limit theorem)"
+    parameterValues:
+      kernel: "coin"
+      stepRms: 5e-7
+      tau: 0.1
+      walkers: 2000
+      runSteps: 400
+      n: 400
+      seed: "1905"
+      bias: 0.6
+  - presetId: bm-05-asymmetric-deviation
+    label: "The biased coin (a labeled deviation, not the model)"
+    parameterValues:
+      kernel: "coin"
+      stepRms: 5e-7
+      tau: 0.1
+      walkers: 2000
+      runSteps: 400
+      n: 400
+      seed: "1905"
+      bias: 0.6
+probes:
+  - bm-05-coin-to-bell-convergence
+  - bm-05-asymmetric-deviation-lens
+weavePredicates:
+  - bm05-s4-second-moment
+historicalOverlays: []
+realRate:
+  natural: false
+embeddable: true
+predictMode:
+  enabled: true
+  prompts:
+    - promptId: bm-05-predict-step-shape
+      controlId: kernel
+      question: "After many steps, what will changing the step law while keeping its variance do?"
+      candidates:
+        - id: two-separate-piles
+          label: "Keep two separate piles"
+          description: "The two step laws never converge; the walk's spread keeps a visible trace of which law produced it."
+          separatingAssumption: "That would hold if the two step laws produced genuinely different limiting distributions -- a bias, or a variance that never settles. Coin, uniform, and Gaussian steps here are all zero-mean with the same finite variance, and the central limit theorem says any such step law converges to the same Gaussian after enough independent steps, so the two piles must merge rather than stay apart."
+        - id: same-bell-shape
+          label: "Approach the same bell shape and spread"
+          description: "Both step laws converge to the same Gaussian, because only the per-step variance controls the limit."
+          separatingAssumption: "This is what the central limit theorem guarantees for any zero-mean, finite-variance step law: after enough independent steps, the sum's distribution converges to a Gaussian whose spread depends only on the number of steps and the per-step variance, never on the step law's shape."
+        - id: wider-bell
+          label: "Make a wider bell despite the same variance"
+          description: "The resulting spread is wider than the coin-step case even though the per-step variance matches."
+          separatingAssumption: "That would hold if the resulting spread depended on some property of the step law beyond its variance -- a heavier tail inflating the typical size, for instance. Holding the variance fixed already fixes the limiting Gaussian's width; a different step shape with the same variance converges to the identical spread, not a wider one."
+# provenance is a free-form escape hatch (Experiment.provenance?: any); the Experiment schema has
+# no dedicated field for a per-distribution export-kernel-id map, but the bead requires one:
+# "The manifest records the export kernel id for each distribution and the audit record's
+# version, and a test fails if they disagree with docs/FRANKENSIM_BINDING.md." These three
+# numbers and the pinned revision are checked against WALK_KERNELS and the binding doc by
+# src/testing/bm05Manifest.test.ts.
+provenance:
+  exportKernelIds:
+    coin: 0
+    uniform: 1
+    gaussian: 3
+  frankenSimBindingRevision: "5bbbfae6f7de614422f6f97f5798a3e00f8ad813"
+  frankenSimBindingDecision: "distinct-meaning"

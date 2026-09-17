@@ -1,6 +1,11 @@
 import { fileURLToPath } from "node:url";
 import { createDeclaredConstantSet, getConstantSet } from "../../physics/reference/constants.ts";
 import {
+  kernelDiffusivity,
+  kernelMoments,
+  type WalkKernel,
+} from "../../physics/reference/diffusion/walkLaws.ts";
+import {
   apparentSpeed,
   rmsDisplacement,
   stokesEinsteinD,
@@ -49,6 +54,9 @@ const wrapperPath = fileURLToPath(
 const diffusionPath = fileURLToPath(
   new URL("../../physics/reference/diffusion/distributions.ts", import.meta.url),
 );
+const walkLawsPath = fileURLToPath(
+  new URL("../../physics/reference/diffusion/walkLaws.ts", import.meta.url),
+);
 
 function num(inputs: Record<string, number>, key: string): number {
   const value = inputs[key];
@@ -93,6 +101,36 @@ function printedBrownianSet() {
   });
 }
 
+/**
+ * am-bm-05-random-steps-ntzl: a symmetric, unbiased step kernel (coin, uniform, or Gaussian),
+ * so kernelDiffusivity's mean is always 0 and diffusion is always a "value" (never
+ * outside-domain). `kernel` is encoded numerically (0 coin, 1 uniform, 3 gaussian), reusing
+ * WALK_KERNELS' own export-kernel-id numbering (src/physics/reference/diffusion/walkLaws.ts),
+ * the same convention content/experiments/tapes/coin-to-bell.yaml uses, because OwnerContext's
+ * inputs are Record<string, number> and Bm05Parameters' kernel field is not.
+ */
+function walkKernelDiffusivity(ctx: OwnerContext): Record<string, number> {
+  const kernelCode = num(ctx.inputs, "kernel");
+  const kind: WalkKernel = kernelCode === 0 ? "coin" : kernelCode === 1 ? "uniform" : "gaussian";
+  const stepRms = num(ctx.inputs, "stepRms");
+  const tau = num(ctx.inputs, "tau");
+  const moments = kernelMoments({ kind, stepRms });
+  const diffusivity = kernelDiffusivity({ kind, stepRms }, tau);
+  if (moments.secondMoment.status !== "value" || typeof moments.secondMoment.value !== "number") {
+    throw new Error("kernelMoments did not return a second moment value.");
+  }
+  if (moments.fourthMoment.status !== "value" || typeof moments.fourthMoment.value !== "number") {
+    throw new Error("kernelMoments did not return a fourth moment value.");
+  }
+  if (diffusivity.diffusion.status !== "value" || typeof diffusivity.diffusion.value !== "number") {
+    throw new Error("kernelDiffusivity did not return a diffusion value for a symmetric kernel.");
+  }
+  return {
+    stepSecondMoment: moments.secondMoment.value,
+    stepFourthMoment: moments.fourthMoment.value,
+    diffusionCoefficient: diffusivity.diffusion.value,
+  };
+}
 function diffusionRms(ctx: OwnerContext): Record<string, number> {
   const set =
     ctx.constantSetId === "modern-si-2019"
@@ -191,6 +229,11 @@ const OWNERS: OwnerRecord[] = [
     id: "diffusion.stokesEinsteinRms",
     sourcePath: diffusionPath,
     fn: diffusionRms,
+  },
+  {
+    id: "diffusion.walkKernelDiffusivity",
+    sourcePath: walkLawsPath,
+    fn: walkKernelDiffusivity,
   },
   {
     id: "diffusion.apparentSpeedRatio",

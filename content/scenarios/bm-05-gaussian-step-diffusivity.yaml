@@ -1,0 +1,52 @@
+# BM-05 regression fixture (am-bm-05-random-steps-ntzl): the physically-scaled Gaussian step
+# kernel's per-step second moment and diffusion coefficient at the instrument's own default
+# parameters (src/experiments/bm05/definition.ts's BM05_DEFAULTS), proven directly against
+# kernelMoments/kernelDiffusivity (src/physics/reference/diffusion/walkLaws.ts) through the
+# registered owner diffusion.walkKernelDiffusivity (src/testing/scenario-registry/owners.ts).
+#
+# This is a "value"-only, symmetric-kernel fixture. The scenario-registry's OwnerFn contract
+# returns Record<string, number> and its runner (run.ts) never reads Scenario.expected.status,
+# so it cannot verify a typed non-"value" status such as the Cauchy kernel's outside-domain
+# refusal or the biased coin's drift/outside-domain split -- those are already proven directly
+# by src/testing/walkLaws.test.mjs ("analytical deviations distinguish drift, infinite variance,
+# and the wrong continuum limit"), which this scenario does not duplicate. This fixture exists
+# to satisfy validateExperiment's rule that a manifest declaring any non-"value" allowedStatus
+# (BM-05's manifest does, for kolmogorovDistance, shapeTerm, cauchyDiffusion, continuumLimit,
+# and others) must declare at least one non-empty acceptanceCases scenario, with a real,
+# independently-checkable number rather than a placeholder.
+#
+# constantSetId: modern-si-2019 is nominal -- kernelMoments/kernelDiffusivity take no physical
+# constant set (this is pure step-kernel arithmetic, not a Stokes-Einstein computation), but
+# constantSetId is a required non-empty field and must resolve to a registered set.
+id: bm-05-gaussian-step-diffusivity
+kind: modern-golden
+title: "BM-05 defaults: the Gaussian step kernel's second moment and diffusion coefficient"
+description: "At BM-05's own default parameters (step RMS 0.5 um, step interval 0.1 s), the physically-scaled Gaussian step kernel's per-step second moment is stepRms^2 and its diffusion coefficient is stepRms^2 / (2 * tau) -- 1.25 um^2/s, exactly the bead's own stated default coefficient."
+constantSetId: modern-si-2019
+owner: diffusion.walkKernelDiffusivity
+inputs:
+  kernel:
+    value: 3
+    unit: "1"
+  stepRms:
+    value: 5.0e-7
+    unit: m
+  tau:
+    value: 0.1
+    unit: s
+expected:
+  outputs:
+    - outputId: stepSecondMoment
+      value: 2.5e-13
+      comparisonKind: tolerance
+      tolerance:
+        relative: 1.0e-9
+        rationale: Exact analytic value, stepRms^2.
+    - outputId: diffusionCoefficient
+      value: 1.25e-12
+      comparisonKind: tolerance
+      tolerance:
+        relative: 1.0e-9
+        rationale: Exact analytic value, stepRms^2 / (2 * tau); matches the bead's stated default D = 1.25 um^2/s.
+modelVersion: 1
+schemaVersion: 1
