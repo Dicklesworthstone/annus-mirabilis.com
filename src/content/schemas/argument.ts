@@ -7,33 +7,16 @@
 
 import { type TextDirection, validateDirection, validateLanguageTag } from "../../i18n/language.ts";
 import {
-  type EquationOpId,
-  type EquationRecordId,
-  type EquationTermId,
-  PAPER_CODES,
-  type PremiseId,
   parseClosingId,
-  parseEntranceId,
-  parseEquationOpId,
   parseEquationRecordId,
-  parseEquationTermId,
   parseFootnoteId,
-  parseGenericRecordId,
   parseHeadingId,
-  parsePaperCode,
   parseParagraphId,
   parsePremiseId,
   parseQuantityId,
-  parseRouteSlug,
-  type QuantityId,
-  ROUTE_SLUGS,
 } from "../ids.ts";
 import { type AuthorshipBlock, validateAuthorshipBlock } from "./authorship.ts";
 import {
-  DIMENSION_BASIS,
-  DIMENSION_COUNT,
-  type DimensionBasisName,
-  DimensionSchemaError,
   isDimensionless,
   type RationalDimension,
   type RationalScale,
@@ -92,7 +75,6 @@ import {
   OBSERVATION_KINDS,
   OBSTACLE_KIND_IDS,
   type ObservationKind,
-  type ObstacleKindId,
   PREMISE_EDGE_TYPES,
   PREMISE_STATUSES,
   PROOF_EDGE_KINDS,
@@ -629,10 +611,10 @@ export function validateHistoricalPremise(
   if (o.lang !== undefined) {
     try {
       lang = validateLanguageTag(o.lang, `${path}.lang`);
-    } catch (err: any) {
+    } catch (err) {
       throw new ArgumentSchemaError(
         "invalid-language-tag",
-        err.message,
+        err instanceof Error ? err.message : String(err),
         "HistoricalPremise",
         `${path}.lang`,
       );
@@ -643,10 +625,10 @@ export function validateHistoricalPremise(
   if (o.dir !== undefined) {
     try {
       dir = validateDirection(o.dir, `${path}.dir`);
-    } catch (err: any) {
+    } catch (err) {
       throw new ArgumentSchemaError(
         "invalid-direction",
-        err.message,
+        err instanceof Error ? err.message : String(err),
         "HistoricalPremise",
         `${path}.dir`,
       );
@@ -849,7 +831,7 @@ export function validateArgumentNode(raw: unknown, path = "ArgumentNode"): Argum
         );
       }
       premises.push({
-        ref: { kind: ref.kind as any, id: ref.id as string },
+        ref: { kind: ref.kind as PremiseRef["kind"], id: ref.id as string },
         edgeType: p.edgeType as PremiseEdgeType,
       });
     }
@@ -890,7 +872,7 @@ export function validateArgumentNode(raw: unknown, path = "ArgumentNode"): Argum
         );
       }
       evidence.push({
-        ref: { kind: ref.kind as any, id: ref.id as string },
+        ref: { kind: ref.kind as EvidenceRef["kind"], id: ref.id as string },
         relation: e.relation as EvidenceRelation,
         dateLabel: typeof e.dateLabel === "string" ? e.dateLabel : undefined,
       });
@@ -1695,8 +1677,8 @@ export function validateSemanticEquation(raw: unknown, path = "Equation"): Seman
     notationForms: { source: sourceForm, modern: modernForm },
     terms,
     operations,
-    derivationLinks: o.derivationLinks as any,
-    numericalBindings: o.numericalBindings as any,
+    derivationLinks: o.derivationLinks as SemanticEquation["derivationLinks"],
+    numericalBindings: o.numericalBindings as SemanticEquation["numericalBindings"],
     spokenForm: o.spokenForm as string,
     readings: (o.readings as string) || `rs-${o.id}`,
     meanings,
@@ -1982,10 +1964,10 @@ export function validateFoundationOrBridge(raw: unknown, path = "Foundation"): F
     if (o.lang !== undefined) {
       try {
         lang = validateLanguageTag(o.lang, `${path}.lang`);
-      } catch (err: any) {
+      } catch (err) {
         throw new ArgumentSchemaError(
           "invalid-language-tag",
-          err.message,
+          err instanceof Error ? err.message : String(err),
           "Foundation",
           `${path}.lang`,
         );
@@ -1996,10 +1978,10 @@ export function validateFoundationOrBridge(raw: unknown, path = "Foundation"): F
     if (o.dir !== undefined) {
       try {
         dir = validateDirection(o.dir, `${path}.dir`);
-      } catch (err: any) {
+      } catch (err) {
         throw new ArgumentSchemaError(
           "invalid-direction",
-          err.message,
+          err instanceof Error ? err.message : String(err),
           "Foundation",
           `${path}.dir`,
         );
@@ -2123,10 +2105,10 @@ export function validateFoundationOrBridge(raw: unknown, path = "Foundation"): F
     if (o.lang !== undefined) {
       try {
         lang = validateLanguageTag(o.lang, `${path}.lang`);
-      } catch (err: any) {
+      } catch (err) {
         throw new ArgumentSchemaError(
           "invalid-language-tag",
-          err.message,
+          err instanceof Error ? err.message : String(err),
           "Bridge",
           `${path}.lang`,
         );
@@ -2137,8 +2119,13 @@ export function validateFoundationOrBridge(raw: unknown, path = "Foundation"): F
     if (o.dir !== undefined) {
       try {
         dir = validateDirection(o.dir, `${path}.dir`);
-      } catch (err: any) {
-        throw new ArgumentSchemaError("invalid-direction", err.message, "Bridge", `${path}.dir`);
+      } catch (err) {
+        throw new ArgumentSchemaError(
+          "invalid-direction",
+          err instanceof Error ? err.message : String(err),
+          "Bridge",
+          `${path}.dir`,
+        );
       }
     }
 
@@ -2341,10 +2328,10 @@ export function validateMisconception(raw: unknown, path = "Misconception"): Mis
   if (o.lang !== undefined) {
     try {
       lang = validateLanguageTag(o.lang, `${path}.lang`);
-    } catch (err: any) {
+    } catch (err) {
       throw new ArgumentSchemaError(
         "invalid-language-tag",
-        err.message,
+        err instanceof Error ? err.message : String(err),
         "Misconception",
         `${path}.lang`,
       );
@@ -2355,10 +2342,10 @@ export function validateMisconception(raw: unknown, path = "Misconception"): Mis
   if (o.dir !== undefined) {
     try {
       dir = validateDirection(o.dir, `${path}.dir`);
-    } catch (err: any) {
+    } catch (err) {
       throw new ArgumentSchemaError(
         "invalid-direction",
-        err.message,
+        err instanceof Error ? err.message : String(err),
         "Misconception",
         `${path}.dir`,
       );
@@ -2515,10 +2502,10 @@ export function validateReadingSet(raw: unknown, path = "ReadingSet"): ReadingSe
   if (o.lang !== undefined) {
     try {
       lang = validateLanguageTag(o.lang, `${path}.lang`);
-    } catch (err: any) {
+    } catch (err) {
       throw new ArgumentSchemaError(
         "invalid-language-tag",
-        err.message,
+        err instanceof Error ? err.message : String(err),
         "ReadingSet",
         `${path}.lang`,
       );
@@ -2529,8 +2516,13 @@ export function validateReadingSet(raw: unknown, path = "ReadingSet"): ReadingSe
   if (o.dir !== undefined) {
     try {
       dir = validateDirection(o.dir, `${path}.dir`);
-    } catch (err: any) {
-      throw new ArgumentSchemaError("invalid-direction", err.message, "ReadingSet", `${path}.dir`);
+    } catch (err) {
+      throw new ArgumentSchemaError(
+        "invalid-direction",
+        err instanceof Error ? err.message : String(err),
+        "ReadingSet",
+        `${path}.dir`,
+      );
     }
   }
 
