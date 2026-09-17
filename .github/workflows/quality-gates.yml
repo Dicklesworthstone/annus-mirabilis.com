@@ -43,6 +43,12 @@ jobs:
       - name: Install dependencies
         run: bun install --frozen-lockfile
 
+      - name: Install system dependencies for rendering
+        run: sudo apt-get update && sudo apt-get install -y poppler-utils
+
+      - name: Install Playwright Chromium
+        run: bunx playwright install --with-deps chromium
+
       - name: Run node-only subprocess tests
         run: bun run test:node
 

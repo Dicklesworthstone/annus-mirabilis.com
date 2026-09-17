@@ -29,9 +29,7 @@ jobs:
       - name: Setup Node.js
         uses: actions/setup-node@820762786026740c76f36085b0efc47a31fe5020 # v7.0.0
         with:
-          # This is the runtime actually exercised by the standalone reference tests.
-          # The ratified 22.13.4 runtime remains a separate compatibility obligation.
-          node-version: 22.16.0
+          node-version: "22.13.1"
       - name: Setup Bun
         uses: oven-sh/setup-bun@4bc047ad259df6fc24a6c9b0f9a0cb08cf17fbe5 # v2.0.1
         with:
