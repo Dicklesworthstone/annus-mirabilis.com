@@ -367,9 +367,23 @@ export function createInstanceStore(options: {
             message.stepIndex === previous.stepIndex))
       )
         return denied("non-monotone-step");
+      const activeStatuses = allowPartial
+        ? Object.fromEntries(
+            message.outputs
+              .filter((o): o is ScientificResult =>
+                Boolean(
+                  o &&
+                    typeof o === "object" &&
+                    "quantityId" in o &&
+                    typeof (o as { quantityId: unknown }).quantityId === "string",
+                ),
+              )
+              .map((o) => [o.quantityId, statuses[o.quantityId] ?? []]),
+          )
+        : statuses;
       const batch = decodeResultBatch(
         { revisions: message.revisions, outputs: message.outputs },
-        { expectedRevisions: revisions, statuses, allowPartial },
+        { expectedRevisions: revisions, statuses: activeStatuses, allowPartial },
       );
       for (const output of batch.outputs) {
         const expected = contracts[output.quantityId];

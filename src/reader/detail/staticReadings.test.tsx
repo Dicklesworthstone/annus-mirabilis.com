@@ -67,16 +67,34 @@ describe("am-read-detail-axis-sfc: static reading emission", () => {
     expect(html).toContain(">Why?</a>");
   });
 
-  test("planted negative: removing the Why? link from the paper index fails detection", async () => {
+  test("planted negative: removing or corrupting the Why? link fails the detection check", async () => {
     const readerHtml = renderToStaticMarkup(await PaperReader({}));
     const pageHtml = renderToStaticMarkup(await PaperPage({ paperId: "brownian-motion" }));
 
-    // Real render contains the link
-    expect(readerHtml).toContain(">Why?</a>");
-    expect(pageHtml).toContain(">Why?</a>");
+    const assertIndexHasWhyLink = (html: string) => {
+      expect(html).toContain('data-unit="arg-bm-observable"');
+      expect(html).toContain('href="/foundations/mean-variance-rms/"');
+      expect(html).toContain('data-foundation="mean-variance-rms"');
+      expect(html).toContain(">Why?</a>");
+    };
 
-    // Planted negative: if the link were omitted or stripped from index, detection fails
-    const corruptedIndex = readerHtml.replaceAll(">Why?</a>", "");
-    expect(corruptedIndex.includes(">Why?</a>")).toBe(false);
+    // Real render contains the link and passes detection
+    assertIndexHasWhyLink(readerHtml);
+    assertIndexHasWhyLink(pageHtml);
+
+    // Planted negative 1: omitting the Why? link fails the check
+    const strippedLink = readerHtml.replaceAll(">Why?</a>", "");
+    expect(() => assertIndexHasWhyLink(strippedLink)).toThrow();
+
+    // Planted negative 2: pointing to wrong foundation destination fails the check
+    const wrongHref = readerHtml.replaceAll(
+      'href="/foundations/mean-variance-rms/"',
+      'href="/foundations/bridge-negative-numbers-direction/"',
+    );
+    expect(() => assertIndexHasWhyLink(wrongHref)).toThrow();
+
+    // Planted negative 3: missing foundation data attribute fails the check
+    const strippedAttr = readerHtml.replaceAll('data-foundation="mean-variance-rms"', "");
+    expect(() => assertIndexHasWhyLink(strippedAttr)).toThrow();
   });
 });

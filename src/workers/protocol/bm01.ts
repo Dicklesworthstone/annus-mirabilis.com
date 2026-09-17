@@ -185,7 +185,20 @@ export function decodeLabResponse(
           expectedRevisions: token.revisions,
           allowPartial: true,
           statuses: Object.fromEntries(
-            Object.entries(BM01_OUTPUTS).map(([id, c]) => [id, c.statuses]),
+            (Array.isArray(data.outputs) ? data.outputs : [])
+              .filter((o: unknown): o is { quantityId: string } =>
+                Boolean(
+                  o &&
+                    typeof o === "object" &&
+                    "quantityId" in o &&
+                    typeof (o as { quantityId: unknown }).quantityId === "string",
+                ),
+              )
+              .map((o) => {
+                const spec = BM01_OUTPUTS[o.quantityId as keyof typeof BM01_OUTPUTS];
+                return [o.quantityId, spec?.statuses ?? []] as const;
+              })
+              .filter(([, s]) => s.length > 0),
           ),
         },
       ).outputs;

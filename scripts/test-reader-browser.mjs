@@ -46,6 +46,26 @@ export async function checkReaderBrowser(browser, url, check) {
     assert.equal(await page.locator("h1").innerText(), "A sign records direction");
     await page.goBack();
     assert.equal(await page.locator("h1").innerText(), "Mean, variance and RMS");
+    await page.goBack();
+    assert.match(new URL(page.url()).pathname, new RegExp(`${route}$`));
+    // Planted negative (am-10ba AC4): removing the Why? link from the route causes the check to fail
+    await page.evaluate(() => {
+      for (const a of document.querySelectorAll("#arg-bm-observable a")) {
+        if (a.textContent?.trim() === "Why?") a.remove();
+      }
+    });
+    assert.equal(
+      await passage.getByRole("link", { name: "Why?", exact: true }).count(),
+      0,
+      "Planted negative: removing Why? link must leave 0 matches in passage",
+    );
+    await assert.rejects(
+      async () => {
+        await passage.getByRole("link", { name: "Why?", exact: true }).click({ timeout: 200 });
+      },
+      (err) => err?.name === "TimeoutError",
+      "Planted negative: clicking missing Why? link must fail the check",
+    );
     check(
       "no-JavaScript foundation links follow complete prerequisite pages and browser Back returns",
     );
