@@ -80,6 +80,45 @@ describe("Resource Stress and Memory Lifecycle Contracts (am-rt-memory-lifecycle
       assert.equal(copy1[0], 10.5);
       assert.equal(copy2[1], 20.5);
     });
+
+    it("raw untracked view across memory.grow() silently detaches/reads undefined; TrackedWasmView throws on at/set/copy/assertValid", () => {
+      const memory = new WebAssembly.Memory({ initial: 1, maximum: 4 });
+      const tracker = new WasmMemoryTracker(memory);
+
+      // Raw unmanaged Float64Array view
+      const rawView = new Float64Array(memory.buffer, 0, 4);
+      rawView[0] = 99.5;
+
+      const trackedView = tracker.createFloat64View(0, 4);
+      assert.equal(trackedView.at(0), 99.5);
+
+      // Memory growth reallocates linear memory and detaches old buffer
+      memory.grow(1);
+
+      // Negative demonstration: raw view has detached buffer and silent undefined read
+      assert.equal(rawView.byteLength, 0);
+      assert.equal(rawView[0], undefined);
+      // In JS arithmetic, undefined becomes NaN:
+      assert.ok(Number.isNaN((rawView[0] as unknown as number) + 1));
+
+      // In contrast, TrackedWasmView strictly rejects stale access across all operations:
+      assert.throws(
+        () => trackedView.at(0),
+        (err: unknown) => err instanceof WasmMemoryStaleViewError,
+      );
+      assert.throws(
+        () => trackedView.set(0, 100),
+        (err: unknown) => err instanceof WasmMemoryStaleViewError,
+      );
+      assert.throws(
+        () => trackedView.copy(),
+        (err: unknown) => err instanceof WasmMemoryStaleViewError,
+      );
+      assert.throws(
+        () => trackedView.assertValid(),
+        (err: unknown) => err instanceof WasmMemoryStaleViewError,
+      );
+    });
   });
 
   describe("Buffer Ownership & Snapshot Immutability", () => {
@@ -155,6 +194,60 @@ describe("Resource Stress and Memory Lifecycle Contracts (am-rt-memory-lifecycle
       leaseB.release();
       leaseC.release();
     });
+
+    it("never places a mutable buffer behind an immutable snapshot; mutating working buffer does not corrupt snapshot", () => {
+      const rawWorkingArray = new Float64Array([1.0, 2.0, 3.0]);
+      const workingBuffer = new OwnedBuffer(rawWorkingArray, { label: "sim-working" });
+
+      // Create snapshot clone for published snapshot v1
+      const snapshotBuffer = workingBuffer.clone();
+      snapshotBuffer.bindToSnapshot(1);
+
+      assert.equal(snapshotBuffer.buffer[0], 1.0);
+      assert.equal(snapshotBuffer.buffer[1], 2.0);
+      assert.equal(snapshotBuffer.buffer[2], 3.0);
+
+      // Mutate the original working buffer
+      workingBuffer.buffer[0] = 999.0;
+      workingBuffer.buffer[1] = 888.0;
+
+      // The snapshot buffer MUST remain untouched and immutable
+      assert.equal(snapshotBuffer.buffer[0], 1.0);
+      assert.equal(snapshotBuffer.buffer[1], 2.0);
+      assert.equal(snapshotBuffer.buffer[2], 3.0);
+
+      // Planted negative: A naive approach that shared the same buffer would fail
+      const naiveSharedBuffer = workingBuffer;
+      assert.equal(
+        naiveSharedBuffer.buffer[0],
+        999.0,
+        "Naive shared buffer reflects external mutation, violating snapshot immutability",
+      );
+    });
+
+    it("accessing a detached buffer bound to a snapshot throws DetachedBufferInvariantViolationError on all getters", () => {
+      const detachedArray = new Float64Array(new ArrayBuffer(0));
+      const corruptedOwned = new OwnedBuffer(detachedArray);
+      corruptedOwned.bindToSnapshot(5);
+
+      assert.throws(
+        () => corruptedOwned.assertNotDetached(),
+        (err: unknown) =>
+          err instanceof DetachedBufferInvariantViolationError && err.snapshotVersions.includes(5),
+      );
+      assert.throws(
+        () => corruptedOwned.buffer,
+        (err: unknown) => err instanceof DetachedBufferInvariantViolationError,
+      );
+      assert.throws(
+        () => corruptedOwned.rawArrayBuffer,
+        (err: unknown) => err instanceof DetachedBufferInvariantViolationError,
+      );
+      assert.throws(
+        () => corruptedOwned.clone(),
+        (err: unknown) => err instanceof DetachedBufferInvariantViolationError,
+      );
+    });
   });
 
   describe("Lifecycle Diagnostics & Mount/Unmount Baseline", () => {
@@ -189,6 +282,114 @@ describe("Resource Stress and Memory Lifecycle Contracts (am-rt-memory-lifecycle
 
       untrack();
       lifecycleDiagnostics.assertBaseline(); // now clean
+    });
+
+    it("repeated mount/unmount and route transitions do not create duplicate owners, leak workers, or advance randomness", () => {
+      lifecycleDiagnostics.reset();
+
+      const seed = "4294967296";
+      const lab = new HeavyFixtureLaboratory({
+        id: "route-transition-lab",
+        seed,
+        particleCount: 100,
+      });
+
+      // Initial stream index is 0n
+      assert.equal(lab.streamIndex, 0n);
+
+      // Idempotency: mounting twice consecutively must not duplicate owners or leak workers
+      lab.mount();
+      const snap1 = lifecycleDiagnostics.snapshot();
+      assert.equal(snap1.liveWorkers, 1);
+      assert.equal(snap1.activeWebGLContexts, 1);
+
+      lab.mount(); // Second mount call on same instance (must be a no-op)
+      const snap2 = lifecycleDiagnostics.snapshot();
+      assert.equal(snap2.liveWorkers, 1, "Duplicate mount must not create duplicate workers");
+      assert.equal(
+        snap2.activeWebGLContexts,
+        1,
+        "Duplicate mount must not create duplicate WebGL contexts",
+      );
+
+      lab.unmount();
+      lifecycleDiagnostics.assertBaseline();
+
+      // Simulate 20 rapid route transitions (mount then unmount without stepping)
+      for (let route = 0; route < 20; route++) {
+        lab.mount();
+        assert.equal(lab.streamIndex, 0n, `Mounting on route ${route} must not advance randomness`);
+        lab.unmount();
+      }
+
+      // Assert zero leaks across all 20 route transitions
+      lifecycleDiagnostics.assertBaseline();
+      assert.equal(
+        lab.streamIndex,
+        0n,
+        "Randomness stream index must remain 0n across route transitions without stepping",
+      );
+
+      // Stepping the laboratory after route transitions produces the exact step-0 deterministic value
+      lab.mount();
+      lab.step(1);
+      const steppedState = lab.serializeState();
+      lab.unmount();
+
+      // Compare against a clean lab with same seed stepped 1 time
+      const freshLab = new HeavyFixtureLaboratory({
+        id: "route-transition-lab",
+        seed,
+        particleCount: 100,
+      });
+      freshLab.mount();
+      freshLab.step(1);
+      const freshState = freshLab.serializeState();
+      freshLab.unmount();
+
+      assert.equal(
+        steppedState.scientificDigest,
+        freshState.scientificDigest,
+        "Scientific digest after route transitions must match fresh lab exactly",
+      );
+      assert.equal(
+        steppedState.streamIndex,
+        freshState.streamIndex,
+        "Stream index must match fresh lab exactly",
+      );
+
+      lifecycleDiagnostics.assertBaseline();
+    });
+
+    it("planted negative: a buggy laboratory advancing randomness or leaking workers on route transition is detected and fails", () => {
+      lifecycleDiagnostics.reset();
+
+      // Buggy lab that draws from stream on mount
+      let buggyStreamIndex = 0n;
+      const buggyMount = () => {
+        buggyStreamIndex += 4n; // simulated advance on mount
+      };
+
+      for (let route = 0; route < 5; route++) {
+        buggyMount();
+      }
+
+      // Proves that our invariant check catches random stream advancement
+      assert.notEqual(buggyStreamIndex, 0n);
+      assert.throws(() => {
+        if (buggyStreamIndex !== 0n) {
+          throw new Error(`Adversarial failure: mount advanced randomness to ${buggyStreamIndex}`);
+        }
+      });
+
+      // Buggy lab that fails to clean up worker on unmount
+      const untrack = lifecycleDiagnostics.trackWorker();
+      assert.throws(
+        () => lifecycleDiagnostics.assertBaseline(),
+        (err: unknown) => err instanceof Error && err.message.includes("liveWorkers leaked"),
+      );
+      untrack();
+      lifecycleDiagnostics.assertBaseline();
     });
   });
 

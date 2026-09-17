@@ -47,6 +47,9 @@ export class HeavyFixtureLaboratory {
   get positions(): OwnedBuffer<Float64Array> | null {
     return this._particlePositions;
   }
+  get streamIndex(): bigint {
+    return this._philoxStream.index;
+  }
 
   mount(): void {
     if (this._isMounted) return;
