@@ -21,7 +21,19 @@ function encodeString(str: string): number[] {
   return [...encodeUleb128(encoded.length), ...encoded];
 }
 
-function encodeVector(items: number[][]): number[] {
+/**
+ * A WebAssembly vector: a ULEB128 count followed by the encoded elements.
+ *
+ * Elements are bytes in some vectors (a result type is a vector of value types)
+ * and byte sequences in others (the type section is a vector of function types).
+ * Both shapes are already passed here and both already encode correctly, because
+ * `length` counts elements either way and `flat()` is a no-op on a flat array.
+ * The annotation described only the nested shape, which is why the flat call
+ * sites produced twelve TS2322 errors once scripts/ entered a typecheck
+ * program (am-7mp8). Widening it to the union describes what the function
+ * accepts; it does not change a byte.
+ */
+function encodeVector(items: readonly (number | readonly number[])[]): number[] {
   return [...encodeUleb128(items.length), ...items.flat()];
 }
 
