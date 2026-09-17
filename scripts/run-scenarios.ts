@@ -1,6 +1,6 @@
 #!/usr/bin/env bun
 import { defaultScenarioDirs, loadScenarios } from "../src/testing/scenario-registry/load.ts";
-import { runLoadedScenarios } from "../src/testing/scenario-registry/run.ts";
+import { runCrossOwnerScenario, runLoadedScenarios } from "../src/testing/scenario-registry/run.ts";
 
 function arg(name: string): string | undefined {
   const idx = process.argv.indexOf(name);
@@ -12,6 +12,7 @@ const kind = arg("--kind");
 const owner = arg("--owner");
 const paper = arg("--paper");
 const id = arg("--id");
+const crossOwner = arg("--cross-owner");
 const extraPath = arg("--path");
 const dirs = extraPath ? [extraPath, ...defaultScenarioDirs()] : defaultScenarioDirs();
 
@@ -19,9 +20,51 @@ let loaded = loadScenarios(dirs);
 if (id) loaded = loaded.filter((item) => item.scenario.id === id);
 
 if (kind) loaded = loaded.filter((item) => item.scenario.kind === kind);
-if (owner) loaded = loaded.filter((item) => item.scenario.owner === owner);
+if (owner && !crossOwner) loaded = loaded.filter((item) => item.scenario.owner === owner);
 if (paper) {
   loaded = loaded.filter((item) => item.scenario.provenance?.paper === paper);
+}
+
+if (crossOwner !== undefined) {
+  if (loaded.length === 0) {
+    console.error("No scenario loaded for cross-owner comparison.");
+    process.exit(1);
+  }
+  const target = loaded[0];
+  if (!target) {
+    console.error("No target scenario found.");
+    process.exit(1);
+  }
+  let ownerA: string;
+  let ownerB: string;
+  if (crossOwner.includes(",")) {
+    const parts = crossOwner.split(",").map((s) => s.trim());
+    ownerA = parts[0] ?? "";
+    ownerB = parts[1] ?? "";
+  } else if (owner) {
+    ownerA = owner;
+    ownerB = crossOwner.trim();
+  } else {
+    ownerA = target.scenario.owner;
+    ownerB = crossOwner.trim();
+  }
+  const crossResult = runCrossOwnerScenario(target.scenario, ownerA, ownerB);
+  console.log(
+    JSON.stringify({
+      event: "scenarios-cross-owner-run",
+      scenarioId: crossResult.scenarioId,
+      ownerA: crossResult.ownerA,
+      ownerB: crossResult.ownerB,
+      comparisonKind: crossResult.comparisonKind,
+      relativeTo: crossResult.relativeTo,
+      maxDeviation: crossResult.maxDeviation,
+      deviationByOutput: crossResult.deviationByOutput,
+      passed: crossResult.passed,
+      message: crossResult.message,
+    }),
+  );
+  if (!crossResult.passed) process.exit(1);
+  process.exit(0);
 }
 
 const { results, logRunId, failed, notAvailable } = runLoadedScenarios(loaded);

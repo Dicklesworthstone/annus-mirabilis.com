@@ -72,7 +72,7 @@ describe("scenario runner", () => {
     expect(firstResult).toBeDefined();
     if (!firstResult) throw new Error("Expected at least one result");
     const actualRms = (firstResult.extra.actual as { rmsDisplacement1d: number }).rmsDisplacement1d;
-    const baselineRms = Number(loaded.scenario.inputs.baselineRms.value);
+    const baselineRms = Number(loaded.scenario.inputs.baselineRms?.value);
     // Verifies the wrong 1/2 factor
     expect(actualRms).toBeCloseTo(baselineRms * 0.5, 12);
   });

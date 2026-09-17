@@ -1754,7 +1754,163 @@ export type Scenario = Readonly<{
   datasetId?: string | undefined;
   inferenceModelId?: string | undefined;
   printedRepresentation?: string | undefined;
+  tolerance?: ToleranceSpec | undefined;
 }>;
+
+export const REGISTERED_PRESET_IDS: ReadonlySet<string> = new Set([
+  "bm-01-radius-probe",
+  "bm-01-velocity-trap",
+  "bm-01-viscosity-comparison",
+  "bm-03-locked-cluster",
+  "bm-03-million-particles",
+  "bm-03-overflow-guard",
+  "bm-03-pressure-matches-bm-02",
+  "bm-03-ratio-one",
+  "bm-03-two-particles-double",
+  "bm-04-einstein-balance",
+  "bm-04-mismatched-kicks",
+  "bm-04-naegeli-kicks-off",
+  "bm-04-naegeli-zero-force",
+  "bm-04-zero-force-relaxation",
+  "bm-05-asymmetric-deviation",
+  "bm-05-coin-to-bell",
+  "bm-06-ftcs-refusal",
+  "bm-06-modern-one-second",
+  "bm-06-point-distribution",
+  "bm-07-coverage",
+  "bm-07-identifiability",
+  "bm-07-inversion-golden",
+  "bm-07-perrin-1909",
+  "bm-08-apparent-speed-noise",
+  "bm-08-cve",
+  "bm-08-drift-fluid",
+  "bm-08-drift-stage",
+  "bm-08-exposure-fixture",
+  "bm-08-noise-only",
+  "bm-08-overlap-refusal",
+  "bm-08-pairs-estimated-coverage",
+  "bm-08-pairs-exact-coverage",
+  "lq-01-equal-amplitudes",
+  "lq-01-instantaneous-snapshot",
+  "lq-01-inverse-square-spreading",
+  "lq-01-phase-shifted",
+  "lq-01-unequal-amplitudes",
+  "lq-04-dense-refusal",
+  "lq-04-derived-temperature",
+  "lq-04-halve-volume",
+  "lq-05-first-encounter",
+  "lq-05-journey-stage-e",
+  "lq-05-locked-positions",
+  "lq-05-n60-log",
+  "lq-06-the-move",
+  "lq-06-unrevealed",
+  "lq-07-anti-stokes-disallowed",
+  "lq-07-deviation-multi",
+  "lq-07-deviation-non-wien",
+  "lq-07-modern-thermal",
+  "lq-07-stokes-rule",
+  "lq-08-historical-check",
+  "lq-08-intensity-probe",
+  "lq-08-two-metals",
+  "lq-09-historical-checks",
+  "lq-09-sub-threshold",
+  "lq-09-threshold",
+  "me-01-default",
+  "me-01-rest-frame",
+  "me-01-sixty-degree-tilt",
+  "me-01-transverse-emission",
+  "me-02-0.6c",
+  "me-03-card-bulb",
+  "me-03-card-candle",
+  "me-03-card-coal",
+  "me-03-card-radium",
+  "me-03-card-sun",
+  "me-03-four-momentum-opposite-pulses",
+  "me-03-heated-sealed-box",
+  "me-03-sealed-lamp-and-mirror",
+  "sr-01-moving-pair-0.6c",
+  "sr-01-rod-chase-0.6c",
+  "sr-01-round-trip-10ls",
+  "sr-01-second-flash-20-30",
+  "sr-01-sync-0-10",
+  "sr-01-three-stations",
+  "sr-02-apparatus",
+  "sr-02-apparatus-nagging-fact",
+  "sr-02-uniform-0.6c",
+  "sr-02-uniform-10ms",
+  "sr-03-boost-0.6c",
+  "sr-03-causal-lightlike",
+  "sr-03-causal-threshold",
+  "sr-03-causal-timelike",
+  "sr-03-reciprocal-0.6c",
+  "sr-03-sphere-0.6c",
+  "sr-03-valid-pair-0.6c",
+  "sr-04-construct-0.6c",
+  "sr-04-galilean-shelf",
+  "sr-04-later-aids-0.6c",
+  "sr-06-angled-90deg-0.6",
+  "sr-06-collinear-0.6-0.6",
+  "sr-06-fizeau-water",
+  "sr-06-near-light-0.99",
+  "sr-06-null-ray",
+  "sr-06-perpendicular-boosts-0.6",
+  "sr-07-equation-1-grouping",
+  "sr-07-oblique-wave-0.6c",
+  "sr-07-plane-wave-0.6c",
+  "sr-08-crossed-fields-null",
+  "sr-08-pure-electric-0.6c",
+  "sr-08-pure-magnetic-low-speed",
+  "sr-09-approaching-0.6",
+  "sr-09-earth-orbit-aberration",
+  "sr-09-receding-0.6",
+  "sr-09-transverse-0.6",
+  "sr-10-longitudinal-0.6",
+  "sr-10-opposite-0.6",
+  "sr-10-transverse-in-k-0.6",
+  "sr-10-transverse-unprimed-0.6",
+  "sr-11-approaching-0.6",
+  "sr-11-interception-limit-0.6",
+  "sr-11-mirror-frame-0.6",
+  "sr-11-normal-0.6",
+  "sr-11-oblique-30deg-0.6",
+  "sr-11-stationary",
+  "sr-12-convection-0.5c",
+  "sr-12-current-loop-0.6c",
+  "sr-12-gaussian-pulse-0.5c",
+  "sr-12-moving-sphere-0.6c",
+  "sr-12-neutral-conductor-0.6",
+  "sr-13-bucherer-overlay",
+  "sr-13-convention-0.6",
+  "sr-13-electric-radius-1e5",
+  "sr-13-energy-0.95",
+  "sr-13-kaufmann-overlay",
+  "sr-13-magnetic-radius-0.01t",
+  "sr-13-transverse-e-2ns",
+]);
+
+export function isValidToleranceRationale(rationale: string): boolean {
+  if (!rationale || typeof rationale !== "string") return false;
+  const text = rationale.toLowerCase();
+  const apparatus = /apparatus|resolution|detector|instrument/.test(text);
+  const numerical = /numerical bound|numerical|precision|bound|rounding|truncation/.test(text);
+  const observational = /observational|uncertainty|experimental|observation|measurement/.test(text);
+  return apparatus || numerical || observational;
+}
+
+export function parseNaturalPrecision(printed: string): {
+  decimals: number;
+  significantFigures: number;
+} | null {
+  const clean = printed.trim().replace(",", ".");
+  const match = clean.match(/^-?(\d+)(?:\.(\d+))?(?:e([+-]?\d+))?/i);
+  if (!match) return null;
+  const intPart = match[1] ?? "";
+  const fracPart = match[2] ?? "";
+  const decimals = fracPart.length;
+  const digits = (intPart + fracPart).replace(/^0+/, "");
+  const significantFigures = digits.length || 1;
+  return { decimals, significantFigures };
+}
 
 export function validateScenario(raw: unknown, path = "Scenario"): Scenario {
   if (!raw || typeof raw !== "object") {
@@ -1820,6 +1976,91 @@ export function validateScenario(raw: unknown, path = "Scenario"): Scenario {
       "Scenario",
       `${path}.constantSetId`,
     );
+  }
+
+  // Mixed constant sets validation
+  const mixedSets = new Set<string>();
+  if (typeof o.constantSetId === "string" && o.constantSetId.trim()) {
+    mixedSets.add(o.constantSetId.trim());
+  }
+  if (Array.isArray(o.constantSets)) {
+    for (const s of o.constantSets) {
+      if (typeof s === "string" && s.trim()) mixedSets.add(s.trim());
+    }
+  }
+  if (Array.isArray(o.constantSetIds)) {
+    for (const s of o.constantSetIds) {
+      if (typeof s === "string" && s.trim()) mixedSets.add(s.trim());
+    }
+  }
+  if (o.inputs && typeof o.inputs === "object") {
+    for (const inp of Object.values(o.inputs as Record<string, unknown>)) {
+      if (
+        inp &&
+        typeof inp === "object" &&
+        "constantSetId" in inp &&
+        typeof (inp as { constantSetId?: unknown }).constantSetId === "string"
+      ) {
+        mixedSets.add((inp as { constantSetId: string }).constantSetId.trim());
+      }
+    }
+  }
+  if (Array.isArray(o.editorialInputs)) {
+    for (const ed of o.editorialInputs) {
+      if (
+        ed &&
+        typeof ed === "object" &&
+        "constantSetId" in ed &&
+        typeof (ed as { constantSetId?: unknown }).constantSetId === "string"
+      ) {
+        mixedSets.add((ed as { constantSetId: string }).constantSetId.trim());
+      }
+    }
+  }
+  if (Array.isArray(o.hypotheses)) {
+    for (const hyp of o.hypotheses) {
+      if (
+        hyp &&
+        typeof hyp === "object" &&
+        "constantSetId" in hyp &&
+        typeof (hyp as { constantSetId?: unknown }).constantSetId === "string"
+      ) {
+        mixedSets.add((hyp as { constantSetId: string }).constantSetId.trim());
+      }
+    }
+  }
+
+  const hasMixedSets = mixedSets.size > 1 || o.mixedConstantSets === true;
+
+  if (hasMixedSets) {
+    if (!o.constantSetMixing || typeof o.constantSetMixing !== "object") {
+      throw new ExperimentValidationError(
+        "mixed-constant-sets-forbidden",
+        `Scenario mixes constant sets (${[...mixedSets].join(", ")}) without declared constantSetMixing.`,
+        "Scenario",
+        `${path}.constantSetMixing`,
+      );
+    }
+  }
+
+  let constantSetMixing: Readonly<{ declared: true; reason: string }> | undefined;
+  if ("constantSetMixing" in o && o.constantSetMixing !== undefined) {
+    const csm = o.constantSetMixing as Record<string, unknown>;
+    if (
+      !csm ||
+      typeof csm !== "object" ||
+      csm.declared !== true ||
+      typeof csm.reason !== "string" ||
+      !csm.reason.trim()
+    ) {
+      throw new ExperimentValidationError(
+        "invalid-constant-set-mixing",
+        'constantSetMixing requires { declared: true, reason: "<non-empty explanation>" }.',
+        "Scenario",
+        `${path}.constantSetMixing`,
+      );
+    }
+    constantSetMixing = { declared: true, reason: csm.reason.trim() };
   }
 
   // Seed validation
@@ -1952,7 +2193,16 @@ export function validateScenario(raw: unknown, path = "Scenario"): Scenario {
   // Discrimination checks
   let hypotheses: DiscriminationHypothesis[] | undefined;
   let observation: DiscriminationObservation | undefined;
+  let tolerance: ToleranceSpec | undefined;
   if (kind === "discrimination") {
+    if (REGISTERED_PRESET_IDS.has(o.id as string)) {
+      throw new ExperimentValidationError(
+        "discrimination-preset-id-collision",
+        `Discrimination scenario id "${o.id}" collides with a registered preset id.`,
+        "Scenario",
+        `${path}.id`,
+      );
+    }
     if (!Array.isArray(o.hypotheses) || o.hypotheses.length < 2) {
       throw new ExperimentValidationError(
         "discrimination-missing-hypotheses",
@@ -1985,6 +2235,37 @@ export function validateScenario(raw: unknown, path = "Scenario"): Scenario {
       );
     }
     observation = o.observation as DiscriminationObservation;
+
+    const expOutputs = (o.expected as Record<string, unknown> | undefined)?.outputs;
+    const tol = (o.tolerance ??
+      (o.expected as Record<string, unknown> | undefined)?.tolerance ??
+      (Array.isArray(expOutputs)
+        ? (expOutputs[0] as Record<string, unknown> | undefined)?.tolerance
+        : undefined) ??
+      (o.observation as Record<string, unknown> | undefined)?.tolerance) as
+      | Record<string, unknown>
+      | undefined;
+    tolerance = tol as unknown as ToleranceSpec | undefined;
+    if (!tol || typeof tol !== "object") {
+      throw new ExperimentValidationError(
+        "discrimination-missing-tolerance",
+        "Discrimination scenario requires a tolerance block.",
+        "Scenario",
+        `${path}.tolerance`,
+      );
+    }
+    if (
+      typeof tol.rationale !== "string" ||
+      !tol.rationale.trim() ||
+      !isValidToleranceRationale(tol.rationale)
+    ) {
+      throw new ExperimentValidationError(
+        "discrimination-invalid-tolerance-rationale",
+        "A discrimination tolerance requires a rationale naming an apparatus resolution, a numerical bound, or a stated observational uncertainty.",
+        "Scenario",
+        `${path}.tolerance.rationale`,
+      );
+    }
   }
 
   // Expected block validation
@@ -2088,6 +2369,34 @@ export function validateScenario(raw: unknown, path = "Scenario"): Scenario {
             `${eoPath}.roundingReason`,
           );
         }
+        const natural = parseNaturalPrecision(String(eoRaw.printedValue));
+        const prec = eoRaw.printedPrecision as Record<string, unknown>;
+        const isWidened =
+          eoRaw.widened === true ||
+          Boolean(
+            natural &&
+              (("decimals" in prec &&
+                typeof prec.decimals === "number" &&
+                prec.decimals < natural.decimals) ||
+                ("significantFigures" in prec &&
+                  typeof prec.significantFigures === "number" &&
+                  prec.significantFigures < natural.significantFigures)),
+          );
+        if (isWidened) {
+          const hasFacsimilePage =
+            (typeof (o.transcription as Record<string, unknown> | undefined)?.facsimilePage ===
+              "number" &&
+              Number((o.transcription as Record<string, unknown>).facsimilePage) > 0) ||
+            (typeof eoRaw.facsimilePage === "number" && eoRaw.facsimilePage > 0);
+          if (!hasFacsimilePage) {
+            throw new ExperimentValidationError(
+              "rounds-to-widening-unreferenced",
+              "Widening printedPrecision to pass a failing row is rejected without a facsimile page reference.",
+              "Scenario",
+              `${eoPath}.printedPrecision`,
+            );
+          }
+        }
       } else {
         throw new ExperimentValidationError(
           "invalid-comparison-kind",
@@ -2115,9 +2424,7 @@ export function validateScenario(raw: unknown, path = "Scenario"): Scenario {
         }>)
       : undefined,
     constantSetId: o.constantSetId as string,
-    constantSetMixing: o.constantSetMixing
-      ? (o.constantSetMixing as Readonly<{ declared: true; reason: string }>)
-      : undefined,
+    constantSetMixing,
     inputs: (o.inputs as Record<string, Readonly<{ value: number | string; unit: string }>>) || {},
     equations: Array.isArray(o.equations) ? (o.equations as string[]) : undefined,
     owner: (o.owner as string) || "",
@@ -2161,6 +2468,9 @@ export function validateScenario(raw: unknown, path = "Scenario"): Scenario {
     inferenceModelId: typeof o.inferenceModelId === "string" ? o.inferenceModelId : undefined,
     printedRepresentation:
       typeof o.printedRepresentation === "string" ? o.printedRepresentation : undefined,
+    tolerance: (tolerance ?? (o.tolerance as ToleranceSpec | undefined)) as
+      | ToleranceSpec
+      | undefined,
   };
 }
 

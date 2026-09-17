@@ -29,6 +29,7 @@ import {
 import {
   conductorFrameEmf,
   fresnelDraggedIncrement,
+  halfScale,
   magnetFrameEmf,
   relativisticDraggedIncrement,
   rootTwoScale,
@@ -210,6 +211,11 @@ const OWNERS: OwnerRecord[] = [
     id: "selfTest.rootTwoScale",
     sourcePath: evaluatorPath,
     fn: (ctx) => ({ rmsDisplacement1d: rootTwoScale(num(ctx.inputs, "baselineRms")) }),
+  },
+  {
+    id: "selfTest.halfScale",
+    sourcePath: evaluatorPath,
+    fn: (ctx) => ({ rmsDisplacement1d: halfScale(num(ctx.inputs, "baselineRms")) }),
   },
   {
     id: "selfTest.constant",

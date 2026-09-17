@@ -113,4 +113,61 @@ describe("scenario schema", () => {
       }),
     ).toThrow(ExperimentValidationError);
   });
+
+  test("mixed constant sets without constantSetMixing is rejected", () => {
+    try {
+      validateScenario({
+        ...golden,
+        constantSets: ["modern-si-2019", "einstein-1905-brownian-printed"],
+      });
+      throw new Error("expected throw");
+    } catch (err) {
+      expect(err).toBeInstanceOf(ExperimentValidationError);
+      expect((err as ExperimentValidationError).code).toBe("mixed-constant-sets-forbidden");
+    }
+
+    try {
+      validateScenario({
+        ...golden,
+        inputs: {
+          x: { value: 1, unit: "1", constantSetId: "einstein-1905-brownian-printed" },
+        },
+      });
+      throw new Error("expected throw");
+    } catch (err) {
+      expect(err).toBeInstanceOf(ExperimentValidationError);
+      expect((err as ExperimentValidationError).code).toBe("mixed-constant-sets-forbidden");
+    }
+  });
+
+  test("invalid constantSetMixing is rejected", () => {
+    expect(() =>
+      validateScenario({
+        ...golden,
+        constantSetMixing: { declared: false, reason: "invalid" },
+      }),
+    ).toThrow(ExperimentValidationError);
+
+    expect(() =>
+      validateScenario({
+        ...golden,
+        constantSetMixing: { declared: true, reason: "" },
+      }),
+    ).toThrow(ExperimentValidationError);
+  });
+
+  test("valid constantSetMixing passes", () => {
+    const validated = validateScenario({
+      ...golden,
+      constantSets: ["modern-si-2019", "einstein-1905-brownian-printed"],
+      constantSetMixing: {
+        declared: true,
+        reason: "modern k_B with printed viscosity for comparison",
+      },
+    });
+    expect(validated.constantSetMixing?.declared).toBe(true);
+    expect(validated.constantSetMixing?.reason).toBe(
+      "modern k_B with printed viscosity for comparison",
+    );
+  });
 });

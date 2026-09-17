@@ -58,4 +58,63 @@ describe("rounds-to validation", () => {
       expect((err as ExperimentValidationError).path.includes("comparisonKind")).toBe(true);
     }
   });
+
+  test("widening printedPrecision without facsimile page reference is rejected", () => {
+    // "6.16" has 2 decimals, 3 sig figs. Declaring decimals: 1 widens the precision.
+    try {
+      validateScenario({
+        id: "widened-fixture",
+        kind: "historical-fixture",
+        title: "Widened fixture without facsimile page",
+        constantSetId: "modern-si-2019",
+        owner: "selfTest.constant",
+        provenance: { paper: "brownian-motion", sectionId: "s5", printedPage: 559 },
+        transcription: { status: "pending", reason: "unreviewed" },
+        inputs: {},
+        expected: {
+          outputs: [
+            {
+              outputId: "displacement",
+              comparisonKind: "rounds-to",
+              printedValue: "6.16",
+              printedPrecision: { decimals: 1 },
+            },
+          ],
+        },
+        modelVersion: 1,
+        schemaVersion: 1,
+      });
+      throw new Error("expected throw");
+    } catch (err) {
+      expect(err).toBeInstanceOf(ExperimentValidationError);
+      expect((err as ExperimentValidationError).code).toBe("rounds-to-widening-unreferenced");
+      expect((err as ExperimentValidationError).path.includes("printedPrecision")).toBe(true);
+    }
+  });
+
+  test("widening printedPrecision with facsimile page reference passes validation", () => {
+    const validated = validateScenario({
+      id: "widened-with-ref",
+      kind: "historical-fixture",
+      title: "Widened fixture with facsimile page",
+      constantSetId: "modern-si-2019",
+      owner: "selfTest.constant",
+      provenance: { paper: "brownian-motion", sectionId: "s5", printedPage: 559 },
+      transcription: { status: "verified", facsimilePage: 559 },
+      inputs: {},
+      expected: {
+        outputs: [
+          {
+            outputId: "displacement",
+            comparisonKind: "rounds-to",
+            printedValue: "6.16",
+            printedPrecision: { decimals: 1 },
+          },
+        ],
+      },
+      modelVersion: 1,
+      schemaVersion: 1,
+    });
+    expect(validated.id).toBe("widened-with-ref");
+  });
 });

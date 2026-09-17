@@ -1,7 +1,7 @@
 import { mkdirSync, mkdtempSync, writeFileSync } from "node:fs";
 import { tmpdir } from "node:os";
 import { dirname, join } from "node:path";
-import type { Scenario } from "../../content/schemas/experiment.ts";
+import { isValidToleranceRationale, type Scenario } from "../../content/schemas/experiment.ts";
 import {
   type ConstantSet,
   createDeclaredConstantSet,
@@ -11,7 +11,7 @@ import { newRunIdentity, TestLogger } from "../log/logger.ts";
 import { parsePrintedNumber } from "../scenario-fixtures/evaluator.ts";
 import { compareByKind } from "./compare.ts";
 import { checkDatasetInference } from "./datasetInference.ts";
-import { compareHypotheses } from "./discrimination.ts";
+import { compareHypotheses, guard1904Shelf } from "./discrimination.ts";
 import { checkEditorialInputs } from "./editorialInputs.ts";
 import { guardIllustrativeInputs, historicalDerivedValueFlag } from "./evidentialRoleGuard.ts";
 import { checkIdentityIndependence, readOwnerSource } from "./identityRoutes.ts";
@@ -29,6 +29,69 @@ export type ScenarioRunResult = Readonly<{
   durationMs: number;
   extra: Record<string, unknown>;
 }>;
+
+export type CrossOwnerResult = Readonly<{
+  scenarioId: string;
+  ownerA: string;
+  ownerB: string;
+  comparisonKind: "tolerance";
+  relativeTo: "larger";
+  maxDeviation: number;
+  deviationByOutput: Record<string, number>;
+  passed: boolean;
+  message: string;
+}>;
+
+export function runCrossOwnerScenario(
+  scenario: Scenario,
+  ownerAId: string,
+  ownerBId: string,
+  tolerance: { absolute?: number; relative?: number } = { relative: 1e-9 },
+): CrossOwnerResult {
+  const ownerA = getOwner(ownerAId);
+  const ownerB = getOwner(ownerBId);
+  const inputs = inputNumbers(scenario);
+  const outA = ownerA.fn({ inputs, constantSetId: scenario.constantSetId });
+  const outB = ownerB.fn({ inputs, constantSetId: scenario.constantSetId });
+
+  const sharedKeys = Object.keys(outA).filter((k) => k in outB);
+  const deviationByOutput: Record<string, number> = {};
+  let maxDeviation = 0;
+  let passed = true;
+
+  for (const key of sharedKeys) {
+    const valA = outA[key] ?? 0;
+    const valB = outB[key] ?? 0;
+    const larger = Math.max(Math.abs(valA), Math.abs(valB));
+    const diff = Math.abs(valA - valB);
+    const relDiff = larger > 0 ? diff / larger : diff;
+    deviationByOutput[key] = relDiff;
+    if (relDiff > maxDeviation) maxDeviation = relDiff;
+
+    const compared = compareByKind("tolerance", valA, valB, {
+      tolerance: {
+        ...(tolerance.absolute !== undefined ? { absolute: tolerance.absolute } : {}),
+        relative: tolerance.relative ?? 1e-9,
+        relativeTo: "larger",
+      },
+    });
+    if (!compared.ok) passed = false;
+  }
+
+  return Object.freeze({
+    scenarioId: scenario.id,
+    ownerA: ownerAId,
+    ownerB: ownerBId,
+    comparisonKind: "tolerance" as const,
+    relativeTo: "larger" as const,
+    maxDeviation,
+    deviationByOutput: Object.freeze(deviationByOutput),
+    passed,
+    message: passed
+      ? `Owners "${ownerAId}" and "${ownerBId}" agree within tolerance on scenario "${scenario.id}" (max deviation: ${maxDeviation}).`
+      : `Owners "${ownerAId}" and "${ownerBId}" disagree on scenario "${scenario.id}" (max deviation: ${maxDeviation}).`,
+  });
+}
 
 function inputNumbers(scenario: Scenario): Record<string, number> {
   const out: Record<string, number> = {};
@@ -412,6 +475,22 @@ function runOne(
   }
 
   if (scenario.kind === "discrimination") {
+    const is1904Mode = Boolean(
+      (raw as Record<string, unknown>).mode === "1904" ||
+        (raw as Record<string, unknown>).mode1904 === true ||
+        (scenario as unknown as Record<string, unknown>).mode === "1904",
+    );
+    if (is1904Mode) {
+      const shelfCheck = guard1904Shelf(scenario, true);
+      if (!shelfCheck.ok) {
+        return {
+          ...base,
+          status: "failed",
+          message: shelfCheck.reason ?? "1904 shelf guard failure.",
+        };
+      }
+    }
+
     const hyps = scenario.hypotheses ?? [];
     extra.hypothesisIds = hyps.map((h) => h.id);
     extra.ownerFunctions = hyps.map((h) => h.owner);
@@ -430,19 +509,29 @@ function runOne(
       return out[key] ?? Number.NaN;
     });
     const specRaw = (raw.tolerance ?? scenario.expected.outputs?.[0]?.tolerance) as
-      | { absolute?: number; relative?: number; relativeTo?: string; rationale?: string }
+      | {
+          absolute?: number;
+          relative?: number;
+          relativeTo?: string;
+          rationale?: string;
+          boundaryBand?: unknown;
+        }
       | undefined;
-    if (!specRaw?.rationale) {
+    if (!specRaw?.rationale || !isValidToleranceRationale(specRaw.rationale)) {
       return {
         ...base,
         status: "failed",
-        message: "A discrimination tolerance needs a rationale.",
+        message:
+          "A discrimination tolerance requires a rationale naming an apparatus resolution, a numerical bound, or a stated observational uncertainty.",
       };
     }
     const compared = compareHypotheses(values[0] ?? Number.NaN, values[1] ?? Number.NaN, {
       ...(specRaw.absolute !== undefined ? { absolute: specRaw.absolute } : {}),
       ...(specRaw.relative !== undefined ? { relative: specRaw.relative } : {}),
       relativeTo: specRaw.relativeTo === "reference" ? "reference" : "larger",
+      ...(specRaw.boundaryBand !== undefined
+        ? { boundaryBand: specRaw.boundaryBand as import("../../units/tolerance.ts").ToleranceBand }
+        : {}),
     });
     extra.computedDifference = compared.difference;
     extra.discriminationOutcome = compared.outcome;
@@ -490,6 +579,7 @@ function runOne(
           : {}),
       });
       extra.printedValue = expected.printedValue;
+      extra.recomputation = actual;
       extra.printedPrecision = expected.printedPrecision;
       extra.roundingIntervalLow = compared.detail.low;
       extra.roundingIntervalHigh = compared.detail.high;
