@@ -22,6 +22,11 @@ export type EmphasisInline = Readonly<{
 export type MathInline = Readonly<{
   kind: "math";
   latex: string;
+  /** true for a reference to a displayed equation block printed at this position; a display
+   * math inline carries no inlineId and contributes no characters to plainText() (it names the
+   * block, the block owns the printed text). Absent or false for an authored inline expression,
+   * which may carry inlineId but never equationId. */
+  display?: boolean | undefined;
   equationId?: string | undefined;
   inlineId?: string | undefined;
 }>;
@@ -93,7 +98,7 @@ export function plainText(inlinesOrText: readonly Inline[] | string): string {
         res += plainText(node.inlines);
         break;
       case "math":
-        res += node.latex || "";
+        if (!node.display) res += node.latex || "";
         break;
       case "footnote-mark":
         res += node.mark || "";
@@ -162,14 +167,27 @@ export function validateInline(node: unknown, path = "inline"): Inline {
         ...(lang ? { lang } : {}),
         ...(dir ? { dir } : {}),
       };
-    case "math":
+    case "math": {
       if (typeof o.latex !== "string") throw new Error(`${path}: latex is required.`);
+      const display = o.display === true;
+      // Not yet enforced: requiring equationId when display is true, or forbidding equationId
+      // when display is absent. Existing bilingual-faces fixtures reference an equation block's
+      // id from a non-display math inline without the flag, and tightening this now would
+      // reject that live, in-flight content rather than this bead's own new fixtures. See
+      // am-cm-schemas-source-1en's BATCH_PENDING for the coordination this needs.
+      if (display && typeof o.inlineId === "string") {
+        throw new Error(
+          `${path}: a display math inline (display: true) must not carry an inlineId; it references an equation block by id instead.`,
+        );
+      }
       return {
         kind: "math",
         latex: o.latex,
+        ...(o.display !== undefined ? { display } : {}),
         ...(typeof o.equationId === "string" ? { equationId: o.equationId } : {}),
         ...(typeof o.inlineId === "string" ? { inlineId: o.inlineId } : {}),
       };
+    }
     case "footnote-mark":
       if (typeof o.mark !== "string") throw new Error(`${path}: mark is required.`);
       if (typeof o.footnoteId !== "string") throw new Error(`${path}: footnoteId is required.`);
