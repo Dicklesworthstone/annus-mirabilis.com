@@ -46,8 +46,9 @@ describe("am-eq-genealogy-hmm: validateGenealogyConsistency", () => {
 
     const missing = diagnostics.filter((d) => d.code === "missing-premise-edge");
     expect(missing.length).toBeGreaterThan(0);
-    expect(missing[0]!.code).toBe("missing-premise-edge");
-    expect(missing[0]!.edge).toBeDefined();
+    const firstMissing = missing[0];
+    expect(firstMissing?.code).toBe("missing-premise-edge");
+    expect(firstMissing?.edge).toBeDefined();
 
     logger.log({
       testId: "consistency-missing-premise",
@@ -100,7 +101,7 @@ describe("am-eq-genealogy-hmm: validateGenealogyConsistency", () => {
     const spurious = diagnostics.filter((d) => d.code === "spurious-genealogy-edge");
 
     expect(spurious.length).toBe(1);
-    expect(spurious[0]!.edge).toEqual({ from: "node-a", to: "node-b" });
+    expect(spurious[0]?.edge).toEqual({ from: "node-a", to: "node-b" });
   });
 
   test("detects orphan numbered results with no incoming premise lineage", () => {
@@ -127,8 +128,8 @@ describe("am-eq-genealogy-hmm: validateGenealogyConsistency", () => {
     const orphans = diagnostics.filter((d) => d.code === "genealogy-orphan-result");
 
     expect(orphans.length).toBe(1);
-    expect(orphans[0]!.nodeId).toBe("eq-sr-10-electron-dynamics");
-    expect(orphans[0]!.anchor).toBe("ap-17-891-s10-e1");
+    expect(orphans[0]?.nodeId).toBe("eq-sr-10-electron-dynamics");
+    expect(orphans[0]?.anchor).toBe("ap-17-891-s10-e1");
   });
 
   test("validates Paper 3 invariant: passes when exactly one outgoing cross-paper edge leaves to Paper 4", () => {
@@ -212,7 +213,7 @@ describe("am-eq-genealogy-hmm: validateGenealogyConsistency", () => {
 
     const crossErrors = diagnostics.filter((d) => d.code === "invalid-cross-paper-edge-set");
     expect(crossErrors.length).toBe(1);
-    expect(crossErrors[0]!.message).toContain("found 0");
+    expect(crossErrors[0]?.message).toContain("found 0");
   });
 
   test("negative plant: Paper 3 with extra / spurious cross-paper edge fails validation", () => {
@@ -297,7 +298,7 @@ describe("am-eq-genealogy-hmm: validateGenealogyConsistency", () => {
 
     const crossErrors = diagnostics.filter((d) => d.code === "invalid-cross-paper-edge-set");
     expect(crossErrors.length).toBeGreaterThanOrEqual(1);
-    expect(crossErrors[0]!.message).toContain("found 2 edges");
+    expect(crossErrors[0]?.message).toContain("found 2 edges");
   });
 
   test("detects modern-oracle-in-historical-view when modern oracle is present in historical perspective", () => {
@@ -342,7 +343,7 @@ describe("am-eq-genealogy-hmm: validateGenealogyConsistency", () => {
 
     const oracleErrors = diagnostics.filter((d) => d.code === "modern-oracle-in-historical-view");
     expect(oracleErrors.length).toBe(1);
-    expect(oracleErrors[0]!.code).toBe("modern-oracle-in-historical-view");
+    expect(oracleErrors[0]?.code).toBe("modern-oracle-in-historical-view");
   });
 
   test("detects premise cycles in directed graph", () => {
@@ -393,6 +394,6 @@ describe("am-eq-genealogy-hmm: validateGenealogyConsistency", () => {
 
     const cycleErrors = diagnostics.filter((d) => d.code === "genealogy-cycle-detected");
     expect(cycleErrors.length).toBe(1);
-    expect(cycleErrors[0]!.message).toContain("Cycle detected");
+    expect(cycleErrors[0]?.message).toContain("Cycle detected");
   });
 });
