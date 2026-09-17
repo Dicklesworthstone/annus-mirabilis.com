@@ -468,6 +468,17 @@ tbody th {
   padding-top: 1.4rem;
   margin-top: 1.5rem;
 }
+/*
+ * A grid item defaults to min-width: auto, so it takes its min-content width and
+ * overflows its track. Show the Code's <pre> already scrolls (overflow: auto), but
+ * its 742px min-content pushed the item to 776px inside a 254px track, and the
+ * document to 809px at a 320px viewport. max-width: 100% cannot help, because it
+ * resolves against the already-widened item. Measured at /lab/bm-01 with
+ * JavaScript disabled.
+ */
+.lab-bottom > * {
+  min-width: 0;
+}
 .lab-bottom p {
   font-size: 0.9rem;
 }
