@@ -1,10 +1,3 @@
-import {
-  SR03_BUDGET,
-  SR03_MODEL,
-  SR03_OUTPUTS,
-  type Sr03Parameters,
-} from "../../experiments/sr03/definition.ts";
-import { validateSr03Parameters } from "../../experiments/sr03/parameters.ts";
 import { decodeResult } from "../../experiments/results/codec.ts";
 import {
   type ExecutionOutcomeId,
@@ -12,19 +5,21 @@ import {
 } from "../../experiments/results/outcomes.ts";
 import { makeRefusal } from "../../experiments/results/refusals.ts";
 import type { ScientificResult } from "../../experiments/results/types.ts";
+import { SR03_OUTPUTS } from "../../experiments/sr03/definition.ts";
+import { validateSr03Parameters } from "../../experiments/sr03/parameters.ts";
 import type { Computation } from "../../physics/reference/diffusion/ftcs.ts";
 import {
   causalOrder,
   classifySimultaneity,
   measureRodLength,
 } from "../../physics/reference/events.ts";
+import type { Event } from "../../physics/reference/kinematics/types.ts";
 import {
   alignedBoost,
   ellipsoidAxes,
   gamma,
   transformEvent,
 } from "../../physics/reference/kinematics.ts";
-import type { Event } from "../../physics/reference/kinematics/types.ts";
 
 export type Sr03Evaluation = Readonly<{
   outputs: readonly ScientificResult[];
@@ -65,22 +60,6 @@ function notApplicable(quantityId: string, reason: string): ScientificResult {
     ownerId: c.ownerId,
     status: "not-applicable",
     reason,
-  });
-}
-
-function outsideDomain(quantityId: string, reason: string): ScientificResult {
-  const c = SR03_OUTPUTS[quantityId];
-  if (!c) throw new TypeError(`Undeclared output ${quantityId}`);
-  return decodeResult({
-    quantityId,
-    unit: c.unit,
-    semanticKind: c.semanticKind,
-    ownerId: c.ownerId,
-    status: "outside-domain",
-    condition: "outside-physical-domain",
-    domainKind: "physical",
-    reason,
-    boundary: { alternativeModel: "General relativity or non-inertial kinematics" },
   });
 }
 
