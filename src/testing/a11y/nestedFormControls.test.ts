@@ -38,7 +38,6 @@ const VALUE_BEARING =
 
 /** Recorded 2026-09-17; lowered from 104 across 28 files the same day. May only shrink. */
 const BASELINE = new Map<string, number>([
-  ["src/components/lab/sr12/ChargeCurrentLab.tsx", 3],
   ["src/reader/PaperPage.tsx", 1],
   ["src/reader/PaperReader.tsx", 1],
   ["src/reader/ReaderController.tsx", 1],

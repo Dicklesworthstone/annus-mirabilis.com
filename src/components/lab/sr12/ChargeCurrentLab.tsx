@@ -238,11 +238,15 @@ export function ChargeCurrentLab({
       {/* Controls Form */}
       <form onSubmit={submit} className="lab-controls space-y-4 pt-2">
         <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
-          <label className="flex flex-col gap-1 text-xs">
-            <span className="font-medium text-zinc-700 dark:text-zinc-300">
+          <div className="input-field flex flex-col gap-1 text-xs">
+            <label
+              htmlFor={`${id}-boost-range`}
+              className="font-medium text-zinc-700 dark:text-zinc-300"
+            >
               Observer Boost Speed (v/c): {(draft.boost / C_SI).toFixed(3)}
-            </span>
+            </label>
             <input
+              id={`${id}-boost-range`}
               type="range"
               min="-0.95"
               max="0.95"
@@ -251,7 +255,11 @@ export function ChargeCurrentLab({
               onChange={(e) => setDraft({ ...draft, boost: parseFloat(e.target.value) * C_SI })}
               className="w-full"
             />
+            <label htmlFor={`${id}-boost-number`} className="sr-only">
+              Observer Boost Speed (m/s)
+            </label>
             <input
+              id={`${id}-boost-number`}
               type="number"
               min="-284802835"
               max="284802835"
@@ -259,39 +267,53 @@ export function ChargeCurrentLab({
               onChange={(e) => setDraft({ ...draft, boost: parseFloat(e.target.value) || 0 })}
               className="px-2 py-1 border rounded text-xs"
             />
-          </label>
+          </div>
 
-          <label className="flex flex-col gap-1 text-xs">
-            <span className="font-medium text-zinc-700 dark:text-zinc-300">
+          <div className="input-field flex flex-col gap-1 text-xs">
+            <label
+              htmlFor={`${id}-charge-density`}
+              className="font-medium text-zinc-700 dark:text-zinc-300"
+            >
               Charge Density ρ (C/m³)
-            </span>
+            </label>
             <input
+              id={`${id}-charge-density`}
               type="number"
               step="0.1"
               value={draft.chargeDensity}
               onChange={(e) =>
                 setDraft({ ...draft, chargeDensity: parseFloat(e.target.value) || 0 })
               }
+              aria-describedby={`${id}-charge-density-hint`}
               className="px-2 py-1 border rounded text-xs"
             />
-            <span className="text-[10px] text-zinc-400">Set 0 for neutral conductor</span>
-          </label>
-
-          <label className="flex flex-col gap-1 text-xs">
-            <span className="font-medium text-zinc-700 dark:text-zinc-300">
-              Current Density Jx (A/m²)
+            <span id={`${id}-charge-density-hint`} className="text-[10px] text-zinc-400">
+              Set 0 for neutral conductor
             </span>
+          </div>
+
+          <div className="input-field flex flex-col gap-1 text-xs">
+            <label
+              htmlFor={`${id}-current-density-x`}
+              className="font-medium text-zinc-700 dark:text-zinc-300"
+            >
+              Current Density Jx (A/m²)
+            </label>
             <input
+              id={`${id}-current-density-x`}
               type="number"
               step="0.1"
               value={draft.currentDensityX}
               onChange={(e) =>
                 setDraft({ ...draft, currentDensityX: parseFloat(e.target.value) || 0 })
               }
+              aria-describedby={`${id}-current-density-x-hint`}
               className="px-2 py-1 border rounded text-xs"
             />
-            <span className="text-[10px] text-zinc-400">Conduction current along x</span>
-          </label>
+            <span id={`${id}-current-density-x-hint`} className="text-[10px] text-zinc-400">
+              Conduction current along x
+            </span>
+          </div>
         </div>
 
         {error && (
