@@ -1,9 +1,9 @@
-import { SR03_MODEL, SR03_OUTPUTS } from "../../experiments/sr03/definition.ts";
 import {
   decodeOutcome,
   decodeRefusal,
   decodeResultBatch,
 } from "../../experiments/results/codec.ts";
+import { SR03_MODEL, SR03_OUTPUTS } from "../../experiments/sr03/definition.ts";
 import type { RequestToken } from "../../experiments/store/instanceStore.ts";
 import type { Computation } from "../../physics/reference/diffusion/ftcs.ts";
 import type { Sr03Evaluation } from "../operations/sr03.ts";
