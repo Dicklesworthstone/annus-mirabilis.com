@@ -153,7 +153,7 @@ export function auditReadings(input: ReadingsAuditInput): AuditReport {
       }
     }
 
-    if (readings.r0.trim()) {
+    if (readings.r0?.trim()) {
       const sentences = countSentences(readings.r0);
       if (sentences < 1 || sentences > 2) {
         findings.push({
@@ -172,7 +172,7 @@ export function auditReadings(input: ReadingsAuditInput): AuditReport {
     }
 
     const citations = readings.r3Citations ?? [];
-    if (readings.r3.trim() && citations.length === 0) {
+    if (readings.r3?.trim() && citations.length === 0) {
       findings.push({
         check: "r3-citation-missing",
         family: "readings",
@@ -185,7 +185,7 @@ export function auditReadings(input: ReadingsAuditInput): AuditReport {
       });
     }
 
-    if (readings.r1.trim() && readings.r2.trim()) {
+    if (readings.r1?.trim() && readings.r2?.trim()) {
       const r1Words = countWords(readings.r1);
       const r2Words = countWords(readings.r2);
       const override = (input.overrides ?? []).find(
@@ -224,7 +224,8 @@ export function auditReadings(input: ReadingsAuditInput): AuditReport {
       const cited = new Set(readings.qualificationsCited ?? []);
       const missingLevels = (["r0", "r1", "r2"] as const).filter((level) => {
         if (cited.has(qualificationId)) return false;
-        return !readings[level].includes(qualificationId);
+        const text = readings[level];
+        return !text?.includes(qualificationId);
       });
       if (missingLevels.length > 0) {
         findings.push({

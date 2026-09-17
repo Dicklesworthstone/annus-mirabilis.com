@@ -5,33 +5,45 @@ targets:
     readings:
       r0: "Measured wandering pins down the diffusion coefficient. With a temperature, a viscosity, a radius, and a gas constant it gives a number of molecules in a mole, and the interval says how sure you can be."
       r1: "The estimator, the chi-square interval, identifiability of the radius-number product, and the semantic kind of every estimate of N: synthetic recovery, independent estimate, or a modern-SI consistency check."
-      r2: "The interval is built from repeated hypothetical experiments. Inversion reverses the endpoints of the D interval. Radius and molecular number cannot both be found from displacements. An unbiased D̂ is not unbiased after inversion."
+      r2: "The interval is built from repeated hypothetical experiments. First, the sample displacement variance yields an estimate of diffusivity D̂ with a chi-square confidence interval. Inverting Stokes-Einstein diffusivity into molecular number reverses the inequality direction, swapping the lower and upper bounds of the interval. Because the product of particle radius and Avogadro's number is what determines diffusion, neither parameter can be uniquely resolved from displacements alone. Non-linear inversion also introduces transformation bias into the resulting point estimator."
       r3: "Einstein's section 5 inversion, Perrin's 1909 measurements, and the 2019 SI definition that turns a modern-constant inversion into a consistency check, not an independent count."
+      r3Citations:
+        - "Einstein, A. (1905). Über die von der molekularkinetischen Theorie der Wärme geforderte Bewegung von in ruhenden Flüssigkeiten suspendierten Teilchen. Annalen der Physik 17, 549–560 (§5)."
+        - "Perrin, J. (1909). Mouvement brownien et réalité moléculaire. Annales de chimie et de physique 18, 5–114."
+        - "BIPM (2019). The International System of Units (SI), 9th edition. Defining constants N_A = 6.02214076e23 mol^-1 and k_B = 1.380649e-23 J/K."
   - kind: caption
     id: bm-07-identifiability
     readings:
       r0: "Displacements fix a product of radius and molecular number, not either one alone."
       r1: "The joint pair (a, N) is underdetermined until an independent radius is declared."
-      r2: "Doubling a and halving N leaves the predicted diffusivity unchanged. No narrow interval is offered yet."
+      r2: "Doubling the assumed particle radius a and halving the molecular number N leaves the predicted diffusion coefficient identical. Because displacements constrain only the combined product a·N, no individual confidence interval can be formed without an external measurement of particle size."
       r3: "This is the identifiability view Journey II opens before any inversion interval."
+      r3Citations:
+        - "Einstein, A. (1905). Über die von der molekularkinetischen Theorie der Wärme geforderte Bewegung von in ruhenden Flüssigkeiten suspendierten Teilchen. Annalen der Physik 17, 549–560 (§5)."
   - kind: caption
     id: bm-07-inversion-golden
     readings:
       r0: "With modern SI constants the inversion is a consistency check against defined N_A."
       r1: "N̂ = 6.02213e23 mol^-1 with the ratio to defined N_A and an estimate of k_B."
-      r2: "R = N_A k_B exactly in 2019 SI, so this cannot count molecules independently."
+      r2: "Under the 2019 SI redefinition, the molar gas constant R and Avogadro's constant N_A are exact defined numbers, which fixes the Boltzmann constant k_B = R / N_A without measurement. Inverting displacement data with these values tests model self-consistency rather than measuring an unknown count of molecules."
       r3: "The 2019 SI defining constants make a modern-constant inversion a consistency check."
+      r3Citations:
+        - "BIPM (2019). The International System of Units (SI), 9th edition. Exact defining constants N_A = 6.02214076e23 mol^-1 and k_B = 1.380649e-23 J/K."
   - kind: caption
     id: bm-07-perrin-1909
     readings:
       r0: "Perrin's 1909 observations invert with a gas constant measured without counting molecules."
       r1: "The estimate is an independent-estimate beside Perrin's reported value, once the dataset is admitted."
-      r2: "If the independent count is unreported, only the point estimate is shown; the interval is not applicable."
+      r2: "In Jean Perrin's 1909 observations, the macroscopic gas constant R is obtained from bulk gas laws without assuming molecular structure. When historical summary tables omit individual displacement counts, the point estimate N̂ is calculated directly, but the confidence interval is flagged as not applicable because sample uncertainty cannot be reconstructed."
       r3: "Table cells wait on the admitted HistoricalDataset; they are not invented here."
+      r3Citations:
+        - "Perrin, J. (1909). Mouvement brownien et réalité moléculaire. Annales de chimie et de physique 18, 5–114."
   - kind: caption
     id: bm-07-coverage
     readings:
       r0: "Repeat the procedure on many synthetic datasets and count how often the interval covers the generator value."
       r1: "Each interval moves; the generating parameter does not. The covering fraction is a property of the procedure."
-      r2: "This is not a posterior probability for one realized interval."
+      r2: "In frequentist inference, the true Avogadro number N_A is a fixed constant of nature, while the interval endpoints vary randomly from one experimental trial to the next. The stated confidence level represents the asymptotic fraction of hypothetical intervals that bracket the true value, not a posterior probability for any single calculated interval."
       r3: "The foundation node's repeated-experiment construction opens this preset."
+      r3Citations:
+        - "Neyman, J. (1937). Outline of a Theory of Statistical Estimation Based on the Classical Theory of Probability. Philosophical Transactions of the Royal Society of London A 236, 333–380."

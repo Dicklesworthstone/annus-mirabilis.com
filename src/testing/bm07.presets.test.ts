@@ -6,10 +6,7 @@ import { auditReadings, type ReadingTarget } from "../content/audits/readings.ts
 import { parsePresetId } from "../content/ids.ts";
 import { validateExperiment } from "../content/schemas/experiment.ts";
 import { strictParse } from "../content/schemas/strictParse.ts";
-import {
-  EINSTEIN_PRINTED_MOLECULAR_NUMBER,
-  evaluatePerrinSummary,
-} from "../experiments/bm07/historical.ts";
+import { evaluatePerrinSummary } from "../experiments/bm07/historical.ts";
 import { isValidTapeId, validateControlTape } from "../experiments/tapes/schema.ts";
 import { getConstantSet } from "../physics/reference/constants.ts";
 import {
@@ -140,13 +137,15 @@ test("bm07.presets: bm-07-inversion-golden reproduces N_hat = 6.02213e23 with co
   assert.equal(vN.ok, true, `Expected N_hat ~ 6.02213e23, got ${inv.data.estimate}`);
 
   // Ratio to defined N_A is ~0.999999
-  assert.ok(inv.data.consistencyRatio !== null);
-  const vRatio = withinTolerance(inv.data.consistencyRatio!, 0.999999, { relative: 1e-4 });
+  const consistencyRatio = inv.data.consistencyRatio;
+  assert.ok(consistencyRatio !== null && consistencyRatio !== undefined);
+  const vRatio = withinTolerance(consistencyRatio, 0.999999, { relative: 1e-4 });
   assert.equal(vRatio.ok, true);
 
   // Estimated Boltzmann constant is ~1.38065e-23
-  assert.ok(inv.data.estimatedBoltzmannConstant !== null);
-  const vKb = withinTolerance(inv.data.estimatedBoltzmannConstant!, 1.38065e-23, {
+  const estimatedKb = inv.data.estimatedBoltzmannConstant;
+  assert.ok(estimatedKb !== null && estimatedKb !== undefined);
+  const vKb = withinTolerance(estimatedKb, 1.38065e-23, {
     relative: 1e-4,
   });
   assert.equal(vKb.ok, true);
@@ -247,7 +246,12 @@ test("bm07.presets: caption and preset R0-R3 readings audit passes; removing R2 
     owners: [ownerEntry],
   });
   const missingR2 = brokenReport.findings.find(
-    (f) => f.recordId === "bm-07-identifiability" && f.check === "missing-reading-level",
+    (f) =>
+      f.recordId === "bm-07-identifiability" &&
+      (f.check === "missing-reading-level" || f.check === "missing-r2"),
   );
-  assert.ok(missingR2, "Removing R2 must trigger missing-reading-level error finding");
+  assert.ok(
+    missingR2,
+    "Removing R2 must trigger missing-reading-level or missing-r2 error finding",
+  );
 });
