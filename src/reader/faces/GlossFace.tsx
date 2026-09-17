@@ -12,6 +12,7 @@ import type {
 import { buildAlignmentIndex } from "./alignment.ts";
 import { FootnotesSection } from "./Footnote.tsx";
 import { GlossSentence } from "./GlossSentence.tsx";
+import { isPaperTranslationUnreviewed } from "./reviewState.ts";
 import { SourceBlock as SourceBlockComponent } from "./SourceBlock.tsx";
 import { UnreviewedBanner } from "./UnreviewedBanner.tsx";
 

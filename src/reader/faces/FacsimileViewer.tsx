@@ -145,20 +145,20 @@ export function FacsimileViewer({
           <button
             type="button"
             className="toolbar-btn btn-zoom-out"
-            onClick={handleZoomOut}
-            disabled={zoom <= MIN_ZOOM}
+            onClick={() => setZoom((z) => Math.max(z - 25, 50))}
+            disabled={zoom <= 50}
             aria-label="Zoom out"
           >
             −
           </button>
-          <span className="zoom-level" aria-live="polite">
+          <span className="toolbar-zoom-label" aria-live="polite">
             {zoom}%
           </span>
           <button
             type="button"
             className="toolbar-btn btn-zoom-in"
-            onClick={handleZoomIn}
-            disabled={zoom >= MAX_ZOOM}
+            onClick={() => setZoom((z) => Math.min(z + 25, 250))}
+            disabled={zoom >= 250}
             aria-label="Zoom in"
           >
             +
@@ -166,9 +166,9 @@ export function FacsimileViewer({
           <button
             type="button"
             className="toolbar-btn btn-zoom-reset"
-            onClick={handleZoomReset}
-            disabled={zoom === DEFAULT_ZOOM}
-            aria-label="Reset zoom to 100%"
+            onClick={() => setZoom(100)}
+            disabled={zoom === 100}
+            aria-label="Reset zoom"
           >
             Reset
           </button>

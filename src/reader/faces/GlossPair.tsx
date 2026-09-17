@@ -1,5 +1,4 @@
 import { renderToString } from "katex";
-import React from "react";
 import { isModalityClass } from "../../content/schemas/glossConventions.ts";
 import type { GlossToken, MultiwordUnit } from "../../content/schemas/source.ts";
 
@@ -104,6 +103,7 @@ export function GlossPair({
       {activeGrammarNote && (
         <span
           className={`gloss-grammar-cue ${isReasoningMarked ? "cue-reasoning-marked" : ""}`}
+          role="note"
           data-note-class={activeNoteClass}
           title={activeGrammarNote}
           aria-label={
