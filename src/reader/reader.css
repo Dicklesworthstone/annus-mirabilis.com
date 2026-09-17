@@ -334,3 +334,57 @@ html:is(
     margin-top: 1rem;
   }
 }
+
+/* Result weave (am-read-result-weave-jex): an instrument's lit sentence. Every meaning below
+   carries both a distinct border style and a distinct background so the four are distinguishable
+   without color -- the accessible-name prefix (visually-hidden) carries the same distinction for
+   screen readers. */
+.visually-hidden {
+  position: absolute;
+  width: 1px;
+  height: 1px;
+  padding: 0;
+  margin: -1px;
+  overflow: hidden;
+  clip: rect(0, 0, 0, 0);
+  white-space: nowrap;
+  border: 0;
+}
+
+.weave-highlight {
+  border-radius: 0.2rem;
+  padding: 0 0.15rem;
+  transition: background-color 150ms ease-out, border-color 150ms ease-out;
+}
+.weave-highlight[data-weave-reduced-motion="true"] {
+  transition: none;
+}
+@media (prefers-reduced-motion: reduce) {
+  .weave-highlight {
+    transition: none;
+  }
+}
+
+.weave-assumption-active {
+  background: #eef2ff;
+  border-bottom: 2px dotted #4338ca;
+}
+.weave-quantity-compared {
+  background: #f0fdf4;
+  border-bottom: 2px solid #15803d;
+}
+.weave-agreement-within-bound {
+  background: #ecfeff;
+  border-bottom: 3px double #0e7490;
+}
+.weave-outside-domain {
+  background: #fff7ed;
+  border-bottom: 2px dashed #c2410c;
+}
+
+.weave-pointer {
+  display: block;
+  font-size: 0.85em;
+  font-style: italic;
+  margin-top: 0.15rem;
+}
