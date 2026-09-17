@@ -51,6 +51,13 @@ async function copyStaticInputs(
   return copied;
 }
 
+interface BunPluginBuilder {
+  onResolve(
+    options: { filter: RegExp },
+    callback: (args: { path: string; importer?: string }) => { path: string } | undefined,
+  ): void;
+}
+
 /** Bundles one registered fixture application and copies its staticInputs. */
 export async function bundleFixtureApp(
   entry: FixtureAppEntry,
@@ -73,8 +80,8 @@ export async function bundleFixtureApp(
           // specifiers and then fails to find "../announce". Runtime `bun`
           // and node resolve the same specifier. Restore the extension.
           name: "relative-ts-resolver",
-          setup(build) {
-            build.onResolve({ filter: /^\.\.?\// }, (args) => {
+          setup(build: BunPluginBuilder) {
+            build.onResolve({ filter: /^\.\.?\// }, (args: { path: string; importer?: string }) => {
               if (!args.importer) return undefined;
               const direct = resolve(dirname(args.importer), args.path);
               if (existsSync(direct)) return { path: direct };
