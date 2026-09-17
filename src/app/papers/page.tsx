@@ -14,6 +14,19 @@ const papers = [
       "Über die von der molekularkinetischen Theorie der Wärme geforderte Bewegung von in ruhenden Flüssigkeiten suspendierten Teilchen",
     locator: "Annalen der Physik (4), 17, 549–560 (1905)",
     status: "Explanatory reader and laboratories available; source edition in preparation",
+    workingTitle:
+      "On the Motion of Small Particles Suspended in Liquids at Rest, as Required by the Molecular-Kinetic Theory of Heat",
+    plainScope:
+      "The document about tiny particles suspended in a liquid that is not being stirred or heated unevenly, and what the ceaseless motion of heat should make them do.",
+    editorialAdditions: [
+      {
+        phrase: "Small",
+        reason:
+          'Names the scale of the particles for a reader who has not yet met the term "Brownian motion", before the argument itself establishes why size matters.',
+        germanBasis: "no-direct-basis",
+      },
+    ],
+    firstEncounterAnchor: "/papers/brownian-motion#entry-brownian-motion",
   },
   {
     title: "Special relativity",
@@ -47,10 +60,28 @@ export default function Papers() {
         {papers.map((paper, i) => (
           <article key={paper.title}>
             <p className="eyebrow">Paper {i + 1} · 1905</p>
-            <h2>{paper.title}</h2>
             <p lang="de" className="german-title">
               {paper.german}
             </p>
+            {paper.workingTitle && paper.plainScope ? (
+              <>
+                <h2>{paper.workingTitle}</h2>
+                {paper.editorialAdditions && paper.editorialAdditions.length > 0 && (
+                  <details className="editorial-additions">
+                    <summary>Editorial: this working title adds a word to the German</summary>
+                    {paper.editorialAdditions.map((addition) => (
+                      <p key={addition.phrase} className="fine">
+                        "{addition.phrase}": {addition.reason}
+                      </p>
+                    ))}
+                  </details>
+                )}
+                <p>{paper.plainScope}</p>
+                <p className="fine">Also known as: {paper.title}.</p>
+              </>
+            ) : (
+              <h2>{paper.title}</h2>
+            )}
             <p className="fine">{paper.locator}</p>
             <p className="badge">{paper.status}</p>
             {i === 0 && (
@@ -62,6 +93,9 @@ export default function Papers() {
             {i === 1 && (
               <div className="actions">
                 <a href="/papers/brownian-motion/">Read the displacement argument →</a>
+                {paper.firstEncounterAnchor && (
+                  <a href={paper.firstEncounterAnchor}>Show me one example first →</a>
+                )}
                 <a href="/discover/brownian-motion/">First encounter →</a>
                 <a href="/lab/bm-06/">Spreading laboratory →</a>
               </div>
