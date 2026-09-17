@@ -91,11 +91,11 @@ export function runFixtureDigitization(options?: { targetDir?: string }) {
 
   const result = executeDigitizationPipeline(input);
 
-  // Target directory for canonical files (defaults to content/datasets/)
+  // Target directory for canonical YAML file (content/datasets/)
   const contentDir = options?.targetDir ?? join(process.cwd(), "content", "datasets");
 
-  // Write canonical CSV
-  const csvPath = join(contentDir, "fixture-dataset.csv");
+  // Write CSV into the pipeline directory (not content/datasets/)
+  const csvPath = join(__dirname, "fixture-dataset.csv");
   writeFileSync(csvPath, result.canonicalCsv, "utf8");
 
   // Write canonical YAML with computed digest and csvDigest property
