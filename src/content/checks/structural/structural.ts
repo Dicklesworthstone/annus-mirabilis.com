@@ -21,9 +21,10 @@ import {
   type ContentCheck,
   registerCheck,
 } from "../../compiler/checks/registry.ts";
+import type { PaperDate } from "../../schemas/dates.ts";
 import { type Inline, plainText } from "../../schemas/inlines.ts";
 import { type SpanAnchor, spanTextDigest } from "../../schemas/spans.ts";
-import { compareDateIntervals, isDateNotAfter } from "./dateIntervals.ts";
+import { compareDateIntervals, type DateInterval } from "./dateIntervals.ts";
 
 export const STRUCTURAL_BEAD_ID = "am-cm-checks-structural-lq0";
 
@@ -40,13 +41,13 @@ export const LEDGER_PAGE_MARKER_REGEX =
  */
 export function parseSplitTranslationUnitId(id: string): { base: string; suffix: string } | null {
   const digitMatch = id.match(/^(s\d+-p\d+-s\d+|s[1-9]\d*|s\d+-fn\d+|part-[12])([a-z])$/);
-  if (digitMatch && digitMatch[1] && digitMatch[2]) {
+  if (digitMatch?.[1] && digitMatch?.[2]) {
     return { base: digitMatch[1], suffix: digitMatch[2] };
   }
   const letterMatch = id.match(
     /^(closing-dateline|closing-ack|closing-received|masthead-title|masthead-author)-([a-z])$/,
   );
-  if (letterMatch && letterMatch[1] && letterMatch[2]) {
+  if (letterMatch?.[1] && letterMatch?.[2]) {
     return { base: letterMatch[1], suffix: letterMatch[2] };
   }
   return null;
@@ -145,8 +146,11 @@ export const checkDuplicateId: ContentCheck = {
       if (!id) continue;
 
       if (kind === "source-block") {
-        if (!paperSourceBlocks.has(paper)) paperSourceBlocks.set(paper, new Set());
-        const blocks = paperSourceBlocks.get(paper)!;
+        let blocks = paperSourceBlocks.get(paper);
+        if (!blocks) {
+          blocks = new Set();
+          paperSourceBlocks.set(paper, blocks);
+        }
         if (blocks.has(id)) {
           ctx.report({
             rule: "duplicate-id",
@@ -161,11 +165,14 @@ export const checkDuplicateId: ContentCheck = {
 
         // Check sentence spans inside source-block
         if (Array.isArray(rec.sentenceSpans)) {
-          if (!paperSentenceIds.has(paper)) paperSentenceIds.set(paper, new Set());
-          const sIds = paperSentenceIds.get(paper)!;
+          let sIds = paperSentenceIds.get(paper);
+          if (!sIds) {
+            sIds = new Set();
+            paperSentenceIds.set(paper, sIds);
+          }
           for (const sp of rec.sentenceSpans) {
-            if (sp && typeof sp === "object" && typeof (sp as any).id === "string") {
-              const sId = (sp as any).id;
+            if (sp && typeof sp === "object" && "id" in sp && typeof sp.id === "string") {
+              const sId = sp.id;
               if (sIds.has(sId)) {
                 ctx.report({
                   rule: "duplicate-id",
@@ -181,8 +188,11 @@ export const checkDuplicateId: ContentCheck = {
           }
         }
       } else if (kind === "translation-unit") {
-        if (!paperTranslationUnits.has(paper)) paperTranslationUnits.set(paper, new Set());
-        const tus = paperTranslationUnits.get(paper)!;
+        let tus = paperTranslationUnits.get(paper);
+        if (!tus) {
+          tus = new Set();
+          paperTranslationUnits.set(paper, tus);
+        }
         if (tus.has(id)) {
           ctx.report({
             rule: "duplicate-id",
@@ -242,6 +252,66 @@ export const checkDuplicateId: ContentCheck = {
           });
         }
         experiments.add(id);
+      } else if (kind === "scenario") {
+        if (scenarios.has(id)) {
+          ctx.report({
+            rule: "duplicate-id",
+            recordId: id,
+            file,
+            path: id,
+            message: `Duplicate scenario id "${id}".`,
+            repair: `Ensure scenario ids are unique.`,
+          });
+        }
+        scenarios.add(id);
+      } else if (kind === "dataset" || kind === "historical-dataset") {
+        if (datasets.has(id)) {
+          ctx.report({
+            rule: "duplicate-id",
+            recordId: id,
+            file,
+            path: id,
+            message: `Duplicate dataset id "${id}".`,
+            repair: `Ensure dataset ids are unique.`,
+          });
+        }
+        datasets.add(id);
+      } else if (kind === "tour") {
+        if (tours.has(id)) {
+          ctx.report({
+            rule: "duplicate-id",
+            recordId: id,
+            file,
+            path: id,
+            message: `Duplicate tour id "${id}".`,
+            repair: `Ensure tour ids are unique.`,
+          });
+        }
+        tours.add(id);
+      } else if (kind === "constant-set") {
+        if (constantSets.has(id)) {
+          ctx.report({
+            rule: "duplicate-id",
+            recordId: id,
+            file,
+            path: id,
+            message: `Duplicate constant set id "${id}".`,
+            repair: `Ensure constant-set ids are unique.`,
+          });
+        }
+        constantSets.add(id);
+      } else if (kind === "misconception") {
+        if (misconceptions.has(id)) {
+          ctx.report({
+            rule: "duplicate-id",
+            recordId: id,
+            file,
+            path: id,
+            message: `Duplicate misconception id "${id}".`,
+            repair: `Ensure misconception ids are unique.`,
+          });
+        }
+        misconceptions.add(id);
       } else if (kind === "equation") {
         if (globalEquations.has(id)) {
           ctx.report({
@@ -299,15 +369,22 @@ export const checkMissingSourceBlock: ContentCheck = {
       const id = typeof rec.id === "string" ? rec.id : "";
 
       if (kind === "source-block") {
-        if (!paperBlocks.has(paper)) paperBlocks.set(paper, new Set());
-        paperBlocks.get(paper)!.add(id);
+        let blocks = paperBlocks.get(paper);
+        if (!blocks) {
+          blocks = new Set();
+          paperBlocks.set(paper, blocks);
+        }
+        blocks.add(id);
 
         if (Array.isArray(rec.sentenceSpans)) {
-          if (!paperSentences.has(paper)) paperSentences.set(paper, new Set());
-          const sSet = paperSentences.get(paper)!;
+          let sSet = paperSentences.get(paper);
+          if (!sSet) {
+            sSet = new Set();
+            paperSentences.set(paper, sSet);
+          }
           for (const sp of rec.sentenceSpans) {
-            if (sp && typeof sp === "object" && typeof (sp as any).id === "string") {
-              sSet.add((sp as any).id);
+            if (sp && typeof sp === "object" && "id" in sp && typeof sp.id === "string") {
+              sSet.add(sp.id);
             }
           }
         }
@@ -345,8 +422,12 @@ export const checkMissingSourceBlock: ContentCheck = {
           if (typeof sRef === "string") {
             refId = sRef;
           } else if (sRef && typeof sRef === "object") {
-            refPaper = (sRef as any).paper || defaultPaper;
-            refId = (sRef as any).id || "";
+            if ("paper" in sRef && typeof sRef.paper === "string" && sRef.paper) {
+              refPaper = sRef.paper;
+            }
+            if ("id" in sRef && typeof sRef.id === "string") {
+              refId = sRef.id;
+            }
           }
           if (refId) {
             const blocks = paperBlocks.get(refPaper) ?? new Set();
@@ -369,12 +450,19 @@ export const checkMissingSourceBlock: ContentCheck = {
         const defaultPaper = typeof rec.paper === "string" ? rec.paper : "";
         for (let i = 0; i < rec.edges.length; i++) {
           const edge = rec.edges[i];
-          if (!edge || typeof edge !== "object") continue;
-          const src = (edge as any).source;
+          if (!edge || typeof edge !== "object" || !("source" in edge)) continue;
+          const src = edge.source;
           if (src && typeof src === "object") {
-            const srcPaper = src.paper || defaultPaper;
-            const srcBlockId = src.blockId;
-            const srcSentenceId = src.sentenceId;
+            const srcPaper =
+              "paper" in src && typeof src.paper === "string" && src.paper
+                ? src.paper
+                : defaultPaper;
+            const srcBlockId =
+              "blockId" in src && typeof src.blockId === "string" ? src.blockId : undefined;
+            const srcSentenceId =
+              "sentenceId" in src && typeof src.sentenceId === "string"
+                ? src.sentenceId
+                : undefined;
 
             const blocks = paperBlocks.get(srcPaper) ?? new Set();
             const sentences = paperSentences.get(srcPaper) ?? new Set();
@@ -435,27 +523,31 @@ export const checkMissingSourceBlock: ContentCheck = {
         const crossRefs: string[] = [];
         if (Array.isArray(rec.prerequisites)) {
           for (const p of rec.prerequisites) {
-            if (typeof p === "string" && p.includes("#")) crossRefs.push(p);
-            else if (
+            if (typeof p === "string" && p.includes("#")) {
+              crossRefs.push(p);
+            } else if (
               p &&
               typeof p === "object" &&
-              typeof (p as any).id === "string" &&
-              (p as any).id.includes("#")
+              "id" in p &&
+              typeof p.id === "string" &&
+              p.id.includes("#")
             ) {
-              crossRefs.push((p as any).id);
+              crossRefs.push(p.id);
             }
           }
         }
         if (Array.isArray(rec.sourceSupport)) {
           for (const ss of rec.sourceSupport) {
-            if (typeof ss === "string" && ss.includes("#")) crossRefs.push(ss);
-            else if (
+            if (typeof ss === "string" && ss.includes("#")) {
+              crossRefs.push(ss);
+            } else if (
               ss &&
               typeof ss === "object" &&
-              typeof (ss as any).id === "string" &&
-              (ss as any).id.includes("#")
+              "id" in ss &&
+              typeof ss.id === "string" &&
+              ss.id.includes("#")
             ) {
-              crossRefs.push((ss as any).id);
+              crossRefs.push(ss.id);
             }
           }
         }
@@ -512,14 +604,26 @@ export const checkBrokenAlignment: ContentCheck = {
       if (!paper) continue;
 
       if (kind === "source-block") {
-        if (!paperSourceBlocks.has(paper)) paperSourceBlocks.set(paper, new Map());
-        paperSourceBlocks.get(paper)!.set(id, rec);
+        let blocks = paperSourceBlocks.get(paper);
+        if (!blocks) {
+          blocks = new Map();
+          paperSourceBlocks.set(paper, blocks);
+        }
+        blocks.set(id, rec);
       } else if (kind === "translation-unit") {
-        if (!paperTranslationUnits.has(paper)) paperTranslationUnits.set(paper, new Map());
-        paperTranslationUnits.get(paper)!.set(id, rec);
+        let tus = paperTranslationUnits.get(paper);
+        if (!tus) {
+          tus = new Map();
+          paperTranslationUnits.set(paper, tus);
+        }
+        tus.set(id, rec);
       } else if (kind === "alignment") {
-        if (!paperAlignments.has(paper)) paperAlignments.set(paper, []);
-        paperAlignments.get(paper)!.push(rec);
+        let aligns = paperAlignments.get(paper);
+        if (!aligns) {
+          aligns = [];
+          paperAlignments.set(paper, aligns);
+        }
+        aligns.push(rec);
       }
     }
 
@@ -553,10 +657,10 @@ export const checkBrokenAlignment: ContentCheck = {
           const block = sourceBlocks.get(blockId);
           if (block) {
             if (sentenceId) {
-              const spans = Array.isArray(block.sentenceSpans)
-                ? (block.sentenceSpans as any[])
-                : [];
-              const hasSentence = spans.some((sp) => sp && sp.id === sentenceId);
+              const spans = Array.isArray(block.sentenceSpans) ? block.sentenceSpans : [];
+              const hasSentence = spans.some(
+                (sp) => sp && typeof sp === "object" && "id" in sp && sp.id === sentenceId,
+              );
               if (!hasSentence) {
                 ctx.report({
                   rule: "broken-alignment",
@@ -626,8 +730,8 @@ export const checkBrokenAlignment: ContentCheck = {
         // If block has sentenceSpans (e.g. paragraph), each sentence span must be covered
         if (Array.isArray(block.sentenceSpans) && block.sentenceSpans.length > 0) {
           for (const sp of block.sentenceSpans) {
-            if (sp && typeof sp === "object" && typeof (sp as any).id === "string") {
-              const sId = (sp as any).id;
+            if (sp && typeof sp === "object" && "id" in sp && typeof sp.id === "string") {
+              const sId = sp.id;
               if (!coveredGermanUnits.has(sId) && !coveredGermanUnits.has(bId)) {
                 ctx.report({
                   rule: "broken-alignment",
@@ -663,7 +767,7 @@ export const checkBrokenAlignment: ContentCheck = {
       }
 
       // 4. English translation unit has no alignment edge
-      for (const [tuId, tu] of tus.entries()) {
+      for (const tuId of tus.keys()) {
         if (!targetedTranslationUnits.has(tuId)) {
           ctx.report({
             rule: "broken-alignment",
@@ -681,8 +785,12 @@ export const checkBrokenAlignment: ContentCheck = {
       for (const tuId of tus.keys()) {
         const split = parseSplitTranslationUnitId(tuId);
         if (split) {
-          if (!baseToSuffixes.has(split.base)) baseToSuffixes.set(split.base, []);
-          baseToSuffixes.get(split.base)!.push(split.suffix);
+          let suffixes = baseToSuffixes.get(split.base);
+          if (!suffixes) {
+            suffixes = [];
+            baseToSuffixes.set(split.base, suffixes);
+          }
+          suffixes.push(split.suffix);
         }
       }
 
@@ -723,7 +831,7 @@ export const checkDanglingCitation: ContentCheck = {
   run: (ctx: CheckContext) => {
     // Collect all defined citation IDs
     const definedCitations = new Set<string>();
-    for (const [key, rawRec] of ctx.records.entries()) {
+    for (const rawRec of ctx.records.values()) {
       if (!rawRec || typeof rawRec !== "object") continue;
       const rec = rawRec as Record<string, unknown>;
       const kind = typeof rec.kind === "string" ? rec.kind : "";
@@ -735,7 +843,7 @@ export const checkDanglingCitation: ContentCheck = {
 
     // Also include citations from ctx.indexes if present
     const indexes = ctx.indexes as { citations?: Map<string, unknown> } | undefined;
-    if (indexes && indexes.citations) {
+    if (indexes?.citations) {
       for (const cId of indexes.citations.keys()) {
         definedCitations.add(cId);
       }
@@ -771,9 +879,14 @@ export const checkDanglingCitation: ContentCheck = {
       if (kind === "editorial-note" && Array.isArray(rec.sourceSupport)) {
         for (let i = 0; i < rec.sourceSupport.length; i++) {
           const ss = rec.sourceSupport[i];
-          if (ss && typeof ss === "object" && typeof (ss as any).citationId === "string") {
+          if (
+            ss &&
+            typeof ss === "object" &&
+            "citationId" in ss &&
+            typeof ss.citationId === "string"
+          ) {
             checkCitationRef(
-              (ss as any).citationId,
+              ss.citationId,
               id,
               `editorial-notes.${id}.sourceSupport[${i}].citationId`,
             );
@@ -791,12 +904,13 @@ export const checkDanglingCitation: ContentCheck = {
         if (Array.isArray(rec.evidence)) {
           for (let i = 0; i < rec.evidence.length; i++) {
             const ev = rec.evidence[i];
-            if (ev && typeof ev === "object" && typeof (ev as any).citationId === "string") {
-              checkCitationRef(
-                (ev as any).citationId,
-                id,
-                `arguments.${id}.evidence[${i}].citationId`,
-              );
+            if (
+              ev &&
+              typeof ev === "object" &&
+              "citationId" in ev &&
+              typeof ev.citationId === "string"
+            ) {
+              checkCitationRef(ev.citationId, id, `arguments.${id}.evidence[${i}].citationId`);
             }
           }
         }
@@ -840,6 +954,19 @@ export const checkDanglingCitation: ContentCheck = {
   },
 };
 
+function isDateOfType(d: unknown, type: string): d is PaperDate | DateInterval {
+  return (
+    typeof d === "object" &&
+    d !== null &&
+    "type" in d &&
+    d.type === type &&
+    "earliest" in d &&
+    typeof d.earliest === "string" &&
+    "latest" in d &&
+    typeof d.latest === "string"
+  );
+}
+
 // ============================================================================
 // 5. impossible-date-order Check
 // ============================================================================
@@ -858,16 +985,26 @@ export const checkImpossibleDateOrder: ContentCheck = {
       const id = typeof rec.id === "string" ? rec.id : key;
 
       if (kind === "paper" && Array.isArray(rec.dates)) {
-        const dates = rec.dates as Record<string, unknown>[];
-        const dateLine = dates.find((d) => d && d.type === "date-line");
-        const received = dates.find((d) => d && d.type === "received");
-        const published = dates.find((d) => d && d.type === "issue-publication");
-        const submitted = dates.find((d) => d && d.type === "submitted");
-        const laterEditions = dates.filter((d) => d && d.type === "later-edition");
+        const dates = rec.dates;
+        const dateLine = dates.find((d): d is PaperDate | DateInterval =>
+          isDateOfType(d, "date-line"),
+        );
+        const received = dates.find((d): d is PaperDate | DateInterval =>
+          isDateOfType(d, "received"),
+        );
+        const published = dates.find((d): d is PaperDate | DateInterval =>
+          isDateOfType(d, "issue-publication"),
+        );
+        const submitted = dates.find((d): d is PaperDate | DateInterval =>
+          isDateOfType(d, "submitted"),
+        );
+        const laterEditions = dates.filter((d): d is PaperDate | DateInterval =>
+          isDateOfType(d, "later-edition"),
+        );
 
         // 1. date-line not after received
         if (dateLine && received) {
-          const comp = compareDateIntervals(dateLine as any, received as any);
+          const comp = compareDateIntervals(dateLine, received);
           if (!comp.notAfter) {
             ctx.report({
               rule: "impossible-date-order",
@@ -881,7 +1018,7 @@ export const checkImpossibleDateOrder: ContentCheck = {
 
         // 2. received not after issue-publication
         if (received && published) {
-          const comp = compareDateIntervals(received as any, published as any);
+          const comp = compareDateIntervals(received, published);
           if (!comp.notAfter) {
             ctx.report({
               rule: "impossible-date-order",
@@ -896,8 +1033,9 @@ export const checkImpossibleDateOrder: ContentCheck = {
         // 3. issue-publication not after later edition
         if (published) {
           for (let i = 0; i < laterEditions.length; i++) {
-            const le = laterEditions[i]!;
-            const comp = compareDateIntervals(published as any, le as any);
+            const le = laterEditions[i];
+            if (!le) continue;
+            const comp = compareDateIntervals(published, le);
             if (!comp.notAfter) {
               ctx.report({
                 rule: "impossible-date-order",
@@ -912,7 +1050,7 @@ export const checkImpossibleDateOrder: ContentCheck = {
 
         // 4. date-line not after submitted (e.g. dissertation)
         if (dateLine && submitted) {
-          const comp = compareDateIntervals(dateLine as any, submitted as any);
+          const comp = compareDateIntervals(dateLine, submitted);
           if (!comp.notAfter) {
             ctx.report({
               rule: "impossible-date-order",
@@ -998,13 +1136,19 @@ export const checkEquationNotIdentical: ContentCheck = {
       if (rec.kind === "alignment" && Array.isArray(rec.edges)) {
         for (let i = 0; i < rec.edges.length; i++) {
           const edge = rec.edges[i];
-          if (!edge || typeof edge !== "object") continue;
-          const src = (edge as any).source;
-          const tgt = (edge as any).target;
+          if (!edge || typeof edge !== "object" || !("source" in edge) || !("target" in edge)) {
+            continue;
+          }
+          const src = edge.source;
+          const tgt = edge.target;
           if (
             src &&
+            typeof src === "object" &&
             tgt &&
+            typeof tgt === "object" &&
+            "blockId" in src &&
             typeof src.blockId === "string" &&
+            "translationUnitId" in tgt &&
             typeof tgt.translationUnitId === "string"
           ) {
             const germanMath = germanEquations.get(src.blockId);
@@ -1144,7 +1288,8 @@ export const checkHeroQuoteUnresolved: ContentCheck = {
       }
 
       for (let i = 0; i < heroQuotes.length; i++) {
-        const hq = heroQuotes[i]!;
+        const hq = heroQuotes[i];
+        if (!hq) continue;
         const anchor = typeof hq.anchor === "string" ? hq.anchor : "";
         const quoteText =
           typeof hq.text === "string" ? hq.text : typeof hq.quote === "string" ? hq.quote : "";
@@ -1269,12 +1414,18 @@ export const checkSpanDigestMismatch: ContentCheck = {
           for (let i = 0; i < rec.sentenceSpans.length; i++) {
             const sp = rec.sentenceSpans[i];
             if (!sp || typeof sp !== "object") continue;
-            const sId = (sp as any).id || `span-${i}`;
-            const spanAnchor = (sp as any).span as SpanAnchor | undefined;
+            const sId = "id" in sp && typeof sp.id === "string" ? sp.id : `span-${i}`;
+            const spanAnchor =
+              "span" in sp && sp.span && typeof sp.span === "object" ? sp.span : undefined;
 
             if (spanAnchor) {
               const storedDigest =
-                spanAnchor.textDigest || (spanAnchor as any).normalizedTextDigest;
+                "textDigest" in spanAnchor && typeof spanAnchor.textDigest === "string"
+                  ? spanAnchor.textDigest
+                  : "normalizedTextDigest" in spanAnchor &&
+                      typeof spanAnchor.normalizedTextDigest === "string"
+                    ? spanAnchor.normalizedTextDigest
+                    : "";
               if (storedDigest && storedDigest !== computedDigest) {
                 ctx.report({
                   rule: "span-digest-mismatch",
@@ -1291,27 +1442,44 @@ export const checkSpanDigestMismatch: ContentCheck = {
 
       // 2. Check Alignment ranges
       if (kind === "alignment" && Array.isArray(rec.edges)) {
-        const paper = typeof rec.paper === "string" ? rec.paper : "";
         for (let i = 0; i < rec.edges.length; i++) {
           const edge = rec.edges[i];
           if (!edge || typeof edge !== "object") continue;
-          const src = (edge as any).source;
-          const tgt = (edge as any).target;
+          const src =
+            "source" in edge && edge.source && typeof edge.source === "object"
+              ? edge.source
+              : undefined;
+          const tgt =
+            "target" in edge && edge.target && typeof edge.target === "object"
+              ? edge.target
+              : undefined;
 
           const indexes = ctx.indexes as { byId?: Map<string, unknown> } | undefined;
           // Check source range
-          if (src && src.range && typeof src.range === "object") {
-            const blockRec = ctx.records.get(src.blockId) || indexes?.byId?.get(src.blockId);
+          const srcRange =
+            src && "range" in src && src.range && typeof src.range === "object"
+              ? src.range
+              : undefined;
+          if (src && srcRange) {
+            const blockId = "blockId" in src && typeof src.blockId === "string" ? src.blockId : "";
+            const blockRec =
+              ctx.records.get(blockId) || (blockId ? indexes?.byId?.get(blockId) : undefined);
             if (blockRec) {
               const blockText = extractEntityPlainText(blockRec);
               const computedDigest = spanTextDigest(blockText);
-              const storedDigest = src.range.textDigest || src.range.normalizedTextDigest;
+              const storedDigest =
+                "textDigest" in srcRange && typeof srcRange.textDigest === "string"
+                  ? srcRange.textDigest
+                  : "normalizedTextDigest" in srcRange &&
+                      typeof srcRange.normalizedTextDigest === "string"
+                    ? srcRange.normalizedTextDigest
+                    : "";
               if (storedDigest && storedDigest !== computedDigest) {
                 ctx.report({
                   rule: "span-digest-mismatch",
                   recordId: id,
                   path: `alignments.${id}.edges[${i}].source.range`,
-                  message: `Span digest mismatch on alignment edge source block "${src.blockId}": stored digest "${storedDigest}" differs from computed digest "${computedDigest}".`,
+                  message: `Span digest mismatch on alignment edge source block "${blockId}": stored digest "${storedDigest}" differs from computed digest "${computedDigest}".`,
                   repair: `Re-measure the spans of this block and bump blockRevision.`,
                 });
               }
@@ -1319,19 +1487,34 @@ export const checkSpanDigestMismatch: ContentCheck = {
           }
 
           // Check target range
-          if (tgt && tgt.range && typeof tgt.range === "object") {
+          const tgtRange =
+            tgt && "range" in tgt && tgt.range && typeof tgt.range === "object"
+              ? tgt.range
+              : undefined;
+          if (tgt && tgtRange) {
+            const translationUnitId =
+              "translationUnitId" in tgt && typeof tgt.translationUnitId === "string"
+                ? tgt.translationUnitId
+                : "";
             const tuRec =
-              ctx.records.get(tgt.translationUnitId) || indexes?.byId?.get(tgt.translationUnitId);
+              ctx.records.get(translationUnitId) ||
+              (translationUnitId ? indexes?.byId?.get(translationUnitId) : undefined);
             if (tuRec) {
               const tuText = extractEntityPlainText(tuRec);
               const computedDigest = spanTextDigest(tuText);
-              const storedDigest = tgt.range.textDigest || tgt.range.normalizedTextDigest;
+              const storedDigest =
+                "textDigest" in tgtRange && typeof tgtRange.textDigest === "string"
+                  ? tgtRange.textDigest
+                  : "normalizedTextDigest" in tgtRange &&
+                      typeof tgtRange.normalizedTextDigest === "string"
+                    ? tgtRange.normalizedTextDigest
+                    : "";
               if (storedDigest && storedDigest !== computedDigest) {
                 ctx.report({
                   rule: "span-digest-mismatch",
                   recordId: id,
                   path: `alignments.${id}.edges[${i}].target.range`,
-                  message: `Span digest mismatch on alignment edge target translation unit "${tgt.translationUnitId}": stored digest "${storedDigest}" differs from computed digest "${computedDigest}".`,
+                  message: `Span digest mismatch on alignment edge target translation unit "${translationUnitId}": stored digest "${storedDigest}" differs from computed digest "${computedDigest}".`,
                   repair: `Re-measure the spans of this translation unit and bump blockRevision.`,
                 });
               }
