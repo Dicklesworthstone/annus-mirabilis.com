@@ -1,5 +1,3 @@
-import type React from "react";
-
 export type FrameId = "K" | "k";
 
 export interface RodStripPlotProps {
@@ -48,11 +46,23 @@ export function RodStripPlot({
           Rest: frame {rodRestFrame} | Measuring: frame {measuringFrame} | v = {v.toFixed(2)}c
         </span>
       </div>
-      <p className="text-xs text-slate-600 dark:text-slate-400 mb-2">
+      <p className="text-xs text-slate-600 dark:text-slate-400 mb-1">
         Coordinate measurement: positions of both ends taken at{" "}
         <strong>one single time of the measuring frame</strong>. (Coordinate geometry, not what an
         optical camera sees).
       </p>
+      <div className="text-[11px] font-mono text-slate-400 mb-2">
+        Interval: Δx={(measuringFrame === "K" ? dxK : dxk).toFixed(2)} ls, cΔt=
+        {(measuringFrame === "K" ? dtK : dtk).toFixed(2)} s{" "}
+        {isSimultaneous ? (
+          <span className="text-emerald-400">
+            [Simultaneous: L ={" "}
+            {measuredLength !== null ? `${measuredLength.toFixed(2)} ls` : "refused"}]
+          </span>
+        ) : (
+          <span className="text-amber-400">[Non-simultaneous: length measurement refused]</span>
+        )}
+      </div>
 
       <svg
         viewBox={`0 0 ${width} ${height}`}
@@ -213,7 +223,8 @@ export function MinkowskiDiagramPlot({
           Spacetime Event Diagram
         </h3>
         <span className="text-[10px] text-slate-500 font-mono">
-          later geometric aid (Minkowski 1908)
+          Pair: {endpointPairId} | Rest: {rodRestFrame} | Measuring: {measuringFrame} | γ ={" "}
+          {g.toFixed(2)} | L₀ = {L0.toFixed(1)} ls
         </span>
       </div>
       <p className="text-xs text-slate-600 dark:text-slate-400 mb-2">
@@ -338,7 +349,7 @@ export function MinkowskiDiagramPlot({
           y={originY - e2K.t * scale - 8}
           className="text-[11px] fill-rose-400 font-mono font-bold"
         >
-          E₂ ({e2K.x.toFixed(1)}, {e2K.t.toFixed(1)})
+          E₂ ({e2K.x.toFixed(1)}, {e2K.t.toFixed(1)}) | k: ({dxk.toFixed(1)}, {dtk.toFixed(1)})
         </text>
 
         {/* Connecting vector between E1 and E2 */}
@@ -387,7 +398,8 @@ export function SphereEllipsoidPlot({
           Moving Sphere Measured as an Ellipsoid (§4)
         </h3>
         <span className="text-[11px] font-mono text-slate-500">
-          Axes: ({longitudinal.toFixed(2)}, {transverseY.toFixed(2)}, {transverseZ.toFixed(2)}) ls
+          v = {v.toFixed(2)}c | Axes: ({longitudinal.toFixed(2)}, {transverseY.toFixed(2)},{" "}
+          {transverseZ.toFixed(2)}) ls
         </span>
       </div>
       <p className="text-xs text-slate-600 dark:text-slate-400 mb-2">
