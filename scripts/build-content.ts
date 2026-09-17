@@ -39,6 +39,7 @@ export async function loadReadingFiles(root = ROOT, corpusDir = "content") {
   async function walk(path: string): Promise<void> {
     const entries = await readdir(path);
     for (const name of entries.sort()) {
+      if (name.startsWith("._") || name.startsWith(".")) continue;
       const full = resolve(path, name);
       const stat = await lstat(full);
       if (stat.isSymbolicLink()) throw new Error(`Content symlinks are not admitted: ${full}`);
@@ -77,6 +78,7 @@ export async function loadAllContentFiles(root = ROOT, corpusDir = "content") {
   async function walk(path: string): Promise<void> {
     const entries = await readdir(path);
     for (const name of entries.sort()) {
+      if (name.startsWith("._") || name.startsWith(".")) continue;
       const full = resolve(path, name);
       const stat = await lstat(full);
       if (stat.isSymbolicLink()) throw new Error(`Content symlinks are not admitted: ${full}`);

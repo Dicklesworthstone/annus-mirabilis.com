@@ -56,6 +56,9 @@ async function walk(root: string, dir: string, out: string[]): Promise<void> {
     return;
   }
   for (const name of entries) {
+    if (name.startsWith("._") || name === ".DS_Store") {
+      continue;
+    }
     const full = join(dir, name);
     const relative = full.slice(root.length + 1);
     try {
