@@ -539,7 +539,7 @@ predictMode:
         - id: two-separate-piles
           label: "Keep two separate piles"
           description: "The two step laws never converge; the walk's spread keeps a visible trace of which law produced it."
-          separatingAssumption: "That would hold if the two step laws produced genuinely different limiting distributions -- a bias, or a variance that never settles. Coin, uniform, and Gaussian steps here are all zero-mean with the same finite variance, and the central limit theorem says any such step law converges to the same Gaussian after enough independent steps, so the two piles must merge rather than stay apart."
+          separatingAssumption: "That would hold if the two step laws produced genuinely different limiting distributions: a bias, or a variance that never settles. Coin, uniform, and Gaussian steps here are all zero-mean with the same finite variance, and the central limit theorem says any such step law converges to the same Gaussian after enough independent steps, so the two piles must merge rather than stay apart."
         - id: same-bell-shape
           label: "Approach the same bell shape and spread"
           description: "Both step laws converge to the same Gaussian, because only the per-step variance controls the limit."
@@ -547,7 +547,7 @@ predictMode:
         - id: wider-bell
           label: "Make a wider bell despite the same variance"
           description: "The resulting spread is wider than the coin-step case even though the per-step variance matches."
-          separatingAssumption: "That would hold if the resulting spread depended on some property of the step law beyond its variance -- a heavier tail inflating the typical size, for instance. Holding the variance fixed already fixes the limiting Gaussian's width; a different step shape with the same variance converges to the identical spread, not a wider one."
+          separatingAssumption: "That would hold if the resulting spread depended on some property of the step law beyond its variance, such as a heavier tail inflating the typical size. Holding the variance fixed already fixes the limiting Gaussian's width; a different step shape with the same variance converges to the identical spread, not a wider one."
 # provenance is a free-form escape hatch (Experiment.provenance?: any); the Experiment schema has
 # no dedicated field for a per-distribution export-kernel-id map, but the bead requires one:
 # "The manifest records the export kernel id for each distribution and the audit record's

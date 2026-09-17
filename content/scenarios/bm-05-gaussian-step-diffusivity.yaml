@@ -21,7 +21,7 @@
 id: bm-05-gaussian-step-diffusivity
 kind: modern-golden
 title: "BM-05 defaults: the Gaussian step kernel's second moment and diffusion coefficient"
-description: "At BM-05's own default parameters (step RMS 0.5 um, step interval 0.1 s), the physically-scaled Gaussian step kernel's per-step second moment is stepRms^2 and its diffusion coefficient is stepRms^2 / (2 * tau) -- 1.25 um^2/s, exactly the bead's own stated default coefficient."
+description: "At BM-05's own default parameters (step RMS 0.5 um, step interval 0.1 s), the physically-scaled Gaussian step kernel's per-step second moment is stepRms^2 and its diffusion coefficient is stepRms^2 / (2 * tau), 1.25 um^2/s, exactly the bead's own stated default coefficient."
 constantSetId: modern-si-2019
 owner: diffusion.walkKernelDiffusivity
 inputs:

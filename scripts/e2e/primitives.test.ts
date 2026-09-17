@@ -6,12 +6,9 @@ import { bundleFixtureApps } from "./fixtures/bundleFixtures.ts";
 import { FIXTURE_APP_REGISTRY } from "./fixtures/fixtureApps.ts";
 import { type RunningFixtureServer, startFixtureServer } from "./fixtures/fixtureServer.ts";
 import {
-  enterDeepPassage,
   enterValue,
-  openFoundation,
   operateInstrument,
   restoreFromUrl,
-  returnToArgument,
   returnToSource,
   selectLinkedTerm,
   switchFace,
@@ -30,8 +27,9 @@ test("primitives: executes vertical slice journey sequence against fixture secti
   try {
     try {
       browser = await chromium.launch({ headless: true });
-    } catch (err: any) {
-      if (err?.code === "EBADF" || err?.message?.includes("EBADF")) return;
+    } catch (err: unknown) {
+      const e = err as { code?: string; message?: string } | null;
+      if (e?.code === "EBADF" || e?.message?.includes("EBADF")) return;
       throw err;
     }
     const context = await browser.newContext();
@@ -75,7 +73,7 @@ test("primitives: executes vertical slice journey sequence against fixture secti
 
     // 7. Restore from URL with ?tape=
     const shareLink = await page.getAttribute("#selftest-share-tape", "href");
-    assert.ok(shareLink && shareLink.includes("tape="));
+    assert.ok(shareLink?.includes("tape="));
     await restoreFromUrl(page, `${server.url}/harness-selftest.html${shareLink}`);
     const restoredRoot = page.locator("[data-instrument-id]");
     assert.ok((await restoredRoot.count()) > 0);

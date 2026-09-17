@@ -24,8 +24,9 @@ test("pageChecks: horizontal overflow check on ok and broken fixtures", async ()
   try {
     try {
       browser = await chromium.launch({ headless: true });
-    } catch (err: any) {
-      if (err?.code === "EBADF" || err?.message?.includes("EBADF")) return;
+    } catch (err: unknown) {
+      const e = err as { code?: string; message?: string } | null;
+      if (e?.code === "EBADF" || e?.message?.includes("EBADF")) return;
       throw err;
     }
     const context = await browser.newContext({ viewport: { width: 320, height: 800 } });
@@ -56,8 +57,9 @@ test("pageChecks: mathml semantic check on ok and broken fixtures", async () => 
   try {
     try {
       browser = await chromium.launch({ headless: true });
-    } catch (err: any) {
-      if (err?.code === "EBADF" || err?.message?.includes("EBADF")) return;
+    } catch (err: unknown) {
+      const e = err as { code?: string; message?: string } | null;
+      if (e?.code === "EBADF" || e?.message?.includes("EBADF")) return;
       throw err;
     }
     const page = await browser.newPage();
@@ -87,8 +89,9 @@ test("pageChecks: focus restoration check on ok and broken fixtures", async () =
   try {
     try {
       browser = await chromium.launch({ headless: true });
-    } catch (err: any) {
-      if (err?.code === "EBADF" || err?.message?.includes("EBADF")) return;
+    } catch (err: unknown) {
+      const e = err as { code?: string; message?: string } | null;
+      if (e?.code === "EBADF" || e?.message?.includes("EBADF")) return;
       throw err;
     }
     const page = await browser.newPage();
@@ -118,8 +121,9 @@ test("pageChecks: print fidelity check on ok and broken fixtures", async () => {
   try {
     try {
       browser = await chromium.launch({ headless: true });
-    } catch (err: any) {
-      if (err?.code === "EBADF" || err?.message?.includes("EBADF")) return;
+    } catch (err: unknown) {
+      const e = err as { code?: string; message?: string } | null;
+      if (e?.code === "EBADF" || e?.message?.includes("EBADF")) return;
       throw err;
     }
     const page = await browser.newPage();
@@ -149,8 +153,9 @@ test("pageChecks: footnote locator reachability and axe-core a11y audit on readi
   try {
     try {
       browser = await chromium.launch({ headless: true });
-    } catch (err: any) {
-      if (err?.code === "EBADF" || err?.message?.includes("EBADF")) return;
+    } catch (err: unknown) {
+      const e = err as { code?: string; message?: string } | null;
+      if (e?.code === "EBADF" || e?.message?.includes("EBADF")) return;
       throw err;
     }
     const context = await browser.newContext();

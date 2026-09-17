@@ -156,7 +156,7 @@ export const QUALITY_GATE_STEPS: readonly GateStep[] = [
     requiredInCi: true,
     requiredInProfiles: ["scaffold", "preview", "launch"],
     availability: {
-      scriptPath: "next.config.ts",
+      scriptPath: "next.config.mjs",
     },
     owner: "am-scaf-nextjs-app-bu2",
   },

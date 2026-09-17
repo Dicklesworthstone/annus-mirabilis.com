@@ -17,10 +17,10 @@ export const dynamic = "force-static";
 const MANIFEST_ROOT = "src/generated/reading-fragments";
 
 export async function generateStaticParams(): Promise<
-  readonly { paper: string; section: string; hash: string }[]
+  { paper: string; section: string; hash: string }[]
 > {
   const manifest = await readFragmentManifest(MANIFEST_ROOT);
-  return listFragmentReferences(manifest);
+  return [...listFragmentReferences(manifest)];
 }
 
 export async function GET(

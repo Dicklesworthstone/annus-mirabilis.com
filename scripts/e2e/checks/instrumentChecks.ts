@@ -15,7 +15,6 @@
 
 import type { Page } from "playwright";
 import {
-  parseInstrumentAddress,
   parseInstrumentRoot,
   parseInstrumentView,
 } from "../domContract.ts";
@@ -208,6 +207,13 @@ export async function checkOutOfDomainRefusal(
     return {
       ok: false,
       message: `data-accepted-input-revision changed on refusal (was ${acceptedRevBefore}, now ${acceptedRevAfter})`,
+    };
+  }
+
+  if (snapVerAfter !== snapVerBefore) {
+    return {
+      ok: false,
+      message: `data-snapshot-version changed on refusal (was ${snapVerBefore}, now ${snapVerAfter})`,
     };
   }
 

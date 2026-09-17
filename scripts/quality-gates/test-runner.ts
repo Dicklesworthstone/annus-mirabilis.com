@@ -232,6 +232,7 @@ export function runAllTests(options: { rootDir?: string; targetFiles?: readonly 
       {
         cwd: rootDir,
         stdio: "inherit",
+        maxBuffer: 128 * 1024 * 1024,
       },
     );
 
@@ -254,6 +255,7 @@ export function runAllTests(options: { rootDir?: string; targetFiles?: readonly 
       {
         cwd: rootDir,
         stdio: "inherit",
+        maxBuffer: 128 * 1024 * 1024,
       },
     );
 

@@ -13,7 +13,7 @@
 
 import AxeBuilder from "@axe-core/playwright";
 import type { Page } from "playwright";
-import { checkNoHorizontalOverflow, compareEssentialPrintText } from "./measure.ts";
+import { checkNoHorizontalOverflow } from "./measure.ts";
 
 export interface PageCheckResult {
   readonly ok: boolean;
@@ -148,7 +148,7 @@ export async function checkFootnotesAndLocators(page: Page): Promise<PageCheckRe
 
     for (const link of footnoteLinks) {
       const href = link.getAttribute("href");
-      if (href && href.startsWith("#")) {
+      if (href?.startsWith("#")) {
         const targetId = href.slice(1);
         const target = document.getElementById(targetId);
         if (!target) {

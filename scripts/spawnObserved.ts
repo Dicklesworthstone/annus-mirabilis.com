@@ -42,6 +42,7 @@ export function spawnObserved(
   const spawnOptions: SpawnSyncOptions = {
     stdio: ["ignore", "pipe", "pipe"],
     encoding: "utf8",
+    maxBuffer: 128 * 1024 * 1024,
     ...options,
   };
 
