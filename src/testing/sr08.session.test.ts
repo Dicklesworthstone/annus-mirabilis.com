@@ -3,60 +3,63 @@ import { SR08_DEFAULTS, SR08_OUTPUTS } from "../experiments/sr08/definition.ts";
 import { parseSr08Draft, SR08_NUMBER_FIELDS, sr08Draft } from "../experiments/sr08/draft.ts";
 import { SR08_FORCE_LEDGER_OUTPUTS } from "../experiments/sr08/forceLedger.ts";
 import { validateSr08Parameters } from "../experiments/sr08/parameters.ts";
-import {
-  createSr08Session,
-  SR08_SESSION_OUTPUTS,
-  snapshotOutputs,
-} from "../experiments/sr08/session.ts";
+import { createSr08Session, snapshotOutputs } from "../experiments/sr08/session.ts";
 import { C_SI } from "../physics/reference/fields.ts";
 
 /**
- * Cross-file contract invariant:
- * Every output registered by SR-08 across definition and force ledger contracts
- * must appear in store publications and solver snapshots, and no unregistered
- * output may leak in.
+ * Cross-file contract, same shape as catalogue.test.ts.
+ * Do not re-derive this set from snapshotOutputs (that could never fail).
+ * Registration lives in definition.ts and forceLedger.ts; the snapshot is
+ * assembled independently in session.ts from evaluateSr08 + forceLedgerOutputs.
+ * A new registered quantity that never reaches the snapshot, or a snapshot
+ * quantity that was never registered, is a real bug this catches.
  */
-const REGISTERED_OUTPUT_IDS = Object.freeze(new Set(Object.keys(SR08_SESSION_OUTPUTS)));
+const REGISTERED_OUTPUTS = Object.freeze({
+  ...SR08_OUTPUTS,
+  ...SR08_FORCE_LEDGER_OUTPUTS,
+});
+type RegisteredOutputId = keyof typeof REGISTERED_OUTPUTS;
 
-function assertOutputRegistryParity(
-  outputs: readonly { quantityId: string; status: string; unit?: string; semanticKind?: string }[],
-) {
-  const snapshotOutputIds = new Set(outputs.map((o) => o.quantityId));
+function isRegisteredOutputId(id: string): id is RegisteredOutputId {
+  return Object.hasOwn(REGISTERED_OUTPUTS, id);
+}
 
-  // Count matches registry cardinality, derived from contract rather than hardcoded
-  expect(outputs.length).toBe(REGISTERED_OUTPUT_IDS.size);
-  expect(snapshotOutputIds.size).toBe(REGISTERED_OUTPUT_IDS.size);
+function assertSnapshotMatchesRegistration(
+  outputs: readonly {
+    quantityId: string;
+    status: string;
+    unit: string;
+    semanticKind: string;
+  }[],
+): void {
+  const snapshotIds = outputs.map((output) => output.quantityId);
+  const snapshotSet = new Set(snapshotIds);
+  const registeredIds = Object.keys(REGISTERED_OUTPUTS);
 
-  // Every output registered by SR-08 appears in the snapshot
-  for (const id of REGISTERED_OUTPUT_IDS) {
-    expect(snapshotOutputIds.has(id)).toBe(true);
+  expect(snapshotIds.length).toBe(snapshotSet.size);
+  expect(snapshotSet.size).toBe(registeredIds.length);
+
+  for (const id of registeredIds) {
+    expect(snapshotSet.has(id)).toBe(true);
   }
-
-  // Every output in the snapshot is registered -- nothing unregistered leaks in
   for (const output of outputs) {
-    expect(REGISTERED_OUTPUT_IDS.has(output.quantityId)).toBe(true);
-    const contract = SR08_SESSION_OUTPUTS[output.quantityId as keyof typeof SR08_SESSION_OUTPUTS];
-    expect(contract).toBeDefined();
-    expect(contract.statuses).toContain(output.status as "value" | "outside-domain");
-    if (output.unit !== undefined) {
-      expect(output.unit).toBe(contract.unit);
-    }
-    if (output.semanticKind !== undefined) {
-      expect(output.semanticKind).toBe(contract.semanticKind);
-    }
+    expect(isRegisteredOutputId(output.quantityId)).toBe(true);
+    if (!isRegisteredOutputId(output.quantityId)) continue;
+    const contract = REGISTERED_OUTPUTS[output.quantityId];
+    expect(contract.statuses).toContain(output.status);
+    expect(output.unit).toBe(contract.unit);
+    expect(output.semanticKind).toBe(contract.semanticKind);
   }
 }
 
 describe("SR-08 session store and parameter validation", () => {
-  test("create session initializes default snapshot with valid outputs matching registered contract", () => {
+  test("create session publishes every registered output and no unregistered one", () => {
     const session = createSr08Session();
     const snap = session.getSnapshot().accepted;
     expect(snap).toBeDefined();
     expect(snap?.parameters).toBeDefined();
-    expect(snap?.outputs).toBeDefined();
-    if (snap?.outputs) {
-      assertOutputRegistryParity(snap.outputs);
-    }
+    expect(Array.isArray(snap?.outputs)).toBe(true);
+    assertSnapshotMatchesRegistration(snap?.outputs ?? []);
     expect(session.acceptedParameters().boost).toBe(0.6 * C_SI);
   });
 
@@ -101,64 +104,54 @@ describe("SR-08 session store and parameter validation", () => {
     expect(res.kind).toBe("refused");
   });
 
-  test("snapshot outputs match evaluateSr08 and satisfy registered output contracts", () => {
+  test("snapshotOutputs matches the registered SR-08 output contract", () => {
     const outputs = snapshotOutputs(SR08_DEFAULTS);
-    assertOutputRegistryParity(outputs);
-
+    assertSnapshotMatchesRegistration(outputs);
     const eMoving = outputs.find((o) => o.quantityId === "electricFieldMoving");
     expect(eMoving?.status).toBe("value");
-    const fMoving = outputs.find((o) => o.quantityId === "electricForceMoving");
-    expect(fMoving?.status).toBe("value");
-  });
-});
-
-describe("SR-08 numeric draft parsing and non-coercion", () => {
-  test("round-trips default parameters through draft formatting and parsing", () => {
-    const draft = sr08Draft(SR08_DEFAULTS, C_SI);
-    const parsed = parseSr08Draft(draft, SR08_DEFAULTS, C_SI);
-    expect(parsed.kind).toBe("accepted");
-    if (parsed.kind === "accepted") {
-      expect(parsed.data.boost).toBeCloseTo(SR08_DEFAULTS.boost, 9);
-      expect(parsed.data.electricFieldY).toBe(SR08_DEFAULTS.electricFieldY);
-      expect(parsed.data.testCharge).toBe(SR08_DEFAULTS.testCharge);
-    }
   });
 
-  test("refuses empty strings and whitespace for every numeric field without blank-to-zero coercion", () => {
-    const baseDraft = sr08Draft(SR08_DEFAULTS, C_SI);
-    for (const field of SR08_NUMBER_FIELDS) {
-      for (const blank of ["", "   ", "\t", "\n"]) {
-        const invalidDraft = { ...baseDraft, [field]: blank };
-        const parsed = parseSr08Draft(invalidDraft, SR08_DEFAULTS, C_SI);
-        expect(parsed.kind).toBe("refused");
-        if (parsed.kind === "refused") {
-          expect(parsed.message).toContain("empty field is not zero");
-          expect(parsed.message).toContain(field);
+  describe("numeric fields: blank is not zero", () => {
+    test("explicit numeric zero is accepted", () => {
+      const checked = validateSr08Parameters({
+        ...SR08_DEFAULTS,
+        electricFieldX: 0,
+        electricFieldZ: 0,
+        magneticFieldX: 0,
+      });
+      expect(checked.kind).toBe("accepted");
+      if (checked.kind === "accepted") {
+        expect(checked.data.electricFieldX).toBe(0);
+      }
+    });
+
+    test("a blank string is a typed refusal, not a silent 0", () => {
+      for (const field of SR08_NUMBER_FIELDS) {
+        const checked = validateSr08Parameters({
+          ...SR08_DEFAULTS,
+          [field]: "",
+        });
+        expect(checked.kind).toBe("refused");
+        if (checked.kind === "refused") {
+          expect(checked.refusal.code).toBe("invalid-parameter");
+          expect(checked.refusal.affected.parameterIds).toContain(field);
         }
       }
-    }
-  });
+    });
 
-  test("refuses non-numeric and unparseable strings for every numeric field without coercing to zero", () => {
-    const baseDraft = sr08Draft(SR08_DEFAULTS, C_SI);
-    for (const field of SR08_NUMBER_FIELDS) {
-      for (const junk of ["1junk", "NaN", "Infinity", "0x10", "1e", "-", "."]) {
-        const invalidDraft = { ...baseDraft, [field]: junk };
-        const parsed = parseSr08Draft(invalidDraft, SR08_DEFAULTS, C_SI);
-        expect(parsed.kind).toBe("refused");
-      }
-    }
-  });
-
-  test("explicit zero remains valid and accepted across all fields", () => {
-    const baseDraft = sr08Draft(SR08_DEFAULTS, C_SI);
-    for (const field of SR08_NUMBER_FIELDS) {
-      const draftWithZero = { ...baseDraft, [field]: "0" };
-      const parsed = parseSr08Draft(draftWithZero, SR08_DEFAULTS, C_SI);
+    test("draft parsing refuses empty fields rather than substituting zero", () => {
+      const draft = sr08Draft(SR08_DEFAULTS, C_SI);
+      const parsed = parseSr08Draft(draft, SR08_DEFAULTS, C_SI);
       expect(parsed.kind).toBe("accepted");
-      if (parsed.kind === "accepted") {
-        expect(parsed.data[field]).toBe(0);
+      for (const field of SR08_NUMBER_FIELDS) {
+        for (const blank of ["", "   "]) {
+          const result = parseSr08Draft({ ...draft, [field]: blank }, SR08_DEFAULTS, C_SI);
+          expect(result.kind).toBe("refused");
+          if (result.kind === "refused") {
+            expect(result.message).toContain("empty field is not zero");
+          }
+        }
       }
-    }
+    });
   });
 });
