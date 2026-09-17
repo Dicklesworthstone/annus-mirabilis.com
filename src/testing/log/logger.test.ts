@@ -33,9 +33,12 @@ test("writes three events and reads them back as valid JSON lines in order", asy
     events.map((e) => e.testId),
     ["a", "b", "c"],
   );
-  assert.equal(events[0]!.suite, SUITE);
-  assert.equal(events[0]!.logRunId, logger.logRunId);
-  assert.equal(events[1]!.message, "boom");
+  const [e0, e1] = events;
+  assert.ok(e0);
+  assert.ok(e1);
+  assert.equal(e0.suite, SUITE);
+  assert.equal(e0.logRunId, logger.logRunId);
+  assert.equal(e1.message, "boom");
 });
 
 test("seed must be a canonical decimal string, never a JSON number", () => {
@@ -55,7 +58,8 @@ test("seed at 2^64 is rejected and 2^53+1 is accepted and read back unchanged", 
   logger.log({ testId: "seed-2^53+1", seed: "9007199254740993" });
   await logger.flush();
   const [event] = readLines(logger).map(parseLogLine);
-  assert.equal(event!.seed, "9007199254740993");
+  assert.ok(event);
+  assert.equal(event.seed, "9007199254740993");
 });
 
 test("seed boundary neighbourhood: 0, 2^53 neighbours, and 2^64-1 all accepted", async () => {
@@ -121,8 +125,9 @@ test("logRunId and an experiment runId coexist and both read back unchanged", as
   });
   await logger.flush();
   const [event] = readLines(logger).map(parseLogLine);
-  assert.equal(event!.logRunId, "20260914T120000Z-0a1b2c3d");
-  assert.equal(event!.runId, "bm01-instance-1/run/3");
+  assert.ok(event);
+  assert.equal(event.logRunId, "20260914T120000Z-0a1b2c3d");
+  assert.equal(event.runId, "bm01-instance-1/run/3");
 });
 
 test("a script event uses toolRunId, and a malformed toolRunId is rejected", async () => {
@@ -134,9 +139,10 @@ test("a script event uses toolRunId, and a malformed toolRunId is rejected", asy
   });
   await scriptLogger.flush();
   const [event] = readLines(scriptLogger).map(parseLogLine);
-  assert.equal(event!.suite, "ocr-ledgers");
-  assert.equal(event!.toolRunId, "20260914T110000Z-1f2e3d4c");
-  assert.equal((event!.extra as { status: string }).status, "completed");
+  assert.ok(event);
+  assert.equal(event.suite, "ocr-ledgers");
+  assert.equal(event.toolRunId, "20260914T110000Z-1f2e3d4c");
+  assert.equal((event.extra as { status: string }).status, "completed");
 
   assert.throws(
     () => scriptLogger.log({ testId: "chunk-0004", toolRunId: "run-7" }),
@@ -154,9 +160,10 @@ test("browser journey fields (lane, journey, step) are accepted", async () => {
   });
   await logger.flush();
   const [event] = readLines(logger).map(parseLogLine);
-  assert.equal(event!.journey, "brownian-slice");
-  assert.equal(event!.lane, "desktop");
-  assert.equal(event!.step, "enter-deep-passage");
+  assert.ok(event);
+  assert.equal(event.journey, "brownian-slice");
+  assert.equal(event.lane, "desktop");
+  assert.equal(event.step, "enter-deep-passage");
 });
 
 test("a statistical sampling-band event carries no top-level expected, and is read back unchanged", async () => {
@@ -175,8 +182,9 @@ test("a statistical sampling-band event carries no top-level expected, and is re
   });
   await logger.flush();
   const [event] = readLines(logger).map(parseLogLine);
-  assert.equal(event!.expected, undefined);
-  assert.deepEqual(event!.extra, {
+  assert.ok(event);
+  assert.equal(event.expected, undefined);
+  assert.deepEqual(event.extra, {
     statistic: "chi-square",
     observedValue: 12.4,
     lowerBound: 8.1,
@@ -216,7 +224,8 @@ test("an unknown top-level field is rejected naming its extra.<field> repair; th
   logger.log({ testId: "unknown-field-fixed", extra: { pdfPage: 12 } });
   await logger.flush();
   const [event] = readLines(logger).map(parseLogLine);
-  assert.equal((event!.extra as { pdfPage: number }).pdfPage, 12);
+  assert.ok(event);
+  assert.equal((event.extra as { pdfPage: number }).pdfPage, 12);
 });
 
 test("extra.freeTextAnswer is rejected; an overlong extra string is rejected; small serializable extra is accepted", async () => {
@@ -235,7 +244,8 @@ test("extra.freeTextAnswer is rejected; an overlong extra string is rejected; sm
   });
   await logger.flush();
   const [event] = readLines(logger).map(parseLogLine);
-  assert.deepEqual(event!.extra, { key: "ok", check: "concordance-scope", nested: { count: 3 } });
+  assert.ok(event);
+  assert.deepEqual(event.extra, { key: "ok", check: "concordance-scope", nested: { count: 3 } });
 });
 
 test("a failing browser event without a screenshot and DOM snapshot is rejected", () => {
