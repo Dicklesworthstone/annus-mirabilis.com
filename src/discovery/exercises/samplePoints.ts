@@ -22,8 +22,9 @@ export function validateDomains(domains: Readonly<Record<string, Domain>>): read
   if (Reflect.ownKeys(domains).length !== names.length || names.length > HALTON_BASES.length)
     throw new RangeError("At most eight named variable domains are supported.");
   for (const name of names) {
-    const descriptor = Object.getOwnPropertyDescriptor(domains, name)!;
+    const descriptor = Object.getOwnPropertyDescriptor(domains, name);
     if (
+      !descriptor ||
       !Object.hasOwn(descriptor, "value") ||
       !/^[A-Za-z][A-Za-z0-9_]{0,47}$/.test(name) ||
       ["__proto__", "constructor", "prototype", "pi"].includes(name)
@@ -34,13 +35,13 @@ export function validateDomains(domains: Readonly<Record<string, Domain>>): read
       throw new TypeError(`Invalid domain for ${name}.`);
     const d = Object.getOwnPropertyDescriptors(domain);
     if (
-      Reflect.ownKeys(domain).some(
-        (k) =>
-          typeof k !== "string" ||
-          !["min", "max", "scale"].includes(k) ||
-          !d[k]?.enumerable ||
-          !Object.hasOwn(d[k]!, "value"),
-      )
+      Reflect.ownKeys(domain).some((k) => {
+        if (typeof k !== "string" || !["min", "max", "scale"].includes(k)) {
+          return true;
+        }
+        const prop = d[k];
+        return !prop?.enumerable || !Object.hasOwn(prop, "value");
+      })
     )
       throw new TypeError(`Unexpected field or accessor in ${name}'s domain.`);
     const min: unknown = d.min?.value,
@@ -107,10 +108,14 @@ export function haltonPoints(
     Array.from({ length: count }, (_, i) =>
       Object.freeze(
         Object.fromEntries(
-          names.map((name, j) => [
-            name,
-            mapUnitToDomain(haltonValue(i + 1, HALTON_BASES[j]!), domains[name]!),
-          ]),
+          names.map((name, j) => {
+            const base = HALTON_BASES[j] ?? 2;
+            const domain = domains[name];
+            if (!domain) {
+              throw new RangeError(`Missing domain for ${name}.`);
+            }
+            return [name, mapUnitToDomain(haltonValue(i + 1, base), domain)];
+          }),
         ),
       ),
     ),
@@ -133,7 +138,14 @@ export function philoxPoints(
     Array.from({ length: count }, () =>
       Object.freeze(
         Object.fromEntries(
-          names.map((name, j) => [name, mapUnitToDomain(streams[j]!.nextF64(), domains[name]!)]),
+          names.map((name, j) => {
+            const stream = streams[j];
+            const domain = domains[name];
+            if (!stream || !domain) {
+              throw new RangeError(`Missing stream or domain for ${name}.`);
+            }
+            return [name, mapUnitToDomain(stream.nextF64(), domain)];
+          }),
         ),
       ),
     ),
@@ -144,13 +156,25 @@ export function philoxPoints(
 export function boundaryPoints(domains: Readonly<Record<string, Domain>>): readonly SamplePoint[] {
   const names = validateDomains(domains);
   const middle = Object.fromEntries(
-    names.map((name) => [name, mapUnitToDomain(0.5, domains[name]!)]),
+    names.map((name) => {
+      const domain = domains[name];
+      if (!domain) {
+        throw new RangeError(`Missing domain for ${name}.`);
+      }
+      return [name, mapUnitToDomain(0.5, domain)];
+    }),
   );
   return Object.freeze([
     Object.freeze(middle),
-    ...names.flatMap((name) => [
-      Object.freeze({ ...middle, [name]: domains[name]!.min }),
-      Object.freeze({ ...middle, [name]: domains[name]!.max }),
-    ]),
+    ...names.flatMap((name) => {
+      const domain = domains[name];
+      if (!domain) {
+        throw new RangeError(`Missing domain for ${name}.`);
+      }
+      return [
+        Object.freeze({ ...middle, [name]: domain.min }),
+        Object.freeze({ ...middle, [name]: domain.max }),
+      ];
+    }),
   ]);
 }
