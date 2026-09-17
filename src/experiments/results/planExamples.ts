@@ -58,7 +58,7 @@ export const me02AnalyticLimitExample: ScientificResult = Object.freeze({
   description: "At v = 0 the mass coefficient is the rest-frame factor L/c^2.",
   representation: Object.freeze({
     kind: "coefficient",
-    value: 1.1126500560536184e-17,
+    value: 1 / 299792458 ** 2,
   }),
 });
 

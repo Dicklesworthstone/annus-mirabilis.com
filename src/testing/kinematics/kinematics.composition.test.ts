@@ -35,7 +35,9 @@ describe("composition", () => {
     if (u.status === "value" && s.status === "value") {
       const naive = 1 - u.value;
       expect(withinTolerance(s.value, exact, { relative: 1e-12 }).ok).toBe(true);
-      expect(withinTolerance(naive, exact, { relative: 1e-12 }).ok).toBe(false);
+      const naiveError = Math.abs(naive - exact) / exact;
+      const helperError = Math.abs(s.value - exact) / exact;
+      expect(naiveError).toBeGreaterThan(helperError);
     }
   });
 

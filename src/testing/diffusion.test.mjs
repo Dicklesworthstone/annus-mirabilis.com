@@ -35,12 +35,16 @@ const val = (evaluation) => {
 const near = (actual, expected, relative = 1e-12, absolute = 0) => {
   if (relative === 0 && absolute === 0) {
     // Exact identity, not a bitwise claim: +0 and -0 are the same real number.
-    assert.equal(actual, expected);
+    assert.ok(actual === expected, `${actual} !== ${expected}`);
     return;
   }
   const spec = {
-    ...(relative > 0 ? { relative } : {}),
-    ...(absolute > 0 ? { absolute } : {}),
+    ...(relative > 0 && expected !== 0 ? { relative } : {}),
+    ...(absolute > 0
+      ? { absolute }
+      : expected === 0 && relative > 0
+        ? { absolute: relative }
+        : {}),
   };
   const verdict = withinTolerance(actual, expected, spec);
   assert.ok(

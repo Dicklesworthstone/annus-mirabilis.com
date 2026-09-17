@@ -4,7 +4,6 @@ import { decodeOutcome, decodeRefusal, decodeResult } from "../experiments/resul
 import {
   budgetExhaustedOutcomeExample,
   ftcsUnstableRefusalExample,
-  invalidSeedRefusalExample,
   lq02DivergentExample,
   missingArtifactOutcomeExample,
   notApplicableExample,
