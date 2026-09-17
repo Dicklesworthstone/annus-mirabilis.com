@@ -1,9 +1,10 @@
 "use client";
 
-import React, { useCallback, useEffect, useRef, useState, useSyncExternalStore } from "react";
+import type React from "react";
+import { useCallback, useRef, useState, useSyncExternalStore } from "react";
 import type { NavigationNode } from "../navigation.ts";
 import { navigate } from "../navigation.ts";
-import { type EquationSelection, createSelectionStore } from "../selectionStore.ts";
+import { createSelectionStore, type EquationSelection } from "../selectionStore.ts";
 import type { TermSpokenDetails } from "../spoken/types.ts";
 
 export interface TermExplorerProps {
@@ -35,18 +36,13 @@ export function TermExplorer({
   const [localStore] = useState(() => selectionStore ?? createSelectionStore());
   const store = selectionStore ?? localStore;
 
-  const selected = useSyncExternalStore(
-    store.subscribe,
-    store.getSnapshot,
-    store.getServerSnapshot,
-  );
+  useSyncExternalStore(store.subscribe, store.getSnapshot, store.getServerSnapshot);
 
   const [activeNodeId, setActiveNodeId] = useState<string | null>(navigation[0]?.id ?? null);
   const [liveAnnouncement, setLiveAnnouncement] = useState<string>("");
   const chipRefs = useRef<Map<string, HTMLButtonElement>>(new Map());
-  const rootRef = useRef<HTMLDivElement>(null);
+  const rootRef = useRef<HTMLElement>(null);
 
-  const activeNode = navigation.find((n) => n.id === activeNodeId);
   const activeTerm = terms.find((t) => t.nodeId === activeNodeId);
 
   // Sync active term details into polite live announcement
@@ -98,7 +94,7 @@ export function TermExplorer({
     [equationId, navigation, store, updateAnnouncement],
   );
 
-  const handleKeyDown = (e: React.KeyboardEvent<HTMLDivElement>) => {
+  const handleKeyDown = (e: React.KeyboardEvent<HTMLElement>) => {
     switch (e.key) {
       case "ArrowLeft":
       case "ArrowRight":
@@ -141,7 +137,7 @@ export function TermExplorer({
   };
 
   return (
-    <div
+    <section
       ref={rootRef}
       className={`am-term-explorer ${className}`.trim()}
       data-term-explorer={equationId}
@@ -157,7 +153,7 @@ export function TermExplorer({
       </div>
 
       {/* Roving tabindex chip list */}
-      <div className="am-term-chips" role="group" aria-label="Equation components">
+      <fieldset className="am-term-chips" aria-label="Equation components">
         {navigation.map((n) => {
           const t = terms.find((item) => item.nodeId === n.id);
           const isSelected = activeNodeId === n.id;
@@ -189,7 +185,7 @@ export function TermExplorer({
             </button>
           );
         })}
-      </div>
+      </fieldset>
 
       {/* Polite live region for screen-reader announcement on navigation */}
       <div
@@ -238,6 +234,6 @@ export function TermExplorer({
           </div>
         </section>
       )}
-    </div>
+    </section>
   );
 }

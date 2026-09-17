@@ -129,7 +129,8 @@ export function scanContentForViolations(
 
   // Scan line by line for imports, spawns, or code symbols
   for (let i = 0; i < lines.length; i++) {
-    const line = lines[i]!;
+    const line = lines[i];
+    if (line === undefined) continue;
     const trimmed = line.trim();
 
     // Skip comments that merely mention the denylist or explain guard rules
@@ -152,19 +153,19 @@ export function scanContentForViolations(
 
       let matched = false;
 
-      if (m.importRegex && m.importRegex.test(line)) {
+      if (m.importRegex?.test(line)) {
         matched = true;
       }
 
-      if (!matched && m.spawnRegex && m.spawnRegex.test(line)) {
+      if (!matched && m.spawnRegex?.test(line)) {
         matched = true;
       }
 
-      if (!matched && m.binaryRegex && m.binaryRegex.test(line)) {
+      if (!matched && m.binaryRegex?.test(line)) {
         matched = true;
       }
 
-      if (!matched && m.symbolRegex && m.symbolRegex.test(line)) {
+      if (!matched && m.symbolRegex?.test(line)) {
         matched = true;
       }
 
