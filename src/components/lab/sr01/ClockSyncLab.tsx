@@ -14,8 +14,8 @@ import { decodeSr01Settings, encodeSr01Settings } from "../../../experiments/sr0
 import {
   computeSr01Ledger,
   createSr01Session,
-  predictAnswerFor,
   type PreparedSr01Example,
+  predictAnswerFor,
 } from "../../../experiments/sr01/session.ts";
 import type { PublishedResult } from "../../../experiments/store/instanceStore.ts";
 

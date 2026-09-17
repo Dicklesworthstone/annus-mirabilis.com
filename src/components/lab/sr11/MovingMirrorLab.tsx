@@ -13,8 +13,8 @@ import type {
   AcceptedSnapshot,
   PublishedResult,
 } from "../../../experiments/store/instanceStore.ts";
-import { ShowTheCode } from "../ShowTheCode.tsx";
 import { display, identity, result } from "../presentation.ts";
+import { ShowTheCode } from "../ShowTheCode.tsx";
 import { MovingMirrorPlot } from "./MovingMirrorPlot.tsx";
 
 function numericOf(item: PublishedResult | undefined): number | null {
@@ -54,7 +54,8 @@ export function MovingMirrorLab({
     session.getSnapshot,
     session.getServerSnapshot,
   );
-  const snapshot = view.accepted!;
+  const snapshot = view.accepted ?? session.getServerSnapshot().accepted;
+  if (!snapshot) return null;
   const p = snapshot.parameters as Sr11Parameters;
   const [draft, setDraft] = useState(() => ({ ...example.parameters }));
   const [ready, setReady] = useState(false);
@@ -85,9 +86,7 @@ export function MovingMirrorLab({
   }
 
   const freqRatio = numericOf(result(snapshot, "frequencyRatio"));
-  const cosRefl = numericOf(result(snapshot, "cosPhiReflected"));
   const phiReflDeg = numericOf(result(snapshot, "phiReflectedDeg"));
-  const ampRatio = numericOf(result(snapshot, "amplitudeRatio"));
   const radPressure = numericOf(result(snapshot, "radiationPressure"));
   const radForce = numericOf(result(snapshot, "radiationForce"));
   const pInc = numericOf(result(snapshot, "incidentPower"));

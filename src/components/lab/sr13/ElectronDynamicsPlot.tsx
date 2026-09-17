@@ -25,7 +25,7 @@ export interface ElectronDynamicsPlotProps {
 
 export function ElectronDynamicsPlot({
   initialSpeed,
-  initialDirectionDeg,
+  initialDirectionDeg: _initialDirectionDeg,
   electricFieldX,
   electricFieldY,
   electricFieldZ,
@@ -241,22 +241,24 @@ export function ElectronDynamicsPlot({
           </text>
 
           {/* End Particle Marker */}
-          {points.length > 0 && points[points.length - 1] ? (
-            <g
-              transform={`translate(${points[points.length - 1]!.x}, ${points[points.length - 1]!.y})`}
-            >
-              <circle cx={0} cy={0} r={6} fill="#3b82f6" />
-              <circle
-                cx={0}
-                cy={0}
-                r={10}
-                fill="none"
-                stroke="#3b82f6"
-                strokeWidth={1}
-                strokeDasharray="2 2"
-              />
-            </g>
-          ) : null}
+          {(() => {
+            const lastPt = points.length > 0 ? points[points.length - 1] : undefined;
+            if (!lastPt) return null;
+            return (
+              <g transform={`translate(${lastPt.x}, ${lastPt.y})`}>
+                <circle cx={0} cy={0} r={6} fill="#3b82f6" />
+                <circle
+                  cx={0}
+                  cy={0}
+                  r={10}
+                  fill="none"
+                  stroke="#3b82f6"
+                  strokeWidth={1}
+                  strokeDasharray="2 2"
+                />
+              </g>
+            );
+          })()}
 
           {/* Historical Dataset Overlay Points */}
           {datasetOverlay !== "none" ? (
@@ -265,13 +267,13 @@ export function ElectronDynamicsPlot({
                 <g>
                   {/* Kaufmann 1902-1906 empirical points */}
                   {[
-                    { x: 220, y: 185 },
-                    { x: 340, y: 198 },
-                    { x: 460, y: 220 },
-                    { x: 580, y: 252 },
-                    { x: 700, y: 295 },
-                  ].map((pt, i) => (
-                    <g key={`kaufmann-${i}`}>
+                    { id: "kaufmann-pt-1", x: 220, y: 185 },
+                    { id: "kaufmann-pt-2", x: 340, y: 198 },
+                    { id: "kaufmann-pt-3", x: 460, y: 220 },
+                    { id: "kaufmann-pt-4", x: 580, y: 252 },
+                    { id: "kaufmann-pt-5", x: 700, y: 295 },
+                  ].map((pt) => (
+                    <g key={pt.id}>
                       <circle
                         cx={pt.x}
                         cy={pt.y}
@@ -302,13 +304,13 @@ export function ElectronDynamicsPlot({
                 <g>
                   {/* Bucherer 1908 velocity-filter points */}
                   {[
-                    { x: 220, y: 184 },
-                    { x: 340, y: 196 },
-                    { x: 460, y: 216 },
-                    { x: 580, y: 246 },
-                    { x: 700, y: 286 },
-                  ].map((pt, i) => (
-                    <g key={`bucherer-${i}`}>
+                    { id: "bucherer-pt-1", x: 220, y: 184 },
+                    { id: "bucherer-pt-2", x: 340, y: 196 },
+                    { id: "bucherer-pt-3", x: 460, y: 216 },
+                    { id: "bucherer-pt-4", x: 580, y: 246 },
+                    { id: "bucherer-pt-5", x: 700, y: 286 },
+                  ].map((pt) => (
+                    <g key={pt.id}>
                       <rect
                         x={pt.x - 3.5}
                         y={pt.y - 3.5}

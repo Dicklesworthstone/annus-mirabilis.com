@@ -19,15 +19,15 @@ export function MovingMirrorPlot({
   incidentAngleDeg,
   phiReflectedDeg,
   frequencyRatio,
-  radiationPressure,
+  radiationPressure: _radiationPressure,
   radiationForce,
   incidentPower,
   reflectedPower,
   workRate,
-  energyBalanceResidual,
+  energyBalanceResidual: _energyBalanceResidual,
   frame,
   isApplicable,
-  notApplicableReason,
+  notApplicableReason: _notApplicableReason,
 }: MovingMirrorPlotProps) {
   const width = 800;
   const height = 400;
@@ -63,7 +63,6 @@ export function MovingMirrorPlot({
     Math.abs(incidentPower),
     Math.abs(reflectedPower) + Math.abs(workRate),
   );
-  const ledgerBarWidth = 140;
   const incBarH = Math.min(180, (Math.max(0, incidentPower) / totalPower) * 160);
   const reflBarH = Math.min(180, (Math.max(0, reflectedPower) / totalPower) * 160);
   const workBarH = Math.min(180, (Math.max(0, workRate) / totalPower) * 160);
@@ -162,19 +161,22 @@ export function MovingMirrorPlot({
           {/* Mirror Hatching pattern representing backing */}
           {Array.from({ length: 12 }, (_, i) => {
             const y = centerY - mirrorHeight / 2 + 10 + i * 20;
-            return (
-              <line
-                key={i}
-                x1={mirrorX + 6}
-                y1={y}
-                x2={mirrorX + 14}
-                y2={y + 8}
-                stroke="currentColor"
-                opacity="0.4"
-                strokeWidth="1.5"
-              />
-            );
-          })}
+            return {
+              id: `mirror-hatch-${y}`,
+              y,
+            };
+          }).map((hatch) => (
+            <line
+              key={hatch.id}
+              x1={mirrorX + 6}
+              y1={hatch.y}
+              x2={mirrorX + 14}
+              y2={hatch.y + 8}
+              stroke="currentColor"
+              opacity="0.4"
+              strokeWidth="1.5"
+            />
+          ))}
 
           {/* Mirror normal vector arrow */}
           <line
