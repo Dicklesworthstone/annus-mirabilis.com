@@ -6,6 +6,7 @@
  */
 
 import { afterEach, beforeEach, describe, expect, test } from "bun:test";
+import assert from "node:assert/strict";
 import {
   __resetLogWriterForTesting,
   __setLogWriterForTesting,
@@ -47,7 +48,9 @@ describe("smoke-test-deployment logging and runId discipline", () => {
   test("logEvent dispatches to activeLogWriter without filesystem writes", () => {
     logEvent("test:step", "pass", "all systems operational");
     expect(loggedEvents).toHaveLength(1);
-    expect(loggedEvents[0]).toEqual({
+    const [event] = loggedEvents;
+    assert.ok(event);
+    expect(event).toEqual({
       step: "test:step",
       outcome: "pass",
       message: "all systems operational",
@@ -56,7 +59,9 @@ describe("smoke-test-deployment logging and runId discipline", () => {
 
   test("logged events never declare or assign a field literally named runId", () => {
     logEvent("check:/", "pass", "ok");
-    const jsonStr = JSON.stringify(loggedEvents[0]);
+    const [event] = loggedEvents;
+    assert.ok(event);
+    const jsonStr = JSON.stringify(event);
     expect(/\brunId\b/.test(jsonStr)).toBe(false);
   });
 });
@@ -84,8 +89,10 @@ describe("checkUrl route verification logic", () => {
     const ok = await checkUrl("/", "https://annus-mirabilis.com", mockFetch);
     expect(ok).toBe(true);
     expect(loggedEvents).toHaveLength(1);
-    expect(loggedEvents[0].outcome).toBe("pass");
-    expect(loggedEvents[0].step).toBe("check:/");
+    const [event] = loggedEvents;
+    assert.ok(event);
+    expect(event.outcome).toBe("pass");
+    expect(event.step).toBe("check:/");
   });
 
   test("returns true for /robots.txt with content length exceeding 20 bytes", async () => {
@@ -96,7 +103,9 @@ describe("checkUrl route verification logic", () => {
     const ok = await checkUrl("/robots.txt", "https://annus-mirabilis.com", mockFetch);
     expect(ok).toBe(true);
     expect(loggedEvents).toHaveLength(1);
-    expect(loggedEvents[0].outcome).toBe("pass");
+    const [event] = loggedEvents;
+    assert.ok(event);
+    expect(event.outcome).toBe("pass");
   });
 
   test("returns false when response status is non-200 (HTTP 404)", async () => {
@@ -106,8 +115,10 @@ describe("checkUrl route verification logic", () => {
     const ok = await checkUrl("/non-existent", "https://annus-mirabilis.com", mockFetch);
     expect(ok).toBe(false);
     expect(loggedEvents).toHaveLength(1);
-    expect(loggedEvents[0].outcome).toBe("fail");
-    expect(loggedEvents[0].message).toContain("404");
+    const [event] = loggedEvents;
+    assert.ok(event);
+    expect(event.outcome).toBe("fail");
+    expect(event.message).toContain("404");
   });
 
   test("returns false when content is suspiciously short (< 1000 bytes for HTML)", async () => {
@@ -118,8 +129,10 @@ describe("checkUrl route verification logic", () => {
     const ok = await checkUrl("/", "https://annus-mirabilis.com", mockFetch);
     expect(ok).toBe(false);
     expect(loggedEvents).toHaveLength(1);
-    expect(loggedEvents[0].outcome).toBe("fail");
-    expect(loggedEvents[0].message).toContain("suspiciously short content");
+    const [event] = loggedEvents;
+    assert.ok(event);
+    expect(event.outcome).toBe("fail");
+    expect(event.message).toContain("suspiciously short content");
   });
 
   test("returns false on network / fetch rejection", async () => {
@@ -130,8 +143,10 @@ describe("checkUrl route verification logic", () => {
     const ok = await checkUrl("/", "https://annus-mirabilis.com", mockFetch);
     expect(ok).toBe(false);
     expect(loggedEvents).toHaveLength(1);
-    expect(loggedEvents[0].outcome).toBe("fail");
-    expect(loggedEvents[0].message).toContain("Connection refused");
+    const [event] = loggedEvents;
+    assert.ok(event);
+    expect(event.outcome).toBe("fail");
+    expect(event.message).toContain("Connection refused");
   });
 });
 
