@@ -51,15 +51,25 @@ describe("Content Compiler Determinism & Incremental Stability (am-cm-compiler-c
     expect(second.ok).toBe(true);
     expect(first.index).toBeDefined();
     expect(second.index).toBeDefined();
+    if (!first.index || !second.index) {
+      throw new Error("Expected compilation indexes to be defined");
+    }
+    const firstIndex = first.index;
+    const secondIndex = second.index;
 
-    expect(first.index!.inputDigest).toBe(second.index!.inputDigest);
-    expect(first.index!.compilerDigest).toBe(second.index!.compilerDigest);
-    expect(first.index!.buildDigest).toBe(second.index!.buildDigest);
-    expect(first.index!.payloads.length).toBe(second.index!.payloads.length);
+    expect(firstIndex.inputDigest).toBe(secondIndex.inputDigest);
+    expect(firstIndex.compilerDigest).toBe(secondIndex.compilerDigest);
+    expect(firstIndex.buildDigest).toBe(secondIndex.buildDigest);
+    expect(firstIndex.payloads.length).toBe(secondIndex.payloads.length);
 
-    for (let i = 0; i < first.index!.payloads.length; i++) {
-      const p1 = first.index!.payloads[i]!;
-      const p2 = second.index!.payloads[i]!;
+    for (let i = 0; i < firstIndex.payloads.length; i++) {
+      const p1 = firstIndex.payloads[i];
+      const p2 = secondIndex.payloads[i];
+      expect(p1).toBeDefined();
+      expect(p2).toBeDefined();
+      if (!p1 || !p2) {
+        throw new Error(`Expected payload ${i} to be defined`);
+      }
       expect(p1.file).toBe(p2.file);
       expect(p1.sha256).toBe(p2.sha256);
       expect(p1.bytes).toBe(p2.bytes);
@@ -80,6 +90,11 @@ describe("Content Compiler Determinism & Incremental Stability (am-cm-compiler-c
     const { tempRoot, corpusDir } = await createFixtureWorkspace();
     const clean = await buildContent(tempRoot, { corpusDir });
     expect(clean.ok).toBe(true);
+    expect(clean.index).toBeDefined();
+    if (!clean.index) {
+      throw new Error("Expected clean compilation index to be defined");
+    }
+    const cleanIndex = clean.index;
 
     const targetFile = resolve(tempRoot, "corpus/arguments/test-paper/arg-tp-01.json");
     const originalContent = await readFile(targetFile, "utf8");
@@ -93,22 +108,36 @@ describe("Content Compiler Determinism & Incremental Stability (am-cm-compiler-c
 
     const modified = await buildContent(tempRoot, { corpusDir });
     expect(modified.ok).toBe(true);
-    expect(modified.index!.inputDigest).not.toBe(clean.index!.inputDigest);
-    expect(modified.index!.buildDigest).not.toBe(clean.index!.buildDigest);
+    expect(modified.index).toBeDefined();
+    if (!modified.index) {
+      throw new Error("Expected modified compilation index to be defined");
+    }
+    expect(modified.index.inputDigest).not.toBe(cleanIndex.inputDigest);
+    expect(modified.index.buildDigest).not.toBe(cleanIndex.buildDigest);
 
     // Revert the edit
     await writeFile(targetFile, originalContent, "utf8");
 
     const reverted = await buildContent(tempRoot, { corpusDir });
     expect(reverted.ok).toBe(true);
-    expect(reverted.index!.inputDigest).toBe(clean.index!.inputDigest);
-    expect(reverted.index!.buildDigest).toBe(clean.index!.buildDigest);
+    expect(reverted.index).toBeDefined();
+    if (!reverted.index) {
+      throw new Error("Expected reverted compilation index to be defined");
+    }
+    expect(reverted.index.inputDigest).toBe(cleanIndex.inputDigest);
+    expect(reverted.index.buildDigest).toBe(cleanIndex.buildDigest);
 
-    const cleanPayload = await readFile(
-      resolve(tempRoot, "generated/content", clean.index!.payloads[0]!.file),
-    );
+    const cleanPayloadFile = cleanIndex.payloads[0]?.file;
+    const revertedPayloadFile = reverted.index.payloads[0]?.file;
+    expect(cleanPayloadFile).toBeDefined();
+    expect(revertedPayloadFile).toBeDefined();
+    if (!cleanPayloadFile || !revertedPayloadFile) {
+      throw new Error("Expected payload file to be defined");
+    }
+
+    const cleanPayload = await readFile(resolve(tempRoot, "generated/content", cleanPayloadFile));
     const revertedPayload = await readFile(
-      resolve(tempRoot, "generated/content", reverted.index!.payloads[0]!.file),
+      resolve(tempRoot, "generated/content", revertedPayloadFile),
     );
     expect(cleanPayload.equals(revertedPayload)).toBe(true);
 
