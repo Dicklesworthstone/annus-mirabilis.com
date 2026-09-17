@@ -110,7 +110,10 @@ try {
   assert.match(await lab.locator('[data-output="diffusionCoefficient"]').innerText(), /0\.21472/);
   await lab.getByRole("button", { name: "Try a step that is too large", exact: true }).click();
   await apply.click();
-  await lab.locator('[data-refusal-code="ftcs-unstable"]').waitFor();
+  // The refusal surfaces twice by design: the execution-currency chrome marks the
+  // accepted readouts stale, and the notice explains the refusal and offers a repair.
+  await lab.locator('.notice[data-refusal-code="ftcs-unstable"]').waitFor();
+  await lab.locator('[data-currency-state="refused"][data-refusal-code="ftcs-unstable"]').waitFor();
   assert.match(await lab.locator('[data-output="diffusionCoefficient"]').innerText(), /0\.21472/);
   await lab.getByRole("button", { name: /Use \d+ time steps for this elapsed time/ }).click();
   await lab.getByRole("heading", { name: "Compare probabilities, not heights" }).waitFor();
