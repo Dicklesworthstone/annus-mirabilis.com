@@ -202,7 +202,12 @@ export function releaseKeyClaim(claimPath: string): void {
 }
 
 export function verifyHostChecksums(
-  checksums: { md5?: string | null; sha1?: string | null } | undefined,
+  checksums:
+    | {
+        md5?: string | null | undefined;
+        sha1?: string | null | undefined;
+      }
+    | undefined,
   actual: { md5?: string; sha1?: string },
 ): { ok: boolean; verified: ("md5" | "sha1")[]; error?: string } {
   if (!checksums) return { ok: true, verified: [] };
@@ -1013,7 +1018,11 @@ export async function main(): Promise<void> {
       key = args[keyIdx + 1];
     }
     const requireLocal = args.includes("--require-local");
-    const { results, allOk } = verifyPins({ key, configDir, requireLocal });
+    const { results, allOk } = verifyPins({
+      ...(key !== undefined ? { key } : {}),
+      ...(configDir !== undefined ? { configDir } : {}),
+      requireLocal,
+    });
     for (const [k, r] of Object.entries(results)) {
       if (r.status === "ok") {
         console.log(`✓ ${k}: OK (${r.path})`);
@@ -1045,7 +1054,7 @@ export async function main(): Promise<void> {
       process.exit(1);
     }
     try {
-      const res = await restorePin(key, { configDir });
+      const res = await restorePin(key, configDir !== undefined ? { configDir } : {});
       console.log(`Restored pin for ${key}: ${res.sha256}`);
       process.exit(0);
     } catch (e: unknown) {
@@ -1111,9 +1120,11 @@ export async function main(): Promise<void> {
     const downloadPath = path.join(stagingDir, "download.pdf");
 
     console.log(`Fetching candidate ${candidateIndex} (${candidate.url}) to staging...`);
-    const fetchRes = await fetchToStaging(candidate.url, downloadPath, {
-      maxBytes: candidate.maxBytes,
-    });
+    const fetchRes = await fetchToStaging(
+      candidate.url,
+      downloadPath,
+      candidate.maxBytes !== undefined ? { maxBytes: candidate.maxBytes } : {},
+    );
 
     const checksumCheck = verifyHostChecksums(candidate.hostChecksums, {
       md5: fetchRes.md5,
@@ -1137,7 +1148,7 @@ export async function main(): Promise<void> {
 
     const textLayer = detectEmbeddedTextLayer(fileBuf, cfg.articlePages.parentPageIndices);
 
-    let finalPinBuf = fileBuf;
+    let finalPinBuf: Uint8Array = fileBuf;
     let parentInfo: PinnedRecord["parent"] | undefined;
 
     if (candidate.kind === "whole-volume" || candidate.kind === "whole-issue") {
@@ -1215,8 +1226,12 @@ export async function main(): Promise<void> {
       sha256: finalSha256,
       hostChecksumsVerified: checksumCheck.verified,
       pageCount: finalVal.pageCount,
-      parentSha256: parentInfo?.sha256,
-      parentPageIndices: parentInfo?.parentPageIndices,
+      ...(parentInfo !== undefined
+        ? {
+            parentSha256: parentInfo.sha256,
+            parentPageIndices: parentInfo.parentPageIndices,
+          }
+        : {}),
       embeddedTextLayer: textLayer,
       pdfLibrary: PDF_LIBRARY,
       rightsStatus: cfg.rights.rightsStatus,
