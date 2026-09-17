@@ -3,6 +3,7 @@ import {
   applyFocusReturn,
   focusOpenedHeading,
   resolveFocusReturnTarget,
+  returnToInterruptedSentence,
 } from "../../../reader/stack/focus.ts";
 import type { StackFrame } from "../../../reader/stack/stackStore.ts";
 import { installDom, uninstallDom } from "../../reactDom.ts";
@@ -110,5 +111,55 @@ describe("focusOpenedHeading", () => {
 
   test("a null heading is a harmless no-op", () => {
     expect(() => focusOpenedHeading(null)).not.toThrow();
+  });
+});
+
+describe("returnToInterruptedSentence", () => {
+  test("returns to exact interrupted sentence element using frame.anchor and sets tabindex=-1 if non-interactive", () => {
+    document.body.innerHTML = '<p id="ap-17-549-s4-sentence-3">Interrupted sentence text here.</p>';
+    const sentenceEl = document.getElementById("ap-17-549-s4-sentence-3")!;
+    expect(sentenceEl.hasAttribute("tabindex")).toBe(false);
+
+    const f = frame({
+      anchor: "ap-17-549-s4-sentence-3",
+      triggerId: "", // no origin button (e.g. opened from inline link or lost trigger)
+      scrollFraction: 0.25,
+    });
+
+    const target = returnToInterruptedSentence(window, document, f);
+    expect(target).not.toBeNull();
+    expect(target?.element.id).toBe("ap-17-549-s4-sentence-3");
+    expect(target?.relativeYFraction).toBe(0.15);
+    expect(sentenceEl.getAttribute("tabindex")).toBe("-1");
+    expect(document.activeElement).toBe(sentenceEl);
+  });
+
+  test("returns to origin button when triggerId is present and visible in DOM", () => {
+    document.body.innerHTML =
+      '<button id="trigger-btn">Button</button><p id="ap-17-549-s4-sentence-3">Sentence</p>';
+    const btn = document.getElementById("trigger-btn")!;
+
+    const f = frame({
+      anchor: "ap-17-549-s4-sentence-3",
+      triggerId: "trigger-btn",
+      scrollFraction: 0.3,
+    });
+
+    const target = returnToInterruptedSentence(window, document, f);
+    expect(target).not.toBeNull();
+    expect(target?.element.id).toBe("trigger-btn");
+    expect(target?.isOrigin).toBe(true);
+    expect(document.activeElement).toBe(btn);
+  });
+
+  test("planted negative: returns null and does not throw when anchor and fallback do not exist in DOM", () => {
+    document.body.innerHTML = '<p id="other-passage">Different passage</p>';
+    const f = frame({
+      anchor: "nonexistent-sentence-anchor",
+      triggerId: "nonexistent-trigger",
+    });
+
+    const target = returnToInterruptedSentence(window, document, f, "nonexistent-fallback");
+    expect(target).toBeNull();
   });
 });

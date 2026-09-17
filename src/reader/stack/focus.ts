@@ -30,7 +30,19 @@ export function resolveFocusReturnTarget(
       isOrigin: true,
     });
   }
-  const fallback = doc.getElementById(fallbackAnchorId);
+
+  // If origin trigger is missing or gone, return to the exact interrupted sentence/anchor
+  const sentenceAnchorId = frame?.anchor || fallbackAnchorId;
+  const sentenceElement = sentenceAnchorId ? doc.getElementById(sentenceAnchorId) : null;
+  if (sentenceElement) {
+    return Object.freeze({
+      element: sentenceElement,
+      relativeYFraction: 0.15,
+      isOrigin: false,
+    });
+  }
+
+  const fallback = fallbackAnchorId ? doc.getElementById(fallbackAnchorId) : null;
   return fallback
     ? Object.freeze({ element: fallback, relativeYFraction: 0.15, isOrigin: false })
     : null;
@@ -47,6 +59,10 @@ export function applyFocusReturn(
   target: FocusReturnTarget,
   scrollContainer?: HTMLElement | null,
 ): void {
+  // Ensure non-interactive sentence or paragraph elements receive programmatic focus
+  if (!target.element.hasAttribute("tabindex") && target.element.tabIndex === -1) {
+    target.element.setAttribute("tabindex", "-1");
+  }
   target.element.focus({ preventScroll: true });
   const doc = target.element.ownerDocument;
   const root = doc.documentElement;
@@ -57,6 +73,25 @@ export function applyFocusReturn(
   if (scrollContainer?.contains(target.element)) scrollContainer.scrollTop += delta;
   else win.scrollBy(0, delta);
   root.style.scrollBehavior = behavior;
+}
+
+/**
+ * Returns focus and scroll to the exact interrupted sentence, paragraph, or trigger element
+ * recorded in `frame`.
+ */
+export function returnToInterruptedSentence(
+  win: Window,
+  doc: Document,
+  frame: StackFrame | undefined,
+  fallbackAnchorId?: string,
+  scrollContainer?: HTMLElement | null,
+): FocusReturnTarget | null {
+  const fallback = fallbackAnchorId ?? frame?.anchor ?? "";
+  const target = resolveFocusReturnTarget(doc, frame, fallback);
+  if (target) {
+    applyFocusReturn(win, target, scrollContainer);
+  }
+  return target;
 }
 
 /** Moves focus to the opened clarification's heading (the Access requirement for a push). A
