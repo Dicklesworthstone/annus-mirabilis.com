@@ -34,6 +34,26 @@ const BASE_POLICY: LicensePolicy = {
   exceptions: [],
 };
 
+/**
+ * The first policy error, asserted present. These are planted-negative tests, so
+ * reading `errors[0]` through `T | undefined` must fail by naming an empty error
+ * list rather than by dying at the property access (am-7mp8).
+ */
+function firstError<T>(errors: readonly T[]): T {
+  const error = errors[0];
+  if (error === undefined)
+    throw new Error("Expected at least one policy error; the list is empty.");
+  return error;
+}
+
+/** The first evaluated item, asserted present for the same reason. */
+function firstItem<T>(items: readonly T[]): T {
+  const item = items[0];
+  if (item === undefined)
+    throw new Error("Expected at least one evaluated item; the list is empty.");
+  return item;
+}
+
 describe("SPDX parser and evaluator", () => {
   test("evaluates simple identifiers against allowlist", () => {
     expect(checkSpdxExpression("MIT", BASE_POLICY.allowlist).allowed).toBe(true);
@@ -101,7 +121,7 @@ describe("evaluatePolicy and exception handling", () => {
     const result = evaluatePolicy([item], BASE_POLICY);
     expect(result.valid).toBe(false);
     expect(result.errors.length).toBe(1);
-    const err = result.errors[0];
+    const err = firstError(result.errors);
     expect(err.message).toContain("evil-unlicensed-lib");
     expect(err.message).toContain("1.2.3");
     expect(err.message).toContain("top-dep -> mid-dep -> evil-unlicensed-lib");
@@ -120,7 +140,7 @@ describe("evaluatePolicy and exception handling", () => {
     // 1. Without exception -> fails
     const failRes = evaluatePolicy([gplItem], BASE_POLICY);
     expect(failRes.valid).toBe(false);
-    expect(failRes.errors[0].rule).toBe("disallowed-license");
+    expect(firstError(failRes.errors).rule).toBe("disallowed-license");
 
     // 2. With valid complete exception -> passes
     const policyWithException: LicensePolicy = {
@@ -188,7 +208,7 @@ describe("evaluatePolicy and exception handling", () => {
     const res = evaluatePolicy([devTool], BASE_POLICY);
     expect(res.valid).toBe(true);
     expect(res.errors.length).toBe(0);
-    expect(res.evaluatedItems[0].outcome).toBe("exempt");
+    expect(firstItem(res.evaluatedItems).outcome).toBe("exempt");
   });
 });
 
@@ -472,7 +492,7 @@ describe("Anti-Reward-Hack: Planted Negative Verification", () => {
     const evalRes = evaluatePolicy([evilItem], BASE_POLICY);
     expect(evalRes.valid).toBe(false);
     expect(evalRes.errors.length).toBeGreaterThanOrEqual(1);
-    expect(evalRes.errors[0].message).toContain("planted-malicious-package");
+    expect(firstError(evalRes.errors).message).toContain("planted-malicious-package");
   });
 
   test("PLANTED NEGATIVE: inventory check FAILS on planted GPL-3.0 production dependency without exception", () => {
@@ -486,6 +506,6 @@ describe("Anti-Reward-Hack: Planted Negative Verification", () => {
 
     const evalRes = evaluatePolicy([gplItem], BASE_POLICY);
     expect(evalRes.valid).toBe(false);
-    expect(evalRes.errors[0].rule).toBe("disallowed-license");
+    expect(firstError(evalRes.errors).rule).toBe("disallowed-license");
   });
 });
