@@ -233,4 +233,60 @@ describe("ControlTape Runtime Extraction", () => {
         "Refuses replay gracefully upon experiment or model mismatch without inventing state",
     });
   });
+
+  test("out-of-order events in tape replay are applied in strict chronological order", () => {
+    const start = performance.now();
+    const tapeWithUnsortedEvents: ControlTape = {
+      version: 1,
+      tapeId: "tape-unsorted-test",
+      experimentId: "bm-01-diffusion",
+      modelIdentity: "bm01Kernel@v1",
+      tickS: 1 / 60,
+      initialConditions: { val: 0 },
+      seed: 42,
+      totalTicks: 50,
+      events: [
+        // Out-of-order events: tick 30 listed before tick 10 and tick 20
+        { tick: 30, paramId: "val", value: 300 },
+        { tick: 10, paramId: "val", value: 100 },
+        { tick: 20, paramId: "val", value: 200 },
+      ],
+      checkpoints: [
+        {
+          tick: 0,
+          state: { val: 0 },
+          digest: computeTapeDigest({ val: 0 }, 0, 42).digest,
+          digestKind: "host",
+        },
+      ],
+    };
+
+    const replayer = new ControlTapeReplayer(
+      tapeWithUnsortedEvents,
+      "bm-01-diffusion",
+      "bm01Kernel@v1",
+    );
+    expect(replayer.refused).toBe(false);
+
+    // At tick 15, only tick 10 should have applied -> val = 100
+    const at15 = replayer.seekTo(15);
+    expect(at15.state.val).toBe(100);
+
+    // At tick 25, tick 10 then tick 20 applied in chronological order -> val = 200
+    const at25 = replayer.seekTo(25);
+    expect(at25.state.val).toBe(200);
+
+    // At tick 35, tick 10, 20, 30 applied in chronological order -> val = 300
+    const at35 = replayer.seekTo(35);
+    expect(at35.state.val).toBe(300);
+
+    appendExtractionLog({
+      logRunId,
+      testId: "control-tape-out-of-order-events-chronological",
+      outcome: "pass",
+      durationMs: performance.now() - start,
+      message:
+        "Out-of-order events in tape are sorted and applied in strict chronological order during seek",
+    });
+  });
 });
