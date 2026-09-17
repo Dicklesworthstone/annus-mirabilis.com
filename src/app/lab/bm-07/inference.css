@@ -51,6 +51,9 @@
 .inference-results .table-scroll {
   max-height: 25rem;
 }
+.inference-summary th {
+  width: 42% !important;
+}
 .inference-results table th {
   width: auto;
 }
@@ -68,9 +71,6 @@
   display: block;
   font-size: 0.85rem;
   text-align: left;
-}
-.inference-summary th {
-  width: 42% !important;
 }
 @media (max-width: 1000px) {
   .inference-coverage-grid {

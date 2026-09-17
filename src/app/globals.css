@@ -153,18 +153,18 @@ nav a {
   font-size: 0.95rem;
   color: var(--muted);
 }
+h1,
+h2,
+h3,
+p {
+  overflow-wrap: break-word;
+}
 .site-footer p {
   max-width: 70ch;
 }
 .hero {
   padding: 5rem 0 4rem;
   max-width: 940px;
-}
-h1,
-h2,
-h3,
-p {
-  overflow-wrap: break-word;
 }
 h1 {
   font-size: clamp(2.5rem, 6.5vw, 5.9rem);

@@ -42,6 +42,9 @@
   width: 100%;
   table-layout: fixed;
 }
+.trajectory-table-scroll th {
+  width: auto !important;
+}
 .measured-trajectory-lab .inference-summary th,
 .measured-trajectory-lab .inference-summary td {
   overflow-wrap: anywhere;
@@ -88,9 +91,6 @@
 .trajectory-table-scroll table {
   width: 100%;
   font-variant-numeric: tabular-nums;
-}
-.trajectory-table-scroll th {
-  width: auto !important;
 }
 @media print {
   .trajectory-inspection .input-grid,
