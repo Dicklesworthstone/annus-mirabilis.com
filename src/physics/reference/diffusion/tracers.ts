@@ -210,15 +210,18 @@ export function ensembleMoments({
     sums = new Float64Array(d * 3 + 1),
     corrections = new Float64Array(d * 3 + 1);
   function add(i: number, v: number) {
-    const y = v - corrections[i]!,
-      t = sums[i]! + y;
-    corrections[i] = t - sums[i]! - y;
+    const corr = corrections[i] ?? 0,
+      sum = sums[i] ?? 0,
+      y = v - corr,
+      t = sum + y;
+    corrections[i] = t - sum - y;
     sums[i] = t;
   }
   for (let i = 0; i < M; i++) {
     let norm = 0;
     for (let j = 0; j < d; j++) {
-      const v = displacements[i * d + j]!;
+      const v = displacements[i * d + j];
+      if (v === undefined) return failure("A required displacement coordinate was undefined.");
       if (v !== 0 && v * v === 0)
         return failure("A nonzero squared displacement is below the representable range.");
       add(j * 3, v);
@@ -228,12 +231,17 @@ export function ensembleMoments({
     }
     add(d * 3, norm);
   }
-  const axes = Array.from({ length: d }, (_, j) => ({
-    mean: sums[j * 3]! / M,
-    meanAbsolute: sums[j * 3 + 1]! / M,
-    meanSquare: sums[j * 3 + 2]! / M,
-    rms: Math.sqrt(sums[j * 3 + 2]! / M),
-  }));
+  const axes = Array.from({ length: d }, (_, j) => {
+    const mean = (sums[j * 3] ?? 0) / M;
+    const meanAbsolute = (sums[j * 3 + 1] ?? 0) / M;
+    const meanSquare = (sums[j * 3 + 2] ?? 0) / M;
+    return {
+      mean,
+      meanAbsolute,
+      meanSquare,
+      rms: Math.sqrt(meanSquare),
+    };
+  });
   const meanSquareNorm = axes.reduce((s, a) => s + a.meanSquare, 0);
   if (![...sums, meanSquareNorm].every(Number.isFinite))
     return failure("The moment reduction exceeded the numerical range.");
@@ -242,7 +250,7 @@ export function ensembleMoments({
     data: {
       M,
       axes,
-      meanNorm: sums[d * 3]! / M,
+      meanNorm: (sums[d * 3] ?? 0) / M,
       meanSquareNorm,
       rmsNorm: Math.sqrt(meanSquareNorm),
     },
@@ -258,7 +266,12 @@ export function displacementHistogram(
     edges.length < 2 ||
     edges.length > 1001 ||
     !values.every(Number.isFinite) ||
-    !edges.every((v, i) => Number.isFinite(v) && (i === 0 || v > edges[i - 1]!))
+    !edges.every((v, i) => {
+      if (!Number.isFinite(v)) return false;
+      if (i === 0) return true;
+      const prev = edges[i - 1];
+      return prev !== undefined && v > prev;
+    })
   )
     return invalid(
       ["values", "edges"],
@@ -267,12 +280,16 @@ export function displacementHistogram(
   const counts = new Float64Array(edges.length - 1);
   let underflow = 0,
     overflow = 0;
+  const firstEdge = edges[0];
+  const lastEdge = edges[edges.length - 1];
+  if (firstEdge === undefined || lastEdge === undefined)
+    return invalid(["edges"], "Histogram edges array must contain at least two finite bounds.");
   for (const value of values) {
-    if (value < edges[0]!) {
+    if (value < firstEdge) {
       underflow++;
       continue;
     }
-    if (value > edges[edges.length - 1]!) {
+    if (value > lastEdge) {
       overflow++;
       continue;
     }
@@ -280,11 +297,15 @@ export function displacementHistogram(
       hi = edges.length - 1;
     while (hi - lo > 1) {
       const mid = (lo + hi) >>> 1;
-      if (value < edges[mid]!) hi = mid;
+      const edgeMid = edges[mid];
+      if (edgeMid !== undefined && value < edgeMid) hi = mid;
       else lo = mid;
     }
     const bin = Math.min(lo, counts.length - 1);
-    counts[bin] = counts[bin]! + 1;
+    const prevCount = counts[bin];
+    if (prevCount !== undefined) {
+      counts[bin] = prevCount + 1;
+    }
   }
   return { kind: "accepted", data: { counts, underflow, overflow, total: values.length } };
 }
@@ -298,7 +319,13 @@ export function tracerDisplacements(
     throw new RangeError("Choose a recorded step and dimension.");
   const values = new Float64Array(M * d);
   for (let i = 0; i < M; i++)
-    for (let axis = 0; axis < d; axis++)
-      values[i * d + axis] = recording.values[(i * 3 + axis) * (steps + 1) + step]!;
+    for (let axis = 0; axis < d; axis++) {
+      const idx = (i * 3 + axis) * (steps + 1) + step;
+      const val = recording.values[idx];
+      if (val === undefined) {
+        throw new RangeError(`Recording value at index ${idx} is undefined.`);
+      }
+      values[i * d + axis] = val;
+    }
   return values;
 }
