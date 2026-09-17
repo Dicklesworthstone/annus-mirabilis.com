@@ -34,12 +34,14 @@ export function NotationEntryCard({ entry }: NotationEntryCardProps) {
           <span className="detail-label">Modern symbol</span>
           <span
             className="detail-val inline-math"
-            dangerouslySetInnerHTML={{
-              __html:
-                entry.modernRendered?.html ||
-                (typeof target.modernGlyph === "string"
-                  ? target.modernGlyph
-                  : target.modernGlyph.latex),
+            {...{
+              dangerouslySetInnerHTML: {
+                __html:
+                  entry.modernRendered?.html ||
+                  (typeof target.modernGlyph === "string"
+                    ? target.modernGlyph
+                    : target.modernGlyph.latex),
+              },
             }}
           />
         </div>
@@ -49,15 +51,18 @@ export function NotationEntryCard({ entry }: NotationEntryCardProps) {
         <div className="detail-item">
           <span className="detail-label">Group rename</span>
           <span className="detail-val">
-            Printed <code dangerouslySetInnerHTML={{ __html: entry.glyphRendered.html }} /> maps to{" "}
+            Printed <code {...{ dangerouslySetInnerHTML: { __html: entry.glyphRendered.html } }} />{" "}
+            maps to{" "}
             <span
               className="inline-math"
-              dangerouslySetInnerHTML={{
-                __html:
-                  entry.modernRendered?.html ||
-                  (typeof target.modernGlyph === "string"
-                    ? target.modernGlyph
-                    : target.modernGlyph.latex),
+              {...{
+                dangerouslySetInnerHTML: {
+                  __html:
+                    entry.modernRendered?.html ||
+                    (typeof target.modernGlyph === "string"
+                      ? target.modernGlyph
+                      : target.modernGlyph.latex),
+                },
               }}
             />
           </span>
@@ -100,7 +105,7 @@ export function NotationEntryCard({ entry }: NotationEntryCardProps) {
             role="img"
             className="card-glyph"
             aria-label={entry.spokenName}
-            dangerouslySetInnerHTML={{ __html: entry.glyphRendered.html }}
+            {...{ dangerouslySetInnerHTML: { __html: entry.glyphRendered.html } }}
           />
           <a
             href={`#${entry.id}`}
