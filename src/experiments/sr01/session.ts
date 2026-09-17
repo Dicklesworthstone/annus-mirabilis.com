@@ -1,7 +1,7 @@
 import {
   classifySimultaneity,
-  desynchronizationObserved,
   type DesynchronizationVerdict,
+  desynchronizationObserved,
   type LedgerEvent,
   movingRodLegs,
   redescribe,

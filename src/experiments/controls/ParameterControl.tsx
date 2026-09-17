@@ -11,18 +11,16 @@
  * - 64-bit decimal seeds
  */
 
-import React, { useCallback, useEffect, useId, useState } from "react";
-import type { ParameterSpec } from "../../content/schemas/experiment.ts";
-import { checkGridStep, validateDomain } from "./domain.ts";
+import type React from "react";
+import { useEffect, useId, useState } from "react";
+import { validateDomain } from "./domain.ts";
 import {
   formatParameterValue,
-  getCanonicalBaseUnit,
   parseParameterValue,
-  serializeParameterValue,
   toCanonicalValue,
   toDisplayUnitValue,
 } from "./parse.ts";
-import { generateSeed, isValidSeed } from "./seed.ts";
+import { generateSeed } from "./seed.ts";
 import type { ParameterControlProps } from "./types.ts";
 
 export function ParameterControl({
@@ -79,7 +77,6 @@ export function ParameterControl({
         data-parameter-id={spec.id}
         data-command-class={spec.commandClass}
         data-testid={testId ?? `control-${spec.id}`}
-        aria-readonly="true"
       >
         <div className="parameter-header">
           <label className="parameter-label" htmlFor={inputId}>
@@ -90,13 +87,16 @@ export function ParameterControl({
           </span>
         </div>
         <div className="parameter-description">{spec.accessibleDescription}</div>
-        <div
-          id={inputId}
-          className="derived-value-display"
-          data-testid={`derived-${spec.id}`}
-          aria-label={`${spec.accessibleName}: ${formattedDerived} ${spec.displayUnit}`}
-        >
-          <span className="derived-numeric">{formattedDerived}</span>
+        <div className="derived-value-display" data-testid={`derived-${spec.id}`}>
+          <input
+            id={inputId}
+            type="text"
+            readOnly
+            aria-readonly="true"
+            value={formattedDerived}
+            className="derived-numeric"
+            aria-label={`${spec.accessibleName}: ${formattedDerived} ${spec.displayUnit}`}
+          />
           {spec.displayUnit && <span className="derived-unit">{spec.displayUnit}</span>}
           <span className="derived-badge">Derived</span>
         </div>
@@ -240,7 +240,6 @@ export function ParameterControl({
 
   const domainValidation = validateDomain(spec, numValue);
   const isBeyondTrack = domainValidation.isBeyondVisualTrack;
-  const isLogMapping = spec.mapping.kind === "log";
 
   // Step resolution
   const stepIncrement =

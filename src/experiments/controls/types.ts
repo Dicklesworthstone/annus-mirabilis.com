@@ -11,7 +11,6 @@ import type {
   ParameterSpec,
   VisualRange,
 } from "../../content/schemas/experiment.ts";
-import type { U64String } from "../identity/u64.ts";
 
 export type {
   CommandClass,

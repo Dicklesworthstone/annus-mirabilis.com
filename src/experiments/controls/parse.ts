@@ -4,10 +4,9 @@
  */
 
 import type { ParameterSpec } from "../../content/schemas/experiment.ts";
-import { conversionFactor, convertValue } from "../../units/adapters.ts";
-import { formatScaledDecimal, parseScaledDecimal } from "../../units/decimalScale.ts";
+import { convertValue } from "../../units/adapters.ts";
 import { checkGridStep, validateDomain } from "./domain.ts";
-import { parseU64, toU64String } from "./seed.ts";
+import { parseU64 } from "./seed.ts";
 import type { ParseResult } from "./types.ts";
 
 const UNIT_FAMILY_BASE_UNITS: Record<string, string> = {
@@ -71,7 +70,7 @@ export function getCanonicalBaseUnit(spec: ParameterSpec): string {
     return "K";
   }
   if (spec.quantityId in UNIT_FAMILY_BASE_UNITS) {
-    return UNIT_FAMILY_BASE_UNITS[spec.quantityId]!;
+    return UNIT_FAMILY_BASE_UNITS[spec.quantityId] ?? spec.displayUnit;
   }
   return spec.displayUnit;
 }
@@ -139,7 +138,7 @@ export function formatParameterValue(spec: ParameterSpec, value: number | string
 /**
  * Serializes a canonical parameter value to exact string.
  */
-export function serializeParameterValue(spec: ParameterSpec, value: number | string): string {
+export function serializeParameterValue(_spec: ParameterSpec, value: number | string): string {
   if (typeof value === "string") {
     return value;
   }
@@ -179,10 +178,14 @@ export function parseParameterValue(
         displayValue: canonicalSeed,
         isBeyondVisualTrack: false,
       };
-    } catch (err: any) {
+    } catch (err: unknown) {
+      const errorCode =
+        typeof err === "object" && err !== null && "code" in err && typeof err.code === "string"
+          ? err.code
+          : "invalid-seed";
       return {
         ok: false,
-        error: err.code ?? "invalid-seed",
+        error: errorCode,
         explanation:
           "Seed must be a canonical 64-bit unsigned decimal integer [0, 18446744073709551615] with no signs, leading zeros, or scientific notation.",
         rawInput: text,
@@ -214,7 +217,7 @@ export function parseParameterValue(
     };
   }
 
-  const numPart = match[1]!;
+  const numPart = match[1] ?? "";
   const unitPart = match[2]?.trim() ?? "";
 
   const parsedNum = Number(numPart);

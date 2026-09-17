@@ -6,7 +6,7 @@
  * resolves dependent grid parameters, and provides explicit Reset semantics.
  */
 
-import React, { useMemo } from "react";
+import { useMemo } from "react";
 import type { ParameterSpec } from "../../content/schemas/experiment.ts";
 import { ParameterControl } from "./ParameterControl.tsx";
 import type { ControlsPanelProps } from "./types.ts";
