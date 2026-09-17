@@ -120,6 +120,10 @@ describe("Budget Change Governance Check", () => {
 
     expect(result.diffs).toHaveLength(1);
     const diff = result.diffs[0];
+    expect(diff).toBeDefined();
+    if (!diff) {
+      throw new Error("Expected diff to be defined");
+    }
     expect(diff.isLoosened).toBe(true);
     expect(diff.message).toBeDefined();
     expect(diff.message).toContain("204800");
