@@ -160,7 +160,11 @@ export function CoefficientLab({
     session.getSnapshot,
     session.getServerSnapshot,
   );
-  const snapshot = view.accepted!;
+  const accepted = view.accepted ?? session.getServerSnapshot().accepted;
+  if (!accepted) {
+    throw new Error("Missing accepted snapshot for CoefficientLab");
+  }
+  const snapshot = accepted;
   const p = snapshot.parameters as Me02Parameters;
   const [draft, setDraft] = useState(() => ({ ...example.parameters }));
   const [ready, setReady] = useState(false);
@@ -210,7 +214,7 @@ export function CoefficientLab({
       aria-labelledby={`${id}-title`}
       data-instrument-id="me-02"
       {...identity(snapshot)}
-      data-input-revision={view.requested!.revisions.input}
+      data-input-revision={view.requested?.revisions.input ?? snapshot.revisions.input}
       data-accepted-input-revision={snapshot.revisions.input}
       data-execution-label="host"
       data-source-digest={example.sourceDigest}
