@@ -360,10 +360,11 @@ export class ControlTapeReplayer {
       : { ...this.tape.initialConditions };
 
     // Apply all events between startTick and clampedTick in strict chronological order
-    for (const evt of this.tape.events) {
-      if (evt.tick > startTick && evt.tick <= clampedTick) {
-        workingState[evt.paramId] = quantizeFloat(evt.value);
-      }
+    const relevantEvents = this.tape.events
+      .filter((evt) => evt.tick > startTick && evt.tick <= clampedTick)
+      .sort((a, b) => a.tick - b.tick);
+    for (const evt of relevantEvents) {
+      workingState[evt.paramId] = quantizeFloat(evt.value);
     }
 
     this.currentTick = clampedTick;
