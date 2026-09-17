@@ -49,7 +49,7 @@ export async function checkEquationBrowser(browser, url, check) {
     const lab = page.locator('[data-instrument-id="bm-01"]').first();
     const rms = card(lab, "rms"),
       diffusion = card(lab, "diffusivity"),
-      speed = card(lab, "apparent-speed");
+      _speed = card(lab, "apparent-speed");
     const apply = lab.getByRole("button", { name: "Apply trial settings", exact: true });
     await page.waitForFunction(
       () => !document.querySelector('[data-instrument-id="bm-01"] button[type="submit"]').disabled,

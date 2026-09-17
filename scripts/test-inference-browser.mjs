@@ -334,9 +334,9 @@ export async function checkInferenceBrowser(browser, url, check) {
       "BM-07: independent placements own separate workers, settings and accepted inference snapshots",
     );
 
-    await lab
-      .locator(".inference-controls details[open]")
-      .evaluateAll((nodes) => nodes.forEach((n) => n.removeAttribute("open")));
+    await lab.locator(".inference-controls details[open]").evaluateAll((nodes) => {
+      for (const n of nodes) n.removeAttribute("open");
+    });
     const audit = await new AxeBuilder({ page })
       .include("#main")
       .withTags(["wcag2a", "wcag2aa", "wcag21aa"])
