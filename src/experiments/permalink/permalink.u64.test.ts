@@ -54,9 +54,10 @@ for (const seed of U64_TEST_SEEDS) {
   });
 }
 
-// Criterion 1: Round trip encode, decode, and replay with seeds 0, 2^53, 2^53 + 1, 2^64 - 1
+// Criterion 1: Round trip encode, decode, and replay with seeds 0, 2^53 - 1, 2^53, 2^53 + 1, 2^64 - 1
 const REPLAY_SEEDS = [
   "0",
+  "9007199254740991", // 2^53 - 1 (MAX_SAFE_INTEGER)
   "9007199254740992", // 2^53
   "9007199254740993", // 2^53 + 1
   "18446744073709551615", // 2^64 - 1
@@ -173,6 +174,21 @@ for (const seed of OVERLONG_SEEDS) {
     }
   });
 }
+
+test("permalink.u64: seed 2^64 (18446744073709551616) is rejected with u64-overflow", () => {
+  const raw = {
+    ...FIXTURE_TEACHING_TAPE_EINSTEIN_08,
+    seed: "18446744073709551616",
+  };
+  const base64url = Buffer.from(JSON.stringify(raw)).toString("base64url");
+  const result = decodeTapePermalink(base64url);
+
+  assert.equal(result.kind, "invalid");
+  if (result.kind === "invalid") {
+    assert.equal(result.reason, "u64-overflow");
+    assert.ok(result.notice.includes("exceeds 2^64 - 1"));
+  }
+});
 
 // Full URL round trip
 test("permalink.u64: full URL round-trip with seed 2^53 + 1 preserves seed and checkpoint", () => {
