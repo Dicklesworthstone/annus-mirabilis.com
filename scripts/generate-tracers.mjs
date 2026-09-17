@@ -4,8 +4,8 @@ import { dirname, relative, resolve } from "node:path";
 import { fileURLToPath } from "node:url";
 import { BM01_DEFAULTS } from "../src/experiments/bm01/definition.ts";
 import { encodeResult } from "../src/experiments/results/codec.ts";
-import { hashSnapshotFunction } from "./snapshotFunctionHash.mjs";
 import { createBm01Recording, measureBm01 } from "../src/workers/operations/bm01.ts";
+import { hashSnapshotFunction } from "./snapshotFunctionHash.mjs";
 
 const root = resolve(dirname(fileURLToPath(import.meta.url)), "..");
 const SNAPSHOT_FUNCTION = {

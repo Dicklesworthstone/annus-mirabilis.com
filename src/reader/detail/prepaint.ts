@@ -1,4 +1,4 @@
-import { type Detail, DETAIL_STORAGE_KEY, FACES, parseDetail } from "../navigation/state.ts";
+import { DETAIL_STORAGE_KEY, type Detail, FACES, parseDetail } from "../navigation/state.ts";
 
 const STORAGE_KEY: string = DETAIL_STORAGE_KEY;
 const VIEW_IDS: readonly string[] = FACES;

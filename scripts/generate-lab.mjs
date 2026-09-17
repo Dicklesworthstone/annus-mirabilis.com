@@ -3,9 +3,9 @@ import { mkdir, readFile, writeFile } from "node:fs/promises";
 import { dirname, relative, resolve } from "node:path";
 import { fileURLToPath } from "node:url";
 import { BM06_DEFAULTS } from "../src/experiments/bm06/definition.ts";
-import { hashSnapshotFunction } from "./snapshotFunctionHash.mjs";
 import { encodeResult } from "../src/experiments/results/codec.ts";
 import { evaluateBm06 } from "../src/workers/operations/bm06.ts";
+import { hashSnapshotFunction } from "./snapshotFunctionHash.mjs";
 
 const root = resolve(dirname(fileURLToPath(import.meta.url)), "..");
 /** Hash the actual local import closure, including type contracts and this generator. */

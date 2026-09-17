@@ -26,7 +26,12 @@ import {
 import type { TypedCommand } from "../src/experiments/commands/types.ts";
 
 import { parseWithU64, stringifyWithU64 } from "../src/experiments/identity/jsonCodec.ts";
-import { parseU64, type U64String, U64ValidationError } from "../src/experiments/identity/u64.ts";
+import {
+  parseU64,
+  toU64String,
+  type U64String,
+  U64ValidationError,
+} from "../src/experiments/identity/u64.ts";
 import { encodeU64QueryParams, getU64QueryParam } from "../src/experiments/identity/urlCodec.ts";
 import { decodeOutcome, decodeRefusal, decodeResult } from "../src/experiments/results/codec.ts";
 import {
@@ -46,7 +51,6 @@ import {
 } from "../src/experiments/results/planExamples.ts";
 import { ResultStatusNote } from "../src/experiments/results/ResultStatusNote.tsx";
 import type { ScientificResult } from "../src/experiments/results/types.ts";
-import { toU64String } from "../src/experiments/identity/u64.ts";
 import { createInstanceStore, type RequestToken } from "../src/experiments/store/instanceStore.ts";
 import { createStreamKey } from "../src/experiments/streams/allocation.ts";
 import { ControlTapeRecorder } from "../src/experiments/tapes/recorder.ts";

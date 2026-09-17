@@ -1,8 +1,8 @@
 import { describe, expect, test } from "bun:test";
 import { renderToStaticMarkup } from "react-dom/server";
+import type { KernelListing } from "../../content/kernel/types.ts";
 import bm06Example from "../../generated/bm06-example.json" with { type: "json" };
 import kernelListings from "../../generated/kernel-listings.json" with { type: "json" };
-import type { KernelListing } from "../../content/kernel/types.ts";
 import { ShowTheCode } from "./ShowTheCode.tsx";
 
 /**
