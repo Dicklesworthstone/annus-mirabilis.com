@@ -129,12 +129,8 @@ describe("detailChange.presentation (am-read-detail-axis-sfc)", () => {
 
     // 3. Store received zero commands and no worker messages
     const afterSnapshot = store.getSnapshot();
-    expect(afterSnapshot.accepted?.snapshotVersion).toBe(
-      initialSnapshot.accepted?.snapshotVersion,
-    );
-    expect(afterSnapshot.accepted?.revisions.input).toBe(
-      initialSnapshot.accepted?.revisions.input,
-    );
+    expect(afterSnapshot.accepted?.snapshotVersion).toBe(initialSnapshot.accepted?.snapshotVersion);
+    expect(afterSnapshot.accepted?.revisions.input).toBe(initialSnapshot.accepted?.revisions.input);
     expect(workerMessages.length).toBe(0);
 
     // 4. Exactly one announcement produced

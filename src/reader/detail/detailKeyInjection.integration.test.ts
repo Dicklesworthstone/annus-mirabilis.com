@@ -27,7 +27,11 @@ describe("detailKeyInjection.integration (am-read-detail-axis-sfc)", () => {
   });
 
   test("no second spelling of the detail settings key appears anywhere in src/reader/detail/", () => {
-    const suspiciousKeyPatterns = [/am:detail\b/i, /am:settings:detail\b/i, /am:settings:v1:detail-level\b/i];
+    const suspiciousKeyPatterns = [
+      /am:detail\b/i,
+      /am:settings:detail\b/i,
+      /am:settings:v1:detail-level\b/i,
+    ];
     const files = readdirSync(DETAIL_DIR).filter(
       (name) =>
         (name.endsWith(".ts") || name.endsWith(".tsx")) &&
@@ -37,9 +41,7 @@ describe("detailKeyInjection.integration (am-read-detail-axis-sfc)", () => {
     for (const file of files) {
       const content = readFileSync(path.join(DETAIL_DIR, file), "utf8");
       for (const pattern of suspiciousKeyPatterns) {
-        expect(pattern.test(content)).toBe(
-          false,
-        );
+        expect(pattern.test(content)).toBe(false);
       }
     }
   });

@@ -1,5 +1,4 @@
 import { describe, expect, test } from "bun:test";
-import { createElement } from "react";
 import { renderToStaticMarkup } from "react-dom/server";
 import { PaperPage } from "../PaperPage.tsx";
 import { PaperReader } from "../PaperReader.tsx";

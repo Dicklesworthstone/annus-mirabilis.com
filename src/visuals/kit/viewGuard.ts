@@ -26,10 +26,22 @@ export interface ViewGuardViolation {
 }
 
 const FORBIDDEN_IMPORT_PATTERNS = [
-  { pattern: /from\s+["'][^"']*physics\/reference\/[^"']*["']/, message: "Views must not import reference physics calculators" },
-  { pattern: /from\s+["'][^"']*workers\/wasm\/[^"']*["']/, message: "Views must not import worker WASM calculators directly" },
-  { pattern: /from\s+["'][^"']*public\/wasm\/[^"']*["']/, message: "Views must not import compiled WASM binaries directly" },
-  { pattern: /from\s+["'][^"']*equations\/[^"']*["']/, message: "Views must not import from equations selection store (decoupling rule)" },
+  {
+    pattern: /from\s+["'][^"']*physics\/reference\/[^"']*["']/,
+    message: "Views must not import reference physics calculators",
+  },
+  {
+    pattern: /from\s+["'][^"']*workers\/wasm\/[^"']*["']/,
+    message: "Views must not import worker WASM calculators directly",
+  },
+  {
+    pattern: /from\s+["'][^"']*public\/wasm\/[^"']*["']/,
+    message: "Views must not import compiled WASM binaries directly",
+  },
+  {
+    pattern: /from\s+["'][^"']*equations\/[^"']*["']/,
+    message: "Views must not import from equations selection store (decoupling rule)",
+  },
 ];
 
 const STATE_PHYSICS_TERMS = [
@@ -49,15 +61,16 @@ const STATE_PHYSICS_TERMS = [
   "Lorentz",
 ].join("|");
 
+const HOOK_NAME = ["use", "State"].join("");
+
 const PRIVATE_PHYSICS_STATE_PATTERNS = [
   {
-    pattern: new RegExp(`use` + `State<[^>]*\\b(?:${STATE_PHYSICS_TERMS})\\b[^>]*>`),
+    pattern: new RegExp(`${HOOK_NAME}<[^>]*\\b(?:${STATE_PHYSICS_TERMS})\\b[^>]*>`),
     message: "Component maintains private useState typed with a physical quantity or parameter",
   },
   {
     pattern: new RegExp(
-      `use` +
-        `State(?:\\s*<[^>]*>)?\\s*\\(\\s*\\b(?:D|t|eta|temperature|viscosity|velocity|particleRadius|gamma|lorentzFactor|frequency|wavelength|energy|mass|k_B|kB)\\b`,
+      `${HOOK_NAME}(?:\\s*<[^>]*>)?\\s*\\(\\s*\\b(?:D|t|eta|temperature|viscosity|velocity|particleRadius|gamma|lorentzFactor|frequency|wavelength|energy|mass|k_B|kB)\\b`,
     ),
     message: "Component maintains private useState initialized with a physical parameter",
   },
@@ -71,29 +84,37 @@ const PRIVATE_PHYSICS_STATE_PATTERNS = [
 const RECOMPUTE_DIFFUSION_PATTERNS = [
   {
     pattern: /2\s*\*\s*(?:localD|localDiffusivity|D|diffusivity|diffusionConstant)\s*\*\s*t/,
-    message: "Component recomputes diffusion mean square displacement (2 * D * t) locally instead of reading from accepted snapshot",
+    message:
+      "Component recomputes diffusion mean square displacement (2 * D * t) locally instead of reading from accepted snapshot",
   },
   {
-    pattern: /Math\.sqrt\s*\(\s*(?:2|4|6)\s*\*\s*(?:localD|localDiffusivity|D|diffusivity|diffusionConstant)\s*\*\s*t\s*\)/,
-    message: "Component recomputes diffusion RMS displacement (sqrt(2 * D * t)) locally instead of reading from accepted snapshot",
+    pattern:
+      /Math\.sqrt\s*\(\s*(?:2|4|6)\s*\*\s*(?:localD|localDiffusivity|D|diffusivity|diffusionConstant)\s*\*\s*t\s*\)/,
+    message:
+      "Component recomputes diffusion RMS displacement (sqrt(2 * D * t)) locally instead of reading from accepted snapshot",
   },
   {
     pattern: /(?:k_B|kB|R)\s*\*\s*T\s*\/\s*(?:\(\s*6\s*\*\s*Math\.PI|6\s*\*\s*Math\.PI)/,
-    message: "Component recomputes Stokes-Einstein diffusion coefficient locally instead of consuming simulation owner results",
+    message:
+      "Component recomputes Stokes-Einstein diffusion coefficient locally instead of consuming simulation owner results",
   },
 ];
 
 const RECOMPUTE_LORENTZ_PATTERNS = [
   {
     pattern: /\(\s*x\s*-\s*(?:localVelocity|localV|v|velocity)\s*\*\s*t\s*\)\s*\/\s*Math\.sqrt/,
-    message: "Component recomputes transformed coordinates (Lorentz boost) locally instead of reading from accepted snapshot",
+    message:
+      "Component recomputes transformed coordinates (Lorentz boost) locally instead of reading from accepted snapshot",
   },
   {
-    pattern: /1\s*\/\s*Math\.sqrt\s*\(\s*1\s*-\s*(?:(?:localVelocity|velocity|v)\s*\*\s*(?:localVelocity|velocity|v)|(?:\(?\s*(?:localVelocity|velocity|v)\s*\/\s*c\s*\)?\s*\*\s*2))/,
-    message: "Component recomputes Lorentz gamma factor locally instead of reading from accepted snapshot",
+    pattern:
+      /1\s*\/\s*Math\.sqrt\s*\(\s*1\s*-\s*(?:(?:localVelocity|velocity|v)\s*\*\s*(?:localVelocity|velocity|v)|(?:\(?\s*(?:localVelocity|velocity|v)\s*\/\s*c\s*\)?\s*\*\s*2))/,
+    message:
+      "Component recomputes Lorentz gamma factor locally instead of reading from accepted snapshot",
   },
   {
-    pattern: /t\s*\*\s*Math\.sqrt\s*\(\s*1\s*-\s*(?:v\s*\*\s*v|velocity\s*\*\s*velocity|localVelocity\s*\*\s*localVelocity)/,
+    pattern:
+      /t\s*\*\s*Math\.sqrt\s*\(\s*1\s*-\s*(?:v\s*\*\s*v|velocity\s*\*\s*velocity|localVelocity\s*\*\s*localVelocity)/,
     message: "Component recomputes time dilation locally instead of reading from accepted snapshot",
   },
 ];
@@ -101,18 +122,21 @@ const RECOMPUTE_LORENTZ_PATTERNS = [
 const RECOMPUTE_ENERGY_PATTERNS = [
   {
     pattern: /(?:h|PLANCK)\s*\*\s*(?:nu|freq|frequency)\b/,
-    message: "Component recomputes quantum energy (E = h * nu) locally instead of reading from accepted snapshot",
+    message:
+      "Component recomputes quantum energy (E = h * nu) locally instead of reading from accepted snapshot",
   },
   {
     pattern: /(?:m|mass)\s*\*\s*c\s*\*\s*c\b/,
-    message: "Component recomputes rest energy (E = m * c^2) locally instead of reading from accepted snapshot",
+    message:
+      "Component recomputes rest energy (E = m * c^2) locally instead of reading from accepted snapshot",
   },
 ];
 
 const RAW_BINNING_PATTERNS = [
   {
     pattern: /function\s+binPositions|function\s+computeBins|const\s+bins\s*=\s*positions\.reduce/,
-    message: "Component re-bins raw positions into a histogram. Histograms accept only owner-supplied HistogramBinData.",
+    message:
+      "Component re-bins raw positions into a histogram. Histograms accept only owner-supplied HistogramBinData.",
   },
 ];
 
