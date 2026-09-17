@@ -41,10 +41,21 @@ function extractLicenseFromPkgJson(pkgData: Record<string, unknown>): string {
     return pkgData.license.trim();
   }
   if (Array.isArray(pkgData.licenses) && pkgData.licenses.length > 0) {
-    const types = pkgData.licenses
-      .map((l: unknown) => (typeof l === "string" ? l : (l as { type?: string } | undefined)?.type))
-      .filter(Boolean);
-    if (types.length === 1) return types[0];
+    const types: string[] = [];
+    for (const l of pkgData.licenses) {
+      if (typeof l === "string" && l.trim().length > 0) {
+        types.push(l.trim());
+      } else if (
+        typeof l === "object" &&
+        l !== null &&
+        "type" in l &&
+        typeof l.type === "string" &&
+        l.type.trim().length > 0
+      ) {
+        types.push(l.type.trim());
+      }
+    }
+    if (types.length === 1 && types[0] !== undefined) return types[0];
     if (types.length > 1) return `(${types.join(" OR ")})`;
   }
   if (typeof pkgData.licenses === "string" && pkgData.licenses.trim().length > 0) {
@@ -162,7 +173,10 @@ export function collectNpm(options: CollectNpmOptions): {
       license = "UNKNOWN";
     }
 
-    const version = pkgData.version || "unknown";
+    const version =
+      typeof pkgData.version === "string" && pkgData.version.length > 0
+        ? pkgData.version
+        : "unknown";
     const relativeSource = `node_modules/${pkgName}`;
 
     productionItems.set(key, {
@@ -171,8 +185,8 @@ export function collectNpm(options: CollectNpmOptions): {
       version,
       license,
       source: relativeSource,
-      licensePath,
-      licenseText,
+      ...(licensePath !== undefined ? { licensePath } : {}),
+      ...(licenseText !== undefined ? { licenseText } : {}),
       dependencyChain: currentChain,
     });
 
@@ -223,8 +237,8 @@ export function collectNpm(options: CollectNpmOptions): {
       version,
       license,
       source: `node_modules/${pkg}`,
-      licensePath,
-      licenseText,
+      ...(licensePath !== undefined ? { licensePath } : {}),
+      ...(licenseText !== undefined ? { licenseText } : {}),
       dependencyChain: [pkg],
     });
   }
