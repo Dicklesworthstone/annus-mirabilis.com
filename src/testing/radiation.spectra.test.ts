@@ -225,7 +225,7 @@ describe("radiation.spectra (am-ref-radiation-15c)", () => {
     });
   });
 
-  it("Band energy density: quadrature agrees with independent analytical series to 10^-7 relative error", () => {
+  it("Band energy density: quadrature agrees with independent analytical series to 10^-9 relative error", () => {
     const set = getConstantSet("modern-si-2019");
     const T = 1200;
     const nu1 = 1.0e14;
@@ -236,7 +236,7 @@ describe("radiation.spectra (am-ref-radiation-15c)", () => {
 
     expect(quadPlanck.status).toBe("value");
     if (quadPlanck.status === "value") {
-      expect(withinTolerance(quadPlanck.value, seriesPlanck, { relative: 1e-7 }).ok).toBe(true);
+      expect(withinTolerance(quadPlanck.value, seriesPlanck, { relative: 1e-9 }).ok).toBe(true);
     }
 
     const quadWien = wienBandEnergyDensity(nu1, nu2, T, set);
@@ -244,7 +244,7 @@ describe("radiation.spectra (am-ref-radiation-15c)", () => {
 
     expect(quadWien.status).toBe("value");
     if (quadWien.status === "value") {
-      expect(withinTolerance(quadWien.value, seriesWien, { relative: 1e-7 }).ok).toBe(true);
+      expect(withinTolerance(quadWien.value, seriesWien, { relative: 1e-9 }).ok).toBe(true);
     }
 
     // Wavelength band
@@ -255,11 +255,78 @@ describe("radiation.spectra (am-ref-radiation-15c)", () => {
 
     expect(quadWave.status).toBe("value");
     if (quadWave.status === "value") {
-      expect(withinTolerance(quadWave.value, seriesWave, { relative: 1e-7 }).ok).toBe(true);
+      expect(withinTolerance(quadWave.value, seriesWave, { relative: 1e-9 }).ok).toBe(true);
+    }
+
+    // Golden band (LQ-03): 400-600 THz at 5000 K holding ~0.1286853 J/m^3
+    const tGolden = 5000;
+    const nuGolden1 = 400e12;
+    const nuGolden2 = 600e12;
+    const quadGolden = planckBandEnergyDensity(nuGolden1, nuGolden2, tGolden, set);
+    const seriesGolden = planckFrequencyBandSeries(nuGolden1, nuGolden2, tGolden, set);
+    expect(quadGolden.status).toBe("value");
+    if (quadGolden.status === "value") {
+      expect(withinTolerance(quadGolden.value, 0.1286853, { relative: 1e-5 }).ok).toBe(true);
+      expect(withinTolerance(quadGolden.value, seriesGolden, { relative: 1e-9 }).ok).toBe(true);
+    }
+
+    // Multi-temperature matching frequency/wavelength band integrals agree to 10^-10 at 500 K, 3000 K, 10000 K
+    const c = 299792458;
+    for (const testT of [500, 3000, 10000]) {
+      const f1 = 200e12;
+      const f2 = 500e12;
+      const l1 = c / f2;
+      const l2 = c / f1;
+      const fRes = planckBandEnergyDensity(f1, f2, testT, set);
+      const lRes = planckWavelengthBandEnergyDensity(l1, l2, testT, set);
+      expect(fRes.status).toBe("value");
+      expect(lRes.status).toBe("value");
+      if (fRes.status === "value" && lRes.status === "value") {
+        expect(withinTolerance(fRes.value, lRes.value, { relative: 1e-10 }).ok).toBe(true);
+      }
     }
 
     logger.log({
       testId: "spectra-band-quadrature-vs-series",
+      beadId: BEAD_ID,
+      outcome: "passed",
+    });
+  });
+
+  it("adversarial fixture: a spectral-axis relabeling preserves density must FAIL", () => {
+    const set = getConstantSet("modern-si-2019");
+    const T = 4000;
+    const c = 299792458;
+    const nu = 5.0e14;
+    const lambda = c / nu;
+
+    const uNu = planckFrequencyEnergyDensity(nu, T, set);
+    const uLambda = planckWavelengthEnergyDensity(lambda, T, set);
+
+    expect(uNu.status).toBe("value");
+    expect(uLambda.status).toBe("value");
+
+    if (uNu.status === "value" && uLambda.status === "value") {
+      // Direct relabeling assertion (substituting coordinates without Jacobian |dnu/dlambda| = c/lambda^2)
+      // must fail because spectral density is a differential distribution, not a scalar value.
+      const directRelabelAssert = () => {
+        if (!withinTolerance(uNu.value, uLambda.value, { relative: 1e-2 }).ok) {
+          throw new Error(
+            `Coordinate relabeling failed: u_nu (${uNu.value}) != u_lambda (${uLambda.value}) without Jacobian`,
+          );
+        }
+      };
+      expect(directRelabelAssert).toThrow(
+        "Coordinate relabeling failed: u_nu",
+      );
+
+      // Coordinate transformation with Jacobian MUST hold
+      const jacobian = c / (lambda * lambda);
+      expect(withinTolerance(uLambda.value, uNu.value * jacobian, { relative: 1e-12 }).ok).toBe(true);
+    }
+
+    logger.log({
+      testId: "adversarial-spectral-axis-relabeling-fails",
       beadId: BEAD_ID,
       outcome: "passed",
     });

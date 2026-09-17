@@ -178,4 +178,46 @@ describe("radiation.entropy (am-ref-radiation-15c)", () => {
       outcome: "passed",
     });
   });
+
+  it("adversarial fixture: an arbitrary entropy-density constant cancels must FAIL", () => {
+    // If an arbitrary constant C is added to the entropy density phi(rho, nu),
+    // the total entropy S = V * phi picks up an extra term C * V * dNu.
+    // In an isothermal expansion from V0 to V (V != V0), delta S = S(V) - S(V0)
+    // picks up C * (V - V0) * dNu, so the constant DOES NOT cancel.
+    const params = {
+      E: 1e-6,
+      nu: 5.0e14,
+      dNu: 1.0e12,
+      V0: 1.0,
+      V: 2.0, // V != V0
+      C: 1e-10, // arbitrary nonzero constant
+    };
+
+    const res = entropyWithUnfixedConstant(params);
+    expect(res.status).toBe("value");
+
+    if (res.status === "value") {
+      // The false claim that "an arbitrary entropy-density constant cancels across volume changes"
+      // must fail because extraTerm != 0 when V != V0.
+      const assertConstantCancels = () => {
+        if (Math.abs(res.extraTerm) > 1e-15) {
+          throw new Error(
+            `Arbitrary entropy-density constant failed to cancel: residual is ${res.extraTerm} J/K`,
+          );
+        }
+      };
+
+      expect(assertConstantCancels).toThrow(
+        "Arbitrary entropy-density constant failed to cancel",
+      );
+      expect(Math.abs(res.deltaSWithC - res.deltaS)).toBeGreaterThan(0);
+      expect(res.extraTerm).toBeCloseTo(params.dNu * params.C * (params.V - params.V0), 15);
+    }
+
+    logger.log({
+      testId: "adversarial-entropy-density-constant-cancellation-fails",
+      beadId: BEAD_ID,
+      outcome: "passed",
+    });
+  });
 });

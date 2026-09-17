@@ -199,11 +199,17 @@ export type MeanQuantumEnergyWienResult = Readonly<{
   moleculeKineticEnergyEv: number;
   ratioToMoleculeKinetic: number;
   ratioAt600THz: number;
+  integrationRange: "all-positive-frequencies";
+  wienAdmittedBoundaryX: number;
+  energyShareBelowBoundary: number;
+  countShareBelowBoundary: number;
+  modelStatus: "stipulated-model-extrapolated-beyond-admitted-regime";
 }>;
 
 export type BandLimitedMeanQuantumEnergyResult =
   | Readonly<{
       status: "value";
+      historicalStatus: "editorial-variant";
       modelStatus: "editorial-variant";
       meanQuantumEnergyWien: number;
       meanQuantumEnergyWienEv: number;
