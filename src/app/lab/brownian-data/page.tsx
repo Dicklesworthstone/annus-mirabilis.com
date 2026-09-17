@@ -25,9 +25,9 @@ export default function BrownianDataPage() {
           successive rows for the same track produce non-overlapping displacements. Choose time and
           position units in the form rather than relying on a filename or coordinate magnitude.
         </p>
-        <pre aria-label="Illustrative CSV format">
-          {"track,time,x,y\nA,0,0,0\nA,1,0.4,-0.2\nA,2,0.1,0.3"}
-        </pre>
+        <figure aria-label="Illustrative CSV format">
+          <pre>{"track,time,x,y\nA,0,0,0\nA,1,0.4,-0.2\nA,2,0.1,0.3"}</pre>
+        </figure>
         <p>
           Real camera recordings normally need a noise and exposure model. This route does not
           subtract an invented correction, repair missing tracks or pass unknown noise off as zero.
