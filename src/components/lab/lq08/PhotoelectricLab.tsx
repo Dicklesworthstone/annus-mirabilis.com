@@ -1,10 +1,9 @@
 "use client";
 
 import { useEffect, useId, useMemo, useState, useSyncExternalStore } from "react";
-import { LQ08_NOT_MODELED } from "../../../experiments/lq08/definition.ts";
+import { LQ08_HISTORICAL_CHECK, LQ08_NOT_MODELED } from "../../../experiments/lq08/definition.ts";
 import { evaluateMillikanOverlay } from "../../../experiments/lq08/millikan.ts";
 import { createLq08Session, type PreparedLq08Example } from "../../../experiments/lq08/session.ts";
-import { einsteinPrintedStoppingCheck } from "../../../physics/reference/photoelectric.ts";
 import {
   CurrentVoltagePlot,
   EnergyLadderPlot,
@@ -541,11 +540,11 @@ export function PhotoelectricLab({ example }: PhotoelectricLabProps) {
             <span className="font-semibold text-amber-900 dark:text-amber-200">
               What was neglected:{" "}
             </span>
-            {einsteinPrintedStoppingCheck().readoutStatements.neglectStatement}
+            {LQ08_HISTORICAL_CHECK.neglectStatement}
           </div>
           <div className="p-2.5 rounded bg-blue-50/60 dark:bg-blue-950/30 border border-blue-200 dark:border-blue-900/50">
             <span className="font-semibold text-blue-900 dark:text-blue-200">What it is not: </span>
-            {einsteinPrintedStoppingCheck().readoutStatements.notNamedMetalStatement}
+            {LQ08_HISTORICAL_CHECK.notNamedMetalStatement}
           </div>
           <div className="grid grid-cols-1 md:grid-cols-2 gap-3 pt-1">
             <div className="p-2.5 rounded bg-white dark:bg-slate-800/80 border border-slate-200 dark:border-slate-700">
@@ -554,14 +553,13 @@ export function PhotoelectricLab({ example }: PhotoelectricLabProps) {
               </div>
               <p className="font-mono text-xs">
                 &Pi; = (R &middot; &beta; &middot; &nu;) / E ={" "}
-                {einsteinPrintedStoppingCheck().representationA.stoppingPotentialVolts.toFixed(4)} V
-                ({einsteinPrintedStoppingCheck().representationA.printedText})
+                {LQ08_HISTORICAL_CHECK.representationA.stoppingPotentialVolts.toFixed(4)} V (
+                {LQ08_HISTORICAL_CHECK.representationA.printedText})
               </p>
               <p className="text-[11px] text-slate-500 mt-1">
-                Slope:{" "}
-                {einsteinPrintedStoppingCheck().representationA.slopeVsPerHz.toExponential(4)}{" "}
+                Slope: {LQ08_HISTORICAL_CHECK.representationA.slopeVsPerHz.toExponential(4)}{" "}
                 V&middot;s (modern h/e ={" "}
-                {einsteinPrintedStoppingCheck().representationA.modernSlopeVsPerHz.toExponential(4)}{" "}
+                {LQ08_HISTORICAL_CHECK.representationA.modernSlopeVsPerHz.toExponential(4)}{" "}
                 V&middot;s)
               </p>
             </div>
@@ -570,27 +568,12 @@ export function PhotoelectricLab({ example }: PhotoelectricLabProps) {
                 Live Hypothetical Comparison:
               </div>
               <p className="font-mono text-xs">
-                &nu; ={" "}
-                {(
-                  einsteinPrintedStoppingCheck().readoutStatements.hypotheticalComparison
-                    .frequencyHz / 1e12
-                ).toFixed(1)}{" "}
-                THz &rarr; h&nu; ={" "}
-                {einsteinPrintedStoppingCheck().readoutStatements.hypotheticalComparison.quantumEnergyEv.toFixed(
-                  6,
-                )}{" "}
-                eV
+                &nu; = {(params.frequency / 1e12).toFixed(1)} THz &rarr; h&nu; ={" "}
+                {qEnergyEv.toFixed(6)} eV
               </p>
               <p className="text-[11px] text-slate-500 mt-1">
-                Hypothetical &Phi; ={" "}
-                {einsteinPrintedStoppingCheck().readoutStatements.hypotheticalComparison.hypotheticalWorkFunctionEv.toFixed(
-                  1,
-                )}{" "}
-                eV &rarr; V_s ={" "}
-                {einsteinPrintedStoppingCheck().readoutStatements.hypotheticalComparison.stoppingPotentialVolts.toFixed(
-                  6,
-                )}{" "}
-                V ({einsteinPrintedStoppingCheck().readoutStatements.hypotheticalComparison.label})
+                Hypothetical &Phi; = {params.workFunction.toFixed(1)} eV &rarr; V_s ={" "}
+                {(vsVal ?? 0).toFixed(6)} V (hypothetical)
               </p>
             </div>
           </div>

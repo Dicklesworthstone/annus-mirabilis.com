@@ -141,3 +141,16 @@ export const LQ08_PRESETS = Object.freeze({
     }),
   }),
 });
+
+export const LQ08_HISTORICAL_CHECK = Object.freeze({
+  neglectStatement:
+    "Einstein sets P' = 0 as a deliberate neglect of escape work for order-of-magnitude comparison against Lenard's spark-potential observations, not as a physical prediction for a named metal.",
+  notNamedMetalStatement:
+    "This is not a prediction for any named metal; any real substance has P' > 0, so its stopping potential at this frequency is lower by exactly the amount the work function contributes.",
+  representationA: Object.freeze({
+    stoppingPotentialVolts: 4.3385,
+    printedText: "ca. 4,3 Volt",
+    slopeVsPerHz: 4.2121e-15,
+    modernSlopeVsPerHz: 4.1357e-15,
+  }),
+});
