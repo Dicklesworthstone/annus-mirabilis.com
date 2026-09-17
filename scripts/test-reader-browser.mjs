@@ -38,7 +38,7 @@ export async function checkReaderBrowser(browser, url, check) {
     check(
       "reader remains complete without JavaScript, including native derivation disclosures and 320px reflow",
     );
-    await passage.getByRole("link", { name: "Why?", exact: true }).click();
+    await passage.getByRole("link", { name: /^Why\?:/u }).click();
     assert.match(new URL(page.url()).pathname, /foundations\/mean-variance-rms\/$/);
     assert.equal(await page.locator("h1").innerText(), "Mean, variance and RMS");
     assert.match(await page.locator("main").innerText(), /A stopping point/);
@@ -55,13 +55,13 @@ export async function checkReaderBrowser(browser, url, check) {
       }
     });
     assert.equal(
-      await passage.getByRole("link", { name: "Why?", exact: true }).count(),
+      await passage.getByRole("link", { name: /^Why\?:/u }).count(),
       0,
       "Planted negative: removing Why? link must leave 0 matches in passage",
     );
     await assert.rejects(
       async () => {
-        await passage.getByRole("link", { name: "Why?", exact: true }).click({ timeout: 200 });
+        await passage.getByRole("link", { name: /^Why\?:/u }).click({ timeout: 200 });
       },
       (err) => err?.name === "TimeoutError",
       "Planted negative: clicking missing Why? link must fail the check",
@@ -168,7 +168,7 @@ export async function checkReaderBrowser(browser, url, check) {
     assert.equal(workers, 1);
     check("reader embeds the real lazy tracer worker and publishes an explicitly requested trial");
 
-    const why = passage.getByRole("link", { name: "Why?", exact: true });
+    const why = passage.getByRole("link", { name: /^Why\?:/u });
     await why.click();
     await dialog.waitFor({ state: "visible" });
     assert.equal(await dialog.getAttribute("aria-labelledby"), "clarification-mean-variance-rms");
@@ -222,7 +222,7 @@ export async function checkReaderBrowser(browser, url, check) {
 
     // Opening from a scrolled-to passage must update the history entry we return to.
     const other = page.locator("#arg-bm-independent-steps");
-    const otherWhy = other.getByRole("link", { name: "Why?", exact: true });
+    const otherWhy = other.getByRole("link", { name: /^Why\?:/u });
     await otherWhy.click();
     await dialog.waitFor({ state: "visible" });
     await page.goBack();
