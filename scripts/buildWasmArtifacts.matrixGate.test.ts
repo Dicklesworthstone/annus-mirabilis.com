@@ -1,5 +1,6 @@
 import assert from "node:assert/strict";
 import { mkdtempSync, readFileSync, writeFileSync } from "node:fs";
+import { tmpdir } from "node:os";
 import path from "node:path";
 import { describe, it } from "node:test";
 import { fileURLToPath } from "node:url";
@@ -225,7 +226,7 @@ describe("manifest values recorded and verification against moved rows (am-fs-sl
 
   it("verification run against a matrix whose row has since moved to not-started fails naming both the manifest value and current value", async () => {
     const { runWasmVerification } = await import("./verify-wasm-artifacts.ts");
-    const tempBase = process.env.AM_TEST_TMP ?? "/Volumes/USBNVME16TB/temp_agent_space";
+    const tempBase = process.env.AM_TEST_TMP ?? tmpdir();
     const tempDir = mkdtempSync(path.join(tempBase, "matrix-moved-"));
 
     // Write a fixture binding document where brownian_frames has moved to not-started

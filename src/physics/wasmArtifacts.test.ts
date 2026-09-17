@@ -7,6 +7,7 @@
 
 import assert from "node:assert/strict";
 import { existsSync, mkdtempSync, readFileSync, writeFileSync } from "node:fs";
+import { tmpdir } from "node:os";
 import { join, resolve } from "node:path";
 import { describe, it } from "node:test";
 import { runWasmVerification } from "../../scripts/verify-wasm-artifacts.ts";
@@ -18,7 +19,7 @@ import {
 import type { WasmArtifactManifest } from "../workers/protocol/provenance.ts";
 
 describe("WASM Artifact Verification Suite", () => {
-  const tempBase = process.env.AM_TEST_TMP ?? "/Volumes/USBNVME16TB/temp_agent_space";
+  const tempBase = process.env.AM_TEST_TMP ?? tmpdir();
   const manifestPath = resolve("public/wasm/manifest.json");
   const manifest = JSON.parse(readFileSync(manifestPath, "utf8")) as WasmArtifactManifest;
   const wasmPath = resolve(
