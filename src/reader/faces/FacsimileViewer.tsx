@@ -73,7 +73,7 @@ export function FacsimileViewer({
   const handlePageInputSubmit = (e: React.FormEvent) => {
     e.preventDefault();
     const parsed = parseInt(inputPage, 10);
-    if (!isNaN(parsed) && parsed >= 1 && parsed <= totalPages) {
+    if (!Number.isNaN(parsed) && parsed >= 1 && parsed <= totalPages) {
       onPageChange(parsed);
     } else {
       setInputPage(String(currentPage));
@@ -114,16 +114,20 @@ export function FacsimileViewer({
               onChange={(e) => setInputPage(e.target.value)}
               onBlur={() => {
                 const parsed = parseInt(inputPage, 10);
-                if (!isNaN(parsed) && parsed >= 1 && parsed <= totalPages) {
+                if (!Number.isNaN(parsed) && parsed >= 1 && parsed <= totalPages) {
                   onPageChange(parsed);
                 } else {
                   setInputPage(String(currentPage));
                 }
               }}
-              className="toolbar-page-input"
-              aria-label="Current PDF page"
+              aria-label="Current page number"
             />
-            <span className="toolbar-total-pages">/ {totalPages}</span>
+            <span className="page-total">/ {totalPages}</span>
+            {pageEntry?.printedPageLabel && (
+              <span className="printed-page-indicator">
+                (Printed: {pageEntry.printedPageLabel})
+              </span>
+            )}
           </form>
 
           <button
@@ -141,20 +145,20 @@ export function FacsimileViewer({
           <button
             type="button"
             className="toolbar-btn btn-zoom-out"
-            onClick={() => setZoom((z) => Math.max(z - 25, 50))}
-            disabled={zoom <= 50}
+            onClick={handleZoomOut}
+            disabled={zoom <= MIN_ZOOM}
             aria-label="Zoom out"
           >
             −
           </button>
-          <span className="toolbar-zoom-label" aria-live="polite">
+          <span className="zoom-level" aria-live="polite">
             {zoom}%
           </span>
           <button
             type="button"
             className="toolbar-btn btn-zoom-in"
-            onClick={() => setZoom((z) => Math.min(z + 25, 250))}
-            disabled={zoom >= 250}
+            onClick={handleZoomIn}
+            disabled={zoom >= MAX_ZOOM}
             aria-label="Zoom in"
           >
             +
@@ -162,16 +166,16 @@ export function FacsimileViewer({
           <button
             type="button"
             className="toolbar-btn btn-zoom-reset"
-            onClick={() => setZoom(100)}
-            disabled={zoom === 100}
-            aria-label="Reset zoom"
+            onClick={handleZoomReset}
+            disabled={zoom === DEFAULT_ZOOM}
+            aria-label="Reset zoom to 100%"
           >
             Reset
           </button>
         </div>
       </div>
 
-      <div className="facsimile-canvas-container" data-zoom={zoom} aria-label={accessibleLabel}>
+      <figure className="facsimile-canvas-container" data-zoom={zoom} aria-label={accessibleLabel}>
         <div className="facsimile-page-frame" style={{ width: `${zoom}%` }}>
           <div className="facsimile-page-preview" aria-hidden="true">
             <div className="facsimile-page-header-info">
@@ -182,11 +186,10 @@ export function FacsimileViewer({
               className="facsimile-render-canvas"
               data-page={currentPage}
               data-pdf-url={pdfUrl}
-              aria-hidden="true"
             />
           </div>
         </div>
-      </div>
-    </div>
+      </figure>
+    </section>
   );
 }
