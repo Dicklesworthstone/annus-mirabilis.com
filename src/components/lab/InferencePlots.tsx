@@ -30,6 +30,7 @@ export function InferenceValue({
     </span>
   );
 }
+
 export function InferenceInterval({
   snapshot,
   id,
@@ -42,20 +43,30 @@ export function InferenceInterval({
   if (result(snapshot, id).status !== "value")
     return <InferenceValue snapshot={snapshot} id={id} />;
   const v = array(snapshot, id);
+  const lower = v.at(0);
+  const upper = v.at(1);
+  if (lower === undefined || upper === undefined) {
+    return <InferenceValue snapshot={snapshot} id={id} />;
+  }
   return (
-    <span data-output={id} data-lower={v.at(0)} data-upper={v.at(1)}>
-      {display(v.at(0)!, factor)} – {display(v.at(1)!, factor)}
+    <span data-output={id} data-lower={lower} data-upper={upper}>
+      {display(lower, factor)} – {display(upper, factor)}
     </span>
   );
 }
+
 export function InferencePath({ snapshot }: { snapshot: AcceptedSnapshot }) {
   const p = snapshot.parameters as Bm07Parameters,
     times = array(snapshot, "observationTimes"),
     values = array(snapshot, "observationPositions");
   const coordinates = values.copy();
   const max = Math.max(...coordinates.map(Math.abs), 1e-30);
-  const x = (t: number) => 65 + (465 * t) / times.at(times.length - 1)!;
+  const maxTime = times.length > 0 ? (times.at(times.length - 1) ?? 1) : 1;
+  const safeMaxTime = maxTime > 0 ? maxTime : 1;
+  const x = (t: number) => 65 + (465 * t) / safeMaxTime;
   const y = (v: number) => 142 - (102 * v) / max;
+  const coordinateList = Array.from({ length: p.d }, (_, c) => `coord-${c}`);
+
   return (
     <figure className="plot" {...identity(snapshot)}>
       <svg
@@ -71,18 +82,19 @@ export function InferencePath({ snapshot }: { snapshot: AcceptedSnapshot }) {
         ))}
         {[0, 0.5, 1].map((f) => (
           <text key={f} x={65 + 465 * f} y="270" textAnchor="middle">
-            {display(times.at(times.length - 1)! * f)}
+            {display(safeMaxTime * f)}
           </text>
         ))}
-        {Array.from({ length: p.d }, (_, c) => (
+        {coordinateList.map((coordKey, c) => (
           <polyline
-            key={c}
+            key={coordKey}
             data-coordinate={c}
             className={c === 0 ? "curve" : "comparison-curve"}
-            points={Array.from(
-              { length: times.length },
-              (_, i) => `${x(times.at(i)!)} ${y(values.at(i * p.d + c)!)}`,
-            ).join(" ")}
+            points={Array.from({ length: times.length }, (_, i) => {
+              const t = times.at(i) ?? 0;
+              const v = values.at(i * p.d + c) ?? 0;
+              return `${x(t)} ${y(v)}`;
+            }).join(" ")}
           />
         ))}
         <text x="65" y="17">
@@ -99,6 +111,7 @@ export function InferencePath({ snapshot }: { snapshot: AcceptedSnapshot }) {
     </figure>
   );
 }
+
 export function InferenceFamily({ snapshot }: { snapshot: AcceptedSnapshot }) {
   if (result(snapshot, "familyNumbers").status !== "value")
     return (
@@ -108,13 +121,44 @@ export function InferenceFamily({ snapshot }: { snapshot: AcceptedSnapshot }) {
     );
   const radii = array(snapshot, "familyRadii"),
     numbers = array(snapshot, "familyNumbers");
-  const loX = Math.log10(radii.at(0)!),
-    hiX = Math.log10(radii.at(radii.length - 1)!);
-  const loY = Math.log10(numbers.at(numbers.length - 1)!),
-    hiY = Math.log10(numbers.at(0)!);
-  const x = (a: number) => 72 + (458 * (Math.log10(a) - loX)) / (hiX - loX);
-  const y = (n: number) => 240 - (205 * (Math.log10(n) - loY)) / (hiY - loY);
+
+  const rFirst = radii.length > 0 ? radii.at(0) : undefined;
+  const rLast = radii.length > 0 ? radii.at(radii.length - 1) : undefined;
+  const nFirst = numbers.length > 0 ? numbers.at(0) : undefined;
+  const nLast = numbers.length > 0 ? numbers.at(numbers.length - 1) : undefined;
+
+  if (rFirst === undefined || rLast === undefined || nFirst === undefined || nLast === undefined) {
+    return (
+      <p className="notice">
+        <InferenceValue snapshot={snapshot} id="familyNumbers" />
+      </p>
+    );
+  }
+
+  const loX = Math.log10(rFirst),
+    hiX = Math.log10(rLast);
+  const loY = Math.log10(nLast),
+    hiY = Math.log10(nFirst);
+  const spanX = hiX - loX !== 0 ? hiX - loX : 1;
+  const spanY = hiY - loY !== 0 ? hiY - loY : 1;
+  const x = (a: number) => 72 + (458 * (Math.log10(a) - loX)) / spanX;
+  const y = (n: number) => 240 - (205 * (Math.log10(n) - loY)) / spanY;
   const indices = [0, 20, 40];
+
+  const samplePoints = indices
+    .map((idx) => {
+      const r = radii.at(idx);
+      const n = numbers.at(idx);
+      return r !== undefined && n !== undefined ? { idx, r, n } : null;
+    })
+    .filter((pt): pt is { idx: number; r: number; n: number } => pt !== null);
+
+  const familyPairs = Array.from({ length: radii.length }, (_, i) => {
+    const r = radii.at(i);
+    const n = numbers.at(i);
+    return r !== undefined && n !== undefined ? { r, n, i } : null;
+  }).filter((p): p is { r: number; n: number; i: number } => p !== null);
+
   return (
     <figure className="plot" {...identity(snapshot)}>
       <svg
@@ -123,23 +167,20 @@ export function InferenceFamily({ snapshot }: { snapshot: AcceptedSnapshot }) {
         aria-label="Compatible radius and molecular-number pairs on logarithmic axes. A larger assumed radius gives a smaller inferred molecular number."
       >
         <path className="axis" d="M72 25V245H530" />
-        {indices.map((i) => (
-          <g key={i}>
-            <text x={x(radii.at(i)!)} y="265" textAnchor="middle">
-              {display(radii.at(i)!, 1e6)}
+        {samplePoints.map((pt) => (
+          <g key={`sample-point-${pt.idx}`}>
+            <text x={x(pt.r)} y="265" textAnchor="middle">
+              {display(pt.r, 1e6)}
             </text>
-            <text x="64" y={y(numbers.at(i)!) + 4} textAnchor="end">
-              {display(numbers.at(i)!, 1e-23)}
+            <text x="64" y={y(pt.n) + 4} textAnchor="end">
+              {display(pt.n, 1e-23)}
             </text>
           </g>
         ))}
         <polyline
           className="curve"
           data-family-curve
-          points={Array.from(
-            { length: radii.length },
-            (_, i) => `${x(radii.at(i)!)} ${y(numbers.at(i)!)}`,
-          ).join(" ")}
+          points={familyPairs.map((p) => `${x(p.r)} ${y(p.n)}`).join(" ")}
         />
         <text x="72" y="17">
           N (10²³ mol⁻¹); logarithmic axes
@@ -165,10 +206,10 @@ export function InferenceFamily({ snapshot }: { snapshot: AcceptedSnapshot }) {
               </tr>
             </thead>
             <tbody>
-              {Array.from({ length: radii.length }, (_, i) => (
-                <tr key={i}>
-                  <th scope="row">{display(radii.at(i)!, 1e6)}</th>
-                  <td>{display(numbers.at(i)!, 1e-23)}</td>
+              {familyPairs.map((pair) => (
+                <tr key={`radius-row-${pair.i}-${pair.r}`}>
+                  <th scope="row">{display(pair.r, 1e6)}</th>
+                  <td>{display(pair.n, 1e-23)}</td>
                 </tr>
               ))}
             </tbody>
@@ -178,6 +219,7 @@ export function InferenceFamily({ snapshot }: { snapshot: AcceptedSnapshot }) {
     </figure>
   );
 }
+
 export function InferenceCoverage({
   snapshot,
   molecular = false,
@@ -194,15 +236,42 @@ export function InferenceCoverage({
       </p>
     );
   const values = array(snapshot, key),
-    rows = values.length / 4;
-  const bounds = Array.from({ length: rows }, (_, i) => [
-    values.at(4 * i + 1)!,
-    values.at(4 * i + 2)!,
-  ]).flat();
-  const lo = Math.min(0, ...bounds.map(Math.log10)),
-    hi = Math.max(0, ...bounds.map(Math.log10));
-  const x = (v: number) => 65 + (465 * (Math.log10(v) - lo)) / Math.max(hi - lo, 0.01);
+    rows = Math.floor(values.length / 4);
+
+  type TrialItem = {
+    index: number;
+    id: string;
+    estimate: number;
+    lower: number;
+    upper: number;
+    covers: boolean;
+  };
+
+  const trials: TrialItem[] = [];
+  for (let i = 0; i < rows; i++) {
+    const est = values.at(i * 4);
+    const low = values.at(i * 4 + 1);
+    const up = values.at(i * 4 + 2);
+    const cov = values.at(i * 4 + 3);
+    if (est !== undefined && low !== undefined && up !== undefined) {
+      trials.push({
+        index: i,
+        id: `trial-item-${i + 1}`,
+        estimate: est,
+        lower: low,
+        upper: up,
+        covers: cov === 1,
+      });
+    }
+  }
+
+  const bounds = trials.flatMap((t) => [t.lower, t.upper]);
+  const lo = Math.min(0, ...bounds.map(Math.log10));
+  const hi = Math.max(0, ...bounds.map(Math.log10));
+  const span = Math.max(hi - lo, 0.01);
+  const x = (v: number) => 65 + (465 * (Math.log10(v) - lo)) / span;
   const y = (i: number) => 32 + (340 * i) / Math.max(rows - 1, 1);
+
   return (
     <figure
       className="plot"
@@ -216,10 +285,10 @@ export function InferenceCoverage({
       >
         <path className="axis" d="M65 20V380H530" />
         <line x1={x(1)} x2={x(1)} y1="20" y2="380" className="inference-truth" />
-        {Array.from({ length: rows }, (_, i) => (
-          <g key={i} className={values.at(i * 4 + 3) === 1 ? "inference-cover" : "inference-miss"}>
-            <line x1={x(values.at(i * 4 + 1)!)} x2={x(values.at(i * 4 + 2)!)} y1={y(i)} y2={y(i)} />
-            <circle cx={x(values.at(i * 4)!)} cy={y(i)} r="1.8" />
+        {trials.map((trial) => (
+          <g key={trial.id} className={trial.covers ? "inference-cover" : "inference-miss"}>
+            <line x1={x(trial.lower)} x2={x(trial.upper)} y1={y(trial.index)} y2={y(trial.index)} />
+            <circle cx={x(trial.estimate)} cy={y(trial.index)} r="1.8" />
           </g>
         ))}
         <text x="57" y="36" textAnchor="end">
@@ -231,9 +300,13 @@ export function InferenceCoverage({
         <text x={x(1)} y="17" textAnchor="middle">
           True value = 1
         </text>
-        {[lo, (lo + hi) / 2, hi].map((v, i) => (
-          <text key={i} x={65 + (465 * i) / 2} y="400" textAnchor="middle">
-            {display(10 ** v)}
+        {[
+          { key: "lo", v: lo, xPos: 65 },
+          { key: "mid", v: (lo + hi) / 2, xPos: 65 + 465 / 2 },
+          { key: "hi", v: hi, xPos: 65 + 465 },
+        ].map((tick) => (
+          <text key={tick.key} x={tick.xPos} y="400" textAnchor="middle">
+            {display(10 ** tick.v)}
           </text>
         ))}
         <text x="300" y="422" textAnchor="middle">
@@ -260,13 +333,13 @@ export function InferenceCoverage({
               </tr>
             </thead>
             <tbody>
-              {Array.from({ length: rows }, (_, i) => (
-                <tr key={i}>
-                  <th scope="row">{i + 1}</th>
-                  {[0, 1, 2].map((c) => (
-                    <td key={c}>{display(values.at(i * 4 + c)!)}</td>
-                  ))}
-                  <td>{values.at(i * 4 + 3) === 1 ? "Yes" : "No"}</td>
+              {trials.map((trial) => (
+                <tr key={trial.id}>
+                  <th scope="row">{trial.index + 1}</th>
+                  <td>{display(trial.estimate)}</td>
+                  <td>{display(trial.lower)}</td>
+                  <td>{display(trial.upper)}</td>
+                  <td>{trial.covers ? "Yes" : "No"}</td>
                 </tr>
               ))}
             </tbody>
