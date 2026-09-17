@@ -33,12 +33,16 @@ export function InferenceLab({
 }) {
   const id = useId(),
     [session] = useState(() => createBm07Session(`bm07-${id}`, example, createBm07BrowserChannel));
+  const serverAccepted = session.getServerSnapshot().accepted;
+  if (!serverAccepted) {
+    throw new Error("Missing accepted inference snapshot");
+  }
   const view = useSyncExternalStore(
       session.subscribe,
       session.getSnapshot,
       session.getServerSnapshot,
     ),
-    snapshot = view.accepted!,
+    snapshot = view.accepted ?? serverAccepted,
     p = snapshot.parameters as Bm07Parameters;
   const [draft, setDraft] = useState(() => toInferenceDraft(example.parameters));
   const [ready, setReady] = useState(false),
@@ -91,9 +95,11 @@ export function InferenceLab({
   function newTrial() {
     try {
       const seed = crypto.getRandomValues(new Uint32Array(2));
+      const high = seed[0] ?? 0;
+      const low = seed[1] ?? 0;
       apply({
         ...p,
-        seed: ((BigInt(seed[0]!) << 32n) | BigInt(seed[1]!)).toString(),
+        seed: ((BigInt(high) << 32n) | BigInt(low)).toString(),
         coverageTrials: 0,
       });
     } catch {
@@ -147,9 +153,9 @@ export function InferenceLab({
   const announcement = view.pending
     ? "Calculating the request. All displayed observations and estimates still belong to the accepted settings."
     : view.status === "refused"
-      ? `${view.refusal!.message} Accepted data remain unchanged.`
+      ? `${view.refusal?.message ?? "Request was refused."} Accepted data remain unchanged.`
       : view.status === "unavailable"
-        ? `${view.outcome!.message} The accepted data remain readable.`
+        ? `${view.outcome?.message ?? "Calculation unavailable."} The accepted data remain readable.`
         : view.status === "paused"
           ? "Calculation stopped. The accepted data remain unchanged."
           : isStatic
@@ -358,6 +364,7 @@ export function InferenceLab({
           )}
           <div className="actions">
             <button
+              type="button"
               disabled={!ready}
               className="secondary"
               onClick={() =>
@@ -374,6 +381,7 @@ export function InferenceLab({
               Use declared generator conditions
             </button>
             <button
+              type="button"
               disabled={!ready || !p.radiusKnown}
               className="secondary"
               onClick={() => apply({ ...p, a: p.a * 2 })}
@@ -381,6 +389,7 @@ export function InferenceLab({
               Assume twice the radius · same data
             </button>
             <button
+              type="button"
               disabled={!ready}
               className="secondary"
               onClick={() => apply({ ...p, radiusKnown: false, coverageTrials: 0 })}
@@ -394,13 +403,18 @@ export function InferenceLab({
             independent measurement.
           </p>
           <div className="actions">
-            <button disabled={!ready} className="secondary" onClick={newTrial}>
+            <button type="button" disabled={!ready} className="secondary" onClick={newTrial}>
               New independent trial
             </button>
-            <button disabled={!ready} className="secondary" onClick={share}>
+            <button type="button" disabled={!ready} className="secondary" onClick={share}>
               Copy accepted inference link
             </button>
-            <button disabled={!ready} className="secondary" onClick={exportObservations}>
+            <button
+              type="button"
+              disabled={!ready}
+              className="secondary"
+              onClick={exportObservations}
+            >
               Download accepted observations
             </button>
           </div>
@@ -434,24 +448,27 @@ export function InferenceLab({
           {view.refusal && (
             <div className="notice error">
               <p>{String(view.refusal.details?.requirements ?? view.refusal.message)}</p>
-              {view.refusal.rankedRepairs.map(
-                (repair, i) =>
-                  repair.action && (
-                    <button
-                      key={i}
-                      className="secondary"
-                      onClick={() =>
-                        apply({
-                          ...(view.requested!.parameters as Bm07Parameters),
-                          [repair.action!.parameterId]: repair.action!.value,
-                        })
-                      }
-                    >
-                      {repair.label}
-                    </button>
-                  ),
-              )}
-              <button className="secondary" onClick={() => apply(p)}>
+              {view.refusal.rankedRepairs.map((repair) => {
+                const action = repair.action;
+                if (!action) return null;
+                return (
+                  <button
+                    key={`${repair.label}-${action.parameterId}`}
+                    type="button"
+                    className="secondary"
+                    onClick={() => {
+                      const baseParams = (view.requested?.parameters ?? p) as Bm07Parameters;
+                      apply({
+                        ...baseParams,
+                        [action.parameterId]: action.value,
+                      });
+                    }}
+                  >
+                    {repair.label}
+                  </button>
+                );
+              })}
+              <button type="button" className="secondary" onClick={() => apply(p)}>
                 Restore accepted settings
               </button>
             </div>
@@ -589,6 +606,7 @@ export function InferenceLab({
           </details>
           <div className="inference-reveal">
             <button
+              type="button"
               disabled={!ready}
               className="secondary"
               onClick={() => setRevealedRun(revealed ? null : snapshot.runId)}
@@ -621,32 +639,51 @@ export function InferenceLab({
                 <thead>
                   <tr>
                     <th scope="col">Time</th>
-                    {Array.from({ length: p.d }, (_, c) => (
-                      <th key={c} scope="col">
-                        {c === 0 ? "x" : "y"} (μm)
-                      </th>
-                    ))}
-                    {Array.from({ length: p.d }, (_, c) => (
-                      <th key={c} scope="col">
-                        Δ{c === 0 ? "x" : "y"} (μm)
-                      </th>
-                    ))}
+                    {Array.from({ length: p.d }, (_, c) => {
+                      const coord = c === 0 ? "x" : "y";
+                      return (
+                        <th key={`pos-header-${coord}`} scope="col">
+                          {coord} (μm)
+                        </th>
+                      );
+                    })}
+                    {Array.from({ length: p.d }, (_, c) => {
+                      const coord = c === 0 ? "x" : "y";
+                      return (
+                        <th key={`delta-header-${coord}`} scope="col">
+                          Δ{coord} (μm)
+                        </th>
+                      );
+                    })}
                   </tr>
                 </thead>
                 <tbody>
-                  {Array.from({ length: times.length }, (_, i) => (
-                    <tr key={i}>
-                      <th scope="row">{display(times.at(i)!)}</th>
-                      {Array.from({ length: p.d }, (_, c) => (
-                        <td key={c}>{display(positions.at(i * p.d + c)!, 1e6)}</td>
-                      ))}
-                      {Array.from({ length: p.d }, (_, c) => (
-                        <td key={c}>
-                          {i === 0 ? "" : display(increments.at((i - 1) * p.d + c)!, 1e6)}
-                        </td>
-                      ))}
-                    </tr>
-                  ))}
+                  {Array.from({ length: times.length }, (_, i) => {
+                    const t = times.at(i);
+                    return (
+                      <tr key={`time-row-${t}`}>
+                        <th scope="row">{display(t)}</th>
+                        {Array.from({ length: p.d }, (_, c) => {
+                          const coord = c === 0 ? "x" : "y";
+                          const pos = positions.at(i * p.d + c);
+                          return (
+                            <td key={`pos-${coord}`}>
+                              {pos !== undefined ? display(pos, 1e6) : ""}
+                            </td>
+                          );
+                        })}
+                        {Array.from({ length: p.d }, (_, c) => {
+                          const coord = c === 0 ? "x" : "y";
+                          const inc = i === 0 ? undefined : increments.at((i - 1) * p.d + c);
+                          return (
+                            <td key={`delta-${coord}`}>
+                              {inc !== undefined ? display(inc, 1e6) : ""}
+                            </td>
+                          );
+                        })}
+                      </tr>
+                    );
+                  })}
                 </tbody>
               </table>
             </div>
@@ -663,6 +700,7 @@ export function InferenceLab({
         </p>
         <div className="actions">
           <button
+            type="button"
             disabled={
               !ready ||
               view.pending ||
@@ -674,6 +712,7 @@ export function InferenceLab({
             Run 100 hypothetical experiments
           </button>
           <button
+            type="button"
             className="secondary"
             disabled={!ready || p.coverageTrials === 0}
             onClick={() => apply({ ...p, coverageTrials: 0 })}
@@ -746,7 +785,12 @@ export function InferenceComparison({ example }: { example: PreparedBm07Example 
     <>
       <InferenceLab example={example} />
       <div className="comparison-toggle">
-        <button className="secondary" disabled={!ready} onClick={() => setSecond(!second)}>
+        <button
+          type="button"
+          className="secondary"
+          disabled={!ready}
+          onClick={() => setSecond(!second)}
+        >
           {second
             ? "Close second inference laboratory"
             : "Open a second independent inference laboratory"}
