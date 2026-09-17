@@ -489,4 +489,3 @@ describe("translation layer and German source block policy (AC2)", () => {
     assert.ok(failingReports.some((r) => r.rule === "condescension"));
   });
 });
-

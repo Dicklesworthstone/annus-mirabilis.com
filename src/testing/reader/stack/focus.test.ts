@@ -81,7 +81,9 @@ describe("resolveFocusReturnTarget", () => {
 describe("applyFocusReturn", () => {
   test("moves focus to the target element", () => {
     document.body.innerHTML = '<button id="trigger-1" tabindex="0">Open</button>';
-    const el = document.getElementById("trigger-1")!;
+    const el = document.getElementById("trigger-1");
+    expect(el).not.toBeNull();
+    if (!el) return;
     applyFocusReturn(window, { element: el, relativeYFraction: 0.2, isOrigin: true });
     expect(document.activeElement).toBe(el);
   });
@@ -89,8 +91,11 @@ describe("applyFocusReturn", () => {
   test("scrolls a container instead of the window when the target lives inside it", () => {
     document.body.innerHTML =
       '<div id="dialog"><button id="trigger-1" tabindex="0">Open</button></div>';
-    const el = document.getElementById("trigger-1")!;
-    const dialog = document.getElementById("dialog")!;
+    const el = document.getElementById("trigger-1");
+    const dialog = document.getElementById("dialog");
+    expect(el).not.toBeNull();
+    expect(dialog).not.toBeNull();
+    if (!el || !dialog) return;
     const before = dialog.scrollTop;
     applyFocusReturn(window, { element: el, relativeYFraction: 0.2, isOrigin: true }, dialog);
     // happy-dom's layout is a stub (zero-size boxes), so the exact delta is not meaningful; the
@@ -104,7 +109,9 @@ describe("applyFocusReturn", () => {
 describe("focusOpenedHeading", () => {
   test("moves focus to the given heading", () => {
     document.body.innerHTML = '<h2 id="heading" tabindex="-1">Mean, variance and RMS</h2>';
-    const heading = document.getElementById("heading")!;
+    const heading = document.getElementById("heading");
+    expect(heading).not.toBeNull();
+    if (!heading) return;
     focusOpenedHeading(heading);
     expect(document.activeElement).toBe(heading);
   });
@@ -117,7 +124,9 @@ describe("focusOpenedHeading", () => {
 describe("returnToInterruptedSentence", () => {
   test("returns to exact interrupted sentence element using frame.anchor and sets tabindex=-1 if non-interactive", () => {
     document.body.innerHTML = '<p id="ap-17-549-s4-sentence-3">Interrupted sentence text here.</p>';
-    const sentenceEl = document.getElementById("ap-17-549-s4-sentence-3")!;
+    const sentenceEl = document.getElementById("ap-17-549-s4-sentence-3");
+    expect(sentenceEl).not.toBeNull();
+    if (!sentenceEl) return;
     expect(sentenceEl.hasAttribute("tabindex")).toBe(false);
 
     const f = frame({
@@ -137,7 +146,9 @@ describe("returnToInterruptedSentence", () => {
   test("returns to origin button when triggerId is present and visible in DOM", () => {
     document.body.innerHTML =
       '<button id="trigger-btn">Button</button><p id="ap-17-549-s4-sentence-3">Sentence</p>';
-    const btn = document.getElementById("trigger-btn")!;
+    const btn = document.getElementById("trigger-btn");
+    expect(btn).not.toBeNull();
+    if (!btn) return;
 
     const f = frame({
       anchor: "ap-17-549-s4-sentence-3",

@@ -132,7 +132,7 @@ export function runAuditCli(argv: string[] = process.argv.slice(2)): {
   for (const e of report.errors) {
     lines.push(JSON.stringify({ status: "error", ...e, toolRunId }));
   }
-  writeFileSync(reportPath, lines.join("\n") + "\n", "utf8");
+  writeFileSync(reportPath, `${lines.join("\n")}\n`, "utf8");
 
   // Format table output
   console.log(`\n=== Derivation Tool Audit (${toolRunId}) ===`);

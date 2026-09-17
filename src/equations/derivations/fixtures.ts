@@ -1083,7 +1083,11 @@ export const adversarialLorentzDiscoveryMinkowskiAxiom: DerivationChain = Object
         kind: "substitute" as const,
         params: {
           targetId: "interval_ds2",
-          replacement: rel("=", sym("s2"), sum(prod(sym("c2"), sym("t2")), prod(num("-1"), sym("x2")))),
+          replacement: rel(
+            "=",
+            sym("s2"),
+            sum(prod(sym("c2"), sym("t2")), prod(num("-1"), sym("x2"))),
+          ),
           citedEquality: "Postulate invariant spacetime interval",
         },
       },
