@@ -7,6 +7,7 @@ import {
   speedForDailyLoss,
   speedOfLightMetresPerSecond,
 } from "../../physics/reference/kinematics.ts";
+import { withinTolerance } from "../../units/tolerance.ts";
 import { kinematicsLogStart, logKinematics } from "./log.ts";
 
 kinematicsLogStart();
@@ -35,12 +36,12 @@ describe("factors", () => {
     expect(stable.status).toBe("value");
     expect(g.status).toBe("value");
     if (stable.status === "value") {
-      expect(Math.abs(stable.value / 5.56325e-16 - 1)).toBeLessThan(1e-5);
+      expect(withinTolerance(stable.value, 5.56325e-16, { relative: 1e-5 }).ok).toBe(true);
     }
     if (g.status === "value" && stable.status === "value") {
       const naive = g.value - 1;
-      expect(Math.abs(naive - 6.661338e-16)).toBeLessThan(2e-16);
-      expect(Math.abs(naive - stable.value) / stable.value).toBeGreaterThan(0.1);
+      expect(withinTolerance(naive, 6.661338e-16, { absolute: 2e-16 }).ok).toBe(true);
+      expect(withinTolerance(naive, stable.value, { relative: 0.1 }).ok).toBe(false);
     }
   });
 
@@ -48,7 +49,7 @@ describe("factors", () => {
     const loss = dilationLossPerSecond(1e-4);
     expect(loss.status).toBe("value");
     if (loss.status === "value") {
-      expect(Math.abs(loss.value.exact / 5.0000000125e-9 - 1)).toBeLessThan(1e-12);
+      expect(withinTolerance(loss.value.exact, 5.0000000125e-9, { relative: 1e-12 }).ok).toBe(true);
       expect(loss.value.printedSecondOrder).toBeCloseTo(5e-9, 20);
     }
   });
@@ -59,9 +60,9 @@ describe("factors", () => {
       expect(stable.status).toBe("value");
       if (stable.status !== "value") continue;
       const naive = 1 - Math.sqrt(1 - beta * beta);
-      const rel = Math.abs(naive - stable.value.exact) / stable.value.exact;
-      if (beta === 1e-4) expect(rel).toBeGreaterThan(1e-9);
-      if (beta === 1e-8) expect(rel).toBeGreaterThan(0.5);
+      const naiveError = Math.abs(naive - stable.value.exact) / stable.value.exact;
+      if (beta === 1e-4) expect(naiveError).toBeGreaterThan(1e-9);
+      if (beta === 1e-8) expect(naiveError).toBeGreaterThan(0.5);
     }
   });
 
@@ -69,7 +70,7 @@ describe("factors", () => {
     const b = speedForDailyLoss(1);
     expect(b.status).toBe("value");
     if (b.status === "value") {
-      expect(Math.abs(b.value / 4.811238e-3 - 1)).toBeLessThan(1e-6);
+      expect(withinTolerance(b.value, 4.811238e-3, { relative: 1e-6 }).ok).toBe(true);
       expect(b.value * c).toBeCloseTo(1_442_370, -2);
     }
   });

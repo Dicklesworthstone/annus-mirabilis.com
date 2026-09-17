@@ -9,6 +9,7 @@ import {
   generalBoost,
   speedOfLightMetresPerSecond,
 } from "../../physics/reference/kinematics.ts";
+import { withinTolerance } from "../../units/tolerance.ts";
 
 const c = speedOfLightMetresPerSecond();
 
@@ -27,16 +28,14 @@ describe("composition", () => {
     const s = composedSpeedShortfall(0.99, 0.99);
     expect(s.status).toBe("value");
     if (s.status === "value") {
-      expect(Math.abs(s.value / exact - 1)).toBeLessThan(1e-12);
+      expect(withinTolerance(s.value, exact, { relative: 1e-12 }).ok).toBe(true);
     }
     const u = composeCollinear(0.99, 0.99);
     expect(u.status).toBe("value");
     if (u.status === "value" && s.status === "value") {
       const naive = 1 - u.value;
-      const naiveRel = Math.abs(naive / exact - 1);
-      const helperRel = Math.abs(s.value / exact - 1);
-      expect(helperRel).toBeLessThan(1e-12);
-      expect(naiveRel).toBeGreaterThan(helperRel);
+      expect(withinTolerance(s.value, exact, { relative: 1e-12 }).ok).toBe(true);
+      expect(withinTolerance(naive, exact, { relative: 1e-12 }).ok).toBe(false);
     }
   });
 
@@ -80,16 +79,16 @@ describe("composition", () => {
     const inc = compositionIncrement(u, w, c);
     expect(inc.status).toBe("value");
     if (inc.status !== "value") return;
-    expect(Math.abs(inc.value / 3.08676358 - 1)).toBeLessThan(1e-8);
+    expect(withinTolerance(inc.value, 3.08676358, { relative: 1e-8 }).ok).toBe(true);
     const fresnel = (1 - 1 / (n * n)) * w;
-    expect(Math.abs(fresnel / 3.08676363 - 1)).toBeLessThan(1e-8);
-    const rel = (inc.value - fresnel) / fresnel;
-    expect(Math.abs(rel / -1.767e-8 - 1)).toBeLessThan(1e-2);
+    expect(withinTolerance(fresnel, 3.08676363, { relative: 1e-8 }).ok).toBe(true);
+    const fresnelGap = (inc.value - fresnel) / fresnel;
+    expect(withinTolerance(fresnelGap, -1.767e-8, { relative: 1e-2 }).ok).toBe(true);
     const composedBeta = composeCollinear(u / c, w / c);
     expect(composedBeta.status).toBe("value");
     if (composedBeta.status === "value") {
       const naive = composedBeta.value * c - u;
-      expect(Math.abs(naive - inc.value) / inc.value).toBeGreaterThan(1e-10);
+      expect(withinTolerance(naive, inc.value, { relative: 1e-10 }).ok).toBe(false);
     }
   });
 });

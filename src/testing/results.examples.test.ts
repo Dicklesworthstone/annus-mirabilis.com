@@ -10,12 +10,16 @@ import {
 import {
   budgetExhaustedOutcomeExample,
   ftcsUnstableRefusalExample,
+  invalidParameterZeroParticlesRefusalExample,
   invalidSeedRefusalExample,
   lq02DivergentExample,
+  lq02FiniteCutoff1e16Example,
   lq02FiniteCutoffExample,
+  me02AnalyticLimitExample,
   missingArtifactOutcomeExample,
   outsideWienDomainRefusalExample,
   planStatusExamples,
+  streamIndexOverflowRefusalExample,
   superluminalObserverRefusalExample,
 } from "../experiments/results/planExamples.ts";
 
@@ -53,12 +57,34 @@ describe("results.examples: Validation of Plan Fixtures and LQ-02 Divergent/Cuto
     assert.equal(decoded.uncertainty?.kind, "numerical-error-estimate");
   });
 
+  it("LQ-02 finite totals at 10^15 Hz and 10^16 Hz stand in the ratio 1000", () => {
+    const low = decodeResult(lq02FiniteCutoffExample);
+    const high = decodeResult(lq02FiniteCutoff1e16Example);
+    assert.equal(low.status, "value");
+    assert.equal(high.status, "value");
+    if (low.status !== "value" || high.status !== "value") return;
+    assert.equal(typeof low.value, "number");
+    assert.equal(typeof high.value, "number");
+    if (typeof low.value !== "number" || typeof high.value !== "number") return;
+    const ratio = high.value / low.value;
+    assert.ok(Math.abs(ratio - 1000) < 1e-9, `expected cubic cutoff ratio 1000, got ${ratio}`);
+    assert.equal(high.value, 2.146396e4);
+  });
+
+  it("ME-02 analytic-limit at v = 0 is a coefficient, not a new experiment", () => {
+    const decoded = decodeResult(me02AnalyticLimitExample);
+    assert.equal(decoded.status, "analytic-limit");
+    assert.equal(decoded.representation.kind, "coefficient");
+  });
+
   it("all refusal examples validate against decodeRefusal", () => {
     const refusals = [
       ftcsUnstableRefusalExample,
       superluminalObserverRefusalExample,
       outsideWienDomainRefusalExample,
       invalidSeedRefusalExample,
+      streamIndexOverflowRefusalExample,
+      invalidParameterZeroParticlesRefusalExample,
     ];
 
     for (const refusal of refusals) {

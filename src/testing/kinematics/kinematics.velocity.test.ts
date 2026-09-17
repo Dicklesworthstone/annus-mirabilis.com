@@ -4,7 +4,7 @@ import {
   speedOfLightMetresPerSecond,
   transformVelocity,
 } from "../../physics/reference/kinematics.ts";
-import { classifyWithTolerance } from "../../units/tolerance.ts";
+import { classifyWithTolerance, withinTolerance } from "../../units/tolerance.ts";
 
 const c = speedOfLightMetresPerSecond();
 
@@ -16,7 +16,7 @@ describe("velocity", () => {
     if (out.status !== "value") return;
     expect(out.value.ux).toBeCloseTo(-v, 6);
     const speed = Math.hypot(out.value.ux, out.value.uy, out.value.uz);
-    expect(Math.abs(speed / c - 1)).toBeLessThan(1e-12);
+    expect(withinTolerance(speed, c, { relative: 1e-12 }).ok).toBe(true);
   });
 
   test("null stays null; subluminal stays subluminal", () => {
@@ -43,13 +43,14 @@ describe("velocity", () => {
     const d = galileanRelativisticVelocityDifference(10, 30, c);
     expect(d.status).toBe("value");
     if (d.status !== "value") return;
-    expect(Math.abs(d.value.difference / -6.6759e-14 - 1)).toBeLessThan(1e-5);
-    expect(Math.abs(d.value.relativeSize / 3.33795e-15 - 1)).toBeLessThan(1e-5);
+    expect(withinTolerance(d.value.difference, -6.6759e-14, { relative: 1e-5 }).ok).toBe(true);
+    expect(withinTolerance(d.value.relativeSize, 3.33795e-15, { relative: 1e-5 }).ok).toBe(true);
     const g = 1 / Math.sqrt(1 - (30 / c) ** 2);
-    const rel = (10 - 30) / (1 - (10 * 30) / (c * c));
-    const naiveRel = Math.abs(rel - (10 - 30)) / Math.abs(10 - 30);
-    expect(Math.abs(naiveRel - 3.375e-15)).toBeLessThan(2e-16);
-    expect(Math.abs(naiveRel - d.value.relativeSize) / d.value.relativeSize).toBeGreaterThan(0.005);
+    const composed = (10 - 30) / (1 - (10 * 30) / (c * c));
+    const galilean = 10 - 30;
+    const naiveSize = Math.abs(composed - galilean) / Math.abs(galilean);
+    expect(withinTolerance(naiveSize, 3.375e-15, { absolute: 2e-16 }).ok).toBe(true);
+    expect(withinTolerance(naiveSize, d.value.relativeSize, { relative: 0.005 }).ok).toBe(false);
     void g;
   });
 });
