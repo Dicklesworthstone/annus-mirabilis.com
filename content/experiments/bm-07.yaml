@@ -341,6 +341,7 @@ presets:
     parameterValues:
       coverageTrials: 100
       radiusKnown: "true"
+    scenarioId: bm-07-coverage
 probes:
   - identifiability-family
   - estimator-switch

@@ -1,0 +1,25 @@
+id: bm-07-coverage
+kind: modern-golden
+title: BM-07 repeated-experiment coverage view
+description: >
+  Runs repeated synthetic trials to demonstrate the empirical coverage
+  fraction of the chi-square confidence interval at nominal 95% coverage.
+constantSetId: modern-si-2019
+owner: inference.molecularNumber
+inputs:
+  coverageTrials:
+    value: 100
+    unit: "1"
+  nominalCoverage:
+    value: 0.95
+    unit: "1"
+expected:
+  outputs:
+    - outputId: empiricalCoverageFraction
+      value: 0.95
+      comparisonKind: tolerance
+      tolerance:
+        absolute: 0.1
+        rationale: Sample coverage across 100 synthetic realizations.
+modelVersion: 1
+schemaVersion: 1
