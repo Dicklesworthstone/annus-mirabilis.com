@@ -3,7 +3,7 @@
  * Specification: AGENTS.md, am-not-concordance-model-uag.
  */
 
-import React from "react";
+import type React from "react";
 import type { EnrichedConcordanceEntry } from "./notationData.ts";
 
 export interface NotationEntryCardProps {
@@ -97,6 +97,7 @@ export function NotationEntryCard({ entry }: NotationEntryCardProps) {
       <div className="card-header-row">
         <div className="card-glyph-container">
           <span
+            role="img"
             className="card-glyph"
             aria-label={entry.spokenName}
             dangerouslySetInnerHTML={{ __html: entry.glyphRendered.html }}
