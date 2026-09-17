@@ -1,5 +1,5 @@
 import assert from "node:assert/strict";
-import { readFileSync } from "node:fs";
+import { existsSync, mkdtempSync, readFileSync, writeFileSync } from "node:fs";
 import path from "node:path";
 import { describe, it } from "node:test";
 import { fileURLToPath } from "node:url";
@@ -183,5 +183,88 @@ describe("the gate reads the shared parser and holds no second admitted-set", ()
     for (const capabilityId of new Set(matrix.map((r) => r.capabilityId))) {
       assert.equal(source.includes(capabilityId), false);
     }
+  });
+});
+
+describe("manifest values recorded and verification against moved rows (am-fs-slim-artifact-0yh)", () => {
+  it("the manifest written for an admitted build records each capability's releaseArtifact and acceptanceState", () => {
+    const matrix: CapabilityMatrixRow[] = [
+      row({
+        capabilityId: "diffusion.brownian-frames",
+        browserExport: "brownian_frames",
+        releaseArtifact: BUNDLE_ID,
+        acceptanceState: "owner-decided",
+      }),
+      row({
+        capabilityId: "diffusion.philox-normals",
+        browserExport: "philox_normals",
+        releaseArtifact: BUNDLE_ID,
+        acceptanceState: "owner-decided",
+      }),
+    ];
+    const gateResult = admitExportsForBundle(
+      matrix,
+      ["brownian_frames", "philox_normals"],
+      BUNDLE_ID,
+    );
+    assert.equal(gateResult.failures.length, 0);
+
+    const manifestEntries = gateResult.admitted.map((adm) => ({
+      capabilityId: adm.capabilityId,
+      browserExport: adm.export,
+      releaseArtifact: adm.releaseArtifact,
+      acceptanceState: adm.acceptanceState,
+    }));
+
+    assert.equal(manifestEntries.length, 2);
+    assert.equal(manifestEntries[0]?.releaseArtifact, BUNDLE_ID);
+    assert.equal(manifestEntries[0]?.acceptanceState, "owner-decided");
+    assert.equal(manifestEntries[1]?.releaseArtifact, BUNDLE_ID);
+    assert.equal(manifestEntries[1]?.acceptanceState, "owner-decided");
+  });
+
+  it("verification run against a matrix whose row has since moved to not-started fails naming both the manifest value and current value", async () => {
+    const { runWasmVerification } = await import("./verify-wasm-artifacts.ts");
+    const tempBase = process.env.AM_TEST_TMP ?? "/Volumes/USBNVME16TB/temp_agent_space";
+    const tempDir = mkdtempSync(path.join(tempBase, "matrix-moved-"));
+
+    // Write a fixture binding document where brownian_frames has moved to not-started
+    const fixtureBindingDocPath = path.join(tempDir, "BINDING_MOVED.md");
+    const originalBinding = readFileSync(BINDING_DOCUMENT_PATH, "utf8");
+    const modifiedBinding = originalBinding.replace(
+      /(- capabilityId: diffusion\.brownian-frames[\s\S]*?acceptanceState:\s*)owner-decided/,
+      "$1not-started",
+    );
+    writeFileSync(fixtureBindingDocPath, modifiedBinding, "utf8");
+
+    // Write a fixture manifest recording acceptanceState: owner-decided
+    const fixtureManifestPath = path.join(tempDir, "manifest.json");
+    const activeManifest = JSON.parse(readFileSync(path.join(currentDir, "..", "public", "wasm", "manifest.json"), "utf8"));
+    const fixtureManifest = {
+      ...activeManifest,
+      capabilities: [
+        {
+          capabilityId: "diffusion.brownian-frames",
+          browserExport: "brownian_frames",
+          releaseArtifact: BUNDLE_ID,
+          acceptanceState: "owner-decided",
+        },
+      ],
+    };
+    writeFileSync(fixtureManifestPath, JSON.stringify(fixtureManifest, null, 2), "utf8");
+
+    const result = await runWasmVerification({
+      manifestPath: fixtureManifestPath,
+      bindingDocPath: fixtureBindingDocPath,
+    });
+
+    assert.equal(result.passed, false);
+    const check = result.checks.find((c) => c.testId === "capability-matrix-agreement");
+    assert.ok(check, "capability-matrix-agreement check must exist");
+    assert.equal(check.passed, false);
+    assert.ok(
+      check.message.includes("owner-decided") && check.message.includes("not-started"),
+      `Failure message must name both manifest value ("owner-decided") and matrix value ("not-started"): ${check.message}`,
+    );
   });
 });
