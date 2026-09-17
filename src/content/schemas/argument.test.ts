@@ -3,41 +3,21 @@ import test from "node:test";
 import { newRunIdentity, TestLogger } from "../../testing/log/logger.ts";
 import {
   type ArgumentNode,
-  ArgumentSchemaError,
   type Bridge,
   checkProofRouteAcyclicity,
   type Foundation,
-  type HistoricalPremise,
-  type Misconception,
-  type Quantity,
-  type ReadingSet,
-  type SemanticEquation,
   validateArgumentNode,
   validateAuthoringContract,
-  validateFoundationLink,
   validateFoundationOrBridge,
   validateHistoricalPremise,
   validateMeanings,
   validateMisconception,
   validateObstacleResponses,
-  validateProof,
   validateQuantity,
   validateReadingSet,
   validateSemanticEquation,
-  validateWorkedExample,
 } from "./argument.ts";
-import {
-  DimensionSchemaError,
-  validateRationalDimension,
-  validateRationalScale,
-} from "./dimensionBasis.ts";
-import {
-  EXECUTION_STATUSES,
-  HISTORICAL_STATUSES,
-  LOGICAL_ROLES,
-  MODEL_STATUSES,
-  OBSTACLE_KIND_IDS,
-} from "./meanings.ts";
+import { validateRationalDimension, validateRationalScale } from "./dimensionBasis.ts";
 
 const SUITE = "content-schemas-argument";
 const BEAD_ID = "am-cm-schemas-argument-llm";
