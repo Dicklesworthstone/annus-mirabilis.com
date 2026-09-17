@@ -63,7 +63,7 @@ export const QUALITY_GATE_STEPS: readonly GateStep[] = [
   {
     id: "typecheck",
     title: "TypeScript typecheck (noEmit)",
-    command: ["bun", "x", "tsc", "--noEmit"],
+    command: ["bun", "run", "typecheck"],
     family: "fast",
     cadence: "every-run",
     requiredInCi: true,
@@ -150,7 +150,7 @@ export const QUALITY_GATE_STEPS: readonly GateStep[] = [
   {
     id: "build",
     title: "Next.js production build",
-    command: ["bun", "x", "next", "build"],
+    command: ["bun", "run", "build"],
     family: "fast",
     cadence: "every-run",
     requiredInCi: true,

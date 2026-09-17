@@ -49,6 +49,9 @@ jobs:
       - name: Install Playwright Chromium
         run: bunx playwright install --with-deps chromium
 
+      - name: Prepare content and lab artifacts
+        run: bun run prepare:content && bun run prepare:lab
+
       - name: Run node-only subprocess tests
         run: bun run test:node
 
