@@ -76,6 +76,21 @@ describe("Transport Runtime Extraction", () => {
     });
   });
 
+  test("ExperimentTransport attachBufferPool refuses useSharedMemory: true with SharedMemoryDisabledError", () => {
+    const start = performance.now();
+    const transport = new ExperimentTransport("test-exp-shared-refusal");
+    const shape = createFieldBufferShape(8, 8);
+    expect(() => transport.attachBufferPool(shape, 2, true)).toThrow(SharedMemoryDisabledError);
+    appendExtractionLog({
+      logRunId,
+      testId: "transport-experiment-attach-buffer-pool-shared-memory-throws",
+      outcome: "pass",
+      durationMs: performance.now() - start,
+      message:
+        "ExperimentTransport.attachBufferPool refuses useSharedMemory: true with SharedMemoryDisabledError",
+    });
+  });
+
   test("donor-trap: oldest-lease eviction: acquiring past capacity evicts the oldest active lease and reports it", () => {
     // Characterization test pinning the donor's oldest-lease eviction trap
     // am-rt-memory-lifecycle-5ws reference-counts snapshot buffers instead of silently evicting

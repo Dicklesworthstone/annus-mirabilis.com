@@ -358,8 +358,8 @@ export class ExperimentTransport {
     this.scheduler = new TickScheduler(tickS, 0);
   }
 
-  attachBufferPool(shape: BufferShape, capacity = 3) {
-    this.pool = new BoundedBufferPool(shape, capacity, false);
+  attachBufferPool(shape: BufferShape, capacity = 3, useSharedMemory = false) {
+    this.pool = new BoundedBufferPool(shape, capacity, useSharedMemory);
   }
 
   get bufferPool(): BoundedBufferPool | undefined {
