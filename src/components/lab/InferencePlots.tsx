@@ -1,6 +1,6 @@
-import { renderInferenceFamily } from "./inferenceView.ts";
 import type { Bm07Parameters } from "../../experiments/bm07/definition.ts";
 import type { AcceptedSnapshot } from "../../experiments/store/instanceStore.ts";
+import { renderInferenceFamily } from "./inferenceView.ts";
 import { array, display, identity, result } from "./presentation.ts";
 
 export function InferenceValue({

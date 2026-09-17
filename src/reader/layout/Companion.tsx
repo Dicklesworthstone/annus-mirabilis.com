@@ -32,6 +32,7 @@ export function Companion({
               key={item}
               href={`?${query.toString()}`}
               aria-current={item === kind ? "page" : undefined}
+              aria-label={`Companion: ${LABELS[item]}`}
             >
               {LABELS[item]}
             </a>

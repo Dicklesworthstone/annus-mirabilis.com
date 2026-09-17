@@ -1,38 +1,151 @@
-.inference-workbench { min-width: 0; overflow-wrap: anywhere; }
-.inference-workbench .laboratory { margin-block: 2rem; }
-.inference-workbench .infer-fields { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 1rem; }
-.inference-workbench .infer-fields label { display: block; margin-bottom: .25rem; }
-.inference-workbench .infer-fields input { width: 100%; max-width: 100%; box-sizing: border-box; min-height: 44px; }
-.inference-workbench .infer-wide { grid-column: 1 / -1; }
-.inference-workbench .infer-choices { display: grid; gap: .75rem; }
-.inference-workbench .infer-choices > div { display: flex; align-items: center; gap: .6rem; min-height: 44px; }
-.inference-workbench .infer-choices input { width: 24px; height: 24px; flex: 0 0 24px; }
-.inference-workbench .infer-choices label { flex: 1; padding-block: .5rem; }
-.inference-workbench .infer-readouts { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 1rem; }
-.inference-workbench .infer-readouts > div { border-top: 1px solid currentColor; padding-top: .6rem; min-width: 0; }
-.inference-workbench dt { font-weight: 650; }
-.inference-workbench dd { margin: .3rem 0 0; }
-.inference-workbench .table-scroll { max-width: 100%; overflow-x: auto; }
-.inference-workbench table { width: 100%; border-collapse: collapse; }
-.inference-workbench th, .inference-workbench td { text-align: left; padding: .5rem; border-bottom: 1px solid currentColor; }
-.inference-workbench .plot { margin-inline: 0; }
-.inference-workbench .plot svg { width: 100%; height: auto; }
-.inference-workbench .plot svg text { fill: currentColor; font: 12px system-ui, sans-serif; }
-.inference-workbench .plot .axis { stroke: currentColor; stroke-width: 1; fill: none; }
-.inference-workbench .plot .curve { stroke: currentColor; stroke-width: 2.5; fill: none; }
-.inference-workbench .plot .comparison-curve { stroke: currentColor; stroke-width: 1.5; fill: none; stroke-dasharray: 5 4; }
-.inference-workbench .digest { overflow-wrap: anywhere; word-break: break-word; font-size: .85rem; }
-.inference-workbench [hidden] { display: none !important; }
-.inference-workbench summary { cursor: pointer; min-height: 44px; padding-block: .5rem; }
-.inference-workbench button { min-height: 44px; }
-.inference-workbench :focus-visible { outline: 3px solid currentColor; outline-offset: 3px; }
+.inference-workbench {
+  min-width: 0;
+  overflow-wrap: anywhere;
+}
+.inference-workbench .laboratory {
+  margin-block: 2rem;
+}
+.inference-workbench .infer-fields {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: 1rem;
+}
+.inference-workbench .infer-fields label {
+  display: block;
+  margin-bottom: 0.25rem;
+}
+.inference-workbench .infer-fields input {
+  width: 100%;
+  max-width: 100%;
+  box-sizing: border-box;
+  min-height: 44px;
+}
+.inference-workbench .infer-wide {
+  grid-column: 1 / -1;
+}
+.inference-workbench .infer-choices {
+  display: grid;
+  gap: 0.75rem;
+}
+.inference-workbench .infer-choices > div {
+  display: flex;
+  align-items: center;
+  gap: 0.6rem;
+  min-height: 44px;
+}
+.inference-workbench .infer-choices input {
+  width: 24px;
+  height: 24px;
+  flex: 0 0 24px;
+}
+.inference-workbench .infer-choices label {
+  flex: 1;
+  padding-block: 0.5rem;
+}
+.inference-workbench .infer-readouts {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: 1rem;
+}
+.inference-workbench .infer-readouts > div {
+  border-top: 1px solid currentColor;
+  padding-top: 0.6rem;
+  min-width: 0;
+}
+.inference-workbench dt {
+  font-weight: 650;
+}
+.inference-workbench dd {
+  margin: 0.3rem 0 0;
+}
+.inference-workbench .table-scroll {
+  max-width: 100%;
+  overflow-x: auto;
+}
+.inference-workbench table {
+  width: 100%;
+  border-collapse: collapse;
+}
+.inference-workbench th,
+.inference-workbench td {
+  text-align: left;
+  padding: 0.5rem;
+  border-bottom: 1px solid currentColor;
+}
+.inference-workbench .plot {
+  margin-inline: 0;
+}
+.inference-workbench .plot svg {
+  width: 100%;
+  height: auto;
+}
+.inference-workbench .plot svg text {
+  fill: currentColor;
+  font:
+    12px system-ui,
+    sans-serif;
+}
+.inference-workbench .plot .axis {
+  stroke: currentColor;
+  stroke-width: 1;
+  fill: none;
+}
+.inference-workbench .plot .curve {
+  stroke: currentColor;
+  stroke-width: 2.5;
+  fill: none;
+}
+.inference-workbench .plot .comparison-curve {
+  stroke: currentColor;
+  stroke-width: 1.5;
+  fill: none;
+  stroke-dasharray: 5 4;
+}
+.inference-workbench .digest {
+  overflow-wrap: anywhere;
+  word-break: break-word;
+  font-size: 0.85rem;
+}
+.inference-workbench [hidden] {
+  display: none !important;
+}
+.inference-workbench summary {
+  cursor: pointer;
+  min-height: 44px;
+  padding-block: 0.5rem;
+}
+.inference-workbench button {
+  min-height: 44px;
+}
+.inference-workbench :focus-visible {
+  outline: 3px solid currentColor;
+  outline-offset: 3px;
+}
 @media (max-width: 600px) {
-  .inference-workbench .infer-fields, .inference-workbench .infer-readouts { grid-template-columns: minmax(0, 1fr); }
-  .inference-workbench .actions { display: flex; flex-direction: column; align-items: stretch; }
+  .inference-workbench .infer-fields,
+  .inference-workbench .infer-readouts {
+    grid-template-columns: minmax(0, 1fr);
+  }
+  .inference-workbench .actions {
+    display: flex;
+    flex-direction: column;
+    align-items: stretch;
+  }
 }
 @media print {
-  .inference-workbench fieldset, .inference-workbench form, .inference-workbench [role="status"], .inference-workbench [data-radius-draft] { display: none; }
-  .inference-workbench .infer-readouts { display: block; }
-  .inference-workbench .table-scroll { overflow: visible; }
-  .inference-workbench .plot { break-inside: avoid; }
+  .inference-workbench fieldset,
+  .inference-workbench form,
+  .inference-workbench [role="status"],
+  .inference-workbench [data-radius-draft] {
+    display: none;
+  }
+  .inference-workbench .infer-readouts {
+    display: block;
+  }
+  .inference-workbench .table-scroll {
+    overflow: visible;
+  }
+  .inference-workbench .plot {
+    break-inside: avoid;
+  }
 }

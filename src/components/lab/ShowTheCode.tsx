@@ -113,10 +113,19 @@ export function ShowTheCode({
                   ? "This is the function that produced the current snapshot."
                   : "This function computes the listed outputs when it runs."}
             </p>
-            <nav className="show-the-code-tabs" aria-label="Show the code">
-              <a href={`#${id}-words`}>In words</a>
-              <a href={`#${id}-mathematics`}>Mathematics</a>
-              <a href={`#${id}-implementation`}>Implementation</a>
+            <nav className="show-the-code-tabs" aria-label={`Show the code: ${listing.exportName}`}>
+              <a href={`#${id}-words`} aria-label={`In words: ${listing.exportName}`}>
+                In words
+              </a>
+              <a href={`#${id}-mathematics`} aria-label={`Mathematics: ${listing.exportName}`}>
+                Mathematics
+              </a>
+              <a
+                href={`#${id}-implementation`}
+                aria-label={`Implementation: ${listing.exportName}`}
+              >
+                Implementation
+              </a>
             </nav>
             <section id={`${id}-words`} className="show-the-code-panel" data-tab="words">
               <h3>In words</h3>
@@ -212,7 +221,10 @@ export function ShowTheCode({
                     <ul>
                       {listing.independentReferences.map((ref) => (
                         <li key={`${ref.experimentId}/${ref.quantityId}`}>
-                          <a href={`/verification/${ref.experimentId}/${ref.quantityId}`}>
+                          <a
+                            href={`/verification/${ref.experimentId}/${ref.quantityId}`}
+                            aria-label={`How ${ref.quantityId} is checked in ${ref.experimentId}`}
+                          >
                             how this number is checked
                           </a>
                         </li>

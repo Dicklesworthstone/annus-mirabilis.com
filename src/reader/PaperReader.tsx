@@ -86,7 +86,11 @@ export async function PaperReader({
                         {a.title}
                       </a>
                     ))}
-                  <a className="fine" href={`/papers/${paper.id}/${s.id}/`}>
+                  <a
+                    className="fine"
+                    href={`/papers/${paper.id}/${s.id}/`}
+                    aria-label={`Section-only reading: ${s.title}`}
+                  >
                     Section-only reading →
                   </a>
                 </div>

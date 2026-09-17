@@ -1,12 +1,23 @@
+import {
+  inferenceText as e,
+  inferenceIdentity,
+  inferenceInterval,
+  inferenceValue,
+  renderCameraMoments,
+  renderCompatibleLine,
+  renderInferenceFamily,
+} from "../../components/lab/inferenceView.ts";
 import { display, result } from "../../components/lab/presentation.ts";
-import { inferenceIdentity, inferenceInterval, inferenceText as e, inferenceValue,
-  renderCameraMoments, renderCompatibleLine, renderInferenceFamily } from "../../components/lab/inferenceView.ts";
 import type { AcceptedSnapshot } from "../../experiments/store/instanceStore.ts";
 import type { InferenceEvidence } from "./evidence.ts";
 import { RADIUS_EXAMPLE } from "./model.ts";
 import { createCameraInferenceSession, createRadiusSession } from "./session.ts";
 
-export type InferenceExample = Readonly<{ ideal: InferenceEvidence; camera: InferenceEvidence; sourceDigest: string }>;
+export type InferenceExample = Readonly<{
+  ideal: InferenceEvidence;
+  camera: InferenceEvidence;
+  sourceDigest: string;
+}>;
 export function renderRadiusResults(snapshot: AcceptedSnapshot): string {
   const p = snapshot.parameters;
   const known = p.radiusKnown === true;
@@ -18,26 +29,52 @@ export function renderRadiusResults(snapshot: AcceptedSnapshot): string {
 export function renderCameraResults(snapshot: AcceptedSnapshot): string {
   const info = String(snapshot.parameters.information);
   const physical = result(snapshot, "physicalSolution");
-  const diagnosis = physical.status === "value" && physical.value === 0
-    ? '<p class="notice" data-infeasible-moments>The unconstrained moment solution contains a negative diffusion or noise variance. No physical parameter pair exactly matches both admitted sample moments. The signed estimates remain visible; they have not been clipped. Finite-sample fluctuation or a wrong model can cause this.</p>' : "";
+  const diagnosis =
+    physical.status === "value" && physical.value === 0
+      ? '<p class="notice" data-infeasible-moments>The unconstrained moment solution contains a negative diffusion or noise variance. No physical parameter pair exactly matches both admitted sample moments. The signed estimates remain visible; they have not been clipped. Finite-sample fluctuation or a wrong model can cause this.</p>'
+      : "";
   return `<div ${inferenceIdentity(snapshot)}><p><strong>Accepted information:</strong> ${info === "variance" ? "one increment variance" : info === "covariance" ? "increment variance and neighboring covariance" : "variances at the original and doubled spacing"}. The recorded positions have not changed.</p>${renderCameraMoments(snapshot, false)}<dl class="infer-readouts"><div><dt>Variance at doubled spacing (μm²)</dt><dd>${inferenceValue(snapshot, "secondVariance", 1e12)}</dd></div><div><dt>Diffusion moment estimate (μm²/s)</dt><dd>${inferenceValue(snapshot, "diffusionEstimate", 1e12)}</dd></div><div><dt>Localization-noise variance estimate (μm²)</dt><dd>${inferenceValue(snapshot, "noiseEstimate", 1e12)}</dd></div><div><dt>Confidence interval</dt><dd>${inferenceValue(snapshot, "diffusionConfidenceInterval")}</dd></div></dl>${diagnosis}${renderCompatibleLine(snapshot)}</div>`;
 }
 function evidenceDetails(evidence: InferenceEvidence): string {
   return `<details data-observation-evidence><summary>Inspect the fixed observations and their identity</summary><p class="digest">Observation digest: <code>${e(evidence.observationDigest)}</code><br>Generator source: <code>${e(evidence.sourceDigest)}</code></p><p>Motion seed: <code>${e(evidence.seed)}</code>. These built-in observations are synthetic, not an uploaded dataset or a historical measurement.</p><div class="table-scroll" role="region" aria-label="Fixed synthetic displacement observations" tabindex="0"><table><caption>Displacements in μm, ordered by frame and coordinate</caption><thead><tr><th scope="col">Frame increment</th><th scope="col">Coordinate</th><th scope="col">Displacement (μm)</th></tr></thead><tbody>${evidence.increments.map((v, i) => `<tr><th scope="row">${Math.floor(i / evidence.d) + 1}</th><td>${i % evidence.d === 0 ? "x" : "y"}</td><td>${display(v, 1e6)}</td></tr>`).join("")}</tbody></table></div></details>`;
 }
 export function renderInferenceWorkbench(example: InferenceExample, uid: string): string {
-  if (!/^[A-Za-z][A-Za-z0-9_-]{0,100}$/u.test(uid) || !/^source:sha256:[a-f0-9]{64}$/u.test(example.sourceDigest))
+  if (
+    !/^[A-Za-z][A-Za-z0-9_-]{0,100}$/u.test(uid) ||
+    !/^source:sha256:[a-f0-9]{64}$/u.test(example.sourceDigest)
+  )
     throw new TypeError("Invalid inference placement or evaluator identity.");
   const radiusSession = createRadiusSession(`${uid}-radius`, example.ideal);
   const cameraSession = createCameraInferenceSession(`${uid}-camera`, example.camera);
-  const radius = radiusSession.getSnapshot().accepted, camera = cameraSession.getSnapshot().accepted;
-  const radiusWorked = createRadiusSession(`${uid}-worked-radius`, example.ideal, RADIUS_EXAMPLE).getSnapshot().accepted;
-  const covarianceWorked = createCameraInferenceSession(`${uid}-worked-camera`, example.camera, { information: "covariance" }).getSnapshot().accepted;
-  if (!radius || !camera || !radiusWorked || !covarianceWorked) throw new TypeError("Missing accepted worked result.");
-  const fields = [["radius", "Radius point value", "μm", "0.5"], ["radiusLower", "Radius lower bound", "μm", "0.45"],
-    ["radiusUpper", "Radius upper bound", "μm", "0.55"], ["radiusCoverage", "Declared radius interval coverage", "%", "97.5"]] as const;
-  const inputs = fields.map(([name, label, unit, value]) => `<div><label for="${uid}-${name}">${label} (${unit})</label><input type="text" inputmode="decimal" id="${uid}-${name}" name="${name}" value="${value}" data-radius-field="${name}"></div>`).join("");
-  const methods = [["variance", "Use one variance only"], ["covariance", "Add neighboring covariance"], ["second-interval", "Add variance at twice the spacing"]] as const;
+  const radius = radiusSession.getSnapshot().accepted,
+    camera = cameraSession.getSnapshot().accepted;
+  const radiusWorked = createRadiusSession(
+    `${uid}-worked-radius`,
+    example.ideal,
+    RADIUS_EXAMPLE,
+  ).getSnapshot().accepted;
+  const covarianceWorked = createCameraInferenceSession(`${uid}-worked-camera`, example.camera, {
+    information: "covariance",
+  }).getSnapshot().accepted;
+  if (!radius || !camera || !radiusWorked || !covarianceWorked)
+    throw new TypeError("Missing accepted worked result.");
+  const fields = [
+    ["radius", "Radius point value", "μm", "0.5"],
+    ["radiusLower", "Radius lower bound", "μm", "0.45"],
+    ["radiusUpper", "Radius upper bound", "μm", "0.55"],
+    ["radiusCoverage", "Declared radius interval coverage", "%", "97.5"],
+  ] as const;
+  const inputs = fields
+    .map(
+      ([name, label, unit, value]) =>
+        `<div><label for="${uid}-${name}">${label} (${unit})</label><input type="text" inputmode="decimal" id="${uid}-${name}" name="${name}" value="${value}" data-radius-field="${name}"></div>`,
+    )
+    .join("");
+  const methods = [
+    ["variance", "Use one variance only"],
+    ["covariance", "Add neighboring covariance"],
+    ["second-interval", "Add variance at twice the spacing"],
+  ] as const;
   return `<div class="inference-workbench" data-infer-workbench data-ready="false" data-source-digest="${e(example.sourceDigest)}"><noscript><p class="notice">JavaScript is off. Both fixed-data families, the complete tables, and the optional worked solutions remain readable. Applying a new information choice requires JavaScript.</p></noscript>
 <section class="laboratory" data-infer-case="radius" data-instrument-id="infer-ideal" ${inferenceIdentity(radius)} data-observation-digest="${e(example.ideal.observationDigest)}" data-input-revision="${radius.revisions.input}" data-execution-label="static"><header class="lab-heading"><div><p class="eyebrow">One relation · two unknowns</p><h2>Can displacements tell radius and molecular number apart?</h2></div><p class="badge" data-infer-label>Static worked example · host calculation</p></header><p>Keep ${example.ideal.increments.length / example.ideal.d} observed increments in ${example.ideal.d} coordinates, spaced ${display(example.ideal.dt)} s apart. Temperature ${display(example.ideal.T)} K and viscosity ${display(example.ideal.eta, 1000)} mPa·s stay fixed.</p><p>In this synthetic recovery exercise, The gas constant is a declared scenario input. Neither modern exact k<sub>B</sub> nor modern exact N<sub>A</sub> supplies the unknown. This is not a historical molecular count.</p><div data-infer-results>${renderRadiusResults(radius)}</div>
 <form data-radius-form aria-label="Independent radius information" novalidate><fieldset disabled><legend>Add an independent measurement</legend><div class="infer-fields">${inputs}<div class="infer-wide"><label for="${uid}-provenance">Radius provenance (how was this established independently?)</label><input type="text" id="${uid}-provenance" name="provenance" maxlength="512" data-radius-field="provenance" value=""></div></div><p class="fine">For at least 95% simultaneous coverage, this procedure uses a 97.5% diffusion interval and requires at least 97.5% radius coverage. Coverage is your declared assumption; entering a description does not verify the measurement. Timing, calibration, R, temperature and viscosity remain exact within this example.</p><div class="actions"><button type="submit">Apply independent radius</button><button type="button" class="secondary" data-radius-worked>Use the synthetic worked radius</button><button type="button" class="secondary" data-radius-remove>Remove radius information</button></div></fieldset></form><p class="notice" data-radius-draft hidden>Unapplied radius information. The results still use the accepted information above.</p><p role="alert" data-infer-error hidden></p><p role="status" aria-live="polite" aria-atomic="true" data-infer-status>Only displacement information has been admitted.</p>
