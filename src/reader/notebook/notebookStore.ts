@@ -1,3 +1,4 @@
+import { mergeNotebook } from "./import.ts";
 import { emptyNotebook, NOTEBOOK_KEY, parseLastPlace, parseNotebookDocument, parseNotebookEntry,
   type LastPlace, type NotebookDocument, type NotebookEntry } from "./schema.ts";
 
@@ -123,6 +124,11 @@ export function createNotebookStore(storage: NotebookStorage) {
     },
     forgetPlace(): NotebookChange { open(); return commit({ ...state.document, lastPlace: null }); },
     retry(): NotebookChange { open(); return commit(state.document); },
+    importConfirmed(input: unknown): NotebookChange {
+      open();
+      try { return commit(mergeNotebook(state.document, input).document); }
+      catch (error) { return { ok: false, message: error instanceof Error ? error.message : "The import is not a supported notebook." }; }
+    },
     /** Caller must ask for confirmation in the page, including when the original is unsupported. */
     clearConfirmed(): NotebookChange {
       open();
