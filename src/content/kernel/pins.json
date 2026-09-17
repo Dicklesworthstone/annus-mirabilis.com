@@ -8,7 +8,7 @@
     "displacementHistogram@src/physics/reference/diffusion/tracers.ts": "sha256:746f24cee7b8573b8a986cd8e072b4786549eba47dffca106dbd38582d670c7b",
     "kernelDiffusivity@src/physics/reference/diffusion/walkLaws.ts": "sha256:ca3f9990c635357a4698bbe3f9ea93fd291898536bdafddbcdab3ffc537677a0",
     "randomWalkMoments@src/physics/reference/diffusion/walkLaws.ts": "sha256:6783075a2530f6028f515501e415352b59fe2d77d084d759a97af6995880ecb9",
-    "coinWalkDistribution@src/physics/reference/diffusion/walkLaws.ts": "sha256:62d40f3a276e02cfa768aed3f93b21fb6a74926ac94b31ae535b8e48c301de62",
+    "coinWalkDistribution@src/physics/reference/diffusion/walkLaws.ts": "sha256:feae1213b1fc80d262edcbab8d8110da13a122b91baa5378607cf805ebc98855",
     "recordWalks@src/physics/reference/diffusion/walks.ts": "sha256:d8d45c494c5a564337a3ad369543562ad3d53b207e4cb39113cf70f28a54f64c",
     "gaussianPropagator@src/physics/reference/diffusion/distributions.ts": "sha256:08378ddf8b6720db47f4949e26c3bb6de95c5ab5ba5851fe4b52b651ef62f55a",
     "intervalProbability@src/physics/reference/diffusion/distributions.ts": "sha256:fdf333ecee819e1097ee25fb89e2caea663dd27fc5f8818d3a28cd8a15ff9a56",
@@ -21,8 +21,8 @@
   "closures": {
     "src/physics/reference/diffusion/distributions.ts": "source:sha256:4a555ae9712890dc45d6e0c77919603204ffc9cf6d138126c8939ecff43c1e79",
     "src/physics/reference/diffusion/tracers.ts": "source:sha256:705233dbc81ff9d4056cfd6da6007289be0d206306448c799e0218d022cd5904",
-    "src/physics/reference/diffusion/walkLaws.ts": "source:sha256:3715fc32bc1d52cd2882e53d905f1e0ed9933c86add205bb29c8c83d6e676dc9",
-    "src/physics/reference/diffusion/walks.ts": "source:sha256:b15264f697ab69266e5f8f910978ab66607860f32adc4de4d4ea838515c93f3a",
+    "src/physics/reference/diffusion/walkLaws.ts": "source:sha256:823ae8fcac142130720fe5656117cc269d60d2720dca838fe6878786e87ff4e0",
+    "src/physics/reference/diffusion/walks.ts": "source:sha256:af397b78c6e542dfb2723ac2b8db96076cd4b11053f99de9ba531eaa82445664",
     "src/physics/reference/special/erf.ts": "source:sha256:36da87a989cc4d16571414b99849aa31ea544bb30878fd80fb9c19ffa9e11f62",
     "src/physics/reference/diffusion/ftcs.ts": "source:sha256:7558189a1eda5a77e1b31078744fe9a279a07ce0f2ebfa26c1fc3449a7a490d8"
   }

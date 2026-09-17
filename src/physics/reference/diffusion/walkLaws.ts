@@ -298,7 +298,9 @@ export function kolmogorovDistanceToGaussian(
     sigma = Math.sqrt(variance);
   let distance = 0;
   for (let i = 0; i < sorted.length; i++) {
-    const z = sorted[i]! / sigma;
+    const sample = sorted[i];
+    if (sample === undefined) break;
+    const z = sample / sigma;
     if (!Number.isFinite(z)) return numerical("A standardized sample is not representable.");
     const cdf = standardNormalCdf(z);
     distance = Math.max(
@@ -340,8 +342,14 @@ export function coinWalkDistribution(n: number, ell: number): Computation<CoinDi
   }
   const mid = Math.floor(n / 2);
   probabilities[mid] = 1;
-  for (let k = mid; k < n; k++) probabilities[k + 1] = (probabilities[k]! * (n - k)) / (k + 1);
-  for (let k = mid; k > 0; k--) probabilities[k - 1] = (probabilities[k]! * k) / (n - k + 1);
+  for (let k = mid; k < n; k++) {
+    const pk = probabilities[k] ?? 0;
+    probabilities[k + 1] = (pk * (n - k)) / (k + 1);
+  }
+  for (let k = mid; k > 0; k--) {
+    const pk = probabilities[k] ?? 0;
+    probabilities[k - 1] = (pk * k) / (n - k + 1);
+  }
   let total = 0,
     correction = 0;
   for (const p of probabilities) {
@@ -350,7 +358,10 @@ export function coinWalkDistribution(n: number, ell: number): Computation<CoinDi
     correction = t - total - y;
     total = t;
   }
-  for (let k = 0; k <= n; k++) probabilities[k] = probabilities[k]! / total;
+  for (let k = 0; k <= n; k++) {
+    const pk = probabilities[k] ?? 0;
+    probabilities[k] = pk / total;
+  }
   return { kind: "accepted", data: { positions, probabilities } };
 }
 /** Irwin-Hall CDF/PDF via positive cardinal-spline recurrence. The CDF recurrence
@@ -382,11 +393,15 @@ export function uniformSumDistribution(n: number, x: number): { cdf: number; pdf
         c[k] = 1;
         d[k] = 0;
       } else {
-        c[k] = (y * c[k]! + (order - y) * c[k + 1]!) / order;
-        d[k] = (y * d[k]! + (order - y) * d[k + 1]!) / (order - 1);
+        const ck = c[k] ?? 0,
+          ckNext = c[k + 1] ?? 0,
+          dk = d[k] ?? 0,
+          dkNext = d[k + 1] ?? 0;
+        c[k] = (y * ck + (order - y) * ckNext) / order;
+        d[k] = (y * dk + (order - y) * dkNext) / (order - 1);
       }
     }
-  return { cdf: c[0]!, pdf: d[0]! };
+  return { cdf: c[0] ?? 0, pdf: d[0] ?? 0 };
 }
 export type ShapeTerm = Readonly<{
   distance: number;
@@ -414,7 +429,7 @@ export function kolmogorovShapeTerm(kernel: WalkKernel, n: number): Computation<
     for (let k = 0; k <= n; k++) {
       const z = (2 * k - n) / Math.sqrt(n),
         normal = standardNormalCdf(z),
-        p = distribution.data.probabilities[k]!;
+        p = distribution.data.probabilities[k] ?? 0;
       const candidate = Math.max(Math.abs(cdf - normal), Math.abs(cdf + p - normal));
       if (candidate > distance) {
         distance = candidate;
