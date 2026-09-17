@@ -6,24 +6,33 @@
  * Bead: am-cm-dimension-validator-aoz
  */
 
-import {
-  checkDimensions as checkContentDimensions,
-  type DimensionCheckResult,
-  type DimensionCheckStatus,
-} from "../content/dimensions/check.ts";
-import type { Dimension } from "../content/dimensions/rational.ts";
+import { checkDimensions as checkContentDimensions } from "../content/dimensions/check.ts";
+import type { Dimension, DimensionSlotMismatch } from "../content/dimensions/rational.ts";
 import type { Expression } from "./ast.ts";
 import type { QuantityRegistry } from "./quantities.ts";
 
 export type DimensionCheck =
   | Readonly<{ status: "consistent"; dimension: Dimension }>
   | Readonly<{
-      status: "inconsistent" | "semantic-mismatch" | "unsupported-check";
+      status: "inconsistent";
       nodeId: string | null;
       reason: string;
-      lhsDimension?: Dimension;
-      rhsDimension?: Dimension;
-      kinds?: readonly [string, string];
+      lhsDimension: Dimension;
+      rhsDimension: Dimension;
+      offendingBases: readonly DimensionSlotMismatch[];
+      subexpression: string;
+    }>
+  | Readonly<{
+      status: "semantic-mismatch";
+      nodeId: string | null;
+      reason: string;
+      kinds: readonly [string, string];
+      subexpression: string;
+    }>
+  | Readonly<{
+      status: "unsupported-check";
+      nodeId: string | null;
+      reason: string;
     }>;
 
 /**
@@ -34,17 +43,5 @@ export function checkDimensions(
   registry: QuantityRegistry,
   options?: { context?: "si" | "gaussian-cgs" | "emu-cgs" },
 ): DimensionCheck {
-  const result = checkContentDimensions(root, registry as any, options);
-  if (result.status === "consistent") {
-    return { status: "consistent", dimension: result.dimension };
-  }
-  return {
-    status: result.status,
-    nodeId: result.nodeId,
-    reason: result.reason,
-    ...(result.status === "inconsistent"
-      ? { lhsDimension: result.lhsDimension, rhsDimension: result.rhsDimension }
-      : {}),
-    ...(result.status === "semantic-mismatch" ? { kinds: result.kinds } : {}),
-  };
+  return checkContentDimensions(root, registry, options);
 }

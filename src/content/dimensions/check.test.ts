@@ -1,43 +1,33 @@
 import { describe, expect, it } from "bun:test";
+import { readFileSync } from "node:fs";
+import { dirname, join } from "node:path";
+import { fileURLToPath } from "node:url";
 import { newRunIdentity, TestLogger } from "../../testing/log/logger.ts";
+import {
+  conversion,
+  fn,
+  glyphOnly,
+  num,
+  pow,
+  prod,
+  quot,
+  rel,
+  root,
+  sum,
+  sym,
+} from "./__fixtures__/tree.ts";
 import { checkDimensions, type QuantityRegistryMap } from "./check.ts";
-import { dimension, dimensionText, rational } from "./rational.ts";
+import { dimension, dimensionText, formatRational } from "./rational.ts";
 import { mapToRuntimeDimension } from "./runtimeMapping.ts";
 
 describe("Exact Rational Dimension Validator and Semantic Kind Checker", () => {
   const logger = new TestLogger("dimension-validator-tests", newRunIdentity());
 
-  // Helper AST node builders for typed fixtures
-  const sym = (quantityId: string, id?: string) => ({
-    kind: "symbol",
-    quantityId,
-    id: id ?? `t.${quantityId}`,
-  });
-  const num = (value: string | number) => ({ kind: "number", value: String(value) });
-  const prod = (...args: any[]) => ({ kind: "product", args });
-  const quot = (numerator: any, denominator: any) => ({ kind: "quotient", numerator, denominator });
-  const sum = (...args: any[]) => ({ kind: "sum", args });
-  const root = (radicand: any, degree = 2) => ({ kind: "root", radicand, degree });
-  const pow = (base: any, exponent: any) => ({ kind: "power", base, exponent });
-  const fn = (name: string, argument: any) => ({ kind: "function", name, argument });
-  const rel = (left: any, right: any, op = "=") => ({
-    kind: "relation",
-    operator: op,
-    left,
-    right,
-  });
-  const deriv = (expression: any, variable: any, order = 1) => ({
-    kind: "derivative",
-    expression,
-    variable,
-    order,
-  });
-  const integral = (expression: any, variable: any) => ({ kind: "integral", expression, variable });
-
   // 1. Core SI Quantities Registry Fixture
   const REGISTRY: QuantityRegistryMap = {
     // Kinematic / Mechanical
     length: { id: "length", dimension: ["1", "0", "0", "0", "0", "0"] },
+    area: { id: "area", dimension: ["2", "0", "0", "0", "0", "0"] },
     time: { id: "time", dimension: ["0", "0", "1", "0", "0", "0"] },
     volume: { id: "volume", dimension: ["3", "0", "0", "0", "0", "0"] },
     volume0: { id: "volume0", dimension: ["3", "0", "0", "0", "0", "0"] },
@@ -183,6 +173,26 @@ describe("Exact Rational Dimension Validator and Semantic Kind Checker", () => {
     },
     angleVal: { id: "angleVal", dimension: ["0", "0", "0", "0", "0", "0"], semanticKind: "angle" },
     countVal: { id: "countVal", dimension: ["0", "0", "0", "0", "0", "0"], semanticKind: "count" },
+    // Cancelled-units vs intrinsically dimensionless: same all-zero vector,
+    // distinguished by dimensionlessKind (schema vocabulary: ratio vs pure-number).
+    volumeRatio: {
+      id: "volumeRatio",
+      dimension: ["0", "0", "0", "0", "0", "0"],
+      dimensionlessKind: "ratio",
+      semanticKind: "cancelled-units",
+    },
+    pureNumber: {
+      id: "pureNumber",
+      dimension: ["0", "0", "0", "0", "0", "0"],
+      dimensionlessKind: "pure-number",
+      semanticKind: "dimensionless",
+    },
+    probabilityVal: {
+      id: "probabilityVal",
+      dimension: ["0", "0", "0", "0", "0", "0"],
+      dimensionlessKind: "probability",
+      semanticKind: "probability",
+    },
 
     // State Dependent (Paper 2 §2)
     stateVariable: {
@@ -196,6 +206,155 @@ describe("Exact Rational Dimension Validator and Semantic Kind Checker", () => {
       dimensionStatus: "state-dependent",
     },
   };
+
+  it("PLANTED: a one-slot exponent mismatch is refused by typed code naming the base and both sides", () => {
+    // Energy is M L^2 T^-2; force is M L T^-2. They differ only in the length exponent.
+    const forceLike = {
+      ...REGISTRY,
+      force: { id: "force", dimension: ["1", "1", "-2", "0", "0", "0"] },
+    };
+    const res = checkDimensions(rel(sym("energy"), sym("force")), forceLike);
+    expect(res.status).toBe("inconsistent");
+    expect(res).not.toBe(false);
+    expect(res).not.toBe(true);
+    if (res.status !== "inconsistent") throw new Error("expected inconsistent");
+    expect(res.offendingBases).toHaveLength(1);
+    const slot = res.offendingBases[0]!;
+    expect(slot.base).toBe("length");
+    expect(slot.lhs).toEqual({ num: 2n, den: 1n });
+    expect(slot.rhs).toEqual({ num: 1n, den: 1n });
+    expect(res.reason).toContain("length");
+    expect(res.reason).toContain("left 2");
+    expect(res.reason).toContain("right 1");
+    expect(dimensionText(res.lhsDimension)).toBe("2,1,-2,0,0,0");
+    expect(dimensionText(res.rhsDimension)).toBe("1,1,-2,0,0,0");
+    logger.log({
+      testId: "planted-one-slot-mismatch-names-length",
+      beadId: "am-cm-dimension-validator-aoz",
+      expected: "inconsistent length 2 vs 1",
+      actual: res.reason,
+      comparisonKind: "bitwise",
+      outcome: "passed",
+    });
+  });
+
+  it("PLANTED: three one-third exponents compose to exactly 1 (the float-error case)", () => {
+    const cubeRootOfLength = root(sym("length"), 3);
+    const composed = prod(cubeRootOfLength, cubeRootOfLength, cubeRootOfLength);
+    const res = checkDimensions(composed, REGISTRY);
+    expect(res.status).toBe("consistent");
+    if (res.status !== "consistent") throw new Error("expected consistent");
+    const lengthExp = res.dimension[0]!;
+    expect(lengthExp.num).toBe(1n);
+    expect(lengthExp.den).toBe(1n);
+    expect(typeof lengthExp.num).toBe("bigint");
+    expect(typeof lengthExp.den).toBe("bigint");
+    expect(dimensionText(res.dimension)).toBe("1,0,0,0,0,0");
+    // Cube root of volume is length for the same reason: 3 * (1/3) = 1 exactly.
+    const cubeRootVolume = checkDimensions(root(sym("volume"), 3), REGISTRY);
+    expect(cubeRootVolume.status).toBe("consistent");
+    if (cubeRootVolume.status === "consistent") {
+      expect(cubeRootVolume.dimension[0]).toEqual({ num: 1n, den: 1n });
+    }
+    logger.log({
+      testId: "planted-three-one-thirds-compose-to-one",
+      beadId: "am-cm-dimension-validator-aoz",
+      expected: "1/1",
+      actual: formatRational(lengthExp),
+      comparisonKind: "bitwise",
+      outcome: "passed",
+    });
+  });
+
+  it("PLANTED: cancelled-units (ratio) and intrinsically dimensionless (pure-number) are distinguishable", () => {
+    // Choice: distinguish them. Both have the all-zero exponent vector. The
+    // Quantity schema already names cancelled units `dimensionlessKind: "ratio"`
+    // (V/V0, strain) and an authored number `pure-number`. Equating them without
+    // a conversion is a teaching error this corpus actually makes (the Wien
+    // exponent base is a volume ratio, not a count). We do not invent a seventh
+    // basis slot: AGENTS.md keeps angles a kind, not a dimension.
+    const res = checkDimensions(rel(sym("volumeRatio"), sym("pureNumber")), REGISTRY);
+    expect(res.status).toBe("semantic-mismatch");
+    if (res.status !== "semantic-mismatch") throw new Error("expected semantic-mismatch");
+    expect(res.kinds).toEqual(["ratio", "pure-number"]);
+    expect(res.reason).toContain("ratio");
+    expect(res.reason).toContain("pure-number");
+    const vsProbability = checkDimensions(rel(sym("volumeRatio"), sym("probabilityVal")), REGISTRY);
+    expect(vsProbability.status).toBe("semantic-mismatch");
+  });
+
+  it("GOOD CASE: Stokes-Einstein D = k_B T / (6 pi eta a) is accepted as L^2 T^-1", () => {
+    const stokesD = quot(
+      prod(sym("boltzmannConstant"), sym("temperature")),
+      prod(num(6), num("3.14159"), sym("viscosity"), sym("particleRadius")),
+    );
+    const checkD = checkDimensions(stokesD, REGISTRY);
+    expect(checkD.status).toBe("consistent");
+    if (checkD.status === "consistent") {
+      expect(dimensionText(checkD.dimension)).toBe("2,0,-1,0,0,0");
+    }
+  });
+
+  it("PLANTED: a printed glyph is never a binding key", () => {
+    const byGlyph = checkDimensions(glyphOnly("k"), REGISTRY);
+    expect(byGlyph.status).toBe("unsupported-check");
+    if (byGlyph.status === "unsupported-check") {
+      expect(byGlyph.reason).toContain("quantity id");
+      expect(byGlyph.reason).toContain("glyph");
+    }
+    const visc = { kind: "symbol" as const, quantityId: "viscosity", glyph: "k" };
+    const bolt = { kind: "symbol" as const, quantityId: "boltzmannConstant", glyph: "k" };
+    const sameGlyphDifferentIds = checkDimensions(sum(visc, bolt), REGISTRY);
+    expect(sameGlyphDifferentIds.status).toBe("inconsistent");
+    if (sameGlyphDifferentIds.status === "inconsistent") {
+      expect(sameGlyphDifferentIds.offendingBases.map((s) => s.base)).toEqual([
+        "length",
+        "time",
+        "temperature",
+      ]);
+    }
+  });
+
+  it("an explicit conversion node lets cyclic frequency become angular frequency", () => {
+    const without = checkDimensions(rel(sym("angularFrequency"), sym("frequency")), REGISTRY);
+    expect(without.status).toBe("semantic-mismatch");
+    const converted = rel(
+      sym("angularFrequency"),
+      conversion(sym("frequency"), "cyclic-frequency", "angular-frequency"),
+    );
+    expect(checkDimensions(converted, REGISTRY).status).toBe("consistent");
+  });
+
+  it("a scaled term keeps its quantity's dimension; the numeric factor does not change it", () => {
+    // 2 κ N = R with κ bound to boltzmannConstant at scale 1/2.
+    const kappa = {
+      kind: "symbol" as const,
+      quantityId: "boltzmannConstant",
+      scale: { num: 1, den: 2 },
+    };
+    const lhs = prod(num(2), kappa, sym("avogadroConstant"));
+    const eq = rel(lhs, sym("gasConstant"));
+    const res = checkDimensions(eq, REGISTRY);
+    expect(res.status).toBe("consistent");
+  });
+
+  it("a bare matrix without target dimensions is unsupported-check, not a pass", () => {
+    const res = checkDimensions({ kind: "matrix" }, REGISTRY);
+    expect(res.status).toBe("unsupported-check");
+    if (res.status === "unsupported-check") {
+      expect(res.reason).toContain("target vector");
+    }
+  });
+
+  it("never uses a float or an epsilon for exponent comparison", () => {
+    const dir = dirname(fileURLToPath(import.meta.url));
+    for (const file of ["rational.ts", "check.ts"]) {
+      const src = readFileSync(join(dir, file), "utf8");
+      expect(src).not.toContain("Number.EPSILON");
+      expect(src).not.toContain("parseFloat");
+      expect(src).not.toMatch(/Math\.abs\([^)]*\)\s*[<>=]/);
+    }
+  });
 
   it("validates Brownian motion: lambda_x = sqrt(2*D*t) and sqrt(D*t) has length dimension", () => {
     const sqrtDt = root(prod(sym("diffusionCoefficient"), sym("time")), 2);
@@ -259,7 +418,9 @@ describe("Exact Rational Dimension Validator and Semantic Kind Checker", () => {
     const badRes = checkDimensions(badExp, REGISTRY);
     expect(badRes.status).toBe("inconsistent");
     if (badRes.status === "inconsistent") {
-      expect(badRes.reason).toContain("dimensionless argument");
+      expect(badRes.offendingBases.some((s) => s.base === "time")).toBe(true);
+      expect(badRes.reason).toContain("time");
+      expect(badRes.subexpression).toContain("exp");
     }
   });
 
@@ -291,7 +452,9 @@ describe("Exact Rational Dimension Validator and Semantic Kind Checker", () => {
     const badRes = checkDimensions(badPower, REGISTRY);
     expect(badRes.status).toBe("inconsistent");
     if (badRes.status === "inconsistent") {
-      expect(badRes.reason).toContain("Non-constant power requires a dimensionless base");
+      expect(badRes.offendingBases.some((s) => s.base === "length")).toBe(true);
+      expect(badRes.subexpression).toContain("non-constant power base");
+      expect(dimensionText(badRes.lhsDimension)).toBe("3,0,0,0,0,0");
     }
   });
 

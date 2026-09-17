@@ -10,7 +10,7 @@
 import { existsSync, readFileSync } from "node:fs";
 import { parseArgs } from "node:util";
 import { checkDimensions, type DimensionCheckResult } from "../src/content/dimensions/check.ts";
-import { dimensionText } from "../src/content/dimensions/rational.ts";
+import { dimensionText, formatRational } from "../src/content/dimensions/rational.ts";
 import type {
   QuantityDescriptor,
   UnitSystemContext,
@@ -68,14 +68,20 @@ export async function runDimensionAudit(
 
     let lhsDimText: string | undefined;
     let rhsDimText: string | undefined;
+    let offendingBases: ReadonlyArray<{ base: string; lhs: string; rhs: string }> | undefined;
 
     if (result.status === "consistent") {
       consistent++;
       lhsDimText = dimensionText(result.dimension);
     } else if (result.status === "inconsistent") {
       inconsistent++;
-      if (result.lhsDimension) lhsDimText = dimensionText(result.lhsDimension);
-      if (result.rhsDimension) rhsDimText = dimensionText(result.rhsDimension);
+      lhsDimText = dimensionText(result.lhsDimension);
+      rhsDimText = dimensionText(result.rhsDimension);
+      offendingBases = result.offendingBases.map((slot) => ({
+        base: slot.base,
+        lhs: formatRational(slot.lhs),
+        rhs: formatRational(slot.rhs),
+      }));
     } else if (result.status === "semantic-mismatch") {
       semanticMismatch++;
     } else if (result.status === "unsupported-check") {
@@ -100,6 +106,7 @@ export async function runDimensionAudit(
         status: result.status,
         lhsDimension: lhsDimText,
         rhsDimension: rhsDimText,
+        offendingBases,
         subexpression:
           result.status === "inconsistent" || result.status === "semantic-mismatch"
             ? result.subexpression

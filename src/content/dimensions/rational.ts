@@ -9,12 +9,25 @@
  * Bead: am-cm-dimension-validator-aoz
  */
 
-import { DIMENSION_BASIS } from "./dimensionBasis.ts";
+import { DIMENSION_BASIS, type DimensionBasisName } from "./dimensionBasis.ts";
 
+export type { DimensionBasisName };
 export { DIMENSION_BASIS };
 
+/**
+ * Exact rational exponent. Integer numerator and denominator, reduced, never a
+ * float and never an epsilon. A dimension is this vector; numeric values and
+ * their precision belong to a constant-set entry, never here.
+ */
 export type Rational = Readonly<{ num: bigint; den: bigint }>;
 export type Dimension = readonly Rational[];
+
+/** One basis slot whose exponents disagree, with both sides named. */
+export type DimensionSlotMismatch = Readonly<{
+  base: DimensionBasisName;
+  lhs: Rational;
+  rhs: Rational;
+}>;
 
 /**
  * Creates a canonical rational number in lowest terms with a positive denominator.
@@ -119,10 +132,60 @@ export function isDimensionless(d: Dimension): boolean {
 }
 
 /**
+ * Formats one exact rational without converting it to a float.
+ */
+export function formatRational(r: Rational): string {
+  return r.den === 1n ? String(r.num) : `${r.num}/${r.den}`;
+}
+
+/**
  * Formats a dimension vector as comma-separated rational strings (e.g. "1,0,-2,0,0,0" or "1/2,1/2,-1,0,0,0").
  */
 export function dimensionText(d: Dimension): string {
-  return d.map((v) => (v.den === 1n ? String(v.num) : `${v.num}/${v.den}`)).join(",");
+  return d.map(formatRational).join(",");
+}
+
+/**
+ * Names every basis slot whose exponents differ, with both sides. Empty when
+ * the vectors are exactly equal. Never a boolean and never a tolerance.
+ */
+export function dimensionMismatches(
+  lhs: Dimension,
+  rhs: Dimension,
+): readonly DimensionSlotMismatch[] {
+  if (lhs.length !== DIMENSION_BASIS.length || rhs.length !== DIMENSION_BASIS.length) {
+    throw new TypeError("Dimension vectors must have length 6.");
+  }
+  const mismatches: DimensionSlotMismatch[] = [];
+  for (let i = 0; i < DIMENSION_BASIS.length; i++) {
+    const a = lhs[i]!;
+    const b = rhs[i]!;
+    if (a.num !== b.num || a.den !== b.den) {
+      mismatches.push({ base: DIMENSION_BASIS[i]!, lhs: a, rhs: b });
+    }
+  }
+  return Object.freeze(mismatches);
+}
+
+/**
+ * Refusal text for a pairwise dimension failure: which bases, both exponents,
+ * and both full vectors.
+ */
+export function formatDimensionMismatch(
+  mismatches: readonly DimensionSlotMismatch[],
+  lhs: Dimension,
+  rhs: Dimension,
+): string {
+  if (mismatches.length === 0) {
+    return `Dimensions agree: [${dimensionText(lhs)}].`;
+  }
+  const slots = mismatches
+    .map(
+      (m) =>
+        `${m.base} exponents differ: left ${formatRational(m.lhs)}, right ${formatRational(m.rhs)}`,
+    )
+    .join("; ");
+  return `${slots}. Left [${dimensionText(lhs)}], right [${dimensionText(rhs)}].`;
 }
 
 /**

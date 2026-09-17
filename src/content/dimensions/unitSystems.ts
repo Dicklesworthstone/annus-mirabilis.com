@@ -10,13 +10,25 @@ import { type Dimension, dimension, parseRational } from "./rational.ts";
 
 export type UnitSystemContext = "si" | "gaussian-cgs" | "emu-cgs";
 
+/**
+ * Quantity fields this validator reads. Binding is by `id`, never by a printed
+ * glyph. Exactness of a numeric value belongs on a constant-set entry, so this
+ * descriptor has no value, uncertainty, or precision field.
+ */
 export interface QuantityDescriptor {
   readonly id: string;
   readonly dimension: readonly string[];
   readonly gaussianDimension?: readonly string[];
   readonly emuDimension?: readonly string[];
-  readonly dimensionStatus?: "exact" | "state-dependent" | "unsupported";
+  readonly dimensionStatus?: "exact" | "declared" | "state-dependent" | "unsupported";
   readonly semanticKind?: string;
+  readonly dimensionlessKind?:
+    | "angle"
+    | "hyperbolic-angle"
+    | "ratio"
+    | "count"
+    | "probability"
+    | "pure-number";
 }
 
 export type QuantityDimensionResolution =

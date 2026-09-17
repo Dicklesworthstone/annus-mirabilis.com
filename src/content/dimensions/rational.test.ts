@@ -1,6 +1,14 @@
 import { describe, expect, it } from "bun:test";
 import { newRunIdentity, TestLogger } from "../../testing/log/logger.ts";
-import { add, divide, multiply, parseRational, rational } from "./rational.ts";
+import {
+  add,
+  dimension,
+  dimensionMismatches,
+  divide,
+  multiply,
+  parseRational,
+  rational,
+} from "./rational.ts";
 
 describe("Exact Rational Dimension Arithmetic", () => {
   const logger = new TestLogger("dimension-validator-tests", newRunIdentity());
@@ -47,5 +55,24 @@ describe("Exact Rational Dimension Arithmetic", () => {
 
     expect(() => divide(a, zero)).toThrow("zero rational");
     expect(() => rational(1n, 0n)).toThrow("denominator cannot be zero");
+  });
+
+  it("PLANTED: 1/3 + 1/3 + 1/3 is exactly 1, not a float remainder", () => {
+    const third = parseRational("1/3");
+    const sum = add(add(third, third), third);
+    expect(sum).toEqual({ num: 1n, den: 1n });
+    expect(sum).not.toEqual({ num: 0.9999999999999999, den: 1 });
+  });
+
+  it("names the single offending basis slot when vectors differ in one exponent", () => {
+    const energy = dimension(["2", "1", "-2", "0", "0", "0"]);
+    const force = dimension(["1", "1", "-2", "0", "0", "0"]);
+    const mismatches = dimensionMismatches(energy, force);
+    expect(mismatches).toHaveLength(1);
+    expect(mismatches[0]).toEqual({
+      base: "length",
+      lhs: { num: 2n, den: 1n },
+      rhs: { num: 1n, den: 1n },
+    });
   });
 });

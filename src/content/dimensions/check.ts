@@ -13,8 +13,10 @@ import {
   combine,
   DIMENSIONLESS,
   type Dimension,
+  type DimensionSlotMismatch,
   dimension,
-  dimensionText,
+  dimensionMismatches,
+  formatDimensionMismatch,
   isDimensionless,
   parseRational,
   power,
@@ -42,16 +44,17 @@ export type DimensionCheckResult =
       readonly status: "inconsistent";
       readonly nodeId: string | null;
       readonly reason: string;
-      readonly lhsDimension?: Dimension;
-      readonly rhsDimension?: Dimension;
-      readonly subexpression?: string;
+      readonly lhsDimension: Dimension;
+      readonly rhsDimension: Dimension;
+      readonly offendingBases: readonly DimensionSlotMismatch[];
+      readonly subexpression: string;
     }
   | {
       readonly status: "semantic-mismatch";
       readonly nodeId: string | null;
       readonly reason: string;
       readonly kinds: readonly [string, string];
-      readonly subexpression?: string;
+      readonly subexpression: string;
     }
   | {
       readonly status: "unsupported-check";
@@ -82,33 +85,82 @@ const INCOMPATIBLE_SEMANTIC_KINDS: ReadonlyArray<readonly [string, string]> = [
   ["angle", "probability"],
 ];
 
-function areSemanticKindsIncompatible(a: string, b: string): boolean {
-  if (a === b) return false;
-  for (const [k1, k2] of INCOMPATIBLE_SEMANTIC_KINDS) {
+/**
+ * Cancelled-units (`ratio`, e.g. V/V0) versus intrinsically dimensionless
+ * quantities. They share the all-zero exponent vector; the distinction lives
+ * on `dimensionlessKind`, not on a seventh basis slot, because AGENTS.md
+ * forbids inventing a dimension for distinctions dimensions cannot settle.
+ */
+const INCOMPATIBLE_DIMENSIONLESS_KINDS: ReadonlyArray<readonly [string, string]> = [
+  ["angle", "count"],
+  ["angle", "probability"],
+  ["angle", "ratio"],
+  ["angle", "pure-number"],
+  ["ratio", "count"],
+  ["ratio", "probability"],
+  ["ratio", "pure-number"],
+];
+
+function pairListed(
+  pairs: ReadonlyArray<readonly [string, string]>,
+  a: string,
+  b: string,
+): boolean {
+  for (const [k1, k2] of pairs) {
     if ((a === k1 && b === k2) || (a === k2 && b === k1)) {
       return true;
     }
   }
+  return false;
+}
+
+function areSemanticKindsIncompatible(a: string, b: string): boolean {
+  if (a === b) return false;
+  if (pairListed(INCOMPATIBLE_SEMANTIC_KINDS, a, b)) return true;
+  // Flattened kinds on bound terms (the Brownian teaching slice) still refuse
+  // any two different authored meanings; listed pairs above are the corpus
+  // obligations. Conversion nodes skip this check.
   return a !== b;
+}
+
+function areDimensionlessKindsIncompatible(a: string, b: string): boolean {
+  if (a === b) return false;
+  return pairListed(INCOMPATIBLE_DIMENSIONLESS_KINDS, a, b);
 }
 
 /**
  * Checks dimensions and semantic kinds of an expression tree against a quantity registry.
  */
 export function checkDimensions(
-  root: any,
+  root: unknown,
   registry: QuantityRegistryMap,
   options: DimensionCheckOptions = {},
 ): DimensionCheckResult {
   const context = options.context ?? "si";
+  const maxDepth = options.maxDepth ?? 32;
 
-  function extractNodeId(n: any): string | null {
+  function extractNodeId(n: unknown): string | null {
     if (!n || typeof n !== "object") return null;
-    return n.termId ?? n.opId ?? n.id ?? n.nodeId ?? null;
+    const o = n as Record<string, unknown>;
+    for (const key of ["termId", "opId", "id", "nodeId"] as const) {
+      const v = o[key];
+      if (typeof v === "string") return v;
+    }
+    return null;
+  }
+
+  function describeSubexpression(n: unknown): string {
+    const id = extractNodeId(n);
+    if (id) return id;
+    if (!n || typeof n !== "object") return "unknown";
+    const o = n as Record<string, unknown>;
+    if (o.kind === "symbol" && typeof o.quantityId === "string") return o.quantityId;
+    if (typeof o.kind === "string") return o.kind;
+    return "unknown";
   }
 
   const stop = (
-    n: any,
+    n: unknown,
     status: Exclude<DimensionCheckStatus, "consistent">,
     reason: string,
     extra?: Record<string, unknown>,
@@ -121,30 +173,66 @@ export function checkDimensions(
     };
   };
 
-  function extractSemanticKind(n: any): string | null {
+  function refusePair(n: unknown, da: Dimension, db: Dimension, subexpression: string): never {
+    const offendingBases = dimensionMismatches(da, db);
+    return stop(n, "inconsistent", formatDimensionMismatch(offendingBases, da, db), {
+      lhsDimension: da,
+      rhsDimension: db,
+      offendingBases,
+      subexpression,
+    });
+  }
+
+  function extractSemanticKind(n: unknown): string | null {
     if (!n || typeof n !== "object") return null;
-    if (n.kind === "symbol") {
-      const q = registry[n.quantityId];
-      return q?.semanticKind ?? null;
+    const o = n as Record<string, unknown>;
+    if (o.kind === "conversion" && typeof o.to === "string") {
+      return o.to;
     }
-    if (n.kind === "group" || n.kind === "negate" || n.kind === "average") {
-      return extractSemanticKind(n.argument);
+    if (o.kind === "symbol" && typeof o.quantityId === "string") {
+      return registry[o.quantityId]?.semanticKind ?? null;
     }
-    if (n.semanticKind) {
-      return n.semanticKind;
+    if (o.kind === "group" || o.kind === "negate" || o.kind === "average") {
+      return extractSemanticKind(o.argument);
+    }
+    if (typeof o.semanticKind === "string") {
+      return o.semanticKind;
     }
     return null;
   }
 
-  function equal(n: any, a: any, b: any): Dimension {
-    const da = visit(a);
-    const db = visit(b);
+  function extractDimensionlessKind(n: unknown): string | null {
+    if (!n || typeof n !== "object") return null;
+    const o = n as Record<string, unknown>;
+    if (o.kind === "conversion" && typeof o.to === "string") {
+      return o.to;
+    }
+    if (o.kind === "symbol" && typeof o.quantityId === "string") {
+      return registry[o.quantityId]?.dimensionlessKind ?? null;
+    }
+    if (o.kind === "group" || o.kind === "negate" || o.kind === "average") {
+      return extractDimensionlessKind(o.argument);
+    }
+    if (typeof o.dimensionlessKind === "string") {
+      return o.dimensionlessKind;
+    }
+    return null;
+  }
+
+  function equal(n: unknown, a: unknown, b: unknown): Dimension {
+    const da = visit(a, 0);
+    const db = visit(b, 0);
     if (!sameDimension(da, db)) {
+      refusePair(n, da, db, describeSubexpression(n));
+    }
+    const dla = extractDimensionlessKind(a);
+    const dlb = extractDimensionlessKind(b);
+    if (dla && dlb && areDimensionlessKindsIncompatible(dla, dlb)) {
       stop(
         n,
-        "inconsistent",
-        `Different dimensions: [${dimensionText(da)}] and [${dimensionText(db)}].`,
-        { lhsDimension: da, rhsDimension: db },
+        "semantic-mismatch",
+        `Directly related quantities have incompatible dimensionless kinds: '${dla}' and '${dlb}'. An explicit conversion is required.`,
+        { kinds: [dla, dlb], subexpression: describeSubexpression(n) },
       );
     }
     const ka = extractSemanticKind(a);
@@ -154,27 +242,40 @@ export function checkDimensions(
         n,
         "semantic-mismatch",
         `Directly related quantities have incompatible meanings: '${ka}' and '${kb}'. An explicit conversion is required.`,
-        { kinds: [ka, kb] },
+        { kinds: [ka, kb], subexpression: describeSubexpression(n) },
       );
     }
     return da;
   }
 
-  function visit(n: any): Dimension {
+  function visit(n: unknown, depth: number): Dimension {
+    if (depth > maxDepth) {
+      return stop(n, "unsupported-check", "Expression exceeded the dimensional walk budget.");
+    }
     if (!n || typeof n !== "object") {
       return stop(n, "unsupported-check", "Invalid AST node.");
     }
+    const node = n as Record<string, unknown> & { kind?: string };
 
-    switch (n.kind) {
+    switch (node.kind) {
       case "symbol": {
-        const q = registry[n.quantityId];
+        if (typeof node.quantityId !== "string" || node.quantityId.length === 0) {
+          return stop(
+            n,
+            "unsupported-check",
+            "Symbol is bound by registered quantity id, never by a printed glyph.",
+          );
+        }
+        const q = registry[node.quantityId];
         if (!q) {
-          return stop(n, "unsupported-check", `Unknown quantity '${n.quantityId}'.`);
+          return stop(n, "unsupported-check", `Unknown quantity '${node.quantityId}'.`);
         }
         const res = resolveQuantityDimension(q, context);
         if (!res.ok) {
           return stop(n, res.status, res.reason);
         }
+        // An exact `scale` (paper 2's κ at 1/2) is a numeric factor. It never
+        // changes a dimension; exactness of the number lives on the constant set.
         return res.dimension;
       }
 
@@ -182,68 +283,81 @@ export function checkDimensions(
       case "constant":
         return DIMENSIONLESS;
 
+      case "conversion": {
+        return visit(node.argument, depth + 1);
+      }
+
       case "sum": {
-        if (!Array.isArray(n.args) || n.args.length === 0) {
+        if (!Array.isArray(node.args) || node.args.length === 0) {
           return stop(n, "unsupported-check", "Sum requires at least one argument.");
         }
-        const first = n.args[0]!;
-        for (const arg of n.args.slice(1)) {
+        const first = node.args[0]!;
+        for (const arg of node.args.slice(1)) {
           equal(n, first, arg);
         }
-        return visit(first);
+        return visit(first, depth + 1);
       }
 
       case "product": {
-        if (!Array.isArray(n.args)) {
+        if (!Array.isArray(node.args)) {
           return stop(n, "unsupported-check", "Product args must be an array.");
         }
         let acc: Dimension = DIMENSIONLESS;
-        for (const arg of n.args) {
-          acc = combine(acc, visit(arg));
+        for (const arg of node.args) {
+          acc = combine(acc, visit(arg, depth + 1));
         }
         return acc;
       }
 
       case "quotient": {
-        return combine(visit(n.numerator), visit(n.denominator), -1);
+        return combine(visit(node.numerator, depth + 1), visit(node.denominator, depth + 1), -1);
       }
 
       case "power": {
-        const baseDim = visit(n.base);
+        const baseDim = visit(node.base, depth + 1);
+        const exponent = node.exponent;
 
-        // Constant rational exponent
         if (
-          n.exponent &&
-          typeof n.exponent === "object" &&
-          "num" in n.exponent &&
-          "den" in n.exponent
+          exponent &&
+          typeof exponent === "object" &&
+          !Array.isArray(exponent) &&
+          "num" in exponent &&
+          "den" in exponent &&
+          !("kind" in exponent)
         ) {
-          const expRat = rational(BigInt(n.exponent.num), BigInt(n.exponent.den));
+          const expObj = exponent as {
+            num: string | number | bigint;
+            den: string | number | bigint;
+          };
+          const expRat = rational(BigInt(expObj.num), BigInt(expObj.den));
           return power(baseDim, expRat);
         }
 
-        // Exponent as a numeric literal node
-        if (n.exponent && typeof n.exponent === "object" && n.exponent.kind === "number") {
-          const expVal = parseRational(String(n.exponent.value));
+        if (
+          exponent &&
+          typeof exponent === "object" &&
+          (exponent as { kind?: string }).kind === "number"
+        ) {
+          const expVal = parseRational(String((exponent as { value?: unknown }).value));
           return power(baseDim, expVal);
         }
 
-        // Non-constant / symbolic exponent (e.g. n, NE/(R*beta*nu))
-        const expDim = visit(n.exponent);
+        const expDim = visit(exponent, depth + 1);
         if (!isDimensionless(expDim)) {
-          return stop(
+          return refusePair(
             n,
-            "inconsistent",
-            `Power exponent must be dimensionless, got [${dimensionText(expDim)}].`,
+            expDim,
+            DIMENSIONLESS,
+            `power exponent (${describeSubexpression(exponent)})`,
           );
         }
 
-        // Non-constant power requires dimensionless base
         if (!isDimensionless(baseDim)) {
-          return stop(
+          return refusePair(
             n,
-            "inconsistent",
-            `Non-constant power requires a dimensionless base, got [${dimensionText(baseDim)}].`,
+            baseDim,
+            DIMENSIONLESS,
+            `non-constant power base (${describeSubexpression(node.base)})`,
           );
         }
 
@@ -251,53 +365,55 @@ export function checkDimensions(
       }
 
       case "root": {
-        const degree = BigInt(n.degree ?? 2);
+        const degree = BigInt((node.degree as string | number | bigint | undefined) ?? 2);
         if (degree === 0n) {
           return stop(n, "unsupported-check", "Root degree cannot be zero.");
         }
-        return power(visit(n.radicand), rational(1n, degree));
+        return power(visit(node.radicand, depth + 1), rational(1n, degree));
       }
 
       case "negate":
       case "average":
       case "group": {
-        return visit(n.argument);
+        return visit(node.argument, depth + 1);
       }
 
       case "function": {
-        const argDim = visit(n.argument);
+        const argDim = visit(node.argument, depth + 1);
         if (!isDimensionless(argDim)) {
-          return stop(
+          const name = typeof node.name === "string" ? node.name : "fn";
+          return refusePair(
             n,
-            "inconsistent",
-            `Function '${n.name}' requires a dimensionless argument, got [${dimensionText(argDim)}].`,
+            argDim,
+            DIMENSIONLESS,
+            `function '${name}' argument (${describeSubexpression(node.argument)})`,
           );
         }
         return DIMENSIONLESS;
       }
 
       case "relation": {
-        return equal(n, n.left, n.right);
+        return equal(n, node.left, node.right);
       }
 
       case "derivative": {
-        const exprDim = visit(n.expression);
-        const varDim = visit(n.variable);
-        const order = BigInt(n.order ?? 1);
+        const exprDim = visit(node.expression, depth + 1);
+        const varDim = visit(node.variable, depth + 1);
+        const order = BigInt((node.order as string | number | bigint | undefined) ?? 1);
         return combine(exprDim, power(varDim, rational(order)), -1);
       }
 
       case "integral": {
-        const exprDim = visit(n.expression);
-        const varDim = visit(n.variable);
+        const exprDim = visit(node.expression, depth + 1);
+        const varDim = visit(node.variable, depth + 1);
         return combine(exprDim, varDim);
       }
 
       case "matrix": {
-        // Heterogeneous matrix acting on vectors
-        if (n.targetDimensions && Array.isArray(n.targetDimensions)) {
-          // Component by component target vector dimensions
-          return dimension(n.targetDimensions);
+        if (node.targetDimensions && Array.isArray(node.targetDimensions)) {
+          return dimension(
+            node.targetDimensions as readonly (string | { num: bigint; den: bigint })[],
+          );
         }
         return stop(
           n,
@@ -310,14 +426,14 @@ export function checkDimensions(
         return stop(
           n,
           "unsupported-check",
-          `Expression kind '${String(n.kind)}' has no dimensional rule.`,
+          `Expression kind '${String(node.kind)}' has no dimensional rule.`,
         );
       }
     }
   }
 
   try {
-    const dim = visit(root);
+    const dim = visit(root, 0);
     return { status: "consistent", dimension: dim };
   } catch (err) {
     if (err && typeof err === "object" && "status" in err) {
