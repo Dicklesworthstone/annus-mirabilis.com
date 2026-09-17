@@ -8,7 +8,11 @@
  */
 
 import type { SemanticEquation } from "../../content/schemas/argument.ts";
-import type { PremiseEdgeType } from "../../content/schemas/meanings.ts";
+import {
+  LOGICAL_ROLES,
+  type LogicalRole,
+  type PremiseEdgeType,
+} from "../../content/schemas/meanings.ts";
 import type { AdmittedImport, DerivationChain } from "../derivations/types.ts";
 import type {
   GenealogyEdge,
@@ -25,6 +29,47 @@ export interface BuildGenealogyOptions {
   readonly admittedImports?: readonly AdmittedImport[] | undefined;
   readonly customNodes?: readonly GenealogyNode[] | undefined;
   readonly customEdges?: readonly GenealogyEdge[] | undefined;
+}
+
+function isLogicalRole(val: unknown): val is LogicalRole {
+  return typeof val === "string" && (LOGICAL_ROLES as readonly string[]).includes(val);
+}
+
+function extractLatexFromNotationForms(val: unknown): string | undefined {
+  if (!val || typeof val !== "object" || Array.isArray(val)) return undefined;
+  const obj = val as Record<string, unknown>;
+  const source = obj.source;
+  if (source && typeof source === "object" && !Array.isArray(source)) {
+    const sObj = source as Record<string, unknown>;
+    if (typeof sObj.latex === "string" && sObj.latex.trim().length > 0) {
+      return sObj.latex;
+    }
+  }
+  const modern = obj.modern;
+  if (modern && typeof modern === "object" && !Array.isArray(modern)) {
+    const mObj = modern as Record<string, unknown>;
+    if (typeof mObj.latex === "string" && mObj.latex.trim().length > 0) {
+      return mObj.latex;
+    }
+  }
+  return undefined;
+}
+
+interface DerivationLinksInfo {
+  readonly chainIds: readonly string[];
+  readonly usedBy: readonly string[];
+}
+
+function extractDerivationLinks(val: unknown): DerivationLinksInfo | undefined {
+  if (!val || typeof val !== "object" || Array.isArray(val)) return undefined;
+  const obj = val as Record<string, unknown>;
+  const chainIds = Array.isArray(obj.chainIds)
+    ? obj.chainIds.filter((x): x is string => typeof x === "string")
+    : [];
+  const usedBy = Array.isArray(obj.usedBy)
+    ? obj.usedBy.filter((x): x is string => typeof x === "string")
+    : [];
+  return { chainIds, usedBy };
 }
 
 export function extractPaperFromId(id: string, defaultPaper: string): string {
@@ -63,10 +108,10 @@ export function buildGenealogy(
   const nodeMap = new Map<string, GenealogyNode>();
 
   const registerNode = (node: GenealogyNode) => {
-    if (!nodeMap.has(node.id)) {
+    const existing = nodeMap.get(node.id);
+    if (!existing) {
       nodeMap.set(node.id, node);
     } else {
-      const existing = nodeMap.get(node.id)!;
       nodeMap.set(node.id, {
         ...existing,
         label: existing.label || node.label,
@@ -83,23 +128,34 @@ export function buildGenealogy(
   };
 
   // 1. Process authored equations
-  for (const eq of equations) {
-    const id = String(eq.id ?? "");
+  for (const item of equations) {
+    const eq = item as Record<string, unknown>;
+    const id = typeof eq.id === "string" && eq.id.trim().length > 0 ? eq.id.trim() : "";
     if (!id) continue;
 
-    const eqPaper = String(eq.paper ?? extractPaperFromId(id, paper));
-    const meanings = eq.meanings as Record<string, unknown> | undefined;
-    const logicalRole = (meanings?.logicalRole as any) ?? undefined;
-    const notationForms = eq.notationForms as Record<string, any> | undefined;
-    const latex =
-      notationForms?.source?.latex ??
-      notationForms?.modern?.latex ??
-      (typeof (eq as any).plainLatex === "string" ? (eq as any).plainLatex : undefined);
+    const eqPaper =
+      typeof eq.paper === "string" && eq.paper.trim().length > 0
+        ? eq.paper.trim()
+        : extractPaperFromId(id, paper);
 
+    let logicalRole: LogicalRole | undefined;
+    if (eq.meanings && typeof eq.meanings === "object" && !Array.isArray(eq.meanings)) {
+      const candidate = (eq.meanings as Record<string, unknown>).logicalRole;
+      if (isLogicalRole(candidate)) {
+        logicalRole = candidate;
+      }
+    }
+
+    const plainLatex =
+      typeof eq.plainLatex === "string" && eq.plainLatex.trim().length > 0
+        ? eq.plainLatex
+        : undefined;
+    const latex = extractLatexFromNotationForms(eq.notationForms) ?? plainLatex;
+
+    const derivationLinks = extractDerivationLinks(eq.derivationLinks);
     const isRoot =
       declaredRootsSet.has(id) ||
-      (logicalRole === "assumption" &&
-        (!eq.derivationLinks || (eq.derivationLinks as any).chainIds?.length === 0));
+      (logicalRole === "assumption" && (!derivationLinks || derivationLinks.chainIds.length === 0));
 
     const isNumberedResult =
       declaredResultsSet.has(id) ||
@@ -114,25 +170,32 @@ export function buildGenealogy(
       type = "result";
     }
 
+    const title =
+      typeof eq.title === "string" && eq.title.trim().length > 0 ? eq.title.trim() : undefined;
+    const spokenForm =
+      typeof eq.spokenForm === "string"
+        ? eq.spokenForm
+        : typeof eq.spoken === "string"
+          ? eq.spoken
+          : undefined;
+    const anchor =
+      typeof eq.anchor === "string" && eq.anchor.trim().length > 0 ? eq.anchor.trim() : id;
+    const section =
+      typeof eq.section === "string" && eq.section.trim().length > 0
+        ? eq.section.trim()
+        : extractSectionFromId(id);
+
     registerNode({
       id,
       paper: eqPaper,
-      label:
-        typeof (eq as any).title === "string" && (eq as any).title.trim()
-          ? (eq as any).title
-          : formatLabel(id),
+      label: title ?? formatLabel(id),
       type,
-      spokenForm:
-        typeof (eq as any).spokenForm === "string"
-          ? (eq as any).spokenForm
-          : typeof (eq as any).spoken === "string"
-            ? (eq as any).spoken
-            : undefined,
+      spokenForm,
       latex,
-      anchor: (eq as any).anchor ?? id,
+      anchor,
       isRoot,
       isNumberedResult,
-      section: (eq as any).section ?? extractSectionFromId(id),
+      section,
       logicalRole,
     });
   }
@@ -250,13 +313,15 @@ export function buildGenealogy(
   };
 
   // 5a. From equation usedBy references
-  for (const eq of equations) {
-    const fromId = String(eq.id ?? "");
-    const dLinks = eq.derivationLinks as
-      | { chainIds?: readonly string[]; usedBy?: readonly string[] }
-      | undefined;
-    if (fromId && dLinks?.usedBy) {
-      const fromPaper = String(eq.paper ?? extractPaperFromId(fromId, paper));
+  for (const item of equations) {
+    const eq = item as Record<string, unknown>;
+    const fromId = typeof eq.id === "string" && eq.id.trim().length > 0 ? eq.id.trim() : "";
+    const dLinks = extractDerivationLinks(eq.derivationLinks);
+    if (fromId && dLinks && dLinks.usedBy.length > 0) {
+      const fromPaper =
+        typeof eq.paper === "string" && eq.paper.trim().length > 0
+          ? eq.paper.trim()
+          : extractPaperFromId(fromId, paper);
       for (const targetId of dLinks.usedBy) {
         const targetPaper = extractPaperFromId(targetId, fromPaper);
         const crossPaper = fromPaper !== targetPaper;
@@ -299,28 +364,31 @@ export function buildGenealogy(
 
     // Sequential steps
     for (let i = 0; i < chain.steps.length; i++) {
-      const step = chain.steps[i]!;
+      const step = chain.steps[i];
+      if (!step) continue;
       const stepPaper = extractPaperFromId(step.id, chainPaper);
 
       if (i > 0) {
-        const prevStep = chain.steps[i - 1]!;
-        const prevPaper = extractPaperFromId(prevStep.id, chainPaper);
-        const crossPaper = prevPaper !== stepPaper;
-        const edgeType: PremiseEdgeType =
-          chain.routeKind === "source-order"
-            ? "historical-derivation"
-            : chain.routeKind === "modern-verification"
-              ? "modern-verification-oracle"
-              : "pedagogical-reconstruction";
+        const prevStep = chain.steps[i - 1];
+        if (prevStep) {
+          const prevPaper = extractPaperFromId(prevStep.id, chainPaper);
+          const crossPaper = prevPaper !== stepPaper;
+          const edgeType: PremiseEdgeType =
+            chain.routeKind === "source-order"
+              ? "historical-derivation"
+              : chain.routeKind === "modern-verification"
+                ? "modern-verification-oracle"
+                : "pedagogical-reconstruction";
 
-        addEdge({
-          from: prevStep.id,
-          to: step.id,
-          edgeType,
-          isPremise: true,
-          crossPaper,
-          targetPaper: crossPaper ? stepPaper : undefined,
-        });
+          addEdge({
+            from: prevStep.id,
+            to: step.id,
+            edgeType,
+            isPremise: true,
+            crossPaper,
+            targetPaper: crossPaper ? stepPaper : undefined,
+          });
+        }
       }
 
       // Step premise references
@@ -344,25 +412,27 @@ export function buildGenealogy(
 
     // Last step -> target
     if (chain.steps.length > 0 && chain.target) {
-      const lastStep = chain.steps[chain.steps.length - 1]!;
-      const lastPaper = extractPaperFromId(lastStep.id, chainPaper);
-      const targetPaper = extractPaperFromId(chain.target, chainPaper);
-      const crossPaper = lastPaper !== targetPaper;
-      const edgeType: PremiseEdgeType =
-        chain.routeKind === "source-order"
-          ? "historical-derivation"
-          : chain.routeKind === "modern-verification"
-            ? "modern-verification-oracle"
-            : "pedagogical-reconstruction";
+      const lastStep = chain.steps[chain.steps.length - 1];
+      if (lastStep) {
+        const lastPaper = extractPaperFromId(lastStep.id, chainPaper);
+        const targetPaper = extractPaperFromId(chain.target, chainPaper);
+        const crossPaper = lastPaper !== targetPaper;
+        const edgeType: PremiseEdgeType =
+          chain.routeKind === "source-order"
+            ? "historical-derivation"
+            : chain.routeKind === "modern-verification"
+              ? "modern-verification-oracle"
+              : "pedagogical-reconstruction";
 
-      addEdge({
-        from: lastStep.id,
-        to: chain.target,
-        edgeType,
-        isPremise: true,
-        crossPaper,
-        targetPaper: crossPaper ? targetPaper : undefined,
-      });
+        addEdge({
+          from: lastStep.id,
+          to: chain.target,
+          edgeType,
+          isPremise: true,
+          crossPaper,
+          targetPaper: crossPaper ? targetPaper : undefined,
+        });
+      }
     }
   }
 

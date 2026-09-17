@@ -11,17 +11,17 @@ import { mkdir, writeFile } from "node:fs/promises";
 import { dirname, resolve } from "node:path";
 import { getLogger } from "../../testing/log/logger.ts";
 import { canonicalJsonStringify } from "../compiler/emitter.ts";
-import { getPaperExportLinks } from "./discovery.ts";
 import { generateJsonLd } from "./jsonld.ts";
 import { generateSectionMarkdown } from "./markdown.ts";
 import { generateParallelCorpusTsv } from "./parallelCorpus.ts";
 import { isAssetPublishable, resolveLayerRights } from "./rights.ts";
-import { assertExportSafety, validateExportRecord } from "./schemas.ts";
+import { validateExportRecord } from "./schemas.ts";
 import { generateTeiXml } from "./tei.ts";
 import type {
   ArgumentExport,
   EquationExport,
   ExperimentExport,
+  ExportDateEntry,
   ExportFormat,
   ExportIndex,
   ExportIndexEntry,
@@ -31,42 +31,184 @@ import type {
   SectionSentenceExport,
 } from "./types.ts";
 
+export interface ExportEmitterDateInput {
+  readonly type: string;
+  readonly text?: string | undefined;
+  readonly earliest?: string | undefined;
+  readonly latest?: string | undefined;
+  readonly precision?: string | undefined;
+  readonly source?: string | undefined;
+  readonly verifiedAt?: string | undefined;
+  readonly confirmedFromScan?: boolean | undefined;
+}
+
 export interface ExportEmitterPaperInput {
   readonly id: string;
-  readonly slug?: string;
+  readonly slug?: string | undefined;
   readonly title: string;
-  readonly germanTitle?: string;
-  readonly titleGerman?: string;
-  readonly titleEnglishWorking?: string;
-  readonly authorLine?: string;
-  readonly bibKey?: string;
-  readonly citation?: string;
-  readonly status?: string;
-  readonly sourceStatus?: string;
-  readonly sourceNotice?: string;
-  readonly dates?: readonly any[];
-  readonly journal?: any;
-  readonly sections?: readonly {
-    readonly id: string;
-    readonly title: string;
-    readonly arguments?: readonly string[];
-  }[];
+  readonly germanTitle?: string | undefined;
+  readonly titleGerman?: string | undefined;
+  readonly titleEnglishWorking?: string | undefined;
+  readonly authorLine?: string | undefined;
+  readonly bibKey?: string | undefined;
+  readonly citation?: string | undefined;
+  readonly status?: string | undefined;
+  readonly sourceStatus?: string | undefined;
+  readonly sourceNotice?: string | undefined;
+  readonly dates?: readonly ExportEmitterDateInput[] | undefined;
+  readonly journal?:
+    | {
+        readonly name?: string | undefined;
+        readonly series?: number | undefined;
+        readonly volume?: number | undefined;
+        readonly wholeSeriesVolume?: number | undefined;
+        readonly issue?: string | number | undefined;
+        readonly pages?: { readonly first: number; readonly last: number } | undefined;
+        readonly doi?: string | undefined;
+        readonly doiVerifiedAt?: string | undefined;
+      }
+    | undefined;
+  readonly sections?:
+    | readonly {
+        readonly id: string;
+        readonly title: string;
+        readonly arguments?: readonly string[] | undefined;
+      }[]
+    | undefined;
+}
+
+export interface ExportEmitterSourceAssetInput {
+  readonly publicationDecision?: string | undefined;
+  readonly sha256?: string | undefined;
+}
+
+export interface ExportEmitterSourceBlockInput {
+  readonly id: string;
+  readonly section?: string | undefined;
+  readonly kind?: string | undefined;
+  readonly order?: number | undefined;
+  readonly diplomaticText?: string | undefined;
+  readonly locators?:
+    | readonly {
+        readonly pdfPageIndex?: number | undefined;
+        readonly printedPage?: number | undefined;
+      }[]
+    | undefined;
+  readonly translation?: string | undefined;
+  readonly equationId?: string | undefined;
+  readonly status?:
+    | {
+        readonly review?: string | undefined;
+        readonly translation?: string | undefined;
+      }
+    | undefined;
+  readonly sentenceSpans?:
+    | readonly {
+        readonly id: string;
+        readonly span?: unknown;
+      }[]
+    | undefined;
+}
+
+export interface ExportEmitterTranslationUnitInput {
+  readonly id: string;
+  readonly sourceRefs?:
+    | readonly { readonly paper?: string | undefined; readonly id?: string | undefined }[]
+    | undefined;
+  readonly inlines?: string | readonly unknown[] | undefined;
+  readonly diplomaticText?: string | undefined;
+  readonly text?: string | undefined;
+  readonly reviewState?: string | undefined;
+}
+
+export interface ExportEmitterEditorialNoteInput {
+  readonly id: string;
+  readonly section?: string | undefined;
+  readonly title?: string | undefined;
+  readonly text?: string | undefined;
+  readonly plainText?: string | undefined;
+}
+
+export interface ExportEmitterArgumentInput {
+  readonly id: string;
+  readonly paper?: string | undefined;
+  readonly section?: string | undefined;
+  readonly title?: string | undefined;
+  readonly question?: string | undefined;
+  readonly recap?: string | undefined;
+  readonly premises?: readonly string[] | undefined;
+  readonly limitations?: readonly string[] | undefined;
+  readonly evidence?: readonly string[] | undefined;
+  readonly conclusion?: string | undefined;
+  readonly meaning?:
+    | {
+        readonly logicalRole?: string | undefined;
+        readonly historicalStatus?: string | undefined;
+        readonly modelStatus?: string | undefined;
+        readonly executionStatus?: string | undefined;
+      }
+    | undefined;
+  readonly experiments?: readonly string[] | undefined;
+  readonly citations?: readonly string[] | undefined;
+  readonly readings?: SectionExport["readings"] | undefined;
+}
+
+export interface ExportEmitterEquationInput {
+  readonly id: string;
+  readonly paper?: string | undefined;
+  readonly section?: string | undefined;
+  readonly argument?: string | undefined;
+  readonly title?: string | undefined;
+  readonly latexSource?: string | undefined;
+  readonly latexModern?: string | undefined;
+  readonly latex?: string | undefined;
+  readonly spoken?: string | undefined;
+  readonly explanation?: string | undefined;
+  readonly quantityIds?: readonly string[] | undefined;
+  readonly operationIds?: readonly string[] | undefined;
+  readonly derivations?: readonly string[] | undefined;
+}
+
+export interface ExportEmitterExperimentInput {
+  readonly id: string;
+  readonly paper?: string | undefined;
+  readonly title?: string | undefined;
+  readonly kind?: string | undefined;
+  readonly description?: string | undefined;
+  readonly parameters?:
+    | readonly {
+        readonly id: string;
+        readonly name: string;
+        readonly unit?: string | undefined;
+        readonly default?: number | undefined;
+        readonly min?: number | undefined;
+        readonly max?: number | undefined;
+      }[]
+    | undefined;
+  readonly measurements?:
+    | readonly {
+        readonly id: string;
+        readonly name: string;
+        readonly unit?: string | undefined;
+      }[]
+    | undefined;
+  readonly historicalBasis?: string | undefined;
 }
 
 export interface ExportEmitterInput {
   readonly rootDir: string;
-  readonly exportSubdir?: string; // defaults to "exports/v1"
+  readonly exportSubdir?: string | undefined; // defaults to "exports/v1"
   readonly contentRevision: string;
-  readonly releaseProfile?: "preview" | "production" | "launch" | string;
+  readonly releaseProfile?: "preview" | "production" | "launch" | string | undefined;
   readonly papers: readonly ExportEmitterPaperInput[];
-  readonly arguments?: readonly any[];
-  readonly equations?: readonly any[];
-  readonly experiments?: readonly any[];
-  readonly sourceBlocks?: readonly any[];
-  readonly translationUnits?: readonly any[];
-  readonly alignments?: readonly any[];
-  readonly editorialNotes?: readonly any[];
-  readonly sourceAssets?: readonly any[];
+  readonly arguments?: readonly ExportEmitterArgumentInput[] | undefined;
+  readonly equations?: readonly ExportEmitterEquationInput[] | undefined;
+  readonly experiments?: readonly ExportEmitterExperimentInput[] | undefined;
+  readonly sourceBlocks?: readonly ExportEmitterSourceBlockInput[] | undefined;
+  readonly translationUnits?: readonly ExportEmitterTranslationUnitInput[] | undefined;
+  readonly alignments?: readonly unknown[] | undefined;
+  readonly editorialNotes?: readonly ExportEmitterEditorialNoteInput[] | undefined;
+  readonly sourceAssets?: readonly ExportEmitterSourceAssetInput[] | undefined;
 }
 
 const sha256Hex = (buf: string | Uint8Array): string =>
@@ -143,49 +285,40 @@ export async function emitMachineReadableExports(
   const publishableAssets = (options.sourceAssets ?? []).filter((sa) =>
     isAssetPublishable(sa.publicationDecision),
   );
-  const assetDigest = publishableAssets.length > 0 ? publishableAssets[0].sha256 : undefined;
+  const firstAsset = publishableAssets[0];
+  const assetDigest = firstAsset ? firstAsset.sha256 : undefined;
 
   // 2. Maps for quick lookups
-  const blocksBySection = new Map<string, any[]>();
+  const blocksBySection = new Map<string, ExportEmitterSourceBlockInput[]>();
   for (const block of options.sourceBlocks ?? []) {
     const secId = block.section ?? "s1";
-    if (!blocksBySection.has(secId)) blocksBySection.set(secId, []);
-    blocksBySection.get(secId)!.push(block);
+    let list = blocksBySection.get(secId);
+    if (!list) {
+      list = [];
+      blocksBySection.set(secId, list);
+    }
+    list.push(block);
   }
 
-  const translationsById = new Map<string, any>();
-  for (const tu of options.translationUnits ?? []) {
-    translationsById.set(tu.id, tu);
-  }
-
-  const notesBySection = new Map<string, any[]>();
+  const notesBySection = new Map<string, ExportEmitterEditorialNoteInput[]>();
   for (const note of options.editorialNotes ?? []) {
     const secId = note.section ?? "s1";
-    if (!notesBySection.has(secId)) notesBySection.set(secId, []);
-    notesBySection.get(secId)!.push(note);
+    let list = notesBySection.get(secId);
+    if (!list) {
+      list = [];
+      notesBySection.set(secId, list);
+    }
+    list.push(note);
   }
 
-  const argsByPaper = new Map<string, any[]>();
-  const argsById = new Map<string, any>();
+  const argsById = new Map<string, ExportEmitterArgumentInput>();
   for (const arg of options.arguments ?? []) {
-    const p = arg.paper ?? "paper";
-    if (!argsByPaper.has(p)) argsByPaper.set(p, []);
-    argsByPaper.get(p)!.push(arg);
     argsById.set(arg.id, arg);
-  }
-
-  const eqByPaper = new Map<string, any[]>();
-  for (const eq of options.equations ?? []) {
-    const p = eq.paper ?? "paper";
-    if (!eqByPaper.has(p)) eqByPaper.set(p, []);
-    eqByPaper.get(p)!.push(eq);
   }
 
   // 3. Process Papers
   for (const rawPaper of options.papers) {
     const slug = rawPaper.slug ?? rawPaper.id;
-    const paperArgs = argsByPaper.get(rawPaper.id) ?? [];
-    const paperEqs = eqByPaper.get(rawPaper.id) ?? [];
 
     const defaultJournal = {
       name: "Annalen der Physik",
@@ -211,7 +344,7 @@ export async function emitMachineReadableExports(
         }
       : defaultJournal;
 
-    const paperDates =
+    const paperDates: ExportDateEntry[] = (
       rawPaper.dates && rawPaper.dates.length > 0
         ? rawPaper.dates
         : [
@@ -223,7 +356,16 @@ export async function emitMachineReadableExports(
               source: "Annalen der Physik (4) 17, p. 549",
               verifiedAt: "2026-09-14",
             },
-          ];
+          ]
+    ).map((d) => ({
+      type: d.type,
+      ...(d.text !== undefined ? { text: d.text } : {}),
+      ...(d.earliest !== undefined ? { earliest: d.earliest } : {}),
+      ...(d.latest !== undefined ? { latest: d.latest } : {}),
+      ...(d.precision !== undefined ? { precision: d.precision } : {}),
+      ...(d.source !== undefined ? { source: d.source } : {}),
+      ...(d.verifiedAt !== undefined ? { verifiedAt: d.verifiedAt } : {}),
+    }));
 
     const paperSections = (
       rawPaper.sections ?? [{ id: "s1", title: "Section 1", arguments: [] }]
@@ -305,7 +447,7 @@ export async function emitMachineReadableExports(
           kind: b.kind ?? "paragraph",
           order: b.order ?? 0,
           diplomaticText: b.diplomaticText ?? "",
-          locators: (b.locators ?? []).map((loc: any) => ({
+          locators: (b.locators ?? []).map((loc) => ({
             pdfPageIndex: loc.pdfPageIndex ?? 1,
             printedPage: loc.printedPage ?? 1,
           })),
@@ -323,7 +465,7 @@ export async function emitMachineReadableExports(
 
           // Find corresponding translation unit
           for (const tu of options.translationUnits ?? []) {
-            if (tu.sourceRefs?.some((sr: any) => sr.id === sentId || sr.id === b.id)) {
+            if (tu.sourceRefs?.some((sr) => sr.id === sentId || sr.id === b.id)) {
               englishText =
                 typeof tu.inlines === "string" ? tu.inlines : (tu.diplomaticText ?? tu.text);
               tuReviewState = tu.reviewState;
@@ -337,9 +479,17 @@ export async function emitMachineReadableExports(
             englishText = undefined;
           }
 
+          const spanExactText =
+            typeof span.span === "object" &&
+            span.span !== null &&
+            "exactText" in span.span &&
+            typeof (span.span as { exactText?: unknown }).exactText === "string"
+              ? (span.span as { exactText: string }).exactText
+              : undefined;
+
           sentences.push({
             id: sentId,
-            german: span.span?.exactText ?? b.diplomaticText ?? "",
+            german: spanExactText ?? b.diplomaticText ?? "",
             ...(englishText ? { english: englishText } : {}),
             sourceBlockId: b.id,
             ...(tuReviewState ? { reviewState: tuReviewState } : {}),
@@ -363,8 +513,8 @@ export async function emitMachineReadableExports(
       // Readings from arguments associated with this section
       const secArgs = (sec.arguments ?? []).map((argId) => argsById.get(argId)).filter(Boolean);
 
-      let readingsObj: any;
-      if (secArgs.length > 0 && secArgs[0].readings) {
+      let readingsObj: SectionExport["readings"];
+      if (secArgs.length > 0 && secArgs[0]?.readings) {
         readingsObj = secArgs[0].readings;
       }
 
@@ -540,7 +690,7 @@ export async function emitMachineReadableExports(
       title: exp.title ?? "Experiment",
       kind: exp.kind ?? "simulation",
       ...(exp.description ? { description: exp.description } : {}),
-      parameters: (exp.parameters ?? []).map((p: any) => ({
+      parameters: (exp.parameters ?? []).map((p) => ({
         id: p.id,
         name: p.name,
         ...(p.unit ? { unit: p.unit } : {}),
@@ -550,7 +700,7 @@ export async function emitMachineReadableExports(
       })),
       ...(exp.measurements
         ? {
-            measurements: exp.measurements.map((m: any) => ({
+            measurements: exp.measurements.map((m) => ({
               id: m.id,
               name: m.name,
               ...(m.unit ? { unit: m.unit } : {}),
