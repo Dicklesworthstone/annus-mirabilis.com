@@ -163,7 +163,7 @@ function writeSummaryFile(summary: LogSummary, logRunId: string, root: string): 
   const summaryDir = path.join(root, "summary");
   mkdirSync(summaryDir, { recursive: true });
   const target = path.join(summaryDir, `${logRunId}.json`);
-  writeFileSync(target, JSON.stringify(summary, null, 2) + "\n", "utf8");
+  writeFileSync(target, `${JSON.stringify(summary, null, 2)}\n`, "utf8");
   return target;
 }
 

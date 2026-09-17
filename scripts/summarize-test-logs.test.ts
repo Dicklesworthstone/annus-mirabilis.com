@@ -97,7 +97,8 @@ test("two script processes sharing one toolRunId are grouped under it with both 
   ];
   const summary = summarize(events);
   assert.equal(summary.toolRuns.length, 1);
-  const group = summary.toolRuns[0]!;
+  const group = summary.toolRuns[0];
+  assert.ok(group, "expected toolRun group");
   assert.equal(group.toolRunId, "20260101T000000Z-eeeeeeee");
   assert.deepEqual(group.logRunIds, ["20260101T000300Z-dddddddd", "20260101T000400Z-ffffffff"]);
   assert.equal(group.eventCount, 3);
