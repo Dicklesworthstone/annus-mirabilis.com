@@ -15,11 +15,11 @@ import {
   classifyWithTolerance,
   compareBitwise,
   ieee754Hex,
+  type ToleranceIssueCode,
   validateToleranceSpec,
   validateToleranceSpecAcross,
   withinTolerance,
 } from "./tolerance.ts";
-import type { ToleranceIssueCode } from "./tolerance.ts";
 
 describe("validateToleranceSpec", () => {
   for (const c of VALIDATE_SPEC_CASES) {

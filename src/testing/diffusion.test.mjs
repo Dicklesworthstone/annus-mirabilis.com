@@ -24,7 +24,7 @@ import {
   stokesEinsteinD,
 } from "../physics/reference/diffusion/distributions.ts";
 import { erf, erfc } from "../physics/reference/special/erf.ts";
-import { compareBitwise, withinTolerance } from "../units/tolerance.ts";
+import { withinTolerance } from "../units/tolerance.ts";
 
 const val = (evaluation) => {
   decodeResult(evaluation.result);
@@ -34,8 +34,8 @@ const val = (evaluation) => {
 };
 const near = (actual, expected, relative = 1e-12, absolute = 0) => {
   if (relative === 0 && absolute === 0) {
-    const bits = compareBitwise(actual, expected);
-    assert.ok(bits.ok, `${actual} != ${expected} (${bits.detail})`);
+    // Exact identity, not a bitwise claim: +0 and -0 are the same real number.
+    assert.equal(actual, expected);
     return;
   }
   const spec = {

@@ -21,6 +21,7 @@ import {
   planStatusExamples,
 } from "../experiments/results/planExamples.ts";
 import { ResultStatusNote } from "../experiments/results/ResultStatusNote.tsx";
+import { ResultValue } from "../experiments/results/ResultValue.tsx";
 import { type RefusalCode, refusalCodeRegistry } from "../experiments/results/refusalCodes.ts";
 import { makeRefusal } from "../experiments/results/refusals.ts";
 
@@ -161,5 +162,24 @@ describe("results.explanations: Reader-Facing Language & ResultStatusNote Compon
     assert.ok(outcomeHtml.includes('data-outcome="budget-exhausted"'));
     assert.ok(outcomeHtml.includes("exceeds the declared work"));
     assert.equal(outcomeHtml.includes("aria-live"), false);
+  });
+
+  it("ResultValue shows a finite number for value payloads and a status note otherwise", () => {
+    const valueHtml = renderToStaticMarkup(
+      <ResultValue result={planStatusExamples[0]!} snapshotVersion={7} />,
+    );
+    assert.ok(valueHtml.includes("result-value"));
+    assert.ok(valueHtml.includes('data-snapshot-version="7"'));
+    assert.equal(valueHtml.includes("aria-live"), false);
+    const leaks = containsIdentifierLeak(valueHtml.replace(/<[^>]+>/g, " "), statusEnumIds);
+    assert.deepEqual(leaks, []);
+
+    const noteHtml = renderToStaticMarkup(
+      <ResultValue result={lq02DivergentExample} snapshotVersion={8} />,
+    );
+    assert.ok(noteHtml.includes("result-status-message"));
+    assert.ok(noteHtml.includes("classical spectral energy density"));
+    assert.equal(noteHtml.includes("NaN"), false);
+    assert.equal(noteHtml.includes("Infinity"), false);
   });
 });

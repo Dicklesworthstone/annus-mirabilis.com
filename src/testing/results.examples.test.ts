@@ -91,6 +91,11 @@ describe("results.examples: Validation of Plan Fixtures and LQ-02 Divergent/Cuto
       const decoded = decodeRefusal(refusal);
       assert.deepEqual(decoded, refusal);
     }
+    assert.equal(ftcsUnstableRefusalExample.details?.ratio, 0.5000001);
+    assert.equal(superluminalObserverRefusalExample.details?.beta, 1);
+    assert.equal(invalidSeedRefusalExample.details?.input, "01");
+    assert.equal(streamIndexOverflowRefusalExample.details?.startIndex, "18446744073709551614");
+    assert.equal(invalidParameterZeroParticlesRefusalExample.details?.value, 0);
   });
 
   it("all execution outcome examples validate against decodeOutcome", () => {
