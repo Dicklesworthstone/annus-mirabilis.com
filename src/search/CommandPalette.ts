@@ -62,6 +62,7 @@ export function openCommandPalette(
   const navigate = options.navigate ?? ((href: string) => window.location.assign(href));
   const dialog = element("dialog", undefined, "search-dialog");
   dialog.id = id;
+  dialog.setAttribute("data-search-dialog", "true");
   dialog.setAttribute("aria-labelledby", `${id}-title`);
   dialog.setAttribute("aria-describedby", `${id}-privacy`);
   const heading = element("div", undefined, "search-heading");

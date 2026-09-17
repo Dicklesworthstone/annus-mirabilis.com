@@ -234,6 +234,7 @@ export function CommandPalette({
     <dialog
       ref={dialogRef}
       open={isOpen}
+      data-search-dialog="true"
       aria-modal="true"
       aria-label="Search edition and papers"
       onKeyDown={handleKeyDown}

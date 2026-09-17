@@ -143,10 +143,10 @@ try {
   await check("editable fields keep keyboard shortcuts", async () => {
     await page.locator("#unrelated").focus();
     await page.keyboard.press("Control+k");
-    assert.equal(await page.locator("dialog").count(), 0);
+    assert.equal(await page.locator("[data-search-dialog]").count(), 0);
     await page.locator("#editable").focus();
     await page.keyboard.press("Control+k");
-    assert.equal(await page.locator("dialog").count(), 0);
+    assert.equal(await page.locator("[data-search-dialog]").count(), 0);
   });
   await page.locator("#open").focus();
   await page.keyboard.press("Control+k");
@@ -176,7 +176,7 @@ try {
   });
   await check("Escape returns focus and reopening uses the cached index", async () => {
     await query.press("Escape");
-    assert.equal(await page.locator("dialog").count(), 0);
+    assert.equal(await page.locator("[data-search-dialog]").count(), 0);
     assert.equal(
       await page.locator("#open").evaluate((node) => node === document.activeElement),
       true,
@@ -201,7 +201,7 @@ try {
   await check("untrusted titles stay text and queries never reach the network", async () => {
     await query.fill("hostile");
     await page.getByText("1 result shown.", { exact: true }).waitFor();
-    assert.equal(await page.locator("dialog img").count(), 0);
+    assert.equal(await page.locator("[data-search-dialog] img").count(), 0);
     assert.ok((await page.getByRole("listbox").getByRole("option").innerText()).includes("<img"));
     await query.fill("private-query-sentinel");
     await page.getByText("No matching entries", { exact: false }).waitFor();
@@ -223,17 +223,19 @@ try {
       await query.fill("mean square");
       await page.getByText("2 results shown.", { exact: true }).waitFor();
       assert.equal(
-        await page.locator("dialog").evaluate((node) => node.scrollWidth <= node.clientWidth + 1),
+        await page
+          .locator("[data-search-dialog]")
+          .evaluate((node) => node.scrollWidth <= node.clientWidth + 1),
         true,
       );
       await page.screenshot({ path: resolve(artifactDir, "search-320.png"), fullPage: true });
       await page.getByRole("button", { name: "Close search", exact: true }).click();
-      assert.equal(await page.locator("dialog").count(), 0);
+      assert.equal(await page.locator("[data-search-dialog]").count(), 0);
     }
     await page.evaluate(() => window.disposeSearch());
     await page.locator("#open").focus();
     await page.keyboard.press("Control+k");
-    assert.equal(await page.locator("dialog").count(), 0);
+    assert.equal(await page.locator("[data-search-dialog]").count(), 0);
   });
   await check("no-script fallback remains a real outline link", async () => {
     const nojs = await browser.newContext({ javaScriptEnabled: false });

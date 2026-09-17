@@ -38,6 +38,7 @@ export function mountNotebookPanel(
 ) {
   const dialog = node("dialog");
   dialog.className = "notebook-dialog";
+  dialog.setAttribute("data-notebook-dialog", "true");
   const heading = node("h2", "Your reading notebook");
   heading.id = "reading-notebook-title";
   dialog.setAttribute("aria-labelledby", heading.id);

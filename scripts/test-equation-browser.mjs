@@ -284,7 +284,7 @@ export async function checkEquationBrowser(browser, url, check) {
     const triggerId = await help.getAttribute("id");
     assert.ok(triggerId);
     await page.keyboard.press("Escape");
-    await page.locator("dialog").waitFor({ state: "hidden" });
+    await page.locator("[data-clarification-dialog]").waitFor({ state: "hidden" });
     await page.waitForFunction((id) => document.activeElement.id === id, triggerId);
     assert.equal(
       await readerRms.getAttribute("data-selected-node-id"),

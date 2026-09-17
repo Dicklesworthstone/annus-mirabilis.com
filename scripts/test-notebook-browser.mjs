@@ -135,8 +135,8 @@ body{font:18px/1.6 Georgia;margin:16px}button,textarea,input{font:inherit}button
   check(
     "modal fits at 320px",
     await page.evaluate(() => {
-      const d = document.querySelector("dialog");
-      return d.scrollWidth <= d.clientWidth + 1;
+      const d = document.querySelector("[data-notebook-dialog]");
+      return d !== null && d.scrollWidth <= d.clientWidth + 1;
     }),
   );
   const downloading = page.waitForEvent("download");
@@ -151,7 +151,26 @@ body{font:18px/1.6 Georgia;margin:16px}button,textarea,input{font:inherit}button
   await button("Clear notebook").click();
   await button("Cancel").click();
   check("clear can be cancelled", (await notes()).length === 3);
-  await page.keyboard.press("Escape");
+
+  // Negative test: another dialog mounted and open does not spoof notebook state
+  await page.evaluate(() => {
+    const foreign = document.createElement("dialog");
+    foreign.setAttribute("data-clarification-dialog", "true");
+    foreign.open = true;
+    document.body.prepend(foreign);
+  });
+  await button("Close notebook").click();
+  check(
+    "closing notebook dialog while another remains mounted correctly reflects notebook closure",
+    await page.evaluate(() => {
+      const nb = document.querySelector("[data-notebook-dialog]");
+      const foreign = document.querySelector("[data-clarification-dialog]");
+      return Boolean(nb && !nb.open && foreign?.open);
+    }),
+  );
+  await page.evaluate(() => {
+    document.querySelector("[data-clarification-dialog]")?.remove();
+  });
   await first.locator("h3").click();
   await page.evaluate(() => window.dispatchEvent(new Event("pagehide")));
   await page.evaluate(() => window.remount());
