@@ -247,7 +247,11 @@ export class SnapshotBufferPool {
     let buf: OwnedBuffer<Float64Array>;
 
     if (candidateIdx >= 0) {
-      buf = this._pool.splice(candidateIdx, 1)[0]!;
+      const candidate = this._pool.splice(candidateIdx, 1)[0];
+      if (!candidate) {
+        throw new Error("Expected pooled buffer at candidateIdx.");
+      }
+      buf = candidate;
     } else {
       // 2. If pool has not reached capacity, allocate a new one
       if (this._totalAllocated < this.capacity) {
@@ -271,7 +275,12 @@ export class SnapshotBufferPool {
           );
         }
 
-        const evicted = this._activeLeases.get(oldestLeaseId)!;
+        const evicted = this._activeLeases.get(oldestLeaseId);
+        if (!evicted) {
+          throw new PoolExhaustedRefusalError(
+            "Cannot acquire pooled buffer: lease entry was unexpectedly missing during eviction.",
+          );
+        }
         this._activeLeases.delete(oldestLeaseId);
         evicted.buffer.releaseRef(oldestLeaseId);
         buf = evicted.buffer;
