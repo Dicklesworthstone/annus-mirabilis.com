@@ -111,7 +111,9 @@ test("the default constraint matrix is computed from real owner outputs", () => 
   // hand-rolled comparison takes; this call is not one, and restructuring it is
   // cheaper than widening that gate's allowlist.
   const lowResidual = Math.abs(low.residual);
-  assert.ok(withinTolerance(lowResidual, 2.2253001121072344e-14, { relative: 1e-12 }).ok);
+  // The shortest round-trip form of this double; ...344e-14 parses to the same
+  // value but is not what JavaScript stores, which is why it lost precision.
+  assert.ok(withinTolerance(lowResidual, 2.2253001121072345e-14, { relative: 1e-12 }).ok);
   assert.equal(out[0][1].samples[0].reference, 299792458);
   assert.ok(withinTolerance(out[0][1].samples[0].actual, 0.4 * 299792458, { relative: 1e-12 }).ok);
 });

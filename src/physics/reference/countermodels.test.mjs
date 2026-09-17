@@ -30,8 +30,12 @@ const map = (id) => (e, b, k) => countermodelEventMap(id, e, b, k);
 
 test("low-speed composition retains the cancellation-free residual", () => {
   assert.equal(value(galileanCompose(10, 10)), 20);
-  // 60-digit decimal arithmetic with c=299792458: 2000/(c*c+100).
-  const expected = 2.225300112107234388367885457458296632545019973e-14;
+  // 2000/(c*c+100) with c=299792458, evaluated at 60-digit decimal precision, is
+  // 2.22530011210723438836788545745829663254501997260437329576399e-14. A double
+  // cannot hold that, and writing it in full loses precision silently: the value
+  // JavaScript stores is 2.2253001121072345e-14, which is what this literal is.
+  // The exact decimal stays here as the reference the number is checked against.
+  const expected = 2.2253001121072345e-14;
   assert.ok(
     withinTolerance(value(lorentzCompositionResidual(10, 10)), expected, { relative: 1e-12 }).ok,
   );

@@ -74,7 +74,7 @@ export function createCountermodelSession(instanceId: string, example: PreparedC
             "Enter a finite observer speed v/c between -0.95 and 0.95. The accepted result is unchanged.",
         };
       // Compute before issuing so a failed evaluation never replaces accepted labels or values.
-      let evaluated;
+      let evaluated: ReturnType<typeof evaluateCountermodelCase>;
       try {
         evaluations++;
         evaluated = evaluateCountermodelCase(spec, beta);
