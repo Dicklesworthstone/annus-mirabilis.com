@@ -30,8 +30,8 @@ test("accepted settings links roundtrip without scheduling coverage work or roun
   assert.deepEqual(decoded.parameters, { ...p, coverageTrials: 0 });
   assert.equal(decodeBm07Settings("").kind, "absent");
   for (const bad of [
-    query + "&a=1",
-    query + "&private=value",
+    `${query}&a=1`,
+    `${query}&private=value`,
     query.replace("inference=1", "inference=2"),
     query.replace("coverageTrials=0", "coverageTrials=100"),
     query.replace("radiusKnown=true", "radiusKnown=yes"),
