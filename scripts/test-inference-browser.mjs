@@ -380,7 +380,7 @@ export async function checkInferenceBrowser(browser, url, check) {
     await dialog.waitFor();
     assert.equal(await dialog.getAttribute("aria-labelledby"), "clarification-error-and-inference");
     await page.keyboard.press("Escape");
-    await page.locator("dialog").waitFor({ state: "hidden" });
+    await page.locator("[data-clarification-dialog]").waitFor({ state: "hidden" });
     const whyId = await passage.getByRole("link", { name: /^Why\?:/u }).getAttribute("id");
     await page.waitForFunction((id) => document.activeElement?.id === id, whyId);
     check(

@@ -163,4 +163,25 @@ describe("PermalinkRobots: document head directives (am-6t51 / am-inst-permalink
     });
     container.remove();
   });
+  test("negative: a second canonical is never appended when the page already has one", () => {
+    // Next metadata (alternates.canonical) renders a canonical into the static
+    // HTML whose href is already the document URL. Injecting another produced two
+    // rel=canonical elements on a tape route, which is what this guards.
+    document.head.innerHTML =
+      '<link rel="canonical" href="https://annus-mirabilis.com/papers/brownian-motion/">';
+    applyPermalinkRobots(
+      "https://annus-mirabilis.com/papers/brownian-motion/?tape=tok123&note=private",
+    );
+    const links = document.head.querySelectorAll('link[rel="canonical"]');
+    assert.equal(links.length, 1, "a page owning a canonical must still have exactly one");
+    assert.equal(
+      links[0]?.getAttribute("href"),
+      "https://annus-mirabilis.com/papers/brownian-motion/",
+      "the page's own canonical must be left untouched",
+    );
+    assert.ok(
+      !(links[0]?.getAttribute("href") ?? "").includes("note"),
+      "no private parameter may reach the canonical",
+    );
+  });
 });
