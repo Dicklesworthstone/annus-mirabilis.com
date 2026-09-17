@@ -1,7 +1,6 @@
-# Brownian Motion Notation Concordance Verification Ledger
+# Point-in-time authoring note (superseded): Brownian motion notation
 
-> [!NOTE]
-> **Point-in-time authoring note:** This document is a point-in-time authoring note superseded by the authoritative, machine-checked `verification:` fields in `content/notation/brownian-motion.yaml`. It is retained as historical authoring context and is not maintained as a live ledger; all verification state is enforced directly through typed YAML schemas and content validators.
+This file is a point-in-time authoring note from 2026-09-17. It is superseded by the `verification:` fields in `content/notation/brownian-motion.yaml`. No running code reads this file. Do not update it; if YAML and this note disagree, the YAML is right.
 
 **Paper:** `brownian-motion` (*Über die von der molekularkinetischen Theorie der Wärme geforderte Bewegung von in ruhenden Flüssigkeiten suspendierten Teilchen*, Ann. Phys. (4) 17, 549–560, 1905)  
 **Bibliographic key:** `ap-17-549`  
