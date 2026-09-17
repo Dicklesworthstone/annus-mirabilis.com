@@ -254,7 +254,7 @@ export const FIXTURE_BROWNIAN_SOURCE_BLOCKS: readonly SourceBlock[] = [
         id: "bm-s5-p1-s1",
         span: {
           start: 0,
-          end: 68,
+          end: 69,
           textDigest: DIGEST_BM_S5_P1,
           blockRevision: 1,
         },
