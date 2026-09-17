@@ -46,7 +46,8 @@ import {
 } from "../src/experiments/results/planExamples.ts";
 import { ResultStatusNote } from "../src/experiments/results/ResultStatusNote.tsx";
 import type { ScientificResult } from "../src/experiments/results/types.ts";
-import { createInstanceStore } from "../src/experiments/store/instanceStore.ts";
+import { toU64String } from "../src/experiments/identity/u64.ts";
+import { createInstanceStore, type RequestToken } from "../src/experiments/store/instanceStore.ts";
 import { createStreamKey } from "../src/experiments/streams/allocation.ts";
 import { ControlTapeRecorder } from "../src/experiments/tapes/recorder.ts";
 import {
@@ -88,8 +89,10 @@ import {
 
 interface CliOptions {
   suite: string;
-  logRunId?: string;
-  verbose?: boolean;
+  // parseCliArgs returns these as `undefined` when the flag is absent, which
+  // exactOptionalPropertyTypes rejects against a bare `?:` (am-7mp8).
+  logRunId?: string | undefined;
+  verbose?: boolean | undefined;
 }
 
 function parseCliArgs(): CliOptions {
@@ -994,7 +997,7 @@ async function runTapesE2E(logRunId: string, verbose: boolean): Promise<boolean>
     mode: "bm-01:default",
     modelIdentity,
     constantSetId: "einstein-1905-brownian-printed",
-    seed: "9007199254740993",
+    seed: toU64String("9007199254740993"),
     streamVersion: 1,
     allocationId: "tracer-alloc-0",
     initialConditions: { viscosity: 1.35e-3 },
@@ -1191,7 +1194,14 @@ async function runSchedulerE2E(logRunId: string, verbose: boolean): Promise<bool
       });
 
       const events: SchedulerEvent[] = [];
-      let workerListener: ((msg: unknown) => void) | null = null;
+      // A ref, not a bare `let`: TypeScript's control-flow analysis does not see the
+      // assignment inside the channel's listen() method, narrows the variable to null
+      // at the guard below, and reports the call as `never` (am-7mp8). The scheduler
+      // really does call listen() when it creates a channel
+      // (src/workers/scheduler/scheduler.ts:174), so the branch is live; only the
+      // analysis is blind to it. A container keeps the exact type and the exact
+      // runtime behaviour.
+      const workerListener: { current: ((msg: unknown) => void) | null } = { current: null };
       const sentMessages: unknown[] = [];
 
       const mockChannel: WorkerChannel = {
@@ -1199,10 +1209,10 @@ async function runSchedulerE2E(logRunId: string, verbose: boolean): Promise<bool
           sentMessages.push(msg);
         },
         listen(onMsg) {
-          workerListener = onMsg;
+          workerListener.current = onMsg;
           onMsg({ messageKind: "hello" });
           return () => {
-            workerListener = null;
+            workerListener.current = null;
           };
         },
         dispose() {},
@@ -1231,8 +1241,8 @@ async function runSchedulerE2E(logRunId: string, verbose: boolean): Promise<bool
       }
 
       // Worker completes token0
-      if (workerListener) {
-        workerListener({
+      if (workerListener.current) {
+        workerListener.current({
           messageKind: "result",
           protocolVersion: "bm06-host-v1",
           sourceDigest: SOURCE_DIGEST,
@@ -1263,8 +1273,8 @@ async function runSchedulerE2E(logRunId: string, verbose: boolean): Promise<bool
       }
 
       // Worker completes lastToken
-      if (workerListener) {
-        workerListener({
+      if (workerListener.current) {
+        workerListener.current({
           messageKind: "result",
           protocolVersion: "bm06-host-v1",
           sourceDigest: SOURCE_DIGEST,
@@ -1340,14 +1350,21 @@ async function runSchedulerE2E(logRunId: string, verbose: boolean): Promise<bool
         },
       });
 
-      let workerListener: ((msg: unknown) => void) | null = null;
+      // A ref, not a bare `let`: TypeScript's control-flow analysis does not see the
+      // assignment inside the channel's listen() method, narrows the variable to null
+      // at the guard below, and reports the call as `never` (am-7mp8). The scheduler
+      // really does call listen() when it creates a channel
+      // (src/workers/scheduler/scheduler.ts:174), so the branch is live; only the
+      // analysis is blind to it. A container keeps the exact type and the exact
+      // runtime behaviour.
+      const workerListener: { current: ((msg: unknown) => void) | null } = { current: null };
       const mockChannel: WorkerChannel = {
         send() {},
         listen(onMsg) {
-          workerListener = onMsg;
+          workerListener.current = onMsg;
           onMsg({ messageKind: "hello" });
           return () => {
-            workerListener = null;
+            workerListener.current = null;
           };
         },
         dispose() {},
@@ -1385,8 +1402,8 @@ async function runSchedulerE2E(logRunId: string, verbose: boolean): Promise<bool
       const token1 = store.issue("setup-change", { diffusivity: 2.0 });
       scheduler.request(token1, "setup-change");
 
-      if (workerListener) {
-        workerListener({
+      if (workerListener.current) {
+        workerListener.current({
           messageKind: "result",
           protocolVersion: "bm06-host-v1",
           sourceDigest: SOURCE_DIGEST,
@@ -1420,8 +1437,8 @@ async function runSchedulerE2E(logRunId: string, verbose: boolean): Promise<bool
       scheduler.request(token2, "setup-change");
 
       // Inject stale response for token1 with invalid value 999.0
-      if (workerListener) {
-        workerListener({
+      if (workerListener.current) {
+        workerListener.current({
           messageKind: "result",
           protocolVersion: "bm06-host-v1",
           sourceDigest: SOURCE_DIGEST,
@@ -1614,7 +1631,14 @@ async function runSchedulerE2E(logRunId: string, verbose: boolean): Promise<bool
         },
       });
 
-      let errorCallback: (() => void) | null = null;
+      // A ref, not a bare `let`: TypeScript's control-flow analysis does not see the
+      // assignment inside the channel's listen() method, narrows the variable to null
+      // at the guard below, and reports the call as `never` (am-7mp8). The scheduler
+      // really does call listen() when it creates a channel
+      // (src/workers/scheduler/scheduler.ts:174), so the branch is live; only the
+      // analysis is blind to it. A container keeps the exact type and the exact
+      // runtime behaviour.
+      const errorCallback: { current: (() => void) | null } = { current: null };
       let factoryCount = 0;
 
       const mockFactory = (): WorkerChannel => {
@@ -1622,10 +1646,10 @@ async function runSchedulerE2E(logRunId: string, verbose: boolean): Promise<bool
         return {
           send() {},
           listen(onMsg, onErr) {
-            errorCallback = onErr;
+            errorCallback.current = onErr;
             onMsg({ messageKind: "hello" });
             return () => {
-              errorCallback = null;
+              errorCallback.current = null;
             };
           },
           dispose() {},
@@ -1643,17 +1667,17 @@ async function runSchedulerE2E(logRunId: string, verbose: boolean): Promise<bool
       // Request 1 + Crash 1
       const token1 = store.issue("setup-change", { diffusivity: 2.0 });
       scheduler.request(token1, "setup-change");
-      errorCallback?.();
+      errorCallback.current?.();
 
       // Request 2 + Crash 2
       const token2 = store.issue("setup-change", { diffusivity: 3.0 });
       scheduler.request(token2, "setup-change");
-      errorCallback?.();
+      errorCallback.current?.();
 
       // Request 3 + Crash 3
       const token3 = store.issue("setup-change", { diffusivity: 4.0 });
       scheduler.request(token3, "setup-change");
-      errorCallback?.();
+      errorCallback.current?.();
 
       // Request 4 (Exceeds maxRestarts 3)
       const token4 = store.issue("setup-change", { diffusivity: 5.0 });
@@ -1714,7 +1738,14 @@ async function runSchedulerE2E(logRunId: string, verbose: boolean): Promise<bool
         },
       });
 
-      let workerListener: ((msg: unknown) => void) | null = null;
+      // A ref, not a bare `let`: TypeScript's control-flow analysis does not see the
+      // assignment inside the channel's listen() method, narrows the variable to null
+      // at the guard below, and reports the call as `never` (am-7mp8). The scheduler
+      // really does call listen() when it creates a channel
+      // (src/workers/scheduler/scheduler.ts:174), so the branch is live; only the
+      // analysis is blind to it. A container keeps the exact type and the exact
+      // runtime behaviour.
+      const workerListener: { current: ((msg: unknown) => void) | null } = { current: null };
       let sentCount = 0;
 
       const mockChannel: WorkerChannel = {
@@ -1722,10 +1753,10 @@ async function runSchedulerE2E(logRunId: string, verbose: boolean): Promise<bool
           sentCount++;
         },
         listen(onMsg) {
-          workerListener = onMsg;
+          workerListener.current = onMsg;
           onMsg({ messageKind: "hello" });
           return () => {
-            workerListener = null;
+            workerListener.current = null;
           };
         },
         dispose() {},
@@ -1747,8 +1778,8 @@ async function runSchedulerE2E(logRunId: string, verbose: boolean): Promise<bool
       }
 
       // Complete token 1
-      if (workerListener) {
-        workerListener({
+      if (workerListener.current) {
+        workerListener.current({
           messageKind: "result",
           protocolVersion: "bm06-host-v1",
           sourceDigest: SOURCE_DIGEST,
