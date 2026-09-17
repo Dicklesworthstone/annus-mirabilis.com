@@ -282,6 +282,32 @@ parser. This is a distinct, smaller flag set from `parsePaperE2EArgs` in
 `scripts/e2e/paper-e2e-contract.ts` (`--all`, `--changed`, `--base-url`,
 `--viewports`, ...); wiring the two into one CLI entry point is open work.
 
+## What `--smoke` checks, and what it currently reports red
+
+`runSmokeJourney` makes four checks against a served build: the home page
+carries the product identity, an unknown route answers not-found, the theme
+control changes the document's theme, and the command palette opens.
+
+Two of them used to report a pass on the branch that runs when the control is
+absent, and every check after the not-found check ran on the not-found page
+because the journey never navigated back (`am-im0x`). Both are fixed: the
+journey returns to the home page first, and an absent control now fails and
+names the selector it searched for.
+
+One check is red on purpose today:
+
+```
+[FAIL] command-palette: No visible palette trigger matched
+       [data-command-palette-trigger] or button[aria-label*='search' i].
+       The component exists at src/search/CommandPalette.tsx but no page
+       mounts it.
+```
+
+That is a real gap in the built site, not a harness defect. The check stays and
+turns green by mounting the palette; it is not to be softened back into a pass.
+`--smoke` is reachable only through that flag, and the `browser-acceptance`
+gate step invokes the runner with no flags, so this red does not enter CI.
+
 ## What a self-test proves
 
 The failure self-test is successful only when the command exits `1`, its
