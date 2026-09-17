@@ -122,17 +122,30 @@ function advanceInPlace(
   if (r === 0) return true;
   const n = field.length;
   for (let step = 0; step < steps; step++) {
-    derivative[0] = -field[0]! + field[1]!;
+    const f0 = field[0];
+    const f1 = field[1];
+    if (f0 === undefined || f1 === undefined) return false;
+    derivative[0] = -f0 + f1;
     for (let i = 1; i < n - 1; i++) {
-      let sum = field[i - 1]!;
-      sum += -2 * field[i]!;
-      sum += field[i + 1]!;
+      const prev = field[i - 1];
+      const curr = field[i];
+      const next = field[i + 1];
+      if (prev === undefined || curr === undefined || next === undefined) return false;
+      let sum = prev;
+      sum += -2 * curr;
+      sum += next;
       derivative[i] = sum;
     }
-    derivative[n - 1] = field[n - 2]! - field[n - 1]!;
+    const fn2 = field[n - 2];
+    const fn1 = field[n - 1];
+    if (fn2 === undefined || fn1 === undefined) return false;
+    derivative[n - 1] = fn2 - fn1;
     for (let i = 0; i < n; i++) {
-      const increment = r * derivative[i]!;
-      const next = field[i]! + increment;
+      const deriv = derivative[i];
+      const current = field[i];
+      if (deriv === undefined || current === undefined) return false;
+      const increment = r * deriv;
+      const next = current + increment;
       if (!Number.isFinite(next) || next < 0) return false;
       field[i] = next;
     }
@@ -332,18 +345,27 @@ export function ftcsAnalyticComparison({
         `Cell ${i}'s analytic probability is not representable; no fabricated zero was substituted.`,
       );
     probabilities[i] = probability.value;
-    masses[i] = field[i]! * dx;
-    if (!Number.isFinite(masses[i])) return numerical("A cell mass is outside binary64 range.");
-    maxDifference = Math.max(maxDifference, Math.abs(masses[i]! - probabilities[i]!));
+    const cellDensity = field[i];
+    if (cellDensity === undefined) return numerical("A cell density is missing from the field.");
+    const cellMass = cellDensity * dx;
+    masses[i] = cellMass;
+    if (!Number.isFinite(cellMass)) return numerical("A cell mass is outside binary64 range.");
+    const storedMass = masses[i];
+    const storedProb = probabilities[i];
+    if (storedMass === undefined || storedProb === undefined)
+      return numerical("A cell mass or probability is outside bounds.");
+    maxDifference = Math.max(maxDifference, Math.abs(storedMass - storedProb));
     const corrected = probability.value - compensation;
     const next = massInBox + corrected;
     compensation = next - massInBox - corrected;
     massInBox = next;
   }
+  const firstMass = masses[0];
+  const lastMass = masses[field.length - 1];
+  if (firstMass === undefined || lastMass === undefined)
+    return numerical("Edge cell masses are undefined.");
   const wallContact =
-    1 - massInBox > wallTolerance ||
-    masses[0]! > wallTolerance ||
-    masses[field.length - 1]! > wallTolerance;
+    1 - massInBox > wallTolerance || firstMass > wallTolerance || lastMass > wallTolerance;
   return {
     kind: "accepted",
     data: Object.freeze({
