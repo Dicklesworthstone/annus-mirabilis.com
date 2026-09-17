@@ -1,4 +1,4 @@
-import React, { useState } from "react";
+import { useState } from "react";
 import { getModalityClasses } from "../../content/schemas/glossConventions.ts";
 import type { ReviewRecord } from "../../content/schemas/review.ts";
 import type {
@@ -10,11 +10,8 @@ import type {
   TranslationUnit,
 } from "../../content/schemas/source.ts";
 import { buildAlignmentIndex } from "./alignment.ts";
-import { EditorialNoteMarker } from "./EditorialNoteMarker.tsx";
 import { FootnotesSection } from "./Footnote.tsx";
 import { GlossSentence } from "./GlossSentence.tsx";
-import { renderInlines } from "./inlines.tsx";
-import { evaluateUnitReviewState, isPaperTranslationUnreviewed } from "./reviewState.ts";
 import { SourceBlock as SourceBlockComponent } from "./SourceBlock.tsx";
 import { UnreviewedBanner } from "./UnreviewedBanner.tsx";
 
@@ -167,8 +164,8 @@ export function GlossFace({
           }
 
           if (block.kind === "paragraph") {
-            const locators = block.locators.map((loc, i) => (
-              <span key={`${loc.printedPage}-${i}`} className="block-locator">
+            const locators = block.locators.map((loc) => (
+              <span key={`${block.id}-loc-${loc.printedPage}`} className="block-locator">
                 <a
                   href={`/papers/${paper.slug}/?view=facsimile#page-${loc.printedPage}`}
                   data-facsimile-link={loc.printedPage}
