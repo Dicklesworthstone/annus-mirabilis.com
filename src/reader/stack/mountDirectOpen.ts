@@ -13,8 +13,8 @@
  * touched anything.
  */
 import { createElement } from "react";
-import { createRoot, type Root } from "react-dom/client";
 import { flushSync } from "react-dom";
+import { createRoot, type Root } from "react-dom/client";
 import { Compass } from "./Compass.tsx";
 import { resolveOpenParam } from "./history.ts";
 import type { StackFrame } from "./stackStore.ts";
@@ -60,10 +60,8 @@ export function closeDirectOpenDialog(doc: Document): void {
  * bead's "Invalid values" requirement ("ignored without breaking the page").
  */
 export function openFromSearch(doc: Document, search: string): boolean {
-  console.log("DEBUG openFromSearch called with search:", search);
   const params = new URLSearchParams(search);
   const resolved = resolveOpenParam(params.get("open"));
-  console.log("DEBUG resolved:", resolved ? resolved.kind : null);
   if (!resolved) return false;
 
   if (!resolved.definition.descends) {

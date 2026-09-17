@@ -158,7 +158,7 @@ test("every WITHIN_TOLERANCE_CASES case re-runs through expectClose and logs its
     }
     const event = lastEventFor(SUITE, logRunId, testCase.name);
     assert.ok(event, `expected a log line for case ${testCase.name}`);
-    assert.equal(event!.verdict, testCase.expectedKind, `case ${testCase.name}`);
+    assert.equal(event.verdict, testCase.expectedKind, `case ${testCase.name}`);
   }
 });
 
@@ -173,11 +173,7 @@ test("every BITWISE_CASES case re-runs through expectBitwise and logs its verdic
     }
     const event = lastEventFor(SUITE, logRunId, testCase.name);
     assert.ok(event, `expected a log line for case ${testCase.name}`);
-    assert.equal(event!.verdict, testCase.expectedKind, `case ${testCase.name}`);
-    assert.equal(
-      event!.outcome,
-      testCase.expectedOk ? "passed" : "failed",
-      `case ${testCase.name}`,
-    );
+    assert.equal(event.verdict, testCase.expectedKind, `case ${testCase.name}`);
+    assert.equal(event.outcome, testCase.expectedOk ? "passed" : "failed", `case ${testCase.name}`);
   }
 });

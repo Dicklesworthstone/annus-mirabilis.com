@@ -1,5 +1,5 @@
-import { act } from "react";
 import { afterEach, beforeEach, describe, expect, test } from "bun:test";
+import { act } from "react";
 import { closeDirectOpenDialog, openFromSearch } from "../reader/stack/mountDirectOpen.ts";
 import { installDom, uninstallDom } from "./reactDom.ts";
 
