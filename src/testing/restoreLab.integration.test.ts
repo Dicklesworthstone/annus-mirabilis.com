@@ -75,7 +75,9 @@ describe("decideLabRestore: an unmounted instance restores from a validated chec
     const mounted = false;
 
     const tape = fixtureTape();
-    const checkpoint = tape.checkpoints[0]!;
+    const checkpoint = tape.checkpoints[0];
+    expect(checkpoint).toBeDefined();
+    if (!checkpoint) throw new Error("expected fixture checkpoint");
     const decision = decideLabRestore({
       mounted,
       lab: {
@@ -100,7 +102,9 @@ describe("decideLabRestore: an unmounted instance restores from a validated chec
 describe("decideLabRestore: an invalid checkpoint produces a visibly new run", () => {
   test("a changed seed invalidates the checkpoint", () => {
     const tape = fixtureTape();
-    const checkpoint = tape.checkpoints[0]!;
+    const checkpoint = tape.checkpoints[0];
+    expect(checkpoint).toBeDefined();
+    if (!checkpoint) throw new Error("expected fixture checkpoint");
     const decision = decideLabRestore({
       mounted: false,
       lab: {
@@ -123,7 +127,9 @@ describe("decideLabRestore: an invalid checkpoint produces a visibly new run", (
 
   test("an incompatible model identity (a changed 'stream version') invalidates the checkpoint", () => {
     const tape = fixtureTape();
-    const checkpoint = tape.checkpoints[0]!;
+    const checkpoint = tape.checkpoints[0];
+    expect(checkpoint).toBeDefined();
+    if (!checkpoint) throw new Error("expected fixture checkpoint");
     const decision = decideLabRestore({
       mounted: false,
       lab: {
