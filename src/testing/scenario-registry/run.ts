@@ -503,12 +503,16 @@ function runOne(
         ]),
       ),
     };
+    const obsKey = scenario.observation?.observableId;
     const values = hyps.map((h) => {
       const out = getOwner(h.owner).fn({ inputs, constantSetId: scenario.constantSetId });
-      const key = Object.keys(out)[0] ?? "value";
+      const key = obsKey && obsKey in out ? obsKey : (Object.keys(out)[0] ?? "value");
       return out[key] ?? Number.NaN;
     });
-    const specRaw = (raw.tolerance ?? scenario.expected.outputs?.[0]?.tolerance) as
+    const specRaw = (raw.tolerance ??
+      scenario.tolerance ??
+      (scenario.expected as unknown as Record<string, unknown>)?.tolerance ??
+      scenario.expected.outputs?.[0]?.tolerance) as
       | {
           absolute?: number;
           relative?: number;
