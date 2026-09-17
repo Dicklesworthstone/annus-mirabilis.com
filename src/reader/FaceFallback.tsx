@@ -12,7 +12,7 @@ export async function FaceFallback({
   face,
 }: {
   paperId: string;
-  section?: string;
+  section?: string | undefined;
   face: FaceFallbackId;
 }) {
   const payload = await loadPaper(paperId);

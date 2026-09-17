@@ -50,7 +50,7 @@ export const FACE_REGISTRY: Readonly<Record<FaceId, FaceDefinition>> = Object.fr
   split: Object.freeze({ id: "split", label: "Split view", isLanguageFace: false }),
 });
 
-export const DEFAULT_FACE: FaceId = "reading";
+export const DEFAULT_FACE = "reading" as const;
 
 export const DEFAULT_SPLIT_PANES: readonly [SplittableFaceId, SplittableFaceId] = [
   "parallel",

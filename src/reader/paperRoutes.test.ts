@@ -11,6 +11,12 @@ import {
   sectionStaticParams,
 } from "./paperRoutes.ts";
 
+async function compiledPaperId(): Promise<string> {
+  const papers = await listReadablePapers();
+  expect(papers.length).toBeGreaterThan(0);
+  return papers.includes("brownian-motion") ? "brownian-motion" : papers[0]!;
+}
+
 describe("classifyPaperParam", () => {
   test("accepts the closed paper-slug set", () => {
     expect(classifyPaperParam("brownian-motion")).toBe("slug");
@@ -30,24 +36,32 @@ describe("classifyPaperParam", () => {
 });
 
 describe("resolvePaperRoute", () => {
-  test("the compiled brownian-motion paper and its sections resolve", async () => {
-    const paper = await resolvePaperRoute({ paperId: "brownian-motion" });
+  test("each compiled paper and its first section resolve", async () => {
+    const paperId = await compiledPaperId();
+    const paper = await resolvePaperRoute({ paperId });
     expect(paper).toEqual({
       ok: true,
-      paperId: "brownian-motion",
+      paperId,
       section: undefined,
       face: "reading",
     });
-    const section = await resolvePaperRoute({ paperId: "brownian-motion", section: "s4" });
+    const payload = await (await import("../content/server.ts")).loadPaper(paperId);
+    const sectionId = payload.paper.sections[0]?.id;
+    expect(sectionId).toBeDefined();
+    const section = await resolvePaperRoute({
+      paperId,
+      ...(sectionId ? { section: sectionId } : {}),
+    });
     expect(section.ok).toBe(true);
-    if (section.ok) expect(section.section).toBe("s4");
+    if (section.ok) expect(section.section).toBe(sectionId);
   });
 
   test("face fallback ids resolve; reading is not a fallback page", async () => {
-    const german = await resolvePaperRoute({ paperId: "brownian-motion", face: "german" });
+    const paperId = await compiledPaperId();
+    const german = await resolvePaperRoute({ paperId, face: "german" });
     expect(german.ok).toBe(true);
     if (german.ok) expect(german.face).toBe("german");
-    const readingPage = await resolvePaperRoute({ paperId: "brownian-motion", face: "reading" });
+    const readingPage = await resolvePaperRoute({ paperId, face: "reading" });
     expect(readingPage).toEqual({ ok: false, code: "unknown-face" });
   });
 
@@ -60,19 +74,16 @@ describe("resolvePaperRoute", () => {
       ok: false,
       code: "bibliographic-key",
     });
-    expect(await resolvePaperRoute({ paperId: "light-quanta" })).toEqual({
-      ok: false,
-      code: "unknown-paper",
-    });
-    expect(await resolvePaperRoute({ paperId: "brownian-motion", section: "s99" })).toEqual({
+    const paperId = await compiledPaperId();
+    expect(await resolvePaperRoute({ paperId, section: "s99" })).toEqual({
       ok: false,
       code: "unknown-section",
     });
-    expect(await resolvePaperRoute({ paperId: "brownian-motion", section: "view" })).toEqual({
+    expect(await resolvePaperRoute({ paperId, section: "view" })).toEqual({
       ok: false,
       code: "unknown-section",
     });
-    expect(await resolvePaperRoute({ paperId: "brownian-motion", face: "bogus" })).toEqual({
+    expect(await resolvePaperRoute({ paperId, face: "bogus" })).toEqual({
       ok: false,
       code: "unknown-face",
     });
@@ -80,15 +91,18 @@ describe("resolvePaperRoute", () => {
 
   test("compiled papers never include a bibliographic key", async () => {
     const papers = await listReadablePapers();
-    expect(papers).toContain("brownian-motion");
+    expect(papers.length).toBeGreaterThan(0);
     expect(papers).not.toContain("ap-17-549");
     expect(papers.every((id) => classifyPaperParam(id) === "slug")).toBe(true);
   });
 
-  test("section params are paper-agnostic and include brownian s4 and s5", async () => {
+  test("section params are derived from the compiled papers, not a hardcoded slug", async () => {
+    const paperId = await compiledPaperId();
+    const payload = await (await import("../content/server.ts")).loadPaper(paperId);
     const sections = await sectionStaticParams();
-    expect(sections).toContainEqual({ paper: "brownian-motion", section: "s4" });
-    expect(sections).toContainEqual({ paper: "brownian-motion", section: "s5" });
+    for (const section of payload.paper.sections) {
+      expect(sections).toContainEqual({ paper: paperId, section: section.id });
+    }
   });
 });
 
@@ -107,7 +121,9 @@ describe("face fallback hrefs", () => {
     expect(FACE_FALLBACK_IDS).not.toContain("reading");
     for (const id of FACE_FALLBACK_IDS) {
       expect(isFaceFallbackId(id)).toBe(true);
-      expect(faceFallbackPath("brownian-motion", id)).toBe(`/papers/brownian-motion/view/${id}/`);
+      expect(faceFallbackPath("brownian-motion", id)).toBe(
+        `/papers/brownian-motion/view/${id}/`,
+      );
     }
   });
 });

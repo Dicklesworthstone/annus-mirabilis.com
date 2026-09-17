@@ -32,8 +32,8 @@ export type PaperRouteErrorCode =
 
 export type PaperRouteRequest = Readonly<{
   paperId: string;
-  section?: string;
-  face?: string;
+  section?: string | undefined;
+  face?: string | undefined;
 }>;
 
 export type PaperRouteOk = Readonly<{
@@ -158,7 +158,7 @@ export async function paperMetadata(request: PaperRouteRequest): Promise<Metadat
       ? (sectionTitle ?? payload.paper.title)
       : `${FACE_REGISTRY[resolved.face].label} · ${sectionTitle ?? payload.paper.title}`;
   const path =
-    resolved.face === DEFAULT_FACE
+    resolved.face === "reading"
       ? paperPath(resolved.paperId, resolved.section)
       : faceFallbackPath(resolved.paperId, resolved.face, resolved.section);
   const languages =

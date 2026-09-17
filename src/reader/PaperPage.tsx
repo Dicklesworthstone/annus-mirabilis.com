@@ -22,7 +22,11 @@ export async function PaperPage(request: PaperRouteRequest) {
   if (!resolved.ok) notFound();
   if (resolved.face !== "reading") {
     return (
-      <FaceFallback paperId={resolved.paperId} section={resolved.section} face={resolved.face} />
+      <FaceFallback
+        paperId={resolved.paperId}
+        {...(resolved.section ? { section: resolved.section } : {})}
+        face={resolved.face}
+      />
     );
   }
   const payload = await loadPaper(resolved.paperId);
