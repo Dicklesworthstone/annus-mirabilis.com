@@ -95,7 +95,9 @@ describe("auditMisconceptions (am-cm-audit-scripts-d34)", () => {
 
   test("PLANTED: dangling anchor id fails with dangling-anchor", () => {
     const entries = makeEntries(5);
-    entries[0] = { ...entries[0]!, anchors: ["s99-ghost-anchor"] };
+    const first = entries[0];
+    if (!first) throw new Error("Expected first entry");
+    entries[0] = { ...first, anchors: ["s99-ghost-anchor"] };
     const input: MisconceptionAuditInput = {
       papers: [
         {
@@ -117,7 +119,9 @@ describe("auditMisconceptions (am-cm-audit-scripts-d34)", () => {
 
   test("PLANTED: dangling instrument id fails with dangling-instrument", () => {
     const entries = makeEntries(5);
-    entries[0] = { ...entries[0]!, instrumentIds: ["ghost-instrument-99"] };
+    const first = entries[0];
+    if (!first) throw new Error("Expected first entry");
+    entries[0] = { ...first, instrumentIds: ["ghost-instrument-99"] };
     const input: MisconceptionAuditInput = {
       papers: [
         {
@@ -139,7 +143,9 @@ describe("auditMisconceptions (am-cm-audit-scripts-d34)", () => {
 
   test("PLANTED: dangling result id fails with dangling-result", () => {
     const entries = makeEntries(5);
-    entries[0] = { ...entries[0]!, resultIds: ["ghost-result-id"] };
+    const first = entries[0];
+    if (!first) throw new Error("Expected first entry");
+    entries[0] = { ...first, resultIds: ["ghost-result-id"] };
     const input: MisconceptionAuditInput = {
       papers: [
         {
@@ -161,7 +167,9 @@ describe("auditMisconceptions (am-cm-audit-scripts-d34)", () => {
 
   test("PLANTED: dangling source fails with dangling-source", () => {
     const entries = makeEntries(5);
-    entries[0] = { ...entries[0]!, sources: ["ghost-source-1999"] };
+    const first = entries[0];
+    if (!first) throw new Error("Expected first entry");
+    entries[0] = { ...first, sources: ["ghost-source-1999"] };
     const input: MisconceptionAuditInput = {
       papers: [
         {
