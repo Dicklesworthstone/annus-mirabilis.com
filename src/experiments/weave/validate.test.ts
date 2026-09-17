@@ -2,7 +2,13 @@ import { describe, expect, test } from "bun:test";
 import { validateWeavePredicate, WeaveValidationError } from "./validate.ts";
 
 const ctx = {
-  instrumentOutputIds: new Set(["x", "kolmogorovDistance", "ensembleSize", "lowerBand", "upperBand"]),
+  instrumentOutputIds: new Set([
+    "x",
+    "kolmogorovDistance",
+    "ensembleSize",
+    "lowerBand",
+    "upperBand",
+  ]),
   resolvableTargetIds: new Set(["s4-p1", "s5-p2"]),
 };
 
@@ -11,7 +17,9 @@ function basePredicate(overrides: Record<string, unknown> = {}) {
     id: "p1",
     instrumentId: "bm-01",
     meaning: "quantity-compared",
-    conditions: [{ kind: "threshold", quantityId: "x", direction: "at-least", enter: 1, exit: 0.9 }],
+    conditions: [
+      { kind: "threshold", quantityId: "x", direction: "at-least", enter: 1, exit: 0.9 },
+    ],
     targets: ["s4-p1"],
     pointerText: "This is the quantity being compared.",
     ...overrides,
@@ -40,9 +48,9 @@ describe("validateWeavePredicate: the compiler's rejection rules (am-read-result
   });
 
   test("a meaning outside the four values fails with weave-meaning-missing", () => {
-    expect(() => validateWeavePredicate(basePredicate({ meaning: "definitely-true" }), ctx)).toThrow(
-      WeaveValidationError,
-    );
+    expect(() =>
+      validateWeavePredicate(basePredicate({ meaning: "definitely-true" }), ctx),
+    ).toThrow(WeaveValidationError);
   });
 
   test("outside-selected-domain with an agreement condition fails with weave-outside-domain-uses-agreement", () => {
@@ -94,7 +102,15 @@ describe("validateWeavePredicate: the compiler's rejection rules (am-read-result
     try {
       validateWeavePredicate(
         basePredicate({
-          conditions: [{ kind: "threshold", quantityId: "notAnOutput", direction: "at-least", enter: 1, exit: 0.9 }],
+          conditions: [
+            {
+              kind: "threshold",
+              quantityId: "notAnOutput",
+              direction: "at-least",
+              enter: 1,
+              exit: 0.9,
+            },
+          ],
         }),
         ctx,
       );

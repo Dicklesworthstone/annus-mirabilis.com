@@ -45,7 +45,7 @@ export function WeaveHighlighter({
   reducedMotion?: boolean;
   children: ReactNode;
 }) {
-  if (!flag || !flag.lit) {
+  if (!flag?.lit) {
     return <span data-weave-lit="false">{children}</span>;
   }
   const treatment = weaveTreatmentClass(flag.meaning);

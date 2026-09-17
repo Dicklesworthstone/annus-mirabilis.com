@@ -27,10 +27,8 @@ describe("FaceFallback", () => {
     const paperId = await compiledPaperId();
     const payload = await (await import("../content/server.ts")).loadPaper(paperId);
     const section = payload.paper.sections[0]?.id;
-    expect(section).toBeDefined();
-    const html = renderToStaticMarkup(
-      await FaceFallback({ paperId, section: section ?? "s4", face: "results" }),
-    );
+    if (section === undefined) throw new Error("compiled paper has no sections");
+    const html = renderToStaticMarkup(await FaceFallback({ paperId, section, face: "results" }));
     expect(html).toContain('data-view="results"');
     expect(html).toContain(`/papers/${paperId}/${section}/view/german/`);
   });

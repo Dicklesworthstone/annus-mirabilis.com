@@ -44,9 +44,9 @@ describe("resolvePaperRoute", () => {
     expect(paper).toEqual({
       ok: true,
       paperId,
-      section: undefined,
       face: "reading",
     });
+    expect("section" in paper).toBe(false);
     const payload = await (await import("../content/server.ts")).loadPaper(paperId);
     const sectionId = payload.paper.sections[0]?.id;
     expect(sectionId).toBeDefined();
@@ -55,7 +55,10 @@ describe("resolvePaperRoute", () => {
       ...(sectionId ? { section: sectionId } : {}),
     });
     expect(section.ok).toBe(true);
-    if (section.ok) expect(section.section).toBe(sectionId);
+    if (section.ok) {
+      expect("section" in section).toBe(true);
+      if ("section" in section) expect(section.section).toBe(sectionId);
+    }
   });
 
   test("face fallback ids resolve; reading is not a fallback page", async () => {

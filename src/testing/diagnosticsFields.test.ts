@@ -1,7 +1,8 @@
 import { beforeEach, describe, expect, it } from "bun:test";
-import { readdir, readFile } from "node:fs/promises";
-import { resolve } from "node:path";
-import { buildContent } from "../../scripts/build-content.ts";
+import { cp, mkdir, mkdtemp, readdir, readFile } from "node:fs/promises";
+import { tmpdir } from "node:os";
+import { dirname, resolve } from "node:path";
+import { buildContent, CONTENT_COMPILER_FILES } from "../../scripts/build-content.ts";
 import {
   type CheckFamily,
   type ContentCheck,
@@ -29,9 +30,21 @@ describe("Diagnostics Fields and Structured Logging Gate (am-cm-compiler-core-oa
   }
 
   it("ensures every diagnostic and summary line follows the schema, carries suite 'build-content' and valid extra.family, and never carries runId", async () => {
-    // Run build against fixture corpus
-    const result = await buildContent(process.cwd(), {
-      corpusDir: "src/content/compiler/__fixtures__/corpus",
+    const tempBase = process.env.AM_TEST_TMP ?? tmpdir();
+    const tempRoot = await mkdtemp(resolve(tempBase, "am-compiler-diag-"));
+    await cp(
+      resolve(process.cwd(), "src/content/compiler/__fixtures__/corpus"),
+      resolve(tempRoot, "corpus"),
+      { recursive: true },
+    );
+    for (const p of CONTENT_COMPILER_FILES) {
+      await mkdir(dirname(resolve(tempRoot, p)), { recursive: true });
+      await cp(resolve(process.cwd(), p), resolve(tempRoot, p));
+    }
+
+    // Run build against fixture corpus in isolated tempRoot
+    const result = await buildContent(tempRoot, {
+      corpusDir: "corpus",
     });
 
     expect(result.ok).toBe(true);

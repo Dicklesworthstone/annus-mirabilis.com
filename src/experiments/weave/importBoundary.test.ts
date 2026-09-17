@@ -4,9 +4,10 @@
  * and no src/testing/ module." Real AST parsing (import specifiers), not string grep, matching
  * the pattern of src/testing/noPhysicsInComponents.test.ts.
  */
+
+import { describe, expect, test } from "bun:test";
 import { readdirSync, readFileSync } from "node:fs";
 import { join } from "node:path";
-import { describe, expect, test } from "bun:test";
 import ts from "typescript";
 
 const WEAVE_DIR = import.meta.dirname;
@@ -15,7 +16,8 @@ const WEAVE_DIR = import.meta.dirname;
 // ensemble-statistics layer the weave must never recompute: BM-05's kolmogorovShapeTerm/dkwBound
 // (src/physics/reference/diffusion/walkLaws.ts), and any generic "compute an ensemble/sample
 // statistic from raw data" naming convention.
-const FORBIDDEN_NAME_PATTERN = /ensemble|sampleStatistic|kolmogorovShapeTerm|computeMoments|recordTracers|recordWalks/i;
+const FORBIDDEN_NAME_PATTERN =
+  /ensemble|sampleStatistic|kolmogorovShapeTerm|computeMoments|recordTracers|recordWalks/i;
 
 function weaveSourceFiles(): string[] {
   return readdirSync(WEAVE_DIR)

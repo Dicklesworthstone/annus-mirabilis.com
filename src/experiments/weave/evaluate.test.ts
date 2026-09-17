@@ -6,14 +6,20 @@ import type { WeavePredicate, WeaveSnapshotView } from "./types.ts";
 function snapshot(
   runId: string,
   snapshotVersion: number,
-  outputs: Record<string, { status: WeaveSnapshotView["outputs"][string]["status"]; value?: number | string }>,
+  outputs: Record<
+    string,
+    { status: WeaveSnapshotView["outputs"][string]["status"]; value?: number | string }
+  >,
   extra: Partial<WeaveSnapshotView> = {},
 ): WeaveSnapshotView {
   return {
     runId,
     snapshotVersion,
     outputs: Object.fromEntries(
-      Object.entries(outputs).map(([k, v]) => [k, { quantityId: k, status: v.status, value: v.value }]),
+      Object.entries(outputs).map(([k, v]) => [
+        k,
+        { quantityId: k, status: v.status, value: v.value },
+      ]),
     ),
     refused: false,
     ...extra,
@@ -66,7 +72,9 @@ describe("fixture predicate: slowed clock (paper 3, S4) -- am-read-result-weave-
     id: "fixture-slowed-clock",
     instrumentId: "fixture-sr",
     meaning: "quantity-compared",
-    conditions: [{ kind: "threshold", quantityId: "vOverC", direction: "at-least", enter: 0.5, exit: 0.48 }],
+    conditions: [
+      { kind: "threshold", quantityId: "vOverC", direction: "at-least", enter: 0.5, exit: 0.48 },
+    ],
     targets: ["sr-s4-slowed-clock"],
     pointerText:
       "The slowing exists at every nonzero speed; from here it is large enough to read on these clocks.",
@@ -74,15 +82,21 @@ describe("fixture predicate: slowed clock (paper 3, S4) -- am-read-result-weave-
 
   test("enters at v=0.50c, holds at v=0.49c, exits at v<0.48c", () => {
     const evaluator = createWeaveEvaluator([predicate]);
-    const enter = evaluator.evaluate(snapshot("run-1", 1, { vOverC: { status: "value", value: 0.5 } }));
+    const enter = evaluator.evaluate(
+      snapshot("run-1", 1, { vOverC: { status: "value", value: 0.5 } }),
+    );
     expect(enter.flags["fixture-slowed-clock"]?.lit).toBe(true);
     expect(enter.flags["fixture-slowed-clock"]?.state).toBe("enter");
 
-    const hold = evaluator.evaluate(snapshot("run-1", 2, { vOverC: { status: "value", value: 0.49 } }));
+    const hold = evaluator.evaluate(
+      snapshot("run-1", 2, { vOverC: { status: "value", value: 0.49 } }),
+    );
     expect(hold.flags["fixture-slowed-clock"]?.lit).toBe(true);
     expect(hold.flags["fixture-slowed-clock"]?.state).toBe("hold");
 
-    const exit = evaluator.evaluate(snapshot("run-1", 3, { vOverC: { status: "value", value: 0.47 } }));
+    const exit = evaluator.evaluate(
+      snapshot("run-1", 3, { vOverC: { status: "value", value: 0.47 } }),
+    );
     expect(exit.flags["fixture-slowed-clock"]?.lit).toBe(false);
     expect(exit.flags["fixture-slowed-clock"]?.state).toBe("exit");
   });
@@ -90,7 +104,9 @@ describe("fixture predicate: slowed clock (paper 3, S4) -- am-read-result-weave-
   test("stays lit inside the hysteresis band (0.48 <= v < 0.50) once entered, per the bead's own acceptance criterion", () => {
     const evaluator = createWeaveEvaluator([predicate]);
     evaluator.evaluate(snapshot("run-1", 1, { vOverC: { status: "value", value: 0.5 } }));
-    const stillLit = evaluator.evaluate(snapshot("run-1", 2, { vOverC: { status: "value", value: 0.49 } }));
+    const stillLit = evaluator.evaluate(
+      snapshot("run-1", 2, { vOverC: { status: "value", value: 0.49 } }),
+    );
     expect(stillLit.flags["fixture-slowed-clock"]?.lit).toBe(true);
   });
 });
@@ -100,7 +116,9 @@ describe("fixture predicate: Wien regime (paper 1, S4)", () => {
     id: "fixture-wien-regime",
     instrumentId: "fixture-lq",
     meaning: "assumption-active",
-    conditions: [{ kind: "threshold", quantityId: "x", direction: "at-least", enter: 3, exit: 2.8 }],
+    conditions: [
+      { kind: "threshold", quantityId: "x", direction: "at-least", enter: 3, exit: 2.8 },
+    ],
     targets: ["lq-s4-wien-limit"],
     pointerText: "States the pointwise relative difference.",
   };
@@ -189,14 +207,20 @@ describe("outside-selected-domain: reachable via a status condition, determinist
 
   test("lights when the named output leaves the domain, unlights when it returns, exactly once each", () => {
     const evaluator = createWeaveEvaluator([predicate]);
-    const inDomain = evaluator.evaluate(snapshot("run-1", 1, { entropyComparison: { status: "value", value: 1 } }));
+    const inDomain = evaluator.evaluate(
+      snapshot("run-1", 1, { entropyComparison: { status: "value", value: 1 } }),
+    );
     expect(inDomain.flags["fixture-outside-domain"]?.lit).toBe(false);
 
-    const outOfDomain = evaluator.evaluate(snapshot("run-1", 2, { entropyComparison: { status: "outside-domain" } }));
+    const outOfDomain = evaluator.evaluate(
+      snapshot("run-1", 2, { entropyComparison: { status: "outside-domain" } }),
+    );
     expect(outOfDomain.flags["fixture-outside-domain"]?.lit).toBe(true);
     expect(outOfDomain.flags["fixture-outside-domain"]?.state).toBe("enter");
 
-    const backInDomain = evaluator.evaluate(snapshot("run-1", 3, { entropyComparison: { status: "value", value: 1 } }));
+    const backInDomain = evaluator.evaluate(
+      snapshot("run-1", 3, { entropyComparison: { status: "value", value: 1 } }),
+    );
     expect(backInDomain.flags["fixture-outside-domain"]?.lit).toBe(false);
     expect(backInDomain.flags["fixture-outside-domain"]?.state).toBe("exit");
   });
@@ -208,7 +232,9 @@ describe("a typed refusal leaves every predicate unlit", () => {
       id: "fixture-any",
       instrumentId: "fixture",
       meaning: "quantity-compared",
-      conditions: [{ kind: "threshold", quantityId: "x", direction: "at-least", enter: 0, exit: -1 }],
+      conditions: [
+        { kind: "threshold", quantityId: "x", direction: "at-least", enter: 0, exit: -1 },
+      ],
       targets: ["t"],
       pointerText: "text",
     };
@@ -227,7 +253,9 @@ describe("flags reset on a new run", () => {
       id: "fixture-reset",
       instrumentId: "fixture",
       meaning: "quantity-compared",
-      conditions: [{ kind: "threshold", quantityId: "x", direction: "at-least", enter: 1, exit: 0.5 }],
+      conditions: [
+        { kind: "threshold", quantityId: "x", direction: "at-least", enter: 1, exit: 0.5 },
+      ],
       targets: ["t"],
       pointerText: "text",
     };
@@ -236,7 +264,9 @@ describe("flags reset on a new run", () => {
     expect(first.flags["fixture-reset"]?.state).toBe("enter");
 
     // New run: the tracker resets, so entering again is still logged as "enter", not "hold".
-    const secondRun = evaluator.evaluate(snapshot("run-2", 1, { x: { status: "value", value: 2 } }));
+    const secondRun = evaluator.evaluate(
+      snapshot("run-2", 1, { x: { status: "value", value: 2 } }),
+    );
     expect(secondRun.flags["fixture-reset"]?.state).toBe("enter");
   });
 });
@@ -247,11 +277,15 @@ describe("determinism: the same sequence of accepted snapshots always replays to
       id: "fixture-deterministic",
       instrumentId: "fixture",
       meaning: "quantity-compared",
-      conditions: [{ kind: "threshold", quantityId: "x", direction: "at-least", enter: 1, exit: 0.5 }],
+      conditions: [
+        { kind: "threshold", quantityId: "x", direction: "at-least", enter: 1, exit: 0.5 },
+      ],
       targets: ["t"],
       pointerText: "text",
     };
-    const sequence = [0.2, 1.5, 0.8, 0.3, 2.0].map((v, i) => snapshot("run-1", i + 1, { x: { status: "value", value: v } }));
+    const sequence = [0.2, 1.5, 0.8, 0.3, 2.0].map((v, i) =>
+      snapshot("run-1", i + 1, { x: { status: "value", value: v } }),
+    );
     const a = createWeaveEvaluator([predicate]);
     const b = createWeaveEvaluator([predicate]);
     const resultsA = sequence.map((s) => a.evaluate(s).flags["fixture-deterministic"]);
@@ -291,7 +325,10 @@ describe("determinism: the same sequence of accepted snapshots always replays to
     for (let i = 0; i < 50; i++) {
       const d = 0.06 + rand() * 0.02; // stays within [0.06, 0.08], comfortably under 0.0975
       const result = evaluator.evaluate(
-        snapshot("run-1", i + 1, { d: { status: "value", value: d }, n: { status: "value", value: 400 } }),
+        snapshot("run-1", i + 1, {
+          d: { status: "value", value: d },
+          n: { status: "value", value: 400 },
+        }),
       );
       const lit = result.flags["fixture-noisy"]?.lit ?? false;
       if (lit && enteredAt === -1) enteredAt = i;

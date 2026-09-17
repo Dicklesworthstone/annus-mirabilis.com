@@ -10,6 +10,7 @@ import { afterEach, beforeEach, describe, expect, test } from "bun:test";
 import { act, createElement } from "react";
 import { createRoot } from "react-dom/client";
 import { ReaderController } from "./../reader/ReaderController.tsx";
+import "../reader/stack/kinds.ts";
 import { installDom, uninstallDom } from "./reactDom.ts";
 
 beforeEach(installDom);
@@ -71,7 +72,9 @@ describe("ReaderController: the direct-open wiring this bead added", () => {
       reactRoot.render(
         createElement(ReaderController, { registry: REGISTRY, titles: {}, questions: {} }),
       );
-      await new Promise((resolve) => setTimeout(resolve, 0));
+    });
+    await act(async () => {
+      await Promise.resolve();
     });
     const instrumentDialog = document.querySelector("[data-instrument-clarification-dialog]");
     expect(instrumentDialog).not.toBeNull();

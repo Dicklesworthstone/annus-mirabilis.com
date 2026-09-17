@@ -18,8 +18,10 @@ describe("canonical and hreflang policy", () => {
     expect(paper.alternates?.canonical).toBe(absoluteUrl(paperPath(paperId)));
     const payload = await (await import("../content/server.ts")).loadPaper(paperId);
     const sectionId = payload.paper.sections[0]?.id;
-    expect(sectionId).toBeDefined();
-    const section = await paperMetadata({ paperId, section: sectionId });
+    const section = await paperMetadata({
+      paperId,
+      ...(sectionId ? { section: sectionId } : {}),
+    });
     expect(section.alternates?.canonical).toBe(absoluteUrl(paperPath(paperId, sectionId)));
   });
 

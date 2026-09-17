@@ -21,19 +21,17 @@ export async function PaperPage(request: PaperRouteRequest) {
   const resolved = await resolvePaperRoute(request);
   if (!resolved.ok) notFound();
   if (resolved.face !== "reading") {
-    return (
-      <FaceFallback
-        paperId={resolved.paperId}
-        face={resolved.face}
-        {...(resolved.section !== undefined ? { section: resolved.section } : {})}
-      />
-    );
+    if ("section" in resolved) {
+      return (
+        <FaceFallback paperId={resolved.paperId} section={resolved.section} face={resolved.face} />
+      );
+    }
+    return <FaceFallback paperId={resolved.paperId} face={resolved.face} />;
   }
   const payload = await loadPaper(resolved.paperId);
   const { paper, foundations } = payload;
-  const sections = resolved.section
-    ? paper.sections.filter((s) => s.id === resolved.section)
-    : paper.sections;
+  const sectionId = "section" in resolved ? resolved.section : undefined;
+  const sections = sectionId ? paper.sections.filter((s) => s.id === sectionId) : paper.sections;
   const args = payload.arguments.filter((a) => sections.some((s) => s.id === a.section));
   return (
     <div data-reader-root data-ready="true" data-view="reading" className="reader-root">
@@ -41,21 +39,30 @@ export async function PaperPage(request: PaperRouteRequest) {
       <script dangerouslySetInnerHTML={{ __html: ROOT_ARMING_SOURCE }} />
       <header className="page-intro">
         <p className="eyebrow">Read · {paper.title}</p>
-        <h1>{resolved.section ? sections[0]?.title : paper.title}</h1>
+        <h1>{sectionId ? sections[0]?.title : paper.title}</h1>
         <p className="lead">{paper.description}</p>
         <p className="notice" data-source-status>
           {paper.sourceNotice}
         </p>
-        {resolved.section ? (
-          <a href={paperPath(paper.id)}>Read the whole available argument →</a>
-        ) : null}
+        {sectionId ? <a href={paperPath(paper.id)}>Read the whole available argument →</a> : null}
       </header>
       <nav className="reader-controls" aria-label="Reading face">
-        <a href={faceLinkHref(paper.id, "reading", resolved.section)} data-view-link="reading">
+        <a
+          href={
+            sectionId
+              ? faceLinkHref(paper.id, "reading", sectionId)
+              : faceLinkHref(paper.id, "reading")
+          }
+          data-view-link="reading"
+        >
           Explanation
         </a>
         {FACE_FALLBACK_IDS.map((id) => (
-          <a key={id} href={faceLinkHref(paper.id, id, resolved.section)} data-view-link={id}>
+          <a
+            key={id}
+            href={sectionId ? faceLinkHref(paper.id, id, sectionId) : faceLinkHref(paper.id, id)}
+            data-view-link={id}
+          >
             {FACE_REGISTRY[id].label}
           </a>
         ))}

@@ -13,8 +13,16 @@ function flag(overrides: Partial<WeaveFlag> & Pick<WeaveFlag, "predicateId">): W
   };
 }
 
-function derived(runId: string, snapshotVersion: number, flags: readonly WeaveFlag[]): WeaveDerived {
-  return { runId, snapshotVersion, flags: Object.fromEntries(flags.map((f) => [f.predicateId, f])) };
+function derived(
+  runId: string,
+  snapshotVersion: number,
+  flags: readonly WeaveFlag[],
+): WeaveDerived {
+  return {
+    runId,
+    snapshotVersion,
+    flags: Object.fromEntries(flags.map((f) => [f.predicateId, f])),
+  };
 }
 
 describe("selectAnnouncement: one announcement per accepted snapshot", () => {
@@ -44,7 +52,9 @@ describe("selectAnnouncement: one announcement per accepted snapshot", () => {
   });
 
   test("no flags lit produces no announcement", () => {
-    const next = derived("run-1", 1, [flag({ predicateId: "p1", lit: false, state: "not-evaluable" })]);
+    const next = derived("run-1", 1, [
+      flag({ predicateId: "p1", lit: false, state: "not-evaluable" }),
+    ]);
     expect(selectAnnouncement(undefined, next)).toBeUndefined();
   });
 });
@@ -55,18 +65,38 @@ describe("selectExpandedOutsideDomain: at most one predicate expanded per face",
   });
 
   test("a single lit outside-selected-domain flag is selected", () => {
-    const f = flag({ predicateId: "p1", lit: true, meaning: "outside-selected-domain", state: "enter" });
+    const f = flag({
+      predicateId: "p1",
+      lit: true,
+      meaning: "outside-selected-domain",
+      state: "enter",
+    });
     expect(selectExpandedOutsideDomain([f])).toBe("p1");
   });
 
   test("two lit outside-selected-domain flags select only the first by predicate id", () => {
-    const a = flag({ predicateId: "b-predicate", lit: true, meaning: "outside-selected-domain", state: "enter" });
-    const b = flag({ predicateId: "a-predicate", lit: true, meaning: "outside-selected-domain", state: "enter" });
+    const a = flag({
+      predicateId: "b-predicate",
+      lit: true,
+      meaning: "outside-selected-domain",
+      state: "enter",
+    });
+    const b = flag({
+      predicateId: "a-predicate",
+      lit: true,
+      meaning: "outside-selected-domain",
+      state: "enter",
+    });
     expect(selectExpandedOutsideDomain([a, b])).toBe("a-predicate");
   });
 
   test("an unlit outside-selected-domain flag is never selected", () => {
-    const f = flag({ predicateId: "p1", lit: false, meaning: "outside-selected-domain", state: "exit" });
+    const f = flag({
+      predicateId: "p1",
+      lit: false,
+      meaning: "outside-selected-domain",
+      state: "exit",
+    });
     expect(selectExpandedOutsideDomain([f])).toBeUndefined();
   });
 

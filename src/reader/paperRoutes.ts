@@ -32,14 +32,15 @@ export type PaperRouteErrorCode =
 
 export type PaperRouteRequest = Readonly<{
   paperId: string;
-  section?: string | undefined;
-  face?: string | undefined;
+  section?: string;
+  face?: string;
 }>;
 
+/** Paper root has no `section` key. A present `section` is a resolved id. */
 export type PaperRouteOk = Readonly<{
   ok: true;
   paperId: string;
-  section: string | undefined;
+  section?: string;
   face: FaceId;
 }>;
 
@@ -96,22 +97,20 @@ export async function resolvePaperRoute(request: PaperRouteRequest): Promise<Pap
   const readable = await listReadablePapers();
   if (!readable.includes(request.paperId)) return { ok: false, code: "unknown-paper" };
 
-  let section: string | undefined;
+  let face: FaceId = DEFAULT_FACE;
+  if (request.face !== undefined) {
+    if (!isFaceFallbackId(request.face)) return { ok: false, code: "unknown-face" };
+    face = request.face;
+  }
+
   if (request.section !== undefined) {
     const payload = await loadPaper(request.paperId);
     if (!payload.paper.sections.some((s) => s.id === request.section)) {
       return { ok: false, code: "unknown-section" };
     }
-    section = request.section;
+    return { ok: true, paperId: request.paperId, section: request.section, face };
   }
-
-  if (request.face === undefined) {
-    return { ok: true, paperId: request.paperId, section, face: DEFAULT_FACE };
-  }
-  if (!isFaceFallbackId(request.face)) {
-    return { ok: false, code: "unknown-face" };
-  }
-  return { ok: true, paperId: request.paperId, section, face: request.face };
+  return { ok: true, paperId: request.paperId, face };
 }
 
 export async function paperStaticParams(): Promise<readonly { paper: string }[]> {
@@ -150,28 +149,35 @@ export async function paperMetadata(request: PaperRouteRequest): Promise<Metadat
   const resolved = await resolvePaperRoute(request);
   if (!resolved.ok) return { title: "Not in the edition" };
   const payload = await loadPaper(resolved.paperId);
-  const sectionTitle = resolved.section
-    ? payload.paper.sections.find((s) => s.id === resolved.section)?.title
+  const sectionId = "section" in resolved ? resolved.section : undefined;
+  const sectionTitle = sectionId
+    ? payload.paper.sections.find((s) => s.id === sectionId)?.title
     : undefined;
   const title =
     resolved.face === DEFAULT_FACE
       ? (sectionTitle ?? payload.paper.title)
       : `${FACE_REGISTRY[resolved.face].label} · ${sectionTitle ?? payload.paper.title}`;
+  const documentPath =
+    sectionId === undefined ? paperPath(resolved.paperId) : paperPath(resolved.paperId, sectionId);
+  const fallbackPath = (face: FaceFallbackId): string =>
+    sectionId === undefined
+      ? faceFallbackPath(resolved.paperId, face)
+      : faceFallbackPath(resolved.paperId, face, sectionId);
   const path =
-    resolved.face === "reading"
-      ? paperPath(resolved.paperId, resolved.section)
-      : faceFallbackPath(resolved.paperId, resolved.face, resolved.section);
+    resolved.face === DEFAULT_FACE || !isFaceFallbackId(resolved.face)
+      ? documentPath
+      : fallbackPath(resolved.face);
   const languages =
     resolved.face === "german" || resolved.face === "english"
       ? {
-          de: absoluteUrl(faceFallbackPath(resolved.paperId, "german", resolved.section)),
-          en: absoluteUrl(faceFallbackPath(resolved.paperId, "english", resolved.section)),
+          de: absoluteUrl(fallbackPath("german")),
+          en: absoluteUrl(fallbackPath("english")),
         }
       : undefined;
   const canonical =
     resolved.face === "german" || resolved.face === "english"
       ? absoluteUrl(path)
-      : absoluteUrl(paperPath(resolved.paperId, resolved.section));
+      : absoluteUrl(documentPath);
   return {
     title,
     description: payload.paper.description,

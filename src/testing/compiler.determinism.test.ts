@@ -1,9 +1,25 @@
 import { beforeEach, describe, expect, it } from "bun:test";
-import { mkdir, readFile, rm, writeFile } from "node:fs/promises";
-import { resolve } from "node:path";
-import { buildContent } from "../../scripts/build-content.ts";
+import { cp, mkdir, mkdtemp, readFile, writeFile } from "node:fs/promises";
+import { tmpdir } from "node:os";
+import { dirname, resolve } from "node:path";
+import { buildContent, CONTENT_COMPILER_FILES } from "../../scripts/build-content.ts";
 import { clearRegisteredChecksForTests } from "../content/compiler/checks/registry.ts";
 import { getLogger } from "./log/logger.ts";
+
+async function createFixtureWorkspace(): Promise<{ tempRoot: string; corpusDir: string }> {
+  const tempBase = process.env.AM_TEST_TMP ?? tmpdir();
+  const tempRoot = await mkdtemp(resolve(tempBase, "am-compiler-det-"));
+  await cp(
+    resolve(process.cwd(), "src/content/compiler/__fixtures__/corpus"),
+    resolve(tempRoot, "corpus"),
+    { recursive: true },
+  );
+  for (const p of CONTENT_COMPILER_FILES) {
+    await mkdir(dirname(resolve(tempRoot, p)), { recursive: true });
+    await cp(resolve(process.cwd(), p), resolve(tempRoot, p));
+  }
+  return { tempRoot, corpusDir: "corpus" };
+}
 
 describe("Content Compiler Determinism & Incremental Stability (am-cm-compiler-core-oa7)", () => {
   const logger = getLogger("content-compiler-tests");
@@ -22,13 +38,9 @@ describe("Content Compiler Determinism & Incremental Stability (am-cm-compiler-c
   }
 
   it("produces byte-identical build indexes and payloads across repeated clean compiles", async () => {
-    const root = process.cwd();
-    const first = await buildContent(root, {
-      corpusDir: "src/content/compiler/__fixtures__/corpus",
-    });
-    const second = await buildContent(root, {
-      corpusDir: "src/content/compiler/__fixtures__/corpus",
-    });
+    const { tempRoot, corpusDir } = await createFixtureWorkspace();
+    const first = await buildContent(tempRoot, { corpusDir });
+    const second = await buildContent(tempRoot, { corpusDir });
 
     expect(first.ok).toBe(true);
     expect(second.ok).toBe(true);
@@ -47,8 +59,8 @@ describe("Content Compiler Determinism & Incremental Stability (am-cm-compiler-c
       expect(p1.sha256).toBe(p2.sha256);
       expect(p1.bytes).toBe(p2.bytes);
 
-      const bytes1 = await readFile(resolve(root, "generated/content", p1.file));
-      const bytes2 = await readFile(resolve(root, "generated/content", p2.file));
+      const bytes1 = await readFile(resolve(tempRoot, "generated/content", p1.file));
+      const bytes2 = await readFile(resolve(tempRoot, "generated/content", p2.file));
       expect(bytes1.equals(bytes2)).toBe(true);
     }
 
@@ -60,28 +72,24 @@ describe("Content Compiler Determinism & Incremental Stability (am-cm-compiler-c
   });
 
   it("produces byte-identical output after an edit and revert cycle", async () => {
-    const root = process.cwd();
-    const clean = await buildContent(root, {
-      corpusDir: "src/content/compiler/__fixtures__/corpus",
-    });
+    const { tempRoot, corpusDir } = await createFixtureWorkspace();
+    const clean = await buildContent(tempRoot, { corpusDir });
     expect(clean.ok).toBe(true);
 
     const targetFile = resolve(
-      root,
-      "src/content/compiler/__fixtures__/corpus/arguments/test-paper/arg-tp-01.json",
+      tempRoot,
+      "corpus/arguments/test-paper/arg-tp-01.json",
     );
     const originalContent = await readFile(targetFile, "utf8");
 
-    // Make an edit
+    // Make an edit in isolated temp workspace
     const editedContent = originalContent.replace(
       "Definition of Simultaneity",
       "Definition of Simultaneity (Temporary Edit)",
     );
     await writeFile(targetFile, editedContent, "utf8");
 
-    const modified = await buildContent(root, {
-      corpusDir: "src/content/compiler/__fixtures__/corpus",
-    });
+    const modified = await buildContent(tempRoot, { corpusDir });
     expect(modified.ok).toBe(true);
     expect(modified.index!.inputDigest).not.toBe(clean.index!.inputDigest);
     expect(modified.index!.buildDigest).not.toBe(clean.index!.buildDigest);
@@ -89,18 +97,16 @@ describe("Content Compiler Determinism & Incremental Stability (am-cm-compiler-c
     // Revert the edit
     await writeFile(targetFile, originalContent, "utf8");
 
-    const reverted = await buildContent(root, {
-      corpusDir: "src/content/compiler/__fixtures__/corpus",
-    });
+    const reverted = await buildContent(tempRoot, { corpusDir });
     expect(reverted.ok).toBe(true);
     expect(reverted.index!.inputDigest).toBe(clean.index!.inputDigest);
     expect(reverted.index!.buildDigest).toBe(clean.index!.buildDigest);
 
     const cleanPayload = await readFile(
-      resolve(root, "generated/content", clean.index!.payloads[0]!.file),
+      resolve(tempRoot, "generated/content", clean.index!.payloads[0]!.file),
     );
     const revertedPayload = await readFile(
-      resolve(root, "generated/content", reverted.index!.payloads[0]!.file),
+      resolve(tempRoot, "generated/content", reverted.index!.payloads[0]!.file),
     );
     expect(cleanPayload.equals(revertedPayload)).toBe(true);
 

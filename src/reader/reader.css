@@ -354,7 +354,9 @@ html:is(
 .weave-highlight {
   border-radius: 0.2rem;
   padding: 0 0.15rem;
-  transition: background-color 150ms ease-out, border-color 150ms ease-out;
+  transition:
+    background-color 150ms ease-out,
+    border-color 150ms ease-out;
 }
 .weave-highlight[data-weave-reduced-motion="true"] {
   transition: none;

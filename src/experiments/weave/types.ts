@@ -28,7 +28,14 @@ export type ThresholdDirection = "at-least" | "at-most";
  * whatever the instrument's worker-side owner already published. */
 export type SnapshotOutput = Readonly<{
   quantityId: string;
-  status: "value" | "outside-domain" | "not-applicable" | "analytic-limit" | "symbolic" | "underdetermined" | "divergent";
+  status:
+    | "value"
+    | "outside-domain"
+    | "not-applicable"
+    | "analytic-limit"
+    | "symbolic"
+    | "underdetermined"
+    | "divergent";
   /** A classification output (for a `regime` condition) carries a string; a numeric output
    * (for `threshold` or `agreement`) carries a number. */
   value?: number | string | undefined;
@@ -84,7 +91,11 @@ export type AgreementCondition = Readonly<{
   upperBoundQuantityId?: string | undefined;
 }>;
 
-export type WeaveCondition = ThresholdCondition | RegimeCondition | StatusCondition | AgreementCondition;
+export type WeaveCondition =
+  | ThresholdCondition
+  | RegimeCondition
+  | StatusCondition
+  | AgreementCondition;
 
 export type WeavePredicate = Readonly<{
   id: string;

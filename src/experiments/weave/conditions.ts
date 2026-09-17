@@ -22,7 +22,7 @@ export type ConditionCheckResult = "hold" | "fail" | "not-evaluable";
 
 function numericValue(snapshot: WeaveSnapshotView, quantityId: string): number | "not-evaluable" {
   const output = snapshot.outputs[quantityId];
-  if (!output || output.status !== "value" || typeof output.value !== "number") {
+  if (output?.status !== "value" || typeof output.value !== "number") {
     return "not-evaluable";
   }
   return output.value;
@@ -40,14 +40,20 @@ function checkThreshold(
   return holds ? "hold" : "fail";
 }
 
-function checkRegime(condition: RegimeCondition, snapshot: WeaveSnapshotView): ConditionCheckResult {
+function checkRegime(
+  condition: RegimeCondition,
+  snapshot: WeaveSnapshotView,
+): ConditionCheckResult {
   const actual =
     condition.on === "constantSet" ? snapshot.constantSetId : snapshot.outputs[condition.on]?.value;
   if (actual === undefined) return "not-evaluable";
   return String(actual) === condition.equals ? "hold" : "fail";
 }
 
-function checkStatus(condition: StatusCondition, snapshot: WeaveSnapshotView): ConditionCheckResult {
+function checkStatus(
+  condition: StatusCondition,
+  snapshot: WeaveSnapshotView,
+): ConditionCheckResult {
   const output = snapshot.outputs[condition.quantityId];
   if (!output) return "not-evaluable";
   return output.status === condition.equals ? "hold" : "fail";
@@ -68,7 +74,9 @@ function checkAgreement(
 
   if (condition.boundFamily === "dkw") {
     const offset =
-      condition.offsetQuantityId === undefined ? 0 : numericValue(snapshot, condition.offsetQuantityId);
+      condition.offsetQuantityId === undefined
+        ? 0
+        : numericValue(snapshot, condition.offsetQuantityId);
     if (offset === "not-evaluable") return "not-evaluable";
     const bound = dkwBoundWithOffset(alpha, sampleCount, offset);
     return statistic <= bound ? "hold" : "fail";

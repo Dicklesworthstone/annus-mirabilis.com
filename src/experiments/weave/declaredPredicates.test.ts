@@ -11,7 +11,10 @@ import { validateWeavePredicate } from "./validate.ts";
 function snapshot(
   runId: string,
   snapshotVersion: number,
-  outputs: Record<string, { status: WeaveSnapshotView["outputs"][string]["status"]; value?: number | string }>,
+  outputs: Record<
+    string,
+    { status: WeaveSnapshotView["outputs"][string]["status"]; value?: number | string }
+  >,
   constantSetId?: string,
 ): WeaveSnapshotView {
   return {
@@ -19,7 +22,10 @@ function snapshot(
     snapshotVersion,
     constantSetId,
     outputs: Object.fromEntries(
-      Object.entries(outputs).map(([k, v]) => [k, { quantityId: k, status: v.status, value: v.value }]),
+      Object.entries(outputs).map(([k, v]) => [
+        k,
+        { quantityId: k, status: v.status, value: v.value },
+      ]),
     ),
     refused: false,
   };
@@ -32,7 +38,13 @@ const DECLARED: readonly (WeavePredicate & { readonly expectedMeaning: WeaveMean
     meaning: "agreement-within-stated-bound",
     expectedMeaning: "agreement-within-stated-bound",
     conditions: [
-      { kind: "threshold", quantityId: "ensembleSize", direction: "at-least", enter: 100, exit: 100 },
+      {
+        kind: "threshold",
+        quantityId: "ensembleSize",
+        direction: "at-least",
+        enter: 100,
+        exit: 100,
+      },
       {
         kind: "agreement",
         statisticQuantityId: "signedMean",
@@ -57,7 +69,8 @@ const DECLARED: readonly (WeavePredicate & { readonly expectedMeaning: WeaveMean
       },
     ],
     targets: ["bm-s4-cancellation"],
-    pointerText: "The signed mean and the mean square agree with the model band at the stated significance level, sample size 400, seed 1905.",
+    pointerText:
+      "The signed mean and the mean square agree with the model band at the stated significance level, sample size 400, seed 1905.",
   },
   {
     id: "bm01-s5-distribution-agreement",
@@ -76,7 +89,8 @@ const DECLARED: readonly (WeavePredicate & { readonly expectedMeaning: WeaveMean
       },
     ],
     targets: ["bm-s5-lambda-x"],
-    pointerText: "The sampled displacement histogram agrees with the model Gaussian within the stated bound, sample size 400, seed 1905.",
+    pointerText:
+      "The sampled displacement histogram agrees with the model Gaussian within the stated bound, sample size 400, seed 1905.",
   },
   {
     id: "bm01-s5-printed-numbers",
@@ -85,7 +99,13 @@ const DECLARED: readonly (WeavePredicate & { readonly expectedMeaning: WeaveMean
     expectedMeaning: "assumption-active",
     conditions: [
       { kind: "regime", on: "constantSet", equals: "einstein-1905-brownian-printed" },
-      { kind: "threshold", quantityId: "lambdaX1s", direction: "at-least", enter: 0.75, exit: 0.75 },
+      {
+        kind: "threshold",
+        quantityId: "lambdaX1s",
+        direction: "at-least",
+        enter: 0.75,
+        exit: 0.75,
+      },
       { kind: "threshold", quantityId: "lambdaX60s", direction: "at-least", enter: 5.5, exit: 5.5 },
     ],
     targets: ["bm-s5-printed-numbers"],
@@ -110,7 +130,8 @@ const DECLARED: readonly (WeavePredicate & { readonly expectedMeaning: WeaveMean
       },
     ],
     targets: ["bm05-s4-second-moment"],
-    pointerText: "Agrees within the DKW bound plus the exact shape-term offset, sample size 2000, seed logged.",
+    pointerText:
+      "Agrees within the DKW bound plus the exact shape-term offset, sample size 2000, seed logged.",
   },
   {
     id: "bm06-s4-solution",
@@ -132,7 +153,13 @@ const DECLARED: readonly (WeavePredicate & { readonly expectedMeaning: WeaveMean
     conditions: [
       { kind: "regime", on: "ftcsEnabled", equals: "true" },
       { kind: "regime", on: "wallContact", equals: "false" },
-      { kind: "threshold", quantityId: "maxCellMassDifference", direction: "at-most", enter: 1e-3, exit: 2e-3 },
+      {
+        kind: "threshold",
+        quantityId: "maxCellMassDifference",
+        direction: "at-most",
+        enter: 1e-3,
+        exit: 2e-3,
+      },
     ],
     targets: ["bm06-s4-grid-agreement"],
     pointerText: "The grid solution agrees with the model within the stated cell-mass tolerance.",
@@ -169,9 +196,16 @@ describe("declared predicates: fixture copies of the six BM-01/BM-05/BM-06 predi
   }
 });
 
+function mustFind(id: string): WeavePredicate {
+  const predicate = DECLARED.find((p) => p.id === id);
+  if (!predicate) throw new Error(`Missing declared predicate fixture "${id}"`);
+  return predicate;
+}
+
 describe("declared predicates evaluate on scripted snapshot sequences", () => {
   test("bm01-s5-distribution-agreement lights at M=400 within bound and stays unlit at M=99", () => {
-    const evaluator = createWeaveEvaluator([DECLARED[1]!]);
+    const predicate = mustFind("bm01-s5-distribution-agreement");
+    const evaluator = createWeaveEvaluator([predicate]);
     const lit = evaluator.evaluate(
       snapshot("run-1", 1, {
         kolmogorovDistance: { status: "value", value: 0.05 },
@@ -180,7 +214,7 @@ describe("declared predicates evaluate on scripted snapshot sequences", () => {
     );
     expect(lit.flags["bm01-s5-distribution-agreement"]?.lit).toBe(true);
 
-    const evaluator2 = createWeaveEvaluator([DECLARED[1]!]);
+    const evaluator2 = createWeaveEvaluator([predicate]);
     const unlit = evaluator2.evaluate(
       snapshot("run-1", 1, {
         kolmogorovDistance: { status: "value", value: 0.05 },
@@ -192,7 +226,8 @@ describe("declared predicates evaluate on scripted snapshot sequences", () => {
   });
 
   test("bm01-s5-printed-numbers lights only under the historical constant set with numbers in the printed range", () => {
-    const evaluator = createWeaveEvaluator([DECLARED[2]!]);
+    const predicate = mustFind("bm01-s5-printed-numbers");
+    const evaluator = createWeaveEvaluator([predicate]);
     const lit = evaluator.evaluate(
       snapshot(
         "run-1",
@@ -206,7 +241,7 @@ describe("declared predicates evaluate on scripted snapshot sequences", () => {
     );
     expect(lit.flags["bm01-s5-printed-numbers"]?.lit).toBe(true);
 
-    const evaluator2 = createWeaveEvaluator([DECLARED[2]!]);
+    const evaluator2 = createWeaveEvaluator([predicate]);
     const unlitUnderModern = evaluator2.evaluate(
       snapshot(
         "run-1",
@@ -222,7 +257,8 @@ describe("declared predicates evaluate on scripted snapshot sequences", () => {
   });
 
   test("bm06-s4-grid-agreement lights within tolerance and clears beyond it", () => {
-    const evaluator = createWeaveEvaluator([DECLARED[5]!]);
+    const predicate = mustFind("bm06-s4-grid-agreement");
+    const evaluator = createWeaveEvaluator([predicate]);
     const lit = evaluator.evaluate(
       snapshot("run-1", 1, {
         ftcsEnabled: { status: "value", value: "true" },

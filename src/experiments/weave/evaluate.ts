@@ -4,7 +4,13 @@
  * scientific pointer and the weave never narrates one -- the refusal chrome speaks instead.
  */
 import { createHysteresisTracker } from "./hysteresis.ts";
-import type { ConditionState, WeaveDerived, WeaveFlag, WeavePredicate, WeaveSnapshotView } from "./types.ts";
+import type {
+  ConditionState,
+  WeaveDerived,
+  WeaveFlag,
+  WeavePredicate,
+  WeaveSnapshotView,
+} from "./types.ts";
 
 export type WeaveEvaluator = ReturnType<typeof createWeaveEvaluator>;
 
@@ -29,7 +35,11 @@ export function createWeaveEvaluator(predicates: readonly WeavePredicate[]) {
             targets: predicate.targets,
           });
         }
-        return Object.freeze({ runId: snapshot.runId, snapshotVersion: snapshot.snapshotVersion, flags: Object.freeze(flags) });
+        return Object.freeze({
+          runId: snapshot.runId,
+          snapshotVersion: snapshot.snapshotVersion,
+          flags: Object.freeze(flags),
+        });
       }
 
       const results = tracker.advance(conditionsById, snapshot);

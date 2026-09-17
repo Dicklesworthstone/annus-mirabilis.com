@@ -4,7 +4,7 @@
  * state and this tick's enter/exit condition results, so the same sequence of accepted
  * snapshots always replays to the same flags.
  */
-import { checkAllOf, type ConditionCheckResult } from "./conditions.ts";
+import { type ConditionCheckResult, checkAllOf } from "./conditions.ts";
 import type { ConditionState, WeaveCondition, WeaveSnapshotView } from "./types.ts";
 
 export type HysteresisResult = Readonly<{
