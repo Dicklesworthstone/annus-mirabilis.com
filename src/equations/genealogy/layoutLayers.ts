@@ -65,7 +65,8 @@ export function assignLayers(graph: GenealogyGraph): Map<string, number> {
 
   const processed = new Set<string>();
   while (queue.length > 0) {
-    const u = queue.shift()!;
+    const u = queue.shift();
+    if (u === undefined) break;
     processed.add(u);
     const uLayer = layerMap.get(u) ?? 0;
 
@@ -139,15 +140,20 @@ export function orderLayersBarycentric(
   const getPositionMap = (layer: GenealogyNode[]): Map<string, number> => {
     const pos = new Map<string, number>();
     for (let i = 0; i < layer.length; i++) {
-      pos.set(layer[i]!.id, i);
+      const node = layer[i];
+      if (node) {
+        pos.set(node.id, i);
+      }
     }
     return pos;
   };
 
   const sweepDown = () => {
     for (let l = 1; l < layers.length; l++) {
-      const prevPos = getPositionMap(layers[l - 1]!);
-      const currentLayer = layers[l]!;
+      const prevLayer = layers[l - 1];
+      const currentLayer = layers[l];
+      if (!prevLayer || !currentLayer) continue;
+      const prevPos = getPositionMap(prevLayer);
 
       currentLayer.sort((a, b) => {
         const aPreds = inAdj.get(a.id) ?? [];
@@ -172,8 +178,10 @@ export function orderLayersBarycentric(
 
   const sweepUp = () => {
     for (let l = layers.length - 2; l >= 0; l--) {
-      const nextPos = getPositionMap(layers[l + 1]!);
-      const currentLayer = layers[l]!;
+      const nextLayer = layers[l + 1];
+      const currentLayer = layers[l];
+      if (!nextLayer || !currentLayer) continue;
+      const nextPos = getPositionMap(nextLayer);
 
       currentLayer.sort((a, b) => {
         const aSuccs = outAdj.get(a.id) ?? [];
@@ -232,7 +240,8 @@ export function layoutGenealogyGraph(graph: GenealogyGraph): GenealogyLayoutResu
   const layersResult: LayoutNode[][] = [];
 
   for (let l = 0; l < orderedLayers.length; l++) {
-    const layer = orderedLayers[l]!;
+    const layer = orderedLayers[l];
+    if (!layer) continue;
     const layerNodeCount = layer.length;
     const layerWidth = layerNodeCount * NODE_WIDTH + Math.max(0, layerNodeCount - 1) * NODE_GAP_X;
     const startX = Math.round((width - layerWidth) / 2);
@@ -240,7 +249,8 @@ export function layoutGenealogyGraph(graph: GenealogyGraph): GenealogyLayoutResu
 
     const layerLayoutNodes: LayoutNode[] = [];
     for (let order = 0; order < layer.length; order++) {
-      const node = layer[order]!;
+      const node = layer[order];
+      if (!node) continue;
       const x = startX + order * (NODE_WIDTH + NODE_GAP_X);
 
       const lNode: LayoutNode = Object.freeze({
