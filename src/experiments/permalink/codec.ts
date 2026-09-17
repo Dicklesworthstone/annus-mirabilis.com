@@ -8,6 +8,8 @@ import { TapeValidationError, validateTapeV2 } from "./schema.ts";
 import type { TapeDecodeResult, TapeV2 } from "./types.ts";
 
 export const MAX_PERMALINK_URL_LENGTH = 2048;
+/** Inflate of junk at the URL-length cap was measured at ~47ms (the 5ms fuzz bound). Cap output. */
+export const MAX_DECOMPRESSED_TAPE_BYTES = 32 * 1024;
 
 /**
  * Converts a Uint8Array to a URL-safe Base64URL string (RFC 4648 §5).
@@ -168,7 +170,9 @@ export function decodeTapePermalink(
   let text: string;
   try {
     try {
-      const decompressed = inflateRawSync(bytes);
+      const decompressed = inflateRawSync(bytes, {
+        maxOutputLength: MAX_DECOMPRESSED_TAPE_BYTES,
+      });
       text = new TextDecoder("utf-8", { fatal: true }).decode(decompressed);
     } catch {
       // Fallback to uncompressed raw UTF-8 JSON
