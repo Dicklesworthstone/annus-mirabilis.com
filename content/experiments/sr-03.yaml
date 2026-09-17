@@ -431,7 +431,7 @@ predictMode:
           label: "Front end later (dt' > 0)"
           description: "The front end measurement occurs later than the rear end measurement in k."
           relation: "dt' > 0"
-          separatingAssumption: "Wrong sign for Lorentz coordinate boost."
+          separatingAssumption: "Reversed sign for Lorentz coordinate boost."
     - promptId: sr-03-predict-causal-order
       controlId: v
       question: "If two events have a timelike separation (s^2 < 0, so a subluminal signal could connect them), what happens to their time order when viewed from a frame moving at 0.95c?"

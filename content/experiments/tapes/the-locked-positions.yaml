@@ -38,7 +38,7 @@ checkpoints:
     streamSemanticsVersion: 1
     seed: "12345"
     streamPositions: []
-    label: "Ten independent points in half a volume"
+    label: "Ten independent particles in half a volume"
     teachingNote: "With 10 independent points, W = (1/2)^10 = 1/1024."
     expectedDisplayValues:
       - label: "W (independent)"
@@ -54,7 +54,7 @@ checkpoints:
     streamSemanticsVersion: 1
     seed: "12345"
     streamPositions: []
-    label: "Ten locked points moving rigidly"
+    label: "Ten locked particles moving rigidly"
     teachingNote: "When the 10 points are rigidly locked, W = 1/2."
     expectedDisplayValues:
       - label: "W (locked)"

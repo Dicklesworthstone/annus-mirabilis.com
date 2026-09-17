@@ -39,7 +39,7 @@
   name: "Unknown scale factor: phi(v)"
   description: >
     Einstein's section 3 printed phi(v), the undetermined scale function before it is fixed.
-    Distinct from fieldScaleFactorUnknown (electrodynamics.yaml, section 6's psi(v)) --
+    Distinct from fieldScaleFactorUnknown (electrodynamics.yaml, section 6's psi(v));
     different symbol, different argument, only later both shown to equal 1.
   dimensionStatus: declared
   dimension: [0, 0, 0, 0, 0, 0]
@@ -170,7 +170,7 @@
 - id: auxiliaryGalileanCoordinate
   name: "Auxiliary Galilean coordinate: x'"
   description: >
-    Einstein's section 3 printed x' = x - vt, a Galilean auxiliary coordinate -- NOT the
+    Einstein's section 3 printed x' = x - vt, a Galilean auxiliary coordinate; NOT the
     moving-frame coordinate coordinatePositionMoving. Wherever the true moving-frame x' also
     appears, the modern notation form gives this auxiliary a distinct glyph.
   dimensionStatus: declared
@@ -263,7 +263,7 @@
     spacelike separation. The sign convention is part of the record, because the opposite
     convention flips the sign of every classification that reads it. It carries
     frame: frame-independent rather than a frame-tagged pair because every inertial frame
-    computes the same value from its own separations -- exactly why am-sr-03-rod-simultaneity
+    computes the same value from its own separations, exactly why am-sr-03-rod-simultaneity
     displays it beside the frame-relative simultaneityClassification: the contrast is the
     lesson. Rejected legacy spelling intervalSquared (the bare spelling collides with
     observationInterval, stepInterval, longAveragingInterval, intervalProbability, and

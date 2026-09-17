@@ -173,7 +173,7 @@ export function DriftDiffusionLab({
                 onChange={() => setPrediction(c.id)}
               />
               <span className="predict-label">
-                <strong>{c.label}</strong> — {c.description}
+                <strong>{c.label}</strong>: {c.description}
               </span>
             </label>
           ))}

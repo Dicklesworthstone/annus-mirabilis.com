@@ -17,6 +17,7 @@
 import { readdirSync, readFileSync, statSync } from "node:fs";
 import path from "node:path";
 import ts from "typescript";
+import type { MatchSource } from "./matchers.ts";
 import type { VoiceContext } from "./rules.ts";
 
 export interface ExtractedComponentString {
@@ -26,6 +27,7 @@ export interface ExtractedComponentString {
   readonly text: string;
   readonly context: VoiceContext;
   readonly attributeName?: string | undefined;
+  readonly source?: MatchSource | undefined;
 }
 
 export const ACCESSIBLE_ATTRIBUTES = new Set([
@@ -56,7 +58,34 @@ export function extractStringsFromTsx(
 
   const results: ExtractedComponentString[] = [];
 
-  function visit(node: ts.Node): void {
+  function isQuotationElement(node: ts.Node): boolean {
+    if (ts.isJsxElement(node)) {
+      const tagName = node.openingElement.tagName.getText(sourceFile);
+      if (tagName === "blockquote" || tagName === "q" || tagName === "cite") return true;
+      for (const prop of node.openingElement.attributes.properties) {
+        if (ts.isJsxAttribute(prop) && prop.name.getText(sourceFile) === "data-voice-layer") {
+          if (
+            prop.initializer &&
+            ts.isStringLiteral(prop.initializer) &&
+            prop.initializer.text === "quotation"
+          ) {
+            return true;
+          }
+        }
+      }
+    } else if (ts.isJsxSelfClosingElement(node)) {
+      const tagName = node.tagName.getText(sourceFile);
+      if (tagName === "blockquote" || tagName === "q" || tagName === "cite") return true;
+    }
+    return false;
+  }
+
+  function visit(node: ts.Node, currentLayer?: "quotation" | "translation"): void {
+    let layer = currentLayer;
+    if (isQuotationElement(node)) {
+      layer = "quotation";
+    }
+
     // 1. JSX Text Nodes
     if (ts.isJsxText(node)) {
       const rawText = node.getText(sourceFile);
@@ -71,6 +100,7 @@ export function extractStringsFromTsx(
           column: character + 1,
           text,
           context: "prose",
+          source: layer ? { layer } : undefined,
         });
       }
     }
@@ -103,12 +133,13 @@ export function extractStringsFromTsx(
             text: textValue.trim(),
             context: "ui-label",
             attributeName: attrName,
+            source: layer ? { layer } : undefined,
           });
         }
       }
     }
 
-    ts.forEachChild(node, visit);
+    ts.forEachChild(node, (child) => visit(child, layer));
   }
 
   visit(sourceFile);

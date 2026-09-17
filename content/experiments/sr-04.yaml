@@ -182,7 +182,7 @@ outputs:
 assumptions:
   - "Homogeneous space and time, uniform relative motion, inertial coordinates (linearity follows from these, not assumed with no argument)"
   - "Two inertial frames in standard configuration: origins coincide at t = t' = 0, relative motion along x"
-  - "Both postulates (relativity, and one light speed for every inertial observer) are the constraints the map must satisfy -- neither the Lorentz factor nor the Minkowski interval is assumed to derive it"
+  - "Both postulates (relativity, and one light speed for every inertial observer) are the constraints the map must satisfy; neither the Lorentz factor nor the Minkowski interval is assumed to derive it"
 admittedDomain: "Two inertial frames related by a linear map, relative speed strictly below c."
 notModeled:
   - "Non-aligned axes and rotations"

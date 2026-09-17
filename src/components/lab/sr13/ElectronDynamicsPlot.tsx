@@ -314,7 +314,7 @@ export function ElectronDynamicsPlot({
           Force Definition Convention Independence
         </div>
         <p className="mt-1 text-blue-950/90 dark:text-blue-200/90">
-          Switching between Einstein&apos;s 1905 convention (comoving force / stationary acceleration, transverse coefficient 1.5625m at 0.6c) and Planck&apos;s 1906 convention (laboratory force, transverse coefficient 1.25m) alters only the named coefficient in the equation of motion. All physical observables — deflection radii, potentials, kinetic energy, and spatial trajectories — remain strictly identical under both conventions.
+          Switching between Einstein&apos;s 1905 convention (comoving force / stationary acceleration, transverse coefficient 1.5625m at 0.6c) and Planck&apos;s 1906 convention (laboratory force, transverse coefficient 1.25m) alters only the named coefficient in the equation of motion. All physical observables (deflection radii, potentials, kinetic energy, and spatial trajectories) remain strictly identical under both conventions.
         </p>
       </div>
     </div>

@@ -36,14 +36,14 @@ export default function OsmoticPartitionPage() {
         <p>
           The osmotic pressure depends on the number of particles per unit volume and the
           temperature. It does not depend on the particle radius, as long as the suspension stays
-          dilute enough that particles do not interact — the same law, whether the particles are
+          dilute enough that particles do not interact; the same law, whether the particles are
           sugar molecules or visible spheres a thousand times larger.
         </p>
         <h2>What classical thermodynamics expected instead</h2>
         <p>
           Einstein's §1 states the rival fairly: in classical thermodynamics, the free energy of a
           system with suspended bodies appears to depend only on total masses and qualities,
-          pressure, and temperature — not on where a partition and the bodies sit. No force on the
+          pressure, and temperature, not on where a partition and the bodies sit. No force on the
           partition would be expected on that view. This instrument shows that expectation as a
           labeled alternative, not as something already refuted: what decided between the two models
           was Einstein's predicted displacements in §5, and later Jean Perrin's
@@ -52,7 +52,7 @@ export default function OsmoticPartitionPage() {
         <p className="fine">
           This instrument uses the modern, exact SI constant set. The 1905 printed historical
           constant set (with Einstein's printed Avogadro number and an editorial value for the gas
-          constant) is not yet available — that comparison depends on a separate, unbuilt constant
+          constant) is not yet available; that comparison depends on a separate, unbuilt constant
           set and is not faked here.
         </p>
         <div className="actions">

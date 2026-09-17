@@ -31,7 +31,7 @@ checkpoints:
     streamSemanticsVersion: 1
     seed: "19050511"
     streamPositions: []
-    label: "Three points in half volume"
+    label: "Three particles in half volume"
     teachingNote: "n = 3 gives W = 1/8."
     expectedDisplayValues:
       - label: "W"

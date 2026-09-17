@@ -77,7 +77,7 @@ export default function IonizationPage() {
           </li>
           <li>
             <strong>Unknown non-ionizing channels:</strong> If the partition between ionizing and
-            non-ionizing absorption is unknown, the count is <code>underdetermined</code>, with{" "}
+            non-ionizing absorption is unknown, the count is underdetermined, with{" "}
             <Formula latex={String.raw`N_{\text{ion}} \le \frac{L}{h\nu}`} /> providing a rigorous
             single-quantum upper bound.
           </li>
@@ -115,11 +115,10 @@ export default function IonizationPage() {
         <h2>Epistemic Boundary</h2>
         <p>
           Below the ionization threshold frequency (<Formula latex={String.raw`\nu < \nu_0`} />
-          ), the count and rate of single-quantum ionization are strictly{" "}
-          <code>not-applicable</code> (a typed non-value), never 0 presented as a measured rate. In
-          real gases, secondary ionization by energetic electrons can produce additional ions, which
-          is why the relations above describe direct single-quantum ionization under the
-          paper&apos;s hypothesis.
+          ), the count and rate of single-quantum ionization are strictly not applicable (a typed
+          non-value), never 0 presented as a measured rate. In real gases, secondary ionization by
+          energetic electrons can produce additional ions, which is why the relations above describe
+          direct single-quantum ionization under the paper&apos;s hypothesis.
         </p>
 
         <div className="actions">

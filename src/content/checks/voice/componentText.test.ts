@@ -68,4 +68,25 @@ export function BadComponent() {
     assert.equal(item.file, "src/components/BadComponent.tsx");
     assert.equal(item.line, 3);
   });
+
+  it("attaches quotation source layer to strings inside blockquote or q elements", () => {
+    const tsxCode = `
+export function QuoteComponent() {
+  return (
+    <blockquote>
+      Einstein proved the light quantum here.
+    </blockquote>
+  );
+}
+`;
+    const extracted = extractStringsFromTsx("src/components/QuoteComponent.tsx", tsxCode);
+    assert.equal(extracted.length, 1);
+    const item = extracted[0]!;
+    assert.equal(item.source?.layer, "quotation");
+
+    // Scanned through checkVoice with quotation layer, overclaim "proved" is exempt
+    const findings = checkVoice(item.text, { context: item.context, source: item.source });
+    const overclaimFindings = findings.filter((f) => f.rule === "overclaim");
+    assert.equal(overclaimFindings.length, 0, "Quotation layer must exempt overclaim");
+  });
 });

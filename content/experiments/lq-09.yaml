@@ -324,7 +324,7 @@ predictMode:
       question: "If the incident photon energy is below the molecular ionization threshold (h*nu < J_mol), what is the single-quantum ionization rate?"
       candidates:
         - id: lq-09-predict-subthreshold-zero
-          label: "Zero (not-applicable)"
+          label: "Zero (not applicable)"
           description: "No single-quantum ionization can occur without sufficient energy per quantum"
           separatingAssumption: "Light-quantum hypothesis: each ionization event requires at least one full quantum of magnitude h*nu >= J_mol."
         - id: lq-09-predict-subthreshold-accumulate

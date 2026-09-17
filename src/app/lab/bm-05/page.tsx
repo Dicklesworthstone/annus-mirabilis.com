@@ -19,7 +19,7 @@ export default function WalkPage() {
         </h1>
         <p className="lead">
           Begin with a coin walk you can count exactly. Change the shape of each step without
-          changing its variance. Then see what adding many independent steps preserves—and which
+          changing its variance. Then see what adding many independent steps preserves, and which
           assumptions the argument needs.
         </p>
         <a href="/discover/brownian-motion/">Start with the no-algebra encounter →</a>

@@ -55,7 +55,7 @@ export default function Home() {
             <a href="/lab/bm-05/">Build diffusion from independent steps →</a>
           </p>
           <p>
-            <a href="/lab/bm-07/">Infer a hidden molecular number—and test the uncertainty →</a>
+            <a href="/lab/bm-07/">Infer a hidden molecular number and test the uncertainty →</a>
           </p>
           <p>
             <a href="/lab/bm-08/">Keep the particle; change the camera and the inference →</a>

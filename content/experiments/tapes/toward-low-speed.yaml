@@ -45,7 +45,7 @@ checkpoints:
     streamSemanticsVersion: 1
     seed: "0"
     streamPositions: []
-    label: analytic-limit
+    label: "Analytic limit at zero speed"
     teachingNote: At vanishing speed the identified coefficient is L/c^2, an analytic limit.
     expectedDisplayValues:
       - label: limiting coefficient in normalized units

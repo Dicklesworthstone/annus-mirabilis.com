@@ -208,13 +208,13 @@ export function IndependentConfigurationsLab({
           <div className="mt-3 p-3 bg-background/80 rounded-lg border border-border/60 text-xs leading-relaxed">
             {predictAnswer === "1/1000" ? (
               <p className="text-emerald-700 dark:text-emerald-400 font-medium">
-                ✓ Correct! Because the points move independently, their individual probabilities
+                Because the particles move independently, their individual probabilities
                 multiply: W = (1/2)¹⁰ = 1/1 024 ≈ 0.0009765.
               </p>
             ) : (
               <p className="text-amber-700 dark:text-amber-400">
-                Notice: if the points are independent, every additional point halves the probability
-                again. 10 independent points require 10 independent successes, giving (1/2)¹⁰ = 1/1
+                Notice: if the particles are independent, every additional particle halves the probability
+                again. 10 independent particles require 10 independent successes, giving (1/2)¹⁰ = 1/1
                 024.
               </p>
             )}
@@ -250,7 +250,7 @@ export function IndependentConfigurationsLab({
           {/* 1. Point count n */}
           <div className="flex flex-col gap-1.5">
             <label htmlFor={`${id}-n`} className="text-xs font-semibold text-foreground">
-              Number of points n (1 – 60):
+              Number of particles n (1 to 60):
             </label>
             <div className="flex items-center gap-3">
               <input
@@ -273,7 +273,7 @@ export function IndependentConfigurationsLab({
                 step="1"
                 className="flex-1"
                 value={draft.n}
-                aria-label="Number of points n slider"
+                aria-label="Particle count slider"
                 onChange={(e) => {
                   setDraft({ ...draft, n: e.target.value });
                   setDirty(true);

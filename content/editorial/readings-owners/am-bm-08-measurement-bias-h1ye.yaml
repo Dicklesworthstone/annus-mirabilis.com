@@ -14,7 +14,7 @@ targets:
       r0: "Camera noise makes measured apparent speed diverge as the observation interval shrinks."
       r1: "Below the crossover interval tau = sigma^2/D, camera jitter dominates and apparent speed scales as 1/dt rather than 1/sqrt(dt)."
       r2: "The apparent rise is an artifact of the finite localization noise 2*sigma^2 in the numerator, not a physical particle acceleration."
-      r3: "Demonstrates the velocity trap on real measurement models; for zero noise the crossover is not-applicable."
+      r3: "Demonstrates the velocity trap on real measurement models; for zero noise the crossover is not applicable."
   - kind: caption
     id: bm-08-noise-only
     readings:
@@ -47,7 +47,7 @@ targets:
     id: bm-08-overlap-refusal
     readings:
       r0: "Overlapping displacement windows share increments and are refused."
-      r1: "Passing overlapping windows to the independent estimator returns outside-domain."
+      r1: "Passing overlapping windows to the independent estimator is outside the model's domain."
       r2: "Overlapping windows do not add independent degrees of freedom."
       r3: "Epistemic refusal protecting against spurious confidence inflation."
   - kind: caption

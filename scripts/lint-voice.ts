@@ -240,7 +240,7 @@ export async function runVoiceLint(): Promise<{
     const componentStrings = extractAllComponentStrings(srcDir, ROOT);
     for (const item of componentStrings) {
       totalScanned++;
-      const findings = checkVoice(item.text, { context: item.context });
+      const findings = checkVoice(item.text, { context: item.context, source: item.source });
 
       for (const f of findings) {
         if (isOverridden(overrides, item.file, f.rule, f.matchedText)) {

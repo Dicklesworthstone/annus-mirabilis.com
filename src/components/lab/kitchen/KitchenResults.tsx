@@ -12,7 +12,7 @@ export function KitchenPlot({ accepted }: { accepted: KitchenAccepted }) {
   const x = (t: number) => 65 + 475 * (t - first) / (last - first);
   const y = (v: number) => 230 - 190 * (v - min) / (max - min);
   return <figure className="plot" {...identity(snapshot)}>
-    <svg role="img" viewBox="0 0 570 290" aria-label="Recorded source-pixel positions against actual timestamps. Circles are measurements, crosses are excluded points, and triangles are interpolated points. Missing positions are not drawn. All observations are in the table.">
+    <svg role="img" viewBox="0 0 570 290" aria-label="Recorded source-pixel positions against actual timestamps. Circles are measurements, crosses are excluded positions, and triangles are interpolated samples. Missing positions are not drawn. All observations are in the table.">
       <path className="axis" d="M65 25V235H540"/>
       {[0, .5, 1].map(f => <g key={f}><text x="58" y={y(min + f * (max - min)) + 4} textAnchor="end">{display(min + f * (max - min))}</text><text x={65 + f * 475} y="255" textAnchor="middle">{display(first + f * (last - first))}</text></g>)}
       {points.map((p, i) => {

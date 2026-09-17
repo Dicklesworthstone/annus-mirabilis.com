@@ -26,7 +26,7 @@ targets:
     readings:
       r0: "Perrin's 1909 observations invert with a gas constant measured without counting molecules."
       r1: "The estimate is an independent-estimate beside Perrin's reported value, once the dataset is admitted."
-      r2: "If the independent count is unreported, only the point estimate is shown; the interval is not-applicable."
+      r2: "If the independent count is unreported, only the point estimate is shown; the interval is not applicable."
       r3: "Table cells wait on the admitted HistoricalDataset; they are not invented here."
   - kind: caption
     id: bm-07-coverage

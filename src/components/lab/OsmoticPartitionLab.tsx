@@ -172,7 +172,7 @@ export function OsmoticPartitionLab({
       <noscript>
         <p className="notice">
           JavaScript is off. The table below shows the complete worked example for the default
-          settings and, for comparison, for a 0.01 mol/L sugar solution — both calculated when the
+          settings and, for comparison, for a 0.01 mol/L sugar solution: both calculated when the
           site was built. Changing settings requires JavaScript.
         </p>
       </noscript>
@@ -222,7 +222,7 @@ export function OsmoticPartitionLab({
           aria-describedby={error ? `${id}-error` : undefined}
         >
           <fieldset>
-            <legend>Settings — type exact values (no dragging required)</legend>
+            <legend>Settings: type exact values (no dragging required)</legend>
             <div className="input-grid">
               <label htmlFor={`${id}-Np`}>
                 Particle count N_p <span>(count, whole number)</span>
@@ -377,7 +377,7 @@ export function OsmoticPartitionLab({
 
           {accepted.model === "classical-thermodynamics-suspended-bodies" && (
             <p className="notice">
-              This is the pressure §1 attributes to classical thermodynamics for suspended bodies —
+              This is the pressure §1 attributes to classical thermodynamics for suspended bodies:
               zero, by that model's own reasoning, not a value this instrument calls refuted. What
               decides between the two models is Einstein's predicted displacements (§5), and later
               Perrin's sedimentation equilibrium (1908–1909, dated later evidence).

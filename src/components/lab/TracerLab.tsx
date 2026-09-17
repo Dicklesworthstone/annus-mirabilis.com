@@ -512,7 +512,7 @@ export function TracerLab({
         <div className="lab-bottom">
           <TracerScaling snapshot={snapshot} />
           <section>
-            <h3>What is—and is not—being simulated</h3>
+            <h3>What is, and is not, being simulated</h3>
             <p>
               These synthetic paths are Gaussian independent increments for dilute spherical tracers
               in a homogeneous Newtonian liquid. They do not simulate individual molecular

@@ -103,9 +103,9 @@ export default function PhotoelectricPage() {
         </p>
         <p>
           When <Formula latex={String.raw`\nu < \nu_0`} />, the stopping potential is strictly{" "}
-          <code>not-applicable</code> (a typed non-value), never zero, because no emitted
-          photoelectrons exist to be retarded. Millikan 1916 is later historical evidence on the
-          timeline, never an axiom of the 1905 derivation.
+          not applicable (a typed non-value), never zero, because no emitted photoelectrons exist to
+          be retarded. Millikan 1916 is later historical evidence on the timeline, never an axiom of
+          the 1905 derivation.
         </p>
 
         <div className="actions">

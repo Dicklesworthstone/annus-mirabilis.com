@@ -307,7 +307,7 @@ export function LorentzMapLab({
                   apply(fromDraft(next));
                 }}
               />{" "}
-              Show the matrix, eigenvalues, and rapidity (later aids -- never used to derive the
+              Show the matrix, eigenvalues, and rapidity (later aids; never used to derive the
               map)
             </label>
           </fieldset>

@@ -12,7 +12,7 @@ argumentIds:
 schemaVersion: 1
 parameters:
   - id: n
-    label: "Number of Points"
+    label: "Number of Particles"
     accessibleName: "Number of movable independent points"
     accessibleDescription: "Sets the number of independent points distributed in the volume"
     quantityId: independentPointCount

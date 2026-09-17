@@ -20,7 +20,7 @@ export default function ModeAllocationPage() {
         <p className="lead">
           §1 gives every linear resonator oscillation the same mean energy, whatever its frequency.
           Widen the range of resonator frequencies you allow, and see what that classical allocation
-          actually predicts — and why the paper says it rules out any equilibrium between matter and
+          actually predicts, and why the paper says it rules out any equilibrium between matter and
           radiation.
         </p>
         <p>
@@ -37,7 +37,7 @@ export default function ModeAllocationPage() {
         />
         <p>
           Every resonator oscillation, at every frequency, carries the same mean energy Ē = k_BT
-          (source notation (R/N)T) — two-thirds of a free molecule's mean kinetic energy, as §1
+          (source notation (R/N)T), two-thirds of a free molecule's mean kinetic energy, as §1
           notes. Because that mean energy never falls off with frequency, the energy held by
           resonators up to a cutoff grows as the cube of the cutoff, without limit as the cutoff is
           removed.
@@ -45,7 +45,7 @@ export default function ModeAllocationPage() {
         <h2>Why the paper calls this a difficulty, not just an approximation</h2>
         <p>
           §1 draws two conclusions from this, not one: the classical allocation disagrees with the
-          measured spectrum, and — independently — it rules out any equilibrium between matter and
+          measured spectrum, and, independently, it rules out any equilibrium between matter and
           the radiation field at all, because the total grows without bound as the resonator range
           widens. This instrument's "remove the upper limit" action shows that second conclusion
           directly, as a typed refusal rather than a number that quietly becomes huge.

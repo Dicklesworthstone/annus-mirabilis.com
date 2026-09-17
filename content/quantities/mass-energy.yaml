@@ -17,7 +17,7 @@
   description: >
     The body's energy in the stationary system before it emits radiation, as printed in
     paper 4. Carries frame: stationary-system (the system in which the body happens to be at
-    rest before emission), not frame: object-rest -- it does not end in the "Rest" or
+    rest before emission), not frame: object-rest; it does not end in the "Rest" or
     "RestFrame" id suffix and this choice is intentional.
   dimensionStatus: declared
   dimension: [2, 1, -2, 0, 0, 0]
@@ -83,7 +83,7 @@
   name: Additive energy constant
   description: >
     Paper 4's printed additive constant relating a body's energy in the stationary and moving
-    systems, C or C'. Always symbolic on the historical derivation route -- its value is never
+    systems, C or C'. Always symbolic on the historical derivation route; its value is never
     fixed by the argument, only its cancellation. Rejected bare spelling additiveConstant.
   dimensionStatus: declared
   dimension: [2, 1, -2, 0, 0, 0]

@@ -15,7 +15,7 @@ export default function BrownianLabPage() {
         </h1>
         <p className="lead">
           How far from its starting point might a suspended particle be? Change the time, viscosity
-          or radius, then ask about a whole interval—not just a single position.
+          or radius, then ask about a whole interval, not just a single position.
         </p>
         <a href="/discover/brownian-motion/">Start with the no-algebra encounter →</a>
         <p>

@@ -19,7 +19,7 @@ export default function MovingClocksPage() {
         <h1>
           A moving clock loses time.
           <br />
-          Not what a camera sees — what the clock reads.
+          Not what a camera sees: what the clock reads.
         </h1>
         <p className="lead">
           Choose a worldline. Compare the traveling clock's own proper time with the platform clocks
@@ -47,7 +47,7 @@ export default function MovingClocksPage() {
           Section 4 states the loss per second of coordinate time to magnitudes of fourth and higher
           order as <Formula latex={String.raw`\tfrac12\,v^2/V^2`} />. The lab above shows this
           printed approximation beside the exact, numerically stable form{" "}
-          <Formula latex={String.raw`\beta^2/(1+\sqrt{1-\beta^2})`} /> &mdash; the two agree to many
+          <Formula latex={String.raw`\beta^2/(1+\sqrt{1-\beta^2})`} />; the two agree to many
           digits at everyday speeds and separate visibly as speed grows.
         </p>
         <h2>The reunion is the honest comparison</h2>
@@ -60,7 +60,7 @@ export default function MovingClocksPage() {
         </p>
         <h2>An ideal clock, not a mechanism</h2>
         <p>
-          The model is an ideal clock whose rate depends only on its instantaneous speed &mdash; not
+          The model is an ideal clock whose rate depends only on its instantaneous speed; not
           a model of any particular mechanism, and not a claim about how real atomic clocks behave
           under acceleration. Two worldlines with the same speed profile but different turning
           accelerations report exactly the same proper time.

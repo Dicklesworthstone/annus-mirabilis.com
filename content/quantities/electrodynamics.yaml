@@ -579,7 +579,7 @@
 
 - id: inducedCircuitCurrent
   name: Induced circuit current
-  description: Current in a closed conducting circuit. SR-02 does not model a circuit; the output is not-applicable.
+  description: Current in a closed conducting circuit. SR-02 does not model a circuit; the output is not applicable.
   dimensionStatus: declared
   dimension: [0, 0, 0, 0, 1, 0]
   mathematicalKind: scalar

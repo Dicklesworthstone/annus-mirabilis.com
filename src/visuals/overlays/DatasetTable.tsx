@@ -39,7 +39,7 @@ export function DatasetTable({
     >
       <table className="w-full border-collapse border border-neutral-300 dark:border-neutral-700">
         <caption className="text-left font-serif p-2 bg-neutral-100 dark:bg-neutral-800 text-neutral-800 dark:text-neutral-200 border-b border-neutral-300 dark:border-neutral-700">
-          <span className="font-semibold">{dataset.title}</span> — {citationText}
+          <span className="font-semibold">{dataset.title}</span>: {citationText}
         </caption>
         <thead>
           <tr className="bg-neutral-50 dark:bg-neutral-900 border-b border-neutral-300 dark:border-neutral-700">
