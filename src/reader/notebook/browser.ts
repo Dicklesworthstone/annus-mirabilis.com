@@ -11,8 +11,9 @@ export function mountReaderNotebook(
   readingLocation: () => Pick<Location, "pathname" | "search" | "hash"> = () => window.location,
 ) {
   store.open();
-  const main = document.querySelector<HTMLElement>("main");
-  if (!main) return () => {};
+  const mainEl = document.querySelector<HTMLElement>("main");
+  if (!mainEl) return () => {};
+  const main = mainEl;
   let tracking = true,
     interacted = false,
     disposed = false;
@@ -88,7 +89,7 @@ export function mountReaderNotebook(
         owned.delete(passage);
       }
     }
-    for (const passage of main!.querySelectorAll<HTMLElement>(
+    for (const passage of main.querySelectorAll<HTMLElement>(
       "article.reader-passage[data-unit][id]",
     )) {
       if (owned.has(passage) || !frameForPassage(passage, readingLocation(), passage)) continue;
@@ -138,7 +139,7 @@ export function mountReaderNotebook(
       }),
     );
     recap = section;
-    main!.prepend(section);
+    main.prepend(section);
   }
   function remember() {
     timer = null;
@@ -175,7 +176,7 @@ export function mountReaderNotebook(
     timer = setTimeout(remember, 250);
   }
   function interaction(event: Event) {
-    if (event.target instanceof Node && main!.contains(event.target)) {
+    if (event.target instanceof Node && main.contains(event.target)) {
       interacted = true;
       schedule();
     }

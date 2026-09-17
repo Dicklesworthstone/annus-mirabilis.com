@@ -77,7 +77,7 @@ describe("checkUrl route verification logic", () => {
   });
 
   test("returns true for HTTP 200 with content length exceeding threshold", async () => {
-    const mockBody = "<html>".padEnd(1200, " ") + "</html>";
+    const mockBody = `${"<html>".padEnd(1200, " ")}</html>`;
     const mockFetch: typeof fetch = async () =>
       new Response(mockBody, { status: 200, headers: { "content-type": "text/html" } });
 
@@ -151,7 +151,7 @@ describe("runSmokeTests multi-route execution", () => {
   });
 
   test("returns true and logs summary pass when all routes return 200 OK", async () => {
-    const mockBody = "<html>".padEnd(1200, " ") + "</html>";
+    const mockBody = `${"<html>".padEnd(1200, " ")}</html>`;
     const mockFetch: typeof fetch = async () =>
       new Response(mockBody, { status: 200, headers: { "content-type": "text/html" } });
 
@@ -174,7 +174,7 @@ describe("runSmokeTests multi-route execution", () => {
       if (urlStr.endsWith("/broken")) {
         return new Response("Server Error", { status: 500 });
       }
-      return new Response("<html>".padEnd(1200, " ") + "</html>", { status: 200 });
+      return new Response(`${"<html>".padEnd(1200, " ")}</html>`, { status: 200 });
     };
 
     const passed = await runSmokeTests(
