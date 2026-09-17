@@ -1,6 +1,5 @@
 import { describe, expect, test } from "bun:test";
 import type { ScientificResult } from "../experiments/results/types.ts";
-import { constantValue, getConstantSet } from "../physics/reference/constants.ts";
 import {
   acceleratingPotential,
   addAccelerations,
@@ -29,7 +28,7 @@ import {
 import { withinTolerance } from "../units/tolerance.ts";
 
 function val(r: ScientificResult | undefined): number {
-  if (!r || r.status !== "value" || typeof r.value !== "number") {
+  if (r?.status !== "value" || typeof r.value !== "number") {
     throw new Error(`Expected ScientificResult with numeric value, got: ${JSON.stringify(r)}`);
   }
   return r.value;
@@ -200,15 +199,17 @@ describe("electron physics reference (am-ref-electron-kfy)", () => {
       const pts = transverseFieldTrajectory(eField, v0, 2e-9, 4);
 
       // t = 0.5 ns
-      const pt05 = pts.find((p) => Math.abs(p.t - 0.5e-9) < 1e-12)!;
+      const pt05 = pts.find((p) => Math.abs(p.t - 0.5e-9) < 1e-12);
       expect(pt05).toBeDefined();
+      if (!pt05) throw new Error("pt05 not found");
       expectClose(pt05.x, 0.08992948, 1e-5);
       expectClose(pt05.y, -0.001758578, 1e-5);
       expectClose(pt05.speedRatio, 0.6002935, 1e-5);
 
       // t = 1.0 ns
-      const pt10 = pts.find((p) => Math.abs(p.t - 1.0e-9) < 1e-12)!;
+      const pt10 = pts.find((p) => Math.abs(p.t - 1.0e-9) < 1e-12);
       expect(pt10).toBeDefined();
+      if (!pt10) throw new Error("pt10 not found");
       expectClose(pt10.x, 0.1798095, 1e-5);
       expectClose(pt10.y, -0.00703141, 1e-5);
       expectClose(pt10.speedRatio, 0.6011711, 1e-5);
@@ -216,9 +217,10 @@ describe("electron physics reference (am-ref-electron-kfy)", () => {
       // t = 2.0 ns
       const pt20 = pts.find((p) => Math.abs(p.t - 2.0e-9) < 1e-12);
       expect(pt20).toBeDefined();
-      expectClose(pt20!.x, 0.3592247, 1e-5);
-      expectClose(pt20!.y, -0.0280794, 1e-5);
-      expectClose(pt20!.speedRatio, 0.6046404, 1e-5);
+      if (!pt20) throw new Error("pt20 not found");
+      expectClose(pt20.x, 0.3592247, 1e-5);
+      expectClose(pt20.y, -0.0280794, 1e-5);
+      expectClose(pt20.speedRatio, 0.6046404, 1e-5);
     });
 
     test("longitudinal electric field hyperbolic motion matches closed form", () => {
@@ -249,10 +251,13 @@ describe("electron physics reference (am-ref-electron-kfy)", () => {
       const res = integrateBoris(eField, bField, v0, 2e-9, 1000);
       const last = res.points[res.points.length - 1];
       expect(last).toBeDefined();
-      expectClose(last!.x, 0.3592247, 1e-3);
-      expectClose(last!.y, -0.0280794, 2e-3);
+      if (!last) throw new Error("last point not found");
+      expectClose(last.x, 0.3592247, 1e-3);
+      expectClose(last.y, -0.0280794, 2e-3);
       expect(res.energyResidual).toBeDefined();
-      expect(res.energyResidual!).toBeLessThan(1e-16);
+      const energyResidual = res.energyResidual;
+      if (energyResidual === undefined) throw new Error("energyResidual not defined");
+      expect(energyResidual).toBeLessThan(1e-16);
 
       // Pure B field
       const resB = integrateBoris({ x: 0, y: 0, z: 0 }, { x: 0, y: 0, z: 0.01 }, v0, 2e-9, 100);
