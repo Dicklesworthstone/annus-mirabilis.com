@@ -4,15 +4,10 @@ import fs from "node:fs";
 import path from "node:path";
 import test from "node:test";
 import { checkReceipt } from "./checkReceipt.ts";
-import { parseReceipt } from "./parseReceipt.ts";
 import { resolveEquationPage } from "./receiptSchema.ts";
 import { receiptToSourceAsset } from "./receiptToSourceAsset.ts";
 import { validateSurveyRecord } from "./surveySchema.ts";
-import {
-  GeneratedSectionError,
-  replaceGeneratedContent,
-  writeGeneratedSectionSync,
-} from "./writeGeneratedSection.ts";
+import { GeneratedSectionError, replaceGeneratedContent } from "./writeGeneratedSection.ts";
 
 const FIXTURES_DIR = path.resolve("src/testing/fixtures/provenance");
 const CONFIG_DIR = path.join(FIXTURES_DIR, "facsimile-sources");
@@ -25,8 +20,9 @@ test("ap-99-001.md valid receipt passes checker and matches SourceAsset golden",
 
   assert.equal(result.ok, true, `Expected ok=true, got errors: ${JSON.stringify(result.errors)}`);
   assert.equal(result.errors.length, 0);
+  assert.ok(result.receipt, "Expected receipt to be present");
 
-  const asset = receiptToSourceAsset(result.receipt!);
+  const asset = receiptToSourceAsset(result.receipt);
   const goldenPath = path.join(FIXTURES_DIR, "ap-99-001.source-asset.golden.json");
   const golden = JSON.parse(fs.readFileSync(goldenPath, "utf8"));
   assert.deepEqual(asset, golden);
@@ -49,7 +45,8 @@ test("ap-99-001-refined.md refined page map passes and resolves equation ID to p
   const result = checkReceipt(content, filePath, { configDir: CONFIG_DIR });
 
   assert.equal(result.ok, true, `Expected ok=true, got errors: ${JSON.stringify(result.errors)}`);
-  const pageMap = result.receipt!.frontMatter.pageMap;
+  assert.ok(result.receipt, "Expected receipt to be present");
+  const pageMap = result.receipt.frontMatter.pageMap;
 
   // Resolve eq-s4-d2 to its PDF page index (page 2)
   const resolvedPage = resolveEquationPage(pageMap, "eq-s4-d2");
@@ -67,7 +64,8 @@ test("Rights vocabulary mapping: source-terms and public-domain-image credit", (
   const stContent = fs.readFileSync(stPath, "utf8");
   const stResult = checkReceipt(stContent, stPath);
   assert.equal(stResult.ok, true);
-  const stAsset = receiptToSourceAsset(stResult.receipt!);
+  assert.ok(stResult.receipt, "Expected receipt to be present");
+  const stAsset = receiptToSourceAsset(stResult.receipt);
   assert.equal(stAsset.rights.reuseTerms, "source-terms");
   assert.match(stAsset.rights.statement, /Quoted third-party source repository terms/);
 
@@ -75,7 +73,8 @@ test("Rights vocabulary mapping: source-terms and public-domain-image credit", (
   const pdContent = fs.readFileSync(pdPath, "utf8");
   const pdResult = checkReceipt(pdContent, pdPath);
   assert.equal(pdResult.ok, true);
-  const pdAsset = receiptToSourceAsset(pdResult.receipt!);
+  assert.ok(pdResult.receipt, "Expected receipt to be present");
+  const pdAsset = receiptToSourceAsset(pdResult.receipt);
   assert.equal(pdAsset.rights.credit, "State Library Archive / Photographed by J. Doe (1905)");
 });
 
