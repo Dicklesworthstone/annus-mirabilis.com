@@ -28,9 +28,14 @@ export function ReaderController(props: Props) {
   const navigation = JSON.stringify(props);
   useEffect(() => {
     const { registry, titles, questions } = JSON.parse(navigation) as Props;
-    const root = document.querySelector<HTMLElement>("[data-reader-root]")!;
-    const dialog = root.querySelector<HTMLDialogElement>("[data-clarification-dialog]")!;
-    const announcement = root.querySelector<HTMLElement>("[data-reader-announcement]")!;
+    const rootEl = document.querySelector<HTMLElement>("[data-reader-root]");
+    if (!rootEl) return;
+    const root = rootEl;
+    const dialogEl = root.querySelector<HTMLDialogElement>("[data-clarification-dialog]");
+    const announcementEl = root.querySelector<HTMLElement>("[data-reader-announcement]");
+    if (!dialogEl || !announcementEl) return;
+    const dialog = dialogEl;
+    const announcement = announcementEl;
     const detailControls = [...root.querySelectorAll<HTMLSelectElement>("[data-detail-control]")];
     const lensControls = [...root.querySelectorAll<HTMLInputElement>("[data-lens-control]")];
     let stored: string | null = null;
@@ -137,12 +142,18 @@ export function ReaderController(props: Props) {
       if (frame) {
         const heading = root.querySelector<HTMLElement>(
           `[data-foundation-panel="${frame.foundationId}"] h2`,
-        )!;
-        dialog.setAttribute("aria-labelledby", heading.id);
-        root.querySelector<HTMLElement>("[data-compass-question]")!.textContent =
-          questions[state.anchor] ?? "The Brownian displacement argument";
-        root.querySelector<HTMLElement>("[data-compass-idea]")!.textContent =
-          titles[frame.foundationId] ?? frame.foundationId;
+        );
+        if (heading) {
+          dialog.setAttribute("aria-labelledby", heading.id);
+        }
+        const questionEl = root.querySelector<HTMLElement>("[data-compass-question]");
+        if (questionEl) {
+          questionEl.textContent = questions[state.anchor] ?? "The Brownian displacement argument";
+        }
+        const ideaEl = root.querySelector<HTMLElement>("[data-compass-idea]");
+        if (ideaEl) {
+          ideaEl.textContent = titles[frame.foundationId] ?? frame.foundationId;
+        }
         if (!dialog.open) dialog.showModal();
         if (
           !previous ||
@@ -150,7 +161,7 @@ export function ReaderController(props: Props) {
           previous.frames.length !== state.frames.length
         ) {
           if (previous && previous.frames.length > state.frames.length) restoreFocus(previous);
-          else heading.focus();
+          else heading?.focus();
         }
       } else {
         if (dialog.open) dialog.close();
@@ -194,8 +205,8 @@ export function ReaderController(props: Props) {
       );
       if (!control || !root.contains(control)) return;
       if (control.hasAttribute("data-foundation")) {
-        const id = control.dataset.foundation!;
-        if (!registry.foundations.includes(id)) return;
+        const id = control.dataset.foundation;
+        if (!id || !registry.foundations.includes(id)) return;
         event.preventDefault();
         const anchor = control.closest<HTMLElement>(".reader-passage")?.id ?? state.anchor;
         if (!control.id) control.id = `reader-trigger-${++trigger}`;
@@ -254,9 +265,11 @@ export function ReaderController(props: Props) {
           location.origin,
         ).href;
         const fallback = () => {
-          const box = root.querySelector<HTMLElement>("[data-copy-fallback]")!;
+          const box = root.querySelector<HTMLElement>("[data-copy-fallback]");
+          if (!box) return;
           box.hidden = false;
-          const input = box.querySelector("input")!;
+          const input = box.querySelector("input");
+          if (!input) return;
           input.value = href;
           input.focus();
           input.select();
@@ -308,10 +321,11 @@ export function ReaderController(props: Props) {
         ? history.state.annusReader.index
         : 0;
       save();
+      const lastFrame = state.frames.at(-1);
       render(
         previous,
-        state.frames.length
-          ? `Returned to ${titles[state.frames.at(-1)!.foundationId]}.`
+        lastFrame
+          ? `Returned to ${titles[lastFrame.foundationId] ?? lastFrame.foundationId}.`
           : "Returned to the argument.",
       );
       // A foundation-kind ?open= value is handled entirely by parseReaderLocation/render above;
