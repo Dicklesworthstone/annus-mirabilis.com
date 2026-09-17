@@ -11,7 +11,7 @@
     "prebuild": "bun scripts/app-router-architecture.ts",
     "check:architecture": "bun scripts/app-router-architecture.ts",
     "prepare:content": "bun scripts/build-content.ts && bun scripts/build-equations.ts && bun scripts/extract-kernel-source.ts && bun scripts/build-search-index.ts",
-    "prepare:lab": "bun scripts/generate-lab.mjs && bun scripts/generate-tracers.mjs && bun scripts/generate-brownian-comparison.mjs && bun scripts/generate-walks.mjs && bun scripts/generate-inference.mjs && bun scripts/generate-observation.mjs && bun scripts/generate-kitchen.mjs && bun scripts/generate-drift-diffusion.mjs && bun scripts/generate-me02.mjs && bun scripts/generate-photoelectric.mjs && bun scripts/generate-wave-description.mjs && bun scripts/generate-sr03.mjs && bun scripts/generate-sr02.mjs && bun scripts/generate-lq09.mjs && bun scripts/generate-sr05.mjs && bun scripts/generate-radiation-entropy.mjs && bun scripts/generate-lq06.mjs && bun scripts/generate-sr08.mjs && bun scripts/generate-sr09.mjs && bun scripts/generate-sr10.mjs && bun scripts/generate-sr11.mjs && bun scripts/generate-sr12.mjs && bun scripts/generate-sr13.mjs && bun scripts/generate-countermodels.mjs",
+    "prepare:lab": "bun scripts/generate-lab.mjs && bun scripts/generate-tracers.mjs && bun scripts/generate-brownian-comparison.mjs && bun scripts/generate-walks.mjs && bun scripts/generate-inference.mjs && bun scripts/generate-observation.mjs && bun scripts/generate-kitchen.mjs && bun scripts/generate-drift-diffusion.mjs && bun scripts/generate-me02.mjs && bun scripts/generate-photoelectric.mjs && bun scripts/generate-wave-description.mjs && bun scripts/generate-sr03.mjs && bun scripts/generate-sr02.mjs && bun scripts/generate-lq09.mjs && bun scripts/generate-sr05.mjs && bun scripts/generate-radiation-entropy.mjs && bun scripts/generate-lq06.mjs && bun scripts/generate-sr08.mjs && bun scripts/generate-sr09.mjs && bun scripts/generate-sr10.mjs && bun scripts/generate-sr11.mjs && bun scripts/generate-sr12.mjs && bun scripts/generate-sr13.mjs && bun scripts/generate-countermodels.mjs && bun scripts/generate-inference-workbench.mjs",
     "dev": "bun run prepare:content && bun run prepare:lab && bun run prepare:offline && next dev",
     "build": "bun run prepare:content && bun run prepare:lab && bun run prepare:offline && next build",
     "start": "next start",
@@ -30,7 +30,9 @@
     "test:offline": "node --experimental-strip-types --test src/platform/offline/*.test.mjs",
     "test:offline:browser": "node --experimental-strip-types scripts/e2e/offlineChapters.mjs",
     "test:countermodels": "node --experimental-strip-types --test src/physics/reference/countermodels.test.mjs src/reasoning/countermodel/*.test.mjs scripts/generate-countermodels.test.mjs",
-    "test:countermodels:browser": "node --experimental-strip-types scripts/e2e/countermodels.mjs"
+    "test:countermodels:browser": "node --experimental-strip-types scripts/e2e/countermodels.mjs",
+    "test:inference-workbench": "node --experimental-strip-types --test src/physics/reference/inference/identifiability*.test.mjs src/reasoning/infer/*.test.mjs scripts/generate-inference-workbench.test.mjs",
+    "test:inference-workbench:browser": "node --experimental-strip-types scripts/e2e/inferenceWorkbench.mjs"
   },
   "dependencies": {
     "js-yaml": "4.1.0",
