@@ -54,11 +54,11 @@ export function MovingMirrorPlot({
   const reflEndY = centerY - rayLength * Math.sin(phiReflRad);
 
   // Doppler and physical vector colors
-  const incColor = "#f59e0b";
-  const reflColor = frequencyRatio < 0.8 ? "#ef4444" : frequencyRatio > 1.2 ? "#3b82f6" : "#f59e0b";
-  const velocityColor = "#10b981";
-  const forceColor = "#ec4899";
-  const outputColor = "#3b82f6";
+  const incColor = "var(--plot)";
+  const reflColor = "var(--accent)";
+  const velocityColor = "var(--plot)";
+  const forceColor = "var(--accent)";
+  const outputColor = "var(--ink)";
 
   // Power ledger max scale
   const totalPower = Math.max(
