@@ -1,6 +1,7 @@
 import { describe, expect, test } from "bun:test";
+import { getQuantity } from "../../content/quantities/registry.ts";
 import { logWaves } from "./waves.log.ts";
-import { movingMirror } from "./waves.ts";
+import { movingMirror, movingMirrorHarmonizedResults } from "./waves.ts";
 
 describe("am-ref-waves-r53: waves.mirror.test.ts", () => {
   test("Normal incidence mirror fixtures at beta = 0.6 and approaching beta = -0.6", () => {
@@ -199,4 +200,88 @@ describe("am-ref-waves-r53: waves.mirror.test.ts", () => {
       message: "Adversarial check confirms omitting (1 - beta) breaks energy balance by 0.6.",
     });
   });
+
+  test("movingMirrorHarmonizedResults emits typed statuses and harmonized quantity ids", () => {
+    const t0 = performance.now();
+    const beta = 0.6;
+    const results = movingMirrorHarmonizedResults(beta, 0);
+
+    expect(results).toHaveLength(5);
+    const speed = results.find((r) => r.quantityId === "mirrorSpeed");
+    const freq = results.find((r) => r.quantityId === "reflectedFrequencyRatio");
+    const pIn = results.find((r) => r.quantityId === "interceptedPower");
+    const pPress = results.find((r) => r.quantityId === "radiationPressureMirror");
+    const fRad = results.find((r) => r.quantityId === "radiationForce");
+
+    expect(speed?.status).toBe("value");
+    expect(freq?.status).toBe("value");
+    expect(pIn?.status).toBe("value");
+    expect(pPress?.status).toBe("value");
+    expect(fRad?.status).toBe("value");
+
+    if (
+      speed?.status === "value" &&
+      freq?.status === "value" &&
+      pIn?.status === "value" &&
+      pPress?.status === "value" &&
+      fRad?.status === "value"
+    ) {
+      expect(speed.value).toBeCloseTo(0.6, 12);
+      expect(freq.value).toBeCloseTo(0.25, 12);
+      expect(pIn.value).toBeCloseTo(0.4, 12);
+      expect(pPress.value).toBeCloseTo(0.5, 12);
+      expect(fRad.value).toBeCloseTo(0.5, 12);
+    }
+
+    logWaves({
+      testId: "moving-mirror-harmonized-results",
+      beta,
+      resultStatus: "value",
+      outcome: "passed",
+      durationMs: performance.now() - t0,
+      message: "movingMirrorHarmonizedResults correctly binds mirrorSpeed, reflectedFrequencyRatio, interceptedPower, radiationPressureMirror, radiationForce.",
+    });
+  });
+
+  test("all 21 contracted harmonized quantity ids resolve in canonical registry", () => {
+    const t0 = performance.now();
+    const harmonizedQuantityIds = [
+      "waveFrequencyStationary",
+      "waveFrequencyMoving",
+      "waveAngularFrequencyStationary",
+      "waveAngularFrequencyMoving",
+      "directionCosineStationary",
+      "directionCosineMoving",
+      "propagationAngleStationary",
+      "propagationAngleMoving",
+      "lightAmplitudeStationary",
+      "lightAmplitudeMoving",
+      "lightComplexVolumeStationary",
+      "lightComplexVolumeMoving",
+      "lightComplexEnergyStationary",
+      "lightComplexEnergyMoving",
+      "dopplerFactor",
+      "reflectedFrequencyRatio",
+      "mirrorSpeed",
+      "interceptedPower",
+      "radiationPressureMirror",
+      "radiationForce",
+      "wavePhase",
+    ] as const;
+
+    for (const qId of harmonizedQuantityIds) {
+      const q = getQuantity(qId);
+      expect(q).toBeDefined();
+      expect(q.id).toBe(qId);
+    }
+
+    logWaves({
+      testId: "waves-all-21-harmonized-quantities-in-registry",
+      resultStatus: "value",
+      outcome: "passed",
+      durationMs: performance.now() - t0,
+      message: "All 21 contracted harmonized quantity ids resolve in canonical registry.",
+    });
+  });
 });
+

@@ -1,0 +1,43 @@
+id: waves-doppler-0.6c
+kind: modern-golden
+title: Doppler factor and aberration at beta = 0.6c for longitudinal and transverse rays
+description: >
+  Relativistic Doppler frequency shift and aberration angle for plane waves
+  boosted along +x at beta = 0.6 (gamma = 1.25). Longitudinal ray (theta = 0)
+  has factor 0.5; opposite ray (theta = pi) has factor 2.0; transverse ray
+  (theta = pi/2) shifts to 126.8699 deg with factor 1.25.
+provenance:
+  paper: special-relativity
+  sectionId: s7
+  printedPage: 911
+constantSetId: modern-si-2019
+owner: waves
+inputs:
+  beta:
+    value: 0.6
+    unit: dimensionless
+  theta:
+    value: 1.5707963267948966
+    unit: rad
+expected:
+  outputs:
+    - outputId: dopplerFactor
+      comparisonKind: tolerance
+      tolerance:
+        absolute: 1.0e-12
+        rationale: "Transverse Doppler factor gamma = 1.25."
+      value: 1.25
+    - outputId: cosThetaPrime
+      comparisonKind: tolerance
+      tolerance:
+        absolute: 1.0e-12
+        rationale: "Aberration: cos(theta') = -beta = -0.6."
+      value: -0.6
+    - outputId: sinThetaPrime
+      comparisonKind: tolerance
+      tolerance:
+        absolute: 1.0e-12
+        rationale: "Aberration: sin(theta') = 1 / gamma = 0.8."
+      value: 0.8
+modelVersion: 1
+schemaVersion: 1

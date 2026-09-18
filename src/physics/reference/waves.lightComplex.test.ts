@@ -15,7 +15,7 @@ describe("am-ref-waves-r53: waves.lightComplex.test.ts", () => {
     const g = (gamma(beta) as { status: "value"; value: number }).value;
     expect(g).toBeCloseTo(1.25, 12);
 
-    // Row 1: Longitudinal ray in K (theta = 0): q = 0.5
+    // Row 1: Longitudinal ray in K (theta = 0): q = 0.5, q^2 = 0.25, 1/q = 2, total 0.5
     const lc0 = lightComplexFactors(beta, 0);
     expect(lc0.amplitudeFactor).toBeCloseTo(0.5, 12);
     expect(lc0.energyDensityFactor).toBeCloseTo(0.25, 12);
@@ -24,10 +24,11 @@ describe("am-ref-waves-r53: waves.lightComplex.test.ts", () => {
 
     const cm0 = lightComplexMaterialContractionCountermodel(beta, 0);
     expect(cm0.modelId).toBe("countermodel-material-contraction");
-    expect(cm0.factor).toBeCloseTo(0.8, 12);
-    expect(Math.abs(lc0.energyFactor - cm0.factor)).toBeGreaterThan(0.2); // Fails countermodel
+    expect(cm0.factor).toBeCloseTo(0.2, 12); // Substitution q^2/gamma = 0.25 * 0.8 = 0.2
+    expect(cm0.volumeFactor).toBeCloseTo(0.8, 12);
+    expect(Math.abs(lc0.energyFactor - cm0.factor)).toBeCloseTo(0.3, 12); // Fails countermodel
 
-    // Row 2: Opposite ray in K (theta = pi): q = 2.0
+    // Row 2: Opposite ray in K (theta = pi): q = 2.0, q^2 = 4, 1/q = 0.5, total 2.0
     const lcPi = lightComplexFactors(beta, Math.PI);
     expect(lcPi.amplitudeFactor).toBeCloseTo(2.0, 12);
     expect(lcPi.energyDensityFactor).toBeCloseTo(4.0, 12);
@@ -35,10 +36,11 @@ describe("am-ref-waves-r53: waves.lightComplex.test.ts", () => {
     expect(lcPi.energyFactor).toBeCloseTo(2.0, 12);
 
     const cmPi = lightComplexMaterialContractionCountermodel(beta, Math.PI);
-    expect(cmPi.factor).toBeCloseTo(0.8, 12);
-    expect(Math.abs(lcPi.energyFactor - cmPi.factor)).toBeGreaterThan(1.0); // Fails countermodel
+    expect(cmPi.factor).toBeCloseTo(3.2, 12); // Substitution q^2/gamma = 4 * 0.8 = 3.2
+    expect(cmPi.volumeFactor).toBeCloseTo(0.8, 12);
+    expect(Math.abs(lcPi.energyFactor - cmPi.factor)).toBeCloseTo(1.2, 12); // Fails countermodel
 
-    // Row 3: Ray transverse in moving frame k (cos theta = beta = 0.6): q = 1/gamma = 0.8
+    // Row 3: Ray transverse in moving frame k (cos theta = beta = 0.6): q = 1/gamma = 0.8, q^2 = 0.64, 1/q = 1.25, total 0.8
     const thetaTransversePrime = Math.acos(beta);
     const lcTP = lightComplexFactors(beta, thetaTransversePrime);
     expect(lcTP.amplitudeFactor).toBeCloseTo(0.8, 12);
@@ -47,10 +49,11 @@ describe("am-ref-waves-r53: waves.lightComplex.test.ts", () => {
     expect(lcTP.energyFactor).toBeCloseTo(0.8, 12);
 
     const cmTP = lightComplexMaterialContractionCountermodel(beta, thetaTransversePrime);
-    // Coincidence angle: at cos theta = beta, q itself equals 1/gamma = 0.8
-    expect(cmTP.factor).toBeCloseTo(lcTP.energyFactor, 12);
+    expect(cmTP.factor).toBeCloseTo(0.512, 12); // Substitution q^2/gamma = 0.64 * 0.8 = 0.512
+    expect(cmTP.volumeFactor).toBeCloseTo(0.8, 12);
+    expect(Math.abs(lcTP.energyFactor - cmTP.factor)).toBeCloseTo(0.288, 12); // Fails countermodel
 
-    // Row 4: Ray transverse in stationary frame K (theta = 90 deg = pi/2): q = gamma = 1.25
+    // Row 4: Ray transverse in stationary frame K (theta = 90 deg = pi/2): q = gamma = 1.25, q^2 = 1.5625, 1/q = 0.8, total 1.25
     const lc90 = lightComplexFactors(beta, Math.PI / 2);
     expect(lc90.amplitudeFactor).toBeCloseTo(1.25, 12);
     expect(lc90.energyDensityFactor).toBeCloseTo(1.5625, 12);
@@ -58,22 +61,23 @@ describe("am-ref-waves-r53: waves.lightComplex.test.ts", () => {
     expect(lc90.energyFactor).toBeCloseTo(1.25, 12);
 
     const cm90 = lightComplexMaterialContractionCountermodel(beta, Math.PI / 2);
-    expect(cm90.factor).toBeCloseTo(0.8, 12);
-    // Crucial ratio distinguishing light complex from rigid contraction: gamma^2 = 1.25^2 = 1.5625
-    expect(lc90.energyFactor / cm90.factor).toBeCloseTo(1.5625, 12);
+    expect(cm90.factor).toBeCloseTo(1.25, 12); // Substitution q^2/gamma = 1.5625 * 0.8 = 1.25 (Coincidence check!)
+    expect(cm90.volumeFactor).toBeCloseTo(0.8, 12);
+    // Coincidence check passes: both physical light complex and material contraction substitution give 1.25
+    expect(lc90.energyFactor).toBeCloseTo(cm90.factor, 12);
 
     logWaves({
       testId: "light-complex-four-fixture-rows",
       beta,
       resultStatus: "value",
-      expected: 1.5625,
-      actual: lc90.energyFactor / cm90.factor,
+      expected: 1.25,
+      actual: cm90.factor,
       tolerance: 1e-12,
-      comparisonKind: "ratio",
+      comparisonKind: "absolute",
       outcome: "passed",
       durationMs: performance.now() - t0,
       message:
-        "Four fixture rows pass; transverse stationary distinguishes countermodel by gamma^2 = 1.5625.",
+        "Four fixture rows pass: countermodel fails at theta=0 (0.2 vs 0.5), theta=pi (3.2 vs 2.0), and cos theta=beta (0.512 vs 0.8); 90 deg coincidence passes for both at 1.25.",
     });
   });
 

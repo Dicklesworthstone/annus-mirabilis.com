@@ -386,27 +386,41 @@ export function lightComplexVolumeNumeric(beta: number, thetaRad: number, _sampl
 }
 
 /**
- * Planted negative for SR-10: treat the light complex as a material volume.
- * The wrong factor is 1/gamma at every angle. It does not use q, so it cannot
- * accidentally agree with the light factor except at the degenerate angle
- * where q itself equals 1/gamma (cos phi = beta, transverse in the moving frame).
+ * Production countermodel for SR-10 comparison mode (Einstein 1905 §8, am-ref-waves-r53).
+ * Replaces the true light complex volume factor 1/q with material Lorentz contraction 1/gamma.
+ * The resulting total energy factor under this substitution is q^2 / gamma.
+ * Model identity is 'countermodel-material-contraction', tagged as a named wrong model.
+ *
+ * Discriminating fixtures (beta = 0.6, 1/gamma = 0.8):
+ * - longitudinal ray theta = 0: q^2 = 0.25, 1/q = 2, total 0.5 (substitution gives 0.2);
+ * - opposite ray theta = pi: q^2 = 4, 1/q = 0.5, total 2 (substitution 3.2);
+ * - ray transverse in moving frame (cos theta = beta): q^2 = 0.64, 1/q = 1.25, total 0.8 (substitution 0.512).
+ * Coincidence check:
+ * - ray transverse in stationary frame (theta = 90 deg): q^2 = 1.5625, 1/q = 0.8, total 1.25, substitution also 1.25.
  */
 export function lightComplexMaterialContractionCountermodel(
   beta: number,
-  _thetaRad?: number,
-): Readonly<{ modelId: string; factor: number }> {
+  thetaRad = Math.PI / 2,
+): Readonly<{ modelId: string; factor: number; volumeFactor: number }> {
   const gResult = gamma(beta);
-  if (gResult.status !== "value") {
+  if (gResult.status !== "value" || !Number.isFinite(thetaRad)) {
     return Object.freeze({
       modelId: "countermodel-material-contraction",
       factor: Number.NaN,
+      volumeFactor: Number.NaN,
     });
   }
+  const g = gResult.value;
+  const q = g * (1 - beta * Math.cos(thetaRad));
+  const materialVolumeFactor = 1 / g;
+  const energyFactor = q * q * materialVolumeFactor;
   return Object.freeze({
     modelId: "countermodel-material-contraction",
-    factor: 1 / gResult.value,
+    factor: energyFactor,
+    volumeFactor: materialVolumeFactor,
   });
 }
+
 
 /**
  * Cancellation-free second-order Doppler shift:
@@ -498,6 +512,104 @@ export function movingMirror(
     explanation,
   });
 }
+
+/**
+ * Evaluates moving mirror reflection in terms of the harmonized quantity registry IDs
+ * (am-ref-waves-r53 / am-not-quantity-registry-2f7):
+ * - mirrorSpeed
+ * - reflectedFrequencyRatio
+ * - interceptedPower
+ * - radiationPressureMirror
+ * - radiationForce
+ */
+export function movingMirrorHarmonizedResults(
+  beta: number,
+  phiRad: number,
+  options?: { u?: number; c?: number; Am?: number },
+): readonly ScientificResult[] {
+  const mm = movingMirror(beta, phiRad, options);
+
+  if (mm.status !== "value") {
+    const makeStatus = (
+      quantityId: string,
+      unit: string,
+      semanticKind: string,
+    ): ScientificResult => {
+      if (mm.status === "outside-domain") {
+        return Object.freeze({
+          quantityId,
+          unit,
+          semanticKind,
+          ownerId: OWNER_ID,
+          status: "outside-domain" as const,
+          condition: mm.condition,
+          domainKind: mm.domainKind,
+          reason: mm.reason,
+          boundary: { parameterId: "beta", value: 0.95 },
+        });
+      }
+      return Object.freeze({
+        quantityId,
+        unit,
+        semanticKind,
+        ownerId: OWNER_ID,
+        status: "not-applicable" as const,
+        reason: mm.reason,
+      });
+    };
+    return Object.freeze([
+      makeStatus("mirrorSpeed", "c", "speed"),
+      makeStatus("reflectedFrequencyRatio", "1", "ratio"),
+      makeStatus("interceptedPower", "W", "power"),
+      makeStatus("radiationPressureMirror", "Pa", "pressure"),
+      makeStatus("radiationForce", "N", "force"),
+    ]);
+  }
+
+  return Object.freeze([
+    Object.freeze({
+      quantityId: "mirrorSpeed",
+      unit: "c",
+      semanticKind: "speed",
+      ownerId: OWNER_ID,
+      status: "value" as const,
+      value: beta,
+    }),
+    Object.freeze({
+      quantityId: "reflectedFrequencyRatio",
+      unit: "1",
+      semanticKind: "ratio",
+      ownerId: OWNER_ID,
+      status: "value" as const,
+      value: mm.frequencyRatio,
+    }),
+    Object.freeze({
+      quantityId: "interceptedPower",
+      unit: "W",
+      semanticKind: "power",
+      ownerId: OWNER_ID,
+      status: "value" as const,
+      value: mm.incidentPower,
+    }),
+    Object.freeze({
+      quantityId: "radiationPressureMirror",
+      unit: "Pa",
+      semanticKind: "pressure",
+      ownerId: OWNER_ID,
+      status: "value" as const,
+      value: mm.radiationPressure,
+    }),
+    Object.freeze({
+      quantityId: "radiationForce",
+      unit: "N",
+      semanticKind: "force",
+      ownerId: OWNER_ID,
+      status: "value" as const,
+      value: mm.radiationForce,
+    }),
+  ]);
+}
+
 
 /**
  * Mirror-frame energy and force ledger (SR-11 observer change).
@@ -1050,7 +1162,7 @@ export function evaluateSr10(input: Sr10Input): Sr10EvaluationResult {
 
   const countermodel = lightComplexMaterialContractionCountermodel(beta, thetaRad);
   const countermodelEnergyFactor = countermodel.factor;
-  const countermodelVolumeFactor = countermodel.factor;
+  const countermodelVolumeFactor = countermodel.volumeFactor;
   const countermodelEnergyJ = initialEnergyJ * countermodelEnergyFactor;
   const countermodelVolumeM3 = initialVolumeM3 * countermodelVolumeFactor;
   const materialVolumeFactor = 1 / g;

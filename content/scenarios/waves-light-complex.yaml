@@ -1,0 +1,52 @@
+id: waves-light-complex
+kind: modern-golden
+title: Finite light complex transformation and adversarial countermodel comparison
+description: >
+  Transformation of a finite light complex volume and total energy under Lorentz boost at beta = 0.6.
+  At theta = 0 (longitudinal): q = 0.5, q^2 = 0.25, volume factor 1/q = 2, total energy factor 0.5.
+  Material contraction countermodel substitutes 1/gamma = 0.8 for volume, yielding q^2/gamma = 0.2 (fails).
+  NOTE FOR EDITORS: A ray transverse in the unprimed frame (theta = 90 deg) gives q = gamma = 1.25 and
+  q^2/gamma = 1.25, which identically equals the physical energy factor. That transverse ray is a coincidence
+  case that CANNOT discriminate the countermodel from physical truth; the discriminating test must use
+  longitudinal rays (theta = 0, pi) or the ray transverse in the moving frame (cos theta = beta).
+provenance:
+  paper: special-relativity
+  sectionId: s8
+  printedPage: 913
+constantSetId: modern-si-2019
+owner: waves
+inputs:
+  beta:
+    value: 0.6
+    unit: dimensionless
+  theta:
+    value: 0.0
+    unit: rad
+expected:
+  outputs:
+    - outputId: energyFactor
+      comparisonKind: tolerance
+      tolerance:
+        absolute: 1.0e-12
+        rationale: "Physical energy factor q = gamma * (1 - beta) = 0.5."
+      value: 0.5
+    - outputId: volumeFactor
+      comparisonKind: tolerance
+      tolerance:
+        absolute: 1.0e-12
+        rationale: "Physical light complex volume factor 1/q = 2.0."
+      value: 2.0
+    - outputId: countermodelFactor
+      comparisonKind: tolerance
+      tolerance:
+        absolute: 1.0e-12
+        rationale: "Material contraction countermodel substitution q^2 / gamma = 0.25 * 0.8 = 0.2."
+      value: 0.2
+    - outputId: numericVolumeFactor
+      comparisonKind: tolerance
+      tolerance:
+        absolute: 1.0e-12
+        rationale: "Independent numerical simultaneous-slice volume integral agrees with 1/q."
+      value: 2.0
+modelVersion: 1
+schemaVersion: 1
