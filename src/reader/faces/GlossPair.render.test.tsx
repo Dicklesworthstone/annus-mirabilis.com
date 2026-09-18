@@ -1,5 +1,4 @@
 import { describe, expect, test } from "bun:test";
-import React from "react";
 import { renderToStaticMarkup } from "react-dom/server";
 import type { GlossToken, MultiwordUnit } from "../../content/schemas/source.ts";
 import { GlossPair } from "./GlossPair.tsx";

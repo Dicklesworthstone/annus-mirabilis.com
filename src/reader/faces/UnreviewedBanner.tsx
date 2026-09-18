@@ -1,5 +1,3 @@
-import React from "react";
-
 export interface UnreviewedBannerProps {
   readonly title?: string | undefined;
   readonly message?: string | undefined;

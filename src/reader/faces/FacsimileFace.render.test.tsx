@@ -1,5 +1,4 @@
 import { describe, expect, it } from "bun:test";
-import React from "react";
 import { renderToString } from "react-dom/server";
 import type { FacsimileSourceAsset } from "./FacsimileFace.tsx";
 import { FacsimileFace } from "./FacsimileFace.tsx";

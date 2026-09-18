@@ -1,4 +1,3 @@
-import React from "react";
 import type { SourceBlock } from "../../content/schemas/source.ts";
 import { renderInlines } from "./inlines.tsx";
 

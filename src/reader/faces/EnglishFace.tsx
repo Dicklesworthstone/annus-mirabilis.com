@@ -1,4 +1,3 @@
-import React from "react";
 import type { ReviewRecord } from "../../content/schemas/review.ts";
 import type {
   Alignment,

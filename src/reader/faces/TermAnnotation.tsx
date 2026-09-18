@@ -1,5 +1,3 @@
-import React from "react";
-
 export interface TermAnnotationProps {
   readonly termId: string;
   readonly text: string;

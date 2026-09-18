@@ -1,5 +1,4 @@
 import { describe, expect, test } from "bun:test";
-import React from "react";
 import { renderToStaticMarkup } from "react-dom/server";
 import {
   FIXTURE_MASS_ENERGY_ALIGNMENT,
