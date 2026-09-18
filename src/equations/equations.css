@@ -328,3 +328,24 @@
   background: var(--wash);
   border: 1px solid var(--line);
 }
+
+/* LatexRenderer styles (am-vw1o) */
+.latex-container {
+  display: inline-block;
+  vertical-align: middle;
+}
+
+.latex-unavailable {
+  border-radius: 0.25rem;
+  border: 1px solid var(--line);
+  background: var(--wash);
+  padding: 0.25rem 0.5rem;
+  font-family: var(--font-sans);
+  font-size: 0.75rem;
+  color: var(--muted);
+}
+
+.latex-block-wrapper {
+  display: block;
+  overflow-x: auto;
+}

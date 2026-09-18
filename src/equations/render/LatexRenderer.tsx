@@ -17,6 +17,7 @@
 import type { TrustContext } from "katex";
 import katex from "katex";
 import React, { useMemo } from "react";
+import "../equations.css";
 
 export class MalformedLatexError extends Error {
   readonly math: string;
@@ -97,7 +98,7 @@ export function LatexRenderer({ math, block = false, className = "" }: LatexRend
       <span
         role="status"
         aria-label="Mathematical notation unavailable"
-        className={`latex-container inline-block rounded border border-amber-500/50 bg-amber-100/70 px-2 py-1 font-sans text-xs text-amber-950 dark:bg-amber-950/40 dark:text-amber-100 ${className}`}
+        className={`latex-container latex-unavailable ${className}`.trim()}
       >
         Mathematical notation unavailable
       </span>
@@ -106,7 +107,7 @@ export function LatexRenderer({ math, block = false, className = "" }: LatexRend
 
   return (
     <span
-      className={`latex-container inline-block ${className}`}
+      className={`latex-container ${className}`.trim()}
       // biome-ignore lint/security/noDangerouslySetInnerHtml: KaTeX serializes the formula; trust is strictly restricted above.
       dangerouslySetInnerHTML={{ __html: html }}
     />
@@ -138,7 +139,7 @@ export function TextWithLatex({
       if (part.startsWith("$$") && part.endsWith("$$")) {
         const formula = part.slice(2, -2);
         return (
-          <span key={key} className="block overflow-x-auto">
+          <span key={key} className="latex-block-wrapper">
             <LatexRenderer math={formula} block={true} />
           </span>
         );
