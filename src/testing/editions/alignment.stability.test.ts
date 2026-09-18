@@ -139,14 +139,14 @@ describe("alignment is by permanent id, not array position", () => {
     const german = "$$ x_{\\mathrm{fixture}} = 1 $$";
     expect(validateDisplayByteIdentity(german, german)).toBeNull();
     const extraSpace = validateDisplayByteIdentity(german, `${german} `);
-    expect(extraSpace?.code).toBe("math-atoms-differ");
+    expect(extraSpace?.code).toBe("display-math-bytes-differ");
   });
 
   test("PLANTED: renaming V to c in a display is not alignment", () => {
     const german = "$$ V = 1 $$";
     const modernized = "$$ c = 1 $$";
     const issue = validateDisplayByteIdentity(german, modernized);
-    expect(issue?.code).toBe("math-atoms-differ");
+    expect(issue?.code).toBe("display-math-bytes-differ");
     expect(issue?.message).toContain("Notation is not translated");
   });
 });

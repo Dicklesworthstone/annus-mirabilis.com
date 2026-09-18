@@ -4,6 +4,7 @@ import {
   type AlignmentComponent,
   validateAlignmentSplits,
   validateDerivedStatus,
+  validateDisplayByteIdentity,
   validateGloss,
   validateInlineMathematics,
   validateManyToManyAlignment,
@@ -201,6 +202,20 @@ describe("staleness guard: gloss-stale evaluated by digest comparison", () => {
       alignableUnits: [{ id: "s1-p1-s1", text, digest: currentDigest }],
     });
     expect(issues.filter((i) => i.code === "gloss-stale")).toHaveLength(0);
+  });
+});
+
+describe("display math byte identity guard: display-math-bytes-differ", () => {
+  test("PLANTED: non-byte-identical display math refuses with display-math-bytes-differ", () => {
+    const issue = validateDisplayByteIdentity("$$ E = mc^2 $$", "$$ E = mc^2  $$");
+    expect(issue).not.toBeNull();
+    expect(issue?.code).toBe("display-math-bytes-differ");
+    expect(issue?.message).toContain("English display is not byte-identical to the German display");
+  });
+
+  test("byte-identical display math passes validateDisplayByteIdentity without display-math-bytes-differ", () => {
+    const issue = validateDisplayByteIdentity("$$ E = mc^2 $$", "$$ E = mc^2 $$");
+    expect(issue).toBeNull();
   });
 });
 
@@ -596,8 +611,8 @@ describe("terminology guards: term-definition-too-short, term-missing-german-lan
   });
 });
 
-describe("gloss validation guards: gloss-unit-unknown, gloss-missing-token, gloss-token-collision", () => {
-  test("PLANTED: gloss addressing a paragraph block id refuses with gloss-unit-unknown at block-syntax check", () => {
+describe("gloss validation guards: gloss-target-not-alignable, gloss-unit-unknown, gloss-missing-token, gloss-token-collision", () => {
+  test("PLANTED: gloss addressing a paragraph block id refuses with gloss-target-not-alignable at block-syntax check", () => {
     const text = "Die Brownsche Bewegung";
     const digest = createHash("sha256").update(text, "utf8").digest("hex");
     const issues = validateGloss({
@@ -611,7 +626,7 @@ describe("gloss validation guards: gloss-unit-unknown, gloss-missing-token, glos
       ],
       alignableUnits: [{ id: "s0-p1-s1", text, digest }],
     });
-    const issue = issues.find((i) => i.code === "gloss-unit-unknown");
+    const issue = issues.find((i) => i.code === "gloss-target-not-alignable");
     expect(issue).toBeDefined();
     expect(issue?.sourceId).toBe("s0-p1");
     expect(issue?.message).toContain("not an alignable unit");
@@ -656,6 +671,7 @@ describe("gloss validation guards: gloss-unit-unknown, gloss-missing-token, glos
       ],
       alignableUnits: [{ id: "s1-p1-s1", text, digest }],
     });
+    expect(issues.filter((i) => i.code === "gloss-target-not-alignable")).toHaveLength(0);
     expect(issues.filter((i) => i.code === "gloss-unit-unknown")).toHaveLength(0);
   });
 

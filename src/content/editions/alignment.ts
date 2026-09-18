@@ -22,6 +22,7 @@ export type AlignmentIssueCode =
   | "unknown-source"
   | "unknown-target"
   | "empty-alignment"
+  | "display-math-bytes-differ"
   | "math-atoms-differ"
   | "math-order-differs"
   | "reference-atoms-differ"
@@ -34,6 +35,7 @@ export type AlignmentIssueCode =
   | "term-missing-german-lang"
   | "term-missing-english-lang"
   | "term-not-occurrence-specific"
+  | "gloss-target-not-alignable"
   | "gloss-unit-unknown"
   | "gloss-token-mismatch"
   | "gloss-missing-token"
@@ -248,7 +250,7 @@ export function validateDisplayByteIdentity(
 ): AlignmentIssue | null {
   if (germanDisplay === englishDisplay) return null;
   return {
-    code: "math-atoms-differ",
+    code: "display-math-bytes-differ",
     message:
       "English display is not byte-identical to the German display. Notation is not translated.",
   };
@@ -452,7 +454,7 @@ export function validateGloss(input: ValidateGlossInput): readonly AlignmentIssu
     // 1. Addressing check
     if (parseParagraphId(sId).ok || parseEquationAnchor(sId).ok) {
       issues.push({
-        code: "gloss-unit-unknown",
+        code: "gloss-target-not-alignable",
         sourceId: sId,
         message: `Gloss unit references "${sId}", which is not an alignable unit (cannot gloss a paragraph block or equation block).`,
       });
