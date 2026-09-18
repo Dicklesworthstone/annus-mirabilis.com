@@ -164,20 +164,24 @@ export function validateSegmentation(
   }
 
   // 1. Check leading text
-  const leading = text.slice(0, segments[0]!.start);
-  if (leading.trim().length > 0) {
-    issues.push({
-      code: "non-contiguous-segmentation",
-      message: `Non-contiguous segmentation: leading text was dropped before first segment: "${leading.trim()}".`,
-      start: 0,
-      end: segments[0]!.start,
-    });
+  const first = segments[0];
+  if (first) {
+    const leading = text.slice(0, first.start);
+    if (leading.trim().length > 0) {
+      issues.push({
+        code: "non-contiguous-segmentation",
+        message: `Non-contiguous segmentation: leading text was dropped before first segment: "${leading.trim()}".`,
+        start: 0,
+        end: first.start,
+      });
+    }
   }
 
   // 2. Check adjacent segment relationships: overlap and non-contiguity
   for (let i = 1; i < segments.length; i++) {
-    const prev = segments[i - 1]!;
-    const curr = segments[i]!;
+    const prev = segments[i - 1];
+    const curr = segments[i];
+    if (!prev || !curr) continue;
 
     if (curr.start < prev.end) {
       issues.push({
@@ -204,14 +208,17 @@ export function validateSegmentation(
   }
 
   // 3. Check trailing text
-  const trailing = text.slice(segments[segments.length - 1]!.end);
-  if (trailing.trim().length > 0) {
-    issues.push({
-      code: "non-contiguous-segmentation",
-      message: `Non-contiguous segmentation: trailing text was dropped after last segment: "${trailing.trim()}".`,
-      start: segments[segments.length - 1]!.end,
-      end: text.length,
-    });
+  const last = segments[segments.length - 1];
+  if (last) {
+    const trailing = text.slice(last.end);
+    if (trailing.trim().length > 0) {
+      issues.push({
+        code: "non-contiguous-segmentation",
+        message: `Non-contiguous segmentation: trailing text was dropped after last segment: "${trailing.trim()}".`,
+        start: last.end,
+        end: text.length,
+      });
+    }
   }
 
   return Object.freeze(issues);
