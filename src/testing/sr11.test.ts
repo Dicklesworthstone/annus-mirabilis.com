@@ -1,5 +1,5 @@
 import { describe, expect, test } from "bun:test";
-import { evaluateSr11, mirrorFrameLedger, movingMirror } from "../physics/reference/waves.ts";
+import { mirrorFrameLedger, movingMirror } from "../physics/reference/waves.ts";
 
 describe("SR-11 Reference Physics: Moving Mirror Reflection & Radiation Pressure", () => {
   test("Normal incidence receding mirror at beta = 0.6", () => {

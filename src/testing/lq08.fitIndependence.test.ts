@@ -2,7 +2,6 @@ import { describe, expect, it } from "bun:test";
 import {
   evaluateMillikanOverlay,
   fitMillikanSodiumData,
-  fitOls,
   getOwnerTheoreticalLine,
   MILLIKAN_1916_SODIUM_POINTS,
   type MillikanDataPoint,

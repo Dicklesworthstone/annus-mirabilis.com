@@ -1,6 +1,4 @@
 import { describe, expect, it } from "bun:test";
-import { existsSync, readFileSync } from "node:fs";
-import path from "node:path";
 import { createPhiloxStream } from "../../physics/reference/philox.ts";
 import {
   assertCorrelationNearZero,

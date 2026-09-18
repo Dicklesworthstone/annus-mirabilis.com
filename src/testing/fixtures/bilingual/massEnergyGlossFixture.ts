@@ -1,14 +1,10 @@
-import type { ReviewRecord } from "../../../content/schemas/review.ts";
 import {
   type Alignment,
-  type EditorialNote,
   type GlossUnit,
   type Paper,
-  plainText,
   type SourceBlock,
   type TranslationUnit,
   validateAlignment,
-  validateEditorialNote,
   validateGlossUnit,
   validatePaper,
   validateSourceBlock,

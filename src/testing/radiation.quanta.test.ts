@@ -3,7 +3,6 @@ import fs from "node:fs";
 import path from "node:path";
 import { getConstantSet } from "../physics/reference/constants.ts";
 import {
-  bandLimitedMeanQuantumEnergyWien,
   effectiveIndependentCount,
   meanQuantumEnergyWien,
   meanQuantumEnergyWienBand,

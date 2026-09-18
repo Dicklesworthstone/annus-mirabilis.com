@@ -1,26 +1,19 @@
 import { describe, expect, it } from "bun:test";
 import type {
   AlignableUnitId,
-  EquationAnchor,
-  EquationRecordId,
   FootnoteId,
   HeadingId,
   InstrumentId,
   ModeId,
-  PaperCode,
   ParagraphId,
   PredictPromptId,
-  PremiseId,
   PresetId,
-  QuantityId,
-  RouteSlug,
   SectionId,
   SentenceId,
   TapeId,
   TranslationUnitId,
 } from "../content/ids.ts";
 import {
-  parseBibKey,
   parseInstrumentId,
   parseModeId,
   parsePredictPromptId,

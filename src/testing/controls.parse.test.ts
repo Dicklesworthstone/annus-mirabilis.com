@@ -1,10 +1,6 @@
 import { describe, expect, test } from "bun:test";
 import type { ParameterSpec } from "../content/schemas/experiment.ts";
-import {
-  formatParameterValue,
-  parseParameterValue,
-  serializeParameterValue,
-} from "../experiments/controls/parse.ts";
+import { parseParameterValue, serializeParameterValue } from "../experiments/controls/parse.ts";
 
 describe("Parameter Controls Parse & Serialize Round-Trips (am-inst-parameter-controls-cmj9)", () => {
   const viscositySpec: ParameterSpec = {
