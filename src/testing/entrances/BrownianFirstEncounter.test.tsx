@@ -329,5 +329,127 @@ describe("Brownian First Encounter Interactive UI Component (am-bm-first-encount
     });
     returnContainer.remove();
   });
+
+  it("updates totals when dragging markers via pointer and matches keyboard and table totals, and restores to authored", async () => {
+    const start = performance.now();
+    const root = createRoot(container);
+    await act(async () => {
+      root.render(<BrownianFirstEncounter record={record} />);
+    });
+
+    const sumEl = container.querySelector('[data-testid="totals-signed-sum"]');
+    const absEl = container.querySelector('[data-testid="totals-mean-absolute"]');
+    const sqEl = container.querySelector('[data-testid="totals-mean-square"]');
+    const rmsEl = container.querySelector('[data-testid="totals-rms"]');
+
+    // Initial authored totals (-3, -1, 1, 3)
+    expect(sumEl?.textContent).toContain("0");
+    expect(absEl?.textContent).toContain("2.00");
+    expect(sqEl?.textContent).toContain("5.00");
+    expect(rmsEl?.textContent).toContain("2.236");
+
+    // Find slider 1 (initial pos -3)
+    const slider1 = container.querySelector(
+      'div[role="slider"][aria-valuenow="-3"]',
+    ) as HTMLElement;
+    expect(slider1).not.toBeNull();
+
+    const PointerEvt = typeof PointerEvent !== "undefined" ? PointerEvent : MouseEvent;
+
+    // In fallback layout (width 320, left 0): clientX = 140 -> fraction = 140/320 = 0.4375 -> pos = 0.4375*16 - 8 = -1
+    await act(async () => {
+      slider1.dispatchEvent(new PointerEvt("pointerdown", { clientX: 140, bubbles: true }));
+    });
+
+    // Entries are now [-1, -1, 1, 3]: identical totals to keyboard test after two right moves
+    expect(sumEl?.textContent).toContain("+2");
+    expect(absEl?.textContent).toContain("1.50");
+    expect(sqEl?.textContent).toContain("3.00");
+
+    // Drag further via window pointermove to clientX = 160 (pos = 0)
+    await act(async () => {
+      window.dispatchEvent(new PointerEvt("pointermove", { clientX: 160, bubbles: true }));
+    });
+    // With entries [0, -1, 1, 3]: sum = +3
+    expect(sumEl?.textContent).toContain("+3");
+
+    // Release pointer
+    await act(async () => {
+      window.dispatchEvent(new PointerEvt("pointerup", { bubbles: true }));
+    });
+
+    // Restore to authored example
+    const restoreBtn = Array.from(container.querySelectorAll("button")).find((b) =>
+      b.textContent?.includes("Back to authored example"),
+    );
+    expect(restoreBtn).toBeDefined();
+
+    await act(async () => {
+      restoreBtn?.click();
+    });
+
+    expect(sumEl?.textContent).toContain("0");
+    expect(absEl?.textContent).toContain("2.00");
+    expect(sqEl?.textContent).toContain("5.00");
+    expect(rmsEl?.textContent).toContain("2.236");
+
+    logger.log({
+      testId: "ui-pointer-drag-slider-interaction",
+      beadId: BEAD_ID,
+      expected: { signedSum: 0, meanAbsolute: 2, meanSquare: 5, rootMeanSquare: Math.sqrt(5) },
+      actual: { restored: true },
+      outcome: "passed",
+      durationMs: performance.now() - start,
+      comparisonKind: "tolerance",
+      tolerance: { absolute: 1e-4 },
+      extra: {
+        interface: "pointer",
+        paper: "brownian-motion",
+        anchor: "#entry-brownian-motion",
+        recordId: "entrance-brownian-motion",
+        returnedTotalsMatch: true,
+      },
+    });
+  });
+
+  it("reaches BM-01 by catalogue id and §5 displacement passage by stable sentence id", async () => {
+    const start = performance.now();
+    const root = createRoot(container);
+    await act(async () => {
+      root.render(<BrownianFirstEncounter record={record} />);
+    });
+
+    const instrumentLink = container.querySelector(
+      'a[data-instrument-id="bm-01"]',
+    ) as HTMLAnchorElement | null;
+    expect(instrumentLink).not.toBeNull();
+    expect(instrumentLink?.getAttribute("href")).toBe("/lab/bm-01");
+    expect(instrumentLink?.getAttribute("data-instrument-id")).toBe("bm-01");
+
+    const sentenceLink = Array.from(container.querySelectorAll("a")).find((a) =>
+      a.getAttribute("href")?.includes("/papers/brownian-motion/s5/#s5-p1-s1"),
+    );
+    expect(sentenceLink).toBeDefined();
+    expect(sentenceLink?.getAttribute("href")).toBe("/papers/brownian-motion/s5/#s5-p1-s1");
+
+    logger.log({
+      testId: "ui-less-guidance-catalogue-and-sentence-id",
+      beadId: BEAD_ID,
+      expected: { instrumentId: "bm-01", sentenceId: "s5-p1-s1" },
+      actual: {
+        instrumentId: instrumentLink?.getAttribute("data-instrument-id"),
+        passageHref: sentenceLink?.getAttribute("href"),
+      },
+      outcome: "passed",
+      durationMs: performance.now() - start,
+      comparisonKind: "bitwise",
+      extra: {
+        interface: "pointer",
+        paper: "brownian-motion",
+        anchor: "#entry-brownian-motion",
+        recordId: "entrance-brownian-motion",
+      },
+    });
+  });
 });
 

@@ -1,6 +1,6 @@
 "use client";
 
-import { useCallback, useId, useState } from "react";
+import { useCallback, useId, useRef, useState } from "react";
 import type { EntranceRecord } from "../../content/entrances/entranceRecord.ts";
 import {
   AUTHORED_BROWNIAN_DISPLACEMENTS,
@@ -31,6 +31,7 @@ export function BrownianFirstEncounter({
   const [liveAnnouncement, setLiveAnnouncement] = useState<string>("");
 
   const liveRegionId = useId();
+  const trackRef = useRef<HTMLDivElement>(null);
   const totals = calculateSignedDisplacements(entries);
   const isAuthored =
     entries.length === 4 &&
@@ -58,6 +59,36 @@ export function BrownianFirstEncounter({
       return Object.freeze(next);
     });
   }, []);
+
+  const handlePointerDown = useCallback(
+    (idx: number, e: React.PointerEvent<HTMLDivElement>) => {
+      e.preventDefault();
+      const track = trackRef.current;
+      const updateFromClientX = (clientX: number) => {
+        const rect = track?.getBoundingClientRect();
+        const width = rect && rect.width > 0 ? rect.width : 320;
+        const left = rect && rect.width > 0 ? rect.left : 0;
+        const fraction = Math.max(0, Math.min(1, (clientX - left) / width));
+        const nextPos = Math.round(fraction * 16 - 8);
+        updateEntry(idx, nextPos);
+      };
+
+      updateFromClientX(e.clientX);
+
+      const onPointerMove = (ev: PointerEvent) => {
+        updateFromClientX(ev.clientX);
+      };
+
+      const onPointerUp = () => {
+        window.removeEventListener("pointermove", onPointerMove);
+        window.removeEventListener("pointerup", onPointerUp);
+      };
+
+      window.addEventListener("pointermove", onPointerMove);
+      window.addEventListener("pointerup", onPointerUp);
+    },
+    [updateEntry],
+  );
 
   const resetToAuthored = useCallback(() => {
     setEntries(AUTHORED_BROWNIAN_DISPLACEMENTS);
@@ -261,7 +292,7 @@ export function BrownianFirstEncounter({
             })}
 
             {/* Interactive Particle Markers */}
-            <div style={{ position: "relative", height: "3rem" }}>
+            <div ref={trackRef} style={{ position: "relative", height: "3rem" }}>
               {particleItems.map((item) => {
                 const pos = item.position;
                 const idx = item.index;
@@ -289,6 +320,7 @@ export function BrownianFirstEncounter({
                     aria-valuenow={pos}
                     aria-valuemin={-8}
                     aria-valuemax={8}
+                    onPointerDown={(e) => handlePointerDown(idx, e)}
                     onKeyDown={(e) => {
                       if (e.key === "ArrowLeft") {
                         e.preventDefault();
@@ -310,6 +342,7 @@ export function BrownianFirstEncounter({
                       transform: "translateX(-50%)",
                       top: 0,
                       cursor: "ew-resize",
+                      touchAction: "none",
                       borderRadius: "50%",
                       width: "2rem",
                       height: "2rem",
@@ -779,7 +812,7 @@ export function BrownianFirstEncounter({
                   >
                     Open BM-01 Lab →
                   </a>
-                  <a href="/papers/brownian-motion/s5/#s5-p1" className="button secondary">
+                  <a href="/papers/brownian-motion/s5/#s5-p1-s1" className="button secondary">
                     Go to §5 Passage →
                   </a>
                 </div>
@@ -835,7 +868,7 @@ export function BrownianFirstEncounter({
             <a href="/lab/bm-01" className="button secondary">
               Open BM-01 Tracer Laboratory →
             </a>
-            <a href="/papers/brownian-motion/s5/#s5-p1" className="button secondary">
+            <a href="/papers/brownian-motion/s5/#s5-p1-s1" className="button secondary">
               Go to §5 Displacement Passage →
             </a>
           </div>
