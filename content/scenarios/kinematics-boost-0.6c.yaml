@@ -1,0 +1,75 @@
+id: kinematics-boost-0.6c
+kind: modern-golden
+title: Canonical relativistic boost, composition, and dilation at beta = 0.6
+description: >
+  Standard reference kinematics at beta = 0.6c: Lorentz factor gamma = 1.25,
+  rapidity ln(2) = 0.69314718056, contracted length of 10 ls rod = 8 ls,
+  dilated unit interval = 1.25 s, collinear composition 0.6 ⊕ 0.6 = 15/17.
+provenance:
+  paper: special-relativity
+  sectionId: s3
+  printedPage: 897
+constantSetId: modern-si-2019
+owner: kinematics
+inputs:
+  beta:
+    value: 0.6
+    unit: dimensionless
+  beta2:
+    value: 0.6
+    unit: dimensionless
+  rodLengthLs:
+    value: 10.0
+    unit: ls
+  properTimeS:
+    value: 1.0
+    unit: s
+  deltaX:
+    value: 10.0
+    unit: ls
+expected:
+  outputs:
+    - outputId: gamma
+      comparisonKind: tolerance
+      tolerance:
+        absolute: 1.0e-12
+        rationale: "Lorentz factor gamma(0.6) = 1 / sqrt(1 - 0.36) = 1.25."
+      value: 1.25
+    - outputId: rapidity
+      comparisonKind: tolerance
+      tolerance:
+        absolute: 1.0e-12
+        rationale: "Rapidity at beta = 0.6: atanh(0.6) = ln(2) = 0.6931471805599453."
+      value: 0.6931471805599453
+    - outputId: contractedLengthLs
+      comparisonKind: tolerance
+      tolerance:
+        absolute: 1.0e-12
+        rationale: "Length contraction: 10 * sqrt(1 - 0.36) = 8 ls."
+      value: 8.0
+    - outputId: dilatedIntervalS
+      comparisonKind: tolerance
+      tolerance:
+        absolute: 1.0e-12
+        rationale: "Time dilation: 1.0 * gamma(0.6) = 1.25 s."
+      value: 1.25
+    - outputId: composedCollinearBeta
+      comparisonKind: tolerance
+      tolerance:
+        absolute: 1.0e-12
+        rationale: "Collinear velocity composition: (0.6 + 0.6) / (1 + 0.36) = 15/17."
+      value: 0.8823529411764706
+    - outputId: deltaTPrimeS
+      comparisonKind: tolerance
+      tolerance:
+        absolute: 1.0e-12
+        rationale: "Simultaneity desynchronization: gamma * (-beta * deltaX) = 1.25 * (-0.6 * 10) = -7.5 s."
+      value: -7.5
+    - outputId: deltaXPrimeLs
+      comparisonKind: tolerance
+      tolerance:
+        absolute: 1.0e-12
+        rationale: "Boosted spatial separation: gamma * deltaX = 1.25 * 10 = 12.5 ls."
+      value: 12.5
+modelVersion: 1
+schemaVersion: 1

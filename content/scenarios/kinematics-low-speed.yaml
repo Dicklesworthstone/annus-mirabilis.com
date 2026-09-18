@@ -1,0 +1,44 @@
+id: kinematics-low-speed
+kind: modern-golden
+title: Low-speed stable forms of relativistic factors
+description: >
+  Cancellation-free stable forms at low speeds: gammaMinusOne at 10 m/s matches 5.563250e-16,
+  dilationLossPerSecond at beta = 1e-4 gives 5.0000000125e-9, and speedForDailyLoss(1 s) is 4.811238e-3.
+provenance:
+  paper: special-relativity
+  sectionId: s4
+  printedPage: 904
+constantSetId: modern-si-2019
+owner: kinematics
+inputs:
+  speedMetresPerSecond:
+    value: 10.0
+    unit: "m/s"
+  beta:
+    value: 1.0e-4
+    unit: dimensionless
+  lossPerDayS:
+    value: 1.0
+    unit: s
+expected:
+  outputs:
+    - outputId: gammaMinusOne
+      value: 5.563250280268097e-16
+      comparisonKind: tolerance
+      tolerance:
+        relative: 1.0e-5
+        rationale: "gammaMinusOne at 10 m/s: 0.5 * (10 / c)^2 * (1 + 0.75 * (10 / c)^2) = 5.563250e-16."
+    - outputId: dilationLossPerSecond
+      value: 5.0000000125e-9
+      comparisonKind: tolerance
+      tolerance:
+        relative: 1.0e-10
+        rationale: "dilationLossPerSecond at beta = 1e-4: 1 - sqrt(1 - 1e-8) = 5.0000000125e-9."
+    - outputId: speedForDailyLossBeta
+      value: 4.8112383217792775e-3
+      comparisonKind: tolerance
+      tolerance:
+        relative: 1.0e-5
+        rationale: "speedForDailyLoss for 1 s/day loss gives beta = 4.811238e-3."
+modelVersion: 1
+schemaVersion: 1

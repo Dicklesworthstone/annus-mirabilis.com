@@ -51,7 +51,20 @@ import {
   inverseBias,
   invertToMolecularNumber,
 } from "../../physics/reference/inference.ts";
-import { dilationLossPerSecond } from "../../physics/reference/kinematics.ts";
+import {
+  alignedBoost,
+  composeCollinear,
+  composedSpeedShortfall,
+  contractedLength,
+  desynchronization,
+  dilatedInterval,
+  dilationLossPerSecond,
+  gamma,
+  gammaMinusOne,
+  rapidity,
+  speedForDailyLoss,
+  transformEvent,
+} from "../../physics/reference/kinematics.ts";
 import { evaluatePhotonBox } from "../../physics/reference/massEnergy.ts";
 import {
   aperturePower,
@@ -101,6 +114,9 @@ const diffusionPath = fileURLToPath(
 );
 const walkLawsPath = fileURLToPath(
   new URL("../../physics/reference/diffusion/walkLaws.ts", import.meta.url),
+);
+const kinematicsPath = fileURLToPath(
+  new URL("../../physics/reference/kinematics.ts", import.meta.url),
 );
 const eventsPath = fileURLToPath(new URL("../../physics/reference/events.ts", import.meta.url));
 const fieldsPath = fileURLToPath(new URL("../../physics/reference/fields.ts", import.meta.url));
@@ -496,6 +512,79 @@ const OWNERS: OwnerRecord[] = [
         out.avogadroNumberEstimate = inverse.data.estimate;
         out.intervalLower = inverse.data.interval.lower;
         out.intervalUpper = inverse.data.interval.upper;
+      }
+      return out;
+    },
+  },
+  {
+    id: "kinematics",
+    sourcePath: kinematicsPath,
+    fn: (ctx: OwnerContext) => {
+      const out: Record<string, number> = {};
+      const c = C;
+
+      if (typeof ctx.inputs.speedMetresPerSecond === "number") {
+        const beta = ctx.inputs.speedMetresPerSecond / c;
+        const gm1 = gammaMinusOne(beta);
+        if (gm1.status === "value") out.gammaMinusOne = gm1.value;
+      }
+
+      if (typeof ctx.inputs.lossPerDayS === "number") {
+        const spd = speedForDailyLoss(ctx.inputs.lossPerDayS);
+        if (spd.status === "value") out.speedForDailyLossBeta = spd.value;
+      }
+
+      const beta = ctx.inputs.beta;
+      if (typeof beta === "number") {
+        const g = gamma(beta);
+        if (g.status === "value") out.gamma = g.value;
+
+        const r = rapidity(beta);
+        if (r.status === "value") out.rapidity = r.value;
+
+        if (typeof ctx.inputs.speedMetresPerSecond !== "number") {
+          const gm1 = gammaMinusOne(beta);
+          if (gm1.status === "value") out.gammaMinusOne = gm1.value;
+        }
+
+        const loss = dilationLossPerSecond(beta);
+        if (loss.status === "value") {
+          out.dilationLossPerSecond = loss.value.exact;
+          out.printedSecondOrderLoss = loss.value.printedSecondOrder;
+        }
+
+        if (typeof ctx.inputs.beta2 === "number") {
+          const comp = composeCollinear(beta, ctx.inputs.beta2);
+          if (comp.status === "value") out.composedCollinearBeta = comp.value;
+
+          const shortfall = composedSpeedShortfall(beta, ctx.inputs.beta2);
+          if (shortfall.status === "value") out.composedSpeedShortfall = shortfall.value;
+        }
+
+        if (typeof ctx.inputs.rodLengthLs === "number") {
+          const cl = contractedLength(ctx.inputs.rodLengthLs, beta);
+          if (cl.status === "value") out.contractedLengthLs = cl.value;
+
+          const desync = desynchronization(ctx.inputs.rodLengthLs, beta, 1);
+          if (desync.status === "value") out.desynchronizationS = desync.value;
+        }
+
+        if (typeof ctx.inputs.properTimeS === "number") {
+          const di = dilatedInterval(ctx.inputs.properTimeS, beta);
+          if (di.status === "value") out.dilatedIntervalS = di.value;
+        }
+
+        if (typeof ctx.inputs.deltaX === "number") {
+          const boost = alignedBoost(beta, 1);
+          if (boost.status === "value") {
+            const ev0 = transformEvent({ t: 0, x: 0, y: 0, z: 0 }, boost.value);
+            const ev1 = transformEvent({ t: 0, x: ctx.inputs.deltaX, y: 0, z: 0 }, boost.value);
+            if (ev0.status === "value" && ev1.status === "value") {
+              out.deltaTPrimeS = ev1.value.t - ev0.value.t;
+              out.deltaXPrimeLs = ev1.value.x - ev0.value.x;
+            }
+          }
+        }
       }
       return out;
     },

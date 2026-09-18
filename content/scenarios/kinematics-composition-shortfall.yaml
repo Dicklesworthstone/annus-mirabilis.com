@@ -1,0 +1,35 @@
+id: kinematics-composition-shortfall
+kind: modern-golden
+title: Near-light velocity composition and speed shortfall
+description: >
+  Collinear composition of two 0.99c velocities and cancellation-free shortfall helper:
+  0.99 ⊕ 0.99 = 0.9999494975... and 1 - (u ⊕ v) = 1/19801 = 5.0502500e-5.
+provenance:
+  paper: special-relativity
+  sectionId: s5
+  printedPage: 906
+constantSetId: modern-si-2019
+owner: kinematics
+inputs:
+  beta:
+    value: 0.99
+    unit: dimensionless
+  beta2:
+    value: 0.99
+    unit: dimensionless
+expected:
+  outputs:
+    - outputId: composedCollinearBeta
+      value: 0.9999494975001263
+      comparisonKind: tolerance
+      tolerance:
+        relative: 1.0e-7
+        rationale: "Collinear composition (0.99 + 0.99) / (1 + 0.99 * 0.99) = 1.98 / 1.9801."
+    - outputId: composedSpeedShortfall
+      value: 5.0502499873743844e-5
+      comparisonKind: tolerance
+      tolerance:
+        relative: 1.0e-12
+        rationale: "Exact rational shortfall 1 - (1.98 / 1.9801) = 1 / 19801 = 5.0502500e-5."
+modelVersion: 1
+schemaVersion: 1
