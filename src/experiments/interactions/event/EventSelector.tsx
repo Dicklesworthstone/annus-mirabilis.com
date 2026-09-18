@@ -35,6 +35,18 @@ export interface EventSelectorProps extends BaseInteractionProps<EventSelectorIn
     | undefined;
 }
 
+const srOnlyStyle: React.CSSProperties = {
+  position: "absolute",
+  width: "1px",
+  height: "1px",
+  padding: 0,
+  margin: "-1px",
+  overflow: "hidden",
+  clip: "rect(0, 0, 0, 0)",
+  whiteSpace: "nowrap",
+  borderWidth: 0,
+};
+
 export function EventSelector({
   instrumentId,
   actionId,
@@ -86,21 +98,45 @@ export function EventSelector({
 
   return (
     <div
-      className={`event-selector ${className}`}
+      className={className || undefined}
       data-interaction-family="clock-event"
       data-testid={testId}
     >
       {/* Live Region for Screen-Reader Announcements */}
-      <div className="sr-only" aria-live="polite" role="status">
+      <div style={srOnlyStyle} aria-live="polite" role="status">
         {announcement}
       </div>
 
       {/* Visual Diagram Representation */}
-      <div className="event-diagram-pane p-3 rounded bg-amber-50/50 border border-amber-200">
-        <h4 className="text-xs font-semibold uppercase tracking-wider text-amber-900 mb-2">
+      <div
+        style={{
+          padding: "0.75rem",
+          borderRadius: "0.25rem",
+          background: "var(--wash)",
+          border: "1px solid var(--line)",
+        }}
+      >
+        <h4
+          className="eyebrow"
+          style={{
+            fontSize: "0.75rem",
+            fontWeight: 600,
+            textTransform: "uppercase",
+            letterSpacing: "0.05em",
+            color: "var(--ink)",
+            marginBottom: "0.5rem",
+          }}
+        >
           Space-Time Event Selection
         </h4>
-        <div className="flex flex-wrap gap-2 mb-3">
+        <div
+          style={{
+            display: "flex",
+            flexWrap: "wrap",
+            gap: "0.5rem",
+            marginBottom: "0.75rem",
+          }}
+        >
           {events.map((ev) => {
             const isSelected = selectedIds.includes(ev.id);
             return (
@@ -110,11 +146,18 @@ export function EventSelector({
                 disabled={disabled}
                 onClick={() => handleToggleEvent(ev.id)}
                 aria-pressed={isSelected}
-                className={`px-3 py-1.5 rounded text-xs font-mono transition-colors ${
-                  isSelected
-                    ? "bg-amber-600 text-white font-bold"
-                    : "bg-white border border-amber-300 text-stone-800 hover:bg-amber-100"
-                }`}
+                className="button"
+                style={{
+                  padding: "0.375rem 0.75rem",
+                  borderRadius: "0.25rem",
+                  fontSize: "0.75rem",
+                  fontFamily: "var(--font-mono, monospace)",
+                  cursor: disabled ? "not-allowed" : "pointer",
+                  background: isSelected ? "var(--accent)" : "var(--panel)",
+                  color: isSelected ? "var(--panel)" : "var(--ink)",
+                  fontWeight: isSelected ? 700 : "normal",
+                  border: isSelected ? "1px solid var(--accent)" : "1px solid var(--line)",
+                }}
               >
                 {ev.label} (t={ev.t}s, x={ev.x}ls)
               </button>
@@ -123,8 +166,21 @@ export function EventSelector({
         </div>
 
         {/* Frame Observer Control */}
-        <div className="flex items-center gap-3 text-xs">
-          <label htmlFor={`${compId}-velocity`} className="font-sans text-stone-700">
+        <div
+          style={{
+            display: "flex",
+            alignItems: "center",
+            gap: "0.75rem",
+            fontSize: "0.75rem",
+          }}
+        >
+          <label
+            htmlFor={`${compId}-velocity`}
+            style={{
+              fontFamily: "var(--font-sans, inherit)",
+              color: "var(--ink)",
+            }}
+          >
             Observer velocity (v/c):
           </label>
           <input
@@ -136,27 +192,62 @@ export function EventSelector({
             value={beta}
             disabled={disabled}
             onChange={(e) => handleFrameChange(Number.parseFloat(e.target.value))}
-            className="w-36 accent-amber-600"
+            style={{
+              width: "9rem",
+              accentColor: "var(--accent)",
+            }}
           />
-          <span className="font-mono text-stone-900">{beta.toFixed(2)}c</span>
+          <span
+            style={{
+              fontFamily: "var(--font-mono, monospace)",
+              color: "var(--ink)",
+            }}
+          >
+            {beta.toFixed(2)}c
+          </span>
         </div>
       </div>
 
       {/* Accessible Equivalent Table Panel */}
-      <div className="event-table-equivalent mt-3 p-3 bg-stone-50 border border-stone-200 rounded">
-        <h5 className="text-xs font-bold text-stone-800 mb-1">
+      <div
+        style={{
+          marginTop: "0.75rem",
+          padding: "0.75rem",
+          background: "var(--panel)",
+          border: "1px solid var(--line)",
+          borderRadius: "0.25rem",
+        }}
+      >
+        <h5
+          style={{
+            fontSize: "0.75rem",
+            fontWeight: 700,
+            color: "var(--ink)",
+            marginBottom: "0.25rem",
+          }}
+        >
           Accessible Event Roster & Simultaneity
         </h5>
         <table
-          className="w-full text-xs text-left border-collapse"
+          style={{
+            width: "100%",
+            fontSize: "0.75rem",
+            textAlign: "left",
+            borderCollapse: "collapse",
+          }}
           aria-label="Event Coordinates and Simultaneity"
         >
           <thead>
-            <tr className="border-b border-stone-300 text-stone-600">
-              <th className="py-1 px-2">Select</th>
-              <th className="py-1 px-2">Event</th>
-              <th className="py-1 px-2">Rest (t, x)</th>
-              <th className="py-1 px-2">Frame S&apos; (t&apos;, x&apos;)</th>
+            <tr
+              style={{
+                borderBottom: "1px solid var(--line)",
+                color: "var(--muted)",
+              }}
+            >
+              <th style={{ padding: "0.25rem 0.5rem" }}>Select</th>
+              <th style={{ padding: "0.25rem 0.5rem" }}>Event</th>
+              <th style={{ padding: "0.25rem 0.5rem" }}>Rest (t, x)</th>
+              <th style={{ padding: "0.25rem 0.5rem" }}>Frame S&apos; (t&apos;, x&apos;)</th>
             </tr>
           </thead>
           <tbody>
@@ -164,8 +255,13 @@ export function EventSelector({
               const isSelected = selectedIds.includes(ev.id);
               const trans = transformedCoordinates?.[ev.id];
               return (
-                <tr key={ev.id} className="border-b border-stone-200">
-                  <td className="py-1 px-2">
+                <tr
+                  key={ev.id}
+                  style={{
+                    borderBottom: "1px solid var(--line)",
+                  }}
+                >
+                  <td style={{ padding: "0.25rem 0.5rem" }}>
                     <input
                       type="checkbox"
                       id={`${compId}-check-${ev.id}`}
@@ -173,15 +269,34 @@ export function EventSelector({
                       disabled={disabled}
                       onChange={() => handleToggleEvent(ev.id)}
                       aria-label={`Select event ${ev.label}`}
+                      style={{ accentColor: "var(--accent)" }}
                     />
                   </td>
-                  <td className="py-1 px-2 font-semibold">
+                  <td
+                    style={{
+                      padding: "0.25rem 0.5rem",
+                      fontWeight: 600,
+                      color: "var(--ink)",
+                    }}
+                  >
                     <label htmlFor={`${compId}-check-${ev.id}`}>{ev.label}</label>
                   </td>
-                  <td className="py-1 px-2 font-mono">
+                  <td
+                    style={{
+                      padding: "0.25rem 0.5rem",
+                      fontFamily: "var(--font-mono, monospace)",
+                      color: "var(--ink)",
+                    }}
+                  >
                     t={ev.t}s, x={ev.x}ls
                   </td>
-                  <td className="py-1 px-2 font-mono">
+                  <td
+                    style={{
+                      padding: "0.25rem 0.5rem",
+                      fontFamily: "var(--font-mono, monospace)",
+                      color: "var(--ink)",
+                    }}
+                  >
                     {trans
                       ? `t'=${trans.tPrime.toFixed(2)}s, x'=${trans.xPrime.toFixed(2)}ls`
                       : "—"}
@@ -194,7 +309,12 @@ export function EventSelector({
 
         {simultaneityStatus && (
           <div
-            className="mt-2 text-xs text-amber-900 font-medium"
+            style={{
+              marginTop: "0.5rem",
+              fontSize: "0.75rem",
+              color: "var(--accent)",
+              fontWeight: 500,
+            }}
             data-testid="simultaneity-status"
           >
             Simultaneity Verdict: {simultaneityStatus}
