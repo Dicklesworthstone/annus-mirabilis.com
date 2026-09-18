@@ -34,18 +34,52 @@ export function DatasetTable({
 
   return (
     <div
-      className={`dataset-table-container overflow-x-auto text-xs ${className}`.trim()}
+      className={className ? className.trim() : undefined}
       data-testid="dataset-table"
+      role="region"
+      aria-label="Historical dataset table"
+      tabIndex={0}
+      style={{
+        overflowX: "auto",
+        fontSize: "0.75rem",
+      }}
     >
-      <table className="w-full border-collapse border border-neutral-300 dark:border-neutral-700">
-        <caption className="text-left font-serif p-2 bg-neutral-100 dark:bg-neutral-800 text-neutral-800 dark:text-neutral-200 border-b border-neutral-300 dark:border-neutral-700">
-          <span className="font-semibold">{dataset.title}</span>: {citationText}
+      <table
+        style={{
+          width: "100%",
+          borderCollapse: "collapse",
+          border: "1px solid var(--line)",
+        }}
+      >
+        <caption
+          style={{
+            textAlign: "left",
+            fontFamily: "var(--font-serif, serif)",
+            padding: "0.5rem",
+            background: "var(--wash)",
+            color: "var(--ink)",
+            borderBottom: "1px solid var(--line)",
+          }}
+        >
+          <span style={{ fontWeight: 600 }}>{dataset.title}</span>: {citationText}
         </caption>
         <thead>
-          <tr className="bg-neutral-50 dark:bg-neutral-900 border-b border-neutral-300 dark:border-neutral-700">
+          <tr
+            style={{
+              background: "var(--wash)",
+              borderBottom: "1px solid var(--line)",
+            }}
+          >
             <th
               scope="col"
-              className="p-2 text-left font-semibold border-r dark:border-neutral-700 w-12"
+              style={{
+                padding: "0.5rem",
+                textAlign: "left",
+                fontWeight: 600,
+                borderRight: "1px solid var(--line)",
+                width: "3rem",
+                color: "var(--ink)",
+              }}
             >
               #
             </th>
@@ -53,13 +87,27 @@ export function DatasetTable({
               <th
                 key={`th-col-${col.quantityId || `col-${cIdx}`}`}
                 scope="col"
-                className="p-2 text-left font-semibold border-r dark:border-neutral-700 last:border-r-0"
                 data-quantity-id={col.quantityId}
                 data-column-role={col.role}
+                style={{
+                  padding: "0.5rem",
+                  textAlign: "left",
+                  fontWeight: 600,
+                  borderRight:
+                    cIdx === dataset.columns.length - 1 ? undefined : "1px solid var(--line)",
+                  color: "var(--ink)",
+                }}
               >
                 <div>{col.name}</div>
-                <div className="font-normal font-mono text-[10px] text-neutral-500">
-                  [{col.unit}] • <span className="italic">{col.role}</span>
+                <div
+                  className="fine"
+                  style={{
+                    fontWeight: "normal",
+                    fontFamily: "var(--font-mono, monospace)",
+                    fontSize: "0.625rem",
+                  }}
+                >
+                  [{col.unit}] • <span style={{ fontStyle: "italic" }}>{col.role}</span>
                 </div>
               </th>
             ))}
@@ -72,7 +120,6 @@ export function DatasetTable({
             return (
               <tr
                 key={rowKey}
-                className={`border-b dark:border-neutral-800 cursor-pointer hover:bg-neutral-50 dark:hover:bg-neutral-800/50 ${isSelected ? "bg-amber-100/60 dark:bg-amber-950/40 font-semibold" : ""}`.trim()}
                 onClick={() => onSelectRow?.(rIdx)}
                 onKeyDown={(e) => {
                   if (e.key === "Enter" || e.key === " ") {
@@ -83,19 +130,44 @@ export function DatasetTable({
                 tabIndex={0}
                 data-row-index={rIdx}
                 data-selected={isSelected}
+                style={{
+                  borderBottom: "1px solid var(--line)",
+                  cursor: "pointer",
+                  background: isSelected ? "rgba(245, 158, 11, 0.15)" : undefined,
+                  fontWeight: isSelected ? 600 : undefined,
+                }}
               >
-                <td className="p-2 font-mono text-neutral-400 border-r dark:border-neutral-700">
+                <td
+                  style={{
+                    padding: "0.5rem",
+                    fontFamily: "var(--font-mono, monospace)",
+                    color: "var(--muted)",
+                    borderRight: "1px solid var(--line)",
+                  }}
+                >
                   {rIdx}
                 </td>
                 {row.cells.map((cell: DataCell, cIdx: number) => {
                   const col = dataset.columns[cIdx];
                   let cellContent: ReactElement | string;
                   if (cell.kind === "number") {
-                    cellContent = <span className="font-mono">{cell.value}</span>;
+                    cellContent = (
+                      <span
+                        style={{
+                          fontFamily: "var(--font-mono, monospace)",
+                          color: "var(--ink)",
+                        }}
+                      >
+                        {cell.value}
+                      </span>
+                    );
                   } else if (cell.kind === "bound") {
                     cellContent = (
                       <span
-                        className="font-mono text-amber-700 dark:text-amber-300"
+                        style={{
+                          fontFamily: "var(--font-mono, monospace)",
+                          color: "var(--accent)",
+                        }}
                         title={`Apparatus bound: ${cell.direction}`}
                       >
                         {cell.direction === "upper" ? "≤ " : "≥ "}
@@ -105,7 +177,11 @@ export function DatasetTable({
                   } else {
                     cellContent = (
                       <span
-                        className="italic text-neutral-500 font-sans"
+                        className="fine"
+                        style={{
+                          fontStyle: "italic",
+                          fontFamily: "var(--font-sans, sans-serif)",
+                        }}
                         title="Missing observation"
                       >
                         {cell.reason}
@@ -116,7 +192,11 @@ export function DatasetTable({
                   return (
                     <td
                       key={`td-${col?.quantityId ?? `cell-${cIdx}`}`}
-                      className="p-2 border-r dark:border-neutral-700 last:border-r-0"
+                      style={{
+                        padding: "0.5rem",
+                        borderRight:
+                          cIdx === row.cells.length - 1 ? undefined : "1px solid var(--line)",
+                      }}
                     >
                       {cellContent}
                     </td>
@@ -130,36 +210,75 @@ export function DatasetTable({
 
       {/* Fit & Reanalysis Summaries */}
       {relevantFits.length > 0 && (
-        <div className="fits-summary mt-4 p-3 bg-neutral-50 dark:bg-neutral-900 border border-neutral-200 dark:border-neutral-800 rounded">
-          <h4 className="font-semibold text-xs text-neutral-800 dark:text-neutral-200 mb-2">
+        <div
+          style={{
+            marginTop: "1rem",
+            padding: "0.75rem",
+            background: "var(--wash)",
+            border: "1px solid var(--line)",
+            borderRadius: "0.25rem",
+          }}
+        >
+          <h4
+            style={{
+              fontWeight: 600,
+              fontSize: "0.75rem",
+              color: "var(--ink)",
+              margin: "0 0 0.5rem",
+            }}
+          >
             Historical Fits & Parameters
           </h4>
           {relevantFits.map((fit) => (
             <div
               key={`fit-${fit.id}`}
-              className="mb-3 last:mb-0 text-xs border-b last:border-b-0 pb-2 dark:border-neutral-800"
+              style={{
+                marginBottom: "0.75rem",
+                paddingBottom: "0.5rem",
+                borderBottom: "1px solid var(--line)",
+                fontSize: "0.75rem",
+              }}
               data-fit-id={fit.id}
             >
-              <div className="flex justify-between items-center mb-1">
-                <span className="font-medium text-neutral-900 dark:text-neutral-100">
-                  {fit.label}
-                </span>
-                <span className="text-neutral-500 text-[11px]">
+              <div
+                style={{
+                  display: "flex",
+                  justifyContent: "space-between",
+                  alignItems: "center",
+                  marginBottom: "0.25rem",
+                  flexWrap: "wrap",
+                  gap: "0.25rem",
+                }}
+              >
+                <span style={{ fontWeight: 500, color: "var(--ink)" }}>{fit.label}</span>
+                <span className="fine" style={{ fontSize: "0.6875rem" }}>
                   Objective: {fit.fitObjective} • Used: {fit.rowsUsed.length} / Excluded:{" "}
                   {fit.rowsExcluded.length}
                 </span>
               </div>
               {fit.fitDescription && (
-                <p className="text-[11px] text-neutral-600 dark:text-neutral-400 mb-1">
+                <p className="fine" style={{ margin: "0 0 0.25rem", fontSize: "0.6875rem" }}>
                   {fit.fitDescription}
                 </p>
               )}
 
               {/* Excluded rows reasons */}
               {fit.rowsExcluded.length > 0 && (
-                <div className="exclusions-list text-[11px] text-amber-800 dark:text-amber-300 my-1">
+                <div
+                  style={{
+                    fontSize: "0.6875rem",
+                    color: "var(--accent)",
+                    margin: "0.25rem 0",
+                  }}
+                >
                   <strong>Excluded rows:</strong>
-                  <ul className="list-disc pl-4 mt-0.5">
+                  <ul
+                    style={{
+                      listStyleType: "disc",
+                      paddingLeft: "1rem",
+                      margin: "0.125rem 0 0",
+                    }}
+                  >
                     {fit.rowsExcluded.map((ex) => (
                       <li key={`ex-${ex.rowIndex}`}>
                         Row {ex.rowIndex}: {ex.reason}
@@ -170,16 +289,30 @@ export function DatasetTable({
               )}
 
               {/* Parameter table */}
-              <div className="parameters-list text-[11px] mt-1">
-                <span className="font-semibold">Parameters:</span>
-                <div className="flex flex-wrap gap-2 mt-1">
+              <div style={{ fontSize: "0.6875rem", marginTop: "0.25rem" }}>
+                <span style={{ fontWeight: 600, color: "var(--ink)" }}>Parameters:</span>
+                <div
+                  style={{
+                    display: "flex",
+                    flexWrap: "wrap",
+                    gap: "0.5rem",
+                    marginTop: "0.25rem",
+                  }}
+                >
                   {fit.parameters.map((p) => (
                     <span
                       key={`p-${p.name}`}
-                      className="p-1 bg-white dark:bg-neutral-800 border rounded font-mono"
+                      style={{
+                        padding: "0.25rem",
+                        background: "var(--panel)",
+                        border: "1px solid var(--line)",
+                        borderRadius: "0.25rem",
+                        fontFamily: "var(--font-mono, monospace)",
+                        color: "var(--ink)",
+                      }}
                     >
                       {p.name} = {p.value} {p.unit} (
-                      <em>
+                      <em style={{ fontStyle: "italic" }}>
                         {p.source === "fitted-here"
                           ? "fitted here"
                           : `imported: ${p.sourceCitation ?? "prior source"}`}

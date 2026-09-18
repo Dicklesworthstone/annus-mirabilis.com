@@ -149,6 +149,6 @@
   "src/visuals/kit/TrajectoryLayer.tsx": 9,
   "src/visuals/overlays/DatasetEvidenceReveal.tsx": 0,
   "src/visuals/overlays/DatasetOverlay.tsx": 55,
-  "src/visuals/overlays/DatasetTable.tsx": 110,
+  "src/visuals/overlays/DatasetTable.tsx": 0,
   "src/visuals/three/StudioKernelChips.tsx": 0
 }
