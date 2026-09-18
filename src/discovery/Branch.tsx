@@ -1,3 +1,4 @@
+import type { CSSProperties } from "react";
 import {
   type Branch as BranchType,
   type ForkVariesKind,
@@ -12,20 +13,44 @@ export interface BranchProps {
 export function Branch({ branch }: BranchProps) {
   const { id, label, proponent, hypothesis, worksWhen, steps, outcome } = branch;
 
-  const outcomeBadgeClass = (() => {
+  const outcomeBadgeStyle: CSSProperties = (() => {
     switch (outcome.type) {
       case "papers-route":
-        return "bg-emerald-950 text-emerald-300 border-emerald-700";
+        return {
+          background: "rgba(16, 185, 129, 0.15)",
+          color: "#10b981",
+          border: "1px solid rgba(16, 185, 129, 0.4)",
+        };
       case "dead-end-on-constraint":
-        return "bg-rose-950 text-rose-300 border-rose-700";
+        return {
+          background: "rgba(225, 29, 72, 0.15)",
+          color: "#e11d48",
+          border: "1px solid rgba(225, 29, 72, 0.4)",
+        };
       case "correct-but-weaker":
-        return "bg-sky-950 text-sky-300 border-sky-700";
+        return {
+          background: "rgba(14, 165, 233, 0.15)",
+          color: "#0284c7",
+          border: "1px solid rgba(14, 165, 233, 0.4)",
+        };
       case "empirically-equivalent-not-refuted":
-        return "bg-cyan-950 text-cyan-300 border-cyan-700";
+        return {
+          background: "rgba(6, 182, 212, 0.15)",
+          color: "#0891b2",
+          border: "1px solid rgba(6, 182, 212, 0.4)",
+        };
       case "undecided-on-available-evidence":
-        return "bg-purple-950 text-purple-300 border-purple-700";
+        return {
+          background: "rgba(168, 85, 247, 0.15)",
+          color: "#9333ea",
+          border: "1px solid rgba(168, 85, 247, 0.4)",
+        };
       default:
-        return "bg-stone-800 text-stone-300 border-stone-600";
+        return {
+          background: "var(--wash)",
+          color: "var(--ink)",
+          border: "1px solid var(--line)",
+        };
     }
   })();
 
@@ -34,17 +59,50 @@ export function Branch({ branch }: BranchProps) {
       id={id}
       data-branch-id={id}
       data-outcome-type={outcome.type}
-      className="branch p-5 rounded-lg border border-stone-700 bg-stone-900/80 text-stone-200 space-y-4"
+      style={{
+        padding: "1.25rem",
+        borderRadius: "0.5rem",
+        border: "1px solid var(--line)",
+        background: "var(--wash)",
+        color: "var(--ink)",
+        display: "flex",
+        flexDirection: "column",
+        gap: "1rem",
+      }}
     >
-      <header className="flex flex-wrap items-start justify-between gap-3 border-b border-stone-800 pb-3">
+      <header
+        style={{
+          display: "flex",
+          flexWrap: "wrap",
+          alignItems: "flex-start",
+          justifyContent: "space-between",
+          gap: "0.75rem",
+          borderBottom: "1px solid var(--line)",
+          paddingBottom: "0.75rem",
+        }}
+      >
         <div>
-          <h4 className="text-base font-bold text-stone-100 font-serif">{label}</h4>
+          <h4
+            style={{
+              fontSize: "1rem",
+              fontWeight: "bold",
+              color: "var(--ink)",
+              fontFamily: "var(--font-serif, serif)",
+              margin: 0,
+            }}
+          >
+            {label}
+          </h4>
           {proponent && (
-            <p className="text-xs text-stone-400 mt-0.5">
+            <p className="fine" style={{ margin: "0.125rem 0 0" }}>
               Historical proponent:{" "}
               <a
                 href={`#${proponent.cardId}`}
-                className="text-amber-400 hover:underline font-medium"
+                style={{
+                  color: "var(--accent)",
+                  fontWeight: 500,
+                  textDecoration: "none",
+                }}
               >
                 {proponent.name}
               </a>
@@ -52,40 +110,114 @@ export function Branch({ branch }: BranchProps) {
           )}
         </div>
         <span
-          className={`inline-flex items-center px-2.5 py-1 rounded text-xs font-medium border ${outcomeBadgeClass}`}
+          style={{
+            display: "inline-flex",
+            alignItems: "center",
+            padding: "0.25rem 0.625rem",
+            borderRadius: "0.25rem",
+            fontSize: "0.75rem",
+            fontWeight: 500,
+            ...outcomeBadgeStyle,
+          }}
         >
           {OUTCOME_TYPE_LABELS[outcome.type] ?? outcome.type}
         </span>
       </header>
 
       {/* Hypothesis & Domain of Validity */}
-      <div className="grid grid-cols-1 md:grid-cols-2 gap-3 text-xs">
-        <div className="p-3 rounded bg-stone-950/60 border border-stone-800">
-          <span className="font-semibold text-stone-400 uppercase tracking-wide block mb-1">
+      <div
+        style={{
+          display: "grid",
+          gridTemplateColumns: "repeat(auto-fit, minmax(200px, 1fr))",
+          gap: "0.75rem",
+          fontSize: "0.75rem",
+        }}
+      >
+        <div
+          style={{
+            padding: "0.75rem",
+            borderRadius: "0.25rem",
+            background: "var(--panel)",
+            border: "1px solid var(--line)",
+          }}
+        >
+          <span
+            className="eyebrow"
+            style={{
+              fontWeight: 600,
+              textTransform: "uppercase",
+              letterSpacing: "0.05em",
+              display: "block",
+              marginBottom: "0.25rem",
+            }}
+          >
             Hypothesis
           </span>
-          <p className="text-stone-200">{hypothesis}</p>
+          <p style={{ margin: 0, color: "var(--ink)", lineHeight: 1.5 }}>{hypothesis}</p>
         </div>
-        <div className="p-3 rounded bg-stone-950/60 border border-stone-800">
-          <span className="font-semibold text-stone-400 uppercase tracking-wide block mb-1">
+        <div
+          style={{
+            padding: "0.75rem",
+            borderRadius: "0.25rem",
+            background: "var(--panel)",
+            border: "1px solid var(--line)",
+          }}
+        >
+          <span
+            className="eyebrow"
+            style={{
+              fontWeight: 600,
+              textTransform: "uppercase",
+              letterSpacing: "0.05em",
+              display: "block",
+              marginBottom: "0.25rem",
+            }}
+          >
             Valid When
           </span>
-          <p className="text-stone-200">{worksWhen}</p>
+          <p style={{ margin: 0, color: "var(--ink)", lineHeight: 1.5 }}>{worksWhen}</p>
         </div>
       </div>
 
       {/* Deductive Steps */}
       {steps && steps.length > 0 && (
-        <details className="text-xs">
-          <summary className="cursor-pointer font-medium text-stone-400 hover:text-stone-200">
+        <details style={{ fontSize: "0.75rem" }}>
+          <summary
+            className="fine"
+            style={{
+              cursor: "pointer",
+              fontWeight: 500,
+            }}
+          >
             Deductive steps ({steps.length})
           </summary>
-          <ol className="list-decimal list-inside space-y-1.5 mt-2 p-3 rounded bg-stone-950/40 border border-stone-800 text-stone-300">
+          <ol
+            style={{
+              listStylePosition: "inside",
+              listStyleType: "decimal",
+              margin: "0.5rem 0 0",
+              padding: "0.75rem",
+              borderRadius: "0.25rem",
+              background: "var(--panel)",
+              border: "1px solid var(--line)",
+              color: "var(--ink)",
+              display: "flex",
+              flexDirection: "column",
+              gap: "0.375rem",
+            }}
+          >
             {steps.map((step) => (
-              <li key={`${id}-step-${step.presetId ?? step.text}`} className="leading-relaxed">
+              <li key={`${id}-step-${step.presetId ?? step.text}`} style={{ lineHeight: 1.6 }}>
                 <span>{step.text}</span>
                 {step.presetId && (
-                  <span className="ml-2 font-mono text-[10px] text-amber-400/80">
+                  <span
+                    style={{
+                      marginLeft: "0.5rem",
+                      fontFamily: "var(--font-mono, monospace)",
+                      fontSize: "0.625rem",
+                      color: "var(--accent)",
+                    }}
+                  >
                     [{step.presetId}]
                   </span>
                 )}
@@ -96,15 +228,32 @@ export function Branch({ branch }: BranchProps) {
       )}
 
       {/* Outcome and Constraints */}
-      <div className="outcome-section p-3.5 rounded bg-stone-950/70 border border-stone-800 space-y-2 text-xs">
-        <p className="font-medium text-stone-100 leading-relaxed">{outcome.plainLanguage}</p>
+      <div
+        style={{
+          padding: "0.875rem",
+          borderRadius: "0.25rem",
+          background: "var(--panel)",
+          border: "1px solid var(--line)",
+          display: "flex",
+          flexDirection: "column",
+          gap: "0.5rem",
+          fontSize: "0.75rem",
+        }}
+      >
+        <p style={{ fontWeight: 500, color: "var(--ink)", lineHeight: 1.6, margin: 0 }}>
+          {outcome.plainLanguage}
+        </p>
 
         {outcome.constraintRef && (
-          <p className="text-rose-400">
-            <span className="font-semibold">Contradicted by evidence / constraint: </span>
+          <p style={{ margin: 0, color: "#e11d48" }}>
+            <span style={{ fontWeight: 600 }}>Contradicted by evidence / constraint: </span>
             <a
               href={`#${outcome.constraintRef}`}
-              className="underline hover:text-rose-300 font-mono"
+              style={{
+                textDecoration: "underline",
+                color: "#e11d48",
+                fontFamily: "var(--font-mono, monospace)",
+              }}
             >
               #{outcome.constraintRef}
             </a>
@@ -112,29 +261,48 @@ export function Branch({ branch }: BranchProps) {
         )}
 
         {outcome.scopeNote && (
-          <p className="text-cyan-300">
-            <span className="font-semibold">Observable class scope: </span>
+          <p style={{ margin: 0, color: "#0891b2" }}>
+            <span style={{ fontWeight: 600 }}>Observable class scope: </span>
             <span>{outcome.scopeNote}</span>
           </p>
         )}
 
         {outcome.insufficiency && (
-          <p className="text-purple-300">
-            <span className="font-semibold">Why 1904 evidence is insufficient: </span>
+          <p style={{ margin: 0, color: "#9333ea" }}>
+            <span style={{ fontWeight: 600 }}>Why 1904 evidence is insufficient: </span>
             <span>{outcome.insufficiency}</span>
           </p>
         )}
 
         {outcome.whatWouldDecide && (
-          <p className="text-purple-300 pt-1 border-t border-stone-800/80">
-            <span className="font-semibold">Later resolving measurement: </span>
+          <p
+            style={{
+              margin: 0,
+              paddingTop: "0.25rem",
+              borderTop: "1px solid var(--line)",
+              color: "#9333ea",
+            }}
+          >
+            <span style={{ fontWeight: 600 }}>Later resolving measurement: </span>
             <span>{outcome.whatWouldDecide.name}</span>
             {outcome.whatWouldDecide.year && (
-              <span className="ml-1 text-stone-400 font-mono">
+              <span
+                className="fine"
+                style={{
+                  marginLeft: "0.25rem",
+                  fontFamily: "var(--font-mono, monospace)",
+                }}
+              >
                 ({outcome.whatWouldDecide.year})
               </span>
             )}
-            <span className="ml-2 font-mono text-stone-400">
+            <span
+              className="fine"
+              style={{
+                marginLeft: "0.5rem",
+                fontFamily: "var(--font-mono, monospace)",
+              }}
+            >
               [#{outcome.whatWouldDecide.recordId}]
             </span>
           </p>
