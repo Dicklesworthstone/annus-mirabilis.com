@@ -1,0 +1,258 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Controls Kit Fixture Application</title>
+  <style>
+    * { box-sizing: border-box; }
+    body {
+      margin: 0;
+      font-family: system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
+      padding: 16px;
+      color: #111827;
+      background: #f9fafb;
+    }
+    .controls-panel {
+      max-width: 480px;
+      margin: 0 auto;
+      display: flex;
+      flex-direction: column;
+      gap: 16px;
+    }
+    .parameter-control {
+      padding: 12px;
+      background: #ffffff;
+      border: 1px solid #e5e7eb;
+      border-radius: 8px;
+      word-break: break-word;
+      overflow-wrap: break-word;
+    }
+    .parameter-control.has-error {
+      border-color: #ef4444;
+      background: #fef2f2;
+    }
+    .parameter-control.beyond-track {
+      border-color: #f59e0b;
+    }
+    .parameter-header {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      margin-bottom: 4px;
+      gap: 8px;
+    }
+    .parameter-label {
+      font-weight: 600;
+      font-size: 0.95rem;
+    }
+    .command-class-badge {
+      font-size: 0.75rem;
+      padding: 2px 6px;
+      background: #e5e7eb;
+      border-radius: 4px;
+      white-space: nowrap;
+    }
+    .parameter-description {
+      font-size: 0.8rem;
+      color: #6b7280;
+      margin-bottom: 8px;
+    }
+    .parameter-interactive-row {
+      display: flex;
+      align-items: center;
+      gap: 8px;
+      min-width: 0;
+    }
+    .step-btn {
+      width: 32px;
+      height: 32px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      border: 1px solid #d1d5db;
+      background: #f3f4f6;
+      border-radius: 6px;
+      cursor: pointer;
+      font-size: 1.1rem;
+      flex-shrink: 0;
+    }
+    .parameter-slider {
+      flex: 1;
+      height: 6px;
+      cursor: pointer;
+      min-width: 0;
+    }
+    .parameter-typed-input {
+      width: 90px;
+      padding: 4px 8px;
+      border: 1px solid #d1d5db;
+      border-radius: 6px;
+      font-size: 0.875rem;
+      flex-shrink: 0;
+    }
+    .beyond-track-marker {
+      font-size: 0.75rem;
+      color: #b45309;
+      margin-top: 6px;
+      font-weight: 500;
+    }
+    .domain-explanation {
+      margin-top: 8px;
+      padding: 8px;
+      background: #fee2e2;
+      border-radius: 6px;
+      font-size: 0.8rem;
+      color: #991b1b;
+    }
+    .offered-neighbours {
+      margin-top: 6px;
+      display: flex;
+      flex-wrap: wrap;
+      gap: 6px;
+      align-items: center;
+    }
+    .btn-neighbour-option {
+      padding: 2px 8px;
+      font-size: 0.75rem;
+      background: #ffffff;
+      border: 1px solid #ef4444;
+      border-radius: 4px;
+      cursor: pointer;
+      color: #b91c1c;
+    }
+    .seed-input-row {
+      display: flex;
+      gap: 8px;
+      min-width: 0;
+    }
+    .seed-input {
+      flex: 1;
+      min-width: 0;
+      padding: 6px 8px;
+      border: 1px solid #d1d5db;
+      border-radius: 6px;
+      font-family: monospace;
+      font-size: 0.85rem;
+    }
+    .btn-roll-seed {
+      padding: 6px 12px;
+      font-size: 0.85rem;
+      border: 1px solid #d1d5db;
+      border-radius: 6px;
+      background: #f3f4f6;
+      cursor: pointer;
+      white-space: nowrap;
+      flex-shrink: 0;
+    }
+    .derived-value-display {
+      display: flex;
+      align-items: center;
+      gap: 8px;
+      min-width: 0;
+    }
+    .derived-numeric {
+      padding: 4px 8px;
+      border: 1px solid #e5e7eb;
+      background: #f9fafb;
+      border-radius: 6px;
+      font-size: 0.875rem;
+      width: 100px;
+    }
+    .derived-unit {
+      font-size: 0.85rem;
+      color: #6b7280;
+    }
+    .derived-badge {
+      font-size: 0.75rem;
+      padding: 2px 6px;
+      background: #e0e7ff;
+      color: #3730a3;
+      border-radius: 4px;
+      margin-left: auto;
+    }
+    .parameter-dropdown {
+      width: 100%;
+      padding: 6px 8px;
+      border: 1px solid #d1d5db;
+      border-radius: 6px;
+      font-size: 0.875rem;
+      background: #ffffff;
+    }
+    .experiment-settings-drawer {
+      border: 1px solid #e5e7eb;
+      border-radius: 8px;
+      background: #ffffff;
+      padding: 8px 12px;
+    }
+    .settings-drawer-summary {
+      font-weight: 600;
+      cursor: pointer;
+      padding: 4px 0;
+    }
+    .advanced-controls-group {
+      margin-top: 12px;
+      display: flex;
+      flex-direction: column;
+      gap: 12px;
+    }
+    .controls-reset-actions {
+      display: flex;
+      gap: 8px;
+      justify-content: flex-end;
+      flex-wrap: wrap;
+    }
+    .btn-reset {
+      padding: 6px 12px;
+      font-size: 0.8rem;
+      border: 1px solid #d1d5db;
+      border-radius: 6px;
+      background: #ffffff;
+      cursor: pointer;
+    }
+
+    @media (max-width: 480px) {
+      body {
+        padding: 8px;
+      }
+      .parameter-control {
+        padding: 8px;
+      }
+      .parameter-interactive-row {
+        gap: 4px;
+      }
+      .step-btn {
+        width: 28px;
+        height: 28px;
+        font-size: 1rem;
+      }
+      .parameter-slider {
+        min-width: 40px;
+      }
+      .parameter-typed-input {
+        width: 68px;
+        padding: 4px 6px;
+        font-size: 0.8rem;
+      }
+      .seed-input-row {
+        gap: 6px;
+      }
+      .btn-roll-seed {
+        padding: 6px 8px;
+        font-size: 0.8rem;
+      }
+      .controls-reset-actions {
+        gap: 6px;
+      }
+      .btn-reset {
+        padding: 6px 8px;
+        font-size: 0.75rem;
+      }
+    }
+  </style>
+</head>
+<body data-reader-root="true" data-ready="true" data-view="experiment">
+  <div id="app"></div>
+  <script type="module" src="/apps/controls-kit/bundle.js"></script>
+</body>
+</html>

@@ -7,7 +7,7 @@
  * real parameter controls kit and store DOM contract attributes.
  */
 
-import React, { createElement, useCallback, useState } from "react";
+import { createElement, useCallback, useState } from "react";
 import { createRoot } from "react-dom/client";
 import type { ParameterSpec } from "../../../../content/schemas/experiment.ts";
 import { ControlsPanel } from "../../../../experiments/controls/ControlsPanel.tsx";
@@ -265,7 +265,7 @@ export function ControlsKitFixtureApp() {
       "data-input-revision": String(inputRevision),
       "data-accepted-input-revision": String(acceptedInputRevision),
       "data-pending": "false",
-      "data-execution-label": "Controls Kit Fixture",
+      "data-execution-label": "host",
       "data-last-command-class": lastCommandClass ?? "none",
     },
     createElement(ControlsPanel, {

@@ -178,6 +178,12 @@ export const CONTROLS_KIT_FIXTURE_ENTRY: FixtureAppEntry = Object.freeze({
   entry: "src/testing/e2e/fixture-apps/controls-kit/",
   outDir: "artifacts/e2e-fixtures/controls-kit/",
   owner: "am-inst-parameter-controls-cmj9",
+  staticInputs: [
+    {
+      from: "src/testing/e2e/fixture-apps/controls-kit/index.html",
+      servedPath: "index.html",
+    },
+  ],
 });
 
 export const RUNTIME_FIXTURE_ENTRY: FixtureAppEntry = Object.freeze({

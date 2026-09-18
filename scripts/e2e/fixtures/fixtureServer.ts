@@ -72,7 +72,13 @@ async function resolveRequestFile(
   const appsRoot = resolve(options.appsRoot);
 
   if (pathname.startsWith("/apps/")) {
-    const resolved = resolveWithinRoot(appsRoot, pathname.slice("/apps".length));
+    const rawAppPath = pathname.slice("/apps".length);
+    const appPath = rawAppPath.endsWith("/")
+      ? `${rawAppPath}index.html`
+      : !rawAppPath.includes(".")
+        ? `${rawAppPath}/index.html`
+        : rawAppPath;
+    const resolved = resolveWithinRoot(appsRoot, appPath);
     if (!resolved) return undefined;
     return { filePath: resolved, servedPath: pathname };
   }
