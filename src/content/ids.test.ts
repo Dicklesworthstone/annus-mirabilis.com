@@ -10,6 +10,7 @@ import {
   allocateEquationIds,
   normalizePrintedLabel,
   parseAlignableUnitId,
+  parseAlternateFormId,
   parseBibKey,
   parseClosingId,
   parseConcordanceEntryId,
@@ -24,11 +25,13 @@ import {
   parseInlineMathId,
   parseInstrumentId,
   parseModeId,
+  parseOperationId,
   parsePaperCode,
   parseParagraphId,
   parsePredictPromptId,
   parsePremiseId,
   parsePresetId,
+  parseQualifiedId,
   parseQuantityId,
   parseReferenceId,
   parseRouteSlug,
@@ -829,6 +832,187 @@ describe("refusal coverage: slugs, bib keys, and paper codes (ids.ts throw sites
       expect(res.error).toContain("Invalid global equation record ID");
     }
     const pass = parseEquationRecordId("eq-bm-s3-d4");
+    expect(pass.ok).toBe(true);
+  });
+
+  test("PLANTED: empty or non-string operation ID refuses with operation-id-grammar (ids.ts:807)", () => {
+    const resEmpty = parseOperationId("");
+    expect(resEmpty.ok).toBe(false);
+    if (!resEmpty.ok) {
+      expect(resEmpty.rule).toBe("operation-id-grammar");
+      expect(resEmpty.error).toBe("Operation ID must be a non-empty string");
+    }
+    const resNull = parseOperationId(null as any);
+    expect(resNull.ok).toBe(false);
+    if (!resNull.ok) {
+      expect(resNull.rule).toBe("operation-id-grammar");
+    }
+    const pass = parseOperationId("eq-7.op.add");
+    expect(pass.ok).toBe(true);
+  });
+
+  test("PLANTED: operation ID missing op dot refuses with operation-id-grammar (ids.ts:815)", () => {
+    const res = parseOperationId("no-op-dot");
+    expect(res.ok).toBe(false);
+    if (!res.ok) {
+      expect(res.rule).toBe("operation-id-grammar");
+      expect(res.error).toContain("must match '<equation>.op.<name>'");
+    }
+    const pass = parseOperationId("eq-7.op.add");
+    expect(pass.ok).toBe(true);
+  });
+
+  test("PLANTED: operation ID with invalid equation base refuses with operation-id-grammar (ids.ts:824)", () => {
+    const res = parseOperationId("invalid-base.op.add");
+    expect(res.ok).toBe(false);
+    if (!res.ok) {
+      expect(res.rule).toBe("operation-id-grammar");
+      expect(res.error).toContain("is not a valid equation base ID");
+    }
+    const pass = parseOperationId("eq-7.op.add");
+    expect(pass.ok).toBe(true);
+  });
+
+  test("PLANTED: operation ID with non-camelCase name refuses with operation-id-grammar (ids.ts:831)", () => {
+    const res = parseOperationId("eq-7.op.Invalid_Name");
+    expect(res.ok).toBe(false);
+    if (!res.ok) {
+      expect(res.rule).toBe("operation-id-grammar");
+      expect(res.error).toContain("must be lower camelCase ASCII");
+    }
+    const pass = parseOperationId("eq-7.op.add");
+    expect(pass.ok).toBe(true);
+  });
+
+  test("PLANTED: alternate form ID missing alt dot refuses with alternate-form-id-grammar (ids.ts:850)", () => {
+    const res = parseAlternateFormId("no-alt-dot");
+    expect(res.ok).toBe(false);
+    if (!res.ok) {
+      expect(res.rule).toBe("alternate-form-id-grammar");
+      expect(res.error).toContain("must match '<equation>.alt.<name>'");
+    }
+    const pass = parseAlternateFormId("eq-7.alt.expanded");
+    expect(pass.ok).toBe(true);
+  });
+
+  test("PLANTED: alternate form ID with invalid equation base refuses with alternate-form-id-grammar (ids.ts:859)", () => {
+    const res = parseAlternateFormId("invalid-base.alt.expanded");
+    expect(res.ok).toBe(false);
+    if (!res.ok) {
+      expect(res.rule).toBe("alternate-form-id-grammar");
+      expect(res.error).toContain("is not a valid equation base ID");
+    }
+    const pass = parseAlternateFormId("eq-7.alt.expanded");
+    expect(pass.ok).toBe(true);
+  });
+
+  test("PLANTED: alternate form ID with non-camelCase name refuses with alternate-form-id-grammar (ids.ts:866)", () => {
+    const res = parseAlternateFormId("eq-7.alt.Invalid_Name");
+    expect(res.ok).toBe(false);
+    if (!res.ok) {
+      expect(res.rule).toBe("alternate-form-id-grammar");
+      expect(res.error).toContain("must be lower camelCase ASCII");
+    }
+    const pass = parseAlternateFormId("eq-7.alt.expanded");
+    expect(pass.ok).toBe(true);
+  });
+
+  test("PLANTED: qualified ID missing slash refuses with qualified-id-grammar (ids.ts:885)", () => {
+    const res = parseQualifiedId("no-slash");
+    expect(res.ok).toBe(false);
+    if (!res.ok) {
+      expect(res.rule).toBe("qualified-id-grammar");
+      expect(res.error).toContain("must match '<route-slug>/<local-id>'");
+    }
+    const pass = parseQualifiedId("brownian-motion/eq-7");
+    expect(pass.ok).toBe(true);
+  });
+
+  test("PLANTED: qualified ID with unknown route slug refuses with qualified-id-grammar (ids.ts:895)", () => {
+    const res = parseQualifiedId("invalid-slug/eq-7");
+    expect(res.ok).toBe(false);
+    if (!res.ok) {
+      expect(res.rule).toBe("qualified-id-grammar");
+      expect(res.error).toContain("unknown route slug 'invalid-slug'");
+    }
+    const pass = parseQualifiedId("brownian-motion/eq-7");
+    expect(pass.ok).toBe(true);
+  });
+
+  test("PLANTED: qualified ID with invalid local ID refuses with qualified-id-grammar (ids.ts:908)", () => {
+    const res = parseQualifiedId("brownian-motion/invalid-local");
+    expect(res.ok).toBe(false);
+    if (!res.ok) {
+      expect(res.rule).toBe("qualified-id-grammar");
+      expect(res.error).toContain("is not a valid local ID");
+    }
+    const pass = parseQualifiedId("brownian-motion/eq-7");
+    expect(pass.ok).toBe(true);
+  });
+
+  test("PLANTED: invalid equation term ID refuses with equation-term-id-grammar (ids.ts:937)", () => {
+    const res = parseEquationTermId("invalid-term");
+    expect(res.ok).toBe(false);
+    if (!res.ok) {
+      expect(res.rule).toBe("equation-term-id-grammar");
+      expect(res.error).toContain("Invalid equation term ID");
+    }
+    const pass = parseEquationTermId("eq-bm-s3-d4.t.energy");
+    expect(pass.ok).toBe(true);
+  });
+
+  test("PLANTED: invalid equation operation ID refuses with equation-op-id-grammar (ids.ts:951)", () => {
+    const res = parseEquationOpId("invalid-op");
+    expect(res.ok).toBe(false);
+    if (!res.ok) {
+      expect(res.rule).toBe("equation-op-id-grammar");
+      expect(res.error).toContain("Invalid equation operation ID");
+    }
+    const pass = parseEquationOpId("eq-bm-s3-d4.op.add");
+    expect(pass.ok).toBe(true);
+  });
+
+  test("PLANTED: invalid quantity ID refuses with quantity-id-grammar (ids.ts:969)", () => {
+    const res = parseQuantityId("Invalid_Quantity");
+    expect(res.ok).toBe(false);
+    if (!res.ok) {
+      expect(res.rule).toBe("quantity-id-grammar");
+      expect(res.error).toContain("Invalid quantity ID");
+    }
+    const pass = parseQuantityId("stoppingPotentialMagnitude");
+    expect(pass.ok).toBe(true);
+  });
+
+  test("PLANTED: invalid concordance entry ID refuses with concordance-id-grammar (ids.ts:984)", () => {
+    const res = parseConcordanceEntryId("invalid.entry");
+    expect(res.ok).toBe(false);
+    if (!res.ok) {
+      expect(res.rule).toBe("concordance-id-grammar");
+      expect(res.error).toContain("Invalid concordance entry ID");
+    }
+    const pass = parseConcordanceEntryId("bm.k.viscosity");
+    expect(pass.ok).toBe(true);
+  });
+
+  test("PLANTED: invalid premise ID refuses with premise-id-grammar (ids.ts:998)", () => {
+    const res = parsePremiseId("invalid-premise");
+    expect(res.ok).toBe(false);
+    if (!res.ok) {
+      expect(res.rule).toBe("premise-id-grammar");
+      expect(res.error).toContain("Invalid knowledge card / premise ID");
+    }
+    const pass = parsePremiseId("rayleigh-1900-radiation-law");
+    expect(pass.ok).toBe(true);
+  });
+
+  test("PLANTED: invalid generic record ID refuses with record-id-grammar (ids.ts:1035)", () => {
+    const res = parseGenericRecordId("Invalid_Record");
+    expect(res.ok).toBe(false);
+    if (!res.ok) {
+      expect(res.rule).toBe("record-id-grammar");
+      expect(res.error).toContain("Invalid record ID");
+    }
+    const pass = parseGenericRecordId("generic-record-id");
     expect(pass.ok).toBe(true);
   });
 });

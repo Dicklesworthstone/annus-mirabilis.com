@@ -25,7 +25,7 @@
   "src/content/editions/segmentSentences.ts": 2,
   "src/content/entrances/entranceRecord.ts": 30,
   "src/content/foundations/registry.ts": 8,
-  "src/content/ids.ts": 15,
+  "src/content/ids.ts": 0,
   "src/content/kernel/bindings.ts": 9,
   "src/content/kernel/check.ts": 1,
   "src/content/kernel/extractRust.ts": 1,
