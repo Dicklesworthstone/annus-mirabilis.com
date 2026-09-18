@@ -720,4 +720,129 @@ Use [[MATH-REGION page=1]] and [[ILLEGIBLE]] when damaged.
       );
     });
   });
+
+  describe("Denylist Reason Integrity (AC 3)", () => {
+    function validateDenylistReasons(
+      entries: Array<{ pattern?: string; category?: string; reason?: string }>,
+    ): { valid: boolean; failures: string[] } {
+      const failures: string[] = [];
+      for (const e of entries) {
+        if (!e.pattern || e.pattern.trim().length === 0) {
+          failures.push("Missing pattern");
+        } else if (!e.category || e.category.trim().length === 0) {
+          failures.push(`Missing category for ${e.pattern}`);
+        } else if (!e.reason || e.reason.trim().length < 20) {
+          failures.push(`Insufficient reason for ${e.pattern}`);
+        }
+      }
+      return { valid: failures.length === 0, failures };
+    }
+
+    it("verifies every entry in scripts/ocr-guard-denylist.json has a valid pattern, category, and substantive reason", async () => {
+      const denylistPath = resolve(ROOT, "scripts/ocr-guard-denylist.json");
+      assert.ok(existsSync(denylistPath), "scripts/ocr-guard-denylist.json must exist");
+      const config = JSON.parse(await readFile(denylistPath, "utf-8"));
+      assert.equal(config.version, 1);
+      assert.ok(Array.isArray(config.denylist));
+      assert.ok(config.denylist.length >= 15);
+
+      const result = validateDenylistReasons(config.denylist);
+      assert.equal(result.valid, true, `Denylist validation failed: ${result.failures.join(", ")}`);
+      assert.equal(result.failures.length, 0);
+    });
+
+    it("planted negative: denylist reason validator flags entries with missing or inadequate reasons (fails in BOTH directions)", () => {
+      const invalidEntries = [
+        { pattern: "tesseract", category: "binary", reason: "forbidden" }, // reason < 20 chars
+        { pattern: "focr", category: "binary" }, // missing reason
+        { category: "binary", reason: "A sufficiently long reason for missing pattern" }, // missing pattern
+      ];
+      const badResult = validateDenylistReasons(invalidEntries);
+      assert.equal(badResult.valid, false);
+      assert.equal(badResult.failures.length, 3);
+
+      const validEntries = [
+        {
+          pattern: "tesseract",
+          category: "binary",
+          reason: "Tesseract CLI is a local OCR engine forbidden by policy.",
+        },
+        {
+          pattern: "focr",
+          category: "binary",
+          reason: "focr is a local OCR binary forbidden by repository resource policy.",
+        },
+      ];
+      const goodResult = validateDenylistReasons(validEntries);
+      assert.equal(goodResult.valid, true);
+      assert.equal(goodResult.failures.length, 0);
+    });
+  });
+
+  describe("Hard Resource Policy Documentation (AC 8)", () => {
+    function validatePolicyDocumentation(content: string): {
+      valid: boolean;
+      missingClauses: string[];
+    } {
+      const normalized = content.replace(/\s*\*\s*/g, " ").replace(/\s+/g, " ").toLowerCase();
+      const requiredClauses = [
+        "hard resource policy",
+        "never run ocr on this machine",
+        "delegate every ocr or machine-transcription job to a cloud gpt-5.6 luna worker",
+        "do not install, invoke, benchmark, resume, or monitor a local ocr engine",
+        "do not use local cpu, gpu, npu, or memory for ocr",
+        "if a luna worker or the cloud execution path is unavailable, pause the ocr",
+        "do not fall back to local ocr",
+        "bounded, checkpointed page ranges",
+        "cloud ocr output is research evidence only",
+      ];
+      const missingClauses = requiredClauses.filter((clause) => !normalized.includes(clause));
+      return { valid: missingClauses.length === 0, missingClauses };
+    }
+
+    it("verifies documentation at top of scripts/ocr-ledgers.ts restates hard resource policy", async () => {
+      const scriptPath = resolve(ROOT, "scripts/ocr-ledgers.ts");
+      const content = await readFile(scriptPath, "utf-8");
+
+      // Verify the top comment block
+      const topCommentMatch = content.match(/^#!\/usr\/bin\/env bun\s*\n\/\*\*([\s\S]*?)\*\//);
+      assert.ok(topCommentMatch, "Top docblock comment must exist at line 3");
+      const topComment = topCommentMatch[1] ?? "";
+
+      const validation = validatePolicyDocumentation(topComment);
+      assert.equal(
+        validation.valid,
+        true,
+        `Missing hard resource policy clauses in top docblock: ${validation.missingClauses.join(", ")}`,
+      );
+      assert.equal(validation.missingClauses.length, 0);
+    });
+
+    it("planted negative: policy doc validator flags missing clauses and passes on complete text (fails in BOTH directions)", () => {
+      const incompleteComment = `
+        Annus Mirabilis: Cloud OCR Orchestrator
+        Run cloud jobs here.
+      `;
+      const badResult = validatePolicyDocumentation(incompleteComment);
+      assert.equal(badResult.valid, false);
+      assert.ok(badResult.missingClauses.includes("never run ocr on this machine"));
+      assert.ok(badResult.missingClauses.includes("do not fall back to local ocr"));
+      assert.ok(badResult.missingClauses.includes("cloud ocr output is research evidence only"));
+
+      const completeComment = `
+        HARD RESOURCE POLICY (AGENTS.md)
+        NEVER RUN OCR ON THIS MACHINE
+        Delegate every OCR or machine-transcription job to a cloud GPT-5.6 Luna worker
+        Do not install, invoke, benchmark, resume, or monitor a local OCR engine
+        Do not use local CPU, GPU, NPU, or memory for OCR
+        If a Luna worker or the cloud execution path is unavailable, pause the OCR
+        Do not fall back to local OCR
+        Bounded, checkpointed page ranges
+        Cloud OCR output is research evidence only
+      `;
+      const goodResult = validatePolicyDocumentation(completeComment);
+      assert.equal(goodResult.valid, true);
+      assert.equal(goodResult.missingClauses.length, 0);
+    });
+  });
 });
