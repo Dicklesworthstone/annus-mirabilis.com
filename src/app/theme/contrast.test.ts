@@ -45,20 +45,26 @@ describe("contrast: the focus ring meets the stricter UI non-text minimum (3:1)"
   }
 });
 
-describe("contrast: seeded violations fail, proving the test actually checks something", () => {
-  test("a low-contrast pair fails the normal-text minimum", () => {
-    expect(contrastRatio("#eee7d7", "#eee7d7")).toBeLessThan(NORMAL_TEXT_MIN);
+describe("contrast: forbidden low-contrast pairs documented with exact ratios to prevent regression", () => {
+  test("identical colors yield exactly 1.0 (asserted forbidden for normal text < 4.5)", () => {
+    const ratio = contrastRatio("#eee7d7", "#eee7d7");
+    expect(ratio).toBe(1);
+    expect(ratio).toBeLessThan(NORMAL_TEXT_MIN);
   });
-  test("a low-contrast pair fails the UI-boundary minimum", () => {
-    expect(contrastRatio("#c8c2b4", "#eee7d7")).toBeLessThan(UI_BOUNDARY_MIN);
+  test("border on paper yields 1.44:1 (asserted forbidden for UI boundary < 3.0)", () => {
+    const ratio = contrastRatio("#c8c2b4", "#eee7d7");
+    expect(ratio).toBeCloseTo(1.44, 2);
+    expect(ratio).toBeLessThan(UI_BOUNDARY_MIN);
   });
-  test("hardcoded white on Kramgasse Night amber accent fails normal-text minimum (proving why var(--paper) is required)", () => {
-    expect(contrastRatio("#ffffff", THEME_TOKENS["kramgasse-night"].accent)).toBeLessThan(
-      NORMAL_TEXT_MIN,
-    );
+  test("hardcoded white on Kramgasse Night amber accent yields 2.18:1 (asserted forbidden for normal text < 4.5, proving why var(--paper) is required)", () => {
+    const ratio = contrastRatio("#ffffff", THEME_TOKENS["kramgasse-night"].accent);
+    expect(ratio).toBeCloseTo(2.18, 2);
+    expect(ratio).toBeLessThan(NORMAL_TEXT_MIN);
   });
-  test("hardcoded white on Slate coral accent fails normal-text minimum", () => {
-    expect(contrastRatio("#ffffff", THEME_TOKENS.slate.accent)).toBeLessThan(NORMAL_TEXT_MIN);
+  test("hardcoded white on Slate coral accent yields 3.07:1 (asserted forbidden for normal text < 4.5)", () => {
+    const ratio = contrastRatio("#ffffff", THEME_TOKENS.slate.accent);
+    expect(ratio).toBeCloseTo(3.07, 2);
+    expect(ratio).toBeLessThan(NORMAL_TEXT_MIN);
   });
 });
 
