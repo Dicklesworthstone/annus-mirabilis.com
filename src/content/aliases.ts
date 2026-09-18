@@ -154,8 +154,6 @@ export function resolveAlias(
       : new Set(validCorpusIds)
     : undefined;
 
-  const visited = new Set<string>();
-
   function resolveHelper(currentId: string, path: string[]): AliasResolutionResult {
     if (path.includes(currentId)) {
       const cycleStr = [...path, currentId].join(" -> ");

@@ -50,7 +50,7 @@ export function resolveJourneyReturn(
   if (!currentLab) return null;
   const journey = navigation.find((j) => j.paper === query.get("journey"));
   const step = journey?.steps.find((s) => s.id === query.get("step"));
-  if (!journey || !step || !step.labs.includes(currentLab)) return null;
+  if (!journey || !step?.labs.includes(currentLab)) return null;
   return Object.freeze({
     href: stepHref(journey.paper, step.id),
     title: journey.title,

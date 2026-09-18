@@ -4,7 +4,6 @@ import {
   type ExportPreviewCandidateLookup,
   exportPreviewLines,
   type PredictionsDocumentV1,
-  withoutPredictions,
 } from "../../experiments/predict/predictStorage.ts";
 
 export interface PredictExportPreviewProps {

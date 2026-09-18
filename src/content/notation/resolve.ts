@@ -233,9 +233,18 @@ export function resolveGlyph(
     };
   }
 
+  const match = matches[0];
+  if (!match) {
+    return {
+      ok: false,
+      error: "not-found",
+      message: `Glyph "${targetGlyph}" not found in scope "${anchor}".`,
+    };
+  }
+
   return {
     ok: true,
-    entry: matches[0]!,
+    entry: match,
   };
 }
 
