@@ -45,7 +45,7 @@ export function PhotonBoxPlot({ parameters, evaluation, scale, clipId }: PhotonB
         <text x="25" y="32" fontSize="13" fontWeight="bold" fill="currentColor">
           1906 Photon-in-a-Box Thought Experiment
         </text>
-        <text x="25" y="48" fontSize="11" fill="var(--color-text-muted, #64748b)">
+        <text x="25" y="48" fontSize="11" fill="var(--muted)">
           Poincaré (1900) recoil paradox · Einstein (1906) radiation inertia demonstration
         </text>
 
@@ -55,7 +55,7 @@ export function PhotonBoxPlot({ parameters, evaluation, scale, clipId }: PhotonB
           y1={65}
           x2={width / 2}
           y2={195}
-          stroke="#94a3b8"
+          stroke="var(--line)"
           strokeDasharray="4 4"
           strokeWidth="1.5"
         />
@@ -64,7 +64,7 @@ export function PhotonBoxPlot({ parameters, evaluation, scale, clipId }: PhotonB
           y={60}
           fontSize="10"
           textAnchor="middle"
-          fill="#64748b"
+          fill="var(--muted)"
           fontFamily="monospace"
         >
           Origin (X = 0)
@@ -79,33 +79,33 @@ export function PhotonBoxPlot({ parameters, evaluation, scale, clipId }: PhotonB
             height={90}
             rx="4"
             fill="none"
-            stroke="#0284c7"
+            stroke="var(--plot)"
             strokeWidth="2.5"
           />
           {/* Left mirror / wall */}
-          <rect x={115} y={75} width={8} height={100} fill="#0284c7" rx="2" />
+          <rect x={115} y={75} width={8} height={100} fill="var(--plot)" rx="2" />
           {/* Right mirror / wall */}
-          <rect x={517} y={75} width={8} height={100} fill="#0284c7" rx="2" />
+          <rect x={517} y={75} width={8} height={100} fill="var(--plot)" rx="2" />
 
           {/* Box label */}
-          <text x={320} y={105} fontSize="11" textAnchor="middle" fill="#0369a1" fontWeight="600">
+          <text x={320} y={105} fontSize="11" textAnchor="middle" fill="var(--plot)" fontWeight="600">
             Box (mass M = {boxMass} kg, length ℓ = {boxLength} m)
           </text>
 
           {/* Light pulse wavepacket traveling right */}
           <g transform="translate(300, 125)">
-            <circle cx="0" cy="0" r="8" fill="#f59e0b" opacity="0.8" />
-            <path d="M -12 0 Q -6 -6 0 0 T 12 0" fill="none" stroke="#b45309" strokeWidth="2" />
-            <text x="0" y="18" fontSize="10" textAnchor="middle" fill="#b45309" fontWeight="600">
+            <circle cx="0" cy="0" r="8" fill="var(--accent)" opacity="0.8" />
+            <path d="M -12 0 Q -6 -6 0 0 T 12 0" fill="none" stroke="var(--accent)" strokeWidth="2" />
+            <text x="0" y="18" fontSize="10" textAnchor="middle" fill="var(--accent)" fontWeight="600">
               Pulse E = {pulseEnergy} J
             </text>
           </g>
 
           {/* Recoil vector indicator */}
           <g transform="translate(100, 125)">
-            <line x1="10" y1="0" x2="-25" y2="0" stroke="#dc2626" strokeWidth="2" />
-            <polygon points="-25,0 -17,-4 -17,4" fill="#dc2626" />
-            <text x="-30" y="4" fontSize="10" textAnchor="end" fill="#dc2626" fontWeight="bold">
+            <line x1="10" y1="0" x2="-25" y2="0" stroke="var(--accent)" strokeWidth="2" />
+            <polygon points="-25,0 -17,-4 -17,4" fill="var(--accent)" />
+            <text x="-30" y="4" fontSize="10" textAnchor="end" fill="var(--accent)" fontWeight="bold">
               v_recoil
             </text>
           </g>
@@ -113,15 +113,15 @@ export function PhotonBoxPlot({ parameters, evaluation, scale, clipId }: PhotonB
 
         {/* System Center-of-Mass Marker */}
         <g transform={`translate(${width / 2 + (isZero ? 0 : drawnShiftPx)}, 175)`}>
-          <circle cx="0" cy="0" r="6" fill={isZero ? "#16a34a" : "#dc2626"} />
-          <polygon points="0,-8 5,-15 -5,-15" fill={isZero ? "#16a34a" : "#dc2626"} />
+          <circle cx="0" cy="0" r="6" fill={isZero ? "var(--plot)" : "var(--accent)"} />
+          <polygon points="0,-8 5,-15 -5,-15" fill={isZero ? "var(--plot)" : "var(--accent)"} />
           <text
             x="0"
             y="18"
             fontSize="11"
             textAnchor="middle"
             fontWeight="bold"
-            fill={isZero ? "#16a34a" : "#dc2626"}
+            fill={isZero ? "var(--plot)" : "var(--accent)"}
           >
             {isZero ? "CM: Exactly Fixed (0 m)" : "CM Shifted (Violation!)"}
           </text>
@@ -135,8 +135,8 @@ export function PhotonBoxPlot({ parameters, evaluation, scale, clipId }: PhotonB
             width={width - 40}
             height="40"
             rx="4"
-            fill="var(--color-bg-inset, #f1f5f9)"
-            stroke="var(--color-border, #cbd5e1)"
+            fill="var(--wash)"
+            stroke="var(--line)"
           />
           <text x="15" y="16" fontSize="10" fill="currentColor" fontWeight="600">
             Units strip (unscaled physical displacement):
@@ -145,14 +145,14 @@ export function PhotonBoxPlot({ parameters, evaluation, scale, clipId }: PhotonB
             x="15"
             y="30"
             fontSize="11"
-            fill="#0f172a"
+            fill="var(--ink)"
             fontFamily="monospace"
             fontWeight="bold"
             data-testid="units-strip-displacement"
           >
             Δx = {physicalDisplacement.toExponential(6)} m
           </text>
-          <text x={width - 55} y="24" fontSize="10" textAnchor="end" fill="#64748b">
+          <text x={width - 55} y="24" fontSize="10" textAnchor="end" fill="var(--muted)">
             Magnified {magnification.toExponential()}× for visualization (appliesTo:
             centerOfMassShift)
           </text>

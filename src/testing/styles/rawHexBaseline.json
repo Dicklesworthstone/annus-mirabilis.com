@@ -15,7 +15,7 @@
   "src/components/lab/lq09/IonizationPlot.tsx": 11,
   "src/components/lab/me01/TwoLedgersPlot.tsx": 0,
   "src/components/lab/me03/BoundaryLedgerPlot.tsx": 0,
-  "src/components/lab/me03/PhotonBoxPlot.tsx": 23,
+  "src/components/lab/me03/PhotonBoxPlot.tsx": 0,
   "src/components/lab/sr06/VelocityCompositionPlot.tsx": 4,
   "src/components/lab/sr08/FieldFrameChangePlot.tsx": 0,
   "src/components/lab/sr09/DopplerAberrationPlot.tsx": 16,
