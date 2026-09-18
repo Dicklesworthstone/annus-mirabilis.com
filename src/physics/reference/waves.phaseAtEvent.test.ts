@@ -63,7 +63,7 @@ describe("am-ref-waves-r53: waves.phaseAtEvent.test.ts", () => {
       durationMs: performance.now() - t0,
       message: "Origin gives 0, 1 cycle gives 2pi, 10 cycles gives 20pi unwrapped.",
       extra: {
-        wavePhase: resTenCycles.status === "value" ? (resTenCycles.value as number) : undefined,
+        ...(resTenCycles.status === "value" ? { wavePhase: resTenCycles.value as number } : {}),
         wavePhaseFrame: resTenCycles.frame,
       },
     });

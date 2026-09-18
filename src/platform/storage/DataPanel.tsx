@@ -8,6 +8,7 @@
  */
 
 import { useCallback, useMemo, useState } from "react";
+import "./dataPanel.css";
 import { clearNamespaces, type ExportDocument, exportNamespaces } from "./exportClear.ts";
 import type { KeyRegistration } from "./keys.ts";
 import { clearQuarantine, listQuarantine } from "./quarantine.ts";
@@ -116,28 +117,28 @@ export function DataPanel({ storageContext, onExport, onClear }: DataPanelProps)
   }, [confirmTarget, ctx, onClear, refresh]);
 
   return (
-    <div data-testid="data-panel" className="space-y-6">
+    <div data-testid="data-panel" className="data-panel">
       {/* Top summary & actions */}
-      <div className="flex flex-wrap items-center justify-between gap-4 p-4 border rounded bg-slate-50 dark:bg-slate-900 border-slate-200 dark:border-slate-800">
+      <div className="data-panel-summary">
         <div>
-          <p className="text-sm font-medium text-slate-900 dark:text-slate-100">
+          <p className="data-panel-summary-heading">
             Total stored on this device:{" "}
-            <span data-testid="total-bytes" className="font-mono font-bold">
+            <span data-testid="total-bytes" className="data-panel-bytes">
               {formatBytes(totalBytes)}
             </span>
           </p>
-          <p className="text-xs text-slate-600 dark:text-slate-400">
+          <p className="data-panel-summary-sub">
             {storedCount} {storedCount === 1 ? "namespace" : "namespaces"} with active data across{" "}
             {items.length} registered.
           </p>
         </div>
 
-        <div className="flex flex-wrap gap-2">
+        <div className="data-panel-actions">
           <button
             type="button"
             data-testid="export-all-btn"
             onClick={handleExportAll}
-            className="px-3 py-1.5 text-sm font-medium rounded border border-slate-300 dark:border-slate-700 bg-white dark:bg-slate-800 text-slate-800 dark:text-slate-200 hover:bg-slate-100 dark:hover:bg-slate-700"
+            className="data-panel-btn"
           >
             Export All Data (JSON)
           </button>
@@ -148,7 +149,7 @@ export function DataPanel({ storageContext, onExport, onClear }: DataPanelProps)
             onClick={() =>
               setConfirmTarget({ key: "all", label: "all local reading data and settings" })
             }
-            className="px-3 py-1.5 text-sm font-medium rounded border border-red-300 dark:border-red-900 bg-red-50 dark:bg-red-950/30 text-red-700 dark:text-red-300 hover:bg-red-100 dark:hover:bg-red-900/50 disabled:opacity-50 disabled:cursor-not-allowed"
+            className="data-panel-btn data-panel-btn-danger"
           >
             Clear All Data
           </button>
@@ -161,7 +162,7 @@ export function DataPanel({ storageContext, onExport, onClear }: DataPanelProps)
           role="status"
           aria-live="polite"
           data-testid="status-message"
-          className="p-3 text-sm rounded bg-blue-50 dark:bg-blue-950/30 text-blue-800 dark:text-blue-200 border border-blue-200 dark:border-blue-900"
+          className="data-panel-status"
         >
           {statusMessage}
         </div>
@@ -174,21 +175,21 @@ export function DataPanel({ storageContext, onExport, onClear }: DataPanelProps)
           aria-labelledby="clear-heading"
           aria-describedby="clear-desc"
           data-testid="clear-confirmation"
-          className="p-4 rounded border-2 border-amber-400 bg-amber-50 dark:bg-amber-950/50 text-amber-900 dark:text-amber-100"
+          className="data-panel-confirmation"
         >
-          <h3 id="clear-heading" className="font-semibold text-base">
+          <h3 id="clear-heading" className="data-panel-confirm-title">
             Confirm Clear
           </h3>
-          <p id="clear-desc" className="text-sm mt-1">
+          <p id="clear-desc" className="data-panel-confirm-desc">
             Are you sure you want to clear <strong>{confirmTarget.label}</strong>? This action
             cannot be undone.
           </p>
-          <div className="mt-3 flex gap-2">
+          <div className="data-panel-confirm-actions">
             <button
               type="button"
               data-testid="confirm-clear-btn"
               onClick={handleConfirmClear}
-              className="px-3 py-1 text-sm font-medium rounded bg-red-700 text-white hover:bg-red-800"
+              className="data-panel-btn data-panel-btn-confirm"
             >
               Yes, Clear
             </button>
@@ -196,7 +197,7 @@ export function DataPanel({ storageContext, onExport, onClear }: DataPanelProps)
               type="button"
               data-testid="cancel-clear-btn"
               onClick={() => setConfirmTarget(null)}
-              className="px-3 py-1 text-sm font-medium rounded border border-slate-300 dark:border-slate-700 bg-white dark:bg-slate-800 hover:bg-slate-100 dark:hover:bg-slate-700"
+              className="data-panel-btn"
             >
               Cancel
             </button>
@@ -206,16 +207,13 @@ export function DataPanel({ storageContext, onExport, onClear }: DataPanelProps)
 
       {/* Quarantined / Recovered Data Section */}
       {quarantineEntries.length > 0 && (
-        <section
-          data-testid="quarantine-section"
-          className="p-4 border rounded border-amber-300 dark:border-amber-800 bg-amber-50/50 dark:bg-amber-950/20 space-y-3"
-        >
-          <div className="flex items-center justify-between">
+        <section data-testid="quarantine-section" className="data-panel-quarantine">
+          <div className="data-panel-quarantine-header">
             <div>
-              <h3 className="font-semibold text-amber-900 dark:text-amber-200">
+              <h3 className="data-panel-quarantine-title">
                 Recovered Data ({quarantineEntries.length})
               </h3>
-              <p className="text-xs text-amber-800 dark:text-amber-300">
+              <p className="data-panel-quarantine-desc">
                 Data quarantined due to corrupt formatting or unknown version. You can inspect,
                 export, or clear it.
               </p>
@@ -226,29 +224,33 @@ export function DataPanel({ storageContext, onExport, onClear }: DataPanelProps)
               onClick={() =>
                 setConfirmTarget({ key: "quarantine", label: "all recovered (quarantined) data" })
               }
-              className="px-2.5 py-1 text-xs font-medium rounded border border-amber-400 dark:border-amber-700 bg-amber-100 dark:bg-amber-900/40 text-amber-900 dark:text-amber-200 hover:bg-amber-200"
+              className="data-panel-btn data-panel-btn-danger"
             >
               Clear Recovered Data
             </button>
           </div>
 
-          <div className="overflow-x-auto">
-            <table className="w-full text-left text-xs border-collapse">
+          <div className="data-panel-table-wrap">
+            <table className="data-panel-table">
               <thead>
-                <tr className="border-b border-amber-200 dark:border-amber-800 text-amber-800 dark:text-amber-300">
-                  <th className="py-1 px-2 font-medium">Original Key</th>
-                  <th className="py-1 px-2 font-medium">Reason</th>
-                  <th className="py-1 px-2 font-medium">Quarantined At</th>
-                  <th className="py-1 px-2 font-medium">Raw Value</th>
+                <tr>
+                  <th>Original Key</th>
+                  <th>Reason</th>
+                  <th>Quarantined At</th>
+                  <th>Raw Value</th>
                 </tr>
               </thead>
-              <tbody className="divide-y divide-amber-200 dark:divide-amber-800 font-mono">
+              <tbody>
                 {quarantineEntries.map((q) => (
-                  <tr key={`${q.originalKey}:${q.quarantinedAt}`} data-testid="quarantine-row">
-                    <td className="py-1 px-2">{q.originalKey}</td>
-                    <td className="py-1 px-2">{q.reason}</td>
-                    <td className="py-1 px-2 text-slate-500">{q.quarantinedAt}</td>
-                    <td className="py-1 px-2 truncate max-w-xs">{q.rawValue}</td>
+                  <tr
+                    key={`${q.originalKey}:${q.quarantinedAt}`}
+                    data-testid="quarantine-row"
+                    className="data-panel-table-row"
+                  >
+                    <td>{q.originalKey}</td>
+                    <td>{q.reason}</td>
+                    <td>{q.quarantinedAt}</td>
+                    <td>{q.rawValue}</td>
                   </tr>
                 ))}
               </tbody>
@@ -258,57 +260,46 @@ export function DataPanel({ storageContext, onExport, onClear }: DataPanelProps)
       )}
 
       {/* Storage Namespaces List */}
-      <section className="space-y-3">
-        <h3 className="text-base font-semibold text-slate-900 dark:text-slate-100">
-          Storage Namespaces
-        </h3>
-        <div className="overflow-x-auto">
-          <table
-            data-testid="namespaces-table"
-            className="w-full text-left text-sm border-collapse"
-          >
+      <section className="data-panel-section">
+        <h3 className="data-panel-section-title">Storage Namespaces</h3>
+        <div className="data-panel-table-wrap">
+          <table data-testid="namespaces-table" className="data-panel-table">
             <thead>
-              <tr className="border-b border-slate-200 dark:border-slate-800 text-slate-600 dark:text-slate-400 text-xs uppercase">
-                <th className="py-2 px-3 font-semibold">Namespace</th>
-                <th className="py-2 px-3 font-semibold">Kind</th>
-                <th className="py-2 px-3 font-semibold">Size</th>
-                <th className="py-2 px-3 font-semibold text-right">Actions</th>
+              <tr>
+                <th>Namespace</th>
+                <th>Kind</th>
+                <th>Size</th>
+                <th>Actions</th>
               </tr>
             </thead>
-            <tbody className="divide-y divide-slate-200 dark:divide-slate-800">
+            <tbody>
               {items.map(({ entry, bytes, hasData }) => (
                 <tr
                   key={entry.key}
                   data-testid="namespace-row"
                   data-namespace-key={entry.key}
-                  className="hover:bg-slate-50/50 dark:hover:bg-slate-900/50"
+                  className="data-panel-table-row"
                 >
-                  <td className="py-2.5 px-3">
-                    <div className="font-medium text-slate-900 dark:text-slate-100">
-                      {entry.label}
-                    </div>
-                    <div className="font-mono text-xs text-slate-500 dark:text-slate-400 truncate max-w-sm">
-                      {entry.key}
-                    </div>
+                  <td className="data-panel-cell-namespace">
+                    <div className="data-panel-namespace-label">{entry.label}</div>
+                    <div className="data-panel-namespace-key">{entry.key}</div>
                   </td>
-                  <td className="py-2.5 px-3 text-xs text-slate-600 dark:text-slate-400 capitalize">
-                    {entry.kind}
-                  </td>
-                  <td className="py-2.5 px-3 font-mono text-xs text-slate-700 dark:text-slate-300">
+                  <td className="data-panel-cell-kind">{entry.kind}</td>
+                  <td className="data-panel-cell-size">
                     <span data-testid={`size-${entry.key}`}>{formatBytes(bytes)}</span>
                   </td>
-                  <td className="py-2.5 px-3 text-right">
+                  <td className="data-panel-cell-actions">
                     {entry.clearable && hasData ? (
                       <button
                         type="button"
                         data-testid={`clear-btn-${entry.key}`}
                         onClick={() => setConfirmTarget({ key: entry.key, label: entry.label })}
-                        className="px-2 py-1 text-xs font-medium rounded border border-slate-300 dark:border-slate-700 hover:bg-red-50 hover:text-red-700 hover:border-red-300 dark:hover:bg-red-950/40 dark:hover:text-red-300"
+                        className="data-panel-btn data-panel-btn-danger"
                       >
                         Clear
                       </button>
                     ) : (
-                      <span className="text-xs text-slate-400">—</span>
+                      <span className="data-panel-dash">—</span>
                     )}
                   </td>
                 </tr>

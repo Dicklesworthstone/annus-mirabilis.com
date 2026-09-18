@@ -9,7 +9,7 @@ import {
   uninstallDom,
 } from "../../testing/reactDom.ts";
 import { DataPanel } from "./DataPanel.tsx";
-import type { ExportDocument } from "./exportClear.ts";
+import type { ExportDocument, ExportedNamespace } from "./exportClear.ts";
 import { quarantine } from "./quarantine.ts";
 import { createStorageContext, type StorageContext, writeDocument, writeSetting } from "./store.ts";
 import { InMemoryStorage } from "./testSupport.ts";
@@ -259,9 +259,9 @@ describe("DataPanel component", () => {
     writeSetting(ctx, "am:settings:v1:theme", "annalen");
     writeDocument(ctx, "am:notebook:v1", { schemaVersion: 1, notes: ["Important observation"] });
 
-    let exportedDoc: ExportDocument | null = null;
+    const captured: ExportDocument[] = [];
     const onExport = (doc: ExportDocument) => {
-      exportedDoc = doc;
+      captured.push(doc);
     };
 
     const container = createContainer();
@@ -281,11 +281,15 @@ describe("DataPanel component", () => {
         exportBtn.click();
       });
 
-      expect(exportedDoc).not.toBeNull();
-      expect(exportedDoc?.exportedAt).toBeTruthy();
-      expect(exportedDoc?.namespaces.length).toBeGreaterThanOrEqual(2);
+      expect(captured).toHaveLength(1);
+      const doc = captured[0];
+      if (!doc) throw new Error("Expected exported document");
+      expect(doc.exportedAt).toBeTruthy();
+      expect(doc.namespaces.length).toBeGreaterThanOrEqual(2);
 
-      const notebookEntry = exportedDoc?.namespaces.find((n) => n.key === "am:notebook:v1");
+      const notebookEntry = doc.namespaces.find(
+        (n: ExportedNamespace) => n.key === "am:notebook:v1",
+      );
       expect(notebookEntry).toBeDefined();
       expect(notebookEntry?.value).toEqual({ schemaVersion: 1, notes: ["Important observation"] });
 
