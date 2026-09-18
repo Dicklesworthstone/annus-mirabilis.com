@@ -3,6 +3,7 @@ import type { ReactNode } from "react";
 
 export const metadata: Metadata = {
   other: {
+    "data-route-theme": "slate",
     "route-theme": "slate",
   },
 };

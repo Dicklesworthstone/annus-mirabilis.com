@@ -52,17 +52,18 @@ export function initTheme(
     if (resolved === undefined) {
       let routeDefault = document.documentElement.getAttribute("data-route-theme");
       if (!routeDefault && typeof document !== "undefined") {
-        const meta = document.querySelector('meta[name="route-theme"]');
-        if (meta) {
-          routeDefault = meta.getAttribute("content");
+        const el = document.querySelector("[data-route-theme]");
+        if (el) {
+          routeDefault = el.getAttribute("data-route-theme");
         }
-      }
-      if (
-        !routeDefault &&
-        typeof location !== "undefined" &&
-        (location.pathname === "/discover" || location.pathname.startsWith("/discover/"))
-      ) {
-        routeDefault = "slate";
+        if (!routeDefault) {
+          const meta = document.querySelector(
+            'meta[name="data-route-theme"], meta[name="route-theme"]',
+          );
+          if (meta) {
+            routeDefault = meta.getAttribute("content");
+          }
+        }
       }
       resolved =
         routeDefault !== null && knownThemeIds.indexOf(routeDefault) !== -1

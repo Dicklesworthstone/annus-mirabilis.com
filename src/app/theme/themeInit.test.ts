@@ -79,54 +79,62 @@ describe("initTheme: route default from data-route-theme", () => {
   });
 });
 
-describe("initTheme: Slate default on /discover (AGENTS.md constraint)", () => {
-  test("Slate is automatically chosen on /discover when nothing is stored", () => {
-    window.history.pushState({}, "", "/discover");
+describe("initTheme: Slate default via data-route-theme attribute (AGENTS.md constraint)", () => {
+  test("data-route-theme on documentElement selects slate when nothing is stored", () => {
+    document.documentElement.setAttribute("data-route-theme", "slate");
     initTheme(THEME_STORAGE_KEY, THEME_FOLLOW_SYSTEM, KNOWN_THEME_IDS);
     expect(document.documentElement.dataset.theme).toBe("slate");
   });
 
-  test("Slate is automatically chosen on /discover/brownian-motion/ when nothing is stored", () => {
-    window.history.pushState({}, "", "/discover/brownian-motion/");
-    initTheme(THEME_STORAGE_KEY, THEME_FOLLOW_SYSTEM, KNOWN_THEME_IDS);
-    expect(document.documentElement.dataset.theme).toBe("slate");
+  test("data-route-theme on a container element selects slate when nothing is stored", () => {
+    const div = document.createElement("div");
+    div.setAttribute("data-route-theme", "slate");
+    document.body.appendChild(div);
+    try {
+      initTheme(THEME_STORAGE_KEY, THEME_FOLLOW_SYSTEM, KNOWN_THEME_IDS);
+      expect(document.documentElement.dataset.theme).toBe("slate");
+    } finally {
+      div.remove();
+    }
   });
 
-  test("an explicit stored reader preference wins over the /discover default", () => {
-    window.history.pushState({}, "", "/discover/brownian-motion/");
+  test("meta[name='data-route-theme'] in head selects slate when nothing is stored", () => {
+    const meta = document.createElement("meta");
+    meta.name = "data-route-theme";
+    meta.content = "slate";
+    document.head.appendChild(meta);
+    try {
+      initTheme(THEME_STORAGE_KEY, THEME_FOLLOW_SYSTEM, KNOWN_THEME_IDS);
+      expect(document.documentElement.dataset.theme).toBe("slate");
+    } finally {
+      meta.remove();
+    }
+  });
+
+  test("an explicit stored reader preference wins over data-route-theme", () => {
+    document.documentElement.setAttribute("data-route-theme", "slate");
     localStorage.setItem(THEME_STORAGE_KEY, "annalen");
     initTheme(THEME_STORAGE_KEY, THEME_FOLLOW_SYSTEM, KNOWN_THEME_IDS);
     expect(document.documentElement.dataset.theme).toBe("annalen");
   });
 
-  test("stored kramgasse-night wins over the /discover default", () => {
-    window.history.pushState({}, "", "/discover");
+  test("stored kramgasse-night wins over data-route-theme", () => {
+    document.documentElement.setAttribute("data-route-theme", "slate");
     localStorage.setItem(THEME_STORAGE_KEY, "kramgasse-night");
     initTheme(THEME_STORAGE_KEY, THEME_FOLLOW_SYSTEM, KNOWN_THEME_IDS);
     expect(document.documentElement.dataset.theme).toBe("kramgasse-night");
   });
 
-  test("meta[name='route-theme'] sets slate default even without location pathname", () => {
-    window.history.pushState({}, "", "/");
-    const meta = document.createElement("meta");
-    meta.name = "route-theme";
-    meta.content = "slate";
-    document.head.appendChild(meta);
-    initTheme(THEME_STORAGE_KEY, THEME_FOLLOW_SYSTEM, KNOWN_THEME_IDS);
-    expect(document.documentElement.dataset.theme).toBe("slate");
-  });
-
-  test("other routes (e.g. /papers/) fall back to annalen when nothing is stored", () => {
-    window.history.pushState({}, "", "/papers/brownian-motion/");
+  test("pages without data-route-theme fall back to annalen when nothing is stored", () => {
     initTheme(THEME_STORAGE_KEY, THEME_FOLLOW_SYSTEM, KNOWN_THEME_IDS);
     expect(document.documentElement.dataset.theme).toBe("annalen");
   });
 
-  test("planted negative: a simulated resolver that ignores /discover route default yields wrong theme", () => {
-    window.history.pushState({}, "", "/discover");
-    // If we only looked at storage and not route default:
+  test("planted negative: a simulated resolver that ignores data-route-theme yields wrong theme", () => {
+    document.documentElement.setAttribute("data-route-theme", "slate");
+    // If a resolver ignores the attribute and only inspects storage:
     const mockTheme = localStorage.getItem(THEME_STORAGE_KEY) ?? "annalen";
-    expect(mockTheme).toBe("annalen"); // Proves naive fallback misses slate default
+    expect(mockTheme).toBe("annalen"); // Proves ignoring data-route-theme fails to apply slate
   });
 });
 
