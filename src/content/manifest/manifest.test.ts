@@ -693,7 +693,192 @@ describe("Source Manifest & Locator Validator Suite", () => {
     );
   });
 
-  it("planted negative: reference sub-entry id not matching <unit>-r<i> fails reference-id-invalid", () => {
+  it("verifies references sub-entries with occurrence ids validate cleanly and survive validation", () => {
+    const raw = {
+      paper: "mini-paper",
+      document: "ap-17-132",
+      status: "in-preparation",
+      pageCount: 2,
+      pageRange: [132, 133],
+      units: [
+        {
+          id: "s1-p1",
+          kind: "paragraph",
+          locators: [{ page: 132 }],
+          references: [
+            {
+              id: "s1-p1-r1",
+              occurrenceId: "s1-p1-r1",
+              targetCitationId: "drude-1900",
+              printedText: "Drude, Ann. d. Phys. 1. 1900",
+            },
+          ],
+        },
+        { id: "s1-p2", kind: "paragraph", locators: [{ page: 133 }] },
+      ],
+    };
+
+    const validated = validateSourceManifest(raw);
+    const firstRef = validated.units[0]?.references?.[0];
+    assert.ok(firstRef);
+    assert.equal(firstRef.id, "s1-p1-r1");
+    assert.equal(firstRef.occurrenceId, "s1-p1-r1");
+    assert.equal(firstRef.targetCitationId, "drude-1900");
+
+    const diags = validateManifest(validated, {
+      manifests: new Map([[validated.paper, validated]]),
+    });
+    const occErrors = diags.filter(
+      (d) => d.rule === "reference-occurrence-id-invalid" || d.rule === "reference-id-invalid",
+    );
+    assert.equal(occErrors.length, 0, "Valid reference occurrence ids must produce 0 errors");
+    logTest(
+      "valid-reference-occurrence-ids-retained",
+      "passed",
+      "Reference sub-entries with occurrence ids validate and are retained",
+    );
+  });
+
+  it("planted negative: draft reference string format fails draft-reference-format with unitId, rule, and repair", () => {
+    const raw = {
+      paper: "mini-paper",
+      document: "ap-17-132",
+      status: "in-preparation",
+      pageCount: 2,
+      pageRange: [132, 133],
+      units: [
+        {
+          id: "s1-p1",
+          kind: "paragraph",
+          locators: [{ page: 132 }],
+          references: ["drude-1900"], // Draft string format
+        },
+      ],
+    };
+
+    assert.throws(
+      () => validateSourceManifest(raw),
+      (err: unknown) => {
+        assert.ok(err instanceof ManifestSchemaError);
+        assert.equal(err.code, "draft-reference-format");
+        assert.equal(err.rule, "draft-reference-format");
+        assert.equal(err.unitId, "s1-p1");
+        assert.ok(err.repair, "Expected actionable repair instructions");
+        assert.ok(err.repair.includes("occurrenceId"));
+        assert.ok(err.message.includes("occurrence id"));
+        return true;
+      },
+    );
+    logTest(
+      "planted-draft-reference-string-format",
+      "passed",
+      "Draft reference string format rejected with modern form named in message and repair",
+    );
+  });
+
+  it("planted negative: draft reference object using citation property fails draft-reference-format with unitId, rule, and repair", () => {
+    const raw = {
+      paper: "mini-paper",
+      document: "ap-17-132",
+      status: "in-preparation",
+      pageCount: 2,
+      pageRange: [132, 133],
+      units: [
+        {
+          id: "s1-p1",
+          kind: "paragraph",
+          locators: [{ page: 132 }],
+          references: [{ citation: "drude-1900" }], // Draft citation property without occurrenceId
+        },
+      ],
+    };
+
+    assert.throws(
+      () => validateSourceManifest(raw),
+      (err: unknown) => {
+        assert.ok(err instanceof ManifestSchemaError);
+        assert.equal(err.code, "draft-reference-format");
+        assert.equal(err.rule, "draft-reference-format");
+        assert.equal(err.unitId, "s1-p1");
+        assert.ok(err.repair, "Expected actionable repair instructions");
+        assert.ok(err.repair.includes("occurrenceId"));
+        assert.ok(err.message.includes("occurrence id"));
+        return true;
+      },
+    );
+    logTest(
+      "planted-draft-reference-citation-property",
+      "passed",
+      "Draft reference object using citation property rejected with modern form named",
+    );
+  });
+
+  it("planted negative: draft generic reference id ref-1 fails draft-reference-format with unitId, rule, and repair", () => {
+    const raw = {
+      paper: "mini-paper",
+      document: "ap-17-132",
+      status: "in-preparation",
+      pageCount: 2,
+      pageRange: [132, 133],
+      units: [
+        {
+          id: "s1-p1",
+          kind: "paragraph",
+          locators: [{ page: 132 }],
+          references: [{ id: "ref-1", targetCitationId: "drude-1900" }], // Draft generic ref-1
+        },
+      ],
+    };
+
+    assert.throws(
+      () => validateSourceManifest(raw),
+      (err: unknown) => {
+        assert.ok(err instanceof ManifestSchemaError);
+        assert.equal(err.code, "draft-reference-format");
+        assert.equal(err.rule, "draft-reference-format");
+        assert.equal(err.unitId, "s1-p1");
+        assert.ok(err.repair, "Expected actionable repair instructions");
+        assert.ok(err.repair.includes("s1-p1-r1"));
+        assert.ok(err.message.includes("s1-p1-r1"));
+        return true;
+      },
+    );
+    logTest(
+      "planted-draft-reference-generic-id",
+      "passed",
+      "Draft generic reference id ref-1 rejected naming s1-p1-r1",
+    );
+  });
+
+  it("planted negative: reference sub-entry occurrence id not matching unit prefix fails reference-occurrence-id-invalid with unitId, rule, and repair", () => {
+    const manifest = createMiniPaperManifest({
+      units: [
+        {
+          id: "s1-p1",
+          kind: "paragraph",
+          locators: [{ page: 132 }],
+          references: [{ id: "s2-p5-r1", occurrenceId: "s2-p5-r1", targetCitationId: "cite-1" }], // Prefix s2-p5 does not match unit s1-p1!
+        },
+        { id: "s1-p2", kind: "paragraph", locators: [{ page: 133 }] },
+      ],
+    });
+
+    const diags = validateManifest(manifest, { manifests: new Map([[manifest.paper, manifest]]) });
+    const occDiag = diags.find((d) => d.rule === "reference-occurrence-id-invalid");
+    assert.ok(occDiag, "Expected reference-occurrence-id-invalid diagnostic");
+    assert.equal(occDiag.rule, "reference-occurrence-id-invalid");
+    assert.equal(occDiag.unitId, "s1-p1");
+    assert.ok(occDiag.repair, "Expected actionable repair instructions");
+    assert.ok(occDiag.repair.includes("s1-p1-r1"));
+
+    logTest(
+      "planted-reference-occurrence-prefix-mismatch",
+      "passed",
+      "Reference occurrence id mismatching unit prefix fails reference-occurrence-id-invalid",
+    );
+  });
+
+  it("planted negative: reference sub-entry id not matching <unit>-r<i> fails reference-id-invalid with unitId, rule, and repair", () => {
     const manifest = createMiniPaperManifest({
       units: [
         {
@@ -709,6 +894,10 @@ describe("Source Manifest & Locator Validator Suite", () => {
     const diags = validateManifest(manifest, { manifests: new Map([[manifest.paper, manifest]]) });
     const badRef = diags.find((d) => d.rule === "reference-id-invalid");
     assert.ok(badRef, "Expected reference-id-invalid diagnostic");
+    assert.equal(badRef.rule, "reference-id-invalid");
+    assert.equal(badRef.unitId, "s1-p1");
+    assert.ok(badRef.repair, "Expected actionable repair instructions");
+    assert.ok(badRef.repair.includes("s1-p1-r1"));
     logTest("planted-reference-id-invalid", "passed", "Invalid reference sub-entry id caught");
   });
 

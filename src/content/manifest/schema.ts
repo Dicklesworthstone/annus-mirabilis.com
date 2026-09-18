@@ -342,36 +342,107 @@ export function validateSourceManifest(raw: unknown, filePath = "manifest"): Sou
     if (Array.isArray(u.references)) {
       for (let k = 0; k < u.references.length; k++) {
         const rawRef = u.references[k];
-        if (rawRef && typeof rawRef === "object") {
-          const r = rawRef as Record<string, unknown>;
-          if (typeof r.id === "string") {
-            let target: ManifestUnitReference["target"];
-            if (r.target && typeof r.target === "object") {
-              const t = r.target as Record<string, unknown>;
-              target = {
-                citationId: typeof t.citationId === "string" ? t.citationId : undefined,
-                id: typeof t.id === "string" ? t.id : undefined,
-                paper: typeof t.paper === "string" ? t.paper : undefined,
-              };
-            }
-            references.push({
-              id: r.id,
-              printedText: typeof r.printedText === "string" ? r.printedText : undefined,
-              kind:
-                r.kind === "bibliographic" || r.kind === "internal" || r.kind === "cross-paper"
-                  ? r.kind
-                  : undefined,
-              target,
-              targetCitationId:
-                typeof r.targetCitationId === "string" ? r.targetCitationId : target?.citationId,
-              text:
-                typeof r.text === "string"
-                  ? r.text
-                  : typeof r.printedText === "string"
-                    ? r.printedText
-                    : undefined,
-            });
+        const refPath = `${unitPath}.references[${k}]`;
+
+        // Check for draft reference string format
+        if (typeof rawRef === "string") {
+          throw new ManifestSchemaError(
+            "draft-reference-format",
+            `Reference sub-entry uses draft string format '${rawRef}'; replace with object '{ id: "${u.id}-r1", occurrenceId: "${u.id}-r1", targetCitationId: "${rawRef}" }' carrying a reference occurrence id.`,
+            refPath,
+            `Replace string reference with '{ id: "${u.id}-r1", occurrenceId: "${u.id}-r1", targetCitationId: "${rawRef}" }'.`,
+            typeof u.id === "string" ? u.id : undefined,
+          );
+        }
+
+        if (!rawRef || typeof rawRef !== "object") {
+          throw new ManifestSchemaError(
+            "invalid-reference",
+            "Reference sub-entry must be an object.",
+            refPath,
+            "Provide a reference object with occurrence id and target citation.",
+            typeof u.id === "string" ? u.id : undefined,
+          );
+        }
+
+        const r = rawRef as Record<string, unknown>;
+
+        // Check for draft reference object formats (e.g. { citation: "...", ref: "..." })
+        if (
+          ("citation" in r || "ref" in r || "refId" in r || "citationId" in r) &&
+          !("id" in r) &&
+          !("occurrenceId" in r)
+        ) {
+          const targetKey = String(r.citation ?? r.ref ?? r.refId ?? r.citationId ?? "citation");
+          throw new ManifestSchemaError(
+            "draft-reference-format",
+            `Reference sub-entry uses draft citation/ref property; replace with '{ id: "${u.id}-r1", occurrenceId: "${u.id}-r1", targetCitationId: "${targetKey}" }' carrying a reference occurrence id.`,
+            refPath,
+            `Replace draft reference with '{ id: "${u.id}-r1", occurrenceId: "${u.id}-r1", targetCitationId: "${targetKey}" }'.`,
+            typeof u.id === "string" ? u.id : undefined,
+          );
+        }
+
+        // Check for draft reference ID naming the target or generic 'ref-1' instead of occurrence id
+        const refIdRaw =
+          typeof r.id === "string"
+            ? r.id
+            : typeof r.occurrenceId === "string"
+              ? r.occurrenceId
+              : undefined;
+        if (
+          refIdRaw &&
+          (refIdRaw === "ref-1" ||
+            refIdRaw === "ref1" ||
+            refIdRaw.startsWith("citation-") ||
+            refIdRaw.startsWith("ref-"))
+        ) {
+          throw new ManifestSchemaError(
+            "draft-reference-format",
+            `Reference sub-entry uses draft reference id '${refIdRaw}'; reference occurrence ids must name the occurrence in the unit (e.g. '${u.id}-r1'), not a generic reference id.`,
+            `${refPath}.id`,
+            `Rename reference id to '${u.id}-r1' matching the unit prefix and an occurrence index.`,
+            typeof u.id === "string" ? u.id : undefined,
+          );
+        }
+
+        const id =
+          typeof r.id === "string"
+            ? r.id
+            : typeof r.occurrenceId === "string"
+              ? r.occurrenceId
+              : undefined;
+        const occurrenceId =
+          typeof r.occurrenceId === "string" ? r.occurrenceId : id?.includes("-r") ? id : undefined;
+
+        if (id) {
+          let target: ManifestUnitReference["target"];
+          if (r.target && typeof r.target === "object") {
+            const t = r.target as Record<string, unknown>;
+            target = {
+              citationId: typeof t.citationId === "string" ? t.citationId : undefined,
+              id: typeof t.id === "string" ? t.id : undefined,
+              paper: typeof t.paper === "string" ? t.paper : undefined,
+            };
           }
+          references.push({
+            id,
+            occurrenceId,
+            printedText: typeof r.printedText === "string" ? r.printedText : undefined,
+            kind:
+              r.kind === "bibliographic" || r.kind === "internal" || r.kind === "cross-paper"
+                ? r.kind
+                : undefined,
+            target,
+            targetCitationId:
+              typeof r.targetCitationId === "string" ? r.targetCitationId : target?.citationId,
+            text:
+              typeof r.text === "string"
+                ? r.text
+                : typeof r.printedText === "string"
+                  ? r.printedText
+                  : undefined,
+          });
         }
       }
     }

@@ -21,6 +21,7 @@ export interface ManifestLocator {
 
 export interface ManifestUnitReference {
   readonly id: string;
+  readonly occurrenceId?: string | undefined;
   readonly printedText?: string | undefined;
   readonly kind?: "bibliographic" | "internal" | "cross-paper" | undefined;
   readonly target?:

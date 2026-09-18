@@ -413,17 +413,41 @@ export function validateManifest(
   }
 
   // =========================================================================
-  // 3. References and Citations
+  // 3. References and Citations (Reference Occurrences)
   // =========================================================================
   for (const unit of manifest.units) {
     if (unit.references) {
       for (const ref of unit.references) {
-        if (!ref.id.match(/^.+-r[1-9]\d*$/)) {
+        const occurrenceId = ref.occurrenceId ?? ref.id;
+        const hasOccurrencePattern = Boolean(occurrenceId?.match(/^.+-r[1-9]\d*$/));
+        const matchesUnitPrefix =
+          Boolean(occurrenceId) &&
+          (occurrenceId.startsWith(`${unit.id}-r`) ||
+            occurrenceId.startsWith(`${unit.id}-s`) ||
+            Boolean(unit.containedIn && occurrenceId.startsWith(`${unit.containedIn}-`)));
+
+        if (!hasOccurrencePattern || !matchesUnitPrefix) {
+          addDiag(
+            "error",
+            "reference-occurrence-id-invalid",
+            `Reference sub-entry in unit '${unit.id}' has invalid reference occurrence ID '${occurrenceId}'. Reference occurrence IDs must match '<alignableUnitId>-r<i>' (e.g. '${unit.id}-r1') naming the occurrence in the text, not the target citation.`,
+            {
+              unitId: unit.id,
+              expected: `${unit.id}-r<i>`,
+              actual: occurrenceId,
+              repair: `Change reference occurrence ID to '${unit.id}-r1' matching the unit prefix and an occurrence index.`,
+            },
+          );
           addDiag(
             "error",
             "reference-id-invalid",
             `Reference sub-entry ID '${ref.id}' in unit '${unit.id}' must match '<unit>-r<i>'.`,
-            { unitId: unit.id },
+            {
+              unitId: unit.id,
+              expected: `${unit.id}-r<i>`,
+              actual: ref.id,
+              repair: `Change reference occurrence ID to '${unit.id}-r1' matching the unit prefix and an occurrence index.`,
+            },
           );
         }
 
