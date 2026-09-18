@@ -96,7 +96,7 @@
   "src/experiments/interactions/coefficient/CoefficientEditor.tsx": 0,
   "src/experiments/interactions/event/EventSelector.tsx": 0,
   "src/experiments/interactions/expression/ExpressionActionPicker.tsx": 0,
-  "src/experiments/interactions/interval/IntervalSelector.tsx": 74,
+  "src/experiments/interactions/interval/IntervalSelector.tsx": 0,
   "src/experiments/interactions/partition/PartitionControl.tsx": 0,
   "src/experiments/permalink/ShareControl.tsx": 12,
   "src/experiments/results/ResultStatusNote.tsx": 3,

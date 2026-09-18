@@ -31,6 +31,18 @@ export interface IntervalSelectorProps extends BaseInteractionProps<IntervalSele
   readonly presets?: readonly IntervalPreset[] | undefined;
 }
 
+const srOnlyStyle: React.CSSProperties = {
+  position: "absolute",
+  width: "1px",
+  height: "1px",
+  padding: 0,
+  margin: "-1px",
+  overflow: "hidden",
+  clip: "rect(0, 0, 0, 0)",
+  whiteSpace: "nowrap",
+  borderWidth: 0,
+};
+
 export function IntervalSelector({
   instrumentId,
   actionId,
@@ -70,28 +82,68 @@ export function IntervalSelector({
 
   return (
     <div
-      className={`interval-selector ${className}`}
+      className={className || undefined}
       data-interaction-family="probability-diffusion"
       data-testid={testId}
     >
       {/* Live Region Announcement */}
-      <div className="sr-only" aria-live="polite" role="status">
+      <div style={srOnlyStyle} aria-live="polite" role="status">
         {announcement}
       </div>
 
-      <div className="p-3 bg-stone-50 border border-stone-200 rounded">
-        <div className="flex justify-between items-center mb-2">
-          <h4 className="text-xs font-semibold uppercase tracking-wider text-stone-800">
+      <div
+        style={{
+          padding: "0.75rem",
+          background: "var(--panel)",
+          border: "1px solid var(--line)",
+          borderRadius: "0.25rem",
+        }}
+      >
+        <div
+          style={{
+            display: "flex",
+            justifyContent: "space-between",
+            alignItems: "center",
+            marginBottom: "0.5rem",
+          }}
+        >
+          <h4
+            className="eyebrow"
+            style={{
+              fontSize: "0.75rem",
+              fontWeight: 600,
+              textTransform: "uppercase",
+              letterSpacing: "0.05em",
+              color: "var(--ink)",
+            }}
+          >
             Observation Interval Selector
           </h4>
-          <span className="text-xs font-mono bg-stone-200 px-2 py-0.5 rounded text-stone-900">
+          <span
+            style={{
+              fontSize: "0.75rem",
+              fontFamily: "var(--font-mono, monospace)",
+              background: "var(--wash)",
+              border: "1px solid var(--line)",
+              padding: "0.125rem 0.5rem",
+              borderRadius: "0.25rem",
+              color: "var(--ink)",
+            }}
+          >
             [{currentMin.toFixed(2)}, {currentMax.toFixed(2)}] {unit}
           </span>
         </div>
 
         {/* Visual Slider Handles */}
-        <div className="flex items-center gap-2 mb-3">
-          <label htmlFor={`${compId}-min-slider`} className="sr-only">
+        <div
+          style={{
+            display: "flex",
+            alignItems: "center",
+            gap: "0.5rem",
+            marginBottom: "0.75rem",
+          }}
+        >
+          <label htmlFor={`${compId}-min-slider`} style={srOnlyStyle}>
             Interval min
           </label>
           <input
@@ -103,9 +155,12 @@ export function IntervalSelector({
             value={currentMin}
             disabled={disabled}
             onChange={(e) => updateInterval(Number.parseFloat(e.target.value), currentMax)}
-            className="w-full accent-amber-600"
+            style={{
+              width: "100%",
+              accentColor: "var(--accent)",
+            }}
           />
-          <label htmlFor={`${compId}-max-slider`} className="sr-only">
+          <label htmlFor={`${compId}-max-slider`} style={srOnlyStyle}>
             Interval max
           </label>
           <input
@@ -117,26 +172,55 @@ export function IntervalSelector({
             value={currentMax}
             disabled={disabled}
             onChange={(e) => updateInterval(currentMin, Number.parseFloat(e.target.value))}
-            className="w-full accent-amber-600"
+            style={{
+              width: "100%",
+              accentColor: "var(--accent)",
+            }}
           />
         </div>
 
         {/* Accessible Equivalent Presets & Steppers */}
-        <div className="flex flex-wrap items-center gap-2 pt-2 border-t border-stone-200 text-xs">
+        <div
+          style={{
+            display: "flex",
+            flexWrap: "wrap",
+            alignItems: "center",
+            gap: "0.5rem",
+            paddingTop: "0.5rem",
+            borderTop: "1px solid var(--line)",
+            fontSize: "0.75rem",
+          }}
+        >
           {presets.map((preset) => (
             <button
               key={preset.id}
               type="button"
               disabled={disabled}
               onClick={() => updateInterval(preset.min, preset.max)}
-              className="px-2.5 py-1 bg-white border border-stone-300 rounded hover:bg-stone-100 font-mono"
+              className="button"
+              style={{
+                padding: "0.25rem 0.625rem",
+                background: "var(--panel)",
+                border: "1px solid var(--line)",
+                borderRadius: "0.25rem",
+                color: "var(--ink)",
+                fontFamily: "var(--font-mono, monospace)",
+                cursor: disabled ? "not-allowed" : "pointer",
+              }}
             >
               {preset.label}
             </button>
           ))}
 
-          <div className="flex items-center gap-1 ml-auto">
-            <label htmlFor={`${compId}-min-input`} className="text-stone-700">
+          <div
+            style={{
+              display: "flex",
+              alignItems: "center",
+              gap: "0.25rem",
+              marginLeft: "auto",
+            }}
+          >
+            <label htmlFor={`${compId}-min-input`} style={{ color: "var(--ink)" }}>
               Min:
             </label>
             <input
@@ -146,9 +230,21 @@ export function IntervalSelector({
               step="0.1"
               disabled={disabled}
               onChange={(e) => updateInterval(Number.parseFloat(e.target.value) || 0, currentMax)}
-              className="w-14 px-1.5 py-0.5 border border-stone-300 rounded font-mono text-xs"
+              style={{
+                width: "3.5rem",
+                padding: "0.125rem 0.375rem",
+                border: "1px solid var(--line)",
+                borderRadius: "0.25rem",
+                fontFamily: "var(--font-mono, monospace)",
+                fontSize: "0.75rem",
+                background: "var(--panel)",
+                color: "var(--ink)",
+              }}
             />
-            <label htmlFor={`${compId}-max-input`} className="text-stone-700 ml-1">
+            <label
+              htmlFor={`${compId}-max-input`}
+              style={{ color: "var(--ink)", marginLeft: "0.25rem" }}
+            >
               Max:
             </label>
             <input
@@ -158,9 +254,25 @@ export function IntervalSelector({
               step="0.1"
               disabled={disabled}
               onChange={(e) => updateInterval(currentMin, Number.parseFloat(e.target.value) || 0)}
-              className="w-14 px-1.5 py-0.5 border border-stone-300 rounded font-mono text-xs"
+              style={{
+                width: "3.5rem",
+                padding: "0.125rem 0.375rem",
+                border: "1px solid var(--line)",
+                borderRadius: "0.25rem",
+                fontFamily: "var(--font-mono, monospace)",
+                fontSize: "0.75rem",
+                background: "var(--panel)",
+                color: "var(--ink)",
+              }}
             />
-            <span className="text-stone-600 font-mono">{unit}</span>
+            <span
+              style={{
+                color: "var(--muted)",
+                fontFamily: "var(--font-mono, monospace)",
+              }}
+            >
+              {unit}
+            </span>
           </div>
         </div>
       </div>
