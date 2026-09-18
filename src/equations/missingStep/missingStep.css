@@ -1,0 +1,19 @@
+.missing-step-lesson { margin-block:1.5rem; padding:1rem; border:1px solid currentColor; border-radius:.5rem; }
+.missing-step-panel { max-width:54rem; overflow-wrap:anywhere; line-height:1.65; }
+.missing-step-panel h2 { font-size:clamp(1.3rem,3vw,2rem); }
+.missing-step-panel h3 { margin-block:1.25rem .4rem; }
+.missing-step-panel details { margin-block:.7rem; border-block-start:1px solid currentColor; padding-block:.6rem; }
+.missing-step-panel summary { min-height:2rem; cursor:pointer; font-weight:600; }
+.missing-step-equations { display:grid; grid-template-columns:repeat(2,minmax(0,1fr)); gap:1rem; }
+.missing-step-math,.missing-step-table { max-width:100%; overflow-x:auto; }
+.missing-step-math { padding:.5rem; }
+.missing-step-panel table { width:100%; border-collapse:collapse; font-variant-numeric:tabular-nums; }
+.missing-step-panel th,.missing-step-panel td { padding:.5rem; text-align:center; border-block-end:1px solid currentColor; }
+.missing-step-panel caption { text-align:left; }
+.missing-step-panel :focus-visible { outline:3px solid currentColor; outline-offset:3px; }
+[data-instrument-clarification-dialog] { width:min(58rem,calc(100vw - 2rem)); max-height:85dvh; padding:clamp(.75rem,3vw,1.75rem); overflow:auto; color:inherit; background:var(--paper,Canvas); }
+[data-instrument-clarification-dialog]::backdrop { background:rgb(0 0 0 / .45); }
+[data-instrument-clarification-dialog] [data-compass] { border-block-end:1px solid currentColor; padding-block-end:1rem; margin-block-end:1rem; }
+[data-instrument-clarification-dialog] [data-compass-return] { min-height:44px; white-space:normal; }
+@media(max-width:600px) { .missing-step-equations { grid-template-columns:minmax(0,1fr); } }
+@media print { .missing-step-panel details > * { display:block; } [data-clarification-open] { display:none; } }
