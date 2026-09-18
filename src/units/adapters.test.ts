@@ -1,4 +1,5 @@
 import { describe, expect, test } from "bun:test";
+import assert from "node:assert/strict";
 import {
   conversionFactor,
   convertExact,
@@ -137,5 +138,182 @@ describe("parseExactDecimal", () => {
   });
   test("rejects a non-decimal string", () => {
     expect(() => parseExactDecimal("not-a-number")).toThrow(UnitConversionError);
+  });
+});
+
+describe("adapters refusal throw sites (am-muyh)", () => {
+  test("adapters: (adapters.ts:97) unknown-unit raised when unit definition is missing", () => {
+    expect(() => conversionFactor("nonexistent-unit", "m")).toThrow(UnitConversionError);
+    try {
+      conversionFactor("nonexistent-unit", "m");
+      assert.fail("expected to throw");
+    } catch (e) {
+      expect(e).toBeInstanceOf(UnitConversionError);
+      expect((e as UnitConversionError).code).toBe("unknown-unit");
+      expect((e as UnitConversionError).message).toContain('Unknown unit "nonexistent-unit"');
+    }
+
+    // Accept known units
+    const accepted = conversionFactor("m", "cm");
+    expect(accepted.factor.num).toBe(100n);
+    expect(accepted.factor.den).toBe(1n);
+    expect(accepted.exactness).toBe("exact");
+  });
+
+  test("adapters: (adapters.ts:111) family-mismatch raised when units belong to different dimension families", () => {
+    expect(() => conversionFactor("m", "Pa*s")).toThrow(UnitConversionError);
+    try {
+      conversionFactor("m", "Pa*s");
+      assert.fail("expected to throw");
+    } catch (e) {
+      expect(e).toBeInstanceOf(UnitConversionError);
+      expect((e as UnitConversionError).code).toBe("family-mismatch");
+      expect((e as UnitConversionError).message).toContain(
+        'Cannot convert "m" (length) to "Pa*s" (viscosity)',
+      );
+    }
+
+    // Accept same-family conversion
+    const accepted = conversionFactor("m", "um");
+    expect(accepted.factor.num).toBe(1_000_000n);
+    expect(accepted.factor.den).toBe(1n);
+    expect(accepted.exactness).toBe("exact");
+  });
+
+  test("adapters: (adapters.ts:158) non-terminating-decimal raised when exact rational factor cannot terminate in base 10", () => {
+    expect(() => convertExact("1", "statC", "C")).toThrow(UnitConversionError);
+    try {
+      convertExact("1", "statC", "C");
+      assert.fail("expected to throw");
+    } catch (e) {
+      expect(e).toBeInstanceOf(UnitConversionError);
+      expect((e as UnitConversionError).code).toBe("non-terminating-decimal");
+      expect((e as UnitConversionError).message).toContain("has no finite decimal representation");
+    }
+
+    // Accept terminating decimal conversion
+    const accepted = convertExact("1.35e-2", "P", "Pa*s");
+    expect(accepted).toBe("0.00135");
+  });
+
+  test("adapters: (adapters.ts:183) invalid-decimal raised when decimal string format is unparseable", () => {
+    expect(() => parseExactDecimal("not-a-finite-decimal")).toThrow(UnitConversionError);
+    try {
+      parseExactDecimal("not-a-finite-decimal");
+      assert.fail("expected to throw");
+    } catch (e) {
+      expect(e).toBeInstanceOf(UnitConversionError);
+      expect((e as UnitConversionError).code).toBe("invalid-decimal");
+      expect((e as UnitConversionError).message).toContain(
+        '"not-a-finite-decimal" is not a finite decimal number',
+      );
+    }
+
+    // Accept valid decimal string
+    const accepted = parseExactDecimal("1.602176634e-19");
+    expect(accepted.num).toBe(801088317n);
+    expect(accepted.den).toBe(5_000_000_000_000_000_000_000_000_000n);
+  });
+
+  test("adapters: (adapters.ts:209) nonfinite-value raised when convertValue receives NaN or Infinity", () => {
+    expect(() => convertValue(Number.NaN, "m", "cm")).toThrow(UnitConversionError);
+    expect(() => convertValue(Number.POSITIVE_INFINITY, "m", "cm")).toThrow(UnitConversionError);
+    try {
+      convertValue(Number.NaN, "m", "cm");
+      assert.fail("expected to throw");
+    } catch (e) {
+      expect(e).toBeInstanceOf(UnitConversionError);
+      expect((e as UnitConversionError).code).toBe("nonfinite-value");
+      expect((e as UnitConversionError).message).toContain("Only finite values can be converted");
+    }
+
+    // Accept finite number
+    const accepted = convertValue(2.5, "m", "cm");
+    expect(accepted).toBe(250);
+  });
+
+  test("adapters: (adapters.ts:225) nonfinite-value raised when convertTemperatureValue receives NaN or Infinity", () => {
+    expect(() => convertTemperatureValue(Number.NaN, "K", "degC")).toThrow(UnitConversionError);
+    expect(() => convertTemperatureValue(Number.NEGATIVE_INFINITY, "degC", "K")).toThrow(
+      UnitConversionError,
+    );
+    try {
+      convertTemperatureValue(Number.NaN, "K", "degC");
+      assert.fail("expected to throw");
+    } catch (e) {
+      expect(e).toBeInstanceOf(UnitConversionError);
+      expect((e as UnitConversionError).code).toBe("nonfinite-value");
+      expect((e as UnitConversionError).message).toContain(
+        "Only finite temperatures can be converted",
+      );
+    }
+
+    // Accept finite temperature
+    const accepted = convertTemperatureValue(290.15, "K", "degC");
+    expect(accepted).toBeCloseTo(17, 10);
+  });
+
+  test("adapters: (adapters.ts:230) unknown-unit raised when convertTemperatureValue receives an unhandled temperature unit pair", () => {
+    expect(() => convertTemperatureValue(300, "degF" as unknown as "K", "degC")).toThrow(
+      UnitConversionError,
+    );
+    try {
+      convertTemperatureValue(300, "degF" as unknown as "K", "degC");
+      assert.fail("expected to throw");
+    } catch (e) {
+      expect(e).toBeInstanceOf(UnitConversionError);
+      expect((e as UnitConversionError).code).toBe("unknown-unit");
+      expect((e as UnitConversionError).message).toContain(
+        'Unknown temperature unit pair "degF" -> "degC"',
+      );
+    }
+
+    // Accept valid temperature unit pairs
+    expect(convertTemperatureValue(0, "degC", "K")).toBe(273.15);
+    expect(convertTemperatureValue(273.15, "K", "degC")).toBe(0);
+  });
+
+  test("adapters: (adapters.ts:245) nonfinite-value raised when convertTemperatureDelta receives NaN or Infinity", () => {
+    expect(() => convertTemperatureDelta(Number.NaN, "K", "degC")).toThrow(UnitConversionError);
+    expect(() => convertTemperatureDelta(Number.POSITIVE_INFINITY, "degC", "K")).toThrow(
+      UnitConversionError,
+    );
+    try {
+      convertTemperatureDelta(Number.NaN, "K", "degC");
+      assert.fail("expected to throw");
+    } catch (e) {
+      expect(e).toBeInstanceOf(UnitConversionError);
+      expect((e as UnitConversionError).code).toBe("nonfinite-value");
+      expect((e as UnitConversionError).message).toContain(
+        "Only finite differences can be converted",
+      );
+    }
+
+    // Accept finite temperature difference
+    const accepted = convertTemperatureDelta(5, "degC", "K");
+    expect(accepted).toBe(5);
+  });
+
+  test("adapters: (adapters.ts:247) unknown-unit raised when convertTemperatureDelta receives invalid temperature units", () => {
+    expect(() => convertTemperatureDelta(5, "m" as unknown as "K", "degC")).toThrow(
+      UnitConversionError,
+    );
+    expect(() => convertTemperatureDelta(5, "K", "Pa*s" as unknown as "degC")).toThrow(
+      UnitConversionError,
+    );
+    try {
+      convertTemperatureDelta(5, "m" as unknown as "K", "degC");
+      assert.fail("expected to throw");
+    } catch (e) {
+      expect(e).toBeInstanceOf(UnitConversionError);
+      expect((e as UnitConversionError).code).toBe("unknown-unit");
+      expect((e as UnitConversionError).message).toContain(
+        'Unknown temperature unit pair "m" -> "degC"',
+      );
+    }
+
+    // Accept valid temperature unit pairs
+    expect(convertTemperatureDelta(1, "degC", "K")).toBe(1);
+    expect(convertTemperatureDelta(1, "K", "degC")).toBe(1);
   });
 });
