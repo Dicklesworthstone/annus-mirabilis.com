@@ -143,7 +143,7 @@ export function DopplerAberrationPlot({
                 y1={line.y1}
                 x2={line.x2}
                 y2={line.y2}
-                stroke="#3b82f6"
+                stroke="var(--plot)"
                 strokeWidth={1.5}
                 strokeOpacity={0.6}
               />
@@ -155,17 +155,17 @@ export function DopplerAberrationPlot({
               y1={cy}
               x2={ray1X}
               y2={ray1Y}
-              stroke="#2563eb"
+              stroke="var(--plot)"
               strokeWidth={2.5}
               markerEnd="url(#arrow-k)"
             />
-            <circle cx={cx1} cy={cy} r={3} fill="#2563eb" />
+            <circle cx={cx1} cy={cy} r={3} fill="var(--plot)" />
 
             {/* Angle arc */}
             <path
               d={`M ${cx1 + 30} ${cy} A 30 30 0 ${thetaRadK > Math.PI ? 1 : 0} 0 ${cx1 + 30 * Math.cos(thetaRadK)} ${cy - 30 * Math.sin(thetaRadK)}`}
               fill="none"
-              stroke="#2563eb"
+              stroke="var(--plot)"
               strokeWidth={1.2}
               strokeDasharray="2 2"
             />
@@ -175,7 +175,7 @@ export function DopplerAberrationPlot({
               fontSize="12"
               fontFamily="var(--font-mono, monospace)"
               fontWeight="500"
-              fill="#2563eb"
+              fill="var(--plot)"
             >
               θ = {thetaStationaryDeg.toFixed(1)}°
             </text>
@@ -222,7 +222,7 @@ export function DopplerAberrationPlot({
                 y1={0}
                 x2={50}
                 y2={0}
-                stroke="#f59e0b"
+                stroke="var(--accent)"
                 strokeWidth={2}
                 markerEnd="url(#arrow-boost)"
               />
@@ -231,7 +231,7 @@ export function DopplerAberrationPlot({
                 y={-6}
                 fontSize="10"
                 fontFamily="var(--font-mono, monospace)"
-                fill="#f59e0b"
+                fill="var(--accent)"
                 textAnchor="middle"
               >
                 v = {beta.toFixed(2)}c
@@ -246,7 +246,7 @@ export function DopplerAberrationPlot({
                 y1={line.y1}
                 x2={line.x2}
                 y2={line.y2}
-                stroke={dopplerFactor > 1 ? "#ef4444" : "#10b981"}
+                stroke={dopplerFactor > 1 ? "var(--accent)" : "var(--plot)"}
                 strokeWidth={1.5}
                 strokeOpacity={0.7}
               />
@@ -258,17 +258,17 @@ export function DopplerAberrationPlot({
               y1={cy}
               x2={ray2X}
               y2={ray2Y}
-              stroke="#dc2626"
+              stroke="var(--accent)"
               strokeWidth={2.5}
               markerEnd="url(#arrow-prime)"
             />
-            <circle cx={cx2} cy={cy} r={3} fill="#dc2626" />
+            <circle cx={cx2} cy={cy} r={3} fill="var(--accent)" />
 
             {/* Transformed Angle arc */}
             <path
               d={`M ${cx2 + 30} ${cy} A 30 30 0 ${thetaRad_k > Math.PI ? 1 : 0} 0 ${cx2 + 30 * Math.cos(thetaRad_k)} ${cy - 30 * Math.sin(thetaRad_k)}`}
               fill="none"
-              stroke="#dc2626"
+              stroke="var(--accent)"
               strokeWidth={1.2}
               strokeDasharray="2 2"
             />
@@ -278,7 +278,7 @@ export function DopplerAberrationPlot({
               fontSize="12"
               fontFamily="var(--font-mono, monospace)"
               fontWeight="500"
-              fill="#dc2626"
+              fill="var(--accent)"
             >
               θ&apos; = {thetaMovingDeg.toFixed(1)}°
             </text>
@@ -295,7 +295,7 @@ export function DopplerAberrationPlot({
               markerHeight={6}
               orient="auto-start-reverse"
             >
-              <path d="M 0 0 L 10 5 L 0 10 z" fill="#2563eb" />
+              <path d="M 0 0 L 10 5 L 0 10 z" fill="var(--plot)" />
             </marker>
             <marker
               id="arrow-prime"
@@ -306,7 +306,7 @@ export function DopplerAberrationPlot({
               markerHeight={6}
               orient="auto-start-reverse"
             >
-              <path d="M 0 0 L 10 5 L 0 10 z" fill="#dc2626" />
+              <path d="M 0 0 L 10 5 L 0 10 z" fill="var(--accent)" />
             </marker>
             <marker
               id="arrow-boost"
@@ -317,7 +317,7 @@ export function DopplerAberrationPlot({
               markerHeight={6}
               orient="auto-start-reverse"
             >
-              <path d="M 0 0 L 10 5 L 0 10 z" fill="#f59e0b" />
+              <path d="M 0 0 L 10 5 L 0 10 z" fill="var(--accent)" />
             </marker>
           </defs>
         </svg>
