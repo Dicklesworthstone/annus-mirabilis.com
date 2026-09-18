@@ -127,6 +127,9 @@ export const ME02_MODEL = Object.freeze({
 export const ME02_CAPTION = Object.freeze({
   r0: "At low speed the drop in energy of motion looks exactly like a body that became lighter by the energy it sent out divided by the speed of light squared.",
   r1: "The exact difference is L(gamma - 1). The quadratic estimate is half L times (v/c) squared. The finite-speed proxy is 2 L (gamma - 1) / v^2, never labeled the exact mass loss. The limiting coefficient L/c^2 is an analytic limit at vanishing speed.",
-  r2: "Expand gamma as 1 + (1/2) beta^2 + (3/8) beta^4 + ... . Then 2(gamma - 1)/beta^2 = 1 + (3/4) beta^2 + ... which approaches 1 as the speed vanishes, so the coefficient of half v^2 is L/c^2.",
+  r2: "Expand the Lorentz factor gamma = (1 - beta^2)^(-1/2) by the binomial series as 1 + (1/2) beta^2 + (3/8) beta^4 + (5/16) beta^6 + ... . Subtracting 1 isolates the relativistic kinetic factor (1/2) beta^2 + (3/8) beta^4 + ... . Dividing by beta^2 and multiplying by 2 yields 2(gamma - 1)/beta^2 = 1 + (3/4) beta^2 + (5/8) beta^4 + ... . In the limit as beta vanishes, every higher-order term vanishes identically, leaving exactly 1. Multiplying by L gives the low-speed kinetic difference (1/2) (L/c^2) v^2, identifying the effective mass decrease as L/c^2.",
   r3: "Paper 4 prints the step as neglecting magnitudes of fourth and higher order. The printed conversion L / 9e20 uses Einstein's rounded V^2. The Newtonian 1/2 m v^2 is the premise that identifies the coefficient. The printed glyph for the Lorentz factor in paper 4 is UNKNOWN until the facsimile is pinned.",
+  r3Citations: Object.freeze([
+    "Einstein, A. (1905). Ist die Trägheit eines Körpers von seinem Energieinhalt abhängig? Annalen der Physik 18, 639–641.",
+  ]),
 });
