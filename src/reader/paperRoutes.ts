@@ -5,6 +5,7 @@
  * from the content index; a paper without a payload is not a route.
  */
 import type { Metadata } from "next";
+import { getPaperExportLinks, getSectionExportLinks } from "../content/exports/discovery.ts";
 import { PAPER_SLUGS } from "../content/schemas/source.ts";
 import { contentIndex, loadPaper } from "../content/server.ts";
 import { DEFAULT_FACE, FACE_REGISTRY, type FaceId } from "./faces/registry.ts";
@@ -178,12 +179,21 @@ export async function paperMetadata(request: PaperRouteRequest): Promise<Metadat
     resolved.face === "german" || resolved.face === "english"
       ? absoluteUrl(path)
       : absoluteUrl(documentPath);
+  const exportLinks =
+    sectionId === undefined
+      ? getPaperExportLinks(resolved.paperId)
+      : getSectionExportLinks(resolved.paperId, sectionId);
+  const types: Record<string, string> = {};
+  for (const link of exportLinks) {
+    types[link.type] = link.href;
+  }
   return {
     title,
     description: payload.paper.description,
     alternates: {
       canonical,
       ...(languages === undefined ? {} : { languages }),
+      types,
     },
   };
 }

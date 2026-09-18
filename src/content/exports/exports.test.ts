@@ -16,6 +16,7 @@ import { emitMachineReadableExports } from "./emitter.ts";
 import { escapeMarkdownSourceText, generateSectionMarkdown } from "./markdown.ts";
 import { assertExportSafety, ExportValidationError, validateExportRecord } from "./schemas.ts";
 import type { ExportIndex, SectionExport } from "./types.ts";
+import { paperMetadata } from "../../reader/paperRoutes.ts";
 
 const sha256Hex = (buf: string | Uint8Array): string =>
   createHash("sha256").update(buf).digest("hex");
@@ -688,6 +689,223 @@ describe("Machine-Readable Exports (/exports/v1/) (am-cm-machine-readable-export
       "exports-delegated-rights-marker",
       "passed",
       "Schema validation rejects exports lacking explicit delegated-not-owner-ratified governance markers.",
+    );
+  });
+
+  // 12. RH-3 Protection: Invariants Derived Directly From Source Records (AC 1, AC 4)
+  it("verifies emitted files satisfy semantic invariants derived directly from source records (RH-3)", async () => {
+    const tempBase = process.env.AM_TEST_TMP ?? tmpdir();
+    const tempRoot = await mkdtemp(resolve(tempBase, "am-rh3-source-"));
+    const contentRevision = "rev-rh3-source-1234";
+
+    const index = await emitMachineReadableExports({
+      rootDir: tempRoot,
+      contentRevision,
+      releaseProfile: "preview",
+      papers: [
+        {
+          id: "brownian-motion",
+          slug: "brownian-motion",
+          title: FIXTURE_BROWNIAN_PAPER.titleEnglishWorking,
+          germanTitle: FIXTURE_BROWNIAN_PAPER.titleGerman,
+          authorLine: FIXTURE_BROWNIAN_PAPER.authorLine,
+          bibKey: FIXTURE_BROWNIAN_PAPER.bibKey,
+          dates: FIXTURE_BROWNIAN_PAPER.dates,
+          journal: FIXTURE_BROWNIAN_PAPER.journal,
+          sections: [
+            {
+              id: "bm-sec-04",
+              title: "§ 4. On the Irregular Motion of Suspended Particles",
+            },
+          ],
+        },
+      ],
+      sourceBlocks: FIXTURE_BROWNIAN_SOURCE_BLOCKS.filter((b) => b.section === "bm-sec-04"),
+      translationUnits: FIXTURE_BROWNIAN_TRANSLATION_UNITS,
+      alignments: [FIXTURE_BROWNIAN_ALIGNMENT],
+      editorialNotes: FIXTURE_EDITORIAL_NOTES,
+      equations: [
+        {
+          id: "eq-bm-01",
+          paper: "brownian-motion",
+          section: "bm-sec-04",
+          title: "Diffusion Coefficient (Stokes-Einstein)",
+          latexModern: "D = \\frac{R T}{6 \\pi k N}",
+          spoken: "D equals R times T over six pi k N",
+          explanation: "Stokes-Einstein relation for the diffusion coefficient.",
+          quantityIds: ["diffusionCoefficient", "temperature", "gasConstant"],
+        },
+      ],
+      arguments: [
+        {
+          id: "arg-bm-01",
+          paper: "brownian-motion",
+          section: "bm-sec-04",
+          title: "Osmotic Equilibrium and Irregular Motion",
+          question: "How does osmotic pressure balance particle motion?",
+          recap: "Particles undergo random thermal motion balanced by viscous drag.",
+          premises: ["Dynamic equilibrium in a stationary liquid."],
+          limitations: ["Valid only for spherical particles much larger than liquid molecules."],
+          meaning: {
+            logicalRole: "derivation",
+            historicalStatus: "pedagogical-reconstruction",
+            modelStatus: "exact-within-model",
+            executionStatus: "static-illustration",
+          },
+        },
+      ],
+      experiments: [
+        {
+          id: "bm-01",
+          paper: "brownian-motion",
+          title: "Stokes-Einstein Diffusion Instrument",
+          kind: "simulation",
+          parameters: [
+            {
+              id: "temperature",
+              name: "Temperature",
+              unit: "K",
+              default: 293.15,
+              min: 270,
+              max: 370,
+            },
+          ],
+        },
+      ],
+    });
+
+    // 1. Every on-disk JSON file has schemaVersion: 1 (for Annus Mirabilis schemas), matching contentRevision, and non-empty rights
+    for (const fileEntry of index.files) {
+      if (fileEntry.format === "json") {
+        const fullPath = resolve(tempRoot, "exports/v1", fileEntry.path);
+        const parsed = JSON.parse(await readFile(fullPath, "utf8"));
+        if (!fileEntry.path.startsWith("jsonld/")) {
+          expect(parsed.schemaVersion).toBe(1);
+          expect(parsed.contentRevision).toBe(contentRevision);
+        } else {
+          expect(parsed["@context"]).toBe("https://schema.org");
+          expect(parsed["@type"]).toBe("ScholarlyArticle");
+        }
+        if (fileEntry.path !== "index.json" && !fileEntry.path.startsWith("jsonld/")) {
+          expect(parsed.rights).toBeDefined();
+          expect(Object.keys(parsed.rights).length).toBeGreaterThan(0);
+        }
+      }
+    }
+
+    // 2. Paper export values derived from SOURCE input
+    const paperJson = JSON.parse(
+      await readFile(resolve(tempRoot, "exports/v1/papers/brownian-motion.json"), "utf8"),
+    );
+    expect(paperJson.titleEnglishWorking).toBe(FIXTURE_BROWNIAN_PAPER.titleEnglishWorking);
+    expect(paperJson.titleGerman).toBe(FIXTURE_BROWNIAN_PAPER.titleGerman);
+    expect(paperJson.authorLine).toBe(FIXTURE_BROWNIAN_PAPER.authorLine);
+    expect(paperJson.bibKey).toBe(FIXTURE_BROWNIAN_PAPER.bibKey);
+    expect(paperJson.journal?.name).toBe(FIXTURE_BROWNIAN_PAPER.journal?.name);
+
+    // 3. Section export values derived from SOURCE blocks and translation units
+    const sectionJson = JSON.parse(
+      await readFile(resolve(tempRoot, "exports/v1/papers/brownian-motion/bm-sec-04.json"), "utf8"),
+    );
+    expect(sectionJson.paperSlug).toBe("brownian-motion");
+    expect(sectionJson.sectionId).toBe("bm-sec-04");
+    expect(sectionJson.sentences.length).toBeGreaterThan(0);
+    for (const sentence of sectionJson.sentences) {
+      const matchingTu = FIXTURE_BROWNIAN_TRANSLATION_UNITS.find((tu) =>
+        tu.sourceRefs.some((sr) => sr.id === sentence.id || sr.id === sentence.sourceBlockId),
+      );
+      expect(matchingTu).toBeDefined();
+    }
+
+    // 4. Equation export values derived from SOURCE equation
+    const eqJson = JSON.parse(
+      await readFile(resolve(tempRoot, "exports/v1/equations/eq-bm-01.json"), "utf8"),
+    );
+    expect(eqJson.latexModern).toBe("D = \\frac{R T}{6 \\pi k N}");
+    expect(eqJson.spoken).toBe("D equals R times T over six pi k N");
+    expect(eqJson.quantityIds).toEqual(["diffusionCoefficient", "temperature", "gasConstant"]);
+
+    // 5. Argument export values derived from SOURCE argument
+    const argJson = JSON.parse(
+      await readFile(resolve(tempRoot, "exports/v1/arguments/arg-bm-01.json"), "utf8"),
+    );
+    expect(argJson.question).toBe("How does osmotic pressure balance particle motion?");
+    expect(argJson.premises).toEqual(["Dynamic equilibrium in a stationary liquid."]);
+    expect(argJson.meaning.logicalRole).toBe("derivation");
+
+    // 6. Experiment export values derived from SOURCE experiment (and zero executable code)
+    const expJson = JSON.parse(
+      await readFile(resolve(tempRoot, "exports/v1/experiments/bm-01.json"), "utf8"),
+    );
+    expect(expJson.title).toBe("Stokes-Einstein Diffusion Instrument");
+    expect(expJson.parameters[0].unit).toBe("K");
+
+    logOutcome(
+      "exports-rh3-source-invariants",
+      "passed",
+      "All emitted files verified against source records without reading from output artifacts.",
+    );
+  });
+
+  // 13. Paper & Section Metadata Discovery Links (AC 7)
+  it("paperMetadata includes alternate link types for paper and section discovery (AC 7)", async () => {
+    // Paper route metadata
+    const paperMeta = await paperMetadata({ paperId: "brownian-motion" });
+    expect(paperMeta.alternates?.types).toBeDefined();
+    const paperTypes = paperMeta.alternates?.types as Record<string, string>;
+    expect(paperTypes["application/json"]).toBe("/exports/v1/papers/brownian-motion.json");
+    expect(paperTypes["application/ld+json"]).toBe("/exports/v1/jsonld/brownian-motion.json");
+    expect(paperTypes["application/tei+xml"]).toBe("/exports/v1/tei/brownian-motion.xml");
+    expect(paperTypes["text/tab-separated-values"]).toBe("/exports/v1/corpus/brownian-motion.tsv");
+
+    // Section route metadata
+    const sectionMeta = await paperMetadata({ paperId: "brownian-motion", section: "s4" });
+    expect(sectionMeta.alternates?.types).toBeDefined();
+    const sectionTypes = sectionMeta.alternates?.types as Record<string, string>;
+    expect(sectionTypes["application/json"]).toBe(
+      "/exports/v1/papers/brownian-motion/s4.json",
+    );
+    expect(sectionTypes["text/markdown"]).toBe("/exports/v1/papers/brownian-motion/s4.md");
+
+    logOutcome(
+      "exports-metadata-discovery",
+      "passed",
+      "Paper and section routes provide rel=alternate export types in metadata.",
+    );
+  });
+
+  // 14. Documentation Contract Verification (AC 6)
+  it("docs/EXPORTS.md documents all required export endpoints, stability guarantees, and rights model (AC 6)", async () => {
+    const docPath = resolve(process.cwd(), "docs/EXPORTS.md");
+    const docContent = await readFile(docPath, "utf8");
+
+    // Documented endpoints
+    expect(docContent).toContain("/exports/v1/index.json");
+    expect(docContent).toContain("/exports/v1/papers/<slug>.json");
+    expect(docContent).toContain("/exports/v1/papers/<slug>/<section>.json");
+    expect(docContent).toContain("/exports/v1/papers/<slug>/<section>.md");
+    expect(docContent).toContain("/exports/v1/equations/<id>.json");
+    expect(docContent).toContain("/exports/v1/arguments/<id>.json");
+    expect(docContent).toContain("/exports/v1/experiments/<id>.json");
+    expect(docContent).toContain("/exports/v1/tei/<slug>.xml");
+    expect(docContent).toContain("/exports/v1/jsonld/<slug>.json");
+    expect(docContent).toContain("/exports/v1/corpus/<slug>.tsv");
+
+    // Stability guarantees
+    expect(docContent).toContain("Stability Guarantees");
+    expect(docContent).toContain("Versioned Namespace");
+    expect(docContent).toContain("Additive Evolution");
+    expect(docContent).toContain("Byte Determinism");
+
+    // Rights model
+    expect(docContent).toContain("Rights & Licensing Model");
+    expect(docContent).toContain("Historical German Text");
+    expect(docContent).toContain("English Translations");
+
+    logOutcome(
+      "exports-documentation-contract",
+      "passed",
+      "docs/EXPORTS.md verified for complete endpoint and stability contract coverage.",
     );
   });
 });
