@@ -1004,3 +1004,47 @@ export function waveEquationResidual(input: WaveEquationResidualInput): WaveEqua
     scaleResidual: scale,
   };
 }
+
+// ---------------------------------------------------------------------------
+// Historical fixtures declarations (AC10)
+// ---------------------------------------------------------------------------
+
+export interface ShelfHistoricalFixtureMetadata {
+  readonly id: string;
+  readonly kind: "historical-fixture";
+  readonly paper: string;
+  readonly sectionId: string;
+  readonly printedPage: number;
+  readonly transcription: Readonly<{
+    status: "pending";
+    reason: string;
+  }>;
+}
+
+export const SHELF_HISTORICAL_FIXTURES: readonly ShelfHistoricalFixtureMetadata[] =
+  Object.freeze([
+    Object.freeze({
+      id: "shelf-mm-1887-historical",
+      kind: "historical-fixture" as const,
+      paper: "special-relativity",
+      sectionId: "shelf",
+      printedPage: 333,
+      transcription: Object.freeze({
+        status: "pending" as const,
+        reason:
+          "1887 Michelson-Morley observational bound awaiting facsimile review from Am. J. Sci. (3) 34 (1887) 333.",
+      }),
+    }),
+    Object.freeze({
+      id: "shelf-fizeau-1851-historical",
+      kind: "historical-fixture" as const,
+      paper: "special-relativity",
+      sectionId: "shelf",
+      printedPage: 349,
+      transcription: Object.freeze({
+        status: "pending" as const,
+        reason:
+          "1851 Fizeau moving-water data awaiting transcription from Comptes rendus 33 (1851) 349.",
+      }),
+    }),
+  ]);

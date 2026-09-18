@@ -1,8 +1,11 @@
 import { describe, expect, test } from "bun:test";
 import type { ScientificResult } from "../../experiments/results/types.ts";
 import { withinTolerance } from "../../units/tolerance.ts";
+import { ConstantSetError, withMode1904Guard } from "./constants.ts";
+import { Mode1904GuardError } from "./kinematics.ts";
 import { logShelfOptics } from "./shelfOptics.log.ts";
 import {
+  SHELF_HISTORICAL_FIXTURES,
   fizeauFringeShift,
   fresnelDraggedSpeed,
   michelsonMorleyFringeShift,
@@ -652,5 +655,154 @@ describe("Refusal and domain checks (shelfOptics)", () => {
     });
     expect(fizeau.status).toBe("outside-domain");
     expect(fizeau.condition).toBe("superluminal-speed");
+  });
+});
+
+describe("1904-mode discipline (AC8)", () => {
+  test("In 1904 mode no function reads a numeric c; water speed in m/s is refused with guard typed error; relativistic comparison is absent", () => {
+    const t0 = Date.now();
+    withMode1904Guard(() => {
+      // 1. Michelson-Morley units-of-c path succeeds without numeric c
+      const mmShift = michelsonMorleyFringeShift({
+        beta: 1e-4,
+        pathInWavelengths: 2e7,
+        contraction: false,
+      });
+      expect(mmShift.status).toBe("value");
+      expectClose(val(mmShift.fringeShift), 0.4, { relative: 1e-4, absolute: 1e-4 });
+
+      // 2. Passing windSpeed in m/s throws ConstantSetError (no-pre-1905-light-speed-set)
+      expect(() => {
+        michelsonMorleyTimes({
+          length: 11,
+          windSpeed: 30000,
+          contraction: false,
+        });
+      }).toThrow(ConstantSetError);
+
+      // 3. Passing modern-si-2019 throws ConstantSetError (modern-constant-in-1904-mode)
+      expect(() => {
+        michelsonMorleyTimes({
+          length: 11,
+          beta: 1e-4,
+          contraction: false,
+          constantSet: "modern-si-2019",
+        });
+      }).toThrow(ConstantSetError);
+
+      // 4. Fizeau accepts waterSpeedFractionOfC without numeric c
+      const fizeau = fizeauFringeShift({
+        waterPathPerBeam: 3.0,
+        waterSpeedFractionOfC: 2.355e-8,
+        refractiveIndex: 1.333,
+        wavelength: 530e-9,
+        dragHypothesis: "fresnel-drag",
+      });
+      expect(fizeau.status).toBe("value");
+      expect(val(fizeau.fringeShift)).toBeGreaterThan(0);
+
+      // 5. Fizeau with waterSpeed in m/s throws ConstantSetError
+      expect(() => {
+        fizeauFringeShift({
+          waterPathPerBeam: 3.0,
+          waterSpeed: 7.06,
+          refractiveIndex: 1.333,
+          wavelength: 530e-9,
+          dragHypothesis: "fresnel-drag",
+        });
+      }).toThrow(ConstantSetError);
+
+      // 6. Fresnel dragged speed in units of c succeeds; m/s throws ConstantSetError
+      const fresnel = fresnelDraggedSpeed({
+        refractiveIndex: 1.333,
+        waterSpeedFractionOfC: 2.355e-8,
+      });
+      expect(fresnel.status).toBe("value");
+      expect(val(fresnel.dragCoefficient)).toBeGreaterThan(0);
+
+      expect(() => {
+        fresnelDraggedSpeed({
+          refractiveIndex: 1.333,
+          waterSpeed: 7.06,
+        });
+      }).toThrow(ConstantSetError);
+
+      // 7. Relativistic comparison is absent (throws Mode1904GuardError)
+      expect(() => {
+        relativisticDraggedSpeed({
+          refractiveIndex: 1.333,
+          waterSpeedFractionOfC: 2.355e-8,
+        });
+      }).toThrow(Mode1904GuardError);
+
+      // 8. Wave equation residual with beta succeeds without constant set; m/s frameSpeed throws
+      const gal = waveEquationResidual({
+        map: "galilean",
+        beta: 0.1,
+        wavenumber: 2.0,
+      });
+      expect(gal.status).toBe("value");
+      expect(val(gal.relativeResidual)).toBeGreaterThan(0);
+
+      expect(() => {
+        waveEquationResidual({
+          map: "galilean",
+          frameSpeed: 30000,
+          wavenumber: 2.0,
+        });
+      }).toThrow(ConstantSetError);
+    });
+
+    logShelfOptics({
+      testId: "shelf-optics-ac8-mode-1904",
+      owner: "shelf-optics",
+      mode: "1904",
+      resultStatus: "value",
+      outcome: "passed",
+      durationMs: Date.now() - t0,
+      message:
+        "AC8: In 1904 mode no function reads numeric c, m/s water speed refused, relativistic comparison absent.",
+    });
+  });
+});
+
+describe("Historical fixtures pending status (AC10)", () => {
+  test("historical fixtures remain marked pending until inputs transcribed from cited papers and dataset", () => {
+    const t0 = Date.now();
+    expect(SHELF_HISTORICAL_FIXTURES.length).toBe(2);
+
+    const mm1887 = SHELF_HISTORICAL_FIXTURES.find(
+      (f) => f.id === "shelf-mm-1887-historical",
+    );
+    expect(mm1887).toBeDefined();
+    expect(mm1887?.kind).toBe("historical-fixture");
+    expect(mm1887?.paper).toBe("special-relativity");
+    expect(mm1887?.printedPage).toBe(333);
+    expect(mm1887?.transcription.status).toBe("pending");
+    expect(mm1887?.transcription.reason).toContain(
+      "1887 Michelson-Morley observational bound awaiting facsimile review",
+    );
+
+    const fizeau1851 = SHELF_HISTORICAL_FIXTURES.find(
+      (f) => f.id === "shelf-fizeau-1851-historical",
+    );
+    expect(fizeau1851).toBeDefined();
+    expect(fizeau1851?.kind).toBe("historical-fixture");
+    expect(fizeau1851?.paper).toBe("special-relativity");
+    expect(fizeau1851?.printedPage).toBe(349);
+    expect(fizeau1851?.transcription.status).toBe("pending");
+    expect(fizeau1851?.transcription.reason).toContain(
+      "1851 Fizeau moving-water data awaiting transcription",
+    );
+
+    logShelfOptics({
+      testId: "shelf-optics-ac10-historical-pending",
+      owner: "shelf-optics",
+      resultStatus: "value",
+      outcome: "passed",
+      durationMs: Date.now() - t0,
+      message:
+        "AC10: Historical fixtures remain marked pending with explicit reasons until transcribed.",
+    });
   });
 });
