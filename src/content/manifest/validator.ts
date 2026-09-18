@@ -8,7 +8,12 @@
  */
 
 import { type AliasRecord, explainGap } from "../aliases.ts";
-import type { ManifestDiagnostic, ManifestUnit, SourceManifest } from "./types.ts";
+import type {
+  ManifestDiagnostic,
+  ManifestUnit,
+  PaperSourceLayers,
+  SourceManifest,
+} from "./types.ts";
 
 export const KNOWN_DOCUMENT_JOURNAL_RANGES: Readonly<Record<string, readonly [number, number]>> = {
   "ap-17-132": [132, 148],
@@ -30,6 +35,7 @@ export interface ManifestValidationContext {
   readonly paperDates?:
     | ReadonlyMap<string, { readonly received: string; readonly published?: string }>
     | undefined;
+  readonly sourceLayers?: ReadonlyMap<string, PaperSourceLayers> | undefined;
 }
 
 export interface ManifestValidationResult {
@@ -406,6 +412,26 @@ export function validateManifest(
         `Paper marked complete has ${unreviewed.length} unreviewed unit(s).`,
         { actual: unreviewed.map((u) => u.id).join(", ") },
       );
+    }
+
+    // A complete paper requires all canonical source layers to be present.
+    // Absent source layers are a typed state; absence is never completeness.
+    if (context.sourceLayers) {
+      const layers = context.sourceLayers.get(manifest.paper);
+      if (layers) {
+        const absent = Object.values(layers).filter((l) => l.state === "absent");
+        if (absent.length > 0) {
+          addDiag(
+            "error",
+            "absent-source-layers-cannot-be-complete",
+            `Paper '${manifest.paper}' is marked complete, but source layer(s) [${absent.map((l) => l.layer).join(", ")}] are absent. Absence is never completeness.`,
+            {
+              repair:
+                "Keep status as 'in-preparation' until all source layers are present and reviewed.",
+            },
+          );
+        }
+      }
     }
 
     if (manifest.scope === "full-document") {

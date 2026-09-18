@@ -10,8 +10,9 @@ import { mkdirSync, writeFileSync } from "node:fs";
 import { join } from "node:path";
 import { describe, it } from "node:test";
 import type { AliasRecord } from "../aliases.ts";
+import { getAbsentSourceLayers } from "./report.ts";
 import { ManifestSchemaError, validateSourceManifest } from "./schema.ts";
-import type { SourceManifest } from "./types.ts";
+import { type PaperSourceLayers, SOURCE_LAYER_KINDS, type SourceManifest } from "./types.ts";
 import { validateManifest, validateManifestCorpus } from "./validator.ts";
 
 function generateLogRunId(date: Date = new Date()): string {
@@ -973,6 +974,153 @@ describe("Source Manifest & Locator Validator Suite", () => {
       "check-plugin-registration",
       "passed",
       "Source manifest compiler check successfully registered and executed",
+    );
+  });
+
+  it("absent source layers are a typed state, and complete status fails if source layers are absent", () => {
+    const absentLayers = getAbsentSourceLayers("no-reviewed-ledger");
+    for (const kind of SOURCE_LAYER_KINDS) {
+      const layer = absentLayers[kind];
+      assert.equal(layer.layer, kind);
+      assert.equal(layer.state, "absent");
+      assert.equal(layer.available, false);
+      assert.equal(layer.unitCount, 0);
+      assert.ok(typeof layer.reason === "string" && layer.reason.length > 0);
+    }
+
+    const completeManifest = createMiniPaperManifest({
+      status: "complete",
+      units: [
+        { id: "s1-p1", kind: "paragraph", locators: [{ page: 132 }], status: "reviewed" },
+        { id: "s1-p2", kind: "paragraph", locators: [{ page: 133 }], status: "reviewed" },
+        {
+          id: "closing-1",
+          kind: "closing-received",
+          locators: [{ page: 133 }],
+          status: "reviewed",
+        },
+      ],
+    });
+
+    const diags = validateManifest(completeManifest, {
+      manifests: new Map([[completeManifest.paper, completeManifest]]),
+      sourceLayers: new Map([[completeManifest.paper, absentLayers]]),
+    });
+
+    const absentDiag = diags.find((d) => d.rule === "absent-source-layers-cannot-be-complete");
+    assert.ok(
+      absentDiag,
+      "Expected absent-source-layers-cannot-be-complete diagnostic when source layers are absent",
+    );
+    assert.equal(absentDiag.severity, "error");
+    assert.ok(absentDiag.message.includes("ledger"));
+    assert.ok(absentDiag.message.includes("transcription"));
+    assert.ok(absentDiag.message.includes("translation"));
+    assert.ok(absentDiag.message.includes("gloss"));
+
+    logTest(
+      "absent-source-layers-typed-state",
+      "passed",
+      "Absent source layers are strictly typed and prevent fraudulent complete status",
+    );
+  });
+
+  it("complete status passes source layer check when all four layers are present and reviewed", () => {
+    const presentLayers: PaperSourceLayers = {
+      ledger: {
+        layer: "ledger",
+        state: "present",
+        status: "reviewed",
+        available: true,
+        unitCount: 1,
+      },
+      transcription: {
+        layer: "transcription",
+        state: "present",
+        status: "reviewed",
+        available: true,
+        unitCount: 3,
+      },
+      translation: {
+        layer: "translation",
+        state: "present",
+        status: "reviewed",
+        available: true,
+        unitCount: 3,
+      },
+      gloss: {
+        layer: "gloss",
+        state: "present",
+        status: "reviewed",
+        available: true,
+        unitCount: 15,
+      },
+    };
+
+    const completeManifest = createMiniPaperManifest({
+      status: "complete",
+      units: [
+        { id: "s1-p1", kind: "paragraph", locators: [{ page: 132 }], status: "reviewed" },
+        { id: "s1-p2", kind: "paragraph", locators: [{ page: 133 }], status: "reviewed" },
+        {
+          id: "closing-1",
+          kind: "closing-received",
+          locators: [{ page: 133 }],
+          status: "reviewed",
+        },
+      ],
+    });
+
+    const diags = validateManifest(completeManifest, {
+      manifests: new Map([[completeManifest.paper, completeManifest]]),
+      sourceLayers: new Map([[completeManifest.paper, presentLayers]]),
+    });
+
+    const absentDiag = diags.find((d) => d.rule === "absent-source-layers-cannot-be-complete");
+    assert.equal(
+      absentDiag,
+      undefined,
+      "No absent-source-layers diagnostic should be emitted when layers are present",
+    );
+
+    logTest(
+      "present-source-layers-admitted",
+      "passed",
+      "All four source layers present and reviewed allows completeness",
+    );
+  });
+
+  it("enforces no pdftotext or text-layer extraction in manifest compiler and validator", async () => {
+    const { readFile } = await import("node:fs/promises");
+    const { loadDenylist, scanContentForViolations } = await import(
+      "../../../scripts/sources/ocrGuard.ts"
+    );
+
+    const denylistConfig = await loadDenylist(rootDir);
+    const manifestFiles = [
+      "src/content/manifest/schema.ts",
+      "src/content/manifest/validator.ts",
+      "src/content/manifest/report.ts",
+      "src/content/manifest/check.ts",
+      "src/content/manifest/types.ts",
+      "src/content/manifest/index.ts",
+      "scripts/source-manifest-report.ts",
+    ];
+
+    for (const relPath of manifestFiles) {
+      const content = await readFile(join(rootDir, relPath), "utf-8");
+      const violations = scanContentForViolations(relPath, content, denylistConfig.denylist);
+      assert.equal(
+        violations.length,
+        0,
+        `Forbidden OCR / text extraction calls found in ${relPath}: ${violations.map((v) => v.pattern).join(", ")}`,
+      );
+    }
+
+    logTest(
+      "ocr-guard-clean-in-manifest",
+      "passed",
+      "Zero pdftotext or text-layer extraction violations in source manifest modules",
     );
   });
 });

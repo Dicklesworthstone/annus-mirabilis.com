@@ -12,6 +12,7 @@ export {
 export {
   formatManifestReportText,
   generateManifestReport,
+  getAbsentSourceLayers,
   writeManifestReportJson,
 } from "./report.ts";
 
@@ -21,6 +22,7 @@ export {
 } from "./schema.ts";
 
 export {
+  type AbsentSourceLayerReason,
   MANIFEST_UNIT_KINDS,
   type ManifestDiagnostic,
   type ManifestLocator,
@@ -28,9 +30,14 @@ export {
   type ManifestUnit,
   type ManifestUnitKind,
   type ManifestUnitReference,
+  type PaperSourceLayers,
+  SOURCE_LAYER_KINDS,
+  type SourceLayerKind,
+  type SourceLayerState,
   type SourceManifest,
   type SourceManifestExport,
   type SourceManifestImport,
+  type UnitDerivedStatuses,
 } from "./types.ts";
 
 export {

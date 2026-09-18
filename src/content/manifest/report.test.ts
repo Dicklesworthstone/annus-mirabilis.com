@@ -135,6 +135,14 @@ describe("Source Manifest Report Suite", () => {
     assert.equal("percentComplete" in reportObj, false);
     assert.equal("coveragePercent" in reportObj, false);
 
+    // Check typed source layers (all 4 layers absent by default)
+    assert.ok(report.layers);
+    assert.equal(report.layers.ledger.state, "absent");
+    assert.equal(report.layers.ledger.available, false);
+    assert.equal(report.layers.transcription.state, "absent");
+    assert.equal(report.layers.translation.state, "absent");
+    assert.equal(report.layers.gloss.state, "absent");
+
     logTest(
       "report-data-computation",
       "passed",
@@ -148,6 +156,9 @@ describe("Source Manifest Report Suite", () => {
 
     assert.ok(text.includes("SOURCE MANIFEST INVENTORY REPORT: report-sample-paper"));
     assert.ok(text.includes("Total Units: 5 (In-Scope: 4, Not-In-Scope: 1)"));
+    assert.ok(text.includes("Source Layers"));
+    assert.ok(text.includes("ledger"));
+    assert.ok(text.includes("absent"));
     assert.ok(text.includes("Units by Kind"));
     assert.ok(text.includes("Units by Status"));
     assert.ok(text.includes("Incomplete Units (1)"));

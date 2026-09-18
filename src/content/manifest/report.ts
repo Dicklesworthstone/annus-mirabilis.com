@@ -9,12 +9,61 @@
 
 import { mkdirSync, writeFileSync } from "node:fs";
 import { join } from "node:path";
-import type { ManifestReportData, SourceManifest } from "./types.ts";
+import {
+  type AbsentSourceLayerReason,
+  type ManifestReportData,
+  type PaperSourceLayers,
+  SOURCE_LAYER_KINDS,
+  type SourceManifest,
+} from "./types.ts";
+
+/**
+ * Returns typed absent state for the four canonical source layers.
+ * Since no ledger, transcription, translation, or gloss currently exists,
+ * absence is a typed state rather than an implied or missing property.
+ */
+export function getAbsentSourceLayers(
+  defaultReason?: AbsentSourceLayerReason | string,
+): PaperSourceLayers {
+  return {
+    ledger: {
+      layer: "ledger",
+      state: "absent",
+      reason: defaultReason ?? "no-reviewed-ledger",
+      available: false,
+      unitCount: 0,
+    },
+    transcription: {
+      layer: "transcription",
+      state: "absent",
+      reason: defaultReason ?? "transcription-not-started",
+      available: false,
+      unitCount: 0,
+    },
+    translation: {
+      layer: "translation",
+      state: "absent",
+      reason: defaultReason ?? "translation-not-started",
+      available: false,
+      unitCount: 0,
+    },
+    gloss: {
+      layer: "gloss",
+      state: "absent",
+      reason: defaultReason ?? "gloss-not-started",
+      available: false,
+      unitCount: 0,
+    },
+  };
+}
 
 /**
  * Computes a detailed inventory report from a SourceManifest.
  */
-export function generateManifestReport(manifest: SourceManifest): ManifestReportData {
+export function generateManifestReport(
+  manifest: SourceManifest,
+  sourceLayers: PaperSourceLayers = getAbsentSourceLayers(),
+): ManifestReportData {
   const byKind: Record<string, number> = {};
   const byStatus: Record<string, number> = {};
   const incompleteUnits: {
@@ -67,6 +116,7 @@ export function generateManifestReport(manifest: SourceManifest): ManifestReport
     incompleteUnits,
     exportedCount: manifest.exports?.length ?? 0,
     importedCount: manifest.importedResults?.length ?? 0,
+    layers: sourceLayers,
   };
 }
 
@@ -88,6 +138,17 @@ export function formatManifestReportText(report: ManifestReportData): string {
   lines.push(
     `Total Units: ${report.totalUnits} (In-Scope: ${report.inScopeCount}, Not-In-Scope: ${report.notInScopeCount})`,
   );
+  lines.push(``);
+
+  lines.push(`--- Source Layers ---`);
+  for (const layerKind of SOURCE_LAYER_KINDS) {
+    const layer = report.layers[layerKind];
+    if (layer.state === "absent") {
+      lines.push(`  ${layerKind.padEnd(30)}: absent (${layer.reason})`);
+    } else {
+      lines.push(`  ${layerKind.padEnd(30)}: present (${layer.status}, ${layer.unitCount} units)`);
+    }
+  }
   lines.push(``);
 
   lines.push(`--- Units by Kind ---`);

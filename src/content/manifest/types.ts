@@ -55,6 +55,57 @@ export const MANIFEST_UNIT_KINDS = [
 
 export type ManifestUnitKind = (typeof MANIFEST_UNIT_KINDS)[number] | (string & {});
 
+/**
+ * The four canonical source layers of an edition.
+ * AGENTS.md and am-cm-source-manifest-6qa:
+ * - "ledger": diplomatic transcription / reviewed German ledger scan
+ * - "transcription": authored German edition source blocks
+ * - "translation": aligned English translation units
+ * - "gloss": word-level German-to-English gloss units
+ */
+export const SOURCE_LAYER_KINDS = ["ledger", "transcription", "translation", "gloss"] as const;
+
+export type SourceLayerKind = (typeof SOURCE_LAYER_KINDS)[number];
+
+export type AbsentSourceLayerReason =
+  | "no-reviewed-ledger"
+  | "transcription-not-started"
+  | "translation-not-started"
+  | "gloss-not-started"
+  | "waiting-on-cloud-ocr"
+  | "not-yet-available";
+
+export type SourceLayerState =
+  | {
+      readonly layer: SourceLayerKind;
+      readonly state: "absent";
+      readonly reason: AbsentSourceLayerReason | string;
+      readonly available: false;
+      readonly unitCount: 0;
+    }
+  | {
+      readonly layer: SourceLayerKind;
+      readonly state: "present";
+      readonly status: "draft" | "proofed" | "reviewed" | "accepted";
+      readonly available: true;
+      readonly unitCount: number;
+    };
+
+export type PaperSourceLayers = Readonly<Record<SourceLayerKind, SourceLayerState>>;
+
+export interface UnitDerivedStatuses {
+  readonly transcription: "absent" | "not-started" | "draft" | "proofed" | "reviewed";
+  readonly mathTranscription:
+    | "absent"
+    | "not-started"
+    | "draft"
+    | "proofed"
+    | "reviewed"
+    | "not-applicable";
+  readonly translation: "absent" | "not-started" | "draft" | "aligned" | "reviewed";
+  readonly review: "absent" | "draft" | "in-progress" | "reviewed" | "accepted";
+}
+
 export interface ManifestUnit {
   readonly id: string;
   readonly kind: ManifestUnitKind;
@@ -82,6 +133,7 @@ export interface ManifestUnit {
   readonly unmarkedReason?: string | undefined;
   readonly isSplitFootnote?: boolean | undefined;
   readonly printedForm?: string | undefined;
+  readonly derivedStatuses?: UnitDerivedStatuses | undefined;
 }
 
 export interface SourceManifestExport {
@@ -153,4 +205,5 @@ export interface ManifestReportData {
   }[];
   readonly exportedCount: number;
   readonly importedCount: number;
+  readonly layers: PaperSourceLayers;
 }
