@@ -94,21 +94,198 @@ export function validateDonorAttributionHeader(content: string): HeaderValidatio
   };
 }
 
+export interface KnownDonorGap {
+  readonly destPath: string;
+  readonly donorSourcePath: string;
+  readonly recordedDate: string;
+  readonly status: "pending-owner-ruling";
+  readonly reason: string;
+  readonly deletionCondition: string;
+}
+
+/**
+ * Known gaps awaiting owner ruling on whether a short rewrite still carries
+ * the donor MIT + Rider license notice requirement.
+ *
+ * Patterned after KNOWN_GAPS in src/app/theme/contentGlyphCoverage.test.ts lines 85-89.
+ *
+ * Deletion condition:
+ * An entry is removed when the owner rules on whether the rewrite carries the Rider:
+ * - If yes: add the required attribution header to the destination file.
+ * - If no: reclassify the file as independently authored.
+ */
+export const KNOWN_DONOR_GAPS: readonly KnownDonorGap[] = [
+  {
+    destPath: "src/app/robots.ts",
+    donorSourcePath: "src/app/robots.ts",
+    recordedDate: "2026-09-18",
+    status: "pending-owner-ruling",
+    reason:
+      "Pending owner ruling on whether Next.js App Router metadata boilerplate carries donor Rider.",
+    deletionCondition:
+      "Remove when owner rules: add attribution header or reclassify as independently authored.",
+  },
+  {
+    destPath: "src/app/sitemap.ts",
+    donorSourcePath: "src/app/sitemap.ts",
+    recordedDate: "2026-09-18",
+    status: "pending-owner-ruling",
+    reason:
+      "Pending owner ruling on whether Next.js App Router metadata boilerplate carries donor Rider.",
+    deletionCondition:
+      "Remove when owner rules: add attribution header or reclassify as independently authored.",
+  },
+  {
+    destPath: "src/app/error.tsx",
+    donorSourcePath: "src/app/error.tsx",
+    recordedDate: "2026-09-18",
+    status: "pending-owner-ruling",
+    reason:
+      "Pending owner ruling on whether Next.js App Router boundary boilerplate carries donor Rider.",
+    deletionCondition:
+      "Remove when owner rules: add attribution header or reclassify as independently authored.",
+  },
+  {
+    destPath: "src/app/global-error.tsx",
+    donorSourcePath: "src/app/global-error.tsx",
+    recordedDate: "2026-09-18",
+    status: "pending-owner-ruling",
+    reason:
+      "Pending owner ruling on whether Next.js App Router boundary boilerplate carries donor Rider.",
+    deletionCondition:
+      "Remove when owner rules: add attribution header or reclassify as independently authored.",
+  },
+  {
+    destPath: "src/app/not-found.tsx",
+    donorSourcePath: "src/app/not-found.tsx",
+    recordedDate: "2026-09-18",
+    status: "pending-owner-ruling",
+    reason:
+      "Pending owner ruling on whether Next.js App Router 404 boilerplate carries donor Rider.",
+    deletionCondition:
+      "Remove when owner rules: add attribution header or reclassify as independently authored.",
+  },
+  {
+    destPath: "src/app/theme/ThemeToggle.tsx",
+    donorSourcePath: "src/components/layout/ThemeToggle.tsx",
+    recordedDate: "2026-09-18",
+    status: "pending-owner-ruling",
+    reason: "Pending owner ruling on whether theme toggle rewrite carries donor Rider.",
+    deletionCondition:
+      "Remove when owner rules: add attribution header or reclassify as independently authored.",
+  },
+];
+
+/**
+ * Canonical destination mappings from donor source path to potential
+ * destination paths in Annus Mirabilis for files not mapped 1:1.
+ */
+export const CANONICAL_SEAM_DESTINATION_MAP: Record<string, readonly string[]> = {
+  "src/components/layout/ThemeToggle.tsx": [
+    "src/app/theme/ThemeToggle.tsx",
+    "src/components/layout/ThemeToggle.tsx",
+  ],
+  "src/components/layout/PatentSearchPalette.tsx": ["src/search/CommandPalette.tsx"],
+};
+
+export interface DonorReuseSeamRow {
+  readonly seamName: string;
+  readonly donorPaths: readonly string[];
+  readonly decision: string;
+  readonly noticeRequirement: string;
+  readonly extractingBead: string;
+}
+
+export function parseDonorAuditReuseTable(markdown: string): DonorReuseSeamRow[] {
+  const rows: DonorReuseSeamRow[] = [];
+  const lines = markdown.split("\n");
+
+  let inSection5 = false;
+
+  for (const line of lines) {
+    if (
+      line.startsWith("## 5. Reuse Table") ||
+      line.startsWith("## 5. ") ||
+      line.includes("Reuse Table")
+    ) {
+      inSection5 = true;
+      continue;
+    }
+    if (inSection5 && line.startsWith("## ") && !line.startsWith("## 5")) {
+      break;
+    }
+    if (!inSection5) continue;
+
+    const trimmed = line.trim();
+    if (!trimmed.startsWith("|") || !trimmed.endsWith("|")) continue;
+
+    const columns = trimmed
+      .slice(1, -1)
+      .split("|")
+      .map((c) => c.trim());
+
+    if (columns.length < 5) continue;
+
+    const [rawSeam, rawDecision, , rawNoticeReq, rawBead] = columns;
+    if (!rawSeam || !rawDecision) continue;
+
+    if (
+      rawSeam.includes("Donor Seam") ||
+      rawSeam.startsWith("---") ||
+      rawDecision.startsWith("---")
+    ) {
+      continue;
+    }
+
+    const seamNameMatch = rawSeam.match(/\*\*([^*]+)\*\*/);
+    const seamName = seamNameMatch ? (seamNameMatch[1] ?? rawSeam).trim() : rawSeam;
+
+    const donorPaths: string[] = [];
+    const backtickRegex = /`([^`]+)`/g;
+    let match = backtickRegex.exec(rawSeam);
+    while (match !== null) {
+      if (match[1]) {
+        donorPaths.push(match[1].trim());
+      }
+      match = backtickRegex.exec(rawSeam);
+    }
+
+    const decision = rawDecision.replace(/\*\*/g, "").trim();
+    const noticeRequirement = (rawNoticeReq || "").replace(/\*\*/g, "").trim();
+    const extractingBead = (rawBead || "").trim();
+
+    rows.push({
+      seamName,
+      donorPaths,
+      decision,
+      noticeRequirement,
+      extractingBead,
+    });
+  }
+
+  return rows;
+}
+
 export function collectDonor(options: CollectDonorOptions): LicenseItem[] {
   const { rootDir, auditMarkdown, readText, exists } = options;
-  const entries = parseDonorAuditExtractedFiles(auditMarkdown);
+  const section11Entries = parseDonorAuditExtractedFiles(auditMarkdown);
   const items: LicenseItem[] = [];
+  const handledDestPaths = new Set<string>();
+  const handledSourcePaths = new Set<string>();
 
-  for (const entry of entries) {
+  for (const entry of section11Entries) {
     const fullPath = join(rootDir, entry.destPath);
     const fileExists = exists(fullPath);
 
     if (!fileExists) {
-      // If file doesn't exist on disk yet (e.g. pending batch 2), we only check if it is already extracted or pending
-      // But if it's listed in a completed bead or exists, we validate it.
-      // Notice: if a file doesn't exist on disk, we skip it or report pending.
+      // If file doesn't exist on disk yet (e.g. pending batch 2), skip
       continue;
     }
+
+    handledDestPaths.add(entry.destPath);
+    handledDestPaths.add(entry.destPath.replace(/\/+$/, ""));
+    handledSourcePaths.add(entry.sourcePath);
+    handledSourcePaths.add(entry.sourcePath.replace(/\/+$/, ""));
 
     const content = readText(fullPath) || "";
     let license = "MIT with OpenAI/Anthropic Rider";
@@ -117,7 +294,9 @@ export function collectDonor(options: CollectDonorOptions): LicenseItem[] {
     if (
       entry.noticeForm === "header" ||
       entry.destPath.endsWith(".ts") ||
-      entry.destPath.endsWith(".js")
+      entry.destPath.endsWith(".tsx") ||
+      entry.destPath.endsWith(".js") ||
+      entry.destPath.endsWith(".jsx")
     ) {
       const headerCheck = validateDonorAttributionHeader(content);
       if (!headerCheck.valid) {
@@ -136,6 +315,70 @@ export function collectDonor(options: CollectDonorOptions): LicenseItem[] {
         noticeError ||
         "Extracted from classic-patents.com at da11ff475902728fd8dd1d9db9f3af37c16ec8a5",
     });
+  }
+
+  // Cross-reference Section 5 / canonical seam table for donor extractions
+  // marked Reuse that may not be registered in Section 11 tables.
+  const reuseRows = parseDonorAuditReuseTable(auditMarkdown);
+
+  for (const row of reuseRows) {
+    const isReuse =
+      row.decision.toLowerCase() === "reuse" || row.decision.toLowerCase().startsWith("reuse");
+    if (!isReuse) continue;
+
+    for (const rawDonorPath of row.donorPaths) {
+      const donorPath = rawDonorPath.replace(/\/+$/, "");
+      if (handledSourcePaths.has(donorPath) || handledSourcePaths.has(rawDonorPath)) continue;
+
+      const candidates = CANONICAL_SEAM_DESTINATION_MAP[donorPath] ??
+        CANONICAL_SEAM_DESTINATION_MAP[rawDonorPath] ?? [donorPath];
+
+      for (const rawDestPath of candidates) {
+        const destPath = rawDestPath.replace(/\/+$/, "");
+        if (handledDestPaths.has(destPath) || handledDestPaths.has(rawDestPath)) continue;
+
+        const fullPath = join(rootDir, destPath);
+        if (!exists(fullPath)) continue;
+
+        const content = readText(fullPath) || "";
+        const headerCheck = validateDonorAttributionHeader(content);
+
+        if (headerCheck.valid) {
+          items.push({
+            kind: "donor",
+            name: destPath,
+            version: "da11ff4",
+            license: "MIT with OpenAI/Anthropic Rider",
+            source: destPath,
+            authorOrNotice: `Extracted from classic-patents.com at da11ff475902728fd8dd1d9db9f3af37c16ec8a5 (seam: ${row.seamName})`,
+          });
+          handledDestPaths.add(destPath);
+        } else {
+          const gap = KNOWN_DONOR_GAPS.find((g) => g.destPath === destPath);
+          if (gap) {
+            items.push({
+              kind: "donor",
+              name: destPath,
+              version: "da11ff4",
+              license: "PENDING-OWNER-RULING",
+              source: destPath,
+              authorOrNotice: `Known gap (recorded ${gap.recordedDate}): ${gap.reason} [Deletion condition: ${gap.deletionCondition}]`,
+            });
+            handledDestPaths.add(destPath);
+          } else {
+            items.push({
+              kind: "donor",
+              name: destPath,
+              version: "da11ff4",
+              license: "UNATTRIBUTED-DONOR-EXTRACTION",
+              source: destPath,
+              authorOrNotice: `Donor seam '${row.seamName}' file '${destPath}' (donor: '${donorPath}') lacks required attribution header.`,
+            });
+            handledDestPaths.add(destPath);
+          }
+        }
+      }
+    }
   }
 
   return items;

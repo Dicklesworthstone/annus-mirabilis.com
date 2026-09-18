@@ -4,13 +4,20 @@
  */
 
 import { describe, expect, test } from "bun:test";
+import { existsSync, readFileSync } from "node:fs";
 import { join } from "node:path";
-import { validateDonorAttributionHeader } from "./license-inventory/collectDonor.ts";
+import {
+  collectDonor,
+  KNOWN_DONOR_GAPS,
+  parseDonorAuditReuseTable,
+  validateDonorAttributionHeader,
+} from "./license-inventory/collectDonor.ts";
 import { collectFonts } from "./license-inventory/collectFonts.ts";
 import { collectWasm } from "./license-inventory/collectWasm.ts";
 import { evaluatePolicy } from "./license-inventory/evaluatePolicy.ts";
 import {
   buildLicenseInventory,
+  defaultFsAdapters,
   type FilesystemAdapters,
   runLicenseInventoryCheck,
 } from "./license-inventory/index.ts";
@@ -478,6 +485,90 @@ describe("Deterministic notices rendering and stale comparison", () => {
   });
 });
 
+describe("Canonical seam table parsing and cross-referencing", () => {
+  test("parseDonorAuditReuseTable correctly extracts Layout Chrome & Core UI seam and donor paths", () => {
+    const auditPath = join(process.cwd(), "docs/DONOR_AUDIT.md");
+    const auditText = readFileSync(auditPath, "utf8");
+    const reuseRows = parseDonorAuditReuseTable(auditText);
+    expect(reuseRows.length).toBeGreaterThan(0);
+
+    const layoutRow = reuseRows.find((r) => r.seamName === "Layout Chrome & Core UI");
+    expect(layoutRow).toBeDefined();
+    expect(layoutRow?.decision).toBe("Reuse");
+    expect(layoutRow?.noticeRequirement).toContain("MIT + Rider");
+    expect(layoutRow?.donorPaths).toContain("src/components/layout/Header.tsx");
+    expect(layoutRow?.donorPaths).toContain("src/components/layout/Footer.tsx");
+    expect(layoutRow?.donorPaths).toContain("src/components/layout/ThemeToggle.tsx");
+    expect(layoutRow?.donorPaths).toContain("src/app/robots.ts");
+    expect(layoutRow?.donorPaths).toContain("src/app/sitemap.ts");
+  });
+});
+
+describe("Known donor gaps integrity (contentGlyphCoverage pattern)", () => {
+  test("KNOWN_DONOR_GAPS has exactly 6 entries with valid metadata and deletion conditions", () => {
+    expect(KNOWN_DONOR_GAPS.length).toBe(6);
+    const expectedPaths = [
+      "src/app/robots.ts",
+      "src/app/sitemap.ts",
+      "src/app/error.tsx",
+      "src/app/global-error.tsx",
+      "src/app/not-found.tsx",
+      "src/app/theme/ThemeToggle.tsx",
+    ];
+    for (const gap of KNOWN_DONOR_GAPS) {
+      expect(expectedPaths).toContain(gap.destPath);
+      expect(gap.recordedDate).toMatch(/^\d{4}-\d{2}-\d{2}$/);
+      expect(gap.status).toBe("pending-owner-ruling");
+      expect(gap.reason.length).toBeGreaterThan(10);
+      expect(gap.deletionCondition).toContain("Remove when owner rules");
+    }
+  });
+
+  test("every entry in KNOWN_DONOR_GAPS still actually exists on disk (a deleted/moved file is stale)", () => {
+    for (const gap of KNOWN_DONOR_GAPS) {
+      const fullPath = join(process.cwd(), gap.destPath);
+      expect(existsSync(fullPath)).toBe(true);
+    }
+  });
+
+  test("every entry in KNOWN_DONOR_GAPS still lacks attribution header (if one received a header, gap entry must be removed)", () => {
+    for (const gap of KNOWN_DONOR_GAPS) {
+      const fullPath = join(process.cwd(), gap.destPath);
+      const content = readFileSync(fullPath, "utf8");
+      const check = validateDonorAttributionHeader(content);
+      expect(check.valid).toBe(false);
+    }
+  });
+
+  test("all 6 known gaps are evaluated as exempt with rule 'known-donor-gap' and do not fail the policy check", () => {
+    const auditPath = join(process.cwd(), "docs/DONOR_AUDIT.md");
+    const auditText = readFileSync(auditPath, "utf8");
+    const items = collectDonor({
+      rootDir: process.cwd(),
+      auditMarkdown: auditText,
+      readText: (p) => {
+        try {
+          return readFileSync(p, "utf8");
+        } catch {
+          return null;
+        }
+      },
+      exists: (p) => existsSync(p),
+    });
+
+    const gapItems = items.filter((i) => i.license === "PENDING-OWNER-RULING");
+    expect(gapItems.length).toBe(6);
+
+    const evalRes = evaluatePolicy(gapItems, BASE_POLICY);
+    expect(evalRes.valid).toBe(true);
+    expect(evalRes.errors.length).toBe(0);
+    for (const evaluated of evalRes.evaluatedItems) {
+      expect(evaluated.outcome).toBe("exempt");
+      expect(evaluated.ruleApplied).toBe("known-donor-gap");
+    }
+  });
+});
+
 describe("Anti-Reward-Hack: Planted Negative Verification", () => {
   test("PLANTED NEGATIVE: inventory check FAILS on planted unlicensed production item", () => {
     const evilItem: LicenseItem = {
@@ -507,5 +598,138 @@ describe("Anti-Reward-Hack: Planted Negative Verification", () => {
     const evalRes = evaluatePolicy([gplItem], BASE_POLICY);
     expect(evalRes.valid).toBe(false);
     expect(firstError(evalRes.errors).rule).toBe("disallowed-license");
+  });
+
+  test("PLANTED NEGATIVE: a 7th unregistered donor-seam file without attribution header fails with rule unattributed-donor-extraction", () => {
+    const auditPath = join(process.cwd(), "docs/DONOR_AUDIT.md");
+    const auditText = readFileSync(auditPath, "utf8");
+
+    // Plant 7th unregistered donor-seam file from Layout Chrome & Core UI seam (src/components/layout/Header.tsx)
+    const plantedPath = "src/components/layout/Header.tsx";
+    const plantedContent = `
+import React from "react";
+export function Header() {
+  return <header>Annus Mirabilis</header>;
+}
+`;
+
+    const mockExists = (p: string) => {
+      if (p.endsWith(plantedPath)) return true;
+      return existsSync(p);
+    };
+
+    const mockReadText = (p: string) => {
+      if (p.endsWith(plantedPath)) return plantedContent;
+      try {
+        return readFileSync(p, "utf8");
+      } catch {
+        return null;
+      }
+    };
+
+    const items = collectDonor({
+      rootDir: process.cwd(),
+      auditMarkdown: auditText,
+      readText: mockReadText,
+      exists: mockExists,
+    });
+
+    const plantedItem = items.find((i) => i.source.endsWith(plantedPath));
+    expect(plantedItem).toBeDefined();
+    expect(plantedItem?.license).toBe("UNATTRIBUTED-DONOR-EXTRACTION");
+
+    const evalRes = evaluatePolicy(items, BASE_POLICY);
+    expect(evalRes.valid).toBe(false);
+
+    const unattributedErrors = evalRes.errors.filter(
+      (e) => e.rule === "unattributed-donor-extraction",
+    );
+    expect(unattributedErrors.length).toBeGreaterThanOrEqual(1);
+    const err = firstError(unattributedErrors);
+    expect(err.item.name).toBe(plantedPath);
+    expect(err.message).toContain("Layout Chrome & Core UI");
+    expect(err.message).toContain(plantedPath);
+  });
+
+  test("a 7th unregistered donor-seam file WITH valid attribution header passes policy gate", () => {
+    const auditPath = join(process.cwd(), "docs/DONOR_AUDIT.md");
+    const auditText = readFileSync(auditPath, "utf8");
+
+    const plantedPath = "src/components/layout/Header.tsx";
+    const plantedContentWithHeader = `/**
+ * Extracted from classic-patents.com
+ * Source repository: https://github.com/Dicklesworthstone/classic-patents.com
+ * Source path: src/components/layout/Header.tsx
+ * Pinned commit: da11ff475902728fd8dd1d9db9f3af37c16ec8a5
+ * License: MIT License (with OpenAI/Anthropic Rider)
+ * Preserved license text: /LICENSE
+ */
+import React from "react";
+export function Header() {
+  return <header>Annus Mirabilis</header>;
+}
+`;
+
+    const mockExists = (p: string) => {
+      if (p.endsWith(plantedPath)) return true;
+      return existsSync(p);
+    };
+
+    const mockReadText = (p: string) => {
+      if (p.endsWith(plantedPath)) return plantedContentWithHeader;
+      try {
+        return readFileSync(p, "utf8");
+      } catch {
+        return null;
+      }
+    };
+
+    const items = collectDonor({
+      rootDir: process.cwd(),
+      auditMarkdown: auditText,
+      readText: mockReadText,
+      exists: mockExists,
+    });
+
+    const plantedItem = items.find((i) => i.source.endsWith(plantedPath));
+    expect(plantedItem).toBeDefined();
+    expect(plantedItem?.license).toBe("MIT with OpenAI/Anthropic Rider");
+
+    const evalRes = evaluatePolicy([plantedItem as LicenseItem], BASE_POLICY);
+    expect(evalRes.valid).toBe(true);
+    expect(evalRes.errors.length).toBe(0);
+  });
+
+  test("PLANTED NEGATIVE: runLicenseInventoryCheck fails with exitCode 1 when an unregistered donor seam file exists", () => {
+    const plantedPath = "src/components/layout/Header.tsx";
+    const plantedContent = "export function Header() { return null; }";
+
+    const baseAdapters = { ...defaultFsAdapters };
+    const mockFs: FilesystemAdapters = {
+      ...baseAdapters,
+      exists: (p: string) => {
+        if (p.endsWith(plantedPath)) return true;
+        return baseAdapters.exists(p);
+      },
+      readText: (p: string) => {
+        if (p.endsWith(plantedPath)) return plantedContent;
+        return baseAdapters.readText(p);
+      },
+    };
+
+    const res = runLicenseInventoryCheck({
+      rootDir: process.cwd(),
+      fs: mockFs,
+      silent: true,
+      logsDir: join(process.cwd(), "artifacts/test-logs/license-inventory"),
+    });
+
+    expect(res.success).toBe(false);
+    expect(res.exitCode).toBe(1);
+    expect(
+      res.inventory.evaluation.errors.some(
+        (e) => e.rule === "unattributed-donor-extraction" && e.item.name === plantedPath,
+      ),
+    ).toBe(true);
   });
 });

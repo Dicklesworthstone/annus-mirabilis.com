@@ -81,6 +81,34 @@ export function evaluatePolicy(
     }
 
     // 2. Production items (npm, font, vendored, donor, wasm)
+    if (item.license === "PENDING-OWNER-RULING") {
+      evaluatedItems.push({
+        item,
+        outcome: "exempt",
+        ruleApplied: "known-donor-gap",
+        ...(item.authorOrNotice !== undefined ? { notes: item.authorOrNotice } : {}),
+      });
+      continue;
+    }
+
+    if (item.license === "UNATTRIBUTED-DONOR-EXTRACTION") {
+      const msg =
+        item.authorOrNotice ||
+        `Donor extraction at '${item.source}' is missing required attribution header.`;
+      errors.push({
+        item,
+        rule: "unattributed-donor-extraction",
+        message: msg,
+      });
+      evaluatedItems.push({
+        item,
+        outcome: "failed",
+        ruleApplied: "unattributed-donor-extraction",
+        notes: msg,
+      });
+      continue;
+    }
+
     if (!item.license || item.license === "UNKNOWN" || item.license === "UNLICENSED") {
       const chainInfo =
         item.dependencyChain && item.dependencyChain.length > 1

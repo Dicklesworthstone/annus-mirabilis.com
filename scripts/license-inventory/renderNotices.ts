@@ -72,6 +72,13 @@ export function renderNotices(items: readonly LicenseItem[]): string {
     lines.push("|---|---|---|---|---|");
 
     for (const item of groupItems) {
+      if (
+        item.license === "PENDING-OWNER-RULING" ||
+        item.license === "UNATTRIBUTED-DONOR-EXTRACTION" ||
+        item.license === "ATTRIBUTION-HEADER-INVALID"
+      ) {
+        continue;
+      }
       const escapedName = item.name.replace(/\|/g, "\\|");
       const escapedVer = item.version.replace(/\|/g, "\\|");
       const escapedLic = item.license.replace(/\|/g, "\\|");
