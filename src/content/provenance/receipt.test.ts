@@ -3,7 +3,9 @@ import crypto from "node:crypto";
 import fs from "node:fs";
 import path from "node:path";
 import test from "node:test";
+import { auditPinnedAssets } from "../audits/pinnedAssets.ts";
 import { checkReceipt } from "./checkReceipt.ts";
+import { loadProvenanceReceipts } from "./loadReceipts.ts";
 import { resolveEquationPage } from "./receiptSchema.ts";
 import { receiptToSourceAsset } from "./receiptToSourceAsset.ts";
 import { validateSurveyRecord } from "./surveySchema.ts";
@@ -388,4 +390,117 @@ test("Survey schema catches unknown classification absent from openQuestionsForU
     result.diagnostics.some((d) => d.rule === "survey-unknown-in-questions"),
     true,
   );
+});
+
+test("Real provenance receipt docs/provenance/ap-17-549.md passes checkReceipt against configuration and local pinned file", () => {
+  const realReceiptPath = path.resolve("docs/provenance/ap-17-549.md");
+  assert.ok(fs.existsSync(realReceiptPath), "docs/provenance/ap-17-549.md must exist");
+
+  const configDir = path.resolve("scripts/sources/facsimile-sources");
+  const content = fs.readFileSync(realReceiptPath, "utf8");
+  const result = checkReceipt(content, realReceiptPath, { configDir });
+
+  assert.equal(result.ok, true, `Expected ok=true, got errors: ${JSON.stringify(result.errors)}`);
+  assert.equal(result.errors.length, 0);
+  assert.equal(result.key, "ap-17-549");
+
+  const scan = result.receipt?.frontMatter.scan;
+  assert.ok(scan);
+  assert.equal(scan.publicationDecision, "publish");
+  assert.equal(scan.sha256, "c42f9ac278283bdaaee83b2c4ec0154645d4e4adc4249f8a62c45ed2e51c135f");
+  assert.equal(scan.pageCount, 12);
+  assert.equal(scan.path, "public/papers/pdfs/ap-17-549.pdf");
+
+  // Verify the pinned file actually exists at the published path and its SHA-256 matches
+  const pdfPath = path.resolve(scan.path);
+  assert.ok(fs.existsSync(pdfPath), "Pinned PDF must exist at published path");
+  const actualDigest = crypto.createHash("sha256").update(fs.readFileSync(pdfPath)).digest("hex");
+  assert.equal(actualDigest, scan.sha256);
+});
+
+test("loadProvenanceReceipts loads docs/provenance and emits SourceAsset and PinnedAsset records", () => {
+  const provenanceDir = path.resolve("docs/provenance");
+  const configDir = path.resolve("scripts/sources/facsimile-sources");
+  const loaded = loadProvenanceReceipts({ provenanceDir, configDir });
+
+  assert.equal(loaded.ok, true);
+  assert.ok(loaded.receipts.length >= 1, "Must load at least one receipt");
+
+  const bmReceipt = loaded.receipts.find((r) => r.key === "ap-17-549");
+  assert.ok(bmReceipt, "ap-17-549 receipt must be loaded");
+  assert.ok(bmReceipt.sourceAsset, "sourceAsset must be emitted");
+  assert.equal(
+    bmReceipt.sourceAsset.sha256,
+    "c42f9ac278283bdaaee83b2c4ec0154645d4e4adc4249f8a62c45ed2e51c135f",
+  );
+  assert.equal(bmReceipt.sourceAsset.publicationDecision, "publish");
+  assert.equal(bmReceipt.sourceAsset.rights.reuseTerms, "source-terms");
+
+  assert.ok(bmReceipt.pinnedAsset, "pinnedAsset must be emitted");
+  assert.equal(bmReceipt.pinnedAsset.id, "ap-17-549");
+  assert.equal(bmReceipt.pinnedAsset.path, "public/papers/pdfs/ap-17-549.pdf");
+  assert.equal(bmReceipt.pinnedAsset.publicationDecision, "publish");
+
+  assert.ok(loaded.sourceAssets.has("ap-17-549"));
+});
+
+test("Validator branches on PinnedAsset loaded from provenance receipts (pass, missing publish error, pin-local flag, require-local error)", () => {
+  const provenanceDir = path.resolve("docs/provenance");
+  const configDir = path.resolve("scripts/sources/facsimile-sources");
+  const loaded = loadProvenanceReceipts({ provenanceDir, configDir });
+
+  // 1. Live pass: auditPinnedAssets succeeds on real pinned assets because public/papers/pdfs/ap-17-549.pdf exists
+  const liveAudit = auditPinnedAssets(loaded.pinnedAssets);
+  assert.equal(liveAudit.ok, true);
+  assert.equal(liveAudit.errorCount, 0);
+
+  // 2. Branching test: missing published asset produces pinned-asset-present error
+  const missingPublishAsset = [
+    {
+      id: "ap-99-missing",
+      path: "public/papers/pdfs/ap-99-missing.pdf",
+      publicationDecision: "publish" as const,
+    },
+  ];
+  const missingPublishAudit = auditPinnedAssets(missingPublishAsset, { exists: () => false });
+  assert.equal(missingPublishAudit.ok, false);
+  assert.equal(missingPublishAudit.errorCount, 1);
+  assert.equal(missingPublishAudit.findings[0]?.check, "pinned-asset-present");
+
+  // 3. Branching test: missing pin-local-only asset produces pinned-asset-not-available flag (ok=true)
+  const pinLocalAsset = [
+    {
+      id: "ap-99-local",
+      path: "sources/pinned/ap-99-local.pdf",
+      publicationDecision: "pin-local-only" as const,
+    },
+  ];
+  const pinLocalAudit = auditPinnedAssets(pinLocalAsset, { exists: () => false });
+  assert.equal(pinLocalAudit.ok, true);
+  assert.equal(pinLocalAudit.flagCount, 1);
+  assert.equal(pinLocalAudit.findings[0]?.check, "pinned-asset-not-available");
+
+  // 4. Branching test: missing pin-local-only asset under requireLocal escalates to pinned-asset-present error
+  const requireLocalAudit = auditPinnedAssets(pinLocalAsset, {
+    exists: () => false,
+    requireLocal: true,
+  });
+  assert.equal(requireLocalAudit.ok, false);
+  assert.equal(requireLocalAudit.errorCount, 1);
+  assert.equal(requireLocalAudit.findings[0]?.check, "pinned-asset-present");
+});
+
+test("loadProvenanceReceipts surfaces receipt errors in findings and report", () => {
+  // Test with fixtures dir containing error files
+  const errorLoaded = loadProvenanceReceipts({
+    provenanceDir: path.join(FIXTURES_DIR, "facsimile-sources"), // No receipts here
+  });
+  assert.equal(errorLoaded.ok, true);
+  assert.equal(errorLoaded.receipts.length, 0);
+
+  // Test with invalid receipt in temporary check
+  const fakeDir = path.join(FIXTURES_DIR, "non-existent-dir");
+  const notFoundLoaded = loadProvenanceReceipts({ provenanceDir: fakeDir });
+  assert.equal(notFoundLoaded.ok, true);
+  assert.equal(notFoundLoaded.receipts.length, 0);
 });

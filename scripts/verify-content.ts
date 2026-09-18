@@ -16,6 +16,7 @@ import {
   RULE_0_HELP,
   runVerifyContent,
 } from "../src/content/audits/verifyContent.ts";
+import { loadProvenanceReceipts } from "../src/content/provenance/loadReceipts.ts";
 import { runArchitectureGateCli } from "./app-router-architecture.ts";
 import { loadReadingFiles } from "./build-content.ts";
 import { runRevisionCheck } from "./check-revisions.ts";
@@ -82,6 +83,17 @@ if (args.help) {
   process.exit(0);
 }
 
+const provenanceDir = resolve(root, "docs/provenance");
+const configDir = existsSync(resolve(root, "scripts/sources/facsimile-sources"))
+  ? resolve(root, "scripts/sources/facsimile-sources")
+  : undefined;
+const provenance = loadProvenanceReceipts({
+  provenanceDir,
+  configDir,
+  rootDir: root,
+  requireLocal: args.requireLocal,
+});
+
 const baseRef = args.baseRef ?? gitBaseRef();
 const result = await runVerifyContent({
   root,
@@ -95,7 +107,8 @@ const result = await runVerifyContent({
     return ok;
   },
   inventory: loadCommittedInventory(root),
-  pinnedAssets: [],
+  pinnedAssets: provenance.pinnedAssets,
+  extraReports: provenance.findings.length > 0 ? [provenance.report] : [],
 });
 
 for (const line of result.flags) console.log(`FLAG ${line}`);
