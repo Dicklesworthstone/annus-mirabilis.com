@@ -13,6 +13,10 @@
 
 ## Parallel Text
 
+### [bm-s4-h1-s1]
+**DE:** § 4. Über die ungeordnete Bewegung von in einer Flüssigkeit suspendierten Teilchen und deren Beziehung zur Diffusion
+*Status:* `reviewed`
+
 ### [bm-s4-p1-s1]
 **DE:** Es sei ein Zeitintervall τ gegeben. Wir wollen annehmen, daß jedes einzelne Teilchen eine Verschiebung Δ erfahre.
 *Status:* `reviewed`

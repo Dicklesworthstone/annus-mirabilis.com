@@ -85,6 +85,12 @@
   "sectionId": "bm-sec-04",
   "sentences": [
     {
+      "german": "§ 4. Über die ungeordnete Bewegung von in einer Flüssigkeit suspendierten Teilchen und deren Beziehung zur Diffusion",
+      "id": "bm-s4-h1-s1",
+      "reviewState": "reviewed",
+      "sourceBlockId": "bm-s4-h1"
+    },
+    {
       "german": "Es sei ein Zeitintervall τ gegeben. Wir wollen annehmen, daß jedes einzelne Teilchen eine Verschiebung Δ erfahre.",
       "id": "bm-s4-p1-s1",
       "reviewState": "reviewed",

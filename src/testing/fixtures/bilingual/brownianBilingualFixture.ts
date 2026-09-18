@@ -116,6 +116,19 @@ const INLINES_BM_S5_P1: readonly Inline[] = [
 const TEXT_BM_S5_P1 = plainText(INLINES_BM_S5_P1);
 const DIGEST_BM_S5_P1 = spanTextDigest(TEXT_BM_S5_P1);
 
+const TEXT_BM_S4_H1 =
+  "§ 4. Über die ungeordnete Bewegung von in einer Flüssigkeit suspendierten Teilchen und deren Beziehung zur Diffusion";
+const DIGEST_BM_S4_H1 = spanTextDigest(TEXT_BM_S4_H1);
+
+const TEXT_BM_S5_H1 = "§ 5. Formel für die mittlere Verschiebung suspendierter Teilchen";
+const DIGEST_BM_S5_H1 = spanTextDigest(TEXT_BM_S5_H1);
+
+const TEXT_BM_S5_FN1 = "M. Smoluchowski hat eine ähnliche Formel abgeleitet.";
+const DIGEST_BM_S5_FN1 = spanTextDigest(TEXT_BM_S5_FN1);
+
+const TEXT_BM_CLOSING = "Bern, Mai 1905.";
+const DIGEST_BM_CLOSING = spanTextDigest(TEXT_BM_CLOSING);
+
 /**
  * Fixture German Source Blocks for Brownian motion §§4–5.
  */
@@ -128,15 +141,24 @@ export const FIXTURE_BROWNIAN_SOURCE_BLOCKS: readonly SourceBlock[] = [
     order: 1,
     locators: [{ pdfPageIndex: 7, printedPage: 556 }],
     editorialLabel: "§ 4. Diffusion",
-    diplomaticText:
-      "§ 4. Über die ungeordnete Bewegung von in einer Flüssigkeit suspendierten Teilchen und deren Beziehung zur Diffusion",
+    diplomaticText: TEXT_BM_S4_H1,
     inlines: [
       {
         kind: "text",
-        text: "§ 4. Über die ungeordnete Bewegung von in einer Flüssigkeit suspendierten Teilchen und deren Beziehung zur Diffusion",
+        text: TEXT_BM_S4_H1,
       },
     ],
-    sentenceSpans: [],
+    sentenceSpans: [
+      {
+        id: "bm-s4-h1-s1",
+        span: {
+          start: 0,
+          end: Array.from(TEXT_BM_S4_H1).length,
+          textDigest: DIGEST_BM_S4_H1,
+          blockRevision: 1,
+        },
+      },
+    ],
     revision: 1,
     status: {
       transcription: "reviewed",
@@ -223,14 +245,24 @@ export const FIXTURE_BROWNIAN_SOURCE_BLOCKS: readonly SourceBlock[] = [
     section: "bm-sec-05",
     order: 4,
     locators: [{ pdfPageIndex: 10, printedPage: 559 }],
-    diplomaticText: "§ 5. Formel für die mittlere Verschiebung suspendierter Teilchen",
+    diplomaticText: TEXT_BM_S5_H1,
     inlines: [
       {
         kind: "text",
-        text: "§ 5. Formel für die mittlere Verschiebung suspendierter Teilchen",
+        text: TEXT_BM_S5_H1,
       },
     ],
-    sentenceSpans: [],
+    sentenceSpans: [
+      {
+        id: "bm-s5-h1-s1",
+        span: {
+          start: 0,
+          end: Array.from(TEXT_BM_S5_H1).length,
+          textDigest: DIGEST_BM_S5_H1,
+          blockRevision: 1,
+        },
+      },
+    ],
     revision: 1,
     status: {
       transcription: "reviewed",
@@ -286,14 +318,24 @@ export const FIXTURE_BROWNIAN_SOURCE_BLOCKS: readonly SourceBlock[] = [
     order: 6,
     originalLabel: "1",
     locators: [{ pdfPageIndex: 10, printedPage: 559 }],
-    diplomaticText: "1) M. Smoluchowski hat eine ähnliche Formel abgeleitet.",
+    diplomaticText: `1) ${TEXT_BM_S5_FN1}`,
     inlines: [
       {
         kind: "text",
-        text: "M. Smoluchowski hat eine ähnliche Formel abgeleitet.",
+        text: TEXT_BM_S5_FN1,
       },
     ],
-    sentenceSpans: [],
+    sentenceSpans: [
+      {
+        id: "bm-s5-fn1-s1",
+        span: {
+          start: 0,
+          end: Array.from(TEXT_BM_S5_FN1).length,
+          textDigest: DIGEST_BM_S5_FN1,
+          blockRevision: 1,
+        },
+      },
+    ],
     revision: 1,
     status: {
       transcription: "reviewed",
@@ -309,14 +351,24 @@ export const FIXTURE_BROWNIAN_SOURCE_BLOCKS: readonly SourceBlock[] = [
     paper: "brownian-motion",
     order: 7,
     locators: [{ pdfPageIndex: 11, printedPage: 560 }],
-    diplomaticText: "Bern, Mai 1905.",
+    diplomaticText: TEXT_BM_CLOSING,
     inlines: [
       {
         kind: "text",
-        text: "Bern, Mai 1905.",
+        text: TEXT_BM_CLOSING,
       },
     ],
-    sentenceSpans: [],
+    sentenceSpans: [
+      {
+        id: "bm-closing-s1",
+        span: {
+          start: 0,
+          end: Array.from(TEXT_BM_CLOSING).length,
+          textDigest: DIGEST_BM_CLOSING,
+          blockRevision: 1,
+        },
+      },
+    ],
     revision: 1,
     status: {
       transcription: "reviewed",
