@@ -201,3 +201,139 @@ describe("ExperimentDispatch: registered id with a real fixture view loader", ()
     }
   });
 });
+
+describe("ExperimentDispatch: unavailable device state and WebGL fallback (AC 10)", () => {
+  test("unavailable device renders static worked example, loads no view module, and emits data-execution-label='unavailable'", async () => {
+    const container = createContainer();
+    const root = createRoot(container);
+    rendered.length = 0;
+
+    await act(async () => {
+      root.render(
+        <ExperimentDispatch
+          id="bm-06"
+          instanceId="test:1"
+          unavailable={true}
+          viewLoaders={fixtureLoaders()}
+        />,
+      );
+    });
+    await act(async () => {
+      await Promise.resolve();
+      await Promise.resolve();
+    });
+
+    try {
+      expect(container.querySelector('[data-instrument-id="bm-06"]')).not.toBeNull();
+      expect(container.querySelector('[data-execution-label="unavailable"]')).not.toBeNull();
+      expect(container.querySelector("[data-static-worked-case]")).not.toBeNull();
+      // View module is never loaded or rendered
+      expect(container.querySelector('[data-testid="fixture-bm-06"]')).toBeNull();
+      expect(rendered).toEqual([]);
+    } finally {
+      await act(async () => {
+        root.unmount();
+      });
+      removeContainer(container);
+    }
+  });
+
+  test("missing WebGL context substitutes declared 2D view with only a webgl-unavailable log", async () => {
+    const container = createContainer();
+    const root = createRoot(container);
+    const logs: string[] = [];
+    rendered.length = 0;
+
+    const loaders: ViewLoaders = {
+      "bm-06": {
+        webgl: async () => ({
+          default: () => {
+            rendered.push("webgl");
+            return <div data-testid="fixture-webgl">WebGL 3D</div>;
+          },
+        }),
+        fallback2d: async () => ({
+          default: () => {
+            rendered.push("fallback2d");
+            return <div data-testid="fixture-fallback2d">Fallback 2D</div>;
+          },
+        }),
+      },
+    };
+
+    await act(async () => {
+      root.render(
+        <ExperimentDispatch
+          id="bm-06"
+          instanceId="test:1"
+          hasWebGl={false}
+          onLog={(event) => logs.push(event)}
+          viewLoaders={loaders}
+        />,
+      );
+    });
+    await act(async () => {
+      await Promise.resolve();
+      await Promise.resolve();
+    });
+
+    try {
+      expect(logs).toEqual(["webgl-unavailable"]);
+      expect(container.querySelector('[data-testid="fixture-fallback2d"]')).not.toBeNull();
+      expect(container.querySelector('[data-testid="fixture-webgl"]')).toBeNull();
+      expect(rendered).toEqual(["fallback2d"]);
+    } finally {
+      await act(async () => {
+        root.unmount();
+      });
+      removeContainer(container);
+    }
+  });
+
+  test("missing WebGL context when only WebGL is declared reports environment-unsupported and renders static worked example", async () => {
+    const container = createContainer();
+    const root = createRoot(container);
+    const unsupportedEvents: string[] = [];
+    rendered.length = 0;
+
+    const loaders: ViewLoaders = {
+      "bm-06": {
+        webgl: async () => ({
+          default: () => {
+            rendered.push("webgl");
+            return <div data-testid="fixture-webgl">WebGL Only</div>;
+          },
+        }),
+      },
+    };
+
+    await act(async () => {
+      root.render(
+        <ExperimentDispatch
+          id="bm-06"
+          instanceId="test:1"
+          hasWebGl={false}
+          onEnvironmentUnsupported={(detail) => unsupportedEvents.push(detail)}
+          viewLoaders={loaders}
+        />,
+      );
+    });
+    await act(async () => {
+      await Promise.resolve();
+      await Promise.resolve();
+    });
+
+    try {
+      expect(unsupportedEvents).toEqual(["webgl-unavailable"]);
+      expect(container.querySelector('[data-execution-label="unavailable"]')).not.toBeNull();
+      expect(container.querySelector("[data-static-worked-case]")).not.toBeNull();
+      expect(container.querySelector('[data-testid="fixture-webgl"]')).toBeNull();
+      expect(rendered).toEqual([]);
+    } finally {
+      await act(async () => {
+        root.unmount();
+      });
+      removeContainer(container);
+    }
+  });
+});

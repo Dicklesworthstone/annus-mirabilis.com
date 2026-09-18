@@ -28,7 +28,11 @@ export interface RegistryEntry {
   readonly status: CatalogueStatus;
   readonly owner: OwnerBinding | null;
   readonly question: string | undefined;
+  readonly cannotHonorTour?: boolean | undefined;
 }
+
+/** Specific instruments declared as incapable of honoring the tour presentation. */
+export const CANNOT_HONOR_TOUR_IDS: ReadonlySet<CatalogueId> = new Set([]);
 
 function buildEntry(id: CatalogueId): RegistryEntry {
   const status = CATALOGUE_STATUS[id];
@@ -37,6 +41,7 @@ function buildEntry(id: CatalogueId): RegistryEntry {
     status,
     owner: assertOwnerBinding(id, status),
     question: CATALOGUE_QUESTIONS[id],
+    cannotHonorTour: CANNOT_HONOR_TOUR_IDS.has(id),
   });
 }
 

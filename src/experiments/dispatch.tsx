@@ -31,18 +31,27 @@ import { ReadingOnlyView } from "../a11y/readingSettings/ReadingOnlyView.tsx";
 import type { CatalogueAddressErrorCode, CatalogueId } from "./catalogue.ts";
 import { resolveCatalogueAddress } from "./catalogue.ts";
 import type { OwnerBinding } from "./owners.ts";
+import { type Presentation, PresentationProvider } from "./presentation.ts";
 import { registryEntry } from "./registry.ts";
+import { AvailableInFullReadingNotice } from "./states/AvailableInFullReadingNotice.tsx";
 import { InPreparationNotice } from "./states/InPreparationNotice.tsx";
 import { UnknownExperimentNotice } from "./states/UnknownExperimentNotice.tsx";
 
 export interface ExperimentViewProps {
   readonly instanceId: string;
   readonly mode: string | null;
-  readonly presentation: "standard" | "tour";
+  readonly presentation: Presentation;
 }
 
 export type ViewLoader = () => Promise<{ default: ComponentType<ExperimentViewProps> }>;
-export type ViewLoaders = Readonly<Partial<Record<CatalogueId, ViewLoader>>>;
+
+export interface ViewModeLoaders {
+  readonly webgl?: ViewLoader | undefined;
+  readonly fallback2d?: ViewLoader | undefined;
+}
+
+export type ViewLoaderEntry = ViewLoader | ViewModeLoaders;
+export type ViewLoaders = Readonly<Partial<Record<CatalogueId, ViewLoaderEntry>>>;
 
 export type ExperimentDispatchState =
   | Readonly<{
@@ -62,9 +71,23 @@ export type ExperimentDispatchState =
       id: CatalogueId;
       mode: string | null;
       owner: OwnerBinding;
-      view: ViewLoader | undefined;
+      view: ViewLoaderEntry | undefined;
       question: string | undefined;
+      cannotHonorTour?: boolean | undefined;
     }>;
+
+function checkWebGlContext(): boolean {
+  if (typeof window === "undefined" || typeof document === "undefined") return false;
+  try {
+    const canvas = document.createElement("canvas");
+    return Boolean(
+      window.WebGLRenderingContext &&
+        (canvas.getContext("webgl") || canvas.getContext("experimental-webgl")),
+    );
+  } catch {
+    return false;
+  }
+}
 
 /** Pure resolution: no rendering, no React, so registry.test.ts can assert it without a DOM. */
 export function resolveExperimentDispatch(
@@ -97,17 +120,28 @@ export function resolveExperimentDispatch(
     owner: entry.owner,
     view: viewLoaders[entry.id],
     question: entry.question,
+    cannotHonorTour: entry.cannotHonorTour,
   };
 }
 
 export interface ExperimentDispatchProps {
   readonly id: string;
   readonly instanceId: string;
-  readonly presentation?: "standard" | "tour";
-  readonly viewLoaders?: ViewLoaders;
-  readonly sourceHref?: string;
+  readonly presentation?: Presentation | undefined;
+  readonly viewLoaders?: ViewLoaders | undefined;
+  readonly sourceHref?: string | undefined;
   /** When true, the live view waits for "Load this experiment". Static case stays. */
-  readonly readingOnly?: boolean;
+  readonly readingOnly?: boolean | undefined;
+  /** When true, device is unsupported (e.g. worker failed, bound exceeded). */
+  readonly unavailable?: boolean | undefined;
+  /** Injected WebGL availability override for testing/emulation. */
+  readonly hasWebGl?: boolean | undefined;
+  /** Callback when WebGL is unavailable and a 2D fallback is chosen. */
+  readonly onLog?: ((event: string, detail?: unknown) => void) | undefined;
+  /** Callback when environment is unsupported (e.g. only WebGL declared but missing). */
+  readonly onEnvironmentUnsupported?: ((detail: string) => void) | undefined;
+  /** Injected declaration that instrument cannot honor tour presentation. */
+  readonly cannotHonorTour?: boolean | undefined;
 }
 
 /**
@@ -123,6 +157,11 @@ export function ExperimentDispatch({
   viewLoaders = {},
   sourceHref,
   readingOnly,
+  unavailable,
+  hasWebGl,
+  onLog,
+  onEnvironmentUnsupported,
+  cannotHonorTour: cannotHonorTourProp,
 }: ExperimentDispatchProps) {
   const state = resolveExperimentDispatch(id, viewLoaders);
 
@@ -147,6 +186,28 @@ export function ExperimentDispatch({
   }
 
   const address = state.mode ? `${state.id}:${state.mode}` : state.id;
+
+  // Unavailable on device (requirement: static worked example, no view loaded, no worker messages)
+  if (unavailable) {
+    return (
+      <div data-instrument-id={address} data-execution-label="unavailable">
+        <ReadingOnlyKeepContent
+          explanation={
+            state.question ??
+            "This instrument answers a stated question with an owned, tested response."
+          }
+          workedCase="The static worked case stays in the page when reading-only is on. Loading the experiment does not remove it."
+        />
+      </div>
+    );
+  }
+
+  // Tour presentation compatibility check
+  const cannotHonor = cannotHonorTourProp ?? state.cannotHonorTour ?? false;
+  if (presentation === "tour" && cannotHonor) {
+    return <AvailableInFullReadingNotice id={address} sourceHref={sourceHref} />;
+  }
+
   if (!state.view) {
     // Registered (a real owner exists) but no live view has been wired
     // into this call yet. Rendered as the same in-preparation surface: a
@@ -155,7 +216,41 @@ export function ExperimentDispatch({
     return <InPreparationNotice id={address} question={state.question} sourceHref={sourceHref} />;
   }
 
-  const LazyView = lazy(state.view);
+  // Resolve view loader (direct ViewLoader or WebGL/2D mode structure)
+  let activeLoader: ViewLoader | undefined;
+  if (typeof state.view === "function") {
+    activeLoader = state.view;
+  } else {
+    const webGlAvailable = hasWebGl ?? checkWebGlContext();
+    if (webGlAvailable && state.view.webgl) {
+      activeLoader = state.view.webgl;
+    } else if (!webGlAvailable && state.view.fallback2d) {
+      onLog?.("webgl-unavailable");
+      activeLoader = state.view.fallback2d;
+    } else if (!webGlAvailable && state.view.webgl && !state.view.fallback2d) {
+      // Missing WebGL context and mode declares only WebGL view
+      onEnvironmentUnsupported?.("webgl-unavailable");
+      return (
+        <div data-instrument-id={address} data-execution-label="unavailable">
+          <ReadingOnlyKeepContent
+            explanation={
+              state.question ??
+              "This instrument answers a stated question with an owned, tested response."
+            }
+            workedCase="The static worked case stays in the page when reading-only is on. Loading the experiment does not remove it."
+          />
+        </div>
+      );
+    } else {
+      activeLoader = state.view.fallback2d ?? state.view.webgl;
+    }
+  }
+
+  if (!activeLoader) {
+    return <InPreparationNotice id={address} question={state.question} sourceHref={sourceHref} />;
+  }
+
+  const LazyView = lazy(activeLoader);
   return (
     <div data-instrument-id={address}>
       <ReadingOnlyKeepContent
@@ -166,9 +261,11 @@ export function ExperimentDispatch({
         workedCase="The static worked case stays in the page when reading-only is on. Loading the experiment does not remove it."
       />
       <ReadingOnlyView {...(readingOnly !== undefined ? { readingOnly } : {})}>
-        <Suspense fallback={<InPreparationNotice id={address} sourceHref={sourceHref} />}>
-          <LazyView instanceId={instanceId} mode={state.mode} presentation={presentation} />
-        </Suspense>
+        <PresentationProvider presentation={presentation}>
+          <Suspense fallback={<InPreparationNotice id={address} sourceHref={sourceHref} />}>
+            <LazyView instanceId={instanceId} mode={state.mode} presentation={presentation} />
+          </Suspense>
+        </PresentationProvider>
       </ReadingOnlyView>
     </div>
   );

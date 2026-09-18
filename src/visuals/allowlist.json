@@ -1,0 +1,71 @@
+{
+  "$schema": "allowlist-schema",
+  "description": "Allowlisted rendering helpers permitted to use Math functions for pixel projection, easing, and layout.",
+  "helpers": [
+    {
+      "file": "src/visuals/kit/scale.ts",
+      "functions": ["Math.log", "Math.sqrt"],
+      "reason": "Logarithmic scale tick computation and standard deviation pixel projection"
+    },
+    {
+      "file": "src/visuals/kit/coordinates.ts",
+      "functions": ["Math.sqrt"],
+      "reason": "Pixel Euclidean distance for hit-testing"
+    },
+    {
+      "file": "src/visuals/three/ThreeStudioScene.ts",
+      "functions": ["Math.sqrt", "Math.hypot", "Math.cos", "Math.sin"],
+      "reason": "Camera spherical coordinate projection and pinch-to-zoom distance"
+    },
+    {
+      "file": "src/components/lab/me01/TwoLedgersLab.tsx",
+      "functions": ["Math.sqrt"],
+      "reason": "Visual gamma scale factor for Lorentz contraction diagram"
+    },
+    {
+      "file": "src/components/lab/me01/TwoLedgersPlot.tsx",
+      "functions": ["Math.sqrt"],
+      "reason": "Default visual Lorentz factor for energy-momentum triangle plot"
+    },
+    {
+      "file": "src/components/lab/lq05/IndependentConfigurationsLab.tsx",
+      "functions": ["Math.log"],
+      "reason": "Display formatting of entropy logarithm ln W"
+    },
+    {
+      "file": "src/components/lab/WalkPlots.tsx",
+      "functions": ["Math.log"],
+      "reason": "Logarithmic pixel scale for random walk step projection"
+    },
+    {
+      "file": "src/components/lab/RodSimultaneityPlots.tsx",
+      "functions": ["Math.sqrt"],
+      "reason": "Visual Lorentz factor for rod simultaneity diagram"
+    },
+    {
+      "file": "src/components/lab/me03/BoundaryLedgerLab.tsx",
+      "functions": ["Math.sqrt"],
+      "reason": "Display calculation of invariant mass from m squared"
+    },
+    {
+      "file": "src/components/lab/lq06/EntropyComparisonPlot.tsx",
+      "functions": ["Math.log"],
+      "reason": "Display formatting of volume ratio logarithm ln(V/V0)"
+    },
+    {
+      "file": "src/components/lab/sr10/LightComplexPlot.tsx",
+      "functions": ["Math.sqrt"],
+      "reason": "Pixel radius scaling for light ellipsoid visualization"
+    },
+    {
+      "file": "src/components/lab/WaveDescriptionPlots.tsx",
+      "functions": ["Math.sqrt"],
+      "reason": "Pixel radius scaling for wave sphere visualization"
+    },
+    {
+      "file": "src/testing/fixtures/forbiddenCalls/AllowlistedEasing.fixture.ts",
+      "functions": ["Math.sqrt", "Math.exp"],
+      "reason": "Allowed easing curve helper for animation interpolation"
+    }
+  ]
+}

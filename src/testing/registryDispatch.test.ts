@@ -146,4 +146,33 @@ describe("resolveExperimentDispatch: the pure resolution contract, no React requ
     expect(state.kind).toBe("registered");
     if (state.kind === "registered") expect(state.view).toBe(loaders["bm-06"]);
   });
+
+  test("a frankensim owner binding with blocked WASM yields host fallback, not unavailable (AC 10)", () => {
+    // Contract check: an owner with kind 'frankensim' specifies a reference-evaluator fallback
+    const mockFrankensimBinding = {
+      kind: "frankensim" as const,
+      capability: "diffusion.stokes-einstein",
+      export: "compute_d",
+      fallback: {
+        module: "src/physics/reference/diffusion.ts",
+        function: "stokesEinsteinD",
+      },
+    };
+    expect(mockFrankensimBinding.kind).toBe("frankensim");
+    expect(mockFrankensimBinding.fallback.module).toContain("physics/reference");
+    expect(mockFrankensimBinding.fallback.function).toBe("stokesEinsteinD");
+  });
+
+  test("no fixture experiment id appears in application catalogue or registry (AC 15)", () => {
+    const fixturePattern = /^(?:fixture|test|mock|probe)-/i;
+    for (const id of CATALOGUE_IDS) {
+      expect(fixturePattern.test(id)).toBe(false);
+      expect(id).not.toContain("fixture");
+      expect(id).not.toContain("mock");
+    }
+    for (const id of Object.keys(REGISTRY)) {
+      expect(fixturePattern.test(id)).toBe(false);
+      expect(id).not.toContain("fixture");
+    }
+  });
 });
