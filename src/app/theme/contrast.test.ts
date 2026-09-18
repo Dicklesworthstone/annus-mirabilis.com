@@ -4,7 +4,8 @@ import { dirname, join } from "node:path";
 import { fileURLToPath } from "node:url";
 import { contrastRatio } from "../../a11y/readingSettings/contrast";
 import { COLOR_STYLES } from "../../equations/colorPalette";
-import { THEME_IDS, THEME_TOKENS } from "./tokens";
+import { READER_LAYOUT_TOKENS } from "../../reader/layout/tokens";
+import { auditThemeTokensContrast, LAYOUT_TOKENS, THEME_IDS, THEME_TOKENS } from "./tokens";
 
 const NORMAL_TEXT_MIN = 4.5;
 const UI_BOUNDARY_MIN = 3;
@@ -169,3 +170,92 @@ describe("contrast: Annalen's reference values match the kept placeholder implem
     expect(annalen.accent).toBe("#ae2119");
   });
 });
+
+describe("auditThemeTokensContrast: automated token contrast check (AC 3)", () => {
+  test("auditThemeTokensContrast passes for all declared pairs across all three themes", () => {
+    const result = auditThemeTokensContrast(THEME_TOKENS);
+    expect(result.passes).toBe(true);
+    expect(result.checkedCount).toBe(18); // 6 declared pairs * 3 themes
+    expect(result.violations).toHaveLength(0);
+  });
+
+  test("planted negative: seeded text contrast violation (< 4.5:1) in any theme is detected", () => {
+    const mutatedTokens = {
+      ...THEME_TOKENS,
+      annalen: {
+        ...THEME_TOKENS.annalen,
+        muted: "#999999", // contrast against #eee7d7 is ~2.22 (< 4.5)
+      },
+    };
+    const result = auditThemeTokensContrast(mutatedTokens);
+    expect(result.passes).toBe(false);
+    expect(result.violations.length).toBeGreaterThan(0);
+    const violation = result.violations.find(
+      (v) => v.theme === "annalen" && v.pairName === "muted on paper",
+    );
+    expect(violation).toBeDefined();
+    expect(violation?.ratio).toBeLessThan(4.5);
+    expect(violation?.requiredRatio).toBe(4.5);
+  });
+
+  test("planted negative: seeded UI boundary contrast violation (< 3.0:1) is detected", () => {
+    const mutatedTokens = {
+      ...THEME_TOKENS,
+      slate: {
+        ...THEME_TOKENS.slate,
+        focusRing: "#1e2426", // contrast against #14181a is ~1.14 (< 3.0)
+      },
+    };
+    const result = auditThemeTokensContrast(mutatedTokens);
+    expect(result.passes).toBe(false);
+    const violation = result.violations.find(
+      (v) => v.theme === "slate" && v.pairName === "focusRing on paper",
+    );
+    expect(violation).toBeDefined();
+    expect(violation?.ratio).toBeLessThan(3.0);
+    expect(violation?.requiredRatio).toBe(3.0);
+  });
+});
+
+describe("layout tokens: cross-bead contract alignment (am-read-page-anatomy-l0b)", () => {
+  test("LAYOUT_TOKENS defines positive finite values for all 5 required layout tokens", () => {
+    expect(LAYOUT_TOKENS.narrowMaxEm).toBeGreaterThan(0);
+    expect(LAYOUT_TOKENS.wideMinEm).toBeGreaterThan(LAYOUT_TOKENS.narrowMaxEm);
+    expect(LAYOUT_TOKENS.measureCh).toBeGreaterThan(0);
+    expect(LAYOUT_TOKENS.stickyLabMaxVh).toBeGreaterThan(0);
+    expect(LAYOUT_TOKENS.scrollPaddingRem).toBeGreaterThan(0);
+  });
+
+  test("LAYOUT_TOKENS matches READER_LAYOUT_TOKENS exactly across all properties", () => {
+    expect(LAYOUT_TOKENS.narrowMaxEm).toBe(READER_LAYOUT_TOKENS.narrowMaxEm);
+    expect(LAYOUT_TOKENS.wideMinEm).toBe(READER_LAYOUT_TOKENS.wideMinEm);
+    expect(LAYOUT_TOKENS.measureCh).toBe(READER_LAYOUT_TOKENS.measureCh);
+    expect(LAYOUT_TOKENS.stickyLabMaxVh).toBe(READER_LAYOUT_TOKENS.stickyLabMaxVh);
+    expect(LAYOUT_TOKENS.scrollPaddingRem).toBe(READER_LAYOUT_TOKENS.scrollPaddingRem);
+  });
+
+  test("planted negative: divergent layout tokens fail cross-bead contract check", () => {
+    function auditLayoutTokenParity(
+      source: Record<string, number>,
+      consumer: Record<string, number>,
+    ): { valid: boolean; differences: string[] } {
+      const diffs: string[] = [];
+      for (const key of Object.keys(source)) {
+        if (source[key] !== consumer[key]) {
+          diffs.push(`${key}: source=${source[key]} consumer=${consumer[key]}`);
+        }
+      }
+      return { valid: diffs.length === 0, differences: diffs };
+    }
+
+    // Honest check: real tokens match
+    expect(auditLayoutTokenParity(LAYOUT_TOKENS, READER_LAYOUT_TOKENS).valid).toBe(true);
+
+    // Planted negative: altered threshold is flagged
+    const badConsumer = { ...READER_LAYOUT_TOKENS, narrowMaxEm: 50 };
+    const result = auditLayoutTokenParity(LAYOUT_TOKENS, badConsumer);
+    expect(result.valid).toBe(false);
+    expect(result.differences).toContain("narrowMaxEm: source=48 consumer=50");
+  });
+});
+

@@ -13,7 +13,7 @@
  * clears 3:1 for free, rather than inventing a second color that might not.
  */
 
-import type { ThemeId } from "../../a11y/readingSettings/contrast";
+import { contrastRatio, type ThemeId } from "../../a11y/readingSettings/contrast";
 
 export type { ThemeId };
 
@@ -98,3 +98,72 @@ export const LAYOUT_TOKENS = Object.freeze({
   stickyLabMaxVh: 40,
   scrollPaddingRem: 3,
 });
+
+export const CONTRAST_THRESHOLDS = Object.freeze({
+  normalText: 4.5,
+  largeText: 3.0,
+  uiBoundary: 3.0,
+});
+
+export interface ContrastAuditViolation {
+  readonly theme: ThemeId;
+  readonly pairName: string;
+  readonly foreground: string;
+  readonly background: string;
+  readonly ratio: number;
+  readonly requiredRatio: number;
+}
+
+export interface ContrastAuditResult {
+  readonly passes: boolean;
+  readonly checkedCount: number;
+  readonly violations: readonly ContrastAuditViolation[];
+}
+
+/**
+ * Computes contrast ratios for all declared normal-text, inverted-text,
+ * and UI component boundary pairs in each theme against WCAG AA standards.
+ * Fails if any pair in any theme falls below its required threshold.
+ */
+export function auditThemeTokensContrast(
+  tokensByTheme: Readonly<Record<ThemeId, ThemeTokens>> = THEME_TOKENS,
+): ContrastAuditResult {
+  const violations: ContrastAuditViolation[] = [];
+  let checkedCount = 0;
+
+  for (const themeId of THEME_IDS) {
+    const tokens = tokensByTheme[themeId];
+    if (!tokens) continue;
+
+    const declaredPairs = [
+      { name: "ink on paper", fg: tokens.ink, bg: tokens.paper, req: CONTRAST_THRESHOLDS.normalText },
+      { name: "muted on paper", fg: tokens.muted, bg: tokens.paper, req: CONTRAST_THRESHOLDS.normalText },
+      { name: "accent on paper", fg: tokens.accent, bg: tokens.paper, req: CONTRAST_THRESHOLDS.normalText },
+      { name: "paper on ink", fg: tokens.paper, bg: tokens.ink, req: CONTRAST_THRESHOLDS.normalText },
+      { name: "paper on accent", fg: tokens.paper, bg: tokens.accent, req: CONTRAST_THRESHOLDS.normalText },
+      { name: "focusRing on paper", fg: tokens.focusRing, bg: tokens.paper, req: CONTRAST_THRESHOLDS.uiBoundary },
+    ];
+
+    for (const pair of declaredPairs) {
+      checkedCount++;
+      const ratio = contrastRatio(pair.fg, pair.bg);
+      if (ratio < pair.req) {
+        violations.push({
+          theme: themeId,
+          pairName: pair.name,
+          foreground: pair.fg,
+          background: pair.bg,
+          ratio,
+          requiredRatio: pair.req,
+        });
+      }
+    }
+  }
+
+  return {
+    passes: violations.length === 0,
+    checkedCount,
+    violations,
+  };
+}
+
