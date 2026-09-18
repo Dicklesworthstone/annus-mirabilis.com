@@ -364,9 +364,9 @@ describe("self-hosted typography wiring: font files, licenses, and @font-face de
     });
   }
 
-  test("planted negative: an external Google Fonts URL or missing OFL license is rejected", () => {
+  test("planted negative: an external font URL or missing OFL license is rejected", () => {
     function auditFontFaceRule(rule: string): { valid: boolean; issue?: string } {
-      if (/https?:\/\/fonts\.(googleapis|gstatic)\.com/i.test(rule)) {
+      if (/https?:\/\//i.test(rule)) {
         return { valid: false, issue: "External font URL detected (must be self-hosted)" };
       }
       if (!rule.includes("font-display: swap")) {
@@ -378,7 +378,7 @@ describe("self-hosted typography wiring: font files, licenses, and @font-face de
     const goodRule = `@font-face { font-family: "Newsreader"; src: url("/fonts/newsreader/Newsreader-Variable.ttf"); font-display: swap; }`;
     expect(auditFontFaceRule(goodRule).valid).toBe(true);
 
-    const badExternalRule = `@font-face { font-family: "Newsreader"; src: url("https://fonts.gstatic.com/s/newsreader.woff2"); font-display: swap; }`;
+    const badExternalRule = `@font-face { font-family: "Newsreader"; src: url("https://example.com/newsreader.woff2"); font-display: swap; }`;
     expect(auditFontFaceRule(badExternalRule).valid).toBe(false);
     expect(auditFontFaceRule(badExternalRule).issue).toContain("External font URL");
 
