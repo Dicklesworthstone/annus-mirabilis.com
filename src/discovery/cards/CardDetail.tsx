@@ -59,47 +59,106 @@ export function CardDetail({
   return (
     <div
       id={`card-${card.id}`}
-      className={`knowledge-card-detail p-6 rounded-lg border border-stone-300 bg-stone-50 dark:border-stone-700 dark:bg-stone-900 text-stone-900 dark:text-stone-100 ${className}`}
+      className={className || undefined}
+      style={{
+        padding: "1.5rem",
+        borderRadius: "0.5rem",
+        border: "1px solid var(--line)",
+        background: "var(--panel)",
+        color: "var(--ink)",
+      }}
       data-card-id={card.id}
       data-status={card.status}
     >
       {/* Header with Title / Proposition and Status */}
-      <div className="flex flex-wrap items-start justify-between gap-3 mb-4">
+      <div
+        style={{
+          display: "flex",
+          flexWrap: "wrap",
+          alignItems: "flex-start",
+          justifyContent: "space-between",
+          gap: "0.75rem",
+          marginBottom: "1rem",
+        }}
+      >
         <div>
-          <span className="text-xs font-mono uppercase tracking-wider text-stone-500 dark:text-stone-400 block mb-1">
+          <span
+            className="eyebrow"
+            style={{
+              display: "block",
+              marginBottom: "0.25rem",
+              fontFamily: "var(--font-mono)",
+              fontSize: "0.75rem",
+            }}
+          >
             Knowledge Card · #{card.id}
           </span>
-          <h3 className="text-lg font-serif font-bold leading-snug">{card.proposition}</h3>
+          <h3
+            style={{
+              fontSize: "1.125rem",
+              fontFamily: "var(--font-serif)",
+              fontWeight: "bold",
+              lineHeight: 1.3,
+            }}
+          >
+            {card.proposition}
+          </h3>
         </div>
         <StatusLabel status={card.status} admittedImport={card.admittedImport} />
       </div>
 
       {/* Proposition Limits if present */}
       {card.limits && (
-        <div className="mb-4 text-sm text-stone-700 dark:text-stone-300 italic bg-stone-100 dark:bg-stone-800/60 p-3 rounded border border-stone-200 dark:border-stone-700">
-          <span className="font-semibold not-italic">Limits: </span>
+        <div
+          className="notice"
+          style={{
+            marginBottom: "1rem",
+            fontSize: "0.875rem",
+            fontStyle: "italic",
+          }}
+        >
+          <span style={{ fontWeight: 600, fontStyle: "normal" }}>Limits: </span>
           {card.limits}
         </div>
       )}
 
       {/* Status Explanation / Parallel Work Basis / Admitted Import Explanation */}
-      <div className="mb-5 text-sm p-3.5 rounded bg-stone-100/80 dark:bg-stone-800/40 border border-stone-200 dark:border-stone-800">
-        <h4 className="font-semibold text-xs uppercase tracking-wide text-stone-600 dark:text-stone-400 mb-1">
+      <div
+        style={{
+          marginBottom: "1.25rem",
+          fontSize: "0.875rem",
+          padding: "0.875rem",
+          borderRadius: "0.25rem",
+          background: "var(--wash)",
+          border: "1px solid var(--line)",
+        }}
+      >
+        <h4
+          className="eyebrow"
+          style={{
+            fontSize: "0.75rem",
+            marginBottom: "0.25rem",
+          }}
+        >
           Historical Context
         </h4>
         {card.admittedImport ? (
-          <p className="text-stone-800 dark:text-stone-200">
+          <p style={{ margin: 0, color: "var(--ink)" }}>
             {typeof card.admittedImport === "object" ? (
               <>
                 Admitted 1905 import for journey{" "}
-                <span className="font-mono font-medium">
+                <span style={{ fontFamily: "var(--font-mono)", fontWeight: 500 }}>
                   {card.admittedImport.declaringJourney}
                 </span>
                 {card.admittedImport.provenance && ` (${card.admittedImport.provenance})`}.
                 {card.admittedImport.anchor && (
                   <a
                     href={`#${card.admittedImport.anchor}`}
-                    className="ml-1.5 underline text-amber-700 dark:text-amber-400"
+                    style={{
+                      marginLeft: "0.375rem",
+                      textDecoration: "underline",
+                      color: "var(--accent)",
+                    }}
                   >
                     View source passage
                   </a>
@@ -110,41 +169,67 @@ export function CardDetail({
             )}
           </p>
         ) : card.status === "parallel-work" ? (
-          <p className="text-stone-800 dark:text-stone-200">
+          <p style={{ margin: 0, color: "var(--ink)" }}>
             This work appeared alongside or after Einstein’s 1905 paper and was not available to a
             1904 reader. {card.parallelWorkBasis}
           </p>
         ) : card.status === "available" ? (
-          <p className="text-stone-800 dark:text-stone-200">
+          <p style={{ margin: 0, color: "var(--ink)" }}>
             Available in the published scientific literature or public proceedings prior to 1905.
           </p>
         ) : (
-          <p className="text-stone-800 dark:text-stone-200">
+          <p style={{ margin: 0, color: "var(--ink)" }}>
             Later empirical or theoretical confirmation developed after 1905.
           </p>
         )}
       </div>
 
       {/* The Four Canonical Labeled Sections */}
-      <div className="grid grid-cols-1 md:grid-cols-2 gap-4 mb-6">
+      <div
+        style={{
+          display: "grid",
+          gridTemplateColumns: "repeat(auto-fit, minmax(280px, 1fr))",
+          gap: "1rem",
+          marginBottom: "1.5rem",
+        }}
+      >
         {/* Section 1: Available by */}
-        <div className="p-3.5 rounded bg-white dark:bg-stone-800 border border-stone-200 dark:border-stone-700">
-          <h4 className="text-xs font-bold uppercase tracking-wider text-stone-500 dark:text-stone-400 mb-2">
+        <div
+          style={{
+            padding: "0.875rem",
+            borderRadius: "0.25rem",
+            background: "var(--panel)",
+            border: "1px solid var(--line)",
+          }}
+        >
+          <h4
+            className="eyebrow"
+            style={{
+              fontSize: "0.75rem",
+              marginBottom: "0.5rem",
+            }}
+          >
             1. Available by
           </h4>
-          <p className="font-medium text-sm text-stone-900 dark:text-stone-100">{dateLine}</p>
+          <p style={{ margin: 0, fontWeight: 500, fontSize: "0.875rem", color: "var(--ink)" }}>
+            {dateLine}
+          </p>
           {card.priorEvent && (
-            <p className="text-xs text-stone-600 dark:text-stone-400 mt-1">
-              <span className="font-semibold">Prior event: </span>
+            <p className="fine" style={{ marginTop: "0.25rem", marginBottom: 0 }}>
+              <span style={{ fontWeight: 600 }}>Prior event: </span>
               {formatPriorEventLine(card.priorEvent)}
             </p>
           )}
           {card.relatedCardId && (
-            <p className="text-xs text-stone-600 dark:text-stone-400 mt-1">
-              <span className="font-semibold">Related card: </span>
+            <p className="fine" style={{ marginTop: "0.25rem", marginBottom: 0 }}>
+              <span style={{ fontWeight: 600 }}>Related card: </span>
               <a
                 href={`#card-${card.relatedCardId}`}
-                className="underline text-stone-800 dark:text-stone-200 hover:text-amber-600 font-mono"
+                style={{
+                  textDecoration: "underline",
+                  color: "var(--accent)",
+                  fontFamily: "var(--font-mono)",
+                }}
               >
                 #{card.relatedCardId}
               </a>
@@ -153,22 +238,39 @@ export function CardDetail({
         </div>
 
         {/* Section 2: What the paper itself cites or asserts */}
-        <div className="p-3.5 rounded bg-white dark:bg-stone-800 border border-stone-200 dark:border-stone-700">
-          <h4 className="text-xs font-bold uppercase tracking-wider text-stone-500 dark:text-stone-400 mb-2">
+        <div
+          style={{
+            padding: "0.875rem",
+            borderRadius: "0.25rem",
+            background: "var(--panel)",
+            border: "1px solid var(--line)",
+          }}
+        >
+          <h4
+            className="eyebrow"
+            style={{
+              fontSize: "0.75rem",
+              marginBottom: "0.5rem",
+            }}
+          >
             2. What the paper itself cites or asserts
           </h4>
           {card.paperCitesOrAsserts && card.paperCitesOrAsserts.length > 0 ? (
-            <ul className="text-xs space-y-1 text-stone-800 dark:text-stone-200">
+            <ul className="fine" style={{ margin: 0, paddingLeft: "1rem", listStyleType: "disc" }}>
               {card.paperCitesOrAsserts.map((ref) => {
                 const itemKey = `${ref.paper}-${ref.note ?? ""}-${ref.anchor ?? ""}`;
                 return (
                   <li key={itemKey}>
-                    <span className="font-medium">{ref.paper}: </span>
+                    <span style={{ fontWeight: 500 }}>{ref.paper}: </span>
                     {ref.note || ref.ids?.join(", ") || "Cited in text"}
                     {ref.anchor && (
                       <a
                         href={`#${ref.anchor}`}
-                        className="ml-1 underline text-amber-700 dark:text-amber-400"
+                        style={{
+                          marginLeft: "0.25rem",
+                          textDecoration: "underline",
+                          color: "var(--accent)",
+                        }}
                       >
                         [view]
                       </a>
@@ -178,7 +280,7 @@ export function CardDetail({
               })}
             </ul>
           ) : (
-            <p className="text-xs text-stone-500 dark:text-stone-400 italic">
+            <p className="fine" style={{ margin: 0, fontStyle: "italic" }}>
               No direct citation or assertion in the original 1905 paper text.
             </p>
           )}
@@ -186,11 +288,28 @@ export function CardDetail({
 
         {/* Section 3: Evidence that Einstein knew it (only when present) */}
         {card.claimsEinsteinKnew && card.einsteinKnowledgeEvidence && (
-          <div className="p-3.5 rounded bg-white dark:bg-stone-800 border border-stone-200 dark:border-stone-700 md:col-span-2">
-            <h4 className="text-xs font-bold uppercase tracking-wider text-stone-500 dark:text-stone-400 mb-2">
+          <div
+            style={{
+              padding: "0.875rem",
+              borderRadius: "0.25rem",
+              background: "var(--panel)",
+              border: "1px solid var(--line)",
+              gridColumn: "1 / -1",
+            }}
+          >
+            <h4
+              className="eyebrow"
+              style={{
+                fontSize: "0.75rem",
+                marginBottom: "0.5rem",
+              }}
+            >
               3. Evidence that Einstein knew it
             </h4>
-            <ul className="text-xs space-y-1.5 text-stone-800 dark:text-stone-200 list-disc list-inside">
+            <ul
+              className="fine"
+              style={{ margin: 0, paddingLeft: "1.25rem", listStyleType: "disc" }}
+            >
               {card.einsteinKnowledgeEvidence.map((ev) => {
                 const itemKey =
                   typeof ev === "string"
@@ -199,7 +318,7 @@ export function CardDetail({
                       ? `${(ev as { title: string }).title}-${(ev as { locator?: string }).locator ?? ""}`
                       : JSON.stringify(ev);
                 return (
-                  <li key={itemKey}>
+                  <li key={itemKey} style={{ marginTop: "0.25rem" }}>
                     {typeof ev === "string"
                       ? ev
                       : typeof ev === "object" && ev !== null && "title" in ev
@@ -216,49 +335,63 @@ export function CardDetail({
         )}
 
         {/* Section 4: Where this site uses it */}
-        <div className="p-3.5 rounded bg-white dark:bg-stone-800 border border-stone-200 dark:border-stone-700 md:col-span-2">
-          <h4 className="text-xs font-bold uppercase tracking-wider text-stone-500 dark:text-stone-400 mb-2">
+        <div
+          style={{
+            padding: "0.875rem",
+            borderRadius: "0.25rem",
+            background: "var(--panel)",
+            border: "1px solid var(--line)",
+            gridColumn: "1 / -1",
+          }}
+        >
+          <h4
+            className="eyebrow"
+            style={{
+              fontSize: "0.75rem",
+              marginBottom: "0.5rem",
+            }}
+          >
             4. Where this site uses it
           </h4>
-          <div className="text-xs space-y-2 text-stone-800 dark:text-stone-200">
+          <div className="fine" style={{ margin: 0 }}>
             {card.admittedStages && card.admittedStages.length > 0 && (
-              <div>
-                <span className="font-semibold text-stone-600 dark:text-stone-400">
-                  Permitted discovery steps:{" "}
+              <div style={{ marginBottom: "0.5rem" }}>
+                <span style={{ fontWeight: 600 }}>Permitted discovery steps: </span>
+                <span style={{ fontFamily: "var(--font-mono)" }}>
+                  {card.admittedStages.join(", ")}
                 </span>
-                <span className="font-mono">{card.admittedStages.join(", ")}</span>
               </div>
             )}
             {backlinks && (
-              <div className="space-y-1 text-stone-600 dark:text-stone-400">
+              <div style={{ display: "flex", flexDirection: "column", gap: "0.25rem" }}>
                 {backlinks.stageIds.length > 0 && (
                   <div>
-                    <span className="font-semibold">Cited by stages: </span>
-                    <span className="font-mono text-stone-800 dark:text-stone-200">
+                    <span style={{ fontWeight: 600 }}>Cited by stages: </span>
+                    <span style={{ fontFamily: "var(--font-mono)", color: "var(--ink)" }}>
                       {backlinks.stageIds.join(", ")}
                     </span>
                   </div>
                 )}
                 {backlinks.deskObjectIds.length > 0 && (
                   <div>
-                    <span className="font-semibold">Desk objects: </span>
-                    <span className="font-mono text-stone-800 dark:text-stone-200">
+                    <span style={{ fontWeight: 600 }}>Desk objects: </span>
+                    <span style={{ fontFamily: "var(--font-mono)", color: "var(--ink)" }}>
                       {backlinks.deskObjectIds.join(", ")}
                     </span>
                   </div>
                 )}
                 {backlinks.timelineEntryIds.length > 0 && (
                   <div>
-                    <span className="font-semibold">Timeline entries: </span>
-                    <span className="font-mono text-stone-800 dark:text-stone-200">
+                    <span style={{ fontWeight: 600 }}>Timeline entries: </span>
+                    <span style={{ fontFamily: "var(--font-mono)", color: "var(--ink)" }}>
                       {backlinks.timelineEntryIds.join(", ")}
                     </span>
                   </div>
                 )}
                 {backlinks.worldCheckIds.length > 0 && (
                   <div>
-                    <span className="font-semibold">World checks: </span>
-                    <span className="font-mono text-stone-800 dark:text-stone-200">
+                    <span style={{ fontWeight: 600 }}>World checks: </span>
+                    <span style={{ fontFamily: "var(--font-mono)", color: "var(--ink)" }}>
                       {backlinks.worldCheckIds.join(", ")}
                     </span>
                   </div>
@@ -271,11 +404,17 @@ export function CardDetail({
 
       {/* Sources as Printed */}
       {card.sources && card.sources.length > 0 && (
-        <div className="mb-5 text-xs text-stone-700 dark:text-stone-300">
-          <h4 className="font-semibold uppercase tracking-wide text-stone-500 dark:text-stone-400 mb-1">
+        <div className="fine" style={{ marginBottom: "1.25rem" }}>
+          <h4
+            className="eyebrow"
+            style={{
+              fontSize: "0.75rem",
+              marginBottom: "0.25rem",
+            }}
+          >
             Primary Evidence & Sources
           </h4>
-          <ul className="space-y-1 list-disc list-inside">
+          <ul style={{ margin: 0, paddingLeft: "1.25rem", listStyleType: "disc" }}>
             {card.sources.map((src) => {
               const itemKey =
                 typeof src === "string"
@@ -284,7 +423,7 @@ export function CardDetail({
                     ? `${(src as { title?: string }).title || ""}-${(src as { locator?: string }).locator || ""}-${(src as { date?: string }).date || ""}`
                     : JSON.stringify(src);
               return (
-                <li key={itemKey} className="font-serif">
+                <li key={itemKey} style={{ fontFamily: "var(--font-serif)" }}>
                   {typeof src === "string"
                     ? src
                     : typeof src === "object" && src !== null
@@ -298,60 +437,128 @@ export function CardDetail({
       )}
 
       {/* Verification State / Awaiting Verification Summary */}
-      <div className="pt-4 border-t border-stone-200 dark:border-stone-800 text-xs">
+      <div
+        style={{
+          paddingTop: "1rem",
+          borderTop: "1px solid var(--line)",
+          fontSize: "0.75rem",
+        }}
+      >
         {verified ? (
-          <div className="text-emerald-800 dark:text-emerald-300 bg-emerald-50 dark:bg-emerald-950/40 p-3 rounded border border-emerald-200 dark:border-emerald-800/60">
-            <div className="flex items-center gap-1.5 font-bold mb-1">
-              <svg className="w-4 h-4" viewBox="0 0 16 16" fill="currentColor" aria-hidden="true">
+          <div
+            style={{
+              padding: "0.75rem",
+              borderRadius: "0.25rem",
+              border: "1px solid var(--line)",
+              background: "var(--wash)",
+              color: "var(--ink)",
+            }}
+          >
+            <div
+              style={{
+                display: "flex",
+                alignItems: "center",
+                gap: "0.375rem",
+                fontWeight: "bold",
+                marginBottom: "0.25rem",
+              }}
+            >
+              <svg
+                style={{ width: "1rem", height: "1rem" }}
+                viewBox="0 0 16 16"
+                fill="currentColor"
+                aria-hidden="true"
+              >
                 <path d="M13.854 3.646a.5.5 0 0 1 0 .708l-7 7a.5.5 0 0 1-.708 0l-3.5-3.5a.5.5 0 1 1 .708-.708L6.5 10.293l6.646-6.647a.5.5 0 0 1 .708 0z" />
               </svg>
               <span>Verified against original source</span>
             </div>
-            <p className="text-stone-700 dark:text-stone-300">
+            <p style={{ margin: 0, color: "var(--ink)" }}>
               Verified by{" "}
-              <span className="font-medium">{card.verification?.verifiedBy || card.verifier}</span>{" "}
+              <span style={{ fontWeight: 500 }}>
+                {card.verification?.verifiedBy || card.verifier}
+              </span>{" "}
               ({card.verification?.verifierKind || "human"}) on{" "}
               {card.verification?.date || card.dateVerified} via{" "}
-              <span className="italic">{card.verification?.method || "library scan"}</span>.
+              <span style={{ fontStyle: "italic" }}>
+                {card.verification?.method || "library scan"}
+              </span>
+              .
             </p>
             {(card.verification?.evidenceLocator || card.evidenceLocator) && (
-              <p className="font-mono text-stone-600 dark:text-stone-400 mt-0.5 truncate">
+              <p
+                style={{
+                  margin: "0.25rem 0 0",
+                  fontFamily: "var(--font-mono)",
+                  color: "var(--muted)",
+                  overflow: "hidden",
+                  textOverflow: "ellipsis",
+                  whiteSpace: "nowrap",
+                }}
+              >
                 Locator: {card.verification?.evidenceLocator || card.evidenceLocator}
               </p>
             )}
             {card.verification?.printedCitation && (
-              <p className="text-stone-600 dark:text-stone-400 mt-0.5">
+              <p style={{ margin: "0.25rem 0 0", color: "var(--muted)" }}>
                 Citation: {card.verification.printedCitation}
               </p>
             )}
           </div>
         ) : (
-          <div className="text-amber-800 dark:text-amber-300 bg-amber-50 dark:bg-amber-950/40 p-3 rounded border border-amber-200 dark:border-amber-800/60">
-            <div className="flex items-center gap-1.5 font-bold mb-1">
-              <svg className="w-4 h-4" viewBox="0 0 16 16" fill="currentColor" aria-hidden="true">
+          <div
+            style={{
+              padding: "0.75rem",
+              borderRadius: "0.25rem",
+              border: "1px solid var(--line)",
+              background: "var(--wash)",
+              color: "var(--ink)",
+            }}
+          >
+            <div
+              style={{
+                display: "flex",
+                alignItems: "center",
+                gap: "0.375rem",
+                fontWeight: "bold",
+                marginBottom: "0.25rem",
+              }}
+            >
+              <svg
+                style={{ width: "1rem", height: "1rem" }}
+                viewBox="0 0 16 16"
+                fill="currentColor"
+                aria-hidden="true"
+              >
                 <path d="M8 15A7 7 0 1 1 8 1a7 7 0 0 1 0 14zm0 1A8 8 0 1 0 8 0a8 8 0 0 0 0 16z" />
                 <path d="M7.002 11a1 1 0 1 1 2 0 1 1 0 0 1-2 0zM7.1 4.995a.905.905 0 1 1 1.8 0l-.35 3.507a.552.552 0 0 1-1.1 0z" />
               </svg>
               <span>Awaiting verification · {UNVERIFIED_RESEARCH_MARKER}</span>
             </div>
             {openQueueItems && openQueueItems.length > 0 ? (
-              <div className="mt-2 space-y-1">
-                <p className="font-semibold text-stone-700 dark:text-stone-300">
-                  Open source verification questions:
-                </p>
-                <ul className="list-disc list-inside space-y-1 text-stone-600 dark:text-stone-400">
+              <div style={{ marginTop: "0.5rem" }}>
+                <p style={{ margin: 0, fontWeight: 600 }}>Open source verification questions:</p>
+                <ul
+                  style={{
+                    margin: "0.25rem 0 0",
+                    paddingLeft: "1.25rem",
+                    listStyleType: "disc",
+                    color: "var(--muted)",
+                  }}
+                >
                   {openQueueItems.map((q) => (
                     <li key={q.id}>
-                      <span className="font-mono text-stone-800 dark:text-stone-200">
+                      <span style={{ fontFamily: "var(--font-mono)", color: "var(--ink)" }}>
                         [{q.id}]{" "}
                       </span>
-                      {q.question} (consult: <span className="italic">{q.sourceToConsult}</span>)
+                      {q.question} (consult:{" "}
+                      <span style={{ fontStyle: "italic" }}>{q.sourceToConsult}</span>)
                     </li>
                   ))}
                 </ul>
               </div>
             ) : (
-              <p className="text-stone-600 dark:text-stone-400 mt-1">
+              <p style={{ margin: "0.25rem 0 0", color: "var(--muted)" }}>
                 Source verification pending library scan inspection.
               </p>
             )}

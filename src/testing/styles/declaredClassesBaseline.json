@@ -79,7 +79,7 @@
   "src/discovery/Stage.tsx": 125,
   "src/discovery/SupportLadder.tsx": 183,
   "src/discovery/WorldCheck.tsx": 97,
-  "src/discovery/cards/CardDetail.tsx": 280,
+  "src/discovery/cards/CardDetail.tsx": 0,
   "src/discovery/cards/KnowledgeCard.tsx": 61,
   "src/discovery/cards/Shelf.tsx": 63,
   "src/discovery/cards/StatusLabel.tsx": 72,
