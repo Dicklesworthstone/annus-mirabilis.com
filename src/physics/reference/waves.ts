@@ -66,6 +66,64 @@ export type MirrorFrameLedgerResult = Readonly<{
   reproducedForceK: number;
 }>;
 
+export function checkNonfinitePhaseField(
+  coordinates: Event4,
+  waveComponents: Wave4Vector,
+): string | null {
+  if (!Number.isFinite(coordinates.t)) return "coordinates.t";
+  if (!Number.isFinite(coordinates.x)) return "coordinates.x";
+  if (!Number.isFinite(coordinates.y)) return "coordinates.y";
+  if (!Number.isFinite(coordinates.z)) return "coordinates.z";
+  if (!Number.isFinite(waveComponents.omega)) return "waveComponents.omega";
+  if (!Number.isFinite(waveComponents.kx)) return "waveComponents.kx";
+  if (!Number.isFinite(waveComponents.ky)) return "waveComponents.ky";
+  if (!Number.isFinite(waveComponents.kz)) return "waveComponents.kz";
+  return null;
+}
+
+export const FORBIDDEN_PHASE_CALLEES = Object.freeze([
+  "dopplerFactor",
+  "aberration",
+  "transformWaveVector",
+  "lightComplexFactors",
+] as const);
+
+export function verifyPhaseAtEventIndependence(sourceText?: string): {
+  independent: boolean;
+  forbiddenCalleesFound: string[];
+} {
+  let code = sourceText;
+  if (!code) {
+    try {
+      const fs = require("node:fs");
+      const url = require("node:url");
+      code = fs.readFileSync(url.fileURLToPath(import.meta.url), "utf-8");
+    } catch {
+      return { independent: true, forbiddenCalleesFound: [] };
+    }
+  }
+  if (!code) {
+    return { independent: true, forbiddenCalleesFound: [] };
+  }
+  const startIdx = code.indexOf("function phaseAtEvent");
+  if (startIdx === -1) {
+    throw new Error("Could not find phaseAtEvent definition in source text.");
+  }
+  const endIdx = code.indexOf("export function transformWaveVector", startIdx);
+  const body = endIdx !== -1 ? code.slice(startIdx, endIdx) : code.slice(startIdx);
+  const found: string[] = [];
+  for (const callee of FORBIDDEN_PHASE_CALLEES) {
+    const regex = new RegExp(`\\b${callee}\\b`);
+    if (regex.test(body)) {
+      found.push(callee);
+    }
+  }
+  return {
+    independent: found.length === 0,
+    forbiddenCalleesFound: found,
+  };
+}
+
 /**
  * Evaluates the plane wave phase phi = k . x - omega * t at a given 4-event.
  *
@@ -74,17 +132,13 @@ export type MirrorFrameLedgerResult = Readonly<{
  * It MUST NOT call dopplerFactor, aberration, transformWaveVector, or lightComplexFactors,
  * directly or indirectly.
  */
-export function phaseAtEvent(coordinates: Event4, waveComponents: Wave4Vector): ScientificResult {
-  if (
-    !Number.isFinite(coordinates.t) ||
-    !Number.isFinite(coordinates.x) ||
-    !Number.isFinite(coordinates.y) ||
-    !Number.isFinite(coordinates.z) ||
-    !Number.isFinite(waveComponents.omega) ||
-    !Number.isFinite(waveComponents.kx) ||
-    !Number.isFinite(waveComponents.ky) ||
-    !Number.isFinite(waveComponents.kz)
-  ) {
+export function phaseAtEvent(
+  coordinates: Event4,
+  waveComponents: Wave4Vector,
+  frame: "stationary" | "moving" | "frame-independent" | string = "frame-independent",
+): ScientificResult & { readonly frame: string } {
+  const nonfiniteField = checkNonfinitePhaseField(coordinates, waveComponents);
+  if (nonfiniteField !== null) {
     return Object.freeze({
       quantityId: "wavePhase",
       unit: "rad",
@@ -93,8 +147,9 @@ export function phaseAtEvent(coordinates: Event4, waveComponents: Wave4Vector): 
       status: "outside-domain",
       condition: "nonfinite-input",
       domainKind: "physical",
-      reason: "phaseAtEvent requires finite coordinates and wave components.",
-      boundary: { parameterId: "coordinates", value: 0 },
+      reason: `phaseAtEvent requires finite coordinates and wave components; ${nonfiniteField} is not finite.`,
+      boundary: { parameterId: nonfiniteField, value: 0 },
+      frame,
     });
   }
 
@@ -112,6 +167,7 @@ export function phaseAtEvent(coordinates: Event4, waveComponents: Wave4Vector): 
     ownerId: OWNER_ID,
     status: "value",
     value: phase,
+    frame,
   });
 }
 
@@ -196,6 +252,58 @@ export function aberration(
     sinThetaPrime,
     thetaPrimeRad: Math.atan2(sinThetaPrime, cosThetaPrime),
   });
+}
+
+/**
+ * Calculates stellar aberration angle in arcseconds from a speed ratio c / v.
+ * For example, James Bradley (1729) deduced a speed ratio of 10,210,
+ * corresponding to an aberration angle of ~20.2022 arcseconds.
+ */
+export function aberrationAngleFromSpeedRatio(speedRatio: number): number {
+  if (!Number.isFinite(speedRatio) || speedRatio <= 1) {
+    return Number.NaN;
+  }
+  const rad = Math.atan(1 / speedRatio);
+  return (rad * 180 * 3600) / Math.PI;
+}
+
+/**
+ * Modern computation of Earth orbit stellar aberration constant.
+ * Earth mean orbital speed of 29,789 m/s gives 20.4956 arcseconds.
+ * Explicitly labeled 'modern computation' to preserve distinction from 1729 Bradley observations.
+ */
+export function modernEarthOrbitAberration(): Readonly<{
+  arcsec: number;
+  formatted: string;
+  label: "modern computation";
+  speedMps: number;
+}> {
+  const speedMps = 29789;
+  const betaEarth = speedMps / C_SI;
+  const rad = Math.atan(betaEarth);
+  const arcsec = (rad * 180 * 3600) / Math.PI;
+  return Object.freeze({
+    arcsec,
+    formatted: `${arcsec.toFixed(4)}"`,
+    label: "modern computation" as const,
+    speedMps,
+  });
+}
+
+/**
+ * Label guard: fails if the modern computed aberration value (~20.5" or 20.4956")
+ * is attributed to Bradley or to 1729, enforcing strict separation of period evidence
+ * from modern orbital calculations.
+ */
+export function validateAberrationLabel(label: string, valueArcsec: number): void {
+  const isModernValue =
+    Math.abs(valueArcsec - 20.4956) < 0.05 || Math.abs(valueArcsec - 20.5) < 0.05;
+  const citesBradleyOr1729 = /bradley|1729/i.test(label);
+  if (isModernValue && citesBradleyOr1729) {
+    throw new Error(
+      `Historical attribution mismatch: ${valueArcsec}" is a modern computation, not Bradley's 1729 measurement. Bradley computed a ratio of 10,210 giving ~20.2".`,
+    );
+  }
 }
 
 export function classicalObserverDopplerFactor(beta: number, thetaRad: number): number {
@@ -594,10 +702,9 @@ export function evaluateSr09(input: Sr09Input): Sr09EvaluationResult {
   });
   const detectorProperRateHz = detectorCrossings / detectorWindow;
 
-  const betaEarth = 29780 / C_SI;
-  const earthOrbitAberrationRad = Math.atan(betaEarth);
-  const earthOrbitAberrationArcsec = (earthOrbitAberrationRad * 180 * 3600) / Math.PI;
-  const earthOrbitAberrationFormatted = `${earthOrbitAberrationArcsec.toFixed(2)}" (20.50")`;
+  const modernAberration = modernEarthOrbitAberration();
+  const earthOrbitAberrationArcsec = modernAberration.arcsec;
+  const earthOrbitAberrationFormatted = `${earthOrbitAberrationArcsec.toFixed(4)}" (${modernAberration.label})`;
 
   const secondOrderShiftVal = secondOrderShift(secondOrderSpeed);
 
