@@ -227,8 +227,8 @@ export function decode(message: unknown, context: DecodeContext): DecodeResult {
     }
 
     // Seed check
-    if (seedPolicy && typeof seedPolicy === "object") {
-      const rawSeed = (seedPolicy as any).seed;
+    if (isPlainObject(seedPolicy)) {
+      const rawSeed = seedPolicy["seed"];
       if (typeof rawSeed === "number") {
         return {
           ok: false,
@@ -408,7 +408,7 @@ export function decode(message: unknown, context: DecodeContext): DecodeResult {
       return { ok: false, code: "malformed-response", reason: 'Missing "refusal" record.' };
     }
 
-    const code = (refusal as any).code;
+    const code = isPlainObject(refusal) ? refusal["code"] : undefined;
     if (typeof code !== "string" || !(code in refusalCodeRegistry)) {
       return {
         ok: false,
@@ -427,7 +427,7 @@ export function decode(message: unknown, context: DecodeContext): DecodeResult {
       return { ok: false, code: "malformed-response", reason: 'Missing "outcome" record.' };
     }
 
-    const outcomeId = (outcome as any).outcome;
+    const outcomeId = isPlainObject(outcome) ? outcome["outcome"] : undefined;
     if (typeof outcomeId !== "string" || !(outcomeId in executionOutcomeRegistry)) {
       return {
         ok: false,
