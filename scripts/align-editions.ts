@@ -9,11 +9,11 @@ import { join } from "node:path";
 import {
   type AlignmentComponent,
   type AlignmentIssue,
+  type AlignmentIssueCode,
   type ExplicitEdge,
-  type TermContent,
-  type ValidateDerivedStatusInput,
+  type ReviewStateUnit,
+  type TermOccurrence,
   type ValidateGlossInput,
-  type ValidateReviewStatesInput,
   validateAlignmentSplits,
   validateDerivedStatus,
   validateGloss,
@@ -34,6 +34,11 @@ import { getReviewStateCheck } from "../src/content/editions/reviewState.ts";
 import { germanAlignableIds, segmentLedger } from "../src/content/editions/segmentLedger.ts";
 import { parseRouteSlug, type RouteSlug } from "../src/content/ids.ts";
 
+export type DerivedStatusInput = Readonly<{
+  declared: Record<string, string>;
+  derived: Record<string, string>;
+}>;
+
 export type AlignEditionsOptions = Readonly<{
   slug: RouteSlug;
   layers?: readonly string[] | undefined;
@@ -46,10 +51,10 @@ export type AlignEditionsOptions = Readonly<{
   germanIds?: readonly string[] | undefined;
   englishIds?: readonly string[] | undefined;
   components?: readonly AlignmentComponent[] | undefined;
-  terms?: readonly TermContent[] | undefined;
+  terms?: readonly TermOccurrence[] | undefined;
   glossInput?: ValidateGlossInput | undefined;
-  reviewUnits?: ValidateReviewStatesInput | undefined;
-  derivedInput?: ValidateDerivedStatusInput | undefined;
+  reviewUnits?: readonly ReviewStateUnit[] | undefined;
+  derivedInput?: DerivedStatusInput | undefined;
 }>;
 
 export type AlignEditionsResult = Readonly<{
@@ -140,7 +145,10 @@ export function runAlignEditions(options: AlignEditionsOptions): AlignEditionsRe
 
   // 7. Derived status (rule C.8)
   if (options.derivedInput) {
-    const derivedIssues = validateDerivedStatus(options.derivedInput);
+    const derivedIssues = validateDerivedStatus(
+      options.derivedInput.declared,
+      options.derivedInput.derived,
+    );
     issues.push(...derivedIssues);
   }
 
@@ -164,9 +172,9 @@ export function runAlignEditions(options: AlignEditionsOptions): AlignEditionsRe
           const checkRes = reviewCheck({ unitId: u.id, paper: slug, layer: "translation" });
           if (!checkRes.ok) {
             issues.push({
-              code: checkRes.code,
+              code: (checkRes.code as AlignmentIssueCode) ?? "review-records-not-available",
               sourceId: u.id,
-              message: checkRes.message,
+              message: checkRes.message ?? `Review check failed for unit "${u.id}".`,
             });
           }
         }

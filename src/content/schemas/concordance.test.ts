@@ -112,6 +112,7 @@ test("Binding: (concordance.ts:264) missing-quantity-id rejected when quantityId
   assertConcordanceRefusal(() => validateBinding({ quantityId: "   " }), "missing-quantity-id");
 
   const accepted = validateBinding({ quantityId: "wienConstant" });
+  assert.ok("quantityId" in accepted);
   assert.equal(accepted.quantityId, "wienConstant");
 });
 
