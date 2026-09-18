@@ -274,6 +274,18 @@ export const DATA_COLOR_ALLOWLIST: readonly DataColorAllowlistEntry[] = [
     hex: "#f43f5e",
     reason: "Differential sensor aperture at radius r capturing radiant flux in SpreadingPlot",
   },
+  // Radiation vs. Gas comparison data series in CoefficientMatchPlot (§6 The Move):
+  {
+    file: "src/components/lab/lq06/CoefficientMatchPlot.tsx",
+    hex: "#f43f5e",
+    reason: "Wien monochromatic radiation (§4) data series stroke and mean quantum energy bar",
+  },
+  {
+    file: "src/components/lab/lq06/CoefficientMatchPlot.tsx",
+    hex: "#0ea5e9",
+    reason:
+      "Ideal gas / solute molecules (§5) data series stroke and mean molecule kinetic energy bar",
+  },
   // Equation genealogy graph edge type data colors in Genealogy.tsx:
   {
     file: "src/equations/genealogy/Genealogy.tsx",
