@@ -107,7 +107,7 @@ export function EnergyLadderPlot({
           y1={yWork}
           x2={width - padding.right - 30}
           y2={yWork}
-          stroke="#e11d48"
+          stroke="var(--accent)"
           strokeWidth="2"
         />
         <text
@@ -115,7 +115,7 @@ export function EnergyLadderPlot({
           y={yWork + 4}
           textAnchor="end"
           fontSize="10"
-          fill="#e11d48"
+          fill="var(--accent)"
           fontFamily="var(--font-mono, monospace)"
         >
           -&Phi; (-{workFunction.toFixed(2)} eV)
@@ -165,16 +165,16 @@ export function EnergyLadderPlot({
               y1={yZero}
               x2={width / 2 + 10}
               y2={yPhoton}
-              stroke="#10b981"
+              stroke="var(--plot)"
               strokeWidth="2.5"
             />
-            <circle cx={width / 2 + 10} cy={yPhoton} r="4" fill="#10b981" />
+            <circle cx={width / 2 + 10} cy={yPhoton} r="4" fill="var(--plot)" />
             <text
               x={width / 2 + 20}
               y={yPhoton + 4}
               textAnchor="start"
               fontSize="11"
-              fill="#10b981"
+              fill="var(--plot)"
               fontWeight="bold"
               fontFamily="var(--font-mono, monospace)"
             >
@@ -363,7 +363,7 @@ export function StoppingPotentialPlot({
 
         {/* Theoretical line */}
         {xStartNu < maxNu && (
-          <line x1={x1} y1={y1} x2={x2} y2={y2} stroke="#2563eb" strokeWidth="2.5" />
+          <line x1={x1} y1={y1} x2={x2} y2={y2} stroke="var(--plot)" strokeWidth="2.5" />
         )}
 
         {/* Threshold frequency vertical dashed mark */}
@@ -374,7 +374,7 @@ export function StoppingPotentialPlot({
               y1={padding.top}
               x2={scaleX(nu0)}
               y2={height - padding.bottom}
-              stroke="#e11d48"
+              stroke="var(--accent)"
               strokeDasharray="3 3"
               strokeWidth="1.5"
             />
@@ -383,7 +383,7 @@ export function StoppingPotentialPlot({
               y={padding.top - 6}
               textAnchor="middle"
               fontSize="10"
-              fill="#e11d48"
+              fill="var(--accent)"
               fontFamily="var(--font-mono, monospace)"
               fontWeight="600"
             >
@@ -404,7 +404,7 @@ export function StoppingPotentialPlot({
                     cx={cx}
                     cy={cy}
                     r="4"
-                    fill="#d97706"
+                    fill="var(--accent)"
                     stroke="var(--panel)"
                     strokeWidth="1"
                   />
@@ -423,7 +423,7 @@ export function StoppingPotentialPlot({
                 cx={scaleX(currentFrequency)}
                 cy={scaleY(currentStoppingPotential)}
                 r="6"
-                fill="#10b981"
+                fill="var(--plot)"
                 stroke="var(--panel)"
                 strokeWidth="2"
               />
@@ -607,7 +607,7 @@ export function CurrentVoltagePlot({
           y1={yZeroI}
           x2={Math.min(xZero, Math.max(padding.left, xCutoff))}
           y2={yZeroI}
-          stroke="#3b82f6"
+          stroke="var(--plot)"
           strokeWidth="2.5"
         />
 
@@ -616,7 +616,7 @@ export function CurrentVoltagePlot({
           <path
             d={`M ${Math.max(padding.left, xCutoff)} ${yZeroI} Q ${(Math.max(padding.left, xCutoff) + xZero) / 2} ${yZeroI} ${xZero} ${ySat}`}
             fill="none"
-            stroke="#9333ea"
+            stroke="var(--accent)"
             strokeWidth="2"
             strokeDasharray="4 3"
           />
@@ -628,20 +628,20 @@ export function CurrentVoltagePlot({
           y1={ySat}
           x2={width - padding.right}
           y2={ySat}
-          stroke="#3b82f6"
+          stroke="var(--plot)"
           strokeWidth="2.5"
         />
 
         {/* Stopping potential mark */}
         {vs > 0 && (
           <g>
-            <circle cx={xCutoff} cy={yZeroI} r="4" fill="#e11d48" />
+            <circle cx={xCutoff} cy={yZeroI} r="4" fill="var(--accent)" />
             <text
               x={xCutoff}
               y={yZeroI - 8}
               textAnchor="middle"
               fontSize="10"
-              fill="#e11d48"
+              fill="var(--accent)"
               fontFamily="var(--font-mono, monospace)"
               fontWeight="600"
             >
@@ -664,7 +664,7 @@ export function CurrentVoltagePlot({
                     : (ySat + yZeroI) / 2
             }
             r="5"
-            fill="#10b981"
+            fill="var(--plot)"
             stroke="var(--panel)"
             strokeWidth="1.5"
           />
