@@ -93,12 +93,19 @@ export function ElectronDynamicsPlot({
   );
 
   return (
-    <div className="flex flex-col gap-4">
+    <div style={{ display: "flex", flexDirection: "column", gap: "1rem" }}>
       {/* SVG Canvas */}
-      <div className="rounded-lg border border-border/50 bg-background/80 p-4 shadow-sm">
+      <div
+        style={{
+          borderRadius: "0.5rem",
+          border: "1px solid var(--line)",
+          background: "var(--panel)",
+          padding: "1rem",
+        }}
+      >
         <svg
           viewBox={`0 0 ${width} ${height}`}
-          className="w-full h-auto select-none"
+          style={{ width: "100%", height: "auto", display: "block", userSelect: "none" }}
           role="img"
           aria-label={`Electron dynamics trajectory diagram: initial speed v = ${beta.toFixed(2)}c, gamma = ${gamma.toFixed(4)}`}
         >
@@ -110,9 +117,9 @@ export function ElectronDynamicsPlot({
               <path
                 d="M 40 0 L 0 0 0 40"
                 fill="none"
-                stroke="currentColor"
-                className="text-border/20"
+                stroke="var(--line)"
                 strokeWidth="0.5"
+                strokeOpacity={0.4}
               />
             </pattern>
             <marker
@@ -124,7 +131,7 @@ export function ElectronDynamicsPlot({
               markerHeight="6"
               orient="auto-start-reverse"
             >
-              <path d="M 0 0 L 10 5 L 0 10 z" fill="#3b82f6" />
+              <path d="M 0 0 L 10 5 L 0 10 z" fill="var(--plot)" />
             </marker>
             <marker
               id="arrow-field-e"
@@ -135,7 +142,7 @@ export function ElectronDynamicsPlot({
               markerHeight="6"
               orient="auto-start-reverse"
             >
-              <path d="M 0 0 L 10 5 L 0 10 z" fill="#ef4444" />
+              <path d="M 0 0 L 10 5 L 0 10 z" fill="var(--accent)" />
             </marker>
           </defs>
 
@@ -147,17 +154,33 @@ export function ElectronDynamicsPlot({
             y={20}
             width={width - originX}
             height={height - 40}
-            fill="currentColor"
-            className="text-muted/10"
+            fill="var(--wash)"
             rx={6}
             strokeDasharray="4 4"
-            stroke="currentColor"
+            stroke="var(--line)"
           />
 
-          <text x={originX} y={45} className="fill-foreground font-semibold text-sm">
+          <text
+            x={originX}
+            y={45}
+            style={{
+              fill: "var(--ink)",
+              fontWeight: 600,
+              fontSize: "14px",
+              fontFamily: "var(--font-sans)",
+            }}
+          >
             Uniform Field Chamber (E = {eMag.toExponential(1)} V/m, B = {bMag.toFixed(3)} T)
           </text>
-          <text x={originX} y={65} className="fill-muted-foreground text-xs font-mono">
+          <text
+            x={originX}
+            y={65}
+            style={{
+              fill: "var(--muted)",
+              fontSize: "12px",
+              fontFamily: "var(--font-mono)",
+            }}
+          >
             v₀ = {beta.toFixed(3)}c · γ = {gamma.toFixed(4)} · Convention: {forceConvention} (
             {massLanguage === "1905" ? "1905 masses" : "Modern momentum"})
           </text>
@@ -170,11 +193,19 @@ export function ElectronDynamicsPlot({
                 y1={0}
                 x2={0}
                 y2={40}
-                stroke="#ef4444"
+                stroke="var(--accent)"
                 strokeWidth={2}
                 markerEnd="url(#arrow-field-e)"
               />
-              <text x={10} y={25} className="fill-red-500 font-mono text-xs">
+              <text
+                x={10}
+                y={25}
+                style={{
+                  fill: "var(--accent)",
+                  fontFamily: "var(--font-mono)",
+                  fontSize: "12px",
+                }}
+              >
                 E_y
               </text>
             </g>
@@ -182,9 +213,17 @@ export function ElectronDynamicsPlot({
 
           {bMag > 0 ? (
             <g transform="translate(740, 70)">
-              <circle cx={0} cy={20} r={10} fill="none" stroke="#8b5cf6" strokeWidth={1.5} />
-              <circle cx={0} cy={20} r={3} fill="#8b5cf6" />
-              <text x={15} y={25} className="fill-purple-500 font-mono text-xs">
+              <circle cx={0} cy={20} r={10} fill="none" stroke="var(--plot)" strokeWidth={1.5} />
+              <circle cx={0} cy={20} r={3} fill="var(--plot)" />
+              <text
+                x={15}
+                y={25}
+                style={{
+                  fill: "var(--plot)",
+                  fontFamily: "var(--font-mono)",
+                  fontSize: "12px",
+                }}
+              >
                 B_z (⊙ out)
               </text>
             </g>
@@ -196,8 +235,7 @@ export function ElectronDynamicsPlot({
             y1={originY}
             x2={width - 40}
             y2={originY}
-            stroke="currentColor"
-            className="text-border/60"
+            stroke="var(--line)"
             strokeWidth={1}
           />
           <line
@@ -205,37 +243,39 @@ export function ElectronDynamicsPlot({
             y1={30}
             x2={originX}
             y2={height - 30}
-            stroke="currentColor"
-            className="text-border/60"
+            stroke="var(--line)"
             strokeWidth={1}
           />
-          <text x={width - 30} y={originY + 4} className="fill-muted-foreground text-[10px]">
+          <text
+            x={width - 30}
+            y={originY + 4}
+            style={{ fill: "var(--muted)", fontSize: "10px", fontFamily: "var(--font-sans)" }}
+          >
             x
           </text>
           <text
             x={originX}
             y={25}
-            className="fill-muted-foreground text-[10px]"
+            style={{ fill: "var(--muted)", fontSize: "10px", fontFamily: "var(--font-sans)" }}
             textAnchor="middle"
           >
             y
           </text>
 
           {/* Trajectory Curve */}
-          <path
-            d={pathD}
-            fill="none"
-            stroke="#2563eb"
-            strokeWidth={3}
-            className="transition-all duration-200"
-          />
+          <path d={pathD} fill="none" stroke="var(--plot)" strokeWidth={3} />
 
           {/* Initial Entry Point */}
-          <circle cx={originX} cy={originY} r={5} fill="#1d4ed8" />
+          <circle cx={originX} cy={originY} r={5} fill="var(--ink)" />
           <text
             x={originX - 60}
             y={originY + 4}
-            className="fill-primary text-xs font-mono font-medium"
+            style={{
+              fill: "var(--ink)",
+              fontSize: "12px",
+              fontFamily: "var(--font-mono)",
+              fontWeight: 500,
+            }}
           >
             e⁻ entry
           </text>
@@ -246,13 +286,13 @@ export function ElectronDynamicsPlot({
             if (!lastPt) return null;
             return (
               <g transform={`translate(${lastPt.x}, ${lastPt.y})`}>
-                <circle cx={0} cy={0} r={6} fill="#3b82f6" />
+                <circle cx={0} cy={0} r={6} fill="var(--plot)" />
                 <circle
                   cx={0}
                   cy={0}
                   r={10}
                   fill="none"
-                  stroke="#3b82f6"
+                  stroke="var(--plot)"
                   strokeWidth={1}
                   strokeDasharray="2 2"
                 />
@@ -295,7 +335,12 @@ export function ElectronDynamicsPlot({
                   <text
                     x={originX + 20}
                     y={height - 40}
-                    className="fill-amber-600 dark:fill-amber-400 text-[11px] font-mono font-medium"
+                    style={{
+                      fill: "var(--accent)",
+                      fontSize: "11px",
+                      fontFamily: "var(--font-mono)",
+                      fontWeight: 500,
+                    }}
                   >
                     ◆ Kaufmann 1902–1906 Radium β-ray Deflections (Ambiguous in 1905–1906)
                   </text>
@@ -333,7 +378,12 @@ export function ElectronDynamicsPlot({
                   <text
                     x={originX + 20}
                     y={height - 40}
-                    className="fill-emerald-600 dark:fill-emerald-400 text-[11px] font-mono font-medium"
+                    style={{
+                      fill: "var(--plot)",
+                      fontSize: "11px",
+                      fontFamily: "var(--font-mono)",
+                      fontWeight: 500,
+                    }}
                   >
                     ■ Bucherer 1908 Crossed-Field Velocity Filter (Later Evidence favoring
                     Lorentz–Einstein)
@@ -346,110 +396,272 @@ export function ElectronDynamicsPlot({
       </div>
 
       {/* Mass Coefficients & Definitions Grid */}
-      <div className="grid grid-cols-1 sm:grid-cols-3 gap-3 text-xs">
-        <div className="p-3 rounded-md border border-border/40 bg-muted/20">
-          <div className="text-muted-foreground font-medium">Longitudinal Mass (m · γ³)</div>
-          <div className="text-base font-mono font-semibold mt-1 text-primary">
+      <div
+        style={{
+          display: "grid",
+          gridTemplateColumns: "repeat(auto-fit, minmax(220px, 1fr))",
+          gap: "0.75rem",
+          fontSize: "0.8rem",
+        }}
+      >
+        <div
+          style={{
+            padding: "0.75rem",
+            borderRadius: "0.375rem",
+            border: "1px solid var(--line)",
+            background: "var(--wash)",
+          }}
+        >
+          <div style={{ color: "var(--muted)", fontWeight: 500 }}>Longitudinal Mass (m · γ³)</div>
+          <div
+            style={{
+              fontSize: "1rem",
+              fontFamily: "var(--font-mono)",
+              fontWeight: 600,
+              marginTop: "0.25rem",
+              color: "var(--ink)",
+            }}
+          >
             {(longitudinalMassKg / (particle === "electron" ? 9.1093837e-31 : 1)).toFixed(6)} m
           </div>
-          <div className="text-[11px] text-muted-foreground mt-1">
+          <div className="fine" style={{ marginTop: "0.25rem", fontSize: "0.75rem" }}>
             Section 10 formula: μ / (1 - v²/V²)^(3/2) = γ³m
           </div>
         </div>
 
-        <div className="p-3 rounded-md border border-border/40 bg-muted/20">
-          <div className="text-muted-foreground font-medium">
+        <div
+          style={{
+            padding: "0.75rem",
+            borderRadius: "0.375rem",
+            border: "1px solid var(--line)",
+            background: "var(--wash)",
+          }}
+        >
+          <div style={{ color: "var(--muted)", fontWeight: 500 }}>
             Transverse Mass: Comoving (Einstein 1905)
           </div>
-          <div className="text-base font-mono font-semibold mt-1 text-amber-600 dark:text-amber-400">
+          <div
+            style={{
+              fontSize: "1rem",
+              fontFamily: "var(--font-mono)",
+              fontWeight: 600,
+              marginTop: "0.25rem",
+              color: "var(--accent)",
+            }}
+          >
             {(transverseMassComovingKg / (particle === "electron" ? 9.1093837e-31 : 1)).toFixed(6)}{" "}
             m
           </div>
-          <div className="text-[11px] text-muted-foreground mt-1">
+          <div className="fine" style={{ marginTop: "0.25rem", fontSize: "0.75rem" }}>
             Comoving force / Stationary acceleration: F′_y / a_y = γ²m
           </div>
         </div>
 
-        <div className="p-3 rounded-md border border-border/40 bg-muted/20">
-          <div className="text-muted-foreground font-medium">
+        <div
+          style={{
+            padding: "0.75rem",
+            borderRadius: "0.375rem",
+            border: "1px solid var(--line)",
+            background: "var(--wash)",
+          }}
+        >
+          <div style={{ color: "var(--muted)", fontWeight: 500 }}>
             Transverse Mass: Laboratory (Planck 1906)
           </div>
-          <div className="text-base font-mono font-semibold mt-1 text-emerald-600 dark:text-emerald-400">
+          <div
+            style={{
+              fontSize: "1rem",
+              fontFamily: "var(--font-mono)",
+              fontWeight: 600,
+              marginTop: "0.25rem",
+              color: "var(--plot)",
+            }}
+          >
             {(transverseMassLaboratoryKg / (particle === "electron" ? 9.1093837e-31 : 1)).toFixed(
               6,
             )}{" "}
             m
           </div>
-          <div className="text-[11px] text-muted-foreground mt-1">
+          <div className="fine" style={{ marginTop: "0.25rem", fontSize: "0.75rem" }}>
             Laboratory force / Stationary acceleration: F_y / a_y = γm
           </div>
         </div>
       </div>
 
       {/* Kinetic Energy & Potential Grid */}
-      <div className="grid grid-cols-2 sm:grid-cols-4 gap-3 text-xs">
-        <div className="p-2.5 rounded-md border border-border/40 bg-muted/20">
-          <div className="text-muted-foreground">Relativistic Kinetic Energy W</div>
-          <div className="text-sm font-mono font-semibold mt-0.5 text-primary">
+      <div
+        style={{
+          display: "grid",
+          gridTemplateColumns: "repeat(auto-fit, minmax(160px, 1fr))",
+          gap: "0.75rem",
+          fontSize: "0.8rem",
+        }}
+      >
+        <div
+          style={{
+            padding: "0.625rem",
+            borderRadius: "0.375rem",
+            border: "1px solid var(--line)",
+            background: "var(--wash)",
+          }}
+        >
+          <div style={{ color: "var(--muted)" }}>Relativistic Kinetic Energy W</div>
+          <div
+            style={{
+              fontSize: "0.875rem",
+              fontFamily: "var(--font-mono)",
+              fontWeight: 600,
+              marginTop: "0.125rem",
+              color: "var(--ink)",
+            }}
+          >
             {(kineticEnergyJ / 1.602176634e-19 / 1e3).toFixed(2)} keV
           </div>
-          <div className="text-[10px] text-muted-foreground mt-0.5">mc²(γ − 1)</div>
+          <div className="fine" style={{ marginTop: "0.125rem", fontSize: "0.7rem" }}>
+            mc²(γ − 1)
+          </div>
         </div>
 
-        <div className="p-2.5 rounded-md border border-border/40 bg-muted/20">
-          <div className="text-muted-foreground">Newtonian Kinetic Energy</div>
-          <div className="text-sm font-mono font-semibold mt-0.5">
+        <div
+          style={{
+            padding: "0.625rem",
+            borderRadius: "0.375rem",
+            border: "1px solid var(--line)",
+            background: "var(--wash)",
+          }}
+        >
+          <div style={{ color: "var(--muted)" }}>Newtonian Kinetic Energy</div>
+          <div
+            style={{
+              fontSize: "0.875rem",
+              fontFamily: "var(--font-mono)",
+              fontWeight: 600,
+              marginTop: "0.125rem",
+            }}
+          >
             {(kineticEnergyNewtonianJ / 1.602176634e-19 / 1e3).toFixed(2)} keV
           </div>
-          <div className="text-[10px] text-muted-foreground mt-0.5">½mv²</div>
+          <div className="fine" style={{ marginTop: "0.125rem", fontSize: "0.7rem" }}>
+            ½mv²
+          </div>
         </div>
 
-        <div className="p-2.5 rounded-md border border-border/40 bg-muted/20">
-          <div className="text-muted-foreground">Accelerating Potential P</div>
-          <div className="text-sm font-mono font-semibold mt-0.5 text-emerald-600 dark:text-emerald-400">
+        <div
+          style={{
+            padding: "0.625rem",
+            borderRadius: "0.375rem",
+            border: "1px solid var(--line)",
+            background: "var(--wash)",
+          }}
+        >
+          <div style={{ color: "var(--muted)" }}>Accelerating Potential P</div>
+          <div
+            style={{
+              fontSize: "0.875rem",
+              fontFamily: "var(--font-mono)",
+              fontWeight: 600,
+              marginTop: "0.125rem",
+              color: "var(--plot)",
+            }}
+          >
             {(acceleratingPotentialV / 1e3).toFixed(2)} kV
           </div>
-          <div className="text-[10px] text-muted-foreground mt-0.5">W / e (exact)</div>
+          <div className="fine" style={{ marginTop: "0.125rem", fontSize: "0.7rem" }}>
+            W / e (exact)
+          </div>
         </div>
 
-        <div className="p-2.5 rounded-md border border-border/40 bg-muted/20">
-          <div className="text-muted-foreground">Newtonian Potential</div>
-          <div className="text-sm font-mono font-semibold mt-0.5">
+        <div
+          style={{
+            padding: "0.625rem",
+            borderRadius: "0.375rem",
+            border: "1px solid var(--line)",
+            background: "var(--wash)",
+          }}
+        >
+          <div style={{ color: "var(--muted)" }}>Newtonian Potential</div>
+          <div
+            style={{
+              fontSize: "0.875rem",
+              fontFamily: "var(--font-mono)",
+              fontWeight: 600,
+              marginTop: "0.125rem",
+            }}
+          >
             {(acceleratingPotentialNewtonianV / 1e3).toFixed(2)} kV
           </div>
-          <div className="text-[10px] text-muted-foreground mt-0.5">½mv² / e</div>
+          <div className="fine" style={{ marginTop: "0.125rem", fontSize: "0.7rem" }}>
+            ½mv² / e
+          </div>
         </div>
       </div>
 
       {/* Radii & Deflection Diagnostics */}
-      <div className="grid grid-cols-1 sm:grid-cols-2 gap-3 text-xs">
-        <div className="p-2.5 rounded-md border border-border/40 bg-muted/20">
-          <div className="text-muted-foreground">Magnetic Curvature Radius (R_m)</div>
-          <div className="text-sm font-mono font-semibold mt-0.5">
+      <div
+        style={{
+          display: "grid",
+          gridTemplateColumns: "repeat(auto-fit, minmax(220px, 1fr))",
+          gap: "0.75rem",
+          fontSize: "0.8rem",
+        }}
+      >
+        <div
+          style={{
+            padding: "0.625rem",
+            borderRadius: "0.375rem",
+            border: "1px solid var(--line)",
+            background: "var(--wash)",
+          }}
+        >
+          <div style={{ color: "var(--muted)" }}>Magnetic Curvature Radius (R_m)</div>
+          <div
+            style={{
+              fontSize: "0.875rem",
+              fontFamily: "var(--font-mono)",
+              fontWeight: 600,
+              marginTop: "0.125rem",
+            }}
+          >
             {Number.isFinite(radiusCurvatureMagneticM)
               ? `${radiusCurvatureMagneticM.toFixed(4)} m`
               : "— (B = 0)"}
           </div>
-          <div className="text-[10px] text-muted-foreground mt-0.5">γmv / (|q|B)</div>
+          <div className="fine" style={{ marginTop: "0.125rem", fontSize: "0.7rem" }}>
+            γmv / (|q|B)
+          </div>
         </div>
 
-        <div className="p-2.5 rounded-md border border-border/40 bg-muted/20">
-          <div className="text-muted-foreground">Electric Curvature Radius (R_e)</div>
-          <div className="text-sm font-mono font-semibold mt-0.5">
+        <div
+          style={{
+            padding: "0.625rem",
+            borderRadius: "0.375rem",
+            border: "1px solid var(--line)",
+            background: "var(--wash)",
+          }}
+        >
+          <div style={{ color: "var(--muted)" }}>Electric Curvature Radius (R_e)</div>
+          <div
+            style={{
+              fontSize: "0.875rem",
+              fontFamily: "var(--font-mono)",
+              fontWeight: 600,
+              marginTop: "0.125rem",
+            }}
+          >
             {Number.isFinite(radiusCurvatureElectricM)
               ? `${radiusCurvatureElectricM.toFixed(4)} m`
               : "— (E = 0)"}
           </div>
-          <div className="text-[10px] text-muted-foreground mt-0.5">γmv² / (|q|E)</div>
+          <div className="fine" style={{ marginTop: "0.125rem", fontSize: "0.7rem" }}>
+            γmv² / (|q|E)
+          </div>
         </div>
       </div>
 
       {/* Convention Insight Note */}
-      <div className="p-3 rounded-md border border-blue-500/40 bg-blue-500/10 text-xs">
-        <div className="font-semibold text-blue-900 dark:text-blue-300">
-          Force Definition Convention Independence
-        </div>
-        <p className="mt-1 text-blue-950/90 dark:text-blue-200/90">
+      <div className="notice" style={{ fontSize: "0.8rem" }}>
+        <div style={{ fontWeight: 600 }}>Force Definition Convention Independence</div>
+        <p style={{ margin: "0.25rem 0 0" }}>
           Switching between Einstein&apos;s 1905 convention (comoving force / stationary
           acceleration, transverse coefficient 1.5625m at 0.6c) and Planck&apos;s 1906 convention
           (laboratory force, transverse coefficient 1.25m) alters only the named coefficient in the

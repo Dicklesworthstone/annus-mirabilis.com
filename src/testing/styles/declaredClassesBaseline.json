@@ -65,7 +65,7 @@
   "src/components/lab/sr11/MovingMirrorPlot.tsx": 59,
   "src/components/lab/sr12/ChargeCurrentLab.tsx": 0,
   "src/components/lab/sr12/ChargeCurrentPlot.tsx": 81,
-  "src/components/lab/sr13/ElectronDynamicsPlot.tsx": 203,
+  "src/components/lab/sr13/ElectronDynamicsPlot.tsx": 0,
   "src/discovery/Branch.tsx": 114,
   "src/discovery/Doors.tsx": 83,
   "src/discovery/ExerciseList.tsx": 71,
