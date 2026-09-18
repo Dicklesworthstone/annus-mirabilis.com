@@ -1090,7 +1090,10 @@ export const checkEquationNotIdentical: ContentCheck = {
       // Source equation block (German)
       if (
         kind === "source-block" &&
-        (rec.kind === "equation" || id.startsWith("eq-") || id.includes("-eq-"))
+        (rec.kind === "equation" ||
+          typeof rec.latex === "string" ||
+          typeof rec.math === "string" ||
+          /(?:^|-)eq(?:\d+|-|$)/i.test(id))
       ) {
         const mathContent =
           typeof rec.latex === "string"
@@ -1104,7 +1107,19 @@ export const checkEquationNotIdentical: ContentCheck = {
       // Translation equation unit (English)
       if (
         kind === "translation-unit" &&
-        (id.startsWith("eq-") || id.includes("-eq-") || Array.isArray(rec.sourceRefs))
+        (rec.kind === "equation" ||
+          typeof rec.latex === "string" ||
+          typeof rec.math === "string" ||
+          /(?:^|-)eq(?:\d+|-|$)/i.test(id) ||
+          (Array.isArray(rec.sourceRefs) &&
+            rec.sourceRefs.some(
+              (r) =>
+                typeof r === "object" &&
+                r &&
+                "id" in r &&
+                typeof r.id === "string" &&
+                /(?:^|-)eq(?:\d+|-|$)/i.test(r.id),
+            )))
       ) {
         const mathContent =
           typeof rec.latex === "string"

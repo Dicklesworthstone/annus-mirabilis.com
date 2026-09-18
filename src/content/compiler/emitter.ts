@@ -63,7 +63,8 @@ function sortKeysRecursively(value: unknown): unknown {
 
 const sha256Digest = (s: string | Uint8Array) => createHash("sha256").update(s).digest("hex");
 
-function markdownBlocks(blocks: readonly Block[]): string {
+function markdownBlocks(blocks: readonly Block[] | undefined): string {
+  if (!blocks) return "";
   return blocks
     .map((b) =>
       b.kind === "paragraph"
@@ -79,10 +80,10 @@ function markdownBlocks(blocks: readonly Block[]): string {
 
 function markdownPaper(p: PaperPayload): string {
   return `# ${p.paper.title}\n\n${p.paper.sourceNotice}\n\n${p.arguments
-    .map(
-      (a) =>
-        `## ${a.title}\n\n${a.question}\n\n${markdownBlocks(a.readings.full)}\n\n### Model limits\n\n${a.limitations.join("\n\n")}`,
-    )
+    .map((a) => {
+      const readings = a.readings as Record<string, readonly Block[] | undefined> | undefined;
+      return `## ${a.title}\n\n${a.question ?? ""}\n\n${markdownBlocks(readings?.full ?? readings?.["full-explanation"])}\n\n### Model limits\n\n${(a.limitations ?? []).join("\n\n")}`;
+    })
     .join("\n\n")}\n`;
 }
 
@@ -133,21 +134,22 @@ export async function emitPayloads(options: EmitOptions): Promise<ContentBuildIn
     const md =
       markdownPaper(paper) +
       paper.equations
-        .map(
-          (e) => `
+        .map((e) => {
+          const rawLatex = "latex" in e && typeof e.latex === "string" ? e.latex : "";
+          return `
 ## ${e.title}
 
 Modern teaching equation; review pending.
 
 $$
-${expressionLatex(e.tree, BROWNIAN_QUANTITIES)}
+${e.tree ? expressionLatex(e.tree, BROWNIAN_QUANTITIES) : rawLatex}
 $$
 
-${e.spoken}
+${e.spoken ?? ""}
 
-${e.explanation}
-`,
-        )
+${e.explanation ?? ""}
+`;
+        })
         .join("\n");
 
     const inputRecords = [
