@@ -65,9 +65,9 @@ export function RodStripPlot({
             fontFamily: "var(--font-mono, monospace)",
             padding: "0.125rem 0.5rem",
             borderRadius: "0.25rem",
-            background: "rgba(14, 165, 233, 0.15)",
-            color: "#38bdf8",
-            border: "1px solid rgba(14, 165, 233, 0.3)",
+            background: "var(--wash)",
+            color: "var(--ink)",
+            border: "1px solid var(--line)",
           }}
         >
           Rest: frame {rodRestFrame} | Measuring: frame {measuringFrame} | v = {v.toFixed(2)}c
@@ -95,12 +95,12 @@ export function RodStripPlot({
         Interval: Δx={(measuringFrame === "K" ? dxK : dxk).toFixed(2)} ls, cΔt=
         {(measuringFrame === "K" ? dtK : dtk).toFixed(2)} s{" "}
         {isSimultaneous ? (
-          <span style={{ color: "#34d399" }}>
+          <span style={{ color: "var(--plot)" }}>
             [Simultaneous: L ={" "}
             {measuredLength !== null ? `${measuredLength.toFixed(2)} ls` : "refused"}]
           </span>
         ) : (
-          <span style={{ color: "#f59e0b" }}>[Non-simultaneous: length measurement refused]</span>
+          <span style={{ color: "var(--accent)" }}>[Non-simultaneous: length measurement refused]</span>
         )}
       </div>
 
@@ -158,7 +158,7 @@ export function RodStripPlot({
             fontSize="10"
             fontFamily="monospace"
             fontWeight="bold"
-            fill="#020617"
+            fill="black"
           >
             {rodRestFrame === "K"
               ? `${L0.toFixed(1)} ls (Proper L₀)`
@@ -215,7 +215,7 @@ export function RodStripPlot({
             fontSize="10"
             fontFamily="monospace"
             fontWeight="bold"
-            fill="#020617"
+            fill="black"
           >
             {rodRestFrame === "k"
               ? `${L0.toFixed(1)} ls (Proper L₀)`

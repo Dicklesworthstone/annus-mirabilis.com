@@ -180,6 +180,52 @@ export const DATA_COLOR_ALLOWLIST: readonly DataColorAllowlistEntry[] = [
     hex: "#ff0000",
     reason: "False-color spectrum legend: red wavelength band",
   },
+  // Special relativity frame, simultaneity, and contraction data colors in RodSimultaneityPlots:
+  {
+    file: "src/components/lab/RodSimultaneityPlots.tsx",
+    hex: "#38bdf8",
+    reason: "Rest-frame proper length L0 rod fill and moving sphere (§4) contracted ellipsoid visual fill",
+  },
+  {
+    file: "src/components/lab/RodSimultaneityPlots.tsx",
+    hex: "#f59e0b",
+    reason: "Moving-frame Lorentz-contracted length L0/gamma rod fill in relative motion",
+  },
+  {
+    file: "src/components/lab/RodSimultaneityPlots.tsx",
+    hex: "#0284c7",
+    reason: "Platform Frame K boundary stroke, 45-degree invariant light cone worldlines, and §4 longitudinal contraction axis",
+  },
+  {
+    file: "src/components/lab/RodSimultaneityPlots.tsx",
+    hex: "#d97706",
+    reason: "Moving Frame k boundary stroke, and boosted primed coordinate axes (x', ct') tilted by arctan(v/c)",
+  },
+  {
+    file: "src/components/lab/RodSimultaneityPlots.tsx",
+    hex: "#ef4444",
+    reason: "Physical rod endpoint coordinate measurement events at x=0 and x=L",
+  },
+  {
+    file: "src/components/lab/RodSimultaneityPlots.tsx",
+    hex: "#10b981",
+    reason: "Spacetime origin reference event E1(0,0) marker in Minkowski diagram",
+  },
+  {
+    file: "src/components/lab/RodSimultaneityPlots.tsx",
+    hex: "#059669",
+    reason: "Spacetime origin reference event E1(0,0) coordinate label text in Minkowski diagram",
+  },
+  {
+    file: "src/components/lab/RodSimultaneityPlots.tsx",
+    hex: "#f43f5e",
+    reason: "Spacetime comparison event E2(dx, c*dt) marker in Minkowski diagram",
+  },
+  {
+    file: "src/components/lab/RodSimultaneityPlots.tsx",
+    hex: "#e11d48",
+    reason: "Spacetime comparison event E2(dx, c*dt) coordinate label text in Minkowski diagram",
+  },
 ];
 
 const HEX_COLOR_RE = /#(?:[0-9a-fA-F]{8}|[0-9a-fA-F]{6}|[0-9a-fA-F]{4}|[0-9a-fA-F]{3})\b/g;
