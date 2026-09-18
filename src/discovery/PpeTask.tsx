@@ -11,36 +11,149 @@ export function PpeTask({ task }: PpeTaskProps) {
     <section
       id={promptId}
       data-ppe-task-id={promptId}
-      className="ppe-task my-8 p-6 rounded-xl border border-indigo-700/60 bg-indigo-950/20 text-stone-200 space-y-4"
+      style={{
+        margin: "2rem 0",
+        padding: "1.5rem",
+        borderRadius: "0.75rem",
+        border: "1px solid var(--line)",
+        background: "var(--wash)",
+        color: "var(--ink)",
+        display: "flex",
+        flexDirection: "column",
+        gap: "1rem",
+      }}
     >
-      <header className="border-b border-indigo-800/40 pb-3 flex items-center justify-between">
+      <header
+        style={{
+          borderBottom: "1px solid var(--line)",
+          paddingBottom: "0.75rem",
+          display: "flex",
+          alignItems: "center",
+          justifyContent: "space-between",
+        }}
+      >
         <div>
-          <span className="text-xs font-mono uppercase tracking-wider text-indigo-400 font-bold block">
+          <span
+            className="eyebrow"
+            style={{
+              fontSize: "0.75rem",
+              fontFamily: "var(--font-mono, monospace)",
+              textTransform: "uppercase",
+              letterSpacing: "0.05em",
+              color: "var(--accent)",
+              fontWeight: "bold",
+              display: "block",
+            }}
+          >
             Predict · Perturb · Explain
           </span>
-          <h3 className="text-lg font-serif font-bold text-stone-100 mt-1">
+          <h3
+            style={{
+              fontSize: "1.125rem",
+              fontFamily: "var(--font-serif)",
+              fontWeight: "bold",
+              color: "var(--ink)",
+              margin: "0.25rem 0 0",
+            }}
+          >
             Physical Insight Challenge
           </h3>
         </div>
-        <span className="font-mono text-xs text-indigo-300/80">#{promptId}</span>
+        <span
+          style={{
+            fontFamily: "var(--font-mono, monospace)",
+            fontSize: "0.75rem",
+            color: "var(--muted)",
+          }}
+        >
+          #{promptId}
+        </span>
       </header>
 
-      <div className="grid grid-cols-1 md:grid-cols-3 gap-4 text-xs">
-        <div className="p-3.5 rounded bg-stone-900/80 border border-stone-800 space-y-1">
-          <span className="font-bold text-amber-400 block uppercase tracking-wide">1. Predict</span>
-          <p className="text-stone-200">{taskPrompt}</p>
+      <div
+        style={{
+          display: "grid",
+          gridTemplateColumns: "repeat(auto-fit, minmax(220px, 1fr))",
+          gap: "1rem",
+          fontSize: "0.75rem",
+        }}
+      >
+        <div
+          style={{
+            padding: "0.875rem",
+            borderRadius: "0.375rem",
+            background: "var(--panel)",
+            border: "1px solid var(--line)",
+            display: "flex",
+            flexDirection: "column",
+            gap: "0.25rem",
+          }}
+        >
+          <span
+            className="eyebrow"
+            style={{
+              fontWeight: "bold",
+              color: "var(--accent)",
+              display: "block",
+              textTransform: "uppercase",
+              letterSpacing: "0.05em",
+            }}
+          >
+            1. Predict
+          </span>
+          <p style={{ color: "var(--ink)", margin: 0 }}>{taskPrompt}</p>
         </div>
 
-        <div className="p-3.5 rounded bg-stone-900/80 border border-stone-800 space-y-1">
-          <span className="font-bold text-cyan-400 block uppercase tracking-wide">2. Perturb</span>
-          <p className="text-stone-200">{perturbPrompt}</p>
+        <div
+          style={{
+            padding: "0.875rem",
+            borderRadius: "0.375rem",
+            background: "var(--panel)",
+            border: "1px solid var(--line)",
+            display: "flex",
+            flexDirection: "column",
+            gap: "0.25rem",
+          }}
+        >
+          <span
+            className="eyebrow"
+            style={{
+              fontWeight: "bold",
+              color: "var(--ink)",
+              display: "block",
+              textTransform: "uppercase",
+              letterSpacing: "0.05em",
+            }}
+          >
+            2. Perturb
+          </span>
+          <p style={{ color: "var(--ink)", margin: 0 }}>{perturbPrompt}</p>
         </div>
 
-        <div className="p-3.5 rounded bg-stone-900/80 border border-stone-800 space-y-1">
-          <span className="font-bold text-emerald-400 block uppercase tracking-wide">
+        <div
+          style={{
+            padding: "0.875rem",
+            borderRadius: "0.375rem",
+            background: "var(--panel)",
+            border: "1px solid var(--line)",
+            display: "flex",
+            flexDirection: "column",
+            gap: "0.25rem",
+          }}
+        >
+          <span
+            className="eyebrow"
+            style={{
+              fontWeight: "bold",
+              color: "var(--muted)",
+              display: "block",
+              textTransform: "uppercase",
+              letterSpacing: "0.05em",
+            }}
+          >
             3. Explain
           </span>
-          <p className="text-stone-200">{explainPrompt}</p>
+          <p style={{ color: "var(--ink)", margin: 0 }}>{explainPrompt}</p>
         </div>
       </div>
     </section>
