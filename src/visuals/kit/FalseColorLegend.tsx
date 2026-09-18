@@ -1,4 +1,5 @@
 import type { ReactElement } from "react";
+import "./legends.css";
 
 export interface FalseColorLegendProps {
   readonly minWavelengthNm: number;
@@ -31,29 +32,59 @@ export function FalseColorLegend({
 
   return (
     <div
-      className={`false-color-legend border border-amber-300 dark:border-amber-700 bg-amber-50 dark:bg-amber-950/30 p-2 rounded text-xs ${className}`.trim()}
+      className={`false-color-legend ${className}`.trim()}
       data-false-color-legend="true"
       data-has-invisible-light={hasInvisibleLight}
       role="note"
       aria-label={title}
+      style={{
+        border: hasInvisibleLight ? "1px solid var(--accent)" : "1px solid var(--line)",
+        background: "var(--wash)",
+        padding: "0.5rem",
+        borderRadius: "0.25rem",
+        fontSize: "0.75rem",
+      }}
     >
-      <div className="flex items-center justify-between mb-1">
-        <span className="font-semibold text-amber-900 dark:text-amber-200">
+      <div
+        style={{
+          display: "flex",
+          alignItems: "center",
+          justifyContent: "space-between",
+          marginBottom: "0.25rem",
+          gap: "0.5rem",
+        }}
+      >
+        <span
+          style={{
+            fontWeight: 600,
+            color: hasInvisibleLight ? "var(--accent)" : "var(--ink)",
+          }}
+        >
           {hasInvisibleLight ? "⚠ False-Color Mapping" : "Visible Spectrum"}
         </span>
-        <span className="text-neutral-600 dark:text-neutral-400">
+        <span style={{ color: "var(--muted)" }}>
           Range: {minWavelengthNm}–{maxWavelengthNm} nm
         </span>
       </div>
       {hasInvisibleLight && (
-        <p className="text-amber-800 dark:text-amber-300 text-[11px] leading-tight mb-1.5">
+        <p
+          style={{
+            color: "var(--muted)",
+            fontSize: "0.6875rem",
+            lineHeight: 1.3,
+            margin: "0 0 0.375rem",
+          }}
+        >
           Frequencies outside the visible band (380–750 nm) are mapped to display colors. Colors
           represent spectral intensity, not direct human visual perception.
         </p>
       )}
       <div
-        className="spectrum-bar h-2 w-full rounded"
+        className="spectrum-bar"
         style={{
+          height: "0.5rem",
+          width: "100%",
+          borderRadius: "0.25rem",
           background:
             "linear-gradient(to right, #4b0082, #0000ff, #00ff00, #ffff00, #ff7f00, #ff0000)",
         }}
