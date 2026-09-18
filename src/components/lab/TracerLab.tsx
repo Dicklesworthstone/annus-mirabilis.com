@@ -50,18 +50,21 @@ function SamplingBand({
 }
 export function TracerLab({
   example,
+  instanceId: explicitInstanceId,
   title = "The tracer ensemble",
   equationScope,
   equationScopeLabel,
 }: {
   example: PreparedBm01Example;
+  instanceId?: string | undefined;
   title?: string;
   equationScope?: string | undefined;
   equationScopeLabel?: string | undefined;
 }) {
-  const id = useId();
+  const generatedId = useId();
+  const id = explicitInstanceId ?? generatedId;
   const [session] = useState(() =>
-    createBm01Session(`bm01-${id}`, example, createBm01BrowserChannel),
+    createBm01Session(explicitInstanceId ?? `bm01-${id}`, example, createBm01BrowserChannel),
   );
   const serverAccepted = session.getServerSnapshot().accepted;
   if (!serverAccepted) {
