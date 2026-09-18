@@ -1384,3 +1384,394 @@ html:is(
   font-weight: 600;
   color: var(--muted);
 }
+
+/* Facsimile Face & Viewer styles (am-read-facsimile-face-er0, am-vw1o) */
+.facsimile-face {
+  max-width: 960px;
+  margin: 2rem auto;
+  padding: 0 1rem;
+}
+
+.facsimile-title-group {
+  margin-bottom: 1rem;
+}
+
+.facsimile-paper-title {
+  font-size: 1.85rem;
+  margin: 0 0 0.5rem;
+}
+
+.facsimile-german-title {
+  font-style: italic;
+  color: var(--muted);
+  margin: 0 0 0.25rem;
+}
+
+.facsimile-citation {
+  font-family: var(--font-mono, monospace);
+  font-size: 0.85rem;
+  color: var(--muted);
+  margin: 0;
+}
+
+.facsimile-metadata-badge-group {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 1rem;
+  align-items: center;
+  margin-top: 1rem;
+  font-size: 0.85rem;
+}
+
+.facsimile-meta-item {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.5rem;
+  padding: 0.25rem 0.5rem;
+  background: var(--wash);
+  border: 1px solid var(--line);
+  border-radius: 4px;
+}
+
+.meta-label {
+  font-weight: 600;
+  text-transform: uppercase;
+  font-size: 0.75rem;
+  color: var(--muted);
+}
+
+.meta-digest {
+  font-family: var(--font-mono, monospace);
+  font-size: 0.8rem;
+}
+
+.meta-badge {
+  font-size: 0.75rem;
+  font-weight: 600;
+  text-transform: uppercase;
+  padding: 0.1rem 0.35rem;
+  border-radius: 3px;
+}
+
+.status-publish {
+  background: #dcfce7;
+  color: #166534;
+}
+
+.status-pin-local-only {
+  background: #fef9c3;
+  color: #854d0e;
+}
+
+.status-reference-only {
+  background: #fee2e2;
+  color: #991b1b;
+}
+
+.meta-institution {
+  font-size: 0.85rem;
+}
+
+.facsimile-notice {
+  border-left: 3px solid var(--accent);
+  background: var(--panel);
+  padding: 1rem 1.25rem;
+  margin: 1.5rem 0;
+  border-radius: 0 4px 4px 0;
+}
+
+.text-layer-notice {
+  border-left-color: #d97706;
+}
+
+.local-only-notice {
+  border-left-color: var(--accent);
+}
+
+.reference-only-notice {
+  border-left-color: #6b7280;
+}
+
+.verbatim-rights-statement {
+  margin: 0.75rem 0;
+  padding: 0.5rem 0.75rem;
+  background: var(--wash);
+  border-left: 2px solid var(--line);
+  font-style: italic;
+  font-size: 0.9rem;
+}
+
+.institution-link {
+  font-size: 0.85rem;
+  color: var(--muted);
+  margin-top: 0.5rem;
+}
+
+.facsimile-viewer-section {
+  margin: 2rem 0;
+}
+
+.facsimile-viewer {
+  border: 1px solid var(--line);
+  background: var(--panel);
+  border-radius: 6px;
+  overflow: hidden;
+}
+
+.nav-group,
+.zoom-group {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+}
+
+.toolbar-btn {
+  font-size: 0.85rem;
+  padding: 0.25rem 0.6rem;
+  background: var(--panel);
+  border: 1px solid var(--line);
+  border-radius: 4px;
+  cursor: pointer;
+  color: var(--ink);
+}
+
+.toolbar-btn:disabled {
+  opacity: 0.5;
+  cursor: not-allowed;
+}
+
+.btn-prev,
+.btn-next,
+.btn-zoom-out,
+.btn-zoom-in,
+.btn-zoom-reset {
+  /* Button specialization hooks */
+}
+
+.page-indicator-form {
+  display: flex;
+  align-items: center;
+  gap: 0.4rem;
+}
+
+.page-indicator-form input {
+  width: 3rem;
+  text-align: center;
+  padding: 0.2rem;
+  border: 1px solid var(--line);
+  border-radius: 3px;
+  font-family: var(--font-mono, monospace);
+  background: var(--wash);
+  color: var(--ink);
+}
+
+.page-total {
+  font-size: 0.85rem;
+  color: var(--muted);
+}
+
+.printed-page-indicator {
+  font-size: 0.85rem;
+  color: var(--muted);
+}
+
+.toolbar-zoom-label {
+  font-family: var(--font-mono, monospace);
+  font-size: 0.85rem;
+  min-width: 3rem;
+  text-align: center;
+}
+
+.facsimile-canvas-container {
+  margin: 0;
+  padding: 1.5rem;
+  overflow: auto;
+  display: flex;
+  justify-content: center;
+  background: var(--wash);
+}
+
+.facsimile-page-frame {
+  max-width: 100%;
+  transition: width 150ms ease;
+}
+
+.facsimile-page-preview {
+  background: white;
+  box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1);
+  padding: 1rem;
+}
+
+.facsimile-page-header-info {
+  display: flex;
+  justify-content: space-between;
+  font-size: 0.75rem;
+  color: var(--muted);
+  margin-bottom: 0.5rem;
+  font-family: var(--font-mono, monospace);
+}
+
+.facsimile-render-canvas {
+  display: block;
+  width: 100%;
+  height: auto;
+}
+
+.facsimile-noscript-fallback {
+  padding: 1rem;
+  background: var(--wash);
+  border-top: 1px solid var(--line);
+  font-size: 0.85rem;
+}
+
+.direct-pdf-link {
+  color: var(--accent);
+}
+
+.facsimile-pagemap-section {
+  margin-top: 3rem;
+  border-top: 1px solid var(--line);
+  padding-top: 1.5rem;
+}
+
+.pagemap-heading {
+  font-size: 1.3rem;
+  margin-bottom: 1rem;
+}
+
+.pagemap-table-container {
+  overflow-x: auto;
+  border: 1px solid var(--line);
+  border-radius: 4px;
+}
+
+.col-pdf-page,
+.col-printed-page,
+.col-contents,
+.col-sections,
+.col-equations,
+.col-footnotes {
+  vertical-align: top;
+}
+
+.pagemap-empty {
+  color: var(--muted);
+}
+
+/* Missing Gloss styles (am-vw1o) */
+.gloss-face-fallback,
+.face-fallback {
+  padding: 3rem 1rem;
+  text-align: center;
+}
+
+.fallback-header {
+  max-width: 600px;
+  margin: 0 auto;
+}
+
+.fallback-title {
+  font-size: 1.75rem;
+  margin-bottom: 1rem;
+}
+
+.fallback-notice {
+  font-size: 1.1rem;
+  color: var(--muted);
+}
+
+.reader-face {
+  position: relative;
+}
+
+.foundation-entry-link {
+  color: var(--accent);
+  text-decoration: underline;
+  font-weight: 500;
+}
+
+.face-title-group {
+  flex: 1;
+}
+
+.face-title {
+  font-size: 1.75rem;
+  margin: 0 0 0.5rem;
+}
+
+.face-subtitle {
+  font-size: 1.1rem;
+  color: var(--muted);
+  margin: 0;
+}
+
+.reasoning-toggle-checkbox {
+  cursor: pointer;
+}
+
+.toggle-text {
+  font-weight: 500;
+}
+
+.gloss-face-content {
+  margin-top: 1.5rem;
+}
+
+.gloss-block-wrapper {
+  margin: 1.5rem 0;
+  position: relative;
+}
+
+.gloss-sentence-missing {
+  opacity: 0.85;
+}
+
+.sentence-german-unadorned {
+  font-size: 1.1rem;
+  line-height: 1.6;
+}
+
+.notice-message {
+  margin: 0 0 0.5rem;
+  font-style: italic;
+}
+
+.parallel-fallback-link {
+  color: var(--accent);
+  text-decoration: underline;
+}
+
+.rw-german {
+  font-family: var(--font-serif);
+}
+
+.rw-english {
+  color: var(--muted);
+}
+
+.rw-class {
+  font-family: var(--font-mono, monospace);
+  font-size: 0.8em;
+  color: var(--accent);
+}
+
+.rw-note {
+  font-size: 0.85em;
+  color: var(--muted);
+}
+
+.is-multiword {
+  border-bottom: 1px dotted var(--line);
+}
+
+.inline-math {
+  display: inline-block;
+}
+
+.cue-reasoning-marked {
+  font-weight: 700;
+}
+
+.cue-dot {
+  opacity: 0.5;
+}

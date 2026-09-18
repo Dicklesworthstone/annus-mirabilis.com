@@ -47,6 +47,12 @@ export interface FacsimileFaceProps {
   readonly onPageChange?: ((page: number) => void) | undefined;
 }
 
+const DECISION_STATUS_CLASS: Readonly<Record<PublicationDecision, string>> = {
+  publish: "status-publish",
+  "pin-local-only": "status-pin-local-only",
+  "reference-only": "status-reference-only",
+};
+
 export function FacsimileFace({
   paper,
   sourceAsset,
@@ -106,7 +112,7 @@ export function FacsimileFace({
 
           <div className="facsimile-meta-item">
             <span className="meta-label">Status</span>
-            <span className={`meta-badge status-${decision}`}>{decision}</span>
+            <span className={`meta-badge ${DECISION_STATUS_CLASS[decision] ?? "status-publish"}`}>{decision}</span>
           </div>
 
           {sourceAsset.institution && (
@@ -265,7 +271,7 @@ export function FacsimileFace({
                           ))}
                         </ul>
                       ) : (
-                        <span className="text-muted">–</span>
+                        <span className="pagemap-empty">–</span>
                       )}
                     </td>
                     <td className="col-equations">
@@ -294,14 +300,14 @@ export function FacsimileFace({
                           ))}
                         </ul>
                       ) : (
-                        <span className="text-muted">–</span>
+                        <span className="pagemap-empty">–</span>
                       )}
                     </td>
                     <td className="col-footnotes">
                       {entry.footnoteMarks.length > 0 ? (
                         entry.footnoteMarks.join(", ")
                       ) : (
-                        <span className="text-muted">–</span>
+                        <span className="pagemap-empty">–</span>
                       )}
                     </td>
                   </tr>
