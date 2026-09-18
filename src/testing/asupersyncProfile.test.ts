@@ -1,8 +1,8 @@
-import { describe, expect, it } from "bun:test";
+import assert from "node:assert/strict";
 import { spawnSync } from "node:child_process";
-import { existsSync, readFileSync, unlinkSync } from "node:fs";
-import { tmpdir } from "node:os";
+import { existsSync } from "node:fs";
 import { join } from "node:path";
+import { describe, it } from "node:test";
 import {
   CANONICAL_WASM_PROFILES,
   SIBLING_WASM_CRATES,
@@ -18,8 +18,44 @@ import {
   type CommandAuditRecord,
 } from "./asupersyncProfile.ts";
 
+function expect<T>(actual: T, customMessage?: string) {
+  return {
+    toBe(expected: unknown) {
+      assert.equal(actual, expected, customMessage);
+    },
+    toEqual(expected: unknown) {
+      assert.deepEqual(actual, expected, customMessage);
+    },
+    toBeDefined() {
+      assert.ok(actual !== undefined && actual !== null, customMessage ?? "Expected value to be defined");
+    },
+    toBeUndefined() {
+      assert.equal(actual, undefined, customMessage);
+    },
+    toContain(substr: string) {
+      assert.ok(
+        String(actual).includes(substr),
+        customMessage ?? `Expected ${String(actual)} to contain ${substr}`,
+      );
+    },
+    toBeGreaterThan(n: number) {
+      assert.ok(
+        Number(actual) > n,
+        customMessage ?? `Expected ${String(actual)} to be greater than ${n}`,
+      );
+    },
+    not: {
+      toBeNull() {
+        assert.notEqual(actual, null, customMessage);
+      },
+    },
+  };
+}
+
 const ASUPERSYNC_DIR = getDefaultAsupersyncDir();
 const hasAsupersyncCheckout = existsSync(join(ASUPERSYNC_DIR, "Cargo.toml"));
+const itSkipIf = (condition: boolean) => (name: string, fn: () => void | Promise<void>) =>
+  it(name, { skip: condition }, fn);
 
 describe("asupersync WASM Browser Profile Verification (am-fs-asupersync-wasm-profile-jaax)", () => {
   const BUGGY_MANIFEST_SNIPPET = `
@@ -113,7 +149,7 @@ serde = { version = "1.0", optional = true }
     }
   });
 
-  it.skipIf(!hasAsupersyncCheckout)("verifies live asupersync Cargo.toml on disk", () => {
+  itSkipIf(!hasAsupersyncCheckout)("verifies live asupersync Cargo.toml on disk", () => {
     const asupersyncPath = join(ASUPERSYNC_DIR, "Cargo.toml");
     const diag = verifyAsupersyncManifest(asupersyncPath);
     expect(diag).not.toBeNull();
@@ -228,42 +264,35 @@ asupersync v0.5.0 (/Users/jemanuel/projects/asupersync)
       expect(dirtyCheck.matchingLines[0]).toContain("native-runtime");
     });
 
-    it.skipIf(!hasAsupersyncCheckout)(
+    itSkipIf(!hasAsupersyncCheckout)(
       "runs live cargo tree on asupersync checkout and confirms native-runtime is 0",
       () => {
-        const tempBase = existsSync("/Volumes/USBNVME16TB/temp_agent_space")
-          ? "/Volumes/USBNVME16TB/temp_agent_space"
-          : tmpdir();
-        const outPath = join(tempBase, `asupersync_cargo_tree_${Date.now()}.log`);
+        const proc = spawnSync(
+          "cargo",
+          [
+            "tree",
+            "-e",
+            "features",
+            "-p",
+            "asupersync",
+            "--target",
+            "wasm32-unknown-unknown",
+            "--no-default-features",
+            "--features",
+            "wasm-browser-prod",
+          ],
+          { cwd: ASUPERSYNC_DIR, encoding: "utf8", timeout: 15000 },
+        );
 
-        try {
-          const proc = spawnSync(
-            "sh",
-            [
-              "-c",
-              `cargo tree -e features -p asupersync --target wasm32-unknown-unknown --no-default-features --features wasm-browser-prod > "${outPath}" 2>&1`,
-            ],
-            { cwd: ASUPERSYNC_DIR, stdio: "inherit", timeout: 20000 },
-          );
+        expect(proc.error).toBeUndefined();
+        expect(
+          proc.status,
+          `cargo tree failed with exit ${proc.status}:\n${proc.stderr || proc.stdout}`,
+        ).toBe(0);
 
-          expect(proc.error).toBeUndefined();
-
-          const capturedOutput = existsSync(outPath) ? readFileSync(outPath, "utf8") : "";
-          expect(
-            proc.status,
-            `cargo tree failed with exit ${proc.status}:\n${capturedOutput}`,
-          ).toBe(0);
-
-          const check = verifyCargoTreeFeatureAbsence(capturedOutput, "native-runtime");
-          expect(check.ok).toBe(true);
-          expect(check.occurrences).toBe(0);
-        } finally {
-          try {
-            if (existsSync(outPath)) {
-              unlinkSync(outPath);
-            }
-          } catch {}
-        }
+        const check = verifyCargoTreeFeatureAbsence(proc.stdout, "native-runtime");
+        expect(check.ok).toBe(true);
+        expect(check.occurrences).toBe(0);
       },
     );
   });
