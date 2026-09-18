@@ -13,6 +13,7 @@ import {
   READING_SETTING_LABELS,
   READING_SETTINGS_DEFAULTS,
   READING_SETTINGS_STORAGE_KEYS,
+  ReadingSettingsError,
   readingOnlyStorageValue,
   TYPE_SCALE_VALUES,
 } from "./schema.ts";
@@ -36,20 +37,106 @@ describe("reading settings schema (am-a11y-reading-only-6wwd)", () => {
     passed("schema-defaults", "defaults match the tested set");
   });
 
-  test("valid values parse; untested combinations are refused", () => {
-    expect(parseReadingOnly("on")).toBe(true);
-    expect(parseReadingOnly("off")).toBe(false);
-    expect(parseMeasure("narrow")).toBe("narrow");
-    expect(parseMeasure("wide")).toBe("wide");
-    expect(parseTypeScale("150")).toBe("150");
-    expect(parseContrast("high")).toBe("high");
-    expect(parseParagraphSpacing("relaxed")).toBe("relaxed");
-    expect(() => parseMeasure("full-bleed")).toThrow(/not in the tested set/);
-    expect(() => parseTypeScale("200")).toThrow(/not in the tested set/);
-    expect(() => parseContrast("max")).toThrow(/not in the tested set/);
-    expect(() => parseParagraphSpacing("roomy")).toThrow(/not in the tested set/);
-    expect(() => parseReadingOnly("maybe")).toThrow(/must be on or off/);
-    passed("schema-untested-refused", "untested combinations throw");
+  describe("invalid-reading-only (schema.ts:85)", () => {
+    test("reject: throws invalid-reading-only for non-boolean/non-on-off string", () => {
+      let caught: unknown;
+      try {
+        parseReadingOnly("maybe");
+      } catch (e) {
+        caught = e;
+      }
+      expect(caught).toBeInstanceOf(ReadingSettingsError);
+      expect((caught as ReadingSettingsError).code).toBe("invalid-reading-only");
+    });
+
+    test("accept: parses boolean and on/off strings", () => {
+      expect(parseReadingOnly("on")).toBe(true);
+      expect(parseReadingOnly(true)).toBe(true);
+      expect(parseReadingOnly("off")).toBe(false);
+      expect(parseReadingOnly(false)).toBe(false);
+      expect(parseReadingOnly(null)).toBe(false);
+      expect(parseReadingOnly(undefined)).toBe(false);
+    });
+  });
+
+  describe("untested-measure (schema.ts:94)", () => {
+    test("reject: throws untested-measure for unapproved measure", () => {
+      let caught: unknown;
+      try {
+        parseMeasure("full-bleed");
+      } catch (e) {
+        caught = e;
+      }
+      expect(caught).toBeInstanceOf(ReadingSettingsError);
+      expect((caught as ReadingSettingsError).code).toBe("untested-measure");
+    });
+
+    test("accept: parses valid measure values", () => {
+      expect(parseMeasure("narrow")).toBe("narrow");
+      expect(parseMeasure("default")).toBe("default");
+      expect(parseMeasure("wide")).toBe("wide");
+      expect(parseMeasure(undefined)).toBe("default");
+    });
+  });
+
+  describe("untested-type-scale (schema.ts:106)", () => {
+    test("reject: throws untested-type-scale for unapproved typeScale", () => {
+      let caught: unknown;
+      try {
+        parseTypeScale("200");
+      } catch (e) {
+        caught = e;
+      }
+      expect(caught).toBeInstanceOf(ReadingSettingsError);
+      expect((caught as ReadingSettingsError).code).toBe("untested-type-scale");
+    });
+
+    test("accept: parses valid typeScale values", () => {
+      expect(parseTypeScale("100")).toBe("100");
+      expect(parseTypeScale("112")).toBe("112");
+      expect(parseTypeScale("125")).toBe("125");
+      expect(parseTypeScale("150")).toBe("150");
+      expect(parseTypeScale(150)).toBe("150");
+      expect(parseTypeScale(undefined)).toBe("100");
+    });
+  });
+
+  describe("untested-contrast (schema.ts:117)", () => {
+    test("reject: throws untested-contrast for unapproved contrast", () => {
+      let caught: unknown;
+      try {
+        parseContrast("max");
+      } catch (e) {
+        caught = e;
+      }
+      expect(caught).toBeInstanceOf(ReadingSettingsError);
+      expect((caught as ReadingSettingsError).code).toBe("untested-contrast");
+    });
+
+    test("accept: parses valid contrast values", () => {
+      expect(parseContrast("default")).toBe("default");
+      expect(parseContrast("high")).toBe("high");
+      expect(parseContrast(undefined)).toBe("default");
+    });
+  });
+
+  describe("untested-paragraph-spacing (schema.ts:128)", () => {
+    test("reject: throws untested-paragraph-spacing for unapproved paragraphSpacing", () => {
+      let caught: unknown;
+      try {
+        parseParagraphSpacing("roomy");
+      } catch (e) {
+        caught = e;
+      }
+      expect(caught).toBeInstanceOf(ReadingSettingsError);
+      expect((caught as ReadingSettingsError).code).toBe("untested-paragraph-spacing");
+    });
+
+    test("accept: parses valid paragraphSpacing values", () => {
+      expect(parseParagraphSpacing("default")).toBe("default");
+      expect(parseParagraphSpacing("relaxed")).toBe("relaxed");
+      expect(parseParagraphSpacing(undefined)).toBe("default");
+    });
   });
 
   test("labels are about the page, never the reader", () => {

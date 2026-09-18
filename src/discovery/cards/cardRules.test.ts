@@ -2,11 +2,12 @@ import assert from "node:assert/strict";
 import test, { describe } from "node:test";
 import {
   checkDuplicateCards,
+  checkVerificationQueueRule,
   validateCardCitation,
   validateCardIntrinsicRules,
 } from "./cardRules.ts";
 import { globalKnowledgeCardsLogger } from "./knowledgeCardsLogger.ts";
-import type { KnowledgeCard } from "./types.ts";
+import type { KnowledgeCard, VerificationQueueItem } from "./types.ts";
 
 describe("am-disc-knowledge-cards-iw8j: card rules enforcement", () => {
   test("Rule 1 & Planted Negative: available card dated 1905 cited by a stage fails with shelf-date-violation", () => {
@@ -429,6 +430,211 @@ describe("am-disc-knowledge-cards-iw8j: card rules enforcement", () => {
       durationMs: Date.now() - start,
       message:
         "Duplicate cards detected by primary source key and normalized proposition with merge suggestion.",
+    });
+  });
+
+  describe("card-available-year-exceeded (cardRules.ts:92)", () => {
+    test("reject: (cardRules.ts:92) available card without admittedImport exceeding 1904 yields card-available-year-exceeded", () => {
+      const card: KnowledgeCard = {
+        id: "card-future-available",
+        proposition: "A claim from 1906 marked available without import flag.",
+        status: "available",
+        sources: ["Annalen 1906"],
+        date: {
+          earliest: "1906",
+          latest: "1906",
+          precision: "year",
+          latestYear: 1906,
+          eventKind: "published",
+        },
+      };
+      const diags = validateCardIntrinsicRules(card);
+      const refusal = diags.find((d) => d.rule === "card-available-year-exceeded");
+      assert.ok(refusal, "Must yield card-available-year-exceeded for available card > 1904");
+      assert.equal(refusal?.severity, "error");
+    });
+
+    test("accept: available card with year <= 1904 produces no card-available-year-exceeded diagnostic", () => {
+      const card: KnowledgeCard = {
+        id: "card-past-available",
+        proposition: "A claim from 1904 marked available.",
+        status: "available",
+        sources: ["Annalen 1904"],
+        date: {
+          earliest: "1904",
+          latest: "1904",
+          precision: "year",
+          latestYear: 1904,
+          eventKind: "published",
+        },
+      };
+      const diags = validateCardIntrinsicRules(card);
+      const refusal = diags.find((d) => d.rule === "card-available-year-exceeded");
+      assert.equal(refusal, undefined);
+    });
+  });
+
+  describe("card-available-year-exceeded (cardRules.ts:100)", () => {
+    test("reject: (cardRules.ts:100) admittedImport card with latestYear != 1905 yields card-available-year-exceeded", () => {
+      const card: KnowledgeCard = {
+        id: "card-admitted-not-1905",
+        proposition: "Admitted import card with non-1905 year.",
+        status: "available",
+        admittedImport: true,
+        sources: ["Annalen 1904"],
+        date: {
+          earliest: "1904",
+          latest: "1904",
+          precision: "year",
+          latestYear: 1904,
+          eventKind: "published",
+        },
+      };
+      const diags = validateCardIntrinsicRules(card);
+      const refusal = diags.find((d) => d.rule === "card-available-year-exceeded");
+      assert.ok(refusal, "Must yield card-available-year-exceeded for admittedImport !== 1905");
+      assert.equal(refusal?.severity, "error");
+    });
+
+    test("accept: admittedImport card with latestYear === 1905 produces no card-available-year-exceeded diagnostic", () => {
+      const card: KnowledgeCard = {
+        id: "card-admitted-1905",
+        proposition: "Admitted import card with 1905 year.",
+        status: "available",
+        admittedImport: true,
+        sources: ["Annalen 1905"],
+        date: {
+          earliest: "1905",
+          latest: "1905",
+          precision: "year",
+          latestYear: 1905,
+          eventKind: "published",
+        },
+      };
+      const diags = validateCardIntrinsicRules(card);
+      const refusal = diags.find((d) => d.rule === "card-available-year-exceeded");
+      assert.equal(refusal, undefined);
+    });
+  });
+
+  describe("card-related-card-not-found (cardRules.ts:137)", () => {
+    test("reject: (cardRules.ts:137) missing relatedCardId in allCardsMap yields card-related-card-not-found", () => {
+      const card: KnowledgeCard = {
+        id: "card-with-dangling-ref",
+        proposition: "Card referencing non-existent card.",
+        status: "available",
+        relatedCardId: "card-does-not-exist",
+        sources: ["Annalen 1900"],
+        date: {
+          earliest: "1900",
+          latest: "1900",
+          precision: "year",
+          latestYear: 1900,
+          eventKind: "published",
+        },
+      };
+      const allCardsMap = new Map<string, KnowledgeCard>([[card.id, card]]);
+      const diags = validateCardIntrinsicRules(card, allCardsMap);
+      const refusal = diags.find((d) => d.rule === "card-related-card-not-found");
+      assert.ok(refusal, "Must yield card-related-card-not-found for missing related card");
+      assert.equal(refusal?.severity, "error");
+    });
+
+    test("accept: existing reciprocal relatedCardId produces no card-related-card-not-found diagnostic", () => {
+      const cardA: KnowledgeCard = {
+        id: "card-reciprocal-a",
+        proposition: "Card A pointing to Card B.",
+        status: "available",
+        relatedCardId: "card-reciprocal-b",
+        sources: ["Annalen 1900"],
+        date: {
+          earliest: "1900",
+          latest: "1900",
+          precision: "year",
+          latestYear: 1900,
+          eventKind: "published",
+        },
+      };
+      const cardB: KnowledgeCard = {
+        id: "card-reciprocal-b",
+        proposition: "Card B pointing to Card A.",
+        status: "available",
+        relatedCardId: "card-reciprocal-a",
+        sources: ["Annalen 1900"],
+        date: {
+          earliest: "1900",
+          latest: "1900",
+          precision: "year",
+          latestYear: 1900,
+          eventKind: "published",
+        },
+      };
+      const allCardsMap = new Map<string, KnowledgeCard>([
+        [cardA.id, cardA],
+        [cardB.id, cardB],
+      ]);
+      const diags = validateCardIntrinsicRules(cardA, allCardsMap);
+      const refusal = diags.find((d) => d.rule === "card-related-card-not-found");
+      assert.equal(refusal, undefined);
+    });
+  });
+
+  describe("card-open-queue-blocks-verification (cardRules.ts:406)", () => {
+    test("reject: (cardRules.ts:406) verified card with open verification queue item yields card-open-queue-blocks-verification", () => {
+      const card: KnowledgeCard = {
+        id: "card-verified-with-open-q",
+        proposition: "Verified card that still has an open question.",
+        status: "available",
+        verifier: "historical-record",
+        sources: ["Annalen 1900"],
+        date: {
+          earliest: "1900",
+          latest: "1900",
+          precision: "year",
+          latestYear: 1900,
+          eventKind: "published",
+        },
+      };
+      const openQueueItem: VerificationQueueItem = {
+        id: "q-open-item",
+        question: "Did Perrin or Einstein verify this in 1905?",
+        cards: [card.id],
+        sourceToConsult: "Perrin (1909)",
+        landsIn: "limits",
+        status: "open",
+      };
+      const diags = checkVerificationQueueRule(card, [openQueueItem]);
+      const refusal = diags.find((d) => d.rule === "card-open-queue-blocks-verification");
+      assert.ok(refusal, "Must yield card-open-queue-blocks-verification");
+      assert.equal(refusal?.severity, "error");
+    });
+
+    test("accept: verified card with resolved queue item produces no open-queue diagnostic", () => {
+      const card: KnowledgeCard = {
+        id: "card-verified-resolved",
+        proposition: "Verified card with resolved question.",
+        status: "available",
+        verifier: "historical-record",
+        sources: ["Annalen 1900"],
+        date: {
+          earliest: "1900",
+          latest: "1900",
+          precision: "year",
+          latestYear: 1900,
+          eventKind: "published",
+        },
+      };
+      const resolvedQueueItem: VerificationQueueItem = {
+        id: "q-resolved-item",
+        question: "Did Perrin verify this?",
+        cards: [card.id],
+        sourceToConsult: "Perrin (1909)",
+        landsIn: "limits",
+        status: "resolved",
+      };
+      const diags = checkVerificationQueueRule(card, [resolvedQueueItem]);
+      const refusal = diags.find((d) => d.rule === "card-open-queue-blocks-verification");
+      assert.equal(refusal, undefined);
     });
   });
 });

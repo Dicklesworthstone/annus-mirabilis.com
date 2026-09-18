@@ -97,4 +97,68 @@ describe("moveSummaryGuard", () => {
     expect(resProcess.valid).toBe(false);
     expect(resProcess.issues.some((i) => i.rule === "move-summary-forbidden-phrase")).toBe(true);
   });
+
+  describe("move-summary-empty (moveSummaryGuard.ts:58)", () => {
+    test("reject: (moveSummaryGuard.ts:58) empty or whitespace-only summary yields move-summary-empty", () => {
+      const resEmpty = checkMoveSummary("");
+      expect(resEmpty.valid).toBe(false);
+      expect(resEmpty.issues.some((i) => i.rule === "move-summary-empty")).toBe(true);
+
+      const resWhitespace = checkMoveSummary("   \n\t  ");
+      expect(resWhitespace.valid).toBe(false);
+      expect(resWhitespace.issues.some((i) => i.rule === "move-summary-empty")).toBe(true);
+    });
+
+    test("accept: non-empty plain summary does not yield move-summary-empty", () => {
+      const res = checkMoveSummary("The observable displacement increases with time.");
+      expect(res.issues.some((i) => i.rule === "move-summary-empty")).toBe(false);
+    });
+  });
+
+  describe("move-summary-terminal-punctuation (moveSummaryGuard.ts:69)", () => {
+    test("reject: (moveSummaryGuard.ts:69) missing terminal punctuation yields move-summary-terminal-punctuation", () => {
+      const res = checkMoveSummary("The particle moves through the fluid without stopping");
+      expect(res.valid).toBe(false);
+      expect(res.issues.some((i) => i.rule === "move-summary-terminal-punctuation")).toBe(true);
+    });
+
+    test("accept: sentences ending with . ? or ! are accepted", () => {
+      expect(
+        checkMoveSummary("Does the particle move through the fluid?").issues.some(
+          (i) => i.rule === "move-summary-terminal-punctuation",
+        ),
+      ).toBe(false);
+      expect(
+        checkMoveSummary("The particle moves through the fluid!").issues.some(
+          (i) => i.rule === "move-summary-terminal-punctuation",
+        ),
+      ).toBe(false);
+      expect(
+        checkMoveSummary("The particle moves through the fluid.").issues.some(
+          (i) => i.rule === "move-summary-terminal-punctuation",
+        ),
+      ).toBe(false);
+    });
+  });
+
+  describe("move-summary-no-math-markup (moveSummaryGuard.ts:117)", () => {
+    test("reject: (moveSummaryGuard.ts:117) summary containing math tags yields move-summary-no-math-markup", () => {
+      const resMath = checkMoveSummary("The value is defined by <math>x</math>.");
+      expect(resMath.valid).toBe(false);
+      expect(resMath.issues.some((i) => i.rule === "move-summary-no-math-markup")).toBe(true);
+
+      const resKatex = checkMoveSummary("The equation renders via <katex>y</katex>.");
+      expect(resKatex.valid).toBe(false);
+      expect(resKatex.issues.some((i) => i.rule === "move-summary-no-math-markup")).toBe(true);
+
+      const resDataMath = checkMoveSummary("The span has [data-math] formatting.");
+      expect(resDataMath.valid).toBe(false);
+      expect(resDataMath.issues.some((i) => i.rule === "move-summary-no-math-markup")).toBe(true);
+    });
+
+    test("accept: plain sentences without HTML/MathML markup are accepted", () => {
+      const res = checkMoveSummary("The concentration drops across the membrane over time.");
+      expect(res.issues.some((i) => i.rule === "move-summary-no-math-markup")).toBe(false);
+    });
+  });
 });
