@@ -288,10 +288,10 @@ export function checkDimensions(
       }
 
       case "sum": {
-        if (!Array.isArray(node.args) || node.args.length === 0) {
+        if (!Array.isArray(node.args) || node.args.length === 0 || !node.args[0]) {
           return stop(n, "unsupported-check", "Sum requires at least one argument.");
         }
-        const first = node.args[0]!;
+        const first = node.args[0];
         for (const arg of node.args.slice(1)) {
           equal(n, first, arg);
         }
