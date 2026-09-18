@@ -63,7 +63,18 @@ export function BoundaryLedgerPlot({ parameters, evaluation, clipId }: BoundaryL
             markerHeight="6"
             orient="auto-start-reverse"
           >
-            <path d="M 0 1.5 L 8 5 L 0 8.5 z" fill="var(--accent)" />
+            <path d="M 0 1.5 L 8 5 L 0 8.5 z" fill="#ea580c" />
+          </marker>
+          <marker
+            id="arrow-pulse1"
+            viewBox="0 0 10 10"
+            refX="6"
+            refY="5"
+            markerWidth="6"
+            markerHeight="6"
+            orient="auto-start-reverse"
+          >
+            <path d="M 0 1.5 L 8 5 L 0 8.5 z" fill="#2563eb" />
           </marker>
         </defs>
 
@@ -102,7 +113,7 @@ export function BoundaryLedgerPlot({ parameters, evaluation, clipId }: BoundaryL
                 height="190"
                 rx="10"
                 fill={boundary === "combined-isolated-system" ? "var(--wash)" : "none"}
-                stroke={boundary === "combined-isolated-system" ? "var(--plot)" : "var(--line)"}
+                stroke={boundary === "combined-isolated-system" ? "var(--accent)" : "var(--line)"}
                 strokeWidth={boundary === "combined-isolated-system" ? "2.5" : "1.5"}
                 strokeDasharray={boundary === "combined-isolated-system" ? "none" : "6 4"}
               />
@@ -111,7 +122,7 @@ export function BoundaryLedgerPlot({ parameters, evaluation, clipId }: BoundaryL
                 y="30"
                 fontSize="11"
                 fontWeight={boundary === "combined-isolated-system" ? "bold" : "normal"}
-                fill={boundary === "combined-isolated-system" ? "var(--plot)" : "var(--muted)"}
+                fill={boundary === "combined-isolated-system" ? "var(--accent)" : "var(--muted)"}
               >
                 Combined Isolated System
               </text>
@@ -149,7 +160,7 @@ export function BoundaryLedgerPlot({ parameters, evaluation, clipId }: BoundaryL
                     y1="110"
                     x2="285"
                     y2="110"
-                    stroke="var(--accent)"
+                    stroke="#ea580c"
                     strokeWidth="3"
                     markerEnd="url(#arrow-energy)"
                   />
@@ -159,7 +170,7 @@ export function BoundaryLedgerPlot({ parameters, evaluation, clipId }: BoundaryL
                     textAnchor="middle"
                     fontSize="11"
                     fontWeight="bold"
-                    fill="var(--accent)"
+                    fill="#ea580c"
                   >
                     Radiation Escapes (+L)
                   </text>
@@ -169,7 +180,7 @@ export function BoundaryLedgerPlot({ parameters, evaluation, clipId }: BoundaryL
                   <path
                     d="M 130 110 Q 200 70 210 130"
                     fill="none"
-                    stroke="var(--accent)"
+                    stroke="#ea580c"
                     strokeWidth="2.5"
                     markerEnd="url(#arrow-energy)"
                   />
@@ -197,7 +208,7 @@ export function BoundaryLedgerPlot({ parameters, evaluation, clipId }: BoundaryL
                     y="100"
                     textAnchor="middle"
                     fontSize="10"
-                    fill="var(--accent)"
+                    fill="#ea580c"
                     fontWeight="bold"
                   >
                     Retained Inside
@@ -225,11 +236,11 @@ export function BoundaryLedgerPlot({ parameters, evaluation, clipId }: BoundaryL
                     y1="0"
                     x2="80"
                     y2="0"
-                    stroke="var(--plot)"
+                    stroke="#2563eb"
                     strokeWidth="3"
-                    markerEnd="url(#arrow-energy)"
+                    markerEnd="url(#arrow-pulse1)"
                   />
-                  <circle cx="0" cy="0" r="6" fill="var(--plot)" />
+                  <circle cx="0" cy="0" r="6" fill="#2563eb" />
                   <text
                     x="0"
                     y="-15"
@@ -245,7 +256,7 @@ export function BoundaryLedgerPlot({ parameters, evaluation, clipId }: BoundaryL
                     y="25"
                     textAnchor="middle"
                     fontSize="11"
-                    fill="var(--plot)"
+                    fill="var(--ink)"
                     fontWeight="bold"
                   >
                     P·P = 0 ⟹ Invariant Mass m = 0
@@ -259,18 +270,18 @@ export function BoundaryLedgerPlot({ parameters, evaluation, clipId }: BoundaryL
                     y1="-10"
                     x2="60"
                     y2="-10"
-                    stroke="var(--plot)"
+                    stroke="#2563eb"
                     strokeWidth="2.5"
-                    markerEnd="url(#arrow-energy)"
+                    markerEnd="url(#arrow-pulse1)"
                   />
                   <line
                     x1="-30"
                     y1="10"
                     x2="60"
                     y2="10"
-                    stroke="var(--plot)"
+                    stroke="#2563eb"
                     strokeWidth="2.5"
-                    markerEnd="url(#arrow-energy)"
+                    markerEnd="url(#arrow-pulse1)"
                   />
                   <text
                     x="0"
@@ -287,7 +298,7 @@ export function BoundaryLedgerPlot({ parameters, evaluation, clipId }: BoundaryL
                     y="35"
                     textAnchor="middle"
                     fontSize="11"
-                    fill="var(--plot)"
+                    fill="var(--ink)"
                     fontWeight="bold"
                   >
                     P·P = 0 ⟹ Invariant Mass m = 0
@@ -301,16 +312,16 @@ export function BoundaryLedgerPlot({ parameters, evaluation, clipId }: BoundaryL
                     y1="0"
                     x2="70"
                     y2="0"
-                    stroke="var(--plot)"
+                    stroke="#2563eb"
                     strokeWidth="3"
-                    markerEnd="url(#arrow-energy)"
+                    markerEnd="url(#arrow-pulse1)"
                   />
                   <line
                     x1="0"
                     y1="0"
                     x2="-70"
                     y2="0"
-                    stroke="var(--accent)"
+                    stroke="#ea580c"
                     strokeWidth="3"
                     markerEnd="url(#arrow-energy)"
                   />
@@ -330,7 +341,7 @@ export function BoundaryLedgerPlot({ parameters, evaluation, clipId }: BoundaryL
                     y="30"
                     textAnchor="middle"
                     fontSize="11"
-                    fill="var(--plot)"
+                    fill="var(--ink)"
                     fontWeight="bold"
                   >
                     P·P = (L/c)² ⟹ Invariant Mass m = {isModern ? "L/c²" : "L/V²"}
@@ -374,7 +385,7 @@ export function BoundaryLedgerPlot({ parameters, evaluation, clipId }: BoundaryL
             </text>
             <text x="0" y="42" fontSize="11" fill="var(--muted)">
               Mass change Δm:{" "}
-              <tspan fontWeight="bold" fill="var(--plot)">
+              <tspan fontWeight="bold" fill="var(--accent)">
                 {massDelta !== null
                   ? massDelta === 0
                     ? "0 (unchanged)"
@@ -396,20 +407,20 @@ export function BoundaryLedgerPlot({ parameters, evaluation, clipId }: BoundaryL
             </text>
             <text x="0" y="42" fontSize="10" fill="var(--muted)">
               Mass Change:{" "}
-              <tspan fontWeight="bold" fill="var(--plot)">
+              <tspan fontWeight="bold" fill="var(--accent)">
                 {card.massChangeFormatted}
               </tspan>
             </text>
             <text x="0" y="56" fontSize="10" fill="var(--muted)">
               Matter Crosses:{" "}
-              <tspan fill={facts.matterCrossesBoundary.crosses ? "var(--accent)" : "var(--plot)"}>
+              <tspan fill={facts.matterCrossesBoundary.crosses ? "var(--accent)" : "var(--muted)"}>
                 {facts.matterCrossesBoundary.crosses
                   ? "Yes (Matter transfer)"
                   : "No (Closed system)"}
               </tspan>
             </text>
             {facts.closedButNotIsolated.value && (
-              <text x="0" y="72" fontSize="9" fill="var(--plot)" fontWeight="bold">
+              <text x="0" y="72" fontSize="9" fill="var(--accent)" fontWeight="bold">
                 Closed but not isolated (energy leaves)
               </text>
             )}
