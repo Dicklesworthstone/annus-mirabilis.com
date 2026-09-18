@@ -73,15 +73,29 @@ export function DatasetOverlay({
 
   return (
     <div
-      className={`dataset-overlay-container ${className}`.trim()}
+      className={className ? className.trim() : undefined}
       data-testid="dataset-overlay"
       data-dataset-id={dataset.id}
     >
       {/* Top Citation & Metadata Bar */}
-      <div className="dataset-header flex flex-wrap items-center justify-between gap-2 mb-2 text-xs">
-        <div className="flex items-center gap-2">
+      <div
+        style={{
+          display: "flex",
+          flexWrap: "wrap",
+          alignItems: "center",
+          justifyContent: "space-between",
+          gap: "0.5rem",
+          marginBottom: "0.5rem",
+          fontSize: "0.75rem",
+        }}
+      >
+        <div style={{ display: "flex", alignItems: "center", gap: "0.5rem" }}>
           <span
-            className="dataset-citation font-serif font-semibold text-neutral-800 dark:text-neutral-200"
+            style={{
+              fontFamily: "var(--font-serif, serif)",
+              fontWeight: 600,
+              color: "var(--ink)",
+            }}
             data-testid="dataset-citation"
           >
             {citationText} ({shelfStatus.publicationYear})
@@ -90,7 +104,15 @@ export function DatasetOverlay({
           {/* Post-1904 non-shelf warning badge */}
           {shelfStatus.badgeLabel && (
             <span
-              className="shelf-badge px-2 py-0.5 rounded bg-amber-100 text-amber-900 border border-amber-300 dark:bg-amber-950 dark:text-amber-200 dark:border-amber-700 text-[11px]"
+              className="badge"
+              style={{
+                padding: "0.125rem 0.5rem",
+                borderRadius: "0.25rem",
+                background: "var(--wash)",
+                color: "var(--accent)",
+                border: "1px solid var(--accent)",
+                fontSize: "0.6875rem",
+              }}
               data-testid="shelf-badge"
             >
               {shelfStatus.badgeLabel}
@@ -99,7 +121,17 @@ export function DatasetOverlay({
 
           {/* Normalization factor note */}
           {normalizationFactor !== undefined && (
-            <span className="norm-badge px-2 py-0.5 rounded bg-neutral-100 dark:bg-neutral-800 text-neutral-700 dark:text-neutral-300 text-[11px]">
+            <span
+              className="badge"
+              style={{
+                padding: "0.125rem 0.5rem",
+                borderRadius: "0.25rem",
+                background: "var(--panel)",
+                color: "var(--muted)",
+                border: "1px solid var(--line)",
+                fontSize: "0.6875rem",
+              }}
+            >
               Norm: ×{normalizationFactor} {normalizationMethod ? `(${normalizationMethod})` : ""}
             </span>
           )}
@@ -109,7 +141,17 @@ export function DatasetOverlay({
         {showRevealAction && (
           <button
             type="button"
-            className="reveal-trigger-btn px-2.5 py-1 rounded bg-amber-600 hover:bg-amber-700 text-white text-xs font-medium transition-colors shadow-sm"
+            className="button"
+            style={{
+              padding: "0.25rem 0.625rem",
+              borderRadius: "0.25rem",
+              background: "var(--accent)",
+              color: "var(--panel)",
+              fontSize: "0.75rem",
+              fontWeight: 500,
+              border: "1px solid var(--accent)",
+              cursor: "pointer",
+            }}
             onClick={() => setIsRevealOpen((prev) => !prev)}
             data-testid="reveal-trigger"
           >
@@ -123,7 +165,7 @@ export function DatasetOverlay({
         viewBox={`0 0 ${width} ${height}`}
         width={width}
         height={height}
-        className="dataset-overlay-svg overflow-visible"
+        style={{ overflow: "visible" }}
         role="img"
         aria-label={`Historical dataset: ${dataset.title}`}
       >
@@ -151,9 +193,10 @@ export function DatasetOverlay({
             <a
               key={`dp-${dataset.id}-${row.seriesId ?? "s"}-${rawX}-${rawY}`}
               href={`#row-${rIdx}`}
-              className={`dataset-point cursor-pointer ${isSelected ? "is-selected" : ""}`}
+              data-testid="dataset-point"
               data-row-index={rIdx}
               data-role={yCol?.role ?? "observed"}
+              style={{ cursor: "pointer" }}
               onClick={(e) => {
                 e.preventDefault();
                 handleRowSelect(rIdx);
@@ -168,7 +211,7 @@ export function DatasetOverlay({
               {/* 1. Bounded Cell: Draw bounded directional arrow / bracket */}
               {(isYBound || isXBound) && (
                 <g
-                  className="bound-marker"
+                  data-testid="bound-marker"
                   data-bound-direction={
                     isYBound
                       ? yCell.direction
@@ -203,7 +246,7 @@ export function DatasetOverlay({
                 <polygon
                   points={`${px},${py - 5} ${px + 5},${py} ${px},${py + 5} ${px - 5},${py}`}
                   fill={isSelected ? "#b45309" : "currentColor"}
-                  stroke="white"
+                  stroke="var(--panel)"
                   strokeWidth={1}
                   data-testid="reported-fit-marker"
                 />
@@ -216,7 +259,7 @@ export function DatasetOverlay({
                   cy={py}
                   r={isSelected ? 5 : 3.5}
                   fill={isSelected ? "#b45309" : "currentColor"}
-                  stroke="white"
+                  stroke="var(--panel)"
                   strokeWidth={1.2}
                   data-testid="empirical-point"
                 />
@@ -228,7 +271,7 @@ export function DatasetOverlay({
 
       {/* 4-Step Disclosure Panel */}
       {isRevealOpen && (
-        <div className="mt-4">
+        <div style={{ marginTop: "1rem" }}>
           <DatasetEvidenceReveal
             dataset={dataset}
             seriesId={seriesId}
@@ -241,7 +284,7 @@ export function DatasetOverlay({
 
       {/* Embedded Table if requested */}
       {showTable && (
-        <div className="mt-4">
+        <div style={{ marginTop: "1rem" }}>
           <DatasetTable
             dataset={dataset}
             seriesId={seriesId}

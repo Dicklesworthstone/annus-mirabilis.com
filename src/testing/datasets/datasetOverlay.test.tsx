@@ -131,11 +131,13 @@ describe("DatasetOverlay (am-inst-dataset-overlay-ra9r)", () => {
       expect(empiricalPoint).not.toBeNull();
 
       // Bounded marker for row 1 (upper bound)
-      const boundMarker = container.querySelector('.bound-marker[data-bound-direction="upper"]');
+      const boundMarker = container.querySelector(
+        '[data-testid="bound-marker"][data-bound-direction="upper"]',
+      );
       expect(boundMarker).not.toBeNull();
 
       // Row 2 is missing, so only 2 points plotted in svg
-      const plottedRows = container.querySelectorAll(".dataset-point");
+      const plottedRows = container.querySelectorAll('[data-testid="dataset-point"]');
       expect(plottedRows.length).toBe(2);
 
       // Table is rendered with missing reason
