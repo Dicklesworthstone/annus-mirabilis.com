@@ -6,6 +6,8 @@ import { REGISTERED_IDENTITY_IDS } from "../derivations/rules/registeredIdentity
 import type { DerivationChain, RuleKind } from "../derivations/types.ts";
 
 export const INITIAL_MISSING_STEP_CHAIN = "chain-bm-variance-of-sum";
+// DerivationStep already owns both expression trees, so fromStepId and toStepId identify
+// the same atomic step, not two independent graph nodes with invented meanings.
 export type MissingStepTransition = Readonly<{
   id: string; chainId: string; fromStepId: string; toStepId: string; title: string;
   changedSubexpressionIds: readonly string[]; ruleIds: readonly RuleKind[];
@@ -73,7 +75,7 @@ function expressionIds(input: unknown): ReadonlySet<string> {
       fail("missing-step-expression", "Invalid numeric literal.");
     if (n.kind === "symbol") {
       id(n.termId); id(n.quantityId);
-      if (!/^[ABl]$/.test(String(n.termId)) || n.scale !== undefined)
+      if (!/^[ABl]$/.test(String(n.termId)) || n.quantityId !== ({A: "stepA", B: "stepB", l: "stepRms"} as Record<string,string>)[String(n.termId)] || n.scale !== undefined)
         fail("missing-step-expression", "This bridge admits only A, B and l without scale aliases.");
     }
     if (n.kind === "power") {
@@ -90,6 +92,14 @@ function expressionIds(input: unknown): ReadonlySet<string> {
   }
   visit(input, 0); return found;
 }
+function stable(value: unknown): string {
+  if (Array.isArray(value)) return `[${value.map(stable).join(",")}]`;
+  if (value !== null && typeof value === "object") return `{${Object.entries(value).sort(([a],[b]) => a < b ? -1 : a > b ? 1 : 0).map(([key,child]) => `${JSON.stringify(key)}:${stable(child)}`).join(",")}}`;
+  return JSON.stringify(value) ?? "undefined";
+}
+function selectedSubtrees(tree: Expression, selected: string): string[] {
+  return [...(nodeId(tree) === selected ? [stable(tree)] : []), ...children(tree).flatMap(child => selectedSubtrees(child, selected))];
+}
 /** Validate links against the actual compiled argument catalogue, not guessed anchors. */
 export function parseMissingStepLesson(input: unknown, allowed: readonly string[], argumentIds: readonly string[]): MissingStepLesson {
   const value = record(input);
@@ -103,6 +113,9 @@ export function parseMissingStepLesson(input: unknown, allowed: readonly string[
   }
   const chain = parseDerivationChain(rawChain);
   if (chain.routeKind !== "pedagogical-reconstruction") fail("missing-step-route", "Do not present this bridge as the printed calculation.");
+  for (let i = 1; i < chain.steps.length; i++)
+    if (stable(chain.steps[i - 1]!.to) !== stable(chain.steps[i]!.from))
+      fail("missing-step-continuity", "The next step must begin with the previous step’s exact expression.");
   const argument = id(value.argument);
   if (!argumentIds.includes(argument)) fail("missing-step-premise", `Missing argument ${argument}.`);
   const premises = list(value.premises).map((entry) => {
@@ -121,6 +134,11 @@ export function parseMissingStepLesson(input: unknown, allowed: readonly string[
     const changed = ids(t.changedSubexpressionIds);
     if (!changed.length || changed.some((name) => !pair[0].has(name) || !pair[1].has(name)))
       fail("missing-step-subexpression", "Every changed subexpression must exist on both sides of the transition.");
+    for (const selected of changed) {
+      const from = selectedSubtrees(step.from, selected), to = selectedSubtrees(step.to, selected);
+      if (from.length !== 1 || to.length !== 1 || from[0] === to[0])
+        fail("missing-step-subexpression", "A highlight must identify one genuinely changed subtree on each side.");
+    }
     if (JSON.stringify(changed) !== JSON.stringify(step.changedSubexpressionIds)) fail("missing-step-subexpression", "Transition and chain highlights disagree.");
     const ruleIds = ids(t.ruleIds) as RuleKind[];
     if (!ruleIds.length || ruleIds.some((name) => !getRule(name)) || !ruleIds.includes(step.rule.kind))

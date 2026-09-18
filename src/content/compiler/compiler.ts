@@ -6,6 +6,7 @@
  * Spec: AGENTS.md and am-cm-compiler-core-oa7
  */
 
+import { checkMissingStepContent } from "../../equations/missingStep/contentCheck.ts";
 import type { EquationRecord } from "../../equations/record.ts";
 import { registerPrintCoverageCheck } from "../../platform/print/printCoverage.ts";
 import { registerEpistemicChecks } from "../checks/epistemic/register.ts";
@@ -155,6 +156,9 @@ export async function compileContent(
       continue;
     }
 
+    // These authored bridges are validated together once their argument targets are known.
+    if (routeMatch.kind === "derivation-chain" || routeMatch.kind === "derivation-policy") continue;
+
     // Allow documentation files without schema parsing
     if (routeMatch.kind === "documentation") {
       continue;
@@ -229,6 +233,12 @@ export async function compileContent(
       }
     }
   }
+  const argumentIds = [...rawRecords.values()].flatMap(record => {
+    if (record && typeof record === "object" && "kind" in record && record.kind === "argument" && "id" in record && typeof record.id === "string") return [record.id];
+    return [];
+  });
+  for (const diagnostic of checkMissingStepContent(files, argumentIds))
+    addIssue("error", diagnostic.code, diagnostic.path, diagnostic.message, {family: "structural"});
   const loadDuration = performance.now() - startLoad;
 
   // =========================================================================

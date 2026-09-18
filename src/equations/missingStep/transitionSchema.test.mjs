@@ -3,7 +3,6 @@ import test from 'node:test';
 import {readFileSync} from 'node:fs';
 import {parseMissingStepAllowlist,parseMissingStepLesson} from './transitionSchema.ts';
 import {enumerateSignedSteps} from '../../physics/reference/stepEnumeration.ts';
-import {checkWorkedTransitions} from './workedCheck.ts';
 const load=(p)=>JSON.parse(readFileSync(new URL(p,import.meta.url),'utf8'));
 const input=load('../../../content/equations/derivations/bm-variance.yaml');
 const policy=load('../../../content/equations/missing-step-allowlist.yaml');
@@ -16,7 +15,10 @@ test('the authored chain exposes four transitions with one marked move',()=>{
 });
 for(const [name,change,code] of [
  ['unknown highlight',d=>d.transitions[2].changedSubexpressionIds=['notThere'],'subexpression'],
- ['highlight disappears in destination',d=>d.chain.steps[2].to.args[1].opId='gone','subexpression'],
+ ['highlight disappears in destination',d=>{d.chain.steps[2].to.args[1].opId='gone';d.chain.steps[3].from.args[1].opId='gone';},'subexpression'],
+ ['unchanged highlighted subtree',d=>{d.transitions[0].changedSubexpressionIds=['A'];d.chain.steps[0].changedSubexpressionIds=['A'];},'subexpression'],
+ ['chain gap',d=>d.chain.steps[1].from.opId='different','continuity'],
+ ['mismatched local symbol binding',d=>d.chain.steps[0].from.argument.base.args[0].quantityId='stepB','expression'],
  ['foreign rule',d=>d.transitions[0].ruleIds=['magic'],'rule'],
  ['foreign identity',d=>d.chain.steps[1].rule.params.identityId='magic','rule'],
  ['hidden premise',d=>d.transitions[2].premiseIds=[],'premise'],
@@ -48,8 +50,9 @@ test('unbounded enumerations and unregistered alternatives are refused',()=>{
  for(const n of [1,9,NaN,2.5])assert.throws(()=>enumerateSignedSteps(n));
  assert.throws(()=>enumerateSignedSteps(3,'same-direction'));assert.throws(()=>enumerateSignedSteps(2,'magic'));
 });
-test('finite worked check rejects a planted incorrect coefficient, never a proof certificate',()=>{
- checkWorkedTransitions(parse(input));
- const broken=structuredClone(input);broken.chain.steps[0].to.argument.args[1].args[0].value='3';
- assert.throws(()=>checkWorkedTransitions(parse(broken)),/missing-step-worked-case/);
+
+test('finite worked check rejects a planted incorrect coefficient, never a proof certificate',async()=>{
+ const {checkWorkedTransitions}=await import('./workedCheck.ts');checkWorkedTransitions(parse(input));
+ const d=structuredClone(input);d.chain.steps[0].to.argument.args[1].args[0].value='3';d.chain.steps[1].from.argument.args[1].args[0].value='3';
+ assert.throws(()=>checkWorkedTransitions(parse(d)),/missing-step-worked-case/);
 });
