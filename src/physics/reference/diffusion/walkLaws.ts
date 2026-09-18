@@ -8,6 +8,7 @@ export type WalkKernel = "coin" | "uniform" | "gaussian";
 export type StepKernel = Readonly<
   | { kind: WalkKernel; stepRms: number }
   | { kind: "biased-coin"; stepRms: number; probability: number }
+  | { kind: "tabulated"; offsets: readonly number[]; weights: readonly number[] }
   | { kind: "cauchy"; scale: number }
 >;
 export const WALK_KERNELS = Object.freeze({
@@ -116,6 +117,40 @@ export function kernelMoments(kernel: StepKernel): Readonly<{
     return bad(
       "The Cauchy step law has no finite mean, variance, or fourth moment; it does not supply this diffusion coefficient.",
     );
+  if (kernel.kind === "tabulated") {
+    const { offsets, weights } = kernel;
+    if (
+      !Array.isArray(offsets) ||
+      !Array.isArray(weights) ||
+      offsets.length === 0 ||
+      offsets.length !== weights.length ||
+      !offsets.every(Number.isFinite) ||
+      !weights.every((w) => Number.isFinite(w) && w >= 0)
+    ) {
+      return bad("Tabulated offsets and non-negative weights of equal positive length are required.");
+    }
+    const totalWeight = weights.reduce((sum, w) => sum + w, 0);
+    if (totalWeight <= 0) {
+      return bad("The sum of tabulated weights must be strictly positive.");
+    }
+    let m1 = 0;
+    let m2 = 0;
+    let m4 = 0;
+    for (let i = 0; i < offsets.length; i++) {
+      const p = (weights[i] ?? 0) / totalWeight;
+      const x = offsets[i] ?? 0;
+      m1 += p * x;
+      m2 += p * x * x;
+      m4 += p * x * x * x * x;
+    }
+    const variance = m2 - m1 * m1;
+    return {
+      mean: value("stepMean", "m", "kernelMoments", m1),
+      secondMoment: value("stepSecondMoment", "m2", "kernelMoments", m2, true),
+      variance: value("stepVariance", "m2", "kernelMoments", Math.max(0, variance), variance > 0),
+      fourthMoment: value("stepFourthMoment", "m4", "kernelMoments", m4, true),
+    };
+  }
   const s = kernel.stepRms;
   if (!Number.isFinite(s) || s <= 0) return bad("The step scale must be positive and finite.");
   if (kernel.kind === "biased-coin") {
@@ -152,6 +187,7 @@ export function kernelMoments(kernel: StepKernel): Readonly<{
 export function kernelDiffusivity(
   kernel: StepKernel,
   tau: number,
+  symmetryTolerance = 1e-12,
 ): Readonly<{
   diffusion: ScientificResult;
   drift: ScientificResult;
@@ -185,7 +221,7 @@ export function kernelDiffusivity(
   );
   return {
     diffusion:
-      m.mean.value === 0
+      Math.abs(m.mean.value) <= symmetryTolerance
         ? value(
             "diffusionCoefficient",
             "m2/s",

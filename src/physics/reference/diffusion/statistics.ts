@@ -1,5 +1,6 @@
-import { makeRefusal } from "../../../experiments/results/refusals.ts";
-import { erfc } from "../special/erf.ts";
+import type { ExecutionOutcome } from "../../../experiments/results/outcomes.ts";
+import { makeRefusal, type RequestRefusal } from "../../../experiments/results/refusals.ts";
+import type { ScientificResult } from "../../../experiments/results/types.ts";
 import type { Computation } from "./ftcs.ts";
 
 const invalid = (): Computation<never> => ({
@@ -14,19 +15,67 @@ const unconverged = (q: number, p: number, iterations: number): Computation<neve
     { details: { q, p, iterations } },
   ),
 });
-/** Tail-safe inversion of the existing independently checked complementary erf. */
+// Wichura Algorithm AS 241 double-precision coefficients (Applied Statistics 37 (1988) 477-484)
+const AS241_A = [
+  3.387132872796366608, 1.3314166789178437745e2, 1.9715909503065514427e3,
+  1.3731693765509461125e4, 4.5921953931549871457e4, 6.7265770927008700853e4,
+  3.3430575583588128105e4, 2.5090809287301226727e3,
+] as const;
+const AS241_B = [
+  1.0, 4.2313330701600911252e1, 6.871870074920579083e2, 5.3941960214247511077e3,
+  2.1213794301586595867e4, 3.930789580009271061e4, 2.8729085735721942674e4,
+  5.226495278852854561e3,
+] as const;
+const AS241_C = [
+  1.42343711074968357734, 4.6303378461565452959, 5.7694972214606914055,
+  3.64784832476320460504, 1.27045825245236838258, 2.4178072517745061177e-1,
+  2.27238449892691845833e-2, 7.7454501427834140764e-4,
+] as const;
+const AS241_D = [
+  1.0, 2.05319162663775882187, 1.6763848301838038494, 6.8976733498510000455e-1,
+  1.4810397642748007459e-1, 1.51986665636164571966e-2, 5.475938084995344946e-4,
+  1.05075007164441684324e-9,
+] as const;
+const AS241_E = [
+  6.6579046435011037772, 5.4637849111641143699, 1.7848265399172913358,
+  2.9656057182850489123e-1, 2.6532189526576123093e-2, 1.2426609473880784386e-3,
+  2.71155556874348757815e-5, 2.01033439929228813265e-7,
+] as const;
+const AS241_F = [
+  1.0, 5.9983220655588793769e-1, 1.3692988092273580531e-1,
+  1.48753612908506148525e-2, 7.868691311456132591e-4, 1.8463183175100546818e-5,
+  1.4215117583164458887e-7, 2.04426310338993978564e-15,
+] as const;
+
+function evaluatePolynomial(coeffs: readonly number[], x: number): number {
+  let val = 0;
+  for (let i = coeffs.length - 1; i >= 0; i--) {
+    val = val * x + (coeffs[i] ?? 0);
+  }
+  return val;
+}
+
+/** Standard normal quantile via Wichura's AS 241 rational approximation. */
 export function normalQuantile(p: number): Computation<number> {
   if (!Number.isFinite(p) || p <= 0 || p >= 1) return invalid();
   if (p === 0.5) return { kind: "accepted", data: 0 };
-  const tail = Math.min(p, 1 - p);
-  let lo = 0,
-    hi = 40;
-  for (let i = 0; i < 100; i++) {
-    const mid = (lo + hi) / 2;
-    if (0.5 * erfc(mid / Math.SQRT2) > tail) lo = mid;
-    else hi = mid;
+  const q = p - 0.5;
+  if (Math.abs(q) <= 0.425) {
+    const r = 0.180625 - q * q;
+    const val = q * (evaluatePolynomial(AS241_A, r) / evaluatePolynomial(AS241_B, r));
+    return { kind: "accepted", data: val };
   }
-  return { kind: "accepted", data: (p < 0.5 ? -1 : 1) * ((lo + hi) / 2) };
+  const r = q < 0 ? p : 1 - p;
+  const s = Math.sqrt(-Math.log(r));
+  let val: number;
+  if (s <= 5.0) {
+    const t = s - 1.6;
+    val = evaluatePolynomial(AS241_C, t) / evaluatePolynomial(AS241_D, t);
+  } else {
+    const t = s - 5.0;
+    val = evaluatePolynomial(AS241_E, t) / evaluatePolynomial(AS241_F, t);
+  }
+  return { kind: "accepted", data: q < 0 ? -val : val };
 }
 /** Stirling expansion (DLMF 5.11.1), shifted to z>=16 before evaluation. */
 function logGamma(a: number): number {
@@ -122,6 +171,36 @@ export type MomentBand = Readonly<{
   totalMeanSquare: readonly [number, number];
   label: "sampling band under the model";
 }>;
+
+export type EnsembleMomentBandsResult = Readonly<
+  | { kind: "accepted"; data: readonly MomentBand[] }
+  | { kind: "refused"; refusal: RequestRefusal }
+  | { kind: "outcome"; outcome: ExecutionOutcome }
+  | {
+      kind: "underdetermined";
+      status: "underdetermined";
+      quantityId: string;
+      unit: string;
+      semanticKind: string;
+      ownerId: string;
+      compatibleFamily: string;
+      neededInformation: readonly string[];
+      reason: string;
+    }
+  | {
+      kind: "outside-domain";
+      status: "outside-domain";
+      domainKind: "model" | "input";
+      quantityId: string;
+      unit: string;
+      semanticKind: string;
+      ownerId: string;
+      condition: string;
+      reason: string;
+      boundary: { alternativeModel: string };
+    }
+>;
+
 /** Model sampling bands: deliberately accepts no sampled displacements. */
 export function ensembleMomentBands({
   M,
@@ -133,20 +212,59 @@ export function ensembleMomentBands({
   d: number;
   modelVariance: number;
   alphas: readonly number[];
-}): Computation<readonly MomentBand[]> {
+}): EnsembleMomentBandsResult {
+  if (Number.isInteger(M) && M < 2) {
+    return {
+      kind: "underdetermined",
+      status: "underdetermined",
+      quantityId: "modelSamplingBand",
+      unit: "m",
+      semanticKind: "model-sampling-band",
+      ownerId: "diffusion.ensembleMomentBands",
+      compatibleFamily: "Sampling bands require an ensemble of at least two members.",
+      neededInformation: ["Use at least two members (M >= 2)."],
+      reason: "a band needs at least two members",
+    };
+  }
+  if (!Number.isFinite(modelVariance) || modelVariance <= 0) {
+    return {
+      kind: "outside-domain",
+      status: "outside-domain",
+      domainKind: "model",
+      quantityId: "modelSamplingBand",
+      unit: "m",
+      semanticKind: "model-sampling-band",
+      ownerId: "diffusion.ensembleMomentBands",
+      condition: "positive-finite-variance",
+      reason: "Model variance must be strictly positive and finite.",
+      boundary: { alternativeModel: "Use a positive model variance (2 * D * dt > 0)." },
+    };
+  }
+  if (Array.isArray(alphas) && alphas.some((a) => !Number.isFinite(a) || a <= 0 || a >= 1)) {
+    return {
+      kind: "outside-domain",
+      status: "outside-domain",
+      domainKind: "input",
+      quantityId: "modelSamplingBand",
+      unit: "m",
+      semanticKind: "model-sampling-band",
+      ownerId: "diffusion.ensembleMomentBands",
+      condition: "alpha-in-open-unit-interval",
+      reason: "Significance levels alphas must lie strictly between zero and one.",
+      boundary: { alternativeModel: "Use alphas in (0, 1)." },
+    };
+  }
   if (
     !Number.isInteger(M) ||
     M < 2 ||
     ![1, 2, 3].includes(d) ||
     M * d > 10000 ||
-    !Number.isFinite(modelVariance) ||
-    modelVariance <= 0 ||
     !Array.isArray(alphas) ||
     alphas.length < 1 ||
-    alphas.length > 8 ||
-    alphas.some((a) => !Number.isFinite(a) || a <= 0 || a >= 1)
-  )
+    alphas.length > 8
+  ) {
     return invalid();
+  }
   const bands: MomentBand[] = [];
   for (const alpha of alphas) {
     const z = normalQuantile(1 - alpha / 2),

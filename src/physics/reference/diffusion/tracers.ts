@@ -206,6 +206,11 @@ export async function recordTracers(
     }),
   };
 }
+export type ViewportBounds = Readonly<{
+  min: readonly number[];
+  max: readonly number[];
+}>;
+
 export type EnsembleMoments = Readonly<{
   M: number;
   axes: readonly Readonly<{
@@ -217,14 +222,21 @@ export type EnsembleMoments = Readonly<{
   meanNorm: number;
   meanSquareNorm: number;
   rmsNorm: number;
+  apparentSpeed?: number;
+  insideCount?: number;
+  outsideCount?: number;
 }>;
 /** Compensated sums over ALL members, never a viewport-selected subset. Row-major M by d. */
 export function ensembleMoments({
   displacements,
   d,
+  dt,
+  viewport,
 }: {
   displacements: Float64Array;
   d: number;
+  dt?: number;
+  viewport?: ViewportBounds;
 }): Computation<EnsembleMoments> {
   if (
     !(displacements instanceof Float64Array) ||
@@ -277,6 +289,33 @@ export function ensembleMoments({
   const meanSquareNorm = axes.reduce((s, a) => s + a.meanSquare, 0);
   if (![...sums, meanSquareNorm].every(Number.isFinite))
     return failure("The moment reduction exceeded the numerical range.");
+  const rmsNorm = Math.sqrt(meanSquareNorm);
+  let insideCount: number | undefined;
+  let outsideCount: number | undefined;
+  if (viewport) {
+    let inc = 0;
+    let outc = 0;
+    for (let i = 0; i < M; i++) {
+      let isInside = true;
+      for (let j = 0; j < d; j++) {
+        const v = displacements[i * d + j] ?? 0;
+        const minVal = viewport.min[j] ?? -Infinity;
+        const maxVal = viewport.max[j] ?? Infinity;
+        if (v < minVal || v > maxVal) {
+          isInside = false;
+          break;
+        }
+      }
+      if (isInside) inc++;
+      else outc++;
+    }
+    insideCount = inc;
+    outsideCount = outc;
+  }
+  const apparentSpeed =
+    dt !== undefined && Number.isFinite(dt) && dt > 0
+      ? (d === 1 ? (axes[0]?.rms ?? 0) : rmsNorm) / dt
+      : undefined;
   return {
     kind: "accepted",
     data: {
@@ -284,7 +323,9 @@ export function ensembleMoments({
       axes,
       meanNorm: (sums[d * 3] ?? 0) / M,
       meanSquareNorm,
-      rmsNorm: Math.sqrt(meanSquareNorm),
+      rmsNorm,
+      ...(apparentSpeed !== undefined ? { apparentSpeed } : {}),
+      ...(insideCount !== undefined && outsideCount !== undefined ? { insideCount, outsideCount } : {}),
     },
   };
 }

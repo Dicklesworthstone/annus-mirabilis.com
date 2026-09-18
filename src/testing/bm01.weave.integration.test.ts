@@ -235,8 +235,8 @@ describe("bm01.weave.integration: Sampling Bands Fixture Reproduction (AC11)", (
       modelVariance,
       alphas: [1e-3, 1e-4],
     });
-    expect(res.kind).toBe("accepted");
-    if (res.kind !== "accepted") return;
+    expect("kind" in res && res.kind).toBe("accepted");
+    if (!("kind" in res) || res.kind !== "accepted") return;
 
     const [band1e3, band1e4] = res.data;
     expect(band1e3).toBeDefined();
@@ -261,8 +261,8 @@ describe("bm01.weave.integration: Sampling Bands Fixture Reproduction (AC11)", (
       modelVariance,
       alphas: [1e-3, 1e-4],
     });
-    expect(res.kind).toBe("accepted");
-    if (res.kind !== "accepted") return;
+    expect("kind" in res && res.kind).toBe("accepted");
+    if (!("kind" in res) || res.kind !== "accepted") return;
 
     const [band1e3, band1e4] = res.data;
     expect(band1e3).toBeDefined();

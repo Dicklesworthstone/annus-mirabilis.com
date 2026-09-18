@@ -39,8 +39,8 @@ function value(result: ScientificResult): number {
     throw new RangeError("A model value was not numerically representable.");
   return result.value;
 }
-function unwrap<T>(r: Computation<T>): T {
-  if (r.kind !== "accepted") throw new RangeError("A reduction was not numerically representable.");
+function unwrap<T>(r: Computation<T> | ScientificResult): T {
+  if (!("kind" in r) || r.kind !== "accepted") throw new RangeError("A reduction was not numerically representable.");
   return r.data;
 }
 function number(id: string, v: number | Float64Array): ScientificResult {
