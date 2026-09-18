@@ -70,6 +70,11 @@ describe("Exact Rational Dimension Validator and Semantic Kind Checker", () => {
       dimension: ["-2", "1", "-2", "0", "0", "0"],
       semanticKind: "spectral-density-wavelength",
     }, // J m^-4
+    spectralEnergyDensityWaveMismatched: {
+      id: "spectralEnergyDensityWaveMismatched",
+      dimension: ["-1", "1", "-1", "0", "0", "0"],
+      semanticKind: "spectral-density-wavelength",
+    },
     totalEnergyDensity: {
       id: "totalEnergyDensity",
       dimension: ["-1", "1", "-2", "0", "0", "0"],
@@ -219,7 +224,8 @@ describe("Exact Rational Dimension Validator and Semantic Kind Checker", () => {
     expect(res).not.toBe(true);
     if (res.status !== "inconsistent") throw new Error("expected inconsistent");
     expect(res.offendingBases).toHaveLength(1);
-    const slot = res.offendingBases[0]!;
+    const [slot] = res.offendingBases;
+    if (!slot) throw new Error("expected offending base slot");
     expect(slot.base).toBe("length");
     expect(slot.lhs).toEqual({ num: 2n, den: 1n });
     expect(slot.rhs).toEqual({ num: 1n, den: 1n });
@@ -244,7 +250,8 @@ describe("Exact Rational Dimension Validator and Semantic Kind Checker", () => {
     const res = checkDimensions(composed, REGISTRY);
     expect(res.status).toBe("consistent");
     if (res.status !== "consistent") throw new Error("expected consistent");
-    const lengthExp = res.dimension[0]!;
+    const [lengthExp] = res.dimension;
+    if (!lengthExp) throw new Error("expected length dimension exponent");
     expect(lengthExp.num).toBe(1n);
     expect(lengthExp.den).toBe(1n);
     expect(typeof lengthExp.num).toBe("bigint");
@@ -576,6 +583,95 @@ describe("Exact Rational Dimension Validator and Semantic Kind Checker", () => {
     const anglePlusCount = sum(sym("angleVal"), sym("countVal"));
     const res = checkDimensions(anglePlusCount, REGISTRY);
     expect(res.status).toBe("semantic-mismatch");
+  });
+
+  it("validates laboratory vs comoving force semantic mismatch (labForce == comovingForce)", () => {
+    const forceRel = rel(sym("labForce"), sym("comovingForce"));
+    const res = checkDimensions(forceRel, REGISTRY);
+    expect(res.status).toBe("semantic-mismatch");
+    if (res.status === "semantic-mismatch") {
+      expect(res.kinds).toEqual(["laboratory-force", "comoving-force"]);
+    }
+  });
+
+  it("validates mean-square vs variance semantic mismatch (meanSquareVal == varianceVal)", () => {
+    const varRel = rel(sym("meanSquareVal"), sym("varianceVal"));
+    const res = checkDimensions(varRel, REGISTRY);
+    expect(res.status).toBe("semantic-mismatch");
+    if (res.status === "semantic-mismatch") {
+      expect(res.kinds).toEqual(["mean-square", "variance"]);
+    }
+  });
+
+  it("validates measured vs latent position semantic mismatch (measuredPos == latentPos)", () => {
+    const posRel = rel(sym("measuredPos"), sym("latentPos"));
+    const res = checkDimensions(posRel, REGISTRY);
+    expect(res.status).toBe("semantic-mismatch");
+    if (res.status === "semantic-mismatch") {
+      expect(res.kinds).toEqual(["measured-position", "latent-position"]);
+    }
+  });
+
+  it("validates angle added to probability is a semantic mismatch", () => {
+    const anglePlusProb = sum(sym("angleVal"), sym("probabilityVal"));
+    const res = checkDimensions(anglePlusProb, REGISTRY);
+    expect(res.status).toBe("semantic-mismatch");
+    if (res.status === "semantic-mismatch") {
+      expect(res.kinds).toEqual(["angle", "probability"]);
+    }
+  });
+
+  it("validates spectral density frequency vs wavelength semantic mismatch when dimensions match", () => {
+    const densityRel = rel(
+      sym("spectralEnergyDensityFreq"),
+      sym("spectralEnergyDensityWaveMismatched"),
+    );
+    const res = checkDimensions(densityRel, REGISTRY);
+    expect(res.status).toBe("semantic-mismatch");
+    if (res.status === "semantic-mismatch") {
+      expect(res.kinds).toEqual(["spectral-density-frequency", "spectral-density-wavelength"]);
+    }
+  });
+
+  it("validates Lorentz boost component equations and matrix target dimensions", () => {
+    const gamma = num("1.0");
+    const dxComponent = rel(
+      sym("length"),
+      sum(prod(gamma, sym("length")), prod(num("-1.0"), gamma, sym("velocity"), sym("time"))),
+    );
+    const dxCheck = checkDimensions(dxComponent, REGISTRY);
+    expect(dxCheck.status).toBe("consistent");
+    if (dxCheck.status === "consistent") {
+      expect(dimensionText(dxCheck.dimension)).toBe("1,0,0,0,0,0");
+    }
+
+    const dtComponent = rel(
+      sym("time"),
+      sum(
+        prod(
+          num("-1.0"),
+          gamma,
+          quot(sym("velocity"), pow(sym("lightSpeed"), { num: 2, den: 1 })),
+          sym("length"),
+        ),
+        prod(gamma, sym("time")),
+      ),
+    );
+    const dtCheck = checkDimensions(dtComponent, REGISTRY);
+    expect(dtCheck.status).toBe("consistent");
+    if (dtCheck.status === "consistent") {
+      expect(dimensionText(dtCheck.dimension)).toBe("0,0,1,0,0,0");
+    }
+
+    const matrixWithTarget = {
+      kind: "matrix" as const,
+      targetDimensions: ["1", "0", "0", "0", "0", "0"],
+    };
+    const targetCheck = checkDimensions(matrixWithTarget, REGISTRY);
+    expect(targetCheck.status).toBe("consistent");
+    if (targetCheck.status === "consistent") {
+      expect(dimensionText(targetCheck.dimension)).toBe("1,0,0,0,0,0");
+    }
   });
 
   it("validates runtime mapping refuses fractional exponents, non-SI contexts, and state-dependent quantities", () => {
