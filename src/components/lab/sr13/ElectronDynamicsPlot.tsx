@@ -318,8 +318,8 @@ export function ElectronDynamicsPlot({
                         cx={pt.x}
                         cy={pt.y}
                         r={4}
-                        fill="#f59e0b"
-                        stroke="#b45309"
+                        fill="var(--accent)"
+                        stroke="var(--accent)"
                         strokeWidth={1.5}
                       />
                       <line
@@ -327,7 +327,7 @@ export function ElectronDynamicsPlot({
                         y1={pt.y - 5}
                         x2={pt.x}
                         y2={pt.y + 5}
-                        stroke="#b45309"
+                        stroke="var(--accent)"
                         strokeWidth={1}
                       />
                     </g>
@@ -361,8 +361,8 @@ export function ElectronDynamicsPlot({
                         y={pt.y - 3.5}
                         width={7}
                         height={7}
-                        fill="#10b981"
-                        stroke="#047857"
+                        fill="var(--plot)"
+                        stroke="var(--plot)"
                         strokeWidth={1.5}
                       />
                       <line
@@ -370,7 +370,7 @@ export function ElectronDynamicsPlot({
                         y1={pt.y - 4}
                         x2={pt.x}
                         y2={pt.y + 4}
-                        stroke="#047857"
+                        stroke="var(--plot)"
                         strokeWidth={1}
                       />
                     </g>
