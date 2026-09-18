@@ -15,27 +15,25 @@ import {
   type ConstantEntry,
   ConstantSetError,
   checkPrintedConsistency,
+  compareAcrossSets,
+  constantValue,
   freezeConstantSet,
   getConstantSet,
   RESERVED_SET_IDS,
 } from "../physics/reference/constants.ts";
 
-describe("registry status: every printed-historical and reserved set reports not-registered", () => {
-  test("the four printed-historical papers throw constant-set-not-registered, owner am-ref-constants-xik", () => {
+describe("registry status: historical sets registered and dissertation ids reserved", () => {
+  test("the four printed-historical papers are registered and return valid sets", () => {
     for (const id of [
       "einstein-1905-light-quanta-printed",
       "einstein-1905-brownian-printed",
       "einstein-1905-mass-energy-printed",
       "planck-1900-1901-printed",
     ]) {
-      try {
-        getConstantSet(id);
-        throw new Error(`expected ${id} to throw`);
-      } catch (error) {
-        expect(error).toBeInstanceOf(ConstantSetError);
-        expect((error as ConstantSetError).code).toBe("constant-set-not-registered");
-        expect((error as Error).message).toContain("am-ref-constants-xik");
-      }
+      const set = getConstantSet(id);
+      expect(set.id).toBe(id);
+      expect(set.entries.length).toBeGreaterThan(0);
+      expect(Object.isFrozen(set)).toBe(true);
     }
   });
 
@@ -50,6 +48,7 @@ describe("registry status: every printed-historical and reserved set reports not
         getConstantSet(id);
         throw new Error(`expected ${id} to throw`);
       } catch (error) {
+        expect(error).toBeInstanceOf(ConstantSetError);
         expect((error as ConstantSetError).code).toBe("constant-set-not-registered");
         expect((error as Error).message).toContain("am-ref-viscosity-suspension-c9lp");
       }
@@ -67,11 +66,183 @@ describe("registry status: every printed-historical and reserved set reports not
   });
 
   test("checkPrintedConsistency on a reserved id reports not-available, never passed", () => {
-    const report = checkPrintedConsistency("einstein-1905-brownian-printed");
+    const report = checkPrintedConsistency("einstein-1905-thesis-printed");
     expect(report.available).toBe(false);
     expect(report.ok).toBe(false);
     expect(report.issues[0]?.code).toBe("not-available");
-    expect(report.issues[0]?.message).toContain("am-ref-constants-xik");
+    expect(report.issues[0]?.message).toContain("am-ref-viscosity-suspension-c9lp");
+  });
+
+  test("checkPrintedConsistency on all four registered historical sets reports ok", () => {
+    for (const id of [
+      "einstein-1905-light-quanta-printed",
+      "einstein-1905-brownian-printed",
+      "einstein-1905-mass-energy-printed",
+      "planck-1900-1901-printed",
+    ]) {
+      const report = checkPrintedConsistency(id);
+      expect(report.available).toBe(true);
+      expect(report.ok).toBe(true);
+      expect(report.issues).toEqual([]);
+    }
+  });
+});
+
+describe("einstein-1905-light-quanta-printed", () => {
+  const set = getConstantSet("einstein-1905-light-quanta-printed");
+
+  test("records gasConstantProvenance as measured-without-counting-molecules", () => {
+    expect(set.gasConstantProvenance).toBe("measured-without-counting-molecules");
+  });
+
+  test("alpha entry follows printed-corrected decision with receipt reference", () => {
+    const alpha = set.entries.find((e) => e.quantityId === "wienConstantAlpha");
+    expect(alpha).toBeDefined();
+    expect(alpha?.printedStatus).toBe("printed-corrected");
+    expect(alpha?.printedReading).toBe("6,10 · 10^-56");
+    expect(alpha?.correctedValue).toBe(6.1e-57);
+    expect(alpha?.receiptRef).toBe("docs/provenance/ap-17-132.md#watch-alpha-exponent");
+    expect(alpha?.journalPage).toBe("136");
+    expect(alpha?.facsimilePdfPage).toBe(5);
+    expect(alpha?.transcriptionStatus).toBe("transcribed-and-checked");
+    expect(alpha?.checkedBy).toBe("pane21");
+  });
+
+  test("R and L are editorial inputs carrying sensitivity 6.1858e23", () => {
+    const R = set.entries.find((e) => e.quantityId === "molarGasConstant");
+    const L = set.entries.find((e) => e.quantityId === "speedOfLight");
+    expect(R?.printedStatus).toBe("editorial-input");
+    expect(R?.sensitivity).toContain("6.1858e23");
+    expect(L?.printedStatus).toBe("editorial-input");
+    expect(L?.sensitivity).toContain("6.1858e23");
+  });
+
+  test("recomputing N from stated inputs gives 6.170486e23, rounding to printed 6.17e23", () => {
+    const alpha = set.entries.find((e) => e.quantityId === "wienConstantAlpha")!;
+    const beta = set.entries.find((e) => e.quantityId === "wienConstantBeta")!;
+    const R = set.entries.find((e) => e.quantityId === "molarGasConstant")!;
+    const L = set.entries.find((e) => e.quantityId === "speedOfLight")!;
+    const alphaVal = alpha.correctedValue ?? alpha.value;
+    const computedN = (beta.value / alphaVal) * ((8 * Math.PI * R.value) / Math.pow(L.value, 3));
+    expect(Math.abs(computedN / 6.170486e23 - 1)).toBeLessThan(1e-6);
+    expect(computedN.toExponential(2)).toBe("6.17e+23");
+  });
+
+  test("section 8 check reproduces 4.3385 V and slope 4.2121e-15 V s", () => {
+    const R = set.entries.find((e) => e.quantityId === "molarGasConstant")!;
+    const beta = set.entries.find((e) => e.quantityId === "wienConstantBeta")!;
+    const E = set.entries.find((e) => e.quantityId === "gramEquivalentCharge")!;
+    const nu = 1.03e15;
+    const PiAbvolt = (R.value * beta.value * nu) / E.value;
+    const PiVolts = PiAbvolt * 1e-8;
+    expect(Math.abs(PiVolts - 4.3385) / 4.3385).toBeLessThan(1e-4);
+    const slope = ((R.value * beta.value) / E.value) * 1e-8;
+    expect(Math.abs(slope - 4.2121e-15) / 4.2121e-15).toBeLessThan(1e-4);
+  });
+
+  test("section 8 documented alternative esu route reproduces 4.3057 V and 4.3087 V", () => {
+    const R = set.entries.find((e) => e.quantityId === "molarGasConstant")!;
+    const beta = set.entries.find((e) => e.quantityId === "wienConstantBeta")!;
+    const N = set.entries.find((e) => e.quantityId === "avogadroConstant")!;
+    const nu = 1.03e15;
+    const eps = 4.7e-10; // esu
+    const statvolts = (R.value * beta.value * nu) / (N.value * eps);
+    const voltsExact = statvolts * 299.792458;
+    const voltsHist = statvolts * 300;
+    expect(Math.abs(voltsExact - 4.3057) / 4.3057).toBeLessThan(1e-3);
+    expect(Math.abs(voltsHist - 4.3087) / 4.3087).toBeLessThan(1e-3);
+  });
+
+  test("section 9 relations reproduce 6.4e12 and 9.6e12 erg at printed precision", () => {
+    const R = set.entries.find((e) => e.quantityId === "molarGasConstant")!;
+    const beta = set.entries.find((e) => e.quantityId === "wienConstantBeta")!;
+    const L = set.entries.find((e) => e.quantityId === "speedOfLight")!;
+    const E = set.entries.find((e) => e.quantityId === "gramEquivalentCharge")!;
+    const lambda = 1.9e-5;
+    const lenardWork = (R.value * beta.value * L.value) / lambda;
+    expect(Math.abs(lenardWork - 6.3847e12) / 6.3847e12).toBeLessThan(1e-4);
+    expect(lenardWork.toExponential(1)).toBe("6.4e+12");
+    const starkWork = E.value * 10 * 1e8;
+    expect(starkWork).toBe(9.6e12);
+  });
+});
+
+describe("einstein-1905-brownian-printed", () => {
+  const set = getConstantSet("einstein-1905-brownian-printed");
+
+  test("records gasConstantProvenance as measured-without-counting-molecules", () => {
+    expect(set.gasConstantProvenance).toBe("measured-without-counting-molecules");
+  });
+
+  test("records R as editorial input not printed in paper 2, and T = 290.15 K", () => {
+    const R = set.entries.find((e) => e.quantityId === "molarGasConstant");
+    expect(R?.printedStatus).toBe("editorial-input");
+    expect(R?.reason).toContain("not printed in paper 2");
+    const T = set.entries.find((e) => e.quantityId === "temperature");
+    expect(T?.value).toBe(290.15);
+    expect(T?.printedReading).toBe("17°");
+  });
+
+  test("reproduces 0.7947833 um at 1 s and 6.156365 um at 60 s", () => {
+    const R = set.entries.find((e) => e.quantityId === "molarGasConstant")!;
+    const T = set.entries.find((e) => e.quantityId === "temperature")!;
+    const N = set.entries.find((e) => e.quantityId === "avogadroConstant")!;
+    const eta = set.entries.find((e) => e.quantityId === "viscosity")!;
+    const a = set.entries.find((e) => e.quantityId === "particleRadius")!;
+    const D = ((R.value * T.value) / N.value) / (6 * Math.PI * eta.value * a.value);
+    const lambda1 = Math.sqrt(2 * D);
+    const lambda60 = Math.sqrt(2 * D * 60);
+    expect(Math.abs(lambda1 / 0.7947833e-6 - 1)).toBeLessThan(1e-6);
+    expect(Math.abs(lambda60 / 6.156365e-6 - 1)).toBeLessThan(1e-6);
+  });
+});
+
+describe("einstein-1905-mass-energy-printed", () => {
+  const set = getConstantSet("einstein-1905-mass-energy-printed");
+
+  test("records gasConstantProvenance as not-applicable", () => {
+    expect(set.gasConstantProvenance).toBe("not-applicable");
+  });
+
+  test("reproduces 1 g for 9e20 erg and compares with modern c^2", () => {
+    const c2 = set.entries.find((e) => e.quantityId === "speedOfLightSquared")!;
+    expect(c2.printedReading).toBe("9 · 10²⁰");
+    const energyJ = 9e13; // 9e20 erg in Joules
+    const massKg = energyJ / c2.value;
+    expect(massKg).toBe(0.001); // 1 g
+
+    const modern = getConstantSet("modern-si-2019");
+    const modernC = constantValue(modern, "speedOfLight").value;
+    const modernC2 = modernC * modernC;
+    const printedMassVal = { setId: set.id, quantityId: "speedOfLightSquared", value: c2.value };
+    const modernMassVal = { setId: modern.id, quantityId: "speedOfLightSquared", value: modernC2 };
+    const comp = compareAcrossSets({
+      left: printedMassVal,
+      right: modernMassVal,
+      reason: "factor comparison",
+    });
+    expect(Math.abs(comp.ratio - 1.00138505) / 1.00138505).toBeLessThan(1e-7);
+  });
+});
+
+describe("planck-1900-1901-printed", () => {
+  const set = getConstantSet("planck-1900-1901-printed");
+
+  test("records gasConstantProvenance as measured-without-counting-molecules", () => {
+    expect(set.gasConstantProvenance).toBe("measured-without-counting-molecules");
+  });
+
+  test("consistency check between independently transcribed sets matches beta and alpha", () => {
+    const h = set.entries.find((e) => e.quantityId === "planckConstant")!;
+    const k = set.entries.find((e) => e.quantityId === "boltzmannConstant")!;
+    const c = set.entries.find((e) => e.quantityId === "speedOfLight")!;
+    const hCgs = h.value * 1e7;
+    const kCgs = k.value * 1e7;
+    const hOverK = hCgs / kCgs;
+    expect(Math.abs(hOverK - 4.86627e-11) / 4.86627e-11).toBeLessThan(1e-3);
+    const LCgs = c.value * 100;
+    const alphaCalc = (8 * Math.PI * hCgs) / Math.pow(LCgs, 3);
+    expect(Math.abs(alphaCalc - 6.0970e-57) / 6.0970e-57).toBeLessThan(1e-2);
   });
 });
 

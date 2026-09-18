@@ -211,14 +211,17 @@ describe("reserved and pending-facsimile set ids", () => {
     }
   });
 
-  test("the four printed-historical papers not yet registered also throw constant-set-not-registered, owner am-ref-constants-xik", () => {
+  test("the four printed-historical papers are registered and return valid frozen sets", () => {
     for (const id of [
       "einstein-1905-light-quanta-printed",
       "einstein-1905-brownian-printed",
       "einstein-1905-mass-energy-printed",
       "planck-1900-1901-printed",
     ]) {
-      expectRejection(() => getConstantSet(id), "constant-set-not-registered");
+      const set = getConstantSet(id);
+      expect(set.id).toBe(id);
+      expect(set.entries.length).toBeGreaterThan(0);
+      expect(Object.isFrozen(set)).toBe(true);
     }
   });
 
@@ -227,8 +230,8 @@ describe("reserved and pending-facsimile set ids", () => {
   });
 
   test("checkPrintedConsistency reports a reserved/unregistered set as not-available rather than throwing", () => {
-    const report = checkPrintedConsistency("einstein-1905-brownian-printed");
-    expect(report.setId).toBe("einstein-1905-brownian-printed");
+    const report = checkPrintedConsistency("einstein-1905-thesis-printed");
+    expect(report.setId).toBe("einstein-1905-thesis-printed");
     expect(report.available).toBe(false);
     expect(report.ok).toBe(false);
     expect(report.issues[0]?.code).toBe("not-available");

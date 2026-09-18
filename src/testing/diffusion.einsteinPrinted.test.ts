@@ -49,8 +49,10 @@ function printedSet() {
 }
 
 describe(`scenario ${SCENARIO_ID}`, () => {
-  test("reserved printed set is not registered; declared R/N path never reads modern k_B", () => {
-    expect(() => getConstantSet("einstein-1905-brownian-printed")).toThrow();
+  test("printed historical set is registered; declared R/N path never reads modern k_B", () => {
+    const historicalSet = getConstantSet("einstein-1905-brownian-printed");
+    expect(historicalSet.id).toBe("einstein-1905-brownian-printed");
+    expect(historicalSet.entries.length).toBeGreaterThan(0);
     const set = printedSet();
     expect(set.id).not.toBe("modern-si-2019");
     expect(set.entries.some((e) => e.quantityId === "boltzmannConstant")).toBe(false);

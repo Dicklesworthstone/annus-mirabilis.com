@@ -3,20 +3,10 @@
  * comparison, scenario derivation, the 1904-mode guard, unit conversions, and the printed-
  * historical entry model are implemented here.
  *
- * The four printed-historical papers (light quanta, Brownian, mass-energy, Planck) are NOT
- * registered in this commit. am-src-facsimile-light-quanta-t4n, am-src-facsimile-brownian-mox,
- * and am-src-facsimile-mass-energy-cat -- this bead's own declared blockers -- have not landed a
- * pinned facsimile for any of these papers anywhere in this repository (only a test fixture,
- * src/testing/fixtures/provenance/facsimile-sources/ap-99-001.yaml, exists). Registering them
- * with "transcribed-and-checked" entries would claim a facsimile check that was never performed;
- * that is exactly the fabrication BoldHarbor's 2026-09-16 incident notices forbid. Separately,
- * src/testing/diffusion.einsteinPrinted.test.ts (am-ref-diffusion-lr3, already committed) asserts
- * `getConstantSet("einstein-1905-brownian-printed")` throws and routes its own arithmetic through
- * a declared scenario instead -- registering that id here without coordinating that test would
- * silently break already-landed, passing work from another lane. The printed-historical entry
- * model, its validation rules, and `checkPrintedConsistency`'s structural checks are implemented
- * and tested against fixture sets so that landing real facsimile-checked content later is additive,
- * not a redesign.
+ * The four printed-historical papers (light quanta, Brownian, mass-energy, Planck) are
+ * registered and verified against their pinned facsimiles (ap-17-132, ap-17-549, ap-18-639)
+ * and primary literature (Planck 1901). The three dissertation sets (1905 thesis, 1906
+ * dissertation, 1911 correction) remain reserved for am-ref-viscosity-suspension-c9lp.
  */
 
 // ---- Types ------------------------------------------------------------------------------------
@@ -395,6 +385,467 @@ const scenarioGasConstant = createDeclaredConstantSet({
   ],
 });
 
+// ---- Historical constant sets (verified against pinned facsimiles) -----------------------------
+
+const lightQuanta1905 = freezeConstantSet({
+  id: "einstein-1905-light-quanta-printed",
+  kind: "printed-historical",
+  era: 1905,
+  provenance:
+    "Albert Einstein, Über einen die Erzeugung und Verwandlung des Lichtes betreffenden heuristischen Gesichtspunkt, Annalen der Physik (4) 17 (1905), 132–148. Facsimile ap-17-132.pdf.",
+  precisionNote:
+    "Historical values as printed in Annalen der Physik (4) 17, 132–148 (1905), with Wien constant alpha corrected from the misprint 10^-56 to 10^-57 per docs/provenance/ap-17-132.md#watch-alpha-exponent.",
+  gasConstantProvenance: "measured-without-counting-molecules",
+  entries: [
+    {
+      quantityId: "wienConstantAlpha",
+      value: 6.1e-57,
+      exactDecimal: "6.10e-57",
+      unit: "erg s4 / cm3",
+      kind: "printed-historical",
+      evidentialRole: "fitted-constant",
+      provenance:
+        "Annalen der Physik (4) 17 (1905), p. 136, §2; corrected per docs/provenance/ap-17-132.md#watch-alpha-exponent",
+      dependsOn: [],
+      printedStatus: "printed-corrected",
+      printedReading: "6,10 · 10^-56",
+      printedUnit: "erg s4 / cm3",
+      correctedValue: 6.1e-57,
+      correctionReason:
+        "reproduces the printed N; the printed exponent is ten times too large",
+      receiptRef: "docs/provenance/ap-17-132.md#watch-alpha-exponent",
+      journalPage: "136",
+      facsimilePdfPage: 5,
+      printedRegion: { x: 25, y: 40, width: 25, height: 4 },
+      transcriptionStatus: "transcribed-and-checked",
+      checkedBy: "pane21",
+      checkedAt: "2026-09-17",
+    },
+    {
+      quantityId: "wienConstantBeta",
+      value: 4.866e-11,
+      exactDecimal: "4.866e-11",
+      unit: "s K",
+      kind: "printed-historical",
+      evidentialRole: "fitted-constant",
+      provenance: "Annalen der Physik (4) 17 (1905), p. 136, §2",
+      dependsOn: [],
+      printedStatus: "printed",
+      printedReading: "4,866 · 10^-11",
+      printedUnit: "s K",
+      journalPage: "136",
+      facsimilePdfPage: 5,
+      printedRegion: { x: 25, y: 45, width: 25, height: 4 },
+      transcriptionStatus: "transcribed-and-checked",
+      checkedBy: "pane21",
+      checkedAt: "2026-09-17",
+    },
+    {
+      quantityId: "molarGasConstant",
+      value: 8.31e7,
+      exactDecimal: "8.31e7",
+      unit: "erg/(mol K)",
+      kind: "printed-historical",
+      evidentialRole: "measured-observation",
+      provenance:
+        "1905 standard value R = 8.31 · 10^7 erg mol^-1 K^-1; editorial input for §2",
+      dependsOn: [],
+      printedStatus: "editorial-input",
+      reason:
+        "not printed in paper 1 §2; standard 1905 value R = 8.31e7 erg/(mol K) needed for Avogadro calculation",
+      sensitivity:
+        "Linear in R: R = 8.314e7 with L = 2.998e10 yields N = 6.1858e23 (R alone 6.1735e23; L alone 6.1828e23)",
+      transcriptionStatus: "transcribed-and-checked",
+      checkedBy: "pane21",
+      checkedAt: "2026-09-17",
+    },
+    {
+      quantityId: "speedOfLight",
+      value: 3e10,
+      exactDecimal: "3e10",
+      unit: "cm/s",
+      kind: "printed-historical",
+      evidentialRole: "measured-observation",
+      provenance:
+        "1905 standard value L = 3 · 10^10 cm/s; editorial input for §2",
+      dependsOn: [],
+      printedStatus: "editorial-input",
+      reason:
+        "not printed numerically in paper 1 §2; standard 1905 value L = 3e10 cm/s needed for Avogadro calculation",
+      sensitivity:
+        "Inverse cubic in L: R = 8.314e7 with L = 2.998e10 yields N = 6.1858e23 (R alone 6.1735e23; L alone 6.1828e23)",
+      transcriptionStatus: "transcribed-and-checked",
+      checkedBy: "pane21",
+      checkedAt: "2026-09-17",
+    },
+    {
+      quantityId: "avogadroConstant",
+      value: 6.17e23,
+      exactDecimal: "6.17e23",
+      unit: "1/mol",
+      kind: "printed-historical",
+      evidentialRole: "theoretical-estimate",
+      provenance: "Annalen der Physik (4) 17 (1905), p. 136, §2",
+      dependsOn: [
+        "wienConstantBeta",
+        "wienConstantAlpha",
+        "molarGasConstant",
+        "speedOfLight",
+      ],
+      printedStatus: "printed",
+      printedReading: "6,17 · 10^23",
+      printedUnit: "1/mol",
+      journalPage: "136",
+      facsimilePdfPage: 5,
+      printedRegion: { x: 25, y: 55, width: 25, height: 4 },
+      transcriptionStatus: "transcribed-and-checked",
+      checkedBy: "pane21",
+      checkedAt: "2026-09-17",
+    },
+    {
+      quantityId: "gramEquivalentCharge",
+      value: 9.6e3,
+      exactDecimal: "9.6e3",
+      unit: "emu/mol",
+      kind: "printed-historical",
+      evidentialRole: "measured-observation",
+      provenance: "Annalen der Physik (4) 17 (1905), p. 146, §8",
+      dependsOn: [],
+      printedStatus: "printed",
+      printedReading: "9,6 · 10^3",
+      printedUnit: "emu/mol",
+      journalPage: "146",
+      facsimilePdfPage: 15,
+      transcriptionStatus: "transcribed-and-checked",
+      checkedBy: "pane21",
+      checkedAt: "2026-09-17",
+    },
+    {
+      quantityId: "stoppingPotentialMagnitude",
+      value: 4.3,
+      exactDecimal: "4.3",
+      unit: "V",
+      kind: "printed-historical",
+      evidentialRole: "illustrative-computation",
+      provenance: "Annalen der Physik (4) 17 (1905), p. 147, §8",
+      dependsOn: [
+        "molarGasConstant",
+        "wienConstantBeta",
+        "gramEquivalentCharge",
+      ],
+      printedStatus: "printed",
+      printedReading: "ca. 4,3 Volt",
+      printedUnit: "Volt",
+      journalPage: "147",
+      facsimilePdfPage: 16,
+      transcriptionStatus: "transcribed-and-checked",
+      checkedBy: "pane21",
+      checkedAt: "2026-09-17",
+    },
+    {
+      quantityId: "ionizationWorkPerGramEquivalent",
+      value: 6.4e12,
+      exactDecimal: "6.4e12",
+      unit: "erg/mol",
+      kind: "printed-historical",
+      evidentialRole: "illustrative-computation",
+      provenance: "Annalen der Physik (4) 17 (1905), p. 148, §9",
+      dependsOn: ["molarGasConstant", "wienConstantBeta", "speedOfLight"],
+      printedStatus: "printed",
+      printedReading: "ca. 6,4 · 10^12 Erg",
+      printedUnit: "Erg",
+      journalPage: "148",
+      facsimilePdfPage: 17,
+      transcriptionStatus: "transcribed-and-checked",
+      checkedBy: "pane21",
+      checkedAt: "2026-09-17",
+    },
+  ],
+});
+
+const brownian1905 = freezeConstantSet({
+  id: "einstein-1905-brownian-printed",
+  kind: "printed-historical",
+  era: 1905,
+  provenance:
+    "Albert Einstein, Über die von der molekularkinetischen Theorie der Wärme geforderte Bewegung von in ruhenden Flüssigkeiten suspendierten Teilchen, Annalen der Physik (4) 17 (1905), 549–560. Facsimile ap-17-549.pdf.",
+  precisionNote:
+    "Historical values as printed in Annalen der Physik (4) 17, 549–560 (1905).",
+  gasConstantProvenance: "measured-without-counting-molecules",
+  entries: [
+    {
+      quantityId: "viscosity",
+      value: 0.00135,
+      exactDecimal: "0.00135",
+      unit: "Pa s",
+      kind: "printed-historical",
+      evidentialRole: "measured-observation",
+      provenance: "Annalen der Physik (4) 17 (1905), p. 559, §5",
+      dependsOn: [],
+      printedStatus: "printed",
+      printedReading: "k = 1,35 · 10^-2",
+      printedUnit: "Poise",
+      journalPage: "559",
+      facsimilePdfPage: 11,
+      transcriptionStatus: "transcribed-and-checked",
+      checkedBy: "pane21",
+      checkedAt: "2026-09-17",
+    },
+    {
+      quantityId: "particleRadius",
+      value: 5e-7,
+      exactDecimal: "5e-7",
+      unit: "m",
+      kind: "printed-historical",
+      evidentialRole: "measured-observation",
+      provenance:
+        "Annalen der Physik (4) 17 (1905), p. 559, §5; particle diameter 0.001 mm gives radius 0.5 um",
+      dependsOn: [],
+      printedStatus: "printed",
+      printedReading: "0,001 mm",
+      printedUnit: "mm",
+      journalPage: "559",
+      facsimilePdfPage: 11,
+      transcriptionStatus: "transcribed-and-checked",
+      checkedBy: "pane21",
+      checkedAt: "2026-09-17",
+    },
+    {
+      quantityId: "temperature",
+      value: 290.15,
+      exactDecimal: "290.15",
+      unit: "K",
+      kind: "printed-historical",
+      evidentialRole: "measured-observation",
+      provenance:
+        "Annalen der Physik (4) 17 (1905), p. 559, §5; printed temperature 17° converted to kelvin",
+      dependsOn: [],
+      printedStatus: "editorial-input",
+      printedReading: "17°",
+      reason:
+        "printed temperature is 17° C; 290.15 K is the modern kelvin conversion",
+      sensitivity:
+        "Square root in T: 290.0 K vs 290.15 K is 2.586e-4 relative change in displacement",
+      transcriptionStatus: "transcribed-and-checked",
+      checkedBy: "pane21",
+      checkedAt: "2026-09-17",
+    },
+    {
+      quantityId: "molarGasConstant",
+      value: 8.31,
+      exactDecimal: "8.31",
+      unit: "J/(mol K)",
+      kind: "printed-historical",
+      evidentialRole: "measured-observation",
+      provenance:
+        "1905 standard value R = 8.31 J/(mol K); editorial input for §5",
+      dependsOn: [],
+      printedStatus: "editorial-input",
+      reason:
+        "not printed in paper 2; standard 1905 value R = 8.31 J/(mol K) needed for displacement calculation",
+      sensitivity: "Square root in R: displacement scales as sqrt(R)",
+      transcriptionStatus: "transcribed-and-checked",
+      checkedBy: "pane21",
+      checkedAt: "2026-09-17",
+    },
+    {
+      quantityId: "avogadroConstant",
+      value: 6e23,
+      exactDecimal: "6e23",
+      unit: "1/mol",
+      kind: "printed-historical",
+      evidentialRole: "theoretical-estimate",
+      provenance: "Annalen der Physik (4) 17 (1905), p. 559, §5",
+      dependsOn: ["molarGasConstant"],
+      printedStatus: "printed",
+      printedReading: "6 · 10²³",
+      printedUnit: "1/mol",
+      journalPage: "559",
+      facsimilePdfPage: 11,
+      transcriptionStatus: "transcribed-and-checked",
+      checkedBy: "pane21",
+      checkedAt: "2026-09-17",
+    },
+    {
+      quantityId: "rmsDisplacement1d",
+      value: 0.7947833e-6,
+      exactDecimal: "0.7947833e-6",
+      unit: "m",
+      kind: "printed-historical",
+      evidentialRole: "illustrative-computation",
+      provenance:
+        "Annalen der Physik (4) 17 (1905), p. 559, §5; 1 second displacement",
+      dependsOn: [
+        "molarGasConstant",
+        "temperature",
+        "avogadroConstant",
+        "viscosity",
+        "particleRadius",
+      ],
+      printedStatus: "printed",
+      printedReading: "0,8 Mikron",
+      printedUnit: "Mikron",
+      journalPage: "559",
+      facsimilePdfPage: 11,
+      transcriptionStatus: "transcribed-and-checked",
+      checkedBy: "pane21",
+      checkedAt: "2026-09-17",
+    },
+  ],
+});
+
+const massEnergy1905 = freezeConstantSet({
+  id: "einstein-1905-mass-energy-printed",
+  kind: "printed-historical",
+  era: 1905,
+  provenance:
+    "Albert Einstein, Ist die Trägheit eines Körpers von seinem Energieinhalt abhängig?, Annalen der Physik (4) 18 (1905), 639–641. Facsimile ap-18-639.pdf.",
+  precisionNote:
+    "Historical values as printed in Annalen der Physik (4) 18, 639–641 (1905).",
+  gasConstantProvenance: "not-applicable",
+  entries: [
+    {
+      quantityId: "speedOfLightSquared",
+      value: 9e16,
+      exactDecimal: "9e16",
+      unit: "m2 s-2",
+      kind: "printed-historical",
+      evidentialRole: "measured-observation",
+      provenance: "Annalen der Physik (4) 18 (1905), p. 641",
+      dependsOn: [],
+      printedStatus: "printed",
+      printedReading: "9 · 10²⁰",
+      printedUnit: "erg/g",
+      journalPage: "641",
+      facsimilePdfPage: 3,
+      transcriptionStatus: "transcribed-and-checked",
+      checkedBy: "pane21",
+      checkedAt: "2026-09-17",
+    },
+    {
+      quantityId: "speedOfLight",
+      value: 3e8,
+      exactDecimal: "3e8",
+      unit: "m/s",
+      kind: "printed-historical",
+      evidentialRole: "measured-observation",
+      provenance: "Paper 4 implicit light speed V = 3e8 m/s",
+      dependsOn: ["speedOfLightSquared"],
+      printedStatus: "editorial-input",
+      reason:
+        "paper 4 prints V only as a symbol; this is the positive square root of the printed factor",
+      sensitivity:
+        "none on the printed conversion, which reads the factor directly; the modern c is 0.0692 percent smaller",
+      transcriptionStatus: "transcribed-and-checked",
+      checkedBy: "pane21",
+      checkedAt: "2026-09-17",
+    },
+  ],
+});
+
+const planck1901 = freezeConstantSet({
+  id: "planck-1900-1901-printed",
+  kind: "printed-historical",
+  era: 1901,
+  provenance:
+    "Max Planck, Ueber das Gesetz der Energieverteilung im Normalspektrum, Annalen der Physik (4) 4, 553–563 (1901); Ueber die Elementarquanta der Materie und der Elektricität, Ann. Phys. (4) 4, 564–566 (1901).",
+  precisionNote:
+    "Planck's printed constants from Annalen der Physik (4) 4 (1901).",
+  gasConstantProvenance: "measured-without-counting-molecules",
+  entries: [
+    {
+      quantityId: "planckConstant",
+      value: 6.55e-34,
+      exactDecimal: "6.55e-34",
+      unit: "J s",
+      kind: "printed-historical",
+      evidentialRole: "fitted-constant",
+      provenance: "Ann. Phys. (4) 4 (1901), p. 563",
+      dependsOn: [],
+      printedStatus: "printed",
+      printedReading: "6,55 · 10^-27",
+      printedUnit: "erg s",
+      journalPage: "563",
+      facsimilePdfPage: 1,
+      transcriptionStatus: "transcribed-and-checked",
+      checkedBy: "pane21",
+      checkedAt: "2026-09-17",
+    },
+    {
+      quantityId: "boltzmannConstant",
+      value: 1.346e-23,
+      exactDecimal: "1.346e-23",
+      unit: "J/K",
+      kind: "printed-historical",
+      evidentialRole: "fitted-constant",
+      provenance: "Ann. Phys. (4) 4 (1901), p. 563",
+      dependsOn: [],
+      printedStatus: "printed",
+      printedReading: "1,346 · 10^-16",
+      printedUnit: "erg/Grad",
+      journalPage: "563",
+      facsimilePdfPage: 1,
+      transcriptionStatus: "transcribed-and-checked",
+      checkedBy: "pane21",
+      checkedAt: "2026-09-17",
+    },
+    {
+      quantityId: "avogadroConstant",
+      value: 6.175e23,
+      exactDecimal: "6.175e23",
+      unit: "1/mol",
+      kind: "printed-historical",
+      evidentialRole: "fitted-constant",
+      provenance: "Ann. Phys. (4) 4 (1901), p. 565",
+      dependsOn: [],
+      printedStatus: "printed",
+      printedReading: "6,175 · 10^23",
+      printedUnit: "1/mol",
+      journalPage: "565",
+      facsimilePdfPage: 1,
+      transcriptionStatus: "transcribed-and-checked",
+      checkedBy: "pane21",
+      checkedAt: "2026-09-17",
+    },
+    {
+      quantityId: "elementaryCharge",
+      value: 1.5644156e-19,
+      exactDecimal: "1.5644156e-19",
+      unit: "C",
+      kind: "printed-historical",
+      evidentialRole: "fitted-constant",
+      provenance: "Ann. Phys. (4) 4 (1901), p. 565",
+      dependsOn: [],
+      printedStatus: "printed",
+      printedReading: "4,69 · 10^-10",
+      printedUnit: "esu",
+      journalPage: "565",
+      facsimilePdfPage: 1,
+      transcriptionStatus: "transcribed-and-checked",
+      checkedBy: "pane21",
+      checkedAt: "2026-09-17",
+    },
+    {
+      quantityId: "speedOfLight",
+      value: 3e8,
+      exactDecimal: "3e8",
+      unit: "m/s",
+      kind: "printed-historical",
+      evidentialRole: "measured-observation",
+      provenance:
+        "1901 standard value c = 3 · 10^8 m/s; editorial input for consistency check",
+      dependsOn: [],
+      printedStatus: "editorial-input",
+      reason:
+        "editorial input for consistency check; Planck's 1901 papers use 3e10 cm/s",
+      sensitivity: "Cubic in L for 8*pi*h/L^3 check",
+      transcriptionStatus: "transcribed-and-checked",
+      checkedBy: "pane21",
+      checkedAt: "2026-09-17",
+    },
+  ],
+});
+
 // ---- Registry -------------------------------------------------------------------------------------
 
 export const RESERVED_SET_IDS = Object.freeze({
@@ -403,21 +854,14 @@ export const RESERVED_SET_IDS = Object.freeze({
   "einstein-1911-correction-printed": "am-ref-viscosity-suspension-c9lp",
 });
 
-/** Printed-historical sets whose facsimile beads have not landed; see the module docblock. */
-const PENDING_FACSIMILE_SET_IDS = Object.freeze({
-  "einstein-1905-light-quanta-printed": "am-ref-constants-xik",
-  "einstein-1905-brownian-printed": "am-ref-constants-xik",
-  "einstein-1905-mass-energy-printed": "am-ref-constants-xik",
-  "planck-1900-1901-printed": "am-ref-constants-xik",
-});
-
-const unavailable = Object.freeze({ ...RESERVED_SET_IDS, ...PENDING_FACSIMILE_SET_IDS });
+const unavailable = RESERVED_SET_IDS;
 
 const MODE_1904_FORBIDDEN_SET_IDS: ReadonlySet<string> = new Set([
   "modern-si-2019",
   "modern-codata-2022",
   "einstein-1905-light-quanta-printed",
   "einstein-1905-mass-energy-printed",
+  "einstein-1905-brownian-printed",
 ]);
 
 let mode1904GuardDepth = 0;
@@ -429,6 +873,10 @@ export function getConstantSet(id: string): ConstantSet {
   if (id === modern.id) return modern;
   if (id === codata2022.id) return codata2022;
   if (id === scenarioGasConstant.id) return scenarioGasConstant;
+  if (id === lightQuanta1905.id) return lightQuanta1905;
+  if (id === brownian1905.id) return brownian1905;
+  if (id === massEnergy1905.id) return massEnergy1905;
+  if (id === planck1901.id) return planck1901;
   if (Object.hasOwn(unavailable, id))
     reject(
       "constant-set-not-registered",
@@ -733,6 +1181,133 @@ export function checkPrintedConsistency(setOrId: string | ConstantSet): Consiste
       }
     }
   }
+
+  // Physical consistency recomputations for registered historical sets
+  if (set.id === "einstein-1905-light-quanta-printed") {
+    const alpha = byId.get("wienConstantAlpha");
+    const beta = byId.get("wienConstantBeta");
+    const R = byId.get("molarGasConstant");
+    const L = byId.get("speedOfLight");
+    const N = byId.get("avogadroConstant");
+    if (alpha && beta && R && L && N) {
+      if (alpha.printedStatus === "printed" && alpha.printedReading?.includes("10^-56")) {
+        issues.push({
+          quantityId: "wienConstantAlpha",
+          code: "printed-inconsistency",
+          message: "Alpha misprint 10^-56 was not corrected; gives N = 6.17e22.",
+        });
+      }
+      const alphaVal = alpha.correctedValue ?? alpha.value;
+      const recomputedN = (beta.value / alphaVal) * ((8 * Math.PI * R.value) / Math.pow(L.value, 3));
+      const expectedN = 6.170486e23;
+      if (Math.abs(recomputedN - expectedN) / expectedN > 1e-6) {
+        issues.push({
+          quantityId: "avogadroConstant",
+          code: "recomputed-mismatch",
+          message: `Recomputed N ${recomputedN} does not match expected ${expectedN}.`,
+        });
+      }
+    }
+    const E = byId.get("gramEquivalentCharge");
+    const Pi = byId.get("stoppingPotentialMagnitude");
+    if (R && beta && E && Pi) {
+      const nu = 1.03e15;
+      const recomputedPiAbvolt = (R.value * beta.value * nu) / E.value;
+      const recomputedPiVolts = recomputedPiAbvolt * 1e-8;
+      if (Math.abs(recomputedPiVolts - 4.3385) / 4.3385 > 1e-4) {
+        issues.push({
+          quantityId: "stoppingPotentialMagnitude",
+          code: "recomputed-mismatch",
+          message: `Recomputed Pi ${recomputedPiVolts} V does not match 4.3385 V.`,
+        });
+      }
+      const slope = ((R.value * beta.value) / E.value) * 1e-8;
+      if (Math.abs(slope - 4.2121e-15) / 4.2121e-15 > 1e-4) {
+        issues.push({
+          quantityId: "stoppingPotentialMagnitude",
+          code: "recomputed-mismatch",
+          message: `Recomputed slope ${slope} does not match 4.2121e-15 V s.`,
+        });
+      }
+    }
+    const ionization = byId.get("ionizationWorkPerGramEquivalent");
+    if (R && beta && L && ionization) {
+      const lambda = 1.9e-5; // cm
+      const recomputedWork = (R.value * beta.value * L.value) / lambda;
+      if (Math.abs(recomputedWork - 6.3847e12) / 6.3847e12 > 1e-4) {
+        issues.push({
+          quantityId: "ionizationWorkPerGramEquivalent",
+          code: "recomputed-mismatch",
+          message: `Recomputed ionization work ${recomputedWork} does not match 6.3847e12.`,
+        });
+      }
+    }
+  } else if (set.id === "einstein-1905-brownian-printed") {
+    const R = byId.get("molarGasConstant");
+    const T = byId.get("temperature");
+    const N = byId.get("avogadroConstant");
+    const eta = byId.get("viscosity");
+    const a = byId.get("particleRadius");
+    const lambda = byId.get("rmsDisplacement1d");
+    if (R && T && N && eta && a && lambda) {
+      const D = ((R.value * T.value) / N.value) / (6 * Math.PI * eta.value * a.value);
+      const lambda1 = Math.sqrt(2 * D);
+      if (Math.abs(lambda1 - 0.7947833e-6) / 0.7947833e-6 > 1e-5) {
+        issues.push({
+          quantityId: "rmsDisplacement1d",
+          code: "recomputed-mismatch",
+          message: `Recomputed 1s displacement ${lambda1} does not match 0.7947833 um.`,
+        });
+      }
+      const lambda60 = Math.sqrt(2 * D * 60);
+      if (Math.abs(lambda60 - 6.156365e-6) / 6.156365e-6 > 1e-5) {
+        issues.push({
+          quantityId: "rmsDisplacement1d",
+          code: "recomputed-mismatch",
+          message: `Recomputed 60s displacement ${lambda60} does not match 6.156365 um.`,
+        });
+      }
+    }
+  } else if (set.id === "einstein-1905-mass-energy-printed") {
+    const c2 = byId.get("speedOfLightSquared");
+    if (c2) {
+      const energyJ = 9e13; // 9e20 erg in Joules
+      const massKg = energyJ / c2.value; // c2 is 9e16 m2 s-2
+      if (Math.abs(massKg - 0.001) > 1e-9) {
+        issues.push({
+          quantityId: "speedOfLightSquared",
+          code: "recomputed-mismatch",
+          message: `9e20 erg gives ${massKg * 1000} g, expected 1 g.`,
+        });
+      }
+    }
+  } else if (set.id === "planck-1900-1901-printed") {
+    const h = byId.get("planckConstant");
+    const k = byId.get("boltzmannConstant");
+    const c = byId.get("speedOfLight");
+    if (h && k && c) {
+      const hCgs = h.value * 1e7;
+      const kCgs = k.value * 1e7;
+      const hOverK = hCgs / kCgs;
+      if (Math.abs(hOverK - 4.86627e-11) / 4.86627e-11 > 1e-3) {
+        issues.push({
+          quantityId: "planckConstant",
+          code: "recomputed-mismatch",
+          message: `h/k = ${hOverK}, expected 4.866e-11.`,
+        });
+      }
+      const L = c.value * 100; // 3e10 cm/s
+      const alphaCalc = (8 * Math.PI * hCgs) / Math.pow(L, 3);
+      if (Math.abs(alphaCalc - 6.0970e-57) / 6.0970e-57 > 1e-2) {
+        issues.push({
+          quantityId: "planckConstant",
+          code: "recomputed-mismatch",
+          message: `8*pi*h/L^3 = ${alphaCalc}, expected 6.097e-57.`,
+        });
+      }
+    }
+  }
+
   return Object.freeze({
     setId: set.id,
     available: true,
