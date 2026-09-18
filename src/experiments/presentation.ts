@@ -1,3 +1,5 @@
+"use client";
+
 /**
  * Presentation context and quantity label resolution (am-inst-registry-dispatcher-66l0).
  *
@@ -15,8 +17,8 @@
  */
 
 import { createContext, createElement, type ReactNode, useContext } from "react";
-import { getQuantity } from "../content/quantities/registry.ts";
 import { BROWNIAN_QUANTITIES } from "../equations/quantities.ts";
+import { QUANTITY_LABELS } from "../generated/quantity-labels.ts";
 
 export type Presentation = "standard" | "tour";
 
@@ -35,13 +37,9 @@ export function resolveQuantityLabel(
   presentation: Presentation,
 ): string | undefined {
   if (presentation !== "tour") return undefined;
-  try {
-    const q = getQuantity(quantityId);
-    return q.name;
-  } catch {
-    const fallback = BROWNIAN_QUANTITIES[quantityId];
-    return fallback?.name;
-  }
+  // QUANTITY_LABELS is the canonical registry, generated at prepare time because the
+  // registry itself reads YAML off disk and this module is client-side.
+  return QUANTITY_LABELS[quantityId] ?? BROWNIAN_QUANTITIES[quantityId]?.name;
 }
 
 export const PresentationContext = createContext<PresentationContextValue>({
