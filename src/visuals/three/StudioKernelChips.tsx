@@ -331,18 +331,11 @@ export function StudioKernelChips({
                   borderRadius: "0.5rem",
                   padding: "0.25rem 0.5rem",
                   border:
-                    tone === "warn"
-                      ? "1px solid rgba(225, 29, 72, 0.3)"
-                      : tone === "hot"
-                        ? "1px solid rgba(245, 158, 11, 0.4)"
-                        : "1px solid var(--line)",
-                  background:
-                    tone === "warn"
-                      ? "rgba(225, 29, 72, 0.15)"
-                      : tone === "hot"
-                        ? "rgba(245, 158, 11, 0.15)"
-                        : "var(--wash)",
-                  color: tone === "warn" ? "#e11d48" : tone === "hot" ? "#d97706" : "var(--ink)",
+                    tone === "warn" || tone === "hot"
+                      ? "1px solid var(--accent)"
+                      : "1px solid var(--line)",
+                  background: "var(--wash)",
+                  color: tone === "warn" || tone === "hot" ? "var(--accent)" : "var(--ink)",
                 }}
               >
                 <div
@@ -350,8 +343,7 @@ export function StudioKernelChips({
                   style={{
                     fontSize: "0.5625rem",
                     lineHeight: 1.2,
-                    color:
-                      tone === "warn" ? "#e11d48" : tone === "hot" ? "#d97706" : "var(--muted)",
+                    color: tone === "warn" || tone === "hot" ? "var(--accent)" : "var(--muted)",
                   }}
                 >
                   {c.label}
@@ -370,7 +362,7 @@ export function StudioKernelChips({
                       style={{
                         fontWeight: "normal",
                         color:
-                          tone === "warn" ? "#e11d48" : tone === "hot" ? "#d97706" : "var(--muted)",
+                          tone === "warn" || tone === "hot" ? "var(--accent)" : "var(--muted)",
                       }}
                     >
                       {" "}

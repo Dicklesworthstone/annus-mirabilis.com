@@ -266,8 +266,19 @@ export function BrownianFirstEncounter({
                 const pos = item.position;
                 const idx = item.index;
                 const leftPercent = Math.max(0, Math.min(100, ((pos + 8) / 16) * 100));
-                const colors = ["#2563eb", "#4f46e5", "#d97706", "#e11d48"];
-                const color = colors[idx % colors.length];
+                const particleStyles = [
+                  { background: "var(--panel)", color: "var(--ink)", border: "2px solid var(--accent)" },
+                  { background: "var(--wash)", color: "var(--ink)", border: "2px solid var(--line)" },
+                  { background: "var(--accent)", color: "var(--paper)", border: "2px solid var(--accent)" },
+                  { background: "var(--ink)", color: "var(--paper)", border: "2px solid var(--ink)" },
+                ];
+                const markerStyle =
+                  particleStyles[idx % particleStyles.length] ??
+                  particleStyles[0] ?? {
+                    background: "var(--panel)",
+                    color: "var(--ink)",
+                    border: "2px solid var(--accent)",
+                  };
 
                 return (
                   <div
@@ -308,9 +319,9 @@ export function BrownianFirstEncounter({
                       fontFamily: "var(--font-mono)",
                       fontSize: "0.75rem",
                       fontWeight: "bold",
-                      color: "#ffffff",
-                      backgroundColor: color,
-                      border: "2px solid rgba(255, 255, 255, 0.8)",
+                      color: markerStyle.color,
+                      backgroundColor: markerStyle.background,
+                      border: markerStyle.border,
                       boxShadow: "0 1px 3px rgba(0,0,0,0.2)",
                     }}
                   >
