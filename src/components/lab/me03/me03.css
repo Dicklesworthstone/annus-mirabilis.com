@@ -1,0 +1,391 @@
+/* ME-03: System boundary energy ledger and 1906 photon-in-a-box styles (am-me-03-box-extension-kiei) */
+
+.laboratory-shell {
+  max-width: 64rem;
+  margin: 0 auto;
+  padding: 1.5rem 1rem;
+}
+
+.lab-header {
+  margin-bottom: 1.5rem;
+}
+
+.caption-r0 {
+  margin-top: 0.5rem;
+  font-size: 1.05rem;
+  color: var(--muted);
+}
+
+.box-badges {
+  display: flex;
+  gap: 0.5rem;
+  margin-top: 0.5rem;
+}
+
+.box-badge {
+  display: inline-block;
+  font-size: 0.75rem;
+  padding: 0.15rem 0.5rem;
+  border-radius: 4px;
+  font-family: var(--font-sans);
+  font-weight: 500;
+}
+
+.box-badge-primary {
+  background: #fef3c7;
+  color: #92400e;
+  border: 1px solid #fcd34d;
+}
+
+.box-badge-credit {
+  background: var(--wash);
+  color: var(--muted);
+  border: 1px solid var(--rule);
+}
+
+.notation-toggle-wrap {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+  margin-top: 0.75rem;
+}
+
+.toggle-label {
+  font-size: 0.85rem;
+  color: var(--muted);
+}
+
+.button-toggle {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  padding: 0.35rem 0.75rem;
+  font-size: 0.85rem;
+  border: 1px solid var(--line);
+  background: var(--panel);
+  color: var(--ink);
+  cursor: pointer;
+  border-radius: 4px;
+}
+
+.button-toggle.active {
+  background: var(--ink);
+  color: var(--paper);
+  border-color: var(--ink);
+}
+
+.presets-bar {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 0.5rem;
+  margin-bottom: 1.5rem;
+}
+
+.presets-label {
+  font-size: 0.85rem;
+  font-weight: 600;
+  color: var(--muted);
+}
+
+.button-preset {
+  padding: 0.3rem 0.6rem;
+  font-size: 0.8rem;
+  border: 1px solid var(--rule);
+  background: var(--wash);
+  color: var(--ink);
+  border-radius: 3px;
+  cursor: pointer;
+}
+
+.button-preset:hover {
+  border-color: var(--ink);
+}
+
+/* 1906 Photon Box Plot Visual Styles */
+.photon-box-visual-wrap {
+  margin: 1rem 0;
+}
+
+.photon-box-canvas {
+  width: 100%;
+  border-radius: 6px;
+  border: 1px solid var(--line);
+  background: var(--panel);
+}
+
+.photon-box-telemetry {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+  gap: 0.75rem;
+  margin: 0.75rem 0;
+  padding: 0.75rem 1rem;
+  border-radius: 4px;
+  border: 1px solid var(--line);
+  background: var(--panel);
+  font-size: 0.8rem;
+}
+
+.telemetry-col {
+  display: flex;
+  flex-direction: column;
+  gap: 0.25rem;
+}
+
+.telemetry-label {
+  margin: 0;
+  font-weight: 600;
+  color: var(--muted);
+}
+
+.telemetry-value {
+  margin: 0;
+  font-family: var(--font-mono);
+  color: var(--ink);
+}
+
+.telemetry-value-fixed {
+  color: #16a34a;
+  font-weight: 700;
+}
+
+.telemetry-value-violation {
+  color: #dc2626;
+  font-weight: 700;
+}
+
+/* Representation scale section */
+.scale-facts-section {
+  margin-top: 0.75rem;
+  padding: 0.75rem 1rem;
+  border-radius: 4px;
+  background: var(--wash);
+  border: 1px solid var(--rule);
+}
+
+.scale-facts-heading {
+  margin: 0 0 0.5rem 0;
+  font-size: 0.75rem;
+  font-weight: 700;
+  text-transform: uppercase;
+  letter-spacing: 0.05em;
+  color: var(--muted);
+}
+
+.scale-facts-table-wrap {
+  overflow-x: auto;
+  max-width: 100%;
+}
+
+.scale-facts-table {
+  width: 100%;
+  text-align: left;
+  border-collapse: collapse;
+  font-size: 0.8rem;
+}
+
+.scale-facts-row {
+  border-bottom: 1px solid var(--rule);
+}
+
+.scale-facts-th {
+  padding: 0.25rem 0.5rem;
+  font-weight: 600;
+}
+
+.scale-facts-td {
+  padding: 0.25rem 0.5rem;
+}
+
+.scale-facts-print {
+  font-size: 0.75rem;
+  margin-top: 0.5rem;
+  color: var(--muted);
+}
+
+/* Card Boundary Panel */
+.card-boundary-panel {
+  margin: 1rem 0;
+  padding: 1rem;
+  border: 1px solid var(--line);
+  border-radius: 4px;
+  background: var(--panel);
+}
+
+.boundary-facts-list {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(240px, 1fr));
+  gap: 0.5rem;
+  font-size: 0.8rem;
+}
+
+.fact-item {
+  display: flex;
+  flex-direction: column;
+}
+
+/* Controls */
+.lab-controls {
+  margin-top: 1.5rem;
+  display: flex;
+  flex-direction: column;
+  gap: 1rem;
+}
+
+.control-group {
+  border: 1px solid var(--line);
+  padding: 1rem;
+  border-radius: 4px;
+  background: var(--panel);
+}
+
+.control-row {
+  display: flex;
+  flex-direction: column;
+  gap: 0.35rem;
+  margin-bottom: 0.75rem;
+}
+
+.control-row:last-child {
+  margin-bottom: 0;
+}
+
+.field-label {
+  font-size: 0.85rem;
+  font-weight: 600;
+  color: var(--ink);
+}
+
+.toggle-group {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.5rem;
+}
+
+.card-buttons-grid {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.35rem;
+}
+
+.input-number {
+  padding: 0.4rem 0.6rem;
+  border: 1px solid var(--line);
+  border-radius: 4px;
+  background: var(--panel);
+  color: var(--ink);
+  font-family: var(--font-mono);
+  max-width: 14rem;
+}
+
+.form-actions {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.75rem;
+}
+
+.notice,
+.error-banner {
+  padding: 0.75rem 1rem;
+  border-radius: 4px;
+  font-size: 0.85rem;
+}
+
+.error,
+.error-banner {
+  background: #fef2f2;
+  color: #991b1b;
+  border: 1px solid #f87171;
+}
+
+.info-banner {
+  padding: 0.75rem 1rem;
+  border-radius: 4px;
+  background: #eff6ff;
+  color: #1e40af;
+  border: 1px solid #93c5fd;
+  font-size: 0.85rem;
+}
+
+.share-banner {
+  padding: 0.75rem 1rem;
+  border-radius: 4px;
+  background: #f0fdf4;
+  color: #166534;
+  border: 1px solid #86efac;
+  font-size: 0.85rem;
+}
+
+/* Predict mode */
+.predict-section {
+  margin: 1.5rem 0;
+  padding: 1rem;
+  border: 1px solid var(--line);
+  border-radius: 4px;
+  background: var(--wash);
+}
+
+.predict-question {
+  font-weight: 600;
+  margin-bottom: 0.75rem;
+}
+
+.predict-options {
+  display: flex;
+  flex-direction: column;
+  gap: 0.5rem;
+  margin-bottom: 0.75rem;
+}
+
+.predict-candidate {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+  cursor: pointer;
+}
+
+.predict-actions {
+  margin-top: 0.75rem;
+}
+
+.predict-reveal {
+  margin-top: 1rem;
+  padding: 0.75rem 1rem;
+  background: var(--panel);
+  border-left: 3px solid var(--accent);
+  border-radius: 2px;
+}
+
+.reveal-title {
+  font-weight: 700;
+  margin-bottom: 0.25rem;
+}
+
+/* Code and Not modeled */
+.show-the-code {
+  margin: 1.5rem 0;
+}
+
+.code-panel {
+  padding: 1rem;
+  background: var(--wash);
+  border-radius: 4px;
+  font-size: 0.85rem;
+}
+
+.lab-not-modeled {
+  margin-top: 2rem;
+  padding-top: 1rem;
+  border-top: 1px solid var(--rule);
+  font-size: 0.8rem;
+  color: var(--muted);
+}
+
+.not-modeled-heading {
+  font-weight: 600;
+  margin-bottom: 0.25rem;
+}
+
+.not-modeled-line {
+  margin: 0;
+}

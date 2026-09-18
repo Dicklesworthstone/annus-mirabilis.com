@@ -28,6 +28,7 @@ import {
 } from "../../../experiments/me03/session.ts";
 import { BoundaryLedgerPlot } from "./BoundaryLedgerPlot.tsx";
 import { PhotonBoxPlot } from "./PhotonBoxPlot.tsx";
+import "./me03.css";
 
 export function BoundaryLedgerLab({
   example,
@@ -232,13 +233,9 @@ export function BoundaryLedgerLab({
           <h2>{title}</h2>
           <p className="caption-r0">{ME03_CAPTION.r0}</p>
           {isBox && (
-            <div className="box-badges flex gap-2 mt-2">
-              <span className="badge text-xs px-2 py-0.5 rounded bg-amber-100 dark:bg-amber-950 text-amber-800 dark:text-amber-300 font-medium">
-                1906 argument
-              </span>
-              <span className="badge text-xs px-2 py-0.5 rounded bg-slate-100 dark:bg-slate-800 text-slate-700 dark:text-slate-300">
-                credit: Poincaré 1900
-              </span>
+            <div className="box-badges">
+              <span className="box-badge box-badge-primary">1906 argument</span>
+              <span className="box-badge box-badge-credit">credit: Poincaré 1900</span>
             </div>
           )}
         </div>

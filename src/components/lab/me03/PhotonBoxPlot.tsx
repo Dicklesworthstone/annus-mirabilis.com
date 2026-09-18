@@ -1,6 +1,7 @@
 import type { Me03Parameters } from "../../../experiments/me03/definition.ts";
 import type { PhotonInBoxResult } from "../../../experiments/me03/session.ts";
 import type { RepresentationScale } from "../../../visuals/kit/types.ts";
+import "./me03.css";
 
 export interface PhotonBoxPlotProps {
   parameters: Me03Parameters;
@@ -24,13 +25,13 @@ export function PhotonBoxPlot({ parameters, evaluation, scale, clipId }: PhotonB
 
   return (
     <div
-      className="photon-box-visual-wrap my-4"
+      className="photon-box-visual-wrap"
       data-instrument-id="me-03:box-1906"
       data-testid="photon-box-plot"
     >
       <svg
         viewBox={`0 0 ${width} ${height}`}
-        className="photon-box-canvas w-full rounded border border-slate-300 dark:border-slate-700 bg-slate-50 dark:bg-slate-900"
+        className="photon-box-canvas"
         role="img"
         aria-label={`1906 photon-in-a-box thought experiment: M=${boxMass}kg, l=${boxLength}m, E=${pulseEnergy}J, assignLightMass=${assignLightMass}`}
       >
@@ -73,7 +74,7 @@ export function PhotonBoxPlot({ parameters, evaluation, scale, clipId }: PhotonB
         <g transform={`translate(${drawnShiftPx}, 0)`}>
           <rect
             x={120}
-            y={80}
+            y={70}
             width={400}
             height={90}
             rx="4"
@@ -159,16 +160,16 @@ export function PhotonBoxPlot({ parameters, evaluation, scale, clipId }: PhotonB
       </svg>
 
       {/* Physics Readout Card */}
-      <div className="grid grid-cols-1 md:grid-cols-3 gap-2 my-3 p-3 rounded border border-slate-200 dark:border-slate-800 bg-white dark:bg-slate-950 text-xs">
+      <div className="photon-box-telemetry">
         <div className="telemetry-col">
-          <p className="text-slate-500 font-semibold">Pulse Momentum:</p>
-          <p className="font-mono text-slate-800 dark:text-slate-200">
+          <p className="telemetry-label">Pulse Momentum:</p>
+          <p className="telemetry-value">
             {evaluation.pulseMomentum.status === "value"
               ? `${Number(evaluation.pulseMomentum.value).toExponential(6)} kg·m/s`
               : "outside domain"}
           </p>
-          <p className="text-slate-500 font-semibold mt-1">Recoil Speed:</p>
-          <p className="font-mono text-slate-800 dark:text-slate-200">
+          <p className="telemetry-label">Recoil Speed:</p>
+          <p className="telemetry-value">
             {evaluation.recoilSpeed.status === "value"
               ? `${Number(evaluation.recoilSpeed.value).toExponential(6)} m/s`
               : "outside domain"}
@@ -176,14 +177,14 @@ export function PhotonBoxPlot({ parameters, evaluation, scale, clipId }: PhotonB
         </div>
 
         <div className="telemetry-col">
-          <p className="text-slate-500 font-semibold">Flight Time:</p>
-          <p className="font-mono text-slate-800 dark:text-slate-200">
+          <p className="telemetry-label">Flight Time:</p>
+          <p className="telemetry-value">
             {evaluation.pulseFlightTime.status === "value"
               ? `${Number(evaluation.pulseFlightTime.value).toExponential(6)} s`
               : "outside domain"}
           </p>
-          <p className="text-slate-500 font-semibold mt-1">Light Mass Assigned:</p>
-          <p className="font-mono text-slate-800 dark:text-slate-200">
+          <p className="telemetry-label">Light Mass Assigned:</p>
+          <p className="telemetry-value">
             {assignLightMass
               ? `${evaluation.lightMassAssigned.status === "value" ? Number(evaluation.lightMassAssigned.value).toExponential(6) : "0"} kg (E/c²)`
               : "0 kg (none)"}
@@ -191,66 +192,61 @@ export function PhotonBoxPlot({ parameters, evaluation, scale, clipId }: PhotonB
         </div>
 
         <div className="telemetry-col">
-          <p className="text-slate-500 font-semibold">Center of Mass Shift:</p>
+          <p className="telemetry-label">Center of Mass Shift:</p>
           <p
-            className={`font-mono font-bold ${isZero ? "text-emerald-600 dark:text-emerald-400" : "text-rose-600 dark:text-rose-400"}`}
+            className={`telemetry-value ${isZero ? "telemetry-value-fixed" : "telemetry-value-violation"}`}
             data-testid="center-of-mass-shift-readout"
           >
             {isZero
               ? "0 m (exact rational zero: 0/1)"
               : `Nonzero: ${evaluation.exactRationalCenterOfMassShift.numerator} / ${evaluation.exactRationalCenterOfMassShift.denominator} m`}
           </p>
-          <p className="text-slate-500 font-semibold mt-1">Domain Bound E/(Mc²):</p>
-          <p className="font-mono text-slate-800 dark:text-slate-200">
-            {evaluation.domainRatio.toExponential(4)} ≤ 1.0e-3 (OK)
-          </p>
+          <p className="telemetry-label">Domain Bound E/(Mc²):</p>
+          <p className="telemetry-value">{evaluation.domainRatio.toExponential(4)} ≤ 1.0e-3 (OK)</p>
         </div>
       </div>
 
       {/* Accessible & Print Representation Scale Facts */}
-      <section className="scale-facts-section mt-3 p-3 rounded bg-slate-50 dark:bg-slate-900 border border-slate-200 dark:border-slate-800">
-        <h4 className="text-xs font-bold uppercase tracking-wider text-slate-500 mb-2">
+      <section className="scale-facts-section">
+        <h4 className="scale-facts-heading">
           Published Representation Scale (am-inst-2d-view-kit-u75r)
         </h4>
-        <div className="overflow-x-auto">
-          <table className="scale-facts-table w-full text-xs text-left border-collapse">
+        <div className="scale-facts-table-wrap">
+          <table className="scale-facts-table">
             <tbody>
-              <tr className="border-b border-slate-200 dark:border-slate-800">
-                <th className="py-1 px-2 font-semibold">Spatial magnification:</th>
-                <td className="py-1 px-2">
+              <tr className="scale-facts-row">
+                <th className="scale-facts-th">Spatial magnification:</th>
+                <td className="scale-facts-td">
                   {scale.spatialMagnification.factor}× (applies to:{" "}
                   <code>{scale.spatialMagnification.appliesTo}</code>)
                 </td>
               </tr>
-              <tr className="border-b border-slate-200 dark:border-slate-800">
-                <th className="py-1 px-2 font-semibold">Simulated elapsed time:</th>
-                <td className="py-1 px-2">
+              <tr className="scale-facts-row">
+                <th className="scale-facts-th">Simulated elapsed time:</th>
+                <td className="scale-facts-td">
                   {scale.simulatedElapsedTime.value} {scale.simulatedElapsedTime.unit} (
                   <code>{scale.simulatedElapsedTime.quantityId}</code>)
                 </td>
               </tr>
-              <tr className="border-b border-slate-200 dark:border-slate-800">
-                <th className="py-1 px-2 font-semibold">Playback multiplier:</th>
-                <td className="py-1 px-2">{scale.playbackMultiplier}×</td>
+              <tr className="scale-facts-row">
+                <th className="scale-facts-th">Playback multiplier:</th>
+                <td className="scale-facts-td">{scale.playbackMultiplier}×</td>
               </tr>
-              <tr className="border-b border-slate-200 dark:border-slate-800">
-                <th className="py-1 px-2 font-semibold">Glyph size:</th>
-                <td className="py-1 px-2">
+              <tr className="scale-facts-row">
+                <th className="scale-facts-th">Glyph size:</th>
+                <td className="scale-facts-td">
                   {scale.glyphSize.drawnPx} px (represents:{" "}
                   <code>{scale.glyphSize.represents}</code>)
                 </td>
               </tr>
-              <tr>
-                <th className="py-1 px-2 font-semibold">Quantity normalization:</th>
-                <td className="py-1 px-2">{scale.quantityNormalization.kind}</td>
+              <tr className="scale-facts-row">
+                <th className="scale-facts-th">Quantity normalization:</th>
+                <td className="scale-facts-td">{scale.quantityNormalization.kind}</td>
               </tr>
             </tbody>
           </table>
         </div>
-        <div
-          className="scale-facts-print text-xs mt-2 text-slate-600 dark:text-slate-400"
-          data-testid="scale-facts-print"
-        >
+        <div className="scale-facts-print" data-testid="scale-facts-print">
           Scale: ×{scale.spatialMagnification.factor} ({scale.spatialMagnification.appliesTo}) · Δt:{" "}
           {scale.simulatedElapsedTime.value} {scale.simulatedElapsedTime.unit} ·{" "}
           {scale.playbackMultiplier}× rate · glyph: {scale.glyphSize.drawnPx}px (
