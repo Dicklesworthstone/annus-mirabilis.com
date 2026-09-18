@@ -13,6 +13,12 @@ export interface TranslationUnitProps {
   readonly highlightedUnitIds?: ReadonlySet<string> | undefined;
 }
 
+const REVIEW_BADGE_CLASS_MAP: Readonly<Record<"reviewed" | "in-progress" | "draft", string>> = {
+  reviewed: "badge-reviewed",
+  "in-progress": "badge-in-progress",
+  draft: "badge-draft",
+};
+
 export function TranslationUnitComponent({
   unit,
   reviewRecord,
@@ -63,7 +69,7 @@ export function TranslationUnitComponent({
     >
       <div className="unit-header">
         <span
-          className={`review-badge badge-${badge.reviewClass}`}
+          className={`review-badge ${REVIEW_BADGE_CLASS_MAP[badge.reviewClass] ?? "badge-draft"}`}
           role="status"
           data-review-badge={badge.label}
           title={badge.description}

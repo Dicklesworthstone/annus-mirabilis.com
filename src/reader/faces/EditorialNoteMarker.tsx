@@ -8,6 +8,14 @@ const NOTE_KIND_LABELS: Readonly<Record<EditorialNoteKind, string>> = {
   "side-note": "Editorial Note",
 };
 
+const NOTE_KIND_CLASS_MAP: Readonly<Record<EditorialNoteKind, string>> = {
+  "historian-margin": "note-kind-historian-margin",
+  correction: "note-kind-correction",
+  typographical: "note-kind-typographical",
+  dispute: "note-kind-dispute",
+  "side-note": "note-kind-side-note",
+};
+
 export interface EditorialNoteMarkerProps {
   readonly note: EditorialNote;
   readonly inline?: boolean | undefined;
@@ -20,11 +28,13 @@ export interface EditorialNoteMarkerProps {
 export function EditorialNoteMarker({ note, inline = false }: EditorialNoteMarkerProps) {
   const kindLabel = NOTE_KIND_LABELS[note.kind] ?? "Note";
   const authorName = note.author?.name || note.author?.id || "Editor";
+  const kindClass = NOTE_KIND_CLASS_MAP[note.kind] ?? "note-kind-side-note";
+  const displayClass = inline ? "note-inline" : "note-margin";
 
   return (
     <aside
       id={`note-${note.id}`}
-      className={`editorial-note-marker note-kind-${note.kind} ${inline ? "note-inline" : "note-margin"}`}
+      className={`editorial-note-marker ${kindClass} ${displayClass}`}
       data-note-id={note.id}
       data-note-kind={note.kind}
       data-review-state={note.reviewState}
