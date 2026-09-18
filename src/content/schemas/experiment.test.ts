@@ -5,7 +5,9 @@ import test from "node:test";
 import { fileURLToPath } from "node:url";
 
 import {
+  checkAccessibleEquivalence,
   ExperimentValidationError,
+  validateActionContract,
   validateConstantSet,
   validateDataCell,
   validateExperiment,
@@ -472,6 +474,686 @@ test("Experiment: Planted Negative - natural: true without scaleBar fails with m
       return true;
     },
   );
+});
+
+test("Experiment: (experiment.ts:259) missing-visual-affordance rejected when visualAffordance empty, accepted with visualAffordance", () => {
+  assert.throws(
+    () =>
+      checkAccessibleEquivalence({
+        actionId: "act-1",
+        visualAffordance: "   ",
+        equivalentAffordance: "Type value into stepper",
+        announcement: "Value updated",
+      }),
+    (err: any) => {
+      assert.ok(err instanceof ExperimentValidationError);
+      assert.equal(err.code, "missing-visual-affordance");
+      return true;
+    },
+  );
+  assert.doesNotThrow(() =>
+    checkAccessibleEquivalence({
+      actionId: "act-1",
+      visualAffordance: "Drag slider handle",
+      equivalentAffordance: "Type value into stepper",
+      announcement: "Value updated",
+    }),
+  );
+});
+
+test("Experiment: (experiment.ts:325) invalid-action-contract rejected when raw is not object, accepted when valid", () => {
+  assert.throws(
+    () => validateActionContract("not-an-object"),
+    (err: any) => {
+      assert.ok(err instanceof ExperimentValidationError);
+      assert.equal(err.code, "invalid-action-contract");
+      return true;
+    },
+  );
+  assert.throws(
+    () => validateActionContract(null),
+    (err: any) => {
+      assert.ok(err instanceof ExperimentValidationError);
+      assert.equal(err.code, "invalid-action-contract");
+      return true;
+    },
+  );
+  const yaml = fs.readFileSync(path.join(FIXTURES_DIR, "experiment-valid.yaml"), "utf8");
+  const raw = strictParse(yaml, "yaml") as any;
+  const accepted = validateActionContract(raw.actions[0]);
+  assert.equal(accepted.actionId, "sample-displacement");
+});
+
+test("Experiment: (experiment.ts:336) missing-action-id rejected when actionId missing or whitespace, accepted with actionId", () => {
+  const yaml = fs.readFileSync(path.join(FIXTURES_DIR, "experiment-valid.yaml"), "utf8");
+  const raw = strictParse(yaml, "yaml") as any;
+  const act = { ...raw.actions[0], actionId: "   " };
+  assert.throws(
+    () => validateActionContract(act),
+    (err: any) => {
+      assert.ok(err instanceof ExperimentValidationError);
+      assert.equal(err.code, "missing-action-id");
+      return true;
+    },
+  );
+  act.actionId = "sample-displacement";
+  const accepted = validateActionContract(act);
+  assert.equal(accepted.actionId, "sample-displacement");
+});
+
+test("Experiment: (experiment.ts:366) missing-action-question rejected when question too short or missing, accepted with question", () => {
+  const yaml = fs.readFileSync(path.join(FIXTURES_DIR, "experiment-valid.yaml"), "utf8");
+  const raw = strictParse(yaml, "yaml") as any;
+  const act = { ...raw.actions[0], question: "Why?" };
+  assert.throws(
+    () => validateActionContract(act),
+    (err: any) => {
+      assert.ok(err instanceof ExperimentValidationError);
+      assert.equal(err.code, "missing-action-question");
+      return true;
+    },
+  );
+  act.question = "How does displacement change over time?";
+  const accepted = validateActionContract(act);
+  assert.equal(accepted.question, "How does displacement change over time?");
+});
+
+test("Experiment: (experiment.ts:400) missing-action-command-class rejected when commandClass missing, accepted with commandClass", () => {
+  const yaml = fs.readFileSync(path.join(FIXTURES_DIR, "experiment-valid.yaml"), "utf8");
+  const raw = strictParse(yaml, "yaml") as any;
+  const act = { ...raw.actions[0], commandClass: "" };
+  assert.throws(
+    () => validateActionContract(act),
+    (err: any) => {
+      assert.ok(err instanceof ExperimentValidationError);
+      assert.equal(err.code, "missing-action-command-class");
+      return true;
+    },
+  );
+  act.commandClass = "physical-intervention";
+  const accepted = validateActionContract(act);
+  assert.equal(accepted.commandClass, "physical-intervention");
+});
+
+test("Experiment: (experiment.ts:428) invalid-accepted-result rejected when outputs is not an array, accepted when array", () => {
+  const yaml = fs.readFileSync(path.join(FIXTURES_DIR, "experiment-valid.yaml"), "utf8");
+  const raw = strictParse(yaml, "yaml") as any;
+  const act = {
+    ...raw.actions[0],
+    acceptedResult: {
+      outputs: "not-an-array",
+      allowedStatuses: ["value"],
+    },
+  };
+  assert.throws(
+    () => validateActionContract(act),
+    (err: any) => {
+      assert.ok(err instanceof ExperimentValidationError);
+      assert.equal(err.code, "invalid-accepted-result");
+      return true;
+    },
+  );
+  act.acceptedResult.outputs = ["meanSquaredDisplacement"];
+  const accepted = validateActionContract(act);
+  assert.deepEqual(accepted.acceptedResult.outputs, ["meanSquaredDisplacement"]);
+});
+
+test("Experiment: (experiment.ts:438) invalid-accepted-result rejected when allowedStatuses is empty, accepted with statuses", () => {
+  const yaml = fs.readFileSync(path.join(FIXTURES_DIR, "experiment-valid.yaml"), "utf8");
+  const raw = strictParse(yaml, "yaml") as any;
+  const act = {
+    ...raw.actions[0],
+    acceptedResult: {
+      outputs: ["meanSquaredDisplacement"],
+      allowedStatuses: [],
+    },
+  };
+  assert.throws(
+    () => validateActionContract(act),
+    (err: any) => {
+      assert.ok(err instanceof ExperimentValidationError);
+      assert.equal(err.code, "invalid-accepted-result");
+      return true;
+    },
+  );
+  act.acceptedResult.allowedStatuses = ["value"];
+  const accepted = validateActionContract(act);
+  assert.deepEqual(accepted.acceptedResult.allowedStatuses, ["value"]);
+});
+
+test("Experiment: (experiment.ts:622) invalid-record rejected when raw is not an object, accepted when object", () => {
+  assert.throws(
+    () => validateExperiment("not-an-object"),
+    (err: any) => {
+      assert.ok(err instanceof ExperimentValidationError);
+      assert.equal(err.code, "invalid-record");
+      return true;
+    },
+  );
+  assert.throws(
+    () => validateExperiment(null),
+    (err: any) => {
+      assert.ok(err instanceof ExperimentValidationError);
+      assert.equal(err.code, "invalid-record");
+      return true;
+    },
+  );
+  const yaml = fs.readFileSync(path.join(FIXTURES_DIR, "experiment-valid.yaml"), "utf8");
+  const raw = strictParse(yaml, "yaml");
+  const accepted = validateExperiment(raw);
+  assert.ok(accepted);
+});
+
+test("Experiment: (experiment.ts:633) missing-id rejected when id is not a string, accepted with id", () => {
+  const yaml = fs.readFileSync(path.join(FIXTURES_DIR, "experiment-valid.yaml"), "utf8");
+  const raw = strictParse(yaml, "yaml") as any;
+  delete raw.id;
+  assert.throws(
+    () => validateExperiment(raw),
+    (err: any) => {
+      assert.ok(err instanceof ExperimentValidationError);
+      assert.equal(err.code, "missing-id");
+      return true;
+    },
+  );
+  raw.id = "bm-01";
+  const accepted = validateExperiment(raw);
+  assert.equal(accepted.id, "bm-01");
+});
+
+test("Experiment: (experiment.ts:642) invalid-instrument-id rejected when instrumentId format invalid, accepted for valid format", () => {
+  const yaml = fs.readFileSync(path.join(FIXTURES_DIR, "experiment-valid.yaml"), "utf8");
+  const raw = strictParse(yaml, "yaml") as any;
+  raw.id = "bad_instrument_format";
+  assert.throws(
+    () => validateExperiment(raw),
+    (err: any) => {
+      assert.ok(err instanceof ExperimentValidationError);
+      assert.equal(err.code, "invalid-instrument-id");
+      return true;
+    },
+  );
+  raw.id = "bm-01";
+  const accepted = validateExperiment(raw);
+  assert.equal(accepted.id, "bm-01");
+});
+
+test("Experiment: (experiment.ts:652) missing-title rejected when title missing or empty, accepted with title", () => {
+  const yaml = fs.readFileSync(path.join(FIXTURES_DIR, "experiment-valid.yaml"), "utf8");
+  const raw = strictParse(yaml, "yaml") as any;
+  raw.title = "   ";
+  assert.throws(
+    () => validateExperiment(raw),
+    (err: any) => {
+      assert.ok(err instanceof ExperimentValidationError);
+      assert.equal(err.code, "missing-title");
+      return true;
+    },
+  );
+  raw.title = "Valid Experiment Title";
+  const accepted = validateExperiment(raw);
+  assert.equal(accepted.title, "Valid Experiment Title");
+});
+
+test("Experiment: (experiment.ts:660) missing-question rejected when explanatoryQuestion is missing or empty, accepted with question", () => {
+  const yaml = fs.readFileSync(path.join(FIXTURES_DIR, "experiment-valid.yaml"), "utf8");
+  const raw = strictParse(yaml, "yaml") as any;
+  raw.explanatoryQuestion = "";
+  assert.throws(
+    () => validateExperiment(raw),
+    (err: any) => {
+      assert.ok(err instanceof ExperimentValidationError);
+      assert.equal(err.code, "missing-question");
+      return true;
+    },
+  );
+  raw.explanatoryQuestion = "How do microscopic particles diffuse?";
+  const accepted = validateExperiment(raw);
+  assert.equal(accepted.explanatoryQuestion, "How do microscopic particles diffuse?");
+});
+
+test("Experiment: (experiment.ts:668) missing-source-refs rejected when sourceRefs is not array, accepted when array", () => {
+  const yaml = fs.readFileSync(path.join(FIXTURES_DIR, "experiment-valid.yaml"), "utf8");
+  const raw = strictParse(yaml, "yaml") as any;
+  raw.sourceRefs = "not-an-array";
+  assert.throws(
+    () => validateExperiment(raw),
+    (err: any) => {
+      assert.ok(err instanceof ExperimentValidationError);
+      assert.equal(err.code, "missing-source-refs");
+      return true;
+    },
+  );
+  raw.sourceRefs = ["src-einstein-1905-sec-4"];
+  const accepted = validateExperiment(raw);
+  assert.deepEqual(accepted.sourceRefs, ["src-einstein-1905-sec-4"]);
+});
+
+test("Experiment: (experiment.ts:676) missing-argument-ids rejected when argumentIds is not array, accepted when array", () => {
+  const yaml = fs.readFileSync(path.join(FIXTURES_DIR, "experiment-valid.yaml"), "utf8");
+  const raw = strictParse(yaml, "yaml") as any;
+  raw.argumentIds = null;
+  assert.throws(
+    () => validateExperiment(raw),
+    (err: any) => {
+      assert.ok(err instanceof ExperimentValidationError);
+      assert.equal(err.code, "missing-argument-ids");
+      return true;
+    },
+  );
+  raw.argumentIds = ["arg-diffusion-equilibrium"];
+  const accepted = validateExperiment(raw);
+  assert.deepEqual(accepted.argumentIds, ["arg-diffusion-equilibrium"]);
+});
+
+test("Experiment: (experiment.ts:684) invalid-schema-version rejected when schemaVersion not positive number, accepted with positive", () => {
+  const yaml = fs.readFileSync(path.join(FIXTURES_DIR, "experiment-valid.yaml"), "utf8");
+  const raw = strictParse(yaml, "yaml") as any;
+  raw.schemaVersion = 0;
+  assert.throws(
+    () => validateExperiment(raw),
+    (err: any) => {
+      assert.ok(err instanceof ExperimentValidationError);
+      assert.equal(err.code, "invalid-schema-version");
+      return true;
+    },
+  );
+  raw.schemaVersion = 1;
+  const accepted = validateExperiment(raw);
+  assert.equal(accepted.schemaVersion, 1);
+});
+
+test("Experiment: (experiment.ts:694) missing-parameters rejected when parameters empty or not array, accepted with parameters", () => {
+  const yaml = fs.readFileSync(path.join(FIXTURES_DIR, "experiment-valid.yaml"), "utf8");
+  const raw = strictParse(yaml, "yaml") as any;
+  raw.parameters = [];
+  assert.throws(
+    () => validateExperiment(raw),
+    (err: any) => {
+      assert.ok(err instanceof ExperimentValidationError);
+      assert.equal(err.code, "missing-parameters");
+      return true;
+    },
+  );
+  const raw2 = strictParse(yaml, "yaml");
+  const accepted = validateExperiment(raw2);
+  assert.ok(accepted.parameters.length > 0);
+});
+
+test("Experiment: (experiment.ts:708) invalid-parameter rejected when parameter element not an object, accepted when valid", () => {
+  const yaml = fs.readFileSync(path.join(FIXTURES_DIR, "experiment-valid.yaml"), "utf8");
+  const raw = strictParse(yaml, "yaml") as any;
+  raw.parameters[0] = "not-a-parameter-object";
+  assert.throws(
+    () => validateExperiment(raw),
+    (err: any) => {
+      assert.ok(err instanceof ExperimentValidationError);
+      assert.equal(err.code, "invalid-parameter");
+      return true;
+    },
+  );
+  const raw2 = strictParse(yaml, "yaml");
+  const accepted = validateExperiment(raw2);
+  assert.ok(accepted.parameters[0]?.id);
+});
+
+test("Experiment: (experiment.ts:717) missing-param-id rejected when parameter id missing or empty, accepted with id", () => {
+  const yaml = fs.readFileSync(path.join(FIXTURES_DIR, "experiment-valid.yaml"), "utf8");
+  const raw = strictParse(yaml, "yaml") as any;
+  raw.parameters[0].id = "   ";
+  assert.throws(
+    () => validateExperiment(raw),
+    (err: any) => {
+      assert.ok(err instanceof ExperimentValidationError);
+      assert.equal(err.code, "missing-param-id");
+      return true;
+    },
+  );
+  raw.parameters[0].id = "temperature";
+  const accepted = validateExperiment(raw);
+  assert.equal(accepted.parameters[0]?.id, "temperature");
+});
+
+test("Experiment: (experiment.ts:725) missing-param-quantity-id rejected when quantityId missing or empty, accepted with quantityId", () => {
+  const yaml = fs.readFileSync(path.join(FIXTURES_DIR, "experiment-valid.yaml"), "utf8");
+  const raw = strictParse(yaml, "yaml") as any;
+  raw.parameters[0].quantityId = "";
+  assert.throws(
+    () => validateExperiment(raw),
+    (err: any) => {
+      assert.ok(err instanceof ExperimentValidationError);
+      assert.equal(err.code, "missing-param-quantity-id");
+      return true;
+    },
+  );
+  raw.parameters[0].quantityId = "temperature";
+  const accepted = validateExperiment(raw);
+  assert.equal(accepted.parameters[0]?.quantityId, "temperature");
+});
+
+test("Experiment: (experiment.ts:733) missing-model-domain rejected when modelDomain missing or not object, accepted with domain", () => {
+  const yaml = fs.readFileSync(path.join(FIXTURES_DIR, "experiment-valid.yaml"), "utf8");
+  const raw = strictParse(yaml, "yaml") as any;
+  delete raw.parameters[0].modelDomain;
+  assert.throws(
+    () => validateExperiment(raw),
+    (err: any) => {
+      assert.ok(err instanceof ExperimentValidationError);
+      assert.equal(err.code, "missing-model-domain");
+      return true;
+    },
+  );
+  raw.parameters[0].modelDomain = { min: 273.15, max: 373.15 };
+  const accepted = validateExperiment(raw);
+  assert.equal(accepted.parameters[0]?.modelDomain.min, 273.15);
+});
+
+test("Experiment: (experiment.ts:741) missing-visual-range rejected when visualRange missing or not object, accepted with range", () => {
+  const yaml = fs.readFileSync(path.join(FIXTURES_DIR, "experiment-valid.yaml"), "utf8");
+  const raw = strictParse(yaml, "yaml") as any;
+  delete raw.parameters[0].visualRange;
+  assert.throws(
+    () => validateExperiment(raw),
+    (err: any) => {
+      assert.ok(err instanceof ExperimentValidationError);
+      assert.equal(err.code, "missing-visual-range");
+      return true;
+    },
+  );
+  raw.parameters[0].visualRange = { min: 280, max: 320 };
+  const accepted = validateExperiment(raw);
+  assert.equal(accepted.parameters[0]?.visualRange.min, 280);
+});
+
+test("Experiment: (experiment.ts:749) missing-param-mapping rejected when mapping missing or not object, accepted with mapping", () => {
+  const yaml = fs.readFileSync(path.join(FIXTURES_DIR, "experiment-valid.yaml"), "utf8");
+  const raw = strictParse(yaml, "yaml") as any;
+  delete raw.parameters[0].mapping;
+  assert.throws(
+    () => validateExperiment(raw),
+    (err: any) => {
+      assert.ok(err instanceof ExperimentValidationError);
+      assert.equal(err.code, "missing-param-mapping");
+      return true;
+    },
+  );
+  raw.parameters[0].mapping = { kind: "linear" };
+  const accepted = validateExperiment(raw);
+  assert.equal(accepted.parameters[0]?.mapping.kind, "linear");
+});
+
+test("Experiment: (experiment.ts:758) invalid-param-mapping-kind rejected when mapping kind unknown, accepted with standard kind", () => {
+  const yaml = fs.readFileSync(path.join(FIXTURES_DIR, "experiment-valid.yaml"), "utf8");
+  const raw = strictParse(yaml, "yaml") as any;
+  raw.parameters[0].mapping = { kind: "exponential" };
+  assert.throws(
+    () => validateExperiment(raw),
+    (err: any) => {
+      assert.ok(err instanceof ExperimentValidationError);
+      assert.equal(err.code, "invalid-param-mapping-kind");
+      return true;
+    },
+  );
+  raw.parameters[0].mapping = { kind: "log" };
+  const accepted = validateExperiment(raw);
+  assert.equal(accepted.parameters[0]?.mapping.kind, "log");
+});
+
+test("Experiment: (experiment.ts:766) invalid-command-class rejected when commandClass unknown, accepted with standard class", () => {
+  const yaml = fs.readFileSync(path.join(FIXTURES_DIR, "experiment-valid.yaml"), "utf8");
+  const raw = strictParse(yaml, "yaml") as any;
+  raw.parameters[0].commandClass = "unknown-command-class";
+  assert.throws(
+    () => validateExperiment(raw),
+    (err: any) => {
+      assert.ok(err instanceof ExperimentValidationError);
+      assert.equal(err.code, "invalid-command-class");
+      return true;
+    },
+  );
+  raw.parameters[0].commandClass = "setup-change";
+  const accepted = validateExperiment(raw);
+  assert.equal(accepted.parameters[0]?.commandClass, "setup-change");
+});
+
+test("Experiment: (experiment.ts:837) missing-outputs rejected when outputs empty or not array, accepted with outputs", () => {
+  const yaml = fs.readFileSync(path.join(FIXTURES_DIR, "experiment-valid.yaml"), "utf8");
+  const raw = strictParse(yaml, "yaml") as any;
+  raw.outputs = [];
+  assert.throws(
+    () => validateExperiment(raw),
+    (err: any) => {
+      assert.ok(err instanceof ExperimentValidationError);
+      assert.equal(err.code, "missing-outputs");
+      return true;
+    },
+  );
+  const raw2 = strictParse(yaml, "yaml");
+  const accepted = validateExperiment(raw2);
+  assert.ok(accepted.outputs.length > 0);
+});
+
+test("Experiment: (experiment.ts:852) invalid-output rejected when output item not an object, accepted when valid", () => {
+  const yaml = fs.readFileSync(path.join(FIXTURES_DIR, "experiment-valid.yaml"), "utf8");
+  const raw = strictParse(yaml, "yaml") as any;
+  raw.outputs[0] = "not-an-output-object";
+  assert.throws(
+    () => validateExperiment(raw),
+    (err: any) => {
+      assert.ok(err instanceof ExperimentValidationError);
+      assert.equal(err.code, "invalid-output");
+      return true;
+    },
+  );
+  const raw2 = strictParse(yaml, "yaml");
+  const accepted = validateExperiment(raw2);
+  assert.ok(accepted.outputs[0]?.id);
+});
+
+test("Experiment: (experiment.ts:861) missing-output-id rejected when output id missing or whitespace, accepted with id", () => {
+  const yaml = fs.readFileSync(path.join(FIXTURES_DIR, "experiment-valid.yaml"), "utf8");
+  const raw = strictParse(yaml, "yaml") as any;
+  raw.outputs[0].id = "   ";
+  assert.throws(
+    () => validateExperiment(raw),
+    (err: any) => {
+      assert.ok(err instanceof ExperimentValidationError);
+      assert.equal(err.code, "missing-output-id");
+      return true;
+    },
+  );
+  raw.outputs[0].id = "tracerPositions";
+  const accepted = validateExperiment(raw);
+  assert.equal(accepted.outputs[0]?.id, "tracerPositions");
+});
+
+test("Experiment: (experiment.ts:869) missing-output-quantity-id rejected when output quantityId missing, accepted with quantityId", () => {
+  const yaml = fs.readFileSync(path.join(FIXTURES_DIR, "experiment-valid.yaml"), "utf8");
+  const raw = strictParse(yaml, "yaml") as any;
+  raw.outputs[0].quantityId = "";
+  assert.throws(
+    () => validateExperiment(raw),
+    (err: any) => {
+      assert.ok(err instanceof ExperimentValidationError);
+      assert.equal(err.code, "missing-output-quantity-id");
+      return true;
+    },
+  );
+  raw.outputs[0].quantityId = "displacement";
+  const accepted = validateExperiment(raw);
+  assert.equal(accepted.outputs[0]?.quantityId, "displacement");
+});
+
+test("Experiment: (experiment.ts:877) missing-allowed-statuses rejected when allowedStatuses empty, accepted with statuses", () => {
+  const yaml = fs.readFileSync(path.join(FIXTURES_DIR, "experiment-valid.yaml"), "utf8");
+  const raw = strictParse(yaml, "yaml") as any;
+  raw.outputs[0].allowedStatuses = [];
+  assert.throws(
+    () => validateExperiment(raw),
+    (err: any) => {
+      assert.ok(err instanceof ExperimentValidationError);
+      assert.equal(err.code, "missing-allowed-statuses");
+      return true;
+    },
+  );
+  raw.outputs[0].allowedStatuses = ["value"];
+  const accepted = validateExperiment(raw);
+  assert.deepEqual(accepted.outputs[0]?.allowedStatuses, ["value"]);
+});
+
+test("Experiment: (experiment.ts:886) invalid-output-status rejected when status unknown, accepted for standard status", () => {
+  const yaml = fs.readFileSync(path.join(FIXTURES_DIR, "experiment-valid.yaml"), "utf8");
+  const raw = strictParse(yaml, "yaml") as any;
+  raw.outputs[0].allowedStatuses = ["unknown-status"];
+  assert.throws(
+    () => validateExperiment(raw),
+    (err: any) => {
+      assert.ok(err instanceof ExperimentValidationError);
+      assert.equal(err.code, "invalid-output-status");
+      return true;
+    },
+  );
+  raw.outputs[0].allowedStatuses = ["value", "outside-domain"];
+  const accepted = validateExperiment(raw);
+  assert.deepEqual(accepted.outputs[0]?.allowedStatuses, ["value", "outside-domain"]);
+});
+
+test("Experiment: (experiment.ts:929) missing-assumptions rejected when assumptions is not array, accepted when array", () => {
+  const yaml = fs.readFileSync(path.join(FIXTURES_DIR, "experiment-valid.yaml"), "utf8");
+  const raw = strictParse(yaml, "yaml") as any;
+  raw.assumptions = "not-an-array";
+  assert.throws(
+    () => validateExperiment(raw),
+    (err: any) => {
+      assert.ok(err instanceof ExperimentValidationError);
+      assert.equal(err.code, "missing-assumptions");
+      return true;
+    },
+  );
+  raw.assumptions = [{ id: "asm-stokes", label: "Stokes law holds" }];
+  const accepted = validateExperiment(raw);
+  assert.equal(accepted.assumptions.length, 1);
+});
+
+test("Experiment: (experiment.ts:937) missing-admitted-domain rejected when admittedDomain empty or whitespace, accepted with domain", () => {
+  const yaml = fs.readFileSync(path.join(FIXTURES_DIR, "experiment-valid.yaml"), "utf8");
+  const raw = strictParse(yaml, "yaml") as any;
+  raw.admittedDomain = "   ";
+  assert.throws(
+    () => validateExperiment(raw),
+    (err: any) => {
+      assert.ok(err instanceof ExperimentValidationError);
+      assert.equal(err.code, "missing-admitted-domain");
+      return true;
+    },
+  );
+  raw.admittedDomain = "Microscopic particles suspended in fluid at room temperature.";
+  const accepted = validateExperiment(raw);
+  assert.equal(accepted.admittedDomain, "Microscopic particles suspended in fluid at room temperature.");
+});
+
+test("Experiment: (experiment.ts:947) missing-owner rejected when owner missing or not object, accepted with owner", () => {
+  const yaml = fs.readFileSync(path.join(FIXTURES_DIR, "experiment-valid.yaml"), "utf8");
+  const raw = strictParse(yaml, "yaml") as any;
+  delete raw.owner;
+  assert.throws(
+    () => validateExperiment(raw),
+    (err: any) => {
+      assert.ok(err instanceof ExperimentValidationError);
+      assert.equal(err.code, "missing-owner");
+      return true;
+    },
+  );
+  const raw2 = strictParse(yaml, "yaml");
+  const accepted = validateExperiment(raw2);
+  assert.ok(accepted.owner.kind);
+});
+
+test("Experiment: (experiment.ts:957) invalid-owner-kind rejected when owner kind unknown, accepted for valid kinds", () => {
+  const yaml = fs.readFileSync(path.join(FIXTURES_DIR, "experiment-valid.yaml"), "utf8");
+  const raw = strictParse(yaml, "yaml") as any;
+  raw.owner.kind = "unsupported-owner";
+  assert.throws(
+    () => validateExperiment(raw),
+    (err: any) => {
+      assert.ok(err instanceof ExperimentValidationError);
+      assert.equal(err.code, "invalid-owner-kind");
+      return true;
+    },
+  );
+  raw.owner.kind = "reference-evaluator";
+  const accepted = validateExperiment(raw);
+  assert.equal(accepted.owner.kind, "reference-evaluator");
+});
+
+test("Experiment: (experiment.ts:966) missing-static-reason rejected when static owner lacks staticReason, accepted with reason", () => {
+  const yaml = fs.readFileSync(path.join(FIXTURES_DIR, "experiment-valid.yaml"), "utf8");
+  const raw = strictParse(yaml, "yaml") as any;
+  raw.owner = {
+    kind: "static",
+    staticReason: "   ",
+  };
+  assert.throws(
+    () => validateExperiment(raw),
+    (err: any) => {
+      assert.ok(err instanceof ExperimentValidationError);
+      assert.equal(err.code, "missing-static-reason");
+      return true;
+    },
+  );
+  raw.owner.staticReason = "Purely theoretical derivation with analytical closed form.";
+  const accepted = validateExperiment(raw);
+  assert.equal(accepted.owner.staticReason, "Purely theoretical derivation with analytical closed form.");
+});
+
+test("Experiment: (experiment.ts:974) static-owner-has-functions rejected when static owner declares kernel functions, accepted without functions", () => {
+  const yaml = fs.readFileSync(path.join(FIXTURES_DIR, "experiment-valid.yaml"), "utf8");
+  const raw = strictParse(yaml, "yaml") as any;
+  raw.owner = {
+    kind: "static",
+    staticReason: "Pure theoretical derivation",
+    kernelFunctions: [
+      {
+        displayRole: "reference",
+        language: "typescript",
+        name: "evalDiffusivity",
+        module: "src/physics/reference/brownian.ts",
+        exportName: "evalDiffusivity",
+      },
+    ],
+  };
+  assert.throws(
+    () => validateExperiment(raw),
+    (err: any) => {
+      assert.ok(err instanceof ExperimentValidationError);
+      assert.equal(err.code, "static-owner-has-functions");
+      return true;
+    },
+  );
+  raw.owner.kernelFunctions = [];
+  const accepted = validateExperiment(raw);
+  assert.equal(accepted.owner.kind, "static");
+});
+
+test("Experiment: (experiment.ts:982) static-owner-has-trace rejected when static owner declares trace rows, accepted without trace", () => {
+  const yaml = fs.readFileSync(path.join(FIXTURES_DIR, "experiment-valid.yaml"), "utf8");
+  const raw = strictParse(yaml, "yaml") as any;
+  raw.owner = {
+    kind: "static",
+    staticReason: "Pure theoretical derivation",
+    traceScenarioId: "scenario-01",
+  };
+  assert.throws(
+    () => validateExperiment(raw),
+    (err: any) => {
+      assert.ok(err instanceof ExperimentValidationError);
+      assert.equal(err.code, "static-owner-has-trace");
+      return true;
+    },
+  );
+  delete raw.owner.traceScenarioId;
+  const accepted = validateExperiment(raw);
+  assert.equal(accepted.owner.kind, "static");
 });
 
 // ============================================================================
