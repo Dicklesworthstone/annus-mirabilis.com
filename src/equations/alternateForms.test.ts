@@ -663,4 +663,62 @@ describe("Equation Alternate Forms Validation", () => {
       expect(disabledRes.valid).toBe(true);
     });
   });
+
+  describe("alternateForms refusal throw sites (am-muyh)", () => {
+    const dummyTree: Expression = sym("t.x", "q");
+    const validForm = {
+      id: "eq-bm-s3-d4.alt.modern",
+      relation: "modernization" as const,
+      label: "Modern form with eta",
+      tree: sum([sym("t.x", "q"), num("1")]),
+      modernLensRef: "lens-modern",
+      historicalStatus: "later-development" as const,
+    };
+
+    test("refusal (alternateForms.ts:261): invalid-alternate-form rejects non-object input", () => {
+      // Accept: valid object
+      const accepted = validateAlternateForm(validForm, dummyTree, "eq-bm-s3-d4");
+      expect(accepted.valid).toBe(true);
+
+      // Reject: string primitive
+      const rejected = validateAlternateForm("not-an-object", dummyTree, "eq-bm-s3-d4");
+      expect(rejected.valid).toBe(false);
+      if (!rejected.valid) {
+        expect(rejected.rule).toBe("invalid-alternate-form");
+      }
+    });
+
+    test("refusal (alternateForms.ts:379): alternate-missing-tree rejects alternate missing tree", () => {
+      // Accept: valid form with tree
+      const accepted = validateAlternateForm(validForm, dummyTree, "eq-bm-s3-d4");
+      expect(accepted.valid).toBe(true);
+
+      // Reject: form missing tree
+      const missingTree = {
+        id: "eq-bm-s3-d4.alt.modern",
+        relation: "modernization",
+        label: "Modern form",
+        modernLensRef: "lens-modern",
+        historicalStatus: "later-development",
+      };
+      const rejected = validateAlternateForm(missingTree, dummyTree, "eq-bm-s3-d4");
+      expect(rejected.valid).toBe(false);
+      if (!rejected.valid) {
+        expect(rejected.rule).toBe("alternate-missing-tree");
+      }
+    });
+
+    test("refusal (alternateForms.ts:455): invalid-alternate-forms-list rejects non-array alternate forms list", () => {
+      // Accept: valid array
+      const accepted = validateAlternateForms([validForm], dummyTree, "eq-bm-s3-d4");
+      expect(accepted.valid).toBe(true);
+
+      // Reject: non-array input
+      const rejected = validateAlternateForms("not-an-array", dummyTree, "eq-bm-s3-d4");
+      expect(rejected.valid).toBe(false);
+      if (!rejected.valid) {
+        expect(rejected.rule).toBe("invalid-alternate-forms-list");
+      }
+    });
+  });
 });

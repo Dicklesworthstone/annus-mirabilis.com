@@ -396,4 +396,100 @@ describe("am-eq-genealogy-hmm: validateGenealogyConsistency", () => {
     expect(cycleErrors.length).toBe(1);
     expect(cycleErrors[0]?.message).toContain("Cycle detected");
   });
+
+  describe("consistency refusal throw sites (am-muyh)", () => {
+    const baseGraph: GenealogyGraph = {
+      paper: "special-relativity",
+      perspective: "historical",
+      nodes: [
+        { id: "step-1", paper: "special-relativity", label: "Step 1", type: "equation", isRoot: false, isNumberedResult: false },
+        { id: "step-2", paper: "special-relativity", label: "Step 2", type: "equation", isRoot: false, isNumberedResult: false },
+        { id: "premise-A", paper: "special-relativity", label: "Premise A", type: "premise", isRoot: true, isNumberedResult: false },
+        { id: "target-eq", paper: "special-relativity", label: "Target", type: "result", isRoot: false, isNumberedResult: true },
+      ],
+      edges: [],
+      roots: ["premise-A"],
+      crossPaperEdges: [],
+    };
+
+    test("refusal (consistency.ts:135): missing-premise-edge reports missing sequential step edge", () => {
+      const chain = {
+        id: "chain-seq",
+        paper: "special-relativity",
+        routeKind: "historical-derivation",
+        entryAssumptions: [],
+        steps: [
+          { id: "step-1", premiseRefs: [] },
+          { id: "step-2", premiseRefs: [] },
+        ],
+      } as unknown as Parameters<typeof validateGenealogyConsistency>[2] extends readonly (infer U)[] | undefined ? U : never;
+
+      // Accept: sequential edge present
+      const acceptedGraph: GenealogyGraph = {
+        ...baseGraph,
+        edges: [{ from: "step-1", to: "step-2", edgeType: "historical-derivation", isPremise: false, crossPaper: false }],
+      };
+      const passDiags = validateGenealogyConsistency(acceptedGraph, [], [chain], { isPaper3: false });
+      expect(passDiags.some((d) => d.code === "missing-premise-edge" && d.edge?.from === "step-1" && d.edge?.to === "step-2")).toBe(false);
+
+      // Reject: sequential edge missing
+      const failDiags = validateGenealogyConsistency(baseGraph, [], [chain], { isPaper3: false });
+      const missing = failDiags.find((d) => d.code === "missing-premise-edge" && d.edge?.from === "step-1" && d.edge?.to === "step-2");
+      expect(missing).toBeDefined();
+      expect(missing?.message).toContain('sequential step "step-1" -> "step-2" is missing');
+    });
+
+    test("refusal (consistency.ts:149): missing-premise-edge reports missing premise reference edge", () => {
+      const chain = {
+        id: "chain-premise",
+        paper: "special-relativity",
+        routeKind: "historical-derivation",
+        entryAssumptions: [],
+        steps: [
+          { id: "step-1", premiseRefs: [{ ref: "premise-A", edgeType: "historical-derivation" }] },
+        ],
+      } as unknown as Parameters<typeof validateGenealogyConsistency>[2] extends readonly (infer U)[] | undefined ? U : never;
+
+      // Accept: premise edge present
+      const acceptedGraph: GenealogyGraph = {
+        ...baseGraph,
+        edges: [{ from: "premise-A", to: "step-1", edgeType: "historical-derivation", isPremise: true, crossPaper: false }],
+      };
+      const passDiags = validateGenealogyConsistency(acceptedGraph, [], [chain], { isPaper3: false });
+      expect(passDiags.some((d) => d.code === "missing-premise-edge" && d.edge?.from === "premise-A" && d.edge?.to === "step-1")).toBe(false);
+
+      // Reject: premise edge missing
+      const failDiags = validateGenealogyConsistency(baseGraph, [], [chain], { isPaper3: false });
+      const missing = failDiags.find((d) => d.code === "missing-premise-edge" && d.edge?.from === "premise-A" && d.edge?.to === "step-1");
+      expect(missing).toBeDefined();
+      expect(missing?.message).toContain('cites premise "premise-A" but no genealogy edge exists');
+    });
+
+    test("refusal (consistency.ts:166): missing-premise-edge reports missing last-step to target edge", () => {
+      const chain = {
+        id: "chain-target",
+        paper: "special-relativity",
+        routeKind: "historical-derivation",
+        entryAssumptions: [],
+        target: "target-eq",
+        steps: [
+          { id: "step-1", premiseRefs: [] },
+        ],
+      } as unknown as Parameters<typeof validateGenealogyConsistency>[2] extends readonly (infer U)[] | undefined ? U : never;
+
+      // Accept: target edge present
+      const acceptedGraph: GenealogyGraph = {
+        ...baseGraph,
+        edges: [{ from: "step-1", to: "target-eq", edgeType: "historical-derivation", isPremise: false, crossPaper: false }],
+      };
+      const passDiags = validateGenealogyConsistency(acceptedGraph, [], [chain], { isPaper3: false });
+      expect(passDiags.some((d) => d.code === "missing-premise-edge" && d.edge?.from === "step-1" && d.edge?.to === "target-eq")).toBe(false);
+
+      // Reject: target edge missing
+      const failDiags = validateGenealogyConsistency(baseGraph, [], [chain], { isPaper3: false });
+      const missing = failDiags.find((d) => d.code === "missing-premise-edge" && d.edge?.from === "step-1" && d.edge?.to === "target-eq");
+      expect(missing).toBeDefined();
+      expect(missing?.message).toContain('target connection "step-1" -> "target-eq" is missing');
+    });
+  });
 });

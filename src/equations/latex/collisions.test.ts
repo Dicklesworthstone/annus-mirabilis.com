@@ -278,3 +278,58 @@ test("collisions.test: renderEquationLatex throws NotationScopeError on modern g
   assert.ok(nonCollidingRes.latex.length > 0);
   assert.equal(nonCollidingRes.formRelation, "rename-only");
 });
+
+test("refusal (collisions.ts:73): modern-glyph-collision reports error when modern glyph collides", () => {
+  const tree: Expression = rel("=", sym("a", "quantityA"), sym("b", "quantityB"));
+  const registry = {
+    quantityA: {
+      id: "quantityA",
+      name: "A",
+      glyph: "\\alpha",
+      dimension: [],
+      unit: "1",
+      displayUnit: "1",
+      displayPower: 0,
+      semanticKind: "variable" as const,
+      role: "result" as const,
+      definition: "",
+    },
+    quantityB: {
+      id: "quantityB",
+      name: "B",
+      glyph: "\\alpha",
+      dimension: [],
+      unit: "1",
+      displayUnit: "1",
+      displayPower: 0,
+      semanticKind: "variable" as const,
+      role: "result" as const,
+      definition: "",
+    },
+  };
+
+  // Reject: both quantities map to identical modern glyph \alpha
+  const failRes = checkEquationGlyphCollisions(tree, {
+    perspective: "modern",
+    registry,
+    equationId: "eq-test-collision",
+  });
+  assert.equal(failRes.ok, false);
+  const diag = failRes.diagnostics.find((d) => d.rule === "modern-glyph-collision");
+  assert.ok(diag);
+  assert.equal(diag?.kind, "error");
+  assert.equal(diag?.glyph, "\\alpha");
+
+  // Accept: distinct modern glyphs
+  const passRegistry = {
+    ...registry,
+    quantityB: { ...registry.quantityB, glyph: "\\beta" },
+  };
+  const passRes = checkEquationGlyphCollisions(tree, {
+    perspective: "modern",
+    registry: passRegistry,
+    equationId: "eq-test-no-collision",
+  });
+  assert.equal(passRes.ok, true);
+  assert.equal(passRes.diagnostics.length, 0);
+});

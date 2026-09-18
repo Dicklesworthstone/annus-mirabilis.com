@@ -124,4 +124,19 @@ describe("am-eq-spoken-forms-w4f: spokenForm.schema tests", () => {
     assert.ok(lorentz.spokenForms.printed.includes("speed of light"));
     assert.ok(lorentz.spokenForms.modern.includes("gamma"));
   });
+
+  test("refusal (lintSpokenForm.ts:48): no-raw-latex rejects raw LaTeX commands", () => {
+    // Accept: natural English spoken form
+    const accepted = lintSpokenForm("The fraction of two quantities equals the speed of light.");
+    assert.equal(accepted.valid, true);
+    assert.equal(accepted.errors.length, 0);
+
+    // Reject: raw LaTeX command \frac
+    const rejected = lintSpokenForm("The \\frac of two quantities equals c.");
+    assert.equal(rejected.valid, false);
+    const err = rejected.errors.find((e) => e.rule === "no-raw-latex");
+    assert.ok(err);
+    assert.equal(err?.severity, "error");
+    assert.match(err?.message, /Raw LaTeX command "\\frac" found in spoken form/);
+  });
 });

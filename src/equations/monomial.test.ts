@@ -16,6 +16,7 @@ import {
   findNode,
   walk,
 } from "./ast.ts";
+import { ContentError } from "../content/compiler/json.ts";
 import {
   type CompositeGroup,
   bindCompositeGroup,
@@ -424,6 +425,108 @@ describe("Monomial Factor-Set Binding and Dual View", () => {
         checkPreserveMemberBindings: false,
       });
       expect(bypassRes.ok).toBe(true);
+    });
+  });
+
+  describe("monomial refusal throw sites (am-muyh)", () => {
+    test("refusal (monomial.ts:108): monomial-fractional-power rejects fractional exponents", () => {
+      // Accept: integer power (den: 1)
+      const accepted = extractMonomialFactorSet({
+        kind: "power",
+        base: sym("t.x", "q"),
+        exponent: { num: 2, den: 1 },
+      });
+      expect(accepted.factors.length).toBe(1);
+      expect(accepted.exponentOf("t.x")).toBe(2);
+
+      // Reject: fractional power (den: 2)
+      let thrown: unknown;
+      try {
+        extractMonomialFactorSet({
+          kind: "power",
+          base: sym("t.x", "q"),
+          exponent: { num: 1, den: 2 },
+        });
+      } catch (e) {
+        thrown = e;
+      }
+      expect(thrown).toBeInstanceOf(ContentError);
+      expect((thrown as ContentError).code).toBe("monomial-fractional-power");
+    });
+
+    test("refusal (monomial.ts:125): monomial-invalid-node rejects unsupported node kinds", () => {
+      // Accept: symbol node
+      const accepted = extractMonomialFactorSet(sym("t.x", "q"));
+      expect(accepted.factors.length).toBe(1);
+
+      // Reject: sum node
+      let thrown: unknown;
+      try {
+        extractMonomialFactorSet(sum([sym("t.x", "q"), sym("t.y", "q")]));
+      } catch (e) {
+        thrown = e;
+      }
+      expect(thrown).toBeInstanceOf(ContentError);
+      expect((thrown as ContentError).code).toBe("monomial-invalid-node");
+    });
+
+    test("refusal (monomial.ts:324): composite-group-monomial-mismatch rejects term missing from factor set", () => {
+      // Accept: term is a factor
+      const accepted = validateCompositeGroup(
+        {
+          id: "grp-1",
+          quantityId: "q",
+          kind: "monomial",
+          termIds: ["t.x"],
+        },
+        prod([sym("t.x", "q1"), sym("t.y", "q2")]),
+      );
+      expect(accepted.ok).toBe(true);
+
+      // Reject: with checkTermsExist false, term not in factor set triggers monomial-mismatch
+      const rejected = validateCompositeGroup(
+        {
+          id: "grp-1",
+          quantityId: "q",
+          kind: "monomial",
+          termIds: ["t.notInFactorSet"],
+        },
+        prod([sym("t.x", "q1"), sym("t.y", "q2")]),
+        { checkTermsExist: false },
+      );
+      expect(rejected.ok).toBe(false);
+      if (!rejected.ok) {
+        expect(rejected.rule).toBe("composite-group-monomial-mismatch");
+      }
+    });
+
+    test("refusal (monomial.ts:346): composite-group-invalid-kind rejects unrecognized group kind", () => {
+      // Accept: valid group kind "subtree"
+      const accepted = validateCompositeGroup(
+        {
+          id: "grp-1",
+          quantityId: "q",
+          kind: "subtree",
+          termIds: ["t.x"],
+        },
+        sym("t.x", "q1"),
+      );
+      expect(accepted.ok).toBe(true);
+
+      // Reject: invalid group kind
+      const rejected = validateCompositeGroup(
+        {
+          id: "grp-1",
+          quantityId: "q",
+          kind: "invalid-kind" as unknown as "monomial",
+          termIds: ["t.x"],
+        },
+        sym("t.x", "q1"),
+      );
+      expect(rejected.ok).toBe(false);
+      if (!rejected.ok) {
+        expect(rejected.rule).toBe("composite-group-invalid-kind");
+      }
     });
   });
 });

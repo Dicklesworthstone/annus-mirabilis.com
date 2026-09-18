@@ -332,4 +332,60 @@ describe("events.clocks: Proper time, worldlines, and light clock (am-ref-events
     expect(lightClock(1.0, 1.0).status).toBe("outside-domain");
     expect(lightClock(-1.0, 0.5).status).toBe("outside-domain");
   });
+
+  describe("events refusal throw sites (am-muyh)", () => {
+    test("refusal (events.ts:731): nonfinite-velocity rejects non-finite velocity in smooth worldline", () => {
+      // Accept: finite smooth velocity
+      const accepted = properTime(
+        {
+          kind: "prescribed-smooth",
+          velocity: () => ({ vx: 0.2 }),
+        },
+        0,
+        10,
+      );
+      expect(accepted.status).toBe("value");
+
+      // Reject: non-finite velocity
+      const rejected = properTime(
+        {
+          kind: "prescribed-smooth",
+          velocity: () => ({ vx: NaN }),
+        },
+        0,
+        10,
+      );
+      expect(rejected.status).toBe("outside-domain");
+      if (rejected.status === "outside-domain") {
+        expect(rejected.condition).toBe("nonfinite-velocity");
+      }
+    });
+
+    test("refusal (events.ts:735): superluminal-segment rejects superluminal velocity in smooth worldline", () => {
+      // Accept: subluminal smooth velocity
+      const accepted = properTime(
+        {
+          kind: "prescribed-smooth",
+          velocity: () => ({ vx: 0.5 }),
+        },
+        0,
+        10,
+      );
+      expect(accepted.status).toBe("value");
+
+      // Reject: superluminal velocity (vx >= 1 in c=1 units)
+      const rejected = properTime(
+        {
+          kind: "prescribed-smooth",
+          velocity: () => ({ vx: 1.5 }),
+        },
+        0,
+        10,
+      );
+      expect(rejected.status).toBe("outside-domain");
+      if (rejected.status === "outside-domain") {
+        expect(rejected.condition).toBe("superluminal-segment");
+      }
+    });
+  });
 });

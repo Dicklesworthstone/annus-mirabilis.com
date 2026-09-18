@@ -284,4 +284,61 @@ describe("LQ-09 Ionization Bounds & Counting Reference Evaluator (Paper 1, §9)"
       }
     }
   });
+
+  describe("photoelectric refusal throw sites (am-muyh)", () => {
+    test("refusal (photoelectric.ts:1202): nonfinite-frequency rejects non-finite frequency", () => {
+      // Accept: finite frequency
+      const accepted = ionizationBounds({ nu: 1e15, ionizationEnergyEv: 2.0, set });
+      expect(accepted.status).toBe("value");
+
+      // Reject: NaN frequency
+      const rejected = ionizationBounds({ nu: NaN, ionizationEnergyEv: 2.0, set });
+      expect(rejected.status).toBe("outside-domain");
+      expect(rejected.refusalCode).toBe("nonfinite-frequency");
+    });
+
+    test("refusal (photoelectric.ts:1221): nonpositive-frequency rejects non-positive frequency", () => {
+      // Accept: positive frequency
+      const accepted = ionizationBounds({ nu: 1e15, ionizationEnergyEv: 2.0, set });
+      expect(accepted.status).toBe("value");
+
+      // Reject: negative frequency
+      const rejected = ionizationBounds({ nu: -1e14, ionizationEnergyEv: 2.0, set });
+      expect(rejected.status).toBe("outside-domain");
+      expect(rejected.refusalCode).toBe("nonpositive-frequency");
+    });
+
+    test("refusal (photoelectric.ts:1267): invalid-ionization-energy rejects negative ionizationEnergyEv", () => {
+      // Accept: positive ionizationEnergyEv
+      const accepted = ionizationBounds({ nu: 1e15, ionizationEnergyEv: 2.0, set });
+      expect(accepted.status).toBe("value");
+
+      // Reject: negative ionizationEnergyEv
+      const rejected = ionizationBounds({ nu: 1e15, ionizationEnergyEv: -2.0, set });
+      expect(rejected.status).toBe("outside-domain");
+      expect(rejected.refusalCode).toBe("invalid-ionization-energy");
+    });
+
+    test("refusal (photoelectric.ts:1288): invalid-ionization-energy rejects negative ionizationEnergyJoules", () => {
+      // Accept: positive ionizationEnergyJoules
+      const accepted = ionizationBounds({ nu: 1e15, ionizationEnergyJoules: 3.2e-19, set });
+      expect(accepted.status).toBe("value");
+
+      // Reject: negative ionizationEnergyJoules
+      const rejected = ionizationBounds({ nu: 1e15, ionizationEnergyJoules: -3.2e-19, set });
+      expect(rejected.status).toBe("outside-domain");
+      expect(rejected.refusalCode).toBe("invalid-ionization-energy");
+    });
+
+    test("refusal (photoelectric.ts:1308): missing-ionization-energy rejects omitted ionization energy", () => {
+      // Accept: provided ionizationEnergyEv
+      const accepted = ionizationBounds({ nu: 1e15, ionizationEnergyEv: 2.0, set });
+      expect(accepted.status).toBe("value");
+
+      // Reject: neither eV nor Joules provided
+      const rejected = ionizationBounds({ nu: 1e15, set });
+      expect(rejected.status).toBe("outside-domain");
+      expect(rejected.refusalCode).toBe("missing-ionization-energy");
+    });
+  });
 });
