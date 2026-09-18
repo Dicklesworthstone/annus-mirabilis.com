@@ -2,7 +2,12 @@ import { describe, expect, test } from "bun:test";
 import React from "react";
 import { renderToStaticMarkup } from "react-dom/server";
 import { getLogger } from "../../testing/log/logger.ts";
-import { Genealogy, GenealogyListFallback, handleGenealogyKeyDown } from "./Genealogy.tsx";
+import {
+  Genealogy,
+  GenealogyListFallback,
+  formatEdgeTypeLabel,
+  handleGenealogyKeyDown,
+} from "./Genealogy.tsx";
 import { layoutGenealogyGraph } from "./layoutLayers.ts";
 import type { GenealogyGraph } from "./types.ts";
 
@@ -217,5 +222,115 @@ describe("am-eq-genealogy-hmm: Genealogy component rendering and navigation", ()
     expect(html).toContain(
       'data-node-id="light-energy" data-layer="2" data-selected="false" data-lineage="false" data-impact="true"',
     );
+  });
+
+  test("formatEdgeTypeLabel returns distinct accessible names for all edge types", () => {
+    expect(formatEdgeTypeLabel("historical-derivation")).toBe("Historical Derivation");
+    expect(formatEdgeTypeLabel("modern-verification-oracle")).toBe("Modern Verification Oracle");
+    expect(formatEdgeTypeLabel("cross-reference")).toBe("Cross-Paper Reference");
+    expect(formatEdgeTypeLabel("pedagogical-reconstruction")).toBe("Pedagogical Reconstruction");
+    expect(formatEdgeTypeLabel("historical-derivation", true)).toBe("Cross-Paper Reference");
+  });
+
+  test("modern-verification-oracle has distinct dash signature ('2 2') and list fallback names edge types", () => {
+    const multiTypeGraph: GenealogyGraph = {
+      paper: "special-relativity",
+      perspective: "modern",
+      nodes: [
+        {
+          id: "root-postulate",
+          paper: "sr",
+          label: "Invariance Principle",
+          type: "postulate",
+          isRoot: true,
+          isNumberedResult: false,
+        },
+        {
+          id: "hist-eq",
+          paper: "sr",
+          label: "Historical Lorentz Step",
+          type: "equation",
+          isRoot: false,
+          isNumberedResult: false,
+        },
+        {
+          id: "oracle-eq",
+          paper: "sr",
+          label: "Modern Oracle Invariant",
+          type: "equation",
+          isRoot: false,
+          isNumberedResult: false,
+        },
+        {
+          id: "ped-eq",
+          paper: "sr",
+          label: "Pedagogical Step",
+          type: "equation",
+          isRoot: false,
+          isNumberedResult: false,
+        },
+        {
+          id: "ext-result",
+          paper: "mass-energy",
+          label: "Mass Energy Result",
+          type: "result",
+          isRoot: false,
+          isNumberedResult: true,
+        },
+      ],
+      edges: [
+        {
+          from: "root-postulate",
+          to: "hist-eq",
+          edgeType: "historical-derivation",
+          isPremise: true,
+          crossPaper: false,
+        },
+        {
+          from: "root-postulate",
+          to: "oracle-eq",
+          edgeType: "modern-verification-oracle",
+          isPremise: true,
+          crossPaper: false,
+        },
+        {
+          from: "hist-eq",
+          to: "ped-eq",
+          edgeType: "pedagogical-reconstruction",
+          isPremise: true,
+          crossPaper: false,
+        },
+        {
+          from: "oracle-eq",
+          to: "ext-result",
+          edgeType: "cross-reference",
+          isPremise: true,
+          crossPaper: true,
+          targetPaper: "mass-energy",
+        },
+      ],
+      roots: ["root-postulate"],
+      crossPaperEdges: [],
+    };
+
+    const html = renderToStaticMarkup(<Genealogy graph={multiTypeGraph} />);
+
+    // 1. Non-colour cue in SVG: distinct dash patterns
+    // Oracle edge has dasharray="2 2"
+    expect(html).toContain('data-from="root-postulate" data-to="oracle-eq" data-edge-type="modern-verification-oracle"');
+    expect(html).toContain('stroke-dasharray="2 2"');
+
+    // Cross-paper edge has dasharray="4 3"
+    expect(html).toContain('data-from="oracle-eq" data-to="ext-result" data-edge-type="cross-reference"');
+    expect(html).toContain('stroke-dasharray="4 3"');
+
+    // Historical derivation has solid stroke
+    expect(html).toContain('data-from="root-postulate" data-to="hist-eq" data-edge-type="historical-derivation"');
+
+    // 2. Explicit edge naming in accessible nested list fallback
+    expect(html).toContain('<span class="genealogy-edge-type" data-edge-type="historical-derivation" aria-label="Derivation type: Historical Derivation">[Historical Derivation]</span>');
+    expect(html).toContain('<span class="genealogy-edge-type" data-edge-type="modern-verification-oracle" aria-label="Derivation type: Modern Verification Oracle">[Modern Verification Oracle]</span>');
+    expect(html).toContain('<span class="genealogy-edge-type" data-edge-type="pedagogical-reconstruction" aria-label="Derivation type: Pedagogical Reconstruction">[Pedagogical Reconstruction]</span>');
+    expect(html).toContain('<span class="genealogy-edge-type" data-edge-type="cross-reference" aria-label="Derivation type: Cross-Paper Reference">[Cross-Paper Reference]</span>');
   });
 });

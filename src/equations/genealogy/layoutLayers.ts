@@ -369,10 +369,14 @@ export function generateDeterministicSvg(layout: GenealogyLayoutResult): string 
         ? "genealogy-arrow-oracle"
         : "genealogy-arrow-default";
     const strokeColor = isCross ? "var(--accent)" : isOracle ? "var(--plot)" : "var(--line)";
-    const strokeDash = isCross ? `stroke-dasharray="4 3" ` : "";
+    const strokeDash = isCross
+      ? `stroke-dasharray="4 3" `
+      : isOracle
+        ? `stroke-dasharray="2 2" `
+        : "";
 
     lines.push(
-      `    <path d="${e.path}" class="genealogy-edge" data-from="${escapeXml(e.from)}" data-to="${escapeXml(e.to)}" data-cross-paper="${isCross}" fill="none" stroke="${strokeColor}" stroke-width="2" ${strokeDash}marker-end="url(#${markerId})" />`,
+      `    <path d="${e.path}" class="genealogy-edge" data-from="${escapeXml(e.from)}" data-to="${escapeXml(e.to)}" data-edge-type="${escapeXml(e.edge.edgeType)}" data-cross-paper="${isCross}" fill="none" stroke="${strokeColor}" stroke-width="2" ${strokeDash}marker-end="url(#${markerId})" />`,
     );
   }
 

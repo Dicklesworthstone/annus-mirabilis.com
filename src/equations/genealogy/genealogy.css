@@ -111,6 +111,42 @@
   padding-left: 0;
 }
 
+.genealogy-list-entry {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.5rem;
+  margin: 0.25rem 0;
+  flex-wrap: wrap;
+}
+
+.genealogy-edge-type {
+  font-size: 0.75rem;
+  font-weight: 600;
+  padding: 0.15rem 0.45rem;
+  border-radius: 0.25rem;
+  background: #eee7d8;
+  color: #5c5346;
+  border: 1px solid #dcd5c6;
+}
+
+.genealogy-edge-type[data-edge-type="modern-verification-oracle"] {
+  background: #e1edf7;
+  color: #1e4b70;
+  border: 1px dashed #2d6a9f;
+}
+
+.genealogy-edge-type[data-edge-type="cross-reference"] {
+  background: #fff4e6;
+  color: #9c4200;
+  border: 1px dashed #c25e00;
+}
+
+.genealogy-edge-type[data-edge-type="pedagogical-reconstruction"] {
+  background: #f0ede6;
+  color: #4a453e;
+  border: 1px solid #c8c2b5;
+}
+
 .genealogy-node-btn {
   display: inline-flex;
   align-items: center;

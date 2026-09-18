@@ -10,8 +10,9 @@
 
 import type React from "react";
 import { useState } from "react";
+import type { PremiseEdgeType } from "../../content/schemas/meanings.ts";
 import { layoutGenealogyGraph } from "./layoutLayers.ts";
-import type { GenealogyGraph, GenealogyLayoutResult, GenealogyNode } from "./types.ts";
+import type { GenealogyEdge, GenealogyGraph, GenealogyLayoutResult, GenealogyNode } from "./types.ts";
 
 export interface GenealogyProps {
   readonly graph: GenealogyGraph;
@@ -131,6 +132,28 @@ export function handleGenealogyKeyDown(
 }
 
 /**
+ * Formats a PremiseEdgeType into an accessible human-readable label.
+ */
+export function formatEdgeTypeLabel(
+  edgeType: PremiseEdgeType,
+  crossPaper?: boolean,
+): string {
+  if (crossPaper || edgeType === "cross-reference") {
+    return "Cross-Paper Reference";
+  }
+  switch (edgeType) {
+    case "historical-derivation":
+      return "Historical Derivation";
+    case "modern-verification-oracle":
+      return "Modern Verification Oracle";
+    case "pedagogical-reconstruction":
+      return "Pedagogical Reconstruction";
+    default:
+      return edgeType;
+  }
+}
+
+/**
  * Renders the accessible nested list tree fallback.
  */
 export function GenealogyListFallback({
@@ -147,13 +170,18 @@ export function GenealogyListFallback({
     nodeMap.set(n.id, n);
   }
 
-  const childrenMap = new Map<string, string[]>();
+  interface ChildLink {
+    readonly to: string;
+    readonly edge: GenealogyEdge;
+  }
+
+  const childrenMap = new Map<string, ChildLink[]>();
   for (const n of graph.nodes) {
     childrenMap.set(n.id, []);
   }
   for (const e of graph.edges) {
     if (e.isPremise) {
-      childrenMap.get(e.from)?.push(e.to);
+      childrenMap.get(e.from)?.push({ to: e.to, edge: e });
     }
   }
 
@@ -161,17 +189,26 @@ export function GenealogyListFallback({
     nodeId: string,
     ancestorSet: Set<string>,
     renderedSet: Set<string>,
+    incomingEdge?: GenealogyEdge | undefined,
   ): React.JSX.Element => {
     const node = nodeMap.get(nodeId);
     if (!node) return <li key={nodeId}>Unknown node: {nodeId}</li>;
 
     const isSelected = selectedNodeId === nodeId;
     const isRepeated = renderedSet.has(nodeId);
+    const edgeLabel = incomingEdge
+      ? formatEdgeTypeLabel(incomingEdge.edgeType, incomingEdge.crossPaper)
+      : undefined;
 
     if (isRepeated || ancestorSet.has(nodeId)) {
       return (
         <li key={`${nodeId}-repeat`}>
           <span className="genealogy-node-item repeated">
+            {edgeLabel && (
+              <span className="genealogy-edge-type" data-edge-type={incomingEdge?.edgeType}>
+                [{edgeLabel}]{" "}
+              </span>
+            )}
             (see above for <strong>{node.label}</strong>)
           </span>
         </li>
@@ -186,24 +223,42 @@ export function GenealogyListFallback({
 
     return (
       <li key={nodeId}>
-        <button
-          type="button"
-          className="genealogy-node-btn"
-          data-selected={isSelected}
-          data-node-id={node.id}
-          data-is-root={node.isRoot}
-          data-is-result={node.isNumberedResult}
-          onClick={() => onSelectNode?.(node.id)}
-        >
-          <span className="genealogy-badge">
-            {node.isRoot ? "POSTULATE" : node.isNumberedResult ? "RESULT" : "EQUATION"}
-          </span>
-          <span className="genealogy-node-title">{node.label}</span>
-          {node.anchor && <span className="genealogy-anchor">({node.anchor})</span>}
-        </button>
+        <div className="genealogy-list-entry">
+          {edgeLabel && (
+            <span
+              className="genealogy-edge-type"
+              data-edge-type={incomingEdge?.edgeType}
+              aria-label={`Derivation type: ${edgeLabel}`}
+            >
+              [{edgeLabel}]
+            </span>
+          )}
+          <button
+            type="button"
+            className="genealogy-node-btn"
+            data-selected={isSelected}
+            data-node-id={node.id}
+            data-is-root={node.isRoot}
+            data-is-result={node.isNumberedResult}
+            onClick={() => onSelectNode?.(node.id)}
+            aria-label={
+              edgeLabel
+                ? `${edgeLabel} leads to ${node.isRoot ? "Postulate" : node.isNumberedResult ? "Result" : "Equation"}: ${node.label}`
+                : `${node.isRoot ? "Postulate" : node.isNumberedResult ? "Result" : "Equation"}: ${node.label}`
+            }
+          >
+            <span className="genealogy-badge">
+              {node.isRoot ? "POSTULATE" : node.isNumberedResult ? "RESULT" : "EQUATION"}
+            </span>
+            <span className="genealogy-node-title">{node.label}</span>
+            {node.anchor && <span className="genealogy-anchor">({node.anchor})</span>}
+          </button>
+        </div>
         {children.length > 0 && (
           <ol className="genealogy-children-list">
-            {children.map((childId) => renderNodeBranch(childId, nextAncestors, renderedSet))}
+            {children.map((child) =>
+              renderNodeBranch(child.to, nextAncestors, renderedSet, child.edge),
+            )}
           </ol>
         )}
       </li>
@@ -375,6 +430,8 @@ export function Genealogy({
                     ? "#2d6a9f"
                     : "#8c8273";
 
+              const strokeDasharray = isCross ? "4 3" : isOracle ? "2 2" : undefined;
+
               return (
                 <path
                   key={`${e.from}->${e.to}`}
@@ -382,12 +439,13 @@ export function Genealogy({
                   className="genealogy-edge"
                   data-from={e.from}
                   data-to={e.to}
+                  data-edge-type={e.edge.edgeType}
                   data-cross-paper={isCross}
                   data-highlighted={isHighlighted}
                   fill="none"
                   stroke={stroke}
                   strokeWidth={isHighlighted ? 3 : 2}
-                  strokeDasharray={isCross ? "4 3" : undefined}
+                  strokeDasharray={strokeDasharray}
                   markerEnd={`url(#${markerId})`}
                 />
               );
