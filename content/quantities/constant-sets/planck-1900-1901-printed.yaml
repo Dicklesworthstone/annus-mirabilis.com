@@ -20,7 +20,7 @@ entries:
     precision: "3 significant figures"
     dependsOn: []
     transcriptionStatus: transcribed-and-checked
-    checkedBy: "pane21"
+    checkedBy: "pane21, via Annalen der Physik (4) 4 (1901) p. 561-563, cross-referenced with CPAE Vol. 2 Doc. 14 editorial notes, not a pinned repository facsimile"
     checkedAt: "2026-09-17"
 
   - quantityId: boltzmannConstant
@@ -39,7 +39,7 @@ entries:
     precision: "4 significant figures"
     dependsOn: []
     transcriptionStatus: transcribed-and-checked
-    checkedBy: "pane21"
+    checkedBy: "pane21, via Annalen der Physik (4) 4 (1901) p. 561-563, cross-referenced with CPAE Vol. 2 Doc. 14 editorial notes, not a pinned repository facsimile"
     checkedAt: "2026-09-17"
 
   - quantityId: avogadroConstant
@@ -58,7 +58,7 @@ entries:
     precision: "4 significant figures"
     dependsOn: []
     transcriptionStatus: transcribed-and-checked
-    checkedBy: "pane21"
+    checkedBy: "pane21, via Annalen der Physik (4) 4 (1901) p. 564-566, cross-referenced with CPAE Vol. 2 Doc. 14 editorial notes, not a pinned repository facsimile"
     checkedAt: "2026-09-17"
 
   - quantityId: elementaryCharge
@@ -77,7 +77,7 @@ entries:
     precision: "3 significant figures"
     dependsOn: []
     transcriptionStatus: transcribed-and-checked
-    checkedBy: "pane21"
+    checkedBy: "pane21, via Annalen der Physik (4) 4 (1901) p. 564-566, cross-referenced with CPAE Vol. 2 Doc. 14 editorial notes, not a pinned repository facsimile"
     checkedAt: "2026-09-17"
 
   - quantityId: speedOfLight
@@ -94,5 +94,5 @@ entries:
     precision: "1 significant figure"
     dependsOn: []
     transcriptionStatus: transcribed-and-checked
-    checkedBy: "pane21"
+    checkedBy: "pane21, editorial input c = 3 · 10^8 m/s per standard 1901 optics, not printed as numeral in Planck 1901 §6"
     checkedAt: "2026-09-17"

@@ -18,17 +18,12 @@ entries:
     receiptRef: "docs/provenance/ap-17-132.md#watch-alpha-exponent"
     journalPage: "136"
     facsimilePdfPage: 5
-    printedRegion:
-      x: 25
-      y: 40
-      width: 25
-      height: 4
     era: "1905"
     provenance: "Annalen der Physik (4) 17 (1905), p. 136, §2; corrected per docs/provenance/ap-17-132.md#watch-alpha-exponent"
     precision: "3 significant figures"
     dependsOn: []
     transcriptionStatus: transcribed-and-checked
-    checkedBy: "pane21"
+    checkedBy: "pane21, via provenance receipt docs/provenance/ap-17-132.md#watch-alpha-exponent and survey ap-17-132.md, cross-referenced with CPAE Vol. 2 Doc. 14 p. 154"
     checkedAt: "2026-09-17"
 
   - quantityId: wienConstantBeta
@@ -42,17 +37,12 @@ entries:
     printedUnit: "s K"
     journalPage: "136"
     facsimilePdfPage: 5
-    printedRegion:
-      x: 25
-      y: 45
-      width: 25
-      height: 4
     era: "1905"
     provenance: "Annalen der Physik (4) 17 (1905), p. 136, §2"
     precision: "4 significant figures"
     dependsOn: []
     transcriptionStatus: transcribed-and-checked
-    checkedBy: "pane21"
+    checkedBy: "pane21, via provenance receipt docs/provenance/ap-17-132.md#watch-beta-constant and survey ap-17-132.md, cross-referenced with CPAE Vol. 2 Doc. 14 p. 154"
     checkedAt: "2026-09-17"
 
   - quantityId: molarGasConstant
@@ -69,7 +59,7 @@ entries:
     precision: "3 significant figures"
     dependsOn: []
     transcriptionStatus: transcribed-and-checked
-    checkedBy: "pane21"
+    checkedBy: "pane21, editorial input per docs/provenance/ap-17-132.md#watch-printed-r-presence; unprinted numeral in §2, standard 1905 value"
     checkedAt: "2026-09-17"
 
   - quantityId: speedOfLight
@@ -86,7 +76,7 @@ entries:
     precision: "1 significant figure"
     dependsOn: []
     transcriptionStatus: transcribed-and-checked
-    checkedBy: "pane21"
+    checkedBy: "pane21, editorial input per docs/provenance/ap-17-132.md#watch-speed-of-light-l; unprinted numeral in §2, standard 1905 value"
     checkedAt: "2026-09-17"
 
   - quantityId: avogadroConstant
@@ -100,11 +90,6 @@ entries:
     printedUnit: "1/mol"
     journalPage: "136"
     facsimilePdfPage: 5
-    printedRegion:
-      x: 25
-      y: 55
-      width: 25
-      height: 4
     era: "1905"
     provenance: "Annalen der Physik (4) 17 (1905), p. 136, §2"
     precision: "3 significant figures"
@@ -114,7 +99,7 @@ entries:
       - molarGasConstant
       - speedOfLight
     transcriptionStatus: transcribed-and-checked
-    checkedBy: "pane21"
+    checkedBy: "pane21, via provenance receipt docs/provenance/ap-17-132.md#watch-avogadro-n and survey ap-17-132.md, cross-referenced with CPAE Vol. 2 Doc. 14 p. 154"
     checkedAt: "2026-09-17"
 
   - quantityId: gramEquivalentCharge
@@ -133,7 +118,7 @@ entries:
     precision: "2 significant figures"
     dependsOn: []
     transcriptionStatus: transcribed-and-checked
-    checkedBy: "pane21"
+    checkedBy: "pane21, via provenance receipt docs/provenance/ap-17-132.md#watch-gram-equivalent-charge and survey ap-17-132.md, cross-referenced with CPAE Vol. 2 Doc. 14 p. 164"
     checkedAt: "2026-09-17"
 
   - quantityId: stoppingPotentialMagnitude
@@ -155,7 +140,7 @@ entries:
       - wienConstantBeta
       - gramEquivalentCharge
     transcriptionStatus: transcribed-and-checked
-    checkedBy: "pane21"
+    checkedBy: "pane21, via provenance receipt docs/provenance/ap-17-132.md#watch-volt-conversion and survey ap-17-132.md, cross-referenced with CPAE Vol. 2 Doc. 14 p. 164"
     checkedAt: "2026-09-17"
 
   - quantityId: ionizationWorkPerGramEquivalent
@@ -177,5 +162,5 @@ entries:
       - wienConstantBeta
       - speedOfLight
     transcriptionStatus: transcribed-and-checked
-    checkedBy: "pane21"
+    checkedBy: "pane21, via provenance receipt docs/provenance/ap-17-132.md and survey ap-17-132.md, cross-referenced with CPAE Vol. 2 Doc. 14 p. 165"
     checkedAt: "2026-09-17"

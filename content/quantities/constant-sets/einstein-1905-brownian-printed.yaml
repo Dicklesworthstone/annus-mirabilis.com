@@ -20,7 +20,7 @@ entries:
     precision: "3 significant figures"
     dependsOn: []
     transcriptionStatus: transcribed-and-checked
-    checkedBy: "pane21"
+    checkedBy: "pane21, via provenance receipt docs/provenance/ap-17-549.md#watch-viscosity-k and survey ap-17-549.md, cross-referenced with CPAE Vol. 2 Doc. 16 p. 235"
     checkedAt: "2026-09-17"
 
   - quantityId: particleRadius
@@ -39,7 +39,7 @@ entries:
     precision: "1 significant figure"
     dependsOn: []
     transcriptionStatus: transcribed-and-checked
-    checkedBy: "pane21"
+    checkedBy: "pane21, via provenance receipt docs/provenance/ap-17-549.md#watch-particle-size and survey ap-17-549.md, cross-referenced with CPAE Vol. 2 Doc. 16 p. 235"
     checkedAt: "2026-09-17"
 
   - quantityId: temperature
@@ -57,7 +57,7 @@ entries:
     precision: "2 significant figures"
     dependsOn: []
     transcriptionStatus: transcribed-and-checked
-    checkedBy: "pane21"
+    checkedBy: "pane21, editorial input 17° C stated in §5 text per docs/provenance/ap-17-549.md#watch-viscosity-k, converted to 290.15 K"
     checkedAt: "2026-09-17"
 
   - quantityId: molarGasConstant
@@ -74,7 +74,7 @@ entries:
     precision: "3 significant figures"
     dependsOn: []
     transcriptionStatus: transcribed-and-checked
-    checkedBy: "pane21"
+    checkedBy: "pane21, editorial input per docs/provenance/ap-17-549.md#watch-gas-constant-r; standard 1905 gas constant R = 8.31 J/(mol K)"
     checkedAt: "2026-09-17"
 
   - quantityId: avogadroConstant
@@ -94,7 +94,7 @@ entries:
     dependsOn:
       - molarGasConstant
     transcriptionStatus: transcribed-and-checked
-    checkedBy: "pane21"
+    checkedBy: "pane21, via provenance receipt docs/provenance/ap-17-549.md#watch-avogadro-n and survey ap-17-549.md, cross-referenced with CPAE Vol. 2 Doc. 16 p. 235"
     checkedAt: "2026-09-17"
 
   - quantityId: rmsDisplacement1d
@@ -118,5 +118,5 @@ entries:
       - viscosity
       - particleRadius
     transcriptionStatus: transcribed-and-checked
-    checkedBy: "pane21"
+    checkedBy: "pane21, via provenance receipt docs/provenance/ap-17-549.md#watch-displacements and survey ap-17-549.md, cross-referenced with CPAE Vol. 2 Doc. 16 p. 235"
     checkedAt: "2026-09-17"

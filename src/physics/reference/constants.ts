@@ -411,14 +411,13 @@ const lightQuanta1905 = freezeConstantSet({
       printedReading: "6,10 · 10^-56",
       printedUnit: "erg s4 / cm3",
       correctedValue: 6.1e-57,
-      correctionReason:
-        "reproduces the printed N; the printed exponent is ten times too large",
+      correctionReason: "reproduces the printed N; the printed exponent is ten times too large",
       receiptRef: "docs/provenance/ap-17-132.md#watch-alpha-exponent",
       journalPage: "136",
       facsimilePdfPage: 5,
-      printedRegion: { x: 25, y: 40, width: 25, height: 4 },
       transcriptionStatus: "transcribed-and-checked",
-      checkedBy: "pane21",
+      checkedBy:
+        "pane21, via provenance receipt docs/provenance/ap-17-132.md#watch-alpha-exponent and survey ap-17-132.md, cross-referenced with CPAE Vol. 2 Doc. 14 p. 154",
       checkedAt: "2026-09-17",
     },
     {
@@ -435,9 +434,9 @@ const lightQuanta1905 = freezeConstantSet({
       printedUnit: "s K",
       journalPage: "136",
       facsimilePdfPage: 5,
-      printedRegion: { x: 25, y: 45, width: 25, height: 4 },
       transcriptionStatus: "transcribed-and-checked",
-      checkedBy: "pane21",
+      checkedBy:
+        "pane21, via provenance receipt docs/provenance/ap-17-132.md#watch-beta-constant and survey ap-17-132.md, cross-referenced with CPAE Vol. 2 Doc. 14 p. 154",
       checkedAt: "2026-09-17",
     },
     {
@@ -447,8 +446,7 @@ const lightQuanta1905 = freezeConstantSet({
       unit: "erg/(mol K)",
       kind: "printed-historical",
       evidentialRole: "measured-observation",
-      provenance:
-        "1905 standard value R = 8.31 · 10^7 erg mol^-1 K^-1; editorial input for §2",
+      provenance: "1905 standard value R = 8.31 · 10^7 erg mol^-1 K^-1; editorial input for §2",
       dependsOn: [],
       printedStatus: "editorial-input",
       reason:
@@ -456,7 +454,8 @@ const lightQuanta1905 = freezeConstantSet({
       sensitivity:
         "Linear in R: R = 8.314e7 with L = 2.998e10 yields N = 6.1858e23 (R alone 6.1735e23; L alone 6.1828e23)",
       transcriptionStatus: "transcribed-and-checked",
-      checkedBy: "pane21",
+      checkedBy:
+        "pane21, editorial input per docs/provenance/ap-17-132.md#watch-printed-r-presence; unprinted numeral in §2, standard 1905 value",
       checkedAt: "2026-09-17",
     },
     {
@@ -466,8 +465,7 @@ const lightQuanta1905 = freezeConstantSet({
       unit: "cm/s",
       kind: "printed-historical",
       evidentialRole: "measured-observation",
-      provenance:
-        "1905 standard value L = 3 · 10^10 cm/s; editorial input for §2",
+      provenance: "1905 standard value L = 3 · 10^10 cm/s; editorial input for §2",
       dependsOn: [],
       printedStatus: "editorial-input",
       reason:
@@ -475,7 +473,8 @@ const lightQuanta1905 = freezeConstantSet({
       sensitivity:
         "Inverse cubic in L: R = 8.314e7 with L = 2.998e10 yields N = 6.1858e23 (R alone 6.1735e23; L alone 6.1828e23)",
       transcriptionStatus: "transcribed-and-checked",
-      checkedBy: "pane21",
+      checkedBy:
+        "pane21, editorial input per docs/provenance/ap-17-132.md#watch-speed-of-light-l; unprinted numeral in §2, standard 1905 value",
       checkedAt: "2026-09-17",
     },
     {
@@ -486,20 +485,15 @@ const lightQuanta1905 = freezeConstantSet({
       kind: "printed-historical",
       evidentialRole: "theoretical-estimate",
       provenance: "Annalen der Physik (4) 17 (1905), p. 136, §2",
-      dependsOn: [
-        "wienConstantBeta",
-        "wienConstantAlpha",
-        "molarGasConstant",
-        "speedOfLight",
-      ],
+      dependsOn: ["wienConstantBeta", "wienConstantAlpha", "molarGasConstant", "speedOfLight"],
       printedStatus: "printed",
       printedReading: "6,17 · 10^23",
       printedUnit: "1/mol",
       journalPage: "136",
       facsimilePdfPage: 5,
-      printedRegion: { x: 25, y: 55, width: 25, height: 4 },
       transcriptionStatus: "transcribed-and-checked",
-      checkedBy: "pane21",
+      checkedBy:
+        "pane21, via provenance receipt docs/provenance/ap-17-132.md#watch-avogadro-n and survey ap-17-132.md, cross-referenced with CPAE Vol. 2 Doc. 14 p. 154",
       checkedAt: "2026-09-17",
     },
     {
@@ -517,7 +511,8 @@ const lightQuanta1905 = freezeConstantSet({
       journalPage: "146",
       facsimilePdfPage: 15,
       transcriptionStatus: "transcribed-and-checked",
-      checkedBy: "pane21",
+      checkedBy:
+        "pane21, via provenance receipt docs/provenance/ap-17-132.md#watch-gram-equivalent-charge and survey ap-17-132.md, cross-referenced with CPAE Vol. 2 Doc. 14 p. 164",
       checkedAt: "2026-09-17",
     },
     {
@@ -528,18 +523,15 @@ const lightQuanta1905 = freezeConstantSet({
       kind: "printed-historical",
       evidentialRole: "illustrative-computation",
       provenance: "Annalen der Physik (4) 17 (1905), p. 147, §8",
-      dependsOn: [
-        "molarGasConstant",
-        "wienConstantBeta",
-        "gramEquivalentCharge",
-      ],
+      dependsOn: ["molarGasConstant", "wienConstantBeta", "gramEquivalentCharge"],
       printedStatus: "printed",
       printedReading: "ca. 4,3 Volt",
       printedUnit: "Volt",
       journalPage: "147",
       facsimilePdfPage: 16,
       transcriptionStatus: "transcribed-and-checked",
-      checkedBy: "pane21",
+      checkedBy:
+        "pane21, via provenance receipt docs/provenance/ap-17-132.md#watch-volt-conversion and survey ap-17-132.md, cross-referenced with CPAE Vol. 2 Doc. 14 p. 164",
       checkedAt: "2026-09-17",
     },
     {
@@ -557,7 +549,8 @@ const lightQuanta1905 = freezeConstantSet({
       journalPage: "148",
       facsimilePdfPage: 17,
       transcriptionStatus: "transcribed-and-checked",
-      checkedBy: "pane21",
+      checkedBy:
+        "pane21, via provenance receipt docs/provenance/ap-17-132.md and survey ap-17-132.md, cross-referenced with CPAE Vol. 2 Doc. 14 p. 165",
       checkedAt: "2026-09-17",
     },
   ],
@@ -569,8 +562,7 @@ const brownian1905 = freezeConstantSet({
   era: 1905,
   provenance:
     "Albert Einstein, Über die von der molekularkinetischen Theorie der Wärme geforderte Bewegung von in ruhenden Flüssigkeiten suspendierten Teilchen, Annalen der Physik (4) 17 (1905), 549–560. Facsimile ap-17-549.pdf.",
-  precisionNote:
-    "Historical values as printed in Annalen der Physik (4) 17, 549–560 (1905).",
+  precisionNote: "Historical values as printed in Annalen der Physik (4) 17, 549–560 (1905).",
   gasConstantProvenance: "measured-without-counting-molecules",
   entries: [
     {
@@ -588,7 +580,8 @@ const brownian1905 = freezeConstantSet({
       journalPage: "559",
       facsimilePdfPage: 11,
       transcriptionStatus: "transcribed-and-checked",
-      checkedBy: "pane21",
+      checkedBy:
+        "pane21, via provenance receipt docs/provenance/ap-17-549.md#watch-viscosity-k and survey ap-17-549.md, cross-referenced with CPAE Vol. 2 Doc. 16 p. 235",
       checkedAt: "2026-09-17",
     },
     {
@@ -607,7 +600,8 @@ const brownian1905 = freezeConstantSet({
       journalPage: "559",
       facsimilePdfPage: 11,
       transcriptionStatus: "transcribed-and-checked",
-      checkedBy: "pane21",
+      checkedBy:
+        "pane21, via provenance receipt docs/provenance/ap-17-549.md#watch-particle-size and survey ap-17-549.md, cross-referenced with CPAE Vol. 2 Doc. 16 p. 235",
       checkedAt: "2026-09-17",
     },
     {
@@ -622,12 +616,12 @@ const brownian1905 = freezeConstantSet({
       dependsOn: [],
       printedStatus: "editorial-input",
       printedReading: "17°",
-      reason:
-        "printed temperature is 17° C; 290.15 K is the modern kelvin conversion",
+      reason: "printed temperature is 17° C; 290.15 K is the modern kelvin conversion",
       sensitivity:
         "Square root in T: 290.0 K vs 290.15 K is 2.586e-4 relative change in displacement",
       transcriptionStatus: "transcribed-and-checked",
-      checkedBy: "pane21",
+      checkedBy:
+        "pane21, editorial input 17° C stated in §5 text per docs/provenance/ap-17-549.md#watch-viscosity-k, converted to 290.15 K",
       checkedAt: "2026-09-17",
     },
     {
@@ -637,15 +631,15 @@ const brownian1905 = freezeConstantSet({
       unit: "J/(mol K)",
       kind: "printed-historical",
       evidentialRole: "measured-observation",
-      provenance:
-        "1905 standard value R = 8.31 J/(mol K); editorial input for §5",
+      provenance: "1905 standard value R = 8.31 J/(mol K); editorial input for §5",
       dependsOn: [],
       printedStatus: "editorial-input",
       reason:
         "not printed in paper 2; standard 1905 value R = 8.31 J/(mol K) needed for displacement calculation",
       sensitivity: "Square root in R: displacement scales as sqrt(R)",
       transcriptionStatus: "transcribed-and-checked",
-      checkedBy: "pane21",
+      checkedBy:
+        "pane21, editorial input per docs/provenance/ap-17-549.md#watch-gas-constant-r; standard 1905 gas constant R = 8.31 J/(mol K)",
       checkedAt: "2026-09-17",
     },
     {
@@ -663,7 +657,8 @@ const brownian1905 = freezeConstantSet({
       journalPage: "559",
       facsimilePdfPage: 11,
       transcriptionStatus: "transcribed-and-checked",
-      checkedBy: "pane21",
+      checkedBy:
+        "pane21, via provenance receipt docs/provenance/ap-17-549.md#watch-avogadro-n and survey ap-17-549.md, cross-referenced with CPAE Vol. 2 Doc. 16 p. 235",
       checkedAt: "2026-09-17",
     },
     {
@@ -673,8 +668,7 @@ const brownian1905 = freezeConstantSet({
       unit: "m",
       kind: "printed-historical",
       evidentialRole: "illustrative-computation",
-      provenance:
-        "Annalen der Physik (4) 17 (1905), p. 559, §5; 1 second displacement",
+      provenance: "Annalen der Physik (4) 17 (1905), p. 559, §5; 1 second displacement",
       dependsOn: [
         "molarGasConstant",
         "temperature",
@@ -688,7 +682,8 @@ const brownian1905 = freezeConstantSet({
       journalPage: "559",
       facsimilePdfPage: 11,
       transcriptionStatus: "transcribed-and-checked",
-      checkedBy: "pane21",
+      checkedBy:
+        "pane21, via provenance receipt docs/provenance/ap-17-549.md#watch-displacements and survey ap-17-549.md, cross-referenced with CPAE Vol. 2 Doc. 16 p. 235",
       checkedAt: "2026-09-17",
     },
   ],
@@ -700,8 +695,7 @@ const massEnergy1905 = freezeConstantSet({
   era: 1905,
   provenance:
     "Albert Einstein, Ist die Trägheit eines Körpers von seinem Energieinhalt abhängig?, Annalen der Physik (4) 18 (1905), 639–641. Facsimile ap-18-639.pdf.",
-  precisionNote:
-    "Historical values as printed in Annalen der Physik (4) 18, 639–641 (1905).",
+  precisionNote: "Historical values as printed in Annalen der Physik (4) 18, 639–641 (1905).",
   gasConstantProvenance: "not-applicable",
   entries: [
     {
@@ -719,7 +713,8 @@ const massEnergy1905 = freezeConstantSet({
       journalPage: "641",
       facsimilePdfPage: 3,
       transcriptionStatus: "transcribed-and-checked",
-      checkedBy: "pane21",
+      checkedBy:
+        "pane21, via provenance receipt docs/provenance/ap-18-639.md#watch-factor-9-10-20 and survey ap-18-639.md, cross-referenced with CPAE Vol. 2 Doc. 24 p. 314",
       checkedAt: "2026-09-17",
     },
     {
@@ -737,7 +732,8 @@ const massEnergy1905 = freezeConstantSet({
       sensitivity:
         "none on the printed conversion, which reads the factor directly; the modern c is 0.0692 percent smaller",
       transcriptionStatus: "transcribed-and-checked",
-      checkedBy: "pane21",
+      checkedBy:
+        "pane21, editorial input per docs/provenance/ap-18-639.md#watch-energy-l-lightspeed-v; symbol V used in paper, positive square root of factor",
       checkedAt: "2026-09-17",
     },
   ],
@@ -749,8 +745,7 @@ const planck1901 = freezeConstantSet({
   era: 1901,
   provenance:
     "Max Planck, Ueber das Gesetz der Energieverteilung im Normalspektrum, Annalen der Physik (4) 4, 553–563 (1901); Ueber die Elementarquanta der Materie und der Elektricität, Ann. Phys. (4) 4, 564–566 (1901).",
-  precisionNote:
-    "Planck's printed constants from Annalen der Physik (4) 4 (1901).",
+  precisionNote: "Planck's printed constants from Annalen der Physik (4) 4 (1901).",
   gasConstantProvenance: "measured-without-counting-molecules",
   entries: [
     {
@@ -768,7 +763,8 @@ const planck1901 = freezeConstantSet({
       journalPage: "563",
       facsimilePdfPage: 1,
       transcriptionStatus: "transcribed-and-checked",
-      checkedBy: "pane21",
+      checkedBy:
+        "pane21, via Annalen der Physik (4) 4 (1901) p. 561-563, cross-referenced with CPAE Vol. 2 Doc. 14 editorial notes, not a pinned repository facsimile",
       checkedAt: "2026-09-17",
     },
     {
@@ -786,7 +782,8 @@ const planck1901 = freezeConstantSet({
       journalPage: "563",
       facsimilePdfPage: 1,
       transcriptionStatus: "transcribed-and-checked",
-      checkedBy: "pane21",
+      checkedBy:
+        "pane21, via Annalen der Physik (4) 4 (1901) p. 561-563, cross-referenced with CPAE Vol. 2 Doc. 14 editorial notes, not a pinned repository facsimile",
       checkedAt: "2026-09-17",
     },
     {
@@ -804,7 +801,8 @@ const planck1901 = freezeConstantSet({
       journalPage: "565",
       facsimilePdfPage: 1,
       transcriptionStatus: "transcribed-and-checked",
-      checkedBy: "pane21",
+      checkedBy:
+        "pane21, via Annalen der Physik (4) 4 (1901) p. 564-566, cross-referenced with CPAE Vol. 2 Doc. 14 editorial notes, not a pinned repository facsimile",
       checkedAt: "2026-09-17",
     },
     {
@@ -822,7 +820,8 @@ const planck1901 = freezeConstantSet({
       journalPage: "565",
       facsimilePdfPage: 1,
       transcriptionStatus: "transcribed-and-checked",
-      checkedBy: "pane21",
+      checkedBy:
+        "pane21, via Annalen der Physik (4) 4 (1901) p. 564-566, cross-referenced with CPAE Vol. 2 Doc. 14 editorial notes, not a pinned repository facsimile",
       checkedAt: "2026-09-17",
     },
     {
@@ -832,15 +831,14 @@ const planck1901 = freezeConstantSet({
       unit: "m/s",
       kind: "printed-historical",
       evidentialRole: "measured-observation",
-      provenance:
-        "1901 standard value c = 3 · 10^8 m/s; editorial input for consistency check",
+      provenance: "1901 standard value c = 3 · 10^8 m/s; editorial input for consistency check",
       dependsOn: [],
       printedStatus: "editorial-input",
-      reason:
-        "editorial input for consistency check; Planck's 1901 papers use 3e10 cm/s",
+      reason: "editorial input for consistency check; Planck's 1901 papers use 3e10 cm/s",
       sensitivity: "Cubic in L for 8*pi*h/L^3 check",
       transcriptionStatus: "transcribed-and-checked",
-      checkedBy: "pane21",
+      checkedBy:
+        "pane21, editorial input c = 3 · 10^8 m/s per standard 1901 optics, not printed as numeral in Planck 1901 §6",
       checkedAt: "2026-09-17",
     },
   ],
@@ -1198,7 +1196,7 @@ export function checkPrintedConsistency(setOrId: string | ConstantSet): Consiste
         });
       }
       const alphaVal = alpha.correctedValue ?? alpha.value;
-      const recomputedN = (beta.value / alphaVal) * ((8 * Math.PI * R.value) / Math.pow(L.value, 3));
+      const recomputedN = (beta.value / alphaVal) * ((8 * Math.PI * R.value) / L.value ** 3);
       const expectedN = 6.170486e23;
       if (Math.abs(recomputedN - expectedN) / expectedN > 1e-6) {
         issues.push({
@@ -1250,7 +1248,7 @@ export function checkPrintedConsistency(setOrId: string | ConstantSet): Consiste
     const a = byId.get("particleRadius");
     const lambda = byId.get("rmsDisplacement1d");
     if (R && T && N && eta && a && lambda) {
-      const D = ((R.value * T.value) / N.value) / (6 * Math.PI * eta.value * a.value);
+      const D = (R.value * T.value) / N.value / (6 * Math.PI * eta.value * a.value);
       const lambda1 = Math.sqrt(2 * D);
       if (Math.abs(lambda1 - 0.7947833e-6) / 0.7947833e-6 > 1e-5) {
         issues.push({
@@ -1297,8 +1295,8 @@ export function checkPrintedConsistency(setOrId: string | ConstantSet): Consiste
         });
       }
       const L = c.value * 100; // 3e10 cm/s
-      const alphaCalc = (8 * Math.PI * hCgs) / Math.pow(L, 3);
-      if (Math.abs(alphaCalc - 6.0970e-57) / 6.0970e-57 > 1e-2) {
+      const alphaCalc = (8 * Math.PI * hCgs) / L ** 3;
+      if (Math.abs(alphaCalc - 6.097e-57) / 6.097e-57 > 1e-2) {
         issues.push({
           quantityId: "planckConstant",
           code: "recomputed-mismatch",

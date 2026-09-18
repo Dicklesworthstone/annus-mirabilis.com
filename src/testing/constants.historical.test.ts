@@ -22,6 +22,14 @@ import {
   RESERVED_SET_IDS,
 } from "../physics/reference/constants.ts";
 
+function requireEntry(set: ReturnType<typeof getConstantSet>, quantityId: string): ConstantEntry {
+  const entry = set.entries.find((e) => e.quantityId === quantityId);
+  if (!entry) {
+    throw new Error(`Missing expected quantity '${quantityId}' in set '${set.id}'`);
+  }
+  return entry;
+}
+
 describe("registry status: historical sets registered and dissertation ids reserved", () => {
   test("the four printed-historical papers are registered and return valid sets", () => {
     for (const id of [
@@ -105,7 +113,8 @@ describe("einstein-1905-light-quanta-printed", () => {
     expect(alpha?.journalPage).toBe("136");
     expect(alpha?.facsimilePdfPage).toBe(5);
     expect(alpha?.transcriptionStatus).toBe("transcribed-and-checked");
-    expect(alpha?.checkedBy).toBe("pane21");
+    expect(alpha?.checkedBy).toContain("pane21");
+    expect(alpha?.checkedBy).toContain("docs/provenance/ap-17-132.md#watch-alpha-exponent");
   });
 
   test("R and L are editorial inputs carrying sensitivity 6.1858e23", () => {
@@ -118,20 +127,20 @@ describe("einstein-1905-light-quanta-printed", () => {
   });
 
   test("recomputing N from stated inputs gives 6.170486e23, rounding to printed 6.17e23", () => {
-    const alpha = set.entries.find((e) => e.quantityId === "wienConstantAlpha")!;
-    const beta = set.entries.find((e) => e.quantityId === "wienConstantBeta")!;
-    const R = set.entries.find((e) => e.quantityId === "molarGasConstant")!;
-    const L = set.entries.find((e) => e.quantityId === "speedOfLight")!;
+    const alpha = requireEntry(set, "wienConstantAlpha");
+    const beta = requireEntry(set, "wienConstantBeta");
+    const R = requireEntry(set, "molarGasConstant");
+    const L = requireEntry(set, "speedOfLight");
     const alphaVal = alpha.correctedValue ?? alpha.value;
-    const computedN = (beta.value / alphaVal) * ((8 * Math.PI * R.value) / Math.pow(L.value, 3));
+    const computedN = (beta.value / alphaVal) * ((8 * Math.PI * R.value) / L.value ** 3);
     expect(Math.abs(computedN / 6.170486e23 - 1)).toBeLessThan(1e-6);
     expect(computedN.toExponential(2)).toBe("6.17e+23");
   });
 
   test("section 8 check reproduces 4.3385 V and slope 4.2121e-15 V s", () => {
-    const R = set.entries.find((e) => e.quantityId === "molarGasConstant")!;
-    const beta = set.entries.find((e) => e.quantityId === "wienConstantBeta")!;
-    const E = set.entries.find((e) => e.quantityId === "gramEquivalentCharge")!;
+    const R = requireEntry(set, "molarGasConstant");
+    const beta = requireEntry(set, "wienConstantBeta");
+    const E = requireEntry(set, "gramEquivalentCharge");
     const nu = 1.03e15;
     const PiAbvolt = (R.value * beta.value * nu) / E.value;
     const PiVolts = PiAbvolt * 1e-8;
@@ -141,9 +150,9 @@ describe("einstein-1905-light-quanta-printed", () => {
   });
 
   test("section 8 documented alternative esu route reproduces 4.3057 V and 4.3087 V", () => {
-    const R = set.entries.find((e) => e.quantityId === "molarGasConstant")!;
-    const beta = set.entries.find((e) => e.quantityId === "wienConstantBeta")!;
-    const N = set.entries.find((e) => e.quantityId === "avogadroConstant")!;
+    const R = requireEntry(set, "molarGasConstant");
+    const beta = requireEntry(set, "wienConstantBeta");
+    const N = requireEntry(set, "avogadroConstant");
     const nu = 1.03e15;
     const eps = 4.7e-10; // esu
     const statvolts = (R.value * beta.value * nu) / (N.value * eps);
@@ -154,10 +163,10 @@ describe("einstein-1905-light-quanta-printed", () => {
   });
 
   test("section 9 relations reproduce 6.4e12 and 9.6e12 erg at printed precision", () => {
-    const R = set.entries.find((e) => e.quantityId === "molarGasConstant")!;
-    const beta = set.entries.find((e) => e.quantityId === "wienConstantBeta")!;
-    const L = set.entries.find((e) => e.quantityId === "speedOfLight")!;
-    const E = set.entries.find((e) => e.quantityId === "gramEquivalentCharge")!;
+    const R = requireEntry(set, "molarGasConstant");
+    const beta = requireEntry(set, "wienConstantBeta");
+    const L = requireEntry(set, "speedOfLight");
+    const E = requireEntry(set, "gramEquivalentCharge");
     const lambda = 1.9e-5;
     const lenardWork = (R.value * beta.value * L.value) / lambda;
     expect(Math.abs(lenardWork - 6.3847e12) / 6.3847e12).toBeLessThan(1e-4);
@@ -184,12 +193,12 @@ describe("einstein-1905-brownian-printed", () => {
   });
 
   test("reproduces 0.7947833 um at 1 s and 6.156365 um at 60 s", () => {
-    const R = set.entries.find((e) => e.quantityId === "molarGasConstant")!;
-    const T = set.entries.find((e) => e.quantityId === "temperature")!;
-    const N = set.entries.find((e) => e.quantityId === "avogadroConstant")!;
-    const eta = set.entries.find((e) => e.quantityId === "viscosity")!;
-    const a = set.entries.find((e) => e.quantityId === "particleRadius")!;
-    const D = ((R.value * T.value) / N.value) / (6 * Math.PI * eta.value * a.value);
+    const R = requireEntry(set, "molarGasConstant");
+    const T = requireEntry(set, "temperature");
+    const N = requireEntry(set, "avogadroConstant");
+    const eta = requireEntry(set, "viscosity");
+    const a = requireEntry(set, "particleRadius");
+    const D = (R.value * T.value) / N.value / (6 * Math.PI * eta.value * a.value);
     const lambda1 = Math.sqrt(2 * D);
     const lambda60 = Math.sqrt(2 * D * 60);
     expect(Math.abs(lambda1 / 0.7947833e-6 - 1)).toBeLessThan(1e-6);
@@ -205,7 +214,7 @@ describe("einstein-1905-mass-energy-printed", () => {
   });
 
   test("reproduces 1 g for 9e20 erg and compares with modern c^2", () => {
-    const c2 = set.entries.find((e) => e.quantityId === "speedOfLightSquared")!;
+    const c2 = requireEntry(set, "speedOfLightSquared");
     expect(c2.printedReading).toBe("9 · 10²⁰");
     const energyJ = 9e13; // 9e20 erg in Joules
     const massKg = energyJ / c2.value;
@@ -233,16 +242,16 @@ describe("planck-1900-1901-printed", () => {
   });
 
   test("consistency check between independently transcribed sets matches beta and alpha", () => {
-    const h = set.entries.find((e) => e.quantityId === "planckConstant")!;
-    const k = set.entries.find((e) => e.quantityId === "boltzmannConstant")!;
-    const c = set.entries.find((e) => e.quantityId === "speedOfLight")!;
+    const h = requireEntry(set, "planckConstant");
+    const k = requireEntry(set, "boltzmannConstant");
+    const c = requireEntry(set, "speedOfLight");
     const hCgs = h.value * 1e7;
     const kCgs = k.value * 1e7;
     const hOverK = hCgs / kCgs;
     expect(Math.abs(hOverK - 4.86627e-11) / 4.86627e-11).toBeLessThan(1e-3);
     const LCgs = c.value * 100;
-    const alphaCalc = (8 * Math.PI * hCgs) / Math.pow(LCgs, 3);
-    expect(Math.abs(alphaCalc - 6.0970e-57) / 6.0970e-57).toBeLessThan(1e-2);
+    const alphaCalc = (8 * Math.PI * hCgs) / LCgs ** 3;
+    expect(Math.abs(alphaCalc - 6.097e-57) / 6.097e-57).toBeLessThan(1e-2);
   });
 });
 

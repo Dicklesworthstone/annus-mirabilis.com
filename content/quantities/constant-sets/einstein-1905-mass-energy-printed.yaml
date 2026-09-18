@@ -20,7 +20,7 @@ entries:
     precision: "1 significant figure"
     dependsOn: []
     transcriptionStatus: transcribed-and-checked
-    checkedBy: "pane21"
+    checkedBy: "pane21, via provenance receipt docs/provenance/ap-18-639.md#watch-factor-9-10-20 and survey ap-18-639.md, cross-referenced with CPAE Vol. 2 Doc. 24 p. 314"
     checkedAt: "2026-09-17"
 
   - quantityId: speedOfLight
@@ -38,5 +38,5 @@ entries:
     dependsOn:
       - speedOfLightSquared
     transcriptionStatus: transcribed-and-checked
-    checkedBy: "pane21"
+    checkedBy: "pane21, editorial input per docs/provenance/ap-18-639.md#watch-energy-l-lightspeed-v; symbol V used in paper, positive square root of factor"
     checkedAt: "2026-09-17"
