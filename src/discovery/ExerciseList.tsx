@@ -11,30 +11,94 @@ export function ExerciseList({ exercises }: ExerciseListProps) {
   const explanation = exercises.filter((e) => e.role === "explanation");
 
   return (
-    <div className="discovery-exercises my-8 space-y-6">
-      <h3 className="text-xl font-serif font-bold text-stone-100">Discovery Exercises & Checks</h3>
+    <div
+      style={{
+        margin: "2rem 0",
+        display: "flex",
+        flexDirection: "column",
+        gap: "1.5rem",
+      }}
+    >
+      <h3
+        style={{
+          fontSize: "1.25rem",
+          fontFamily: "var(--font-serif)",
+          fontWeight: "bold",
+          color: "var(--ink)",
+        }}
+      >
+        Discovery Exercises &amp; Checks
+      </h3>
 
       {instrumented.length > 0 && (
-        <div className="space-y-3">
-          <h4 className="text-xs font-mono uppercase tracking-wider text-amber-400">
+        <div style={{ display: "flex", flexDirection: "column", gap: "0.75rem" }}>
+          <h4
+            className="eyebrow"
+            style={{
+              fontSize: "0.75rem",
+              fontFamily: "var(--font-mono, monospace)",
+              textTransform: "uppercase",
+              letterSpacing: "0.05em",
+              color: "var(--accent)",
+            }}
+          >
             Instrumented Checks ({instrumented.length})
           </h4>
-          <div className="grid grid-cols-1 md:grid-cols-2 gap-3">
+          <div
+            style={{
+              display: "grid",
+              gridTemplateColumns: "repeat(auto-fit, minmax(280px, 1fr))",
+              gap: "0.75rem",
+            }}
+          >
             {instrumented.map((ex) => (
               <div
                 key={ex.id}
                 id={ex.id}
                 data-exercise-id={ex.id}
                 data-role="instrumented"
-                className="p-4 rounded-lg bg-stone-900/80 border border-stone-700 text-xs space-y-2"
+                style={{
+                  padding: "1rem",
+                  borderRadius: "0.5rem",
+                  background: "var(--wash)",
+                  border: "1px solid var(--line)",
+                  fontSize: "0.75rem",
+                  display: "flex",
+                  flexDirection: "column",
+                  gap: "0.5rem",
+                }}
               >
-                <div className="flex items-center justify-between">
-                  <span className="font-mono text-stone-400 font-medium">#{ex.id}</span>
-                  <span className="px-2 py-0.5 rounded bg-stone-800 text-stone-300 border border-stone-700 text-[10px]">
+                <div
+                  style={{
+                    display: "flex",
+                    alignItems: "center",
+                    justifyContent: "space-between",
+                  }}
+                >
+                  <span
+                    style={{
+                      fontFamily: "var(--font-mono, monospace)",
+                      color: "var(--muted)",
+                      fontWeight: 500,
+                    }}
+                  >
+                    #{ex.id}
+                  </span>
+                  <span
+                    className="badge"
+                    style={{
+                      padding: "0.125rem 0.5rem",
+                      borderRadius: "0.25rem",
+                      background: "var(--panel)",
+                      color: "var(--ink)",
+                      border: "1px solid var(--line)",
+                      fontSize: "0.625rem",
+                    }}
+                  >
                     Instrumented
                   </span>
                 </div>
-                {ex.prompt && <p className="text-stone-200">{ex.prompt}</p>}
+                {ex.prompt && <p style={{ color: "var(--ink)", margin: 0 }}>{ex.prompt}</p>}
               </div>
             ))}
           </div>
@@ -42,26 +106,74 @@ export function ExerciseList({ exercises }: ExerciseListProps) {
       )}
 
       {explanation.length > 0 && (
-        <div className="space-y-3">
-          <h4 className="text-xs font-mono uppercase tracking-wider text-stone-400">
+        <div style={{ display: "flex", flexDirection: "column", gap: "0.75rem" }}>
+          <h4
+            className="eyebrow"
+            style={{
+              fontSize: "0.75rem",
+              fontFamily: "var(--font-mono, monospace)",
+              textTransform: "uppercase",
+              letterSpacing: "0.05em",
+              color: "var(--muted)",
+            }}
+          >
             Explanation Exercises ({explanation.length})
           </h4>
-          <div className="grid grid-cols-1 md:grid-cols-2 gap-3">
+          <div
+            style={{
+              display: "grid",
+              gridTemplateColumns: "repeat(auto-fit, minmax(280px, 1fr))",
+              gap: "0.75rem",
+            }}
+          >
             {explanation.map((ex) => (
               <div
                 key={ex.id}
                 id={ex.id}
                 data-exercise-id={ex.id}
                 data-role="explanation"
-                className="p-4 rounded-lg bg-stone-900/80 border border-stone-700 text-xs space-y-2"
+                style={{
+                  padding: "1rem",
+                  borderRadius: "0.5rem",
+                  background: "var(--wash)",
+                  border: "1px solid var(--line)",
+                  fontSize: "0.75rem",
+                  display: "flex",
+                  flexDirection: "column",
+                  gap: "0.5rem",
+                }}
               >
-                <div className="flex items-center justify-between">
-                  <span className="font-mono text-stone-400 font-medium">#{ex.id}</span>
-                  <span className="px-2 py-0.5 rounded bg-stone-800 text-stone-300 border border-stone-700 text-[10px]">
+                <div
+                  style={{
+                    display: "flex",
+                    alignItems: "center",
+                    justifyContent: "space-between",
+                  }}
+                >
+                  <span
+                    style={{
+                      fontFamily: "var(--font-mono, monospace)",
+                      color: "var(--muted)",
+                      fontWeight: 500,
+                    }}
+                  >
+                    #{ex.id}
+                  </span>
+                  <span
+                    className="badge"
+                    style={{
+                      padding: "0.125rem 0.5rem",
+                      borderRadius: "0.25rem",
+                      background: "var(--panel)",
+                      color: "var(--ink)",
+                      border: "1px solid var(--line)",
+                      fontSize: "0.625rem",
+                    }}
+                  >
                     Verbal Reasoning
                   </span>
                 </div>
-                {ex.prompt && <p className="text-stone-200">{ex.prompt}</p>}
+                {ex.prompt && <p style={{ color: "var(--ink)", margin: 0 }}>{ex.prompt}</p>}
               </div>
             ))}
           </div>
