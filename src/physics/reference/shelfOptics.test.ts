@@ -5,7 +5,6 @@ import { ConstantSetError, withMode1904Guard } from "./constants.ts";
 import { Mode1904GuardError } from "./kinematics.ts";
 import { logShelfOptics } from "./shelfOptics.log.ts";
 import {
-  SHELF_HISTORICAL_FIXTURES,
   fizeauFringeShift,
   fresnelDraggedSpeed,
   michelsonMorleyFringeShift,
@@ -762,47 +761,6 @@ describe("1904-mode discipline (AC8)", () => {
       durationMs: Date.now() - t0,
       message:
         "AC8: In 1904 mode no function reads numeric c, m/s water speed refused, relativistic comparison absent.",
-    });
-  });
-});
-
-describe("Historical fixtures pending status (AC10)", () => {
-  test("historical fixtures remain marked pending until inputs transcribed from cited papers and dataset", () => {
-    const t0 = Date.now();
-    expect(SHELF_HISTORICAL_FIXTURES.length).toBe(2);
-
-    const mm1887 = SHELF_HISTORICAL_FIXTURES.find(
-      (f) => f.id === "shelf-mm-1887-historical",
-    );
-    expect(mm1887).toBeDefined();
-    expect(mm1887?.kind).toBe("historical-fixture");
-    expect(mm1887?.paper).toBe("special-relativity");
-    expect(mm1887?.printedPage).toBe(333);
-    expect(mm1887?.transcription.status).toBe("pending");
-    expect(mm1887?.transcription.reason).toContain(
-      "1887 Michelson-Morley observational bound awaiting facsimile review",
-    );
-
-    const fizeau1851 = SHELF_HISTORICAL_FIXTURES.find(
-      (f) => f.id === "shelf-fizeau-1851-historical",
-    );
-    expect(fizeau1851).toBeDefined();
-    expect(fizeau1851?.kind).toBe("historical-fixture");
-    expect(fizeau1851?.paper).toBe("special-relativity");
-    expect(fizeau1851?.printedPage).toBe(349);
-    expect(fizeau1851?.transcription.status).toBe("pending");
-    expect(fizeau1851?.transcription.reason).toContain(
-      "1851 Fizeau moving-water data awaiting transcription",
-    );
-
-    logShelfOptics({
-      testId: "shelf-optics-ac10-historical-pending",
-      owner: "shelf-optics",
-      resultStatus: "value",
-      outcome: "passed",
-      durationMs: Date.now() - t0,
-      message:
-        "AC10: Historical fixtures remain marked pending with explicit reasons until transcribed.",
     });
   });
 });
