@@ -2025,6 +2025,41 @@ html:is(
   cursor: help;
 }
 
+.term-annotation-wrapper {
+  position: relative;
+  display: inline;
+}
+
+.term-annotation-popover {
+  position: absolute;
+  left: 0;
+  top: 100%;
+  margin-top: 0.25rem;
+  z-index: 50;
+  min-width: 16rem;
+  max-width: 24rem;
+  padding: 0.75rem 1rem;
+  background: var(--bg, #fff);
+  color: var(--fg, #111);
+  border: 1px solid var(--line, #ccc);
+  border-radius: 4px;
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15);
+  font-size: 0.85rem;
+  line-height: 1.4;
+}
+
+.term-annotation-definition {
+  display: block;
+  margin-bottom: 0.5rem;
+}
+
+.term-annotation-close {
+  display: inline-block;
+  padding: 0.2rem 0.5rem;
+  font-size: 0.8rem;
+  cursor: pointer;
+}
+
 /* Reader actions, worked examples, and paper page navigation styles (am-vw1o) */
 .passage-action {
   font-size: 0.85rem;

@@ -179,7 +179,25 @@ export const FIXTURE_BROWNIAN_SOURCE_BLOCKS: readonly SourceBlock[] = [
     inlines: [
       {
         kind: "text",
-        text: TEXT_BM_S4_P1,
+        text: "Es sei ein Zeitintervall τ gegeben.",
+      },
+      {
+        kind: "space",
+      },
+      {
+        kind: "text",
+        text: "Wir wollen annehmen, daß jedes einzelne Teilchen eine ",
+      },
+      {
+        kind: "term",
+        termId: "term-verschiebung",
+        text: "Verschiebung",
+        definition:
+          "Die räumliche Ortsveränderung eines suspendierten mikroskopischen Teilchens infolge unregelmäßiger molekularer Stöße der umgebenden Flüssigkeitsmoleküle.",
+      },
+      {
+        kind: "text",
+        text: " Δ erfahre.",
       },
     ],
     sentenceSpans: [
@@ -440,7 +458,18 @@ export const FIXTURE_BROWNIAN_TRANSLATION_UNITS: readonly TranslationUnit[] = [
     inlines: [
       {
         kind: "text",
-        text: "We shall assume that each individual particle experiences a displacement Δ.",
+        text: "We shall assume that each individual particle experiences a ",
+      },
+      {
+        kind: "term",
+        termId: "term-verschiebung",
+        text: "displacement",
+        definition:
+          "The spatial displacement of a suspended microscopic particle resulting from irregular molecular collisions with the surrounding liquid molecules.",
+      },
+      {
+        kind: "text",
+        text: " Δ.",
       },
     ],
     translator: {
