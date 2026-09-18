@@ -50,14 +50,25 @@ export function DensityProfilePlot({
   const areaPath = `${densityPath} L ${toX(cells - 1)} ${padT + plotH} L ${toX(0)} ${padT + plotH} Z`;
 
   return (
-    <figure className="lab-figure" data-view-id="density-profile-view" {...identity(snapshot)}>
-      <figcaption className="figure-caption">
+    <figure
+      data-view-id="density-profile-view"
+      {...identity(snapshot)}
+      style={{ margin: 0, padding: 0 }}
+    >
+      <figcaption
+        style={{
+          fontSize: "0.875rem",
+          color: "var(--muted)",
+          marginBottom: "0.5rem",
+          lineHeight: 1.4,
+        }}
+      >
         <strong>Concentration profile across the channel width</strong>: Current density (solid)
         compared with the thermodynamic osmotic equilibrium (dashed).
       </figcaption>
       <svg
         viewBox={`0 0 ${w} ${h}`}
-        className="distribution-svg"
+        style={{ width: "100%", height: "auto", display: "block" }}
         role="img"
         aria-label="Concentration profile across the 1D channel"
       >
@@ -66,33 +77,22 @@ export function DensityProfilePlot({
           y={padT}
           width={plotW}
           height={plotH}
-          fill="var(--canvas-bg, #fdfcf9)"
-          stroke="var(--border, #e2ded4)"
+          fill="var(--wash)"
+          stroke="var(--line)"
         />
         {/* Shaded area */}
-        <path d={areaPath} fill="var(--color-density-area, rgba(41, 128, 185, 0.15))" />
+        <path d={areaPath} fill="rgba(41, 128, 185, 0.15)" />
         {/* Osmotic equilibrium theoretical curve */}
-        <path
-          d={osmoticPath}
-          fill="none"
-          stroke="var(--color-osmotic, #d35400)"
-          strokeWidth="2"
-          strokeDasharray="4 3"
-        />
+        <path d={osmoticPath} fill="none" stroke="#d35400" strokeWidth="2" strokeDasharray="4 3" />
         {/* Current density curve */}
-        <path
-          d={densityPath}
-          fill="none"
-          stroke="var(--color-density, #2980b9)"
-          strokeWidth="2.5"
-        />
+        <path d={densityPath} fill="none" stroke="#2980b9" strokeWidth="2.5" />
         {/* Axes */}
         <line
           x1={padL}
           y1={padT + plotH}
           x2={padL + plotW}
           y2={padT + plotH}
-          stroke="var(--ink, #1a1a1a)"
+          stroke="var(--ink)"
           strokeWidth="1.5"
         />
         <line
@@ -100,60 +100,56 @@ export function DensityProfilePlot({
           y1={padT}
           x2={padL}
           y2={padT + plotH}
-          stroke="var(--ink, #1a1a1a)"
+          stroke="var(--ink)"
           strokeWidth="1.5"
         />
         {/* X-axis labels */}
-        <text x={padL} y={h - 10} fontSize="11" textAnchor="start" fill="var(--ink-muted, #555)">
+        <text x={padL} y={h - 10} fontSize="11" textAnchor="start" fill="var(--muted)">
           0 μm
         </text>
-        <text
-          x={padL + plotW / 2}
-          y={h - 10}
-          fontSize="11"
-          textAnchor="middle"
-          fill="var(--ink-muted, #555)"
-        >
+        <text x={padL + plotW / 2} y={h - 10} fontSize="11" textAnchor="middle" fill="var(--muted)">
           {display(widthMicrons / 2, 1)} μm
         </text>
-        <text
-          x={padL + plotW}
-          y={h - 10}
-          fontSize="11"
-          textAnchor="end"
-          fill="var(--ink-muted, #555)"
-        >
+        <text x={padL + plotW} y={h - 10} fontSize="11" textAnchor="end" fill="var(--muted)">
           {display(widthMicrons, 1)} μm
         </text>
         {/* Y-axis labels */}
-        <text
-          x={padL - 6}
-          y={padT + 12}
-          fontSize="10"
-          textAnchor="end"
-          fill="var(--ink-muted, #555)"
-        >
+        <text x={padL - 6} y={padT + 12} fontSize="10" textAnchor="end" fill="var(--muted)">
           Peak
         </text>
-        <text
-          x={padL - 6}
-          y={padT + plotH}
-          fontSize="10"
-          textAnchor="end"
-          fill="var(--ink-muted, #555)"
-        >
+        <text x={padL - 6} y={padT + plotH} fontSize="10" textAnchor="end" fill="var(--muted)">
           0
         </text>
       </svg>
-      <div className="legend-row">
-        <span className="legend-item">
-          <span className="legend-swatch" style={{ background: "var(--color-density, #2980b9)" }} />
+      <div
+        style={{
+          display: "flex",
+          flexWrap: "wrap",
+          gap: "1rem",
+          fontSize: "0.75rem",
+          color: "var(--muted)",
+          marginTop: "0.5rem",
+        }}
+      >
+        <span style={{ display: "inline-flex", alignItems: "center", gap: "0.375rem" }}>
+          <span
+            style={{
+              width: "1rem",
+              height: "0.25rem",
+              background: "#2980b9",
+              display: "inline-block",
+            }}
+          />
           Current density profile n(x)
         </span>
-        <span className="legend-item">
+        <span style={{ display: "inline-flex", alignItems: "center", gap: "0.375rem" }}>
           <span
-            className="legend-swatch legend-dashed"
-            style={{ borderColor: "var(--color-osmotic, #d35400)" }}
+            style={{
+              width: "1rem",
+              height: "0",
+              borderTop: "2px dashed #d35400",
+              display: "inline-block",
+            }}
           />
           Osmotic equilibrium n_osm(x)
         </span>
@@ -177,14 +173,25 @@ export function FluxBalancePlot({ snapshot }: { snapshot: AcceptedSnapshot }) {
   const diffW = (Math.abs(diffFlux) / maxFlux) * 180;
 
   return (
-    <figure className="lab-figure" data-view-id="flux-balance-view" {...identity(snapshot)}>
-      <figcaption className="figure-caption">
+    <figure
+      data-view-id="flux-balance-view"
+      {...identity(snapshot)}
+      style={{ margin: 0, padding: 0 }}
+    >
+      <figcaption
+        style={{
+          fontSize: "0.875rem",
+          color: "var(--muted)",
+          marginBottom: "0.5rem",
+          lineHeight: 1.4,
+        }}
+      >
         <strong>Average face fluxes</strong>: Drift flux J_drift = n μ F vs Diffusive counter-flux
         J_diff = -D ∂n/∂x. In steady state, they cancel to produce net J ≈ 0.
       </figcaption>
       <svg
         viewBox={`0 0 ${w} ${h}`}
-        className="flux-svg"
+        style={{ width: "100%", height: "auto", display: "block" }}
         role="img"
         aria-label="Flux balance opposing arrows diagram"
       >
@@ -193,21 +200,14 @@ export function FluxBalancePlot({ snapshot }: { snapshot: AcceptedSnapshot }) {
           y={10}
           width={w - 20}
           height={h - 20}
-          fill="var(--canvas-bg, #fdfcf9)"
-          stroke="var(--border, #e2ded4)"
+          fill="var(--wash)"
+          stroke="var(--line)"
         />
         {/* Center zero line */}
-        <line
-          x1={250}
-          y1={15}
-          x2={250}
-          y2={h - 15}
-          stroke="var(--border-dark, #bbb)"
-          strokeDasharray="3 3"
-        />
+        <line x1={250} y1={15} x2={250} y2={h - 15} stroke="var(--line)" strokeDasharray="3 3" />
 
         {/* Drift flux bar (top row) */}
-        <text x={20} y={40} fontSize="12" fill="var(--color-drift, #27ae60)" fontWeight="bold">
+        <text x={20} y={40} fontSize="12" fill="#27ae60" fontWeight="bold">
           Drift flux (J_drift)
         </text>
         <rect
@@ -215,21 +215,21 @@ export function FluxBalancePlot({ snapshot }: { snapshot: AcceptedSnapshot }) {
           y={28}
           width={Math.max(2, driftW)}
           height={barHeight}
-          fill="var(--color-drift, #27ae60)"
+          fill="#27ae60"
           rx="3"
         />
         <text
           x={driftFlux >= 0 ? 255 + driftW : 245 - driftW}
           y={44}
           fontSize="11"
-          fill="var(--ink, #333)"
+          fill="var(--ink)"
           textAnchor={driftFlux >= 0 ? "start" : "end"}
         >
           {display(driftFlux, 1)} m⁻²s⁻¹
         </text>
 
         {/* Diffusion flux bar (bottom row) */}
-        <text x={20} y={85} fontSize="12" fill="var(--color-diffusion, #c0392b)" fontWeight="bold">
+        <text x={20} y={85} fontSize="12" fill="#c0392b" fontWeight="bold">
           Diffusive flux (J_diff)
         </text>
         <rect
@@ -237,21 +237,21 @@ export function FluxBalancePlot({ snapshot }: { snapshot: AcceptedSnapshot }) {
           y={73}
           width={Math.max(2, diffW)}
           height={barHeight}
-          fill="var(--color-diffusion, #c0392b)"
+          fill="#c0392b"
           rx="3"
         />
         <text
-          x={diffFlux >= 0 ? 255 + diffW : 245 - diffW}
+          x={diffFlux >= 0 ? 255 + diffW : 245 - driftW}
           y={89}
           fontSize="11"
-          fill="var(--ink, #333)"
+          fill="var(--ink)"
           textAnchor={diffFlux >= 0 ? "start" : "end"}
         >
           {display(diffFlux, 1)} m⁻²s⁻¹
         </text>
 
         {/* Net flux summary badge */}
-        <text x={20} y={120} fontSize="11" fill="var(--ink-muted, #666)">
+        <text x={20} y={120} fontSize="11" fill="var(--muted)">
           Net flux J = J_drift + J_diff : {display(totalFlux, 1)} m⁻²s⁻¹
         </text>
       </svg>
@@ -276,24 +276,58 @@ export function ForceCancellationPanel({
   const isEinsteinMatch = Math.abs(kickMultiplier - 1.0) < 1e-6;
 
   return (
-    <div className="cancellation-panel" data-view-id="balance-table-summary">
-      <h3>The Force Cancellation Principle</h3>
-      <p>
+    <div
+      data-view-id="balance-table-summary"
+      style={{
+        padding: "1.25rem",
+        borderRadius: "0.5rem",
+        border: "1px solid var(--line)",
+        background: "var(--panel)",
+        color: "var(--ink)",
+        display: "flex",
+        flexDirection: "column",
+        gap: "1rem",
+      }}
+    >
+      <h3 style={{ margin: 0, fontSize: "1.125rem", fontFamily: "var(--font-serif)" }}>
+        The Force Cancellation Principle
+      </h3>
+      <p style={{ margin: 0, fontSize: "0.9375rem", lineHeight: 1.5 }}>
         In §3, Einstein equates the directional Stokes drift with the opposing Brownian diffusion.
         Notice how the magnitude of the applied force <var>F</var> drops out completely from the
         inferred diffusion coefficient:
       </p>
-      <div className="equation-cancellation-box">
-        <div className="cancellation-math">
-          <span className="formula-part">
+      <div
+        style={{
+          padding: "0.75rem 1rem",
+          background: "var(--wash)",
+          border: "1px solid var(--line)",
+          borderRadius: "0.375rem",
+          overflowX: "auto",
+          textAlign: "center",
+          fontFamily: "var(--font-serif)",
+          fontSize: "1.05rem",
+        }}
+      >
+        <div style={{ display: "inline-block" }}>
+          <span>
             D<sub>balance</sub> = μ |F| · λ<sub>kin</sub> = μ{" "}
-            <span className="cancel-term">|F|</span> ·{" "}
-            <span className="frac">
-              <span className="num">
+            <span style={{ textDecoration: "line-through", color: "var(--muted)" }}>|F|</span> ·{" "}
+            <span
+              style={{
+                display: "inline-flex",
+                flexDirection: "column",
+                verticalAlign: "middle",
+                textAlign: "center",
+                padding: "0 0.25rem",
+                fontSize: "0.9em",
+              }}
+            >
+              <span style={{ borderBottom: "1px solid var(--ink)", paddingBottom: "0.1rem" }}>
                 k<sub>B</sub> T
               </span>
-              <span className="den">
-                <span className="cancel-term">|F|</span>
+              <span style={{ paddingTop: "0.1rem" }}>
+                <span style={{ textDecoration: "line-through", color: "var(--muted)" }}>|F|</span>
               </span>
             </span>{" "}
             = μ k<sub>B</sub> T = D<sub>mobility</sub>
@@ -301,56 +335,117 @@ export function ForceCancellationPanel({
         </div>
       </div>
 
-      <div className="decay-comparison-grid">
-        <div className="decay-card">
-          <h4>Osmotic Decay Length (Thermodynamic)</h4>
-          <p className="card-eq">
+      <div
+        style={{
+          display: "grid",
+          gridTemplateColumns: "repeat(auto-fit, minmax(14rem, 1fr))",
+          gap: "1rem",
+        }}
+      >
+        <div
+          style={{
+            padding: "1rem",
+            borderRadius: "0.375rem",
+            border: "1px solid var(--line)",
+            background: "var(--wash)",
+          }}
+        >
+          <h4 style={{ margin: "0 0 0.5rem", fontSize: "0.875rem", fontWeight: 600 }}>
+            Osmotic Decay Length (Thermodynamic)
+          </h4>
+          <p
+            style={{ margin: "0 0 0.5rem", fontSize: "0.875rem", fontFamily: "var(--font-serif)" }}
+          >
             λ<sub>osm</sub> = k<sub>B</sub> T / |F|
           </p>
-          <p className="card-value">
+          <p style={{ margin: "0 0 0.5rem", fontSize: "1.125rem", color: "var(--accent)" }}>
             {lambdaOsmResult.status === "value" && typeof lambdaOsmResult.value === "number" ? (
               <span data-quantity-id="osmoticDecayLength" data-value={lambdaOsmResult.value}>
                 <strong>{display(lambdaOsmResult.value, 1e6)} μm</strong>
               </span>
             ) : (
-              <span data-quantity-id="osmoticDecayLength" className="na-tag">
+              <span
+                data-quantity-id="osmoticDecayLength"
+                className="badge"
+                style={{
+                  padding: "0.125rem 0.375rem",
+                  borderRadius: "0.25rem",
+                  background: "var(--panel)",
+                  color: "var(--muted)",
+                  fontSize: "0.75rem",
+                  border: "1px solid var(--line)",
+                }}
+              >
                 {lambdaOsmResult.status === "not-applicable" ? lambdaOsmResult.reason : "N/A"}
               </span>
             )}
           </p>
-          <p className="card-desc">
+          <p style={{ margin: 0, fontSize: "0.8125rem", color: "var(--muted)" }}>
             Calculated directly from the force-balance exponential profile.
           </p>
         </div>
 
-        <div className="decay-card">
-          <h4>Kinetic Decay Length (Stepper)</h4>
-          <p className="card-eq">
+        <div
+          style={{
+            padding: "1rem",
+            borderRadius: "0.375rem",
+            border: "1px solid var(--line)",
+            background: "var(--wash)",
+          }}
+        >
+          <h4 style={{ margin: "0 0 0.5rem", fontSize: "0.875rem", fontWeight: 600 }}>
+            Kinetic Decay Length (Stepper)
+          </h4>
+          <p
+            style={{ margin: "0 0 0.5rem", fontSize: "0.875rem", fontFamily: "var(--font-serif)" }}
+          >
             λ<sub>kin</sub> = D<sub>kicks</sub> / (μ |F|)
           </p>
-          <p className="card-value">
+          <p style={{ margin: "0 0 0.5rem", fontSize: "1.125rem", color: "var(--accent)" }}>
             {lambdaKinResult.status === "value" && typeof lambdaKinResult.value === "number" ? (
               <span data-quantity-id="kineticDecayLength" data-value={lambdaKinResult.value}>
                 <strong>{display(lambdaKinResult.value, 1e6)} μm</strong>
               </span>
             ) : (
-              <span data-quantity-id="kineticDecayLength" className="na-tag">
+              <span
+                data-quantity-id="kineticDecayLength"
+                className="badge"
+                style={{
+                  padding: "0.125rem 0.375rem",
+                  borderRadius: "0.25rem",
+                  background: "var(--panel)",
+                  color: "var(--muted)",
+                  fontSize: "0.75rem",
+                  border: "1px solid var(--line)",
+                }}
+              >
                 {lambdaKinResult.status === "not-applicable" ? lambdaKinResult.reason : "N/A"}
               </span>
             )}
           </p>
-          <p className="card-desc">Measured from the steady-state concentration slope.</p>
+          <p style={{ margin: 0, fontSize: "0.8125rem", color: "var(--muted)" }}>
+            Measured from the steady-state concentration slope.
+          </p>
         </div>
       </div>
 
-      <div className={`status-banner ${isEinsteinMatch ? "match-banner" : "mismatch-banner"}`}>
+      <div
+        style={{
+          padding: "0.75rem 1rem",
+          borderRadius: "0.375rem",
+          border: isEinsteinMatch ? "1px solid var(--accent)" : "1px solid var(--line)",
+          background: "var(--wash)",
+          fontSize: "0.875rem",
+          lineHeight: 1.5,
+        }}
+      >
         {isZeroForce ? (
-          <p>
+          <p style={{ margin: 0 }}>
             <strong>Zero force (F = 0):</strong> Without an external force there is no spatial
             gradient; decay lengths are not applicable and the equilibrium concentration is uniform.
           </p>
         ) : isEinsteinMatch ? (
-          <p>
+          <p style={{ margin: 0 }}>
             <strong>Equilibrium Agreement (m = 1.0):</strong> The kinetic kicks exactly match the
             thermal expectation. The two routes to <var>D</var> agree, confirming Einstein’s
             relation{" "}
@@ -365,13 +460,13 @@ export function ForceCancellationPanel({
             .
           </p>
         ) : kickMultiplier === 0 ? (
-          <p>
+          <p style={{ margin: 0 }}>
             <strong>Nägeli Kicks-Off Branch (m = 0):</strong> Thermal agitation is disabled.
             Particles drift to the wall and cannot diffuse back, disproving Nägeli’s single-impact
             objection.
           </p>
         ) : (
-          <p>
+          <p style={{ margin: 0 }}>
             <strong>Mismatched Kick Strength (m = {kickMultiplier}):</strong> The simulated kicks
             were not given the strength that equilibrium requires. <var>D</var>
             <sub>balance</sub> and <var>D</var>
