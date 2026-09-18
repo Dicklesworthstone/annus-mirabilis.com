@@ -43,7 +43,7 @@ describe("checkJourney: complete and partial journeys", () => {
     const invalid = {
       ...FIXTURE_PARTIAL_JOURNEY,
       pendingElements: [
-        ...FIXTURE_PARTIAL_JOURNEY.pendingElements!,
+        ...(FIXTURE_PARTIAL_JOURNEY.pendingElements ?? []),
         {
           element: "stages",
           reason: "Stages in preparation",
@@ -101,5 +101,236 @@ describe("checkJourney: complete and partial journeys", () => {
     };
     const findings = checkJourney(mismatchedDoors);
     expect(findings.some((f) => f.rule === "doors-arrives-at-mismatch")).toBe(true);
+  });
+});
+
+describe("journeyChecks refusal throw sites (am-muyh)", () => {
+  test("journey-explanation-exercise-count (journeyChecks.ts:250): accept <= 4 explanation exercises, reject > 4", () => {
+    const baseExercises = FIXTURE_JOURNEY_BROWNIAN.exercises.filter(
+      (e) => e.role === "instrumented",
+    );
+    const acceptJourney = {
+      ...FIXTURE_JOURNEY_BROWNIAN,
+      exercises: [
+        ...baseExercises,
+        { id: "ex-exp-1", role: "explanation" as const, prompt: "Prompt 1" },
+        { id: "ex-exp-2", role: "explanation" as const, prompt: "Prompt 2" },
+        { id: "ex-exp-3", role: "explanation" as const, prompt: "Prompt 3" },
+        { id: "ex-exp-4", role: "explanation" as const, prompt: "Prompt 4" },
+      ],
+    };
+    const acceptFindings = checkJourney(acceptJourney);
+    expect(acceptFindings.some((f) => f.rule === "journey-explanation-exercise-count")).toBe(false);
+
+    const rejectJourney = {
+      ...FIXTURE_JOURNEY_BROWNIAN,
+      exercises: [
+        ...baseExercises,
+        { id: "ex-exp-1", role: "explanation" as const, prompt: "Prompt 1" },
+        { id: "ex-exp-2", role: "explanation" as const, prompt: "Prompt 2" },
+        { id: "ex-exp-3", role: "explanation" as const, prompt: "Prompt 3" },
+        { id: "ex-exp-4", role: "explanation" as const, prompt: "Prompt 4" },
+        { id: "ex-exp-5", role: "explanation" as const, prompt: "Prompt 5" },
+      ],
+    };
+    const rejectFindings = checkJourney(rejectJourney);
+    const rejectFinding = rejectFindings.find(
+      (f) => f.rule === "journey-explanation-exercise-count",
+    );
+    expect(rejectFinding).toBeDefined();
+    expect(rejectFinding?.severity).toBe("error");
+  });
+
+  test("fork-undecided-already-decidable (journeyChecks.ts:420): accept post-1904 evidence, reject pre-1905 evidence", () => {
+    const fork0 = FIXTURE_JOURNEY_BROWNIAN.forks[0];
+    if (!fork0) throw new Error("Fixture missing fork 0");
+    const branch0 = fork0.branches[0];
+    const branch1 = fork0.branches[1];
+    if (!branch0 || !branch1) throw new Error("Fixture missing branches");
+
+    const acceptJourney = {
+      ...FIXTURE_JOURNEY_BROWNIAN,
+      forks: [
+        {
+          ...fork0,
+          branches: [
+            {
+              ...branch0,
+              outcome: {
+                type: "undecided-on-available-evidence" as const,
+                plainLanguage: "Cannot be decided with existing 1904 instruments.",
+                insufficiency: "Microscopes lack sufficient temporal resolution.",
+                whatWouldDecide: {
+                  name: "Post-1904 Evidence",
+                  recordId: "ev-post-1904",
+                  year: 1908,
+                },
+              },
+            },
+            branch1,
+          ],
+        },
+        ...FIXTURE_JOURNEY_BROWNIAN.forks.slice(1),
+      ],
+    };
+    const acceptFindings = checkJourney(acceptJourney);
+    expect(acceptFindings.some((f) => f.rule === "fork-undecided-already-decidable")).toBe(false);
+
+    const rejectJourney = {
+      ...FIXTURE_JOURNEY_BROWNIAN,
+      forks: [
+        {
+          ...fork0,
+          branches: [
+            {
+              ...branch0,
+              outcome: {
+                type: "undecided-on-available-evidence" as const,
+                plainLanguage: "Cannot be decided with existing 1904 instruments.",
+                insufficiency: "Microscopes lack sufficient temporal resolution.",
+                whatWouldDecide: {
+                  name: "Pre-1905 Evidence",
+                  recordId: "ev-pre-1905",
+                  year: 1902,
+                },
+              },
+            },
+            branch1,
+          ],
+        },
+        ...FIXTURE_JOURNEY_BROWNIAN.forks.slice(1),
+      ],
+    };
+    const rejectFindings = checkJourney(rejectJourney);
+    const rejectFinding = rejectFindings.find((f) => f.rule === "fork-undecided-already-decidable");
+    expect(rejectFinding).toBeDefined();
+    expect(rejectFinding?.severity).toBe("error");
+  });
+
+  test("fork-papers-route-count (journeyChecks.ts:434): accept exactly one papers-route branch, reject zero or multiple", () => {
+    const fork0 = FIXTURE_JOURNEY_BROWNIAN.forks[0];
+    if (!fork0) throw new Error("Fixture missing fork 0");
+    // Default FIXTURE_JOURNEY_BROWNIAN has exactly 1 papers-route branch per fork
+    const acceptFindings = checkJourney(FIXTURE_JOURNEY_BROWNIAN);
+    expect(acceptFindings.some((f) => f.rule === "fork-papers-route-count")).toBe(false);
+
+    // Reject 0 papers-route branches
+    const rejectZeroJourney = {
+      ...FIXTURE_JOURNEY_BROWNIAN,
+      forks: [
+        {
+          ...fork0,
+          branches: fork0.branches.map((b) => ({
+            ...b,
+            outcome: {
+              type: "correct-but-weaker" as const,
+              plainLanguage: "Valid consequence but not the route taken in the paper.",
+            },
+          })),
+        },
+        ...FIXTURE_JOURNEY_BROWNIAN.forks.slice(1),
+      ],
+    };
+    const rejectFindings = checkJourney(rejectZeroJourney);
+    const rejectFinding = rejectFindings.find((f) => f.rule === "fork-papers-route-count");
+    expect(rejectFinding).toBeDefined();
+    expect(rejectFinding?.severity).toBe("error");
+  });
+
+  test("prediction-numeric-literal-forbidden (journeyChecks.ts:559): accept non-numeric choices, reject raw numeric literal", () => {
+    const stage0 = FIXTURE_JOURNEY_BROWNIAN.stages[0];
+    if (!stage0) throw new Error("Fixture missing stage 0");
+    // Accept case: choices are conceptual strings
+    const acceptJourney = {
+      ...FIXTURE_JOURNEY_BROWNIAN,
+      stages: [
+        {
+          ...stage0,
+          support: {
+            ...stage0.support,
+            prediction: {
+              prompt: "What happens to the spread when the observation time quadruples?",
+              choices: ["No change", "It doubles", "It quadruples"],
+              explanation: "The displacement scale grows with the square root of time.",
+            },
+          },
+        },
+        ...FIXTURE_JOURNEY_BROWNIAN.stages.slice(1),
+      ],
+    };
+    const acceptFindings = checkJourney(acceptJourney);
+    expect(acceptFindings.some((f) => f.rule === "prediction-numeric-literal-forbidden")).toBe(
+      false,
+    );
+
+    // Reject case: choices contains raw numeric literal "42"
+    const rejectJourney = {
+      ...FIXTURE_JOURNEY_BROWNIAN,
+      stages: [
+        {
+          ...stage0,
+          support: {
+            ...stage0.support,
+            prediction: {
+              prompt: "What happens to the spread when the observation time quadruples?",
+              choices: ["42", "It doubles"],
+              explanation: "Numeric literals forbidden.",
+            },
+          },
+        },
+        ...FIXTURE_JOURNEY_BROWNIAN.stages.slice(1),
+      ],
+    };
+    const rejectFindings = checkJourney(rejectJourney);
+    const rejectFinding = rejectFindings.find(
+      (f) => f.rule === "prediction-numeric-literal-forbidden",
+    );
+    expect(rejectFinding).toBeDefined();
+    expect(rejectFinding?.severity).toBe("error");
+  });
+
+  test("world-check-later-evidence-year-invalid (journeyChecks.ts:602): accept post-1904 year, reject <= 1904", () => {
+    const wc0 = FIXTURE_JOURNEY_BROWNIAN.worldChecks[0];
+    if (!wc0?.laterEvidence) {
+      throw new Error("Fixture missing world check 0 with laterEvidence");
+    }
+    const laterEvidence = wc0.laterEvidence;
+    // Accept case: year 1908
+    const acceptJourney = {
+      ...FIXTURE_JOURNEY_BROWNIAN,
+      worldChecks: [
+        {
+          ...wc0,
+          laterEvidence: {
+            ...laterEvidence,
+            year: 1908,
+          },
+        },
+      ],
+    };
+    const acceptFindings = checkJourney(acceptJourney);
+    expect(acceptFindings.some((f) => f.rule === "world-check-later-evidence-year-invalid")).toBe(
+      false,
+    );
+
+    // Reject case: year 1904
+    const rejectJourney = {
+      ...FIXTURE_JOURNEY_BROWNIAN,
+      worldChecks: [
+        {
+          ...wc0,
+          laterEvidence: {
+            ...laterEvidence,
+            year: 1904,
+          },
+        },
+      ],
+    };
+    const rejectFindings = checkJourney(rejectJourney);
+    const rejectFinding = rejectFindings.find(
+      (f) => f.rule === "world-check-later-evidence-year-invalid",
+    );
+    expect(rejectFinding).toBeDefined();
+    expect(rejectFinding?.severity).toBe("error");
   });
 });

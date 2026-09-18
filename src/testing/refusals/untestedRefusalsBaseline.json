@@ -57,7 +57,7 @@
   "src/content/schemas/strictParse.ts": 1,
   "src/discovery/cards/cardRules.ts": 4,
   "src/discovery/cards/verificationQueue.ts": 0,
-  "src/discovery/checks/journeyChecks.ts": 1,
+  "src/discovery/checks/journeyChecks.ts": 3,
   "src/discovery/checks/moveSummaryGuard.ts": 3,
   "src/equations/alternateForms.ts": 0,
   "src/equations/ast.ts": 0,
