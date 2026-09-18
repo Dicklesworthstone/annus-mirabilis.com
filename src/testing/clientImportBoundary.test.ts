@@ -41,6 +41,15 @@ describe("Client Component Import Boundary Gate (am-cm-compiler-core-oa7)", () =
     const componentFiles = await walkDir(resolve(root, "src/components"));
 
     const scannedFiles = [...appFiles, ...visualFiles, ...componentFiles];
+
+    // Scanned-nothing guard. walkDir swallows readdir errors ("Directory may not
+    // exist yet"), so a renamed or unreadable root would leave scannedFiles empty
+    // and this gate would pass having inspected no files at all. Sibling gate
+    // noPhysicsInComponents.test.ts:123 already asserts this; this one did not.
+    expect(appFiles.length).toBeGreaterThan(0);
+    expect(visualFiles.length).toBeGreaterThan(0);
+    expect(componentFiles.length).toBeGreaterThan(0);
+
     const violations: { file: string; line: number; importStatement: string }[] = [];
 
     for (const filePath of scannedFiles) {
