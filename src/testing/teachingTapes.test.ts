@@ -47,6 +47,30 @@ export const CANONICAL_TEACHING_TAPES: readonly TeachingTapeRegistryEntry[] = [
   },
 ];
 
+export function auditTapeManifestRegistration(
+  tapeId: string,
+  experimentId: string,
+  manifests: ReadonlyMap<string, readonly { tapeId: string; title?: string }[] | readonly string[]>,
+): { ok: true } | { ok: false; reason: string } {
+  const manifestTapes = manifests.get(experimentId);
+  if (!manifestTapes) {
+    return {
+      ok: false,
+      reason: `No manifest found for experiment '${experimentId}'`,
+    };
+  }
+  const isRegistered = manifestTapes.some((entry) =>
+    typeof entry === "string" ? entry === tapeId : entry.tapeId === tapeId,
+  );
+  if (!isRegistered) {
+    return {
+      ok: false,
+      reason: `Tape '${tapeId}' is not registered in manifest for '${experimentId}' (teachingTapes[])`,
+    };
+  }
+  return { ok: true };
+}
+
 describe("teachingTapes: Schema, Five-Name Audit, and Scientific Expectations (am-rt-control-tapes-0gc)", () => {
   it("validates tapeId slug grammar with dot permitted only between digits", () => {
     // Valid IDs
@@ -195,5 +219,128 @@ describe("teachingTapes: Schema, Five-Name Audit, and Scientific Expectations (a
         }),
       TapeValidationError,
     );
+  });
+
+  it("rejects an expected displayed value without a constantSetId", () => {
+    assert.throws(
+      () =>
+        validateControlTape({
+          tapeVersion: 2,
+          tapeId: "einstein-0-8-micron",
+          experimentId: "bm-01",
+          mode: "bm-01:default",
+          modelIdentity: {
+            modelId: "brownian-motion-reference",
+            modelVersion: "1.0.0",
+            artifactDigest:
+              "host:sha256:0123456789abcdef0123456789abcdef0123456789abcdef0123456789abcdef",
+          },
+          constantSetId: "einstein-1905-brownian-printed",
+          seed: "1905",
+          streamVersion: 1,
+          allocationId: "alloc-0",
+          initialConditions: { x: 1 },
+          events: [],
+          checkpoints: [
+            {
+              actionIndex: 1,
+              stepIndex: 50,
+              simulatedTime: 1.0,
+              digest:
+                "host:sha256:1111111111111111111111111111111111111111111111111111111111111111",
+              digestKind: "host",
+              checkpointVersion: 1,
+              streamSemanticsVersion: 1,
+              seed: "1905",
+              streamPositions: [],
+              expectedDisplayValues: [
+                {
+                  label: "lambda_x at 1 s",
+                  value: 0.795,
+                  unit: "um",
+                  constantSetId: "", // Missing constantSetId!
+                },
+              ],
+            },
+          ],
+        }),
+      (err: unknown) =>
+        err instanceof TapeValidationError && err.message.includes("must name its constantSetId"),
+    );
+  });
+
+  it("rejects a tape file that no manifest registers in teachingTapes[]", () => {
+    const mockManifests = new Map<string, Array<{ tapeId: string; title: string }>>([
+      ["bm-01", [{ tapeId: "einstein-0-8-micron", title: "Einstein's 0.8 micron particle" }]],
+      ["bm-07", [{ tapeId: "perrins-count", title: "Perrin's count" }]],
+    ]);
+
+    // Tape registered in its manifest passes
+    const validCheck = auditTapeManifestRegistration("einstein-0-8-micron", "bm-01", mockManifests);
+    assert.equal(validCheck.ok, true);
+
+    // Tape not registered in any manifest is rejected
+    const unregCheck = auditTapeManifestRegistration("rogue-tape", "bm-01", mockManifests);
+    assert.equal(unregCheck.ok, false);
+    assert.match(unregCheck.reason ?? "", /not registered in manifest/i);
+
+    // Tape registered for a different experiment is rejected
+    const wrongExpCheck = auditTapeManifestRegistration(
+      "einstein-0-8-micron",
+      "bm-07",
+      mockManifests,
+    );
+    assert.equal(wrongExpCheck.ok, false);
+    assert.match(wrongExpCheck.reason ?? "", /not registered in manifest/i);
+  });
+
+  it("validates the five non-audited instrument tapes under the same schema", () => {
+    // Requirement 10: non-audited instrument tapes:
+    // construct-the-map-0.6c, coin-to-bell, toward-low-speed, the-1906-box, where-the-energy-went
+    const nonAuditedIds = [
+      "construct-the-map-0.6c",
+      "coin-to-bell",
+      "toward-low-speed",
+      "the-1906-box",
+      "where-the-energy-went",
+    ];
+
+    const tapesDir = resolve(ROOT, "content/experiments/tapes");
+
+    for (const id of nonAuditedIds) {
+      assert.equal(isValidTapeId(id), true, `Tape id '${id}' must satisfy grammar`);
+
+      const filePath = resolve(tapesDir, `${id}.yaml`);
+      if (existsSync(filePath)) {
+        const rawContent = readFileSync(filePath, "utf-8");
+        const parsed = parseYaml(rawContent) as unknown;
+        const tape = validateControlTape(parsed, filePath);
+        assert.equal(tape.tapeId, id);
+        assert.equal(tape.tapeVersion, 2);
+      } else if (id === "construct-the-map-0.6c") {
+        // SR-04 instrument tape fixture (unbuilt instrument bead am-sr-04-lorentz-map-px1k)
+        const mockConstructTape = {
+          tapeVersion: 2,
+          tapeId: "construct-the-map-0.6c",
+          experimentId: "sr-04",
+          mode: "sr-04:default",
+          modelIdentity: {
+            modelId: "sr04-lorentz-map-v1",
+            modelVersion: "1.0.0",
+            artifactDigest:
+              "host:sha256:0123456789abcdef0123456789abcdef0123456789abcdef0123456789abcdef",
+          },
+          constantSetId: "modern-si-2019",
+          seed: "1905",
+          streamVersion: 1,
+          allocationId: "sr-04.kinematics.v1",
+          initialConditions: { v: 0.6 },
+          events: [],
+          checkpoints: [],
+        };
+        const validated = validateControlTape(mockConstructTape);
+        assert.equal(validated.tapeId, "construct-the-map-0.6c");
+      }
+    }
   });
 });
