@@ -143,6 +143,16 @@ describe("RepresentationScale Property & Independence Tests (am-inst-2d-view-kit
       const magRow = rows.find((r) => r.key === "spatialMagnification");
       expect(magRow?.value).toContain("centerOfMassShift amplified");
       expect(magRow?.value).toContain(`×10^${Math.round(Math.log10(factor))}`);
+
+      // Negative assertion: a buggy fixture that multiplies the physical readout by the factor fails
+      const erroneousScaledReadout = physicalDisplacementMeters * factor;
+      expect(() => {
+        if (Math.abs(erroneousScaledReadout - physicalDisplacementMeters) > 1e-25) {
+          throw new Error(
+            `Units strip readout was scaled by factor ${factor} (got ${erroneousScaledReadout}, expected invariant physical value ${physicalDisplacementMeters})`,
+          );
+        }
+      }).toThrow(/Units strip readout was scaled by factor/);
     }
   });
 

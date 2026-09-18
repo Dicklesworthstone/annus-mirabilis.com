@@ -16,58 +16,77 @@ import type { RepresentationScale, SpatialMagnification } from "./types.ts";
 
 export class RepresentationScaleError extends Error {
   readonly field: string;
-  constructor(message: string, field: string) {
-    super(`RepresentationScale error in "${field}": ${message}`);
+  readonly viewId?: string | undefined;
+  constructor(message: string, field: string, viewId?: string) {
+    const prefix = viewId ? `[View ${viewId}] ` : "";
+    super(`${prefix}RepresentationScale error in "${field}": ${message}`);
     this.name = "RepresentationScaleError";
     this.field = field;
+    this.viewId = viewId;
   }
 }
 
 /**
  * Validates a RepresentationScale object against the 5 contractual rules.
  */
-export function validateRepresentationScale(scale: RepresentationScale): void {
+export function validateRepresentationScale(scale: RepresentationScale, viewId?: string): void {
   if (!scale || typeof scale !== "object") {
-    throw new RepresentationScaleError("RepresentationScale must be an object", "root");
+    throw new RepresentationScaleError("RepresentationScale must be an object", "root", viewId);
   }
 
   // 1. Spatial magnification
   if (!scale.spatialMagnification || typeof scale.spatialMagnification !== "object") {
-    throw new RepresentationScaleError("spatialMagnification is required", "spatialMagnification");
+    throw new RepresentationScaleError(
+      "spatialMagnification is required",
+      "spatialMagnification",
+      viewId,
+    );
   }
   const { appliesTo, factor } = scale.spatialMagnification;
   if (typeof appliesTo !== "string" || appliesTo.trim().length === 0) {
     throw new RepresentationScaleError(
       "appliesTo must be a non-empty string",
       "spatialMagnification.appliesTo",
+      viewId,
     );
   }
   if (typeof factor !== "number" || !Number.isFinite(factor) || factor <= 0) {
     throw new RepresentationScaleError(
       "factor must be a positive finite number",
       "spatialMagnification.factor",
+      viewId,
     );
   }
 
   // 2. Simulated elapsed time
   if (!scale.simulatedElapsedTime || typeof scale.simulatedElapsedTime !== "object") {
-    throw new RepresentationScaleError("simulatedElapsedTime is required", "simulatedElapsedTime");
+    throw new RepresentationScaleError(
+      "simulatedElapsedTime is required",
+      "simulatedElapsedTime",
+      viewId,
+    );
   }
   const { quantityId, value, unit } = scale.simulatedElapsedTime;
   if (typeof quantityId !== "string" || quantityId.trim().length === 0) {
     throw new RepresentationScaleError(
       "quantityId must be a non-empty string",
       "simulatedElapsedTime.quantityId",
+      viewId,
     );
   }
   if (typeof value !== "number" || !Number.isFinite(value) || value < 0) {
     throw new RepresentationScaleError(
       "value must be a non-negative finite number",
       "simulatedElapsedTime.value",
+      viewId,
     );
   }
   if (typeof unit !== "string") {
-    throw new RepresentationScaleError("unit must be a string", "simulatedElapsedTime.unit");
+    throw new RepresentationScaleError(
+      "unit must be a string",
+      "simulatedElapsedTime.unit",
+      viewId,
+    );
   }
 
   // 3. Playback multiplier
@@ -79,24 +98,27 @@ export function validateRepresentationScale(scale: RepresentationScale): void {
     throw new RepresentationScaleError(
       "playbackMultiplier must be a positive finite number",
       "playbackMultiplier",
+      viewId,
     );
   }
 
   // 4. Glyph size
   if (!scale.glyphSize || typeof scale.glyphSize !== "object") {
-    throw new RepresentationScaleError("glyphSize is required", "glyphSize");
+    throw new RepresentationScaleError("glyphSize is required", "glyphSize", viewId);
   }
   const { drawnPx, represents } = scale.glyphSize;
   if (typeof drawnPx !== "number" || !Number.isFinite(drawnPx) || drawnPx <= 0) {
     throw new RepresentationScaleError(
       "drawnPx must be a positive finite number",
       "glyphSize.drawnPx",
+      viewId,
     );
   }
   if (typeof represents !== "string" || represents.trim().length === 0) {
     throw new RepresentationScaleError(
       'represents must be "none" or a valid quantityId',
       "glyphSize.represents",
+      viewId,
     );
   }
 
@@ -105,6 +127,7 @@ export function validateRepresentationScale(scale: RepresentationScale): void {
     throw new RepresentationScaleError(
       "quantityNormalization is required",
       "quantityNormalization",
+      viewId,
     );
   }
   const { kind } = scale.quantityNormalization;
@@ -112,6 +135,68 @@ export function validateRepresentationScale(scale: RepresentationScale): void {
     throw new RepresentationScaleError(
       "kind must be a non-empty string",
       "quantityNormalization.kind",
+      viewId,
+    );
+  }
+}
+
+/**
+ * Audits rendered playback rate text.
+ * The labels "true rate" and "real time" render only when playbackMultiplier is exactly 1.
+ * A fixture or view rendering either label at another multiplier (e.g. 25) fails.
+ */
+export function auditPlaybackRateLabel(
+  label: string,
+  playbackMultiplier: number,
+  viewId?: string,
+): void {
+  const claimsTrueRate = /true rate|real time/i.test(label);
+  if (claimsTrueRate && playbackMultiplier !== 1) {
+    const prefix = viewId ? `[View ${viewId}] ` : "";
+    throw new Error(
+      `${prefix}Rendered label "${label}" claims true rate / real time, but playbackMultiplier is ${playbackMultiplier} (must be exactly 1)`,
+    );
+  }
+}
+
+/**
+ * Audits particle glyph size captions.
+ * A caption relating glyph size to a physical extent while glyphSize.represents is "none" fails.
+ */
+export function auditGlyphCaption(
+  caption: string,
+  scale: RepresentationScale,
+  viewId?: string,
+): void {
+  const claimsTrueSize =
+    /drawn at (?:its )?true size|physical particle (?:radius|size)|true particle size/i.test(
+      caption,
+    );
+  if (claimsTrueSize && scale.glyphSize.represents === "none") {
+    const prefix = viewId ? `[View ${viewId}] ` : "";
+    throw new Error(
+      `${prefix}Caption "${caption}" claims glyph represents true physical particle size, but glyphSize.represents is "none"`,
+    );
+  }
+}
+
+/**
+ * Audits scale bar calibration.
+ * A scale bar whose drawn length disagrees with realRate.scaleBar times spatialMagnification.factor fails.
+ */
+export function auditScaleBarCalibration(
+  drawnLengthPx: number,
+  basePixelsPerUnit: number,
+  physicalLength: number,
+  spatialMagnificationFactor: number,
+  tolerancePx = 0.5,
+  viewId?: string,
+): void {
+  const expectedDrawnPx = physicalLength * basePixelsPerUnit * spatialMagnificationFactor;
+  if (Math.abs(drawnLengthPx - expectedDrawnPx) > tolerancePx) {
+    const prefix = viewId ? `[View ${viewId}] ` : "";
+    throw new Error(
+      `${prefix}Scale bar length ${drawnLengthPx}px disagrees with expected ${expectedDrawnPx}px (calibrated ${physicalLength} units * ${basePixelsPerUnit} px/unit * factor ${spatialMagnificationFactor})`,
     );
   }
 }

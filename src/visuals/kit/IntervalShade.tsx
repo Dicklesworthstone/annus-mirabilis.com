@@ -1,7 +1,8 @@
 import type { ReactElement } from "react";
-import type { Projector } from "./types.ts";
+import { optionalIdentityAttributes } from "./identity.ts";
+import type { OptionalViewIdentityProps, Projector } from "./types.ts";
 
-export interface IntervalShadeProps {
+export interface IntervalShadeProps extends OptionalViewIdentityProps {
   readonly interval: readonly [number, number];
   readonly xProjector: Projector;
   readonly yProjector: Projector;
@@ -21,6 +22,9 @@ export function IntervalShade({
   label,
   fillColor = "currentColor",
   fillOpacity = 0.25,
+  instanceId,
+  runId,
+  snapshotVersion,
 }: IntervalShadeProps): ReactElement | null {
   const [x0, x1] = interval;
   const px0 = xProjector(x0);
@@ -45,8 +49,10 @@ export function IntervalShade({
       ? `P([${x0.toFixed(2)}, ${x1.toFixed(2)}]) = ${(probability * 100).toFixed(1)}%`
       : undefined;
 
+  const identityAttrs = optionalIdentityAttributes({ instanceId, runId, snapshotVersion });
+
   return (
-    <g className="interval-shade" data-quantity-id={quantityId}>
+    <g className="interval-shade" data-quantity-id={quantityId} {...identityAttrs}>
       <rect
         x={left}
         y={top}

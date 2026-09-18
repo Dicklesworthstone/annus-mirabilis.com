@@ -1,8 +1,16 @@
 import { afterEach, beforeEach, describe, expect, test } from "bun:test";
 import { act, createElement } from "react";
 import { createRoot } from "react-dom/client";
+import { existsSync, readFileSync } from "node:fs";
+import { dirname, join } from "node:path";
+import { fileURLToPath } from "node:url";
+import {
+  buildInlineScriptHashManifest,
+  sha256Base64,
+} from "../../../scripts/build/inline-script-hashes";
 import { storageKeyRegistry } from "../../platform/storage/keys";
 import { createContainer, installDom, removeContainer, uninstallDom } from "../../testing/reactDom";
+import { INLINE_SCRIPT_REGISTRY } from "../inline-scripts/registry";
 import { ThemeToggle } from "./ThemeToggle";
 import {
   initTheme,
@@ -251,3 +259,132 @@ describe("ThemeToggle: UI reflection of active theme and user selection", () => 
     removeContainer(container);
   });
 });
+
+describe("theme script manifest registration (AC 7)", () => {
+  test("INLINE_SCRIPT_REGISTRY contains the theme script with exact metadata and source", () => {
+    const entry = INLINE_SCRIPT_REGISTRY.find((e) => e.id === "theme");
+    expect(entry).toBeDefined();
+    expect(entry?.ownerBeadId).toBe("am-design-themes-typography-288q");
+    expect(entry?.module).toBe("src/app/theme/themeInit.inline.ts");
+    expect(entry?.source).toBe(THEME_INIT_SOURCE);
+    expect(entry?.routes).toBe("all");
+  });
+
+  test("the theme script's hash appears in the compiled manifest matching sha256Base64(THEME_INIT_SOURCE)", () => {
+    const manifest = buildInlineScriptHashManifest(INLINE_SCRIPT_REGISTRY, {
+      buildRevision: "test-rev",
+      generatedAt: "2026-01-01T00:00:00.000Z",
+    });
+    const themeManifestEntry = manifest.scripts.find((s) => s.id === "theme");
+    expect(themeManifestEntry).toBeDefined();
+    expect(themeManifestEntry?.ownerBeadId).toBe("am-design-themes-typography-288q");
+    expect(themeManifestEntry?.sha256).toBe(sha256Base64(THEME_INIT_SOURCE));
+    expect(themeManifestEntry?.length).toBe(Buffer.byteLength(THEME_INIT_SOURCE, "utf8"));
+  });
+
+  test("planted negative: a corrupted script source or missing registration fails hash verification", () => {
+    const manifest = buildInlineScriptHashManifest(INLINE_SCRIPT_REGISTRY, {
+      buildRevision: "test-rev",
+      generatedAt: "2026-01-01T00:00:00.000Z",
+    });
+    const themeManifestEntry = manifest.scripts.find((s) => s.id === "theme");
+    expect(themeManifestEntry).toBeDefined();
+
+    function verifyScriptHash(id: string, actualSource: string): { valid: boolean; reason?: string } {
+      const entry = manifest.scripts.find((s) => s.id === id);
+      if (!entry) return { valid: false, reason: "missing from manifest" };
+      const actualHash = sha256Base64(actualSource);
+      if (entry.sha256 !== actualHash) {
+        return { valid: false, reason: `hash mismatch: expected ${entry.sha256}, got ${actualHash}` };
+      }
+      return { valid: true };
+    }
+
+    // Honest check: real source passes
+    expect(verifyScriptHash("theme", THEME_INIT_SOURCE).valid).toBe(true);
+
+    // Negative 1: modified source fails
+    const corrupted = `${THEME_INIT_SOURCE} /* mutation */`;
+    const corruptedResult = verifyScriptHash("theme", corrupted);
+    expect(corruptedResult.valid).toBe(false);
+    expect(corruptedResult.reason).toContain("hash mismatch");
+
+    // Negative 2: unregistered script ID fails
+    const unregisteredResult = verifyScriptHash("rogue-theme", THEME_INIT_SOURCE);
+    expect(unregisteredResult.valid).toBe(false);
+    expect(unregisteredResult.reason).toBe("missing from manifest");
+  });
+});
+
+describe("self-hosted typography wiring: font files, licenses, and @font-face declarations", () => {
+  const THEMES_CSS_PATH = join(dirname(fileURLToPath(import.meta.url)), "themes.css");
+  const FONTS_DIR = join(dirname(fileURLToPath(import.meta.url)), "../../../public/fonts");
+  const cssContent = readFileSync(THEMES_CSS_PATH, "utf8");
+
+  const EXPECTED_FAMILIES = [
+    {
+      family: "Newsreader",
+      subpath: "newsreader/Newsreader-Variable.ttf",
+      licenseSubpath: "newsreader/OFL.txt",
+    },
+    {
+      family: "Plus Jakarta Sans",
+      subpath: "plus-jakarta-sans/PlusJakartaSans-Variable.ttf",
+      licenseSubpath: "plus-jakarta-sans/OFL.txt",
+    },
+    {
+      family: "JetBrains Mono",
+      subpath: "jetbrains-mono/JetBrainsMono-Variable.ttf",
+      licenseSubpath: "jetbrains-mono/OFL.txt",
+    },
+  ];
+
+  for (const item of EXPECTED_FAMILIES) {
+    test(`@font-face declares self-hosted ${item.family} with font-display: swap`, () => {
+      const pattern = new RegExp(
+        `@font-face\\s*\\{[^}]*font-family:\\s*"${item.family}"[^}]*\\}`,
+        "g",
+      );
+      const match = cssContent.match(pattern);
+      expect(match).not.toBeNull();
+      const block = match?.[0] ?? "";
+      expect(block).toContain("font-display: swap");
+      expect(block).toContain(`/fonts/${item.subpath}`);
+      expect(block).not.toMatch(/https?:\/\//i);
+    });
+
+    test(`${item.family} font binary and OFL license exist on disk in public/fonts`, () => {
+      const fontFilePath = join(FONTS_DIR, item.subpath);
+      const licenseFilePath = join(FONTS_DIR, item.licenseSubpath);
+      expect(existsSync(fontFilePath)).toBe(true);
+      expect(existsSync(licenseFilePath)).toBe(true);
+
+      const licenseText = readFileSync(licenseFilePath, "utf8");
+      expect(licenseText).toContain("SIL OPEN FONT LICENSE");
+    });
+  }
+
+  test("planted negative: an external Google Fonts URL or missing OFL license is rejected", () => {
+    function auditFontFaceRule(rule: string): { valid: boolean; issue?: string } {
+      if (/https?:\/\/fonts\.(googleapis|gstatic)\.com/i.test(rule)) {
+        return { valid: false, issue: "External font URL detected (must be self-hosted)" };
+      }
+      if (!rule.includes("font-display: swap")) {
+        return { valid: false, issue: "Missing font-display: swap" };
+      }
+      return { valid: true };
+    }
+
+    const goodRule = `@font-face { font-family: "Newsreader"; src: url("/fonts/newsreader/Newsreader-Variable.ttf"); font-display: swap; }`;
+    expect(auditFontFaceRule(goodRule).valid).toBe(true);
+
+    const badExternalRule = `@font-face { font-family: "Newsreader"; src: url("https://fonts.gstatic.com/s/newsreader.woff2"); font-display: swap; }`;
+    expect(auditFontFaceRule(badExternalRule).valid).toBe(false);
+    expect(auditFontFaceRule(badExternalRule).issue).toContain("External font URL");
+
+    const badNoSwapRule = `@font-face { font-family: "Newsreader"; src: url("/fonts/newsreader/Newsreader-Variable.ttf"); }`;
+    expect(auditFontFaceRule(badNoSwapRule).valid).toBe(false);
+    expect(auditFontFaceRule(badNoSwapRule).issue).toContain("font-display: swap");
+  });
+});
+

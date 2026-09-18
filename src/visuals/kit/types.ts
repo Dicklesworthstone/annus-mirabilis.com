@@ -68,6 +68,15 @@ export interface ViewIdentityProps {
 }
 
 /**
+ * Optional identity props accepted by composable view kit primitives.
+ */
+export interface OptionalViewIdentityProps {
+  readonly instanceId?: string | undefined;
+  readonly runId?: string | undefined;
+  readonly snapshotVersion?: string | number | undefined;
+}
+
+/**
  * Visually distinct classes for plot curves and series.
  */
 export type PlotSeriesClass = "theoretical" | "historical" | "empirical";

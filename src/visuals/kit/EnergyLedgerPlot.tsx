@@ -1,5 +1,6 @@
 import type { ReactElement } from "react";
-import type { Projector } from "./types.ts";
+import { optionalIdentityAttributes } from "./identity.ts";
+import type { OptionalViewIdentityProps, Projector } from "./types.ts";
 
 export interface EnergyChannel {
   readonly id: string;
@@ -10,7 +11,7 @@ export interface EnergyChannel {
   readonly color?: string;
 }
 
-export interface EnergyLedgerPlotProps {
+export interface EnergyLedgerPlotProps extends OptionalViewIdentityProps {
   readonly channels: readonly EnergyChannel[];
   readonly yProjector: Projector;
   readonly totalExpected?: number;
@@ -29,14 +30,18 @@ export function EnergyLedgerPlot({
   width = 500,
   height = 300,
   unit = "J",
+  instanceId,
+  runId,
+  snapshotVersion,
 }: EnergyLedgerPlotProps): ReactElement {
   const barWidth = Math.max(20, Math.min(60, (width - 100) / Math.max(1, channels.length) - 20));
   const baselineY = yProjector(0);
 
   const totalActual = channels.reduce((sum, ch) => sum + ch.value, 0);
+  const identityAttrs = optionalIdentityAttributes({ instanceId, runId, snapshotVersion });
 
   return (
-    <div className="energy-ledger-plot">
+    <div className="energy-ledger-plot" {...identityAttrs}>
       <svg
         viewBox={`0 0 ${width} ${height}`}
         width={width}

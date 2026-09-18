@@ -64,6 +64,8 @@ export interface GraphDescriptionContainerProps {
   readonly snapshotVersion: string | number;
   /** Run ID of the current calculation. */
   readonly runId?: string | undefined;
+  /** Instance ID of the instrument instance. */
+  readonly instanceId?: string | undefined;
   /** Instrument ID for tracing (e.g. "bm-01"). */
   readonly instrumentId?: string | undefined;
   /** View ID for tracing (e.g. "histogram"). */
@@ -98,6 +100,7 @@ export function GraphDescriptionContainer({
   templateData,
   snapshotVersion,
   runId,
+  instanceId,
   instrumentId,
   viewId,
   tableData,
@@ -195,6 +198,7 @@ export function GraphDescriptionContainer({
       <figure
         className={className}
         aria-label={layer1Statement}
+        data-instance-id={instanceId}
         data-snapshot-version={String(snapshotVersion)}
         data-instrument-id={instrumentId}
         data-view-id={viewId}

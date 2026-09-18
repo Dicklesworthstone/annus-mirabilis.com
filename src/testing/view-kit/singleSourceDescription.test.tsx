@@ -1,15 +1,17 @@
 import { afterEach, beforeEach, describe, expect, test } from "bun:test";
 import { act, createElement } from "react";
 import { createRoot } from "react-dom/client";
-import { auditAccessibleScaleFacts } from "../../a11y/descriptions/templates.ts";
+import { auditAccessibleScaleFacts, ScaleAuditError } from "../../a11y/descriptions/templates.ts";
 import {
   AccessibleGraphView,
   Axes2D,
   createLinearProjector,
   generateLinearTicks,
+  getScaleFactRows,
   Histogram,
   LinePlot,
   type RepresentationScale,
+  type ScaleFactRow,
   ScaleBar,
   ScatterPlot,
   TimeLegend,
@@ -328,6 +330,85 @@ describe("Single-Source Visual and Accessible Description Parity (am-inst-2d-vie
         root.unmount();
       });
       removeContainer(container);
+    }
+  });
+
+  test("all 5 consumer views publish 5-field RepresentationScale; removing any fact from accessible surface fails audit with view id", () => {
+    const consumerViews: Record<string, RepresentationScale> = {
+      "bm01-microscope": {
+        spatialMagnification: { appliesTo: "scene", factor: 1e8, note: "microscope field" },
+        simulatedElapsedTime: { quantityId: "t", value: 1.0, unit: "s" },
+        playbackMultiplier: 1,
+        glyphSize: { drawnPx: 4, represents: "none" },
+        quantityNormalization: { kind: "none" },
+      },
+      "bm01-histogram": {
+        spatialMagnification: { appliesTo: "scene", factor: 1 },
+        simulatedElapsedTime: { quantityId: "t", value: 1.0, unit: "s" },
+        playbackMultiplier: 1,
+        glyphSize: { drawnPx: 4, represents: "none" },
+        quantityNormalization: { kind: "per-bin-width", note: "per μm" },
+      },
+      "me03-box": {
+        spatialMagnification: {
+          appliesTo: "centerOfMassShift",
+          factor: 1e17,
+          note: "displacement amplified",
+        },
+        simulatedElapsedTime: { quantityId: "t", value: 0.1, unit: "s" },
+        playbackMultiplier: 1,
+        glyphSize: { drawnPx: 4, represents: "none" },
+        quantityNormalization: { kind: "none" },
+      },
+      "sr03-strip": {
+        spatialMagnification: { appliesTo: "scene", factor: 1 },
+        simulatedElapsedTime: { quantityId: "t", value: 0.0, unit: "s" },
+        playbackMultiplier: 1,
+        glyphSize: { drawnPx: 2, represents: "none" },
+        quantityNormalization: { kind: "none" },
+      },
+      "sr10-sphere": {
+        spatialMagnification: { appliesTo: "scene", factor: 1 },
+        simulatedElapsedTime: { quantityId: "ct", value: 10.0, unit: "ls" },
+        playbackMultiplier: 1,
+        glyphSize: { drawnPx: 2, represents: "none" },
+        quantityNormalization: { kind: "none" },
+      },
+    };
+
+    for (const [viewId, scale] of Object.entries(consumerViews)) {
+      const rows: readonly ScaleFactRow[] = getScaleFactRows(scale);
+      expect(rows.length).toBe(5);
+
+      // Construct a complete surface containing all 5 facts
+      const completeSurface = rows.map((r) => `${r.label}: ${r.value}`).join(" | ");
+
+      // Complete surface passes audit
+      expect(() => auditAccessibleScaleFacts(completeSurface, scale, viewId)).not.toThrow();
+
+      // Omitting each fact in turn fails the audit naming the viewId and missing field
+      for (const row of rows) {
+        // Create an incomplete surface without this specific fact label or value
+        const incompleteSurface = rows
+          .filter((r) => r.key !== row.key)
+          .map((r) => `${r.label}: ${r.value}`)
+          .join(" | ");
+
+        let error: ScaleAuditError | null = null;
+        try {
+          auditAccessibleScaleFacts(incompleteSurface, scale, viewId);
+        } catch (err: unknown) {
+          if (err instanceof ScaleAuditError) {
+            error = err;
+          }
+        }
+
+        expect(error).not.toBeNull();
+        expect(error?.viewId).toBe(viewId);
+        expect(error?.missingField).toBe(row.key);
+        expect(error?.message).toContain(viewId);
+        expect(error?.message).toContain(row.key);
+      }
     }
   });
 });

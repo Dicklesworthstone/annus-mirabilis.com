@@ -62,4 +62,143 @@ describe("visual kit identity attributes (am-inst-2d-view-kit-u75r)", () => {
       removeContainer(container);
     }
   });
+
+  test("optionalIdentityAttributes parses provided fields and ignores missing ones", () => {
+    const { optionalIdentityAttributes } = require("../../visuals/kit/identity.ts");
+    expect(optionalIdentityAttributes(undefined)).toEqual({});
+    expect(optionalIdentityAttributes({})).toEqual({});
+    expect(
+      optionalIdentityAttributes({
+        instanceId: "inst-1",
+        runId: "run-1",
+        snapshotVersion: 4,
+      }),
+    ).toEqual({
+      "data-instance-id": "inst-1",
+      "data-run-id": "run-1",
+      "data-snapshot-version": "4",
+    });
+    expect(
+      optionalIdentityAttributes({
+        instanceId: "inst-2",
+      }),
+    ).toEqual({
+      "data-instance-id": "inst-2",
+    });
+  });
+
+  test("all primitives expose identity attributes when provided with identity props", async () => {
+    const {
+      AccessibleGraphView,
+      Axes2D,
+      Histogram,
+      LinePlot,
+      ScatterPlot,
+      IntervalShade,
+      AnalyticLimitMarker,
+      EventDiagram,
+      EnergyLedgerPlot,
+    } = require("../../visuals/kit/index.ts");
+
+    const container = createContainer();
+    const root = createRoot(container);
+    const xProj = createLinearProjector({ domain: [0, 10], range: [0, 100] });
+    const yProj = createLinearProjector({ domain: [0, 10], range: [100, 0] });
+
+    const identity = {
+      instanceId: "TEST-INST:1",
+      runId: "run-test-42",
+      snapshotVersion: "5",
+    };
+
+    try {
+      await act(() => {
+        root.render(
+          createElement(
+            AccessibleGraphView,
+            {
+              title: "Accessible Identity Test",
+              ...identity,
+            },
+            createElement(
+              "svg",
+              { width: 300, height: 300 },
+              createElement(Axes2D, {
+                xStart: 0,
+                xEnd: 100,
+                yStart: 0,
+                yEnd: 100,
+                xTicks: [],
+                yTicks: [],
+                ...identity,
+              }),
+              createElement(Histogram, {
+                bins: { edges: [0, 5, 10], counts: [1, 2], binProbabilities: [0.33, 0.67] },
+                xProjector: xProj,
+                yProjector: yProj,
+                ...identity,
+              }),
+              createElement(LinePlot, {
+                data: [{ x: 1, y: 1 }, { x: 2, y: 2 }],
+                xProjector: xProj,
+                yProjector: yProj,
+                ...identity,
+              }),
+              createElement(ScatterPlot, {
+                data: [{ x: 1, y: 1 }],
+                xProjector: xProj,
+                yProjector: yProj,
+                ...identity,
+              }),
+              createElement(IntervalShade, {
+                interval: [1, 4] as const,
+                xProjector: xProj,
+                yProjector: yProj,
+                ...identity,
+              }),
+              createElement(AnalyticLimitMarker, {
+                point: 3,
+                xProjector: xProj,
+                yProjector: yProj,
+                ...identity,
+              }),
+            ),
+            createElement(EventDiagram, {
+              xProjector: xProj,
+              ctProjector: yProj,
+              ...identity,
+            }),
+            createElement(EnergyLedgerPlot, {
+              channels: [{ id: "c1", label: "Channel 1", value: 5 }],
+              yProjector: yProj,
+              ...identity,
+            }),
+          ),
+        );
+      });
+
+      const checkAttrs = (selector: string) => {
+        const el = container.querySelector(selector);
+        expect(el).not.toBeNull();
+        expect(el?.getAttribute("data-instance-id")).toBe("TEST-INST:1");
+        expect(el?.getAttribute("data-run-id")).toBe("run-test-42");
+        expect(el?.getAttribute("data-snapshot-version")).toBe("5");
+      };
+
+      checkAttrs("figure.accessible-graph-view");
+      checkAttrs(".axes-2d");
+      checkAttrs(".histogram");
+      checkAttrs(".line-plot");
+      checkAttrs(".scatter-plot");
+      checkAttrs(".interval-shade");
+      checkAttrs(".analytic-limit-marker");
+      checkAttrs("svg.event-diagram");
+      checkAttrs(".energy-ledger-plot");
+    } finally {
+      await act(() => {
+        root.unmount();
+      });
+      removeContainer(container);
+    }
+  });
 });

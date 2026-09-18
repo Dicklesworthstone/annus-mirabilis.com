@@ -1,5 +1,6 @@
 import type { ReactElement } from "react";
-import type { Projector } from "./types.ts";
+import { optionalIdentityAttributes } from "./identity.ts";
+import type { OptionalViewIdentityProps, Projector } from "./types.ts";
 
 export interface Worldline {
   readonly id: string;
@@ -18,7 +19,7 @@ export interface SpacetimeEvent {
   readonly color?: string;
 }
 
-export interface EventDiagramProps {
+export interface EventDiagramProps extends OptionalViewIdentityProps {
   readonly xProjector: Projector;
   readonly ctProjector: Projector;
   readonly worldlines?: readonly Worldline[];
@@ -43,6 +44,9 @@ export function EventDiagram({
   width = 500,
   height = 500,
   attributionLabel = "H. Minkowski (1908)",
+  instanceId,
+  runId,
+  snapshotVersion,
 }: EventDiagramProps): ReactElement {
   const [ox, oct] = lightconeOrigin;
   const pox = xProjector(ox);
@@ -61,6 +65,8 @@ export function EventDiagram({
   const lcPastRight0 = xProjector(ox + dx);
   const lcPastRight1 = ctProjector(oct - dx);
 
+  const identityAttrs = optionalIdentityAttributes({ instanceId, runId, snapshotVersion });
+
   return (
     <svg
       viewBox={`0 0 ${width} ${height}`}
@@ -71,6 +77,7 @@ export function EventDiagram({
       data-historical-attribution={attributionLabel || undefined}
       role="img"
       aria-label="Spacetime event diagram showing worldlines, lightcones, and discrete events."
+      {...identityAttrs}
     >
       {/* Lightcones */}
       {showLightcones && Number.isFinite(pox) && Number.isFinite(poct) && (

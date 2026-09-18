@@ -1,5 +1,6 @@
 import type { ReactElement } from "react";
-import type { PlotSeriesClass, Projector } from "./types.ts";
+import { optionalIdentityAttributes } from "./identity.ts";
+import type { OptionalViewIdentityProps, PlotSeriesClass, Projector } from "./types.ts";
 
 export interface ScatterPoint {
   readonly x: number;
@@ -10,7 +11,7 @@ export interface ScatterPoint {
   readonly id?: string;
 }
 
-export interface ScatterPlotProps {
+export interface ScatterPlotProps extends OptionalViewIdentityProps {
   readonly data: readonly ScatterPoint[];
   readonly xProjector: Projector;
   readonly yProjector: Projector;
@@ -30,6 +31,9 @@ export function ScatterPlot({
   radius = 4,
   color = "currentColor",
   isHighlighted,
+  instanceId,
+  runId,
+  snapshotVersion,
 }: ScatterPlotProps): ReactElement | null {
   if (!data || data.length === 0) return null;
 
@@ -41,8 +45,15 @@ export function ScatterPlot({
     .filter(Boolean)
     .join(" ");
 
+  const identityAttrs = optionalIdentityAttributes({ instanceId, runId, snapshotVersion });
+
   return (
-    <g className={className} data-quantity-id={quantityId} data-series-class={seriesClass}>
+    <g
+      className={className}
+      data-quantity-id={quantityId}
+      data-series-class={seriesClass}
+      {...identityAttrs}
+    >
       {data.map((pt, idx) => {
         const px = xProjector(pt.x);
         const py = yProjector(pt.y);

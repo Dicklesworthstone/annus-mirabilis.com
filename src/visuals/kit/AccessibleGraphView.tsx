@@ -41,6 +41,8 @@ export interface AccessibleGraphViewProps {
   readonly snapshotVersion?: string | number | undefined;
   /** Run ID of the current calculation. */
   readonly runId?: string | undefined;
+  /** Instance ID of the instrument instance. */
+  readonly instanceId?: string | undefined;
   /** Instrument ID for tracing (e.g. "bm-01"). */
   readonly instrumentId?: string | undefined;
   /** View ID for tracing (e.g. "histogram"). */
@@ -73,6 +75,7 @@ export function AccessibleGraphView({
   children,
   snapshotVersion = "1",
   runId,
+  instanceId,
   instrumentId,
   viewId,
   animated = false,
@@ -115,6 +118,7 @@ export function AccessibleGraphView({
       templateData={mergedTemplateData}
       snapshotVersion={snapshotVersion}
       runId={runId}
+      instanceId={instanceId}
       instrumentId={instrumentId}
       viewId={viewId}
       tableData={resolvedTableData}

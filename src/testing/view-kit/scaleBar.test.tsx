@@ -105,4 +105,29 @@ describe("ScaleBar (am-inst-2d-view-kit-u75r)", () => {
       ScaleBar({ physicalLength: 1, unit: "μm", basePixelsPerUnit: 50 }),
     ).toThrow();
   });
+
+  test("a fixture whose drawn scale bar disagrees with calibrated length times factor fails calibration audit", () => {
+    const { auditScaleBarCalibration } = require("../../visuals/kit/scale.ts");
+
+    // Calibrated: 1 μm, 50 px/μm, factor 2 => expected 100px
+    const physicalLength = 1;
+    const basePixelsPerUnit = 50;
+    const factor = 2;
+
+    // Disagreeing rendered bar length (e.g. drawn as 80px instead of 100px)
+    const faultyDrawnLength = 80;
+
+    expect(() =>
+      auditScaleBarCalibration(
+        faultyDrawnLength,
+        basePixelsPerUnit,
+        physicalLength,
+        factor,
+        0.5,
+        "bm01-scale-fixture",
+      ),
+    ).toThrow(
+      /\[View bm01-scale-fixture\] Scale bar length 80px disagrees with expected 100px/,
+    );
+  });
 });

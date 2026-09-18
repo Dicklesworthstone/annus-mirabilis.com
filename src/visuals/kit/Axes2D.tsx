@@ -1,6 +1,7 @@
 import type { ReactElement } from "react";
 import type { TickMark } from "./coordinates.ts";
-import type { LogAxisDensityKind } from "./types.ts";
+import { optionalIdentityAttributes } from "./identity.ts";
+import type { LogAxisDensityKind, OptionalViewIdentityProps } from "./types.ts";
 
 export interface AxisProps {
   readonly orientation: "horizontal" | "vertical";
@@ -155,7 +156,7 @@ export function Axis({
   );
 }
 
-export interface Axes2DProps {
+export interface Axes2DProps extends OptionalViewIdentityProps {
   readonly xStart: number;
   readonly xEnd: number;
   readonly yStart: number;
@@ -187,9 +188,14 @@ export function Axes2D({
   yUnit,
   yDensityKind,
   showGrid = true,
+  instanceId,
+  runId,
+  snapshotVersion,
 }: Axes2DProps): ReactElement {
+  const identityAttrs = optionalIdentityAttributes({ instanceId, runId, snapshotVersion });
+
   return (
-    <g className="axes-2d">
+    <g className="axes-2d" {...identityAttrs}>
       <Axis
         orientation="horizontal"
         start={xStart}

@@ -93,28 +93,95 @@ describe("RepresentationScale: five independent fields (am-inst-2d-view-kit-u75r
     expect(glyphRow?.value).toContain("uncalibrated marker");
   });
 
-  test("validation rejects negative or nonfinite parameters", () => {
-    const scale = createValidScale();
+  test("a fixture view omitting each of the 5 fields fails with the view id and field named", () => {
+    const valid = createValidScale();
+    const viewId = "bm01-microscope";
+
+    const fields: (keyof RepresentationScale)[] = [
+      "spatialMagnification",
+      "simulatedElapsedTime",
+      "playbackMultiplier",
+      "glyphSize",
+      "quantityNormalization",
+    ];
+
+    for (const field of fields) {
+      const incomplete = { ...valid };
+      delete incomplete[field];
+
+      let errorThrown: RepresentationScaleError | null = null;
+      try {
+        validateRepresentationScale(incomplete as RepresentationScale, viewId);
+      } catch (err) {
+        if (err instanceof RepresentationScaleError) {
+          errorThrown = err;
+        }
+      }
+
+      expect(errorThrown).not.toBeNull();
+      expect(errorThrown?.viewId).toBe(viewId);
+      expect(errorThrown?.field).toBe(field);
+      expect(errorThrown?.message).toContain(viewId);
+      expect(errorThrown?.message).toContain(field);
+    }
+  });
+
+  test("auditPlaybackRateLabel allows 'true rate' / 'real time' only at factor 1; fails at 25 naming multiplier and view id", () => {
+    const { auditPlaybackRateLabel } = require("../../visuals/kit/scale.ts");
+    const viewId = "bm01-timer";
+
+    // Valid usages
+    expect(() => auditPlaybackRateLabel("true rate (1 s/s)", 1, viewId)).not.toThrow();
+    expect(() => auditPlaybackRateLabel("real time playback", 1, viewId)).not.toThrow();
+    expect(() => auditPlaybackRateLabel("25 times faster", 25, viewId)).not.toThrow();
+    expect(() => auditPlaybackRateLabel("10 times slower", 0.1, viewId)).not.toThrow();
+
+    // Invalid usages: rendering true rate or real time at 25
+    expect(() => auditPlaybackRateLabel("true rate", 25, viewId)).toThrow(
+      /\[View bm01-timer\].*25.*must be exactly 1/,
+    );
+    expect(() => auditPlaybackRateLabel("real time", 25, viewId)).toThrow(
+      /\[View bm01-timer\].*25.*must be exactly 1/,
+    );
+  });
+
+  test("auditGlyphCaption fails when caption relates glyph size to physical extent while represents is 'none'", () => {
+    const { auditGlyphCaption } = require("../../visuals/kit/scale.ts");
+    const viewId = "bm01-tracers";
+    const uncalibrated = createValidScale(); // glyphSize.represents === "none"
 
     expect(() =>
-      validateRepresentationScale({
-        ...scale,
-        playbackMultiplier: -1,
-      }),
-    ).toThrow(RepresentationScaleError);
+      auditGlyphCaption("each dot is one particle, drawn at its true size", uncalibrated, viewId),
+    ).toThrow(/\[View bm01-tracers\].*glyphSize\.represents is "none"/);
 
     expect(() =>
-      validateRepresentationScale({
-        ...scale,
-        spatialMagnification: { appliesTo: "scene", factor: 0 },
-      }),
-    ).toThrow(RepresentationScaleError);
+      auditGlyphCaption("dots represent physical particle radius", uncalibrated, viewId),
+    ).toThrow(/\[View bm01-tracers\].*glyphSize\.represents is "none"/);
 
+    // Passes when calibrated
+    const calibrated: RepresentationScale = {
+      ...uncalibrated,
+      glyphSize: {
+        drawnPx: 4,
+        represents: "particleRadius",
+      },
+    };
     expect(() =>
-      validateRepresentationScale({
-        ...scale,
-        simulatedElapsedTime: { quantityId: "t", value: -5, unit: "s" },
-      }),
-    ).toThrow(RepresentationScaleError);
+      auditGlyphCaption("each dot is one particle, drawn at its true size", calibrated, viewId),
+    ).not.toThrow();
+  });
+
+  test("auditScaleBarCalibration validates bar length equals calibrated * base * factor; disagrees fail naming view id", () => {
+    const { auditScaleBarCalibration } = require("../../visuals/kit/scale.ts");
+    const viewId = "bm01-scale-bar";
+
+    // 1 μm * 50 px/μm * 2 factor = 100 px
+    expect(() => auditScaleBarCalibration(100, 50, 1, 2, 0.5, viewId)).not.toThrow();
+
+    // Disagreement: rendered 60 px when expected is 100 px
+    expect(() => auditScaleBarCalibration(60, 50, 1, 2, 0.5, viewId)).toThrow(
+      /\[View bm01-scale-bar\] Scale bar length 60px disagrees with expected 100px/,
+    );
   });
 });
+

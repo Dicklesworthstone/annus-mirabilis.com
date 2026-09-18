@@ -1,7 +1,8 @@
 import type { ReactElement } from "react";
-import type { Projector } from "./types.ts";
+import { optionalIdentityAttributes } from "./identity.ts";
+import type { OptionalViewIdentityProps, Projector } from "./types.ts";
 
-export interface AnalyticLimitMarkerProps {
+export interface AnalyticLimitMarkerProps extends OptionalViewIdentityProps {
   readonly point: number;
   readonly xProjector: Projector;
   readonly yProjector: Projector;
@@ -23,6 +24,9 @@ export function AnalyticLimitMarker({
   quantityId,
   label = "Concentrated point mass (P = 1.0)",
   color = "currentColor",
+  instanceId,
+  runId,
+  snapshotVersion,
 }: AnalyticLimitMarkerProps): ReactElement | null {
   const px = xProjector(point);
   const [, yDomainMax] = yProjector.domain;
@@ -33,11 +37,14 @@ export function AnalyticLimitMarker({
     return null;
   }
 
+  const identityAttrs = optionalIdentityAttributes({ instanceId, runId, snapshotVersion });
+
   return (
     <g
       className="analytic-limit-marker"
       data-quantity-id={quantityId}
       data-result-status="analytic-limit"
+      {...identityAttrs}
     >
       {/* Arrow line from baseline to point */}
       <line x1={px} y1={yBaseline} x2={px} y2={yTop} stroke={color} strokeWidth={2.5} />

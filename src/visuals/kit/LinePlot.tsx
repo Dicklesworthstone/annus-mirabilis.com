@@ -1,12 +1,13 @@
 import type { ReactElement } from "react";
-import type { PlotSeriesClass, Projector, ReferenceLine } from "./types.ts";
+import { optionalIdentityAttributes } from "./identity.ts";
+import type { OptionalViewIdentityProps, PlotSeriesClass, Projector, ReferenceLine } from "./types.ts";
 
 export interface DataPoint {
   readonly x: number;
   readonly y: number;
 }
 
-export interface LinePlotProps {
+export interface LinePlotProps extends OptionalViewIdentityProps {
   readonly data: readonly DataPoint[];
   readonly xProjector: Projector;
   readonly yProjector: Projector;
@@ -28,6 +29,9 @@ export function LinePlot({
   strokeColor = "currentColor",
   strokeWidth = 2,
   isHighlighted,
+  instanceId,
+  runId,
+  snapshotVersion,
 }: LinePlotProps): ReactElement | null {
   if (!data || data.length === 0) return null;
 
@@ -60,8 +64,15 @@ export function LinePlot({
     .filter(Boolean)
     .join(" ");
 
+  const identityAttrs = optionalIdentityAttributes({ instanceId, runId, snapshotVersion });
+
   return (
-    <g className={className} data-quantity-id={quantityId} data-series-class={seriesClass}>
+    <g
+      className={className}
+      data-quantity-id={quantityId}
+      data-series-class={seriesClass}
+      {...identityAttrs}
+    >
       <path
         d={d}
         fill="none"

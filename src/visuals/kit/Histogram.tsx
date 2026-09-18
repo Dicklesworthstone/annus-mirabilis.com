@@ -1,7 +1,8 @@
 import type { ReactElement } from "react";
-import type { HistogramBinData, Projector } from "./types.ts";
+import { optionalIdentityAttributes } from "./identity.ts";
+import type { HistogramBinData, OptionalViewIdentityProps, Projector } from "./types.ts";
 
-export interface HistogramProps {
+export interface HistogramProps extends OptionalViewIdentityProps {
   readonly bins: HistogramBinData;
   readonly xProjector: Projector;
   readonly yProjector: Projector;
@@ -25,6 +26,9 @@ export function Histogram({
   fillColor = "currentColor",
   strokeColor = "currentColor",
   showOverflow = true,
+  instanceId,
+  runId,
+  snapshotVersion,
 }: HistogramProps): ReactElement | null {
   const { edges, counts, binProbabilities, overflowCounts } = bins;
   if (!edges || edges.length < 2 || !counts || counts.length !== edges.length - 1) {
@@ -52,12 +56,14 @@ export function Histogram({
   });
 
   const baselineY = yProjector(0);
+  const identityAttrs = optionalIdentityAttributes({ instanceId, runId, snapshotVersion });
 
   return (
     <g
       className={mode === "density" ? "histogram histogram-density" : "histogram histogram-probability"}
       data-quantity-id={quantityId}
       data-histogram-mode={mode}
+      {...identityAttrs}
     >
       {/* Histogram bars */}
       <g className="bins">
