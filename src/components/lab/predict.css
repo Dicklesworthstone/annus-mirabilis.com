@@ -1,0 +1,159 @@
+/* Predict Mode UI & Visuals (am-inst-predict-mode-ti7m, am-vw1o) */
+
+/* Overlay */
+.predict-overlay {
+  border: 1px solid var(--line);
+  background: var(--panel);
+  padding: 1rem;
+  border-radius: 6px;
+  margin: 1.5rem 0;
+}
+
+.predict-overlay-header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  margin-bottom: 0.75rem;
+}
+
+.predict-overlay-title {
+  margin: 0;
+  font-size: 1.1rem;
+  font-weight: 600;
+}
+
+.predict-overlay-clear {
+  font-size: 0.8rem;
+  padding: 0.25rem 0.5rem;
+}
+
+.predict-overlay-legend {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 1.5rem;
+  margin-bottom: 0.75rem;
+  font-size: 0.85rem;
+}
+
+.legend-prediction {
+  color: var(--accent);
+}
+
+.legend-result {
+  color: var(--ink);
+}
+
+.symbol-prediction,
+.symbol-result {
+  user-select: none;
+}
+
+.predict-overlay-svg {
+  display: block;
+  max-width: 100%;
+  height: auto;
+  color: var(--ink);
+  background: var(--wash);
+  border: 1px solid var(--line);
+  border-radius: 4px;
+}
+
+/* Panel */
+.predict-panel {
+  border: 1px solid var(--line);
+  background: var(--panel);
+  padding: 1.25rem;
+  border-radius: 6px;
+  margin: 1.5rem 0;
+}
+
+.predict-mode-tabs {
+  display: flex;
+  gap: 0.5rem;
+  margin-bottom: 1rem;
+  border-bottom: 1px solid var(--line);
+  padding-bottom: 0.5rem;
+}
+
+.predict-sketch-pane {
+  display: flex;
+  flex-direction: column;
+  gap: 0.75rem;
+}
+
+.predict-sketch-canvas {
+  touch-action: none;
+  border: 1px solid var(--line);
+  background: var(--wash);
+  border-radius: 4px;
+  cursor: crosshair;
+}
+
+.sketch-controls {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.5rem;
+}
+
+.verbal-direction-options,
+.verbal-shape-options {
+  display: flex;
+  flex-direction: column;
+  gap: 0.5rem;
+  margin: 0.5rem 0;
+}
+
+.predict-target-input {
+  font-family: var(--font-mono, monospace);
+  padding: 0.25rem 0.5rem;
+  border: 1px solid var(--line);
+  background: var(--wash);
+  color: var(--ink);
+  border-radius: 3px;
+  width: 6rem;
+}
+
+/* Export Preview */
+.predict-export-preview {
+  border: 1px solid var(--line);
+  background: var(--panel);
+  padding: 1rem;
+  border-radius: 6px;
+  margin: 1rem 0;
+}
+
+.predict-export-controls {
+  margin-bottom: 0.75rem;
+}
+
+.predict-export-list {
+  font-size: 0.9rem;
+}
+
+.predict-export-list ul {
+  list-style: none;
+  padding-left: 0;
+}
+
+.predict-export-list li {
+  margin: 0.75rem 0;
+  padding-bottom: 0.5rem;
+  border-bottom: 1px dashed var(--line);
+}
+
+.preview-summary {
+  margin-top: 0.25rem;
+  font-size: 0.85rem;
+  color: var(--muted);
+}
+
+.unrecorded-note {
+  font-style: italic;
+  color: var(--muted);
+}
+
+.predict-export-omitted {
+  font-style: italic;
+  color: var(--muted);
+  padding: 0.5rem 0;
+}

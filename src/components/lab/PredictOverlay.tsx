@@ -2,6 +2,7 @@
 
 import type { SketchPoint } from "../../experiments/predict/predictSketch.ts";
 import type { PredictionChoice } from "../../experiments/predict/predictState.ts";
+import "./predict.css";
 
 export interface PredictOverlayProps {
   readonly choice: PredictionChoice | null;

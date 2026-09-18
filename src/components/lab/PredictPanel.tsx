@@ -16,6 +16,7 @@ import type {
   PredictionChoice,
   PredictPromptRecord,
 } from "../../experiments/predict/predictState.ts";
+import "./predict.css";
 
 export type PredictPanelCandidate = Readonly<{
   id: string;

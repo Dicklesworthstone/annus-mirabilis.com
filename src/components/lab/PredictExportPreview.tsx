@@ -5,6 +5,7 @@ import {
   exportPreviewLines,
   type PredictionsDocumentV1,
 } from "../../experiments/predict/predictStorage.ts";
+import "./predict.css";
 
 export interface PredictExportPreviewProps {
   readonly doc: PredictionsDocumentV1;
