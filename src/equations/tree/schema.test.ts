@@ -149,7 +149,10 @@ describe("Expression Node Base Validation (schema.ts)", () => {
       ],
       opId: "eq-1.op.add",
     });
-    expect(valid.opId).toBe("eq-1.op.add");
+    expect(valid.kind).toBe("sum");
+    if (valid.kind === "sum") {
+      expect(valid.opId).toBe("eq-1.op.add");
+    }
   });
 
   test("rejects malformed opId failing grammar and accepts valid opId (schema.ts:100)", () => {
@@ -173,7 +176,10 @@ describe("Expression Node Base Validation (schema.ts)", () => {
       ],
       opId: "eq-1.op.add",
     });
-    expect(valid.opId).toBe("eq-1.op.add");
+    expect(valid.kind).toBe("sum");
+    if (valid.kind === "sum") {
+      expect(valid.opId).toBe("eq-1.op.add");
+    }
   });
 });
 
