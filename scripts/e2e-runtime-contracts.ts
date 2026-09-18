@@ -77,6 +77,7 @@ import {
 } from "../src/experiments/tapes/schema.ts";
 import { createPhiloxStream } from "../src/physics/reference/philox.ts";
 import { newRunIdentity, TestLogger } from "../src/testing/log/logger.ts";
+import { createInProcessEchoWorker } from "../src/testing/protocol-fixtures/echoWorker.ts";
 import { createEventLedgerDescription } from "../src/testing/runtime-fixtures/eventLedgerFixture.ts";
 import {
   ANALYTIC_OWNER_ID,
@@ -90,6 +91,10 @@ import {
   createTwoModelFixtureStore,
   TWO_MODEL_DECLARED_MODELS,
 } from "../src/testing/runtime-fixtures/twoModelFixture.ts";
+import {
+  type WorkerChannel as ProtocolWorkerChannel,
+  runProtocolConformance,
+} from "../src/workers/protocol/conformance.ts";
 import { createChunkPlan, executeChunked } from "../src/workers/scheduler/chunking.ts";
 import { markAccepted, markInput, markPainted } from "../src/workers/scheduler/marks.ts";
 import {
@@ -3253,6 +3258,18 @@ async function runStoreE2E(logRunId: string, verbose: boolean): Promise<boolean>
   return allPassed;
 }
 
+async function runProtocolE2E(logRunId: string, verbose: boolean): Promise<boolean> {
+  const workerUrl = new URL("../src/testing/protocol-fixtures/echoWorker.ts", import.meta.url).href;
+  const workerFactory = (): ProtocolWorkerChannel => {
+    if (typeof globalThis.Worker !== "undefined") {
+      return new globalThis.Worker(workerUrl) as unknown as ProtocolWorkerChannel;
+    }
+    return createInProcessEchoWorker();
+  };
+  const report = await runProtocolConformance(workerFactory, { logRunId, verbose });
+  return report.allPassed;
+}
+
 async function main(): Promise<void> {
   const options = parseCliArgs();
   const logRunId = options.logRunId || newRunIdentity();
@@ -3315,6 +3332,16 @@ async function main(): Promise<void> {
     }
     console.log(
       `[E2E-Runtime] Store suite PASSED. Logged to artifacts/test-logs/runtime-store/${logRunId}.jsonl`,
+    );
+    process.exit(0);
+  } else if (options.suite === "protocol") {
+    const success = await runProtocolE2E(logRunId, options.verbose ?? true);
+    if (!success) {
+      console.error(`[E2E-Runtime] Protocol suite FAILED. See logRunId: ${logRunId}`);
+      process.exit(1);
+    }
+    console.log(
+      `[E2E-Runtime] Protocol suite PASSED. Logged to artifacts/test-logs/worker-protocol/${logRunId}.jsonl`,
     );
     process.exit(0);
   } else {
