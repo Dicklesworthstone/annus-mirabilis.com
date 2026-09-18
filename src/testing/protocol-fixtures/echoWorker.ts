@@ -26,6 +26,7 @@ export const ECHO_WORKER_HELLO: HelloMessage = {
 // Cross-environment postMessage abstraction
 let defaultPostMessageFn: (msg: unknown, transfer?: any[]) => void;
 
+// Platform escape: globalThis in DOM lib is typed as Window/global; DedicatedWorkerGlobalScope.postMessage lacks targetOrigin
 if (
   typeof globalThis !== "undefined" &&
   "postMessage" in globalThis &&
@@ -33,8 +34,10 @@ if (
 ) {
   defaultPostMessageFn = (msg, transfer) => {
     if (transfer && transfer.length > 0) {
+      // Platform escape: worker global postMessage accepts (message, transfer) without targetOrigin
       (globalThis as any).postMessage(msg, transfer);
     } else {
+      // Platform escape: worker global postMessage accepts (message) without targetOrigin
       (globalThis as any).postMessage(msg);
     }
   };
@@ -62,7 +65,8 @@ export function handleWorkerMessageWithPost(
   post: (msg: unknown, transfer?: any[]) => void,
 ): void {
   if (!msg || typeof msg !== "object") return;
-  const kind = (msg as any).messageKind;
+  // Field reach eliminated: safely extract property across untrusted boundary without type assertion escape
+  const kind = "messageKind" in msg ? (msg as { readonly messageKind?: unknown }).messageKind : undefined;
 
   if (kind === "hello") {
     post(ECHO_WORKER_HELLO);
@@ -419,6 +423,7 @@ export function createInProcessEchoWorker(): WorkerChannel {
 
 // Setup listeners if in worker context
 if (typeof self !== "undefined") {
+  // Platform escape: DOM lib types self as Window; dedicated worker scope assigns worker onmessage listener
   (self as any).onmessage = (event: MessageEvent) => {
     handleWorkerMessage(event.data);
   };
