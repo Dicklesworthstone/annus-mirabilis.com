@@ -5,7 +5,7 @@ import test from "node:test";
 import { fileURLToPath } from "node:url";
 import { parseReceipt } from "../provenance/parseReceipt.ts";
 import { receiptToSourceAsset } from "../provenance/receiptToSourceAsset.ts";
-import { AuthorshipGovernanceError, authorshipOf } from "./authorship.ts";
+import { AuthorshipGovernanceError } from "./authorship.ts";
 import {
   SchemaValidationError,
   validateAlignment,
@@ -18,7 +18,7 @@ import {
   validateTranslationUnit,
   verifyEquationTranslation,
 } from "./source.ts";
-import { SpanValidationError, spanTextDigest, validateSpanAnchor } from "./spans.ts";
+import { SpanValidationError } from "./spans.ts";
 import { strictParse } from "./strictParse.ts";
 
 const __filename = fileURLToPath(import.meta.url);

@@ -15,7 +15,7 @@ import {
   modernSymbolFor,
   resolveGlyph,
 } from "./resolve.ts";
-import type { ConcordanceEntry, PaperConcordance } from "./types.ts";
+import type { PaperConcordance } from "./types.ts";
 
 const logger = getLogger("notation-model");
 
