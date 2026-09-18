@@ -20,6 +20,24 @@ import {
 } from "../../content/notation/resolve.ts";
 import { renderLatex } from "./render.ts";
 import { NotationScopeError } from "./types.ts";
+import type { Quantity } from "../quantities.ts";
+
+const makeTestQuantity = (
+  id: string,
+  glyph: string,
+  role: "input" | "constant" | "result",
+): Quantity => ({
+  id,
+  name: id,
+  glyph,
+  dimension: ["0", "0", "0", "0", "0", "0"],
+  unit: "1",
+  displayUnit: "1",
+  displayPower: 0,
+  semanticKind: "test",
+  role,
+  definition: "test definition",
+});
 
 const sym = (termId: string, quantityId: string = termId): Expression => ({
   kind: "symbol",
@@ -310,14 +328,14 @@ test("Criterion 9 (Refusal Pair): missing notation entry fails loudly naming equ
         perspective: "modern",
         paper,
         sectionId,
-        equationId: "eq-refusal-planted-test",
+        equationId: "eq-refusal-concordance-test",
         strictConcordance: true,
       });
     },
     (err: unknown) => {
       assert.ok(err instanceof NotationScopeError);
-      assert.equal(err.equationId, "eq-refusal-planted-test");
-      assert.match(err.message, /eq-refusal-planted-test/);
+      assert.equal(err.equationId, "eq-refusal-concordance-test");
+      assert.match(err.message, /eq-refusal-concordance-test/);
       assert.match(err.message, /bogus_sym|unknownQuantityNonexistent/);
       assert.equal(err.kind, "missing-entry");
       return true;
@@ -398,3 +416,126 @@ test("Scope Isolation: Paper 2 viscosity k does not modernize in Paper 3, and Pa
   assert.equal(modernBeta_LQ, "h/k_B");
   assert.notEqual(modernBeta_LQ, "\\gamma");
 });
+
+test("notation.test: unknown paper throws NotationScopeError with kind 'unknown-paper' (notation.ts:55)", () => {
+  const tree: Expression = sym("x", "displacement");
+  // Provide registry to isolate line 55 from fallback path
+  const registry = { displacement: makeTestQuantity("displacement", "x", "input") };
+
+  // Refusal: passing an unrecognized paper slug under strict concordance fails with unknown-paper
+  assert.throws(
+    () => {
+      renderLatex(tree, {
+        perspective: "modern",
+        paper: "nonexistent-paper" as unknown as "brownian-motion",
+        sectionId: "s1",
+        equationId: "eq-unknown-paper-test",
+        strictConcordance: true,
+        registry,
+      });
+    },
+    (err: unknown) => {
+      assert.ok(err instanceof NotationScopeError);
+      assert.equal(err.kind, "unknown-paper");
+      assert.equal(err.equationId, "eq-unknown-paper-test");
+      assert.equal(err.paper, "nonexistent-paper");
+      assert.match(err.message, /references unknown paper "nonexistent-paper"/);
+      return true;
+    },
+  );
+
+  // Acceptance counterpart: known paper loads concordance and resolves
+  const validOutput = renderLatex(tree, {
+    perspective: "modern",
+    paper: "brownian-motion",
+    sectionId: "bm-s3",
+    equationId: "eq-known-paper-test",
+    strictConcordance: true,
+  });
+  assert.ok(validOutput.length > 0);
+});
+
+test("notation.test: missing concordance entry in scoped paper throws (notation.ts:167)", () => {
+  const paper = "brownian-motion";
+  const sectionId = "bm-s3";
+
+  const unmappedTree: Expression = sym("bogus_sym", "unknownQuantityInScope");
+  // Provide registry entry for unknownQuantityInScope to isolate line 167 from fallback path
+  const registry = {
+    unknownQuantityInScope: makeTestQuantity("unknownQuantityInScope", "B", "input"),
+  };
+
+  // Refusal: must throw NotationScopeError with kind: "missing-entry", scope: "bm-s3", and scoped message
+  assert.throws(
+    () => {
+      renderLatex(unmappedTree, {
+        perspective: "modern",
+        paper,
+        sectionId,
+        equationId: "eq-scoped-missing-throw-test",
+        strictConcordance: true,
+        registry,
+      });
+    },
+    (err: unknown) => {
+      assert.ok(err instanceof NotationScopeError);
+      assert.equal(err.kind, "missing-entry");
+      assert.equal(err.equationId, "eq-scoped-missing-throw-test");
+      assert.equal(err.paper, "brownian-motion");
+      assert.equal(err.scope, "bm-s3");
+      assert.match(err.message, /has no concordance entry in scope "bm-s3" for paper "brownian-motion"/);
+      return true;
+    },
+  );
+
+  // Acceptance counterpart: symbol present in scope succeeds
+  const validTree: Expression = sym("x", "displacement");
+  const validOutput = renderLatex(validTree, {
+    perspective: "modern",
+    paper,
+    sectionId,
+    equationId: "eq-scoped-valid-test",
+    strictConcordance: true,
+  });
+  assert.ok(validOutput.length > 0);
+});
+
+test("notation.test: missing notation binding in registry fallback throws (notation.ts:228)", () => {
+  const tree: Expression = sym("unbound_sym", "unboundQuantityWithoutPaper");
+
+  // Refusal: when paper is undefined and symbol is not in registry, strict mode throws line 228
+  assert.throws(
+    () => {
+      renderLatex(tree, {
+        perspective: "modern",
+        paper: undefined,
+        equationId: "eq-fallback-missing-throw-test",
+        strictConcordance: true,
+        registry: {},
+      });
+    },
+    (err: unknown) => {
+      assert.ok(err instanceof NotationScopeError);
+      assert.equal(err.kind, "missing-entry");
+      assert.equal(err.equationId, "eq-fallback-missing-throw-test");
+      assert.equal(err.paper, undefined);
+      assert.equal(err.scope, undefined);
+      assert.match(err.message, /has no notation binding in registry/);
+      return true;
+    },
+  );
+
+  // Acceptance counterpart: when symbol is in registry, renders cleanly
+  const validOutput = renderLatex(tree, {
+    perspective: "modern",
+    paper: undefined,
+    equationId: "eq-fallback-valid-test",
+    strictConcordance: true,
+    registry: {
+      unboundQuantityWithoutPaper: makeTestQuantity("unboundQuantityWithoutPaper", "U", "input"),
+    },
+  });
+  assert.ok(validOutput.length > 0);
+  assert.ok(validOutput.includes("U"));
+});
+

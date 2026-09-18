@@ -53,7 +53,7 @@ export function convertAuthoredLatex(
   input: string,
   options: ConvertAuthoredOptions = {},
 ): ConvertAuthoredResult {
-  const tokens = tokenizeLatex(input);
+  const tokens = tokenizeLatex(input, { allowUnbalanced: true });
 
   // Rule 1: Raw \htmlData is strictly forbidden in authored input
   for (const token of tokens) {

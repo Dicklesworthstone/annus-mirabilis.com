@@ -14,6 +14,8 @@ import type { Expression } from "../ast.ts";
 import { loadConcordanceForPaper } from "../../content/notation/loader.ts";
 import type { PaperConcordance } from "../../content/schemas/concordance.ts";
 import { checkEquationGlyphCollisions } from "./collisions.ts";
+import { renderEquationLatex } from "./render.ts";
+import { NotationScopeError } from "./types.ts";
 
 const sym = (termId: string, quantityId: string): Expression => ({
   kind: "symbol",
@@ -206,4 +208,73 @@ test("collisions.test: collision with modernOnlySymbols is an ERROR", () => {
 
   assert.equal(result.ok, false, "Collision with modernOnlySymbol must fail");
   assert.ok(result.diagnostics.some((d) => d.rule === "modern-only-symbol-collision"));
+});
+
+test("collisions.test: renderEquationLatex throws NotationScopeError on modern glyph collision (render.ts:391)", () => {
+  const realConcordance = loadConcordanceForPaper("special-relativity");
+
+  // Mutated concordance where auxiliaryGalileanCoordinate also modernizes to x'
+  const collidingConcordance: PaperConcordance = {
+    ...realConcordance,
+    entries: realConcordance.entries.map((e) => {
+      if (e.id === "sr.xprime.auxiliaryGalileanCoordinate") {
+        return {
+          ...e,
+          operation: {
+            ...e.operation,
+            target: {
+              form: "symbol" as const,
+              modernGlyph: "x'",
+            },
+          },
+        };
+      }
+      return e;
+    }),
+  };
+
+  const collidingTree: Expression = rel(
+    "=",
+    sym("x_prime", "auxiliaryGalileanCoordinate"),
+    sym("xi", "coordinatePositionMoving"),
+  );
+
+  // REJECTION: renderEquationLatex must throw NotationScopeError with kind: "glyph-collision"
+  assert.throws(
+    () => {
+      renderEquationLatex({
+        equation: {
+          id: "eq-sr-collision-throw-test",
+          paper: "special-relativity",
+          sectionId: "sr-s3",
+          tree: collidingTree,
+        },
+        form: { kind: "modern" },
+        color: "plain",
+        concordance: collidingConcordance,
+      });
+    },
+    (err: unknown) => {
+      assert.ok(err instanceof NotationScopeError);
+      assert.equal(err.kind, "glyph-collision");
+      assert.equal(err.equationId, "eq-sr-collision-throw-test");
+      assert.match(err.message, /eq-sr-collision-throw-test/);
+      return true;
+    },
+  );
+
+  // ACCEPTANCE COUNTERPART: with non-colliding concordance (auxiliary -> \tilde{x}), renders cleanly
+  const nonCollidingRes = renderEquationLatex({
+    equation: {
+      id: "eq-sr-collision-pass-test",
+      paper: "special-relativity",
+      sectionId: "sr-s3",
+      tree: collidingTree,
+    },
+    form: { kind: "modern" },
+    color: "plain",
+    concordance: realConcordance,
+  });
+  assert.ok(nonCollidingRes.latex.length > 0);
+  assert.equal(nonCollidingRes.formRelation, "rename-only");
 });

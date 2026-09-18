@@ -56,11 +56,18 @@ interface OpenEnvironment {
   readonly depth: number;
 }
 
+export interface TokenizeLatexOptions {
+  readonly allowUnbalanced?: boolean | undefined;
+}
+
 /**
  * Tokenizes a LaTeX mathematical expression, tracking nesting depth and validating
  * balanced braces and environment pairing.
  */
-export function tokenizeLatex(input: string): readonly LatexToken[] {
+export function tokenizeLatex(
+  input: string,
+  options?: TokenizeLatexOptions,
+): readonly LatexToken[] {
   const tokens: LatexToken[] = [];
   const len = input.length;
   let i = 0;
@@ -86,14 +93,14 @@ export function tokenizeLatex(input: string): readonly LatexToken[] {
     }
 
     if (ch === "}") {
-      if (depth === 0 || braceStack.length === 0) {
+      if (!options?.allowUnbalanced && (depth === 0 || braceStack.length === 0)) {
         throw new LatexTokenizerError({
           kind: "unbalanced-close-brace",
           offset: i,
           message: `Extra or unbalanced closing brace '}' at offset ${i}.`,
         });
       }
-      depth--;
+      if (depth > 0) depth--;
       braceStack.pop();
       tokens.push({
         kind: "group-close",
@@ -251,7 +258,7 @@ export function tokenizeLatex(input: string): readonly LatexToken[] {
     });
   }
 
-  if (braceStack.length > 0) {
+  if (!options?.allowUnbalanced && braceStack.length > 0) {
     const unclosedOffset = braceStack[braceStack.length - 1] ?? 0;
     throw new LatexTokenizerError({
       kind: "unbalanced-open-brace",
@@ -260,7 +267,7 @@ export function tokenizeLatex(input: string): readonly LatexToken[] {
     });
   }
 
-  if (envStack.length > 0) {
+  if (!options?.allowUnbalanced && envStack.length > 0) {
     const unclosedEnv = envStack[envStack.length - 1];
     if (unclosedEnv) {
       throw new LatexTokenizerError({

@@ -126,3 +126,79 @@ test("authored.test: marker body with extra payload is rejected", () => {
     },
   );
 });
+
+test("authored.test: malformed marker missing '{id}' brace is rejected (authored.ts:90)", () => {
+  // Rejection: missing open brace before ID
+  const invalid = "\\amterm id}{x}";
+  assert.throws(
+    () => convertAuthoredLatex(invalid),
+    (err: unknown) => {
+      assert.ok(err instanceof AuthoredLatexError);
+      assert.equal(err.kind, "malformed-marker-payload");
+      assert.match(err.message, /Expected '{id}' after \\amterm/);
+      return true;
+    },
+  );
+
+  // Acceptance counterpart: correctly braced ID converts
+  const valid = "\\amterm{t1}{x}";
+  const res = convertAuthoredLatex(valid);
+  assert.ok(res.latex.includes("\\htmlData{term=t1}"));
+});
+
+test("authored.test: malformed marker unterminated '{id}' is rejected (authored.ts:100)", () => {
+  // Rejection: missing closing brace on ID
+  const invalid = "\\amterm{t1";
+  assert.throws(
+    () => convertAuthoredLatex(invalid),
+    (err: unknown) => {
+      assert.ok(err instanceof AuthoredLatexError);
+      assert.equal(err.kind, "malformed-marker-payload");
+      assert.match(err.message, /Unterminated '{id}'/);
+      return true;
+    },
+  );
+
+  // Acceptance counterpart: closed ID brace converts
+  const valid = "\\amterm{t1}{x}";
+  const res = convertAuthoredLatex(valid);
+  assert.ok(res.latex.includes("\\htmlData{term=t1}"));
+});
+
+test("authored.test: malformed marker missing '{content}' brace is rejected (authored.ts:138)", () => {
+  // Rejection: missing open brace before content
+  const invalid = "\\amterm{t1} x";
+  assert.throws(
+    () => convertAuthoredLatex(invalid),
+    (err: unknown) => {
+      assert.ok(err instanceof AuthoredLatexError);
+      assert.equal(err.kind, "malformed-marker-payload");
+      assert.match(err.message, /Expected '{content}' for marker/);
+      return true;
+    },
+  );
+
+  // Acceptance counterpart: correctly braced content converts
+  const valid = "\\amterm{t1}{x}";
+  const res = convertAuthoredLatex(valid);
+  assert.ok(res.latex.includes("\\htmlData{term=t1}"));
+});
+
+test("authored.test: malformed marker unterminated '{content}' is rejected (authored.ts:161)", () => {
+  // Rejection: missing closing brace on content
+  const invalid = "\\amterm{t1}{x";
+  assert.throws(
+    () => convertAuthoredLatex(invalid),
+    (err: unknown) => {
+      assert.ok(err instanceof AuthoredLatexError);
+      assert.equal(err.kind, "malformed-marker-payload");
+      assert.match(err.message, /Unterminated '{content}' for marker/);
+      return true;
+    },
+  );
+
+  // Acceptance counterpart: balanced content brace converts
+  const valid = "\\amterm{t1}{x}";
+  const res = convertAuthoredLatex(valid);
+  assert.ok(res.latex.includes("\\htmlData{term=t1}"));
+});
