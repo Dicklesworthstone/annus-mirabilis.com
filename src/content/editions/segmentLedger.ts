@@ -40,6 +40,13 @@ export type ReconciliationDifference = Readonly<{
     | "count-differs";
   unitId: string;
   message: string;
+  proposedRepair?:
+    | {
+        kind: "retired" | "split" | "merged";
+        retiredId: string;
+        replacementIds: readonly string[];
+      }
+    | undefined;
 }>;
 
 export type SegmentLedgerResult =
@@ -250,3 +257,15 @@ export {
   type SegmentationIssue,
   type SegmentSpan,
 } from "./segmentSentences.ts";
+
+export {
+  reconcileManifest,
+  confirmAlias,
+  writeProposedBlocks,
+  type ManifestUnit,
+  type ReconcileInput,
+  type ConfirmAliasOptions,
+  type ConfirmAliasResult,
+  type WriteBlocksOptions,
+  type WriteBlocksResult,
+} from "./reconciliation.ts";
