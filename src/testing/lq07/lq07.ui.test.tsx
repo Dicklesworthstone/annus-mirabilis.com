@@ -26,7 +26,7 @@ describe("LQ-07 UI components and route", () => {
       />,
     );
 
-    expect(htmlAllowed).toContain("lq07-plot-container");
+    expect(htmlAllowed).toContain('data-testid="lq07-plot-container"');
     expect(htmlAllowed).toContain('data-allowed="true"');
     expect(htmlAllowed).toContain("Allowed by Budget");
     expect(htmlAllowed).toContain("<svg");

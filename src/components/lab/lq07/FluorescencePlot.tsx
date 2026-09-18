@@ -58,25 +58,78 @@ export function FluorescencePlot({
 
   return (
     <div
-      className="lq07-plot-container flex flex-col gap-5 w-full max-w-2xl mx-auto"
+      data-testid="lq07-plot-container"
       data-regime={regime}
       data-allowed={budget.allowed ? "true" : "false"}
+      style={{
+        display: "flex",
+        flexDirection: "column",
+        gap: "1.25rem",
+        width: "100%",
+        maxWidth: "42rem",
+        margin: "0 auto",
+      }}
     >
       {/* 1. Main Energy Budget SVG Chart */}
-      <div className="border border-border/80 rounded-xl p-5 bg-muted/20 relative">
-        <div className="flex justify-between items-center mb-3">
-          <div className="flex items-center gap-2">
-            <span className="text-xs font-mono font-bold uppercase tracking-wide text-foreground/80">
+      <div
+        style={{
+          border: "1px solid var(--line)",
+          borderRadius: "0.75rem",
+          padding: "1.25rem",
+          background: "var(--wash)",
+          position: "relative",
+        }}
+      >
+        <div
+          style={{
+            display: "flex",
+            justifyContent: "space-between",
+            alignItems: "center",
+            marginBottom: "0.75rem",
+            flexWrap: "wrap",
+            gap: "0.5rem",
+          }}
+        >
+          <div style={{ display: "flex", alignItems: "center", gap: "0.5rem" }}>
+            <span
+              style={{
+                fontSize: "0.75rem",
+                fontFamily: "var(--font-mono, monospace)",
+                fontWeight: "bold",
+                textTransform: "uppercase",
+                letterSpacing: "0.05em",
+                color: "var(--ink)",
+              }}
+            >
               Elementary Quantum Energy Ledger
             </span>
             <span
-              className={`text-xs px-2 py-0.5 rounded-full font-bold font-mono ${
-                budget.status === "outside-domain"
-                  ? "bg-amber-500/20 text-amber-700 dark:text-amber-300 border border-amber-500/30"
-                  : budget.allowed
-                    ? "bg-emerald-500/20 text-emerald-700 dark:text-emerald-300 border border-emerald-500/30"
-                    : "bg-rose-500/20 text-rose-700 dark:text-rose-300 border border-rose-500/30"
-              }`}
+              style={{
+                fontSize: "0.75rem",
+                padding: "0.125rem 0.5rem",
+                borderRadius: "9999px",
+                fontWeight: "bold",
+                fontFamily: "var(--font-mono, monospace)",
+                background:
+                  budget.status === "outside-domain"
+                    ? "rgba(245, 158, 11, 0.15)"
+                    : budget.allowed
+                      ? "rgba(16, 185, 129, 0.15)"
+                      : "rgba(244, 63, 94, 0.15)",
+                color:
+                  budget.status === "outside-domain"
+                    ? "var(--accent)"
+                    : budget.allowed
+                      ? "var(--plot)"
+                      : "var(--accent)",
+                border: `1px solid ${
+                  budget.status === "outside-domain"
+                    ? "rgba(245, 158, 11, 0.3)"
+                    : budget.allowed
+                      ? "rgba(16, 185, 129, 0.3)"
+                      : "rgba(244, 63, 94, 0.3)"
+                }`,
+              }}
             >
               {budget.status === "outside-domain"
                 ? "Outside Wien Regime"
@@ -86,7 +139,13 @@ export function FluorescencePlot({
             </span>
           </div>
 
-          <span className="text-xs font-mono text-muted-foreground">
+          <span
+            className="fine"
+            style={{
+              fontFamily: "var(--font-mono, monospace)",
+              fontSize: "0.75rem",
+            }}
+          >
             {regime === "standard-stokes" && "Stokes's Rule (§7)"}
             {regime === "deviation-multi-quantum" && `Deviation Case 1 (k = ${multiQuantumK})`}
             {regime === "deviation-non-wien" && "Deviation Case 2 (Wien Check)"}
@@ -98,9 +157,14 @@ export function FluorescencePlot({
           viewBox={`0 0 ${svgWidth} ${svgHeight}`}
           width="100%"
           height="240"
-          className="overflow-visible rounded-lg border border-border/60 bg-background"
           role="img"
           aria-label={`Fluorescence energy budget: incident ${nu1} THz (${budget.e1Ev.toFixed(3)} eV), emitted ${nu2} THz (${budget.e2Ev.toFixed(3)} eV), status ${budget.allowed ? "allowed" : "disallowed"}`}
+          style={{
+            overflow: "visible",
+            borderRadius: "0.5rem",
+            border: "1px solid var(--line)",
+            background: "var(--panel)",
+          }}
         >
           <defs>
             <clipPath id={clipId}>
@@ -123,18 +187,10 @@ export function FluorescencePlot({
             y1={groundY}
             x2={svgWidth - 20}
             y2={groundY}
-            stroke="currentColor"
+            stroke="var(--line)"
             strokeWidth="1.5"
-            className="text-border"
           />
-          <text
-            x="35"
-            y={groundY + 16}
-            fontSize="10"
-            fontFamily="monospace"
-            fill="currentColor"
-            className="text-muted-foreground"
-          >
+          <text x="35" y={groundY + 16} fontSize="10" fontFamily="monospace" fill="var(--muted)">
             0 eV (Ground State)
           </text>
 
@@ -156,8 +212,7 @@ export function FluorescencePlot({
               fontSize="11"
               fontWeight="bold"
               fontFamily="monospace"
-              fill="currentColor"
-              className="text-foreground"
+              fill="var(--ink)"
             >
               {budget.e1Ev.toFixed(3)} eV
             </text>
@@ -167,8 +222,7 @@ export function FluorescencePlot({
               textAnchor="middle"
               fontSize="10"
               fontWeight="600"
-              fill="currentColor"
-              className="text-foreground/90"
+              fill="var(--ink)"
             >
               Absorbed (hν₁)
             </text>
@@ -178,8 +232,7 @@ export function FluorescencePlot({
               textAnchor="middle"
               fontSize="9"
               fontFamily="monospace"
-              fill="currentColor"
-              className="text-muted-foreground"
+              fill="var(--muted)"
             >
               {nu1} THz · {band1.wavelengthNm} nm
             </text>
@@ -191,10 +244,9 @@ export function FluorescencePlot({
             y1={groundY - hMaxPx}
             x2={svgWidth - 50}
             y2={groundY - hMaxPx}
-            stroke="currentColor"
+            stroke="var(--accent)"
             strokeWidth="1.5"
             strokeDasharray="4 3"
-            className="text-primary"
           />
           <text
             x={svgWidth - 45}
@@ -202,8 +254,7 @@ export function FluorescencePlot({
             fontSize="9"
             fontFamily="monospace"
             fontWeight="bold"
-            fill="currentColor"
-            className="text-primary"
+            fill="var(--accent)"
           >
             ν₂,max = {(budget.nu2MaxHz / 1e12).toFixed(1)} THz
           </text>
@@ -226,8 +277,7 @@ export function FluorescencePlot({
               fontSize="11"
               fontWeight="bold"
               fontFamily="monospace"
-              fill="currentColor"
-              className="text-foreground"
+              fill="var(--ink)"
             >
               {budget.e2Ev.toFixed(3)} eV
             </text>
@@ -237,8 +287,7 @@ export function FluorescencePlot({
               textAnchor="middle"
               fontSize="10"
               fontWeight="600"
-              fill="currentColor"
-              className="text-foreground/90"
+              fill="var(--ink)"
             >
               Emitted (hν₂)
             </text>
@@ -248,8 +297,7 @@ export function FluorescencePlot({
               textAnchor="middle"
               fontSize="9"
               fontFamily="monospace"
-              fill="currentColor"
-              className="text-muted-foreground"
+              fill="var(--muted)"
             >
               {nu2} THz · {band2.wavelengthNm} nm
             </text>
@@ -287,12 +335,7 @@ export function FluorescencePlot({
               fontSize="11"
               fontWeight="bold"
               fontFamily="monospace"
-              fill="currentColor"
-              className={
-                budget.allowed
-                  ? "text-emerald-600 dark:text-emerald-400"
-                  : "text-rose-600 dark:text-rose-400"
-              }
+              fill={budget.allowed ? "var(--plot)" : "var(--accent)"}
             >
               {budget.allowed
                 ? `+${budget.eOtherEv.toFixed(3)} eV`
@@ -304,8 +347,7 @@ export function FluorescencePlot({
               textAnchor="middle"
               fontSize="10"
               fontWeight="600"
-              fill="currentColor"
-              className="text-foreground/90"
+              fill="var(--ink)"
             >
               {budget.allowed ? "Heat (E_other)" : "Energy Deficit"}
             </text>
@@ -315,8 +357,7 @@ export function FluorescencePlot({
               textAnchor="middle"
               fontSize="9"
               fontFamily="monospace"
-              fill="currentColor"
-              className="text-muted-foreground"
+              fill="var(--muted)"
             >
               {budget.allowed ? "Dissipated in medium" : "Forbidden by single-quantum"}
             </text>
@@ -325,51 +366,172 @@ export function FluorescencePlot({
 
         {/* Reason / Verdict Callout */}
         <div
-          className={`mt-4 p-3 rounded-lg border text-xs leading-relaxed ${
-            budget.status === "outside-domain"
-              ? "bg-amber-500/10 border-amber-500/30 text-amber-900 dark:text-amber-200"
-              : budget.allowed
-                ? "bg-emerald-500/10 border-emerald-500/30 text-emerald-900 dark:text-emerald-200"
-                : "bg-rose-500/10 border-rose-500/30 text-rose-900 dark:text-rose-200"
-          }`}
+          style={{
+            marginTop: "1rem",
+            padding: "0.75rem",
+            borderRadius: "0.5rem",
+            border: `1px solid ${
+              budget.status === "outside-domain"
+                ? "rgba(245, 158, 11, 0.3)"
+                : budget.allowed
+                  ? "rgba(16, 185, 129, 0.3)"
+                  : "rgba(244, 63, 94, 0.3)"
+            }`,
+            fontSize: "0.75rem",
+            lineHeight: 1.6,
+            background:
+              budget.status === "outside-domain"
+                ? "rgba(245, 158, 11, 0.1)"
+                : budget.allowed
+                  ? "rgba(16, 185, 129, 0.1)"
+                  : "rgba(244, 63, 94, 0.1)",
+            color: "var(--ink)",
+          }}
         >
           <strong>Verdict:</strong> {budget.verdictReason}
         </div>
       </div>
 
       {/* 2. False-Color Spectral Band Legend */}
-      <div className="border border-border/80 rounded-xl p-4 bg-muted/10">
-        <div className="flex justify-between items-center mb-2">
-          <h4 className="text-xs font-mono uppercase tracking-wide text-foreground/80 font-bold">
+      <div
+        style={{
+          border: "1px solid var(--line)",
+          borderRadius: "0.75rem",
+          padding: "1rem",
+          background: "var(--wash)",
+        }}
+      >
+        <div
+          style={{
+            display: "flex",
+            justifyContent: "space-between",
+            alignItems: "center",
+            marginBottom: "0.5rem",
+            flexWrap: "wrap",
+            gap: "0.25rem",
+          }}
+        >
+          <h4
+            style={{
+              fontSize: "0.75rem",
+              fontFamily: "var(--font-mono, monospace)",
+              textTransform: "uppercase",
+              letterSpacing: "0.05em",
+              color: "var(--ink)",
+              fontWeight: "bold",
+              margin: 0,
+            }}
+          >
             Spectral Bands &amp; False-Color Legend
           </h4>
-          <span className="text-xs text-muted-foreground">Wavelength λ = c / ν</span>
+          <span className="fine" style={{ margin: 0, fontSize: "0.75rem" }}>
+            Wavelength λ = c / ν
+          </span>
         </div>
 
-        <div className="grid grid-cols-3 gap-2 text-xs">
-          <div className="p-2 rounded-lg border border-border/60 bg-background flex items-center gap-2">
-            <span className="w-3.5 h-3.5 rounded-full bg-[#7c3aed] shrink-0" />
+        <div
+          style={{
+            display: "grid",
+            gridTemplateColumns: "repeat(auto-fit, minmax(180px, 1fr))",
+            gap: "0.5rem",
+            fontSize: "0.75rem",
+          }}
+        >
+          <div
+            style={{
+              padding: "0.5rem",
+              borderRadius: "0.5rem",
+              border: "1px solid var(--line)",
+              background: "var(--panel)",
+              display: "flex",
+              alignItems: "center",
+              gap: "0.5rem",
+            }}
+          >
+            <span
+              style={{
+                width: "0.875rem",
+                height: "0.875rem",
+                borderRadius: "9999px",
+                background: "#7c3aed",
+                flexShrink: 0,
+              }}
+            />
             <div>
-              <div className="font-semibold">Ultraviolet (UV)</div>
-              <div className="text-[10px] font-mono text-muted-foreground">
+              <div style={{ fontWeight: 600 }}>Ultraviolet (UV)</div>
+              <div
+                className="fine"
+                style={{
+                  fontSize: "0.625rem",
+                  fontFamily: "var(--font-mono, monospace)",
+                }}
+              >
                 &gt; 789 THz (&lt; 380 nm)
               </div>
             </div>
           </div>
-          <div className="p-2 rounded-lg border border-border/60 bg-background flex items-center gap-2">
-            <span className="w-3.5 h-3.5 rounded-full bg-gradient-to-r from-[#3b82f6] via-[#10b981] to-[#ef4444] shrink-0" />
+          <div
+            style={{
+              padding: "0.5rem",
+              borderRadius: "0.5rem",
+              border: "1px solid var(--line)",
+              background: "var(--panel)",
+              display: "flex",
+              alignItems: "center",
+              gap: "0.5rem",
+            }}
+          >
+            <span
+              style={{
+                width: "0.875rem",
+                height: "0.875rem",
+                borderRadius: "9999px",
+                background: "linear-gradient(to right, #3b82f6, #10b981, #ef4444)",
+                flexShrink: 0,
+              }}
+            />
             <div>
-              <div className="font-semibold">Visible Spectrum</div>
-              <div className="text-[10px] font-mono text-muted-foreground">
+              <div style={{ fontWeight: 600 }}>Visible Spectrum</div>
+              <div
+                className="fine"
+                style={{
+                  fontSize: "0.625rem",
+                  fontFamily: "var(--font-mono, monospace)",
+                }}
+              >
                 400–789 THz (380–750 nm)
               </div>
             </div>
           </div>
-          <div className="p-2 rounded-lg border border-border/60 bg-background flex items-center gap-2">
-            <span className="w-3.5 h-3.5 rounded-full bg-[#b91c1c] shrink-0" />
+          <div
+            style={{
+              padding: "0.5rem",
+              borderRadius: "0.5rem",
+              border: "1px solid var(--line)",
+              background: "var(--panel)",
+              display: "flex",
+              alignItems: "center",
+              gap: "0.5rem",
+            }}
+          >
+            <span
+              style={{
+                width: "0.875rem",
+                height: "0.875rem",
+                borderRadius: "9999px",
+                background: "#b91c1c",
+                flexShrink: 0,
+              }}
+            />
             <div>
-              <div className="font-semibold">Infrared (IR)</div>
-              <div className="text-[10px] font-mono text-muted-foreground">
+              <div style={{ fontWeight: 600 }}>Infrared (IR)</div>
+              <div
+                className="fine"
+                style={{
+                  fontSize: "0.625rem",
+                  fontFamily: "var(--font-mono, monospace)",
+                }}
+              >
                 &lt; 400 THz (&gt; 750 nm)
               </div>
             </div>
@@ -379,37 +541,109 @@ export function FluorescencePlot({
 
       {/* 3. Rates and Intensity Linearity Readout */}
       {rates.status === "value" && (
-        <div className="border border-border/80 rounded-xl p-4 bg-muted/10 text-xs flex flex-col gap-2">
-          <div className="flex justify-between items-center">
-            <span className="font-bold text-foreground/90 uppercase font-mono tracking-wide">
+        <div
+          style={{
+            border: "1px solid var(--line)",
+            borderRadius: "0.75rem",
+            padding: "1rem",
+            background: "var(--wash)",
+            fontSize: "0.75rem",
+            display: "flex",
+            flexDirection: "column",
+            gap: "0.5rem",
+          }}
+        >
+          <div
+            style={{
+              display: "flex",
+              justifyContent: "space-between",
+              alignItems: "center",
+              flexWrap: "wrap",
+              gap: "0.25rem",
+            }}
+          >
+            <span
+              style={{
+                fontWeight: "bold",
+                color: "var(--ink)",
+                textTransform: "uppercase",
+                fontFamily: "var(--font-mono, monospace)",
+                letterSpacing: "0.05em",
+              }}
+            >
               Weak-Illumination Photon Rates (Zero Threshold)
             </span>
-            <span className="font-mono text-primary font-semibold">
+            <span
+              style={{
+                fontFamily: "var(--font-mono, monospace)",
+                color: "var(--accent)",
+                fontWeight: 600,
+              }}
+            >
               Yield Y = {rates.quantumYield.toFixed(2)}
             </span>
           </div>
-          <div className="grid grid-cols-2 sm:grid-cols-4 gap-3 pt-1">
+          <div
+            style={{
+              display: "grid",
+              gridTemplateColumns: "repeat(auto-fit, minmax(130px, 1fr))",
+              gap: "0.75rem",
+              paddingTop: "0.25rem",
+            }}
+          >
             <div>
-              <span className="text-muted-foreground block text-[11px]">Absorbed Rate Ṅ₁:</span>
-              <span className="font-mono font-bold">
+              <span className="fine" style={{ display: "block", fontSize: "0.6875rem" }}>
+                Absorbed Rate Ṅ₁:
+              </span>
+              <span
+                style={{
+                  fontFamily: "var(--font-mono, monospace)",
+                  fontWeight: "bold",
+                  color: "var(--ink)",
+                }}
+              >
                 {rates.absorbedRatePerSecond.toExponential(4)} s⁻¹
               </span>
             </div>
             <div>
-              <span className="text-muted-foreground block text-[11px]">Emitted Rate Ṅ₂:</span>
-              <span className="font-mono font-bold text-primary">
+              <span className="fine" style={{ display: "block", fontSize: "0.6875rem" }}>
+                Emitted Rate Ṅ₂:
+              </span>
+              <span
+                style={{
+                  fontFamily: "var(--font-mono, monospace)",
+                  fontWeight: "bold",
+                  color: "var(--accent)",
+                }}
+              >
                 {rates.emittedRatePerSecond.toExponential(4)} s⁻¹
               </span>
             </div>
             <div>
-              <span className="text-muted-foreground block text-[11px]">Emitted Power:</span>
-              <span className="font-mono font-bold">
+              <span className="fine" style={{ display: "block", fontSize: "0.6875rem" }}>
+                Emitted Power:
+              </span>
+              <span
+                style={{
+                  fontFamily: "var(--font-mono, monospace)",
+                  fontWeight: "bold",
+                  color: "var(--ink)",
+                }}
+              >
                 {(rates.emittedPowerWatts * 1e6).toFixed(4)} μW
               </span>
             </div>
             <div>
-              <span className="text-muted-foreground block text-[11px]">Heat Dissipated:</span>
-              <span className="font-mono font-bold">
+              <span className="fine" style={{ display: "block", fontSize: "0.6875rem" }}>
+                Heat Dissipated:
+              </span>
+              <span
+                style={{
+                  fontFamily: "var(--font-mono, monospace)",
+                  fontWeight: "bold",
+                  color: "var(--ink)",
+                }}
+              >
                 {(rates.dissipatedHeatWatts * 1e6).toFixed(4)} μW
               </span>
             </div>
