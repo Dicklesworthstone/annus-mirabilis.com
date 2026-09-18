@@ -122,11 +122,14 @@ describe("declared CSS classes ratchet (am-vw1o)", () => {
         "Class names in className must be declared in a project stylesheet. See am-vw1o.",
     );
 
-    if (improvements.length > 0) {
-      console.log(
-        `[am-vw1o] baseline can be lowered for ${improvements.length} file(s): ${improvements.join(", ")}`,
-      );
-    }
+    assert.deepEqual(
+      improvements,
+      [],
+      `Ratchet pawl engaged: ${improvements.length} baseline entr(y/ies) are now slack:\n${improvements.join("\n")}\n` +
+        "Tighten the baseline to the observed count in this same commit to permanently lock in the improvement. " +
+        "A baseline left above the real count is pre-authorised headroom for a future regression. " +
+        "See am-vw1o.",
+    );
   });
 
   test("the detector fires on an undeclared class name (planted negative)", () => {

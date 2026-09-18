@@ -85,12 +85,14 @@ describe("nested value-bearing form controls (am-qt1j)", () => {
       `Nested value-bearing controls increased:\n${regressions.join("\n")}\n` +
         "The control's own value becomes part of its accessible name. See am-qt1j.",
     );
-    // Improvements are reported, not failed: lower the baseline in the same commit.
-    if (improvements.length > 0) {
-      console.log(
-        `[am-qt1j] baseline can be lowered for ${improvements.length} file(s): ${improvements.join(", ")}`,
-      );
-    }
+    assert.deepEqual(
+      improvements,
+      [],
+      `Ratchet pawl engaged: ${improvements.length} baseline entr(y/ies) are now slack:\n${improvements.join("\n")}\n` +
+        "Tighten BASELINE to the observed count in this same commit to permanently lock in the improvement. " +
+        "A baseline left above the real count is pre-authorised headroom for a future regression. " +
+        "See am-qt1j.",
+    );
   });
 
   test("the detector actually fires on a nested select", () => {

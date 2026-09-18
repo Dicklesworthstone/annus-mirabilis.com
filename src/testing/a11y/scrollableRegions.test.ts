@@ -145,13 +145,36 @@ export const BASELINE = new Map<string, number>([
   ["src/components/lab/CameraPlots.tsx", 1],
   ["src/components/lab/DistributionPlot.tsx", 1],
   ["src/components/lab/InferenceLab.tsx", 1],
-  ["src/components/lab/InferencePlots.tsx", 2],
+  ["src/components/lab/InferencePlots.tsx", 1],
   ["src/components/lab/kitchen/KitchenControls.tsx", 1],
   ["src/components/lab/kitchen/KitchenResults.tsx", 1],
   ["src/components/lab/OsmoticPartitionLab.tsx", 1],
   ["src/components/lab/WalkLab.tsx", 2],
   ["src/components/lab/WalkPlots.tsx", 1],
 ]);
+
+/**
+ * Pure two-sided ratchet comparison. Extracted so both the live scan and the
+ * planted-negative tests exercise the same code path: a pawl that is only
+ * reachable through a filesystem scan cannot be proven to fire.
+ */
+export function classifyAgainstBaseline(
+  rel: string,
+  count: number,
+  allowed: number,
+): { regression?: string; slack?: string } {
+  if (count > allowed) {
+    return {
+      regression:
+        `${rel}: ${count} unreachable scroll region(s), baseline ${allowed}. ` +
+        "Add tabIndex={0} and an accessible aria-label, or document in RECORDED_NON_OVERFLOWING with measurements.",
+    };
+  }
+  if (count < allowed) {
+    return { slack: `${rel}: ${count} < ${allowed}` };
+  }
+  return {};
+}
 
 function findFiles(dir: string, ext: string): string[] {
   const out: string[] = [];
@@ -199,14 +222,9 @@ describe("scrollable regions accessibility ratchet (am-bc6s)", () => {
       const count = countUnreachableScrollRegions(readFileSync(file, "utf8"));
       const allowed = BASELINE.get(rel) ?? 0;
 
-      if (count > allowed) {
-        regressions.push(
-          `${rel}: ${count} unreachable scroll region(s), baseline ${allowed}. ` +
-            "Add tabIndex={0} and an accessible aria-label, or document in RECORDED_NON_OVERFLOWING with measurements.",
-        );
-      } else if (count < allowed) {
-        improvements.push(`${rel}: ${count} < ${allowed}`);
-      }
+      const verdict = classifyAgainstBaseline(rel, count, allowed);
+      if (verdict.regression) regressions.push(verdict.regression);
+      if (verdict.slack) improvements.push(verdict.slack);
     }
 
     assert.deepEqual(
@@ -217,11 +235,26 @@ describe("scrollable regions accessibility ratchet (am-bc6s)", () => {
         "or recorded in RECORDED_NON_OVERFLOWING if proven not to overflow. See am-bc6s.",
     );
 
-    if (improvements.length > 0) {
-      console.log(
-        `[am-bc6s] baseline can be lowered for ${improvements.length} file(s): ${improvements.join(", ")}`,
-      );
-    }
+    assert.deepEqual(
+      improvements,
+      [],
+      `Ratchet pawl engaged: ${improvements.length} baseline entr(y/ies) are now slack:\n${improvements.join("\n")}\n` +
+        "Tighten BASELINE to the observed count in this same commit to permanently lock in the improvement. " +
+        "A baseline left above the real count is pre-authorised headroom for a future regression. See am-bc6s.",
+    );
+  });
+
+  test("planted negative: a count below baseline is reported as slack (ratchet pawl)", () => {
+    const slack = classifyAgainstBaseline("src/components/lab/Fake.tsx", 1, 2);
+    assert.equal(slack.slack, "src/components/lab/Fake.tsx: 1 < 2");
+    assert.equal(slack.regression, undefined);
+
+    const regression = classifyAgainstBaseline("src/components/lab/Fake.tsx", 3, 2);
+    assert.ok(regression.regression?.includes("3 unreachable scroll region(s), baseline 2"));
+    assert.equal(regression.slack, undefined);
+
+    // At baseline, neither side fires.
+    assert.deepEqual(classifyAgainstBaseline("src/components/lab/Fake.tsx", 2, 2), {});
   });
 
   test("the detector catches an unreachable scrollable container", () => {
