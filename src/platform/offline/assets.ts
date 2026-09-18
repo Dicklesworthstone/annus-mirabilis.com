@@ -52,3 +52,79 @@ export async function loadOfflineAssets(root: string) {
     ]),
   });
 }
+
+export type PublicationDecision = "publish" | "pin-local-only" | "reference-only";
+
+export type OfflineFigureAsset = Readonly<{
+  id: string;
+  title: string;
+  publicationDecision: PublicationDecision;
+  mimeType?: string;
+  bytes?: Uint8Array | null;
+  locator?: string;
+  url?: string;
+  caption?: string;
+}>;
+
+export type RenderedOfflineAsset = Readonly<{
+  id: string;
+  kind: "embedded" | "citation";
+  html: string;
+}>;
+
+function escapeHtml(text: string): string {
+  return text
+    .replaceAll("&", "&amp;")
+    .replaceAll("<", "&lt;")
+    .replaceAll(">", "&gt;")
+    .replaceAll('"', "&quot;")
+    .replaceAll("'", "&#39;");
+}
+
+/**
+ * Rights filter: only 'publish' assets are embedded as data: URIs.
+ * 'pin-local-only' and 'reference-only' assets are replaced by citations.
+ */
+export function renderOfflineAsset(asset: OfflineFigureAsset): RenderedOfflineAsset {
+  if (asset.publicationDecision === "publish") {
+    if (!asset.bytes || !asset.mimeType) {
+      throw new Error(
+        `Publishable asset "${asset.id}" requires binary bytes and mimeType for offline embedding.`,
+      );
+    }
+    const base64 = Buffer.from(asset.bytes).toString("base64");
+    const dataUri = `data:${asset.mimeType};base64,${base64}`;
+    const alt = escapeHtml(asset.title);
+    const caption = escapeHtml(asset.caption ?? asset.title);
+    const html = `<figure id="${escapeHtml(asset.id)}" class="offline-figure"><img src="${dataUri}" alt="${alt}"><figcaption>${caption}</figcaption></figure>`;
+    return Object.freeze({
+      id: asset.id,
+      kind: "embedded",
+      html,
+    });
+  }
+
+  if (
+    asset.publicationDecision === "pin-local-only" ||
+    asset.publicationDecision === "reference-only"
+  ) {
+    const locator = escapeHtml(asset.locator ?? "Source reference");
+    const title = escapeHtml(asset.title);
+    const href = escapeHtml(asset.url ?? "#");
+    const decision = escapeHtml(asset.publicationDecision);
+    const html = `<figure id="${escapeHtml(asset.id)}" class="cited-asset"><figcaption><p><strong>${title}</strong>: ${locator}. <a rel="noreferrer" href="${href}">${locator}</a></p><p class="rights-notice">Excluded from offline edition; rights designation: ${decision}.</p></figcaption></figure>`;
+    return Object.freeze({
+      id: asset.id,
+      kind: "citation",
+      html,
+    });
+  }
+
+  throw new TypeError(`Unsupported publicationDecision: ${String(asset.publicationDecision)}.`);
+}
+
+export function filterOfflineAssets(
+  assets: readonly OfflineFigureAsset[],
+): readonly RenderedOfflineAsset[] {
+  return Object.freeze(assets.map(renderOfflineAsset));
+}
