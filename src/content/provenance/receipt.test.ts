@@ -418,6 +418,32 @@ test("Real provenance receipt docs/provenance/ap-17-549.md passes checkReceipt a
   assert.equal(actualDigest, scan.sha256);
 });
 
+test("Real provenance receipt docs/provenance/ap-17-891.md passes checkReceipt against configuration and local pinned file", () => {
+  const realReceiptPath = path.resolve("docs/provenance/ap-17-891.md");
+  assert.ok(fs.existsSync(realReceiptPath), "docs/provenance/ap-17-891.md must exist");
+
+  const configDir = path.resolve("scripts/sources/facsimile-sources");
+  const content = fs.readFileSync(realReceiptPath, "utf8");
+  const result = checkReceipt(content, realReceiptPath, { configDir });
+
+  assert.equal(result.ok, true, `Expected ok=true, got errors: ${JSON.stringify(result.errors)}`);
+  assert.equal(result.errors.length, 0);
+  assert.equal(result.key, "ap-17-891");
+
+  const scan = result.receipt?.frontMatter.scan;
+  assert.ok(scan);
+  assert.equal(scan.publicationDecision, "publish");
+  assert.equal(scan.sha256, "60d21d560f6a3c87e581ac25016306d9bcb748e530fa2751652b84986da5296c");
+  assert.equal(scan.pageCount, 31);
+  assert.equal(scan.path, "public/papers/pdfs/ap-17-891.pdf");
+
+  // Verify the pinned file actually exists at the published path and its SHA-256 matches
+  const pdfPath = path.resolve(scan.path);
+  assert.ok(fs.existsSync(pdfPath), "Pinned PDF must exist at published path");
+  const actualDigest = crypto.createHash("sha256").update(fs.readFileSync(pdfPath)).digest("hex");
+  assert.equal(actualDigest, scan.sha256);
+});
+
 test("loadProvenanceReceipts loads docs/provenance and emits SourceAsset and PinnedAsset records", () => {
   const provenanceDir = path.resolve("docs/provenance");
   const configDir = path.resolve("scripts/sources/facsimile-sources");
