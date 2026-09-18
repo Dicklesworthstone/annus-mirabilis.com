@@ -244,3 +244,107 @@ describe("StackState <-> history.state serialization: untrusted on the way in", 
     expect(restored).toEqual(state);
   });
 });
+
+describe("face-switch ordering during open clarification (am-read-return-stack-oxa)", () => {
+  test("switching faces during an open clarification creates a distinct history entry; back restores face first, then passage", () => {
+    // Models history.state entries managed across reader navigation and return stack
+    type HistoryEntry = {
+      url: string;
+      readerState: { view: string; anchor: string; detail: number };
+      clarificationState: ReturnType<typeof serializeStackState>;
+    };
+
+    const historyTimeline: HistoryEntry[] = [];
+    let historyCursor = -1;
+
+    function navigatePush(entry: HistoryEntry) {
+      historyTimeline.splice(historyCursor + 1);
+      historyTimeline.push(entry);
+      historyCursor++;
+    }
+
+    function navigateBack(): HistoryEntry {
+      if (historyCursor <= 0) throw new Error("cannot navigate back past root");
+      historyCursor--;
+      return historyTimeline[historyCursor]!;
+    }
+
+    // 1. Initial passage state at /papers/brownian-motion/#brownian-4 with face="reading"
+    navigatePush({
+      url: "/papers/brownian-motion/#brownian-4",
+      readerState: { view: "reading", anchor: "brownian-4", detail: 1 },
+      clarificationState: serializeStackState(EMPTY_STACK_STATE),
+    });
+    expect(historyCursor).toBe(0);
+    expect(historyTimeline[0]?.readerState.view).toBe("reading");
+
+    // 2. Open clarification (instrument-view:bm-01) from face="reading"
+    const openOutcome = openClarification(EMPTY_STACK_STATE, {
+      kind: "instrument-view",
+      id: "bm-01",
+      question: "What does the mean square displacement tell us?",
+      returnTo: {
+        anchor: "brownian-4",
+        face: "reading",
+        detail: 1,
+        perspective: null,
+        notation: null,
+        unitLayer: null,
+        selectionId: "sel-msd",
+        formId: null,
+        triggerId: "btn-trigger-bm01",
+        scrollFraction: 0.25,
+        lab: null,
+      },
+    });
+    if (openOutcome.status !== "descended") throw new Error("expected descended outcome");
+
+    // Pushes exactly one history entry for the clarification descent
+    navigatePush({
+      url: "/papers/brownian-motion/?open=instrument-view:bm-01#brownian-4",
+      readerState: { view: "reading", anchor: "brownian-4", detail: 1 },
+      clarificationState: serializeStackState(openOutcome.state),
+    });
+    expect(historyCursor).toBe(1);
+    expect(openOutcome.frame.face).toBe("reading");
+    expect(openOutcome.frame.anchor).toBe("brownian-4");
+
+    // 3. Reader switches reading face to "german" while clarification is STILL OPEN
+    // AGENTS.md / Spec: "A face switch while a clarification is open is its own history entry"
+    navigatePush({
+      url: "/papers/brownian-motion/?view=german&open=instrument-view:bm-01#brownian-4",
+      readerState: { view: "german", anchor: "brownian-4", detail: 1 },
+      clarificationState: serializeStackState(openOutcome.state),
+    });
+    expect(historyCursor).toBe(2);
+    expect(historyTimeline[historyCursor]?.readerState.view).toBe("german");
+    expect(historyTimeline[historyCursor]?.url).toContain("view=german");
+    expect(historyTimeline[historyCursor]?.url).toContain("open=instrument-view:bm-01");
+
+    // 4. First back navigation: must undo the face switch FIRST
+    const afterFirstBack = navigateBack();
+    expect(historyCursor).toBe(1);
+    // Face is restored to "reading"
+    expect(afterFirstBack.readerState.view).toBe("reading");
+    expect(afterFirstBack.url).not.toContain("view=german");
+    // The clarification frame is still OPEN and untouched
+    expect(afterFirstBack.url).toContain("open=instrument-view:bm-01");
+    const stackAfterFirstBack = deserializeStackState(afterFirstBack.clarificationState);
+    expect(stackAfterFirstBack).not.toBeNull();
+    expect(stackAfterFirstBack?.frames).toHaveLength(1);
+    expect(stackAfterFirstBack?.frames[0]?.clarification.id).toBe("bm-01");
+    expect(stackAfterFirstBack?.frames[0]?.face).toBe("reading");
+
+    // 5. Second back navigation: pops the clarification frame SECOND
+    const afterSecondBack = navigateBack();
+    expect(historyCursor).toBe(0);
+    // Returns to the root interrupted passage
+    expect(afterSecondBack.readerState.view).toBe("reading");
+    expect(afterSecondBack.readerState.anchor).toBe("brownian-4");
+    expect(afterSecondBack.url).toBe("/papers/brownian-motion/#brownian-4");
+    const stackAfterSecondBack = deserializeStackState(afterSecondBack.clarificationState);
+    expect(stackAfterSecondBack).not.toBeNull();
+    expect(stackAfterSecondBack?.frames).toHaveLength(0);
+  });
+});
+
