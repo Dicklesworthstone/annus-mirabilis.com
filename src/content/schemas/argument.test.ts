@@ -1043,6 +1043,75 @@ test("Quantity: Planted Negatives - rational reduction, denominator 0, and non-z
   });
 });
 
+test("Quantity: representationFields validates and shadows check throws planted negative", () => {
+  const start = Date.now();
+  const baseQuantity = {
+    id: "testQuantity",
+    name: "Test Quantity",
+    description: "Test description for representation fields.",
+    mathematicalKind: "scalar" as const,
+    dimension: [
+      { num: 0, den: 1 },
+      { num: 0, den: 1 },
+      { num: 0, den: 1 },
+      { num: 0, den: 1 },
+      { num: 0, den: 1 },
+      { num: 0, den: 1 },
+    ],
+    dimensionlessKind: "ratio" as const,
+  };
+
+  // Valid representationFields
+  const valid = validateQuantity({
+    ...baseQuantity,
+    representationFields: ["logTestQuantity"],
+  });
+  assert.deepEqual(valid.representationFields, ["logTestQuantity"]);
+
+  // Planted negative: representation field shadows own id
+  assert.throws(
+    () =>
+      validateQuantity({
+        ...baseQuantity,
+        id: "selfShadowingQuantity",
+        representationFields: ["selfShadowingQuantity"],
+      }),
+    (err: any) => {
+      assert.equal(err.code, "representation-field-shadows-id");
+      return true;
+    },
+  );
+
+  // Planted negative: representation field shadows registered quantity id
+  assert.throws(
+    () =>
+      validateQuantity(
+        {
+          ...baseQuantity,
+          id: "shadowingQuantity",
+          representationFields: ["frequencyEnergyDensity"],
+        },
+        "Quantity",
+        ["frequencyEnergyDensity"],
+      ),
+    (err: any) => {
+      assert.equal(err.code, "representation-field-shadows-id");
+      return true;
+    },
+  );
+
+  logger.log({
+    testId: "quantity-representation-fields-shadowing-rejected",
+    beadId: BEAD_ID,
+    comparisonKind: "bitwise",
+    expected: "representation-field-shadows-id",
+    actual: "representation-field-shadows-id",
+    outcome: "passed",
+    durationMs: Date.now() - start,
+    extra: { rule: "representation-field-no-id-shadow" },
+  });
+});
+
 // ============================================================================
 // 5. EQUATION & SEMANTIC EQUATION TESTS
 // ============================================================================
@@ -1266,6 +1335,450 @@ test("ReadingSet: Planted Negative - targetKind 'caption' or mismatched targetId
     outcome: "passed",
     durationMs: Date.now() - start,
     extra: { rule: "reading-target-kind-consistency" },
+  });
+});
+
+test("ReadingSet: validates all 7 targetKinds and rejects mismatched targetIds", () => {
+  const start = Date.now();
+  const baseReadingSet = {
+    r0: "Level 0 reading text.",
+    r1: "Level 1 reading text.",
+    r2: "Level 2 reading text.",
+    r3: "Level 3 reading text.",
+    authorship: validAuthorship,
+    reviewState: "draft",
+  };
+
+  // 1. paragraph: valid s3-p1, rejected s3-fn1
+  const rsP = validateReadingSet({ ...baseReadingSet, targetId: "s3-p1", targetKind: "paragraph" });
+  assert.equal(rsP.targetKind, "paragraph");
+  assert.throws(
+    () => validateReadingSet({ ...baseReadingSet, targetId: "s3-fn1", targetKind: "paragraph" }),
+    (err: any) => {
+      assert.equal(err.code, "invalid-target-id-for-kind");
+      return true;
+    },
+  );
+
+  // 2. heading: valid s3, rejected s3-p1
+  const rsH = validateReadingSet({ ...baseReadingSet, targetId: "s3", targetKind: "heading" });
+  assert.equal(rsH.targetKind, "heading");
+  assert.throws(
+    () => validateReadingSet({ ...baseReadingSet, targetId: "s3-p1", targetKind: "heading" }),
+    (err: any) => {
+      assert.equal(err.code, "invalid-target-id-for-kind");
+      return true;
+    },
+  );
+
+  // 3. footnote: valid s3-fn1, rejected s3-p1 (dedicated reject per AC audit)
+  const rsFn = validateReadingSet({
+    ...baseReadingSet,
+    targetId: "s3-fn1",
+    targetKind: "footnote",
+  });
+  assert.equal(rsFn.targetKind, "footnote");
+  assert.throws(
+    () => validateReadingSet({ ...baseReadingSet, targetId: "s3-p1", targetKind: "footnote" }),
+    (err: any) => {
+      assert.equal(err.code, "invalid-target-id-for-kind");
+      return true;
+    },
+  );
+
+  // 4. closing: valid closing-dateline, rejected s3-p1
+  const rsCl = validateReadingSet({
+    ...baseReadingSet,
+    targetId: "closing-dateline",
+    targetKind: "closing",
+  });
+  assert.equal(rsCl.targetKind, "closing");
+  assert.throws(
+    () => validateReadingSet({ ...baseReadingSet, targetId: "s3-p1", targetKind: "closing" }),
+    (err: any) => {
+      assert.equal(err.code, "invalid-target-id-for-kind");
+      return true;
+    },
+  );
+
+  // 5. equation: valid eq-sr-s3-1, rejected s3-p1
+  const rsEq = validateReadingSet({
+    ...baseReadingSet,
+    targetId: "eq-sr-s3-1",
+    targetKind: "equation",
+  });
+  assert.equal(rsEq.targetKind, "equation");
+  assert.throws(
+    () => validateReadingSet({ ...baseReadingSet, targetId: "s3-p1", targetKind: "equation" }),
+    (err: any) => {
+      assert.equal(err.code, "invalid-target-id-for-kind");
+      return true;
+    },
+  );
+
+  // 6. derivation-step: valid chain-1/step-1 and s4-step1, rejected Invalid Step!
+  const rsDs1 = validateReadingSet({
+    ...baseReadingSet,
+    targetId: "chain-1/step-1",
+    targetKind: "derivation-step",
+  });
+  assert.equal(rsDs1.targetKind, "derivation-step");
+  const rsDs2 = validateReadingSet({
+    ...baseReadingSet,
+    targetId: "s4-step1",
+    targetKind: "derivation-step",
+  });
+  assert.equal(rsDs2.targetKind, "derivation-step");
+  assert.throws(
+    () =>
+      validateReadingSet({
+        ...baseReadingSet,
+        targetId: "Invalid Step!",
+        targetKind: "derivation-step",
+      }),
+    (err: any) => {
+      assert.equal(err.code, "invalid-target-id-for-kind");
+      return true;
+    },
+  );
+
+  // 7. instrument-caption: valid lq-06-caption, rejected Invalid Caption!
+  const rsCap = validateReadingSet({
+    ...baseReadingSet,
+    targetId: "lq-06-caption",
+    targetKind: "instrument-caption",
+  });
+  assert.equal(rsCap.targetKind, "instrument-caption");
+  assert.throws(
+    () =>
+      validateReadingSet({
+        ...baseReadingSet,
+        targetId: "Invalid Caption!",
+        targetKind: "instrument-caption",
+      }),
+    (err: any) => {
+      assert.equal(err.code, "invalid-target-id-for-kind");
+      return true;
+    },
+  );
+
+  logger.log({
+    testId: "reading-set-all-7-target-kinds-validated",
+    beadId: BEAD_ID,
+    comparisonKind: "bitwise",
+    expected: "all-7-kinds-valid",
+    actual: "all-7-kinds-valid",
+    outcome: "passed",
+    durationMs: Date.now() - start,
+    extra: { rule: "reading-target-kinds-all-7" },
+  });
+});
+
+test("essentialForPrint: optional on ReadingSet and Misconception, rejected on all other entities", () => {
+  const start = Date.now();
+
+  // ReadingSet: optional, boolean accepted, absent defaults to undefined
+  const baseReadingSet = {
+    targetId: "s3-p1",
+    targetKind: "paragraph" as const,
+    r0: "Text 0",
+    r1: "Text 1",
+    r2: "Text 2",
+    r3: "Text 3",
+    authorship: validAuthorship,
+    reviewState: "draft",
+  };
+  const rsAbsent = validateReadingSet(baseReadingSet);
+  assert.equal(rsAbsent.essentialForPrint, undefined);
+  const rsTrue = validateReadingSet({ ...baseReadingSet, essentialForPrint: true });
+  assert.equal(rsTrue.essentialForPrint, true);
+  const rsFalse = validateReadingSet({ ...baseReadingSet, essentialForPrint: false });
+  assert.equal(rsFalse.essentialForPrint, false);
+  assert.throws(
+    () => validateReadingSet({ ...baseReadingSet, essentialForPrint: "not-a-boolean" as any }),
+    (err: any) => {
+      assert.equal(err.code, "invalid-essential-for-print");
+      return true;
+    },
+  );
+
+  // Misconception: optional, boolean accepted, absent defaults to undefined
+  const baseMisconception = {
+    id: "misc-sample",
+    paper: "special-relativity",
+    temptingClaims: ["First claim."],
+    whyTempting: "Because classical intuition suggests it.",
+    whereItIsTrue: "At low speeds v << c.",
+    whatIsTrue: "In reality, the Lorentz factor applies.",
+    staticTreatment: { reason: "Requires full tensor treatment." },
+    intervention: {
+      defaultsReviewed: {
+        model: "standard",
+        labels: "clear",
+        defaultControls: "nominal",
+        feedback: "immediate",
+      },
+      reviewRecordId: "rev-misc-1",
+    },
+    authorship: validAuthorship,
+  };
+  const miscAbsent = validateMisconception(baseMisconception);
+  assert.equal(miscAbsent.essentialForPrint, undefined);
+  const miscTrue = validateMisconception({ ...baseMisconception, essentialForPrint: true });
+  assert.equal(miscTrue.essentialForPrint, true);
+  const miscFalse = validateMisconception({ ...baseMisconception, essentialForPrint: false });
+  assert.equal(miscFalse.essentialForPrint, false);
+  assert.throws(
+    () => validateMisconception({ ...baseMisconception, essentialForPrint: 123 as any }),
+    (err: any) => {
+      assert.equal(err.code, "invalid-essential-for-print");
+      return true;
+    },
+  );
+
+  // Rejection on all other entities:
+  // 1. HistoricalPremise
+  assert.throws(
+    () =>
+      validateHistoricalPremise({
+        id: "rayleigh-1900-radiation-law",
+        authors: ["Lord Rayleigh"],
+        year: 1900,
+        topic: "radiation-law",
+        statement: "Energy density is proportional to frequency squared.",
+        status: "available",
+        availableBy1905: {
+          earliestPublicationYear: 1900,
+          latestYear: 1900,
+          precision: "exact",
+          venue: "Philosophical Magazine",
+        },
+        paperCitesOrAsserts: "Einstein cites Rayleigh.",
+        claimsEinsteinKnew: false,
+        authorship: validAuthorship,
+        essentialForPrint: true,
+      }),
+    (err: any) => {
+      assert.equal(err.code, "essential-for-print-rejected");
+      return true;
+    },
+  );
+
+  // 2. ArgumentNode
+  assert.throws(
+    () =>
+      validateArgumentNode({
+        id: "arg-lq-01",
+        paper: "light-quanta",
+        section: "s1",
+        title: "Introduction to quanta",
+        thesis: "Radiation has granular structure.",
+        claim: "Light consists of localized energy packets.",
+        premises: [],
+        meanings: {
+          logicalRole: "premise",
+          epistemicStatus: "settled",
+          pedagogicalRole: "core",
+          executionStatus: "executable",
+        },
+        authorship: validAuthorship,
+        essentialForPrint: true,
+      }),
+    (err: any) => {
+      assert.equal(err.code, "essential-for-print-rejected");
+      return true;
+    },
+  );
+
+  // 3. Proof
+  assert.throws(
+    () =>
+      validateProof({
+        id: "proof-1",
+        name: "Proof of equivalence",
+        claim: "Mass and energy are equivalent.",
+        routes: ["historical-main"],
+        steps: [
+          {
+            stepId: "step-1",
+            claim: "Start from radiation pressure.",
+            justification: "Maxwell electrodynamics.",
+          },
+        ],
+        essentialForPrint: true,
+      }),
+    (err: any) => {
+      assert.equal(err.code, "essential-for-print-rejected");
+      return true;
+    },
+  );
+
+  // 4. Quantity
+  assert.throws(
+    () =>
+      validateQuantity({
+        id: "testQty",
+        name: "Test",
+        description: "Desc",
+        mathematicalKind: "scalar",
+        dimension: [
+          { num: 0, den: 1 },
+          { num: 0, den: 1 },
+          { num: 0, den: 1 },
+          { num: 0, den: 1 },
+          { num: 0, den: 1 },
+          { num: 0, den: 1 },
+        ],
+        dimensionlessKind: "ratio",
+        essentialForPrint: true,
+      }),
+    (err: any) => {
+      assert.equal(err.code, "essential-for-print-rejected");
+      return true;
+    },
+  );
+
+  // 5. SemanticEquation
+  assert.throws(
+    () =>
+      validateSemanticEquation({
+        id: "eq-lq-7",
+        paper: "light-quanta",
+        tree: { op: "equals" },
+        notationForms: {
+          source: {
+            mode: "authored",
+            latex: "E = h \\nu",
+            unitSystem: "mks",
+            termBindings: {
+              E: "energy",
+              h: "planckConstant",
+              nu: "frequency",
+            },
+          },
+        },
+        spokenForm: "E equals h nu",
+        meanings: {
+          logicalRole: "assertion",
+          epistemicStatus: "settled",
+          pedagogicalRole: "core",
+          executionStatus: "executable",
+        },
+        authorship: validAuthorship,
+        essentialForPrint: true,
+      }),
+    (err: any) => {
+      assert.equal(err.code, "essential-for-print-rejected");
+      return true;
+    },
+  );
+
+  // 6. FoundationLink
+  assert.throws(
+    () =>
+      validateFoundationLink({
+        foundationId: "found-stokes",
+        callingAnchor: "s1-p1",
+        essentialForPrint: true,
+      }),
+    (err: any) => {
+      assert.equal(err.code, "essential-for-print-rejected");
+      return true;
+    },
+  );
+
+  // 7. WorkedExample
+  assert.throws(
+    () =>
+      validateWorkedExample({
+        question: "Q",
+        given: "G",
+        plausibleFirstThought: "P",
+        decisiveStep: "D",
+        limitation: "L",
+        essentialForPrint: true,
+      }),
+    (err: any) => {
+      assert.equal(err.code, "essential-for-print-rejected");
+      return true;
+    },
+  );
+
+  // 8. FoundationOrBridge
+  assert.throws(
+    () =>
+      validateFoundationOrBridge({
+        id: "found-test",
+        kind: "foundation",
+        title: "Test Foundation",
+        learningObjective: "Learn something.",
+        compactExplanation: "Compact.",
+        fullExplanation: "Full.",
+        authorship: validAuthorship,
+        essentialForPrint: true,
+      }),
+    (err: any) => {
+      assert.equal(err.code, "essential-for-print-rejected");
+      return true;
+    },
+  );
+
+  // 9. AuthoringContract
+  assert.throws(
+    () =>
+      validateAuthoringContract({
+        question: "Q?",
+        premisesRetained: ["P1"],
+        conclusionSupported: "C",
+        approximationsIntroduced: [],
+        omissionsAcknowledged: [],
+        bridge: "B",
+        essentialForPrint: true,
+      }),
+    (err: any) => {
+      assert.equal(err.code, "essential-for-print-rejected");
+      return true;
+    },
+  );
+
+  // 10. ObstacleResponses
+  assert.throws(
+    () =>
+      validateObstacleResponses({
+        unfamiliarWordOrSymbol: { explanation: "Explains word." },
+        essentialForPrint: true,
+      }),
+    (err: any) => {
+      assert.equal(err.code, "essential-for-print-rejected");
+      return true;
+    },
+  );
+
+  // 11. Meanings
+  assert.throws(
+    () =>
+      validateMeanings({
+        logicalRole: "premise",
+        epistemicStatus: "settled",
+        pedagogicalRole: "core",
+        executionStatus: "executable",
+        essentialForPrint: true,
+      }),
+    (err: any) => {
+      assert.equal(err.code, "essential-for-print-rejected");
+      return true;
+    },
+  );
+
+  logger.log({
+    testId: "essential-for-print-scoping-enforced",
+    beadId: BEAD_ID,
+    comparisonKind: "bitwise",
+    expected: "essential-for-print-scoping-enforced",
+    actual: "essential-for-print-scoping-enforced",
+    outcome: "passed",
+    durationMs: Date.now() - start,
+    extra: { rule: "essential-for-print-allowed-entities-only" },
   });
 });
 

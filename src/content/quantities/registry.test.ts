@@ -8,6 +8,7 @@ import {
   rational,
   sameDimension,
 } from "../dimensions/rational.ts";
+import { validateQuantity } from "../schemas/argument.ts";
 import {
   FRAME_SUFFIXES,
   getQuantity,
@@ -461,6 +462,43 @@ describe("legacy spellings", () => {
         expect(registry.quantities.has(rep)).toBe(false);
       }
     }
+
+    const baseValidQuantity = {
+      name: "Test Quantity",
+      description: "Test description",
+      mathematicalKind: "scalar" as const,
+      dimension: [
+        { num: 0, den: 1 },
+        { num: 0, den: 1 },
+        { num: 0, den: 1 },
+        { num: 0, den: 1 },
+        { num: 0, den: 1 },
+        { num: 0, den: 1 },
+      ],
+      dimensionlessKind: "ratio" as const,
+    };
+
+    // Planted throw: validateQuantity rejects representationFields entry that shadows its own ID
+    expect(() => {
+      validateQuantity({
+        ...baseValidQuantity,
+        id: "selfShadowingQuantity",
+        representationFields: ["selfShadowingQuantity"],
+      });
+    }).toThrow(/representation-field-shadows-id/);
+
+    // Planted throw: validateQuantity rejects representationFields entry that shadows an existing ID
+    expect(() => {
+      validateQuantity(
+        {
+          ...baseValidQuantity,
+          id: "shadowingQuantity",
+          representationFields: ["frequencyEnergyDensity"],
+        },
+        "Quantity",
+        ["frequencyEnergyDensity"],
+      );
+    }).toThrow(/representation-field-shadows-id/);
   });
 
   test("magneticDeflectability returns unregistered, with a documentation note naming the owning bead", () => {

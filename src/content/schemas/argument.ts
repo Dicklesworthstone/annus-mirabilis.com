@@ -128,6 +128,15 @@ export function validateMeanings(
   }
   const o = raw as Record<string, unknown>;
 
+  if ("essentialForPrint" in o && o.essentialForPrint !== undefined) {
+    throw new ArgumentSchemaError(
+      "essential-for-print-rejected",
+      "essentialForPrint is rejected on Meanings; it is only allowed on ReadingSet and Misconception.",
+      entity,
+      `${path}.essentialForPrint`,
+    );
+  }
+
   if (!o.logicalRole || typeof o.logicalRole !== "string") {
     throw new ArgumentSchemaError(
       "missing-meaning-field",
@@ -286,6 +295,15 @@ export function validateHistoricalPremise(
     );
   }
   const o = raw as Record<string, unknown>;
+
+  if ("essentialForPrint" in o && o.essentialForPrint !== undefined) {
+    throw new ArgumentSchemaError(
+      "essential-for-print-rejected",
+      "essentialForPrint is rejected on HistoricalPremise; it is only allowed on ReadingSet and Misconception.",
+      "HistoricalPremise",
+      `${path}.essentialForPrint`,
+    );
+  }
 
   if (typeof o.id !== "string" || !o.id.trim()) {
     throw new ArgumentSchemaError(
@@ -748,6 +766,15 @@ export function validateArgumentNode(raw: unknown, path = "ArgumentNode"): Argum
   }
   const o = raw as Record<string, unknown>;
 
+  if ("essentialForPrint" in o && o.essentialForPrint !== undefined) {
+    throw new ArgumentSchemaError(
+      "essential-for-print-rejected",
+      "essentialForPrint is rejected on ArgumentNode; it is only allowed on ReadingSet and Misconception.",
+      "ArgumentNode",
+      `${path}.essentialForPrint`,
+    );
+  }
+
   if (typeof o.id !== "string" || !o.id.trim()) {
     throw new ArgumentSchemaError("missing-id", "id is required.", "ArgumentNode", `${path}.id`);
   }
@@ -1052,6 +1079,15 @@ export function validateProof(raw: unknown, path = "Proof"): Proof {
   }
   const o = raw as Record<string, unknown>;
 
+  if ("essentialForPrint" in o && o.essentialForPrint !== undefined) {
+    throw new ArgumentSchemaError(
+      "essential-for-print-rejected",
+      "essentialForPrint is rejected on Proof; it is only allowed on ReadingSet and Misconception.",
+      "Proof",
+      `${path}.essentialForPrint`,
+    );
+  }
+
   if (typeof o.id !== "string" || !o.id.trim()) {
     throw new ArgumentSchemaError("missing-id", "Proof id is required.", "Proof", `${path}.id`);
   }
@@ -1141,6 +1177,15 @@ export function validateQuantity(
     );
   }
   const o = raw as Record<string, unknown>;
+
+  if ("essentialForPrint" in o && o.essentialForPrint !== undefined) {
+    throw new ArgumentSchemaError(
+      "essential-for-print-rejected",
+      "essentialForPrint is rejected on Quantity; it is only allowed on ReadingSet and Misconception.",
+      "Quantity",
+      `${path}.essentialForPrint`,
+    );
+  }
 
   if (typeof o.id !== "string" || !o.id.trim()) {
     throw new ArgumentSchemaError("missing-id", "id is required.", "Quantity", `${path}.id`);
@@ -1495,6 +1540,15 @@ export function validateSemanticEquation(raw: unknown, path = "Equation"): Seman
   }
   const o = raw as Record<string, unknown>;
 
+  if ("essentialForPrint" in o && o.essentialForPrint !== undefined) {
+    throw new ArgumentSchemaError(
+      "essential-for-print-rejected",
+      "essentialForPrint is rejected on Equation; it is only allowed on ReadingSet and Misconception.",
+      "Equation",
+      `${path}.essentialForPrint`,
+    );
+  }
+
   if (typeof o.id !== "string" || !o.id.trim()) {
     throw new ArgumentSchemaError("missing-id", "id is required.", "Equation", `${path}.id`);
   }
@@ -1718,6 +1772,16 @@ export function validateFoundationLink(raw: unknown, path = "FoundationLink"): F
     );
   }
   const o = raw as Record<string, unknown>;
+
+  if ("essentialForPrint" in o && o.essentialForPrint !== undefined) {
+    throw new ArgumentSchemaError(
+      "essential-for-print-rejected",
+      "essentialForPrint is rejected on FoundationLink; it is only allowed on ReadingSet and Misconception.",
+      "FoundationLink",
+      `${path}.essentialForPrint`,
+    );
+  }
+
   if (typeof o.foundationId !== "string" || !o.foundationId.trim()) {
     throw new ArgumentSchemaError(
       "missing-foundation-id",
@@ -1759,6 +1823,16 @@ export function validateWorkedExample(raw: unknown, path = "workedExample"): Wor
     );
   }
   const o = raw as Record<string, unknown>;
+
+  if ("essentialForPrint" in o && o.essentialForPrint !== undefined) {
+    throw new ArgumentSchemaError(
+      "essential-for-print-rejected",
+      "essentialForPrint is rejected on WorkedExample; it is only allowed on ReadingSet and Misconception.",
+      "WorkedExample",
+      `${path}.essentialForPrint`,
+    );
+  }
+
   const parts = [
     "question",
     "given",
@@ -1847,6 +1921,15 @@ export function validateFoundationOrBridge(raw: unknown, path = "Foundation"): F
     );
   }
   const o = raw as Record<string, unknown>;
+
+  if ("essentialForPrint" in o && o.essentialForPrint !== undefined) {
+    throw new ArgumentSchemaError(
+      "essential-for-print-rejected",
+      "essentialForPrint is rejected on Foundation/Bridge; it is only allowed on ReadingSet and Misconception.",
+      "Foundation",
+      `${path}.essentialForPrint`,
+    );
+  }
 
   if (typeof o.id !== "string" || !o.id.trim()) {
     throw new ArgumentSchemaError("missing-id", "id is required.", "Foundation", `${path}.id`);
@@ -2212,6 +2295,15 @@ export function validateMisconception(raw: unknown, path = "Misconception"): Mis
   }
   const o = raw as Record<string, unknown>;
 
+  if (o.essentialForPrint !== undefined && typeof o.essentialForPrint !== "boolean") {
+    throw new ArgumentSchemaError(
+      "invalid-essential-for-print",
+      "essentialForPrint must be a boolean when present.",
+      "Misconception",
+      `${path}.essentialForPrint`,
+    );
+  }
+
   if (typeof o.id !== "string" || !o.id.trim()) {
     throw new ArgumentSchemaError("missing-id", "id is required.", "Misconception", `${path}.id`);
   }
@@ -2428,6 +2520,15 @@ export function validateReadingSet(raw: unknown, path = "ReadingSet"): ReadingSe
   }
   const o = raw as Record<string, unknown>;
 
+  if (o.essentialForPrint !== undefined && typeof o.essentialForPrint !== "boolean") {
+    throw new ArgumentSchemaError(
+      "invalid-essential-for-print",
+      "essentialForPrint must be a boolean when present.",
+      "ReadingSet",
+      `${path}.essentialForPrint`,
+    );
+  }
+
   if (typeof o.targetId !== "string" || !o.targetId.trim()) {
     throw new ArgumentSchemaError(
       "missing-target-id",
@@ -2501,6 +2602,27 @@ export function validateReadingSet(raw: unknown, path = "ReadingSet"): ReadingSe
         "ReadingSet",
         `${path}.targetId`,
       );
+  } else if (targetKind === "derivation-step") {
+    const stepPattern =
+      /^(?:derivation-step:)?[a-z0-9]+(?:-[a-z0-9]+)*(?:\/[a-z0-9]+(?:-[a-z0-9]+)*)?$/;
+    if (!stepPattern.test(o.targetId)) {
+      throw new ArgumentSchemaError(
+        "invalid-target-id-for-kind",
+        `Invalid targetId "${o.targetId}" for derivation-step: must be lowercase kebab-case or '<chainId>/<stepId>'.`,
+        "ReadingSet",
+        `${path}.targetId`,
+      );
+    }
+  } else if (targetKind === "instrument-caption") {
+    const captionPattern = /^[a-z0-9]+(?:-[a-z0-9]+)*$/;
+    if (!captionPattern.test(o.targetId)) {
+      throw new ArgumentSchemaError(
+        "invalid-target-id-for-kind",
+        `Invalid targetId "${o.targetId}" for instrument-caption: must be lowercase kebab-case.`,
+        "ReadingSet",
+        `${path}.targetId`,
+      );
+    }
   }
 
   let foundationLinks: FoundationLink[] | undefined;
@@ -2586,6 +2708,15 @@ export function validateAuthoringContract(
     );
   }
   const o = raw as Record<string, unknown>;
+
+  if ("essentialForPrint" in o && o.essentialForPrint !== undefined) {
+    throw new ArgumentSchemaError(
+      "essential-for-print-rejected",
+      "essentialForPrint is rejected on AuthoringContract; it is only allowed on ReadingSet and Misconception.",
+      "AuthoringContract",
+      `${path}.essentialForPrint`,
+    );
+  }
 
   if (typeof o.question !== "string" || !o.question.trim())
     throw new ArgumentSchemaError(
@@ -2687,6 +2818,15 @@ export function validateObstacleResponses(
     );
   }
   const o = raw as Record<string, unknown>;
+
+  if ("essentialForPrint" in o && o.essentialForPrint !== undefined) {
+    throw new ArgumentSchemaError(
+      "essential-for-print-rejected",
+      "essentialForPrint is rejected on ObstacleResponses; it is only allowed on ReadingSet and Misconception.",
+      "ObstacleResponses",
+      `${path}.essentialForPrint`,
+    );
+  }
 
   const kebabToCamel: Record<string, string> = {
     "unfamiliar-word-or-symbol": "unfamiliarWordOrSymbol",
