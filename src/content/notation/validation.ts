@@ -99,7 +99,34 @@ export function checkConcordance(
         }
       }
 
-      // 3. Scaled rename & rational reduction
+      // 3. Source anchor and scope validation against manifestIndex
+      if (manifestIndex && manifestIndex.papers.size > 0 && manifestIndex.hasPaper(paper)) {
+        if (!manifestIndex.hasAnchor(paper, entry.sources.anchor)) {
+          diagnostics.push({
+            severity: "error",
+            rule: "unknown-source-anchor",
+            paper,
+            entryId: entry.id,
+            message: `Sources anchor "${entry.sources.anchor}" not found in source manifest for paper "${paper}".`,
+          });
+        }
+
+        for (const s of entry.scope) {
+          if (s === "all") continue;
+          if (!manifestIndex.hasAnchor(paper, s)) {
+            diagnostics.push({
+              severity: "error",
+              rule: "unknown-scope",
+              paper,
+              entryId: entry.id,
+              scope: s,
+              message: `Scope "${s}" not found in source manifest for paper "${paper}".`,
+            });
+          }
+        }
+      }
+
+      // 4. Scaled rename & rational reduction
       if ("scale" in entry.binding && entry.binding.scale) {
         const sc = entry.binding.scale;
         if (sc.num === 0) {

@@ -43,6 +43,7 @@ const brownianMotionManifest: SourceManifest = {
   pageRange: [549, 560],
   units: [
     { id: "bm-s1-p1", kind: "paragraph", section: "s1", locators: [{ page: 549 }] },
+    { id: "bm-s2-p1", kind: "paragraph", section: "s2", locators: [{ page: 551 }] },
     { id: "bm-s3-p1", kind: "paragraph", section: "s3", locators: [{ page: 552 }] },
     { id: "bm-s3-e1", kind: "equation", section: "s3", locators: [{ page: 553 }] },
     { id: "bm-s4-p1", kind: "paragraph", section: "s4", locators: [{ page: 555 }] },
@@ -327,11 +328,11 @@ const brownianConcordance: PaperConcordance = {
         date: "2026-09-17",
       },
     },
-    // 2\kappa -> k_B (scaled rename)
+    // \kappa -> 1/2 k_B (scaled rename)
     {
       id: "bm.kappa.scaledBoltzmann",
       paper: "brownian-motion",
-      scope: ["s1"],
+      scope: ["s1", "s2"],
       glyph: { unicode: "κ", latex: "\\kappa", variant: "plain" },
       meaning: "Half-Boltzmann constant kappa = 1/2 k_B",
       binding: {
@@ -354,13 +355,41 @@ const brownianConcordance: PaperConcordance = {
         date: "2026-09-17",
       },
     },
+    // 2\kappa -> k_B (group rename over scaled term)
+    {
+      id: "bm.2kappa.groupBoltzmann",
+      paper: "brownian-motion",
+      scope: ["s2"],
+      glyph: { unicode: "2κ", latex: "2\\kappa", variant: "plain" },
+      meaning: "Product 2*kappa representing Boltzmann's constant k_B",
+      binding: { quantityId: "boltzmannConstant" },
+      operation: {
+        kind: "rename",
+        target: {
+          form: "group",
+          pattern: {
+            kind: "multiply",
+            factor: 2,
+            terms: ["\\kappa"],
+          },
+          modernGlyph: "k_B",
+        },
+      },
+      sources: { anchor: "bm-s2-p1", facsimilePage: 551 },
+      verification: {
+        printed: true,
+        checkedAgainst: "AP-1905",
+        by: "reviewer",
+        date: "2026-09-17",
+      },
+    },
   ],
 };
 
 const lightQuantaConcordance: PaperConcordance = {
   paper: "light-quanta",
   entries: [
-    // \beta in LQ §2 is Wien radiation constant
+    // \beta in LQ §2 is Wien radiation constant (expression rename)
     {
       id: "lq.beta.wienConstant",
       paper: "light-quanta",
@@ -370,7 +399,11 @@ const lightQuantaConcordance: PaperConcordance = {
       binding: { quantityId: "wienConstantBeta" },
       operation: {
         kind: "rename",
-        target: { form: "symbol", modernGlyph: "h/k_B" },
+        target: {
+          form: "expression",
+          modernTree: { op: "div", num: "h", den: "k_B" },
+          modernGlyph: "h/k_B",
+        },
       },
       sources: { anchor: "lq-s2-p1", facsimilePage: 134 },
       verification: {
@@ -604,6 +637,94 @@ describe("Scoped Notation Concordance Resolver (am-not-concordance-model-uag)", 
     if (!badAnchor.ok) expect(badAnchor.error).toBe("unknownAnchor");
   });
 
+  test("refuses with error 'ambiguous' when two entries match the same glyph in the same scope, naming both; passing counterpart resolves cleanly when only one matches", () => {
+    const ambiguousConcordance: PaperConcordance = {
+      paper: "brownian-motion",
+      entries: [
+        {
+          id: "bm.B.mobility",
+          paper: "brownian-motion",
+          scope: ["s3"],
+          glyph: { unicode: "B", latex: "B", variant: "plain" },
+          meaning: "Mobility of suspended particle",
+          binding: { quantityId: "mobility" },
+          operation: {
+            kind: "rename",
+            target: { form: "symbol", modernGlyph: "b" },
+          },
+          sources: { anchor: "bm-s3-p1", facsimilePage: 552 },
+          verification: {
+            printed: true,
+            checkedAgainst: "AP-1905",
+            by: "reviewer",
+            date: "2026-09-17",
+          },
+        },
+        {
+          id: "bm.B.decayConstant",
+          paper: "brownian-motion",
+          scope: ["s3"],
+          glyph: { unicode: "B", latex: "B", variant: "plain" },
+          meaning: "Decay constant",
+          binding: { quantityId: "decayConstant" },
+          operation: {
+            kind: "rename",
+            target: { form: "symbol", modernGlyph: "B_d" },
+          },
+          sources: { anchor: "bm-s3-p1", facsimilePage: 552 },
+          verification: {
+            printed: true,
+            checkedAgainst: "AP-1905",
+            by: "reviewer",
+            date: "2026-09-17",
+          },
+        },
+      ],
+    };
+
+    // Refusal: 2 entries in scope for B
+    const ambiguousRes = resolveGlyph(
+      "brownian-motion",
+      "bm-s3-p1",
+      "B",
+      manifestIndex,
+      ambiguousConcordance,
+    );
+    expect(ambiguousRes.ok).toBe(false);
+    if (!ambiguousRes.ok) {
+      expect(ambiguousRes.error).toBe("ambiguous");
+      expect(ambiguousRes.message).toContain("bm.B.mobility");
+      expect(ambiguousRes.message).toContain("bm.B.decayConstant");
+    }
+
+    // Passing counterpart: unambiguous single entry in scope resolves cleanly
+    const firstEntry = ambiguousConcordance.entries[0];
+    expect(firstEntry).toBeDefined();
+    const unambiguousConcordance: PaperConcordance = {
+      paper: "brownian-motion",
+      entries: firstEntry ? [firstEntry] : [],
+    };
+    const passingRes = resolveGlyph(
+      "brownian-motion",
+      "bm-s3-p1",
+      "B",
+      manifestIndex,
+      unambiguousConcordance,
+    );
+    expect(passingRes.ok).toBe(true);
+    if (passingRes.ok) {
+      expect(passingRes.entry.id).toBe("bm.B.mobility");
+      expect(passingRes.entry.binding).toEqual({ quantityId: "mobility" });
+    }
+
+    logger.log({
+      testId: "resolve-ambiguous-glyph-and-counterpart",
+      outcome: "passed",
+      message:
+        "Refused ambiguous glyph B with two entries in scope s3 naming both, and resolved passing counterpart",
+    });
+  });
+
   test("resolveGlyph NEVER returns a modernOnlySymbol", () => {
     // rapidity is in modernOnlySymbols for special-relativity, NOT in entries
     const res = resolveGlyph(
@@ -698,10 +819,53 @@ describe("Scoped Notation Concordance Resolver (am-not-concordance-model-uag)", 
     );
     expect(modChi).toBeUndefined();
 
+    // 5. Scaled form: \kappa -> 1/2 k_B under modern perspective, \kappa under paper perspective
+    const modKappa = modernSymbolFor(
+      "brownian-motion",
+      "bm-s1-p1",
+      "\\kappa",
+      manifestIndex,
+      allConcordances,
+      { perspective: "modern" },
+    );
+    expect(modKappa).toBe("\\tfrac{1}{2}k_B");
+
+    const papKappa = modernSymbolFor(
+      "brownian-motion",
+      "bm-s1-p1",
+      "\\kappa",
+      manifestIndex,
+      allConcordances,
+      { perspective: "paper" },
+    );
+    expect(papKappa).toBe("\\kappa");
+
+    // 6. Expression form: \beta -> h/k_B under modern perspective, \beta under paper perspective
+    const modBeta = modernSymbolFor(
+      "light-quanta",
+      "lq-s2-p1",
+      "\\beta",
+      manifestIndex,
+      allConcordances,
+      { perspective: "modern" },
+    );
+    expect(modBeta).toBe("h/k_B");
+
+    const papBeta = modernSymbolFor(
+      "light-quanta",
+      "lq-s2-p1",
+      "\\beta",
+      manifestIndex,
+      allConcordances,
+      { perspective: "paper" },
+    );
+    expect(papBeta).toBe("\\beta");
+
     logger.log({
       testId: "toggle-contract-rename-only",
       outcome: "passed",
-      message: "Verified rename vs unitConversion vs modernization in modernSymbolFor",
+      message:
+        "Verified rename (symbol, scaled, expression) vs unitConversion vs modernization in modernSymbolFor",
     });
   });
 
@@ -714,10 +878,22 @@ describe("Scoped Notation Concordance Resolver (am-not-concordance-model-uag)", 
       true,
     );
 
+    // 2\kappa in BM §2: group over scaled term \kappa (scale 1/2) with factor 2 multiplies out to scale 1
+    const bmS2Groups = modernGroupsFor(
+      "brownian-motion",
+      "bm-s2-p1",
+      allConcordances,
+      manifestIndex,
+    );
+    const twoKappa = bmS2Groups.find((g) => g.printedGroup === "2\\kappa");
+    expect(twoKappa).toBeDefined();
+    expect(twoKappa?.modernGroup).toBe("k_B");
+    expect(twoKappa?.scale).toEqual({ num: 1, den: 1 });
+
     logger.log({
       testId: "modern-groups-for",
       outcome: "passed",
-      message: "Retrieved modern group renames for BM and LQ",
+      message: "Retrieved modern group renames for BM (R/N, 2κ) and LQ (Rβ/N)",
     });
   });
 });

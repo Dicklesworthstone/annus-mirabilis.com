@@ -48,7 +48,9 @@ export type ConcordanceDiagnosticRule =
   | "collision-targets-empty"
   | "unknown-quantity-id"
   | "duplicate-entry-id"
-  | "empty-concordance";
+  | "empty-concordance"
+  | "unknown-source-anchor"
+  | "unknown-scope";
 
 export interface ConcordanceDiagnostic {
   readonly severity: "error" | "warning";

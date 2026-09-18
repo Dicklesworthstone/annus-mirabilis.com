@@ -5,6 +5,7 @@
 
 import type { SourceManifest } from "../manifest/types.ts";
 import type { ConcordanceEntry, Glyph, PaperConcordance } from "../schemas/concordance.ts";
+import { gcd, type RationalScale } from "../schemas/dimensionBasis.ts";
 import type {
   ModernGroupRename,
   PaperManifestIndex,
@@ -341,11 +342,44 @@ export function modernGroupsFor(
           ? target.modernGlyph
           : (target.modernGlyph.latex ?? target.modernGlyph.unicode);
       const printedGroup = entry.glyph.latex || entry.glyph.unicode;
-      const factor = target.pattern.factor;
-      const scale =
-        factor && typeof factor === "object" && "num" in factor && "den" in factor
-          ? factor
-          : undefined;
+      let scale: RationalScale | undefined;
+      if ("scale" in entry.binding && entry.binding.scale) {
+        scale = entry.binding.scale;
+      }
+      if (target.pattern.factor !== undefined) {
+        const f = target.pattern.factor;
+        const factorScale: RationalScale =
+          typeof f === "number"
+            ? { num: f, den: 1 }
+            : typeof f === "object" && f && "num" in f && "den" in f
+              ? f
+              : { num: 1, den: 1 };
+
+        let termScaleProduct: RationalScale = { num: 1, den: 1 };
+        if (Array.isArray(target.pattern.terms)) {
+          for (const t of target.pattern.terms) {
+            const normT = normalizeGlyph(t);
+            const termEntry = paperConcordance.entries.find(
+              (e) =>
+                (normalizeGlyph(e.glyph) === normT ||
+                  e.glyph.latex === t ||
+                  e.glyph.unicode === t) &&
+                scopeMatches(e.scope, sectionIdOrAnchor, sectionId),
+            );
+            if (termEntry && "scale" in termEntry.binding && termEntry.binding.scale) {
+              const ts = termEntry.binding.scale;
+              termScaleProduct = {
+                num: termScaleProduct.num * ts.num,
+                den: termScaleProduct.den * ts.den,
+              };
+            }
+          }
+        }
+        const totalNum = factorScale.num * termScaleProduct.num;
+        const totalDen = factorScale.den * termScaleProduct.den;
+        const g = gcd(totalNum, totalDen);
+        scale = { num: totalNum / g, den: totalDen / g };
+      }
       result.push({
         entryId: entry.id,
         printedGroup,

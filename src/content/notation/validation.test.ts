@@ -318,6 +318,70 @@ describe("Concordance Compiler Validation (am-not-concordance-model-uag)", () =>
     expect(res.diagnostics.some((d) => d.rule === "collision-missing-first-use")).toBe(true);
   });
 
+  test("validates entry.sources.anchor and entry.scope against manifest index, failing on unknown anchors/scopes and passing when valid", () => {
+    const manifestIndex = buildSourceManifestIndex({
+      paper: "brownian-motion",
+      document: "ap-17-549",
+      status: "complete",
+      pageCount: 12,
+      pageRange: [549, 560],
+      units: [{ id: "bm-s3-p1", kind: "paragraph", section: "s3", locators: [{ page: 552 }] }],
+    });
+
+    // Refusal: bad sources.anchor and bad scope
+    const invalidAnchorsConcordance: PaperConcordance = {
+      paper: "brownian-motion",
+      entries: [
+        {
+          id: "bm.k.viscosity",
+          paper: "brownian-motion",
+          scope: ["non-existent-section"], // Unknown scope!
+          glyph: { unicode: "k", latex: "k" },
+          meaning: "Viscosity",
+          binding: { quantityId: "viscosity" },
+          operation: { kind: "rename", target: { form: "symbol", modernGlyph: "\\eta" } },
+          sources: { anchor: "non-existent-anchor" }, // Unknown source anchor!
+          verification: { printed: true, checkedAgainst: "AP", by: "rev", date: "2026-09-17" },
+        },
+      ],
+    };
+
+    const failRes = checkConcordance(invalidAnchorsConcordance, { manifestIndex });
+    expect(failRes.valid).toBe(false);
+    expect(failRes.diagnostics.some((d) => d.rule === "unknown-source-anchor")).toBe(true);
+    expect(failRes.diagnostics.some((d) => d.rule === "unknown-scope")).toBe(true);
+
+    // Passing counterpart: valid sources.anchor and valid section scope in manifest
+    const validAnchorsConcordance: PaperConcordance = {
+      paper: "brownian-motion",
+      entries: [
+        {
+          id: "bm.k.viscosity",
+          paper: "brownian-motion",
+          scope: ["s3"],
+          glyph: { unicode: "k", latex: "k" },
+          meaning: "Viscosity",
+          binding: { quantityId: "viscosity" },
+          operation: { kind: "rename", target: { form: "symbol", modernGlyph: "\\eta" } },
+          sources: { anchor: "bm-s3-p1" },
+          verification: { printed: true, checkedAgainst: "AP", by: "rev", date: "2026-09-17" },
+        },
+      ],
+    };
+
+    const passRes = checkConcordance(validAnchorsConcordance, { manifestIndex });
+    expect(passRes.valid).toBe(true);
+    expect(passRes.diagnostics.some((d) => d.rule === "unknown-source-anchor")).toBe(false);
+    expect(passRes.diagnostics.some((d) => d.rule === "unknown-scope")).toBe(false);
+
+    logger.log({
+      testId: "diag-sources-anchor-and-scope-manifest-validation",
+      outcome: "passed",
+      message:
+        "Refused unknown sources.anchor and unknown scope against manifest index, and passed valid counterpart",
+    });
+  });
+
   test("detects unknown quantity IDs when knownQuantityIds provided", () => {
     const concordance: PaperConcordance = {
       paper: "brownian-motion",
