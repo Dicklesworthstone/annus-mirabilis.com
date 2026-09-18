@@ -258,3 +258,4 @@ export function substitute(
 }
 
 export * from "./monomial.ts";
+export * from "./alternateForms.ts";
