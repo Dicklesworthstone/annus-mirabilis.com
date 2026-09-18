@@ -1,6 +1,8 @@
 import { createHash } from "node:crypto";
 import { describe, expect, test } from "bun:test";
+import { GET } from "../app/offline/[paper]/[file]/route.ts";
 import { INLINE_SCRIPT_REGISTRY } from "../app/inline-scripts/registry.ts";
+import { OfflineChapterLinks } from "../platform/offline/OfflineChapterLinks.tsx";
 import {
   collectChapterFoundations,
   type OfflineChapterInput,
@@ -8,6 +10,10 @@ import {
 } from "../platform/offline/chapter.ts";
 import { chapterFixture } from "../platform/offline/chapter.test.mjs";
 import { OFFLINE_DETAIL_SOURCE } from "../platform/offline/detail.inline.ts";
+import {
+  loadOfflineChapter,
+  loadOfflineManifest,
+} from "../platform/offline/server.ts";
 
 function mockRenderMath(latex: string): string {
   return `<span class="katex"><math xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><mi>${latex}</mi></mrow></semantics></math></span>`;
@@ -18,6 +24,55 @@ function fixtureInput(): OfflineChapterInput {
 }
 
 describe("buildOfflineChapters: packaging, inlining, and reproducibility", () => {
+  test("AC1: offline files exist for the fixture chapters, with stated sizes matching actual bytes and served Content-Length", async () => {
+    const manifest = await loadOfflineManifest();
+    expect(manifest).not.toBeNull();
+    expect(manifest!.chapters.length).toBeGreaterThan(0);
+
+    const expectedChapters = [
+      { paper: "brownian-motion", section: "s4" },
+      { paper: "brownian-motion", section: "s5" },
+      { paper: "mass-energy", section: "s0" },
+    ];
+
+    for (const expected of expectedChapters) {
+      const entry = manifest!.chapters.find(
+        (c) => c.paper === expected.paper && c.section === expected.section,
+      );
+      expect(entry).toBeDefined();
+
+      const fileName = entry!.path.slice(`/offline/${entry!.paper}/`.length);
+      const chapter = await loadOfflineChapter(entry!.paper, fileName);
+      expect(chapter).not.toBeNull();
+
+      const actualBytes = Buffer.byteLength(chapter!.html, "utf8");
+      expect(entry!.bytes).toBe(actualBytes);
+      expect(chapter!.entry.bytes).toBe(actualBytes);
+
+      const response = await GET(
+        new Request(`https://annus-mirabilis.com${entry!.path}`),
+        {
+          params: Promise.resolve({ paper: entry!.paper, file: fileName }),
+        },
+      );
+      expect(response.status).toBe(200);
+      expect(response.headers.get("Content-Length")).toBe(String(actualBytes));
+      expect(response.headers.get("Content-Length")).toBe(String(entry!.bytes));
+      expect(response.headers.get("Content-Type")).toBe("text/html; charset=utf-8");
+      expect(response.headers.get("Content-Disposition")).toBe(
+        `attachment; filename="${entry!.paper}-${entry!.section}.html"`,
+      );
+    }
+  });
+
+  test("AC1: OfflineChapterLinks advertises existing chapters with matching stated sizes and hides missing chapters", async () => {
+    const linksBm = await OfflineChapterLinks({ paperId: "brownian-motion", section: "s4" });
+    expect(linksBm).not.toBeNull();
+
+    const linksMissing = await OfflineChapterLinks({ paperId: "brownian-motion", section: "s99" });
+    expect(linksMissing).toBeNull();
+  });
+
   test("generates self-contained HTML with inlined KaTeX HTML+MathML and styles", () => {
     const fixture = fixtureInput();
     const pkg = packageOfflineChapter(fixture, mockRenderMath);
@@ -45,7 +100,7 @@ describe("buildOfflineChapters: packaging, inlining, and reproducibility", () =>
     expect(pkg.html).toContain('href="#s4">Skip to the chapter</a>');
   });
 
-  test("two builds of identical inputs produce byte-identical files and hashes", () => {
+  test("AC6: two builds of identical inputs produce byte-identical files and hashes", () => {
     const fixture1 = fixtureInput();
     const fixture2 = fixtureInput();
 
@@ -58,7 +113,7 @@ describe("buildOfflineChapters: packaging, inlining, and reproducibility", () =>
     expect(pkg1.entry.gzipBytes).toBe(pkg2.entry.gzipBytes);
   });
 
-  test("size budget gate fails a seeded oversized chapter and names its largest contributors", () => {
+  test("AC7: size budget gate fails a seeded oversized chapter and names its largest contributors", () => {
     const fixture = fixtureInput();
     // Set an artificially small budget
     const tinyBudgetFixture: OfflineChapterInput = {
@@ -81,7 +136,7 @@ describe("buildOfflineChapters: packaging, inlining, and reproducibility", () =>
     expect(thrownError?.message).toContain("textAndStructure");
   });
 
-  test("readings are all present, with reading 1 (full explanation) visible without JavaScript", () => {
+  test("AC3: readings are all present with detail switching controls, and reading 1 shows without JavaScript", () => {
     const fixture = fixtureInput();
     const pkg = packageOfflineChapter(fixture, mockRenderMath);
 
@@ -90,6 +145,10 @@ describe("buildOfflineChapters: packaging, inlining, and reproducibility", () =>
     expect(pkg.html).toContain('<div data-reading="1">'); // no hidden
     expect(pkg.html).toContain('<div data-reading="2" hidden>');
     expect(pkg.html).toContain('<div data-reading="3" hidden>');
+
+    // Controls present
+    expect(pkg.html).toContain("<select data-offline-detail");
+    expect(pkg.html).toContain("<input type=\"checkbox\" data-offline-modern");
 
     // Noscript notice informs user full explanation is readable
     expect(pkg.html).toContain("<noscript><p>JavaScript is off.");
@@ -117,7 +176,7 @@ describe("buildOfflineChapters: packaging, inlining, and reproducibility", () =>
     expect(pkg.html).toContain("<dt>Release</dt>");
   });
 
-  test("rights filtering embeds publish assets and cites non-publish assets", () => {
+  test("AC5: non-publish figure is excluded and cited, attribution and revision identities are present, and local reader data is absent", () => {
     const fixture = fixtureInput();
     const inputWithFigures: OfflineChapterInput = {
       ...fixture,
