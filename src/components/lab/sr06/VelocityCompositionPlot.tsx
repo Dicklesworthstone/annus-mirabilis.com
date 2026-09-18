@@ -39,10 +39,10 @@ export function VelocityCompositionPlot({ snapshot }: { snapshot: AcceptedSnapsh
   const wy = p.movingSpeed * Math.sin(alpha);
   const galileanX = p.frameBeta + wx;
   const galileanY = wy;
-  const composed = arrow(ux, uy, "var(--plot, #1d4ed8)", "U");
-  const moving = arrow(wx, wy, "var(--ink, #111)", "w");
-  const frame = arrow(p.frameBeta, 0, "var(--accent, #b45309)", "v");
-  const galilean = arrow(galileanX, galileanY, "var(--muted, #6b7280)", "Galilean");
+  const composed = arrow(ux, uy, "var(--plot)", "U");
+  const moving = arrow(wx, wy, "var(--ink)", "w");
+  const frame = arrow(p.frameBeta, 0, "var(--accent)", "v");
+  const galilean = arrow(galileanX, galileanY, "var(--muted)", "Galilean");
   const matrixOut = result(snapshot, "productMatrix");
   const matrix =
     matrixOut.status === "value" && typeof matrixOut.value !== "number" ? matrixOut.value : null;
