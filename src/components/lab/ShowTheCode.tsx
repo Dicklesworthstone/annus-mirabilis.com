@@ -5,6 +5,7 @@ import {
   selectionCss,
   tokenizeKernelSource,
 } from "../../content/kernel/highlight.ts";
+import { roleForQuantity } from "../../content/kernel/trace.ts";
 import type { WorkedTrace } from "../../content/kernel/types.ts";
 import { KERNEL_DISPLAY_ROLE_LABELS, type KernelListing } from "../../content/kernel/types.ts";
 import "./showTheCode.css";
@@ -34,14 +35,31 @@ function TraceTable({ trace }: { trace: WorkedTrace }) {
           </tr>
         </thead>
         <tbody>
-          {trace.rows.map((row) => (
-            <tr key={row.label} data-quantity-id={row.quantityId} data-op-id={row.opId}>
-              <th scope="row">{row.label}</th>
-              <td>{row.expression}</td>
-              <td>{String(row.value)}</td>
-              <td>{row.unit}</td>
-            </tr>
-          ))}
+          {trace.rows.map((row) => {
+            const role = row.quantityId ? roleForQuantity(row.quantityId) : undefined;
+            const roleClass = role ? `am-role-${role}` : undefined;
+            return (
+              <tr
+                key={row.label}
+                data-quantity-id={row.quantityId}
+                data-op-id={row.opId}
+                className={roleClass}
+              >
+                <th scope="row">{row.label}</th>
+                <td>
+                  {row.opId ? (
+                    <a href={`#${row.opId}`} aria-label={`Operation explanation for ${row.opId}`}>
+                      {row.expression}
+                    </a>
+                  ) : (
+                    row.expression
+                  )}
+                </td>
+                <td>{String(row.value)}</td>
+                <td>{row.unit}</td>
+              </tr>
+            );
+          })}
         </tbody>
       </table>
       {trace.terminatedAtRow !== undefined ? (
@@ -73,7 +91,14 @@ export function ShowTheCode({
   uid = "stc",
 }: ShowTheCodeProps) {
   const quantityIds = [
-    ...new Set(listings.flatMap((l) => l.identifierBindings.map((b) => b.quantityId))),
+    ...new Set([
+      ...listings.flatMap((l) => l.identifierBindings.map((b) => b.quantityId)),
+      ...listings.flatMap((l) =>
+        l.trace
+          ? l.trace.rows.map((r) => r.quantityId).filter((q): q is string => Boolean(q))
+          : [],
+      ),
+    ]),
   ];
   return (
     <details className="show-the-code" open>

@@ -154,4 +154,40 @@ describe("calculation traces", () => {
       message: "Trace markup is byte-identical across two computations",
     });
   });
+
+  test("trace rows carrying quantityId use role tokens and rows carrying opId link to operation explanations", () => {
+    const trace = computeBm01StokesEinsteinTrace();
+    const markup = renderTraceMarkup(trace);
+
+    // Rows carrying quantityId use the same role tokens as equation terms
+    expect(markup).toContain('data-quantity-id="diffusionCoefficient"');
+    expect(markup).toContain('class="am-role-result"');
+    expect(markup).toContain('data-quantity-id="viscosity"');
+    expect(markup).toContain('class="am-role-input"');
+    expect(markup).toContain('data-quantity-id="molarGasConstant"');
+    expect(markup).toContain('class="am-role-constant"');
+
+    // Rows carrying opId link to the operation explanation anchor
+    expect(markup).toContain('data-op-id="eq-model-bm-diffusivity.op.drag"');
+    expect(markup).toContain(
+      '<a href="#eq-model-bm-diffusivity.op.drag" aria-label="Operation explanation for eq-model-bm-diffusivity.op.drag">6 π η a</a>',
+    );
+    expect(markup).toContain('data-op-id="eq-model-bm-diffusivity.op.equality"');
+    expect(markup).toContain(
+      '<a href="#eq-model-bm-diffusivity.op.equality" aria-label="Operation explanation for eq-model-bm-diffusivity.op.equality">RT / (N 6 π η a)</a>',
+    );
+    expect(markup).toContain('data-op-id="eq-model-bm-rms.op.squareRoot"');
+    expect(markup).toContain(
+      '<a href="#eq-model-bm-rms.op.squareRoot" aria-label="Operation explanation for eq-model-bm-rms.op.squareRoot">λ_x = √(2 D t) at t = 1 s</a>',
+    );
+
+    // Rows without opId do not contain redundant anchor tags
+    expect(markup).not.toContain('<a href="#undefined"');
+    logger.log({
+      testId: "trace-row-role-tokens-and-op-links",
+      beadId: KERNEL_BEAD_ID,
+      outcome: "passed",
+      message: "Trace rows use equation role tokens and link opId to operation explanations",
+    });
+  });
 });

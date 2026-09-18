@@ -175,4 +175,26 @@ describe("ShowTheCode", () => {
     expect(html).not.toContain("<code data-language");
     expect(html).not.toContain("<table");
   });
+
+  test("trace rows carrying quantityId use role tokens and rows carrying opId link to operation explanations", () => {
+    const html = renderToStaticMarkup(<ShowTheCode listings={[baseListing]} />);
+    expect(html).toContain('data-quantity-id="diffusionCoefficient"');
+    expect(html).toContain('class="am-role-result"');
+    expect(html).toContain('data-quantity-id="viscosity"');
+    expect(html).toContain('class="am-role-input"');
+    expect(html).toContain('data-quantity-id="molarGasConstant"');
+    expect(html).toContain('class="am-role-constant"');
+    expect(html).toContain('data-op-id="eq-model-bm-diffusivity.op.drag"');
+    expect(html).toContain('href="#eq-model-bm-diffusivity.op.drag"');
+    expect(html).toContain('data-op-id="eq-model-bm-diffusivity.op.equality"');
+    expect(html).toContain('href="#eq-model-bm-diffusivity.op.equality"');
+    expect(html).toContain('data-op-id="eq-model-bm-rms.op.squareRoot"');
+    expect(html).toContain('href="#eq-model-bm-rms.op.squareRoot"');
+    logger.log({
+      testId: "stc-trace-role-tokens-and-op-links",
+      beadId: KERNEL_BEAD_ID,
+      outcome: "passed",
+      message: "ShowTheCode renders trace rows with role tokens and opId links",
+    });
+  });
 });

@@ -53,6 +53,12 @@
   text-align: left;
   vertical-align: top;
 }
+.show-the-code .kernel-trace a {
+  color: inherit;
+  text-decoration: underline;
+  text-decoration-style: dotted;
+  text-underline-offset: 0.18em;
+}
 .show-the-code .kernel-ident {
   text-decoration: underline;
   text-decoration-style: dotted;

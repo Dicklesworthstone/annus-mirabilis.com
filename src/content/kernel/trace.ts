@@ -1,3 +1,4 @@
+import { BROWNIAN_QUANTITIES } from "../../equations/quantities.ts";
 import { explainRefusal } from "../../experiments/results/explanations.ts";
 import { createDeclaredConstantSet } from "../../physics/reference/constants.ts";
 import {
@@ -213,13 +214,34 @@ export function assertTraceBounds(
   return checkTraceRowCount(instrumentId, functionName, rows.length);
 }
 
+export function roleForQuantity(
+  quantityId: string,
+): "result" | "input" | "constant" | undefined {
+  const q = BROWNIAN_QUANTITIES[quantityId];
+  if (q) return q.role;
+  if (
+    quantityId === "molarGasConstant" ||
+    quantityId === "avogadroConstant" ||
+    quantityId.endsWith("Constant") ||
+    quantityId.startsWith("constant")
+  ) {
+    return "constant";
+  }
+  return undefined;
+}
+
 export function renderTraceMarkup(trace: WorkedTrace): string {
   const rows = trace.rows
     .map((r, i) => {
       const qty = r.quantityId ? ` data-quantity-id="${r.quantityId}"` : "";
       const op = r.opId ? ` data-op-id="${r.opId}"` : "";
+      const role = r.quantityId ? roleForQuantity(r.quantityId) : undefined;
+      const roleCls = role ? ` class="am-role-${role}"` : "";
       const value = typeof r.value === "number" ? String(r.value) : r.value;
-      return `<tr${qty}${op}><th scope="row">${escapeHtml(r.label)}</th><td>${escapeHtml(r.expression)}</td><td>${escapeHtml(value)}</td><td>${escapeHtml(r.unit)}</td></tr><!--${i}-->`;
+      const expr = r.opId
+        ? `<a href="#${escapeHtml(r.opId)}" aria-label="Operation explanation for ${escapeHtml(r.opId)}">${escapeHtml(r.expression)}</a>`
+        : escapeHtml(r.expression);
+      return `<tr${qty}${op}${roleCls}><th scope="row">${escapeHtml(r.label)}</th><td>${expr}</td><td>${escapeHtml(value)}</td><td>${escapeHtml(r.unit)}</td></tr><!--${i}-->`;
     })
     .join("");
   const stopped =
