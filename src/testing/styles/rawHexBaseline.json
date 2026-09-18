@@ -26,7 +26,7 @@
   "src/discovery/Branch.tsx": 10,
   "src/equations/genealogy/Genealogy.tsx": 18,
   "src/equations/genealogy/layoutLayers.ts": 13,
-  "src/experiments/interactions/partition/PartitionControl.tsx": 1,
+  "src/experiments/interactions/partition/PartitionControl.tsx": 0,
   "src/reader/entrances/BrownianFirstEncounter.tsx": 5,
   "src/reader/facsimile/usePinnedPdfFacsimile.ts": 1,
   "src/visuals/kit/FalseColorLegend.tsx": 0,

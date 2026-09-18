@@ -315,7 +315,7 @@ export function PartitionControl({
             style={{
               marginTop: "0.5rem",
               fontSize: "0.75rem",
-              color: "#e11d48",
+              color: "var(--accent)",
               fontWeight: 500,
             }}
           >
