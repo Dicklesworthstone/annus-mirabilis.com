@@ -23,7 +23,7 @@
   "src/content/editions/editionDeclaration.ts": 4,
   "src/content/editions/reconciliation.ts": 10,
   "src/content/editions/segmentSentences.ts": 2,
-  "src/content/entrances/entranceRecord.ts": 30,
+  "src/content/entrances/entranceRecord.ts": 0,
   "src/content/foundations/registry.ts": 8,
   "src/content/ids.ts": 0,
   "src/content/kernel/bindings.ts": 9,

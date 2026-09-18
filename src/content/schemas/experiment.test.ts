@@ -1049,7 +1049,10 @@ test("Experiment: (experiment.ts:937) missing-admitted-domain rejected when admi
   );
   raw.admittedDomain = "Microscopic particles suspended in fluid at room temperature.";
   const accepted = validateExperiment(raw);
-  assert.equal(accepted.admittedDomain, "Microscopic particles suspended in fluid at room temperature.");
+  assert.equal(
+    accepted.admittedDomain,
+    "Microscopic particles suspended in fluid at room temperature.",
+  );
 });
 
 test("Experiment: (experiment.ts:947) missing-owner rejected when owner missing or not object, accepted with owner", () => {
@@ -1103,7 +1106,10 @@ test("Experiment: (experiment.ts:966) missing-static-reason rejected when static
   );
   raw.owner.staticReason = "Purely theoretical derivation with analytical closed form.";
   const accepted = validateExperiment(raw);
-  assert.equal(accepted.owner.staticReason, "Purely theoretical derivation with analytical closed form.");
+  assert.equal(
+    accepted.owner.staticReason,
+    "Purely theoretical derivation with analytical closed form.",
+  );
 });
 
 test("Experiment: (experiment.ts:974) static-owner-has-functions rejected when static owner declares kernel functions, accepted without functions", () => {
@@ -1187,7 +1193,9 @@ test("Experiment: (experiment.ts:1007) invalid-kernel-display-role rejected when
   );
   raw.owner.kernelFunctions[0].displayRole = "reference-implementation";
   const accepted = validateExperiment(raw);
-  assert.equal(accepted.owner.kernelFunctions[0]?.displayRole, "reference-implementation");
+  const kf0 = accepted.owner.kernelFunctions?.[0];
+  if (!kf0) throw new Error("expected accepted.owner.kernelFunctions[0] to be defined");
+  assert.equal(kf0.displayRole, "reference-implementation");
 });
 
 test("Experiment: (experiment.ts:1027) missing-ts-kernel-fields rejected when TS kernel lacks module/exportName, accepted with both", () => {
@@ -1212,7 +1220,9 @@ test("Experiment: (experiment.ts:1027) missing-ts-kernel-fields rejected when TS
   raw.owner.kernelFunctions[0].module = "src/physics/reference/brownian.ts";
   raw.owner.kernelFunctions[0].exportName = "evalDiffusivity";
   const accepted = validateExperiment(raw);
-  assert.equal(accepted.owner.kernelFunctions[0]?.module, "src/physics/reference/brownian.ts");
+  const kf0 = accepted.owner.kernelFunctions?.[0];
+  if (!kf0) throw new Error("expected accepted.owner.kernelFunctions[0] to be defined");
+  assert.equal(kf0.module, "src/physics/reference/brownian.ts");
 });
 
 test("Experiment: (experiment.ts:1036) missing-rust-kernel-fields rejected when Rust kernel lacks fields, accepted with all", () => {
@@ -1242,7 +1252,9 @@ test("Experiment: (experiment.ts:1036) missing-rust-kernel-fields rejected when 
     revision: "v1.0.0",
   };
   const accepted = validateExperiment(raw);
-  assert.equal(accepted.owner.kernelFunctions[0]?.crate, "frankensim-core");
+  const kf0 = accepted.owner.kernelFunctions?.[0];
+  if (!kf0) throw new Error("expected accepted.owner.kernelFunctions[0] to be defined");
+  assert.equal(kf0.crate, "frankensim-core");
 });
 
 test("Experiment: (experiment.ts:1044) missing-kernel-language rejected when language not ts or rust, accepted with valid language", () => {
@@ -1271,7 +1283,9 @@ test("Experiment: (experiment.ts:1044) missing-kernel-language rejected when lan
     },
   ];
   const accepted = validateExperiment(raw);
-  assert.equal(accepted.owner.kernelFunctions[0]?.language, "ts");
+  const kf0 = accepted.owner.kernelFunctions?.[0];
+  if (!kf0) throw new Error("expected accepted.owner.kernelFunctions[0] to be defined");
+  assert.equal(kf0.language, "ts");
 });
 
 test("Experiment: (experiment.ts:1103) missing-views rejected when views empty or not array, accepted with views", () => {
@@ -1526,7 +1540,9 @@ test("Experiment: (experiment.ts:1363) invalid-candidate rejected when candidate
   );
   const raw2 = strictParse(yaml, "yaml");
   const accepted = validateExperiment(raw2);
-  assert.ok("enabled" in accepted.predictMode && accepted.predictMode.prompts[0]?.candidates[0]?.id);
+  assert.ok(
+    "enabled" in accepted.predictMode && accepted.predictMode.prompts[0]?.candidates[0]?.id,
+  );
 });
 
 test("Experiment: (experiment.ts:1372) missing-candidate-id rejected when candidate id missing or whitespace, accepted with id", () => {
@@ -1543,7 +1559,10 @@ test("Experiment: (experiment.ts:1372) missing-candidate-id rejected when candid
   );
   raw.predictMode.prompts[0].candidates[0].id = "halves";
   const accepted = validateExperiment(raw);
-  assert.ok("enabled" in accepted.predictMode && accepted.predictMode.prompts[0]?.candidates[0]?.id === "halves");
+  assert.ok(
+    "enabled" in accepted.predictMode &&
+      accepted.predictMode.prompts[0]?.candidates[0]?.id === "halves",
+  );
 });
 
 test("Experiment: (experiment.ts:1380) duplicate-candidate-id rejected when candidate id repeated, accepted when unique", () => {
@@ -1560,7 +1579,10 @@ test("Experiment: (experiment.ts:1380) duplicate-candidate-id rejected when cand
   );
   raw.predictMode.prompts[0].candidates[1].id = "quarters";
   const accepted = validateExperiment(raw);
-  assert.ok("enabled" in accepted.predictMode && accepted.predictMode.prompts[0]?.candidates[1]?.id === "quarters");
+  assert.ok(
+    "enabled" in accepted.predictMode &&
+      accepted.predictMode.prompts[0]?.candidates[1]?.id === "quarters",
+  );
 });
 
 test("Experiment: (experiment.ts:1430) invalid-predict-mode rejected when neither enabled nor exempt, accepted with exempt", () => {
@@ -2069,10 +2091,16 @@ test("Scenario: (experiment.ts:2070) invalid-constant-set-mixing rejected when m
       return true;
     },
   );
-  raw.constantSetMixing = { declared: true, reason: "Comparing historical parameters against CODATA 2018" };
+  raw.constantSetMixing = {
+    declared: true,
+    reason: "Comparing historical parameters against CODATA 2018",
+  };
   const accepted = validateScenario(raw);
   assert.equal(accepted.constantSetMixing?.declared, true);
-  assert.equal(accepted.constantSetMixing?.reason, "Comparing historical parameters against CODATA 2018");
+  assert.equal(
+    accepted.constantSetMixing?.reason,
+    "Comparing historical parameters against CODATA 2018",
+  );
 });
 
 test("Scenario: (experiment.ts:2125) misprint-missing-evidence rejected when misprint lacks reading or receiptRef, accepted with evidence", () => {
@@ -2091,7 +2119,16 @@ test("Scenario: (experiment.ts:2125) misprint-missing-evidence rejected when mis
   );
   raw.transcription.printedReading = "0.0016";
   raw.transcription.receiptRef = "receipt-ap-17-549-misprint";
-  raw.expected = { outputs: [{ outputId: "D", comparisonKind: "rounds-to", printedValue: "0.0016", printedPrecision: { decimals: 4 } }] };
+  raw.expected = {
+    outputs: [
+      {
+        outputId: "D",
+        comparisonKind: "rounds-to",
+        printedValue: "0.0016",
+        printedPrecision: { decimals: 4 },
+      },
+    ],
+  };
   const accepted = validateScenario(raw);
   assert.equal(accepted.transcription?.status, "verified-suspected-misprint");
 });
@@ -2135,7 +2172,14 @@ test("Scenario: (experiment.ts:2221) discrimination-missing-hypotheses rejected 
   const raw = strictParse(yaml, "yaml") as any;
   raw.kind = "discrimination";
   raw.hypotheses = [
-    { id: "h1", label: "Hyp 1", owner: "owner-1", modelIdentity: "m1", circumstancesInWhichItWorks: "c1", historicalStatus: "original-1905" },
+    {
+      id: "h1",
+      label: "Hyp 1",
+      owner: "owner-1",
+      modelIdentity: "m1",
+      circumstancesInWhichItWorks: "c1",
+      historicalStatus: "original-1905",
+    },
   ];
   raw.observation = { observableId: "diffusivity", inputs: {}, procedure: "measure" };
   raw.expected = { outcome: "discriminates" };
@@ -2148,7 +2192,14 @@ test("Scenario: (experiment.ts:2221) discrimination-missing-hypotheses rejected 
       return true;
     },
   );
-  raw.hypotheses.push({ id: "h2", label: "Hyp 2", owner: "owner-2", modelIdentity: "m2", circumstancesInWhichItWorks: "c2", historicalStatus: "contemporary-alternative" });
+  raw.hypotheses.push({
+    id: "h2",
+    label: "Hyp 2",
+    owner: "owner-2",
+    modelIdentity: "m2",
+    circumstancesInWhichItWorks: "c2",
+    historicalStatus: "contemporary-alternative",
+  });
   const accepted = validateScenario(raw);
   assert.equal(accepted.hypotheses?.length, 2);
 });
@@ -2158,8 +2209,22 @@ test("Scenario: (experiment.ts:2244) discrimination-missing-observation rejected
   const raw = strictParse(yaml, "yaml") as any;
   raw.kind = "discrimination";
   raw.hypotheses = [
-    { id: "h1", label: "Hyp 1", owner: "owner-1", modelIdentity: "m1", circumstancesInWhichItWorks: "c1", historicalStatus: "original-1905" },
-    { id: "h2", label: "Hyp 2", owner: "owner-2", modelIdentity: "m2", circumstancesInWhichItWorks: "c2", historicalStatus: "contemporary-alternative" },
+    {
+      id: "h1",
+      label: "Hyp 1",
+      owner: "owner-1",
+      modelIdentity: "m1",
+      circumstancesInWhichItWorks: "c1",
+      historicalStatus: "original-1905",
+    },
+    {
+      id: "h2",
+      label: "Hyp 2",
+      owner: "owner-2",
+      modelIdentity: "m2",
+      circumstancesInWhichItWorks: "c2",
+      historicalStatus: "contemporary-alternative",
+    },
   ];
   delete raw.observation;
   raw.expected = { outcome: "discriminates" };
@@ -2191,6 +2256,9 @@ test("Scenario: (experiment.ts:2287) missing-expected rejected when expected blo
   );
   raw.expected = { outputs: [{ outputId: "D", comparisonKind: "bitwise" }] };
   const accepted = validateScenario(raw);
+  if (!accepted.expected.outputs) {
+    throw new Error("expected accepted.expected.outputs to be defined");
+  }
   assert.equal(accepted.expected.outputs.length, 1);
 });
 
@@ -2199,8 +2267,22 @@ test("Scenario: (experiment.ts:2298) discrimination-missing-outcome rejected whe
   const raw = strictParse(yaml, "yaml") as any;
   raw.kind = "discrimination";
   raw.hypotheses = [
-    { id: "h1", label: "Hyp 1", owner: "owner-1", modelIdentity: "m1", circumstancesInWhichItWorks: "c1", historicalStatus: "original-1905" },
-    { id: "h2", label: "Hyp 2", owner: "owner-2", modelIdentity: "m2", circumstancesInWhichItWorks: "c2", historicalStatus: "contemporary-alternative" },
+    {
+      id: "h1",
+      label: "Hyp 1",
+      owner: "owner-1",
+      modelIdentity: "m1",
+      circumstancesInWhichItWorks: "c1",
+      historicalStatus: "original-1905",
+    },
+    {
+      id: "h2",
+      label: "Hyp 2",
+      owner: "owner-2",
+      modelIdentity: "m2",
+      circumstancesInWhichItWorks: "c2",
+      historicalStatus: "contemporary-alternative",
+    },
   ];
   raw.observation = { observableId: "diffusivity", inputs: {}, procedure: "measure" };
   raw.tolerance = { relative: 0.05, rationale: "apparatus limit" };
@@ -2222,9 +2304,7 @@ test("Scenario: (experiment.ts:2346) tolerance-comparison-missing-spec rejected 
   const yaml = fs.readFileSync(path.join(FIXTURES_DIR, "scenario-valid.yaml"), "utf8");
   const raw = strictParse(yaml, "yaml") as any;
   raw.expected = {
-    outputs: [
-      { outputId: "D", comparisonKind: "tolerance", tolerance: {} },
-    ],
+    outputs: [{ outputId: "D", comparisonKind: "tolerance", tolerance: {} }],
   };
   assert.throws(
     () => validateScenario(raw),
@@ -2234,9 +2314,14 @@ test("Scenario: (experiment.ts:2346) tolerance-comparison-missing-spec rejected 
       return true;
     },
   );
-  raw.expected.outputs[0].tolerance = { relative: 0.01, rationale: "Experimental tolerance requirement" };
+  raw.expected.outputs[0].tolerance = {
+    relative: 0.01,
+    rationale: "Experimental tolerance requirement",
+  };
   const accepted = validateScenario(raw);
-  assert.equal(accepted.expected.outputs[0]?.comparisonKind, "tolerance");
+  const out0 = accepted.expected.outputs?.[0];
+  if (!out0) throw new Error("expected accepted.expected.outputs[0] to be defined");
+  assert.equal(out0.comparisonKind, "tolerance");
 });
 
 test("Scenario: (experiment.ts:2363) rounds-to-tolerance-forbidden rejected when tolerance supplied, accepted without tolerance", () => {
@@ -2266,7 +2351,9 @@ test("Scenario: (experiment.ts:2363) rounds-to-tolerance-forbidden rejected when
   );
   delete raw.expected.outputs[0].tolerance;
   const accepted = validateScenario(raw);
-  assert.equal(accepted.expected.outputs[0]?.comparisonKind, "rounds-to");
+  const out0 = accepted.expected.outputs?.[0];
+  if (!out0) throw new Error("expected accepted.expected.outputs[0] to be defined");
+  assert.equal(out0.comparisonKind, "rounds-to");
 });
 
 test("Scenario: (experiment.ts:2371) rounds-to-missing-printed-spec rejected when printedValue missing, accepted with spec", () => {
@@ -2294,7 +2381,9 @@ test("Scenario: (experiment.ts:2371) rounds-to-missing-printed-spec rejected whe
   raw.expected.outputs[0].printedValue = "1.5";
   raw.expected.outputs[0].printedPrecision = { decimals: 1 };
   const accepted = validateScenario(raw);
-  assert.equal(accepted.expected.outputs[0]?.printedValue, "1.5");
+  const out0 = accepted.expected.outputs?.[0];
+  if (!out0) throw new Error("expected accepted.expected.outputs[0] to be defined");
+  assert.equal(out0.printedValue, "1.5");
 });
 
 test("Scenario: (experiment.ts:2379) half-even-missing-reason rejected when reason missing, accepted with reason", () => {
@@ -2324,7 +2413,9 @@ test("Scenario: (experiment.ts:2379) half-even-missing-reason rejected when reas
   );
   raw.expected.outputs[0].roundingReason = "Banker's rounding applied by author";
   const accepted = validateScenario(raw);
-  assert.equal(accepted.expected.outputs[0]?.roundingConvention, "half-even");
+  const out0 = accepted.expected.outputs?.[0];
+  if (!out0) throw new Error("expected accepted.expected.outputs[0] to be defined");
+  assert.equal(out0.roundingConvention, "half-even");
 });
 
 test("Scenario: (experiment.ts:2415) invalid-comparison-kind rejected when kind unknown, accepted for bitwise", () => {
@@ -2348,7 +2439,9 @@ test("Scenario: (experiment.ts:2415) invalid-comparison-kind rejected when kind 
   );
   raw.expected.outputs[0].comparisonKind = "bitwise";
   const accepted = validateScenario(raw);
-  assert.equal(accepted.expected.outputs[0]?.comparisonKind, "bitwise");
+  const out0 = accepted.expected.outputs?.[0];
+  if (!out0) throw new Error("expected accepted.expected.outputs[0] to be defined");
+  assert.equal(out0.comparisonKind, "bitwise");
 });
 
 // ============================================================================
@@ -2753,7 +2846,11 @@ test("HistoricalDataset: (experiment.ts:2798) missing-unnumbered-table-page reje
       return true;
     },
   );
-  raw.publications[0].locator = { kind: "unnumbered-table", page: 42, caption: "Table without number" };
+  raw.publications[0].locator = {
+    kind: "unnumbered-table",
+    page: 42,
+    caption: "Table without number",
+  };
   const accepted = validateHistoricalDataset(raw);
   assert.equal(accepted.publications[0]?.locator.kind, "unnumbered-table");
 });
@@ -2821,7 +2918,9 @@ test("HistoricalDataset: (experiment.ts:2873) invalid-series rejected when serie
       return true;
     },
   );
-  raw.series = [{ id: "series-a", publicationId: "perrin-1909-ann-chim", description: "First run" }];
+  raw.series = [
+    { id: "series-a", publicationId: "perrin-1909-ann-chim", description: "First run" },
+  ];
   const accepted = validateHistoricalDataset(raw);
   assert.equal(accepted.series?.length, 1);
 });
@@ -2980,6 +3079,20 @@ test("HistoricalDataset: (experiment.ts:3058) missing-result-statement rejected 
 });
 
 function makeValidFit() {
+  const param: {
+    name: string;
+    quantityId: string;
+    value: number;
+    unit: string;
+    source: string;
+    sourceCitation?: string | undefined;
+  } = {
+    name: "mobility",
+    quantityId: "mobility",
+    value: 1.2e11,
+    unit: "s/kg",
+    source: "fitted-here",
+  };
   return {
     id: "fit-perrin-mobility",
     label: "Linear least-squares fit",
@@ -2995,15 +3108,7 @@ function makeValidFit() {
     },
     rowsUsed: [0],
     rowsExcluded: [{ rowIndex: 1, reason: "Clouded emulsion" }],
-    parameters: [
-      {
-        name: "mobility",
-        quantityId: "mobility",
-        value: 1.2e11,
-        unit: "s/kg",
-        source: "fitted-here",
-      },
-    ],
+    parameters: [param],
   };
 }
 
@@ -3254,7 +3359,13 @@ test("HistoricalDataset: (experiment.ts:3247) missing-fit-parameters rejected wh
     },
   );
   fit.parameters = [
-    { name: "mobility", quantityId: "mobility", value: 1.2e11, unit: "s/kg", source: "fitted-here" },
+    {
+      name: "mobility",
+      quantityId: "mobility",
+      value: 1.2e11,
+      unit: "s/kg",
+      source: "fitted-here",
+    },
   ];
   const accepted = validateHistoricalDataset(raw);
   assert.equal(accepted.fits?.[0]?.parameters.length, 1);
@@ -3275,7 +3386,13 @@ test("HistoricalDataset: (experiment.ts:3258) invalid-fit-parameter rejected whe
     },
   );
   fit.parameters = [
-    { name: "mobility", quantityId: "mobility", value: 1.2e11, unit: "s/kg", source: "fitted-here" },
+    {
+      name: "mobility",
+      quantityId: "mobility",
+      value: 1.2e11,
+      unit: "s/kg",
+      source: "fitted-here",
+    },
   ];
   const accepted = validateHistoricalDataset(raw);
   assert.equal(accepted.fits?.[0]?.parameters[0]?.name, "mobility");
@@ -3285,7 +3402,9 @@ test("HistoricalDataset: (experiment.ts:3266) missing-fit-parameter-name rejecte
   const yaml = fs.readFileSync(path.join(FIXTURES_DIR, "dataset-valid.yaml"), "utf8");
   const raw = strictParse(yaml, "yaml") as any;
   const fit = makeValidFit();
-  fit.parameters[0].name = "   ";
+  const param0 = fit.parameters[0];
+  if (!param0) throw new Error("expected fit.parameters[0] to be defined");
+  param0.name = "   ";
   raw.fits = [fit];
   assert.throws(
     () => validateHistoricalDataset(raw),
@@ -3295,7 +3414,7 @@ test("HistoricalDataset: (experiment.ts:3266) missing-fit-parameter-name rejecte
       return true;
     },
   );
-  fit.parameters[0].name = "mobility";
+  param0.name = "mobility";
   const accepted = validateHistoricalDataset(raw);
   assert.equal(accepted.fits?.[0]?.parameters[0]?.name, "mobility");
 });
@@ -3304,7 +3423,9 @@ test("HistoricalDataset: (experiment.ts:3274) missing-fit-parameter-quantity-id 
   const yaml = fs.readFileSync(path.join(FIXTURES_DIR, "dataset-valid.yaml"), "utf8");
   const raw = strictParse(yaml, "yaml") as any;
   const fit = makeValidFit();
-  fit.parameters[0].quantityId = "";
+  const param0 = fit.parameters[0];
+  if (!param0) throw new Error("expected fit.parameters[0] to be defined");
+  param0.quantityId = "";
   raw.fits = [fit];
   assert.throws(
     () => validateHistoricalDataset(raw),
@@ -3314,7 +3435,7 @@ test("HistoricalDataset: (experiment.ts:3274) missing-fit-parameter-quantity-id 
       return true;
     },
   );
-  fit.parameters[0].quantityId = "mobility";
+  param0.quantityId = "mobility";
   const accepted = validateHistoricalDataset(raw);
   assert.equal(accepted.fits?.[0]?.parameters[0]?.quantityId, "mobility");
 });
@@ -3323,7 +3444,9 @@ test("HistoricalDataset: (experiment.ts:3282) missing-fit-parameter-value reject
   const yaml = fs.readFileSync(path.join(FIXTURES_DIR, "dataset-valid.yaml"), "utf8");
   const raw = strictParse(yaml, "yaml") as any;
   const fit = makeValidFit();
-  fit.parameters[0].value = NaN;
+  const param0 = fit.parameters[0];
+  if (!param0) throw new Error("expected fit.parameters[0] to be defined");
+  param0.value = NaN;
   raw.fits = [fit];
   assert.throws(
     () => validateHistoricalDataset(raw),
@@ -3333,7 +3456,7 @@ test("HistoricalDataset: (experiment.ts:3282) missing-fit-parameter-value reject
       return true;
     },
   );
-  fit.parameters[0].value = 1.2e11;
+  param0.value = 1.2e11;
   const accepted = validateHistoricalDataset(raw);
   assert.equal(accepted.fits?.[0]?.parameters[0]?.value, 1.2e11);
 });
@@ -3342,7 +3465,9 @@ test("HistoricalDataset: (experiment.ts:3290) missing-fit-parameter-unit rejecte
   const yaml = fs.readFileSync(path.join(FIXTURES_DIR, "dataset-valid.yaml"), "utf8");
   const raw = strictParse(yaml, "yaml") as any;
   const fit = makeValidFit();
-  fit.parameters[0].unit = 42 as any;
+  const param0 = fit.parameters[0];
+  if (!param0) throw new Error("expected fit.parameters[0] to be defined");
+  param0.unit = 42 as any;
   raw.fits = [fit];
   assert.throws(
     () => validateHistoricalDataset(raw),
@@ -3352,7 +3477,7 @@ test("HistoricalDataset: (experiment.ts:3290) missing-fit-parameter-unit rejecte
       return true;
     },
   );
-  fit.parameters[0].unit = "s/kg";
+  param0.unit = "s/kg";
   const accepted = validateHistoricalDataset(raw);
   assert.equal(accepted.fits?.[0]?.parameters[0]?.unit, "s/kg");
 });
@@ -3361,7 +3486,9 @@ test("HistoricalDataset: (experiment.ts:3298) invalid-fit-parameter-source rejec
   const yaml = fs.readFileSync(path.join(FIXTURES_DIR, "dataset-valid.yaml"), "utf8");
   const raw = strictParse(yaml, "yaml") as any;
   const fit = makeValidFit();
-  fit.parameters[0].source = "estimated-from-graph";
+  const param0 = fit.parameters[0];
+  if (!param0) throw new Error("expected fit.parameters[0] to be defined");
+  param0.source = "estimated-from-graph";
   raw.fits = [fit];
   assert.throws(
     () => validateHistoricalDataset(raw),
@@ -3371,8 +3498,8 @@ test("HistoricalDataset: (experiment.ts:3298) invalid-fit-parameter-source rejec
       return true;
     },
   );
-  fit.parameters[0].source = "imported";
-  fit.parameters[0].sourceCitation = "Perrin (1909)";
+  param0.source = "imported";
+  param0.sourceCitation = "Perrin (1909)";
   const accepted = validateHistoricalDataset(raw);
   assert.equal(accepted.fits?.[0]?.parameters[0]?.source, "imported");
 });
