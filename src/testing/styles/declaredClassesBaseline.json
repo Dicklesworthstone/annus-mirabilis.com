@@ -95,7 +95,7 @@
   "src/experiments/interactions/boundary/BoundaryChannelSelector.tsx": 0,
   "src/experiments/interactions/coefficient/CoefficientEditor.tsx": 0,
   "src/experiments/interactions/event/EventSelector.tsx": 77,
-  "src/experiments/interactions/expression/ExpressionActionPicker.tsx": 81,
+  "src/experiments/interactions/expression/ExpressionActionPicker.tsx": 0,
   "src/experiments/interactions/interval/IntervalSelector.tsx": 74,
   "src/experiments/interactions/partition/PartitionControl.tsx": 0,
   "src/experiments/permalink/ShareControl.tsx": 12,

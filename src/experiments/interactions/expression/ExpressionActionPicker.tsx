@@ -31,6 +31,18 @@ export interface ExpressionActionPickerProps
   readonly derivationChainId?: string | undefined;
 }
 
+const srOnlyStyle: React.CSSProperties = {
+  position: "absolute",
+  width: "1px",
+  height: "1px",
+  padding: 0,
+  margin: "-1px",
+  overflow: "hidden",
+  clip: "rect(0, 0, 0, 0)",
+  whiteSpace: "nowrap",
+  borderWidth: 0,
+};
+
 export function ExpressionActionPicker({
   instrumentId,
   actionId,
@@ -90,27 +102,71 @@ export function ExpressionActionPicker({
 
   return (
     <div
-      className={`expression-action-picker ${className}`}
+      className={className || undefined}
       data-interaction-family="derivations"
       data-testid={testId}
     >
       {/* Live Region Announcement */}
-      <div className="sr-only" aria-live="polite" role="status">
+      <div style={srOnlyStyle} aria-live="polite" role="status">
         {announcement}
       </div>
 
-      <div className="p-3 bg-stone-50 border border-stone-200 rounded">
-        <div className="flex justify-between items-center mb-2">
-          <h4 className="text-xs font-semibold uppercase tracking-wider text-stone-800">
-            Derivation Chain: <span className="font-mono text-amber-900">{derivationChainId}</span>
+      <div
+        style={{
+          padding: "0.75rem",
+          background: "var(--panel)",
+          border: "1px solid var(--line)",
+          borderRadius: "0.25rem",
+        }}
+      >
+        <div
+          style={{
+            display: "flex",
+            justifyContent: "space-between",
+            alignItems: "center",
+            marginBottom: "0.5rem",
+          }}
+        >
+          <h4
+            className="eyebrow"
+            style={{
+              fontSize: "0.75rem",
+              fontWeight: 600,
+              textTransform: "uppercase",
+              letterSpacing: "0.05em",
+              color: "var(--ink)",
+            }}
+          >
+            Derivation Chain:{" "}
+            <span
+              style={{
+                fontFamily: "var(--font-mono, monospace)",
+                color: "var(--accent)",
+              }}
+            >
+              {derivationChainId}
+            </span>
           </h4>
-          <span className="text-xs text-stone-500 font-mono">
+          <span
+            style={{
+              fontSize: "0.75rem",
+              color: "var(--muted)",
+              fontFamily: "var(--font-mono, monospace)",
+            }}
+          >
             Step {stepIdx + 1} of {subexpressions.length}
           </span>
         </div>
 
         {/* Visual Term Highlighter / Interactive Badges */}
-        <div className="flex flex-wrap gap-2 mb-3">
+        <div
+          style={{
+            display: "flex",
+            flexWrap: "wrap",
+            gap: "0.5rem",
+            marginBottom: "0.75rem",
+          }}
+        >
           {subexpressions.map((sub, idx) => {
             const isSelected = sub.id === selectedSubId;
             return (
@@ -122,13 +178,29 @@ export function ExpressionActionPicker({
                   setStepIdx(idx);
                   handleSelectSubexpression(sub.id);
                 }}
-                className={`px-2.5 py-1.5 rounded text-xs transition-colors text-left ${
-                  isSelected
-                    ? "bg-amber-600 text-white font-bold shadow-sm"
-                    : "bg-white border border-stone-300 text-stone-800 hover:bg-amber-50"
-                }`}
+                className="button"
+                style={{
+                  padding: "0.375rem 0.625rem",
+                  borderRadius: "0.25rem",
+                  fontSize: "0.75rem",
+                  textAlign: "left",
+                  cursor: disabled ? "not-allowed" : "pointer",
+                  background: isSelected ? "var(--accent)" : "var(--panel)",
+                  color: isSelected ? "var(--panel)" : "var(--ink)",
+                  fontWeight: isSelected ? 700 : "normal",
+                  border: isSelected ? "1px solid var(--accent)" : "1px solid var(--line)",
+                }}
               >
-                <span className="font-mono font-bold mr-1">{idx + 1}.</span> {sub.label}
+                <span
+                  style={{
+                    fontFamily: "var(--font-mono, monospace)",
+                    fontWeight: 700,
+                    marginRight: "0.25rem",
+                  }}
+                >
+                  {idx + 1}.
+                </span>{" "}
+                {sub.label}
               </button>
             );
           })}
@@ -136,33 +208,89 @@ export function ExpressionActionPicker({
 
         {/* Accessible Equivalent Subexpression Detail & Role */}
         {activeSub && (
-          <div className="p-2.5 bg-white border border-stone-200 rounded mb-3 text-xs">
-            <div className="flex items-center justify-between mb-1">
-              <span className="font-semibold text-stone-900">{activeSub.label}</span>
+          <div
+            style={{
+              padding: "0.625rem",
+              background: "var(--wash)",
+              border: "1px solid var(--line)",
+              borderRadius: "0.25rem",
+              marginBottom: "0.75rem",
+              fontSize: "0.75rem",
+            }}
+          >
+            <div
+              style={{
+                display: "flex",
+                alignItems: "center",
+                justifyContent: "space-between",
+                marginBottom: "0.25rem",
+              }}
+            >
+              <span style={{ fontWeight: 600, color: "var(--ink)" }}>{activeSub.label}</span>
               {activeSub.derivationRule && (
-                <span className="bg-stone-100 px-2 py-0.5 rounded text-stone-600 font-mono text-xs">
+                <span
+                  style={{
+                    background: "var(--panel)",
+                    padding: "0.125rem 0.5rem",
+                    borderRadius: "0.25rem",
+                    color: "var(--muted)",
+                    fontFamily: "var(--font-mono, monospace)",
+                    fontSize: "0.75rem",
+                    border: "1px solid var(--line)",
+                  }}
+                >
                   Rule: {activeSub.derivationRule}
                 </span>
               )}
             </div>
-            <div className="text-stone-600 mb-1">{activeSub.roleDescription}</div>
-            <div className="font-mono bg-stone-50 p-1.5 rounded text-stone-800 text-xs border border-stone-100">
+            <div style={{ color: "var(--muted)", marginBottom: "0.25rem" }}>
+              {activeSub.roleDescription}
+            </div>
+            <div
+              style={{
+                fontFamily: "var(--font-mono, monospace)",
+                background: "var(--panel)",
+                padding: "0.375rem",
+                borderRadius: "0.25rem",
+                color: "var(--ink)",
+                fontSize: "0.75rem",
+                border: "1px solid var(--line)",
+              }}
+            >
               {activeSub.expressionLatex}
             </div>
           </div>
         )}
 
         {/* Action Button to Step Forward */}
-        <div className="flex items-center justify-between pt-2 border-t border-stone-200 text-xs">
+        <div
+          style={{
+            display: "flex",
+            alignItems: "center",
+            justifyContent: "space-between",
+            paddingTop: "0.5rem",
+            borderTop: "1px solid var(--line)",
+            fontSize: "0.75rem",
+          }}
+        >
           <button
             type="button"
             disabled={disabled}
             onClick={handleAdvanceStep}
-            className="px-3 py-1.5 bg-amber-700 hover:bg-amber-800 text-white font-medium rounded transition-colors"
+            className="button"
+            style={{
+              padding: "0.375rem 0.75rem",
+              background: "var(--accent)",
+              color: "var(--panel)",
+              fontWeight: 500,
+              borderRadius: "0.25rem",
+              cursor: disabled ? "not-allowed" : "pointer",
+              border: "1px solid var(--accent)",
+            }}
           >
             Advance Justified Step →
           </button>
-          <span className="text-stone-500 italic">
+          <span style={{ color: "var(--muted)", fontStyle: "italic" }}>
             Command class: {commandClass} (digest invariant preserved)
           </span>
         </div>
