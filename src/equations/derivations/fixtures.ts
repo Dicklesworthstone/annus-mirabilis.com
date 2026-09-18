@@ -1133,3 +1133,101 @@ export const adversarialProofRelyingOnConclusion: DerivationChain = Object.freez
     },
   ]),
 });
+
+/** Alias for step citing chain.target as premise */
+export const adversarialStepSelfCitation = adversarialProofRelyingOnConclusion;
+
+/** Passing counterpart: derivation step citing chain.target with edgeType cross-reference */
+export const fixtureStepCrossReferenceTarget: DerivationChain = Object.freeze({
+  id: "chain-step-cross-reference-target",
+  proofRouteId: "route-step-cross-reference-target",
+  routeKind: "source-order",
+  target: "eq-adv-conclusion-target",
+  entryAssumptions: [] as readonly PremiseRef[],
+  steps: Object.freeze<DerivationStep[]>([
+    {
+      id: "step-cross-ref-target-1",
+      from: sym("A"),
+      to: sym("B"),
+      changedSubexpressionIds: ["A"],
+      rule: {
+        kind: "substitute" as const,
+        params: { targetId: "A", replacement: sym("B"), citedEquality: "Navigation cross-reference" },
+      },
+      reasonKind: "algebra" as const,
+      reasons: {
+        r0: "Cross-reference conclusion for navigation.",
+        r1: "Step notes navigational cross-reference to target.",
+        r2: "Non-premise cross-reference edge permitted.",
+      },
+      premiseRefs: [{ ref: "eq-adv-conclusion-target", edgeType: "cross-reference" }],
+      isMove: false,
+      verification: { status: "verified" },
+    },
+  ]),
+});
+
+/** 10. Derivation chain entry assumption citing chain.target as premise */
+export const adversarialEntryAssumptionSelfCitation: DerivationChain = Object.freeze({
+  id: "chain-adv-entry-assumption-self-citation",
+  proofRouteId: "route-adv-entry-assumption-self-citation",
+  routeKind: "source-order",
+  target: "eq-adv-entry-target",
+  entryAssumptions: [
+    { ref: "eq-adv-entry-target", edgeType: "historical-derivation" },
+  ] as readonly PremiseRef[],
+  steps: Object.freeze<DerivationStep[]>([
+    {
+      id: "adv-step-entry-cite-1",
+      from: sym("A"),
+      to: sym("B"),
+      changedSubexpressionIds: ["A"],
+      rule: {
+        kind: "substitute" as const,
+        params: { targetId: "A", replacement: sym("B"), citedEquality: "Step equality" },
+      },
+      reasonKind: "algebra" as const,
+      reasons: {
+        r0: "Step reasoning.",
+        r1: "Full step reasoning.",
+        r2: "Detailed step reasoning.",
+      },
+      premiseRefs: [],
+      isMove: false,
+      verification: { status: "verified" },
+    },
+  ]),
+});
+
+/** Passing counterpart: derivation chain entry assumption citing chain.target with edgeType cross-reference */
+export const fixtureEntryAssumptionCrossReferenceTarget: DerivationChain = Object.freeze({
+  id: "chain-entry-cross-reference-target",
+  proofRouteId: "route-entry-cross-reference-target",
+  routeKind: "source-order",
+  target: "eq-adv-entry-target",
+  entryAssumptions: [
+    { ref: "eq-adv-entry-target", edgeType: "cross-reference" },
+  ] as readonly PremiseRef[],
+  steps: Object.freeze<DerivationStep[]>([
+    {
+      id: "step-entry-cross-ref-1",
+      from: sym("A"),
+      to: sym("B"),
+      changedSubexpressionIds: ["A"],
+      rule: {
+        kind: "substitute" as const,
+        params: { targetId: "A", replacement: sym("B"), citedEquality: "Step equality" },
+      },
+      reasonKind: "algebra" as const,
+      reasons: {
+        r0: "Step reasoning.",
+        r1: "Full step reasoning.",
+        r2: "Detailed step reasoning.",
+      },
+      premiseRefs: [],
+      isMove: false,
+      verification: { status: "verified" },
+    },
+  ]),
+});
+

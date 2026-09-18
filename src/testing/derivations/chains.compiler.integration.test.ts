@@ -3,6 +3,7 @@ import test from "node:test";
 import { exportProofGraphs } from "../../equations/derivations/exportProofGraph.ts";
 import {
   adversarialCyclicRoute,
+  adversarialEntryAssumptionSelfCitation,
   adversarialHistoricalCitingModernOracle,
   adversarialIntegrationNoConstantOrBc,
   adversarialLorentzDiscoveryMinkowskiAxiom,
@@ -55,6 +56,7 @@ test("chains.compiler.integration: rejects all adversarial chains", () => {
     adversarialMassEnergyGammaMc2,
     adversarialLorentzDiscoveryMinkowskiAxiom,
     adversarialProofRelyingOnConclusion,
+    adversarialEntryAssumptionSelfCitation,
   ];
 
   for (const adv of adversarialChains) {

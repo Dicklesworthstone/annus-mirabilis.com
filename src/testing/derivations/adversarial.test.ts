@@ -2,6 +2,7 @@ import assert from "node:assert/strict";
 import test from "node:test";
 import {
   adversarialCyclicRoute,
+  adversarialEntryAssumptionSelfCitation,
   adversarialHistoricalCitingModernOracle,
   adversarialIntegrationNoConstantOrBc,
   adversarialLorentzDiscoveryMinkowskiAxiom,
@@ -10,6 +11,9 @@ import {
   adversarialMassEnergyGammaMc2,
   adversarialProofRelyingOnConclusion,
   adversarialSquareRootNoBranch,
+  adversarialStepSelfCitation,
+  fixtureEntryAssumptionCrossReferenceTarget,
+  fixtureStepCrossReferenceTarget,
 } from "../../equations/derivations/fixtures.ts";
 import { verifyChain } from "../../equations/derivations/verifyChain.ts";
 
@@ -73,12 +77,29 @@ test("adversarial.test: Lorentz discovery route requiring Minkowski interval as 
   assert.match(report.errors[0] ?? "", /illegally requires Minkowski interval/);
 });
 
-test("adversarial.test: derivation chain relying on its own conclusion fails", () => {
-  const report = verifyChain(adversarialProofRelyingOnConclusion);
+test("adversarial.test: step citing chain.target as premise is rejected, naming the step", () => {
+  const report = verifyChain(adversarialStepSelfCitation);
   assert.equal(report.passed, false);
-  assert.ok(report.errors.length > 0);
-  assert.match(report.errors[0] ?? "", /relies on its own conclusion/);
-  // Also caught by directed cycle detection in proof graph
-  assert.ok(report.graphIssues.length > 0);
-  assert.match(report.graphIssues[0] ?? "", /directed cycle on premise edges/);
+  const expectedMsg = `derivation step "adv-step-cite-target-1" relies on its own conclusion "eq-adv-conclusion-target" as a premise.`;
+  assert.ok(report.errors.includes(expectedMsg), `Expected error: ${expectedMsg}`);
 });
+
+test("adversarial.test: step citing chain.target with edgeType 'cross-reference' is accepted", () => {
+  const report = verifyChain(fixtureStepCrossReferenceTarget);
+  assert.equal(report.passed, true);
+  assert.equal(report.errors.length, 0);
+});
+
+test("adversarial.test: entry assumption citing chain.target as premise is rejected, naming the chain", () => {
+  const report = verifyChain(adversarialEntryAssumptionSelfCitation);
+  assert.equal(report.passed, false);
+  const expectedMsg = `derivation chain "chain-adv-entry-assumption-self-citation" entry assumption relies on its own conclusion "eq-adv-entry-target".`;
+  assert.ok(report.errors.includes(expectedMsg), `Expected error: ${expectedMsg}`);
+});
+
+test("adversarial.test: entry assumption citing chain.target with edgeType 'cross-reference' is accepted", () => {
+  const report = verifyChain(fixtureEntryAssumptionCrossReferenceTarget);
+  assert.equal(report.passed, true);
+  assert.equal(report.errors.length, 0);
+});
+
