@@ -111,6 +111,59 @@ describe("buildWasmArtifacts build, gates, and reproducibility", () => {
     );
   });
 
+  it("refuses unknown git revision when checkGitRevisions is enabled", async () => {
+    const tempDir = mkdtempSync(join(tempBase, "build-git-rev-"));
+    await assert.rejects(
+      async () => {
+        await buildWasmArtifacts({
+          checkGitRevisions: true,
+          gitRevision: "0000000000000000000000000000000000000000",
+          outputBaseDir: join(tempDir, "wasm"),
+        });
+      },
+      { message: /Unknown git revision: 0000000000000000000000000000000000000000/ },
+    );
+  });
+
+  it("refuses output path outside build root", async () => {
+    const tempDir = mkdtempSync(join(tempBase, "build-root-refuse-"));
+    const buildRoot = join(tempDir, "build-root");
+    const outputBaseDir = join(tempDir, "outside-wasm");
+    mkdirSync(buildRoot, { recursive: true });
+
+    await assert.rejects(
+      async () => {
+        await buildWasmArtifacts({
+          buildRoot,
+          outputBaseDir,
+        });
+      },
+      { message: /Output path outside build root/ },
+    );
+  });
+
+  it("detects planted nondeterminism, writes digest summary to runDir, and throws", async () => {
+    const tempDir = mkdtempSync(join(tempBase, "build-nondet-"));
+    const runDir = join(tempDir, "run-nondet");
+
+    await assert.rejects(
+      async () => {
+        await buildWasmArtifacts({
+          runDir,
+          outputBaseDir: join(tempDir, "wasm"),
+          plantNondeterminism: true,
+        });
+      },
+      { message: /Reproducibility check failed/ },
+    );
+
+    const summaryPath = join(runDir, "digest-summary.json");
+    assert.equal(existsSync(summaryPath), true);
+    const summary = JSON.parse(readFileSync(summaryPath, "utf8"));
+    assert.equal(summary.reproducible, false);
+    assert.notEqual(summary.rootA.sha256, summary.rootB.sha256);
+  });
+
   describe("size budget and drift gate evaluation (am-fs-slim-artifact-0yh requirement 8)", () => {
     it("rejects fixture manifest exceeding absolute policy budget with typed code absolute-budget-exceeded", () => {
       const fixturePath = join(fixturesBase, "manifest-exceeds-max-bytes.json");

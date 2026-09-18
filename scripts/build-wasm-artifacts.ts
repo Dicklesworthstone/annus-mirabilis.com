@@ -29,8 +29,11 @@ export interface BuildOptions {
   readonly runDir?: string;
   readonly bindingDocPath?: string;
   readonly outputBaseDir?: string;
+  readonly buildRoot?: string;
   readonly checkGitRevisions?: boolean;
+  readonly gitRevision?: string;
   readonly bundleId?: string;
+  readonly plantNondeterminism?: boolean;
 }
 
 export interface BuildOutputSummary {
@@ -53,11 +56,39 @@ export async function buildWasmArtifacts(options: BuildOptions = {}): Promise<Bu
   const bindingDocPath = options.bindingDocPath ?? join(repoRoot, "docs/FRANKENSIM_BINDING.md");
   const outputBaseDir = options.outputBaseDir ?? join(repoRoot, "public/wasm");
 
+  // Enforce build root containment if buildRoot is specified
+  if (options.buildRoot !== undefined) {
+    const resolvedBuildRoot = resolve(options.buildRoot);
+    const resolvedOutput = resolve(outputBaseDir);
+    if (!resolvedOutput.startsWith(resolvedBuildRoot + "/") && resolvedOutput !== resolvedBuildRoot) {
+      throw new Error(`Output path outside build root: ${outputBaseDir} is outside ${options.buildRoot}`);
+    }
+  }
+
   // 1. Read binding doc and run capability-matrix admission gate
   if (!existsSync(bindingDocPath)) {
     throw new Error(`FrankenSim binding document not found at ${bindingDocPath}`);
   }
   const bindingDoc = readFileSync(bindingDocPath, "utf8");
+
+  // Validate git revision if checkGitRevisions is enabled
+  if (options.checkGitRevisions) {
+    const { execSync } = await import("node:child_process");
+    let revToCheck = options.gitRevision;
+    if (!revToCheck) {
+      const match = bindingDoc.match(/Pinned FrankenSim Revision:\s*`([a-f0-9]+)`/i);
+      revToCheck = match ? match[1] : undefined;
+    }
+    if (!revToCheck) {
+      throw new Error("No git revision provided or found in binding document to check");
+    }
+    try {
+      execSync(`git cat-file -e ${revToCheck}`, { stdio: "ignore" });
+    } catch {
+      throw new Error(`Unknown git revision: ${revToCheck}`);
+    }
+  }
+
   const matrix = parseCapabilityMatrix(bindingDoc);
   const requestedExports = ["brownian_frames", "philox_normals", "diffusion1d_frames"];
 
@@ -94,9 +125,25 @@ export async function buildWasmArtifacts(options: BuildOptions = {}): Promise<Bu
     mkdirSync(rootB, { recursive: true });
 
     const wasmA = buildWasmBinary();
-    const wasmB = buildWasmBinary();
+    let wasmB = buildWasmBinary();
+    if (options.plantNondeterminism) {
+      wasmB = new Uint8Array(wasmB);
+      const lastIdx = wasmB.length - 1;
+      wasmB[lastIdx] = (wasmB[lastIdx] ?? 0) ^ 0xff;
+    }
     const digestA = computeArtifactDigest(wasmA);
     const digestB = computeArtifactDigest(wasmB);
+
+    const digestSummary = {
+      reproducible: digestA === digestB,
+      rootA: { sha256: digestA, bytes: wasmA.byteLength },
+      rootB: { sha256: digestB, bytes: wasmB.byteLength },
+    };
+    writeFileSync(
+      join(options.runDir, "digest-summary.json"),
+      JSON.stringify(digestSummary, null, 2),
+      "utf8",
+    );
 
     if (digestA !== digestB) {
       reproducible = false;
