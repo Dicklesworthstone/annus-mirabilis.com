@@ -82,7 +82,7 @@
   "src/discovery/cards/CardDetail.tsx": 0,
   "src/discovery/cards/KnowledgeCard.tsx": 61,
   "src/discovery/cards/Shelf.tsx": 63,
-  "src/discovery/cards/StatusLabel.tsx": 72,
+  "src/discovery/cards/StatusLabel.tsx": 0,
   "src/equations/SemanticEquation.tsx": 2,
   "src/equations/accessibility/EquationAccessibility.tsx": 1,
   "src/equations/accessibility/TermExplorer.tsx": 19,

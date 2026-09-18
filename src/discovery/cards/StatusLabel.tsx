@@ -7,6 +7,26 @@ export type StatusLabelProps = Readonly<{
   className?: string | undefined;
 }>;
 
+const baseBadgeStyle: React.CSSProperties = {
+  display: "inline-flex",
+  alignItems: "center",
+  gap: "0.375rem",
+  padding: "0.125rem 0.625rem",
+  borderRadius: "0.25rem",
+  fontSize: "0.75rem",
+  fontWeight: 500,
+  lineHeight: 1.4,
+  background: "var(--wash)",
+  border: "1px solid var(--line)",
+  color: "var(--ink)",
+};
+
+const svgStyle: React.CSSProperties = {
+  width: "0.875rem",
+  height: "0.875rem",
+  flexShrink: 0,
+};
+
 /**
  * Renders an accessible status badge for a Knowledge Card.
  * Uses distinct text and SVG geometric icon shapes so status is never conveyed by color alone.
@@ -16,15 +36,21 @@ export function StatusLabel({
   admittedImport,
   className = "",
 }: StatusLabelProps): JSX.Element {
+  const badgeClass = className ? `badge ${className}` : "badge";
+
   if (admittedImport) {
     return (
       <span
-        className={`inline-flex items-center gap-1.5 px-2.5 py-0.5 rounded text-xs font-medium bg-amber-100 text-amber-900 border border-amber-300 dark:bg-amber-950/60 dark:text-amber-200 dark:border-amber-700/60 ${className}`}
+        className={badgeClass}
+        style={{
+          ...baseBadgeStyle,
+          borderColor: "var(--accent)",
+        }}
         data-status="admitted-import"
       >
         {/* Inward / Import arrow shape */}
         <svg
-          className="w-3.5 h-3.5 flex-shrink-0"
+          style={svgStyle}
           viewBox="0 0 16 16"
           fill="none"
           stroke="currentColor"
@@ -42,13 +68,10 @@ export function StatusLabel({
 
   if (status === "available") {
     return (
-      <span
-        className={`inline-flex items-center gap-1.5 px-2.5 py-0.5 rounded text-xs font-medium bg-emerald-100 text-emerald-900 border border-emerald-300 dark:bg-emerald-950/60 dark:text-emerald-200 dark:border-emerald-700/60 ${className}`}
-        data-status="available"
-      >
+      <span className={badgeClass} style={baseBadgeStyle} data-status="available">
         {/* Checkmark in circle shape */}
         <svg
-          className="w-3.5 h-3.5 flex-shrink-0"
+          style={svgStyle}
           viewBox="0 0 16 16"
           fill="none"
           stroke="currentColor"
@@ -68,12 +91,16 @@ export function StatusLabel({
   if (status === "parallel-work") {
     return (
       <span
-        className={`inline-flex items-center gap-1.5 px-2.5 py-0.5 rounded text-xs font-medium bg-rose-100 text-rose-900 border border-rose-300 dark:bg-rose-950/60 dark:text-rose-200 dark:border-rose-700/60 ${className}`}
+        className={badgeClass}
+        style={{
+          ...baseBadgeStyle,
+          borderStyle: "dashed",
+        }}
         data-status="parallel-work"
       >
         {/* Parallel split / dual track shape */}
         <svg
-          className="w-3.5 h-3.5 flex-shrink-0"
+          style={svgStyle}
           viewBox="0 0 16 16"
           fill="none"
           stroke="currentColor"
@@ -92,12 +119,16 @@ export function StatusLabel({
   // status === "later"
   return (
     <span
-      className={`inline-flex items-center gap-1.5 px-2.5 py-0.5 rounded text-xs font-medium bg-sky-100 text-sky-900 border border-sky-300 dark:bg-sky-950/60 dark:text-sky-200 dark:border-sky-700/60 ${className}`}
+      className={badgeClass}
+      style={{
+        ...baseBadgeStyle,
+        color: "var(--muted)",
+      }}
       data-status="later"
     >
       {/* Clock / Forward arrow shape */}
       <svg
-        className="w-3.5 h-3.5 flex-shrink-0"
+        style={svgStyle}
         viewBox="0 0 16 16"
         fill="none"
         stroke="currentColor"
