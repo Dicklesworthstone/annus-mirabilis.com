@@ -1,9 +1,14 @@
 /**
- * Admitted WASM and Capability Provenance Registry (am-fs-slim-artifact-0yh requirement 9).
+ * Admitted WASM and Capability Provenance Registry (am-fs-slim-artifact-0yh / am-rt-worker-protocol-gaq).
  *
  * The manifest is the single source of truth for admitted WASM artifact digests and capability IDs.
  * Responses from any other artifact or unadmitted capability are rejected.
+ * Host evaluators are admitted through build-time source hashes (source:sha256:<hash>).
  */
+
+import { existsSync, readFileSync } from "node:fs";
+import { resolve } from "node:path";
+import type { ProvenanceRecord } from "./schema.ts";
 
 export interface WasmCapabilityRecord {
   readonly capabilityId: string;
@@ -50,11 +55,20 @@ export interface WasmArtifactManifest {
 }
 
 let activeManifest: WasmArtifactManifest | null = null;
+const activeEvaluatorHashes = new Map<string, string>();
 
 export class ProvenanceViolationError extends Error {
-  readonly code: "unadmitted-digest" | "unadmitted-capability" | "unloaded-manifest";
+  readonly code:
+    | "unadmitted-digest"
+    | "unadmitted-capability"
+    | "unadmitted-evaluator"
+    | "unloaded-manifest";
   constructor(
-    code: "unadmitted-digest" | "unadmitted-capability" | "unloaded-manifest",
+    code:
+      | "unadmitted-digest"
+      | "unadmitted-capability"
+      | "unadmitted-evaluator"
+      | "unloaded-manifest",
     message: string,
   ) {
     super(message);
@@ -72,6 +86,29 @@ export function registerAdmittedManifest(manifest: WasmArtifactManifest): void {
     capabilities: Object.freeze(manifest.capabilities.map((c) => Object.freeze({ ...c }))),
     files: Object.freeze({ ...manifest.files }),
   });
+}
+
+/**
+ * Loads and registers manifest from public/wasm/manifest.json if available.
+ */
+export function loadDefaultManifest(root: string = process.cwd()): WasmArtifactManifest | null {
+  const manifestPath = resolve(root, "public/wasm/manifest.json");
+  if (!existsSync(manifestPath)) return null;
+  try {
+    const raw = readFileSync(manifestPath, "utf8");
+    const parsed = JSON.parse(raw) as WasmArtifactManifest;
+    registerAdmittedManifest(parsed);
+    return parsed;
+  } catch {
+    return null;
+  }
+}
+
+/**
+ * Resets the active manifest to null (for testing).
+ */
+export function clearAdmittedManifest(): void {
+  activeManifest = null;
 }
 
 /**
@@ -133,6 +170,46 @@ export function assertAdmittedCapability(capabilityId: string): void {
 }
 
 /**
+ * Registers host evaluator source hashes (evaluatorId -> source:sha256:<hash>).
+ */
+export function registerAdmittedEvaluators(
+  evaluators: Record<string, string> | Map<string, string>,
+): void {
+  const entries = evaluators instanceof Map ? evaluators.entries() : Object.entries(evaluators);
+  for (const [id, hash] of entries) {
+    activeEvaluatorHashes.set(id, hash);
+  }
+}
+
+/**
+ * Clears registered host evaluator source hashes (for testing).
+ */
+export function clearAdmittedEvaluators(): void {
+  activeEvaluatorHashes.clear();
+}
+
+/**
+ * Checks if a host evaluator source hash is admitted.
+ */
+export function isAdmittedEvaluator(evaluatorId: string, sourceHash: string): boolean {
+  const admitted = activeEvaluatorHashes.get(evaluatorId);
+  if (!admitted) return false;
+  return admitted === sourceHash;
+}
+
+/**
+ * Asserts that a host evaluator is admitted, throwing ProvenanceViolationError if not.
+ */
+export function assertAdmittedEvaluator(evaluatorId: string, sourceHash: string): void {
+  if (!isAdmittedEvaluator(evaluatorId, sourceHash)) {
+    throw new ProvenanceViolationError(
+      "unadmitted-evaluator",
+      `Host evaluator "${evaluatorId}" with source hash "${sourceHash}" is not admitted by the provenance registry.`,
+    );
+  }
+}
+
+/**
  * Returns all admitted WASM digests.
  */
 export function getAdmittedWasmDigests(): readonly string[] {
@@ -151,4 +228,63 @@ export function getAdmittedWasmDigests(): readonly string[] {
 export function getAdmittedCapabilityIds(): readonly string[] {
   if (!activeManifest) return [];
   return activeManifest.capabilities.map((c) => c.capabilityId);
+}
+
+/**
+ * Returns all admitted evaluator IDs and hashes.
+ */
+export function getAdmittedEvaluators(): ReadonlyMap<string, string> {
+  return new Map(activeEvaluatorHashes);
+}
+
+/**
+ * Validates a complete ProvenanceRecord against the active registry.
+ */
+export function validateProvenanceRecord(
+  provenance: ProvenanceRecord,
+):
+  | { ok: true }
+  | {
+      ok: false;
+      code: "unadmitted-digest" | "unadmitted-capability" | "unadmitted-evaluator";
+      reason: string;
+    } {
+  if (provenance.ownerKind === "frankensim") {
+    // 1. Check artifact digest against manifest
+    const digest = provenance.artifactDigest.replace(/^sha256:/i, "");
+    if (!isAdmittedWasmDigest(digest)) {
+      return {
+        ok: false,
+        code: "unadmitted-digest",
+        reason: `WASM artifact digest "${provenance.artifactDigest}" is not admitted by the provenance registry.`,
+      };
+    }
+    // 2. If capabilityId present, check against manifest capabilities
+    if (provenance.capabilityId && !isAdmittedCapability(provenance.capabilityId)) {
+      return {
+        ok: false,
+        code: "unadmitted-capability",
+        reason: `Capability "${provenance.capabilityId}" is not admitted by the provenance registry.`,
+      };
+    }
+    return { ok: true };
+  }
+
+  if (provenance.ownerKind === "host-reference") {
+    const evaluatorId = provenance.evaluatorId ?? "unknown";
+    if (!isAdmittedEvaluator(evaluatorId, provenance.artifactDigest)) {
+      return {
+        ok: false,
+        code: "unadmitted-evaluator",
+        reason: `Host evaluator "${evaluatorId}" with source hash "${provenance.artifactDigest}" is not admitted.`,
+      };
+    }
+    return { ok: true };
+  }
+
+  return {
+    ok: false,
+    code: "unadmitted-evaluator",
+    reason: `Unknown owner kind: "${String((provenance as any).ownerKind)}"`,
+  };
 }
