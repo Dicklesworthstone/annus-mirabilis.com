@@ -33,6 +33,9 @@ import { inspectLedgerPresence } from "../src/content/editions/ledgerPresence.ts
 import { getReviewStateCheck } from "../src/content/editions/reviewState.ts";
 import { germanAlignableIds, segmentLedger } from "../src/content/editions/segmentLedger.ts";
 import { parseRouteSlug, type RouteSlug } from "../src/content/ids.ts";
+import { registerEditionReviewState } from "../src/content/checks/review/editionReviewState.ts";
+
+registerEditionReviewState();
 
 export type DerivedStatusInput = Readonly<{
   declared: Record<string, string>;
