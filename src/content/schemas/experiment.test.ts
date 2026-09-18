@@ -672,6 +672,29 @@ test("Scenario: Planted Negative - retired constantSet field is rejected", () =>
   );
 });
 
+test("Scenario: (experiment.ts:1931) invalid-record rejected when raw is not an object, accepted when object", () => {
+  assert.throws(
+    () => validateScenario("not-an-object" as any),
+    (err: any) => {
+      assert.ok(err instanceof ExperimentValidationError);
+      assert.equal(err.code, "invalid-record");
+      return true;
+    },
+  );
+  assert.throws(
+    () => validateScenario(null as any),
+    (err: any) => {
+      assert.ok(err instanceof ExperimentValidationError);
+      assert.equal(err.code, "invalid-record");
+      return true;
+    },
+  );
+  const yaml = fs.readFileSync(path.join(FIXTURES_DIR, "scenario-valid.yaml"), "utf8");
+  const raw = strictParse(yaml, "yaml");
+  const accepted = validateScenario(raw);
+  assert.ok(accepted);
+});
+
 test("Scenario: (experiment.ts:1941) missing-id rejected when id is missing or empty, accepted with id", () => {
   const yaml = fs.readFileSync(path.join(FIXTURES_DIR, "scenario-valid.yaml"), "utf8");
   const raw = strictParse(yaml, "yaml") as any;
@@ -1301,6 +1324,784 @@ test("HistoricalDataset: Planted Negative - forbidden result relations (confirme
       return true;
     },
   );
+});
+
+test("HistoricalDataset: (experiment.ts:2698) invalid-record rejected when raw is not an object, accepted when object", () => {
+  assert.throws(
+    () => validateHistoricalDataset("not-an-object" as any),
+    (err: any) => {
+      assert.ok(err instanceof ExperimentValidationError);
+      assert.equal(err.code, "invalid-record");
+      return true;
+    },
+  );
+  assert.throws(
+    () => validateHistoricalDataset(null as any),
+    (err: any) => {
+      assert.ok(err instanceof ExperimentValidationError);
+      assert.equal(err.code, "invalid-record");
+      return true;
+    },
+  );
+  const yaml = fs.readFileSync(path.join(FIXTURES_DIR, "dataset-valid.yaml"), "utf8");
+  const raw = strictParse(yaml, "yaml");
+  const accepted = validateHistoricalDataset(raw);
+  assert.ok(accepted);
+});
+
+test("HistoricalDataset: (experiment.ts:2708) missing-id rejected when id is missing or whitespace, accepted with id", () => {
+  const yaml = fs.readFileSync(path.join(FIXTURES_DIR, "dataset-valid.yaml"), "utf8");
+  const raw = strictParse(yaml, "yaml") as any;
+  raw.id = "   ";
+  assert.throws(
+    () => validateHistoricalDataset(raw),
+    (err: any) => {
+      assert.ok(err instanceof ExperimentValidationError);
+      assert.equal(err.code, "missing-id");
+      return true;
+    },
+  );
+  raw.id = "perrin-1909-table-1";
+  const accepted = validateHistoricalDataset(raw);
+  assert.equal(accepted.id, "perrin-1909-table-1");
+});
+
+test("HistoricalDataset: (experiment.ts:2716) missing-title rejected when title missing or empty, accepted with title", () => {
+  const yaml = fs.readFileSync(path.join(FIXTURES_DIR, "dataset-valid.yaml"), "utf8");
+  const raw = strictParse(yaml, "yaml") as any;
+  raw.title = "";
+  assert.throws(
+    () => validateHistoricalDataset(raw),
+    (err: any) => {
+      assert.ok(err instanceof ExperimentValidationError);
+      assert.equal(err.code, "missing-title");
+      return true;
+    },
+  );
+  raw.title = "Valid Title";
+  const accepted = validateHistoricalDataset(raw);
+  assert.equal(accepted.title, "Valid Title");
+});
+
+test("HistoricalDataset: (experiment.ts:2724) invalid-evidence-status rejected when status unknown, accepted for valid statuses", () => {
+  const yaml = fs.readFileSync(path.join(FIXTURES_DIR, "dataset-valid.yaml"), "utf8");
+  const raw = strictParse(yaml, "yaml") as any;
+  raw.evidenceStatus = "unverified-lore";
+  assert.throws(
+    () => validateHistoricalDataset(raw),
+    (err: any) => {
+      assert.ok(err instanceof ExperimentValidationError);
+      assert.equal(err.code, "invalid-evidence-status");
+      return true;
+    },
+  );
+  raw.evidenceStatus = "modern-observation";
+  const accepted = validateHistoricalDataset(raw);
+  assert.equal(accepted.evidenceStatus, "modern-observation");
+});
+
+test("HistoricalDataset: (experiment.ts:2734) missing-publications rejected when publications empty or non-array, accepted with entries", () => {
+  const yaml = fs.readFileSync(path.join(FIXTURES_DIR, "dataset-valid.yaml"), "utf8");
+  const raw = strictParse(yaml, "yaml") as any;
+  raw.publications = [];
+  assert.throws(
+    () => validateHistoricalDataset(raw),
+    (err: any) => {
+      assert.ok(err instanceof ExperimentValidationError);
+      assert.equal(err.code, "missing-publications");
+      return true;
+    },
+  );
+  const raw2 = strictParse(yaml, "yaml");
+  const accepted = validateHistoricalDataset(raw2);
+  assert.equal(accepted.publications.length, 1);
+});
+
+test("HistoricalDataset: (experiment.ts:2748) invalid-publication rejected when publication is not an object, accepted when valid", () => {
+  const yaml = fs.readFileSync(path.join(FIXTURES_DIR, "dataset-valid.yaml"), "utf8");
+  const raw = strictParse(yaml, "yaml") as any;
+  raw.publications = ["not-a-publication-object"];
+  assert.throws(
+    () => validateHistoricalDataset(raw),
+    (err: any) => {
+      assert.ok(err instanceof ExperimentValidationError);
+      assert.equal(err.code, "invalid-publication");
+      return true;
+    },
+  );
+  const raw2 = strictParse(yaml, "yaml");
+  const accepted = validateHistoricalDataset(raw2);
+  assert.equal(accepted.publications[0]?.id, "perrin-1909-ann-chim");
+});
+
+test("HistoricalDataset: (experiment.ts:2756) missing-publication-id rejected when publication id is missing or empty, accepted with id", () => {
+  const yaml = fs.readFileSync(path.join(FIXTURES_DIR, "dataset-valid.yaml"), "utf8");
+  const raw = strictParse(yaml, "yaml") as any;
+  raw.publications[0].id = "   ";
+  assert.throws(
+    () => validateHistoricalDataset(raw),
+    (err: any) => {
+      assert.ok(err instanceof ExperimentValidationError);
+      assert.equal(err.code, "missing-publication-id");
+      return true;
+    },
+  );
+  raw.publications[0].id = "perrin-1909-ann-chim";
+  const accepted = validateHistoricalDataset(raw);
+  assert.equal(accepted.publications[0]?.id, "perrin-1909-ann-chim");
+});
+
+test("HistoricalDataset: (experiment.ts:2779) missing-publication-locator rejected when locator missing or not object, accepted with locator", () => {
+  const yaml = fs.readFileSync(path.join(FIXTURES_DIR, "dataset-valid.yaml"), "utf8");
+  const raw = strictParse(yaml, "yaml") as any;
+  delete raw.publications[0].locator;
+  assert.throws(
+    () => validateHistoricalDataset(raw),
+    (err: any) => {
+      assert.ok(err instanceof ExperimentValidationError);
+      assert.equal(err.code, "missing-publication-locator");
+      return true;
+    },
+  );
+  raw.publications[0].locator = { kind: "table", number: 1 };
+  const accepted = validateHistoricalDataset(raw);
+  assert.equal(accepted.publications[0]?.locator.kind, "table");
+});
+
+test("HistoricalDataset: (experiment.ts:2798) missing-unnumbered-table-page rejected when unnumbered-table lacks page number, accepted with page", () => {
+  const yaml = fs.readFileSync(path.join(FIXTURES_DIR, "dataset-valid.yaml"), "utf8");
+  const raw = strictParse(yaml, "yaml") as any;
+  raw.publications[0].locator = { kind: "unnumbered-table" };
+  assert.throws(
+    () => validateHistoricalDataset(raw),
+    (err: any) => {
+      assert.ok(err instanceof ExperimentValidationError);
+      assert.equal(err.code, "missing-unnumbered-table-page");
+      return true;
+    },
+  );
+  raw.publications[0].locator = { kind: "unnumbered-table", page: 42, caption: "Table without number" };
+  const accepted = validateHistoricalDataset(raw);
+  assert.equal(accepted.publications[0]?.locator.kind, "unnumbered-table");
+});
+
+test("HistoricalDataset: (experiment.ts:2807) missing-text-locator-fields rejected when text locator lacks page or sentence, accepted with both", () => {
+  const yaml = fs.readFileSync(path.join(FIXTURES_DIR, "dataset-valid.yaml"), "utf8");
+  const raw = strictParse(yaml, "yaml") as any;
+  raw.publications[0].locator = { kind: "text", page: 12 };
+  assert.throws(
+    () => validateHistoricalDataset(raw),
+    (err: any) => {
+      assert.ok(err instanceof ExperimentValidationError);
+      assert.equal(err.code, "missing-text-locator-fields");
+      return true;
+    },
+  );
+  raw.publications[0].locator = { kind: "text", page: 12, sentence: 3 };
+  const accepted = validateHistoricalDataset(raw);
+  assert.equal(accepted.publications[0]?.locator.kind, "text");
+});
+
+test("HistoricalDataset: (experiment.ts:2815) invalid-locator-kind rejected when locator kind unknown, accepted with standard kind", () => {
+  const yaml = fs.readFileSync(path.join(FIXTURES_DIR, "dataset-valid.yaml"), "utf8");
+  const raw = strictParse(yaml, "yaml") as any;
+  raw.publications[0].locator = { kind: "footnote-reference", number: 4 };
+  assert.throws(
+    () => validateHistoricalDataset(raw),
+    (err: any) => {
+      assert.ok(err instanceof ExperimentValidationError);
+      assert.equal(err.code, "invalid-locator-kind");
+      return true;
+    },
+  );
+  raw.publications[0].locator = { kind: "figure", number: 2 };
+  const accepted = validateHistoricalDataset(raw);
+  assert.equal(accepted.publications[0]?.locator.kind, "figure");
+});
+
+test("HistoricalDataset: (experiment.ts:2857) invalid-primary-publication-id rejected when primaryPublicationId does not match any publication, accepted when matched", () => {
+  const yaml = fs.readFileSync(path.join(FIXTURES_DIR, "dataset-valid.yaml"), "utf8");
+  const raw = strictParse(yaml, "yaml") as any;
+  raw.primaryPublicationId = "unregistered-pub-id";
+  assert.throws(
+    () => validateHistoricalDataset(raw),
+    (err: any) => {
+      assert.ok(err instanceof ExperimentValidationError);
+      assert.equal(err.code, "invalid-primary-publication-id");
+      return true;
+    },
+  );
+  raw.primaryPublicationId = "perrin-1909-ann-chim";
+  const accepted = validateHistoricalDataset(raw);
+  assert.equal(accepted.primaryPublicationId, "perrin-1909-ann-chim");
+});
+
+test("HistoricalDataset: (experiment.ts:2873) invalid-series rejected when series item is not an object, accepted when valid", () => {
+  const yaml = fs.readFileSync(path.join(FIXTURES_DIR, "dataset-valid.yaml"), "utf8");
+  const raw = strictParse(yaml, "yaml") as any;
+  raw.series = ["not-a-series-object"];
+  assert.throws(
+    () => validateHistoricalDataset(raw),
+    (err: any) => {
+      assert.ok(err instanceof ExperimentValidationError);
+      assert.equal(err.code, "invalid-series");
+      return true;
+    },
+  );
+  raw.series = [{ id: "series-a", publicationId: "perrin-1909-ann-chim", description: "First run" }];
+  const accepted = validateHistoricalDataset(raw);
+  assert.equal(accepted.series?.length, 1);
+});
+
+test("HistoricalDataset: (experiment.ts:2881) missing-series-id rejected when series lacks id or is empty, accepted with id", () => {
+  const yaml = fs.readFileSync(path.join(FIXTURES_DIR, "dataset-valid.yaml"), "utf8");
+  const raw = strictParse(yaml, "yaml") as any;
+  raw.series = [{ id: "  ", publicationId: "perrin-1909-ann-chim" }];
+  assert.throws(
+    () => validateHistoricalDataset(raw),
+    (err: any) => {
+      assert.ok(err instanceof ExperimentValidationError);
+      assert.equal(err.code, "missing-series-id");
+      return true;
+    },
+  );
+  raw.series = [{ id: "series-01", publicationId: "perrin-1909-ann-chim" }];
+  const accepted = validateHistoricalDataset(raw);
+  assert.equal(accepted.series?.[0]?.id, "series-01");
+});
+
+test("HistoricalDataset: (experiment.ts:2890) series-unknown-publication-id rejected when series publicationId is not declared, accepted with valid pub id", () => {
+  const yaml = fs.readFileSync(path.join(FIXTURES_DIR, "dataset-valid.yaml"), "utf8");
+  const raw = strictParse(yaml, "yaml") as any;
+  raw.series = [{ id: "series-01", publicationId: "phantom-pub" }];
+  assert.throws(
+    () => validateHistoricalDataset(raw),
+    (err: any) => {
+      assert.ok(err instanceof ExperimentValidationError);
+      assert.equal(err.code, "series-unknown-publication-id");
+      return true;
+    },
+  );
+  raw.series = [{ id: "series-01", publicationId: "perrin-1909-ann-chim" }];
+  const accepted = validateHistoricalDataset(raw);
+  assert.equal(accepted.series?.[0]?.publicationId, "perrin-1909-ann-chim");
+});
+
+test("HistoricalDataset: (experiment.ts:2925) missing-digitizer rejected when digitizer block missing or not object, accepted with digitizer", () => {
+  const yaml = fs.readFileSync(path.join(FIXTURES_DIR, "dataset-valid.yaml"), "utf8");
+  const raw = strictParse(yaml, "yaml") as any;
+  delete raw.digitizer;
+  assert.throws(
+    () => validateHistoricalDataset(raw),
+    (err: any) => {
+      assert.ok(err instanceof ExperimentValidationError);
+      assert.equal(err.code, "missing-digitizer");
+      return true;
+    },
+  );
+  const raw2 = strictParse(yaml, "yaml");
+  const accepted = validateHistoricalDataset(raw2);
+  assert.equal(accepted.digitizer.name, "Editorial Team");
+});
+
+test("HistoricalDataset: (experiment.ts:2938) invalid-digitization-revision rejected when revision is not positive integer, accepted with positive integer", () => {
+  const yaml = fs.readFileSync(path.join(FIXTURES_DIR, "dataset-valid.yaml"), "utf8");
+  const raw = strictParse(yaml, "yaml") as any;
+  raw.digitizer.digitizationRevision = 0;
+  assert.throws(
+    () => validateHistoricalDataset(raw),
+    (err: any) => {
+      assert.ok(err instanceof ExperimentValidationError);
+      assert.equal(err.code, "invalid-digitization-revision");
+      return true;
+    },
+  );
+  raw.digitizer.digitizationRevision = 2;
+  const accepted = validateHistoricalDataset(raw);
+  assert.equal(accepted.digitizer.digitizationRevision, 2);
+});
+
+test("HistoricalDataset: (experiment.ts:2948) missing-columns rejected when columns array empty or non-array, accepted with columns", () => {
+  const yaml = fs.readFileSync(path.join(FIXTURES_DIR, "dataset-valid.yaml"), "utf8");
+  const raw = strictParse(yaml, "yaml") as any;
+  raw.columns = [];
+  assert.throws(
+    () => validateHistoricalDataset(raw),
+    (err: any) => {
+      assert.ok(err instanceof ExperimentValidationError);
+      assert.equal(err.code, "missing-columns");
+      return true;
+    },
+  );
+  const raw2 = strictParse(yaml, "yaml");
+  const accepted = validateHistoricalDataset(raw2);
+  assert.equal(accepted.columns.length, 3);
+});
+
+test("HistoricalDataset: (experiment.ts:2961) invalid-column rejected when column element is not an object, accepted when valid", () => {
+  const yaml = fs.readFileSync(path.join(FIXTURES_DIR, "dataset-valid.yaml"), "utf8");
+  const raw = strictParse(yaml, "yaml") as any;
+  raw.columns[0] = "not-a-column-object";
+  assert.throws(
+    () => validateHistoricalDataset(raw),
+    (err: any) => {
+      assert.ok(err instanceof ExperimentValidationError);
+      assert.equal(err.code, "invalid-column");
+      return true;
+    },
+  );
+  const raw2 = strictParse(yaml, "yaml");
+  const accepted = validateHistoricalDataset(raw2);
+  assert.equal(accepted.columns[0]?.name, "Granule Radius");
+});
+
+test("HistoricalDataset: (experiment.ts:2977) invalid-column-role rejected when role not in COLUMN_ROLES, accepted for valid roles", () => {
+  const yaml = fs.readFileSync(path.join(FIXTURES_DIR, "dataset-valid.yaml"), "utf8");
+  const raw = strictParse(yaml, "yaml") as any;
+  raw.columns[0].role = "imaginary-role";
+  assert.throws(
+    () => validateHistoricalDataset(raw),
+    (err: any) => {
+      assert.ok(err instanceof ExperimentValidationError);
+      assert.equal(err.code, "invalid-column-role");
+      return true;
+    },
+  );
+  raw.columns[0].role = "observed";
+  const accepted = validateHistoricalDataset(raw);
+  assert.equal(accepted.columns[0]?.role, "observed");
+});
+
+test("HistoricalDataset: (experiment.ts:3010) invalid-row rejected when row item is not object with cells array, accepted when valid", () => {
+  const yaml = fs.readFileSync(path.join(FIXTURES_DIR, "dataset-valid.yaml"), "utf8");
+  const raw = strictParse(yaml, "yaml") as any;
+  raw.rows[0] = "not-a-row-object";
+  assert.throws(
+    () => validateHistoricalDataset(raw),
+    (err: any) => {
+      assert.ok(err instanceof ExperimentValidationError);
+      assert.equal(err.code, "invalid-row");
+      return true;
+    },
+  );
+  const raw2 = strictParse(yaml, "yaml");
+  const accepted = validateHistoricalDataset(raw2);
+  assert.equal(accepted.rows.length, 2);
+});
+
+test("HistoricalDataset: (experiment.ts:3058) missing-result-statement rejected when addressesResults entry lacks statement, accepted with statement", () => {
+  const yaml = fs.readFileSync(path.join(FIXTURES_DIR, "dataset-valid.yaml"), "utf8");
+  const raw = strictParse(yaml, "yaml") as any;
+  raw.addressesResults[0].statement = "   ";
+  assert.throws(
+    () => validateHistoricalDataset(raw),
+    (err: any) => {
+      assert.ok(err instanceof ExperimentValidationError);
+      assert.equal(err.code, "missing-result-statement");
+      return true;
+    },
+  );
+  raw.addressesResults[0].statement = "Direct experimental verification.";
+  const accepted = validateHistoricalDataset(raw);
+  assert.equal(accepted.addressesResults?.[0]?.statement, "Direct experimental verification.");
+});
+
+function makeValidFit() {
+  return {
+    id: "fit-perrin-mobility",
+    label: "Linear least-squares fit",
+    fitObjective: "Determine mobility from mean displacements",
+    analysisDate: {
+      type: "issue-publication",
+      text: "1909",
+      earliest: "1909-01-01",
+      latest: "1909-12-31",
+      precision: "year",
+      source: "Annales de Chimie",
+      verifiedAt: "2026-09-15",
+    },
+    rowsUsed: [0],
+    rowsExcluded: [{ rowIndex: 1, reason: "Clouded emulsion" }],
+    parameters: [
+      {
+        name: "mobility",
+        quantityId: "mobility",
+        value: 1.2e11,
+        unit: "s/kg",
+        source: "fitted-here",
+      },
+    ],
+  };
+}
+
+test("HistoricalDataset: (experiment.ts:3081) invalid-fit rejected when fit is not an object, accepted when valid", () => {
+  const yaml = fs.readFileSync(path.join(FIXTURES_DIR, "dataset-valid.yaml"), "utf8");
+  const raw = strictParse(yaml, "yaml") as any;
+  raw.fits = ["not-a-fit-object"];
+  assert.throws(
+    () => validateHistoricalDataset(raw),
+    (err: any) => {
+      assert.ok(err instanceof ExperimentValidationError);
+      assert.equal(err.code, "invalid-fit");
+      return true;
+    },
+  );
+  raw.fits = [makeValidFit()];
+  const accepted = validateHistoricalDataset(raw);
+  assert.equal(accepted.fits?.length, 1);
+});
+
+test("HistoricalDataset: (experiment.ts:3089) missing-fit-id rejected when fit id missing or empty, accepted with id", () => {
+  const yaml = fs.readFileSync(path.join(FIXTURES_DIR, "dataset-valid.yaml"), "utf8");
+  const raw = strictParse(yaml, "yaml") as any;
+  const fit = makeValidFit();
+  fit.id = "   ";
+  raw.fits = [fit];
+  assert.throws(
+    () => validateHistoricalDataset(raw),
+    (err: any) => {
+      assert.ok(err instanceof ExperimentValidationError);
+      assert.equal(err.code, "missing-fit-id");
+      return true;
+    },
+  );
+  fit.id = "valid-fit-id";
+  const accepted = validateHistoricalDataset(raw);
+  assert.equal(accepted.fits?.[0]?.id, "valid-fit-id");
+});
+
+test("HistoricalDataset: (experiment.ts:3097) missing-fit-label rejected when fit label missing or empty, accepted with label", () => {
+  const yaml = fs.readFileSync(path.join(FIXTURES_DIR, "dataset-valid.yaml"), "utf8");
+  const raw = strictParse(yaml, "yaml") as any;
+  const fit = makeValidFit();
+  fit.label = "";
+  raw.fits = [fit];
+  assert.throws(
+    () => validateHistoricalDataset(raw),
+    (err: any) => {
+      assert.ok(err instanceof ExperimentValidationError);
+      assert.equal(err.code, "missing-fit-label");
+      return true;
+    },
+  );
+  fit.label = "Linear fit";
+  const accepted = validateHistoricalDataset(raw);
+  assert.equal(accepted.fits?.[0]?.label, "Linear fit");
+});
+
+test("HistoricalDataset: (experiment.ts:3105) missing-fit-objective rejected when fitObjective missing or empty, accepted with objective", () => {
+  const yaml = fs.readFileSync(path.join(FIXTURES_DIR, "dataset-valid.yaml"), "utf8");
+  const raw = strictParse(yaml, "yaml") as any;
+  const fit = makeValidFit();
+  fit.fitObjective = "   ";
+  raw.fits = [fit];
+  assert.throws(
+    () => validateHistoricalDataset(raw),
+    (err: any) => {
+      assert.ok(err instanceof ExperimentValidationError);
+      assert.equal(err.code, "missing-fit-objective");
+      return true;
+    },
+  );
+  fit.fitObjective = "Estimate Avogadro number";
+  const accepted = validateHistoricalDataset(raw);
+  assert.equal(accepted.fits?.[0]?.fitObjective, "Estimate Avogadro number");
+});
+
+test("HistoricalDataset: (experiment.ts:3128) fit-unknown-series-id rejected when seriesId not in series list, accepted when matching", () => {
+  const yaml = fs.readFileSync(path.join(FIXTURES_DIR, "dataset-valid.yaml"), "utf8");
+  const raw = strictParse(yaml, "yaml") as any;
+  raw.series = [{ id: "series-alpha", publicationId: "perrin-1909-ann-chim" }];
+  const fit = makeValidFit();
+  (fit as any).seriesId = "series-unknown";
+  raw.fits = [fit];
+  assert.throws(
+    () => validateHistoricalDataset(raw),
+    (err: any) => {
+      assert.ok(err instanceof ExperimentValidationError);
+      assert.equal(err.code, "fit-unknown-series-id");
+      return true;
+    },
+  );
+  (fit as any).seriesId = "series-alpha";
+  fit.rowsUsed = [];
+  fit.rowsExcluded = [];
+  const accepted = validateHistoricalDataset(raw);
+  assert.equal(accepted.fits?.[0]?.seriesId, "series-alpha");
+});
+
+test("HistoricalDataset: (experiment.ts:3141) missing-rows-used rejected when rowsUsed is not array, accepted when array", () => {
+  const yaml = fs.readFileSync(path.join(FIXTURES_DIR, "dataset-valid.yaml"), "utf8");
+  const raw = strictParse(yaml, "yaml") as any;
+  const fit = makeValidFit();
+  delete (fit as any).rowsUsed;
+  raw.fits = [fit];
+  assert.throws(
+    () => validateHistoricalDataset(raw),
+    (err: any) => {
+      assert.ok(err instanceof ExperimentValidationError);
+      assert.equal(err.code, "missing-rows-used");
+      return true;
+    },
+  );
+  fit.rowsUsed = [0];
+  const accepted = validateHistoricalDataset(raw);
+  assert.deepEqual(accepted.fits?.[0]?.rowsUsed, [0]);
+});
+
+test("HistoricalDataset: (experiment.ts:3149) missing-rows-excluded rejected when rowsExcluded is not array, accepted when array", () => {
+  const yaml = fs.readFileSync(path.join(FIXTURES_DIR, "dataset-valid.yaml"), "utf8");
+  const raw = strictParse(yaml, "yaml") as any;
+  const fit = makeValidFit();
+  delete (fit as any).rowsExcluded;
+  raw.fits = [fit];
+  assert.throws(
+    () => validateHistoricalDataset(raw),
+    (err: any) => {
+      assert.ok(err instanceof ExperimentValidationError);
+      assert.equal(err.code, "missing-rows-excluded");
+      return true;
+    },
+  );
+  fit.rowsExcluded = [{ rowIndex: 1, reason: "Clouded emulsion" }];
+  const accepted = validateHistoricalDataset(raw);
+  assert.equal(accepted.fits?.[0]?.rowsExcluded.length, 1);
+});
+
+test("HistoricalDataset: (experiment.ts:3160) invalid-row-used-index rejected when rowsUsed contains invalid index, accepted with valid index", () => {
+  const yaml = fs.readFileSync(path.join(FIXTURES_DIR, "dataset-valid.yaml"), "utf8");
+  const raw = strictParse(yaml, "yaml") as any;
+  const fit = makeValidFit();
+  fit.rowsUsed = [99];
+  raw.fits = [fit];
+  assert.throws(
+    () => validateHistoricalDataset(raw),
+    (err: any) => {
+      assert.ok(err instanceof ExperimentValidationError);
+      assert.equal(err.code, "invalid-row-used-index");
+      return true;
+    },
+  );
+  fit.rowsUsed = [0];
+  const accepted = validateHistoricalDataset(raw);
+  assert.deepEqual(accepted.fits?.[0]?.rowsUsed, [0]);
+});
+
+test("HistoricalDataset: (experiment.ts:3168) duplicate-row-used rejected when index repeated in rowsUsed, accepted when unique", () => {
+  const yaml = fs.readFileSync(path.join(FIXTURES_DIR, "dataset-valid.yaml"), "utf8");
+  const raw = strictParse(yaml, "yaml") as any;
+  const fit = makeValidFit();
+  fit.rowsUsed = [0, 0];
+  raw.fits = [fit];
+  assert.throws(
+    () => validateHistoricalDataset(raw),
+    (err: any) => {
+      assert.ok(err instanceof ExperimentValidationError);
+      assert.equal(err.code, "duplicate-row-used");
+      return true;
+    },
+  );
+  fit.rowsUsed = [0];
+  const accepted = validateHistoricalDataset(raw);
+  assert.deepEqual(accepted.fits?.[0]?.rowsUsed, [0]);
+});
+
+test("HistoricalDataset: (experiment.ts:3184) invalid-fit-exclusion rejected when exclusion item is not an object, accepted when object", () => {
+  const yaml = fs.readFileSync(path.join(FIXTURES_DIR, "dataset-valid.yaml"), "utf8");
+  const raw = strictParse(yaml, "yaml") as any;
+  const fit = makeValidFit();
+  fit.rowsExcluded = ["not-an-exclusion-object" as any];
+  raw.fits = [fit];
+  assert.throws(
+    () => validateHistoricalDataset(raw),
+    (err: any) => {
+      assert.ok(err instanceof ExperimentValidationError);
+      assert.equal(err.code, "invalid-fit-exclusion");
+      return true;
+    },
+  );
+  fit.rowsExcluded = [{ rowIndex: 1, reason: "Clouded emulsion" }];
+  const accepted = validateHistoricalDataset(raw);
+  assert.equal(accepted.fits?.[0]?.rowsExcluded.length, 1);
+});
+
+test("HistoricalDataset: (experiment.ts:3197) invalid-row-excluded-index rejected when rowIndex is out of bounds, accepted when valid", () => {
+  const yaml = fs.readFileSync(path.join(FIXTURES_DIR, "dataset-valid.yaml"), "utf8");
+  const raw = strictParse(yaml, "yaml") as any;
+  const fit = makeValidFit();
+  fit.rowsExcluded = [{ rowIndex: 99, reason: "Out of bounds" }];
+  raw.fits = [fit];
+  assert.throws(
+    () => validateHistoricalDataset(raw),
+    (err: any) => {
+      assert.ok(err instanceof ExperimentValidationError);
+      assert.equal(err.code, "invalid-row-excluded-index");
+      return true;
+    },
+  );
+  fit.rowsExcluded = [{ rowIndex: 1, reason: "Clouded emulsion" }];
+  const accepted = validateHistoricalDataset(raw);
+  assert.equal(accepted.fits?.[0]?.rowsExcluded[0]?.rowIndex, 1);
+});
+
+test("HistoricalDataset: (experiment.ts:3213) duplicate-row-excluded rejected when rowIndex repeated in rowsExcluded, accepted when unique", () => {
+  const yaml = fs.readFileSync(path.join(FIXTURES_DIR, "dataset-valid.yaml"), "utf8");
+  const raw = strictParse(yaml, "yaml") as any;
+  const fit = makeValidFit();
+  fit.rowsExcluded = [
+    { rowIndex: 1, reason: "Reason A" },
+    { rowIndex: 1, reason: "Reason B" },
+  ];
+  raw.fits = [fit];
+  assert.throws(
+    () => validateHistoricalDataset(raw),
+    (err: any) => {
+      assert.ok(err instanceof ExperimentValidationError);
+      assert.equal(err.code, "duplicate-row-excluded");
+      return true;
+    },
+  );
+  fit.rowsExcluded = [{ rowIndex: 1, reason: "Single reason" }];
+  const accepted = validateHistoricalDataset(raw);
+  assert.equal(accepted.fits?.[0]?.rowsExcluded.length, 1);
+});
+
+test("HistoricalDataset: (experiment.ts:3247) missing-fit-parameters rejected when parameters empty or not array, accepted with parameters", () => {
+  const yaml = fs.readFileSync(path.join(FIXTURES_DIR, "dataset-valid.yaml"), "utf8");
+  const raw = strictParse(yaml, "yaml") as any;
+  const fit = makeValidFit();
+  fit.parameters = [];
+  raw.fits = [fit];
+  assert.throws(
+    () => validateHistoricalDataset(raw),
+    (err: any) => {
+      assert.ok(err instanceof ExperimentValidationError);
+      assert.equal(err.code, "missing-fit-parameters");
+      return true;
+    },
+  );
+  fit.parameters = [
+    { name: "mobility", quantityId: "mobility", value: 1.2e11, unit: "s/kg", source: "fitted-here" },
+  ];
+  const accepted = validateHistoricalDataset(raw);
+  assert.equal(accepted.fits?.[0]?.parameters.length, 1);
+});
+
+test("HistoricalDataset: (experiment.ts:3258) invalid-fit-parameter rejected when parameter element is not an object, accepted when valid", () => {
+  const yaml = fs.readFileSync(path.join(FIXTURES_DIR, "dataset-valid.yaml"), "utf8");
+  const raw = strictParse(yaml, "yaml") as any;
+  const fit = makeValidFit();
+  fit.parameters = ["not-a-param-object" as any];
+  raw.fits = [fit];
+  assert.throws(
+    () => validateHistoricalDataset(raw),
+    (err: any) => {
+      assert.ok(err instanceof ExperimentValidationError);
+      assert.equal(err.code, "invalid-fit-parameter");
+      return true;
+    },
+  );
+  fit.parameters = [
+    { name: "mobility", quantityId: "mobility", value: 1.2e11, unit: "s/kg", source: "fitted-here" },
+  ];
+  const accepted = validateHistoricalDataset(raw);
+  assert.equal(accepted.fits?.[0]?.parameters[0]?.name, "mobility");
+});
+
+test("HistoricalDataset: (experiment.ts:3266) missing-fit-parameter-name rejected when parameter name missing or empty, accepted with name", () => {
+  const yaml = fs.readFileSync(path.join(FIXTURES_DIR, "dataset-valid.yaml"), "utf8");
+  const raw = strictParse(yaml, "yaml") as any;
+  const fit = makeValidFit();
+  fit.parameters[0].name = "   ";
+  raw.fits = [fit];
+  assert.throws(
+    () => validateHistoricalDataset(raw),
+    (err: any) => {
+      assert.ok(err instanceof ExperimentValidationError);
+      assert.equal(err.code, "missing-fit-parameter-name");
+      return true;
+    },
+  );
+  fit.parameters[0].name = "mobility";
+  const accepted = validateHistoricalDataset(raw);
+  assert.equal(accepted.fits?.[0]?.parameters[0]?.name, "mobility");
+});
+
+test("HistoricalDataset: (experiment.ts:3274) missing-fit-parameter-quantity-id rejected when quantityId missing or empty, accepted with quantityId", () => {
+  const yaml = fs.readFileSync(path.join(FIXTURES_DIR, "dataset-valid.yaml"), "utf8");
+  const raw = strictParse(yaml, "yaml") as any;
+  const fit = makeValidFit();
+  fit.parameters[0].quantityId = "";
+  raw.fits = [fit];
+  assert.throws(
+    () => validateHistoricalDataset(raw),
+    (err: any) => {
+      assert.ok(err instanceof ExperimentValidationError);
+      assert.equal(err.code, "missing-fit-parameter-quantity-id");
+      return true;
+    },
+  );
+  fit.parameters[0].quantityId = "mobility";
+  const accepted = validateHistoricalDataset(raw);
+  assert.equal(accepted.fits?.[0]?.parameters[0]?.quantityId, "mobility");
+});
+
+test("HistoricalDataset: (experiment.ts:3282) missing-fit-parameter-value rejected when value missing or NaN, accepted with number value", () => {
+  const yaml = fs.readFileSync(path.join(FIXTURES_DIR, "dataset-valid.yaml"), "utf8");
+  const raw = strictParse(yaml, "yaml") as any;
+  const fit = makeValidFit();
+  fit.parameters[0].value = NaN;
+  raw.fits = [fit];
+  assert.throws(
+    () => validateHistoricalDataset(raw),
+    (err: any) => {
+      assert.ok(err instanceof ExperimentValidationError);
+      assert.equal(err.code, "missing-fit-parameter-value");
+      return true;
+    },
+  );
+  fit.parameters[0].value = 1.2e11;
+  const accepted = validateHistoricalDataset(raw);
+  assert.equal(accepted.fits?.[0]?.parameters[0]?.value, 1.2e11);
+});
+
+test("HistoricalDataset: (experiment.ts:3290) missing-fit-parameter-unit rejected when unit is not a string, accepted with string unit", () => {
+  const yaml = fs.readFileSync(path.join(FIXTURES_DIR, "dataset-valid.yaml"), "utf8");
+  const raw = strictParse(yaml, "yaml") as any;
+  const fit = makeValidFit();
+  fit.parameters[0].unit = 42 as any;
+  raw.fits = [fit];
+  assert.throws(
+    () => validateHistoricalDataset(raw),
+    (err: any) => {
+      assert.ok(err instanceof ExperimentValidationError);
+      assert.equal(err.code, "missing-fit-parameter-unit");
+      return true;
+    },
+  );
+  fit.parameters[0].unit = "s/kg";
+  const accepted = validateHistoricalDataset(raw);
+  assert.equal(accepted.fits?.[0]?.parameters[0]?.unit, "s/kg");
+});
+
+test("HistoricalDataset: (experiment.ts:3298) invalid-fit-parameter-source rejected when source not fitted-here or imported, accepted for valid source", () => {
+  const yaml = fs.readFileSync(path.join(FIXTURES_DIR, "dataset-valid.yaml"), "utf8");
+  const raw = strictParse(yaml, "yaml") as any;
+  const fit = makeValidFit();
+  fit.parameters[0].source = "estimated-from-graph";
+  raw.fits = [fit];
+  assert.throws(
+    () => validateHistoricalDataset(raw),
+    (err: any) => {
+      assert.ok(err instanceof ExperimentValidationError);
+      assert.equal(err.code, "invalid-fit-parameter-source");
+      return true;
+    },
+  );
+  fit.parameters[0].source = "imported";
+  fit.parameters[0].sourceCitation = "Perrin (1909)";
+  const accepted = validateHistoricalDataset(raw);
+  assert.equal(accepted.fits?.[0]?.parameters[0]?.source, "imported");
 });
 
 // ============================================================================

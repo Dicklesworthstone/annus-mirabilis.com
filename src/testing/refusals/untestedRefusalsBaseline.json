@@ -46,7 +46,7 @@
   "src/content/schemas/concordance.ts": 45,
   "src/content/schemas/dates.ts": 9,
   "src/content/schemas/dimensionBasis.ts": 9,
-  "src/content/schemas/experiment.ts": 110,
+  "src/content/schemas/experiment.ts": 68,
   "src/content/schemas/inlines.ts": 2,
   "src/content/schemas/journey.ts": 58,
   "src/content/schemas/reading.ts": 1,
