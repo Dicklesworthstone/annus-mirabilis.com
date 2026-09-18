@@ -247,58 +247,91 @@ export function PhotoelectricLab({ example }: PhotoelectricLabProps) {
   const millikanData = useMemo(() => evaluateMillikanOverlay(), []);
 
   return (
-    <div
-      className="lab-surface flex flex-col gap-6 p-4 max-w-5xl mx-auto"
-      data-testid="photoelectric-lab"
-    >
+    <section className="laboratory" data-testid="photoelectric-lab">
       {/* Telemetry and Header */}
-      <div className="flex flex-wrap items-center justify-between gap-2 border-b border-slate-200 dark:border-slate-800 pb-3">
-        <div>
-          <span className="text-xs font-mono uppercase tracking-wider bg-sky-100 dark:bg-sky-950 text-sky-800 dark:text-sky-300 px-2 py-0.5 rounded mr-2">
-            LQ-08
-          </span>
-          <span className="text-xs font-mono text-slate-500">
-            Status: {view.status} | Step: {accepted?.stepIndex ?? 0} | Run:{" "}
-            {accepted?.runId ?? "init"}
-          </span>
+      <header
+        className="lab-heading"
+        style={{
+          borderBottom: "1px solid var(--line)",
+          paddingBottom: "1rem",
+          marginBottom: "1rem",
+        }}
+      >
+        <div
+          style={{
+            display: "flex",
+            flexWrap: "wrap",
+            alignItems: "center",
+            justifyContent: "space-between",
+            gap: "0.5rem",
+            width: "100%",
+          }}
+        >
+          <div style={{ display: "flex", alignItems: "center", gap: "0.5rem", flexWrap: "wrap" }}>
+            <span className="badge">LQ-08</span>
+            <span className="fine" style={{ fontFamily: "var(--font-mono)" }}>
+              Status: {view.status} | Step: {accepted?.stepIndex ?? 0} | Run:{" "}
+              {accepted?.runId ?? "init"}
+            </span>
+          </div>
+          <div style={{ display: "flex", alignItems: "center", gap: "0.5rem" }}>
+            <label
+              className="fine"
+              style={{
+                display: "flex",
+                alignItems: "center",
+                gap: "0.25rem",
+                cursor: "pointer",
+              }}
+            >
+              <input
+                type="checkbox"
+                checked={showMillikan}
+                onChange={(e) => setShowMillikan(e.target.checked)}
+              />
+              Millikan (1916) Overlay
+            </label>
+          </div>
         </div>
-        <div className="flex items-center gap-2">
-          <label className="text-xs flex items-center gap-1 cursor-pointer text-slate-700 dark:text-slate-300">
-            <input
-              type="checkbox"
-              checked={showMillikan}
-              onChange={(e) => setShowMillikan(e.target.checked)}
-              className="rounded"
-            />
-            Millikan (1916) Overlay
-          </label>
-        </div>
-      </div>
+      </header>
 
       {/* Presets Bar */}
-      <div className="flex flex-wrap items-center gap-2">
-        <span className="text-xs font-semibold text-slate-600 dark:text-slate-400">Presets:</span>
+      <nav
+        aria-label="Presets"
+        className="preset-list"
+        style={{ alignItems: "center", marginBottom: "1rem" }}
+      >
+        <span className="fine" style={{ fontWeight: 600, marginRight: "0.25rem" }}>
+          Presets:
+        </span>
         {PRESETS.map((preset) => (
           <button
             key={preset.name}
             type="button"
             onClick={() => session.apply(preset.patch)}
-            className="text-xs px-2.5 py-1 rounded bg-slate-100 dark:bg-slate-800 hover:bg-slate-200 dark:hover:bg-slate-700 border border-slate-300 dark:border-slate-700 transition"
+            className="button secondary"
           >
             {preset.name}
           </button>
         ))}
-      </div>
+      </nav>
 
       {/* Control Sliders Grid */}
-      <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4 bg-slate-50 dark:bg-slate-900/60 p-4 rounded-lg border border-slate-200 dark:border-slate-800">
+      <div
+        className="input-grid"
+        style={{
+          gridTemplateColumns: "repeat(auto-fit, minmax(260px, 1fr))",
+          background: "var(--panel)",
+          padding: "1rem",
+          borderRadius: "4px",
+          border: "1px solid var(--line)",
+        }}
+      >
         {/* Optical Power */}
-        <div className="flex flex-col gap-1">
-          <div className="flex justify-between text-xs">
-            <label htmlFor="power-input" className="font-medium text-slate-700 dark:text-slate-300">
-              Incident Power P_opt (mW)
-            </label>
-            <span className="font-mono text-slate-500">
+        <div className="input-field">
+          <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center" }}>
+            <label htmlFor="power-input">Incident Power P_opt (mW)</label>
+            <span className="fine" style={{ fontFamily: "var(--font-mono)" }}>
               {(params.incidentPower * 1e3).toFixed(2)} mW
             </span>
           </div>
@@ -310,7 +343,7 @@ export function PhotoelectricLab({ example }: PhotoelectricLabProps) {
             step="0.1"
             value={params.incidentPower * 1e3}
             onChange={(e) => session.apply({ incidentPower: Number(e.target.value) * 1e-3 })}
-            className="w-full"
+            style={{ width: "100%", marginTop: "0.25rem" }}
           />
           <input
             id="power-input"
@@ -320,17 +353,15 @@ export function PhotoelectricLab({ example }: PhotoelectricLabProps) {
             step="0.1"
             value={params.incidentPower * 1e3}
             onChange={(e) => session.apply({ incidentPower: Number(e.target.value) * 1e-3 })}
-            className="text-xs px-2 py-0.5 rounded border border-slate-300 dark:border-slate-700 bg-white dark:bg-slate-800 font-mono w-24"
+            style={{ width: "6rem", marginTop: "0.25rem" }}
           />
         </div>
 
         {/* Frequency */}
-        <div className="flex flex-col gap-1">
-          <div className="flex justify-between text-xs">
-            <label htmlFor="freq-input" className="font-medium text-slate-700 dark:text-slate-300">
-              Frequency &nu; (THz)
-            </label>
-            <span className="font-mono text-slate-500">
+        <div className="input-field">
+          <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center" }}>
+            <label htmlFor="freq-input">Frequency &nu; (THz)</label>
+            <span className="fine" style={{ fontFamily: "var(--font-mono)" }}>
               {(params.frequency / 1e12).toFixed(1)} THz
             </span>
           </div>
@@ -342,7 +373,7 @@ export function PhotoelectricLab({ example }: PhotoelectricLabProps) {
             step="5"
             value={params.frequency / 1e12}
             onChange={(e) => session.apply({ frequency: Number(e.target.value) * 1e12 })}
-            className="w-full"
+            style={{ width: "100%", marginTop: "0.25rem" }}
           />
           <input
             id="freq-input"
@@ -352,17 +383,17 @@ export function PhotoelectricLab({ example }: PhotoelectricLabProps) {
             step="1"
             value={params.frequency / 1e12}
             onChange={(e) => session.apply({ frequency: Number(e.target.value) * 1e12 })}
-            className="text-xs px-2 py-0.5 rounded border border-slate-300 dark:border-slate-700 bg-white dark:bg-slate-800 font-mono w-24"
+            style={{ width: "6rem", marginTop: "0.25rem" }}
           />
         </div>
 
         {/* Work Function */}
-        <div className="flex flex-col gap-1">
-          <div className="flex justify-between text-xs">
-            <label htmlFor="wf-input" className="font-medium text-slate-700 dark:text-slate-300">
-              Work Function &Phi; (eV)
-            </label>
-            <span className="font-mono text-slate-500">{params.workFunction.toFixed(2)} eV</span>
+        <div className="input-field">
+          <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center" }}>
+            <label htmlFor="wf-input">Work Function &Phi; (eV)</label>
+            <span className="fine" style={{ fontFamily: "var(--font-mono)" }}>
+              {params.workFunction.toFixed(2)} eV
+            </span>
           </div>
           <input
             id="wf-slider"
@@ -372,7 +403,7 @@ export function PhotoelectricLab({ example }: PhotoelectricLabProps) {
             step="0.05"
             value={params.workFunction}
             onChange={(e) => session.apply({ workFunction: Number(e.target.value) })}
-            className="w-full"
+            style={{ width: "100%", marginTop: "0.25rem" }}
           />
           <input
             id="wf-input"
@@ -382,17 +413,15 @@ export function PhotoelectricLab({ example }: PhotoelectricLabProps) {
             step="0.01"
             value={params.workFunction}
             onChange={(e) => session.apply({ workFunction: Number(e.target.value) })}
-            className="text-xs px-2 py-0.5 rounded border border-slate-300 dark:border-slate-700 bg-white dark:bg-slate-800 font-mono w-24"
+            style={{ width: "6rem", marginTop: "0.25rem" }}
           />
         </div>
 
         {/* Quantum Efficiency */}
-        <div className="flex flex-col gap-1">
-          <div className="flex justify-between text-xs">
-            <label htmlFor="qe-input" className="font-medium text-slate-700 dark:text-slate-300">
-              Quantum Efficiency &eta;
-            </label>
-            <span className="font-mono text-slate-500">
+        <div className="input-field">
+          <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center" }}>
+            <label htmlFor="qe-input">Quantum Efficiency &eta;</label>
+            <span className="fine" style={{ fontFamily: "var(--font-mono)" }}>
               {(params.quantumEfficiency * 100).toFixed(1)} %
             </span>
           </div>
@@ -404,7 +433,7 @@ export function PhotoelectricLab({ example }: PhotoelectricLabProps) {
             step="0.01"
             value={params.quantumEfficiency}
             onChange={(e) => session.apply({ quantumEfficiency: Number(e.target.value) })}
-            className="w-full"
+            style={{ width: "100%", marginTop: "0.25rem" }}
           />
           <input
             id="qe-input"
@@ -414,17 +443,15 @@ export function PhotoelectricLab({ example }: PhotoelectricLabProps) {
             step="0.01"
             value={params.quantumEfficiency}
             onChange={(e) => session.apply({ quantumEfficiency: Number(e.target.value) })}
-            className="text-xs px-2 py-0.5 rounded border border-slate-300 dark:border-slate-700 bg-white dark:bg-slate-800 font-mono w-24"
+            style={{ width: "6rem", marginTop: "0.25rem" }}
           />
         </div>
 
         {/* Collector Potential */}
-        <div className="flex flex-col gap-1">
-          <div className="flex justify-between text-xs">
-            <label htmlFor="uc-input" className="font-medium text-slate-700 dark:text-slate-300">
-              Collector Potential U_c (V)
-            </label>
-            <span className="font-mono text-slate-500">
+        <div className="input-field">
+          <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center" }}>
+            <label htmlFor="uc-input">Collector Potential U_c (V)</label>
+            <span className="fine" style={{ fontFamily: "var(--font-mono)" }}>
               {params.collectorPotential.toFixed(2)} V
             </span>
           </div>
@@ -436,7 +463,7 @@ export function PhotoelectricLab({ example }: PhotoelectricLabProps) {
             step="0.05"
             value={params.collectorPotential}
             onChange={(e) => session.apply({ collectorPotential: Number(e.target.value) })}
-            className="w-full"
+            style={{ width: "100%", marginTop: "0.25rem" }}
           />
           <input
             id="uc-input"
@@ -446,13 +473,20 @@ export function PhotoelectricLab({ example }: PhotoelectricLabProps) {
             step="0.1"
             value={params.collectorPotential}
             onChange={(e) => session.apply({ collectorPotential: Number(e.target.value) })}
-            className="text-xs px-2 py-0.5 rounded border border-slate-300 dark:border-slate-700 bg-white dark:bg-slate-800 font-mono w-24"
+            style={{ width: "6rem", marginTop: "0.25rem" }}
           />
         </div>
       </div>
 
       {/* Visualizations Grid */}
-      <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
+      <div
+        style={{
+          display: "grid",
+          gridTemplateColumns: "repeat(auto-fit, minmax(280px, 1fr))",
+          gap: "1.5rem",
+          marginTop: "1.5rem",
+        }}
+      >
         <EnergyLadderPlot
           frequency={params.frequency}
           workFunction={params.workFunction}
@@ -476,43 +510,59 @@ export function PhotoelectricLab({ example }: PhotoelectricLabProps) {
       </div>
 
       {/* Accepted Results Table */}
-      <div className="bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-800 rounded-lg p-4">
-        <h3 className="text-sm font-semibold mb-3 text-slate-800 dark:text-slate-100">
+      <div
+        style={{
+          background: "var(--panel)",
+          border: "1px solid var(--line)",
+          borderRadius: "4px",
+          padding: "1rem",
+          marginTop: "1.5rem",
+        }}
+      >
+        <h3 style={{ margin: "0 0 0.75rem", fontSize: "0.95rem" }}>
           Accepted Laboratory Snapshot (Instance Telemetry)
         </h3>
-        <div className="overflow-x-auto">
-          <table className="w-full text-left text-xs font-mono border-collapse">
+        <div
+          className="table-scroll"
+          tabIndex={0}
+          role="region"
+          aria-label="Accepted laboratory snapshot telemetry table"
+        >
+          <table
+            style={{
+              width: "100%",
+              textAlign: "left",
+              fontFamily: "var(--font-mono)",
+              fontSize: "0.75rem",
+              borderCollapse: "collapse",
+            }}
+          >
             <thead>
-              <tr className="border-b border-slate-200 dark:border-slate-800 text-slate-500">
-                <th className="py-1.5 px-2">Quantity ID</th>
-                <th className="py-1.5 px-2">Status</th>
-                <th className="py-1.5 px-2">Value / Result</th>
-                <th className="py-1.5 px-2">Unit</th>
-                <th className="py-1.5 px-2">Owner ID</th>
+              <tr style={{ borderBottom: "1px solid var(--line)", color: "var(--muted)" }}>
+                <th style={{ padding: "0.4rem 0.5rem" }}>Quantity ID</th>
+                <th style={{ padding: "0.4rem 0.5rem" }}>Status</th>
+                <th style={{ padding: "0.4rem 0.5rem" }}>Value / Result</th>
+                <th style={{ padding: "0.4rem 0.5rem" }}>Unit</th>
+                <th style={{ padding: "0.4rem 0.5rem" }}>Owner ID</th>
               </tr>
             </thead>
             <tbody>
               {outputs.map((out) => (
                 <tr
                   key={out.quantityId}
-                  className="border-b border-slate-100 dark:border-slate-800/50 hover:bg-slate-50 dark:hover:bg-slate-800/30"
+                  style={{ borderBottom: "1px solid var(--line)" }}
                   data-quantity-id={out.quantityId}
                 >
-                  <td className="py-1.5 px-2 font-medium">{out.quantityId}</td>
-                  <td className="py-1.5 px-2">
+                  <td style={{ padding: "0.4rem 0.5rem", fontWeight: 500 }}>{out.quantityId}</td>
+                  <td style={{ padding: "0.4rem 0.5rem" }}>
                     <span
-                      className={`px-1.5 py-0.5 rounded text-[10px] ${
-                        out.status === "value"
-                          ? "bg-emerald-100 dark:bg-emerald-950 text-emerald-800 dark:text-emerald-300"
-                          : out.status === "not-applicable"
-                            ? "bg-amber-100 dark:bg-amber-950 text-amber-800 dark:text-amber-300"
-                            : "bg-purple-100 dark:bg-purple-950 text-purple-800 dark:text-purple-300"
-                      }`}
+                      className="badge"
+                      style={out.status === "value" ? undefined : { color: "var(--accent)" }}
                     >
                       {out.status}
                     </span>
                   </td>
-                  <td className="py-1.5 px-2">
+                  <td style={{ padding: "0.4rem 0.5rem" }}>
                     {out.status === "value"
                       ? typeof out.value === "number"
                         ? out.value.toExponential(4)
@@ -521,8 +571,12 @@ export function PhotoelectricLab({ example }: PhotoelectricLabProps) {
                         ? `N/A (${"reason" in out ? String(out.reason) : ""})`
                         : `Underdetermined (${"compatibleFamily" in out ? String(out.compatibleFamily) : ""})`}
                   </td>
-                  <td className="py-1.5 px-2 text-slate-500">{out.unit}</td>
-                  <td className="py-1.5 px-2 text-slate-400 text-[10px]">{out.ownerId}</td>
+                  <td style={{ padding: "0.4rem 0.5rem", color: "var(--muted)" }}>{out.unit}</td>
+                  <td
+                    style={{ padding: "0.4rem 0.5rem", color: "var(--muted)", fontSize: "0.7rem" }}
+                  >
+                    {out.ownerId}
+                  </td>
                 </tr>
               ))}
             </tbody>
@@ -531,47 +585,79 @@ export function PhotoelectricLab({ example }: PhotoelectricLabProps) {
       </div>
 
       {/* Historical Readout: Einstein 1905 §8 Order-of-Magnitude Check */}
-      <div className="bg-slate-50 dark:bg-slate-900 border border-slate-200 dark:border-slate-800 rounded-lg p-4">
-        <h3 className="text-sm font-semibold mb-2 text-slate-800 dark:text-slate-100">
+      <div className="notice" style={{ marginTop: "1.5rem" }}>
+        <h3 style={{ margin: "0 0 0.5rem", fontSize: "0.95rem" }}>
           Historical Readout: Einstein 1905 §8 Order-of-Magnitude Check
         </h3>
-        <div className="space-y-3 text-xs text-slate-700 dark:text-slate-300">
-          <div className="p-2.5 rounded bg-amber-50/60 dark:bg-amber-950/30 border border-amber-200 dark:border-amber-900/50">
-            <span className="font-semibold text-amber-900 dark:text-amber-200">
-              What was neglected:{" "}
-            </span>
-            {LQ08_HISTORICAL_CHECK.neglectStatement}
+        <div style={{ display: "flex", flexDirection: "column", gap: "0.75rem" }}>
+          <div
+            style={{
+              background: "var(--panel)",
+              padding: "0.625rem",
+              borderRadius: "4px",
+              border: "1px solid var(--line)",
+            }}
+          >
+            <span style={{ fontWeight: 600 }}>What was neglected: </span>
+            <span className="fine">{LQ08_HISTORICAL_CHECK.neglectStatement}</span>
           </div>
-          <div className="p-2.5 rounded bg-blue-50/60 dark:bg-blue-950/30 border border-blue-200 dark:border-blue-900/50">
-            <span className="font-semibold text-blue-900 dark:text-blue-200">What it is not: </span>
-            {LQ08_HISTORICAL_CHECK.notNamedMetalStatement}
+          <div
+            style={{
+              background: "var(--panel)",
+              padding: "0.625rem",
+              borderRadius: "4px",
+              border: "1px solid var(--line)",
+            }}
+          >
+            <span style={{ fontWeight: 600 }}>What it is not: </span>
+            <span className="fine">{LQ08_HISTORICAL_CHECK.notNamedMetalStatement}</span>
           </div>
-          <div className="grid grid-cols-1 md:grid-cols-2 gap-3 pt-1">
-            <div className="p-2.5 rounded bg-white dark:bg-slate-800/80 border border-slate-200 dark:border-slate-700">
-              <div className="font-semibold text-slate-800 dark:text-slate-200 mb-1">
+          <div
+            style={{
+              display: "grid",
+              gridTemplateColumns: "repeat(auto-fit, minmax(260px, 1fr))",
+              gap: "0.75rem",
+            }}
+          >
+            <div
+              style={{
+                background: "var(--panel)",
+                padding: "0.625rem",
+                borderRadius: "4px",
+                border: "1px solid var(--line)",
+              }}
+            >
+              <div style={{ fontWeight: 600, marginBottom: "0.25rem", fontSize: "0.85rem" }}>
                 Representation A (Printed Form):
               </div>
-              <p className="font-mono text-xs">
+              <p className="fine" style={{ fontFamily: "var(--font-mono)", margin: 0 }}>
                 &Pi; = (R &middot; &beta; &middot; &nu;) / E ={" "}
                 {LQ08_HISTORICAL_CHECK.representationA.stoppingPotentialVolts.toFixed(4)} V (
                 {LQ08_HISTORICAL_CHECK.representationA.printedText})
               </p>
-              <p className="text-[11px] text-slate-500 mt-1">
+              <p className="fine" style={{ color: "var(--muted)", margin: "0.25rem 0 0" }}>
                 Slope: {LQ08_HISTORICAL_CHECK.representationA.slopeVsPerHz.toExponential(4)}{" "}
                 V&middot;s (modern h/e ={" "}
                 {LQ08_HISTORICAL_CHECK.representationA.modernSlopeVsPerHz.toExponential(4)}{" "}
                 V&middot;s)
               </p>
             </div>
-            <div className="p-2.5 rounded bg-white dark:bg-slate-800/80 border border-slate-200 dark:border-slate-700">
-              <div className="font-semibold text-slate-800 dark:text-slate-200 mb-1">
+            <div
+              style={{
+                background: "var(--panel)",
+                padding: "0.625rem",
+                borderRadius: "4px",
+                border: "1px solid var(--line)",
+              }}
+            >
+              <div style={{ fontWeight: 600, marginBottom: "0.25rem", fontSize: "0.85rem" }}>
                 Live Hypothetical Comparison:
               </div>
-              <p className="font-mono text-xs">
+              <p className="fine" style={{ fontFamily: "var(--font-mono)", margin: 0 }}>
                 &nu; = {(params.frequency / 1e12).toFixed(1)} THz &rarr; h&nu; ={" "}
                 {qEnergyEv.toFixed(6)} eV
               </p>
-              <p className="text-[11px] text-slate-500 mt-1">
+              <p className="fine" style={{ color: "var(--muted)", margin: "0.25rem 0 0" }}>
                 Hypothetical &Phi; = {params.workFunction.toFixed(1)} eV &rarr; V_s ={" "}
                 {(vsVal ?? 0).toFixed(6)} V (hypothetical)
               </p>
@@ -581,14 +667,18 @@ export function PhotoelectricLab({ example }: PhotoelectricLabProps) {
       </div>
 
       {/* Discovery Predict Mode */}
-      <div className="bg-amber-50/50 dark:bg-amber-950/20 border border-amber-200 dark:border-amber-900/50 rounded-lg p-4">
-        <h3 className="text-sm font-semibold mb-2 text-amber-900 dark:text-amber-200">
+      <section
+        className="notice"
+        style={{ marginTop: "1.5rem" }}
+        aria-label="Discovery Mode: Predict Before Interacting"
+      >
+        <h3 style={{ margin: "0 0 0.5rem", fontSize: "0.95rem" }}>
           Discovery Mode: Predict Before Interacting
         </h3>
-        <p className="text-xs text-amber-800/80 dark:text-amber-300/80 mb-3">
+        <p className="fine" style={{ margin: "0 0 0.75rem" }}>
           Select an inquiry to test your deductive understanding of light-quantum mechanics:
         </p>
-        <div className="flex flex-wrap gap-2 mb-3">
+        <div className="preset-list" style={{ marginBottom: "0.75rem" }}>
           {PREDICT_PROMPTS.map((p, idx) => (
             <button
               key={p.promptId}
@@ -597,11 +687,8 @@ export function PhotoelectricLab({ example }: PhotoelectricLabProps) {
                 setActivePromptIndex(idx);
                 setSelectedAnswer(null);
               }}
-              className={`text-xs px-3 py-1.5 rounded transition ${
-                activePromptIndex === idx
-                  ? "bg-amber-600 text-white font-medium"
-                  : "bg-white dark:bg-slate-800 text-slate-700 dark:text-slate-300 border border-amber-300 dark:border-amber-800"
-              }`}
+              className={`button ${activePromptIndex === idx ? "" : "secondary"}`}
+              style={{ padding: "0.25rem 0.625rem", fontSize: "0.75rem" }}
             >
               Inquiry {idx + 1}
             </button>
@@ -609,57 +696,101 @@ export function PhotoelectricLab({ example }: PhotoelectricLabProps) {
         </div>
 
         {activePromptIndex !== null && (
-          <div className="bg-white dark:bg-slate-900 p-4 rounded border border-amber-200 dark:border-amber-900/60">
-            <p className="text-sm font-medium mb-3 text-slate-800 dark:text-slate-100">
+          <div
+            style={{
+              background: "var(--panel)",
+              padding: "1rem",
+              borderRadius: "4px",
+              border: "1px solid var(--line)",
+            }}
+          >
+            <p style={{ fontWeight: 600, margin: "0 0 0.75rem", fontSize: "0.875rem" }}>
               {PREDICT_PROMPTS[activePromptIndex]?.question}
             </p>
-            <div className="flex flex-col gap-2 mb-3">
+            <div
+              style={{
+                display: "flex",
+                flexDirection: "column",
+                gap: "0.5rem",
+                marginBottom: "0.75rem",
+              }}
+            >
               {PREDICT_PROMPTS[activePromptIndex]?.candidates.map((cand, oIdx) => (
                 <button
                   key={cand.id}
                   type="button"
                   onClick={() => setSelectedAnswer(oIdx)}
-                  className={`text-left text-xs p-2.5 rounded border transition ${
-                    selectedAnswer === oIdx
-                      ? cand.correct
-                        ? "bg-emerald-50 dark:bg-emerald-950/50 border-emerald-500 text-emerald-900 dark:text-emerald-100"
-                        : "bg-rose-50 dark:bg-rose-950/50 border-rose-500 text-rose-900 dark:text-rose-100"
-                      : "bg-slate-50 dark:bg-slate-800/50 border-slate-200 dark:border-slate-700 text-slate-700 dark:text-slate-300 hover:bg-slate-100"
-                  }`}
+                  className="button secondary"
+                  style={{
+                    textAlign: "left",
+                    padding: "0.5rem 0.75rem",
+                    border:
+                      selectedAnswer === oIdx ? "1px solid var(--plot)" : "1px solid var(--line)",
+                    background: selectedAnswer === oIdx ? "var(--wash)" : undefined,
+                  }}
                 >
-                  <span className="font-mono mr-2">{String.fromCharCode(65 + oIdx)}.</span>
-                  <span className="font-medium">{cand.label}</span> &mdash;{" "}
-                  <span className="text-slate-500 dark:text-slate-400">{cand.description}</span>
+                  <span
+                    className="fine"
+                    style={{ fontFamily: "var(--font-mono)", marginRight: "0.5rem" }}
+                  >
+                    {String.fromCharCode(65 + oIdx)}.
+                  </span>
+                  <span style={{ fontWeight: 600, fontSize: "0.8rem" }}>{cand.label}</span> &mdash;{" "}
+                  <span className="fine">{cand.description}</span>
                 </button>
               ))}
             </div>
             {selectedAnswer !== null && (
-              <div className="text-xs p-3 rounded bg-slate-100 dark:bg-slate-800 text-slate-700 dark:text-slate-300 border border-slate-200 dark:border-slate-700">
-                <span className="font-semibold">Explanation: </span>
-                {PREDICT_PROMPTS[activePromptIndex]?.explanation}
+              <div
+                className="notice"
+                style={{
+                  padding: "0.75rem",
+                  background: "var(--panel)",
+                  border: "1px solid var(--line)",
+                }}
+              >
+                <span style={{ fontWeight: 600 }}>Explanation: </span>
+                <span className="fine">{PREDICT_PROMPTS[activePromptIndex]?.explanation}</span>
               </div>
             )}
           </div>
         )}
-      </div>
+      </section>
 
       {/* Epistemic Limits (Not Modeled) */}
-      <div className="bg-slate-50 dark:bg-slate-900 border border-slate-200 dark:border-slate-800 rounded-lg p-4">
-        <h3 className="text-sm font-semibold mb-2 text-slate-800 dark:text-slate-100">
+      <div
+        style={{
+          background: "var(--panel)",
+          border: "1px solid var(--line)",
+          borderRadius: "4px",
+          padding: "1rem",
+          marginTop: "1.5rem",
+        }}
+      >
+        <h3 style={{ margin: "0 0 0.5rem", fontSize: "0.95rem" }}>
           Limits of this Reference Model (Not Modeled)
         </h3>
-        <p className="text-xs text-slate-600 dark:text-slate-400 mb-2">
+        <p className="fine" style={{ margin: "0 0 0.5rem" }}>
           This reference owner implements Einstein’s 1905 single-quantum absorption and escape
           energy relations. The following physical regimes require higher-order quantum optics or
           microscopic surface physics and are explicitly <strong>not modeled</strong>:
         </p>
-        <ul className="text-xs text-slate-600 dark:text-slate-400 list-disc list-inside space-y-1">
+        <ul
+          className="fine"
+          style={{
+            paddingLeft: "1.25rem",
+            margin: 0,
+            display: "flex",
+            flexDirection: "column",
+            gap: "0.25rem",
+          }}
+        >
           {LQ08_NOT_MODELED.map((item) => (
             <li key={item}>{item}</li>
           ))}
         </ul>
       </div>
-    </div>
+    </section>
   );
 }
 
@@ -671,16 +802,25 @@ export function PhotoelectricComparison({ example }: { example?: PreparedLq08Exa
   return (
     <>
       <PhotoelectricLab example={example} />
-      <div className="comparison-toggle my-6 flex flex-col items-center gap-2">
+      <div
+        className="comparison-toggle"
+        style={{
+          margin: "1.5rem 0",
+          display: "flex",
+          flexDirection: "column",
+          alignItems: "center",
+          gap: "0.5rem",
+        }}
+      >
         <button
           type="button"
-          className="text-xs px-3 py-1.5 rounded bg-slate-100 dark:bg-slate-800 hover:bg-slate-200 dark:hover:bg-slate-700 border border-slate-300 dark:border-slate-700 transition"
+          className="button secondary"
           disabled={!ready}
           onClick={() => setSecond(!second)}
         >
           {second ? "Close the second laboratory" : "Open an independent second laboratory"}
         </button>
-        <p className="text-xs text-slate-500">
+        <p className="fine" style={{ margin: 0 }}>
           Compare two setups side by side in your reading. Each laboratory has its own settings,
           stepwise state and accepted results.
         </p>
