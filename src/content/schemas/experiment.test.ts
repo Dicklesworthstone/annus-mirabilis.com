@@ -672,6 +672,389 @@ test("Scenario: Planted Negative - retired constantSet field is rejected", () =>
   );
 });
 
+test("Scenario: (experiment.ts:1941) missing-id rejected when id is missing or empty, accepted with id", () => {
+  const yaml = fs.readFileSync(path.join(FIXTURES_DIR, "scenario-valid.yaml"), "utf8");
+  const raw = strictParse(yaml, "yaml") as any;
+  raw.id = "   ";
+  assert.throws(
+    () => validateScenario(raw),
+    (err: any) => {
+      assert.ok(err instanceof ExperimentValidationError);
+      assert.equal(err.code, "missing-id");
+      return true;
+    },
+  );
+  raw.id = "valid-scenario-id";
+  const accepted = validateScenario(raw);
+  assert.equal(accepted.id, "valid-scenario-id");
+});
+
+test("Scenario: (experiment.ts:1949) invalid-scenario-kind rejected when kind is unknown, accepted for standard kinds", () => {
+  const yaml = fs.readFileSync(path.join(FIXTURES_DIR, "scenario-valid.yaml"), "utf8");
+  const raw = strictParse(yaml, "yaml") as any;
+  raw.kind = "unsupported-scenario-kind";
+  assert.throws(
+    () => validateScenario(raw),
+    (err: any) => {
+      assert.ok(err instanceof ExperimentValidationError);
+      assert.equal(err.code, "invalid-scenario-kind");
+      return true;
+    },
+  );
+  raw.kind = "modern-golden";
+  const accepted = validateScenario(raw);
+  assert.equal(accepted.kind, "modern-golden");
+});
+
+test("Scenario: (experiment.ts:1960) adversarial-missing-plausible-mistake rejected when mistake empty, accepted with mistake", () => {
+  const yaml = fs.readFileSync(path.join(FIXTURES_DIR, "scenario-valid.yaml"), "utf8");
+  const raw = strictParse(yaml, "yaml") as any;
+  raw.kind = "adversarial";
+  raw.intendedFailure = "Violates energy conservation";
+  delete raw.plausibleMistake;
+  assert.throws(
+    () => validateScenario(raw),
+    (err: any) => {
+      assert.ok(err instanceof ExperimentValidationError);
+      assert.equal(err.code, "adversarial-missing-plausible-mistake");
+      return true;
+    },
+  );
+  raw.plausibleMistake = "Omitting back-EMF term";
+  const accepted = validateScenario(raw);
+  assert.equal(accepted.plausibleMistake, "Omitting back-EMF term");
+});
+
+test("Scenario: (experiment.ts:1968) adversarial-missing-intended-failure rejected when failure empty, accepted with failure", () => {
+  const yaml = fs.readFileSync(path.join(FIXTURES_DIR, "scenario-valid.yaml"), "utf8");
+  const raw = strictParse(yaml, "yaml") as any;
+  raw.kind = "adversarial";
+  raw.plausibleMistake = "Omitting back-EMF term";
+  delete raw.intendedFailure;
+  assert.throws(
+    () => validateScenario(raw),
+    (err: any) => {
+      assert.ok(err instanceof ExperimentValidationError);
+      assert.equal(err.code, "adversarial-missing-intended-failure");
+      return true;
+    },
+  );
+  raw.intendedFailure = "Current diverges at high frequency";
+  const accepted = validateScenario(raw);
+  assert.equal(accepted.intendedFailure, "Current diverges at high frequency");
+});
+
+test("Scenario: (experiment.ts:1987) missing-constant-set-id rejected when empty or missing, accepted with valid id", () => {
+  const yaml = fs.readFileSync(path.join(FIXTURES_DIR, "scenario-valid.yaml"), "utf8");
+  const raw = strictParse(yaml, "yaml") as any;
+  raw.constantSetId = "";
+  assert.throws(
+    () => validateScenario(raw),
+    (err: any) => {
+      assert.ok(err instanceof ExperimentValidationError);
+      assert.equal(err.code, "missing-constant-set-id");
+      return true;
+    },
+  );
+  raw.constantSetId = "einstein-1905-brownian-printed";
+  const accepted = validateScenario(raw);
+  assert.equal(accepted.constantSetId, "einstein-1905-brownian-printed");
+});
+
+test("Scenario: (experiment.ts:2070) invalid-constant-set-mixing rejected when mixing invalid, accepted when declared with reason", () => {
+  const yaml = fs.readFileSync(path.join(FIXTURES_DIR, "scenario-valid.yaml"), "utf8");
+  const raw = strictParse(yaml, "yaml") as any;
+  raw.constantSetMixing = { declared: false, reason: "" };
+  assert.throws(
+    () => validateScenario(raw),
+    (err: any) => {
+      assert.ok(err instanceof ExperimentValidationError);
+      assert.equal(err.code, "invalid-constant-set-mixing");
+      return true;
+    },
+  );
+  raw.constantSetMixing = { declared: true, reason: "Comparing historical parameters against CODATA 2018" };
+  const accepted = validateScenario(raw);
+  assert.equal(accepted.constantSetMixing?.declared, true);
+  assert.equal(accepted.constantSetMixing?.reason, "Comparing historical parameters against CODATA 2018");
+});
+
+test("Scenario: (experiment.ts:2125) misprint-missing-evidence rejected when misprint lacks reading or receiptRef, accepted with evidence", () => {
+  const yaml = fs.readFileSync(path.join(FIXTURES_DIR, "scenario-valid.yaml"), "utf8");
+  const raw = strictParse(yaml, "yaml") as any;
+  raw.kind = "historical-fixture";
+  raw.provenance = { paper: "brownian-motion", sectionId: "sec-1", printedPage: 550 };
+  raw.transcription = { status: "verified-suspected-misprint", facsimilePage: 550 };
+  assert.throws(
+    () => validateScenario(raw),
+    (err: any) => {
+      assert.ok(err instanceof ExperimentValidationError);
+      assert.equal(err.code, "misprint-missing-evidence");
+      return true;
+    },
+  );
+  raw.transcription.printedReading = "0.0016";
+  raw.transcription.receiptRef = "receipt-ap-17-549-misprint";
+  raw.expected = { outputs: [{ outputId: "D", comparisonKind: "rounds-to", printedValue: "0.0016", printedPrecision: { decimals: 4 } }] };
+  const accepted = validateScenario(raw);
+  assert.equal(accepted.transcription?.status, "verified-suspected-misprint");
+});
+
+test("Scenario: (experiment.ts:2159) editorial-input-missing-fields rejected when source or reason missing, accepted when present", () => {
+  const yaml = fs.readFileSync(path.join(FIXTURES_DIR, "scenario-valid.yaml"), "utf8");
+  const raw = strictParse(yaml, "yaml") as any;
+  raw.editorialInputs = [{ source: "Editorial note 1" }]; // missing reason
+  assert.throws(
+    () => validateScenario(raw),
+    (err: any) => {
+      assert.ok(err instanceof ExperimentValidationError);
+      assert.equal(err.code, "editorial-input-missing-fields");
+      return true;
+    },
+  );
+  raw.editorialInputs[0].reason = "Converts historical units to modern SI";
+  const accepted = validateScenario(raw);
+  assert.equal(accepted.editorialInputs?.length, 1);
+});
+
+test("Scenario: (experiment.ts:2173) documented-alternative-missing-printed-rep rejected when printedRepresentation missing, accepted with rep", () => {
+  const yaml = fs.readFileSync(path.join(FIXTURES_DIR, "scenario-valid.yaml"), "utf8");
+  const raw = strictParse(yaml, "yaml") as any;
+  raw.documentedAlternatives = [{ description: "Alternative formula form" }];
+  assert.throws(
+    () => validateScenario(raw),
+    (err: any) => {
+      assert.ok(err instanceof ExperimentValidationError);
+      assert.equal(err.code, "documented-alternative-missing-printed-rep");
+      return true;
+    },
+  );
+  raw.documentedAlternatives[0].printedRepresentation = "D = RT / (6 pi eta N r)";
+  const accepted = validateScenario(raw);
+  assert.equal(accepted.documentedAlternatives?.length, 1);
+});
+
+test("Scenario: (experiment.ts:2221) discrimination-missing-hypotheses rejected when fewer than 2 hypotheses, accepted with 2", () => {
+  const yaml = fs.readFileSync(path.join(FIXTURES_DIR, "scenario-valid.yaml"), "utf8");
+  const raw = strictParse(yaml, "yaml") as any;
+  raw.kind = "discrimination";
+  raw.hypotheses = [
+    { id: "h1", label: "Hyp 1", owner: "owner-1", modelIdentity: "m1", circumstancesInWhichItWorks: "c1", historicalStatus: "original-1905" },
+  ];
+  raw.observation = { observableId: "diffusivity", inputs: {}, procedure: "measure" };
+  raw.expected = { outcome: "discriminates" };
+  raw.tolerance = { relative: 0.05, rationale: "apparatus limit" };
+  assert.throws(
+    () => validateScenario(raw),
+    (err: any) => {
+      assert.ok(err instanceof ExperimentValidationError);
+      assert.equal(err.code, "discrimination-missing-hypotheses");
+      return true;
+    },
+  );
+  raw.hypotheses.push({ id: "h2", label: "Hyp 2", owner: "owner-2", modelIdentity: "m2", circumstancesInWhichItWorks: "c2", historicalStatus: "contemporary-alternative" });
+  const accepted = validateScenario(raw);
+  assert.equal(accepted.hypotheses?.length, 2);
+});
+
+test("Scenario: (experiment.ts:2244) discrimination-missing-observation rejected when observation missing, accepted with observation", () => {
+  const yaml = fs.readFileSync(path.join(FIXTURES_DIR, "scenario-valid.yaml"), "utf8");
+  const raw = strictParse(yaml, "yaml") as any;
+  raw.kind = "discrimination";
+  raw.hypotheses = [
+    { id: "h1", label: "Hyp 1", owner: "owner-1", modelIdentity: "m1", circumstancesInWhichItWorks: "c1", historicalStatus: "original-1905" },
+    { id: "h2", label: "Hyp 2", owner: "owner-2", modelIdentity: "m2", circumstancesInWhichItWorks: "c2", historicalStatus: "contemporary-alternative" },
+  ];
+  delete raw.observation;
+  raw.expected = { outcome: "discriminates" };
+  assert.throws(
+    () => validateScenario(raw),
+    (err: any) => {
+      assert.ok(err instanceof ExperimentValidationError);
+      assert.equal(err.code, "discrimination-missing-observation");
+      return true;
+    },
+  );
+  raw.observation = { observableId: "diffusivity", inputs: {}, procedure: "measure" };
+  raw.tolerance = { relative: 0.05, rationale: "apparatus limit" };
+  const accepted = validateScenario(raw);
+  assert.equal(accepted.observation?.observableId, "diffusivity");
+});
+
+test("Scenario: (experiment.ts:2287) missing-expected rejected when expected block missing, accepted with expected", () => {
+  const yaml = fs.readFileSync(path.join(FIXTURES_DIR, "scenario-valid.yaml"), "utf8");
+  const raw = strictParse(yaml, "yaml") as any;
+  delete raw.expected;
+  assert.throws(
+    () => validateScenario(raw),
+    (err: any) => {
+      assert.ok(err instanceof ExperimentValidationError);
+      assert.equal(err.code, "missing-expected");
+      return true;
+    },
+  );
+  raw.expected = { outputs: [{ outputId: "D", comparisonKind: "bitwise" }] };
+  const accepted = validateScenario(raw);
+  assert.equal(accepted.expected.outputs.length, 1);
+});
+
+test("Scenario: (experiment.ts:2298) discrimination-missing-outcome rejected when outcome invalid or missing, accepted with valid outcome", () => {
+  const yaml = fs.readFileSync(path.join(FIXTURES_DIR, "scenario-valid.yaml"), "utf8");
+  const raw = strictParse(yaml, "yaml") as any;
+  raw.kind = "discrimination";
+  raw.hypotheses = [
+    { id: "h1", label: "Hyp 1", owner: "owner-1", modelIdentity: "m1", circumstancesInWhichItWorks: "c1", historicalStatus: "original-1905" },
+    { id: "h2", label: "Hyp 2", owner: "owner-2", modelIdentity: "m2", circumstancesInWhichItWorks: "c2", historicalStatus: "contemporary-alternative" },
+  ];
+  raw.observation = { observableId: "diffusivity", inputs: {}, procedure: "measure" };
+  raw.tolerance = { relative: 0.05, rationale: "apparatus limit" };
+  raw.expected = { outcome: "unknown-outcome" };
+  assert.throws(
+    () => validateScenario(raw),
+    (err: any) => {
+      assert.ok(err instanceof ExperimentValidationError);
+      assert.equal(err.code, "discrimination-missing-outcome");
+      return true;
+    },
+  );
+  raw.expected.outcome = "discriminates";
+  const accepted = validateScenario(raw);
+  assert.equal(accepted.expected.outcome, "discriminates");
+});
+
+test("Scenario: (experiment.ts:2346) tolerance-comparison-missing-spec rejected when tolerance spec invalid, accepted with rationale", () => {
+  const yaml = fs.readFileSync(path.join(FIXTURES_DIR, "scenario-valid.yaml"), "utf8");
+  const raw = strictParse(yaml, "yaml") as any;
+  raw.expected = {
+    outputs: [
+      { outputId: "D", comparisonKind: "tolerance", tolerance: {} },
+    ],
+  };
+  assert.throws(
+    () => validateScenario(raw),
+    (err: any) => {
+      assert.ok(err instanceof ExperimentValidationError);
+      assert.equal(err.code, "tolerance-comparison-missing-spec");
+      return true;
+    },
+  );
+  raw.expected.outputs[0].tolerance = { relative: 0.01, rationale: "Experimental tolerance requirement" };
+  const accepted = validateScenario(raw);
+  assert.equal(accepted.expected.outputs[0]?.comparisonKind, "tolerance");
+});
+
+test("Scenario: (experiment.ts:2363) rounds-to-tolerance-forbidden rejected when tolerance supplied, accepted without tolerance", () => {
+  const yaml = fs.readFileSync(path.join(FIXTURES_DIR, "scenario-valid.yaml"), "utf8");
+  const raw = strictParse(yaml, "yaml") as any;
+  raw.kind = "historical-fixture";
+  raw.provenance = { paper: "brownian-motion", sectionId: "sec-1", printedPage: 550 };
+  raw.transcription = { status: "verified", facsimilePage: 550 };
+  raw.expected = {
+    outputs: [
+      {
+        outputId: "D",
+        comparisonKind: "rounds-to",
+        printedValue: "1.5",
+        printedPrecision: { decimals: 1 },
+        tolerance: { absolute: 0.01 },
+      },
+    ],
+  };
+  assert.throws(
+    () => validateScenario(raw),
+    (err: any) => {
+      assert.ok(err instanceof ExperimentValidationError);
+      assert.equal(err.code, "rounds-to-tolerance-forbidden");
+      return true;
+    },
+  );
+  delete raw.expected.outputs[0].tolerance;
+  const accepted = validateScenario(raw);
+  assert.equal(accepted.expected.outputs[0]?.comparisonKind, "rounds-to");
+});
+
+test("Scenario: (experiment.ts:2371) rounds-to-missing-printed-spec rejected when printedValue missing, accepted with spec", () => {
+  const yaml = fs.readFileSync(path.join(FIXTURES_DIR, "scenario-valid.yaml"), "utf8");
+  const raw = strictParse(yaml, "yaml") as any;
+  raw.kind = "historical-fixture";
+  raw.provenance = { paper: "brownian-motion", sectionId: "sec-1", printedPage: 550 };
+  raw.transcription = { status: "verified", facsimilePage: 550 };
+  raw.expected = {
+    outputs: [
+      {
+        outputId: "D",
+        comparisonKind: "rounds-to",
+      },
+    ],
+  };
+  assert.throws(
+    () => validateScenario(raw),
+    (err: any) => {
+      assert.ok(err instanceof ExperimentValidationError);
+      assert.equal(err.code, "rounds-to-missing-printed-spec");
+      return true;
+    },
+  );
+  raw.expected.outputs[0].printedValue = "1.5";
+  raw.expected.outputs[0].printedPrecision = { decimals: 1 };
+  const accepted = validateScenario(raw);
+  assert.equal(accepted.expected.outputs[0]?.printedValue, "1.5");
+});
+
+test("Scenario: (experiment.ts:2379) half-even-missing-reason rejected when reason missing, accepted with reason", () => {
+  const yaml = fs.readFileSync(path.join(FIXTURES_DIR, "scenario-valid.yaml"), "utf8");
+  const raw = strictParse(yaml, "yaml") as any;
+  raw.kind = "historical-fixture";
+  raw.provenance = { paper: "brownian-motion", sectionId: "sec-1", printedPage: 550 };
+  raw.transcription = { status: "verified", facsimilePage: 550 };
+  raw.expected = {
+    outputs: [
+      {
+        outputId: "D",
+        comparisonKind: "rounds-to",
+        printedValue: "1.5",
+        printedPrecision: { decimals: 1 },
+        roundingConvention: "half-even",
+      },
+    ],
+  };
+  assert.throws(
+    () => validateScenario(raw),
+    (err: any) => {
+      assert.ok(err instanceof ExperimentValidationError);
+      assert.equal(err.code, "half-even-missing-reason");
+      return true;
+    },
+  );
+  raw.expected.outputs[0].roundingReason = "Banker's rounding applied by author";
+  const accepted = validateScenario(raw);
+  assert.equal(accepted.expected.outputs[0]?.roundingConvention, "half-even");
+});
+
+test("Scenario: (experiment.ts:2415) invalid-comparison-kind rejected when kind unknown, accepted for bitwise", () => {
+  const yaml = fs.readFileSync(path.join(FIXTURES_DIR, "scenario-valid.yaml"), "utf8");
+  const raw = strictParse(yaml, "yaml") as any;
+  raw.expected = {
+    outputs: [
+      {
+        outputId: "D",
+        comparisonKind: "invalid-comparison",
+      },
+    ],
+  };
+  assert.throws(
+    () => validateScenario(raw),
+    (err: any) => {
+      assert.ok(err instanceof ExperimentValidationError);
+      assert.equal(err.code, "invalid-comparison-kind");
+      return true;
+    },
+  );
+  raw.expected.outputs[0].comparisonKind = "bitwise";
+  const accepted = validateScenario(raw);
+  assert.equal(accepted.expected.outputs[0]?.comparisonKind, "bitwise");
+});
+
 // ============================================================================
 // 3. HISTORICAL DATASET TESTS
 // ============================================================================
@@ -701,6 +1084,126 @@ test("HistoricalDataset: Planted Negative - bare number in cell array is rejecte
       return true;
     },
   );
+});
+
+test("DataCell: (experiment.ts:2626) invalid-data-cell rejected when raw is not an object, accepted when valid", () => {
+  assert.throws(
+    () => validateDataCell("not-an-object" as any),
+    (err: any) => {
+      assert.ok(err instanceof ExperimentValidationError);
+      assert.equal(err.code, "invalid-data-cell");
+      return true;
+    },
+  );
+  assert.throws(
+    () => validateDataCell(null as any),
+    (err: any) => {
+      assert.ok(err instanceof ExperimentValidationError);
+      assert.equal(err.code, "invalid-data-cell");
+      return true;
+    },
+  );
+  const accepted = validateDataCell({ kind: "number", value: 42 });
+  assert.equal(accepted.kind, "number");
+  assert.equal(accepted.value, 42);
+});
+
+test("DataCell: (experiment.ts:2638) missing-cell-number-value rejected on non-numeric value, accepted when valid", () => {
+  assert.throws(
+    () => validateDataCell({ kind: "number", value: "not-a-number" } as any),
+    (err: any) => {
+      assert.ok(err instanceof ExperimentValidationError);
+      assert.equal(err.code, "missing-cell-number-value");
+      return true;
+    },
+  );
+  assert.throws(
+    () => validateDataCell({ kind: "number", value: Number.NaN } as any),
+    (err: any) => {
+      assert.ok(err instanceof ExperimentValidationError);
+      assert.equal(err.code, "missing-cell-number-value");
+      return true;
+    },
+  );
+  const accepted = validateDataCell({ kind: "number", value: 3.14159, originalToken: "3.14" });
+  assert.equal(accepted.kind, "number");
+  assert.equal(accepted.value, 3.14159);
+  assert.equal(accepted.originalToken, "3.14");
+});
+
+test("DataCell: (experiment.ts:2652) missing-cell-reason rejected when reason missing or empty, accepted with reason", () => {
+  assert.throws(
+    () => validateDataCell({ kind: "missing" } as any),
+    (err: any) => {
+      assert.ok(err instanceof ExperimentValidationError);
+      assert.equal(err.code, "missing-cell-reason");
+      return true;
+    },
+  );
+  assert.throws(
+    () => validateDataCell({ kind: "missing", reason: "   " } as any),
+    (err: any) => {
+      assert.ok(err instanceof ExperimentValidationError);
+      assert.equal(err.code, "missing-cell-reason");
+      return true;
+    },
+  );
+  const accepted = validateDataCell({ kind: "missing", reason: "Data point lost during exposure" });
+  assert.equal(accepted.kind, "missing");
+  assert.equal(accepted.reason, "Data point lost during exposure");
+});
+
+test("DataCell: (experiment.ts:2662) invalid-bound-direction rejected when direction not upper/lower, accepted when valid", () => {
+  assert.throws(
+    () => validateDataCell({ kind: "bound", direction: "sideways", value: 10 } as any),
+    (err: any) => {
+      assert.ok(err instanceof ExperimentValidationError);
+      assert.equal(err.code, "invalid-bound-direction");
+      return true;
+    },
+  );
+  const acceptedUpper = validateDataCell({ kind: "bound", direction: "upper", value: 10 });
+  assert.equal(acceptedUpper.kind, "bound");
+  assert.equal(acceptedUpper.direction, "upper");
+});
+
+test("DataCell: (experiment.ts:2670) missing-bound-value rejected on non-numeric value, accepted with number", () => {
+  assert.throws(
+    () => validateDataCell({ kind: "bound", direction: "lower", value: "bad" } as any),
+    (err: any) => {
+      assert.ok(err instanceof ExperimentValidationError);
+      assert.equal(err.code, "missing-bound-value");
+      return true;
+    },
+  );
+  assert.throws(
+    () => validateDataCell({ kind: "bound", direction: "lower", value: Number.NaN } as any),
+    (err: any) => {
+      assert.ok(err instanceof ExperimentValidationError);
+      assert.equal(err.code, "missing-bound-value");
+      return true;
+    },
+  );
+  const acceptedLower = validateDataCell({ kind: "bound", direction: "lower", value: 0.05 });
+  assert.equal(acceptedLower.kind, "bound");
+  assert.equal(acceptedLower.value, 0.05);
+});
+
+test("DataCell: (experiment.ts:2684) invalid-cell-kind rejected on unknown kind, accepted for known kinds", () => {
+  assert.throws(
+    () => validateDataCell({ kind: "unsupported-cell-type" } as any),
+    (err: any) => {
+      assert.ok(err instanceof ExperimentValidationError);
+      assert.equal(err.code, "invalid-cell-kind");
+      return true;
+    },
+  );
+  const numCell = validateDataCell({ kind: "number", value: 1 });
+  const missCell = validateDataCell({ kind: "missing", reason: "omitted" });
+  const bndCell = validateDataCell({ kind: "bound", direction: "upper", value: 2 });
+  assert.equal(numCell.kind, "number");
+  assert.equal(missCell.kind, "missing");
+  assert.equal(bndCell.kind, "bound");
 });
 
 test("HistoricalDataset: Planted Negative - cell count mismatch against columns fails", () => {
@@ -863,6 +1366,149 @@ test("Tour: Planted Negative - step declaring both tapeId and presetId fails", (
   );
 });
 
+test("Tour: (experiment.ts:3404) invalid-record rejected when raw is not an object, accepted when valid", () => {
+  assert.throws(
+    () => validateTour("not-an-object" as any),
+    (err: any) => {
+      assert.ok(err instanceof ExperimentValidationError);
+      assert.equal(err.code, "invalid-record");
+      return true;
+    },
+  );
+  assert.throws(
+    () => validateTour(null as any),
+    (err: any) => {
+      assert.ok(err instanceof ExperimentValidationError);
+      assert.equal(err.code, "invalid-record");
+      return true;
+    },
+  );
+  const yaml = fs.readFileSync(path.join(FIXTURES_DIR, "tour-valid.yaml"), "utf8");
+  const raw = strictParse(yaml, "yaml");
+  const accepted = validateTour(raw);
+  assert.equal(accepted.id, "tour-brownian-overview");
+});
+
+test("Tour: (experiment.ts:3409) missing-id rejected when id is missing or empty, accepted with id", () => {
+  const yaml = fs.readFileSync(path.join(FIXTURES_DIR, "tour-valid.yaml"), "utf8");
+  const raw = strictParse(yaml, "yaml") as any;
+  raw.id = "   ";
+  assert.throws(
+    () => validateTour(raw),
+    (err: any) => {
+      assert.ok(err instanceof ExperimentValidationError);
+      assert.equal(err.code, "missing-id");
+      return true;
+    },
+  );
+  raw.id = "custom-tour-id";
+  const accepted = validateTour(raw);
+  assert.equal(accepted.id, "custom-tour-id");
+});
+
+test("Tour: (experiment.ts:3412) invalid-tour-budget rejected when budget is unknown, accepted for standard budgets", () => {
+  const yaml = fs.readFileSync(path.join(FIXTURES_DIR, "tour-valid.yaml"), "utf8");
+  const raw = strictParse(yaml, "yaml") as any;
+  raw.budget = "two-hours";
+  assert.throws(
+    () => validateTour(raw),
+    (err: any) => {
+      assert.ok(err instanceof ExperimentValidationError);
+      assert.equal(err.code, "invalid-tour-budget");
+      return true;
+    },
+  );
+  raw.budget = "one-evening";
+  const accepted = validateTour(raw);
+  assert.equal(accepted.budget, "one-evening");
+});
+
+test("Tour: (experiment.ts:3432) missing-completion-statement rejected when completionStatement is missing or empty, accepted with statement", () => {
+  const yaml = fs.readFileSync(path.join(FIXTURES_DIR, "tour-valid.yaml"), "utf8");
+  const raw = strictParse(yaml, "yaml") as any;
+  delete raw.completionStatement;
+  assert.throws(
+    () => validateTour(raw),
+    (err: any) => {
+      assert.ok(err instanceof ExperimentValidationError);
+      assert.equal(err.code, "missing-completion-statement");
+      return true;
+    },
+  );
+  raw.completionStatement = "You have completed the tour.";
+  const accepted = validateTour(raw);
+  assert.equal(accepted.completionStatement, "You have completed the tour.");
+});
+
+test("Tour: (experiment.ts:3441) missing-tour-steps rejected when steps is empty or not array, accepted with non-empty array", () => {
+  const yaml = fs.readFileSync(path.join(FIXTURES_DIR, "tour-valid.yaml"), "utf8");
+  const raw = strictParse(yaml, "yaml") as any;
+  raw.steps = [];
+  assert.throws(
+    () => validateTour(raw),
+    (err: any) => {
+      assert.ok(err instanceof ExperimentValidationError);
+      assert.equal(err.code, "missing-tour-steps");
+      return true;
+    },
+  );
+  const accepted = validateTour(strictParse(yaml, "yaml"));
+  assert.ok(accepted.steps.length > 0);
+});
+
+test("Tour: (experiment.ts:3454) invalid-tour-step rejected when step is not an object, accepted when step is valid object", () => {
+  const yaml = fs.readFileSync(path.join(FIXTURES_DIR, "tour-valid.yaml"), "utf8");
+  const raw = strictParse(yaml, "yaml") as any;
+  raw.steps[0] = "not-an-object";
+  assert.throws(
+    () => validateTour(raw),
+    (err: any) => {
+      assert.ok(err instanceof ExperimentValidationError);
+      assert.equal(err.code, "invalid-tour-step");
+      return true;
+    },
+  );
+  const accepted = validateTour(strictParse(yaml, "yaml"));
+  assert.equal(typeof accepted.steps[0], "object");
+});
+
+test("Tour: (experiment.ts:3462) missing-step-anchor-id rejected when step anchorId is missing or empty, accepted with anchorId", () => {
+  const yaml = fs.readFileSync(path.join(FIXTURES_DIR, "tour-valid.yaml"), "utf8");
+  const raw = strictParse(yaml, "yaml") as any;
+  raw.steps[0].anchorId = "";
+  assert.throws(
+    () => validateTour(raw),
+    (err: any) => {
+      assert.ok(err instanceof ExperimentValidationError);
+      assert.equal(err.code, "missing-step-anchor-id");
+      return true;
+    },
+  );
+  raw.steps[0].anchorId = "step-01-anchor";
+  const accepted = validateTour(raw);
+  assert.equal(accepted.steps[0]?.anchorId, "step-01-anchor");
+});
+
+test("Tour: (experiment.ts:3484) invalid-preset-id rejected when presetId format is malformed, accepted when valid", () => {
+  const yaml = fs.readFileSync(path.join(FIXTURES_DIR, "tour-valid.yaml"), "utf8");
+  const raw = strictParse(yaml, "yaml") as any;
+  raw.steps[0].instrumentPreset = {
+    instrumentId: "bm-01",
+    presetId: "invalid/preset/id",
+  };
+  assert.throws(
+    () => validateTour(raw),
+    (err: any) => {
+      assert.ok(err instanceof ExperimentValidationError);
+      assert.equal(err.code, "invalid-preset-id");
+      return true;
+    },
+  );
+  raw.steps[0].instrumentPreset.presetId = "bm-01-default-tracer";
+  const accepted = validateTour(raw);
+  assert.equal(accepted.steps[0]?.instrumentPreset?.presetId, "bm-01-default-tracer");
+});
+
 // ============================================================================
 // 5. CONSTANT SET TESTS
 // ============================================================================
@@ -960,4 +1606,112 @@ test("ConstantSet: Planted Negative - editorial-input missing reason or sensitiv
       return true;
     },
   );
+});
+
+test("ConstantSet: (experiment.ts:3592) invalid-record rejected when raw is not an object, accepted when valid", () => {
+  assert.throws(
+    () => validateConstantSet("not-an-object" as any),
+    (err: any) => {
+      assert.ok(err instanceof ExperimentValidationError);
+      assert.equal(err.code, "invalid-record");
+      return true;
+    },
+  );
+  assert.throws(
+    () => validateConstantSet(null as any),
+    (err: any) => {
+      assert.ok(err instanceof ExperimentValidationError);
+      assert.equal(err.code, "invalid-record");
+      return true;
+    },
+  );
+  const yaml = fs.readFileSync(path.join(FIXTURES_DIR, "constant-set-valid.yaml"), "utf8");
+  const accepted = validateConstantSet(strictParse(yaml, "yaml"));
+  assert.equal(accepted.id, "einstein-1905-brownian-printed");
+});
+
+test("ConstantSet: (experiment.ts:3602) missing-id rejected when id is missing or empty, accepted with id", () => {
+  const yaml = fs.readFileSync(path.join(FIXTURES_DIR, "constant-set-valid.yaml"), "utf8");
+  const raw = strictParse(yaml, "yaml") as any;
+  raw.id = "   ";
+  assert.throws(
+    () => validateConstantSet(raw),
+    (err: any) => {
+      assert.ok(err instanceof ExperimentValidationError);
+      assert.equal(err.code, "missing-id");
+      return true;
+    },
+  );
+  raw.id = "modern-si-2019";
+  raw.entries[0].kind = "exact-defined";
+  delete raw.entries[0].uncertainty;
+  raw.entries[1].kind = "exact-defined";
+  delete raw.entries[1].uncertainty;
+  const accepted = validateConstantSet(raw);
+  assert.equal(accepted.id, "modern-si-2019");
+});
+
+test("ConstantSet: (experiment.ts:3625) invalid-gas-constant-provenance rejected when provenance is invalid, accepted when valid", () => {
+  const yaml = fs.readFileSync(path.join(FIXTURES_DIR, "constant-set-valid.yaml"), "utf8");
+  const raw = strictParse(yaml, "yaml") as any;
+  raw.gasConstantProvenance = "guessed";
+  assert.throws(
+    () => validateConstantSet(raw),
+    (err: any) => {
+      assert.ok(err instanceof ExperimentValidationError);
+      assert.equal(err.code, "invalid-gas-constant-provenance");
+      return true;
+    },
+  );
+  raw.gasConstantProvenance = "measured-without-counting-molecules";
+  const accepted = validateConstantSet(raw);
+  assert.equal(accepted.gasConstantProvenance, "measured-without-counting-molecules");
+});
+
+test("ConstantSet: (experiment.ts:3634) missing-entries rejected when entries is empty or not array, accepted with non-empty entries", () => {
+  const yaml = fs.readFileSync(path.join(FIXTURES_DIR, "constant-set-valid.yaml"), "utf8");
+  const raw = strictParse(yaml, "yaml") as any;
+  raw.entries = [];
+  assert.throws(
+    () => validateConstantSet(raw),
+    (err: any) => {
+      assert.ok(err instanceof ExperimentValidationError);
+      assert.equal(err.code, "missing-entries");
+      return true;
+    },
+  );
+  const accepted = validateConstantSet(strictParse(yaml, "yaml"));
+  assert.ok(accepted.entries.length > 0);
+});
+
+test("ConstantSet: (experiment.ts:3649) invalid-entry rejected when entry is not an object, accepted when entry is object", () => {
+  const yaml = fs.readFileSync(path.join(FIXTURES_DIR, "constant-set-valid.yaml"), "utf8");
+  const raw = strictParse(yaml, "yaml") as any;
+  raw.entries[0] = "not-an-object";
+  assert.throws(
+    () => validateConstantSet(raw),
+    (err: any) => {
+      assert.ok(err instanceof ExperimentValidationError);
+      assert.equal(err.code, "invalid-entry");
+      return true;
+    },
+  );
+  const accepted = validateConstantSet(strictParse(yaml, "yaml"));
+  assert.equal(typeof accepted.entries[0], "object");
+});
+
+test("ConstantSet: (experiment.ts:3657) invalid-entry-kind rejected when entry kind is unknown, accepted for standard kinds", () => {
+  const yaml = fs.readFileSync(path.join(FIXTURES_DIR, "constant-set-valid.yaml"), "utf8");
+  const raw = strictParse(yaml, "yaml") as any;
+  raw.entries[0].kind = "unsupported-kind";
+  assert.throws(
+    () => validateConstantSet(raw),
+    (err: any) => {
+      assert.ok(err instanceof ExperimentValidationError);
+      assert.equal(err.code, "invalid-entry-kind");
+      return true;
+    },
+  );
+  const accepted = validateConstantSet(strictParse(yaml, "yaml"));
+  assert.equal(accepted.entries[0]?.kind, "printed-historical");
 });
