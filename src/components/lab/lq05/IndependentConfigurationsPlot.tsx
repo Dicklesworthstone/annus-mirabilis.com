@@ -124,8 +124,8 @@ export function IndependentConfigurationsPlot({
               cx={pt.cx}
               cy={pt.cy}
               r={locked ? "5" : "4.5"}
-              fill={locked ? "#f59e0b" : pt.inside ? "#10b981" : "#3b82f6"}
-              stroke="#ffffff"
+              fill={locked ? "var(--accent)" : pt.inside ? "var(--plot)" : "var(--muted)"}
+              stroke="var(--paper)"
               strokeWidth="1.5"
               opacity="0.9"
             />
@@ -259,7 +259,7 @@ export function IndependentConfigurationsPlot({
                   style={{
                     width: "100%",
                     height: `${heightPct}%`,
-                    backgroundColor: isAllInside ? "#10b981" : "#6366f1",
+                    backgroundColor: isAllInside ? "var(--accent)" : "var(--plot)",
                     borderRadius: "2px 2px 0 0",
                   }}
                 />
