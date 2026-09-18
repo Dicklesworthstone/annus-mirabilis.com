@@ -28,30 +28,88 @@ export function KnowledgeCardView({
 
   return (
     <details
-      className={`knowledge-card group border border-stone-200 dark:border-stone-800 rounded-lg bg-white dark:bg-stone-900 shadow-sm transition-colors duration-150 ${className}`}
+      className={className || undefined}
+      style={{
+        border: "1px solid var(--line)",
+        borderRadius: "0.5rem",
+        background: "var(--panel)",
+      }}
       open={defaultExpanded ? true : undefined}
       id={`card-${card.id}`}
       data-card-id={card.id}
       data-status={card.status}
     >
-      <summary className="cursor-pointer p-4 select-none hover:bg-stone-50 dark:hover:bg-stone-800/50 rounded-lg flex flex-col sm:flex-row sm:items-center justify-between gap-3 focus:outline-none focus-visible:ring-2 focus-visible:ring-amber-500">
-        <div className="flex-1 pr-2">
-          <div className="flex items-center gap-2 mb-1">
-            <span className="text-xs font-mono font-medium text-stone-500 dark:text-stone-400">
+      <summary
+        style={{
+          cursor: "pointer",
+          padding: "1rem",
+          userSelect: "none",
+          borderRadius: "0.5rem",
+          display: "flex",
+          alignItems: "center",
+          justifyContent: "space-between",
+          gap: "0.75rem",
+          outline: "none",
+        }}
+      >
+        <div style={{ flex: 1, paddingRight: "0.5rem" }}>
+          <div
+            style={{
+              display: "flex",
+              alignItems: "center",
+              gap: "0.5rem",
+              marginBottom: "0.25rem",
+            }}
+          >
+            <span
+              style={{
+                fontSize: "0.75rem",
+                fontFamily: "var(--font-mono, monospace)",
+                fontWeight: 500,
+                color: "var(--muted)",
+              }}
+            >
               {dateLine}
             </span>
-            <span className="text-xs font-mono text-stone-400 dark:text-stone-500">
+            <span
+              style={{
+                fontSize: "0.75rem",
+                fontFamily: "var(--font-mono, monospace)",
+                color: "var(--muted)",
+              }}
+            >
               · #{card.id}
             </span>
           </div>
-          <p className="text-sm font-serif font-semibold text-stone-900 dark:text-stone-100 leading-snug">
+          <p
+            style={{
+              fontSize: "0.875rem",
+              fontFamily: "var(--font-serif)",
+              fontWeight: 600,
+              color: "var(--ink)",
+              lineHeight: 1.35,
+              margin: 0,
+            }}
+          >
             {card.proposition}
           </p>
         </div>
-        <div className="flex items-center gap-2.5 flex-shrink-0">
+        <div
+          style={{
+            display: "flex",
+            alignItems: "center",
+            gap: "0.625rem",
+            flexShrink: 0,
+          }}
+        >
           <StatusLabel status={card.status} admittedImport={card.admittedImport} />
           <svg
-            className="w-4 h-4 text-stone-400 group-open:rotate-180 transition-transform duration-200"
+            style={{
+              width: "1rem",
+              height: "1rem",
+              color: "var(--muted)",
+              flexShrink: 0,
+            }}
             viewBox="0 0 16 16"
             fill="none"
             stroke="currentColor"
@@ -65,7 +123,12 @@ export function KnowledgeCardView({
         </div>
       </summary>
 
-      <div className="border-t border-stone-200 dark:border-stone-800 p-2">
+      <div
+        style={{
+          borderTop: "1px solid var(--line)",
+          padding: "0.5rem",
+        }}
+      >
         <CardDetail card={card} backlinks={backlinks} openQueueItems={openQueueItems} />
       </div>
     </details>

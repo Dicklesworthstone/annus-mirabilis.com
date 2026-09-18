@@ -80,7 +80,7 @@
   "src/discovery/SupportLadder.tsx": 0,
   "src/discovery/WorldCheck.tsx": 0,
   "src/discovery/cards/CardDetail.tsx": 0,
-  "src/discovery/cards/KnowledgeCard.tsx": 61,
+  "src/discovery/cards/KnowledgeCard.tsx": 0,
   "src/discovery/cards/Shelf.tsx": 0,
   "src/discovery/cards/StatusLabel.tsx": 0,
   "src/equations/SemanticEquation.tsx": 2,
