@@ -274,6 +274,51 @@ describe("world check and later evidence", () => {
     ]);
     expect(errorRules(noQty)).toContain("later-evidence-unlabeled");
   });
+
+  test("GOOD: fixture Brownian slice journey (shelf, chain, world check with labeled later dataset) passes with zero errors", async () => {
+    const result = await run([
+      {
+        kind: "historical-premise",
+        id: "stokes-1851",
+        status: "available",
+        date: { latestYear: 1851 },
+      },
+      {
+        kind: "journey",
+        id: "journey-brownian-slice",
+        stages: [
+          {
+            id: "stage-shelf-stokes",
+            kind: "shelf",
+            premiseRefs: [{ cardId: "stokes-1851" }],
+          },
+          {
+            id: "stage-chain-diffusivity",
+            kind: "chain",
+            premiseRefs: [{ cardId: "stokes-1851" }],
+          },
+        ],
+        worldChecks: [
+          {
+            id: "wc-perrin-brownian",
+            quantityId: "avogadroNumberEstimate",
+            comparisonKind: "measured-fact",
+            laterEvidence: { year: 1909, description: "later evidence (1909)" },
+          },
+        ],
+      },
+    ]);
+    expect(result.passed).toBe(true);
+    expect(errorRules(result)).toHaveLength(0);
+    logger.log({
+      testId: "journey-brownian-slice-zero-errors",
+      beadId: BEAD,
+      extra: { family: "epistemic" },
+      outcome: "passed",
+      message:
+        "Brownian slice journey with shelf, chain, and labeled world check passes with 0 errors",
+    });
+  });
 });
 
 describe("coverage, accessibility, notModeled, misconceptions", () => {
