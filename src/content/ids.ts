@@ -801,7 +801,11 @@ export function parseTermId(raw: string): ParseResult<TermId> {
 
 export function parseOperationId(raw: string): ParseResult<OperationId> {
   if (typeof raw !== "string" || !raw) {
-    return { ok: false, error: "Operation ID must be a non-empty string", rule: "operation-id-grammar" };
+    return {
+      ok: false,
+      error: "Operation ID must be a non-empty string",
+      rule: "operation-id-grammar",
+    };
   }
   const match = raw.match(/^(.+)\.op\.(.+)$/);
   if (!match || !match[1] || !match[2]) {
@@ -832,7 +836,11 @@ export function parseOperationId(raw: string): ParseResult<OperationId> {
 
 export function parseAlternateFormId(raw: string): ParseResult<AlternateFormId> {
   if (typeof raw !== "string" || !raw) {
-    return { ok: false, error: "Alternate form ID must be a non-empty string", rule: "alternate-form-id-grammar" };
+    return {
+      ok: false,
+      error: "Alternate form ID must be a non-empty string",
+      rule: "alternate-form-id-grammar",
+    };
   }
   const match = raw.match(/^(.+)\.alt\.(.+)$/);
   if (!match || !match[1] || !match[2]) {
@@ -863,7 +871,11 @@ export function parseAlternateFormId(raw: string): ParseResult<AlternateFormId> 
 
 export function parseQualifiedId(raw: string): ParseResult<QualifiedId> {
   if (typeof raw !== "string" || !raw) {
-    return { ok: false, error: "Qualified ID must be a non-empty string", rule: "qualified-id-grammar" };
+    return {
+      ok: false,
+      error: "Qualified ID must be a non-empty string",
+      rule: "qualified-id-grammar",
+    };
   }
   const slashIdx = raw.indexOf("/");
   if (slashIdx === -1) {

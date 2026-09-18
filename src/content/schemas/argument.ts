@@ -5,6 +5,14 @@
  * and am-cm-schemas-argument-llm
  */
 
+import {
+  type AlternateForm,
+  type CompositeGroup,
+  type LayoutHints,
+  validateAlternateForm,
+  validateCompositeGroup,
+  validateLayoutHints,
+} from "../../equations/tree/schema.ts";
 import { type TextDirection, validateDirection, validateLanguageTag } from "../../i18n/language.ts";
 import {
   parseClosingId,
@@ -27,6 +35,7 @@ import {
 export type { TextDirection } from "../../i18n/language.ts";
 export type { AuthorshipBlock } from "./authorship.ts";
 export type { PremiseStatus } from "./meanings.ts";
+export type { AlternateForm, CompositeGroup, LayoutHints };
 
 export type VerificationMethod =
   | "library scan"
@@ -1527,6 +1536,9 @@ export type SemanticEquation = Readonly<{
   readings: string;
   meanings: FourMeanings;
   authorship: AuthorshipBlock;
+  layout?: LayoutHints | undefined;
+  groups?: readonly CompositeGroup[] | undefined;
+  alternateForms?: readonly AlternateForm[] | undefined;
 }>;
 
 export function validateSemanticEquation(raw: unknown, path = "Equation"): SemanticEquation {
@@ -1734,6 +1746,39 @@ export function validateSemanticEquation(raw: unknown, path = "Equation"): Seman
   const meanings = validateMeanings(o.meanings, `${path}.meanings`, "Equation");
   const authorship = validateAuthorshipBlock(o.authorship, `${path}.authorship`);
 
+  let alternateForms: AlternateForm[] | undefined;
+  if (o.alternateForms !== undefined) {
+    if (!Array.isArray(o.alternateForms)) {
+      throw new ArgumentSchemaError(
+        "invalid-alternate-forms",
+        "alternateForms must be an array.",
+        "Equation",
+        `${path}.alternateForms`,
+      );
+    }
+    alternateForms = o.alternateForms.map((af, i) =>
+      validateAlternateForm(af, `${path}.alternateForms[${i}]`),
+    );
+  }
+
+  let layout: LayoutHints | undefined;
+  if (o.layout !== undefined) {
+    layout = validateLayoutHints(o.layout, `${path}.layout`);
+  }
+
+  let groups: CompositeGroup[] | undefined;
+  if (o.groups !== undefined) {
+    if (!Array.isArray(o.groups)) {
+      throw new ArgumentSchemaError(
+        "invalid-groups",
+        "groups must be an array.",
+        "Equation",
+        `${path}.groups`,
+      );
+    }
+    groups = o.groups.map((g, i) => validateCompositeGroup(g, `${path}.groups[${i}]`));
+  }
+
   return {
     id: o.id as string,
     paper: o.paper as string,
@@ -1749,6 +1794,9 @@ export function validateSemanticEquation(raw: unknown, path = "Equation"): Seman
     readings: (o.readings as string) || `rs-${o.id}`,
     meanings,
     authorship,
+    layout,
+    groups,
+    alternateForms,
   };
 }
 
