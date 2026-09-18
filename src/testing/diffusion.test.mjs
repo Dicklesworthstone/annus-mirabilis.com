@@ -84,7 +84,7 @@ test("modern exact constants and their dependency remain in one immutable set", 
   });
   assert.throws(() => modern.entries.push(modern.entries[0]));
 });
-test("verified printed sets resolve with provenance while reserved sets still throw", () => {
+test("unverified historical and reserved sets cannot masquerade as available", () => {
   const verifiedPrintedSetIds = [
     "einstein-1905-brownian-printed",
     "einstein-1905-light-quanta-printed",
