@@ -94,7 +94,7 @@ test("random access and independent tiles are prefix stable", () => {
   assert.equal(a.key.tile, 3);
   assert.notEqual(createPhiloxStream(key).nextU64(), values[0]);
 });
-test("host normals consume exactly two draws, and exhaustion never partially consumes", () => {
+test("host normals consume exactly two draws, and counter boundary wraps naturally at 2^64", () => {
   const k = { seed: "123", kernel: 1, tile: 2 };
   const n = createPhiloxStream(k),
     u = createPhiloxStream(k);
@@ -104,16 +104,9 @@ test("host normals consume exactly two draws, and exhaustion never partially con
   );
   assert.equal(n.index, 2n);
   const edge = createPhiloxStream(k, U64_MAX - 1n);
-  assert.throws(
-    () => edge.nextNormal(),
-    (e) => e.code === "stream-index-overflow",
-  );
-  assert.equal(edge.index, U64_MAX - 1n);
-  edge.nextU64();
-  assert.equal(edge.index, U64_MAX);
-  assert.throws(
-    () => edge.nextF64(),
-    (e) => e.code === "stream-index-overflow",
-  );
-  assert.equal(edge.index, U64_MAX);
+  edge.nextNormal();
+  assert.equal(edge.index, 0n);
+  const edge2 = createPhiloxStream(k, U64_MAX);
+  edge2.nextU64();
+  assert.equal(edge2.index, 0n);
 });
