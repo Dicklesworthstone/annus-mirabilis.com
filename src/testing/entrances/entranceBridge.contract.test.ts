@@ -2,7 +2,9 @@ import { afterAll, describe, expect, it } from "bun:test";
 import { existsSync, readFileSync } from "node:fs";
 import { resolve } from "node:path";
 import { validateEntranceRecord } from "../../content/entrances/entranceRecord.ts";
+import { scanSkillSymbols } from "../../content/entrances/symbolGuard.ts";
 import { ENTRANCE_PAPER_SLUGS } from "../../content/ids.ts";
+import { CATALOGUE_IDS } from "../../experiments/catalogue.ts";
 import { newRunIdentity, TestLogger } from "../log/logger.ts";
 
 const BEAD_ID = "am-bm-first-encounter-fjvh";
@@ -15,7 +17,7 @@ describe("Entrance Bridge Cross-Paper Contract (am-bm-first-encounter-fjvh)", ()
   });
 
   // Slugs of entrance beads that have landed in the repository
-  const LANDED_ENTRANCE_SLUGS = new Set<string>(["brownian-motion"]);
+  const LANDED_ENTRANCE_SLUGS = new Set<string>(["brownian-motion", "mass-energy"]);
 
   for (const slug of ENTRANCE_PAPER_SLUGS) {
     const isLanded = LANDED_ENTRANCE_SLUGS.has(slug);
@@ -64,6 +66,35 @@ describe("Entrance Bridge Cross-Paper Contract (am-bm-first-encounter-fjvh)", ()
       expect(hasMore).toBe(true);
       expect(hasLess).toBe(true);
 
+      // Verify no-symbol rule on newSkill (AC 12 cross-paper check)
+      expect(record.bridge.newSkill).toBeDefined();
+      if (!record.bridge.newSkill) throw new Error("newSkill is required on bridge");
+      const symbolScan = scanSkillSymbols(record.bridge.newSkill);
+      expect(symbolScan.ok).toBe(true);
+
+      // Verify every continueWith target resolves to a known foundation or instrument (AC 11)
+      for (const route of record.bridge.continueWith ?? []) {
+        const target = route.targetId;
+        expect(target).toBeDefined();
+        if (target.startsWith("foundation:")) {
+          const foundationSlug = target.slice("foundation:".length);
+          const foundationJson = resolve(
+            process.cwd(),
+            `content/foundations/${foundationSlug}.json`,
+          );
+          const registryYaml = resolve(process.cwd(), `content/foundations/registry.yaml`);
+          const fileExists = existsSync(foundationJson);
+          const registered =
+            existsSync(registryYaml) && readFileSync(registryYaml, "utf-8").includes(target);
+          expect(fileExists || registered).toBe(true);
+        } else if (target.startsWith("instrument:")) {
+          const instrumentId = target.slice("instrument:".length);
+          expect((CATALOGUE_IDS as readonly string[]).includes(instrumentId)).toBe(true);
+        } else {
+          expect(target.length).toBeGreaterThan(0);
+        }
+      }
+
       logger.log({
         testId: `entrance-contract-${slug}`,
         beadId: BEAD_ID,
@@ -76,6 +107,7 @@ describe("Entrance Bridge Cross-Paper Contract (am-bm-first-encounter-fjvh)", ()
           recordId: record.id,
           paper: slug,
           continueWithCount: record.bridge.continueWith?.length,
+          targetResolution: "resolved",
         },
       });
     });

@@ -112,11 +112,26 @@ describe("Entrance Bridge Rendering Tests (am-bm-first-encounter-fjvh)", () => {
     });
   });
 
-  it("renders complete static links in noscript fallback", () => {
+  it("renders complete static links and worked numbers in noscript fallback", () => {
     const html = renderToString(<BrownianFirstEncounter record={validRecord} />);
     expect(html).toContain("<noscript>");
     expect(html).toContain('href="/foundations/mean-variance-rms"');
     expect(html).toContain('href="/lab/bm-01"');
     expect(html).toContain('href="/papers/brownian-motion/s5/#s5-p1"');
+
+    // Complete worked example numbers for authored case (-3, -1, +1, +3)
+    expect(html).toContain("Authored Example (−3, −1, +1, +3 units):");
+    expect(html).toContain("Signed sum = (−3) + (−1) + (+1) + (+3) = 0 units.");
+    expect(html).toContain("Mean absolute displacement = (3 + 1 + 1 + 3) / 4 = 2 units.");
+    expect(html).toContain("Mean square displacement = (9 + 1 + 1 + 9) / 4 = 5 sq units.");
+    expect(html).toContain("Root-mean-square displacement (RMS) = √5 ≈ 2.236 units.");
+
+    // Complete worked example numbers for doubled case (-6, -2, +2, +6)
+    expect(html).toContain("Doubled Example (−6, −2, +2, +6 units):");
+    expect(html).toContain("Signed sum = (−6) + (−2) + (+2) + (+6) = 0 units.");
+    expect(html).toContain("Mean absolute displacement = (6 + 2 + 2 + 6) / 4 = 4 units.");
+    expect(html).toContain("Mean square displacement = (36 + 4 + 4 + 36) / 4 = 20 sq units.");
+    expect(html).toContain("Root-mean-square displacement (RMS) = √20 ≈ 4.472 units.");
   });
 });
+

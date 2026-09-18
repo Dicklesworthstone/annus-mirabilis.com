@@ -206,4 +206,77 @@ describe("Brownian First Encounter Interactive UI Component (am-bm-first-encount
     const sumEl = container.querySelector('[data-testid="totals-signed-sum"]');
     expect(sumEl?.textContent).toContain("+1");
   });
+
+  it("triggers navigation callbacks and preserves custom entries returned via initialEntries", async () => {
+    let navigatedFoundation: string | null = null;
+    let navigatedInstrument: string | null = null;
+
+    const root = createRoot(container);
+    await act(async () => {
+      root.render(
+        <BrownianFirstEncounter
+          record={record}
+          onNavigateFoundation={(id) => {
+            navigatedFoundation = id;
+          }}
+          onNavigateInstrument={(id) => {
+            navigatedInstrument = id;
+          }}
+        />,
+      );
+    });
+
+    const foundationLink = Array.from(container.querySelectorAll("a")).find((a) =>
+      a.textContent?.includes("Open Mean, Variance & RMS Drawer"),
+    );
+    expect(foundationLink).toBeDefined();
+
+    await act(async () => {
+      foundationLink?.click();
+    });
+    expect(navigatedFoundation).toBe("mean-variance-rms");
+
+    const instrumentLink = Array.from(container.querySelectorAll("a")).find((a) =>
+      a.textContent?.includes("Open BM-01 Lab"),
+    );
+    expect(instrumentLink).toBeDefined();
+
+    await act(async () => {
+      instrumentLink?.click();
+    });
+    expect(navigatedInstrument).toBe("bm-01");
+
+    // Simulate return from drawer via the return stack with edited entries [-2, 0, 1, 5]
+    await act(async () => {
+      root.unmount();
+    });
+
+    const returnContainer = document.createElement("div");
+    document.body.appendChild(returnContainer);
+    const returnRoot = createRoot(returnContainer);
+
+    await act(async () => {
+      returnRoot.render(
+        <BrownianFirstEncounter
+          record={record}
+          initialEntries={[-2, 0, 1, 5]}
+        />,
+      );
+    });
+
+    const sumEl = returnContainer.querySelector('[data-testid="totals-signed-sum"]');
+    const absEl = returnContainer.querySelector('[data-testid="totals-mean-absolute"]');
+    const sqEl = returnContainer.querySelector('[data-testid="totals-mean-square"]');
+
+    // For [-2, 0, 1, 5]: sum = 4, meanAbs = 2.00, meanSq = 7.50
+    expect(sumEl?.textContent).toContain("+4");
+    expect(absEl?.textContent).toContain("2.00");
+    expect(sqEl?.textContent).toContain("7.50");
+
+    await act(async () => {
+      returnRoot.unmount();
+    });
+    returnContainer.remove();
+  });
 });
+
