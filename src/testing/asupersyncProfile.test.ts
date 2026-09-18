@@ -1,5 +1,7 @@
 import { describe, expect, it } from "bun:test";
+import { spawnSync } from "node:child_process";
 import { existsSync } from "node:fs";
+import { join } from "node:path";
 import {
   CANONICAL_WASM_PROFILES,
   SIBLING_WASM_CRATES,
@@ -225,6 +227,34 @@ asupersync v0.5.0 (/Users/jemanuel/projects/asupersync)
       expect(dirtyCheck.ok).toBe(false);
       expect(dirtyCheck.occurrences).toBe(1);
       expect(dirtyCheck.matchingLines[0]).toContain("native-runtime");
+    });
+
+    it("runs live cargo tree on asupersync checkout and confirms native-runtime is 0", () => {
+      const asupersyncDir = "/Users/jemanuel/projects/asupersync";
+      if (!existsSync(join(asupersyncDir, "Cargo.toml"))) {
+        return;
+      }
+      const proc = spawnSync(
+        "cargo",
+        [
+          "tree",
+          "-e",
+          "features",
+          "-p",
+          "asupersync",
+          "--target",
+          "wasm32-unknown-unknown",
+          "--no-default-features",
+          "--features",
+          "wasm-browser-prod",
+        ],
+        { cwd: asupersyncDir, encoding: "utf8", timeout: 15000 },
+      );
+      if (proc.status === 0) {
+        const check = verifyCargoTreeFeatureAbsence(proc.stdout, "native-runtime");
+        expect(check.ok).toBe(true);
+        expect(check.occurrences).toBe(0);
+      }
     });
   });
 
