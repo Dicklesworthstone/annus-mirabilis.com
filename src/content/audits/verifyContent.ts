@@ -30,6 +30,13 @@ export type VerifyContentOptions = Readonly<{
   inventory: readonly InventoriedCheck[];
   pinnedAssets?: readonly PinnedAsset[];
   extraReports?: readonly AuditReport[];
+  dimensionAudit?: () => Promise<AuditReport>;
+  audits?: {
+    readings?: () => Promise<AuditReport>;
+    shelf?: () => Promise<AuditReport>;
+    misconceptions?: () => Promise<AuditReport>;
+    instruments?: () => Promise<AuditReport>;
+  };
 }>;
 
 export type VerifyContentResult = Readonly<{
@@ -57,10 +64,12 @@ export async function runVerifyContent(
   const skipped: string[] = [];
   const findings: AuditFinding[] = [];
 
+  // 1. Architecture gate
   if (options.architecture() !== 0) {
     errors.push("architecture-gate: App Router / root-file allowlist failed.");
   }
 
+  // 2. Content compiler with registered checks + check inventory
   registerVerifyContentChecks();
   const files = await options.loadFiles();
   const compiled = await compileContent(files);
@@ -77,6 +86,54 @@ export async function runVerifyContent(
     else flags.push(findingLine(finding));
   }
 
+  // 3. audit-dimensions.ts
+  if (options.dimensionAudit) {
+    const dimReport = await options.dimensionAudit();
+    findings.push(...dimReport.findings);
+    for (const finding of dimReport.findings) {
+      if (finding.severity === "error") errors.push(findingLine(finding));
+      else flags.push(findingLine(finding));
+    }
+  }
+
+  // 4. The four audits: readings, shelf, misconceptions, instruments
+  if (options.audits?.readings) {
+    const readingsReport = await options.audits.readings();
+    findings.push(...readingsReport.findings);
+    for (const finding of readingsReport.findings) {
+      if (finding.severity === "error") errors.push(findingLine(finding));
+      else flags.push(findingLine(finding));
+    }
+  }
+
+  if (options.audits?.shelf) {
+    const shelfReport = await options.audits.shelf();
+    findings.push(...shelfReport.findings);
+    for (const finding of shelfReport.findings) {
+      if (finding.severity === "error") errors.push(findingLine(finding));
+      else flags.push(findingLine(finding));
+    }
+  }
+
+  if (options.audits?.misconceptions) {
+    const miscReport = await options.audits.misconceptions();
+    findings.push(...miscReport.findings);
+    for (const finding of miscReport.findings) {
+      if (finding.severity === "error") errors.push(findingLine(finding));
+      else flags.push(findingLine(finding));
+    }
+  }
+
+  if (options.audits?.instruments) {
+    const instReport = await options.audits.instruments();
+    findings.push(...instReport.findings);
+    for (const finding of instReport.findings) {
+      if (finding.severity === "error") errors.push(findingLine(finding));
+      else flags.push(findingLine(finding));
+    }
+  }
+
+  // 5. check-revisions.ts
   if (options.baseRef) {
     const revision = options.revisionCheck
       ? await options.revisionCheck(options.baseRef)
@@ -87,6 +144,7 @@ export async function runVerifyContent(
     skipped.push("revision-check-skipped");
   }
 
+  // 6. Pinned-asset check
   if (options.pinnedAssets) {
     const pinned = auditPinnedAssets(
       options.pinnedAssets,

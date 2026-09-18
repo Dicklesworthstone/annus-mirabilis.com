@@ -8,9 +8,27 @@
  */
 
 import { execFileSync } from "node:child_process";
-import { existsSync, readFileSync } from "node:fs";
+import { existsSync, readdirSync, readFileSync } from "node:fs";
 import { resolve } from "node:path";
 import { fileURLToPath } from "node:url";
+import yaml from "js-yaml";
+import {
+  auditInstruments,
+  loadLiveInstrumentRows,
+} from "../src/content/audits/instruments.ts";
+import {
+  auditMisconceptions,
+  type MisconceptionAuditInput,
+} from "../src/content/audits/misconceptions.ts";
+import {
+  auditReadings,
+  type ReadingsAuditInput,
+  type ReadingsOwnerEntry,
+  type ReadingTarget,
+  type ReadingTargetKind,
+} from "../src/content/audits/readings.ts";
+import { auditShelf, type ShelfAuditInput } from "../src/content/audits/shelf.ts";
+import { summarize } from "../src/content/audits/types.ts";
 import {
   loadCommittedInventory,
   RULE_0_HELP,
@@ -19,6 +37,7 @@ import {
 import { auditKernelBindings } from "../src/content/kernel/audit.ts";
 import { loadProvenanceReceipts } from "../src/content/provenance/loadReceipts.ts";
 import { runArchitectureGateCli } from "./app-router-architecture.ts";
+import { mainAuditDimensions } from "./audit-dimensions.ts";
 import { loadReadingFiles } from "./build-content.ts";
 import { runRevisionCheck } from "./check-revisions.ts";
 
@@ -28,8 +47,8 @@ function printHelp(): void {
   console.log(`Usage: bun scripts/verify-content.ts [--base <ref>] [--require-local] [--help]
 
 Runs the architecture gate, the content compiler with every registered check,
-the committed check inventory, check-revisions (skipped when no --base and no
-git base ref exist), and pinned-asset presence.
+audit-dimensions, the four content audits (readings, shelf, misconceptions, instruments),
+check-revisions (skipped when no --base and no git base ref exist), and pinned-asset presence.
 
 ${RULE_0_HELP}
 
@@ -95,6 +114,63 @@ const provenance = loadProvenanceReceipts({
   requireLocal: args.requireLocal,
 });
 
+function loadLiveReadingsAuditInput(
+  rootDir: string,
+  options?: { ownerBeadIds?: readonly string[] },
+): ReadingsAuditInput {
+  const ownersDir = resolve(rootDir, "content/editorial/readings-owners");
+  const owners: ReadingsOwnerEntry[] = [];
+  const targets: ReadingTarget[] = [];
+  if (existsSync(ownersDir)) {
+    for (const name of readdirSync(ownersDir)) {
+      if (!name.endsWith(".yaml")) continue;
+      const beadId = name.replace(".yaml", "");
+      if (options?.ownerBeadIds && !options.ownerBeadIds.includes(beadId)) continue;
+      try {
+        const parsed = yaml.load(readFileSync(resolve(ownersDir, name), "utf8")) as Record<string, unknown> | null;
+        const ownerBeadId = String(parsed?.ownerBeadId ?? parsed?.beadId ?? name.replace(".yaml", ""));
+        const targetIds: string[] = [];
+        const targetKinds: ReadingTargetKind[] = [];
+        if (Array.isArray(parsed?.targets)) {
+          for (const rawTarget of parsed.targets) {
+            const t = rawTarget as Record<string, unknown>;
+            const kind: ReadingTargetKind =
+              t.kind === "caption" || t.captions
+                ? "instrument-caption"
+                : (t.kind as ReadingTargetKind) ?? "paragraph";
+            const id = (t.id as string | undefined) ?? (t.instrument ? `caption-${String(t.instrument)}` : undefined);
+            if (id) {
+              targetIds.push(id);
+              if (!targetKinds.includes(kind)) targetKinds.push(kind);
+              if (t.readings) {
+                targets.push({
+                  targetId: id,
+                  targetKind: kind,
+                  paper: String(parsed.paper ?? "brownian-motion"),
+                  readings: t.readings as any,
+                  ...(Array.isArray(t.scopeCritical)
+                    ? { scopeCritical: t.scopeCritical.map(String) }
+                    : {}),
+                });
+              }
+            }
+          }
+        }
+        owners.push({
+          ownerBeadId,
+          fileName: name,
+          paper: String(parsed?.paper ?? "brownian-motion"),
+          targetKinds: targetKinds.length > 0 ? targetKinds : ["paragraph"],
+          targetIds,
+        });
+      } catch {
+        // Ignore unparseable
+      }
+    }
+  }
+  return { targets, owners };
+}
+
 const baseRef = args.baseRef ?? gitBaseRef();
 const result = await runVerifyContent({
   root,
@@ -114,6 +190,49 @@ const result = await runVerifyContent({
       }
     }
     return [...readingFiles, ...experimentFiles];
+  },
+  dimensionAudit: async () => {
+    const { summary } = await mainAuditDimensions([]);
+    return summarize(
+      "audit-dimensions",
+      summary.ok
+        ? []
+        : [
+            {
+              check: "dimension-consistency",
+              family: "audit",
+              severity: "error",
+              recordId: "dimension-audit",
+              message: `Dimension audit failed: ${summary.inconsistent} inconsistent equations.`,
+            },
+          ],
+    );
+  },
+  audits: {
+    readings: async () => {
+      const input = loadLiveReadingsAuditInput(root, {
+        ownerBeadIds: ["am-bm-01-tracer-ensemble-hdly"],
+      });
+      return auditReadings(input);
+    },
+    shelf: async () => {
+      const input: ShelfAuditInput = { cards: [] };
+      return auditShelf(input);
+    },
+    misconceptions: async () => {
+      const input: MisconceptionAuditInput = {
+        papers: [],
+        knownAnchors: new Set<string>(),
+        knownInstruments: new Set<string>(),
+        knownResults: new Set<string>(),
+        knownSources: new Set<string>(),
+      };
+      return auditMisconceptions(input);
+    },
+    instruments: async () => {
+      const rows = loadLiveInstrumentRows(root, { ids: ["bm-01"] });
+      return auditInstruments(rows);
+    },
   },
   revisionCheck: async (ref) => {
     if (!existsSync(resolve(root, ".git"))) return "skipped";

@@ -119,6 +119,118 @@ describe("verify-content orchestrator", () => {
     expect(voice?.requiredInProfiles).toContain("launch");
     expect(voice?.requiredInCi).toBe(true);
   });
+
+  test("PLANTED: failing dimension audit surfaces in verify-content errors", async () => {
+    registerVerifyContentChecks();
+    const result = await runVerifyContent({
+      root: process.cwd(),
+      architecture: () => 0,
+      loadFiles: async () => [],
+      inventory: loadCommittedInventory(process.cwd()),
+      dimensionAudit: async () => ({
+        audit: "audit-dimensions",
+        ok: false,
+        errorCount: 1,
+        flagCount: 0,
+        findings: [
+          {
+            check: "dimension-consistency",
+            family: "audit",
+            severity: "error",
+            recordId: "eq-energy-equals-force",
+            message: "inconsistent dimensions",
+          },
+        ],
+      }),
+    });
+    expect(result.ok).toBe(false);
+    expect(result.exitCode).toBe(1);
+    expect(result.findings.some((f) => f.check === "dimension-consistency")).toBe(true);
+    expect(result.errors.some((e) => e.includes("dimension-consistency"))).toBe(true);
+  });
+
+  test("PLANTED: failing content audit surfaces in verify-content errors and runs in order", async () => {
+    registerVerifyContentChecks();
+    const order: string[] = [];
+    const result = await runVerifyContent({
+      root: process.cwd(),
+      architecture: () => {
+        order.push("architecture");
+        return 0;
+      },
+      loadFiles: async () => {
+        order.push("compiler");
+        return [];
+      },
+      inventory: loadCommittedInventory(process.cwd()),
+      dimensionAudit: async () => {
+        order.push("dimensions");
+        return {
+          audit: "audit-dimensions",
+          ok: true,
+          errorCount: 0,
+          flagCount: 0,
+          findings: [],
+        };
+      },
+      audits: {
+        readings: async () => {
+          order.push("readings");
+          return {
+            audit: "audit-readings",
+            ok: false,
+            errorCount: 1,
+            flagCount: 0,
+            findings: [
+              {
+                check: "owner-conflict",
+                family: "readings",
+                severity: "error",
+                recordId: "target-1",
+                message: "planted conflict",
+              },
+            ],
+          };
+        },
+        shelf: async () => {
+          order.push("shelf");
+          return { audit: "audit-shelf", ok: true, errorCount: 0, flagCount: 0, findings: [] };
+        },
+        misconceptions: async () => {
+          order.push("misconceptions");
+          return { audit: "audit-misconceptions", ok: true, errorCount: 0, flagCount: 0, findings: [] };
+        },
+        instruments: async () => {
+          order.push("instruments");
+          return { audit: "audit-instruments", ok: true, errorCount: 0, flagCount: 0, findings: [] };
+        },
+      },
+      revisionCheck: async () => {
+        order.push("revision");
+        return true;
+      },
+      baseRef: "origin/main",
+      pinnedAssets: [
+        {
+          id: "test-asset",
+          path: "public/test.pdf",
+          publicationDecision: "reference-only",
+        },
+      ],
+    });
+    expect(result.ok).toBe(false);
+    expect(result.findings.some((f) => f.check === "owner-conflict")).toBe(true);
+    expect(order).toEqual([
+      "architecture",
+      "compiler",
+      "dimensions",
+      "readings",
+      "shelf",
+      "misconceptions",
+      "instruments",
+      "revision",
+    ]);
+  });
 });
 
 afterAll(async () => {

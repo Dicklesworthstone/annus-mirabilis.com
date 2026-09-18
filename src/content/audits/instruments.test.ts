@@ -66,6 +66,133 @@ describe("auditInstruments: paired ok/broken fixtures", () => {
     expect(report.ok).toBe(false);
     expect(errorCheckCodes(report)).toContain("instrument-predict-mode");
   });
+
+  test("GOOD RECORD: valid declared modes, presets, predict prompts, and teaching tapes pass", () => {
+    const report = auditInstruments([
+      {
+        id: "bm-01",
+        core: true,
+        registered: true,
+        dispatcherCase: true,
+        inCoreCatalogue: true,
+        inNonCoreList: false,
+        probes: ["bm-01-radius-probe"],
+        notModeled: ["Molecular collisions."],
+        tapeModelId: "bm-01@1",
+        ownerTest: true,
+        actionContracts: 1,
+        predictEnabled: true,
+        embeddable: true,
+        modes: ["sr-02:apparatus"],
+        presets: ["bm-01-radius-probe", "bm-01-viscosity-comparison"],
+        predictPrompts: ["bm-01-predict-observation-interval"],
+        teachingTapes: ["einstein-0-8-micron"],
+      },
+    ]);
+    expect(report.ok).toBe(true);
+    expect(errorCheckCodes(report)).toEqual([]);
+  });
+
+  test("PLANTED: preset with colon or missing prefix fails preset grammar", () => {
+    const report = auditInstruments([
+      {
+        id: "bm-01",
+        core: true,
+        registered: true,
+        dispatcherCase: true,
+        inCoreCatalogue: true,
+        inNonCoreList: false,
+        probes: ["bm-01-probe"],
+        notModeled: ["None"],
+        tapeModelId: "bm-01@1",
+        ownerTest: true,
+        actionContracts: 1,
+        predictEnabled: true,
+        embeddable: true,
+        presets: ["bm-01:invalid-preset-with-colon"],
+      },
+    ]);
+    expect(report.ok).toBe(false);
+    expect(errorCheckCodes(report)).toContain("instrument-presets");
+    expect(report.findings[0]?.message).toContain("cannot contain a colon");
+  });
+
+  test("PLANTED: predict prompt without predict segment fails prompt grammar", () => {
+    const report = auditInstruments([
+      {
+        id: "bm-01",
+        core: true,
+        registered: true,
+        dispatcherCase: true,
+        inCoreCatalogue: true,
+        inNonCoreList: false,
+        probes: ["bm-01-probe"],
+        notModeled: ["None"],
+        tapeModelId: "bm-01@1",
+        ownerTest: true,
+        actionContracts: 1,
+        predictEnabled: true,
+        embeddable: true,
+        predictPrompts: ["bm-01-invalid-prompt"],
+      },
+    ]);
+    expect(report.ok).toBe(false);
+    expect(errorCheckCodes(report)).toContain("instrument-predict-prompts");
+  });
+
+  test("PLANTED: teaching tape with colon fails tape grammar", () => {
+    const report = auditInstruments([
+      {
+        id: "bm-01",
+        core: true,
+        registered: true,
+        dispatcherCase: true,
+        inCoreCatalogue: true,
+        inNonCoreList: false,
+        probes: ["bm-01-probe"],
+        notModeled: ["None"],
+        tapeModelId: "bm-01@1",
+        ownerTest: true,
+        actionContracts: 1,
+        predictEnabled: true,
+        embeddable: true,
+        teachingTapes: ["bm-01:the-locked-tape"],
+      },
+    ]);
+    expect(report.ok).toBe(false);
+    expect(errorCheckCodes(report)).toContain("instrument-teaching-tapes");
+    expect(report.findings[0]?.message).toContain("cannot contain a colon");
+  });
+
+  test("PLANTED: undeclared mode such as lq-08:count-model fails with instrument declared modes in message", () => {
+    const report = auditInstruments([
+      {
+        id: "lq-08",
+        core: true,
+        registered: true,
+        dispatcherCase: true,
+        inCoreCatalogue: true,
+        inNonCoreList: false,
+        probes: ["lq-08-probes"],
+        notModeled: ["None"],
+        tapeModelId: "lq-08@1",
+        ownerTest: true,
+        actionContracts: 1,
+        predictEnabled: true,
+        embeddable: true,
+        testedAddresses: ["lq-08:count-model"],
+      },
+    ]);
+    expect(report.ok).toBe(false);
+    expect(errorCheckCodes(report)).toContain("instrument-modes");
+    expect(
+      report.findings.some(
+        (f) =>
+          f.check === "instrument-modes" &&
+          f.message.includes('"count-model" is not a declared mode of lq-08; declared modes: <none>'),
+      ),
+    ).toBe(true);
+  });
 });
 
 afterAll(async () => {

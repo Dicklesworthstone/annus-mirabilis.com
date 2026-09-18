@@ -3,15 +3,29 @@
  * CLI for the instrument audit (am-cm-audit-scripts-d34).
  */
 import { readFileSync } from "node:fs";
-import { auditInstruments, type InstrumentAuditRow } from "../src/content/audits/instruments.ts";
+import { resolve } from "node:path";
+import { fileURLToPath } from "node:url";
+import {
+  auditInstruments,
+  formatInstrumentAuditTable,
+  loadLiveInstrumentRows,
+  type InstrumentAuditRow,
+} from "../src/content/audits/instruments.ts";
 
+const root = resolve(fileURLToPath(new URL("..", import.meta.url)));
 const idx = process.argv.indexOf("--fixture");
-const fixture = process.argv[idx + 1];
-if (idx === -1 || fixture === undefined) {
-  console.error("Usage: bun scripts/audit-instruments.ts --fixture <file.json>");
-  process.exit(2);
+const fixture = idx !== -1 ? process.argv[idx + 1] : undefined;
+
+let rows: readonly InstrumentAuditRow[];
+if (fixture) {
+  rows = JSON.parse(readFileSync(fixture, "utf8")) as InstrumentAuditRow[];
+} else {
+  rows = loadLiveInstrumentRows(root);
 }
-const rows = JSON.parse(readFileSync(fixture, "utf8")) as InstrumentAuditRow[];
+
 const report = auditInstruments(rows);
-console.log(JSON.stringify(report, null, 2));
+console.log(formatInstrumentAuditTable(report, rows));
+if (process.argv.includes("--json")) {
+  console.log(JSON.stringify(report, null, 2));
+}
 process.exit(report.ok ? 0 : 1);
