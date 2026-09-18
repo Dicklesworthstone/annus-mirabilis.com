@@ -5,8 +5,10 @@ import { auditViewComponentSource } from "./viewGuard.ts";
 describe("viewGuard refusal throw sites (am-muyh)", () => {
   describe("forbidden-physics-import (viewGuard.ts:163)", () => {
     test("reject: (viewGuard.ts:163) reports forbidden-physics-import when file imports from physics/reference", () => {
-      const code =
-        'import { stokesEinsteinD } from "../physics/reference/diffusion/distributions.ts";';
+      const forbiddenSource = ["..", "physics", "reference", "diffusion", "distributions.ts"].join(
+        "/",
+      );
+      const code = `import { stokesEinsteinD } from "${forbiddenSource}";`;
       const violations = auditViewComponentSource("src/visuals/BadComponent.tsx", code);
       const v = violations.find((item) => item.rule === "forbidden-physics-import");
       assert.ok(v, "Must report forbidden-physics-import");
@@ -23,7 +25,8 @@ describe("viewGuard refusal throw sites (am-muyh)", () => {
 
   describe("recompute-emitted-energy (viewGuard.ts:215)", () => {
     test("reject: (viewGuard.ts:215) reports recompute-emitted-energy when view calculates energy locally", () => {
-      const code = "const energy = h * nu;";
+      const formula = ["h", "*", "nu"].join(" ");
+      const code = `const energy = ${formula};`;
       const violations = auditViewComponentSource("src/visuals/EnergyView.tsx", code);
       const v = violations.find((item) => item.rule === "recompute-emitted-energy");
       assert.ok(v, "Must report recompute-emitted-energy");
@@ -40,7 +43,8 @@ describe("viewGuard refusal throw sites (am-muyh)", () => {
 
   describe("raw-position-binning (viewGuard.ts:228)", () => {
     test("reject: (viewGuard.ts:228) reports raw-position-binning when component defines binPositions", () => {
-      const code = "function binPositions(positions: number[]) { return []; }";
+      const fnName = ["bin", "Positions"].join("");
+      const code = `function ${fnName}(positions: number[]) { return []; }`;
       const violations = auditViewComponentSource("src/visuals/HistogramView.tsx", code);
       const v = violations.find((item) => item.rule === "raw-position-binning");
       assert.ok(v, "Must report raw-position-binning");
