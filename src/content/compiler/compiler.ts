@@ -1,3 +1,4 @@
+import { REGISTERED_IDS } from "../../experiments/catalogue.ts";
 /**
  * Core Content Compiler Pipeline.
  * Coordinates loading, schema validation, indexing, reference resolution,
@@ -239,6 +240,18 @@ export async function compileContent(
   });
   for (const diagnostic of checkMissingStepContent(files, argumentIds))
     addIssue("error", diagnostic.code, diagnostic.path, diagnostic.message, {family: "structural"});
+  // Preview readings may point only to instruments in the implemented catalogue.
+  // Enforce this even when a caller supplies a custom plugin-check registry.
+  for (const record of rawRecords.values()) {
+    const argument = record as Partial<Argument> | null;
+    if (argument?.kind !== "argument" || !Array.isArray(argument.experiments)) continue;
+    for (const id of argument.experiments) {
+      if (!(REGISTERED_IDS as readonly string[]).includes(id)) {
+        addIssue("error", "unavailable-experiment", argument.id ?? "argument",
+          `No implemented preview route for ${id}.`, { family: "structural" });
+      }
+    }
+  }
   const loadDuration = performance.now() - startLoad;
 
   // =========================================================================
