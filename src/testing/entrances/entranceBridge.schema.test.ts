@@ -8,6 +8,8 @@ import {
   scanSkillSymbols,
   validateSkillNoSymbols,
 } from "../../content/entrances/symbolGuard.ts";
+import { loadRegistry } from "../../content/foundations/registry.ts";
+import { CATALOGUE_STATUS } from "../../experiments/catalogue.ts";
 import { newRunIdentity, TestLogger } from "../log/logger.ts";
 
 const BEAD_ID = "am-bm-first-encounter-fjvh";
@@ -142,6 +144,78 @@ describe("Entrance Bridge Schema & Contract Tests (am-bm-first-encounter-fjvh)",
       },
     };
     expect(() => validateEntranceRecord(record)).toThrow();
+  });
+
+  it("compiles a route naming a planned foundation and reports its status", () => {
+    const start = performance.now();
+    const plannedRecord = {
+      ...validEntranceRecord,
+      bridge: {
+        ...validBridge,
+        continueWith: [
+          { route: "more-guidance", targetId: "foundation:quantities-units" },
+          { route: "less-guidance", targetId: "instrument:bm-01" },
+        ],
+      },
+    };
+
+    const validated = validateEntranceRecord(plannedRecord);
+    expect(validated.bridge.continueWith?.[0]?.targetId).toBe("foundation:quantities-units");
+
+    // Prerequisite audit check: foundation:quantities-units is registered with status 'planned'
+    const registry = loadRegistry();
+    const entry = registry.entries.find((e) => e.id === "foundation:quantities-units");
+    expect(entry).toBeDefined();
+    expect(entry?.status).toBe("planned");
+
+    logger.log({
+      testId: "bridge-route-planned-foundation-reported",
+      beadId: BEAD_ID,
+      expected: "planned",
+      actual: entry?.status,
+      outcome: "passed",
+      durationMs: performance.now() - start,
+      comparisonKind: "bitwise",
+      extra: {
+        targetResolution: "planned",
+        rule: "am-found-prereq-audit-71ot",
+      },
+    });
+  });
+
+  it("compiles a route naming an in-preparation catalogue id and resolves to in-preparation state", () => {
+    const start = performance.now();
+    const inPrepRecord = {
+      ...validEntranceRecord,
+      bridge: {
+        ...validBridge,
+        continueWith: [
+          { route: "more-guidance", targetId: "foundation:mean-variance-rms" },
+          { route: "less-guidance", targetId: "instrument:shelf-michelson-morley" },
+        ],
+      },
+    };
+
+    const validated = validateEntranceRecord(inPrepRecord);
+    expect(validated.bridge.continueWith?.[1]?.targetId).toBe("instrument:shelf-michelson-morley");
+
+    // Registry dispatcher check: shelf-michelson-morley resolves to 'in-preparation'
+    const status = CATALOGUE_STATUS["shelf-michelson-morley"];
+    expect(status).toBe("in-preparation");
+
+    logger.log({
+      testId: "bridge-route-inprep-instrument-resolved",
+      beadId: BEAD_ID,
+      expected: "in-preparation",
+      actual: status,
+      outcome: "passed",
+      durationMs: performance.now() - start,
+      comparisonKind: "bitwise",
+      extra: {
+        targetResolution: "in-preparation",
+        rule: "am-inst-registry-dispatcher-66l0",
+      },
+    });
   });
 
   it("enforces the No-Symbol rule on newSkill", () => {

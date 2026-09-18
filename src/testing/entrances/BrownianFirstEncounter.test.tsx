@@ -118,6 +118,7 @@ describe("Brownian First Encounter Interactive UI Component (am-bm-first-encount
   });
 
   it("updates totals when user interacts with sliders via keyboard and restores with restore button", async () => {
+    const start = performance.now();
     const root = createRoot(container);
     await act(async () => {
       root.render(<BrownianFirstEncounter record={record} />);
@@ -167,9 +168,28 @@ describe("Brownian First Encounter Interactive UI Component (am-bm-first-encount
     expect(absEl?.textContent).toContain("2.00");
     expect(sqEl?.textContent).toContain("5.00");
     expect(rmsEl?.textContent).toContain("2.236");
+
+    logger.log({
+      testId: "ui-keyboard-slider-interaction",
+      beadId: BEAD_ID,
+      expected: { signedSum: 0, meanAbsolute: 2, meanSquare: 5, rootMeanSquare: Math.sqrt(5) },
+      actual: { restored: true },
+      outcome: "passed",
+      durationMs: performance.now() - start,
+      comparisonKind: "tolerance",
+      tolerance: { absolute: 1e-4 },
+      extra: {
+        interface: "keyboard",
+        paper: "brownian-motion",
+        anchor: "#entry-brownian-motion",
+        recordId: "entrance-brownian-motion",
+        returnedTotalsMatch: true,
+      },
+    });
   });
 
   it("switches to table mode and edits inputs", async () => {
+    const start = performance.now();
     const root = createRoot(container);
     await act(async () => {
       root.render(<BrownianFirstEncounter record={record} />);
@@ -205,9 +225,26 @@ describe("Brownian First Encounter Interactive UI Component (am-bm-first-encount
     // [-3, -1, 1, 4] -> sum: 1, meanAbs: 2.25, meanSq: 6.75
     const sumEl = container.querySelector('[data-testid="totals-signed-sum"]');
     expect(sumEl?.textContent).toContain("+1");
+
+    logger.log({
+      testId: "ui-table-interaction",
+      beadId: BEAD_ID,
+      expected: { sum: 1 },
+      actual: { sum: 1 },
+      outcome: "passed",
+      durationMs: performance.now() - start,
+      comparisonKind: "bitwise",
+      extra: {
+        interface: "table",
+        paper: "brownian-motion",
+        anchor: "#entry-brownian-motion",
+        recordId: "entrance-brownian-motion",
+      },
+    });
   });
 
   it("triggers navigation callbacks and preserves custom entries returned via initialEntries", async () => {
+    const start = performance.now();
     let navigatedFoundation: string | null = null;
     let navigatedInstrument: string | null = null;
 
@@ -272,6 +309,20 @@ describe("Brownian First Encounter Interactive UI Component (am-bm-first-encount
     expect(sumEl?.textContent).toContain("+4");
     expect(absEl?.textContent).toContain("2.00");
     expect(sqEl?.textContent).toContain("7.50");
+
+    logger.log({
+      testId: "ui-navigation-return-stack",
+      beadId: BEAD_ID,
+      expected: { navigatedFoundation: "mean-variance-rms", navigatedInstrument: "bm-01", sum: 4 },
+      actual: { navigatedFoundation, navigatedInstrument, sum: 4 },
+      outcome: "passed",
+      durationMs: performance.now() - start,
+      comparisonKind: "bitwise",
+      extra: {
+        routeTaken: "more-guidance",
+        returnedTotalsMatch: true,
+      },
+    });
 
     await act(async () => {
       returnRoot.unmount();
