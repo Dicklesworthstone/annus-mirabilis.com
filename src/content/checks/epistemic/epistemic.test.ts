@@ -1,7 +1,12 @@
 import { afterAll, afterEach, beforeEach, describe, expect, test } from "bun:test";
 import { getLogger } from "../../../testing/log/logger.ts";
 import { clearRegisteredChecksForTests, runAllChecks } from "../../compiler/checks/registry.ts";
-import { computeFlagFingerprint } from "../../compiler/reviewQueue.ts";
+import { compileContent } from "../../compiler/compiler.ts";
+import {
+  buildReviewQueue,
+  computeFlagFingerprint,
+  type ReviewFlagItem,
+} from "../../compiler/reviewQueue.ts";
 import {
   AVOGADRO_CONSTANT,
   isGammaMc2Tree,
@@ -316,6 +321,117 @@ describe("coverage, accessibility, notModeled, misconceptions", () => {
     expect(errorRules(result)).toContain("coverage-without-owner");
   });
 
+  test("GOOD: two nodes sharing an instrument with correspondence notes pass", async () => {
+    const result = await run([
+      {
+        kind: "experiment",
+        id: "bm-06",
+        owner: { id: "host" },
+        notModeled: ["slip"],
+        views: [{ kind: "svg" }],
+        actions: [{ actionId: "interval", equivalentAffordance: "enter limits" }],
+        parameters: [{ id: "D" }],
+      },
+      node("arg-a", {
+        coverageObligation: {
+          treatment: {
+            kind: "instrument",
+            experimentIds: ["bm-06"],
+            correspondenceNote: "Visualizes the dispersion law for passage A",
+          },
+        },
+      }),
+      node("arg-b", {
+        coverageObligation: {
+          treatment: {
+            kind: "instrument",
+            experimentIds: ["bm-06"],
+            correspondenceNote: "Compares step predictions against passage B",
+          },
+        },
+      }),
+    ]);
+    expect(errorRules(result)).not.toContain("coverage-without-owner");
+  });
+
+  test("PLANTED: omitted treatment without a written reason fails; GOOD: with a written reason passes", async () => {
+    const noReason = await run([
+      node("arg-omitted-no-reason", {
+        coverageObligation: { treatment: { kind: "omitted" } },
+      }),
+    ]);
+    expect(errorRules(noReason)).toContain("coverage-without-owner");
+
+    const emptyReason = await run([
+      node("arg-omitted-empty-reason", {
+        coverageObligation: { treatment: { kind: "omitted", reason: "   " } },
+      }),
+    ]);
+    expect(errorRules(emptyReason)).toContain("coverage-without-owner");
+
+    const withReason = await run([
+      node("arg-omitted-ok", {
+        coverageObligation: {
+          treatment: {
+            kind: "omitted",
+            reason:
+              "Historical derivation is purely algebraic without a continuous simulation model.",
+          },
+        },
+      }),
+    ]);
+    expect(errorRules(withReason)).not.toContain("coverage-without-owner");
+  });
+
+  test("PLANTED: instrument treatment without resolvable owner or empty experimentIds fails; GOOD: registered owner passes", async () => {
+    const emptyIds = await run([
+      node("arg-empty-ids", {
+        coverageObligation: { treatment: { kind: "instrument", experimentIds: [] } },
+      }),
+    ]);
+    expect(errorRules(emptyIds)).toContain("coverage-without-owner");
+
+    const unresolvable = await run([
+      node("arg-unresolvable", {
+        coverageObligation: {
+          treatment: { kind: "instrument", experimentIds: ["unregistered-lab"] },
+        },
+      }),
+    ]);
+    expect(errorRules(unresolvable)).toContain("coverage-without-owner");
+
+    const ownerlessExp = await run([
+      {
+        kind: "experiment",
+        id: "ownerless-lab",
+        notModeled: ["slip"],
+        views: [{ kind: "svg" }],
+        actions: [{ actionId: "a", equivalentAffordance: "type" }],
+        parameters: [{ id: "x" }],
+      },
+      node("arg-ownerless", {
+        coverageObligation: { treatment: { kind: "instrument", experimentIds: ["ownerless-lab"] } },
+      }),
+    ]);
+    expect(errorRules(ownerlessExp)).toContain("coverage-without-owner");
+
+    const okOwned = await run([
+      {
+        kind: "experiment",
+        id: "valid-lab",
+        owner: { id: "host" },
+        notModeled: ["slip"],
+        views: [{ kind: "svg" }],
+        actions: [{ actionId: "a", equivalentAffordance: "type" }],
+        parameters: [{ id: "x" }],
+      },
+      node("arg-valid-owned", {
+        coverageObligation: { treatment: { kind: "instrument", experimentIds: ["valid-lab"] } },
+      }),
+    ]);
+    expect(errorRules(okOwned)).not.toContain("coverage-without-owner");
+  });
+
   test("PLANTED: empty notModeled fails; GOOD: a listed limitation passes", async () => {
     const empty = await run([{ kind: "experiment", id: "bm-01", notModeled: [] }]);
     expect(errorRules(empty)).toContain("missing-not-modeled");
@@ -358,6 +474,33 @@ describe("coverage, accessibility, notModeled, misconceptions", () => {
       },
     ]);
     expect(errorRules(result)).toContain("missing-accessibility-alternative");
+  });
+
+  test("GOOD: canvas or Three.js view with a table/text alternative passes", async () => {
+    const withTable = await run([
+      {
+        kind: "experiment",
+        id: "sr-03-accessible",
+        notModeled: ["optical appearance"],
+        views: [{ kind: "three" }, { kind: "table" }],
+        actions: [{ actionId: "boost", equivalentAffordance: "enter v/c" }],
+        parameters: [{ id: "vOverC" }],
+      },
+    ]);
+    expect(errorRules(withTable)).not.toContain("missing-accessibility-alternative");
+
+    const withTextDesc = await run([
+      {
+        kind: "experiment",
+        id: "sr-03-described",
+        notModeled: ["optical appearance"],
+        views: [{ kind: "canvas" }],
+        textualDescription: "Tabular summary and accessible prose describing event coordinates.",
+        actions: [{ actionId: "boost", equivalentAffordance: "enter v/c" }],
+        parameters: [{ id: "vOverC" }],
+      },
+    ]);
+    expect(errorRules(withTextDesc)).not.toContain("missing-accessibility-alternative");
   });
 });
 
@@ -482,6 +625,22 @@ describe("circularity patterns", () => {
     ]);
     expect(errorRules(result)).toContain("simulation-as-evidence");
   });
+
+  test("GOOD: empirical-observation supported by a cited dataset passes", async () => {
+    const result = await run([
+      node("arg-perrin-data", {
+        logicalRole: "empirical-observation",
+        supportKind: "dataset",
+        evidence: [
+          {
+            ref: { kind: "dataset", id: "perrin-1909" },
+            relation: "dataset-observation",
+          },
+        ],
+      }),
+    ]);
+    expect(errorRules(result)).not.toContain("simulation-as-evidence");
+  });
 });
 
 describe("approximation labeling", () => {
@@ -506,6 +665,30 @@ describe("approximation labeling", () => {
       },
     ]);
     expect(errorRules(unnamed)).toContain("approximation-unlabeled");
+  });
+
+  test("GOOD: approximation labeled in contract and modelStatus passes; exact with empty approximations passes", async () => {
+    const agreedApprox = await run([
+      {
+        kind: "argument-node",
+        id: "arg-approx-ok",
+        premises: [{ ref: { kind: "equation", id: "eq-1" }, edgeType: "historical-derivation" }],
+        authoringContract: { approximationsIntroduced: [{ qualificationId: "low-speed" }] },
+        meanings: { modelStatus: "approximation" },
+      },
+    ]);
+    expect(errorRules(agreedApprox)).not.toContain("approximation-unlabeled");
+
+    const agreedExact = await run([
+      {
+        kind: "argument-node",
+        id: "arg-exact-ok",
+        premises: [{ ref: { kind: "equation", id: "eq-1" }, edgeType: "historical-derivation" }],
+        authoringContract: { approximationsIntroduced: [] },
+        meanings: { modelStatus: "exact-within-model" },
+      },
+    ]);
+    expect(errorRules(agreedExact)).not.toContain("approximation-unlabeled");
   });
 });
 
@@ -537,6 +720,232 @@ describe("flags", () => {
       outcome: "passed",
       message: "translation alternatives flag; build passes; fingerprint stable",
     });
+  });
+
+  test("historical influence claims produce a flag, the build still passes, and the fingerprint is stable", async () => {
+    const premise = {
+      kind: "historical-premise",
+      id: "hp-maxwell-velocity",
+      claimsEinsteinKnew: true,
+      proposition: "Einstein knew Maxwell's distribution before writing paper 2.",
+    };
+    const note = {
+      kind: "editorial-note",
+      id: "ed-influence-boltzmann",
+      noteKind: "influence",
+      claim: "Boltzmann gas theory directly influenced §1.",
+    };
+    const result = await run([premise, note]);
+    expect(result.passed).toBe(true);
+    expect(flagRules(result)).toContain("historical-influence-claim");
+
+    const fp1 = result.diagnostics.find(
+      (d) => d.recordId === "hp-maxwell-velocity" && d.rule === "historical-influence-claim",
+    )?.fingerprint;
+    const fp2 = computeFlagFingerprint({
+      rule: "historical-influence-claim",
+      recordId: "hp-maxwell-velocity",
+      flaggedText: "Einstein knew Maxwell's distribution before writing paper 2.",
+    });
+    expect(fp1).toBe(fp2);
+
+    logger.log({
+      testId: "flag-historical-influence-stable",
+      beadId: BEAD,
+      extra: { family: "epistemic", fingerprint: fp1 },
+      outcome: "passed",
+      message: "historical influence claims flag for review; build passes; fingerprint stable",
+    });
+  });
+
+  test("approximation claims in prose produce a flag, the build still passes, and the fingerprint is stable", async () => {
+    const record = {
+      kind: "argument-node",
+      id: "arg-series-truncation",
+      authoringContract: {
+        approximationsIntroduced: [{ qualificationId: "first-order-taylor" }],
+      },
+      meanings: { modelStatus: "approximation" },
+    };
+    const result = await run([record]);
+    expect(result.passed).toBe(true);
+    expect(flagRules(result)).toContain("approximation-prose");
+
+    const fp = result.diagnostics.find((d) => d.rule === "approximation-prose")?.fingerprint;
+    expect(fp).toBe(
+      computeFlagFingerprint({
+        rule: "approximation-prose",
+        recordId: "arg-series-truncation",
+        flaggedText: JSON.stringify([{ qualificationId: "first-order-taylor" }]),
+      }),
+    );
+
+    logger.log({
+      testId: "flag-approximation-prose-stable",
+      beadId: BEAD,
+      extra: { family: "epistemic", fingerprint: fp },
+      outcome: "passed",
+      message: "approximation claims in prose flag for review; build passes; fingerprint stable",
+    });
+  });
+
+  test("source disagreement notes produce a flag, the build still passes, and the fingerprint is stable", async () => {
+    const disputeNote = {
+      kind: "editorial-note",
+      id: "ed-dispute-date",
+      noteKind: "dispute",
+      claim: "Cowper translates as 'speed', Beck translates as 'velocity'.",
+    };
+    const disagreementNote = {
+      kind: "editorial-note",
+      id: "ed-source-disagree",
+      noteKind: "source-disagreement",
+      claim: "CP2 records 1906 date while Annalen issue indicates late 1905.",
+    };
+    const result = await run([disputeNote, disagreementNote]);
+    expect(result.passed).toBe(true);
+    expect(flagRules(result)).toContain("source-disagreement");
+
+    const fp = result.diagnostics.find(
+      (d) => d.recordId === "ed-dispute-date" && d.rule === "source-disagreement",
+    )?.fingerprint;
+    expect(fp).toBe(
+      computeFlagFingerprint({
+        rule: "source-disagreement",
+        recordId: "ed-dispute-date",
+        flaggedText: "Cowper translates as 'speed', Beck translates as 'velocity'.",
+      }),
+    );
+
+    logger.log({
+      testId: "flag-source-disagreement-stable",
+      beadId: BEAD,
+      extra: { family: "epistemic", fingerprint: fp },
+      outcome: "passed",
+      message: "source disagreements flag for review; build passes; fingerprint stable",
+    });
+  });
+});
+
+describe("review queue artifacts and compiler integration", () => {
+  test("review queue produces valid JSON artifact with all epistemic review flags", () => {
+    const rawFlags: ReviewFlagItem[] = [
+      {
+        code: "translation-ambiguity",
+        rule: "translation-ambiguity",
+        recordId: "tu-s1-p1",
+        flaggedText: JSON.stringify(["word-a", "word-b"]),
+        message: "Translation unit has unresolved alternatives.",
+      },
+      {
+        code: "historical-influence-claim",
+        rule: "historical-influence-claim",
+        recordId: "hp-influence-1",
+        flaggedText: "Einstein knew Planck 1900",
+        message: "Record asserts influence.",
+      },
+      {
+        code: "approximation-prose",
+        rule: "approximation-prose",
+        recordId: "arg-approx-1",
+        flaggedText: JSON.stringify([{ qualificationId: "small-t" }]),
+        message: "Approximation claim in prose.",
+      },
+      {
+        code: "source-disagreement",
+        rule: "source-disagreement",
+        recordId: "ed-note-1",
+        flaggedText: "Disagreement on printed symbol",
+        message: "Source disagreement noted.",
+      },
+    ];
+
+    const queue = buildReviewQueue(rawFlags, new Map());
+    expect(queue.openFlags.length).toBe(4);
+    expect(queue.summary.openCount).toBe(4);
+    expect(queue.summary.totalFlags).toBe(4);
+
+    const parsed = JSON.parse(queue.jsonContent);
+    expect(parsed.summary.openCount).toBe(4);
+    expect(parsed.openFlags.map((f: { rule: string }) => f.rule)).toEqual([
+      "translation-ambiguity",
+      "historical-influence-claim",
+      "approximation-prose",
+      "source-disagreement",
+    ]);
+    for (const flag of parsed.openFlags) {
+      expect(flag.fingerprint).toMatch(/^[a-f0-9]{64}$/);
+      expect(flag.status).toBe("open");
+    }
+  });
+
+  test("end-to-end compiler run: planted epistemic errors fail compilation with exact rule ids", async () => {
+    const files = [
+      {
+        path: "papers/brownian-motion.json",
+        text: JSON.stringify({
+          kind: "paper",
+          id: "brownian-motion",
+          title: "Brownian Motion",
+          status: "in-progress",
+          sections: [],
+        }),
+      },
+      {
+        path: "arguments/brownian-motion/arg-sim.json",
+        text: JSON.stringify({
+          kind: "argument-node",
+          id: "arg-sim",
+          logicalRole: "empirical-observation",
+          supportKind: "simulator-output",
+        }),
+      },
+    ];
+
+    clearRegisteredChecksForTests();
+    registerEpistemicChecks();
+
+    const result = await compileContent(files);
+    expect(result.ok).toBe(false);
+    const errorRules = result.diagnostics
+      .filter((d) => d.severity === "error")
+      .map((d) => d.rule ?? d.code);
+    expect(errorRules).toContain("simulation-as-evidence");
+  });
+
+  test("end-to-end compiler run: clean corpus with review flags compiles ok and generates review queue", async () => {
+    const files = [
+      {
+        path: "papers/brownian-motion.json",
+        text: JSON.stringify({
+          kind: "paper",
+          id: "brownian-motion",
+          title: "Brownian Motion",
+          status: "in-progress",
+          sections: [],
+        }),
+      },
+      {
+        path: "editorial-notes/brownian-motion/ed-note-clean.json",
+        text: JSON.stringify({
+          kind: "editorial-note",
+          id: "ed-note-clean",
+          noteKind: "source-disagreement",
+          claim: "Translators disagree on whether 'ruhend' means 'stationary' or 'at rest'.",
+        }),
+      },
+    ];
+
+    clearRegisteredChecksForTests();
+    registerEpistemicChecks();
+
+    const result = await compileContent(files);
+    expect(result.ok).toBe(true);
+    expect(result.reviewQueue).toBeDefined();
+    expect(result.reviewQueue?.openFlags.some((f) => f.rule === "source-disagreement")).toBe(true);
+    if (!result.reviewQueue) throw new Error("Expected reviewQueue to be defined");
+    const parsedQueue = JSON.parse(result.reviewQueue.jsonContent);
+    expect(parsedQueue.openFlags.length).toBeGreaterThan(0);
   });
 });
 
