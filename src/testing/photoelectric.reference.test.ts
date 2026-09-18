@@ -14,6 +14,8 @@ import {
   ionizationCount,
   kMax,
   kMaxEv,
+  maximumKineticEnergy,
+  maximumKineticEnergyEv,
   metalCard,
   photocurrent,
   quantumEnergy,
@@ -236,6 +238,130 @@ describe("Photoelectric Reference Evaluator (am-lq-08-photoelectric-va5a)", () =
     expect(visibleColor(4.5e14).band).toBe("red");
     expect(visibleColor(1.2e15).band).toBe("ultraviolet");
     expect(visibleColor(3.0e14).band).toBe("infrared");
+  });
+
+  it("AC 1: all reference functions exist with typed statuses, registry quantity ids, and no negative kinetic energy, NaN, infinity, silent zero, or clamp appears anywhere", () => {
+    // 1. All functions exist as callable functions
+    const functions = [
+      kMax,
+      maximumKineticEnergy,
+      kMaxEv,
+      maximumKineticEnergyEv,
+      stoppingPotentialMagnitude,
+      stoppingLine,
+      cathodeLuminescenceMinimumPotential,
+      quantumRate,
+      emissionRate,
+      photocurrent,
+      collectorSweep,
+      einsteinPrintedStoppingCheck,
+      fluorescenceBudget,
+      fluorescenceRates,
+      ionizationBounds,
+      ionizationCount,
+      einsteinPrintedIonizationChecks,
+      visibleColor,
+      metalCard,
+      gasCard,
+    ];
+    for (const fn of functions) {
+      expect(typeof fn).toBe("function");
+    }
+
+    // 2. Below threshold: never negative kinetic energy, never silent zero; returns not-applicable with reason
+    const subThresholdNu = 4.0e14;
+    const workFunctionJ = 2.0 * 1.602176634e-19; // threshold ≈ 4.836e14 Hz
+    const kmSub = kMax(subThresholdNu, workFunctionJ, set);
+    expect(kmSub.status).toBe("not-applicable");
+    if (kmSub.status === "not-applicable") {
+      expect(kmSub.reason).toBe("no emitted electron in this model");
+    }
+
+    const spSub = stoppingPotentialMagnitude(subThresholdNu, workFunctionJ, set);
+    expect(spSub.status).toBe("not-applicable");
+
+    const clSub = cathodeLuminescenceMinimumPotential(subThresholdNu, workFunctionJ, set);
+    expect(clSub.status).toBe("not-applicable");
+
+    // 3. No NaN or Infinity propagation; non-finite inputs yield outside-domain
+    const kmNan = kMax(NaN, workFunctionJ, set);
+    expect(kmNan.status).toBe("outside-domain");
+    expect(kmNan.reason).toContain("finite");
+
+    const spInf = stoppingPotentialMagnitude(Infinity, workFunctionJ, set);
+    expect(spInf.status).toBe("outside-domain");
+
+    const qrNan = quantumRate(NaN, 6e14, set);
+    expect(qrNan.status).toBe("outside-domain");
+
+    const pcNan = photocurrent(
+      {
+        incidentPowerWatts: NaN,
+        nu: 6e14,
+        workFunctionJoules: workFunctionJ,
+      },
+      set,
+    );
+    expect(pcNan.status).toBe("outside-domain");
+
+    const fbNan = fluorescenceBudget({
+      nu1: NaN,
+      nu2: 8e14,
+      set,
+    });
+    expect(fbNan.status).toBe("outside-domain");
+
+    const frNan = fluorescenceRates({
+      nu1: NaN,
+      nu2: 8e14,
+      absorbedPowerWatts: 1e-3,
+      set,
+    });
+    expect(frNan.status).toBe("outside-domain");
+
+    const ibNan = ionizationBounds({
+      nu: NaN,
+      ionizationEnergyEv: 10,
+      set,
+    });
+    expect(ibNan.status).toBe("outside-domain");
+
+    // 4. No clamp anywhere: yield > 1 returns outside-domain, not clamped to 1
+    const frExcessYield = fluorescenceRates({
+      nu1: 8.5e14,
+      nu2: 8.0e14,
+      absorbedPowerWatts: 1e-3,
+      quantumYield: 1.2,
+      set,
+    });
+    expect(frExcessYield.status).toBe("outside-domain");
+
+    // Efficiency > 1 in emissionRate returns outside-domain, not clamped to 1
+    const erExcessEta = emissionRate(
+      {
+        incidentPowerWatts: 1e-3,
+        nu: 6e14,
+        workFunctionJoules: workFunctionJ,
+        quantumEfficiency: 1.5,
+      },
+      set,
+    );
+    expect(erExcessEta.status).toBe("outside-domain");
+
+    // Underdetermined under partial transfer: returns upper bound, not silent zero
+    const kmPartial = kMax(6e14, workFunctionJ, set, { transferModel: "partial" });
+    expect(kmPartial.status).toBe("underdetermined");
+    if (kmPartial.status === "underdetermined") {
+      expect(kmPartial.upperBound).toBeGreaterThan(0);
+    }
+
+    // 5. Quantity IDs resolve in registry
+    const resValue = kMax(6e14, workFunctionJ, set);
+    expect(resValue.status).toBe("value");
+    if (resValue.status === "value" && resValue.quantityId) {
+      const qRes = resolveQuantityId(resValue.quantityId);
+      expect(qRes.ok).toBe(true);
+    }
   });
 
   it("AC 2: asserts that the five rate quantity ids carry dimension T^-1, count their specific objects, and no per-gram-equivalent output binds a rate id", () => {
@@ -674,7 +800,7 @@ describe("Photoelectric Reference Evaluator (am-lq-08-photoelectric-va5a)", () =
     expect(check.adversarialSlips.reason).toBe("transcription-slip");
   });
 
-  it("AC 9 & 10: fluorescence budget and weak illumination rates comply with paper assumptions and deviation cases", () => {
+  it("AC 9: fluorescence: 850 THz bound, 900 THz deficit, deviation cases 1 and 2, modern thermal allowance, light-only, and ledger closure", () => {
     // 850 THz -> h*nu1 = 3.515318 eV, bound 850 THz
     const f850 = fluorescenceBudget({ nu1: 850e12, nu2: 850e12, regime: "standard-stokes", set });
     expect(f850.status).toBe("value");
@@ -756,6 +882,18 @@ describe("Photoelectric Reference Evaluator (am-lq-08-photoelectric-va5a)", () =
     expect(fLightOnly.status).toBe("value");
     expect(fLightOnly.allowed).toBe(false);
 
+    // Every ledger closes: total energy in = total energy out
+    if (f850.status === "value") {
+      const eOther = f850.eOtherEv ?? 0;
+      expect(f850.e1Ev - (f850.e2Ev + eOther)).toBeCloseTo(0, 8);
+    }
+    if (fMulti.status === "value") {
+      const eOther = fMulti.eOtherEv ?? 0;
+      expect(2 * fMulti.e1Ev - (fMulti.e2Ev + eOther)).toBeCloseTo(0, 8);
+    }
+  });
+
+  it("AC 10: weak illumination rates, power linearity, yield limits, and multi-quantum status", () => {
     // Weak illumination rates: P_abs = 1 mW at 850 THz
     const rates1 = fluorescenceRates({
       nu1: 850e12,
@@ -802,7 +940,7 @@ describe("Photoelectric Reference Evaluator (am-lq-08-photoelectric-va5a)", () =
     expect(ratesDev1.status).toBe("not-applicable");
   });
 
-  it("AC 11 & 12: ionization bounds, counting, property test, and printed §9 checks", () => {
+  it("AC 11: ionization bounds, absorption modes, threshold refusal, and 10,000-iteration property test", () => {
     const e = 1.602176634e-19;
     const h = 6.62607015e-34;
     const nu = (12.0 * e) / h; // exactly 12 eV (2901.586957 THz)
@@ -884,13 +1022,13 @@ describe("Photoelectric Reference Evaluator (am-lq-08-photoelectric-va5a)", () =
     });
     expect(countSub.status).toBe("not-applicable");
 
-    // Property test: seeded PRNG never reports more ions than absorbed quanta
+    // Property test: seeded PRNG never reports more ions than absorbed quanta (10,000 iterations)
     let seed = 42;
     function pseudoRandom() {
       seed = (seed * 1664525 + 1013904223) % 4294967296;
       return seed / 4294967296;
     }
-    for (let i = 0; i < 1000; i++) {
+    for (let i = 0; i < 10000; i++) {
       const randNu = (2500 + pseudoRandom() * 2000) * 1e12;
       const randJ = 5 + pseudoRandom() * 5;
       const randP = (0.1 + pseudoRandom() * 10) * 1e-6;
@@ -916,7 +1054,9 @@ describe("Photoelectric Reference Evaluator (am-lq-08-photoelectric-va5a)", () =
         );
       }
     }
+  });
 
+  it("AC 12: printed §9 historical checks for Lenard and Stark, modern comparison label, and glyph-scope test", () => {
     // Printed §9 checks
     const hist = einsteinPrintedIonizationChecks();
     expect(hist.lenardCheck.energyPerGramEquivalentErg).toBeCloseTo(6.384704e12, -7);
@@ -924,9 +1064,28 @@ describe("Photoelectric Reference Evaluator (am-lq-08-photoelectric-va5a)", () =
     expect(hist.lenardCheck.potentialDifferenceVolts).toBeCloseTo(6.650734, 3);
     expect(hist.lenardCheck.historicalPerMoleculeEv).toBeCloseTo(6.458702, 3);
     expect(hist.lenardCheck.modernEnergyEvAt190nm).toBeCloseTo(6.525484, 4);
+    expect(hist.lenardCheck.modernLabel).toBe("modern");
+    expect(hist.lenardCheck.modernEnergyLabel).toBe("modern");
 
     expect(hist.starkCheck.energyPerGramEquivalentErg).toBe(9.6e12);
     expect(hist.starkCheck.sparkPotentialVolts).toBe(10);
+
+    // Glyph-scope test:
+    // §9 absorbed light energy L binds absorbedLightEnergy, never speedOfLight
+    // Light speed binds speedOfLight, never absorbedLightEnergy
+    const lRes = resolveQuantityId("absorbedLightEnergy");
+    expect(lRes.ok).toBe(true);
+    if (lRes.ok) {
+      expect(lRes.quantity.id).toBe("absorbedLightEnergy");
+      expect(lRes.quantity.id).not.toBe("speedOfLight");
+    }
+
+    const cRes = resolveQuantityId("speedOfLight");
+    expect(cRes.ok).toBe(true);
+    if (cRes.ok) {
+      expect(cRes.quantity.id).toBe("speedOfLight");
+      expect(cRes.quantity.id).not.toBe("absorbedLightEnergy");
+    }
   });
 
   it("AC 13: uncited metal and gas cards return outside-domain; visible-color boundaries are exact", () => {

@@ -1253,6 +1253,47 @@ export function fluorescenceBudget(input: FluorescenceBudgetInput): Fluorescence
   const bodyThermalDegreesN = input.allowance?.n ?? input.bodyThermalDegreesN ?? 10;
   const epsilonW = input.epsilonW ?? 0.01;
 
+  if (!Number.isFinite(nu1) || !Number.isFinite(nu2)) {
+    return Object.freeze({
+      status: "outside-domain",
+      allowed: false,
+      regime,
+      nu1Hz: nu1,
+      nu2Hz: nu2,
+      nu2MaxHz: 0,
+      e1Joules: 0,
+      e1Ev: 0,
+      e2Joules: 0,
+      e2Ev: 0,
+      eOtherJoules: 0,
+      eOtherEv: 0,
+      energyDeficitJoules: 0,
+      energyDeficitEv: 0,
+      verdictReason: "Frequency must be a finite number.",
+      refusalCode: "nonfinite-frequency",
+    });
+  }
+  if (nu1 <= 0 || nu2 <= 0) {
+    return Object.freeze({
+      status: "outside-domain",
+      allowed: false,
+      regime,
+      nu1Hz: nu1,
+      nu2Hz: nu2,
+      nu2MaxHz: 0,
+      e1Joules: 0,
+      e1Ev: 0,
+      e2Joules: 0,
+      e2Ev: 0,
+      eOtherJoules: 0,
+      eOtherEv: 0,
+      energyDeficitJoules: 0,
+      energyDeficitEv: 0,
+      verdictReason: "Frequency must be a positive number.",
+      refusalCode: "nonpositive-frequency",
+    });
+  }
+
   const h = getPlanckConstant(set);
   const e = getElementaryCharge(set);
   const kB = getBoltzmannConstant(set);
@@ -1486,17 +1527,27 @@ export function fluorescenceRates(input: FluorescenceRatesInput): FluorescenceRa
     });
   }
 
-  if (absorbedPowerWatts < 0 || quantumYield < 0 || quantumYield > 1) {
+  if (
+    !Number.isFinite(nu1) ||
+    !Number.isFinite(nu2) ||
+    !Number.isFinite(absorbedPowerWatts) ||
+    !Number.isFinite(quantumYield) ||
+    nu1 <= 0 ||
+    nu2 <= 0 ||
+    absorbedPowerWatts < 0 ||
+    quantumYield < 0 ||
+    quantumYield > 1
+  ) {
     return Object.freeze({
       status: "outside-domain",
       absorbedRatePerSecond: 0,
       emittedRatePerSecond: 0,
-      absorbedPowerWatts,
+      absorbedPowerWatts: Number.isFinite(absorbedPowerWatts) ? absorbedPowerWatts : 0,
       emittedPowerWatts: 0,
       dissipatedHeatWatts: 0,
-      quantumYield,
+      quantumYield: Number.isFinite(quantumYield) ? quantumYield : 0,
       energyEfficiency: 0,
-      reason: "Absorbed power must be non-negative and quantum yield Y must lie in [0, 1].",
+      reason: "Absorbed power must be non-negative, frequencies positive finite, and quantum yield Y must lie in [0, 1].",
     });
   }
 
@@ -2072,6 +2123,8 @@ export function einsteinPrintedIonizationChecks(): Readonly<{
     potentialDifferenceVolts: number;
     printedPotentialText: string;
     modernEnergyEvAt190nm: number;
+    modernLabel: "modern";
+    modernEnergyLabel: "modern";
     historicalPerMoleculeEv: number;
     historicalSource: string;
   }>;
@@ -2127,6 +2180,8 @@ export function einsteinPrintedIonizationChecks(): Readonly<{
       potentialDifferenceVolts: lenard_pot_V,
       printedPotentialText: "ca. 6,6 Volt",
       modernEnergyEvAt190nm: modern_ev,
+      modernLabel: "modern" as const,
+      modernEnergyLabel: "modern" as const,
       historicalPerMoleculeEv: hist_per_mol_ev,
       historicalSource: "P. Lenard, Ann. d. Phys. 3, p. 298, 1900.",
     }),
@@ -2145,3 +2200,7 @@ export function einsteinPrintedIonizationChecks(): Readonly<{
       "Einstein (§9) uses Lenard's observation of air ionization at lambda < 190 nm and Stark's cathode-ray ionization potential (ca. 10 V) to verify that single-quantum energy quanta R*beta*nu match the energy scale of gas ionization.",
   });
 }
+
+export const maximumKineticEnergy = kMax;
+export const maximumKineticEnergyEv = kMaxEv;
+
