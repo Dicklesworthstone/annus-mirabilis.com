@@ -11,12 +11,9 @@
  * - Unmapped upstream codes translated to ExecutionOutcome "malformed-response"
  */
 
-import {
-  type ExecutionOutcome,
-  executionOutcomeRegistry,
-} from "../../experiments/results/outcomes.ts";
+import { executionOutcomeRegistry } from "../../experiments/results/outcomes.ts";
 import { type RefusalCode, refusalCodeRegistry } from "../../experiments/results/refusalCodes.ts";
-import type { RequestRefusal } from "../../experiments/results/refusals.ts";
+import type { JsonValue, RequestRefusal } from "../../experiments/results/refusals.ts";
 import type { DomainKind } from "../../experiments/results/types.ts";
 import type { OutcomeResponse, RefusalResponse, Revisions } from "./schema.ts";
 
@@ -363,6 +360,42 @@ export interface MessageIdentity {
   readonly revisions: Revisions;
 }
 
+function isRecord(value: unknown): value is Record<string, unknown> {
+  return typeof value === "object" && value !== null;
+}
+
+function toJsonValue(value: unknown): JsonValue {
+  if (value === null || typeof value === "boolean" || typeof value === "string") {
+    return value;
+  }
+  if (typeof value === "number") {
+    return Number.isFinite(value) ? value : String(value);
+  }
+  if (Array.isArray(value)) {
+    return value.map(toJsonValue);
+  }
+  if (isRecord(value)) {
+    const record: Record<string, JsonValue> = {};
+    for (const [key, val] of Object.entries(value)) {
+      if (val !== undefined) {
+        record[key] = toJsonValue(val);
+      }
+    }
+    return record;
+  }
+  return String(value);
+}
+
+function sanitizeJsonDetails(raw: Record<string, unknown>): Record<string, JsonValue> {
+  const result: Record<string, JsonValue> = {};
+  for (const [key, val] of Object.entries(raw)) {
+    if (val !== undefined) {
+      result[key] = toJsonValue(val);
+    }
+  }
+  return result;
+}
+
 /**
  * Maps a FrankenSim refusal envelope to either a RefusalResponse or an OutcomeResponse.
  */
@@ -371,13 +404,9 @@ export function mapFrankenSimRefusalEnvelope(
   identity: MessageIdentity,
   exportName?: string,
 ): RefusalResponse | OutcomeResponse {
-  if (
-    envelope === null ||
-    typeof envelope !== "object" ||
-    !("refusal" in envelope) ||
-    (envelope as any).refusal === null ||
-    typeof (envelope as any).refusal !== "object"
-  ) {
+  const rawRefusalCandidate = isRecord(envelope) && "refusal" in envelope ? envelope.refusal : null;
+
+  if (!isRecord(rawRefusalCandidate)) {
     const malformed = executionOutcomeRegistry["malformed-response"];
     return {
       messageKind: "outcome",
@@ -391,14 +420,13 @@ export function mapFrankenSimRefusalEnvelope(
     };
   }
 
-  const rawRefusal = (envelope as any).refusal;
+  const rawRefusal = rawRefusalCandidate;
   const rawCode = String(rawRefusal.code ?? "");
   const rawMessage = typeof rawRefusal.message === "string" ? rawRefusal.message : undefined;
   const rawRepairs = Array.isArray(rawRefusal.ranked_repairs)
     ? rawRefusal.ranked_repairs.map(String)
     : undefined;
-  const rawDetails =
-    rawRefusal.details && typeof rawRefusal.details === "object" ? { ...rawRefusal.details } : {};
+  const rawDetails = isRecord(rawRefusal.details) ? rawRefusal.details : {};
 
   // Find in mapping table
   const matchingRow = REFUSAL_MAPPING_ROWS.find((row) => {
@@ -427,12 +455,12 @@ export function mapFrankenSimRefusalEnvelope(
   }
 
   // Preserve upstream message and ranked_repairs in details for diagnostics
-  const mergedDetails: Record<string, unknown> = {
+  const mergedDetails: Record<string, JsonValue> = sanitizeJsonDetails({
     ...rawDetails,
     upstreamCode: rawCode,
     ...(rawMessage ? { upstreamMessage: rawMessage } : {}),
     ...(rawRepairs ? { upstreamRankedRepairs: rawRepairs } : {}),
-  };
+  });
 
   if (matchingRow.targetKind === "execution-outcome") {
     // Target is budget-exhausted
@@ -449,7 +477,7 @@ export function mapFrankenSimRefusalEnvelope(
         retry: outcomeDef.retry,
         requested: { workUnits: requestedWork, allocationBytes: 0 },
         allowed: { workUnits: allowedWork, allocationBytes: 0 },
-        details: mergedDetails as any,
+        details: mergedDetails,
       },
     };
   }
@@ -478,7 +506,7 @@ export function mapFrankenSimRefusalEnvelope(
     affected,
     message: definition.message,
     rankedRepairs: repairs,
-    details: mergedDetails as any,
+    details: mergedDetails,
   };
 
   return {

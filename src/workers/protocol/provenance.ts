@@ -240,16 +240,15 @@ export function getAdmittedEvaluators(): ReadonlyMap<string, string> {
 /**
  * Validates a complete ProvenanceRecord against the active registry.
  */
-export function validateProvenanceRecord(
-  provenance: ProvenanceRecord,
-):
+export function validateProvenanceRecord(provenance: ProvenanceRecord):
   | { ok: true }
   | {
       ok: false;
       code: "unadmitted-digest" | "unadmitted-capability" | "unadmitted-evaluator";
       reason: string;
     } {
-  if (provenance.ownerKind === "frankensim") {
+  const rawOwnerKind: unknown = provenance.ownerKind;
+  if (rawOwnerKind === "frankensim") {
     // 1. Check artifact digest against manifest
     const digest = provenance.artifactDigest.replace(/^sha256:/i, "");
     if (!isAdmittedWasmDigest(digest)) {
@@ -270,7 +269,7 @@ export function validateProvenanceRecord(
     return { ok: true };
   }
 
-  if (provenance.ownerKind === "host-reference") {
+  if (rawOwnerKind === "host-reference") {
     const evaluatorId = provenance.evaluatorId ?? "unknown";
     if (!isAdmittedEvaluator(evaluatorId, provenance.artifactDigest)) {
       return {
@@ -285,6 +284,6 @@ export function validateProvenanceRecord(
   return {
     ok: false,
     code: "unadmitted-evaluator",
-    reason: `Unknown owner kind: "${String((provenance as any).ownerKind)}"`,
+    reason: `Unknown owner kind: "${String(rawOwnerKind)}"`,
   };
 }
