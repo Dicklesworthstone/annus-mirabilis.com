@@ -74,20 +74,53 @@ export function ChargeCurrentPlot({
   const height = 280;
 
   return (
-    <div className="lab-plot-card space-y-4">
-      <div className="flex flex-wrap items-center justify-between gap-2 border-b border-zinc-200 pb-2 dark:border-zinc-800">
-        <h3 className="text-sm font-semibold text-zinc-900 dark:text-zinc-100">
+    <div
+      style={{
+        display: "flex",
+        flexDirection: "column",
+        gap: "1rem",
+        background: "var(--panel)",
+        border: "1px solid var(--line)",
+        borderRadius: "0.5rem",
+        padding: "1rem",
+      }}
+    >
+      <div
+        style={{
+          display: "flex",
+          flexWrap: "wrap",
+          alignItems: "center",
+          justifyContent: "space-between",
+          gap: "0.5rem",
+          borderBottom: "1px solid var(--line)",
+          paddingBottom: "0.5rem",
+        }}
+      >
+        <h3
+          style={{
+            fontSize: "0.875rem",
+            fontWeight: 600,
+            color: "var(--ink)",
+            margin: 0,
+          }}
+        >
           Relativistic Four-Current Visualization
         </h3>
-        <span className="text-xs text-zinc-500">
-          Mode: <strong className="text-zinc-800 dark:text-zinc-200">{mode}</strong> (v ={" "}
+        <span style={{ fontSize: "0.75rem", color: "var(--muted)" }}>
+          Mode: <strong style={{ color: "var(--ink)" }}>{mode}</strong> (v ={" "}
           {boostFraction.toFixed(2)}c, γ = {gamma.toFixed(4)})
         </span>
       </div>
 
       <svg
         viewBox={`0 0 ${width} ${height}`}
-        className="w-full h-auto rounded border border-zinc-200 bg-zinc-50 dark:border-zinc-800 dark:bg-zinc-950"
+        style={{
+          width: "100%",
+          height: "auto",
+          borderRadius: "0.25rem",
+          border: "1px solid var(--line)",
+          background: "var(--wash)",
+        }}
         aria-label="Side-by-side charge and current density visualization in stationary and moving frames"
       >
         <defs>
@@ -105,17 +138,16 @@ export function ChargeCurrentPlot({
           y1={10}
           x2={width / 2}
           y2={height - 10}
-          stroke="#71717a"
+          stroke="var(--line)"
           strokeDasharray="4 4"
-          strokeOpacity="0.4"
         />
 
         {/* Frame K (Stationary) */}
         <g transform="translate(10, 10)">
-          <text x={10} y={20} className="text-xs font-semibold fill-zinc-700 dark:fill-zinc-300">
+          <text x={10} y={20} fontSize="12" fontWeight="600" fill="var(--ink)">
             Stationary Frame K (Laboratory)
           </text>
-          <text x={10} y={36} className="text-[11px] fill-zinc-500">
+          <text x={10} y={36} fontSize="11" fill="var(--muted)">
             ρ ={" "}
             {rhoStationary?.status === "value" && typeof rhoStationary.value === "number"
               ? display(rhoStationary.value)
@@ -139,27 +171,19 @@ export function ChargeCurrentPlot({
               {/* Arrows */}
               <path d="M 80 20 L 120 20" stroke="#ef4444" strokeWidth={2} markerEnd="url(#arrow)" />
               <path d="M 140 120 L 100 120" stroke="#ef4444" strokeWidth={2} />
-              <text
-                x={110}
-                y={15}
-                textAnchor="middle"
-                className="text-[10px] fill-zinc-600 dark:fill-zinc-400"
-              >
+              <text x={110} y={15} textAnchor="middle" fontSize="10" fill="var(--muted)">
                 Top leg: +I (neutral λ=0)
               </text>
-              <text
-                x={110}
-                y={138}
-                textAnchor="middle"
-                className="text-[10px] fill-zinc-600 dark:fill-zinc-400"
-              >
+              <text x={110} y={138} textAnchor="middle" fontSize="10" fill="var(--muted)">
                 Bottom leg: -I (neutral λ=0)
               </text>
               <text
                 x={110}
                 y={75}
                 textAnchor="middle"
-                className="text-[11px] font-mono fill-zinc-700 dark:fill-zinc-300"
+                fontSize="11"
+                fontFamily="var(--font-mono, monospace)"
+                fill="var(--ink)"
               >
                 Q_total = 0 C
               </text>
@@ -180,7 +204,9 @@ export function ChargeCurrentPlot({
                 x={85}
                 y={65}
                 textAnchor="middle"
-                className="text-[11px] font-mono fill-zinc-800 dark:fill-zinc-200"
+                fontSize="11"
+                fontFamily="var(--font-mono, monospace)"
+                fill="var(--ink)"
               >
                 Q ={" "}
                 {sphereTotalStationary?.status === "value" &&
@@ -189,7 +215,7 @@ export function ChargeCurrentPlot({
                   : "4.189"}{" "}
                 C
               </text>
-              <text x={85} y={130} textAnchor="middle" className="text-[10px] fill-zinc-500">
+              <text x={85} y={130} textAnchor="middle" fontSize="10" fill="var(--muted)">
                 Rest volume V = 4π/3 R³
               </text>
             </g>
@@ -201,12 +227,10 @@ export function ChargeCurrentPlot({
                 y={25}
                 width={240}
                 height={70}
-                fill="#e4e4e7"
-                fillOpacity={0.5}
-                stroke="#a1a1aa"
+                fill="var(--panel)"
+                stroke="var(--line)"
                 strokeWidth={1.5}
                 rx={6}
-                className="dark:fill-zinc-800 dark:stroke-zinc-700"
               />
               {/* Positive ions (stationary) */}
               {stationaryIons.map((ion) => (
@@ -216,7 +240,7 @@ export function ChargeCurrentPlot({
               {stationaryElectrons.map((elec) => (
                 <circle key={elec.id} cx={elec.cx} cy={75} r={4} fill="#3b82f6" />
               ))}
-              <text x={120} y={120} textAnchor="middle" className="text-[10px] fill-zinc-500">
+              <text x={120} y={120} textAnchor="middle" fontSize="10" fill="var(--muted)">
                 Equal ion & electron linear density → Neutral wire (ρ = 0)
               </text>
             </g>
@@ -225,10 +249,10 @@ export function ChargeCurrentPlot({
 
         {/* Frame k (Moving at boost v) */}
         <g transform={`translate(${width / 2 + 10}, 10)`}>
-          <text x={10} y={20} className="text-xs font-semibold fill-zinc-700 dark:fill-zinc-300">
+          <text x={10} y={20} fontSize="12" fontWeight="600" fill="var(--ink)">
             Moving Frame k (Speed v = {boostFraction.toFixed(2)}c)
           </text>
-          <text x={10} y={36} className="text-[11px] fill-zinc-500">
+          <text x={10} y={36} fontSize="11" fill="var(--muted)">
             ρ&apos; = {display(rhoM)} C/m³, J&apos;x = {display(jM)} A/m²
           </text>
 
@@ -249,7 +273,9 @@ export function ChargeCurrentPlot({
                 x={10 + 100 / gamma}
                 y={15}
                 textAnchor="middle"
-                className="text-[10px] fill-red-500 font-semibold"
+                fontSize="10"
+                fontWeight="600"
+                fill="var(--ink)"
               >
                 q&apos;+ ={" "}
                 {loopLegChargePos?.status === "value" && typeof loopLegChargePos.value === "number"
@@ -261,7 +287,9 @@ export function ChargeCurrentPlot({
                 x={10 + 100 / gamma}
                 y={138}
                 textAnchor="middle"
-                className="text-[10px] fill-blue-500 font-semibold"
+                fontSize="10"
+                fontWeight="600"
+                fill="var(--ink)"
               >
                 q&apos;- ={" "}
                 {loopLegChargeNeg?.status === "value" && typeof loopLegChargeNeg.value === "number"
@@ -273,7 +301,9 @@ export function ChargeCurrentPlot({
                 x={10 + 100 / gamma}
                 y={75}
                 textAnchor="middle"
-                className="text-[11px] font-mono fill-zinc-700 dark:fill-zinc-300"
+                fontSize="11"
+                fontFamily="var(--font-mono, monospace)"
+                fill="var(--ink)"
               >
                 Q&apos;_total = 0 C
               </text>
@@ -295,7 +325,9 @@ export function ChargeCurrentPlot({
                 x={85}
                 y={65}
                 textAnchor="middle"
-                className="text-[11px] font-mono fill-zinc-800 dark:fill-zinc-200"
+                fontSize="11"
+                fontFamily="var(--font-mono, monospace)"
+                fill="var(--ink)"
               >
                 Q&apos; ={" "}
                 {sphereTotalMoving?.status === "value" &&
@@ -304,7 +336,7 @@ export function ChargeCurrentPlot({
                   : "4.189"}{" "}
                 C
               </text>
-              <text x={85} y={130} textAnchor="middle" className="text-[10px] fill-zinc-500">
+              <text x={85} y={130} textAnchor="middle" fontSize="10" fill="var(--muted)">
                 Contracted volume V&apos; = V/γ, density ρ&apos; = γρ
               </text>
             </g>
@@ -316,12 +348,10 @@ export function ChargeCurrentPlot({
                 y={25}
                 width={240}
                 height={70}
-                fill="#f5f3ff"
-                fillOpacity={0.5}
+                fill="var(--panel)"
                 stroke="#8b5cf6"
                 strokeWidth={1.5}
                 rx={6}
-                className="dark:fill-purple-950/30 dark:stroke-purple-800"
               />
               {/* Contracted ion spacing vs electron spacing */}
               {movingIons.map((ion) => (
@@ -334,7 +364,9 @@ export function ChargeCurrentPlot({
                 x={120}
                 y={120}
                 textAnchor="middle"
-                className="text-[10px] font-semibold fill-purple-600 dark:fill-purple-400"
+                fontSize="10"
+                fontWeight="600"
+                fill="var(--ink)"
               >
                 Differential Lorentz contraction → Net charge density ρ&apos; ≠ 0
               </text>

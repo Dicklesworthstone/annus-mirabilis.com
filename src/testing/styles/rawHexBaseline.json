@@ -21,7 +21,7 @@
   "src/components/lab/sr09/DopplerAberrationPlot.tsx": 16,
   "src/components/lab/sr10/LightComplexPlot.tsx": 23,
   "src/components/lab/sr11/MovingMirrorPlot.tsx": 15,
-  "src/components/lab/sr12/ChargeCurrentPlot.tsx": 17,
+  "src/components/lab/sr12/ChargeCurrentPlot.tsx": 13,
   "src/components/lab/sr13/ElectronDynamicsPlot.tsx": 6,
   "src/discovery/Branch.tsx": 10,
   "src/equations/genealogy/Genealogy.tsx": 18,
