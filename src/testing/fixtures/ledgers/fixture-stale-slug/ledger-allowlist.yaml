@@ -1,0 +1,7 @@
+- ledgerKey: fixture-stale-allowlist
+  code: modern-spelling
+  ledgerPage: 1
+  lineFingerprint: "0123456789abcdef"
+  reason: "Documented historical spelling in facsimile"
+  editor: "jemanuel"
+  date: "2026-09-17"

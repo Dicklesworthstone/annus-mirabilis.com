@@ -1,0 +1,27 @@
+--- REVIEWED TRANSCRIPTION PAGE 1 OF 2 ---
+[[ANNALEN-PAGE 549]]
+[[ARTICLE-NUMBER 3.]] [[TITLE]]Über die von der molekularkinetischen Theorie der Wärme geforderte Bewegung von in ruhenden Flüssigkeiten suspendierten Teilchen[[/TITLE]] [[AUTHOR]]von A. Einstein[[/AUTHOR]]
+
+[[HEADING s1]]§ 1. Über den den suspendierten Teilchen zuzuschreibenden osmotischen Druck
+
+Es liegt die Vermutung nahe, dass diese Bewegung mit der Wärmebewegung der Moleküle identisch sei. In der Tat muß nach der molekularkinetischen Theorie suspendierten Teilchen von mikroskopischer Größe ein [[SPERR]]osmotischer Druck[[/SPERR]] zukommen, welcher mit dem osmotischen Druck gelöster Moleküle übereinstimmt.[[FN-MARK 1)]]
+
+Setzen wir voraus, daß das suspendierte Teilchen ein kugelförmiges Gebilde sei vom Radius $P$, so ergibt sich für die im Zeitintervall $\tau$ durch Diffusion hervorgerufene mittlere Verschiebung $\lambda_x$:
+$$
+\lambda_x = \sqrt{2 D \tau}
+$$
+[[EQ-LABEL (1)]]
+wobei $x < V$ gilt. Wir wollen nun untersuchen, wie sich die Verteilung der Teilchen im Raume mit der Zeit ändert, wenn auf dieselben keine äußeren Kräfte wirken[[CONTINUES]]
+
+[[FN 1)]] Vgl. hierzu die grundlegende Arbeit von M. Smoluchowski, Ann. d. Phys. 16. p. 45. 1905.[[FN-CONTINUES]]
+--- REVIEWED TRANSCRIPTION PAGE 2 OF 2 ---
+[[ANNALEN-PAGE 550]]
+einer solchen Verschiebung unterworfen sind. Es sei ferner hervorgehoben, daß diese Bewegung eine vollkommen regellose ist.
+
+[[OTHER-ARTICLE-OMITTED]]
+
+[[DATELINE]]Bern, Mai 1905.[[DATELINE]]
+[[ACK]]Am Schlusse sei Herrn M. Besso für seine wertvollen Ratschläge gedankt.[[ACK]]
+[[RECEIVED]](Eingegangen 11. Mai 1905.)[[/RECEIVED]]
+
+[[FN-CONT 1)]] Dieselbe Auffassung wurde auch von anderen Forschern vertreten.

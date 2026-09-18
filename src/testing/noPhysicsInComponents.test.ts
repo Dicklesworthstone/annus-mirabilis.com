@@ -103,7 +103,12 @@ function walkRepoTsFiles(rootDir: string): { path: string; content: string }[] {
       const repoRelative = path.relative(rootDir, full).split(path.sep).join("/");
       // Planted-violation fixtures are deliberately illegal; they are
       // proof material for the checker, never product code it audits.
-      if (repoRelative.startsWith("src/testing/fixtures/noPhysicsInComponents/")) continue;
+      if (
+        repoRelative.startsWith("src/testing/fixtures/noPhysicsInComponents/") ||
+        repoRelative.startsWith("src/testing/fixtures/viewImportGuard/")
+      ) {
+        continue;
+      }
       if (!isWatchedPath(repoRelative)) continue;
       results.push({ path: repoRelative, content: fs.readFileSync(full, "utf8") });
     }
@@ -133,6 +138,20 @@ describe("no physics in components (import boundary)", () => {
       {
         file: repoRelativePath,
         importPath: "../../../physics/reference/diffusion.ts",
+        resolved: "src/physics/reference/diffusion.ts",
+      },
+    ]);
+  });
+
+  test("the checker catches a forbidden physics import in a non-fixture path", () => {
+    const nonFixturePath = "src/visuals/HypotheticalPlot.tsx";
+    const content = `import { ftcs1d } from "../physics/reference/diffusion.ts"; export function Plot() { return null; }`;
+    expect(isWatchedPath(nonFixturePath)).toBe(true);
+    const violations = findPhysicsImportViolations([{ path: nonFixturePath, content }]);
+    expect(violations).toEqual([
+      {
+        file: nonFixturePath,
+        importPath: "../physics/reference/diffusion.ts",
         resolved: "src/physics/reference/diffusion.ts",
       },
     ]);

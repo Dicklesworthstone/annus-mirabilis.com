@@ -1,0 +1,20 @@
+defaults:
+  runningHeadPatterns:
+    - "^A\\.\\s*Einstein\\.?$"
+  expectedClosings:
+    - dateline
+    - received
+ledgers:
+  fixture-scoped:
+    runningHeadPatterns:
+      - "^Scoped\\s+Author\\.?$"
+    expectedClosings:
+      - received
+    printingAnomalies:
+      - label: "(1)"
+        section: "s1"
+        typographicalErrorId: "typo-1"
+  fixture-full:
+    expectedClosings:
+      - dateline
+      - received

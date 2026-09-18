@@ -1,0 +1,19 @@
+--- REVIEWED TRANSCRIPTION PAGE 1 OF 2 ---
+[[ANNALEN-PAGE 549]]
+[[TITLE]]Berichtigung zu meiner Arbeit[[/TITLE]]
+[[AUTHOR]]A. Einstein[[/AUTHOR]]
+
+[[HEADING s1]]§ 1. Einleitung
+
+In meiner Arbeit ist eine Berichtigung anzubringen bezüglich der Formel.
+$$
+\lambda = 2 D \tau
+$$
+[[EQ-LABEL (1)]]
+Hierbei ist zu beachten, daß die Koeffizienten entsprechend zu modifizieren sind.
+
+--- REVIEWED TRANSCRIPTION PAGE 2 OF 2 ---
+[[ANNALEN-PAGE 551]]
+Der Schluß der Betrachtung bleibt hiervon unberührt.
+
+[[RECEIVED]](Eingegangen 21. Januar 1911.)
