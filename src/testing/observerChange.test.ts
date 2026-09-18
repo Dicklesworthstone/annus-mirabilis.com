@@ -187,4 +187,126 @@ describe("Observer Change Contract (am-rt-command-classes-dzp)", () => {
     });
     expect(currentDecision.accepted).toBe(true);
   });
+
+  it("Doctrine 6: a change of description is not a change of world — observer change does not mint a new run in instanceStore", async () => {
+    const { createInstanceStore } = await import("../experiments/store/instanceStore.ts");
+
+    const store = createInstanceStore({
+      instanceId: "inst-doctrine-6",
+      experimentId: "relativity-light-clock",
+      initialParameters: {
+        restLength: 1.0,
+        frameSpeedVc: 0.0,
+        observerAngleRad: 0.0,
+      },
+      parameterClasses: {
+        restLength: "input",
+        frameSpeedVc: "observer",
+        observerAngleRad: "observer",
+      },
+      outputs: {
+        tickInterval: {
+          statuses: ["value"],
+          unit: "s",
+          semanticKind: "interval",
+          ownerId: "inst-doctrine-6",
+        },
+      },
+    });
+
+    // 1. Initial setup creates run 1
+    const setupToken = store.issue("setup-change", { restLength: 1.0 });
+    const initialRunId = setupToken.runId;
+    expect(initialRunId).toBe("inst-doctrine-6/run/1");
+    expect(setupToken.parentRunId).toBeNull();
+    expect(setupToken.actionIndex).toBe(1);
+    expect(setupToken.revisions).toEqual({ input: 1, observer: 0, measurement: 0, estimator: 0 });
+    expect(store.listRuns().length).toBe(1);
+    expect(store.listRuns()[0]?.runId).toBe(initialRunId);
+
+    // Physical publication at step 5
+    const pubDecision = store.publish({
+      experimentId: "relativity-light-clock",
+      instanceId: "inst-doctrine-6",
+      runId: initialRunId,
+      parentRunId: null,
+      actionIndex: setupToken.actionIndex,
+      revisions: setupToken.revisions,
+      parameters: setupToken.parameters,
+      stepIndex: 5,
+      simulationTime: 5.0,
+      final: false,
+      outputs: [
+        {
+          status: "value",
+          quantityId: "tickInterval",
+          unit: "s",
+          semanticKind: "interval",
+          ownerId: "inst-doctrine-6",
+          value: 2.0,
+        },
+      ],
+    });
+    expect(pubDecision.accepted).toBe(true);
+
+    // 2. First observer change (boost to v = 0.6c)
+    const obsToken1 = store.issue("observer-change", { frameSpeedVc: 0.6 });
+    // Must NOT mint a new run
+    expect(obsToken1.runId).toBe(initialRunId);
+    expect(obsToken1.parentRunId).toBeNull();
+    expect(obsToken1.actionIndex).toBe(2);
+    // Only observer revision increments; input, measurement, estimator remain stable
+    expect(obsToken1.revisions).toEqual({ input: 1, observer: 1, measurement: 0, estimator: 0 });
+    // Run registry in instanceStore must NOT record a new run
+    expect(store.listRuns().length).toBe(1);
+    expect(store.getRun(initialRunId)).toBeDefined();
+    expect(store.getRun("inst-doctrine-6/run/2")).toBeUndefined();
+
+    // 3. Second observer change (rotate observer orientation)
+    const obsToken2 = store.issue("observer-change", { observerAngleRad: 1.5707963267948966 });
+    // Must STILL report initialRunId
+    expect(obsToken2.runId).toBe(initialRunId);
+    expect(obsToken2.parentRunId).toBeNull();
+    expect(obsToken2.actionIndex).toBe(3);
+    expect(obsToken2.revisions).toEqual({ input: 1, observer: 2, measurement: 0, estimator: 0 });
+    expect(store.listRuns().length).toBe(1);
+
+    // 4. Publish observer update: maintains physical worldline progress (stepIndex 5, simulationTime 5.0)
+    const obsPubDecision = store.publish({
+      experimentId: "relativity-light-clock",
+      instanceId: "inst-doctrine-6",
+      runId: initialRunId,
+      parentRunId: null,
+      actionIndex: obsToken2.actionIndex,
+      revisions: obsToken2.revisions,
+      parameters: obsToken2.parameters,
+      stepIndex: 5,
+      simulationTime: 5.0,
+      final: false,
+      outputs: [
+        {
+          status: "value",
+          quantityId: "tickInterval",
+          unit: "s",
+          semanticKind: "interval",
+          ownerId: "inst-doctrine-6",
+          value: 2.5, // dilated in moving frame
+        },
+      ],
+    });
+    expect(obsPubDecision.accepted).toBe(true);
+    expect(store.getSnapshot().accepted?.runId).toBe(initialRunId);
+    expect(store.getSnapshot().accepted?.stepIndex).toBe(5);
+    expect(store.getSnapshot().accepted?.simulationTime).toBe(5.0);
+
+    // 5. Contrast explicitly with a setup-change, which DOES mint a new run
+    const setupToken2 = store.issue("setup-change", { restLength: 2.0 });
+    expect(setupToken2.runId).toBe("inst-doctrine-6/run/2");
+    expect(setupToken2.parentRunId).toBe(initialRunId);
+    expect(setupToken2.actionIndex).toBe(4);
+    expect(setupToken2.revisions.input).toBe(2);
+    expect(store.listRuns().length).toBe(2);
+    expect(store.getRun("inst-doctrine-6/run/1")).toBeDefined();
+    expect(store.getRun("inst-doctrine-6/run/2")).toBeDefined();
+  });
 });
