@@ -26,7 +26,17 @@ describe("brownian source-manifest report CLI (am-edn-inventory-brownian-slg)", 
     assert.ok(!/%/.test(text));
     assert.ok(text.includes("No source units inventoried"));
     assert.ok(!text.toLowerCase().includes("are reviewed"));
-    assert.equal(existsSync("docs/provenance/ap-17-549.md"), false);
+    // This once asserted the receipt did NOT exist. It does now: f88de57 landed a
+    // real 14 KB facsimile receipt for ap-17-549. The invariant worth guarding was
+    // never "no provenance exists" - it is that a facsimile receipt does not by
+    // itself make the report claim source units. Those are separate states, and
+    // conflating them is how a reviewed-looking number appears before any
+    // transcription has happened.
+    const receipt = "docs/provenance/ap-17-549.md";
+    assert.equal(existsSync(receipt), true, `${receipt} should exist; f88de57 added it`);
+    assert.ok(readFileSync(receipt, "utf8").includes("receiptKind: facsimile-scan"));
+    assert.equal(report.totalUnits, 0);
+    assert.equal(report.status, "in-preparation");
     logger.log({
       testId: "report-cli",
       beadId: BROWNIAN_INVENTORY_BEAD,

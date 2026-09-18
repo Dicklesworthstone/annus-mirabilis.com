@@ -79,18 +79,38 @@ describe("computed styles layout verification (am-vw1o)", () => {
         };
       });
 
+      // Resolve the design tokens from the page itself rather than hardcoding
+      // literals. This assertion previously compared against rgb(36, 42, 41) while
+      // its own message claimed "must match --ink design token" - and --ink is
+      // #1a1916, rgb(26, 25, 22). The literal had drifted from the token it named,
+      // so the test was failing the component for using the token correctly.
+      // Reading the token here means the assertion means what it says: it fails if
+      // the button stops using --ink, and survives an intentional change to --ink.
+      const tokens = await page.evaluate(() => {
+        const probe = document.createElement("span");
+        probe.style.display = "none";
+        document.body.appendChild(probe);
+        const read = (name: string): string => {
+          probe.style.color = `var(${name})`;
+          return getComputedStyle(probe).color;
+        };
+        const resolved = { ink: read("--ink"), panel: read("--panel"), line: read("--line") };
+        probe.remove();
+        return resolved;
+      });
+
       // Assert touch-target compliance (>= 44px)
       assert.equal(primaryStyles.minHeight, "44px", "Primary button must have min-height: 44px");
       assert.ok(primaryStyles.height >= 44, "Primary button rendered height must be at least 44px");
       assert.equal(primaryStyles.cursor, "pointer", "Primary button cursor must be pointer");
       assert.equal(
         primaryStyles.backgroundColor,
-        "rgb(36, 42, 41)",
+        tokens.ink,
         "Primary button background must match --ink design token",
       );
       assert.equal(
         primaryStyles.color,
-        "rgb(255, 253, 247)",
+        tokens.panel,
         "Primary button text color must match --panel design token",
       );
 
@@ -111,8 +131,8 @@ describe("computed styles layout verification (am-vw1o)", () => {
       );
       assert.equal(
         secondaryStyles.borderColor,
-        "rgb(145, 153, 141)",
-        "Secondary button border color must match muted line token",
+        tokens.line,
+        "Secondary button border color must match the --line design token",
       );
     } finally {
       await browser.close();
