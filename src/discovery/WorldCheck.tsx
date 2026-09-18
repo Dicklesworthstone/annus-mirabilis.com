@@ -57,7 +57,7 @@ export function WorldCheck({ check }: WorldCheckProps) {
             fontFamily: "var(--font-mono, monospace)",
             textTransform: "uppercase",
             letterSpacing: "0.05em",
-            color: "#0891b2",
+            color: "var(--accent)",
           }}
         >
           World Check · #{id}
@@ -68,9 +68,9 @@ export function WorldCheck({ check }: WorldCheckProps) {
             borderRadius: "0.25rem",
             fontSize: "0.75rem",
             fontWeight: 500,
-            background: "rgba(8, 145, 178, 0.12)",
-            color: "#0891b2",
-            border: "1px solid rgba(8, 145, 178, 0.3)",
+            background: "var(--wash)",
+            color: "var(--ink)",
+            border: "1px solid var(--line)",
           }}
         >
           {comparisonKindLabels[comparisonKind] ?? comparisonKind}
@@ -129,7 +129,7 @@ export function WorldCheck({ check }: WorldCheckProps) {
             style={{
               margin: 0,
               fontFamily: "var(--font-mono, monospace)",
-              color: "#d97706",
+              color: "var(--accent)",
             }}
           >
             {staticWorkedExample.value} {staticWorkedExample.unit}
@@ -192,12 +192,13 @@ export function WorldCheck({ check }: WorldCheckProps) {
             style={{
               margin: 0,
               fontFamily: "var(--font-mono, monospace)",
-              color: "#059669",
+              color: "var(--ink)",
+              fontWeight: 600,
             }}
           >
             Expected: {String(expected)}
             {tolerance?.relative !== undefined && (
-              <span style={{ color: "var(--muted)", fontSize: "0.6875rem" }}>
+              <span style={{ color: "var(--muted)", fontSize: "0.6875rem", fontWeight: "normal" }}>
                 {" "}
                 (±{tolerance.relative * 100}%)
               </span>
@@ -212,8 +213,8 @@ export function WorldCheck({ check }: WorldCheckProps) {
           style={{
             padding: "0.75rem",
             borderRadius: "0.25rem",
-            background: "rgba(147, 51, 234, 0.08)",
-            border: "1px solid rgba(147, 51, 234, 0.25)",
+            background: "var(--wash)",
+            border: "1px solid var(--line)",
             fontSize: "0.75rem",
             display: "flex",
             flexDirection: "column",
@@ -228,7 +229,7 @@ export function WorldCheck({ check }: WorldCheckProps) {
               gap: "0.5rem",
             }}
           >
-            <span style={{ fontWeight: 600, color: "#9333ea" }}>
+            <span style={{ fontWeight: 600, color: "var(--accent)" }}>
               Post-1904 Experimental Resolution ({laterEvidence.year})
             </span>
             {laterEvidence.recordId && (
