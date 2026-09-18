@@ -218,7 +218,7 @@ const EQ_PATTERN = /^(\S+)\s*==\s*'([^']*)'$/;
 const NEQ_NULL_PATTERN = /^(\S+)\s*!=\s*null$/;
 const NEQ_STRING_PATTERN = /^(\S+)\s*!=\s*'([^']*)'$/;
 
-export function requireGroup(match: RegExpExecArray, index: number, raw: string): string {
+function requireGroup(match: RegExpExecArray, index: number, raw: string): string {
   const group = match[index];
   if (group === undefined) {
     throw new RightsVocabularyError(

@@ -1,25 +1,19 @@
 /**
  * Refusal throw site test suite for rightsVocabulary.ts (am-muyh).
  *
- * Verifies all 14 refusal throw sites in src/content/schemas/rightsVocabulary.ts
- * with accept/reject test pairs, asserting explicit refusal codes, error instances,
- * and error messages, with exact line citations.
+ * Verifies all 12 reachable refusal throw sites in src/content/schemas/rightsVocabulary.ts
+ * with authentic accept/reject test pairs using real YAML fixtures and real expressions,
+ * asserting explicit refusal codes, error instances, and error messages, with exact line citations.
+ *
+ * Note on the remaining 2 refusal sites (untested by design):
+ * - rightsVocabulary.ts:152 (invalid-file): Defensively checks `!raw || typeof raw !== "object"`,
+ *   but `strictParse(text, "yaml")` only returns mapping objects or sequence arrays (both are objects)
+ *   or throws StrictParseError. Thus this branch cannot be reached in production without mocking strictParse.
+ * - rightsVocabulary.ts:224 (unsupported-expression in requireGroup): Defensively checks `group === undefined`,
+ *   but all 5 regex patterns invoking requireGroup have non-optional capture groups that always produce
+ *   defined strings whenever the regex matches. Thus this branch cannot be reached through evaluateExpression.
  */
-
-import * as bunTest from "bun:test";
 import { describe, expect, test } from "bun:test";
-
-interface SpyObject {
-  mockReturnValue(value: unknown): SpyObject;
-  mockRestore(): void;
-}
-
-const spyOn = (
-  bunTest as unknown as {
-    spyOn(target: unknown, method: string): SpyObject;
-  }
-).spyOn;
-
 import { existsSync, mkdtempSync, writeFileSync } from "node:fs";
 import { tmpdir } from "node:os";
 import path from "node:path";
@@ -27,9 +21,7 @@ import {
   evaluateExpression,
   loadRightsVocabulary,
   RightsVocabularyError,
-  requireGroup,
 } from "./rightsVocabulary.ts";
-import * as strictParseModule from "./strictParse.ts";
 
 const TEMP_BASE = existsSync("/Volumes/USBNVME16TB/temp_agent_space")
   ? "/Volumes/USBNVME16TB/temp_agent_space"
@@ -73,7 +65,7 @@ function baseVocabYaml(overrides: Record<string, string> = {}): string {
   return lines.join("\n");
 }
 
-describe("rightsVocabulary.ts refusal throw sites (am-muyh)", () => {
+describe("rightsVocabulary.ts reachable refusal throw sites (am-muyh)", () => {
   // --------------------------------------------------------------------------
   // Site 1: line 59 - invalid-category
   // --------------------------------------------------------------------------
@@ -335,33 +327,7 @@ describe("rightsVocabulary.ts refusal throw sites (am-muyh)", () => {
   });
 
   // --------------------------------------------------------------------------
-  // Site 10: line 152 - invalid-file
-  // --------------------------------------------------------------------------
-  test("rejects vocabulary file that does not parse to an object (rightsVocabulary.ts:152)", () => {
-    // Reject: strictParse returns a non-object scalar
-    const spy = spyOn(strictParseModule, "strictParse").mockReturnValue(
-      "scalar-string-not-an-object",
-    );
-    try {
-      const tempFile = createTempVocabFile("version: 1\n");
-      expect(() => loadRightsVocabulary(tempFile)).toThrow(
-        new RightsVocabularyError(
-          "invalid-file",
-          "rights-vocabulary.yaml must parse to an object.",
-        ),
-      );
-    } finally {
-      spy.mockRestore();
-    }
-
-    // Accept: file parses to a mapping object
-    const goodFile = createTempVocabFile(baseVocabYaml());
-    const vocab = loadRightsVocabulary(goodFile);
-    expect(typeof vocab).toBe("object");
-  });
-
-  // --------------------------------------------------------------------------
-  // Site 11: line 158 - missing-version
+  // Site 10: line 158 - missing-version
   // --------------------------------------------------------------------------
   test("rejects vocabulary file with missing or non-number version (rightsVocabulary.ts:158)", () => {
     // Reject: version is a string instead of number
@@ -380,27 +346,7 @@ describe("rightsVocabulary.ts refusal throw sites (am-muyh)", () => {
   });
 
   // --------------------------------------------------------------------------
-  // Site 12: line 224 - unsupported-expression (requireGroup)
-  // --------------------------------------------------------------------------
-  test("rejects missing capture group in requireGroup (rightsVocabulary.ts:224)", () => {
-    // Reject: regex match array missing expected group index
-    const mockMatch = ["full-match"] as unknown as RegExpExecArray;
-    expect(() => requireGroup(mockMatch, 5, "raw-expression")).toThrow(
-      new RightsVocabularyError(
-        "unsupported-expression",
-        'rights-vocabulary.yaml: could not extract a required capture group from "raw-expression".',
-      ),
-    );
-
-    // Accept: valid capture group present
-    const validMatch = /foo-(\w+)/.exec("foo-bar");
-    if (!validMatch) throw new Error("Expected regex match");
-    const group = requireGroup(validMatch, 1, "foo-bar");
-    expect(group).toBe("bar");
-  });
-
-  // --------------------------------------------------------------------------
-  // Site 13: line 240 - unsupported-expression (parseList)
+  // Site 11: line 240 - unsupported-expression (parseList)
   // --------------------------------------------------------------------------
   test("rejects unquoted list element in 'in [...]' clause (rightsVocabulary.ts:240)", () => {
     // Reject: unquoted list element in 'in [...]' clause
@@ -424,7 +370,7 @@ describe("rightsVocabulary.ts refusal throw sites (am-muyh)", () => {
   });
 
   // --------------------------------------------------------------------------
-  // Site 14: line 278 - unsupported-expression (parseClause)
+  // Site 12: line 278 - unsupported-expression (parseClause)
   // --------------------------------------------------------------------------
   test("rejects unrecognized constraint clause syntax (rightsVocabulary.ts:278)", () => {
     // Reject: unsupported operator/syntax in clause
