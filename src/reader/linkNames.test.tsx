@@ -262,10 +262,24 @@ describe("PaperReader link accessible names (am-jmma)", () => {
       expect(byName.get("Try it: Molecular-number inference")?.has("/lab/bm-07/")).toBe(true);
     });
 
-    test("benign set invariant: any name in benign set MUST resolve to identical anchor", () => {
-      // Invariant: a name may only enter the benign set if every href resolves to the identical anchor
+    test("benign set invariant: any name in benign set MUST resolve to identical anchor", async () => {
+      // Invariant: every name in the benign set must actually appear in the rendered reader
+      // and all its destinations must resolve to the exact same hash anchor.
+      const jsx = await PaperReader({});
+      const html = renderToStaticMarkup(jsx);
+      const links = extractLinks(html);
+      const byName = groupLinksByName(links);
+
       for (const benignName of BENIGN_SAME_TARGET_NAMES) {
-        expect(typeof benignName).toBe("string");
+        const hrefs = byName.get(benignName);
+        expect(hrefs).toBeDefined();
+        expect(hrefs?.size).toBeGreaterThan(1);
+        const targets = [...(hrefs ?? [])].map((h) => {
+          const hashIdx = h.indexOf("#");
+          return hashIdx >= 0 ? h.slice(hashIdx) : h;
+        });
+        const uniqueTargets = new Set(targets);
+        expect(uniqueTargets.size).toBe(1);
       }
 
       // Verify validator rejects an entry if hrefs diverge
