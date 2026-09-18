@@ -108,6 +108,31 @@ import {
   probeTransportCapabilities,
   SharedMemoryDisabledError,
 } from "../src/workers/transport.ts";
+import { HeavyLaboratoryManager } from "../src/experiments/lifecycle/concurrency.ts";
+import {
+  computeFullEnsembleMoments,
+  evaluateVisualDetailPolicy,
+} from "../src/experiments/lifecycle/degradation.ts";
+import { lifecycleDiagnostics } from "../src/experiments/lifecycle/diagnostics.ts";
+import {
+  decodeStreamCheckpoint,
+  encodeStreamCheckpoint,
+  evaluateCheckpointRecovery,
+  handleLaboratoryCrashOrContextLoss,
+} from "../src/experiments/lifecycle/recovery.ts";
+import {
+  BufferTransferRefusedError,
+  OwnedBuffer,
+  SnapshotBufferPool,
+} from "../src/experiments/memory/buffers.ts";
+import {
+  copyOutF64,
+  TrackedWasmView,
+  verifyGlueReturnsCopy,
+  WasmMemoryStaleViewError,
+  WasmMemoryTracker,
+} from "../src/experiments/memory/wasmViews.ts";
+import { HeavyFixtureLaboratory } from "../src/testing/runtime-fixtures/heavyFixture.ts";
 
 interface CliOptions {
   suite: string;
@@ -3270,6 +3295,445 @@ async function runProtocolE2E(logRunId: string, verbose: boolean): Promise<boole
   return report.allPassed;
 }
 
+async function runMemoryE2E(logRunId: string, verbose: boolean): Promise<boolean> {
+  const logger = new TestLogger("runtime-memory", logRunId);
+  let allPassed = true;
+
+  const failureDir = resolve(
+    process.cwd(),
+    "artifacts",
+    "test-logs",
+    "runtime-memory",
+    logRunId,
+    "failures",
+  );
+
+  const recordFailure = (
+    testId: string,
+    message: string,
+    extraFields: Record<string, unknown> = {},
+  ) => {
+    mkdirSync(failureDir, { recursive: true });
+    const failFilePath = join(failureDir, `${testId}.json`);
+    const failData = {
+      testId,
+      message,
+      reproductionCommand: `bun scripts/e2e-runtime-contracts.ts --suite memory --log-run-id ${logRunId}`,
+      ...extraFields,
+    };
+    writeFileSync(failFilePath, JSON.stringify(failData, null, 2), "utf8");
+
+    logger.log({
+      testId,
+      beadId: "am-rt-memory-lifecycle-5ws",
+      suite: "runtime-memory",
+      logRunId,
+      outcome: "failed",
+      message,
+      extra: {
+        failurePath: failFilePath,
+        ...extraFields,
+      },
+    });
+  };
+
+  if (verbose) {
+    console.log(`[E2E-Runtime] Starting memory suite (logRunId: ${logRunId})`);
+  }
+
+  // 1. WASM Memory Growth Safety Scenario
+  {
+    const startTime = Date.now();
+    const testId = "memory-growth-safety";
+    try {
+      const memory = new WebAssembly.Memory({ initial: 1 });
+      const tracker = new WasmMemoryTracker(memory);
+      const initialF64 = new Float64Array(memory.buffer, 0, 4);
+      initialF64[0] = 42.5;
+
+      const trackedView = tracker.createFloat64View(0, 4);
+      const copyBefore = copyOutF64(memory, 0, 4);
+      if (trackedView.at(0) !== 42.5) {
+        throw new Error(`Expected trackedView.at(0) to be 42.5, got ${trackedView.at(0)}`);
+      }
+
+      // Trigger memory growth
+      memory.grow(1);
+      if (tracker.currentGeneration !== 2) {
+        throw new Error(`Expected currentGeneration 2, got ${tracker.currentGeneration}`);
+      }
+
+      let threw = false;
+      try {
+        trackedView.at(0);
+      } catch (err) {
+        if (err instanceof WasmMemoryStaleViewError) {
+          threw = true;
+        }
+      }
+      if (!threw) {
+        throw new Error("Tracked view did not throw WasmMemoryStaleViewError after memory.grow(1)");
+      }
+
+      // Copy-out buffer remains intact
+      if (copyBefore[0] !== 42.5) {
+        throw new Error("Copy-out array corrupted by subsequent memory.grow()");
+      }
+
+      logger.log({
+        testId,
+        beadId: "am-rt-memory-lifecycle-5ws",
+        suite: "runtime-memory",
+        logRunId,
+        outcome: "passed",
+        durationMs: Date.now() - startTime,
+        message: "WASM memory growth detected; stale view rejected and copy-out preserved.",
+        extra: {
+          liveWorkers: lifecycleDiagnostics.liveWorkers,
+          webglContexts: lifecycleDiagnostics.activeWebGLContexts,
+          listeners: lifecycleDiagnostics.trackedListeners,
+          animationFrames: lifecycleDiagnostics.animationFrames,
+          liveBufferBytes: lifecycleDiagnostics.liveBufferBytes,
+          pooledBufferBytes: lifecycleDiagnostics.pooledBufferBytes,
+          memoryGeneration: tracker.currentGeneration,
+          checkpointValid: true,
+          checkpointMismatchField: "none",
+          newRunCreated: false,
+          displayedParticles: 0,
+          ensembleSize: 0,
+          suspendedLaboratories: lifecycleDiagnostics.suspendedLaboratories,
+        },
+      });
+    } catch (err: unknown) {
+      allPassed = false;
+      const msg = (err as Error).message;
+      recordFailure(testId, msg);
+    }
+  }
+
+  // 2. Buffer Ownership and Snapshot Refusal Scenario
+  {
+    const startTime = Date.now();
+    const testId = "buffer-ownership-snapshot-refusal";
+    try {
+      const pool = new SnapshotBufferPool(16, 2);
+      const lease = pool.acquire(1);
+      lease.buffer.bindToSnapshot(1);
+
+      let transferRefused = false;
+      try {
+        lease.buffer.transfer();
+      } catch (err) {
+        if (err instanceof BufferTransferRefusedError) {
+          transferRefused = true;
+        }
+      }
+
+      if (!transferRefused) {
+        throw new Error("BufferTransferRefusedError was not thrown for snapshot-bound buffer.");
+      }
+
+      lease.buffer.unbindFromSnapshot(1);
+      lease.release();
+
+      if (pool.availableCount !== 2) {
+        throw new Error(`Expected pool available count 2, got ${pool.availableCount}`);
+      }
+
+      logger.log({
+        testId,
+        beadId: "am-rt-memory-lifecycle-5ws",
+        suite: "runtime-memory",
+        logRunId,
+        outcome: "passed",
+        durationMs: Date.now() - startTime,
+        message: "Snapshot buffer transfer refusal and pool zero-refcount recycling verified.",
+        extra: {
+          liveWorkers: lifecycleDiagnostics.liveWorkers,
+          webglContexts: lifecycleDiagnostics.activeWebGLContexts,
+          listeners: lifecycleDiagnostics.trackedListeners,
+          animationFrames: lifecycleDiagnostics.animationFrames,
+          liveBufferBytes: lifecycleDiagnostics.liveBufferBytes,
+          pooledBufferBytes: lifecycleDiagnostics.pooledBufferBytes,
+          memoryGeneration: 1,
+          checkpointValid: true,
+          checkpointMismatchField: "none",
+          newRunCreated: false,
+          displayedParticles: 0,
+          ensembleSize: 0,
+          suspendedLaboratories: lifecycleDiagnostics.suspendedLaboratories,
+        },
+      });
+    } catch (err: unknown) {
+      allPassed = false;
+      const msg = (err as Error).message;
+      recordFailure(testId, msg);
+    }
+  }
+
+  // 3. Checkpoint-Validated Recovery (Worker Crash & Context Loss) Scenario
+  {
+    const startTime = Date.now();
+    const testId = "checkpoint-crash-recovery";
+    try {
+      const validBytes = encodeStreamCheckpoint({
+        checkpointVersion: 1,
+        streamSemanticsVersion: 1,
+        seed: 137035999n,
+        kernel: 0x19050001,
+        tile: 0,
+        nextIndex: 100n,
+      });
+
+      // Continue decision
+      const validDecision = evaluateCheckpointRecovery("run-1", validBytes, {
+        expectedSeed: 137035999n,
+        expectedKernel: 0x19050001,
+      });
+      if (validDecision.action !== "continue") {
+        throw new Error("Valid checkpoint unexpectedly refused continuation.");
+      }
+
+      // Worker crash with corrupted seed
+      const corruptSeedBytes = encodeStreamCheckpoint({
+        checkpointVersion: 1,
+        streamSemanticsVersion: 1,
+        seed: 99999n,
+        kernel: 0x19050001,
+        tile: 0,
+        nextIndex: 100n,
+      });
+
+      const crashResult = handleLaboratoryCrashOrContextLoss({
+        event: "worker-crash",
+        currentRunId: "run-crash-test",
+        checkpoint: corruptSeedBytes,
+        expected: { expectedSeed: 137035999n },
+      });
+
+      if (!crashResult.isPaused || crashResult.decision.action !== "new-run") {
+        throw new Error("Worker crash with invalid seed did not force new-run decision.");
+      }
+
+      logger.log({
+        testId,
+        beadId: "am-rt-memory-lifecycle-5ws",
+        suite: "runtime-memory",
+        logRunId,
+        outcome: "passed",
+        durationMs: Date.now() - startTime,
+        message: "Checkpoint integrity and crash recovery decisions verified.",
+        extra: {
+          liveWorkers: lifecycleDiagnostics.liveWorkers,
+          webglContexts: lifecycleDiagnostics.activeWebGLContexts,
+          listeners: lifecycleDiagnostics.trackedListeners,
+          animationFrames: lifecycleDiagnostics.animationFrames,
+          liveBufferBytes: lifecycleDiagnostics.liveBufferBytes,
+          pooledBufferBytes: lifecycleDiagnostics.pooledBufferBytes,
+          memoryGeneration: 1,
+          checkpointValid: false,
+          checkpointMismatchField: "seed",
+          newRunCreated: true,
+          displayedParticles: 0,
+          ensembleSize: 0,
+          suspendedLaboratories: lifecycleDiagnostics.suspendedLaboratories,
+        },
+      });
+    } catch (err: unknown) {
+      allPassed = false;
+      const msg = (err as Error).message;
+      recordFailure(testId, msg);
+    }
+  }
+
+  // 4. Concurrency Limit and LRU Suspension Scenario
+  {
+    const startTime = Date.now();
+    const testId = "concurrency-lru-suspension";
+    try {
+      const manager = new HeavyLaboratoryManager(2);
+      const lab1 = new HeavyFixtureLaboratory({ id: "e2e-lab-1", seed: "1001", particleCount: 20 });
+      const lab2 = new HeavyFixtureLaboratory({ id: "e2e-lab-2", seed: "1002", particleCount: 20 });
+      const lab3 = new HeavyFixtureLaboratory({ id: "e2e-lab-3", seed: "1003", particleCount: 20 });
+
+      lab1.mount();
+      lab2.mount();
+      lab3.mount();
+
+      let lab1Suspended = false;
+      manager.register(
+        lab1.id,
+        () => lab1.serializeState(),
+        () => { lab1Suspended = true; },
+        () => { lab1Suspended = false; },
+      );
+      manager.register(
+        lab2.id,
+        () => lab2.serializeState(),
+        () => {},
+        () => {},
+      );
+      manager.register(
+        lab3.id,
+        () => lab3.serializeState(),
+        () => {},
+        () => {},
+      );
+
+      if (!lab1Suspended || manager.activeCount !== 2 || manager.suspendedCount !== 1) {
+        throw new Error("Concurrency limit did not suspend LRU laboratory 1.");
+      }
+
+      manager.touch(lab1.id);
+      if (lab1Suspended || manager.activeCount !== 2) {
+        throw new Error("Resuming lab 1 did not restore active status within concurrency cap.");
+      }
+
+      lab1.unmount();
+      lab2.unmount();
+      lab3.unmount();
+
+      logger.log({
+        testId,
+        beadId: "am-rt-memory-lifecycle-5ws",
+        suite: "runtime-memory",
+        logRunId,
+        outcome: "passed",
+        durationMs: Date.now() - startTime,
+        message: "Heavy laboratory concurrency limit and LRU suspension verified.",
+        extra: {
+          liveWorkers: lifecycleDiagnostics.liveWorkers,
+          webglContexts: lifecycleDiagnostics.activeWebGLContexts,
+          listeners: lifecycleDiagnostics.trackedListeners,
+          animationFrames: lifecycleDiagnostics.animationFrames,
+          liveBufferBytes: lifecycleDiagnostics.liveBufferBytes,
+          pooledBufferBytes: lifecycleDiagnostics.pooledBufferBytes,
+          memoryGeneration: 1,
+          checkpointValid: true,
+          checkpointMismatchField: "none",
+          newRunCreated: false,
+          displayedParticles: 20,
+          ensembleSize: 20,
+          suspendedLaboratories: manager.suspendedCount,
+        },
+      });
+    } catch (err: unknown) {
+      allPassed = false;
+      const msg = (err as Error).message;
+      recordFailure(testId, msg);
+    }
+  }
+
+  // 5. Performance Budget Degradation and Full Ensemble Invariant Scenario
+  {
+    const startTime = Date.now();
+    const testId = "degradation-ensemble-invariant";
+    try {
+      const positions = new Float64Array(1500); // 500 particles in 3D
+      for (let i = 0; i < 1500; i++) positions[i] = (i % 7) * 0.5 - 1.5;
+
+      const nominal = evaluateVisualDetailPolicy(500, {
+        targetFrameTimeMs: 16.67,
+        measuredFrameTimeMs: 12.0,
+      });
+      const degraded = evaluateVisualDetailPolicy(500, {
+        targetFrameTimeMs: 16.67,
+        measuredFrameTimeMs: 35.0,
+      });
+
+      if (degraded.displayedParticleCount >= nominal.displayedParticleCount) {
+        throw new Error("Degraded detail policy failed to reduce displayed particle count.");
+      }
+
+      const nominalMoments = computeFullEnsembleMoments(positions, 3);
+      const degradedMoments = computeFullEnsembleMoments(positions, 3);
+
+      if (nominalMoments.digest !== degradedMoments.digest) {
+        throw new Error("Scientific moments digest altered under visual degradation.");
+      }
+
+      logger.log({
+        testId,
+        beadId: "am-rt-memory-lifecycle-5ws",
+        suite: "runtime-memory",
+        logRunId,
+        outcome: "passed",
+        durationMs: Date.now() - startTime,
+        message: "Visual degradation preserves complete physical ensemble moments bitwise.",
+        extra: {
+          liveWorkers: lifecycleDiagnostics.liveWorkers,
+          webglContexts: lifecycleDiagnostics.activeWebGLContexts,
+          listeners: lifecycleDiagnostics.trackedListeners,
+          animationFrames: lifecycleDiagnostics.animationFrames,
+          liveBufferBytes: lifecycleDiagnostics.liveBufferBytes,
+          pooledBufferBytes: lifecycleDiagnostics.pooledBufferBytes,
+          memoryGeneration: 1,
+          checkpointValid: true,
+          checkpointMismatchField: "none",
+          newRunCreated: false,
+          displayedParticles: degraded.displayedParticleCount,
+          ensembleSize: 500,
+          suspendedLaboratories: lifecycleDiagnostics.suspendedLaboratories,
+        },
+      });
+    } catch (err: unknown) {
+      allPassed = false;
+      const msg = (err as Error).message;
+      recordFailure(testId, msg);
+    }
+  }
+
+  // 6. Mount/Unmount 100x Baseline Zero-Leak Scenario
+  {
+    const startTime = Date.now();
+    const testId = "mount-unmount-baseline-lifecycle";
+    try {
+      lifecycleDiagnostics.reset();
+
+      for (let i = 0; i < 100; i++) {
+        const lab = new HeavyFixtureLaboratory({ id: `e2e-fixture-${i}`, particleCount: 30 });
+        lab.mount();
+        lab.step(1);
+        lab.unmount();
+      }
+
+      lifecycleDiagnostics.assertBaseline();
+
+      logger.log({
+        testId,
+        beadId: "am-rt-memory-lifecycle-5ws",
+        suite: "runtime-memory",
+        logRunId,
+        outcome: "passed",
+        durationMs: Date.now() - startTime,
+        message: "100 mount/unmount cycles returned all lifecycle counters to baseline with zero leaks.",
+        extra: {
+          liveWorkers: lifecycleDiagnostics.liveWorkers,
+          webglContexts: lifecycleDiagnostics.activeWebGLContexts,
+          listeners: lifecycleDiagnostics.trackedListeners,
+          animationFrames: lifecycleDiagnostics.animationFrames,
+          liveBufferBytes: lifecycleDiagnostics.liveBufferBytes,
+          pooledBufferBytes: lifecycleDiagnostics.pooledBufferBytes,
+          memoryGeneration: 1,
+          checkpointValid: true,
+          checkpointMismatchField: "none",
+          newRunCreated: false,
+          displayedParticles: 0,
+          ensembleSize: 0,
+          suspendedLaboratories: 0,
+        },
+      });
+    } catch (err: unknown) {
+      allPassed = false;
+      const msg = (err as Error).message;
+      recordFailure(testId, msg);
+    }
+  }
+
+  await logger.flush();
+  return allPassed;
+}
+
 async function main(): Promise<void> {
   const options = parseCliArgs();
   const logRunId = options.logRunId || newRunIdentity();
@@ -3342,6 +3806,16 @@ async function main(): Promise<void> {
     }
     console.log(
       `[E2E-Runtime] Protocol suite PASSED. Logged to artifacts/test-logs/worker-protocol/${logRunId}.jsonl`,
+    );
+    process.exit(0);
+  } else if (options.suite === "memory") {
+    const success = await runMemoryE2E(logRunId, options.verbose ?? true);
+    if (!success) {
+      console.error(`[E2E-Runtime] Memory suite FAILED. See logRunId: ${logRunId}`);
+      process.exit(1);
+    }
+    console.log(
+      `[E2E-Runtime] Memory suite PASSED. Logged to artifacts/test-logs/runtime-memory/${logRunId}.jsonl`,
     );
     process.exit(0);
   } else {

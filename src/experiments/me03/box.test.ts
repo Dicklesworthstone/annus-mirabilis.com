@@ -1,7 +1,9 @@
 import { describe, expect, test } from "bun:test";
 import { readFileSync } from "node:fs";
 import { join } from "node:path";
+import { combine, dimension, sameDimension } from "../../content/dimensions/rational.ts";
 import { parsePredictPromptId } from "../../content/ids.ts";
+import { getQuantity, isRegisteredQuantityId } from "../../content/quantities/registry.ts";
 import { strictParse } from "../../content/schemas/strictParse.ts";
 import { evaluatePhotonBox } from "../../physics/reference/massEnergy.ts";
 import { validateControlTape } from "../tapes/schema.ts";
@@ -14,6 +16,28 @@ import {
 } from "./definition.ts";
 import { validateMe03Parameters } from "./parameters.ts";
 import { createMe03Session } from "./session.ts";
+
+function dimOf(id: string) {
+  const q = getQuantity(id);
+  if (!q.dimension) throw new Error(`${id} has no fixed dimension`);
+  return dimension(q.dimension.map((s) => `${s.num}/${s.den}`));
+}
+
+export function validateBoxCaptionAttribution(caption: {
+  r1: string;
+  r2: string;
+  r3: string;
+}): void {
+  if (!caption.r1.includes("1906") || !caption.r1.includes("Poincaré 1900")) {
+    throw new Error("Caption R1 must cite 1906 photon-in-a-box and Poincaré 1900");
+  }
+  if (!caption.r2.includes("1906")) {
+    throw new Error("Caption R2 must cite 1906 box argument");
+  }
+  if (!caption.r3.includes("1906") || !caption.r3.includes("Poincaré 1900")) {
+    throw new Error("Caption R3 must cite 1906 argument and credit Poincaré 1900");
+  }
+}
 
 describe("ME-03 1906 Photon-in-a-box thought experiment", () => {
   test("canonical fixture (E = 1 J, l = 1 m, M = 1 kg) evaluates correctly", () => {
@@ -139,10 +163,53 @@ describe("ME-03 1906 Photon-in-a-box thought experiment", () => {
     expect(parsedForeign.modelIdentity.modelId).not.toBe(ME03_BOX_MODEL.id);
   });
 
-  test("caption audit verifies 1906 argument and Poincaré 1900 attribution", () => {
+  test("caption audit verifies 1906 argument and Poincaré 1900 attribution, rejecting uncredited captions", () => {
+    expect(() => validateBoxCaptionAttribution(ME03_CAPTION)).not.toThrow();
     expect(ME03_CAPTION.r1).toContain("1906 photon-in-a-box");
     expect(ME03_CAPTION.r1).toContain("Poincaré 1900");
     expect(ME03_CAPTION.r2).toContain("1906 box argument");
     expect(ME03_CAPTION.r3).toContain("1906 argument (credit: Poincaré 1900)");
+
+    const missing1906 = {
+      r1: "Three system boundaries with Poincaré 1900 recoil mode.",
+      r2: "Box argument with recoil displacement.",
+      r3: "Einstein paper 4 conditional conclusions.",
+    };
+    expect(() => validateBoxCaptionAttribution(missing1906)).toThrow(
+      /Caption R1 must cite 1906 photon-in-a-box and Poincaré 1900/,
+    );
+
+    const missingPoincare = {
+      r1: "Three system boundaries in the 1906 photon-in-a-box mode without credit.",
+      r2: "1906 box argument.",
+      r3: "1906 argument without credit.",
+    };
+    expect(() => validateBoxCaptionAttribution(missingPoincare)).toThrow(
+      /Caption R1 must cite 1906 photon-in-a-box and Poincaré 1900/,
+    );
+  });
+
+  test("live-term quantity binding: box-1906 quantities registered and dimensionally consistent", () => {
+    const boxQuantityIds = [
+      "emittedEnergyRestFrame",
+      "pulseMomentum",
+      "boxMass",
+      "boxLength",
+      "pulseFlightTime",
+      "recoilSpeed",
+      "centerOfMassShift",
+      "lightMassAssigned",
+      "speedOfLight",
+    ];
+    for (const qId of boxQuantityIds) {
+      expect(isRegisteredQuantityId(qId)).toBe(true);
+      expect(getQuantity(qId)).toBeDefined();
+    }
+
+    // Physical dimension relation: pulseMomentum * speedOfLight has the dimension of energy
+    const pDim = dimOf("pulseMomentum");
+    const cDim = dimOf("speedOfLight");
+    const energyDim = dimOf("emittedEnergyRestFrame");
+    expect(sameDimension(combine(pDim, cDim), energyDim)).toBe(true);
   });
 });

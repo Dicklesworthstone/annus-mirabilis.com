@@ -31,6 +31,14 @@ export interface StreamCheckpointData {
   readonly nextIndex: bigint;
 }
 
+export interface CheckpointEnvelope {
+  readonly checkpointBytes: Uint8Array;
+  readonly modelVersion?: string;
+  readonly protocolVersion?: number;
+  readonly tapeSchemaVersion?: number;
+  readonly parameterDigest?: string;
+}
+
 export interface ExpectedCheckpoint {
   readonly modelVersion?: string;
   readonly protocolVersion?: number;
@@ -39,6 +47,7 @@ export interface ExpectedCheckpoint {
   readonly expectedSeed?: bigint;
   readonly expectedKernel?: number;
   readonly expectedTile?: number;
+  readonly expectedNextIndex?: bigint;
 }
 
 export type RecoveryDecision =
@@ -50,6 +59,12 @@ export type RecoveryDecision =
       readonly reason: string;
       readonly mismatchField: string;
     };
+
+export interface CrashRecoveryResult {
+  readonly isPaused: boolean;
+  readonly explanation: string;
+  readonly decision: RecoveryDecision;
+}
 
 /**
  * Encodes canonical 83-byte StreamCheckpoint frame.
@@ -140,28 +155,127 @@ export function decodeStreamCheckpoint(bytes: Uint8Array): StreamCheckpointData 
 }
 
 /**
+ * Handles worker crash or WebGL context loss: pauses with explanation and evaluates checkpoint.
+ */
+export function handleLaboratoryCrashOrContextLoss(params: {
+  event: "worker-crash" | "webgl-context-lost";
+  currentRunId: string;
+  checkpoint: Uint8Array | CheckpointEnvelope;
+  expected: ExpectedCheckpoint;
+}): CrashRecoveryResult {
+  const explanation =
+    params.event === "worker-crash"
+      ? "Laboratory worker crashed: execution paused. Preserving simulated time and validating checkpoint before recovery."
+      : "WebGL context lost: rendering paused. Preserving simulated time and validating checkpoint before recovery.";
+
+  const decision = evaluateCheckpointRecovery(
+    params.currentRunId,
+    params.checkpoint,
+    params.expected,
+  );
+
+  return {
+    isPaused: true,
+    explanation,
+    decision,
+  };
+}
+
+/**
  * Evaluates recovery from a checkpoint. If any field does not validate or matches a mutation,
  * refuses continuation and decides to start a new identified run.
  */
 export function evaluateCheckpointRecovery(
   currentRunId: string,
-  checkpointBytes: Uint8Array,
+  checkpoint: Uint8Array | CheckpointEnvelope,
   expected: ExpectedCheckpoint,
 ): RecoveryDecision {
+  const isEnvelope = !(checkpoint instanceof Uint8Array);
+  const envelope: CheckpointEnvelope | null = isEnvelope ? checkpoint : null;
+  const bytes = isEnvelope ? checkpoint.checkpointBytes : checkpoint;
+
+  // 1. Envelope metadata checks (model version, protocol, tape schema, parameter digest)
+  if (
+    expected.modelVersion !== undefined &&
+    envelope?.modelVersion !== undefined &&
+    envelope.modelVersion !== expected.modelVersion
+  ) {
+    return {
+      action: "new-run",
+      parentRunId: currentRunId,
+      newRunId: `${currentRunId}-recovered-new-${Date.now()}`,
+      reason: `Model version mismatch: expected ${expected.modelVersion}, got ${envelope.modelVersion}`,
+      mismatchField: "modelVersion",
+    };
+  }
+
+  if (
+    expected.protocolVersion !== undefined &&
+    envelope?.protocolVersion !== undefined &&
+    envelope.protocolVersion !== expected.protocolVersion
+  ) {
+    return {
+      action: "new-run",
+      parentRunId: currentRunId,
+      newRunId: `${currentRunId}-recovered-new-${Date.now()}`,
+      reason: `Protocol version mismatch: expected ${expected.protocolVersion}, got ${envelope.protocolVersion}`,
+      mismatchField: "protocolVersion",
+    };
+  }
+
+  if (
+    expected.tapeSchemaVersion !== undefined &&
+    envelope?.tapeSchemaVersion !== undefined &&
+    envelope.tapeSchemaVersion !== expected.tapeSchemaVersion
+  ) {
+    return {
+      action: "new-run",
+      parentRunId: currentRunId,
+      newRunId: `${currentRunId}-recovered-new-${Date.now()}`,
+      reason: `Tape schema version mismatch: expected ${expected.tapeSchemaVersion}, got ${envelope.tapeSchemaVersion}`,
+      mismatchField: "tapeSchemaVersion",
+    };
+  }
+
+  if (
+    expected.parameterDigest !== undefined &&
+    envelope?.parameterDigest !== undefined &&
+    envelope.parameterDigest !== expected.parameterDigest
+  ) {
+    return {
+      action: "new-run",
+      parentRunId: currentRunId,
+      newRunId: `${currentRunId}-recovered-new-${Date.now()}`,
+      reason: `Parameter digest mismatch: expected ${expected.parameterDigest}, got ${envelope.parameterDigest}`,
+      mismatchField: "parameterDigest",
+    };
+  }
+
+  // 2. Decode StreamCheckpoint frame fail-closed
   let decoded: StreamCheckpointData;
   try {
-    decoded = decodeStreamCheckpoint(checkpointBytes);
+    decoded = decodeStreamCheckpoint(bytes);
   } catch (err) {
     const message = err instanceof Error ? err.message : String(err);
+    let mismatchField = "format";
+    if (message.includes("length")) {
+      mismatchField = "trailing-bytes";
+    } else if (message.includes("magic")) {
+      mismatchField = "magic";
+    } else if (message.includes("domain")) {
+      mismatchField = "domain";
+    }
+
     return {
       action: "new-run",
       parentRunId: currentRunId,
       newRunId: `${currentRunId}-recovered-new-${Date.now()}`,
       reason: `Checkpoint decode failed: ${message}`,
-      mismatchField: message.includes("length") ? "trailing-bytes" : "format",
+      mismatchField,
     };
   }
 
+  // 3. Frame field checks
   if (expected.expectedSeed !== undefined && decoded.seed !== expected.expectedSeed) {
     return {
       action: "new-run",
@@ -189,6 +303,19 @@ export function evaluateCheckpointRecovery(
       newRunId: `${currentRunId}-recovered-new-${Date.now()}`,
       reason: `Tile id mismatch in checkpoint: expected ${expected.expectedTile}, got ${decoded.tile}`,
       mismatchField: "tile",
+    };
+  }
+
+  if (
+    expected.expectedNextIndex !== undefined &&
+    decoded.nextIndex !== expected.expectedNextIndex
+  ) {
+    return {
+      action: "new-run",
+      parentRunId: currentRunId,
+      newRunId: `${currentRunId}-recovered-new-${Date.now()}`,
+      reason: `Next index mismatch in checkpoint: expected ${expected.expectedNextIndex}, got ${decoded.nextIndex}`,
+      mismatchField: "index",
     };
   }
 

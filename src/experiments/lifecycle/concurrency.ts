@@ -32,9 +32,14 @@ export interface ManagedLaboratory {
 export class HeavyLaboratoryManager {
   readonly maxConcurrent: number;
   private readonly _labs = new Map<string, ManagedLaboratory>();
+  private _logicalClock = 0;
 
   constructor(maxConcurrent?: number) {
     this.maxConcurrent = maxConcurrent ?? detectDeviceConcurrencyLimit().maxConcurrentHeavyLabs;
+  }
+
+  private now(): number {
+    return ++this._logicalClock;
   }
 
   get activeCount(): number {
@@ -61,7 +66,7 @@ export class HeavyLaboratoryManager {
   ): void {
     const lab: ManagedLaboratory = {
       id,
-      lastUsedAt: Date.now(),
+      lastUsedAt: this.now(),
       isSuspended: false,
       savedState: null,
       serializeState,
@@ -79,7 +84,7 @@ export class HeavyLaboratoryManager {
   touch(id: string): void {
     const lab = this._labs.get(id);
     if (lab) {
-      lab.lastUsedAt = Date.now();
+      lab.lastUsedAt = this.now();
       if (lab.isSuspended) {
         this.resume(id);
       } else {
@@ -92,9 +97,9 @@ export class HeavyLaboratoryManager {
     const lab = this._labs.get(id);
     if (!lab || !lab.isSuspended) return;
 
-    this.enforceConcurrency(id);
     lab.isSuspended = false;
-    lab.lastUsedAt = Date.now();
+    lab.lastUsedAt = this.now();
+    this.enforceConcurrency(id);
     if (lab.savedState) {
       const stateToResume = lab.savedState;
       lab.savedState = null;
@@ -117,7 +122,7 @@ export class HeavyLaboratoryManager {
     activeLabs.sort((a, b) => a.lastUsedAt - b.lastUsedAt);
 
     for (const candidate of activeLabs) {
-      if (activeLabs.length - this.suspendedCount <= this.maxConcurrent) break;
+      if (this.activeCount <= this.maxConcurrent) break;
       if (candidate.id === protectedId) continue;
 
       // Suspend candidate
