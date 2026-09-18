@@ -56,14 +56,20 @@ describe("am-ref-waves-r53: waves.phaseAtEvent.test.ts", () => {
       testId: "hand-computed-phase-unwrapped",
       resultStatus: "value",
       expected: 20 * Math.PI,
-      actual: resTenCycles.status === "value" ? resTenCycles.value : undefined,
+      actual:
+        resTenCycles.status === "value" && typeof resTenCycles.value === "number"
+          ? resTenCycles.value
+          : undefined,
       tolerance: 1e-12,
       comparisonKind: "absolute",
       outcome: "passed",
       durationMs: performance.now() - t0,
       message: "Origin gives 0, 1 cycle gives 2pi, 10 cycles gives 20pi unwrapped.",
       extra: {
-        ...(resTenCycles.status === "value" ? { wavePhase: resTenCycles.value as number } : {}),
+        wavePhase:
+          resTenCycles.status === "value" && typeof resTenCycles.value === "number"
+            ? resTenCycles.value
+            : undefined,
         wavePhaseFrame: resTenCycles.frame,
       },
     });

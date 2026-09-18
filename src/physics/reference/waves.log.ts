@@ -36,9 +36,9 @@ export interface WavesLogEntry {
   durationMs: number;
   message: string;
   extra?: {
-    wavePhase?: number;
-    wavePhaseFrame?: string;
-    forbiddenCalleesFound?: readonly string[];
+    wavePhase?: number | undefined;
+    wavePhaseFrame?: string | undefined;
+    forbiddenCalleesFound?: readonly string[] | undefined;
     [key: string]: unknown;
   };
 }

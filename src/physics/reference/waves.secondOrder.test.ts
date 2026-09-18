@@ -1,4 +1,5 @@
 import { describe, expect, test } from "bun:test";
+import { withinTolerance } from "../../units/tolerance.ts";
 import { logWaves } from "./waves.log.ts";
 import { secondOrderShift } from "./waves.ts";
 
@@ -29,8 +30,8 @@ describe("am-ref-waves-r53: waves.secondOrder.test.ts", () => {
     expect(Number(shift.toExponential(5))).toBeCloseTo(1.25002e-5, 10);
 
     const ref = highPrecisionGammaMinusOneRef(beta);
-    const relDiff = Math.abs(shift - ref) / ref;
-    expect(relDiff).toBeLessThan(1e-12);
+    const verdict = withinTolerance(shift, ref, { relative: 1e-12 });
+    expect(verdict.ok).toBe(true);
 
     logWaves({
       testId: "second-order-shift-0.005-fixture",
@@ -57,8 +58,8 @@ describe("am-ref-waves-r53: waves.secondOrder.test.ts", () => {
       const shift = secondOrderShift(beta);
       const ref = highPrecisionGammaMinusOneRef(beta);
 
-      const relError = Math.abs(shift - ref) / ref;
-      expect(relError).toBeLessThan(1e-12);
+      const verdict = withinTolerance(shift, ref, { relative: 1e-12 });
+      expect(verdict.ok).toBe(true);
     }
 
     logWaves({
@@ -83,11 +84,13 @@ describe("am-ref-waves-r53: waves.secondOrder.test.ts", () => {
     const ref = highPrecisionGammaMinusOneRef(tinyBeta);
 
     // Stable form matches reference to 1e-12 relative
-    expect(Math.abs(stable - ref) / ref).toBeLessThan(1e-12);
+    const stableVerdict = withinTolerance(stable, ref, { relative: 1e-12 });
+    expect(stableVerdict.ok).toBe(true);
 
-    // In double precision, 1 - 1e-12 loses several digits in naive formula
-    const naiveRelError = Math.abs(naive - ref) / ref;
-    expect(naiveRelError).toBeGreaterThanOrEqual(0);
+    // In double precision, 1 - 1e-12 loses digits: naive formula fails 1e-12 tolerance
+    const naiveVerdict = withinTolerance(naive, ref, { relative: 1e-12 });
+    expect(naiveVerdict.ok).toBe(false);
+    expect(naiveVerdict.kind).toBe("outside");
     // The naive relative error is non-zero and worse than machine precision
     expect(stable).toBeCloseTo(0.5e-12, 16);
 
