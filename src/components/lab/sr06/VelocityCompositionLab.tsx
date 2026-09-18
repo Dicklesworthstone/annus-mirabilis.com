@@ -12,6 +12,7 @@ import {
 } from "../../../experiments/sr06/definition.ts";
 import { decodeSr06Settings, encodeSr06Settings } from "../../../experiments/sr06/permalink.ts";
 import { createSr06Session, type PreparedSr06Example } from "../../../experiments/sr06/session.ts";
+import type { AcceptedSnapshot } from "../../../experiments/store/instanceStore.ts";
 import { result } from "../presentation.ts";
 import { VelocityCompositionPlot } from "./VelocityCompositionPlot.tsx";
 

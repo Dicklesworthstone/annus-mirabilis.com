@@ -5,7 +5,7 @@
 
 export * from "../schemas/concordance.ts";
 
-import type { ConcordanceEntry } from "../schemas/concordance.ts";
+import type { ConcordanceEntry, RationalScale } from "../schemas/concordance.ts";
 
 export type ResolveGlyphError = "unknownAnchor" | "unknownPaper" | "unscoped" | "ambiguous";
 

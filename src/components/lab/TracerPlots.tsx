@@ -153,9 +153,20 @@ export const PLOT_KINDS: Readonly<
   apparent: { suffix: "Apparent", label: "Apparent coordinate speed", unit: "μm/s", factor: 1e6 },
 };
 export function TracerScaling({ snapshot }: { snapshot: AcceptedSnapshot }) {
-  const p = snapshot.parameters as Bm01Parameters,
-    kind = PLOT_KINDS[p.statistic] ?? PLOT_KINDS.mean,
-    times = array(snapshot, "plotTimes"),
+  const p = snapshot.parameters as Bm01Parameters;
+  const kind = PLOT_KINDS[p.statistic];
+  if (!kind) {
+    return (
+      <section {...identity(snapshot)} data-refusal-code="unknown-statistic">
+        <h3>Plot refusal</h3>
+        <p className="notice" role="alert">
+          Unknown plot statistic &ldquo;{p.statistic}&rdquo;. Valid choices are &ldquo;mean&rdquo;,
+          &ldquo;mean-square&rdquo;, &ldquo;rms&rdquo;, or &ldquo;apparent&rdquo;.
+        </p>
+      </section>
+    );
+  }
+  const times = array(snapshot, "plotTimes"),
     sample = array(snapshot, `plotSample${kind.suffix}`),
     model = array(snapshot, `plotModel${kind.suffix}`);
   const log = p.statistic !== "mean",

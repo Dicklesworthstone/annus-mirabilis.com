@@ -10,7 +10,7 @@ import {
 } from "../../experiments/sr02/definition.ts";
 import { validateSr02Parameters } from "../../experiments/sr02/parameters.ts";
 import { createSr02Session, type PreparedSr02Example } from "../../experiments/sr02/session.ts";
-import type { PublishedResult } from "../../experiments/store/instanceStore.ts";
+import type { AcceptedSnapshot, PublishedResult } from "../../experiments/store/instanceStore.ts";
 import { display, identity, result } from "./presentation.ts";
 
 const SPEED_06C = 0.6 * 299792458;

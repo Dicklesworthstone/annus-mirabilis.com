@@ -217,7 +217,8 @@ export function resolveGlyph(
     }
   }
 
-  if (matches.length === 0) {
+  const [firstMatch] = matches;
+  if (!firstMatch) {
     return {
       ok: false,
       error: "unscoped",
@@ -233,18 +234,9 @@ export function resolveGlyph(
     };
   }
 
-  const match = matches[0];
-  if (!match) {
-    return {
-      ok: false,
-      error: "not-found",
-      message: `Glyph "${targetGlyph}" not found in scope "${anchor}".`,
-    };
-  }
-
   return {
     ok: true,
-    entry: match,
+    entry: firstMatch,
   };
 }
 
