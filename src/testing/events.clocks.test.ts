@@ -145,9 +145,12 @@ describe("events.clocks: Proper time, worldlines, and light clock (am-ref-events
 
       // Demonstrate that naive subtraction (1 - sqrt(1 - beta^2)) loses digits
       const naiveLoss = 1 - Math.sqrt(1 - beta * beta);
-      const naiveRelDiff = Math.abs(naiveLoss - referenceLossPerSecond) / referenceLossPerSecond;
-      // Naive error is ~5.7e-9, failing 1e-12 tolerance
-      expect(naiveRelDiff).toBeGreaterThan(1e-9);
+      const naiveVerdict = withinTolerance(naiveLoss, referenceLossPerSecond, {
+        relative: 1e-9,
+      });
+      // Naive error is ~5.7e-9, failing 1e-9 (and 1e-12) tolerance
+      expect(naiveVerdict.ok).toBe(false);
+      expect(naiveVerdict.kind).toBe("outside");
 
       logEvent({
         testId: "events.clocks.stable-loss-1e-4",

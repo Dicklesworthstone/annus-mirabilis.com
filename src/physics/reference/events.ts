@@ -852,16 +852,16 @@ export function reciprocalRates(
   // Einstein velocity composition for relative velocity
   const vRelRes = composeCollinear(beta2, -beta1);
   if (vRelRes.status !== "value") return vRelRes;
-  const betaRel = Math.abs(vRelRes.value);
+  const betaMagnitude = Math.abs(vRelRes.value);
 
   const rate1InFrame = Math.sqrt(1 - beta1 * beta1);
   const rate2InFrame = Math.sqrt(1 - beta2 * beta2);
-  const mutualRelativeRate = Math.sqrt(1 - betaRel * betaRel);
+  const mutualRelativeRate = Math.sqrt(1 - betaMagnitude * betaMagnitude);
 
   return ok({
     clock1SpeedInFrame: Math.abs(v1),
     clock2SpeedInFrame: Math.abs(v2),
-    relativeSpeedBeta: betaRel,
+    relativeSpeedBeta: betaMagnitude,
     clock1RateInFrame: rate1InFrame,
     clock2RateInFrame: rate2InFrame,
     clock2RateAccordingToClock1: mutualRelativeRate,
