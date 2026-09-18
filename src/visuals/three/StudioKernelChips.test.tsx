@@ -47,8 +47,8 @@ describe("StudioKernelChips Component", () => {
     expect(html).toContain("1.250");
     expect(html).toContain("Kinetic Energy");
     expect(html).toContain("2.35");
-    expect(html).toContain("right-3");
-    expect(html).toContain("max-w-[min(calc(100%-25rem),28rem)]");
+    expect(html).toContain('data-side="right"');
+    expect(html).toContain('data-width="standard"');
   });
 
   test("supports a compact top-right lane when an apparatus occupies the bottom edge", () => {
@@ -63,9 +63,9 @@ describe("StudioKernelChips Component", () => {
       />,
     );
 
-    expect(html).toContain("top-20");
-    expect(html).not.toContain("bottom-3 sm:bottom-4");
-    expect(html).toContain("max-w-[17rem]");
+    expect(html).toContain('data-placement="top"');
+    expect(html).not.toContain('data-placement="bottom"');
+    expect(html).toContain('data-width="compact"');
   });
 
   test("automatically redirects side='left' to 'right' when hasPrimaryHud is true", () => {
@@ -79,7 +79,7 @@ describe("StudioKernelChips Component", () => {
       />,
     );
 
-    expect(html).toContain("right-3");
+    expect(html).toContain('data-side="right"');
   });
 
   test("respects side='left' when hasPrimaryHud is false", () => {
@@ -93,15 +93,15 @@ describe("StudioKernelChips Component", () => {
       />,
     );
 
-    expect(html).toContain("left-3");
+    expect(html).toContain('data-side="left"');
   });
 
   test("renders hot and warn badge tones with proper styling classes", () => {
     const html = renderToStaticMarkup(<StudioKernelChips visible={true} chips={sampleChips} />);
 
-    expect(html).toContain("bg-rose-500/15");
-    expect(html).toContain("bg-amber-500/15");
-    expect(html).toContain("bg-parchment-100/80");
+    expect(html).toContain('data-tone="warn"');
+    expect(html).toContain('data-tone="hot"');
+    expect(html).toContain('data-tone="ok"');
   });
 
   test("useResponsiveStudioHud exports a valid hook function", () => {
@@ -115,6 +115,6 @@ describe("StudioKernelChips Component", () => {
     );
 
     expect(source).not.toContain("transition-all");
-    expect(source).toContain("transition-[background-color,transform]");
+    expect(source).toContain('transition: "background-color');
   });
 });

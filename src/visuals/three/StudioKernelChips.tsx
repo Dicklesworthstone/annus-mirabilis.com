@@ -14,17 +14,11 @@
 
 "use client";
 
-import { useEffect, useId, useRef, useState } from "react";
+import { type CSSProperties, useEffect, useId, useRef, useState } from "react";
 
-function ActivityIcon({ className = "w-3.5 h-3.5" }: { readonly className?: string }) {
+function ActivityIcon({ style }: { readonly style?: CSSProperties }) {
   return (
-    <svg
-      className={className}
-      fill="none"
-      stroke="currentColor"
-      viewBox="0 0 24 24"
-      aria-hidden="true"
-    >
+    <svg style={style} fill="none" stroke="currentColor" viewBox="0 0 24 24" aria-hidden="true">
       <polyline
         points="22 12 18 12 15 21 9 3 6 12 2 12"
         strokeWidth={2}
@@ -35,15 +29,9 @@ function ActivityIcon({ className = "w-3.5 h-3.5" }: { readonly className?: stri
   );
 }
 
-function ChevronUpIcon({ className = "w-3 h-3" }: { readonly className?: string }) {
+function ChevronUpIcon({ style }: { readonly style?: CSSProperties }) {
   return (
-    <svg
-      className={className}
-      fill="none"
-      stroke="currentColor"
-      viewBox="0 0 24 24"
-      aria-hidden="true"
-    >
+    <svg style={style} fill="none" stroke="currentColor" viewBox="0 0 24 24" aria-hidden="true">
       <polyline
         points="18 15 12 9 6 15"
         strokeWidth={2}
@@ -54,15 +42,9 @@ function ChevronUpIcon({ className = "w-3 h-3" }: { readonly className?: string 
   );
 }
 
-function XIcon({ className = "w-3.5 h-3.5" }: { readonly className?: string }) {
+function XIcon({ style }: { readonly style?: CSSProperties }) {
   return (
-    <svg
-      className={className}
-      fill="none"
-      stroke="currentColor"
-      viewBox="0 0 24 24"
-      aria-hidden="true"
-    >
+    <svg style={style} fill="none" stroke="currentColor" viewBox="0 0 24 24" aria-hidden="true">
       <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M6 18L18 6M6 6l12 12" />
     </svg>
   );
@@ -181,31 +163,77 @@ export function StudioKernelChips({
     isConstrained && hasPrimaryHud && priority === "secondary" && collapsible;
 
   const effectiveSide = hasPrimaryHud && side === "left" ? "right" : side;
-  const verticalPlacement = placement === "top" ? "top-20 sm:top-20" : "bottom-3 sm:bottom-4";
-  const rightWidth = width === "compact" ? "max-w-[17rem]" : "max-w-[min(calc(100%-25rem),28rem)]";
+  const isTop = placement === "top";
+  const isCompact = width === "compact";
+  const maxWidth =
+    shouldAutoCollapse && isExpanded
+      ? "min(calc(100vw - 2rem), 22rem)"
+      : effectiveSide === "right"
+        ? isCompact
+          ? "17rem"
+          : "min(calc(100% - 25rem), 28rem)"
+        : "min(calc(100% - 1.5rem), 28rem)";
 
   if (shouldAutoCollapse && !isExpanded) {
     return (
       <div
         ref={chipContainerRef}
-        className="absolute bottom-3 right-3 sm:bottom-4 sm:right-4 z-10 pointer-events-auto"
+        data-testid="studio-kernel-chips-collapsed"
+        style={{
+          position: "absolute",
+          bottom: "1rem",
+          right: "1rem",
+          zIndex: 10,
+          pointerEvents: "auto",
+        }}
       >
         <button
           type="button"
           onClick={() => setIsExpanded(true)}
-          className="flex items-center gap-1.5 px-2.5 py-1.5 rounded-xl bg-white/95 dark:bg-ink-900/95 backdrop-blur-md border border-amber-700/30 dark:border-amber-500/30 shadow-md text-[10px] sm:text-xs font-sans font-semibold text-amber-900 dark:text-amber-200 hover:bg-amber-50 dark:hover:bg-ink-800 transition-[background-color,transform] hover:scale-105 active:scale-95 cursor-pointer"
+          className="button"
+          style={{
+            display: "flex",
+            alignItems: "center",
+            gap: "0.375rem",
+            padding: "0.375rem 0.625rem",
+            borderRadius: "0.75rem",
+            background: "var(--panel)",
+            border: "1px solid var(--line)",
+            boxShadow: "0 4px 6px -1px rgba(0, 0, 0, 0.1)",
+            fontSize: "0.75rem",
+            fontFamily: "var(--font-sans, sans-serif)",
+            fontWeight: 600,
+            color: "var(--accent)",
+            cursor: "pointer",
+            transition: "background-color 150ms, transform 150ms",
+          }}
           title="Open Telemetry Chips"
           aria-label="Open Telemetry Chips"
           aria-expanded={false}
           aria-controls={titleId}
         >
-          <ActivityIcon className="w-3.5 h-3.5 text-amber-600 dark:text-amber-400" />
-          <span className="hidden xs:inline">{title ?? "Readouts"}</span>
-          <span className="xs:hidden">SI</span>
-          <span className="font-mono text-[9px] px-1 py-0.5 bg-amber-200/60 dark:bg-amber-900/60 rounded text-amber-950 dark:text-amber-100">
+          <ActivityIcon style={{ width: "0.875rem", height: "0.875rem", color: "var(--accent)" }} />
+          <span>{title ?? "Readouts"}</span>
+          <span
+            style={{
+              fontFamily: "var(--font-mono, monospace)",
+              fontSize: "0.5625rem",
+              padding: "0.125rem 0.25rem",
+              background: "var(--wash)",
+              borderRadius: "0.25rem",
+              color: "var(--ink)",
+            }}
+          >
             {chips.length}
           </span>
-          <ChevronUpIcon className="w-3 h-3 ml-0.5 text-ink-400" />
+          <ChevronUpIcon
+            style={{
+              width: "0.75rem",
+              height: "0.75rem",
+              marginLeft: "0.125rem",
+              color: "var(--muted)",
+            }}
+          />
         </button>
       </div>
     );
@@ -215,55 +243,144 @@ export function StudioKernelChips({
     <div
       ref={chipContainerRef}
       id={titleId}
-      className={`absolute ${verticalPlacement} z-10 pointer-events-auto ${
-        effectiveSide === "right"
-          ? `right-3 sm:right-4 ${rightWidth}`
-          : "left-3 sm:left-4 max-w-[min(100%-1.5rem,28rem)]"
-      } ${shouldAutoCollapse && isExpanded ? "max-w-[min(calc(100vw-2rem),22rem)] shadow-xl" : ""}`}
+      data-side={effectiveSide}
+      data-placement={placement}
+      data-width={width}
+      style={{
+        position: "absolute",
+        top: isTop ? "5rem" : undefined,
+        bottom: !isTop ? "1rem" : undefined,
+        left: effectiveSide === "left" ? "1rem" : undefined,
+        right: effectiveSide === "right" ? "1rem" : undefined,
+        maxWidth,
+        zIndex: 10,
+        pointerEvents: "auto",
+        boxShadow:
+          shouldAutoCollapse && isExpanded ? "0 20px 25px -5px rgba(0, 0, 0, 0.2)" : undefined,
+      }}
     >
-      <div className="bg-white/95 dark:bg-ink-900/95 backdrop-blur-md border border-parchment-300 dark:border-ink-700 rounded-xl px-2.5 py-1.5 sm:px-3 sm:py-2 shadow-md">
-        <div className="flex items-center justify-between gap-1.5 mb-1 sm:mb-1.5">
-          <div className="text-[9px] sm:text-[10px] font-sans font-bold uppercase tracking-wider text-amber-700 dark:text-amber-400 truncate">
+      <div
+        style={{
+          background: "var(--panel)",
+          backdropFilter: "blur(12px)",
+          border: "1px solid var(--line)",
+          borderRadius: "0.75rem",
+          padding: "0.5rem 0.75rem",
+          boxShadow: "0 4px 6px -1px rgba(0, 0, 0, 0.1)",
+        }}
+      >
+        <div
+          style={{
+            display: "flex",
+            alignItems: "center",
+            justifyContent: "space-between",
+            gap: "0.375rem",
+            marginBottom: "0.375rem",
+          }}
+        >
+          <div
+            className="eyebrow"
+            style={{
+              fontSize: "0.625rem",
+              fontWeight: "bold",
+              textTransform: "uppercase",
+              letterSpacing: "0.05em",
+              color: "var(--accent)",
+              overflow: "hidden",
+              textOverflow: "ellipsis",
+              whiteSpace: "nowrap",
+            }}
+          >
             {title ?? "SI Telemetry"}
           </div>
           {shouldAutoCollapse && isExpanded && (
             <button
               type="button"
               onClick={() => setIsExpanded(false)}
-              className="p-1 rounded-md text-ink-500 hover:text-ink-900 dark:hover:text-parchment-100 hover:bg-parchment-200 dark:hover:bg-ink-800 transition-colors cursor-pointer"
+              style={{
+                padding: "0.25rem",
+                borderRadius: "0.375rem",
+                color: "var(--muted)",
+                background: "transparent",
+                border: "none",
+                cursor: "pointer",
+              }}
               title="Collapse Chips"
               aria-label="Collapse Chips"
             >
-              <XIcon className="w-3.5 h-3.5" />
+              <XIcon style={{ width: "0.875rem", height: "0.875rem" }} />
             </button>
           )}
         </div>
-        <div className="flex flex-wrap gap-1.5 sm:gap-2 max-h-[140px] sm:max-h-none overflow-y-auto scrollbar-none">
-          {chips.map((c) => (
-            <div
-              key={c.label}
-              className={`rounded-lg px-1.5 py-0.5 sm:px-2 sm:py-1 border ${
-                c.tone === "warn"
-                  ? "bg-rose-500/15 border-rose-500/30 text-rose-800 dark:text-rose-200"
-                  : c.tone === "hot"
-                    ? "bg-amber-500/15 border-amber-500/30 text-amber-800 dark:text-amber-200"
-                    : "bg-parchment-100/80 dark:bg-ink-800/80 border-parchment-200 dark:border-ink-700 text-ink-800 dark:text-parchment-100"
-              }`}
-            >
-              <div className="text-[8px] sm:text-[9px] font-sans text-ink-500 dark:text-parchment-400 leading-tight">
-                {c.label}
+        <div
+          style={{
+            display: "flex",
+            flexWrap: "wrap",
+            gap: "0.5rem",
+            maxHeight: "140px",
+            overflowY: "auto",
+          }}
+        >
+          {chips.map((c) => {
+            const tone = c.tone ?? "ok";
+            return (
+              <div
+                key={c.label}
+                data-tone={tone}
+                style={{
+                  borderRadius: "0.5rem",
+                  padding: "0.25rem 0.5rem",
+                  border:
+                    tone === "warn"
+                      ? "1px solid rgba(225, 29, 72, 0.3)"
+                      : tone === "hot"
+                        ? "1px solid rgba(245, 158, 11, 0.4)"
+                        : "1px solid var(--line)",
+                  background:
+                    tone === "warn"
+                      ? "rgba(225, 29, 72, 0.15)"
+                      : tone === "hot"
+                        ? "rgba(245, 158, 11, 0.15)"
+                        : "var(--wash)",
+                  color: tone === "warn" ? "#e11d48" : tone === "hot" ? "#d97706" : "var(--ink)",
+                }}
+              >
+                <div
+                  className="fine"
+                  style={{
+                    fontSize: "0.5625rem",
+                    lineHeight: 1.2,
+                    color:
+                      tone === "warn" ? "#e11d48" : tone === "hot" ? "#d97706" : "var(--muted)",
+                  }}
+                >
+                  {c.label}
+                </div>
+                <div
+                  style={{
+                    fontSize: "0.6875rem",
+                    fontFamily: "var(--font-mono, monospace)",
+                    fontWeight: "bold",
+                    lineHeight: 1.2,
+                  }}
+                >
+                  {c.value}
+                  {c.unit ? (
+                    <span
+                      style={{
+                        fontWeight: "normal",
+                        color:
+                          tone === "warn" ? "#e11d48" : tone === "hot" ? "#d97706" : "var(--muted)",
+                      }}
+                    >
+                      {" "}
+                      {c.unit}
+                    </span>
+                  ) : null}
+                </div>
               </div>
-              <div className="text-[10px] sm:text-[11px] font-mono font-bold leading-tight">
-                {c.value}
-                {c.unit ? (
-                  <span className="text-ink-500 dark:text-parchment-400 font-normal">
-                    {" "}
-                    {c.unit}
-                  </span>
-                ) : null}
-              </div>
-            </div>
-          ))}
+            );
+          })}
         </div>
       </div>
     </div>
