@@ -1,7 +1,7 @@
 import { BM08_PROTOCOL, decodeLabHello, decodeLabResponse } from "../../workers/protocol/bm08.ts";
 import { createHostScheduler, type WorkerChannel } from "../../workers/scheduler/hostScheduler.ts";
 import { parseResult } from "../results/codec.ts";
-import { createInstanceStore, type ParameterClass } from "../store/instanceStore.ts";
+import { type Command, createInstanceStore, type ParameterClass } from "../store/instanceStore.ts";
 import { BM08_CLASSES, BM08_OUTPUTS, type Bm08Parameters } from "./definition.ts";
 import { validateBm08Parameters } from "./parameters.ts";
 export type PreparedBm08Example = Readonly<{
@@ -64,7 +64,55 @@ export function createBm08Session(
           ? { ...previous, ...(input as Record<string, unknown>) }
           : input;
       const checked = validateBm08Parameters(merged);
-      if (checked.kind !== "accepted") return checked;
+      if (checked.kind !== "accepted") {
+        if (checked.kind === "refused") {
+          let command: Command = "measurement-change";
+          const payload: Record<string, number | string | boolean> = {};
+          if (typeof merged === "object" && merged !== null) {
+            const patch = merged as Record<string, unknown>;
+            const hasInput = Object.keys(patch).some(
+              (k) =>
+                BM08_CLASSES[k as keyof Bm08Parameters] === "input" &&
+                !Object.is(patch[k], previous[k as keyof Bm08Parameters]),
+            );
+            const hasMeasurement = Object.keys(patch).some(
+              (k) =>
+                BM08_CLASSES[k as keyof Bm08Parameters] === "measurement" &&
+                !Object.is(patch[k], previous[k as keyof Bm08Parameters]),
+            );
+            const hasEstimator = Object.keys(patch).some(
+              (k) =>
+                BM08_CLASSES[k as keyof Bm08Parameters] === "estimator" &&
+                !Object.is(patch[k], previous[k as keyof Bm08Parameters]),
+            );
+
+            if (hasInput) command = "setup-change";
+            else if (hasMeasurement) command = "measurement-change";
+            else if (hasEstimator) command = "estimator-change";
+
+            const targetClass =
+              command === "setup-change"
+                ? "input"
+                : command === "measurement-change"
+                  ? "measurement"
+                  : "estimator";
+            for (const [k, v] of Object.entries(patch)) {
+              if (BM08_CLASSES[k as keyof Bm08Parameters] === targetClass) {
+                if (
+                  typeof v === "string" ||
+                  typeof v === "boolean" ||
+                  (typeof v === "number" && Number.isFinite(v))
+                ) {
+                  payload[k] = v;
+                }
+              }
+            }
+          }
+          const token = store.issue(command, payload);
+          store.refuse(token, checked.refusal);
+        }
+        return checked;
+      }
       const p = checked.data;
       const groups: Record<ParameterClass, Record<string, number | string | boolean>> = {
         input: {},

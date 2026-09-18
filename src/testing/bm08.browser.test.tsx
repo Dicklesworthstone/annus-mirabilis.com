@@ -80,4 +80,46 @@ describe("BM-08 Measurement Bias Lab View & Route (am-bm-08-measurement-bias-h1y
     const offGridRes = session.apply({ exposure: 0.3 }); // off 0.25 s grid
     expect(offGridRes.kind).toBe("refused");
   });
+
+  test("off-grid exposure 0.3 populates view.refusal with off-replay-grid and sets status to refused", () => {
+    const session = createBm08Session("test-off-grid-refusal", example);
+    expect(session.getSnapshot().status).toBe("accepted");
+    expect(session.getSnapshot().refusal).toBeNull();
+
+    const res = session.apply({ exposure: 0.3 });
+    expect(res.kind).toBe("refused");
+    if (res.kind !== "refused") throw new Error("Expected refusal");
+    expect(res.refusal.code).toBe("off-replay-grid");
+
+    const snap = session.getSnapshot();
+    expect(snap.status).toBe("refused");
+    expect(snap.refusal?.code).toBe("off-replay-grid");
+    expect(snap.requested?.parameters.exposure).toBe(0.3);
+    // Accepted snapshot is preserved
+    expect(snap.accepted?.parameters.exposure).toBe(0.5);
+  });
+
+  test("AC4 negative: legal on-grid exposure 0.5 must NOT produce refusal", () => {
+    const session = createBm08Session("test-on-grid-legal", example);
+    const initialSnap = session.getSnapshot();
+    expect(initialSnap.status).toBe("accepted");
+    expect(initialSnap.refusal).toBeNull();
+
+    // 0.5 is on the 0.25 s grid (0.5 / 0.25 = 2, integer)
+    const res = session.apply({ exposure: 0.5 });
+    expect(res.kind).toBe("accepted");
+
+    const snap = session.getSnapshot();
+    expect(snap.status).not.toBe("refused");
+    expect(snap.refusal).toBeNull();
+  });
+
+  test("refusal surfaces on both named surfaces: execution currency chrome and explanatory notice", () => {
+    const html = renderToStaticMarkup(<CameraLab example={example} />);
+    // On-grid initial state: neither refusal surface is present
+    expect(html).not.toContain('data-refusal-code="off-replay-grid"');
+    expect(html).not.toContain('data-currency-state="refused"');
+    expect(html).toContain('data-currency-state="accepted"');
+    expect(html).toContain("Static worked example");
+  });
 });

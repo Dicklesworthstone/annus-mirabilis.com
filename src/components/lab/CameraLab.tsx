@@ -10,6 +10,8 @@ import type { Bm08Parameters } from "../../experiments/bm08/definition.ts";
 import { cameraObservationCsv } from "../../experiments/bm08/export.ts";
 import { decodeBm08Settings, encodeBm08Settings } from "../../experiments/bm08/permalink.ts";
 import { createBm08Session, type PreparedBm08Example } from "../../experiments/bm08/session.ts";
+import { ExecutionChrome } from "../../experiments/labels/ExecutionChrome.tsx";
+import { modelNoteFromView } from "../../experiments/labels/modelNoteData.ts";
 import { CameraMomentTable } from "./CameraMomentTable.tsx";
 import { CameraCoverage, CameraPath, CameraSpeed } from "./CameraPlots.tsx";
 import { InferenceInterval as Interval, InferenceValue as Value } from "./InferencePlots.tsx";
@@ -189,9 +191,14 @@ export function CameraLab({
           <p className="eyebrow">BM-08 · Observe, then infer</p>
           <h2 id={`${id}-title`}>{title}</h2>
         </div>
-        <span className="badge">
-          {isStatic ? "Static worked example" : "Synthetic camera · host calculation"}
-        </span>
+        <ExecutionChrome
+          state={isStatic ? "static-example" : "host-accepted"}
+          view={view}
+          modelNote={modelNoteFromView(view, {
+            notModeled:
+              "Higher-order optical aberrations; only uniform exposure blur and Gaussian localization error.",
+          })}
+        />
       </header>
       <noscript>
         <p className="notice">
