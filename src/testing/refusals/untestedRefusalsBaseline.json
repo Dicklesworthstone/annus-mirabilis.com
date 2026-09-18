@@ -90,7 +90,7 @@
   "src/workers/protocol/bm07.ts": 3,
   "src/workers/protocol/bm08.ts": 3,
   "src/workers/protocol/buffers.ts": 11,
-  "src/workers/protocol/decode.ts": 32,
+  "src/workers/protocol/decode.ts": 0,
   "src/workers/protocol/lq01.ts": 1,
   "src/workers/protocol/provenance.ts": 7,
   "src/workers/protocol/sr03.ts": 2
