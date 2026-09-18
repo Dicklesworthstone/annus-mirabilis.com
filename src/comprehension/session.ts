@@ -171,6 +171,13 @@ export function validateSessionRecord(raw: unknown, path = "SessionRecord"): Ses
         `${path}.accomplishmentChanges[${i}].to`,
       );
     }
+    if (c.from === c.to) {
+      throw new SessionValidationError(
+        "identical-accomplishment-transition",
+        `Transition ${i} has identical from and to accomplishment "${c.from}"`,
+        `${path}.accomplishmentChanges[${i}]`,
+      );
+    }
     return {
       timestamp: c.timestamp,
       from: c.from as Accomplishment,
@@ -185,6 +192,45 @@ export function validateSessionRecord(raw: unknown, path = "SessionRecord"): Ses
       `currentAccomplishment "${raw.currentAccomplishment}" must be one of: ${ACCOMPLISHMENTS.join(", ")}`,
       `${path}.currentAccomplishment`,
     );
+  }
+
+  // Continuity and consistency checks for accomplishments
+  if (changes.length === 0) {
+    if (raw.currentAccomplishment !== raw.initialAccomplishment) {
+      throw new SessionValidationError(
+        "inconsistent-current-accomplishment",
+        `currentAccomplishment "${raw.currentAccomplishment}" must match initialAccomplishment "${raw.initialAccomplishment}" when accomplishmentChanges is empty`,
+        `${path}.currentAccomplishment`,
+      );
+    }
+  } else {
+    const firstChange = changes[0];
+    if (firstChange && firstChange.from !== raw.initialAccomplishment) {
+      throw new SessionValidationError(
+        "broken-accomplishment-chain",
+        `First transition "from" (${firstChange.from}) does not match initialAccomplishment (${raw.initialAccomplishment})`,
+        `${path}.accomplishmentChanges[0].from`,
+      );
+    }
+    for (let i = 1; i < changes.length; i++) {
+      const prev = changes[i - 1];
+      const curr = changes[i];
+      if (prev && curr && curr.from !== prev.to) {
+        throw new SessionValidationError(
+          "broken-accomplishment-chain",
+          `Transition ${i} "from" (${curr.from}) does not match previous transition "to" (${prev.to})`,
+          `${path}.accomplishmentChanges[${i}].from`,
+        );
+      }
+    }
+    const lastChange = changes[changes.length - 1];
+    if (lastChange && lastChange.to !== raw.currentAccomplishment) {
+      throw new SessionValidationError(
+        "inconsistent-current-accomplishment",
+        `currentAccomplishment "${raw.currentAccomplishment}" does not match final transition target "${lastChange.to}"`,
+        `${path}.currentAccomplishment`,
+      );
+    }
   }
 
   if (typeof raw.outcomeReached !== "boolean") {
@@ -307,6 +353,30 @@ export function validateSupportLadderUsage(
     }
   }
 
+  // Cross-check rungsUsed and rungOrder consistency
+  const usedSet = new Set(raw.rungsUsed as string[]);
+  const orderSet = new Set(raw.rungOrder as string[]);
+  for (let i = 0; i < raw.rungsUsed.length; i++) {
+    const rung = raw.rungsUsed[i] as string;
+    if (!orderSet.has(rung)) {
+      throw new SessionValidationError(
+        "rung-order-mismatch",
+        `Rung "${rung}" is in rungsUsed but missing from rungOrder`,
+        `${path}.rungOrder`,
+      );
+    }
+  }
+  for (let i = 0; i < raw.rungOrder.length; i++) {
+    const rung = raw.rungOrder[i] as string;
+    if (!usedSet.has(rung)) {
+      throw new SessionValidationError(
+        "rung-order-mismatch",
+        `Rung "${rung}" is in rungOrder but missing from rungsUsed`,
+        `${path}.rungsUsed`,
+      );
+    }
+  }
+
   if (typeof raw.wentStraightToExplanation !== "boolean") {
     throw new SessionValidationError(
       "missing-went-straight",
@@ -315,10 +385,38 @@ export function validateSupportLadderUsage(
     );
   }
 
+  if (raw.wentStraightToExplanation) {
+    if (!(raw.rungsUsed as string[]).includes("explanation")) {
+      throw new SessionValidationError(
+        "went-straight-contradiction",
+        'wentStraightToExplanation is true, but "explanation" is not in rungsUsed',
+        `${path}.rungsUsed`,
+      );
+    }
+    const priorRungs: readonly SupportRung[] = ["workedExample", "partialComparison", "prediction"];
+    for (const prior of priorRungs) {
+      if ((raw.rungsUsed as string[]).includes(prior)) {
+        throw new SessionValidationError(
+          "went-straight-contradiction",
+          `wentStraightToExplanation is true, but prior ladder rung "${prior}" was used`,
+          `${path}.rungsUsed`,
+        );
+      }
+    }
+  }
+
   if (!SUPPORT_RUNGS.includes(raw.stoppedAt as SupportRung)) {
     throw new SessionValidationError(
       "invalid-stopped-at",
       `stoppedAt "${raw.stoppedAt}" must be one of: ${SUPPORT_RUNGS.join(", ")}`,
+      `${path}.stoppedAt`,
+    );
+  }
+
+  if (!(raw.rungsUsed as string[]).includes(raw.stoppedAt as string)) {
+    throw new SessionValidationError(
+      "stopped-at-not-used",
+      `stoppedAt rung "${raw.stoppedAt}" must be included in rungsUsed [${(raw.rungsUsed as string[]).join(", ")}]`,
       `${path}.stoppedAt`,
     );
   }
@@ -368,6 +466,14 @@ export function validateSupportDefaultChange(
     throw new SessionValidationError(
       "invalid-new-default",
       `newDefaultRung "${raw.newDefaultRung}" must be one of: ${SUPPORT_RUNGS.join(", ")}`,
+      `${path}.newDefaultRung`,
+    );
+  }
+
+  if (raw.previousDefaultRung === raw.newDefaultRung) {
+    throw new SessionValidationError(
+      "identical-default-rung",
+      `newDefaultRung "${raw.newDefaultRung}" cannot be identical to previousDefaultRung "${raw.previousDefaultRung}" in a default change record`,
       `${path}.newDefaultRung`,
     );
   }

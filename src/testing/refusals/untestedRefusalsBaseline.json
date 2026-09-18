@@ -1,6 +1,6 @@
 {
   "src/a11y/readingSettings/schema.ts": 5,
-  "src/comprehension/session.ts": 36,
+  "src/comprehension/session.ts": 0,
   "src/content/aliases.ts": 11,
   "src/content/anchors.ts": 7,
   "src/content/checks/epistemic/run.ts": 0,
