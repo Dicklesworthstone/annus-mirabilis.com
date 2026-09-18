@@ -87,9 +87,15 @@ For companion documents (e.g. the 1911 correction to the dissertation), IDs carr
   - Section-qualified label (when printed label is repeated): `#eq-s1-1`, `#eq-s3-1`
   - Unnumbered display equation: `#eq-s3-d4`
 - **Global Record ID:** `eq-<paperCode>-<suffix>` (e.g. `eq-bm-s3-d4`, `eq-lq-7`, `eq-sr-s3-1`)
-- **Equation Terms and Operations:**
-  - Term ID: `<equationRecordId>.t.<name>` (e.g. `eq-sr-s3-1.t.beta`)
-  - Operation ID: `<equationRecordId>.op.<name>` (e.g. `eq-sr-s3-1.op.lorentz-factor`)
+- **Equation Terms, Operations, Alternate Forms, and Qualified IDs:**
+  - Term ID: `<equation>.t.<name>` (e.g. `eq-s3-d4.t.viscosity`, `eq-sr-s3-1.t.beta`, `s3-p2-s1-m1.t.x`)
+  - Operation ID: `<equation>.op.<name>` (e.g. `eq-s3-d4.op.denominator`, `eq-12.op.denominator`, `eq-sr-s3-1.op.lorentzFactor`)
+  - Alternate-Form ID: `<equation>.alt.<name>` (e.g. `eq-s6-d3.alt.si`)
+  - Qualified ID: `<route-slug>/<local-id>` (e.g. `brownian-motion/eq-s3-d4.t.viscosity`)
+  - **Grammar Rules:**
+    - `<equation>` is a displayed equation local ID / anchor (`eq-<printed>`, `eq-s<n>-<printed>`, `eq-s<n>-d<j>`), global record ID (`eq-<paperCode>-<suffix>`), substantive inline math ID (`s<n>-p<m>-s<k>-m<i>`, `s<n>-fn<k>-m<i>`), or model equation ID (`eq-model-<name>`).
+    - `<name>` matches `^[a-z][A-Za-z0-9]{0,47}$`: lower camelCase, ASCII only, 1–48 characters, free of commas, equals signs, dots, and whitespace (ensuring generated KaTeX `\htmlData` markers parse cleanly).
+    - `<route-slug>` must be one of the five canonical route slugs: `light-quanta`, `brownian-motion`, `special-relativity`, `mass-energy`, or `molecular-dimensions`. Short abbreviations like `bm` or `sr` are strictly rejected.
 
 ### 4.2 Printed Label Normalization Table
 Printed labels are normalized to canonical ID tokens using `normalizePrintedLabel`:

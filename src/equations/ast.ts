@@ -256,3 +256,5 @@ export function substitute(
   }
   return parseExpression(visit(root), equationId, registry);
 }
+
+export * from "./monomial.ts";

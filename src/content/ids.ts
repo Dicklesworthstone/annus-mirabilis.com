@@ -584,8 +584,12 @@ export function parseReferenceId(raw: string): ParseResult<ReferenceId> {
 
 export type EquationAnchor = Brand<string, "EquationAnchor">;
 export type EquationRecordId = Brand<string, "EquationRecordId">;
-export type EquationTermId = Brand<string, "EquationTermId">;
-export type EquationOpId = Brand<string, "EquationOpId">;
+export type TermId = Brand<string, "TermId">;
+export type OperationId = Brand<string, "OperationId">;
+export type AlternateFormId = Brand<string, "AlternateFormId">;
+export type QualifiedId = Brand<string, "QualifiedId">;
+export type EquationTermId = TermId;
+export type EquationOpId = OperationId;
 
 /**
  * Normalizes printed equation labels to canonical ID tokens according to §22.5.
@@ -753,7 +757,164 @@ export function allocateEquationIds(
   });
 }
 
+export const SELECTABLE_NAME_PATTERN = /^[a-z][A-Za-z0-9]{0,47}$/;
+
+export function isValidEquationBase(base: string): boolean {
+  return (
+    parseEquationAnchor(base).ok ||
+    parseEquationRecordId(base).ok ||
+    parseInlineMathId(base).ok ||
+    /^eq-model-[a-z0-9-]+$/.test(base)
+  );
+}
+
+export function parseTermId(raw: string): ParseResult<TermId> {
+  if (typeof raw !== "string" || !raw) {
+    return { ok: false, error: "Term ID must be a non-empty string", rule: "term-id-grammar" };
+  }
+  const match = raw.match(/^(.+)\.t\.(.+)$/);
+  if (!match || !match[1] || !match[2]) {
+    return {
+      ok: false,
+      error: `Invalid term ID '${raw}': must match '<equation>.t.<name>'`,
+      rule: "term-id-grammar",
+    };
+  }
+  const eq = match[1];
+  const name = match[2];
+  if (!isValidEquationBase(eq)) {
+    return {
+      ok: false,
+      error: `Invalid term ID '${raw}': '${eq}' is not a valid equation base ID`,
+      rule: "term-id-grammar",
+    };
+  }
+  if (!SELECTABLE_NAME_PATTERN.test(name)) {
+    return {
+      ok: false,
+      error: `Invalid term ID '${raw}': name '${name}' must be lower camelCase ASCII (1–48 chars, no commas, dots, or whitespace)`,
+      rule: "term-id-grammar",
+    };
+  }
+  return { ok: true, value: raw as TermId };
+}
+
+export function parseOperationId(raw: string): ParseResult<OperationId> {
+  if (typeof raw !== "string" || !raw) {
+    return { ok: false, error: "Operation ID must be a non-empty string", rule: "operation-id-grammar" };
+  }
+  const match = raw.match(/^(.+)\.op\.(.+)$/);
+  if (!match || !match[1] || !match[2]) {
+    return {
+      ok: false,
+      error: `Invalid operation ID '${raw}': must match '<equation>.op.<name>'`,
+      rule: "operation-id-grammar",
+    };
+  }
+  const eq = match[1];
+  const name = match[2];
+  if (!isValidEquationBase(eq)) {
+    return {
+      ok: false,
+      error: `Invalid operation ID '${raw}': '${eq}' is not a valid equation base ID`,
+      rule: "operation-id-grammar",
+    };
+  }
+  if (!SELECTABLE_NAME_PATTERN.test(name)) {
+    return {
+      ok: false,
+      error: `Invalid operation ID '${raw}': name '${name}' must be lower camelCase ASCII (1–48 chars, no commas, dots, or whitespace)`,
+      rule: "operation-id-grammar",
+    };
+  }
+  return { ok: true, value: raw as OperationId };
+}
+
+export function parseAlternateFormId(raw: string): ParseResult<AlternateFormId> {
+  if (typeof raw !== "string" || !raw) {
+    return { ok: false, error: "Alternate form ID must be a non-empty string", rule: "alternate-form-id-grammar" };
+  }
+  const match = raw.match(/^(.+)\.alt\.(.+)$/);
+  if (!match || !match[1] || !match[2]) {
+    return {
+      ok: false,
+      error: `Invalid alternate form ID '${raw}': must match '<equation>.alt.<name>'`,
+      rule: "alternate-form-id-grammar",
+    };
+  }
+  const eq = match[1];
+  const name = match[2];
+  if (!isValidEquationBase(eq)) {
+    return {
+      ok: false,
+      error: `Invalid alternate form ID '${raw}': '${eq}' is not a valid equation base ID`,
+      rule: "alternate-form-id-grammar",
+    };
+  }
+  if (!SELECTABLE_NAME_PATTERN.test(name)) {
+    return {
+      ok: false,
+      error: `Invalid alternate form ID '${raw}': name '${name}' must be lower camelCase ASCII (1–48 chars)`,
+      rule: "alternate-form-id-grammar",
+    };
+  }
+  return { ok: true, value: raw as AlternateFormId };
+}
+
+export function parseQualifiedId(raw: string): ParseResult<QualifiedId> {
+  if (typeof raw !== "string" || !raw) {
+    return { ok: false, error: "Qualified ID must be a non-empty string", rule: "qualified-id-grammar" };
+  }
+  const slashIdx = raw.indexOf("/");
+  if (slashIdx === -1) {
+    return {
+      ok: false,
+      error: `Invalid qualified ID '${raw}': must match '<route-slug>/<local-id>'`,
+      rule: "qualified-id-grammar",
+    };
+  }
+  const slug = raw.slice(0, slashIdx);
+  const local = raw.slice(slashIdx + 1);
+  const slugRes = parseRouteSlug(slug);
+  if (!slugRes.ok) {
+    return {
+      ok: false,
+      error: `Invalid qualified ID '${raw}': unknown route slug '${slug}'. Must be one of ${ROUTE_SLUGS.join(", ")}`,
+      rule: "qualified-id-grammar",
+    };
+  }
+  const validLocal =
+    parseTermId(local).ok ||
+    parseOperationId(local).ok ||
+    parseAlternateFormId(local).ok ||
+    isValidEquationBase(local);
+
+  if (!validLocal) {
+    return {
+      ok: false,
+      error: `Invalid qualified ID '${raw}': '${local}' is not a valid local ID`,
+      rule: "qualified-id-grammar",
+    };
+  }
+  return { ok: true, value: raw as QualifiedId };
+}
+
+export function parseSelectableEquationId(
+  raw: string,
+): ParseResult<TermId | OperationId | AlternateFormId> {
+  if (raw.includes(".t.")) return parseTermId(raw);
+  if (raw.includes(".op.")) return parseOperationId(raw);
+  if (raw.includes(".alt.")) return parseAlternateFormId(raw);
+  return {
+    ok: false,
+    error: `Invalid selectable equation ID '${raw}': must contain '.t.', '.op.', or '.alt.'`,
+    rule: "selectable-equation-id-grammar",
+  };
+}
+
 export function parseEquationTermId(raw: string): ParseResult<EquationTermId> {
+  const strict = parseTermId(raw);
+  if (strict.ok) return strict;
   const match = raw.match(/^(.+)\.t\.([a-zA-Z0-9_-]+)$/);
   if (match?.[1] && parseEquationRecordId(match[1]).ok) {
     return { ok: true, value: raw as EquationTermId };
@@ -766,6 +927,8 @@ export function parseEquationTermId(raw: string): ParseResult<EquationTermId> {
 }
 
 export function parseEquationOpId(raw: string): ParseResult<EquationOpId> {
+  const strict = parseOperationId(raw);
+  if (strict.ok) return strict;
   const match = raw.match(/^(.+)\.op\.([a-zA-Z0-9_-]+)$/);
   if (match?.[1] && parseEquationRecordId(match[1]).ok) {
     return { ok: true, value: raw as EquationOpId };
