@@ -216,7 +216,7 @@ export function usePinnedPdfFacsimile({
         canvas.height = Math.max(1, Math.floor(renderViewport.height));
         canvas.style.width = `${Math.max(1, Math.floor(cssViewport.width))}px`;
         canvas.style.height = `${Math.max(1, Math.floor(cssViewport.height))}px`;
-        context.fillStyle = "#ffffff";
+        context.fillStyle = "rgb(255, 255, 255)";
         context.fillRect(0, 0, canvas.width, canvas.height);
 
         task = page.render({

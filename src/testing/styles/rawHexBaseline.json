@@ -28,7 +28,7 @@
   "src/equations/genealogy/layoutLayers.ts": 0,
   "src/experiments/interactions/partition/PartitionControl.tsx": 0,
   "src/reader/entrances/BrownianFirstEncounter.tsx": 0,
-  "src/reader/facsimile/usePinnedPdfFacsimile.ts": 1,
+  "src/reader/facsimile/usePinnedPdfFacsimile.ts": 0,
   "src/visuals/kit/FalseColorLegend.tsx": 0,
   "src/visuals/kit/TrajectoryLayer.tsx": 0,
   "src/visuals/overlays/DatasetOverlay.tsx": 0,
