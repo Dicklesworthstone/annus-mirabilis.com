@@ -15,19 +15,76 @@ export function Fork({ fork }: ForkProps) {
       data-fork-id={id}
       data-after-stage-id={afterStageId}
       data-varies={varies}
-      className="fork my-8 p-6 rounded-xl border border-stone-700 bg-stone-900/60 text-stone-200 space-y-6"
+      style={{
+        margin: "2rem 0",
+        padding: "1.5rem",
+        borderRadius: "0.75rem",
+        border: "1px solid var(--line)",
+        background: "var(--wash)",
+        color: "var(--ink)",
+        display: "flex",
+        flexDirection: "column",
+        gap: "1.5rem",
+      }}
     >
-      <header className="space-y-2 border-b border-stone-800 pb-4">
-        <div className="flex items-center gap-2">
-          <span className="text-xs font-mono uppercase tracking-wider text-amber-400 bg-amber-950/60 px-2 py-0.5 rounded border border-amber-800/40">
+      <header
+        style={{
+          display: "flex",
+          flexDirection: "column",
+          gap: "0.5rem",
+          borderBottom: "1px solid var(--line)",
+          paddingBottom: "1rem",
+        }}
+      >
+        <div style={{ display: "flex", alignItems: "center", gap: "0.5rem" }}>
+          <span
+            className="badge"
+            style={{
+              fontSize: "0.75rem",
+              fontFamily: "var(--font-mono, monospace)",
+              textTransform: "uppercase",
+              letterSpacing: "0.05em",
+              color: "var(--accent)",
+              background: "var(--panel)",
+              padding: "0.125rem 0.5rem",
+              borderRadius: "0.25rem",
+              border: "1px solid var(--accent)",
+              fontWeight: 600,
+            }}
+          >
             Historical Fork · {varies}
           </span>
         </div>
-        <h3 className="text-xl font-serif font-bold text-stone-100">{question}</h3>
-        <p className="text-xs text-stone-400 italic">{variesExplanation}</p>
+        <h3
+          style={{
+            fontSize: "1.25rem",
+            fontFamily: "var(--font-serif)",
+            fontWeight: "bold",
+            color: "var(--ink)",
+            margin: 0,
+          }}
+        >
+          {question}
+        </h3>
+        <p
+          style={{
+            fontSize: "0.75rem",
+            color: "var(--muted)",
+            fontStyle: "italic",
+            margin: 0,
+          }}
+        >
+          {variesExplanation}
+        </p>
       </header>
 
-      <div className="branches-grid grid grid-cols-1 md:grid-cols-2 gap-4">
+      <div
+        style={{
+          display: "grid",
+          gridTemplateColumns: "repeat(auto-fit, minmax(18rem, 1fr))",
+          gap: "1rem",
+        }}
+      >
         {branches.map((branch) => (
           <Branch key={branch.id} branch={branch} variesKind={varies} />
         ))}
