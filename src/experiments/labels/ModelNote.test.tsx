@@ -1,7 +1,14 @@
-import { afterAll, describe, expect, test } from "bun:test";
-import { createElement } from "react";
+import { afterAll, afterEach, beforeEach, describe, expect, test } from "bun:test";
+import { act, createElement } from "react";
+import { createRoot } from "react-dom/client";
 import { renderToStaticMarkup } from "react-dom/server";
 import { getLogger } from "../../testing/log/logger.ts";
+import {
+  createContainer,
+  installDom,
+  removeContainer,
+  uninstallDom,
+} from "../../testing/reactDom.ts";
 import { createInstanceStore } from "../store/instanceStore.ts";
 import { ModelNote } from "./ModelNote.tsx";
 import { type ModelNoteData, modelNoteFromView } from "./modelNoteData.ts";
@@ -142,6 +149,68 @@ describe("ModelNote", () => {
     const html = renderToStaticMarkup(createElement(ModelNote, { data: note }));
     expect(html).toContain("18446744073709551615");
     expect(html).toContain("diffusion.ftcs1d");
+  });
+
+  describe("keyboard and screen reader accessibility in DOM (AC 9)", () => {
+    beforeEach(async () => {
+      await installDom();
+    });
+    afterEach(async () => {
+      await uninstallDom();
+    });
+
+    test("keyboard-operable disclosure via details/summary toggles and exposes all contents", async () => {
+      const container = createContainer();
+      const root = createRoot(container);
+      try {
+        await act(() => {
+          root.render(createElement(ModelNote, { data: composite }));
+        });
+        const details = container.querySelector("details.model-note") as HTMLDetailsElement | null;
+        if (!details) throw new Error("expected details.model-note in DOM");
+        const summary = details.querySelector("summary");
+        if (!summary) throw new Error("expected summary element in details");
+        expect(summary.textContent).toBe("Model note");
+
+        // Initially closed
+        expect(details.open).toBe(false);
+
+        // Keyboard / click activation on summary toggles disclosure
+        await act(() => {
+          summary.dispatchEvent(new MouseEvent("click", { bubbles: true, cancelable: true }));
+        });
+        expect(details.open).toBe(true);
+
+        // Contents are accessible and structured with readable text
+        const list = details.querySelector("ul.model-note-list");
+        expect(list).not.toBeNull();
+        expect(list?.querySelectorAll("li").length).toBeGreaterThanOrEqual(10);
+        expect(details.textContent).toContain("Primary output tracerPositions");
+        expect(details.textContent).toContain("Computed with FrankenSim");
+        expect(details.textContent).toContain("Secondary output sampleMeanSquare");
+        expect(details.textContent).toContain("Host reduction");
+        expect(details.textContent).toContain("18446744073709551615");
+        expect(details.textContent).toContain("Show the code");
+
+        // Toggling again collapses it
+        await act(() => {
+          summary.dispatchEvent(new MouseEvent("click", { bubbles: true, cancelable: true }));
+        });
+        expect(details.open).toBe(false);
+
+        logger.log({
+          testId: "model-note-keyboard-disclosure-dom",
+          beadId: BEAD,
+          outcome: "passed",
+          message: "ModelNote details/summary disclosure verified in DOM with keyboard toggle",
+        });
+      } finally {
+        await act(() => {
+          root.unmount();
+        });
+        removeContainer(container);
+      }
+    });
   });
 });
 
