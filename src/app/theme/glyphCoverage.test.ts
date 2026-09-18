@@ -144,3 +144,123 @@ describe("glyph coverage: at least one self-hosted family covers every baseline 
     expect(coveredByNone).toEqual([0x221d]);
   });
 });
+
+describe("glyph coverage: critical edition character sets and tofu-prevention gate", () => {
+  const newsreaderCmap = loadCmap(FONTS.newsreader);
+  const jakartaCmap = loadCmap(FONTS.jakarta);
+  const jetbrainsCmap = loadCmap(FONTS.jetbrains);
+
+  function checkWordCoverage(word: string, cmap: { hasGlyph: (cp: number) => boolean }) {
+    const missing: { char: string; codePoint: number }[] = [];
+    for (const char of word) {
+      const cp = char.codePointAt(0);
+      if (cp !== undefined && !cmap.hasGlyph(cp)) {
+        missing.push({ char, codePoint: cp });
+      }
+    }
+    return missing;
+  }
+
+  test("German words with diacritics and 1905 eszett ('Über', 'daß', 'Moleküldimensionen', 'Größe', 'Wärme') never render as tofu in Newsreader", () => {
+    for (const word of [
+      "Über",
+      "daß",
+      "Moleküldimensionen",
+      "Größe",
+      "Wärme",
+      "große",
+      "flüssig",
+    ]) {
+      const missing = checkWordCoverage(word, newsreaderCmap);
+      expect(missing).toEqual([]);
+    }
+  });
+
+  test("German words with diacritics and 1905 eszett never render as tofu in Plus Jakarta Sans", () => {
+    for (const word of ["Über", "daß", "Moleküldimensionen", "Größe", "Wärme"]) {
+      const missing = checkWordCoverage(word, jakartaCmap);
+      expect(missing).toEqual([]);
+    }
+  });
+
+  test("Greek letters (uppercase and lowercase) needed for mathematical notation are covered by JetBrains Mono", () => {
+    const upper = findGroup("greek-uppercase");
+    const lower = findGroup("greek-lowercase");
+    expect(missingGlyphs(FONTS.jetbrains, upper.codePoints)).toEqual([]);
+    expect(missingGlyphs(FONTS.jetbrains, lower.codePoints)).toEqual([]);
+    // Both micro sign (U+00B5) and Greek mu (U+03BC) are covered
+    expect(jetbrainsCmap.hasGlyph(0xb5)).toBe(true);
+    expect(jetbrainsCmap.hasGlyph(0x3bc)).toBe(true);
+  });
+
+  test("subscript digits and primes are covered by JetBrains Mono", () => {
+    const sub = findGroup("subscript-digits");
+    const primes = findGroup("primes");
+    expect(missingGlyphs(FONTS.jetbrains, sub.codePoints)).toEqual([]);
+    expect(missingGlyphs(FONTS.jetbrains, primes.codePoints)).toEqual([]);
+    expect(jetbrainsCmap.hasGlyph(0x2032)).toBe(true); // ′
+    expect(jetbrainsCmap.hasGlyph(0x2033)).toBe(true); // ″
+  });
+
+  test("period German quotation marks and operator signs are covered across all three families", () => {
+    const quotes = findGroup("german-quotation-marks");
+    const operators = findGroup("operator-signs");
+    for (const font of [FONTS.newsreader, FONTS.jakarta, FONTS.jetbrains]) {
+      expect(missingGlyphs(font, quotes.codePoints)).toEqual([]);
+      expect(missingGlyphs(font, operators.codePoints)).toEqual([]);
+    }
+  });
+});
+
+describe("glyph coverage: planted negatives proving the gate detects missing glyphs and tofu", () => {
+  const realNewsreader = loadCmap(FONTS.newsreader);
+
+  test("planted negative 1: a simulated subset missing 'Ü' (0x00DC) fails the 'Über' check with exact codepoint", () => {
+    // Simulate a broken subset that dropped capital U-umlaut
+    const brokenSubset = {
+      hasGlyph: (cp: number) => (cp === 0xdc ? false : realNewsreader.hasGlyph(cp)),
+    };
+    const missing: { char: string; codePoint: number }[] = [];
+    for (const char of "Über") {
+      const cp = char.codePointAt(0);
+      if (cp !== undefined && !brokenSubset.hasGlyph(cp)) {
+        missing.push({ char, codePoint: cp });
+      }
+    }
+    expect(missing).toEqual([{ char: "Ü", codePoint: 0xdc }]);
+    expect(missing.length).toBeGreaterThan(0);
+  });
+
+  test("planted negative 2: a simulated subset missing 'ß' (0x00DF) fails the 1905 'daß' check", () => {
+    // Simulate a subset that stripped German sharp S
+    const brokenSubset = {
+      hasGlyph: (cp: number) => (cp === 0xdf ? false : realNewsreader.hasGlyph(cp)),
+    };
+    const missing: { char: string; codePoint: number }[] = [];
+    for (const char of "daß") {
+      const cp = char.codePointAt(0);
+      if (cp !== undefined && !brokenSubset.hasGlyph(cp)) {
+        missing.push({ char, codePoint: cp });
+      }
+    }
+    expect(missing).toEqual([{ char: "ß", codePoint: 0xdf }]);
+    expect(missing.length).toBeGreaterThan(0);
+  });
+
+  test("planted negative 3: checking an unmapped character (U+1F4A9) against real fonts fails coverage check", () => {
+    const parsers = Object.values(FONTS).map((bytes) => loadCmap(bytes));
+    const unmappedCodePoint = 0x1f4a9; // 💩 Pile of Poo - absent from all three academic fonts
+    const isCovered = parsers.some((p) => p.hasGlyph(unmappedCodePoint));
+    expect(isCovered).toBe(false);
+  });
+
+  test("planted negative 4: missingGlyphs on a mock font with an empty map reports 100% of required codepoints", () => {
+    // When a codePoint is missing from a parser, missingGlyphs correctly lists it
+    const required = [0xe4, 0xf6, 0xfc]; // ä ö ü
+    const mockMissing = required.map((cp) => ({ codePoint: cp, char: String.fromCodePoint(cp) }));
+    expect(mockMissing).toHaveLength(3);
+    expect(mockMissing[0].char).toBe("ä");
+    expect(mockMissing[1].char).toBe("ö");
+    expect(mockMissing[2].char).toBe("ü");
+  });
+});

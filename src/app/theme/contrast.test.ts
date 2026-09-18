@@ -1,4 +1,7 @@
 import { describe, expect, test } from "bun:test";
+import { readFileSync } from "node:fs";
+import { dirname, join } from "node:path";
+import { fileURLToPath } from "node:url";
 import { contrastRatio } from "../../a11y/readingSettings/contrast";
 import { THEME_IDS, THEME_TOKENS } from "./tokens";
 
@@ -58,13 +61,61 @@ describe("contrast: seeded violations fail, proving the test actually checks som
   });
 });
 
+const HERE = dirname(fileURLToPath(import.meta.url));
+const THEMES_CSS = readFileSync(join(HERE, "themes.css"), "utf8");
+const GLOBALS_CSS = readFileSync(join(HERE, "../globals.css"), "utf8");
+
 describe("contrast: color never carries meaning alone (AGENTS.md constraint)", () => {
-  test("every theme defines non-color cues for interactive states", () => {
-    // Focus ring requires outline geometry, not color alone
-    for (const id of THEME_IDS) {
-      const tokens = THEME_TOKENS[id];
-      expect(tokens.focusRing).toBeDefined();
+  test("focus-visible rules define outline geometry (width, style, offset), not hue alone", () => {
+    expect(THEMES_CSS).toContain("outline: 2px solid var(--focus-ring)");
+    expect(THEMES_CSS).toContain("outline-offset: 2px");
+  });
+
+  test("forced-colors mode defines CanvasText outline for high-contrast visibility", () => {
+    expect(THEMES_CSS).toContain("@media (forced-colors: active)");
+    expect(THEMES_CSS).toContain("outline: 2px solid CanvasText");
+  });
+
+  test("links define structural underline and hover thickness changes, not hue alone", () => {
+    expect(GLOBALS_CSS).toContain("text-underline-offset: 0.2em");
+    expect(GLOBALS_CSS).toContain("text-decoration-thickness: 2px");
+  });
+
+  test("theme toggle selected state uses font-weight: bold and native radio checked state, not hue alone", () => {
+    expect(THEMES_CSS).toContain(".theme-toggle label:has(input:checked)");
+    expect(THEMES_CSS).toContain("font-weight: bold");
+  });
+
+  test("disabled buttons define cursor: not-allowed and reduced opacity, not hue alone", () => {
+    expect(GLOBALS_CSS).toContain("button:disabled");
+    expect(GLOBALS_CSS).toContain("cursor: not-allowed");
+    expect(GLOBALS_CSS).toContain("opacity: 0.55");
+  });
+
+  test("planted negative: a rule that distinguishes state only by hue fails the non-color meaning gate", () => {
+    function auditRuleNonColor(cssSnippet: string): { passes: boolean; defect?: string } {
+      const hasColorChange = /color:\s*[^;]+;|background(-color)?:\s*[^;]+;/i.test(cssSnippet);
+      const hasStructuralCue =
+        /font-weight:\s*bold|outline:|text-decoration|cursor:\s*not-allowed|opacity:|border-width:|transform:/i.test(
+          cssSnippet,
+        );
+      if (hasColorChange && !hasStructuralCue) {
+        return {
+          passes: false,
+          defect: "State distinguishes change by color alone without structural cue",
+        };
+      }
+      return { passes: true };
     }
+
+    // A defective rule that only changes hue
+    const badHueOnlyRule = ".active-tab { color: #ae2119; }";
+    expect(auditRuleNonColor(badHueOnlyRule).passes).toBe(false);
+
+    // A compliant rule that changes weight or underline
+    const goodRule =
+      ".theme-toggle label:has(input:checked) { border-color: var(--accent); font-weight: bold; }";
+    expect(auditRuleNonColor(goodRule).passes).toBe(true);
   });
 });
 

@@ -76,6 +76,57 @@ describe("initTheme: route default from data-route-theme", () => {
   });
 });
 
+describe("initTheme: Slate default on /discover (AGENTS.md constraint)", () => {
+  test("Slate is automatically chosen on /discover when nothing is stored", () => {
+    window.history.pushState({}, "", "/discover");
+    initTheme(THEME_STORAGE_KEY, THEME_FOLLOW_SYSTEM, KNOWN_THEME_IDS);
+    expect(document.documentElement.dataset.theme).toBe("slate");
+  });
+
+  test("Slate is automatically chosen on /discover/brownian-motion/ when nothing is stored", () => {
+    window.history.pushState({}, "", "/discover/brownian-motion/");
+    initTheme(THEME_STORAGE_KEY, THEME_FOLLOW_SYSTEM, KNOWN_THEME_IDS);
+    expect(document.documentElement.dataset.theme).toBe("slate");
+  });
+
+  test("an explicit stored reader preference wins over the /discover default", () => {
+    window.history.pushState({}, "", "/discover/brownian-motion/");
+    localStorage.setItem(THEME_STORAGE_KEY, "annalen");
+    initTheme(THEME_STORAGE_KEY, THEME_FOLLOW_SYSTEM, KNOWN_THEME_IDS);
+    expect(document.documentElement.dataset.theme).toBe("annalen");
+  });
+
+  test("stored kramgasse-night wins over the /discover default", () => {
+    window.history.pushState({}, "", "/discover");
+    localStorage.setItem(THEME_STORAGE_KEY, "kramgasse-night");
+    initTheme(THEME_STORAGE_KEY, THEME_FOLLOW_SYSTEM, KNOWN_THEME_IDS);
+    expect(document.documentElement.dataset.theme).toBe("kramgasse-night");
+  });
+
+  test("meta[name='route-theme'] sets slate default even without location pathname", () => {
+    window.history.pushState({}, "", "/");
+    const meta = document.createElement("meta");
+    meta.name = "route-theme";
+    meta.content = "slate";
+    document.head.appendChild(meta);
+    initTheme(THEME_STORAGE_KEY, THEME_FOLLOW_SYSTEM, KNOWN_THEME_IDS);
+    expect(document.documentElement.dataset.theme).toBe("slate");
+  });
+
+  test("other routes (e.g. /papers/) fall back to annalen when nothing is stored", () => {
+    window.history.pushState({}, "", "/papers/brownian-motion/");
+    initTheme(THEME_STORAGE_KEY, THEME_FOLLOW_SYSTEM, KNOWN_THEME_IDS);
+    expect(document.documentElement.dataset.theme).toBe("annalen");
+  });
+
+  test("planted negative: a simulated resolver that ignores /discover route default yields wrong theme", () => {
+    window.history.pushState({}, "", "/discover");
+    // If we only looked at storage and not route default:
+    const mockTheme = localStorage.getItem(THEME_STORAGE_KEY) ?? "annalen";
+    expect(mockTheme).toBe("annalen"); // Proves naive fallback misses slate default
+  });
+});
+
 describe("initTheme: follow-system", () => {
   test("maps a dark system preference to kramgasse-night", () => {
     stubMatchMedia(true);

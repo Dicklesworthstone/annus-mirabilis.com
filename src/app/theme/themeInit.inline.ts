@@ -50,7 +50,20 @@ export function initTheme(
       resolved = stored;
     }
     if (resolved === undefined) {
-      const routeDefault = document.documentElement.getAttribute("data-route-theme");
+      let routeDefault = document.documentElement.getAttribute("data-route-theme");
+      if (!routeDefault && typeof document !== "undefined") {
+        const meta = document.querySelector('meta[name="route-theme"]');
+        if (meta) {
+          routeDefault = meta.getAttribute("content");
+        }
+      }
+      if (
+        !routeDefault &&
+        typeof location !== "undefined" &&
+        (location.pathname === "/discover" || location.pathname.startsWith("/discover/"))
+      ) {
+        routeDefault = "slate";
+      }
       resolved =
         routeDefault !== null && knownThemeIds.indexOf(routeDefault) !== -1
           ? routeDefault
