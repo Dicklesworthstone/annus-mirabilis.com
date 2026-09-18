@@ -1,6 +1,7 @@
 import assert from "node:assert/strict";
 import { mkdir, readFile, writeFile } from "node:fs/promises";
 import { resolve } from "node:path";
+import { test } from "node:test";
 import { pathToFileURL } from "node:url";
 import AxeBuilder from "@axe-core/playwright";
 import { chromium } from "playwright";
@@ -27,19 +28,22 @@ const output = resolve(
 );
 await mkdir(output, { recursive: true });
 const checks = [];
+
 const browser = await chromium.launch(
   process.env.PLAYWRIGHT_CHROMIUM_EXECUTABLE_PATH
     ? { executablePath: process.env.PLAYWRIGHT_CHROMIUM_EXECUTABLE_PATH }
     : {},
 );
 async function check(name, operation) {
-  try {
-    await operation();
-    checks.push({ name, passed: true });
-  } catch (error) {
-    checks.push({ name, passed: false, message: String(error) });
-    throw error;
-  }
+  await test(name, async () => {
+    try {
+      await operation();
+      checks.push({ name, passed: true });
+    } catch (error) {
+      checks.push({ name, passed: false, message: String(error) });
+      throw error;
+    }
+  });
 }
 try {
   for (const javaScriptEnabled of [true, false]) {

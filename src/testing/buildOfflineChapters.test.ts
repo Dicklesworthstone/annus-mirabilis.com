@@ -1,10 +1,13 @@
+import { createHash } from "node:crypto";
 import { describe, expect, test } from "bun:test";
+import { INLINE_SCRIPT_REGISTRY } from "../app/inline-scripts/registry.ts";
 import {
   collectChapterFoundations,
   type OfflineChapterInput,
   packageOfflineChapter,
 } from "../platform/offline/chapter.ts";
 import { chapterFixture } from "../platform/offline/chapter.test.mjs";
+import { OFFLINE_DETAIL_SOURCE } from "../platform/offline/detail.inline.ts";
 
 function mockRenderMath(latex: string): string {
   return `<span class="katex"><math xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><mi>${latex}</mi></mrow></semantics></math></span>`;
@@ -142,5 +145,60 @@ describe("buildOfflineChapters: packaging, inlining, and reproducibility", () =>
     expect(pkg.html).toContain('data:image/png;base64,AQIDBA==');
     expect(pkg.html).toContain('class="cited-asset"');
     expect(pkg.html).toContain("Excluded from offline edition; rights designation: reference-only.");
+  });
+
+  test("AC4: inline script hash matches registry entry and CSP meta tag authorizes it", () => {
+    const fixture = fixtureInput();
+    const pkg = packageOfflineChapter(fixture, mockRenderMath);
+
+    const registryEntry = INLINE_SCRIPT_REGISTRY.find((s) => s.id === "offline-detail");
+    expect(registryEntry).toBeDefined();
+    expect(registryEntry?.source).toBe(OFFLINE_DETAIL_SOURCE);
+
+    const expectedHash = createHash("sha256").update(OFFLINE_DETAIL_SOURCE, "utf8").digest("base64");
+    expect(pkg.scriptHash).toBe(expectedHash);
+    expect(pkg.html).toContain(`script-src &#39;sha256-${expectedHash}&#39;`);
+    expect(pkg.html).toContain(`<script>${OFFLINE_DETAIL_SOURCE}</script>`);
+
+    // Strict CSP sandbox directives
+    expect(pkg.html).toContain("default-src &#39;none&#39;");
+    expect(pkg.html).toContain("connect-src &#39;none&#39;");
+    expect(pkg.html).toContain("base-uri &#39;none&#39;");
+    expect(pkg.html).toContain("form-action &#39;none&#39;");
+  });
+
+  test("AC2: cold offline chapter is completely self-contained with no external resource requests", () => {
+    const fixture = fixtureInput();
+    const pkg = packageOfflineChapter(fixture, mockRenderMath);
+
+    // No external scripts or styles
+    expect(pkg.html).not.toMatch(/<script[^>]+src=/i);
+    expect(pkg.html).not.toMatch(/<link[^>]+(?:stylesheet|preload)/i);
+    expect(pkg.html).not.toMatch(/<img[^>]+src=["'](?!data:)[^"']+["']/i);
+
+    // Only one authorized inline script
+    expect(pkg.html.match(/<script[\s>]/g)?.length).toBe(1);
+
+    // Network connection blocking
+    expect(pkg.html).toContain("connect-src &#39;none&#39;");
+  });
+
+  test("AC8: generated chapter passes accessibility contract and includes print emulation styles", () => {
+    const fixture = fixtureInput();
+    const pkg = packageOfflineChapter(fixture, mockRenderMath);
+
+    // Accessibility landmarks and attributes
+    expect(pkg.html).toContain("<header data-print-header>");
+    expect(pkg.html).toContain("<main>");
+    expect(pkg.html).toContain("<footer data-print-footer>");
+    expect(pkg.html).toContain('lang="en"');
+    expect(pkg.html).toContain('lang="de"');
+    expect(pkg.html).toContain('role="region"');
+    expect(pkg.html).toContain('tabindex="0"');
+
+    // Print media styling inlined
+    expect(pkg.html).toContain("@media print");
+    expect(pkg.html).toContain("[data-screen-only]");
+    expect(pkg.html).toContain(".katex-html { display: block !important; }");
   });
 });
