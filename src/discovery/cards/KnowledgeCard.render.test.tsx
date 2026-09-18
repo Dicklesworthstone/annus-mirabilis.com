@@ -83,6 +83,63 @@ describe("am-disc-knowledge-cards-iw8j: KnowledgeCard and CardDetail rendering",
     });
   });
 
+  test("AC 2: status and import labels are distinguishable without color (tested by text content and by a grayscale snapshot)", () => {
+    const start = Date.now();
+    const states = [
+      { key: "available", label: <StatusLabel status="available" /> },
+      { key: "parallel-work", label: <StatusLabel status="parallel-work" /> },
+      { key: "later", label: <StatusLabel status="later" /> },
+      { key: "admitted-import", label: <StatusLabel status="available" admittedImport={true} /> },
+    ];
+
+    // Function simulating pure non-color / grayscale projection by stripping color-related Tailwind classes
+    const toGrayscaleSnapshot = (
+      html: string,
+    ): { text: string; svgPaths: string[]; status: string } => {
+      const textMatch = html.match(/<span>([^<]+)<\/span>/);
+      const text = textMatch ? (textMatch[1] ?? "") : "";
+      const statusMatch = html.match(/data-status="([^"]+)"/);
+      const status = statusMatch ? (statusMatch[1] ?? "") : "";
+      const svgPaths = [...html.matchAll(/<path\s+d="([^"]+)"/g)].map((m) => m[1] ?? "");
+      return { text, svgPaths, status };
+    };
+
+    const snapshots = states.map((s) => ({
+      key: s.key,
+      ...toGrayscaleSnapshot(renderToStaticMarkup(s.label)),
+    }));
+
+    // Assert that every state has unique text
+    const textSet = new Set(snapshots.map((s) => s.text));
+    expect(textSet.size).toBe(4);
+
+    // Assert that every state has unique SVG path geometric commands
+    const pathSignatures = snapshots.map((s) => s.svgPaths.join(";"));
+    const pathSet = new Set(pathSignatures);
+    expect(pathSet.size).toBe(4);
+
+    // Verify exact expected non-color contents
+    expect(snapshots[0]?.text).toBe("Available by the end of 1904");
+    expect(snapshots[0]?.svgPaths[0]).toBe("M5.5 8l2 2 3.5-3.5");
+
+    expect(snapshots[1]?.text).toBe("Parallel work: not available to a 1904 reader");
+    expect(snapshots[1]?.svgPaths[0]).toBe("M3 5h10M3 11h10M6 2v6M10 8v6");
+
+    expect(snapshots[2]?.text).toBe("Later confirmation");
+    expect(snapshots[2]?.svgPaths[0]).toBe("M8 5v3l2.5 1.5");
+
+    expect(snapshots[3]?.text).toBe("Admitted 1905 import");
+    expect(snapshots[3]?.svgPaths[0]).toBe("M8 2v8M4 6l4 4 4-4M2 14h12");
+
+    globalKnowledgeCardsLogger.log({
+      testId: "ac2-grayscale-and-non-color-differentiation",
+      outcome: "pass",
+      durationMs: Date.now() - start,
+      message:
+        "All 4 status labels verified completely distinguishable without color via text and geometric SVG paths.",
+    });
+  });
+
   test("compact date lines format accurately at day, month, year, and range precision", () => {
     const start = Date.now();
     // Day
