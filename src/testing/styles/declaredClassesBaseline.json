@@ -91,7 +91,7 @@
   "src/equations/legacy/ColorizedEquation.tsx": 380,
   "src/equations/render/LatexRenderer.tsx": 17,
   "src/experiments/controls/ControlsPanel.tsx": 10,
-  "src/experiments/controls/ParameterControl.tsx": 45,
+  "src/experiments/controls/ParameterControl.tsx": 0,
   "src/experiments/interactions/boundary/BoundaryChannelSelector.tsx": 0,
   "src/experiments/interactions/coefficient/CoefficientEditor.tsx": 0,
   "src/experiments/interactions/event/EventSelector.tsx": 0,

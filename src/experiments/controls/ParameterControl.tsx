@@ -22,6 +22,7 @@ import {
 } from "./parse.ts";
 import { generateSeed } from "./seed.ts";
 import type { ParameterControlProps } from "./types.ts";
+import "./controls.css";
 
 export function ParameterControl({
   spec,
