@@ -8,6 +8,7 @@ import {
 } from "../experiments/bm07/kitchen/analyze.ts";
 import { parseKitchenCsv } from "../experiments/bm07/kitchen/csv.ts";
 import { decodeResultBatch } from "../experiments/results/codec.ts";
+import { RESERVED_SET_IDS } from "../physics/reference/constants.ts";
 import { kitchenFixture } from "./kitchen/fixture.mjs";
 
 const doc = (patch = {}) => parseKitchenCsv(kitchenFixture(patch));
@@ -151,7 +152,25 @@ test("changing independent radius or constant interpretation cannot alter observ
   );
 });
 test("unsupported historical sets and omitted physical conditions never fabricate a molecular number", () => {
-  const historical = a(
+  // A reserved set id names printed constants that have NOT been transcribed
+  // and checked against a facsimile. Such a set must never reach the analysis
+  // at all: the document schema refuses it at parse time with a typed error,
+  // so there is no path on which an unverified 1905 constant could stand
+  // behind a molecular number. This is the guard that fails if someone widens
+  // the allowlist ahead of the transcription work.
+  const reserved = Object.keys(RESERVED_SET_IDS);
+  assert.ok(reserved.length > 0);
+  for (const constant_set_id of reserved) {
+    assert.throws(
+      () => doc({ metadata: { constant_set_id } }),
+      (e) => e.field === "constant_set_id" && !new RegExp(constant_set_id).test(e.message),
+      `${constant_set_id} must be refused by the document schema, not offered as a choice`,
+    );
+  }
+  // The one printed set that HAS been transcribed and checked does resolve -
+  // but on synthetic fixture data the number is labelled a recovery of the
+  // planted truth, never a historical measurement of Avogadro's number.
+  const verified = a(
     doc({
       metadata: {
         radius_um: ".5",
@@ -160,9 +179,10 @@ test("unsupported historical sets and omitted physical conditions never fabricat
       },
     }),
   );
-  assert.equal(historical.numberMeaning, "unavailable");
-  assert.notEqual(out(historical, "molecularNumber").status, "value");
-  assert.equal(out(historical, "diffusionInterval").status, "value");
+  assert.equal(verified.numberMeaning, "synthetic-recovery");
+  assert.equal(verified.constantSetId, "einstein-1905-brownian-printed");
+  assert.notEqual(verified.gasConstantProvenance, "unavailable");
+  assert.equal(out(verified, "diffusionInterval").status, "value");
   for (const key of ["temperature_k", "viscosity_mpa_s"]) {
     const r = a(
       doc({ metadata: { [key]: "", radius_um: ".5", radius_provenance: "independent" } }),

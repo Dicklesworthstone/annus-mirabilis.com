@@ -368,7 +368,7 @@ entries:
     paper: brownian-motion
     scope: ["bm-s2"]
     glyph:
-      unicode: "Ē"
+      unicode: "Ē"
       latex: "\\bar{E}"
       variant: plain
     meaning: "Mean thermodynamic energy of the system"
