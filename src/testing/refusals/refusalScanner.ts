@@ -270,8 +270,8 @@ export function analyzeUntestedRefusals(rootDir: string): FullRefusalScanResult 
       }
     }
 
-    // Check for explicit site citations like (authored.ts:90) or (verifyChain.ts:88)
-    const siteCiteMatches = content.matchAll(/\(([a-zA-Z0-9_-]+\.ts):(\d+)\)/g);
+    // Check for explicit site citations like (authored.ts:90), (verifyChain.ts:88), or (passageActions.schema.ts:60)
+    const siteCiteMatches = content.matchAll(/\(([a-zA-Z0-9_.-]+\.ts):(\d+)\)/g);
     for (const scm of siteCiteMatches) {
       const citedBase = scm[1];
       const citedLineStr = scm[2];
