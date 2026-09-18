@@ -43,6 +43,18 @@ export const DEFAULT_ME03_MEMBERS: readonly SystemMemberOption[] = [
   },
 ];
 
+const srOnlyStyle: React.CSSProperties = {
+  position: "absolute",
+  width: "1px",
+  height: "1px",
+  padding: 0,
+  margin: "-1px",
+  overflow: "hidden",
+  clip: "rect(0, 0, 0, 0)",
+  whiteSpace: "nowrap",
+  borderWidth: 0,
+};
+
 export function BoundaryChannelSelector({
   instrumentId,
   actionId,
@@ -97,27 +109,61 @@ export function BoundaryChannelSelector({
 
   return (
     <div
-      className={`boundary-channel-selector ${className}`}
+      className={className || undefined}
       data-interaction-family="energy-accounting"
       data-testid={testId}
     >
       {/* Live Region Announcement */}
-      <div className="sr-only" aria-live="polite" role="status">
+      <div style={srOnlyStyle} aria-live="polite" role="status">
         {announcement}
       </div>
 
-      <div className="p-3 bg-stone-50 border border-stone-200 rounded">
-        <h4 className="text-xs font-semibold uppercase tracking-wider text-stone-800 mb-2">
+      <div
+        style={{
+          padding: "0.75rem",
+          background: "var(--panel)",
+          border: "1px solid var(--line)",
+          borderRadius: "0.25rem",
+        }}
+      >
+        <h4
+          className="eyebrow"
+          style={{
+            fontSize: "0.75rem",
+            fontWeight: 600,
+            textTransform: "uppercase",
+            letterSpacing: "0.05em",
+            color: "var(--ink)",
+            marginBottom: "0.5rem",
+          }}
+        >
           System Boundary & Energy Accounting
         </h4>
 
         {/* Visual Boundary Presets */}
-        <div className="flex flex-wrap gap-2 mb-3">
+        <div
+          style={{
+            display: "flex",
+            flexWrap: "wrap",
+            gap: "0.5rem",
+            marginBottom: "0.75rem",
+          }}
+        >
           <button
             type="button"
             disabled={disabled}
             onClick={() => handleSelectPreset(["emitting-body"])}
-            className="px-2.5 py-1 text-xs font-medium bg-white border border-stone-300 rounded hover:bg-stone-100"
+            className="button"
+            style={{
+              padding: "0.25rem 0.625rem",
+              fontSize: "0.75rem",
+              fontWeight: 500,
+              background: "var(--panel)",
+              border: "1px solid var(--line)",
+              borderRadius: "0.25rem",
+              color: "var(--ink)",
+              cursor: disabled ? "not-allowed" : "pointer",
+            }}
           >
             Body alone (Boundary 1)
           </button>
@@ -125,7 +171,17 @@ export function BoundaryChannelSelector({
             type="button"
             disabled={disabled}
             onClick={() => handleSelectPreset(["emitted-radiation"])}
-            className="px-2.5 py-1 text-xs font-medium bg-white border border-stone-300 rounded hover:bg-stone-100"
+            className="button"
+            style={{
+              padding: "0.25rem 0.625rem",
+              fontSize: "0.75rem",
+              fontWeight: 500,
+              background: "var(--panel)",
+              border: "1px solid var(--line)",
+              borderRadius: "0.25rem",
+              color: "var(--ink)",
+              cursor: disabled ? "not-allowed" : "pointer",
+            }}
           >
             Radiation alone (Boundary 2)
           </button>
@@ -133,25 +189,50 @@ export function BoundaryChannelSelector({
             type="button"
             disabled={disabled}
             onClick={() => handleSelectPreset(["emitting-body", "emitted-radiation"])}
-            className="px-2.5 py-1 text-xs font-medium bg-white border border-stone-300 rounded hover:bg-stone-100"
+            className="button"
+            style={{
+              padding: "0.25rem 0.625rem",
+              fontSize: "0.75rem",
+              fontWeight: 500,
+              background: "var(--panel)",
+              border: "1px solid var(--line)",
+              borderRadius: "0.25rem",
+              color: "var(--ink)",
+              cursor: disabled ? "not-allowed" : "pointer",
+            }}
           >
             Combined isolated system (Boundary 3)
           </button>
         </div>
 
         {/* Accessible Checklist Form */}
-        <div className="space-y-2 mb-3">
+        <div
+          style={{
+            display: "flex",
+            flexDirection: "column",
+            gap: "0.5rem",
+            marginBottom: "0.75rem",
+          }}
+        >
           {systemMembers.map((member) => {
             const isChecked = selectedIds.includes(member.id);
             return (
               <label
                 key={member.id}
                 htmlFor={`${compId}-member-${member.id}`}
-                className={`flex items-start gap-2.5 p-2 rounded border text-xs cursor-pointer transition-colors ${
-                  isChecked
-                    ? "bg-amber-50/70 border-amber-300 text-stone-900 font-medium"
-                    : "bg-white border-stone-200 text-stone-700 hover:bg-stone-50"
-                }`}
+                style={{
+                  display: "flex",
+                  alignItems: "flex-start",
+                  gap: "0.625rem",
+                  padding: "0.5rem",
+                  borderRadius: "0.25rem",
+                  border: isChecked ? "1px solid var(--accent)" : "1px solid var(--line)",
+                  background: isChecked ? "var(--wash)" : "var(--panel)",
+                  color: "var(--ink)",
+                  fontSize: "0.75rem",
+                  fontWeight: isChecked ? 500 : "normal",
+                  cursor: disabled ? "not-allowed" : "pointer",
+                }}
               >
                 <input
                   type="checkbox"
@@ -159,11 +240,16 @@ export function BoundaryChannelSelector({
                   checked={isChecked}
                   disabled={disabled}
                   onChange={() => handleToggleMember(member.id)}
-                  className="mt-0.5 accent-amber-600"
+                  style={{
+                    marginTop: "0.125rem",
+                    accentColor: "var(--accent)",
+                  }}
                 />
                 <div>
-                  <div className="font-semibold text-stone-900">{member.label}</div>
-                  <div className="text-stone-500 text-xs">{member.description}</div>
+                  <div style={{ fontWeight: 600, color: "var(--ink)" }}>{member.label}</div>
+                  <div style={{ color: "var(--muted)", fontSize: "0.75rem" }}>
+                    {member.description}
+                  </div>
                 </div>
               </label>
             );
@@ -171,16 +257,55 @@ export function BoundaryChannelSelector({
         </div>
 
         {/* Boundary Balance Readout */}
-        <div className="mt-3 pt-2 border-t border-stone-200 grid grid-cols-2 gap-2 text-xs font-mono">
-          <div className="bg-white p-2 border border-stone-200 rounded">
-            <span className="text-stone-500 block">Energy crossing boundary ΔE:</span>
-            <span className="font-semibold text-stone-900 text-sm">
+        <div
+          style={{
+            marginTop: "0.75rem",
+            paddingTop: "0.5rem",
+            borderTop: "1px solid var(--line)",
+            display: "grid",
+            gridTemplateColumns: "repeat(2, 1fr)",
+            gap: "0.5rem",
+            fontSize: "0.75rem",
+            fontFamily: "var(--font-mono, monospace)",
+          }}
+        >
+          <div
+            style={{
+              background: "var(--wash)",
+              padding: "0.5rem",
+              border: "1px solid var(--line)",
+              borderRadius: "0.25rem",
+            }}
+          >
+            <span style={{ color: "var(--muted)", display: "block" }}>
+              Energy crossing boundary ΔE:
+            </span>
+            <span
+              style={{
+                fontWeight: 600,
+                color: "var(--ink)",
+                fontSize: "0.875rem",
+              }}
+            >
               {displayEnergy !== undefined ? String(displayEnergy) : "—"}
             </span>
           </div>
-          <div className="bg-white p-2 border border-stone-200 rounded">
-            <span className="text-stone-500 block">System mass change Δm:</span>
-            <span className="font-semibold text-stone-900 text-sm">
+          <div
+            style={{
+              background: "var(--wash)",
+              padding: "0.5rem",
+              border: "1px solid var(--line)",
+              borderRadius: "0.25rem",
+            }}
+          >
+            <span style={{ color: "var(--muted)", display: "block" }}>System mass change Δm:</span>
+            <span
+              style={{
+                fontWeight: 600,
+                color: "var(--ink)",
+                fontSize: "0.875rem",
+              }}
+            >
               {displayMass !== undefined ? String(displayMass) : "—"}
             </span>
           </div>
