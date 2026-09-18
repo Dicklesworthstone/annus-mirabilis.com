@@ -1,9 +1,10 @@
 import assert from "node:assert/strict";
-import { readFile, stat } from "node:fs/promises";
+import { mkdir, readFile, stat, utimes, writeFile } from "node:fs/promises";
 import { createServer, type Server } from "node:http";
 import { extname, resolve } from "node:path";
 import test, { type TestContext } from "node:test";
 import { writeCalculusLog } from "./foundCalculus.logger.ts";
+import { checkOutFreshness } from "./outFreshness.ts";
 
 const MIME_TYPES: Record<string, string> = {
   ".html": "text/html; charset=utf-8",
@@ -18,11 +19,15 @@ interface TestServer {
 }
 
 async function startStaticServer(rootDir: string = "out"): Promise<TestServer | null> {
-  const root = resolve(rootDir);
-  const outStat = await stat(root).catch(() => null);
-  if (!outStat?.isDirectory()) {
+  const freshness = checkOutFreshness(rootDir);
+  if (!freshness.present) {
     return null;
   }
+  if (!freshness.fresh) {
+    throw new Error(`Static build directory "${rootDir}" is STALE: ${freshness.reason}`);
+  }
+
+  const root = resolve(rootDir);
 
   const server: Server = createServer(async (req, res) => {
     let file = resolve(
@@ -234,4 +239,59 @@ test("foundCalculus.e2e: planted negative - static route content gate fails when
     await server.close();
   }
 });
+
+test("foundCalculus.e2e: planted negative - stale build directory with mismatched buildDigest fails freshness check and refuses to serve", async () => {
+  const tempBase = "/Volumes/USBNVME16TB/temp_agent_space";
+  const fixtureDir = resolve(tempBase, `stale-out-digest-${Date.now()}`);
+  await mkdir(resolve(fixtureDir, "search"), { recursive: true });
+  await writeFile(
+    resolve(fixtureDir, "search/index-manifest.json"),
+    JSON.stringify({
+      schemaVersion: 1,
+      buildDigest: "stale-0000000000000000000000000000000000000000000000000000000000000000",
+      totalDocuments: 1,
+      shards: [],
+    }),
+  );
+
+  const freshness = checkOutFreshness(fixtureDir);
+  assert.equal(freshness.fresh, false, "Freshness check must flag mismatched buildDigest as stale");
+  assert.ok(freshness.reason?.includes("buildDigest"), "Reason must mention buildDigest");
+
+  await assert.rejects(
+    async () => {
+      await startStaticServer(fixtureDir);
+    },
+    /is STALE/,
+    "startStaticServer must refuse to serve a stale build directory with mismatched buildDigest",
+  );
+});
+
+test("foundCalculus.e2e: planted negative - stale build directory with outdated mtime predating HEAD fails freshness check", async () => {
+  const tempBase = "/Volumes/USBNVME16TB/temp_agent_space";
+  const fixtureDir = resolve(tempBase, `stale-out-mtime-${Date.now()}`);
+  await mkdir(fixtureDir, { recursive: true });
+  await writeFile(resolve(fixtureDir, "index.html"), "<!doctype html><title>Stale</title>");
+
+  // Set mtime to 1 day in the past (predating HEAD commit)
+  const past = new Date(Date.now() - 86400000);
+  await utimes(resolve(fixtureDir, "index.html"), past, past);
+  await utimes(fixtureDir, past, past);
+
+  const freshness = checkOutFreshness(fixtureDir);
+  assert.equal(freshness.fresh, false, "Freshness check must flag outdated mtime as stale");
+  assert.ok(
+    freshness.reason?.includes("predates git HEAD commit"),
+    "Reason must explain mtime predates HEAD",
+  );
+
+  await assert.rejects(
+    async () => {
+      await startStaticServer(fixtureDir);
+    },
+    /is STALE/,
+    "startStaticServer must refuse to serve a stale build directory with outdated mtime",
+  );
+});
+
 

@@ -4,6 +4,7 @@ import { createServer } from "node:http";
 import { extname, resolve } from "node:path";
 import { describe, test } from "node:test";
 import { chromium } from "playwright";
+import { checkOutFreshness } from "../outFreshness.ts";
 
 /**
  * Acceptance test for accessible names across form controls (am-qt1j).
@@ -67,12 +68,16 @@ describe("browser accessible-name verification (am-qt1j)", () => {
   });
 
   test("computed accessible name equals visible label exactly across 29 affected components in out/", async (t) => {
-    const root = resolve("out");
-    const outStat = await stat(root).catch(() => null);
-    if (!outStat?.isDirectory()) {
+    const freshness = checkOutFreshness("out");
+    if (!freshness.present) {
       t.skip("out/ directory not present; skipping static build checks");
       return;
     }
+    if (!freshness.fresh) {
+      assert.fail(`Static build directory "out" is STALE: ${freshness.reason}`);
+    }
+
+    const root = resolve("out");
 
     const server = createServer(async (req, res) => {
       let file = resolve(

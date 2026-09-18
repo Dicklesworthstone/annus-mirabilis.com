@@ -5,6 +5,7 @@ import { extname, resolve } from "node:path";
 import { describe, test } from "node:test";
 import { chromium } from "playwright";
 import { writeCalculusLog } from "./foundCalculus.logger.ts";
+import { checkOutFreshness } from "./outFreshness.ts";
 
 const MIME_TYPES = {
   ".html": "text/html; charset=utf-8",
@@ -15,12 +16,16 @@ const MIME_TYPES = {
 
 describe("browser E2E foundation calculus verification (am-found-calculus-6agg)", () => {
   test("AC6 (Chromium): No-JavaScript rendering completeness across all 5 calculus foundations", async (t) => {
-    const root = resolve("out");
-    const outStat = await stat(root).catch(() => null);
-    if (!outStat?.isDirectory()) {
+    const freshness = checkOutFreshness("out");
+    if (!freshness.present) {
       t.skip("out/ directory not present; skipping browser check");
       return;
     }
+    if (!freshness.fresh) {
+      assert.fail(`Static build directory "out" is STALE: ${freshness.reason}`);
+    }
+
+    const root = resolve("out");
 
     const server = createServer(async (req, res) => {
       let file = resolve(
@@ -120,12 +125,16 @@ describe("browser E2E foundation calculus verification (am-found-calculus-6agg)"
   });
 
   test("AC6 (Chromium): Print media rendering completeness on calculus foundations", async (t) => {
-    const root = resolve("out");
-    const outStat = await stat(root).catch(() => null);
-    if (!outStat?.isDirectory()) {
+    const freshness = checkOutFreshness("out");
+    if (!freshness.present) {
       t.skip("out/ directory not present; skipping browser check");
       return;
     }
+    if (!freshness.fresh) {
+      assert.fail(`Static build directory "out" is STALE: ${freshness.reason}`);
+    }
+
+    const root = resolve("out");
 
     const server = createServer(async (req, res) => {
       let file = resolve(
