@@ -73,3 +73,20 @@ test("codePointSlice slices by code point, correctly across a surrogate pair", (
   // String.prototype.slice on the same UTF-16 offsets would split the surrogate pair.
   assert.notEqual(astral.slice(1, 2), "\u{1D49C}");
 });
+
+test("inlines: (inlines.ts:193) footnote-mark throws when footnoteId is missing or non-string", () => {
+  assert.throws(
+    () => validateInline({ kind: "footnote-mark", mark: "1)" }),
+    /footnoteId is required/,
+  );
+  // Accept valid footnote-mark
+  const accepted = validateInline({ kind: "footnote-mark", mark: "1)", footnoteId: "s1-fn1" });
+  assert.equal(accepted.kind, "footnote-mark");
+});
+
+test("inlines: (inlines.ts:217) citation-ref throws when citationId is missing or non-string", () => {
+  assert.throws(() => validateInline({ kind: "citation-ref" }), /citationId is required/);
+  // Accept valid citation-ref
+  const accepted = validateInline({ kind: "citation-ref", citationId: "cite-1" });
+  assert.equal(accepted.kind, "citation-ref");
+});
