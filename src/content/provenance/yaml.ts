@@ -133,6 +133,13 @@ export function parseYaml(text: string): unknown {
           if (nextLine.trimmed.startsWith("- ") || nextLine.trimmed === "-") break;
 
           const entry = parseMappingLine(nextLine.trimmed, nextLine.lineNum);
+          if (Object.hasOwn(mapObj, entry.key)) {
+            throw new YamlParseError(
+              `Duplicate key "${entry.key}" in mapping`,
+              nextLine.lineNum,
+              nextLine.indent + 1,
+            );
+          }
           index++;
 
           if (entry.valStr === "" || entry.valStr === "|" || entry.valStr === ">") {
@@ -229,6 +236,13 @@ export function parseYaml(text: string): unknown {
       if (line.trimmed.startsWith("- ") || line.trimmed === "-") break;
 
       const { key, valStr } = parseMappingLine(line.trimmed, line.lineNum);
+      if (Object.hasOwn(result, key)) {
+        throw new YamlParseError(
+          `Duplicate key "${key}" in mapping`,
+          line.lineNum,
+          line.indent + 1,
+        );
+      }
       index++;
 
       if (valStr === "" || valStr === "|" || valStr === ">") {

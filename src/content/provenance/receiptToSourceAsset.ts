@@ -35,6 +35,8 @@ export type SourceAsset = Readonly<{
   cloudProcessingBasis: string;
   parentSha256?: string;
   parentPageIndices?: readonly number[];
+  path?: string | undefined;
+  embeddedTextLayer?: "present" | "absent" | "unknown" | undefined;
 }>;
 
 export function receiptToSourceAsset(receiptOrFm: Receipt | ReceiptFrontMatter): SourceAsset {

@@ -20,6 +20,7 @@ import type { SourceAsset, SourceAssetRights } from "../provenance/receiptToSour
 import { type AuthorshipEntry, validateAuthorshipEntry } from "./authorship.ts";
 import { type PaperDate, validateChronology, validatePaperDate } from "./dates.ts";
 import { type Inline, plainText, validateInline } from "./inlines.ts";
+import { checkConstraints, loadRightsVocabulary, requiredFieldsFor } from "./rightsVocabulary.ts";
 
 export { type Inline, plainText, validateInline } from "./inlines.ts";
 
@@ -117,7 +118,11 @@ export type Paper = Readonly<{
   sections: readonly PaperSection[];
 }>;
 
-export function validatePaper(raw: unknown, path = "Paper"): Paper {
+export function validatePaper(
+  raw: unknown,
+  path = "Paper",
+  citations?: readonly Citation[] | ReadonlyMap<string, Citation>,
+): Paper {
   if (!raw || typeof raw !== "object")
     throw new SchemaValidationError("invalid-record", "Paper must be an object.", "Paper", path);
   const o = raw as Record<string, unknown>;
@@ -194,6 +199,29 @@ export function validatePaper(raw: unknown, path = "Paper"): Paper {
         "Paper",
         `${path}.editorialAdditions[${i}].germanBasis`,
       );
+    if (typeof a.witnessCoincidence === "string" && citations !== undefined) {
+      const citMap =
+        citations instanceof Map
+          ? citations
+          : new Map((citations as readonly Citation[]).map((c) => [c.id, c]));
+      const cit = citMap.get(a.witnessCoincidence);
+      if (!cit) {
+        throw new SchemaValidationError(
+          "witness-citation-not-found",
+          `witnessCoincidence "${a.witnessCoincidence}" does not name a known Citation.`,
+          "Paper",
+          `${path}.editorialAdditions[${i}].witnessCoincidence`,
+        );
+      }
+      if (cit.role !== "comparison-witness") {
+        throw new SchemaValidationError(
+          "witness-coincidence-invalid-role",
+          `witnessCoincidence must name a Citation with role "comparison-witness", got "${cit.role}".`,
+          "Paper",
+          `${path}.editorialAdditions[${i}].witnessCoincidence`,
+        );
+      }
+    }
     return {
       phrase: a.phrase,
       reason: a.reason,
@@ -400,6 +428,158 @@ export function validateSourceAsset(raw: unknown, path = "SourceAsset"): SourceA
     );
   }
 
+  // Validate path rules
+  if (o.path !== undefined) {
+    if (typeof o.path !== "string") {
+      throw new SchemaValidationError(
+        "invalid-path",
+        "path must be a string.",
+        "SourceAsset",
+        `${path}.path`,
+      );
+    }
+    if (o.publicationDecision === "publish" && !o.path.startsWith("public/")) {
+      throw new SchemaValidationError(
+        "invalid-publish-path",
+        `A publish asset path must lie under public/, got "${o.path}".`,
+        "SourceAsset",
+        `${path}.path`,
+      );
+    }
+    if (
+      o.publicationDecision === "pin-local-only" &&
+      !o.path.startsWith("sources/pinned/") &&
+      !o.path.startsWith("sources/")
+    ) {
+      throw new SchemaValidationError(
+        "invalid-pin-local-path",
+        `A pin-local-only asset path must lie under sources/, got "${o.path}".`,
+        "SourceAsset",
+        `${path}.path`,
+      );
+    }
+    if (o.publicationDecision === "reference-only") {
+      throw new SchemaValidationError(
+        "unexpected-path",
+        `A reference-only asset must not have a path, got "${o.path}".`,
+        "SourceAsset",
+        `${path}.path`,
+      );
+    }
+  }
+
+  // Load rights vocabulary and enforce required fields & constraints
+  const vocab = loadRightsVocabulary();
+
+  // Enforce required fields per rights.status
+  const statusReqFields = requiredFieldsFor(vocab, "rightsStatus", r.status as string);
+  for (const field of statusReqFields) {
+    if (
+      field === "rights.statement" &&
+      (!r.statement || typeof r.statement !== "string" || !r.statement.trim())
+    ) {
+      throw new SchemaValidationError(
+        "missing-required-rights-field",
+        `Missing required field "${field}" for rights status "${r.status}".`,
+        "SourceAsset",
+        `${path}.rights.statement`,
+      );
+    }
+    if (
+      field === "rights.source" &&
+      (!r.source || typeof r.source !== "string" || !r.source.trim())
+    ) {
+      throw new SchemaValidationError(
+        "missing-required-rights-field",
+        `Missing required field "${field}" for rights status "${r.status}".`,
+        "SourceAsset",
+        `${path}.rights.source`,
+      );
+    }
+    if (
+      field === "rights.credit" &&
+      (!r.credit || typeof r.credit !== "string" || !r.credit.trim())
+    ) {
+      throw new SchemaValidationError(
+        "missing-required-rights-field",
+        `Missing required field "${field}" for rights status "${r.status}".`,
+        "SourceAsset",
+        `${path}.rights.credit`,
+      );
+    }
+    if (
+      field === "rights.recordedAt" &&
+      (!r.recordedAt || typeof r.recordedAt !== "string" || !r.recordedAt.trim())
+    ) {
+      throw new SchemaValidationError(
+        "missing-required-rights-field",
+        `Missing required field "${field}" for rights status "${r.status}".`,
+        "SourceAsset",
+        `${path}.rights.recordedAt`,
+      );
+    }
+  }
+
+  // Enforce required fields per publicationDecision
+  const pubReqFields = requiredFieldsFor(
+    vocab,
+    "publicationDecision",
+    o.publicationDecision as string,
+  );
+  for (const field of pubReqFields) {
+    if (
+      field === "publicationReason" &&
+      (!o.publicationReason ||
+        typeof o.publicationReason !== "string" ||
+        !o.publicationReason.trim())
+    ) {
+      throw new SchemaValidationError(
+        "missing-publication-reason",
+        `publicationReason is required when publicationDecision is "${o.publicationDecision}".`,
+        "SourceAsset",
+        `${path}.publicationReason`,
+      );
+    }
+  }
+
+  // Enforce required fields per reuseTerms
+  const reuseReqFields = requiredFieldsFor(vocab, "reuseTerms", r.reuseTerms as string);
+  for (const field of reuseReqFields) {
+    if (
+      field === "rights.source" &&
+      (!r.source || typeof r.source !== "string" || !r.source.trim())
+    ) {
+      throw new SchemaValidationError(
+        "missing-required-rights-field",
+        `Missing required field "${field}" for reuseTerms "${r.reuseTerms}".`,
+        "SourceAsset",
+        `${path}.rights.source`,
+      );
+    }
+    if (
+      field === "rights.statement" &&
+      (!r.statement || typeof r.statement !== "string" || !r.statement.trim())
+    ) {
+      throw new SchemaValidationError(
+        "missing-required-rights-field",
+        `Missing required field "${field}" for reuseTerms "${r.reuseTerms}".`,
+        "SourceAsset",
+        `${path}.rights.statement`,
+      );
+    }
+  }
+
+  // Enforce vocabulary constraints
+  const constraintViolations = checkConstraints(vocab, {
+    ...o,
+    rights: r,
+    licenseDecisionPending: true,
+  });
+  const firstViolation = constraintViolations[0];
+  if (firstViolation) {
+    throw new SchemaValidationError(firstViolation.id, firstViolation.message, "SourceAsset", path);
+  }
+
   return {
     originUrl: o.originUrl,
     acquisitionDate: o.acquisitionDate,
@@ -421,6 +601,10 @@ export function validateSourceAsset(raw: unknown, path = "SourceAsset"): SourceA
     cloudProcessingBasis: o.cloudProcessingBasis,
     ...(o.parentSha256 ? { parentSha256: o.parentSha256 as string } : {}),
     ...(o.parentPageIndices ? { parentPageIndices: o.parentPageIndices as number[] } : {}),
+    ...(typeof o.path === "string" ? { path: o.path } : {}),
+    ...(typeof o.embeddedTextLayer === "string"
+      ? { embeddedTextLayer: o.embeddedTextLayer as "present" | "absent" | "unknown" }
+      : {}),
   };
 }
 
@@ -468,6 +652,7 @@ export type SourceBlock = Readonly<{
   sentenceSpans: readonly SentenceSpan[];
   revision: number;
   status: SourceBlockStatus;
+  containedIn?: string | undefined;
   lang?: string | undefined;
   dir?: TextDirection | undefined;
 }>;
@@ -501,6 +686,95 @@ export function validateSourceBlock(raw: unknown, path = "SourceBlock"): SourceB
       `${path}.locators`,
     );
   }
+
+  const locators: BlockLocator[] = [];
+  let prevPdfPageIndex = 0;
+  for (let i = 0; i < o.locators.length; i++) {
+    const loc = o.locators[i] as Record<string, unknown>;
+    const locPath = `${path}.locators[${i}]`;
+    if (!loc || typeof loc !== "object") {
+      throw new SchemaValidationError(
+        "invalid-locator",
+        "locator must be an object.",
+        "SourceBlock",
+        locPath,
+      );
+    }
+    if (
+      typeof loc.pdfPageIndex !== "number" ||
+      !Number.isInteger(loc.pdfPageIndex) ||
+      loc.pdfPageIndex < 1
+    ) {
+      throw new SchemaValidationError(
+        "invalid-pdf-page-index",
+        `pdfPageIndex must be a 1-based positive integer, got ${loc.pdfPageIndex}.`,
+        "SourceBlock",
+        `${locPath}.pdfPageIndex`,
+      );
+    }
+    if (typeof loc.printedPage !== "number") {
+      throw new SchemaValidationError(
+        "invalid-printed-page",
+        `printedPage must be a number, got ${loc.printedPage}.`,
+        "SourceBlock",
+        `${locPath}.printedPage`,
+      );
+    }
+    if (loc.pdfPageIndex <= prevPdfPageIndex) {
+      throw new SchemaValidationError(
+        "locators-not-ordered",
+        `locators must be strictly increasing by pdfPageIndex: got ${loc.pdfPageIndex} after ${prevPdfPageIndex}.`,
+        "SourceBlock",
+        `${locPath}.pdfPageIndex`,
+      );
+    }
+    prevPdfPageIndex = loc.pdfPageIndex;
+
+    let region: { x: number; y: number; width: number; height: number } | undefined;
+    if (loc.region !== undefined) {
+      const reg = loc.region as Record<string, unknown>;
+      if (
+        !reg ||
+        typeof reg.x !== "number" ||
+        typeof reg.y !== "number" ||
+        typeof reg.width !== "number" ||
+        typeof reg.height !== "number"
+      ) {
+        throw new SchemaValidationError(
+          "invalid-locator-region",
+          "locator region must have numeric x, y, width, height.",
+          "SourceBlock",
+          `${locPath}.region`,
+        );
+      }
+      region = {
+        x: reg.x,
+        y: reg.y,
+        width: reg.width,
+        height: reg.height,
+      };
+    }
+
+    locators.push({
+      pdfPageIndex: loc.pdfPageIndex,
+      printedPage: loc.printedPage,
+      ...(region ? { region } : {}),
+    });
+  }
+
+  let containedIn: string | undefined;
+  if (o.containedIn !== undefined) {
+    if (typeof o.containedIn !== "string" || !o.containedIn.trim()) {
+      throw new SchemaValidationError(
+        "invalid-contained-in",
+        "containedIn must be a non-empty string.",
+        "SourceBlock",
+        `${path}.containedIn`,
+      );
+    }
+    containedIn = o.containedIn.trim();
+  }
+
   if (typeof o.revision !== "number" || o.revision <= 0 || !Number.isInteger(o.revision)) {
     throw new SchemaValidationError(
       "invalid-revision",
@@ -605,13 +879,34 @@ export function validateSourceBlock(raw: unknown, path = "SourceBlock"): SourceB
     }
   }
 
+  if (["heading", "part-heading", "footnote", "closing"].includes(o.kind as string)) {
+    if (sentenceSpans.length !== 1) {
+      throw new SchemaValidationError(
+        "invalid-span-count",
+        `Block kind "${o.kind}" must have exactly one sentence span, got ${sentenceSpans.length}.`,
+        "SourceBlock",
+        `${path}.sentenceSpans`,
+      );
+    }
+  }
+  if (o.kind === "equation") {
+    if (sentenceSpans.length > 0) {
+      throw new SchemaValidationError(
+        "equation-spans-forbidden",
+        "Equation blocks must not carry sentence spans.",
+        "SourceBlock",
+        `${path}.sentenceSpans`,
+      );
+    }
+  }
+
   return {
     id: o.id,
     kind: o.kind as SourceBlockKind,
     paper: (o.paper as string) || "",
     section: (o.section as string) || undefined,
     order: typeof o.order === "number" ? o.order : 0,
-    locators: o.locators as BlockLocator[],
+    locators,
     originalLabel: (o.originalLabel as string) || undefined,
     editorialLabel: (o.editorialLabel as string) || undefined,
     diplomaticText: (o.diplomaticText as string) || text,
@@ -624,6 +919,7 @@ export function validateSourceBlock(raw: unknown, path = "SourceBlock"): SourceB
       translation: st.translation as SourceBlockStatus["translation"],
       review: st.review as SourceBlockStatus["review"],
     },
+    ...(containedIn ? { containedIn } : {}),
     ...(lang ? { lang } : {}),
     ...(dir ? { dir } : {}),
   };
@@ -643,7 +939,7 @@ export type TranslationUnit = Readonly<{
   editor?: AuthorshipEntry | undefined;
   revision: number;
   unresolvedAlternatives: readonly UnresolvedAlternative[];
-  reviewState: "draft" | "in-progress" | "corrected" | "reviewed";
+  reviewState: "draft" | "machine-draft" | "in-progress" | "corrected" | "reviewed";
   lang: string;
   dir?: TextDirection | undefined;
 }>;
@@ -720,7 +1016,7 @@ export function validateTranslationUnit(raw: unknown, path = "TranslationUnit"):
   }
 
   const reviewState = o.reviewState as string;
-  if (!["draft", "in-progress", "corrected", "reviewed"].includes(reviewState)) {
+  if (!["draft", "machine-draft", "in-progress", "corrected", "reviewed"].includes(reviewState)) {
     throw new SchemaValidationError(
       "invalid-review-state",
       `Invalid reviewState "${reviewState}".`,
@@ -881,12 +1177,20 @@ export const GLOSS_NOTE_CLASSES = [
 ] as const;
 export type GlossNoteClass = (typeof GLOSS_NOTE_CLASSES)[number];
 
+export const MULTIWORD_UNIT_KINDS = [
+  "separable-verb",
+  "fixed-phrase",
+  "reflexive",
+  "split-construction",
+] as const;
+export type MultiwordUnitKind = (typeof MULTIWORD_UNIT_KINDS)[number];
+
 export type GlossToken = Readonly<{
   german: string;
   english?: string | undefined;
   lemma?: string | undefined;
   grammarNote?: string | undefined;
-  noteClass?: GlossNoteClass | string | undefined;
+  noteClass?: GlossNoteClass | undefined;
   contextual?: boolean | undefined;
   reason?: string | undefined;
 }>;
@@ -894,9 +1198,9 @@ export type GlossToken = Readonly<{
 export type MultiwordUnit = Readonly<{
   tokenIndices: readonly number[];
   english: string;
-  kind: "separable-verb" | "fixed-phrase" | "reflexive" | "split-construction";
+  kind: MultiwordUnitKind;
   grammarNote?: string | undefined;
-  noteClass?: GlossNoteClass | string | undefined;
+  noteClass?: GlossNoteClass | undefined;
 }>;
 
 export type GlossUnit = Readonly<{
@@ -908,7 +1212,7 @@ export type GlossUnit = Readonly<{
   sourceLang: string;
   attribution: AuthorshipEntry;
   editor?: AuthorshipEntry | undefined;
-  reviewState: "draft" | "in-progress" | "corrected" | "reviewed";
+  reviewState: "draft" | "machine-draft" | "in-progress" | "corrected" | "reviewed";
   tokens: readonly GlossToken[];
   multiwordUnits: readonly MultiwordUnit[];
   dir?: TextDirection | undefined;
@@ -932,7 +1236,7 @@ export function validateGlossUnit(raw: unknown, path = "GlossUnit"): GlossUnit {
       `${path}.sentenceId`,
     );
   }
-  if (typeof o.revision !== "number" || o.revision <= 0) {
+  if (typeof o.revision !== "number" || o.revision <= 0 || !Number.isInteger(o.revision)) {
     throw new SchemaValidationError(
       "invalid-revision",
       "revision must be a positive integer.",
@@ -940,6 +1244,77 @@ export function validateGlossUnit(raw: unknown, path = "GlossUnit"): GlossUnit {
       `${path}.revision`,
     );
   }
+  if (
+    typeof o.sourceRevision !== "number" ||
+    o.sourceRevision <= 0 ||
+    !Number.isInteger(o.sourceRevision)
+  ) {
+    throw new SchemaValidationError(
+      "missing-source-revision",
+      "sourceRevision is required and must be a positive integer.",
+      "GlossUnit",
+      `${path}.sourceRevision`,
+    );
+  }
+  if (typeof o.sourceTextDigest !== "string" || !o.sourceTextDigest.trim()) {
+    throw new SchemaValidationError(
+      "missing-source-text-digest",
+      "sourceTextDigest is required.",
+      "GlossUnit",
+      `${path}.sourceTextDigest`,
+    );
+  }
+
+  if (typeof o.lang !== "string" || !o.lang.trim()) {
+    throw new SchemaValidationError(
+      "missing-lang",
+      "lang is required for GlossUnit.",
+      "GlossUnit",
+      `${path}.lang`,
+    );
+  }
+  let lang: string;
+  try {
+    lang = validateLanguageTag(o.lang, `${path}.lang`);
+  } catch (err: unknown) {
+    const message = err instanceof Error ? err.message : String(err);
+    throw new SchemaValidationError("invalid-language-tag", message, "GlossUnit", `${path}.lang`);
+  }
+
+  if (typeof o.sourceLang !== "string" || !o.sourceLang.trim()) {
+    throw new SchemaValidationError(
+      "missing-source-lang",
+      "sourceLang is required for GlossUnit.",
+      "GlossUnit",
+      `${path}.sourceLang`,
+    );
+  }
+  let sourceLang: string;
+  try {
+    sourceLang = validateLanguageTag(o.sourceLang, `${path}.sourceLang`);
+  } catch (err: unknown) {
+    const message = err instanceof Error ? err.message : String(err);
+    throw new SchemaValidationError(
+      "invalid-language-tag",
+      message,
+      "GlossUnit",
+      `${path}.sourceLang`,
+    );
+  }
+
+  if (!o.attribution) {
+    throw new SchemaValidationError(
+      "missing-attribution",
+      "attribution is required for GlossUnit.",
+      "GlossUnit",
+      `${path}.attribution`,
+    );
+  }
+  const attribution = validateAuthorshipEntry(o.attribution, "author", `${path}.attribution`);
+  const editor = o.editor
+    ? validateAuthorshipEntry(o.editor, "editor", `${path}.editor`)
+    : undefined;
+
   if (!Array.isArray(o.tokens) || o.tokens.length === 0) {
     throw new SchemaValidationError(
       "missing-tokens",
@@ -947,31 +1322,6 @@ export function validateGlossUnit(raw: unknown, path = "GlossUnit"): GlossUnit {
       "GlossUnit",
       `${path}.tokens`,
     );
-  }
-
-  let lang = "en";
-  if (o.lang !== undefined) {
-    try {
-      lang = validateLanguageTag(o.lang, `${path}.lang`);
-    } catch (err: unknown) {
-      const message = err instanceof Error ? err.message : String(err);
-      throw new SchemaValidationError("invalid-language-tag", message, "GlossUnit", `${path}.lang`);
-    }
-  }
-
-  let sourceLang = "de";
-  if (o.sourceLang !== undefined) {
-    try {
-      sourceLang = validateLanguageTag(o.sourceLang, `${path}.sourceLang`);
-    } catch (err: unknown) {
-      const message = err instanceof Error ? err.message : String(err);
-      throw new SchemaValidationError(
-        "invalid-language-tag",
-        message,
-        "GlossUnit",
-        `${path}.sourceLang`,
-      );
-    }
   }
 
   let dir: TextDirection | undefined;
@@ -984,10 +1334,15 @@ export function validateGlossUnit(raw: unknown, path = "GlossUnit"): GlossUnit {
     }
   }
 
-  const attribution = validateAuthorshipEntry(o.attribution, "author", `${path}.attribution`);
-  const editor = o.editor
-    ? validateAuthorshipEntry(o.editor, "editor", `${path}.editor`)
-    : undefined;
+  const reviewState = (o.reviewState as string) || "draft";
+  if (!["draft", "machine-draft", "in-progress", "corrected", "reviewed"].includes(reviewState)) {
+    throw new SchemaValidationError(
+      "invalid-review-state",
+      `Invalid reviewState "${reviewState}".`,
+      "GlossUnit",
+      `${path}.reviewState`,
+    );
+  }
 
   const tokens: GlossToken[] = o.tokens.map((t, i) => {
     if (!t || typeof t !== "object")
@@ -1013,7 +1368,20 @@ export function validateGlossUnit(raw: unknown, path = "GlossUnit"): GlossUnit {
         `${path}.tokens[${i}].noteClass`,
       );
     }
-    if (tok.contextual && !tok.reason) {
+    if (tok.noteClass !== undefined) {
+      if (
+        typeof tok.noteClass !== "string" ||
+        !(GLOSS_NOTE_CLASSES as readonly string[]).includes(tok.noteClass)
+      ) {
+        throw new SchemaValidationError(
+          "unlisted-note-class",
+          `Unlisted noteClass "${tok.noteClass}".`,
+          "GlossUnit",
+          `${path}.tokens[${i}].noteClass`,
+        );
+      }
+    }
+    if (tok.contextual && (!tok.reason || typeof tok.reason !== "string" || !tok.reason.trim())) {
       throw new SchemaValidationError(
         "missing-contextual-reason",
         "reason is required when contextual: true.",
@@ -1026,7 +1394,7 @@ export function validateGlossUnit(raw: unknown, path = "GlossUnit"): GlossUnit {
       english: (tok.english as string) || undefined,
       lemma: (tok.lemma as string) || undefined,
       grammarNote: (tok.grammarNote as string) || undefined,
-      noteClass: (tok.noteClass as string) || undefined,
+      noteClass: (tok.noteClass as GlossNoteClass) || undefined,
       contextual: Boolean(tok.contextual) || undefined,
       reason: (tok.reason as string) || undefined,
     };
@@ -1035,20 +1403,67 @@ export function validateGlossUnit(raw: unknown, path = "GlossUnit"): GlossUnit {
   const multiwordUnits: MultiwordUnit[] = Array.isArray(o.multiwordUnits)
     ? o.multiwordUnits.map((m, i) => {
         const mw = m as Record<string, unknown>;
-        if (!Array.isArray(mw.tokenIndices) || mw.tokenIndices.length < 2) {
+        if (!mw || typeof mw !== "object") {
+          throw new SchemaValidationError(
+            "invalid-multiword-unit",
+            "Multiword unit must be an object.",
+            "GlossUnit",
+            `${path}.multiwordUnits[${i}]`,
+          );
+        }
+        if (
+          !Array.isArray(mw.tokenIndices) ||
+          mw.tokenIndices.length < 2 ||
+          mw.tokenIndices.some(
+            (idx) =>
+              typeof idx !== "number" || !Number.isInteger(idx) || idx < 0 || idx >= tokens.length,
+          )
+        ) {
           throw new SchemaValidationError(
             "invalid-multiword-indices",
-            "Multiword unit requires at least two token indices.",
+            "Multiword unit requires at least two valid token indices.",
             "GlossUnit",
             `${path}.multiwordUnits[${i}].tokenIndices`,
           );
         }
+        if (typeof mw.english !== "string" || !mw.english.trim()) {
+          throw new SchemaValidationError(
+            "missing-multiword-english",
+            "Multiword unit english translation is required.",
+            "GlossUnit",
+            `${path}.multiwordUnits[${i}].english`,
+          );
+        }
+        if (
+          typeof mw.kind !== "string" ||
+          !(MULTIWORD_UNIT_KINDS as readonly string[]).includes(mw.kind as MultiwordUnitKind)
+        ) {
+          throw new SchemaValidationError(
+            "invalid-multiword-kind",
+            `Invalid multiword unit kind "${mw.kind}".`,
+            "GlossUnit",
+            `${path}.multiwordUnits[${i}].kind`,
+          );
+        }
+        if (mw.noteClass !== undefined) {
+          if (
+            typeof mw.noteClass !== "string" ||
+            !(GLOSS_NOTE_CLASSES as readonly string[]).includes(mw.noteClass)
+          ) {
+            throw new SchemaValidationError(
+              "unlisted-note-class",
+              `Unlisted noteClass "${mw.noteClass}".`,
+              "GlossUnit",
+              `${path}.multiwordUnits[${i}].noteClass`,
+            );
+          }
+        }
         return {
           tokenIndices: mw.tokenIndices as number[],
           english: mw.english as string,
-          kind: mw.kind as MultiwordUnit["kind"],
+          kind: mw.kind as MultiwordUnitKind,
           grammarNote: (mw.grammarNote as string) || undefined,
-          noteClass: (mw.noteClass as string) || undefined,
+          noteClass: (mw.noteClass as GlossNoteClass) || undefined,
         };
       })
     : [];
@@ -1056,13 +1471,13 @@ export function validateGlossUnit(raw: unknown, path = "GlossUnit"): GlossUnit {
   return {
     sentenceId: o.sentenceId,
     revision: o.revision as number,
-    sourceRevision: (o.sourceRevision as number) || 1,
-    sourceTextDigest: (o.sourceTextDigest as string) || "",
+    sourceRevision: o.sourceRevision as number,
+    sourceTextDigest: o.sourceTextDigest as string,
     lang,
     sourceLang,
     attribution,
     editor,
-    reviewState: (o.reviewState as GlossUnit["reviewState"]) || "draft",
+    reviewState: reviewState as GlossUnit["reviewState"],
     tokens,
     multiwordUnits,
     ...(dir ? { dir } : {}),
@@ -1092,7 +1507,7 @@ export type EditorialNote = Readonly<{
   sourceSupport: readonly SourceSupport[];
   kind: EditorialNoteKind;
   affectedIds: readonly string[];
-  reviewState: "draft" | "in-progress" | "corrected" | "reviewed";
+  reviewState: "draft" | "machine-draft" | "in-progress" | "corrected" | "reviewed";
   originalReading?: string | undefined;
   proposedReading?: string | undefined;
   reasoning?: string | undefined;
@@ -1193,14 +1608,24 @@ export function validateEditorialNote(raw: unknown, path = "EditorialNote"): Edi
     }
   }
 
+  const reviewState = (o.reviewState as string) || "draft";
+  if (!["draft", "machine-draft", "in-progress", "corrected", "reviewed"].includes(reviewState)) {
+    throw new SchemaValidationError(
+      "invalid-review-state",
+      `Invalid reviewState "${reviewState}".`,
+      "EditorialNote",
+      `${path}.reviewState`,
+    );
+  }
+
   return {
-    id: o.id,
+    id: o.id as string,
     author,
-    claim: o.claim,
+    claim: o.claim as string,
     sourceSupport,
     kind,
     affectedIds: Array.isArray(o.affectedIds) ? (o.affectedIds as string[]) : [],
-    reviewState: (o.reviewState as EditorialNote["reviewState"]) || "draft",
+    reviewState: reviewState as EditorialNote["reviewState"],
     originalReading: (o.originalReading as string) || undefined,
     proposedReading: (o.proposedReading as string) || undefined,
     reasoning: (o.reasoning as string) || undefined,
@@ -1319,7 +1744,7 @@ export type TranslationEdition = Readonly<{
   translator: AuthorshipEntry;
   editor?: AuthorshipEntry | undefined;
   license: string;
-  reviewState: "draft" | "in-progress" | "corrected" | "reviewed";
+  reviewState: "draft" | "machine-draft" | "in-progress" | "corrected" | "reviewed";
   units: readonly TranslationUnit[];
   missingUnitsNotice?: string | undefined;
 }>;
@@ -1394,7 +1819,7 @@ export function validateTranslationEdition(
   }
 
   const reviewState = o.reviewState as string;
-  if (!["draft", "in-progress", "corrected", "reviewed"].includes(reviewState)) {
+  if (!["draft", "machine-draft", "in-progress", "corrected", "reviewed"].includes(reviewState)) {
     throw new SchemaValidationError(
       "invalid-review-state",
       `Invalid reviewState "${reviewState}".`,

@@ -4,7 +4,7 @@ paper: brownian-motion
 section: bm-sec-01
 order: 1
 locators:
-  - pdfPageIndex: 0
+  - pdfPageIndex: 1
     printedPage: 549
 diplomaticText: "In dieser Arbeit soll gezeigt werden."
 inlines:

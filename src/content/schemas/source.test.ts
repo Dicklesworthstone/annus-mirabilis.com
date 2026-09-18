@@ -10,18 +10,20 @@ import {
 } from "./dates.ts";
 import { codePointLength, codePointSlice } from "./inlines.ts";
 import {
+  type Citation,
   validateAlignment,
   validateCitation,
   validateEditorialNote,
   validateGlossUnit,
   validatePaper,
+  validateSourceAsset,
   validateSourceBlock,
   validateTranslationEdition,
   validateTranslationUnit,
   verifyEquationTranslation,
 } from "./source.ts";
 import { spanTextDigest } from "./spans.ts";
-import { strictParse } from "./strictParse.ts";
+import { parseStrictJson, parseStrictYaml, strictParse } from "./strictParse.ts";
 
 // ==========================================
 // 1. PAPER TESTS
@@ -368,6 +370,8 @@ test("GlossUnit: tokens and multiword units validation", () => {
     revision: 1,
     sourceRevision: 1,
     sourceTextDigest: "abc",
+    lang: "en",
+    sourceLang: "de",
     attribution: { id: "jemanuel", kind: "human" },
     tokens: [
       { german: "In", english: "in" },
@@ -865,6 +869,481 @@ test("TranslationEdition: validates language tag, required metadata, and child u
     () => validateTranslationEdition(badLangEdition),
     (err: any) => {
       assert.equal(err.code, "invalid-language-tag");
+      return true;
+    },
+  );
+});
+
+// ==========================================
+// 14. WITNESS COINCIDENCE CROSS-CHECK
+// ==========================================
+test("Paper: witnessCoincidence cross-check with citations", () => {
+  const basePaper = {
+    slug: "brownian-motion",
+    bibKey: "ap-17-549",
+    titleGerman: "Über die ...",
+    titleEnglishWorking: "On the ...",
+    editorialAdditions: [
+      {
+        phrase: "Small",
+        reason: "Clarification",
+        germanBasis: "no-direct-basis",
+        witnessCoincidence: "citation-cowper-1926",
+      },
+    ],
+    authorLine: "A. Einstein",
+    dates: [
+      {
+        type: "received",
+        earliest: "1905-05-11",
+        latest: "1905-05-11",
+        precision: "day",
+        source: "Issue 8 masthead.",
+        verifiedAt: "2026-09-15",
+      },
+    ],
+    journal: {
+      name: "Annalen der Physik",
+      series: 4,
+      volume: 17,
+      year: 1905,
+      pages: { first: 549, last: 560 },
+    },
+  };
+
+  // Rejects when witness citation is not in citations list
+  assert.throws(
+    () => validatePaper(basePaper, "Paper", []),
+    (err: any) => {
+      assert.equal(err.code, "witness-citation-not-found");
+      return true;
+    },
+  );
+
+  const secondaryCitation: Citation = {
+    id: "citation-cowper-1926",
+    type: "book",
+    title: "Investigation on the Theory of the Brownian Movement",
+    author: "A. D. Cowper",
+    role: "secondary",
+  };
+  const witnessCitation: Citation = {
+    ...secondaryCitation,
+    role: "comparison-witness",
+  };
+
+  // Rejects when witness citation has role other than comparison-witness
+  assert.throws(
+    () => validatePaper(basePaper, "Paper", [secondaryCitation]),
+    (err: any) => {
+      assert.equal(err.code, "witness-coincidence-invalid-role");
+      return true;
+    },
+  );
+
+  // Validates when citation is present with comparison-witness role
+  const validated = validatePaper(basePaper, "Paper", [witnessCitation]);
+  assert.equal(validated.editorialAdditions[0]?.witnessCoincidence, "citation-cowper-1926");
+});
+
+// ==========================================
+// 15. SOURCE BLOCK LOCATORS ORDER & SPAN COUNTS
+// ==========================================
+test("SourceBlock: locators ordering, span counts, and containedIn", () => {
+  const validParagraph = {
+    id: "ap-17-549-p01",
+    kind: "paragraph",
+    paper: "brownian-motion",
+    order: 1,
+    locators: [
+      { pdfPageIndex: 1, printedPage: 549 },
+      { pdfPageIndex: 2, printedPage: 550 },
+    ],
+    diplomaticText: "Paragraph text.",
+    inlines: [{ kind: "text", text: "Paragraph text." }],
+    sentenceSpans: [],
+    revision: 1,
+    status: {
+      transcription: "draft",
+      mathTranscription: "not-applicable",
+      translation: "draft",
+      review: "draft",
+    },
+  };
+
+  const block = validateSourceBlock(validParagraph);
+  assert.equal(block.locators.length, 2);
+
+  // Rejects non-1-based pdfPageIndex
+  assert.throws(
+    () =>
+      validateSourceBlock({
+        ...validParagraph,
+        locators: [{ pdfPageIndex: 0, printedPage: 549 }],
+      }),
+    (err: any) => {
+      assert.equal(err.code, "invalid-pdf-page-index");
+      return true;
+    },
+  );
+
+  // Rejects out-of-order locators (pdfPageIndex not strictly increasing)
+  assert.throws(
+    () =>
+      validateSourceBlock({
+        ...validParagraph,
+        locators: [
+          { pdfPageIndex: 2, printedPage: 550 },
+          { pdfPageIndex: 1, printedPage: 549 },
+        ],
+      }),
+    (err: any) => {
+      assert.equal(err.code, "locators-not-ordered");
+      return true;
+    },
+  );
+
+  // Heading requires exactly one span
+  const headingNoSpans = {
+    ...validParagraph,
+    id: "ap-17-549-h01",
+    kind: "heading",
+    sentenceSpans: [],
+  };
+  assert.throws(
+    () => validateSourceBlock(headingNoSpans),
+    (err: any) => {
+      assert.equal(err.code, "invalid-span-count");
+      return true;
+    },
+  );
+
+  // Equation blocks must not carry sentence spans
+  const eqWithSpans = {
+    ...validParagraph,
+    id: "ap-17-549-eq01",
+    kind: "equation",
+    containedIn: "ap-17-549-p01",
+    sentenceSpans: [
+      {
+        id: "s1",
+        span: {
+          start: 0,
+          end: 15,
+          blockRevision: 1,
+          textDigest: spanTextDigest("Paragraph text."),
+        },
+      },
+    ],
+  };
+  assert.throws(
+    () => validateSourceBlock(eqWithSpans),
+    (err: any) => {
+      assert.equal(err.code, "equation-spans-forbidden");
+      return true;
+    },
+  );
+
+  // ContainedIn validated on equation block
+  const validEq = {
+    ...validParagraph,
+    id: "ap-17-549-eq01",
+    kind: "equation",
+    containedIn: "ap-17-549-p01",
+    sentenceSpans: [],
+  };
+  const validatedEq = validateSourceBlock(validEq);
+  assert.equal(validatedEq.containedIn, "ap-17-549-p01");
+});
+
+// ==========================================
+// 16. SOURCE ASSET RIGHTS & PATH RULES
+// ==========================================
+test("SourceAsset: rights vocabulary constraints, path rules, and required fields", () => {
+  const validAsset = {
+    originUrl: "https://example.org/scans/ap-17-549.pdf",
+    acquisitionDate: "2026-09-15",
+    sha256: "a".repeat(64),
+    mimeType: "application/pdf",
+    pageCount: 12,
+    pageMapping: [{ pdfPageIndex: 1, printedPage: 549, contents: ["article-text"] }],
+    rights: {
+      status: "public-domain-text",
+      statement: "Public domain per life-plus-70.",
+      reuseTerms: "no-reuse-offered",
+      recordedAt: "2026-09-01",
+    },
+    publicationDecision: "reference-only",
+    publicationReason: "Consulted only.",
+    cloudProcessing: "unknown",
+    cloudProcessingBasis: "Not yet examined.",
+  };
+
+  assert.equal(validateSourceAsset(validAsset).sha256, "a".repeat(64));
+
+  // Rejects missing required rights field for status (e.g. recordedAt for public-domain-text)
+  const missingRecordedAt = {
+    ...validAsset,
+    rights: {
+      status: "public-domain-text",
+      statement: "Public domain.",
+      reuseTerms: "no-reuse-offered",
+    },
+  };
+  assert.throws(
+    () => validateSourceAsset(missingRecordedAt),
+    (err: any) => {
+      assert.equal(err.code, "missing-required-rights-field");
+      return true;
+    },
+  );
+
+  // Rejects public-domain-image without rights.credit
+  const pdImageNoCredit = {
+    ...validAsset,
+    rights: {
+      status: "public-domain-image",
+      statement: "Public domain photo.",
+      reuseTerms: "no-reuse-offered",
+      source: "https://archive.org",
+      recordedAt: "2026-09-01",
+    },
+  };
+  assert.throws(
+    () => validateSourceAsset(pdImageNoCredit),
+    (err: any) => {
+      assert.equal(err.code, "missing-required-rights-field");
+      return true;
+    },
+  );
+
+  // Validates public-domain-image with credit
+  const pdImageWithCredit = {
+    ...validAsset,
+    rights: {
+      status: "public-domain-image",
+      statement: "Public domain photo.",
+      reuseTerms: "no-reuse-offered",
+      source: "https://archive.org",
+      credit: "Swiss Federal Archives, photo by Lucien Chavan, 1905",
+      recordedAt: "2026-09-01",
+    },
+  };
+  assert.ok(validateSourceAsset(pdImageWithCredit));
+
+  // Path rule: publish must lie under public/
+  const badPublishPath = {
+    ...validAsset,
+    publicationDecision: "publish",
+    path: "sources/ap-17-549.pdf",
+    rights: {
+      status: "scan-open-terms",
+      statement: "Open scan.",
+      source: "ETH-Bibliothek",
+      reuseTerms: "source-terms",
+    },
+    cloudProcessing: "permitted",
+    cloudProcessingBasis: "Permitted by license.",
+  };
+  assert.throws(
+    () => validateSourceAsset(badPublishPath),
+    (err: any) => {
+      assert.equal(err.code, "invalid-publish-path");
+      return true;
+    },
+  );
+
+  // Path rule: reference-only must NOT have a path
+  const badRefPath = {
+    ...validAsset,
+    path: "public/papers/ap-17-549.pdf",
+  };
+  assert.throws(
+    () => validateSourceAsset(badRefPath),
+    (err: any) => {
+      assert.equal(err.code, "unexpected-path");
+      return true;
+    },
+  );
+});
+
+// ==========================================
+// 17. GLOSS UNIT STRICT VALIDATIONS
+// ==========================================
+test("GlossUnit: enforces required lang, sourceLang, digests, note classes, and reviewState", () => {
+  const validGloss = {
+    sentenceId: "s1-p1-s1",
+    revision: 1,
+    sourceRevision: 1,
+    sourceTextDigest: "abc",
+    lang: "en",
+    sourceLang: "de",
+    attribution: { id: "jemanuel", kind: "human" },
+    reviewState: "machine-draft",
+    tokens: [
+      { german: "In", english: "in" },
+      { german: "dieser", english: "this" },
+    ],
+    multiwordUnits: [],
+  };
+
+  const gloss = validateGlossUnit(validGloss);
+  assert.equal(gloss.reviewState, "machine-draft");
+
+  // Missing lang
+  const { lang, ...noLang } = validGloss;
+  assert.throws(
+    () => validateGlossUnit(noLang),
+    (err: any) => {
+      assert.equal(err.code, "missing-lang");
+      return true;
+    },
+  );
+
+  // Missing sourceLang
+  const { sourceLang, ...noSourceLang } = validGloss;
+  assert.throws(
+    () => validateGlossUnit(noSourceLang),
+    (err: any) => {
+      assert.equal(err.code, "missing-source-lang");
+      return true;
+    },
+  );
+
+  // Missing sourceRevision
+  const { sourceRevision, ...noSourceRev } = validGloss;
+  assert.throws(
+    () => validateGlossUnit(noSourceRev),
+    (err: any) => {
+      assert.equal(err.code, "missing-source-revision");
+      return true;
+    },
+  );
+
+  // Missing sourceTextDigest
+  const { sourceTextDigest, ...noSourceDigest } = validGloss;
+  assert.throws(
+    () => validateGlossUnit(noSourceDigest),
+    (err: any) => {
+      assert.equal(err.code, "missing-source-text-digest");
+      return true;
+    },
+  );
+
+  // Unlisted noteClass
+  const unlistedNoteClass = {
+    ...validGloss,
+    tokens: [
+      { german: "In", english: "in", grammarNote: "preposition", noteClass: "not-a-real-class" },
+    ],
+  };
+  assert.throws(
+    () => validateGlossUnit(unlistedNoteClass),
+    (err: any) => {
+      assert.equal(err.code, "unlisted-note-class");
+      return true;
+    },
+  );
+
+  // Contextual without reason
+  const contextualNoReason = {
+    ...validGloss,
+    tokens: [{ german: "In", english: "in", contextual: true }],
+  };
+  assert.throws(
+    () => validateGlossUnit(contextualNoReason),
+    (err: any) => {
+      assert.equal(err.code, "missing-contextual-reason");
+      return true;
+    },
+  );
+
+  // Multiword unit invalid kind
+  const badMwKind = {
+    ...validGloss,
+    multiwordUnits: [{ tokenIndices: [0, 1], english: "in this", kind: "invalid-kind" }],
+  };
+  assert.throws(
+    () => validateGlossUnit(badMwKind),
+    (err: any) => {
+      assert.equal(err.code, "invalid-multiword-kind");
+      return true;
+    },
+  );
+
+  // Multiword unit invalid tokenIndices (out of bounds)
+  const badMwIndices = {
+    ...validGloss,
+    multiwordUnits: [{ tokenIndices: [0, 99], english: "in this", kind: "fixed-phrase" }],
+  };
+  assert.throws(
+    () => validateGlossUnit(badMwIndices),
+    (err: any) => {
+      assert.equal(err.code, "invalid-multiword-indices");
+      return true;
+    },
+  );
+});
+
+// ==========================================
+// 18. STRICT PARSER (JSON & YAML) RESTRICTIONS
+// ==========================================
+test("strictParse: rejects duplicate keys, custom tags, anchors/aliases, and non-NFC text", () => {
+  // YAML duplicate keys
+  const yamlDup = `
+key1: value1
+key1: value2
+`;
+  assert.throws(
+    () => parseStrictYaml(yamlDup),
+    (err: any) => {
+      assert.equal(err.code, "yaml-duplicate-key");
+      return true;
+    },
+  );
+
+  // JSON duplicate keys
+  const jsonDup = `{"key": 1, "key": 2}`;
+  assert.throws(
+    () => parseStrictJson(jsonDup),
+    (err: any) => {
+      assert.equal(err.code, "json-duplicate-key");
+      return true;
+    },
+  );
+
+  // Custom YAML tag
+  const yamlCustomTag = `
+val: !customTag 42
+`;
+  assert.throws(
+    () => parseStrictYaml(yamlCustomTag),
+    (err: any) => {
+      assert.equal(err.code, "yaml-custom-tag-forbidden");
+      return true;
+    },
+  );
+
+  // YAML anchor / alias
+  const yamlAnchor = `
+base: &anchor { a: 1 }
+ref: *anchor
+`;
+  assert.throws(
+    () => parseStrictYaml(yamlAnchor),
+    (err: any) => {
+      assert.equal(err.code, "yaml-anchor-alias-forbidden");
+      return true;
+    },
+  );
+
+  // Non-NFC text (e.g. decomposed e + combining acute accent)
+  const decomposed = "e\u0301cole";
+  const jsonNonNfc = `{"title": "${decomposed}"}`;
+  assert.throws(
+    () => parseStrictJson(jsonNonNfc),
+    (err: any) => {
+      assert.equal(err.code, "non-nfc-text");
       return true;
     },
   );
