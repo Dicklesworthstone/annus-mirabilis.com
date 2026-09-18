@@ -16,6 +16,7 @@ import {
   checkClientBoundaries,
   collectAppRouterSourceFiles,
   detectClientHookUsages,
+  extractRuntimeImportSpecifiers,
   hasUseClientDirective,
   runClientBoundaryGateCli,
   type SourceFileRecord,
@@ -195,6 +196,52 @@ describe("RSC Client Boundary Gate", () => {
       expect(violations.length).toBe(1);
       expect(violations[0]?.file).toBe("src/components/CanvasView.tsx");
       expect(violations[0]?.hooks).toContain("useRef");
+    });
+
+    it("extractRuntimeImportSpecifiers extracts bare side-effect imports alongside from-imports without swallowing", () => {
+      const input =
+        'import { a } from "./named.ts"; import "./sideEffect.ts"; import def from "./default.ts";';
+      const specs = extractRuntimeImportSpecifiers(input);
+      expect(specs).toContain("./sideEffect.ts");
+      expect(specs).toContain("./named.ts");
+      expect(specs).toContain("./default.ts");
+      expect(specs.length).toBe(3);
+    });
+
+    it("planted negative on REAL chain: removing 'use client' from src/experiments/presentation.ts fails and names presentation.ts", () => {
+      const liveFiles = collectAppRouterSourceFiles(process.cwd());
+      expect(liveFiles.length).toBeGreaterThan(100);
+
+      // Verify presentation.ts exists in live files with 'use client'
+      const presentationFile = liveFiles.find((f) => f.path === "src/experiments/presentation.ts");
+      expect(presentationFile).toBeDefined();
+      if (!presentationFile) return;
+      expect(hasUseClientDirective(presentationFile.content)).toBe(true);
+
+      // Plant the negative: remove 'use client' from presentation.ts in the real repository graph
+      const plantedFiles = liveFiles.map((f) => {
+        if (f.path === "src/experiments/presentation.ts") {
+          return {
+            ...f,
+            content: f.content.replace(/^["']use client["'];?\s*/m, ""),
+          };
+        }
+        return f;
+      });
+
+      const violations = checkClientBoundaries(plantedFiles);
+      expect(violations.length).toBeGreaterThanOrEqual(1);
+
+      const presentationViolation = violations.find(
+        (v) => v.file === "src/experiments/presentation.ts",
+      );
+      expect(presentationViolation).toBeDefined();
+      expect(presentationViolation?.hooks).toContain("createContext");
+      expect(presentationViolation?.chain).toContain("src/reader/PaperReader.tsx");
+      expect(presentationViolation?.chain).toContain("src/reader/actions/kindRegistration.ts");
+      expect(presentationViolation?.chain).toContain("src/reader/stack/kinds.ts");
+      expect(presentationViolation?.chain).toContain("src/experiments/dispatch.tsx");
+      expect(presentationViolation?.chain).toContain("src/experiments/presentation.ts");
     });
   });
 

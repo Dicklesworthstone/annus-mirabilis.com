@@ -139,14 +139,24 @@ export function extractRuntimeImportSpecifiers(content: string): string[] {
   const code = stripCommentsAndPreserveStrings(content);
   const specs = new Set<string>();
 
-  const importExportRegex = /(?:import|export)\s+(?:type\s+)?(?:[\s\S]*?from\s+)?['"]([^'"]+)['"]/g;
-  const matches = code.matchAll(importExportRegex);
-  for (const match of matches) {
+  // 1. Bare side-effect imports: import "specifier" or import 'specifier'
+  const bareImportRegex = /import\s+['"]([^'"]+)['"]/g;
+  const bareMatches = code.matchAll(bareImportRegex);
+  for (const match of bareMatches) {
+    const spec = match[1];
+    if (spec) specs.add(spec);
+  }
+
+  // 2. Value import/export with from: import ... from "specifier" or export ... from "specifier"
+  // Note: [^"';]*? ensures the clause does not cross quotes or statement semicolons
+  const fromRegex = /(?:import|export)\s+(?:type\s+)?([^"';]*?)\s+from\s+['"]([^'"]+)['"]/g;
+  const fromMatches = code.matchAll(fromRegex);
+  for (const match of fromMatches) {
     const fullStatement = match[0].trim();
-    const specifier = match[1];
+    const specifier = match[2];
     if (!specifier) continue;
 
-    // Skip pure type-only imports/exports
+    // Skip pure type-only imports/exports: `import type ...` or `export type ...`
     if (/^(?:import|export)\s+type\b/.test(fullStatement)) {
       continue;
     }
@@ -154,7 +164,7 @@ export function extractRuntimeImportSpecifiers(content: string): string[] {
     specs.add(specifier);
   }
 
-  // Dynamic imports: import("...")
+  // 3. Dynamic imports: import("...")
   const dynamicRegex = /import\s*\(\s*['"]([^'"]+)['"]\s*\)/g;
   const dynamicMatches = code.matchAll(dynamicRegex);
   for (const match of dynamicMatches) {
