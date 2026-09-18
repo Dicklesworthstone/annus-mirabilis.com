@@ -173,4 +173,33 @@ describe("resultsProjection refusal coverage (am-muyh)", () => {
       assert.equal(check.label, "modern comparison");
     });
   });
+
+  describe("support-graph-export-mismatch (resultsProjection.ts:105)", () => {
+    test("reject: (resultsProjection.ts:105) throws support-graph-export-mismatch if exportProofGraph does not contain selected route", () => {
+      let call = 0;
+      const chain: DerivationChain = {
+        ...fixtureBrownianSourceOrder,
+        get proofRouteId() {
+          return call++ === 13 ? "route-different" : "route-initial";
+        },
+      };
+
+      assert.throws(
+        () => {
+          projectSupport(chain, [chain]);
+        },
+        (err: unknown) => {
+          assert.ok(err instanceof ResultsProjectionError);
+          assert.equal(err.rule, "support-graph-export-mismatch");
+          assert.match(err.message, /exportProofGraph did not return the selected route/);
+          return true;
+        },
+      );
+    });
+
+    test("accept: projectSupport succeeds when exported graph matches selected route", () => {
+      const result = projectSupport(fixtureBrownianSourceOrder, [fixtureBrownianSourceOrder]);
+      assert.equal(result.proofRouteId, fixtureBrownianSourceOrder.proofRouteId);
+    });
+  });
 });

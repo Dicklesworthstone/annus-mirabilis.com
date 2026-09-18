@@ -171,4 +171,52 @@ describe("statuses.ts refusal throw sites (am-muyh)", () => {
     );
     expect(acceptIssues.some((i) => i.code === "review-reviewer-role")).toBe(false);
   });
+
+  // --------------------------------------------------------------------------
+  // Site 4: line 187 - review-record-missing (no valid accepted record when scope missing during staleness check)
+  // --------------------------------------------------------------------------
+  test("rejects when covering review record lacks matching scope entry during staleness check (statuses.ts:187)", () => {
+    const entity: EntityForReviewCheck = {
+      id: "bm-para-defensive",
+      type: "paragraph",
+      reviewState: "reviewed",
+      revision: 1,
+    };
+
+    let scopeCalls = 0;
+    const dynamicRecord: ReviewRecord = {
+      id: "rev-dyn-1",
+      reviewType: "german-source",
+      reviewer: "open-german-source-brownian-motion",
+      date: "2026-09-16",
+      result: "accepted",
+      get scope() {
+        return scopeCalls++ === 0 ? [{ recordId: "bm-para-defensive", contentRevision: 1 }] : [];
+      },
+    };
+
+    const rejectIssues = checkEntityReviewStatus(
+      entity,
+      [dynamicRecord],
+      registry,
+      "german-source",
+    );
+    expect(rejectIssues.length).toBe(1);
+    expect(rejectIssues[0]?.code).toBe("review-record-missing");
+    expect(rejectIssues[0]?.message).toBe(
+      'Entity "bm-para-defensive" does not have a valid accepted review record.',
+    );
+
+    // Accept: record with persistent scope entry covering entity
+    const validRecord: ReviewRecord = {
+      id: "rev-valid-1",
+      reviewType: "german-source",
+      reviewer: "open-german-source-brownian-motion",
+      date: "2026-09-16",
+      result: "accepted",
+      scope: [{ recordId: "bm-para-defensive", contentRevision: 1 }],
+    };
+    const acceptIssues = checkEntityReviewStatus(entity, [validRecord], registry, "german-source");
+    expect(acceptIssues.length).toBe(0);
+  });
 });

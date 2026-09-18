@@ -33,6 +33,34 @@ describe("strictParse schema refusal throw sites (am-muyh)", () => {
     assert.deepEqual(accepted, { foo: [1, 2, 3] });
   });
 
+  test("strictParse: (strictParse.ts:160) yaml-parse-error raised when non-YamlParseError is thrown during YAML parsing", () => {
+    const originalSplit = String.prototype.split;
+    try {
+      String.prototype.split = function (...args) {
+        if (typeof this === "string" && this.includes("trigger-non-yaml-error")) {
+          throw new Error("Simulated non-YamlParseError failure");
+        }
+        return Reflect.apply(originalSplit, this, args);
+      };
+
+      assert.throws(
+        () => parseStrictYaml("trigger-non-yaml-error: true"),
+        (err) => {
+          assert.ok(err instanceof StrictParseError);
+          assert.equal(err.code, "yaml-parse-error");
+          assert.ok(err.message.includes("Simulated non-YamlParseError failure"));
+          return true;
+        },
+      );
+    } finally {
+      String.prototype.split = originalSplit;
+    }
+
+    // Accept valid YAML string
+    const accepted = parseStrictYaml("safe: true");
+    assert.deepEqual(accepted, { safe: true });
+  });
+
   test("strictParse: (strictParse.ts:169) invalid-input raised when parseStrictJson receives non-string input", () => {
     assert.throws(
       () => parseStrictJson(undefined as unknown as string),

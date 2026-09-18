@@ -333,4 +333,147 @@ describe("journeyChecks refusal throw sites (am-muyh)", () => {
     expect(rejectFinding).toBeDefined();
     expect(rejectFinding?.severity).toBe("error");
   });
+
+  test("rejects when non-JourneySchemaError is thrown during journey validation (journeyChecks.ts:94)", () => {
+    const corruptJourney = {
+      ...FIXTURE_JOURNEY_BROWNIAN,
+      get paper() {
+        throw new TypeError("Corrupt paper getter thrown");
+      },
+    };
+    const findings = checkJourney(corruptJourney as any);
+    const schemaError = findings.find((f) => f.rule === "journey-schema-error");
+    expect(schemaError).toBeDefined();
+    expect(schemaError?.severity).toBe("error");
+    expect(schemaError?.message).toContain("Corrupt paper getter thrown");
+
+    // Accept case: valid journey validates without unexpected schema error
+    const validFindings = checkJourney(FIXTURE_JOURNEY_BROWNIAN);
+    expect(validFindings.some((f) => f.rule === "journey-schema-error")).toBe(false);
+  });
+
+  test("rejects when undecided branch is missing insufficiency statement (journeyChecks.ts:382)", () => {
+    let calls = 0;
+    const branch0 = FIXTURE_JOURNEY_BROWNIAN.forks[0]?.branches[0];
+    const branch1 = FIXTURE_JOURNEY_BROWNIAN.forks[0]?.branches[1];
+    if (!branch0 || !branch1) throw new Error("Missing branches");
+    const undecidedBranch = {
+      ...branch0,
+      outcome: {
+        type: "undecided-on-available-evidence",
+        get insufficiency() {
+          return calls++ < 2 ? "Valid 1904 insufficiency statement" : "";
+        },
+        whatWouldDecide: {
+          name: "Future experiment",
+          recordId: "future-rec",
+        },
+      },
+    };
+    const testJourney = {
+      ...FIXTURE_JOURNEY_BROWNIAN,
+      forks: [
+        {
+          ...FIXTURE_JOURNEY_BROWNIAN.forks[0],
+          branches: [undecidedBranch, branch1],
+        },
+      ],
+    };
+
+    const rejectFindings = checkJourney(testJourney as any);
+    const finding = rejectFindings.find((f) => f.rule === "fork-undecided-missing-insufficiency");
+    expect(finding).toBeDefined();
+    expect(finding?.severity).toBe("error");
+    expect(finding?.message).toContain("missing insufficiency statement");
+
+    // Accept case: valid insufficiency
+    const acceptJourney = {
+      ...FIXTURE_JOURNEY_BROWNIAN,
+      forks: [
+        {
+          ...FIXTURE_JOURNEY_BROWNIAN.forks[0],
+          branches: [
+            {
+              ...branch0,
+              outcome: {
+                type: "undecided-on-available-evidence",
+                insufficiency: "Historical records show evidence was inconclusive in 1904.",
+                whatWouldDecide: {
+                  name: "Perrin 1908 measurements",
+                  recordId: "future-perrin-1908",
+                },
+              },
+            },
+            branch1,
+          ],
+        },
+      ],
+    };
+    const acceptFindings = checkJourney(acceptJourney as any);
+    expect(acceptFindings.some((f) => f.rule === "fork-undecided-missing-insufficiency")).toBe(
+      false,
+    );
+  });
+
+  test("rejects when undecided branch is missing whatWouldDecide (journeyChecks.ts:393)", () => {
+    let calls = 0;
+    const branch0 = FIXTURE_JOURNEY_BROWNIAN.forks[0]?.branches[0];
+    const branch1 = FIXTURE_JOURNEY_BROWNIAN.forks[0]?.branches[1];
+    if (!branch0 || !branch1) throw new Error("Missing branches");
+    const undecidedBranch = {
+      ...branch0,
+      outcome: {
+        type: "undecided-on-available-evidence",
+        insufficiency: "Evidence was insufficient in 1904.",
+        get whatWouldDecide() {
+          return calls++ < 3 ? { name: "Test", recordId: "rec-1" } : undefined;
+        },
+      },
+    };
+    const testJourney = {
+      ...FIXTURE_JOURNEY_BROWNIAN,
+      forks: [
+        {
+          ...FIXTURE_JOURNEY_BROWNIAN.forks[0],
+          branches: [undecidedBranch, branch1],
+        },
+      ],
+    };
+
+    const rejectFindings = checkJourney(testJourney as any);
+    const finding = rejectFindings.find(
+      (f) => f.rule === "fork-undecided-missing-what-would-decide",
+    );
+    expect(finding).toBeDefined();
+    expect(finding?.severity).toBe("error");
+    expect(finding?.message).toContain("missing whatWouldDecide");
+
+    // Accept case: valid whatWouldDecide
+    const acceptJourney = {
+      ...FIXTURE_JOURNEY_BROWNIAN,
+      forks: [
+        {
+          ...FIXTURE_JOURNEY_BROWNIAN.forks[0],
+          branches: [
+            {
+              ...branch0,
+              outcome: {
+                type: "undecided-on-available-evidence",
+                insufficiency: "Historical records show evidence was inconclusive in 1904.",
+                whatWouldDecide: {
+                  name: "Perrin 1908 measurements",
+                  recordId: "future-perrin-1908",
+                },
+              },
+            },
+            branch1,
+          ],
+        },
+      ],
+    };
+    const acceptFindings = checkJourney(acceptJourney as any);
+    expect(acceptFindings.some((f) => f.rule === "fork-undecided-missing-what-would-decide")).toBe(
+      false,
+    );
+  });
 });

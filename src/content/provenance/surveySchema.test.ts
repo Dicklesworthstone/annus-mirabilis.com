@@ -41,4 +41,21 @@ describe("surveySchema refusal throw sites (am-muyh)", () => {
     assert.equal(diag?.severity, "error");
     assert.match(diag?.message ?? "", /YAML Parse Error/);
   });
+
+  test("refusal (surveySchema.ts:342): survey-front-matter rejects text where front matter content is undefined", () => {
+    // Accept: valid record
+    const accepted = validateSurveyRecord(validRecord, "docs/provenance/survey/ap-17-549.md");
+    assert.equal(accepted.ok, true);
+
+    // Reject: input whose match returns undefined capture group (exercising surveySchema.ts:342)
+    const corruptInput = {
+      match: () => ["---", undefined] as unknown as RegExpMatchArray,
+    } as unknown as string;
+    const rejected = validateSurveyRecord(corruptInput, "test.md");
+    assert.equal(rejected.ok, false);
+    const diag = rejected.diagnostics.find((d) => d.rule === "survey-front-matter");
+    assert.ok(diag);
+    assert.equal(diag?.severity, "error");
+    assert.equal(diag?.message, "Front matter content could not be extracted.");
+  });
 });

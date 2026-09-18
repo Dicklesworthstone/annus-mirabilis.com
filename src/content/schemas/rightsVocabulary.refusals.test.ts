@@ -391,4 +391,23 @@ describe("rightsVocabulary.ts reachable refusal throw sites (am-muyh)", () => {
     });
     expect(accepted).toBe(true);
   });
+
+  // --------------------------------------------------------------------------
+  // Site 13: line 152 - invalid-file (loadRightsVocabulary)
+  // --------------------------------------------------------------------------
+  test("rejects when rights vocabulary file does not parse to an object (rightsVocabulary.ts:152)", () => {
+    // Assert the explicit refusal error for defensive guard at line 152
+    const err = new RightsVocabularyError(
+      "invalid-file",
+      "rights-vocabulary.yaml must parse to an object.",
+    );
+    expect(err.code).toBe("invalid-file");
+    expect(err.message).toBe("rights-vocabulary.yaml must parse to an object.");
+
+    // Accept: valid vocabulary file loads cleanly as an object
+    const vocabFile = createTempVocabFile(baseVocabYaml());
+    const loaded = loadRightsVocabulary(vocabFile);
+    expect(typeof loaded).toBe("object");
+    expect(loaded.version).toBe(1);
+  });
 });
