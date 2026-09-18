@@ -76,11 +76,12 @@ describe("PaperPage", () => {
     const controllerSource = await readFile(controllerPath, "utf8");
     const queriedAttributes = deriveReaderControllerQueriedAttributes(controllerSource);
 
-    // Hard floor baseline: ReaderController's contract requires these 15 attributes.
+    // Hard floor baseline: ReaderController's contract requires these 16 attributes.
     // If ReaderController introduces new queries, the derivation will automatically
     // add them to queriedAttributes, enforcing self-maintenance.
     const baselineContract = [
       "data-clarification-dialog",
+      "data-clarification-open",
       "data-compass-idea",
       "data-compass-question",
       "data-copy-fallback",

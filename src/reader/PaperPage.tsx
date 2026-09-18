@@ -1,12 +1,15 @@
 import { notFound } from "next/navigation";
 import { validateEntranceRecord } from "../content/entrances/entranceRecord.ts";
-import entranceExample from "../generated/mass-energy-entrance.json";
-import { MassEnergyFirstEncounter } from "./entrances/MassEnergyFirstEncounter.tsx";
-import type { MassEnergyEntranceScenario } from "./entrances/massEnergyExample.ts";
 import { loadPaper } from "../content/server.ts";
+import type { CompiledMissingStepLesson } from "../equations/missingStep/compiled.ts";
+import { MissingStepDisclosure } from "../equations/missingStep/MissingStepPanel.tsx";
+import entranceExample from "../generated/mass-energy-entrance.json";
+import missingSteps from "../generated/missing-steps.json";
 import { passageActionsFromArgument } from "./actions/fromArgument.ts";
 import { PassageActionsBar } from "./actions/PassageActionsBar.tsx";
 import { FoundationBody, ReadingBlocks } from "./Blocks.tsx";
+import { MassEnergyFirstEncounter } from "./entrances/MassEnergyFirstEncounter.tsx";
+import type { MassEnergyEntranceScenario } from "./entrances/massEnergyExample.ts";
 import { FaceFallback } from "./FaceFallback.tsx";
 import {
   isFaceFallbackId,
@@ -41,8 +44,13 @@ export async function PaperPage(request: PaperRouteRequest) {
   const sectionId = resolved.section;
   const sections = sectionId ? paper.sections.filter((s) => s.id === sectionId) : paper.sections;
   const args = payload.arguments.filter((a) => sections.some((s) => s.id === a.section));
-  const entrance = paper.id === "mass-energy" ? validateEntranceRecord(entranceExample.record) : null;
-  const anchors = [...(entrance ? ["entry-mass-energy"] : []), ...args.map((a) => a.id), ...sections.map((s) => s.id)];
+  const entrance =
+    paper.id === "mass-energy" ? validateEntranceRecord(entranceExample.record) : null;
+  const anchors = [
+    ...(entrance ? ["entry-mass-energy"] : []),
+    ...args.map((a) => a.id),
+    ...sections.map((s) => s.id),
+  ];
   const registry = { paperId: paper.id, anchors, foundations: foundations.map((f) => f.id) };
   const titles = Object.fromEntries(foundations.map((f) => [f.id, f.title]));
   const questions = Object.fromEntries(args.map((a) => [a.id, a.question]));
@@ -87,9 +95,13 @@ export async function PaperPage(request: PaperRouteRequest) {
           </nav>
         </aside>
         <div className="reader-body">
-          {entrance && <MassEnergyFirstEncounter record={entrance}
-            scenarios={entranceExample.scenarios as readonly MassEnergyEntranceScenario[]}
-            sourceDigest={entranceExample.sourceDigest} />}
+          {entrance && (
+            <MassEnergyFirstEncounter
+              record={entrance}
+              scenarios={entranceExample.scenarios as readonly MassEnergyEntranceScenario[]}
+              sourceDigest={entranceExample.sourceDigest}
+            />
+          )}
 
           {sections.map((s) => (
             <section key={s.id} id={s.id} tabIndex={-1} className="reader-section">
@@ -128,6 +140,11 @@ export async function PaperPage(request: PaperRouteRequest) {
                           />
                         </div>
                       ))}
+                      {(missingSteps.lessons as readonly CompiledMissingStepLesson[])
+                        .filter((lesson) => lesson.argument === a.id)
+                        .map((lesson) => (
+                          <MissingStepDisclosure key={lesson.id} lesson={lesson} />
+                        ))}
                       <details className="local-steps">
                         <summary>Show every step here: {a.title}</summary>
                         <ReadingBlocks
@@ -231,9 +248,11 @@ export async function PaperPage(request: PaperRouteRequest) {
       <section className="reading" aria-label="References for this explanatory preview">
         <h2>References and source status</h2>
         <p>{paper.sourceNotice}</p>
-        {payload.citations.map(citation => <p key={citation.id}>
-          <a href={citation.url}>{citation.title}</a>. {citation.locator}
-        </p>)}
+        {payload.citations.map((citation) => (
+          <p key={citation.id}>
+            <a href={citation.url}>{citation.title}</a>. {citation.locator}
+          </p>
+        ))}
       </section>
       <p className="fine">{foundations.length} foundation readings sit behind this argument.</p>
       <dialog className="clarification-dialog" data-clarification-dialog aria-modal="true">
