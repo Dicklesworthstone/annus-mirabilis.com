@@ -310,3 +310,114 @@ test("Operation: (concordance.ts:437) invalid-operation-kind rejected when kind 
   assert.equal(accepted.kind, "rename");
 });
 
+// ============================================================================
+// Group 3: Collisions (9 sites)
+// ============================================================================
+
+const VALID_COLLISION = {
+  severity: "danger" as const,
+  kind: "cross-paper" as const,
+  collidesWith: ["sr.beta.lorentz-factor"],
+  firstUseAnchor: "s1-p2-s3",
+  firstUseBySection: [
+    { sectionId: "s1", anchor: "s1-p2-s3" },
+  ],
+};
+
+test("Collision: (concordance.ts:446) invalid-collision rejected when raw is not an object, accepted with valid collision", () => {
+  assertConcordanceRefusal(() => validateCollision(null), "invalid-collision");
+  assertConcordanceRefusal(() => validateCollision("not-an-object"), "invalid-collision");
+
+  const accepted = validateCollision(VALID_COLLISION);
+  assert.equal(accepted.severity, "danger");
+});
+
+test("Collision: (concordance.ts:458) invalid-collision-severity rejected when severity unknown, accepted with danger/caution", () => {
+  assertConcordanceRefusal(
+    () => validateCollision({ ...VALID_COLLISION, severity: "warning" as any }),
+    "invalid-collision-severity",
+  );
+
+  const accepted = validateCollision({ ...VALID_COLLISION, severity: "caution" });
+  assert.equal(accepted.severity, "caution");
+});
+
+test("Collision: (concordance.ts:465) invalid-collision-kind rejected when kind unknown, accepted with valid kind", () => {
+  assertConcordanceRefusal(
+    () => validateCollision({ ...VALID_COLLISION, kind: "global" as any }),
+    "invalid-collision-kind",
+  );
+
+  const accepted = validateCollision({ ...VALID_COLLISION, kind: "within-paper" });
+  assert.equal(accepted.kind, "within-paper");
+});
+
+test("Collision: (concordance.ts:478) collision-targets-empty rejected when both target arrays empty, accepted with targets", () => {
+  assertConcordanceRefusal(
+    () => validateCollision({ ...VALID_COLLISION, collidesWith: [], collidesWithModern: [] }),
+    "collision-targets-empty",
+  );
+
+  const accepted = validateCollision(VALID_COLLISION);
+  assert.equal(accepted.collidesWith.length, 1);
+});
+
+test("Collision: (concordance.ts:486) missing-first-use-anchor rejected when anchor empty or missing, accepted with anchor", () => {
+  assertConcordanceRefusal(
+    () => validateCollision({ ...VALID_COLLISION, firstUseAnchor: "   " }),
+    "missing-first-use-anchor",
+  );
+
+  const accepted = validateCollision(VALID_COLLISION);
+  assert.equal(accepted.firstUseAnchor, "s1-p2-s3");
+});
+
+test("Collision: (concordance.ts:494) missing-first-use-by-section rejected when array empty or not array, accepted with items", () => {
+  assertConcordanceRefusal(
+    () => validateCollision({ ...VALID_COLLISION, firstUseBySection: [] }),
+    "missing-first-use-by-section",
+  );
+
+  const accepted = validateCollision(VALID_COLLISION);
+  assert.equal(accepted.firstUseBySection.length, 1);
+});
+
+test("Collision: (concordance.ts:504) invalid-first-use-section-item rejected when item not object, accepted with object", () => {
+  assertConcordanceRefusal(
+    () => validateCollision({ ...VALID_COLLISION, firstUseBySection: ["not-an-object" as any] }),
+    "invalid-first-use-section-item",
+  );
+
+  const accepted = validateCollision(VALID_COLLISION);
+  assert.equal(accepted.firstUseBySection[0]?.sectionId, "s1");
+});
+
+test("Collision: (concordance.ts:512) missing-section-id rejected when sectionId missing or empty, accepted with sectionId", () => {
+  assertConcordanceRefusal(
+    () =>
+      validateCollision({
+        ...VALID_COLLISION,
+        firstUseBySection: [{ sectionId: "   ", anchor: "s1-p1" }],
+      }),
+    "missing-section-id",
+  );
+
+  const accepted = validateCollision(VALID_COLLISION);
+  assert.equal(accepted.firstUseBySection[0]?.sectionId, "s1");
+});
+
+test("Collision: (concordance.ts:519) missing-anchor rejected when section anchor missing or empty, accepted with anchor", () => {
+  assertConcordanceRefusal(
+    () =>
+      validateCollision({
+        ...VALID_COLLISION,
+        firstUseBySection: [{ sectionId: "s1", anchor: "   " }],
+      }),
+    "missing-anchor",
+  );
+
+  const accepted = validateCollision(VALID_COLLISION);
+  assert.equal(accepted.firstUseBySection[0]?.anchor, "s1-p2-s3");
+});
+
+

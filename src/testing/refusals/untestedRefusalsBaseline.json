@@ -43,7 +43,7 @@
   "src/content/revisions.ts": 6,
   "src/content/schemas/argument.ts": 141,
   "src/content/schemas/authorship.ts": 7,
-  "src/content/schemas/concordance.ts": 25,
+  "src/content/schemas/concordance.ts": 16,
   "src/content/schemas/dates.ts": 9,
   "src/content/schemas/dimensionBasis.ts": 9,
   "src/content/schemas/experiment.ts": 0,
