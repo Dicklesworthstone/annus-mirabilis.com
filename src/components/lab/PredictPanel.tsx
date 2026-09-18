@@ -320,7 +320,7 @@ export function PredictPanel({
                 });
               }
             }}
-            style={{ border: "1px solid #999", touchAction: "none", cursor: "crosshair" }}
+            style={{ border: "1px solid var(--line)", touchAction: "none", cursor: "crosshair" }}
           >
             {/* Draw polyline */}
             {sketchState.points.length > 1 && (

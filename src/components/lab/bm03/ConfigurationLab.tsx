@@ -173,8 +173,8 @@ export function ConfigurationLab({
         style={{
           padding: "1rem",
           margin: "1rem 0",
-          background: "var(--color-bg-card, #faf9f6)",
-          border: "1px solid var(--color-border, #e5e5e0)",
+          background: "var(--panel)",
+          border: "1px solid var(--line)",
           borderRadius: "8px",
         }}
       >
