@@ -346,6 +346,64 @@ export const DATA_COLOR_ALLOWLIST: readonly DataColorAllowlistEntry[] = [
     reason:
       "Brownian diffusive counter-flux (J_diff = -D*dn/dx) physical transport mechanism representation in FluxBalancePlot",
   },
+  // Particle tracer trajectory and position marker data colors in TrajectoryLayer (2D view kit):
+  {
+    file: "src/visuals/kit/TrajectoryLayer.tsx",
+    hex: "#3b82f6",
+    reason: "Particle tracer trajectory path and endpoint marker data color in Canvas 2D rendering",
+  },
+  // Physical ray paths, Doppler shifts, vectors, and power ledgers in MovingMirrorPlot (SR-11):
+  {
+    file: "src/components/lab/sr11/MovingMirrorPlot.tsx",
+    hex: "#f59e0b",
+    reason:
+      "Incident light wave vector and unshifted reflected ray spectral color in moving mirror reflection",
+  },
+  {
+    file: "src/components/lab/sr11/MovingMirrorPlot.tsx",
+    hex: "#3b82f6",
+    reason:
+      "Doppler blueshifted reflected light wave vector and total output power ledger in moving mirror reflection",
+  },
+  {
+    file: "src/components/lab/sr11/MovingMirrorPlot.tsx",
+    hex: "#ef4444",
+    reason: "Doppler redshifted reflected light wave vector in moving mirror reflection",
+  },
+  {
+    file: "src/components/lab/sr11/MovingMirrorPlot.tsx",
+    hex: "#10b981",
+    reason: "Mirror velocity vector and mechanical work rate in moving mirror reflection",
+  },
+  {
+    file: "src/components/lab/sr11/MovingMirrorPlot.tsx",
+    hex: "#ec4899",
+    reason: "Radiation pressure force vector acting on moving mirror face",
+  },
+  // Empirical beta-ray deflection datasets distinguishing Kaufmann from Bucherer in ElectronDynamicsPlot (SR-13):
+  {
+    file: "src/components/lab/sr13/ElectronDynamicsPlot.tsx",
+    hex: "#f59e0b",
+    reason:
+      "Kaufmann 1902–1906 Radium beta-ray deflection experimental data point fill in electron dynamics",
+  },
+  {
+    file: "src/components/lab/sr13/ElectronDynamicsPlot.tsx",
+    hex: "#b45309",
+    reason:
+      "Kaufmann 1902–1906 Radium beta-ray deflection experimental data point stroke and uncertainty tick in electron dynamics",
+  },
+  {
+    file: "src/components/lab/sr13/ElectronDynamicsPlot.tsx",
+    hex: "#10b981",
+    reason: "Bucherer 1908 velocity-filter experimental data point fill in electron dynamics",
+  },
+  {
+    file: "src/components/lab/sr13/ElectronDynamicsPlot.tsx",
+    hex: "#047857",
+    reason:
+      "Bucherer 1908 velocity-filter experimental data point stroke and uncertainty tick in electron dynamics",
+  },
 ];
 
 const HEX_COLOR_RE = /#(?:[0-9a-fA-F]{8}|[0-9a-fA-F]{6}|[0-9a-fA-F]{4}|[0-9a-fA-F]{3})\b/g;
