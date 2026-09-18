@@ -12,25 +12,81 @@ export function MoveMarker({ move }: MoveMarkerProps) {
   return (
     <aside
       data-move-marker
-      className="move-marker my-10 p-6 rounded-xl border-2 border-rose-600/80 bg-stone-900/90 text-stone-100 shadow-lg space-y-4"
+      style={{
+        margin: "2.5rem 0",
+        padding: "1.5rem",
+        borderRadius: "0.75rem",
+        border: "2px solid var(--accent)",
+        background: "var(--wash)",
+        color: "var(--ink)",
+        display: "flex",
+        flexDirection: "column",
+        gap: "1rem",
+        boxShadow: "0 4px 6px -1px rgba(0, 0, 0, 0.1), 0 2px 4px -2px rgba(0, 0, 0, 0.1)",
+      }}
     >
-      <header className="flex flex-wrap items-center justify-between gap-3 border-b border-rose-800/40 pb-3">
-        <div className="flex items-center gap-2">
-          <span className="w-3 h-3 rounded-full bg-rose-500 inline-block animate-pulse" />
-          <span className="text-xs font-mono uppercase tracking-wider text-rose-400 font-bold">
+      <header
+        style={{
+          display: "flex",
+          flexWrap: "wrap",
+          alignItems: "center",
+          justifyContent: "space-between",
+          gap: "0.75rem",
+          borderBottom: "1px solid var(--line)",
+          paddingBottom: "0.75rem",
+        }}
+      >
+        <div style={{ display: "flex", alignItems: "center", gap: "0.5rem" }}>
+          <span
+            style={{
+              width: "0.75rem",
+              height: "0.75rem",
+              borderRadius: "50%",
+              background: "var(--accent)",
+              display: "inline-block",
+            }}
+          />
+          <span
+            className="eyebrow"
+            style={{
+              fontSize: "0.75rem",
+              fontFamily: "var(--font-mono, monospace)",
+              textTransform: "uppercase",
+              letterSpacing: "0.05em",
+              color: "var(--accent)",
+              fontWeight: "bold",
+            }}
+          >
             The Consequential Move
           </span>
         </div>
-        <div className="flex items-center gap-2 text-xs">
-          <span className="font-mono text-stone-400">
+        <div
+          style={{
+            display: "flex",
+            alignItems: "center",
+            gap: "0.5rem",
+            fontSize: "0.75rem",
+          }}
+        >
+          <span
+            style={{
+              fontFamily: "var(--font-mono, monospace)",
+              color: "var(--muted)",
+            }}
+          >
             {chainId} · {stepId}
           </span>
           <span
-            className={`px-2 py-0.5 rounded text-[11px] font-medium border ${
-              isReviewed
-                ? "bg-emerald-950 text-emerald-300 border-emerald-800"
-                : "bg-amber-950 text-amber-300 border-amber-800"
-            }`}
+            className="badge"
+            style={{
+              padding: "0.125rem 0.5rem",
+              borderRadius: "0.25rem",
+              fontSize: "0.6875rem",
+              fontWeight: 500,
+              border: isReviewed ? "1px solid var(--accent)" : "1px solid var(--line)",
+              background: isReviewed ? "var(--panel)" : "var(--wash)",
+              color: isReviewed ? "var(--accent)" : "var(--muted)",
+            }}
           >
             {r0Summary.reviewState}
           </span>
@@ -38,8 +94,28 @@ export function MoveMarker({ move }: MoveMarkerProps) {
       </header>
 
       <div>
-        <h3 className="text-xl font-serif font-bold text-stone-100 mb-2">{label}</h3>
-        <p className="text-base text-stone-200 leading-relaxed font-serif">{r0Summary.text}</p>
+        <h3
+          style={{
+            fontSize: "1.25rem",
+            fontFamily: "var(--font-serif)",
+            fontWeight: "bold",
+            color: "var(--ink)",
+            marginBottom: "0.5rem",
+          }}
+        >
+          {label}
+        </h3>
+        <p
+          style={{
+            fontSize: "1rem",
+            color: "var(--ink)",
+            lineHeight: 1.6,
+            fontFamily: "var(--font-serif)",
+            margin: 0,
+          }}
+        >
+          {r0Summary.text}
+        </p>
       </div>
     </aside>
   );
