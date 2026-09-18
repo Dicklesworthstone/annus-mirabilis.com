@@ -98,7 +98,7 @@
   "src/experiments/interactions/expression/ExpressionActionPicker.tsx": 0,
   "src/experiments/interactions/interval/IntervalSelector.tsx": 0,
   "src/experiments/interactions/partition/PartitionControl.tsx": 0,
-  "src/experiments/permalink/ShareControl.tsx": 12,
+  "src/experiments/permalink/ShareControl.tsx": 0,
   "src/experiments/results/ResultStatusNote.tsx": 3,
   "src/reader/Blocks.tsx": 2,
   "src/reader/FaceFallback.tsx": 0,

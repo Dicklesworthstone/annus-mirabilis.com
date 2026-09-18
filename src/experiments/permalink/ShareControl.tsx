@@ -2,6 +2,7 @@
 
 import { useState } from "react";
 import { encodeTapePermalink } from "./codec.ts";
+import "./permalink.css";
 import { SHARE_FORMS } from "./shareForms.ts";
 import type { TapeV2 } from "./types.ts";
 

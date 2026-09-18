@@ -1,0 +1,94 @@
+/* Permalink Share Control styles (am-inst-permalink-tape-s677, am-vw1o) */
+
+.share-control {
+  border: 1px solid var(--line);
+  background: var(--panel);
+  border-radius: 6px;
+  padding: 1rem;
+  margin: 1.5rem 0;
+}
+
+.share-control-header {
+  margin-bottom: 0.75rem;
+}
+
+.share-control-form-name {
+  font-size: 0.85rem;
+  font-weight: 600;
+  text-transform: uppercase;
+  letter-spacing: 0.05em;
+  color: var(--muted);
+}
+
+.share-control-predictions-option {
+  margin: 0.75rem 0;
+  padding: 0.5rem 0.75rem;
+  background: var(--wash);
+  border: 1px solid var(--line);
+  border-radius: 4px;
+}
+
+.share-control-predictions-label {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+  font-size: 0.9rem;
+  cursor: pointer;
+}
+
+.share-control-predictions-notice {
+  font-size: 0.8rem;
+  color: var(--muted);
+  margin: 0.25rem 0 0 1.5rem;
+}
+
+.share-control-actions {
+  display: flex;
+  align-items: center;
+  gap: 1rem;
+  margin: 1rem 0;
+}
+
+.share-control-button {
+  font-size: 0.85rem;
+  font-weight: 500;
+  padding: 0.4rem 0.8rem;
+  background: var(--accent);
+  color: white;
+  border: 1px solid transparent;
+  border-radius: 4px;
+  cursor: pointer;
+}
+
+.share-control-button:hover,
+.share-control-button:focus-visible {
+  opacity: 0.9;
+}
+
+.share-control-status {
+  font-size: 0.85rem;
+  color: var(--accent);
+  min-height: 1.25rem;
+}
+
+.share-control-fallback {
+  margin-top: 1rem;
+}
+
+.share-control-url-label {
+  display: block;
+  font-size: 0.8rem;
+  color: var(--muted);
+  margin-bottom: 0.25rem;
+}
+
+.share-control-url-input {
+  width: 100%;
+  padding: 0.4rem 0.6rem;
+  font-family: var(--font-mono, monospace);
+  font-size: 0.8rem;
+  border: 1px solid var(--line);
+  background: var(--wash);
+  color: var(--ink);
+  border-radius: 4px;
+}
