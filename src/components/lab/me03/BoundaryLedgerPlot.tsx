@@ -51,8 +51,8 @@ export function BoundaryLedgerPlot({ parameters, evaluation, clipId }: BoundaryL
             <rect x="10" y="10" width={width - 20} height={height - 20} rx="8" />
           </clipPath>
           <linearGradient id={`${clipId}-grad`} x1="0%" y1="0%" x2="100%" y2="100%">
-            <stop offset="0%" stopColor="var(--color-bg-subtle, #fbfaf7)" />
-            <stop offset="100%" stopColor="var(--color-bg-inset, #f0ede6)" />
+            <stop offset="0%" stopColor="var(--paper)" />
+            <stop offset="100%" stopColor="var(--wash)" />
           </linearGradient>
           <marker
             id="arrow-energy"
@@ -63,7 +63,7 @@ export function BoundaryLedgerPlot({ parameters, evaluation, clipId }: BoundaryL
             markerHeight="6"
             orient="auto-start-reverse"
           >
-            <path d="M 0 1.5 L 8 5 L 0 8.5 z" fill="#ea580c" />
+            <path d="M 0 1.5 L 8 5 L 0 8.5 z" fill="var(--accent)" />
           </marker>
         </defs>
 
@@ -75,7 +75,7 @@ export function BoundaryLedgerPlot({ parameters, evaluation, clipId }: BoundaryL
           height={height - 20}
           rx="8"
           fill={`url(#${clipId}-grad)`}
-          stroke="var(--color-border, #d1cfc7)"
+          stroke="var(--line)"
           strokeWidth="1.5"
         />
 
@@ -86,7 +86,7 @@ export function BoundaryLedgerPlot({ parameters, evaluation, clipId }: BoundaryL
               ? "Four-Momentum Invariant Mass Geometry"
               : "Thermodynamic Boundary & Flux"}
           </text>
-          <text x="5" y="32" fontSize="11" fill="var(--color-text-muted, #64748b)">
+          <text x="5" y="32" fontSize="11" fill="var(--muted)">
             {isFourMomentum
               ? `System: ${pulseSystem} (m = √[P·P] = ${invMass === 0 ? "0" : isModern ? "L/c²" : "L/V²"})`
               : `Selected Boundary: ${boundary} (${disposition})`}
@@ -101,8 +101,8 @@ export function BoundaryLedgerPlot({ parameters, evaluation, clipId }: BoundaryL
                 width="260"
                 height="190"
                 rx="10"
-                fill={boundary === "combined-isolated-system" ? "#eff6ff" : "none"}
-                stroke={boundary === "combined-isolated-system" ? "#2563eb" : "#94a3b8"}
+                fill={boundary === "combined-isolated-system" ? "var(--wash)" : "none"}
+                stroke={boundary === "combined-isolated-system" ? "var(--plot)" : "var(--line)"}
                 strokeWidth={boundary === "combined-isolated-system" ? "2.5" : "1.5"}
                 strokeDasharray={boundary === "combined-isolated-system" ? "none" : "6 4"}
               />
@@ -111,7 +111,7 @@ export function BoundaryLedgerPlot({ parameters, evaluation, clipId }: BoundaryL
                 y="30"
                 fontSize="11"
                 fontWeight={boundary === "combined-isolated-system" ? "bold" : "normal"}
-                fill={boundary === "combined-isolated-system" ? "#1d4ed8" : "#64748b"}
+                fill={boundary === "combined-isolated-system" ? "var(--plot)" : "var(--muted)"}
               >
                 Combined Isolated System
               </text>
@@ -123,8 +123,8 @@ export function BoundaryLedgerPlot({ parameters, evaluation, clipId }: BoundaryL
                 width="100"
                 height="100"
                 rx="8"
-                fill={boundary === "body-alone" ? "#fef3c7" : "#f1f5f9"}
-                stroke={boundary === "body-alone" ? "#d97706" : "#cbd5e1"}
+                fill={boundary === "body-alone" ? "var(--wash)" : "var(--panel)"}
+                stroke={boundary === "body-alone" ? "var(--accent)" : "var(--line)"}
                 strokeWidth={boundary === "body-alone" ? "2.5" : "1.5"}
               />
               <text
@@ -133,11 +133,11 @@ export function BoundaryLedgerPlot({ parameters, evaluation, clipId }: BoundaryL
                 textAnchor="middle"
                 fontSize="12"
                 fontWeight="bold"
-                fill="#334155"
+                fill="var(--ink)"
               >
                 Source Body
               </text>
-              <text x="80" y="125" textAnchor="middle" fontSize="10" fill="#64748b">
+              <text x="80" y="125" textAnchor="middle" fontSize="10" fill="var(--muted)">
                 Δm = -L/c²
               </text>
 
@@ -149,7 +149,7 @@ export function BoundaryLedgerPlot({ parameters, evaluation, clipId }: BoundaryL
                     y1="110"
                     x2="285"
                     y2="110"
-                    stroke="#ea580c"
+                    stroke="var(--accent)"
                     strokeWidth="3"
                     markerEnd="url(#arrow-energy)"
                   />
@@ -159,7 +159,7 @@ export function BoundaryLedgerPlot({ parameters, evaluation, clipId }: BoundaryL
                     textAnchor="middle"
                     fontSize="11"
                     fontWeight="bold"
-                    fill="#ea580c"
+                    fill="var(--accent)"
                   >
                     Radiation Escapes (+L)
                   </text>
@@ -169,7 +169,7 @@ export function BoundaryLedgerPlot({ parameters, evaluation, clipId }: BoundaryL
                   <path
                     d="M 130 110 Q 200 70 210 130"
                     fill="none"
-                    stroke="#ea580c"
+                    stroke="var(--accent)"
                     strokeWidth="2.5"
                     markerEnd="url(#arrow-energy)"
                   />
@@ -179,15 +179,15 @@ export function BoundaryLedgerPlot({ parameters, evaluation, clipId }: BoundaryL
                     width="70"
                     height="40"
                     rx="4"
-                    fill="#e2e8f0"
-                    stroke="#94a3b8"
+                    fill="var(--wash)"
+                    stroke="var(--line)"
                   />
                   <text
                     x="215"
                     y="155"
                     textAnchor="middle"
                     fontSize="10"
-                    fill="#475569"
+                    fill="var(--ink)"
                     fontWeight="bold"
                   >
                     Absorber
@@ -197,7 +197,7 @@ export function BoundaryLedgerPlot({ parameters, evaluation, clipId }: BoundaryL
                     y="100"
                     textAnchor="middle"
                     fontSize="10"
-                    fill="#ea580c"
+                    fill="var(--accent)"
                     fontWeight="bold"
                   >
                     Retained Inside
@@ -214,8 +214,8 @@ export function BoundaryLedgerPlot({ parameters, evaluation, clipId }: BoundaryL
                 width="260"
                 height="180"
                 rx="8"
-                fill="#f8fafc"
-                stroke="#cbd5e1"
+                fill="var(--wash)"
+                stroke="var(--line)"
                 strokeWidth="1"
               />
               {pulseSystem === "single-pulse" && (
@@ -225,18 +225,18 @@ export function BoundaryLedgerPlot({ parameters, evaluation, clipId }: BoundaryL
                     y1="0"
                     x2="80"
                     y2="0"
-                    stroke="#2563eb"
+                    stroke="var(--plot)"
                     strokeWidth="3"
                     markerEnd="url(#arrow-energy)"
                   />
-                  <circle cx="0" cy="0" r="6" fill="#3b82f6" />
+                  <circle cx="0" cy="0" r="6" fill="var(--plot)" />
                   <text
                     x="0"
                     y="-15"
                     textAnchor="middle"
                     fontSize="11"
                     fontWeight="bold"
-                    fill="#1e293b"
+                    fill="var(--ink)"
                   >
                     Single Light Pulse: P = (L/c, L/c, 0, 0)
                   </text>
@@ -245,7 +245,7 @@ export function BoundaryLedgerPlot({ parameters, evaluation, clipId }: BoundaryL
                     y="25"
                     textAnchor="middle"
                     fontSize="11"
-                    fill="#059669"
+                    fill="var(--plot)"
                     fontWeight="bold"
                   >
                     P·P = 0 ⟹ Invariant Mass m = 0
@@ -259,7 +259,7 @@ export function BoundaryLedgerPlot({ parameters, evaluation, clipId }: BoundaryL
                     y1="-10"
                     x2="60"
                     y2="-10"
-                    stroke="#2563eb"
+                    stroke="var(--plot)"
                     strokeWidth="2.5"
                     markerEnd="url(#arrow-energy)"
                   />
@@ -268,7 +268,7 @@ export function BoundaryLedgerPlot({ parameters, evaluation, clipId }: BoundaryL
                     y1="10"
                     x2="60"
                     y2="10"
-                    stroke="#2563eb"
+                    stroke="var(--plot)"
                     strokeWidth="2.5"
                     markerEnd="url(#arrow-energy)"
                   />
@@ -278,7 +278,7 @@ export function BoundaryLedgerPlot({ parameters, evaluation, clipId }: BoundaryL
                     textAnchor="middle"
                     fontSize="11"
                     fontWeight="bold"
-                    fill="#1e293b"
+                    fill="var(--ink)"
                   >
                     Two Collinear Pulses: P = (L/c, L/c, 0, 0)
                   </text>
@@ -287,7 +287,7 @@ export function BoundaryLedgerPlot({ parameters, evaluation, clipId }: BoundaryL
                     y="35"
                     textAnchor="middle"
                     fontSize="11"
-                    fill="#059669"
+                    fill="var(--plot)"
                     fontWeight="bold"
                   >
                     P·P = 0 ⟹ Invariant Mass m = 0
@@ -301,7 +301,7 @@ export function BoundaryLedgerPlot({ parameters, evaluation, clipId }: BoundaryL
                     y1="0"
                     x2="70"
                     y2="0"
-                    stroke="#2563eb"
+                    stroke="var(--plot)"
                     strokeWidth="3"
                     markerEnd="url(#arrow-energy)"
                   />
@@ -310,18 +310,18 @@ export function BoundaryLedgerPlot({ parameters, evaluation, clipId }: BoundaryL
                     y1="0"
                     x2="-70"
                     y2="0"
-                    stroke="#ea580c"
+                    stroke="var(--accent)"
                     strokeWidth="3"
                     markerEnd="url(#arrow-energy)"
                   />
-                  <circle cx="0" cy="0" r="7" fill="#0f172a" />
+                  <circle cx="0" cy="0" r="7" fill="var(--ink)" />
                   <text
                     x="0"
                     y="-20"
                     textAnchor="middle"
                     fontSize="11"
                     fontWeight="bold"
-                    fill="#1e293b"
+                    fill="var(--ink)"
                   >
                     Two Opposite Pulses: P = (L/c, 0, 0, 0)
                   </text>
@@ -330,7 +330,7 @@ export function BoundaryLedgerPlot({ parameters, evaluation, clipId }: BoundaryL
                     y="30"
                     textAnchor="middle"
                     fontSize="11"
-                    fill="#059669"
+                    fill="var(--plot)"
                     fontWeight="bold"
                   >
                     P·P = (L/c)² ⟹ Invariant Mass m = {isModern ? "L/c²" : "L/V²"}
@@ -349,8 +349,8 @@ export function BoundaryLedgerPlot({ parameters, evaluation, clipId }: BoundaryL
             width="280"
             height="250"
             rx="6"
-            fill="var(--color-bg-card, #ffffff)"
-            stroke="var(--color-border, #e2e8f0)"
+            fill="var(--panel)"
+            stroke="var(--line)"
             strokeWidth="1"
           />
 
@@ -360,21 +360,21 @@ export function BoundaryLedgerPlot({ parameters, evaluation, clipId }: BoundaryL
 
           {/* Active Ledger Readouts */}
           <g transform="translate(12, 32)">
-            <text x="0" y="10" fontSize="11" fill="#475569">
+            <text x="0" y="10" fontSize="11" fill="var(--muted)">
               Active Boundary:{" "}
-              <tspan fontWeight="bold" fill="#0f172a">
+              <tspan fontWeight="bold" fill="var(--ink)">
                 {boundary}
               </tspan>
             </text>
-            <text x="0" y="26" fontSize="11" fill="#475569">
+            <text x="0" y="26" fontSize="11" fill="var(--muted)">
               Energy change ΔE:{" "}
-              <tspan fontWeight="bold" fill="#0f172a">
+              <tspan fontWeight="bold" fill="var(--ink)">
                 {energyDelta > 0 ? `+${energyDelta}` : `${energyDelta}`} J
               </tspan>
             </text>
-            <text x="0" y="42" fontSize="11" fill="#475569">
+            <text x="0" y="42" fontSize="11" fill="var(--muted)">
               Mass change Δm:{" "}
-              <tspan fontWeight="bold" fill="#059669">
+              <tspan fontWeight="bold" fill="var(--plot)">
                 {massDelta !== null
                   ? massDelta === 0
                     ? "0 (unchanged)"
@@ -384,32 +384,32 @@ export function BoundaryLedgerPlot({ parameters, evaluation, clipId }: BoundaryL
             </text>
           </g>
 
-          <line x1="12" y1="90" x2="268" y2="90" stroke="#e2e8f0" strokeWidth="1" />
+          <line x1="12" y1="90" x2="268" y2="90" stroke="var(--line)" strokeWidth="1" />
 
           {/* Card Case Study / 7 Boundary Facts Preview */}
           <g transform="translate(12, 100)">
-            <text x="0" y="12" fontSize="11" fontWeight="bold" fill="#1e293b">
+            <text x="0" y="12" fontSize="11" fontWeight="bold" fill="var(--ink)">
               Case Study: {card.label}
             </text>
-            <text x="0" y="28" fontSize="10" fill="#64748b">
-              Energy: <tspan fill="#0f172a">{card.energyFormatted}</tspan>
+            <text x="0" y="28" fontSize="10" fill="var(--muted)">
+              Energy: <tspan fill="var(--ink)">{card.energyFormatted}</tspan>
             </text>
-            <text x="0" y="42" fontSize="10" fill="#64748b">
+            <text x="0" y="42" fontSize="10" fill="var(--muted)">
               Mass Change:{" "}
-              <tspan fontWeight="bold" fill="#059669">
+              <tspan fontWeight="bold" fill="var(--plot)">
                 {card.massChangeFormatted}
               </tspan>
             </text>
-            <text x="0" y="56" fontSize="10" fill="#64748b">
+            <text x="0" y="56" fontSize="10" fill="var(--muted)">
               Matter Crosses:{" "}
-              <tspan fill={facts.matterCrossesBoundary.crosses ? "#b45309" : "#059669"}>
+              <tspan fill={facts.matterCrossesBoundary.crosses ? "var(--accent)" : "var(--plot)"}>
                 {facts.matterCrossesBoundary.crosses
                   ? "Yes (Matter transfer)"
                   : "No (Closed system)"}
               </tspan>
             </text>
             {facts.closedButNotIsolated.value && (
-              <text x="0" y="72" fontSize="9" fill="#2563eb" fontWeight="bold">
+              <text x="0" y="72" fontSize="9" fill="var(--plot)" fontWeight="bold">
                 Closed but not isolated (energy leaves)
               </text>
             )}
