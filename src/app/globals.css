@@ -35,6 +35,7 @@
   --panel: var(--paper);
   --wash: #e5ded0;
   --plot: #254f49;
+  --plot-darkfield: #0f172a;
   --font-serif: "Newsreader", "Iowan Old Style", "Palatino Linotype", Palatino, Georgia, serif;
   --font-sans: "Plus Jakarta Sans", "Segoe UI", Helvetica, Arial, sans-serif;
   --font-mono: "JetBrains Mono", "SF Mono", Menlo, Consolas, monospace;

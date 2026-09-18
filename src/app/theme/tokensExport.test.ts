@@ -34,6 +34,7 @@ describe("tokensExport: CSS and TypeScript tokens stay in sync", () => {
       expect(cssValue(block, "rule")).toBe(tokens.rule);
       expect(cssValue(block, "accent")).toBe(tokens.accent);
       expect(cssValue(block, "focus-ring")).toBe(tokens.focusRing);
+      expect(cssValue(block, "plot-darkfield")).toBe(tokens.plotDarkfield);
     });
   }
 

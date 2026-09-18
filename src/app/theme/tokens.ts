@@ -24,6 +24,7 @@ export interface ThemeTokens {
   readonly rule: string;
   readonly accent: string;
   readonly focusRing: string;
+  readonly plotDarkfield: string;
 }
 
 export const THEME_IDS: readonly ThemeId[] = Object.freeze(["annalen", "kramgasse-night", "slate"]);
@@ -55,6 +56,7 @@ export const THEME_TOKENS: Readonly<Record<ThemeId, ThemeTokens>> = Object.freez
     rule: "#cbc1ac",
     accent: "#ae2119",
     focusRing: "#1a1916",
+    plotDarkfield: "#0f172a",
   }),
   "kramgasse-night": Object.freeze({
     paper: "#1c2128",
@@ -63,6 +65,7 @@ export const THEME_TOKENS: Readonly<Record<ThemeId, ThemeTokens>> = Object.freez
     rule: "#33393f",
     accent: "#e0a458",
     focusRing: "#e8e6e1",
+    plotDarkfield: "#0d1117",
   }),
   slate: Object.freeze({
     paper: "#14181a",
@@ -71,6 +74,7 @@ export const THEME_TOKENS: Readonly<Record<ThemeId, ThemeTokens>> = Object.freez
     rule: "#2c3630",
     accent: "#e2726a",
     focusRing: "#f0efe7",
+    plotDarkfield: "#0a0d0e",
   }),
 });
 
