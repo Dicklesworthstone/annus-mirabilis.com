@@ -101,14 +101,14 @@ export function EntropyComparisonPlot({
             height="180"
             rx="6"
             fill="var(--wash)"
-            stroke={isMatch ? "#38bdf8" : "var(--line)"}
+            stroke={isMatch ? "var(--plot)" : "var(--line)"}
             strokeWidth={isMatch ? "2" : "1"}
           />
           <text
             x="14"
             y="24"
             fontSize="12"
-            fill="#38bdf8"
+            fill="var(--plot)"
             fontWeight="bold"
             fontFamily="var(--font-mono, monospace)"
           >
@@ -169,7 +169,7 @@ export function EntropyComparisonPlot({
             y="140"
             textAnchor="end"
             fontSize="10"
-            fill="#0284c7"
+            fill="var(--plot)"
             fontFamily="var(--font-mono, monospace)"
             fontWeight="600"
           >
@@ -183,7 +183,7 @@ export function EntropyComparisonPlot({
             y="158"
             textAnchor="end"
             fontSize="10"
-            fill="#d97706"
+            fill="var(--accent)"
             fontFamily="var(--font-mono, monospace)"
             fontWeight="bold"
           >
@@ -200,14 +200,14 @@ export function EntropyComparisonPlot({
             height="180"
             rx="6"
             fill="var(--wash)"
-            stroke={isMatch ? "#f59e0b" : "var(--line)"}
+            stroke={isMatch ? "var(--accent)" : "var(--line)"}
             strokeWidth={isMatch ? "2" : "1"}
           />
           <text
             x="14"
             y="24"
             fontSize="12"
-            fill="#f59e0b"
+            fill="var(--accent)"
             fontWeight="bold"
             fontFamily="var(--font-mono, monospace)"
           >
@@ -269,7 +269,7 @@ export function EntropyComparisonPlot({
             y="140"
             textAnchor="end"
             fontSize="10"
-            fill="#d97706"
+            fill="var(--accent)"
             fontFamily="var(--font-mono, monospace)"
             fontWeight="600"
           >
@@ -283,7 +283,7 @@ export function EntropyComparisonPlot({
             y="158"
             textAnchor="end"
             fontSize="10"
-            fill="#10b981"
+            fill="var(--plot)"
             fontFamily="var(--font-mono, monospace)"
             fontWeight="bold"
           >
@@ -298,7 +298,7 @@ export function EntropyComparisonPlot({
             cy="0"
             r="16"
             fill="var(--panel)"
-            stroke={isMatch ? "#10b981" : "var(--line)"}
+            stroke={isMatch ? "var(--plot)" : "var(--line)"}
             strokeWidth="2"
           />
           <text x="0" y="4" textAnchor="middle" fontSize="12" fill="var(--ink)" fontWeight="bold">
@@ -315,7 +315,7 @@ export function EntropyComparisonPlot({
             height="32"
             rx="4"
             fill={isMatch ? "rgba(16, 185, 129, 0.15)" : "var(--wash)"}
-            stroke={isMatch ? "#10b981" : "var(--line)"}
+            stroke={isMatch ? "var(--plot)" : "var(--line)"}
           />
           <text
             x="270"
@@ -325,12 +325,12 @@ export function EntropyComparisonPlot({
             fontFamily="var(--font-mono, monospace)"
           >
             {isMatch ? (
-              <tspan fill="#10b981">
+              <tspan fill="var(--plot)">
                 ✓ Correspondence: n_eff = (N·E)/(R·β·ν) = E/(h·ν) ⟹ Energy per quantum ε = R·β·ν/N =
                 h·ν = {quantumEnergyEv.toFixed(4)} eV
               </tspan>
             ) : selectedSubexpression !== "none" ? (
-              <tspan fill="#e11d48">
+              <tspan fill="var(--accent)">
                 ✗ Proposed candidate does not match the dimensionless particle count n
               </tspan>
             ) : (
