@@ -15,6 +15,7 @@ import {
 } from "./definition.ts";
 import { decodeMe01Settings, encodeMe01Settings } from "./permalink.ts";
 import { createMe01Session } from "./session.ts";
+import { prepareMassEnergyScenario } from "./entranceScenario.ts";
 
 const root = process.cwd();
 
@@ -173,5 +174,25 @@ describe("ME-01 instrument contract (am-me-01-two-ledgers-g1re)", () => {
     expect(ME01_CAPTION.r2.includes("K₀ - K₁ = L(γ - 1)")).toBe(true);
     expect(ME01_CAPTION.r3.includes("1/√(1 - v²/V²)")).toBe(true);
     expect(ME01_CAPTION.r3.includes("source premise")).toBe(true);
+  });
+
+  test("entrance scenario preparation evaluates behind experiments seam", () => {
+    const fast = prepareMassEnergyScenario("fast");
+    expect(fast.id).toBe("fast");
+    expect(fast.beta).toBe(0.6);
+    expect(fast.restPulse.value).toBe(5);
+    expect(fast.restLight.value).toBe(10);
+    expect(fast.relaxedKinetic.status).toBe("underdetermined");
+    expect(fast.bodyEnergies.length).toBe(4);
+    expect(fast.bodyEnergies.every((item) => item.status === "symbolic")).toBe(true);
+
+    const slow = prepareMassEnergyScenario("slow");
+    expect(slow.id).toBe("slow");
+    expect(slow.beta).toBe(0.01);
+    expect(slow.subtraction.value).toBeGreaterThan(slow.quadratic.value);
+
+    expect(() => prepareMassEnergyScenario("invalid" as "fast")).toThrow(
+      "Unknown mass-energy entrance scenario.",
+    );
   });
 });
