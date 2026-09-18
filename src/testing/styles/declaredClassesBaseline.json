@@ -107,7 +107,7 @@
   "src/reader/WorkedExample.tsx": 5,
   "src/reader/actions/ObstacleMenu.tsx": 1,
   "src/reader/actions/PassageActions.tsx": 6,
-  "src/reader/entrances/BrownianFirstEncounter.tsx": 654,
+  "src/reader/entrances/BrownianFirstEncounter.tsx": 0,
   "src/reader/faces/AlignmentController.tsx": 1,
   "src/reader/faces/EditorialNoteMarker.tsx": 15,
   "src/reader/faces/EnglishFace.tsx": 5,

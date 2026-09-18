@@ -86,17 +86,15 @@ export function BrownianFirstEncounter({
       id="entry-brownian-motion"
       data-encounter-id="entrance-brownian-motion"
       data-paper="brownian-motion"
-      className="entrance-container bg-surface border border-border/70 rounded-xl p-6 sm:p-8 max-w-4xl mx-auto my-8 shadow-sm"
+      className="encounter"
     >
       {/* Header */}
-      <header className="mb-6 border-b border-border/50 pb-4">
-        <span className="text-xs font-mono uppercase tracking-wider text-muted-foreground block mb-1">
-          First Encounter · Zero Algebra Entrance
-        </span>
-        <h2 className="text-2xl sm:text-3xl font-serif text-foreground font-semibold">
+      <header>
+        <span className="eyebrow">First Encounter · Zero Algebra Entrance</span>
+        <h2>
           {record?.question ?? "Do particles that wander in all directions ever get anywhere?"}
         </h2>
-        <p className="text-base text-muted-foreground mt-2 leading-relaxed font-serif">
+        <p className="lead">
           {record?.story ??
             "Imagine placing a microscopic particle in a drop of water and marking where it is after a few moments. Pushed at random by invisible water molecules, it is just as likely to move left as right. Adding signed steps gives zero, yet every particle has moved."}
         </p>
@@ -108,36 +106,26 @@ export function BrownianFirstEncounter({
         role="status"
         aria-live="polite"
         aria-atomic="true"
-        className="sr-only"
+        className="visually-hidden"
       >
         {liveAnnouncement}
       </div>
 
       {/* Authored notice */}
-      <div className="bg-amber-500/10 border border-amber-500/30 rounded-lg px-4 py-2.5 mb-6 text-sm text-foreground/90 flex items-center justify-between flex-wrap gap-2">
+      <div className="notice" style={{ marginBottom: "1.5rem" }}>
         <span>
-          <strong className="font-medium text-amber-700 dark:text-amber-400">
-            Authored arithmetic examples:
-          </strong>{" "}
-          Displacements of −3, −1, +1, and +3 units (three steps left, one left, one right, three
-          right). These are an authored educational case, not a measured dataset.
+          <strong>Authored arithmetic examples:</strong> Displacements of −3, −1, +1, and +3 units
+          (three steps left, one left, one right, three right). These are an authored educational
+          case, not a measured dataset.
         </span>
-        <div className="flex gap-2">
+        <div className="button-group" style={{ marginTop: "0.5rem" }}>
           {!isAuthored && (
-            <button
-              type="button"
-              onClick={resetToAuthored}
-              className="text-xs px-3 py-1 bg-amber-600/20 hover:bg-amber-600/30 text-amber-900 dark:text-amber-200 rounded border border-amber-500/40 font-medium transition-colors"
-            >
+            <button type="button" onClick={resetToAuthored} className="button secondary">
               Back to authored example
             </button>
           )}
           {!isDoubled && (
-            <button
-              type="button"
-              onClick={setToDoubled}
-              className="text-xs px-3 py-1 bg-primary/10 hover:bg-primary/20 text-primary rounded border border-primary/30 font-medium transition-colors"
-            >
+            <button type="button" onClick={setToDoubled} className="button secondary">
               Show doubled example (−6, −2, +2, +6)
             </button>
           )}
@@ -145,33 +133,29 @@ export function BrownianFirstEncounter({
       </div>
 
       {/* View Mode Toggle */}
-      <div className="flex justify-between items-center mb-4 border-b border-border/40 pb-2">
-        <h3 className="text-lg font-serif font-medium text-foreground">
-          Step 1 · Explore the particle displacements
-        </h3>
-        <fieldset
-          className="inline-flex rounded-md shadow-sm border-0 p-0 m-0"
-          aria-label="Interaction mode"
-        >
+      <div
+        style={{
+          display: "flex",
+          justifyContent: "space-between",
+          alignItems: "center",
+          marginBottom: "1rem",
+          flexWrap: "wrap",
+          gap: "0.5rem",
+        }}
+      >
+        <h3>Step 1 · Explore the particle displacements</h3>
+        <fieldset className="button-group" aria-label="Interaction mode">
           <button
             type="button"
             onClick={() => setActiveTab("visual")}
-            className={`px-3 py-1 text-xs font-medium rounded-l-lg border transition-colors ${
-              activeTab === "visual"
-                ? "bg-primary text-primary-foreground border-primary"
-                : "bg-background text-muted-foreground border-border hover:bg-muted/50"
-            }`}
+            className={`button ${activeTab === "visual" ? "" : "secondary"}`}
           >
             Visual Number Line
           </button>
           <button
             type="button"
             onClick={() => setActiveTab("table")}
-            className={`px-3 py-1 text-xs font-medium rounded-r-lg border border-l-0 transition-colors ${
-              activeTab === "table"
-                ? "bg-primary text-primary-foreground border-primary"
-                : "bg-background text-muted-foreground border-border hover:bg-muted/50"
-            }`}
+            className={`button ${activeTab === "table" ? "" : "secondary"}`}
           >
             Table & Numeric Inputs
           </button>
@@ -180,28 +164,66 @@ export function BrownianFirstEncounter({
 
       {/* Interactive Display */}
       {activeTab === "visual" ? (
-        <div className="p-4 bg-muted/20 border border-border/60 rounded-xl mb-6">
-          <p className="text-xs text-muted-foreground mb-3">
+        <div className="notice" style={{ marginBottom: "1.5rem" }}>
+          <p className="fine" style={{ marginBottom: "0.75rem" }}>
             Drag a marker or select it and use{" "}
-            <kbd className="px-1.5 py-0.5 bg-muted rounded border border-border font-mono text-[11px]">
+            <kbd
+              style={{
+                padding: "0.1rem 0.35rem",
+                borderRadius: "3px",
+                border: "1px solid var(--line)",
+                fontFamily: "var(--font-mono)",
+                fontSize: "11px",
+              }}
+            >
               ←
             </kbd>{" "}
             /{" "}
-            <kbd className="px-1.5 py-0.5 bg-muted rounded border border-border font-mono text-[11px]">
+            <kbd
+              style={{
+                padding: "0.1rem 0.35rem",
+                borderRadius: "3px",
+                border: "1px solid var(--line)",
+                fontFamily: "var(--font-mono)",
+                fontSize: "11px",
+              }}
+            >
               →
             </kbd>{" "}
             arrow keys to shift its position.
           </p>
 
           {/* Number line visualization */}
-          <div className="relative py-8 px-4 select-none">
+          <div style={{ position: "relative", padding: "2rem 1rem", userSelect: "none" }}>
             {/* Horizontal axis */}
-            <div className="h-1 bg-border/80 w-full relative top-4 rounded-full" />
+            <div
+              style={{
+                height: "4px",
+                background: "var(--line)",
+                width: "100%",
+                position: "relative",
+                top: "1rem",
+                borderRadius: "9999px",
+              }}
+            />
 
             {/* Zero origin tick */}
-            <div className="absolute left-1/2 top-1 -translate-x-1/2 flex flex-col items-center">
-              <div className="w-0.5 h-7 bg-foreground/60" />
-              <span className="text-xs font-mono font-semibold text-foreground/80 mt-1">
+            <div
+              style={{
+                position: "absolute",
+                left: "50%",
+                top: "4px",
+                transform: "translateX(-50%)",
+                display: "flex",
+                flexDirection: "column",
+                alignItems: "center",
+              }}
+            >
+              <div style={{ width: "2px", height: "1.75rem", background: "var(--ink)" }} />
+              <span
+                className="fine"
+                style={{ fontFamily: "var(--font-mono)", fontWeight: 600, marginTop: "0.25rem" }}
+              >
                 0 (start)
               </span>
             </div>
@@ -212,27 +234,39 @@ export function BrownianFirstEncounter({
               return (
                 <div
                   key={`tick-${val}`}
-                  className="absolute top-2 -translate-x-1/2 flex flex-col items-center pointer-events-none"
-                  style={{ left: `${leftPercent}%` }}
+                  style={{
+                    position: "absolute",
+                    top: "8px",
+                    left: `${leftPercent}%`,
+                    transform: "translateX(-50%)",
+                    display: "flex",
+                    flexDirection: "column",
+                    alignItems: "center",
+                    pointerEvents: "none",
+                  }}
                 >
-                  <div className="w-px h-5 bg-border" />
-                  <span className="text-[10px] font-mono text-muted-foreground mt-2">{val}</span>
+                  <div style={{ width: "1px", height: "1.25rem", background: "var(--line)" }} />
+                  <span
+                    className="fine"
+                    style={{
+                      fontSize: "10px",
+                      fontFamily: "var(--font-mono)",
+                      marginTop: "0.5rem",
+                    }}
+                  >
+                    {val}
+                  </span>
                 </div>
               );
             })}
 
             {/* Interactive Particle Markers */}
-            <div className="relative h-12">
+            <div style={{ position: "relative", height: "3rem" }}>
               {particleItems.map((item) => {
                 const pos = item.position;
                 const idx = item.index;
                 const leftPercent = Math.max(0, Math.min(100, ((pos + 8) / 16) * 100));
-                const colors = [
-                  "bg-blue-600 border-blue-400 text-white",
-                  "bg-indigo-600 border-indigo-400 text-white",
-                  "bg-amber-600 border-amber-400 text-white",
-                  "bg-rose-600 border-rose-400 text-white",
-                ];
+                const colors = ["#2563eb", "#4f46e5", "#d97706", "#e11d48"];
                 const color = colors[idx % colors.length];
 
                 return (
@@ -259,8 +293,26 @@ export function BrownianFirstEncounter({
                         updateEntry(idx, 8);
                       }
                     }}
-                    className={`absolute -translate-x-1/2 top-0 cursor-ew-resize focus:outline-none focus:ring-2 focus:ring-primary focus:ring-offset-2 rounded-full w-8 h-8 flex items-center justify-center font-mono text-xs font-bold shadow-md border-2 ${color} transition-transform active:scale-110`}
-                    style={{ left: `${leftPercent}%` }}
+                    style={{
+                      position: "absolute",
+                      left: `${leftPercent}%`,
+                      transform: "translateX(-50%)",
+                      top: 0,
+                      cursor: "ew-resize",
+                      borderRadius: "50%",
+                      width: "2rem",
+                      height: "2rem",
+                      display: "flex",
+                      alignItems: "center",
+                      justifyContent: "center",
+                      fontFamily: "var(--font-mono)",
+                      fontSize: "0.75rem",
+                      fontWeight: "bold",
+                      color: "#ffffff",
+                      backgroundColor: color,
+                      border: "2px solid rgba(255, 255, 255, 0.8)",
+                      boxShadow: "0 1px 3px rgba(0,0,0,0.2)",
+                    }}
                   >
                     {idx + 1}
                   </div>
@@ -269,20 +321,18 @@ export function BrownianFirstEncounter({
             </div>
           </div>
 
-          <div className="grid grid-cols-2 sm:grid-cols-4 gap-2 mt-2 pt-2 border-t border-border/40">
+          <div className="input-grid" style={{ marginTop: "0.5rem", paddingTop: "0.5rem" }}>
             {particleItems.map((item) => (
-              <div
-                key={item.key}
-                className="text-center p-2 rounded bg-background/60 border border-border/40"
-              >
-                <span className="text-[11px] text-muted-foreground block">
+              <div key={item.key} className="input-field" style={{ textAlign: "center" }}>
+                <span className="fine" style={{ display: "block" }}>
                   Particle {item.index + 1}
                 </span>
-                <span className="text-sm font-mono font-bold text-foreground">
-                  {formatSignedDisplacement(item.position)}{" "}
-                  <span className="text-xs font-normal">units</span>
+                <span
+                  style={{ display: "block", fontFamily: "var(--font-mono)", fontWeight: "bold" }}
+                >
+                  {formatSignedDisplacement(item.position)} <span className="fine">units</span>
                 </span>
-                <span className="text-[10px] text-muted-foreground block truncate">
+                <span className="fine" style={{ display: "block" }}>
                   ({describeDisplacementInWords(item.position)})
                 </span>
               </div>
@@ -290,32 +340,25 @@ export function BrownianFirstEncounter({
           </div>
         </div>
       ) : (
-        <div className="overflow-x-auto mb-6">
-          <table className="w-full text-left text-sm border-collapse border border-border rounded-lg">
+        <div
+          className="table-scroll"
+          style={{ marginBottom: "1.5rem" }}
+          tabIndex={0}
+          role="region"
+          aria-label="Particle displacements and squares table"
+        >
+          <table>
             <thead>
-              <tr className="bg-muted/40 border-b border-border">
-                <th scope="col" className="p-2.5 font-serif font-medium text-foreground">
-                  Particle
-                </th>
-                <th scope="col" className="p-2.5 font-serif font-medium text-foreground">
-                  Word Description
-                </th>
-                <th
-                  scope="col"
-                  className="p-2.5 font-serif font-medium text-foreground text-center"
-                >
+              <tr>
+                <th scope="col">Particle</th>
+                <th scope="col">Word Description</th>
+                <th scope="col" style={{ textAlign: "center" }}>
                   Displacement (x)
                 </th>
-                <th
-                  scope="col"
-                  className="p-2.5 font-serif font-medium text-foreground text-center"
-                >
+                <th scope="col" style={{ textAlign: "center" }}>
                   Absolute (|x|)
                 </th>
-                <th
-                  scope="col"
-                  className="p-2.5 font-serif font-medium text-foreground text-center"
-                >
+                <th scope="col" style={{ textAlign: "center" }}>
                   Squared (x²)
                 </th>
               </tr>
@@ -325,20 +368,20 @@ export function BrownianFirstEncounter({
                 const val = item.position;
                 const i = item.index;
                 return (
-                  <tr key={item.key} className="border-b border-border/60 hover:bg-muted/10">
-                    <td className="p-2.5 font-mono text-xs text-muted-foreground">
-                      Particle {i + 1}
-                    </td>
-                    <td className="p-2.5 text-xs text-foreground">
-                      {describeDisplacementInWords(val)}
-                    </td>
-                    <td className="p-2.5 text-center">
-                      <div className="inline-flex items-center gap-1">
+                  <tr key={item.key}>
+                    <td style={{ fontFamily: "var(--font-mono)" }}>Particle {i + 1}</td>
+                    <td>{describeDisplacementInWords(val)}</td>
+                    <td style={{ textAlign: "center" }}>
+                      <div
+                        className="button-group"
+                        style={{ justifyContent: "center", alignItems: "center" }}
+                      >
                         <button
                           type="button"
                           aria-label={`Decrease Particle ${i + 1} displacement`}
                           onClick={() => updateEntry(i, val - 1)}
-                          className="w-6 h-6 rounded bg-muted hover:bg-muted/80 text-foreground font-mono text-xs flex items-center justify-center border border-border"
+                          className="button secondary"
+                          style={{ minHeight: "32px", padding: "0.2rem 0.6rem" }}
                         >
                           −
                         </button>
@@ -350,22 +393,28 @@ export function BrownianFirstEncounter({
                             const n = parseInt(e.target.value, 10);
                             if (!Number.isNaN(n)) updateEntry(i, n);
                           }}
-                          className="w-14 text-center font-mono text-sm py-0.5 px-1 bg-background border border-border rounded text-foreground"
+                          style={{
+                            width: "4.5rem",
+                            textAlign: "center",
+                            minHeight: "32px",
+                            padding: "0.2rem",
+                          }}
                         />
                         <button
                           type="button"
                           aria-label={`Increase Particle ${i + 1} displacement`}
                           onClick={() => updateEntry(i, val + 1)}
-                          className="w-6 h-6 rounded bg-muted hover:bg-muted/80 text-foreground font-mono text-xs flex items-center justify-center border border-border"
+                          className="button secondary"
+                          style={{ minHeight: "32px", padding: "0.2rem 0.6rem" }}
                         >
                           +
                         </button>
                       </div>
                     </td>
-                    <td className="p-2.5 text-center font-mono text-xs text-foreground font-medium">
+                    <td style={{ textAlign: "center", fontFamily: "var(--font-mono)" }}>
                       {Math.abs(val)} units
                     </td>
-                    <td className="p-2.5 text-center font-mono text-xs text-foreground font-medium">
+                    <td style={{ textAlign: "center", fontFamily: "var(--font-mono)" }}>
                       {val * val} sq units
                     </td>
                   </tr>
@@ -377,78 +426,106 @@ export function BrownianFirstEncounter({
       )}
 
       {/* Totals & Arithmetic Engine Output */}
-      <div className="grid grid-cols-2 sm:grid-cols-4 gap-3 bg-muted/30 p-4 rounded-xl border border-border mb-6">
-        <div className="p-3 bg-background rounded-lg border border-border/60">
-          <span className="text-[11px] text-muted-foreground block font-mono">
+      <div className="input-grid" style={{ marginBottom: "1.5rem" }}>
+        <div className="notice">
+          <span className="fine" style={{ display: "block", fontFamily: "var(--font-mono)" }}>
             Signed Total (Sum)
           </span>
           <span
             data-testid="totals-signed-sum"
-            className="text-lg font-mono font-bold text-foreground block mt-0.5"
+            style={{
+              display: "block",
+              fontSize: "1.25rem",
+              fontWeight: "bold",
+              fontFamily: "var(--font-mono)",
+              marginTop: "0.125rem",
+            }}
           >
-            {formatSignedDisplacement(totals.signedSum)}{" "}
-            <span className="text-xs font-normal text-muted-foreground">units</span>
+            {formatSignedDisplacement(totals.signedSum)} <span className="fine">units</span>
           </span>
-          <span className="text-[11px] text-muted-foreground block mt-1">
+          <span className="fine" style={{ display: "block", marginTop: "0.25rem" }}>
             Mean: {totals.meanSigned.toFixed(1)} units
           </span>
         </div>
 
-        <div className="p-3 bg-background rounded-lg border border-border/60">
-          <span className="text-[11px] text-muted-foreground block font-mono">
+        <div className="notice">
+          <span className="fine" style={{ display: "block", fontFamily: "var(--font-mono)" }}>
             Mean Absolute (|x|)
           </span>
           <span
             data-testid="totals-mean-absolute"
-            className="text-lg font-mono font-bold text-primary block mt-0.5"
+            style={{
+              display: "block",
+              fontSize: "1.25rem",
+              fontWeight: "bold",
+              fontFamily: "var(--font-mono)",
+              marginTop: "0.125rem",
+              color: "var(--accent)",
+            }}
           >
-            {totals.meanAbsolute.toFixed(2)}{" "}
-            <span className="text-xs font-normal text-muted-foreground">units</span>
+            {totals.meanAbsolute.toFixed(2)} <span className="fine">units</span>
           </span>
-          <span className="text-[11px] text-muted-foreground block mt-1">
+          <span className="fine" style={{ display: "block", marginTop: "0.25rem" }}>
             Proposal A (ignore sign)
           </span>
         </div>
 
-        <div className="p-3 bg-background rounded-lg border border-border/60">
-          <span className="text-[11px] text-muted-foreground block font-mono">
+        <div className="notice">
+          <span className="fine" style={{ display: "block", fontFamily: "var(--font-mono)" }}>
             Mean Square (x²)
           </span>
           <span
             data-testid="totals-mean-square"
-            className="text-lg font-mono font-bold text-primary block mt-0.5"
+            style={{
+              display: "block",
+              fontSize: "1.25rem",
+              fontWeight: "bold",
+              fontFamily: "var(--font-mono)",
+              marginTop: "0.125rem",
+              color: "var(--accent)",
+            }}
           >
-            {totals.meanSquare.toFixed(2)}{" "}
-            <span className="text-xs font-normal text-muted-foreground">sq units</span>
+            {totals.meanSquare.toFixed(2)} <span className="fine">sq units</span>
           </span>
-          <span className="text-[11px] text-muted-foreground block mt-1">
+          <span className="fine" style={{ display: "block", marginTop: "0.25rem" }}>
             Proposal B (square first)
           </span>
         </div>
 
-        <div className="p-3 bg-background rounded-lg border border-border/60">
-          <span className="text-[11px] text-muted-foreground block font-mono">
+        <div className="notice">
+          <span className="fine" style={{ display: "block", fontFamily: "var(--font-mono)" }}>
             Root Mean Square (RMS)
           </span>
           <span
             data-testid="totals-rms"
-            className="text-lg font-mono font-bold text-foreground block mt-0.5"
+            style={{
+              display: "block",
+              fontSize: "1.25rem",
+              fontWeight: "bold",
+              fontFamily: "var(--font-mono)",
+              marginTop: "0.125rem",
+            }}
           >
-            {totals.rootMeanSquare.toFixed(3)}{" "}
-            <span className="text-xs font-normal text-muted-foreground">units</span>
+            {totals.rootMeanSquare.toFixed(3)} <span className="fine">units</span>
           </span>
-          <span className="text-[11px] text-muted-foreground block mt-1">√(Mean Square)</span>
+          <span className="fine" style={{ display: "block", marginTop: "0.25rem" }}>
+            √(Mean Square)
+          </span>
         </div>
       </div>
 
       {/* Ten-step narrative guidance */}
-      <div className="space-y-6 text-sm text-foreground/90 font-serif leading-relaxed border-t border-border/50 pt-6">
-        <section className="space-y-2">
-          <h4 className="text-base font-semibold text-foreground font-sans">
-            Step 2 & 3 · Why the signed sum gives zero
-          </h4>
+      <div className="reading">
+        <section>
+          <h4>Step 2 & 3 · Why the signed sum gives zero</h4>
           <p>When we add the displacements algebraically, opposite directions cancel out:</p>
-          <div className="bg-background/80 p-3 rounded-lg border border-border font-mono text-xs text-center">
+          <div
+            className="formula"
+            style={{ textAlign: "center", fontFamily: "var(--font-mono)" }}
+            tabIndex={0}
+            role="region"
+            aria-label="Signed sum of displacements"
+          >
             {entries.map((x) => `(${formatSignedDisplacement(x)})`).join(" + ")} ={" "}
             <strong>{formatSignedDisplacement(totals.signedSum)} units</strong>
           </div>
@@ -459,15 +536,13 @@ export function BrownianFirstEncounter({
           </p>
         </section>
 
-        <section className="space-y-2">
-          <h4 className="text-base font-semibold text-foreground font-sans">
-            Step 4 & 5 · Two sensible proposals to keep information about distance
-          </h4>
+        <section>
+          <h4>Step 4 & 5 · Two sensible proposals to keep information about distance</h4>
           <p>
             How do we keep track of how far particles wandered without opposite directions
             cancelling out? Both of the following proposals are completely sensible:
           </p>
-          <ul className="list-disc pl-5 space-y-1">
+          <ul>
             <li>
               <strong>Proposal A (Ignore the direction):</strong> Take the absolute value of each
               displacement. For our authored example (−3, −1, +1, +3), the absolute values are 3, 1,
@@ -482,22 +557,30 @@ export function BrownianFirstEncounter({
           </ul>
         </section>
 
-        <section className="space-y-2">
-          <h4 className="text-base font-semibold text-foreground font-sans">
-            Step 6 & 7 · Scaling: What happens when displacements double?
-          </h4>
+        <section>
+          <h4>Step 6 & 7 · Scaling: What happens when displacements double?</h4>
           <p>
             Suppose after a longer interval every particle has wandered twice as far (−6, −2, +2, +6
             units):
           </p>
-          <div className="grid grid-cols-1 sm:grid-cols-2 gap-3 bg-muted/20 p-3 rounded-lg border border-border text-xs font-mono">
-            <div>
-              <span className="text-muted-foreground block">Mean Absolute Displacement:</span>
-              <strong>(|-6| + |-2| + |+2| + |+6|) / 4 = 4 units</strong> (doubles from 2)
+          <div className="input-grid">
+            <div className="notice">
+              <span className="fine" style={{ display: "block" }}>
+                Mean Absolute Displacement:
+              </span>
+              <strong style={{ fontFamily: "var(--font-mono)" }}>
+                (|-6| + |-2| + |+2| + |+6|) / 4 = 4 units
+              </strong>{" "}
+              (doubles from 2)
             </div>
-            <div>
-              <span className="text-muted-foreground block">Mean Square Displacement:</span>
-              <strong>(36 + 4 + 4 + 36) / 4 = 20 sq units</strong> (quadruples from 5)
+            <div className="notice">
+              <span className="fine" style={{ display: "block" }}>
+                Mean Square Displacement:
+              </span>
+              <strong style={{ fontFamily: "var(--font-mono)" }}>
+                (36 + 4 + 4 + 36) / 4 = 20 sq units
+              </strong>{" "}
+              (quadruples from 5)
             </div>
           </div>
           <p>
@@ -507,10 +590,8 @@ export function BrownianFirstEncounter({
           </p>
         </section>
 
-        <section className="space-y-2">
-          <h4 className="text-base font-semibold text-foreground font-sans">
-            Step 8 · Why Einstein’s derivation favored the mean square
-          </h4>
+        <section>
+          <h4>Step 8 · Why Einstein’s derivation favored the mean square</h4>
           <p>
             If both proposals measure spread, why did Einstein base his entire 1905 Brownian motion
             paper on the <em>mean square</em>?
@@ -520,7 +601,13 @@ export function BrownianFirstEncounter({
             <strong>independent</strong> and have <strong>zero average bias</strong>, the square of
             a sum of many steps expands with cross terms:
           </p>
-          <div className="bg-background/80 p-3 rounded-lg border border-border font-mono text-xs text-center">
+          <div
+            className="formula"
+            style={{ textAlign: "center", fontFamily: "var(--font-mono)" }}
+            tabIndex={0}
+            role="region"
+            aria-label="Square of sum expansion formula"
+          >
             (x₁ + x₂)² = x₁² + x₂² + 2·x₁·x₂
           </div>
           <p>
@@ -535,10 +622,8 @@ export function BrownianFirstEncounter({
           </p>
         </section>
 
-        <section className="space-y-2">
-          <h4 className="text-base font-semibold text-foreground font-sans">
-            Step 9 · Mean absolute displacement is not a wrong answer
-          </h4>
+        <section>
+          <h4>Step 9 · Mean absolute displacement is not a wrong answer</h4>
           <p>
             Mean absolute displacement is <strong>not</strong> an incorrect calculation. It answers
             a slightly different question about the average linear distance travelled and, in the
@@ -549,24 +634,28 @@ export function BrownianFirstEncounter({
       </div>
 
       {/* Collapsible details: Why the square is useful */}
-      <div className="my-6 border border-border rounded-xl p-4 bg-muted/10">
+      <div className="notice" style={{ margin: "1.5rem 0" }}>
         <button
           type="button"
           onClick={() => setShowWhySquare((v) => !v)}
-          className="w-full text-left flex justify-between items-center text-sm font-medium text-foreground hover:text-primary transition-colors"
+          className="button secondary"
+          style={{
+            width: "100%",
+            display: "flex",
+            justifyContent: "space-between",
+            alignItems: "center",
+          }}
         >
           <span>Why the square is useful: a 2-particle algebraic demonstration</span>
-          <span className="font-mono text-xs text-muted-foreground">
-            {showWhySquare ? "Hide ▲" : "Show ▼"}
-          </span>
+          <span className="fine">{showWhySquare ? "Hide ▲" : "Show ▼"}</span>
         </button>
         {showWhySquare && (
-          <div className="mt-4 pt-3 border-t border-border/50 text-xs text-foreground/80 space-y-2 font-serif">
+          <div style={{ marginTop: "1rem", fontSize: "0.95rem" }}>
             <p>
               Consider two successive independent steps Δx₁ and Δx₂, each equally likely to be +1 or
               −1:
             </p>
-            <ul className="list-disc pl-5 font-mono space-y-1">
+            <ul style={{ fontFamily: "var(--font-mono)", fontSize: "0.85rem" }}>
               <li>Possibility 1: (+1, +1) → Total = +2, Squared = 4</li>
               <li>Possibility 2: (+1, −1) → Total = 0, Squared = 0</li>
               <li>Possibility 3: (−1, +1) → Total = 0, Squared = 0</li>
@@ -582,45 +671,50 @@ export function BrownianFirstEncounter({
       </div>
 
       {/* Step 10 · The Bridge */}
-      <footer className="border-t-2 border-border pt-6 mt-8">
-        <span className="text-xs font-mono uppercase tracking-wider text-muted-foreground block mb-2">
+      <footer
+        style={{ borderTop: "2px solid var(--line)", paddingTop: "1.5rem", marginTop: "2rem" }}
+      >
+        <span className="eyebrow" style={{ display: "block", marginBottom: "0.5rem" }}>
           Step 10 · The Bridge to the Argument
         </span>
 
         {/* 3 required bridge parts */}
-        <div className="bg-primary/5 border border-primary/20 rounded-xl p-5 space-y-4">
+        <div className="notice" style={{ display: "flex", flexDirection: "column", gap: "1rem" }}>
           <div>
-            <h5 className="text-xs font-mono font-semibold text-primary uppercase tracking-wide">
-              New Skill
-            </h5>
-            <p className="text-sm font-medium text-foreground mt-0.5">
+            <h5 className="eyebrow">New Skill</h5>
+            <p style={{ margin: "0.25rem 0 0" }}>
               {record?.bridge?.newSkill ??
                 "keeping track of how far things went by squaring, so opposite directions stop cancelling."}
             </p>
           </div>
 
           <div>
-            <h5 className="text-xs font-mono font-semibold text-primary uppercase tracking-wide">
-              Why Useful in the Paper
-            </h5>
-            <p className="text-sm text-foreground/90 mt-0.5">
+            <h5 className="eyebrow">Why Useful in the Paper</h5>
+            <p style={{ margin: "0.25rem 0 0" }}>
               {record?.bridge?.whyUsefulHere ??
                 "Section 5 says how far a particle typically wanders after a given time, and that statement is about the squared spread, not about a speed."}
             </p>
           </div>
 
           <div>
-            <h5 className="text-xs font-mono font-semibold text-primary uppercase tracking-wide mb-2">
+            <h5 className="eyebrow" style={{ marginBottom: "0.5rem" }}>
               Continue With Your Choice of Guidance
             </h5>
-            <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
+            <div className="input-grid">
               {/* More Guidance Route */}
-              <div className="p-3 bg-background rounded-lg border border-border flex flex-col justify-between">
+              <div
+                className="input-field"
+                style={{
+                  display: "flex",
+                  flexDirection: "column",
+                  justifyContent: "space-between",
+                }}
+              >
                 <div>
-                  <span className="text-[11px] font-mono font-semibold text-amber-700 dark:text-amber-400 block mb-1">
+                  <span className="eyebrow" style={{ display: "block", marginBottom: "0.25rem" }}>
                     More Guidance · Foundations
                   </span>
-                  <p className="text-xs text-foreground/80 mb-3">
+                  <p className="fine" style={{ marginBottom: "0.75rem" }}>
                     Review mean, variance, and root-mean-square displacement with worked algebraic
                     examples in the Foundations library.
                   </p>
@@ -633,19 +727,26 @@ export function BrownianFirstEncounter({
                       onNavigateFoundation("mean-variance-rms");
                     }
                   }}
-                  className="inline-flex items-center justify-center text-xs px-3 py-1.5 bg-muted hover:bg-muted/80 text-foreground font-medium rounded border border-border transition-colors text-center"
+                  className="button secondary"
                 >
                   Open Mean, Variance & RMS Drawer →
                 </a>
               </div>
 
               {/* Less Guidance Route */}
-              <div className="p-3 bg-background rounded-lg border border-border flex flex-col justify-between">
+              <div
+                className="input-field"
+                style={{
+                  display: "flex",
+                  flexDirection: "column",
+                  justifyContent: "space-between",
+                }}
+              >
                 <div>
-                  <span className="text-[11px] font-mono font-semibold text-blue-700 dark:text-blue-400 block mb-1">
+                  <span className="eyebrow" style={{ display: "block", marginBottom: "0.25rem" }}>
                     Less Guidance · Laboratory & Paper
                   </span>
-                  <p className="text-xs text-foreground/80 mb-3">
+                  <p className="fine" style={{ marginBottom: "0.75rem" }}>
                     Test thousands of particles in the BM-01 tracer ensemble or jump straight to
                     Einstein’s §5 displacement passage.
                   </p>
@@ -676,15 +777,21 @@ export function BrownianFirstEncounter({
 
       {/* Complete No-JavaScript Fallback */}
       <noscript>
-        <div className="mt-8 p-4 bg-muted/40 border border-border rounded-xl">
-          <h4 className="text-sm font-semibold text-foreground mb-2">
-            Static Reference (JavaScript Disabled)
-          </h4>
-          <p className="text-xs text-muted-foreground mb-4">
+        <div className="notice" style={{ marginTop: "2rem" }}>
+          <h4>Static Reference (JavaScript Disabled)</h4>
+          <p className="fine" style={{ marginBottom: "1rem" }}>
             With JavaScript disabled, the complete worked arithmetic is presented statically below:
           </p>
-          <div className="space-y-3 text-xs font-mono">
-            <div className="p-2.5 bg-background rounded border border-border">
+          <div
+            style={{
+              display: "flex",
+              flexDirection: "column",
+              gap: "0.75rem",
+              fontFamily: "var(--font-mono)",
+              fontSize: "0.85rem",
+            }}
+          >
+            <div className="notice">
               <strong>Authored Example (−3, −1, +1, +3 units):</strong>
               <br />
               Signed sum = (−3) + (−1) + (+1) + (+3) = 0 units.
@@ -695,7 +802,7 @@ export function BrownianFirstEncounter({
               <br />
               Root-mean-square displacement (RMS) = √5 ≈ 2.236 units.
             </div>
-            <div className="p-2.5 bg-background rounded border border-border">
+            <div className="notice">
               <strong>Doubled Example (−6, −2, +2, +6 units):</strong>
               <br />
               Signed sum = (−6) + (−2) + (+2) + (+6) = 0 units.
@@ -707,14 +814,14 @@ export function BrownianFirstEncounter({
               Root-mean-square displacement (RMS) = √20 ≈ 4.472 units.
             </div>
           </div>
-          <div className="mt-4 pt-3 border-t border-border flex gap-4 text-xs font-medium">
-            <a href="/foundations/mean-variance-rms" className="text-primary hover:underline">
+          <div className="button-group" style={{ marginTop: "1rem" }}>
+            <a href="/foundations/mean-variance-rms" className="button secondary">
               Open Foundations: Mean, Variance & RMS →
             </a>
-            <a href="/lab/bm-01" className="text-primary hover:underline">
+            <a href="/lab/bm-01" className="button secondary">
               Open BM-01 Tracer Laboratory →
             </a>
-            <a href="/papers/brownian-motion/s5/#s5-p1" className="text-primary hover:underline">
+            <a href="/papers/brownian-motion/s5/#s5-p1" className="button secondary">
               Go to §5 Displacement Passage →
             </a>
           </div>
