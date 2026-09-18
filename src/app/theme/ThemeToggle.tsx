@@ -55,7 +55,15 @@ export function ThemeToggle() {
   const [announcement, setAnnouncement] = useState("");
 
   useEffect(() => {
-    setSelected(readStored());
+    const stored = readStored();
+    if (stored !== null) {
+      setSelected(stored);
+    } else {
+      const current = document.documentElement.dataset.theme as ThemeId | undefined;
+      if (current && (THEME_IDS as readonly string[]).includes(current)) {
+        setSelected(current);
+      }
+    }
   }, []);
 
   function choose(value: StoredValue) {

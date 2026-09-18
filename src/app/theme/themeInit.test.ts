@@ -1,6 +1,9 @@
 import { afterEach, beforeEach, describe, expect, test } from "bun:test";
+import { act, createElement } from "react";
+import { createRoot } from "react-dom/client";
 import { storageKeyRegistry } from "../../platform/storage/keys";
-import { installDom, uninstallDom } from "../../testing/reactDom";
+import { createContainer, installDom, removeContainer, uninstallDom } from "../../testing/reactDom";
+import { ThemeToggle } from "./ThemeToggle";
 import {
   initTheme,
   KNOWN_THEME_IDS,
@@ -196,5 +199,47 @@ describe("THEME_INIT_SOURCE: a self-contained, immediately-invoked expression", 
     // eslint-disable-next-line no-new-func
     new Function(THEME_INIT_SOURCE)();
     expect(document.documentElement.dataset.theme).toBe("slate");
+  });
+});
+
+describe("ThemeToggle: UI reflection of active theme and user selection", () => {
+  test("reflects Slate theme default on /discover when nothing is stored", async () => {
+    document.documentElement.dataset.theme = "slate";
+    const container = createContainer();
+    const root = createRoot(container);
+    await act(async () => {
+      root.render(createElement(ThemeToggle));
+    });
+    const slateRadio = container.querySelector(
+      'input[type="radio"]:checked',
+    ) as HTMLInputElement | null;
+    expect(slateRadio).not.toBeNull();
+    expect(slateRadio?.parentElement?.textContent).toContain("Slate");
+    await act(async () => {
+      root.unmount();
+    });
+    removeContainer(container);
+  });
+
+  test("explicit user selection updates localStorage and overrides route default", async () => {
+    document.documentElement.dataset.theme = "slate";
+    const container = createContainer();
+    const root = createRoot(container);
+    await act(async () => {
+      root.render(createElement(ThemeToggle));
+    });
+    const annalenRadio = container.querySelectorAll('input[type="radio"]')[0] as
+      | HTMLInputElement
+      | undefined;
+    if (!annalenRadio) throw new Error("Expected annalen radio button to exist");
+    await act(async () => {
+      annalenRadio.click();
+    });
+    expect(document.documentElement.dataset.theme).toBe("annalen");
+    expect(localStorage.getItem(THEME_STORAGE_KEY)).toBe("annalen");
+    await act(async () => {
+      root.unmount();
+    });
+    removeContainer(container);
   });
 });

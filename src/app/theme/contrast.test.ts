@@ -3,6 +3,7 @@ import { readFileSync } from "node:fs";
 import { dirname, join } from "node:path";
 import { fileURLToPath } from "node:url";
 import { contrastRatio } from "../../a11y/readingSettings/contrast";
+import { COLOR_STYLES } from "../../equations/colorPalette";
 import { THEME_IDS, THEME_TOKENS } from "./tokens";
 
 const NORMAL_TEXT_MIN = 4.5;
@@ -116,6 +117,39 @@ describe("contrast: color never carries meaning alone (AGENTS.md constraint)", (
     const goodRule =
       ".theme-toggle label:has(input:checked) { border-color: var(--accent); font-weight: bold; }";
     expect(auditRuleNonColor(goodRule).passes).toBe(true);
+  });
+
+  test("every equation color style defines a textual badge label and structural decoration, never hue alone", () => {
+    for (const style of Object.values(COLOR_STYLES)) {
+      expect(style.badgeLabel.length).toBeGreaterThan(0);
+      expect(style.underlineClass).toContain("underline");
+      expect(style.activeRing).toContain("ring");
+    }
+  });
+
+  test("planted negative: an equation palette missing non-color cues fails the non-hue gate", () => {
+    function auditPaletteNonColor(style: {
+      badgeLabel?: string;
+      underlineClass?: string;
+      activeRing?: string;
+    }): { passes: boolean; defect?: string } {
+      if (!style.badgeLabel || style.badgeLabel.trim().length === 0) {
+        return { passes: false, defect: "Missing textual badge label" };
+      }
+      if (!style.underlineClass?.includes("underline")) {
+        return { passes: false, defect: "Missing structural underline decoration" };
+      }
+      if (!style.activeRing?.includes("ring")) {
+        return { passes: false, defect: "Missing focus/active ring outline" };
+      }
+      return { passes: true };
+    }
+
+    const badPalette = { badgeLabel: "", underlineClass: "text-red-500", activeRing: "bg-red-100" };
+    expect(auditPaletteNonColor(badPalette).passes).toBe(false);
+
+    const goodPalette = COLOR_STYLES.crimson;
+    expect(auditPaletteNonColor(goodPalette).passes).toBe(true);
   });
 });
 
