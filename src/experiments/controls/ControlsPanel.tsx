@@ -10,6 +10,7 @@ import { useMemo } from "react";
 import type { ParameterSpec } from "../../content/schemas/experiment.ts";
 import { ParameterControl } from "./ParameterControl.tsx";
 import type { ControlsPanelProps } from "./types.ts";
+import "./controls.css";
 
 export function ControlsPanel({
   specs,
