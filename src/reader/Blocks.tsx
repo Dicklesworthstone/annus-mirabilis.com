@@ -27,10 +27,12 @@ export function ReadingBlocks({
   blocks,
   foundations,
   embed = false,
+  contextLabel,
 }: {
   blocks: readonly Block[];
   foundations: readonly Foundation[];
   embed?: boolean;
+  contextLabel?: string | undefined;
 }) {
   return (
     <>
@@ -57,11 +59,19 @@ export function ReadingBlocks({
           <aside
             className="foundation-inline"
             key={`foundation-${block.id}`}
-            aria-label={`Foundation: ${foundation.title}`}
+            aria-label={
+              contextLabel
+                ? `Foundation: ${foundation.title} (${contextLabel})`
+                : `Foundation: ${foundation.title}`
+            }
           >
             <p className="eyebrow">A tool for this step</p>
             <h4>{foundation.title}</h4>
-            <FoundationBody foundation={foundation} foundations={foundations} />
+            <FoundationBody
+              foundation={foundation}
+              foundations={foundations}
+              contextLabel={contextLabel}
+            />
           </aside>
         ) : (
           <p className="foundation-link" key={`foundation-link-${block.id}`}>
@@ -79,9 +89,11 @@ export function ReadingBlocks({
 export function FoundationBody({
   foundation,
   foundations,
+  contextLabel,
 }: {
   foundation: Foundation;
   foundations: readonly Foundation[];
+  contextLabel?: string | undefined;
 }) {
   return (
     <>
@@ -92,7 +104,14 @@ export function FoundationBody({
       <p className="notice">A stopping point: {foundation.stoppingPoint}</p>
       <FoundationConstruction foundationId={foundation.id} />
       {foundation.prerequisites.length > 0 && (
-        <nav className="prerequisites" aria-label={`Prerequisites for ${foundation.title}`}>
+        <nav
+          className="prerequisites"
+          aria-label={
+            contextLabel
+              ? `Prerequisites for ${foundation.title} (${contextLabel})`
+              : `Prerequisites for ${foundation.title}`
+          }
+        >
           {foundation.prerequisites.map((p) => {
             const prereqId = typeof p === "string" ? p : p.foundationId.replace(/^foundation:/, "");
             return (

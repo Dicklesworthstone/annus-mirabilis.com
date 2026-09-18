@@ -171,6 +171,7 @@ export async function PaperReader({
                             blocks={a.readings[reading]}
                             foundations={foundations}
                             embed={reading === "steps"}
+                            contextLabel={`${a.title}, reading steps`}
                           />
                         </div>
                       ))}
@@ -183,7 +184,12 @@ export async function PaperReader({
                       </EquationScope>
                       <details className="local-steps">
                         <summary>Show every step here: {a.title}</summary>
-                        <ReadingBlocks blocks={a.readings.steps} foundations={foundations} embed />
+                        <ReadingBlocks
+                          blocks={a.readings.steps}
+                          foundations={foundations}
+                          embed
+                          contextLabel={`${a.title}, local steps`}
+                        />
                       </details>
                       <aside className="modern-margin" data-reading="3" hidden>
                         <h4>Modern qualifications</h4>
@@ -330,7 +336,11 @@ export async function PaperReader({
             <h2 id={`clarification-${f.id}`} tabIndex={-1}>
               {f.title}
             </h2>
-            <FoundationBody foundation={f} foundations={foundations} />
+            <FoundationBody
+              foundation={f}
+              foundations={foundations}
+              contextLabel="clarification panel"
+            />
             <p>
               <a
                 href={`/foundations/${f.id}/`}

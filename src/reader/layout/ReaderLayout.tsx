@@ -1,4 +1,4 @@
-import type { ReactNode } from "react";
+import { cloneElement, isValidElement, type ReactNode } from "react";
 import { BottomSheet } from "./BottomSheet.tsx";
 import "./layout.css";
 import "./overflow.css";
@@ -19,6 +19,13 @@ export function ReaderLayout({
   companionTitle?: string;
   children: ReactNode;
 }) {
+  const columnCompanion = isValidElement(companion)
+    ? cloneElement(companion as React.ReactElement<{ slot?: string }>, { slot: "column" })
+    : companion;
+  const sheetCompanion = isValidElement(companion)
+    ? cloneElement(companion as React.ReactElement<{ slot?: string }>, { slot: "sheet" })
+    : companion;
+
   return (
     <div data-reader-anatomy="" className="reader-anatomy-host">
       <div className="reader-anatomy">
@@ -33,9 +40,9 @@ export function ReaderLayout({
           className="reader-companion-column"
           aria-label={companionTitle}
         >
-          {companion}
+          {columnCompanion}
         </aside>
-        <BottomSheet title={companionTitle}>{companion}</BottomSheet>
+        <BottomSheet title={companionTitle}>{sheetCompanion}</BottomSheet>
       </div>
     </div>
   );

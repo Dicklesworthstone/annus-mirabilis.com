@@ -12,18 +12,26 @@ export function Companion({
   kind,
   children,
   preserve,
+  slot,
 }: {
   kind: CompanionKind;
   children: ReactNode;
   preserve?: { anchor?: string; term?: string };
+  slot?: "column" | "sheet" | undefined;
 }) {
   const params = new URLSearchParams();
   if (preserve?.anchor) params.set("anchor", preserve.anchor);
   if (preserve?.term) params.set("term", preserve.term);
   const suffix = params.toString();
+  const navLabel =
+    slot === "sheet"
+      ? "Companion view (bottom sheet)"
+      : slot === "column"
+        ? "Companion view (side column)"
+        : "Companion view";
   return (
     <div data-companion="" data-companion-kind={kind}>
-      <nav className="reader-companion-nav" aria-label="Companion view">
+      <nav className="reader-companion-nav" aria-label={navLabel}>
         {COMPANION_KINDS.map((item) => {
           const query = new URLSearchParams(suffix);
           query.set("companion", item);
