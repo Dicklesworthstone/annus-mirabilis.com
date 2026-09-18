@@ -8,6 +8,7 @@
 import { formatCleanNumber, formatGuardDigit, formatSignificantFigures } from "./format.ts";
 import { spokenQuantity } from "./spoken.ts";
 import { formatUncertainty, spokenUncertainty, type UncertaintySpec } from "./uncertainty.ts";
+import "./units.css";
 
 export interface ValueWithUncertaintyProps {
   readonly value: number;
@@ -84,7 +85,7 @@ export function ValueWithUncertainty({
       </span>
       {guardDigitChar && (
         <span
-          className="guard-digit text-xs opacity-75 underline decoration-dotted"
+          className="guard-digit"
           title="Guard digit (one extra digit for calculation audit)"
           aria-hidden="true"
         >
@@ -92,20 +93,17 @@ export function ValueWithUncertainty({
         </span>
       )}
       {cleanUnit && (
-        <span className="value-unit ml-1 font-sans" aria-hidden="true">
+        <span className="value-unit" aria-hidden="true">
           {cleanUnit}
         </span>
       )}
       {uncertaintyText && (
-        <span className="value-uncertainty ml-1.5 text-sm opacity-90" aria-hidden="true">
+        <span className="value-uncertainty" aria-hidden="true">
           {uncertaintyText}
         </span>
       )}
       {constantLabel && (
-        <span
-          className="value-constant-set ml-1.5 text-xs text-stone-500 dark:text-stone-400"
-          aria-hidden="true"
-        >
+        <span className="value-constant-set" aria-hidden="true">
           {`(${constantLabel})`}
         </span>
       )}

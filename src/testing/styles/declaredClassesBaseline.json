@@ -131,7 +131,7 @@
   "src/search/CommandPalette.tsx": 140,
   "src/testing/view-kit/fixtures/PlantedLorentzView.fixture.tsx": 1,
   "src/testing/view-kit/fixtures/PlantedRecomputingView.fixture.tsx": 3,
-  "src/units/ValueWithUncertainty.tsx": 18,
+  "src/units/ValueWithUncertainty.tsx": 0,
   "src/visuals/kit/AccessibleGraphView.tsx": 1,
   "src/visuals/kit/AnalyticLimitMarker.tsx": 1,
   "src/visuals/kit/Axes2D.tsx": 3,

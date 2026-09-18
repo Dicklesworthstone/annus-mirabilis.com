@@ -1,0 +1,36 @@
+/* ValueWithUncertainty styles (am-ver-precision-display-5e5, am-vw1o) */
+.value-with-uncertainty {
+  display: inline-flex;
+  align-items: baseline;
+  font-variant-numeric: tabular-nums;
+}
+
+.value-main {
+  font-family: inherit;
+}
+
+.guard-digit {
+  font-size: 0.75em;
+  opacity: 0.75;
+  text-decoration: underline;
+  text-decoration-style: dotted;
+  vertical-align: baseline;
+}
+
+.value-unit {
+  margin-left: 0.25rem;
+  font-family: var(--font-sans);
+}
+
+.value-uncertainty {
+  margin-left: 0.35rem;
+  font-size: 0.85em;
+  opacity: 0.9;
+  color: var(--muted);
+}
+
+.value-constant-set {
+  margin-left: 0.35rem;
+  font-size: 0.75em;
+  color: var(--muted);
+}
