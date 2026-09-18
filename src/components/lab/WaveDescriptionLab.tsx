@@ -120,7 +120,8 @@ export function WaveDescriptionLab({
 
   return (
     <section
-      className="laboratory flex flex-col gap-6 max-w-5xl mx-auto p-4"
+      className="laboratory"
+      style={{ display: "flex", flexDirection: "column", gap: "1.5rem" }}
       aria-labelledby={`${id}-title`}
       data-instrument-id="lq-01"
       data-testid="wave-description-lab"
@@ -133,31 +134,42 @@ export function WaveDescriptionLab({
       data-result-status={primaryResult.status}
       {...(view.refusal ? { "data-refusal-code": view.refusal.code } : {})}
     >
-      <header className="lab-heading border-b border-slate-200 dark:border-slate-800 pb-3">
-        <div className="flex flex-wrap items-center justify-between gap-2">
+      <header
+        className="lab-heading"
+        style={{
+          borderBottom: "1px solid var(--line)",
+          paddingBottom: "1rem",
+        }}
+      >
+        <div
+          style={{
+            display: "flex",
+            flexWrap: "wrap",
+            alignItems: "center",
+            justifyContent: "space-between",
+            gap: "0.5rem",
+            width: "100%",
+          }}
+        >
           <div>
-            <p className="eyebrow text-xs font-mono uppercase tracking-wider text-sky-700 dark:text-sky-300">
-              LQ-01 · An executable model
-            </p>
-            <h2 id={`${id}-title`} className="text-xl font-bold text-slate-900 dark:text-slate-100">
+            <p className="eyebrow">LQ-01 · An executable model</p>
+            <h2 id={`${id}-title`} style={{ margin: "0.25rem 0" }}>
               {title}
             </h2>
           </div>
-          <span className="badge text-xs px-2.5 py-1 rounded bg-sky-100 dark:bg-sky-950 text-sky-800 dark:text-sky-300 font-medium">
-            {LQ01_MODEL.label}
-          </span>
+          <span className="badge">{LQ01_MODEL.label}</span>
         </div>
       </header>
 
       <noscript>
-        <p className="notice p-3 bg-amber-50 dark:bg-amber-950/40 text-amber-900 dark:text-amber-200 text-xs rounded border border-amber-200 dark:border-amber-900">
+        <p className="notice">
           JavaScript is off. This is a complete worked example calculated when the site was built.
           Its graph, values, model assumptions and explanations remain available; changing the
           settings requires JavaScript.
         </p>
       </noscript>
 
-      <p className="text-sm text-slate-700 dark:text-slate-300">
+      <p className="fine" style={{ margin: 0 }}>
         In the introduction of his 1905 light paper, Einstein affirms that the wave theory has
         proven excellent for purely optical phenomena and will presumably never be replaced. Explore
         two-source wave interference, time-averaged versus instantaneous readouts, and spherical
@@ -165,55 +177,71 @@ export function WaveDescriptionLab({
       </p>
 
       {/* Discovery Predict Mode */}
-      <section
-        className="predict-mode-box bg-amber-50/60 dark:bg-amber-950/20 border border-amber-200 dark:border-amber-900/50 rounded-lg p-4"
-        aria-label="Predict before calculating"
-      >
-        <div className="flex flex-wrap items-center justify-between gap-2 mb-2">
-          <h3 className="text-sm font-semibold text-amber-900 dark:text-amber-200">
+      <section className="notice" aria-label="Predict before calculating">
+        <div
+          style={{
+            display: "flex",
+            flexWrap: "wrap",
+            alignItems: "center",
+            justifyContent: "space-between",
+            gap: "0.5rem",
+            marginBottom: "0.5rem",
+          }}
+        >
+          <h3 style={{ margin: 0, fontSize: "0.95rem" }}>
             Discovery Mode: Predict Before Calculating
           </h3>
-          <div className="flex gap-2">
+          <div style={{ display: "flex", gap: "0.5rem" }}>
             <button
               type="button"
               onClick={() => setActivePromptKey("phase-shift")}
-              className={`text-xs px-2.5 py-1 rounded transition ${
-                activePromptKey === "phase-shift"
-                  ? "bg-amber-600 text-white font-medium"
-                  : "bg-white dark:bg-slate-800 text-slate-700 dark:text-slate-300 border border-amber-300 dark:border-amber-800"
-              }`}
+              className={`button ${activePromptKey === "phase-shift" ? "" : "secondary"}`}
+              style={{ padding: "0.25rem 0.625rem", fontSize: "0.75rem" }}
             >
               Phase Shift Interference
             </button>
             <button
               type="button"
               onClick={() => setActivePromptKey("inverse-square")}
-              className={`text-xs px-2.5 py-1 rounded transition ${
-                activePromptKey === "inverse-square"
-                  ? "bg-amber-600 text-white font-medium"
-                  : "bg-white dark:bg-slate-800 text-slate-700 dark:text-slate-300 border border-amber-300 dark:border-amber-800"
-              }`}
+              className={`button ${activePromptKey === "inverse-square" ? "" : "secondary"}`}
+              style={{ padding: "0.25rem 0.625rem", fontSize: "0.75rem" }}
             >
               Inverse-Square Spreading
             </button>
           </div>
         </div>
 
-        <p className="text-sm font-medium text-slate-800 dark:text-slate-100 mb-3">
+        <p style={{ fontWeight: 600, margin: "0 0 0.75rem", fontSize: "0.875rem" }}>
           {currentPrompt.question}
         </p>
 
-        <div className="grid grid-cols-1 md:grid-cols-3 gap-2 mb-3">
+        <div
+          style={{
+            display: "grid",
+            gridTemplateColumns: "repeat(auto-fit, minmax(240px, 1fr))",
+            gap: "0.5rem",
+            marginBottom: "0.75rem",
+          }}
+        >
           {currentPrompt.candidates.map((c) => (
             <label
               key={c.id}
-              className={`flex flex-col gap-1 p-2.5 rounded border text-xs cursor-pointer transition ${
-                selectedCandidates[currentPrompt.id] === c.id
-                  ? "bg-amber-100/70 dark:bg-amber-900/40 border-amber-500 text-amber-950 dark:text-amber-100"
-                  : "bg-white dark:bg-slate-900 border-slate-200 dark:border-slate-800 text-slate-700 dark:text-slate-300 hover:bg-slate-50"
-              }`}
+              style={{
+                display: "flex",
+                flexDirection: "column",
+                gap: "0.25rem",
+                padding: "0.625rem",
+                borderRadius: "4px",
+                border:
+                  selectedCandidates[currentPrompt.id] === c.id
+                    ? "1px solid var(--plot)"
+                    : "1px solid var(--line)",
+                background:
+                  selectedCandidates[currentPrompt.id] === c.id ? "var(--wash)" : "var(--panel)",
+                cursor: "pointer",
+              }}
             >
-              <div className="flex items-center gap-2">
+              <div style={{ display: "flex", alignItems: "center", gap: "0.5rem" }}>
                 <input
                   type="radio"
                   name={`${id}-predict-${currentPrompt.id}`}
@@ -222,58 +250,88 @@ export function WaveDescriptionLab({
                   onChange={() =>
                     setSelectedCandidates((prev) => ({ ...prev, [currentPrompt.id]: c.id }))
                   }
-                  className="rounded-full text-amber-600"
+                  style={{ accentColor: "var(--accent)" }}
                 />
-                <span className="font-semibold">{c.label}</span>
+                <span style={{ fontWeight: 600, fontSize: "0.8rem" }}>{c.label}</span>
               </div>
-              <span className="text-[11px] text-slate-500 dark:text-slate-400">
+              <span className="fine" style={{ fontSize: "0.75rem" }}>
                 {c.description}
               </span>
-              <span className="text-[10px] font-mono text-slate-400">{c.relation}</span>
+              <span className="fine" style={{ fontFamily: "var(--font-mono)", fontSize: "0.7rem" }}>
+                {c.relation}
+              </span>
             </label>
           ))}
         </div>
 
         {selectedCandidates[currentPrompt.id] && (
-          <div className="text-xs p-3 rounded bg-white dark:bg-slate-900 border border-amber-200 dark:border-amber-900 text-slate-700 dark:text-slate-300">
-            <span className="font-semibold text-amber-800 dark:text-amber-300">Model reveal: </span>
-            {activePromptKey === "phase-shift" ? (
-              <span>
-                Equal waves shifted by half a wave (δ = π) cancel completely by destructive
-                interference, dropping center intensity to <strong>0</strong>. Equal waves in phase
-                (δ = 0) interfere constructively to yield 4 times single-wave intensity.
-              </span>
-            ) : (
-              <span>
-                Because radiant power spreads evenly over spherical area 4πr², doubling distance
-                multiplies area by 4, reducing intensity to <strong>one quarter (1/4)</strong>.
-              </span>
-            )}
+          <div
+            className="notice"
+            style={{
+              padding: "0.75rem",
+              background: "var(--panel)",
+              border: "1px solid var(--line)",
+            }}
+          >
+            <span style={{ fontWeight: 600 }}>Model reveal: </span>
+            <span className="fine">
+              {activePromptKey === "phase-shift" ? (
+                <>
+                  Equal waves shifted by half a wave (δ = π) cancel completely by destructive
+                  interference, dropping center intensity to <strong>0</strong>. Equal waves in
+                  phase (δ = 0) interfere constructively to yield 4 times single-wave intensity.
+                </>
+              ) : (
+                <>
+                  Because radiant power spreads evenly over spherical area 4πr², doubling distance
+                  multiplies area by 4, reducing intensity to <strong>one quarter (1/4)</strong>.
+                </>
+              )}
+            </span>
           </div>
         )}
       </section>
 
       {/* Presets Bar */}
-      <div className="flex flex-wrap items-center gap-2">
-        <span className="text-xs font-semibold text-slate-600 dark:text-slate-400">Presets:</span>
+      <nav
+        aria-label="Presets"
+        className="preset-list"
+        style={{ alignItems: "center", marginBottom: 0 }}
+      >
+        <span className="fine" style={{ fontWeight: 600, marginRight: "0.25rem" }}>
+          Presets:
+        </span>
         {Object.entries(LQ01_PRESETS).map(([key, item]) => (
           <button
             key={key}
             type="button"
-            className="text-xs px-2.5 py-1 rounded bg-slate-100 dark:bg-slate-800 hover:bg-slate-200 dark:hover:bg-slate-700 border border-slate-300 dark:border-slate-700 transition"
+            className="button secondary"
             onClick={() => preset(item.parameters)}
           >
             {item.label}
           </button>
         ))}
-      </div>
+      </nav>
 
       {/* Mode Switcher */}
-      <div className="flex items-center gap-4 bg-slate-100 dark:bg-slate-800/60 p-2 rounded-lg border border-slate-200 dark:border-slate-700">
-        <span className="text-xs font-medium text-slate-700 dark:text-slate-300">
+      <div
+        style={{
+          display: "flex",
+          alignItems: "center",
+          gap: "1rem",
+          background: "var(--panel)",
+          padding: "0.5rem 0.75rem",
+          borderRadius: "4px",
+          border: "1px solid var(--line)",
+        }}
+      >
+        <span className="fine" style={{ fontWeight: 600 }}>
           Display Mode:
         </span>
-        <label className="text-xs flex items-center gap-1 cursor-pointer">
+        <label
+          className="fine"
+          style={{ display: "flex", alignItems: "center", gap: "0.25rem", cursor: "pointer" }}
+        >
           <input
             type="radio"
             name={`${id}-mode`}
@@ -283,7 +341,10 @@ export function WaveDescriptionLab({
           />
           Two-Source Interference
         </label>
-        <label className="text-xs flex items-center gap-1 cursor-pointer">
+        <label
+          className="fine"
+          style={{ display: "flex", alignItems: "center", gap: "0.25rem", cursor: "pointer" }}
+        >
           <input
             type="radio"
             name={`${id}-mode`}
@@ -300,20 +361,33 @@ export function WaveDescriptionLab({
         onSubmit={submit}
         aria-label="Wave description laboratory settings"
         aria-describedby={error ? `${id}-error` : undefined}
-        className="bg-slate-50 dark:bg-slate-900/60 p-4 rounded-lg border border-slate-200 dark:border-slate-800"
+        style={{
+          background: "var(--panel)",
+          padding: "1rem",
+          borderRadius: "4px",
+          border: "1px solid var(--line)",
+        }}
       >
-        <fieldset disabled={!ready} className="flex flex-col gap-4">
-          <legend className="text-xs font-semibold text-slate-700 dark:text-slate-300 mb-2">
-            Interactive Model Controls
-          </legend>
+        <fieldset
+          disabled={!ready}
+          style={{ display: "flex", flexDirection: "column", gap: "1rem" }}
+        >
+          <legend style={{ paddingBottom: "0.5rem" }}>Interactive Model Controls</legend>
 
           {p.mode === "interference" ? (
-            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
+            <div
+              className="input-grid"
+              style={{ gridTemplateColumns: "repeat(auto-fit, minmax(260px, 1fr))" }}
+            >
               {/* Amplitude 1 */}
-              <div className="flex flex-col gap-1">
-                <div className="flex justify-between text-xs">
+              <div className="input-field">
+                <div
+                  style={{ display: "flex", justifyContent: "space-between", alignItems: "center" }}
+                >
                   <label htmlFor={`${id}-a1`}>Amplitude A₁</label>
-                  <span className="font-mono text-slate-500">{p.A1.toFixed(2)}</span>
+                  <span className="fine" style={{ fontFamily: "var(--font-mono)" }}>
+                    {p.A1.toFixed(2)}
+                  </span>
                 </div>
                 <input
                   id={`${id}-a1-range`}
@@ -329,14 +403,19 @@ export function WaveDescriptionLab({
                       apply(fromLq01Draft(next));
                     } catch {}
                   }}
+                  style={{ width: "100%", marginTop: "0.25rem" }}
                 />
               </div>
 
               {/* Amplitude 2 */}
-              <div className="flex flex-col gap-1">
-                <div className="flex justify-between text-xs">
+              <div className="input-field">
+                <div
+                  style={{ display: "flex", justifyContent: "space-between", alignItems: "center" }}
+                >
                   <label htmlFor={`${id}-a2`}>Amplitude A₂</label>
-                  <span className="font-mono text-slate-500">{p.A2.toFixed(2)}</span>
+                  <span className="fine" style={{ fontFamily: "var(--font-mono)" }}>
+                    {p.A2.toFixed(2)}
+                  </span>
                 </div>
                 <input
                   id={`${id}-a2-range`}
@@ -352,14 +431,17 @@ export function WaveDescriptionLab({
                       apply(fromLq01Draft(next));
                     } catch {}
                   }}
+                  style={{ width: "100%", marginTop: "0.25rem" }}
                 />
               </div>
 
               {/* Relative Phase Delta */}
-              <div className="flex flex-col gap-1">
-                <div className="flex justify-between text-xs">
+              <div className="input-field">
+                <div
+                  style={{ display: "flex", justifyContent: "space-between", alignItems: "center" }}
+                >
                   <label htmlFor={`${id}-delta`}>Relative Phase δ</label>
-                  <span className="font-mono text-slate-500">
+                  <span className="fine" style={{ fontFamily: "var(--font-mono)" }}>
                     {(p.delta / Math.PI).toFixed(2)} π rad ({(p.delta * (180 / Math.PI)).toFixed(0)}
                     °)
                   </span>
@@ -378,14 +460,19 @@ export function WaveDescriptionLab({
                       apply(fromLq01Draft(next));
                     } catch {}
                   }}
+                  style={{ width: "100%", marginTop: "0.25rem" }}
                 />
               </div>
 
               {/* Source Separation d */}
-              <div className="flex flex-col gap-1">
-                <div className="flex justify-between text-xs">
+              <div className="input-field">
+                <div
+                  style={{ display: "flex", justifyContent: "space-between", alignItems: "center" }}
+                >
                   <label htmlFor={`${id}-sep`}>Separation d (in λ)</label>
-                  <span className="font-mono text-slate-500">{p.separation.toFixed(1)} λ</span>
+                  <span className="fine" style={{ fontFamily: "var(--font-mono)" }}>
+                    {p.separation.toFixed(1)} λ
+                  </span>
                 </div>
                 <input
                   id={`${id}-sep-range`}
@@ -401,34 +488,32 @@ export function WaveDescriptionLab({
                       apply(fromLq01Draft(next));
                     } catch {}
                   }}
+                  style={{ width: "100%", marginTop: "0.25rem" }}
                 />
               </div>
 
               {/* Readout Mode */}
-              <div className="flex flex-col gap-1">
-                <span className="text-xs font-medium text-slate-700 dark:text-slate-300">
+              <div className="input-field">
+                <span
+                  className="fine"
+                  style={{ fontWeight: 600, display: "block", marginBottom: "0.25rem" }}
+                >
                   Readout Mode
                 </span>
-                <div className="flex gap-2">
+                <div style={{ display: "flex", gap: "0.5rem" }}>
                   <button
                     type="button"
                     onClick={() => apply({ ...p, readout: "time-average" })}
-                    className={`text-xs px-2.5 py-1 rounded transition ${
-                      p.readout === "time-average"
-                        ? "bg-sky-600 text-white font-medium"
-                        : "bg-white dark:bg-slate-800 text-slate-700 dark:text-slate-300 border border-slate-300 dark:border-slate-700"
-                    }`}
+                    className={`button ${p.readout === "time-average" ? "" : "secondary"}`}
+                    style={{ padding: "0.25rem 0.625rem", fontSize: "0.75rem" }}
                   >
                     Time-Averaged
                   </button>
                   <button
                     type="button"
                     onClick={() => apply({ ...p, readout: "instantaneous" })}
-                    className={`text-xs px-2.5 py-1 rounded transition ${
-                      p.readout === "instantaneous"
-                        ? "bg-sky-600 text-white font-medium"
-                        : "bg-white dark:bg-slate-800 text-slate-700 dark:text-slate-300 border border-slate-300 dark:border-slate-700"
-                    }`}
+                    className={`button ${p.readout === "instantaneous" ? "" : "secondary"}`}
+                    style={{ padding: "0.25rem 0.625rem", fontSize: "0.75rem" }}
                   >
                     Instantaneous Snapshot
                   </button>
@@ -436,21 +521,21 @@ export function WaveDescriptionLab({
               </div>
 
               {/* Screen Position Selector */}
-              <div className="flex flex-col gap-1">
-                <span className="text-xs font-medium text-slate-700 dark:text-slate-300">
+              <div className="input-field">
+                <span
+                  className="fine"
+                  style={{ fontWeight: 600, display: "block", marginBottom: "0.25rem" }}
+                >
                   Screen Probe Position
                 </span>
-                <div className="flex gap-2">
+                <div style={{ display: "flex", gap: "0.5rem" }}>
                   {(["center", "first-min", "first-max"] as const).map((pos) => (
                     <button
                       key={pos}
                       type="button"
                       onClick={() => apply({ ...p, screenPosition: pos })}
-                      className={`text-xs px-2 py-1 rounded transition ${
-                        p.screenPosition === pos
-                          ? "bg-rose-600 text-white font-medium"
-                          : "bg-white dark:bg-slate-800 text-slate-700 dark:text-slate-300 border border-slate-300 dark:border-slate-700"
-                      }`}
+                      className={`button ${p.screenPosition === pos ? "" : "secondary"}`}
+                      style={{ padding: "0.25rem 0.5rem", fontSize: "0.75rem" }}
                     >
                       {pos === "center" ? "Center" : pos === "first-min" ? "1st Min" : "1st Max"}
                     </button>
@@ -459,12 +544,19 @@ export function WaveDescriptionLab({
               </div>
             </div>
           ) : (
-            <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+            <div
+              className="input-grid"
+              style={{ gridTemplateColumns: "repeat(auto-fit, minmax(260px, 1fr))" }}
+            >
               {/* Source Power P */}
-              <div className="flex flex-col gap-1">
-                <div className="flex justify-between text-xs">
+              <div className="input-field">
+                <div
+                  style={{ display: "flex", justifyContent: "space-between", alignItems: "center" }}
+                >
                   <label htmlFor={`${id}-power`}>Source Radiant Power P (W)</label>
-                  <span className="font-mono text-slate-500">{p.P.toFixed(2)} W</span>
+                  <span className="fine" style={{ fontFamily: "var(--font-mono)" }}>
+                    {p.P.toFixed(2)} W
+                  </span>
                 </div>
                 <input
                   id={`${id}-power-range`}
@@ -480,16 +572,28 @@ export function WaveDescriptionLab({
                       apply(fromLq01Draft(next));
                     } catch {}
                   }}
+                  style={{ width: "100%", marginTop: "0.25rem" }}
                 />
               </div>
 
               {/* Radius r */}
-              <div className="flex flex-col gap-1">
-                <div className="flex justify-between text-xs">
+              <div className="input-field">
+                <div
+                  style={{ display: "flex", justifyContent: "space-between", alignItems: "center" }}
+                >
                   <label htmlFor={`${id}-radius`}>Observation Radius r (m)</label>
-                  <span className="font-mono text-slate-500">{p.r.toFixed(2)} m</span>
+                  <span className="fine" style={{ fontFamily: "var(--font-mono)" }}>
+                    {p.r.toFixed(2)} m
+                  </span>
                 </div>
-                <div className="flex items-center gap-2">
+                <div
+                  style={{
+                    display: "flex",
+                    alignItems: "center",
+                    gap: "0.5rem",
+                    marginTop: "0.25rem",
+                  }}
+                >
                   <input
                     id={`${id}-radius-range`}
                     type="range"
@@ -504,15 +608,16 @@ export function WaveDescriptionLab({
                         apply(fromLq01Draft(next));
                       } catch {}
                     }}
-                    className="w-full"
+                    style={{ flex: 1 }}
                   />
-                  <div className="flex gap-1 shrink-0">
+                  <div style={{ display: "flex", gap: "0.25rem", flexShrink: 0 }}>
                     {[1, 2, 4].map((rad) => (
                       <button
                         key={rad}
                         type="button"
                         onClick={() => apply({ ...p, r: rad })}
-                        className="text-xs px-2 py-0.5 rounded bg-slate-200 dark:bg-slate-700 text-slate-700 dark:text-slate-300"
+                        className="button secondary"
+                        style={{ padding: "0.2rem 0.5rem", fontSize: "0.75rem" }}
                       >
                         {rad}m
                       </button>
@@ -524,33 +629,46 @@ export function WaveDescriptionLab({
           )}
 
           {error && (
-            <p id={`${id}-error`} className="text-xs text-rose-600 dark:text-rose-400 font-medium">
+            <p id={`${id}-error`} className="notice error" style={{ margin: 0, padding: "0.5rem" }}>
               {error}
             </p>
           )}
 
-          <div className="flex flex-wrap items-center justify-between gap-2 pt-2 border-t border-slate-200 dark:border-slate-800">
-            <button
-              type="submit"
-              className="text-xs px-3 py-1.5 rounded bg-sky-600 hover:bg-sky-700 text-white font-medium transition"
-            >
+          <div
+            style={{
+              display: "flex",
+              flexWrap: "wrap",
+              alignItems: "center",
+              justifyContent: "space-between",
+              gap: "0.5rem",
+              paddingTop: "0.5rem",
+              borderTop: "1px solid var(--line)",
+            }}
+          >
+            <button type="submit" className="button">
               Apply settings
             </button>
-            <button
-              type="button"
-              onClick={share}
-              className="text-xs px-3 py-1.5 rounded bg-slate-200 dark:bg-slate-700 text-slate-700 dark:text-slate-200 hover:bg-slate-300 transition"
-            >
+            <button type="button" onClick={share} className="button secondary">
               Copy settings link
             </button>
           </div>
-          {linkNote && <p className="text-xs text-sky-700 dark:text-sky-300">{linkNote}</p>}
+          {linkNote && (
+            <p className="fine" style={{ color: "var(--accent)", margin: 0 }}>
+              {linkNote}
+            </p>
+          )}
         </fieldset>
       </form>
 
       {/* Visualizations Grid */}
       {p.mode === "interference" ? (
-        <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
+        <div
+          style={{
+            display: "grid",
+            gridTemplateColumns: "repeat(auto-fit, minmax(320px, 1fr))",
+            gap: "1.5rem",
+          }}
+        >
           <InterferencePlot
             screenIntensity={screenProfile}
             centerIntensity={centerIntensity}
@@ -582,43 +700,58 @@ export function WaveDescriptionLab({
 
       {/* Accepted Results Telemetry Table */}
       <div
-        className="bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-800 rounded-lg p-4"
         data-view-id="lq-01-data-table"
+        style={{
+          background: "var(--panel)",
+          border: "1px solid var(--line)",
+          borderRadius: "4px",
+          padding: "1rem",
+        }}
       >
-        <h3 className="text-sm font-semibold mb-3 text-slate-800 dark:text-slate-100">
+        <h3 style={{ margin: "0 0 0.75rem", fontSize: "0.95rem" }}>
           Accepted Laboratory Telemetry Snapshot
         </h3>
-        <div className="overflow-x-auto">
-          <table className="w-full text-left text-xs font-mono border-collapse">
+        <div
+          className="table-scroll"
+          tabIndex={0}
+          role="region"
+          aria-label="Accepted laboratory telemetry snapshot table"
+        >
+          <table
+            style={{
+              width: "100%",
+              textAlign: "left",
+              fontFamily: "var(--font-mono)",
+              fontSize: "0.75rem",
+              borderCollapse: "collapse",
+            }}
+          >
             <thead>
-              <tr className="border-b border-slate-200 dark:border-slate-800 text-slate-500">
-                <th className="py-1.5 px-2">Quantity ID</th>
-                <th className="py-1.5 px-2">Status</th>
-                <th className="py-1.5 px-2">Value / Result</th>
-                <th className="py-1.5 px-2">Unit</th>
-                <th className="py-1.5 px-2">Owner ID</th>
+              <tr style={{ borderBottom: "1px solid var(--line)", color: "var(--muted)" }}>
+                <th style={{ padding: "0.4rem 0.5rem" }}>Quantity ID</th>
+                <th style={{ padding: "0.4rem 0.5rem" }}>Status</th>
+                <th style={{ padding: "0.4rem 0.5rem" }}>Value / Result</th>
+                <th style={{ padding: "0.4rem 0.5rem" }}>Unit</th>
+                <th style={{ padding: "0.4rem 0.5rem" }}>Owner ID</th>
               </tr>
             </thead>
             <tbody>
               {snapshot.outputs.map((out) => (
                 <tr
                   key={out.quantityId}
-                  className="border-b border-slate-100 dark:border-slate-800/50 hover:bg-slate-50 dark:hover:bg-slate-800/30"
+                  style={{ borderBottom: "1px solid var(--line)" }}
                   data-quantity-id={out.quantityId}
                 >
-                  <td className="py-1.5 px-2 font-medium">{out.quantityId}</td>
-                  <td className="py-1.5 px-2">
+                  <td style={{ padding: "0.4rem 0.5rem", fontWeight: 500 }}>{out.quantityId}</td>
+                  <td style={{ padding: "0.4rem 0.5rem" }}>
                     <span
-                      className={`px-1.5 py-0.5 rounded text-[10px] ${
-                        out.status === "value"
-                          ? "bg-emerald-100 dark:bg-emerald-950 text-emerald-800 dark:text-emerald-300"
-                          : "bg-rose-100 dark:bg-rose-950 text-rose-800 dark:text-rose-300"
-                      }`}
+                      className="badge"
+                      style={out.status === "value" ? undefined : { color: "var(--accent)" }}
                     >
                       {out.status}
                     </span>
                   </td>
-                  <td className="py-1.5 px-2">
+                  <td style={{ padding: "0.4rem 0.5rem" }}>
                     {out.status === "value"
                       ? out.value instanceof Float64Array
                         ? `[Float64Array ${out.value.length} pts]`
@@ -632,8 +765,12 @@ export function WaveDescriptionLab({
                         ? String(out.reason)
                         : "Out of domain"}
                   </td>
-                  <td className="py-1.5 px-2 text-slate-500">{out.unit}</td>
-                  <td className="py-1.5 px-2 text-slate-400 text-[10px]">{out.ownerId}</td>
+                  <td style={{ padding: "0.4rem 0.5rem", color: "var(--muted)" }}>{out.unit}</td>
+                  <td
+                    style={{ padding: "0.4rem 0.5rem", color: "var(--muted)", fontSize: "0.7rem" }}
+                  >
+                    {out.ownerId}
+                  </td>
                 </tr>
               ))}
             </tbody>
@@ -642,16 +779,32 @@ export function WaveDescriptionLab({
       </div>
 
       {/* Epistemic Limits (Not Modeled) */}
-      <div className="bg-slate-50 dark:bg-slate-900 border border-slate-200 dark:border-slate-800 rounded-lg p-4">
-        <h3 className="text-sm font-semibold mb-2 text-slate-800 dark:text-slate-100">
+      <div
+        style={{
+          background: "var(--panel)",
+          border: "1px solid var(--line)",
+          borderRadius: "4px",
+          padding: "1rem",
+        }}
+      >
+        <h3 style={{ margin: "0 0 0.5rem", fontSize: "0.95rem" }}>
           Limits of this Classical Wave Model (Not Modeled)
         </h3>
-        <p className="text-xs text-slate-600 dark:text-slate-400 mb-2">
+        <p className="fine" style={{ margin: "0 0 0.5rem" }}>
           This reference owner implements continuous classical wave optics and geometric energy
           spreading. The following physical regimes require vector electrodynamics, microscopic
           matter coupling, or quantum optics and are explicitly <strong>not modeled</strong>:
         </p>
-        <ul className="text-xs text-slate-600 dark:text-slate-400 list-disc list-inside space-y-1">
+        <ul
+          className="fine"
+          style={{
+            paddingLeft: "1.25rem",
+            margin: 0,
+            display: "flex",
+            flexDirection: "column",
+            gap: "0.25rem",
+          }}
+        >
           <li>Polarization and vector electromagnetic field components.</li>
           <li>Photon statistics, photon anti-bunching, or quantum optics.</li>
           <li>Absorption, emission, or quantum detection by matter.</li>

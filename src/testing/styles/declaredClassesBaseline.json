@@ -31,7 +31,7 @@
   "src/components/lab/RodSimultaneityPlots.tsx": 132,
   "src/components/lab/ShowTheCode.tsx": 4,
   "src/components/lab/TracerLab.tsx": 12,
-  "src/components/lab/WaveDescriptionLab.tsx": 401,
+  "src/components/lab/WaveDescriptionLab.tsx": 0,
   "src/components/lab/WaveDescriptionPlots.tsx": 172,
   "src/components/lab/bm03/ConfigurationLab.tsx": 2,
   "src/components/lab/bm03/ConfigurationPlot.tsx": 10,
