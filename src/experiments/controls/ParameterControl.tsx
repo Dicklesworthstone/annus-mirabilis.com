@@ -30,6 +30,7 @@ export function ParameterControl({
   disabled = false,
   dependentGridValue,
   "data-testid": testId,
+  acceptedInputRevision,
 }: ParameterControlProps) {
   const controlId = useId();
   const inputId = `${controlId}-input`;
@@ -76,6 +77,9 @@ export function ParameterControl({
         className="parameter-control parameter-derived"
         data-parameter-id={spec.id}
         data-command-class={spec.commandClass}
+        data-accepted-input-revision={
+          acceptedInputRevision !== undefined ? String(acceptedInputRevision) : undefined
+        }
         data-testid={testId ?? `control-${spec.id}`}
       >
         <div className="parameter-header">
@@ -135,6 +139,9 @@ export function ParameterControl({
         className={`parameter-control parameter-seed ${hasError ? "has-error" : ""}`}
         data-parameter-id={spec.id}
         data-command-class={spec.commandClass}
+        data-accepted-input-revision={
+          acceptedInputRevision !== undefined ? String(acceptedInputRevision) : undefined
+        }
         data-testid={testId ?? `control-${spec.id}`}
       >
         <div className="parameter-header">
@@ -202,6 +209,9 @@ export function ParameterControl({
         className="parameter-control parameter-select"
         data-parameter-id={spec.id}
         data-command-class={spec.commandClass}
+        data-accepted-input-revision={
+          acceptedInputRevision !== undefined ? String(acceptedInputRevision) : undefined
+        }
         data-testid={testId ?? `control-${spec.id}`}
       >
         <div className="parameter-header">
@@ -324,19 +334,23 @@ export function ParameterControl({
   };
 
   const hasError = Boolean(errorExplanation);
+  const showBeyondTrack = isBeyondTrack && !hasError;
   const domainStatus = hasError
     ? "outside"
-    : isBeyondTrack
+    : showBeyondTrack
       ? "beyond-track"
       : domainValidation.status;
 
   return (
     <div
-      className={`parameter-control ${hasError ? "has-error" : ""} ${isBeyondTrack ? "beyond-track" : ""}`}
+      className={`parameter-control ${hasError ? "has-error" : ""} ${showBeyondTrack ? "beyond-track" : ""}`}
       data-parameter-id={spec.id}
       data-command-class={spec.commandClass}
-      data-beyond-track={isBeyondTrack ? "true" : "false"}
+      data-beyond-track={showBeyondTrack ? "true" : "false"}
       data-domain-status={domainStatus}
+      data-accepted-input-revision={
+        acceptedInputRevision !== undefined ? String(acceptedInputRevision) : undefined
+      }
       data-testid={testId ?? `control-${spec.id}`}
     >
       <div className="parameter-header">

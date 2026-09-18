@@ -32,8 +32,8 @@ export function normalizeUnit(unitStr: string): string {
     .trim()
     .replace(/·/g, "*")
     .replace(/\s+/g, "*")
-    .replace(/µ/g, "um")
-    .replace(/μ/g, "um")
+    .replace(/[µμ]m/g, "um")
+    .replace(/[µμ]/g, "u")
     .replace(/°c/i, "degC");
 }
 

@@ -19,6 +19,7 @@ export function ControlsPanel({
   disabled = false,
   className = "",
   advancedParameterIds = [],
+  acceptedInputRevision,
 }: ControlsPanelProps) {
   // Categorize parameters into primary vs advanced drawer
   const { primarySpecs, advancedSpecs, gridParamMap } = useMemo(() => {
@@ -67,6 +68,7 @@ export function ControlsPanel({
             onChange={(val, cmdClass) => onChange(spec.id, val, cmdClass)}
             disabled={disabled}
             dependentGridValue={getDependentGridValue(spec.id)}
+            acceptedInputRevision={acceptedInputRevision}
             data-testid={`control-${spec.id}`}
           />
         ))}
@@ -87,6 +89,7 @@ export function ControlsPanel({
                 onChange={(val, cmdClass) => onChange(spec.id, val, cmdClass)}
                 disabled={disabled}
                 dependentGridValue={getDependentGridValue(spec.id)}
+                acceptedInputRevision={acceptedInputRevision}
                 data-testid={`control-${spec.id}`}
               />
             ))}

@@ -79,6 +79,7 @@ export interface ParameterControlProps {
   readonly disabled?: boolean | undefined;
   readonly dependentGridValue?: number | undefined;
   readonly "data-testid"?: string | undefined;
+  readonly acceptedInputRevision?: number | undefined;
 }
 
 export interface ResetOptions {
@@ -97,4 +98,5 @@ export interface ControlsPanelProps {
   readonly disabled?: boolean | undefined;
   readonly className?: string | undefined;
   readonly advancedParameterIds?: readonly string[] | undefined;
+  readonly acceptedInputRevision?: number | undefined;
 }
