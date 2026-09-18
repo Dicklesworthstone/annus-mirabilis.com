@@ -10,7 +10,7 @@
 
 import assert from "node:assert/strict";
 import { execFileSync } from "node:child_process";
-import { mkdirSync, mkdtempSync, rmSync, writeFileSync } from "node:fs";
+import { existsSync, mkdirSync, mkdtempSync, readFileSync, rmSync, writeFileSync } from "node:fs";
 import { dirname, join, resolve } from "node:path";
 import { after, describe, it } from "node:test";
 import { fileURLToPath } from "node:url";
@@ -800,5 +800,25 @@ describe("Structural Compiler E2E CLI (`bun scripts/build-content.ts --corpus <d
     } finally {
       rmSync(tempDir, { recursive: true, force: true });
     }
+  });
+
+  it("never corrupts or wipes the repository generated/content corpus during e2e runs (am-arlh)", () => {
+    const indexPath = join(ROOT, "generated", "content", "index.json");
+    assert.equal(existsSync(indexPath), true, "Expected generated/content/index.json to exist");
+    const index = JSON.parse(readFileSync(indexPath, "utf8"));
+    assert.equal(
+      index.payloads.length,
+      26,
+      `Expected 26 compiled payloads, but found ${index.payloads.length}. Corpus was corrupted!`,
+    );
+    const paperIds = index.payloads
+      .filter((p: { kind: string }) => p.kind === "paper")
+      .map((p: { id: string }) => p.id);
+    assert.deepEqual(paperIds, ["brownian-motion"]);
+    assert.equal(
+      paperIds.includes("test-paper"),
+      false,
+      "Found test-paper fixture in repository compiled corpus!",
+    );
   });
 });

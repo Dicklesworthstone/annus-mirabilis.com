@@ -276,7 +276,7 @@ export async function runContentCompileOnce(
 ): Promise<boolean> {
   const result = await buildContent(options.root ?? ROOT, {
     corpusDir,
-    emit: options.shouldEmit ?? true,
+    ...(options.shouldEmit !== undefined ? { emit: options.shouldEmit } : {}),
   });
   for (const diagnostic of result.diagnostics) {
     if (diagnostic.severity === "error") {
@@ -373,9 +373,14 @@ export function watchContentCompile(
   };
 }
 
-export function parseCliArgs(args: readonly string[]): { corpusDir: string; watchMode: boolean } {
+export function parseCliArgs(args: readonly string[]): {
+  corpusDir: string;
+  watchMode: boolean;
+  shouldEmit?: boolean;
+} {
   let corpusDir = "content";
   let watchMode = false;
+  let shouldEmit: boolean | undefined;
   for (let i = 0; i < args.length; i++) {
     if (args[i] === "--corpus") {
       const nextArg = args[i + 1];
@@ -386,14 +391,18 @@ export function parseCliArgs(args: readonly string[]): { corpusDir: string; watc
       i++;
     } else if (args[i] === "--watch") {
       watchMode = true;
+    } else if (args[i] === "--emit") {
+      shouldEmit = true;
+    } else if (args[i] === "--no-emit") {
+      shouldEmit = false;
     }
   }
-  return { corpusDir, watchMode };
+  return { corpusDir, watchMode, ...(shouldEmit !== undefined ? { shouldEmit } : {}) };
 }
 
 // CLI Execution
 if (process.argv[1] && resolve(process.argv[1]) === fileURLToPath(import.meta.url)) {
-  let parsed: { corpusDir: string; watchMode: boolean };
+  let parsed: { corpusDir: string; watchMode: boolean; shouldEmit?: boolean };
   try {
     parsed = parseCliArgs(process.argv.slice(2));
   } catch (err) {
@@ -409,14 +418,17 @@ if (process.argv[1] && resolve(process.argv[1]) === fileURLToPath(import.meta.ur
     process.exit(1);
   }
 
-  const { corpusDir, watchMode } = parsed;
-  const firstRunOk = await runContentCompileOnce(corpusDir);
+  const { corpusDir, watchMode, shouldEmit } = parsed;
+  const firstRunOk = await runContentCompileOnce(
+    corpusDir,
+    shouldEmit !== undefined ? { shouldEmit } : {},
+  );
 
   if (watchMode) {
     console.log(
       JSON.stringify({ event: "content-watch-started", corpusDir: resolve(ROOT, corpusDir) }),
     );
-    watchContentCompile(corpusDir);
+    watchContentCompile(corpusDir, shouldEmit !== undefined ? { shouldEmit } : {});
     // Keep the process alive; the watcher above is the only thing keeping the event loop busy.
   } else if (!firstRunOk) {
     process.exitCode = 1;
