@@ -83,9 +83,9 @@ export function DensityProfilePlot({
         {/* Shaded area */}
         <path d={areaPath} fill="rgba(41, 128, 185, 0.15)" />
         {/* Osmotic equilibrium theoretical curve */}
-        <path d={osmoticPath} fill="none" stroke="#d35400" strokeWidth="2" strokeDasharray="4 3" />
+        <path d={osmoticPath} fill="none" stroke="var(--accent)" strokeWidth="2" strokeDasharray="4 3" />
         {/* Current density curve */}
-        <path d={densityPath} fill="none" stroke="#2980b9" strokeWidth="2.5" />
+        <path d={densityPath} fill="none" stroke="var(--plot)" strokeWidth="2.5" />
         {/* Axes */}
         <line
           x1={padL}
@@ -136,7 +136,7 @@ export function DensityProfilePlot({
             style={{
               width: "1rem",
               height: "0.25rem",
-              background: "#2980b9",
+              background: "var(--plot)",
               display: "inline-block",
             }}
           />
@@ -147,7 +147,7 @@ export function DensityProfilePlot({
             style={{
               width: "1rem",
               height: "0",
-              borderTop: "2px dashed #d35400",
+              borderTop: "2px dashed var(--accent)",
               display: "inline-block",
             }}
           />
@@ -207,7 +207,7 @@ export function FluxBalancePlot({ snapshot }: { snapshot: AcceptedSnapshot }) {
         <line x1={250} y1={15} x2={250} y2={h - 15} stroke="var(--line)" strokeDasharray="3 3" />
 
         {/* Drift flux bar (top row) */}
-        <text x={20} y={40} fontSize="12" fill="#27ae60" fontWeight="bold">
+        <text x={20} y={40} fontSize="12" fill="var(--plot)" fontWeight="bold">
           Drift flux (J_drift)
         </text>
         <rect
@@ -215,7 +215,7 @@ export function FluxBalancePlot({ snapshot }: { snapshot: AcceptedSnapshot }) {
           y={28}
           width={Math.max(2, driftW)}
           height={barHeight}
-          fill="#27ae60"
+          fill="var(--plot)"
           rx="3"
         />
         <text
@@ -229,7 +229,7 @@ export function FluxBalancePlot({ snapshot }: { snapshot: AcceptedSnapshot }) {
         </text>
 
         {/* Diffusion flux bar (bottom row) */}
-        <text x={20} y={85} fontSize="12" fill="#c0392b" fontWeight="bold">
+        <text x={20} y={85} fontSize="12" fill="var(--accent)" fontWeight="bold">
           Diffusive flux (J_diff)
         </text>
         <rect
@@ -237,7 +237,7 @@ export function FluxBalancePlot({ snapshot }: { snapshot: AcceptedSnapshot }) {
           y={73}
           width={Math.max(2, diffW)}
           height={barHeight}
-          fill="#c0392b"
+          fill="var(--accent)"
           rx="3"
         />
         <text
