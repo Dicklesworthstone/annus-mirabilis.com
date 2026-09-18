@@ -141,7 +141,7 @@ export interface KeyClaim {
 export function acquireKeyClaim(
   key: string,
   toolRunId: string,
-  options?: { locksDir?: string },
+  options?: { locksDir?: string; takeOverStale?: string },
 ): { claimPath: string; acquired: boolean; currentClaim?: KeyClaim } {
   const baseLocksDir =
     options?.locksDir || path.join(getRepoRoot(), "artifacts", "locks", "download-facsimiles");
@@ -166,6 +166,21 @@ export function acquireKeyClaim(
           throw new FacsimileError(
             "LOCK_HELD",
             `Active lock held for key '${key}' by PID ${data.pid} (run ${data.toolRunId}) in ${claimFile}`,
+          );
+        }
+
+        // Stale claim (dead PID):
+        if (options?.takeOverStale && options.takeOverStale === data.toolRunId) {
+          data.state = "superseded";
+          data.supersededBy = toolRunId;
+          data.supersededAt = new Date().toISOString();
+          fs.writeFileSync(claimFile, `${JSON.stringify(data, null, 2)}\n`, "utf8");
+        } else {
+          const ageMs = Date.now() - new Date(data.acquiredAt).getTime();
+          const ageSec = Math.max(0, Math.round(ageMs / 1000));
+          throw new FacsimileError(
+            "LOCK_HELD",
+            `Stale claim held for key '${key}' by dead PID ${data.pid} (toolRunId: ${data.toolRunId}, age: ${ageSec}s). Explicit --take-over-stale ${data.toolRunId} required to proceed.`,
           );
         }
       }
@@ -596,6 +611,14 @@ export function pinFile(
 export function updatePinnedRecord(configPath: string, pinned: PinnedRecord): void {
   const content = fs.readFileSync(configPath, "utf8");
   const parsed = yaml.load(content) as FacsimileSourceConfig;
+
+  if (parsed.pinned?.sha256 && parsed.pinned.sha256 !== pinned.sha256) {
+    throw new FacsimileError(
+      "PINNED_DIGEST_CONFLICT",
+      `Configuration ${configPath} already pinned with digest ${parsed.pinned.sha256}; cannot replace with ${pinned.sha256}`,
+    );
+  }
+
   parsed.pinned = pinned;
 
   const tmpPath = `${configPath}.tmp.${Date.now()}`;
@@ -728,6 +751,41 @@ export function verifyPins(options?: {
         allOk = false;
       }
     }
+
+    if (cfg.pinned.parent) {
+      const parentKey = `${key}:parent`;
+      const parentFullPath = path.isAbsolute(cfg.pinned.parent.path)
+        ? cfg.pinned.parent.path
+        : path.join(root, cfg.pinned.parent.path);
+      if (!fs.existsSync(parentFullPath)) {
+        results[parentKey] = {
+          status: "not-available",
+          path: cfg.pinned.parent.path,
+          expected: cfg.pinned.parent.sha256,
+        };
+        if (requireLocal) {
+          allOk = false;
+        }
+      } else {
+        const actualParentSha = sha256File(parentFullPath);
+        if (actualParentSha === cfg.pinned.parent.sha256) {
+          results[parentKey] = {
+            status: "ok",
+            path: cfg.pinned.parent.path,
+            expected: cfg.pinned.parent.sha256,
+            actual: actualParentSha,
+          };
+        } else {
+          results[parentKey] = {
+            status: "mismatch",
+            path: cfg.pinned.parent.path,
+            expected: cfg.pinned.parent.sha256,
+            actual: actualParentSha,
+          };
+          allOk = false;
+        }
+      }
+    }
   }
 
   return { results, allOk };
@@ -760,6 +818,18 @@ export async function restorePin(
     if (existingSha === cfg.pinned.sha256) {
       return { restored: false, sha256: existingSha };
     }
+    throw new FacsimileError(
+      "PINNED_DIGEST_CONFLICT",
+      `Existing file at ${destPath} has conflicting digest ${existingSha}; restore will not touch an existing conflicting file.`,
+    );
+  }
+
+  const parsed = new URL(cfg.pinned.originUrl);
+  const isLoopback =
+    process.env.NODE_ENV === "test" &&
+    (parsed.hostname === "127.0.0.1" || parsed.hostname === "localhost");
+  if (parsed.protocol !== "https:" && !isLoopback) {
+    throw new FacsimileError("HTTP_NOT_HTTPS", `Restore URL is not HTTPS: ${cfg.pinned.originUrl}`);
   }
 
   const runId = newToolRunId();
@@ -800,6 +870,7 @@ export async function fetchToStaging(
     userAgent?: string;
     maxRetries?: number;
     fetchFn?: typeof fetch;
+    baseDelayMs?: number;
   },
 ): Promise<{
   bytes: number;
@@ -815,6 +886,7 @@ export async function fetchToStaging(
   const userAgent = options?.userAgent ?? DEFAULT_USER_AGENT;
   const maxRetries = options?.maxRetries ?? 3;
   const fetchFn = options?.fetchFn ?? fetch;
+  const baseDelayMs = options?.baseDelayMs ?? 100;
 
   const redirects: string[] = [];
   let currentUrl = url;
@@ -862,8 +934,10 @@ export async function fetchToStaging(
 
       if (res.status === 429 || (res.status >= 500 && res.status <= 599)) {
         if (attempts <= maxRetries) {
-          const delay = Math.min(100 * 2 ** (attempts - 1), 1000);
-          await new Promise((resolve) => setTimeout(resolve, delay));
+          const delay = Math.min(baseDelayMs * 2 ** (attempts - 1), 1000);
+          if (delay > 0) {
+            await new Promise((resolve) => setTimeout(resolve, delay));
+          }
           continue;
         }
         throw new FacsimileError(
@@ -880,8 +954,10 @@ export async function fetchToStaging(
     } catch (err: unknown) {
       if (err instanceof FacsimileError) throw err;
       if (attempts <= maxRetries) {
-        const delay = Math.min(100 * 2 ** (attempts - 1), 1000);
-        await new Promise((resolve) => setTimeout(resolve, delay));
+        const delay = Math.min(baseDelayMs * 2 ** (attempts - 1), 1000);
+        if (delay > 0) {
+          await new Promise((resolve) => setTimeout(resolve, delay));
+        }
         continue;
       }
       const message = err instanceof Error ? err.message : String(err);
@@ -937,6 +1013,8 @@ export function writeStructuredLog(
   event: {
     suite: "download-facsimiles";
     toolRunId: string;
+    beadId?: string;
+    testId?: string;
     key?: string;
     candidateIndex?: number;
     url?: string;
@@ -965,166 +1043,141 @@ export function writeStructuredLog(
   fs.mkdirSync(path.dirname(logPath), { recursive: true });
   const payload = {
     timestamp: new Date().toISOString(),
+    beadId: "am-src-download-script-15ar",
     ...event,
   };
   fs.appendFileSync(logPath, `${JSON.stringify(payload)}\n`, "utf8");
 }
 
-export async function main(): Promise<void> {
-  const args = process.argv.slice(2);
+export interface DownloadFacsimileOptions {
+  candidateIndex?: number;
+  configDir?: string;
+  dryRun?: boolean;
+  repoRoot?: string;
+  fetchFn?: typeof fetch;
+  toolRunId?: string;
+  locksDir?: string;
+  takeOverStale?: string;
+  baseDelayMs?: number;
+}
 
-  if (args.includes("--help") || args.length === 0) {
-    console.log(`Usage:
-  bun scripts/download-facsimiles.ts --check-config [--config-dir <dir>]
-  bun scripts/download-facsimiles.ts --key <key> [--candidate <index>] [--dry-run] [--config-dir <dir>]
-  bun scripts/download-facsimiles.ts --verify [--key <key>] [--require-local] [--config-dir <dir>]
-  bun scripts/download-facsimiles.ts --restore --key <key> [--config-dir <dir>]`);
-    process.exit(0);
-  }
+export interface DownloadFacsimileResult {
+  key: string;
+  candidateIndex: number;
+  targetPath: string;
+  targetAbsPath: string;
+  sha256: string;
+  action: "pinned" | "noop";
+  pinnedRecord: PinnedRecord;
+  receiptStubPath?: string;
+  receiptStub?: string;
+  logPath: string;
+  toolRunId: string;
+}
 
-  let configDir: string | undefined;
-  const configDirIdx = args.indexOf("--config-dir");
-  if (configDirIdx !== -1 && args[configDirIdx + 1]) {
-    configDir = args[configDirIdx + 1];
-  }
-
-  // 1. --check-config mode (quality gates check)
-  if (args.includes("--check-config")) {
-    console.log("=== Facsimile Scan Configuration Quality Gate ===");
-    const { valid, results } = checkAllConfigs(configDir);
-    for (const [file, res] of Object.entries(results)) {
-      if (res.valid) {
-        console.log(`✓ ${file}: valid`);
-      } else {
-        console.error(`❌ ${file}: INVALID (${res.refusalCode})`);
-        for (const err of res.errors) {
-          console.error(`    - ${err}`);
-        }
-      }
-    }
-    if (!valid) {
-      process.exit(3); // INVALID_CONFIG
-    }
-    console.log("\nAll facsimile source configurations verified valid.");
-    process.exit(0);
-  }
-
-  // 2. --verify mode
-  if (args.includes("--verify")) {
-    console.log("=== Facsimile Pin Verification ===");
-    let key: string | undefined;
-    const keyIdx = args.indexOf("--key");
-    if (keyIdx !== -1 && args[keyIdx + 1]) {
-      key = args[keyIdx + 1];
-    }
-    const requireLocal = args.includes("--require-local");
-    const { results, allOk } = verifyPins({
-      ...(key !== undefined ? { key } : {}),
-      ...(configDir !== undefined ? { configDir } : {}),
-      requireLocal,
-    });
-    for (const [k, r] of Object.entries(results)) {
-      if (r.status === "ok") {
-        console.log(`✓ ${k}: OK (${r.path})`);
-      } else if (r.status === "not-available") {
-        console.log(`⚠️ ${k}: NOT AVAILABLE (local-only pin at ${r.path})`);
-      } else if (r.status === "mismatch") {
-        console.error(
-          `❌ ${k}: DIGEST MISMATCH at ${r.path} (expected ${r.expected}, got ${r.actual})`,
-        );
-      } else {
-        console.error(`❌ ${k}: MISSING file at ${r.path}`);
-      }
-    }
-    if (!allOk) {
-      process.exit(2);
-    }
-    process.exit(0);
-  }
-
-  // 3. --restore mode
-  if (args.includes("--restore")) {
-    const keyIdx = args.indexOf("--key");
-    const key = args[keyIdx + 1];
-    // Bind first, then check the binding: the truthiness test on args[...] does not
-    // narrow a later indexed read, which is the whole of this file's TS2345 cluster.
-    // process.exit returns never, so `key` is a string below, exactly as before.
-    if (keyIdx === -1 || key === undefined || key === "") {
-      console.error("--restore requires --key <key>");
-      process.exit(1);
-    }
-    try {
-      const res = await restorePin(key, configDir !== undefined ? { configDir } : {});
-      console.log(`Restored pin for ${key}: ${res.sha256}`);
-      process.exit(0);
-    } catch (e: unknown) {
-      const message = e instanceof Error ? e.message : String(e);
-      console.error(`Restore failed: ${message}`);
-      process.exit(e instanceof FacsimileError ? e.exitCode : 1);
-    }
-  }
-
-  // 4. Download and pin mode
-  const keyIdx = args.indexOf("--key");
-  const key = args[keyIdx + 1];
-  if (keyIdx === -1 || key === undefined || key === "") {
-    console.error("Missing required --key or mode flag (--check-config, --verify, --restore)");
-    process.exit(1);
-  }
-  let candidateIndex = 0;
-  const candIdx = args.indexOf("--candidate");
-  const candidateText = args[candIdx + 1];
-  if (candIdx !== -1 && candidateText !== undefined && candidateText !== "") {
-    candidateIndex = Number.parseInt(candidateText, 10);
-  }
-  const dryRun = args.includes("--dry-run");
-
+export async function downloadFacsimile(
+  key: string,
+  options?: DownloadFacsimileOptions,
+): Promise<DownloadFacsimileResult> {
+  const candidateIndex = options?.candidateIndex ?? 0;
+  const dryRun = options?.dryRun ?? false;
+  const root = options?.repoRoot || getRepoRoot();
+  const configDir = options?.configDir || getDefaultConfigDir();
+  const toolRunId = options?.toolRunId || newToolRunId();
+  const fetchFn = options?.fetchFn || fetch;
   const startTime = Date.now();
-  const toolRunId = newToolRunId();
-  const root = getRepoRoot();
   const logPath = path.join(root, "artifacts", "facsimile-logs", key, `${toolRunId}.jsonl`);
+
+  const configPath = path.join(configDir, `${key}.yaml`);
+  const cfg = loadConfig(configPath);
+  const candidate = cfg.candidates[candidateIndex];
+  if (!candidate) {
+    throw new FacsimileError(
+      "INVALID_CONFIG",
+      `No candidate found at index ${candidateIndex} for key ${key}`,
+    );
+  }
+
+  const targetRelPath =
+    cfg.rights.publicationDecision === "publish"
+      ? `public/papers/pdfs/${key}.pdf`
+      : `sources/pinned/${key}.pdf`;
+  const targetAbsPath = path.isAbsolute(targetRelPath)
+    ? targetRelPath
+    : path.join(root, targetRelPath);
+
+  if (dryRun) {
+    const parsed = new URL(candidate.url);
+    const isLoopback =
+      process.env.NODE_ENV === "test" &&
+      (parsed.hostname === "127.0.0.1" || parsed.hostname === "localhost");
+    if (parsed.protocol !== "https:" && !isLoopback) {
+      throw new FacsimileError("HTTP_NOT_HTTPS", `Candidate URL is not HTTPS: ${candidate.url}`);
+    }
+
+    let headStatus = 200;
+    let headContentType = "application/pdf";
+    try {
+      const headRes = await fetchFn(candidate.url, {
+        method: "HEAD",
+        headers: { "User-Agent": DEFAULT_USER_AGENT },
+      });
+      headStatus = headRes.status;
+      headContentType = headRes.headers.get("content-type") || "application/pdf";
+    } catch {
+      // In dry-run, if host doesn't support HEAD or fetch fails, record config validation
+    }
+
+    writeStructuredLog(logPath, {
+      suite: "download-facsimiles",
+      toolRunId,
+      key,
+      candidateIndex,
+      url: candidate.url,
+      httpStatus: headStatus,
+      contentType: headContentType,
+      action: "noop",
+      exitCode: 0,
+      message: "Dry run configuration check successful",
+    });
+
+    return {
+      key,
+      candidateIndex,
+      targetPath: targetRelPath,
+      targetAbsPath,
+      sha256: cfg.pinned?.sha256 || "",
+      action: "noop",
+      pinnedRecord: (cfg.pinned || {}) as PinnedRecord,
+      logPath,
+      toolRunId,
+    };
+  }
 
   let claimPath: string | null = null;
   try {
-    const configPath = path.join(configDir || getDefaultConfigDir(), `${key}.yaml`);
-    const cfg = loadConfig(configPath);
-    const candidate = cfg.candidates[candidateIndex];
-    if (!candidate) {
-      throw new FacsimileError(
-        "INVALID_CONFIG",
-        `No candidate found at index ${candidateIndex} for key ${key}`,
-      );
-    }
-
-    if (dryRun) {
-      console.log(
-        `[dry-run] Validated config for ${key}, candidate ${candidateIndex}: ${candidate.url}`,
-      );
-      writeStructuredLog(logPath, {
-        suite: "download-facsimiles",
-        toolRunId,
-        key,
-        candidateIndex,
-        url: candidate.url,
-        action: "noop",
-        exitCode: 0,
-        message: "Dry run configuration check successful",
-      });
-      process.exit(0);
-    }
-
-    const claimRes = acquireKeyClaim(key, toolRunId);
+    const claimRes = acquireKeyClaim(
+      key,
+      toolRunId,
+      options
+        ? {
+            ...(options.locksDir !== undefined ? { locksDir: options.locksDir } : {}),
+            ...(options.takeOverStale !== undefined
+              ? { takeOverStale: options.takeOverStale }
+              : {}),
+          }
+        : undefined,
+    );
     claimPath = claimRes.claimPath;
 
     const stagingDir = path.join(root, "artifacts", "facsimile-staging", key, toolRunId);
     const downloadPath = path.join(stagingDir, "download.pdf");
 
-    console.log(`Fetching candidate ${candidateIndex} (${candidate.url}) to staging...`);
-    const fetchRes = await fetchToStaging(
-      candidate.url,
-      downloadPath,
-      candidate.maxBytes !== undefined ? { maxBytes: candidate.maxBytes } : {},
-    );
+    const fetchRes = await fetchToStaging(candidate.url, downloadPath, {
+      ...(candidate.maxBytes !== undefined ? { maxBytes: candidate.maxBytes } : {}),
+      fetchFn,
+      ...(options?.baseDelayMs !== undefined ? { baseDelayMs: options.baseDelayMs } : {}),
+    });
 
     const checksumCheck = verifyHostChecksums(candidate.hostChecksums, {
       md5: fetchRes.md5,
@@ -1177,11 +1230,13 @@ export async function main(): Promise<void> {
     }
 
     const finalSha256 = sha256File(finalPinBuf);
-    const targetRelPath =
-      cfg.rights.publicationDecision === "publish"
-        ? `public/papers/pdfs/${key}.pdf`
-        : `sources/pinned/${key}.pdf`;
-    const targetAbsPath = path.join(root, targetRelPath);
+
+    if (cfg.pinned?.sha256 && cfg.pinned.sha256 !== finalSha256) {
+      throw new FacsimileError(
+        "PINNED_DIGEST_CONFLICT",
+        `Configuration pinned record conflict for ${key}: existing recorded digest is ${cfg.pinned.sha256}, incoming is ${finalSha256}. Refusing to replace pinned record.`,
+      );
+    }
 
     const extractedStagingPath = path.join(stagingDir, `${key}.pdf`);
     fs.writeFileSync(extractedStagingPath, finalPinBuf);
@@ -1208,7 +1263,11 @@ export async function main(): Promise<void> {
 
     updatePinnedRecord(configPath, pinnedRecord);
 
-    const receiptStub = emitReceiptStub(cfg, logPath);
+    const updatedCfg: FacsimileSourceConfig = {
+      ...cfg,
+      pinned: pinnedRecord,
+    };
+    const receiptStub = emitReceiptStub(updatedCfg, logPath);
     const receiptStubPath = path.join(stagingDir, "receipt-stub.yaml");
     fs.writeFileSync(receiptStubPath, receiptStub, "utf8");
 
@@ -1243,17 +1302,23 @@ export async function main(): Promise<void> {
       durationMs: Date.now() - startTime,
     });
 
-    console.log(
-      `\n🎉 Success! Pinned scan for ${key} to ${targetRelPath} (action: ${pinRes.action})`,
-    );
-    console.log(`SHA-256: ${finalSha256}`);
-    console.log(`Receipt stub written to ${receiptStubPath}`);
-    process.exit(0);
+    return {
+      key,
+      candidateIndex,
+      targetPath: targetRelPath,
+      targetAbsPath,
+      sha256: finalSha256,
+      action: pinRes.action,
+      pinnedRecord,
+      receiptStubPath,
+      receiptStub,
+      logPath,
+      toolRunId,
+    };
   } catch (err: unknown) {
     const exitCode = err instanceof FacsimileError ? err.exitCode : 1;
     const errorCode = err instanceof FacsimileError ? err.code : "UNEXPECTED_ERROR";
     const message = err instanceof Error ? err.message : String(err);
-    console.error(`\n❌ Pinning failed (${errorCode}): ${message}`);
 
     writeStructuredLog(logPath, {
       suite: "download-facsimiles",
@@ -1267,11 +1332,176 @@ export async function main(): Promise<void> {
       durationMs: Date.now() - startTime,
     });
 
-    process.exit(exitCode);
+    throw err;
   } finally {
     if (claimPath) {
       releaseKeyClaim(claimPath);
     }
+  }
+}
+
+export async function main(
+  args: string[] = process.argv.slice(2),
+  options?: {
+    fetchFn?: typeof fetch;
+    configDir?: string;
+    repoRoot?: string;
+    exitOnCompletion?: boolean;
+  },
+): Promise<number> {
+  const shouldExit = options?.exitOnCompletion ?? true;
+  const finish = (code: number): number => {
+    if (shouldExit) {
+      process.exit(code);
+    }
+    return code;
+  };
+
+  if (args.includes("--help") || args.length === 0 || args.includes("-h")) {
+    console.log(`Usage:
+  bun scripts/download-facsimiles.ts --check-config [--config-dir <dir>]
+  bun scripts/download-facsimiles.ts --key <key> [--candidate <index>] [--dry-run] [--config-dir <dir>] [--take-over-stale <toolRunId>]
+  bun scripts/download-facsimiles.ts --verify [--key <key>] [--require-local] [--config-dir <dir>]
+  bun scripts/download-facsimiles.ts --restore --key <key> [--config-dir <dir>]`);
+    return finish(0);
+  }
+
+  let configDir = options?.configDir;
+  const configDirIdx = args.indexOf("--config-dir");
+  if (configDirIdx !== -1 && args[configDirIdx + 1]) {
+    configDir = args[configDirIdx + 1];
+  }
+
+  const repoRoot = options?.repoRoot;
+
+  // 1. --check-config mode (quality gates check)
+  if (args.includes("--check-config")) {
+    console.log("=== Facsimile Scan Configuration Quality Gate ===");
+    const { valid, results } = checkAllConfigs(configDir);
+    for (const [file, res] of Object.entries(results)) {
+      if (res.valid) {
+        console.log(`✓ ${file}: valid`);
+      } else {
+        console.error(`❌ ${file}: INVALID (${res.refusalCode})`);
+        for (const err of res.errors) {
+          console.error(`    - ${err}`);
+        }
+      }
+    }
+    if (!valid) {
+      return finish(3); // INVALID_CONFIG
+    }
+    console.log("\nAll facsimile source configurations verified valid.");
+    return finish(0);
+  }
+
+  // 2. --verify mode
+  if (args.includes("--verify")) {
+    console.log("=== Facsimile Pin Verification ===");
+    let key: string | undefined;
+    const keyIdx = args.indexOf("--key");
+    if (keyIdx !== -1 && args[keyIdx + 1]) {
+      key = args[keyIdx + 1];
+    }
+    const requireLocal = args.includes("--require-local");
+    const { results, allOk } = verifyPins({
+      ...(key !== undefined ? { key } : {}),
+      ...(configDir !== undefined ? { configDir } : {}),
+      ...(repoRoot !== undefined ? { repoRoot } : {}),
+      requireLocal,
+    });
+    for (const [k, r] of Object.entries(results)) {
+      if (r.status === "ok") {
+        console.log(`✓ ${k}: OK (${r.path})`);
+      } else if (r.status === "not-available") {
+        console.log(`⚠️ ${k}: NOT AVAILABLE (local-only pin at ${r.path})`);
+      } else if (r.status === "mismatch") {
+        console.error(
+          `❌ ${k}: DIGEST MISMATCH at ${r.path} (expected ${r.expected}, got ${r.actual})`,
+        );
+      } else {
+        console.error(`❌ ${k}: MISSING file at ${r.path}`);
+      }
+    }
+    if (!allOk) {
+      return finish(2);
+    }
+    return finish(0);
+  }
+
+  // 3. --restore mode
+  if (args.includes("--restore")) {
+    const keyIdx = args.indexOf("--key");
+    const key = args[keyIdx + 1];
+    if (keyIdx === -1 || key === undefined || key === "") {
+      console.error("--restore requires --key <key>");
+      return finish(1);
+    }
+    try {
+      const res = await restorePin(key, {
+        ...(configDir !== undefined ? { configDir } : {}),
+        ...(repoRoot !== undefined ? { repoRoot } : {}),
+        ...(options?.fetchFn !== undefined ? { fetchFn: options.fetchFn } : {}),
+      });
+      console.log(`Restored pin for ${key}: ${res.sha256}`);
+      return finish(0);
+    } catch (e: unknown) {
+      const message = e instanceof Error ? e.message : String(e);
+      console.error(`Restore failed: ${message}`);
+      return finish(e instanceof FacsimileError ? e.exitCode : 1);
+    }
+  }
+
+  // 4. Download and pin mode
+  const keyIdx = args.indexOf("--key");
+  const key = args[keyIdx + 1];
+  if (keyIdx === -1 || key === undefined || key === "") {
+    console.error("Missing required --key or mode flag (--check-config, --verify, --restore)");
+    return finish(1);
+  }
+  let candidateIndex = 0;
+  const candIdx = args.indexOf("--candidate");
+  const candidateText = args[candIdx + 1];
+  if (candIdx !== -1 && candidateText !== undefined && candidateText !== "") {
+    candidateIndex = Number.parseInt(candidateText, 10);
+  }
+  const dryRun = args.includes("--dry-run");
+
+  let takeOverStale: string | undefined;
+  const staleIdx = args.indexOf("--take-over-stale");
+  if (staleIdx !== -1 && args[staleIdx + 1]) {
+    takeOverStale = args[staleIdx + 1];
+  }
+
+  try {
+    const res = await downloadFacsimile(key, {
+      candidateIndex,
+      dryRun,
+      ...(configDir !== undefined ? { configDir } : {}),
+      ...(repoRoot !== undefined ? { repoRoot } : {}),
+      ...(options?.fetchFn !== undefined ? { fetchFn: options.fetchFn } : {}),
+      ...(takeOverStale !== undefined ? { takeOverStale } : {}),
+    });
+
+    if (dryRun) {
+      console.log(`[dry-run] Validated config for ${key}, candidate ${candidateIndex}`);
+      return finish(0);
+    }
+
+    console.log(
+      `\n🎉 Success! Pinned scan for ${key} to ${res.targetPath} (action: ${res.action})`,
+    );
+    console.log(`SHA-256: ${res.sha256}`);
+    if (res.receiptStubPath) {
+      console.log(`Receipt stub written to ${res.receiptStubPath}`);
+    }
+    return finish(0);
+  } catch (err: unknown) {
+    const exitCode = err instanceof FacsimileError ? err.exitCode : 1;
+    const errorCode = err instanceof FacsimileError ? err.code : "UNEXPECTED_ERROR";
+    const message = err instanceof Error ? err.message : String(err);
+    console.error(`\n❌ Pinning failed (${errorCode}): ${message}`);
+    return finish(exitCode);
   }
 }
 

@@ -24,16 +24,20 @@ import { createHash } from "node:crypto";
 import * as fs from "node:fs";
 import * as http from "node:http";
 import * as path from "node:path";
+import yaml from "js-yaml";
 import {
   acquireKeyClaim,
   checkAllConfigs,
   detectEmbeddedTextLayer,
+  downloadFacsimile,
   emitReceiptStub,
   extractArticle,
   fetchToStaging,
   getRepoRoot,
+  main,
   pinFile,
   releaseKeyClaim,
+  restorePin,
   sha256File,
   validateConfig,
   validatePdf,
@@ -792,5 +796,1198 @@ describe("16. Error codes are classified, not defaulted (am-7mp8)", () => {
     // pass for any code at all and prove nothing about the mapping.
     expect(getExitCodeForError("NOT_A_REAL_CODE" as never)).toBe(1);
     expect(getExitCodeForError("UNEXPECTED_ERROR")).toBe(1);
+  });
+});
+
+describe("17. Complete downloadFacsimile engine lifecycle, parent reuse, and refusals with mockFetch", () => {
+  const testRoot = path.join(
+    REPO_ROOT,
+    "artifacts",
+    "test-tmp",
+    "mock-fetch-suite",
+    newToolRunId(),
+  );
+  const configDir = path.join(testRoot, "configs");
+  const valid2PageBuf = fs.readFileSync(path.join(FIXTURES_DIR, "valid-2page.pdf"));
+  const valid2PageMd5 = createHash("md5").update(valid2PageBuf).digest("hex");
+  const valid2PageSha1 = createHash("sha1").update(valid2PageBuf).digest("hex");
+  const valid2PageSha256 = createHash("sha256").update(valid2PageBuf).digest("hex");
+
+  const wholeIssueBuf = fs.readFileSync(path.join(FIXTURES_DIR, "whole-issue-4page.pdf"));
+  const wholeIssueMd5 = createHash("md5").update(wholeIssueBuf).digest("hex");
+  const wholeIssueSha1 = createHash("sha1").update(wholeIssueBuf).digest("hex");
+
+  beforeAll(() => {
+    fs.mkdirSync(configDir, { recursive: true });
+    fs.mkdirSync(path.join(testRoot, "public", "papers", "pdfs"), { recursive: true });
+    fs.mkdirSync(path.join(testRoot, "sources", "pinned"), { recursive: true });
+  });
+
+  function writeTestConfig(key: string, cfg: Record<string, unknown>): string {
+    const filePath = path.join(configDir, `${key}.yaml`);
+    fs.writeFileSync(filePath, yaml.dump(cfg, { indent: 2, lineWidth: -1 }), "utf8");
+    return filePath;
+  }
+
+  test("17.1 happy path: article candidate downloaded, host checksums verified, validated, pinned to public root, receipt stub emitted, log written", async () => {
+    const key = "ap-99-101";
+    writeTestConfig(key, {
+      configVersion: 1,
+      key,
+      candidates: [
+        {
+          url: "https://archive.org/download/item/ap-99-101.pdf",
+          kind: "article",
+          institution: "Internet Archive",
+          hostItemId: "test-item-01",
+          hostFileName: "ap-99-101.pdf",
+          hostFileSource: "original",
+          termsStatementUrls: ["https://example.org/terms"],
+          expectedPageCountRange: { min: 1, max: 4 },
+          hostChecksums: { md5: valid2PageMd5, sha1: valid2PageSha1 },
+        },
+      ],
+      articlePages: { printedFirst: 1, printedLast: 2 },
+      rights: {
+        rightsStatus: "scan-open-terms",
+        publicationDecision: "publish",
+        cloudProcessing: "permitted",
+        cloudProcessingBasis: "Public domain open terms",
+      },
+    });
+
+    const mockFetch: typeof fetch = async (_input, init) => {
+      if (init?.method === "HEAD") {
+        return new Response(null, {
+          status: 200,
+          headers: {
+            "Content-Type": "application/pdf",
+            "Content-Length": String(valid2PageBuf.length),
+          },
+        });
+      }
+      return new Response(valid2PageBuf, {
+        status: 200,
+        headers: { "Content-Type": "application/pdf" },
+      });
+    };
+
+    const res = await downloadFacsimile(key, {
+      configDir,
+      repoRoot: testRoot,
+      fetchFn: mockFetch,
+    });
+
+    expect(res.action).toBe("pinned");
+    expect(res.targetPath).toBe(`public/papers/pdfs/${key}.pdf`);
+    expect(fs.existsSync(res.targetAbsPath)).toBe(true);
+    expect(res.sha256).toBe(valid2PageSha256);
+    expect(sha256File(res.targetAbsPath)).toBe(valid2PageSha256);
+
+    // Receipt stub exists, parses, and has required fields
+    expect(res.receiptStubPath).toBeDefined();
+    expect(res.receiptStubPath && fs.existsSync(res.receiptStubPath)).toBe(true);
+    const stubContent = fs.readFileSync(res.receiptStubPath || "", "utf8");
+    const stubObj = (yaml.load(stubContent) as any).scan;
+    expect(stubObj.sha256).toBe(valid2PageSha256);
+    expect(stubObj.downloadLog).toBe(res.logPath);
+    expect(stubObj.hostChecksumsVerified).toEqual(["md5", "sha1"]);
+
+    // Structured log exists and has toolRunId and beadId
+    expect(fs.existsSync(res.logPath)).toBe(true);
+    const logLines = fs.readFileSync(res.logPath, "utf8").trim().split("\n");
+    const lastLog = logLines[logLines.length - 1];
+    expect(lastLog).toBeDefined();
+    const logLine = JSON.parse(lastLog || "{}");
+    expect(logLine.action).toBe("pinned");
+    expect(logLine.toolRunId).toBe(res.toolRunId);
+    expect(logLine.beadId).toBe("am-src-download-script-15ar");
+    expect(logLine.exitCode).toBe(0);
+
+    // Config on disk was updated with pinned record
+    const updatedCfg = yaml.load(
+      fs.readFileSync(path.join(configDir, `${key}.yaml`), "utf8"),
+    ) as any;
+    expect(updatedCfg.pinned).toBeDefined();
+    expect(updatedCfg.pinned.sha256).toBe(valid2PageSha256);
+    expect(updatedCfg.pinned.toolRunId).toBe(res.toolRunId);
+  });
+
+  test("17.2 idempotent re-run: downloading again with identical bytes returns noop", async () => {
+    const key = "ap-99-101";
+    const mockFetch: typeof fetch = async () => {
+      return new Response(valid2PageBuf, {
+        status: 200,
+        headers: { "Content-Type": "application/pdf" },
+      });
+    };
+
+    const res = await downloadFacsimile(key, {
+      configDir,
+      repoRoot: testRoot,
+      fetchFn: mockFetch,
+    });
+
+    expect(res.action).toBe("noop");
+    expect(res.sha256).toBe(valid2PageSha256);
+  });
+
+  test("17.3 happy path: whole-issue extraction cuts pages, retains parent, and second key reuses parent", async () => {
+    const parentKey1 = "ap-99-103";
+    const parentKey2 = "ap-99-104";
+    const parentUrl = "https://archive.org/download/volume17/ap-whole-issue.pdf";
+
+    writeTestConfig(parentKey1, {
+      configVersion: 1,
+      key: parentKey1,
+      candidates: [
+        {
+          url: parentUrl,
+          kind: "whole-issue",
+          institution: "Internet Archive",
+          hostItemId: "volume17",
+          hostFileName: "issue.pdf",
+          hostFileSource: "original",
+          termsStatementUrls: ["https://example.org/terms"],
+          expectedPageCountRange: { min: 4, max: 4 },
+          hostChecksums: { md5: wholeIssueMd5, sha1: wholeIssueSha1 },
+        },
+      ],
+      articlePages: { printedFirst: 2, printedLast: 3, parentPageIndices: [2, 3] },
+      rights: {
+        rightsStatus: "scan-open-terms",
+        publicationDecision: "publish",
+        cloudProcessing: "permitted",
+        cloudProcessingBasis: "Public domain open terms",
+      },
+    });
+
+    writeTestConfig(parentKey2, {
+      configVersion: 1,
+      key: parentKey2,
+      candidates: [
+        {
+          url: parentUrl,
+          kind: "whole-issue",
+          institution: "Internet Archive",
+          hostItemId: "volume17",
+          hostFileName: "issue.pdf",
+          hostFileSource: "original",
+          termsStatementUrls: ["https://example.org/terms"],
+          expectedPageCountRange: { min: 4, max: 4 },
+          hostChecksums: { md5: wholeIssueMd5, sha1: wholeIssueSha1 },
+        },
+      ],
+      articlePages: { printedFirst: 3, printedLast: 4, parentPageIndices: [3, 4] },
+      rights: {
+        rightsStatus: "scan-open-terms",
+        publicationDecision: "pin-local-only",
+        publicationReason: "Study copy for extraction check",
+        cloudProcessing: "permitted",
+        cloudProcessingBasis: "Public domain open terms",
+      },
+    });
+
+    const mockFetch: typeof fetch = async () => {
+      return new Response(wholeIssueBuf, {
+        status: 200,
+        headers: { "Content-Type": "application/pdf" },
+      });
+    };
+
+    // First extraction (pages 2, 3)
+    const res1 = await downloadFacsimile(parentKey1, {
+      configDir,
+      repoRoot: testRoot,
+      fetchFn: mockFetch,
+    });
+
+    expect(res1.action).toBe("pinned");
+    expect(res1.pinnedRecord.parent).toBeDefined();
+    const parentSha = res1.pinnedRecord.parent?.sha256;
+    expect(parentSha).toBeDefined();
+    expect(res1.pinnedRecord.parent?.parentPageIndices).toEqual([2, 3]);
+
+    const retainedParentPath = path.join(testRoot, "sources", "parents", `${parentSha}.pdf`);
+    expect(fs.existsSync(retainedParentPath)).toBe(true);
+
+    // Second extraction (pages 3, 4) reusing the parent scan
+    const res2 = await downloadFacsimile(parentKey2, {
+      configDir,
+      repoRoot: testRoot,
+      fetchFn: mockFetch,
+    });
+
+    expect(res2.action).toBe("pinned");
+    expect(res2.pinnedRecord.parent).toBeDefined();
+    expect(res2.pinnedRecord.parent?.sha256).toBe(parentSha);
+    expect(res2.pinnedRecord.parent?.parentPageIndices).toEqual([3, 4]);
+
+    // Target 2 is pinned to sources/pinned/ because of pin-local-only
+    expect(res2.targetPath).toBe(`sources/pinned/${parentKey2}.pdf`);
+    expect(fs.existsSync(res2.targetAbsPath)).toBe(true);
+  });
+
+  test("17.4 refusal: conflicting pinned file on disk refuses with PINNED_DIGEST_CONFLICT (exit 2)", async () => {
+    const key = "ap-99-105";
+    writeTestConfig(key, {
+      configVersion: 1,
+      key,
+      candidates: [
+        {
+          url: "https://archive.org/download/item/conflict.pdf",
+          kind: "article",
+          institution: "Archive",
+          hostItemId: "item",
+          hostFileName: "conflict.pdf",
+          hostFileSource: "original",
+          termsStatementUrls: ["https://example.org/terms"],
+          expectedPageCountRange: { min: 1, max: 5 },
+        },
+      ],
+      articlePages: { printedFirst: 1, printedLast: 2 },
+      rights: {
+        rightsStatus: "scan-open-terms",
+        publicationDecision: "publish",
+        cloudProcessing: "permitted",
+        cloudProcessingBasis: "test",
+      },
+    });
+
+    // Create a pre-existing conflicting file on disk at destination
+    const dest = path.join(testRoot, "public", "papers", "pdfs", `${key}.pdf`);
+    fs.writeFileSync(dest, "corrupted or different PDF bytes");
+    const preMtime = fs.statSync(dest).mtimeMs;
+
+    const mockFetch: typeof fetch = async () => {
+      return new Response(valid2PageBuf, {
+        status: 200,
+        headers: { "Content-Type": "application/pdf" },
+      });
+    };
+
+    let caughtError: any = null;
+    try {
+      await downloadFacsimile(key, {
+        configDir,
+        repoRoot: testRoot,
+        fetchFn: mockFetch,
+      });
+    } catch (e) {
+      caughtError = e;
+    }
+
+    expect(caughtError).toBeInstanceOf(FacsimileError);
+    expect(caughtError.code).toBe("PINNED_DIGEST_CONFLICT");
+    expect(caughtError.exitCode).toBe(2);
+
+    // Existing file must remain unmodified (Rule 1)
+    expect(fs.readFileSync(dest, "utf8")).toBe("corrupted or different PDF bytes");
+    expect(fs.statSync(dest).mtimeMs).toBe(preMtime);
+  });
+
+  test("17.5 refusal: conflicting pinned record in config refuses with PINNED_DIGEST_CONFLICT (exit 2)", async () => {
+    const key = "ap-99-106";
+    const conflictSha = "aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa";
+    writeTestConfig(key, {
+      configVersion: 1,
+      key,
+      candidates: [
+        {
+          url: "https://archive.org/download/item/conflict-cfg.pdf",
+          kind: "article",
+          institution: "Archive",
+          hostItemId: "item",
+          hostFileName: "conflict-cfg.pdf",
+          hostFileSource: "original",
+          termsStatementUrls: ["https://example.org/terms"],
+          expectedPageCountRange: { min: 1, max: 5 },
+        },
+      ],
+      articlePages: { printedFirst: 1, printedLast: 2 },
+      rights: {
+        rightsStatus: "scan-open-terms",
+        publicationDecision: "publish",
+        cloudProcessing: "permitted",
+        cloudProcessingBasis: "test",
+      },
+      pinned: {
+        path: `public/papers/pdfs/${key}.pdf`,
+        sha256: conflictSha,
+        pageCount: 2,
+        mimeType: "application/pdf",
+        acquisitionDate: "2026-01-01",
+        originUrl: "https://archive.org/download/item/conflict-cfg.pdf",
+        finalUrl: "https://archive.org/download/item/conflict-cfg.pdf",
+        candidateIndex: 0,
+        hostFileSource: "original",
+        hostChecksumsVerified: [],
+        embeddedTextLayer: "absent",
+        pdfLibrary: { name: "annus-mirabilis-pdf", version: "1.0.0" },
+        toolRunId: newToolRunId(),
+      },
+    });
+
+    const mockFetch: typeof fetch = async () => {
+      return new Response(valid2PageBuf, {
+        status: 200,
+        headers: { "Content-Type": "application/pdf" },
+      });
+    };
+
+    let caughtError: any = null;
+    try {
+      await downloadFacsimile(key, {
+        configDir,
+        repoRoot: testRoot,
+        fetchFn: mockFetch,
+      });
+    } catch (e) {
+      caughtError = e;
+    }
+
+    expect(caughtError).toBeInstanceOf(FacsimileError);
+    expect(caughtError.code).toBe("PINNED_DIGEST_CONFLICT");
+    expect(caughtError.exitCode).toBe(2);
+
+    // Config must not be overwritten
+    const cfgAfter = yaml.load(fs.readFileSync(path.join(configDir, `${key}.yaml`), "utf8")) as any;
+    expect(cfgAfter.pinned.sha256).toBe(conflictSha);
+  });
+
+  test("17.6 refusal: host checksum mismatch refuses with HOST_CHECKSUM_MISMATCH (exit 3)", async () => {
+    const key = "ap-99-107";
+    writeTestConfig(key, {
+      configVersion: 1,
+      key,
+      candidates: [
+        {
+          url: "https://archive.org/download/item/test.pdf",
+          kind: "article",
+          institution: "Archive",
+          hostItemId: "item",
+          hostFileName: "test.pdf",
+          hostFileSource: "original",
+          termsStatementUrls: ["https://example.org/terms"],
+          expectedPageCountRange: { min: 1, max: 5 },
+          hostChecksums: { md5: "00000000000000000000000000000000" },
+        },
+      ],
+      articlePages: { printedFirst: 1, printedLast: 2 },
+      rights: {
+        rightsStatus: "scan-open-terms",
+        publicationDecision: "publish",
+        cloudProcessing: "permitted",
+        cloudProcessingBasis: "test",
+      },
+    });
+
+    const mockFetch: typeof fetch = async () => {
+      return new Response(valid2PageBuf, {
+        status: 200,
+        headers: { "Content-Type": "application/pdf" },
+      });
+    };
+
+    let caughtError: any = null;
+    try {
+      await downloadFacsimile(key, {
+        configDir,
+        repoRoot: testRoot,
+        fetchFn: mockFetch,
+      });
+    } catch (e) {
+      caughtError = e;
+    }
+
+    expect(caughtError).toBeInstanceOf(FacsimileError);
+    expect(caughtError.code).toBe("HOST_CHECKSUM_MISMATCH");
+    expect(caughtError.exitCode).toBe(3);
+  });
+
+  test("17.7 refusal: HTML served instead of PDF refuses with NOT_A_PDF (exit 3)", async () => {
+    const key = "ap-99-108";
+    writeTestConfig(key, {
+      configVersion: 1,
+      key,
+      candidates: [
+        {
+          url: "https://archive.org/download/item/html.pdf",
+          kind: "article",
+          institution: "Archive",
+          hostItemId: "item",
+          hostFileName: "html.pdf",
+          hostFileSource: "original",
+          termsStatementUrls: ["https://example.org/terms"],
+          expectedPageCountRange: { min: 1, max: 5 },
+        },
+      ],
+      articlePages: { printedFirst: 1, printedLast: 2 },
+      rights: {
+        rightsStatus: "scan-open-terms",
+        publicationDecision: "publish",
+        cloudProcessing: "permitted",
+        cloudProcessingBasis: "test",
+      },
+    });
+
+    const mockFetch: typeof fetch = async () => {
+      return new Response("<!DOCTYPE html><html><body>Error 403 Forbidden</body></html>", {
+        status: 200,
+        headers: { "Content-Type": "application/pdf" },
+      });
+    };
+
+    let caughtError: any = null;
+    try {
+      await downloadFacsimile(key, {
+        configDir,
+        repoRoot: testRoot,
+        fetchFn: mockFetch,
+      });
+    } catch (e) {
+      caughtError = e;
+    }
+
+    expect(caughtError).toBeInstanceOf(FacsimileError);
+    expect(caughtError.code).toBe("NOT_A_PDF");
+    expect(caughtError.exitCode).toBe(3);
+  });
+
+  test("17.8 refusal: JSON error response refuses with NOT_A_PDF (exit 3)", async () => {
+    const key = "ap-99-109";
+    writeTestConfig(key, {
+      configVersion: 1,
+      key,
+      candidates: [
+        {
+          url: "https://archive.org/download/item/error.json",
+          kind: "article",
+          institution: "Archive",
+          hostItemId: "item",
+          hostFileName: "error.json",
+          hostFileSource: "original",
+          termsStatementUrls: ["https://example.org/terms"],
+          expectedPageCountRange: { min: 1, max: 5 },
+        },
+      ],
+      articlePages: { printedFirst: 1, printedLast: 2 },
+      rights: {
+        rightsStatus: "scan-open-terms",
+        publicationDecision: "publish",
+        cloudProcessing: "permitted",
+        cloudProcessingBasis: "test",
+      },
+    });
+
+    const mockFetch: typeof fetch = async () => {
+      return new Response(JSON.stringify({ error: "Access denied" }), {
+        status: 200,
+        headers: { "Content-Type": "application/json" },
+      });
+    };
+
+    let caughtError: any = null;
+    try {
+      await downloadFacsimile(key, {
+        configDir,
+        repoRoot: testRoot,
+        fetchFn: mockFetch,
+      });
+    } catch (e) {
+      caughtError = e;
+    }
+
+    expect(caughtError).toBeInstanceOf(FacsimileError);
+    expect(caughtError.code).toBe("NOT_A_PDF");
+    expect(caughtError.exitCode).toBe(3);
+  });
+
+  test("17.9 refusal: truncated PDF refuses with TRUNCATED_PDF (exit 3)", async () => {
+    const key = "ap-99-110";
+    const truncatedBuf = fs.readFileSync(path.join(FIXTURES_DIR, "truncated.pdf"));
+    writeTestConfig(key, {
+      configVersion: 1,
+      key,
+      candidates: [
+        {
+          url: "https://archive.org/download/item/truncated.pdf",
+          kind: "article",
+          institution: "Archive",
+          hostItemId: "item",
+          hostFileName: "truncated.pdf",
+          hostFileSource: "original",
+          termsStatementUrls: ["https://example.org/terms"],
+          expectedPageCountRange: { min: 1, max: 5 },
+        },
+      ],
+      articlePages: { printedFirst: 1, printedLast: 2 },
+      rights: {
+        rightsStatus: "scan-open-terms",
+        publicationDecision: "publish",
+        cloudProcessing: "permitted",
+        cloudProcessingBasis: "test",
+      },
+    });
+
+    const mockFetch: typeof fetch = async () => {
+      return new Response(truncatedBuf, {
+        status: 200,
+        headers: { "Content-Type": "application/pdf" },
+      });
+    };
+
+    let caughtError: any = null;
+    try {
+      await downloadFacsimile(key, {
+        configDir,
+        repoRoot: testRoot,
+        fetchFn: mockFetch,
+      });
+    } catch (e) {
+      caughtError = e;
+    }
+
+    expect(caughtError).toBeInstanceOf(FacsimileError);
+    expect(caughtError.code).toBe("TRUNCATED_PDF");
+    expect(caughtError.exitCode).toBe(3);
+  });
+
+  test("17.10 refusal: page count out of range refuses with PAGE_COUNT_OUT_OF_RANGE (exit 3)", async () => {
+    const key = "ap-99-111";
+    writeTestConfig(key, {
+      configVersion: 1,
+      key,
+      candidates: [
+        {
+          url: "https://archive.org/download/item/test.pdf",
+          kind: "article",
+          institution: "Archive",
+          hostItemId: "item",
+          hostFileName: "test.pdf",
+          hostFileSource: "original",
+          termsStatementUrls: ["https://example.org/terms"],
+          expectedPageCountRange: { min: 10, max: 20 },
+        },
+      ],
+      articlePages: { printedFirst: 1, printedLast: 2 },
+      rights: {
+        rightsStatus: "scan-open-terms",
+        publicationDecision: "publish",
+        cloudProcessing: "permitted",
+        cloudProcessingBasis: "test",
+      },
+    });
+
+    const mockFetch: typeof fetch = async () => {
+      return new Response(valid2PageBuf, {
+        status: 200,
+        headers: { "Content-Type": "application/pdf" },
+      });
+    };
+
+    let caughtError: any = null;
+    try {
+      await downloadFacsimile(key, {
+        configDir,
+        repoRoot: testRoot,
+        fetchFn: mockFetch,
+      });
+    } catch (e) {
+      caughtError = e;
+    }
+
+    expect(caughtError).toBeInstanceOf(FacsimileError);
+    expect(caughtError.code).toBe("PAGE_COUNT_OUT_OF_RANGE");
+    expect(caughtError.exitCode).toBe(3);
+  });
+
+  test("17.11 refusal: oversize download refuses with SIZE_LIMIT_EXCEEDED (exit 4)", async () => {
+    const key = "ap-99-112";
+    writeTestConfig(key, {
+      configVersion: 1,
+      key,
+      candidates: [
+        {
+          url: "https://archive.org/download/item/oversize.pdf",
+          kind: "article",
+          institution: "Archive",
+          hostItemId: "item",
+          hostFileName: "oversize.pdf",
+          hostFileSource: "original",
+          termsStatementUrls: ["https://example.org/terms"],
+          expectedPageCountRange: { min: 1, max: 5 },
+          maxBytes: 200,
+        },
+      ],
+      articlePages: { printedFirst: 1, printedLast: 2 },
+      rights: {
+        rightsStatus: "scan-open-terms",
+        publicationDecision: "publish",
+        cloudProcessing: "permitted",
+        cloudProcessingBasis: "test",
+      },
+    });
+
+    const mockFetch: typeof fetch = async () => {
+      return new Response(valid2PageBuf, {
+        status: 200,
+        headers: { "Content-Type": "application/pdf" },
+      });
+    };
+
+    let caughtError: any = null;
+    try {
+      await downloadFacsimile(key, {
+        configDir,
+        repoRoot: testRoot,
+        fetchFn: mockFetch,
+      });
+    } catch (e) {
+      caughtError = e;
+    }
+
+    expect(caughtError).toBeInstanceOf(FacsimileError);
+    expect(caughtError.code).toBe("SIZE_LIMIT_EXCEEDED");
+    expect(caughtError.exitCode).toBe(4);
+  });
+
+  test("17.12 refusal: HTTP status 404 refuses with HTTP_STATUS (exit 4)", async () => {
+    const key = "ap-99-113";
+    writeTestConfig(key, {
+      configVersion: 1,
+      key,
+      candidates: [
+        {
+          url: "https://archive.org/download/item/notfound.pdf",
+          kind: "article",
+          institution: "Archive",
+          hostItemId: "item",
+          hostFileName: "notfound.pdf",
+          hostFileSource: "original",
+          termsStatementUrls: ["https://example.org/terms"],
+          expectedPageCountRange: { min: 1, max: 5 },
+        },
+      ],
+      articlePages: { printedFirst: 1, printedLast: 2 },
+      rights: {
+        rightsStatus: "scan-open-terms",
+        publicationDecision: "publish",
+        cloudProcessing: "permitted",
+        cloudProcessingBasis: "test",
+      },
+    });
+
+    const mockFetch: typeof fetch = async () => {
+      return new Response("Not Found", { status: 404 });
+    };
+
+    let caughtError: any = null;
+    try {
+      await downloadFacsimile(key, {
+        configDir,
+        repoRoot: testRoot,
+        fetchFn: mockFetch,
+      });
+    } catch (e) {
+      caughtError = e;
+    }
+
+    expect(caughtError).toBeInstanceOf(FacsimileError);
+    expect(caughtError.code).toBe("HTTP_STATUS");
+    expect(caughtError.exitCode).toBe(4);
+  });
+
+  test("17.13 refusal: insecure HTTP redirect hop refuses with REDIRECT_TO_HTTP (exit 4)", async () => {
+    const key = "ap-99-114";
+    writeTestConfig(key, {
+      configVersion: 1,
+      key,
+      candidates: [
+        {
+          url: "https://archive.org/download/item/start.pdf",
+          kind: "article",
+          institution: "Archive",
+          hostItemId: "item",
+          hostFileName: "start.pdf",
+          hostFileSource: "original",
+          termsStatementUrls: ["https://example.org/terms"],
+          expectedPageCountRange: { min: 1, max: 5 },
+        },
+      ],
+      articlePages: { printedFirst: 1, printedLast: 2 },
+      rights: {
+        rightsStatus: "scan-open-terms",
+        publicationDecision: "publish",
+        cloudProcessing: "permitted",
+        cloudProcessingBasis: "test",
+      },
+    });
+
+    const mockFetch: typeof fetch = async (input) => {
+      const url =
+        typeof input === "string" ? input : input instanceof URL ? input.toString() : input.url;
+      if (url.startsWith("https:")) {
+        return new Response(null, {
+          status: 302,
+          headers: { Location: "http://insecure.example.org/diverted.pdf" },
+        });
+      }
+      return new Response(valid2PageBuf, { status: 200 });
+    };
+
+    let caughtError: any = null;
+    try {
+      await downloadFacsimile(key, {
+        configDir,
+        repoRoot: testRoot,
+        fetchFn: mockFetch,
+      });
+    } catch (e) {
+      caughtError = e;
+    }
+
+    expect(caughtError).toBeInstanceOf(FacsimileError);
+    expect(caughtError.code).toBe("REDIRECT_TO_HTTP");
+    expect(caughtError.exitCode).toBe(4);
+  });
+
+  test("17.14 refusal: network retries exhausted on persistent 503 (exit 4)", async () => {
+    const key = "ap-99-115";
+    writeTestConfig(key, {
+      configVersion: 1,
+      key,
+      candidates: [
+        {
+          url: "https://archive.org/download/item/flaky.pdf",
+          kind: "article",
+          institution: "Archive",
+          hostItemId: "item",
+          hostFileName: "flaky.pdf",
+          hostFileSource: "original",
+          termsStatementUrls: ["https://example.org/terms"],
+          expectedPageCountRange: { min: 1, max: 5 },
+        },
+      ],
+      articlePages: { printedFirst: 1, printedLast: 2 },
+      rights: {
+        rightsStatus: "scan-open-terms",
+        publicationDecision: "publish",
+        cloudProcessing: "permitted",
+        cloudProcessingBasis: "test",
+      },
+    });
+
+    let calls = 0;
+    const mockFetch: typeof fetch = async () => {
+      calls++;
+      return new Response("Service Unavailable", { status: 503 });
+    };
+
+    let caughtError: any = null;
+    try {
+      await downloadFacsimile(key, {
+        configDir,
+        repoRoot: testRoot,
+        fetchFn: mockFetch,
+        baseDelayMs: 0,
+      });
+    } catch (e) {
+      caughtError = e;
+    }
+
+    expect(caughtError).toBeInstanceOf(FacsimileError);
+    expect(caughtError.code).toBe("NETWORK_RETRIES_EXHAUSTED");
+    expect(caughtError.exitCode).toBe(4);
+    expect(calls).toBe(4); // initial + 3 retries
+  });
+
+  test("17.15 dry-run mode validates configuration without downloading body or pinning files", async () => {
+    const key = "ap-99-116";
+    writeTestConfig(key, {
+      configVersion: 1,
+      key,
+      candidates: [
+        {
+          url: "https://archive.org/download/item/dryrun.pdf",
+          kind: "article",
+          institution: "Archive",
+          hostItemId: "item",
+          hostFileName: "dryrun.pdf",
+          hostFileSource: "original",
+          termsStatementUrls: ["https://example.org/terms"],
+          expectedPageCountRange: { min: 1, max: 5 },
+        },
+      ],
+      articlePages: { printedFirst: 1, printedLast: 2 },
+      rights: {
+        rightsStatus: "scan-open-terms",
+        publicationDecision: "publish",
+        cloudProcessing: "permitted",
+        cloudProcessingBasis: "test",
+      },
+    });
+
+    let getCalled = false;
+    const mockFetch: typeof fetch = async (_input, init) => {
+      if (init?.method === "GET") getCalled = true;
+      return new Response(null, {
+        status: 200,
+        headers: { "Content-Type": "application/pdf" },
+      });
+    };
+
+    const res = await downloadFacsimile(key, {
+      configDir,
+      repoRoot: testRoot,
+      fetchFn: mockFetch,
+      dryRun: true,
+    });
+
+    expect(res.action).toBe("noop");
+    expect(getCalled).toBe(false);
+    expect(fs.existsSync(res.targetAbsPath)).toBe(false);
+  });
+
+  test("17.16 lock exclusion: second run refuses with LOCK_HELD (exit 2)", async () => {
+    const key = "ap-99-117";
+    writeTestConfig(key, {
+      configVersion: 1,
+      key,
+      candidates: [
+        {
+          url: "https://archive.org/download/item/lock.pdf",
+          kind: "article",
+          institution: "Archive",
+          hostItemId: "item",
+          hostFileName: "lock.pdf",
+          hostFileSource: "original",
+          termsStatementUrls: ["https://example.org/terms"],
+          expectedPageCountRange: { min: 1, max: 5 },
+        },
+      ],
+      articlePages: { printedFirst: 1, printedLast: 2 },
+      rights: {
+        rightsStatus: "scan-open-terms",
+        publicationDecision: "publish",
+        cloudProcessing: "permitted",
+        cloudProcessingBasis: "test",
+      },
+    });
+
+    // Acquire lock manually for this key
+    const locksDir = path.join(testRoot, "artifacts", "locks", "download-facsimiles");
+    const activeClaim = acquireKeyClaim(key, newToolRunId(), { locksDir });
+
+    const mockFetch: typeof fetch = async () => {
+      return new Response(valid2PageBuf, {
+        status: 200,
+        headers: { "Content-Type": "application/pdf" },
+      });
+    };
+
+    let caughtError: any = null;
+    try {
+      await downloadFacsimile(key, {
+        configDir,
+        repoRoot: testRoot,
+        fetchFn: mockFetch,
+        locksDir,
+      });
+    } catch (e) {
+      caughtError = e;
+    }
+
+    expect(caughtError).toBeInstanceOf(FacsimileError);
+    expect(caughtError.code).toBe("LOCK_HELD");
+    expect(caughtError.exitCode).toBe(2);
+
+    releaseKeyClaim(activeClaim.claimPath);
+  });
+});
+
+describe("18. Configuration immutability and atomic updates (test 7 from spec)", () => {
+  const testRoot = path.join(
+    REPO_ROOT,
+    "artifacts",
+    "test-tmp",
+    "config-immutability",
+    newToolRunId(),
+  );
+  const configDir = path.join(testRoot, "configs");
+  const valid2PageBuf = fs.readFileSync(path.join(FIXTURES_DIR, "valid-2page.pdf"));
+
+  beforeAll(() => {
+    fs.mkdirSync(configDir, { recursive: true });
+    fs.mkdirSync(path.join(testRoot, "public", "papers", "pdfs"), { recursive: true });
+  });
+
+  test("forced validation failure leaves key's file byte-identical; successful pin of A leaves B byte-identical", async () => {
+    const keyA = "ap-99-201";
+    const keyB = "ap-99-202";
+
+    const cfgA = {
+      configVersion: 1,
+      key: keyA,
+      candidates: [
+        {
+          url: "https://archive.org/download/item/a.pdf",
+          kind: "article",
+          institution: "Archive",
+          hostItemId: "item",
+          hostFileName: "a.pdf",
+          hostFileSource: "original",
+          termsStatementUrls: ["https://example.org/terms"],
+          expectedPageCountRange: { min: 1, max: 5 },
+        },
+      ],
+      articlePages: { printedFirst: 1, printedLast: 2 },
+      rights: {
+        rightsStatus: "scan-open-terms",
+        publicationDecision: "publish",
+        cloudProcessing: "permitted",
+        cloudProcessingBasis: "test",
+      },
+    };
+
+    const cfgB = {
+      configVersion: 1,
+      key: keyB,
+      candidates: [
+        {
+          url: "https://archive.org/download/item/b.pdf",
+          kind: "article",
+          institution: "Archive",
+          hostItemId: "item",
+          hostFileName: "b.pdf",
+          hostFileSource: "original",
+          termsStatementUrls: ["https://example.org/terms"],
+          expectedPageCountRange: { min: 1, max: 5 },
+        },
+      ],
+      articlePages: { printedFirst: 1, printedLast: 2 },
+      rights: {
+        rightsStatus: "scan-open-terms",
+        publicationDecision: "publish",
+        cloudProcessing: "permitted",
+        cloudProcessingBasis: "test",
+      },
+    };
+
+    const pathA = path.join(configDir, `${keyA}.yaml`);
+    const pathB = path.join(configDir, `${keyB}.yaml`);
+    fs.writeFileSync(pathA, yaml.dump(cfgA, { indent: 2, lineWidth: -1 }), "utf8");
+    fs.writeFileSync(pathB, yaml.dump(cfgB, { indent: 2, lineWidth: -1 }), "utf8");
+
+    const initialA = fs.readFileSync(pathA, "utf8");
+    const initialB = fs.readFileSync(pathB, "utf8");
+
+    // 1. Force failure on key A (mock returns HTML instead of PDF)
+    const failingFetch: typeof fetch = async () => {
+      return new Response("<html>Not a PDF</html>", {
+        status: 200,
+        headers: { "Content-Type": "text/html" },
+      });
+    };
+
+    try {
+      await downloadFacsimile(keyA, { configDir, repoRoot: testRoot, fetchFn: failingFetch });
+    } catch {
+      // Expected refusal
+    }
+
+    // Key A's config file must remain byte-identical after failure
+    expect(fs.readFileSync(pathA, "utf8")).toBe(initialA);
+
+    // 2. Successful pin of key A
+    const successFetch: typeof fetch = async () => {
+      return new Response(valid2PageBuf, {
+        status: 200,
+        headers: { "Content-Type": "application/pdf" },
+      });
+    };
+
+    await downloadFacsimile(keyA, { configDir, repoRoot: testRoot, fetchFn: successFetch });
+
+    // Key A's config was updated with pinned block
+    expect(fs.readFileSync(pathA, "utf8")).not.toBe(initialA);
+
+    // Key B's config file must remain completely byte-identical
+    expect(fs.readFileSync(pathB, "utf8")).toBe(initialB);
+  });
+});
+
+describe("19. Stale lock detection, age reporting, and take-over-stale", () => {
+  const testLocksDir = path.join(REPO_ROOT, "artifacts", "test-tmp", "stale-locks", newToolRunId());
+
+  beforeAll(() => {
+    fs.mkdirSync(testLocksDir, { recursive: true });
+  });
+
+  test("stale claim (dead PID) requires explicit --take-over-stale to supersede without deleting", () => {
+    const key = "ap-99-301";
+    const keyLocksDir = path.join(testLocksDir, key);
+    fs.mkdirSync(keyLocksDir, { recursive: true });
+
+    const staleToolRunId = "20260101T000000Z-deadbeef";
+    const staleClaimPath = path.join(keyLocksDir, `${staleToolRunId}.claim`);
+    const staleData = {
+      pid: 99999999, // Unlikely to exist
+      toolRunId: staleToolRunId,
+      key,
+      state: "held",
+      acquiredAt: new Date(Date.now() - 30_000).toISOString(),
+    };
+    fs.writeFileSync(staleClaimPath, JSON.stringify(staleData, null, 2), "utf8");
+
+    // Without takeOverStale -> throws LOCK_HELD with stale claim details
+    let caught: any = null;
+    try {
+      acquireKeyClaim(key, newToolRunId(), { locksDir: testLocksDir });
+    } catch (e) {
+      caught = e;
+    }
+
+    expect(caught).toBeInstanceOf(FacsimileError);
+    expect(caught.code).toBe("LOCK_HELD");
+    expect(caught.message).toContain("Stale claim held for key");
+    expect(caught.message).toContain("dead PID 99999999");
+    expect(caught.message).toContain(`--take-over-stale ${staleToolRunId}`);
+
+    // With takeOverStale matching -> succeeds!
+    const newToolRun = newToolRunId();
+    const res = acquireKeyClaim(key, newToolRun, {
+      locksDir: testLocksDir,
+      takeOverStale: staleToolRunId,
+    });
+    expect(res.acquired).toBe(true);
+
+    // Verify stale claim file still exists (never deleted) and state is superseded
+    expect(fs.existsSync(staleClaimPath)).toBe(true);
+    const updatedStaleData = JSON.parse(fs.readFileSync(staleClaimPath, "utf8"));
+    expect(updatedStaleData.state).toBe("superseded");
+    expect(updatedStaleData.supersededBy).toBe(newToolRun);
+
+    releaseKeyClaim(res.claimPath);
+  });
+});
+
+describe("20. CLI main entrypoint argument parsing and mockFetch dispatch", () => {
+  const testRoot = path.join(REPO_ROOT, "artifacts", "test-tmp", "cli-entrypoint", newToolRunId());
+  const configDir = path.join(testRoot, "configs");
+  const valid2PageBuf = fs.readFileSync(path.join(FIXTURES_DIR, "valid-2page.pdf"));
+
+  beforeAll(() => {
+    fs.mkdirSync(configDir, { recursive: true });
+    fs.mkdirSync(path.join(testRoot, "public", "papers", "pdfs"), { recursive: true });
+
+    const key = "ap-99-401";
+    const cfg = {
+      configVersion: 1,
+      key,
+      candidates: [
+        {
+          url: "https://archive.org/download/item/cli.pdf",
+          kind: "article",
+          institution: "Archive",
+          hostItemId: "item",
+          hostFileName: "cli.pdf",
+          hostFileSource: "original",
+          termsStatementUrls: ["https://example.org/terms"],
+          expectedPageCountRange: { min: 1, max: 5 },
+        },
+      ],
+      articlePages: { printedFirst: 1, printedLast: 2 },
+      rights: {
+        rightsStatus: "scan-open-terms",
+        publicationDecision: "publish",
+        cloudProcessing: "permitted",
+        cloudProcessingBasis: "test",
+      },
+    };
+    fs.writeFileSync(
+      path.join(configDir, `${key}.yaml`),
+      yaml.dump(cfg, { indent: 2, lineWidth: -1 }),
+      "utf8",
+    );
+  });
+
+  test("main returns 0 on --help", async () => {
+    const code = await main(["--help"], { exitOnCompletion: false });
+    expect(code).toBe(0);
+  });
+
+  test("main returns 0 on --check-config", async () => {
+    const code = await main(["--check-config", "--config-dir", configDir], {
+      exitOnCompletion: false,
+    });
+    expect(code).toBe(0);
+  });
+
+  test("main returns 0 on successful download and pin with mockFetch", async () => {
+    const mockFetch: typeof fetch = async () => {
+      return new Response(valid2PageBuf, {
+        status: 200,
+        headers: { "Content-Type": "application/pdf" },
+      });
+    };
+
+    const code = await main(["--key", "ap-99-401", "--config-dir", configDir], {
+      exitOnCompletion: false,
+      repoRoot: testRoot,
+      fetchFn: mockFetch,
+    });
+    expect(code).toBe(0);
+  });
+
+  test("main returns 0 on --verify when file is present", async () => {
+    const code = await main(["--verify", "--key", "ap-99-401", "--config-dir", configDir], {
+      exitOnCompletion: false,
+      repoRoot: testRoot,
+    });
+    expect(code).toBe(0);
+  });
+
+  test("restorePin restores missing pin with mockFetch and refuses digest mismatch", async () => {
+    const key = "ap-99-401";
+    const targetFile = path.join(testRoot, "public", "papers", "pdfs", `${key}.pdf`);
+    // Move to backup instead of deleting
+    const backupFile = `${targetFile}.bak`;
+    fs.renameSync(targetFile, backupFile);
+    expect(fs.existsSync(targetFile)).toBe(false);
+
+    // Mock fetch returning correct bytes restores
+    const mockFetch: typeof fetch = async () => {
+      return new Response(valid2PageBuf, {
+        status: 200,
+        headers: { "Content-Type": "application/pdf" },
+      });
+    };
+
+    const res = await restorePin(key, { configDir, repoRoot: testRoot, fetchFn: mockFetch });
+    expect(res.restored).toBe(true);
+    expect(fs.existsSync(targetFile)).toBe(true);
+
+    // Now test restore refusal with bad bytes
+    const destAgain = `${targetFile}.test-bad`;
+    fs.renameSync(targetFile, destAgain);
+
+    const badFetch: typeof fetch = async () => {
+      return new Response("bad bytes not matching recorded digest", {
+        status: 200,
+        headers: { "Content-Type": "application/pdf" },
+      });
+    };
+
+    let caught: any = null;
+    try {
+      await restorePin(key, { configDir, repoRoot: testRoot, fetchFn: badFetch });
+    } catch (e) {
+      caught = e;
+    }
+
+    expect(caught).toBeInstanceOf(FacsimileError);
+    expect(caught.code).toBe("RESTORE_DIGEST_MISMATCH");
+    expect(caught.exitCode).toBe(2);
   });
 });
