@@ -41,7 +41,7 @@
   "src/content/provenance/writeGeneratedSection.ts": 6,
   "src/content/quantities/registry.ts": 1,
   "src/content/revisions.ts": 6,
-  "src/content/schemas/argument.ts": 141,
+  "src/content/schemas/argument.ts": 0,
   "src/content/schemas/authorship.ts": 7,
   "src/content/schemas/concordance.ts": 0,
   "src/content/schemas/dates.ts": 9,
