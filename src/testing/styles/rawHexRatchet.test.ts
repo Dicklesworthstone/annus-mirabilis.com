@@ -488,7 +488,7 @@ export const DATA_COLOR_ALLOWLIST: readonly DataColorAllowlistEntry[] = [
     reason:
       "canvas 2D fillStyle and PDF.js background; CSS custom properties do not resolve in canvas context",
   },
-  // Osmotic pressure configuration integral model states & particle coordinates in ConfigurationPlot (BM-03 §3):
+  // Osmotic pressure configuration integral model comparison in ConfigurationPlot (BM-03 §3):
   {
     file: "src/components/lab/bm03/ConfigurationPlot.tsx",
     hex: "#b91c1c",
@@ -501,21 +501,6 @@ export const DATA_COLOR_ALLOWLIST: readonly DataColorAllowlistEntry[] = [
     reason:
       "Independent N_p degrees-of-freedom model state comparison callout in osmotic pressure (BM-03 §3)",
   },
-  {
-    file: "src/components/lab/bm03/ConfigurationPlot.tsx",
-    hex: "#ef4444",
-    reason: "Discrete particle position state coordinate in accessible volume V (BM-03 §3)",
-  },
-  {
-    file: "src/components/lab/bm03/ConfigurationPlot.tsx",
-    hex: "#991b1b",
-    reason: "Discrete particle boundary stroke in accessible volume V (BM-03 §3)",
-  },
-  {
-    file: "src/components/lab/bm03/ConfigurationPlot.tsx",
-    hex: "#10b981",
-    reason: "Dilute particle ensemble distribution points in configuration space (BM-03 §3)",
-  },
   // Mass-energy equivalence boundary ledger photon pulse momentum and radiation flux data colors in BoundaryLedgerPlot (ME-03):
   {
     file: "src/components/lab/me03/BoundaryLedgerPlot.tsx",
@@ -527,6 +512,18 @@ export const DATA_COLOR_ALLOWLIST: readonly DataColorAllowlistEntry[] = [
     hex: "#ea580c",
     reason:
       "Pulse 2 four-momentum vector and escaping/retained radiation flow in BoundaryLedgerPlot",
+  },
+  // Radiation vs. Gas comparison data series in CoefficientMatchPlot (§6 The Move):
+  {
+    file: "src/components/lab/lq06/CoefficientMatchPlot.tsx",
+    hex: "#f43f5e",
+    reason: "Wien monochromatic radiation (§4) data series stroke and mean quantum energy bar",
+  },
+  {
+    file: "src/components/lab/lq06/CoefficientMatchPlot.tsx",
+    hex: "#0ea5e9",
+    reason:
+      "Ideal gas / solute molecules (§5) data series stroke and mean molecule kinetic energy bar",
   },
 ];
 

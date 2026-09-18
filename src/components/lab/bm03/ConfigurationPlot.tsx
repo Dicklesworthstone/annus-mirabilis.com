@@ -97,8 +97,8 @@ export function ConfigurationPlot({ parameters, evaluation, clipId }: Configurat
               cx={50 + boxWidth / 2}
               cy={85 + boxHeight / 2}
               r="8"
-              fill="#ef4444"
-              stroke="#991b1b"
+              fill="var(--accent)"
+              stroke="var(--accent)"
               strokeWidth="2"
             />
             <text
@@ -160,10 +160,10 @@ export function ConfigurationPlot({ parameters, evaluation, clipId }: Configurat
               <line x1="0" y1="60" x2="180" y2="60" stroke="var(--line)" strokeDasharray="3,3" />
 
               {/* 4 arrangement points */}
-              <circle cx="45" cy="30" r="6" fill="#ef4444" />
-              <circle cx="135" cy="30" r="6" fill="#ef4444" />
-              <circle cx="45" cy="90" r="6" fill="#ef4444" />
-              <circle cx="135" cy="90" r="6" fill="#ef4444" />
+              <circle cx="45" cy="30" r="6" fill="var(--accent)" />
+              <circle cx="135" cy="30" r="6" fill="var(--accent)" />
+              <circle cx="45" cy="90" r="6" fill="var(--accent)" />
+              <circle cx="135" cy="90" r="6" fill="var(--accent)" />
 
               <text
                 x="90"
@@ -233,7 +233,7 @@ export function ConfigurationPlot({ parameters, evaluation, clipId }: Configurat
                     cx={cx}
                     cy={cy}
                     r="4"
-                    fill="#10b981"
+                    fill="var(--plot)"
                     opacity="0.8"
                   />
                 );
