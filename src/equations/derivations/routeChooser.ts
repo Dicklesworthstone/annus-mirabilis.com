@@ -115,5 +115,9 @@ export function selectRoute(
     return found;
   }
 
-  return available[0]!;
+  const first = available[0];
+  if (!first) {
+    throw new Error(`No available derivation routes for perspective "${perspective}".`);
+  }
+  return first;
 }

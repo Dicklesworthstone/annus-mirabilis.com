@@ -27,7 +27,7 @@ export function expressionToDerivationLatex(
         s = "\\pi";
         break;
       case "symbol": {
-        let name = n.termId || n.quantityId;
+        const name = n.termId || n.quantityId;
         if (name === "x_sum") {
           s = "x_{\\mathrm{sum}}";
         } else if (name === "x2") {

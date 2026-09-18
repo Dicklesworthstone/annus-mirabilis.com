@@ -1,6 +1,5 @@
 import { describe, expect, test } from "bun:test";
-import { existsSync, readFileSync, rmSync } from "node:fs";
-import { join } from "node:path";
+import { existsSync, readFileSync } from "node:fs";
 import { DerivationRendererLogger } from "./logger.ts";
 
 describe("am-eq-derivation-renderer-9gd7: DerivationRendererLogger structured logging", () => {

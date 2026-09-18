@@ -43,7 +43,8 @@ describe("am-eq-derivation-renderer-9gd7: a11yText and ClearSpeak descriptions",
   });
 
   test("stepAccessibleText produces complete accessible name for regular step", () => {
-    const step1 = steps[0]!;
+    const step1 = steps[0];
+    if (!step1) throw new Error("Missing step1");
     const text = stepAccessibleText(step1, 0);
 
     expect(text).toContain("Step 1.");
@@ -53,7 +54,8 @@ describe("am-eq-derivation-renderer-9gd7: a11yText and ClearSpeak descriptions",
   });
 
   test("stepAccessibleText includes marked move label when step is the move", () => {
-    const moveStep = steps.find((s) => s.isMove)!;
+    const moveStep = steps.find((s) => s.isMove);
+    if (!moveStep) throw new Error("Missing move step");
     const text = stepAccessibleText(moveStep, 2);
 
     expect(text).toContain("The move:");

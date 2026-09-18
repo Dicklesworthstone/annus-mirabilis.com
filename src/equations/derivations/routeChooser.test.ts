@@ -2,7 +2,6 @@ import { describe, expect, test } from "bun:test";
 import {
   fixtureBrownianPedagogicalReconstruction,
   fixtureBrownianSourceOrder,
-  fixturePaper1WienEntropy,
 } from "./fixtures.ts";
 import { filterRoutesForPerspective, getRouteLabel, selectRoute } from "./routeChooser.ts";
 import type { DerivationChain } from "./types.ts";

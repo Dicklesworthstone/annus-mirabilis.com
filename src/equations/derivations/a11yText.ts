@@ -63,7 +63,7 @@ export function expressionToSpokenText(expr: Expression): string {
       return "pi";
 
     case "symbol": {
-      let name = expr.termId || expr.quantityId;
+      const name = expr.termId || expr.quantityId;
       // Convert common subscript notations like x_sum -> sum of x, Delta_i -> Delta i
       if (name === "x_sum") return "sum of x";
       if (name === "x2") return "x squared";
