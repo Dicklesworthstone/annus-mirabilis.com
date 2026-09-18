@@ -229,6 +229,57 @@ export const DATA_COLOR_ALLOWLIST: readonly DataColorAllowlistEntry[] = [
     hex: "#e11d48",
     reason: "Spacetime comparison event E2(dx, c*dt) coordinate label text in Minkowski diagram",
   },
+  // Wave description, two-source crest superposition, and spherical energy spreading data colors in WaveDescriptionPlots:
+  {
+    file: "src/components/lab/WaveDescriptionPlots.tsx",
+    hex: "#0284c7",
+    reason: "Screen intensity profile curve <I(y)> data trace in InterferencePlot",
+  },
+  {
+    file: "src/components/lab/WaveDescriptionPlots.tsx",
+    hex: "#e11d48",
+    reason: "Selected screen position probe marker line, circle, and text in InterferencePlot",
+  },
+  {
+    file: "src/components/lab/WaveDescriptionPlots.tsx",
+    hex: "#0f172a",
+    reason:
+      "Optical dark-field canvas background for wavefield crest superposition and spherical energy spreading",
+  },
+  {
+    file: "src/components/lab/WaveDescriptionPlots.tsx",
+    hex: "#38bdf8",
+    reason:
+      "Coherent wave source S1 crest wavefront rings, pinhead marker, and screen center intensity spot in WavefrontPlot",
+  },
+  {
+    file: "src/components/lab/WaveDescriptionPlots.tsx",
+    hex: "#fbbf24",
+    reason:
+      "Coherent wave source S2 crest wavefront rings and pinhead marker with relative phase shift delta in WavefrontPlot",
+  },
+  {
+    file: "src/components/lab/WaveDescriptionPlots.tsx",
+    hex: "#0ea5e9",
+    reason:
+      "Concentric spherical wave shells (r1, r2, r4) illustrating isotropic inverse-square energy spreading in SpreadingPlot",
+  },
+  {
+    file: "src/components/lab/WaveDescriptionPlots.tsx",
+    hex: "#34d399",
+    reason:
+      "Active radius measurement shell, radius vector ray, and enclosed power flux indicator in SpreadingPlot",
+  },
+  {
+    file: "src/components/lab/WaveDescriptionPlots.tsx",
+    hex: "#f59e0b",
+    reason: "Central isotropic radiant point source emitter in SpreadingPlot",
+  },
+  {
+    file: "src/components/lab/WaveDescriptionPlots.tsx",
+    hex: "#f43f5e",
+    reason: "Differential sensor aperture at radius r capturing radiant flux in SpreadingPlot",
+  },
   // Equation genealogy graph edge type data colors in Genealogy.tsx:
   {
     file: "src/equations/genealogy/Genealogy.tsx",
@@ -434,7 +485,48 @@ export const DATA_COLOR_ALLOWLIST: readonly DataColorAllowlistEntry[] = [
   {
     file: "src/reader/facsimile/usePinnedPdfFacsimile.ts",
     hex: "#ffffff",
-    reason: "canvas 2D fillStyle and PDF.js background; CSS custom properties do not resolve in canvas context",
+    reason:
+      "canvas 2D fillStyle and PDF.js background; CSS custom properties do not resolve in canvas context",
+  },
+  // Osmotic pressure configuration integral model states & particle coordinates in ConfigurationPlot (BM-03 §3):
+  {
+    file: "src/components/lab/bm03/ConfigurationPlot.tsx",
+    hex: "#b91c1c",
+    reason:
+      "Locked cluster single-degree-of-freedom model state comparison callout in osmotic pressure (BM-03 §3)",
+  },
+  {
+    file: "src/components/lab/bm03/ConfigurationPlot.tsx",
+    hex: "#1d4ed8",
+    reason:
+      "Independent N_p degrees-of-freedom model state comparison callout in osmotic pressure (BM-03 §3)",
+  },
+  {
+    file: "src/components/lab/bm03/ConfigurationPlot.tsx",
+    hex: "#ef4444",
+    reason: "Discrete particle position state coordinate in accessible volume V (BM-03 §3)",
+  },
+  {
+    file: "src/components/lab/bm03/ConfigurationPlot.tsx",
+    hex: "#991b1b",
+    reason: "Discrete particle boundary stroke in accessible volume V (BM-03 §3)",
+  },
+  {
+    file: "src/components/lab/bm03/ConfigurationPlot.tsx",
+    hex: "#10b981",
+    reason: "Dilute particle ensemble distribution points in configuration space (BM-03 §3)",
+  },
+  // Mass-energy equivalence boundary ledger photon pulse momentum and radiation flux data colors in BoundaryLedgerPlot (ME-03):
+  {
+    file: "src/components/lab/me03/BoundaryLedgerPlot.tsx",
+    hex: "#2563eb",
+    reason: "Pulse 1 four-momentum vector and forward radiation beam in BoundaryLedgerPlot",
+  },
+  {
+    file: "src/components/lab/me03/BoundaryLedgerPlot.tsx",
+    hex: "#ea580c",
+    reason:
+      "Pulse 2 four-momentum vector and escaping/retained radiation flow in BoundaryLedgerPlot",
   },
 ];
 

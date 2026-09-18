@@ -97,8 +97,8 @@ export function ConfigurationPlot({ parameters, evaluation, clipId }: Configurat
               cx={50 + boxWidth / 2}
               cy={85 + boxHeight / 2}
               r="8"
-              fill="var(--accent)"
-              stroke="var(--accent)"
+              fill="#ef4444"
+              stroke="#991b1b"
               strokeWidth="2"
             />
             <text
@@ -112,13 +112,7 @@ export function ConfigurationPlot({ parameters, evaluation, clipId }: Configurat
 
             {/* Math card */}
             <g transform="translate(320, 85)">
-              <rect
-                width="190"
-                height="120"
-                rx="6"
-                fill="var(--panel)"
-                stroke="var(--line)"
-              />
+              <rect width="190" height="120" rx="6" fill="var(--panel)" stroke="var(--line)" />
               <text x="15" y="30" fontSize="12" fontWeight="bold" fill="currentColor">
                 Integral over (x₁, y₁, z₁)
               </text>
@@ -166,10 +160,10 @@ export function ConfigurationPlot({ parameters, evaluation, clipId }: Configurat
               <line x1="0" y1="60" x2="180" y2="60" stroke="var(--line)" strokeDasharray="3,3" />
 
               {/* 4 arrangement points */}
-              <circle cx="45" cy="30" r="6" fill="var(--accent)" />
-              <circle cx="135" cy="30" r="6" fill="var(--accent)" />
-              <circle cx="45" cy="90" r="6" fill="var(--accent)" />
-              <circle cx="135" cy="90" r="6" fill="var(--accent)" />
+              <circle cx="45" cy="30" r="6" fill="#ef4444" />
+              <circle cx="135" cy="30" r="6" fill="#ef4444" />
+              <circle cx="45" cy="90" r="6" fill="#ef4444" />
+              <circle cx="135" cy="90" r="6" fill="#ef4444" />
 
               <text
                 x="90"
@@ -185,13 +179,7 @@ export function ConfigurationPlot({ parameters, evaluation, clipId }: Configurat
 
             {/* Math card */}
             <g transform="translate(260, 85)">
-              <rect
-                width="250"
-                height="135"
-                rx="6"
-                fill="var(--panel)"
-                stroke="var(--line)"
-              />
+              <rect width="250" height="135" rx="6" fill="var(--panel)" stroke="var(--line)" />
               <text x="15" y="25" fontSize="12" fontWeight="bold" fill="currentColor">
                 Integral over 2 independent particles
               </text>
@@ -245,7 +233,7 @@ export function ConfigurationPlot({ parameters, evaluation, clipId }: Configurat
                     cx={cx}
                     cy={cy}
                     r="4"
-                    fill="var(--plot)"
+                    fill="#10b981"
                     opacity="0.8"
                   />
                 );
@@ -264,13 +252,7 @@ export function ConfigurationPlot({ parameters, evaluation, clipId }: Configurat
 
             {/* Math card */}
             <g transform="translate(240, 80)">
-              <rect
-                width="270"
-                height="150"
-                rx="6"
-                fill="var(--panel)"
-                stroke="var(--line)"
-              />
+              <rect width="270" height="150" rx="6" fill="var(--panel)" stroke="var(--line)" />
               <text x="15" y="24" fontSize="12" fontWeight="bold" fill="currentColor">
                 Logarithmic Configuration Integral
               </text>
@@ -319,13 +301,7 @@ export function ConfigurationPlot({ parameters, evaluation, clipId }: Configurat
 
             {/* Derivative breakdown */}
             <g transform="translate(30, 80)">
-              <rect
-                width="480"
-                height="150"
-                rx="6"
-                fill="var(--panel)"
-                stroke="var(--line)"
-              />
+              <rect width="480" height="150" rx="6" fill="var(--panel)" stroke="var(--line)" />
 
               <g transform="translate(20, 30)">
                 <text x="0" y="0" fontSize="13" fontWeight="bold" fill="currentColor">
@@ -355,15 +331,14 @@ export function ConfigurationPlot({ parameters, evaluation, clipId }: Configurat
                   width="440"
                   height="35"
                   rx="4"
-                  fill={isLocked ? "var(--accent)" : "var(--plot)"}
-                  fillOpacity={0.08}
+                  fill={isLocked ? "rgba(239, 68, 68, 0.08)" : "rgba(59, 130, 246, 0.08)"}
                 />
                 <text
                   x="12"
                   y="22"
                   fontSize="12"
                   fontWeight="bold"
-                  fill={isLocked ? "var(--accent)" : "var(--plot)"}
+                  fill={isLocked ? "#b91c1c" : "#1d4ed8"}
                 >
                   {isLocked
                     ? "Locked cluster: 1 independent unit ⟹ p = k_B T / V (counts units, not constituents)"
