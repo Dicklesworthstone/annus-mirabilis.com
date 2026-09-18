@@ -133,6 +133,10 @@ owner:
       unit: "m^2/s"
       quantityId: diffusivity
 views:
+  - id: svg-trace
+    kind: svg
+    consumes:
+      - tracerPositions
   - id: canvas-ensemble
     kind: canvas
     consumes:

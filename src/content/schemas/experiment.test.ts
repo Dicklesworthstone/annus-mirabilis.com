@@ -37,8 +37,18 @@ test("Experiment: valid YAML manifest passes schema validation", () => {
   assert.equal(exp.title, "Tracer Ensemble in Microscopic Diffusion");
   assert.equal(exp.parameters.length, 4);
   assert.equal(exp.outputs.length, 2);
+  assert.ok(exp.outputs.some((o) => o.primary));
+  assert.equal(exp.realRate.natural, true);
+  if (exp.realRate.natural) {
+    assert.equal(typeof exp.realRate.scaleBar.length, "number");
+    assert.equal(typeof exp.realRate.scaleBar.unit, "string");
+  }
   assert.equal(exp.notModeled.length, 3);
-  assert.equal(exp.views.length, 2);
+  assert.equal(exp.views.length, 3);
+  assert.deepEqual(
+    exp.views.map((v) => v.kind),
+    ["svg", "canvas", "table"],
+  );
   assert.equal(exp.actions.length, 1);
   assert.equal(exp.actions[0]?.actionId, "sample-displacement");
   assert.equal(exp.actions[0]?.family, "probability-diffusion");
@@ -109,7 +119,8 @@ test("Experiment: Planted Negative - canvas view without canvas-2d fails", () =>
   const yaml = fs.readFileSync(path.join(FIXTURES_DIR, "experiment-valid.yaml"), "utf8");
   const raw = strictParse(yaml, "yaml") as any;
 
-  raw.views[0].requires = []; // Omit canvas-2d
+  const canvasView = raw.views.find((v: any) => v.kind === "canvas");
+  canvasView.requires = []; // Omit canvas-2d
 
   assert.throws(
     () => validateExperiment(raw),
@@ -421,6 +432,48 @@ test("Experiment: Planted Negative - duplicate actionId in actions fails", () =>
     (err: any) => {
       assert.ok(err instanceof ExperimentValidationError);
       assert.equal(err.code, "duplicate-action-id");
+      return true;
+    },
+  );
+});
+
+test("Experiment: Planted Negative - missing primary output fails with missing-primary-output", () => {
+  const yaml = fs.readFileSync(path.join(FIXTURES_DIR, "experiment-valid.yaml"), "utf8");
+  const raw = strictParse(yaml, "yaml") as any;
+  for (const out of raw.outputs) out.primary = false;
+  assert.throws(
+    () => validateExperiment(raw),
+    (err: any) => {
+      assert.ok(err instanceof ExperimentValidationError);
+      assert.equal(err.code, "missing-primary-output");
+      return true;
+    },
+  );
+});
+
+test("Experiment: Planted Negative - missing realRate fails with missing-real-rate", () => {
+  const yaml = fs.readFileSync(path.join(FIXTURES_DIR, "experiment-valid.yaml"), "utf8");
+  const raw = strictParse(yaml, "yaml") as any;
+  delete raw.realRate;
+  assert.throws(
+    () => validateExperiment(raw),
+    (err: any) => {
+      assert.ok(err instanceof ExperimentValidationError);
+      assert.equal(err.code, "missing-real-rate");
+      return true;
+    },
+  );
+});
+
+test("Experiment: Planted Negative - natural: true without scaleBar fails with missing-real-rate-scalebar", () => {
+  const yaml = fs.readFileSync(path.join(FIXTURES_DIR, "experiment-valid.yaml"), "utf8");
+  const raw = strictParse(yaml, "yaml") as any;
+  raw.realRate = { natural: true, quantity: "diffusivity" };
+  assert.throws(
+    () => validateExperiment(raw),
+    (err: any) => {
+      assert.ok(err instanceof ExperimentValidationError);
+      assert.equal(err.code, "missing-real-rate-scalebar");
       return true;
     },
   );
