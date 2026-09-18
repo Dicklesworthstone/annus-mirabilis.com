@@ -17,6 +17,11 @@ export type Me03Draft = {
   mode: Me03Mode;
   pulseSystem: Me03PulseSystem;
   notation: Me03Notation;
+  boxMass: string;
+  boxLength: string;
+  pulseEnergy: string;
+  assignLightMass: boolean;
+  magnification: number;
 };
 
 export function toMe03Draft(p: Me03Parameters): Me03Draft {
@@ -29,12 +34,20 @@ export function toMe03Draft(p: Me03Parameters): Me03Draft {
     mode: p.mode,
     pulseSystem: p.pulseSystem,
     notation: p.notation,
+    boxMass: String(p.boxMass ?? 1.0),
+    boxLength: String(p.boxLength ?? 1.0),
+    pulseEnergy: String(p.pulseEnergy ?? 1.0),
+    assignLightMass: p.assignLightMass ?? true,
+    magnification: p.magnification ?? 1e17,
   };
 }
 
 export function fromMe03Draft(d: Me03Draft): Me03Parameters {
   const L = Number.parseFloat(d.emittedEnergy);
   const inputE = Number.parseFloat(d.inputEnergy);
+  const M = Number.parseFloat(d.boxMass);
+  const ell = Number.parseFloat(d.boxLength);
+  const E = Number.parseFloat(d.pulseEnergy);
 
   return {
     boundary: d.boundary,
@@ -45,5 +58,10 @@ export function fromMe03Draft(d: Me03Draft): Me03Parameters {
     mode: d.mode,
     pulseSystem: d.pulseSystem,
     notation: d.notation,
+    boxMass: Number.isFinite(M) ? M : Number.NaN,
+    boxLength: Number.isFinite(ell) ? ell : Number.NaN,
+    pulseEnergy: Number.isFinite(E) ? E : Number.NaN,
+    assignLightMass: d.assignLightMass,
+    magnification: d.magnification,
   };
 }

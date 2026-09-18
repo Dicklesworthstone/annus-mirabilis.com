@@ -26,6 +26,11 @@ export function decodeMe03Settings(search: string): Me03PermalinkResult {
   const modeStr = params.get("mode");
   const pulseStr = params.get("pulses");
   const notationStr = params.get("notation");
+  const mStr = params.get("M");
+  const ellStr = params.get("ell");
+  const eStr = params.get("E");
+  const lightMassStr = params.get("lightMass");
+  const magStr = params.get("mag");
 
   if (
     !boundaryStr &&
@@ -35,7 +40,12 @@ export function decodeMe03Settings(search: string): Me03PermalinkResult {
     !cardStr &&
     !modeStr &&
     !pulseStr &&
-    !notationStr
+    !notationStr &&
+    !mStr &&
+    !ellStr &&
+    !eStr &&
+    !lightMassStr &&
+    !magStr
   ) {
     return { kind: "none" };
   }
@@ -50,6 +60,24 @@ export function decodeMe03Settings(search: string): Me03PermalinkResult {
     mode: (modeStr as Me03Mode) ?? ME03_DEFAULTS.mode,
     pulseSystem: (pulseStr as Me03PulseSystem) ?? ME03_DEFAULTS.pulseSystem,
     notation: (notationStr as Me03Notation) ?? ME03_DEFAULTS.notation,
+    boxMass:
+      mStr !== null && Number.isFinite(Number.parseFloat(mStr))
+        ? Number.parseFloat(mStr)
+        : ME03_DEFAULTS.boxMass,
+    boxLength:
+      ellStr !== null && Number.isFinite(Number.parseFloat(ellStr))
+        ? Number.parseFloat(ellStr)
+        : ME03_DEFAULTS.boxLength,
+    pulseEnergy:
+      eStr !== null && Number.isFinite(Number.parseFloat(eStr))
+        ? Number.parseFloat(eStr)
+        : ME03_DEFAULTS.pulseEnergy,
+    assignLightMass:
+      lightMassStr !== null ? lightMassStr === "true" : ME03_DEFAULTS.assignLightMass,
+    magnification:
+      magStr !== null && Number.isFinite(Number.parseFloat(magStr))
+        ? Number.parseFloat(magStr)
+        : ME03_DEFAULTS.magnification,
   };
 
   const validation = validateMe03Parameters(candidate);
@@ -63,31 +91,46 @@ export function decodeMe03Settings(search: string): Me03PermalinkResult {
   return { kind: "settings", parameters: validation.data };
 }
 
-export function encodeMe03Settings(p: Me03Parameters): string {
+export function encodeMe03Settings(p: Partial<Me03Parameters>): string {
   const params = new URLSearchParams();
-  if (p.boundary !== ME03_DEFAULTS.boundary) {
+  if (p.boundary !== undefined && p.boundary !== ME03_DEFAULTS.boundary) {
     params.set("boundary", p.boundary);
   }
-  if (p.disposition !== ME03_DEFAULTS.disposition) {
+  if (p.disposition !== undefined && p.disposition !== ME03_DEFAULTS.disposition) {
     params.set("disposition", p.disposition);
   }
-  if (p.emittedEnergy !== ME03_DEFAULTS.emittedEnergy) {
+  if (p.emittedEnergy !== undefined && p.emittedEnergy !== ME03_DEFAULTS.emittedEnergy) {
     params.set("L", String(p.emittedEnergy));
   }
-  if (p.inputEnergy !== ME03_DEFAULTS.inputEnergy) {
+  if (p.inputEnergy !== undefined && p.inputEnergy !== ME03_DEFAULTS.inputEnergy) {
     params.set("Ein", String(p.inputEnergy));
   }
-  if (p.cardId !== ME03_DEFAULTS.cardId) {
+  if (p.cardId !== undefined && p.cardId !== ME03_DEFAULTS.cardId) {
     params.set("card", p.cardId);
   }
-  if (p.mode !== ME03_DEFAULTS.mode) {
+  if (p.mode !== undefined && p.mode !== ME03_DEFAULTS.mode) {
     params.set("mode", p.mode);
   }
-  if (p.pulseSystem !== ME03_DEFAULTS.pulseSystem) {
+  if (p.pulseSystem !== undefined && p.pulseSystem !== ME03_DEFAULTS.pulseSystem) {
     params.set("pulses", p.pulseSystem);
   }
-  if (p.notation !== ME03_DEFAULTS.notation) {
+  if (p.notation !== undefined && p.notation !== ME03_DEFAULTS.notation) {
     params.set("notation", p.notation);
+  }
+  if (p.boxMass !== undefined && p.boxMass !== ME03_DEFAULTS.boxMass) {
+    params.set("M", String(p.boxMass));
+  }
+  if (p.boxLength !== undefined && p.boxLength !== ME03_DEFAULTS.boxLength) {
+    params.set("ell", String(p.boxLength));
+  }
+  if (p.pulseEnergy !== undefined && p.pulseEnergy !== ME03_DEFAULTS.pulseEnergy) {
+    params.set("E", String(p.pulseEnergy));
+  }
+  if (p.assignLightMass !== undefined && p.assignLightMass !== ME03_DEFAULTS.assignLightMass) {
+    params.set("lightMass", String(p.assignLightMass));
+  }
+  if (p.magnification !== undefined && p.magnification !== ME03_DEFAULTS.magnification) {
+    params.set("mag", String(p.magnification));
   }
   const str = params.toString();
   return str ? `?${str}` : "";

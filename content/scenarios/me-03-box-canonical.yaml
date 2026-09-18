@@ -1,0 +1,56 @@
+id: me-03-box-canonical
+kind: modern-golden
+title: "ME-03 1906 photon-in-a-box canonical fixture"
+description: "At E = 1 J, ell = 1 m, M = 1 kg, momentum is 3.335641e-9 kg·m/s, recoil speed is 3.335641e-9 m/s, flight time is 3.335641e-9 s, displacement is -1.112650e-17 m, and center-of-mass shift is exactly 0 with mass assigned."
+constantSetId: modern-si-2019
+owner: massEnergy.box
+inputs:
+  boxMass:
+    value: 1
+    unit: kg
+  boxLength:
+    value: 1
+    unit: m
+  pulseEnergy:
+    value: 1
+    unit: J
+  assignLightMass:
+    value: 1
+    unit: ""
+expected:
+  outputs:
+    - outputId: centerOfMassShift
+      value: 0
+      comparisonKind: bitwise
+    - outputId: pulseMomentum
+      value: 3.335641e-9
+      comparisonKind: tolerance
+      tolerance:
+        relative: 1.0e-6
+        rationale: "Recomputed from exact c: E/c = 3.33564095...e-9 kg·m/s"
+    - outputId: recoilSpeed
+      value: 3.335641e-9
+      comparisonKind: tolerance
+      tolerance:
+        relative: 1.0e-6
+        rationale: "E / (M c) = 3.33564095...e-9 m/s"
+    - outputId: pulseFlightTime
+      value: 3.335641e-9
+      comparisonKind: tolerance
+      tolerance:
+        relative: 1.0e-6
+        rationale: "ell / c = 3.33564095...e-9 s"
+    - outputId: boxDisplacement
+      value: -1.112650e-17
+      comparisonKind: tolerance
+      tolerance:
+        relative: 1.0e-6
+        rationale: "-E ell / (M c^2) = -1.112650056...e-17 m"
+    - outputId: lightMassAssigned
+      value: 1.112650e-17
+      comparisonKind: tolerance
+      tolerance:
+        relative: 1.0e-6
+        rationale: "E / c^2 = 1.112650056...e-17 kg"
+modelVersion: 1
+schemaVersion: 1

@@ -2,7 +2,7 @@ import type { OutputContract, ParameterClass } from "../store/instanceStore.ts";
 
 export type Me03Boundary = "body-alone" | "radiation" | "combined-isolated-system";
 export type Me03RadiationDisposition = "escapes" | "retained" | "partly-retained";
-export type Me03Mode = "1905" | "four-momentum";
+export type Me03Mode = "1905" | "four-momentum" | "box-1906";
 export type Me03CardId =
   | "me-03-card-radium"
   | "me-03-card-sun"
@@ -24,6 +24,11 @@ export type Me03Parameters = Readonly<{
   mode: Me03Mode;
   pulseSystem: Me03PulseSystem;
   notation: Me03Notation;
+  boxMass: number; // M in kg, default 1.0
+  boxLength: number; // ell in m, default 1.0
+  pulseEnergy: number; // E in J, default 1.0
+  assignLightMass: boolean; // default true
+  magnification: number; // factor, default 1e17
 }>;
 
 export const ME03_DEFAULTS: Me03Parameters = Object.freeze({
@@ -35,6 +40,11 @@ export const ME03_DEFAULTS: Me03Parameters = Object.freeze({
   mode: "1905",
   pulseSystem: "two-opposite",
   notation: "printed",
+  boxMass: 1.0,
+  boxLength: 1.0,
+  pulseEnergy: 1.0,
+  assignLightMass: true,
+  magnification: 1e17,
 });
 
 export const ME03_CLASSES: Readonly<Record<keyof Me03Parameters, ParameterClass>> = Object.freeze({
@@ -46,6 +56,11 @@ export const ME03_CLASSES: Readonly<Record<keyof Me03Parameters, ParameterClass>
   mode: "input",
   pulseSystem: "input",
   notation: "presentation",
+  boxMass: "input",
+  boxLength: "input",
+  pulseEnergy: "input",
+  assignLightMass: "input",
+  magnification: "presentation",
 });
 
 export const ME03_QUESTION =
@@ -73,6 +88,13 @@ export const ME03_FOUR_MOMENTUM_MODEL = Object.freeze({
   id: "four-momentum-modern",
   constantSetId: "modern-si-2019",
   label: "Modern four-momentum invariant mass (labeled later formalism)",
+  source: "src/physics/reference/massEnergy.ts",
+});
+
+export const ME03_BOX_MODEL = Object.freeze({
+  id: "me-03-box-1906-v1",
+  constantSetId: "modern-si-2019",
+  label: "1906 photon-in-a-box extension · reference model, host calculation",
   source: "src/physics/reference/massEnergy.ts",
 });
 
@@ -114,6 +136,24 @@ export const ME03_OUTPUTS: Readonly<Record<string, OutputContract>> = Object.fre
     "value",
     "outside-domain",
   ]),
+  boxDisplacement: contract("m", "box-displacement", "massEnergy.box", ["value", "outside-domain"]),
+  centerOfMassShift: contract("m", "center-of-mass-shift", "massEnergy.box", [
+    "value",
+    "outside-domain",
+  ]),
+  recoilSpeed: contract("m/s", "recoil-speed", "massEnergy.box", ["value", "outside-domain"]),
+  pulseFlightTime: contract("s", "pulse-flight-time", "massEnergy.box", [
+    "value",
+    "outside-domain",
+  ]),
+  pulseMomentum: contract("kg·m/s", "pulse-momentum", "massEnergy.box", [
+    "value",
+    "outside-domain",
+  ]),
+  lightMassAssigned: contract("kg", "light-mass-assigned", "massEnergy.box", [
+    "value",
+    "outside-domain",
+  ]),
 });
 
 export const ME03_PRESETS = Object.freeze([
@@ -151,6 +191,20 @@ export const ME03_PRESETS = Object.freeze([
       mode: "four-momentum" as const,
       pulseSystem: "two-opposite" as const,
       emittedEnergy: 1.0,
+    }),
+  }),
+  Object.freeze({
+    presetId: "me-03-box-1906",
+    label: "1906 Photon-in-a-box thought experiment",
+    description:
+      "A light pulse traverses a closed box of length l and mass M. Poincaré (1900) and Einstein (1906) zero center-of-mass shift check.",
+    parameterValues: Object.freeze({
+      mode: "box-1906" as const,
+      boxMass: 1.0,
+      boxLength: 1.0,
+      pulseEnergy: 1.0,
+      assignLightMass: true,
+      magnification: 1e17,
     }),
   }),
   Object.freeze({
@@ -229,11 +283,45 @@ export const ME03_PROMPTS = Object.freeze({
     explanation:
       "The energy only moves inside the boundary. Light emitted by the lamp is absorbed by the mirror and walls inside the sealed enclosure, so no energy crosses the outer boundary and the box's total mass is unchanged.",
   }),
+  boxLightMass: Object.freeze({
+    promptId: "me-03-predict-box-light-mass",
+    controlId: "assignLightMass",
+    question:
+      "When a light pulse traverses a closed box and hits the other side, what happens to the total center of mass of the system if light is assumed to carry no mass?",
+    candidates: Object.freeze([
+      Object.freeze({
+        id: "com-shifts",
+        label:
+          "The box moves and the center of mass permanently shifts, violating momentum conservation.",
+        description:
+          "Without mass assigned to the photon, the box's recoil displacement moves the system center of mass with no external force.",
+        separatingAssumption: "Light carries momentum but no equivalent mass E/c^2.",
+      }),
+      Object.freeze({
+        id: "com-stationary",
+        label:
+          "The center of mass stays exactly stationary because the light pulse transfers mass E/c².",
+        description:
+          "Assigning inertial mass m = E/c^2 to the pulse exactly cancels the box's displacement, preserving the center of mass.",
+        separatingAssumption: "Energy transfer is equivalent to mass transfer m = E/c^2.",
+      }),
+      Object.freeze({
+        id: "box-does-not-move",
+        label:
+          "The box never moves because light pressure is a pure wave phenomenon with no mechanical recoil.",
+        description: "Rejects mechanical momentum transfer from light emission.",
+        separatingAssumption: "Radiation exerts no reaction force on an emitting body.",
+      }),
+    ]),
+    settledCandidateId: "com-stationary",
+    explanation:
+      "Poincaré (1900) and Einstein (1906) showed that unless electromagnetic radiation carries mass m = E/c², an isolated system could propel its own center of mass through space without any external force.",
+  }),
 });
 
 export const ME03_CAPTION = Object.freeze({
   r0: "Energy that leaves a body takes mass with it. Draw the line around the body and its light together, and nothing is lost.",
-  r1: "Three system boundaries: the emitting body alone, the emitted radiation, and the combined isolated enclosure. The energy-source cards trace mass loss across nuclear, radiant, chemical, and electrical transfers.",
-  r2: "Each card's mass change Δm = ΔE / c² evaluated from its cited energy transfer. In closed but non-isolated systems (radium decay, light bulb), energy crosses without matter transfer; inside isolated systems, internal transfer leaves total mass unchanged.",
-  r3: "Einstein 1905 paper 4 conditional conclusions on radium and inertia conveyance; modern four-momentum invariant mass of two opposite pulses P_μ P^μ = (L/c)² giving system invariant mass m = L/c².",
+  r1: "Three system boundaries: the emitting body alone, the emitted radiation, and the combined isolated enclosure. The energy-source cards trace mass loss across nuclear, radiant, chemical, and electrical transfers. In the 1906 photon-in-a-box mode (credit: Poincaré 1900), assigning mass E/c² to radiation preserves exact center-of-mass immobility.",
+  r2: "Each card's mass change Δm = ΔE / c² evaluated from its cited energy transfer. In closed but non-isolated systems (radium decay, light bulb), energy crosses without matter transfer; inside isolated systems, internal transfer leaves total mass unchanged. In the 1906 box argument, recoil displacement Δx = -E l / (M c²) requires light mass m = E/c² so total center of mass shift ΔX = 0.",
+  r3: "Einstein 1905 paper 4 conditional conclusions on radium and inertia conveyance; modern four-momentum invariant mass of two opposite pulses P_μ P^μ = (L/c)² giving system invariant mass m = L/c²; 1906 argument (credit: Poincaré 1900) establishing radiation inertia from center-of-mass immobility in a rigid box.",
 });

@@ -92,6 +92,7 @@ describe("ME-03 session & instance store", () => {
 
   test("permalink encode and decode roundtrip", () => {
     const custom: Me03Parameters = {
+      ...ME03_DEFAULTS,
       boundary: "combined-isolated-system",
       disposition: "retained",
       emittedEnergy: 2.5,

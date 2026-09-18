@@ -16,9 +16,9 @@ parameters:
     displayUnit: ""
     modelDomain:
       enumerated:
-        - body-alone
-        - radiation
-        - combined-isolated-system
+        - 0
+        - 1
+        - 2
       reason: "Three canonical thermodynamic boundaries defined in Paper 4."
     visualRange:
       min: 0
@@ -37,9 +37,9 @@ parameters:
     displayUnit: ""
     modelDomain:
       enumerated:
-        - escapes
-        - retained
-        - partly-retained
+        - 0
+        - 1
+        - 2
       reason: "Radiation either escapes across the boundary or is absorbed internally."
     visualRange:
       min: 0
@@ -54,7 +54,7 @@ parameters:
     label: "Emitted radiation energy L"
     accessibleName: "Total energy emitted as radiation"
     accessibleDescription: "Positive energy radiated by the source body."
-    quantityId: emittedEnergy
+    quantityId: emittedEnergyRestFrame
     displayUnit: "J"
     modelDomain:
       min: 0
@@ -101,13 +101,13 @@ parameters:
     displayUnit: ""
     modelDomain:
       enumerated:
-        - me-03-card-radium
-        - me-03-card-sun
-        - me-03-card-coal
-        - me-03-card-candle
-        - me-03-card-bulb
-        - me-03-heated-sealed-box
-        - me-03-sealed-lamp-and-mirror
+        - 0
+        - 1
+        - 2
+        - 3
+        - 4
+        - 5
+        - 6
       reason: "Seven cited card case studies."
     visualRange:
       min: 0
@@ -120,18 +120,19 @@ parameters:
 
   - id: mode
     label: "Formalism mode"
-    accessibleName: "1905 energy accounting ledger or modern four-momentum invariant mass"
-    accessibleDescription: "Selects 1905 paper 4 ledger mode or modern four-momentum invariant mass representation."
+    accessibleName: "1905 energy accounting ledger, modern four-momentum, or 1906 photon in a box"
+    accessibleDescription: "Selects 1905 paper 4 ledger mode, modern four-momentum invariant mass representation, or 1906 box thought experiment."
     quantityId: formalismMode
     displayUnit: ""
     modelDomain:
       enumerated:
-        - "1905"
-        - four-momentum
-      reason: "Historical 1905 ledger versus modern four-momentum formalism."
+        - 0
+        - 1
+        - 2
+      reason: "Historical 1905 ledger, modern four-momentum, or 1906 photon in a box."
     visualRange:
       min: 0
-      max: 1
+      max: 2
     default: "1905"
     mapping:
       kind: linear
@@ -146,9 +147,9 @@ parameters:
     displayUnit: ""
     modelDomain:
       enumerated:
-        - single-pulse
-        - two-collinear
-        - two-opposite
+        - 0
+        - 1
+        - 2
       reason: "Three canonical radiation geometries."
     visualRange:
       min: 0
@@ -167,8 +168,8 @@ parameters:
     displayUnit: ""
     modelDomain:
       enumerated:
-        - printed
-        - modern
+        - 0
+        - 1
       reason: "Notation representation switch."
     visualRange:
       min: 0
@@ -179,82 +180,295 @@ parameters:
     role: independent
     commandClass: presentation-change
 
-derivedOutputs:
-  - id: energyChange
-    label: "Energy change ΔE"
-    quantityId: energyChange
-    unit: "J"
+  - id: boxMass
+    label: "Box mass M"
+    accessibleName: "Mass of the rigid box in the 1906 thought experiment"
+    accessibleDescription: "Positive rest mass of the enclosure."
+    quantityId: boxMass
+    displayUnit: "kg"
+    modelDomain:
+      min: 0
+      max: 1.0e6
+      minInclusive: false
+      maxInclusive: true
+      reason: "Box mass must be positive."
+    visualRange:
+      min: 0.1
+      max: 10
+    default: 1.0
+    mapping:
+      kind: linear
+    role: independent
+    commandClass: setup-change
+
+  - id: boxLength
+    label: "Box length ell"
+    accessibleName: "Length of the box along the pulse trajectory"
+    accessibleDescription: "Positive interior length between opposite mirrors."
+    quantityId: boxLength
+    displayUnit: "m"
+    modelDomain:
+      min: 0
+      max: 1.0e4
+      minInclusive: false
+      maxInclusive: true
+      reason: "Box length must be positive."
+    visualRange:
+      min: 0.1
+      max: 10
+    default: 1.0
+    mapping:
+      kind: linear
+    role: independent
+    commandClass: setup-change
+
+  - id: pulseEnergy
+    label: "Pulse energy E"
+    accessibleName: "Energy carried by the emitted light pulse"
+    accessibleDescription: "Positive pulse energy traveling between box walls."
+    quantityId: emittedEnergyRestFrame
     displayUnit: "J"
-    semanticKind: "energy-change"
-    ownerId: "massEnergy.boundaryLedger"
-    statuses:
+    modelDomain:
+      min: 0
+      max: 1.0e20
+      minInclusive: false
+      maxInclusive: true
+      reason: "Pulse energy must be positive."
+    visualRange:
+      min: 0.1
+      max: 10
+    default: 1.0
+    mapping:
+      kind: log
+      base: 10
+    role: independent
+    commandClass: setup-change
+
+  - id: assignLightMass
+    label: "Assign inertia to radiation"
+    accessibleName: "Whether the light pulse is assigned equivalent inertial mass m = E/c^2"
+    accessibleDescription: "Toggling to false demonstrates the center-of-mass shift violation identified by Poincaré and Einstein."
+    quantityId: lightMassAssigned
+    displayUnit: ""
+    modelDomain:
+      enumerated:
+        - 0
+        - 1
+      reason: "Binary toggle for radiation mass equivalence."
+    visualRange:
+      min: 0
+      max: 1
+    default: 1
+    mapping:
+      kind: linear
+    role: independent
+    commandClass: setup-change
+
+  - id: magnification
+    label: "Displacement magnification"
+    accessibleName: "Visual magnification factor for tiny box displacement"
+    accessibleDescription: "Amplification factor applied only to the rendered center-of-mass shift; does not scale physical outputs."
+    quantityId: centerOfMassShift
+    displayUnit: "1"
+    modelDomain:
+      min: 1
+      max: 1.0e25
+      minInclusive: true
+      maxInclusive: true
+      reason: "Magnification factor is positive."
+    visualRange:
+      min: 1.0e15
+      max: 1.0e20
+    default: 1.0e17
+    mapping:
+      kind: log
+      base: 10
+    role: independent
+    commandClass: presentation-change
+
+outputs:
+  - id: energyChange
+    quantityId: energyChange
+    allowedStatuses:
       - value
       - outside-domain
+    primary: true
 
   - id: massChange
-    label: "Mass change Δm"
     quantityId: massChange
-    unit: "kg"
-    displayUnit: "kg"
-    semanticKind: "mass-change"
-    ownerId: "massEnergy.boundaryLedger"
-    statuses:
+    allowedStatuses:
       - value
       - not-applicable
       - outside-domain
+    primary: false
 
   - id: radiationEnergyChange
-    label: "Radiation energy ΔE_rad"
     quantityId: radiationEnergyChange
-    unit: "J"
-    displayUnit: "J"
-    semanticKind: "radiation-energy-change"
-    ownerId: "massEnergy.boundaryLedger"
-    statuses:
+    allowedStatuses:
       - value
       - outside-domain
+    primary: false
 
   - id: radiationMassChange
-    label: "Radiation mass Δm_rad"
     quantityId: radiationMassChange
-    unit: "kg"
-    displayUnit: "kg"
-    semanticKind: "radiation-mass-change"
-    ownerId: "massEnergy.boundaryLedger"
-    statuses:
+    allowedStatuses:
       - not-applicable
       - outside-domain
+    primary: false
 
   - id: systemEnergyChange
-    label: "Isolated system energy change"
     quantityId: systemEnergyChange
-    unit: "J"
-    displayUnit: "J"
-    semanticKind: "system-energy-change"
-    ownerId: "massEnergy.boundaryLedger"
-    statuses:
+    allowedStatuses:
       - value
       - outside-domain
+    primary: false
 
   - id: systemMassChange
-    label: "Isolated system mass change"
     quantityId: systemMassChange
-    unit: "kg"
-    displayUnit: "kg"
-    semanticKind: "system-mass-change"
-    ownerId: "massEnergy.boundaryLedger"
-    statuses:
+    allowedStatuses:
       - value
       - outside-domain
+    primary: false
 
   - id: invariantMass
-    label: "System invariant mass"
     quantityId: invariantMass
-    unit: "kg"
-    displayUnit: "kg"
-    semanticKind: "invariant-mass"
-    ownerId: "massEnergy.fourMomentum"
-    statuses:
+    allowedStatuses:
+      - value
+      - outside-domain
+    primary: false
+
+  - id: boxDisplacement
+    quantityId: boxDisplacement
+    allowedStatuses:
+      - value
+      - outside-domain
+    primary: false
+
+  - id: centerOfMassShift
+    quantityId: centerOfMassShift
+    allowedStatuses:
+      - value
+      - outside-domain
+    primary: true
+
+  - id: recoilSpeed
+    quantityId: recoilSpeed
+    allowedStatuses:
+      - value
+      - outside-domain
+    primary: false
+
+  - id: pulseFlightTime
+    quantityId: pulseFlightTime
+    allowedStatuses:
+      - value
+      - outside-domain
+    primary: false
+
+  - id: pulseMomentum
+    quantityId: pulseMomentum
+    allowedStatuses:
+      - value
+      - outside-domain
+    primary: false
+
+  - id: lightMassAssigned
+    quantityId: lightMassAssigned
+    allowedStatuses:
+      - value
+      - outside-domain
+    primary: false
+
+assumptions:
+  - "Conservation of center-of-mass immobility for an isolated physical system."
+  - "The 1905 mass-energy relation applied to closed and isolated boundaries."
+  - "Nonrelativistic recoil approximation and flight time ell/c valid when E/(Mc^2) <= 10^-3."
+  - "Radiation pressure delivers impulse E/c upon emission and absorption."
+
+admittedDomain: "Closed thermodynamic systems with non-negative cited energy transfers and 1906 box systems with E/(Mc^2) <= 10^-3."
+
+notModeled:
+  - "gravitational weighing"
+  - "wall stresses, or external work beyond declared inputs"
+  - "nuclear and chemical mechanisms beyond cited energies"
+  - "heat losses not declared"
+  - "neutrino and solar-wind mass loss"
+  - "the practical measurability of tiny mass changes"
+  - "the 1905 argument's premises (inherited, not re-derived)"
+  - "non-inertial or accelerated frames"
+
+owner:
+  kind: reference-evaluator
+  kernelFunctions:
+    - displayRole: reference-implementation
+      language: ts
+      module: "src/physics/reference/massEnergy.ts"
+      exportName: "evaluateMe03"
+      independentReferences:
+        - experimentId: me-03
+          quantityId: energyChange
+    - displayRole: reference-implementation
+      language: ts
+      module: "src/physics/reference/massEnergy.ts"
+      exportName: "evaluatePhotonBox"
+      independentReferences:
+        - experimentId: me-03
+          quantityId: centerOfMassShift
+  identifierBindings:
+    - kernelFunction: evaluatePhotonBox
+      identifier: M
+      quantityId: boxMass
+    - kernelFunction: evaluatePhotonBox
+      identifier: ell
+      quantityId: boxLength
+    - kernelFunction: evaluatePhotonBox
+      identifier: E
+      quantityId: emittedEnergyRestFrame
+    - kernelFunction: evaluatePhotonBox
+      identifier: p
+      quantityId: pulseMomentum
+    - kernelFunction: evaluatePhotonBox
+      identifier: v
+      quantityId: recoilSpeed
+    - kernelFunction: evaluatePhotonBox
+      identifier: DeltaX
+      quantityId: centerOfMassShift
+  traceScenarioId: me-03-box-canonical
+  traceRows:
+    - label: Pulse momentum
+      expression: "E / c"
+      value: 3.335641e-9
+      unit: "kg·m/s"
+      quantityId: pulseMomentum
+    - label: Center-of-mass shift with light mass assigned
+      expression: "0"
+      value: 0
+      unit: "m"
+      quantityId: centerOfMassShift
+
+views:
+  - id: svg-boundary-ledger
+    kind: svg
+    consumes:
+      - energyChange
+      - massChange
+      - systemEnergyChange
+      - systemMassChange
+  - id: table-boundary-ledger
+    kind: table
+    consumes:
+      - energyChange
+      - massChange
+      - systemEnergyChange
+      - systemMassChange
+      - invariantMass
+      - boxDisplacement
+      - centerOfMassShift
+      - recoilSpeed
+      - pulseFlightTime
+      - pulseMomentum
+      - lightMassAssigned
+
 actions:
   - actionId: select-system-boundary
     family: energy-accounting
@@ -272,9 +486,25 @@ actions:
       allowedStatuses:
         - value
         - not-applicable
-    visualAffordance: "Drag a boundary around objects"
-    equivalentAffordance: "Select the objects included in the system and inspect energy crossing that boundary"
+    visualAffordance: "Select system boundary and inspect energy crossing that boundary"
+    equivalentAffordance: "Choose between evaluating the emitting body alone, the emitted radiation, or the combined isolated system."
     announcement: "System boundary updated; energy and mass changes recalculated"
+  - actionId: toggle-box-light-mass
+    family: energy-accounting
+    question: "When a light pulse traverses a closed box, what happens to the center of mass if light has no mass?"
+    inputs:
+      - assignLightMass
+    commandClass: setup-change
+    acceptedResult:
+      outputs:
+        - centerOfMassShift
+        - boxDisplacement
+      allowedStatuses:
+        - value
+        - outside-domain
+    visualAffordance: "Toggle mass assignment and inspect center-of-mass shift readout"
+    equivalentAffordance: "Toggle light mass assignment to switch between stationary and shifting center of mass."
+    announcement: "Light mass assignment updated"
 
 presets:
   - presetId: me-03-sealed-lamp-and-mirror
@@ -303,6 +533,17 @@ presets:
       mode: four-momentum
       pulseSystem: two-opposite
       emittedEnergy: 1.0
+
+  - presetId: me-03-box-1906
+    label: "1906 Photon-in-a-box thought experiment"
+    description: "A light pulse traverses a closed box of length l and mass M. Poincaré (1900) and Einstein (1906) zero center-of-mass shift check."
+    parameterValues:
+      mode: box-1906
+      boxMass: 1.0
+      boxLength: 1.0
+      pulseEnergy: 1.0
+      assignLightMass: true
+      magnification: 1.0e17
 
   - presetId: me-03-card-radium
     label: "Radium-226 Alpha Decay"
@@ -344,35 +585,59 @@ presets:
       boundary: body-alone
       disposition: escapes
 
-predictPrompts:
-  - promptId: me-03-predict-sealed-box
-    question: "A sealed box holds a battery-powered lamp and a mirror. When the lamp lights up inside, does the box's total mass change?"
-    candidates:
-      - id: decreases
-        label: "It decreases, because the lamp sends out energy."
-      - id: stays-the-same
-        label: "It stays the same, because the energy is still inside."
-      - id: increases
-        label: "It increases, because light has been added."
-    settledCandidateId: stays-the-same
-    explanation: "The energy only moves inside the boundary. Light emitted by the lamp is absorbed by the mirror and walls inside the sealed enclosure, so no energy crosses the outer boundary and the box's total mass is unchanged."
-
+acceptanceCases:
+  - me-03-canonical
+  - me-03-box-canonical
+defaultScenario: me-03-box-canonical
+tapeModel:
+  modelId: me-03-box-1906-v1
+  modelVersion: 1
 teachingTapes:
-  - id: where-the-energy-went
-    title: "where the energy went"
+  - tapeId: the-1906-box
+    title: the 1906 box
 
-notModeled:
-  - "gravitational weighing"
-  - "wall stresses, or external work beyond declared inputs"
-  - "nuclear and chemical mechanisms beyond cited energies"
-  - "heat losses not declared"
-  - "neutrino and solar-wind mass loss"
-  - "the practical measurability of tiny mass changes"
-  - "the 1905 argument's premises (inherited, not re-derived)"
-  - "non-inertial or accelerated frames"
+predictMode:
+  enabled: true
+  prompts:
+    - promptId: me-03-predict-sealed-box
+      controlId: boundary
+      question: "A sealed box holds a battery-powered lamp and a mirror. When the lamp lights up inside, does the box's total mass change?"
+      candidates:
+        - id: decreases
+          label: "It decreases, because the lamp sends out energy."
+          description: "Assumes radiation loss leaves the outer boundary."
+          separatingAssumption: "Radiation energy crosses the sealed boundary."
+        - id: stays-the-same
+          label: "It stays the same, because the energy is still inside."
+          description: "All energy remains inside the isolated system boundary."
+          separatingAssumption: "No energy or matter crosses the external enclosure boundary."
+        - id: increases
+          label: "It increases, because light has been added."
+          description: "Assumes radiant energy adds extra net mass to the system."
+          separatingAssumption: "Energy generation adds new mass from outside."
+      settledCandidateId: stays-the-same
+      explanation: "The energy only moves inside the boundary. Light emitted by the lamp is absorbed by the mirror and walls inside the sealed enclosure, so no energy crosses the outer boundary and the box's total mass is unchanged."
+    - promptId: me-03-predict-box-light-mass
+      controlId: assignLightMass
+      question: "When a light pulse traverses a closed box and hits the other side, what happens to the total center of mass of the system if light is assumed to carry no mass?"
+      candidates:
+        - id: com-shifts
+          label: "The box moves and the center of mass permanently shifts, violating momentum conservation."
+          description: "Without mass assigned to the photon, the box's recoil displacement moves the system center of mass with no external force."
+          separatingAssumption: "Light carries momentum but no equivalent mass E/c^2."
+        - id: com-stationary
+          label: "The center of mass stays exactly stationary because the light pulse transfers mass E/c²."
+          description: "Assigning inertial mass m = E/c^2 to the pulse exactly cancels the box's displacement, preserving the center of mass."
+          separatingAssumption: "Energy transfer is equivalent to mass transfer m = E/c^2."
+        - id: box-does-not-move
+          label: "The box never moves because light pressure is a pure wave phenomenon with no mechanical recoil."
+          description: "Rejects mechanical momentum transfer from light emission."
+          separatingAssumption: "Radiation exerts no reaction force on an emitting body."
+      settledCandidateId: com-stationary
+      explanation: "Poincaré (1900) and Einstein (1906) showed that unless electromagnetic radiation carries mass m = E/c², an isolated system could propel its own center of mass through space without any external force."
 
 captionReadings:
   r0: "Energy that leaves a body takes mass with it. Draw the line around the body and its light together, and nothing is lost."
-  r1: "Three system boundaries: the emitting body alone, the emitted radiation, and the combined isolated enclosure. The energy-source cards trace mass loss across nuclear, radiant, chemical, and electrical transfers."
-  r2: "Each card's mass change Δm = ΔE / c² evaluated from its cited energy transfer. In closed but non-isolated systems (radium decay, light bulb), energy crosses without matter transfer; inside isolated systems, internal transfer leaves total mass unchanged."
-  r3: "Einstein 1905 paper 4 conditional conclusions on radium and inertia conveyance; modern four-momentum invariant mass of two opposite pulses P_μ P^μ = (L/c)² giving system invariant mass m = L/c²."
+  r1: "Three system boundaries: the emitting body alone, the emitted radiation, and the combined isolated enclosure. The energy-source cards trace mass loss across nuclear, radiant, chemical, and electrical transfers. In the 1906 photon-in-a-box mode (credit: Poincaré 1900), assigning mass E/c² to radiation preserves exact center-of-mass immobility."
+  r2: "Each card's mass change Δm = ΔE / c² evaluated from its cited energy transfer. In closed but non-isolated systems (radium decay, light bulb), energy crosses without matter transfer; inside isolated systems, internal transfer leaves total mass unchanged. In the 1906 box argument, recoil displacement Δx = -E l / (M c²) requires light mass m = E/c² so total center of mass shift ΔX = 0."
+  r3: "Einstein 1905 paper 4 conditional conclusions on radium and inertia conveyance; modern four-momentum invariant mass of two opposite pulses P_μ P^μ = (L/c)² giving system invariant mass m = L/c²; 1906 argument (credit: Poincaré 1900) establishing radiation inertia from center-of-mass immobility in a rigid box."

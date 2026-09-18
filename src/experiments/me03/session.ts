@@ -2,7 +2,9 @@ import {
   type EnergySourceCard,
   type EnergySourceCardBoundary,
   evaluateMe03,
+  evaluatePhotonBox,
   type Me03Snapshot,
+  type PhotonInBoxResult,
 } from "../../physics/reference/massEnergy.ts";
 import { encodeResult, parseResult } from "../results/codec.ts";
 import type { ScientificResult } from "../results/types.ts";
@@ -10,8 +12,8 @@ import { createInstanceStore, type Parameters } from "../store/instanceStore.ts"
 import { ME03_CLASSES, ME03_DEFAULTS, ME03_OUTPUTS, type Me03Parameters } from "./definition.ts";
 import { validateMe03Parameters } from "./parameters.ts";
 
-export type { EnergySourceCard, EnergySourceCardBoundary, Me03Snapshot };
-export type Me03Evaluation = Me03Snapshot;
+export type { EnergySourceCard, EnergySourceCardBoundary, Me03Snapshot, PhotonInBoxResult };
+export type Me03Evaluation = Me03Snapshot | PhotonInBoxResult;
 
 export type PreparedMe03Example = Readonly<{
   sourceDigest: string;
@@ -21,7 +23,35 @@ export type PreparedMe03Example = Readonly<{
   simulationTime: number;
 }>;
 
+export function evaluateMe03OrBox(p: Me03Parameters): Me03Evaluation {
+  if (p.mode === "box-1906") {
+    return evaluatePhotonBox({
+      M: p.boxMass,
+      ell: p.boxLength,
+      E: p.pulseEnergy,
+      assignLightMass: p.assignLightMass,
+    });
+  }
+  return evaluateMe03(p);
+}
+
 export function snapshotOutputs(p: Me03Parameters): ScientificResult[] {
+  if (p.mode === "box-1906") {
+    const box = evaluatePhotonBox({
+      M: p.boxMass,
+      ell: p.boxLength,
+      E: p.pulseEnergy,
+      assignLightMass: p.assignLightMass,
+    });
+    return [
+      box.boxDisplacement,
+      box.centerOfMassShift,
+      box.recoilSpeed,
+      box.pulseFlightTime,
+      box.pulseMomentum,
+      box.lightMassAssigned,
+    ];
+  }
   const snap = evaluateMe03(p);
   return [
     snap.energyChange,
@@ -90,7 +120,7 @@ export function createMe03Session(
     getSnapshot: store.getSnapshot,
     getServerSnapshot: () => serverSnapshot,
     subscribe: store.subscribe,
-    evaluate: evaluateMe03,
+    evaluate: evaluateMe03OrBox,
     acceptedParameters(): Me03Parameters {
       const accepted = store.getSnapshot().accepted;
       return (accepted?.parameters ?? initialParameters) as Me03Parameters;
@@ -139,4 +169,4 @@ export function createMe03Session(
   });
 }
 
-export { evaluateMe03 };
+export { evaluateMe03, evaluatePhotonBox };

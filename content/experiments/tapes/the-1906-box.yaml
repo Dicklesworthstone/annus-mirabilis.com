@@ -1,0 +1,51 @@
+tapeVersion: 2
+tapeId: the-1906-box
+experimentId: me-03
+mode: "me-03:box-1906"
+title: the 1906 box
+description: Teaching tape demonstrating that assigning mass m = E/c^2 to the light pulse preserves center-of-mass immobility in the 1906 box thought experiment.
+isTeachingSequence: true
+modelIdentity:
+  modelId: me-03-box-1906-v1
+  modelVersion: "1"
+  artifactDigest: "host:sha256:me03-box-1906-evaluatePhotonBox"
+constantSetId: modern-si-2019
+seed: "0"
+streamVersion: 1
+allocationId: me-03.box.v1
+initialConditions:
+  boxMass: 1
+  boxLength: 1
+  pulseEnergy: 1
+  assignLightMass: 1
+  magnification: 1e17
+events:
+  - kind: control
+    actionIndex: 1
+    commandClass: setup-change
+    commandId: set-energy-half
+    parameterId: pulseEnergy
+    value: 0.5
+  - kind: control
+    actionIndex: 2
+    commandClass: setup-change
+    commandId: restore-energy-unit
+    parameterId: pulseEnergy
+    value: 1.0
+checkpoints:
+  - actionIndex: 2
+    stepIndex: 0
+    simulatedTime: 3.33564095198152e-9
+    digest: "host:sha256:me03-the-1906-box-com-zero"
+    digestKind: host
+    checkpointVersion: 1
+    streamSemanticsVersion: 1
+    seed: "0"
+    streamPositions: []
+    label: "Exact zero center-of-mass shift"
+    teachingNote: Assigning mass m = E/c^2 to the pulse preserves exact rational zero center-of-mass shift.
+    expectedDisplayValues:
+      - label: center of mass shift
+        value: 0
+        unit: "m"
+        constantSetId: modern-si-2019

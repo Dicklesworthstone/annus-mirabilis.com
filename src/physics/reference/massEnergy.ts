@@ -1329,7 +1329,7 @@ export function evaluateMe01(input: Me01Input): Me01Snapshot {
 
 export type Me03Boundary = "body-alone" | "radiation" | "combined-isolated-system";
 export type Me03RadiationDisposition = "escapes" | "retained" | "partly-retained";
-export type Me03Mode = "1905" | "four-momentum";
+export type Me03Mode = "1905" | "four-momentum" | "box-1906";
 export type Me03CardId =
   | "me-03-card-radium"
   | "me-03-card-sun"
@@ -2186,7 +2186,7 @@ export function evaluatePhotonBox(input: PhotonInBoxInput = {}): PhotonInBoxResu
         reason,
       ),
       boxDisplacement: asOutside(
-        "centerOfMassShift",
+        "boxDisplacement",
         "m",
         "box-displacement",
         "massEnergy.box",
@@ -2290,7 +2290,7 @@ export function evaluatePhotonBox(input: PhotonInBoxInput = {}): PhotonInBoxResu
       pulseMomentum,
     ),
     boxDisplacement: asValue(
-      "centerOfMassShift",
+      "boxDisplacement",
       "m",
       "box-displacement",
       "massEnergy.box",
