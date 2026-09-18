@@ -4,11 +4,10 @@ title: Finite light complex transformation and adversarial countermodel comparis
 description: >
   Transformation of a finite light complex volume and total energy under Lorentz boost at beta = 0.6.
   At theta = 0 (longitudinal): q = 0.5, q^2 = 0.25, volume factor 1/q = 2, total energy factor 0.5.
-  Material contraction countermodel substitutes 1/gamma = 0.8 for volume, yielding q^2/gamma = 0.2 (fails).
-  NOTE FOR EDITORS: A ray transverse in the unprimed frame (theta = 90 deg) gives q = gamma = 1.25 and
-  q^2/gamma = 1.25, which identically equals the physical energy factor. That transverse ray is a coincidence
-  case that CANNOT discriminate the countermodel from physical truth; the discriminating test must use
-  longitudinal rays (theta = 0, pi) or the ray transverse in the moving frame (cos theta = beta).
+  Material contraction countermodel treats the light complex as a material volume contracting by 1/gamma = 0.8 at all angles.
+  At theta = 0: physical light factor is 0.5 vs countermodel 0.8.
+  At cos theta = 0 (transverse in stationary frame): light factor is gamma = 1.25 vs countermodel 1/gamma = 0.8 (discriminating case).
+  At cos theta = beta (transverse in moving frame): light factor is 1/gamma = 0.8, coinciding degenerately with the countermodel.
 provenance:
   paper: special-relativity
   sectionId: s8
@@ -40,8 +39,8 @@ expected:
       comparisonKind: tolerance
       tolerance:
         absolute: 1.0e-12
-        rationale: "Material contraction countermodel substitution q^2 / gamma = 0.25 * 0.8 = 0.2."
-      value: 0.2
+        rationale: "Material contraction countermodel 1/gamma = 0.8."
+      value: 0.8
     - outputId: numericVolumeFactor
       comparisonKind: tolerance
       tolerance:

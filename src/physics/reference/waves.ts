@@ -386,38 +386,31 @@ export function lightComplexVolumeNumeric(beta: number, thetaRad: number, _sampl
 }
 
 /**
- * Production countermodel for SR-10 comparison mode (Einstein 1905 §8, am-ref-waves-r53).
- * Replaces the true light complex volume factor 1/q with material Lorentz contraction 1/gamma.
- * The resulting total energy factor under this substitution is q^2 / gamma.
+ * Planted negative for SR-10: treat the light complex as a material volume.
  * Model identity is 'countermodel-material-contraction', tagged as a named wrong model.
- *
- * Discriminating fixtures (beta = 0.6, 1/gamma = 0.8):
- * - longitudinal ray theta = 0: q^2 = 0.25, 1/q = 2, total 0.5 (substitution gives 0.2);
- * - opposite ray theta = pi: q^2 = 4, 1/q = 0.5, total 2 (substitution 3.2);
- * - ray transverse in moving frame (cos theta = beta): q^2 = 0.64, 1/q = 1.25, total 0.8 (substitution 0.512).
- * Coincidence check:
- * - ray transverse in stationary frame (theta = 90 deg): q^2 = 1.5625, 1/q = 0.8, total 1.25, substitution also 1.25.
+ * The wrong factor is 1/gamma at every angle. It does not use q, so it cannot
+ * accidentally agree with the light factor except at the degenerate angle
+ * where q itself equals 1/gamma (cos phi = beta, transverse in the moving frame).
+ * The discriminating case is a ray transverse in the unprimed frame (cos phi = 0),
+ * where light factor is gamma (1.25) and material factor is 1/gamma (0.8), ratio gamma^2.
  */
 export function lightComplexMaterialContractionCountermodel(
   beta: number,
-  thetaRad = Math.PI / 2,
+  _thetaRad?: number,
 ): Readonly<{ modelId: string; factor: number; volumeFactor: number }> {
   const gResult = gamma(beta);
-  if (gResult.status !== "value" || !Number.isFinite(thetaRad)) {
+  if (gResult.status !== "value") {
     return Object.freeze({
       modelId: "countermodel-material-contraction",
       factor: Number.NaN,
       volumeFactor: Number.NaN,
     });
   }
-  const g = gResult.value;
-  const q = g * (1 - beta * Math.cos(thetaRad));
-  const materialVolumeFactor = 1 / g;
-  const energyFactor = q * q * materialVolumeFactor;
+  const factor = 1 / gResult.value;
   return Object.freeze({
     modelId: "countermodel-material-contraction",
-    factor: energyFactor,
-    volumeFactor: materialVolumeFactor,
+    factor,
+    volumeFactor: factor,
   });
 }
 
