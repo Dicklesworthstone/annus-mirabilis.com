@@ -1,0 +1,173 @@
+/* Accessible Graph Descriptions styles (am-a11y-graph-descriptions-vxe1, am-vw1o) */
+
+.accessible-graph-container {
+  display: flex;
+  flex-direction: column;
+  gap: 0.75rem;
+  margin: 1.5rem 0;
+}
+
+.graph-layer-1 {
+  margin: 0;
+}
+
+.layer-1-statement {
+  font-size: 1.1rem;
+  font-weight: 600;
+  margin: 0;
+}
+
+.graph-layer-2 {
+  padding: 0.75rem 1rem;
+  background: var(--wash);
+  border: 1px solid var(--line);
+  border-radius: 4px;
+}
+
+.graph-layer-2-region {
+  /* Region marker */
+}
+
+.layer-2-text {
+  margin: 0;
+  font-size: 0.95rem;
+  line-height: 1.5;
+}
+
+.graph-a11y-controls {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.5rem;
+  align-items: center;
+}
+
+.a11y-btn {
+  font-size: 0.8rem;
+  padding: 0.25rem 0.6rem;
+  background: var(--panel);
+  border: 1px solid var(--line);
+  border-radius: 4px;
+  cursor: pointer;
+  color: var(--ink);
+}
+
+.a11y-btn:hover,
+.a11y-btn:focus-visible {
+  border-color: var(--accent);
+  color: var(--accent);
+}
+
+.describe-now-btn,
+.pause-btn,
+.toggle-table-btn {
+  /* Specific action hook */
+}
+
+.graph-visual-canvas-container {
+  position: relative;
+  display: block;
+}
+
+.graph-layer-3-container {
+  margin-top: 0.5rem;
+}
+
+/* Data Table styles */
+.inspectable-data-table-container {
+  border: 1px solid var(--line);
+  background: var(--panel);
+  border-radius: 6px;
+  padding: 1rem;
+}
+
+.table-scroll-container {
+  overflow-x: auto;
+}
+
+.inspectable-table,
+.inspectable-data-table {
+  width: 100%;
+  border-collapse: collapse;
+  font-size: 0.85rem;
+}
+
+.inspectable-table caption {
+  font-weight: 600;
+  text-align: left;
+  margin-bottom: 0.5rem;
+}
+
+.inspectable-table th,
+.inspectable-table td {
+  padding: 0.4rem 0.6rem;
+  border-bottom: 1px solid var(--line);
+  text-align: left;
+}
+
+.inspectable-table th {
+  background: var(--wash);
+  font-weight: 600;
+}
+
+.table-col-unit {
+  font-weight: normal;
+  color: var(--muted);
+}
+
+.table-pagination {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 1rem;
+  margin-top: 0.75rem;
+  font-size: 0.85rem;
+}
+
+.pagination-btn {
+  font-size: 0.8rem;
+  padding: 0.25rem 0.5rem;
+  background: var(--panel);
+  border: 1px solid var(--line);
+  border-radius: 4px;
+  cursor: pointer;
+  color: var(--ink);
+}
+
+.pagination-btn:disabled {
+  opacity: 0.4;
+  cursor: not-allowed;
+}
+
+.prev-btn,
+.next-btn {
+  /* Pagination navigation hooks */
+}
+
+.pagination-info {
+  font-family: var(--font-mono, monospace);
+  font-size: 0.8rem;
+  color: var(--muted);
+}
+
+.scale-facts-disclosure,
+.scale-facts-details {
+  margin-top: 1rem;
+  padding: 0.5rem 0.75rem;
+  background: var(--wash);
+  border: 1px solid var(--line);
+  border-radius: 4px;
+  font-size: 0.85rem;
+}
+
+.scale-facts-table {
+  width: 100%;
+  margin-top: 0.5rem;
+  border-collapse: collapse;
+}
+
+.scale-facts-table th,
+.scale-facts-table td {
+  padding: 0.3rem 0.5rem;
+  border-bottom: 1px solid var(--line);
+  text-align: left;
+}

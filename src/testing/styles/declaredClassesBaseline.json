@@ -1,7 +1,7 @@
 {
   "src/a11y/actions/families/interval/IntervalEquivalent.tsx": 4,
-  "src/a11y/descriptions/DataTable.tsx": 12,
-  "src/a11y/descriptions/provider.tsx": 14,
+  "src/a11y/descriptions/DataTable.tsx": 0,
+  "src/a11y/descriptions/provider.tsx": 0,
   "src/app/lab/lq-05/page.tsx": 0,
   "src/app/lab/lq-07/page.tsx": 0,
   "src/app/notation/CollisionClusterView.tsx": 2,

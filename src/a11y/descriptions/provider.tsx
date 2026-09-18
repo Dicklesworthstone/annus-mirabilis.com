@@ -23,6 +23,7 @@ import {
 import type { RepresentationScale } from "../../visuals/kit/types.ts";
 import { AnnouncementManager } from "./announcementManager.ts";
 import { DataTable, type DataTableColumn, type DataTableRow } from "./DataTable.tsx";
+import "./descriptions.css";
 import { fillTemplate, type TemplateData } from "./templates.ts";
 
 export interface GraphDescriptionState {

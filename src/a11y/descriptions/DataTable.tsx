@@ -12,6 +12,7 @@
 import { type ReactElement, useState } from "react";
 import { getScaleFactRows } from "../../visuals/kit/scale.ts";
 import type { RepresentationScale } from "../../visuals/kit/types.ts";
+import "./descriptions.css";
 
 export interface DataTableRow {
   readonly id: string | number;
