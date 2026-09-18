@@ -98,7 +98,7 @@ export function BrownianFirstEncounter({
         </h2>
         <p className="text-base text-muted-foreground mt-2 leading-relaxed font-serif">
           {record?.story ??
-            "Imagine placing a microscopic particle in a drop of water and marking where it is after a few moments. Pushed at random by invisible water molecules, it is just as likely to move left as right. Adding signed steps gives zero, yet every particle has moved."}
+            "Imagine placing a microscopic particle in a drop of water and marking where it is after a few moments. Pushed at random by invisible water molecules, it is just as likely to move left as right. In the symmetric arithmetic example below, signed displacements cancel even though all four endpoints differ from the starting point."}
         </p>
       </header>
 
@@ -445,7 +445,7 @@ export function BrownianFirstEncounter({
       <div className="space-y-6 text-sm text-foreground/90 font-serif leading-relaxed border-t border-border/50 pt-6">
         <section className="space-y-2">
           <h4 className="text-base font-semibold text-foreground font-sans">
-            Step 2 & 3 · Why the signed sum gives zero
+            Step 2 & 3 · What a signed sum tells us
           </h4>
           <p>When we add the displacements algebraically, opposite directions cancel out:</p>
           <div className="bg-background/80 p-3 rounded-lg border border-border font-mono text-xs text-center">
@@ -453,9 +453,9 @@ export function BrownianFirstEncounter({
             <strong>{formatSignedDisplacement(totals.signedSum)} units</strong>
           </div>
           <p>
-            A signed total of zero only tells us that the <em>centre of mass</em> of the ensemble
-            has not drifted. It does not mean the particles remained at rest! Every single particle
-            moved away from the starting point.
+            A signed total of zero tells us that the average endpoint has not shifted. It does not
+            mean every particle remained at rest. In the authored example all four particles have
+            nonzero displacements; after your edits the displayed totals describe your chosen endpoints.
           </p>
         </section>
 
@@ -509,29 +509,28 @@ export function BrownianFirstEncounter({
 
         <section className="space-y-2">
           <h4 className="text-base font-semibold text-foreground font-sans">
-            Step 8 · Why Einstein’s derivation favored the mean square
+            Step 8 · Why the mean square has a simple additive rule
           </h4>
           <p>
-            If both proposals measure spread, why did Einstein base his entire 1905 Brownian motion
-            paper on the <em>mean square</em>?
+            Both proposals measure spread. The mean square has a useful property when independent,
+            zero-mean displacements are added. This is a pedagogical bridge, not the paper’s printed calculation.
           </p>
           <p>
-            Under the physical principle that successive molecular kicks are{" "}
-            <strong>independent</strong> and have <strong>zero average bias</strong>, the square of
-            a sum of many steps expands with cross terms:
+            First expand the square of a sum. This algebra holds without an independence assumption:
           </p>
           <div className="bg-background/80 p-3 rounded-lg border border-border font-mono text-xs text-center">
-            (x₁ + x₂)² = x₁² + x₂² + 2·x₁·x₂
+            (Δx₁ + Δx₂)² = Δx₁² + 2·Δx₁·Δx₂ + Δx₂²
           </div>
           <p>
-            When we average over many particles, the cross terms (2·x₁·x₂) vanish because positive
-            and negative kicks are uncorrelated (average to zero). This leaves only the sum of
-            squares: the total mean square displacement is simply the sum of the individual mean
-            squares, growing in direct proportion to time: <strong>⟨x²⟩ = 2 D t</strong>.
+            Now assume the displacements over the chosen time intervals are independent and each has
+            zero mean. Independence makes the average product equal the product of the averages,
+            so the cross term vanishes on averaging—not in every outcome. Equal finite step mean
+            squares then add in proportion to the number of intervals. This coarse-grained assumption
+            is not a claim about molecular motion at arbitrarily short times.
           </p>
           <p>
             Absolute values do not possess this mathematical linearity when steps are added
-            together, which makes the square algebraic route uniquely tractable.
+            together, which is why mean square has a particularly simple additive calculation.
           </p>
         </section>
 
@@ -541,9 +540,9 @@ export function BrownianFirstEncounter({
           </h4>
           <p>
             Mean absolute displacement is <strong>not</strong> an incorrect calculation. It answers
-            a slightly different question about the average linear distance travelled and, in the
+            a slightly different question about the average absolute net displacement from the starting point and, in the
             ideal Gaussian distribution, it scales directly with the square root of time
-            (proportional to √(2Dt/π)).
+            (equal to √(4Dt/π) along one coordinate).
           </p>
         </section>
       </div>
@@ -555,7 +554,7 @@ export function BrownianFirstEncounter({
           onClick={() => setShowWhySquare((v) => !v)}
           className="w-full text-left flex justify-between items-center text-sm font-medium text-foreground hover:text-primary transition-colors"
         >
-          <span>Why the square is useful: a 2-particle algebraic demonstration</span>
+          <span>Why the square is useful: a two-step algebraic demonstration</span>
           <span className="font-mono text-xs text-muted-foreground">
             {showWhySquare ? "Hide ▲" : "Show ▼"}
           </span>
@@ -580,6 +579,10 @@ export function BrownianFirstEncounter({
           </div>
         )}
       </div>
+
+      <p><a href="/papers/brownian-motion/s4/?open=derivation-step:bm-variance-cross#arg-bm-independent-steps">
+        Why do the cross terms vanish? Open the exact missing step →
+      </a></p>
 
       {/* Step 10 · The Bridge */}
       <footer className="border-t-2 border-border pt-6 mt-8">
@@ -665,7 +668,7 @@ export function BrownianFirstEncounter({
                     Open BM-01 Lab →
                   </a>
                   <a
-                    href="/papers/brownian-motion/s5/#s5-p1"
+                    href="/papers/brownian-motion/s5/"
                     className="inline-flex items-center justify-center text-xs px-3 py-1.5 bg-muted hover:bg-muted/80 text-foreground font-medium rounded border border-border transition-colors text-center flex-1"
                   >
                     Go to §5 Passage →
@@ -717,7 +720,7 @@ export function BrownianFirstEncounter({
             <a href="/lab/bm-01" className="text-primary hover:underline">
               Open BM-01 Tracer Laboratory →
             </a>
-            <a href="/papers/brownian-motion/s5/#s5-p1" className="text-primary hover:underline">
+            <a href="/papers/brownian-motion/s5/" className="text-primary hover:underline">
               Go to §5 Displacement Passage →
             </a>
           </div>
