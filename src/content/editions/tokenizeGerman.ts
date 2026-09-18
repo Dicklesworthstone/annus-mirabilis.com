@@ -1,6 +1,7 @@
 /**
  * German word tokenizer for glosses and review packets (am-edn-alignment-tooling-do1).
  * Token indices are 0-based among word tokens, excluding math atoms and punctuation.
+ * Emphasis tags ([[SPERR]], [[/SPERR]], [[EM]], [[/EM]]) never split a token.
  */
 
 import { SENTENCE_ABBREVIATIONS } from "./segmentSentences.ts";
@@ -15,7 +16,23 @@ export type GermanToken = Readonly<{
   tokenIndex?: number | undefined;
 }>;
 
-const ABBREV_SORTED = [...SENTENCE_ABBREVIATIONS].sort((a, b) => b.length - a.length);
+export const UNIT_WORDS = Object.freeze([
+  "Sek.",
+  "sec.",
+  "cm.",
+  "mm.",
+  "cm",
+  "mm",
+  "μ",
+  "Mikron",
+  "Volt",
+  "Amp.",
+]);
+
+const ABBREV_SORTED = [...SENTENCE_ABBREVIATIONS, ...UNIT_WORDS]
+  .filter((v, i, arr) => arr.indexOf(v) === i)
+  .sort((a, b) => b.length - a.length);
+
 const LETTER = /[A-Za-zÄÖÜäöüßÁÉÍÓÚáéíóúÂÊÎÔÛâêîôûÀÈÌÒÙàèìòùÇçÑñ]/;
 
 function matchAt(text: string, i: number, candidate: string): boolean {
@@ -24,7 +41,8 @@ function matchAt(text: string, i: number, candidate: string): boolean {
 
 /**
  * Tokenize one alignable unit. Math regions and footnote marks are atoms,
- * not tokens. Punctuation is not a token.
+ * not tokens. Punctuation is not a token. Emphasis tags are skipped and
+ * never split word tokens.
  */
 export function tokenizeGerman(
   text: string,
@@ -66,11 +84,21 @@ export function tokenizeGerman(
       i = atom.end;
       continue;
     }
+
+    // Skip whitespace
     if (/\s/.test(text[i] ?? "")) {
       i += 1;
       continue;
     }
 
+    // Skip emphasis tags ([[SPERR]], [[/SPERR]], [[EM]], [[/EM]]) - emphasis never splits a token
+    const emphasis = text.slice(i).match(/^\[\[\/?(?:SPERR|EM)\]\]/);
+    if (emphasis) {
+      i += emphasis[0].length;
+      continue;
+    }
+
+    // Match listed abbreviations and unit words
     let matched = false;
     for (const abbr of ABBREV_SORTED) {
       if (matchAt(text, i, abbr)) {
@@ -83,6 +111,7 @@ export function tokenizeGerman(
     }
     if (matched) continue;
 
+    // Match section with number (e.g. § 8)
     const section = text.slice(i).match(/^§\s*\d+/);
     if (section) {
       tokens.push({
@@ -97,6 +126,7 @@ export function tokenizeGerman(
       continue;
     }
 
+    // Match ordinal with period (e.g. 17.)
     const ordinal = text.slice(i).match(/^\d+\.(?=\s|$)/);
     if (ordinal) {
       tokens.push({
@@ -111,6 +141,7 @@ export function tokenizeGerman(
       continue;
     }
 
+    // Match number with decimal comma (e.g. 0,001)
     const decimal = text.slice(i).match(/^\d+,\d+/);
     if (decimal) {
       tokens.push({
@@ -125,13 +156,18 @@ export function tokenizeGerman(
       continue;
     }
 
+    // Match word with internal hyphens and apostrophes (e.g. Maxwell-Hertzschen, Doppler'schen)
     const ch = text[i] ?? "";
     if (LETTER.test(ch)) {
       let j = i + 1;
       while (j < text.length) {
         const n = text[j] ?? "";
-        if (LETTER.test(n) || n === "'" || n === "’" || n === "-") {
+        if (LETTER.test(n) || n === "'" || n === "’") {
           j += 1;
+          continue;
+        }
+        if (n === "-" && j + 1 < text.length && LETTER.test(text[j + 1] ?? "")) {
+          j += 2;
           continue;
         }
         break;
@@ -143,6 +179,7 @@ export function tokenizeGerman(
       continue;
     }
 
+    // Punctuation
     tokens.push({ kind: "punctuation", text: ch, start: i, end: i + 1 });
     i += 1;
   }

@@ -20,6 +20,7 @@ export type ManifestUnit = Readonly<{
   id: string;
   kind?: string | undefined;
   text?: string | undefined;
+  references?: readonly string[] | undefined;
 }>;
 
 export type ReconcileInput = Readonly<{
@@ -103,6 +104,20 @@ export function reconcileManifest(input: ReconcileInput): readonly Reconciliatio
           kind: "unit-missing-in-ledger",
           unitId: id,
           message: `Frozen id "${id}" has no proposed ledger unit.`,
+        });
+      }
+    }
+  }
+
+  // 3. Manifest references without authored inline in ledger (Scope B.2)
+  for (const mUnit of manifestUnits) {
+    if (mUnit.references && mUnit.references.length > 0) {
+      for (const refId of mUnit.references) {
+        differences.push({
+          differenceId: `unit-missing-in-ledger:${refId}`,
+          kind: "unit-missing-in-ledger",
+          unitId: refId,
+          message: `Frozen reference "${refId}" has no authored inline in ledger.`,
         });
       }
     }
