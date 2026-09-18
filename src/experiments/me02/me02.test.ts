@@ -1,20 +1,35 @@
 import { describe, expect, test } from "bun:test";
 import { readFileSync } from "node:fs";
 import { join } from "node:path";
+import { validateActionContract } from "../../accessibility/actionContracts.ts";
 import {
   auditReadings,
   type ReadingTarget,
   type ReadingsOwnerEntry,
 } from "../../content/audits/readings.ts";
 import { parsePredictPromptId } from "../../content/ids.ts";
-import { validateExperiment } from "../../content/schemas/experiment.ts";
+import {
+  ExperimentValidationError,
+  validateExperiment,
+} from "../../content/schemas/experiment.ts";
 import { strictParse } from "../../content/schemas/strictParse.ts";
-import { evaluateMe02 } from "../../physics/reference/massEnergy.ts";
+import {
+  evaluateMe02,
+  printedMassConversion,
+} from "../../physics/reference/massEnergy.ts";
+import { parseResult } from "../results/codec.ts";
 import { TapeValidationError, validateControlTape } from "../tapes/schema.ts";
-import { ME02_CAPTION, ME02_QUESTION } from "./definition.ts";
+import { ME02_CAPTION, ME02_DEFAULTS, type Me02Parameters, ME02_QUESTION } from "./definition.ts";
+import { validateMe02Parameters } from "./parameters.ts";
+import { decodeMe02Settings, encodeMe02Settings } from "./permalink.ts";
 import { createMe02Session } from "./session.ts";
 
 const root = process.cwd();
+
+function val(result: { status: string; value?: number | Float64Array }): number {
+  expect(result.status).toBe("value");
+  return result.value as number;
+}
 
 describe("ME-02 instrument contract", () => {
   test("manifest validates, both prompt ids parse, and toward-low-speed is listed", () => {
@@ -288,5 +303,179 @@ describe("ME-02 instrument contract", () => {
     expect(manifest.id).toBe("me-02");
     expect(manifest.assumptions.some((a) => a.includes("Newtonian"))).toBe(true);
     expect(ME02_CAPTION.r3.includes("UNKNOWN until the facsimile is pinned")).toBe(true);
+  });
+
+  test("AC8: full instrument contract - action contracts validate and enforce accessible equivalence", () => {
+    const raw = strictParse(
+      readFileSync(join(root, "content/experiments/me-02.yaml"), "utf8"),
+      "yaml",
+    );
+    const manifest = validateExperiment(raw);
+    expect(manifest.actions.length).toBeGreaterThan(0);
+
+    const action = manifest.actions.find((a) => a.actionId === "compare-named-speeds");
+    expect(action).toBeDefined();
+    if (!action) return;
+
+    expect(action.family).toBe("energy-accounting");
+    expect(action.commandClass).toBe("observer-change");
+    expect(action.inputs).toContain("beta");
+    expect(action.inputs).toContain("emittedEnergy");
+    expect(action.acceptedResult.outputs).toContain("exactDifference");
+    expect(action.acceptedResult.outputs).toContain("limitingCoefficient");
+    expect(action.visualAffordance.length).toBeGreaterThan(0);
+    expect(action.equivalentAffordance.length).toBeGreaterThan(0);
+    expect(action.announcement.length).toBeGreaterThan(0);
+
+    const validated = validateActionContract(action);
+    expect(validated.actionId).toBe("compare-named-speeds");
+
+    // Planted negative 1: missing equivalent affordance throws ExperimentValidationError
+    const missingEquiv = { ...action, equivalentAffordance: "" };
+    expect(() => validateActionContract(missingEquiv)).toThrow(ExperimentValidationError);
+
+    // Planted negative 2: drag-only forbidden pattern throws ExperimentValidationError
+    const dragOnly = {
+      ...action,
+      visualAffordance: "Drag a slider across speeds",
+      equivalentAffordance: "Drag the slider with mouse",
+    };
+    expect(() => validateActionContract(dragOnly)).toThrow(ExperimentValidationError);
+  });
+
+  test("AC8: full instrument contract - JS-disabled worked example matches reference physics", () => {
+    const examplePath = join(root, "src/generated/me02-example.json");
+    const rawExample = JSON.parse(readFileSync(examplePath, "utf8"));
+
+    // 1. Parameters validation
+    const checked = validateMe02Parameters(rawExample.parameters);
+    expect(checked.kind).toBe("accepted");
+    if (checked.kind !== "accepted") return;
+    expect(checked.data.beta).toBe(0.6);
+    expect(checked.data.emittedEnergy).toBe(1);
+
+    // 2. Initial results at 0.6c match evaluateMe02
+    const ref06 = evaluateMe02({ beta: 0.6, emittedEnergy: 1, speedOfLight: 1 });
+    const parsedResults = rawExample.results.map((r: string) => parseResult(r));
+    const exactResult = parsedResults.find((r: any) => r.quantityId === "kineticEnergyDifference");
+    const quadResult = parsedResults.find((r: any) => r.quantityId === "quadraticKineticDifference");
+    const proxyResult = parsedResults.find((r: any) => r.quantityId === "finiteSpeedMassProxy");
+    const limitResult = parsedResults.find((r: any) => r.quantityId === "inertialMassDecrease");
+
+    expect(val(exactResult as any)).toBeCloseTo(val(ref06.exactDifference), 10);
+    expect(val(quadResult as any)).toBeCloseTo(val(ref06.quadraticApproximation), 10);
+    expect(val(proxyResult as any)).toBeCloseTo(val(ref06.finiteSpeedProxy), 6);
+    expect(limitResult?.status).toBe("analytic-limit");
+    if (limitResult?.status === "analytic-limit" && limitResult.representation.kind === "coefficient") {
+      expect(limitResult.representation.value).toBe(1);
+    }
+
+    // 3. Comparison results at 0.01c match evaluateMe02
+    const ref001 = evaluateMe02({ beta: 0.01, emittedEnergy: 1, speedOfLight: 1 });
+    const parsedComp = rawExample.comparisonResults.map((r: string) => parseResult(r));
+    const compExact = parsedComp.find((r: any) => r.quantityId === "kineticEnergyDifference");
+    const compProxy = parsedComp.find((r: any) => r.quantityId === "finiteSpeedMassProxy");
+    const compExcess = parsedComp.find((r: any) => r.quantityId === "proxyExcessOverLimit");
+
+    expect(val(compExact as any)).toBeCloseTo(val(ref001.exactDifference), 10);
+    expect(val(compProxy as any)).toBeCloseTo(val(ref001.finiteSpeedProxy), 6);
+    expect(val(compExcess as any)).toBeCloseTo(7.50063e-5, 8);
+
+    // 4. Printed factor conversion matches printedMassConversion
+    const refConversion = printedMassConversion({ emittedEnergyErg: 9e20 });
+    expect(rawExample.printedConversion.emittedEnergyErg).toBe(9e20);
+    expect(rawExample.printedConversion.printedGrams).toBe(refConversion.printed.value);
+    expect(rawExample.printedConversion.printedConstantSetId).toBe("einstein-1905-mass-energy-printed");
+    expect(rawExample.printedConversion.modernGrams).toBeCloseTo(refConversion.modern.value, 6);
+    expect(rawExample.printedConversion.modernConstantSetId).toBe("modern-si-2019");
+    expect(rawExample.printedConversion.wording).toBe(refConversion.comparison.wording);
+  });
+
+  test("AC8: full instrument contract - permalink encode/decode roundtrip and validation", () => {
+    const params: Me02Parameters = {
+      beta: 0.35,
+      emittedEnergy: 2.5,
+      energyUnit: "joule",
+      speedAxis: "logarithmic",
+      showNaive: true,
+      notation: "modern",
+    };
+
+    const encoded = encodeMe02Settings(params);
+    expect(encoded.startsWith("?")).toBe(true);
+
+    const decoded = decodeMe02Settings(encoded);
+    expect(decoded.kind).toBe("settings");
+    if (decoded.kind === "settings") {
+      expect(decoded.parameters).toEqual(params);
+    }
+
+    const defEncoded = encodeMe02Settings(ME02_DEFAULTS);
+    const defDecoded = decodeMe02Settings(defEncoded);
+    expect(defDecoded.kind).toBe("settings");
+    if (defDecoded.kind === "settings") {
+      expect(defDecoded.parameters).toEqual(ME02_DEFAULTS);
+    }
+
+    // Planted negative: out of domain beta (|v/c| >= 1) returns invalid
+    const invalidBeta = decodeMe02Settings("?beta=1.5&L=1");
+    expect(invalidBeta.kind).toBe("invalid");
+
+    const boundaryBeta = decodeMe02Settings("?beta=1.0&L=1");
+    expect(boundaryBeta.kind).toBe("invalid");
+
+    const negBoundaryBeta = decodeMe02Settings("?beta=-1.0&L=1");
+    expect(negBoundaryBeta.kind).toBe("invalid");
+
+    // Planted negative: non-positive energy returns invalid
+    const zeroEnergy = decodeMe02Settings("?beta=0.6&L=0");
+    expect(zeroEnergy.kind).toBe("invalid");
+
+    const negativeEnergy = decodeMe02Settings("?beta=0.6&L=-5");
+    expect(negativeEnergy.kind).toBe("invalid");
+
+    // Empty search query returns none
+    expect(decodeMe02Settings("").kind).toBe("none");
+  });
+
+  test("AC8: full instrument contract - session manages command classes and rejects outside-domain inputs", () => {
+    const session = createMe02Session("test-session");
+
+    // 1. Initial server snapshot is ready and accepted
+    const serverSnap = session.getServerSnapshot();
+    expect(serverSnap.accepted).toBeDefined();
+    expect(serverSnap.accepted?.experimentId).toBe("me-02");
+    const initialRunId = serverSnap.accepted?.runId;
+    const initialInputRev = serverSnap.accepted?.revisions.input;
+    const initialObsRev = serverSnap.accepted?.revisions.observer;
+
+    // 2. Observer change (modifying beta) increments observer revision and keeps runId
+    const obsResult = session.apply({ ...ME02_DEFAULTS, beta: 0.4 });
+    expect(obsResult.kind).toBe("accepted");
+    const obsSnap = session.getSnapshot().accepted;
+    expect(obsSnap?.revisions.observer).toBe((initialObsRev ?? 0) + 1);
+    expect(obsSnap?.runId).toBe(initialRunId);
+
+    // 3. Presentation change (modifying notation) preserves revisions and runId
+    const presResult = session.apply({ ...session.acceptedParameters(), notation: "modern" });
+    expect(presResult.kind).toBe("accepted");
+    const presSnap = session.getSnapshot().accepted;
+    expect(presSnap?.revisions.observer).toBe(obsSnap?.revisions.observer);
+    expect(presSnap?.revisions.input).toBe(obsSnap?.revisions.input);
+    expect(presSnap?.runId).toBe(initialRunId);
+
+    // 4. Setup change (modifying emittedEnergy) forks new runId and increments input revision
+    const setupResult = session.apply({ ...session.acceptedParameters(), emittedEnergy: 5 });
+    expect(setupResult.kind).toBe("accepted");
+    const setupSnap = session.getSnapshot().accepted;
+    expect(setupSnap?.revisions.input).toBe((initialInputRev ?? 0) + 1);
+    expect(setupSnap?.runId).not.toBe(initialRunId);
+
+    // 5. Refusal on invalid input (beta outside range)
+    const refused = session.apply({ ...session.acceptedParameters(), beta: 1.2 });
+    expect(refused.kind).toBe("refused");
+    if (refused.kind === "refused") {
+      expect(refused.refusal.code).toBe("invalid-parameter");
+    }
   });
 });
