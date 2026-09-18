@@ -59,27 +59,75 @@ export function InterferencePlot({
   const selectedY = scaleY(selectedIntensity);
 
   return (
-    <div className="plot-container" data-view-id="lq-01-interference-plot">
-      <div className="flex justify-between items-center mb-1">
-        <h3 className="text-sm font-semibold text-slate-800 dark:text-slate-100">
+    <div data-view-id="lq-01-interference-plot">
+      <div
+        style={{
+          display: "flex",
+          justifyContent: "space-between",
+          alignItems: "center",
+          marginBottom: "0.25rem",
+          flexWrap: "wrap",
+          gap: "0.25rem",
+        }}
+      >
+        <h3
+          style={{
+            fontSize: "0.875rem",
+            fontWeight: 600,
+            color: "var(--ink)",
+            margin: 0,
+          }}
+        >
           Screen Intensity Profile ⟨I(y)⟩{" "}
           {delta !== 0 && (
-            <span className="text-xs font-normal text-slate-500 font-mono">
+            <span
+              className="fine"
+              style={{
+                fontSize: "0.75rem",
+                fontWeight: 400,
+                fontFamily: "var(--font-mono, monospace)",
+              }}
+            >
               (δ = {(delta / Math.PI).toFixed(2)}π)
             </span>
           )}
         </h3>
-        <span className="text-[11px] font-mono px-2 py-0.5 rounded bg-slate-100 dark:bg-slate-800 text-slate-600 dark:text-slate-400">
+        <span
+          className="fine"
+          style={{
+            fontSize: "0.6875rem",
+            fontFamily: "var(--font-mono, monospace)",
+            padding: "0.125rem 0.5rem",
+            borderRadius: "0.25rem",
+            background: "var(--wash)",
+            color: "var(--muted)",
+            border: "1px solid var(--line)",
+          }}
+        >
           {readout === "time-average" ? "Time-Averaged" : "Instantaneous Snapshot"}
         </span>
       </div>
-      <p className="text-xs text-slate-600 dark:text-slate-400 mb-2">
+      <p
+        className="fine"
+        style={{
+          fontSize: "0.75rem",
+          marginBottom: "0.5rem",
+        }}
+      >
         Classical linear superposition of two coherent point sources. Central intensity:{" "}
-        <strong className="font-mono">{centerIntensity.toFixed(3)}</strong>, Fringe visibility:{" "}
-        <strong className="font-mono">{fringeVisibility.toFixed(3)}</strong>
+        <strong style={{ fontFamily: "var(--font-mono, monospace)" }}>
+          {centerIntensity.toFixed(3)}
+        </strong>
+        , Fringe visibility:{" "}
+        <strong style={{ fontFamily: "var(--font-mono, monospace)" }}>
+          {fringeVisibility.toFixed(3)}
+        </strong>
         {fringeSpacing > 0 && (
           <span>
-            , Fringe spacing: <strong className="font-mono">{fringeSpacing.toFixed(4)} m</strong>
+            , Fringe spacing:{" "}
+            <strong style={{ fontFamily: "var(--font-mono, monospace)" }}>
+              {fringeSpacing.toFixed(4)} m
+            </strong>
           </span>
         )}
         .
@@ -87,9 +135,15 @@ export function InterferencePlot({
 
       <svg
         viewBox={`0 0 ${width} ${height}`}
-        className="w-full h-auto bg-slate-50 dark:bg-slate-900 border border-slate-200 dark:border-slate-800 rounded"
         role="img"
         aria-label={`Interference intensity profile with center intensity ${centerIntensity.toFixed(2)} and fringe visibility ${fringeVisibility.toFixed(2)}`}
+        style={{
+          width: "100%",
+          height: "auto",
+          background: "var(--panel)",
+          border: "1px solid var(--line)",
+          borderRadius: "0.25rem",
+        }}
       >
         {/* Grid lines and ticks */}
         <line
@@ -97,7 +151,7 @@ export function InterferencePlot({
           y1={scaleY(0)}
           x2={width - padding.right}
           y2={scaleY(0)}
-          stroke="#94a3b8"
+          stroke="var(--line)"
           strokeWidth="1.5"
         />
         <line
@@ -105,7 +159,7 @@ export function InterferencePlot({
           y1={scaleY(4)}
           x2={width - padding.right}
           y2={scaleY(4)}
-          stroke="#cbd5e1"
+          stroke="var(--line)"
           strokeDasharray="4 4"
           strokeWidth="1"
         />
@@ -113,7 +167,9 @@ export function InterferencePlot({
           x={padding.left - 6}
           y={scaleY(4) + 4}
           textAnchor="end"
-          className="text-[10px] fill-slate-400 font-mono"
+          fontSize="10"
+          fontFamily="monospace"
+          fill="var(--muted)"
         >
           4.0 (max)
         </text>
@@ -121,7 +177,9 @@ export function InterferencePlot({
           x={padding.left - 6}
           y={scaleY(2) + 4}
           textAnchor="end"
-          className="text-[10px] fill-slate-400 font-mono"
+          fontSize="10"
+          fontFamily="monospace"
+          fill="var(--muted)"
         >
           2.0
         </text>
@@ -129,7 +187,9 @@ export function InterferencePlot({
           x={padding.left - 6}
           y={scaleY(0) + 4}
           textAnchor="end"
-          className="text-[10px] fill-slate-400 font-mono"
+          fontSize="10"
+          fontFamily="monospace"
+          fill="var(--muted)"
         >
           0.0
         </text>
@@ -140,7 +200,7 @@ export function InterferencePlot({
           y1={padding.top}
           x2={padding.left + plotW / 2}
           y2={height - padding.bottom}
-          stroke="#cbd5e1"
+          stroke="var(--line)"
           strokeDasharray="3 3"
           strokeWidth="1"
         />
@@ -148,12 +208,14 @@ export function InterferencePlot({
           x={padding.left + plotW / 2}
           y={height - padding.bottom + 16}
           textAnchor="middle"
-          className="text-[10px] fill-slate-500 font-mono"
+          fontSize="10"
+          fontFamily="monospace"
+          fill="var(--muted)"
         >
           y = 0 (Center)
         </text>
 
-        {/* Intensity Curve */}
+        {/* Intensity Curve (Data trace - kept literal sky blue) */}
         {polylinePoints && (
           <polyline
             points={polylinePoints}
@@ -165,7 +227,7 @@ export function InterferencePlot({
           />
         )}
 
-        {/* Selected Screen Position Marker */}
+        {/* Selected Screen Position Marker (Data probe - kept literal rose) */}
         <line
           x1={selectedX}
           y1={padding.top}
@@ -187,7 +249,10 @@ export function InterferencePlot({
           x={selectedX}
           y={Math.max(padding.top + 12, selectedY - 10)}
           textAnchor="middle"
-          className="text-[10px] fill-rose-600 font-semibold font-mono"
+          fontSize="10"
+          fontFamily="monospace"
+          fontWeight="600"
+          fill="#e11d48"
         >
           {screenPosition}: {selectedIntensity.toFixed(2)} (Δr = {pathDifference.toFixed(2)}λ)
         </text>
@@ -197,7 +262,9 @@ export function InterferencePlot({
           x={width / 2}
           y={height - 6}
           textAnchor="middle"
-          className="text-[11px] fill-slate-500 font-medium"
+          fontSize="11"
+          fontWeight="500"
+          fill="var(--muted)"
         >
           Screen Position y (Fringes)
         </text>
@@ -232,26 +299,63 @@ export function WavefrontPlot({
   const ringStep = 24;
 
   return (
-    <div className="plot-container" data-view-id="lq-01-wavefront-view">
-      <div className="flex justify-between items-center mb-1">
-        <h3 className="text-sm font-semibold text-slate-800 dark:text-slate-100">
+    <div data-view-id="lq-01-wavefront-view">
+      <div
+        style={{
+          display: "flex",
+          justifyContent: "space-between",
+          alignItems: "center",
+          marginBottom: "0.25rem",
+          flexWrap: "wrap",
+          gap: "0.25rem",
+        }}
+      >
+        <h3
+          style={{
+            fontSize: "0.875rem",
+            fontWeight: 600,
+            color: "var(--ink)",
+            margin: 0,
+          }}
+        >
           2D Wavefield Crest Superposition
         </h3>
-        <span className="text-[11px] font-mono text-slate-500">
+        <span
+          className="fine"
+          style={{
+            fontSize: "0.6875rem",
+            fontFamily: "var(--font-mono, monospace)",
+            color: "var(--muted)",
+          }}
+        >
           λ = {(wavelength * 1e9).toFixed(0)} nm | d = {separation.toFixed(1)} λ | δ ={" "}
           {(delta / Math.PI).toFixed(2)} π
         </span>
       </div>
-      <p className="text-xs text-slate-600 dark:text-slate-400 mb-2">
-        Concentric circular wavefront crests radiate from coherent coherent sources{" "}
-        <span className="font-mono">S₁</span> and <span className="font-mono">S₂</span>.
+      <p
+        className="fine"
+        style={{
+          fontSize: "0.75rem",
+          marginBottom: "0.5rem",
+        }}
+      >
+        Concentric circular wavefront crests radiate from coherent sources{" "}
+        <span style={{ fontFamily: "var(--font-mono, monospace)" }}>S₁</span> and{" "}
+        <span style={{ fontFamily: "var(--font-mono, monospace)" }}>S₂</span>.
       </p>
 
       <svg
         viewBox={`0 0 ${width} ${height}`}
-        className="w-full h-auto bg-slate-900 border border-slate-800 rounded overflow-hidden"
         role="img"
         aria-label={`Two-source wave superposition crest lines with separation ${separation} wavelengths and phase shift ${delta.toFixed(2)} radians`}
+        style={{
+          width: "100%",
+          height: "auto",
+          background: "#0f172a",
+          border: "1px solid var(--line)",
+          borderRadius: "0.25rem",
+          overflow: "hidden",
+        }}
       >
         <defs>
           <clipPath id="field-clip">
@@ -260,7 +364,7 @@ export function WavefrontPlot({
         </defs>
 
         <g clipPath="url(#field-clip)">
-          {/* Source 1 Crests (Sky) */}
+          {/* Source 1 Crests (Sky - data datum kept literal) */}
           {Array.from({ length: numRings }).map((_, i) => {
             const r = (i + 1) * ringStep;
             return (
@@ -277,7 +381,7 @@ export function WavefrontPlot({
             );
           })}
 
-          {/* Source 2 Crests (Amber/Indigo shift by delta) */}
+          {/* Source 2 Crests (Amber - data datum kept literal) */}
           {Array.from({ length: numRings }).map((_, i) => {
             const phaseOffset = (delta / (2 * Math.PI)) * ringStep;
             const r = (i + 1) * ringStep + phaseOffset;
@@ -308,13 +412,16 @@ export function WavefrontPlot({
           />
         </g>
 
-        {/* Source pinheads */}
+        {/* Source pinheads (Data datum kept literal) */}
         <circle cx={srcX} cy={s1Y} r="4" fill="#38bdf8" />
         <text
           x={srcX - 8}
           y={s1Y + 3}
           textAnchor="end"
-          className="text-[10px] fill-sky-400 font-mono font-bold"
+          fontSize="10"
+          fontFamily="monospace"
+          fontWeight="bold"
+          fill="#38bdf8"
         >
           S₁
         </text>
@@ -323,7 +430,10 @@ export function WavefrontPlot({
           x={srcX - 8}
           y={s2Y + 3}
           textAnchor="end"
-          className="text-[10px] fill-amber-400 font-mono font-bold"
+          fontSize="10"
+          fontFamily="monospace"
+          fontWeight="bold"
+          fill="#fbbf24"
         >
           S₂
         </text>
@@ -337,7 +447,7 @@ export function WavefrontPlot({
           stroke="#e2e8f0"
           strokeWidth="3"
         />
-        <text x={width - 45} y="25" className="text-[10px] fill-slate-400 font-mono">
+        <text x={width - 45} y="25" fontSize="10" fontFamily="monospace" fill="#94a3b8">
           Screen
         </text>
         <circle
@@ -349,7 +459,10 @@ export function WavefrontPlot({
         <text
           x={width - 42}
           y={centerY + 4}
-          className="text-[10px] fill-sky-300 font-mono font-semibold"
+          fontSize="10"
+          fontFamily="monospace"
+          fontWeight="600"
+          fill="#7dd3fc"
         >
           I₀ = {centerIntensity.toFixed(1)}
         </text>
@@ -389,27 +502,70 @@ export function SpreadingPlot({
   const currentRPx = Math.min(170, Math.max(25, 40 * Math.sqrt(radius)));
 
   return (
-    <div className="plot-container" data-view-id="lq-01-spreading-view">
-      <div className="flex justify-between items-center mb-1">
-        <h3 className="text-sm font-semibold text-slate-800 dark:text-slate-100">
-          Spherical Energy Spreading & Conservation
+    <div data-view-id="lq-01-spreading-view">
+      <div
+        style={{
+          display: "flex",
+          justifyContent: "space-between",
+          alignItems: "center",
+          marginBottom: "0.25rem",
+          flexWrap: "wrap",
+          gap: "0.25rem",
+        }}
+      >
+        <h3
+          style={{
+            fontSize: "0.875rem",
+            fontWeight: 600,
+            color: "var(--ink)",
+            margin: 0,
+          }}
+        >
+          Spherical Energy Spreading &amp; Conservation
         </h3>
-        <span className="text-[11px] font-mono px-2 py-0.5 rounded bg-emerald-100 dark:bg-emerald-950 text-emerald-800 dark:text-emerald-300">
+        <span
+          className="fine"
+          style={{
+            fontSize: "0.6875rem",
+            fontFamily: "var(--font-mono, monospace)",
+            padding: "0.125rem 0.5rem",
+            borderRadius: "0.25rem",
+            background: "rgba(16, 185, 129, 0.15)",
+            color: "var(--plot)",
+            border: "1px solid rgba(16, 185, 129, 0.3)",
+          }}
+        >
           ∮ I dA = {shellPower.toFixed(4)} W (P = {power.toFixed(1)} W)
         </span>
       </div>
-      <p className="text-xs text-slate-600 dark:text-slate-400 mb-2">
-        <span className="font-mono">I(r) = P / (4πr²) = {intensity.toExponential(4)} W/m²</span> at
-        distance <span className="font-mono">r = {radius.toFixed(2)} m</span>.
+      <p
+        className="fine"
+        style={{
+          fontSize: "0.75rem",
+          marginBottom: "0.5rem",
+        }}
+      >
+        <span style={{ fontFamily: "var(--font-mono, monospace)" }}>
+          I(r) = P / (4πr²) = {intensity.toExponential(4)} W/m²
+        </span>{" "}
+        at distance{" "}
+        <span style={{ fontFamily: "var(--font-mono, monospace)" }}>r = {radius.toFixed(2)} m</span>
+        .
       </p>
 
       <svg
         viewBox={`0 0 ${width} ${height}`}
-        className="w-full h-auto bg-slate-900 border border-slate-800 rounded"
         role="img"
         aria-label={`Inverse square spherical spreading from source power ${power} Watts at radius ${radius} meters`}
+        style={{
+          width: "100%",
+          height: "auto",
+          background: "#0f172a",
+          border: "1px solid var(--line)",
+          borderRadius: "0.25rem",
+        }}
       >
-        {/* Concentric Spherical Shells */}
+        {/* Concentric Spherical Shells (Data datum kept literal sky) */}
         <circle
           cx={originX}
           cy={originY}
@@ -438,7 +594,7 @@ export function SpreadingPlot({
           strokeDasharray="4 4"
         />
 
-        {/* Active radius shell */}
+        {/* Active radius shell (Data datum kept literal emerald) */}
         <circle
           cx={originX}
           cy={originY}
@@ -448,18 +604,21 @@ export function SpreadingPlot({
           strokeWidth="2.5"
         />
 
-        {/* Central Point Source */}
+        {/* Central Point Source (Data datum kept literal amber) */}
         <circle cx={originX} cy={originY} r="6" fill="#f59e0b" />
         <text
           x={originX}
           y={originY - 12}
           textAnchor="middle"
-          className="text-[10px] fill-amber-400 font-mono font-bold"
+          fontSize="10"
+          fontFamily="monospace"
+          fontWeight="bold"
+          fill="#f59e0b"
         >
           Source (P = {power} W)
         </text>
 
-        {/* Radius ray vector */}
+        {/* Radius ray vector (Data datum kept literal emerald) */}
         <line
           x1={originX}
           y1={originY}
@@ -473,12 +632,14 @@ export function SpreadingPlot({
           x={originX + currentRPx / 2}
           y={originY - 6}
           textAnchor="middle"
-          className="text-[10px] fill-emerald-400 font-mono"
+          fontSize="10"
+          fontFamily="monospace"
+          fill="#34d399"
         >
           r = {radius.toFixed(1)} m
         </text>
 
-        {/* Aperture at r */}
+        {/* Aperture at r (Data datum kept literal rose) */}
         <rect
           x={originX + currentRPx - 2}
           y={originY - 10}
@@ -491,63 +652,86 @@ export function SpreadingPlot({
         {/* Data readout panel on right of SVG */}
         <g transform="translate(260, 25)">
           <rect x="0" y="0" width="200" height="200" fill="#0f172a" stroke="#334155" rx="6" />
-          <text x="12" y="24" className="text-[11px] fill-slate-300 font-semibold">
+          <text x="12" y="24" fontSize="11" fill="#cbd5e1" fontWeight="600">
             Radiant Power Accounting
           </text>
 
-          <text x="12" y="52" className="text-[10px] fill-slate-400 font-mono">
+          <text x="12" y="52" fontSize="10" fontFamily="monospace" fill="#94a3b8">
             Source Power P:
           </text>
           <text
             x="188"
             y="52"
             textAnchor="end"
-            className="text-[10px] fill-amber-300 font-mono font-bold"
+            fontSize="10"
+            fontFamily="monospace"
+            fontWeight="bold"
+            fill="#fcd34d"
           >
             {power.toFixed(2)} W
           </text>
 
-          <text x="12" y="78" className="text-[10px] fill-slate-400 font-mono">
+          <text x="12" y="78" fontSize="10" fontFamily="monospace" fill="#94a3b8">
             Intensity I(r):
           </text>
           <text
             x="188"
             y="78"
             textAnchor="end"
-            className="text-[10px] fill-emerald-300 font-mono font-bold"
+            fontSize="10"
+            fontFamily="monospace"
+            fontWeight="bold"
+            fill="#6ee7b7"
           >
             {intensity.toExponential(3)} W/m²
           </text>
 
-          <text x="12" y="104" className="text-[10px] fill-slate-400 font-mono">
+          <text x="12" y="104" fontSize="10" fontFamily="monospace" fill="#94a3b8">
             Enclosed ∮ I dA:
           </text>
           <text
             x="188"
             y="104"
             textAnchor="end"
-            className="text-[10px] fill-emerald-400 font-mono font-bold"
+            fontSize="10"
+            fontFamily="monospace"
+            fontWeight="bold"
+            fill="#34d399"
           >
             {shellPower.toFixed(4)} W
           </text>
 
           <line x1="12" y1="118" x2="188" y2="118" stroke="#334155" />
 
-          <text x="12" y="138" className="text-[10px] fill-slate-400 font-mono">
+          <text x="12" y="138" fontSize="10" fontFamily="monospace" fill="#94a3b8">
             1 cm² Aperture I·S:
           </text>
-          <text x="188" y="138" textAnchor="end" className="text-[10px] fill-sky-300 font-mono">
+          <text
+            x="188"
+            y="138"
+            textAnchor="end"
+            fontSize="10"
+            fontFamily="monospace"
+            fill="#7dd3fc"
+          >
             {smallAperturePower.toExponential(3)} W
           </text>
 
-          <text x="12" y="162" className="text-[10px] fill-slate-400 font-mono">
+          <text x="12" y="162" fontSize="10" fontFamily="monospace" fill="#94a3b8">
             Exact Disk Power:
           </text>
-          <text x="188" y="162" textAnchor="end" className="text-[10px] fill-sky-300 font-mono">
+          <text
+            x="188"
+            y="162"
+            textAnchor="end"
+            fontSize="10"
+            fontFamily="monospace"
+            fill="#7dd3fc"
+          >
             {exactDiskPower.toExponential(3)} W
           </text>
 
-          <text x="12" y="186" className="text-[9px] fill-slate-500 font-mono">
+          <text x="12" y="186" fontSize="9" fontFamily="monospace" fill="#64748b">
             Gauss–Legendre quad identity
           </text>
         </g>
