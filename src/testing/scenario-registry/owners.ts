@@ -12,6 +12,18 @@ import {
   stokesEinsteinD,
 } from "../../physics/reference/diffusion.ts";
 import {
+  ELECTRON_MASS,
+  acceleratingPotential as electronAcceleratingPotential,
+  electricRadius as electronElectricRadius,
+  kineticEnergy as electronKineticEnergy,
+  magneticRadius as electronMagneticRadius,
+  longitudinalMass,
+  threePrintedRelations,
+  transverseFieldTrajectory,
+  transverseMassComoving,
+  transverseMassLaboratory,
+} from "../../physics/reference/electron.ts";
+import {
   desynchronizationObserved,
   lightClock,
   movingRodLegs,
@@ -84,6 +96,7 @@ const walkLawsPath = fileURLToPath(
 );
 const eventsPath = fileURLToPath(new URL("../../physics/reference/events.ts", import.meta.url));
 const fieldsPath = fileURLToPath(new URL("../../physics/reference/fields.ts", import.meta.url));
+const electronPath = fileURLToPath(new URL("../../physics/reference/electron.ts", import.meta.url));
 
 function num(inputs: Record<string, number>, key: string): number {
   const value = inputs[key];
@@ -754,6 +767,113 @@ const OWNERS: OwnerRecord[] = [
         out.maxResidual = res.maxResidual;
         out.amplitudeFactor = res.amplitudeFactor;
         out.frequencyFactor = res.frequencyFactor;
+      }
+
+      return out;
+    },
+  },
+  {
+    id: "electron",
+    sourcePath: electronPath,
+    fn: (ctx: OwnerContext) => {
+      const out: Record<string, number> = {};
+
+      // Mass conventions scenario
+      if (
+        typeof ctx.inputs.beta === "number" &&
+        ctx.inputs.eField === undefined &&
+        ctx.inputs.t === undefined &&
+        ctx.inputs.transverseE === undefined &&
+        ctx.inputs.relationsBeta === undefined
+      ) {
+        const mass = typeof ctx.inputs.mass === "number" ? ctx.inputs.mass : ELECTRON_MASS;
+        const beta = ctx.inputs.beta;
+        const longM = longitudinalMass(mass, beta);
+        const transMCom = transverseMassComoving(mass, beta);
+        const transMLab = transverseMassLaboratory(mass, beta);
+        if (longM.status === "value") out.longitudinalMass = longM.value as number;
+        if (transMCom.status === "value") out.transverseMassComoving = transMCom.value as number;
+        if (transMLab.status === "value") out.transverseMassLaboratory = transMLab.value as number;
+      }
+
+      // Energy & fixtures scenario (W, P, Rm, Re)
+      if (
+        typeof ctx.inputs.beta === "number" &&
+        (typeof ctx.inputs.bField === "number" || typeof ctx.inputs.eField === "number")
+      ) {
+        const mass = typeof ctx.inputs.mass === "number" ? ctx.inputs.mass : ELECTRON_MASS;
+        const charge =
+          typeof ctx.inputs.charge === "number" ? ctx.inputs.charge : ELEMENTARY_CHARGE;
+        const beta = ctx.inputs.beta;
+        const ke = electronKineticEnergy(mass, beta);
+        if (ke.exact.status === "value") out.kineticEnergyExact = ke.exact.value as number;
+        if (ke.newtonian.status === "value")
+          out.kineticEnergyNewtonian = ke.newtonian.value as number;
+        out.kineticEnergyRatio = ke.ratio;
+
+        const pot = electronAcceleratingPotential(beta, charge, mass);
+        if (pot.exact.status === "value")
+          out.acceleratingPotentialExact = pot.exact.value as number;
+        if (pot.newtonian.status === "value")
+          out.acceleratingPotentialNewtonian = pot.newtonian.value as number;
+
+        if (typeof ctx.inputs.bField === "number") {
+          const rm = electronMagneticRadius(beta, ctx.inputs.bField, charge, mass);
+          if (rm.exact.status === "value")
+            out.radiusCurvatureMagneticExact = rm.exact.value as number;
+          if (rm.newtonian.status === "value")
+            out.radiusCurvatureMagneticNewtonian = rm.newtonian.value as number;
+        }
+
+        if (typeof ctx.inputs.eField === "number") {
+          const re = electronElectricRadius(beta, ctx.inputs.eField, charge, mass);
+          if (re.exact.status === "value")
+            out.radiusCurvatureElectricExact = re.exact.value as number;
+          if (re.newtonian.status === "value")
+            out.radiusCurvatureElectricNewtonian = re.newtonian.value as number;
+        }
+      }
+
+      // Transverse field trajectory scenario
+      if (
+        typeof ctx.inputs.transverseE === "number" &&
+        typeof ctx.inputs.v0x === "number" &&
+        typeof ctx.inputs.t === "number"
+      ) {
+        const mass = typeof ctx.inputs.mass === "number" ? ctx.inputs.mass : ELECTRON_MASS;
+        const charge =
+          typeof ctx.inputs.charge === "number" ? ctx.inputs.charge : -ELEMENTARY_CHARGE;
+        const pts = transverseFieldTrajectory(
+          ctx.inputs.transverseE,
+          ctx.inputs.v0x,
+          ctx.inputs.t,
+          1,
+          charge,
+          mass,
+        );
+        const last = pts[pts.length - 1];
+        if (last) {
+          out.x = last.x;
+          out.y = last.y;
+          out.speedRatio = last.speedRatio;
+          out.gamma = last.gamma;
+        }
+      }
+
+      // Relations scenario
+      if (typeof ctx.inputs.relationsBeta === "number") {
+        const beta = ctx.inputs.relationsBeta;
+        const eMag = typeof ctx.inputs.relationsE === "number" ? ctx.inputs.relationsE : 1e5;
+        const bMag = typeof ctx.inputs.relationsB === "number" ? ctx.inputs.relationsB : 0.01;
+        const rel = threePrintedRelations(beta, eMag, bMag);
+        if (rel.deflectabilityRatio.status === "value")
+          out.deflectabilityRatio = rel.deflectabilityRatio.value as number;
+        if (rel.potentialDifference.status === "value")
+          out.potentialDifference = rel.potentialDifference.value as number;
+        if (rel.magneticRadius.status === "value")
+          out.magneticRadius = rel.magneticRadius.value as number;
+        if (rel.electricRadius.status === "value")
+          out.electricRadius = rel.electricRadius.value as number;
       }
 
       return out;

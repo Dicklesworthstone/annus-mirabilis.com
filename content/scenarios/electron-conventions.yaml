@@ -1,0 +1,41 @@
+id: electron-conventions
+kind: modern-golden
+title: Longitudinal and transverse mass conventions at beta = 0.6
+description: >
+  Verifies longitudinal mass gamma^3 * m, Einstein 1905 comoving transverse mass gamma^2 * m,
+  and Planck 1906 laboratory transverse mass gamma * m.
+provenance:
+  paper: special-relativity
+  sectionId: s10
+  printedPage: 919
+constantSetId: modern-si-2019
+owner: electron
+inputs:
+  beta:
+    value: 0.6
+    unit: dimensionless
+  mass:
+    value: 1.0
+    unit: kg
+expected:
+  outputs:
+    - outputId: longitudinalMass
+      comparisonKind: tolerance
+      tolerance:
+        relative: 1.0e-12
+        rationale: "Longitudinal mass is m * gamma^3 = 1.953125 kg."
+      value: 1.953125
+    - outputId: transverseMassComoving
+      comparisonKind: tolerance
+      tolerance:
+        relative: 1.0e-12
+        rationale: "Comoving transverse mass is m * gamma^2 = 1.5625 kg."
+      value: 1.5625
+    - outputId: transverseMassLaboratory
+      comparisonKind: tolerance
+      tolerance:
+        relative: 1.0e-12
+        rationale: "Laboratory transverse mass is m * gamma = 1.25 kg."
+      value: 1.25
+modelVersion: 1
+schemaVersion: 1

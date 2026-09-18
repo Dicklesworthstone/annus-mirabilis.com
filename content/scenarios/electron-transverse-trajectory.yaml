@@ -1,0 +1,45 @@
+id: electron-transverse-trajectory
+kind: modern-golden
+title: Electron trajectory in transverse electric field at t = 1.0 ns
+description: >
+  Verifies exact relativistic trajectory of electron entering E_y = 10^5 V/m with
+  initial velocity 0.6c along x at t = 1 ns, yielding x = 0.1798095 m,
+  y = -0.00703141 m, and speed = 0.6011711c.
+provenance:
+  paper: special-relativity
+  sectionId: s10
+  printedPage: 921
+constantSetId: modern-si-2019
+owner: electron
+inputs:
+  transverseE:
+    value: 100000.0
+    unit: V/m
+  v0x:
+    value: 179875474.8
+    unit: m/s
+  t:
+    value: 1.0e-9
+    unit: s
+expected:
+  outputs:
+    - outputId: x
+      comparisonKind: tolerance
+      tolerance:
+        relative: 1.0e-6
+        rationale: "Longitudinal displacement at 1 ns is 0.1798095 m within 1e-6 relative."
+      value: 0.1798095
+    - outputId: y
+      comparisonKind: tolerance
+      tolerance:
+        relative: 1.0e-6
+        rationale: "Transverse deflection at 1 ns is -0.00703141 m within 1e-6 relative."
+      value: -0.00703141
+    - outputId: speedRatio
+      comparisonKind: tolerance
+      tolerance:
+        relative: 1.0e-6
+        rationale: "Speed ratio u/c at 1 ns is 0.6011711 within 1e-6 relative."
+      value: 0.6011711
+modelVersion: 1
+schemaVersion: 1

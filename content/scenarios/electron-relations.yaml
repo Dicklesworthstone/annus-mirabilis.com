@@ -1,0 +1,50 @@
+id: electron-relations
+kind: modern-golden
+title: Three relations accessible to experiment (Paper 3 section 10)
+description: >
+  Evaluates accelerating potential difference, magnetic radius of curvature,
+  electric radius of curvature, and deflectability ratio at beta = 0.6.
+provenance:
+  paper: special-relativity
+  sectionId: s10
+  printedPage: 920
+constantSetId: modern-si-2019
+owner: electron
+inputs:
+  relationsBeta:
+    value: 0.6
+    unit: dimensionless
+  relationsE:
+    value: 100000.0
+    unit: V/m
+  relationsB:
+    value: 0.01
+    unit: T
+expected:
+  outputs:
+    - outputId: deflectabilityRatio
+      comparisonKind: tolerance
+      tolerance:
+        relative: 1.0e-12
+        rationale: "Deflectability ratio equals beta = 0.6."
+      value: 0.6
+    - outputId: potentialDifference
+      comparisonKind: tolerance
+      tolerance:
+        relative: 1.0e-5
+        rationale: "Accelerating potential difference is 127749.7 V within 1e-5 relative."
+      value: 127749.7
+    - outputId: magneticRadius
+      comparisonKind: tolerance
+      tolerance:
+        relative: 1.0e-5
+        rationale: "Magnetic curvature radius is 0.127838 m within 1e-5 relative."
+      value: 0.127838
+    - outputId: electricRadius
+      comparisonKind: tolerance
+      tolerance:
+        relative: 1.0e-5
+        rationale: "Electric curvature radius is 2.29950 m within 1e-5 relative."
+      value: 2.2995
+modelVersion: 1
+schemaVersion: 1

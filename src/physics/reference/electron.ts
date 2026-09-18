@@ -557,6 +557,36 @@ export function electricRadius(
 }
 
 /**
+ * Historical transcription of the three relations accessible to experiment
+ * from the facsimile of Paper 3 §10, pp. 920-921.
+ */
+export const PRINTED_RELATIONS_METADATA = Object.freeze([
+  Object.freeze({
+    id: "potential-difference",
+    locator: "p. 920",
+    printedForm:
+      "P = \\int X dx = \\frac{\\mu}{\\varepsilon} V^2 \\left( \\frac{1}{\\sqrt{1 - (v/V)^2}} - 1 \\right)",
+    modernEquivalent: "q V_{\\text{acc}} = m c^2 (\\gamma - 1)",
+    description:
+      "Accelerating potential difference related to velocity of electron starting from rest",
+  }),
+  Object.freeze({
+    id: "magnetic-deflection",
+    locator: "p. 920",
+    printedForm: "R_m = \\frac{\\mu}{\\varepsilon} \\frac{v V}{N \\sqrt{1 - (v/V)^2}}",
+    modernEquivalent: "R_m = \\gamma m v / (q B)",
+    description: "Radius of curvature in magnetic field perpendicular to motion",
+  }),
+  Object.freeze({
+    id: "electric-deflection",
+    locator: "p. 921",
+    printedForm: "R_e = \\frac{\\mu}{\\varepsilon} \\frac{v^2}{Y (1 - (v/V)^2)}",
+    modernEquivalent: "R_e = \\gamma m v^2 / (q E)",
+    description: "Radius of curvature in electric field perpendicular to motion",
+  }),
+] as const);
+
+/**
  * Three relations accessible to experiment (Paper 3 §10, pp. 920-921).
  */
 export function threePrintedRelations(

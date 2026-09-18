@@ -1,0 +1,57 @@
+id: electron-energy-fixtures
+kind: modern-golden
+title: Electron kinetic energy, potential, and curvature radii at beta = 0.6
+description: >
+  Verifies relativistic energy W = 0.25 m_e c^2 (ratio 25/18 over Newtonian),
+  accelerating potential P = 127749.7 V, magnetic curvature radius Rm = 0.127838 m
+  at B = 0.01 T, and electric curvature radius Re = 2.29950 m at E = 10^5 V/m.
+provenance:
+  paper: special-relativity
+  sectionId: s10
+  printedPage: 920
+constantSetId: modern-si-2019
+owner: electron
+inputs:
+  beta:
+    value: 0.6
+    unit: dimensionless
+  bField:
+    value: 0.01
+    unit: T
+  eField:
+    value: 100000.0
+    unit: V/m
+expected:
+  outputs:
+    - outputId: kineticEnergyRatio
+      comparisonKind: tolerance
+      tolerance:
+        relative: 1.0e-6
+        rationale: "Relativistic to Newtonian kinetic energy ratio is exactly 25/18 at beta = 0.6."
+      value: 1.3888888888888888
+    - outputId: acceleratingPotentialExact
+      comparisonKind: tolerance
+      tolerance:
+        relative: 1.0e-5
+        rationale: "Accelerating potential matches 127749.7 V within 1e-5 relative."
+      value: 127749.7
+    - outputId: acceleratingPotentialNewtonian
+      comparisonKind: tolerance
+      tolerance:
+        relative: 1.0e-5
+        rationale: "Newtonian accelerating potential matches 91979.8 V within 1e-5 relative."
+      value: 91979.8
+    - outputId: radiusCurvatureMagneticExact
+      comparisonKind: tolerance
+      tolerance:
+        relative: 1.0e-5
+        rationale: "Magnetic curvature radius matches 0.127838 m within 1e-5 relative."
+      value: 0.127838
+    - outputId: radiusCurvatureElectricExact
+      comparisonKind: tolerance
+      tolerance:
+        relative: 1.0e-5
+        rationale: "Electric curvature radius matches 2.29950 m within 1e-5 relative."
+      value: 2.2995
+modelVersion: 1
+schemaVersion: 1
