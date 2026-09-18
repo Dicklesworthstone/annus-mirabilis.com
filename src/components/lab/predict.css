@@ -157,3 +157,50 @@
   color: var(--muted);
   padding: 0.5rem 0;
 }
+
+/* Predict mode prompt box */
+.predict-mode-box {
+  border: 1px solid var(--line);
+  background: var(--panel);
+  padding: 1.25rem;
+  border-radius: 6px;
+  margin: 1.5rem 0;
+}
+
+.predict-question {
+  margin: 0.5rem 0 1rem;
+  font-size: 1rem;
+  font-weight: 500;
+}
+
+.predict-options {
+  display: flex;
+  flex-direction: column;
+  gap: 0.5rem;
+}
+
+.predict-option {
+  display: flex;
+  align-items: flex-start;
+  gap: 0.5rem;
+  cursor: pointer;
+}
+
+.predict-label {
+  font-size: 0.95rem;
+  line-height: 1.4;
+}
+
+.predict-choices {
+  display: flex;
+  flex-direction: column;
+  gap: 0.5rem;
+}
+
+.predict-feedback {
+  margin-top: 0.75rem;
+  font-size: 0.9rem;
+  color: var(--muted);
+}
+
+

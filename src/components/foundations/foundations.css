@@ -1,0 +1,111 @@
+/* Foundations mathematical construction and extension styles (am-foundations-*, am-vw1o) */
+
+.foundation-construction,
+.foundation-extension {
+  border: 1px solid var(--line);
+  background: var(--panel);
+  padding: 1.5rem;
+  margin: 1.5rem 0;
+  border-radius: 4px;
+}
+
+.foundation-construction h3,
+.foundation-extension h3 {
+  margin-top: 0;
+  font-size: 1.15rem;
+  font-weight: 600;
+}
+
+.construction-table-wrap {
+  overflow-x: auto;
+  margin-top: 1rem;
+}
+
+.construction-text-equivalent {
+  margin-top: 1rem;
+  font-size: 0.9rem;
+  color: var(--muted);
+  border-top: 1px dashed var(--line);
+  padding-top: 0.75rem;
+}
+
+/* Repeated Proportional Table */
+.repeated-proportional-table {
+  /* Scope hook */
+}
+
+.proportional-controls,
+.construction-controls,
+.toggle-controls,
+.nudge-controls {
+  margin: 1rem 0;
+}
+
+.proportional-readout,
+.construction-display,
+.held-fixed-display,
+.nudge-readout,
+.series-display {
+  border: 1px solid var(--line);
+  border-radius: 4px;
+  padding: 1rem;
+  background: var(--wash);
+  margin: 1rem 0;
+}
+
+.dimensionless-exponents-note,
+.notation-callout,
+.trustworthy-rule-statement {
+  margin-top: 1.5rem;
+  padding: 0.75rem 1rem;
+  border-left: 3px solid var(--accent);
+  background: var(--wash);
+  font-size: 0.95rem;
+}
+
+/* Table to Plot Builder */
+.table-to-plot-builder {
+  /* Scope hook */
+}
+
+.construction-status {
+  font-size: 0.9rem;
+  font-weight: 500;
+  color: var(--ink);
+  margin: 0.5rem 0;
+}
+
+/* Held Fixed Toggle */
+.held-fixed-toggle {
+  /* Scope hook */
+}
+
+.thermodynamics-held-fixed-comparison {
+  margin-top: 1rem;
+}
+
+/* Logarithm Product Table */
+.logarithm-product-table {
+  /* Scope hook */
+}
+
+.notation-toggle-controls {
+  display: flex;
+  gap: 0.5rem;
+  align-items: center;
+  margin: 0.75rem 0;
+}
+
+/* Nudge Sensitivity Demo */
+.nudge-sensitivity-demo {
+  /* Scope hook */
+}
+
+/* Taylor Binomial Extension */
+.taylor-binomial-extension {
+  /* Scope hook */
+}
+
+.evaluation-comparison {
+  margin-top: 1rem;
+}

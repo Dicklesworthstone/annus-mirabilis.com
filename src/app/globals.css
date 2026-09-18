@@ -773,3 +773,105 @@ select {
   clip: auto;
   white-space: normal;
 }
+
+/* Laboratory & tabular data styles (am-vw1o) */
+.button-row {
+  display: flex;
+  gap: 0.5rem;
+  flex-wrap: wrap;
+  margin-top: 1rem;
+}
+
+.form-error {
+  color: var(--accent);
+  font-size: 0.9rem;
+  margin-top: 0.5rem;
+}
+
+.form-note {
+  color: var(--muted);
+  font-size: 0.85rem;
+  margin-top: 0.5rem;
+  font-style: italic;
+}
+
+.lab-table-section {
+  margin-top: 2rem;
+  border-top: 1px solid var(--line);
+  padding-top: 1rem;
+}
+
+.table-wrapper {
+  overflow-x: auto;
+  margin-top: 1rem;
+}
+
+.data-table {
+  width: 100%;
+  border-collapse: collapse;
+  font-size: 0.9rem;
+  font-family: var(--font-sans);
+}
+
+.data-table th,
+.data-table td {
+  padding: 0.4rem 0.6rem;
+  border-bottom: 1px solid var(--line);
+  text-align: left;
+}
+
+.data-table th {
+  background: var(--wash);
+  font-weight: 600;
+}
+
+.table-ellipsis {
+  text-align: center;
+  color: var(--muted);
+  font-style: italic;
+  padding: 0.5rem;
+}
+
+/* Tracer lab rate card and constant annotation */
+.real-rate-card {
+  border: 1px solid var(--line);
+  background: var(--wash);
+  padding: 0.75rem 1rem;
+  margin: 1rem 0;
+}
+
+.rate-indicators {
+  display: flex;
+  flex-direction: column;
+  gap: 0.35rem;
+}
+
+.rate-annotation {
+  font-size: 0.85rem;
+  color: var(--ink);
+}
+
+.rate-comparison {
+  font-size: 0.8rem;
+  color: var(--muted);
+}
+
+.constant-set-annotation {
+  font-family: var(--font-mono);
+  font-size: 0.75rem;
+}
+
+.field-plot-container {
+  border: 1px solid var(--line);
+  background: var(--wash);
+  padding: 1rem;
+  margin: 1rem 0;
+}
+
+.field-svg {
+  display: block;
+  width: 100%;
+  height: auto;
+}
+
+
