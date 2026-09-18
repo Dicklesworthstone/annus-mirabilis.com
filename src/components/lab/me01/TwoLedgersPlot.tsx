@@ -66,8 +66,8 @@ export function TwoLedgersPlot({ parameters, evaluation, clipId }: TwoLedgersPlo
             <rect x="10" y="10" width="600" height="260" rx="8" />
           </clipPath>
           <linearGradient id={`${clipId}-grad`} x1="0%" y1="0%" x2="100%" y2="100%">
-            <stop offset="0%" stopColor="var(--color-bg-subtle, #fbfaf7)" />
-            <stop offset="100%" stopColor="var(--color-bg-inset, #f0ede6)" />
+            <stop offset="0%" stopColor="var(--paper)" />
+            <stop offset="100%" stopColor="var(--wash)" />
           </linearGradient>
           <marker
             id="arrow-pulse1"
@@ -78,7 +78,7 @@ export function TwoLedgersPlot({ parameters, evaluation, clipId }: TwoLedgersPlo
             markerHeight="6"
             orient="auto-start-reverse"
           >
-            <path d="M 0 1.5 L 8 5 L 0 8.5 z" fill="#2563eb" />
+            <path d="M 0 1.5 L 8 5 L 0 8.5 z" fill="var(--plot)" />
           </marker>
           <marker
             id="arrow-pulse2"
@@ -89,7 +89,7 @@ export function TwoLedgersPlot({ parameters, evaluation, clipId }: TwoLedgersPlo
             markerHeight="6"
             orient="auto-start-reverse"
           >
-            <path d="M 0 1.5 L 8 5 L 0 8.5 z" fill="#ea580c" />
+            <path d="M 0 1.5 L 8 5 L 0 8.5 z" fill="var(--accent)" />
           </marker>
           <marker
             id="arrow-velocity"
@@ -100,7 +100,7 @@ export function TwoLedgersPlot({ parameters, evaluation, clipId }: TwoLedgersPlo
             markerHeight="6"
             orient="auto-start-reverse"
           >
-            <path d="M 0 2 L 8 5 L 0 8 z" fill="#059669" />
+            <path d="M 0 2 L 8 5 L 0 8 z" fill="var(--ink)" />
           </marker>
         </defs>
 
@@ -112,7 +112,7 @@ export function TwoLedgersPlot({ parameters, evaluation, clipId }: TwoLedgersPlo
           height="260"
           rx="8"
           fill={`url(#${clipId}-grad)`}
-          stroke="var(--color-border, #d1cfc7)"
+          stroke="var(--line)"
           strokeWidth="1.5"
         />
 
@@ -121,7 +121,7 @@ export function TwoLedgersPlot({ parameters, evaluation, clipId }: TwoLedgersPlo
           <text x="25" y="32" fontSize="13" fontWeight="bold" fill="currentColor">
             Moving Observer Frame (v = {frameSpeed} c)
           </text>
-          <text x="25" y="48" fontSize="11" fill="var(--color-text-muted, #666)">
+          <text x="25" y="48" fontSize="11" fill="var(--muted)">
             Angle φ = {emissionAngle}° relative to velocity vector
           </text>
 
@@ -131,7 +131,7 @@ export function TwoLedgersPlot({ parameters, evaluation, clipId }: TwoLedgersPlo
             y1={cy}
             x2="320"
             y2={cy}
-            stroke="var(--color-border-subtle, #cbd5e1)"
+            stroke="var(--line)"
             strokeDasharray="4 4"
             strokeWidth="1"
           />
@@ -144,7 +144,7 @@ export function TwoLedgersPlot({ parameters, evaluation, clipId }: TwoLedgersPlo
                 y1={cy + 45}
                 x2={cx + (frameSpeed > 0 ? 60 : -60)}
                 y2={cy + 45}
-                stroke="#059669"
+                stroke="var(--ink)"
                 strokeWidth="2.5"
                 markerEnd="url(#arrow-velocity)"
               />
@@ -154,7 +154,7 @@ export function TwoLedgersPlot({ parameters, evaluation, clipId }: TwoLedgersPlo
                 textAnchor="middle"
                 fontSize="11"
                 fontWeight="bold"
-                fill="#059669"
+                fill="var(--ink)"
               >
                 v = {frameSpeed} c
               </text>
@@ -167,7 +167,7 @@ export function TwoLedgersPlot({ parameters, evaluation, clipId }: TwoLedgersPlo
             y1={cy}
             x2={x1}
             y2={y1}
-            stroke="#2563eb"
+            stroke="var(--plot)"
             strokeWidth="3.5"
             markerEnd="url(#arrow-pulse1)"
           />
@@ -177,19 +177,19 @@ export function TwoLedgersPlot({ parameters, evaluation, clipId }: TwoLedgersPlo
             y1={cy}
             x2={x2}
             y2={y2}
-            stroke="#ea580c"
+            stroke="var(--accent)"
             strokeWidth="3.5"
             markerEnd="url(#arrow-pulse2)"
           />
 
           {/* Emitting body at rest in its own frame */}
-          <circle cx={cx} cy={cy} r="16" fill="#334155" stroke="#1e293b" strokeWidth="2" />
+          <circle cx={cx} cy={cy} r="16" fill="var(--ink)" stroke="var(--ink)" strokeWidth="2" />
           <text
             x={cx}
             y={cy + 4}
             textAnchor="middle"
             fontSize="10"
-            fill="#ffffff"
+            fill="var(--paper)"
             fontWeight="bold"
           >
             Body
@@ -202,7 +202,7 @@ export function TwoLedgersPlot({ parameters, evaluation, clipId }: TwoLedgersPlo
             textAnchor={Math.cos(rad) >= 0 ? "start" : "end"}
             fontSize="11"
             fontWeight="bold"
-            fill="#2563eb"
+            fill="var(--plot)"
           >
             Pulse 1: {p1Val.toFixed(4)} L
           </text>
@@ -212,7 +212,7 @@ export function TwoLedgersPlot({ parameters, evaluation, clipId }: TwoLedgersPlo
             textAnchor={Math.cos(rad) <= 0 ? "start" : "end"}
             fontSize="11"
             fontWeight="bold"
-            fill="#ea580c"
+            fill="var(--accent)"
           >
             Pulse 2: {p2Val.toFixed(4)} L
           </text>
@@ -226,8 +226,8 @@ export function TwoLedgersPlot({ parameters, evaluation, clipId }: TwoLedgersPlo
             width="255"
             height="235"
             rx="6"
-            fill="var(--color-bg-card, #ffffff)"
-            stroke="var(--color-border, #e2e8f0)"
+            fill="var(--panel)"
+            stroke="var(--line)"
             strokeWidth="1"
           />
 
@@ -237,7 +237,7 @@ export function TwoLedgersPlot({ parameters, evaluation, clipId }: TwoLedgersPlo
 
           {/* Rest frame ledger */}
           <g transform="translate(12, 35)">
-            <text x="0" y="10" fontSize="11" fontWeight="bold" fill="#475569">
+            <text x="0" y="10" fontSize="11" fontWeight="bold" fill="var(--muted)">
               Rest Frame (K₀):
             </text>
             <text x="0" y="26" fontSize="11" fill="currentColor">
@@ -250,7 +250,7 @@ export function TwoLedgersPlot({ parameters, evaluation, clipId }: TwoLedgersPlo
 
           {/* Moving frame ledger */}
           <g transform="translate(12, 90)">
-            <text x="0" y="10" fontSize="11" fontWeight="bold" fill="#475569">
+            <text x="0" y="10" fontSize="11" fontWeight="bold" fill="var(--muted)">
               Moving Frame (k, speed v):
             </text>
             <text x="0" y="26" fontSize="11" fill="currentColor">
@@ -263,11 +263,11 @@ export function TwoLedgersPlot({ parameters, evaluation, clipId }: TwoLedgersPlo
           </g>
 
           {/* Divider */}
-          <line x1="12" y1="145" x2="243" y2="145" stroke="#cbd5e1" strokeWidth="1" />
+          <line x1="12" y1="145" x2="243" y2="145" stroke="var(--line)" strokeWidth="1" />
 
           {/* The Subtraction Move */}
           <g transform="translate(12, 155)">
-            <text x="0" y="12" fontSize="11" fontWeight="bold" fill="#0f172a">
+            <text x="0" y="12" fontSize="11" fontWeight="bold" fill="var(--ink)">
               The Subtraction Move:
             </text>
             <text x="0" y="28" fontSize="11" fill="currentColor" fontFamily="monospace">
@@ -275,11 +275,11 @@ export function TwoLedgersPlot({ parameters, evaluation, clipId }: TwoLedgersPlo
             </text>
             <text x="0" y="44" fontSize="11" fill="currentColor">
               Drop in energy of motion:{" "}
-              <tspan fontWeight="bold" fill={isRelaxed ? "#b45309" : "#059669"}>
+              <tspan fontWeight="bold" fill={isRelaxed ? "var(--accent)" : "var(--plot)"}>
                 {isRelaxed ? "Underdetermined" : `${subVal.toFixed(4)} L`}
               </tspan>
             </text>
-            <text x="0" y="58" fontSize="10" fill="var(--color-text-muted, #64748b)">
+            <text x="0" y="58" fontSize="10" fill="var(--muted)">
               {isRelaxed
                 ? "Premise relaxed: C ≠ C' leaves ΔK unknown."
                 : "Internal rest energies cancel out."}

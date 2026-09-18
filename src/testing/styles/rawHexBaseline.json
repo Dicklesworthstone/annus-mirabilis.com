@@ -13,7 +13,7 @@
   "src/components/lab/lq08/PhotoelectricPlot.tsx": 16,
   "src/components/lab/lq09/IonizationLab.tsx": 0,
   "src/components/lab/lq09/IonizationPlot.tsx": 11,
-  "src/components/lab/me01/TwoLedgersPlot.tsx": 26,
+  "src/components/lab/me01/TwoLedgersPlot.tsx": 0,
   "src/components/lab/me03/BoundaryLedgerPlot.tsx": 0,
   "src/components/lab/me03/PhotonBoxPlot.tsx": 23,
   "src/components/lab/sr06/VelocityCompositionPlot.tsx": 4,
