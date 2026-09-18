@@ -205,6 +205,32 @@ describe("staleness guard: gloss-stale evaluated by digest comparison", () => {
 });
 
 describe("component fidelity guards: math-order-differs, reference-atoms-differ, footnote-marks-differ", () => {
+  test("PLANTED: inline math atoms differing between German and English emit math-atoms-differ at component check", () => {
+    const components: readonly AlignmentComponent[] = [
+      {
+        germanUnits: [{ id: "s1-p1-s1", mathAtoms: ["V"] }],
+        englishUnits: [{ id: "s1-p1-s1", mathAtoms: ["c"] }],
+      },
+    ];
+    const issues = validateInlineMathematics(components);
+    const issue = issues.find((i) => i.code === "math-atoms-differ");
+    expect(issue).toBeDefined();
+    expect(issue?.message).toContain(
+      "Inline math atoms differ: missing in English: [V]; extra in English: [c]",
+    );
+  });
+
+  test("matching inline math atoms pass component check without math-atoms-differ", () => {
+    const components: readonly AlignmentComponent[] = [
+      {
+        germanUnits: [{ id: "s1-p1-s1", mathAtoms: ["V"] }],
+        englishUnits: [{ id: "s1-p1-s1", mathAtoms: ["V"] }],
+      },
+    ];
+    const issues = validateInlineMathematics(components);
+    expect(issues.filter((i) => i.code === "math-atoms-differ")).toHaveLength(0);
+  });
+
   test("PLANTED: reordered math atoms in alignment component emit warning math-order-differs", () => {
     const components = [
       {
@@ -571,7 +597,7 @@ describe("terminology guards: term-definition-too-short, term-missing-german-lan
 });
 
 describe("gloss validation guards: gloss-unit-unknown, gloss-missing-token, gloss-token-collision", () => {
-  test("PLANTED: gloss addressing a paragraph block id or unknown unit refuses with gloss-unit-unknown", () => {
+  test("PLANTED: gloss addressing a paragraph block id refuses with gloss-unit-unknown at block-syntax check", () => {
     const text = "Die Brownsche Bewegung";
     const digest = createHash("sha256").update(text, "utf8").digest("hex");
     const issues = validateGloss({
@@ -589,6 +615,26 @@ describe("gloss validation guards: gloss-unit-unknown, gloss-missing-token, glos
     expect(issue).toBeDefined();
     expect(issue?.sourceId).toBe("s0-p1");
     expect(issue?.message).toContain("not an alignable unit");
+  });
+
+  test("PLANTED: gloss addressing an unknown alignable unit id refuses with gloss-unit-unknown at lookup check", () => {
+    const text = "Die Brownsche Bewegung";
+    const digest = createHash("sha256").update(text, "utf8").digest("hex");
+    const issues = validateGloss({
+      glossUnits: [
+        {
+          sentenceId: "s1-p1-s99", // valid sentence ID syntax, but not in alignableUnits
+          sourceTextDigest: digest,
+          attribution: { id: "alice", kind: "human" },
+          editor: { id: "bob", kind: "human" },
+        },
+      ],
+      alignableUnits: [{ id: "s1-p1-s1", text, digest }],
+    });
+    const issue = issues.find((i) => i.code === "gloss-unit-unknown");
+    expect(issue).toBeDefined();
+    expect(issue?.sourceId).toBe("s1-p1-s99");
+    expect(issue?.message).toContain('Gloss unit references unknown alignable unit "s1-p1-s99"');
   });
 
   test("gloss addressing a valid sentence id passes gloss unit address check", () => {
