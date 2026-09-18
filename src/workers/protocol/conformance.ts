@@ -323,13 +323,16 @@ export async function runProtocolConformance(
       if (!decoded.ok) {
         return { passed: false, message: `Refusal rejected: ${decoded.reason}` };
       }
-      if (
-        decoded.message.messageKind !== "refusal" ||
-        decoded.message.refusal.code !== "ftcs-unstable"
-      ) {
+      if (decoded.message.messageKind !== "refusal") {
         return {
           passed: false,
-          message: `Expected ftcs-unstable refusal, got ${(decoded.message as any).refusal?.code}`,
+          message: `Expected refusal, got ${decoded.message.messageKind}`,
+        };
+      }
+      if (decoded.message.refusal.code !== "ftcs-unstable") {
+        return {
+          passed: false,
+          message: `Expected ftcs-unstable refusal, got ${decoded.message.refusal.code}`,
         };
       }
       return { passed: true, message: "Native refusal round trip validated successfully." };
@@ -371,7 +374,7 @@ export async function runProtocolConformance(
       }
       if (
         !mapped.refusal.details ||
-        (mapped.refusal.details as any).upstreamCode !== "unsupported-step-kernel"
+        mapped.refusal.details["upstreamCode"] !== "unsupported-step-kernel"
       ) {
         return { passed: false, message: "Upstream code was not preserved in refusal details." };
       }
@@ -406,16 +409,17 @@ export async function runProtocolConformance(
       if (mapped.messageKind !== "outcome") {
         return { passed: false, message: `Expected outcome, got ${mapped.messageKind}` };
       }
-      if (mapped.outcome.outcome !== "budget-exhausted") {
+      const outcome = mapped.outcome;
+      if (outcome.outcome !== "budget-exhausted") {
         return {
           passed: false,
-          message: `Expected budget-exhausted, got ${mapped.outcome.outcome}`,
+          message: `Expected budget-exhausted, got ${outcome.outcome}`,
         };
       }
-      if ((mapped.outcome as any).requested.workUnits !== 4000000) {
+      if (outcome.requested.workUnits !== 4000000) {
         return {
           passed: false,
-          message: `Expected 4000000 requested workUnits, got ${(mapped.outcome as any).requested.workUnits}`,
+          message: `Expected 4000000 requested workUnits, got ${outcome.requested.workUnits}`,
         };
       }
       return { passed: true, message: "Budget envelope mapped to budget-exhausted outcome." };
@@ -447,10 +451,16 @@ export async function runProtocolConformance(
         issuedActionIndices,
       };
       const decoded = decode(resp, context);
-      if (decoded.ok || decoded.code !== "nonfinite-value") {
+      if (decoded.ok) {
         return {
           passed: false,
-          message: `Expected nonfinite-value rejection, got ${(decoded as any).code}`,
+          message: `Expected nonfinite-value rejection, but message was accepted as ${decoded.message.messageKind}`,
+        };
+      }
+      if (decoded.code !== "nonfinite-value") {
+        return {
+          passed: false,
+          message: `Expected nonfinite-value rejection, got ${decoded.code}`,
         };
       }
       return {
@@ -485,10 +495,16 @@ export async function runProtocolConformance(
         issuedActionIndices,
       };
       const decoded = decode(resp, context);
-      if (decoded.ok || decoded.code !== "stale-action-index") {
+      if (decoded.ok) {
         return {
           passed: false,
-          message: `Expected stale-action-index rejection, got ${(decoded as any).code}`,
+          message: `Expected stale-action-index rejection, but message was accepted as ${decoded.message.messageKind}`,
+        };
+      }
+      if (decoded.code !== "stale-action-index") {
+        return {
+          passed: false,
+          message: `Expected stale-action-index rejection, got ${decoded.code}`,
         };
       }
       return { passed: true, message: "Older actionIndex rejected as stale-action-index." };
@@ -520,10 +536,16 @@ export async function runProtocolConformance(
         issuedActionIndices,
       };
       const decoded = decode(resp, context);
-      if (decoded.ok || decoded.code !== "stale-step-index") {
+      if (decoded.ok) {
         return {
           passed: false,
-          message: `Expected stale-step-index rejection, got ${(decoded as any).code}`,
+          message: `Expected stale-step-index rejection, but message was accepted as ${decoded.message.messageKind}`,
+        };
+      }
+      if (decoded.code !== "stale-step-index") {
+        return {
+          passed: false,
+          message: `Expected stale-step-index rejection, got ${decoded.code}`,
         };
       }
       return { passed: true, message: "Non-increasing stepIndex rejected as stale-step-index." };
@@ -555,10 +577,16 @@ export async function runProtocolConformance(
         issuedActionIndices,
       };
       const decoded = decode(resp, context);
-      if (decoded.ok || decoded.code !== "stale-run-id") {
+      if (decoded.ok) {
         return {
           passed: false,
-          message: `Expected stale-run-id rejection, got ${(decoded as any).code}`,
+          message: `Expected stale-run-id rejection, but message was accepted as ${decoded.message.messageKind}`,
+        };
+      }
+      if (decoded.code !== "stale-run-id") {
+        return {
+          passed: false,
+          message: `Expected stale-run-id rejection, got ${decoded.code}`,
         };
       }
       return { passed: true, message: "Superseded runId rejected as stale-run-id." };
@@ -589,14 +617,24 @@ export async function runProtocolConformance(
         issuedActionIndices, // does not include 9999
       };
       const decoded = decode(resp, context);
-      if (decoded.ok || decoded.code !== "unissued-action-index") {
+      if (decoded.ok) {
         return {
           passed: false,
-          message: `Expected unissued-action-index, got ${(decoded as any).code}`,
+          message: `Expected unissued-action-index rejection, but message was accepted as ${decoded.message.messageKind}`,
           details: {
             rawMessage: resp,
             decodeContext: context,
-            rejectionCode: (decoded as any).code,
+          },
+        };
+      }
+      if (decoded.code !== "unissued-action-index") {
+        return {
+          passed: false,
+          message: `Expected unissued-action-index, got ${decoded.code}`,
+          details: {
+            rawMessage: resp,
+            decodeContext: context,
+            rejectionCode: decoded.code,
           },
         };
       }
@@ -634,14 +672,24 @@ export async function runProtocolConformance(
         issuedActionIndices,
       };
       const decoded = decode(resp, context);
-      if (decoded.ok || decoded.code !== "stale-action-index") {
+      if (decoded.ok) {
         return {
           passed: false,
-          message: `Expected stale-action-index, got ${(decoded as any).code}`,
+          message: `Expected stale-action-index rejection, but message was accepted as ${decoded.message.messageKind}`,
           details: {
             rawMessage: resp,
             decodeContext: context,
-            rejectionCode: (decoded as any).code,
+          },
+        };
+      }
+      if (decoded.code !== "stale-action-index") {
+        return {
+          passed: false,
+          message: `Expected stale-action-index, got ${decoded.code}`,
+          details: {
+            rawMessage: resp,
+            decodeContext: context,
+            rejectionCode: decoded.code,
           },
         };
       }
@@ -677,14 +725,24 @@ export async function runProtocolConformance(
         issuedActionIndices,
       };
       const decoded = decode(resp, context);
-      if (decoded.ok || decoded.code !== "unregistered-refusal-code") {
+      if (decoded.ok) {
         return {
           passed: false,
-          message: `Expected unregistered-refusal-code, got ${(decoded as any).code}`,
+          message: `Expected unregistered-refusal-code rejection, but message was accepted as ${decoded.message.messageKind}`,
           details: {
             rawMessage: resp,
             decodeContext: context,
-            rejectionCode: (decoded as any).code,
+          },
+        };
+      }
+      if (decoded.code !== "unregistered-refusal-code") {
+        return {
+          passed: false,
+          message: `Expected unregistered-refusal-code, got ${decoded.code}`,
+          details: {
+            rawMessage: resp,
+            decodeContext: context,
+            rejectionCode: decoded.code,
           },
         };
       }
