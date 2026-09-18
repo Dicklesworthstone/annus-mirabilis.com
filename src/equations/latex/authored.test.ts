@@ -13,6 +13,7 @@
 import assert from "node:assert/strict";
 import test from "node:test";
 import { AuthoredLatexError, convertAuthoredLatex } from "./authored.ts";
+import { LatexTokenizerError } from "./tokenize.ts";
 
 test("authored.test: valid authored exception converts to HTML markup", () => {
   const input = "\\amterm{t_E}{\\lambda_x} = \\sqrt{2\\,\\amterm{t_D}{D}\\,\\amterm{t_t}{t}}";
@@ -128,8 +129,8 @@ test("authored.test: marker body with extra payload is rejected", () => {
 });
 
 test("authored.test: malformed marker missing '{id}' brace is rejected (authored.ts:90)", () => {
-  // Rejection: missing open brace before ID
-  const invalid = "\\amterm id}{x}";
+  // Rejection: missing open brace before ID (balanced braces in content)
+  const invalid = "\\amterm x{content}";
   assert.throws(
     () => convertAuthoredLatex(invalid),
     (err: unknown) => {
@@ -201,4 +202,46 @@ test("authored.test: malformed marker unterminated '{content}' is rejected (auth
   const valid = "\\amterm{t1}{x}";
   const res = convertAuthoredLatex(valid);
   assert.ok(res.latex.includes("\\htmlData{term=t1}"));
+});
+
+test("authored.test: strict LaTeX tokenizer guards are active in convertAuthoredLatex (TanElk probes)", () => {
+  // Probe 1: \frac{a}{b (unbalanced open brace)
+  assert.throws(
+    () => convertAuthoredLatex("\\frac{a}{b"),
+    (err: unknown) => {
+      assert.ok(err instanceof LatexTokenizerError);
+      assert.equal(err.kind, "unbalanced-open-brace");
+      return true;
+    },
+  );
+
+  // Probe 2: a} (unbalanced close brace)
+  assert.throws(
+    () => convertAuthoredLatex("a}"),
+    (err: unknown) => {
+      assert.ok(err instanceof LatexTokenizerError);
+      assert.equal(err.kind, "unbalanced-close-brace");
+      return true;
+    },
+  );
+
+  // Probe 3: \begin{matrix} a (unterminated environment)
+  assert.throws(
+    () => convertAuthoredLatex("\\begin{matrix} a"),
+    (err: unknown) => {
+      assert.ok(err instanceof LatexTokenizerError);
+      assert.equal(err.kind, "unterminated-environment");
+      return true;
+    },
+  );
+
+  // Probe 4: {{{unclosed (unbalanced open brace)
+  assert.throws(
+    () => convertAuthoredLatex("{{{unclosed"),
+    (err: unknown) => {
+      assert.ok(err instanceof LatexTokenizerError);
+      assert.equal(err.kind, "unbalanced-open-brace");
+      return true;
+    },
+  );
 });

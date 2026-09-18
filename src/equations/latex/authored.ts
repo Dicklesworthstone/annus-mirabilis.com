@@ -8,7 +8,7 @@
  */
 
 import { wrapHtmlClass, wrapHtmlData } from "./markers.ts";
-import { type LatexToken, LatexTokenizerError, tokenizeLatex } from "./tokenize.ts";
+import { tokenizeLatex } from "./tokenize.ts";
 
 export type AuthoredLatexErrorKind =
   | "raw-htmldata-forbidden"
@@ -53,17 +53,15 @@ export function convertAuthoredLatex(
   input: string,
   options: ConvertAuthoredOptions = {},
 ): ConvertAuthoredResult {
-  const tokens = tokenizeLatex(input, { allowUnbalanced: true });
-
-  // Rule 1: Raw \htmlData is strictly forbidden in authored input
-  for (const token of tokens) {
-    if (token.kind === "control-word" && (token.value === "\\htmlData" || token.value === "\\htmlClass")) {
-      throw new AuthoredLatexError({
-        kind: "raw-htmldata-forbidden",
-        offset: token.offset,
-        message: `Raw "${token.value}" is strictly forbidden in authored LaTeX at offset ${token.offset}. Use \\amterm or \\amop instead.`,
-      });
-    }
+  // Rule 1: Raw \htmlData and \htmlClass are strictly forbidden in authored input
+  const rawHtmlMatch = /\\(htmlData|htmlClass)(?![a-zA-Z])/.exec(input);
+  if (rawHtmlMatch) {
+    const cmd = `\\${rawHtmlMatch[1]}`;
+    throw new AuthoredLatexError({
+      kind: "raw-htmldata-forbidden",
+      offset: rawHtmlMatch.index,
+      message: `Raw "${cmd}" is strictly forbidden in authored LaTeX at offset ${rawHtmlMatch.index}. Use \\amterm or \\amop instead.`,
+    });
   }
 
   // Parse \amterm{id}{content} and \amop{id}{content}
@@ -203,6 +201,9 @@ export function convertAuthoredLatex(
       }
     }
   }
+
+  // Validate the resulting LaTeX syntax with strict tokenizer
+  tokenizeLatex(out);
 
   return {
     latex: out,
