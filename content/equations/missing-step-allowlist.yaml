@@ -1,0 +1,10 @@
+{
+  "schemaVersion": 1,
+  "chains": [
+    {
+      "chainId": "chain-bm-variance-of-sum",
+      "initialCase": true,
+      "evidenceIds": []
+    }
+  ]
+}

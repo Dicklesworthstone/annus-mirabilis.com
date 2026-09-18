@@ -1,3 +1,4 @@
+import { constantValue, convert, getConstantSet } from "../../physics/reference/constants.ts";
 import { makeRefusal } from "../results/refusals.ts";
 import { ME02_DEFAULTS, type Me02Parameters } from "./definition.ts";
 
@@ -37,6 +38,13 @@ export function validateMe02Parameters(input: unknown): Me02ParameterCheck {
       refusal: makeRefusal("invalid-parameter", { parameterIds: ["energyUnit"] }),
     };
   }
+  if (energyUnit === "erg" && convert(emittedEnergy, "erg", "J") === 0) {
+    return { kind: "refused", refusal: makeRefusal("invalid-parameter", { parameterIds: ["emittedEnergy"] }) };
+  }
+  if ((o.showNaive !== undefined && typeof o.showNaive !== "boolean") ||
+      (o.notation !== undefined && o.notation !== "printed" && o.notation !== "modern")) {
+    return { kind: "refused", refusal: makeRefusal("invalid-parameter", { parameterIds: ["notation", "showNaive"] }) };
+  }
   if (speedAxis !== "linear" && speedAxis !== "logarithmic") {
     return {
       kind: "refused",
@@ -57,8 +65,10 @@ export function validateMe02Parameters(input: unknown): Me02ParameterCheck {
 }
 
 export function me02InputFromParameters(p: Me02Parameters) {
-  const speedOfLight = p.energyUnit === "normalized" ? 1 : 299792458;
-  return { beta: p.beta, emittedEnergy: p.emittedEnergy, speedOfLight };
+  const speedOfLight = p.energyUnit === "normalized" ? 1
+    : constantValue(getConstantSet("modern-si-2019"), "speedOfLight").value;
+  const emittedEnergy = p.energyUnit === "erg" ? convert(p.emittedEnergy, "erg", "J") : p.emittedEnergy;
+  return { beta: p.beta, emittedEnergy, speedOfLight };
 }
 
 export { ME02_DEFAULTS };

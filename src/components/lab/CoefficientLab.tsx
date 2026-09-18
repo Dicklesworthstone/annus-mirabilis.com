@@ -1,5 +1,5 @@
 "use client";
-import { type FormEvent, useEffect, useId, useState, useSyncExternalStore } from "react";
+import { type FormEvent, useEffect, useId, useRef, useState, useSyncExternalStore } from "react";
 import {
   ME02_CAPTION,
   ME02_MODEL,
@@ -7,6 +7,7 @@ import {
   ME02_PREDICT_PROMPT,
   type Me02Parameters,
 } from "../../experiments/me02/definition.ts";
+import { decodeMe02Settings, encodeMe02Settings } from "../../experiments/me02/permalink.ts";
 import { validateMe02Parameters } from "../../experiments/me02/parameters.ts";
 import { createMe02Session, type PreparedMe02Example } from "../../experiments/me02/session.ts";
 import {
@@ -172,9 +173,19 @@ export function CoefficientLab({
   const [predictRecord, setPredictRecord] = useState<PredictPromptRecord>(() =>
     beginPrompt(ME02_PREDICT_PROMPT.promptId),
   );
+  const linkLoaded = useRef(false);
   useEffect(() => {
+    if (linkLoaded.current) return;
+    linkLoaded.current = true;
+    const linked = decodeMe02Settings(window.location.search);
+    if (linked.kind === "invalid") setError(`${linked.message} The prepared example is unchanged.`);
+    if (linked.kind === "settings") {
+      const outcome = session.apply(linked.parameters);
+      if (outcome.kind === "accepted") setDraft(linked.parameters);
+      else setError(outcome.refusal.message);
+    }
     setReady(true);
-  }, []);
+  }, [session]);
   function apply(parameters: Me02Parameters) {
     const outcome = session.apply(parameters);
     if (outcome.kind === "refused") {
@@ -213,6 +224,7 @@ export function CoefficientLab({
       className="laboratory"
       aria-labelledby={`${id}-title`}
       data-instrument-id="me-02"
+      data-settings-ready={ready}
       {...identity(snapshot)}
       data-input-revision={view.requested?.revisions.input ?? snapshot.revisions.input}
       data-accepted-input-revision={snapshot.revisions.input}
@@ -331,7 +343,9 @@ export function CoefficientLab({
               />{" "}
               Show the naive evaluation of gamma minus one (diagnostic only)
             </label>
+            <p className="fine">Changing the input unit reinterprets the entered number and creates a new setup. Physical outputs use joules and kilograms; normalized mode uses c = 1 and normalized energy and mass units.</p>
             <button type="submit">Apply settings</button>
+            <p><a data-settings-permalink href={encodeMe02Settings(p)}>Permalink to the accepted configuration</a></p>
             {error ? (
               <p id={`${id}-error`} className="notice" role="alert">
                 {error}
@@ -361,6 +375,7 @@ export function CoefficientLab({
             <table>
               <caption>
                 Outputs from the host calculation. Presentation does not recompute them.
+                {p.energyUnit === "normalized" ? " Normalized energy and mass units (c = 1)." : " Energy in joules; mass in kilograms. Erg inputs are converted to SI before calculation."}
               </caption>
               <tbody>
                 <tr>

@@ -14,6 +14,7 @@ import { nodeId } from "../ast.ts";
 export function expressionToDerivationLatex(
   tree: Expression,
   highlightIds?: ReadonlySet<string>,
+  annotate = false,
 ): string {
   const render = (n: Expression): string => {
     let s: string;
@@ -103,7 +104,9 @@ export function expressionToDerivationLatex(
 
     const id = nodeId(n);
     if (id && highlightIds?.has(id)) {
-      s = `\\mathbf{${s}}`;
+      s = annotate
+        ? `\\htmlData{expression-id=${id}}{\\boxed{${s}}}`
+        : `\\mathbf{${s}}`;
     }
 
     return s;

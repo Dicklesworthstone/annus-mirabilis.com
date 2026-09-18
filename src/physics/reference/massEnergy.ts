@@ -893,7 +893,12 @@ export function evaluateSubtraction(
   premise: Me01Premise;
 }> {
   const g = 1 / Math.sqrt(1 - frameSpeed * frameSpeed);
-  const sub = emittedEnergyRestFrame * (g - 1);
+  // Reuse the cancellation-free owner: gamma - 1 rounds to zero at walking speeds.
+  const difference = gammaMinusOne(frameSpeed);
+  if (difference.status !== "value") {
+    throw new RangeError("Subtraction requires a finite subluminal observer speed.");
+  }
+  const sub = emittedEnergyRestFrame * difference.value;
   return Object.freeze({
     subtractionValue: sub,
     lorentzFactor: g,

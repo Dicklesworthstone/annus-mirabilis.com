@@ -1,0 +1,5 @@
+.replay-save { border-top: 1px solid var(--line, currentColor); margin-top: 2rem; padding-top: 1rem; }
+.replay-save fieldset { display: grid; gap: .5rem; min-width: 0; }
+.replay-save textarea { font: inherit; width: 100%; max-width: 100%; min-width: 0; box-sizing: border-box; }
+.replay-save button { min-height: 44px; white-space: normal; }
+@media print { .replay-save { display: none !important; } }

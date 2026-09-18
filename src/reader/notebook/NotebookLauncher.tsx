@@ -11,13 +11,13 @@ export function NotebookLauncher() {
   useEffect(() => {
     let disposed = false;
     let disconnect: (() => void) | undefined;
-    void Promise.all([import("./browser.ts"), import("./notebookStore.ts"), import("./storage.ts")])
-      .then(([browser, notebook, storage]) => {
+    void Promise.all([import("./browser.ts"), import("./browserStore.ts")])
+      .then(([browser, notebook]) => {
         if (disposed || !trigger.current || !host.current) return;
         disconnect = browser.mountReaderNotebook(
           host.current,
           trigger.current,
-          notebook.createNotebookStore(storage.createNotebookStorage()),
+          notebook.getNotebookStore(),
         );
       })
       .catch(() => {

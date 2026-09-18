@@ -240,7 +240,7 @@ const BROWNIAN_SHELF_CARDS: readonly KnowledgeCard[] = [
 const DISPLACEMENT_SCALE_EXERCISE: ExpressionExercisePart = {
   id: "bm-displacement-scale-rewrite",
   prompt:
-    "The root-mean-square displacement scale is often written 2·sqrt(D·t). Write it a different way, as sqrt(4·D·t).",
+    "The two-dimensional RMS radial displacement is often written 2·sqrt(D·t). Write it a different way, as sqrt(4·D·t).",
   declaredNames: ["D", "t"],
   domains: {
     D: { min: 1e-14, max: 1e-10, scale: "log" },
@@ -266,6 +266,7 @@ export default function BrownianEncounter() {
           process. You can read every step without running a simulation.
         </p>
       </header>
+      <p className="reading"><a href="/papers/brownian-motion/s4/?open=derivation-step:bm-variance-cross#arg-bm-independent-steps">Why the mean square is tractable: inspect the cross-term step →</a></p>
       <section>
         <p className="step-number">01 / Choose a quantity</p>
         <h2>Averages can hide motion.</h2>

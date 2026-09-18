@@ -18,6 +18,8 @@ export type ContentRouteKind =
   | "argument"
   | "entrance"
   | "equation"
+  | "derivation-chain"
+  | "derivation-policy"
   | "foundation"
   | "foundation-extension"
   | "citation"
@@ -96,9 +98,23 @@ export const CONTENT_ROUTES: readonly ContentRoute[] = [
     extractParams: (m) => ({ paper: m[1] ?? "", id: m[2] ?? "", format: m[3] ?? "" }),
   },
 
-  // 4. Equations
+  // 4. Worked derivations have their own owner; they are not Equation records.
   {
-    pattern: /^(?:content\/)?equations\/([a-z0-9-]+)\/([a-z0-9-]+)\.(json|yaml|yml)$/,
+    pattern: /^(?:content\/)?equations\/derivations\/([a-z0-9-]+)\.yaml$/,
+    kind: "derivation-chain",
+    schema: "MissingStepLesson",
+    format: "json",
+    extractParams: (m) => ({ id: m[1] ?? "" }),
+  },
+  {
+    pattern: /^(?:content\/)?equations\/missing-step-allowlist\.yaml$/,
+    kind: "derivation-policy",
+    schema: "MissingStepAllowlist",
+    format: "json",
+  },
+  // Equations
+  {
+    pattern: /^(?:content\/)?equations\/((?!derivations\/)[a-z0-9-]+)\/([a-z0-9-]+)\.(json|yaml|yml)$/,
     kind: "equation",
     schema: "Equation",
     format: "json",

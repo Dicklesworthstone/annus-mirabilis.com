@@ -95,3 +95,11 @@
     display: none !important;
   }
 }
+
+.notebook-replay h5 { font-size: 1.1rem; margin-block: 1rem .5rem; }
+.notebook-replay pre { white-space: pre-wrap; overflow-wrap: anywhere; font-size: .8rem; }
+.notebook-replay .replay-table { max-width: 100%; overflow-x: auto; }
+.notebook-replay table { border-collapse: collapse; width: 100%; min-width: 28rem; font-size: .85rem; }
+.notebook-replay td { white-space: nowrap; }
+.notebook-replay td, .notebook-replay th { border: 1px solid var(--line, currentColor); padding: .35rem; text-align: left; }
+.notebook-replay [data-fresh-replay]:not(:empty) { border: 2px solid var(--ink, currentColor); padding: .5rem; margin-top: 1rem; }

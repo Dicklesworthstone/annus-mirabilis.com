@@ -17,8 +17,13 @@ import {
   comparisonStatement,
 } from "../../experiments/compare/comparisonStatement.ts";
 import "../../experiments/compare/comparison.css";
+import { SaveComparisonReplay } from "../../reader/notebook/SaveComparisonReplay.tsx";
+import { REPLAY_PREDICTIONS, type ReplayPassage, type ReplayPrediction } from "../../reader/notebook/replayEntry.ts";
+import { predictionIntent, predictionForAccepted, type ComparisonPredictionIntent } from "../../reader/notebook/predictionIntent.ts";
 
-export function BrownianComparisonLab({ example }: { example: PreparedBm01Comparison }) {
+export function BrownianComparisonLab({ example, passage = {contentRevision:null,translationRevision:null} }: {
+  example: PreparedBm01Comparison; passage?: ReplayPassage;
+}) {
   const uid = useId();
   const [controller] = useState(() =>
     createBm01ComparisonSession(`comparison-${uid}`, example, createBm01BrowserChannel),
@@ -29,6 +34,8 @@ export function BrownianComparisonLab({ example }: { example: PreparedBm01Compar
     controller.getServerSnapshot,
   );
   const [ready, setReady] = useState(false);
+  const [nextPrediction, setNextPrediction] = useState<ReplayPrediction | null>(null);
+  const [issuedPrediction, setIssuedPrediction] = useState<ComparisonPredictionIntent | null>(null);
   const [selected, setSelected] = useState<(typeof BM01_COMPARABLE_INPUTS)[number]>("a");
   const [draft, setDraft] = useState(String(example.doubledRadius.parameters.a * 1e6));
   const [dirty, setDirty] = useState(false),
@@ -53,7 +60,9 @@ export function BrownianComparisonLab({ example }: { example: PreparedBm01Compar
       setError("Enter a finite number in the displayed unit.");
       return;
     }
-    if (controller.apply({ ...state.variant.parameters, [selected]: value })) setDirty(false);
+    const requested = { ...state.variant.parameters, [selected]: value };
+    const intent = predictionIntent(nextPrediction, state, requested);
+    if (controller.apply(requested)) { setIssuedPrediction(intent); setDirty(false); }
   }
   function submit(event: FormEvent<HTMLFormElement>) {
     event.preventDefault();
@@ -103,6 +112,7 @@ export function BrownianComparisonLab({ example }: { example: PreparedBm01Compar
           disabled={!ready || state.pending}
           onClick={() => {
             setError("");
+            setIssuedPrediction(null);
             controller.start();
           }}
         >
@@ -114,6 +124,7 @@ export function BrownianComparisonLab({ example }: { example: PreparedBm01Compar
           disabled={!enabled}
           onClick={() => {
             setError("");
+            setIssuedPrediction(null);
             controller.pinCurrent();
           }}
         >
@@ -136,6 +147,15 @@ export function BrownianComparisonLab({ example }: { example: PreparedBm01Compar
       <form onSubmit={submit} noValidate aria-label="Controlled comparison settings">
         <fieldset disabled={!enabled}>
           <legend>Vary one independent input</legend>
+          <label htmlFor={`${uid}-prediction`}>Optional prediction for the next request: coordinate RMS displacement</label>
+          <select id={`${uid}-prediction`} value={nextPrediction ?? ""} onChange={event => {
+            const value = event.target.value;
+            setNextPrediction(Object.hasOwn(REPLAY_PREDICTIONS,value) ? value as ReplayPrediction : null);
+          }}>
+            <option value="">No prediction</option>
+            {Object.entries(REPLAY_PREDICTIONS).map(([value,label])=><option key={value} value={value}>{label}</option>)}
+          </select>
+          <p className="fine">Your choice is recorded only when you apply a request. Changing it afterward does not alter a completed result’s prediction.</p>
           <div className="comparison-controls">
             <div>
               <label htmlFor={`${uid}-input`}>Input to vary</label>
@@ -280,6 +300,8 @@ export function BrownianComparisonLab({ example }: { example: PreparedBm01Compar
           Open the completed variant settings in the full tracer lab
         </a>
       </p>
+      <SaveComparisonReplay state={state} passage={passage} ready={ready}
+        prediction={predictionForAccepted(issuedPrediction,state)} />
     </section>
   );
 }

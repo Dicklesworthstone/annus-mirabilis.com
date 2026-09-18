@@ -1,4 +1,8 @@
 import { notFound } from "next/navigation";
+import { validateEntranceRecord } from "../content/entrances/entranceRecord.ts";
+import entranceExample from "../generated/mass-energy-entrance.json";
+import { MassEnergyFirstEncounter } from "./entrances/MassEnergyFirstEncounter.tsx";
+import type { MassEnergyEntranceScenario } from "./entrances/massEnergyExample.ts";
 import { loadPaper } from "../content/server.ts";
 import { passageActionsFromArgument } from "./actions/fromArgument.ts";
 import { PassageActionsBar } from "./actions/PassageActionsBar.tsx";
@@ -37,10 +41,12 @@ export async function PaperPage(request: PaperRouteRequest) {
   const sectionId = resolved.section;
   const sections = sectionId ? paper.sections.filter((s) => s.id === sectionId) : paper.sections;
   const args = payload.arguments.filter((a) => sections.some((s) => s.id === a.section));
-  const anchors = [...args.map((a) => a.id), ...sections.map((s) => s.id)];
+  const entrance = paper.id === "mass-energy" ? validateEntranceRecord(entranceExample.record) : null;
+  const anchors = [...(entrance ? ["entry-mass-energy"] : []), ...args.map((a) => a.id), ...sections.map((s) => s.id)];
   const registry = { paperId: paper.id, anchors, foundations: foundations.map((f) => f.id) };
   const titles = Object.fromEntries(foundations.map((f) => [f.id, f.title]));
   const questions = Object.fromEntries(args.map((a) => [a.id, a.question]));
+  if (entrance) questions["entry-mass-energy"] = entrance.question;
 
   return (
     <div data-reader-root data-ready="true" data-view="reading" className="reader-root">
@@ -81,6 +87,10 @@ export async function PaperPage(request: PaperRouteRequest) {
           </nav>
         </aside>
         <div className="reader-body">
+          {entrance && <MassEnergyFirstEncounter record={entrance}
+            scenarios={entranceExample.scenarios as readonly MassEnergyEntranceScenario[]}
+            sourceDigest={entranceExample.sourceDigest} />}
+
           {sections.map((s) => (
             <section key={s.id} id={s.id} tabIndex={-1} className="reader-section">
               <h2>{s.title}</h2>
@@ -218,6 +228,13 @@ export async function PaperPage(request: PaperRouteRequest) {
           ))}
         </div>
       </div>
+      <section className="reading" aria-label="References for this explanatory preview">
+        <h2>References and source status</h2>
+        <p>{paper.sourceNotice}</p>
+        {payload.citations.map(citation => <p key={citation.id}>
+          <a href={citation.url}>{citation.title}</a>. {citation.locator}
+        </p>)}
+      </section>
       <p className="fine">{foundations.length} foundation readings sit behind this argument.</p>
       <dialog className="clarification-dialog" data-clarification-dialog aria-modal="true">
         <nav className="reader-compass" aria-label="Explanation compass">

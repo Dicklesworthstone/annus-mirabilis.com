@@ -1,3 +1,4 @@
+import { REGISTERED_IDS } from "../../experiments/catalogue.ts";
 /**
  * Core Content Compiler Pipeline.
  * Coordinates loading, schema validation, indexing, reference resolution,
@@ -6,6 +7,7 @@
  * Spec: AGENTS.md and am-cm-compiler-core-oa7
  */
 
+import { checkMissingStepContent } from "../../equations/missingStep/contentCheck.ts";
 import type { EquationRecord } from "../../equations/record.ts";
 import { registerPrintCoverageCheck } from "../../platform/print/printCoverage.ts";
 import { registerEpistemicChecks } from "../checks/epistemic/register.ts";
@@ -155,6 +157,9 @@ export async function compileContent(
       continue;
     }
 
+    // These authored bridges are validated together once their argument targets are known.
+    if (routeMatch.kind === "derivation-chain" || routeMatch.kind === "derivation-policy") continue;
+
     // Allow documentation files without schema parsing
     if (routeMatch.kind === "documentation") {
       continue;
@@ -226,6 +231,24 @@ export async function compileContent(
         addIssue("error", "invalid-content", file.path, e.message);
       } else {
         addIssue("error", "invalid-content", file.path, String(e));
+      }
+    }
+  }
+  const argumentIds = [...rawRecords.values()].flatMap(record => {
+    if (record && typeof record === "object" && "kind" in record && record.kind === "argument" && "id" in record && typeof record.id === "string") return [record.id];
+    return [];
+  });
+  for (const diagnostic of checkMissingStepContent(files, argumentIds))
+    addIssue("error", diagnostic.code, diagnostic.path, diagnostic.message, {family: "structural"});
+  // Preview readings may point only to instruments in the implemented catalogue.
+  // Enforce this even when a caller supplies a custom plugin-check registry.
+  for (const record of rawRecords.values()) {
+    const argument = record as Partial<Argument> | null;
+    if (argument?.kind !== "argument" || !Array.isArray(argument.experiments)) continue;
+    for (const id of argument.experiments) {
+      if (!(REGISTERED_IDS as readonly string[]).includes(id)) {
+        addIssue("error", "unavailable-experiment", argument.id ?? "argument",
+          `No implemented preview route for ${id}.`, { family: "structural" });
       }
     }
   }

@@ -38,7 +38,7 @@ const papers = [
     title: "Mass and energy",
     german: "Ist die Trägheit eines Körpers von seinem Energieinhalt abhängig?",
     locator: "Annalen der Physik (4), 18, 639–641 (1905)",
-    status: "Critical edition in preparation",
+    status: "Explanatory reader and laboratories available; source edition in preparation",
   },
 ];
 export default function Papers() {
@@ -110,6 +110,9 @@ export default function Papers() {
             )}
             {i === 3 && (
               <div className="actions">
+                <a href="/papers/mass-energy/">Read the two-account argument →</a>
+                <a href="/papers/mass-energy/#entry-mass-energy">Show me one example first →</a>
+                <a href="/lab/me-01/">Two-ledger laboratory →</a>
                 <a href="/lab/me-02/">Inertia from the small-speed coefficient →</a>
               </div>
             )}

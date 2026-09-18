@@ -295,7 +295,7 @@ export const SEED_ENTRIES: readonly KeyRegistration[] = [
     clearable: true,
     maxBytes: 128_000,
   }),
-  document_("am:notebook:v1", "am-read-notebook-tde", 1, "Notebook"),
+  document_("am:notebook:v1", "am-read-notebook-tde", 1, "Notebook", { maxBytes: 1_048_576 }),
   document_("am:tours:v1", "am-tours-infra-g518", 1, "Tour progress"),
   document_("am:predictions:v1", "am-inst-predict-mode-ti7m", 1, "Saved predictions"),
   document_(

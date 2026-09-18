@@ -6,6 +6,8 @@
  * Spec: AGENTS.md and am-cm-compiler-core-oa7
  */
 
+import { checkMissingStepContent } from "../../equations/missingStep/contentCheck.ts";
+import { REGISTERED_IDS } from "../../experiments/catalogue.ts";
 import type { EquationRecord } from "../../equations/record.ts";
 import { validateEntranceRecord } from "../entrances/entranceRecord.ts";
 import {
@@ -107,6 +109,8 @@ export function compileReadingContent(files: readonly Readonly<{ path: string; t
 
       // Documentation files (e.g. README.md) are allowlisted and skipped from reading records
       if (
+        routeMatch.kind === "derivation-chain" ||
+        routeMatch.kind === "derivation-policy" ||
         routeMatch.kind === "documentation" ||
         routeMatch.kind === "frozen-id-snapshot" ||
         routeMatch.kind === "source-manifest" ||
@@ -290,7 +294,7 @@ export function compileReadingContent(files: readonly Readonly<{ path: string; t
       for (const id of Object.values(r.help)) ref(id, "foundation", r.id);
       for (const reading of READING_IDS) foundationRefs(r.readings[reading], r.id);
       for (const id of r.experiments)
-        if (!["bm-01", "bm-05", "bm-06", "bm-07"].includes(id))
+        if (!(REGISTERED_IDS as readonly string[]).includes(id))
           issue("unavailable-experiment", r.id, `No implemented preview route for ${id}.`);
     }
     if (r.kind === "foundation") {
@@ -336,6 +340,10 @@ export function compileReadingContent(files: readonly Readonly<{ path: string; t
   }
 
   for (const id of records.keys()) visit(id);
+
+  for (const diagnostic of checkMissingStepContent(files,
+    [...records.values()].filter(record => record.kind === "argument").map(record => record.id)))
+    issue(diagnostic.code, diagnostic.path, diagnostic.message);
 
   const papers: PaperPayload[] = [];
   if (!diagnostics.some((d) => d.severity === "error"))

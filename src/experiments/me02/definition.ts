@@ -21,7 +21,8 @@ export const ME02_DEFAULTS: Me02Parameters = Object.freeze({
 export const ME02_CLASSES: Readonly<Record<keyof Me02Parameters, ParameterClass>> = Object.freeze({
   beta: "observer",
   emittedEnergy: "input",
-  energyUnit: "presentation",
+  // The entered number is interpreted in this unit; changing it changes the physical input.
+  energyUnit: "input",
   speedAxis: "presentation",
   showNaive: "presentation",
   notation: "presentation",

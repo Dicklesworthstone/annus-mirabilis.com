@@ -22,11 +22,19 @@ export const CONTENT_COMPILER_FILES = [
   "src/content/schemas/reading.ts",
   "src/content/dimensions/rational.ts",
   "src/equations/ast.ts",
+  "src/equations/missingStep/contentCheck.ts",
+  "src/equations/missingStep/transitionSchema.ts",
+  "src/equations/missingStep/workedCheck.ts",
+  "src/physics/reference/stepEnumeration.ts",
+  "src/equations/derivations/schema.ts",
+  "src/equations/derivations/rules/index.ts",
+  "src/equations/derivations/rules/registeredIdentity.ts",
   "src/equations/dimensions.ts",
   "src/equations/record.ts",
   "src/equations/quantities.ts",
   "src/equations/latex.ts",
   "src/experiments/bm01/definition.ts",
+  "src/experiments/catalogue.ts",
 ] as const;
 
 const ROOT = resolve(dirname(fileURLToPath(import.meta.url)), "..");
@@ -50,7 +58,7 @@ export async function loadReadingFiles(root = ROOT, corpusDir = "content") {
       }
       if (
         name.endsWith(".md") ||
-        name.endsWith(".yaml") ||
+        (name.endsWith(".yaml") && !/equations[\\/]derivations[\\/]/.test(full) && name !== "missing-step-allowlist.yaml") ||
         name.endsWith(".yml") ||
         name.endsWith(".txt")
       )

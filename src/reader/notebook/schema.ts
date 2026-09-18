@@ -1,7 +1,8 @@
+import { type ComparisonReplay, parseComparisonReplay, REPLAY_LIMITS } from "./replayEntry.ts";
 /** Local reader work, never a publication record or an assessment of its author. */
 export const NOTEBOOK_KEY = "am:notebook:v1";
 export const NOTEBOOK_FORMAT = "annus-reading-notebook";
-export const NOTEBOOK_LIMITS = Object.freeze({ entries: 100, text: 4000, title: 240, recap: 2000 });
+export const NOTEBOOK_LIMITS = Object.freeze({ entries: 500, text: 4000, title: 240, recap: 2000 });
 export const NOTEBOOK_PAPERS = [
   "brownian-motion",
   "light-quanta",
@@ -10,7 +11,7 @@ export const NOTEBOOK_PAPERS = [
   "molecular-dimensions",
 ] as const;
 export type NotebookPaper = (typeof NOTEBOOK_PAPERS)[number];
-export const NOTEBOOK_KINDS = ["question", "example", "nextStep", "note"] as const;
+export const NOTEBOOK_KINDS = ["question", "example", "nextStep", "note", "replay"] as const;
 export type NotebookKind = (typeof NOTEBOOK_KINDS)[number];
 export const NOTEBOOK_VIEWS = [
   "reading",
@@ -31,14 +32,16 @@ export type NotebookFrame = Readonly<{
   /** Only the existing reader's portable foundation clarification, not instance/run ids. */
   open: string;
 }>;
-export type NotebookEntry = Readonly<{
+type NotebookEntryBase = Readonly<{
   id: string;
-  kind: NotebookKind;
   frame: NotebookFrame;
   title: string;
   text: string;
   createdAt: string;
 }>;
+export type NotebookTextEntry = NotebookEntryBase & Readonly<{ kind: Exclude<NotebookKind, "replay"> }>;
+export type NotebookReplayEntry = NotebookEntryBase & Readonly<{ kind: "replay"; replay: ComparisonReplay }>;
+export type NotebookEntry = NotebookTextEntry | NotebookReplayEntry;
 export type LastPlace = Readonly<{
   frame: NotebookFrame;
   title: string;
@@ -110,7 +113,9 @@ export function parseNotebookFrame(input: unknown): NotebookFrame {
   }) as NotebookFrame;
 }
 export function parseNotebookEntry(input: unknown): NotebookEntry {
-  const e = record(input, ["id", "kind", "frame", "title", "text", "createdAt"]);
+  const isReplay = input !== null && typeof input === "object" &&
+    Object.getOwnPropertyDescriptor(input, "kind")?.value === "replay";
+  const e = record(input, ["id", "kind", "frame", "title", "text", "createdAt", ...(isReplay ? ["replay"] : [])]);
   const id = text(e.id, 80),
     createdAt = text(e.createdAt, 32);
   if (
@@ -121,14 +126,21 @@ export function parseNotebookEntry(input: unknown): NotebookEntry {
     new Date(createdAt).toISOString() !== createdAt
   )
     throw new TypeError("Invalid notebook entry identity, kind, or timestamp.");
-  return Object.freeze({
+  const common = {
     id,
-    kind: e.kind as NotebookKind,
     frame: parseNotebookFrame(e.frame),
     title: text(e.title, NOTEBOOK_LIMITS.title),
-    text: text(e.text, NOTEBOOK_LIMITS.text),
+    text: text(e.text, isReplay ? REPLAY_LIMITS.text : NOTEBOOK_LIMITS.text, isReplay),
     createdAt,
-  });
+  };
+  const entry: NotebookEntry = isReplay
+    ? Object.freeze({ ...common, kind: "replay", replay: parseComparisonReplay(e.replay) })
+    : Object.freeze({ ...common, kind: e.kind as Exclude<NotebookKind, "replay"> });
+  if (isReplay && new TextEncoder().encode(JSON.stringify(entry)).length > REPLAY_LIMITS.bytes)
+    throw new TypeError("A complete replay entry must fit within 64 KiB. Nothing was truncated.");
+  if (isReplay && common.frame.paper !== "brownian-motion")
+    throw new TypeError("This replay belongs to the Brownian motion paper.");
+  return entry;
 }
 export function parseLastPlace(input: unknown): LastPlace {
   const p = record(input, ["frame", "title", "recap", "recapKind"]);
