@@ -7,7 +7,7 @@ import {
 } from "../../physics/reference/diffusion/distributions.ts";
 import { ftcs1d } from "../../physics/reference/diffusion/ftcs.ts";
 import type { TraceRow } from "../schemas/experiment.ts";
-import { checkTraceRowCount } from "./bindings.ts";
+import { checkTraceRowCount } from "./traceValidation.ts";
 import type { KernelIssue, WorkedTrace } from "./types.ts";
 
 export const BM01_TRACE_SCENARIO_ID = "diffusion-einstein-1905-printed";
