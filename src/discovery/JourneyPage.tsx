@@ -36,32 +36,113 @@ export function JourneyPage({ journey }: JourneyPageProps) {
     <article
       data-journey-id={id}
       data-theme="slate"
-      className="discovery-journey max-w-4xl mx-auto px-4 py-8 font-sans text-stone-200"
+      style={{
+        maxWidth: "56rem",
+        margin: "0 auto",
+        padding: "2rem 1rem",
+        color: "var(--ink)",
+      }}
     >
       {/* Header */}
-      <header className="space-y-4 mb-10 pb-8 border-b border-stone-700">
-        <p className="text-xs font-mono uppercase tracking-wider text-amber-400">
+      <header
+        style={{
+          display: "flex",
+          flexDirection: "column",
+          gap: "1rem",
+          marginBottom: "2.5rem",
+          paddingBottom: "2rem",
+          borderBottom: "1px solid var(--line)",
+        }}
+      >
+        <p
+          className="eyebrow"
+          style={{
+            fontSize: "0.75rem",
+            fontFamily: "var(--font-mono, monospace)",
+            color: "var(--accent)",
+            margin: 0,
+          }}
+        >
           Discover · A route you could take
         </p>
-        <h1 className="text-3xl sm:text-4xl font-serif font-bold text-stone-100 leading-tight">
+        <h1
+          style={{
+            fontFamily: "var(--font-serif, Georgia, serif)",
+            fontSize: "2.25rem",
+            fontWeight: "bold",
+            lineHeight: 1.2,
+            margin: 0,
+            color: "var(--ink)",
+          }}
+        >
           {paper}
         </h1>
 
         {/* Partial Draft Banner */}
         {completeness === "partial" && pendingElements && pendingElements.length > 0 && (
-          <aside className="p-4 rounded-lg bg-amber-950/40 border border-amber-800/60 text-xs space-y-2">
-            <span className="font-bold text-amber-300 uppercase tracking-wide">
+          <aside
+            style={{
+              padding: "1rem",
+              borderRadius: "0.5rem",
+              background: "rgba(245, 158, 11, 0.1)",
+              border: "1px solid rgba(245, 158, 11, 0.3)",
+              fontSize: "0.75rem",
+              display: "flex",
+              flexDirection: "column",
+              gap: "0.5rem",
+            }}
+          >
+            <span
+              className="eyebrow"
+              style={{
+                fontWeight: "bold",
+                color: "var(--accent)",
+                letterSpacing: "0.05em",
+                margin: 0,
+              }}
+            >
               Draft Journey · Pending Elements Declared
             </span>
-            <ul className="space-y-1 text-stone-300">
+            <ul
+              style={{
+                margin: 0,
+                padding: 0,
+                listStyle: "none",
+                display: "flex",
+                flexDirection: "column",
+                gap: "0.25rem",
+                color: "var(--ink)",
+              }}
+            >
               {pendingElements.map((pe) => (
                 <li
                   key={`${pe.ownerBead}-${pe.element}`}
-                  className="flex flex-wrap items-baseline gap-2"
+                  style={{
+                    display: "flex",
+                    flexWrap: "wrap",
+                    alignItems: "baseline",
+                    gap: "0.5rem",
+                  }}
                 >
-                  <span className="font-mono text-amber-400 font-semibold">{pe.element}:</span>
+                  <span
+                    style={{
+                      fontFamily: "var(--font-mono, monospace)",
+                      color: "var(--accent)",
+                      fontWeight: 600,
+                    }}
+                  >
+                    {pe.element}:
+                  </span>
                   <span>{pe.reason}</span>
-                  <span className="text-stone-500 font-mono text-[11px]">({pe.ownerBead})</span>
+                  <span
+                    className="fine"
+                    style={{
+                      fontFamily: "var(--font-mono, monospace)",
+                      fontSize: "0.6875rem",
+                    }}
+                  >
+                    ({pe.ownerBead})
+                  </span>
                 </li>
               ))}
             </ul>
@@ -69,32 +150,109 @@ export function JourneyPage({ journey }: JourneyPageProps) {
         )}
 
         {/* Nagging Fact */}
-        <div className="p-5 rounded-xl bg-stone-900/80 border border-stone-700 space-y-1.5">
-          <span className="text-xs font-mono uppercase tracking-wider text-stone-400 block font-semibold">
+        <div
+          style={{
+            padding: "1.25rem",
+            borderRadius: "0.75rem",
+            background: "var(--panel)",
+            border: "1px solid var(--line)",
+            display: "flex",
+            flexDirection: "column",
+            gap: "0.375rem",
+          }}
+        >
+          <span
+            className="eyebrow"
+            style={{
+              fontSize: "0.75rem",
+              fontFamily: "var(--font-mono, monospace)",
+              letterSpacing: "0.05em",
+              fontWeight: 600,
+              display: "block",
+            }}
+          >
             The Nagging Fact
           </span>
-          <p className="text-base sm:text-lg font-serif text-stone-100 italic">"{naggingFact}"</p>
+          <p
+            style={{
+              fontFamily: "var(--font-serif, Georgia, serif)",
+              fontSize: "1.125rem",
+              fontStyle: "italic",
+              color: "var(--ink)",
+              margin: 0,
+            }}
+          >
+            "{naggingFact}"
+          </p>
         </div>
 
         {/* First Honest Question */}
-        <div className="p-5 rounded-xl bg-amber-950/30 border border-amber-800/40 space-y-1.5">
-          <span className="text-xs font-mono uppercase tracking-wider text-amber-400 block font-semibold">
+        <div
+          style={{
+            padding: "1.25rem",
+            borderRadius: "0.75rem",
+            background: "rgba(245, 158, 11, 0.1)",
+            border: "1px solid rgba(245, 158, 11, 0.25)",
+            display: "flex",
+            flexDirection: "column",
+            gap: "0.375rem",
+          }}
+        >
+          <span
+            className="eyebrow"
+            style={{
+              fontSize: "0.75rem",
+              fontFamily: "var(--font-mono, monospace)",
+              letterSpacing: "0.05em",
+              color: "var(--accent)",
+              fontWeight: 600,
+              display: "block",
+            }}
+          >
             The First Honest Question
           </span>
-          <p className="text-lg sm:text-xl font-serif font-bold text-amber-100">
+          <p
+            style={{
+              fontFamily: "var(--font-serif, Georgia, serif)",
+              fontSize: "1.25rem",
+              fontWeight: "bold",
+              color: "var(--ink)",
+              margin: 0,
+            }}
+          >
             {firstHonestQuestion}
           </p>
         </div>
 
         {/* The 1904 Shelf */}
         {shelf && shelf.length > 0 && (
-          <div className="flex flex-wrap items-center gap-2 pt-2 text-xs">
-            <span className="font-semibold text-stone-400">Available on the 1904 shelf:</span>
+          <div
+            style={{
+              display: "flex",
+              flexWrap: "wrap",
+              alignItems: "center",
+              gap: "0.5rem",
+              paddingTop: "0.5rem",
+              fontSize: "0.75rem",
+            }}
+          >
+            <span className="fine" style={{ fontWeight: 600 }}>
+              Available on the 1904 shelf:
+            </span>
             {shelf.map((cardId) => (
               <a
                 key={cardId}
                 href={`#${cardId}`}
-                className="px-2.5 py-1 rounded bg-stone-800/90 hover:bg-stone-700 text-stone-300 border border-stone-700 font-mono text-xs transition"
+                style={{
+                  padding: "0.25rem 0.625rem",
+                  borderRadius: "0.25rem",
+                  background: "var(--panel)",
+                  border: "1px solid var(--line)",
+                  fontFamily: "var(--font-mono, monospace)",
+                  fontSize: "0.75rem",
+                  color: "var(--ink)",
+                  textDecoration: "none",
+                }}
               >
                 #{cardId}
               </a>
@@ -104,15 +262,56 @@ export function JourneyPage({ journey }: JourneyPageProps) {
 
         {/* Admitted Imports */}
         {admittedImports && admittedImports.length > 0 && (
-          <div className="p-3.5 rounded bg-stone-900/60 border border-stone-800 text-xs space-y-1.5">
-            <span className="font-semibold text-stone-400 uppercase tracking-wide block">
+          <div
+            style={{
+              padding: "0.875rem",
+              borderRadius: "0.25rem",
+              background: "var(--wash)",
+              border: "1px solid var(--line)",
+              fontSize: "0.75rem",
+              display: "flex",
+              flexDirection: "column",
+              gap: "0.375rem",
+            }}
+          >
+            <span
+              className="eyebrow"
+              style={{
+                fontWeight: 600,
+                letterSpacing: "0.05em",
+                display: "block",
+              }}
+            >
               Admitted Cross-Paper Imports ({admittedImports.length})
             </span>
-            <ul className="space-y-1 text-stone-300">
+            <ul
+              style={{
+                margin: 0,
+                padding: 0,
+                listStyle: "none",
+                display: "flex",
+                flexDirection: "column",
+                gap: "0.25rem",
+                color: "var(--ink)",
+              }}
+            >
               {admittedImports.map((imp) => (
-                <li key={imp.importId} className="font-mono text-[11px]">
-                  <span className="text-amber-400 font-semibold">{imp.importId}</span>:{" "}
-                  <span>{imp.provenance}</span> (anchor: {imp.sourceAnchor})
+                <li
+                  key={imp.importId}
+                  style={{
+                    fontFamily: "var(--font-mono, monospace)",
+                    fontSize: "0.6875rem",
+                  }}
+                >
+                  <span
+                    style={{
+                      color: "var(--accent)",
+                      fontWeight: 600,
+                    }}
+                  >
+                    {imp.importId}
+                  </span>
+                  : <span>{imp.provenance}</span> (anchor: {imp.sourceAnchor})
                 </li>
               ))}
             </ul>
@@ -121,11 +320,24 @@ export function JourneyPage({ journey }: JourneyPageProps) {
       </header>
 
       {/* Main Journey Stages and Interleaved Forks */}
-      <div className="journey-stages-and-forks space-y-8">
+      <div
+        style={{
+          display: "flex",
+          flexDirection: "column",
+          gap: "2rem",
+        }}
+      >
         {stages.map((stage, index) => {
           const matchingForks = forks.filter((f) => f.afterStageId === stage.id);
           return (
-            <div key={stage.id} className="stage-block space-y-6">
+            <div
+              key={stage.id}
+              style={{
+                display: "flex",
+                flexDirection: "column",
+                gap: "1.5rem",
+              }}
+            >
               <Stage stage={stage} index={index} />
               {matchingForks.map((fork) => (
                 <Fork key={fork.id} fork={fork} />
@@ -140,11 +352,32 @@ export function JourneyPage({ journey }: JourneyPageProps) {
 
       {/* World Checks */}
       {worldChecks && worldChecks.length > 0 && (
-        <section className="world-checks-section my-10 space-y-4">
-          <h3 className="text-xl font-serif font-bold text-stone-100">
+        <section
+          style={{
+            margin: "2.5rem 0",
+            display: "flex",
+            flexDirection: "column",
+            gap: "1rem",
+          }}
+        >
+          <h3
+            style={{
+              fontSize: "1.25rem",
+              fontFamily: "var(--font-serif, Georgia, serif)",
+              fontWeight: "bold",
+              color: "var(--ink)",
+              margin: 0,
+            }}
+          >
             World Checks · Testing the Consequences
           </h3>
-          <div className="grid grid-cols-1 gap-4">
+          <div
+            style={{
+              display: "grid",
+              gridTemplateColumns: "1fr",
+              gap: "1rem",
+            }}
+          >
             {worldChecks.map((check) => (
               <WorldCheck key={check.id} check={check} />
             ))}
@@ -160,11 +393,32 @@ export function JourneyPage({ journey }: JourneyPageProps) {
 
       {/* Where this enters the paper (Source Jumps) */}
       {sourceJumps && sourceJumps.length > 0 && (
-        <section className="source-jumps-section my-10 space-y-4">
-          <h3 className="text-xl font-serif font-bold text-stone-100">
+        <section
+          style={{
+            margin: "2.5rem 0",
+            display: "flex",
+            flexDirection: "column",
+            gap: "1rem",
+          }}
+        >
+          <h3
+            style={{
+              fontSize: "1.25rem",
+              fontFamily: "var(--font-serif, Georgia, serif)",
+              fontWeight: "bold",
+              color: "var(--ink)",
+              margin: 0,
+            }}
+          >
             Connecting to the 1905 Paper
           </h3>
-          <div className="grid grid-cols-1 gap-4">
+          <div
+            style={{
+              display: "grid",
+              gridTemplateColumns: "1fr",
+              gap: "1rem",
+            }}
+          >
             {sourceJumps.map((jump) => (
               <SourceJump key={jump.id} jump={jump} />
             ))}
@@ -176,18 +430,47 @@ export function JourneyPage({ journey }: JourneyPageProps) {
       {doors && <Doors doors={doors} />}
 
       {/* Footer Navigation */}
-      <footer className="mt-14 pt-8 border-t border-stone-800 flex flex-wrap items-center justify-between gap-4 text-sm">
+      <footer
+        style={{
+          marginTop: "3.5rem",
+          paddingTop: "2rem",
+          borderTop: "1px solid var(--line)",
+          display: "flex",
+          flexWrap: "wrap",
+          alignItems: "center",
+          justifyContent: "space-between",
+          gap: "1rem",
+          fontSize: "0.875rem",
+        }}
+      >
         <a
           href={`/papers/${id}/`}
-          className="px-4 py-2 rounded-lg bg-amber-500/20 hover:bg-amber-500/30 text-amber-200 border border-amber-500/40 font-medium transition"
+          className="button"
+          style={{
+            background: "rgba(245, 158, 11, 0.2)",
+            color: "var(--accent)",
+            border: "1px solid rgba(245, 158, 11, 0.4)",
+            fontWeight: 500,
+            textDecoration: "none",
+            padding: "0.5rem 1rem",
+            borderRadius: "0.5rem",
+          }}
         >
           Read the 1905 paper edition →
         </a>
-        <div className="flex items-center gap-4 text-xs text-stone-400">
-          <a href="/foundations/" className="hover:text-stone-200 underline">
+        <div
+          className="fine"
+          style={{
+            display: "flex",
+            alignItems: "center",
+            gap: "1rem",
+            fontSize: "0.75rem",
+          }}
+        >
+          <a href="/foundations/" style={{ color: "inherit", textDecoration: "underline" }}>
             Explore foundations
           </a>
-          <a href="/papers/" className="hover:text-stone-200 underline">
+          <a href="/papers/" style={{ color: "inherit", textDecoration: "underline" }}>
             Paper catalogue
           </a>
         </div>
