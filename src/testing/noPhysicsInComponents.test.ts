@@ -143,6 +143,8 @@ describe("no physics in components (import boundary)", () => {
     ]);
   });
 
+  // Regression guard for am-inst-registry-dispatcher-66l0: proves non-fixture paths
+  // are audited even while fixture proof directories are scoped out of the repo-wide walk.
   test("the checker catches a forbidden physics import in a non-fixture path", () => {
     const nonFixturePath = "src/visuals/HypotheticalPlot.tsx";
     const content = `import { ftcs1d } from "../physics/reference/diffusion.ts"; export function Plot() { return null; }`;
