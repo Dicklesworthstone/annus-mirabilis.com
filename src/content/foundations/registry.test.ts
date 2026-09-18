@@ -179,3 +179,179 @@ describe("checkRecordsAgainstRegistry: fixture violations", () => {
     expect(issues.every((i) => i.code === "unregistered-record")).toBe(true);
   });
 });
+
+describe("Foundation registry refusal throw sites (am-muyh)", () => {
+  // Site 1 (line 54)
+  test("site (registry.ts:54) invalid-registry: rejects non-object or array registry, accepts plain object", () => {
+    expect(() => parseRegistry(null)).toThrow(
+      new RegistryError("invalid-registry", "Registry must be an object."),
+    );
+    expect(() => parseRegistry("not-an-object")).toThrow(
+      new RegistryError("invalid-registry", "Registry must be an object."),
+    );
+    expect(() => parseRegistry([])).toThrow(
+      new RegistryError("invalid-registry", "Registry must be an object."),
+    );
+
+    const accepted = parseRegistry({ schemaVersion: 1, entries: [validEntry()] });
+    expect(accepted.schemaVersion).toBe(1);
+    expect(accepted.entries.length).toBe(1);
+  });
+
+  // Site 2 (line 58)
+  test("site (registry.ts:58) missing-schema-version: rejects missing or non-number schemaVersion, accepts numeric version", () => {
+    expect(() => parseRegistry({ entries: [] })).toThrow(
+      new RegistryError("missing-schema-version", "Registry requires a numeric schemaVersion."),
+    );
+    expect(() => parseRegistry({ schemaVersion: "1" as any, entries: [] })).toThrow(
+      new RegistryError("missing-schema-version", "Registry requires a numeric schemaVersion."),
+    );
+
+    const accepted = parseRegistry({ schemaVersion: 1, entries: [] });
+    expect(accepted.schemaVersion).toBe(1);
+  });
+
+  // Site 3 (line 61)
+  test("site (registry.ts:61) missing-entries: rejects missing or non-array entries field, accepts array entries", () => {
+    expect(() => parseRegistry({ schemaVersion: 1 })).toThrow(
+      new RegistryError("missing-entries", "Registry requires an entries array."),
+    );
+    expect(() => parseRegistry({ schemaVersion: 1, entries: "not-an-array" as any })).toThrow(
+      new RegistryError("missing-entries", "Registry requires an entries array."),
+    );
+
+    const accepted = parseRegistry({ schemaVersion: 1, entries: [validEntry()] });
+    expect(accepted.entries.length).toBe(1);
+  });
+
+  // Site 4 (line 69)
+  test("site (registry.ts:69) invalid-entry: rejects null or non-object entry in entries, accepts plain object entry", () => {
+    expect(() => parseRegistry({ schemaVersion: 1, entries: [null] })).toThrow(
+      new RegistryError("invalid-entry", "entries[0] must be an object."),
+    );
+    expect(() => parseRegistry({ schemaVersion: 1, entries: ["string-entry" as any] })).toThrow(
+      new RegistryError("invalid-entry", "entries[0] must be an object."),
+    );
+
+    const accepted = parseRegistry({ schemaVersion: 1, entries: [validEntry()] });
+    expect(accepted.entries[0]?.id).toBe("foundation:example-node");
+  });
+
+  // Site 5 (line 82)
+  test("site (registry.ts:82) invalid-kind: rejects kind other than node or bridge, accepts node and bridge", () => {
+    expect(() =>
+      parseRegistry({
+        schemaVersion: 1,
+        entries: [validEntry({ kind: "concept" as any })],
+      }),
+    ).toThrow(
+      new RegistryError(
+        "invalid-kind",
+        'entries[0].kind must be "node" or "bridge"; got "concept" for foundation:example-node.',
+      ),
+    );
+
+    const acceptedNode = parseRegistry({
+      schemaVersion: 1,
+      entries: [validEntry({ kind: "node" })],
+    });
+    expect(acceptedNode.entries[0]?.kind).toBe("node");
+
+    const acceptedBridge = parseRegistry({
+      schemaVersion: 1,
+      entries: [validEntry({ kind: "bridge" })],
+    });
+    expect(acceptedBridge.entries[0]?.kind).toBe("bridge");
+  });
+
+  // Site 6 (line 88)
+  test("site (registry.ts:88) missing-cluster: rejects missing or whitespace cluster, accepts non-empty cluster string", () => {
+    expect(() =>
+      parseRegistry({
+        schemaVersion: 1,
+        entries: [validEntry({ cluster: "" })],
+      }),
+    ).toThrow(
+      new RegistryError(
+        "missing-cluster",
+        "entries[0].cluster is required for foundation:example-node.",
+      ),
+    );
+    expect(() =>
+      parseRegistry({
+        schemaVersion: 1,
+        entries: [validEntry({ cluster: "   " })],
+      }),
+    ).toThrow(
+      new RegistryError(
+        "missing-cluster",
+        "entries[0].cluster is required for foundation:example-node.",
+      ),
+    );
+
+    const accepted = parseRegistry({
+      schemaVersion: 1,
+      entries: [validEntry({ cluster: "calculus" })],
+    });
+    expect(accepted.entries[0]?.cluster).toBe("calculus");
+  });
+
+  // Site 7 (line 91)
+  test("site (registry.ts:91) missing-owner: rejects missing or whitespace ownerBead, accepts valid owner bead", () => {
+    expect(() =>
+      parseRegistry({
+        schemaVersion: 1,
+        entries: [validEntry({ ownerBead: "" })],
+      }),
+    ).toThrow(
+      new RegistryError(
+        "missing-owner",
+        "entries[0].ownerBead is required for foundation:example-node.",
+      ),
+    );
+    expect(() =>
+      parseRegistry({
+        schemaVersion: 1,
+        entries: [validEntry({ ownerBead: "   " })],
+      }),
+    ).toThrow(
+      new RegistryError(
+        "missing-owner",
+        "entries[0].ownerBead is required for foundation:example-node.",
+      ),
+    );
+
+    const accepted = parseRegistry({
+      schemaVersion: 1,
+      entries: [validEntry({ ownerBead: "am-bm-01" })],
+    });
+    expect(accepted.entries[0]?.ownerBead).toBe("am-bm-01");
+  });
+
+  // Site 8 (line 94)
+  test("site (registry.ts:94) invalid-status: rejects status other than planned or authored, accepts planned and authored", () => {
+    expect(() =>
+      parseRegistry({
+        schemaVersion: 1,
+        entries: [validEntry({ status: "draft" as any })],
+      }),
+    ).toThrow(
+      new RegistryError(
+        "invalid-status",
+        'entries[0].status must be "planned" or "authored"; got "draft" for foundation:example-node.',
+      ),
+    );
+
+    const acceptedPlanned = parseRegistry({
+      schemaVersion: 1,
+      entries: [validEntry({ status: "planned" })],
+    });
+    expect(acceptedPlanned.entries[0]?.status).toBe("planned");
+
+    const acceptedAuthored = parseRegistry({
+      schemaVersion: 1,
+      entries: [validEntry({ status: "authored" })],
+    });
+    expect(acceptedAuthored.entries[0]?.status).toBe("authored");
+  });
+});
