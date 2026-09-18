@@ -1,0 +1,46 @@
+id: events-moving-rod-legs
+kind: modern-golden
+title: Moving rod light propagation legs
+description: >
+  Light propagation along a rod of length 10 ls moving at v = 0.6c gives outbound leg 25 s and return leg 6.25 s.
+provenance:
+  paper: special-relativity
+  sectionId: s2
+  printedPage: 896
+constantSetId: modern-si-2019
+owner: events
+inputs:
+  separationLs:
+    value: 10.0
+    unit: ls
+  beta:
+    value: 0.6
+    unit: dimensionless
+expected:
+  outputs:
+    - outputId: outboundLegS
+      comparisonKind: tolerance
+      tolerance:
+        absolute: 1.0e-12
+        rationale: "Outbound leg rAB / (c - v) = 10 / (1 - 0.6) = 25 s."
+      value: 25.0
+    - outputId: returnLegS
+      comparisonKind: tolerance
+      tolerance:
+        absolute: 1.0e-12
+        rationale: "Return leg rAB / (c + v) = 10 / (1 + 0.6) = 6.25 s."
+      value: 6.25
+    - outputId: tRoundTrip
+      comparisonKind: tolerance
+      tolerance:
+        absolute: 1.0e-12
+        rationale: "Total round trip time 25 + 6.25 = 31.25 s."
+      value: 31.25
+    - outputId: desynchronization
+      comparisonKind: tolerance
+      tolerance:
+        absolute: 1.0e-12
+        rationale: "v * L / c^2 = 0.6 * 10 = 6 s."
+      value: 6.0
+modelVersion: 1
+schemaVersion: 1

@@ -1,0 +1,40 @@
+id: events-proper-time-inertial
+kind: modern-golden
+title: Proper time for inertial motion at beta = 0.6
+description: >
+  Inertial motion at beta = 0.6 for coordinate time 10 s yields proper time 8 s and time loss 2 s.
+provenance:
+  paper: special-relativity
+  sectionId: s4
+  printedPage: 904
+constantSetId: modern-si-2019
+owner: events
+inputs:
+  coordinateTime:
+    value: 10.0
+    unit: s
+  beta:
+    value: 0.6
+    unit: dimensionless
+expected:
+  outputs:
+    - outputId: properTimeS
+      comparisonKind: tolerance
+      tolerance:
+        absolute: 1.0e-12
+        rationale: "tau = t * sqrt(1 - beta^2) = 10 * 0.8 = 8 s."
+      value: 8.0
+    - outputId: timeLossS
+      comparisonKind: tolerance
+      tolerance:
+        absolute: 1.0e-12
+        rationale: "Time loss t - tau = 10 - 8 = 2 s."
+      value: 2.0
+    - outputId: ratio
+      comparisonKind: tolerance
+      tolerance:
+        absolute: 1.0e-12
+        rationale: "tau / t = 0.8."
+      value: 0.8
+modelVersion: 1
+schemaVersion: 1

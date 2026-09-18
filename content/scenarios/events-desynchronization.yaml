@@ -1,0 +1,28 @@
+id: events-desynchronization
+kind: modern-golden
+title: Desynchronization of moving synchronized clocks
+description: >
+  Clocks with proper separation 10 ls moving at beta = 0.6 exhibit a 6 s desynchronization in the stationary frame.
+provenance:
+  paper: special-relativity
+  sectionId: s2
+  printedPage: 896
+constantSetId: modern-si-2019
+owner: events
+inputs:
+  properSeparationLs:
+    value: 10.0
+    unit: ls
+  beta:
+    value: 0.6
+    unit: dimensionless
+expected:
+  outputs:
+    - outputId: desyncMagnitudeS
+      comparisonKind: tolerance
+      tolerance:
+        absolute: 1.0e-12
+        rationale: "Desynchronization magnitude v * L / c^2 = 0.6 * 10 = 6 s."
+      value: 6.0
+modelVersion: 1
+schemaVersion: 1

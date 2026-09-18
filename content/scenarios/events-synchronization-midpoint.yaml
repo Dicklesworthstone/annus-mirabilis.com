@@ -1,0 +1,43 @@
+id: events-synchronization-midpoint
+kind: modern-golden
+title: Einstein midpoint synchronization condition
+description: >
+  Signal emitted from station A at t=0, reflected at B, and received back at A at t=10 s with separation 5 ls assigns reflection time t_B = 5 s.
+provenance:
+  paper: special-relativity
+  sectionId: s1
+  printedPage: 894
+constantSetId: modern-si-2019
+owner: events
+inputs:
+  emissionTimeA:
+    value: 0.0
+    unit: s
+  receptionTimeA:
+    value: 10.0
+    unit: s
+  separationLs:
+    value: 5.0
+    unit: ls
+expected:
+  outputs:
+    - outputId: assignedRemoteTime
+      comparisonKind: tolerance
+      tolerance:
+        absolute: 1.0e-12
+        rationale: "Midpoint assignment (0 + 10) / 2 = 5 s."
+      value: 5.0
+    - outputId: roundTripSpeedLsPerS
+      comparisonKind: tolerance
+      tolerance:
+        absolute: 1.0e-12
+        rationale: "Two-way speed 2 * 5 / 10 = 1 ls/s."
+      value: 1.0
+    - outputId: criterionOffset
+      comparisonKind: tolerance
+      tolerance:
+        absolute: 1.0e-12
+        rationale: "Criterion offset (tB - tA) - (tPrimeA - tB) is zero by definition."
+      value: 0.0
+modelVersion: 1
+schemaVersion: 1

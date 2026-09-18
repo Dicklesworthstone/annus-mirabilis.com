@@ -12,12 +12,21 @@ import {
   stokesEinsteinD,
 } from "../../physics/reference/diffusion.ts";
 import {
+  desynchronizationObserved,
+  lightClock,
+  movingRodLegs,
+  movingRodLightLegs,
+  properTime,
+  synchronizationRound,
+} from "../../physics/reference/events.ts";
+import {
   chiSquareInterval,
   empiricalCoverageFraction,
   identifiabilityFamily,
   inverseBias,
   invertToMolecularNumber,
 } from "../../physics/reference/inference.ts";
+import { dilationLossPerSecond } from "../../physics/reference/kinematics.ts";
 import {
   aperturePower,
   bandLimitedMeanQuantumEnergyWien,
@@ -60,6 +69,7 @@ const diffusionPath = fileURLToPath(
 const walkLawsPath = fileURLToPath(
   new URL("../../physics/reference/diffusion/walkLaws.ts", import.meta.url),
 );
+const eventsPath = fileURLToPath(new URL("../../physics/reference/events.ts", import.meta.url));
 
 function num(inputs: Record<string, number>, key: string): number {
   const value = inputs[key];
@@ -449,6 +459,103 @@ const OWNERS: OwnerRecord[] = [
         out.intervalLower = inverse.data.interval.lower;
         out.intervalUpper = inverse.data.interval.upper;
       }
+      return out;
+    },
+  },
+  {
+    id: "events",
+    sourcePath: eventsPath,
+    fn: (ctx) => {
+      const out: Record<string, number> = {};
+
+      if (
+        typeof ctx.inputs.emissionTimeA === "number" &&
+        typeof ctx.inputs.receptionTimeA === "number"
+      ) {
+        const round = synchronizationRound({
+          emissionTimeA: ctx.inputs.emissionTimeA,
+          receptionTimeA: ctx.inputs.receptionTimeA,
+          separationLs: ctx.inputs.separationLs ?? 5,
+        });
+        if (round.status === "value") {
+          out.assignedRemoteTime = round.value.assignedRemoteTime;
+          out.roundTripSpeedLsPerS = round.value.roundTripSpeedLsPerS;
+          out.criterionOffset = round.value.criterionOffset;
+        }
+      }
+
+      if (typeof ctx.inputs.separationLs === "number" && typeof ctx.inputs.beta === "number") {
+        const legs = movingRodLegs({
+          separationLs: ctx.inputs.separationLs,
+          beta: ctx.inputs.beta,
+        });
+        if (legs.status === "value") {
+          out.outboundLegS = legs.value.outboundLegS;
+          out.returnLegS = legs.value.returnLegS;
+          out.tRoundTrip = legs.value.outboundLegS + legs.value.returnLegS;
+        }
+        const lightLegs = movingRodLightLegs(ctx.inputs.separationLs, ctx.inputs.beta, 1.0);
+        if (lightLegs.status === "value") {
+          out.desynchronization = lightLegs.value.desynchronization;
+        }
+      }
+
+      if (
+        typeof ctx.inputs.properSeparationLs === "number" &&
+        typeof ctx.inputs.beta === "number"
+      ) {
+        const desync = desynchronizationObserved({
+          properSeparationLs: ctx.inputs.properSeparationLs,
+          beta: ctx.inputs.beta,
+        });
+        if (desync.status === "value") {
+          out.desyncMagnitudeS = desync.value.desyncMagnitudeS;
+        }
+      }
+
+      if (typeof ctx.inputs.coordinateTime === "number" && typeof ctx.inputs.beta === "number") {
+        const dt = ctx.inputs.coordinateTime;
+        const beta = ctx.inputs.beta;
+        const prop = properTime(
+          {
+            kind: "piecewise-inertial",
+            segments: [{ t0: 0, t1: dt, vx: beta }],
+          },
+          0,
+          dt,
+        );
+        if (prop.status === "value") {
+          out.properTimeS = prop.value.properTimeS;
+          out.timeLossS = prop.value.timeLossS;
+          out.ratio = prop.value.ratio;
+        }
+      }
+
+      if (
+        typeof ctx.inputs.beta === "number" &&
+        ctx.inputs.coordinateTime === undefined &&
+        ctx.inputs.separationLs === undefined &&
+        ctx.inputs.properSeparationLs === undefined &&
+        ctx.inputs.L0 === undefined
+      ) {
+        const beta = ctx.inputs.beta;
+        const loss = dilationLossPerSecond(beta);
+        if (loss.status === "value") {
+          out.lossRate = loss.value.exact;
+        }
+      }
+
+      if (typeof ctx.inputs.L0 === "number" && typeof ctx.inputs.beta === "number") {
+        const lc = lightClock(ctx.inputs.L0, ctx.inputs.beta);
+        if (lc.status === "value") {
+          out.properTickPeriodS = lc.value.properTickPeriodS;
+          out.coordinateTickPeriodS = lc.value.coordinateTickPeriodS;
+          out.roundTripPathLengthLs = lc.value.roundTripPathLengthLs;
+          out.longitudinalDistanceMovedLs = lc.value.longitudinalDistanceMovedLs;
+          out.oneWayLightPathLs = lc.value.oneWayLightPathLs;
+        }
+      }
+
       return out;
     },
   },

@@ -1,0 +1,37 @@
+id: events-two-way-speed
+kind: modern-golden
+title: Two-way round-trip speed of light measurement
+description: >
+  Signal emitted from station A at t=0, reflected at B, and received at t=20 s across 10 ls separation confirms round-trip speed c = 1 ls/s.
+provenance:
+  paper: special-relativity
+  sectionId: s1
+  printedPage: 894
+constantSetId: modern-si-2019
+owner: events
+inputs:
+  emissionTimeA:
+    value: 0.0
+    unit: s
+  receptionTimeA:
+    value: 20.0
+    unit: s
+  separationLs:
+    value: 10.0
+    unit: ls
+expected:
+  outputs:
+    - outputId: assignedRemoteTime
+      comparisonKind: tolerance
+      tolerance:
+        absolute: 1.0e-12
+        rationale: "Midpoint assignment (0 + 20) / 2 = 10 s."
+      value: 10.0
+    - outputId: roundTripSpeedLsPerS
+      comparisonKind: tolerance
+      tolerance:
+        absolute: 1.0e-12
+        rationale: "Round trip speed 2 * 10 / 20 = 1 ls/s."
+      value: 1.0
+modelVersion: 1
+schemaVersion: 1

@@ -1,0 +1,25 @@
+id: events-proper-time-low-speed
+kind: modern-golden
+title: Stable dilation loss rate at beta = 1e-4
+description: >
+  At walking speed beta = 1e-4, cancellation-free loss rate per second equals 5.0000000125e-9 s/s.
+provenance:
+  paper: special-relativity
+  sectionId: s4
+  printedPage: 904
+constantSetId: modern-si-2019
+owner: events
+inputs:
+  beta:
+    value: 0.0001
+    unit: dimensionless
+expected:
+  outputs:
+    - outputId: lossRate
+      comparisonKind: tolerance
+      tolerance:
+        relative: 1.0e-12
+        rationale: "Exact cancellation-free loss rate beta^2 / (1 + sqrt(1 - beta^2))."
+      value: 5.0000000125e-9
+modelVersion: 1
+schemaVersion: 1

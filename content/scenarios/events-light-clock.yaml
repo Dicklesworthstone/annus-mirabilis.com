@@ -1,0 +1,52 @@
+id: events-light-clock
+kind: modern-golden
+title: Transverse light clock tick periods and geometry
+description: >
+  A transverse light clock of rest height L0 = 1 ls moving at beta = 0.6 ticks every 2.5 s coordinate time versus 2.0 s proper time.
+provenance:
+  paper: special-relativity
+  sectionId: s4
+  printedPage: 904
+constantSetId: modern-si-2019
+owner: events
+inputs:
+  L0:
+    value: 1.0
+    unit: ls
+  beta:
+    value: 0.6
+    unit: dimensionless
+expected:
+  outputs:
+    - outputId: properTickPeriodS
+      comparisonKind: tolerance
+      tolerance:
+        absolute: 1.0e-12
+        rationale: "Proper tick period 2 * L0 / c = 2 s."
+      value: 2.0
+    - outputId: coordinateTickPeriodS
+      comparisonKind: tolerance
+      tolerance:
+        absolute: 1.0e-12
+        rationale: "Coordinate tick period gamma * 2 * L0 / c = 2.5 s."
+      value: 2.5
+    - outputId: roundTripPathLengthLs
+      comparisonKind: tolerance
+      tolerance:
+        absolute: 1.0e-12
+        rationale: "Total round trip path length c * coordinateTickPeriodS = 2.5 ls."
+      value: 2.5
+    - outputId: longitudinalDistanceMovedLs
+      comparisonKind: tolerance
+      tolerance:
+        absolute: 1.0e-12
+        rationale: "Distance moved during tick beta * c * 2.5 = 1.5 ls."
+      value: 1.5
+    - outputId: oneWayLightPathLs
+      comparisonKind: tolerance
+      tolerance:
+        absolute: 1.0e-12
+        rationale: "Diagonal leg sqrt(1^2 + (1.5/2)^2) = 1.25 ls."
+      value: 1.25
+modelVersion: 1
+schemaVersion: 1
