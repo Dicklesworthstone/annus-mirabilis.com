@@ -8,9 +8,12 @@ import { validateExperiment } from "../content/schemas/experiment.ts";
 import { strictParse } from "../content/schemas/strictParse.ts";
 import { evaluatePerrinSummary } from "../experiments/bm07/historical.ts";
 import { isValidTapeId, validateControlTape } from "../experiments/tapes/schema.ts";
+import { validateTapeCompatibility } from "../experiments/tapes/replayer.ts";
 import { getConstantSet } from "../physics/reference/constants.ts";
+import { chiSquareQuantile } from "../physics/reference/diffusion.ts";
 import {
   chiSquareInterval,
+  empiricalCoverageFraction,
   identifiabilityFamily,
   invertToMolecularNumber,
 } from "../physics/reference/inference.ts";
@@ -149,6 +152,24 @@ test("bm07.presets: bm-07-inversion-golden reproduces N_hat = 6.02213e23 with co
     relative: 1e-4,
   });
   assert.equal(vKb.ok, true);
+
+  // Ratio interval is [0.742219, 1.295596]
+  const ratioInterval = inv.data.consistencyRatioInterval;
+  assert.ok(ratioInterval !== null && ratioInterval !== undefined);
+  assert.ok(withinTolerance(ratioInterval.lower, 0.742219, { relative: 1e-4 }).ok);
+  assert.ok(withinTolerance(ratioInterval.upper, 1.295596, { relative: 1e-4 }).ok);
+
+  // Estimated Boltzmann constant interval is [1.06564e-23, 1.86017e-23]
+  const kbInterval = inv.data.estimatedBoltzmannConstantInterval;
+  assert.ok(kbInterval !== null && kbInterval !== undefined);
+  assert.ok(withinTolerance(kbInterval.lower, 1.06564e-23, { relative: 1e-4 }).ok);
+  assert.ok(withinTolerance(kbInterval.upper, 1.86017e-23, { relative: 1e-4 }).ok);
+
+  // N_hat / N_A equals k_B * T / (6 * pi * eta * a * D_hat) within 10^-12 relative
+  const kbDefined = 1.380649e-23;
+  const directRatio = (kbDefined * 293.15) / (6 * Math.PI * 0.001 * 0.5e-6 * dHat);
+  const nOverNa = inv.data.estimate / 6.02214076e23;
+  assert.ok(withinTolerance(nOverNa, directRatio, { relative: 1e-12 }).ok);
 });
 
 test("bm07.presets: bm-07-perrin-1909 returns independent-estimate and not-applicable interval for unreported count", () => {
@@ -254,4 +275,128 @@ test("bm07.presets: caption and preset R0-R3 readings audit passes; removing R2 
     missingR2,
     "Removing R2 must trigger missing-reading-level or missing-r2 error finding",
   );
+});
+
+test("bm07.presets: bm-07-coverage runs repeated-experiment coverage view within scenario tolerance", () => {
+  const scenarioPath = path.resolve(ROOT, "content/scenarios/bm-07-coverage.yaml");
+  assert.equal(fs.existsSync(scenarioPath), true);
+  const scenario = strictParse(fs.readFileSync(scenarioPath, "utf8"), "yaml") as any;
+
+  const res = empiricalCoverageFraction({
+    trials: scenario.inputs.coverageTrials.value,
+    nominalCoverage: scenario.inputs.nominalCoverage.value,
+    degreesOfFreedom: 100,
+    seed: "1905",
+  });
+  assert.equal(res.kind, "accepted");
+  if (res.kind !== "accepted") return;
+
+  const expectedVal = scenario.expected.outputs[0].value;
+  const tolAbs = scenario.expected.outputs[0].tolerance.absolute;
+  const v = withinTolerance(res.data, expectedVal, { absolute: tolAbs });
+  assert.equal(
+    v.ok,
+    true,
+    `Empirical coverage ${res.data} outside tolerance ${expectedVal} +/- ${tolAbs}`,
+  );
+
+  // Planted negative: invalid trial count or out-of-domain nominal coverage must refuse
+  assert.equal(empiricalCoverageFraction({ trials: 0 }).kind, "refused");
+  assert.equal(empiricalCoverageFraction({ trials: 10, nominalCoverage: 1.5 }).kind, "refused");
+  // Hard failure in both directions: coverage 0.5 or 1.5 outside tolerance
+  assert.equal(withinTolerance(0.5, expectedVal, { absolute: tolAbs }).ok, false);
+  assert.equal(withinTolerance(1.5, expectedVal, { absolute: tolAbs }).ok, false);
+});
+
+test("bm07.presets: chi-square quantiles match committed mpmath 40-digit table", () => {
+  // Committed mpmath reference table at 40 digits (am-bm-07-infer-molecular-number-frf9 Test Plan)
+  const MPMATH_CHI2_TABLE = [
+    { q: 20, alpha: 0.05, lower: 9.5907774, upper: 34.169607 },
+    { q: 40, alpha: 0.05, lower: 24.433039, upper: 59.341707 },
+    { q: 100, alpha: 0.05, lower: 74.221927, upper: 129.5612 },
+    { q: 100, alpha: 0.025, lower: 71.014099, upper: 134.34165 },
+  ];
+
+  for (const row of MPMATH_CHI2_TABLE) {
+    const lo = chiSquareQuantile(row.q, row.alpha / 2);
+    assert.equal(lo.kind, "accepted");
+    if (lo.kind !== "accepted") return;
+
+    const hi = chiSquareQuantile(row.q, 1 - row.alpha / 2);
+    assert.equal(hi.kind, "accepted");
+    if (hi.kind !== "accepted") return;
+
+    assert.ok(
+      withinTolerance(lo.data, row.lower, { absolute: 1e-4 }).ok,
+      `q=${row.q} alpha=${row.alpha} lower mismatch: got ${lo.data}, expected ${row.lower}`,
+    );
+    assert.ok(
+      withinTolerance(hi.data, row.upper, { absolute: 1e-4 }).ok,
+      `q=${row.q} alpha=${row.alpha} upper mismatch: got ${hi.data}, expected ${row.upper}`,
+    );
+
+    // Planted negative: perturbed values must fail tolerance check in both directions
+    assert.equal(withinTolerance(lo.data, row.lower + 0.5, { absolute: 1e-4 }).ok, false);
+    assert.equal(withinTolerance(lo.data, row.lower - 0.5, { absolute: 1e-4 }).ok, false);
+    assert.equal(withinTolerance(hi.data, row.upper + 0.5, { absolute: 1e-4 }).ok, false);
+    assert.equal(withinTolerance(hi.data, row.upper - 0.5, { absolute: 1e-4 }).ok, false);
+  }
+});
+
+test("bm07.presets: teaching tape perrins-count compatibility and replay verification", () => {
+  const tapePath = path.resolve(ROOT, "content/experiments/tapes/perrins-count.yaml");
+  const raw = strictParse(fs.readFileSync(tapePath, "utf8"), "yaml");
+  const tape = validateControlTape(raw);
+
+  const context = {
+    experimentId: "bm-07",
+    modelIdentity: tape.modelIdentity,
+    constantSetId: "scenario-gas-constant-measured",
+    streamVersion: tape.streamVersion,
+    allocationId: tape.allocationId,
+  };
+
+  const compat = validateTapeCompatibility(tape, context);
+  assert.equal(compat.compatible, true);
+
+  // Checkpoints verify constantSetId and semantic kind expectation
+  assert.ok(tape.checkpoints.length > 0);
+  const cp = tape.checkpoints[0];
+  assert.ok(cp);
+  assert.equal(cp?.expectedDisplayValues?.[0]?.constantSetId, "scenario-gas-constant-measured");
+
+  // Planted negative: compatibility rejects modern-si-2019 in historical tape context
+  const modernCompat = validateTapeCompatibility(tape, {
+    ...context,
+    constantSetId: "modern-si-2019",
+  });
+  assert.equal(modernCompat.compatible, false);
+  if (!modernCompat.compatible) {
+    assert.equal(modernCompat.refusalCode, "tape-constant-set-mismatch");
+  }
+
+  // Planted negative: compatibility rejects mismatched experimentId
+  const foreignCompat = validateTapeCompatibility(tape, {
+    ...context,
+    experimentId: "foreign-exp",
+  });
+  assert.equal(foreignCompat.compatible, false);
+  if (!foreignCompat.compatible) {
+    assert.equal(foreignCompat.refusalCode, "tape-model-mismatch");
+  }
+});
+
+test("bm07.presets: worked interval table in page.tsx matches golden interval fixture", () => {
+  const pagePath = path.resolve(ROOT, "src/app/lab/bm-07/page.tsx");
+  const pageContent = fs.readFileSync(pagePath, "utf8");
+
+  // Verified table contents
+  assert.ok(pageContent.includes("d = 2, M = 50, q = 100, D̂ = 0.42944 μm²/s"));
+  assert.ok(pageContent.includes("[0.331457, 0.578589] μm²/s"));
+  assert.ok(pageContent.includes("N̂ = 6.02213 × 10²³ mol⁻¹"));
+  assert.ok(pageContent.includes("q/(q − 2) = 1.020408"));
+
+  // Planted negative: incorrect fixture values are not present
+  assert.equal(pageContent.includes("N̂ = 9.99999 × 10²³ mol⁻¹"), false);
+  assert.equal(pageContent.includes("q/(q − 2) = 1.000000"), false);
 });

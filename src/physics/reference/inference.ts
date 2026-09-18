@@ -327,6 +327,8 @@ export function invertToMolecularNumber(
     semanticKind: NumberMeaning;
     consistencyRatio: number | null;
     estimatedBoltzmannConstant: number | null;
+    consistencyRatioInterval: StatisticalInterval | null;
+    estimatedBoltzmannConstantInterval: StatisticalInterval | null;
   }>
 > {
   const conditions = checkConditions(input);
@@ -358,13 +360,39 @@ export function invertToMolecularNumber(
   const lower = C / input.interval.upper,
     upper = C / input.interval.lower;
   const modern = g.data.semanticKind === "consistency-check";
-  const consistencyRatio = modern ? estimate / constantValue(set, "avogadroConstant").value : null;
+  const avogadro = modern ? constantValue(set, "avogadroConstant").value : 1;
+  const consistencyRatio = modern ? estimate / avogadro : null;
   const estimatedBoltzmannConstant = modern
     ? (6 * Math.PI * input.eta * input.a * input.dHat) / input.T
     : null;
+  const consistencyRatioInterval = modern
+    ? Object.freeze({
+        ...input.interval,
+        lower: lower / avogadro,
+        upper: upper / avogadro,
+      })
+    : null;
+  const estimatedBoltzmannConstantInterval = modern
+    ? Object.freeze({
+        ...input.interval,
+        lower: (6 * Math.PI * input.eta * input.a * input.interval.lower) / input.T,
+        upper: (6 * Math.PI * input.eta * input.a * input.interval.upper) / input.T,
+      })
+    : null;
   const modernMetrics =
-    modern && consistencyRatio !== null && estimatedBoltzmannConstant !== null
-      ? [consistencyRatio, estimatedBoltzmannConstant]
+    modern &&
+    consistencyRatio !== null &&
+    estimatedBoltzmannConstant !== null &&
+    consistencyRatioInterval !== null &&
+    estimatedBoltzmannConstantInterval !== null
+      ? [
+          consistencyRatio,
+          estimatedBoltzmannConstant,
+          consistencyRatioInterval.lower,
+          consistencyRatioInterval.upper,
+          estimatedBoltzmannConstantInterval.lower,
+          estimatedBoltzmannConstantInterval.upper,
+        ]
       : [];
   if (![estimate, lower, upper, ...modernMetrics].every(positive))
     return invalid("The inverse result cannot be represented at this numerical scale.");
@@ -377,6 +405,8 @@ export function invertToMolecularNumber(
       semanticKind: g.data.semanticKind,
       consistencyRatio,
       estimatedBoltzmannConstant,
+      consistencyRatioInterval,
+      estimatedBoltzmannConstantInterval,
     }),
   };
 }
