@@ -329,7 +329,7 @@ export function Genealogy({
               refY="4"
               orient="auto"
             >
-              <path d="M 0 1 L 8 4 L 0 7 z" fill="#5c5346" />
+              <path d="M 0 1 L 8 4 L 0 7 z" fill="var(--muted)" />
             </marker>
             <marker
               id="arrow-crosspaper"
@@ -339,7 +339,7 @@ export function Genealogy({
               refY="4"
               orient="auto"
             >
-              <path d="M 0 1 L 8 4 L 0 7 z" fill="#c25e00" />
+              <path d="M 0 1 L 8 4 L 0 7 z" fill="var(--accent)" />
             </marker>
             <marker
               id="arrow-oracle"
@@ -349,7 +349,7 @@ export function Genealogy({
               refY="4"
               orient="auto"
             >
-              <path d="M 0 1 L 8 4 L 0 7 z" fill="#2d6a9f" />
+              <path d="M 0 1 L 8 4 L 0 7 z" fill="var(--plot)" />
             </marker>
           </defs>
 
@@ -368,12 +368,12 @@ export function Genealogy({
                   (descendants.has(e.to) && (descendants.has(e.from) || e.from === selectedId)));
 
               const stroke = isHighlighted
-                ? "#b34700"
+                ? "var(--accent)"
                 : isCross
-                  ? "#c25e00"
+                  ? "var(--accent)"
                   : isOracle
-                    ? "#2d6a9f"
-                    : "#8c8273";
+                    ? "var(--plot)"
+                    : "var(--line)";
 
               return (
                 <path
@@ -402,25 +402,26 @@ export function Genealogy({
               const isRoot = n.node.isRoot;
               const isResult = n.node.isNumberedResult;
 
-              const fill = isSelected
-                ? "#fae8b4"
-                : isAncestor
-                  ? "#e8dfd1"
-                  : isDescendant
-                    ? "#dbeae0"
-                    : isRoot
-                      ? "#f4ebd0"
-                      : isResult
-                        ? "#e8efe9"
-                        : "#ffffff";
+              const fill =
+                isSelected || isAncestor || isDescendant || isRoot || isResult
+                  ? "var(--wash)"
+                  : "var(--panel)";
 
               const stroke = isSelected
-                ? "#a63b00"
+                ? "var(--accent)"
                 : isRoot
-                  ? "#9b6b27"
+                  ? "var(--ink)"
                   : isResult
-                    ? "#3d7a5a"
-                    : "#b0a898";
+                    ? "var(--plot)"
+                    : "var(--line)";
+
+              const badgeFill = isSelected
+                ? "var(--accent)"
+                : isRoot
+                  ? "var(--ink)"
+                  : isResult
+                    ? "var(--plot)"
+                    : "var(--muted)";
 
               const badgeText = isRoot ? "POSTULATE" : isResult ? "RESULT" : "EQUATION";
 
@@ -458,11 +459,11 @@ export function Genealogy({
                     fontFamily="sans-serif"
                     fontSize={9}
                     fontWeight="bold"
-                    fill={stroke}
+                    fill={badgeFill}
                   >
                     {badgeText}
                   </text>
-                  <text x={8} y={38} fontFamily="sans-serif" fontSize={12} fill="#1c1917">
+                  <text x={8} y={38} fontFamily="sans-serif" fontSize={12} fill="var(--ink)">
                     {n.node.label}
                   </text>
                 </g>

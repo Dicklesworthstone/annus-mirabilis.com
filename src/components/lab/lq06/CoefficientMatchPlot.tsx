@@ -82,12 +82,12 @@ export function CoefficientMatchSideBySidePlot({
       >
         <defs>
           <linearGradient id="radGrad" x1="0%" y1="0%" x2="100%" y2="100%">
-            <stop offset="0%" stopColor="#f43f5e" stopOpacity="0.1" />
-            <stop offset="100%" stopColor="#f43f5e" stopOpacity="0.02" />
+            <stop offset="0%" stopColor="var(--accent)" stopOpacity="0.1" />
+            <stop offset="100%" stopColor="var(--accent)" stopOpacity="0.02" />
           </linearGradient>
           <linearGradient id="gasGrad" x1="0%" y1="0%" x2="100%" y2="100%">
-            <stop offset="0%" stopColor="#0ea5e9" stopOpacity="0.1" />
-            <stop offset="100%" stopColor="#0ea5e9" stopOpacity="0.02" />
+            <stop offset="0%" stopColor="var(--plot)" stopOpacity="0.1" />
+            <stop offset="100%" stopColor="var(--plot)" stopOpacity="0.02" />
           </linearGradient>
           <marker
             id="arrow"
@@ -98,11 +98,11 @@ export function CoefficientMatchSideBySidePlot({
             markerHeight="6"
             orient="auto-start-reverse"
           >
-            <path d="M 0 0 L 10 5 L 0 10 z" fill="#64748b" />
+            <path d="M 0 0 L 10 5 L 0 10 z" fill="var(--muted)" />
           </marker>
         </defs>
 
-        {/* Left Box: Radiation Side (Data datum - kept literal rose) */}
+        {/* Left Box: Radiation Side */}
         <g transform="translate(20, 20)">
           <rect
             x="0"
@@ -111,10 +111,10 @@ export function CoefficientMatchSideBySidePlot({
             height="180"
             rx="8"
             fill="url(#radGrad)"
-            stroke="#f43f5e"
+            stroke="var(--accent)"
             strokeWidth="1.5"
           />
-          <text x="15" y="28" fill="#e11d48" fontSize="12" fontWeight="bold">
+          <text x="15" y="28" fill="var(--accent)" fontSize="12" fontWeight="bold">
             Wien Monochromatic Radiation (§4)
           </text>
           <text x="15" y="52" fill="var(--muted)" fontSize="11">
@@ -153,15 +153,15 @@ export function CoefficientMatchSideBySidePlot({
             width="270"
             height="34"
             rx="4"
-            fill="#fff1f2"
-            stroke="#fecdd3"
+            fill="var(--wash)"
+            stroke="var(--accent)"
             strokeWidth="1"
           />
           <text
             x="150"
             y="158"
             textAnchor="middle"
-            fill="#be123c"
+            fill="var(--accent)"
             fontSize="12"
             fontFamily="monospace"
             fontWeight="bold"
@@ -170,7 +170,7 @@ export function CoefficientMatchSideBySidePlot({
           </text>
         </g>
 
-        {/* Right Box: Ideal Gas Side (Data datum - kept literal sky) */}
+        {/* Right Box: Ideal Gas Side */}
         <g transform="translate(380, 20)">
           <rect
             x="0"
@@ -179,10 +179,10 @@ export function CoefficientMatchSideBySidePlot({
             height="180"
             rx="8"
             fill="url(#gasGrad)"
-            stroke="#0ea5e9"
+            stroke="var(--plot)"
             strokeWidth="1.5"
           />
-          <text x="15" y="28" fill="#0284c7" fontSize="12" fontWeight="bold">
+          <text x="15" y="28" fill="var(--plot)" fontSize="12" fontWeight="bold">
             Ideal Gas / Solute Molecules (§5)
           </text>
           <text x="15" y="52" fill="var(--muted)" fontSize="11">
@@ -221,15 +221,15 @@ export function CoefficientMatchSideBySidePlot({
             width="270"
             height="34"
             rx="4"
-            fill="#f0f9ff"
-            stroke="#bae6fd"
+            fill="var(--wash)"
+            stroke="var(--plot)"
             strokeWidth="1"
           />
           <text
             x="150"
             y="158"
             textAnchor="middle"
-            fill="#0369a1"
+            fill="var(--plot)"
             fontSize="12"
             fontFamily="monospace"
             fontWeight="bold"
@@ -254,7 +254,7 @@ export function CoefficientMatchSideBySidePlot({
           </text>
         </g>
 
-        {/* Bottom Equivalence Banner (Data datum - kept literal green/rose) */}
+        {/* Bottom Equivalence Banner */}
         <g transform="translate(20, 215)">
           <rect
             x="0"
@@ -262,8 +262,8 @@ export function CoefficientMatchSideBySidePlot({
             width="660"
             height="55"
             rx="6"
-            fill={hasSelection && isMatch ? "#ecfdf5" : hasSelection ? "#fff1f2" : "var(--wash)"}
-            stroke={hasSelection && isMatch ? "#10b981" : hasSelection ? "#f43f5e" : "var(--line)"}
+            fill="var(--wash)"
+            stroke={hasSelection && isMatch ? "var(--plot)" : hasSelection ? "var(--accent)" : "var(--line)"}
             strokeWidth="1.5"
           />
           {hasSelection && isMatch ? (
@@ -272,7 +272,7 @@ export function CoefficientMatchSideBySidePlot({
                 x="330"
                 y="24"
                 textAnchor="middle"
-                fill="#065f46"
+                fill="var(--plot)"
                 fontSize="12"
                 fontWeight="bold"
               >
@@ -282,7 +282,7 @@ export function CoefficientMatchSideBySidePlot({
                 x="330"
                 y="44"
                 textAnchor="middle"
-                fill="#047857"
+                fill="var(--plot)"
                 fontSize="12"
                 fontFamily="monospace"
               >
@@ -296,13 +296,13 @@ export function CoefficientMatchSideBySidePlot({
                 x="330"
                 y="24"
                 textAnchor="middle"
-                fill="#9f1239"
+                fill="var(--accent)"
                 fontSize="12"
                 fontWeight="bold"
               >
                 ✗ Subexpression Mismatch
               </text>
-              <text x="330" y="44" textAnchor="middle" fill="#be123c" fontSize="12">
+              <text x="330" y="44" textAnchor="middle" fill="var(--accent)" fontSize="12">
                 The selected term does not match the dimensionless exponent n in S - S₀ = (R/N) n
                 ln(V/V₀).
               </text>
@@ -419,17 +419,17 @@ export function MeanEnergyStripPlot({
         role="img"
         aria-label="Mean quantum energy compared to molecule translational kinetic energy"
       >
-        {/* Wien Quantum Bar (Data datum - kept literal rose) */}
+        {/* Wien Quantum Bar */}
         <g transform="translate(20, 20)">
           <text x="0" y="16" fill="var(--ink)" fontSize="12" fontWeight="bold">
             Wien Light Quantum Mean Energy: ⟨ε⟩ = 3 k_B T
           </text>
           <rect x="0" y="26" width={barWidth} height="20" rx="3" fill="var(--wash)" />
-          <rect x="0" y="26" width={wienWidth} height="20" rx="3" fill="#f43f5e" />
+          <rect x="0" y="26" width={wienWidth} height="20" rx="3" fill="var(--accent)" />
           <text
             x={wienWidth + 10}
             y="41"
-            fill="#be123c"
+            fill="var(--accent)"
             fontSize="12"
             fontFamily="monospace"
             fontWeight="bold"
@@ -438,17 +438,17 @@ export function MeanEnergyStripPlot({
           </text>
         </g>
 
-        {/* Gas Molecule Bar (Data datum - kept literal sky) */}
+        {/* Gas Molecule Bar */}
         <g transform="translate(20, 80)">
           <text x="0" y="16" fill="var(--ink)" fontSize="12" fontWeight="bold">
             Gas Molecule Kinetic Energy: ⟨E_kin⟩ = 3/2 k_B T
           </text>
           <rect x="0" y="26" width={barWidth} height="20" rx="3" fill="var(--wash)" />
-          <rect x="0" y="26" width={gasWidth} height="20" rx="3" fill="#0ea5e9" />
+          <rect x="0" y="26" width={gasWidth} height="20" rx="3" fill="var(--plot)" />
           <text
             x={gasWidth + 10}
             y="41"
-            fill="#0284c7"
+            fill="var(--plot)"
             fontSize="12"
             fontFamily="monospace"
             fontWeight="bold"
@@ -457,7 +457,7 @@ export function MeanEnergyStripPlot({
           </text>
         </g>
 
-        {/* 2:1 Badge (Data datum - kept literal emerald) */}
+        {/* 2:1 Badge */}
         <g transform="translate(560, 45)">
           <rect
             x="0"
@@ -465,15 +465,15 @@ export function MeanEnergyStripPlot({
             width="100"
             height="50"
             rx="6"
-            fill="#ecfdf5"
-            stroke="#10b981"
+            fill="var(--wash)"
+            stroke="var(--plot)"
             strokeWidth="1"
           />
           <text
             x="50"
             y="22"
             textAnchor="middle"
-            fill="#065f46"
+            fill="var(--plot)"
             fontSize="10"
             fontWeight="bold"
             letterSpacing="0.05em"
@@ -484,7 +484,7 @@ export function MeanEnergyStripPlot({
             x="50"
             y="42"
             textAnchor="middle"
-            fill="#047857"
+            fill="var(--plot)"
             fontSize="16"
             fontFamily="monospace"
             fontWeight="bold"
