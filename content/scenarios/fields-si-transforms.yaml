@@ -1,0 +1,55 @@
+id: fields-si-transforms
+kind: modern-golden
+title: Electric and magnetic field transformations under standard boost
+description: >
+  Lorentz boost with beta = 0.6 on electric and magnetic fields with parallel invariance and transverse mixing.
+provenance:
+  paper: special-relativity
+  sectionId: s6
+  printedPage: 907
+constantSetId: modern-si-2019
+owner: fields
+inputs:
+  Ex:
+    value: 10.0
+    unit: V/m
+  Ey:
+    value: 20.0
+    unit: V/m
+  Ez:
+    value: -30.0
+    unit: V/m
+  Bx:
+    value: 1.0e-5
+    unit: T
+  By:
+    value: 2.0e-5
+    unit: T
+  Bz:
+    value: -4.0e-5
+    unit: T
+  beta:
+    value: 0.6
+    unit: dimensionless
+expected:
+  outputs:
+    - outputId: EprimeX
+      comparisonKind: tolerance
+      tolerance:
+        absolute: 1.0e-12
+        rationale: "Parallel component is invariant."
+      value: 10.0
+    - outputId: BprimeX
+      comparisonKind: tolerance
+      tolerance:
+        absolute: 1.0e-12
+        rationale: "Parallel component is invariant."
+      value: 1.0e-5
+    - outputId: gamma
+      comparisonKind: tolerance
+      tolerance:
+        absolute: 1.0e-12
+        rationale: "Lorentz factor at beta = 0.6 is 1.25."
+      value: 1.25
+modelVersion: 1
+schemaVersion: 1

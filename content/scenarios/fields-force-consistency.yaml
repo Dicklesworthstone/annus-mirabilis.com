@@ -1,0 +1,94 @@
+id: fields-force-consistency
+kind: modern-golden
+title: Relativistic force transformation consistency
+description: >
+  Generic fixture with c=1, q=1, beta=0.6 verifying agreement between transformed force law and direct Lorentz force in moving frame.
+provenance:
+  paper: special-relativity
+  sectionId: s6
+  printedPage: 908
+constantSetId: modern-si-2019
+owner: fields
+inputs:
+  c:
+    value: 1.0
+    unit: m/s
+  q:
+    value: 1.0
+    unit: C
+  Ex:
+    value: 0.3
+    unit: V/m
+  Ey:
+    value: 0.5
+    unit: V/m
+  Ez:
+    value: -0.2
+    unit: V/m
+  Bx:
+    value: 0.1
+    unit: T
+  By:
+    value: -0.4
+    unit: T
+  Bz:
+    value: 0.6
+    unit: T
+  ux:
+    value: 0.2
+    unit: m/s
+  uy:
+    value: 0.1
+    unit: m/s
+  uz:
+    value: -0.3
+    unit: m/s
+  beta:
+    value: 0.6
+    unit: dimensionless
+expected:
+  outputs:
+    - outputId: FK_x
+      comparisonKind: tolerance
+      tolerance:
+        absolute: 1.0e-12
+        rationale: "Unprimed Fx = 0.24 N."
+      value: 0.24
+    - outputId: FK_y
+      comparisonKind: tolerance
+      tolerance:
+        absolute: 1.0e-12
+        rationale: "Unprimed Fy = 0.35 N."
+      value: 0.35
+    - outputId: FK_z
+      comparisonKind: tolerance
+      tolerance:
+        absolute: 1.0e-12
+        rationale: "Unprimed Fz = -0.29 N."
+      value: -0.29
+    - outputId: Fprime_x
+      comparisonKind: tolerance
+      tolerance:
+        relative: 1.0e-10
+        rationale: "Transformed F'x = 69 / 440 N."
+      value: 0.15681818181818183
+    - outputId: Fprime_y
+      comparisonKind: tolerance
+      tolerance:
+        relative: 1.0e-10
+        rationale: "Transformed F'y = 7 / 22 N."
+      value: 0.3181818181818182
+    - outputId: Fprime_z
+      comparisonKind: tolerance
+      tolerance:
+        relative: 1.0e-10
+        rationale: "Transformed F'z = -29 / 110 N."
+      value: -0.26363636363636364
+    - outputId: maxRelError
+      comparisonKind: tolerance
+      tolerance:
+        absolute: 1.0e-12
+        rationale: "Residual between transformed force and direct force is below 1e-12."
+      value: 0.0
+modelVersion: 1
+schemaVersion: 1

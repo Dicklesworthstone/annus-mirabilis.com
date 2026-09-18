@@ -16,6 +16,7 @@ export const ELEMENTARY_CHARGE = constantValue(
   "elementaryCharge",
 ).value;
 export const MU0 = constantValue(getConstantSet("modern-codata-2022"), "vacuumPermeability").value;
+export const EPS0 = constantValue(getConstantSet("modern-codata-2022"), "vacuumPermittivity").value;
 
 export const PATH_REFUSAL_REASON =
   "The two ends of this path are not at the same time in the other frame, so the two line integrals are taken over different events. Choose a path across the direction of motion, or state which frame's clock fixes the path's ends.";
@@ -192,11 +193,83 @@ export function lorentzForce(q: number, E: Vec3, B: Vec3, velocity: Vec3): Vec3 
   });
 }
 
-export function forceConsistency(Fperp: number, FprimePerp: number, gammaValue: number): boolean {
-  if (![Fperp, FprimePerp, gammaValue].every(Number.isFinite) || gammaValue === 0) return false;
-  const expected = FprimePerp / gammaValue;
-  const scale = Math.max(Math.abs(Fperp), Math.abs(expected), 1e-30);
-  return Math.abs(Fperp - expected) <= 1e-12 * scale;
+export interface ForceConsistencyResult {
+  readonly F_K: Vec3;
+  readonly F_prime_transformed: Vec3;
+  readonly F_prime_direct: Vec3;
+  readonly u_prime: Vec3;
+  readonly fields_prime: Readonly<{ E: Vec3; B: Vec3 }>;
+  readonly residual: number;
+  readonly maxRelError: number;
+  readonly consistent: boolean;
+}
+
+export function forceConsistency(Fperp: number, FprimePerp: number, gammaValue: number): boolean;
+export function forceConsistency(
+  q: number,
+  fieldsK: { E: Vec3; B: Vec3 },
+  u: Vec3,
+  beta: number,
+  c?: number,
+): ForceConsistencyResult;
+export function forceConsistency(
+  arg1: number,
+  arg2: number | { E: Vec3; B: Vec3 },
+  arg3: number | Vec3,
+  arg4?: number,
+  arg5?: number,
+): boolean | ForceConsistencyResult {
+  if (typeof arg2 === "number" && typeof arg3 === "number") {
+    const Fperp = arg1;
+    const FprimePerp = arg2;
+    const gammaValue = arg3;
+    if (![Fperp, FprimePerp, gammaValue].every(Number.isFinite) || gammaValue === 0) return false;
+    const expected = FprimePerp / gammaValue;
+    const scale = Math.max(Math.abs(Fperp), Math.abs(expected), 1e-30);
+    return Math.abs(Fperp - expected) <= 1e-12 * scale;
+  }
+
+  const q = arg1;
+  const fieldsK = arg2 as { E: Vec3; B: Vec3 };
+  const u = arg3 as Vec3;
+  const beta = arg4 ?? 0;
+  const c = arg5 ?? C_SI;
+  const boost = beta * c;
+
+  // (i) Force in K, transformed with transformForce3D
+  const FK = lorentzForce(q, fieldsK.E, fieldsK.B, u);
+  const F_prime_transformed = transformForce3D(FK, u, boost, c);
+
+  // (ii) Force in moving frame with transformed fields and transformed velocity
+  const uPrime = transformVelocity3D(u, boost, c);
+  const tfFields = transformSI({ E: fieldsK.E, B: fieldsK.B, boost, c });
+  const fieldsPrime = Object.freeze({ E: tfFields.E, B: tfFields.B });
+  const F_prime_direct = lorentzForce(q, fieldsPrime.E, fieldsPrime.B, uPrime);
+
+  const dx = Math.abs(F_prime_transformed.x - F_prime_direct.x);
+  const dy = Math.abs(F_prime_transformed.y - F_prime_direct.y);
+  const dz = Math.abs(F_prime_transformed.z - F_prime_direct.z);
+  const residual = Math.sqrt(dx * dx + dy * dy + dz * dz);
+
+  const scaleX = Math.max(Math.abs(F_prime_transformed.x), Math.abs(F_prime_direct.x), 1e-15);
+  const scaleY = Math.max(Math.abs(F_prime_transformed.y), Math.abs(F_prime_direct.y), 1e-15);
+  const scaleZ = Math.max(Math.abs(F_prime_transformed.z), Math.abs(F_prime_direct.z), 1e-15);
+  const relX = dx / scaleX;
+  const relY = dy / scaleY;
+  const relZ = dz / scaleZ;
+  const maxRelError = Math.max(relX, relY, relZ);
+  const consistent = maxRelError <= 1e-12;
+
+  return Object.freeze({
+    F_K: FK,
+    F_prime_transformed,
+    F_prime_direct,
+    u_prime: uPrime,
+    fields_prime: fieldsPrime,
+    residual,
+    maxRelError,
+    consistent,
+  });
 }
 
 export type Sr02Snapshot = Readonly<{
@@ -452,6 +525,65 @@ export function transformForce3D(F: Vec3, u: Vec3, boost: number, c = C_SI): Vec
     y: F.y / (γ * denom),
     z: F.z / (γ * denom),
   });
+}
+
+export function transformForce(input: { F: Vec3; u: Vec3; beta: number; c?: number }): Vec3 {
+  const c = input.c ?? C_SI;
+  return transformForce3D(input.F, input.u, input.beta * c, c);
+}
+
+export interface GaussianHistoricalFields {
+  readonly X: number;
+  readonly Y: number;
+  readonly Z: number;
+  readonly L: number;
+  readonly M: number;
+  readonly N: number;
+}
+
+export function mapSIToGaussianHistorical(
+  E: Vec3,
+  B: Vec3,
+  eps0 = EPS0,
+  c = C_SI,
+): GaussianHistoricalFields {
+  const factor = Math.sqrt(4 * Math.PI * eps0);
+  return Object.freeze({
+    X: factor * E.x,
+    Y: factor * E.y,
+    Z: factor * E.z,
+    L: factor * c * B.x,
+    M: factor * c * B.y,
+    N: factor * c * B.z,
+  });
+}
+
+export function mapGaussianHistoricalToSI(
+  g: GaussianHistoricalFields,
+  eps0 = EPS0,
+  c = C_SI,
+): Readonly<{ E: Vec3; B: Vec3 }> {
+  const factor = Math.sqrt(4 * Math.PI * eps0);
+  return Object.freeze({
+    E: Object.freeze({
+      x: g.X / factor,
+      y: g.Y / factor,
+      z: g.Z / factor,
+    }),
+    B: Object.freeze({
+      x: g.L / (factor * c),
+      y: g.M / (factor * c),
+      z: g.N / (factor * c),
+    }),
+  });
+}
+
+export function mapChargeDensityHistorical(rhoSI: number, eps0 = EPS0): number {
+  return Math.sqrt((4 * Math.PI) / eps0) * rhoSI;
+}
+
+export function mapChargeDensityHistoricalToSI(rhoPrinted: number, eps0 = EPS0): number {
+  return Math.sqrt(eps0 / (4 * Math.PI)) * rhoPrinted;
 }
 
 export type Sr08UnitLayer = "si" | "gaussian";
@@ -1321,5 +1453,392 @@ export function evaluateSr12(input: Sr12Input): Sr12Snapshot {
     sphereTotalChargeStationary: valScalar("sphereM", sphereQ0),
     sphereTotalChargeMoving: valScalar("sphereC", sphereQPrime),
     eventId,
+  });
+}
+
+// ---------------------------------------------------------------------------
+// SR-02: Segment Motional EMF via Adaptive Gauss-Kronrod Quadrature
+// ---------------------------------------------------------------------------
+
+export type EmfFieldSource =
+  | { readonly kind: "uniform"; readonly B: Vec3 }
+  | { readonly kind: "dipole"; readonly moment: Vec3; readonly mu0?: number };
+
+export interface SegmentEmfInput {
+  readonly field: EmfFieldSource;
+  readonly segment: { readonly start: Vec3; readonly end: Vec3 };
+  readonly velocity: Vec3;
+}
+
+export interface SegmentEmfResult {
+  readonly value: number;
+  readonly errorEstimate: number;
+}
+
+const KRONROD_NODES: readonly number[] = [
+  0.0, 0.20778495500789845, -0.20778495500789845, 0.4058451513773972, -0.4058451513773972,
+  0.5860872354676911, -0.5860872354676911, 0.7415311855993945, -0.7415311855993945,
+  0.8648644233597691, -0.8648644233597691, 0.9491079123427585, -0.9491079123427585,
+  0.9914553711208126, -0.9914553711208126,
+];
+
+const KRONROD_WEIGHTS: readonly number[] = [
+  0.20948214108472782, 0.20443294007529889, 0.20443294007529889, 0.19035050024765646,
+  0.19035050024765646, 0.1690047266392679, 0.1690047266392679, 0.14065325971552592,
+  0.14065325971552592, 0.10479001032225019, 0.10479001032225019, 0.06309209262997854,
+  0.06309209262997854, 0.02293532201052922, 0.02293532201052922,
+];
+
+const GAUSS_INDICES = [0, 3, 4, 7, 8, 11, 12] as const;
+const GAUSS_WEIGHTS: readonly number[] = [
+  0.4179591836734694, 0.3818300505051189, 0.3818300505051189, 0.27970539148250007,
+  0.27970539148250007, 0.1294849661688697, 0.1294849661688697,
+];
+
+function integrateAdaptiveGK15(
+  f: (s: number) => number,
+  a: number,
+  b: number,
+  tol = 1e-12,
+  depth = 0,
+): { value: number; error: number } {
+  const m = (a + b) / 2;
+  const h = (b - a) / 2;
+
+  let kronrodSum = 0;
+  for (let i = 0; i < 15; i++) {
+    const s = m + h * (KRONROD_NODES[i] ?? 0);
+    kronrodSum += (KRONROD_WEIGHTS[i] ?? 0) * f(s);
+  }
+  const kronrod = h * kronrodSum;
+
+  let gaussSum = 0;
+  for (let j = 0; j < 7; j++) {
+    const idx = GAUSS_INDICES[j];
+    if (idx === undefined) continue;
+    const s = m + h * (KRONROD_NODES[idx] ?? 0);
+    gaussSum += (GAUSS_WEIGHTS[j] ?? 0) * f(s);
+  }
+  const gauss = h * gaussSum;
+  const error = Math.abs(kronrod - gauss);
+
+  if (error <= tol * Math.max(Math.abs(kronrod), 1e-15) || depth >= 10) {
+    return { value: kronrod, error };
+  }
+
+  const left = integrateAdaptiveGK15(f, a, m, tol, depth + 1);
+  const right = integrateAdaptiveGK15(f, m, b, tol, depth + 1);
+  return {
+    value: left.value + right.value,
+    error: left.error + right.error,
+  };
+}
+
+export function segmentEmf(input: SegmentEmfInput): SegmentEmfResult {
+  const { field, segment, velocity } = input;
+  const dx = segment.end.x - segment.start.x;
+  const dy = segment.end.y - segment.start.y;
+  const dz = segment.end.z - segment.start.z;
+
+  if (field.kind === "uniform") {
+    const vx = velocity.y * field.B.z - velocity.z * field.B.y;
+    const vy = velocity.z * field.B.x - velocity.x * field.B.z;
+    const vz = velocity.x * field.B.y - velocity.y * field.B.x;
+    return Object.freeze({
+      value: vx * dx + vy * dy + vz * dz,
+      errorEstimate: 0,
+    });
+  }
+
+  const moment = field.moment;
+  const mu0 = field.mu0 ?? MU0;
+
+  const integrand = (s: number): number => {
+    const px = segment.start.x + s * dx;
+    const py = segment.start.y + s * dy;
+    const pz = segment.start.z + s * dz;
+    const B = dipoleField(moment, { x: px, y: py, z: pz }, mu0);
+    const vx = velocity.y * B.z - velocity.z * B.y;
+    const vy = velocity.z * B.x - velocity.x * B.z;
+    const vz = velocity.x * B.y - velocity.y * B.x;
+    return vx * dx + vy * dy + vz * dz;
+  };
+
+  const res = integrateAdaptiveGK15(integrand, 0, 1);
+  return Object.freeze({
+    value: res.value,
+    errorEstimate: res.error,
+  });
+}
+
+// ---------------------------------------------------------------------------
+// SR-12: Charge Loop & Moving Sphere Total Charge
+// ---------------------------------------------------------------------------
+
+export function loopChargeInFrame(input: {
+  readonly current: number;
+  readonly lengthX: number;
+  readonly lengthY: number;
+  readonly beta: number;
+  readonly c?: number;
+}): ReturnType<typeof currentLoopCharges> {
+  const c = input.c ?? C_SI;
+  const boost = input.beta * c;
+  return currentLoopCharges(input.current, input.lengthX, input.lengthY, boost, c);
+}
+
+export interface MovingSphereChargeResult {
+  readonly restCharge: number;
+  readonly restDensity: number;
+  readonly restRadius: number;
+  readonly sphereSpeed: number;
+  readonly observerBeta: number;
+  readonly relativeBeta: number;
+  readonly relativeGamma: number;
+  readonly observedDensity: number;
+  readonly observedVolume: number;
+  readonly totalChargeAnalytic: number;
+  readonly totalChargeQuadrature: number;
+  readonly quadratureError: number;
+  readonly consistent: boolean;
+}
+
+export function movingSphereTotalCharge(input: {
+  readonly rho0: number;
+  readonly radius: number;
+  readonly u: number;
+  readonly observerBeta: number;
+  readonly c?: number;
+}): MovingSphereChargeResult {
+  const c = input.c ?? C_SI;
+  const { rho0, radius, u, observerBeta } = input;
+  const vObs = observerBeta * c;
+
+  const denom = 1 - (u * vObs) / (c * c);
+  const uPrime = (u - vObs) / denom;
+  const betaPrime = uPrime / c;
+  const gPrime = gamma(betaPrime);
+  const gammaPrime = gPrime.status === "value" ? gPrime.value : 1;
+
+  const rhoPrime = gammaPrime * rho0;
+  const restVolume = (4 / 3) * Math.PI * radius ** 3;
+  const restCharge = rho0 * restVolume;
+  const observedVolume = restVolume / gammaPrime;
+  const totalChargeAnalytic = restCharge;
+
+  const a = radius / gammaPrime;
+  const glNodes = [
+    -0.9739065285171717, -0.8650633666889845, -0.6794095682990244, -0.4333953941292472,
+    -0.1488743389816312, 0.1488743389816312, 0.4333953941292472, 0.6794095682990244,
+    0.8650633666889845, 0.9739065285171717,
+  ];
+  const glWeights = [
+    0.0666713443086881, 0.1494513491505806, 0.219086362515982, 0.2692667193099963,
+    0.2955242247147529, 0.2955242247147529, 0.2692667193099963, 0.219086362515982,
+    0.1494513491505806, 0.0666713443086881,
+  ];
+
+  let quadSum = 0;
+  for (let i = 0; i < glNodes.length; i++) {
+    const xi = glNodes[i] ?? 0;
+    const diskArea = Math.PI * radius * radius * (1 - xi * xi);
+    quadSum += (glWeights[i] ?? 0) * diskArea;
+  }
+  const totalChargeQuadrature = rhoPrime * quadSum * a;
+  const quadratureError =
+    Math.abs(totalChargeQuadrature - totalChargeAnalytic) / totalChargeAnalytic;
+
+  return Object.freeze({
+    restCharge,
+    restDensity: rho0,
+    restRadius: radius,
+    sphereSpeed: u,
+    observerBeta,
+    relativeBeta: betaPrime,
+    relativeGamma: gammaPrime,
+    observedDensity: rhoPrime,
+    observedVolume,
+    totalChargeAnalytic,
+    totalChargeQuadrature,
+    quadratureError,
+    consistent: quadratureError <= 1e-10,
+  });
+}
+
+export interface ContinuityResidualResult {
+  readonly stationaryResidual: number;
+  readonly movingResidual: number;
+  readonly maxTermStationary: number;
+  readonly maxTermMoving: number;
+  readonly relativeResidualStationary: number;
+  readonly relativeResidualMoving: number;
+  readonly passed: boolean;
+}
+
+export function continuityResidual(
+  configuration: {
+    readonly kind: "gaussian-pulse";
+    readonly rho0: number;
+    readonly u: number;
+    readonly sigma: number;
+  },
+  events: readonly { readonly x: number; readonly t: number }[],
+  beta: number,
+  c = C_SI,
+): ContinuityResidualResult {
+  const boost = beta * c;
+  let maxStatRes = 0;
+  let maxMovRes = 0;
+  let maxStatTerm = 0;
+  let maxMovTerm = 0;
+
+  for (const ev of events) {
+    const pulse = gaussianPulseContinuity(
+      configuration.rho0,
+      configuration.u,
+      configuration.sigma,
+      ev.x,
+      ev.t,
+      boost,
+      c,
+    );
+    if (pulse.stationaryResidual > maxStatRes) maxStatRes = pulse.stationaryResidual;
+    if (pulse.movingResidual > maxMovRes) maxMovRes = pulse.movingResidual;
+
+    const s2 = configuration.sigma * configuration.sigma;
+    const arg = ev.x - configuration.u * ev.t;
+    const termStat = Math.abs(((configuration.u * arg) / s2) * pulse.rho);
+    if (termStat > maxStatTerm) maxStatTerm = termStat;
+
+    const denom = 1 - (configuration.u * boost) / (c * c);
+    const uPrime = (configuration.u - boost) / denom;
+    const g = gamma(beta);
+    const γ = g.status === "value" ? g.value : 1;
+    const sigmaPrime = configuration.sigma / (γ * denom);
+    const sp2 = sigmaPrime * sigmaPrime;
+    const xp = γ * (ev.x - boost * ev.t);
+    const tp = γ * (ev.t - (boost * ev.x) / (c * c));
+    const argPrime = xp - uPrime * tp;
+    const termMov = Math.abs(((uPrime * argPrime) / sp2) * pulse.rhoPrime);
+    if (termMov > maxMovTerm) maxMovTerm = termMov;
+  }
+
+  const floor = 1e-20;
+  const tolStat = 1e-12 * Math.max(maxStatTerm, floor);
+  const tolMov = 1e-12 * Math.max(maxMovTerm, floor);
+  const relStat = maxStatRes / Math.max(maxStatTerm, floor);
+  const relMov = maxMovRes / Math.max(maxMovTerm, floor);
+
+  return Object.freeze({
+    stationaryResidual: maxStatRes,
+    movingResidual: maxMovRes,
+    maxTermStationary: maxStatTerm,
+    maxTermMoving: maxMovTerm,
+    relativeResidualStationary: relStat,
+    relativeResidualMoving: relMov,
+    passed: maxStatRes <= tolStat && maxMovRes <= tolMov,
+  });
+}
+
+// ---------------------------------------------------------------------------
+// SR-07: Transform Derivatives via Richardson Central Differences
+// ---------------------------------------------------------------------------
+
+export type SpacetimeScalarFn = (x: number, y: number, z: number, t: number) => number;
+
+export interface TransformDerivativesResult {
+  readonly point: {
+    readonly x: number;
+    readonly y: number;
+    readonly z: number;
+    readonly t: number;
+  };
+  readonly beta: number;
+  readonly dFdx_direct: number;
+  readonly dFdt_direct: number;
+  readonly dFdx_fromChain: number;
+  readonly dFdt_fromChain: number;
+  readonly relErrorDx: number;
+  readonly relErrorDt: number;
+  readonly passed: boolean;
+}
+
+export function transformDerivatives(
+  f: SpacetimeScalarFn,
+  point: { readonly x: number; readonly y: number; readonly z: number; readonly t: number },
+  beta: number,
+  c = C_SI,
+  tolerance = 1e-8,
+): TransformDerivativesResult {
+  const boost = beta * c;
+  const g = gamma(beta);
+  if (g.status !== "value") {
+    throw new Error("Invalid beta");
+  }
+  const γ = g.value;
+
+  function diff4(
+    fn: SpacetimeScalarFn,
+    p: [number, number, number, number],
+    dim: 0 | 1 | 2 | 3,
+    h = 1e-4,
+  ): number {
+    const pPlusH = [...p] as [number, number, number, number];
+    const pMinusH = [...p] as [number, number, number, number];
+    const pPlus2H = [...p] as [number, number, number, number];
+    const pMinus2H = [...p] as [number, number, number, number];
+
+    pPlusH[dim] += h;
+    pMinusH[dim] -= h;
+    pPlus2H[dim] += 2 * h;
+    pMinus2H[dim] -= 2 * h;
+
+    const d1 = (fn(...pPlusH) - fn(...pMinusH)) / (2 * h);
+    const d2 = (fn(...pPlus2H) - fn(...pMinus2H)) / (4 * h);
+    return (4 * d1 - d2) / 3;
+  }
+
+  const hx = 1e-4;
+  const ht = hx / c;
+
+  const pK: [number, number, number, number] = [point.x, point.y, point.z, point.t];
+  const dFdx_direct = diff4(f, pK, 0, hx);
+  const dFdt_direct = diff4(f, pK, 3, ht);
+
+  const xp = γ * (point.x - boost * point.t);
+  const tp = γ * (point.t - (boost * point.x) / (c * c));
+  const yp = point.y;
+  const zp = point.z;
+
+  const fPrime: SpacetimeScalarFn = (xp_in, yp_in, zp_in, tp_in) => {
+    const x_orig = γ * (xp_in + boost * tp_in);
+    const t_orig = γ * (tp_in + (boost * xp_in) / (c * c));
+    return f(x_orig, yp_in, zp_in, t_orig);
+  };
+
+  const pPrime: [number, number, number, number] = [xp, yp, zp, tp];
+  const dFp_dxp = diff4(fPrime, pPrime, 0, hx);
+  const dFp_dtp = diff4(fPrime, pPrime, 3, ht);
+
+  const dFdx_fromChain = γ * (dFp_dxp - (boost / (c * c)) * dFp_dtp);
+  const dFdt_fromChain = γ * (dFp_dtp - boost * dFp_dxp);
+
+  const scaleDx = Math.max(Math.abs(dFdx_direct), Math.abs(dFdx_fromChain), 1e-12);
+  const scaleDt = Math.max(Math.abs(dFdt_direct), Math.abs(dFdt_fromChain), 1e-12);
+  const relErrorDx = Math.abs(dFdx_direct - dFdx_fromChain) / scaleDx;
+  const relErrorDt = Math.abs(dFdt_direct - dFdt_fromChain) / scaleDt;
+
+  const passed = relErrorDx <= tolerance && relErrorDt <= tolerance;
+
+  return Object.freeze({
+    point,
+    beta,
+    dFdx_direct,
+    dFdt_direct,
+    dFdx_fromChain,
+    dFdt_fromChain,
+    relErrorDx,
+    relErrorDt,
+    passed,
   });
 }

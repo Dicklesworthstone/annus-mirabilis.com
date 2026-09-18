@@ -1,0 +1,43 @@
+id: fields-plane-wave-residuals
+kind: modern-golden
+title: Transformed plane wave Maxwell residuals
+description: >
+  Transformed plane wave at beta = 0.6 has amplitude and frequency scaling factor 0.5 and Maxwell residuals < 1e-12.
+provenance:
+  paper: special-relativity
+  sectionId: s7
+  printedPage: 911
+constantSetId: modern-si-2019
+owner: fields
+inputs:
+  planeWaveBeta:
+    value: 0.6
+    unit: dimensionless
+  E0:
+    value: 1.0
+    unit: V/m
+  omega:
+    value: 1.0
+    unit: rad/s
+expected:
+  outputs:
+    - outputId: amplitudeFactor
+      comparisonKind: tolerance
+      tolerance:
+        relative: 1.0e-12
+        rationale: "Transformed amplitude factor is 0.5."
+      value: 0.5
+    - outputId: frequencyFactor
+      comparisonKind: tolerance
+      tolerance:
+        relative: 1.0e-12
+        rationale: "Transformed frequency factor is 0.5."
+      value: 0.5
+    - outputId: maxResidual
+      comparisonKind: tolerance
+      tolerance:
+        absolute: 1.0e-12
+        rationale: "Maximum Maxwell residual is below 1e-12."
+      value: 0.0
+modelVersion: 1
+schemaVersion: 1

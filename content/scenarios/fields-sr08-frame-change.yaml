@@ -1,0 +1,40 @@
+id: fields-sr08-frame-change
+kind: modern-golden
+title: Electric and magnetic frame change (SR-08)
+description: >
+  Ey = 1 V/m at beta = 0.6 transforms to E'y = 1.25 V/m and B'z = -2.5017307e-9 T.
+provenance:
+  paper: special-relativity
+  sectionId: s6
+  printedPage: 907
+constantSetId: modern-si-2019
+owner: fields
+inputs:
+  Ey:
+    value: 1.0
+    unit: V/m
+  beta:
+    value: 0.6
+    unit: dimensionless
+expected:
+  outputs:
+    - outputId: gamma
+      comparisonKind: tolerance
+      tolerance:
+        absolute: 1.0e-12
+        rationale: "gamma = 1.25."
+      value: 1.25
+    - outputId: EprimeY
+      comparisonKind: tolerance
+      tolerance:
+        relative: 1.0e-12
+        rationale: "E'y = 1.25 V/m."
+      value: 1.25
+    - outputId: BprimeZ
+      comparisonKind: tolerance
+      tolerance:
+        relative: 1.0e-6
+        rationale: "B'z = -2.5017307e-9 T."
+      value: -2.50173072552e-9
+modelVersion: 1
+schemaVersion: 1

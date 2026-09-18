@@ -1,0 +1,37 @@
+id: fields-sr02-emf
+kind: modern-golden
+title: Magnet and conductor electromotive force (SR-02)
+description: >
+  Motional EMF of 1 V for B = 1 T, v = 10 m/s, ell = 0.1 m with firstOrderExcess 5.563250e-16 matching high precision reference.
+provenance:
+  paper: special-relativity
+  sectionId: s6
+  printedPage: 891
+constantSetId: modern-si-2019
+owner: fields
+inputs:
+  speed:
+    value: 10.0
+    unit: m/s
+  magneticField:
+    value: 1.0
+    unit: T
+  segmentLength:
+    value: 0.1
+    unit: m
+expected:
+  outputs:
+    - outputId: emfMagnet
+      comparisonKind: tolerance
+      tolerance:
+        relative: 1.0e-12
+        rationale: "Magnet frame EMF is 1 V."
+      value: 1.0
+    - outputId: emfExcess
+      comparisonKind: tolerance
+      tolerance:
+        relative: 1.0e-12
+        rationale: "Excess is 5.563250e-16."
+      value: 5.5632502802680968e-16
+modelVersion: 1
+schemaVersion: 1

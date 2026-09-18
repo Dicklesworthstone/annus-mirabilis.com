@@ -1,0 +1,52 @@
+id: fields-sr12-moving-sphere
+kind: modern-golden
+title: Moving charged sphere total charge invariance (SR-12)
+description: >
+  Sphere with rho0=1 C/m^3, R=1 m moving at 0.6c measured from observer at beta=-0.6 has total charge 4.188790 C.
+provenance:
+  paper: special-relativity
+  sectionId: s9
+  printedPage: 917
+constantSetId: modern-si-2019
+owner: fields
+inputs:
+  rho0:
+    value: 1.0
+    unit: C/m^3
+  radius:
+    value: 1.0
+    unit: m
+  u:
+    value: 179875474.8
+    unit: m/s
+  observerBeta:
+    value: -0.6
+    unit: dimensionless
+expected:
+  outputs:
+    - outputId: relativeGamma
+      comparisonKind: tolerance
+      tolerance:
+        relative: 1.0e-5
+        rationale: "Relative gamma is 2.125."
+      value: 2.125
+    - outputId: observedVolume
+      comparisonKind: tolerance
+      tolerance:
+        relative: 1.0e-4
+        rationale: "Measured contracted volume is 1.971195 m^3."
+      value: 1.971195
+    - outputId: totalChargeAnalytic
+      comparisonKind: tolerance
+      tolerance:
+        relative: 1.0e-4
+        rationale: "Total analytic charge is 4.188790 C."
+      value: 4.188790
+    - outputId: totalChargeQuadrature
+      comparisonKind: tolerance
+      tolerance:
+        relative: 1.0e-4
+        rationale: "Total quadrature charge matches analytic."
+      value: 4.188790
+modelVersion: 1
+schemaVersion: 1

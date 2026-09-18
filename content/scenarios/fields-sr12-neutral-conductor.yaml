@@ -1,0 +1,46 @@
+id: fields-sr12-neutral-conductor
+kind: modern-golden
+title: Neutral conductor charge and current transformation (SR-12)
+description: >
+  Neutral current-carrying conductor with rho=0, Jx=1 at beta=0.6, c=1 gives rho'=-0.75, J'x=1.25 and invariant -1.
+provenance:
+  paper: special-relativity
+  sectionId: s9
+  printedPage: 916
+constantSetId: modern-si-2019
+owner: fields
+inputs:
+  c:
+    value: 1.0
+    unit: m/s
+  rho:
+    value: 0.0
+    unit: C/m^3
+  Jx:
+    value: 1.0
+    unit: A/m^2
+  beta:
+    value: 0.6
+    unit: dimensionless
+expected:
+  outputs:
+    - outputId: rhoPrime
+      comparisonKind: tolerance
+      tolerance:
+        absolute: 1.0e-12
+        rationale: "rho' = -0.75."
+      value: -0.75
+    - outputId: JprimeX
+      comparisonKind: tolerance
+      tolerance:
+        absolute: 1.0e-12
+        rationale: "J'x = 1.25."
+      value: 1.25
+    - outputId: fourCurrentInvariant
+      comparisonKind: tolerance
+      tolerance:
+        absolute: 1.0e-12
+        rationale: "Invariant is -1."
+      value: -1.0
+modelVersion: 1
+schemaVersion: 1

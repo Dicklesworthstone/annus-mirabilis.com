@@ -1,0 +1,55 @@
+id: fields-invariants
+kind: modern-golden
+title: Field invariants preservation under Lorentz boost
+description: >
+  Field invariants E^2 - c^2 B^2 and E.B are identically preserved under boost beta = 0.6.
+provenance:
+  paper: special-relativity
+  sectionId: s6
+  printedPage: 908
+constantSetId: modern-si-2019
+owner: fields
+inputs:
+  Ex:
+    value: 100.0
+    unit: V/m
+  Ey:
+    value: 200.0
+    unit: V/m
+  Ez:
+    value: -150.0
+    unit: V/m
+  Bx:
+    value: 1.0e-6
+    unit: T
+  By:
+    value: -2.0e-6
+    unit: T
+  Bz:
+    value: 3.0e-6
+    unit: T
+  beta:
+    value: 0.6
+    unit: dimensionless
+expected:
+  outputs:
+    - outputId: gamma
+      comparisonKind: tolerance
+      tolerance:
+        absolute: 1.0e-12
+        rationale: "Lorentz factor is 1.25."
+      value: 1.25
+    - outputId: eDotB
+      comparisonKind: tolerance
+      tolerance:
+        relative: 1.0e-12
+        rationale: "Unprimed E.B value."
+      value: -0.00075
+    - outputId: eDotBPrime
+      comparisonKind: tolerance
+      tolerance:
+        relative: 1.0e-12
+        rationale: "Primed E'.B' equals unprimed value within 1e-12."
+      value: -0.00075
+modelVersion: 1
+schemaVersion: 1

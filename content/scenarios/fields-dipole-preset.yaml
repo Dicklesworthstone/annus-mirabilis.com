@@ -1,0 +1,37 @@
+id: fields-dipole-preset
+kind: modern-golden
+title: Magnetic dipole preset field and force
+description: >
+  Equatorial magnetic field of a 1 A.m^2 dipole at 0.05 m gives 8.000e-4 T and 1.28174e-21 N force on an electron moving at 10 m/s.
+provenance:
+  paper: special-relativity
+  sectionId: s6
+  printedPage: 891
+constantSetId: modern-si-2019
+owner: fields
+inputs:
+  momentZ:
+    value: 1.0
+    unit: A*m^2
+  posX:
+    value: 0.05
+    unit: m
+  speedY:
+    value: 10.0
+    unit: m/s
+expected:
+  outputs:
+    - outputId: Bmag
+      comparisonKind: tolerance
+      tolerance:
+        relative: 1.0e-5
+        rationale: "Equatorial dipole field |B| = 8.000e-4 T."
+      value: 8.0e-4
+    - outputId: forceMagnitude
+      comparisonKind: tolerance
+      tolerance:
+        relative: 1.0e-4
+        rationale: "Force on electron q * v * B = 1.28174e-21 N."
+      value: 1.28174e-21
+modelVersion: 1
+schemaVersion: 1

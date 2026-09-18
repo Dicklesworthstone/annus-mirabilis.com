@@ -20,6 +20,19 @@ import {
   synchronizationRound,
 } from "../../physics/reference/events.ts";
 import {
+  C_SI,
+  dipoleField,
+  ELEMENTARY_CHARGE,
+  evaluateSr02,
+  fieldInvariants,
+  forceConsistency,
+  fourCurrentInvariants,
+  maxwellResidualsPlaneWave,
+  movingSphereTotalCharge,
+  transformChargeCurrent,
+  transformSI,
+} from "../../physics/reference/fields.ts";
+import {
   chiSquareInterval,
   empiricalCoverageFraction,
   identifiabilityFamily,
@@ -70,6 +83,7 @@ const walkLawsPath = fileURLToPath(
   new URL("../../physics/reference/diffusion/walkLaws.ts", import.meta.url),
 );
 const eventsPath = fileURLToPath(new URL("../../physics/reference/events.ts", import.meta.url));
+const fieldsPath = fileURLToPath(new URL("../../physics/reference/fields.ts", import.meta.url));
 
 function num(inputs: Record<string, number>, key: string): number {
   const value = inputs[key];
@@ -554,6 +568,192 @@ const OWNERS: OwnerRecord[] = [
           out.longitudinalDistanceMovedLs = lc.value.longitudinalDistanceMovedLs;
           out.oneWayLightPathLs = lc.value.oneWayLightPathLs;
         }
+      }
+
+      return out;
+    },
+  },
+  {
+    id: "fields",
+    sourcePath: fieldsPath,
+    fn: (ctx: OwnerContext) => {
+      const out: Record<string, number> = {};
+
+      // SI transform & invariants
+      if (
+        typeof ctx.inputs.Ex === "number" &&
+        typeof ctx.inputs.Ey === "number" &&
+        typeof ctx.inputs.Ez === "number" &&
+        typeof ctx.inputs.Bx === "number" &&
+        typeof ctx.inputs.By === "number" &&
+        typeof ctx.inputs.Bz === "number" &&
+        typeof ctx.inputs.beta === "number"
+      ) {
+        const c = typeof ctx.inputs.c === "number" ? ctx.inputs.c : C_SI;
+        const E = { x: ctx.inputs.Ex, y: ctx.inputs.Ey, z: ctx.inputs.Ez };
+        const B = { x: ctx.inputs.Bx, y: ctx.inputs.By, z: ctx.inputs.Bz };
+        const boost = ctx.inputs.beta * c;
+
+        const tf = transformSI({ E, B, boost, c });
+        out.EprimeX = tf.E.x;
+        out.EprimeY = tf.E.y;
+        out.EprimeZ = tf.E.z;
+        out.BprimeX = tf.B.x;
+        out.BprimeY = tf.B.y;
+        out.BprimeZ = tf.B.z;
+        out.gamma = tf.gamma;
+
+        const inv0 = fieldInvariants(E, B, c);
+        const invP = fieldInvariants(tf.E, tf.B, c);
+        out.eDotB = inv0.eDotB;
+        out.e2MinusC2B2 = inv0.e2MinusC2B2;
+        out.eDotBPrime = invP.eDotB;
+        out.e2MinusC2B2Prime = invP.e2MinusC2B2;
+      }
+
+      // Force consistency scenario
+      if (
+        typeof ctx.inputs.q === "number" &&
+        typeof ctx.inputs.ux === "number" &&
+        typeof ctx.inputs.uy === "number" &&
+        typeof ctx.inputs.uz === "number" &&
+        typeof ctx.inputs.Ex === "number" &&
+        typeof ctx.inputs.Bx === "number" &&
+        typeof ctx.inputs.beta === "number"
+      ) {
+        const c = typeof ctx.inputs.c === "number" ? ctx.inputs.c : C_SI;
+        const q = ctx.inputs.q;
+        const E = { x: ctx.inputs.Ex, y: ctx.inputs.Ey ?? 0, z: ctx.inputs.Ez ?? 0 };
+        const B = { x: ctx.inputs.Bx, y: ctx.inputs.By ?? 0, z: ctx.inputs.Bz ?? 0 };
+        const u = { x: ctx.inputs.ux, y: ctx.inputs.uy, z: ctx.inputs.uz };
+        const res = forceConsistency(q, { E, B }, u, ctx.inputs.beta, c);
+        out.FK_x = res.F_K.x;
+        out.FK_y = res.F_K.y;
+        out.FK_z = res.F_K.z;
+        out.Fprime_x = res.F_prime_transformed.x;
+        out.Fprime_y = res.F_prime_transformed.y;
+        out.Fprime_z = res.F_prime_transformed.z;
+        out.maxRelError = res.maxRelError;
+      }
+
+      // Dipole preset scenario
+      if (typeof ctx.inputs.momentZ === "number" && typeof ctx.inputs.posX === "number") {
+        const moment = { x: 0, y: 0, z: ctx.inputs.momentZ };
+        const pos = { x: ctx.inputs.posX, y: 0, z: 0 };
+        const B = dipoleField(moment, pos);
+        out.Bz = B.z;
+        out.Bmag = Math.abs(B.z);
+        if (typeof ctx.inputs.speedY === "number") {
+          const q = ELEMENTARY_CHARGE;
+          const F = {
+            x: -q * ctx.inputs.speedY * B.z,
+            y: 0,
+            z: 0,
+          };
+          out.forceMagnitude = Math.abs(F.x);
+        }
+      }
+
+      // SR-02 EMF scenario
+      if (
+        typeof ctx.inputs.speed === "number" &&
+        typeof ctx.inputs.magneticField === "number" &&
+        typeof ctx.inputs.segmentLength === "number"
+      ) {
+        const snap = evaluateSr02({
+          mode: "analytic",
+          descriptionFrame: "magnet-rest",
+          speed: ctx.inputs.speed,
+          fieldModel: "uniform",
+          magneticField: ctx.inputs.magneticField,
+          dipoleMoment: 1,
+          testPointDistance: 0.05,
+          segmentLength: ctx.inputs.segmentLength,
+          testCharge: ELEMENTARY_CHARGE,
+          pathOrientation: "transverse",
+          sliceDeclared: false,
+        });
+        if (snap.emfMagnet.status === "value") out.emfMagnet = snap.emfMagnet.value as number;
+        if (snap.emfConductor.status === "value")
+          out.emfConductor = snap.emfConductor.value as number;
+        if (snap.emfExcess.status === "value") out.emfExcess = snap.emfExcess.value as number;
+        if (snap.lorentzFactor.status === "value")
+          out.lorentzFactor = snap.lorentzFactor.value as number;
+      }
+
+      // SR-08 frame change scenario
+      if (
+        typeof ctx.inputs.Ey === "number" &&
+        typeof ctx.inputs.beta === "number" &&
+        ctx.inputs.Ex === undefined
+      ) {
+        const beta = ctx.inputs.beta;
+        const boost = beta * C_SI;
+        const E = { x: 0, y: ctx.inputs.Ey, z: 0 };
+        const B = { x: 0, y: 0, z: 0 };
+        const tf = transformSI({ E, B, boost, c: C_SI });
+        out.EprimeY = tf.E.y;
+        out.BprimeZ = tf.B.z;
+        out.gamma = tf.gamma;
+      }
+
+      // SR-12 neutral conductor scenario
+      if (
+        typeof ctx.inputs.rho === "number" &&
+        typeof ctx.inputs.Jx === "number" &&
+        typeof ctx.inputs.beta === "number" &&
+        ctx.inputs.Ex === undefined
+      ) {
+        const c = typeof ctx.inputs.c === "number" ? ctx.inputs.c : C_SI;
+        const boost = ctx.inputs.beta * c;
+        const res = transformChargeCurrent({
+          rho: ctx.inputs.rho,
+          J: { x: ctx.inputs.Jx, y: 0, z: 0 },
+          boost,
+          c,
+        });
+        out.rhoPrime = res.rho;
+        out.JprimeX = res.J.x;
+        const inv = fourCurrentInvariants(res.rho, res.J, c);
+        out.fourCurrentInvariant = inv.si;
+      }
+
+      // SR-12 moving sphere scenario
+      if (
+        typeof ctx.inputs.rho0 === "number" &&
+        typeof ctx.inputs.radius === "number" &&
+        typeof ctx.inputs.u === "number" &&
+        typeof ctx.inputs.observerBeta === "number"
+      ) {
+        const res = movingSphereTotalCharge({
+          rho0: ctx.inputs.rho0,
+          radius: ctx.inputs.radius,
+          u: ctx.inputs.u,
+          observerBeta: ctx.inputs.observerBeta,
+        });
+        out.observedDensity = res.observedDensity;
+        out.observedVolume = res.observedVolume;
+        out.totalChargeAnalytic = res.totalChargeAnalytic;
+        out.totalChargeQuadrature = res.totalChargeQuadrature;
+        out.relativeGamma = res.relativeGamma;
+      }
+
+      // Plane wave residuals scenario
+      if (
+        typeof ctx.inputs.planeWaveBeta === "number" &&
+        typeof ctx.inputs.E0 === "number" &&
+        typeof ctx.inputs.omega === "number"
+      ) {
+        const res = maxwellResidualsPlaneWave({
+          beta: ctx.inputs.planeWaveBeta,
+          wave: "plus-x",
+          polarization: "primary",
+          E0: ctx.inputs.E0,
+          omega: ctx.inputs.omega,
+        });
+        out.maxResidual = res.maxResidual;
+        out.amplitudeFactor = res.amplitudeFactor;
+        out.frequencyFactor = res.frequencyFactor;
       }
 
       return out;
