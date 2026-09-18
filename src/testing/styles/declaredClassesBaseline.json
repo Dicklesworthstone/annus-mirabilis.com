@@ -77,7 +77,7 @@
   "src/discovery/PpeTask.tsx": 71,
   "src/discovery/SourceJump.tsx": 39,
   "src/discovery/Stage.tsx": 125,
-  "src/discovery/SupportLadder.tsx": 183,
+  "src/discovery/SupportLadder.tsx": 0,
   "src/discovery/WorldCheck.tsx": 97,
   "src/discovery/cards/CardDetail.tsx": 0,
   "src/discovery/cards/KnowledgeCard.tsx": 61,
