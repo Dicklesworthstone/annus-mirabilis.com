@@ -164,16 +164,12 @@ export function ChargeCurrentLab({
       </header>
 
       {/* Presets */}
-      <nav aria-label="Presets" className="presets-bar flex flex-wrap gap-2 mb-4">
+      <nav aria-label="Presets" className="preset-list" style={{ marginBottom: "1rem" }}>
         {presets.map((preset) => (
           <button
             key={preset.id}
             type="button"
-            className={`btn-preset px-3 py-1.5 text-xs rounded border transition ${
-              p.mode === preset.params.mode
-                ? "bg-zinc-800 text-white dark:bg-zinc-100 dark:text-zinc-900 font-semibold"
-                : "bg-white text-zinc-700 dark:bg-zinc-900 dark:text-zinc-300 hover:bg-zinc-100 dark:hover:bg-zinc-800"
-            }`}
+            className={p.mode === preset.params.mode ? "button" : "button secondary"}
             onClick={() => apply({ ...p, ...preset.params })}
           >
             {preset.label}
@@ -198,37 +194,46 @@ export function ChargeCurrentLab({
       />
 
       {/* Unit System Explanatory Note */}
-      <aside className="p-3 bg-zinc-100 dark:bg-zinc-900 rounded border border-zinc-200 dark:border-zinc-800 text-xs text-zinc-600 dark:text-zinc-400 space-y-1">
-        <div className="flex items-center justify-between">
-          <span className="font-semibold text-zinc-800 dark:text-zinc-200">
-            Unit System Modernization
-          </span>
-          <div className="flex gap-1">
+      <aside
+        className="notice"
+        style={{
+          margin: "1rem 0",
+          fontSize: "0.8rem",
+          display: "flex",
+          flexDirection: "column",
+          gap: "0.5rem",
+        }}
+      >
+        <div
+          style={{
+            display: "flex",
+            alignItems: "center",
+            justifyContent: "space-between",
+            flexWrap: "wrap",
+            gap: "0.5rem",
+          }}
+        >
+          <span style={{ fontWeight: 600 }}>Unit System Modernization</span>
+          <div className="button-group">
             <button
               type="button"
-              className={`px-2 py-0.5 rounded text-[11px] ${
-                p.unitLayer === "si"
-                  ? "bg-zinc-700 text-white font-medium"
-                  : "bg-zinc-200 dark:bg-zinc-800"
-              }`}
+              className={p.unitLayer === "si" ? "button" : "button secondary"}
+              style={{ padding: "0.2rem 0.5rem", fontSize: "0.75rem", minHeight: "auto" }}
               onClick={() => apply({ ...p, unitLayer: "si" })}
             >
               SI (modern)
             </button>
             <button
               type="button"
-              className={`px-2 py-0.5 rounded text-[11px] ${
-                p.unitLayer === "gaussian"
-                  ? "bg-zinc-700 text-white font-medium"
-                  : "bg-zinc-200 dark:bg-zinc-800"
-              }`}
+              className={p.unitLayer === "gaussian" ? "button" : "button secondary"}
+              style={{ padding: "0.2rem 0.5rem", fontSize: "0.75rem", minHeight: "auto" }}
               onClick={() => apply({ ...p, unitLayer: "gaussian" })}
             >
               Gaussian 1905 (§9)
             </button>
           </div>
         </div>
-        <p>
+        <p style={{ margin: 0 }}>
           Einstein’s 1905 paper employs Gaussian (CGS) units where Coulomb’s constant is 1 and
           Maxwell’s divergence equation contains a 4π factor (∇·E = 4πρ). In modern SI, ∇·E = ρ/ε₀
           where ε₀ = 1/(μ₀c²). Charge and current ratios remain identical across unit systems.
@@ -236,13 +241,23 @@ export function ChargeCurrentLab({
       </aside>
 
       {/* Controls Form */}
-      <form onSubmit={submit} className="lab-controls space-y-4 pt-2">
-        <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
-          <div className="input-field flex flex-col gap-1 text-xs">
-            <label
-              htmlFor={`${id}-boost-range`}
-              className="font-medium text-zinc-700 dark:text-zinc-300"
-            >
+      <form
+        onSubmit={submit}
+        className="lab-controls"
+        style={{ display: "flex", flexDirection: "column", gap: "1rem", paddingTop: "0.5rem" }}
+      >
+        <div
+          style={{
+            display: "grid",
+            gridTemplateColumns: "repeat(auto-fit, minmax(220px, 1fr))",
+            gap: "1rem",
+          }}
+        >
+          <div
+            className="input-field"
+            style={{ display: "flex", flexDirection: "column", gap: "0.25rem", fontSize: "0.8rem" }}
+          >
+            <label htmlFor={`${id}-boost-range`} style={{ fontWeight: 500 }}>
               Observer Boost Speed (v/c): {(draft.boost / C_SI).toFixed(3)}
             </label>
             <input
@@ -253,9 +268,22 @@ export function ChargeCurrentLab({
               step="0.01"
               value={draft.boost / C_SI}
               onChange={(e) => setDraft({ ...draft, boost: parseFloat(e.target.value) * C_SI })}
-              className="w-full"
+              style={{ width: "100%" }}
             />
-            <label htmlFor={`${id}-boost-number`} className="sr-only">
+            <label
+              htmlFor={`${id}-boost-number`}
+              style={{
+                position: "absolute",
+                width: 1,
+                height: 1,
+                padding: 0,
+                margin: -1,
+                overflow: "hidden",
+                clip: "rect(0, 0, 0, 0)",
+                whiteSpace: "nowrap",
+                border: 0,
+              }}
+            >
               Observer Boost Speed (m/s)
             </label>
             <input
@@ -265,15 +293,15 @@ export function ChargeCurrentLab({
               max="284802835"
               value={draft.boost}
               onChange={(e) => setDraft({ ...draft, boost: parseFloat(e.target.value) || 0 })}
-              className="px-2 py-1 border rounded text-xs"
+              style={{ fontSize: "0.8rem" }}
             />
           </div>
 
-          <div className="input-field flex flex-col gap-1 text-xs">
-            <label
-              htmlFor={`${id}-charge-density`}
-              className="font-medium text-zinc-700 dark:text-zinc-300"
-            >
+          <div
+            className="input-field"
+            style={{ display: "flex", flexDirection: "column", gap: "0.25rem", fontSize: "0.8rem" }}
+          >
+            <label htmlFor={`${id}-charge-density`} style={{ fontWeight: 500 }}>
               Charge Density ρ (C/m³)
             </label>
             <input
@@ -285,18 +313,18 @@ export function ChargeCurrentLab({
                 setDraft({ ...draft, chargeDensity: parseFloat(e.target.value) || 0 })
               }
               aria-describedby={`${id}-charge-density-hint`}
-              className="px-2 py-1 border rounded text-xs"
+              style={{ fontSize: "0.8rem" }}
             />
-            <span id={`${id}-charge-density-hint`} className="text-[10px] text-zinc-400">
+            <span id={`${id}-charge-density-hint`} className="fine" style={{ fontSize: "0.75rem" }}>
               Set 0 for neutral conductor
             </span>
           </div>
 
-          <div className="input-field flex flex-col gap-1 text-xs">
-            <label
-              htmlFor={`${id}-current-density-x`}
-              className="font-medium text-zinc-700 dark:text-zinc-300"
-            >
+          <div
+            className="input-field"
+            style={{ display: "flex", flexDirection: "column", gap: "0.25rem", fontSize: "0.8rem" }}
+          >
+            <label htmlFor={`${id}-current-density-x`} style={{ fontWeight: 500 }}>
               Current Density Jx (A/m²)
             </label>
             <input
@@ -308,30 +336,39 @@ export function ChargeCurrentLab({
                 setDraft({ ...draft, currentDensityX: parseFloat(e.target.value) || 0 })
               }
               aria-describedby={`${id}-current-density-x-hint`}
-              className="px-2 py-1 border rounded text-xs"
+              style={{ fontSize: "0.8rem" }}
             />
-            <span id={`${id}-current-density-x-hint`} className="text-[10px] text-zinc-400">
+            <span
+              id={`${id}-current-density-x-hint`}
+              className="fine"
+              style={{ fontSize: "0.75rem" }}
+            >
               Conduction current along x
             </span>
           </div>
         </div>
 
         {error && (
-          <div className="p-2 bg-red-50 text-red-700 dark:bg-red-950/50 dark:text-red-300 rounded text-xs">
+          <div
+            className="notice"
+            style={{
+              padding: "0.5rem 0.75rem",
+              borderLeftColor: "var(--accent)",
+              color: "var(--accent)",
+              fontSize: "0.8rem",
+            }}
+          >
             {error}
           </div>
         )}
 
-        <div className="flex gap-2">
-          <button
-            type="submit"
-            className="px-4 py-1.5 bg-blue-600 text-white text-xs font-semibold rounded hover:bg-blue-700"
-          >
+        <div className="button-group">
+          <button type="submit" className="button">
             Apply parameters
           </button>
           <button
             type="button"
-            className="px-3 py-1.5 bg-zinc-200 dark:bg-zinc-800 text-xs rounded hover:bg-zinc-300"
+            className="button secondary"
             onClick={() => {
               setDraft({ ...SR12_DEFAULTS });
               apply({ ...SR12_DEFAULTS });
@@ -343,117 +380,177 @@ export function ChargeCurrentLab({
       </form>
 
       {/* Telemetry Output Table */}
-      <div className="telemetry-table overflow-x-auto border border-zinc-200 dark:border-zinc-800 rounded">
-        <table className="w-full text-xs text-left border-collapse">
-          <thead className="bg-zinc-100 dark:bg-zinc-900 border-b border-zinc-200 dark:border-zinc-800">
-            <tr>
-              <th className="p-2">Quantity</th>
-              <th className="p-2">Stationary Frame (K)</th>
-              <th className="p-2">Moving Frame (k)</th>
-              <th className="p-2">Unit</th>
-              <th className="p-2">Lorentz Transformation Law</th>
+      <div
+        className="table-scroll"
+        tabIndex={0}
+        role="region"
+        aria-label="Charge and current density telemetry across frames"
+        style={{
+          overflowX: "auto",
+          border: "1px solid var(--line)",
+          borderRadius: "0.25rem",
+          margin: "1rem 0",
+        }}
+      >
+        <table
+          style={{
+            width: "100%",
+            fontSize: "0.8rem",
+            textAlign: "left",
+            borderCollapse: "collapse",
+          }}
+        >
+          <thead>
+            <tr style={{ background: "var(--wash)", borderBottom: "1px solid var(--line)" }}>
+              <th style={{ padding: "0.5rem" }}>Quantity</th>
+              <th style={{ padding: "0.5rem" }}>Stationary Frame (K)</th>
+              <th style={{ padding: "0.5rem" }}>Moving Frame (k)</th>
+              <th style={{ padding: "0.5rem" }}>Unit</th>
+              <th style={{ padding: "0.5rem" }}>Lorentz Transformation Law</th>
             </tr>
           </thead>
-          <tbody className="divide-y divide-zinc-200 dark:divide-zinc-800">
-            <tr>
-              <td className="p-2 font-medium">Charge Density ρ</td>
-              <td className="p-2">
+          <tbody>
+            <tr style={{ borderBottom: "1px solid var(--line)" }}>
+              <td style={{ padding: "0.5rem", fontWeight: 500 }}>Charge Density ρ</td>
+              <td style={{ padding: "0.5rem" }}>
                 <OutputReading item={rhoStat} />
               </td>
-              <td className="p-2 font-mono text-purple-600 dark:text-purple-400">
+              <td
+                style={{
+                  padding: "0.5rem",
+                  fontFamily: "var(--font-mono)",
+                  color: "var(--accent)",
+                }}
+              >
                 <OutputReading item={rhoMov} />
               </td>
-              <td className="p-2 text-zinc-500">C/m³</td>
-              <td className="p-2 text-zinc-600 dark:text-zinc-400">ρ&apos; = γ (ρ - vJx/c²)</td>
+              <td style={{ padding: "0.5rem", color: "var(--muted)" }}>C/m³</td>
+              <td style={{ padding: "0.5rem", color: "var(--muted)" }}>ρ&apos; = γ (ρ - vJx/c²)</td>
             </tr>
-            <tr>
-              <td className="p-2 font-medium">Current Density Jx</td>
-              <td className="p-2">
+            <tr style={{ borderBottom: "1px solid var(--line)" }}>
+              <td style={{ padding: "0.5rem", fontWeight: 500 }}>Current Density Jx</td>
+              <td style={{ padding: "0.5rem" }}>
                 <OutputReading item={jStat} />
               </td>
-              <td className="p-2 font-mono">
+              <td style={{ padding: "0.5rem", fontFamily: "var(--font-mono)" }}>
                 <OutputReading item={jMov} />
               </td>
-              <td className="p-2 text-zinc-500">A/m²</td>
-              <td className="p-2 text-zinc-600 dark:text-zinc-400">J&apos;x = γ (Jx - vρ)</td>
+              <td style={{ padding: "0.5rem", color: "var(--muted)" }}>A/m²</td>
+              <td style={{ padding: "0.5rem", color: "var(--muted)" }}>J&apos;x = γ (Jx - vρ)</td>
             </tr>
-            <tr>
-              <td className="p-2 font-medium">Lorentz Factor γ</td>
-              <td className="p-2" colSpan={2}>
+            <tr style={{ borderBottom: "1px solid var(--line)" }}>
+              <td style={{ padding: "0.5rem", fontWeight: 500 }}>Lorentz Factor γ</td>
+              <td style={{ padding: "0.5rem" }} colSpan={2}>
                 <OutputReading item={gRes} />
               </td>
-              <td className="p-2 text-zinc-500">1</td>
-              <td className="p-2 text-zinc-600 dark:text-zinc-400">1 / √(1 - v²/c²)</td>
+              <td style={{ padding: "0.5rem", color: "var(--muted)" }}>1</td>
+              <td style={{ padding: "0.5rem", color: "var(--muted)" }}>1 / √(1 - v²/c²)</td>
             </tr>
-            <tr>
-              <td className="p-2 font-medium">Four-Current Invariant (cρ)² - |J|²</td>
-              <td className="p-2" colSpan={2}>
+            <tr style={{ borderBottom: "1px solid var(--line)" }}>
+              <td style={{ padding: "0.5rem", fontWeight: 500 }}>
+                Four-Current Invariant (cρ)² - |J|²
+              </td>
+              <td style={{ padding: "0.5rem" }} colSpan={2}>
                 <OutputReading item={invSI} />
               </td>
-              <td className="p-2 text-zinc-500">A²/m⁴</td>
-              <td className="p-2 text-zinc-600 dark:text-zinc-400">
+              <td style={{ padding: "0.5rem", color: "var(--muted)" }}>A²/m⁴</td>
+              <td style={{ padding: "0.5rem", color: "var(--muted)" }}>
                 Exact scalar invariant across all frames
               </td>
             </tr>
             {p.mode === "current-loop" && (
               <>
-                <tr>
-                  <td className="p-2 font-medium">Loop Top Leg Charge (+x)</td>
-                  <td className="p-2">0 C</td>
-                  <td className="p-2 font-mono text-red-500">
+                <tr style={{ borderBottom: "1px solid var(--line)" }}>
+                  <td style={{ padding: "0.5rem", fontWeight: 500 }}>Loop Top Leg Charge (+x)</td>
+                  <td style={{ padding: "0.5rem" }}>0 C</td>
+                  <td
+                    style={{
+                      padding: "0.5rem",
+                      fontFamily: "var(--font-mono)",
+                      color: "var(--accent)",
+                    }}
+                  >
                     <OutputReading item={legPos} />
                   </td>
-                  <td className="p-2 text-zinc-500">C</td>
-                  <td className="p-2 text-zinc-600 dark:text-zinc-400">q&apos;+ = -v I lx / c²</td>
+                  <td style={{ padding: "0.5rem", color: "var(--muted)" }}>C</td>
+                  <td style={{ padding: "0.5rem", color: "var(--muted)" }}>
+                    q&apos;+ = -v I lx / c²
+                  </td>
                 </tr>
-                <tr>
-                  <td className="p-2 font-medium">Loop Bottom Leg Charge (-x)</td>
-                  <td className="p-2">0 C</td>
-                  <td className="p-2 font-mono text-blue-500">
+                <tr style={{ borderBottom: "1px solid var(--line)" }}>
+                  <td style={{ padding: "0.5rem", fontWeight: 500 }}>
+                    Loop Bottom Leg Charge (-x)
+                  </td>
+                  <td style={{ padding: "0.5rem" }}>0 C</td>
+                  <td
+                    style={{
+                      padding: "0.5rem",
+                      fontFamily: "var(--font-mono)",
+                      color: "var(--plot)",
+                    }}
+                  >
                     <OutputReading item={legNeg} />
                   </td>
-                  <td className="p-2 text-zinc-500">C</td>
-                  <td className="p-2 text-zinc-600 dark:text-zinc-400">q&apos;- = +v I lx / c²</td>
+                  <td style={{ padding: "0.5rem", color: "var(--muted)" }}>C</td>
+                  <td style={{ padding: "0.5rem", color: "var(--muted)" }}>
+                    q&apos;- = +v I lx / c²
+                  </td>
                 </tr>
-                <tr>
-                  <td className="p-2 font-medium">Loop Total Charge</td>
-                  <td className="p-2">0 C</td>
-                  <td className="p-2 font-mono font-semibold">
+                <tr style={{ borderBottom: "1px solid var(--line)" }}>
+                  <td style={{ padding: "0.5rem", fontWeight: 500 }}>Loop Total Charge</td>
+                  <td style={{ padding: "0.5rem" }}>0 C</td>
+                  <td
+                    style={{
+                      padding: "0.5rem",
+                      fontFamily: "var(--font-mono)",
+                      fontWeight: 600,
+                    }}
+                  >
                     <OutputReading item={loopTot} />
                   </td>
-                  <td className="p-2 text-zinc-500">C</td>
-                  <td className="p-2 text-zinc-600 dark:text-zinc-400">
+                  <td style={{ padding: "0.5rem", color: "var(--muted)" }}>C</td>
+                  <td style={{ padding: "0.5rem", color: "var(--muted)" }}>
                     Q&apos; = q&apos;+ + q&apos;- = 0 (charge conservation)
                   </td>
                 </tr>
               </>
             )}
             {p.mode === "moving-sphere" && (
-              <tr>
-                <td className="p-2 font-medium">Sphere Total Charge Q</td>
-                <td className="p-2">
+              <tr style={{ borderBottom: "1px solid var(--line)" }}>
+                <td style={{ padding: "0.5rem", fontWeight: 500 }}>Sphere Total Charge Q</td>
+                <td style={{ padding: "0.5rem" }}>
                   <OutputReading item={sphereStat} />
                 </td>
-                <td className="p-2 font-mono font-semibold">
+                <td
+                  style={{
+                    padding: "0.5rem",
+                    fontFamily: "var(--font-mono)",
+                    fontWeight: 600,
+                  }}
+                >
                   <OutputReading item={sphereMov} />
                 </td>
-                <td className="p-2 text-zinc-500">C</td>
-                <td className="p-2 text-zinc-600 dark:text-zinc-400">
+                <td style={{ padding: "0.5rem", color: "var(--muted)" }}>C</td>
+                <td style={{ padding: "0.5rem", color: "var(--muted)" }}>
                   Q&apos; = Q (exact invariance of total charge)
                 </td>
               </tr>
             )}
             {p.mode === "gaussian-pulse" && (
-              <tr>
-                <td className="p-2 font-medium">Continuity Residual ∂ρ/∂t + ∇·J</td>
-                <td className="p-2">
+              <tr style={{ borderBottom: "1px solid var(--line)" }}>
+                <td style={{ padding: "0.5rem", fontWeight: 500 }}>
+                  Continuity Residual ∂ρ/∂t + ∇·J
+                </td>
+                <td style={{ padding: "0.5rem" }}>
                   <OutputReading item={contStat} />
                 </td>
-                <td className="p-2 font-mono">
+                <td style={{ padding: "0.5rem", fontFamily: "var(--font-mono)" }}>
                   <OutputReading item={contMov} />
                 </td>
-                <td className="p-2 text-zinc-500">A/m³</td>
-                <td className="p-2 text-zinc-600 dark:text-zinc-400">0 in all inertial frames</td>
+                <td style={{ padding: "0.5rem", color: "var(--muted)" }}>A/m³</td>
+                <td style={{ padding: "0.5rem", color: "var(--muted)" }}>
+                  0 in all inertial frames
+                </td>
               </tr>
             )}
           </tbody>
@@ -461,16 +558,27 @@ export function ChargeCurrentLab({
       </div>
 
       {/* Predict Mode */}
-      <section className="predict-mode p-4 bg-amber-50/50 dark:bg-amber-950/20 border border-amber-200 dark:border-amber-800 rounded space-y-3">
-        <h4 className="text-xs font-bold uppercase tracking-wider text-amber-900 dark:text-amber-200">
+      <section
+        style={{
+          padding: "1rem",
+          background: "var(--wash)",
+          border: "1px solid var(--line)",
+          borderRadius: "0.25rem",
+          display: "flex",
+          flexDirection: "column",
+          gap: "0.75rem",
+          margin: "1rem 0",
+        }}
+      >
+        <h4 className="eyebrow" style={{ margin: 0, fontSize: "0.75rem" }}>
           Predict: Is a Neutral Wire Still Neutral in a Moving Frame?
         </h4>
-        <p className="text-xs text-amber-800 dark:text-amber-300">
+        <p style={{ margin: 0, fontSize: "0.85rem" }}>
           A neutral wire in the laboratory carries a current in the +x direction. Described from a
           frame moving in the +x direction at 0.6c, is the wire still electrically neutral?
         </p>
 
-        <div className="flex flex-wrap gap-2">
+        <div className="button-group">
           {[
             { id: "still-neutral", label: "Still neutral (ρ' = 0)" },
             { id: "negatively-charged", label: "Negatively charged (ρ' < 0)" },
@@ -479,11 +587,8 @@ export function ChargeCurrentLab({
             <button
               key={cand.id}
               type="button"
-              className={`px-3 py-1 text-xs rounded border transition ${
-                prediction === cand.id
-                  ? "bg-amber-700 text-white font-semibold border-amber-800"
-                  : "bg-white text-zinc-800 dark:bg-zinc-900 dark:text-zinc-200 border-amber-300 hover:bg-amber-100 dark:hover:bg-amber-900/40"
-              }`}
+              className={prediction === cand.id ? "button" : "button secondary"}
+              style={{ fontSize: "0.75rem" }}
               onClick={() => setPrediction(cand.id)}
             >
               {cand.label}
@@ -492,11 +597,18 @@ export function ChargeCurrentLab({
         </div>
 
         {prediction && (
-          <div className="p-3 bg-white dark:bg-zinc-900 rounded border border-amber-200 dark:border-amber-800 text-xs space-y-1">
-            <p className="font-semibold text-zinc-900 dark:text-zinc-100">
+          <div
+            className="notice"
+            style={{
+              padding: "0.75rem",
+              borderRadius: "0.25rem",
+              fontSize: "0.8rem",
+            }}
+          >
+            <p style={{ margin: "0 0 0.25rem", fontWeight: 600 }}>
               {prediction === "negatively-charged" ? "✓ Correct!" : "Explanation:"}
             </p>
-            <p className="text-zinc-600 dark:text-zinc-400">
+            <p style={{ margin: 0 }}>
               Because charge density and current density transform together like a four-vector,
               ρ&apos; = γ(ρ - vJx/c²). When ρ = 0 and Jx &gt; 0 with v &gt; 0, ρ&apos; = -γ v Jx /
               c² &lt; 0. The moving observer describes the wire as carrying a net negative charge
@@ -508,20 +620,30 @@ export function ChargeCurrentLab({
       </section>
 
       {/* Editorial Explanations (R0-R3) */}
-      <footer className="editorial-captions space-y-2 pt-4 border-t border-zinc-200 dark:border-zinc-800 text-xs text-zinc-600 dark:text-zinc-400">
-        <p>
+      <footer
+        className="fine"
+        style={{
+          display: "flex",
+          flexDirection: "column",
+          gap: "0.5rem",
+          paddingTop: "1rem",
+          borderTop: "1px solid var(--line)",
+          marginTop: "1rem",
+        }}
+      >
+        <p style={{ margin: 0 }}>
           <strong>Overview:</strong> {SR12_CAPTION.r0}
         </p>
-        <p>
+        <p style={{ margin: 0 }}>
           <strong>Four-Current Invariant:</strong> {SR12_CAPTION.r1}
         </p>
-        <p>
+        <p style={{ margin: 0 }}>
           <strong>Current Loops & Total Charge:</strong> {SR12_CAPTION.r2}
         </p>
-        <p>
+        <p style={{ margin: 0 }}>
           <strong>Continuity Invariance (§9):</strong> {SR12_CAPTION.r3}
         </p>
-        <div className="pt-2 text-[11px] text-zinc-500">
+        <div style={{ paddingTop: "0.5rem", fontSize: "0.75rem" }}>
           <strong>Not modeled:</strong> {SR12_NOT_MODELED.join(", ")}.
         </div>
       </footer>
