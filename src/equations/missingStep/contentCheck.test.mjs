@@ -18,6 +18,26 @@ test('policy, duplicate identities and JSON duplicate keys are not ignored',()=>
  assert.ok(checkMissingStepContent([{...files[0],text:files[0].text.replace('"schemaVersion":1','"schemaVersion":1,"schemaVersion":1')},files[1]],anchors).length);
  assert.deepEqual(checkMissingStepContent(files,anchors),[]);
 });
+test('reject: (contentCheck.ts:24) missing-step-content diagnostic emitted on invalid lesson content',()=>{
+ const invalid = [{
+  ...files[0],
+  text: files[0].text.replace('"schemaVersion":1', '"schemaVersion":1,"schemaVersion":1'),
+ }, files[1]];
+ const diags = checkMissingStepContent(invalid, anchors);
+ assert.equal(diags.length, 1);
+ assert.equal(diags[0].code, 'missing-step-content');
+ assert.ok(diags[0].message.length > 0);
+});
+test('accept: missing-step-content produces no diagnostics for valid derivation records',()=>{
+ const diags = checkMissingStepContent(files, anchors);
+ assert.deepEqual(diags, []);
+});
+test('reject: (contentCheck.ts:20) missing-step-content diagnostic emitted on duplicate missing-step chain identity',()=>{
+ const duplicate = [...files, { ...files[0], path: 'equations/derivations/duplicate.yaml' }];
+ const diags = checkMissingStepContent(duplicate, anchors);
+ const diag = diags.find(d => d.code === 'missing-step-content' && d.message.includes('Duplicate missing-step chain identity'));
+ assert.ok(diag, 'must emit missing-step-content for duplicate chain identity');
+});
 test('the normal content loader includes both worked-chain and policy records',async()=>{
  const input=await loadReadingFiles();
  assert.ok(input.some(f=>f.path===files[0].path));assert.ok(input.some(f=>f.path===files[1].path));

@@ -31,6 +31,34 @@ test("tape mutations cannot change two inputs, command class, seed, grid, or che
   r=>r.tape.events.push({...r.tape.events[0],actionIndex:2}), r=>r.tape.events[0].paramId="__proto__"];
  for(const mutate of mutations){const r=clone();mutate(r);assert.throws(()=>parseComparisonReplay(r));}
 });
+test("reject: (replayEntry.ts:135) bm01-comparison tape variation mismatch throws TypeError", () => {
+ const r = clone();
+ r.tape.events[0].commandClass = "observer-change";
+ assert.throws(
+  () => parseComparisonReplay(r),
+  (err) => err instanceof TypeError && err.message === "Replay tape must reproduce exactly the saved single variation.",
+ );
+});
+test("accept: bm01-comparison tape with exact saved single variation parses cleanly", () => {
+ const r = clone();
+ const parsed = parseComparisonReplay(r);
+ assert.equal(parsed.kind, "bm01-comparison");
+ assert.equal(parsed.tape.events[0].commandClass, "setup-change");
+});
+test("reject: (replayEntry.ts:138) bm01-comparison replay checkpoint mismatch throws TypeError", () => {
+ const r = clone();
+ r.tape.acceptedCheckpoint.acceptedInputRevision++;
+ assert.throws(
+  () => parseComparisonReplay(r),
+  (err) => err instanceof TypeError && err.message === "Replay checkpoint does not name its accepted result.",
+ );
+});
+test("accept: bm01-comparison replay checkpoint naming its accepted result parses cleanly", () => {
+ const r = clone();
+ const parsed = parseComparisonReplay(r);
+ assert.equal(parsed.kind, "bm01-comparison");
+ assert.equal(parsed.tape.acceptedCheckpoint.acceptedInputRevision, parsed.variant.acceptedInputRevision);
+});
 test("saved evidence tampering fails the checkpoint before replay", async () => {
  const r=clone();r.variant.outputs.sampleRms.value*=2;
  assert.equal(await verifyReplayEvidence(parseComparisonReplay(r)),false);
