@@ -1,0 +1,121 @@
+/**
+ * Visual kit legends styling (am-inst-2d-view-kit-u75r).
+ */
+
+.quantity-legend {
+  font-family: var(--font-sans);
+  font-size: 0.75rem;
+  color: var(--ink);
+}
+
+.quantity-legend.legend-horizontal {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 0.5rem;
+}
+
+.quantity-legend.legend-vertical {
+  display: flex;
+  flex-direction: column;
+  gap: 0.5rem;
+}
+
+.legend-title {
+  font-weight: 600;
+  font-size: 0.75rem;
+  color: var(--muted);
+  margin-right: 0.5rem;
+}
+
+.legend-list {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.75rem;
+  list-style: none;
+  padding: 0;
+  margin: 0;
+}
+
+.legend-vertical .legend-list {
+  flex-direction: column;
+  gap: 0.375rem;
+}
+
+.legend-item {
+  display: flex;
+  align-items: center;
+  gap: 0.375rem;
+  font-size: 0.75rem;
+}
+
+.legend-item.is-highlighted {
+  font-weight: 600;
+}
+
+.legend-symbol {
+  display: inline-block;
+  width: 0.75rem;
+  height: 0.75rem;
+  flex-shrink: 0;
+}
+
+.symbol-circle {
+  border-radius: 50%;
+}
+
+.symbol-square {
+  border-radius: 0;
+}
+
+.symbol-triangle {
+  clip-path: polygon(50% 0%, 0% 100%, 100% 100%);
+}
+
+.symbol-diamond {
+  transform: rotate(45deg);
+  width: 0.625rem;
+  height: 0.625rem;
+}
+
+.symbol-solid-line {
+  height: 2px;
+  width: 1rem;
+}
+
+.symbol-dashed-line {
+  height: 0;
+  width: 1rem;
+  border-top: 2px dashed currentColor;
+}
+
+.symbol-dotted-line {
+  height: 0;
+  width: 1rem;
+  border-top: 2px dotted currentColor;
+}
+
+.legend-label {
+  color: var(--ink);
+}
+
+.legend-unit {
+  color: var(--muted);
+  margin-left: 0.125rem;
+}
+
+/* False-color spectrum legend */
+.false-color-legend {
+  border: 1px solid var(--line);
+  background: var(--wash);
+  padding: 0.5rem;
+  border-radius: 0.25rem;
+  font-size: 0.75rem;
+  color: var(--ink);
+}
+
+.spectrum-bar {
+  height: 0.5rem;
+  width: 100%;
+  border-radius: 0.25rem;
+}

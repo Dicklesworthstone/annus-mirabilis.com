@@ -1,4 +1,5 @@
 import type { ReactElement } from "react";
+import "./legends.css";
 
 export type LegendSymbolShape =
   | "circle"
@@ -8,6 +9,16 @@ export type LegendSymbolShape =
   | "solid-line"
   | "dashed-line"
   | "dotted-line";
+
+const SYMBOL_CLASS_MAP: Record<LegendSymbolShape, string> = {
+  circle: "symbol-circle",
+  square: "symbol-square",
+  triangle: "symbol-triangle",
+  diamond: "symbol-diamond",
+  "solid-line": "symbol-solid-line",
+  "dashed-line": "symbol-dashed-line",
+  "dotted-line": "symbol-dotted-line",
+};
 
 export interface QuantityLegendEntry {
   readonly quantityId: string;
@@ -37,24 +48,21 @@ export function QuantityLegend({
       className={`quantity-legend ${orientation === "vertical" ? "legend-vertical" : "legend-horizontal"} ${className}`.trim()}
       aria-label={title}
     >
-      {title && (
-        <span className="legend-title font-semibold text-xs text-neutral-600 dark:text-neutral-400 mr-2">
-          {title}:
-        </span>
-      )}
-      <ul className="legend-list flex flex-wrap gap-3 list-none p-0 m-0">
+      {title && <span className="legend-title">{title}:</span>}
+      <ul className="legend-list">
         {entries.map((entry) => {
           const shape = entry.symbolShape || "circle";
+          const symbolClass = SYMBOL_CLASS_MAP[shape] ?? "symbol-circle";
           return (
             <li
               key={entry.quantityId}
-              className={`legend-item flex items-center gap-1.5 text-xs ${entry.isHighlighted ? "is-highlighted font-semibold" : ""}`.trim()}
+              className={`legend-item ${entry.isHighlighted ? "is-highlighted" : ""}`.trim()}
               data-quantity-id={entry.quantityId}
               data-role={entry.role}
             >
               {/* Non-color symbol badge */}
               <span
-                className={`legend-symbol symbol-${shape} inline-block w-3 h-3 flex-shrink-0`}
+                className={`legend-symbol ${symbolClass}`}
                 style={{
                   backgroundColor: entry.roleColor || "currentColor",
                   border: entry.role ? "1px solid currentColor" : undefined,
@@ -63,9 +71,7 @@ export function QuantityLegend({
               />
               <span className="legend-label">
                 {entry.label}
-                {entry.unit && (
-                  <span className="legend-unit text-neutral-500 ml-0.5">[{entry.unit}]</span>
-                )}
+                {entry.unit && <span className="legend-unit">[{entry.unit}]</span>}
               </span>
             </li>
           );
