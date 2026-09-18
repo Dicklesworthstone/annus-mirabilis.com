@@ -21,7 +21,7 @@ const logger = new TestLogger("manifest-brownian-motion", newRunIdentity(), logR
 describe("brownian editorial inventory (am-edn-inventory-brownian-slg)", () => {
   test("source and translation are absent; authored layers do not claim review", () => {
     const inventory = loadBrownianInventory();
-    expect(inventory.facsimilePinned).toBe(false);
+    expect(inventory.facsimilePinned).toBe(true);
     expect(inventory.sourceUnitsFrozen).toBe(false);
     expect(inventory.paperStatus).toBe("explanation-preview");
     expect(inventory.sourceStatus).toBe("in-preparation");
