@@ -1,0 +1,5 @@
+defaults:
+  runningHeadPatterns: []
+ledgers:
+  other-unrelated-key:
+    expectedClosings: []

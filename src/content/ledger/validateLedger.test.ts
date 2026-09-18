@@ -521,3 +521,356 @@ Hierbei bedeutet $N$ die Molekülzahl und $x < V$ die Raumbedingung.
     message: `31-page ledger validated in ${Math.round(durationMs)}ms (< 1s threshold)`,
   });
 });
+
+test("validateLedger: (validateLedger.ts:338) config-key-missing raised when multi-ledger slug lacks config and complete defaults", () => {
+  const ledgerPath = path.join(FIXTURES_DIR, "two-page-valid.txt");
+  const receiptPath = path.join(FIXTURES_DIR, "two-page-valid.receipt.md");
+  const res = validateLedger(ledgerPath, {
+    receiptPath,
+    paper: "molecular-dimensions",
+    ledgerKey: "ap-19-289",
+    configPath: path.join(FIXTURES_DIR, "incomplete-config.yaml"),
+  });
+  assert.ok(res.errors.some((e) => e.code === "config-key-missing"));
+
+  // Accept with valid configuration
+  const validRes = validateLedger(ledgerPath, {
+    receiptPath,
+    paper: "brownian-motion",
+  });
+  assert.ok(!validRes.errors.some((e) => e.code === "config-key-missing"));
+});
+
+test("validateLedger: (validateLedger.ts:446) allowlist-entry-invalid raised when allowlist entry lacks required fields", () => {
+  const ledgerPath = path.join(FIXTURES_DIR, "two-page-valid.txt");
+  const receiptPath = path.join(FIXTURES_DIR, "two-page-valid.receipt.md");
+  const res = validateLedger(ledgerPath, {
+    receiptPath,
+    paper: "brownian-motion",
+    allowlistPath: path.join(FIXTURES_DIR, "invalid-allowlist.yaml"),
+  });
+  assert.ok(res.errors.some((e) => e.code === "allowlist-entry-invalid"));
+
+  // Accept with valid allowlist
+  const validRes = validateLedger(ledgerPath, {
+    receiptPath,
+    paper: "brownian-motion",
+  });
+  assert.ok(!validRes.errors.some((e) => e.code === "allowlist-entry-invalid"));
+});
+
+test("validateLedger: (validateLedger.ts:581) first-marker raised when first line is not a page marker at all", () => {
+  const ledgerPath = path.join(FIXTURES_DIR, "two-page-valid.txt");
+  const receiptPath = path.join(FIXTURES_DIR, "two-page-valid.receipt.md");
+  const baseContent = loadFixture("two-page-valid.txt");
+  const res = validateLedger(ledgerPath, {
+    content: `Nicht ein Seiten-Marker\n${baseContent}`,
+    receiptPath,
+    paper: "brownian-motion",
+  });
+  assert.ok(
+    res.errors.some((e) => e.code === "first-marker" && e.message.includes("not a page marker")),
+  );
+
+  // Accept valid first line
+  const validRes = validateLedger(ledgerPath, {
+    content: baseContent,
+    receiptPath,
+    paper: "brownian-motion",
+  });
+  assert.ok(!validRes.errors.some((e) => e.code === "first-marker"));
+});
+
+test("validateLedger: (validateLedger.ts:659) short-paragraph warning raised for paragraph with two or fewer words", () => {
+  const ledgerPath = path.join(FIXTURES_DIR, "two-page-valid.txt");
+  const receiptPath = path.join(FIXTURES_DIR, "two-page-valid.receipt.md");
+  const baseContent = loadFixture("two-page-valid.txt");
+  const res = validateLedger(ledgerPath, {
+    content: baseContent.replace("[[OTHER-ARTICLE-OMITTED]]", "Kurz.\n\n"),
+    receiptPath,
+    paper: "brownian-motion",
+  });
+  assert.ok(res.warnings.some((w) => w.code === "short-paragraph"));
+
+  // Accept full paragraphs
+  const validRes = validateLedger(ledgerPath, {
+    content: baseContent,
+    receiptPath,
+    paper: "brownian-motion",
+  });
+  assert.ok(!validRes.warnings.some((w) => w.code === "short-paragraph"));
+});
+
+test("validateLedger: (validateLedger.ts:675) short-line warning raised for non-terminal line with two or fewer words", () => {
+  const ledgerPath = path.join(FIXTURES_DIR, "two-page-valid.txt");
+  const receiptPath = path.join(FIXTURES_DIR, "two-page-valid.receipt.md");
+  const baseContent = loadFixture("two-page-valid.txt");
+  const res = validateLedger(ledgerPath, {
+    content: baseContent.replace(
+      "[[OTHER-ARTICLE-OMITTED]]",
+      "Ein Wort\nund hier geht der Absatz weiter mit vielen weiteren Worten auf dieser Seite.\n\n",
+    ),
+    receiptPath,
+    paper: "brownian-motion",
+  });
+  assert.ok(res.warnings.some((w) => w.code === "short-line"));
+
+  // Accept regular line lengths
+  const validRes = validateLedger(ledgerPath, {
+    content: baseContent,
+    receiptPath,
+    paper: "brownian-motion",
+  });
+  assert.ok(!validRes.warnings.some((w) => w.code === "short-line"));
+});
+
+test("validateLedger: (validateLedger.ts:700) trailing-whitespace warning raised when line ends with whitespace", () => {
+  const ledgerPath = path.join(FIXTURES_DIR, "two-page-valid.txt");
+  const receiptPath = path.join(FIXTURES_DIR, "two-page-valid.receipt.md");
+  const baseContent = loadFixture("two-page-valid.txt");
+  const res = validateLedger(ledgerPath, {
+    content: baseContent.replace("übereinstimmt.[[FN-MARK 1)]]", "übereinstimmt.[[FN-MARK 1)]]   "),
+    receiptPath,
+    paper: "brownian-motion",
+  });
+  assert.ok(res.warnings.some((w) => w.code === "trailing-whitespace"));
+
+  // Accept cleanly trimmed lines
+  const validRes = validateLedger(ledgerPath, {
+    content: baseContent,
+    receiptPath,
+    paper: "brownian-motion",
+  });
+  assert.ok(!validRes.warnings.some((w) => w.code === "trailing-whitespace"));
+});
+
+test("validateLedger: (validateLedger.ts:758) anchor-missing raised when page marker is not followed by ANNALEN-PAGE", () => {
+  const ledgerPath = path.join(FIXTURES_DIR, "two-page-valid.txt");
+  const receiptPath = path.join(FIXTURES_DIR, "two-page-valid.receipt.md");
+  const baseContent = loadFixture("two-page-valid.txt");
+  const res = validateLedger(ledgerPath, {
+    content: baseContent.replace("[[ANNALEN-PAGE 549]]", "Kein Annalen-Page-Anchor."),
+    receiptPath,
+    paper: "brownian-motion",
+  });
+  assert.ok(res.errors.some((e) => e.code === "anchor-missing"));
+
+  // Accept valid anchor
+  const validRes = validateLedger(ledgerPath, {
+    content: baseContent,
+    receiptPath,
+    paper: "brownian-motion",
+  });
+  assert.ok(!validRes.errors.some((e) => e.code === "anchor-missing"));
+});
+
+test("validateLedger: (validateLedger.ts:778) anchor-duplicate raised when same printed page anchor is repeated", () => {
+  const ledgerPath = path.join(FIXTURES_DIR, "two-page-valid.txt");
+  const receiptPath = path.join(FIXTURES_DIR, "two-page-valid.receipt.md");
+  const baseContent = loadFixture("two-page-valid.txt");
+  const res = validateLedger(ledgerPath, {
+    content: baseContent.replace("[[ANNALEN-PAGE 550]]", "[[ANNALEN-PAGE 549]]"),
+    receiptPath,
+    paper: "brownian-motion",
+  });
+  assert.ok(res.errors.some((e) => e.code === "anchor-duplicate"));
+
+  // Accept distinct anchors
+  const validRes = validateLedger(ledgerPath, {
+    content: baseContent,
+    receiptPath,
+    paper: "brownian-motion",
+  });
+  assert.ok(!validRes.errors.some((e) => e.code === "anchor-duplicate"));
+});
+
+test("validateLedger: (validateLedger.ts:975) forbidden-token raised for machine confidence JSON output", () => {
+  const ledgerPath = path.join(FIXTURES_DIR, "two-page-valid.txt");
+  const receiptPath = path.join(FIXTURES_DIR, "two-page-valid.receipt.md");
+  const baseContent = loadFixture("two-page-valid.txt");
+  const res = validateLedger(ledgerPath, {
+    content: baseContent.replace("wobei $x < V$ gilt.", 'wobei $x < V$ gilt. {"confidence": 98}'),
+    receiptPath,
+    paper: "brownian-motion",
+  });
+  assert.ok(
+    res.errors.some(
+      (e) => e.code === "forbidden-token" && e.message.includes("Machine confidence"),
+    ),
+  );
+
+  // Accept clean text
+  const validRes = validateLedger(ledgerPath, {
+    content: baseContent,
+    receiptPath,
+    paper: "brownian-motion",
+  });
+  assert.ok(!validRes.errors.some((e) => e.code === "forbidden-token"));
+});
+
+test("validateLedger: (validateLedger.ts:1071) heading-order raised when section heading number is non-monotonic", () => {
+  const ledgerPath = path.join(FIXTURES_DIR, "two-page-valid.txt");
+  const receiptPath = path.join(FIXTURES_DIR, "two-page-valid.receipt.md");
+  const baseContent = loadFixture("two-page-valid.txt");
+  const res = validateLedger(ledgerPath, {
+    content: baseContent.replace(
+      "[[OTHER-ARTICLE-OMITTED]]",
+      "[[HEADING s1]] Neuer Abschnitt mit doppelter Nummer\n\n",
+    ),
+    receiptPath,
+    paper: "brownian-motion",
+  });
+  assert.ok(
+    res.errors.some((e) => e.code === "heading-order" && e.message.includes("Section heading")),
+  );
+
+  // Accept monotonic headings
+  const validRes = validateLedger(ledgerPath, {
+    content: baseContent,
+    receiptPath,
+    paper: "brownian-motion",
+  });
+  assert.ok(!validRes.errors.some((e) => e.code === "heading-order"));
+});
+
+test("validateLedger: (validateLedger.ts:1094) heading-order raised when part heading number is non-monotonic", () => {
+  const ledgerPath = path.join(FIXTURES_DIR, "two-page-valid.txt");
+  const receiptPath = path.join(FIXTURES_DIR, "two-page-valid.receipt.md");
+  const baseContent = loadFixture("two-page-valid.txt");
+  const res = validateLedger(ledgerPath, {
+    content: baseContent.replace(
+      "[[OTHER-ARTICLE-OMITTED]]",
+      "[[PART-HEADING part-2]] Teil Zwei\n\n[[PART-HEADING part-1]] Teil Eins\n\n",
+    ),
+    receiptPath,
+    paper: "brownian-motion",
+  });
+  assert.ok(
+    res.errors.some((e) => e.code === "heading-order" && e.message.includes("Part heading")),
+  );
+
+  // Accept monotonic headings
+  const validRes = validateLedger(ledgerPath, {
+    content: baseContent,
+    receiptPath,
+    paper: "brownian-motion",
+  });
+  assert.ok(!validRes.errors.some((e) => e.code === "heading-order"));
+});
+
+test("validateLedger: (validateLedger.ts:1238) unclosed-tag raised when closing emphasis tag lacks opening tag", () => {
+  const ledgerPath = path.join(FIXTURES_DIR, "two-page-valid.txt");
+  const receiptPath = path.join(FIXTURES_DIR, "two-page-valid.receipt.md");
+  const baseContent = loadFixture("two-page-valid.txt");
+  const res = validateLedger(ledgerPath, {
+    content: baseContent.replace("wobei $x < V$ gilt.", "wobei [[/SPERR]] gilt."),
+    receiptPath,
+    paper: "brownian-motion",
+  });
+  assert.ok(
+    res.errors.some(
+      (e) => e.code === "unclosed-tag" && e.message.includes("without matching opening tag"),
+    ),
+  );
+
+  // Accept paired tags
+  const validRes = validateLedger(ledgerPath, {
+    content: baseContent,
+    receiptPath,
+    paper: "brownian-motion",
+  });
+  assert.ok(!validRes.errors.some((e) => e.code === "unclosed-tag"));
+});
+
+test("validateLedger: (validateLedger.ts:1264) math-unbalanced raised when line has odd number of dollar delimiters", () => {
+  const ledgerPath = path.join(FIXTURES_DIR, "two-page-valid.txt");
+  const receiptPath = path.join(FIXTURES_DIR, "two-page-valid.receipt.md");
+  const baseContent = loadFixture("two-page-valid.txt");
+  const res = validateLedger(ledgerPath, {
+    content: baseContent.replace("wobei $x < V$ gilt.", "wobei $x < V gilt."),
+    receiptPath,
+    paper: "brownian-motion",
+  });
+  assert.ok(res.errors.some((e) => e.code === "math-unbalanced"));
+
+  // Accept balanced math
+  const validRes = validateLedger(ledgerPath, {
+    content: baseContent,
+    receiptPath,
+    paper: "brownian-motion",
+  });
+  assert.ok(!validRes.errors.some((e) => e.code === "math-unbalanced"));
+});
+
+test("validateLedger: (validateLedger.ts:1436) unclosed-tag raised when opening emphasis tag is unclosed at EOF", () => {
+  const ledgerPath = path.join(FIXTURES_DIR, "two-page-valid.txt");
+  const receiptPath = path.join(FIXTURES_DIR, "two-page-valid.receipt.md");
+  const baseContent = loadFixture("two-page-valid.txt");
+  const res = validateLedger(ledgerPath, {
+    content: baseContent.replace("[[/SPERR]]", ""),
+    receiptPath,
+    paper: "brownian-motion",
+  });
+  assert.ok(
+    res.errors.some((e) => e.code === "unclosed-tag" && e.message.includes("at end of document")),
+  );
+
+  // Accept closed tags
+  const validRes = validateLedger(ledgerPath, {
+    content: baseContent,
+    receiptPath,
+    paper: "brownian-motion",
+  });
+  assert.ok(!validRes.errors.some((e) => e.code === "unclosed-tag"));
+});
+
+test("validateLedger: (validateLedger.ts:1514) fn-continuation-orphan raised when page has FN-CONT but prior page lacks FN-CONTINUES", () => {
+  const ledgerPath = path.join(FIXTURES_DIR, "two-page-valid.txt");
+  const receiptPath = path.join(FIXTURES_DIR, "two-page-valid.receipt.md");
+  const baseContent = loadFixture("two-page-valid.txt");
+  const res = validateLedger(ledgerPath, {
+    content: baseContent.replace("[[FN-CONTINUES]]", ""),
+    receiptPath,
+    paper: "brownian-motion",
+  });
+  assert.ok(
+    res.errors.some(
+      (e) =>
+        e.code === "fn-continuation-orphan" &&
+        e.message.includes("has no preceding [[FN-CONTINUES]]"),
+    ),
+  );
+
+  // Accept valid continuation pair
+  const validRes = validateLedger(ledgerPath, {
+    content: baseContent,
+    receiptPath,
+    paper: "brownian-motion",
+  });
+  assert.ok(!validRes.errors.some((e) => e.code === "fn-continuation-orphan"));
+});
+
+test("validateLedger: (validateLedger.ts:1545) continues-orphan raised when text follows CONTINUES on the same page", () => {
+  const ledgerPath = path.join(FIXTURES_DIR, "two-page-valid.txt");
+  const receiptPath = path.join(FIXTURES_DIR, "two-page-valid.receipt.md");
+  const baseContent = loadFixture("two-page-valid.txt");
+  const res = validateLedger(ledgerPath, {
+    content: baseContent.replace(
+      "wirken[[CONTINUES]]",
+      "wirken[[CONTINUES]]\nEin weiterer Satz auf derselben Seite vor dem Umbruch.",
+    ),
+    receiptPath,
+    paper: "brownian-motion",
+  });
+  assert.ok(
+    res.errors.some((e) => e.code === "continues-orphan" && e.message.includes("occurs mid-page")),
+  );
+
+  // Accept CONTINUES at end of page
+  const validRes = validateLedger(ledgerPath, {
+    content: baseContent,
+    receiptPath,
+    paper: "brownian-motion",
+  });
+  assert.ok(!validRes.errors.some((e) => e.code === "continues-orphan"));
+});
