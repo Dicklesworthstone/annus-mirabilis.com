@@ -17,17 +17,30 @@
  * | Repertoire Category  | Global (Any Face) | Newsreader (Serif) | Plus Jakarta (Sans) | JetBrains Mono |
  * |----------------------|-------------------|--------------------|---------------------|----------------|
  * | Greek lowercase      | 24/24             | 0/24 (0/22 core)   | 1/24                | 24/24          |
- * | Greek uppercase      | 10/10             | 0/10               | 0/10                | 10/10          |
+ * | Greek uppercase      | 10/10             | 0/10               | 2/10 (Δ, Ω only)*   | 10/10          |
  * | Subscript digits     | 10/10             | 0/10               | 10/10               | 10/10          |
- * | Superscript digits   | 10/10             | 10/10              | 10/10               | 10/10          |
+ * | Superscript digits   | 10/10             | 5/10 (0–4 only)†   | 10/10               | 10/10          |
  * | German diacritics    | 7/7               | 7/7                | 7/7                 | 7/7            |
+ *
+ * * Plus Jakarta Sans Greek uppercase: covers exactly Delta (Δ) and Omega (Ω).
+ *   These two exist as the mathematical delta and the ohm symbol rather than
+ *   intentional Greek alphabet coverage, so a Greek word set in Plus Jakarta
+ *   would still break on the other eight.
+ *
+ * † Newsreader superscript digits: covers exactly zero, one, two, three, and four,
+ *   and is MISSING five through nine. Superscripts five to nine are absent from
+ *   the reading serif, so an exponent in running prose — ten to the minus seven,
+ *   c to the fifth — falls back mid-word to another face. For an edition of
+ *   physics papers that is not an edge case, it is the common case, and it is
+ *   a stronger argument for the font decision than the Greek line is.
  *
  * THE REAL FAILURE MODE:
  * The failure mode in running body prose is NOT tofu boxes (missing glyphs).
  * Because JetBrains Mono covers all Greek letters and subscripts, the browser
  * falls back to JetBrains Mono (or Plus Jakarta Sans for subscripts).
- * The risk is a TYPOGRAPHIC BREAK mid-sentence, where a Greek letter in running
- * Newsreader serif prose suddenly renders in a monospace or sans-serif face.
+ * The risk is a TYPOGRAPHIC BREAK mid-sentence, where a Greek letter or an
+ * exponent digit in running Newsreader serif prose suddenly renders in a
+ * monospace or sans-serif face.
  *
  * UNIVERSALLY MISSING CHARACTERS:
  * Genuinely absent from ALL THREE shipped faces are exactly five characters:
