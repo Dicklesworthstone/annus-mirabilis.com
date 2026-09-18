@@ -28,7 +28,7 @@ describe("massEnergy.noCircularity: non-circularity doctrine and absolute energy
       );
       try {
         initializeMassEnergyLedger({ restEnergyBefore: "Mc^2" });
-        expect.unreachable();
+        expect(true).toBe(false);
       } catch (err: unknown) {
         expect(err).toBeInstanceOf(MassEnergyError);
         expect((err as MassEnergyError).code).toBe("absolute-energy-not-admitted");
@@ -82,7 +82,7 @@ describe("massEnergy.noCircularity: non-circularity doctrine and absolute energy
       expect(() => initializeMassEnergyLedger({ restEnergyBefore: 1.0 })).toThrow();
       try {
         initializeMassEnergyLedger({ restEnergyBefore: 1.0 });
-        expect.unreachable();
+        expect(true).toBe(false);
       } catch (err: unknown) {
         expect(err).toBeInstanceOf(MassEnergyError);
         expect((err as MassEnergyError).code).toBe("absolute-energy-not-admitted");
@@ -96,7 +96,7 @@ describe("massEnergy.noCircularity: non-circularity doctrine and absolute energy
       expect(() => initializeMassEnergyLedger({ movingEnergyBefore: 1.25 })).toThrow();
       try {
         initializeMassEnergyLedger({ movingEnergyBefore: 1.25 });
-        expect.unreachable();
+        expect(true).toBe(false);
       } catch (err: unknown) {
         expect(err).toBeInstanceOf(MassEnergyError);
         expect((err as MassEnergyError).code).toBe("absolute-energy-not-admitted");
@@ -106,7 +106,9 @@ describe("massEnergy.noCircularity: non-circularity doctrine and absolute energy
     it("rejects numeric string '1000' or structured numeric value", () => {
       expect(() => initializeMassEnergyLedger({ restEnergyBefore: "1000" })).toThrow();
       expect(() =>
-        initializeMassEnergyLedger({ restEnergyBefore: { kind: "numeric", value: 500 } }),
+        initializeMassEnergyLedger({
+          restEnergyBefore: { kind: "numeric", value: 500 } as any,
+        }),
       ).toThrow();
     });
 
@@ -116,7 +118,7 @@ describe("massEnergy.noCircularity: non-circularity doctrine and absolute energy
       ).toThrow();
       try {
         kineticIdentification(1.0, 0.6, "unchanged", { restEnergyBefore: 1e12 });
-        expect.unreachable();
+        expect(true).toBe(false);
       } catch (err: unknown) {
         expect(err).toBeInstanceOf(MassEnergyError);
         expect((err as MassEnergyError).code).toBe("absolute-energy-not-admitted");

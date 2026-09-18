@@ -117,7 +117,7 @@ describe("massEnergy.ledgers: balances, subtraction move, premise provenance, an
       ).toThrow();
       try {
         kineticIdentification(1.0, 0.6, "unchanged", { restEnergyBefore: 100 });
-        expect.unreachable();
+        expect(true).toBe(false);
       } catch (err: unknown) {
         expect(err).toBeInstanceOf(MassEnergyError);
         expect((err as MassEnergyError).code).toBe("absolute-energy-not-admitted");

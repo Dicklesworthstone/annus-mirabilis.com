@@ -25,7 +25,7 @@ describe("massEnergy.cards: cited energy-source cards and citation validation", 
       expect(() => validateEnergySourceCard(cardWithoutCitation)).toThrow();
       try {
         validateEnergySourceCard(cardWithoutCitation);
-        expect.unreachable();
+        expect(true).toBe(false);
       } catch (err: unknown) {
         expect(err).toBeInstanceOf(MassEnergyError);
         expect((err as MassEnergyError).code).toBe("card-citation-missing");
@@ -43,7 +43,7 @@ describe("massEnergy.cards: cited energy-source cards and citation validation", 
       expect(() => evaluateEnergySourceCard(invalidCard as any)).toThrow();
       try {
         evaluateEnergySourceCard(invalidCard as any);
-        expect.unreachable();
+        expect(true).toBe(false);
       } catch (err: unknown) {
         expect(err).toBeInstanceOf(MassEnergyError);
         expect((err as MassEnergyError).code).toBe("card-citation-missing");

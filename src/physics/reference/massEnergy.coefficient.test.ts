@@ -16,13 +16,11 @@ describe("massEnergy.coefficient: exact difference, quadratic approximation, pro
     return res.value as number;
   }
 
-  function coeffVal(res: {
-    status: string;
-    representation?: { kind: string; value: number };
-  }): number {
+  function coeffVal(res: { status: string; representation?: unknown }): number {
     expect(res.status).toBe("analytic-limit");
-    expect(res.representation?.kind).toBe("coefficient");
-    return res.representation?.value as number;
+    const rep = res.representation as { kind: string; value: number } | undefined;
+    expect(rep?.kind).toBe("coefficient");
+    return rep?.value as number;
   }
 
   describe("0.6c fixture (exact 0.25L, quadratic 0.18L, proxy 1.388889 L/c^2)", () => {

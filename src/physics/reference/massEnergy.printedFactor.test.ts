@@ -81,7 +81,7 @@ describe("massEnergy.printedFactor: printed vs modern conversion and cross-set s
       expect(() => assertSameSet(modernC, codataM)).toThrow();
       try {
         assertSameSet(modernC, codataM);
-        expect.unreachable();
+        expect(true).toBe(false);
       } catch (err: unknown) {
         expect(err).toBeInstanceOf(ConstantSetError);
         expect((err as ConstantSetError).code).toBe("constant-set-mismatch");
