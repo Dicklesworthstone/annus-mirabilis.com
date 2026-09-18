@@ -3,7 +3,7 @@
   "src/comprehension/session.ts": 36,
   "src/content/aliases.ts": 11,
   "src/content/anchors.ts": 7,
-  "src/content/checks/epistemic/run.ts": 30,
+  "src/content/checks/epistemic/run.ts": 0,
   "src/content/checks/epistemic/shelfDate.ts": 8,
   "src/content/checks/i18n/check.ts": 5,
   "src/content/checks/review/authorship.ts": 1,
