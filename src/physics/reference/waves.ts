@@ -88,20 +88,17 @@ export const FORBIDDEN_PHASE_CALLEES = Object.freeze([
   "lightComplexFactors",
 ] as const);
 
-export function verifyPhaseAtEventIndependence(sourceText?: string): {
+/**
+ * `sourceText` is required: this module reaches Client Components through
+ * sr11/session.ts, so it must stay filesystem-free. It previously read its own source
+ * via `node:fs` and returned `independent: true` when that read failed — a vacuous pass.
+ * The caller now supplies the text, and the type system enforces it.
+ */
+export function verifyPhaseAtEventIndependence(sourceText: string): {
   independent: boolean;
   forbiddenCalleesFound: string[];
 } {
-  let code = sourceText;
-  if (!code) {
-    try {
-      const fs = require("node:fs");
-      const url = require("node:url");
-      code = fs.readFileSync(url.fileURLToPath(import.meta.url), "utf-8");
-    } catch {
-      return { independent: true, forbiddenCalleesFound: [] };
-    }
-  }
+  const code = sourceText;
   if (!code) {
     return { independent: true, forbiddenCalleesFound: [] };
   }

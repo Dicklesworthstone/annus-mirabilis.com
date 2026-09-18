@@ -17,30 +17,14 @@ const DEFAULT_SYMBOLS: readonly ModernOnlySymbol[] = Object.freeze([
   { id: "ansatzTimeSpaceCoefficient", glyph: "d", introducedBy: "kinematics-ansatz" },
 ]);
 
-function readFixtureText(path?: string): string | null {
-  try {
-    const nodeFs = "node:fs";
-    const nodePath = "node:path";
-    const nodeUrl = "node:url";
-    const fs = typeof require !== "undefined" ? require(nodeFs) : null;
-    const p = typeof require !== "undefined" ? require(nodePath) : null;
-    const u = typeof require !== "undefined" ? require(nodeUrl) : null;
-    if (!fs || !p || !u) return null;
-
-    const target = path
-      ? path
-      : p.join(
-          p.dirname(u.fileURLToPath(import.meta.url)),
-          "../../../testing/fixtures/notation/special-relativity.yaml",
-        );
-    return fs.readFileSync(target, "utf8");
-  } catch {
-    return null;
-  }
-}
-
-export function loadModernOnlySymbols(path?: string): readonly ModernOnlySymbol[] {
-  const text = readFixtureText(path);
+/**
+ * The concordance fixture is read by the test that verifies DEFAULT_SYMBOLS matches it.
+ * This module must stay filesystem-free: kinematics.ts imports RAPIDITY_GLYPH from here,
+ * and that chain reaches Client Components (sr07/FieldEquationsLab), where a `node:fs`
+ * require is a hard bundler error. Callers that have the fixture text pass it in.
+ */
+export function loadModernOnlySymbols(fixtureText?: string): readonly ModernOnlySymbol[] {
+  const text = fixtureText;
   if (!text) return DEFAULT_SYMBOLS;
 
   const symbols: ModernOnlySymbol[] = [];
@@ -51,14 +35,18 @@ export function loadModernOnlySymbols(path?: string): readonly ModernOnlySymbol[
     const glyphMatch = /glyph:\s*"([^"]+)"/.exec(entry);
     const introducedBy = /introducedBy:\s*(\S+)/.exec(entry)?.[1];
     if (id && glyphMatch?.[1] && introducedBy) {
-      symbols.push({ id, glyph: glyphMatch[1], introducedBy });
+      // The fixture is scraped as raw text, so YAML double-quoted escapes are still
+      // encoded: "a_\\perp" must decode to a_\perp. Without this the fixture path and
+      // the DEFAULT_SYMBOLS path disagreed on every glyph containing a backslash.
+      const glyph = glyphMatch[1].replace(/\\\\/g, "\\");
+      symbols.push({ id, glyph, introducedBy });
     }
   }
   return symbols.length > 0 ? Object.freeze(symbols) : DEFAULT_SYMBOLS;
 }
 
-export function declaredGlyph(id: string, path?: string): string {
-  const found = loadModernOnlySymbols(path).find((row) => row.id === id);
+export function declaredGlyph(id: string, fixtureText?: string): string {
+  const found = loadModernOnlySymbols(fixtureText).find((row) => row.id === id);
   if (!found) throw new Error(`Concordance has no modern-only symbol ${id}.`);
   return found.glyph;
 }

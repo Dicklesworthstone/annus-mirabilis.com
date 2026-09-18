@@ -1,6 +1,5 @@
 import { describe, expect, test } from "bun:test";
-import { mkdtempSync, readFileSync, writeFileSync } from "node:fs";
-import { tmpdir } from "node:os";
+import { readFileSync } from "node:fs";
 import { dirname, join } from "node:path";
 import { fileURLToPath } from "node:url";
 import {
@@ -42,12 +41,15 @@ describe("notation", () => {
   });
 
   test("concordance glyphs match the fixture yaml", () => {
-    const fixture = join(
-      dirname(fileURLToPath(import.meta.url)),
-      "../fixtures/notation/special-relativity.yaml",
+    // Pass the fixture TEXT, not its path: declaredGlyph parses text, and handing it a
+    // path would silently fall back to DEFAULT_SYMBOLS and compare them to themselves.
+    const fixtureText = readFileSync(
+      join(dirname(fileURLToPath(import.meta.url)), "../fixtures/notation/special-relativity.yaml"),
+      "utf8",
     );
-    expect(RAPIDITY_GLYPH).toBe(declaredGlyph("rapidity", fixture));
-    expect(TRANSVERSE_SCALE_GLYPH).toBe(declaredGlyph("ansatzTransverseScale", fixture));
+    expect(fixtureText).toContain("modernOnlySymbols:");
+    expect(RAPIDITY_GLYPH).toBe(declaredGlyph("rapidity", fixtureText));
+    expect(TRANSVERSE_SCALE_GLYPH).toBe(declaredGlyph("ansatzTransverseScale", fixtureText));
     logKinematics({
       testId: "concordance-glyphs",
       outcome: "pass",
@@ -62,14 +64,9 @@ describe("notation", () => {
   });
 
   test("fixture pair that disagrees fails the glyph check", () => {
-    const dir = mkdtempSync(join(tmpdir(), "kine-notation-"));
-    const path = join(dir, "special-relativity.yaml");
-    writeFileSync(
-      path,
-      `modernOnlySymbols:\n  - id: rapidity\n    glyph: "Q"\n    introducedBy: planted\n`,
-    );
-    expect(declaredGlyph("rapidity", path)).not.toBe(RAPIDITY_GLYPH);
-    const symbols = loadModernOnlySymbols(path);
+    const plantedText = `modernOnlySymbols:\n  - id: rapidity\n    glyph: "Q"\n    introducedBy: planted\n`;
+    expect(declaredGlyph("rapidity", plantedText)).not.toBe(RAPIDITY_GLYPH);
+    const symbols = loadModernOnlySymbols(plantedText);
     expect(symbols[0]?.glyph).toBe("Q");
   });
 });

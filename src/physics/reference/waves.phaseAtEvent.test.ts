@@ -1,3 +1,5 @@
+import { readFileSync } from "node:fs";
+import { fileURLToPath } from "node:url";
 import { describe, expect, test } from "bun:test";
 import { getQuantity, UnknownQuantityError } from "../../content/quantities/registry.ts";
 import { gamma } from "./kinematics.ts";
@@ -195,7 +197,11 @@ describe("am-ref-waves-r53: waves.phaseAtEvent.test.ts", () => {
 
   test("structural call-graph check: phaseAtEvent is independent, planted calls fail", () => {
     const t0 = performance.now();
-    const check = verifyPhaseAtEventIndependence();
+    const wavesSource = readFileSync(
+      fileURLToPath(new URL("./waves.ts", import.meta.url)),
+      "utf-8",
+    );
+    const check = verifyPhaseAtEventIndependence(wavesSource);
     expect(check.independent).toBe(true);
     expect(check.forbiddenCalleesFound).toHaveLength(0);
 
