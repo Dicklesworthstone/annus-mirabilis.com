@@ -13,7 +13,7 @@ import type { AliasRecord } from "../aliases.ts";
 import { getAbsentSourceLayers } from "./report.ts";
 import { ManifestSchemaError, validateSourceManifest } from "./schema.ts";
 import { type PaperSourceLayers, SOURCE_LAYER_KINDS, type SourceManifest } from "./types.ts";
-import { validateManifest, validateManifestCorpus } from "./validator.ts";
+import { spansPages, validateManifest, validateManifestCorpus } from "./validator.ts";
 
 function generateLogRunId(date: Date = new Date()): string {
   const pad = (n: number) => String(n).padStart(2, "0");
@@ -145,6 +145,47 @@ describe("Source Manifest & Locator Validator Suite", () => {
     logTest("planted-page-uncovered", "passed", "Detected uncovered page 133");
   });
 
+  it("planted negative: paragraph spanning pages 550-552 missing middle page 551 fails unit-span-gap and page-uncovered with unitId, rule, and repair", () => {
+    const manifest = createMiniPaperManifest({
+      paper: "brownian-motion",
+      document: "ap-17-549",
+      pageCount: 3,
+      pageRange: [550, 552],
+      units: [
+        {
+          id: "s1-p1",
+          kind: "paragraph",
+          locators: [{ page: 550 }, { page: 552 }], // missing intermediate page 551!
+        },
+      ],
+    });
+
+    const unit = manifest.units[0];
+    assert.ok(unit);
+    assert.equal(spansPages(unit), true);
+    const diags = validateManifest(manifest, { manifests: new Map([[manifest.paper, manifest]]) });
+
+    const spanGap = diags.find((d) => d.rule === "unit-span-gap");
+    assert.ok(spanGap, "Expected unit-span-gap diagnostic for missing intermediate page 551");
+    assert.equal(spanGap.rule, "unit-span-gap");
+    assert.equal(spanGap.unitId, "s1-p1");
+    assert.ok(spanGap.repair, "Expected actionable repair instructions");
+    assert.ok(spanGap.repair.includes("551"));
+    assert.ok(spanGap.repair.includes("s1-p1"));
+
+    const uncovered = diags.find((d) => d.rule === "page-uncovered");
+    assert.ok(uncovered, "Expected page-uncovered diagnostic for page 551");
+    assert.equal(uncovered.rule, "page-uncovered");
+    assert.ok(uncovered.repair, "Expected actionable repair instructions for page-uncovered");
+    assert.ok(uncovered.repair.includes("551"));
+
+    logTest(
+      "planted-middle-page-uncovered",
+      "passed",
+      "Paragraph spanning pages 550-552 missing middle page 551 fails unit-span-gap and page-uncovered with unitId, rule, and repair",
+    );
+  });
+
   it("verifies paragraph spanning pages 550-552 with 3 locators covers page 551 without other units", () => {
     const manifest = createMiniPaperManifest({
       paper: "brownian-motion",
@@ -160,7 +201,16 @@ describe("Source Manifest & Locator Validator Suite", () => {
       ],
     });
 
+    const unit = manifest.units[0];
+    assert.ok(unit);
+    assert.equal(spansPages(unit), true);
     const diags = validateManifest(manifest, { manifests: new Map([[manifest.paper, manifest]]) });
+    const spanGaps = diags.filter((d) => d.rule === "unit-span-gap");
+    assert.equal(
+      spanGaps.length,
+      0,
+      "Spanning paragraph covering middle page must have 0 unit-span-gap errors",
+    );
     const uncovered = diags.filter((d) => d.rule === "page-uncovered");
     assert.equal(uncovered.length, 0, "Spanning paragraph must cover page 551");
     logTest(
@@ -170,7 +220,7 @@ describe("Source Manifest & Locator Validator Suite", () => {
     );
   });
 
-  it("planted negative: unexplained paragraph sequence gap fails sequence-gap", () => {
+  it("planted negative: unexplained paragraph sequence gap fails sequence-gap with unitId, rule, and repair", () => {
     const manifest = createMiniPaperManifest({
       units: [
         { id: "s1-p1", kind: "paragraph", section: "s1", locators: [{ page: 132 }] },
@@ -181,8 +231,16 @@ describe("Source Manifest & Locator Validator Suite", () => {
     const diags = validateManifest(manifest, { manifests: new Map([[manifest.paper, manifest]]) });
     const gap = diags.find((d) => d.rule === "sequence-gap");
     assert.ok(gap, "Expected sequence-gap diagnostic for missing s1-p2");
+    assert.equal(gap.rule, "sequence-gap");
     assert.equal(gap.unitId, "s1-p2");
-    logTest("planted-sequence-gap-unexplained", "passed", "Unexplained sequence gap s1-p2 caught");
+    assert.ok(gap.repair, "Expected actionable repair instructions");
+    assert.ok(gap.repair.includes("s1-p2"));
+    assert.ok(gap.repair.includes("content/aliases/"));
+    logTest(
+      "planted-sequence-gap-unexplained",
+      "passed",
+      "Unexplained sequence gap s1-p2 caught with unitId, rule, and repair",
+    );
   });
 
   it("verifies paragraph sequence gap s2-p2 explained by merged alias passes", () => {
@@ -214,6 +272,63 @@ describe("Source Manifest & Locator Validator Suite", () => {
       "gap-explained-by-alias",
       "passed",
       "Gap s2-p2 explained by merged alias passes validation",
+    );
+  });
+
+  it("planted negative: unexplained footnote sequence gap fails sequence-gap with unitId, rule, and repair", () => {
+    const manifest = createMiniPaperManifest({
+      units: [
+        { id: "s1-p1", kind: "paragraph", section: "s1", locators: [{ page: 132 }] },
+        { id: "s1-fn1", kind: "footnote", footnoteMark: "1", locators: [{ page: 132 }] },
+        { id: "s1-fn3", kind: "footnote", footnoteMark: "3", locators: [{ page: 133 }] }, // missing s1-fn2!
+      ],
+    });
+
+    const diags = validateManifest(manifest, { manifests: new Map([[manifest.paper, manifest]]) });
+    const gap = diags.find((d) => d.rule === "sequence-gap");
+    assert.ok(gap, "Expected sequence-gap diagnostic for missing s1-fn2");
+    assert.equal(gap.rule, "sequence-gap");
+    assert.equal(gap.unitId, "s1-fn2");
+    assert.ok(gap.repair, "Expected actionable repair instructions");
+    assert.ok(gap.repair.includes("s1-fn2"));
+    assert.ok(gap.repair.includes("content/aliases/"));
+    logTest(
+      "planted-footnote-sequence-gap-unexplained",
+      "passed",
+      "Unexplained footnote sequence gap s1-fn2 caught with unitId, rule, and repair",
+    );
+  });
+
+  it("verifies footnote sequence gap s1-fn2 explained by merged alias passes", () => {
+    const manifest = createMiniPaperManifest({
+      units: [
+        { id: "s1-p1", kind: "paragraph", section: "s1", locators: [{ page: 132 }] },
+        { id: "s1-fn1", kind: "footnote", footnoteMark: "1", locators: [{ page: 132 }] },
+        { id: "s1-fn3", kind: "footnote", footnoteMark: "3", locators: [{ page: 133 }] },
+      ],
+    });
+
+    const aliases: AliasRecord[] = [
+      {
+        retiredId: "s1-fn2",
+        kind: "merged",
+        replacementIds: ["s1-fn1"],
+        reason: "Merged duplicate footnote reference.",
+        date: "2026-09-16",
+        editor: "editor-test",
+      },
+    ];
+
+    const diags = validateManifest(manifest, {
+      manifests: new Map([[manifest.paper, manifest]]),
+      aliases,
+    });
+    const gap = diags.filter((d) => d.rule === "sequence-gap");
+    assert.equal(gap.length, 0, "Explained footnote gap must pass");
+    logTest(
+      "footnote-gap-explained-by-alias",
+      "passed",
+      "Footnote gap s1-fn2 explained by merged alias passes validation",
     );
   });
 
@@ -376,6 +491,13 @@ describe("Source Manifest & Locator Validator Suite", () => {
     });
     const splitDiag = diagsUnrecorded.find((d) => d.rule === "footnote-split-unrecorded");
     assert.ok(splitDiag, "Expected footnote-split-unrecorded for unrecorded split");
+    assert.equal(splitDiag.rule, "footnote-split-unrecorded");
+    assert.equal(splitDiag.unitId, "s1-fn1");
+    assert.ok(splitDiag.repair, "Expected actionable repair instructions");
+    assert.ok(
+      splitDiag.repair.includes("splitPage: true") ||
+        splitDiag.repair.includes("isSplitFootnote: true"),
+    );
 
     // Recorded split
     const recordedManifest = createMiniPaperManifest({
@@ -404,6 +526,127 @@ describe("Source Manifest & Locator Validator Suite", () => {
       "footnote-split-handling",
       "passed",
       "Split footnote verified: passes when recorded, fails when unrecorded",
+    );
+  });
+
+  it("planted negative: footnote on next page following markPage unrecorded fails footnote-split-unrecorded with unitId, rule, and repair", () => {
+    const manifest = createMiniPaperManifest({
+      units: [
+        { id: "s1-p1", kind: "paragraph", locators: [{ page: 132 }] },
+        {
+          id: "s1-fn1",
+          kind: "footnote",
+          markPage: 132,
+          footnoteMark: "1",
+          locators: [{ page: 133 }], // Unrecorded split
+        },
+      ],
+    });
+
+    const diags = validateManifest(manifest, {
+      manifests: new Map([[manifest.paper, manifest]]),
+    });
+    const splitDiag = diags.find((d) => d.rule === "footnote-split-unrecorded");
+    assert.ok(splitDiag, "Expected footnote-split-unrecorded diagnostic");
+    assert.equal(splitDiag.rule, "footnote-split-unrecorded");
+    assert.equal(splitDiag.unitId, "s1-fn1");
+    assert.ok(splitDiag.repair, "Expected actionable repair instructions");
+    assert.ok(
+      splitDiag.repair.includes("splitPage: true") ||
+        splitDiag.repair.includes("isSplitFootnote: true"),
+    );
+    assert.ok(splitDiag.repair.includes("markPage: 132"));
+    logTest(
+      "planted-footnote-split-unrecorded-with-markpage",
+      "passed",
+      "Footnote on next page following markPage unrecorded fails footnote-split-unrecorded",
+    );
+  });
+
+  it("verifies footnote on next page following markPage passes when recorded with splitPage", () => {
+    const manifest = createMiniPaperManifest({
+      units: [
+        { id: "s1-p1", kind: "paragraph", locators: [{ page: 132 }] },
+        {
+          id: "s1-fn1",
+          kind: "footnote",
+          markPage: 132,
+          footnoteMark: "1",
+          locators: [{ page: 133, splitPage: true }],
+        },
+      ],
+    });
+
+    const diags = validateManifest(manifest, {
+      manifests: new Map([[manifest.paper, manifest]]),
+    });
+    const splitDiags = diags.filter((d) => d.rule === "footnote-split-unrecorded");
+    assert.equal(splitDiags.length, 0, "Footnote on next page recorded with splitPage must pass");
+    logTest(
+      "footnote-split-markpage-recorded",
+      "passed",
+      "Footnote with markPage recorded with splitPage passes validation",
+    );
+  });
+
+  it("planted negative: footnote preceding its markPage fails footnote-precedes-mark with unitId, rule, and repair", () => {
+    const manifest = createMiniPaperManifest({
+      units: [
+        { id: "s1-p1", kind: "paragraph", locators: [{ page: 133 }] },
+        {
+          id: "s1-fn1",
+          kind: "footnote",
+          markPage: 133,
+          footnoteMark: "1",
+          locators: [{ page: 132 }], // Precedes markPage!
+        },
+      ],
+    });
+
+    const diags = validateManifest(manifest, {
+      manifests: new Map([[manifest.paper, manifest]]),
+    });
+    const precDiag = diags.find((d) => d.rule === "footnote-precedes-mark");
+    assert.ok(precDiag, "Expected footnote-precedes-mark diagnostic");
+    assert.equal(precDiag.rule, "footnote-precedes-mark");
+    assert.equal(precDiag.unitId, "s1-fn1");
+    assert.ok(precDiag.repair, "Expected actionable repair instructions");
+    logTest(
+      "planted-footnote-precedes-mark",
+      "passed",
+      "Footnote preceding markPage rejected with footnote-precedes-mark",
+    );
+  });
+
+  it("planted negative: footnote more than one page after markPage fails footnote-page-too-far with unitId, rule, and repair", () => {
+    const manifest = createMiniPaperManifest({
+      pageCount: 3,
+      pageRange: [132, 134],
+      units: [
+        { id: "s1-p1", kind: "paragraph", locators: [{ page: 132 }] },
+        { id: "s1-p2", kind: "paragraph", locators: [{ page: 133 }, { page: 134 }] },
+        {
+          id: "s1-fn1",
+          kind: "footnote",
+          markPage: 132,
+          footnoteMark: "1",
+          locators: [{ page: 134 }], // 2 pages after markPage!
+        },
+      ],
+    });
+
+    const diags = validateManifest(manifest, {
+      manifests: new Map([[manifest.paper, manifest]]),
+    });
+    const farDiag = diags.find((d) => d.rule === "footnote-page-too-far");
+    assert.ok(farDiag, "Expected footnote-page-too-far diagnostic");
+    assert.equal(farDiag.rule, "footnote-page-too-far");
+    assert.equal(farDiag.unitId, "s1-fn1");
+    assert.ok(farDiag.repair, "Expected actionable repair instructions");
+    logTest(
+      "planted-footnote-page-too-far",
+      "passed",
+      "Footnote >1 page after markPage rejected with footnote-page-too-far",
     );
   });
 
@@ -679,7 +922,7 @@ describe("Source Manifest & Locator Validator Suite", () => {
     );
   });
 
-  it("planted negative: draft header using 'frozen' object fails with modern form named", () => {
+  it("planted negative: draft header using 'frozen' object fails with modern form named in message and repair", () => {
     const raw = {
       paper: "mini-paper",
       document: "ap-17-132",
@@ -692,16 +935,132 @@ describe("Source Manifest & Locator Validator Suite", () => {
 
     assert.throws(
       () => validateSourceManifest(raw),
-      (err: unknown) =>
-        err instanceof ManifestSchemaError &&
-        err.code === "draft-header-frozen" &&
-        err.message.includes("idsFrozenAt") &&
-        err.message.includes("frozenBy"),
+      (err: unknown) => {
+        assert.ok(err instanceof ManifestSchemaError);
+        assert.equal(err.code, "draft-header-frozen");
+        assert.equal(err.rule, "draft-header-frozen");
+        assert.ok(err.message.includes("idsFrozenAt"));
+        assert.ok(err.message.includes("frozenBy"));
+        assert.ok(err.repair, "Expected actionable repair instructions");
+        assert.ok(err.repair.includes("idsFrozenAt"));
+        assert.ok(err.repair.includes("frozenBy"));
+        return true;
+      },
     );
     logTest(
       "planted-draft-header-frozen",
       "passed",
-      "Draft 'frozen' header rejected with modern names",
+      "Draft 'frozen' header rejected with modern names in message and repair",
+    );
+  });
+
+  it("verifies valid idsFrozenAt ISO timestamp and frozenBy identifier validate cleanly and are retained", () => {
+    const raw = {
+      paper: "mini-paper",
+      document: "ap-17-132",
+      status: "in-preparation",
+      pageCount: 2,
+      pageRange: [132, 133],
+      idsFrozenAt: "2026-09-16T12:00:00Z",
+      frozenBy: "editor-albert",
+      units: [{ id: "s1-p1", kind: "paragraph", locators: [{ page: 132 }] }],
+    };
+
+    const validated = validateSourceManifest(raw);
+    assert.equal(validated.idsFrozenAt, "2026-09-16T12:00:00Z");
+    assert.equal(validated.frozenBy, "editor-albert");
+    logTest(
+      "valid-ids-frozen-at-and-frozen-by",
+      "passed",
+      "Valid idsFrozenAt and frozenBy accepted and retained",
+    );
+  });
+
+  it("planted negative: idsFrozenAt specified without frozenBy fails missing-frozen-by with rule and repair", () => {
+    const raw = {
+      paper: "mini-paper",
+      document: "ap-17-132",
+      status: "in-preparation",
+      pageCount: 2,
+      pageRange: [132, 133],
+      idsFrozenAt: "2026-09-16T12:00:00Z",
+      units: [{ id: "s1-p1", kind: "paragraph", locators: [{ page: 132 }] }],
+    };
+
+    assert.throws(
+      () => validateSourceManifest(raw),
+      (err: unknown) => {
+        assert.ok(err instanceof ManifestSchemaError);
+        assert.equal(err.code, "missing-frozen-by");
+        assert.equal(err.rule, "missing-frozen-by");
+        assert.ok(err.repair, "Expected actionable repair");
+        assert.ok(err.repair.includes("frozenBy"));
+        return true;
+      },
+    );
+    logTest(
+      "planted-missing-frozen-by",
+      "passed",
+      "idsFrozenAt without frozenBy fails missing-frozen-by with repair",
+    );
+  });
+
+  it("planted negative: frozenBy specified without idsFrozenAt fails missing-ids-frozen-at with rule and repair", () => {
+    const raw = {
+      paper: "mini-paper",
+      document: "ap-17-132",
+      status: "in-preparation",
+      pageCount: 2,
+      pageRange: [132, 133],
+      frozenBy: "editor-albert",
+      units: [{ id: "s1-p1", kind: "paragraph", locators: [{ page: 132 }] }],
+    };
+
+    assert.throws(
+      () => validateSourceManifest(raw),
+      (err: unknown) => {
+        assert.ok(err instanceof ManifestSchemaError);
+        assert.equal(err.code, "missing-ids-frozen-at");
+        assert.equal(err.rule, "missing-ids-frozen-at");
+        assert.ok(err.repair, "Expected actionable repair");
+        assert.ok(err.repair.includes("idsFrozenAt"));
+        return true;
+      },
+    );
+    logTest(
+      "planted-missing-ids-frozen-at",
+      "passed",
+      "frozenBy without idsFrozenAt fails missing-ids-frozen-at with repair",
+    );
+  });
+
+  it("planted negative: idsFrozenAt with invalid ISO timestamp fails invalid-ids-frozen-at with rule and repair", () => {
+    const raw = {
+      paper: "mini-paper",
+      document: "ap-17-132",
+      status: "in-preparation",
+      pageCount: 2,
+      pageRange: [132, 133],
+      idsFrozenAt: "not-an-iso-date",
+      frozenBy: "editor-albert",
+      units: [{ id: "s1-p1", kind: "paragraph", locators: [{ page: 132 }] }],
+    };
+
+    assert.throws(
+      () => validateSourceManifest(raw),
+      (err: unknown) => {
+        assert.ok(err instanceof ManifestSchemaError);
+        assert.equal(err.code, "invalid-ids-frozen-at");
+        assert.equal(err.rule, "invalid-ids-frozen-at");
+        assert.ok(err.repair, "Expected actionable repair");
+        assert.ok(err.repair.includes("idsFrozenAt"));
+        return true;
+      },
+    );
+    logTest(
+      "planted-invalid-ids-frozen-at",
+      "passed",
+      "Non-ISO idsFrozenAt fails invalid-ids-frozen-at with repair",
     );
   });
 
@@ -752,7 +1111,7 @@ describe("Source Manifest & Locator Validator Suite", () => {
     );
   });
 
-  it("planted negative: draft locator format with start/end fails draft-locator-format", () => {
+  it("planted negative: draft locator format with start/end fails draft-locator-format with unitId, rule, and repair", () => {
     const raw = {
       paper: "mini-paper",
       document: "ap-17-132",
@@ -771,7 +1130,16 @@ describe("Source Manifest & Locator Validator Suite", () => {
 
     assert.throws(
       () => validateSourceManifest(raw),
-      (err: unknown) => err instanceof ManifestSchemaError && err.code === "draft-locator-format",
+      (err: unknown) => {
+        assert.ok(err instanceof ManifestSchemaError);
+        assert.equal(err.code, "draft-locator-format");
+        assert.equal(err.rule, "draft-locator-format");
+        assert.equal(err.unitId, "s1-p1");
+        assert.ok(err.repair, "Expected actionable repair instructions");
+        assert.ok(err.repair.includes("locators"));
+        assert.ok(err.message.includes("locators"));
+        return true;
+      },
     );
     logTest(
       "planted-draft-locator-format",
@@ -780,7 +1148,7 @@ describe("Source Manifest & Locator Validator Suite", () => {
     );
   });
 
-  it("planted negative: draft heading id ending in -h fails draft-heading-id-format", () => {
+  it("planted negative: draft heading id ending in -h fails draft-heading-id-format with unitId, rule, and repair", () => {
     const raw = {
       paper: "mini-paper",
       document: "ap-17-132",
@@ -798,19 +1166,25 @@ describe("Source Manifest & Locator Validator Suite", () => {
 
     assert.throws(
       () => validateSourceManifest(raw),
-      (err: unknown) =>
-        err instanceof ManifestSchemaError &&
-        err.code === "draft-heading-id-format" &&
-        err.message.includes("s1"),
+      (err: unknown) => {
+        assert.ok(err instanceof ManifestSchemaError);
+        assert.equal(err.code, "draft-heading-id-format");
+        assert.equal(err.rule, "draft-heading-id-format");
+        assert.equal(err.unitId, "s1-h");
+        assert.ok(err.repair, "Expected actionable repair instructions");
+        assert.ok(err.repair.includes("s1"));
+        assert.ok(err.message.includes("s1"));
+        return true;
+      },
     );
     logTest(
       "planted-draft-heading-id-format",
       "passed",
-      "Draft heading id s1-h rejected with s1 named",
+      "Draft heading id s1-h rejected with s1 named in repair and message",
     );
   });
 
-  it("planted negative: draft footnote sentence id fails draft-sentence-id-format", () => {
+  it("planted negative: draft footnote sentence id fails draft-sentence-id-format with unitId, rule, and repair", () => {
     const raw = {
       paper: "mini-paper",
       document: "ap-17-132",
@@ -829,15 +1203,21 @@ describe("Source Manifest & Locator Validator Suite", () => {
 
     assert.throws(
       () => validateSourceManifest(raw),
-      (err: unknown) =>
-        err instanceof ManifestSchemaError &&
-        err.code === "draft-sentence-id-format" &&
-        err.message.includes("s1-fn1"),
+      (err: unknown) => {
+        assert.ok(err instanceof ManifestSchemaError);
+        assert.equal(err.code, "draft-sentence-id-format");
+        assert.equal(err.rule, "draft-sentence-id-format");
+        assert.equal(err.unitId, "s1-fn1-s1");
+        assert.ok(err.repair, "Expected actionable repair instructions");
+        assert.ok(err.repair.includes("s1-fn1"));
+        assert.ok(err.message.includes("s1-fn1"));
+        return true;
+      },
     );
     logTest(
       "planted-draft-sentence-id-format",
       "passed",
-      "Draft footnote sentence id rejected naming s1-fn1",
+      "Draft footnote sentence id rejected naming s1-fn1 in repair and message",
     );
   });
 

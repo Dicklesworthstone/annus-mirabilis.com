@@ -132,6 +132,7 @@ export interface ManifestUnit {
   readonly unmarked?: boolean | undefined;
   readonly unmarkedReason?: string | undefined;
   readonly isSplitFootnote?: boolean | undefined;
+  readonly markPage?: number | undefined;
   readonly printedForm?: string | undefined;
   readonly derivedStatuses?: UnitDerivedStatuses | undefined;
 }

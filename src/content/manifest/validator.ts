@@ -44,6 +44,17 @@ export interface ManifestValidationResult {
 }
 
 /**
+ * Determines whether a unit spans multiple printed pages.
+ */
+export function spansPages(unit: ManifestUnit): boolean {
+  if (!unit.locators || unit.locators.length === 0) return false;
+  const pages = unit.locators.map((l) => l.page);
+  const min = Math.min(...pages);
+  const max = Math.max(...pages);
+  return max > min;
+}
+
+/**
  * Validates a single SourceManifest against its own rules and the corpus context.
  */
 export function validateManifest(
@@ -195,6 +206,28 @@ export function validateManifest(
       }
     }
 
+    // Multi-page unit span continuity: a unit spanning across multiple printed pages
+    // (e.g. a paragraph spanning three printed pages) must cover all intermediate pages,
+    // including the middle page(s).
+    if (spansPages(unit) && unitEndPage > unitStartPage + 1) {
+      const unitLocatorPages = new Set(unit.locators.map((l) => l.page));
+      for (let p = unitStartPage + 1; p < unitEndPage; p++) {
+        if (!unitLocatorPages.has(p)) {
+          addDiag(
+            "error",
+            "unit-span-gap",
+            `Unit '${unit.id}' spans pages ${unitStartPage}–${unitEndPage} but is missing a locator for intermediate page ${p}. A paragraph spanning three printed pages must cover the middle page.`,
+            {
+              unitId: unit.id,
+              expected: `Locator for page ${p}`,
+              actual: `Missing page ${p}`,
+              repair: `Add a locator entry for page ${p} to unit '${unit.id}' locators list.`,
+            },
+          );
+        }
+      }
+    }
+
     // Body units start page order check (paragraphs, headings, closing units)
     const isBodyUnit =
       unit.kind === "paragraph" ||
@@ -282,25 +315,55 @@ export function validateManifest(
         );
       }
 
-      // Check split page footnote
+      // Check split page footnote against mark page
       const fnPage = unit.locators[0]?.page;
-      if (fnPage && unit.containedIn) {
-        const parentP = unitsById.get(unit.containedIn);
-        const parentFirstLoc = parentP?.locators[0];
-        if (parentFirstLoc) {
-          const parentPage = parentFirstLoc.page;
-          if (
-            fnPage > parentPage &&
-            !unit.isSplitFootnote &&
-            !unit.locators.some((l) => l.splitPage)
-          ) {
+      const parentP = unit.containedIn ? unitsById.get(unit.containedIn) : undefined;
+      const parentPage = parentP?.locators[0]?.page;
+      const effectiveMarkPage = unit.markPage ?? parentPage;
+
+      if (fnPage !== undefined && effectiveMarkPage !== undefined) {
+        if (fnPage < effectiveMarkPage) {
+          addDiag(
+            "error",
+            "footnote-precedes-mark",
+            `Footnote '${unit.id}' printed on page ${fnPage} precedes mark on page ${effectiveMarkPage}.`,
+            {
+              unitId: unit.id,
+              expected: `>= ${effectiveMarkPage}`,
+              actual: fnPage,
+              repair: `Footnote cannot appear on a page before the sentence carrying its mark.`,
+            },
+          );
+        } else if (fnPage === effectiveMarkPage + 1) {
+          const isRecorded =
+            unit.isSplitFootnote === true ||
+            unit.locators.some((l) => l.splitPage) ||
+            (unit.markPage !== undefined && unit.locators.some((l) => l.splitPage));
+          if (!isRecorded) {
             addDiag(
               "error",
               "footnote-split-unrecorded",
-              `Footnote '${unit.id}' printed on page ${fnPage} after mark on page ${parentPage} must be recorded with splitPage.`,
-              { unitId: unit.id },
+              `Footnote '${unit.id}' printed on page ${fnPage} after mark on page ${effectiveMarkPage} must be recorded with splitPage.`,
+              {
+                unitId: unit.id,
+                expected: "splitPage: true or isSplitFootnote: true",
+                actual: "unrecorded",
+                repair: `Record 'splitPage: true' on locator or 'isSplitFootnote: true' on footnote '${unit.id}' with 'markPage: ${effectiveMarkPage}'.`,
+              },
             );
           }
+        } else if (fnPage > effectiveMarkPage + 1) {
+          addDiag(
+            "error",
+            "footnote-page-too-far",
+            `Footnote '${unit.id}' printed on page ${fnPage} is more than one page after mark on page ${effectiveMarkPage}. Footnotes can only appear on the mark page or the immediately following page.`,
+            {
+              unitId: unit.id,
+              expected: `Page ${effectiveMarkPage} or ${effectiveMarkPage + 1}`,
+              actual: fnPage,
+              repair: `Verify locator page ${fnPage} against facsimile or correct markPage.`,
+            },
+          );
         }
       }
     }
@@ -490,6 +553,56 @@ export function validateManifest(
             {
               unitId: missingId,
               repair: `Register an alias in content/aliases/ for '${missingId}' or renumber.`,
+            },
+          );
+        }
+      }
+    }
+  }
+
+  // Group footnotes by section / document
+  const sectionFootnotes = new Map<string, { nums: number[]; isDocLevel: boolean }>();
+  for (const unit of manifest.units) {
+    if (unit.kind === "footnote") {
+      const matchSec = unit.id.match(/^s(\d+)-fn(\d+)$/);
+      if (matchSec?.[1] && matchSec[2]) {
+        const sec = `s${matchSec[1]}`;
+        const fnNum = Number.parseInt(matchSec[2], 10);
+        const entry = sectionFootnotes.get(sec) ?? { nums: [], isDocLevel: false };
+        entry.nums.push(fnNum);
+        sectionFootnotes.set(sec, entry);
+      } else {
+        const matchDoc = unit.id.match(/^fn(\d+)$/);
+        if (matchDoc?.[1]) {
+          const fnNum = Number.parseInt(matchDoc[1], 10);
+          const entry = sectionFootnotes.get("doc") ?? { nums: [], isDocLevel: true };
+          entry.nums.push(fnNum);
+          sectionFootnotes.set("doc", entry);
+        }
+      }
+    }
+  }
+
+  for (const [sec, entry] of sectionFootnotes.entries()) {
+    if (entry.nums.length === 0) continue;
+    const sorted = [...entry.nums].sort((a, b) => a - b);
+    const minFn = sorted[0];
+    const maxFn = sorted[sorted.length - 1];
+    if (minFn === undefined || maxFn === undefined) continue;
+    const numSet = new Set(sorted);
+
+    for (let f = minFn; f <= maxFn; f++) {
+      if (!numSet.has(f)) {
+        const missingId = entry.isDocLevel ? `fn${f}` : `${sec}-fn${f}`;
+        const gapStatus = explainGap(missingId, aliases);
+        if (gapStatus.status === "unexplained") {
+          addDiag(
+            "error",
+            "sequence-gap",
+            `Unexplained footnote sequence gap: missing '${missingId}'. Must have a registered alias record or consecutive numbering.`,
+            {
+              unitId: missingId,
+              repair: `Register an alias in content/aliases/ for '${missingId}' or renumber footnotes.`,
             },
           );
         }

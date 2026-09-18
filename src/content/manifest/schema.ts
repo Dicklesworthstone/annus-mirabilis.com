@@ -16,13 +16,25 @@ import type {
 
 export class ManifestSchemaError extends Error {
   readonly code: string;
+  readonly rule: string;
   readonly path: string;
+  readonly repair?: string | undefined;
+  readonly unitId?: string | undefined;
 
-  constructor(code: string, message: string, path = "SourceManifest") {
+  constructor(
+    code: string,
+    message: string,
+    path = "SourceManifest",
+    repair?: string | undefined,
+    unitId?: string | undefined,
+  ) {
     super(`[SourceManifest] ${path}: ${message} (${code})`);
     this.name = "ManifestSchemaError";
     this.code = code;
+    this.rule = code;
     this.path = path;
+    this.repair = repair;
+    this.unitId = unitId;
   }
 }
 
@@ -36,6 +48,7 @@ export function validateSourceManifest(raw: unknown, filePath = "manifest"): Sou
       "invalid-manifest-object",
       "SourceManifest must be a non-null object.",
       filePath,
+      "Provide a valid SourceManifest object.",
     );
   }
 
@@ -47,6 +60,7 @@ export function validateSourceManifest(raw: unknown, filePath = "manifest"): Sou
       "draft-header-frozen",
       "Header uses draft 'frozen' object; replace with top-level 'idsFrozenAt' and 'frozenBy'.",
       `${filePath}.frozen`,
+      "Replace 'frozen' object with top-level 'idsFrozenAt' ISO timestamp and 'frozenBy' identifier.",
     );
   }
 
@@ -163,6 +177,8 @@ export function validateSourceManifest(raw: unknown, filePath = "manifest"): Sou
           "draft-locator-format",
           "Unit uses draft locator format with 'start' and 'end'; replace with 'locators' list of {page, column?, line?, region?}.",
           `${unitPath}.locator`,
+          "Replace 'locator: { start, end }' with 'locators' list of {page, column?, line?, region?}.",
+          typeof u.id === "string" ? u.id : undefined,
         );
       }
     }
@@ -178,6 +194,8 @@ export function validateSourceManifest(raw: unknown, filePath = "manifest"): Sou
         "draft-heading-id-format",
         `Heading unit uses draft id '${u.id}' ending in '-h'; heading units carry the section id directly (e.g. '${cleanId}').`,
         `${unitPath}.id`,
+        `Rename heading unit id from '${u.id}' to '${cleanId}'. Section headings carry the section id directly.`,
+        u.id,
       );
     }
 
@@ -191,7 +209,22 @@ export function validateSourceManifest(raw: unknown, filePath = "manifest"): Sou
         "draft-sentence-id-format",
         `Unit '${u.id}' uses draft sentence id format; footnotes and closing sections are block-level units without sentence ids (e.g. '${cleanId}').`,
         `${unitPath}.id`,
+        `Rename unit id from '${u.id}' to '${cleanId}'. Footnotes and closing sections are block-level units without sentence ids.`,
+        u.id,
       );
+    }
+
+    // Validate markPage if present
+    if (u.markPage !== undefined) {
+      if (typeof u.markPage !== "number" || !Number.isInteger(u.markPage) || u.markPage <= 0) {
+        throw new ManifestSchemaError(
+          "invalid-mark-page",
+          "markPage must be a positive integer.",
+          `${unitPath}.markPage`,
+          "Provide a positive integer for 'markPage'.",
+          typeof u.id === "string" ? u.id : undefined,
+        );
+      }
     }
 
     // Reject direct assertions of reviewed status inside manifest
@@ -200,6 +233,8 @@ export function validateSourceManifest(raw: unknown, filePath = "manifest"): Sou
         "status-asserted",
         "Manifest asserts 'reviewed' status directly; status must be derived from translation and review records.",
         `${unitPath}.status`,
+        "Remove 'status: reviewed' assertion from manifest and derive status from review records.",
+        typeof u.id === "string" ? u.id : undefined,
       );
     }
 
@@ -364,6 +399,7 @@ export function validateSourceManifest(raw: unknown, filePath = "manifest"): Sou
       unmarked: Boolean(u.unmarked),
       unmarkedReason: typeof u.unmarkedReason === "string" ? u.unmarkedReason : undefined,
       isSplitFootnote: Boolean(u.isSplitFootnote),
+      markPage: typeof u.markPage === "number" ? u.markPage : undefined,
       printedForm: typeof u.printedForm === "string" ? u.printedForm : undefined,
     });
   }
@@ -460,6 +496,48 @@ export function validateSourceManifest(raw: unknown, filePath = "manifest"): Sou
     }
   }
 
+  // Validate idsFrozenAt and frozenBy
+  let idsFrozenAt: string | undefined;
+  let frozenBy: string | undefined;
+
+  if (o.idsFrozenAt !== undefined) {
+    if (typeof o.idsFrozenAt !== "string" || !o.idsFrozenAt.trim()) {
+      throw new ManifestSchemaError(
+        "invalid-ids-frozen-at",
+        "idsFrozenAt must be a non-empty ISO date timestamp string.",
+        `${filePath}.idsFrozenAt`,
+        "Provide a valid ISO date timestamp string for 'idsFrozenAt' (e.g. '2026-09-16T00:00:00Z').",
+      );
+    }
+    const timestamp = Date.parse(o.idsFrozenAt);
+    if (Number.isNaN(timestamp)) {
+      throw new ManifestSchemaError(
+        "invalid-ids-frozen-at",
+        `idsFrozenAt must be a valid ISO date timestamp. Got: '${o.idsFrozenAt}'.`,
+        `${filePath}.idsFrozenAt`,
+        "Provide a valid ISO date timestamp string for 'idsFrozenAt' (e.g. '2026-09-16T00:00:00Z').",
+      );
+    }
+    idsFrozenAt = o.idsFrozenAt;
+
+    if (typeof o.frozenBy !== "string" || !o.frozenBy.trim()) {
+      throw new ManifestSchemaError(
+        "missing-frozen-by",
+        "'idsFrozenAt' is specified but 'frozenBy' is missing. When IDs are frozen, the editor or agent ID who froze them must be recorded.",
+        `${filePath}.frozenBy`,
+        "Specify 'frozenBy' with the editor or agent ID that froze the manifest IDs.",
+      );
+    }
+    frozenBy = o.frozenBy;
+  } else if (o.frozenBy !== undefined) {
+    throw new ManifestSchemaError(
+      "missing-ids-frozen-at",
+      "'frozenBy' is specified but 'idsFrozenAt' is missing. When IDs are frozen, the ISO date timestamp must be recorded.",
+      `${filePath}.idsFrozenAt`,
+      "Specify 'idsFrozenAt' with the ISO date timestamp when the IDs were frozen.",
+    );
+  }
+
   return {
     paper: o.paper,
     document: o.document,
@@ -470,8 +548,8 @@ export function validateSourceManifest(raw: unknown, filePath = "manifest"): Sou
     pageCount: o.pageCount,
     pageRange: [startPage, endPage],
     pageMap: Array.isArray(o.pageMap) ? o.pageMap : undefined,
-    idsFrozenAt: typeof o.idsFrozenAt === "string" ? o.idsFrozenAt : undefined,
-    frozenBy: typeof o.frozenBy === "string" ? o.frozenBy : undefined,
+    idsFrozenAt,
+    frozenBy,
     units,
     exports: exports.length > 0 ? exports : undefined,
     exportedResults: exports.length > 0 ? exports : undefined,
