@@ -16,6 +16,8 @@ import {
   determinePromotionHostnames,
   executePromotionStateMachine,
   filterTrackedWorkingTreeChanges,
+  getReleaseRecordPath,
+  loadReleaseCandidate,
   parseCliArgs,
   parseConflictingBuilds,
   parseProtectedPreviewStatus,
@@ -303,5 +305,78 @@ describe("scripts/verified-production-deploy.ts pipeline safety tests", () => {
   test("11. toolRunArtifactDirectory constructs proper artifacts directory without disk writes", () => {
     const dir = toolRunArtifactDirectory("test-tool-run-id");
     expect(dir).toContain(path.join("artifacts", "verified-production-deploy", "test-tool-run-id"));
+  });
+
+  test("12. promotion state machine rolls back on post-promotion smokeRunner failure", () => {
+    const candidateUrl = "https://annus-mirabilis-candidate.vercel.app";
+    const targetHostnames = ["annus-mirabilis-seven.vercel.app", "www.annus-mirabilis.com"];
+    const appliedCommands: [string, string, string, string][] = [];
+    const aliasRunner = (target: string, host: string): CommandResult => {
+      appliedCommands.push(["alias", "set", target, host]);
+      return { stdout: "Success", stderr: "", status: 0 };
+    };
+    const inspectRunner = (_host: string): string => {
+      return `id dpl_prev\nurl https://annus-mirabilis-prev.vercel.app\nstatus Ready\n`;
+    };
+    const failingSmokeRunner = (): void => {
+      throw new Error("Simulated smoke test failure: home page returned HTTP 500");
+    };
+
+    expect(() =>
+      executePromotionStateMachine({
+        candidateUrl,
+        targetHostnames,
+        aliasRunner,
+        inspectRunner,
+        smokeRunner: failingSmokeRunner,
+      }),
+    ).toThrow(/Promotion failed on smoke-test.*Successfully rolled back 2 hostname/i);
+
+    // Both hostnames were aliased, then rolled back in reverse order
+    expect(appliedCommands.length).toBe(4);
+    expect(appliedCommands[0]).toEqual([
+      "alias",
+      "set",
+      candidateUrl,
+      "annus-mirabilis-seven.vercel.app",
+    ]);
+    expect(appliedCommands[1]).toEqual(["alias", "set", candidateUrl, "www.annus-mirabilis.com"]);
+    expect(appliedCommands[2]).toEqual([
+      "alias",
+      "set",
+      "annus-mirabilis-prev.vercel.app",
+      "www.annus-mirabilis.com",
+    ]);
+    expect(appliedCommands[3]).toEqual([
+      "alias",
+      "set",
+      "annus-mirabilis-prev.vercel.app",
+      "annus-mirabilis-seven.vercel.app",
+    ]);
+  });
+
+  test("13. candidate record path and loader resolve by path, toolRunId, deploymentId, and candidateUrl", () => {
+    const commitPrefixedPath = getReleaseRecordPath("run-123", "/releases", "abc1234");
+    expect(commitPrefixedPath).toBe(path.join("/releases", "abc1234-run-123.json"));
+
+    const plainPath = getReleaseRecordPath("run-123", "/releases");
+    expect(plainPath).toBe(path.join("/releases", "run-123.json"));
+
+    // Lookup by file path
+    const byPath = loadReleaseCandidate(path.join(fixturesDir, "candidate-record-passed.json"));
+    expect(byPath.toolRunId).toBe("20260917T180000Z-abcd1234");
+
+    // Lookup by deployment ID inside fixturesDir
+    const byDeploymentId = loadReleaseCandidate("dpl_preview123", fixturesDir);
+    expect(byDeploymentId.toolRunId).toBe("20260917T180000Z-abcd1234");
+
+    // Lookup by candidate URL inside fixturesDir
+    const byUrl = loadReleaseCandidate("https://annus-mirabilis-preview-1.vercel.app", fixturesDir);
+    expect(byUrl.candidateDeploymentId).toBe("dpl_preview123");
+
+    // Refusal when unknown
+    expect(() => loadReleaseCandidate("nonexistent-deployment-id", fixturesDir)).toThrow(
+      /Candidate release record not found for identifier 'nonexistent-deployment-id'/,
+    );
   });
 });

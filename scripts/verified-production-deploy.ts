@@ -73,12 +73,17 @@ export interface ReleaseCandidateRecord {
   readonly createdAt: string;
   readonly commit: string;
   readonly profile: ReleaseProfile;
+  readonly mode?: ReleaseScope | undefined;
+  readonly logRunId?: string | undefined;
   readonly candidateUrl: string;
   readonly candidateDeploymentId: string;
   readonly candidateChecksPassed: boolean;
-  readonly manifestDigest?: string;
-  readonly authorizationRef?: string;
-  readonly targetHostnames?: readonly string[];
+  readonly manifestDigest?: string | undefined;
+  readonly determinismDigest?: string | undefined;
+  readonly candidateCheckSummary?: string | undefined;
+  readonly candidateCheckLogPath?: string | undefined;
+  readonly authorizationRef?: string | undefined;
+  readonly targetHostnames?: readonly string[] | undefined;
 }
 
 export type CommandResult = {
@@ -415,6 +420,7 @@ export function executePromotionStateMachine(options: {
   targetHostnames: readonly string[];
   aliasRunner: (candidateOrTarget: string, hostname: string) => CommandResult;
   inspectRunner: (hostname: string) => string;
+  smokeRunner?: (() => void) | undefined;
 }): {
   success: boolean;
   promoted: string[];
@@ -436,33 +442,45 @@ export function executePromotionStateMachine(options: {
     }
   }
 
+  const rollback = (failingSubject: string, err: unknown) => {
+    const originalError = err instanceof Error ? err : new Error(String(err));
+    const rollbackErrors: string[] = [];
+    for (const movedHostname of [...promoted].reverse()) {
+      const previousTarget = previousAliases[movedHostname];
+      if (previousTarget) {
+        try {
+          options.aliasRunner(previousTarget, movedHostname);
+        } catch (rbErr) {
+          rollbackErrors.push(
+            `Failed to restore ${movedHostname} to ${previousTarget}: ${rbErr instanceof Error ? rbErr.message : String(rbErr)}`,
+          );
+        }
+      }
+    }
+    const rollbackSummary =
+      rollbackErrors.length > 0
+        ? `Rollback had errors: ${rollbackErrors.join("; ")}`
+        : `Successfully rolled back ${promoted.length} hostname(s) to previous deployments.`;
+
+    throw new Error(
+      `Promotion failed on ${failingSubject}: ${originalError.message}. ${rollbackSummary}`,
+    );
+  };
+
   for (const hostname of options.targetHostnames) {
     try {
       options.aliasRunner(options.candidateUrl, hostname);
       promoted.push(hostname);
     } catch (err) {
-      const originalError = err instanceof Error ? err : new Error(String(err));
-      const rollbackErrors: string[] = [];
-      for (const movedHostname of [...promoted].reverse()) {
-        const previousTarget = previousAliases[movedHostname];
-        if (previousTarget) {
-          try {
-            options.aliasRunner(previousTarget, movedHostname);
-          } catch (rbErr) {
-            rollbackErrors.push(
-              `Failed to restore ${movedHostname} to ${previousTarget}: ${rbErr instanceof Error ? rbErr.message : String(rbErr)}`,
-            );
-          }
-        }
-      }
-      const rollbackSummary =
-        rollbackErrors.length > 0
-          ? `Rollback had errors: ${rollbackErrors.join("; ")}`
-          : `Successfully rolled back ${promoted.length} hostname(s) to previous deployments.`;
+      rollback(`hostname '${hostname}'`, err);
+    }
+  }
 
-      throw new Error(
-        `Promotion failed on hostname '${hostname}': ${originalError.message}. ${rollbackSummary}`,
-      );
+  if (options.smokeRunner) {
+    try {
+      options.smokeRunner();
+    } catch (err) {
+      rollback("smoke-test", err);
     }
   }
 
@@ -503,16 +521,21 @@ export function validatePromotePreconditions(options: {
   }
 }
 
-export function getReleaseRecordPath(toolRunId: string, customDir?: string): string {
+export function getReleaseRecordPath(
+  toolRunId: string,
+  customDir?: string,
+  commit?: string,
+): string {
   const dir = customDir ?? path.join(process.cwd(), "artifacts", "releases");
-  return path.join(dir, `${toolRunId}.json`);
+  const fileName = commit ? `${commit}-${toolRunId}.json` : `${toolRunId}.json`;
+  return path.join(dir, fileName);
 }
 
 export function saveReleaseCandidateRecord(
   record: ReleaseCandidateRecord,
   customDir?: string,
 ): string {
-  const recordPath = getReleaseRecordPath(record.toolRunId, customDir);
+  const recordPath = getReleaseRecordPath(record.toolRunId, customDir, record.commit);
   const dir = path.dirname(recordPath);
   if (!fs.existsSync(dir)) {
     fs.mkdirSync(dir, { recursive: true });
@@ -529,13 +552,35 @@ export function loadReleaseCandidate(
     const raw = fs.readFileSync(identifier, "utf8");
     return JSON.parse(raw) as ReleaseCandidateRecord;
   }
-  const recordPath = getReleaseRecordPath(identifier, customDir);
-  if (fs.existsSync(recordPath)) {
-    const raw = fs.readFileSync(recordPath, "utf8");
+  const dir = customDir ?? path.join(process.cwd(), "artifacts", "releases");
+  const directPath = path.join(dir, `${identifier}.json`);
+  if (fs.existsSync(directPath)) {
+    const raw = fs.readFileSync(directPath, "utf8");
     return JSON.parse(raw) as ReleaseCandidateRecord;
   }
+  if (fs.existsSync(dir)) {
+    const files = fs.readdirSync(dir);
+    for (const file of files) {
+      if (!file.endsWith(".json")) continue;
+      const fullPath = path.join(dir, file);
+      try {
+        const raw = fs.readFileSync(fullPath, "utf8");
+        const record = JSON.parse(raw) as ReleaseCandidateRecord;
+        if (
+          record.toolRunId === identifier ||
+          record.candidateDeploymentId === identifier ||
+          record.candidateUrl === identifier ||
+          file.includes(identifier)
+        ) {
+          return record;
+        }
+      } catch {
+        // ignore unparseable or irrelevant records
+      }
+    }
+  }
   throw new Error(
-    `Candidate release record not found for identifier '${identifier}' (looked at ${recordPath}).`,
+    `Candidate release record not found for identifier '${identifier}' (looked in ${dir}).`,
   );
 }
 
@@ -651,6 +696,7 @@ export async function main(argv = process.argv.slice(2)): Promise<void> {
         targetHostnames,
         aliasRunner: (target, host) => run("vercel", ["alias", "set", target, host]),
         inspectRunner: (host) => run("vercel", ["inspect", host], true).stdout,
+        smokeRunner: () => run("bun", ["scripts/smoke-test-deployment.ts"]),
       });
       return;
     }
@@ -699,6 +745,7 @@ export async function main(argv = process.argv.slice(2)): Promise<void> {
       targetHostnames,
       aliasRunner: (target, host) => run("vercel", ["alias", "set", target, host]),
       inspectRunner: (host) => run("vercel", ["inspect", host], true).stdout,
+      smokeRunner: () => run("bun", ["scripts/smoke-test-deployment.ts"]),
     });
   } finally {
     lock.close();
