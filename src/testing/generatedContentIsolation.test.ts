@@ -47,7 +47,7 @@ describe("generated/content isolation guard (am-arlh)", () => {
 
       const afterIndex = readRepoIndex();
       expect(afterIndex.buildDigest).toBe(beforeIndex.buildDigest);
-      expect(afterIndex.payloads.length).toBe(26);
+      expect(afterIndex.payloads.length).toBe(28);
     } finally {
       rmSync(tempCorpus, { recursive: true, force: true });
     }
@@ -67,10 +67,10 @@ describe("generated/content isolation guard (am-arlh)", () => {
       const afterIndex = readRepoIndex();
       expect(afterIndex.buildDigest).toBe(beforeIndex.buildDigest);
       expect(afterIndex.inputDigest).toBe(beforeIndex.inputDigest);
-      expect(afterIndex.payloads.length).toBe(26);
+      expect(afterIndex.payloads.length).toBe(28);
 
       const paperIds = afterIndex.payloads.filter((p) => p.kind === "paper").map((p) => p.id);
-      expect(paperIds).toEqual(["brownian-motion"]);
+      expect(paperIds).toEqual(["brownian-motion", "mass-energy"]);
       expect(paperIds).not.toContain("test-paper");
     } finally {
       rmSync(tempCorpus, { recursive: true, force: true });
@@ -96,7 +96,7 @@ describe("generated/content isolation guard (am-arlh)", () => {
       // Repo root index is completely untouched
       const afterIndex = readRepoIndex();
       expect(afterIndex.buildDigest).toBe(beforeIndex.buildDigest);
-      expect(afterIndex.payloads.length).toBe(26);
+      expect(afterIndex.payloads.length).toBe(28);
     } finally {
       rmSync(tempRoot, { recursive: true, force: true });
     }
@@ -120,12 +120,12 @@ describe("generated/content isolation guard (am-arlh)", () => {
     });
   });
 
-  it("canonical repository index contains all 26 payloads and brownian-motion paper", () => {
+  it("canonical repository index contains all 28 payloads, brownian-motion and mass-energy papers", () => {
     const index = readRepoIndex();
-    expect(index.payloads.length).toBe(26);
+    expect(index.payloads.length).toBe(28);
 
     const papers = index.payloads.filter((p) => p.kind === "paper");
-    expect(papers.map((p) => p.id)).toEqual(["brownian-motion"]);
+    expect(papers.map((p) => p.id)).toEqual(["brownian-motion", "mass-energy"]);
 
     const foundations = index.payloads.filter((p) => p.kind === "foundation");
     expect(foundations.length).toBeGreaterThan(0);
