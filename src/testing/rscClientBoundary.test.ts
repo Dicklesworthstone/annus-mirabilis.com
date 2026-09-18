@@ -16,8 +16,10 @@ import {
   checkClientBoundaries,
   collectAppRouterSourceFiles,
   detectClientHookUsages,
+  detectNodeBuiltinUsages,
   extractRuntimeImportSpecifiers,
   hasUseClientDirective,
+  isNodeBuiltinSpecifier,
   runClientBoundaryGateCli,
   type SourceFileRecord,
 } from "../../scripts/rsc-client-boundary.ts";
@@ -431,6 +433,247 @@ describe("RSC Client Boundary Gate", () => {
       expect(detected).toContain("useState");
       expect(detected).toContain("useEffect");
       expect(detected).toContain("createContext");
+    });
+  });
+
+  describe("Node Builtin In Client Component Detection (Fail-Closed Verification)", () => {
+    it("rejects direct node:fs import in client component", () => {
+      const files: SourceFileRecord[] = [
+        {
+          path: "src/components/ClientWidget.tsx",
+          content: `
+            "use client";
+            import { readFileSync } from "node:fs";
+            export function ClientWidget() {
+              return <div>Widget</div>;
+            }
+          `,
+        },
+      ];
+
+      const violations = checkClientBoundaries(files);
+      expect(violations.length).toBe(1);
+      expect(violations[0]?.file).toBe("src/components/ClientWidget.tsx");
+      expect(violations[0]?.kind).toBe("node-builtin-in-client-component");
+      expect(violations[0]?.builtins).toContain("node:fs");
+    });
+
+    it("rejects unprefixed fs import in client component", () => {
+      const files: SourceFileRecord[] = [
+        {
+          path: "src/components/ClientWidget.tsx",
+          content: `
+            "use client";
+            import fs from "fs";
+            export function ClientWidget() { return <div>Widget</div>; }
+          `,
+        },
+      ];
+
+      const violations = checkClientBoundaries(files);
+      expect(violations.length).toBe(1);
+      expect(violations[0]?.file).toBe("src/components/ClientWidget.tsx");
+      expect(violations[0]?.kind).toBe("node-builtin-in-client-component");
+      expect(violations[0]?.builtins).toContain("fs");
+    });
+
+    it("rejects direct require('node:fs') and require('node:path') in client component", () => {
+      const files: SourceFileRecord[] = [
+        {
+          path: "src/components/ClientWidget.tsx",
+          content: `
+            "use client";
+            const fs = require("node:fs");
+            const path = require('node:path');
+            export function ClientWidget() { return <div>Widget</div>; }
+          `,
+        },
+      ];
+
+      const violations = checkClientBoundaries(files);
+      expect(violations.length).toBe(1);
+      expect(violations[0]?.file).toBe("src/components/ClientWidget.tsx");
+      expect(violations[0]?.kind).toBe("node-builtin-in-client-component");
+      expect(violations[0]?.builtins).toContain("node:fs");
+      expect(violations[0]?.builtins).toContain("node:path");
+    });
+
+    it("rejects transitive reachability: page -> ClientComponent -> helper -> module importing node:path", () => {
+      const files: SourceFileRecord[] = [
+        {
+          path: "src/app/discover/page.tsx",
+          content: `
+            import { ClientComponent } from "../../components/ClientComponent.tsx";
+            export default function DiscoverPage() {
+              return <ClientComponent />;
+            }
+          `,
+        },
+        {
+          path: "src/components/ClientComponent.tsx",
+          content: `
+            "use client";
+            import { formatPath } from "../utils/helper.ts";
+            export function ClientComponent() {
+              return <div>{formatPath("a")}</div>;
+            }
+          `,
+        },
+        {
+          path: "src/utils/helper.ts",
+          content: `
+            import { join } from "node:path";
+            export function formatPath(p: string) { return join("/base", p); }
+          `,
+        },
+      ];
+
+      const violations = checkClientBoundaries(files);
+      expect(violations.length).toBe(1);
+      expect(violations[0]?.file).toBe("src/utils/helper.ts");
+      expect(violations[0]?.kind).toBe("node-builtin-in-client-component");
+      expect(violations[0]?.builtins).toContain("node:path");
+      expect(violations[0]?.chain).toEqual([
+        "src/app/discover/page.tsx",
+        "src/components/ClientComponent.tsx",
+        "src/utils/helper.ts",
+      ]);
+    });
+
+    it("rejects node builtins in App Router client entry points (e.g. error.tsx)", () => {
+      const files: SourceFileRecord[] = [
+        {
+          path: "src/app/error.tsx",
+          content: `
+            "use client";
+            import { writeFileSync } from "node:fs";
+            export default function ErrorBoundary() { return <div>Error</div>; }
+          `,
+        },
+      ];
+
+      const violations = checkClientBoundaries(files);
+      expect(violations.length).toBe(1);
+      expect(violations[0]?.file).toBe("src/app/error.tsx");
+      expect(violations[0]?.kind).toBe("node-builtin-in-client-component");
+      expect(violations[0]?.builtins).toContain("node:fs");
+    });
+
+    it("planted negative on REAL repo graph reproducing Outage 2: re-pointing trace.ts to bindings.ts fails and names bindings.ts", () => {
+      const liveFiles = collectAppRouterSourceFiles(process.cwd());
+      expect(liveFiles.length).toBeGreaterThan(100);
+
+      const traceFile = liveFiles.find((f) => f.path === "src/content/kernel/trace.ts");
+      expect(traceFile).toBeDefined();
+      if (!traceFile) return;
+
+      // Simulate pre-c03a4b3 state: trace.ts imports bindings.ts
+      const plantedFiles = liveFiles.map((f) => {
+        if (f.path === "src/content/kernel/trace.ts") {
+          return {
+            ...f,
+            content: f.content.replace(
+              'from "./traceValidation.ts";',
+              'from "./bindings.ts";',
+            ),
+          };
+        }
+        return f;
+      });
+
+      const violations = checkClientBoundaries(plantedFiles);
+      expect(violations.length).toBeGreaterThanOrEqual(1);
+
+      const bindingsViolation = violations.find(
+        (v) => v.file === "src/content/kernel/bindings.ts",
+      );
+      expect(bindingsViolation).toBeDefined();
+      expect(bindingsViolation?.kind).toBe("node-builtin-in-client-component");
+      expect(bindingsViolation?.builtins).toContain("node:fs");
+      expect(bindingsViolation?.builtins).toContain("node:path");
+      expect(bindingsViolation?.chain).toContain("src/content/kernel/trace.ts");
+      expect(bindingsViolation?.chain).toContain("src/content/kernel/bindings.ts");
+    });
+
+    it("allows Server Components in src/app to import Node builtins", () => {
+      const files: SourceFileRecord[] = [
+        {
+          path: "src/app/page.tsx",
+          content: `
+            import { readFileSync } from "node:fs";
+            import { join } from "node:path";
+            export default function Page() {
+              const data = readFileSync(join(process.cwd(), "package.json"), "utf8");
+              return <pre>{data}</pre>;
+            }
+          `,
+        },
+      ];
+
+      const violations = checkClientBoundaries(files);
+      expect(violations.length).toBe(0);
+    });
+
+    it("allows pure type imports from Node builtins in client components", () => {
+      const files: SourceFileRecord[] = [
+        {
+          path: "src/components/ClientViewer.tsx",
+          content: `
+            "use client";
+            import type { PathLike } from "node:fs";
+            export function ClientViewer({ p }: { p: PathLike }) {
+              return <div>{String(p)}</div>;
+            }
+          `,
+        },
+      ];
+
+      const violations = checkClientBoundaries(files);
+      expect(violations.length).toBe(0);
+    });
+
+    it("does not false-positive on comments or strings mentioning node builtins", () => {
+      const files: SourceFileRecord[] = [
+        {
+          path: "src/components/ClientInfo.tsx",
+          content: `
+            "use client";
+            // Do not import node:fs or node:path here
+            /* require("node:fs") is bad */
+            export function ClientInfo() {
+              const info = "Uses web standard crypto, not node:crypto";
+              return <div>{info}</div>;
+            }
+          `,
+        },
+      ];
+
+      const violations = checkClientBoundaries(files);
+      expect(violations.length).toBe(0);
+    });
+
+    it("isNodeBuiltinSpecifier and detectNodeBuiltinUsages correctly classify builtins", () => {
+      expect(isNodeBuiltinSpecifier("node:fs")).toBe(true);
+      expect(isNodeBuiltinSpecifier("node:fs/promises")).toBe(true);
+      expect(isNodeBuiltinSpecifier("node:path")).toBe(true);
+      expect(isNodeBuiltinSpecifier("node:child_process")).toBe(true);
+      expect(isNodeBuiltinSpecifier("node:os")).toBe(true);
+      expect(isNodeBuiltinSpecifier("node:crypto")).toBe(true);
+      expect(isNodeBuiltinSpecifier("fs")).toBe(true);
+      expect(isNodeBuiltinSpecifier("path")).toBe(true);
+      expect(isNodeBuiltinSpecifier("crypto")).toBe(true);
+      expect(isNodeBuiltinSpecifier("react")).toBe(false);
+      expect(isNodeBuiltinSpecifier("./fs.ts")).toBe(false);
+
+      const code = `
+        import fs from "node:fs";
+        const path = require("node:path");
+        import { spawn } from "child_process";
+      `;
+      const detected = detectNodeBuiltinUsages(code);
+      expect(detected).toContain("node:fs");
+      expect(detected).toContain("node:path");
+      expect(detected).toContain("child_process");
     });
   });
 
