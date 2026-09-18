@@ -65,13 +65,30 @@ describe("alignment is by permanent id, not array position", () => {
     for (const edge of EDGES) {
       expect(edgeStillPointsAtPair(EDGES, edge.sourceId, edge.targetId)).toBe(true);
     }
-    const afterIssues = validateManyToManyAlignment({
+    // Before aligning the inserted unit, coverage refusal catches that s0-p3-s1 has no edge:
+    const unalignedIssues = validateManyToManyAlignment({
       edges: EDGES,
       germanIds: inserted,
       englishIds: ENGLISH,
     });
+    expect(
+      unalignedIssues.some((i) => i.code === "unaligned-source" && i.sourceId === "s0-p3-s1"),
+    ).toBe(true);
+
+    // With the inserted unit explicitly aligned, validation passes cleanly:
+    const updatedEdges: readonly ExplicitEdge[] = [
+      ...EDGES.slice(0, 2),
+      { sourceId: "s0-p3-s1", targetId: "s0-p3-s1" },
+      ...EDGES.slice(2),
+    ];
+    const insertedEnglish = insertGermanUnit(ENGLISH, 2, "s0-p3-s1");
+    const afterIssues = validateManyToManyAlignment({
+      edges: updatedEdges,
+      germanIds: inserted,
+      englishIds: insertedEnglish,
+    });
     expect(afterIssues).toEqual([]);
-    expect(edgeStillPointsAtPair(EDGES, "s0-p2-s1", "s0-p2-s1")).toBe(true);
+    expect(edgeStillPointsAtPair(updatedEdges, "s0-p2-s1", "s0-p2-s1")).toBe(true);
 
     const donorBefore = donorIndexAlignment(GERMAN, ENGLISH);
     const donorAfter = donorIndexAlignment(inserted, ENGLISH);
@@ -90,6 +107,32 @@ describe("alignment is by permanent id, not array position", () => {
       message:
         "inserting a paragraph leaves id-edges pointing at the same sentence pair; donor indices shift",
     });
+  });
+
+  test("PLANTED: unaligned German unit is refused with unaligned-source naming unit", () => {
+    const issues = validateManyToManyAlignment({
+      edges: [{ sourceId: "s0-p1-s1", targetId: "s0-p1-s1" }],
+      germanIds: ["s0-p1-s1", "s0-p1-s2"],
+      englishIds: ["s0-p1-s1"],
+    });
+    const unaligned = issues.find((i) => i.code === "unaligned-source");
+    expect(unaligned).toBeDefined();
+    expect(unaligned?.sourceId).toBe("s0-p1-s2");
+    expect(unaligned?.message).toContain('German source unit "s0-p1-s2" has no alignment edge');
+  });
+
+  test("PLANTED: unaligned English unit is refused with unaligned-target naming unit", () => {
+    const issues = validateManyToManyAlignment({
+      edges: [{ sourceId: "s0-p1-s1", targetId: "s0-p1-s1" }],
+      germanIds: ["s0-p1-s1"],
+      englishIds: ["s0-p1-s1", "s0-p1-s2"],
+    });
+    const unaligned = issues.find((i) => i.code === "unaligned-target");
+    expect(unaligned).toBeDefined();
+    expect(unaligned?.targetId).toBe("s0-p1-s2");
+    expect(unaligned?.message).toContain(
+      'English target unit "s0-p1-s2" has no incoming alignment edge',
+    );
   });
 
   test("PLANTED: English display must be byte-identical to German; an extra space fails", () => {

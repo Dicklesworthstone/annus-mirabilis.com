@@ -14,7 +14,9 @@ export type AlignmentIssue = Readonly<{
     | "unknown-source"
     | "unknown-target"
     | "empty-alignment"
-    | "math-atoms-differ";
+    | "math-atoms-differ"
+    | "unaligned-source"
+    | "unaligned-target";
   message: string;
   sourceId?: string | undefined;
   targetId?: string | undefined;
@@ -54,6 +56,9 @@ export function validateManyToManyAlignment(input: {
   }
   const german = new Set(input.germanIds);
   const english = new Set(input.englishIds);
+  const alignedSources = new Set<string>();
+  const alignedTargets = new Set<string>();
+
   for (const edge of input.edges) {
     if (looksLikeIndex(edge.sourceId) || looksLikeIndex(edge.targetId)) {
       issues.push({
@@ -89,6 +94,8 @@ export function validateManyToManyAlignment(input: {
         sourceId: edge.sourceId,
         targetId: edge.targetId,
       });
+    } else {
+      alignedSources.add(edge.sourceId);
     }
     if (!english.has(edge.targetId)) {
       issues.push({
@@ -97,8 +104,31 @@ export function validateManyToManyAlignment(input: {
         sourceId: edge.sourceId,
         targetId: edge.targetId,
       });
+    } else {
+      alignedTargets.add(edge.targetId);
     }
   }
+
+  for (const gId of input.germanIds) {
+    if (!alignedSources.has(gId)) {
+      issues.push({
+        code: "unaligned-source",
+        message: `German source unit "${gId}" has no alignment edge. Every source unit must be aligned.`,
+        sourceId: gId,
+      });
+    }
+  }
+
+  for (const eId of input.englishIds) {
+    if (!alignedTargets.has(eId)) {
+      issues.push({
+        code: "unaligned-target",
+        message: `English target unit "${eId}" has no incoming alignment edge. Every target unit must have a source.`,
+        targetId: eId,
+      });
+    }
+  }
+
   return Object.freeze(issues);
 }
 

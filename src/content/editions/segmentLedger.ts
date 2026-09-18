@@ -244,3 +244,9 @@ export function germanAlignableIds(blocks: readonly ProposedBlock[]): readonly s
   }
   return Object.freeze(ids);
 }
+
+export {
+  validateSegmentation,
+  type SegmentationIssue,
+  type SegmentSpan,
+} from "./segmentSentences.ts";

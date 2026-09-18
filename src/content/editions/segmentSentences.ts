@@ -124,3 +124,95 @@ export function proposeSentences(
   }
   return Object.freeze(proposals);
 }
+
+export type SegmentationIssue = Readonly<{
+  code: "overlapping-segments" | "non-contiguous-segmentation";
+  message: string;
+  start?: number | undefined;
+  end?: number | undefined;
+  firstSegmentIndex?: number | undefined;
+  secondSegmentIndex?: number | undefined;
+}>;
+
+export type SegmentSpan = Readonly<{
+  start: number;
+  end: number;
+  text?: string | undefined;
+  id?: string | undefined;
+}>;
+
+/**
+ * Validate that proposed segments partition text contiguously without
+ * overlapping and without dropping non-whitespace text.
+ */
+export function validateSegmentation(
+  text: string,
+  segments: readonly SegmentSpan[],
+): readonly SegmentationIssue[] {
+  const issues: SegmentationIssue[] = [];
+
+  if (segments.length === 0) {
+    if (text.trim().length > 0) {
+      issues.push({
+        code: "non-contiguous-segmentation",
+        message: "Non-contiguous segmentation: text has no segments; entire text was dropped.",
+        start: 0,
+        end: text.length,
+      });
+    }
+    return Object.freeze(issues);
+  }
+
+  // 1. Check leading text
+  const leading = text.slice(0, segments[0]!.start);
+  if (leading.trim().length > 0) {
+    issues.push({
+      code: "non-contiguous-segmentation",
+      message: `Non-contiguous segmentation: leading text was dropped before first segment: "${leading.trim()}".`,
+      start: 0,
+      end: segments[0]!.start,
+    });
+  }
+
+  // 2. Check adjacent segment relationships: overlap and non-contiguity
+  for (let i = 1; i < segments.length; i++) {
+    const prev = segments[i - 1]!;
+    const curr = segments[i]!;
+
+    if (curr.start < prev.end) {
+      issues.push({
+        code: "overlapping-segments",
+        message: `Segments overlap: segment ${i - 1} [${prev.start}, ${prev.end}) and segment ${i} [${curr.start}, ${curr.end}) share span [${curr.start}, ${Math.min(prev.end, curr.end)}).`,
+        start: curr.start,
+        end: Math.min(prev.end, curr.end),
+        firstSegmentIndex: i - 1,
+        secondSegmentIndex: i,
+      });
+    } else if (curr.start > prev.end) {
+      const gap = text.slice(prev.end, curr.start);
+      if (gap.trim().length > 0) {
+        issues.push({
+          code: "non-contiguous-segmentation",
+          message: `Non-contiguous segmentation: text between segment ${i - 1} and segment ${i} was dropped: "${gap.trim()}".`,
+          start: prev.end,
+          end: curr.start,
+          firstSegmentIndex: i - 1,
+          secondSegmentIndex: i,
+        });
+      }
+    }
+  }
+
+  // 3. Check trailing text
+  const trailing = text.slice(segments[segments.length - 1]!.end);
+  if (trailing.trim().length > 0) {
+    issues.push({
+      code: "non-contiguous-segmentation",
+      message: `Non-contiguous segmentation: trailing text was dropped after last segment: "${trailing.trim()}".`,
+      start: segments[segments.length - 1]!.end,
+      end: text.length,
+    });
+  }
+
+  return Object.freeze(issues);
+}

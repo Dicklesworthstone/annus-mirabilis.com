@@ -65,6 +65,49 @@ describe("assertEditionContract", () => {
       true,
     );
   });
+
+  test("facsimile bytes matching declaredFacsimileDigest pass digest-chain", () => {
+    const fakeBytes = new Uint8Array([1, 2, 3, 4]);
+    const fakeDigest = createHash("sha256").update(fakeBytes).digest("hex");
+    const result = assertEditionContract("brownian-motion", {
+      ledgerText: LEDGER,
+      declaredFacsimileDigest: fakeDigest,
+      facsimileBytes: fakeBytes,
+    });
+    const digestCheck = result.checks.find(
+      (c) => c.check === "digest-chain" && c.message === "Facsimile digest matches.",
+    );
+    expect(digestCheck).toBeDefined();
+    expect(digestCheck?.outcome).toBe("passed");
+  });
+
+  test("PLANTED: facsimile bytes with wrong digest fail digest-chain with digest-mismatch", () => {
+    const fakeBytes = new Uint8Array([1, 2, 3, 4]);
+    const wrongDigest = "0000000000000000000000000000000000000000000000000000000000000000";
+    const result = assertEditionContract("brownian-motion", {
+      ledgerText: LEDGER,
+      declaredFacsimileDigest: wrongDigest,
+      facsimileBytes: fakeBytes,
+    });
+    expect(result.outcome).toBe("failed");
+    const digestCheck = result.checks.find(
+      (c) => c.check === "digest-chain" && c.code === "digest-mismatch",
+    );
+    expect(digestCheck).toBeDefined();
+    expect(digestCheck?.outcome).toBe("failed");
+  });
+
+  test("PLANTED: declared facsimile digest without bytes in checkout reports not-available with code facsimile-not-available", () => {
+    const result = assertEditionContract("brownian-motion", {
+      ledgerText: LEDGER,
+      root: "/nonexistent/checkout/root",
+      declaredFacsimileDigest: "abcdef1234567890",
+    });
+    const check = result.checks.find((c) => c.code === "facsimile-not-available");
+    expect(check).toBeDefined();
+    expect(check?.outcome).toBe("not-available");
+    expect(check?.message).toContain("Facsimile bytes are not in this checkout");
+  });
 });
 
 describe("edition.yaml declaration", () => {
