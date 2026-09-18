@@ -7,8 +7,39 @@
  * point a reader could actually see is missing from every one of the
  * three self-hosted fonts.
  *
- * THREE REAL, PRE-EXISTING GAPS, named and dated rather than silently
- * excluded or left to fail the build for work unrelated to them:
+ * --------------------------------------------------------------------------
+ * MEASURED FONT COVERAGE (CORRECTION RECORD - 2026-09-18)
+ * --------------------------------------------------------------------------
+ * Earlier claims that "the text fonts contain no Greek alphabet and no
+ * subscript digits" were factually incorrect. Verified against the shipped
+ * TTF cmap tables:
+ *
+ * | Repertoire Category  | Global (Any Face) | Newsreader (Serif) | Plus Jakarta (Sans) | JetBrains Mono |
+ * |----------------------|-------------------|--------------------|---------------------|----------------|
+ * | Greek lowercase      | 24/24             | 0/24 (0/22 core)   | 1/24                | 24/24          |
+ * | Greek uppercase      | 10/10             | 0/10               | 0/10                | 10/10          |
+ * | Subscript digits     | 10/10             | 0/10               | 10/10               | 10/10          |
+ * | Superscript digits   | 10/10             | 10/10              | 10/10               | 10/10          |
+ * | German diacritics    | 7/7               | 7/7                | 7/7                 | 7/7            |
+ *
+ * THE REAL FAILURE MODE:
+ * The failure mode in running body prose is NOT tofu boxes (missing glyphs).
+ * Because JetBrains Mono covers all Greek letters and subscripts, the browser
+ * falls back to JetBrains Mono (or Plus Jakarta Sans for subscripts).
+ * The risk is a TYPOGRAPHIC BREAK mid-sentence, where a Greek letter in running
+ * Newsreader serif prose suddenly renders in a monospace or sans-serif face.
+ *
+ * UNIVERSALLY MISSING CHARACTERS:
+ * Genuinely absent from ALL THREE shipped faces are exactly five characters:
+ *   1. U+2207 NABLA (∇)
+ *   2. U+221D PROPORTIONAL TO (∝)
+ *   3. U+22A5 UP TACK (⊥)
+ *   4. U+2295 CIRCLED PLUS (⊕)
+ *   5. U+2034 TRIPLE PRIME (‴)
+ *
+ * THREE REAL, PRE-EXISTING GAPS IN CURRENT CONTENT:
+ * Of the five universally-missing characters, three currently appear in the
+ * authored content corpus, named and dated rather than silently excluded:
  *   - U+2207 NABLA (∇), in an authored R3 reading
  *     (content/editorial/readings-owners/am-sr-12-charge-current-bgq0.yaml)
  *     literally quoting the continuity equation "∂ρ/∂t + ∇·J = 0";
