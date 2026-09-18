@@ -28,7 +28,7 @@
   "src/components/lab/PredictOverlay.tsx": 15,
   "src/components/lab/PredictPanel.tsx": 9,
   "src/components/lab/RodSimultaneityLab.tsx": 0,
-  "src/components/lab/RodSimultaneityPlots.tsx": 132,
+  "src/components/lab/RodSimultaneityPlots.tsx": 0,
   "src/components/lab/ShowTheCode.tsx": 4,
   "src/components/lab/TracerLab.tsx": 12,
   "src/components/lab/WaveDescriptionLab.tsx": 0,

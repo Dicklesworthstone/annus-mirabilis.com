@@ -37,45 +37,95 @@ export function RodStripPlot({
   const contractedL = L0 / g;
 
   return (
-    <div className="plot-container" data-view-id="sr-03-strip-view">
-      <div className="flex justify-between items-center mb-1">
-        <h3 className="text-sm font-semibold text-slate-800 dark:text-slate-100">
+    <div data-view-id="sr-03-strip-view">
+      <div
+        style={{
+          display: "flex",
+          justifyContent: "space-between",
+          alignItems: "center",
+          marginBottom: "0.25rem",
+          flexWrap: "wrap",
+          gap: "0.25rem",
+        }}
+      >
+        <h3
+          style={{
+            fontSize: "0.875rem",
+            fontWeight: 600,
+            color: "var(--ink)",
+            margin: 0,
+          }}
+        >
           Spatial Rod Strip Projection
         </h3>
-        <span className="text-[11px] font-mono px-2 py-0.5 rounded bg-sky-100 dark:bg-sky-950 text-sky-800 dark:text-sky-300">
+        <span
+          className="fine"
+          style={{
+            fontSize: "0.6875rem",
+            fontFamily: "var(--font-mono, monospace)",
+            padding: "0.125rem 0.5rem",
+            borderRadius: "0.25rem",
+            background: "rgba(14, 165, 233, 0.15)",
+            color: "#38bdf8",
+            border: "1px solid rgba(14, 165, 233, 0.3)",
+          }}
+        >
           Rest: frame {rodRestFrame} | Measuring: frame {measuringFrame} | v = {v.toFixed(2)}c
         </span>
       </div>
-      <p className="text-xs text-slate-600 dark:text-slate-400 mb-1">
+      <p
+        className="fine"
+        style={{
+          fontSize: "0.75rem",
+          marginBottom: "0.25rem",
+        }}
+      >
         Coordinate measurement: positions of both ends taken at{" "}
         <strong>one single time of the measuring frame</strong>. (Coordinate geometry, not what an
         optical camera sees).
       </p>
-      <div className="text-[11px] font-mono text-slate-400 mb-2">
+      <div
+        className="fine"
+        style={{
+          fontSize: "0.6875rem",
+          fontFamily: "var(--font-mono, monospace)",
+          marginBottom: "0.5rem",
+        }}
+      >
         Interval: Δx={(measuringFrame === "K" ? dxK : dxk).toFixed(2)} ls, cΔt=
         {(measuringFrame === "K" ? dtK : dtk).toFixed(2)} s{" "}
         {isSimultaneous ? (
-          <span className="text-emerald-400">
+          <span style={{ color: "#34d399" }}>
             [Simultaneous: L ={" "}
             {measuredLength !== null ? `${measuredLength.toFixed(2)} ls` : "refused"}]
           </span>
         ) : (
-          <span className="text-amber-400">[Non-simultaneous: length measurement refused]</span>
+          <span style={{ color: "#f59e0b" }}>[Non-simultaneous: length measurement refused]</span>
         )}
       </div>
 
       <svg
         viewBox={`0 0 ${width} ${height}`}
-        className="w-full h-auto bg-slate-900 border border-slate-800 rounded overflow-hidden"
         role="img"
         aria-label="Spatial rod strip showing length in platform and moving frames"
+        style={{
+          width: "100%",
+          height: "auto",
+          background: "var(--panel)",
+          border: "1px solid var(--line)",
+          borderRadius: "0.25rem",
+          overflow: "hidden",
+        }}
       >
         {/* Strip 1: Frame K (Platform) */}
         <g transform="translate(0, 50)">
           <text
             x={padding.left}
             y="-12"
-            className="text-[11px] fill-slate-300 font-semibold font-mono"
+            fontSize="11"
+            fontFamily="monospace"
+            fontWeight="600"
+            fill="var(--ink)"
           >
             Frame K (Platform at rest):
           </text>
@@ -85,10 +135,10 @@ export function RodStripPlot({
             y1="10"
             x2={width - padding.right}
             y2="10"
-            stroke="#475569"
+            stroke="var(--line)"
             strokeWidth="1.5"
           />
-          {/* Rod representation in K */}
+          {/* Rod representation in K (Data datum - kept literal sky/amber) */}
           <rect
             x={scaleX(0)}
             y="0"
@@ -105,13 +155,16 @@ export function RodStripPlot({
             x={scaleX((rodRestFrame === "K" ? L0 : contractedL) / 2)}
             y="14"
             textAnchor="middle"
-            className="text-[10px] fill-slate-950 font-mono font-bold"
+            fontSize="10"
+            fontFamily="monospace"
+            fontWeight="bold"
+            fill="#020617"
           >
             {rodRestFrame === "K"
               ? `${L0.toFixed(1)} ls (Proper L₀)`
               : `${contractedL.toFixed(2)} ls (L₀/γ)`}
           </text>
-          {/* Endpoint markers */}
+          {/* Endpoint markers (Data datum - kept literal red) */}
           <circle cx={scaleX(0)} cy="10" r="3.5" fill="#ef4444" />
           <circle
             cx={scaleX(rodRestFrame === "K" ? L0 : contractedL)}
@@ -123,25 +176,26 @@ export function RodStripPlot({
 
         {/* Strip 2: Frame k (Moving frame) */}
         <g transform="translate(0, 140)">
-          <div className="flex justify-between">
-            <text
-              x={padding.left}
-              y="-12"
-              className="text-[11px] fill-slate-300 font-semibold font-mono"
-            >
-              Frame k (Moving at v = {v.toFixed(2)}c):
-            </text>
-          </div>
+          <text
+            x={padding.left}
+            y="-12"
+            fontSize="11"
+            fontFamily="monospace"
+            fontWeight="600"
+            fill="var(--ink)"
+          >
+            Frame k (Moving at v = {v.toFixed(2)}c):
+          </text>
           {/* Axis line */}
           <line
             x1={padding.left}
             y1="10"
             x2={width - padding.right}
             y2="10"
-            stroke="#475569"
+            stroke="var(--line)"
             strokeWidth="1.5"
           />
-          {/* Rod representation in k */}
+          {/* Rod representation in k (Data datum - kept literal sky/amber) */}
           <rect
             x={scaleX(0)}
             y="0"
@@ -158,13 +212,16 @@ export function RodStripPlot({
             x={scaleX((rodRestFrame === "k" ? L0 : contractedL) / 2)}
             y="14"
             textAnchor="middle"
-            className="text-[10px] fill-slate-950 font-mono font-bold"
+            fontSize="10"
+            fontFamily="monospace"
+            fontWeight="bold"
+            fill="#020617"
           >
             {rodRestFrame === "k"
               ? `${L0.toFixed(1)} ls (Proper L₀)`
               : `${contractedL.toFixed(2)} ls (L₀/γ)`}
           </text>
-          {/* Endpoint markers */}
+          {/* Endpoint markers (Data datum - kept literal red) */}
           <circle cx={scaleX(0)} cy="10" r="3.5" fill="#ef4444" />
           <circle
             cx={scaleX(rodRestFrame === "k" ? L0 : contractedL)}
@@ -217,47 +274,83 @@ export function MinkowskiDiagramPlot({
   const lcLen = 180;
 
   return (
-    <div className="plot-container" data-view-id="sr-03-minkowski-diagram">
-      <div className="flex justify-between items-center mb-1">
-        <h3 className="text-sm font-semibold text-slate-800 dark:text-slate-100">
+    <div data-view-id="sr-03-minkowski-diagram">
+      <div
+        style={{
+          display: "flex",
+          justifyContent: "space-between",
+          alignItems: "center",
+          marginBottom: "0.25rem",
+          flexWrap: "wrap",
+          gap: "0.25rem",
+        }}
+      >
+        <h3
+          style={{
+            fontSize: "0.875rem",
+            fontWeight: 600,
+            color: "var(--ink)",
+            margin: 0,
+          }}
+        >
           Spacetime Event Diagram
         </h3>
-        <span className="text-[10px] text-slate-500 font-mono">
+        <span
+          className="fine"
+          style={{
+            fontSize: "0.625rem",
+            fontFamily: "var(--font-mono, monospace)",
+            color: "var(--muted)",
+          }}
+        >
           Pair: {endpointPairId} | Rest: {rodRestFrame} | Measuring: {measuringFrame} | γ ={" "}
           {g.toFixed(2)} | L₀ = {L0.toFixed(1)} ls
         </span>
       </div>
-      <p className="text-xs text-slate-600 dark:text-slate-400 mb-2">
+      <p
+        className="fine"
+        style={{
+          fontSize: "0.75rem",
+          marginBottom: "0.5rem",
+        }}
+      >
         Spacetime coordinates: light lines at 45°. Boosted axes $x'$ and $ct'$ tilt toward the light
         cone by angle $\theta = \arctan(v/c)$.
       </p>
 
       <svg
         viewBox={`0 0 ${width} ${height}`}
-        className="w-full h-auto bg-slate-900 border border-slate-800 rounded overflow-hidden"
         role="img"
         aria-label="Minkowski spacetime diagram with light cones and events"
+        style={{
+          width: "100%",
+          height: "auto",
+          background: "var(--panel)",
+          border: "1px solid var(--line)",
+          borderRadius: "0.25rem",
+          overflow: "hidden",
+        }}
       >
-        {/* Light Cone (45 degrees) */}
+        {/* Light Cone (45 degrees - data datum kept literal sky) */}
         <line
           x1={originX - lcLen}
           y1={originY + lcLen}
           x2={originX + lcLen}
           y2={originY - lcLen}
-          stroke="#38bdf8"
+          stroke="#0284c7"
           strokeWidth="1"
           strokeDasharray="4 3"
-          strokeOpacity="0.4"
+          strokeOpacity="0.6"
         />
         <line
           x1={originX - lcLen}
           y1={originY - lcLen}
           x2={originX + lcLen}
           y2={originY + lcLen}
-          stroke="#38bdf8"
+          stroke="#0284c7"
           strokeWidth="1"
           strokeDasharray="4 3"
-          strokeOpacity="0.4"
+          strokeOpacity="0.6"
         />
 
         {/* Frame K Axes (Unprimed) */}
@@ -267,13 +360,16 @@ export function MinkowskiDiagramPlot({
           y1={originY}
           x2={originX + 280}
           y2={originY}
-          stroke="#94a3b8"
+          stroke="var(--line)"
           strokeWidth="1.5"
         />
         <text
           x={originX + 285}
           y={originY + 4}
-          className="text-[10px] fill-slate-300 font-mono font-bold"
+          fontSize="10"
+          fontFamily="monospace"
+          fontWeight="bold"
+          fill="var(--ink)"
         >
           x (ls)
         </text>
@@ -284,32 +380,38 @@ export function MinkowskiDiagramPlot({
           y1={originY + 40}
           x2={originX}
           y2={originY - 200}
-          stroke="#94a3b8"
+          stroke="var(--line)"
           strokeWidth="1.5"
         />
         <text
           x={originX - 4}
           y={originY - 205}
-          className="text-[10px] fill-slate-300 font-mono font-bold"
+          fontSize="10"
+          fontFamily="monospace"
+          fontWeight="bold"
+          fill="var(--ink)"
         >
           ct (s)
         </text>
 
-        {/* Frame k Axes (Boosted, Primed) */}
+        {/* Frame k Axes (Boosted, Primed - data datum kept literal amber) */}
         {/* x' axis: t = v*x/c^2 => Y = originY - scale * (v * (X - originX)/scale) */}
         <line
           x1={originX - 40}
           y1={originY + 40 * v}
           x2={originX + 260}
           y2={originY - 260 * v}
-          stroke="#f59e0b"
+          stroke="#d97706"
           strokeWidth="1.5"
           strokeDasharray="5 3"
         />
         <text
           x={originX + 265}
           y={originY - 260 * v}
-          className="text-[10px] fill-amber-400 font-mono font-bold"
+          fontSize="10"
+          fontFamily="monospace"
+          fontWeight="bold"
+          fill="#d97706"
         >
           x'
         </text>
@@ -320,34 +422,43 @@ export function MinkowskiDiagramPlot({
           y1={originY + 40}
           x2={originX + 180 * v}
           y2={originY - 180}
-          stroke="#f59e0b"
+          stroke="#d97706"
           strokeWidth="1.5"
           strokeDasharray="5 3"
         />
         <text
           x={originX + 180 * v + 4}
           y={originY - 185}
-          className="text-[10px] fill-amber-400 font-mono font-bold"
+          fontSize="10"
+          fontFamily="monospace"
+          fontWeight="bold"
+          fill="#d97706"
         >
           ct'
         </text>
 
-        {/* Event E1 */}
+        {/* Event E1 (Data datum - kept literal emerald) */}
         <circle cx={originX + e1K.x * scale} cy={originY - e1K.t * scale} r="5" fill="#10b981" />
         <text
           x={originX + e1K.x * scale - 18}
           y={originY - e1K.t * scale - 8}
-          className="text-[11px] fill-emerald-400 font-mono font-bold"
+          fontSize="11"
+          fontFamily="monospace"
+          fontWeight="bold"
+          fill="#059669"
         >
           E₁ (0,0)
         </text>
 
-        {/* Event E2 */}
+        {/* Event E2 (Data datum - kept literal rose) */}
         <circle cx={originX + e2K.x * scale} cy={originY - e2K.t * scale} r="5" fill="#f43f5e" />
         <text
           x={originX + e2K.x * scale + 8}
           y={originY - e2K.t * scale - 8}
-          className="text-[11px] fill-rose-400 font-mono font-bold"
+          fontSize="11"
+          fontFamily="monospace"
+          fontWeight="bold"
+          fill="#e11d48"
         >
           E₂ ({e2K.x.toFixed(1)}, {e2K.t.toFixed(1)}) | k: ({dxk.toFixed(1)}, {dtk.toFixed(1)})
         </text>
@@ -358,7 +469,7 @@ export function MinkowskiDiagramPlot({
           y1={originY - e1K.t * scale}
           x2={originX + e2K.x * scale}
           y2={originY - e2K.t * scale}
-          stroke="#e2e8f0"
+          stroke="var(--muted)"
           strokeWidth="1.5"
           strokeDasharray="2 2"
         />
@@ -392,27 +503,63 @@ export function SphereEllipsoidPlot({
   const ry = transverseY * scale;
 
   return (
-    <div className="plot-container" data-view-id="sr-03-ellipsoid-view">
-      <div className="flex justify-between items-center mb-1">
-        <h3 className="text-sm font-semibold text-slate-800 dark:text-slate-100">
+    <div data-view-id="sr-03-ellipsoid-view">
+      <div
+        style={{
+          display: "flex",
+          justifyContent: "space-between",
+          alignItems: "center",
+          marginBottom: "0.25rem",
+          flexWrap: "wrap",
+          gap: "0.25rem",
+        }}
+      >
+        <h3
+          style={{
+            fontSize: "0.875rem",
+            fontWeight: 600,
+            color: "var(--ink)",
+            margin: 0,
+          }}
+        >
           Moving Sphere Measured as an Ellipsoid (§4)
         </h3>
-        <span className="text-[11px] font-mono text-slate-500">
+        <span
+          className="fine"
+          style={{
+            fontSize: "0.6875rem",
+            fontFamily: "var(--font-mono, monospace)",
+            color: "var(--muted)",
+          }}
+        >
           v = {v.toFixed(2)}c | Axes: ({longitudinal.toFixed(2)}, {transverseY.toFixed(2)},{" "}
           {transverseZ.toFixed(2)}) ls
         </span>
       </div>
-      <p className="text-xs text-slate-600 dark:text-slate-400 mb-2">
+      <p
+        className="fine"
+        style={{
+          fontSize: "0.75rem",
+          marginBottom: "0.5rem",
+        }}
+      >
         A sphere of radius R at rest in k, when measured from K at one instant of K, has axes{" "}
-        <span className="font-mono">R/γ, R, R</span> ={" "}
-        <span className="font-mono">R√(1 - v²/c²), R, R</span>.
+        <span style={{ fontFamily: "var(--font-mono, monospace)" }}>R/γ, R, R</span> ={" "}
+        <span style={{ fontFamily: "var(--font-mono, monospace)" }}>R√(1 - v²/c²), R, R</span>.
       </p>
 
       <svg
         viewBox={`0 0 ${width} ${height}`}
-        className="w-full h-auto bg-slate-900 border border-slate-800 rounded overflow-hidden"
         role="img"
         aria-label="Moving sphere measured as an ellipsoid"
+        style={{
+          width: "100%",
+          height: "auto",
+          background: "var(--panel)",
+          border: "1px solid var(--line)",
+          borderRadius: "0.25rem",
+          overflow: "hidden",
+        }}
       >
         {/* Rest sphere outline (dashed) */}
         <ellipse
@@ -421,12 +568,12 @@ export function SphereEllipsoidPlot({
           rx={radius * scale}
           ry={radius * scale}
           fill="none"
-          stroke="#64748b"
+          stroke="var(--muted)"
           strokeWidth="1.5"
           strokeDasharray="4 3"
         />
 
-        {/* Measured contracted ellipsoid */}
+        {/* Measured contracted ellipsoid (Data datum - kept literal sky) */}
         <ellipse
           cx={centerX}
           cy={centerY}
@@ -438,13 +585,13 @@ export function SphereEllipsoidPlot({
           strokeWidth="2"
         />
 
-        {/* Axes markers */}
+        {/* Axes markers (Data datum - kept literal sky) */}
         <line
           x1={centerX - rx}
           y1={centerY}
           x2={centerX + rx}
           y2={centerY}
-          stroke="#38bdf8"
+          stroke="#0284c7"
           strokeWidth="1.5"
         />
         <line
@@ -452,7 +599,7 @@ export function SphereEllipsoidPlot({
           y1={centerY - ry}
           x2={centerX}
           y2={centerY + ry}
-          stroke="#38bdf8"
+          stroke="#0284c7"
           strokeWidth="1.5"
         />
 
@@ -461,14 +608,19 @@ export function SphereEllipsoidPlot({
           x={centerX}
           y={centerY + ry + 16}
           textAnchor="middle"
-          className="text-[10px] fill-slate-300 font-mono"
+          fontSize="10"
+          fontFamily="monospace"
+          fill="var(--ink)"
         >
           Transverse: {transverseY.toFixed(2)} ls
         </text>
         <text
           x={centerX + rx + 8}
           y={centerY + 4}
-          className="text-[10px] fill-sky-400 font-mono font-bold"
+          fontSize="10"
+          fontFamily="monospace"
+          fontWeight="bold"
+          fill="#0284c7"
         >
           Longitudinal: {longitudinal.toFixed(2)} ls
         </text>
