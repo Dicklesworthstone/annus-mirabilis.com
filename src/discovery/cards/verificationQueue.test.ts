@@ -270,3 +270,225 @@ describe("am-disc-knowledge-cards-iw8j: verification queue validation", () => {
     });
   });
 });
+
+describe("verificationQueue.ts refusal throw sites coverage (am-muyh)", () => {
+  const baseValidItem = {
+    id: "q-test-1",
+    question: "Was the formula verified?",
+    cards: ["card-1"],
+    sourceToConsult: "Proceedings 1905",
+    landsIn: "proposition",
+    status: "open",
+  };
+
+  test("validateVerificationQueueItem: (verificationQueue.ts:36) invalid-item rejects non-object input, accepts valid item object", () => {
+    // Reject: non-object input
+    assert.throws(
+      () => validateVerificationQueueItem(null as any),
+      (err: unknown) => {
+        assert.ok(err instanceof VerificationQueueSchemaError);
+        assert.equal(err.code, "invalid-item");
+        assert.equal(err.path, "VerificationQueueItem");
+        return true;
+      },
+    );
+    assert.throws(
+      () => validateVerificationQueueItem([] as any),
+      (err: unknown) => {
+        assert.ok(err instanceof VerificationQueueSchemaError);
+        assert.equal(err.code, "invalid-item");
+        return true;
+      },
+    );
+
+    // Accept: valid object item
+    const valid = validateVerificationQueueItem(baseValidItem);
+    assert.equal(valid.id, "q-test-1");
+  });
+
+  test("validateVerificationQueueItem: (verificationQueue.ts:45) missing-id rejects empty or missing id, accepts non-empty id", () => {
+    // Reject: missing/empty id
+    assert.throws(
+      () => validateVerificationQueueItem({ ...baseValidItem, id: "  " } as any),
+      (err: unknown) => {
+        assert.ok(err instanceof VerificationQueueSchemaError);
+        assert.equal(err.code, "missing-id");
+        assert.equal(err.path, "VerificationQueueItem.id");
+        return true;
+      },
+    );
+
+    // Accept: valid non-empty id
+    const valid = validateVerificationQueueItem({ ...baseValidItem, id: "q-valid-id" });
+    assert.equal(valid.id, "q-valid-id");
+  });
+
+  test("validateVerificationQueueItem: (verificationQueue.ts:53) missing-question rejects empty or missing question, accepts non-empty question", () => {
+    // Reject: missing/empty question
+    assert.throws(
+      () => validateVerificationQueueItem({ ...baseValidItem, question: "" } as any),
+      (err: unknown) => {
+        assert.ok(err instanceof VerificationQueueSchemaError);
+        assert.equal(err.code, "missing-question");
+        assert.equal(err.path, "VerificationQueueItem.question");
+        return true;
+      },
+    );
+
+    // Accept: valid question
+    const valid = validateVerificationQueueItem({
+      ...baseValidItem,
+      question: "What is the result?",
+    });
+    assert.equal(valid.question, "What is the result?");
+  });
+
+  test("validateVerificationQueueItem: (verificationQueue.ts:61) invalid-cards rejects non-array cards, accepts array of card ids", () => {
+    // Reject: cards is not an array
+    assert.throws(
+      () => validateVerificationQueueItem({ ...baseValidItem, cards: "not-an-array" } as any),
+      (err: unknown) => {
+        assert.ok(err instanceof VerificationQueueSchemaError);
+        assert.equal(err.code, "invalid-cards");
+        assert.equal(err.path, "VerificationQueueItem.cards");
+        return true;
+      },
+    );
+
+    // Accept: cards is a valid array
+    const valid = validateVerificationQueueItem({
+      ...baseValidItem,
+      cards: ["card-1", "card-2"],
+    });
+    assert.deepEqual(valid.cards, ["card-1", "card-2"]);
+  });
+
+  test("validateVerificationQueueItem: (verificationQueue.ts:69) invalid-card-id rejects non-string or whitespace card id, accepts trimmed non-empty card id", () => {
+    // Reject: card id is empty string or non-string
+    assert.throws(
+      () => validateVerificationQueueItem({ ...baseValidItem, cards: ["card-1", "   "] } as any),
+      (err: unknown) => {
+        assert.ok(err instanceof VerificationQueueSchemaError);
+        assert.equal(err.code, "invalid-card-id");
+        assert.equal(err.path, "VerificationQueueItem.cards[1]");
+        return true;
+      },
+    );
+
+    // Accept: all card ids are non-empty strings
+    const valid = validateVerificationQueueItem({
+      ...baseValidItem,
+      cards: [" card-alpha ", "card-beta"],
+    });
+    assert.deepEqual(valid.cards, ["card-alpha", "card-beta"]);
+  });
+
+  test("validateVerificationQueueItem: (verificationQueue.ts:79) missing-source-to-consult rejects empty sourceToConsult, accepts non-empty source", () => {
+    // Reject: empty sourceToConsult
+    assert.throws(
+      () => validateVerificationQueueItem({ ...baseValidItem, sourceToConsult: " " } as any),
+      (err: unknown) => {
+        assert.ok(err instanceof VerificationQueueSchemaError);
+        assert.equal(err.code, "missing-source-to-consult");
+        assert.equal(err.path, "VerificationQueueItem.sourceToConsult");
+        return true;
+      },
+    );
+
+    // Accept: valid sourceToConsult
+    const valid = validateVerificationQueueItem({
+      ...baseValidItem,
+      sourceToConsult: "Archival Report 1905",
+    });
+    assert.equal(valid.sourceToConsult, "Archival Report 1905");
+  });
+
+  test("validateVerificationQueueItem: (verificationQueue.ts:87) missing-lands-in rejects empty landsIn, accepts non-empty landsIn", () => {
+    // Reject: empty landsIn
+    assert.throws(
+      () => validateVerificationQueueItem({ ...baseValidItem, landsIn: "" } as any),
+      (err: unknown) => {
+        assert.ok(err instanceof VerificationQueueSchemaError);
+        assert.equal(err.code, "missing-lands-in");
+        assert.equal(err.path, "VerificationQueueItem.landsIn");
+        return true;
+      },
+    );
+
+    // Accept: valid landsIn
+    const valid = validateVerificationQueueItem({ ...baseValidItem, landsIn: "limits" });
+    assert.equal(valid.landsIn, "limits");
+  });
+
+  test("validateVerificationQueueItem: (verificationQueue.ts:105) invalid-status rejects unadmitted status string, accepts open, resolved, or narrowed", () => {
+    // Reject: invalid status
+    assert.throws(
+      () => validateVerificationQueueItem({ ...baseValidItem, status: "pending" } as any),
+      (err: unknown) => {
+        assert.ok(err instanceof VerificationQueueSchemaError);
+        assert.equal(err.code, "invalid-status");
+        assert.equal(err.path, "VerificationQueueItem.status");
+        return true;
+      },
+    );
+
+    // Accept: valid statuses
+    const openItem = validateVerificationQueueItem({ ...baseValidItem, status: "open" });
+    assert.equal(openItem.status, "open");
+    const resolvedItem = validateVerificationQueueItem({ ...baseValidItem, status: "resolved" });
+    assert.equal(resolvedItem.status, "resolved");
+    const narrowedItem = validateVerificationQueueItem({
+      ...baseValidItem,
+      status: "narrowed",
+      explanation: "Historical record unverified.",
+    });
+    assert.equal(narrowedItem.status, "narrowed");
+  });
+
+  test("validateVerificationQueueFile: (verificationQueue.ts:141) invalid-queue-file rejects non-object raw file, accepts valid file object", () => {
+    // Reject: non-object queue file
+    assert.throws(
+      () => validateVerificationQueueFile(null as any),
+      (err: unknown) => {
+        assert.ok(err instanceof VerificationQueueSchemaError);
+        assert.equal(err.code, "invalid-queue-file");
+        assert.equal(err.path, "VerificationQueueFile");
+        return true;
+      },
+    );
+    assert.throws(
+      () => validateVerificationQueueFile([] as any),
+      (err: unknown) => {
+        assert.ok(err instanceof VerificationQueueSchemaError);
+        assert.equal(err.code, "invalid-queue-file");
+        return true;
+      },
+    );
+
+    // Accept: valid queue file object
+    const valid = validateVerificationQueueFile({ group: "brownian", items: [] });
+    assert.equal(valid.group, "brownian");
+    assert.deepEqual(valid.items, []);
+  });
+
+  test("validateVerificationQueueFile: (verificationQueue.ts:152) missing-items rejects non-array items property, accepts array of items", () => {
+    // Reject: missing/non-array items
+    assert.throws(
+      () => validateVerificationQueueFile({ group: "brownian", items: "not-an-array" } as any),
+      (err: unknown) => {
+        assert.ok(err instanceof VerificationQueueSchemaError);
+        assert.equal(err.code, "missing-items");
+        assert.equal(err.path, "VerificationQueueFile.items");
+        return true;
+      },
+    );
+
+    // Accept: items is an array of valid queue items
+    const valid = validateVerificationQueueFile({
+      group: "brownian",
+      items: [baseValidItem],
+    });
+    assert.equal(valid.items.length, 1);
+    assert.equal(valid.items[0]?.id, "q-test-1");
+  });
+});
