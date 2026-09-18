@@ -7,7 +7,7 @@
  * Default Command Class: setup-change.
  */
 
-import { useId, useState } from "react";
+import { type CSSProperties, useId, useState } from "react";
 import type { BaseInteractionProps, TypedActionPayload } from "../types.ts";
 
 export interface PartitionControlInputs {
@@ -22,6 +22,18 @@ export interface PartitionControlProps extends BaseInteractionProps<PartitionCon
   readonly minRatio?: number | undefined;
   readonly maxRatio?: number | undefined;
 }
+
+const srOnlyStyle: CSSProperties = {
+  position: "absolute",
+  width: "1px",
+  height: "1px",
+  padding: 0,
+  margin: "-1px",
+  overflow: "hidden",
+  clip: "rect(0, 0, 0, 0)",
+  whiteSpace: "nowrap",
+  border: 0,
+};
 
 export function PartitionControl({
   instrumentId,
@@ -74,35 +86,98 @@ export function PartitionControl({
 
   return (
     <div
-      className={`partition-control ${className}`}
+      className={className ? className.trim() : undefined}
       data-interaction-family="radiation-entropy"
       data-testid={testId}
     >
       {/* Live Region Announcement */}
-      <div className="sr-only" aria-live="polite" role="status">
+      <div style={srOnlyStyle} aria-live="polite" role="status">
         {announcement}
       </div>
 
       {/* Visual Volume Partition Slider */}
-      <div className="p-3 bg-stone-50 border border-stone-200 rounded">
-        <div className="flex justify-between items-center mb-2">
-          <h4 className="text-xs font-semibold uppercase tracking-wider text-stone-800">
+      <div
+        style={{
+          padding: "0.75rem",
+          background: "var(--panel)",
+          border: "1px solid var(--line)",
+          borderRadius: "0.25rem",
+        }}
+      >
+        <div
+          style={{
+            display: "flex",
+            justifyContent: "space-between",
+            alignItems: "center",
+            marginBottom: "0.5rem",
+            flexWrap: "wrap",
+            gap: "0.25rem",
+          }}
+        >
+          <h4
+            className="eyebrow"
+            style={{
+              fontSize: "0.75rem",
+              fontWeight: 600,
+              textTransform: "uppercase",
+              letterSpacing: "0.05em",
+              color: "var(--ink)",
+              margin: 0,
+            }}
+          >
             Constrained Subvolume Partition
           </h4>
-          <span className="text-xs font-mono bg-stone-200 px-2 py-0.5 rounded text-stone-900">
+          <span
+            style={{
+              fontSize: "0.75rem",
+              fontFamily: "var(--font-mono, monospace)",
+              background: "var(--wash)",
+              border: "1px solid var(--line)",
+              padding: "0.125rem 0.5rem",
+              borderRadius: "0.25rem",
+              color: "var(--ink)",
+            }}
+          >
             V/V₀ = {ratio.toFixed(2)}
           </span>
         </div>
 
         {/* Fixed Quantities Banner */}
-        <div className="text-xs text-stone-600 mb-3 bg-amber-50 border border-amber-200/60 p-2 rounded">
-          <span className="font-semibold text-amber-900">Fixed quantities:</span> Energy{" "}
-          <code className="font-mono text-amber-950 font-bold">{fixedEnergy}</code>, Frequency band{" "}
-          <code className="font-mono text-amber-950 font-bold">{fixedFrequencyBand}</code>
+        <div
+          style={{
+            fontSize: "0.75rem",
+            marginBottom: "0.75rem",
+            background: "var(--wash)",
+            border: "1px solid var(--line)",
+            padding: "0.5rem",
+            borderRadius: "0.25rem",
+            color: "var(--ink)",
+          }}
+        >
+          <span style={{ fontWeight: 600, color: "var(--accent)" }}>Fixed quantities:</span> Energy{" "}
+          <code
+            style={{
+              fontFamily: "var(--font-mono, monospace)",
+              fontWeight: "bold",
+              color: "var(--ink)",
+            }}
+          >
+            {fixedEnergy}
+          </code>
+          , Frequency band{" "}
+          <code
+            style={{
+              fontFamily: "var(--font-mono, monospace)",
+              fontWeight: "bold",
+              color: "var(--ink)",
+            }}
+          >
+            {fixedFrequencyBand}
+          </code>
         </div>
 
-        <div className="mb-3">
-          <label htmlFor={`${compId}-slider`} className="sr-only">
+        <div style={{ marginBottom: "0.75rem" }}>
+          <label htmlFor={`${compId}-slider`} style={srOnlyStyle}>
             Volume ratio slider
           </label>
           <input
@@ -114,18 +189,44 @@ export function PartitionControl({
             value={ratio}
             disabled={disabled}
             onChange={(e) => updateRatio(Number.parseFloat(e.target.value))}
-            className="w-full accent-amber-600"
+            style={{
+              width: "100%",
+              accentColor: "var(--accent)",
+              cursor: disabled ? "not-allowed" : "pointer",
+            }}
           />
         </div>
 
         {/* Accessible Equivalent Ratio Presets & Direct Typed Entry */}
-        <div className="flex flex-wrap items-center gap-2 pt-2 border-t border-stone-200">
-          <span className="text-xs text-stone-700 font-medium">Presets:</span>
+        <div
+          style={{
+            display: "flex",
+            flexWrap: "wrap",
+            alignItems: "center",
+            gap: "0.5rem",
+            paddingTop: "0.5rem",
+            borderTop: "1px solid var(--line)",
+            fontSize: "0.75rem",
+          }}
+        >
+          <span className="fine" style={{ fontWeight: 500 }}>
+            Presets:
+          </span>
           <button
             type="button"
             disabled={disabled}
             onClick={() => updateRatio(0.5)}
-            className="px-2.5 py-1 text-xs font-mono bg-white border border-stone-300 rounded hover:bg-stone-100"
+            className="button"
+            style={{
+              padding: "0.25rem 0.625rem",
+              fontSize: "0.75rem",
+              fontFamily: "var(--font-mono, monospace)",
+              background: "var(--panel)",
+              border: "1px solid var(--line)",
+              borderRadius: "0.25rem",
+              color: "var(--ink)",
+              cursor: disabled ? "not-allowed" : "pointer",
+            }}
           >
             Half (0.5×)
           </button>
@@ -133,7 +234,17 @@ export function PartitionControl({
             type="button"
             disabled={disabled}
             onClick={() => updateRatio(1.0)}
-            className="px-2.5 py-1 text-xs font-mono bg-white border border-stone-300 rounded hover:bg-stone-100"
+            className="button"
+            style={{
+              padding: "0.25rem 0.625rem",
+              fontSize: "0.75rem",
+              fontFamily: "var(--font-mono, monospace)",
+              background: "var(--panel)",
+              border: "1px solid var(--line)",
+              borderRadius: "0.25rem",
+              color: "var(--ink)",
+              cursor: disabled ? "not-allowed" : "pointer",
+            }}
           >
             Same (1.0×)
           </button>
@@ -141,13 +252,31 @@ export function PartitionControl({
             type="button"
             disabled={disabled}
             onClick={() => updateRatio(2.0)}
-            className="px-2.5 py-1 text-xs font-mono bg-white border border-stone-300 rounded hover:bg-stone-100"
+            className="button"
+            style={{
+              padding: "0.25rem 0.625rem",
+              fontSize: "0.75rem",
+              fontFamily: "var(--font-mono, monospace)",
+              background: "var(--panel)",
+              border: "1px solid var(--line)",
+              borderRadius: "0.25rem",
+              color: "var(--ink)",
+              cursor: disabled ? "not-allowed" : "pointer",
+            }}
           >
             Double (2.0×)
           </button>
 
-          <div className="flex items-center gap-1.5 ml-auto text-xs">
-            <label htmlFor={`${compId}-input`} className="text-stone-700">
+          <div
+            style={{
+              display: "flex",
+              alignItems: "center",
+              gap: "0.375rem",
+              marginLeft: "auto",
+              fontSize: "0.75rem",
+            }}
+          >
+            <label htmlFor={`${compId}-input`} className="fine">
               Type ratio:
             </label>
             <input
@@ -165,23 +294,47 @@ export function PartitionControl({
                 const parsed = Number.parseFloat(draftInput);
                 if (!Number.isNaN(parsed)) updateRatio(parsed);
               }}
-              className="w-16 px-2 py-1 border border-stone-300 rounded text-right font-mono text-xs"
+              style={{
+                width: "4rem",
+                padding: "0.25rem 0.5rem",
+                border: "1px solid var(--line)",
+                borderRadius: "0.25rem",
+                textAlign: "right",
+                fontFamily: "var(--font-mono, monospace)",
+                fontSize: "0.75rem",
+                background: "var(--panel)",
+                color: "var(--ink)",
+              }}
             />
           </div>
         </div>
 
         {errorNotice && (
-          <div className="mt-2 text-xs text-red-700 font-medium" role="alert">
+          <div
+            role="alert"
+            style={{
+              marginTop: "0.5rem",
+              fontSize: "0.75rem",
+              color: "#e11d48",
+              fontWeight: 500,
+            }}
+          >
             {errorNotice}
           </div>
         )}
 
         {entropyChange !== undefined && (
           <div
-            className="mt-2 text-xs text-stone-900 font-medium"
             data-testid="entropy-change-output"
+            style={{
+              marginTop: "0.5rem",
+              fontSize: "0.75rem",
+              color: "var(--ink)",
+              fontWeight: 500,
+            }}
           >
-            Entropy Difference ΔS: <span className="font-mono">{entropyChange}</span>
+            Entropy Difference ΔS:{" "}
+            <span style={{ fontFamily: "var(--font-mono, monospace)" }}>{entropyChange}</span>
           </div>
         )}
       </div>

@@ -97,7 +97,7 @@
   "src/experiments/interactions/event/EventSelector.tsx": 77,
   "src/experiments/interactions/expression/ExpressionActionPicker.tsx": 81,
   "src/experiments/interactions/interval/IntervalSelector.tsx": 74,
-  "src/experiments/interactions/partition/PartitionControl.tsx": 104,
+  "src/experiments/interactions/partition/PartitionControl.tsx": 0,
   "src/experiments/permalink/ShareControl.tsx": 12,
   "src/experiments/results/ResultStatusNote.tsx": 3,
   "src/reader/Blocks.tsx": 2,
