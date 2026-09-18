@@ -103,4 +103,41 @@ describe("TrajectoryLayer (am-inst-2d-view-kit-u75r)", () => {
       removeContainer(container);
     }
   });
+
+  test("renders canvas mode with telemetry and aria-label", async () => {
+    const container = createContainer();
+    const root = createRoot(container);
+
+    const tracers = [
+      { id: "tr1", positions: new Float32Array([0, 0, 1, 1]), color: "#ef4444" },
+      { id: "tr2", positions: new Float32Array([0, 0, -2, -2]) },
+    ];
+
+    try {
+      await act(() => {
+        root.render(
+          createElement(TrajectoryLayer, {
+            instanceId: "BM01:1",
+            runId: "run-001",
+            snapshotVersion: 1,
+            tracers,
+            xProjector: xProj,
+            yProjector: yProj,
+            totalEnsembleCount: 2,
+            mode: "canvas",
+          }),
+        );
+      });
+
+      const canvas = container.querySelector("canvas.trajectory-canvas");
+      expect(canvas).not.toBeNull();
+      expect(canvas?.getAttribute("role")).toBe("img");
+      expect(canvas?.getAttribute("aria-label")).toContain("Tracer paths: 2 visible in viewport");
+    } finally {
+      await act(() => {
+        root.unmount();
+      });
+      removeContainer(container);
+    }
+  });
 });

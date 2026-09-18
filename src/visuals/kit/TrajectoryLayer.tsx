@@ -98,7 +98,7 @@ export function TrajectoryLayer({
         }
       }
 
-      ctx.strokeStyle = tracer.color ?? "var(--plot)";
+      ctx.strokeStyle = tracer.color ?? "#3b82f6";
       ctx.lineWidth =
         tracer.isHighlighted || (selectedQuantityId && selectedQuantityId === quantityId) ? 2.5 : 1;
       ctx.stroke();
@@ -111,7 +111,7 @@ export function TrajectoryLayer({
         const lastPy = yProjector(lastY);
         ctx.beginPath();
         ctx.arc(lastPx, lastPy, 2.5, 0, 2 * Math.PI);
-        ctx.fillStyle = tracer.color ?? "var(--plot)";
+        ctx.fillStyle = tracer.color ?? "#3b82f6";
         ctx.fill();
       }
     }
