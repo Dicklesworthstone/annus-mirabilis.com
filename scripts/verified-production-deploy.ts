@@ -1,10 +1,13 @@
 /**
- * Extracted and adapted from classic-patents.com
+ * Extracted from classic-patents.com
  * Source repository: https://github.com/Dicklesworthstone/classic-patents.com
  * Source path: scripts/verified-production-deploy.ts
  * Pinned commit: da11ff475902728fd8dd1d9db9f3af37c16ec8a5
  * License: MIT License (with OpenAI/Anthropic Rider)
  * Preserved license text: /LICENSE
+ *
+ * Modifications:
+ * - Adapted for annus-mirabilis.com under am-rel-verified-deploy-qndt.
  *
  * The only supported production deploy entry point for annus-mirabilis.com,
  * adapted under am-rel-verified-deploy-qndt. It stays intentionally
@@ -578,6 +581,15 @@ export async function main(argv = process.argv.slice(2)): Promise<void> {
     return;
   }
 
+  const mode = options.promote ? "promote" : options.candidateOnly ? "candidate-only" : "deploy";
+
+  const authPath = options.authorization;
+  if (!options.dryRun && !authPath) {
+    throw new Error(
+      `Missing required --authorization <path> for mode '${mode}'. Every mutation mode requires an explicit authorization file.`,
+    );
+  }
+
   // Preflight check 1: canonical project identity linked
   // Requirement 2: Refuses before any build or network call if canonical project is unlinked/unconfigured.
   assertCanonicalProjectIdentity();
@@ -592,7 +604,6 @@ export async function main(argv = process.argv.slice(2)): Promise<void> {
     );
   }
 
-  const mode = options.promote ? "promote" : options.candidateOnly ? "candidate-only" : "deploy";
   const targetHostnames = determinePromotionHostnames(
     options.profile,
     !!options.includeCustomDomains,
@@ -613,12 +624,12 @@ export async function main(argv = process.argv.slice(2)): Promise<void> {
       return;
     }
 
-    if (!options.authorization) {
+    if (!authPath) {
       throw new Error(`Missing required --authorization <path> for mode '${mode}'.`);
     }
 
     const scope: ReleaseScope = mode === "candidate-only" ? "candidate-only" : "promote";
-    const authResult = loadAndValidateAuthorization(options.authorization, {
+    const authResult = loadAndValidateAuthorization(authPath, {
       expectedCommit: headCommit,
       expectedProfile: options.profile,
       expectedScope: scope,

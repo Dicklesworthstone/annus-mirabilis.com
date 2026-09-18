@@ -293,7 +293,7 @@ describe("tool-run-id artifact directory naming", () => {
 });
 
 describe("the deploy entry point refuses before any network, git, or Vercel call", () => {
-  test("main() throws the not-yet-adapted message with zero commands invoked", async () => {
+  test("main() refuses without a valid --authorization file with zero commands invoked", async () => {
     const { main, __setSpawnForTesting, __resetSpawnForTesting } = await import(
       "./verified-production-deploy.ts"
     );
@@ -302,6 +302,8 @@ describe("the deploy entry point refuses before any network, git, or Vercel call
       recordedCalls.push(args);
       throw new Error("a refused entry point must never reach a spawn call");
     });
+    const originalArgv = process.argv;
+    process.argv = ["bun", "scripts/verified-production-deploy.ts", "--profile", "scaffold"];
     try {
       let threw = false;
       try {
@@ -309,13 +311,12 @@ describe("the deploy entry point refuses before any network, git, or Vercel call
       } catch (error) {
         threw = true;
         const message = error instanceof Error ? error.message : String(error);
-        expect(message).toContain("not yet adapted");
-        expect(message).toContain("am-rel-verified-deploy-qndt");
-        expect(message).toContain("No network, git, or Vercel command was executed.");
+        expect(message).toContain("Missing required --authorization");
       }
       expect(threw).toBe(true);
       expect(recordedCalls).toEqual([]);
     } finally {
+      process.argv = originalArgv;
       __resetSpawnForTesting();
     }
   });
