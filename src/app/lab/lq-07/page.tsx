@@ -22,15 +22,21 @@ export default function FluorescencePage() {
   };
 
   return (
-    <main className="container mx-auto px-4 py-8 max-w-5xl">
-      <header className="page-intro mb-6 text-center">
-        <p className="text-xs font-mono uppercase tracking-wider text-muted-foreground mb-1">
+    <main
+      style={{
+        maxWidth: "64rem",
+        margin: "0 auto",
+        padding: "2rem 1rem",
+      }}
+    >
+      <header className="page-intro" style={{ marginBottom: "1.5rem", textAlign: "center" }}>
+        <p className="eyebrow" style={{ marginBottom: "0.25rem" }}>
           Light Quanta · Paper 1, §7 Energy Conservation
         </p>
-        <h1 className="text-3xl sm:text-4xl font-serif font-bold text-foreground">
+        <h1 style={{ fontFamily: "var(--font-serif, serif)" }}>
           Stokes's Rule and the Single-Quantum Energy Budget
         </h1>
-        <p className="text-base text-muted-foreground mt-2 max-w-2xl mx-auto font-serif">
+        <p className="lead" style={{ maxWidth: "42rem", margin: "0.5rem auto 0" }}>
           Why the frequency of emitted fluorescent light cannot exceed that of the exciting light
           under elementary quantum transformation, and how Einstein deduced the exact conditions for
           exceptions.
@@ -41,54 +47,95 @@ export default function FluorescencePage() {
 
       <section
         id="fluorescence-argument"
-        className="mt-12 border-t border-border/80 pt-8 max-w-3xl mx-auto space-y-4"
+        className="reading"
+        style={{
+          marginTop: "3rem",
+          borderTop: "1px solid var(--line)",
+          paddingTop: "2rem",
+          maxWidth: "48rem",
+          margin: "3rem auto 0",
+        }}
       >
-        <h2 className="text-xl font-serif font-bold text-foreground">
+        <h2 style={{ fontFamily: "var(--font-serif, serif)" }}>
           The Single-Quantum Energy Budget in Einstein 1905 §7
         </h2>
-        <p className="text-sm text-muted-foreground leading-relaxed">
+        <p>
           In 1852, George Gabriel Stokes formulated the empirical rule that fluorescent light always
           has a lower frequency (longer wavelength) than the light that excited it. In §7 of his
           1905 paper, Einstein showed that this rule is an immediate consequence of the
           light-quantum hypothesis:
         </p>
-        <blockquote className="border-l-2 border-primary/60 pl-4 my-3 text-xs italic text-muted-foreground">
+        <blockquote
+          style={{
+            borderLeft: "2px solid var(--accent)",
+            paddingLeft: "1rem",
+            margin: "0.75rem 0",
+            fontSize: "0.875rem",
+            fontStyle: "italic",
+            color: "var(--muted)",
+          }}
+        >
           &ldquo;If monochromatic light of frequency ν₁ is transformed into light of frequency ν₂ by
           photoluminescence, and if the process occurs such that one absorbed quantum is converted
           into one emitted quantum plus non-optical energy... then the energy of the emitted quantum
           cannot be greater than that of the exciting one.&rdquo;
         </blockquote>
-        <div className="p-4 bg-muted/30 border border-border rounded-lg text-center font-mono text-sm font-bold my-4">
+        <div
+          style={{
+            padding: "1rem",
+            background: "var(--wash)",
+            border: "1px solid var(--line)",
+            borderRadius: "0.5rem",
+            textAlign: "center",
+            fontFamily: "var(--font-mono, monospace)",
+            fontSize: "0.875rem",
+            fontWeight: "bold",
+            margin: "1rem 0",
+          }}
+        >
           hν₁ = hν₂ + E_other &emsp;(E_other ≥ 0) &emsp;&Longrightarrow;&emsp; ν₂ ≤ ν₁
         </div>
 
-        <h3 className="text-base font-serif font-bold text-foreground pt-2">
+        <h3 style={{ fontFamily: "var(--font-serif, serif)", paddingTop: "0.5rem" }}>
           The Two Historical Deviation Cases
         </h3>
-        <p className="text-sm text-muted-foreground leading-relaxed">
+        <p>
           Rather than stating Stokes's rule as an unbreakable law, Einstein explicitly deduced the
           physical conditions under which anti-Stokes emission (ν₂ &gt; ν₁) can occur:
         </p>
-        <ul className="text-xs text-muted-foreground space-y-2 list-disc list-inside">
-          <li>
+        <ul style={{ paddingLeft: "1.25rem", listStyleType: "disc" }}>
+          <li style={{ marginBottom: "0.5rem" }}>
             <strong>Deviation Case 1 (Multi-quantum absorption):</strong> If the elementary process
             involves the simultaneous absorption of{" "}
-            <span className="font-serif italic font-semibold">k</span> light quanta, the available
-            energy is <code className="font-mono text-foreground font-semibold">k hν₁</code>,
-            permitting emission up to{" "}
-            <code className="font-mono text-foreground font-semibold">ν₂ ≤ k ν₁</code>.
+            <span style={{ fontStyle: "italic", fontWeight: 600 }}>k</span> light quanta, the
+            available energy is{" "}
+            <code style={{ fontFamily: "var(--font-mono, monospace)", fontWeight: 600 }}>
+              k hν₁
+            </code>
+            , permitting emission up to{" "}
+            <code style={{ fontFamily: "var(--font-mono, monospace)", fontWeight: 600 }}>
+              ν₂ ≤ k ν₁
+            </code>
+            .
           </li>
-          <li>
+          <li style={{ marginBottom: "0.5rem" }}>
             <strong>Deviation Case 2 (Non-Wien exciting radiation):</strong> If the incident light
             is not in the Wien regime (where the light-quantum volume law was derived),
             single-quantum behavior is not guaranteed.
           </li>
         </ul>
 
-        <div className="pt-4">
+        <div style={{ paddingTop: "1rem" }}>
           <a
             href="/papers/light-quanta#s7"
-            className="text-xs font-semibold text-primary hover:underline inline-flex items-center gap-1"
+            style={{
+              fontSize: "0.875rem",
+              fontWeight: 600,
+              color: "var(--accent)",
+              display: "inline-flex",
+              alignItems: "center",
+              gap: "0.25rem",
+            }}
           >
             Read the original German source text and translation for §7 &rarr;
           </a>
