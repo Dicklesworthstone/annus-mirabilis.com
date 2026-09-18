@@ -154,7 +154,7 @@ export const PLOT_KINDS: Readonly<
 };
 export function TracerScaling({ snapshot }: { snapshot: AcceptedSnapshot }) {
   const p = snapshot.parameters as Bm01Parameters,
-    kind = PLOT_KINDS[p.statistic]!,
+    kind = PLOT_KINDS[p.statistic] ?? PLOT_KINDS.mean,
     times = array(snapshot, "plotTimes"),
     sample = array(snapshot, `plotSample${kind.suffix}`),
     model = array(snapshot, `plotModel${kind.suffix}`);

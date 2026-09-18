@@ -51,7 +51,7 @@ export function VelocityCompositionLab({
     session.getSnapshot,
     session.getServerSnapshot,
   );
-  const snapshot = view.accepted!;
+  const snapshot = (view.accepted ?? session.getServerSnapshot().accepted) as AcceptedSnapshot;
   const p = snapshot.parameters as Sr06Parameters;
   const [draft, setDraft] = useState(() => toSr06Draft(p));
   const [error, setError] = useState("");

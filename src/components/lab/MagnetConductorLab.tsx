@@ -64,7 +64,7 @@ export function MagnetConductorLab({
     session.getSnapshot,
     session.getServerSnapshot,
   );
-  const snapshot = view.accepted!;
+  const snapshot = (view.accepted ?? session.getServerSnapshot().accepted) as AcceptedSnapshot;
   const p = snapshot.parameters as Sr02Parameters;
   const [draft, setDraft] = useState(() => ({ ...example.parameters }));
   const [ready, setReady] = useState(false);
