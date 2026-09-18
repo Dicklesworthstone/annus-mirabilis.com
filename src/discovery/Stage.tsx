@@ -25,45 +25,150 @@ export function Stage({ stage, index }: StageProps) {
     <section
       id={id}
       data-stage-id={id}
-      className="stage my-10 p-6 rounded-xl border border-stone-700 bg-stone-900/70 text-stone-200 space-y-6"
+      style={{
+        margin: "2.5rem 0",
+        padding: "1.5rem",
+        borderRadius: "0.75rem",
+        border: "1px solid var(--line)",
+        background: "var(--panel)",
+        color: "var(--ink)",
+        display: "flex",
+        flexDirection: "column",
+        gap: "1.5rem",
+      }}
     >
-      <header className="space-y-2 border-b border-stone-800 pb-4">
-        <div className="flex flex-wrap items-center justify-between gap-2">
-          <span className="text-xs font-mono uppercase tracking-wider text-amber-400">
+      <header
+        style={{
+          display: "flex",
+          flexDirection: "column",
+          gap: "0.5rem",
+          borderBottom: "1px solid var(--line)",
+          paddingBottom: "1rem",
+        }}
+      >
+        <div
+          style={{
+            display: "flex",
+            flexWrap: "wrap",
+            alignItems: "center",
+            justifyContent: "space-between",
+            gap: "0.5rem",
+          }}
+        >
+          <span
+            className="eyebrow"
+            style={{
+              fontSize: "0.75rem",
+              fontFamily: "var(--font-mono, monospace)",
+              letterSpacing: "0.05em",
+              color: "var(--accent)",
+            }}
+          >
             Stage {String(index + 1).padStart(2, "0")} · Inquiry
           </span>
           <Meanings meanings={meanings} />
         </div>
-        <h3 className="text-2xl font-serif font-bold text-stone-100">{title}</h3>
-        <p className="text-base text-amber-200/90 font-serif italic">{question}</p>
+        <h3
+          style={{
+            fontSize: "1.5rem",
+            fontFamily: "var(--font-serif, Georgia, serif)",
+            fontWeight: "bold",
+            color: "var(--ink)",
+            margin: 0,
+          }}
+        >
+          {title}
+        </h3>
+        <p
+          style={{
+            fontSize: "1rem",
+            color: "var(--accent)",
+            fontFamily: "var(--font-serif, Georgia, serif)",
+            fontStyle: "italic",
+            margin: 0,
+          }}
+        >
+          {question}
+        </p>
       </header>
 
       {/* Compute from shelf & Premises */}
-      <div className="space-y-3 text-xs">
-        <div className="p-3.5 rounded bg-stone-950/60 border border-stone-800">
-          <span className="font-semibold text-stone-400 uppercase tracking-wide block mb-1">
+      <div
+        style={{
+          display: "flex",
+          flexDirection: "column",
+          gap: "0.75rem",
+          fontSize: "0.75rem",
+        }}
+      >
+        <div
+          style={{
+            padding: "0.875rem",
+            borderRadius: "0.25rem",
+            background: "var(--wash)",
+            border: "1px solid var(--line)",
+          }}
+        >
+          <span
+            className="eyebrow"
+            style={{
+              fontWeight: 600,
+              letterSpacing: "0.05em",
+              display: "block",
+              marginBottom: "0.25rem",
+            }}
+          >
             Deduction from the 1904 Shelf
           </span>
-          <p className="text-stone-300 leading-relaxed">{computeFromShelf}</p>
+          <p
+            className="fine"
+            style={{
+              margin: 0,
+              lineHeight: 1.6,
+              color: "var(--ink)",
+            }}
+          >
+            {computeFromShelf}
+          </p>
         </div>
 
         {premiseRefs && premiseRefs.length > 0 && (
-          <div className="flex flex-wrap items-center gap-2 pt-1">
-            <span className="font-semibold text-stone-400">Premises cited:</span>
+          <div
+            style={{
+              display: "flex",
+              flexWrap: "wrap",
+              alignItems: "center",
+              gap: "0.5rem",
+              paddingTop: "0.25rem",
+            }}
+          >
+            <span className="fine" style={{ fontWeight: 600 }}>
+              Premises cited:
+            </span>
             {premiseRefs.map((pRef) => (
               <span
                 key={pRef.importId ? `import-${pRef.importId}` : `card-${pRef.cardId}`}
-                className="px-2 py-0.5 rounded bg-stone-800 text-amber-300 border border-stone-700 font-mono text-[11px]"
+                style={{
+                  padding: "0.125rem 0.5rem",
+                  borderRadius: "0.25rem",
+                  background: "var(--wash)",
+                  color: "var(--accent)",
+                  border: "1px solid var(--line)",
+                  fontFamily: "var(--font-mono, monospace)",
+                  fontSize: "0.6875rem",
+                }}
               >
                 {pRef.importId ? (
                   <span>import: {pRef.importId}</span>
                 ) : (
-                  <a href={`#${pRef.cardId}`} className="hover:underline">
+                  <a href={`#${pRef.cardId}`} style={{ color: "inherit", textDecoration: "none" }}>
                     #{pRef.cardId}
                   </a>
                 )}
                 {pRef.parallelWorkAcknowledged && (
-                  <span className="ml-1 text-[10px] text-stone-400">(parallel)</span>
+                  <span className="fine" style={{ marginLeft: "0.25rem", fontSize: "0.625rem" }}>
+                    (parallel)
+                  </span>
                 )}
               </span>
             ))}
@@ -73,19 +178,46 @@ export function Stage({ stage, index }: StageProps) {
 
       {/* Linked Instrument (if present) */}
       {instrument && (
-        <div className="p-4 rounded-lg bg-stone-950/80 border border-stone-800 flex flex-wrap items-center justify-between gap-3 text-xs">
+        <div
+          style={{
+            padding: "1rem",
+            borderRadius: "0.5rem",
+            background: "var(--wash)",
+            border: "1px solid var(--line)",
+            display: "flex",
+            flexWrap: "wrap",
+            alignItems: "center",
+            justifyContent: "space-between",
+            gap: "0.75rem",
+            fontSize: "0.75rem",
+          }}
+        >
           <div>
-            <span className="font-semibold text-stone-300 block">
+            <span style={{ fontWeight: 600, display: "block" }}>
               Physical Instrument:{" "}
-              <span className="font-mono text-amber-400">{instrument.instrumentId}</span>
+              <span
+                style={{
+                  fontFamily: "var(--font-mono, monospace)",
+                  color: "var(--accent)",
+                }}
+              >
+                {instrument.instrumentId}
+              </span>
             </span>
-            {instrument.presetId && (
-              <span className="text-stone-400">Preset: {instrument.presetId}</span>
-            )}
+            {instrument.presetId && <span className="fine">Preset: {instrument.presetId}</span>}
           </div>
           <a
             href={`/lab/${instrument.instrumentId}/`}
-            className="px-3 py-1.5 rounded bg-amber-500/20 hover:bg-amber-500/30 text-amber-200 border border-amber-500/40 font-medium transition"
+            className="button"
+            style={{
+              padding: "0.375rem 0.75rem",
+              borderRadius: "0.25rem",
+              background: "rgba(245, 158, 11, 0.2)",
+              color: "var(--accent)",
+              border: "1px solid rgba(245, 158, 11, 0.4)",
+              fontWeight: 500,
+              textDecoration: "none",
+            }}
           >
             Open in Laboratory →
           </a>
@@ -94,13 +226,32 @@ export function Stage({ stage, index }: StageProps) {
 
       {/* Prerequisites & Foundations */}
       {prerequisites && prerequisites.length > 0 && (
-        <div className="flex flex-wrap items-center gap-2 text-xs">
-          <span className="font-semibold text-stone-400">Foundations:</span>
+        <div
+          style={{
+            display: "flex",
+            flexWrap: "wrap",
+            alignItems: "center",
+            gap: "0.5rem",
+            fontSize: "0.75rem",
+          }}
+        >
+          <span className="fine" style={{ fontWeight: 600 }}>
+            Foundations:
+          </span>
           {prerequisites.map((prereq) => (
             <a
               key={prereq}
               href={`/foundations/${prereq}/`}
-              className="px-2 py-0.5 rounded bg-stone-800 hover:bg-stone-700 text-stone-300 border border-stone-700 font-mono text-[11px]"
+              style={{
+                padding: "0.125rem 0.5rem",
+                borderRadius: "0.25rem",
+                background: "var(--wash)",
+                color: "var(--ink)",
+                border: "1px solid var(--line)",
+                fontFamily: "var(--font-mono, monospace)",
+                fontSize: "0.6875rem",
+                textDecoration: "none",
+              }}
             >
               {prereq}
             </a>
@@ -110,15 +261,37 @@ export function Stage({ stage, index }: StageProps) {
 
       {/* Reasoning Steps */}
       {reasoning && reasoning.length > 0 && (
-        <details className="text-xs">
-          <summary className="cursor-pointer font-medium text-stone-400 hover:text-stone-200">
+        <details style={{ fontSize: "0.75rem" }}>
+          <summary
+            className="fine"
+            style={{
+              cursor: "pointer",
+              fontWeight: 500,
+            }}
+          >
             Formal reasoning references ({reasoning.length})
           </summary>
-          <ul className="space-y-1.5 mt-2 p-3 rounded bg-stone-950/40 border border-stone-800 text-stone-300">
+          <ul
+            style={{
+              margin: "0.5rem 0 0",
+              padding: "0.75rem",
+              borderRadius: "0.25rem",
+              background: "var(--wash)",
+              border: "1px solid var(--line)",
+              color: "var(--ink)",
+              listStyle: "none",
+              display: "flex",
+              flexDirection: "column",
+              gap: "0.375rem",
+            }}
+          >
             {reasoning.map((r) => (
               <li
                 key={`${r.chainId ?? ""}-${r.stepId ?? ""}-${r.foundationId ?? ""}-${r.missingStepId ?? ""}`}
-                className="font-mono text-[11px]"
+                style={{
+                  fontFamily: "var(--font-mono, monospace)",
+                  fontSize: "0.6875rem",
+                }}
               >
                 {r.chainId && <span>Chain: {r.chainId} </span>}
                 {r.stepId && <span>Step: {r.stepId} </span>}
