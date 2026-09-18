@@ -28,6 +28,13 @@ describe("validateToleranceSpec", () => {
       expect(codes).toEqual(c.expectedCodes as string[]);
     });
   }
+
+  test("reject: (tolerance.ts:72) invalid-number reported when relative tolerance is outside [0, 1) or not finite", () => {
+    const issues = validateToleranceSpec({ relative: -0.05 }, 10.0);
+    expect(issues.some((i) => i.code === "invalid-number")).toBe(true);
+    const issuesInf = validateToleranceSpec({ relative: Number.POSITIVE_INFINITY }, 10.0);
+    expect(issuesInf.some((i) => i.code === "invalid-number")).toBe(true);
+  });
 });
 
 describe("validateToleranceSpecAcross", () => {

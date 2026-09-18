@@ -50,7 +50,7 @@ describe("JSON and URL Codecs for 64-bit identities", () => {
       }
     });
 
-    it("strictly rejects non-string types for declared u64 fields in JSON", () => {
+    it("strictly rejects non-string types for declared u64 fields in JSON (jsonCodec.ts:64)", () => {
       const invalidCases = [
         '{"seed":true}',
         '{"seed":null}',
@@ -63,6 +63,14 @@ describe("JSON and URL Codecs for 64-bit identities", () => {
 
       for (const json of invalidCases) {
         expect(() => parseWithU64(json, ["seed"])).toThrow(U64ValidationError);
+        try {
+          parseWithU64(json, ["seed"]);
+        } catch (err: unknown) {
+          const valErr = err as U64ValidationError;
+          if (valErr.message.includes("Expected string for u64 field")) {
+            expect(valErr.code).toBe("u64-not-string");
+          }
+        }
       }
     });
 

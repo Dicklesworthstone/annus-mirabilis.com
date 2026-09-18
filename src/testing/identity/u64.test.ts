@@ -192,4 +192,13 @@ describe("u64 identities: canonical decimal grammar, conversions, and boundary c
       Math.random = originalRandom;
     }
   });
+
+  it("reject: (u64.ts:149) throws u64-invalid-type when toU64String receives non-bigint non-string", () => {
+    expect(() => toU64String(123 as any)).toThrow(U64ValidationError);
+    try {
+      toU64String(123 as any);
+    } catch (err: unknown) {
+      expect((err as U64ValidationError).code).toBe("u64-invalid-type");
+    }
+  });
 });

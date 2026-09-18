@@ -87,4 +87,15 @@ describe("reportPassageActionsCoverage", () => {
       },
     ]);
   });
+
+  test("reject: (passageActionsCoverage.ts:41) hard passage missing obstacle responses emits hard-passage-missing-obstacle", () => {
+    const gaps = reportPassageActionsCoverage([
+      {
+        paper: "brownian-motion",
+        argumentId: "arg-unanswered",
+        actions: validatePassageActions({ hard: true }),
+      },
+    ]);
+    expect(gaps.some((g) => g.rule === "hard-passage-missing-obstacle")).toBe(true);
+  });
 });

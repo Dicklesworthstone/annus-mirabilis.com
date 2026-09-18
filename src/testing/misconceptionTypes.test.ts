@@ -46,8 +46,14 @@ describe("parseWhatIsTrue", () => {
     }
   });
 
-  test("throws when r0, r1, or r2 is missing or blank", () => {
-    expect(() => parseWhatIsTrue({ r0: "a", r1: "b" }, "misc-x")).toThrow(MisconceptionShapeError);
+  test("throws misconception-what-is-true-malformed when r0, r1, or r2 is missing or blank (types.ts:37)", () => {
+    try {
+      parseWhatIsTrue({ r0: "a", r1: "b" }, "misc-x");
+      throw new Error("expected throw");
+    } catch (err) {
+      expect(err).toBeInstanceOf(MisconceptionShapeError);
+      expect((err as MisconceptionShapeError).rule).toBe("misconception-what-is-true-malformed");
+    }
     expect(() => parseWhatIsTrue({ r0: "a", r1: "b", r2: "  " }, "misc-x")).toThrow(
       MisconceptionShapeError,
     );

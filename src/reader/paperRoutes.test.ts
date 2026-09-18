@@ -94,6 +94,11 @@ describe("resolvePaperRoute", () => {
     });
   });
 
+  test("reject: (paperRoutes.ts:98) valid paper slug not in readable papers yields unknown-paper", async () => {
+    const res = await resolvePaperRoute({ paperId: "special-relativity" });
+    expect(res).toEqual({ ok: false, code: "unknown-paper" });
+  });
+
   test("compiled papers never include a bibliographic key", async () => {
     const papers = await listReadablePapers();
     expect(papers.length).toBeGreaterThan(0);

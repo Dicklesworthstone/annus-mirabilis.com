@@ -14,6 +14,8 @@ import {
   getQuantity,
   getQuantityRegistry,
   isRegisteredQuantityId,
+  loadQuantityRegistry,
+  QuantityRegistryError,
   RESERVED_SPELLINGS,
   UnknownQuantityError,
 } from "./registry.ts";
@@ -63,6 +65,18 @@ describe("registry loads and every record validates", () => {
       for (const [suffix, expectedFrame] of Object.entries(FRAME_SUFFIXES)) {
         if (q.id.endsWith(suffix)) expect(q.frame).toBe(expectedFrame);
       }
+    }
+  });
+
+  test("reject: (registry.ts:64) throws frame-suffix-mismatch when quantity id suffix disagrees with frame field", () => {
+    const fixtureDir = new URL("./__fixtures__/frame-suffix-mismatch", import.meta.url).pathname;
+    try {
+      loadQuantityRegistry(fixtureDir);
+      throw new Error("expected throw");
+    } catch (err) {
+      expect(err).toBeInstanceOf(QuantityRegistryError);
+      expect((err as QuantityRegistryError).code).toBe("frame-suffix-mismatch");
+      expect((err as QuantityRegistryError).message).toContain("ends with");
     }
   });
 });
