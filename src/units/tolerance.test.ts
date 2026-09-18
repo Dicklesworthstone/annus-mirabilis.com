@@ -219,8 +219,61 @@ describe("module purity", () => {
   });
 });
 
+function hasMathAbsDivision(line: string): boolean {
+  let idx = line.indexOf("Math.abs(");
+  while (idx !== -1) {
+    let depth = 0;
+    let endIdx = -1;
+    for (let i = idx + 8; i < line.length; i++) {
+      if (line[i] === "(") depth++;
+      else if (line[i] === ")") {
+        depth--;
+        if (depth === 0) {
+          endIdx = i;
+          break;
+        }
+      }
+    }
+    if (endIdx !== -1) {
+      const after = line.slice(endIdx + 1).trimStart();
+      if (after.startsWith("/") && !after.startsWith("//")) {
+        return true;
+      }
+    }
+    idx = line.indexOf("Math.abs(", idx + 8);
+  }
+  return false;
+}
+
+function isDuplicateToleranceComparison(line: string): boolean {
+  if (line.includes("Math.abs(") && /EPSILON/.test(line)) return true;
+  return hasMathAbsDivision(line);
+}
+
 describe("single tolerance module: no duplicate comparison logic elsewhere", () => {
-  test("no other file under src/ or scripts/ combines Math.abs( with EPSILON or a relative-tolerance token, outside a reviewed allowlist", () => {
+  test("negative for false-positive direction: identifier with 'rel' and no division does not trip the gate", () => {
+    expect(isDuplicateToleranceComparison("const betaRel = Math.abs(v);")).toBe(false);
+    expect(isDuplicateToleranceComparison("const betaRel = Math.abs(vRelRes.value);")).toBe(false);
+    expect(
+      isDuplicateToleranceComparison(
+        "expect(withinTolerance(Math.abs(B_eq.z), 8.0e-4, { relative: 1e-6 }).ok).toBe(true);",
+      ),
+    ).toBe(false);
+  });
+
+  test("shape detection catches unnamed hand-rolled relative comparisons", () => {
+    expect(isDuplicateToleranceComparison("const err = Math.abs(a - b) / b;")).toBe(true);
+    expect(
+      isDuplicateToleranceComparison("const naiveError = Math.abs(val(naive) - 5e-17) / 5e-17;"),
+    ).toBe(true);
+    expect(
+      isDuplicateToleranceComparison(
+        "expect(Math.abs(pi - expected) / expected).toBeLessThan(1e-6);",
+      ),
+    ).toBe(true);
+  });
+
+  test("no file under src/ or scripts/ exceeds its baseline of hand-rolled relative comparisons, outside allowlist", () => {
     // Reviewed allowlist: pre-existing, narrowly scoped uses that are not a duplicate of this
     // module's job of comparing two independently computed scientific results.
     const allowlist = new Map<string, string>([
@@ -233,8 +286,73 @@ describe("single tolerance module: no duplicate comparison logic elsewhere", () 
         "Floating-point resolution check computing representable precision threshold at absolute epoch magnitude to refuse unresolvable equal-interval interpretations rather than widening tolerance; not a comparison between two independently computed scientific results.",
       ],
     ]);
+
+    /**
+     * Ratchet baseline of existing hand-rolled relative comparisons (am-w0nt).
+     * Measured on 2026-09-17: 43 occurrences across 23 files.
+     *
+     * Ordered migration plan:
+     * - Genuine duplicates to migrate to withinTolerance (16 test/scenario files):
+     *   src/experiments/bm02/session.test.ts (8)
+     *   src/experiments/lq04/session.test.ts (1)
+     *   src/physics/reference/fields.sr02.test.ts (1)
+     *   src/physics/reference/fields.ts (3)
+     *   src/physics/reference/massEnergy.coefficient.test.ts (2)
+     *   src/physics/reference/massEnergy.pulses.test.ts (2)
+     *   src/testing/bm04.reference.test.ts (2)
+     *   src/testing/diffusion.driftDiffusion.test.ts (2)
+     *   src/testing/events.clocks.test.ts (1)
+     *   src/testing/fields.dipole.test.ts (2)
+     *   src/testing/fields.sr12.test.ts (2)
+     *   src/testing/kinematics/kinematics.composition.test.ts (2)
+     *   src/testing/kinematics/kinematics.factors.test.ts (1)
+     *   src/testing/kinematics/kinematics.velocity.test.ts (1)
+     *   src/testing/scenarios/discrimination.test.ts (1)
+     *
+     * - Legitimate mathematical formulas / UI plotting / quadrature estimates (7 files):
+     *   src/components/lab/CoefficientLab.tsx (1): SVG curve normalization (Math.abs(val) / peak) * 200
+     *   src/components/lab/DriftDiffusionPlots.tsx (2): UI canvas bar width scaling
+     *   src/physics/energyLedger.ts (1): ratio of ledger differences
+     *   src/physics/reference/electron.ts (3): speed beta normalization Math.abs(vx) / C_SI
+     *   src/physics/reference/events.ts (1): Simpson rule Richardson quadrature error estimate |fine - coarse| / 15
+     *   src/physics/reference/photoelectric.ts (1): linear potential fraction 1 - Math.abs(V) / vs
+     *   src/physics/reference/waves.phase.test.ts (2): dimensionless 4-vector norm invariant verification
+     *   src/reasoning/countermodel/render.ts (1): residual display ordering ratio
+     *
+     * RULES:
+     * 1. This baseline may ONLY shrink, never grow.
+     * 2. When a file is migrated to withinTolerance or allowlisted, lower its count.
+     * 3. Delete an entry when its count reaches 0.
+     * 4. Any newly introduced Math.abs(...) / ... in an unlisted file or exceeding its count fails.
+     */
+    const BASELINE = new Map<string, number>([
+      ["src/components/lab/CoefficientLab.tsx", 1],
+      ["src/components/lab/DriftDiffusionPlots.tsx", 2],
+      ["src/experiments/bm02/session.test.ts", 8],
+      ["src/experiments/lq04/session.test.ts", 1],
+      ["src/physics/energyLedger.ts", 1],
+      ["src/physics/reference/electron.ts", 3],
+      ["src/physics/reference/events.ts", 1],
+      ["src/physics/reference/fields.sr02.test.ts", 1],
+      ["src/physics/reference/fields.ts", 3],
+      ["src/physics/reference/massEnergy.coefficient.test.ts", 2],
+      ["src/physics/reference/massEnergy.pulses.test.ts", 2],
+      ["src/physics/reference/photoelectric.ts", 1],
+      ["src/physics/reference/waves.phase.test.ts", 2],
+      ["src/reasoning/countermodel/render.ts", 1],
+      ["src/testing/bm04.reference.test.ts", 2],
+      ["src/testing/diffusion.driftDiffusion.test.ts", 2],
+      ["src/testing/events.clocks.test.ts", 1],
+      ["src/testing/fields.dipole.test.ts", 2],
+      ["src/testing/fields.sr12.test.ts", 2],
+      ["src/testing/kinematics/kinematics.composition.test.ts", 2],
+      ["src/testing/kinematics/kinematics.factors.test.ts", 1],
+      ["src/testing/kinematics/kinematics.velocity.test.ts", 1],
+      ["src/testing/scenarios/discrimination.test.ts", 1],
+    ]);
+
     const repoRoot = dirname(dirname(dirname(fileURLToPath(import.meta.url))));
-    const offenders: string[] = [];
+    const fileHits = new Map<string, string[]>();
     const walk = (dir: string): void => {
       for (const entry of readdirSync(dir, { withFileTypes: true })) {
         if (entry.name === "node_modules" || entry.name.startsWith(".")) continue;
@@ -245,17 +363,30 @@ describe("single tolerance module: no duplicate comparison logic elsewhere", () 
         }
         if (!/\.(ts|tsx|mjs|js)$/.test(entry.name)) continue;
         if (entry.name.startsWith("tolerance.")) continue; // this module's own source and its test/case files reference "Math.abs(" as text, not as duplicate logic.
+        const relPath = full.slice(repoRoot.length + 1);
+        if (allowlist.has(relPath)) continue;
         const lines = readFileSync(full, "utf8").split("\n");
         lines.forEach((line) => {
-          if (line.includes("Math.abs(") && (/EPSILON/.test(line) || /rel/i.test(line))) {
-            const relPath = full.slice(repoRoot.length + 1);
-            if (!allowlist.has(relPath)) offenders.push(`${relPath}: ${line.trim()}`);
+          if (isDuplicateToleranceComparison(line)) {
+            if (!fileHits.has(relPath)) fileHits.set(relPath, []);
+            fileHits.get(relPath)?.push(line.trim());
           }
         });
       }
     };
     walk(join(repoRoot, "src"));
     walk(join(repoRoot, "scripts"));
+
+    const offenders: string[] = [];
+    for (const [file, hits] of fileHits) {
+      const allowed = BASELINE.get(file) ?? 0;
+      if (hits.length > allowed) {
+        offenders.push(
+          `${file} (${hits.length} occurrences, baseline ${allowed}):\n  ${hits.join("\n  ")}`,
+        );
+      }
+    }
+
     expect(offenders).toEqual([]);
     for (const relPath of allowlist.keys()) {
       expect(() => readFileSync(join(repoRoot, relPath), "utf8")).not.toThrow();
