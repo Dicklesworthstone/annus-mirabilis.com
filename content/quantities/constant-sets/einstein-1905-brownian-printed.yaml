@@ -1,0 +1,122 @@
+id: einstein-1905-brownian-printed
+era: "1905"
+provenance: "Albert Einstein, Über die von der molekularkinetischen Theorie der Wärme geforderte Bewegung von in ruhenden Flüssigkeiten suspendierten Teilchen, Annalen der Physik (4) 17 (1905), 549–560. Facsimile ap-17-549.pdf."
+precisionNote: "Historical values as printed in Annalen der Physik (4) 17, 549–560 (1905)."
+gasConstantProvenance: measured-without-counting-molecules
+entries:
+  - quantityId: viscosity
+    value: 0.00135
+    exactDecimal: "0.00135"
+    unit: "Pa s"
+    kind: printed-historical
+    evidentialRole: measured-observation
+    printedStatus: printed
+    printedReading: "k = 1,35 · 10^-2"
+    printedUnit: "Poise"
+    journalPage: "559"
+    facsimilePdfPage: 11
+    era: "1905"
+    provenance: "Annalen der Physik (4) 17 (1905), p. 559, §5"
+    precision: "3 significant figures"
+    dependsOn: []
+    transcriptionStatus: transcribed-and-checked
+    checkedBy: "pane21"
+    checkedAt: "2026-09-17"
+
+  - quantityId: particleRadius
+    value: 5e-7
+    exactDecimal: "5e-7"
+    unit: "m"
+    kind: printed-historical
+    evidentialRole: measured-observation
+    printedStatus: printed
+    printedReading: "0,001 mm"
+    printedUnit: "mm"
+    journalPage: "559"
+    facsimilePdfPage: 11
+    era: "1905"
+    provenance: "Annalen der Physik (4) 17 (1905), p. 559, §5; particle diameter 0.001 mm gives radius 0.5 um"
+    precision: "1 significant figure"
+    dependsOn: []
+    transcriptionStatus: transcribed-and-checked
+    checkedBy: "pane21"
+    checkedAt: "2026-09-17"
+
+  - quantityId: temperature
+    value: 290.15
+    exactDecimal: "290.15"
+    unit: "K"
+    kind: printed-historical
+    evidentialRole: measured-observation
+    printedStatus: editorial-input
+    printedReading: "17°"
+    reason: "printed temperature is 17° C; 290.15 K is the modern kelvin conversion"
+    sensitivity: "Square root in T: 290.0 K vs 290.15 K is 2.586e-4 relative change in displacement"
+    era: "1905"
+    provenance: "Annalen der Physik (4) 17 (1905), p. 559, §5; printed temperature 17° converted to kelvin"
+    precision: "2 significant figures"
+    dependsOn: []
+    transcriptionStatus: transcribed-and-checked
+    checkedBy: "pane21"
+    checkedAt: "2026-09-17"
+
+  - quantityId: molarGasConstant
+    value: 8.31
+    exactDecimal: "8.31"
+    unit: "J/(mol K)"
+    kind: printed-historical
+    evidentialRole: measured-observation
+    printedStatus: editorial-input
+    reason: "not printed in paper 2; standard 1905 value R = 8.31 J/(mol K) needed for displacement calculation"
+    sensitivity: "Square root in R: displacement scales as sqrt(R)"
+    era: "1905"
+    provenance: "1905 standard value R = 8.31 J/(mol K); editorial input for §5"
+    precision: "3 significant figures"
+    dependsOn: []
+    transcriptionStatus: transcribed-and-checked
+    checkedBy: "pane21"
+    checkedAt: "2026-09-17"
+
+  - quantityId: avogadroConstant
+    value: 6e23
+    exactDecimal: "6e23"
+    unit: "1/mol"
+    kind: printed-historical
+    evidentialRole: theoretical-estimate
+    printedStatus: printed
+    printedReading: "6 · 10²³"
+    printedUnit: "1/mol"
+    journalPage: "559"
+    facsimilePdfPage: 11
+    era: "1905"
+    provenance: "Annalen der Physik (4) 17 (1905), p. 559, §5"
+    precision: "1 significant figure"
+    dependsOn:
+      - molarGasConstant
+    transcriptionStatus: transcribed-and-checked
+    checkedBy: "pane21"
+    checkedAt: "2026-09-17"
+
+  - quantityId: rmsDisplacement1d
+    value: 0.7947833e-6
+    exactDecimal: "0.7947833e-6"
+    unit: "m"
+    kind: printed-historical
+    evidentialRole: illustrative-computation
+    printedStatus: printed
+    printedReading: "0,8 Mikron"
+    printedUnit: "Mikron"
+    journalPage: "559"
+    facsimilePdfPage: 11
+    era: "1905"
+    provenance: "Annalen der Physik (4) 17 (1905), p. 559, §5; 1 second displacement"
+    precision: "1 significant figure"
+    dependsOn:
+      - molarGasConstant
+      - temperature
+      - avogadroConstant
+      - viscosity
+      - particleRadius
+    transcriptionStatus: transcribed-and-checked
+    checkedBy: "pane21"
+    checkedAt: "2026-09-17"

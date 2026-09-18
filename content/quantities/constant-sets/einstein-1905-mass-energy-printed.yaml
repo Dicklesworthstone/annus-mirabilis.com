@@ -1,0 +1,42 @@
+id: einstein-1905-mass-energy-printed
+era: "1905"
+provenance: "Albert Einstein, Ist die Trägheit eines Körpers von seinem Energieinhalt abhängig?, Annalen der Physik (4) 18 (1905), 639–641. Facsimile ap-18-639.pdf."
+precisionNote: "Historical values as printed in Annalen der Physik (4) 18, 639–641 (1905)."
+gasConstantProvenance: not-applicable
+entries:
+  - quantityId: speedOfLightSquared
+    value: 9e16
+    exactDecimal: "9e16"
+    unit: "m2 s-2"
+    kind: printed-historical
+    evidentialRole: measured-observation
+    printedStatus: printed
+    printedReading: "9 · 10²⁰"
+    printedUnit: "erg/g"
+    journalPage: "641"
+    facsimilePdfPage: 3
+    era: "1905"
+    provenance: "Annalen der Physik (4) 18 (1905), p. 641"
+    precision: "1 significant figure"
+    dependsOn: []
+    transcriptionStatus: transcribed-and-checked
+    checkedBy: "pane21"
+    checkedAt: "2026-09-17"
+
+  - quantityId: speedOfLight
+    value: 3e8
+    exactDecimal: "3e8"
+    unit: "m/s"
+    kind: printed-historical
+    evidentialRole: measured-observation
+    printedStatus: editorial-input
+    reason: "paper 4 prints V only as a symbol; this is the positive square root of the printed factor"
+    sensitivity: "none on the printed conversion, which reads the factor directly; the modern c is 0.0692 percent smaller"
+    era: "1905"
+    provenance: "Paper 4 implicit light speed V = 3e8 m/s"
+    precision: "1 significant figure"
+    dependsOn:
+      - speedOfLightSquared
+    transcriptionStatus: transcribed-and-checked
+    checkedBy: "pane21"
+    checkedAt: "2026-09-17"

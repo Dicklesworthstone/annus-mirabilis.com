@@ -1,0 +1,123 @@
+id: modern-si-2019
+era: "2019"
+provenance: "BIPM, SI Brochure, 9th edition (2019), defining constants; exact SI decimals."
+precisionNote: "The definitions are exact; evaluation uses binary64 rounding."
+gasConstantProvenance: defined
+entries:
+  - quantityId: planckConstant
+    value: 6.62607015e-34
+    exactDecimal: "6.62607015e-34"
+    unit: "J s"
+    kind: exact-defined
+    evidentialRole: defined-exact
+    era: "2019"
+    provenance: "BIPM, SI Brochure, 9th edition (2019)"
+    precision: "exact"
+    dependsOn: []
+    transcriptionStatus: transcribed-and-checked
+    checkedBy: "pane21"
+    checkedAt: "2026-09-17"
+
+  - quantityId: elementaryCharge
+    value: 1.602176634e-19
+    exactDecimal: "1.602176634e-19"
+    unit: "C"
+    kind: exact-defined
+    evidentialRole: defined-exact
+    era: "2019"
+    provenance: "BIPM, SI Brochure, 9th edition (2019)"
+    precision: "exact"
+    dependsOn: []
+    transcriptionStatus: transcribed-and-checked
+    checkedBy: "pane21"
+    checkedAt: "2026-09-17"
+
+  - quantityId: boltzmannConstant
+    value: 1.380649e-23
+    exactDecimal: "1.380649e-23"
+    unit: "J/K"
+    kind: exact-defined
+    evidentialRole: defined-exact
+    era: "2019"
+    provenance: "BIPM, SI Brochure, 9th edition (2019)"
+    precision: "exact"
+    dependsOn: []
+    transcriptionStatus: transcribed-and-checked
+    checkedBy: "pane21"
+    checkedAt: "2026-09-17"
+
+  - quantityId: avogadroConstant
+    value: 6.02214076e23
+    exactDecimal: "6.02214076e23"
+    unit: "1/mol"
+    kind: exact-defined
+    evidentialRole: defined-exact
+    era: "2019"
+    provenance: "BIPM, SI Brochure, 9th edition (2019)"
+    precision: "exact"
+    dependsOn: []
+    transcriptionStatus: transcribed-and-checked
+    checkedBy: "pane21"
+    checkedAt: "2026-09-17"
+
+  - quantityId: speedOfLight
+    value: 299792458
+    exactDecimal: "299792458"
+    unit: "m/s"
+    kind: exact-defined
+    evidentialRole: defined-exact
+    era: "2019"
+    provenance: "BIPM, SI Brochure, 9th edition (2019)"
+    precision: "exact"
+    dependsOn: []
+    transcriptionStatus: transcribed-and-checked
+    checkedBy: "pane21"
+    checkedAt: "2026-09-17"
+
+  - quantityId: molarGasConstant
+    value: 8.31446261815324
+    exactDecimal: "8.31446261815324"
+    unit: "J/(mol K)"
+    kind: exact-defined
+    evidentialRole: defined-exact
+    era: "2019"
+    provenance: "BIPM, SI Brochure, 9th edition (2019); exact product N_A * k_B"
+    precision: "exact"
+    dependsOn:
+      - avogadroConstant
+      - boltzmannConstant
+    transcriptionStatus: transcribed-and-checked
+    checkedBy: "pane21"
+    checkedAt: "2026-09-17"
+
+  - quantityId: planckChargeQuotient
+    value: 4.135667696923859e-15
+    exactDecimal: "4.135667696923859e-15"
+    unit: "V s"
+    kind: exact-defined
+    evidentialRole: defined-exact
+    era: "2019"
+    provenance: "Exact ratio h / e"
+    precision: "derived exact"
+    dependsOn:
+      - planckConstant
+      - elementaryCharge
+    transcriptionStatus: transcribed-and-checked
+    checkedBy: "pane21"
+    checkedAt: "2026-09-17"
+
+  - quantityId: faradayConstant
+    value: 96485.33212331002
+    exactDecimal: "96485.33212331002"
+    unit: "C/mol"
+    kind: exact-defined
+    evidentialRole: defined-exact
+    era: "2019"
+    provenance: "Exact product N_A * e"
+    precision: "derived exact"
+    dependsOn:
+      - avogadroConstant
+      - elementaryCharge
+    transcriptionStatus: transcribed-and-checked
+    checkedBy: "pane21"
+    checkedAt: "2026-09-17"

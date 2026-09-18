@@ -1,0 +1,20 @@
+id: scenario-gas-constant-measured
+era: "1988"
+provenance: "M. R. Moldover, J. P. M. Trusler, T. J. Edwards, J. B. Mehl, R. S. Davis, \"Measurement of the universal gas constant R using a spherical acoustic resonator,\" Phys. Rev. Lett. 60 (1988) 249; J. Res. Natl. Bur. Stand. 93 (1988) 85-144."
+precisionNote: "R = 8.314471 J mol^-1 K^-1 with standard uncertainty 0.000014 J mol^-1 K^-1 (1.7 ppm)."
+gasConstantProvenance: measured-without-counting-molecules
+entries:
+  - quantityId: molarGasConstant
+    value: 8.314471
+    exactDecimal: "8.314471"
+    unit: "J/(mol K)"
+    kind: declared-scenario
+    evidentialRole: measured-observation
+    era: "1988"
+    provenance: "Moldover et al. 1988: from speed of sound in argon at the triple point of water, spherical resonator volume found by weighing its mercury fill, and argon's molar mass. No molecule count, N_A, or k_B enters it."
+    precision: "1.7 ppm (0.000014 J/(mol K))"
+    uncertainty: 0.000014
+    dependsOn: []
+    transcriptionStatus: transcribed-and-checked
+    checkedBy: "pane21"
+    checkedAt: "2026-09-17"

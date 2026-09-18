@@ -1,0 +1,50 @@
+id: modern-codata-2022
+era: "2022"
+provenance: "CODATA 2022 recommended values (physics.nist.gov); verified live 2026-09-16."
+precisionNote: "CODATA 2022 recommended values; each entry carries its own standard uncertainty."
+gasConstantProvenance: not-applicable
+entries:
+  - quantityId: electronMass
+    value: 9.1093837139e-31
+    exactDecimal: "9.1093837139e-31"
+    unit: "kg"
+    kind: measured
+    evidentialRole: measured-observation
+    era: "2022"
+    provenance: "CODATA 2022 recommended values (physics.nist.gov)"
+    precision: "standard uncertainty 0.0000000028e-31 kg"
+    uncertainty: 2.8e-40
+    dependsOn: []
+    transcriptionStatus: transcribed-and-checked
+    checkedBy: "pane21"
+    checkedAt: "2026-09-17"
+
+  - quantityId: vacuumPermeability
+    value: 1.25663706127e-6
+    exactDecimal: "1.25663706127e-6"
+    unit: "N/A^2"
+    kind: measured
+    evidentialRole: measured-observation
+    era: "2022"
+    provenance: "CODATA 2022 recommended values (physics.nist.gov)"
+    precision: "standard uncertainty 0.0000000002e-6 N/A^2"
+    uncertainty: 2e-16
+    dependsOn: []
+    transcriptionStatus: transcribed-and-checked
+    checkedBy: "pane21"
+    checkedAt: "2026-09-17"
+
+  - quantityId: vacuumPermittivity
+    value: 8.8541878188e-12
+    exactDecimal: "8.8541878188e-12"
+    unit: "F/m"
+    kind: measured
+    evidentialRole: measured-observation
+    era: "2022"
+    provenance: "CODATA 2022 recommended values (physics.nist.gov)"
+    precision: "standard uncertainty 0.0000000014e-12 F/m"
+    uncertainty: 1.4e-21
+    dependsOn: []
+    transcriptionStatus: transcribed-and-checked
+    checkedBy: "pane21"
+    checkedAt: "2026-09-17"

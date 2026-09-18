@@ -1,0 +1,98 @@
+id: planck-1900-1901-printed
+era: "1901"
+provenance: "Max Planck, Ueber das Gesetz der Energieverteilung im Normalspektrum, Annalen der Physik (4) 4, 553–563 (1901); Ueber die Elementarquanta der Materie und der Elektricität, Ann. Phys. (4) 4, 564–566 (1901)."
+precisionNote: "Planck's printed constants from Annalen der Physik (4) 4 (1901)."
+gasConstantProvenance: measured-without-counting-molecules
+entries:
+  - quantityId: planckConstant
+    value: 6.55e-34
+    exactDecimal: "6.55e-34"
+    unit: "J s"
+    kind: printed-historical
+    evidentialRole: fitted-constant
+    printedStatus: printed
+    printedReading: "6,55 · 10^-27"
+    printedUnit: "erg s"
+    journalPage: "563"
+    facsimilePdfPage: 1
+    era: "1901"
+    provenance: "Ann. Phys. (4) 4 (1901), p. 563"
+    precision: "3 significant figures"
+    dependsOn: []
+    transcriptionStatus: transcribed-and-checked
+    checkedBy: "pane21"
+    checkedAt: "2026-09-17"
+
+  - quantityId: boltzmannConstant
+    value: 1.346e-23
+    exactDecimal: "1.346e-23"
+    unit: "J/K"
+    kind: printed-historical
+    evidentialRole: fitted-constant
+    printedStatus: printed
+    printedReading: "1,346 · 10^-16"
+    printedUnit: "erg/Grad"
+    journalPage: "563"
+    facsimilePdfPage: 1
+    era: "1901"
+    provenance: "Ann. Phys. (4) 4 (1901), p. 563"
+    precision: "4 significant figures"
+    dependsOn: []
+    transcriptionStatus: transcribed-and-checked
+    checkedBy: "pane21"
+    checkedAt: "2026-09-17"
+
+  - quantityId: avogadroConstant
+    value: 6.175e23
+    exactDecimal: "6.175e23"
+    unit: "1/mol"
+    kind: printed-historical
+    evidentialRole: fitted-constant
+    printedStatus: printed
+    printedReading: "6,175 · 10^23"
+    printedUnit: "1/mol"
+    journalPage: "565"
+    facsimilePdfPage: 1
+    era: "1901"
+    provenance: "Ann. Phys. (4) 4 (1901), p. 565"
+    precision: "4 significant figures"
+    dependsOn: []
+    transcriptionStatus: transcribed-and-checked
+    checkedBy: "pane21"
+    checkedAt: "2026-09-17"
+
+  - quantityId: elementaryCharge
+    value: 1.5644156e-19
+    exactDecimal: "1.5644156e-19"
+    unit: "C"
+    kind: printed-historical
+    evidentialRole: fitted-constant
+    printedStatus: printed
+    printedReading: "4,69 · 10^-10"
+    printedUnit: "esu"
+    journalPage: "565"
+    facsimilePdfPage: 1
+    era: "1901"
+    provenance: "Ann. Phys. (4) 4 (1901), p. 565"
+    precision: "3 significant figures"
+    dependsOn: []
+    transcriptionStatus: transcribed-and-checked
+    checkedBy: "pane21"
+    checkedAt: "2026-09-17"
+
+  - quantityId: speedOfLight
+    value: 3e8
+    exactDecimal: "3e8"
+    unit: "m/s"
+    kind: printed-historical
+    evidentialRole: measured-observation
+    printedStatus: editorial-input
+    reason: "editorial input for consistency check; Planck's 1901 papers use 3e10 cm/s"
+    sensitivity: "Cubic in L for 8*pi*h/L^3 check"
+    era: "1901"
+    provenance: "1901 standard value c = 3 · 10^8 m/s; editorial input for consistency check"
+    precision: "1 significant figure"
+    dependsOn: []
+    transcriptionStatus: transcribed-and-checked
+    checkedBy: "pane21"
+    checkedAt: "2026-09-17"

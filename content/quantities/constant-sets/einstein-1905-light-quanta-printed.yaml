@@ -1,0 +1,181 @@
+id: einstein-1905-light-quanta-printed
+era: "1905"
+provenance: "Albert Einstein, Über einen die Erzeugung und Verwandlung des Lichtes betreffenden heuristischen Gesichtspunkt, Annalen der Physik (4) 17 (1905), 132–148. Facsimile ap-17-132.pdf."
+precisionNote: "Historical values as printed in Annalen der Physik (4) 17, 132–148 (1905), with Wien constant alpha corrected from the misprint 10^-56 to 10^-57 per docs/provenance/ap-17-132.md#watch-alpha-exponent."
+gasConstantProvenance: measured-without-counting-molecules
+entries:
+  - quantityId: wienConstantAlpha
+    value: 6.1e-57
+    exactDecimal: "6.10e-57"
+    unit: "erg s4 / cm3"
+    kind: printed-historical
+    evidentialRole: fitted-constant
+    printedStatus: printed-corrected
+    printedReading: "6,10 · 10^-56"
+    printedUnit: "erg s4 / cm3"
+    correctedValue: 6.1e-57
+    correctionReason: "reproduces the printed N; the printed exponent is ten times too large"
+    receiptRef: "docs/provenance/ap-17-132.md#watch-alpha-exponent"
+    journalPage: "136"
+    facsimilePdfPage: 5
+    printedRegion:
+      x: 25
+      y: 40
+      width: 25
+      height: 4
+    era: "1905"
+    provenance: "Annalen der Physik (4) 17 (1905), p. 136, §2; corrected per docs/provenance/ap-17-132.md#watch-alpha-exponent"
+    precision: "3 significant figures"
+    dependsOn: []
+    transcriptionStatus: transcribed-and-checked
+    checkedBy: "pane21"
+    checkedAt: "2026-09-17"
+
+  - quantityId: wienConstantBeta
+    value: 4.866e-11
+    exactDecimal: "4.866e-11"
+    unit: "s K"
+    kind: printed-historical
+    evidentialRole: fitted-constant
+    printedStatus: printed
+    printedReading: "4,866 · 10^-11"
+    printedUnit: "s K"
+    journalPage: "136"
+    facsimilePdfPage: 5
+    printedRegion:
+      x: 25
+      y: 45
+      width: 25
+      height: 4
+    era: "1905"
+    provenance: "Annalen der Physik (4) 17 (1905), p. 136, §2"
+    precision: "4 significant figures"
+    dependsOn: []
+    transcriptionStatus: transcribed-and-checked
+    checkedBy: "pane21"
+    checkedAt: "2026-09-17"
+
+  - quantityId: molarGasConstant
+    value: 8.31e7
+    exactDecimal: "8.31e7"
+    unit: "erg/(mol K)"
+    kind: printed-historical
+    evidentialRole: measured-observation
+    printedStatus: editorial-input
+    reason: "not printed in paper 1 §2; standard 1905 value R = 8.31e7 erg/(mol K) needed for Avogadro calculation"
+    sensitivity: "Linear in R: R = 8.314e7 with L = 2.998e10 yields N = 6.1858e23 (R alone 6.1735e23; L alone 6.1828e23)"
+    era: "1905"
+    provenance: "1905 standard value R = 8.31 · 10^7 erg mol^-1 K^-1; editorial input for §2"
+    precision: "3 significant figures"
+    dependsOn: []
+    transcriptionStatus: transcribed-and-checked
+    checkedBy: "pane21"
+    checkedAt: "2026-09-17"
+
+  - quantityId: speedOfLight
+    value: 3e10
+    exactDecimal: "3e10"
+    unit: "cm/s"
+    kind: printed-historical
+    evidentialRole: measured-observation
+    printedStatus: editorial-input
+    reason: "not printed numerically in paper 1 §2; standard 1905 value L = 3e10 cm/s needed for Avogadro calculation"
+    sensitivity: "Inverse cubic in L: R = 8.314e7 with L = 2.998e10 yields N = 6.1858e23 (R alone 6.1735e23; L alone 6.1828e23)"
+    era: "1905"
+    provenance: "1905 standard value L = 3 · 10^10 cm/s; editorial input for §2"
+    precision: "1 significant figure"
+    dependsOn: []
+    transcriptionStatus: transcribed-and-checked
+    checkedBy: "pane21"
+    checkedAt: "2026-09-17"
+
+  - quantityId: avogadroConstant
+    value: 6.17e23
+    exactDecimal: "6.17e23"
+    unit: "1/mol"
+    kind: printed-historical
+    evidentialRole: theoretical-estimate
+    printedStatus: printed
+    printedReading: "6,17 · 10^23"
+    printedUnit: "1/mol"
+    journalPage: "136"
+    facsimilePdfPage: 5
+    printedRegion:
+      x: 25
+      y: 55
+      width: 25
+      height: 4
+    era: "1905"
+    provenance: "Annalen der Physik (4) 17 (1905), p. 136, §2"
+    precision: "3 significant figures"
+    dependsOn:
+      - wienConstantBeta
+      - wienConstantAlpha
+      - molarGasConstant
+      - speedOfLight
+    transcriptionStatus: transcribed-and-checked
+    checkedBy: "pane21"
+    checkedAt: "2026-09-17"
+
+  - quantityId: gramEquivalentCharge
+    value: 9.6e3
+    exactDecimal: "9.6e3"
+    unit: "emu/mol"
+    kind: printed-historical
+    evidentialRole: measured-observation
+    printedStatus: printed
+    printedReading: "9,6 · 10^3"
+    printedUnit: "emu/mol"
+    journalPage: "146"
+    facsimilePdfPage: 15
+    era: "1905"
+    provenance: "Annalen der Physik (4) 17 (1905), p. 146, §8"
+    precision: "2 significant figures"
+    dependsOn: []
+    transcriptionStatus: transcribed-and-checked
+    checkedBy: "pane21"
+    checkedAt: "2026-09-17"
+
+  - quantityId: stoppingPotentialMagnitude
+    value: 4.3
+    exactDecimal: "4.3"
+    unit: "V"
+    kind: printed-historical
+    evidentialRole: illustrative-computation
+    printedStatus: printed
+    printedReading: "ca. 4,3 Volt"
+    printedUnit: "Volt"
+    journalPage: "147"
+    facsimilePdfPage: 16
+    era: "1905"
+    provenance: "Annalen der Physik (4) 17 (1905), p. 147, §8"
+    precision: "2 significant figures"
+    dependsOn:
+      - molarGasConstant
+      - wienConstantBeta
+      - gramEquivalentCharge
+    transcriptionStatus: transcribed-and-checked
+    checkedBy: "pane21"
+    checkedAt: "2026-09-17"
+
+  - quantityId: ionizationWorkPerGramEquivalent
+    value: 6.4e12
+    exactDecimal: "6.4e12"
+    unit: "erg/mol"
+    kind: printed-historical
+    evidentialRole: illustrative-computation
+    printedStatus: printed
+    printedReading: "ca. 6,4 · 10^12 Erg"
+    printedUnit: "Erg"
+    journalPage: "148"
+    facsimilePdfPage: 17
+    era: "1905"
+    provenance: "Annalen der Physik (4) 17 (1905), p. 148, §9"
+    precision: "2 significant figures"
+    dependsOn:
+      - molarGasConstant
+      - wienConstantBeta
+      - speedOfLight
+    transcriptionStatus: transcribed-and-checked
+    checkedBy: "pane21"
+    checkedAt: "2026-09-17"
