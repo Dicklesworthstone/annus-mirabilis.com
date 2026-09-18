@@ -1,0 +1,7 @@
+defaults:
+  expectedClosings:
+    - received
+ledgers:
+  non-existent-key-with-no-receipt:
+    expectedClosings:
+      - received

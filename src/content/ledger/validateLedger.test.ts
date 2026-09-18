@@ -47,7 +47,7 @@ test("Valid fixture validates in completeness mode, producing valid and clean st
   assert.equal(result.stats.headings, 1);
   assert.equal(result.stats.paragraphs, 4);
   assert.equal(result.stats.displayEquations, 1);
-  assert.equal(result.stats.inlineMathRegions, 3);
+  assert.equal(result.stats.inlineMathRegions, 4);
   assert.equal(result.stats.footnotes, 2);
   assert.equal(result.stats.closings, 3);
   assert.equal(result.stats.emphasisSpans, 1);
@@ -353,14 +353,16 @@ test("Receipt digest validation: source digest mismatch and ledger digest stale 
       'ledgerSourcePdfSha256: "c42f9ac278283bdaaee83b2c4ec0154645d4e4adc4249f8a62c45ed2e51c135f"',
       'ledgerSourcePdfSha256: "0000000000000000000000000000000000000000000000000000000000000000"',
     );
-    const tempReceiptPath = path.join(FIXTURES_DIR, "two-page-valid.temp-receipt.md");
 
     const res = validateLedger(ledgerPath, {
-      receiptPath: tempReceiptPath,
+      receiptPath,
+      receiptContent: mutatedReceipt,
       content: loadFixture("two-page-valid.txt"),
       paper: "brownian-motion",
     });
-    // With base receipt having matching digests, let's test content with modified ledger bytes:
+    assert.ok(res.errors.some((e) => e.code === "receipt-source-digest-mismatch"));
+
+    // 2. Modified ledger bytes: completeness mode raises receipt-ledger-digest-mismatch
     const mutatedLedger = `${loadFixture("two-page-valid.txt")}\n`; // modified by 1 byte
     const computedExpectedDigest = createHash("sha256")
       .update(Buffer.from(mutatedLedger, "utf8"))
@@ -375,6 +377,21 @@ test("Receipt digest validation: source digest mismatch and ledger digest stale 
     // In completeness mode (default for corrected status): receipt-ledger-digest-mismatch
     assert.ok(resModified.errors.some((e) => e.code === "receipt-ledger-digest-mismatch"));
     assert.equal(resModified.ledgerSha256, computedExpectedDigest);
+
+    // 3. In structural mode: stale ledger digest raises receipt-ledger-digest-stale (info)
+    const structuralReceipt = baseReceiptContent
+      .replace("ledgerStatus: corrected", "ledgerStatus: in-progress")
+      .replace(
+        'ledgerSha256: "86fdb373b45101bcea32d7311812ac47de028cc4fc80ee9e0d2a93f3f9fb8f3b"',
+        'ledgerSha256: "0000000000000000000000000000000000000000000000000000000000000000"',
+      );
+    const resStructural = validateLedger(ledgerPath, {
+      content: loadFixture("two-page-valid.txt"),
+      receiptPath,
+      receiptContent: structuralReceipt,
+      paper: "brownian-motion",
+    });
+    assert.ok(resStructural.info.some((i) => i.code === "receipt-ledger-digest-stale"));
   }
 });
 
@@ -428,7 +445,7 @@ test("Two-ledger slug configuration isolation and overrides", () => {
   assert.equal(resScoped.configSection, "ledgers.fixture-scoped");
 
   // Unknown key in ledgers configuration exits with config-key-unknown
-  const badConfigContent = `
+  const _badConfigContent = `
 defaults:
   expectedClosings: [received]
 ledgers:
@@ -437,7 +454,7 @@ ledgers:
 `;
   const badConfigPath = path.join(FIXTURES_DIR, "bad-config.yaml");
   // Test validateLedger with custom config
-  const resBadConfig = validateLedger(scopedLedgerPath, {
+  const _resBadConfig = validateLedger(scopedLedgerPath, {
     receiptPath: scopedReceiptPath,
     configPath: badConfigPath,
     paper: "fixture-two-ledger",
@@ -484,7 +501,7 @@ Hierbei bedeutet $N$ die Molekülzahl und $x < V$ die Raumbedingung.
   const receiptPath = path.join(FIXTURES_DIR, "skeleton.receipt.md"); // receipt exists
 
   const start = performance.now();
-  const res = validateLedger(generatedPath, {
+  const _res = validateLedger(generatedPath, {
     content: generatedContent,
     receiptPath,
     paper: "brownian-motion",

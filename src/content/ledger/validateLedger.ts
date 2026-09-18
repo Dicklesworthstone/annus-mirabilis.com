@@ -15,7 +15,6 @@ import {
   DEFAULT_RUNNING_HEAD_PATTERNS,
   DRAFT_REPAIRS,
   extractAllBracketedTags,
-  extractTags,
   FORBIDDEN_SUBSTRINGS,
   findHtmlOutsideMath,
   KNOWN_TAG_NAMES,
@@ -99,6 +98,7 @@ export interface ValidateLedgerOptions {
   allowWarnings?: boolean | undefined;
   ledgerKey?: string | undefined;
   receiptPath?: string | undefined;
+  receiptContent?: string | undefined;
   configPath?: string | undefined;
   allowlistPath?: string | undefined;
 }
@@ -160,7 +160,7 @@ export function validateLedger(
   if (!ledgerKey) {
     const filename = path.basename(ledgerPath);
     const keyMatch = filename.match(/^([a-z0-9-]+)-reviewed\.txt$/);
-    if (keyMatch && keyMatch[1]) {
+    if (keyMatch?.[1]) {
       ledgerKey = keyMatch[1];
     } else if (options.receiptPath) {
       ledgerKey = path.basename(options.receiptPath, ".md");
@@ -178,14 +178,18 @@ export function validateLedger(
       path.join(process.cwd(), "src/testing/fixtures/ledgers", `${ledgerKey}.receipt.md`),
       `${ledgerPath}.receipt.md`,
     ];
-    receiptFile = candidatePaths.find((p) => existsSync(p)) ?? candidatePaths[0]!;
+    receiptFile = candidatePaths.find((p) => existsSync(p)) ?? candidatePaths[0] ?? "";
   }
 
-  if (!existsSync(receiptFile)) {
-    throw new Error(`Provenance receipt not found for key "${ledgerKey}" at: ${receiptFile}`);
+  let receiptRaw: string;
+  if (options.receiptContent !== undefined) {
+    receiptRaw = options.receiptContent;
+  } else {
+    if (!existsSync(receiptFile)) {
+      throw new Error(`Provenance receipt not found for key "${ledgerKey}" at: ${receiptFile}`);
+    }
+    receiptRaw = readFileSync(receiptFile, "utf8");
   }
-
-  const receiptRaw = readFileSync(receiptFile, "utf8");
   const parsedReceipt = parseReceipt(receiptRaw, receiptFile);
   const frontMatter = parsedReceipt.frontMatter;
 
@@ -266,7 +270,7 @@ export function validateLedger(
       path.join(process.cwd(), "content/source-blocks", slug, "ledger-config.yaml"),
       path.join(process.cwd(), "src/testing/fixtures/ledgers", slug, "ledger-config.yaml"),
     ];
-    configPath = candidateConfigPaths.find((p) => existsSync(p)) ?? candidateConfigPaths[0]!;
+    configPath = candidateConfigPaths.find((p) => existsSync(p)) ?? candidateConfigPaths[0] ?? "";
   }
 
   const resolvedConfig: ResolvedConfig = {
@@ -324,7 +328,7 @@ export function validateLedger(
         .filter(([_, s]) => s === slug)
         .map(([k]) => k);
       if (knownKeysForSlug.length > 1) {
-        const hasSection = parsedConfig.ledgers && parsedConfig.ledgers[ledgerKey];
+        const hasSection = parsedConfig.ledgers?.[ledgerKey];
         const defaultsComplete =
           parsedConfig.defaults &&
           Array.isArray(parsedConfig.defaults.expectedClosings) &&
@@ -354,10 +358,11 @@ export function validateLedger(
           resolvedConfig.expectedClosings = d.expectedClosings.map(String);
         }
         if (Array.isArray(d.printingAnomalies)) {
-          resolvedConfig.printingAnomalies = d.printingAnomalies as any;
+          resolvedConfig.printingAnomalies =
+            d.printingAnomalies as ResolvedConfig["printingAnomalies"];
         }
         if (Array.isArray(d.modernSpellingList)) {
-          for (const item of d.modernSpellingList as any[]) {
+          for (const item of d.modernSpellingList as unknown[]) {
             if (typeof item === "string") {
               resolvedConfig.modernSpellingList.push({
                 modern: item,
@@ -365,15 +370,17 @@ export function validateLedger(
                 citation: "configured in ledger-config",
               });
             } else if (item && typeof item === "object") {
-              resolvedConfig.modernSpellingList.push(item);
+              resolvedConfig.modernSpellingList.push(
+                item as (typeof resolvedConfig.modernSpellingList)[number],
+              );
             }
           }
         }
       }
 
       // Key-specific overrides
-      if (parsedConfig.ledgers && parsedConfig.ledgers[ledgerKey]) {
-        const kSec = parsedConfig.ledgers[ledgerKey];
+      const kSec = parsedConfig.ledgers?.[ledgerKey];
+      if (kSec) {
         resolvedConfig.configSection = `ledgers.${ledgerKey}`;
         if (Array.isArray(kSec.runningHeadPatterns)) {
           resolvedConfig.runningHeadPatterns = kSec.runningHeadPatterns.map(String);
@@ -382,10 +389,11 @@ export function validateLedger(
           resolvedConfig.expectedClosings = kSec.expectedClosings.map(String);
         }
         if (Array.isArray(kSec.printingAnomalies)) {
-          resolvedConfig.printingAnomalies = kSec.printingAnomalies as any;
+          resolvedConfig.printingAnomalies =
+            kSec.printingAnomalies as ResolvedConfig["printingAnomalies"];
         }
         if (Array.isArray(kSec.modernSpellingList)) {
-          for (const item of kSec.modernSpellingList as any[]) {
+          for (const item of kSec.modernSpellingList as unknown[]) {
             if (typeof item === "string") {
               resolvedConfig.modernSpellingList.push({
                 modern: item,
@@ -393,7 +401,9 @@ export function validateLedger(
                 citation: "configured in ledger-config",
               });
             } else if (item && typeof item === "object") {
-              resolvedConfig.modernSpellingList.push(item);
+              resolvedConfig.modernSpellingList.push(
+                item as (typeof resolvedConfig.modernSpellingList)[number],
+              );
             }
           }
         }
@@ -409,7 +419,7 @@ export function validateLedger(
       path.join(process.cwd(), "src/testing/fixtures/ledgers", slug, "ledger-allowlist.yaml"),
     ];
     allowlistPath =
-      candidateAllowlistPaths.find((p) => existsSync(p)) ?? candidateAllowlistPaths[0]!;
+      candidateAllowlistPaths.find((p) => existsSync(p)) ?? candidateAllowlistPaths[0] ?? "";
   }
 
   const activeAllowlistEntries: AllowlistEntry[] = [];
@@ -925,7 +935,7 @@ export function validateLedger(
     const draftMatch = rawLine.match(
       /\[\[(RUNNING-HEAD|PAGE-NUMBER|ILLEGIBLE)(?:\s+[\s\S]*?)?\]\]/,
     );
-    if (draftMatch && draftMatch[1]) {
+    if (draftMatch?.[1]) {
       const dName = draftMatch[1];
       errors.push({
         code: "draft-token",
@@ -957,6 +967,23 @@ export function validateLedger(
       }
     }
 
+    if (
+      /\{.*"(?:confidence|ocr|tokens|box|score)"\s*:/.test(rawLine) ||
+      /"confidence"\s*:\s*\d+/.test(rawLine)
+    ) {
+      errors.push({
+        code: "forbidden-token",
+        severity: "error",
+        ledgerLine: lineNumber,
+        ledgerPage: currentLedgerPage,
+        pdfPageIndex: currentPdfPageIndex,
+        printedPage: currentPrintedPage,
+        message: "Machine confidence JSON output detected.",
+        repair: "Remove machine confidence tokens from reviewed ledger.",
+        excerpt: truncateExcerpt(rawLine),
+      });
+    }
+
     // Check unknown tags
     const allBracketed = extractAllBracketedTags(rawLine);
     for (const tagInfo of allBracketed) {
@@ -977,7 +1004,7 @@ export function validateLedger(
 
     // Check equation label
     const eqLabelMatch = rawLine.match(/\[\[EQ-LABEL\s+([\s\S]*?)\]\]/);
-    if (eqLabelMatch && eqLabelMatch[1]) {
+    if (eqLabelMatch?.[1]) {
       const label = eqLabelMatch[1].trim();
       if (!lastLineWasDisplayEnd || lineNumber !== lastDisplayEndLine + 1) {
         errors.push({
@@ -1035,7 +1062,7 @@ export function validateLedger(
 
     // Headings
     const headingMatch = rawLine.match(/^\[\[HEADING\s+s(\d+)\]\]\s*([\s\S]*)$/);
-    if (headingMatch && headingMatch[1]) {
+    if (headingMatch?.[1]) {
       endParagraph();
       totalHeadings++;
       const sNum = Number.parseInt(headingMatch[1], 10);
@@ -1058,7 +1085,7 @@ export function validateLedger(
     }
 
     const partMatch = rawLine.match(/^\[\[PART-HEADING\s+part-(\d+)\]\]\s*([\s\S]*)$/);
-    if (partMatch && partMatch[1]) {
+    if (partMatch?.[1]) {
       endParagraph();
       totalHeadings++;
       const pNum = Number.parseInt(partMatch[1], 10);
@@ -1093,7 +1120,7 @@ export function validateLedger(
     }
 
     const fnTextMatch = rawLine.match(/^\[\[FN\s+([\s\S]*?)\]\]\s*([\s\S]*)$/);
-    if (fnTextMatch && fnTextMatch[1]) {
+    if (fnTextMatch?.[1]) {
       endParagraph();
       const fnLabel = fnTextMatch[1].trim();
       totalFootnotes++;
@@ -1111,7 +1138,7 @@ export function validateLedger(
     }
 
     const fnContMatch = rawLine.match(/^\[\[FN-CONT\s+([\s\S]*?)\]\]\s*([\s\S]*)$/);
-    if (fnContMatch && fnContMatch[1]) {
+    if (fnContMatch?.[1]) {
       endParagraph();
       const fnLabel = fnContMatch[1].trim();
       totalFootnotes++;
@@ -1126,9 +1153,11 @@ export function validateLedger(
 
     // Continues
     if (rawLine.includes("[[CONTINUES]]")) {
-      endParagraph();
       pageContinues.set(currentLedgerPage, { line: lineNumber, textAfterCount: 0 });
-      continue;
+      if (trimmed === "[[CONTINUES]]") {
+        endParagraph();
+        continue;
+      }
     }
 
     // Closings
@@ -1294,23 +1323,22 @@ export function validateLedger(
 
     // Text warnings (executed on textWithoutMath)
     // 1. Spaced letters (e.g. W ä r m e) outside [[SPERR]]
-    if (!rawLine.includes("[[SPERR]]") && !rawLine.includes("[[/SPERR]]")) {
-      const spacedMatch = textWithoutMath.match(
-        /(?:^|\s)([a-zA-Z\u00C0-\u024F]\s[a-zA-Z\u00C0-\u024F]\s[a-zA-Z\u00C0-\u024F](?:\s[a-zA-Z\u00C0-\u024F])*)(?:\s|$)/,
-      );
-      if (spacedMatch && spacedMatch[1]) {
-        warnings.push({
-          code: "spaced-letters",
-          severity: "warning",
-          ledgerLine: lineNumber,
-          ledgerPage: currentLedgerPage,
-          pdfPageIndex: currentPdfPageIndex,
-          printedPage: currentPrintedPage,
-          message: `Spaced letter sequence "${spacedMatch[1]}" detected outside [[SPERR]] tags.`,
-          repair: `Wrap in [[SPERR]]${spacedMatch[1].replace(/\s+/g, "")}[[/SPERR]].`,
-          excerpt: truncateExcerpt(spacedMatch[1]),
-        });
-      }
+    const textWithoutSperr = textWithoutMath.replace(/\[\[SPERR\]\][\s\S]*?\[\[\/SPERR\]\]/g, "");
+    const spacedMatch = textWithoutSperr.match(
+      /(?:^|\s)([a-zA-Z\u00C0-\u024F]\s[a-zA-Z\u00C0-\u024F]\s[a-zA-Z\u00C0-\u024F](?:\s[a-zA-Z\u00C0-\u024F])*)(?:\s|$)/,
+    );
+    if (spacedMatch?.[1]) {
+      warnings.push({
+        code: "spaced-letters",
+        severity: "warning",
+        ledgerLine: lineNumber,
+        ledgerPage: currentLedgerPage,
+        pdfPageIndex: currentPdfPageIndex,
+        printedPage: currentPrintedPage,
+        message: `Spaced letter sequence "${spacedMatch[1]}" detected outside [[SPERR]] tags.`,
+        repair: `Wrap in [[SPERR]]${spacedMatch[1].replace(/\s+/g, "")}[[/SPERR]].`,
+        excerpt: truncateExcerpt(spacedMatch[1]),
+      });
     }
 
     // 2. Modern spelling
