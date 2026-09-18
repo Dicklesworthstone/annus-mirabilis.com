@@ -565,4 +565,159 @@ describe("OCR Orchestrator: Unit and Integration Tests", () => {
       assert.ok(!draft.includes("Elektrodynamik"));
     });
   });
+
+  describe("Versioned Instructions and Ledger Markup Compliance", () => {
+    function validateInstructionMarkup(content: string): { valid: boolean; missing: string[] } {
+      const requiredMarkers = [
+        "[[SPERR]]",
+        "[[/SPERR]]",
+        "[[FN-MARK",
+        "[[FN ",
+        "[[RUNNING-HEAD",
+        "[[PAGE-NUMBER",
+        "[[MATH-REGION",
+        "[[ILLEGIBLE]]",
+      ];
+      const missing = requiredMarkers.filter((marker) => !content.includes(marker));
+      return { valid: missing.length === 0, missing };
+    }
+
+    it("verifies scripts/sources/ocr-instructions/v1.md exists, is versioned, and specifies all mandatory ledger markup tags", async () => {
+      const v1Path = resolve(ROOT, "scripts/sources/ocr-instructions/v1.md");
+      assert.ok(existsSync(v1Path), "v1.md instruction file must exist");
+      const content = await readFile(v1Path, "utf-8");
+
+      assert.ok(content.length > 200, "Instruction text must be substantive");
+      assert.ok(content.includes("Annus Mirabilis OCR Instructions (v1)"));
+
+      const validation = validateInstructionMarkup(content);
+      assert.equal(
+        validation.valid,
+        true,
+        `Missing required markup tags in v1.md: ${validation.missing.join(", ")}`,
+      );
+      assert.equal(validation.missing.length, 0);
+
+      // Diplomatic German orthography preservation
+      assert.ok(content.includes("daß"), "Must mention preserving archaic spelling like 'daß'");
+      assert.ok(content.includes("giebt"), "Must mention preserving archaic spelling like 'giebt'");
+      assert.ok(
+        content.includes("Do NOT modernize spelling"),
+        "Must forbid modernizing spelling",
+      );
+      assert.ok(
+        content.includes(
+          "Do NOT translate, summarize, normalize, paraphrase, or complete missing words",
+        ),
+        "Must forbid semantic mutation",
+      );
+    });
+
+    it("planted negative: markup validator rejects instruction text missing mandatory tags (fails in BOTH directions)", () => {
+      const incompleteInstructions = `
+# Incomplete instructions
+Transcribe text. Mark emphasis with *bold*.
+Use [[MATH-REGION page=1]] for equations.
+`;
+      const result = validateInstructionMarkup(incompleteInstructions);
+      assert.equal(result.valid, false);
+      assert.ok(result.missing.includes("[[SPERR]]"));
+      assert.ok(result.missing.includes("[[FN-MARK"));
+      assert.ok(result.missing.includes("[[ILLEGIBLE]]"));
+
+      const wellFormedInstructions = `
+Mark with [[SPERR]] and [[/SPERR]].
+Use [[FN-MARK 1]] and [[FN 1]] note.
+Include [[RUNNING-HEAD title]] and [[PAGE-NUMBER 42]].
+Use [[MATH-REGION page=1]] and [[ILLEGIBLE]] when damaged.
+`;
+      const resultGood = validateInstructionMarkup(wellFormedInstructions);
+      assert.equal(resultGood.valid, true);
+      assert.equal(resultGood.missing.length, 0);
+    });
+  });
+
+  describe("Artifact Identification: toolRunId and logRunId only, never runId", () => {
+    it("guarantees no artifact (frontmatter, run.jsonl, summary.json, coverage.json, receipt-block.md) contains a 'runId' key", async () => {
+      const toolRunId = `test-no-runid-${Date.now()}`;
+      const adapter = new FixtureAdapter();
+      const planPath = "scripts/sources/ocr-plans/fixture-3p.yaml";
+
+      const res = await runOcrOrchestrator({
+        planPath,
+        toolRunId,
+        adapter,
+        renderOptions: SYNTHETIC_RENDER,
+      });
+
+      assert.equal(res.ok, true);
+      const runDir = resolve(ROOT, "artifacts/ocr-runs/fixture-3p", toolRunId);
+
+      // 1. Check run.jsonl entries
+      const runLogPath = resolve(runDir, "run.jsonl");
+      assert.ok(existsSync(runLogPath));
+      const logLines = (await readFile(runLogPath, "utf-8")).trim().split("\n");
+      for (const line of logLines) {
+        if (!line.trim()) continue;
+        const entry = JSON.parse(line);
+        assert.equal("runId" in entry, false, "Log entry must not have runId property");
+        assert.equal(typeof entry.toolRunId, "string");
+        assert.equal(typeof entry.logRunId, "string");
+      }
+
+      // 2. Check summary.json
+      const summaryPath = resolve(runDir, "summary.json");
+      assert.ok(existsSync(summaryPath));
+      const summaryObj = JSON.parse(await readFile(summaryPath, "utf-8"));
+      assert.equal("runId" in summaryObj, false, "summary.json must not have runId property");
+      assert.equal(typeof summaryObj.toolRunId, "string");
+
+      // 3. Check coverage.json
+      const coveragePath = resolve(runDir, "coverage.json");
+      assert.ok(existsSync(coveragePath));
+      const coverageObj = JSON.parse(await readFile(coveragePath, "utf-8"));
+      assert.equal("runId" in coverageObj, false, "coverage.json must not have runId property");
+      assert.equal(typeof coverageObj.toolRunId, "string");
+
+      // 4. Check page markdown frontmatter
+      for (let p = 1; p <= 3; p++) {
+        const pagePath = resolve(runDir, `pages/page-${p}.md`);
+        assert.ok(existsSync(pagePath));
+        const content = await readFile(pagePath, "utf-8");
+        const fmMatch = content.match(/^---\n([\s\S]*?)\n---\n/);
+        assert.ok(fmMatch);
+        const fm = fmMatch[1] ?? "";
+        assert.ok(fm.includes("toolRunId:"));
+        assert.ok(fm.includes("logRunId:"));
+        assert.ok(!fm.includes("runId:"));
+      }
+
+      // 5. Check receipt-block.md
+      const receiptPath = resolve(runDir, "receipt-block.md");
+      assert.ok(existsSync(receiptPath));
+      const receiptText = await readFile(receiptPath, "utf-8");
+      assert.ok(receiptText.includes("toolRunId:"));
+      assert.ok(!receiptText.includes("runId:"));
+    });
+
+    it("planted negative: runId detector flags objects with runId and passes on clean objects (fails in BOTH directions)", () => {
+      function checkForForbiddenRunId(obj: Record<string, unknown>): boolean {
+        return "runId" in obj && obj.runId !== undefined;
+      }
+
+      const badObj = { toolRunId: "tool-123", logRunId: "log-456", runId: "forbidden-run-id" };
+      assert.equal(
+        checkForForbiddenRunId(badObj),
+        true,
+        "Detector must catch forbidden runId property",
+      );
+
+      const cleanObj = { toolRunId: "tool-123", logRunId: "log-456" };
+      assert.equal(
+        checkForForbiddenRunId(cleanObj),
+        false,
+        "Detector must pass clean object with only toolRunId and logRunId",
+      );
+    });
+  });
 });
