@@ -696,7 +696,9 @@ export function assertEditionContract(
 
   if (check14Passed && options.reviewUnits && options.reviewUnits.length > 0) {
     const reviewIssues = validateReviewStates(options.reviewUnits, {
-      requireReviewed: options.requireReviewed,
+      ...(options.requireReviewed !== undefined
+        ? { requireReviewed: options.requireReviewed }
+        : {}),
     });
     if (reviewIssues.length > 0) {
       check14Passed = false;
