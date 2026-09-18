@@ -114,3 +114,199 @@ test("Binding: (concordance.ts:264) missing-quantity-id rejected when quantityId
   const accepted = validateBinding({ quantityId: "wienConstant" });
   assert.equal(accepted.quantityId, "wienConstant");
 });
+
+// ============================================================================
+// Group 2: Operations (12 sites)
+// ============================================================================
+
+test("Operation: (concordance.ts:285) missing-operation rejected when raw is not an object, accepted with valid operation", () => {
+  assertConcordanceRefusal(() => validateOperation(null), "missing-operation");
+  assertConcordanceRefusal(() => validateOperation("not-an-object"), "missing-operation");
+
+  const accepted = validateOperation({
+    kind: "rename",
+    target: { form: "symbol", modernGlyph: "b" },
+  });
+  assert.equal(accepted.kind, "rename");
+});
+
+test("Operation: (concordance.ts:291) missing-rename-target rejected when rename target is not an object, accepted with target", () => {
+  assertConcordanceRefusal(
+    () => validateOperation({ kind: "rename", target: "not-an-object" }),
+    "missing-rename-target",
+  );
+
+  const accepted = validateOperation({
+    kind: "rename",
+    target: { form: "symbol", modernGlyph: "b" },
+  });
+  assert.equal(accepted.kind, "rename");
+});
+
+test("Operation: (concordance.ts:298) invalid-rename-form rejected when form is unknown, accepted with valid form", () => {
+  assertConcordanceRefusal(
+    () => validateOperation({ kind: "rename", target: { form: "invalid-form" } }),
+    "invalid-rename-form",
+  );
+
+  const accepted = validateOperation({
+    kind: "rename",
+    target: { form: "symbol", modernGlyph: "b" },
+  });
+  assert.equal(accepted.kind, "rename");
+});
+
+test("Operation: (concordance.ts:307) missing-modern-glyph rejected when symbol rename has no modernGlyph, accepted with glyph", () => {
+  assertConcordanceRefusal(
+    () => validateOperation({ kind: "rename", target: { form: "symbol" } }),
+    "missing-modern-glyph",
+  );
+
+  const accepted = validateOperation({
+    kind: "rename",
+    target: { form: "symbol", modernGlyph: "b" },
+  });
+  assert.equal(accepted.kind, "rename");
+});
+
+test("Operation: (concordance.ts:326) missing-group-pattern rejected when group rename has no pattern, accepted with pattern", () => {
+  assertConcordanceRefusal(
+    () => validateOperation({ kind: "rename", target: { form: "group", modernGlyph: "B" } }),
+    "missing-group-pattern",
+  );
+
+  const accepted = validateOperation({
+    kind: "rename",
+    target: {
+      form: "group",
+      pattern: { kind: "multiply", terms: ["k", "T"] },
+      modernGlyph: "B",
+    },
+  });
+  assert.equal(accepted.kind, "rename");
+});
+
+test("Operation: (concordance.ts:333) missing-group-modern-glyph rejected when group rename has no modernGlyph, accepted with glyph", () => {
+  assertConcordanceRefusal(
+    () =>
+      validateOperation({
+        kind: "rename",
+        target: {
+          form: "group",
+          pattern: { kind: "multiply", terms: ["k", "T"] },
+        },
+      }),
+    "missing-group-modern-glyph",
+  );
+
+  const accepted = validateOperation({
+    kind: "rename",
+    target: {
+      form: "group",
+      pattern: { kind: "multiply", terms: ["k", "T"] },
+      modernGlyph: "B",
+    },
+  });
+  assert.equal(accepted.kind, "rename");
+});
+
+test("Operation: (concordance.ts:353) missing-modern-tree rejected when expression rename has no modernTree, accepted with tree", () => {
+  assertConcordanceRefusal(
+    () => validateOperation({ kind: "rename", target: { form: "expression" } }),
+    "missing-modern-tree",
+  );
+
+  const accepted = validateOperation({
+    kind: "rename",
+    target: { form: "expression", modernTree: { type: "identifier", name: "E" } },
+  });
+  assert.equal(accepted.kind, "rename");
+});
+
+test("Operation: (concordance.ts:379) invalid-unit-system rejected when fromSystem is loose or invalid, accepted with canon name", () => {
+  assertConcordanceRefusal(
+    () =>
+      validateOperation({
+        kind: "unitConversion",
+        fromSystem: "gaussian",
+        toSystem: "si",
+      }),
+    "invalid-unit-system",
+  );
+
+  const accepted = validateOperation({
+    kind: "unitConversion",
+    fromSystem: "gaussian-cgs",
+    toSystem: "si",
+  });
+  assert.equal(accepted.kind, "unitConversion");
+});
+
+test("Operation: (concordance.ts:389) invalid-unit-system rejected when toSystem is loose or invalid, accepted with canon name", () => {
+  assertConcordanceRefusal(
+    () =>
+      validateOperation({
+        kind: "unitConversion",
+        fromSystem: "si",
+        toSystem: "emu",
+      }),
+    "invalid-unit-system",
+  );
+
+  const accepted = validateOperation({
+    kind: "unitConversion",
+    fromSystem: "si",
+    toSystem: "emu-cgs",
+  });
+  assert.equal(accepted.kind, "unitConversion");
+});
+
+test("Operation: (concordance.ts:417) missing-modern-lens-ref rejected when modernization has no modernLensRef, accepted with ref", () => {
+  assertConcordanceRefusal(
+    () =>
+      validateOperation({
+        kind: "modernization",
+        argumentChangeDescription: "Modern interpretation in terms of rest frame",
+      }),
+    "missing-modern-lens-ref",
+  );
+
+  const accepted = validateOperation({
+    kind: "modernization",
+    modernLensRef: "sr-modern-lens",
+    argumentChangeDescription: "Modern interpretation in terms of rest frame",
+  });
+  assert.equal(accepted.kind, "modernization");
+});
+
+test("Operation: (concordance.ts:424) missing-argument-change-description rejected when description missing, accepted with desc", () => {
+  assertConcordanceRefusal(
+    () =>
+      validateOperation({
+        kind: "modernization",
+        modernLensRef: "sr-modern-lens",
+      }),
+    "missing-argument-change-description",
+  );
+
+  const accepted = validateOperation({
+    kind: "modernization",
+    modernLensRef: "sr-modern-lens",
+    argumentChangeDescription: "Modern interpretation in terms of rest frame",
+  });
+  assert.equal(accepted.kind, "modernization");
+});
+
+test("Operation: (concordance.ts:437) invalid-operation-kind rejected when kind is unknown, accepted for valid operation kinds", () => {
+  assertConcordanceRefusal(
+    () => validateOperation({ kind: "unsupported-operation" }),
+    "invalid-operation-kind",
+  );
+
+  const accepted = validateOperation({
+    kind: "rename",
+    target: { form: "symbol", modernGlyph: "b" },
+  });
+  assert.equal(accepted.kind, "rename");
+});
+
