@@ -110,14 +110,15 @@ describe("verify-content orchestrator", () => {
     expect(result.findings.some((f) => f.check === "review-claim-without-reviewer")).toBe(true);
   });
 
-  test("voice-lint remains a standalone required step alongside verify-content in preview and launch profiles", () => {
+  test("profiles that require verify-content no longer require a separate voice-lint step", () => {
     const verify = QUALITY_GATE_STEPS.find((step) => step.id === "verify-content");
     const voice = QUALITY_GATE_STEPS.find((step) => step.id === "voice-lint");
     expect(verify).toBeDefined();
     expect(voice).toBeDefined();
-    expect(voice?.requiredInProfiles).toContain("preview");
-    expect(voice?.requiredInProfiles).toContain("launch");
-    expect(voice?.requiredInCi).toBe(true);
+    for (const profile of verify?.requiredInProfiles ?? []) {
+      expect(voice?.requiredInProfiles ?? []).not.toContain(profile);
+    }
+    expect(voice?.requiredInCi).toBe(false);
   });
 
   test("PLANTED: failing dimension audit surfaces in verify-content errors", async () => {

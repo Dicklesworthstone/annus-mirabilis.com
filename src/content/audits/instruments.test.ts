@@ -3,7 +3,12 @@ import { readFileSync } from "node:fs";
 import { dirname, join } from "node:path";
 import { fileURLToPath } from "node:url";
 import { getLogger } from "../../testing/log/logger.ts";
-import { auditInstruments, type InstrumentAuditRow } from "./instruments.ts";
+import {
+  auditInstruments,
+  formatInstrumentAuditTable,
+  loadLiveInstrumentRows,
+  type InstrumentAuditRow,
+} from "./instruments.ts";
 import { errorCheckCodes } from "./types.ts";
 
 const FIXTURES = join(dirname(fileURLToPath(import.meta.url)), "__fixtures__", "instruments");
@@ -192,6 +197,20 @@ describe("auditInstruments: paired ok/broken fixtures", () => {
           f.message.includes('"count-model" is not a declared mode of lq-08; declared modes: <none>'),
       ),
     ).toBe(true);
+  });
+
+  test("GOOD RECORD: formatInstrumentAuditTable output has per-requirement columns and no total, and reads real registry and dispatcher", () => {
+    const liveRows = loadLiveInstrumentRows(process.cwd(), { ids: ["bm-01"] });
+    expect(liveRows.length).toBe(1);
+    const bm01 = liveRows[0]!;
+    expect(bm01.registered).toBe(true);
+    expect(bm01.dispatcherCase).toBe(true);
+
+    const report = auditInstruments(liveRows);
+    const table = formatInstrumentAuditTable(report, liveRows);
+    expect(table).toContain("| Instrument | Registry | Dispatcher |");
+    expect(table.toLowerCase()).not.toContain("total");
+    expect(table.toLowerCase()).not.toContain("score");
   });
 });
 

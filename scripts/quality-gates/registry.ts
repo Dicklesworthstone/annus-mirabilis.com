@@ -207,8 +207,8 @@ export const QUALITY_GATE_STEPS: readonly GateStep[] = [
     command: ["bun", "scripts/lint-voice.ts"],
     family: "fast",
     cadence: "every-run",
-    requiredInCi: true,
-    requiredInProfiles: ["preview", "launch"],
+    requiredInCi: false,
+    requiredInProfiles: [],
     availability: {
       scriptPath: "scripts/lint-voice.ts",
     },

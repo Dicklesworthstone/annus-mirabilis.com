@@ -147,6 +147,24 @@ describe("auditReadings (am-cm-audit-scripts-d34)", () => {
     expect(errorCheckCodes(report)).toContain("r0-sentence-count");
   });
 
+  test("GOOD RECORD: a two-sentence R0 containing 'Ann. Phys. 17, p. 549' passes without splitting on abbreviations", () => {
+    const input: ReadingsAuditInput = {
+      targets: [
+        {
+          ...goodTarget,
+          readings: {
+            ...goodTarget.readings,
+            r0: "According to Ann. Phys. 17, p. 549, suspended particles move constantly in a liquid. This confirms the kinetic theory, e.g. as predicted by Boltzmann, cf. vol. 4, pp. 12-14, i.e. diffusion.",
+          },
+        },
+      ],
+      owners: [goodOwner],
+    };
+    const report = auditReadings(input);
+    expect(report.ok).toBe(true);
+    expect(errorCheckCodes(report)).not.toContain("r0-sentence-count");
+  });
+
   test("PLANTED: R3 missing citation fails", () => {
     const input: ReadingsAuditInput = {
       targets: [

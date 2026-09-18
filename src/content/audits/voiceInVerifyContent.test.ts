@@ -7,7 +7,7 @@ const logger = getLogger("verify-content-tests");
 const BEAD = "am-cm-audit-scripts-d34";
 
 describe("voice in verify-content gate (am-cm-audit-scripts-d34 / am-edit-voice-lint-trmf)", () => {
-  test("quality gate registry maintains voice-lint as a standalone required step alongside verify-content", () => {
+  test("quality gate registry folds voice-lint into verify-content for preview and launch profiles", () => {
     const verifyContentStep = QUALITY_GATE_STEPS.find((s) => s.id === "verify-content");
     const voiceLintStep = QUALITY_GATE_STEPS.find((s) => s.id === "voice-lint");
 
@@ -16,17 +16,16 @@ describe("voice in verify-content gate (am-cm-audit-scripts-d34 / am-edit-voice-
     expect(verifyContentStep?.requiredInProfiles).toContain("launch");
 
     expect(voiceLintStep).toBeDefined();
-    // voice-lint is an active standalone required step in preview and launch profiles
-    expect(voiceLintStep?.requiredInProfiles).toContain("preview");
-    expect(voiceLintStep?.requiredInProfiles).toContain("launch");
-    expect(voiceLintStep?.requiredInCi).toBe(true);
+    // voice-lint standalone step is no longer required in profiles that run verify-content
+    expect(voiceLintStep?.requiredInProfiles).toEqual([]);
+    expect(voiceLintStep?.requiredInCi).toBe(false);
 
     logger.log({
-      testId: "voice-lint-registry-standalone-required",
+      testId: "voice-lint-registry-folding",
       beadId: BEAD,
-      extra: { family: "audit", check: "voice-standalone" },
+      extra: { family: "audit", check: "voice-folded" },
       outcome: "passed",
-      message: "voice-lint is an active standalone required step in gate registry",
+      message: "voice-lint is folded into verify-content in gate registry",
     });
   });
 

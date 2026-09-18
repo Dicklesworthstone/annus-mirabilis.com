@@ -5,19 +5,22 @@
 
 export const PROTECTED_ABBREVIATIONS = [
   "Ann. Phys.",
+  "vol.",
+  "pp.",
   "e.g.",
   "i.e.",
   "cf.",
-  "vol.",
-  "pp.",
+  "p.",
 ] as const;
 
-const DOT = "\u2024";
+const DOT = "\u00b7";
 
 export function protectAbbreviations(text: string): string {
   let protectedText = text;
   for (const abbreviation of PROTECTED_ABBREVIATIONS) {
-    protectedText = protectedText.split(abbreviation).join(abbreviation.replaceAll(".", DOT));
+    const escaped = abbreviation.replaceAll(".", "\\.");
+    const pattern = new RegExp(`\\b${escaped}`, "g");
+    protectedText = protectedText.replace(pattern, abbreviation.replaceAll(".", DOT));
   }
   return protectedText;
 }
