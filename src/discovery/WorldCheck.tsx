@@ -28,51 +28,179 @@ export function WorldCheck({ check }: WorldCheckProps) {
       id={id}
       data-world-check-id={id}
       data-comparison-kind={comparisonKind}
-      className="world-check p-5 rounded-xl border border-stone-700 bg-stone-900/80 text-stone-200 space-y-4"
+      style={{
+        padding: "1.25rem",
+        borderRadius: "0.75rem",
+        border: "1px solid var(--line)",
+        background: "var(--panel)",
+        color: "var(--ink)",
+        display: "flex",
+        flexDirection: "column",
+        gap: "1rem",
+      }}
     >
-      <header className="flex flex-wrap items-center justify-between gap-3 border-b border-stone-800 pb-3">
-        <span className="text-xs font-mono uppercase tracking-wider text-cyan-400">
+      <header
+        style={{
+          display: "flex",
+          flexWrap: "wrap",
+          alignItems: "center",
+          justifyContent: "space-between",
+          gap: "0.75rem",
+          borderBottom: "1px solid var(--line)",
+          paddingBottom: "0.75rem",
+        }}
+      >
+        <span
+          className="eyebrow"
+          style={{
+            fontSize: "0.75rem",
+            fontFamily: "var(--font-mono, monospace)",
+            textTransform: "uppercase",
+            letterSpacing: "0.05em",
+            color: "#0891b2",
+          }}
+        >
           World Check · #{id}
         </span>
-        <span className="px-2.5 py-0.5 rounded text-xs font-medium bg-cyan-950 text-cyan-300 border border-cyan-800">
+        <span
+          style={{
+            padding: "0.125rem 0.625rem",
+            borderRadius: "0.25rem",
+            fontSize: "0.75rem",
+            fontWeight: 500,
+            background: "rgba(8, 145, 178, 0.12)",
+            color: "#0891b2",
+            border: "1px solid rgba(8, 145, 178, 0.3)",
+          }}
+        >
           {comparisonKindLabels[comparisonKind] ?? comparisonKind}
         </span>
       </header>
 
-      <p className="text-sm font-serif text-stone-100 font-medium leading-relaxed">{claim}</p>
+      <p
+        style={{
+          fontSize: "0.875rem",
+          fontFamily: "var(--font-serif, serif)",
+          color: "var(--ink)",
+          fontWeight: 500,
+          lineHeight: 1.6,
+          margin: 0,
+        }}
+      >
+        {claim}
+      </p>
 
       {/* Static Worked Example & Host Calculation */}
-      <div className="grid grid-cols-1 sm:grid-cols-2 gap-3 text-xs">
-        <div className="p-3 rounded bg-stone-950/70 border border-stone-800 space-y-1">
-          <span className="font-semibold text-stone-400 block uppercase tracking-wide">
+      <div
+        style={{
+          display: "grid",
+          gridTemplateColumns: "repeat(auto-fit, minmax(200px, 1fr))",
+          gap: "0.75rem",
+          fontSize: "0.75rem",
+        }}
+      >
+        <div
+          style={{
+            padding: "0.75rem",
+            borderRadius: "0.25rem",
+            background: "var(--wash)",
+            border: "1px solid var(--line)",
+            display: "flex",
+            flexDirection: "column",
+            gap: "0.25rem",
+          }}
+        >
+          <span
+            className="eyebrow"
+            style={{
+              fontWeight: 600,
+              color: "var(--muted)",
+              display: "block",
+              textTransform: "uppercase",
+              letterSpacing: "0.05em",
+            }}
+          >
             Static Worked Reference
           </span>
-          <p className="font-medium text-stone-200">{staticWorkedExample.label}</p>
-          <p className="font-mono text-amber-300">
+          <p style={{ margin: 0, fontWeight: 500, color: "var(--ink)" }}>
+            {staticWorkedExample.label}
+          </p>
+          <p
+            style={{
+              margin: 0,
+              fontFamily: "var(--font-mono, monospace)",
+              color: "#d97706",
+            }}
+          >
             {staticWorkedExample.value} {staticWorkedExample.unit}
           </p>
-          <p className="text-[11px] text-stone-500 font-mono">
+          <p
+            style={{
+              margin: 0,
+              fontSize: "0.6875rem",
+              color: "var(--muted)",
+              fontFamily: "var(--font-mono, monospace)",
+            }}
+          >
             constants: {staticWorkedExample.constantSetId}
           </p>
         </div>
 
-        <div className="p-3 rounded bg-stone-950/70 border border-stone-800 space-y-1">
-          <span className="font-semibold text-stone-400 block uppercase tracking-wide">
+        <div
+          style={{
+            padding: "0.75rem",
+            borderRadius: "0.25rem",
+            background: "var(--wash)",
+            border: "1px solid var(--line)",
+            display: "flex",
+            flexDirection: "column",
+            gap: "0.25rem",
+          }}
+        >
+          <span
+            className="eyebrow"
+            style={{
+              fontWeight: 600,
+              color: "var(--muted)",
+              display: "block",
+              textTransform: "uppercase",
+              letterSpacing: "0.05em",
+            }}
+          >
             Live Instrument Check
           </span>
-          <p className="text-stone-300">
+          <p style={{ margin: 0, color: "var(--ink)" }}>
             Instrument:{" "}
-            <a href={`/lab/${instrumentId}/`} className="font-mono text-amber-400 hover:underline">
+            <a
+              href={`/lab/${instrumentId}/`}
+              style={{
+                fontFamily: "var(--font-mono, monospace)",
+                color: "var(--accent)",
+                textDecoration: "underline",
+              }}
+            >
               {instrumentId}
             </a>
           </p>
-          <p className="text-stone-300">
-            Quantity: <span className="font-mono text-stone-200">{quantityId}</span>
+          <p style={{ margin: 0, color: "var(--ink)" }}>
+            Quantity:{" "}
+            <span style={{ fontFamily: "var(--font-mono, monospace)", color: "var(--ink)" }}>
+              {quantityId}
+            </span>
           </p>
-          <p className="font-mono text-emerald-400">
+          <p
+            style={{
+              margin: 0,
+              fontFamily: "var(--font-mono, monospace)",
+              color: "#059669",
+            }}
+          >
             Expected: {String(expected)}
             {tolerance?.relative !== undefined && (
-              <span className="text-stone-400 text-[11px]"> (±{tolerance.relative * 100}%)</span>
+              <span style={{ color: "var(--muted)", fontSize: "0.6875rem" }}>
+                {" "}
+                (±{tolerance.relative * 100}%)
+              </span>
             )}
           </p>
         </div>
@@ -80,18 +208,42 @@ export function WorldCheck({ check }: WorldCheckProps) {
 
       {/* Later Evidence Badge */}
       {laterEvidence && (
-        <div className="p-3 rounded bg-purple-950/40 border border-purple-800/40 text-xs space-y-1">
-          <div className="flex items-center justify-between gap-2">
-            <span className="font-semibold text-purple-300">
+        <div
+          style={{
+            padding: "0.75rem",
+            borderRadius: "0.25rem",
+            background: "rgba(147, 51, 234, 0.08)",
+            border: "1px solid rgba(147, 51, 234, 0.25)",
+            fontSize: "0.75rem",
+            display: "flex",
+            flexDirection: "column",
+            gap: "0.25rem",
+          }}
+        >
+          <div
+            style={{
+              display: "flex",
+              alignItems: "center",
+              justifyContent: "space-between",
+              gap: "0.5rem",
+            }}
+          >
+            <span style={{ fontWeight: 600, color: "#9333ea" }}>
               Post-1904 Experimental Resolution ({laterEvidence.year})
             </span>
             {laterEvidence.recordId && (
-              <span className="font-mono text-stone-400 text-[11px]">
+              <span
+                style={{
+                  fontFamily: "var(--font-mono, monospace)",
+                  color: "var(--muted)",
+                  fontSize: "0.6875rem",
+                }}
+              >
                 #{laterEvidence.recordId}
               </span>
             )}
           </div>
-          <p className="text-stone-300">{laterEvidence.description}</p>
+          <p style={{ margin: 0, color: "var(--ink)" }}>{laterEvidence.description}</p>
         </div>
       )}
     </article>
