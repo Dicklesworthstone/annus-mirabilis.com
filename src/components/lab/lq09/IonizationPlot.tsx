@@ -37,19 +37,50 @@ export function IonizationThresholdLadderPlot({
   const col = visibleColor(frequency);
 
   return (
-    <div className="plot-container" data-view-id="lq-09-energy-ladder">
-      <h3 className="text-sm font-semibold mb-1 text-slate-800 dark:text-slate-100">
+    <div data-view-id="lq-09-energy-ladder">
+      <h3
+        style={{
+          fontSize: "0.875rem",
+          fontWeight: 600,
+          marginBottom: "0.25rem",
+          color: "var(--ink)",
+        }}
+      >
         Single-Quantum Ionization Energy Ladder
       </h3>
-      <p className="text-xs text-slate-600 dark:text-slate-400 mb-2">
-        <span className="font-mono">h&nu; = {quantumEnergyEv.toFixed(2)} eV</span> | J_mol ={" "}
-        <span className="font-mono">{ionizationEnergyEv.toFixed(2)} eV</span> (&nu;_0 ={" "}
-        <span className="font-mono">{(thresholdFrequencyHz / 1e12).toFixed(1)} THz</span>,
-        &lambda;_0 = <span className="font-mono">{thresholdWavelengthNm.toFixed(1)} nm</span>)
+      <p
+        style={{
+          fontSize: "0.75rem",
+          color: "var(--muted)",
+          marginBottom: "0.5rem",
+        }}
+      >
+        <span style={{ fontFamily: "var(--font-mono, monospace)" }}>
+          h&nu; = {quantumEnergyEv.toFixed(2)} eV
+        </span>{" "}
+        | J_mol ={" "}
+        <span style={{ fontFamily: "var(--font-mono, monospace)" }}>
+          {ionizationEnergyEv.toFixed(2)} eV
+        </span>{" "}
+        (&nu;_0 ={" "}
+        <span style={{ fontFamily: "var(--font-mono, monospace)" }}>
+          {(thresholdFrequencyHz / 1e12).toFixed(1)} THz
+        </span>
+        , &lambda;_0 ={" "}
+        <span style={{ fontFamily: "var(--font-mono, monospace)" }}>
+          {thresholdWavelengthNm.toFixed(1)} nm
+        </span>
+        )
       </p>
       <svg
         viewBox={`0 0 ${width} ${height}`}
-        className="w-full h-auto bg-slate-50 dark:bg-slate-900 border border-slate-200 dark:border-slate-800 rounded"
+        style={{
+          width: "100%",
+          height: "auto",
+          background: "var(--panel)",
+          border: "1px solid var(--line)",
+          borderRadius: "0.25rem",
+        }}
         role="img"
         aria-label={`Ionization ladder showing photon energy ${quantumEnergyEv.toFixed(2)} eV and ionization threshold ${ionizationEnergyEv.toFixed(2)} eV`}
       >
@@ -84,14 +115,16 @@ export function IonizationThresholdLadderPlot({
           y1={yGround}
           x2={width - padding.right}
           y2={yGround}
-          stroke="#475569"
+          stroke="var(--line)"
           strokeWidth="2"
         />
         <text
           x={padding.left - 8}
           y={yGround + 4}
           textAnchor="end"
-          className="text-[10px] fill-slate-500 font-mono"
+          fontSize="10"
+          fill="var(--muted)"
+          fontFamily="var(--font-mono, monospace)"
         >
           Ground (0 eV)
         </text>
@@ -110,7 +143,9 @@ export function IonizationThresholdLadderPlot({
           x={padding.left - 8}
           y={yIonization + 4}
           textAnchor="end"
-          className="text-[10px] fill-rose-600 font-mono"
+          fontSize="10"
+          fill="var(--ink)"
+          fontFamily="var(--font-mono, monospace)"
         >
           J_mol ({ionizationEnergyEv.toFixed(1)} eV)
         </text>
@@ -128,7 +163,8 @@ export function IonizationThresholdLadderPlot({
         <text
           x={padding.left + 90}
           y={(yGround + yPhoton) / 2}
-          className="text-[11px] font-semibold"
+          fontSize="11"
+          fontWeight="600"
           fill={col.hexColor}
         >
           h&nu; = {quantumEnergyEv.toFixed(2)} eV
@@ -151,7 +187,9 @@ export function IonizationThresholdLadderPlot({
               x={padding.left + 230}
               y={(yPhoton + yIonization) / 2 + 4}
               textAnchor="middle"
-              className="text-[10px] fill-emerald-600 dark:fill-emerald-400 font-semibold"
+              fontSize="10"
+              fill="var(--ink)"
+              fontWeight="600"
             >
               +{excessEnergyEv.toFixed(2)} eV kinetic
             </text>
@@ -173,7 +211,9 @@ export function IonizationThresholdLadderPlot({
               x={padding.left + 240}
               y={(yPhoton + yIonization) / 2 + 4}
               textAnchor="middle"
-              className="text-[9px] fill-rose-600 dark:fill-rose-400 font-semibold"
+              fontSize="9"
+              fill="var(--ink)"
+              fontWeight="600"
             >
               Sub-threshold: -{Math.abs(excessEnergyEv).toFixed(2)} eV deficit
             </text>
@@ -185,7 +225,8 @@ export function IonizationThresholdLadderPlot({
           x={(width + padding.left - padding.right) / 2}
           y={height - 10}
           textAnchor="middle"
-          className="text-[10px] fill-slate-400"
+          fontSize="10"
+          fill="var(--muted)"
         >
           {singleQuantumAllowed
             ? "Single-quantum ionization permitted (h*nu >= J_mol)"
@@ -228,17 +269,36 @@ export function IonizationCountingPlot({
   const yIons = padding.top + 105;
 
   return (
-    <div className="plot-container" data-view-id="lq-09-rate-budget">
-      <h3 className="text-sm font-semibold mb-1 text-slate-800 dark:text-slate-100">
+    <div data-view-id="lq-09-rate-budget">
+      <h3
+        style={{
+          fontSize: "0.875rem",
+          fontWeight: 600,
+          marginBottom: "0.25rem",
+          color: "var(--ink)",
+        }}
+      >
         Quantum Rate &amp; Ionization Accounting
       </h3>
-      <p className="text-xs text-slate-600 dark:text-slate-400 mb-2">
-        Mode: <span className="font-semibold">{absorptionMode}</span>
+      <p
+        style={{
+          fontSize: "0.75rem",
+          color: "var(--muted)",
+          marginBottom: "0.5rem",
+        }}
+      >
+        Mode: <span style={{ fontWeight: 600, color: "var(--ink)" }}>{absorptionMode}</span>
         {absorptionMode === "declared-fraction" && ` (a = ${declaredFraction.toFixed(2)})`}
       </p>
       <svg
         viewBox={`0 0 ${width} ${height}`}
-        className="w-full h-auto bg-slate-50 dark:bg-slate-900 border border-slate-200 dark:border-slate-800 rounded"
+        style={{
+          width: "100%",
+          height: "auto",
+          background: "var(--panel)",
+          border: "1px solid var(--line)",
+          borderRadius: "0.25rem",
+        }}
         role="img"
         aria-label="Bar chart showing incident quanta, absorbed quanta, and ionization rate"
       >
@@ -247,7 +307,8 @@ export function IonizationCountingPlot({
           x={padding.left - 8}
           y={yIncident + 12}
           textAnchor="end"
-          className="text-[10px] fill-slate-600 dark:fill-slate-400"
+          fontSize="10"
+          fill="var(--muted)"
         >
           Incident Quanta
         </text>
@@ -262,7 +323,9 @@ export function IonizationCountingPlot({
         <text
           x={scaleX(incidentQuantaRate) + 6}
           y={yIncident + 13}
-          className="text-[10px] font-mono fill-blue-600 dark:fill-blue-400"
+          fontSize="10"
+          fontFamily="var(--font-mono, monospace)"
+          fill="var(--ink)"
         >
           {incidentQuantaRate.toExponential(2)}/s
         </text>
@@ -272,7 +335,8 @@ export function IonizationCountingPlot({
           x={padding.left - 8}
           y={yAbsorbed + 12}
           textAnchor="end"
-          className="text-[10px] fill-slate-600 dark:fill-slate-400"
+          fontSize="10"
+          fill="var(--muted)"
         >
           Absorbed Quanta
         </text>
@@ -287,7 +351,9 @@ export function IonizationCountingPlot({
         <text
           x={scaleX(absorbedQuantaRate) + 6}
           y={yAbsorbed + 13}
-          className="text-[10px] font-mono fill-purple-600 dark:fill-purple-400"
+          fontSize="10"
+          fontFamily="var(--font-mono, monospace)"
+          fill="var(--ink)"
         >
           {absorbedQuantaRate.toExponential(2)}/s
         </text>
@@ -297,7 +363,8 @@ export function IonizationCountingPlot({
           x={padding.left - 8}
           y={yIons + 12}
           textAnchor="end"
-          className="text-[10px] fill-slate-600 dark:fill-slate-400"
+          fontSize="10"
+          fill="var(--muted)"
         >
           Ionization Rate
         </text>
@@ -315,7 +382,9 @@ export function IonizationCountingPlot({
             <text
               x={scaleX(ionizationRate) + 6}
               y={yIons + 13}
-              className="text-[10px] font-mono fill-emerald-600 dark:fill-emerald-400"
+              fontSize="10"
+              fontFamily="var(--font-mono, monospace)"
+              fill="var(--ink)"
             >
               {ionizationRate.toExponential(2)}/s
             </text>
@@ -336,7 +405,9 @@ export function IonizationCountingPlot({
             <text
               x={scaleX(absorbedQuantaRate) + 6}
               y={yIons + 13}
-              className="text-[10px] fill-amber-600 dark:fill-amber-400 font-semibold"
+              fontSize="10"
+              fill="var(--ink)"
+              fontWeight="600"
             >
               Bounded: &le; {absorbedQuantaRate.toExponential(2)}/s
             </text>
@@ -345,7 +416,10 @@ export function IonizationCountingPlot({
           <text
             x={padding.left + 6}
             y={yIons + 13}
-            className="text-[10px] fill-rose-600 dark:fill-rose-400 font-semibold italic"
+            fontSize="10"
+            fill="var(--ink)"
+            fontWeight="600"
+            fontStyle="italic"
           >
             {ionizationStatus === "not-applicable"
               ? "not-applicable (below threshold)"
@@ -359,14 +433,15 @@ export function IonizationCountingPlot({
           y1={padding.top + 10}
           x2={padding.left}
           y2={height - padding.bottom + 10}
-          stroke="#94a3b8"
+          stroke="var(--line)"
           strokeWidth="1.5"
         />
         <text
           x={(width + padding.left - padding.right) / 2}
           y={height - 10}
           textAnchor="middle"
-          className="text-[10px] fill-slate-400"
+          fontSize="10"
+          fill="var(--muted)"
         >
           Rate of elementary events per second
         </text>

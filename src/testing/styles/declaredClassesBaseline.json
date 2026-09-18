@@ -47,7 +47,7 @@
   "src/components/lab/lq08/PhotoelectricLab.tsx": 0,
   "src/components/lab/lq08/PhotoelectricPlot.tsx": 0,
   "src/components/lab/lq09/IonizationLab.tsx": 0,
-  "src/components/lab/lq09/IonizationPlot.tsx": 91,
+  "src/components/lab/lq09/IonizationPlot.tsx": 0,
   "src/components/lab/me01/TwoLedgersLab.tsx": 6,
   "src/components/lab/me01/TwoLedgersPlot.tsx": 5,
   "src/components/lab/me03/BoundaryLedgerLab.tsx": 66,
