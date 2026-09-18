@@ -2,6 +2,7 @@ import assert from "node:assert/strict";
 import { mkdir, readFile, writeFile } from "node:fs/promises";
 import { resolve } from "node:path";
 import { pathToFileURL } from "node:url";
+import AxeBuilder from "@axe-core/playwright";
 import { chromium } from "playwright";
 import { loadOfflineManifest } from "../../src/platform/offline/server.ts";
 
@@ -98,6 +99,10 @@ try {
         );
       });
       if (javaScriptEnabled) {
+        await check("automated accessibility check passes", async () => {
+          const audit = await new AxeBuilder({ page }).analyze();
+          assert.deepEqual(audit.violations, []);
+        });
         await check("reading controls work with the hash-authorized inline script", async () => {
           await page.locator("[data-offline-detail]").selectOption("2");
           assert.ok(await page.locator('[data-reading="2"]').first().isVisible());

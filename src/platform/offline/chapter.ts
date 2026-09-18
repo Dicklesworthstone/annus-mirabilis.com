@@ -91,7 +91,11 @@ function inlineCss(css: string): string {
   }
   return css;
 }
-function checkedMath(latex: string, renderMath: (latex: string) => string): string {
+function checkedMath(
+  latex: string,
+  renderMath: (latex: string) => string,
+  label = "Equation",
+): string {
   const html = renderMath(latex);
   if (
     !html.includes("<math") ||
@@ -102,7 +106,7 @@ function checkedMath(latex: string, renderMath: (latex: string) => string): stri
   ) {
     throw new TypeError("Offline mathematics must be static KaTeX HTML and MathML.");
   }
-  return `<div class="formula" role="region" aria-label="Equation" tabindex="0">${html}</div>`;
+  return `<div class="formula" role="region" aria-label="${escapeOfflineText(label)}" tabindex="0">${html}</div>`;
 }
 
 export function collectChapterFoundations(
@@ -176,8 +180,11 @@ export function packageOfflineChapter(
   const foundationIds = new Set(foundations.map((f) => f.id));
   const e = escapeOfflineText;
   let mathBytes = 0;
-  function math(latex: string) {
-    const html = checkedMath(latex, renderMath);
+  let mathIndex = 0;
+  function math(latex: string, label?: string) {
+    mathIndex++;
+    const equationLabel = label ? `Equation ${mathIndex}: ${label}` : `Equation ${mathIndex}`;
+    const html = checkedMath(latex, renderMath, equationLabel);
     mathBytes += Buffer.byteLength(html);
     return html;
   }
@@ -188,7 +195,7 @@ export function packageOfflineChapter(
           case "paragraph":
             return `<p>${e(block.text)}</p>`;
           case "formula":
-            return `${math(block.latex)}<p class="spoken-math">${e(block.spoken)}</p>`;
+            return `${math(block.latex, block.spoken)}<p class="spoken-math">${e(block.spoken)}</p>`;
           case "steps":
             return `<ol>${block.items.map((text) => `<li>${e(text)}</li>`).join("")}</ol>`;
           case "foundation": {
@@ -223,7 +230,7 @@ export function packageOfflineChapter(
         .filter((equation) => equation.argument === argument.id)
         .map(
           (equation) =>
-            `<section id="${id(equation.id)}"><h4>${e(equation.title)}</h4><p>Modern teaching equation; source review pending.</p>${math(equation.latex)}<p>${e(equation.spoken)}</p><p>${e(equation.explanation)}</p></section>`,
+            `<section id="${id(equation.id)}"><h4>${e(equation.title)}</h4><p>Modern teaching equation; source review pending.</p>${math(equation.latex, equation.title || equation.spoken)}<p>${e(equation.spoken)}</p><p>${e(equation.explanation)}</p></section>`,
         )
         .join("\n");
       const help = Object.entries(argument.help)
