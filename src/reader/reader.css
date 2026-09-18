@@ -1775,3 +1775,252 @@ html:is(
 .cue-dot {
   opacity: 0.5;
 }
+
+/* Results Face & Cards styles (am-read-results-face-uzh, am-vw1o) */
+.results-face {
+  max-width: 860px;
+  margin: 2rem auto;
+  padding: 0 1rem;
+}
+
+.results-face-filter {
+  margin-bottom: 1.5rem;
+}
+
+.results-face-filter ul {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.5rem;
+  list-style: none;
+  padding: 0;
+  margin: 0;
+}
+
+.results-face-cards {
+  display: flex;
+  flex-direction: column;
+  gap: 2rem;
+}
+
+.results-face-genealogy {
+  margin-top: 3rem;
+  border-top: 1px solid var(--line);
+  padding-top: 1.5rem;
+}
+
+.result-card {
+  border: 1px solid var(--line);
+  background: var(--panel);
+  border-radius: 8px;
+  padding: 1.5rem;
+}
+
+.result-equation-headline {
+  font-size: 1.3rem;
+  margin: 1rem 0;
+}
+
+.result-equation {
+  font-size: 1.1rem;
+  margin: 0.75rem 0;
+}
+
+.probe-link {
+  margin: 0.5rem 0;
+}
+
+.result-decoder,
+.result-printed-checks,
+.result-probes,
+.result-support,
+.result-reception,
+.result-used-by {
+  margin: 1.5rem 0;
+  border-top: 1px solid var(--line);
+  padding-top: 1rem;
+}
+
+.result-limitation {
+  margin: 1.25rem 0;
+  border-left: 3px solid var(--line);
+  padding-left: 0.75rem;
+}
+
+.result-misconceptions {
+  margin-top: 1rem;
+  font-size: 0.9rem;
+  color: var(--muted);
+}
+
+/* Misconception Callout styles (am-read-misconception-callouts-a3o, am-vw1o) */
+.misconception-callout {
+  border-left: 3px solid #d97706;
+  background: var(--panel);
+  padding: 0.75rem 1rem;
+  margin: 1.5rem 0;
+  border-radius: 0 4px 4px 0;
+}
+
+.misconception-body {
+  margin-top: 0.75rem;
+}
+
+.misconception-tempting-claims {
+  list-style: disc;
+  padding-left: 1.25rem;
+  margin: 0.5rem 0;
+}
+
+.misconception-why-tempting,
+.misconception-where-true,
+.misconception-what-is-true {
+  margin: 0.75rem 0;
+  line-height: 1.6;
+}
+
+.misconception-margin {
+  font-size: 0.9em;
+  color: var(--muted);
+}
+
+.misconception-instrument-link,
+.misconception-static-treatment,
+.misconception-sources {
+  font-size: 0.85rem;
+  color: var(--muted);
+  margin: 0.5rem 0;
+}
+
+/* Parallel, German, and English Face layout styles (am-vw1o) */
+.face-parallel,
+.face-german,
+.face-english {
+  position: relative;
+}
+
+.layout-stacked {
+  display: block;
+}
+
+.parallel-paper-title,
+.source-paper-title,
+.translation-paper-title {
+  font-size: 2rem;
+  margin: 0 0 0.5rem;
+}
+
+.parallel-german-title,
+.source-author-line,
+.translation-author-line {
+  margin: 0.25rem 0;
+}
+
+.parallel-author,
+.source-date-line,
+.journal-citation,
+.translator-credit {
+  font-size: 0.95rem;
+  color: var(--muted);
+  margin: 0.25rem 0;
+}
+
+.parallel-help-bar {
+  margin: 1rem 0;
+  padding: 0.5rem 0.75rem;
+  background: var(--wash);
+  border: 1px solid var(--line);
+  border-radius: 4px;
+}
+
+.parallel-stacked {
+  grid-template-columns: 1fr !important;
+}
+
+.parallel-english {
+  padding-left: 1rem;
+}
+
+.column-heading {
+  font-size: 1.25rem;
+  margin-bottom: 1rem;
+  border-bottom: 1px solid var(--line);
+  padding-bottom: 0.5rem;
+}
+
+.source-blocks-list,
+.translation-units-list {
+  display: flex;
+  flex-direction: column;
+  gap: 1.5rem;
+}
+
+/* Footnotes styles (am-vw1o) */
+.reader-footnotes {
+  margin-top: 3rem;
+  border-top: 1px solid var(--line);
+  padding-top: 1.5rem;
+}
+
+.footnotes-heading {
+  font-size: 1.2rem;
+  margin-bottom: 1rem;
+}
+
+.footnotes-list {
+  padding-left: 1.5rem;
+}
+
+.footnote-item {
+  margin: 0.75rem 0;
+}
+
+.footnote-body {
+  font-size: 0.9rem;
+  line-height: 1.5;
+}
+
+.footnote-backlink {
+  color: var(--accent);
+  text-decoration: none;
+  font-weight: bold;
+}
+
+/* Unreviewed Banner styles (am-vw1o) */
+.unreviewed-translation-banner {
+  border-left: 3px solid #d97706;
+  background: #fffbeb;
+  padding: 0.75rem 1rem;
+  margin: 1.5rem 0;
+  border-radius: 0 4px 4px 0;
+}
+
+.banner-heading {
+  margin: 0 0 0.25rem;
+  font-size: 0.95rem;
+}
+
+.banner-text {
+  margin: 0;
+  font-size: 0.85rem;
+  color: var(--muted);
+}
+
+/* Reader Split, Alignment, and Term Annotation styles (am-vw1o) */
+.reader-split {
+  margin: 1.5rem 0;
+}
+
+.reader-split-tabs {
+  display: flex;
+  gap: 0.5rem;
+  margin-bottom: 1rem;
+}
+
+.alignment-live-region {
+  /* Screen-reader live region */
+}
+
+.term-annotation {
+  text-decoration: underline dotted;
+  cursor: help;
+}
