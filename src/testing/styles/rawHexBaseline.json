@@ -31,7 +31,7 @@
   "src/reader/facsimile/usePinnedPdfFacsimile.ts": 1,
   "src/visuals/kit/FalseColorLegend.tsx": 0,
   "src/visuals/kit/TrajectoryLayer.tsx": 0,
-  "src/visuals/overlays/DatasetOverlay.tsx": 2,
+  "src/visuals/overlays/DatasetOverlay.tsx": 0,
   "src/visuals/three/StudioKernelChips.tsx": 0,
   "src/visuals/three/ThreeStudioScene.ts": 5
 }

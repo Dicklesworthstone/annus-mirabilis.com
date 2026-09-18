@@ -245,7 +245,7 @@ export function DatasetOverlay({
               {isReportedFit && !isYBound && !isXBound && (
                 <polygon
                   points={`${px},${py - 5} ${px + 5},${py} ${px},${py + 5} ${px - 5},${py}`}
-                  fill={isSelected ? "#b45309" : "currentColor"}
+                  fill={isSelected ? "var(--accent)" : "currentColor"}
                   stroke="var(--panel)"
                   strokeWidth={1}
                   data-testid="reported-fit-marker"
@@ -258,7 +258,7 @@ export function DatasetOverlay({
                   cx={px}
                   cy={py}
                   r={isSelected ? 5 : 3.5}
-                  fill={isSelected ? "#b45309" : "currentColor"}
+                  fill={isSelected ? "var(--accent)" : "currentColor"}
                   stroke="var(--panel)"
                   strokeWidth={1.2}
                   data-testid="empirical-point"
