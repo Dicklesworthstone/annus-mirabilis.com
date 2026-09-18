@@ -74,13 +74,20 @@ export function DopplerAberrationPlot({
   });
 
   return (
-    <div className="flex flex-col gap-4">
-      <div className="rounded-lg border border-border/50 bg-background/80 p-4 shadow-sm">
+    <div style={{ display: "flex", flexDirection: "column", gap: "1rem" }}>
+      <div
+        style={{
+          borderRadius: "0.5rem",
+          border: "1px solid var(--line)",
+          background: "var(--panel)",
+          padding: "1rem",
+        }}
+      >
         <svg
           viewBox={`0 0 ${width} ${height}`}
-          className="w-full h-auto select-none"
           role="img"
           aria-label={`Wavefront and aberration diagram: stationary frame K with theta = ${thetaStationaryDeg.toFixed(1)} degrees, moving frame k with theta' = ${thetaMovingDeg.toFixed(1)} degrees`}
+          style={{ width: "100%", height: "auto", userSelect: "none" }}
         >
           <title>Relativistic Doppler and Aberration Vector Diagram</title>
 
@@ -90,17 +97,16 @@ export function DopplerAberrationPlot({
             y1={20}
             x2={width / 2}
             y2={height - 20}
-            stroke="currentColor"
+            stroke="var(--line)"
             strokeDasharray="4 4"
-            className="text-border/60"
           />
 
           {/* Frame K Left Pane */}
           <g>
-            <text x={40} y={40} className="fill-foreground font-semibold text-sm">
+            <text x={40} y={40} fontSize="14" fontWeight="600" fill="var(--ink)">
               Stationary Frame K
             </text>
-            <text x={40} y={60} className="fill-muted-foreground text-xs">
+            <text x={40} y={60} fontSize="12" fill="var(--muted)">
               Source frame · ν = {frequencyStationaryTHz.toFixed(1)} THz · θ ={" "}
               {thetaStationaryDeg.toFixed(1)}°
             </text>
@@ -111,8 +117,7 @@ export function DopplerAberrationPlot({
               y1={cy}
               x2={cx1 + radius}
               y2={cy}
-              stroke="currentColor"
-              className="text-border/80"
+              stroke="var(--line)"
               strokeWidth={1}
             />
             <line
@@ -120,19 +125,13 @@ export function DopplerAberrationPlot({
               y1={cy - radius}
               x2={cx1}
               y2={cy + radius}
-              stroke="currentColor"
-              className="text-border/80"
+              stroke="var(--line)"
               strokeWidth={1}
             />
-            <text x={cx1 + radius + 8} y={cy + 4} className="fill-muted-foreground text-[10px]">
+            <text x={cx1 + radius + 8} y={cy + 4} fontSize="10" fill="var(--muted)">
               x
             </text>
-            <text
-              x={cx1}
-              y={cy - radius - 8}
-              className="fill-muted-foreground text-[10px]"
-              textAnchor="middle"
-            >
+            <text x={cx1} y={cy - radius - 8} fontSize="10" fill="var(--muted)" textAnchor="middle">
               y
             </text>
 
@@ -170,17 +169,24 @@ export function DopplerAberrationPlot({
               strokeWidth={1.2}
               strokeDasharray="2 2"
             />
-            <text x={cx1 + 42} y={cy - 12} className="fill-primary text-xs font-mono font-medium">
+            <text
+              x={cx1 + 42}
+              y={cy - 12}
+              fontSize="12"
+              fontFamily="var(--font-mono, monospace)"
+              fontWeight="500"
+              fill="#2563eb"
+            >
               θ = {thetaStationaryDeg.toFixed(1)}°
             </text>
           </g>
 
           {/* Frame k Right Pane */}
           <g>
-            <text x={cx2 - 140} y={40} className="fill-foreground font-semibold text-sm">
+            <text x={cx2 - 140} y={40} fontSize="14" fontWeight="600" fill="var(--ink)">
               Moving Frame k (β = {beta.toFixed(3)}c)
             </text>
-            <text x={cx2 - 140} y={60} className="fill-muted-foreground text-xs">
+            <text x={cx2 - 140} y={60} fontSize="12" fill="var(--muted)">
               Observer frame · ν&apos; = {frequencyMovingTHz.toFixed(1)} THz · θ&apos; ={" "}
               {thetaMovingDeg.toFixed(1)}°
             </text>
@@ -191,8 +197,7 @@ export function DopplerAberrationPlot({
               y1={cy}
               x2={cx2 + radius}
               y2={cy}
-              stroke="currentColor"
-              className="text-border/80"
+              stroke="var(--line)"
               strokeWidth={1}
             />
             <line
@@ -200,19 +205,13 @@ export function DopplerAberrationPlot({
               y1={cy - radius}
               x2={cx2}
               y2={cy + radius}
-              stroke="currentColor"
-              className="text-border/80"
+              stroke="var(--line)"
               strokeWidth={1}
             />
-            <text x={cx2 + radius + 8} y={cy + 4} className="fill-muted-foreground text-[10px]">
+            <text x={cx2 + radius + 8} y={cy + 4} fontSize="10" fill="var(--muted)">
               x&apos;
             </text>
-            <text
-              x={cx2}
-              y={cy - radius - 8}
-              className="fill-muted-foreground text-[10px]"
-              textAnchor="middle"
-            >
+            <text x={cx2} y={cy - radius - 8} fontSize="10" fill="var(--muted)" textAnchor="middle">
               y&apos;
             </text>
 
@@ -230,7 +229,9 @@ export function DopplerAberrationPlot({
               <text
                 x={25}
                 y={-6}
-                className="fill-amber-500 text-[10px] font-mono"
+                fontSize="10"
+                fontFamily="var(--font-mono, monospace)"
+                fill="#f59e0b"
                 textAnchor="middle"
               >
                 v = {beta.toFixed(2)}c
@@ -274,7 +275,10 @@ export function DopplerAberrationPlot({
             <text
               x={cx2 + 42}
               y={cy - 12}
-              className="fill-destructive text-xs font-mono font-medium"
+              fontSize="12"
+              fontFamily="var(--font-mono, monospace)"
+              fontWeight="500"
+              fill="#dc2626"
             >
               θ&apos; = {thetaMovingDeg.toFixed(1)}°
             </text>
@@ -320,40 +324,113 @@ export function DopplerAberrationPlot({
       </div>
 
       {/* Numerical Invariants and Diagnostics Badges */}
-      <div className="grid grid-cols-2 sm:grid-cols-4 gap-3 text-xs">
-        <div className="p-2.5 rounded-md border border-border/40 bg-muted/20">
-          <div className="text-muted-foreground">Doppler factor ν&apos;/ν</div>
-          <div className="text-sm font-mono font-semibold mt-0.5 text-primary">
+      <div
+        style={{
+          display: "grid",
+          gridTemplateColumns: "repeat(auto-fit, minmax(160px, 1fr))",
+          gap: "0.75rem",
+          fontSize: "0.75rem",
+        }}
+      >
+        <div
+          style={{
+            padding: "0.625rem",
+            borderRadius: "0.375rem",
+            border: "1px solid var(--line)",
+            background: "var(--wash)",
+          }}
+        >
+          <div className="fine">Doppler factor ν&apos;/ν</div>
+          <div
+            style={{
+              fontSize: "0.875rem",
+              fontFamily: "var(--font-mono, monospace)",
+              fontWeight: 600,
+              marginTop: "0.125rem",
+              color: "var(--accent)",
+            }}
+          >
             {dopplerFactor.toFixed(6)}
           </div>
-          <div className="text-[10px] text-muted-foreground mt-0.5">γ(1 - β cos θ)</div>
+          <div className="fine" style={{ fontSize: "0.625rem", marginTop: "0.125rem" }}>
+            γ(1 - β cos θ)
+          </div>
         </div>
 
-        <div className="p-2.5 rounded-md border border-border/40 bg-muted/20">
-          <div className="text-muted-foreground">Aberration cos θ&apos;</div>
-          <div className="text-sm font-mono font-semibold mt-0.5">{cosThetaMoving.toFixed(6)}</div>
-          <div className="text-[10px] text-muted-foreground mt-0.5">(cos θ - β)/(1 - β cos θ)</div>
+        <div
+          style={{
+            padding: "0.625rem",
+            borderRadius: "0.375rem",
+            border: "1px solid var(--line)",
+            background: "var(--wash)",
+          }}
+        >
+          <div className="fine">Aberration cos θ&apos;</div>
+          <div
+            style={{
+              fontSize: "0.875rem",
+              fontFamily: "var(--font-mono, monospace)",
+              fontWeight: 600,
+              marginTop: "0.125rem",
+              color: "var(--ink)",
+            }}
+          >
+            {cosThetaMoving.toFixed(6)}
+          </div>
+          <div className="fine" style={{ fontSize: "0.625rem", marginTop: "0.125rem" }}>
+            (cos θ - β)/(1 - β cos θ)
+          </div>
         </div>
 
         {earthOrbitAberrationFormatted ? (
-          <div className="p-2.5 rounded-md border border-border/40 bg-muted/20">
-            <div className="text-muted-foreground">Earth orbit aberration</div>
-            <div className="text-sm font-mono font-semibold mt-0.5 text-amber-600 dark:text-amber-400">
+          <div
+            style={{
+              padding: "0.625rem",
+              borderRadius: "0.375rem",
+              border: "1px solid var(--line)",
+              background: "var(--wash)",
+            }}
+          >
+            <div className="fine">Earth orbit aberration</div>
+            <div
+              style={{
+                fontSize: "0.875rem",
+                fontFamily: "var(--font-mono, monospace)",
+                fontWeight: 600,
+                marginTop: "0.125rem",
+                color: "var(--accent)",
+              }}
+            >
               {earthOrbitAberrationFormatted}
             </div>
-            <div className="text-[10px] text-muted-foreground mt-0.5">
+            <div className="fine" style={{ fontSize: "0.625rem", marginTop: "0.125rem" }}>
               Modern calculation at 29.8 km/s
             </div>
           </div>
         ) : null}
 
         {Number.isFinite(secondOrderShift) ? (
-          <div className="p-2.5 rounded-md border border-border/40 bg-muted/20">
-            <div className="text-muted-foreground">2nd-order shift γ - 1</div>
-            <div className="text-sm font-mono font-semibold mt-0.5 text-blue-600 dark:text-blue-400">
+          <div
+            style={{
+              padding: "0.625rem",
+              borderRadius: "0.375rem",
+              border: "1px solid var(--line)",
+              background: "var(--wash)",
+            }}
+          >
+            <div className="fine">2nd-order shift γ - 1</div>
+            <div
+              style={{
+                fontSize: "0.875rem",
+                fontFamily: "var(--font-mono, monospace)",
+                fontWeight: 600,
+                marginTop: "0.125rem",
+                color: "var(--ink)",
+              }}
+            >
               {secondOrderShift.toExponential(4)}
             </div>
-            <div className="text-[10px] text-muted-foreground mt-0.5">
+            <div className="fine" style={{ fontSize: "0.625rem", marginTop: "0.125rem" }}>
               Ives–Stilwell 1938 overlay
             </div>
           </div>
