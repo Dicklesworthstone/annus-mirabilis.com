@@ -25,6 +25,39 @@ export const MASS_ENERGY_PRINTED_FACTOR_SCENARIO = "mass-energy-printed-factor";
 export const C_SI = constantValue(getConstantSet("modern-si-2019"), "speedOfLight").value;
 export const C_CGS = C_SI * 100;
 
+export class MassEnergyError extends Error {
+  readonly code: string;
+  constructor(code: string, message: string) {
+    super(`[mass-energy] ${message} (${code})`);
+    this.name = "MassEnergyError";
+    this.code = code;
+  }
+}
+
+export type PremiseObject = Readonly<{
+  id: string;
+  statement: string;
+  provenance: string;
+  status: "asserted" | "relaxed" | "present";
+  sourceAnchor?: string;
+}>;
+
+export const ADDITIVE_CONSTANT_PREMISE: PremiseObject = Object.freeze({
+  id: "premise-additive-constant",
+  statement: "H - E = K + C with the same C before and after emission",
+  provenance: "asserted in the paper; the cancellation does not derive it",
+  status: "asserted" as const,
+  sourceAnchor: "ap-18-639#p4-s1",
+});
+
+export const LIGHT_ENERGY_TRANSFORMATION_PREMISE: PremiseObject = Object.freeze({
+  id: "premise-light-energy-transformation",
+  statement: "E'/E = gamma * (1 - beta * cos(phi)) (Paper 3, §8)",
+  provenance: "imported from electrodynamics of moving bodies (ap-17-891 §8)",
+  status: "asserted" as const,
+  sourceAnchor: "ap-17-891#p3-s8",
+});
+
 function identity(
   quantityId: string,
   unit: string,
@@ -301,17 +334,37 @@ export function evaluateMe02(input: Me02Input): Me02Snapshot {
   });
 }
 
+export type PrintedMassConversionInput = {
+  emittedEnergyErg?: number;
+  emittedEnergy?: number;
+  emittedEnergyJoules?: number;
+};
+
 export type PrintedMassConversion = Readonly<{
   scenarioId: typeof MASS_ENERGY_PRINTED_FACTOR_SCENARIO;
+  status: "value" | "outside-domain";
+  condition?: string;
+  reason?: string;
   emittedEnergyErg: number;
+  emittedEnergyJoules: number;
   printed: Readonly<{
     value: number;
     unit: "g";
     constantSetId: "einstein-1905-mass-energy-printed";
+    entryLabels: readonly string[];
   }>;
-  modern: Readonly<{ value: number; unit: "g"; constantSetId: "modern-si-2019" }>;
+  modern: Readonly<{
+    value: number;
+    unit: "g";
+    constantSetId: "modern-si-2019";
+    entryLabels: readonly string[];
+  }>;
   comparison: Readonly<{
+    leftSetId: "modern-si-2019";
+    rightSetId: "einstein-1905-mass-energy-printed";
     ratioModernToPrinted: number;
+    ratio: number;
+    relativeDifference: number;
     wording: typeof PRINTED_FACTOR_WORDING;
   }>;
 }>;
@@ -321,29 +374,85 @@ export type PrintedMassConversion = Readonly<{
  * not compute a percentage from the two masses. The two constant sets are
  * never combined into one number.
  */
-export function printedMassConversion(input: { emittedEnergyErg: number }): PrintedMassConversion {
-  const L = input.emittedEnergyErg;
-  if (!Number.isFinite(L) || L <= 0) {
-    throw new RangeError("printedMassConversion needs a finite positive energy in erg.");
+export function printedMassConversion(input: PrintedMassConversionInput): PrintedMassConversion {
+  const L_erg =
+    input.emittedEnergyErg ??
+    (input.emittedEnergyJoules !== undefined
+      ? input.emittedEnergyJoules * 1e7
+      : input.emittedEnergy !== undefined
+        ? input.emittedEnergy * 1e7
+        : Number.NaN);
+  const L_joules =
+    input.emittedEnergyJoules ??
+    input.emittedEnergy ??
+    (input.emittedEnergyErg !== undefined ? input.emittedEnergyErg / 1e7 : Number.NaN);
+
+  if (!Number.isFinite(L_erg) || L_erg <= 0) {
+    return Object.freeze({
+      scenarioId: MASS_ENERGY_PRINTED_FACTOR_SCENARIO,
+      status: "outside-domain" as const,
+      condition: "L > 0",
+      reason: "Emitted energy must be strictly positive.",
+      emittedEnergyErg: L_erg,
+      emittedEnergyJoules: L_joules,
+      printed: Object.freeze({
+        value: Number.NaN,
+        unit: "g" as const,
+        constantSetId: "einstein-1905-mass-energy-printed" as const,
+        entryLabels: Object.freeze([
+          "speedOfLightSquared (printed: 9e20 erg/g)",
+          "speedOfLight (editorial: 3e10 cm/s)",
+        ]),
+      }),
+      modern: Object.freeze({
+        value: Number.NaN,
+        unit: "g" as const,
+        constantSetId: "modern-si-2019" as const,
+        entryLabels: Object.freeze(["speedOfLight (defined: 299792458 m/s)"]),
+      }),
+      comparison: Object.freeze({
+        leftSetId: "modern-si-2019" as const,
+        rightSetId: "einstein-1905-mass-energy-printed" as const,
+        ratioModernToPrinted: Number.NaN,
+        ratio: Number.NaN,
+        relativeDifference: Number.NaN,
+        wording: PRINTED_FACTOR_WORDING,
+      }),
+    });
   }
+
   const c2 = C_CGS * C_CGS;
-  const printed = L / PRINTED_V_SQUARED_ERG_PER_GRAM;
-  const modern = L / c2;
+  const printed = L_erg / PRINTED_V_SQUARED_ERG_PER_GRAM;
+  const modern = L_erg / c2;
+  const ratio = PRINTED_V_SQUARED_ERG_PER_GRAM / c2;
+  const relDiff = (PRINTED_V_SQUARED_ERG_PER_GRAM - c2) / c2;
+
   return Object.freeze({
     scenarioId: MASS_ENERGY_PRINTED_FACTOR_SCENARIO,
-    emittedEnergyErg: L,
+    status: "value" as const,
+    emittedEnergyErg: L_erg,
+    emittedEnergyJoules: L_joules,
     printed: Object.freeze({
       value: printed,
       unit: "g" as const,
       constantSetId: "einstein-1905-mass-energy-printed" as const,
+      entryLabels: Object.freeze([
+        "speedOfLightSquared (printed: 9e20 erg/g)",
+        "speedOfLight (editorial: 3e10 cm/s)",
+      ]),
     }),
     modern: Object.freeze({
       value: modern,
       unit: "g" as const,
       constantSetId: "modern-si-2019" as const,
+      entryLabels: Object.freeze(["speedOfLight (defined: 299792458 m/s)"]),
     }),
     comparison: Object.freeze({
-      ratioModernToPrinted: PRINTED_V_SQUARED_ERG_PER_GRAM / c2,
+      leftSetId: "modern-si-2019" as const,
+      rightSetId: "einstein-1905-mass-energy-printed" as const,
+      ratioModernToPrinted: ratio,
+      ratio,
+      relativeDifference: relDiff,
       wording: PRINTED_FACTOR_WORDING,
     }),
   });
@@ -354,6 +463,31 @@ export function proxyEqualsLimit(snapshot: Me02Snapshot): boolean {
   if (snapshot.limitingCoefficient.status !== "analytic-limit") return false;
   const rep = snapshot.limitingCoefficient.representation;
   return "value" in rep && snapshot.finiteSpeedProxy.value === rep.value;
+}
+
+export function exactDifference(L: number, beta: number, speedOfLight = C_SI): ScientificResult {
+  return evaluateMe02({ beta, emittedEnergy: L, speedOfLight }).exactDifference;
+}
+
+export function quadraticApproximation(
+  L: number,
+  beta: number,
+  speedOfLight = C_SI,
+): ScientificResult {
+  return evaluateMe02({ beta, emittedEnergy: L, speedOfLight }).quadraticApproximation;
+}
+
+export function finiteSpeedProxy(
+  L: number,
+  betaOrV: number,
+  speedOfLight = C_SI,
+): ScientificResult {
+  const beta = Math.abs(betaOrV) <= 1 ? betaOrV : betaOrV / speedOfLight;
+  return evaluateMe02({ beta, emittedEnergy: L, speedOfLight }).finiteSpeedProxy;
+}
+
+export function limitingCoefficient(L: number, speedOfLight = C_SI): ScientificResult {
+  return evaluateMe02({ beta: 0, emittedEnergy: L, speedOfLight }).limitingCoefficient;
 }
 
 // ============================================================================
@@ -455,6 +589,138 @@ export function evaluatePulseEnergies(
   });
 }
 
+export type PulseEnergiesResult = Readonly<{
+  status: "value" | "outside-domain";
+  condition?: string;
+  reason?: string;
+  pulse1: ScientificResult;
+  pulse2: ScientificResult;
+  pulseSum: ScientificResult;
+  pulse1Moving: number;
+  pulse2Moving: number;
+  pulseSumMoving: number;
+  lorentzFactor: number;
+  pulseEnergyRatio: ScientificResult;
+  dopplerFrequencyRatio: ScientificResult;
+  energyRatio: number;
+  dopplerRatio: number;
+  premise: PremiseObject;
+}>;
+
+export function pulseEnergies(
+  L: number,
+  beta: number,
+  phi: number,
+  unit: "radians" | "degrees" = "radians",
+): PulseEnergiesResult {
+  const angleRad = unit === "degrees" ? (phi * Math.PI) / 180 : phi;
+  const p1Id = [
+    "lightComplexEnergyMoving",
+    "J",
+    "moving-light-pulse-1",
+    "massEnergy.pulse1Moving",
+  ] as const;
+  const p2Id = [
+    "lightComplexEnergyMoving",
+    "J",
+    "moving-light-pulse-2",
+    "massEnergy.pulse2Moving",
+  ] as const;
+  const sumId = [
+    "lightComplexEnergyMoving",
+    "J",
+    "moving-light-sum",
+    "massEnergy.pulseSumMoving",
+  ] as const;
+  const pRatioId = [
+    "energyRatio",
+    "1",
+    "pulse-energy-ratio",
+    "massEnergy.pulseEnergyRatio",
+  ] as const;
+  const dRatioId = [
+    "frequencyRatio",
+    "1",
+    "doppler-frequency-ratio",
+    "massEnergy.dopplerFrequencyRatio",
+  ] as const;
+
+  const refuse = (reason: string, condition: string): PulseEnergiesResult => {
+    return Object.freeze({
+      status: "outside-domain" as const,
+      condition,
+      reason,
+      pulse1: asOutside(p1Id[0], p1Id[1], p1Id[2], p1Id[3], condition, reason),
+      pulse2: asOutside(p2Id[0], p2Id[1], p2Id[2], p2Id[3], condition, reason),
+      pulseSum: asOutside(sumId[0], sumId[1], sumId[2], sumId[3], condition, reason),
+      pulse1Moving: Number.NaN,
+      pulse2Moving: Number.NaN,
+      pulseSumMoving: Number.NaN,
+      lorentzFactor: Number.NaN,
+      pulseEnergyRatio: asOutside(
+        pRatioId[0],
+        pRatioId[1],
+        pRatioId[2],
+        pRatioId[3],
+        condition,
+        reason,
+      ),
+      dopplerFrequencyRatio: asOutside(
+        dRatioId[0],
+        dRatioId[1],
+        dRatioId[2],
+        dRatioId[3],
+        condition,
+        reason,
+      ),
+      energyRatio: Number.NaN,
+      dopplerRatio: Number.NaN,
+      premise: LIGHT_ENERGY_TRANSFORMATION_PREMISE,
+    });
+  };
+
+  if (![L, beta, phi].every(Number.isFinite)) {
+    return refuse("Inputs must be finite real numbers.", "finite-input");
+  }
+  if (L <= 0) {
+    return refuse("Emitted energy must be finite and positive.", "L > 0");
+  }
+  if (Math.abs(beta) >= 1) {
+    return refuse("No inertial observer moves at or above the speed of light.", "|beta| < 1");
+  }
+
+  const {
+    lorentzFactor,
+    pulse1Moving,
+    pulse2Moving,
+    pulseSumMoving,
+    pulseEnergyRatio,
+    dopplerFrequencyRatio,
+  } = evaluatePulseEnergies(L, beta, angleRad);
+
+  return Object.freeze({
+    status: "value" as const,
+    pulse1: asValue(p1Id[0], p1Id[1], p1Id[2], p1Id[3], pulse1Moving),
+    pulse2: asValue(p2Id[0], p2Id[1], p2Id[2], p2Id[3], pulse2Moving),
+    pulseSum: asValue(sumId[0], sumId[1], sumId[2], sumId[3], pulseSumMoving),
+    pulse1Moving,
+    pulse2Moving,
+    pulseSumMoving,
+    lorentzFactor,
+    pulseEnergyRatio: asValue(pRatioId[0], pRatioId[1], pRatioId[2], pRatioId[3], pulseEnergyRatio),
+    dopplerFrequencyRatio: asValue(
+      dRatioId[0],
+      dRatioId[1],
+      dRatioId[2],
+      dRatioId[3],
+      dopplerFrequencyRatio,
+    ),
+    energyRatio: pulseEnergyRatio,
+    dopplerRatio: dopplerFrequencyRatio,
+    premise: LIGHT_ENERGY_TRANSFORMATION_PREMISE,
+  });
+}
+
 /**
  * Kernel function: evaluates the rest-frame and moving-frame energy balances (Paper 4, §1).
  * Rest frame balance: E0 - E1 = L
@@ -495,15 +761,32 @@ export type InitializedMassEnergyLedger = Readonly<{
 export function initializeMassEnergyLedger(
   seed?: MassEnergyLedgerInit,
 ): InitializedMassEnergyLedger {
+  const isNumericValue = (val: unknown): boolean => {
+    if (val === undefined || val === null) return false;
+    if (typeof val === "number" && Number.isFinite(val)) return true;
+    if (typeof val === "string") {
+      const trimmed = val.trim();
+      if (trimmed !== "" && !Number.isNaN(Number(trimmed))) return true;
+    }
+    if (typeof val === "object") {
+      const rec = val as Record<string, unknown>;
+      if (typeof rec.value === "number" && Number.isFinite(rec.value)) return true;
+      if (rec.kind === "numeric" || rec.kind === "value") return true;
+      if (typeof rec.numericFrom === "string") return true;
+    }
+    return false;
+  };
+
   const isCircular = (val: unknown): boolean => {
     if (val === undefined || val === null) return false;
     if (typeof val === "string") {
-      const lower = val.toLowerCase().replace(/[\s_*^·×]/g, "");
+      const lower = val.toLowerCase().replace(/[\s_*^·×-]/g, "");
       if (
         lower.includes("mc2") ||
         lower.includes("mc²") ||
         lower.includes("gammamc") ||
-        lower.includes("γmc")
+        lower.includes("γmc") ||
+        lower.includes("mc^2")
       ) {
         return true;
       }
@@ -514,14 +797,25 @@ export function initializeMassEnergyLedger(
       if (typeof rec.formula === "string" && isCircular(rec.formula)) return true;
       if (typeof rec.id === "string" && isCircular(rec.id)) return true;
       if (typeof rec.kind === "string" && isCircular(rec.kind)) return true;
+      if (typeof rec.expr === "string" && isCircular(rec.expr)) return true;
     }
     return false;
   };
 
   if (isCircular(seed?.restEnergyBefore) || isCircular(seed?.movingEnergyBefore)) {
-    throw new Error(
+    throw new MassEnergyError(
+      "absolute-energy-not-admitted",
       "Circularity violation: the mass-energy ledger must NEVER initialise a body's energy with Mc^2 or gamma Mc^2.",
     );
+  }
+
+  if (seed?.historicalMode !== false) {
+    if (isNumericValue(seed?.restEnergyBefore) || isNumericValue(seed?.movingEnergyBefore)) {
+      throw new MassEnergyError(
+        "absolute-energy-not-admitted",
+        "Supplying a numeric absolute rest energy in the historical model is rejected. Rest and moving energies must remain symbolic.",
+      );
+    }
   }
 
   return Object.freeze({
@@ -605,6 +899,214 @@ export function evaluateSubtraction(
     lorentzFactor: g,
     kineticDifference: premise === "unchanged" ? sub : null,
     premise,
+  });
+}
+
+export type LedgersResult = Readonly<{
+  status: "value" | "outside-domain";
+  condition?: string;
+  reason?: string;
+  restBalance: ScientificResult;
+  movingBalance: ScientificResult;
+  restBalanceLight: number;
+  movingBalanceLight: number;
+  lorentzFactor: number;
+}>;
+
+export function ledgers(L: number, beta: number): LedgersResult {
+  const restId = [
+    "emittedEnergyRestFrame",
+    "J",
+    "rest-frame-balance",
+    "massEnergy.restBalanceLight",
+  ] as const;
+  const movId = [
+    "lightComplexEnergyMoving",
+    "J",
+    "moving-frame-balance",
+    "massEnergy.movingBalanceLight",
+  ] as const;
+
+  if (!Number.isFinite(L) || !Number.isFinite(beta) || L <= 0 || Math.abs(beta) >= 1) {
+    const condition = L <= 0 ? "L > 0" : "|beta| < 1";
+    const reason =
+      L <= 0 ? "Emitted energy must be positive." : "No inertial observer at |v| >= c.";
+    return Object.freeze({
+      status: "outside-domain" as const,
+      condition,
+      reason,
+      restBalance: asOutside(restId[0], restId[1], restId[2], restId[3], condition, reason),
+      movingBalance: asOutside(movId[0], movId[1], movId[2], movId[3], condition, reason),
+      restBalanceLight: Number.NaN,
+      movingBalanceLight: Number.NaN,
+      lorentzFactor: Number.NaN,
+    });
+  }
+
+  const { restBalanceLight, movingBalanceLight, lorentzFactor } = evaluateLedgers(L, beta, 0);
+  return Object.freeze({
+    status: "value" as const,
+    restBalance: asValue(restId[0], restId[1], restId[2], restId[3], restBalanceLight),
+    movingBalance: asValue(movId[0], movId[1], movId[2], movId[3], movingBalanceLight),
+    restBalanceLight,
+    movingBalanceLight,
+    lorentzFactor,
+  });
+}
+
+export type SubtractLedgersResult = Readonly<{
+  status: "value" | "outside-domain";
+  condition?: string;
+  reason?: string;
+  subtractionDifference: ScientificResult;
+  differenceValue: number;
+  lorentzFactor: number;
+  cancellations: Me01Cancellations;
+  operations: readonly string[];
+}>;
+
+export function subtractLedgers(
+  L: number,
+  beta: number,
+  cancellations: Me01Cancellations = {
+    angleFactors: true,
+    internalEnergies: true,
+    additiveConstant: true,
+  },
+): SubtractLedgersResult {
+  const subId = [
+    "kineticEnergyDifference",
+    "J",
+    "two-ledger-subtraction",
+    "massEnergy.subtractionDifference",
+  ] as const;
+
+  if (!Number.isFinite(L) || !Number.isFinite(beta) || L <= 0 || Math.abs(beta) >= 1) {
+    const condition = L <= 0 ? "L > 0" : "|beta| < 1";
+    const reason =
+      L <= 0 ? "Emitted energy must be positive." : "No inertial observer at |v| >= c.";
+    return Object.freeze({
+      status: "outside-domain" as const,
+      condition,
+      reason,
+      subtractionDifference: asOutside(subId[0], subId[1], subId[2], subId[3], condition, reason),
+      differenceValue: Number.NaN,
+      lorentzFactor: Number.NaN,
+      cancellations,
+      operations: Object.freeze([]),
+    });
+  }
+
+  const { subtractionValue, lorentzFactor } = evaluateSubtraction(L, beta, 0, "unchanged");
+  const ops: string[] = [
+    "Subtract rest-frame balance (E0 - E1 = L) from moving-frame balance (H0 - H1 = gamma * L)",
+    "Group: (H0 - E0) - (H1 - E1) = L * (gamma - 1)",
+  ];
+  if (cancellations.angleFactors)
+    ops.push("Cancel opposite-angle directional terms: cos(phi) - cos(phi) = 0");
+  if (cancellations.internalEnergies)
+    ops.push("Cancel unspecified internal energies via difference grouping");
+  if (cancellations.additiveConstant)
+    ops.push("Cancel identical additive constant C: (K0 + C) - (K1 + C) = K0 - K1");
+
+  return Object.freeze({
+    status: "value" as const,
+    subtractionDifference: asValue(subId[0], subId[1], subId[2], subId[3], subtractionValue),
+    differenceValue: subtractionValue,
+    lorentzFactor,
+    cancellations,
+    operations: Object.freeze(ops),
+  });
+}
+
+export type KineticIdentificationResult = Readonly<{
+  status: "value" | "underdetermined" | "outside-domain";
+  condition?: string;
+  reason?: string;
+  kineticEnergyDifference: ScientificResult;
+  additiveEnergyConstant: ScientificResult;
+  premise: PremiseObject;
+  subtractionValue?: number;
+  lorentzFactor?: number;
+}>;
+
+export function kineticIdentification(
+  L: number,
+  beta: number,
+  premise: Me01Premise = "unchanged",
+  seed?: MassEnergyLedgerInit,
+): KineticIdentificationResult {
+  if (seed !== undefined) {
+    initializeMassEnergyLedger(seed);
+  }
+
+  const kinId = [
+    "kineticEnergyDifference",
+    "J",
+    "kinetic-energy-difference",
+    "massEnergy.kineticEnergyDifference",
+  ] as const;
+  const addConstId = [
+    "additiveEnergyConstant",
+    "J",
+    "additive-energy-constant",
+    "massEnergy.additiveEnergyConstant",
+  ] as const;
+  const premiseObj: PremiseObject = Object.freeze({
+    ...ADDITIVE_CONSTANT_PREMISE,
+    status: premise === "unchanged" ? ("asserted" as const) : ("relaxed" as const),
+  });
+
+  if (!Number.isFinite(L) || !Number.isFinite(beta) || L <= 0 || Math.abs(beta) >= 1) {
+    const condition = L <= 0 ? "L > 0" : "|beta| < 1";
+    const reason =
+      L <= 0 ? "Emitted energy must be positive." : "No inertial observer at |v| >= c.";
+    return Object.freeze({
+      status: "outside-domain" as const,
+      condition,
+      reason,
+      kineticEnergyDifference: asOutside(kinId[0], kinId[1], kinId[2], kinId[3], condition, reason),
+      additiveEnergyConstant: asSymbolic(
+        addConstId[0],
+        addConstId[1],
+        addConstId[2],
+        addConstId[3],
+        "C",
+      ),
+      premise: premiseObj,
+      subtractionValue: Number.NaN,
+      lorentzFactor: Number.NaN,
+    });
+  }
+
+  const { subtractionValue, lorentzFactor } = evaluateSubtraction(L, beta, 0, premise);
+  const addConst = asSymbolic(addConstId[0], addConstId[1], addConstId[2], addConstId[3], "C");
+
+  if (premise === "relaxed") {
+    return Object.freeze({
+      status: "underdetermined" as const,
+      kineticEnergyDifference: asUnderdetermined(
+        kinId[0],
+        kinId[1],
+        kinId[2],
+        kinId[3],
+        "family:kinetic-difference-with-arbitrary-constant",
+        ["additive-constant-invariance-under-emission"],
+      ),
+      additiveEnergyConstant: addConst,
+      premise: premiseObj,
+      subtractionValue,
+      lorentzFactor,
+    });
+  }
+
+  return Object.freeze({
+    status: "value" as const,
+    kineticEnergyDifference: asValue(kinId[0], kinId[1], kinId[2], kinId[3], subtractionValue),
+    additiveEnergyConstant: addConst,
+    premise: premiseObj,
+    subtractionValue,
+    lorentzFactor,
   });
 }
 
@@ -1002,6 +1504,50 @@ export function evaluateBoundaryLedger(
   });
 }
 
+export type SystemLedgerInput = Readonly<{
+  include?:
+    | readonly ("body" | "radiation")[]
+    | "body-alone"
+    | "radiation"
+    | "combined-isolated"
+    | "combined-isolated-system";
+  retained?: boolean;
+  emittedEnergy?: number;
+  inputEnergy?: number;
+  constantSet?: ConstantSet;
+}>;
+
+export function systemLedger(input: SystemLedgerInput = {}) {
+  let boundary: Me03Boundary = "body-alone";
+  if (typeof input.include === "string") {
+    if (input.include === "combined-isolated" || input.include === "combined-isolated-system") {
+      boundary = "combined-isolated-system";
+    } else if (input.include === "radiation") {
+      boundary = "radiation";
+    } else {
+      boundary = "body-alone";
+    }
+  } else if (Array.isArray(input.include)) {
+    const hasBody = input.include.includes("body");
+    const hasRad = input.include.includes("radiation");
+    if (hasBody && hasRad) {
+      boundary = "combined-isolated-system";
+    } else if (hasRad) {
+      boundary = "radiation";
+    } else {
+      boundary = "body-alone";
+    }
+  }
+  const disposition: Me03RadiationDisposition = input.retained ? "retained" : "escapes";
+  return evaluateBoundaryLedger(
+    boundary,
+    disposition,
+    input.emittedEnergy ?? 1.0,
+    input.inputEnergy ?? 0,
+    input.constantSet,
+  );
+}
+
 /**
  * Modern four-momentum mode (labeled later formalism, model identity four-momentum-modern).
  * - Single pulse: invariant mass 0
@@ -1030,6 +1576,14 @@ export function evaluateFourMomentum(
   );
 }
 
+export function invariantMass(
+  pulseSystem: Me03PulseSystem,
+  totalEnergy = 1.0,
+  set?: ConstantSet,
+): ScientificResult {
+  return evaluateFourMomentum(pulseSystem, totalEnergy, set);
+}
+
 /**
  * Light complex volume transformation (Paper 3, §8):
  * V* / V = gamma * (1 - beta * cos(phi))
@@ -1048,10 +1602,30 @@ export function evaluateMaterialVolumeRatio(beta: number): number {
   return Math.sqrt(Math.max(0, 1 - beta * beta));
 }
 
+export function validateEnergySourceCard(card: Partial<EnergySourceCard>): void {
+  if (!card.citation || typeof card.citation !== "string" || card.citation.trim() === "") {
+    throw new MassEnergyError(
+      "card-citation-missing",
+      `Card ${card.id ?? "unknown"} has no citation. Every energy source card must cite a verifiable source.`,
+    );
+  }
+}
+
 /**
  * Generates the full definition and dynamic calculation for each cited energy-source card.
  */
-export function evaluateEnergySourceCard(cardId: Me03CardId, set?: ConstantSet): EnergySourceCard {
+export function evaluateEnergySourceCard(
+  cardOrId: Me03CardId | Partial<EnergySourceCard>,
+  set?: ConstantSet,
+): EnergySourceCard {
+  if (typeof cardOrId === "object" && cardOrId !== null) {
+    validateEnergySourceCard(cardOrId);
+    if ("id" in cardOrId && typeof cardOrId.id === "string" && !cardOrId.boundary) {
+      return evaluateEnergySourceCard(cardOrId.id as Me03CardId, set);
+    }
+    return cardOrId as EnergySourceCard;
+  }
+  const cardId = cardOrId as Me03CardId;
   const c = constantValue(set ?? getConstantSet("modern-si-2019"), "speedOfLight").value;
   const cSq = c * c;
   const eCharge = 1.602176634e-19; // J/eV
@@ -1490,4 +2064,263 @@ export function evaluateMe03(input: Me03Input = {}): Me03Snapshot {
     cards: Object.freeze(cards),
     boundaryFacts: card.boundary,
   });
+}
+
+// ============================================================================
+// Photon in a Box (Einstein 1906, Ann. Phys. 20, 627–633)
+// ============================================================================
+
+export type PhotonInBoxInput = Readonly<{
+  M?: number; // Box mass in kg, default 1.0
+  ell?: number; // Box length in m, default 1.0
+  E?: number; // Emitted pulse energy in J, default 1.0
+  assignLightMass?: boolean; // default true
+  domainBound?: number; // default 1e-3
+  set?: ConstantSet;
+}>;
+
+export type PhotonInBoxResult = Readonly<{
+  status: "value" | "outside-domain";
+  condition?: string;
+  reason?: string;
+  boxMass: ScientificResult;
+  boxLength: ScientificResult;
+  pulseEnergy: ScientificResult;
+  pulseFlightTime: ScientificResult;
+  recoilSpeed: ScientificResult;
+  pulseMomentum: ScientificResult;
+  boxDisplacement: ScientificResult;
+  centerOfMassShift: ScientificResult;
+  comShift: number;
+  displacement: number;
+  recoilSpeedValue: number;
+  flightTimeValue: number;
+  lightMassAssigned: ScientificResult;
+  domainRatio: number;
+  domainBound: number;
+  approximations: readonly string[];
+  exactRationalCenterOfMassShift: Readonly<{
+    numerator: bigint;
+    denominator: bigint;
+    isExactlyZero: boolean;
+  }>;
+}>;
+
+function toBigIntRational(n: number): { num: bigint; den: bigint } {
+  if (Number.isInteger(n)) return { num: BigInt(n), den: 1n };
+  const s = n.toString();
+  if (!s.includes("e") && !s.includes("E")) {
+    const parts = s.split(".");
+    const fracStr = parts[1] ?? "";
+    const decDigits = BigInt(fracStr.length);
+    const den = 10n ** decDigits;
+    const num = BigInt(s.replace(".", ""));
+    return { num, den };
+  }
+  const str = n.toExponential(16);
+  const parts = str.split("e");
+  const mantissaStr = parts[0] ?? "0";
+  const expStr = parts[1] ?? "0";
+  const exp = BigInt(expStr);
+  const mantissaParts = mantissaStr.split(".");
+  const fracStr = mantissaParts[1] ?? "";
+  const fracDigits = BigInt(fracStr.length);
+  const mantissaInt = BigInt(mantissaStr.replace(".", ""));
+  if (exp >= fracDigits) {
+    return { num: mantissaInt * 10n ** (exp - fracDigits), den: 1n };
+  }
+  return { num: mantissaInt, den: 10n ** (fracDigits - exp) };
+}
+
+/**
+ * 1906 photon-in-a-box thought experiment (Einstein, Ann. Phys. 20, 627-633).
+ * Evaluates the nonrelativistic recoil, pulse flight time, displacement, and center-of-mass shift.
+ */
+export function evaluatePhotonBox(input: PhotonInBoxInput = {}): PhotonInBoxResult {
+  const M = input.M ?? 1.0;
+  const ell = input.ell ?? 1.0;
+  const E = input.E ?? 1.0;
+  const assignLightMass = input.assignLightMass ?? true;
+  const domainBound = input.domainBound ?? 1e-3;
+  const set = input.set ?? getConstantSet("modern-si-2019");
+  const c = constantValue(set, "speedOfLight").value;
+  const cSq = c * c;
+
+  const refuse = (reason: string, condition: string): PhotonInBoxResult => {
+    return Object.freeze({
+      status: "outside-domain" as const,
+      condition,
+      reason,
+      boxMass: asOutside("boxMass", "kg", "box-mass", "massEnergy.box", condition, reason),
+      boxLength: asOutside("boxLength", "m", "box-length", "massEnergy.box", condition, reason),
+      pulseEnergy: asOutside(
+        "emittedEnergyRestFrame",
+        "J",
+        "emitted-energy",
+        "massEnergy.box",
+        condition,
+        reason,
+      ),
+      pulseFlightTime: asOutside(
+        "pulseFlightTime",
+        "s",
+        "pulse-flight-time",
+        "massEnergy.box",
+        condition,
+        reason,
+      ),
+      recoilSpeed: asOutside(
+        "recoilSpeed",
+        "m/s",
+        "recoil-speed",
+        "massEnergy.box",
+        condition,
+        reason,
+      ),
+      pulseMomentum: asOutside(
+        "pulseMomentum",
+        "kg·m/s",
+        "pulse-momentum",
+        "massEnergy.box",
+        condition,
+        reason,
+      ),
+      boxDisplacement: asOutside(
+        "centerOfMassShift",
+        "m",
+        "box-displacement",
+        "massEnergy.box",
+        condition,
+        reason,
+      ),
+      centerOfMassShift: asOutside(
+        "centerOfMassShift",
+        "m",
+        "center-of-mass-shift",
+        "massEnergy.box",
+        condition,
+        reason,
+      ),
+      comShift: Number.NaN,
+      displacement: Number.NaN,
+      recoilSpeedValue: Number.NaN,
+      flightTimeValue: Number.NaN,
+      lightMassAssigned: asOutside(
+        "lightMassAssigned",
+        "kg",
+        "light-mass-assigned",
+        "massEnergy.box",
+        condition,
+        reason,
+      ),
+      domainRatio: Number.isFinite(E) && Number.isFinite(M) && M > 0 ? E / (M * cSq) : Number.NaN,
+      domainBound,
+      approximations: Object.freeze(["nonrelativistic-box", "flight-time-l-over-c", "rigid-box"]),
+      exactRationalCenterOfMassShift: Object.freeze({
+        numerator: 0n,
+        denominator: 1n,
+        isExactlyZero: false,
+      }),
+    });
+  };
+
+  if (![M, ell, E].every(Number.isFinite) || M <= 0 || ell <= 0 || E <= 0) {
+    return refuse(
+      "Box mass, box length, and pulse energy must be positive and finite.",
+      "M > 0, ell > 0, E > 0",
+    );
+  }
+
+  const domainRatio = E / (M * cSq);
+  if (domainRatio > domainBound) {
+    return refuse(
+      "The nonrelativistic recoil approximation and neglected change in pulse transit time are no longer small when E / (M * c^2) exceeds the declared bound.",
+      `E / (M * c^2) <= ${domainBound}`,
+    );
+  }
+
+  const recoilSpeed = E / (M * c);
+  const pulseFlightTime = ell / c;
+  const pulseMomentum = E / c;
+  const displacement = -(E * ell) / (M * cSq);
+  const lightMass = E / cSq;
+  const comShift = assignLightMass ? 0 : displacement;
+
+  const rationalShift = (() => {
+    if (assignLightMass) {
+      return Object.freeze({
+        numerator: 0n,
+        denominator: 1n,
+        isExactlyZero: true,
+      });
+    }
+    const rE = toBigIntRational(E);
+    const rEll = toBigIntRational(ell);
+    const rM = toBigIntRational(M);
+    const cBig = BigInt(Math.round(c));
+    const cSqBig = cBig * cBig;
+
+    const num = -(rE.num * rEll.num * rM.den);
+    const den = rE.den * rEll.den * rM.num * cSqBig;
+    return Object.freeze({
+      numerator: num,
+      denominator: den,
+      isExactlyZero: num === 0n,
+    });
+  })();
+
+  return Object.freeze({
+    status: "value" as const,
+    boxMass: asValue("boxMass", "kg", "box-mass", "massEnergy.box", M),
+    boxLength: asValue("boxLength", "m", "box-length", "massEnergy.box", ell),
+    pulseEnergy: asValue("emittedEnergyRestFrame", "J", "emitted-energy", "massEnergy.box", E),
+    pulseFlightTime: asValue(
+      "pulseFlightTime",
+      "s",
+      "pulse-flight-time",
+      "massEnergy.box",
+      pulseFlightTime,
+    ),
+    recoilSpeed: asValue("recoilSpeed", "m/s", "recoil-speed", "massEnergy.box", recoilSpeed),
+    pulseMomentum: asValue(
+      "pulseMomentum",
+      "kg·m/s",
+      "pulse-momentum",
+      "massEnergy.box",
+      pulseMomentum,
+    ),
+    boxDisplacement: asValue(
+      "centerOfMassShift",
+      "m",
+      "box-displacement",
+      "massEnergy.box",
+      displacement,
+    ),
+    centerOfMassShift: asValue(
+      "centerOfMassShift",
+      "m",
+      "center-of-mass-shift",
+      "massEnergy.box",
+      comShift,
+    ),
+    comShift,
+    displacement,
+    recoilSpeedValue: recoilSpeed,
+    flightTimeValue: pulseFlightTime,
+    lightMassAssigned: asValue(
+      "lightMassAssigned",
+      "kg",
+      "light-mass-assigned",
+      "massEnergy.box",
+      assignLightMass ? lightMass : 0,
+    ),
+    domainRatio,
+    domainBound,
+    approximations: Object.freeze(["nonrelativistic-box", "flight-time-l-over-c", "rigid-box"]),
+    exactRationalCenterOfMassShift: rationalShift,
+  });
+}
+
+export function photonInBox(input: PhotonInBoxInput = {}): PhotonInBoxResult {
+  return evaluatePhotonBox(input);
 }
