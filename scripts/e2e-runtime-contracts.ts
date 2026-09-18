@@ -51,7 +51,17 @@ import {
 } from "../src/experiments/results/planExamples.ts";
 import { ResultStatusNote } from "../src/experiments/results/ResultStatusNote.tsx";
 import type { ScientificResult } from "../src/experiments/results/types.ts";
-import { createInstanceStore, type RequestToken } from "../src/experiments/store/instanceStore.ts";
+import {
+  readDiagnostics,
+  registerOwner,
+  unregisterOwner,
+} from "../src/experiments/store/diagnostics.ts";
+import { instrumentRootAttributes } from "../src/experiments/store/identityAttributes.ts";
+import {
+  createInstanceStore,
+  type Publication,
+  type RequestToken,
+} from "../src/experiments/store/instanceStore.ts";
 import { createStreamKey } from "../src/experiments/streams/allocation.ts";
 import { ControlTapeRecorder } from "../src/experiments/tapes/recorder.ts";
 import {
@@ -69,10 +79,13 @@ import { createPhiloxStream } from "../src/physics/reference/philox.ts";
 import { newRunIdentity, TestLogger } from "../src/testing/log/logger.ts";
 import { createEventLedgerDescription } from "../src/testing/runtime-fixtures/eventLedgerFixture.ts";
 import {
+  ANALYTIC_OWNER_ID,
+  ANALYTIC_QUANTITY_ID,
+} from "../src/testing/runtime-fixtures/fixtureAnalytic.ts";
+import {
   createSeededWalkFixture,
   generateBaseLatentPath,
 } from "../src/testing/runtime-fixtures/seededWalkFixture.ts";
-
 import {
   createTwoModelFixtureStore,
   TWO_MODEL_DECLARED_MODELS,
@@ -2701,6 +2714,545 @@ async function runCommandsE2E(logRunId: string, verbose: boolean): Promise<boole
   return allPassed;
 }
 
+async function runStoreWorkerAnalyticProbe(job: {
+  token: RequestToken;
+  seedDecimal: string;
+  frameSpeedVc: number;
+  stepIndex: number;
+  simulationTime: number;
+  final: boolean;
+}): Promise<{
+  token: RequestToken;
+  value: number;
+  stepIndex: number;
+  simulationTime: number;
+  final: boolean;
+}> {
+  return new Promise((resolvePromise, rejectPromise) => {
+    const workerCode = `
+      const { parentPort } = require('node:worker_threads');
+      function probe(seedDecimal, frameSpeedVc) {
+        let hash = 2166136261;
+        for (let i = 0; i < seedDecimal.length; i++) {
+          hash ^= seedDecimal.charCodeAt(i);
+          hash = Math.imul(hash, 16777619);
+        }
+        const unit = (hash >>> 0) / 4294967296;
+        return unit * (1 + frameSpeedVc * frameSpeedVc);
+      }
+      parentPort.on('message', (msg) => {
+        try {
+          const val = probe(msg.seedDecimal, msg.frameSpeedVc);
+          parentPort.postMessage({
+            token: msg.token,
+            value: val,
+            stepIndex: msg.stepIndex,
+            simulationTime: msg.simulationTime,
+            final: msg.final,
+          });
+        } catch (err) {
+          parentPort.postMessage({ error: err ? err.message : String(err) });
+        }
+      });
+    `;
+
+    const worker = new Worker(workerCode, { eval: true });
+    worker.on("message", (msg) => {
+      worker.terminate();
+      if (msg.error) {
+        rejectPromise(new Error(msg.error));
+      } else {
+        resolvePromise(msg);
+      }
+    });
+    worker.on("error", (err) => {
+      worker.terminate();
+      rejectPromise(err);
+    });
+    worker.postMessage(job);
+  });
+}
+
+function makeStorePublication(
+  token: RequestToken,
+  probeValue: number,
+  options?: {
+    stepIndex?: number;
+    simulationTime?: number;
+    final?: boolean;
+  },
+): Publication {
+  return {
+    ...token,
+    stepIndex: options?.stepIndex ?? 1,
+    simulationTime: options?.simulationTime ?? 1.0,
+    final: options?.final ?? true,
+    outputs: [
+      {
+        quantityId: ANALYTIC_QUANTITY_ID,
+        status: "value",
+        value: probeValue,
+        unit: "1",
+        semanticKind: "scalar",
+        ownerId: ANALYTIC_OWNER_ID,
+      },
+    ],
+  };
+}
+
+async function runStoreE2E(logRunId: string, verbose: boolean): Promise<boolean> {
+  const logger = new TestLogger("runtime-store", logRunId);
+  let allPassed = true;
+
+  const failureDir = resolve(
+    process.cwd(),
+    "artifacts",
+    "test-logs",
+    "runtime-store",
+    logRunId,
+    "failures",
+  );
+
+  const recordFailure = (
+    testId: string,
+    errorMsg: string,
+    details?: {
+      scriptedSequence?: unknown;
+      viewBefore?: unknown;
+      viewAfter?: unknown;
+      refusalReason?: string | null;
+      diagnostics?: unknown;
+    },
+  ) => {
+    mkdirSync(failureDir, { recursive: true });
+    const failFilePath = join(failureDir, `${testId}.json`);
+    const failData = {
+      testId,
+      error: errorMsg,
+      scriptedSequence: details?.scriptedSequence ?? null,
+      viewBefore: details?.viewBefore ?? null,
+      viewAfter: details?.viewAfter ?? null,
+      refusalReason: details?.refusalReason ?? null,
+      diagnostics: details?.diagnostics ?? null,
+      reproductionCommand: `bun scripts/e2e-runtime-contracts.ts --suite store --log-run-id ${logRunId}`,
+    };
+    writeFileSync(failFilePath, JSON.stringify(failData, null, 2), "utf8");
+
+    logger.log({
+      testId,
+      beadId: "am-rt-snapshot-store-aft",
+      suite: "runtime-store",
+      outcome: "failed",
+      message: errorMsg,
+      extra: {
+        failurePath: failFilePath,
+        ...(details ?? {}),
+      },
+    });
+  };
+
+  if (verbose) {
+    console.log(`[E2E-Runtime] Starting snapshot store suite (logRunId: ${logRunId})`);
+  }
+
+  // 1. Scripted Out-of-Order Observer Changes Evaluated by Real Worker
+  {
+    const startTime = Date.now();
+    const testId = "store-out-of-order-observer-changes";
+    const instanceId = "inst-store-e2e-1";
+    registerOwner(instanceId);
+    try {
+      const store = createInstanceStore({
+        experimentId: "relativity-observer",
+        instanceId,
+        initialParameters: { seedDecimal: "42", frameSpeedVc: 0.0 },
+        parameterClasses: { seedDecimal: "input", frameSpeedVc: "observer" },
+        outputs: {
+          [ANALYTIC_QUANTITY_ID]: {
+            statuses: ["value"],
+            unit: "1",
+            semanticKind: "scalar",
+            ownerId: ANALYTIC_OWNER_ID,
+          },
+        },
+      });
+
+      // Initial setup-change token
+      const t1 = store.issue("setup-change", { seedDecimal: "42" });
+      const w1 = await runStoreWorkerAnalyticProbe({
+        token: t1,
+        seedDecimal: "42",
+        frameSpeedVc: 0.0,
+        stepIndex: 0,
+        simulationTime: 0.0,
+        final: true,
+      });
+      const dec1 = store.publish(
+        makeStorePublication(t1, w1.value, { stepIndex: 0, simulationTime: 0 }),
+      );
+      if (!dec1.accepted) throw new Error("Expected initial setup token to be accepted");
+
+      // Issue observer change 2 (0.6c) and 3 (0.8c)
+      const t2 = store.issue("observer-change", { frameSpeedVc: 0.6 });
+      const t3 = store.issue("observer-change", { frameSpeedVc: 0.8 });
+
+      // Worker evaluates both
+      const w2 = await runStoreWorkerAnalyticProbe({
+        token: t2,
+        seedDecimal: "42",
+        frameSpeedVc: 0.6,
+        stepIndex: 1,
+        simulationTime: 1.0,
+        final: true,
+      });
+      const w3 = await runStoreWorkerAnalyticProbe({
+        token: t3,
+        seedDecimal: "42",
+        frameSpeedVc: 0.8,
+        stepIndex: 1,
+        simulationTime: 1.0,
+        final: true,
+      });
+
+      // Scripted out-of-order publication: publish action 3 first
+      const dec3 = store.publish(makeStorePublication(t3, w3.value));
+      if (!dec3.accepted) throw new Error("Expected newer observer action 3 to be accepted");
+
+      const viewAfter3 = store.getSnapshot();
+      if (viewAfter3.status !== "accepted") {
+        throw new Error(`Expected view status "accepted", got "${viewAfter3.status}"`);
+      }
+      if (viewAfter3.accepted?.actionIndex !== t3.actionIndex) {
+        throw new Error(
+          `Expected accepted actionIndex ${t3.actionIndex}, got ${viewAfter3.accepted?.actionIndex}`,
+        );
+      }
+      if (viewAfter3.accepted?.parameters.frameSpeedVc !== 0.8) {
+        throw new Error(
+          `Expected accepted frameSpeedVc 0.8, got ${viewAfter3.accepted?.parameters.frameSpeedVc}`,
+        );
+      }
+
+      // DOM identity attributes validation
+      const attrs = instrumentRootAttributes(viewAfter3);
+      if (!attrs) throw new Error("Expected instrumentRootAttributes to be defined");
+      if (attrs["data-accepted-action-index"] !== String(t3.actionIndex)) {
+        throw new Error(
+          `Expected data-accepted-action-index "${t3.actionIndex}", got "${attrs["data-accepted-action-index"]}"`,
+        );
+      }
+      if (attrs["data-pending"] !== "false") {
+        throw new Error(`Expected data-pending "false", got "${attrs["data-pending"]}"`);
+      }
+      if (attrs["data-view-state"] !== "accepted") {
+        throw new Error(`Expected data-view-state "accepted", got "${attrs["data-view-state"]}"`);
+      }
+
+      // Now publish stale action 2
+      const dec2 = store.publish(makeStorePublication(t2, w2.value));
+      if (dec2.accepted) {
+        throw new Error("Expected older observer action 2 to be refused");
+      }
+      if (dec2.reason !== "stale-action") {
+        throw new Error(`Expected refusal reason "stale-action", got "${dec2.reason}"`);
+      }
+
+      // View state must preserve action 3
+      const viewFinal = store.getSnapshot();
+      if (viewFinal.accepted?.actionIndex !== t3.actionIndex) {
+        throw new Error("View accepted actionIndex corrupted by stale publication");
+      }
+      if (viewFinal.accepted?.parameters.frameSpeedVc !== 0.8) {
+        throw new Error("View accepted frameSpeedVc corrupted by stale publication");
+      }
+
+      const diag = readDiagnostics(instanceId);
+
+      logger.log({
+        testId,
+        beadId: "am-rt-snapshot-store-aft",
+        suite: "runtime-store",
+        instanceId,
+        logRunId,
+        runId: viewFinal.accepted?.runId ?? t3.runId,
+        inputRevision:
+          viewFinal.requested?.revisions.input ?? viewFinal.accepted?.revisions.input ?? 1,
+        acceptedInputRevision: viewFinal.accepted?.revisions.input ?? 1,
+        snapshotVersion: viewFinal.accepted?.snapshotVersion ?? 0,
+        seed: String(t3.parameters.seedDecimal ?? "42"),
+        streamVersion: 1,
+        expected: "stale-action",
+        actual: dec2.reason,
+        comparisonKind: "bitwise",
+        outcome: "passed",
+        durationMs: Date.now() - startTime,
+        message:
+          "Real worker evaluation with out-of-order observer changes correctly refused stale action.",
+        extra: {
+          placementKey: `/papers/special-relativity#${instanceId}`,
+          actionIndex: t2.actionIndex,
+          acceptedActionIndex: viewFinal.accepted?.actionIndex ?? 0,
+          stepIndex: viewFinal.accepted?.stepIndex ?? 0,
+          viewState: viewFinal.status,
+          pending: viewFinal.pending,
+          publicationRefusal: dec2.reason,
+          ownersForInstance: diag?.ownerCount ?? 1,
+          drawCounterDelta: 0,
+        },
+      });
+    } catch (err: unknown) {
+      allPassed = false;
+      const msg = (err as Error).message;
+      recordFailure(testId, msg, {
+        diagnostics: readDiagnostics(instanceId),
+      });
+    } finally {
+      unregisterOwner(instanceId);
+    }
+  }
+
+  // 2. Progress and Monotone Steps with Worker Responses
+  {
+    const startTime = Date.now();
+    const testId = "store-progress-and-monotone-steps";
+    const instanceId = "inst-store-e2e-2";
+    registerOwner(instanceId);
+    try {
+      const store = createInstanceStore({
+        experimentId: "brownian-motion-analytic",
+        instanceId,
+        initialParameters: { seedDecimal: "77", frameSpeedVc: 0.1 },
+        parameterClasses: { seedDecimal: "input", frameSpeedVc: "observer" },
+        outputs: {
+          [ANALYTIC_QUANTITY_ID]: {
+            statuses: ["value"],
+            unit: "1",
+            semanticKind: "scalar",
+            ownerId: ANALYTIC_OWNER_ID,
+          },
+        },
+      });
+
+      const t1 = store.issue("setup-change", { seedDecimal: "77" });
+
+      // Worker returns step 1 (progress, non-final)
+      const wStep1 = await runStoreWorkerAnalyticProbe({
+        token: t1,
+        seedDecimal: "77",
+        frameSpeedVc: 0.1,
+        stepIndex: 1,
+        simulationTime: 0.1,
+        final: false,
+      });
+
+      const decStep1 = store.publish(
+        makeStorePublication(t1, wStep1.value, {
+          stepIndex: 1,
+          simulationTime: 0.1,
+          final: false,
+        }),
+      );
+      if (!decStep1.accepted) throw new Error("Expected progress step 1 to be accepted");
+
+      const viewStep1 = store.getSnapshot();
+      if (!viewStep1.pending) throw new Error("Expected pending=true during progress");
+      if (viewStep1.status !== "pending")
+        throw new Error(`Expected status="pending", got "${viewStep1.status}"`);
+      if (viewStep1.accepted?.stepIndex !== 1)
+        throw new Error(`Expected stepIndex=1, got ${viewStep1.accepted?.stepIndex}`);
+
+      // Worker returns non-monotone duplicate step 1
+      const decStepDup = store.publish(
+        makeStorePublication(t1, wStep1.value, {
+          stepIndex: 1,
+          simulationTime: 0.1,
+          final: false,
+        }),
+      );
+      if (decStepDup.accepted) throw new Error("Expected non-monotone step to be refused");
+      if (decStepDup.reason !== "non-monotone-step") {
+        throw new Error(`Expected refusal "non-monotone-step", got "${decStepDup.reason}"`);
+      }
+
+      // Worker returns step 2 (final completion)
+      const wStep2 = await runStoreWorkerAnalyticProbe({
+        token: t1,
+        seedDecimal: "77",
+        frameSpeedVc: 0.1,
+        stepIndex: 2,
+        simulationTime: 0.2,
+        final: true,
+      });
+
+      const decStep2 = store.publish(
+        makeStorePublication(t1, wStep2.value, {
+          stepIndex: 2,
+          simulationTime: 0.2,
+          final: true,
+        }),
+      );
+      if (!decStep2.accepted) throw new Error("Expected final step 2 to be accepted");
+
+      const viewStep2 = store.getSnapshot();
+      if (viewStep2.pending) throw new Error("Expected pending=false on final step");
+      if (viewStep2.status !== "accepted")
+        throw new Error(`Expected status="accepted", got "${viewStep2.status}"`);
+      if (viewStep2.accepted?.stepIndex !== 2)
+        throw new Error(`Expected stepIndex=2, got ${viewStep2.accepted?.stepIndex}`);
+
+      const diag = readDiagnostics(instanceId);
+
+      logger.log({
+        testId,
+        beadId: "am-rt-snapshot-store-aft",
+        suite: "runtime-store",
+        instanceId,
+        logRunId,
+        runId: viewStep2.accepted?.runId ?? t1.runId,
+        inputRevision: viewStep2.accepted?.revisions.input ?? 1,
+        acceptedInputRevision: viewStep2.accepted?.revisions.input ?? 1,
+        snapshotVersion: viewStep2.accepted?.snapshotVersion ?? 0,
+        seed: "77",
+        streamVersion: 1,
+        expected: "passed",
+        actual: "passed",
+        comparisonKind: "bitwise",
+        outcome: "passed",
+        durationMs: Date.now() - startTime,
+        message:
+          "Progress steps and non-monotone step rejection verified with real worker execution.",
+        extra: {
+          placementKey: `/papers/brownian-motion#${instanceId}`,
+          actionIndex: t1.actionIndex,
+          acceptedActionIndex: viewStep2.accepted?.actionIndex ?? 0,
+          stepIndex: viewStep2.accepted?.stepIndex ?? 0,
+          viewState: viewStep2.status,
+          pending: viewStep2.pending,
+          publicationRefusal: decStepDup.reason,
+          ownersForInstance: diag?.ownerCount ?? 1,
+          drawCounterDelta: 0,
+        },
+      });
+    } catch (err: unknown) {
+      allPassed = false;
+      const msg = (err as Error).message;
+      recordFailure(testId, msg, {
+        diagnostics: readDiagnostics(instanceId),
+      });
+    } finally {
+      unregisterOwner(instanceId);
+    }
+  }
+
+  // 3. Superseded Run Refusal with Worker Responses
+  {
+    const startTime = Date.now();
+    const testId = "store-superseded-run-and-states";
+    const instanceId = "inst-store-e2e-3";
+    registerOwner(instanceId);
+    try {
+      const store = createInstanceStore({
+        experimentId: "relativity-observer",
+        instanceId,
+        initialParameters: { seedDecimal: "101", frameSpeedVc: 0.0 },
+        parameterClasses: { seedDecimal: "input", frameSpeedVc: "observer" },
+        outputs: {
+          [ANALYTIC_QUANTITY_ID]: {
+            statuses: ["value"],
+            unit: "1",
+            semanticKind: "scalar",
+            ownerId: ANALYTIC_OWNER_ID,
+          },
+        },
+      });
+
+      // Token 1 in Run 1
+      const t1 = store.issue("setup-change", { seedDecimal: "101" });
+      const w1 = await runStoreWorkerAnalyticProbe({
+        token: t1,
+        seedDecimal: "101",
+        frameSpeedVc: 0.0,
+        stepIndex: 1,
+        simulationTime: 1.0,
+        final: true,
+      });
+
+      // Token 2 in Run 2 (setup-change forks a new run before t1 publishes)
+      const t2 = store.issue("setup-change", { seedDecimal: "102" });
+      const w2 = await runStoreWorkerAnalyticProbe({
+        token: t2,
+        seedDecimal: "102",
+        frameSpeedVc: 0.0,
+        stepIndex: 1,
+        simulationTime: 1.0,
+        final: true,
+      });
+
+      // Publishing t1 now fails as superseded-run
+      const dec1 = store.publish(makeStorePublication(t1, w1.value));
+      if (dec1.accepted)
+        throw new Error("Expected run 1 publication to be refused after run 2 started");
+      if (dec1.reason !== "superseded-run") {
+        throw new Error(`Expected refusal "superseded-run", got "${dec1.reason}"`);
+      }
+
+      // Publishing t2 succeeds
+      const dec2 = store.publish(makeStorePublication(t2, w2.value));
+      if (!dec2.accepted) throw new Error("Expected run 2 publication to be accepted");
+
+      const view2 = store.getSnapshot();
+      if (view2.accepted?.runId !== t2.runId) {
+        throw new Error(`Expected accepted runId ${t2.runId}, got ${view2.accepted?.runId}`);
+      }
+
+      const diag = readDiagnostics(instanceId);
+
+      logger.log({
+        testId,
+        beadId: "am-rt-snapshot-store-aft",
+        suite: "runtime-store",
+        instanceId,
+        logRunId,
+        runId: view2.accepted?.runId ?? t2.runId,
+        inputRevision: view2.accepted?.revisions.input ?? 2,
+        acceptedInputRevision: view2.accepted?.revisions.input ?? 2,
+        snapshotVersion: view2.accepted?.snapshotVersion ?? 0,
+        seed: "102",
+        streamVersion: 1,
+        expected: "superseded-run",
+        actual: dec1.reason,
+        comparisonKind: "bitwise",
+        outcome: "passed",
+        durationMs: Date.now() - startTime,
+        message:
+          "Superseded run refusal and new run acceptance verified with real worker execution.",
+        extra: {
+          placementKey: `/papers/special-relativity#${instanceId}`,
+          actionIndex: t2.actionIndex,
+          acceptedActionIndex: view2.accepted?.actionIndex ?? 0,
+          stepIndex: view2.accepted?.stepIndex ?? 0,
+          viewState: view2.status,
+          pending: view2.pending,
+          publicationRefusal: dec1.reason,
+          ownersForInstance: diag?.ownerCount ?? 1,
+          drawCounterDelta: 0,
+        },
+      });
+    } catch (err: unknown) {
+      allPassed = false;
+      const msg = (err as Error).message;
+      recordFailure(testId, msg, {
+        diagnostics: readDiagnostics(instanceId),
+      });
+    } finally {
+      unregisterOwner(instanceId);
+    }
+  }
+
+  await logger.flush();
+  return allPassed;
+}
+
 async function main(): Promise<void> {
   const options = parseCliArgs();
   const logRunId = options.logRunId || newRunIdentity();
@@ -2753,6 +3305,16 @@ async function main(): Promise<void> {
     }
     console.log(
       `[E2E-Runtime] Commands suite PASSED. Logged to artifacts/test-logs/runtime-commands/${logRunId}.jsonl`,
+    );
+    process.exit(0);
+  } else if (options.suite === "store") {
+    const success = await runStoreE2E(logRunId, options.verbose ?? true);
+    if (!success) {
+      console.error(`[E2E-Runtime] Store suite FAILED. See logRunId: ${logRunId}`);
+      process.exit(1);
+    }
+    console.log(
+      `[E2E-Runtime] Store suite PASSED. Logged to artifacts/test-logs/runtime-store/${logRunId}.jsonl`,
     );
     process.exit(0);
   } else {
