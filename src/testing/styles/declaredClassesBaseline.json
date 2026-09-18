@@ -50,7 +50,7 @@
   "src/components/lab/lq09/IonizationPlot.tsx": 0,
   "src/components/lab/me01/TwoLedgersLab.tsx": 6,
   "src/components/lab/me01/TwoLedgersPlot.tsx": 5,
-  "src/components/lab/me03/BoundaryLedgerLab.tsx": 66,
+  "src/components/lab/me03/BoundaryLedgerLab.tsx": 0,
   "src/components/lab/me03/BoundaryLedgerPlot.tsx": 6,
   "src/components/lab/sr01/ClockSyncLab.tsx": 4,
   "src/components/lab/sr04/LorentzMapLab.tsx": 1,

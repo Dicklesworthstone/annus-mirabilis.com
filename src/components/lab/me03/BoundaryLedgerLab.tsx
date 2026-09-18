@@ -290,34 +290,44 @@ export function BoundaryLedgerLab({
 
           {/* Seven Typed Boundary Facts Panel */}
           <section className="card-boundary-panel" aria-label="Cited energy-source boundary facts">
-            <h3 className="text-sm font-bold mb-2">Case Study Facts: {card.label}</h3>
-            <p className="text-xs text-slate-600 dark:text-slate-400 mb-3 italic">
+            <h3
+              style={{
+                fontSize: "0.875rem",
+                fontWeight: "bold",
+                marginBottom: "0.5rem",
+                color: "var(--ink)",
+              }}
+            >
+              Case Study Facts: {card.label}
+            </h3>
+            <p
+              style={{
+                fontSize: "0.75rem",
+                color: "var(--muted)",
+                marginBottom: "0.75rem",
+                fontStyle: "italic",
+              }}
+            >
               Citation: {card.citation}
             </p>
 
-            <dl className="boundary-facts-list grid grid-cols-1 md:grid-cols-2 gap-2 text-xs">
+            <dl className="boundary-facts-list">
               <div className="fact-item">
-                <dt className="font-semibold text-slate-700 dark:text-slate-300">
-                  1. System before:
-                </dt>
-                <dd className="text-slate-900 dark:text-slate-100">{facts.systemBefore}</dd>
+                <dt style={{ fontWeight: 600, color: "var(--ink)" }}>1. System before:</dt>
+                <dd style={{ color: "var(--ink)" }}>{facts.systemBefore}</dd>
               </div>
               <div className="fact-item">
-                <dt className="font-semibold text-slate-700 dark:text-slate-300">
-                  2. System after:
-                </dt>
-                <dd className="text-slate-900 dark:text-slate-100">{facts.systemAfter}</dd>
+                <dt style={{ fontWeight: 600, color: "var(--ink)" }}>2. System after:</dt>
+                <dd style={{ color: "var(--ink)" }}>{facts.systemAfter}</dd>
               </div>
               <div className="fact-item">
-                <dt className="font-semibold text-slate-700 dark:text-slate-300">
+                <dt style={{ fontWeight: 600, color: "var(--ink)" }}>
                   3. Matter crosses boundary:
                 </dt>
                 <dd
-                  className={
-                    facts.matterCrossesBoundary.crosses
-                      ? "text-amber-700 dark:text-amber-400"
-                      : "text-emerald-700 dark:text-emerald-400"
-                  }
+                  style={{
+                    color: facts.matterCrossesBoundary.crosses ? "var(--accent)" : "var(--ink)",
+                  }}
                 >
                   {facts.matterCrossesBoundary.crosses
                     ? "Yes (Matter transfer: "
@@ -326,32 +336,38 @@ export function BoundaryLedgerLab({
                 </dd>
               </div>
               <div className="fact-item">
-                <dt className="font-semibold text-slate-700 dark:text-slate-300">
-                  4. Radiation disposition:
-                </dt>
-                <dd className="text-slate-900 dark:text-slate-100">
-                  <span className="font-semibold capitalize">{facts.radiation.disposition}</span> (
-                  {facts.radiation.note})
+                <dt style={{ fontWeight: 600, color: "var(--ink)" }}>4. Radiation disposition:</dt>
+                <dd style={{ color: "var(--ink)" }}>
+                  <span style={{ fontWeight: 600, textTransform: "capitalize" }}>
+                    {facts.radiation.disposition}
+                  </span>{" "}
+                  ({facts.radiation.note})
                 </dd>
               </div>
               <div className="fact-item">
-                <dt className="font-semibold text-slate-700 dark:text-slate-300">
-                  5. Reference frame:
-                </dt>
-                <dd className="text-slate-900 dark:text-slate-100">{facts.referenceFrame}</dd>
+                <dt style={{ fontWeight: 600, color: "var(--ink)" }}>5. Reference frame:</dt>
+                <dd style={{ color: "var(--ink)" }}>{facts.referenceFrame}</dd>
               </div>
               <div className="fact-item">
-                <dt className="font-semibold text-slate-700 dark:text-slate-300">
-                  6. Energy figure:
-                </dt>
-                <dd className="text-slate-900 dark:text-slate-100 font-mono">
+                <dt style={{ fontWeight: 600, color: "var(--ink)" }}>6. Energy figure:</dt>
+                <dd style={{ color: "var(--ink)", fontFamily: "var(--font-mono, monospace)" }}>
                   {facts.energyFigure.value} {facts.energyFigure.unit} ({facts.energyFigure.kind})
                 </dd>
               </div>
             </dl>
 
             {facts.closedButNotIsolated.value && (
-              <div className="mt-3 p-2 bg-blue-50 dark:bg-blue-950 border border-blue-200 dark:border-blue-800 rounded text-xs text-blue-900 dark:text-blue-100">
+              <div
+                style={{
+                  marginTop: "0.75rem",
+                  padding: "0.5rem",
+                  background: "var(--wash)",
+                  border: "1px solid var(--line)",
+                  borderRadius: "0.25rem",
+                  fontSize: "0.75rem",
+                  color: "var(--ink)",
+                }}
+              >
                 <strong>7. Closed but not isolated:</strong> Nothing material crosses this boundary,
                 but the system is not isolated: energy still enters or leaves it.
               </div>
@@ -579,52 +595,52 @@ export function BoundaryLedgerLab({
               <legend>Cited Energy-Source Case Studies</legend>
               <div className="control-row">
                 <span className="field-label">Select case study:</span>
-                <div className="card-buttons-grid flex flex-wrap gap-1">
+                <div className="card-buttons-grid">
                   <button
                     type="button"
-                    className={`button-toggle text-xs ${p.cardId === "me-03-card-radium" ? "active" : ""}`}
+                    className={`button-toggle ${p.cardId === "me-03-card-radium" ? "active" : ""}`}
                     onClick={() => setCardId("me-03-card-radium")}
                   >
                     Radium Decay
                   </button>
                   <button
                     type="button"
-                    className={`button-toggle text-xs ${p.cardId === "me-03-card-sun" ? "active" : ""}`}
+                    className={`button-toggle ${p.cardId === "me-03-card-sun" ? "active" : ""}`}
                     onClick={() => setCardId("me-03-card-sun")}
                   >
                     The Sun
                   </button>
                   <button
                     type="button"
-                    className={`button-toggle text-xs ${p.cardId === "me-03-card-coal" ? "active" : ""}`}
+                    className={`button-toggle ${p.cardId === "me-03-card-coal" ? "active" : ""}`}
                     onClick={() => setCardId("me-03-card-coal")}
                   >
                     Burning Coal
                   </button>
                   <button
                     type="button"
-                    className={`button-toggle text-xs ${p.cardId === "me-03-card-candle" ? "active" : ""}`}
+                    className={`button-toggle ${p.cardId === "me-03-card-candle" ? "active" : ""}`}
                     onClick={() => setCardId("me-03-card-candle")}
                   >
                     Candle
                   </button>
                   <button
                     type="button"
-                    className={`button-toggle text-xs ${p.cardId === "me-03-card-bulb" ? "active" : ""}`}
+                    className={`button-toggle ${p.cardId === "me-03-card-bulb" ? "active" : ""}`}
                     onClick={() => setCardId("me-03-card-bulb")}
                   >
                     100 W Bulb (1 Yr)
                   </button>
                   <button
                     type="button"
-                    className={`button-toggle text-xs ${p.cardId === "me-03-heated-sealed-box" ? "active" : ""}`}
+                    className={`button-toggle ${p.cardId === "me-03-heated-sealed-box" ? "active" : ""}`}
                     onClick={() => setCardId("me-03-heated-sealed-box")}
                   >
                     Heated Box
                   </button>
                   <button
                     type="button"
-                    className={`button-toggle text-xs ${p.cardId === "me-03-sealed-lamp-and-mirror" ? "active" : ""}`}
+                    className={`button-toggle ${p.cardId === "me-03-sealed-lamp-and-mirror" ? "active" : ""}`}
                     onClick={() => setCardId("me-03-sealed-lamp-and-mirror")}
                   >
                     Sealed Lamp & Mirror
@@ -636,7 +652,7 @@ export function BoundaryLedgerLab({
         )}
 
         <div className="form-actions">
-          <button type="submit" className="button button-primary">
+          <button type="submit" className="button">
             Apply changes
           </button>
           <button type="button" className="button" onClick={share}>
