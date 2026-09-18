@@ -10,8 +10,6 @@ import { getQuantityRegistry } from "../quantities/registry.ts";
 import {
   buildSourceManifestIndex,
   clearConcordanceCache,
-  firstUse,
-  firstUseInSection,
   loadConcordanceForPaper,
   modernGroupsFor,
   modernSymbolFor,
@@ -124,7 +122,7 @@ describe("am-not-entries-mass-energy-wq2: mass-energy notation concordance", () 
 
     const reg = getQuantityRegistry();
     const qty = reg.quantities.get("additiveEnergyConstant");
-    assert.ok(qty && qty.dimension, "additiveEnergyConstant with dimension must be in registry");
+    assert.ok(qty?.dimension, "additiveEnergyConstant with dimension must be in registry");
     const dimValues = qty.dimension.map((d) => d.num / d.den);
     assert.deepEqual(
       dimValues,

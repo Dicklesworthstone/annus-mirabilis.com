@@ -1,10 +1,6 @@
 import { describe, expect, test } from "bun:test";
 import { renderToStaticMarkup } from "react-dom/server";
-import {
-  DISCOVERY_PAPER_SLUGS,
-  DISCOVERY_PAPERS,
-  isDiscoveryPaperSlug,
-} from "../../discovery/journeyRegistry.ts";
+import { isDiscoveryPaperSlug } from "../../discovery/journeyRegistry.ts";
 import DiscoverPaperPage, {
   dynamicParams,
   generateMetadata,

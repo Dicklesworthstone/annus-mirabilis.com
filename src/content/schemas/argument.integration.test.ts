@@ -5,16 +5,9 @@ import test from "node:test";
 import { fileURLToPath } from "node:url";
 import { newRunIdentity, TestLogger } from "../../testing/log/logger.ts";
 import {
-  type ArgumentNode,
   ArgumentSchemaError,
   type Bridge,
   type Foundation,
-  type HistoricalPremise,
-  type Misconception,
-  type ObstacleResponses,
-  type Quantity,
-  type ReadingSet,
-  type SemanticEquation,
   validateArgumentNode,
   validateFoundationOrBridge,
   validateHistoricalPremise,

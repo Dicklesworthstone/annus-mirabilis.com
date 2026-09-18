@@ -43,7 +43,9 @@ describe("Brownian investigation: server-rendered, readable without JavaScript",
   test("the full-tracer link decodes to the exact accepted settings, without a double question mark", () => {
     const match = html.match(/href="(\/lab\/bm-01\/\?[^"]+)"/u);
     expect(match).not.toBeNull();
-    const url = new URL(match![1]!.replaceAll("&amp;", "&"), "https://example.test");
+    const target = match?.[1]?.replaceAll("&amp;", "&");
+    expect(target).toBeDefined();
+    const url = new URL(target ?? "", "https://example.test");
     const decoded = decodeBm01Settings(url.search);
     expect(decoded.kind).toBe("settings");
     if (decoded.kind === "settings") expect(decoded.parameters).toEqual(tracerExample.parameters);

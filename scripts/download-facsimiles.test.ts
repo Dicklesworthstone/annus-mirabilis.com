@@ -702,6 +702,38 @@ describe("13. Identity and runId discipline", () => {
 });
 
 describe("14. Static guard against local OCR and text extraction APIs", () => {
+  test("scripts/download-facsimiles.ts does not contain prohibited OCR or extraction strings", () => {
+    const content = fs.readFileSync(
+      path.join(REPO_ROOT, "scripts", "download-facsimiles.ts"),
+      "utf8",
+    );
+
+    const prohibitedOcr = ["tesseract", "ocrmypdf", "focr", "easyocr", "paddleocr", "pix2tex"];
+    for (const tool of prohibitedOcr) {
+      expect(content.toLowerCase()).not.toContain(tool);
+    }
+
+    const prohibitedExtraction = [["get", "TextContent"].join(""), "pdftotext", "extractText"];
+    for (const api of prohibitedExtraction) {
+      expect(content).not.toContain(api);
+    }
+  });
+
+  test("scripts/download-facsimiles.ts never imports or invokes child_process or subprocess execution", () => {
+    const content = fs.readFileSync(
+      path.join(REPO_ROOT, "scripts", "download-facsimiles.ts"),
+      "utf8",
+    );
+
+    const prohibitedSubprocess = ["child_process", "execSync", "spawnSync", "execFile"];
+    for (const sub of prohibitedSubprocess) {
+      expect(content).not.toContain(sub);
+    }
+    // Also assert no standalone spawn(...) or fork(...) invocations
+    expect(content).not.toMatch(/\bspawn\s*\(/);
+    expect(content).not.toMatch(/\bfork\s*\(/);
+  });
+
   test("scripts/download-facsimiles.ts imports only standard libraries and local helpers", () => {
     const content = fs.readFileSync(
       path.join(REPO_ROOT, "scripts", "download-facsimiles.ts"),

@@ -19,11 +19,6 @@ const __filename = fileURLToPath(import.meta.url);
 const __dirname = path.dirname(__filename);
 const FIXTURES_DIR = path.resolve(__dirname, "__fixtures__/experiment");
 
-// Helper to deep clone objects
-function clone<T>(obj: T): T {
-  return JSON.parse(JSON.stringify(obj));
-}
-
 // ============================================================================
 // 1. EXPERIMENT MANIFEST TESTS
 // ============================================================================
