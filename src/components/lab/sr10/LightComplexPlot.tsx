@@ -68,13 +68,20 @@ export function LightComplexPlot({
   const ry_rod = baseRadius;
 
   return (
-    <div className="flex flex-col gap-4">
-      <div className="rounded-lg border border-border/50 bg-background/80 p-4 shadow-sm">
+    <div style={{ display: "flex", flexDirection: "column", gap: "1rem" }}>
+      <div
+        style={{
+          borderRadius: "0.5rem",
+          border: "1px solid var(--line)",
+          background: "var(--panel)",
+          padding: "1rem",
+        }}
+      >
         <svg
           viewBox={`0 0 ${width} ${height}`}
-          className="w-full h-auto select-none"
           role="img"
           aria-label={`Light complex transformation diagram: stationary frame K with sphere volume = ${volumeStationaryM3.toFixed(2)} m^3, moving frame k with transformed volume = ${volumeMovingM3.toFixed(2)} m^3`}
+          style={{ width: "100%", height: "auto", userSelect: "none" }}
         >
           <title>Relativistic Light Complex Transformation (Einstein 1905 §8)</title>
 
@@ -84,17 +91,16 @@ export function LightComplexPlot({
             y1={20}
             x2={width / 2}
             y2={height - 20}
-            stroke="currentColor"
+            stroke="var(--line)"
             strokeDasharray="4 4"
-            className="text-border/60"
           />
 
           {/* Frame K Left Pane */}
           <g>
-            <text x={40} y={35} className="fill-foreground font-semibold text-sm">
+            <text x={40} y={35} fontSize="14" fontWeight="600" fill="var(--ink)">
               Stationary Frame K
             </text>
-            <text x={40} y={55} className="fill-muted-foreground text-xs">
+            <text x={40} y={55} fontSize="12" fill="var(--muted)">
               Spherical light complex · E = {energyStationaryJ.toFixed(2)} J · V ={" "}
               {volumeStationaryM3.toFixed(2)} m³
             </text>
@@ -105,8 +111,7 @@ export function LightComplexPlot({
               y1={cy}
               x2={cx1 + 130}
               y2={cy}
-              stroke="currentColor"
-              className="text-border/80"
+              stroke="var(--line)"
               strokeWidth={1}
             />
             <line
@@ -114,19 +119,13 @@ export function LightComplexPlot({
               y1={cy - 120}
               x2={cx1}
               y2={cy + 120}
-              stroke="currentColor"
-              className="text-border/80"
+              stroke="var(--line)"
               strokeWidth={1}
             />
-            <text x={cx1 + 135} y={cy + 4} className="fill-muted-foreground text-[10px]">
+            <text x={cx1 + 135} y={cy + 4} fontSize="10" fill="var(--muted)">
               x
             </text>
-            <text
-              x={cx1}
-              y={cy - 125}
-              className="fill-muted-foreground text-[10px]"
-              textAnchor="middle"
-            >
+            <text x={cx1} y={cy - 125} fontSize="10" fill="var(--muted)" textAnchor="middle">
               y
             </text>
 
@@ -183,17 +182,24 @@ export function LightComplexPlot({
               strokeWidth={1.2}
               strokeDasharray="2 2"
             />
-            <text x={cx1 + 32} y={cy - 10} className="fill-primary text-xs font-mono font-medium">
+            <text
+              x={cx1 + 32}
+              y={cy - 10}
+              fontSize="12"
+              fontFamily="var(--font-mono, monospace)"
+              fontWeight="500"
+              fill="#1d4ed8"
+            >
               φ = {phiStationaryDeg.toFixed(1)}°
             </text>
           </g>
 
           {/* Frame k Right Pane */}
           <g>
-            <text x={cx2 - 140} y={35} className="fill-foreground font-semibold text-sm">
+            <text x={cx2 - 140} y={35} fontSize="14" fontWeight="600" fill="var(--ink)">
               Moving Frame k (β = {beta.toFixed(2)}c)
             </text>
-            <text x={cx2 - 140} y={55} className="fill-muted-foreground text-xs">
+            <text x={cx2 - 140} y={55} fontSize="12" fill="var(--muted)">
               Physical complex · E′ = {energyMovingJ.toFixed(2)} J · V′ ={" "}
               {volumeMovingM3.toFixed(2)} m³
             </text>
@@ -204,8 +210,7 @@ export function LightComplexPlot({
               y1={cy}
               x2={cx2 + 130}
               y2={cy}
-              stroke="currentColor"
-              className="text-border/80"
+              stroke="var(--line)"
               strokeWidth={1}
             />
             <line
@@ -213,19 +218,13 @@ export function LightComplexPlot({
               y1={cy - 120}
               x2={cx2}
               y2={cy + 120}
-              stroke="currentColor"
-              className="text-border/80"
+              stroke="var(--line)"
               strokeWidth={1}
             />
-            <text x={cx2 + 135} y={cy + 4} className="fill-muted-foreground text-[10px]">
+            <text x={cx2 + 135} y={cy + 4} fontSize="10" fill="var(--muted)">
               x′
             </text>
-            <text
-              x={cx2}
-              y={cy - 125}
-              className="fill-muted-foreground text-[10px]"
-              textAnchor="middle"
-            >
+            <text x={cx2} y={cy - 125} fontSize="10" fill="var(--muted)" textAnchor="middle">
               y′
             </text>
 
@@ -243,7 +242,9 @@ export function LightComplexPlot({
               <text
                 x={25}
                 y={-5}
-                className="fill-amber-500 text-[10px] font-mono"
+                fontSize="10"
+                fontFamily="var(--font-mono, monospace)"
+                fill="#f59e0b"
                 textAnchor="middle"
               >
                 v = {beta.toFixed(2)}c
@@ -266,7 +267,9 @@ export function LightComplexPlot({
                 <text
                   x={cx2 + rx_rod + 6}
                   y={cy + ry_rod - 10}
-                  className="fill-amber-600 dark:fill-amber-400 text-[9px] font-mono"
+                  fontSize="9"
+                  fontFamily="var(--font-mono, monospace)"
+                  fill="#ea580c"
                 >
                   Rod: 1/γ
                 </text>
@@ -310,7 +313,10 @@ export function LightComplexPlot({
             <text
               x={cx2 + 32}
               y={cy - 10}
-              className="fill-destructive text-xs font-mono font-medium"
+              fontSize="12"
+              fontFamily="var(--font-mono, monospace)"
+              fontWeight="500"
+              fill="#dc2626"
             >
               φ′ = {phiMovingDeg.toFixed(1)}°
             </text>
@@ -356,46 +362,131 @@ export function LightComplexPlot({
       </div>
 
       {/* Diagnostics / Badges Grid */}
-      <div className="grid grid-cols-2 sm:grid-cols-4 gap-3 text-xs">
-        <div className="p-2.5 rounded-md border border-border/40 bg-muted/20">
-          <div className="text-muted-foreground">Energy ratio E′/E (q)</div>
-          <div className="text-sm font-mono font-semibold mt-0.5 text-primary">
+      <div
+        style={{
+          display: "grid",
+          gridTemplateColumns: "repeat(auto-fit, minmax(160px, 1fr))",
+          gap: "0.75rem",
+          fontSize: "0.75rem",
+        }}
+      >
+        <div
+          style={{
+            padding: "0.625rem",
+            borderRadius: "0.375rem",
+            border: "1px solid var(--line)",
+            background: "var(--wash)",
+          }}
+        >
+          <div className="fine">Energy ratio E′/E (q)</div>
+          <div
+            style={{
+              fontSize: "0.875rem",
+              fontFamily: "var(--font-mono, monospace)",
+              fontWeight: 600,
+              marginTop: "0.125rem",
+              color: "var(--accent)",
+            }}
+          >
             {energyFactor.toFixed(6)}
           </div>
-          <div className="text-[10px] text-muted-foreground mt-0.5">γ(1 − β cos φ) = ν′/ν</div>
+          <div className="fine" style={{ fontSize: "0.625rem", marginTop: "0.125rem" }}>
+            γ(1 − β cos φ) = ν′/ν
+          </div>
         </div>
 
-        <div className="p-2.5 rounded-md border border-border/40 bg-muted/20">
-          <div className="text-muted-foreground">Volume ratio V′/V (1/q)</div>
-          <div className="text-sm font-mono font-semibold mt-0.5 text-emerald-600 dark:text-emerald-400">
+        <div
+          style={{
+            padding: "0.625rem",
+            borderRadius: "0.375rem",
+            border: "1px solid var(--line)",
+            background: "var(--wash)",
+          }}
+        >
+          <div className="fine">Volume ratio V′/V (1/q)</div>
+          <div
+            style={{
+              fontSize: "0.875rem",
+              fontFamily: "var(--font-mono, monospace)",
+              fontWeight: 600,
+              marginTop: "0.125rem",
+              color: "var(--ink)",
+            }}
+          >
             {volumeFactor.toFixed(6)}
           </div>
-          <div className="text-[10px] text-muted-foreground mt-0.5">1 / [γ(1 − β cos φ)]</div>
+          <div className="fine" style={{ fontSize: "0.625rem", marginTop: "0.125rem" }}>
+            1 / [γ(1 − β cos φ)]
+          </div>
         </div>
 
-        <div className="p-2.5 rounded-md border border-border/40 bg-muted/20">
-          <div className="text-muted-foreground">Energy density ratio u′/u</div>
-          <div className="text-sm font-mono font-semibold mt-0.5">
+        <div
+          style={{
+            padding: "0.625rem",
+            borderRadius: "0.375rem",
+            border: "1px solid var(--line)",
+            background: "var(--wash)",
+          }}
+        >
+          <div className="fine">Energy density ratio u′/u</div>
+          <div
+            style={{
+              fontSize: "0.875rem",
+              fontFamily: "var(--font-mono, monospace)",
+              fontWeight: 600,
+              marginTop: "0.125rem",
+              color: "var(--ink)",
+            }}
+          >
             {energyDensityFactor.toFixed(6)}
           </div>
-          <div className="text-[10px] text-muted-foreground mt-0.5">q² = (A′/A)²</div>
+          <div className="fine" style={{ fontSize: "0.625rem", marginTop: "0.125rem" }}>
+            q² = (A′/A)²
+          </div>
         </div>
 
-        <div className="p-2.5 rounded-md border border-border/40 bg-muted/20">
-          <div className="text-muted-foreground">Lorentz factor γ</div>
-          <div className="text-sm font-mono font-semibold mt-0.5">{gamma.toFixed(6)}</div>
-          <div className="text-[10px] text-muted-foreground mt-0.5">1 / √(1 − β²)</div>
+        <div
+          style={{
+            padding: "0.625rem",
+            borderRadius: "0.375rem",
+            border: "1px solid var(--line)",
+            background: "var(--wash)",
+          }}
+        >
+          <div className="fine">Lorentz factor γ</div>
+          <div
+            style={{
+              fontSize: "0.875rem",
+              fontFamily: "var(--font-mono, monospace)",
+              fontWeight: 600,
+              marginTop: "0.125rem",
+              color: "var(--ink)",
+            }}
+          >
+            {gamma.toFixed(6)}
+          </div>
+          <div className="fine" style={{ fontSize: "0.625rem", marginTop: "0.125rem" }}>
+            1 / √(1 − β²)
+          </div>
         </div>
       </div>
 
       {showCountermodel &&
       countermodelEnergyFactor !== undefined &&
       countermodelVolumeFactor !== undefined ? (
-        <div className="p-3 rounded-md border border-amber-500/40 bg-amber-500/10 text-xs">
-          <div className="font-semibold text-amber-800 dark:text-amber-300">
+        <div
+          style={{
+            padding: "0.75rem",
+            borderRadius: "0.375rem",
+            border: "1px solid rgba(245, 158, 11, 0.4)",
+            background: "rgba(245, 158, 11, 0.1)",
+            fontSize: "0.75rem",
+          }}
+        >
+          <div style={{ fontWeight: 600, color: "var(--ink)" }}>
             Countermodel Comparison: &ldquo;Treat the packet like a rigid rod&rdquo;
           </div>
-          <p className="mt-1 text-amber-900/90 dark:text-amber-200/90">
+          <p style={{ margin: "0.25rem 0 0", color: "var(--ink)", lineHeight: 1.5 }}>
             If the packet were treated as a rigid rod, both energy and volume would scale by 1/γ ={" "}
             {countermodelVolumeFactor.toFixed(4)} (E′_wrong ={" "}
             {countermodelEnergyJ !== undefined ? countermodelEnergyJ.toFixed(3) : "—"} J). The true

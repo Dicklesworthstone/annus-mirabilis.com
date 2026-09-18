@@ -61,7 +61,7 @@
   "src/components/lab/sr08/FieldFrameChangePlot.tsx": 2,
   "src/components/lab/sr09/DopplerAberrationPlot.tsx": 108,
   "src/components/lab/sr10/LightComplexLab.tsx": 5,
-  "src/components/lab/sr10/LightComplexPlot.tsx": 122,
+  "src/components/lab/sr10/LightComplexPlot.tsx": 0,
   "src/components/lab/sr11/MovingMirrorPlot.tsx": 59,
   "src/components/lab/sr12/ChargeCurrentLab.tsx": 0,
   "src/components/lab/sr12/ChargeCurrentPlot.tsx": 81,
