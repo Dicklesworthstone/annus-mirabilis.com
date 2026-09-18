@@ -8,28 +8,13 @@ import {
   KernelExtractionError,
 } from "../src/content/kernel/extractTypeScript.ts";
 import { hashKernelSource } from "../src/content/kernel/sourceDigest.ts";
-import { verifySliceKernels, writePinsFromExtraction } from "../src/content/kernel/verify.ts";
+import {
+  checkCleanCommittedSource,
+  verifySliceKernels,
+  writePinsFromExtraction,
+} from "../src/content/kernel/verify.ts";
 
-export { KernelExtractionError };
-
-export function checkCleanCommittedSource(root: string, filePaths: readonly string[]): string[] {
-  const dirty: string[] = [];
-  for (const rel of filePaths) {
-    try {
-      const out = execFileSync("git", ["diff", "HEAD", "--", rel], {
-        cwd: root,
-        encoding: "utf8",
-        stdio: ["ignore", "pipe", "ignore"],
-      });
-      if (out.trim().length > 0) {
-        dirty.push(rel);
-      }
-    } catch {
-      // ignore git errors if not running in a git tree
-    }
-  }
-  return dirty;
-}
+export { checkCleanCommittedSource, KernelExtractionError };
 
 export type IdentifierBinding = Readonly<{
   kernelFunction: string;
@@ -182,16 +167,17 @@ if (invokedDirectly) {
   const root = resolve(fileURLToPath(new URL("..", import.meta.url)));
   const pinsPath = resolve(root, "src/content/kernel/pins.json");
   const writePins = process.argv.includes("--write-pins");
+  const allowDirty =
+    process.argv.includes("--allow-dirty-pins") || process.argv.includes("--allow-dirty");
   const skipPins = process.argv.includes("--no-pins");
   const result = verifySliceKernels({
     root,
     revision: process.env.KERNEL_REVISION ?? "workspace",
     pinsPath: skipPins || writePins || !existsSync(pinsPath) ? undefined : pinsPath,
     writeManifestPath: resolve(root, "generated/kernel-sources.json"),
+    checkCommitted: !allowDirty,
   });
   if (writePins) {
-    const allowDirty =
-      process.argv.includes("--allow-dirty-pins") || process.argv.includes("--allow-dirty");
     if (!allowDirty) {
       const filePaths = [...new Set(result.records.map((r) => r.filePath))];
       const dirtyFiles = checkCleanCommittedSource(root, filePaths);
@@ -214,6 +200,7 @@ if (invokedDirectly) {
       revision: process.env.KERNEL_REVISION ?? "workspace",
       pinsPath,
       writeManifestPath: resolve(root, "generated/kernel-sources.json"),
+      checkCommitted: !allowDirty,
     });
     if (!verifiedAfterWrite.ok) {
       for (const issue of verifiedAfterWrite.issues) {

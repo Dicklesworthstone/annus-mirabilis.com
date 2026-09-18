@@ -326,9 +326,7 @@ owner:
       language: ts
       module: "src/physics/reference/diffusion/distributions.ts"
       exportName: "stokesEinsteinD"
-      independentReferences:
-        - experimentId: bm-01
-          quantityId: diffusionCoefficient
+      independentReferences: []
     - displayRole: reference-implementation
       language: ts
       module: "src/physics/reference/diffusion/distributions.ts"
@@ -355,16 +353,31 @@ owner:
     - kernelFunction: stokesEinsteinD
       identifier: "a"
       quantityId: particleRadius
+    - kernelFunction: stokesEinsteinD
+      identifier: "k"
+      quantityId: boltzmannConstant
     - kernelFunction: rmsDisplacement
       identifier: "D"
       quantityId: diffusionCoefficient
     - kernelFunction: rmsDisplacement
       identifier: "t"
       quantityId: observationInterval
+    - kernelFunction: rmsDisplacement
+      identifier: "rmsDisplacement"
+      quantityId: rmsDisplacement1d
+    - kernelFunction: apparentSpeed
+      identifier: "D"
+      quantityId: diffusionCoefficient
     - kernelFunction: apparentSpeed
       identifier: "tau"
       quantityId: observationInterval
-  traceScenarioId: bm-01-golden
+    - kernelFunction: apparentSpeed
+      identifier: "apparentSpeed"
+      quantityId: modelApparentSpeed
+    - kernelFunction: ensembleMoments
+      identifier: "rms"
+      quantityId: rmsDisplacement1d
+  traceScenarioId: diffusion-einstein-1905-printed
   traceRows:
     - label: "Diffusivity, Einstein preset"
       expression: "D = (R * T) / (6 * pi * eta * a * N_A)"

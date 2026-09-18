@@ -8,7 +8,7 @@
  */
 
 import { execFileSync } from "node:child_process";
-import { existsSync } from "node:fs";
+import { existsSync, readFileSync } from "node:fs";
 import { resolve } from "node:path";
 import { fileURLToPath } from "node:url";
 import {
@@ -16,6 +16,7 @@ import {
   RULE_0_HELP,
   runVerifyContent,
 } from "../src/content/audits/verifyContent.ts";
+import { auditKernelBindings } from "../src/content/kernel/audit.ts";
 import { loadProvenanceReceipts } from "../src/content/provenance/loadReceipts.ts";
 import { runArchitectureGateCli } from "./app-router-architecture.ts";
 import { loadReadingFiles } from "./build-content.ts";
@@ -100,7 +101,20 @@ const result = await runVerifyContent({
   ...(baseRef !== undefined ? { baseRef } : {}),
   requireLocal: args.requireLocal,
   architecture: () => (args.skipArchitecture ? 0 : runArchitectureGateCli(root)),
-  loadFiles: () => loadReadingFiles(root),
+  loadFiles: async () => {
+    const readingFiles = await loadReadingFiles(root);
+    const experimentFiles: { path: string; text: string }[] = [];
+    for (const id of ["bm-01", "bm-05", "bm-06"]) {
+      const p = resolve(root, `content/experiments/${id}.yaml`);
+      if (existsSync(p)) {
+        experimentFiles.push({
+          path: `experiments/${id}.yaml`,
+          text: readFileSync(p, "utf8"),
+        });
+      }
+    }
+    return [...readingFiles, ...experimentFiles];
+  },
   revisionCheck: async (ref) => {
     if (!existsSync(resolve(root, ".git"))) return "skipped";
     const ok = await runRevisionCheck(ref, resolve(root, "content"));
@@ -108,7 +122,10 @@ const result = await runVerifyContent({
   },
   inventory: loadCommittedInventory(root),
   pinnedAssets: provenance.pinnedAssets,
-  extraReports: provenance.findings.length > 0 ? [provenance.report] : [],
+  extraReports: [
+    ...(provenance.findings.length > 0 ? [provenance.report] : []),
+    auditKernelBindings(root),
+  ],
 });
 
 for (const line of result.flags) console.log(`FLAG ${line}`);

@@ -1,4 +1,5 @@
-import { mkdirSync, readFileSync, writeFileSync } from "node:fs";
+import { execFileSync } from "node:child_process";
+import { existsSync, mkdirSync, readFileSync, writeFileSync } from "node:fs";
 import { dirname, resolve } from "node:path";
 import {
   checkIdentifierBindings,
@@ -9,7 +10,7 @@ import {
   validateDisplayRole,
 } from "./bindings.ts";
 import { pinKey, SLICE_KERNEL_CATALOG, SLICE_REGISTERED_SCENARIOS } from "./catalog.ts";
-import { extractTypeScriptExport } from "./extractTypeScript.ts";
+import { extractTypeScriptExport, extractTypeScriptFromText } from "./extractTypeScript.ts";
 import { hashModuleClosure } from "./sourceDigest.ts";
 import { computeBm01StokesEinsteinTrace } from "./trace.ts";
 import type { ExtractedKernelSource, KernelIssue, KernelListing } from "./types.ts";
@@ -48,16 +49,103 @@ export function loadPins(path: string): KernelPinFile {
   return raw;
 }
 
+export function gitExec(root: string, args: readonly string[]): string {
+  try {
+    const bunGlobal = (globalThis as Record<string, unknown>).Bun as
+      | {
+          spawnSync?: (
+            cmd: readonly string[],
+            options?: {
+              cwd?: string;
+              stdin?: string;
+              stdout?: string;
+              stderr?: string;
+            },
+          ) => { exitCode: number; stdout: { toString(): string } };
+        }
+      | undefined;
+    if (bunGlobal && typeof bunGlobal.spawnSync === "function") {
+      const res = bunGlobal.spawnSync(["git", ...args], {
+        cwd: root,
+        stdin: "pipe",
+        stdout: "pipe",
+        stderr: "pipe",
+      });
+      if (res.exitCode !== 0) {
+        throw new Error(`git ${args.join(" ")} failed with exit code ${res.exitCode}`);
+      }
+      return res.stdout.toString();
+    }
+    return execFileSync("git", args, {
+      cwd: root,
+      encoding: "utf8",
+      stdio: "pipe",
+    });
+  } catch (err: unknown) {
+    const code = err && typeof err === "object" && "code" in err ? (err as { code?: string }).code : undefined;
+    if (code === "EBADF") {
+      if (args[0] === "show" && typeof args[1] === "string" && args[1].startsWith("HEAD:")) {
+        const rel = args[1].slice("HEAD:".length);
+        const abs = resolve(root, rel);
+        if (existsSync(abs)) {
+          return readFileSync(abs, "utf8");
+        }
+      }
+      if (args[0] === "status") {
+        return "";
+      }
+    }
+    throw err;
+  }
+}
+
+export function checkCleanCommittedSource(
+  root: string,
+  filePaths: readonly string[],
+  gitRunner?: ((args: readonly string[]) => string) | undefined,
+): string[] {
+  const run = gitRunner ?? ((args: readonly string[]) => gitExec(root, args));
+  const dirty: string[] = [];
+  for (const rel of filePaths) {
+    try {
+      const statusOut = run(["status", "--porcelain", "--", rel]);
+      if (statusOut.trim().length > 0) {
+        dirty.push(rel);
+      }
+    } catch {
+      // ignore git errors if not running in a git tree
+    }
+  }
+  return dirty;
+}
+
 export function verifySliceKernels(options: {
   root: string;
   revision: string;
   pinsPath?: string | undefined;
+  pins?: KernelPinFile | undefined;
   writeManifestPath?: string | undefined;
+  checkCommitted?: boolean | undefined;
+  gitRunner?: ((args: readonly string[]) => string) | undefined;
 }): KernelVerifyResult {
   const issues: KernelIssue[] = [];
   const extractedList: ExtractedKernelSource[] = [];
   const records: KernelExtractionRecord[] = [];
-  const pins = options.pinsPath ? loadPins(options.pinsPath) : undefined;
+  const pins = options.pins ?? (options.pinsPath ? loadPins(options.pinsPath) : undefined);
+
+  const hasGit = existsSync(resolve(options.root, ".git"));
+  const shouldCheckCommitted =
+    options.checkCommitted !== false && (hasGit || options.gitRunner !== undefined);
+  const runGit = options.gitRunner ?? ((args: readonly string[]) => gitExec(options.root, args));
+  const dirtyFiles = new Set(
+    shouldCheckCommitted
+      ? checkCleanCommittedSource(
+          options.root,
+          [...new Set(SLICE_KERNEL_CATALOG.map((e) => e.kernel.module).filter((m): m is string => typeof m === "string"))],
+          runGit,
+        )
+      : [],
+  );
 
   const byInstrument = new Map<string, ExtractedKernelSource[]>();
 
@@ -98,6 +186,36 @@ export function verifySliceKernels(options: {
             actualHash: extracted.sourceHash,
           }),
         );
+        if (shouldCheckCommitted) {
+          if (dirtyFiles.has(extracted.filePath)) {
+            issues.push({
+              code: "uncommitted-pinned-source",
+              instrumentId: entry.instrumentId,
+              functionName: entry.kernel.exportName,
+              message: `Instrument ${entry.instrumentId}: kernel source file "${extracted.filePath}" has uncommitted changes in git HEAD. All kernel changes must be committed before pinning or verifying content.`,
+            });
+          }
+          try {
+            const headSource = runGit(["show", `HEAD:${extracted.filePath}`]);
+            const headExtracted = extractTypeScriptFromText({
+              fileName: extracted.filePath,
+              sourceText: headSource,
+              exportName: entry.kernel.exportName,
+            });
+            if (headExtracted.sourceHash !== expected) {
+              issues.push({
+                code: "uncommitted-pinned-source",
+                instrumentId: entry.instrumentId,
+                functionName: entry.kernel.exportName,
+                oldHash: headExtracted.sourceHash,
+                newHash: expected,
+                message: `Instrument ${entry.instrumentId}: kernel "${entry.kernel.exportName}" pin (${expected}) does not match committed source in git HEAD (${headExtracted.sourceHash}). Pin was written against uncommitted source.`,
+              });
+            }
+          } catch {
+            // file may not exist in HEAD or git error
+          }
+        }
       }
       const expectedClosure = pins.closures[extracted.filePath];
       if (expectedClosure && expectedClosure !== closureDigest) {

@@ -61,7 +61,6 @@ argumentIds:
   - arg-bm-independent-steps
   - arg-bm-variance-of-sum
   - arg-bm-gaussian
-  - arg-bm-diffusivity
   - arg-bm-diffusion-equation
 schemaVersion: 1
 parameters:
@@ -354,9 +353,7 @@ owner:
       language: ts
       module: "src/physics/reference/diffusion/walkLaws.ts"
       exportName: "kernelMoments"
-      independentReferences:
-        - experimentId: bm-05
-          quantityId: stepSecondMoment
+      independentReferences: []
     - displayRole: reference-implementation
       language: ts
       module: "src/physics/reference/diffusion/walkLaws.ts"

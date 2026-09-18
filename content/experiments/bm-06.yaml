@@ -333,9 +333,7 @@ owner:
       language: ts
       module: "src/physics/reference/diffusion/distributions.ts"
       exportName: "gaussianPropagator"
-      independentReferences:
-        - experimentId: bm-06
-          quantityId: coordinateDensity
+      independentReferences: []
     - displayRole: reference-implementation
       language: ts
       module: "src/physics/reference/diffusion/distributions.ts"
