@@ -84,12 +84,42 @@ test("modern exact constants and their dependency remain in one immutable set", 
   });
   assert.throws(() => modern.entries.push(modern.entries[0]));
 });
-test("unverified historical and reserved sets cannot masquerade as available", () => {
-  for (const id of ["einstein-1905-brownian-printed", ...Object.keys(RESERVED_SET_IDS)])
+test("verified printed sets resolve with provenance while reserved sets still throw", () => {
+  const verifiedPrintedSetIds = [
+    "einstein-1905-brownian-printed",
+    "einstein-1905-light-quanta-printed",
+    "einstein-1905-mass-energy-printed",
+    "planck-1900-1901-printed",
+  ];
+  for (const id of verifiedPrintedSetIds) {
+    const set = getConstantSet(id);
+    assert.equal(set.id, id);
+    assert.equal(set.kind, "printed-historical");
+    assert.ok(set.entries.length > 0, `${id} must have entries`);
+    for (const entry of set.entries) {
+      assert.ok(
+        entry.transcriptionStatus,
+        `${entry.quantityId} in ${id} missing transcriptionStatus`,
+      );
+      if (entry.transcriptionStatus === "transcribed-and-checked") {
+        assert.ok(
+          typeof entry.checkedBy === "string" && entry.checkedBy.trim().length > 0,
+          `${entry.quantityId} in ${id} missing checkedBy`,
+        );
+        assert.ok(
+          typeof entry.checkedAt === "string" && entry.checkedAt.trim().length > 0,
+          `${entry.quantityId} in ${id} missing checkedAt`,
+        );
+      }
+    }
+  }
+
+  for (const id of Object.keys(RESERVED_SET_IDS)) {
     assert.throws(
       () => getConstantSet(id),
       (e) => e.code === "constant-set-not-registered",
     );
+  }
   assert.throws(
     () => getConstantSet("unknown"),
     (e) => e.code === "unknown-constant-set",

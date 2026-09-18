@@ -1,5 +1,9 @@
 import { describe, expect, test } from "bun:test";
-import { constantValue, getConstantSet } from "../../physics/reference/constants.ts";
+import {
+  constantValue,
+  getConstantSet,
+  RESERVED_SET_IDS,
+} from "../../physics/reference/constants.ts";
 import {
   entropyWithUnfixedConstant,
   wienSpectralEntropyDensity,
@@ -196,10 +200,31 @@ describe("LQ-04 command-class invariance: a volume change never moves E, nu, or 
   });
 });
 
-describe("LQ-04 historical constant set (scope note)", () => {
-  test("einstein-1905-light-quanta-printed is not yet a registered constant set", () => {
-    expect(() => getConstantSet("einstein-1905-light-quanta-printed")).toThrow(
-      /not verified and registered/,
-    );
+describe("historical constant sets verification (am-ref-constants-xik)", () => {
+  test("verified historical sets resolve with full transcription metadata, while reserved sets still throw", () => {
+    const verifiedHistoricalIds = [
+      "einstein-1905-light-quanta-printed",
+      "einstein-1905-brownian-printed",
+      "einstein-1905-mass-energy-printed",
+      "planck-1900-1901-printed",
+    ] as const;
+
+    for (const id of verifiedHistoricalIds) {
+      const set = getConstantSet(id);
+      expect(set.id).toBe(id);
+      expect(set.entries.length).toBeGreaterThan(0);
+      for (const entry of set.entries) {
+        if (entry.transcriptionStatus === "transcribed-and-checked") {
+          expect(entry.checkedBy).toBeDefined();
+          expect(entry.checkedBy?.length).toBeGreaterThan(0);
+          expect(entry.checkedAt).toBeDefined();
+          expect(entry.checkedAt?.length).toBeGreaterThan(0);
+        }
+      }
+    }
+
+    for (const id of Object.keys(RESERVED_SET_IDS)) {
+      expect(() => getConstantSet(id)).toThrow(/not verified and registered/);
+    }
   });
 });
