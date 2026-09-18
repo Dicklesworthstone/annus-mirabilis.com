@@ -1,4 +1,4 @@
-import { enumerateSignedSteps, type StepDependence } from "../../physics/reference/stepEnumeration.ts";
+import { enumerateSignedSteps, type StepDependence } from "../../experiments/bm05/stepEnumeration.ts";
 import { compareBitwise } from "../../units/tolerance.ts";
 import type { Expression } from "../ast.ts";
 import type { MissingStepLesson } from "./transitionSchema.ts";

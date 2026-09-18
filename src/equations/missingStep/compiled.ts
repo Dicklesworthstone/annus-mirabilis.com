@@ -1,4 +1,4 @@
-import type { enumerateSignedSteps } from "../../physics/reference/stepEnumeration.ts";
+import type { enumerateSignedSteps } from "../../experiments/bm05/stepEnumeration.ts";
 export type CompiledMissingStep = Readonly<{
   id: string; title: string; fromHtml: string; toHtml: string; changed: readonly string[];
   rule: string; premiseTexts: readonly string[]; readings: Readonly<{r0: string; r1: string; r2: string}>;
