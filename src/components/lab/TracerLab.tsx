@@ -51,9 +51,13 @@ function SamplingBand({
 export function TracerLab({
   example,
   title = "The tracer ensemble",
+  equationScope,
+  equationScopeLabel,
 }: {
   example: PreparedBm01Example;
   title?: string;
+  equationScope?: string | undefined;
+  equationScopeLabel?: string | undefined;
 }) {
   const id = useId();
   const [session] = useState(() =>
@@ -203,6 +207,8 @@ export function TracerLab({
     <EquationScope
       slots={[{ slot: "primary", experimentId: "bm-01", view, execution }]}
       editQuantity={editQuantity}
+      scope={equationScope}
+      scopeLabel={equationScopeLabel}
     >
       <section
         className="laboratory"
@@ -724,7 +730,14 @@ export function TracerComparison({ example }: { example: PreparedBm01Example }) 
           {second ? "Close the second tracer ensemble" : "Open a second separate ensemble"}
         </button>
       </div>
-      {second && <TracerLab example={example} title="A separate tracer ensemble" />}
+      {second && (
+        <TracerLab
+          example={example}
+          title="A separate tracer ensemble"
+          equationScope="compare"
+          equationScopeLabel="comparison ensemble"
+        />
+      )}
     </>
   );
 }

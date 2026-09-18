@@ -33,7 +33,7 @@ export async function PaperReader({
 }: {
   section?: string | undefined;
   companion?: string | undefined;
-}) {
+} = {}) {
   const companionKind = companionKindFromQuery(companion);
   const payload = await loadPaper("brownian-motion"),
     { paper, foundations } = payload;
@@ -174,7 +174,7 @@ export async function PaperReader({
                           />
                         </div>
                       ))}
-                      <EquationScope>
+                      <EquationScope scopeLabel="reading argument">
                         {(equationPayload.equations as readonly CompiledEquation[])
                           .filter((e) => e.argument === a.id)
                           .map((e) => (
@@ -270,6 +270,8 @@ export async function PaperReader({
               <TracerLab
                 example={tracerExample as PreparedBm01Example}
                 title="Investigate the displacement argument"
+                equationScope="lab"
+                equationScopeLabel="laboratory model"
               />
             </details>
           </section>

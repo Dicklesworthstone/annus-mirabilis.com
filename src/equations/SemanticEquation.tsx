@@ -14,11 +14,21 @@ import { navigate } from "./navigation.ts";
 import { createSelectionStore } from "./selectionStore.ts";
 import type { CompiledEquation } from "./viewTypes.ts";
 import "./equations.css";
-export function SemanticEquation({ equation }: { equation: CompiledEquation }) {
+export function SemanticEquation({
+  equation,
+  scope: propScope,
+  scopeLabel: propScopeLabel,
+}: {
+  equation: CompiledEquation;
+  scope?: string | undefined;
+  scopeLabel?: string | undefined;
+}) {
   const uid = useId(),
-    scope = useEquationScope(),
+    scopeContext = useEquationScope(),
+    effectiveScope = propScope ?? scopeContext?.scope,
+    effectiveScopeLabel = propScopeLabel ?? scopeContext?.scopeLabel,
     [local] = useState(createSelectionStore),
-    store = scope?.store ?? local;
+    store = scopeContext?.store ?? local;
   const selected = useSyncExternalStore(
     store.subscribe,
     store.getSnapshot,
@@ -36,7 +46,7 @@ export function SemanticEquation({ equation }: { equation: CompiledEquation }) {
     term = equation.terms.find((t) => t.termId === current);
   const binding = equation.bindings[0],
     resolution = binding
-      ? resolveSlot(scope?.slots ?? [], binding.experimentId, binding.instanceSlot)
+      ? resolveSlot(scopeContext?.slots ?? [], binding.experimentId, binding.instanceSlot)
       : null;
   const slot = resolution?.kind === "resolved" ? resolution.value : null,
     snapshot = slot?.view.accepted;
@@ -84,11 +94,15 @@ export function SemanticEquation({ equation }: { equation: CompiledEquation }) {
     (current === id ||
       (selected?.quantityId &&
         equation.terms.find((t) => t.termId === id)?.quantityId === selected.quantityId));
+  const equationId = effectiveScope ? `${equation.id}-${effectiveScope}` : equation.id;
+  const navLabel = effectiveScopeLabel
+    ? `Terms and operations in ${equation.title || equation.id} (${effectiveScopeLabel})`
+    : `Terms and operations in ${equation.title || equation.id}`;
   return (
     <div
       ref={root}
       className="semantic-equation"
-      data-equation-id={equation.id}
+      data-equation-id={equationId}
       data-equation-digest={equation.treeDigest}
       data-selected-node-id={current ?? undefined}
       data-pattern={String(pattern)}
@@ -168,10 +182,7 @@ export function SemanticEquation({ equation }: { equation: CompiledEquation }) {
           Clear equation selection
         </button>
       </div>
-      <nav
-        className="equation-chips"
-        aria-label={`Terms and operations in ${equation.title || equation.id}`}
-      >
+      <nav className="equation-chips" aria-label={navLabel}>
         {equation.navigation.map((n) => {
           const noteEntry = equation.notes.find((note) => note.nodeId === n.id);
           const noteTitle = noteEntry?.title ?? n.id;
@@ -217,11 +228,11 @@ export function SemanticEquation({ equation }: { equation: CompiledEquation }) {
               Show the missing step →
             </a>
           </p>
-          {term?.quantity.role === "input" && scope?.editQuantity && (
+          {term?.quantity.role === "input" && scopeContext?.editQuantity && (
             <button
               type="button"
               className="secondary"
-              onClick={() => scope.editQuantity?.(term.quantityId)}
+              onClick={() => scopeContext.editQuantity?.(term.quantityId)}
             >
               Edit this input in the laboratory
             </button>
