@@ -529,4 +529,152 @@ describe("refusal coverage: slugs, bib keys, and paper codes (ids.ts throw sites
     const pass = validateSlug("0.6c");
     expect(pass.ok).toBe(true);
   });
+
+  test("PLANTED: invalid instrument ID refuses with instrument-id-grammar (ids.ts:202)", () => {
+    const res = parseInstrumentId("invalid-id");
+    expect(res.ok).toBe(false);
+    if (!res.ok) {
+      expect(res.rule).toBe("instrument-id-grammar");
+      expect(res.error).toContain("Invalid instrument ID");
+    }
+    const passCore = parseInstrumentId("lq-01");
+    expect(passCore.ok).toBe(true);
+    const passShelf = parseInstrumentId("shelf-fizeau");
+    expect(passShelf.ok).toBe(true);
+  });
+
+  test("PLANTED: empty or non-string mode ID refuses with mode-id-grammar (ids.ts:213)", () => {
+    const resEmpty = parseModeId("");
+    expect(resEmpty.ok).toBe(false);
+    if (!resEmpty.ok) {
+      expect(resEmpty.rule).toBe("mode-id-grammar");
+      expect(resEmpty.error).toBe("Mode ID must be a non-empty string");
+    }
+    const resNull = parseModeId(null as any);
+    expect(resNull.ok).toBe(false);
+    if (!resNull.ok) {
+      expect(resNull.rule).toBe("mode-id-grammar");
+    }
+    const pass = parseModeId("sr-02:apparatus");
+    expect(pass.ok).toBe(true);
+  });
+
+  test("PLANTED: mode ID without exactly one colon refuses with mode-id-grammar (ids.ts:220)", () => {
+    const resNoColon = parseModeId("sr-02");
+    expect(resNoColon.ok).toBe(false);
+    if (!resNoColon.ok) {
+      expect(resNoColon.rule).toBe("mode-id-grammar");
+      expect(resNoColon.error).toContain("must have exactly one colon");
+    }
+    const resTwoColons = parseModeId("sr:02:apparatus");
+    expect(resTwoColons.ok).toBe(false);
+    if (!resTwoColons.ok) {
+      expect(resTwoColons.rule).toBe("mode-id-grammar");
+    }
+    const pass = parseModeId("sr-02:apparatus");
+    expect(pass.ok).toBe(true);
+  });
+
+  test("PLANTED: empty or non-string preset ID refuses with preset-id-grammar (ids.ts:244)", () => {
+    const resEmpty = parsePresetId("");
+    expect(resEmpty.ok).toBe(false);
+    if (!resEmpty.ok) {
+      expect(resEmpty.rule).toBe("preset-id-grammar");
+      expect(resEmpty.error).toBe("Preset ID must be a non-empty string");
+    }
+    const resNull = parsePresetId(null as any);
+    expect(resNull.ok).toBe(false);
+    if (!resNull.ok) {
+      expect(resNull.rule).toBe("preset-id-grammar");
+    }
+    const pass = parsePresetId("sr-03-boost-0.6c");
+    expect(pass.ok).toBe(true);
+  });
+
+  test("PLANTED: preset ID containing colon refuses with preset-id-grammar (ids.ts:250)", () => {
+    const res = parsePresetId("sr-03:boost-0.6c");
+    expect(res.ok).toBe(false);
+    if (!res.ok) {
+      expect(res.rule).toBe("preset-id-grammar");
+      expect(res.error).toContain("cannot contain a colon");
+    }
+    const pass = parsePresetId("sr-03-boost-0.6c");
+    expect(pass.ok).toBe(true);
+  });
+
+  test("PLANTED: preset ID without valid instrument prefix refuses with preset-id-grammar (ids.ts:271)", () => {
+    const res = parsePresetId("unknown-01-foo");
+    expect(res.ok).toBe(false);
+    if (!res.ok) {
+      expect(res.rule).toBe("preset-id-grammar");
+      expect(res.error).toContain("must begin with a valid instrument ID");
+    }
+    const pass = parsePresetId("sr-03-boost-0.6c");
+    expect(pass.ok).toBe(true);
+  });
+
+  test("PLANTED: empty or non-string predict prompt ID refuses with predict-prompt-grammar (ids.ts:298)", () => {
+    const resEmpty = parsePredictPromptId("");
+    expect(resEmpty.ok).toBe(false);
+    if (!resEmpty.ok) {
+      expect(resEmpty.rule).toBe("predict-prompt-grammar");
+      expect(resEmpty.error).toBe("Predict prompt ID must be a non-empty string");
+    }
+    const resUndefined = parsePredictPromptId(undefined as any);
+    expect(resUndefined.ok).toBe(false);
+    if (!resUndefined.ok) {
+      expect(resUndefined.rule).toBe("predict-prompt-grammar");
+    }
+    const pass = parsePredictPromptId("sr-09-predict-approaching");
+    expect(pass.ok).toBe(true);
+  });
+
+  test("PLANTED: predict prompt ID containing colon refuses with predict-prompt-grammar (ids.ts:305)", () => {
+    const res = parsePredictPromptId("sr-09:predict-approaching");
+    expect(res.ok).toBe(false);
+    if (!res.ok) {
+      expect(res.rule).toBe("predict-prompt-grammar");
+      expect(res.error).toContain("cannot contain a colon");
+    }
+    const pass = parsePredictPromptId("sr-09-predict-approaching");
+    expect(pass.ok).toBe(true);
+  });
+
+  test("PLANTED: predict prompt ID without predict pattern refuses with predict-prompt-grammar (ids.ts:325)", () => {
+    const res = parsePredictPromptId("invalid-predict-foo");
+    expect(res.ok).toBe(false);
+    if (!res.ok) {
+      expect(res.rule).toBe("predict-prompt-grammar");
+      expect(res.error).toContain("must match '<instrumentId>-predict-<slug>'");
+    }
+    const pass = parsePredictPromptId("sr-09-predict-approaching");
+    expect(pass.ok).toBe(true);
+  });
+
+  test("PLANTED: empty or non-string tape ID refuses with tape-id-grammar (ids.ts:342)", () => {
+    const resEmpty = parseTapeId("");
+    expect(resEmpty.ok).toBe(false);
+    if (!resEmpty.ok) {
+      expect(resEmpty.rule).toBe("tape-id-grammar");
+      expect(resEmpty.error).toBe("Tape ID must be a non-empty string");
+    }
+    const resNull = parseTapeId(null as any);
+    expect(resNull.ok).toBe(false);
+    if (!resNull.ok) {
+      expect(resNull.rule).toBe("tape-id-grammar");
+    }
+    const pass = parseTapeId("the-locked-positions");
+    expect(pass.ok).toBe(true);
+  });
+
+  test("PLANTED: tape ID containing colon refuses with tape-id-grammar (ids.ts:348)", () => {
+    const res = parseTapeId("tape:locked-positions");
+    expect(res.ok).toBe(false);
+    if (!res.ok) {
+      expect(res.rule).toBe("tape-id-grammar");
+      expect(res.error).toContain("cannot contain a colon");
+    }
+    const pass = parseTapeId("the-locked-positions");
+    expect(pass.ok).toBe(true);
+  });
 });
