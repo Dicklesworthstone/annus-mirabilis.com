@@ -215,6 +215,9 @@ rules:
       - "✓"
       - "✗"
     markWordsProseExempt: true
+    allowlist:
+      - data points
+      - data point
     severityByContext:
       task-feedback: error
       reader-progress: error

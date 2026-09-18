@@ -250,6 +250,56 @@ describe("theater", () => {
     );
     assert.equal(has(checkVoice("step 3 of 7", { context: "reader-progress" }), "theater"), false);
   });
+  it('legitimate scientific phrases "data points" and "data point" pass across contexts', () => {
+    assert.equal(
+      has(
+        checkVoice("Perrin plotted 50 data points from the emulsion measurements.", {
+          context: "prose",
+        }),
+        "theater",
+      ),
+      false,
+    );
+    assert.equal(
+      has(
+        checkVoice("Each data point was recorded at thirty-second intervals.", {
+          context: "prose",
+        }),
+        "theater",
+      ),
+      false,
+    );
+    assert.equal(has(checkVoice("Toggle data points", { context: "ui-label" }), "theater"), false);
+    assert.equal(
+      has(
+        checkVoice("Compare your curve to the experimental data points.", {
+          context: "task-feedback",
+        }),
+        "theater",
+      ),
+      false,
+    );
+  });
+  it('gamification "points" fails in task-feedback and reader-progress, flags in prose', () => {
+    const feedback = checkVoice("You earned 10 points!", { context: "task-feedback" });
+    assert.equal(has(feedback, "theater", "error"), true);
+
+    const progress = checkVoice("Total points: 150", { context: "reader-progress" });
+    assert.equal(has(progress, "theater", "error"), true);
+
+    const prose = checkVoice("Earn points by answering questions.", { context: "prose" });
+    assert.equal(has(prose, "theater", "flag"), true);
+  });
+  it("a sentence containing both gamification points and scientific data points flags only the gamification term", () => {
+    const findings = checkVoice("Earn 10 points for plotting the experimental data points.", {
+      context: "task-feedback",
+    });
+    const theaterFindings = findings.filter((f) => f.rule === "theater");
+    assert.equal(theaterFindings.length, 1);
+    assert.equal(theaterFindings[0]?.matchedText.toLowerCase(), "points");
+    assert.equal(theaterFindings[0]?.index, 8);
+    assert.equal(theaterFindings[0]?.severity, "error");
+  });
 });
 
 describe("mockery", () => {
