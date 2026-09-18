@@ -1,7 +1,10 @@
 import { describe, expect, test } from "bun:test";
 import { readFileSync } from "node:fs";
 import {
+  assertNoUnignoredSubprocessTests,
+  classifyTestFileContent,
   expandIgnorePatternsToTestFiles,
+  formatUnignoredSubprocessTestFailure,
   nodeOnlyTestArgs,
   nodeOnlyTestCommand,
   parsePathIgnorePatterns,
@@ -61,5 +64,25 @@ describe("subprocess tests run under node, not bun test", () => {
 
   test("CI quality-gates workflow invokes bun run test:node", () => {
     expect(workflow.includes("bun run test:node")).toBe(true);
+  });
+
+  test("every browser or subprocess-spawning test is excluded in bunfig.toml pathIgnorePatterns (am-zbcg)", () => {
+    expect(() => assertNoUnignoredSubprocessTests(process.cwd())).not.toThrow();
+  });
+
+  test("unignored test importing playwright or chromium fails and names file and exact line to add (am-zbcg)", () => {
+    const fixtureCode = 'import { chromium } from "playwright";\n';
+    expect(classifyTestFileContent(fixtureCode)).toBe('imports "playwright"');
+
+    const failureMsg = formatUnignoredSubprocessTestFailure([
+      {
+        file: "src/testing/dummy.test.ts",
+        reason: 'imports "playwright"',
+        lineToAdd: '  "src/testing/dummy.test.ts",',
+      },
+    ]);
+    expect(failureMsg).toContain("src/testing/dummy.test.ts");
+    expect(failureMsg).toContain('  "src/testing/dummy.test.ts",');
+    expect(failureMsg).toContain('imports "playwright"');
   });
 });

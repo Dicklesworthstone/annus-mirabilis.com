@@ -4,8 +4,8 @@
  * list so package.json, CI, and tests cannot drift from bunfig.
  */
 
-import { type Dirent, existsSync, readdirSync, statSync } from "node:fs";
-import { join, relative } from "node:path";
+import { type Dirent, existsSync, readdirSync, readFileSync, statSync } from "node:fs";
+import { join, relative, resolve } from "node:path";
 
 export const BUNFIG_RELATIVE_PATH = "bunfig.toml";
 /** Extra node --test inputs that bunfig does not ignore. Globs are expanded to files. */
@@ -123,4 +123,147 @@ export function nodeOnlyTestArgs(bunfigText: string, root: string): string[] {
 
 export function nodeOnlyTestCommand(args: readonly string[]): string {
   return ["node", "--experimental-strip-types", "--test", ...args].join(" ");
+}
+
+export const TEST_FILE_EXTENSIONS_REGEX = /\.(test|spec)\.(ts|js|mjs|tsx|jsx)$/;
+
+export function stripComments(code: string): string {
+  return code.replace(/\/\*[\s\S]*?\*\//g, "").replace(/\/\/.*/g, "");
+}
+
+export const PLAYWRIGHT_STATIC_IMPORT_REGEX =
+  /(?:^|\n)\s*(?:import|export)\b[^;]*?\bfrom\s*['"](@?playwright(?:-core|\/test)?|@axe-core\/playwright|chromium)['"]/;
+
+export const PLAYWRIGHT_BARE_IMPORT_REGEX =
+  /(?:^|\n)\s*import\s*['"](@?playwright(?:-core|\/test)?|@axe-core\/playwright|chromium)['"]/;
+
+export const PLAYWRIGHT_DYNAMIC_IMPORT_REGEX =
+  /\b(?:require|import)\s*\(\s*['"](@?playwright(?:-core|\/test)?|@axe-core\/playwright|chromium)['"]\s*\)/;
+
+export const CHROMIUM_NAMED_IMPORT_REGEX =
+  /(?:^|\n)\s*(?:import|export)\b[^;]*?\bchromium\b[^;]*?\bfrom\b/;
+
+export const SUBPROCESS_STATIC_IMPORT_REGEX =
+  /(?:^|\n)\s*(?:import|export)\b[^;]*?\bfrom\s*['"](?:node:)?child_process['"]/;
+
+export const SUBPROCESS_BARE_IMPORT_REGEX = /(?:^|\n)\s*import\s*['"](?:node:)?child_process['"]/;
+
+export const SUBPROCESS_DYNAMIC_IMPORT_REGEX =
+  /\b(?:require|import)\s*\(\s*['"](?:node:)?child_process['"]\s*\)/;
+
+export const SUBPROCESS_SPAWN_CALL_REGEX =
+  /\b(?:spawn|spawnSync|exec|execSync|execFile|execFileSync|fork)\s*\(/;
+
+export interface UnignoredSubprocessTestViolation {
+  readonly file: string;
+  readonly reason: string;
+  readonly lineToAdd: string;
+}
+
+export function classifyTestFileContent(rawContent: string): string | null {
+  const code = stripComments(rawContent);
+
+  const staticMatch = code.match(PLAYWRIGHT_STATIC_IMPORT_REGEX);
+  if (staticMatch?.[1] !== undefined) {
+    return `imports "${staticMatch[1]}"`;
+  }
+
+  const bareMatch = code.match(PLAYWRIGHT_BARE_IMPORT_REGEX);
+  if (bareMatch?.[1] !== undefined) {
+    return `imports "${bareMatch[1]}"`;
+  }
+
+  const dynamicMatch = code.match(PLAYWRIGHT_DYNAMIC_IMPORT_REGEX);
+  if (dynamicMatch?.[1] !== undefined) {
+    return `imports "${dynamicMatch[1]}"`;
+  }
+
+  if (CHROMIUM_NAMED_IMPORT_REGEX.test(code)) {
+    return "imports chromium";
+  }
+
+  const hasSubprocessImport =
+    SUBPROCESS_STATIC_IMPORT_REGEX.test(code) ||
+    SUBPROCESS_BARE_IMPORT_REGEX.test(code) ||
+    SUBPROCESS_DYNAMIC_IMPORT_REGEX.test(code);
+
+  if (hasSubprocessImport && SUBPROCESS_SPAWN_CALL_REGEX.test(code) && !code.includes("EBADF")) {
+    return "spawns a subprocess without EBADF handling";
+  }
+
+  return null;
+}
+
+export function formatUnignoredSubprocessTestFailure(
+  violations: readonly UnignoredSubprocessTestViolation[],
+): string {
+  const lines = [
+    `Found ${violations.length} test file(s) that import playwright, @axe-core/playwright, or chromium, or spawn a subprocess, but are not matched by bunfig.toml pathIgnorePatterns:`,
+    "",
+  ];
+  for (const v of violations) {
+    lines.push(`File: ${v.file}`);
+    lines.push(`Reason: ${v.reason}`);
+    lines.push("Exact line to add to [test].pathIgnorePatterns in bunfig.toml:");
+    lines.push(v.lineToAdd);
+    lines.push("");
+  }
+  lines.push(
+    "Subprocess-spawning and browser tests cannot run under bun test on macOS (EBADF posix_spawn failure).",
+    "They must be listed in bunfig.toml pathIgnorePatterns so bun test skips them and scripts/run-node-only-tests.ts runs them under node --test.",
+  );
+  return lines.join("\n");
+}
+
+export function findUnignoredSubprocessTests(
+  root: string = process.cwd(),
+  bunfigText?: string,
+  targetDirs: readonly string[] = ["src", "scripts"],
+): UnignoredSubprocessTestViolation[] {
+  const rawBunfig = bunfigText ?? readFileSync(resolve(root, BUNFIG_RELATIVE_PATH), "utf8");
+  const patterns = parsePathIgnorePatterns(rawBunfig);
+
+  const allFiles: string[] = [];
+  for (const dir of targetDirs) {
+    const fullDir = resolve(root, dir);
+    if (existsSync(fullDir)) {
+      walkFiles(fullDir, root, allFiles);
+    }
+  }
+
+  const testFiles = allFiles.filter((rel) => TEST_FILE_EXTENSIONS_REGEX.test(rel));
+  const violations: UnignoredSubprocessTestViolation[] = [];
+
+  for (const relPath of testFiles) {
+    let content: string;
+    try {
+      content = readFileSync(resolve(root, relPath), "utf8");
+    } catch {
+      continue;
+    }
+    const reason = classifyTestFileContent(content);
+    if (reason !== null) {
+      const isIgnored = patterns.some((p) => matchPattern(relPath, p));
+      if (!isIgnored) {
+        violations.push({
+          file: relPath,
+          reason,
+          lineToAdd: `  "${relPath}",`,
+        });
+      }
+    }
+  }
+
+  return violations;
+}
+
+export function assertNoUnignoredSubprocessTests(
+  root: string = process.cwd(),
+  bunfigText?: string,
+  targetDirs: readonly string[] = ["src", "scripts"],
+): void {
+  const violations = findUnignoredSubprocessTests(root, bunfigText, targetDirs);
+  if (violations.length > 0) {
+    throw new Error(formatUnignoredSubprocessTestFailure(violations));
+  }
 }

@@ -3,8 +3,12 @@ import { readFileSync } from "node:fs";
 import { resolve } from "node:path";
 import { describe, it } from "node:test";
 import {
+  assertNoUnignoredSubprocessTests,
   BUNFIG_RELATIVE_PATH,
+  classifyTestFileContent,
   expandIgnorePatternsToTestFiles,
+  findUnignoredSubprocessTests,
+  formatUnignoredSubprocessTestFailure,
   nodeOnlyTestArgs,
   parsePathIgnorePatterns,
 } from "./bunfigNodeOnlyTests.ts";
@@ -66,5 +70,101 @@ describe("bunfigNodeOnlyTests", () => {
     }
     assert.equal(ignoredFiles.includes("scripts/ocr-ledgers.e2e.test.ts"), true);
     assert.equal(ignoredFiles.includes("scripts/quality-gates.test.ts"), true);
+  });
+
+  it("classifyTestFileContent detects playwright, axe-core, chromium, and subprocess variants", () => {
+    const pw = "play" + "wright";
+    const axe = "@axe-core/" + "playwright";
+    const pwCore = "playwright" + "-core";
+
+    assert.equal(
+      classifyTestFileContent(`import { chromium } from "${pw}";`),
+      'imports "playwright"',
+    );
+    assert.equal(
+      classifyTestFileContent(`import {\n  chromium,\n  type Page\n} from "${pw}";`),
+      'imports "playwright"',
+    );
+    assert.equal(
+      classifyTestFileContent(`import type { Page } from "${pw}";`),
+      'imports "playwright"',
+    );
+    assert.equal(classifyTestFileContent(`import "${pw}";`), 'imports "playwright"');
+    assert.equal(
+      classifyTestFileContent(`const pwMod = require("${pw}");`),
+      'imports "playwright"',
+    );
+    assert.equal(
+      classifyTestFileContent(`const pwMod = await import("${pw}");`),
+      'imports "playwright"',
+    );
+    assert.equal(
+      classifyTestFileContent(`import { AxeBuilder } from "${axe}";`),
+      'imports "@axe-core/playwright"',
+    );
+    assert.equal(
+      classifyTestFileContent(`import { chromium } from "${pwCore}";`),
+      'imports "playwright-core"',
+    );
+    assert.equal(
+      classifyTestFileContent('import { chromium } from "./browser.js";'),
+      "imports chromium",
+    );
+    assert.equal(
+      classifyTestFileContent('import { spawn } from "node:child_process";\nspawn("ls");'),
+      "spawns a subprocess without EBADF handling",
+    );
+  });
+
+  it("classifyTestFileContent ignores comments, non-subprocess tests, and tests handling EBADF", () => {
+    assert.equal(classifyTestFileContent('// import { chromium } from "playwright";'), null);
+    assert.equal(classifyTestFileContent('/*\nimport { chromium } from "playwright";\n*/'), null);
+    assert.equal(
+      classifyTestFileContent('import assert from "node:assert";\nassert.equal(1, 1);'),
+      null,
+    );
+    assert.equal(
+      classifyTestFileContent(
+        'import { spawnSync } from "node:child_process";\ntry { spawnSync("git"); } catch (err) { if (err?.code === "EBADF") return; }',
+      ),
+      null,
+    );
+  });
+
+  it("formatUnignoredSubprocessTestFailure formats failure with exact line to add", () => {
+    const message = formatUnignoredSubprocessTestFailure([
+      {
+        file: "src/testing/foo.test.ts",
+        reason: 'imports "playwright"',
+        lineToAdd: '  "src/testing/foo.test.ts",',
+      },
+    ]);
+    assert.ok(message.includes("src/testing/foo.test.ts"));
+    assert.ok(message.includes('imports "playwright"'));
+    assert.ok(message.includes('  "src/testing/foo.test.ts",'));
+  });
+
+  it("assertNoUnignoredSubprocessTests passes on the live repository tree", () => {
+    assert.doesNotThrow(() => assertNoUnignoredSubprocessTests(process.cwd()));
+  });
+
+  it("planted negative: simulated missing bunfig entry fails and adding pattern passes", () => {
+    const simulatedBunfig = '[test]\npathIgnorePatterns = ["scripts/e2e"]\n';
+    const violations = findUnignoredSubprocessTests(process.cwd(), simulatedBunfig, [
+      "src/testing/styles",
+    ]);
+    assert.equal(violations.length, 1);
+    const v = violations[0];
+    assert.ok(v !== undefined);
+    assert.equal(v.file, "src/testing/styles/computedStylesLayout.test.ts");
+    assert.equal(v.lineToAdd, '  "src/testing/styles/computedStylesLayout.test.ts",');
+    assert.equal(v.reason, 'imports "playwright"');
+
+    const fixedBunfig =
+      '[test]\npathIgnorePatterns = ["scripts/e2e", "src/testing/styles/computedStylesLayout.test.ts"]\n';
+    const fixedViolations = findUnignoredSubprocessTests(process.cwd(), fixedBunfig, [
+      "src/testing/styles",
+    ]);
+    assert.equal(fixedViolations.length, 0);
   });
 });
