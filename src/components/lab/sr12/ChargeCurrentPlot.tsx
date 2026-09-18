@@ -164,13 +164,13 @@ export function ChargeCurrentPlot({
                 width={200}
                 height={100}
                 fill="none"
-                stroke="#3b82f6"
+                stroke="var(--plot)"
                 strokeWidth={3}
                 rx={4}
               />
               {/* Arrows */}
-              <path d="M 80 20 L 120 20" stroke="#ef4444" strokeWidth={2} markerEnd="url(#arrow)" />
-              <path d="M 140 120 L 100 120" stroke="#ef4444" strokeWidth={2} />
+              <path d="M 80 20 L 120 20" stroke="var(--accent)" strokeWidth={2} markerEnd="url(#arrow)" />
+              <path d="M 140 120 L 100 120" stroke="var(--accent)" strokeWidth={2} />
               <text x={110} y={15} textAnchor="middle" fontSize="10" fill="var(--muted)">
                 Top leg: +I (neutral λ=0)
               </text>
@@ -195,9 +195,9 @@ export function ChargeCurrentPlot({
                 cx={85}
                 cy={60}
                 r={50}
-                fill="#3b82f6"
+                fill="var(--plot)"
                 fillOpacity={0.25}
-                stroke="#2563eb"
+                stroke="var(--plot)"
                 strokeWidth={2}
               />
               <text
@@ -234,11 +234,11 @@ export function ChargeCurrentPlot({
               />
               {/* Positive ions (stationary) */}
               {stationaryIons.map((ion) => (
-                <circle key={ion.id} cx={ion.cx} cy={45} r={5} fill="#ef4444" />
+                <circle key={ion.id} cx={ion.cx} cy={45} r={5} fill="var(--accent)" />
               ))}
               {/* Negative electrons (drift speed) */}
               {stationaryElectrons.map((elec) => (
-                <circle key={elec.id} cx={elec.cx} cy={75} r={4} fill="#3b82f6" />
+                <circle key={elec.id} cx={elec.cx} cy={75} r={4} fill="var(--plot)" />
               ))}
               <text x={120} y={120} textAnchor="middle" fontSize="10" fill="var(--muted)">
                 Equal ion & electron linear density → Neutral wire (ρ = 0)
@@ -265,7 +265,7 @@ export function ChargeCurrentPlot({
                 width={200 / gamma}
                 height={100}
                 fill="none"
-                stroke="#8b5cf6"
+                stroke="var(--accent)"
                 strokeWidth={3}
                 rx={4}
               />
@@ -316,9 +316,9 @@ export function ChargeCurrentPlot({
                 cy={60}
                 rx={50 / gamma}
                 ry={50}
-                fill="#8b5cf6"
+                fill="var(--accent)"
                 fillOpacity={0.25}
-                stroke="#7c3aed"
+                stroke="var(--accent)"
                 strokeWidth={2}
               />
               <text
@@ -349,16 +349,16 @@ export function ChargeCurrentPlot({
                 width={240}
                 height={70}
                 fill="var(--panel)"
-                stroke="#8b5cf6"
+                stroke="var(--accent)"
                 strokeWidth={1.5}
                 rx={6}
               />
               {/* Contracted ion spacing vs electron spacing */}
               {movingIons.map((ion) => (
-                <circle key={ion.id} cx={ion.cx} cy={45} r={4} fill="#ef4444" />
+                <circle key={ion.id} cx={ion.cx} cy={45} r={4} fill="var(--accent)" />
               ))}
               {movingElectrons.map((elec) => (
-                <circle key={elec.id} cx={elec.cx} cy={75} r={4} fill="#3b82f6" />
+                <circle key={elec.id} cx={elec.cx} cy={75} r={4} fill="var(--plot)" />
               ))}
               <text
                 x={120}
