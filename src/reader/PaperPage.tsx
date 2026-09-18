@@ -62,11 +62,17 @@ export async function PaperPage(request: PaperRouteRequest) {
           <nav aria-label="Argument outline">
             {sections.map((s) => (
               <div key={s.id}>
-                <a href={paperPath(paper.id, s.id)}>{s.title}</a>
+                <a data-reader-anchor={s.id} href={paperPath(paper.id, s.id)}>
+                  {s.title}
+                </a>
                 {args
                   .filter((a) => a.section === s.id)
                   .map((a) => (
-                    <a key={a.id} href={`${paperPath(paper.id, s.id)}#${a.id}`}>
+                    <a
+                      key={a.id}
+                      data-reader-anchor={a.id}
+                      href={`${paperPath(paper.id, s.id)}#${a.id}`}
+                    >
                       {a.title}
                     </a>
                   ))}
