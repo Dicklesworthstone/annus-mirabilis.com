@@ -174,6 +174,12 @@ export type ViewSpec = Readonly<{
 }>;
 
 export const ACTION_FAMILIES = [
+  "interval",
+  "event-table",
+  "ratio",
+  "axis-component",
+  "object-inclusion",
+  "subexpression",
   "probability-diffusion",
   "probability",
   "clock-event",
@@ -197,7 +203,7 @@ export type ActionContract = Readonly<{
   family: ActionFamily;
   question: string;
   inputs: readonly string[];
-  commandClass: string;
+  commandClass: CommandClass;
   acceptedResult: Readonly<{
     outputs: readonly string[];
     allowedStatuses: readonly string[];
@@ -398,7 +404,15 @@ export function validateActionContract(
       `${path}.commandClass`,
     );
   }
-  const commandClass = o.commandClass.trim();
+  const commandClass = o.commandClass.trim() as CommandClass;
+  if (!(COMMAND_CLASSES as readonly string[]).includes(commandClass)) {
+    throw new ExperimentValidationError(
+      "invalid-action-command-class",
+      `Action "${actionId}" commandClass "${commandClass}" must be one of: ${COMMAND_CLASSES.join(", ")}.`,
+      "Experiment",
+      `${path}.commandClass`,
+    );
+  }
 
   // acceptedResult
   if (!o.acceptedResult || typeof o.acceptedResult !== "object") {

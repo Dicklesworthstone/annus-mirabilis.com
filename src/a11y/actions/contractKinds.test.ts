@@ -1,4 +1,8 @@
 import { describe, expect, test } from "bun:test";
+import {
+  ExperimentValidationError,
+  validateActionContract as validateSchemaActionContract,
+} from "../../content/schemas/experiment.ts";
 import { getLogger } from "../../testing/log/logger.ts";
 import { buildActionCommand, hashCommand } from "./commandBuilder.ts";
 import { auditActionContract } from "./contractAudit.ts";
@@ -14,6 +18,15 @@ import {
 const logger = getLogger("a11y-actions");
 
 describe("am-a11y-action-contracts-k75g: All Six Action Contract Family Kinds", () => {
+  test("validates all 6 family fixtures pass schema validation cleanly", () => {
+    for (const contract of ALL_FIXTURE_ACTION_CONTRACTS) {
+      const validated = validateSchemaActionContract(contract);
+      expect(validated.actionId).toBe(contract.actionId);
+      expect(validated.family).toBe(contract.family);
+      expect(validated.commandClass).toBe(contract.commandClass);
+    }
+  });
+
   test("validates all 6 family fixtures pass contract audit with zero diagnostics", () => {
     for (const contract of ALL_FIXTURE_ACTION_CONTRACTS) {
       const diags = auditActionContract(contract, "test-instrument");
@@ -28,6 +41,32 @@ describe("am-a11y-action-contracts-k75g: All Six Action Contract Family Kinds", 
         familyCount: ALL_FIXTURE_ACTION_CONTRACTS.length,
       },
     });
+  });
+
+  test("planted negative: invalid action family fails schema validation", () => {
+    const invalid = {
+      ...fixtureEventTableContract,
+      family: "unknown-quantum-spin-family",
+    };
+    expect(() => validateSchemaActionContract(invalid)).toThrow(ExperimentValidationError);
+    try {
+      validateSchemaActionContract(invalid);
+    } catch (err) {
+      expect((err as ExperimentValidationError).code).toBe("invalid-action-family");
+    }
+  });
+
+  test("planted negative: invalid commandClass fails schema validation", () => {
+    const invalid = {
+      ...fixtureRatioContract,
+      commandClass: "forbidden-arbitrary-action",
+    };
+    expect(() => validateSchemaActionContract(invalid)).toThrow(ExperimentValidationError);
+    try {
+      validateSchemaActionContract(invalid);
+    } catch (err) {
+      expect((err as ExperimentValidationError).code).toBe("invalid-action-command-class");
+    }
   });
 
   test("event-table family: validates simultaneity event selection contract", () => {

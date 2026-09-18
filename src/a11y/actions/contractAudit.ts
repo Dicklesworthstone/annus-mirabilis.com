@@ -117,7 +117,10 @@ export function auditInstrumentManifestContracts(
 ): readonly ActionContractAuditDiagnostic[] {
   const diags: ActionContractAuditDiagnostic[] = [];
   const instrumentId = String(manifest.id ?? "unknown-instrument");
-  const contracts = (manifest.actionContracts as readonly ActionContract[]) ?? [];
+  const contracts =
+    (manifest.actionContracts as readonly ActionContract[]) ??
+    (manifest.actions as readonly ActionContract[]) ??
+    [];
 
   if (contracts.length === 0 && manifest.hasInteractiveControls === true) {
     diags.push({

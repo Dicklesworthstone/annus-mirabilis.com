@@ -203,6 +203,13 @@ export const RUNTIME_FIXTURE_ENTRY: FixtureAppEntry = Object.freeze({
   ],
 });
 
+export const INTERVAL_EQUIVALENT_FIXTURE_ENTRY: FixtureAppEntry = Object.freeze({
+  id: "interval-equivalent",
+  entry: "src/testing/e2e/fixture-apps/interval-equivalent/",
+  outDir: "artifacts/e2e-fixtures/interval-equivalent/",
+  owner: "am-a11y-action-contracts-k75g",
+});
+
 /**
  * The registry of interactive fixture applications.
  */
@@ -211,4 +218,5 @@ export const FIXTURE_APP_REGISTRY: readonly FixtureAppEntry[] = Object.freeze([
   VIEW_KIT_FIXTURE_ENTRY,
   CONTROLS_KIT_FIXTURE_ENTRY,
   RUNTIME_FIXTURE_ENTRY,
+  INTERVAL_EQUIVALENT_FIXTURE_ENTRY,
 ]);

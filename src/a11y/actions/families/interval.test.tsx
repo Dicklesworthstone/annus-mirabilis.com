@@ -69,4 +69,48 @@ describe("am-a11y-action-contracts-k75g: Interval Equivalent Component", () => {
     expect(command.inputs.interval_upper).toBe(1.5);
     expect(cmdHash.length).toBe(64);
   });
+
+  test("WCAG 2.5.3 (Label in Name): visible label text is contained within accessible names", () => {
+    const html = renderToStaticMarkup(
+      <IntervalEquivalent initialInterval={{ lower: -1.0, upper: 1.0 }} />,
+    );
+
+    // Visible label: "Lower Limit (µm):", accessible name: "Lower Limit (µm)"
+    const lowerLabelMatch = html.match(/<label for="interval-lower-input">([^<]+)<\/label>/);
+    const lowerInputMatch = html.match(/id="interval-lower-input"[^>]*aria-label="([^"]+)"/);
+    expect(lowerLabelMatch).not.toBeNull();
+    expect(lowerInputMatch).not.toBeNull();
+    const visibleLower = (lowerLabelMatch?.[1] ?? "").replace(/[:\s]+$/, "").trim();
+    const accessibleLower = (lowerInputMatch?.[1] ?? "").trim();
+    expect(accessibleLower).toContain(visibleLower);
+
+    // Visible label: "Upper Limit (µm):", accessible name: "Upper Limit (µm)"
+    const upperLabelMatch = html.match(/<label for="interval-upper-input">([^<]+)<\/label>/);
+    const upperInputMatch = html.match(/id="interval-upper-input"[^>]*aria-label="([^"]+)"/);
+    expect(upperLabelMatch).not.toBeNull();
+    expect(upperInputMatch).not.toBeNull();
+    const visibleUpper = (upperLabelMatch?.[1] ?? "").replace(/[:\s]+$/, "").trim();
+    const accessibleUpper = (upperInputMatch?.[1] ?? "").trim();
+    expect(accessibleUpper).toContain(visibleUpper);
+
+    // Apply button: visible text "Apply Interval", accessible name "Apply and commit interval"
+    const buttonMatch = html.match(
+      /class="interval-commit-btn"[^>]*aria-label="([^"]+)"[^>]*>([^<]+)<\/button>/,
+    );
+    expect(buttonMatch).not.toBeNull();
+    const accessibleBtn = (buttonMatch?.[1] ?? "").toLowerCase();
+    const visibleBtnWords = (buttonMatch?.[2] ?? "").toLowerCase().split(/\s+/);
+    for (const word of visibleBtnWords) {
+      expect(accessibleBtn).toContain(word);
+    }
+  });
+
+  test("renders committed status with role=status and initial bounds", () => {
+    const html = renderToStaticMarkup(
+      <IntervalEquivalent initialInterval={{ lower: -2.0, upper: 2.5 }} />,
+    );
+
+    expect(html).toContain('role="status"');
+    expect(html).toContain("Committed: [-2, 2.5] µm");
+  });
 });

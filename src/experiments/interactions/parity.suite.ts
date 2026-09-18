@@ -31,6 +31,12 @@ export interface ParityCaseResult {
 }
 
 export const REQUIRED_REAL_OWNERS: Record<ActionFamily, string> = {
+  interval: "diffusion.ts",
+  "event-table": "events.ts",
+  ratio: "radiation.ts",
+  "axis-component": "fields.ts",
+  "object-inclusion": "massEnergy.ts",
+  subexpression: "derivation-rules",
   "clock-event": "events.ts",
   "radiation-entropy": "radiation.ts",
   "fields-boosts": "kinematics.ts / fields.ts",

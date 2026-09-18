@@ -66,3 +66,20 @@ export function compareActionEquivalence(
     mismatchReason,
   });
 }
+
+export interface RuntimeEquivalenceHarnessOptions {
+  readonly visualAction: () => Promise<ActionExecutionResult> | ActionExecutionResult;
+  readonly equivalentAction: () => Promise<ActionExecutionResult> | ActionExecutionResult;
+}
+
+/**
+ * High-level equivalence harness exported for testing runtime actions across
+ * all interaction families (am-a11y-action-contracts-k75g / am-inst-interaction-families-m2ps).
+ */
+export async function verifyRuntimeEquivalence(
+  options: RuntimeEquivalenceHarnessOptions,
+): Promise<EquivalenceComparisonResult> {
+  const visualExecution = await options.visualAction();
+  const equivalentExecution = await options.equivalentAction();
+  return compareActionEquivalence(visualExecution, equivalentExecution);
+}
