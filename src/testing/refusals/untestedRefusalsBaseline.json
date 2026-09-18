@@ -71,7 +71,7 @@
   "src/experiments/identity/u64.ts": 1,
   "src/experiments/permalink/compatibility.ts": 7,
   "src/experiments/permalink/schema.ts": 0,
-  "src/physics/reference/constants.ts": 10,
+  "src/physics/reference/constants.ts": 0,
   "src/physics/reference/events.ts": 2,
   "src/physics/reference/philox.ts": 0,
   "src/physics/reference/photoelectric.ts": 5,
