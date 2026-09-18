@@ -1,5 +1,6 @@
 import assert from "node:assert/strict";
 import { describe, it } from "node:test";
+import { TickScheduler } from "../experiments/scheduler/tickScheduler.ts";
 import { ControlTapeRecorder } from "../experiments/tapes/recorder.ts";
 import { ControlTapeReplayer, type TapeRuntimeContext } from "../experiments/tapes/replayer.ts";
 import type { PredictionPromptSpec, TapeModelIdentity } from "../experiments/tapes/schema.ts";
@@ -145,5 +146,143 @@ describe("tapes.replay: Recording, Replaying, and Invariant Digests (am-rt-contr
 
     const steppedResult = await replayer.seekToAction(recordedCp2.actionIndex);
     assert.equal(steppedResult.digest, recordedCp2.digest);
+  });
+
+  it("scrubbing backward and forward reproduces identical checkpoint digests", async () => {
+    const recorder = new ControlTapeRecorder({
+      tapeId: "scrub-test-tape",
+      experimentId: "bm-01",
+      mode: "bm-01:default",
+      modelIdentity,
+      constantSetId: "einstein-1905-brownian-printed",
+      seed: "9007199254740993",
+      streamVersion: 1,
+      allocationId: "brownian-tracer-0",
+      initialConditions: { viscosity: 1.35e-3, particleRadius: 5e-7 },
+    });
+
+    await recorder.recordCheckpoint({ stepIndex: 0, simulatedTime: 0 });
+    recorder.recordControlEvent({
+      commandClass: "setup-change",
+      commandId: "set-viscosity",
+      parameterId: "viscosity",
+      value: 2.0e-3,
+    });
+    const cp1 = await recorder.recordCheckpoint({ stepIndex: 50, simulatedTime: 1.0 });
+    recorder.recordControlEvent({
+      commandClass: "setup-change",
+      commandId: "set-radius",
+      parameterId: "particleRadius",
+      value: 1.0e-6,
+    });
+    const cp2 = await recorder.recordCheckpoint({ stepIndex: 100, simulatedTime: 2.0 });
+
+    const tape = recorder.getTape();
+    const runtimeContext: TapeRuntimeContext = {
+      experimentId: "bm-01",
+      modelIdentity,
+      constantSetId: "einstein-1905-brownian-printed",
+      streamVersion: 1,
+      allocationId: "brownian-tracer-0",
+    };
+
+    const replayer = new ControlTapeReplayer(tape, runtimeContext);
+
+    // Forward scrub
+    const fwd1 = await replayer.seekToAction(cp1.actionIndex);
+    assert.equal(fwd1.digest, cp1.digest);
+    const fwd2 = await replayer.seekToAction(cp2.actionIndex);
+    assert.equal(fwd2.digest, cp2.digest);
+
+    // Backward scrub step-by-step
+    await replayer.stepBackward();
+    assert.equal(replayer.currentAction, cp1.actionIndex);
+    const back1 = await replayer.seekToAction(cp1.actionIndex);
+    assert.equal(back1.digest, cp1.digest);
+
+    await replayer.stepBackward();
+    assert.equal(replayer.currentAction, 0);
+    const back0 = await replayer.seekToAction(0);
+    assert.equal(back0.state.viscosity, 1.35e-3);
+    assert.equal(back0.state.particleRadius, 5e-7);
+
+    // Forward scrub again
+    await replayer.stepForward();
+    await replayer.stepForward();
+    const fwdAgain = await replayer.seekToAction(cp2.actionIndex);
+    assert.equal(fwdAgain.digest, cp2.digest);
+    assert.equal(fwdAgain.state.viscosity, 2.0e-3);
+    assert.equal(fwdAgain.state.particleRadius, 1.0e-6);
+  });
+
+  it("host-fed time through TickScheduler at 1x vs 4x playback rates yields identical scientific states and digests", async () => {
+    const recorder = new ControlTapeRecorder({
+      tapeId: "scheduler-test-tape",
+      experimentId: "bm-01",
+      mode: "bm-01:default",
+      modelIdentity,
+      constantSetId: "einstein-1905-brownian-printed",
+      seed: "9007199254740993",
+      streamVersion: 1,
+      allocationId: "brownian-tracer-0",
+      initialConditions: { viscosity: 1.35e-3 },
+    });
+
+    recorder.recordControlEvent({
+      commandClass: "setup-change",
+      commandId: "step-1",
+      parameterId: "viscosity",
+      value: 1.5e-3,
+    });
+    const cp1 = await recorder.recordCheckpoint({ stepIndex: 10, simulatedTime: 0.5 });
+    recorder.recordControlEvent({
+      commandClass: "setup-change",
+      commandId: "step-2",
+      parameterId: "viscosity",
+      value: 2.0e-3,
+    });
+    const cp2 = await recorder.recordCheckpoint({ stepIndex: 20, simulatedTime: 1.0 });
+
+    const tape = recorder.getTape();
+    const runtimeContext: TapeRuntimeContext = {
+      experimentId: "bm-01",
+      modelIdentity,
+      constantSetId: "einstein-1905-brownian-printed",
+      streamVersion: 1,
+      allocationId: "brownian-tracer-0",
+    };
+
+    // Run A: 1x speed (tickS = 1/60s)
+    const replayerA = new ControlTapeReplayer(tape, runtimeContext);
+    const schedulerA = new TickScheduler(1 / 60, 0);
+    let timeA = 0;
+    while (replayerA.currentAction < cp2.actionIndex && timeA < 2.0) {
+      timeA += 1 / 60;
+      schedulerA.pump(timeA, () => {
+        void replayerA.stepForward();
+      });
+    }
+    const resA1 = await replayerA.seekToAction(cp1.actionIndex);
+    const resA2 = await replayerA.seekToAction(cp2.actionIndex);
+
+    // Run B: 4x speed (tickS = 4/60s)
+    const replayerB = new ControlTapeReplayer(tape, runtimeContext);
+    const schedulerB = new TickScheduler(4 / 60, 0);
+    let timeB = 0;
+    while (replayerB.currentAction < cp2.actionIndex && timeB < 2.0) {
+      timeB += 4 / 60;
+      schedulerB.pump(timeB, () => {
+        void replayerB.stepForward();
+      });
+    }
+    const resB1 = await replayerB.seekToAction(cp1.actionIndex);
+    const resB2 = await replayerB.seekToAction(cp2.actionIndex);
+
+    // Digests and states must be bitwise identical between 1x and 4x
+    assert.equal(resA1.digest, resB1.digest);
+    assert.equal(resA2.digest, resB2.digest);
+    assert.equal(resA1.digest, cp1.digest);
+    assert.equal(resA2.digest, cp2.digest);
+    assert.deepEqual(resA2.state, resB2.state);
   });
 });
