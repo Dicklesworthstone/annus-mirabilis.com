@@ -351,7 +351,7 @@ export function WavefrontPlot({
         style={{
           width: "100%",
           height: "auto",
-          background: "#0f172a",
+          background: "var(--panel)",
           border: "1px solid var(--line)",
           borderRadius: "0.25rem",
           overflow: "hidden",
@@ -560,7 +560,7 @@ export function SpreadingPlot({
         style={{
           width: "100%",
           height: "auto",
-          background: "#0f172a",
+          background: "var(--panel)",
           border: "1px solid var(--line)",
           borderRadius: "0.25rem",
         }}

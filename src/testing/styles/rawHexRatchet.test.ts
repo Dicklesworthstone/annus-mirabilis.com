@@ -242,12 +242,6 @@ export const DATA_COLOR_ALLOWLIST: readonly DataColorAllowlistEntry[] = [
   },
   {
     file: "src/components/lab/WaveDescriptionPlots.tsx",
-    hex: "#0f172a",
-    reason:
-      "Optical dark-field canvas background for wavefield crest superposition and spherical energy spreading",
-  },
-  {
-    file: "src/components/lab/WaveDescriptionPlots.tsx",
     hex: "#38bdf8",
     reason:
       "Coherent wave source S1 crest wavefront rings, pinhead marker, and screen center intensity spot in WavefrontPlot",
