@@ -808,13 +808,13 @@ describe("Structural Compiler E2E CLI (`bun scripts/build-content.ts --corpus <d
     const index = JSON.parse(readFileSync(indexPath, "utf8"));
     assert.equal(
       index.payloads.length,
-      26,
-      `Expected 26 compiled payloads, but found ${index.payloads.length}. Corpus was corrupted!`,
+      28,
+      `Expected 28 compiled payloads, but found ${index.payloads.length}. Corpus was corrupted!`,
     );
     const paperIds = index.payloads
       .filter((p: { kind: string }) => p.kind === "paper")
       .map((p: { id: string }) => p.id);
-    assert.deepEqual(paperIds, ["brownian-motion"]);
+    assert.deepEqual(paperIds, ["brownian-motion", "mass-energy"]);
     assert.equal(
       paperIds.includes("test-paper"),
       false,
