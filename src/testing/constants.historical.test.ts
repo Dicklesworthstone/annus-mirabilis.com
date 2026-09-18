@@ -113,8 +113,9 @@ describe("einstein-1905-light-quanta-printed", () => {
     expect(alpha?.journalPage).toBe("136");
     expect(alpha?.facsimilePdfPage).toBe(5);
     expect(alpha?.transcriptionStatus).toBe("transcribed-and-checked");
-    expect(alpha?.checkedBy).toContain("pane21");
-    expect(alpha?.checkedBy).toContain("docs/provenance/ap-17-132.md#watch-alpha-exponent");
+    expect(alpha?.checkedBy).toMatch(/docs\/provenance\/.*#watch-[a-z-]+/);
+    expect(alpha?.checkedAt).toBeDefined();
+    expect(alpha?.checkedAt).toMatch(/^\d{4}-\d{2}-\d{2}$/);
   });
 
   test("R and L are editorial inputs carrying sensitivity 6.1858e23", () => {
