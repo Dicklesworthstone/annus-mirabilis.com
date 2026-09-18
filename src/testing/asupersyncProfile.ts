@@ -171,13 +171,26 @@ export function diagnoseAsupersyncProfiles(cargoTomlContent: string): Asupersync
   };
 }
 
+export function getDefaultAsupersyncDir(): string {
+  return process.env.ASUPERSYNC_DIR
+    ? resolve(process.env.ASUPERSYNC_DIR)
+    : resolve(process.cwd(), "../asupersync");
+}
+
+export function getDefaultFrankensimDir(): string {
+  return process.env.FRANKENSIM_DIR
+    ? resolve(process.env.FRANKENSIM_DIR)
+    : resolve(process.cwd(), "../frankensim");
+}
+
 /**
  * Verify asupersync profiles from a file path (defaults to standard sibling path).
  */
 export function verifyAsupersyncManifest(
-  manifestPath = "/Users/jemanuel/projects/asupersync/Cargo.toml",
+  manifestPath?: string,
 ): AsupersyncProfilesDiagnosis | null {
-  const resolved = resolve(manifestPath);
+  const target = manifestPath ?? resolve(getDefaultAsupersyncDir(), "Cargo.toml");
+  const resolved = resolve(target);
   if (!existsSync(resolved)) {
     return null;
   }
@@ -250,9 +263,10 @@ export interface SiblingWasmAuditResult {
  */
 export function checkSiblingWasmManifest(
   crate: string,
-  frankensimRoot = "/Users/jemanuel/projects/frankensim",
+  frankensimRoot?: string,
 ): SiblingCrateManifestCheck {
-  const manifestPath = resolve(frankensimRoot, "crates", crate, "Cargo.toml");
+  const root = frankensimRoot ?? getDefaultFrankensimDir();
+  const manifestPath = resolve(root, "crates", crate, "Cargo.toml");
   if (!existsSync(manifestPath)) {
     return {
       crate,
@@ -288,14 +302,15 @@ export function checkSiblingWasmManifest(
  * Audit all six sibling wasm crates and verify the written refutation in FRANKENSIM_BINDING.md.
  */
 export function verifySiblingWasmCrates(
-  frankensimRoot = "/Users/jemanuel/projects/frankensim",
+  frankensimRoot?: string,
   bindingDocPath = "docs/FRANKENSIM_BINDING.md",
 ): SiblingWasmAuditResult {
+  const root = frankensimRoot ?? getDefaultFrankensimDir();
   const crates: Record<string, SiblingCrateManifestCheck> = {};
   let allCratesDeclared = true;
 
   for (const crate of SIBLING_WASM_CRATES) {
-    const res = checkSiblingWasmManifest(crate, frankensimRoot);
+    const res = checkSiblingWasmManifest(crate, root);
     crates[crate] = res;
     if (!res.exists || !res.declaresWasmBrowserProd || !res.defaultFeaturesFalse) {
       allCratesDeclared = false;
