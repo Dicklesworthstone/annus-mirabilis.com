@@ -55,7 +55,7 @@ export function Histogram({
 
   return (
     <g
-      className={`histogram histogram-${mode}`}
+      className={mode === "density" ? "histogram histogram-density" : "histogram histogram-probability"}
       data-quantity-id={quantityId}
       data-histogram-mode={mode}
     >

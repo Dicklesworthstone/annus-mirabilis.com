@@ -12,6 +12,17 @@ export interface ResultStatusPresentationProps {
  * Renders non-breaking reader-facing notices when a result is outside domain,
  * divergent, underdetermined, or not applicable.
  */
+const STATUS_CLASS_MAP: Record<OutputStatus, string> = {
+  value: "status-value",
+  "analytic-limit": "status-analytic-limit",
+  symbolic: "status-symbolic",
+  "outside-domain": "status-outside-domain",
+  divergent: "status-divergent",
+  underdetermined: "status-underdetermined",
+  "not-applicable": "status-not-applicable",
+  uncalculated: "status-uncalculated",
+};
+
 export function ResultStatusPresentation({
   status,
   message,
@@ -42,7 +53,7 @@ export function ResultStatusPresentation({
 
   return (
     <div
-      className={`result-status-notice status-${status}`}
+      className={`result-status-notice ${STATUS_CLASS_MAP[status] ?? "status-outside-domain"}`}
       role="alert"
       data-result-status={status}
     >

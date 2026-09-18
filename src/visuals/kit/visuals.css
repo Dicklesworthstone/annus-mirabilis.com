@@ -1,0 +1,192 @@
+/* 2D Visual Kit Component Styles (am-inst-2d-view-kit-u75r, am-vw1o) */
+
+/* Trajectory Layer */
+.trajectory-layer {
+  position: relative;
+  width: 100%;
+  height: 100%;
+}
+
+.trajectory-canvas,
+.trajectory-svg {
+  position: absolute;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+}
+
+.tracer-item {
+  /* SVG tracer item */
+}
+
+.trajectory-census {
+  display: flex;
+  gap: 0.75rem;
+  font-size: 0.75rem;
+  color: var(--muted);
+  margin-top: 0.5rem;
+}
+
+.census-drawn,
+.census-offscreen,
+.census-total {
+  font-family: var(--font-mono);
+}
+
+.rendering-convention-note {
+  font-size: 0.8rem;
+  color: var(--muted);
+  font-style: italic;
+  margin-top: 0.25rem;
+}
+
+/* Event Diagram (Minkowski spacetime) */
+.event-diagram {
+  display: block;
+  max-width: 100%;
+  height: auto;
+}
+
+.lightcones,
+.worldline,
+.spacetime-event {
+  /* Spacetime diagram groups */
+}
+
+.diagram-attribution {
+  font-family: var(--font-serif);
+  font-style: italic;
+  user-select: none;
+}
+
+/* Histogram */
+.histogram {
+  /* Histogram root */
+}
+
+.histogram-density,
+.histogram-probability {
+  /* Density / probability variants */
+}
+
+.bins,
+.comparison-series,
+.overflow-indicators {
+  /* Histogram series */
+}
+
+.histogram-annotation {
+  font-size: 0.8rem;
+  fill: var(--ink);
+}
+
+/* Energy Ledger Plot */
+.energy-ledger-plot {
+  display: block;
+  max-width: 100%;
+  height: auto;
+}
+
+.energy-channel,
+.uncertainty-bar,
+.conservation-line {
+  /* Ledger SVG channels */
+}
+
+/* Result Status Presentation */
+.result-status-notice {
+  border: 1px solid var(--line);
+  background: var(--panel);
+  padding: 0.75rem 1rem;
+  margin: 0.75rem 0;
+  border-radius: 4px;
+}
+
+.status-outside-domain,
+.status-divergent,
+.status-underdetermined,
+.status-not-applicable {
+  border-left: 3px solid var(--accent);
+  background: var(--wash);
+}
+
+.notice-title {
+  margin: 0 0 0.25rem;
+  font-size: 0.95rem;
+  font-weight: 600;
+  color: var(--accent);
+}
+
+.notice-explanation {
+  margin: 0;
+  font-size: 0.85rem;
+  color: var(--ink);
+}
+
+/* Axes 2D */
+.axes-2d {
+  /* 2D axes root */
+}
+
+.grid-lines {
+  stroke: var(--line);
+  stroke-opacity: 0.5;
+}
+
+.tick {
+  font-family: var(--font-sans);
+  font-size: 11px;
+  fill: var(--muted);
+}
+
+/* Scatter Plot */
+.scatter-point {
+  /* Scatter point */
+}
+
+.error-bar,
+.y-error {
+  stroke-width: 1.5;
+}
+
+/* Time Legend */
+.time-value {
+  font-family: var(--font-mono);
+  font-size: 0.85rem;
+}
+
+.time-rate-badge {
+  display: inline-block;
+  font-size: 0.75rem;
+  padding: 0.15rem 0.4rem;
+  border: 1px solid var(--line);
+  background: var(--wash);
+  border-radius: 3px;
+}
+
+/* Accessible Graph View */
+.accessible-graph-view {
+  margin: 1rem 0;
+}
+
+/* Analytic Limit Marker */
+.analytic-limit-marker {
+  stroke-dasharray: 4 4;
+}
+
+/* Interval Shade */
+.interval-shade {
+  opacity: 0.15;
+}
+
+/* Line Plot */
+.reference-line {
+  stroke-dasharray: 4 4;
+}
+
+/* Scale Bar */
+.scale-bar {
+  font-family: var(--font-sans);
+  font-size: 11px;
+}

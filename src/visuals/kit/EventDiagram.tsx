@@ -178,7 +178,7 @@ export function EventDiagram({
           fill="currentColor"
           opacity={0.6}
           data-testid="minkowski-label"
-          className="font-serif italic select-none"
+          className="diagram-attribution"
         >
           {attributionLabel}
         </text>
