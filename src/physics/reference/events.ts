@@ -328,6 +328,12 @@ export type SimultaneityOrder =
   | "ordered-negative"
   | "indeterminate";
 
+export interface EventSimultaneityResult {
+  readonly deltaTPrime: number;
+  readonly deltaXPrime: number;
+  readonly order: SimultaneityOrder;
+}
+
 export function classifySimultaneity(
   deltaT: number,
   tolerance?: { absolute?: number },
@@ -338,22 +344,69 @@ export function classifySimultaneity(
   toleranceAbsoluteS?: number,
 ): KinematicResult<SimultaneityVerdict>;
 export function classifySimultaneity(
-  a: number,
-  b?: number | { absolute?: number },
-  c?: number,
-): SimultaneityOrder | KinematicResult<SimultaneityVerdict> {
+  e1: Event,
+  e2: Event,
+  boostOrBeta?: Boost | number,
+  tolerance?: { absolute?: number },
+): KinematicResult<EventSimultaneityResult>;
+export function classifySimultaneity(
+  a: number | Event,
+  b?: number | Event | { absolute?: number },
+  c?: Boost | number,
+  d?: { absolute?: number },
+):
+  | SimultaneityOrder
+  | KinematicResult<SimultaneityVerdict>
+  | KinematicResult<EventSimultaneityResult> {
+  // Case 1: event overload
+  if (typeof a === "object" && a !== null && "t" in a) {
+    const e1 = a as Event;
+    if (typeof b !== "object" || b === null || !("t" in b)) {
+      return outsideDomain("invalid-event", "Second event must be a valid event object.");
+    }
+    const e2 = b as Event;
+    if (!finite(e1.t, e1.x, e1.y, e1.z, e2.t, e2.x, e2.y, e2.z)) {
+      return outsideDomain("nonfinite-event", "Event coordinates must be finite.");
+    }
+    const boostOrBeta = c ?? 0;
+    const tol = d;
+    let boost: Boost;
+    if (typeof boostOrBeta === "number") {
+      const bRes = alignedBoost(boostOrBeta, C);
+      if (bRes.status !== "value") return bRes;
+      boost = bRes.value;
+    } else {
+      boost = boostOrBeta;
+    }
+    const t1Res = transformEvent(e1, boost);
+    if (t1Res.status !== "value") return t1Res;
+    const t2Res = transformEvent(e2, boost);
+    if (t2Res.status !== "value") return t2Res;
+
+    const deltaTPrime = t2Res.value.t - t1Res.value.t;
+    const deltaXPrime = t2Res.value.x - t1Res.value.x;
+    const order = classifySimultaneity(deltaTPrime, tol);
+    return ok({
+      deltaTPrime,
+      deltaXPrime,
+      order,
+    });
+  }
+
+  // Case 2 & 3: number overloads
   if (typeof b !== "number") {
-    const deltaT = a;
-    const tol = b?.absolute ?? 0;
+    const deltaT = a as number;
+    const tol =
+      typeof b === "object" && b !== null && "absolute" in b ? (b.absolute ?? 0) : 0;
     if (tol > 0 && Math.abs(deltaT) <= tol && deltaT !== 0) {
       return "indeterminate";
     }
     if (deltaT === 0) return "simultaneous";
     return deltaT > 0 ? "ordered-positive" : "ordered-negative";
   }
-  const timeA = a;
+  const timeA = a as number;
   const timeB = b;
-  const toleranceAbsoluteS = c ?? 0;
+  const toleranceAbsoluteS = typeof c === "number" ? c : 0;
   if (!finite(timeA, timeB)) {
     return outsideDomain("nonfinite-input", "Both times must be finite.");
   }
