@@ -874,4 +874,74 @@ select {
   height: auto;
 }
 
+/* Shared laboratory layout and component styles (am-vw1o) */
+.controls,
+.readouts,
+.inference-lab,
+.action-contract,
+.osmotic-chamber,
+.event-ledger,
+.derived-outputs,
+.camera-coverage-counts,
+.kitchen-inputs,
+.results {
+  /* Laboratory section hooks */
+}
+
+.refusal {
+  background: var(--refusal-bg, #fbf0f0);
+  border-left: 3px solid var(--refusal-border, #b3261e);
+  padding: 0.75rem 1rem;
+  margin: 1rem 0;
+  font-size: 0.9rem;
+}
+
+.model-toggle {
+  display: flex;
+  gap: 0.5rem;
+  align-items: center;
+  margin: 0.75rem 0;
+}
+
+.not-modeled {
+  font-size: 0.85rem;
+  color: var(--muted);
+  border-top: 1px solid var(--line);
+  padding-top: 0.75rem;
+  margin-top: 1rem;
+}
+
+.caption-r1,
+.caption-r2,
+.caption-r3 {
+  font-size: 0.85rem;
+  color: var(--muted);
+  margin-top: 0.5rem;
+}
+
+.checkbox-row,
+.countermodel-row {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+  margin: 0.5rem 0;
+}
+
+.warning {
+  color: var(--accent);
+}
+
+.button-primary {
+  background: var(--ink);
+  color: var(--paper);
+}
+
+.assumptions-note {
+  font-size: 0.85rem;
+  color: var(--muted);
+  font-style: italic;
+  margin-top: 0.5rem;
+}
+
+
 

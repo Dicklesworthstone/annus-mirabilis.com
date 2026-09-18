@@ -60,7 +60,7 @@ export function MovingClocksLab({ example }: MovingClocksLabProps) {
 
   return (
     <div
-      className="lab-surface flex flex-col gap-6 p-4 max-w-5xl mx-auto"
+      className="lab-surface moving-clocks-lab"
       data-testid="moving-clocks-lab"
     >
       <section aria-label="Named scenarios">

@@ -389,3 +389,30 @@
 .not-modeled-line {
   margin: 0;
 }
+
+/* Boundary ledger plot styles */
+.boundary-ledger-svg-wrap {
+  border: 1px solid var(--line);
+  background: var(--wash);
+  padding: 1rem;
+  margin: 1rem 0;
+  border-radius: 4px;
+}
+
+.boundary-ledger-canvas {
+  display: block;
+  width: 100%;
+  height: auto;
+}
+
+.boundary-diagram,
+.radiation-escapes,
+.radiation-retained {
+  /* Diagram groups */
+}
+
+.ledger-card-summary {
+  margin-top: 0.75rem;
+  font-size: 0.9rem;
+}
+

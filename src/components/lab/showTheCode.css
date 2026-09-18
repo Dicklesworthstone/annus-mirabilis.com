@@ -79,3 +79,22 @@
   margin: 0.5rem 0;
   font-size: 0.88rem;
 }
+
+.show-the-code-listing {
+  margin: 1rem 0;
+}
+
+.kernel-digest-mismatch {
+  color: var(--accent);
+  font-weight: 500;
+}
+
+.kernel-comment {
+  color: var(--muted);
+  font-style: italic;
+}
+
+.kernel-string {
+  color: var(--plot);
+}
+

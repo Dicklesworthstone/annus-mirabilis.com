@@ -1,0 +1,54 @@
+/* ME-01 Two Ledgers Laboratory styles (am-vw1o) */
+
+.two-ledgers-svg-wrap {
+  border: 1px solid var(--line);
+  background: var(--wash);
+  padding: 1rem;
+  margin: 1rem 0;
+  border-radius: 4px;
+}
+
+.two-ledgers-canvas {
+  display: block;
+  width: 100%;
+  height: auto;
+}
+
+.emission-geometry,
+.velocity-vector {
+  /* SVG diagram groups */
+}
+
+.ledger-summary {
+  margin-top: 0.75rem;
+  font-size: 0.9rem;
+}
+
+.step-nav {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.5rem;
+  margin-bottom: 1rem;
+}
+
+.button-step {
+  padding: 0.35rem 0.75rem;
+  font-size: 0.85rem;
+  border: 1px solid var(--line);
+  background: var(--panel);
+  color: var(--ink);
+  cursor: pointer;
+  border-radius: 4px;
+}
+
+.button-step.active {
+  background: var(--ink);
+  color: var(--paper);
+}
+
+.input-with-slider {
+  display: flex;
+  flex-direction: column;
+  gap: 0.35rem;
+  margin: 0.75rem 0;
+}

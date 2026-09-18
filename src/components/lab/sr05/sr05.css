@@ -1,0 +1,36 @@
+/* SR-05 Moving Clocks Laboratory styles (am-vw1o) */
+
+.lab-surface,
+.moving-clocks-lab {
+  display: flex;
+  flex-direction: column;
+  gap: 1.5rem;
+  padding: 1rem;
+  max-width: 64rem;
+  margin: 0 auto;
+}
+
+.preset-buttons {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.5rem;
+  margin: 1rem 0;
+  border: none;
+  padding: 0;
+}
+
+.reading-grid {
+  display: grid;
+  grid-template-columns: auto 1fr;
+  gap: 0.5rem 1rem;
+  margin: 1rem 0;
+}
+
+.equator-note {
+  font-size: 0.9rem;
+  color: var(--muted);
+  border-left: 3px solid var(--accent);
+  padding: 0.5rem 0.75rem;
+  background: var(--wash);
+  margin-top: 1rem;
+}

@@ -1,0 +1,36 @@
+/* BM-03 Configuration Integral Laboratory styles (am-vw1o) */
+
+.configuration-svg-wrap {
+  border: 1px solid var(--line);
+  background: var(--wash);
+  padding: 1rem;
+  margin: 1rem 0;
+  border-radius: 4px;
+}
+
+.configuration-canvas {
+  display: block;
+  width: 100%;
+  height: auto;
+}
+
+.step-one-particle,
+.step-two-particles,
+.step-many-particles,
+.step-derivative {
+  /* Particle step groups */
+}
+
+.step-title {
+  font-family: var(--font-sans);
+  font-size: 14px;
+  font-weight: 600;
+  fill: var(--ink);
+}
+
+.step-navigation {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.5rem;
+  margin-bottom: 1rem;
+}
