@@ -154,34 +154,42 @@ export function IonizationLab({ example }: IonizationLabProps) {
   const histChecks = useMemo(() => einsteinPrintedIonizationChecks(), []);
 
   return (
-    <div className="lab-container max-w-5xl mx-auto p-4 space-y-6" data-instrument-id="lq-09">
+    <section className="laboratory" data-instrument-id="lq-09">
       {/* Header & Preset Bar */}
-      <section className="bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-800 rounded-lg p-4 shadow-sm">
-        <div className="flex flex-wrap items-center justify-between gap-3 mb-4">
+      <header
+        className="lab-heading"
+        style={{
+          borderBottom: "1px solid var(--line)",
+          paddingBottom: "1rem",
+          marginBottom: "1.5rem",
+        }}
+      >
+        <div
+          style={{
+            display: "flex",
+            flexWrap: "wrap",
+            alignItems: "center",
+            justifyContent: "space-between",
+            gap: "1rem",
+            width: "100%",
+          }}
+        >
           <div>
-            <span className="text-xs uppercase tracking-wider font-semibold text-rose-600 dark:text-rose-400">
-              Interactive Critical Edition · Instrument LQ-09
-            </span>
-            <h2 className="text-xl font-bold text-slate-900 dark:text-slate-100">
-              Gas Ionization Bounds and Counting Model
-            </h2>
+            <p className="eyebrow">Interactive Critical Edition · Instrument LQ-09</p>
+            <h2 style={{ margin: "0.25rem 0" }}>Gas Ionization Bounds and Counting Model</h2>
           </div>
-          <div className="flex items-center gap-2">
+          <div style={{ display: "flex", alignItems: "center", gap: "0.5rem" }}>
             <button
               type="button"
               onClick={() => setPredictActive(!predictActive)}
-              className={`px-3 py-1.5 text-xs font-semibold rounded transition-colors ${
-                predictActive
-                  ? "bg-rose-600 text-white"
-                  : "bg-slate-100 dark:bg-slate-800 text-slate-700 dark:text-slate-300 hover:bg-slate-200"
-              }`}
+              className={`button ${predictActive ? "" : "secondary"}`}
             >
               {predictActive ? "Exit Predict Mode" : "Enter Predict Mode"}
             </button>
             <button
               type="button"
               onClick={() => setShowCode(!showCode)}
-              className="px-3 py-1.5 text-xs font-semibold rounded bg-slate-100 dark:bg-slate-800 text-slate-700 dark:text-slate-300 hover:bg-slate-200 transition-colors"
+              className="button secondary"
             >
               {showCode ? "Hide Kernel Source" : "Show the Code"}
             </button>
@@ -189,51 +197,84 @@ export function IonizationLab({ example }: IonizationLabProps) {
         </div>
 
         {/* Presets */}
-        <div className="flex flex-wrap gap-2 pt-2 border-t border-slate-100 dark:border-slate-800">
-          <span className="text-xs text-slate-500 self-center font-medium">Presets:</span>
+        <nav
+          aria-label="Presets"
+          className="preset-list"
+          style={{
+            width: "100%",
+            marginTop: "1rem",
+            paddingTop: "0.75rem",
+            borderTop: "1px solid var(--line)",
+            alignItems: "center",
+          }}
+        >
+          <span className="fine" style={{ fontWeight: 600, marginRight: "0.25rem" }}>
+            Presets:
+          </span>
           {Object.values(LQ09_PRESETS).map((p) => (
             <button
               key={p.id}
               type="button"
               onClick={() => handlePreset(p.parameters as unknown as Lq09Parameters)}
-              className="px-2.5 py-1 text-xs rounded border border-slate-200 dark:border-slate-700 bg-slate-50 dark:bg-slate-800 hover:bg-slate-100 dark:hover:bg-slate-700 text-slate-800 dark:text-slate-200 transition-colors"
+              className="button secondary"
               title={p.description}
             >
               {p.label}
             </button>
           ))}
-        </div>
-      </section>
+        </nav>
+      </header>
 
       {/* Predict Mode Overlay */}
       {predictActive && (
-        <section className="bg-amber-50 dark:bg-amber-950/40 border border-amber-300 dark:border-amber-800 rounded-lg p-5">
-          <h3 className="text-base font-bold text-amber-900 dark:text-amber-200 mb-2">
+        <section
+          className="notice"
+          style={{ margin: "1.5rem 0" }}
+          aria-label="Predict Mode: Deductive Predictions"
+        >
+          <p className="eyebrow" style={{ marginBottom: "0.25rem" }}>
             Predict Mode: Deductive Predictions
-          </h3>
-          <p className="text-xs text-amber-800 dark:text-amber-300 mb-4">
+          </p>
+          <p className="fine" style={{ margin: "0.25rem 0 1rem" }}>
             Test your deductive understanding of single-quantum ionization bounds before observing
             the simulator output.
           </p>
 
-          <div className="space-y-4">
+          <div style={{ display: "flex", flexDirection: "column", gap: "1rem" }}>
             {PREDICT_PROMPTS.map((prompt) => (
               <div
                 key={prompt.id}
-                className="bg-white dark:bg-slate-900 border border-amber-200 dark:border-amber-900 rounded p-4 text-sm"
+                style={{
+                  background: "var(--panel)",
+                  border: "1px solid var(--line)",
+                  borderRadius: "4px",
+                  padding: "1rem",
+                }}
               >
-                <p className="font-semibold text-slate-800 dark:text-slate-200 mb-2">
-                  {prompt.question}
-                </p>
-                <div className="space-y-1.5 mb-3">
+                <p style={{ fontWeight: 600, margin: "0 0 0.5rem" }}>{prompt.question}</p>
+                <div
+                  style={{
+                    display: "flex",
+                    flexDirection: "column",
+                    gap: "0.5rem",
+                    marginBottom: "0.75rem",
+                  }}
+                >
                   {prompt.options.map((opt, idx) => (
                     <label
                       key={opt.text}
-                      className={`flex items-start gap-2 p-2 rounded cursor-pointer border transition-colors ${
-                        userAnswers[prompt.id] === idx
-                          ? "border-rose-500 bg-rose-50/40 dark:bg-rose-950/20"
-                          : "border-transparent hover:bg-slate-50 dark:hover:bg-slate-800"
-                      }`}
+                      style={{
+                        display: "flex",
+                        alignItems: "flex-start",
+                        gap: "0.5rem",
+                        padding: "0.5rem",
+                        borderRadius: "4px",
+                        cursor: "pointer",
+                        border:
+                          userAnswers[prompt.id] === idx
+                            ? "1px solid var(--plot)"
+                            : "1px solid transparent",
+                      }}
                     >
                       <input
                         type="radio"
@@ -241,9 +282,11 @@ export function IonizationLab({ example }: IonizationLabProps) {
                         checked={userAnswers[prompt.id] === idx}
                         onChange={() => setUserAnswers({ ...userAnswers, [prompt.id]: idx })}
                         disabled={revealed[prompt.id]}
-                        className="mt-0.5"
+                        style={{ marginTop: "0.2rem" }}
                       />
-                      <span className="text-xs text-slate-700 dark:text-slate-300">{opt.text}</span>
+                      <span className="fine" style={{ color: "var(--ink)" }}>
+                        {opt.text}
+                      </span>
                     </label>
                   ))}
                 </div>
@@ -253,24 +296,26 @@ export function IonizationLab({ example }: IonizationLabProps) {
                     type="button"
                     disabled={userAnswers[prompt.id] === undefined}
                     onClick={() => setRevealed({ ...revealed, [prompt.id]: true })}
-                    className="px-3 py-1 bg-amber-600 hover:bg-amber-700 disabled:opacity-50 text-white text-xs font-semibold rounded"
+                    className="button"
                   >
                     Check Prediction
                   </button>
                 ) : (
                   <div
-                    className={`p-3 rounded text-xs ${
-                      prompt.options[userAnswers[prompt.id] ?? 0]?.correct
-                        ? "bg-emerald-50 dark:bg-emerald-950/40 text-emerald-900 dark:text-emerald-200 border border-emerald-300"
-                        : "bg-rose-50 dark:bg-rose-950/40 text-rose-900 dark:text-rose-200 border border-rose-300"
-                    }`}
+                    className="notice"
+                    style={{
+                      padding: "0.75rem",
+                      marginTop: "0.5rem",
+                    }}
                   >
-                    <p className="font-bold mb-1">
+                    <p style={{ fontWeight: "bold", margin: "0 0 0.25rem" }}>
                       {prompt.options[userAnswers[prompt.id] ?? 0]?.correct
                         ? "✓ Correct Deduction"
                         : "✗ Alternative Hypothesis Disproved"}
                     </p>
-                    <p>{prompt.explanation}</p>
+                    <p className="fine" style={{ margin: 0 }}>
+                      {prompt.explanation}
+                    </p>
                   </div>
                 )}
               </div>
@@ -280,24 +325,39 @@ export function IonizationLab({ example }: IonizationLabProps) {
       )}
 
       {/* Main Grid: Controls & Visualizations */}
-      <div className="grid grid-cols-1 lg:grid-cols-12 gap-6">
+      <div
+        style={{
+          display: "grid",
+          gridTemplateColumns: "repeat(auto-fit, minmax(320px, 1fr))",
+          gap: "1.5rem",
+        }}
+      >
         {/* Controls Column */}
-        <div className="lg:col-span-5 space-y-4">
-          <div className="bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-800 rounded-lg p-4 space-y-4 shadow-sm">
-            <h3 className="text-sm font-bold text-slate-900 dark:text-slate-100 border-b pb-2 border-slate-100 dark:border-slate-800">
-              Experimental Controls
-            </h3>
+        <div style={{ display: "flex", flexDirection: "column", gap: "1rem" }}>
+          <div
+            style={{
+              background: "var(--panel)",
+              border: "1px solid var(--line)",
+              padding: "1rem",
+              borderRadius: "4px",
+              display: "flex",
+              flexDirection: "column",
+              gap: "1rem",
+            }}
+          >
+            <h3 style={{ margin: "0 0 0.5rem", fontSize: "0.95rem" }}>Experimental Controls</h3>
 
             {/* Light Frequency */}
-            <div>
-              <div className="flex justify-between text-xs mb-1">
-                <label
-                  htmlFor="freq-slider"
-                  className="font-medium text-slate-700 dark:text-slate-300"
-                >
-                  Light Frequency (&nu;)
-                </label>
-                <span className="font-mono text-slate-600 dark:text-slate-400">
+            <div className="input-field">
+              <div
+                style={{
+                  display: "flex",
+                  justifyContent: "space-between",
+                  alignItems: "center",
+                }}
+              >
+                <label htmlFor="freq-slider">Light Frequency (&nu;)</label>
+                <span className="fine" style={{ fontFamily: "var(--font-mono)" }}>
                   {freqTHz} THz ({quantumEnergyEv.toFixed(2)} eV)
                 </span>
               </div>
@@ -312,20 +372,23 @@ export function IonizationLab({ example }: IonizationLabProps) {
                   setFreqTHz(e.target.value);
                   handleApply({ frequency: Number.parseFloat(e.target.value) * 1e12 });
                 }}
-                className="w-full h-1.5 bg-slate-200 dark:bg-slate-700 rounded cursor-pointer"
+                style={{ width: "100%", marginTop: "0.25rem" }}
               />
             </div>
 
             {/* Ionization Energy */}
-            <div>
-              <div className="flex justify-between text-xs mb-1">
-                <label
-                  htmlFor="jmol-slider"
-                  className="font-medium text-slate-700 dark:text-slate-300"
-                >
-                  Ionization Threshold (J_mol)
-                </label>
-                <span className="font-mono text-slate-600 dark:text-slate-400">{jMolEv} eV</span>
+            <div className="input-field">
+              <div
+                style={{
+                  display: "flex",
+                  justifyContent: "space-between",
+                  alignItems: "center",
+                }}
+              >
+                <label htmlFor="jmol-slider">Ionization Threshold (J_mol)</label>
+                <span className="fine" style={{ fontFamily: "var(--font-mono)" }}>
+                  {jMolEv} eV
+                </span>
               </div>
               <input
                 id="jmol-slider"
@@ -338,20 +401,21 @@ export function IonizationLab({ example }: IonizationLabProps) {
                   setJMolEv(e.target.value);
                   handleApply({ ionizationEnergyEv: Number.parseFloat(e.target.value) });
                 }}
-                className="w-full h-1.5 bg-slate-200 dark:bg-slate-700 rounded cursor-pointer"
+                style={{ width: "100%", marginTop: "0.25rem" }}
               />
             </div>
 
             {/* Optical Power */}
-            <div>
-              <div className="flex justify-between text-xs mb-1">
-                <label
-                  htmlFor="popt-slider"
-                  className="font-medium text-slate-700 dark:text-slate-300"
-                >
-                  Incident Power (P_opt)
-                </label>
-                <span className="font-mono text-slate-600 dark:text-slate-400">
+            <div className="input-field">
+              <div
+                style={{
+                  display: "flex",
+                  justifyContent: "space-between",
+                  alignItems: "center",
+                }}
+              >
+                <label htmlFor="popt-slider">Incident Power (P_opt)</label>
+                <span className="fine" style={{ fontFamily: "var(--font-mono)" }}>
                   {pOptMicroW} &mu;W
                 </span>
               </div>
@@ -366,20 +430,21 @@ export function IonizationLab({ example }: IonizationLabProps) {
                   setPOptMicroW(e.target.value);
                   handleApply({ incidentPower: Number.parseFloat(e.target.value) * 1e-6 });
                 }}
-                className="w-full h-1.5 bg-slate-200 dark:bg-slate-700 rounded cursor-pointer"
+                style={{ width: "100%", marginTop: "0.25rem" }}
               />
             </div>
 
             {/* Absorption Efficiency */}
-            <div>
-              <div className="flex justify-between text-xs mb-1">
-                <label
-                  htmlFor="eta-slider"
-                  className="font-medium text-slate-700 dark:text-slate-300"
-                >
-                  Absorption Fraction (&eta;_abs)
-                </label>
-                <span className="font-mono text-slate-600 dark:text-slate-400">
+            <div className="input-field">
+              <div
+                style={{
+                  display: "flex",
+                  justifyContent: "space-between",
+                  alignItems: "center",
+                }}
+              >
+                <label htmlFor="eta-slider">Absorption Fraction (&eta;_abs)</label>
+                <span className="fine" style={{ fontFamily: "var(--font-mono)" }}>
                   {(Number.parseFloat(etaAbs) * 100).toFixed(0)}%
                 </span>
               </div>
@@ -394,20 +459,21 @@ export function IonizationLab({ example }: IonizationLabProps) {
                   setEtaAbs(e.target.value);
                   handleApply({ absorptionEfficiency: Number.parseFloat(e.target.value) });
                 }}
-                className="w-full h-1.5 bg-slate-200 dark:bg-slate-700 rounded cursor-pointer"
+                style={{ width: "100%", marginTop: "0.25rem" }}
               />
             </div>
 
             {/* Exposure Duration */}
-            <div>
-              <div className="flex justify-between text-xs mb-1">
-                <label
-                  htmlFor="dur-slider"
-                  className="font-medium text-slate-700 dark:text-slate-300"
-                >
-                  Exposure Duration (t)
-                </label>
-                <span className="font-mono text-slate-600 dark:text-slate-400">
+            <div className="input-field">
+              <div
+                style={{
+                  display: "flex",
+                  justifyContent: "space-between",
+                  alignItems: "center",
+                }}
+              >
+                <label htmlFor="dur-slider">Exposure Duration (t)</label>
+                <span className="fine" style={{ fontFamily: "var(--font-mono)" }}>
                   {durationSec} s
                 </span>
               </div>
@@ -422,16 +488,13 @@ export function IonizationLab({ example }: IonizationLabProps) {
                   setDurationSec(e.target.value);
                   handleApply({ duration: Number.parseFloat(e.target.value) });
                 }}
-                className="w-full h-1.5 bg-slate-200 dark:bg-slate-700 rounded cursor-pointer"
+                style={{ width: "100%", marginTop: "0.25rem" }}
               />
             </div>
 
             {/* Absorption Mode Selection */}
-            <div>
-              <label
-                htmlFor="mode-select"
-                className="block text-xs font-medium text-slate-700 dark:text-slate-300 mb-1"
-              >
+            <div className="input-field">
+              <label htmlFor="mode-select" style={{ display: "block", marginBottom: "0.25rem" }}>
                 Absorption Epistemic State
               </label>
               <select
@@ -442,7 +505,7 @@ export function IonizationLab({ example }: IonizationLabProps) {
                   setAbsMode(mode);
                   handleApply({ absorptionMode: mode });
                 }}
-                className="w-full text-xs p-2 border border-slate-300 dark:border-slate-700 rounded bg-slate-50 dark:bg-slate-800 text-slate-900 dark:text-slate-100"
+                style={{ width: "100%", padding: "0.4rem" }}
               >
                 <option value="all-absorbed-ionizes">
                   Primary Hypothesis: All absorbed light ionizes (j = L / R&beta;&nu;)
@@ -458,15 +521,16 @@ export function IonizationLab({ example }: IonizationLabProps) {
 
             {/* Declared Fraction slider when in declared-fraction mode */}
             {absMode === "declared-fraction" && (
-              <div>
-                <div className="flex justify-between text-xs mb-1">
-                  <label
-                    htmlFor="dec-slider"
-                    className="font-medium text-slate-700 dark:text-slate-300"
-                  >
-                    Declared Yield (a)
-                  </label>
-                  <span className="font-mono text-slate-600 dark:text-slate-400">
+              <div className="input-field">
+                <div
+                  style={{
+                    display: "flex",
+                    justifyContent: "space-between",
+                    alignItems: "center",
+                  }}
+                >
+                  <label htmlFor="dec-slider">Declared Yield (a)</label>
+                  <span className="fine" style={{ fontFamily: "var(--font-mono)" }}>
                     {(Number.parseFloat(decFrac) * 100).toFixed(0)}%
                   </span>
                 </div>
@@ -481,48 +545,69 @@ export function IonizationLab({ example }: IonizationLabProps) {
                     setDecFrac(e.target.value);
                     handleApply({ declaredFraction: Number.parseFloat(e.target.value) });
                   }}
-                  className="w-full h-1.5 bg-slate-200 dark:bg-slate-700 rounded cursor-pointer"
+                  style={{ width: "100%", marginTop: "0.25rem" }}
                 />
               </div>
             )}
           </div>
 
           {/* Historical Checks Card */}
-          <div className="bg-slate-50 dark:bg-slate-900 border border-slate-200 dark:border-slate-800 rounded-lg p-4 space-y-2">
-            <h4 className="text-xs font-bold uppercase tracking-wider text-slate-700 dark:text-slate-300">
+          <div
+            className="notice"
+            style={{
+              display: "flex",
+              flexDirection: "column",
+              gap: "0.75rem",
+            }}
+          >
+            <h4 className="eyebrow" style={{ margin: 0 }}>
               Einstein&apos;s 1905 Historical Checks (§9)
             </h4>
-            <div className="text-xs space-y-2 text-slate-600 dark:text-slate-400">
-              <div className="p-2 bg-white dark:bg-slate-800 rounded border border-slate-100 dark:border-slate-700">
-                <p className="font-semibold text-slate-800 dark:text-slate-200">
+            <div style={{ display: "flex", flexDirection: "column", gap: "0.5rem" }}>
+              <div
+                style={{
+                  background: "var(--panel)",
+                  padding: "0.5rem",
+                  borderRadius: "4px",
+                  border: "1px solid var(--line)",
+                }}
+              >
+                <p style={{ fontWeight: 600, margin: "0 0 0.25rem" }}>
                   Philipp Lenard (1900) Air Ionization
                 </p>
-                <p>
+                <p className="fine" style={{ margin: "0 0 0.25rem" }}>
                   Observed cutoff: &lambda; &le; 190 nm &rarr; R&beta;&nu; ={" "}
-                  <span className="font-mono font-bold text-rose-600 dark:text-rose-400">
+                  <strong style={{ fontFamily: "var(--font-mono)" }}>
                     {histChecks.lenardCheck.printedEnergyText}
-                  </span>{" "}
+                  </strong>{" "}
                   ({histChecks.lenardCheck.printedPotentialText})
                 </p>
-                <p className="text-[11px] text-slate-500">
+                <p className="fine" style={{ margin: 0, fontSize: "0.75rem" }}>
                   Modern SI at 190 nm: {histChecks.lenardCheck.modernEnergyEvAt190nm.toFixed(2)} eV
                   (per molecule).
                 </p>
               </div>
 
-              <div className="p-2 bg-white dark:bg-slate-800 rounded border border-slate-100 dark:border-slate-700">
-                <p className="font-semibold text-slate-800 dark:text-slate-200">
+              <div
+                style={{
+                  background: "var(--panel)",
+                  padding: "0.5rem",
+                  borderRadius: "4px",
+                  border: "1px solid var(--line)",
+                }}
+              >
+                <p style={{ fontWeight: 600, margin: "0 0 0.25rem" }}>
                   Johannes Stark (1902) Cathode Rays
                 </p>
-                <p>
+                <p className="fine" style={{ margin: "0 0 0.25rem" }}>
                   Cathode-ray ionization potential:{" "}
-                  <span className="font-mono font-bold text-rose-600 dark:text-rose-400">
+                  <strong style={{ fontFamily: "var(--font-mono)" }}>
                     {histChecks.starkCheck.printedPotentialText}
-                  </span>{" "}
+                  </strong>{" "}
                   &rarr; &lambda;_0 &approx;{" "}
                   {histChecks.starkCheck.thresholdWavelengthNm.toFixed(0)} nm
                 </p>
-                <p className="text-[11px] text-slate-500">
+                <p className="fine" style={{ margin: 0, fontSize: "0.75rem" }}>
                   J = {histChecks.starkCheck.energyPerGramEquivalentErg.toExponential(1)} erg per
                   gram-equivalent.
                 </p>
@@ -532,7 +617,7 @@ export function IonizationLab({ example }: IonizationLabProps) {
         </div>
 
         {/* Visualizations Column */}
-        <div className="lg:col-span-7 space-y-6">
+        <div style={{ display: "flex", flexDirection: "column", gap: "1.5rem" }}>
           <IonizationThresholdLadderPlot
             frequency={currentParams.frequency}
             ionizationEnergyEv={currentParams.ionizationEnergyEv}
@@ -553,91 +638,132 @@ export function IonizationLab({ example }: IonizationLabProps) {
           />
 
           {/* Quantitative Summary Table */}
-          <div className="bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-800 rounded-lg p-4 shadow-sm">
-            <h4 className="text-sm font-bold text-slate-900 dark:text-slate-100 mb-3">
+          <div
+            style={{
+              background: "var(--panel)",
+              border: "1px solid var(--line)",
+              padding: "1rem",
+              borderRadius: "4px",
+            }}
+          >
+            <h4 style={{ margin: "0 0 0.75rem", fontSize: "0.95rem" }}>
               Accepted Laboratory Telemetry Snapshot
             </h4>
-            <div className="overflow-x-auto">
-              <table
-                className="w-full text-xs text-left"
-                aria-label="Accepted laboratory telemetry snapshot"
-              >
+            <div
+              className="table-scroll"
+              tabIndex={0}
+              role="region"
+              aria-label="Accepted laboratory telemetry snapshot table"
+            >
+              <table aria-label="Accepted laboratory telemetry snapshot">
                 <thead>
-                  <tr className="border-b border-slate-200 dark:border-slate-700 text-slate-500 font-medium">
-                    <th className="py-1.5">Quantity</th>
-                    <th className="py-1.5">Symbol</th>
-                    <th className="py-1.5">Status</th>
-                    <th className="py-1.5 text-right">Value</th>
+                  <tr>
+                    <th scope="col">Quantity</th>
+                    <th scope="col">Symbol</th>
+                    <th scope="col">Status</th>
+                    <th scope="col" style={{ textAlign: "right" }}>
+                      Value
+                    </th>
                   </tr>
                 </thead>
-                <tbody className="divide-y divide-slate-100 dark:divide-slate-800 font-mono">
+                <tbody style={{ fontFamily: "var(--font-mono)" }}>
                   <tr data-quantity-id="frequency">
-                    <td className="py-1.5 font-sans">Light Frequency</td>
+                    <th
+                      scope="row"
+                      style={{ fontFamily: "var(--font-sans)", fontWeight: "normal" }}
+                    >
+                      Light Frequency
+                    </th>
                     <td>&nu;</td>
                     <td>
-                      <span className="text-emerald-600 font-sans">value</span>
+                      <span className="badge">value</span>
                     </td>
-                    <td className="text-right">
-                      {(currentParams.frequency / 1e12).toFixed(2)} THz
-                    </td>
+                    <td>{(currentParams.frequency / 1e12).toFixed(2)} THz</td>
                   </tr>
                   <tr data-quantity-id="ionizationEnergyPerMolecule">
-                    <td className="py-1.5 font-sans">Ionization Work / Molecule</td>
+                    <th
+                      scope="row"
+                      style={{ fontFamily: "var(--font-sans)", fontWeight: "normal" }}
+                    >
+                      Ionization Work / Molecule
+                    </th>
                     <td>J_mol</td>
                     <td>
-                      <span className="text-emerald-600 font-sans">value</span>
+                      <span className="badge">value</span>
                     </td>
-                    <td className="text-right">{currentParams.ionizationEnergyEv.toFixed(2)} eV</td>
+                    <td>{currentParams.ionizationEnergyEv.toFixed(2)} eV</td>
                   </tr>
                   <tr data-quantity-id="quantumEnergyEv">
-                    <td className="py-1.5 font-sans">Quantum Energy</td>
+                    <th
+                      scope="row"
+                      style={{ fontFamily: "var(--font-sans)", fontWeight: "normal" }}
+                    >
+                      Quantum Energy
+                    </th>
                     <td>h&nu;</td>
                     <td>
-                      <span className="text-emerald-600 font-sans">value</span>
+                      <span className="badge">value</span>
                     </td>
-                    <td className="text-right">{quantumEnergyEv.toFixed(4)} eV</td>
+                    <td>{quantumEnergyEv.toFixed(4)} eV</td>
                   </tr>
                   <tr data-quantity-id="excessEnergyEv">
-                    <td className="py-1.5 font-sans">Excess Kinetic Energy</td>
+                    <th
+                      scope="row"
+                      style={{ fontFamily: "var(--font-sans)", fontWeight: "normal" }}
+                    >
+                      Excess Kinetic Energy
+                    </th>
                     <td>E_excess</td>
                     <td>
-                      <span className="text-emerald-600 font-sans">value</span>
+                      <span className="badge">value</span>
                     </td>
-                    <td className="text-right">{excessEnergyEv.toFixed(4)} eV</td>
+                    <td>{excessEnergyEv.toFixed(4)} eV</td>
                   </tr>
                   <tr data-quantity-id="absorbedLightEnergy">
-                    <td className="py-1.5 font-sans">Absorbed Light Energy</td>
+                    <th
+                      scope="row"
+                      style={{ fontFamily: "var(--font-sans)", fontWeight: "normal" }}
+                    >
+                      Absorbed Light Energy
+                    </th>
                     <td>L</td>
                     <td>
-                      <span className="text-emerald-600 font-sans">value</span>
+                      <span className="badge">value</span>
                     </td>
-                    <td className="text-right">{absorbedLightEnergy.toExponential(4)} J</td>
+                    <td>{absorbedLightEnergy.toExponential(4)} J</td>
                   </tr>
                   <tr data-quantity-id="absorbedQuantumRate">
-                    <td className="py-1.5 font-sans">Absorbed Quantum Rate</td>
+                    <th
+                      scope="row"
+                      style={{ fontFamily: "var(--font-sans)", fontWeight: "normal" }}
+                    >
+                      Absorbed Quantum Rate
+                    </th>
                     <td>N&#775;_abs</td>
                     <td>
-                      <span className="text-emerald-600 font-sans">value</span>
+                      <span className="badge">value</span>
                     </td>
-                    <td className="text-right">{absorbedQRate.toExponential(4)} s&#8315;&sup1;</td>
+                    <td>{absorbedQRate.toExponential(4)} s&#8315;&sup1;</td>
                   </tr>
                   <tr data-quantity-id="ionizationRate">
-                    <td className="py-1.5 font-sans">Ionization Event Rate</td>
+                    <th
+                      scope="row"
+                      style={{ fontFamily: "var(--font-sans)", fontWeight: "normal" }}
+                    >
+                      Ionization Event Rate
+                    </th>
                     <td>N&#775;_ion</td>
                     <td>
                       <span
-                        className={`font-sans ${
-                          ionizationStatus === "value"
-                            ? "text-emerald-600"
-                            : ionizationStatus === "underdetermined"
-                              ? "text-amber-600"
-                              : "text-rose-600"
-                        }`}
+                        className="badge"
+                        style={
+                          ionizationStatus === "value" ? undefined : { color: "var(--accent)" }
+                        }
                       >
                         {ionizationStatus}
                       </span>
                     </td>
-                    <td className="text-right">
+                    <td>
                       {ionizationStatus === "value" && ionizationRate !== null
                         ? `${ionizationRate.toExponential(4)} s⁻¹`
                         : ionizationStatus === "underdetermined"
@@ -646,22 +772,26 @@ export function IonizationLab({ example }: IonizationLabProps) {
                     </td>
                   </tr>
                   <tr data-quantity-id="ionizedGramMolecules">
-                    <td className="py-1.5 font-sans">Ionized Gram-Molecules</td>
+                    <th
+                      scope="row"
+                      style={{ fontFamily: "var(--font-sans)", fontWeight: "normal" }}
+                    >
+                      Ionized Gram-Molecules
+                    </th>
                     <td>j</td>
                     <td>
                       <span
-                        className={`font-sans ${
-                          ionizedGramMoleculesOut?.status === "value"
-                            ? "text-emerald-600"
-                            : ionizedGramMoleculesOut?.status === "underdetermined"
-                              ? "text-amber-600"
-                              : "text-rose-600"
-                        }`}
+                        className="badge"
+                        style={
+                          (ionizedGramMoleculesOut?.status ?? "value") === "value"
+                            ? undefined
+                            : { color: "var(--accent)" }
+                        }
                       >
                         {ionizedGramMoleculesOut?.status ?? "value"}
                       </span>
                     </td>
-                    <td className="text-right">
+                    <td>
                       {ionizedGramMoleculesOut &&
                       ionizedGramMoleculesOut.status === "value" &&
                       typeof ionizedGramMoleculesOut.value === "number"
@@ -680,40 +810,65 @@ export function IonizationLab({ example }: IonizationLabProps) {
 
       {/* Show the Code Disclosure */}
       {showCode && (
-        <section className="bg-slate-900 text-slate-200 rounded-lg p-5 border border-slate-800 font-mono text-xs overflow-x-auto space-y-3">
-          <div className="flex justify-between items-center text-slate-400 border-b border-slate-800 pb-2">
+        <section
+          className="notice"
+          style={{
+            margin: "1.5rem 0",
+            fontFamily: "var(--font-mono)",
+          }}
+        >
+          <div
+            style={{
+              display: "flex",
+              justifyContent: "space-between",
+              alignItems: "center",
+              borderBottom: "1px solid var(--line)",
+              paddingBottom: "0.5rem",
+              marginBottom: "0.5rem",
+            }}
+          >
             <span>Pinned Kernel Evaluator: src/physics/reference/photoelectric.ts</span>
-            <span className="text-[10px] bg-slate-800 px-2 py-0.5 rounded">
-              TypeScript Reference Owner
-            </span>
+            <span className="badge">TypeScript Reference Owner</span>
           </div>
-          <pre className="text-slate-300 leading-relaxed">
-            {`// Paper 1, §9 Single-Quantum Ionization Conservation:
+          <pre style={{ margin: 0, overflowX: "auto" }}>
+            <code>{`// Paper 1, §9 Single-Quantum Ionization Conservation:
 // Threshold frequency: nu_0 = J_mol / h
 // If nu < nu_0: ionization count and rate are strictly not-applicable.
 // If nu >= nu_0:
 //   Under "all-absorbed-ionizes": j = L / (R*beta*nu) or N_ion = L / (h*nu)
 //   Under "declared-fraction":   N_ion = a * L / (h*nu)
-//   Under "unknown":             underdetermined with upper bound N_abs = L / (h*nu)`}
+//   Under "unknown":             underdetermined with upper bound N_abs = L / (h*nu)`}</code>
           </pre>
         </section>
       )}
 
       {/* Limits of this Reference Model */}
-      <section className="bg-slate-50 dark:bg-slate-900/50 border border-slate-200 dark:border-slate-800 rounded-lg p-4">
-        <h4 className="text-xs font-bold uppercase tracking-wider text-slate-700 dark:text-slate-300 mb-2">
+      <footer
+        style={{
+          marginTop: "2rem",
+          borderTop: "1px solid var(--line)",
+          paddingTop: "1.5rem",
+        }}
+      >
+        <h4 className="eyebrow" style={{ marginBottom: "0.75rem" }}>
           Limits of this Reference Model (Not Modeled)
         </h4>
-        <ul className="grid grid-cols-1 md:grid-cols-2 gap-2 text-xs text-slate-600 dark:text-slate-400">
+        <ul
+          className="fine"
+          style={{
+            display: "grid",
+            gridTemplateColumns: "repeat(auto-fit, minmax(280px, 1fr))",
+            gap: "0.5rem",
+            paddingLeft: "1.25rem",
+            margin: 0,
+          }}
+        >
           {LQ09_NOT_MODELED.map((item) => (
-            <li key={item} className="flex items-start gap-1.5">
-              <span className="text-rose-500 font-bold">&bull;</span>
-              <span>{item}</span>
-            </li>
+            <li key={item}>{item}</li>
           ))}
         </ul>
-      </section>
-    </div>
+      </footer>
+    </section>
   );
 }
 
