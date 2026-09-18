@@ -215,25 +215,25 @@ export function InterferencePlot({
           y = 0 (Center)
         </text>
 
-        {/* Intensity Curve */}
+        {/* Intensity Curve (Data trace - kept literal sky blue) */}
         {polylinePoints && (
           <polyline
             points={polylinePoints}
             fill="none"
-            stroke="var(--plot)"
+            stroke="#0284c7"
             strokeWidth="2.5"
             strokeLinecap="round"
             strokeLinejoin="round"
           />
         )}
 
-        {/* Selected Screen Position Marker */}
+        {/* Selected Screen Position Marker (Data probe - kept literal rose) */}
         <line
           x1={selectedX}
           y1={padding.top}
           x2={selectedX}
           y2={height - padding.bottom}
-          stroke="var(--accent)"
+          stroke="#e11d48"
           strokeDasharray="2 2"
           strokeWidth="1.5"
         />
@@ -241,7 +241,7 @@ export function InterferencePlot({
           cx={selectedX}
           cy={selectedY}
           r="4.5"
-          fill="var(--accent)"
+          fill="#e11d48"
           stroke="var(--paper)"
           strokeWidth="1.5"
         />
@@ -252,7 +252,7 @@ export function InterferencePlot({
           fontSize="10"
           fontFamily="monospace"
           fontWeight="600"
-          fill="var(--accent)"
+          fill="#e11d48"
         >
           {screenPosition}: {selectedIntensity.toFixed(2)} (Δr = {pathDifference.toFixed(2)}λ)
         </text>
@@ -351,7 +351,7 @@ export function WavefrontPlot({
         style={{
           width: "100%",
           height: "auto",
-          background: "var(--wash)",
+          background: "#0f172a",
           border: "1px solid var(--line)",
           borderRadius: "0.25rem",
           overflow: "hidden",
@@ -364,7 +364,7 @@ export function WavefrontPlot({
         </defs>
 
         <g clipPath="url(#field-clip)">
-          {/* Source 1 Crests */}
+          {/* Source 1 Crests (Data datum - kept literal sky blue) */}
           {Array.from({ length: numRings }).map((_, i) => {
             const r = (i + 1) * ringStep;
             return (
@@ -374,14 +374,14 @@ export function WavefrontPlot({
                 cy={s1Y}
                 r={r}
                 fill="none"
-                stroke="var(--plot)"
+                stroke="#38bdf8"
                 strokeWidth="1.5"
                 strokeOpacity={0.8 - i * 0.08}
               />
             );
           })}
 
-          {/* Source 2 Crests */}
+          {/* Source 2 Crests (Data datum - kept literal amber) */}
           {Array.from({ length: numRings }).map((_, i) => {
             const phaseOffset = (delta / (2 * Math.PI)) * ringStep;
             const r = (i + 1) * ringStep + phaseOffset;
@@ -393,7 +393,7 @@ export function WavefrontPlot({
                 cy={s2Y}
                 r={r}
                 fill="none"
-                stroke="var(--accent)"
+                stroke="#fbbf24"
                 strokeWidth="1.5"
                 strokeOpacity={0.8 - i * 0.08}
               />
@@ -412,8 +412,8 @@ export function WavefrontPlot({
           />
         </g>
 
-        {/* Source pinheads */}
-        <circle cx={srcX} cy={s1Y} r="4" fill="var(--plot)" />
+        {/* Source pinheads (Data datums - kept literal) */}
+        <circle cx={srcX} cy={s1Y} r="4" fill="#38bdf8" />
         <text
           x={srcX - 8}
           y={s1Y + 3}
@@ -421,11 +421,11 @@ export function WavefrontPlot({
           fontSize="10"
           fontFamily="monospace"
           fontWeight="bold"
-          fill="var(--plot)"
+          fill="#38bdf8"
         >
           S₁
         </text>
-        <circle cx={srcX} cy={s2Y} r="4" fill="var(--accent)" />
+        <circle cx={srcX} cy={s2Y} r="4" fill="#fbbf24" />
         <text
           x={srcX - 8}
           y={s2Y + 3}
@@ -433,7 +433,7 @@ export function WavefrontPlot({
           fontSize="10"
           fontFamily="monospace"
           fontWeight="bold"
-          fill="var(--accent)"
+          fill="#fbbf24"
         >
           S₂
         </text>
@@ -444,7 +444,7 @@ export function WavefrontPlot({
           y1="10"
           x2={width - 50}
           y2={height - 10}
-          stroke="var(--ink)"
+          stroke="var(--line)"
           strokeWidth="3"
         />
         <text x={width - 45} y="25" fontSize="10" fontFamily="monospace" fill="var(--muted)">
@@ -454,7 +454,7 @@ export function WavefrontPlot({
           cx={width - 50}
           cy={centerY}
           r="5"
-          fill={centerIntensity > 0.1 ? "var(--plot)" : "var(--muted)"}
+          fill={centerIntensity > 0.1 ? "#38bdf8" : "var(--muted)"}
         />
         <text
           x={width - 42}
@@ -560,18 +560,18 @@ export function SpreadingPlot({
         style={{
           width: "100%",
           height: "auto",
-          background: "var(--wash)",
+          background: "#0f172a",
           border: "1px solid var(--line)",
           borderRadius: "0.25rem",
         }}
       >
-        {/* Concentric Spherical Shells */}
+        {/* Concentric Spherical Shells (Data datum - kept literal sky) */}
         <circle
           cx={originX}
           cy={originY}
           r={r1Px}
           fill="none"
-          stroke="var(--line)"
+          stroke="#0ea5e9"
           strokeWidth="1"
           strokeDasharray="4 4"
         />
@@ -580,7 +580,7 @@ export function SpreadingPlot({
           cy={originY}
           r={r2Px}
           fill="none"
-          stroke="var(--line)"
+          stroke="#0ea5e9"
           strokeWidth="1"
           strokeDasharray="4 4"
         />
@@ -589,23 +589,23 @@ export function SpreadingPlot({
           cy={originY}
           r={r4Px}
           fill="none"
-          stroke="var(--line)"
+          stroke="#0ea5e9"
           strokeWidth="1"
           strokeDasharray="4 4"
         />
 
-        {/* Active radius shell */}
+        {/* Active radius shell (Data datum - kept literal emerald) */}
         <circle
           cx={originX}
           cy={originY}
           r={currentRPx}
           fill="none"
-          stroke="var(--plot)"
+          stroke="#34d399"
           strokeWidth="2.5"
         />
 
-        {/* Central Point Source */}
-        <circle cx={originX} cy={originY} r="6" fill="var(--accent)" />
+        {/* Central Point Source (Data datum - kept literal amber) */}
+        <circle cx={originX} cy={originY} r="6" fill="#f59e0b" />
         <text
           x={originX}
           y={originY - 12}
@@ -613,39 +613,39 @@ export function SpreadingPlot({
           fontSize="10"
           fontFamily="monospace"
           fontWeight="bold"
-          fill="var(--accent)"
+          fill="#f59e0b"
         >
           Source (P = {power} W)
         </text>
 
-        {/* Radius ray vector */}
+        {/* Radius ray vector (Data datum - kept literal emerald) */}
         <line
           x1={originX}
           y1={originY}
           x2={originX + currentRPx}
           y2={originY}
-          stroke="var(--plot)"
+          stroke="#34d399"
           strokeWidth="2"
         />
-        <circle cx={originX + currentRPx} cy={originY} r="4" fill="var(--plot)" />
+        <circle cx={originX + currentRPx} cy={originY} r="4" fill="#34d399" />
         <text
           x={originX + currentRPx / 2}
           y={originY - 6}
           textAnchor="middle"
           fontSize="10"
           fontFamily="monospace"
-          fill="var(--plot)"
+          fill="#34d399"
         >
           r = {radius.toFixed(1)} m
         </text>
 
-        {/* Aperture at r */}
+        {/* Aperture at r (Data datum - kept literal rose) */}
         <rect
           x={originX + currentRPx - 2}
           y={originY - 10}
           width="4"
           height="20"
-          fill="var(--accent)"
+          fill="#f43f5e"
           rx="1"
         />
 
@@ -696,7 +696,7 @@ export function SpreadingPlot({
             fontSize="10"
             fontFamily="monospace"
             fontWeight="bold"
-            fill="var(--plot)"
+            fill="#34d399"
           >
             {shellPower.toFixed(4)} W
           </text>
