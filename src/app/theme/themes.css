@@ -33,6 +33,8 @@
 }
 
 :root {
+  --line: var(--rule);
+  --panel: var(--paper);
   --font-serif: "Newsreader", "Iowan Old Style", "Palatino Linotype", Palatino, Georgia, serif;
   --font-sans: "Plus Jakarta Sans", "Segoe UI", Helvetica, Arial, sans-serif;
   --font-mono: "JetBrains Mono", "SF Mono", Menlo, Consolas, monospace;

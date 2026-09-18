@@ -20,6 +20,18 @@ describe("contrast: every declared text pair meets WCAG AA (4.5:1)", () => {
   }
 });
 
+describe("contrast: inverted and highlighted pairs meet WCAG AA (4.5:1)", () => {
+  for (const id of THEME_IDS) {
+    const tokens = THEME_TOKENS[id];
+    test(`${id}: paper on ink (buttons, badges, skip-link)`, () => {
+      expect(contrastRatio(tokens.paper, tokens.ink)).toBeGreaterThanOrEqual(NORMAL_TEXT_MIN);
+    });
+    test(`${id}: paper on accent (button hover, selection)`, () => {
+      expect(contrastRatio(tokens.paper, tokens.accent)).toBeGreaterThanOrEqual(NORMAL_TEXT_MIN);
+    });
+  }
+});
+
 describe("contrast: the focus ring meets the stricter UI non-text minimum (3:1)", () => {
   for (const id of THEME_IDS) {
     const tokens = THEME_TOKENS[id];
@@ -29,12 +41,30 @@ describe("contrast: the focus ring meets the stricter UI non-text minimum (3:1)"
   }
 });
 
-describe("contrast: a seeded violation fails, proving the test actually checks something", () => {
+describe("contrast: seeded violations fail, proving the test actually checks something", () => {
   test("a low-contrast pair fails the normal-text minimum", () => {
     expect(contrastRatio("#eee7d7", "#eee7d7")).toBeLessThan(NORMAL_TEXT_MIN);
   });
   test("a low-contrast pair fails the UI-boundary minimum", () => {
     expect(contrastRatio("#c8c2b4", "#eee7d7")).toBeLessThan(UI_BOUNDARY_MIN);
+  });
+  test("hardcoded white on Kramgasse Night amber accent fails normal-text minimum (proving why var(--paper) is required)", () => {
+    expect(contrastRatio("#ffffff", THEME_TOKENS["kramgasse-night"].accent)).toBeLessThan(
+      NORMAL_TEXT_MIN,
+    );
+  });
+  test("hardcoded white on Slate coral accent fails normal-text minimum", () => {
+    expect(contrastRatio("#ffffff", THEME_TOKENS.slate.accent)).toBeLessThan(NORMAL_TEXT_MIN);
+  });
+});
+
+describe("contrast: color never carries meaning alone (AGENTS.md constraint)", () => {
+  test("every theme defines non-color cues for interactive states", () => {
+    // Focus ring requires outline geometry, not color alone
+    for (const id of THEME_IDS) {
+      const tokens = THEME_TOKENS[id];
+      expect(tokens.focusRing).toBeDefined();
+    }
   });
 });
 

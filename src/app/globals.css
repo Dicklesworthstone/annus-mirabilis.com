@@ -1,13 +1,43 @@
+/* Self-hosted font families (am-design-themes-typography-288q) */
+@font-face {
+  font-family: "Newsreader";
+  src: url("/fonts/newsreader/Newsreader-Variable.ttf") format("truetype-variations");
+  font-weight: 200 800;
+  font-style: normal;
+  font-display: swap;
+}
+
+@font-face {
+  font-family: "Plus Jakarta Sans";
+  src: url("/fonts/plus-jakarta-sans/PlusJakartaSans-Variable.ttf") format("truetype-variations");
+  font-weight: 200 800;
+  font-style: normal;
+  font-display: swap;
+}
+
+@font-face {
+  font-family: "JetBrains Mono";
+  src: url("/fonts/jetbrains-mono/JetBrainsMono-Variable.ttf") format("truetype-variations");
+  font-weight: 100 800;
+  font-style: normal;
+  font-display: swap;
+}
+
 :root {
   color-scheme: light;
-  --paper: #f5f1e8;
-  --ink: #242a29;
-  --muted: #545b56;
-  --line: #c7c5b9;
-  --accent: #8b3526;
-  --panel: #fffdf7;
-  --wash: #e8eadf;
+  --paper: #eee7d7;
+  --ink: #1a1916;
+  --muted: #5c554a;
+  --rule: #cbc1ac;
+  --line: var(--rule);
+  --accent: #ae2119;
+  --focus-ring: #1a1916;
+  --panel: var(--paper);
+  --wash: #e5ded0;
   --plot: #254f49;
+  --font-serif: "Newsreader", "Iowan Old Style", "Palatino Linotype", Palatino, Georgia, serif;
+  --font-sans: "Plus Jakarta Sans", "Segoe UI", Helvetica, Arial, sans-serif;
+  --font-mono: "JetBrains Mono", "SF Mono", Menlo, Consolas, monospace;
 }
 * {
   box-sizing: border-box;
@@ -19,9 +49,16 @@ body {
   margin: 0;
   background: var(--paper);
   color: var(--ink);
-  font-family: Georgia, "Times New Roman", serif;
-  font-size: 18px;
-  line-height: 1.65;
+  font-family: var(--font-serif);
+  font-size: 1.1875rem;
+  line-height: 1.6;
+  font-optical-sizing: auto;
+  font-variant-numeric: lining-nums;
+  text-rendering: optimizeLegibility;
+}
+::selection {
+  background: var(--accent);
+  color: var(--paper);
 }
 a {
   color: var(--accent);
@@ -42,7 +79,7 @@ nav,
 th,
 td,
 figcaption {
-  font-family: Arial, Helvetica, sans-serif;
+  font-family: var(--font-sans);
 }
 button,
 input {
@@ -53,20 +90,20 @@ button,
   display: inline-block;
   min-height: 44px;
   border: 1px solid var(--ink);
-  border-radius: 3px;
+  border-radius: 0;
   background: var(--ink);
-  color: var(--panel);
+  color: var(--paper);
   padding: 0.65rem 1rem;
   line-height: 1.4;
   text-decoration: none;
   cursor: pointer;
-  font-family: Arial, Helvetica, sans-serif;
+  font-family: var(--font-sans);
 }
 button.secondary,
 .button.secondary {
   background: transparent;
   color: var(--ink);
-  border-color: #91998d;
+  border-color: var(--rule);
 }
 .button-group {
   display: flex;
@@ -77,7 +114,7 @@ button:hover:not(:disabled),
 .button:hover {
   background: var(--accent);
   border-color: var(--accent);
-  color: #fff;
+  color: var(--paper);
 }
 button:disabled {
   cursor: not-allowed;
@@ -88,9 +125,9 @@ input {
   min-width: 0;
   width: 100%;
   padding: 0.65rem;
-  border: 1px solid #7a827a;
-  border-radius: 3px;
-  background: var(--panel);
+  border: 1px solid var(--rule);
+  border-radius: 0;
+  background: var(--paper);
   color: var(--ink);
 }
 :focus-visible {
@@ -105,7 +142,7 @@ input:focus-visible {
   left: 1rem;
   top: -5rem;
   background: var(--ink);
-  color: #fff;
+  color: var(--paper);
   z-index: 10;
   padding: 0.6rem;
 }
@@ -136,7 +173,7 @@ main {
 .wordmark span {
   display: block;
   font-size: 0.75rem;
-  font-family: Arial, Helvetica, sans-serif;
+  font-family: var(--font-sans);
   font-weight: normal;
   letter-spacing: 0.12em;
   margin-top: 0.6rem;
@@ -245,7 +282,7 @@ h3 {
   margin-top: 2.8rem;
 }
 .step-number {
-  font-family: Arial, Helvetica, sans-serif;
+  font-family: var(--font-sans);
   font-size: 0.8rem;
   letter-spacing: 0.1em;
   color: var(--accent);
@@ -310,7 +347,7 @@ legend {
 .input-grid label,
 .share-field {
   display: block;
-  font-family: Arial, Helvetica, sans-serif;
+  font-family: var(--font-sans);
   font-size: 0.85rem;
   line-height: 1.45;
 }
@@ -344,7 +381,7 @@ legend {
   display: flex;
   align-items: center;
   gap: 0.7rem;
-  font-family: Arial, Helvetica, sans-serif;
+  font-family: var(--font-sans);
   font-size: 0.9rem;
   line-height: 1.4;
   margin: 1.4rem 0;
@@ -400,7 +437,7 @@ svg[role="img"] {
   display: block;
 }
 svg[role="img"] text {
-  font-family: Arial, Helvetica, sans-serif;
+  font-family: var(--font-sans);
   font-size: 13px;
   fill: var(--ink);
 }
@@ -441,7 +478,7 @@ caption {
   font-size: 0.83rem;
   padding: 0.7rem 0;
   font-weight: bold;
-  font-family: Arial, Helvetica, sans-serif;
+  font-family: var(--font-sans);
 }
 th,
 td {
@@ -511,11 +548,13 @@ summary {
   min-height: 28px;
   font-size: 1rem;
 }
-code {
-  font-size: 0.78rem;
-  overflow-wrap: anywhere;
-}
+code,
+pre,
+kbd,
+samp,
 .digest {
+  font-family: var(--font-mono);
+  font-size: 0.85em;
   overflow-wrap: anywhere;
 }
 .share-field input {
@@ -685,11 +724,11 @@ select {
   min-height: 44px;
   margin-top: 0.3rem;
   padding: 0.65rem;
-  border: 1px solid #7a827a;
-  border-radius: 3px;
-  background: var(--panel);
+  border: 1px solid var(--rule);
+  border-radius: 0;
+  background: var(--paper);
   color: var(--ink);
-  font-family: Arial, Helvetica, sans-serif;
+  font-family: var(--font-sans);
   font-size: 1rem;
 }
 .tracer-path {
