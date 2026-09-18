@@ -215,6 +215,23 @@ describe("scenario schema", () => {
   });
 
   test("tolerance spec that fails validateToleranceSpec is rejected", () => {
+    // Valid tolerance is accepted
+    expect(() =>
+      validateScenario({
+        ...golden,
+        expected: {
+          outputs: [
+            {
+              outputId: "value",
+              value: 2,
+              comparisonKind: "tolerance",
+              tolerance: { relative: 1e-6, rationale: "exact tolerance" },
+            },
+          ],
+        },
+      }),
+    ).not.toThrow();
+
     // Negative relative tolerance
     try {
       validateScenario({
@@ -251,6 +268,68 @@ describe("scenario schema", () => {
             },
           ],
         },
+      });
+      throw new Error("expected throw");
+    } catch (err) {
+      expect(err).toBeInstanceOf(ExperimentValidationError);
+      expect((err as ExperimentValidationError).code).toBe("tolerance-spec-invalid");
+      expect((err as ExperimentValidationError).message).toContain("Neither absolute nor relative tolerance is positive");
+    }
+  });
+
+  test("discrimination tolerance spec that fails validateToleranceSpec is rejected, accepted with valid spec", () => {
+    const validDiscrimination = {
+      id: "schema-discrimination-tolerance",
+      kind: "discrimination" as const,
+      title: "Discrimination tolerance test",
+      constantSetId: "modern-si-2019",
+      owner: "selfTest.fresnelDrag",
+      hypotheses: [
+        {
+          id: "a",
+          label: "a",
+          owner: "selfTest.fresnelDrag",
+          modelIdentity: "a",
+          circumstancesInWhichItWorks: "a",
+          historicalStatus: "available-before-cutoff" as const,
+        },
+        {
+          id: "b",
+          label: "b",
+          owner: "selfTest.relativisticDrag",
+          modelIdentity: "b",
+          circumstancesInWhichItWorks: "b",
+          historicalStatus: "later-development" as const,
+        },
+      ],
+      observation: { observableId: "increment", inputs: {}, procedure: "x" },
+      tolerance: { relative: 1e-6, rationale: "apparatus resolution limit" },
+      expected: { outcome: "indistinguishable" as const },
+      modelVersion: 1,
+      schemaVersion: 1,
+    };
+
+    // Valid discrimination tolerance is accepted
+    expect(() => validateScenario(validDiscrimination)).not.toThrow();
+
+    // Negative relative tolerance is rejected
+    try {
+      validateScenario({
+        ...validDiscrimination,
+        tolerance: { relative: -0.05, rationale: "apparatus resolution limit" },
+      });
+      throw new Error("expected throw");
+    } catch (err) {
+      expect(err).toBeInstanceOf(ExperimentValidationError);
+      expect((err as ExperimentValidationError).code).toBe("tolerance-spec-invalid");
+      expect((err as ExperimentValidationError).message).toContain("must be a finite number in [0, 1)");
+    }
+
+    // Zero tolerance without bitwise is rejected
+    try {
+      validateScenario({
+        ...validDiscrimination,
+        tolerance: { relative: 0, absolute: 0, rationale: "apparatus resolution limit" },
       });
       throw new Error("expected throw");
     } catch (err) {
