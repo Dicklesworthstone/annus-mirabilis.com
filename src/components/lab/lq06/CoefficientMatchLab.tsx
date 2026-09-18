@@ -142,45 +142,55 @@ export function CoefficientMatchLab({ example }: CoefficientMatchLabProps) {
   };
 
   return (
-    <div
-      className="lab-container max-w-5xl mx-auto p-4 space-y-6"
+    <section
+      className="laboratory"
       data-instrument-id="lq-06"
       data-testid="lq06-coefficient-match-lab"
     >
       <noscript>
-        <div className="bg-amber-50 border border-amber-200 text-amber-900 px-4 py-3 rounded-md text-xs mb-4">
+        <p className="notice">
           <strong>JavaScript disabled:</strong> Viewing static worked example and reference
           calculation. Interactive exploration, sliders, and predict mode require JavaScript.
-        </div>
+        </p>
       </noscript>
 
       {/* Header & Presets */}
-      <section className="bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-800 rounded-lg p-4 shadow-sm">
-        <div className="flex flex-wrap items-center justify-between gap-3 mb-4">
+      <header
+        className="lab-heading"
+        style={{
+          borderBottom: "1px solid var(--line)",
+          paddingBottom: "1rem",
+          marginBottom: "1.5rem",
+        }}
+      >
+        <div
+          style={{
+            display: "flex",
+            flexWrap: "wrap",
+            alignItems: "center",
+            justifyContent: "space-between",
+            gap: "1rem",
+            width: "100%",
+          }}
+        >
           <div>
-            <span className="text-xs uppercase tracking-wider font-semibold text-rose-600 dark:text-rose-400">
-              Interactive Critical Edition · Instrument LQ-06
-            </span>
-            <h2 className="text-xl font-bold text-slate-900 dark:text-slate-100">
+            <p className="eyebrow">Interactive Critical Edition · Instrument LQ-06</p>
+            <h2 style={{ margin: "0.25rem 0" }}>
               Matching the Entropy Laws to Derive the Light Quantum (§6 The Move)
             </h2>
           </div>
-          <div className="flex items-center gap-2">
+          <div style={{ display: "flex", alignItems: "center", gap: "0.5rem" }}>
             <button
               type="button"
               onClick={() => setPredictActive(!predictActive)}
-              className={`px-3 py-1.5 text-xs font-semibold rounded transition-colors ${
-                predictActive
-                  ? "bg-rose-600 text-white"
-                  : "bg-slate-100 dark:bg-slate-800 text-slate-700 dark:text-slate-300 hover:bg-slate-200"
-              }`}
+              className={`button ${predictActive ? "" : "secondary"}`}
             >
               {predictActive ? "Exit Predict Mode" : "Enter Predict Mode"}
             </button>
             <button
               type="button"
               onClick={() => setShowCode(!showCode)}
-              className="px-3 py-1.5 text-xs font-semibold rounded bg-slate-100 dark:bg-slate-800 text-slate-700 dark:text-slate-300 hover:bg-slate-200 transition-colors"
+              className="button secondary"
             >
               {showCode ? "Hide Kernel Source" : "Show the Code"}
             </button>
@@ -188,51 +198,84 @@ export function CoefficientMatchLab({ example }: CoefficientMatchLabProps) {
         </div>
 
         {/* Presets */}
-        <div className="flex flex-wrap gap-2 pt-2 border-t border-slate-100 dark:border-slate-800">
-          <span className="text-xs text-slate-500 self-center font-medium">Presets:</span>
+        <nav
+          aria-label="Presets"
+          className="preset-list"
+          style={{
+            width: "100%",
+            marginTop: "1rem",
+            paddingTop: "0.75rem",
+            borderTop: "1px solid var(--line)",
+            alignItems: "center",
+          }}
+        >
+          <span className="fine" style={{ fontWeight: 600, marginRight: "0.25rem" }}>
+            Presets:
+          </span>
           {Object.values(LQ06_PRESETS).map((p) => (
             <button
               key={p.id}
               type="button"
               onClick={() => handlePreset(p.parameters as unknown as Lq06Parameters)}
-              className="px-2.5 py-1 text-xs rounded border border-slate-200 dark:border-slate-700 bg-slate-50 dark:bg-slate-800 hover:bg-slate-100 dark:hover:bg-slate-700 text-slate-800 dark:text-slate-200 transition-colors"
+              className="button secondary"
               title={p.description}
             >
               {p.label}
             </button>
           ))}
-        </div>
-      </section>
+        </nav>
+      </header>
 
       {/* Predict Mode */}
       {predictActive && (
-        <section className="bg-amber-50 dark:bg-amber-950/40 border border-amber-300 dark:border-amber-800 rounded-lg p-5">
-          <h3 className="text-base font-bold text-amber-900 dark:text-amber-200 mb-2">
+        <section
+          className="notice"
+          style={{ margin: "1.5rem 0" }}
+          aria-label="Predict Mode: Deduce The Move"
+        >
+          <p className="eyebrow" style={{ marginBottom: "0.25rem" }}>
             Predict Mode: Deduce The Move
-          </h3>
-          <p className="text-xs text-amber-800 dark:text-amber-300 mb-4">
+          </p>
+          <p className="fine" style={{ margin: "0.25rem 0 1rem" }}>
             Test your deductive reasoning on why the identical functional form implies discrete
             energy quanta before revealing the calculation.
           </p>
 
-          <div className="space-y-4">
+          <div style={{ display: "flex", flexDirection: "column", gap: "1rem" }}>
             {PREDICT_PROMPTS.map((prompt) => (
               <div
                 key={prompt.id}
-                className="bg-white dark:bg-slate-900 border border-amber-200 dark:border-amber-900 rounded p-4 text-sm"
+                style={{
+                  background: "var(--panel)",
+                  border: "1px solid var(--line)",
+                  borderRadius: "4px",
+                  padding: "1rem",
+                }}
               >
-                <p className="font-semibold text-slate-800 dark:text-slate-200 mb-2">
-                  {prompt.question}
-                </p>
-                <div className="space-y-1.5 mb-3">
+                <p style={{ fontWeight: 600, margin: "0 0 0.5rem" }}>{prompt.question}</p>
+                <div
+                  style={{
+                    display: "flex",
+                    flexDirection: "column",
+                    gap: "0.5rem",
+                    marginBottom: "0.75rem",
+                  }}
+                >
                   {prompt.options.map((opt) => (
                     <label
                       key={opt.text}
-                      className={`flex items-start gap-2 p-2 rounded cursor-pointer border transition-colors ${
-                        userAnswers[prompt.id] === prompt.options.indexOf(opt)
-                          ? "border-rose-500 bg-rose-50/40 dark:bg-rose-950/20"
-                          : "border-transparent hover:bg-slate-50 dark:hover:bg-slate-800"
-                      }`}
+                      style={{
+                        display: "flex",
+                        alignItems: "flex-start",
+                        gap: "0.5rem",
+                        padding: "0.5rem",
+                        borderRadius: "4px",
+                        cursor: "pointer",
+                        border:
+                          userAnswers[prompt.id] === prompt.options.indexOf(opt)
+                            ? "1px solid var(--plot)"
+                            : "1px solid transparent",
+                      }}
                     >
                       <input
                         type="radio"
@@ -245,9 +288,11 @@ export function CoefficientMatchLab({ example }: CoefficientMatchLabProps) {
                           })
                         }
                         disabled={revealed[prompt.id]}
-                        className="mt-0.5"
+                        style={{ marginTop: "0.2rem" }}
                       />
-                      <span className="text-xs text-slate-700 dark:text-slate-300">{opt.text}</span>
+                      <span className="fine" style={{ color: "var(--ink)" }}>
+                        {opt.text}
+                      </span>
                     </label>
                   ))}
                 </div>
@@ -257,24 +302,26 @@ export function CoefficientMatchLab({ example }: CoefficientMatchLabProps) {
                     type="button"
                     disabled={userAnswers[prompt.id] === undefined}
                     onClick={() => setRevealed({ ...revealed, [prompt.id]: true })}
-                    className="px-3 py-1 bg-amber-600 hover:bg-amber-700 disabled:opacity-50 text-white text-xs font-semibold rounded"
+                    className="button"
                   >
                     Check Deduction
                   </button>
                 ) : (
                   <div
-                    className={`p-3 rounded text-xs ${
-                      prompt.options[userAnswers[prompt.id] ?? 0]?.correct
-                        ? "bg-emerald-50 dark:bg-emerald-950/40 text-emerald-900 dark:text-emerald-200 border border-emerald-300"
-                        : "bg-rose-50 dark:bg-rose-950/40 text-rose-900 dark:text-rose-200 border border-rose-300"
-                    }`}
+                    className="notice"
+                    style={{
+                      padding: "0.75rem",
+                      marginTop: "0.5rem",
+                    }}
                   >
-                    <p className="font-bold mb-1">
+                    <p style={{ fontWeight: "bold", margin: "0 0 0.25rem" }}>
                       {prompt.options[userAnswers[prompt.id] ?? 0]?.correct
                         ? "✓ Correct Deduction"
                         : "✗ Alternative Hypothesis Disproved"}
                     </p>
-                    <p>{prompt.explanation}</p>
+                    <p className="fine" style={{ margin: 0 }}>
+                      {prompt.explanation}
+                    </p>
                   </div>
                 )}
               </div>
@@ -284,20 +331,33 @@ export function CoefficientMatchLab({ example }: CoefficientMatchLabProps) {
       )}
 
       {/* Main Grid: Controls & Visualizations */}
-      <div className="grid grid-cols-1 lg:grid-cols-12 gap-6">
+      <div
+        style={{
+          display: "grid",
+          gridTemplateColumns: "repeat(auto-fit, minmax(320px, 1fr))",
+          gap: "1.5rem",
+        }}
+      >
         {/* Controls Column */}
-        <div className="lg:col-span-5 space-y-4">
+        <div style={{ display: "flex", flexDirection: "column", gap: "1rem" }}>
           {/* Subexpression Match Selector */}
-          <div className="bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-800 rounded-lg p-4 space-y-3 shadow-sm">
-            <h3 className="text-sm font-bold text-slate-900 dark:text-slate-100 border-b pb-2 border-slate-100 dark:border-slate-800">
+          <div
+            style={{
+              background: "var(--panel)",
+              border: "1px solid var(--line)",
+              padding: "1rem",
+              borderRadius: "4px",
+            }}
+          >
+            <h3 style={{ margin: "0 0 0.5rem", fontSize: "0.95rem" }}>
               Select the Subexpression for &quot;Number of Things (n)&quot;
             </h3>
-            <p className="text-xs text-slate-600 dark:text-slate-400">
+            <p className="fine" style={{ margin: "0 0 0.75rem" }}>
               Compare S - S₀ = (R/N) ln[(V/V₀)^n_eff] with S - S₀ = (R/N) n ln(V/V₀). Which term
               plays the role of n?
             </p>
 
-            <div className="grid grid-cols-1 gap-1.5">
+            <div style={{ display: "flex", flexDirection: "column", gap: "0.5rem" }}>
               {[
                 {
                   id: "N_E_over_R_beta_nu",
@@ -322,39 +382,55 @@ export function CoefficientMatchLab({ example }: CoefficientMatchLabProps) {
                       proposedEnergyElement: item.id === "N_E_over_R_beta_nu" ? "h_nu" : "none",
                     })
                   }
-                  className={`text-left p-2 rounded text-xs border transition-colors ${
-                    currentParams.selectedSubexpression === item.id
-                      ? item.id === "N_E_over_R_beta_nu"
-                        ? "border-emerald-500 bg-emerald-50/50 dark:bg-emerald-950/30 text-emerald-900 dark:text-emerald-200 font-semibold"
-                        : "border-rose-500 bg-rose-50/50 dark:bg-rose-950/30 text-rose-900 dark:text-rose-200 font-semibold"
-                      : "border-slate-200 dark:border-slate-700 bg-slate-50 dark:bg-slate-800 hover:bg-slate-100 dark:hover:bg-slate-700 text-slate-700 dark:text-slate-300"
+                  className={`button ${
+                    currentParams.selectedSubexpression === item.id ? "" : "secondary"
                   }`}
+                  style={{
+                    textAlign: "left",
+                    padding: "0.6rem",
+                    display: "flex",
+                    flexDirection: "column",
+                    alignItems: "flex-start",
+                  }}
                 >
-                  <div className="font-mono">{item.label}</div>
-                  <div className="text-[10px] text-slate-500 dark:text-slate-400 font-sans">
+                  <span style={{ fontFamily: "var(--font-mono)", fontWeight: 600 }}>
+                    {item.label}
+                  </span>
+                  <span className="fine" style={{ fontSize: "0.75rem" }}>
                     {item.desc}
-                  </div>
+                  </span>
                 </button>
               ))}
             </div>
           </div>
 
           {/* Physical Sliders */}
-          <div className="bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-800 rounded-lg p-4 space-y-4 shadow-sm">
-            <h3 className="text-sm font-bold text-slate-900 dark:text-slate-100 border-b pb-2 border-slate-100 dark:border-slate-800">
-              State Parameters
-            </h3>
+          <div
+            style={{
+              background: "var(--panel)",
+              border: "1px solid var(--line)",
+              padding: "1rem",
+              borderRadius: "4px",
+              display: "flex",
+              flexDirection: "column",
+              gap: "1rem",
+            }}
+          >
+            <h3 style={{ margin: "0 0 0.5rem", fontSize: "0.95rem" }}>State Parameters</h3>
 
             {/* Radiation Energy */}
-            <div>
-              <div className="flex justify-between text-xs mb-1">
-                <label
-                  htmlFor="energy-slider"
-                  className="font-medium text-slate-700 dark:text-slate-300"
-                >
-                  Radiation Energy (E)
-                </label>
-                <span className="font-mono text-slate-600 dark:text-slate-400">{eNanoJ} nJ</span>
+            <div className="input-field">
+              <div
+                style={{
+                  display: "flex",
+                  justifyContent: "space-between",
+                  alignItems: "center",
+                }}
+              >
+                <label htmlFor="energy-slider">Radiation Energy (E)</label>
+                <span className="fine" style={{ fontFamily: "var(--font-mono)" }}>
+                  {eNanoJ} nJ
+                </span>
               </div>
               <input
                 id="energy-slider"
@@ -367,20 +443,23 @@ export function CoefficientMatchLab({ example }: CoefficientMatchLabProps) {
                   setENanoJ(e.target.value);
                   handleApply({ radiationEnergy: Number.parseFloat(e.target.value) * 1e-9 });
                 }}
-                className="w-full h-1.5 bg-slate-200 dark:bg-slate-700 rounded cursor-pointer"
+                style={{ width: "100%", marginTop: "0.25rem" }}
               />
             </div>
 
             {/* Frequency */}
-            <div>
-              <div className="flex justify-between text-xs mb-1">
-                <label
-                  htmlFor="freq-slider"
-                  className="font-medium text-slate-700 dark:text-slate-300"
-                >
-                  Frequency (ν)
-                </label>
-                <span className="font-mono text-slate-600 dark:text-slate-400">{freqTHz} THz</span>
+            <div className="input-field">
+              <div
+                style={{
+                  display: "flex",
+                  justifyContent: "space-between",
+                  alignItems: "center",
+                }}
+              >
+                <label htmlFor="freq-slider">Frequency (ν)</label>
+                <span className="fine" style={{ fontFamily: "var(--font-mono)" }}>
+                  {freqTHz} THz
+                </span>
               </div>
               <input
                 id="freq-slider"
@@ -393,20 +472,23 @@ export function CoefficientMatchLab({ example }: CoefficientMatchLabProps) {
                   setFreqTHz(e.target.value);
                   handleApply({ frequency: Number.parseFloat(e.target.value) * 1e12 });
                 }}
-                className="w-full h-1.5 bg-slate-200 dark:bg-slate-700 rounded cursor-pointer"
+                style={{ width: "100%", marginTop: "0.25rem" }}
               />
             </div>
 
             {/* Volume Ratio */}
-            <div>
-              <div className="flex justify-between text-xs mb-1">
-                <label
-                  htmlFor="vol-slider"
-                  className="font-medium text-slate-700 dark:text-slate-300"
-                >
-                  Volume Ratio (V / V₀)
-                </label>
-                <span className="font-mono text-slate-600 dark:text-slate-400">{volRatio}</span>
+            <div className="input-field">
+              <div
+                style={{
+                  display: "flex",
+                  justifyContent: "space-between",
+                  alignItems: "center",
+                }}
+              >
+                <label htmlFor="vol-slider">Volume Ratio (V / V₀)</label>
+                <span className="fine" style={{ fontFamily: "var(--font-mono)" }}>
+                  {volRatio}
+                </span>
               </div>
               <input
                 id="vol-slider"
@@ -419,20 +501,23 @@ export function CoefficientMatchLab({ example }: CoefficientMatchLabProps) {
                   setVolRatio(e.target.value);
                   handleApply({ volumeRatio: Number.parseFloat(e.target.value) });
                 }}
-                className="w-full h-1.5 bg-slate-200 dark:bg-slate-700 rounded cursor-pointer"
+                style={{ width: "100%", marginTop: "0.25rem" }}
               />
             </div>
 
             {/* Gas Particles */}
-            <div>
-              <div className="flex justify-between text-xs mb-1">
-                <label
-                  htmlFor="gas-slider"
-                  className="font-medium text-slate-700 dark:text-slate-300"
-                >
-                  Comparison Gas Particles (n)
-                </label>
-                <span className="font-mono text-slate-600 dark:text-slate-400">{gasN}</span>
+            <div className="input-field">
+              <div
+                style={{
+                  display: "flex",
+                  justifyContent: "space-between",
+                  alignItems: "center",
+                }}
+              >
+                <label htmlFor="gas-slider">Comparison Gas Particles (n)</label>
+                <span className="fine" style={{ fontFamily: "var(--font-mono)" }}>
+                  {gasN}
+                </span>
               </div>
               <input
                 id="gas-slider"
@@ -445,20 +530,23 @@ export function CoefficientMatchLab({ example }: CoefficientMatchLabProps) {
                   setGasN(e.target.value);
                   handleApply({ gasParticles: Number.parseInt(e.target.value, 10) });
                 }}
-                className="w-full h-1.5 bg-slate-200 dark:bg-slate-700 rounded cursor-pointer"
+                style={{ width: "100%", marginTop: "0.25rem" }}
               />
             </div>
 
             {/* Blackbody Temperature */}
-            <div>
-              <div className="flex justify-between text-xs mb-1">
-                <label
-                  htmlFor="temp-slider"
-                  className="font-medium text-slate-700 dark:text-slate-300"
-                >
-                  Blackbody Temperature (T)
-                </label>
-                <span className="font-mono text-slate-600 dark:text-slate-400">{tempK} K</span>
+            <div className="input-field">
+              <div
+                style={{
+                  display: "flex",
+                  justifyContent: "space-between",
+                  alignItems: "center",
+                }}
+              >
+                <label htmlFor="temp-slider">Blackbody Temperature (T)</label>
+                <span className="fine" style={{ fontFamily: "var(--font-mono)" }}>
+                  {tempK} K
+                </span>
               </div>
               <input
                 id="temp-slider"
@@ -471,16 +559,13 @@ export function CoefficientMatchLab({ example }: CoefficientMatchLabProps) {
                   setTempK(e.target.value);
                   handleApply({ temperature: Number.parseFloat(e.target.value) });
                 }}
-                className="w-full h-1.5 bg-slate-200 dark:bg-slate-700 rounded cursor-pointer"
+                style={{ width: "100%", marginTop: "0.25rem" }}
               />
             </div>
 
             {/* Fork A Choice */}
-            <div>
-              <label
-                htmlFor="fork-select"
-                className="block text-xs font-medium text-slate-700 dark:text-slate-300 mb-1"
-              >
+            <div className="input-field">
+              <label htmlFor="fork-select" style={{ display: "block", marginBottom: "0.25rem" }}>
                 Fork A: Epistemic Interpretation
               </label>
               <select
@@ -489,7 +574,7 @@ export function CoefficientMatchLab({ example }: CoefficientMatchLabProps) {
                 onChange={(e) => {
                   handleApply({ forkAChoice: e.target.value as Lq06ForkAChoice });
                 }}
-                className="w-full text-xs p-2 border border-slate-300 dark:border-slate-700 rounded bg-slate-50 dark:bg-slate-800 text-slate-900 dark:text-slate-100"
+                style={{ width: "100%", padding: "0.4rem" }}
               >
                 <option value="none">No philosophical stance chosen</option>
                 <option value="independent-quanta">
@@ -505,7 +590,7 @@ export function CoefficientMatchLab({ example }: CoefficientMatchLabProps) {
         </div>
 
         {/* Visualizations Column */}
-        <div className="lg:col-span-7 space-y-6">
+        <div style={{ display: "flex", flexDirection: "column", gap: "1.5rem" }}>
           <CoefficientMatchSideBySidePlot
             radiationEnergyJ={currentParams.radiationEnergy}
             frequencyHz={currentParams.frequency}
@@ -528,33 +613,84 @@ export function CoefficientMatchLab({ example }: CoefficientMatchLabProps) {
           />
 
           {/* Three Logical-Role Cards */}
-          <div className="grid grid-cols-1 md:grid-cols-3 gap-3">
-            <div className="bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-800 rounded-lg p-3 text-xs space-y-1.5 shadow-sm">
-              <span className="font-bold text-slate-800 dark:text-slate-200 block border-b pb-1 border-slate-100 dark:border-slate-800">
+          <div
+            style={{
+              display: "grid",
+              gridTemplateColumns: "repeat(auto-fit, minmax(180px, 1fr))",
+              gap: "0.75rem",
+            }}
+          >
+            <div
+              style={{
+                background: "var(--panel)",
+                border: "1px solid var(--line)",
+                borderRadius: "4px",
+                padding: "0.75rem",
+              }}
+            >
+              <span
+                style={{
+                  fontWeight: "bold",
+                  display: "block",
+                  borderBottom: "1px solid var(--line)",
+                  paddingBottom: "0.25rem",
+                  marginBottom: "0.5rem",
+                }}
+              >
                 1. Derivation (Algebra)
               </span>
-              <p className="text-slate-600 dark:text-slate-400">
+              <p className="fine" style={{ margin: 0 }}>
                 The functional forms of Wien radiation entropy and Boltzmann gas entropy agree
                 identically if and only if n = N·E / (R·β·ν) = E / (h·ν).
               </p>
             </div>
 
-            <div className="bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-800 rounded-lg p-3 text-xs space-y-1.5 shadow-sm">
-              <span className="font-bold text-slate-800 dark:text-slate-200 block border-b pb-1 border-slate-100 dark:border-slate-800">
+            <div
+              style={{
+                background: "var(--panel)",
+                border: "1px solid var(--line)",
+                borderRadius: "4px",
+                padding: "0.75rem",
+              }}
+            >
+              <span
+                style={{
+                  fontWeight: "bold",
+                  display: "block",
+                  borderBottom: "1px solid var(--line)",
+                  paddingBottom: "0.25rem",
+                  marginBottom: "0.5rem",
+                }}
+              >
                 2. Heuristic Inference
               </span>
-              <p className="text-slate-600 dark:text-slate-400">
+              <p className="fine" style={{ margin: 0 }}>
                 Monochromatic radiation of low density in the Wien regime behaves thermodynamically
                 <strong> as though</strong> it consists of independent energy quanta of magnitude
                 h·ν.
               </p>
             </div>
 
-            <div className="bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-800 rounded-lg p-3 text-xs space-y-1.5 shadow-sm">
-              <span className="font-bold text-slate-800 dark:text-slate-200 block border-b pb-1 border-slate-100 dark:border-slate-800">
+            <div
+              style={{
+                background: "var(--panel)",
+                border: "1px solid var(--line)",
+                borderRadius: "4px",
+                padding: "0.75rem",
+              }}
+            >
+              <span
+                style={{
+                  fontWeight: "bold",
+                  display: "block",
+                  borderBottom: "1px solid var(--line)",
+                  paddingBottom: "0.25rem",
+                  marginBottom: "0.5rem",
+                }}
+              >
                 3. Further Hypothesis
               </span>
-              <p className="text-slate-600 dark:text-slate-400">
+              <p className="fine" style={{ margin: 0 }}>
                 Are the laws of production (Stokes rule §7) and transformation (photoelectric §8,
                 ionization §9) also governed by discrete energy exchanges of size h·ν?
               </p>
@@ -562,120 +698,190 @@ export function CoefficientMatchLab({ example }: CoefficientMatchLabProps) {
           </div>
 
           {/* Quantitative Telemetry Table */}
-          <div className="bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-800 rounded-lg p-4 shadow-sm">
-            <h4 className="text-sm font-bold text-slate-900 dark:text-slate-100 mb-3">
+          <div
+            style={{
+              background: "var(--panel)",
+              border: "1px solid var(--line)",
+              padding: "1rem",
+              borderRadius: "4px",
+            }}
+          >
+            <h4 style={{ margin: "0 0 0.75rem", fontSize: "0.95rem" }}>
               Accepted Telemetry Snapshot
             </h4>
-            <div className="overflow-x-auto">
-              <table className="w-full text-xs text-left" aria-label="Accepted telemetry snapshot">
+            <div
+              className="table-scroll"
+              tabIndex={0}
+              role="region"
+              aria-label="Accepted telemetry snapshot table"
+            >
+              <table aria-label="Accepted telemetry snapshot">
                 <thead>
-                  <tr className="border-b border-slate-200 dark:border-slate-700 text-slate-500 font-medium">
-                    <th className="py-1.5">Quantity</th>
-                    <th className="py-1.5">Symbol</th>
-                    <th className="py-1.5">Status</th>
-                    <th className="py-1.5 text-right">Value</th>
+                  <tr>
+                    <th scope="col">Quantity</th>
+                    <th scope="col">Symbol</th>
+                    <th scope="col">Status</th>
+                    <th scope="col" style={{ textAlign: "right" }}>
+                      Value
+                    </th>
                   </tr>
                 </thead>
-                <tbody className="divide-y divide-slate-100 dark:divide-slate-800 font-mono">
+                <tbody style={{ fontFamily: "var(--font-mono)" }}>
                   <tr data-quantity-id="radiationEnergy">
-                    <td className="py-1.5 font-sans">Radiation Energy</td>
+                    <th
+                      scope="row"
+                      style={{ fontFamily: "var(--font-sans)", fontWeight: "normal" }}
+                    >
+                      Radiation Energy
+                    </th>
                     <td>E</td>
                     <td>
-                      <span className="text-emerald-600 font-sans">value</span>
+                      <span className="badge">value</span>
                     </td>
-                    <td className="text-right">
-                      {(currentParams.radiationEnergy * 1e9).toFixed(4)} nJ
-                    </td>
+                    <td>{(currentParams.radiationEnergy * 1e9).toFixed(4)} nJ</td>
                   </tr>
                   <tr data-quantity-id="frequency">
-                    <td className="py-1.5 font-sans">Frequency</td>
+                    <th
+                      scope="row"
+                      style={{ fontFamily: "var(--font-sans)", fontWeight: "normal" }}
+                    >
+                      Frequency
+                    </th>
                     <td>ν</td>
                     <td>
-                      <span className="text-emerald-600 font-sans">value</span>
+                      <span className="badge">value</span>
                     </td>
-                    <td className="text-right">
-                      {(currentParams.frequency / 1e12).toFixed(2)} THz
-                    </td>
+                    <td>{(currentParams.frequency / 1e12).toFixed(2)} THz</td>
                   </tr>
                   <tr data-quantity-id="volumeRatio">
-                    <td className="py-1.5 font-sans">Volume Ratio</td>
+                    <th
+                      scope="row"
+                      style={{ fontFamily: "var(--font-sans)", fontWeight: "normal" }}
+                    >
+                      Volume Ratio
+                    </th>
                     <td>V/V₀</td>
                     <td>
-                      <span className="text-emerald-600 font-sans">value</span>
+                      <span className="badge">value</span>
                     </td>
-                    <td className="text-right">{currentParams.volumeRatio.toFixed(4)}</td>
+                    <td>{currentParams.volumeRatio.toFixed(4)}</td>
                   </tr>
                   <tr data-quantity-id="effectiveIndependentCount">
-                    <td className="py-1.5 font-sans">Effective Quanta Count (Never Rounded)</td>
+                    <th
+                      scope="row"
+                      style={{ fontFamily: "var(--font-sans)", fontWeight: "normal" }}
+                    >
+                      Effective Quanta Count (Never Rounded)
+                    </th>
                     <td>n_eff</td>
                     <td>
-                      <span className="text-emerald-600 font-sans">value</span>
+                      <span className="badge">value</span>
                     </td>
-                    <td className="text-right">{effectiveCount.toExponential(6)}</td>
+                    <td>{effectiveCount.toExponential(6)}</td>
                   </tr>
                   <tr data-quantity-id="quantumEnergy">
-                    <td className="py-1.5 font-sans">Energy per Quantum (SI)</td>
+                    <th
+                      scope="row"
+                      style={{ fontFamily: "var(--font-sans)", fontWeight: "normal" }}
+                    >
+                      Energy per Quantum (SI)
+                    </th>
                     <td>ε = hν</td>
                     <td>
-                      <span className="text-emerald-600 font-sans">value</span>
+                      <span className="badge">value</span>
                     </td>
-                    <td className="text-right">{quantumEnergyJ.toExponential(6)} J</td>
+                    <td>{quantumEnergyJ.toExponential(6)} J</td>
                   </tr>
                   <tr data-quantity-id="quantumEnergyEv">
-                    <td className="py-1.5 font-sans">Energy per Quantum (eV)</td>
+                    <th
+                      scope="row"
+                      style={{ fontFamily: "var(--font-sans)", fontWeight: "normal" }}
+                    >
+                      Energy per Quantum (eV)
+                    </th>
                     <td>ε_eV</td>
                     <td>
-                      <span className="text-emerald-600 font-sans">value</span>
+                      <span className="badge">value</span>
                     </td>
-                    <td className="text-right">{quantumEnergyEv.toFixed(6)} eV</td>
+                    <td>{quantumEnergyEv.toFixed(6)} eV</td>
                   </tr>
                   <tr data-quantity-id="entropyVolumeCoefficient">
-                    <td className="py-1.5 font-sans">Radiation Entropy Volume Coeff</td>
+                    <th
+                      scope="row"
+                      style={{ fontFamily: "var(--font-sans)", fontWeight: "normal" }}
+                    >
+                      Radiation Entropy Volume Coeff
+                    </th>
                     <td>E / (βν)</td>
                     <td>
-                      <span className="text-emerald-600 font-sans">value</span>
+                      <span className="badge">value</span>
                     </td>
-                    <td className="text-right">{radVolumeCoeff.toExponential(6)} J/K</td>
+                    <td>{radVolumeCoeff.toExponential(6)} J/K</td>
                   </tr>
                   <tr data-quantity-id="gasEntropyVolumeCoefficient">
-                    <td className="py-1.5 font-sans">Gas Entropy Volume Coeff</td>
+                    <th
+                      scope="row"
+                      style={{ fontFamily: "var(--font-sans)", fontWeight: "normal" }}
+                    >
+                      Gas Entropy Volume Coeff
+                    </th>
                     <td>(R/N) n</td>
                     <td>
-                      <span className="text-emerald-600 font-sans">value</span>
+                      <span className="badge">value</span>
                     </td>
-                    <td className="text-right">{gasVolumeCoeff.toExponential(6)} J/K</td>
+                    <td>{gasVolumeCoeff.toExponential(6)} J/K</td>
                   </tr>
                   <tr data-quantity-id="radiationEntropy">
-                    <td className="py-1.5 font-sans">Radiation Entropy Change</td>
+                    <th
+                      scope="row"
+                      style={{ fontFamily: "var(--font-sans)", fontWeight: "normal" }}
+                    >
+                      Radiation Entropy Change
+                    </th>
                     <td>ΔS_rad</td>
                     <td>
-                      <span className="text-emerald-600 font-sans">value</span>
+                      <span className="badge">value</span>
                     </td>
-                    <td className="text-right">{radEntropy.toExponential(6)} J/K</td>
+                    <td>{radEntropy.toExponential(6)} J/K</td>
                   </tr>
                   <tr data-quantity-id="gasEntropy">
-                    <td className="py-1.5 font-sans">Gas Entropy Change</td>
+                    <th
+                      scope="row"
+                      style={{ fontFamily: "var(--font-sans)", fontWeight: "normal" }}
+                    >
+                      Gas Entropy Change
+                    </th>
                     <td>ΔS_gas</td>
                     <td>
-                      <span className="text-emerald-600 font-sans">value</span>
+                      <span className="badge">value</span>
                     </td>
-                    <td className="text-right">{gasEntropy.toExponential(6)} J/K</td>
+                    <td>{gasEntropy.toExponential(6)} J/K</td>
                   </tr>
                   <tr data-quantity-id="meanQuantumEnergyWienEv">
-                    <td className="py-1.5 font-sans">Wien Mean Quantum Energy</td>
+                    <th
+                      scope="row"
+                      style={{ fontFamily: "var(--font-sans)", fontWeight: "normal" }}
+                    >
+                      Wien Mean Quantum Energy
+                    </th>
                     <td>⟨ε⟩ = 3 k_B T</td>
                     <td>
-                      <span className="text-emerald-600 font-sans">value</span>
+                      <span className="badge">value</span>
                     </td>
-                    <td className="text-right">{meanQuantumEnergyEv.toFixed(6)} eV</td>
+                    <td>{meanQuantumEnergyEv.toFixed(6)} eV</td>
                   </tr>
                   <tr data-quantity-id="moleculeMeanKineticEnergyEv">
-                    <td className="py-1.5 font-sans">Gas Molecule Kinetic Energy</td>
+                    <th
+                      scope="row"
+                      style={{ fontFamily: "var(--font-sans)", fontWeight: "normal" }}
+                    >
+                      Gas Molecule Kinetic Energy
+                    </th>
                     <td>⟨E_kin⟩ = 1.5 k_B T</td>
                     <td>
-                      <span className="text-emerald-600 font-sans">value</span>
+                      <span className="badge">value</span>
                     </td>
-                    <td className="text-right">{moleculeKineticEnergyEv.toFixed(6)} eV</td>
+                    <td>{moleculeKineticEnergyEv.toFixed(6)} eV</td>
                   </tr>
                 </tbody>
               </table>
@@ -686,15 +892,28 @@ export function CoefficientMatchLab({ example }: CoefficientMatchLabProps) {
 
       {/* Show the Code */}
       {showCode && (
-        <section className="bg-slate-900 text-slate-200 rounded-lg p-5 border border-slate-800 font-mono text-xs overflow-x-auto space-y-3">
-          <div className="flex justify-between items-center text-slate-400 border-b border-slate-800 pb-2">
+        <section
+          className="notice"
+          style={{
+            margin: "1.5rem 0",
+            fontFamily: "var(--font-mono)",
+          }}
+        >
+          <div
+            style={{
+              display: "flex",
+              justifyContent: "space-between",
+              alignItems: "center",
+              borderBottom: "1px solid var(--line)",
+              paddingBottom: "0.5rem",
+              marginBottom: "0.5rem",
+            }}
+          >
             <span>Pinned Kernel Evaluator: src/physics/reference/radiation/quanta.ts</span>
-            <span className="text-[10px] bg-slate-800 px-2 py-0.5 rounded">
-              TypeScript Reference Owner
-            </span>
+            <span className="badge">TypeScript Reference Owner</span>
           </div>
-          <pre className="text-slate-300 leading-relaxed">
-            {`// Paper 1, §6 The Move: Matching Entropy Coefficients
+          <pre style={{ margin: 0, overflowX: "auto" }}>
+            <code>{`// Paper 1, §6 The Move: Matching Entropy Coefficients
 // Radiation entropy: S - S_0 = (E / (beta * nu)) * ln(V / V_0)
 // Boltzmann gas entropy: S - S_0 = (R / N) * n * ln(V / V_0)
 //
@@ -703,26 +922,38 @@ export function CoefficientMatchLab({ example }: CoefficientMatchLabProps) {
 // Energy per quantum: epsilon = E / n_eff = (R * beta * nu) / N = h * nu
 //
 // Mean quantum energy over Wien spectrum:
-// <epsilon> = 3 * (R / N) * T = 3 * k_B * T  (exactly 2x molecule kinetic energy 1.5 * k_B * T)`}
+// <epsilon> = 3 * (R / N) * T = 3 * k_B * T  (exactly 2x molecule kinetic energy 1.5 * k_B * T)`}</code>
           </pre>
         </section>
       )}
 
       {/* Limits of this Reference Model */}
-      <section className="bg-slate-50 dark:bg-slate-900/50 border border-slate-200 dark:border-slate-800 rounded-lg p-4">
-        <h4 className="text-xs font-bold uppercase tracking-wider text-slate-700 dark:text-slate-300 mb-2">
+      <footer
+        style={{
+          marginTop: "2rem",
+          borderTop: "1px solid var(--line)",
+          paddingTop: "1.5rem",
+        }}
+      >
+        <h4 className="eyebrow" style={{ marginBottom: "0.75rem" }}>
           Limits of this Reference Model (Not Modeled)
         </h4>
-        <ul className="grid grid-cols-1 md:grid-cols-2 gap-2 text-xs text-slate-600 dark:text-slate-400">
+        <ul
+          className="fine"
+          style={{
+            display: "grid",
+            gridTemplateColumns: "repeat(auto-fit, minmax(280px, 1fr))",
+            gap: "0.5rem",
+            paddingLeft: "1.25rem",
+            margin: 0,
+          }}
+        >
           {LQ06_NOT_MODELED.map((item) => (
-            <li key={item} className="flex items-start gap-1.5">
-              <span className="text-rose-500 font-bold">&bull;</span>
-              <span>{item}</span>
-            </li>
+            <li key={item}>{item}</li>
           ))}
         </ul>
-      </section>
-    </div>
+      </footer>
+    </section>
   );
 }
 
