@@ -8,7 +8,11 @@ import { afterEach, beforeEach, describe, expect, test } from "bun:test";
 import { mkdirSync, mkdtempSync, rmSync } from "node:fs";
 import { tmpdir } from "node:os";
 import { join } from "node:path";
-import { runContentCompileOnce, watchContentCompile } from "../../scripts/build-content.ts";
+import {
+  parseCliArgs,
+  runContentCompileOnce,
+  watchContentCompile,
+} from "../../scripts/build-content.ts";
 
 let tempCorpus: string;
 
@@ -105,5 +109,39 @@ describe("watchContentCompile: real fs.watch against an isolated temp corpus", (
     // comfortably longer than the debounce and assert the count never moved.
     await new Promise((resolve) => setTimeout(resolve, 400));
     expect(results.length).toBe(countBeforeClose);
+  });
+});
+
+describe("CLI execution: bun scripts/build-content.ts --watch", () => {
+  test("CLI parses --watch flag and activates watch mode", () => {
+    const res = parseCliArgs(["--watch"]);
+    expect(res.watchMode).toBe(true);
+    expect(res.corpusDir).toBe("content");
+  });
+
+  test("CLI parses both --watch and --corpus flags together", () => {
+    const res = parseCliArgs(["--watch", "--corpus", tempCorpus]);
+    expect(res.watchMode).toBe(true);
+    expect(res.corpusDir).toBe(tempCorpus);
+
+    const reversed = parseCliArgs(["--corpus", tempCorpus, "--watch"]);
+    expect(reversed.watchMode).toBe(true);
+    expect(reversed.corpusDir).toBe(tempCorpus);
+  });
+
+  test("CLI defaults watchMode to false when --watch is absent", () => {
+    const res = parseCliArgs(["--corpus", tempCorpus]);
+    expect(res.watchMode).toBe(false);
+    expect(res.corpusDir).toBe(tempCorpus);
+
+    const empty = parseCliArgs([]);
+    expect(empty.watchMode).toBe(false);
+    expect(empty.corpusDir).toBe("content");
+  });
+
+  test("CLI throws on missing --corpus directory argument", () => {
+    expect(() => parseCliArgs(["--corpus"])).toThrow(
+      "Missing directory path following --corpus flag.",
+    );
   });
 });

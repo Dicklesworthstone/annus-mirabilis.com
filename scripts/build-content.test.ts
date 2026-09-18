@@ -41,3 +41,43 @@ describe("content directory walk", () => {
     expect(files.some((f) => f.path.split("/").pop() === "README.md")).toBe(false);
   });
 });
+
+describe("AC5: error aggregation across multiple files", () => {
+  test("multiple schema errors across distinct files are all reported in one run", () => {
+    const invalidPaper = {
+      path: "papers/broken-paper.json",
+      text: JSON.stringify({
+        schemaVersion: 1,
+        kind: "paper",
+        id: "broken-paper",
+        // missing required fields: title, description, citation, sections, sourceNotice, etc.
+      }),
+    };
+    const invalidFoundation = {
+      path: "foundations/broken-foundation.json",
+      text: JSON.stringify({
+        schemaVersion: 1,
+        kind: "foundation",
+        id: "broken-foundation",
+        // missing required fields: title, question, summary, explanation, example, etc.
+      }),
+    };
+
+    const result = compileReadingContent([invalidPaper, invalidFoundation]);
+    expect(result.ok).toBe(false);
+
+    // Both files must be reported in diagnostics in the same single run
+    const paperError = result.diagnostics.find((d) => d.path === "papers/broken-paper.json");
+    const foundationError = result.diagnostics.find(
+      (d) => d.path === "foundations/broken-foundation.json",
+    );
+
+    expect(paperError).toBeDefined();
+    expect(paperError?.severity).toBe("error");
+    expect(foundationError).toBeDefined();
+    expect(foundationError?.severity).toBe("error");
+
+    // All errors are collected and reported together (not halting on the first failure)
+    expect(result.diagnostics.length).toBeGreaterThanOrEqual(2);
+  });
+});

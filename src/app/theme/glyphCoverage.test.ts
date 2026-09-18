@@ -259,8 +259,14 @@ describe("glyph coverage: planted negatives proving the gate detects missing gly
     const required = [0xe4, 0xf6, 0xfc]; // ä ö ü
     const mockMissing = required.map((cp) => ({ codePoint: cp, char: String.fromCodePoint(cp) }));
     expect(mockMissing).toHaveLength(3);
-    expect(mockMissing[0].char).toBe("ä");
-    expect(mockMissing[1].char).toBe("ö");
-    expect(mockMissing[2].char).toBe("ü");
+    const item0 = mockMissing[0];
+    const item1 = mockMissing[1];
+    const item2 = mockMissing[2];
+    if (!item0 || !item1 || !item2) {
+      throw new Error("Expected mockMissing elements to be defined");
+    }
+    expect(item0.char).toBe("ä");
+    expect(item1.char).toBe("ö");
+    expect(item2.char).toBe("ü");
   });
 });

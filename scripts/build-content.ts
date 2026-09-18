@@ -373,25 +373,14 @@ export function watchContentCompile(
   };
 }
 
-// CLI Execution
-if (process.argv[1] && resolve(process.argv[1]) === fileURLToPath(import.meta.url)) {
-  const args = process.argv.slice(2);
+export function parseCliArgs(args: readonly string[]): { corpusDir: string; watchMode: boolean } {
   let corpusDir = "content";
   let watchMode = false;
   for (let i = 0; i < args.length; i++) {
     if (args[i] === "--corpus") {
       const nextArg = args[i + 1];
       if (!nextArg) {
-        console.error(
-          JSON.stringify({
-            severity: "error",
-            code: "missing-corpus-argument",
-            path: "cli",
-            message: "Missing directory path following --corpus flag.",
-          }),
-        );
-        process.exitCode = 1;
-        process.exit(1);
+        throw new Error("Missing directory path following --corpus flag.");
       }
       corpusDir = nextArg;
       i++;
@@ -399,7 +388,28 @@ if (process.argv[1] && resolve(process.argv[1]) === fileURLToPath(import.meta.ur
       watchMode = true;
     }
   }
+  return { corpusDir, watchMode };
+}
 
+// CLI Execution
+if (process.argv[1] && resolve(process.argv[1]) === fileURLToPath(import.meta.url)) {
+  let parsed: { corpusDir: string; watchMode: boolean };
+  try {
+    parsed = parseCliArgs(process.argv.slice(2));
+  } catch (err) {
+    console.error(
+      JSON.stringify({
+        severity: "error",
+        code: "missing-corpus-argument",
+        path: "cli",
+        message: err instanceof Error ? err.message : String(err),
+      }),
+    );
+    process.exitCode = 1;
+    process.exit(1);
+  }
+
+  const { corpusDir, watchMode } = parsed;
   const firstRunOk = await runContentCompileOnce(corpusDir);
 
   if (watchMode) {
