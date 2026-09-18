@@ -33,25 +33,64 @@ export function EntropyComparisonPlot({
   const height = 260;
 
   return (
-    <div className="plot-container flex flex-col gap-2" data-view-id="lq-06-side-by-side">
-      <div className="flex justify-between items-center">
-        <h3 className="text-sm font-semibold text-slate-800 dark:text-slate-100">
+    <div
+      data-view-id="lq-06-side-by-side"
+      style={{
+        display: "flex",
+        flexDirection: "column",
+        gap: "0.5rem",
+      }}
+    >
+      <div
+        style={{
+          display: "flex",
+          justifyContent: "space-between",
+          alignItems: "center",
+          flexWrap: "wrap",
+          gap: "0.5rem",
+        }}
+      >
+        <h3
+          style={{
+            fontSize: "0.875rem",
+            fontWeight: 600,
+            color: "var(--ink)",
+            margin: 0,
+          }}
+        >
           Entropy Volume Law Comparison (§6)
         </h3>
-        <span className="text-[11px] font-mono px-2 py-0.5 rounded bg-sky-100 dark:bg-sky-950 text-sky-800 dark:text-sky-300">
+        <span
+          style={{
+            fontSize: "0.6875rem",
+            fontFamily: "var(--font-mono, monospace)",
+            padding: "0.125rem 0.5rem",
+            borderRadius: "0.25rem",
+            background: "var(--wash)",
+            color: "var(--accent)",
+            border: "1px solid var(--line)",
+          }}
+        >
           V/V₀ = {volumeRatio.toFixed(2)} | ln(V/V₀) = {Math.log(volumeRatio).toFixed(3)}
         </span>
       </div>
-      <p className="text-xs text-slate-600 dark:text-slate-400">
+      <p className="fine" style={{ margin: 0, fontSize: "0.75rem" }}>
         Side-by-side mathematical structure: Wien radiation entropy vs. Boltzmann ideal gas entropy
         under identical isothermal volume changes.
       </p>
 
       <svg
         viewBox={`0 0 ${width} ${height}`}
-        className="w-full h-auto bg-slate-900 border border-slate-800 rounded overflow-hidden"
         role="img"
         aria-label="Side-by-side comparison of radiation and gas entropy volume laws"
+        style={{
+          width: "100%",
+          height: "auto",
+          background: "var(--panel)",
+          border: "1px solid var(--line)",
+          borderRadius: "0.25rem",
+          overflow: "hidden",
+        }}
       >
         {/* Left Column: Monochromatic Radiation */}
         <g transform="translate(20, 24)">
@@ -61,53 +100,92 @@ export function EntropyComparisonPlot({
             width="260"
             height="180"
             rx="6"
-            fill="#0f172a"
-            stroke={isMatch ? "#38bdf8" : "#334155"}
+            fill="var(--wash)"
+            stroke={isMatch ? "#38bdf8" : "var(--line)"}
             strokeWidth={isMatch ? "2" : "1"}
           />
-          <text x="14" y="24" className="text-[12px] fill-sky-400 font-bold font-mono">
+          <text
+            x="14"
+            y="24"
+            fontSize="12"
+            fill="#38bdf8"
+            fontWeight="bold"
+            fontFamily="var(--font-mono, monospace)"
+          >
             Monochromatic Radiation (§4)
           </text>
-          <text x="14" y="48" className="text-[11px] fill-slate-300 font-mono">
+          <text
+            x="14"
+            y="48"
+            fontSize="11"
+            fill="var(--ink)"
+            fontFamily="var(--font-mono, monospace)"
+          >
             S − S₀ = (E / βν) · ln(V / V₀)
           </text>
-          <text x="14" y="70" className="text-[10px] fill-slate-400 font-mono">
+          <text
+            x="14"
+            y="70"
+            fontSize="10"
+            fill="var(--muted)"
+            fontFamily="var(--font-mono, monospace)"
+          >
             = (R/N) · [ (N·E)/(R·β·ν) ] · ln(V/V₀)
           </text>
 
           {/* Radiation Values */}
-          <line x1="14" y1="84" x2="246" y2="84" stroke="#1e293b" strokeWidth="1" />
-          <text x="14" y="104" className="text-[10px] fill-slate-400">
+          <line x1="14" y1="84" x2="246" y2="84" stroke="var(--line)" strokeWidth="1" />
+          <text x="14" y="104" fontSize="10" fill="var(--muted)">
             Enclosed energy E:
           </text>
-          <text x="246" y="104" textAnchor="end" className="text-[10px] fill-slate-200 font-mono">
+          <text
+            x="246"
+            y="104"
+            textAnchor="end"
+            fontSize="10"
+            fill="var(--ink)"
+            fontFamily="var(--font-mono, monospace)"
+          >
             {(radiationEnergy * 1e9).toFixed(3)} nJ
           </text>
-          <text x="14" y="122" className="text-[10px] fill-slate-400">
+          <text x="14" y="122" fontSize="10" fill="var(--muted)">
             Frequency ν:
           </text>
-          <text x="246" y="122" textAnchor="end" className="text-[10px] fill-slate-200 font-mono">
+          <text
+            x="246"
+            y="122"
+            textAnchor="end"
+            fontSize="10"
+            fill="var(--ink)"
+            fontFamily="var(--font-mono, monospace)"
+          >
             {(frequency * 1e-12).toFixed(1)} THz
           </text>
-          <text x="14" y="140" className="text-[10px] fill-slate-400">
+          <text x="14" y="140" fontSize="10" fill="var(--muted)">
             Entropy change ΔS:
           </text>
           <text
             x="246"
             y="140"
             textAnchor="end"
-            className="text-[10px] fill-sky-300 font-mono font-semibold"
+            fontSize="10"
+            fill="#0284c7"
+            fontFamily="var(--font-mono, monospace)"
+            fontWeight="600"
           >
             {radiationEntropy.toExponential(4)} J/K
           </text>
-          <text x="14" y="158" className="text-[10px] fill-slate-400">
+          <text x="14" y="158" fontSize="10" fill="var(--muted)">
             Effective count n_eff:
           </text>
           <text
             x="246"
             y="158"
             textAnchor="end"
-            className="text-[10px] fill-amber-300 font-mono font-bold"
+            fontSize="10"
+            fill="#d97706"
+            fontFamily="var(--font-mono, monospace)"
+            fontWeight="bold"
           >
             {effectiveCount.toExponential(4)}
           </text>
@@ -121,58 +199,93 @@ export function EntropyComparisonPlot({
             width="260"
             height="180"
             rx="6"
-            fill="#0f172a"
-            stroke={isMatch ? "#f59e0b" : "#334155"}
+            fill="var(--wash)"
+            stroke={isMatch ? "#f59e0b" : "var(--line)"}
             strokeWidth={isMatch ? "2" : "1"}
           />
-          <text x="14" y="24" className="text-[12px] fill-amber-400 font-bold font-mono">
+          <text
+            x="14"
+            y="24"
+            fontSize="12"
+            fill="#f59e0b"
+            fontWeight="bold"
+            fontFamily="var(--font-mono, monospace)"
+          >
             Ideal Gas / Discrete Particles (§5)
           </text>
-          <text x="14" y="48" className="text-[11px] fill-slate-300 font-mono">
+          <text
+            x="14"
+            y="48"
+            fontSize="11"
+            fill="var(--ink)"
+            fontFamily="var(--font-mono, monospace)"
+          >
             S − S₀ = (R/N) · n · ln(V / V₀)
           </text>
-          <text x="14" y="70" className="text-[10px] fill-slate-400 font-mono">
+          <text
+            x="14"
+            y="70"
+            fontSize="10"
+            fill="var(--muted)"
+            fontFamily="var(--font-mono, monospace)"
+          >
             = k_B · n · ln(V/V₀)
           </text>
 
           {/* Gas Values */}
-          <line x1="14" y1="84" x2="246" y2="84" stroke="#1e293b" strokeWidth="1" />
-          <text x="14" y="104" className="text-[10px] fill-slate-400">
+          <line x1="14" y1="84" x2="246" y2="84" stroke="var(--line)" strokeWidth="1" />
+          <text x="14" y="104" fontSize="10" fill="var(--muted)">
             Gas particle count n:
           </text>
           <text
             x="246"
             y="104"
             textAnchor="end"
-            className="text-[10px] fill-slate-200 font-mono font-bold"
+            fontSize="10"
+            fill="var(--ink)"
+            fontFamily="var(--font-mono, monospace)"
+            fontWeight="bold"
           >
             {gasParticles}
           </text>
-          <text x="14" y="122" className="text-[10px] fill-slate-400">
+          <text x="14" y="122" fontSize="10" fill="var(--muted)">
             Gas constant R/N = k_B:
           </text>
-          <text x="246" y="122" textAnchor="end" className="text-[10px] fill-slate-200 font-mono">
+          <text
+            x="246"
+            y="122"
+            textAnchor="end"
+            fontSize="10"
+            fill="var(--ink)"
+            fontFamily="var(--font-mono, monospace)"
+          >
             1.381 × 10⁻²³ J/K
           </text>
-          <text x="14" y="140" className="text-[10px] fill-slate-400">
+          <text x="14" y="140" fontSize="10" fill="var(--muted)">
             Entropy change ΔS:
           </text>
           <text
             x="246"
             y="140"
             textAnchor="end"
-            className="text-[10px] fill-amber-300 font-mono font-semibold"
+            fontSize="10"
+            fill="#d97706"
+            fontFamily="var(--font-mono, monospace)"
+            fontWeight="600"
           >
             {gasEntropy.toExponential(4)} J/K
           </text>
-          <text x="14" y="158" className="text-[10px] fill-slate-400">
+          <text x="14" y="158" fontSize="10" fill="var(--muted)">
             Quantum energy ε = h·ν:
           </text>
           <text
             x="246"
             y="158"
             textAnchor="end"
-            className="text-[10px] fill-emerald-300 font-mono font-bold"
+            fontSize="10"
+            fill="#10b981"
+            fontFamily="var(--font-mono, monospace)"
+            fontWeight="bold"
           >
             {quantumEnergyEv.toFixed(4)} eV
           </text>
@@ -184,11 +297,11 @@ export function EntropyComparisonPlot({
             cx="0"
             cy="0"
             r="16"
-            fill="#1e293b"
-            stroke={isMatch ? "#10b981" : "#64748b"}
+            fill="var(--panel)"
+            stroke={isMatch ? "#10b981" : "var(--line)"}
             strokeWidth="2"
           />
-          <text x="0" y="4" textAnchor="middle" className="text-[12px] fill-slate-200 font-bold">
+          <text x="0" y="4" textAnchor="middle" fontSize="12" fill="var(--ink)" fontWeight="bold">
             {isMatch ? "≡" : "vs"}
           </text>
         </g>
@@ -201,21 +314,27 @@ export function EntropyComparisonPlot({
             width="540"
             height="32"
             rx="4"
-            fill={isMatch ? "rgba(16, 185, 129, 0.1)" : "rgba(30, 41, 59, 0.5)"}
-            stroke={isMatch ? "#059669" : "#334155"}
+            fill={isMatch ? "rgba(16, 185, 129, 0.15)" : "var(--wash)"}
+            stroke={isMatch ? "#10b981" : "var(--line)"}
           />
-          <text x="270" y="20" textAnchor="middle" className="text-[11px] font-mono fill-slate-200">
+          <text
+            x="270"
+            y="20"
+            textAnchor="middle"
+            fontSize="11"
+            fontFamily="var(--font-mono, monospace)"
+          >
             {isMatch ? (
-              <tspan fill="#34d399">
+              <tspan fill="#10b981">
                 ✓ Correspondence: n_eff = (N·E)/(R·β·ν) = E/(h·ν) ⟹ Energy per quantum ε = R·β·ν/N =
                 h·ν = {quantumEnergyEv.toFixed(4)} eV
               </tspan>
             ) : selectedSubexpression !== "none" ? (
-              <tspan fill="#f87171">
+              <tspan fill="#e11d48">
                 ✗ Proposed candidate does not match the dimensionless particle count n
               </tspan>
             ) : (
-              <tspan fill="#94a3b8">
+              <tspan fill="var(--muted)">
                 Select a subexpression in Discovery Mode to test the coefficient match
               </tspan>
             )}
