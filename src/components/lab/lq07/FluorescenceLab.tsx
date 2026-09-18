@@ -123,7 +123,7 @@ export function FluorescenceLab({
 
   return (
     <article
-      className="laboratory-sheet border border-border/80 rounded-2xl p-6 sm:p-8 bg-surface shadow-sm max-w-4xl mx-auto my-6"
+      className="laboratory"
       aria-labelledby={`${id}-title`}
       data-instrument-id="lq-07"
       {...identity(snapshot)}
@@ -132,85 +132,97 @@ export function FluorescenceLab({
       data-pending={String(view.pending)}
       data-execution-label="host"
     >
-      <header className="mb-6 border-b border-border/60 pb-4">
-        <span className="text-xs font-mono uppercase tracking-wider text-muted-foreground block mb-1">
-          Light Quanta · §7 Fluorescence &amp; Stokes's Rule
-        </span>
-        <h2
-          id={`${id}-title`}
-          className="text-2xl sm:text-3xl font-serif font-bold text-foreground"
-        >
-          {title}
-        </h2>
-        <p className="text-base text-muted-foreground mt-2 leading-relaxed font-serif">
-          How single-quantum energy conservation hν₁ = hν₂ + E_other explains Stokes's rule (ν₂ ≤
-          ν₁) and correctly predicts multi-quantum and thermal deviation conditions.
-        </p>
+      <header
+        className="lab-heading"
+        style={{
+          borderBottom: "1px solid var(--line)",
+          paddingBottom: "1rem",
+          marginBottom: "1.5rem",
+        }}
+      >
+        <div>
+          <p className="eyebrow">Light Quanta · §7 Fluorescence &amp; Stokes's Rule</p>
+          <h2 id={`${id}-title`}>{title}</h2>
+          <p className="fine" style={{ marginTop: "0.5rem", fontSize: "0.95rem" }}>
+            How single-quantum energy conservation hν₁ = hν₂ + E_other explains Stokes's rule (ν₂ ≤
+            ν₁) and correctly predicts multi-quantum and thermal deviation conditions.
+          </p>
+        </div>
       </header>
 
       {/* Predict Mode Card 1: Stokes Rule */}
-      <section className="bg-primary/5 border border-primary/20 rounded-xl p-5 mb-4">
-        <span className="text-xs font-mono uppercase tracking-wider text-primary font-bold block mb-1">
+      <section
+        className="notice"
+        style={{ margin: "1.5rem 0" }}
+        aria-label="Predict Mode: Energy Conservation"
+      >
+        <p className="eyebrow" style={{ marginBottom: "0.25rem" }}>
           Predict Mode · Energy Conservation
-        </span>
-        <h3 className="text-base sm:text-lg font-serif font-semibold text-foreground mb-2">
+        </p>
+        <h3 style={{ margin: "0.25rem 0 0.75rem" }}>
           Can fluorescent emission occur at higher frequency than the exciting light (ν₂ &gt; ν₁)
           under single-quantum absorption?
         </h3>
-        <div className="grid grid-cols-1 sm:grid-cols-3 gap-2 mt-3">
+        <div
+          style={{
+            display: "grid",
+            gridTemplateColumns: "repeat(auto-fit, minmax(200px, 1fr))",
+            gap: "0.5rem",
+            marginTop: "0.75rem",
+          }}
+        >
           <button
             type="button"
-            className={`p-3 text-left text-xs rounded-lg border transition-all ${
-              predictAnswer1 === "never"
-                ? "bg-primary text-primary-foreground border-primary font-medium shadow-sm"
-                : "bg-background border-border hover:bg-muted/60 text-foreground"
-            }`}
+            className={`button ${predictAnswer1 === "never" ? "" : "secondary"}`}
+            style={{ textAlign: "left", padding: "0.75rem" }}
             onClick={() => setPredictAnswer1("never")}
           >
             <strong>Never</strong>
-            <span className="block text-xs text-muted-foreground mt-1">
+            <span className="fine" style={{ display: "block", marginTop: "0.25rem" }}>
               hν₂ ≤ hν₁ (Stokes's rule)
             </span>
           </button>
           <button
             type="button"
-            className={`p-3 text-left text-xs rounded-lg border transition-all ${
-              predictAnswer1 === "intensity"
-                ? "bg-primary text-primary-foreground border-primary font-medium shadow-sm"
-                : "bg-background border-border hover:bg-muted/60 text-foreground"
-            }`}
+            className={`button ${predictAnswer1 === "intensity" ? "" : "secondary"}`}
+            style={{ textAlign: "left", padding: "0.75rem" }}
             onClick={() => setPredictAnswer1("intensity")}
           >
             <strong>With intense light</strong>
-            <span className="block text-xs text-muted-foreground mt-1">
+            <span className="fine" style={{ display: "block", marginTop: "0.25rem" }}>
               Power per second increases
             </span>
           </button>
           <button
             type="button"
-            className={`p-3 text-left text-xs rounded-lg border transition-all ${
-              predictAnswer1 === "always"
-                ? "bg-primary text-primary-foreground border-primary font-medium shadow-sm"
-                : "bg-background border-border hover:bg-muted/60 text-foreground"
-            }`}
+            className={`button ${predictAnswer1 === "always" ? "" : "secondary"}`}
+            style={{ textAlign: "left", padding: "0.75rem" }}
             onClick={() => setPredictAnswer1("always")}
           >
             <strong>Always possible</strong>
-            <span className="block text-xs text-muted-foreground mt-1">
+            <span className="fine" style={{ display: "block", marginTop: "0.25rem" }}>
               Medium shifts frequencies freely
             </span>
           </button>
         </div>
         {predictAnswer1 && (
-          <div className="mt-3 p-3 bg-background/80 rounded-lg border border-border/60 text-xs leading-relaxed">
+          <div
+            style={{
+              marginTop: "0.75rem",
+              padding: "0.75rem",
+              border: "1px solid var(--line)",
+              borderRadius: "4px",
+              background: "var(--panel)",
+            }}
+          >
             {predictAnswer1 === "never" ? (
-              <p className="text-emerald-700 dark:text-emerald-400 font-medium">
+              <p style={{ margin: 0, fontWeight: 500, color: "var(--plot)" }}>
                 ✓ Correct! In each elementary process, one quantum of energy hν₁ is absorbed. Since
                 energy is conserved (hν₁ = hν₂ + E_other with E_other ≥ 0), the emitted quantum hν₂
                 cannot exceed hν₁, so ν₂ ≤ ν₁.
               </p>
             ) : (
-              <p className="text-amber-700 dark:text-amber-400">
+              <p style={{ margin: 0, color: "var(--accent)" }}>
                 Notice: In the light-quantum hypothesis, absorption is an elementary process between
                 individual quanta. Increasing beam intensity delivers more quanta per second, but
                 does not increase the energy of each individual quantum.
@@ -221,53 +233,66 @@ export function FluorescenceLab({
       </section>
 
       {/* Predict Mode Card 2: Weak Light Linearity */}
-      <section className="bg-primary/5 border border-primary/20 rounded-xl p-5 mb-6">
-        <span className="text-xs font-mono uppercase tracking-wider text-primary font-bold block mb-1">
+      <section
+        className="notice"
+        style={{ margin: "1.5rem 0" }}
+        aria-label="Predict Mode: Weak-Illumination Linearity"
+      >
+        <p className="eyebrow" style={{ marginBottom: "0.25rem" }}>
           Predict Mode · Weak-Illumination Linearity
-        </span>
-        <h3 className="text-base sm:text-lg font-serif font-semibold text-foreground mb-2">
+        </p>
+        <h3 style={{ margin: "0.25rem 0 0.75rem" }}>
           How does the emission rate behave as the incident light becomes extremely weak?
         </h3>
-        <div className="grid grid-cols-1 sm:grid-cols-2 gap-2 mt-3">
+        <div
+          style={{
+            display: "grid",
+            gridTemplateColumns: "repeat(auto-fit, minmax(240px, 1fr))",
+            gap: "0.5rem",
+            marginTop: "0.75rem",
+          }}
+        >
           <button
             type="button"
-            className={`p-3 text-left text-xs rounded-lg border transition-all ${
-              predictAnswer2 === "linear"
-                ? "bg-primary text-primary-foreground border-primary font-medium shadow-sm"
-                : "bg-background border-border hover:bg-muted/60 text-foreground"
-            }`}
+            className={`button ${predictAnswer2 === "linear" ? "" : "secondary"}`}
+            style={{ textAlign: "left", padding: "0.75rem" }}
             onClick={() => setPredictAnswer2("linear")}
           >
             <strong>Strictly proportional, zero threshold</strong>
-            <span className="block text-xs text-muted-foreground mt-1">
+            <span className="fine" style={{ display: "block", marginTop: "0.25rem" }}>
               Ṅ₂ = Y · Ṅ₁ at any power
             </span>
           </button>
           <button
             type="button"
-            className={`p-3 text-left text-xs rounded-lg border transition-all ${
-              predictAnswer2 === "threshold"
-                ? "bg-primary text-primary-foreground border-primary font-medium shadow-sm"
-                : "bg-background border-border hover:bg-muted/60 text-foreground"
-            }`}
+            className={`button ${predictAnswer2 === "threshold" ? "" : "secondary"}`}
+            style={{ textAlign: "left", padding: "0.75rem" }}
             onClick={() => setPredictAnswer2("threshold")}
           >
             <strong>Stops below an intensity threshold</strong>
-            <span className="block text-xs text-muted-foreground mt-1">
+            <span className="fine" style={{ display: "block", marginTop: "0.25rem" }}>
               Needs minimum power to trigger
             </span>
           </button>
         </div>
         {predictAnswer2 && (
-          <div className="mt-3 p-3 bg-background/80 rounded-lg border border-border/60 text-xs leading-relaxed">
+          <div
+            style={{
+              marginTop: "0.75rem",
+              padding: "0.75rem",
+              border: "1px solid var(--line)",
+              borderRadius: "4px",
+              background: "var(--panel)",
+            }}
+          >
             {predictAnswer2 === "linear" ? (
-              <p className="text-emerald-700 dark:text-emerald-400 font-medium">
+              <p style={{ margin: 0, fontWeight: 500, color: "var(--plot)" }}>
                 ✓ Correct! Because each absorbed quantum acts independently with probability Y, the
                 emitted rate is strictly proportional to absorbed power even down to single photons
                 with zero intensity threshold.
               </p>
             ) : (
-              <p className="text-amber-700 dark:text-amber-400">
+              <p style={{ margin: 0, color: "var(--accent)" }}>
                 Notice: Wave theories might predict a threshold or time lag for energy accumulation,
                 but the light-quantum picture predicts immediate emission proportional to absorbed
                 power at any intensity.
@@ -278,13 +303,15 @@ export function FluorescenceLab({
       </section>
 
       {/* Presets Bar */}
-      <nav aria-label="Presets" className="flex flex-wrap items-center gap-2 mb-6">
-        <span className="text-xs font-semibold text-muted-foreground mr-1">Presets:</span>
+      <nav aria-label="Presets" className="preset-list" style={{ alignItems: "center" }}>
+        <span className="fine" style={{ fontWeight: 600, marginRight: "0.25rem" }}>
+          Presets:
+        </span>
         {(Object.keys(LQ07_PRESETS) as (keyof typeof LQ07_PRESETS)[]).map((key) => (
           <button
             key={key}
             type="button"
-            className="text-xs px-3 py-1.5 rounded-lg border border-border bg-muted/30 hover:bg-muted/60 text-foreground transition-colors"
+            className="button secondary"
             onClick={() => setPreset(key)}
           >
             {LQ07_PRESETS[key]?.label}
@@ -296,18 +323,22 @@ export function FluorescenceLab({
       <FluorescencePlot parameters={p} evaluation={evaluation} />
 
       {/* Interactive Controls Section */}
-      <section className="mt-8 border-t border-border/60 pt-6">
-        <h3 className="text-lg font-serif font-bold text-foreground mb-4">
-          Interactive Energy &amp; Parameter Controls
-        </h3>
+      <section
+        style={{
+          marginTop: "2rem",
+          borderTop: "1px solid var(--line)",
+          paddingTop: "1.5rem",
+        }}
+      >
+        <h3 style={{ marginBottom: "1rem" }}>Interactive Energy &amp; Parameter Controls</h3>
 
-        <form onSubmit={submit} className="grid grid-cols-1 md:grid-cols-2 gap-6">
+        <form onSubmit={submit} className="input-grid">
           {/* 1. Incident Frequency nu1 */}
-          <div className="flex flex-col gap-1.5">
-            <label htmlFor={`${id}-nu1`} className="text-xs font-semibold text-foreground">
-              Exciting Frequency ν₁ (100 – 3000 THz):
-            </label>
-            <div className="flex items-center gap-3">
+          <div className="input-field">
+            <label htmlFor={`${id}-nu1`}>Exciting Frequency ν₁ (100 – 3000 THz):</label>
+            <div
+              style={{ display: "flex", alignItems: "center", gap: "0.75rem", marginTop: "0.3rem" }}
+            >
               <input
                 id={`${id}-nu1`}
                 type="number"
@@ -319,21 +350,21 @@ export function FluorescenceLab({
                   setDraft({ ...draft, nu1: e.target.value });
                   setDirty(true);
                 }}
-                className="w-28 px-3 py-1.5 text-xs font-mono rounded border border-border bg-background"
+                style={{ width: "7rem", fontFamily: "var(--font-mono)" }}
               />
-              <span className="text-xs text-muted-foreground font-mono">THz</span>
-              <span className="text-xs text-muted-foreground">
-                ({evaluation.budget.e1Ev.toFixed(3)} eV)
+              <span className="fine" style={{ fontFamily: "var(--font-mono)" }}>
+                THz
               </span>
+              <span className="fine">({evaluation.budget.e1Ev.toFixed(3)} eV)</span>
             </div>
           </div>
 
           {/* 2. Emitted Frequency nu2 */}
-          <div className="flex flex-col gap-1.5">
-            <label htmlFor={`${id}-nu2`} className="text-xs font-semibold text-foreground">
-              Emitted Frequency ν₂ (100 – 3000 THz):
-            </label>
-            <div className="flex items-center gap-3">
+          <div className="input-field">
+            <label htmlFor={`${id}-nu2`}>Emitted Frequency ν₂ (100 – 3000 THz):</label>
+            <div
+              style={{ display: "flex", alignItems: "center", gap: "0.75rem", marginTop: "0.3rem" }}
+            >
               <input
                 id={`${id}-nu2`}
                 type="number"
@@ -345,59 +376,52 @@ export function FluorescenceLab({
                   setDraft({ ...draft, nu2: e.target.value });
                   setDirty(true);
                 }}
-                className="w-28 px-3 py-1.5 text-xs font-mono rounded border border-border bg-background"
+                style={{ width: "7rem", fontFamily: "var(--font-mono)" }}
               />
-              <span className="text-xs text-muted-foreground font-mono">THz</span>
-              <span className="text-xs text-muted-foreground">
-                ({evaluation.budget.e2Ev.toFixed(3)} eV)
+              <span className="fine" style={{ fontFamily: "var(--font-mono)" }}>
+                THz
               </span>
+              <span className="fine">({evaluation.budget.e2Ev.toFixed(3)} eV)</span>
             </div>
           </div>
 
           {/* 3. Accounting Regime Selector */}
-          <div className="flex flex-col gap-2">
-            <span className="text-xs font-semibold text-foreground">Accounting Regime:</span>
-            <div className="flex flex-wrap gap-2">
+          <div className="input-field" style={{ gridColumn: "1 / -1" }}>
+            <span
+              style={{
+                display: "block",
+                fontSize: "0.85rem",
+                fontWeight: 600,
+                marginBottom: "0.4rem",
+              }}
+            >
+              Accounting Regime:
+            </span>
+            <div style={{ display: "flex", flexWrap: "wrap", gap: "0.5rem" }}>
               <button
                 type="button"
-                className={`text-xs px-3 py-1.5 rounded-lg border ${
-                  p.regime === "standard-stokes"
-                    ? "bg-primary text-primary-foreground border-primary font-medium"
-                    : "border-border bg-background hover:bg-muted/50"
-                }`}
+                className={`button ${p.regime === "standard-stokes" ? "" : "secondary"}`}
                 onClick={() => setRegime("standard-stokes")}
               >
                 Stokes's Rule (§7)
               </button>
               <button
                 type="button"
-                className={`text-xs px-3 py-1.5 rounded-lg border ${
-                  p.regime === "deviation-multi-quantum"
-                    ? "bg-primary text-primary-foreground border-primary font-medium"
-                    : "border-border bg-background hover:bg-muted/50"
-                }`}
+                className={`button ${p.regime === "deviation-multi-quantum" ? "" : "secondary"}`}
                 onClick={() => setRegime("deviation-multi-quantum")}
               >
                 Deviation Case 1 (k-quanta)
               </button>
               <button
                 type="button"
-                className={`text-xs px-3 py-1.5 rounded-lg border ${
-                  p.regime === "deviation-non-wien"
-                    ? "bg-primary text-primary-foreground border-primary font-medium"
-                    : "border-border bg-background hover:bg-muted/50"
-                }`}
+                className={`button ${p.regime === "deviation-non-wien" ? "" : "secondary"}`}
                 onClick={() => setRegime("deviation-non-wien")}
               >
                 Deviation Case 2 (Wien check)
               </button>
               <button
                 type="button"
-                className={`text-xs px-3 py-1.5 rounded-lg border ${
-                  p.regime === "modern-thermal"
-                    ? "bg-primary text-primary-foreground border-primary font-medium"
-                    : "border-border bg-background hover:bg-muted/50"
-                }`}
+                className={`button ${p.regime === "modern-thermal" ? "" : "secondary"}`}
                 onClick={() => setRegime("modern-thermal")}
               >
                 Modern Thermal (Anti-Stokes)
@@ -406,13 +430,18 @@ export function FluorescenceLab({
           </div>
 
           {/* 4. Regime Specific Parameter */}
-          <div className="flex flex-col gap-1.5">
+          <div className="input-field" style={{ gridColumn: "1 / -1" }}>
             {p.regime === "deviation-multi-quantum" && (
               <>
-                <label htmlFor={`${id}-k`} className="text-xs font-semibold text-foreground">
-                  Number of Absorbed Quanta k (1 – 5):
-                </label>
-                <div className="flex items-center gap-3">
+                <label htmlFor={`${id}-k`}>Number of Absorbed Quanta k (1 – 5):</label>
+                <div
+                  style={{
+                    display: "flex",
+                    alignItems: "center",
+                    gap: "0.75rem",
+                    marginTop: "0.3rem",
+                  }}
+                >
                   <input
                     id={`${id}-k`}
                     type="number"
@@ -423,21 +452,24 @@ export function FluorescenceLab({
                       setDraft({ ...draft, multiQuantumK: e.target.value });
                       setDirty(true);
                     }}
-                    className="w-24 px-3 py-1.5 text-xs font-mono rounded border border-border bg-background"
+                    style={{ width: "6rem", fontFamily: "var(--font-mono)" }}
                   />
-                  <span className="text-xs text-muted-foreground">
-                    k = {p.multiQuantumK} absorbed quanta
-                  </span>
+                  <span className="fine">k = {p.multiQuantumK} absorbed quanta</span>
                 </div>
               </>
             )}
 
             {p.regime === "deviation-non-wien" && (
               <>
-                <label htmlFor={`${id}-tsrc`} className="text-xs font-semibold text-foreground">
-                  Exciting Source Temperature T_src (K):
-                </label>
-                <div className="flex items-center gap-3">
+                <label htmlFor={`${id}-tsrc`}>Exciting Source Temperature T_src (K):</label>
+                <div
+                  style={{
+                    display: "flex",
+                    alignItems: "center",
+                    gap: "0.75rem",
+                    marginTop: "0.3rem",
+                  }}
+                >
                   <input
                     id={`${id}-tsrc`}
                     type="number"
@@ -449,11 +481,13 @@ export function FluorescenceLab({
                       setDraft({ ...draft, sourceTemperatureK: e.target.value });
                       setDirty(true);
                     }}
-                    className="w-28 px-3 py-1.5 text-xs font-mono rounded border border-border bg-background"
+                    style={{ width: "7rem", fontFamily: "var(--font-mono)" }}
                   />
-                  <span className="text-xs text-muted-foreground font-mono">K</span>
+                  <span className="fine" style={{ fontFamily: "var(--font-mono)" }}>
+                    K
+                  </span>
                   {evaluation.budget.wienDeviationExpMinusX !== undefined && (
-                    <span className="text-xs text-muted-foreground font-mono">
+                    <span className="fine" style={{ fontFamily: "var(--font-mono)" }}>
                       (e^-x = {evaluation.budget.wienDeviationExpMinusX.toFixed(4)})
                     </span>
                   )}
@@ -463,10 +497,15 @@ export function FluorescenceLab({
 
             {p.regime === "modern-thermal" && (
               <>
-                <label htmlFor={`${id}-tbody`} className="text-xs font-semibold text-foreground">
-                  Body Temperature T_body (K):
-                </label>
-                <div className="flex items-center gap-3">
+                <label htmlFor={`${id}-tbody`}>Body Temperature T_body (K):</label>
+                <div
+                  style={{
+                    display: "flex",
+                    alignItems: "center",
+                    gap: "0.75rem",
+                    marginTop: "0.3rem",
+                  }}
+                >
                   <input
                     id={`${id}-tbody`}
                     type="number"
@@ -478,11 +517,13 @@ export function FluorescenceLab({
                       setDraft({ ...draft, bodyTemperatureK: e.target.value });
                       setDirty(true);
                     }}
-                    className="w-28 px-3 py-1.5 text-xs font-mono rounded border border-border bg-background"
+                    style={{ width: "7rem", fontFamily: "var(--font-mono)" }}
                   />
-                  <span className="text-xs text-muted-foreground font-mono">K</span>
+                  <span className="fine" style={{ fontFamily: "var(--font-mono)" }}>
+                    K
+                  </span>
                   {evaluation.budget.thermalExtraEv !== undefined && (
-                    <span className="text-xs text-muted-foreground font-mono">
+                    <span className="fine" style={{ fontFamily: "var(--font-mono)" }}>
                       (+{evaluation.budget.thermalExtraEv.toFixed(3)} eV)
                     </span>
                   )}
@@ -491,27 +532,28 @@ export function FluorescenceLab({
             )}
 
             {p.regime === "standard-stokes" && (
-              <div className="flex flex-col gap-1.5">
-                <span className="text-xs font-semibold text-foreground">Available Channels:</span>
-                <div className="flex gap-2">
+              <div>
+                <span
+                  style={{
+                    display: "block",
+                    fontSize: "0.85rem",
+                    fontWeight: 600,
+                    marginBottom: "0.4rem",
+                  }}
+                >
+                  Available Channels:
+                </span>
+                <div style={{ display: "flex", gap: "0.5rem" }}>
                   <button
                     type="button"
-                    className={`text-xs px-3 py-1 rounded border ${
-                      p.channels === "light-plus-heat"
-                        ? "bg-primary text-primary-foreground border-primary font-medium"
-                        : "border-border bg-background hover:bg-muted/50"
-                    }`}
+                    className={`button ${p.channels === "light-plus-heat" ? "" : "secondary"}`}
                     onClick={() => setChannels("light-plus-heat")}
                   >
                     Light + Heat (E_other ≥ 0)
                   </button>
                   <button
                     type="button"
-                    className={`text-xs px-3 py-1 rounded border ${
-                      p.channels === "light-only"
-                        ? "bg-primary text-primary-foreground border-primary font-medium"
-                        : "border-border bg-background hover:bg-muted/50"
-                    }`}
+                    className={`button ${p.channels === "light-only" ? "" : "secondary"}`}
                     onClick={() => setChannels("light-only")}
                   >
                     Light Only (E_other = 0)
@@ -522,22 +564,23 @@ export function FluorescenceLab({
           </div>
 
           {/* Form Actions */}
-          <div className="md:col-span-2 flex items-center gap-3 pt-2">
-            <button
-              type="submit"
-              className="px-5 py-2 text-sm font-semibold rounded-lg bg-primary text-primary-foreground shadow-sm hover:opacity-90 transition-opacity"
-            >
+          <div
+            style={{
+              gridColumn: "1 / -1",
+              display: "flex",
+              alignItems: "center",
+              gap: "0.75rem",
+              paddingTop: "0.5rem",
+            }}
+          >
+            <button type="submit" className="button">
               Apply parameters
             </button>
-            <button
-              type="button"
-              onClick={share}
-              className="px-4 py-2 text-sm font-medium rounded-lg border border-border bg-background hover:bg-muted/50 text-foreground transition-colors"
-            >
+            <button type="button" onClick={share} className="button secondary">
               Copy permalink
             </button>
             {dirty && (
-              <span className="text-xs text-amber-600 dark:text-amber-400">
+              <span className="fine" style={{ color: "var(--accent)" }}>
                 Unapplied parameter edits.
               </span>
             )}
@@ -545,100 +588,118 @@ export function FluorescenceLab({
         </form>
 
         {error && (
-          <div className="mt-4 p-3 bg-rose-500/10 border border-rose-500/30 rounded-lg text-xs text-rose-700 dark:text-rose-300">
+          <div className="notice error" style={{ marginTop: "1rem" }}>
             {error}
           </div>
         )}
         {linkNote && (
-          <div className="mt-3 p-3 bg-blue-500/10 border border-blue-500/30 rounded-lg text-xs text-blue-700 dark:text-blue-300">
+          <div className="notice" style={{ marginTop: "0.75rem" }}>
             {linkNote}
           </div>
         )}
         {sharedUrl && (
-          <div className="mt-3 p-3 bg-muted/40 border border-border/80 rounded-lg text-xs font-mono break-all">
+          <div
+            className="notice"
+            style={{ marginTop: "0.75rem", fontFamily: "var(--font-mono)", wordBreak: "break-all" }}
+          >
             Copied link: {sharedUrl}
           </div>
         )}
       </section>
 
       {/* Outputs Table */}
-      <section className="mt-8 border-t border-border/60 pt-6">
-        <h3 className="text-lg font-serif font-bold text-foreground mb-4">
+      <section
+        style={{
+          marginTop: "2rem",
+          borderTop: "1px solid var(--line)",
+          paddingTop: "1.5rem",
+        }}
+      >
+        <h3 style={{ marginBottom: "1rem" }}>
           Calculated Energy Ledger &amp; Transition Quantities
         </h3>
 
-        <div className="overflow-x-auto">
-          <table className="w-full text-left text-xs border border-border/80 rounded-lg overflow-hidden">
-            <thead className="bg-muted/50 border-b border-border text-foreground font-mono uppercase">
+        <div
+          className="table-scroll"
+          tabIndex={0}
+          role="region"
+          aria-label="Calculated energy ledger and transition quantities table"
+        >
+          <table>
+            <thead>
               <tr>
-                <th className="p-3">Physical Quantity</th>
-                <th className="p-3">Symbol</th>
-                <th className="p-3">Calculated Value</th>
-                <th className="p-3">Physical Meaning</th>
+                <th scope="col">Physical Quantity</th>
+                <th scope="col">Symbol</th>
+                <th scope="col">Calculated Value</th>
+                <th scope="col">Physical Meaning</th>
               </tr>
             </thead>
-            <tbody className="divide-y divide-border/60">
+            <tbody>
               <tr>
-                <td className="p-3 font-medium">Budget Verdict</td>
-                <td className="p-3 font-mono">Verdict</td>
-                <td className="p-3 font-mono font-bold">
+                <th scope="row">Budget Verdict</th>
+                <td style={{ fontFamily: "var(--font-mono)" }}>Verdict</td>
+                <td style={{ fontFamily: "var(--font-mono)", fontWeight: "bold" }}>
                   {evaluation.budget.status === "outside-domain" ? (
-                    <span className="text-amber-600 dark:text-amber-400">Outside Domain</span>
+                    <span className="badge" style={{ color: "var(--accent)" }}>
+                      Outside Domain
+                    </span>
                   ) : evaluation.budget.allowed ? (
-                    <span className="text-emerald-600 dark:text-emerald-400">Allowed</span>
+                    <span className="badge">Allowed</span>
                   ) : (
-                    <span className="text-rose-600 dark:text-rose-400">Disallowed</span>
+                    <span className="badge" style={{ color: "var(--accent)" }}>
+                      Disallowed
+                    </span>
                   )}
                 </td>
-                <td className="p-3 text-muted-foreground">{evaluation.budget.verdictReason}</td>
+                <td className="fine">{evaluation.budget.verdictReason}</td>
               </tr>
               <tr>
-                <td className="p-3 font-medium">Maximum Allowed Frequency</td>
-                <td className="p-3 font-mono">ν₂,max</td>
-                <td className="p-3 font-mono font-semibold text-primary">
+                <th scope="row">Maximum Allowed Frequency</th>
+                <td style={{ fontFamily: "var(--font-mono)" }}>ν₂,max</td>
+                <td style={{ fontFamily: "var(--font-mono)", fontWeight: 600 }}>
                   {(evaluation.budget.nu2MaxHz / 1e12).toFixed(2)} THz
                 </td>
-                <td className="p-3 text-muted-foreground">
-                  Upper frequency bound for emitted light
-                </td>
+                <td className="fine">Upper frequency bound for emitted light</td>
               </tr>
               <tr>
-                <td className="p-3 font-medium">Absorbed Quantum Energy</td>
-                <td className="p-3 font-mono">hν₁</td>
-                <td className="p-3 font-mono font-semibold">
+                <th scope="row">Absorbed Quantum Energy</th>
+                <td style={{ fontFamily: "var(--font-mono)" }}>hν₁</td>
+                <td style={{ fontFamily: "var(--font-mono)", fontWeight: 600 }}>
                   {evaluation.budget.e1Ev.toFixed(4)} eV
                 </td>
-                <td className="p-3 text-muted-foreground">Energy of one exciting light quantum</td>
+                <td className="fine">Energy of one exciting light quantum</td>
               </tr>
               <tr>
-                <td className="p-3 font-medium">Emitted Quantum Energy</td>
-                <td className="p-3 font-mono">hν₂</td>
-                <td className="p-3 font-mono font-semibold">
+                <th scope="row">Emitted Quantum Energy</th>
+                <td style={{ fontFamily: "var(--font-mono)" }}>hν₂</td>
+                <td style={{ fontFamily: "var(--font-mono)", fontWeight: 600 }}>
                   {evaluation.budget.e2Ev.toFixed(4)} eV
                 </td>
-                <td className="p-3 text-muted-foreground">
-                  Energy of candidate emitted light quantum
-                </td>
+                <td className="fine">Energy of candidate emitted light quantum</td>
               </tr>
               <tr>
-                <td className="p-3 font-medium">Non-Optical Dissipation (Heat)</td>
-                <td className="p-3 font-mono">E_other</td>
-                <td className="p-3 font-mono">
+                <th scope="row">Non-Optical Dissipation (Heat)</th>
+                <td style={{ fontFamily: "var(--font-mono)" }}>E_other</td>
+                <td style={{ fontFamily: "var(--font-mono)" }}>
                   {evaluation.budget.allowed
                     ? `${evaluation.budget.eOtherEv.toFixed(4)} eV`
                     : "N/A (Disallowed)"}
                 </td>
-                <td className="p-3 text-muted-foreground">
-                  Energy transferred to thermal modes of medium
-                </td>
+                <td className="fine">Energy transferred to thermal modes of medium</td>
               </tr>
               <tr>
-                <td className="p-3 font-medium">Energy Deficit</td>
-                <td className="p-3 font-mono">ΔE</td>
-                <td className="p-3 font-mono font-bold text-rose-600 dark:text-rose-400">
+                <th scope="row">Energy Deficit</th>
+                <td style={{ fontFamily: "var(--font-mono)" }}>ΔE</td>
+                <td
+                  style={{
+                    fontFamily: "var(--font-mono)",
+                    fontWeight: "bold",
+                    color: "var(--accent)",
+                  }}
+                >
                   {evaluation.budget.energyDeficitEv.toFixed(4)} eV
                 </td>
-                <td className="p-3 text-muted-foreground">
+                <td className="fine">
                   {evaluation.budget.energyDeficitEv > 0
                     ? "Energy required from non-existent source"
                     : "Zero (Conserved)"}
@@ -650,12 +711,18 @@ export function FluorescenceLab({
       </section>
 
       {/* Assumptions & Not Modeled */}
-      <footer className="mt-8 border-t border-border/60 pt-6 space-y-4">
-        <div>
-          <h4 className="text-xs font-mono uppercase tracking-wider text-muted-foreground font-bold mb-2">
+      <footer
+        style={{
+          marginTop: "2rem",
+          borderTop: "1px solid var(--line)",
+          paddingTop: "1.5rem",
+        }}
+      >
+        <div style={{ marginBottom: "1rem" }}>
+          <h4 className="eyebrow" style={{ marginBottom: "0.5rem" }}>
             Paper Assumptions (§7 as printed)
           </h4>
-          <ul className="text-xs text-muted-foreground space-y-1 list-disc list-inside">
+          <ul className="fine" style={{ paddingLeft: "1.25rem", margin: 0 }}>
             {LQ07_MODEL.assumptions.map((note) => (
               <li key={note}>{note}</li>
             ))}
@@ -663,10 +730,10 @@ export function FluorescenceLab({
         </div>
 
         <div>
-          <h4 className="text-xs font-mono uppercase tracking-wider text-muted-foreground font-bold mb-2">
+          <h4 className="eyebrow" style={{ marginBottom: "0.5rem" }}>
             What this model leaves out (not modeled)
           </h4>
-          <ul className="text-xs text-muted-foreground space-y-1 list-disc list-inside">
+          <ul className="fine" style={{ paddingLeft: "1.25rem", margin: 0 }}>
             {LQ07_MODEL.notModeled.map((note) => (
               <li key={note}>{note}</li>
             ))}
@@ -676,11 +743,11 @@ export function FluorescenceLab({
 
       {/* Static Fallback for no-JS */}
       <noscript>
-        <div className="mt-6 p-4 bg-muted/30 border border-border rounded-lg text-xs">
+        <p className="notice" style={{ marginTop: "1.5rem" }}>
           <strong>Static Worked Example (JavaScript disabled):</strong> Exciting UV light at ν₁ =
           850 THz (hν₁ = 3.515 eV) limits emitted fluorescence to ν₂ ≤ 850 THz. A proposed emission
           at 900 THz (3.722 eV) has a 0.207 eV deficit and is disallowed.
-        </div>
+        </p>
       </noscript>
     </article>
   );

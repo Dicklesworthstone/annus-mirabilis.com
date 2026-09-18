@@ -42,7 +42,7 @@
   "src/components/lab/lq06/CoefficientMatchLab.tsx": 501,
   "src/components/lab/lq06/CoefficientMatchPlot.tsx": 146,
   "src/components/lab/lq06/EntropyComparisonPlot.tsx": 101,
-  "src/components/lab/lq07/FluorescenceLab.tsx": 528,
+  "src/components/lab/lq07/FluorescenceLab.tsx": 0,
   "src/components/lab/lq07/FluorescencePlot.tsx": 179,
   "src/components/lab/lq08/PhotoelectricLab.tsx": 425,
   "src/components/lab/lq08/PhotoelectricPlot.tsx": 124,
