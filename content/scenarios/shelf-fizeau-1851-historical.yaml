@@ -1,0 +1,38 @@
+id: shelf-fizeau-1851-historical
+kind: historical-fixture
+title: Fizeau 1851 moving-water displacement
+description: >
+  Fizeau 1851 moving-water experimental observation from Comptes rendus 33 (1851) 349.
+  Transcription pending until the dataset record is verified.
+provenance:
+  paper: special-relativity
+  sectionId: shelf
+  printedPage: 349
+constantSetId: modern-si-2019
+owner: shelf-optics
+transcription:
+  status: pending
+  reason: "1851 Fizeau moving-water data awaiting transcription from Comptes rendus 33 (1851) 349."
+inputs:
+  waterPathPerBeam:
+    value: 3.0
+    unit: m
+  waterSpeed:
+    value: 7.06
+    unit: "m/s"
+  refractiveIndex:
+    value: 1.333
+    unit: dimensionless
+  wavelength:
+    value: 5.3e-7
+    unit: m
+expected:
+  outputs:
+    - outputId: fringeShift
+      comparisonKind: rounds-to
+      printedValue: "0.23"
+      printedPrecision:
+        decimals: 2
+      qualifier: about
+modelVersion: 1
+schemaVersion: 1

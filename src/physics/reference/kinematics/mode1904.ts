@@ -1,3 +1,5 @@
+import { isMode1904 as isConstants1904 } from "../constants.ts";
+
 /** 1904-mode surface guard. Owner of the full guard is am-ref-constants-xik. */
 
 export class Mode1904GuardError extends TypeError {
@@ -11,7 +13,7 @@ export class Mode1904GuardError extends TypeError {
 let depth = 0;
 
 export function isMode1904(): boolean {
-  return depth > 0;
+  return depth > 0 || isConstants1904();
 }
 
 export function withMode1904Guard<T>(fn: () => T): T {

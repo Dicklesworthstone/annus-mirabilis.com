@@ -52,6 +52,7 @@ import {
   invertToMolecularNumber,
 } from "../../physics/reference/inference.ts";
 import { dilationLossPerSecond } from "../../physics/reference/kinematics.ts";
+import { evaluatePhotonBox } from "../../physics/reference/massEnergy.ts";
 import {
   aperturePower,
   bandLimitedMeanQuantumEnergyWien,
@@ -60,6 +61,13 @@ import {
   planckBandEnergyDensity,
   planckFrequencyEnergyDensity,
 } from "../../physics/reference/radiation.ts";
+import {
+  fizeauFringeShift,
+  fresnelDraggedSpeed,
+  michelsonMorleyFringeShift,
+  relativisticDraggedSpeed,
+  waveEquationResidual,
+} from "../../physics/reference/shelfOptics.ts";
 import {
   conductorFrameEmf,
   fresnelDraggedIncrement,
@@ -97,6 +105,9 @@ const walkLawsPath = fileURLToPath(
 const eventsPath = fileURLToPath(new URL("../../physics/reference/events.ts", import.meta.url));
 const fieldsPath = fileURLToPath(new URL("../../physics/reference/fields.ts", import.meta.url));
 const electronPath = fileURLToPath(new URL("../../physics/reference/electron.ts", import.meta.url));
+const shelfOpticsPath = fileURLToPath(
+  new URL("../../physics/reference/shelfOptics.ts", import.meta.url),
+);
 
 function num(inputs: Record<string, number>, key: string): number {
   const value = inputs[key];
@@ -874,6 +885,184 @@ const OWNERS: OwnerRecord[] = [
           out.magneticRadius = rel.magneticRadius.value as number;
         if (rel.electricRadius.status === "value")
           out.electricRadius = rel.electricRadius.value as number;
+      }
+
+      return out;
+    },
+  },
+  {
+    id: "massEnergy.box",
+    sourcePath: fileURLToPath(new URL("../../physics/reference/massEnergy.ts", import.meta.url)),
+    fn(ctx: OwnerContext): Record<string, number> {
+      const M = typeof ctx.inputs.boxMass === "number" ? ctx.inputs.boxMass : 1.0;
+      const ell = typeof ctx.inputs.boxLength === "number" ? ctx.inputs.boxLength : 1.0;
+      const E = typeof ctx.inputs.pulseEnergy === "number" ? ctx.inputs.pulseEnergy : 1.0;
+      const assignLightMass =
+        typeof ctx.inputs.assignLightMass === "boolean"
+          ? ctx.inputs.assignLightMass
+          : ctx.inputs.assignLightMass !== 0;
+      const box = evaluatePhotonBox({ M, ell, E, assignLightMass });
+      const out: Record<string, number> = {};
+      if (box.centerOfMassShift.status === "value")
+        out.centerOfMassShift = box.centerOfMassShift.value as number;
+      if (box.boxDisplacement.status === "value")
+        out.boxDisplacement = box.boxDisplacement.value as number;
+      if (box.recoilSpeed.status === "value") out.recoilSpeed = box.recoilSpeed.value as number;
+      if (box.pulseFlightTime.status === "value")
+        out.pulseFlightTime = box.pulseFlightTime.value as number;
+      if (box.pulseMomentum.status === "value")
+        out.pulseMomentum = box.pulseMomentum.value as number;
+      if (box.lightMassAssigned.status === "value")
+        out.lightMassAssigned = box.lightMassAssigned.value as number;
+      return out;
+    },
+  },
+  {
+    id: "shelf-optics",
+    sourcePath: shelfOpticsPath,
+    fn: (ctx: OwnerContext) => {
+      const out: Record<string, number> = {};
+
+      // Michelson-Morley
+      if (
+        typeof ctx.inputs.waterPathPerBeam !== "number" &&
+        (typeof ctx.inputs.length === "number" ||
+          typeof ctx.inputs.lengthParallel === "number" ||
+          typeof ctx.inputs.pathInWavelengths === "number")
+      ) {
+        const contraction = Boolean(ctx.inputs.contraction);
+        const shiftRes = michelsonMorleyFringeShift({
+          length: ctx.inputs.length,
+          lengthParallel: ctx.inputs.lengthParallel,
+          lengthPerpendicular: ctx.inputs.lengthPerpendicular,
+          pathInWavelengths: ctx.inputs.pathInWavelengths,
+          wavelength: ctx.inputs.wavelength,
+          windSpeed: ctx.inputs.windSpeed,
+          beta: ctx.inputs.beta,
+          contraction,
+          constantSet: ctx.constantSetId,
+        });
+
+        if (shiftRes.timeParallel.status === "value") {
+          out.timeParallel = shiftRes.timeParallel.value as number;
+        }
+        if (shiftRes.timePerpendicular.status === "value") {
+          out.timePerpendicular = shiftRes.timePerpendicular.value as number;
+        }
+        if (shiftRes.timeDifference.status === "value") {
+          out.timeDifference = shiftRes.timeDifference.value as number;
+        }
+        if (shiftRes.fringeShift.status === "value") {
+          out.fringeShift = shiftRes.fringeShift.value as number;
+        }
+        if (Number.isFinite(shiftRes.expectedFringeShiftFirstOrder)) {
+          out.expectedFringeShiftFirstOrder = shiftRes.expectedFringeShiftFirstOrder;
+        }
+        if (Number.isFinite(shiftRes.gamma)) {
+          out.gamma = shiftRes.gamma;
+        }
+        if (Number.isFinite(shiftRes.beta)) {
+          out.beta = shiftRes.beta;
+        }
+      }
+
+      // Fizeau moving water
+      if (typeof ctx.inputs.waterPathPerBeam === "number") {
+        const dragHypothesis =
+          ctx.inputs.dragHypothesis === 1
+            ? "full-drag"
+            : ctx.inputs.dragHypothesis === 0
+              ? "no-drag"
+              : "fresnel-drag";
+        const reversal = Boolean(ctx.inputs.reversal);
+
+        const fizeau = fizeauFringeShift({
+          waterPathPerBeam: ctx.inputs.waterPathPerBeam,
+          waterSpeed: ctx.inputs.waterSpeed,
+          waterSpeedFractionOfC: ctx.inputs.waterSpeedFractionOfC,
+          refractiveIndex: ctx.inputs.refractiveIndex ?? 1.333,
+          wavelength: ctx.inputs.wavelength ?? 5.3e-7,
+          dragHypothesis,
+          reversal,
+          constantSet: ctx.constantSetId,
+        });
+
+        if (fizeau.fringeShift.status === "value") {
+          out.fringeShift = fizeau.fringeShift.value as number;
+        }
+        if (fizeau.fringeShiftFirstOrder.status === "value") {
+          out.fringeShiftFirstOrder = fizeau.fringeShiftFirstOrder.value as number;
+        }
+        if (fizeau.dragCoefficient.status === "value") {
+          out.dragCoefficient = fizeau.dragCoefficient.value as number;
+        }
+        if (fizeau.timeDifference.status === "value") {
+          out.timeDifference = fizeau.timeDifference.value as number;
+        }
+        if (fizeau.speedAlongFlow.status === "value") {
+          out.speedAlongFlow = fizeau.speedAlongFlow.value as number;
+        }
+        if (fizeau.speedAgainstFlow.status === "value") {
+          out.speedAgainstFlow = fizeau.speedAgainstFlow.value as number;
+        }
+      }
+
+      // Standalone dragged speeds
+      if (typeof ctx.inputs.draggedWaterSpeed === "number") {
+        const n = ctx.inputs.refractiveIndex ?? 1.333;
+        const v = ctx.inputs.draggedWaterSpeed;
+
+        const fresnel = fresnelDraggedSpeed({
+          refractiveIndex: n,
+          waterSpeed: v,
+          constantSet: ctx.constantSetId,
+        });
+        if (fresnel.draggedSpeed.status === "value") {
+          out.draggedSpeed = fresnel.draggedSpeed.value as number;
+        }
+        if (fresnel.velocityIncrement.status === "value") {
+          out.velocityIncrement = fresnel.velocityIncrement.value as number;
+        }
+        if (fresnel.dragCoefficient.status === "value") {
+          out.dragCoefficient = fresnel.dragCoefficient.value as number;
+        }
+
+        const rel = relativisticDraggedSpeed({
+          refractiveIndex: n,
+          waterSpeed: v,
+          constantSet: ctx.constantSetId,
+        });
+        if (rel.velocityIncrement.status === "value") {
+          out.relativisticVelocityIncrement = rel.velocityIncrement.value as number;
+        }
+        if (rel.relativeDifferenceToFresnel.status === "value") {
+          out.relativeDifferenceToFresnel = rel.relativeDifferenceToFresnel.value as number;
+        }
+        if (rel.secondOrderTerm.status === "value") {
+          out.secondOrderTerm = rel.secondOrderTerm.value as number;
+        }
+      }
+
+      // Wave equation residual
+      if (typeof ctx.inputs.wavenumber === "number") {
+        const map = ctx.inputs.isLorentz === 1 ? "lorentz" : "galilean";
+        const wave = waveEquationResidual({
+          map,
+          beta: ctx.inputs.beta,
+          frameSpeed: ctx.inputs.frameSpeed,
+          wavenumber: ctx.inputs.wavenumber,
+          constantSet: ctx.constantSetId,
+        });
+
+        if (wave.relativeResidual.status === "value") {
+          out.relativeResidual = wave.relativeResidual.value as number;
+        }
+        if (wave.maxResidual.status === "value") {
+          out.maxResidual = wave.maxResidual.value as number;
+        }
+        if (Number.isFinite(wave.crossTermCoefficient)) {
+          out.crossTermCoefficient = wave.crossTermCoefficient;
+        }
       }
 
       return out;

@@ -1,0 +1,35 @@
+id: shelf-mm-1887-historical
+kind: historical-fixture
+title: Michelson and Morley 1887 experimental observational bound
+description: >
+  1887 Michelson-Morley experimental observation from Am. J. Sci. (3) 34 (1887) 333.
+  Transcription pending until the paper and observation record are fully digitized.
+provenance:
+  paper: special-relativity
+  sectionId: shelf
+  printedPage: 333
+constantSetId: modern-si-2019
+owner: shelf-optics
+transcription:
+  status: pending
+  reason: "1887 Michelson-Morley observational bound awaiting facsimile review from Am. J. Sci. (3) 34 (1887) 333."
+inputs:
+  length:
+    value: 11.0
+    unit: m
+  beta:
+    value: 1.0e-4
+    unit: dimensionless
+  wavelength:
+    value: 5.9e-7
+    unit: m
+expected:
+  outputs:
+    - outputId: fringeShift
+      comparisonKind: rounds-to
+      printedValue: "0.4"
+      printedPrecision:
+        significantFigures: 1
+      qualifier: about
+modelVersion: 1
+schemaVersion: 1

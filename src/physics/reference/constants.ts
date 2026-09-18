@@ -531,6 +531,10 @@ export function withMode1904Guard<T>(fn: () => T): T {
   }
 }
 
+export function isMode1904(): boolean {
+  return mode1904GuardDepth > 0;
+}
+
 // ---- Cross-set comparison and scenario derivation ------------------------------------------------
 
 export function compareAcrossSets(input: {

@@ -1,0 +1,47 @@
+id: shelf-fizeau-fresnel-golden
+kind: modern-golden
+title: Fizeau moving-water fringe shift under Fresnel drag hypothesis
+description: >
+  Fizeau apparatus illustrative calculation with waterPath = 3.0 m, lambda = 530 nm,
+  n = 1.333, v = 7.06 m/s on flow reversal producing 0.41424 fringe shift.
+provenance:
+  paper: special-relativity
+  sectionId: shelf
+  printedPage: 891
+constantSetId: modern-si-2019
+owner: shelf-optics
+inputs:
+  waterPathPerBeam:
+    value: 3.0
+    unit: m
+  waterSpeed:
+    value: 7.06
+    unit: "m/s"
+  refractiveIndex:
+    value: 1.333
+    unit: dimensionless
+  wavelength:
+    value: 5.3e-7
+    unit: m
+  reversal:
+    value: 1
+    unit: dimensionless
+  dragHypothesis:
+    value: 2
+    unit: dimensionless
+expected:
+  outputs:
+    - outputId: fringeShift
+      value: 0.41424
+      comparisonKind: tolerance
+      tolerance:
+        relative: 1.0e-4
+        rationale: "Illustrative Fizeau fringe shift on reversal under Fresnel partial drag."
+    - outputId: dragCoefficient
+      value: 0.43722
+      comparisonKind: tolerance
+      tolerance:
+        relative: 1.0e-4
+        rationale: "Fresnel drag coefficient 1 - 1/n^2 for n = 1.333."
+modelVersion: 1
+schemaVersion: 1

@@ -1,0 +1,41 @@
+id: shelf-mm-modern-golden
+kind: modern-golden
+title: Michelson-Morley modern illustrative computation fixture
+description: >
+  Illustrative Michelson-Morley calculation at v = 30 km/s, L = 11 m, lambda = 550 nm,
+  yielding 0.400554 fringe shift, consistent with 1887 paper order of magnitude.
+provenance:
+  paper: special-relativity
+  sectionId: shelf
+  printedPage: 891
+constantSetId: modern-si-2019
+owner: shelf-optics
+inputs:
+  length:
+    value: 11.0
+    unit: m
+  windSpeed:
+    value: 30000.0
+    unit: "m/s"
+  wavelength:
+    value: 5.5e-7
+    unit: m
+  contraction:
+    value: 0
+    unit: dimensionless
+expected:
+  outputs:
+    - outputId: fringeShift
+      value: 0.400554
+      comparisonKind: tolerance
+      tolerance:
+        relative: 1.0e-5
+        rationale: "Shelf instrument golden fixture at v = 30 km/s, L = 11 m, lambda = 550 nm yielding 0.400554 fringe."
+    - outputId: beta
+      value: 1.0006922855944561e-4
+      comparisonKind: tolerance
+      tolerance:
+        relative: 1.0e-6
+        rationale: "Dimensionless wind speed ratio beta = 30000 / 299792458."
+modelVersion: 1
+schemaVersion: 1

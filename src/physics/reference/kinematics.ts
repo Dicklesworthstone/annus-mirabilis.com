@@ -30,7 +30,12 @@ import {
   type Velocity,
 } from "./kinematics/types.ts";
 
-export { isMode1904, Mode1904GuardError, withMode1904Guard } from "./kinematics/mode1904.ts";
+export {
+  isMode1904,
+  Mode1904GuardError,
+  refuseModernSurface,
+  withMode1904Guard,
+} from "./kinematics/mode1904.ts";
 export type {
   BetaVector,
   Boost,

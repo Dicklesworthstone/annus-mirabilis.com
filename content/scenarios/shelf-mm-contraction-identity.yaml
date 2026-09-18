@@ -1,0 +1,42 @@
+id: shelf-mm-contraction-identity
+kind: modern-golden
+title: Michelson-Morley contraction hypothesis nullifies fringe shift
+description: >
+  Under the FitzGerald-Lorentz contraction hypothesis, the longitudinal arm
+  contracts by 1/gamma, nullifying the round-trip time difference and producing
+  zero fringe shift upon rotation.
+provenance:
+  paper: special-relativity
+  sectionId: shelf
+  printedPage: 891
+constantSetId: modern-si-2019
+owner: shelf-optics
+inputs:
+  length:
+    value: 11.0
+    unit: m
+  beta:
+    value: 0.5
+    unit: dimensionless
+  wavelength:
+    value: 5.5e-7
+    unit: m
+  contraction:
+    value: 1
+    unit: dimensionless
+expected:
+  outputs:
+    - outputId: fringeShift
+      value: 0.0
+      comparisonKind: tolerance
+      tolerance:
+        absolute: 1.0e-15
+        rationale: "Contraction hypothesis gives exact zero fringe shift for equal arms."
+    - outputId: timeDifference
+      value: 0.0
+      comparisonKind: tolerance
+      tolerance:
+        absolute: 1.0e-15
+        rationale: "Round-trip times along and perpendicular to wind become equal."
+modelVersion: 1
+schemaVersion: 1
