@@ -14,14 +14,16 @@ import {
   restoreReaderState,
 } from "./navigation/state";
 import "./actions/kindRegistration.ts";
-import { closeDirectOpenDialog, openFromSearch } from "./stack/mountDirectOpen.ts";
+import "../equations/missingStep/register.ts";
+import { resolveOpenParam } from "./stack/history.ts";
+import { closeDirectOpenDialog, openFromSearch, openFromTrigger } from "./stack/mountDirectOpen.ts";
 
 type Props = {
   registry: ReaderRegistry;
   titles: Readonly<Record<string, string>>;
   questions: Readonly<Record<string, string>>;
 };
-/** Only navigation metadata crosses this island. Prose, math and laboratory subtrees stay mounted. */
+/** Navigation controls leave the existing prose, math and laboratory subtrees mounted. */
 export function ReaderController(props: Props) {
   // App Router history restoration may recreate equal object props. Do not remount
   // the navigation owner and steal focus from the trigger we just restored.
@@ -63,16 +65,9 @@ export function ReaderController(props: Props) {
       control.disabled = false;
     });
     /**
-     * The next history URL for the current `state`. Starts from the real
-     * current `location.href` -- never from a fresh `URLSearchParams()`
-     * built only out of the fields this reader tracks -- so a query key
-     * this reader does not know about (a search term, an experiment flag
-     * added by a future bead) survives a face change instead of being
-     * silently dropped (am-read-shell-routes-3ua; see
-     * readerViewSwitchHistory.test.ts for the direct assertion).
-     * `passageHref`/`readerHref` stay as they are for the "copy passage
-     * link" feature below, which intentionally builds a clean, portable
-     * link rather than echoing the current URL's ambient state.
+     * Start from the current location so unrelated query keys survive a face change.
+     * Copy-passage links below intentionally build clean portable links instead.
+     * A registered clarification remains in the URL until its own return path closes it.
      */
     function url() {
       const u = new URL(location.href);
@@ -84,7 +79,7 @@ export function ReaderController(props: Props) {
       else u.searchParams.delete("lens");
       const frame = state.frames.at(-1);
       if (frame) u.searchParams.set("open", `foundation:${frame.foundationId}`);
-      else u.searchParams.delete("open");
+      else if (!resolveOpenParam(u.searchParams.get("open"))) u.searchParams.delete("open");
       u.hash = `#${state.anchor}`;
       return u.pathname + u.search + u.hash;
     }
@@ -113,9 +108,8 @@ export function ReaderController(props: Props) {
     function restoreFocus(previous: ReaderState) {
       focusReturn(previous);
       const expected = state;
-      // The browser completes native dialog/history focus restoration after the
-      // event handler. Reassert the semantic return on the next frame, unless
-      // another navigation has already superseded it.
+      // Reassert the semantic return after native dialog/history focus restoration,
+      // unless another navigation has superseded it.
       returnAnimation = requestAnimationFrame(() => {
         returnAnimation = 0;
         if (state === expected) focusReturn(previous);
@@ -170,9 +164,6 @@ export function ReaderController(props: Props) {
         if (previous?.frames.length) restoreFocus(previous);
       }
       if (message) announcement.textContent = message;
-      // No face content is code-split or lazily fetched yet: the moment render() has
-      // finished synchronously mutating the DOM for this state, the face is ready. A
-      // future async-loaded face panel would set this only once its own load settles.
       root.dataset.ready = "true";
     }
     function change(next: ReaderState, push: boolean, message: string) {
@@ -203,10 +194,18 @@ export function ReaderController(props: Props) {
       )
         return;
       const control = event.target.closest<HTMLElement>(
-        "[data-foundation],[data-view-link],[data-reader-anchor],[data-reader-back],[data-reader-close],[data-copy-passage]",
+        "[data-clarification-open],[data-foundation],[data-view-link],[data-reader-anchor],[data-reader-back],[data-reader-close],[data-copy-passage]",
       );
       if (!control || !root.contains(control)) return;
-      if (control.hasAttribute("data-foundation")) {
+      if (control.dataset.clarificationOpen) {
+        if (!resolveOpenParam(control.dataset.clarificationOpen)) return;
+        const anchor = control.closest<HTMLElement>(".reader-passage")?.id ?? state.anchor;
+        if (anchor !== state.anchor) {
+          state = { ...state, anchor };
+          save();
+        }
+        if (openFromTrigger(document, control, control.dataset.clarificationOpen)) event.preventDefault();
+      } else if (control.hasAttribute("data-foundation")) {
         const id = control.dataset.foundation;
         if (!id || !registry.foundations.includes(id)) return;
         event.preventDefault();
@@ -309,10 +308,7 @@ export function ReaderController(props: Props) {
         );
     };
     const pop = () => {
-      // Captured before save() below: save() calls history.replaceState through the closed
-      // allowlist of passageHref/readerHref, which does not carry an instrument-view or term
-      // ?open= value (only foundation:), and would silently overwrite it in location.search
-      // before a deferred read ever saw it.
+      // Capture the navigation target before normalizing the reader-owned settings.
       const openSearchAtPop = location.search;
       const previous = state,
         restored =
@@ -330,20 +326,15 @@ export function ReaderController(props: Props) {
           ? `Returned to ${titles[lastFrame.foundationId] ?? lastFrame.foundationId}.`
           : "Returned to the argument.",
       );
-      // A foundation-kind ?open= value is handled entirely by parseReaderLocation/render above;
-      // this only ever resolves a kind this bead registers (instrument-view, term), so the two
-      // paths never collide (am-read-return-stack-oxa). Deferred one microtask: it mounts a
-      // separate React root via flushSync, which React refuses to run synchronously from inside
-      // another component's own commit (a "flushSync inside a lifecycle method" conflict).
-      closeDirectOpenDialog(document);
+      // Foundation clarifications keep their existing owner. Registered kinds share this
+      // separate root, mounted outside the current React commit to avoid nested flushSync.
+      closeDirectOpenDialog(document, true);
       queueMicrotask(() => openFromSearch(document, openSearchAtPop));
     };
     root.addEventListener("click", click);
     root.addEventListener("change", changeControl);
     dialog.addEventListener("cancel", cancel);
     window.addEventListener("popstate", pop);
-    // Captured before save() below overwrites location.search through its closed allowlist --
-    // see the identical note in pop() above.
     const openSearchOnMount = location.search;
     save();
     render();
