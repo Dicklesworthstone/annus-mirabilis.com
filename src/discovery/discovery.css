@@ -1,0 +1,68 @@
+/* Discovery journey and exercise styles (am-disc-*, am-vw1o) */
+
+.journey {
+  max-width: 800px;
+  margin: 0 auto;
+  padding: 2rem 1rem;
+}
+
+.journey.in-preparation {
+  opacity: 0.95;
+}
+
+.subtitle {
+  font-size: 1.15rem;
+  color: var(--muted);
+  margin-top: 0.5rem;
+}
+
+.citation {
+  font-style: italic;
+  font-size: 0.9rem;
+  color: var(--muted);
+}
+
+.in-preparation-notice {
+  border-left: 3px solid var(--accent);
+  background: var(--wash);
+  padding: 1rem 1.25rem;
+  margin: 1.5rem 0;
+}
+
+/* Exercise parts */
+.exercise-part {
+  border: 1px solid var(--line);
+  background: var(--panel);
+  padding: 1.25rem;
+  margin: 1.5rem 0;
+  border-radius: 4px;
+}
+
+.exercise-prompt {
+  font-size: 1rem;
+  margin-bottom: 1rem;
+}
+
+.exercise-form {
+  display: flex;
+  flex-direction: column;
+  gap: 0.75rem;
+}
+
+.exercise-error {
+  color: var(--accent);
+  font-size: 0.9rem;
+}
+
+.exercise-verdict {
+  margin-top: 0.75rem;
+  padding: 0.75rem 1rem;
+  background: var(--wash);
+  border-radius: 4px;
+}
+
+.exercise-worked {
+  margin-top: 1rem;
+  border-top: 1px dashed var(--line);
+  padding-top: 0.75rem;
+}

@@ -189,7 +189,7 @@ export function SemanticEquation({
           return (
             <button
               type="button"
-              className={`secondary eq-chip eq-${n.kind}`}
+              className={n.kind === "term" ? "secondary eq-chip eq-term" : "secondary eq-chip eq-operation"}
               key={n.id}
               data-node-id={n.id}
               data-quantity-id={n.quantityId ?? undefined}

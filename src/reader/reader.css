@@ -2024,3 +2024,61 @@ html:is(
   text-decoration: underline dotted;
   cursor: help;
 }
+
+/* Reader actions, worked examples, and paper page navigation styles (am-vw1o) */
+.passage-action {
+  font-size: 0.85rem;
+}
+
+.obstacle-response {
+  margin-top: 0.5rem;
+  font-size: 0.9rem;
+}
+
+.worked-example {
+  border: 1px solid var(--line);
+  background: var(--wash);
+  padding: 1.25rem;
+  margin: 1.5rem 0;
+  border-radius: 4px;
+}
+
+.worked-example-question {
+  font-weight: 600;
+  margin-bottom: 0.75rem;
+}
+
+.worked-example-given,
+.worked-example-first-thought,
+.worked-example-limitation {
+  margin: 0.5rem 0;
+  font-size: 0.95rem;
+}
+
+.reader-entrance-section,
+.reading-version {
+  margin-bottom: 1.5rem;
+}
+
+.local-steps,
+.model-limits {
+  margin: 1rem 0;
+}
+
+.foundation-link {
+  display: inline-block;
+  margin: 0.5rem 0;
+  font-weight: 500;
+}
+
+.foundation-question {
+  font-size: 0.9rem;
+  color: var(--muted);
+}
+
+.citation-ref {
+  font-size: 0.85rem;
+  color: var(--accent);
+  text-decoration: none;
+}
+

@@ -349,3 +349,42 @@
   display: block;
   overflow-x: auto;
 }
+
+/* Semantic equation chips and role key */
+.equation-role-key {
+  font-size: 0.8rem;
+  color: var(--muted);
+  margin-bottom: 0.5rem;
+}
+
+.eq-term,
+.eq-operation {
+  /* Equation chip kind variants */
+}
+
+/* Derivation step component styles */
+.step-from,
+.step-to,
+.scope-from,
+.scope-to {
+  /* Derivation step scope hooks */
+}
+
+.bridge-link {
+  font-size: 0.85rem;
+  color: var(--accent);
+  text-decoration: underline;
+}
+
+/* Genealogy graph styles */
+.genealogy-node-title {
+  font-weight: 600;
+  font-size: 0.95rem;
+}
+
+.genealogy-edges,
+.genealogy-edge,
+.genealogy-nodes {
+  /* Genealogy graph elements */
+}
+

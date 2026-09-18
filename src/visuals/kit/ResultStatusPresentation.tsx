@@ -20,7 +20,6 @@ const STATUS_CLASS_MAP: Record<OutputStatus, string> = {
   divergent: "status-divergent",
   underdetermined: "status-underdetermined",
   "not-applicable": "status-not-applicable",
-  uncalculated: "status-uncalculated",
 };
 
 export function ResultStatusPresentation({

@@ -190,3 +190,25 @@
   font-family: var(--font-sans);
   font-size: 11px;
 }
+
+/* Result status note message & action */
+.result-status-message {
+  margin: 0.5rem 0;
+}
+
+.result-status-action {
+  margin-top: 0.5rem;
+}
+
+.result-status-action-button {
+  font-size: 0.85rem;
+}
+
+/* Planted test fixtures */
+.planted-recomputing-view,
+.recomputed-value,
+.accepted-value,
+.planted-lorentz-view {
+  /* Fixture test hooks */
+}
+

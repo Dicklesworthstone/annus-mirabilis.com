@@ -704,3 +704,20 @@
     font-weight: normal;
   }
 }
+
+.collision-entries-list {
+  list-style: none;
+  padding-left: 0;
+  margin: 0.5rem 0;
+}
+
+.collision-entry-summary {
+  font-size: 0.9rem;
+}
+
+.notation-client-root,
+.catalogue-container,
+.no-js-concordance-view {
+  margin: 1rem 0;
+}
+
