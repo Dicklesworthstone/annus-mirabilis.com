@@ -51,29 +51,80 @@ export function Shelf({
 
   return (
     <section
-      className={`discovery-shelf my-8 p-6 rounded-xl border border-stone-200 dark:border-stone-800 bg-stone-50/50 dark:bg-stone-900/50 ${className}`}
+      className={className || undefined}
+      style={{
+        margin: "2rem 0",
+        padding: "1.5rem",
+        borderRadius: "0.75rem",
+        border: "1px solid var(--line)",
+        background: "var(--wash)",
+      }}
       aria-label={title}
     >
-      <header className="mb-6">
-        <span className="text-xs font-mono uppercase tracking-wider text-amber-700 dark:text-amber-400 font-semibold block mb-1">
+      <header style={{ marginBottom: "1.5rem" }}>
+        <span
+          className="eyebrow"
+          style={{
+            fontSize: "0.75rem",
+            fontFamily: "var(--font-mono, monospace)",
+            textTransform: "uppercase",
+            letterSpacing: "0.05em",
+            color: "var(--accent)",
+            fontWeight: 600,
+            display: "block",
+            marginBottom: "0.25rem",
+          }}
+        >
           Historical Shelf · Reconstruction Constraints
         </span>
-        <h2 className="text-2xl font-serif font-bold text-stone-900 dark:text-stone-100">
+        <h2
+          style={{
+            fontSize: "1.5rem",
+            fontFamily: "var(--font-serif)",
+            fontWeight: "bold",
+            color: "var(--ink)",
+            margin: "0.25rem 0",
+          }}
+        >
           {title}
         </h2>
-        <p className="text-sm text-stone-600 dark:text-stone-300 mt-1">{description}</p>
+        <p style={{ fontSize: "0.875rem", color: "var(--muted)", margin: "0.25rem 0 0" }}>
+          {description}
+        </p>
 
         {/* Required Pedagogical Disclaimer Note */}
-        <div className="mt-3 text-xs text-stone-600 dark:text-stone-400 italic bg-amber-50/60 dark:bg-amber-950/30 p-2.5 rounded border border-amber-200/60 dark:border-amber-900/40">
-          <span className="font-semibold not-italic text-amber-800 dark:text-amber-300">
+        <div
+          style={{
+            marginTop: "0.75rem",
+            fontSize: "0.75rem",
+            color: "var(--ink)",
+            fontStyle: "italic",
+            background: "var(--panel)",
+            padding: "0.625rem",
+            borderRadius: "0.25rem",
+            border: "1px solid var(--line)",
+          }}
+        >
+          <span style={{ fontWeight: 600, fontStyle: "normal", color: "var(--accent)" }}>
             Editorial Note:{" "}
           </span>
           {SHELF_DISCLAIMER_NOTE}
         </div>
 
         {/* Status Legend */}
-        <div className="mt-4 pt-3 border-t border-stone-200 dark:border-stone-800 flex flex-wrap items-center gap-3 text-xs">
-          <span className="font-semibold text-stone-500 dark:text-stone-400">Legend:</span>
+        <div
+          style={{
+            marginTop: "1rem",
+            paddingTop: "0.75rem",
+            borderTop: "1px solid var(--line)",
+            display: "flex",
+            flexWrap: "wrap",
+            alignItems: "center",
+            gap: "0.75rem",
+            fontSize: "0.75rem",
+          }}
+        >
+          <span style={{ fontWeight: 600, color: "var(--muted)" }}>Legend:</span>
           <StatusLabel status="available" />
           <StatusLabel status="parallel-work" />
           <StatusLabel status="available" admittedImport={true} />
@@ -81,9 +132,26 @@ export function Shelf({
       </header>
 
       {/* Card List */}
-      <div className="space-y-3" data-testid="shelf-card-list">
+      <div
+        style={{
+          display: "flex",
+          flexDirection: "column",
+          gap: "0.75rem",
+        }}
+        data-testid="shelf-card-list"
+      >
         {shelfCards.length === 0 ? (
-          <p className="text-sm text-stone-500 italic p-4 text-center">No cards on this shelf.</p>
+          <p
+            style={{
+              fontSize: "0.875rem",
+              color: "var(--muted)",
+              fontStyle: "italic",
+              padding: "1rem",
+              textAlign: "center",
+            }}
+          >
+            No cards on this shelf.
+          </p>
         ) : (
           shelfCards.map((card) => {
             const cardBacklinks = backlinksMap?.get(card.id);
