@@ -16,25 +16,82 @@ export function SourceJump({ jump }: SourceJumpProps) {
       id={id}
       data-source-jump-id={id}
       data-target-anchor={targetAnchor}
-      className="source-jump p-5 rounded-xl border border-amber-800/60 bg-amber-950/20 text-stone-200 space-y-3"
+      style={{
+        padding: "1.25rem",
+        borderRadius: "0.75rem",
+        border: "1px solid var(--accent)",
+        background: "var(--wash)",
+        color: "var(--ink)",
+        display: "flex",
+        flexDirection: "column",
+        gap: "0.75rem",
+      }}
     >
-      <div className="flex flex-wrap items-center justify-between gap-2">
-        <span className="text-xs font-mono uppercase tracking-wider text-amber-400">
+      <div
+        style={{
+          display: "flex",
+          flexWrap: "wrap",
+          alignItems: "center",
+          justifyContent: "space-between",
+          gap: "0.5rem",
+        }}
+      >
+        <span
+          className="eyebrow"
+          style={{
+            fontSize: "0.75rem",
+            fontFamily: "var(--font-mono, monospace)",
+            textTransform: "uppercase",
+            letterSpacing: "0.05em",
+            color: "var(--accent)",
+            fontWeight: "bold",
+          }}
+        >
           Source Bridge · Where the Move Appears in 1905
         </span>
         {weavePredicateId && (
-          <span className="text-[11px] font-mono text-stone-400">
+          <span
+            style={{
+              fontSize: "0.6875rem",
+              fontFamily: "var(--font-mono, monospace)",
+              color: "var(--muted)",
+            }}
+          >
             predicate: {weavePredicateId}
           </span>
         )}
       </div>
 
-      <p className="text-sm font-serif text-stone-200">{pointer}</p>
+      <p
+        style={{
+          fontSize: "0.875rem",
+          fontFamily: "var(--font-serif)",
+          color: "var(--ink)",
+          margin: 0,
+          lineHeight: 1.5,
+        }}
+      >
+        {pointer}
+      </p>
 
-      <div className="pt-2">
+      <div style={{ paddingTop: "0.5rem" }}>
         <a
           href={targetHref}
-          className="inline-flex items-center gap-2 px-4 py-2 rounded-lg bg-amber-500/20 hover:bg-amber-500/30 text-amber-200 border border-amber-500/40 text-sm font-medium transition"
+          className="button"
+          style={{
+            display: "inline-flex",
+            alignItems: "center",
+            gap: "0.5rem",
+            padding: "0.5rem 1rem",
+            borderRadius: "0.5rem",
+            background: "var(--panel)",
+            color: "var(--accent)",
+            border: "1px solid var(--accent)",
+            fontSize: "0.875rem",
+            fontWeight: 500,
+            textDecoration: "none",
+            minHeight: "auto",
+          }}
         >
           <span>{label}</span>
           <span>→</span>
