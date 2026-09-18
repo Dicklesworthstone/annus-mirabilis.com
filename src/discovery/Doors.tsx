@@ -8,40 +8,144 @@ export function Doors({ doors }: DoorsProps) {
   const { frontDoor, sideDoors } = doors;
 
   return (
-    <section className="discovery-doors my-10 p-6 rounded-xl border border-stone-700 bg-stone-900/60 text-stone-200 space-y-6">
-      <header className="border-b border-stone-800 pb-3">
-        <span className="text-xs font-mono uppercase tracking-wider text-amber-400 block">
+    <section
+      style={{
+        margin: "2.5rem 0",
+        padding: "1.5rem",
+        borderRadius: "0.75rem",
+        border: "1px solid var(--line)",
+        background: "var(--panel)",
+        color: "var(--ink)",
+        display: "flex",
+        flexDirection: "column",
+        gap: "1.5rem",
+      }}
+    >
+      <header
+        style={{
+          borderBottom: "1px solid var(--line)",
+          paddingBottom: "0.75rem",
+        }}
+      >
+        <span
+          className="eyebrow"
+          style={{
+            fontSize: "0.75rem",
+            fontFamily: "var(--font-mono, monospace)",
+            textTransform: "uppercase",
+            letterSpacing: "0.05em",
+            color: "var(--accent)",
+            display: "block",
+          }}
+        >
           Entry Portals · Front & Side Doors
         </span>
-        <h3 className="text-xl font-serif font-bold text-stone-100 mt-1">
+        <h3
+          style={{
+            fontSize: "1.25rem",
+            fontFamily: "var(--font-serif, serif)",
+            fontWeight: "bold",
+            color: "var(--ink)",
+            marginTop: "0.25rem",
+            marginBottom: 0,
+          }}
+        >
           Multiple Routes, One Arrival Point
         </h3>
-        <p className="text-xs text-stone-400 mt-1">
+        <p
+          className="fine"
+          style={{
+            fontSize: "0.75rem",
+            color: "var(--muted)",
+            marginTop: "0.25rem",
+            marginBottom: 0,
+          }}
+        >
           All doors converge on equation:{" "}
-          <span className="font-mono text-amber-300 font-semibold">
+          <span
+            style={{
+              fontFamily: "var(--font-mono, monospace)",
+              color: "var(--accent)",
+              fontWeight: 600,
+            }}
+          >
             {frontDoor.arrivesAtEquationId}
           </span>
         </p>
       </header>
 
-      <div className="grid grid-cols-1 md:grid-cols-2 gap-4 text-xs">
+      <div
+        style={{
+          display: "grid",
+          gridTemplateColumns: "repeat(auto-fit, minmax(240px, 1fr))",
+          gap: "1rem",
+          fontSize: "0.75rem",
+        }}
+      >
         {/* Front Door */}
         <div
           id={frontDoor.id}
           data-door-id={frontDoor.id}
           data-door-type="front-door"
-          className="p-4 rounded-lg bg-stone-950/80 border border-amber-800/40 space-y-2"
+          style={{
+            padding: "1rem",
+            borderRadius: "0.5rem",
+            background: "var(--wash)",
+            border: "1px solid var(--line)",
+            display: "flex",
+            flexDirection: "column",
+            gap: "0.5rem",
+          }}
         >
-          <div className="flex items-center justify-between">
-            <span className="font-bold text-amber-400 uppercase tracking-wide">
+          <div
+            style={{
+              display: "flex",
+              alignItems: "center",
+              justifyContent: "space-between",
+            }}
+          >
+            <span
+              className="eyebrow"
+              style={{
+                fontWeight: "bold",
+                color: "var(--accent)",
+                textTransform: "uppercase",
+                letterSpacing: "0.05em",
+              }}
+            >
               Front Door · Primary Route
             </span>
-            <span className="font-mono text-[10px] text-stone-500">#{frontDoor.id}</span>
+            <span
+              style={{
+                fontFamily: "var(--font-mono, monospace)",
+                fontSize: "0.625rem",
+                color: "var(--muted)",
+              }}
+            >
+              #{frontDoor.id}
+            </span>
           </div>
-          <h4 className="text-sm font-serif font-bold text-stone-100">{frontDoor.title}</h4>
-          <p className="text-stone-400">
+          <h4
+            style={{
+              fontSize: "0.875rem",
+              fontFamily: "var(--font-serif, serif)",
+              fontWeight: "bold",
+              color: "var(--ink)",
+              margin: 0,
+            }}
+          >
+            {frontDoor.title}
+          </h4>
+          <p style={{ color: "var(--muted)", margin: 0 }}>
             Arrives at:{" "}
-            <span className="font-mono text-amber-300">{frontDoor.arrivesAtEquationId}</span>
+            <span
+              style={{
+                fontFamily: "var(--font-mono, monospace)",
+                color: "var(--accent)",
+              }}
+            >
+              {frontDoor.arrivesAtEquationId}
+            </span>
           </p>
         </div>
 
@@ -52,21 +156,75 @@ export function Doors({ doors }: DoorsProps) {
             id={sideDoor.id}
             data-door-id={sideDoor.id}
             data-door-type="side-door"
-            className="p-4 rounded-lg bg-stone-950/80 border border-stone-800 space-y-2"
+            style={{
+              padding: "1rem",
+              borderRadius: "0.5rem",
+              background: "var(--wash)",
+              border: "1px solid var(--line)",
+              display: "flex",
+              flexDirection: "column",
+              gap: "0.5rem",
+            }}
           >
-            <div className="flex items-center justify-between">
-              <span className="font-bold text-cyan-400 uppercase tracking-wide">
+            <div
+              style={{
+                display: "flex",
+                alignItems: "center",
+                justifyContent: "space-between",
+              }}
+            >
+              <span
+                className="eyebrow"
+                style={{
+                  fontWeight: "bold",
+                  color: "var(--accent)",
+                  textTransform: "uppercase",
+                  letterSpacing: "0.05em",
+                }}
+              >
                 Side Door · Alternative Perspective
               </span>
-              <span className="font-mono text-[10px] text-stone-500">#{sideDoor.id}</span>
+              <span
+                style={{
+                  fontFamily: "var(--font-mono, monospace)",
+                  fontSize: "0.625rem",
+                  color: "var(--muted)",
+                }}
+              >
+                #{sideDoor.id}
+              </span>
             </div>
-            <h4 className="text-sm font-serif font-bold text-stone-100">{sideDoor.title}</h4>
-            <p className="text-stone-400">
+            <h4
+              style={{
+                fontSize: "0.875rem",
+                fontFamily: "var(--font-serif, serif)",
+                fontWeight: "bold",
+                color: "var(--ink)",
+                margin: 0,
+              }}
+            >
+              {sideDoor.title}
+            </h4>
+            <p style={{ color: "var(--muted)", margin: 0 }}>
               Arrives at:{" "}
-              <span className="font-mono text-cyan-300">{sideDoor.arrivesAtEquationId}</span>
+              <span
+                style={{
+                  fontFamily: "var(--font-mono, monospace)",
+                  color: "var(--accent)",
+                }}
+              >
+                {sideDoor.arrivesAtEquationId}
+              </span>
             </p>
             {sideDoor.entryRecordId && (
-              <p className="text-[11px] text-stone-500 font-mono">
+              <p
+                style={{
+                  fontSize: "0.6875rem",
+                  color: "var(--muted)",
+                  fontFamily: "var(--font-mono, monospace)",
+                  margin: 0,
+                }}
+              >
                 entry: #{sideDoor.entryRecordId}
               </p>
             )}
