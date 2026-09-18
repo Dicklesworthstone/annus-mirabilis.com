@@ -13,6 +13,7 @@ import {
   RESERVED_SET_IDS,
 } from "../src/physics/reference/constants.ts";
 import { newRunIdentity } from "../src/testing/log/logger.ts";
+import { withinTolerance } from "../src/units/tolerance.ts";
 
 function requireEntry(set: ConstantSet, quantityId: string): ConstantEntry {
   const entry = set.entries.find((e) => e.quantityId === quantityId);
@@ -196,8 +197,7 @@ function main(): void {
     const alphaVal = alpha.correctedValue ?? alpha.value;
     const computedN = (beta.value / alphaVal) * ((8 * Math.PI * R.value) / L.value ** 3);
     const expectedN = 6.170486e23;
-    const diff = Math.abs(computedN - expectedN) / expectedN;
-    const ok = diff < 1e-6;
+    const ok = withinTolerance(computedN, expectedN, { relative: 1e-6 }).ok;
     logs.push({
       timestamp: new Date().toISOString(),
       suite: "constant-sets",
@@ -225,8 +225,8 @@ function main(): void {
     const PiVolts = ((R.value * beta.value * nu) / E.value) * 1e-8;
     const slope = ((R.value * beta.value) / E.value) * 1e-8;
     const ok =
-      Math.abs(PiVolts - 4.3385) / 4.3385 < 1e-4 &&
-      Math.abs(slope - 4.2121e-15) / 4.2121e-15 < 1e-4;
+      withinTolerance(PiVolts, 4.3385, { relative: 1e-4 }).ok &&
+      withinTolerance(slope, 4.2121e-15, { relative: 1e-4 }).ok;
     logs.push({
       timestamp: new Date().toISOString(),
       suite: "constant-sets",
@@ -253,7 +253,8 @@ function main(): void {
     const lambda = 1.9e-5;
     const lenardWork = (R.value * beta.value * L.value) / lambda;
     const starkWork = E.value * 10 * 1e8;
-    const ok = Math.abs(lenardWork - 6.3847e12) / 6.3847e12 < 1e-4 && starkWork === 9.6e12;
+    const ok =
+      withinTolerance(lenardWork, 6.3847e12, { relative: 1e-4 }).ok && starkWork === 9.6e12;
     logs.push({
       timestamp: new Date().toISOString(),
       suite: "constant-sets",
@@ -282,8 +283,8 @@ function main(): void {
     const LCgs = c.value * 100;
     const alphaCalc = (8 * Math.PI * hCgs) / LCgs ** 3;
     const ok =
-      Math.abs(hOverK - 4.86627e-11) / 4.86627e-11 < 1e-3 &&
-      Math.abs(alphaCalc - 6.097e-57) / 6.097e-57 < 1e-2;
+      withinTolerance(hOverK, 4.86627e-11, { relative: 1e-3 }).ok &&
+      withinTolerance(alphaCalc, 6.097e-57, { relative: 1e-2 }).ok;
     logs.push({
       timestamp: new Date().toISOString(),
       suite: "constant-sets",
@@ -311,8 +312,8 @@ function main(): void {
     const lambda1 = Math.sqrt(2 * D);
     const lambda60 = Math.sqrt(2 * D * 60);
     const ok =
-      Math.abs(lambda1 - 0.7947833e-6) / 0.7947833e-6 < 1e-5 &&
-      Math.abs(lambda60 - 6.156365e-6) / 6.156365e-6 < 1e-5;
+      withinTolerance(lambda1, 0.7947833e-6, { relative: 1e-5 }).ok &&
+      withinTolerance(lambda60, 6.156365e-6, { relative: 1e-5 }).ok;
     logs.push({
       timestamp: new Date().toISOString(),
       suite: "constant-sets",
@@ -342,7 +343,7 @@ function main(): void {
       right: { setId: modern.id, quantityId: "speedOfLightSquared", value: modernC2 },
       reason: "mass conversion comparison",
     });
-    const ratioOk = Math.abs(comp.ratio - 1.00138505) / 1.00138505 < 1e-7;
+    const ratioOk = withinTolerance(comp.ratio, 1.00138505, { relative: 1e-7 }).ok;
     const ok = massKg === 0.001 && ratioOk;
     logs.push({
       timestamp: new Date().toISOString(),

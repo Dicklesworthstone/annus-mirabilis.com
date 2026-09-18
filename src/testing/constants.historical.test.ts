@@ -21,6 +21,7 @@ import {
   getConstantSet,
   RESERVED_SET_IDS,
 } from "../physics/reference/constants.ts";
+import { withinTolerance } from "../units/tolerance.ts";
 
 function requireEntry(set: ReturnType<typeof getConstantSet>, quantityId: string): ConstantEntry {
   const entry = set.entries.find((e) => e.quantityId === quantityId);
@@ -134,7 +135,7 @@ describe("einstein-1905-light-quanta-printed", () => {
     const L = requireEntry(set, "speedOfLight");
     const alphaVal = alpha.correctedValue ?? alpha.value;
     const computedN = (beta.value / alphaVal) * ((8 * Math.PI * R.value) / L.value ** 3);
-    expect(Math.abs(computedN / 6.170486e23 - 1)).toBeLessThan(1e-6);
+    expect(withinTolerance(computedN, 6.170486e23, { relative: 1e-6 }).ok).toBe(true);
     expect(computedN.toExponential(2)).toBe("6.17e+23");
   });
 
@@ -145,9 +146,9 @@ describe("einstein-1905-light-quanta-printed", () => {
     const nu = 1.03e15;
     const PiAbvolt = (R.value * beta.value * nu) / E.value;
     const PiVolts = PiAbvolt * 1e-8;
-    expect(Math.abs(PiVolts - 4.3385) / 4.3385).toBeLessThan(1e-4);
+    expect(withinTolerance(PiVolts, 4.3385, { relative: 1e-4 }).ok).toBe(true);
     const slope = ((R.value * beta.value) / E.value) * 1e-8;
-    expect(Math.abs(slope - 4.2121e-15) / 4.2121e-15).toBeLessThan(1e-4);
+    expect(withinTolerance(slope, 4.2121e-15, { relative: 1e-4 }).ok).toBe(true);
   });
 
   test("section 8 documented alternative esu route reproduces 4.3057 V and 4.3087 V", () => {
@@ -159,8 +160,8 @@ describe("einstein-1905-light-quanta-printed", () => {
     const statvolts = (R.value * beta.value * nu) / (N.value * eps);
     const voltsExact = statvolts * 299.792458;
     const voltsHist = statvolts * 300;
-    expect(Math.abs(voltsExact - 4.3057) / 4.3057).toBeLessThan(1e-3);
-    expect(Math.abs(voltsHist - 4.3087) / 4.3087).toBeLessThan(1e-3);
+    expect(withinTolerance(voltsExact, 4.3057, { relative: 1e-3 }).ok).toBe(true);
+    expect(withinTolerance(voltsHist, 4.3087, { relative: 1e-3 }).ok).toBe(true);
   });
 
   test("section 9 relations reproduce 6.4e12 and 9.6e12 erg at printed precision", () => {
@@ -170,7 +171,7 @@ describe("einstein-1905-light-quanta-printed", () => {
     const E = requireEntry(set, "gramEquivalentCharge");
     const lambda = 1.9e-5;
     const lenardWork = (R.value * beta.value * L.value) / lambda;
-    expect(Math.abs(lenardWork - 6.3847e12) / 6.3847e12).toBeLessThan(1e-4);
+    expect(withinTolerance(lenardWork, 6.3847e12, { relative: 1e-4 }).ok).toBe(true);
     expect(lenardWork.toExponential(1)).toBe("6.4e+12");
     const starkWork = E.value * 10 * 1e8;
     expect(starkWork).toBe(9.6e12);
@@ -202,8 +203,8 @@ describe("einstein-1905-brownian-printed", () => {
     const D = (R.value * T.value) / N.value / (6 * Math.PI * eta.value * a.value);
     const lambda1 = Math.sqrt(2 * D);
     const lambda60 = Math.sqrt(2 * D * 60);
-    expect(Math.abs(lambda1 / 0.7947833e-6 - 1)).toBeLessThan(1e-6);
-    expect(Math.abs(lambda60 / 6.156365e-6 - 1)).toBeLessThan(1e-6);
+    expect(withinTolerance(lambda1, 0.7947833e-6, { relative: 1e-6 }).ok).toBe(true);
+    expect(withinTolerance(lambda60, 6.156365e-6, { relative: 1e-6 }).ok).toBe(true);
   });
 });
 
@@ -231,7 +232,7 @@ describe("einstein-1905-mass-energy-printed", () => {
       right: modernMassVal,
       reason: "factor comparison",
     });
-    expect(Math.abs(comp.ratio - 1.00138505) / 1.00138505).toBeLessThan(1e-7);
+    expect(withinTolerance(comp.ratio, 1.00138505, { relative: 1e-7 }).ok).toBe(true);
   });
 });
 
@@ -249,10 +250,10 @@ describe("planck-1900-1901-printed", () => {
     const hCgs = h.value * 1e7;
     const kCgs = k.value * 1e7;
     const hOverK = hCgs / kCgs;
-    expect(Math.abs(hOverK - 4.86627e-11) / 4.86627e-11).toBeLessThan(1e-3);
+    expect(withinTolerance(hOverK, 4.86627e-11, { relative: 1e-3 }).ok).toBe(true);
     const LCgs = c.value * 100;
     const alphaCalc = (8 * Math.PI * hCgs) / LCgs ** 3;
-    expect(Math.abs(alphaCalc - 6.097e-57) / 6.097e-57).toBeLessThan(1e-2);
+    expect(withinTolerance(alphaCalc, 6.097e-57, { relative: 1e-2 }).ok).toBe(true);
   });
 });
 

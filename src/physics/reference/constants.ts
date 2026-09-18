@@ -9,6 +9,8 @@
  * dissertation, 1911 correction) remain reserved for am-ref-viscosity-suspension-c9lp.
  */
 
+import { withinTolerance } from "../../units/tolerance.ts";
+
 // ---- Types ------------------------------------------------------------------------------------
 
 export type ConstantEntryKind =
@@ -1198,7 +1200,7 @@ export function checkPrintedConsistency(setOrId: string | ConstantSet): Consiste
       const alphaVal = alpha.correctedValue ?? alpha.value;
       const recomputedN = (beta.value / alphaVal) * ((8 * Math.PI * R.value) / L.value ** 3);
       const expectedN = 6.170486e23;
-      if (Math.abs(recomputedN - expectedN) / expectedN > 1e-6) {
+      if (!withinTolerance(recomputedN, expectedN, { relative: 1e-6 }).ok) {
         issues.push({
           quantityId: "avogadroConstant",
           code: "recomputed-mismatch",
@@ -1212,7 +1214,7 @@ export function checkPrintedConsistency(setOrId: string | ConstantSet): Consiste
       const nu = 1.03e15;
       const recomputedPiAbvolt = (R.value * beta.value * nu) / E.value;
       const recomputedPiVolts = recomputedPiAbvolt * 1e-8;
-      if (Math.abs(recomputedPiVolts - 4.3385) / 4.3385 > 1e-4) {
+      if (!withinTolerance(recomputedPiVolts, 4.3385, { relative: 1e-4 }).ok) {
         issues.push({
           quantityId: "stoppingPotentialMagnitude",
           code: "recomputed-mismatch",
@@ -1220,7 +1222,7 @@ export function checkPrintedConsistency(setOrId: string | ConstantSet): Consiste
         });
       }
       const slope = ((R.value * beta.value) / E.value) * 1e-8;
-      if (Math.abs(slope - 4.2121e-15) / 4.2121e-15 > 1e-4) {
+      if (!withinTolerance(slope, 4.2121e-15, { relative: 1e-4 }).ok) {
         issues.push({
           quantityId: "stoppingPotentialMagnitude",
           code: "recomputed-mismatch",
@@ -1232,7 +1234,7 @@ export function checkPrintedConsistency(setOrId: string | ConstantSet): Consiste
     if (R && beta && L && ionization) {
       const lambda = 1.9e-5; // cm
       const recomputedWork = (R.value * beta.value * L.value) / lambda;
-      if (Math.abs(recomputedWork - 6.3847e12) / 6.3847e12 > 1e-4) {
+      if (!withinTolerance(recomputedWork, 6.3847e12, { relative: 1e-4 }).ok) {
         issues.push({
           quantityId: "ionizationWorkPerGramEquivalent",
           code: "recomputed-mismatch",
@@ -1250,7 +1252,7 @@ export function checkPrintedConsistency(setOrId: string | ConstantSet): Consiste
     if (R && T && N && eta && a && lambda) {
       const D = (R.value * T.value) / N.value / (6 * Math.PI * eta.value * a.value);
       const lambda1 = Math.sqrt(2 * D);
-      if (Math.abs(lambda1 - 0.7947833e-6) / 0.7947833e-6 > 1e-5) {
+      if (!withinTolerance(lambda1, 0.7947833e-6, { relative: 1e-5 }).ok) {
         issues.push({
           quantityId: "rmsDisplacement1d",
           code: "recomputed-mismatch",
@@ -1258,7 +1260,7 @@ export function checkPrintedConsistency(setOrId: string | ConstantSet): Consiste
         });
       }
       const lambda60 = Math.sqrt(2 * D * 60);
-      if (Math.abs(lambda60 - 6.156365e-6) / 6.156365e-6 > 1e-5) {
+      if (!withinTolerance(lambda60, 6.156365e-6, { relative: 1e-5 }).ok) {
         issues.push({
           quantityId: "rmsDisplacement1d",
           code: "recomputed-mismatch",
@@ -1271,7 +1273,7 @@ export function checkPrintedConsistency(setOrId: string | ConstantSet): Consiste
     if (c2) {
       const energyJ = 9e13; // 9e20 erg in Joules
       const massKg = energyJ / c2.value; // c2 is 9e16 m2 s-2
-      if (Math.abs(massKg - 0.001) > 1e-9) {
+      if (!withinTolerance(massKg, 0.001, { absolute: 1e-9 }).ok) {
         issues.push({
           quantityId: "speedOfLightSquared",
           code: "recomputed-mismatch",
@@ -1287,7 +1289,7 @@ export function checkPrintedConsistency(setOrId: string | ConstantSet): Consiste
       const hCgs = h.value * 1e7;
       const kCgs = k.value * 1e7;
       const hOverK = hCgs / kCgs;
-      if (Math.abs(hOverK - 4.86627e-11) / 4.86627e-11 > 1e-3) {
+      if (!withinTolerance(hOverK, 4.86627e-11, { relative: 1e-3 }).ok) {
         issues.push({
           quantityId: "planckConstant",
           code: "recomputed-mismatch",
@@ -1296,7 +1298,7 @@ export function checkPrintedConsistency(setOrId: string | ConstantSet): Consiste
       }
       const L = c.value * 100; // 3e10 cm/s
       const alphaCalc = (8 * Math.PI * hCgs) / L ** 3;
-      if (Math.abs(alphaCalc - 6.097e-57) / 6.097e-57 > 1e-2) {
+      if (!withinTolerance(alphaCalc, 6.097e-57, { relative: 1e-2 }).ok) {
         issues.push({
           quantityId: "planckConstant",
           code: "recomputed-mismatch",
