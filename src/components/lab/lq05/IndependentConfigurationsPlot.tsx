@@ -21,7 +21,7 @@ export function IndependentConfigurationsPlot({
 
   return (
     <div
-      className="lq05-visual-wrap"
+      data-testid="lq05-visual-wrap"
       data-view={view}
       data-locked={locked ? "true" : "false"}
       style={{
@@ -35,14 +35,33 @@ export function IndependentConfigurationsPlot({
     >
       {/* 1. Main Spatial Container and Point Placement Visualization */}
       <div
-        className="lq05-container-box border border-border/80 rounded-xl p-4 bg-muted/20"
-        style={{ position: "relative" }}
+        style={{
+          position: "relative",
+          border: "1px solid var(--line)",
+          borderRadius: "0.75rem",
+          padding: "1rem",
+          background: "var(--panel)",
+        }}
       >
         <div style={{ display: "flex", justifyContent: "space-between", marginBottom: "0.5rem" }}>
-          <span className="text-xs font-mono font-medium text-foreground/80">
+          <span
+            style={{
+              fontSize: "0.75rem",
+              fontFamily: "var(--font-mono, monospace)",
+              fontWeight: 500,
+              color: "var(--ink)",
+            }}
+          >
             Total volume V₀ (Full box)
           </span>
-          <span className="text-xs font-mono font-semibold text-primary">
+          <span
+            style={{
+              fontSize: "0.75rem",
+              fontFamily: "var(--font-mono, monospace)",
+              fontWeight: 600,
+              color: "var(--accent)",
+            }}
+          >
             Subvolume V = {f.toFixed(3)} V₀ ({Math.round(f * 100)}%)
           </span>
         </div>
@@ -51,7 +70,12 @@ export function IndependentConfigurationsPlot({
           viewBox={`0 0 ${boxWidth} ${boxHeight}`}
           width="100%"
           height="180"
-          className="overflow-visible rounded-lg border border-border/60 bg-background"
+          style={{
+            overflow: "visible",
+            borderRadius: "0.5rem",
+            border: "1px solid var(--line)",
+            background: "var(--wash)",
+          }}
           role="img"
           aria-label={`Volume container with subvolume fraction ${f.toFixed(2)} and ${n} ${locked ? "locked" : "independent"} points`}
         >
@@ -67,8 +91,8 @@ export function IndependentConfigurationsPlot({
             y="0"
             width={subWidth}
             height={boxHeight}
-            fill="currentColor"
-            className="text-primary/15"
+            fill="var(--accent)"
+            opacity="0.15"
           />
           {/* Subvolume partition boundary */}
           <line
@@ -76,10 +100,9 @@ export function IndependentConfigurationsPlot({
             y1="0"
             x2={subWidth}
             y2={boxHeight}
-            stroke="currentColor"
+            stroke="var(--accent)"
             strokeWidth="2"
             strokeDasharray="4 2"
-            className="text-primary"
           />
 
           {/* Render points */}
@@ -115,8 +138,7 @@ export function IndependentConfigurationsPlot({
             textAnchor="middle"
             fontSize="11"
             fontWeight="bold"
-            fill="currentColor"
-            className="text-foreground/80"
+            fill="var(--ink)"
           >
             Subvolume V
           </text>
@@ -126,26 +148,36 @@ export function IndependentConfigurationsPlot({
               y={boxHeight - 12}
               textAnchor="middle"
               fontSize="11"
-              fill="currentColor"
-              className="text-muted-foreground"
+              fill="var(--muted)"
             >
               V₀ − V
             </text>
           )}
         </svg>
 
-        <div className="flex justify-between items-center mt-2 text-xs text-muted-foreground">
+        <div
+          style={{
+            display: "flex",
+            justifyContent: "space-between",
+            alignItems: "center",
+            marginTop: "0.5rem",
+            fontSize: "0.75rem",
+            color: "var(--muted)",
+          }}
+        >
           <span>
             Mode:{" "}
-            <strong>{locked ? "Locked Cluster (rigidly coupled)" : "Independent Points"}</strong>
+            <strong style={{ color: "var(--ink)" }}>
+              {locked ? "Locked Cluster (rigidly coupled)" : "Independent Points"}
+            </strong>
           </span>
           <span>
             {locked ? (
-              <span className="text-amber-600 dark:text-amber-400 font-semibold">
+              <span style={{ color: "var(--accent)", fontWeight: 600 }}>
                 W_locked = f = {lockedRes.value.toFixed(4)}
               </span>
             ) : (
-              <span className="text-emerald-600 dark:text-emerald-400 font-semibold">
+              <span style={{ color: "var(--ink)", fontWeight: 600 }}>
                 W = fⁿ = ({f.toFixed(2)})^{n} ={" "}
                 {independentProbability.linearRepresentable
                   ? independentProbability.value.toExponential(4)
@@ -157,12 +189,45 @@ export function IndependentConfigurationsPlot({
       </div>
 
       {/* 2. Binomial Distribution Chart P(k) */}
-      <div className="border border-border/80 rounded-xl p-4 bg-muted/10">
-        <div className="flex justify-between items-center mb-2">
-          <h4 className="text-xs font-mono uppercase tracking-wide text-foreground/80 font-bold">
+      <div
+        style={{
+          border: "1px solid var(--line)",
+          borderRadius: "0.75rem",
+          padding: "1rem",
+          background: "var(--panel)",
+        }}
+      >
+        <div
+          style={{
+            display: "flex",
+            justifyContent: "space-between",
+            alignItems: "center",
+            marginBottom: "0.5rem",
+          }}
+        >
+          <h4
+            className="eyebrow"
+            style={{
+              fontSize: "0.75rem",
+              fontFamily: "var(--font-mono, monospace)",
+              textTransform: "uppercase",
+              letterSpacing: "0.05em",
+              color: "var(--ink)",
+              fontWeight: "bold",
+              margin: 0,
+            }}
+          >
             Binomial distribution: Points inside subvolume P(k)
           </h4>
-          <span className="text-xs text-muted-foreground">k = 0 .. {n}</span>
+          <span
+            style={{
+              fontSize: "0.75rem",
+              color: "var(--muted)",
+              fontFamily: "var(--font-mono, monospace)",
+            }}
+          >
+            k = 0 .. {n}
+          </span>
         </div>
 
         <div
@@ -198,29 +263,54 @@ export function IndependentConfigurationsPlot({
                     borderRadius: "2px 2px 0 0",
                   }}
                 />
-                <span style={{ fontSize: "9px", fontFamily: "monospace", marginTop: "2px" }}>
+                <span
+                  style={{
+                    fontSize: "9px",
+                    fontFamily: "var(--font-mono, monospace)",
+                    marginTop: "2px",
+                    color: "var(--muted)",
+                  }}
+                >
                   {term.k}
                 </span>
               </div>
             );
           })}
         </div>
-        <p className="text-[11px] text-muted-foreground mt-2">
+        <p
+          style={{
+            fontSize: "0.6875rem",
+            color: "var(--muted)",
+            marginTop: "0.5rem",
+            marginBottom: 0,
+          }}
+        >
           Green bar at k = {n} represents all points inside: W = P({n}) = f^{n}.
         </p>
       </div>
 
       {/* 3. View-specific diagnostics */}
       {view === "enumeration" && enumeration.status === "value" && (
-        <div className="p-3 bg-muted/20 border border-border/70 rounded-lg text-xs">
+        <div
+          style={{
+            padding: "0.75rem",
+            background: "var(--wash)",
+            border: "1px solid var(--line)",
+            borderRadius: "0.5rem",
+            fontSize: "0.75rem",
+            color: "var(--ink)",
+          }}
+        >
           <strong>Microstate enumeration:</strong> Total microstates:{" "}
-          <span className="font-mono font-bold">
+          <span style={{ fontFamily: "var(--font-mono, monospace)", fontWeight: "bold" }}>
             {enumeration.totalConfigurations.toLocaleString()}
           </span>
           . Favorable:{" "}
-          <span className="font-mono font-bold">{enumeration.favorableConfigurations}</span>. Exact
-          ratio:{" "}
-          <span className="font-mono font-bold">
+          <span style={{ fontFamily: "var(--font-mono, monospace)", fontWeight: "bold" }}>
+            {enumeration.favorableConfigurations}
+          </span>
+          . Exact ratio:{" "}
+          <span style={{ fontFamily: "var(--font-mono, monospace)", fontWeight: "bold" }}>
             1 / {enumeration.totalConfigurations.toLocaleString()}
           </span>
           .
@@ -228,21 +318,43 @@ export function IndependentConfigurationsPlot({
       )}
 
       {view === "sampling" && (
-        <div className="p-3 bg-muted/20 border border-border/70 rounded-lg text-xs">
+        <div
+          style={{
+            padding: "0.75rem",
+            background: "var(--wash)",
+            border: "1px solid var(--line)",
+            borderRadius: "0.5rem",
+            fontSize: "0.75rem",
+            color: "var(--ink)",
+          }}
+        >
           <strong>Monte Carlo Philox sampling:</strong> {sampling.successCount} successes out of{" "}
           {sampling.trials.toLocaleString()} trials ({sampling.sampleFraction.toExponential(4)}).
-          Seed: <code>{sampling.seed}</code>.
+          Seed: <code style={{ fontFamily: "var(--font-mono, monospace)" }}>{sampling.seed}</code>.
         </div>
       )}
 
       {view === "logarithmic" && (
-        <div className="p-3 bg-muted/20 border border-border/70 rounded-lg text-xs">
+        <div
+          style={{
+            padding: "0.75rem",
+            background: "var(--wash)",
+            border: "1px solid var(--line)",
+            borderRadius: "0.5rem",
+            fontSize: "0.75rem",
+            color: "var(--ink)",
+          }}
+        >
           <strong>Logarithmic Boltzmann scaling:</strong> log₁₀ W ={" "}
-          <span className="font-mono font-bold">{independentProbability.log10W.toFixed(4)}</span>,
-          ln W ={" "}
-          <span className="font-mono font-bold">{independentProbability.lnW.toFixed(4)}</span>,
-          ΔS/k_B ={" "}
-          <span className="font-mono font-bold">
+          <span style={{ fontFamily: "var(--font-mono, monospace)", fontWeight: "bold" }}>
+            {independentProbability.log10W.toFixed(4)}
+          </span>
+          , ln W ={" "}
+          <span style={{ fontFamily: "var(--font-mono, monospace)", fontWeight: "bold" }}>
+            {independentProbability.lnW.toFixed(4)}
+          </span>
+          , ΔS/k_B ={" "}
+          <span style={{ fontFamily: "var(--font-mono, monospace)", fontWeight: "bold" }}>
             {independentProbability.deltaSOverKb.toFixed(4)}
           </span>
           .
