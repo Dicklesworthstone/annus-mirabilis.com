@@ -13,16 +13,21 @@
 
 import type { DomainKind } from "../../experiments/results/types.ts";
 import { type ConstantSet, constantValue, getConstantSet } from "./constants.ts";
+import { regimeRelativeErrors } from "./radiation/spectra.ts";
 
 export type PhotoelectricOk<T> = Readonly<{
   status: "value";
   value: T;
   unit?: string | undefined;
+  note?: string | undefined;
+  reason?: string | undefined;
+  quantityId?: string | undefined;
 }>;
 
 export type PhotoelectricNotApplicable = Readonly<{
   status: "not-applicable";
   reason: string;
+  quantityId?: string | undefined;
 }>;
 
 export type PhotoelectricOutsideDomain = Readonly<{
@@ -30,6 +35,7 @@ export type PhotoelectricOutsideDomain = Readonly<{
   condition: string;
   domainKind: DomainKind;
   reason: string;
+  quantityId?: string | undefined;
 }>;
 
 export type PhotoelectricUnderdetermined = Readonly<{
@@ -39,6 +45,9 @@ export type PhotoelectricUnderdetermined = Readonly<{
   upperBound?: number | undefined;
   unit?: string | undefined;
   citation?: string | undefined;
+  reason?: string | undefined;
+  bounds?: readonly [number, number] | undefined;
+  quantityId?: string | undefined;
 }>;
 
 export type PhotoelectricResult<T> =
@@ -47,26 +56,58 @@ export type PhotoelectricResult<T> =
   | PhotoelectricOutsideDomain
   | PhotoelectricUnderdetermined;
 
-export function ok<T>(value: T, unit?: string): PhotoelectricOk<T> {
-  return Object.freeze({ status: "value", value, unit });
+export function ok<T>(
+  value: T,
+  unit?: string,
+  extra?: Readonly<{ note?: string; reason?: string; quantityId?: string }>,
+): PhotoelectricOk<T> {
+  return Object.freeze({
+    status: "value",
+    value,
+    ...(unit !== undefined ? { unit } : {}),
+    ...(extra?.note !== undefined ? { note: extra.note } : {}),
+    ...(extra?.reason !== undefined ? { reason: extra.reason } : {}),
+    ...(extra?.quantityId !== undefined ? { quantityId: extra.quantityId } : {}),
+  });
 }
 
-export function notApplicable(reason: string): PhotoelectricNotApplicable {
-  return Object.freeze({ status: "not-applicable", reason });
+export function notApplicable(
+  reason: string,
+  extra?: Readonly<{ quantityId?: string }>,
+): PhotoelectricNotApplicable {
+  return Object.freeze({
+    status: "not-applicable",
+    reason,
+    ...(extra?.quantityId !== undefined ? { quantityId: extra.quantityId } : {}),
+  });
 }
 
 export function outsideDomain(
   condition: string,
   domainKind: DomainKind,
   reason: string,
+  extra?: Readonly<{ quantityId?: string }>,
 ): PhotoelectricOutsideDomain {
-  return Object.freeze({ status: "outside-domain", condition, domainKind, reason });
+  return Object.freeze({
+    status: "outside-domain",
+    condition,
+    domainKind,
+    reason,
+    ...(extra?.quantityId !== undefined ? { quantityId: extra.quantityId } : {}),
+  });
 }
 
 export function underdetermined(
   compatibleFamily: string,
   neededInformation: readonly string[],
-  extra?: Readonly<{ upperBound?: number; unit?: string; citation?: string }>,
+  extra?: Readonly<{
+    upperBound?: number;
+    unit?: string;
+    citation?: string;
+    reason?: string;
+    bounds?: readonly [number, number];
+    quantityId?: string;
+  }>,
 ): PhotoelectricUnderdetermined {
   return Object.freeze({
     status: "underdetermined",
@@ -75,6 +116,9 @@ export function underdetermined(
     ...(extra?.upperBound !== undefined ? { upperBound: extra.upperBound } : {}),
     ...(extra?.unit !== undefined ? { unit: extra.unit } : {}),
     ...(extra?.citation !== undefined ? { citation: extra.citation } : {}),
+    ...(extra?.reason !== undefined ? { reason: extra.reason } : {}),
+    ...(extra?.bounds !== undefined ? { bounds: extra.bounds } : {}),
+    ...(extra?.quantityId !== undefined ? { quantityId: extra.quantityId } : {}),
   });
 }
 
@@ -162,8 +206,15 @@ export function kMax(
   nu: number,
   workFunctionJoules: number,
   set?: ConstantSet,
-  transferModel: EnergyTransferMode = "complete",
+  transferModelOrOptions:
+    | EnergyTransferMode
+    | Readonly<{ transferModel?: EnergyTransferMode }> = "complete",
 ): PhotoelectricResult<number> {
+  const transferModel: EnergyTransferMode =
+    typeof transferModelOrOptions === "object" && transferModelOrOptions !== null
+      ? transferModelOrOptions.transferModel ?? "complete"
+      : transferModelOrOptions;
+
   if (!Number.isFinite(nu)) {
     return outsideDomain("nonfinite-frequency", "input", "Frequency must be a finite number.");
   }
@@ -189,7 +240,14 @@ export function kMax(
   const eq = h * nu;
 
   if (eq < workFunctionJoules) {
-    return notApplicable("no emitted electron in this model");
+    return notApplicable("no emitted electron in this model", { quantityId: "maxKineticEnergy" });
+  }
+
+  if (eq === workFunctionJoules) {
+    return ok(0, "J", {
+      note: "zero maximum kinetic energy does not guarantee a measurable current",
+      quantityId: "maxKineticEnergy",
+    });
   }
 
   if (transferModel === "partial") {
@@ -197,10 +255,14 @@ export function kMax(
       upperBound: eq - workFunctionJoules,
       unit: "J",
       citation: "Pi * E + P' <= R * beta * nu",
+      reason:
+        "a quantum may give only part of its energy to an electron; the printed relation is an upper bound",
+      bounds: [0, eq - workFunctionJoules],
+      quantityId: "maxKineticEnergy",
     });
   }
 
-  return ok(eq - workFunctionJoules, "J");
+  return ok(eq - workFunctionJoules, "J", { quantityId: "maxKineticEnergy" });
 }
 
 /**
@@ -210,18 +272,35 @@ export function kMaxEv(
   nu: number,
   workFunctionEv: number,
   set?: ConstantSet,
-  transferModel: EnergyTransferMode = "complete",
+  transferModelOrOptions:
+    | EnergyTransferMode
+    | Readonly<{ transferModel?: EnergyTransferMode }> = "complete",
 ): PhotoelectricResult<number> {
   const e = getElementaryCharge(set);
-  const res = kMax(nu, workFunctionEv * e, set, transferModel);
+  const res = kMax(nu, workFunctionEv * e, set, transferModelOrOptions);
   if (res.status === "underdetermined") {
-    const extra: { upperBound?: number; unit?: string; citation?: string } = { unit: "eV" };
+    const extra: {
+      upperBound?: number;
+      unit?: string;
+      citation?: string;
+      reason?: string;
+      bounds?: readonly [number, number];
+      quantityId?: string;
+    } = {
+      unit: "eV",
+      quantityId: "maxKineticEnergy",
+    };
     if (res.upperBound !== undefined) extra.upperBound = res.upperBound / e;
     if (res.citation !== undefined) extra.citation = res.citation;
+    if (res.reason !== undefined) extra.reason = res.reason;
+    if (res.bounds !== undefined) extra.bounds = [res.bounds[0] / e, res.bounds[1] / e];
     return underdetermined(res.compatibleFamily, res.neededInformation, extra);
   }
   if (res.status !== "value") return res;
-  return ok(res.value / e, "eV");
+  return ok(res.value / e, "eV", {
+    ...(res.note ? { note: res.note } : {}),
+    quantityId: "maxKineticEnergy",
+  });
 }
 
 /**
@@ -236,19 +315,40 @@ export function stoppingPotentialMagnitude(
   nu: number,
   workFunctionJoules: number,
   set?: ConstantSet,
-  transferModel: EnergyTransferMode = "complete",
+  transferModelOrOptions:
+    | EnergyTransferMode
+    | Readonly<{ transferModel?: EnergyTransferMode }> = "complete",
 ): PhotoelectricResult<number> {
+  const transferModel: EnergyTransferMode =
+    typeof transferModelOrOptions === "object" && transferModelOrOptions !== null
+      ? transferModelOrOptions.transferModel ?? "complete"
+      : transferModelOrOptions;
   const kResult = kMax(nu, workFunctionJoules, set, transferModel);
   if (kResult.status === "underdetermined") {
     const e = getElementaryCharge(set);
-    const extra: { upperBound?: number; unit?: string; citation?: string } = { unit: "V" };
+    const extra: {
+      upperBound?: number;
+      unit?: string;
+      citation?: string;
+      reason?: string;
+      bounds?: readonly [number, number];
+      quantityId?: string;
+    } = {
+      unit: "V",
+      quantityId: "stoppingPotentialMagnitude",
+    };
     if (kResult.upperBound !== undefined) extra.upperBound = kResult.upperBound / e;
     if (kResult.citation !== undefined) extra.citation = kResult.citation;
+    if (kResult.reason !== undefined) extra.reason = kResult.reason;
+    if (kResult.bounds !== undefined) extra.bounds = [kResult.bounds[0] / e, kResult.bounds[1] / e];
     return underdetermined(kResult.compatibleFamily, kResult.neededInformation, extra);
   }
   if (kResult.status !== "value") return kResult;
   const e = getElementaryCharge(set);
-  return ok(kResult.value / e, "V");
+  return ok(kResult.value / e, "V", {
+    ...(kResult.note ? { note: kResult.note } : {}),
+    quantityId: "stoppingPotentialMagnitude",
+  });
 }
 
 /**
@@ -258,10 +358,12 @@ export function stoppingPotentialFromEv(
   nu: number,
   workFunctionEv: number,
   set?: ConstantSet,
-  transferModel: EnergyTransferMode = "complete",
+  transferModelOrOptions:
+    | EnergyTransferMode
+    | Readonly<{ transferModel?: EnergyTransferMode }> = "complete",
 ): PhotoelectricResult<number> {
   const e = getElementaryCharge(set);
-  return stoppingPotentialMagnitude(nu, workFunctionEv * e, set, transferModel);
+  return stoppingPotentialMagnitude(nu, workFunctionEv * e, set, transferModelOrOptions);
 }
 
 /**
@@ -338,40 +440,92 @@ export function quantumRate(
  *
  * When nu < nu_0, emission rate is 0.
  */
+export type EmissionRateOptions = Readonly<{
+  P?: number | undefined;
+  incidentPowerWatts?: number | undefined;
+  nu: number;
+  Phi?: number | undefined;
+  workFunctionJoules?: number | undefined;
+  etaQ?: number | undefined;
+  quantumEfficiency?: number | undefined;
+}>;
+
 export function emissionRate(
-  incidentPowerWatts: number,
-  nu: number,
-  workFunctionJoules: number,
-  quantumEfficiency: number,
+  powerOrOptions: number | EmissionRateOptions,
+  nuOrSet?: number | ConstantSet,
+  workFunctionJoules?: number,
+  quantumEfficiency?: number,
   set?: ConstantSet,
 ): PhotoelectricResult<number> {
-  if (!Number.isFinite(quantumEfficiency)) {
+  let P: number;
+  let nu: number;
+  let Phi: number;
+  let etaQ: number;
+  let activeSet: ConstantSet | undefined = set;
+
+  if (typeof powerOrOptions === "object" && powerOrOptions !== null) {
+    const opts = powerOrOptions;
+    P = opts.P ?? opts.incidentPowerWatts ?? 0;
+    nu = opts.nu;
+    Phi = opts.Phi ?? opts.workFunctionJoules ?? 0;
+    etaQ = opts.etaQ ?? opts.quantumEfficiency ?? 1.0;
+    if (nuOrSet && typeof nuOrSet === "object" && "entries" in nuOrSet) {
+      activeSet = nuOrSet as ConstantSet;
+    }
+  } else {
+    P = powerOrOptions;
+    nu = nuOrSet as number;
+    Phi = workFunctionJoules ?? 0;
+    etaQ = quantumEfficiency ?? 1.0;
+  }
+
+  if (!Number.isFinite(etaQ)) {
     return outsideDomain(
       "nonfinite-quantum-efficiency",
       "input",
       "Quantum efficiency must be a finite number.",
+      { quantityId: "emissionRate" },
     );
   }
-  if (quantumEfficiency < 0 || quantumEfficiency > 1) {
+  if (etaQ < 0 || etaQ > 1) {
     return outsideDomain(
       "invalid-quantum-efficiency",
       "model",
       "Quantum efficiency must be in the range [0, 1].",
+      { quantityId: "emissionRate" },
     );
   }
 
-  const qRateRes = quantumRate(incidentPowerWatts, nu, set);
+  const qRateRes = quantumRate(P, nu, activeSet);
   if (qRateRes.status !== "value") return qRateRes;
 
-  const h = getPlanckConstant(set);
-  if (h * nu < workFunctionJoules) {
-    return ok(0, "s^-1");
+  const h = getPlanckConstant(activeSet);
+  if (h * nu < Phi) {
+    return ok(0, "s^-1", {
+      reason: "frequency is below threshold (single-quantum model forces zero emission)",
+      quantityId: "emissionRate",
+    });
   }
 
-  return ok(quantumEfficiency * qRateRes.value, "s^-1");
+  return ok(etaQ * qRateRes.value, "s^-1", { quantityId: "emissionRate" });
 }
 
-export type ElectronDistributionModel = "none" | "all-at-kmax" | "uniform";
+export type ElectronDistributionModel = "none" | "all-at-kmax" | "uniform" | "uniform-0-kmax";
+
+export type PhotocurrentOptions = Readonly<{
+  P?: number | undefined;
+  incidentPowerWatts?: number | undefined;
+  nu: number;
+  Phi?: number | undefined;
+  workFunctionJoules?: number | undefined;
+  etaQ?: number | undefined;
+  quantumEfficiency?: number | undefined;
+  collectionFraction?: number | undefined;
+  collectorPotential?: number | undefined;
+  collectorPotentialVolts?: number | undefined;
+  distributionModel?: ElectronDistributionModel | undefined;
+  transferModel?: EnergyTransferMode | undefined;
+}>;
 
 /**
  * Collector photocurrent I(U_c) in Amperes.
@@ -379,23 +533,58 @@ export type ElectronDistributionModel = "none" | "all-at-kmax" | "uniform";
  * Determined regimes:
  * - When nu < nu_0: I = 0 for all U_c.
  * - When nu >= nu_0:
- *   - For U_c >= 0 (accelerating / neutral): saturation current I_sat = e * N_dot_e.
+ *   - For U_c >= 0 (accelerating / neutral): saturation current I_sat = e * f_coll * N_dot_e.
  *   - For U_c <= -V_s (full retarding): I = 0.
- *   - For -V_s < U_c < 0:
+ *   - For -V_s < U_c < 0 under complete transfer:
  *     - If distributionModel === "all-at-kmax": I = I_sat.
- *     - If distributionModel === "uniform": I = I_sat * (1 - e*|U_c|/K_max).
- *     - If distributionModel === "none": underdetermined.
+ *     - If distributionModel === "uniform" or "uniform-0-kmax": I = I_sat * (1 - e*|U_c|/K_max).
+ *     - If distributionModel === "none": underdetermined with bounds payload [0, I_sat].
+ *   - Under partial transfer:
+ *     - For U_c >= 0: I = I_sat.
+ *     - For U_c <= -V_s,max: I = 0.
+ *     - For -V_s,max < U_c < 0: underdetermined with bounds payload [0, I_sat] for every distribution model.
  */
 export function photocurrent(
-  incidentPowerWatts: number,
-  nu: number,
-  workFunctionJoules: number,
-  quantumEfficiency: number,
-  collectorPotentialVolts: number,
+  powerOrOptions: number | PhotocurrentOptions,
+  nuOrSet?: number | ConstantSet,
+  workFunctionJoules?: number,
+  quantumEfficiency?: number,
+  collectorPotentialVolts?: number,
   set?: ConstantSet,
   distributionModel: ElectronDistributionModel = "none",
 ): PhotoelectricResult<number> {
-  if (!Number.isFinite(collectorPotentialVolts)) {
+  let P: number;
+  let nu: number;
+  let Phi: number;
+  let etaQ: number;
+  let fColl: number = 1.0;
+  let Uc: number;
+  let model: ElectronDistributionModel = distributionModel;
+  let transfer: EnergyTransferMode = "complete";
+  let activeSet: ConstantSet | undefined = set;
+
+  if (typeof powerOrOptions === "object" && powerOrOptions !== null) {
+    const opts = powerOrOptions;
+    P = opts.P ?? opts.incidentPowerWatts ?? 0;
+    nu = opts.nu;
+    Phi = opts.Phi ?? opts.workFunctionJoules ?? 0;
+    etaQ = opts.etaQ ?? opts.quantumEfficiency ?? 1.0;
+    fColl = opts.collectionFraction ?? 1.0;
+    Uc = opts.collectorPotential ?? opts.collectorPotentialVolts ?? 0;
+    model = opts.distributionModel ?? "none";
+    transfer = opts.transferModel ?? "complete";
+    if (nuOrSet && typeof nuOrSet === "object" && "entries" in nuOrSet) {
+      activeSet = nuOrSet as ConstantSet;
+    }
+  } else {
+    P = powerOrOptions;
+    nu = nuOrSet as number;
+    Phi = workFunctionJoules ?? 0;
+    etaQ = quantumEfficiency ?? 1.0;
+    Uc = collectorPotentialVolts ?? 0;
+  }
+
+  if (!Number.isFinite(Uc)) {
     return outsideDomain(
       "nonfinite-collector-potential",
       "input",
@@ -403,43 +592,64 @@ export function photocurrent(
     );
   }
 
-  const eRateRes = emissionRate(incidentPowerWatts, nu, workFunctionJoules, quantumEfficiency, set);
+  const eRateRes = emissionRate(P, nu, Phi, etaQ, activeSet);
   if (eRateRes.status !== "value") return eRateRes;
 
-  const e = getElementaryCharge(set);
-  const iSat = e * eRateRes.value;
+  const e = getElementaryCharge(activeSet);
+  const iSat = e * fColl * eRateRes.value;
 
   if (eRateRes.value === 0) {
     return ok(0, "A");
   }
 
-  const vsRes = stoppingPotentialMagnitude(nu, workFunctionJoules, set);
-  if (vsRes.status !== "value") {
-    return ok(0, "A");
-  }
-  const vs = vsRes.value;
-
-  if (collectorPotentialVolts >= 0) {
-    return ok(iSat, "A");
-  }
-
-  if (collectorPotentialVolts <= -vs) {
+  const h = getPlanckConstant(activeSet);
+  const eq = h * nu;
+  if (eq < Phi) {
     return ok(0, "A");
   }
 
-  if (distributionModel === "all-at-kmax") {
+  const vsMax = (eq - Phi) / e;
+
+  if (Uc >= 0) {
     return ok(iSat, "A");
   }
 
-  if (distributionModel === "uniform") {
-    const fraction = 1 - Math.abs(collectorPotentialVolts) / vs;
+  if (transfer === "partial") {
+    if (Uc <= -vsMax) {
+      return ok(0, "A");
+    }
+    return underdetermined(
+      "retarded-photoelectron-current-partial-transfer",
+      ["single-quantum-transfer-fraction", "electron-energy-distribution-in-emitter"],
+      {
+        bounds: [0, iSat],
+        reason: "no electron energy distribution model declared",
+      },
+    );
+  }
+
+  // Complete transfer
+  if (Uc <= -vsMax) {
+    return ok(0, "A");
+  }
+
+  if (model === "all-at-kmax") {
+    return ok(iSat, "A");
+  }
+
+  if (model === "uniform" || model === "uniform-0-kmax") {
+    const fraction = 1 - Math.abs(Uc) / vsMax;
     return ok(iSat * Math.max(0, Math.min(1, fraction)), "A");
   }
 
-  return underdetermined("retarded-photoelectron-current", [
-    "electron-energy-distribution-in-emitter",
-    "collector-geometry",
-  ]);
+  return underdetermined(
+    "retarded-photoelectron-current",
+    ["electron-energy-distribution-in-emitter", "collector-geometry"],
+    {
+      bounds: [0, iSat],
+      reason: "no electron energy distribution model declared",
+    },
+  );
 }
 
 /**
@@ -489,6 +699,8 @@ export type StoppingLinePoints = readonly StoppingPoint[] &
     slope: number;
     intercept: number;
     thresholdFrequency: number;
+    printedSlopeVsPerHz: number;
+    historicalSlopeLabel: string;
   }>;
 
 /**
@@ -498,19 +710,41 @@ export type StoppingLinePoints = readonly StoppingPoint[] &
  */
 export function stoppingLine(
   workFunctionJoules: number,
-  nuRange: Readonly<{ min: number; max: number; steps: number }>,
-  set?: ConstantSet,
+  nuRangeOrSet?: ConstantSet | Readonly<{ min: number; max: number; steps: number }>,
+  setMaybe?: ConstantSet,
 ): StoppingLinePoints {
+  let set: ConstantSet | undefined;
+  let nuRange: Readonly<{ min: number; max: number; steps: number }>;
+
+  if (nuRangeOrSet && typeof nuRangeOrSet === "object" && "entries" in nuRangeOrSet) {
+    set = nuRangeOrSet as ConstantSet;
+    nuRange = { min: 4e14, max: 1e15, steps: 11 };
+  } else if (nuRangeOrSet && typeof nuRangeOrSet === "object" && "min" in nuRangeOrSet) {
+    nuRange = nuRangeOrSet as Readonly<{ min: number; max: number; steps: number }>;
+    set = setMaybe;
+  } else {
+    nuRange = { min: 4e14, max: 1e15, steps: 11 };
+    set = setMaybe;
+  }
+
   const h = getPlanckConstant(set);
   const e = getElementaryCharge(set);
   const slope = h / e;
   const intercept = -workFunctionJoules / e;
+  const printedSlopeVsPerHz = (8.31e7 * 4.866e-11 / 9.6e3) * 1e-8; // 4.21213125e-15 V s
+  const historicalSlopeLabel = "historical";
 
   const threshRes = thresholdFrequency(workFunctionJoules, set);
   if (threshRes.status !== "value") {
     const empty: StoppingPoint[] = [];
     return Object.freeze(
-      Object.assign(empty, { slope, intercept, thresholdFrequency: 0 }),
+      Object.assign(empty, {
+        slope,
+        intercept,
+        thresholdFrequency: 0,
+        printedSlopeVsPerHz,
+        historicalSlopeLabel,
+      }),
     ) as unknown as StoppingLinePoints;
   }
   const nu0 = threshRes.value;
@@ -521,7 +755,13 @@ export function stoppingLine(
   if (effectiveMin > max) {
     const empty: StoppingPoint[] = [];
     return Object.freeze(
-      Object.assign(empty, { slope, intercept, thresholdFrequency: nu0 }),
+      Object.assign(empty, {
+        slope,
+        intercept,
+        thresholdFrequency: nu0,
+        printedSlopeVsPerHz,
+        historicalSlopeLabel,
+      }),
     ) as unknown as StoppingLinePoints;
   }
 
@@ -537,14 +777,22 @@ export function stoppingLine(
   }
 
   return Object.freeze(
-    Object.assign(points, { slope, intercept, thresholdFrequency: nu0 }),
+    Object.assign(points, {
+      slope,
+      intercept,
+      thresholdFrequency: nu0,
+      printedSlopeVsPerHz,
+      historicalSlopeLabel,
+    }),
   ) as unknown as StoppingLinePoints;
 }
 
 /**
- * Cathode luminescence minimum potential (paper 1, §7):
+ * Cathode luminescence minimum potential (paper 1, §8):
  * Accelerating potential required for an impinging electron to excite emission of frequency nu.
- * U_min = (h * nu - Phi) / e or h * nu / e.
+ * In modern form an electron accelerated through potential U can produce a quantum of frequency nu
+ * only if e*U + Phi >= h*nu, so U_min = (h*nu - Phi)/e.
+ * When h*nu <= Phi, returns not-applicable ("this idealization implies no minimum potential").
  */
 export function cathodeLuminescenceMinimumPotential(
   nu: number,
@@ -554,31 +802,73 @@ export function cathodeLuminescenceMinimumPotential(
   if (!Number.isFinite(nu) || nu <= 0) {
     return outsideDomain("invalid-frequency", "physical", "Frequency must be strictly positive.");
   }
+  if (!Number.isFinite(workFunctionJoules) || workFunctionJoules < 0) {
+    return outsideDomain("invalid-work-function", "physical", "Work function must be non-negative.");
+  }
   const h = getPlanckConstant(set);
+  const eq = h * nu;
+  if (eq <= workFunctionJoules) {
+    return notApplicable("this idealization implies no minimum potential");
+  }
   const e = getElementaryCharge(set);
-  const uMin = (h * nu - workFunctionJoules) / e;
-  return ok(Math.max(0, uMin), "V");
+  const uMin = (eq - workFunctionJoules) / e;
+  return ok(uMin, "V");
 }
 
-/**
- * Converts optical frequency to human-readable spectral band label and approximate hex color.
- */
-export function visibleColor(nu: number): Readonly<{
-  band: string;
+export type VisibleColorBand =
+  | "ultraviolet"
+  | "violet"
+  | "blue"
+  | "green"
+  | "yellow"
+  | "orange"
+  | "red"
+  | "infrared";
+
+export type VisibleColorResult = Readonly<{
+  status: "visible" | "outside-visible";
+  marker?: "outside-visible" | undefined;
+  color: string | "outside-visible";
+  band: VisibleColorBand;
   wavelengthNm: number;
   hexColor: string;
-}> {
-  const c = 2.99792458e8;
+}>;
+
+/**
+ * Converts optical frequency to spectral band label, approximate hex color,
+ * and typed marker outside-visible for wavelengths outside 380-750 nm (399.723-788.928 THz).
+ */
+export function visibleColor(nu: number): VisibleColorResult {
+  const c = 299792458;
   const lambdaM = c / nu;
   const lambdaNm = lambdaM * 1e9;
 
-  let band = "visible";
-  let hexColor = "#888888";
-
   if (lambdaNm < 380) {
-    band = "ultraviolet";
-    hexColor = "#7B1FA2";
-  } else if (lambdaNm < 450) {
+    return Object.freeze({
+      status: "outside-visible",
+      marker: "outside-visible",
+      color: "outside-visible",
+      band: "ultraviolet",
+      wavelengthNm: lambdaNm,
+      hexColor: "#7B1FA2",
+    });
+  }
+
+  if (lambdaNm > 750) {
+    return Object.freeze({
+      status: "outside-visible",
+      marker: "outside-visible",
+      color: "outside-visible",
+      band: "infrared",
+      wavelengthNm: lambdaNm,
+      hexColor: "#8D6E63",
+    });
+  }
+
+  let band: VisibleColorBand = "green";
+  let hexColor = "#43A047";
+
+  if (lambdaNm < 450) {
     band = "violet";
     hexColor = "#5C6BC0";
   } else if (lambdaNm < 495) {
@@ -593,15 +883,70 @@ export function visibleColor(nu: number): Readonly<{
   } else if (lambdaNm < 620) {
     band = "orange";
     hexColor = "#FB8C00";
-  } else if (lambdaNm <= 750) {
+  } else {
     band = "red";
     hexColor = "#E53935";
-  } else {
-    band = "infrared";
-    hexColor = "#8D6E63";
   }
 
-  return Object.freeze({ band, wavelengthNm: lambdaNm, hexColor });
+  return Object.freeze({
+    status: "visible",
+    color: hexColor,
+    band,
+    wavelengthNm: lambdaNm,
+    hexColor,
+  });
+}
+
+export type MetalCard = Readonly<{
+  metalName: string;
+  workFunctionEv: number;
+  condition?: string | undefined;
+  citation?: string | undefined;
+  label?: "hypothetical" | "cited" | undefined;
+}>;
+
+export function metalCard(card: MetalCard): PhotoelectricResult<MetalCard> {
+  if (!card.metalName || card.metalName.trim() === "") {
+    return outsideDomain("missing-metal-name", "model", "A named metal requires a metal name.");
+  }
+  if (!card.citation || card.citation.trim() === "") {
+    return outsideDomain(
+      "uncited-metal",
+      "model",
+      "a named metal requires a cited, condition-specific work function",
+    );
+  }
+  if (!Number.isFinite(card.workFunctionEv) || card.workFunctionEv <= 0) {
+    return outsideDomain("invalid-work-function", "physical", "Work function must be strictly positive.");
+  }
+  return ok(Object.freeze({ ...card, label: "cited" as const }));
+}
+
+export type GasCard = Readonly<{
+  gasName: string;
+  ionizationEnergyPerMoleculeEv?: number | undefined;
+  ionizationEnergyEv?: number | undefined;
+  condition?: string | undefined;
+  citation?: string | undefined;
+  label?: "hypothetical" | "cited" | undefined;
+}>;
+
+export function gasCard(card: GasCard): PhotoelectricResult<GasCard> {
+  if (!card.gasName || card.gasName.trim() === "") {
+    return outsideDomain("missing-gas-name", "model", "A named gas requires a gas name.");
+  }
+  if (!card.citation || card.citation.trim() === "") {
+    return outsideDomain(
+      "uncited-gas",
+      "model",
+      "a named gas requires a cited ionizationEnergyPerMolecule with its conditions",
+    );
+  }
+  const ie = card.ionizationEnergyPerMoleculeEv ?? card.ionizationEnergyEv ?? 0;
+  if (!Number.isFinite(ie) || ie <= 0) {
+    return outsideDomain("invalid-ionization-energy", "physical", "Ionization energy must be strictly positive.");
+  }
+  return ok(Object.freeze({ ...card, label: "cited" as const }));
 }
 
 /**
@@ -841,10 +1186,20 @@ export type FluorescenceBudgetInput = Readonly<{
   nu1: number; // Incident frequency (Hz)
   nu2: number; // Proposed emitted frequency (Hz)
   regime?: FluorescenceRegime | undefined;
+  assumptionState?:
+    | "paper"
+    | "deviation-high-density"
+    | "deviation-non-wien"
+    | "modern-thermal-allowance"
+    | undefined;
   multiQuantumK?: number | undefined; // k >= 1 (default 1)
+  k?: number | undefined;
   sourceTemperatureK?: number | undefined; // T_src in K (for deviation case 2)
+  sourceTemperature?: number | undefined;
   bodyTemperatureK?: number | undefined; // T_body in K (for modern thermal allowance)
   bodyThermalDegreesN?: number | undefined; // n (number of thermal modes, default 10)
+  allowance?: Readonly<{ n: number; T: number }> | undefined;
+  epsilonW?: number | undefined;
   channels?: FluorescenceChannels | undefined; // default light-plus-heat
   set?: ConstantSet | undefined;
 }>;
@@ -852,6 +1207,12 @@ export type FluorescenceBudgetInput = Readonly<{
 export type FluorescenceBudgetResult = Readonly<{
   status: "value" | "outside-domain" | "not-applicable";
   allowed: boolean;
+  labelKind?:
+    | "paper-assumption"
+    | "printed-deviation-case-1"
+    | "printed-deviation-case-2"
+    | "modern-allowance"
+    | undefined;
   nu1Hz: number;
   nu2Hz: number;
   nu2MaxHz: number;
@@ -878,17 +1239,19 @@ export type FluorescenceBudgetResult = Readonly<{
  * deviation cases, or under modern thermal anti-Stokes allowance.
  */
 export function fluorescenceBudget(input: FluorescenceBudgetInput): FluorescenceBudgetResult {
-  const {
-    nu1,
-    nu2,
-    regime = "standard-stokes",
-    multiQuantumK = 1,
-    sourceTemperatureK = 5800,
-    bodyTemperatureK = 300,
-    bodyThermalDegreesN = 10,
-    channels = "light-plus-heat",
-    set,
-  } = input;
+  const { nu1, nu2, channels = "light-plus-heat", set } = input;
+
+  let regime: FluorescenceRegime = input.regime ?? "standard-stokes";
+  if (input.assumptionState === "paper") regime = "standard-stokes";
+  else if (input.assumptionState === "deviation-high-density") regime = "deviation-multi-quantum";
+  else if (input.assumptionState === "deviation-non-wien") regime = "deviation-non-wien";
+  else if (input.assumptionState === "modern-thermal-allowance") regime = "modern-thermal";
+
+  const multiQuantumK = input.k ?? input.multiQuantumK ?? 1;
+  const sourceTemperatureK = input.sourceTemperature ?? input.sourceTemperatureK ?? 5800;
+  const bodyTemperatureK = input.allowance?.T ?? input.bodyTemperatureK ?? 300;
+  const bodyThermalDegreesN = input.allowance?.n ?? input.bodyThermalDegreesN ?? 10;
+  const epsilonW = input.epsilonW ?? 0.01;
 
   const h = getPlanckConstant(set);
   const e = getElementaryCharge(set);
@@ -904,11 +1267,12 @@ export function fluorescenceBudget(input: FluorescenceBudgetInput): Fluorescence
     const x = (h * nu1) / (kB * Tsrc);
     const expMinusX = Math.exp(-x);
 
-    // If e^-x > 0.01, outside Wien domain
-    if (expMinusX > 0.01) {
+    // If e^-x > epsilonW, outside Wien domain
+    if (expMinusX > epsilonW) {
       return Object.freeze({
         status: "outside-domain",
         allowed: false,
+        labelKind: "printed-deviation-case-2" as const,
         nu1Hz: nu1,
         nu2Hz: nu2,
         nu2MaxHz: nu1,
@@ -923,7 +1287,7 @@ export function fluorescenceBudget(input: FluorescenceBudgetInput): Fluorescence
         wienParameterX: x,
         wienDeviationExpMinusX: expMinusX,
         verdictReason:
-          "Exciting radiation is outside the Wien regime (e^-x > 0.01); Einstein's single-quantum volume law cannot be deduced for this source.",
+          "the light-quantum description used here is admitted only for Wien-regime radiation; the paper says non-Wien radiation may behave differently, so no bound is derived",
         refusalCode: "outside-wien-domain",
       });
     }
@@ -935,6 +1299,7 @@ export function fluorescenceBudget(input: FluorescenceBudgetInput): Fluorescence
     return Object.freeze({
       status: "value",
       allowed,
+      labelKind: "printed-deviation-case-2" as const,
       nu1Hz: nu1,
       nu2Hz: nu2,
       nu2MaxHz: nu1,
@@ -966,6 +1331,7 @@ export function fluorescenceBudget(input: FluorescenceBudgetInput): Fluorescence
     return Object.freeze({
       status: "value",
       allowed,
+      labelKind: "printed-deviation-case-1" as const,
       nu1Hz: nu1,
       nu2Hz: nu2,
       nu2MaxHz: nu2Max,
@@ -997,6 +1363,7 @@ export function fluorescenceBudget(input: FluorescenceBudgetInput): Fluorescence
     return Object.freeze({
       status: "value",
       allowed,
+      labelKind: "modern-allowance" as const,
       nu1Hz: nu1,
       nu2Hz: nu2,
       nu2MaxHz: nu2Max,
@@ -1044,6 +1411,7 @@ export function fluorescenceBudget(input: FluorescenceBudgetInput): Fluorescence
   return Object.freeze({
     status: "value",
     allowed,
+    labelKind: "paper-assumption" as const,
     nu1Hz: nu1,
     nu2Hz: nu2,
     nu2MaxHz: nu2Max,
@@ -1061,10 +1429,18 @@ export function fluorescenceBudget(input: FluorescenceBudgetInput): Fluorescence
 
 export type FluorescenceRatesInput = Readonly<{
   nu1: number; // Incident frequency (Hz)
-  nu2: number; // Emitted frequency (Hz)
-  absorbedPowerWatts: number; // P_abs in Watts
-  quantumYield: number; // Y in [0, 1]
+  nu2?: number | undefined; // Emitted frequency (Hz)
+  absorbedPowerWatts?: number | undefined; // P_abs in Watts
+  Pabs?: number | undefined;
+  quantumYield?: number | undefined; // Y in [0, 1]
+  conversionYield?: number | undefined;
   regime?: FluorescenceRegime | undefined;
+  assumptionState?:
+    | "paper"
+    | "deviation-high-density"
+    | "deviation-non-wien"
+    | "modern-thermal-allowance"
+    | undefined;
   set?: ConstantSet | undefined;
 }>;
 
@@ -1086,7 +1462,15 @@ export type FluorescenceRatesResult = Readonly<{
  * \dot{N}_2 = Y * \dot{N}_1 with zero threshold.
  */
 export function fluorescenceRates(input: FluorescenceRatesInput): FluorescenceRatesResult {
-  const { nu1, nu2, absorbedPowerWatts, quantumYield, regime = "standard-stokes", set } = input;
+  const nu1 = input.nu1;
+  const nu2 = input.nu2 ?? input.nu1;
+  const absorbedPowerWatts = input.Pabs ?? input.absorbedPowerWatts ?? 0;
+  const quantumYield = input.conversionYield ?? input.quantumYield ?? 1.0;
+  let regime = input.regime ?? "standard-stokes";
+  if (input.assumptionState === "deviation-high-density") regime = "deviation-multi-quantum";
+  else if (input.assumptionState === "paper") regime = "standard-stokes";
+
+  const set = input.set;
 
   if (regime === "deviation-multi-quantum") {
     return Object.freeze({
@@ -1098,8 +1482,7 @@ export function fluorescenceRates(input: FluorescenceRatesInput): FluorescenceRa
       dissipatedHeatWatts: 0,
       quantumYield,
       energyEfficiency: 0,
-      reason:
-        "Multi-quantum absorption rate equations are non-linear in illumination intensity; single-quantum rate formulas do not apply.",
+      reason: "the one-quantum-per-event proportionality assumes low density",
     });
   }
 
