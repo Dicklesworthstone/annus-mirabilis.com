@@ -820,7 +820,17 @@ Until a command exists, do not report it as passing.
 
 ## Vercel Deployment Standards
 
-- Release only through `bun scripts/verified-production-deploy.ts` once it has been adapted from the donor. **Never call `vercel deploy --prebuilt --prod` directly.** The verified entry point takes an exclusive local deployment lock, refuses a dirty worktree or another active build, runs the quality gates, checks that `vercel build` produced a full Build Output API artifact, deploys with `--skip-domain`, validates the unpromoted candidate, and only then aliases `annus-mirabilis.com`, `www.annus-mirabilis.com`, and `annus-mirabilis-seven.vercel.app` (the plain `annus-mirabilis.vercel.app` belongs to another Vercel account). A failed check leaves the public aliases unchanged.
+- Release only through `bun scripts/verified-production-deploy.ts` adapted under `am-rel-verified-deploy-qndt`. **Never call `vercel deploy --prebuilt --prod` directly.** The verified entry point takes an exclusive local deployment lock on TCP port `48915` (`127.0.0.1:48915`), refuses a dirty worktree or another active build, runs the profile quality gates, checks that `vercel build` produced a full version 3 Build Output API artifact (fresh mtime, >= 100 files), deploys with `--skip-domain`, validates the unpromoted candidate via the protected-preview adapter, and only then moves aliases with automatic rollback on partial failure.
+- **Publication Profiles:**
+  - `scaffold`: targets platform domain `annus-mirabilis-seven.vercel.app` by default; targets custom domains only with `--include-custom-domains` and matching explicit authorization.
+  - `preview`: requires publication-contract, candidate checks, and lists only closed papers.
+  - `launch`: requires all four complete papers closed and verified.
+- **Pipeline Modes:**
+  - `--candidate-only`: builds, checks, and saves a candidate release record to `artifacts/releases/<tool-run-id>.json`; never moves aliases.
+  - `--promote <deployment-id-or-url>`: verifies recorded candidate checks, manifest digest, and commit against HEAD; promotes without rebuilding.
+  - `--dry-run`: executes preflight validation without side effects.
+- **User Authorization Files:** Every live deployment or alias move requires `--authorization <path>` referencing a JSON or YAML file matching schema `annus-mirabilis-deploy-authorization.v1`, authorized by `jemanuel` within 24 hours, matching preflight HEAD commit, profile, scope, and target hostnames. A human gate is never self-certified.
+- **Release Records & Structured Logging:** Persistent release identity uses `toolRunId`, recording candidates to `artifacts/releases/<tool-run-id>.json`. Each process invocation writes structured JSONL logs to `artifacts/deploy-logs/<log-run-id>.jsonl` with `suite: "verified-production-deploy"`.
 - A **release manifest** binds the site source revision, content edition version, source-asset hashes, WASM artifact hashes, generated schema version, and test results.
 - Candidate checks load all four complete paper texts, representative foundation pages, and every instrument bundle, and include one no-JavaScript source-text check, one real accepted WASM result per numerical capability, and one deliberate typed refusal, all against the deployed assets rather than the build directory. After promotion, a short live smoke test loads the mass–energy paper and its German edition endpoint.
 - Rollback restores a coherent site, content, and kernel set and never points old HTML at incompatible new WASM. Immutable content-addressed figures and WASM get long-lived caching; manifests and HTML never reference a removed artifact.

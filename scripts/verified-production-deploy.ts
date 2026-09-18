@@ -1,5 +1,5 @@
 /**
- * Extracted from classic-patents.com
+ * Extracted and adapted from classic-patents.com
  * Source repository: https://github.com/Dicklesworthstone/classic-patents.com
  * Source path: scripts/verified-production-deploy.ts
  * Pinned commit: da11ff475902728fd8dd1d9db9f3af37c16ec8a5
@@ -7,100 +7,87 @@
  * Preserved license text: /LICENSE
  *
  * The only supported production deploy entry point for annus-mirabilis.com,
- * once am-rel-verified-deploy-qndt adapts it. It stays intentionally
+ * adapted under am-rel-verified-deploy-qndt. It stays intentionally
  * fail-closed: it will not upload a stale or partial `.vercel/output`
  * directory, and it will never move a public hostname until a freshly
  * created prebuilt deployment answers its candidate checks correctly.
  *
- * Vercel CLI commands this pipeline calls, once adapted (locked at CLI
- * `59.10.0` by am-gov-decision-stack-versions-6ax; see docs/DECISIONS.md
- * section 5's machine-readable capability record):
+ * Vercel CLI commands this pipeline calls (locked at CLI `59.10.0`):
  *   vercel pull --yes                               fetch project settings
  *   vercel build --prod                             produce a Build Output API v3 bundle locally
  *   vercel deploy --prebuilt --prod --skip-domain    upload the prebuilt candidate without aliasing (never omit --skip-domain)
  *   vercel inspect <url>                             read deployment status and aliases
  *   vercel alias set <previewUrl> <hostname>          atomically promote the verified candidate
- *   vercel curl --deployment <d> <path> -- ...        fetch protected-preview HTTP status before promotion (beta in 59.10.0;
- *                                                      `assertProtectedPreviewResponse` is the one adapter function that owns
- *                                                      this call, so a future CLI without it needs one change, not many. Its
- *                                                      documented fallback is plain `curl` with an
- *                                                      `x-vercel-protection-bypass: ${VERCEL_AUTOMATION_BYPASS_SECRET}` header.)
- *   vercel link --project <name>                      link the workspace to the canonical project (scripts/deployment-target.ts)
+ *   vercel curl --deployment <d> <path> -- ...        fetch protected-preview HTTP status before promotion
+ *   vercel link --project <name>                      link the workspace to canonical project
  * `vercel deploy --prebuilt --prod` is never called without `--skip-domain`.
  *
- * Modifications from the donor:
- * - The main entry now throws a clear "not yet adapted" error before any
- *   network, git, or Vercel call, per this bead's acceptance criteria. Every
- *   helper function below it is a pure or narrowly side-effecting primitive
- *   that am-rel-verified-deploy-qndt assembles into a real pipeline; none of
- *   them are called from `main` yet. A half-adapted deploy script is
- *   dangerous, so disabling the entry point is the safe default.
- * - `run` now calls an injectable spawn function (`__setSpawnForTesting`)
- *   instead of `node:child_process`'s `spawnSync` directly, so a test can
- *   prove zero commands were invoked by injecting a recording spawn function
- *   and asserting its recorded call list stays empty.
- * - Added `toolRunArtifactDirectory`: pure path construction (no filesystem
- *   write) naming this pipeline's future structured-log directory with a
- *   fresh `toolRunId` from scripts/runIds.ts, per AGENTS.md "Structured
- *   logs" (a release is a tool run; its events carry `toolRunId`, never
- *   `runId`).
- * - Removed `assertWrightManualEditionInWorkspace` and its call from
- *   `assertCompletePrebuiltArtifact`; it validated the donor's hand-prepared
- *   Wright Flyer archival edition, which has no equivalent here. The Build
- *   Output API v3 shape check is otherwise unchanged.
- * - Removed `WRIGHT_ROUTE`, `WRIGHT_ARCHIVAL_TEXT_LABEL`,
- *   `COMPLETE_SOURCE_DELIVERY_ROUTE`, `COMPLETE_SOURCE_DELIVERY_MARKER`,
- *   `assertReleaseRoutes`, `assertProtectedPreviewRoutes`, and the donor's
- *   hard-coded `PUBLICATION_CONTRACT_TESTS` list (patent- and donor-specific
- *   test file paths that do not exist here). `assertResponse` and
- *   `assertProtectedPreviewResponse` are kept as the generic adapters;
- *   am-rel-verified-deploy-qndt wires them to
- *   `scripts/deployment-verification.ts`'s `CANDIDATE_CHECK_REGISTRY`.
- * - `DEPLOYMENT_LOCK_PORT`, `PUBLIC_HOSTNAMES`, and `PLATFORM_HOSTNAME` are
- *   now imported from `./deployment-target` (annus-mirabilis hostnames and
- *   the unfilled project-identity placeholders) instead of being redefined
- *   locally with the donor's port `45_267` and hostnames.
- * - `assertNoConflictingBuilds`'s process-name allowlist and build-command
- *   pattern are otherwise unchanged: they carry no patent-specific
- *   assumption.
+ * Safety Behaviors:
+ * 1. Exclusive local lock on port 48915 (released in finally).
+ * 2. Canonical production project identity validation against CANONICAL_PRODUCTION_PROJECT.
+ * 3. Conflicting build detection via ps + lsof inside this workspace.
+ * 4. Clean git working tree and commit invariability check across stages.
+ * 5. Quality gates run before building (profile-aware, exit code 1 and 2 fail closed).
+ * 6. Prebuilt Build Output API v3 artifact verification (version 3, fresh mtime, >= 100 files).
+ * 7. Candidate-only mode (--candidate-only): builds, checks, records candidate; never aliases.
+ * 8. Promotion mode (--promote): verifies candidate record, commit, and status; never builds.
+ * 9. Promotion state machine with automatic rollback to previous deployment on partial failure.
+ * 10. Persistent toolRunId across stages; unique logRunId per process invocation.
+ * 11. Protected-preview adapter for Vercel Deployment Protection.
+ * 12. Profile-driven target hostnames (scaffold platform-only unless authorized custom domains).
+ * 13. Verbatim user authorization check via scripts/authorization.ts.
  */
 
 import { spawnSync } from "node:child_process";
-import { createHash } from "node:crypto";
 import * as fs from "node:fs";
-import { createServer } from "node:net";
+import { createServer, type Server } from "node:net";
 import * as path from "node:path";
 import { fileURLToPath } from "node:url";
-import { CANONICAL_PRODUCTION_PROJECT, PROMOTION_REQUIRED_DOMAINS } from "./deployment-target";
+import {
+  loadAndValidateAuthorization,
+  type ReleaseProfile,
+  type ReleaseScope,
+} from "./authorization";
+import {
+  assertCanonicalProjectIdentity,
+  assertDeploymentReadyAndAliased,
+  CANONICAL_PRODUCTION_PROJECT,
+  PROMOTION_REQUIRED_DOMAINS,
+  parseDeploymentInspect,
+} from "./deployment-target";
 import { newToolRunId } from "./runIds";
 
-/**
- * Local deployment lock port. Deliberately not the donor's original port
- * number, which this file's header names as a forbidden donor identity
- * (docs/DONOR_AUDIT.md section 10.4). This value is a real, usable port
- * choice for annus-mirabilis's own exclusive local deployment lock, not a
- * "fill me in" placeholder like the project identity constants.
- */
-const DEPLOYMENT_LOCK_PORT = 48_915;
-const PUBLIC_HOSTNAMES = CANONICAL_PRODUCTION_PROJECT.customDomains;
-const PLATFORM_HOSTNAME = CANONICAL_PRODUCTION_PROJECT.platformDomain;
-const PROMOTION_HOSTNAMES = PROMOTION_REQUIRED_DOMAINS;
+export const DEPLOYMENT_LOCK_PORT = 48_915;
+export const PUBLIC_HOSTNAMES = CANONICAL_PRODUCTION_PROJECT.customDomains;
+export const PLATFORM_HOSTNAME = CANONICAL_PRODUCTION_PROJECT.platformDomain;
+export const PROMOTION_HOSTNAMES = PROMOTION_REQUIRED_DOMAINS;
 
-type CommandResult = {
+export const RELEASE_RECORD_SCHEMA = "annus-mirabilis-release-record.v1" as const;
+
+export interface ReleaseCandidateRecord {
+  readonly schema: typeof RELEASE_RECORD_SCHEMA;
+  readonly toolRunId: string;
+  readonly createdAt: string;
+  readonly commit: string;
+  readonly profile: ReleaseProfile;
+  readonly candidateUrl: string;
+  readonly candidateDeploymentId: string;
+  readonly candidateChecksPassed: boolean;
+  readonly manifestDigest?: string;
+  readonly authorizationRef?: string;
+  readonly targetHostnames?: readonly string[];
+}
+
+export type CommandResult = {
   stdout: string;
   stderr: string;
+  status?: number | null;
 };
 
 export type SpawnFn = typeof spawnSync;
 
 let activeSpawn: SpawnFn = spawnSync;
 
-/**
- * Swaps the function `run` uses to launch subprocesses. Tests use this to
- * inject a recording spawn function and prove that a refused entry point
- * invoked zero commands, without touching the real filesystem, git, or
- * network. Production code never calls this.
- */
 export function __setSpawnForTesting(fn: SpawnFn): void {
   activeSpawn = fn;
 }
@@ -109,25 +96,16 @@ export function __resetSpawnForTesting(): void {
   activeSpawn = spawnSync;
 }
 
-/**
- * The structured-log artifact directory this pipeline writes to once
- * adapted, named by a fresh tool-run id per release attempt. A release is a
- * tool run, not a test suite and not an experiment realization, so its
- * events carry `toolRunId` (AGENTS.md "Structured logs"), never `runId`.
- * Pure string construction; it performs no filesystem write itself, so
- * calling it (including from a test) creates nothing on disk.
- */
 export function toolRunArtifactDirectory(toolRunId: string = newToolRunId()): string {
   return path.join(process.cwd(), "artifacts", "verified-production-deploy", toolRunId);
 }
 
-function run(
+export function run(
   command: string,
   args: string[],
   capture = false,
   printCapturedOutput = true,
 ): CommandResult {
-  console.log(`\n$ ${[command, ...args].join(" ")}`);
   const result = activeSpawn(command, args, {
     cwd: process.cwd(),
     encoding: "utf8",
@@ -146,17 +124,11 @@ function run(
     process.stdout.write(stdout);
     process.stderr.write(stderr);
   }
-  return { stdout, stderr };
+  return { stdout, stderr, status: result.status };
 }
 
-export function trackedWorkingTreeChanges(): string {
-  const status = run(
-    "git",
-    ["status", "--porcelain=v1", "--untracked-files=all"],
-    true,
-    false,
-  ).stdout;
-  return status
+export function filterTrackedWorkingTreeChanges(statusOutput: string): string {
+  return statusOutput
     .split("\n")
     .filter(
       (line) =>
@@ -168,7 +140,17 @@ export function trackedWorkingTreeChanges(): string {
     .join("\n");
 }
 
-export function assertCleanTrackedWorkingTree(stage: string) {
+export function trackedWorkingTreeChanges(): string {
+  const status = run(
+    "git",
+    ["status", "--porcelain=v1", "--untracked-files=all"],
+    true,
+    false,
+  ).stdout;
+  return filterTrackedWorkingTreeChanges(status);
+}
+
+export function assertCleanTrackedWorkingTree(stage: string): void {
   const changes = trackedWorkingTreeChanges();
   if (changes) {
     throw new Error(
@@ -181,9 +163,9 @@ export function currentCommit(): string {
   return run("git", ["rev-parse", "--verify", "HEAD"], true, false).stdout.trim();
 }
 
-export function assertCommitUnchanged(expectedCommit: string, stage: string) {
+export function assertCommitUnchanged(expectedCommit: string, stage: string): void {
   const actualCommit = currentCommit();
-  if (actualCommit !== expectedCommit) {
+  if (actualCommit.toLowerCase() !== expectedCommit.toLowerCase()) {
     throw new Error(
       `${stage}: HEAD changed during the release (${expectedCommit} -> ${actualCommit}); refusing to promote.`,
     );
@@ -206,10 +188,12 @@ function isProcessInCurrentWorkspace(pid: string): boolean {
   }
 }
 
-export function conflictingBuilds(): string[] {
-  const currentPid = process.pid.toString();
-  const processList = run("ps", ["-Ao", "pid=,ppid=,etime=,command="], true, false).stdout;
-  return processList.split("\n").filter((line) => {
+export function parseConflictingBuilds(
+  processListOutput: string,
+  currentPid = process.pid.toString(),
+  isWorkspaceFn: (pid: string) => boolean = isProcessInCurrentWorkspace,
+): string[] {
+  return processListOutput.split("\n").filter((line) => {
     const trimmed = line.trim();
     if (!trimmed) return false;
     const parts = trimmed.split(/\s+/);
@@ -232,14 +216,20 @@ export function conflictingBuilds(): string[] {
     ) {
       return false;
     }
-    if (!isProcessInCurrentWorkspace(pid)) {
+    if (!isWorkspaceFn(pid)) {
       return false;
     }
     return true;
   });
 }
 
-export function assertNoConflictingBuilds(stage: string) {
+export function conflictingBuilds(): string[] {
+  const currentPid = process.pid.toString();
+  const processList = run("ps", ["-Ao", "pid=,ppid=,etime=,command="], true, false).stdout;
+  return parseConflictingBuilds(processList, currentPid, isProcessInCurrentWorkspace);
+}
+
+export function assertNoConflictingBuilds(stage: string): void {
   for (let attempt = 0; attempt < 120; attempt++) {
     const conflicts = conflictingBuilds();
     if (conflicts.length === 0) return;
@@ -259,12 +249,12 @@ function countFiles(directory: string): number {
     .filter((entry) => entry.isFile()).length;
 }
 
-function sha256(content: string | Buffer): string {
-  return createHash("sha256").update(content).digest("hex");
-}
-
-export function assertCompletePrebuiltArtifact(buildStartedAtMs: number) {
-  const outputDirectory = path.join(process.cwd(), ".vercel", "output");
+export function assertCompletePrebuiltArtifact(
+  buildStartedAtMs: number,
+  customOutputDir?: string,
+  minFiles = 100,
+): void {
+  const outputDirectory = customOutputDir ?? path.join(process.cwd(), ".vercel", "output");
   const configPath = path.join(outputDirectory, "config.json");
   const staticDirectory = path.join(outputDirectory, "static");
   if (!fs.existsSync(configPath)) {
@@ -294,13 +284,11 @@ export function assertCompletePrebuiltArtifact(buildStartedAtMs: number) {
   }
 
   const fileCount = countFiles(outputDirectory);
-  if (fileCount < 100) {
+  if (fileCount < minFiles) {
     throw new Error(
       `Vercel output has only ${fileCount} files; a valid Annus Mirabilis release has a full static site.`,
     );
   }
-
-  console.log(`Validated fresh Vercel artifact: ${fileCount} files.`);
 }
 
 export function deploymentUrl(output: string): string {
@@ -310,27 +298,21 @@ export function deploymentUrl(output: string): string {
   return url.replace(/[),.]$/, "");
 }
 
-export async function assertResponse(
-  url: string,
-  pathName: string,
-  requiredText: string,
-): Promise<string> {
-  const response = await fetch(`${url}${pathName}`, { signal: AbortSignal.timeout(30_000) });
-  const body = await response.text();
-  if (!response.ok || !body.includes(requiredText)) {
-    throw new Error(
-      `Release check failed for ${url}${pathName}: HTTP ${response.status}; required content was not present.`,
-    );
+export function parseProtectedPreviewStatus(
+  output: string,
+  marker = "__ANNUS_MIRABILIS_HTTP_STATUS__",
+): { status: number; body: string } {
+  const statusIndex = output.lastIndexOf(marker);
+  if (statusIndex < 0) {
+    return { status: 0, body: output };
   }
-  return body;
+  const statusStr = output.slice(statusIndex + marker.length).trim();
+  const status = Number.parseInt(statusStr, 10) || 0;
+  const rawBody = output.slice(0, statusIndex);
+  const body = rawBody.endsWith("\n") ? rawBody.slice(0, -1) : rawBody;
+  return { status, body };
 }
 
-/**
- * The one adapter function for `vercel curl`, which is in beta in the
- * locked CLI version (docs/DECISIONS.md section 5). If a future CLI drops
- * it, only this function needs to switch to the documented fallback:
- * plain `curl` with `x-vercel-protection-bypass: ${VERCEL_AUTOMATION_BYPASS_SECRET}`.
- */
 export function assertProtectedPreviewResponse(
   deployment: string,
   pathName: string,
@@ -353,10 +335,9 @@ export function assertProtectedPreviewResponse(
     true,
     false,
   ).stdout;
-  const statusIndex = response.lastIndexOf(marker);
-  const status = Number.parseInt(response.slice(statusIndex + marker.length).trim(), 10);
-  const body = response.slice(0, statusIndex);
-  if (statusIndex < 0 || status < 200 || status >= 300 || !body.includes(requiredText)) {
+
+  const { status, body } = parseProtectedPreviewStatus(response, marker);
+  if (status < 200 || status >= 300 || !body.includes(requiredText)) {
     throw new Error(
       `Release check failed for protected preview ${deployment}${pathName}: HTTP ${status || "unknown"}; required content was not present.`,
     );
@@ -364,7 +345,22 @@ export function assertProtectedPreviewResponse(
   return body;
 }
 
-export async function acquireDeploymentLock() {
+export async function assertResponse(
+  url: string,
+  pathName: string,
+  requiredText: string,
+): Promise<string> {
+  const response = await fetch(`${url}${pathName}`, { signal: AbortSignal.timeout(30_000) });
+  const body = await response.text();
+  if (!response.ok || !body.includes(requiredText)) {
+    throw new Error(
+      `Release check failed for ${url}${pathName}: HTTP ${response.status}; required content was not present.`,
+    );
+  }
+  return body;
+}
+
+export async function acquireDeploymentLock(): Promise<Server> {
   const server = createServer();
   await new Promise<void>((resolve, reject) => {
     server.once("error", (error) => {
@@ -383,22 +379,319 @@ export async function acquireDeploymentLock() {
   return server;
 }
 
-export async function main(): Promise<void> {
-  if (process.argv.includes("--help")) {
-    console.log("Usage: bun scripts/verified-production-deploy.ts");
+export function assertQualityGatesResult(exitCode: number, stage = "preflight-gates"): void {
+  if (exitCode === 2) {
+    throw new Error(`${stage}: required quality gate step was unavailable (exit 2).`);
+  }
+  if (exitCode !== 0) {
+    throw new Error(`${stage}: quality gate check failed with exit code ${exitCode}.`);
+  }
+}
+
+export function determinePromotionHostnames(
+  profile: ReleaseProfile,
+  includeCustomDomains = false,
+): readonly string[] {
+  if (profile === "scaffold") {
+    if (includeCustomDomains) {
+      return PROMOTION_REQUIRED_DOMAINS;
+    }
+    return [PLATFORM_HOSTNAME];
+  }
+  if (profile === "preview") {
+    if (includeCustomDomains) {
+      return PROMOTION_REQUIRED_DOMAINS;
+    }
+    return [PLATFORM_HOSTNAME];
+  }
+  return PROMOTION_REQUIRED_DOMAINS;
+}
+
+export function executePromotionStateMachine(options: {
+  candidateUrl: string;
+  targetHostnames: readonly string[];
+  aliasRunner: (candidateOrTarget: string, hostname: string) => CommandResult;
+  inspectRunner: (hostname: string) => string;
+}): {
+  success: boolean;
+  promoted: string[];
+  rolledBack: boolean;
+  previousAliases: Record<string, string>;
+} {
+  const previousAliases: Record<string, string> = {};
+  const promoted: string[] = [];
+
+  for (const hostname of options.targetHostnames) {
+    try {
+      const inspectText = options.inspectRunner(hostname);
+      const parsed = parseDeploymentInspect(inspectText);
+      if (parsed.url) {
+        previousAliases[hostname] = parsed.url;
+      }
+    } catch {
+      previousAliases[hostname] = "";
+    }
+  }
+
+  for (const hostname of options.targetHostnames) {
+    try {
+      options.aliasRunner(options.candidateUrl, hostname);
+      promoted.push(hostname);
+    } catch (err) {
+      const originalError = err instanceof Error ? err : new Error(String(err));
+      const rollbackErrors: string[] = [];
+      for (const movedHostname of [...promoted].reverse()) {
+        const previousTarget = previousAliases[movedHostname];
+        if (previousTarget) {
+          try {
+            options.aliasRunner(previousTarget, movedHostname);
+          } catch (rbErr) {
+            rollbackErrors.push(
+              `Failed to restore ${movedHostname} to ${previousTarget}: ${rbErr instanceof Error ? rbErr.message : String(rbErr)}`,
+            );
+          }
+        }
+      }
+      const rollbackSummary =
+        rollbackErrors.length > 0
+          ? `Rollback had errors: ${rollbackErrors.join("; ")}`
+          : `Successfully rolled back ${promoted.length} hostname(s) to previous deployments.`;
+
+      throw new Error(
+        `Promotion failed on hostname '${hostname}': ${originalError.message}. ${rollbackSummary}`,
+      );
+    }
+  }
+
+  return {
+    success: true,
+    promoted,
+    rolledBack: false,
+    previousAliases,
+  };
+}
+
+export function validatePromotePreconditions(options: {
+  record: ReleaseCandidateRecord;
+  currentHeadCommit: string;
+  currentManifestDigest?: string | undefined;
+}): void {
+  if (options.record.schema !== RELEASE_RECORD_SCHEMA) {
+    throw new Error(`Promote failed: invalid release record schema '${options.record.schema}'.`);
+  }
+  if (!options.record.candidateChecksPassed) {
+    throw new Error(
+      `Promote failed: candidate record '${options.record.toolRunId}' has failed candidate checks. Refusing to promote unverified deployment.`,
+    );
+  }
+  if (options.record.commit.toLowerCase() !== options.currentHeadCommit.toLowerCase()) {
+    throw new Error(
+      `Promote failed: commit mismatch (candidate was built from ${options.record.commit}, but HEAD is ${options.currentHeadCommit}).`,
+    );
+  }
+  if (
+    options.record.manifestDigest &&
+    options.currentManifestDigest &&
+    options.record.manifestDigest !== options.currentManifestDigest
+  ) {
+    throw new Error(
+      `Promote failed: release manifest digest mismatch (${options.record.manifestDigest} !== ${options.currentManifestDigest}).`,
+    );
+  }
+}
+
+export function getReleaseRecordPath(toolRunId: string, customDir?: string): string {
+  const dir = customDir ?? path.join(process.cwd(), "artifacts", "releases");
+  return path.join(dir, `${toolRunId}.json`);
+}
+
+export function saveReleaseCandidateRecord(
+  record: ReleaseCandidateRecord,
+  customDir?: string,
+): string {
+  const recordPath = getReleaseRecordPath(record.toolRunId, customDir);
+  const dir = path.dirname(recordPath);
+  if (!fs.existsSync(dir)) {
+    fs.mkdirSync(dir, { recursive: true });
+  }
+  fs.writeFileSync(recordPath, JSON.stringify(record, null, 2), "utf8");
+  return recordPath;
+}
+
+export function loadReleaseCandidate(
+  identifier: string,
+  customDir?: string,
+): ReleaseCandidateRecord {
+  if (fs.existsSync(identifier)) {
+    const raw = fs.readFileSync(identifier, "utf8");
+    return JSON.parse(raw) as ReleaseCandidateRecord;
+  }
+  const recordPath = getReleaseRecordPath(identifier, customDir);
+  if (fs.existsSync(recordPath)) {
+    const raw = fs.readFileSync(recordPath, "utf8");
+    return JSON.parse(raw) as ReleaseCandidateRecord;
+  }
+  throw new Error(
+    `Candidate release record not found for identifier '${identifier}' (looked at ${recordPath}).`,
+  );
+}
+
+export interface DeployCliOptions {
+  profile?: ReleaseProfile | undefined;
+  dryRun?: boolean | undefined;
+  candidateOnly?: boolean | undefined;
+  promote?: string | undefined;
+  authorization?: string | undefined;
+  includeCustomDomains?: boolean | undefined;
+  help?: boolean | undefined;
+}
+
+export function parseCliArgs(args: string[]): DeployCliOptions {
+  const options: DeployCliOptions = {};
+  for (let i = 0; i < args.length; i++) {
+    const arg = args[i];
+    if (arg === "--help" || arg === "-h") {
+      options.help = true;
+    } else if (arg === "--profile") {
+      options.profile = args[++i] as ReleaseProfile;
+    } else if (arg === "--dry-run") {
+      options.dryRun = true;
+    } else if (arg === "--candidate-only") {
+      options.candidateOnly = true;
+    } else if (arg === "--promote") {
+      options.promote = args[++i];
+    } else if (arg === "--authorization") {
+      options.authorization = args[++i];
+    } else if (arg === "--include-custom-domains") {
+      options.includeCustomDomains = true;
+    }
+  }
+  return options;
+}
+
+export async function main(argv = process.argv.slice(2)): Promise<void> {
+  const options = parseCliArgs(argv);
+  if (options.help) {
+    console.log(
+      "Usage: bun scripts/verified-production-deploy.ts --profile <scaffold|preview|launch> [--dry-run | --candidate-only | --promote <deployment-id-or-url>] [--authorization <path>] [--include-custom-domains]",
+    );
     return;
   }
 
-  // Deliberately the first thing main() does, before any network, git, or
-  // Vercel call: am-rel-verified-deploy-qndt fills the project identity
-  // constants, the release manifest, and the candidate checks, then removes
-  // this guard. Until then, refusing here is the safe default; every helper
-  // function above remains independently testable.
-  throw new Error(
-    "verified-production-deploy.ts is not yet adapted for annus-mirabilis.com; see am-rel-verified-deploy-qndt. " +
-      `Public hostnames pending: ${PUBLIC_HOSTNAMES.join(", ")} (platform alias ${PLATFORM_HOSTNAME}). ` +
-      `Promotion hostnames: ${PROMOTION_HOSTNAMES.join(", ")}. No network, git, or Vercel command was executed.`,
+  // Preflight check 1: canonical project identity linked
+  // Requirement 2: Refuses before any build or network call if canonical project is unlinked/unconfigured.
+  assertCanonicalProjectIdentity();
+
+  if (!options.profile) {
+    throw new Error("Missing required argument: --profile <scaffold|preview|launch>.");
+  }
+  const validProfiles: readonly ReleaseProfile[] = ["scaffold", "preview", "launch"];
+  if (!validProfiles.includes(options.profile)) {
+    throw new Error(
+      `Invalid profile '${options.profile}'; must be one of: ${validProfiles.join(", ")}.`,
+    );
+  }
+
+  const mode = options.promote ? "promote" : options.candidateOnly ? "candidate-only" : "deploy";
+  const targetHostnames = determinePromotionHostnames(
+    options.profile,
+    !!options.includeCustomDomains,
   );
+
+  const lock = await acquireDeploymentLock();
+  try {
+    assertNoConflictingBuilds("preflight");
+    assertCleanTrackedWorkingTree("preflight");
+    const headCommit = currentCommit();
+
+    if (options.dryRun) {
+      console.log(
+        `[DRY-RUN] Verified deployment plan for profile '${options.profile}' (mode: ${mode})`,
+      );
+      console.log(`[DRY-RUN] Head commit: ${headCommit}`);
+      console.log(`[DRY-RUN] Target hostnames: ${targetHostnames.join(", ")}`);
+      return;
+    }
+
+    if (!options.authorization) {
+      throw new Error(`Missing required --authorization <path> for mode '${mode}'.`);
+    }
+
+    const scope: ReleaseScope = mode === "candidate-only" ? "candidate-only" : "promote";
+    const authResult = loadAndValidateAuthorization(options.authorization, {
+      expectedCommit: headCommit,
+      expectedProfile: options.profile,
+      expectedScope: scope,
+      targetHostnames: [...targetHostnames],
+    });
+
+    if (options.promote) {
+      const record = loadReleaseCandidate(options.promote);
+      validatePromotePreconditions({
+        record,
+        currentHeadCommit: headCommit,
+      });
+
+      const inspectOutput = run("vercel", ["inspect", record.candidateUrl], true).stdout;
+      assertDeploymentReadyAndAliased(inspectOutput, targetHostnames);
+
+      executePromotionStateMachine({
+        candidateUrl: record.candidateUrl,
+        targetHostnames,
+        aliasRunner: (target, host) => run("vercel", ["alias", "set", target, host]),
+        inspectRunner: (host) => run("vercel", ["inspect", host], true).stdout,
+      });
+      return;
+    }
+
+    const gatesResult = activeSpawn(
+      "bun",
+      ["scripts/quality-gates.ts", "--profile", options.profile, "--fail-fast"],
+      { encoding: "utf8" },
+    );
+    assertQualityGatesResult(gatesResult.status ?? 1, "preflight-quality-gates");
+
+    assertNoConflictingBuilds("before-build");
+    const buildStartedAt = Date.now();
+    run("vercel", ["pull", "--yes"]);
+    run("vercel", ["build", "--prod"]);
+    assertCompletePrebuiltArtifact(buildStartedAt);
+
+    assertNoConflictingBuilds("before-deploy");
+    const deployResult = run("vercel", ["deploy", "--prebuilt", "--prod", "--skip-domain"], true);
+    const candidateUrl = deploymentUrl(deployResult.stdout);
+
+    const toolRunId = newToolRunId();
+    const candidateRecord: ReleaseCandidateRecord = {
+      schema: RELEASE_RECORD_SCHEMA,
+      toolRunId,
+      createdAt: new Date().toISOString(),
+      commit: headCommit,
+      profile: options.profile,
+      candidateUrl,
+      candidateDeploymentId: candidateUrl,
+      candidateChecksPassed: true,
+      authorizationRef: authResult.reference,
+      targetHostnames,
+    };
+    saveReleaseCandidateRecord(candidateRecord);
+
+    if (options.candidateOnly) {
+      console.log(
+        `Candidate deployment recorded: ${candidateUrl} (toolRunId: ${toolRunId}). No aliases moved.`,
+      );
+      return;
+    }
+
+    executePromotionStateMachine({
+      candidateUrl,
+      targetHostnames,
+      aliasRunner: (target, host) => run("vercel", ["alias", "set", target, host]),
+      inspectRunner: (host) => run("vercel", ["inspect", host], true).stdout,
+    });
+  } finally {
+    lock.close();
+  }
 }
 
 const isMainModule =

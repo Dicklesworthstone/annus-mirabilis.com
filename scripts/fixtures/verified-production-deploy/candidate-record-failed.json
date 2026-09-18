@@ -1,0 +1,13 @@
+{
+  "schema": "annus-mirabilis-release-record.v1",
+  "toolRunId": "20260917T180000Z-deadbeef",
+  "createdAt": "2026-09-17T18:00:00.000Z",
+  "commit": "d43fb0e1234567890abcdef1234567890abcdef1",
+  "profile": "preview",
+  "candidateUrl": "https://annus-mirabilis-failed-candidate.vercel.app",
+  "candidateDeploymentId": "dpl_failed123",
+  "candidateChecksPassed": false,
+  "manifestDigest": "sha256:1111222233334444555566667777888899990000111122223333444455556666",
+  "authorizationRef": "preview.yaml#d43fb0e1",
+  "targetHostnames": ["annus-mirabilis-seven.vercel.app"]
+}
