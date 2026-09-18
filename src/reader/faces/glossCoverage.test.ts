@@ -25,9 +25,9 @@ describe("glossCoverage: per-class counts, non-percentage reporting, and zero-co
     );
 
     expect(report.paperSlug).toBe("mass-energy");
-    expect(report.totalSentences).toBe(4);
+    expect(report.totalSentences).toBe(6);
     expect(report.glossedSentences).toBe(3);
-    expect(report.unglossedSentences).toBe(1);
+    expect(report.unglossedSentences).toBe(3);
 
     // Checks that konjunktiv-i (es sei) and consequence are marked
     expect(report.modalityCounts["konjunktiv-i"]).toBeGreaterThanOrEqual(1);

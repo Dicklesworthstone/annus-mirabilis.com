@@ -79,6 +79,12 @@ const TEXT_ME_P2_S2 =
 const TEXT_ME_P2 = `${TEXT_ME_P2_S1} ${TEXT_ME_P2_S2}`;
 const DIGEST_ME_P2 = spanTextDigest(TEXT_ME_P2);
 
+const TEXT_ME_TITLE = "Ist die Trägheit eines Körpers von seinem Energieinhalt abhängig?";
+const DIGEST_ME_TITLE = spanTextDigest(TEXT_ME_TITLE);
+
+const TEXT_ME_FN1 = "A. Einstein, Ann. d. Phys. 17. p. 891. 1905.";
+const DIGEST_ME_FN1 = spanTextDigest(TEXT_ME_FN1);
+
 /**
  * Fixture Source Blocks for Paper 4.
  */
@@ -90,14 +96,24 @@ export const FIXTURE_MASS_ENERGY_SOURCE_BLOCKS: readonly SourceBlock[] = [
     section: "me-sec-01",
     order: 1,
     locators: [{ pdfPageIndex: 1, printedPage: 639 }],
-    diplomaticText: "Ist die Trägheit eines Körpers von seinem Energieinhalt abhängig?",
+    diplomaticText: TEXT_ME_TITLE,
     inlines: [
       {
         kind: "text",
-        text: "Ist die Trägheit eines Körpers von seinem Energieinhalt abhängig?",
+        text: TEXT_ME_TITLE,
       },
     ],
-    sentenceSpans: [],
+    sentenceSpans: [
+      {
+        id: "me-title-s1",
+        span: {
+          start: 0,
+          end: Array.from(TEXT_ME_TITLE).length,
+          textDigest: DIGEST_ME_TITLE,
+          blockRevision: 1,
+        },
+      },
+    ],
     revision: 1,
     status: {
       transcription: "reviewed",
@@ -217,14 +233,24 @@ export const FIXTURE_MASS_ENERGY_SOURCE_BLOCKS: readonly SourceBlock[] = [
     order: 5,
     originalLabel: "1",
     locators: [{ pdfPageIndex: 1, printedPage: 639 }],
-    diplomaticText: "1) A. Einstein, Ann. d. Phys. 17. p. 891. 1905.",
+    diplomaticText: `1) ${TEXT_ME_FN1}`,
     inlines: [
       {
         kind: "text",
-        text: "A. Einstein, Ann. d. Phys. 17. p. 891. 1905.",
+        text: TEXT_ME_FN1,
       },
     ],
-    sentenceSpans: [],
+    sentenceSpans: [
+      {
+        id: "me-fn1-s1",
+        span: {
+          start: 0,
+          end: Array.from(TEXT_ME_FN1).length,
+          textDigest: DIGEST_ME_FN1,
+          blockRevision: 1,
+        },
+      },
+    ],
     revision: 1,
     status: {
       transcription: "reviewed",
