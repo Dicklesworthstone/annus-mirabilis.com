@@ -10,10 +10,13 @@
 .me-table table { min-width: 30rem; width: 100%; border-collapse: collapse; }
 .me-table th, .me-table td { padding: .6rem; border: 1px solid currentColor; text-align: start; }
 .me-entrance details { margin-block: .75rem; }
+.me-static-solution { margin-block: 1rem; padding: .75rem; border: 1px solid currentColor; border-radius: .25rem; }
+.me-static-solution summary { cursor: pointer; font-weight: 600; }
 .me-entrance :focus-visible { outline: 3px solid currentColor; outline-offset: 3px; }
 @media print {
   .me-entrance button, .me-entrance fieldset, .me-align-target { display: none; }
   .me-table { overflow: visible; }
   .me-table table { min-width: 0; }
   .me-subtraction-steps li[hidden] { display: list-item; }
+  .me-static-solution > * { display: block; }
 }

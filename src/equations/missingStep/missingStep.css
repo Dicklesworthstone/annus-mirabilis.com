@@ -3,6 +3,8 @@
 .missing-step-panel h2 { font-size:clamp(1.3rem,3vw,2rem); }
 .missing-step-panel h3 { margin-block:1.25rem .4rem; }
 .missing-step-panel details { margin-block:.7rem; border-block-start:1px solid currentColor; padding-block:.6rem; }
+.missing-step-case { margin-block:.75rem; }
+.missing-step-modern { margin-block:1rem; border-block-start:1px dashed currentColor; padding-block:.6rem; }
 .missing-step-panel summary { min-height:2rem; cursor:pointer; font-weight:600; }
 .missing-step-equations { display:grid; grid-template-columns:repeat(2,minmax(0,1fr)); gap:1rem; }
 .missing-step-math,.missing-step-table { max-width:100%; overflow-x:auto; }
