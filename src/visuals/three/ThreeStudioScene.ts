@@ -25,7 +25,7 @@ function createLcg(initialSeed: number) {
  *
  * Museum-grade architectural studio lighting, vibrant atmospheric blue sky with
  * procedural cumulus clouds, high-luminosity sun illumination, and responsive orbit controls
- * for Classic Patents 3D WebGL physics simulations.
+ * for Annus Mirabilis 3D WebGL physics simulations.
  *
  * Provides:
  * - Vibrant Blue Sky with Procedural Fluffy 3D Cumulus Clouds
