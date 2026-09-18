@@ -1,6 +1,7 @@
 import { describe, expect, test } from "bun:test";
 import { ExperimentValidationError, validateScenario } from "../content/schemas/experiment.ts";
 import { defaultScenarioDirs, loadScenarios } from "./scenario-registry/load.ts";
+import { getOwner } from "./scenario-registry/owners.ts";
 
 const golden = {
   id: "schema-golden",
@@ -168,6 +169,100 @@ describe("scenario schema", () => {
     expect(validated.constantSetMixing?.declared).toBe(true);
     expect(validated.constantSetMixing?.reason).toBe(
       "modern k_B with printed viscosity for comparison",
+    );
+  });
+
+  test("missing tolerance spec on tolerance comparison is rejected", () => {
+    try {
+      validateScenario({
+        ...golden,
+        expected: {
+          outputs: [
+            {
+              outputId: "value",
+              value: 2,
+              comparisonKind: "tolerance",
+            },
+          ],
+        },
+      });
+      throw new Error("expected throw");
+    } catch (err) {
+      expect(err).toBeInstanceOf(ExperimentValidationError);
+      expect((err as ExperimentValidationError).code).toBe("tolerance-comparison-missing-spec");
+    }
+  });
+
+  test("invalid comparisonKind is rejected", () => {
+    try {
+      validateScenario({
+        ...golden,
+        expected: {
+          outputs: [
+            {
+              outputId: "value",
+              value: 2,
+              comparisonKind: "unrecognized-kind",
+            },
+          ],
+        },
+      });
+      throw new Error("expected throw");
+    } catch (err) {
+      expect(err).toBeInstanceOf(ExperimentValidationError);
+      expect((err as ExperimentValidationError).code).toBe("invalid-comparison-kind");
+    }
+  });
+
+  test("tolerance spec that fails validateToleranceSpec is rejected", () => {
+    // Negative relative tolerance
+    try {
+      validateScenario({
+        ...golden,
+        expected: {
+          outputs: [
+            {
+              outputId: "value",
+              value: 2,
+              comparisonKind: "tolerance",
+              tolerance: { relative: -0.05, rationale: "negative relative" },
+            },
+          ],
+        },
+      });
+      throw new Error("expected throw");
+    } catch (err) {
+      expect(err).toBeInstanceOf(ExperimentValidationError);
+      expect((err as ExperimentValidationError).code).toBe("tolerance-spec-invalid");
+      expect((err as ExperimentValidationError).message).toContain("must be a finite number in [0, 1)");
+    }
+
+    // Zero tolerance without bitwise
+    try {
+      validateScenario({
+        ...golden,
+        expected: {
+          outputs: [
+            {
+              outputId: "value",
+              value: 2,
+              comparisonKind: "tolerance",
+              tolerance: { relative: 0, absolute: 0, rationale: "neither positive" },
+            },
+          ],
+        },
+      });
+      throw new Error("expected throw");
+    } catch (err) {
+      expect(err).toBeInstanceOf(ExperimentValidationError);
+      expect((err as ExperimentValidationError).code).toBe("tolerance-spec-invalid");
+      expect((err as ExperimentValidationError).message).toContain("Neither absolute nor relative tolerance is positive");
+    }
+  });
+
+  test("unknown owner throws actionable error", () => {
+    expect(() => getOwner("nonexistent.evaluator.function")).toThrow(
+      'Unknown scenario owner "nonexistent.evaluator.function".',
     );
   });
 });

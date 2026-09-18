@@ -17,6 +17,7 @@ import {
 import type { SourceAssetRights } from "../provenance/receiptToSourceAsset.ts";
 import { type PaperDate, validatePaperDate } from "./dates.ts";
 import type { Citation } from "./source.ts";
+import { validateToleranceSpec } from "../../units/tolerance.ts";
 import { validateU64String } from "./u64String.ts";
 
 export class ExperimentValidationError extends Error {
@@ -2280,6 +2281,18 @@ export function validateScenario(raw: unknown, path = "Scenario"): Scenario {
         `${path}.tolerance.rationale`,
       );
     }
+    const tolIssues = validateToleranceSpec(
+      tol as unknown as import("../../units/tolerance.ts").ToleranceSpec,
+      1,
+    );
+    if (tolIssues.length > 0) {
+      throw new ExperimentValidationError(
+        "tolerance-spec-invalid",
+        `Tolerance specification invalid: ${tolIssues.map((issue) => issue.message).join("; ")}`,
+        "Scenario",
+        `${path}.tolerance`,
+      );
+    }
   }
 
   // Expected block validation
@@ -2346,6 +2359,18 @@ export function validateScenario(raw: unknown, path = "Scenario"): Scenario {
           throw new ExperimentValidationError(
             "tolerance-comparison-missing-spec",
             "Tolerance comparison requires at least one positive absolute/relative tolerance AND a rationale.",
+            "Scenario",
+            `${eoPath}.tolerance`,
+          );
+        }
+        const tolIssues = validateToleranceSpec(
+          tol as unknown as import("../../units/tolerance.ts").ToleranceSpec,
+          typeof eoRaw.value === "number" ? eoRaw.value : 1,
+        );
+        if (tolIssues.length > 0) {
+          throw new ExperimentValidationError(
+            "tolerance-spec-invalid",
+            `Tolerance specification invalid: ${tolIssues.map((issue) => issue.message).join("; ")}`,
             "Scenario",
             `${eoPath}.tolerance`,
           );

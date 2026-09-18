@@ -2,6 +2,7 @@ import { mkdirSync, mkdtempSync, writeFileSync } from "node:fs";
 import { tmpdir } from "node:os";
 import { dirname, join } from "node:path";
 import { isValidToleranceRationale, type Scenario } from "../../content/schemas/experiment.ts";
+import { validateToleranceSpec } from "../../units/tolerance.ts";
 import {
   type ConstantSet,
   createDeclaredConstantSet,
@@ -602,6 +603,19 @@ function runOne(
         return { ...base, status: "failed", message: `${expected.outputId} bitwise mismatch.` };
       }
       continue;
+    }
+    if (expected.tolerance) {
+      const tolIssues = validateToleranceSpec(
+        expected.tolerance as import("../../units/tolerance.ts").ToleranceSpec,
+        typeof expected.value === "number" ? expected.value : 1,
+      );
+      if (tolIssues.length > 0) {
+        return {
+          ...base,
+          status: "failed",
+          message: `Tolerance specification invalid: ${tolIssues.map((i) => i.message).join("; ")}`,
+        };
+      }
     }
     const compared = compareByKind("tolerance", actual, expected.value, {
       tolerance: {

@@ -1,5 +1,5 @@
 import { describe, expect, test } from "bun:test";
-import { readFileSync } from "node:fs";
+import { existsSync, readFileSync } from "node:fs";
 import { join } from "node:path";
 import { defaultScenarioDirs, loadScenarios } from "./scenario-registry/load.ts";
 import { runScenariosIsolated } from "./scenario-registry/run.ts";
@@ -54,11 +54,25 @@ describe("scenario runner", () => {
         owner: "selfTest.halfScale",
       },
     };
-    const { results, failed } = runScenariosIsolated([wrongRun]);
+    const { results, failed, logRoot, logRunId } = runScenariosIsolated([wrongRun]);
     expect(failed).toBe(1);
     expect(results[0]?.status).toBe("failed");
     expect(results[0]?.message).toContain("rmsDisplacement1d");
     expect(results[0]?.message).toContain("is outside tolerance");
+
+    // AC 13: a deliberately failing self-test scenario writes its failure file
+    const failureFilePath = join(
+      logRoot,
+      "scenarios",
+      logRunId,
+      "failures",
+      `${wrongRun.scenario.id}.json`,
+    );
+    expect(existsSync(failureFilePath)).toBe(true);
+    const failureRecord = JSON.parse(readFileSync(failureFilePath, "utf8"));
+    expect(failureRecord.scenarioId).toBe(wrongRun.scenario.id);
+    expect(failureRecord.reproductionCommand).toContain("run-scenarios.ts");
+    expect(failureRecord.message).toContain("is outside tolerance");
 
     // Check that it failed for the declared intended reason:
     expect(loaded.scenario.plausibleMistake).toBe(
