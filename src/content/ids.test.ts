@@ -677,4 +677,158 @@ describe("refusal coverage: slugs, bib keys, and paper codes (ids.ts throw sites
     const pass = parseTapeId("the-locked-positions");
     expect(pass.ok).toBe(true);
   });
+
+  test("PLANTED: invalid section ID refuses with section-id-grammar (ids.ts:404)", () => {
+    const res = parseSectionId("invalid");
+    expect(res.ok).toBe(false);
+    if (!res.ok) {
+      expect(res.rule).toBe("section-id-grammar");
+      expect(res.error).toContain("Invalid section ID");
+    }
+    const pass = parseSectionId("s0");
+    expect(pass.ok).toBe(true);
+  });
+
+  test("PLANTED: retired heading ID ending with -h refuses with heading-id-grammar (ids.ts:423)", () => {
+    const res = parseHeadingId("s3-h");
+    expect(res.ok).toBe(false);
+    if (!res.ok) {
+      expect(res.rule).toBe("heading-id-grammar");
+      expect(res.error).toContain("Retired heading ID");
+    }
+    const pass = parseHeadingId("s3");
+    expect(pass.ok).toBe(true);
+  });
+
+  test("PLANTED: invalid heading ID refuses with heading-id-grammar (ids.ts:429)", () => {
+    const res = parseHeadingId("invalid");
+    expect(res.ok).toBe(false);
+    if (!res.ok) {
+      expect(res.rule).toBe("heading-id-grammar");
+      expect(res.error).toContain("Invalid heading ID");
+    }
+    const passPart = parseHeadingId("part-1");
+    expect(passPart.ok).toBe(true);
+  });
+
+  test("PLANTED: invalid paragraph ID refuses with paragraph-id-grammar (ids.ts:440)", () => {
+    const res = parseParagraphId("invalid");
+    expect(res.ok).toBe(false);
+    if (!res.ok) {
+      expect(res.rule).toBe("paragraph-id-grammar");
+      expect(res.error).toContain("Invalid paragraph ID");
+    }
+    const pass = parseParagraphId("s3-p2");
+    expect(pass.ok).toBe(true);
+  });
+
+  test("PLANTED: invalid sentence ID refuses with sentence-id-grammar (ids.ts:458)", () => {
+    const res = parseSentenceId("invalid");
+    expect(res.ok).toBe(false);
+    if (!res.ok) {
+      expect(res.rule).toBe("sentence-id-grammar");
+      expect(res.error).toContain("Invalid sentence ID");
+    }
+    const pass = parseSentenceId("s3-p2-s1");
+    expect(pass.ok).toBe(true);
+  });
+
+  test("PLANTED: invalid footnote ID refuses with footnote-id-grammar (ids.ts:476)", () => {
+    const res = parseFootnoteId("invalid");
+    expect(res.ok).toBe(false);
+    if (!res.ok) {
+      expect(res.rule).toBe("footnote-id-grammar");
+      expect(res.error).toContain("Invalid footnote ID");
+    }
+    const pass = parseFootnoteId("s3-fn1");
+    expect(pass.ok).toBe(true);
+  });
+
+  test("PLANTED: retired closing sentence ID with -s refuses with closing-id-grammar (ids.ts:488)", () => {
+    const res = parseClosingId("closing-ack-s1");
+    expect(res.ok).toBe(false);
+    if (!res.ok) {
+      expect(res.rule).toBe("closing-id-grammar");
+      expect(res.error).toContain("Retired closing sentence ID");
+    }
+    const pass = parseClosingId("closing-ack");
+    expect(pass.ok).toBe(true);
+  });
+
+  test("PLANTED: invalid closing ID refuses with closing-id-grammar (ids.ts:494)", () => {
+    const res = parseClosingId("closing-invalid");
+    expect(res.ok).toBe(false);
+    if (!res.ok) {
+      expect(res.rule).toBe("closing-id-grammar");
+      expect(res.error).toContain("Invalid closing ID");
+    }
+    const pass = parseClosingId("closing-dateline");
+    expect(pass.ok).toBe(true);
+  });
+
+  test("PLANTED: invalid alignable unit ID refuses with alignable-unit-grammar (ids.ts:512)", () => {
+    const res = parseAlignableUnitId("invalid-alignable");
+    expect(res.ok).toBe(false);
+    if (!res.ok) {
+      expect(res.rule).toBe("alignable-unit-grammar");
+      expect(res.error).toContain("Invalid alignable unit ID");
+    }
+    const pass = parseAlignableUnitId("s3-p2-s1");
+    expect(pass.ok).toBe(true);
+  });
+
+  test("PLANTED: invalid translation unit ID refuses with translation-unit-grammar (ids.ts:548)", () => {
+    const res = parseTranslationUnitId("invalid-translation-unit");
+    expect(res.ok).toBe(false);
+    if (!res.ok) {
+      expect(res.rule).toBe("translation-unit-grammar");
+      expect(res.error).toContain("Invalid translation unit ID");
+    }
+    const pass = parseTranslationUnitId("s3-p2-s1a");
+    expect(pass.ok).toBe(true);
+  });
+
+  test("PLANTED: invalid inline math ID refuses with inline-math-grammar (ids.ts:562)", () => {
+    const res = parseInlineMathId("invalid-m1");
+    expect(res.ok).toBe(false);
+    if (!res.ok) {
+      expect(res.rule).toBe("inline-math-grammar");
+      expect(res.error).toContain("Invalid inline math ID");
+    }
+    const pass = parseInlineMathId("s3-p2-s1-m1");
+    expect(pass.ok).toBe(true);
+  });
+
+  test("PLANTED: invalid reference ID refuses with reference-id-grammar (ids.ts:577)", () => {
+    const res = parseReferenceId("invalid-r1");
+    expect(res.ok).toBe(false);
+    if (!res.ok) {
+      expect(res.rule).toBe("reference-id-grammar");
+      expect(res.error).toContain("Invalid reference occurrence ID");
+    }
+    const pass = parseReferenceId("s3-p2-s1-r1");
+    expect(pass.ok).toBe(true);
+  });
+
+  test("PLANTED: invalid equation anchor refuses with equation-anchor-grammar (ids.ts:648)", () => {
+    const res = parseEquationAnchor("invalid-eq");
+    expect(res.ok).toBe(false);
+    if (!res.ok) {
+      expect(res.rule).toBe("equation-anchor-grammar");
+      expect(res.error).toContain("Invalid equation anchor");
+    }
+    const pass = parseEquationAnchor("eq-7");
+    expect(pass.ok).toBe(true);
+  });
+
+  test("PLANTED: invalid equation record ID refuses with equation-record-id-grammar (ids.ts:663)", () => {
+    const res = parseEquationRecordId("eq-invalid-s3-d4");
+    expect(res.ok).toBe(false);
+    if (!res.ok) {
+      expect(res.rule).toBe("equation-record-id-grammar");
+      expect(res.error).toContain("Invalid global equation record ID");
+    }
+    const pass = parseEquationRecordId("eq-bm-s3-d4");
+    expect(pass.ok).toBe(true);
+  });
 });
