@@ -3,6 +3,7 @@ import { getLogger } from "../../testing/log/logger.ts";
 import { fixtureLorentzMapConstruction, fixturePaper4TwoLedgers } from "../derivations/fixtures.ts";
 import { buildGenealogy } from "./buildGenealogy.ts";
 import { validateGenealogyConsistency } from "./consistency.ts";
+import type { DerivationChain } from "../derivations/types.ts";
 import type { GenealogyEdge, GenealogyGraph } from "./types.ts";
 
 const logger = getLogger("equations-genealogy");
@@ -398,98 +399,159 @@ describe("am-eq-genealogy-hmm: validateGenealogyConsistency", () => {
   });
 
   describe("consistency refusal throw sites (am-muyh)", () => {
+    const sampleChains: readonly DerivationChain[] | undefined = [fixtureLorentzMapConstruction];
+
+    const entryAssumptionEdges: readonly GenealogyEdge[] = [
+      { from: "premise-relativity-principle", to: "sr-ped-step-1", edgeType: "pedagogical-reconstruction", isPremise: true, crossPaper: false },
+      { from: "premise-constancy-light-speed", to: "sr-ped-step-1", edgeType: "pedagogical-reconstruction", isPremise: true, crossPaper: false },
+      { from: "premise-spatial-isotropy", to: "sr-ped-step-1", edgeType: "pedagogical-reconstruction", isPremise: true, crossPaper: false },
+    ];
+
     const baseGraph: GenealogyGraph = {
       paper: "special-relativity",
       perspective: "historical",
       nodes: [
-        { id: "step-1", paper: "special-relativity", label: "Step 1", type: "equation", isRoot: false, isNumberedResult: false },
-        { id: "step-2", paper: "special-relativity", label: "Step 2", type: "equation", isRoot: false, isNumberedResult: false },
-        { id: "premise-A", paper: "special-relativity", label: "Premise A", type: "premise", isRoot: true, isNumberedResult: false },
-        { id: "target-eq", paper: "special-relativity", label: "Target", type: "result", isRoot: false, isNumberedResult: true },
+        { id: "sr-ped-step-1", paper: "special-relativity", label: "Step 1", type: "equation", isRoot: false, isNumberedResult: false },
+        { id: "sr-ped-step-2", paper: "special-relativity", label: "Step 2", type: "equation", isRoot: false, isNumberedResult: false },
+        { id: "sr-ped-step-4", paper: "special-relativity", label: "Step 4", type: "equation", isRoot: false, isNumberedResult: false },
+        { id: "sr-ped-step-6", paper: "special-relativity", label: "Step 6", type: "equation", isRoot: false, isNumberedResult: false },
+        { id: "premise-relativity-principle", paper: "special-relativity", label: "Relativity", type: "premise", isRoot: true, isNumberedResult: false },
+        { id: "premise-constancy-light-speed", paper: "special-relativity", label: "Light Speed", type: "premise", isRoot: true, isNumberedResult: false },
+        { id: "premise-spatial-isotropy", paper: "special-relativity", label: "Spatial Isotropy", type: "premise", isRoot: true, isNumberedResult: false },
+        { id: "eq-sr-03-lorentz-boost", paper: "special-relativity", label: "Lorentz Boost", type: "result", isRoot: false, isNumberedResult: true },
       ],
-      edges: [],
-      roots: ["premise-A"],
+      edges: entryAssumptionEdges,
+      roots: ["premise-relativity-principle", "premise-constancy-light-speed", "premise-spatial-isotropy"],
       crossPaperEdges: [],
     };
 
     test("refusal (consistency.ts:135): missing-premise-edge reports missing sequential step edge", () => {
-      const chain = {
-        id: "chain-seq",
-        paper: "special-relativity",
-        routeKind: "historical-derivation",
-        entryAssumptions: [],
-        steps: [
-          { id: "step-1", premiseRefs: [] },
-          { id: "step-2", premiseRefs: [] },
-        ],
-      } as unknown as Parameters<typeof validateGenealogyConsistency>[2] extends readonly (infer U)[] | undefined ? U : never;
+      if (!sampleChains || sampleChains.length === 0) {
+        throw new Error("sampleChains must be defined and non-empty");
+      }
+      const chain = sampleChains[0];
+      if (!chain) {
+        throw new Error("chain at index 0 must be defined");
+      }
 
-      // Accept: sequential edge present
+      // Accept: sequential edge present with valid PremiseEdgeType
       const acceptedGraph: GenealogyGraph = {
         ...baseGraph,
-        edges: [{ from: "step-1", to: "step-2", edgeType: "historical-derivation", isPremise: false, crossPaper: false }],
+        edges: [
+          ...entryAssumptionEdges,
+          {
+            from: "sr-ped-step-1",
+            to: "sr-ped-step-2",
+            edgeType: "pedagogical-reconstruction",
+            isPremise: false,
+            crossPaper: false,
+          },
+        ],
       };
       const passDiags = validateGenealogyConsistency(acceptedGraph, [], [chain], { isPaper3: false });
-      expect(passDiags.some((d) => d.code === "missing-premise-edge" && d.edge?.from === "step-1" && d.edge?.to === "step-2")).toBe(false);
+      expect(
+        passDiags.some(
+          (d) => d.code === "missing-premise-edge" && d.edge?.from === "sr-ped-step-1" && d.edge?.to === "sr-ped-step-2",
+        ),
+      ).toBe(false);
 
       // Reject: sequential edge missing
       const failDiags = validateGenealogyConsistency(baseGraph, [], [chain], { isPaper3: false });
-      const missing = failDiags.find((d) => d.code === "missing-premise-edge" && d.edge?.from === "step-1" && d.edge?.to === "step-2");
+      const missing = failDiags.find(
+        (d) => d.code === "missing-premise-edge" && d.edge?.from === "sr-ped-step-1" && d.edge?.to === "sr-ped-step-2",
+      );
       expect(missing).toBeDefined();
-      expect(missing?.message).toContain('sequential step "step-1" -> "step-2" is missing');
+      expect(missing?.message).toContain('sequential step "sr-ped-step-1" -> "sr-ped-step-2" is missing');
     });
 
     test("refusal (consistency.ts:149): missing-premise-edge reports missing premise reference edge", () => {
-      const chain = {
-        id: "chain-premise",
-        paper: "special-relativity",
-        routeKind: "historical-derivation",
-        entryAssumptions: [],
-        steps: [
-          { id: "step-1", premiseRefs: [{ ref: "premise-A", edgeType: "historical-derivation" }] },
-        ],
-      } as unknown as Parameters<typeof validateGenealogyConsistency>[2] extends readonly (infer U)[] | undefined ? U : never;
+      if (!sampleChains || sampleChains.length === 0) {
+        throw new Error("sampleChains must be defined and non-empty");
+      }
+      const chain = sampleChains[0];
+      if (!chain) {
+        throw new Error("chain at index 0 must be defined");
+      }
 
-      // Accept: premise edge present
+      // Accept: step premise edge present with valid PremiseEdgeType
       const acceptedGraph: GenealogyGraph = {
         ...baseGraph,
-        edges: [{ from: "premise-A", to: "step-1", edgeType: "historical-derivation", isPremise: true, crossPaper: false }],
+        edges: [
+          ...entryAssumptionEdges,
+          {
+            from: "premise-spatial-isotropy",
+            to: "sr-ped-step-4",
+            edgeType: "pedagogical-reconstruction",
+            isPremise: true,
+            crossPaper: false,
+          },
+        ],
       };
       const passDiags = validateGenealogyConsistency(acceptedGraph, [], [chain], { isPaper3: false });
-      expect(passDiags.some((d) => d.code === "missing-premise-edge" && d.edge?.from === "premise-A" && d.edge?.to === "step-1")).toBe(false);
+      expect(
+        passDiags.some(
+          (d) =>
+            d.code === "missing-premise-edge" &&
+            d.edge?.from === "premise-spatial-isotropy" &&
+            d.edge?.to === "sr-ped-step-4",
+        ),
+      ).toBe(false);
 
-      // Reject: premise edge missing
+      // Reject: step premise edge missing
       const failDiags = validateGenealogyConsistency(baseGraph, [], [chain], { isPaper3: false });
-      const missing = failDiags.find((d) => d.code === "missing-premise-edge" && d.edge?.from === "premise-A" && d.edge?.to === "step-1");
+      const missing = failDiags.find(
+        (d) =>
+          d.code === "missing-premise-edge" &&
+          d.edge?.from === "premise-spatial-isotropy" &&
+          d.edge?.to === "sr-ped-step-4",
+      );
       expect(missing).toBeDefined();
-      expect(missing?.message).toContain('cites premise "premise-A" but no genealogy edge exists');
+      expect(missing?.message).toContain('step "sr-ped-step-4" cites premise "premise-spatial-isotropy" but no genealogy edge exists');
     });
 
     test("refusal (consistency.ts:166): missing-premise-edge reports missing last-step to target edge", () => {
-      const chain = {
-        id: "chain-target",
-        paper: "special-relativity",
-        routeKind: "historical-derivation",
-        entryAssumptions: [],
-        target: "target-eq",
-        steps: [
-          { id: "step-1", premiseRefs: [] },
-        ],
-      } as unknown as Parameters<typeof validateGenealogyConsistency>[2] extends readonly (infer U)[] | undefined ? U : never;
+      if (!sampleChains || sampleChains.length === 0) {
+        throw new Error("sampleChains must be defined and non-empty");
+      }
+      const chain = sampleChains[0];
+      if (!chain) {
+        throw new Error("chain at index 0 must be defined");
+      }
 
-      // Accept: target edge present
+      // Accept: target edge present with valid PremiseEdgeType
       const acceptedGraph: GenealogyGraph = {
         ...baseGraph,
-        edges: [{ from: "step-1", to: "target-eq", edgeType: "historical-derivation", isPremise: false, crossPaper: false }],
+        edges: [
+          ...entryAssumptionEdges,
+          {
+            from: "sr-ped-step-6",
+            to: "eq-sr-03-lorentz-boost",
+            edgeType: "pedagogical-reconstruction",
+            isPremise: false,
+            crossPaper: false,
+          },
+        ],
       };
       const passDiags = validateGenealogyConsistency(acceptedGraph, [], [chain], { isPaper3: false });
-      expect(passDiags.some((d) => d.code === "missing-premise-edge" && d.edge?.from === "step-1" && d.edge?.to === "target-eq")).toBe(false);
+      expect(
+        passDiags.some(
+          (d) =>
+            d.code === "missing-premise-edge" &&
+            d.edge?.from === "sr-ped-step-6" &&
+            d.edge?.to === "eq-sr-03-lorentz-boost",
+        ),
+      ).toBe(false);
 
       // Reject: target edge missing
       const failDiags = validateGenealogyConsistency(baseGraph, [], [chain], { isPaper3: false });
-      const missing = failDiags.find((d) => d.code === "missing-premise-edge" && d.edge?.from === "step-1" && d.edge?.to === "target-eq");
+      const missing = failDiags.find(
+        (d) =>
+          d.code === "missing-premise-edge" &&
+          d.edge?.from === "sr-ped-step-6" &&
+          d.edge?.to === "eq-sr-03-lorentz-boost",
+      );
       expect(missing).toBeDefined();
-      expect(missing?.message).toContain('target connection "step-1" -> "target-eq" is missing');
+      expect(missing?.message).toContain('target connection "sr-ped-step-6" -> "eq-sr-03-lorentz-boost" is missing');
     });
   });
 });
