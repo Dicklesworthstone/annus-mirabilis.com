@@ -153,7 +153,7 @@ export function RodSimultaneityLab({
 
   return (
     <section
-      className="laboratory flex flex-col gap-6 max-w-5xl mx-auto p-4"
+      className="laboratory"
       aria-labelledby={`${id}-title`}
       data-instrument-id="sr-03"
       data-testid="rod-simultaneity-lab"
@@ -167,91 +167,109 @@ export function RodSimultaneityLab({
       data-result-status={measOut?.status ?? "value"}
       {...(view.refusal ? { "data-refusal-code": view.refusal.code } : {})}
     >
-      <header className="lab-heading border-b border-slate-200 dark:border-slate-800 pb-3">
-        <div className="flex flex-wrap items-center justify-between gap-2">
+      <header
+        className="lab-heading"
+        style={{
+          borderBottom: "1px solid var(--line)",
+          paddingBottom: "0.75rem",
+          marginBottom: "1rem",
+        }}
+      >
+        <div
+          style={{
+            display: "flex",
+            flexWrap: "wrap",
+            alignItems: "center",
+            justifyContent: "space-between",
+            gap: "0.5rem",
+            width: "100%",
+          }}
+        >
           <div>
-            <p className="eyebrow text-xs font-mono uppercase tracking-wider text-sky-700 dark:text-sky-300">
-              SR-03 · An executable laboratory
-            </p>
-            <h2 id={`${id}-title`} className="text-xl font-bold text-slate-900 dark:text-slate-100">
-              {title}
-            </h2>
+            <p className="eyebrow">SR-03 · An executable laboratory</p>
+            <h2 id={`${id}-title`}>{title}</h2>
           </div>
-          <span className="badge text-xs px-2.5 py-1 rounded bg-sky-100 dark:bg-sky-950 text-sky-800 dark:text-sky-300 font-medium">
-            {SR03_MODEL.label}
-          </span>
+          <span className="badge">{SR03_MODEL.label}</span>
         </div>
       </header>
 
       <noscript>
-        <p className="notice p-3 bg-amber-50 dark:bg-amber-950/40 text-amber-900 dark:text-amber-200 text-xs rounded border border-amber-200 dark:border-amber-900">
+        <p className="notice">
           JavaScript is off. This is a complete worked example calculated when the site was built.
           Its plots, event tables, model assumptions and explanations remain available; changing the
           settings requires JavaScript.
         </p>
       </noscript>
 
-      <p className="text-sm text-slate-700 dark:text-slate-300">
+      <p>
         In §2 of <em>Zur Elektrodynamik bewegter Körper</em> (1905), Einstein demonstrates that two
         events simultaneous from the perspective of one reference frame are not simultaneous when
         viewed from another in relative motion. In §4, he derives the physical meaning of moving
         rigid bodies, proving that measuring the length of a moving rod requires taking coordinate
         positions of its endpoints at <strong>one single instant of the measuring frame</strong>,
-        contracting its measured length to <span className="font-mono">L = L₀/γ</span>, while a
-        sphere of radius <span className="font-mono">R</span> is measured as an ellipsoid with axes{" "}
-        <span className="font-mono">(R/γ, R, R)</span>.
+        contracting its measured length to{" "}
+        <code style={{ fontFamily: "var(--font-mono)" }}>L = L₀/γ</code>, while a sphere of radius{" "}
+        <code style={{ fontFamily: "var(--font-mono)" }}>R</code> is measured as an ellipsoid with
+        axes <code style={{ fontFamily: "var(--font-mono)" }}>(R/γ, R, R)</code>.
       </p>
 
       {/* Discovery Predict Mode */}
       <section
-        className="predict-mode-box bg-amber-50/60 dark:bg-amber-950/20 border border-amber-200 dark:border-amber-900/50 rounded-lg p-4"
+        className="notice"
+        style={{ margin: "1.5rem 0" }}
         aria-label="Predict before calculating"
       >
-        <div className="flex flex-wrap items-center justify-between gap-2 mb-2">
-          <h3 className="text-sm font-semibold text-amber-900 dark:text-amber-200">
-            Discovery Mode: Predict Before Calculating
-          </h3>
-          <div className="flex gap-2">
+        <div
+          style={{
+            display: "flex",
+            flexWrap: "wrap",
+            alignItems: "center",
+            justifyContent: "space-between",
+            gap: "0.5rem",
+            marginBottom: "0.75rem",
+          }}
+        >
+          <h3 style={{ margin: 0 }}>Discovery Mode: Predict Before Calculating</h3>
+          <div className="button-group">
             <button
               type="button"
               onClick={() => setActivePromptKey("endpoint-pair")}
-              className={`text-xs px-2.5 py-1 rounded transition ${
-                activePromptKey === "endpoint-pair"
-                  ? "bg-amber-600 text-white font-medium"
-                  : "bg-white dark:bg-slate-800 text-slate-700 dark:text-slate-300 border border-amber-300 dark:border-amber-800"
-              }`}
+              className={`button ${activePromptKey === "endpoint-pair" ? "" : "secondary"}`}
             >
               Relativity of Simultaneity
             </button>
             <button
               type="button"
               onClick={() => setActivePromptKey("causal-order")}
-              className={`text-xs px-2.5 py-1 rounded transition ${
-                activePromptKey === "causal-order"
-                  ? "bg-amber-600 text-white font-medium"
-                  : "bg-white dark:bg-slate-800 text-slate-700 dark:text-slate-300 border border-amber-300 dark:border-amber-800"
-              }`}
+              className={`button ${activePromptKey === "causal-order" ? "" : "secondary"}`}
             >
               Invariant Causal Order
             </button>
           </div>
         </div>
 
-        <p className="text-sm font-medium text-slate-800 dark:text-slate-100 mb-3">
-          {currentPrompt.question}
-        </p>
+        <p style={{ fontWeight: 500, margin: "0.5rem 0" }}>{currentPrompt.question}</p>
 
-        <div className="grid grid-cols-1 md:grid-cols-3 gap-2 mb-3">
+        <div className="input-grid" style={{ margin: "0.75rem 0" }}>
           {currentPrompt.candidates.map((c) => (
             <label
               key={c.id}
-              className={`flex flex-col gap-1 p-2.5 rounded border text-xs cursor-pointer transition ${
-                selectedCandidates[currentPrompt.id] === c.id
-                  ? "bg-amber-100/70 dark:bg-amber-900/40 border-amber-500 text-amber-950 dark:text-amber-100"
-                  : "bg-white dark:bg-slate-900 border-slate-200 dark:border-slate-800 text-slate-700 dark:text-slate-300 hover:bg-slate-50"
-              }`}
+              className="notice"
+              style={{
+                cursor: "pointer",
+                display: "flex",
+                flexDirection: "column",
+                gap: "0.25rem",
+                padding: "0.65rem",
+                background:
+                  selectedCandidates[currentPrompt.id] === c.id ? "var(--wash)" : "var(--paper)",
+                border:
+                  selectedCandidates[currentPrompt.id] === c.id
+                    ? "2px solid var(--accent)"
+                    : "1px solid var(--rule)",
+              }}
             >
-              <div className="flex items-center gap-2">
+              <div style={{ display: "flex", alignItems: "center", gap: "0.5rem" }}>
                 <input
                   type="radio"
                   name={`${id}-predict-${currentPrompt.id}`}
@@ -260,34 +278,38 @@ export function RodSimultaneityLab({
                   onChange={() =>
                     setSelectedCandidates((prev) => ({ ...prev, [currentPrompt.id]: c.id }))
                   }
-                  className="rounded-full text-amber-600"
+                  style={{ width: "auto" }}
                 />
-                <span className="font-semibold">{c.label}</span>
+                <strong>{c.label}</strong>
               </div>
-              <span className="text-[11px] text-slate-500 dark:text-slate-400">
-                {c.description}
+              <span className="fine">{c.description}</span>
+              <span className="fine" style={{ fontFamily: "var(--font-mono)" }}>
+                {c.separatingAssumption}
               </span>
-              <span className="text-[10px] font-mono text-slate-400">{c.separatingAssumption}</span>
             </label>
           ))}
         </div>
 
         {selectedCandidates[currentPrompt.id] && (
-          <div className="text-xs p-3 rounded bg-white dark:bg-slate-900 border border-amber-200 dark:border-amber-900 text-slate-700 dark:text-slate-300">
-            <span className="font-semibold text-amber-800 dark:text-amber-300">Model reveal: </span>
+          <div className="notice" style={{ marginTop: "0.75rem" }}>
+            <span className="eyebrow" style={{ marginRight: "0.5rem" }}>
+              Model reveal:{" "}
+            </span>
             {currentPrompt.modelReveal}
           </div>
         )}
       </section>
 
       {/* Presets Bar */}
-      <div className="flex flex-wrap items-center gap-2">
-        <span className="text-xs font-semibold text-slate-600 dark:text-slate-400">Presets:</span>
+      <div className="preset-list" style={{ alignItems: "center", margin: "1rem 0" }}>
+        <span className="fine" style={{ fontWeight: "bold" }}>
+          Presets:
+        </span>
         {Object.entries(SR03_PRESETS).map(([key, item]) => (
           <button
             key={key}
             type="button"
-            className="text-xs px-2.5 py-1 rounded bg-slate-100 dark:bg-slate-800 hover:bg-slate-200 dark:hover:bg-slate-700 border border-slate-300 dark:border-slate-700 transition"
+            className="button secondary"
             onClick={() => preset(item.parameters)}
           >
             {item.label}
@@ -297,21 +319,27 @@ export function RodSimultaneityLab({
 
       {/* Non-simultaneous refusal banner & repair */}
       {isNonSimultaneousRefusal && (
-        <div className="bg-amber-50 dark:bg-amber-950/40 border border-amber-300 dark:border-amber-700 rounded-lg p-3 flex flex-wrap items-center justify-between gap-3">
+        <div
+          className="notice error"
+          style={{
+            display: "flex",
+            flexWrap: "wrap",
+            alignItems: "center",
+            justifyContent: "space-between",
+            gap: "0.75rem",
+            margin: "1rem 0",
+          }}
+        >
           <div>
-            <p className="text-xs font-semibold text-amber-900 dark:text-amber-200">
+            <p style={{ fontWeight: "bold", margin: 0 }}>
               Refusal: Non-simultaneous Endpoint Measurement
             </p>
-            <p className="text-xs text-amber-800 dark:text-amber-300">
+            <p className="fine" style={{ margin: "0.25rem 0 0" }}>
               {measOut?.reason ??
                 "These endpoint events are not simultaneous in the measuring frame; choose endpoints at one time of that frame."}
             </p>
           </div>
-          <button
-            type="button"
-            onClick={repairToSimultaneous}
-            className="text-xs px-3 py-1.5 rounded bg-amber-600 hover:bg-amber-700 text-white font-medium transition shrink-0"
-          >
+          <button type="button" onClick={repairToSimultaneous} className="button">
             Repair to frame-simultaneous endpoints
           </button>
         </div>
@@ -322,22 +350,15 @@ export function RodSimultaneityLab({
         onSubmit={submit}
         aria-label="Rod measurement and simultaneity settings"
         aria-describedby={error ? `${id}-error` : undefined}
-        className="bg-slate-50 dark:bg-slate-900/60 p-4 rounded-lg border border-slate-200 dark:border-slate-800"
+        style={{ margin: "1.5rem 0" }}
       >
-        <fieldset disabled={!ready} className="flex flex-col gap-4">
-          <legend className="text-xs font-semibold text-slate-700 dark:text-slate-300 mb-2">
-            Interactive Kinematic Controls
-          </legend>
+        <fieldset disabled={!ready}>
+          <legend>Interactive Kinematic Controls</legend>
 
-          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
+          <div className="input-grid">
             {/* Rod Rest Frame */}
-            <div className="flex flex-col gap-1">
-              <label
-                htmlFor={`${id}-rest-frame`}
-                className="text-xs font-medium text-slate-700 dark:text-slate-300"
-              >
-                Rod Rest Frame
-              </label>
+            <div className="input-field">
+              <label htmlFor={`${id}-rest-frame`}>Rod Rest Frame</label>
               <select
                 id={`${id}-rest-frame`}
                 value={draft.rodRestFrame}
@@ -348,7 +369,7 @@ export function RodSimultaneityLab({
                     apply(fromSr03Draft(next));
                   } catch {}
                 }}
-                className="text-xs p-1.5 rounded border border-slate-300 dark:border-slate-700 bg-white dark:bg-slate-800 font-mono"
+                style={{ fontFamily: "var(--font-mono)" }}
               >
                 <option value="k">Frame k (Moving at velocity v)</option>
                 <option value="K">Frame K (Platform at rest)</option>
@@ -356,13 +377,8 @@ export function RodSimultaneityLab({
             </div>
 
             {/* Measuring Frame */}
-            <div className="flex flex-col gap-1">
-              <label
-                htmlFor={`${id}-meas-frame`}
-                className="text-xs font-medium text-slate-700 dark:text-slate-300"
-              >
-                Measuring Observer Frame
-              </label>
+            <div className="input-field">
+              <label htmlFor={`${id}-meas-frame`}>Measuring Observer Frame</label>
               <select
                 id={`${id}-meas-frame`}
                 value={draft.measuringFrame}
@@ -373,7 +389,7 @@ export function RodSimultaneityLab({
                     apply(fromSr03Draft(next));
                   } catch {}
                 }}
-                className="text-xs p-1.5 rounded border border-slate-300 dark:border-slate-700 bg-white dark:bg-slate-800 font-mono"
+                style={{ fontFamily: "var(--font-mono)" }}
               >
                 <option value="K">Frame K (Platform observer)</option>
                 <option value="k">Frame k (Moving observer)</option>
@@ -381,10 +397,12 @@ export function RodSimultaneityLab({
             </div>
 
             {/* Frame Velocity v */}
-            <div className="flex flex-col gap-1">
-              <div className="flex justify-between text-xs">
+            <div className="input-field">
+              <div style={{ display: "flex", justifyContent: "space-between" }}>
                 <label htmlFor={`${id}-v`}>Relative Speed v (fraction of c)</label>
-                <span className="font-mono text-slate-500">{p.v.toFixed(2)} c</span>
+                <span className="fine" style={{ fontFamily: "var(--font-mono)" }}>
+                  {p.v.toFixed(2)} c
+                </span>
               </div>
               <input
                 id={`${id}-v-range`}
@@ -415,15 +433,17 @@ export function RodSimultaneityLab({
                     apply(fromSr03Draft(next));
                   } catch {}
                 }}
-                className="text-xs px-2 py-0.5 rounded border border-slate-300 dark:border-slate-700 bg-white dark:bg-slate-800 font-mono w-24"
+                style={{ fontFamily: "var(--font-mono)", width: "6rem", marginTop: "0.25rem" }}
               />
             </div>
 
             {/* Proper Length L0 */}
-            <div className="flex flex-col gap-1">
-              <div className="flex justify-between text-xs">
+            <div className="input-field">
+              <div style={{ display: "flex", justifyContent: "space-between" }}>
                 <label htmlFor={`${id}-l0`}>Proper Length L₀ (light-seconds)</label>
-                <span className="font-mono text-slate-500">{p.L0.toFixed(1)} ls</span>
+                <span className="fine" style={{ fontFamily: "var(--font-mono)" }}>
+                  {p.L0.toFixed(1)} ls
+                </span>
               </div>
               <input
                 id={`${id}-l0-range`}
@@ -454,15 +474,17 @@ export function RodSimultaneityLab({
                     apply(fromSr03Draft(next));
                   } catch {}
                 }}
-                className="text-xs px-2 py-0.5 rounded border border-slate-300 dark:border-slate-700 bg-white dark:bg-slate-800 font-mono w-24"
+                style={{ fontFamily: "var(--font-mono)", width: "6rem", marginTop: "0.25rem" }}
               />
             </div>
 
             {/* Sphere Radius R */}
-            <div className="flex flex-col gap-1">
-              <div className="flex justify-between text-xs">
+            <div className="input-field">
+              <div style={{ display: "flex", justifyContent: "space-between" }}>
                 <label htmlFor={`${id}-r`}>Sphere Radius R (ls)</label>
-                <span className="font-mono text-slate-500">{p.R.toFixed(1)} ls</span>
+                <span className="fine" style={{ fontFamily: "var(--font-mono)" }}>
+                  {p.R.toFixed(1)} ls
+                </span>
               </div>
               <input
                 id={`${id}-r-range`}
@@ -493,18 +515,13 @@ export function RodSimultaneityLab({
                     apply(fromSr03Draft(next));
                   } catch {}
                 }}
-                className="text-xs px-2 py-0.5 rounded border border-slate-300 dark:border-slate-700 bg-white dark:bg-slate-800 font-mono w-24"
+                style={{ fontFamily: "var(--font-mono)", width: "6rem", marginTop: "0.25rem" }}
               />
             </div>
 
             {/* Endpoint Pair Selection */}
-            <div className="flex flex-col gap-1">
-              <label
-                htmlFor={`${id}-endpoint-pair`}
-                className="text-xs font-medium text-slate-700 dark:text-slate-300"
-              >
-                Endpoint Event Selection
-              </label>
+            <div className="input-field">
+              <label htmlFor={`${id}-endpoint-pair`}>Endpoint Event Selection</label>
               <select
                 id={`${id}-endpoint-pair`}
                 value={draft.endpointPairId}
@@ -515,7 +532,7 @@ export function RodSimultaneityLab({
                     apply(fromSr03Draft(next));
                   } catch {}
                 }}
-                className="text-xs p-1.5 rounded border border-slate-300 dark:border-slate-700 bg-white dark:bg-slate-800 font-mono"
+                style={{ fontFamily: "var(--font-mono)" }}
               >
                 <option value="platform-simultaneous">Platform-Simultaneous (dt = 0 in K)</option>
                 <option value="frame-simultaneous">
@@ -531,9 +548,13 @@ export function RodSimultaneityLab({
 
           {/* Custom coordinate inputs if custom */}
           {draft.endpointPairId === "custom" && (
-            <div className="grid grid-cols-2 md:grid-cols-4 gap-3 bg-white dark:bg-slate-800 p-3 rounded border border-slate-200 dark:border-slate-700">
-              <div className="flex flex-col gap-1">
-                <label htmlFor={`${id}-t1`} className="text-[11px] font-mono">
+            <div className="input-grid" style={{ marginTop: "1rem" }}>
+              <div className="input-field">
+                <label
+                  htmlFor={`${id}-t1`}
+                  className="fine"
+                  style={{ fontFamily: "var(--font-mono)" }}
+                >
                   E₁ t (s)
                 </label>
                 <input
@@ -541,11 +562,15 @@ export function RodSimultaneityLab({
                   type="number"
                   value={draft.customT1 ?? "0"}
                   onChange={(e) => setDraft({ ...draft, customT1: e.target.value })}
-                  className="text-xs p-1 rounded border border-slate-300 dark:border-slate-700 font-mono"
+                  style={{ fontFamily: "var(--font-mono)" }}
                 />
               </div>
-              <div className="flex flex-col gap-1">
-                <label htmlFor={`${id}-x1`} className="text-[11px] font-mono">
+              <div className="input-field">
+                <label
+                  htmlFor={`${id}-x1`}
+                  className="fine"
+                  style={{ fontFamily: "var(--font-mono)" }}
+                >
                   E₁ x (ls)
                 </label>
                 <input
@@ -553,11 +578,15 @@ export function RodSimultaneityLab({
                   type="number"
                   value={draft.customX1 ?? "0"}
                   onChange={(e) => setDraft({ ...draft, customX1: e.target.value })}
-                  className="text-xs p-1 rounded border border-slate-300 dark:border-slate-700 font-mono"
+                  style={{ fontFamily: "var(--font-mono)" }}
                 />
               </div>
-              <div className="flex flex-col gap-1">
-                <label htmlFor={`${id}-t2`} className="text-[11px] font-mono">
+              <div className="input-field">
+                <label
+                  htmlFor={`${id}-t2`}
+                  className="fine"
+                  style={{ fontFamily: "var(--font-mono)" }}
+                >
                   E₂ t (s)
                 </label>
                 <input
@@ -565,11 +594,15 @@ export function RodSimultaneityLab({
                   type="number"
                   value={draft.customT2 ?? "0"}
                   onChange={(e) => setDraft({ ...draft, customT2: e.target.value })}
-                  className="text-xs p-1 rounded border border-slate-300 dark:border-slate-700 font-mono"
+                  style={{ fontFamily: "var(--font-mono)" }}
                 />
               </div>
-              <div className="flex flex-col gap-1">
-                <label htmlFor={`${id}-x2`} className="text-[11px] font-mono">
+              <div className="input-field">
+                <label
+                  htmlFor={`${id}-x2`}
+                  className="fine"
+                  style={{ fontFamily: "var(--font-mono)" }}
+                >
                   E₂ x (ls)
                 </label>
                 <input
@@ -577,39 +610,43 @@ export function RodSimultaneityLab({
                   type="number"
                   value={draft.customX2 ?? "10"}
                   onChange={(e) => setDraft({ ...draft, customX2: e.target.value })}
-                  className="text-xs p-1 rounded border border-slate-300 dark:border-slate-700 font-mono"
+                  style={{ fontFamily: "var(--font-mono)" }}
                 />
               </div>
             </div>
           )}
 
           {error && (
-            <p id={`${id}-error`} className="text-xs text-rose-600 dark:text-rose-400 font-medium">
+            <p id={`${id}-error`} className="notice error">
               {error}
             </p>
           )}
 
-          <div className="flex flex-wrap items-center justify-between gap-2 pt-2 border-t border-slate-200 dark:border-slate-800">
-            <button
-              type="submit"
-              className="text-xs px-3 py-1.5 rounded bg-sky-600 hover:bg-sky-700 text-white font-medium transition"
-            >
+          <div className="button-group" style={{ marginTop: "1rem" }}>
+            <button type="submit" className="button">
               Apply settings
             </button>
-            <button
-              type="button"
-              onClick={share}
-              className="text-xs px-3 py-1.5 rounded bg-slate-200 dark:bg-slate-700 text-slate-700 dark:text-slate-200 hover:bg-slate-300 transition"
-            >
+            <button type="button" onClick={share} className="button secondary">
               Copy settings link
             </button>
           </div>
-          {linkNote && <p className="text-xs text-sky-700 dark:text-sky-300">{linkNote}</p>}
+          {linkNote && (
+            <p className="notice" style={{ marginTop: "0.5rem" }}>
+              {linkNote}
+            </p>
+          )}
         </fieldset>
       </form>
 
       {/* Visualizations Grid */}
-      <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
+      <div
+        style={{
+          display: "grid",
+          gridTemplateColumns: "repeat(auto-fit, minmax(300px, 1fr))",
+          gap: "1.5rem",
+          margin: "1.5rem 0",
+        }}
+      >
         <RodStripPlot
           rodRestFrame={p.rodRestFrame}
           measuringFrame={p.measuringFrame}
@@ -644,65 +681,48 @@ export function RodSimultaneityLab({
       />
 
       {/* Spacetime Event Interval Ledger */}
-      <div className="bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-800 rounded-lg p-4">
-        <h3 className="text-sm font-semibold mb-3 text-slate-800 dark:text-slate-100">
-          Spacetime Event Coordinates &amp; Invariant Interval
-        </h3>
-        <div className="overflow-x-auto">
-          <table className="w-full text-left text-xs font-mono border-collapse">
+      <div className="notice" style={{ margin: "1.5rem 0" }}>
+        <h3 style={{ marginTop: 0 }}>Spacetime Event Coordinates &amp; Invariant Interval</h3>
+        <div
+          className="table-scroll"
+          tabIndex={0}
+          role="region"
+          aria-label="Spacetime event coordinates and invariant interval table"
+        >
+          <table style={{ width: "100%", textAlign: "left", fontFamily: "var(--font-mono)" }}>
             <thead>
-              <tr className="border-b border-slate-200 dark:border-slate-800 text-slate-500">
-                <th className="py-1.5 px-2">Frame</th>
-                <th className="py-1.5 px-2">Δt (s)</th>
-                <th className="py-1.5 px-2">Δx (ls)</th>
-                <th className="py-1.5 px-2">Simultaneity</th>
-                <th className="py-1.5 px-2">s² = Δx² - c²Δt² (ls²)</th>
-                <th className="py-1.5 px-2">Causal Order</th>
+              <tr>
+                <th scope="col">Frame</th>
+                <th scope="col">Δt (s)</th>
+                <th scope="col">Δx (ls)</th>
+                <th scope="col">Simultaneity</th>
+                <th scope="col">s² = Δx² - c²Δt² (ls²)</th>
+                <th scope="col">Causal Order</th>
               </tr>
             </thead>
             <tbody>
-              <tr className="border-b border-slate-100 dark:border-slate-800/50">
-                <td className="py-1.5 px-2 font-medium">K (Platform)</td>
-                <td className="py-1.5 px-2">{dtK.toFixed(3)}</td>
-                <td className="py-1.5 px-2">{dxK.toFixed(3)}</td>
-                <td className="py-1.5 px-2">
-                  <span
-                    className={`px-1.5 py-0.5 rounded text-[10px] ${
-                      dtK === 0
-                        ? "bg-emerald-100 dark:bg-emerald-950 text-emerald-800 dark:text-emerald-300"
-                        : "bg-amber-100 dark:bg-amber-950 text-amber-800 dark:text-amber-300"
-                    }`}
-                  >
+              <tr>
+                <th scope="row">K (Platform)</th>
+                <td>{dtK.toFixed(3)}</td>
+                <td>{dxK.toFixed(3)}</td>
+                <td>
+                  <span className="badge">
                     {dtK === 0 ? "Simultaneous" : dtK > 0 ? "Ordered (+)" : "Ordered (-)"}
                   </span>
                 </td>
-                <td className="py-1.5 px-2 font-bold">{s2.toFixed(3)}</td>
-                <td className="py-1.5 px-2">
-                  <span
-                    className={`px-1.5 py-0.5 rounded text-[10px] ${
-                      s2 > 0
-                        ? "bg-sky-100 dark:bg-sky-950 text-sky-800 dark:text-sky-300"
-                        : s2 === 0
-                          ? "bg-purple-100 dark:bg-purple-950 text-purple-800 dark:text-purple-300"
-                          : "bg-rose-100 dark:bg-rose-950 text-rose-800 dark:text-rose-300"
-                    }`}
-                  >
+                <td style={{ fontWeight: "bold" }}>{s2.toFixed(3)}</td>
+                <td>
+                  <span className="badge">
                     {s2 > 0 ? "Spacelike" : s2 === 0 ? "Lightlike" : "Timelike"}
                   </span>
                 </td>
               </tr>
-              <tr className="border-b border-slate-100 dark:border-slate-800/50">
-                <td className="py-1.5 px-2 font-medium">k (Moving)</td>
-                <td className="py-1.5 px-2">{dtk.toFixed(3)}</td>
-                <td className="py-1.5 px-2">{dxk.toFixed(3)}</td>
-                <td className="py-1.5 px-2">
-                  <span
-                    className={`px-1.5 py-0.5 rounded text-[10px] ${
-                      Math.abs(dtk) < 1e-10
-                        ? "bg-emerald-100 dark:bg-emerald-950 text-emerald-800 dark:text-emerald-300"
-                        : "bg-amber-100 dark:bg-amber-950 text-amber-800 dark:text-amber-300"
-                    }`}
-                  >
+              <tr>
+                <th scope="row">k (Moving)</th>
+                <td>{dtk.toFixed(3)}</td>
+                <td>{dxk.toFixed(3)}</td>
+                <td>
+                  <span className="badge">
                     {Math.abs(dtk) < 1e-10
                       ? "Simultaneous"
                       : dtk > 0
@@ -710,17 +730,9 @@ export function RodSimultaneityLab({
                         : "Ordered (-)"}
                   </span>
                 </td>
-                <td className="py-1.5 px-2 font-bold">{s2.toFixed(3)}</td>
-                <td className="py-1.5 px-2">
-                  <span
-                    className={`px-1.5 py-0.5 rounded text-[10px] ${
-                      s2 > 0
-                        ? "bg-sky-100 dark:bg-sky-950 text-sky-800 dark:text-sky-300"
-                        : s2 === 0
-                          ? "bg-purple-100 dark:bg-purple-950 text-purple-800 dark:text-purple-300"
-                          : "bg-rose-100 dark:bg-rose-950 text-rose-800 dark:text-rose-300"
-                    }`}
-                  >
+                <td style={{ fontWeight: "bold" }}>{s2.toFixed(3)}</td>
+                <td>
+                  <span className="badge">
                     {s2 > 0 ? "Spacelike" : s2 === 0 ? "Lightlike" : "Timelike"}
                   </span>
                 </td>
@@ -731,46 +743,34 @@ export function RodSimultaneityLab({
       </div>
 
       {/* Accepted Results Telemetry Table */}
-      <div
-        className="bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-800 rounded-lg p-4"
-        data-view-id="sr-03-data-table"
-      >
-        <h3 className="text-sm font-semibold mb-3 text-slate-800 dark:text-slate-100">
-          Accepted Laboratory Telemetry Snapshot
-        </h3>
-        <div className="overflow-x-auto">
-          <table className="w-full text-left text-xs font-mono border-collapse">
+      <div className="notice" data-view-id="sr-03-data-table" style={{ margin: "1.5rem 0" }}>
+        <h3 style={{ marginTop: 0 }}>Accepted Laboratory Telemetry Snapshot</h3>
+        <div
+          className="table-scroll"
+          tabIndex={0}
+          role="region"
+          aria-label="Accepted laboratory telemetry snapshot table"
+        >
+          <table style={{ width: "100%", textAlign: "left", fontFamily: "var(--font-mono)" }}>
             <thead>
-              <tr className="border-b border-slate-200 dark:border-slate-800 text-slate-500">
-                <th className="py-1.5 px-2">Quantity ID</th>
-                <th className="py-1.5 px-2">Status</th>
-                <th className="py-1.5 px-2">Value / Result</th>
-                <th className="py-1.5 px-2">Unit</th>
-                <th className="py-1.5 px-2">Owner ID</th>
+              <tr>
+                <th scope="col">Quantity ID</th>
+                <th scope="col">Status</th>
+                <th scope="col">Value / Result</th>
+                <th scope="col">Unit</th>
+                <th scope="col">Owner ID</th>
               </tr>
             </thead>
             <tbody>
               {snapshot.outputs.map((out) => (
-                <tr
-                  key={out.quantityId}
-                  className="border-b border-slate-100 dark:border-slate-800/50 hover:bg-slate-50 dark:hover:bg-slate-800/30"
-                  data-quantity-id={out.quantityId}
-                >
-                  <td className="py-1.5 px-2 font-medium">{out.quantityId}</td>
-                  <td className="py-1.5 px-2">
-                    <span
-                      className={`px-1.5 py-0.5 rounded text-[10px] ${
-                        out.status === "value"
-                          ? "bg-emerald-100 dark:bg-emerald-950 text-emerald-800 dark:text-emerald-300"
-                          : out.status === "not-applicable"
-                            ? "bg-amber-100 dark:bg-amber-950 text-amber-800 dark:text-amber-300"
-                            : "bg-rose-100 dark:bg-rose-950 text-rose-800 dark:text-rose-300"
-                      }`}
-                    >
-                      {out.status}
-                    </span>
+                <tr key={out.quantityId} data-quantity-id={out.quantityId}>
+                  <th scope="row" style={{ fontFamily: "var(--font-mono)" }}>
+                    {out.quantityId}
+                  </th>
+                  <td>
+                    <span className="badge">{out.status}</span>
                   </td>
-                  <td className="py-1.5 px-2">
+                  <td style={{ fontFamily: "var(--font-mono)" }}>
                     {out.status === "value"
                       ? typeof out.value === "number"
                         ? Math.abs(out.value) > 1e4 ||
@@ -782,8 +782,10 @@ export function RodSimultaneityLab({
                         ? String(out.reason)
                         : "Out of domain"}
                   </td>
-                  <td className="py-1.5 px-2 text-slate-500">{out.unit}</td>
-                  <td className="py-1.5 px-2 text-slate-400 text-[10px]">{out.ownerId}</td>
+                  <td className="fine">{out.unit}</td>
+                  <td className="fine" style={{ fontFamily: "var(--font-mono)" }}>
+                    {out.ownerId}
+                  </td>
                 </tr>
               ))}
             </tbody>
@@ -792,17 +794,15 @@ export function RodSimultaneityLab({
       </div>
 
       {/* Epistemic Limits (Not Modeled) */}
-      <div className="bg-slate-50 dark:bg-slate-900 border border-slate-200 dark:border-slate-800 rounded-lg p-4">
-        <h3 className="text-sm font-semibold mb-2 text-slate-800 dark:text-slate-100">
-          Limits of this Kinematic Reference Model (Not Modeled)
-        </h3>
-        <p className="text-xs text-slate-600 dark:text-slate-400 mb-2">
+      <div className="notice" style={{ margin: "1.5rem 0" }}>
+        <h3 style={{ marginTop: 0 }}>Limits of this Kinematic Reference Model (Not Modeled)</h3>
+        <p className="fine" style={{ marginBottom: "0.5rem" }}>
           This reference owner implements exact special-relativistic coordinate transformations,
           coordinate length measurements, and invariant spacetime intervals between inertial
           reference frames. The following physical regimes require general relativity, dynamical
           stress mechanics, or optical ray tracing and are explicitly <strong>not modeled</strong>:
         </p>
-        <ul className="text-xs text-slate-600 dark:text-slate-400 list-disc list-inside space-y-1">
+        <ul className="fine">
           <li>
             Optical camera image appearance (Terrell-Penrose rotation and light-travel-time
             distortion), which differs from coordinate measurement at a single instant.
