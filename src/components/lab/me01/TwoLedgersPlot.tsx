@@ -78,7 +78,7 @@ export function TwoLedgersPlot({ parameters, evaluation, clipId }: TwoLedgersPlo
             markerHeight="6"
             orient="auto-start-reverse"
           >
-            <path d="M 0 1.5 L 8 5 L 0 8.5 z" fill="var(--plot)" />
+            <path d="M 0 1.5 L 8 5 L 0 8.5 z" fill="#2563eb" />
           </marker>
           <marker
             id="arrow-pulse2"
@@ -89,7 +89,7 @@ export function TwoLedgersPlot({ parameters, evaluation, clipId }: TwoLedgersPlo
             markerHeight="6"
             orient="auto-start-reverse"
           >
-            <path d="M 0 1.5 L 8 5 L 0 8.5 z" fill="var(--accent)" />
+            <path d="M 0 1.5 L 8 5 L 0 8.5 z" fill="#ea580c" />
           </marker>
           <marker
             id="arrow-velocity"
@@ -100,7 +100,7 @@ export function TwoLedgersPlot({ parameters, evaluation, clipId }: TwoLedgersPlo
             markerHeight="6"
             orient="auto-start-reverse"
           >
-            <path d="M 0 2 L 8 5 L 0 8 z" fill="var(--ink)" />
+            <path d="M 0 2 L 8 5 L 0 8 z" fill="#059669" />
           </marker>
         </defs>
 
@@ -144,7 +144,7 @@ export function TwoLedgersPlot({ parameters, evaluation, clipId }: TwoLedgersPlo
                 y1={cy + 45}
                 x2={cx + (frameSpeed > 0 ? 60 : -60)}
                 y2={cy + 45}
-                stroke="var(--ink)"
+                stroke="#059669"
                 strokeWidth="2.5"
                 markerEnd="url(#arrow-velocity)"
               />
@@ -154,7 +154,7 @@ export function TwoLedgersPlot({ parameters, evaluation, clipId }: TwoLedgersPlo
                 textAnchor="middle"
                 fontSize="11"
                 fontWeight="bold"
-                fill="var(--ink)"
+                fill="#059669"
               >
                 v = {frameSpeed} c
               </text>
@@ -167,7 +167,7 @@ export function TwoLedgersPlot({ parameters, evaluation, clipId }: TwoLedgersPlo
             y1={cy}
             x2={x1}
             y2={y1}
-            stroke="var(--plot)"
+            stroke="#2563eb"
             strokeWidth="3.5"
             markerEnd="url(#arrow-pulse1)"
           />
@@ -177,7 +177,7 @@ export function TwoLedgersPlot({ parameters, evaluation, clipId }: TwoLedgersPlo
             y1={cy}
             x2={x2}
             y2={y2}
-            stroke="var(--accent)"
+            stroke="#ea580c"
             strokeWidth="3.5"
             markerEnd="url(#arrow-pulse2)"
           />
@@ -202,7 +202,7 @@ export function TwoLedgersPlot({ parameters, evaluation, clipId }: TwoLedgersPlo
             textAnchor={Math.cos(rad) >= 0 ? "start" : "end"}
             fontSize="11"
             fontWeight="bold"
-            fill="var(--plot)"
+            fill="#2563eb"
           >
             Pulse 1: {p1Val.toFixed(4)} L
           </text>
@@ -212,7 +212,7 @@ export function TwoLedgersPlot({ parameters, evaluation, clipId }: TwoLedgersPlo
             textAnchor={Math.cos(rad) <= 0 ? "start" : "end"}
             fontSize="11"
             fontWeight="bold"
-            fill="var(--accent)"
+            fill="#ea580c"
           >
             Pulse 2: {p2Val.toFixed(4)} L
           </text>
@@ -275,7 +275,7 @@ export function TwoLedgersPlot({ parameters, evaluation, clipId }: TwoLedgersPlo
             </text>
             <text x="0" y="44" fontSize="11" fill="currentColor">
               Drop in energy of motion:{" "}
-              <tspan fontWeight="bold" fill={isRelaxed ? "var(--accent)" : "var(--plot)"}>
+              <tspan fontWeight="bold" fill={isRelaxed ? "#b45309" : "#059669"}>
                 {isRelaxed ? "Underdetermined" : `${subVal.toFixed(4)} L`}
               </tspan>
             </text>
