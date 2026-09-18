@@ -36,20 +36,49 @@ export function EnergyLadderPlot({
   const col = visibleColor(frequency);
 
   return (
-    <div className="plot-container" data-view-id="lq-08-energy-diagram">
-      <h3 className="text-sm font-semibold mb-1 text-slate-800 dark:text-slate-100">
+    <div
+      data-view-id="lq-08-energy-diagram"
+      style={{
+        display: "flex",
+        flexDirection: "column",
+        gap: "0.5rem",
+      }}
+    >
+      <h3
+        style={{
+          margin: "0 0 0.25rem",
+          fontSize: "0.875rem",
+          fontWeight: 600,
+          color: "var(--ink)",
+        }}
+      >
         Single-Quantum Energy Conservation Ladder
       </h3>
-      <p className="text-xs text-slate-600 dark:text-slate-400 mb-2">
-        <span className="font-mono">h&nu; = {quantumEnergyEv.toFixed(3)} eV</span> | &Phi; ={" "}
-        <span className="font-mono">{workFunction.toFixed(2)} eV</span> (&nu;_0 ={" "}
-        <span className="font-mono">{(thresholdFrequency / 1e12).toFixed(1)} THz</span>)
+      <p className="fine" style={{ margin: "0 0 0.5rem" }}>
+        <span style={{ fontFamily: "var(--font-mono, monospace)" }}>
+          h&nu; = {quantumEnergyEv.toFixed(3)} eV
+        </span>{" "}
+        | &Phi; ={" "}
+        <span style={{ fontFamily: "var(--font-mono, monospace)" }}>
+          {workFunction.toFixed(2)} eV
+        </span>{" "}
+        (&nu;_0 ={" "}
+        <span style={{ fontFamily: "var(--font-mono, monospace)" }}>
+          {(thresholdFrequency / 1e12).toFixed(1)} THz
+        </span>
+        )
       </p>
       <svg
         viewBox={`0 0 ${width} ${height}`}
-        className="w-full h-auto bg-slate-50 dark:bg-slate-900 border border-slate-200 dark:border-slate-800 rounded"
         role="img"
         aria-label={`Energy ladder diagram showing photon energy ${quantumEnergyEv.toFixed(2)} eV and work function ${workFunction.toFixed(2)} eV`}
+        style={{
+          width: "100%",
+          height: "auto",
+          background: "var(--panel)",
+          border: "1px solid var(--line)",
+          borderRadius: "0.25rem",
+        }}
       >
         {/* Zero energy reference line (Vacuum level) */}
         <line
@@ -57,7 +86,7 @@ export function EnergyLadderPlot({
           y1={yZero}
           x2={width - padding.right}
           y2={yZero}
-          stroke="#94a3b8"
+          stroke="var(--line)"
           strokeWidth="1.5"
           strokeDasharray="4 3"
         />
@@ -65,7 +94,9 @@ export function EnergyLadderPlot({
           x={padding.left - 8}
           y={yZero + 4}
           textAnchor="end"
-          className="text-[10px] fill-slate-500 font-mono"
+          fontSize="10"
+          fill="var(--muted)"
+          fontFamily="var(--font-mono, monospace)"
         >
           0 eV (Vacuum)
         </text>
@@ -83,7 +114,9 @@ export function EnergyLadderPlot({
           x={padding.left - 8}
           y={yWork + 4}
           textAnchor="end"
-          className="text-[10px] fill-rose-600 font-mono"
+          fontSize="10"
+          fill="#e11d48"
+          fontFamily="var(--font-mono, monospace)"
         >
           -&Phi; (-{workFunction.toFixed(2)} eV)
         </text>
@@ -116,7 +149,9 @@ export function EnergyLadderPlot({
           x={width / 2 - 28}
           y={(yWork + yPhoton) / 2}
           textAnchor="end"
-          className="text-[11px] font-semibold font-mono"
+          fontSize="11"
+          fontWeight="600"
+          fontFamily="var(--font-mono, monospace)"
           fill={col.hexColor}
         >
           +h&nu; ({quantumEnergyEv.toFixed(2)} eV)
@@ -138,7 +173,10 @@ export function EnergyLadderPlot({
               x={width / 2 + 20}
               y={yPhoton + 4}
               textAnchor="start"
-              className="text-[11px] fill-emerald-600 font-bold font-mono"
+              fontSize="11"
+              fill="#10b981"
+              fontWeight="bold"
+              fontFamily="var(--font-mono, monospace)"
             >
               K_max = {kMaxEv.toFixed(3)} eV
             </text>
@@ -148,7 +186,9 @@ export function EnergyLadderPlot({
             x={width / 2 + 20}
             y={yPhoton + 4}
             textAnchor="start"
-            className="text-[11px] fill-amber-600 font-medium font-sans"
+            fontSize="11"
+            fill="var(--muted)"
+            fontWeight="500"
           >
             Sub-threshold (h&nu; &lt; &Phi;)
           </text>
@@ -200,19 +240,41 @@ export function StoppingPotentialPlot({
   const y2 = scaleY(Math.max(0, hOverE * maxNu - currentWorkFunction));
 
   return (
-    <div className="plot-container" data-view-id="lq-08-stopping-plot">
-      <h3 className="text-sm font-semibold mb-1 text-slate-800 dark:text-slate-100">
+    <div
+      data-view-id="lq-08-stopping-plot"
+      style={{
+        display: "flex",
+        flexDirection: "column",
+        gap: "0.5rem",
+      }}
+    >
+      <h3
+        style={{
+          margin: "0 0 0.25rem",
+          fontSize: "0.875rem",
+          fontWeight: 600,
+          color: "var(--ink)",
+        }}
+      >
         Stopping Potential vs. Light Frequency: V_s(&nu;)
       </h3>
-      <p className="text-xs text-slate-600 dark:text-slate-400 mb-2">
+      <p className="fine" style={{ margin: "0 0 0.5rem" }}>
         Universal theoretical slope{" "}
-        <span className="font-mono">h/e = 4.136 &times; 10^-15 V&middot;s</span>
+        <span style={{ fontFamily: "var(--font-mono, monospace)" }}>
+          h/e = 4.136 &times; 10^-15 V&middot;s
+        </span>
       </p>
       <svg
         viewBox={`0 0 ${width} ${height}`}
-        className="w-full h-auto bg-slate-50 dark:bg-slate-900 border border-slate-200 dark:border-slate-800 rounded"
         role="img"
         aria-label="Plot of stopping potential versus optical frequency"
+        style={{
+          width: "100%",
+          height: "auto",
+          background: "var(--panel)",
+          border: "1px solid var(--line)",
+          borderRadius: "0.25rem",
+        }}
       >
         {/* Axes */}
         <line
@@ -220,7 +282,7 @@ export function StoppingPotentialPlot({
           y1={height - padding.bottom}
           x2={width - padding.right}
           y2={height - padding.bottom}
-          stroke="#475569"
+          stroke="var(--line)"
           strokeWidth="1.5"
         />
         <line
@@ -228,7 +290,7 @@ export function StoppingPotentialPlot({
           y1={padding.top}
           x2={padding.left}
           y2={height - padding.bottom}
-          stroke="#475569"
+          stroke="var(--line)"
           strokeWidth="1.5"
         />
 
@@ -242,13 +304,15 @@ export function StoppingPotentialPlot({
                 y1={height - padding.bottom}
                 x2={x}
                 y2={height - padding.bottom + 4}
-                stroke="#64748b"
+                stroke="var(--line)"
               />
               <text
                 x={x}
                 y={height - padding.bottom + 16}
                 textAnchor="middle"
-                className="text-[10px] fill-slate-500 font-mono"
+                fontSize="10"
+                fill="var(--muted)"
+                fontFamily="var(--font-mono, monospace)"
               >
                 {thz}
               </text>
@@ -259,7 +323,9 @@ export function StoppingPotentialPlot({
           x={width / 2}
           y={height - 8}
           textAnchor="middle"
-          className="text-[11px] fill-slate-700 dark:fill-slate-300 font-medium"
+          fontSize="11"
+          fill="var(--ink)"
+          fontWeight="500"
         >
           Frequency &nu; (THz)
         </text>
@@ -269,12 +335,14 @@ export function StoppingPotentialPlot({
           const y = scaleY(v);
           return (
             <g key={v}>
-              <line x1={padding.left - 4} y1={y} x2={padding.left} y2={y} stroke="#64748b" />
+              <line x1={padding.left - 4} y1={y} x2={padding.left} y2={y} stroke="var(--line)" />
               <text
                 x={padding.left - 8}
                 y={y + 3}
                 textAnchor="end"
-                className="text-[10px] fill-slate-500 font-mono"
+                fontSize="10"
+                fill="var(--muted)"
+                fontFamily="var(--font-mono, monospace)"
               >
                 {v.toFixed(1)}
               </text>
@@ -286,7 +354,9 @@ export function StoppingPotentialPlot({
           y={height / 2}
           textAnchor="middle"
           transform={`rotate(-90 14 ${height / 2})`}
-          className="text-[11px] fill-slate-700 dark:fill-slate-300 font-medium"
+          fontSize="11"
+          fill="var(--ink)"
+          fontWeight="500"
         >
           Stopping Potential V_s (Volts)
         </text>
@@ -312,7 +382,10 @@ export function StoppingPotentialPlot({
               x={scaleX(nu0)}
               y={padding.top - 6}
               textAnchor="middle"
-              className="text-[10px] fill-rose-600 font-mono font-semibold"
+              fontSize="10"
+              fill="#e11d48"
+              fontFamily="var(--font-mono, monospace)"
+              fontWeight="600"
             >
               &nu;_0 = {(nu0 / 1e12).toFixed(1)} THz
             </text>
@@ -321,13 +394,20 @@ export function StoppingPotentialPlot({
 
         {/* Millikan 1916 Data Points Overlay */}
         {millikanOverlay && millikanData?.dataset?.points && (
-          <g className="millikan-dataset">
+          <g data-testid="millikan-dataset">
             {millikanData.dataset.points.map((pt) => {
               const cx = scaleX(pt.frequencyHz);
               const cy = scaleY(pt.stoppingPotentialVolts);
               return (
                 <g key={pt.frequencyHz}>
-                  <circle cx={cx} cy={cy} r="4" fill="#d97706" stroke="#ffffff" strokeWidth="1" />
+                  <circle
+                    cx={cx}
+                    cy={cy}
+                    r="4"
+                    fill="#d97706"
+                    stroke="var(--panel)"
+                    strokeWidth="1"
+                  />
                 </g>
               );
             })}
@@ -344,16 +424,35 @@ export function StoppingPotentialPlot({
                 cy={scaleY(currentStoppingPotential)}
                 r="6"
                 fill="#10b981"
-                stroke="#ffffff"
+                stroke="var(--panel)"
                 strokeWidth="2"
               />
             </g>
           )}
       </svg>
       {millikanOverlay && millikanData && (
-        <div className="mt-2 text-xs text-amber-800 dark:text-amber-200 bg-amber-50 dark:bg-amber-950/40 p-2 rounded border border-amber-200 dark:border-amber-900">
-          <p className="font-semibold">Historical Validation: Millikan (1916) Sodium</p>
-          <p className="font-mono text-[11px]">
+        <div
+          style={{
+            marginTop: "0.5rem",
+            fontSize: "0.75rem",
+            padding: "0.5rem",
+            borderRadius: "0.25rem",
+            border: "1px solid var(--line)",
+            background: "var(--wash)",
+            color: "var(--ink)",
+          }}
+        >
+          <p style={{ fontWeight: 600, margin: "0 0 0.25rem" }}>
+            Historical Validation: Millikan (1916) Sodium
+          </p>
+          <p
+            className="fine"
+            style={{
+              margin: 0,
+              fontFamily: "var(--font-mono, monospace)",
+              fontSize: "0.6875rem",
+            }}
+          >
             Empirical Fit Slope: {millikanData.fittedSlopeVs.toExponential(4)} V&middot;s &plusmn;{" "}
             {millikanData.fittedSlopeStdErr.toExponential(2)} | Theoretical (h/e):{" "}
             {millikanData.modelLineSlopeVs.toExponential(4)} V&middot;s
@@ -397,19 +496,41 @@ export function CurrentVoltagePlot({
   const yZeroI = scaleY(0);
 
   return (
-    <div className="plot-container" data-view-id="lq-08-iv-curve">
-      <h3 className="text-sm font-semibold mb-1 text-slate-800 dark:text-slate-100">
+    <div
+      data-view-id="lq-08-iv-curve"
+      style={{
+        display: "flex",
+        flexDirection: "column",
+        gap: "0.5rem",
+      }}
+    >
+      <h3
+        style={{
+          margin: "0 0 0.25rem",
+          fontSize: "0.875rem",
+          fontWeight: 600,
+          color: "var(--ink)",
+        }}
+      >
         Current-Voltage Characteristic: I(U_c)
       </h3>
-      <p className="text-xs text-slate-600 dark:text-slate-400 mb-2">
+      <p className="fine" style={{ margin: "0 0 0.5rem" }}>
         Saturation current{" "}
-        <span className="font-mono">I_sat = {saturationCurrentMicroAmps.toFixed(2)} &mu;A</span>
+        <span style={{ fontFamily: "var(--font-mono, monospace)" }}>
+          I_sat = {saturationCurrentMicroAmps.toFixed(2)} &mu;A
+        </span>
       </p>
       <svg
         viewBox={`0 0 ${width} ${height}`}
-        className="w-full h-auto bg-slate-50 dark:bg-slate-900 border border-slate-200 dark:border-slate-800 rounded"
         role="img"
         aria-label="Current-voltage characteristic curve showing saturation and retarding cutoff"
+        style={{
+          width: "100%",
+          height: "auto",
+          background: "var(--panel)",
+          border: "1px solid var(--line)",
+          borderRadius: "0.25rem",
+        }}
       >
         {/* Axes */}
         <line
@@ -417,7 +538,7 @@ export function CurrentVoltagePlot({
           y1={yZeroI}
           x2={width - padding.right}
           y2={yZeroI}
-          stroke="#475569"
+          stroke="var(--line)"
           strokeWidth="1.5"
         />
         <line
@@ -425,7 +546,7 @@ export function CurrentVoltagePlot({
           y1={padding.top}
           x2={xZero}
           y2={height - padding.bottom}
-          stroke="#94a3b8"
+          stroke="var(--line)"
           strokeWidth="1"
           strokeDasharray="2 2"
         />
@@ -440,13 +561,15 @@ export function CurrentVoltagePlot({
                 y1={height - padding.bottom}
                 x2={x}
                 y2={height - padding.bottom + 4}
-                stroke="#64748b"
+                stroke="var(--line)"
               />
               <text
                 x={x}
                 y={height - padding.bottom + 16}
                 textAnchor="middle"
-                className="text-[10px] fill-slate-500 font-mono"
+                fontSize="10"
+                fill="var(--muted)"
+                fontFamily="var(--font-mono, monospace)"
               >
                 {u > 0 ? `+${u}` : u}
               </text>
@@ -457,7 +580,9 @@ export function CurrentVoltagePlot({
           x={width / 2}
           y={height - 6}
           textAnchor="middle"
-          className="text-[11px] fill-slate-700 dark:fill-slate-300 font-medium"
+          fontSize="11"
+          fill="var(--ink)"
+          fontWeight="500"
         >
           Collector Potential U_c (Volts)
         </text>
@@ -468,7 +593,9 @@ export function CurrentVoltagePlot({
           y={height / 2}
           textAnchor="middle"
           transform={`rotate(-90 16 ${height / 2})`}
-          className="text-[11px] fill-slate-700 dark:fill-slate-300 font-medium"
+          fontSize="11"
+          fill="var(--ink)"
+          fontWeight="500"
         >
           Current I (&mu;A)
         </text>
@@ -513,7 +640,10 @@ export function CurrentVoltagePlot({
               x={xCutoff}
               y={yZeroI - 8}
               textAnchor="middle"
-              className="text-[10px] fill-rose-600 font-mono font-semibold"
+              fontSize="10"
+              fill="#e11d48"
+              fontFamily="var(--font-mono, monospace)"
+              fontWeight="600"
             >
               -V_s (-{vs.toFixed(2)} V)
             </text>
@@ -535,7 +665,7 @@ export function CurrentVoltagePlot({
             }
             r="5"
             fill="#10b981"
-            stroke="#ffffff"
+            stroke="var(--panel)"
             strokeWidth="1.5"
           />
         )}

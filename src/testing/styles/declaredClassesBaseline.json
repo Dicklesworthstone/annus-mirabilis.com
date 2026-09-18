@@ -45,7 +45,7 @@
   "src/components/lab/lq07/FluorescenceLab.tsx": 0,
   "src/components/lab/lq07/FluorescencePlot.tsx": 0,
   "src/components/lab/lq08/PhotoelectricLab.tsx": 0,
-  "src/components/lab/lq08/PhotoelectricPlot.tsx": 124,
+  "src/components/lab/lq08/PhotoelectricPlot.tsx": 0,
   "src/components/lab/lq09/IonizationLab.tsx": 0,
   "src/components/lab/lq09/IonizationPlot.tsx": 91,
   "src/components/lab/me01/TwoLedgersLab.tsx": 6,
