@@ -329,7 +329,7 @@ export function Genealogy({
               refY="4"
               orient="auto"
             >
-              <path d="M 0 1 L 8 4 L 0 7 z" fill="var(--muted)" />
+              <path d="M 0 1 L 8 4 L 0 7 z" fill="#5c5346" />
             </marker>
             <marker
               id="arrow-crosspaper"
@@ -339,7 +339,7 @@ export function Genealogy({
               refY="4"
               orient="auto"
             >
-              <path d="M 0 1 L 8 4 L 0 7 z" fill="var(--accent)" />
+              <path d="M 0 1 L 8 4 L 0 7 z" fill="#c25e00" />
             </marker>
             <marker
               id="arrow-oracle"
@@ -349,7 +349,7 @@ export function Genealogy({
               refY="4"
               orient="auto"
             >
-              <path d="M 0 1 L 8 4 L 0 7 z" fill="var(--plot)" />
+              <path d="M 0 1 L 8 4 L 0 7 z" fill="#2d6a9f" />
             </marker>
           </defs>
 
@@ -370,10 +370,10 @@ export function Genealogy({
               const stroke = isHighlighted
                 ? "var(--accent)"
                 : isCross
-                  ? "var(--accent)"
+                  ? "#c25e00"
                   : isOracle
-                    ? "var(--plot)"
-                    : "var(--line)";
+                    ? "#2d6a9f"
+                    : "#8c8273";
 
               return (
                 <path

@@ -226,6 +226,73 @@ export const DATA_COLOR_ALLOWLIST: readonly DataColorAllowlistEntry[] = [
     hex: "#e11d48",
     reason: "Spacetime comparison event E2(dx, c*dt) coordinate label text in Minkowski diagram",
   },
+  // Equation genealogy graph edge type data colors in Genealogy.tsx:
+  {
+    file: "src/equations/genealogy/Genealogy.tsx",
+    hex: "#2d6a9f",
+    reason: "Genealogy graph edge stroke and arrowhead marker color for modern-verification-oracle edge type",
+  },
+  {
+    file: "src/equations/genealogy/Genealogy.tsx",
+    hex: "#c25e00",
+    reason: "Genealogy graph edge stroke and arrowhead marker color for cross-reference / crossPaper edge type",
+  },
+  {
+    file: "src/equations/genealogy/Genealogy.tsx",
+    hex: "#8c8273",
+    reason: "Genealogy graph edge stroke color for historical-derivation default edge type",
+  },
+  {
+    file: "src/equations/genealogy/Genealogy.tsx",
+    hex: "#5c5346",
+    reason: "Genealogy graph arrowhead marker fill color for historical-derivation default edge type",
+  },
+  // Special relativity electromagnetic field and reference frame data colors in FieldFrameChangePlot:
+  {
+    file: "src/components/lab/sr08/FieldFrameChangePlot.tsx",
+    hex: "#e65100",
+    reason: "Electric field vector E visual representation (arrowhead, vector line, coordinate label, and component decomposition)",
+  },
+  {
+    file: "src/components/lab/sr08/FieldFrameChangePlot.tsx",
+    hex: "#0277bd",
+    reason: "Magnetic field vector B visual representation (arrowhead, out-of-plane Bz circle, cross/dot indicators, and label)",
+  },
+  {
+    file: "src/components/lab/sr08/FieldFrameChangePlot.tsx",
+    hex: "#2e7d32",
+    reason: "Lorentz force vector F visual representation (arrowhead, vector line, and force label)",
+  },
+  {
+    file: "src/components/lab/sr08/FieldFrameChangePlot.tsx",
+    hex: "#e0f2fe",
+    reason: "Moving frame k active badge background distinguishing reference frame k from stationary frame K",
+  },
+  {
+    file: "src/components/lab/sr08/FieldFrameChangePlot.tsx",
+    hex: "#0284c7",
+    reason: "Moving frame k active badge border distinguishing reference frame k from stationary frame K",
+  },
+  {
+    file: "src/components/lab/sr08/FieldFrameChangePlot.tsx",
+    hex: "#0369a1",
+    reason: "Moving frame k active badge text distinguishing reference frame k from stationary frame K",
+  },
+  {
+    file: "src/components/lab/sr08/FieldFrameChangePlot.tsx",
+    hex: "#fef3c7",
+    reason: "Stationary frame K active badge background distinguishing reference frame K from moving frame k",
+  },
+  {
+    file: "src/components/lab/sr08/FieldFrameChangePlot.tsx",
+    hex: "#d97706",
+    reason: "Stationary frame K active badge border distinguishing reference frame K from moving frame k",
+  },
+  {
+    file: "src/components/lab/sr08/FieldFrameChangePlot.tsx",
+    hex: "#b45309",
+    reason: "Stationary frame K active badge text distinguishing reference frame K from moving frame k",
+  },
 ];
 
 const HEX_COLOR_RE = /#(?:[0-9a-fA-F]{8}|[0-9a-fA-F]{6}|[0-9a-fA-F]{4}|[0-9a-fA-F]{3})\b/g;
