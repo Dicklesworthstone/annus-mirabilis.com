@@ -215,25 +215,25 @@ export function InterferencePlot({
           y = 0 (Center)
         </text>
 
-        {/* Intensity Curve (Data trace - kept literal sky blue) */}
+        {/* Intensity Curve */}
         {polylinePoints && (
           <polyline
             points={polylinePoints}
             fill="none"
-            stroke="#0284c7"
+            stroke="var(--plot)"
             strokeWidth="2.5"
             strokeLinecap="round"
             strokeLinejoin="round"
           />
         )}
 
-        {/* Selected Screen Position Marker (Data probe - kept literal rose) */}
+        {/* Selected Screen Position Marker */}
         <line
           x1={selectedX}
           y1={padding.top}
           x2={selectedX}
           y2={height - padding.bottom}
-          stroke="#e11d48"
+          stroke="var(--accent)"
           strokeDasharray="2 2"
           strokeWidth="1.5"
         />
@@ -241,8 +241,8 @@ export function InterferencePlot({
           cx={selectedX}
           cy={selectedY}
           r="4.5"
-          fill="#e11d48"
-          stroke="#ffffff"
+          fill="var(--accent)"
+          stroke="var(--paper)"
           strokeWidth="1.5"
         />
         <text
@@ -252,7 +252,7 @@ export function InterferencePlot({
           fontSize="10"
           fontFamily="monospace"
           fontWeight="600"
-          fill="#e11d48"
+          fill="var(--accent)"
         >
           {screenPosition}: {selectedIntensity.toFixed(2)} (Δr = {pathDifference.toFixed(2)}λ)
         </text>
@@ -351,7 +351,7 @@ export function WavefrontPlot({
         style={{
           width: "100%",
           height: "auto",
-          background: "#0f172a",
+          background: "var(--wash)",
           border: "1px solid var(--line)",
           borderRadius: "0.25rem",
           overflow: "hidden",
@@ -364,7 +364,7 @@ export function WavefrontPlot({
         </defs>
 
         <g clipPath="url(#field-clip)">
-          {/* Source 1 Crests (Sky - data datum kept literal) */}
+          {/* Source 1 Crests */}
           {Array.from({ length: numRings }).map((_, i) => {
             const r = (i + 1) * ringStep;
             return (
@@ -374,14 +374,14 @@ export function WavefrontPlot({
                 cy={s1Y}
                 r={r}
                 fill="none"
-                stroke="#38bdf8"
+                stroke="var(--plot)"
                 strokeWidth="1.5"
                 strokeOpacity={0.8 - i * 0.08}
               />
             );
           })}
 
-          {/* Source 2 Crests (Amber - data datum kept literal) */}
+          {/* Source 2 Crests */}
           {Array.from({ length: numRings }).map((_, i) => {
             const phaseOffset = (delta / (2 * Math.PI)) * ringStep;
             const r = (i + 1) * ringStep + phaseOffset;
@@ -393,7 +393,7 @@ export function WavefrontPlot({
                 cy={s2Y}
                 r={r}
                 fill="none"
-                stroke="#fbbf24"
+                stroke="var(--accent)"
                 strokeWidth="1.5"
                 strokeOpacity={0.8 - i * 0.08}
               />
@@ -406,14 +406,14 @@ export function WavefrontPlot({
             y1={centerY}
             x2={width - 50}
             y2={centerY}
-            stroke="#94a3b8"
+            stroke="var(--line)"
             strokeWidth="1"
             strokeDasharray="3 3"
           />
         </g>
 
-        {/* Source pinheads (Data datum kept literal) */}
-        <circle cx={srcX} cy={s1Y} r="4" fill="#38bdf8" />
+        {/* Source pinheads */}
+        <circle cx={srcX} cy={s1Y} r="4" fill="var(--plot)" />
         <text
           x={srcX - 8}
           y={s1Y + 3}
@@ -421,11 +421,11 @@ export function WavefrontPlot({
           fontSize="10"
           fontFamily="monospace"
           fontWeight="bold"
-          fill="#38bdf8"
+          fill="var(--plot)"
         >
           S₁
         </text>
-        <circle cx={srcX} cy={s2Y} r="4" fill="#fbbf24" />
+        <circle cx={srcX} cy={s2Y} r="4" fill="var(--accent)" />
         <text
           x={srcX - 8}
           y={s2Y + 3}
@@ -433,7 +433,7 @@ export function WavefrontPlot({
           fontSize="10"
           fontFamily="monospace"
           fontWeight="bold"
-          fill="#fbbf24"
+          fill="var(--accent)"
         >
           S₂
         </text>
@@ -444,17 +444,17 @@ export function WavefrontPlot({
           y1="10"
           x2={width - 50}
           y2={height - 10}
-          stroke="#e2e8f0"
+          stroke="var(--ink)"
           strokeWidth="3"
         />
-        <text x={width - 45} y="25" fontSize="10" fontFamily="monospace" fill="#94a3b8">
+        <text x={width - 45} y="25" fontSize="10" fontFamily="monospace" fill="var(--muted)">
           Screen
         </text>
         <circle
           cx={width - 50}
           cy={centerY}
           r="5"
-          fill={centerIntensity > 0.1 ? "#38bdf8" : "#475569"}
+          fill={centerIntensity > 0.1 ? "var(--plot)" : "var(--muted)"}
         />
         <text
           x={width - 42}
@@ -462,7 +462,7 @@ export function WavefrontPlot({
           fontSize="10"
           fontFamily="monospace"
           fontWeight="600"
-          fill="#7dd3fc"
+          fill="var(--ink)"
         >
           I₀ = {centerIntensity.toFixed(1)}
         </text>
@@ -560,18 +560,18 @@ export function SpreadingPlot({
         style={{
           width: "100%",
           height: "auto",
-          background: "#0f172a",
+          background: "var(--wash)",
           border: "1px solid var(--line)",
           borderRadius: "0.25rem",
         }}
       >
-        {/* Concentric Spherical Shells (Data datum kept literal sky) */}
+        {/* Concentric Spherical Shells */}
         <circle
           cx={originX}
           cy={originY}
           r={r1Px}
           fill="none"
-          stroke="#0ea5e9"
+          stroke="var(--line)"
           strokeWidth="1"
           strokeDasharray="4 4"
         />
@@ -580,7 +580,7 @@ export function SpreadingPlot({
           cy={originY}
           r={r2Px}
           fill="none"
-          stroke="#0ea5e9"
+          stroke="var(--line)"
           strokeWidth="1"
           strokeDasharray="4 4"
         />
@@ -589,23 +589,23 @@ export function SpreadingPlot({
           cy={originY}
           r={r4Px}
           fill="none"
-          stroke="#0ea5e9"
+          stroke="var(--line)"
           strokeWidth="1"
           strokeDasharray="4 4"
         />
 
-        {/* Active radius shell (Data datum kept literal emerald) */}
+        {/* Active radius shell */}
         <circle
           cx={originX}
           cy={originY}
           r={currentRPx}
           fill="none"
-          stroke="#34d399"
+          stroke="var(--plot)"
           strokeWidth="2.5"
         />
 
-        {/* Central Point Source (Data datum kept literal amber) */}
-        <circle cx={originX} cy={originY} r="6" fill="#f59e0b" />
+        {/* Central Point Source */}
+        <circle cx={originX} cy={originY} r="6" fill="var(--accent)" />
         <text
           x={originX}
           y={originY - 12}
@@ -613,50 +613,50 @@ export function SpreadingPlot({
           fontSize="10"
           fontFamily="monospace"
           fontWeight="bold"
-          fill="#f59e0b"
+          fill="var(--accent)"
         >
           Source (P = {power} W)
         </text>
 
-        {/* Radius ray vector (Data datum kept literal emerald) */}
+        {/* Radius ray vector */}
         <line
           x1={originX}
           y1={originY}
           x2={originX + currentRPx}
           y2={originY}
-          stroke="#34d399"
+          stroke="var(--plot)"
           strokeWidth="2"
         />
-        <circle cx={originX + currentRPx} cy={originY} r="4" fill="#34d399" />
+        <circle cx={originX + currentRPx} cy={originY} r="4" fill="var(--plot)" />
         <text
           x={originX + currentRPx / 2}
           y={originY - 6}
           textAnchor="middle"
           fontSize="10"
           fontFamily="monospace"
-          fill="#34d399"
+          fill="var(--plot)"
         >
           r = {radius.toFixed(1)} m
         </text>
 
-        {/* Aperture at r (Data datum kept literal rose) */}
+        {/* Aperture at r */}
         <rect
           x={originX + currentRPx - 2}
           y={originY - 10}
           width="4"
           height="20"
-          fill="#f43f5e"
+          fill="var(--accent)"
           rx="1"
         />
 
         {/* Data readout panel on right of SVG */}
         <g transform="translate(260, 25)">
-          <rect x="0" y="0" width="200" height="200" fill="#0f172a" stroke="#334155" rx="6" />
-          <text x="12" y="24" fontSize="11" fill="#cbd5e1" fontWeight="600">
+          <rect x="0" y="0" width="200" height="200" fill="var(--panel)" stroke="var(--line)" rx="6" />
+          <text x="12" y="24" fontSize="11" fill="var(--ink)" fontWeight="600">
             Radiant Power Accounting
           </text>
 
-          <text x="12" y="52" fontSize="10" fontFamily="monospace" fill="#94a3b8">
+          <text x="12" y="52" fontSize="10" fontFamily="monospace" fill="var(--muted)">
             Source Power P:
           </text>
           <text
@@ -666,12 +666,12 @@ export function SpreadingPlot({
             fontSize="10"
             fontFamily="monospace"
             fontWeight="bold"
-            fill="#fcd34d"
+            fill="var(--ink)"
           >
             {power.toFixed(2)} W
           </text>
 
-          <text x="12" y="78" fontSize="10" fontFamily="monospace" fill="#94a3b8">
+          <text x="12" y="78" fontSize="10" fontFamily="monospace" fill="var(--muted)">
             Intensity I(r):
           </text>
           <text
@@ -681,12 +681,12 @@ export function SpreadingPlot({
             fontSize="10"
             fontFamily="monospace"
             fontWeight="bold"
-            fill="#6ee7b7"
+            fill="var(--ink)"
           >
             {intensity.toExponential(3)} W/m²
           </text>
 
-          <text x="12" y="104" fontSize="10" fontFamily="monospace" fill="#94a3b8">
+          <text x="12" y="104" fontSize="10" fontFamily="monospace" fill="var(--muted)">
             Enclosed ∮ I dA:
           </text>
           <text
@@ -696,14 +696,14 @@ export function SpreadingPlot({
             fontSize="10"
             fontFamily="monospace"
             fontWeight="bold"
-            fill="#34d399"
+            fill="var(--plot)"
           >
             {shellPower.toFixed(4)} W
           </text>
 
-          <line x1="12" y1="118" x2="188" y2="118" stroke="#334155" />
+          <line x1="12" y1="118" x2="188" y2="118" stroke="var(--line)" />
 
-          <text x="12" y="138" fontSize="10" fontFamily="monospace" fill="#94a3b8">
+          <text x="12" y="138" fontSize="10" fontFamily="monospace" fill="var(--muted)">
             1 cm² Aperture I·S:
           </text>
           <text
@@ -712,12 +712,12 @@ export function SpreadingPlot({
             textAnchor="end"
             fontSize="10"
             fontFamily="monospace"
-            fill="#7dd3fc"
+            fill="var(--ink)"
           >
             {smallAperturePower.toExponential(3)} W
           </text>
 
-          <text x="12" y="162" fontSize="10" fontFamily="monospace" fill="#94a3b8">
+          <text x="12" y="162" fontSize="10" fontFamily="monospace" fill="var(--muted)">
             Exact Disk Power:
           </text>
           <text
@@ -726,12 +726,12 @@ export function SpreadingPlot({
             textAnchor="end"
             fontSize="10"
             fontFamily="monospace"
-            fill="#7dd3fc"
+            fill="var(--ink)"
           >
             {exactDiskPower.toExponential(3)} W
           </text>
 
-          <text x="12" y="186" fontSize="9" fontFamily="monospace" fill="#64748b">
+          <text x="12" y="186" fontSize="9" fontFamily="monospace" fill="var(--muted)">
             Gauss–Legendre quad identity
           </text>
         </g>
