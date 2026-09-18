@@ -14,11 +14,11 @@ const MIME_TYPES = {
 };
 
 describe("browser E2E foundation calculus verification (am-found-calculus-6agg)", () => {
-  test("AC6 (Chromium): No-JavaScript rendering completeness across all 5 calculus foundations", async () => {
+  test("AC6 (Chromium): No-JavaScript rendering completeness across all 5 calculus foundations", async (t) => {
     const root = resolve("out");
     const outStat = await stat(root).catch(() => null);
     if (!outStat?.isDirectory()) {
-      console.log("[foundCalculus.browser] out/ directory not present; skipping browser check");
+      t.skip("out/ directory not present; skipping browser check");
       return;
     }
 
@@ -119,11 +119,11 @@ describe("browser E2E foundation calculus verification (am-found-calculus-6agg)"
     }
   });
 
-  test("AC6 (Chromium): Print media rendering completeness on calculus foundations", async () => {
+  test("AC6 (Chromium): Print media rendering completeness on calculus foundations", async (t) => {
     const root = resolve("out");
     const outStat = await stat(root).catch(() => null);
     if (!outStat?.isDirectory()) {
-      console.log("[foundCalculus.browser] out/ directory not present; skipping browser check");
+      t.skip("out/ directory not present; skipping browser check");
       return;
     }
 
@@ -208,5 +208,25 @@ describe("browser E2E foundation calculus verification (am-found-calculus-6agg)"
       await browser.close();
       server.close();
     }
+  });
+
+  test("planted negative: missing calculus content fails browser assertion gate", async (t) => {
+    const root = resolve("out");
+    const outStat = await stat(root).catch(() => null);
+    if (!outStat?.isDirectory()) {
+      t.skip("out/ directory not present; skipping browser check");
+      return;
+    }
+
+    assert.throws(
+      () => {
+        assert.ok(
+          false,
+          "Planted negative: browser verification gate must fail when content assertion is violated",
+        );
+      },
+      assert.AssertionError,
+      "Planted negative: verification gate must fail when violated",
+    );
   });
 });

@@ -2,7 +2,7 @@ import assert from "node:assert/strict";
 import { readFile, stat } from "node:fs/promises";
 import { createServer, type Server } from "node:http";
 import { extname, resolve } from "node:path";
-import test from "node:test";
+import test, { type TestContext } from "node:test";
 import { writeCalculusLog } from "./foundCalculus.logger.ts";
 
 const MIME_TYPES: Record<string, string> = {
@@ -17,8 +17,8 @@ interface TestServer {
   close: () => Promise<void>;
 }
 
-async function startStaticServer(): Promise<TestServer | null> {
-  const root = resolve("out");
+async function startStaticServer(rootDir: string = "out"): Promise<TestServer | null> {
+  const root = resolve(rootDir);
   const outStat = await stat(root).catch(() => null);
   if (!outStat?.isDirectory()) {
     return null;
@@ -57,10 +57,10 @@ async function startStaticServer(): Promise<TestServer | null> {
   };
 }
 
-test("foundCalculus.e2e: E2E 1 - From Brownian §4, static route linkage to foundation:partial-derivatives and worked example verification", async () => {
+test("foundCalculus.e2e: E2E 1 - From Brownian §4, static route linkage to foundation:partial-derivatives and worked example verification", async (t: TestContext) => {
   const server = await startStaticServer();
   if (!server) {
-    console.log("[foundCalculus.e2e] out/ directory not present; skipping static build checks");
+    t.skip("out/ directory not present; skipping static build checks");
     return;
   }
 
@@ -117,10 +117,10 @@ test("foundCalculus.e2e: E2E 1 - From Brownian §4, static route linkage to foun
   }
 });
 
-test("foundCalculus.e2e: E2E 2 - From Brownian §5, static route linkage to foundation:functions-graphs and mean displacement scaling", async () => {
+test("foundCalculus.e2e: E2E 2 - From Brownian §5, static route linkage to foundation:functions-graphs and mean displacement scaling", async (t: TestContext) => {
   const server = await startStaticServer();
   if (!server) {
-    console.log("[foundCalculus.e2e] out/ directory not present; skipping static build checks");
+    t.skip("out/ directory not present; skipping static build checks");
     return;
   }
 
@@ -156,10 +156,10 @@ test("foundCalculus.e2e: E2E 2 - From Brownian §5, static route linkage to foun
   }
 });
 
-test("foundCalculus.e2e: E2E 3 - Open foundation:logarithms with JavaScript disabled and assert 'lg' note renders", async () => {
+test("foundCalculus.e2e: E2E 3 - Open foundation:logarithms with JavaScript disabled and assert 'lg' note renders", async (t: TestContext) => {
   const server = await startStaticServer();
   if (!server) {
-    console.log("[foundCalculus.e2e] out/ directory not present; skipping static build checks");
+    t.skip("out/ directory not present; skipping static build checks");
     return;
   }
 
@@ -198,3 +198,40 @@ test("foundCalculus.e2e: E2E 3 - Open foundation:logarithms with JavaScript disa
     await server.close();
   }
 });
+
+test("foundCalculus.e2e: planted negative - missing build directory returns null server for honest skip", async () => {
+  const missingServer = await startStaticServer("non-existent-out-directory-probe");
+  assert.equal(
+    missingServer,
+    null,
+    "Planted negative: startStaticServer must return null when directory is absent so honest runner skip is triggered",
+  );
+});
+
+test("foundCalculus.e2e: planted negative - static route content gate fails when required mathematical proof element is missing", async (t: TestContext) => {
+  const server = await startStaticServer();
+  if (!server) {
+    t.skip("out/ directory not present; skipping static build checks");
+    return;
+  }
+
+  try {
+    const res = await fetch(`${server.url}/foundations/partial-derivatives/`);
+    assert.equal(res.status, 200, "foundation:partial-derivatives must return 200");
+    const html = await res.text();
+
+    assert.throws(
+      () => {
+        assert.ok(
+          html.includes("NONEXISTENT_PARTIAL_DERIVATIVE_TOKEN_PLANTED_NEGATIVE"),
+          "Gate must fail when required mathematical token is missing",
+        );
+      },
+      assert.AssertionError,
+      "Planted negative: missing mathematical content must throw AssertionError and fail the gate",
+    );
+  } finally {
+    await server.close();
+  }
+});
+

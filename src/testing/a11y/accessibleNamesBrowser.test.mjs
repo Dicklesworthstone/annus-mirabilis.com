@@ -66,11 +66,11 @@ describe("browser accessible-name verification (am-qt1j)", () => {
     }
   });
 
-  test("computed accessible name equals visible label exactly across 29 affected components in out/", async () => {
+  test("computed accessible name equals visible label exactly across 29 affected components in out/", async (t) => {
     const root = resolve("out");
     const outStat = await stat(root).catch(() => null);
     if (!outStat?.isDirectory()) {
-      console.log("[am-qt1j] out/ directory not present; skipping static build checks");
+      t.skip("out/ directory not present; skipping static build checks");
       return;
     }
 
