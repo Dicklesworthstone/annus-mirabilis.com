@@ -26,10 +26,10 @@ export const ECHO_WORKER_HELLO: HelloMessage = {
 // Cross-environment postMessage abstraction
 let defaultPostMessageFn: (msg: unknown, transfer?: any[]) => void;
 
-// Platform escape: globalThis in DOM lib is typed as Window/global; DedicatedWorkerGlobalScope.postMessage lacks targetOrigin
 if (
   typeof globalThis !== "undefined" &&
   "postMessage" in globalThis &&
+  // Platform escape: DedicatedWorkerGlobalScope.postMessage is untyped on globalThis in DOM lib
   typeof (globalThis as any).postMessage === "function"
 ) {
   defaultPostMessageFn = (msg, transfer) => {
