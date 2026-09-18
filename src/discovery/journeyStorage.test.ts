@@ -1,6 +1,6 @@
 import { describe, expect, test } from "bun:test";
 import { storageKeyRegistry } from "../platform/storage/keys.ts";
-import { createStorageContext, writeDocument } from "../platform/storage/store.ts";
+import { createStorageContext } from "../platform/storage/store.ts";
 import {
   DEFAULT_JOURNEY_STATE,
   getJourneyChoice,

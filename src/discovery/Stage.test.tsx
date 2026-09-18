@@ -4,7 +4,8 @@ import { Stage } from "./Stage.tsx";
 import { FIXTURE_JOURNEY_BROWNIAN } from "./testing/fixtureJourney.ts";
 
 describe("Stage component rendering", () => {
-  const stage = FIXTURE_JOURNEY_BROWNIAN.stages[0]!;
+  const stage = FIXTURE_JOURNEY_BROWNIAN.stages[0];
+  if (!stage) throw new Error("Missing stages fixture");
 
   test("renders stage title, question, premise citations, and support ladder", () => {
     const html = renderToStaticMarkup(<Stage stage={stage} index={0} />);

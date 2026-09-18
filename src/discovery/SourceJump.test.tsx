@@ -4,7 +4,8 @@ import { SourceJump } from "./SourceJump.tsx";
 import { FIXTURE_JOURNEY_BROWNIAN } from "./testing/fixtureJourney.ts";
 
 describe("SourceJump component rendering", () => {
-  const jump = FIXTURE_JOURNEY_BROWNIAN.sourceJumps[0]!;
+  const jump = FIXTURE_JOURNEY_BROWNIAN.sourceJumps[0];
+  if (!jump) throw new Error("Missing sourceJumps fixture");
 
   test("renders jump label, pointer text, and correct href to the paper section", () => {
     const html = renderToStaticMarkup(<SourceJump jump={jump} />);

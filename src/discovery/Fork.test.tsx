@@ -4,8 +4,8 @@ import { Fork } from "./Fork.tsx";
 import { FIXTURE_JOURNEY_BROWNIAN } from "./testing/fixtureJourney.ts";
 
 describe("Fork component rendering", () => {
-  const forkObservable = FIXTURE_JOURNEY_BROWNIAN.forks[0]!;
-  const forkMechanism = FIXTURE_JOURNEY_BROWNIAN.forks[1]!;
+  const [forkObservable, forkMechanism] = FIXTURE_JOURNEY_BROWNIAN.forks;
+  if (!forkObservable || !forkMechanism) throw new Error("Missing forks fixture");
 
   test("renders fork question and varies explanation", () => {
     const html = renderToStaticMarkup(<Fork fork={forkObservable} />);

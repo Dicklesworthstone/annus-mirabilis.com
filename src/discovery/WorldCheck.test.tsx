@@ -4,7 +4,8 @@ import { FIXTURE_JOURNEY_BROWNIAN } from "./testing/fixtureJourney.ts";
 import { WorldCheck } from "./WorldCheck.tsx";
 
 describe("WorldCheck component rendering", () => {
-  const worldCheck = FIXTURE_JOURNEY_BROWNIAN.worldChecks[0]!;
+  const worldCheck = FIXTURE_JOURNEY_BROWNIAN.worldChecks[0];
+  if (!worldCheck) throw new Error("Missing worldChecks fixture");
 
   test("renders world check claim, static worked example, and instrument link", () => {
     const html = renderToStaticMarkup(<WorldCheck check={worldCheck} />);
