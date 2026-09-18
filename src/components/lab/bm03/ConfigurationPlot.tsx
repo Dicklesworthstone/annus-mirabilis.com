@@ -37,8 +37,8 @@ export function ConfigurationPlot({ parameters, evaluation, clipId }: Configurat
             <rect x="20" y="20" width="500" height="240" rx="8" />
           </clipPath>
           <linearGradient id={`${clipId}-grad`} x1="0%" y1="0%" x2="100%" y2="100%">
-            <stop offset="0%" stopColor="var(--color-bg-subtle, #f5f4f0)" />
-            <stop offset="100%" stopColor="var(--color-bg-inset, #ebe9e1)" />
+            <stop offset="0%" stopColor="var(--paper)" />
+            <stop offset="100%" stopColor="var(--wash)" />
           </linearGradient>
         </defs>
 
@@ -50,7 +50,7 @@ export function ConfigurationPlot({ parameters, evaluation, clipId }: Configurat
           height="260"
           rx="10"
           fill={`url(#${clipId}-grad)`}
-          stroke="var(--color-border, #d1cfc7)"
+          stroke="var(--line)"
           strokeWidth="1.5"
         />
 
@@ -66,7 +66,7 @@ export function ConfigurationPlot({ parameters, evaluation, clipId }: Configurat
             >
               Step 1: One Particle in Accessible Volume {isPrinted ? "V*" : "V"}
             </text>
-            <text x="30" y="60" fontSize="12" fill="var(--color-text-muted, #666)">
+            <text x="30" y="60" fontSize="12" fill="var(--muted)">
               Position options are proportional to the accessible room.
             </text>
 
@@ -76,8 +76,8 @@ export function ConfigurationPlot({ parameters, evaluation, clipId }: Configurat
               y="85"
               width={boxWidth}
               height={boxHeight}
-              fill="rgba(59, 130, 246, 0.12)"
-              stroke="#3b82f6"
+              fill="var(--wash)"
+              stroke="var(--plot)"
               strokeWidth="2"
               rx="6"
             />
@@ -97,8 +97,8 @@ export function ConfigurationPlot({ parameters, evaluation, clipId }: Configurat
               cx={50 + boxWidth / 2}
               cy={85 + boxHeight / 2}
               r="8"
-              fill="#ef4444"
-              stroke="#991b1b"
+              fill="var(--accent)"
+              stroke="var(--accent)"
               strokeWidth="2"
             />
             <text
@@ -116,16 +116,16 @@ export function ConfigurationPlot({ parameters, evaluation, clipId }: Configurat
                 width="190"
                 height="120"
                 rx="6"
-                fill="var(--color-bg-card, #ffffff)"
-                stroke="var(--color-border, #ccc)"
+                fill="var(--panel)"
+                stroke="var(--line)"
               />
               <text x="15" y="30" fontSize="12" fontWeight="bold" fill="currentColor">
                 Integral over (x₁, y₁, z₁)
               </text>
-              <text x="15" y="60" fontSize="14" fontFamily="monospace" fill="#1e40af">
+              <text x="15" y="60" fontSize="14" fontFamily="monospace" fill="var(--plot)">
                 {isPrinted ? "B₁ = ∫ dx₁dy₁dz₁ = V*" : "B₁ = ∫ dx₁dy₁dz₁ = V"}
               </text>
-              <text x="15" y="90" fontSize="11" fill="var(--color-text-muted, #666)">
+              <text x="15" y="90" fontSize="11" fill="var(--muted)">
                 Factor ratio: {ratio}
               </text>
             </g>
@@ -144,7 +144,7 @@ export function ConfigurationPlot({ parameters, evaluation, clipId }: Configurat
             >
               Step 2: Two Independent Particles (Arrangement Product)
             </text>
-            <text x="30" y="60" fontSize="12" fill="var(--color-text-muted, #666)">
+            <text x="30" y="60" fontSize="12" fill="var(--muted)">
               Independence multiplies choices: 2 options for #1 × 2 options for #2 = 4 combinations.
             </text>
 
@@ -156,20 +156,20 @@ export function ConfigurationPlot({ parameters, evaluation, clipId }: Configurat
               <rect
                 width="180"
                 height="120"
-                fill="rgba(59, 130, 246, 0.08)"
-                stroke="#3b82f6"
+                fill="var(--wash)"
+                stroke="var(--plot)"
                 strokeWidth="1.5"
                 rx="4"
               />
               {/* Grid dividing lines */}
-              <line x1="90" y1="0" x2="90" y2="120" stroke="#3b82f6" strokeDasharray="3,3" />
-              <line x1="0" y1="60" x2="180" y2="60" stroke="#3b82f6" strokeDasharray="3,3" />
+              <line x1="90" y1="0" x2="90" y2="120" stroke="var(--line)" strokeDasharray="3,3" />
+              <line x1="0" y1="60" x2="180" y2="60" stroke="var(--line)" strokeDasharray="3,3" />
 
               {/* 4 arrangement points */}
-              <circle cx="45" cy="30" r="6" fill="#ef4444" />
-              <circle cx="135" cy="30" r="6" fill="#ef4444" />
-              <circle cx="45" cy="90" r="6" fill="#ef4444" />
-              <circle cx="135" cy="90" r="6" fill="#ef4444" />
+              <circle cx="45" cy="30" r="6" fill="var(--accent)" />
+              <circle cx="135" cy="30" r="6" fill="var(--accent)" />
+              <circle cx="45" cy="90" r="6" fill="var(--accent)" />
+              <circle cx="135" cy="90" r="6" fill="var(--accent)" />
 
               <text
                 x="90"
@@ -189,19 +189,19 @@ export function ConfigurationPlot({ parameters, evaluation, clipId }: Configurat
                 width="250"
                 height="135"
                 rx="6"
-                fill="var(--color-bg-card, #ffffff)"
-                stroke="var(--color-border, #ccc)"
+                fill="var(--panel)"
+                stroke="var(--line)"
               />
               <text x="15" y="25" fontSize="12" fontWeight="bold" fill="currentColor">
                 Integral over 2 independent particles
               </text>
-              <text x="15" y="55" fontSize="13" fontFamily="monospace" fill="#1e40af">
+              <text x="15" y="55" fontSize="13" fontFamily="monospace" fill="var(--plot)">
                 {isPrinted ? "B₂ = ∫...∫ dx₁...dz₂ = V*²" : "B₂ = ∫...∫ dx₁...dz₂ = V²"}
               </text>
               <text x="15" y="85" fontSize="12" fill="currentColor">
                 Volume factor: ({ratio})² = <strong>{evaluation.exactDecimalString ?? "4"}</strong>
               </text>
-              <text x="15" y="112" fontSize="11" fill="var(--color-text-muted, #666)">
+              <text x="15" y="112" fontSize="11" fill="var(--muted)">
                 {isLocked
                   ? "Locked cluster: options grow only as V/V₀ = 2"
                   : "Independent: options grow as (V/V₀)² = 4"}
@@ -222,7 +222,7 @@ export function ConfigurationPlot({ parameters, evaluation, clipId }: Configurat
             >
               Step 3: {Np.toLocaleString()} Particles & Logarithmic Free Energy
             </text>
-            <text x="30" y="60" fontSize="12" fill="var(--color-text-muted, #666)">
+            <text x="30" y="60" fontSize="12" fill="var(--muted)">
               The product V^Np becomes the sum Np · ln V in the free energy logarithm.
             </text>
 
@@ -231,8 +231,8 @@ export function ConfigurationPlot({ parameters, evaluation, clipId }: Configurat
               <rect
                 width="180"
                 height="120"
-                fill="rgba(16, 185, 129, 0.08)"
-                stroke="#10b981"
+                fill="var(--wash)"
+                stroke="var(--plot)"
                 strokeWidth="1.5"
                 rx="6"
               />
@@ -245,7 +245,7 @@ export function ConfigurationPlot({ parameters, evaluation, clipId }: Configurat
                     cx={cx}
                     cy={cy}
                     r="4"
-                    fill="#10b981"
+                    fill="var(--plot)"
                     opacity="0.8"
                   />
                 );
@@ -268,13 +268,13 @@ export function ConfigurationPlot({ parameters, evaluation, clipId }: Configurat
                 width="270"
                 height="150"
                 rx="6"
-                fill="var(--color-bg-card, #ffffff)"
-                stroke="var(--color-border, #ccc)"
+                fill="var(--panel)"
+                stroke="var(--line)"
               />
               <text x="15" y="24" fontSize="12" fontWeight="bold" fill="currentColor">
                 Logarithmic Configuration Integral
               </text>
-              <text x="15" y="50" fontSize="13" fontFamily="monospace" fill="#047857">
+              <text x="15" y="50" fontSize="13" fontFamily="monospace" fill="var(--plot)">
                 {isPrinted
                   ? "B = V*ⁿ · J  ⟹  lg B = n lg V* + lg J"
                   : "B = V^Np · J  ⟹  ln B = Np ln V + ln J"}
@@ -282,7 +282,7 @@ export function ConfigurationPlot({ parameters, evaluation, clipId }: Configurat
               <text x="15" y="78" fontSize="12" fill="currentColor">
                 {isPrinted ? "Free energy: F = -2κT lg B" : "Free energy: F = -k_B T ln B"}
               </text>
-              <text x="15" y="105" fontSize="12" fill="#b45309">
+              <text x="15" y="105" fontSize="12" fill="var(--accent)">
                 {Np <= 12 ? (
                   <>
                     Factor ratio: <strong>{evaluation.exactDecimalString}</strong>
@@ -294,7 +294,7 @@ export function ConfigurationPlot({ parameters, evaluation, clipId }: Configurat
                   </>
                 )}
               </text>
-              <text x="15" y="130" fontSize="11" fill="var(--color-text-muted, #666)">
+              <text x="15" y="130" fontSize="11" fill="var(--muted)">
                 J is independent of V under dilution & no external fields.
               </text>
             </g>
@@ -313,7 +313,7 @@ export function ConfigurationPlot({ parameters, evaluation, clipId }: Configurat
             >
               Step 4: Volume Derivative & Ideal Pressure Law
             </text>
-            <text x="30" y="60" fontSize="12" fill="var(--color-text-muted, #666)">
+            <text x="30" y="60" fontSize="12" fill="var(--muted)">
               Differentiating -dF/dV drops the volume-independent J and constant offset F₀.
             </text>
 
@@ -323,15 +323,15 @@ export function ConfigurationPlot({ parameters, evaluation, clipId }: Configurat
                 width="480"
                 height="150"
                 rx="6"
-                fill="var(--color-bg-card, #ffffff)"
-                stroke="var(--color-border, #ccc)"
+                fill="var(--panel)"
+                stroke="var(--line)"
               />
 
               <g transform="translate(20, 30)">
                 <text x="0" y="0" fontSize="13" fontWeight="bold" fill="currentColor">
                   Free energy:
                 </text>
-                <text x="90" y="0" fontSize="13" fontFamily="monospace" fill="#4338ca">
+                <text x="90" y="0" fontSize="13" fontFamily="monospace" fill="var(--plot)">
                   {isPrinted
                     ? "F = -2κT n lg V* - 2κT lg J + F₀"
                     : "F = -Np k_B T ln V - k_B T ln J + F₀"}
@@ -342,7 +342,7 @@ export function ConfigurationPlot({ parameters, evaluation, clipId }: Configurat
                 <text x="0" y="0" fontSize="13" fontWeight="bold" fill="currentColor">
                   Derivative:
                 </text>
-                <text x="90" y="0" fontSize="13" fontFamily="monospace" fill="#047857">
+                <text x="90" y="0" fontSize="13" fontFamily="monospace" fill="var(--plot)">
                   {isPrinted
                     ? "p = -∂F/∂V* = 2κT · (n / V*) + 0 + 0 = (RT / N) · (n / V*)"
                     : "p = -∂F/∂V = Np k_B T / V + 0 + 0 = n k_B T"}
@@ -355,14 +355,15 @@ export function ConfigurationPlot({ parameters, evaluation, clipId }: Configurat
                   width="440"
                   height="35"
                   rx="4"
-                  fill={isLocked ? "rgba(239, 68, 68, 0.08)" : "rgba(59, 130, 246, 0.08)"}
+                  fill={isLocked ? "var(--accent)" : "var(--plot)"}
+                  fillOpacity={0.08}
                 />
                 <text
                   x="12"
                   y="22"
                   fontSize="12"
                   fontWeight="bold"
-                  fill={isLocked ? "#b91c1c" : "#1d4ed8"}
+                  fill={isLocked ? "var(--accent)" : "var(--plot)"}
                 >
                   {isLocked
                     ? "Locked cluster: 1 independent unit ⟹ p = k_B T / V (counts units, not constituents)"

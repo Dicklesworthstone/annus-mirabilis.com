@@ -110,7 +110,7 @@ export function FieldFrameChangePlot({
             markerHeight="6"
             orient="auto-start-reverse"
           >
-            <path d="M 0 1.5 L 8 5 L 0 8.5 z" fill="#e65100" />
+            <path d="M 0 1.5 L 8 5 L 0 8.5 z" fill="var(--accent)" />
           </marker>
           <marker
             id="arrow-b"
@@ -121,7 +121,7 @@ export function FieldFrameChangePlot({
             markerHeight="6"
             orient="auto-start-reverse"
           >
-            <path d="M 0 1.5 L 8 5 L 0 8.5 z" fill="#0277bd" />
+            <path d="M 0 1.5 L 8 5 L 0 8.5 z" fill="var(--plot)" />
           </marker>
           <marker
             id="arrow-f"
@@ -132,19 +132,19 @@ export function FieldFrameChangePlot({
             markerHeight="6"
             orient="auto-start-reverse"
           >
-            <path d="M 0 1.5 L 8 5 L 0 8.5 z" fill="#2e7d32" />
+            <path d="M 0 1.5 L 8 5 L 0 8.5 z" fill="var(--ink)" />
           </marker>
         </defs>
 
-        <rect x="10" y="10" width="320" height="200" rx="8" fill="#fcfbf7" stroke="#e0ded6" />
+        <rect x="10" y="10" width="320" height="200" rx="8" fill="var(--panel)" stroke="var(--line)" />
 
         {/* Axes */}
-        <line x1="30" y1={cy} x2="310" y2={cy} stroke="#ccc" strokeDasharray="3 3" />
-        <line x1={cx} y1="20" x2={cx} y2="200" stroke="#ccc" strokeDasharray="3 3" />
-        <text x="300" y={cy - 6} fontSize="10" fill="#888">
+        <line x1="30" y1={cy} x2="310" y2={cy} stroke="var(--line)" strokeDasharray="3 3" />
+        <line x1={cx} y1="20" x2={cx} y2="200" stroke="var(--line)" strokeDasharray="3 3" />
+        <text x="300" y={cy - 6} fontSize="10" fill="var(--muted)">
           x ({isMoving ? "ξ" : "x"})
         </text>
-        <text x={cx + 6} y="30" fontSize="10" fill="#888">
+        <text x={cx + 6} y="30" fontSize="10" fill="var(--muted)">
           y ({isMoving ? "η" : "y"})
         </text>
 
@@ -155,10 +155,10 @@ export function FieldFrameChangePlot({
           width="130"
           height="22"
           rx="4"
-          fill={isMoving ? "#e0f2fe" : "#fef3c7"}
-          stroke={isMoving ? "#0284c7" : "#d97706"}
+          fill="var(--wash)"
+          stroke={isMoving ? "var(--plot)" : "var(--accent)"}
         />
-        <text x="26" y="35" fontSize="11" fontWeight="bold" fill={isMoving ? "#0369a1" : "#b45309"}>
+        <text x="26" y="35" fontSize="11" fontWeight="bold" fill={isMoving ? "var(--plot)" : "var(--accent)"}>
           {isMoving ? "Moving Frame k (v)" : "Stationary Frame K"} ({unitLayer.toUpperCase()})
         </text>
 
@@ -168,11 +168,11 @@ export function FieldFrameChangePlot({
           y1={cy}
           x2={ex}
           y2={ey}
-          stroke="#e65100"
+          stroke="var(--accent)"
           strokeWidth="3"
           markerEnd="url(#arrow-e)"
         />
-        <text x={ex + 8} y={ey} fontSize="12" fontWeight="bold" fill="#e65100">
+        <text x={ex + 8} y={ey} fontSize="12" fontWeight="bold" fill="var(--accent)">
           E {isMoving ? "′" : ""} ({E_active[1].toFixed(2)} V/m)
         </text>
 
@@ -184,11 +184,11 @@ export function FieldFrameChangePlot({
               y1={cy}
               x2={fx}
               y2={fy}
-              stroke="#2e7d32"
+              stroke="var(--ink)"
               strokeWidth="2"
               markerEnd="url(#arrow-f)"
             />
-            <text x={fx + 6} y={fy + 4} fontSize="10" fontWeight="bold" fill="#2e7d32">
+            <text x={fx + 6} y={fy + 4} fontSize="10" fontWeight="bold" fill="var(--ink)">
               F {isMoving ? "′" : ""}
             </text>
           </g>
@@ -197,16 +197,16 @@ export function FieldFrameChangePlot({
         {/* Magnetic Field Vector B (or Z-out-of-plane indicator) */}
         {Math.abs(B_active[2]) > 1e-15 ? (
           <g transform={`translate(${cx + 40}, ${cy - 40})`}>
-            <circle cx="0" cy="0" r="10" fill="none" stroke="#0277bd" strokeWidth="2" />
+            <circle cx="0" cy="0" r="10" fill="none" stroke="var(--plot)" strokeWidth="2" />
             {B_active[2] > 0 ? (
-              <circle cx="0" cy="0" r="3" fill="#0277bd" />
+              <circle cx="0" cy="0" r="3" fill="var(--plot)" />
             ) : (
               <>
-                <line x1="-5" y1="-5" x2="5" y2="5" stroke="#0277bd" strokeWidth="2" />
-                <line x1="5" y1="-5" x2="-5" y2="5" stroke="#0277bd" strokeWidth="2" />
+                <line x1="-5" y1="-5" x2="5" y2="5" stroke="var(--plot)" strokeWidth="2" />
+                <line x1="5" y1="-5" x2="-5" y2="5" stroke="var(--plot)" strokeWidth="2" />
               </>
             )}
-            <text x="14" y="4" fontSize="11" fill="#0277bd" fontWeight="bold">
+            <text x="14" y="4" fontSize="11" fill="var(--plot)" fontWeight="bold">
               B_z {isMoving ? "′" : ""}: {B_active[2].toExponential(3)} T
             </text>
           </g>
@@ -220,7 +220,7 @@ export function FieldFrameChangePlot({
               y1={cy}
               x2={ex}
               y2={cy}
-              stroke="#e65100"
+              stroke="var(--accent)"
               strokeWidth="1.5"
               strokeDasharray="2 2"
             />
@@ -229,7 +229,7 @@ export function FieldFrameChangePlot({
               y1={cy}
               x2={ex}
               y2={ey}
-              stroke="#e65100"
+              stroke="var(--accent)"
               strokeWidth="1.5"
               strokeDasharray="2 2"
             />
@@ -237,7 +237,7 @@ export function FieldFrameChangePlot({
         ) : null}
 
         {/* Invariant Footer */}
-        <text x="20" y="195" fontSize="10" fill="#666">
+        <text x="20" y="195" fontSize="10" fill="var(--muted)">
           E² - c²B² = {diff.toFixed(3)} | E·B = {dot.toFixed(3)} | γ ={" "}
           {g > 0 ? g.toFixed(4) : "1.0000"}
         </text>
