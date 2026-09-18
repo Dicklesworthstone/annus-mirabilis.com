@@ -77,9 +77,9 @@ describe("Brownian First Encounter Interactive UI Component (am-bm-first-encount
     expect(html).toContain("Step 1");
     expect(html).toContain("−3, −1, +1, and +3 units");
 
-    // Step 2 & 3: Signed sum is zero
-    expect(html).toContain("Why the signed sum gives zero");
-    expect(html).toContain("centre of mass");
+    // Step 2 & 3: What a signed sum tells us (average endpoint has not shifted)
+    expect(html).toContain("What a signed sum tells us");
+    expect(html).toContain("average endpoint");
 
     // Step 4 & 5: Both proposals accepted
     expect(html).toContain("Proposal A (Ignore the direction)");
@@ -92,8 +92,8 @@ describe("Brownian First Encounter Interactive UI Component (am-bm-first-encount
     expect(html).toContain("4 units");
     expect(html).toContain("20 sq units");
 
-    // Step 8: Why Einstein favored the square (cross terms vanish)
-    expect(html).toContain("Why Einstein’s derivation favored the mean square");
+    // Step 8: Why the mean square has a simple additive rule (independent steps, cross terms vanish)
+    expect(html).toContain("Why the mean square has a simple additive rule");
     expect(html).toContain("independent");
     expect(html).toContain("cross terms");
 
