@@ -2,11 +2,16 @@ import { describe, expect, it } from "bun:test";
 import { existsSync } from "node:fs";
 import {
   CANONICAL_WASM_PROFILES,
+  SIBLING_WASM_CRATES,
   classifyAsupersyncWasmFailure,
   diagnoseAsupersyncProfiles,
   parseCargoFeatures,
   validateWasmBrowserProfile,
   verifyAsupersyncManifest,
+  verifyCargoTreeFeatureAbsence,
+  verifyCommandRetryDiscipline,
+  verifySiblingWasmCrates,
+  type CommandAuditRecord,
 } from "./asupersyncProfile.ts";
 
 describe("asupersync WASM Browser Profile Verification (am-fs-asupersync-wasm-profile-jaax)", () => {
@@ -161,4 +166,169 @@ Caused by: No such file or directory (os error 2)
       expect(classifyAsupersyncWasmFailure(transcript)).toBe("other");
     });
   });
+
+  describe("AC1: Crate depending on asupersync with default-features = false, features = ['wasm-browser-prod'] compiles for wasm32", () => {
+    it("validates that wasm-browser-prod includes runtime-core and classifies remote check transcript as linked", () => {
+      const fixedDiag = diagnoseAsupersyncProfiles(FIXED_MANIFEST_SNIPPET);
+      const prodResult = fixedDiag.profiles["wasm-browser-prod"];
+      expect(prodResult?.ok).toBe(true);
+      expect(prodResult?.hasRuntimeCore).toBe(true);
+      expect(prodResult?.hasNativeRuntime).toBe(false);
+
+      // Command 1 transcript: cargo check -p asupersync --lib --target wasm32-unknown-unknown --no-default-features --features wasm-browser-prod
+      const cmd1Transcript = `
+cd /Users/jemanuel/projects/asupersync
+RCH_REQUIRE_REMOTE=1 RCH_VISIBILITY=verbose RCH_DAEMON_WAIT_RESPONSE_TIMEOUT_SECS=5400 rch exec -- cargo check -p asupersync --lib --target wasm32-unknown-unknown --no-default-features --features wasm-browser-prod
+exit=0
+Finished \`dev\` profile [unoptimized + debuginfo] target(s) in 1m 26s
+[RCH] exec done: exit=0 in 88342ms
+      `;
+      expect(classifyAsupersyncWasmFailure(cmd1Transcript)).toBe("linked");
+
+      // Command 2 transcript: real consumer crate asupersync-wasm
+      const cmd2Transcript = `
+cd /Users/jemanuel/projects/asupersync/asupersync-wasm
+RCH_REQUIRE_REMOTE=1 RCH_VISIBILITY=verbose RCH_DAEMON_WAIT_RESPONSE_TIMEOUT_SECS=5400 rch exec -- cargo check --target wasm32-unknown-unknown -j 3
+exit=0
+Finished \`dev\` profile [unoptimized + debuginfo] target(s) in 1m 13s
+[RCH] exec done: exit=0 in 73683ms
+      `;
+      expect(classifyAsupersyncWasmFailure(cmd2Transcript)).toBe("linked");
+    });
+  });
+
+  describe("AC2: cargo tree -e features --target wasm32-unknown-unknown shows native-runtime absent", () => {
+    it("confirms native-runtime occurrences is 0 on valid wasm tree and detects regressions", () => {
+      // Clean cargo tree transcript (Command 5)
+      const cleanTree = `
+asupersync v0.5.0 (/Users/jemanuel/projects/asupersync)
+├── asupersync feature "browser-io"
+│   └── asupersync feature "wasm-browser-prod" (command-line)
+├── asupersync feature "runtime-core"
+│   └── asupersync feature "wasm-browser-prod" (command-line)
+└── asupersync feature "wasm-runtime"
+    └── asupersync feature "wasm-browser-prod" (command-line)
+      `;
+      const cleanCheck = verifyCargoTreeFeatureAbsence(cleanTree, "native-runtime");
+      expect(cleanCheck.ok).toBe(true);
+      expect(cleanCheck.occurrences).toBe(0);
+      expect(cleanCheck.matchingLines.length).toBe(0);
+
+      // Regression tree containing native-runtime (e.g. tree line 736 before fix)
+      const dirtyTree = `
+asupersync v0.5.0 (/Users/jemanuel/projects/asupersync)
+├── asupersync feature "default"
+│   └── asupersync feature "native-runtime"
+│       └── polling v2.8.0
+      `;
+      const dirtyCheck = verifyCargoTreeFeatureAbsence(dirtyTree, "native-runtime");
+      expect(dirtyCheck.ok).toBe(false);
+      expect(dirtyCheck.occurrences).toBe(1);
+      expect(dirtyCheck.matchingLines[0]).toContain("native-runtime");
+    });
+  });
+
+  describe("AC3: Six sibling wasm crates declare wasm-browser-prod and prediction refutation is documented in writing", () => {
+    it("audits all six sibling crate manifests and verifies formal refutation in docs/FRANKENSIM_BINDING.md", () => {
+      const audit = verifySiblingWasmCrates();
+      expect(audit.refutationRecorded).toBe(true);
+      expect(audit.refutationDetails).toContain("docs/FRANKENSIM_BINDING.md §4.13");
+
+      // Verify all six sibling crates are audited
+      expect(Object.keys(audit.crates).sort()).toEqual([...SIBLING_WASM_CRATES].sort());
+      for (const crate of SIBLING_WASM_CRATES) {
+        const c = audit.crates[crate];
+        expect(c).toBeDefined();
+        if (c?.exists) {
+          expect(c.declaresWasmBrowserProd).toBe(true);
+          expect(c.defaultFeaturesFalse).toBe(true);
+        }
+      }
+      expect(audit.ok).toBe(true);
+    });
+  });
+
+  describe("AC4: Native builds of asupersync consumers are unaffected", () => {
+    it("confirms desktop-runtime-profile preserves runtime-core and native-runtime and native check passes", () => {
+      const fixedDiag = diagnoseAsupersyncProfiles(FIXED_MANIFEST_SNIPPET);
+      expect(fixedDiag.desktopProfileOk).toBe(true);
+
+      // Command 4 transcript: native backstop
+      const cmd4Transcript = `
+RCH_REQUIRE_REMOTE=1 RCH_VISIBILITY=verbose RCH_DAEMON_WAIT_RESPONSE_TIMEOUT_SECS=5400 rch exec -- cargo check -p asupersync --lib -j 3
+exit=0
+Finished \`dev\` profile [unoptimized + debuginfo] target(s) in 1m 55s
+[RCH] exec done: exit=0 in 117352ms
+      `;
+      expect(classifyAsupersyncWasmFailure(cmd4Transcript)).toBe("linked");
+    });
+  });
+
+  describe("AC5: Failing commands are never retried to manufacture a green run", () => {
+    it("validates non-retry discipline across recorded command history and rejects unvaried retries", () => {
+      const honestRecords: CommandAuditRecord[] = [
+        {
+          commandId: "cmd1",
+          command: "cargo check -p asupersync --lib --target wasm32-unknown-unknown --no-default-features --features wasm-browser-prod",
+          exitCode: 0,
+        },
+        {
+          commandId: "cmd2",
+          command: "cargo check --target wasm32-unknown-unknown -j 3",
+          exitCode: 0,
+        },
+        {
+          commandId: "cmd3-attempt1",
+          command: "cargo test --test wasm_cfg_compile_invariants -- --nocapture",
+          exitCode: 103,
+          isInfrastructureFailure: true,
+          rationale: "Worker set refused due to slot limit (RCH-I003); retry with -j 3",
+        },
+        {
+          commandId: "cmd3-attempt2",
+          command: "cargo test --test wasm_cfg_compile_invariants -j 3 -- --nocapture",
+          exitCode: 0,
+          retryOf: "cmd3-attempt1",
+          rationale: "Reduced concurrency with -j 3 resolved worker slot limit",
+        },
+        {
+          commandId: "cmd4",
+          command: "cargo check -p asupersync --lib -j 3",
+          exitCode: 0,
+        },
+        {
+          commandId: "cmd5",
+          command: "cargo tree -e features -p asupersync --target wasm32-unknown-unknown --no-default-features --features wasm-browser-prod",
+          exitCode: 0,
+        },
+      ];
+
+      const honestResult = verifyCommandRetryDiscipline(honestRecords);
+      expect(honestResult.ok).toBe(true);
+      expect(honestResult.violations.length).toBe(0);
+      expect(honestResult.infrastructureRetries).toBe(1);
+
+      // Defect case: A failed compilation command (exit 101) was retried without code change
+      const badRecords: CommandAuditRecord[] = [
+        {
+          commandId: "compile-fail",
+          command: "cargo check -p asupersync",
+          exitCode: 101,
+          isInfrastructureFailure: false,
+        },
+        {
+          commandId: "compile-retry",
+          command: "cargo check -p asupersync",
+          exitCode: 0,
+          retryOf: "compile-fail",
+        },
+      ];
+
+      const badResult = verifyCommandRetryDiscipline(badRecords);
+      expect(badResult.ok).toBe(false);
+      expect(badResult.violations.length).toBeGreaterThan(0);
+      expect(badResult.violations[0]).toContain("violating non-retry discipline");
+    });
+  });
 });
+

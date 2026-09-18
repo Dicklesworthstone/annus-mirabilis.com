@@ -26,7 +26,7 @@ export interface ProfileVerificationResult {
   readonly enables: readonly string[];
   readonly hasRuntimeCore: boolean;
   readonly hasNativeRuntime: boolean;
-  readonly reason?: string;
+  readonly reason?: string | undefined;
 }
 
 export interface AsupersyncProfilesDiagnosis {
@@ -213,3 +213,211 @@ export function classifyAsupersyncWasmFailure(transcript: string): AsupersyncWas
   }
   return "other";
 }
+
+/**
+ * Six sibling WASM crates declared in the bead prediction.
+ */
+export const SIBLING_WASM_CRATES = [
+  "fs-goddard-wasm",
+  "fs-flyer-wasm",
+  "fs-cmaes-viz-wasm",
+  "fs-crump-wasm",
+  "fs-edison-wasm",
+  "fs-wasm",
+] as const;
+
+export type SiblingWasmCrate = (typeof SIBLING_WASM_CRATES)[number];
+
+export interface SiblingCrateManifestCheck {
+  readonly crate: string;
+  readonly exists: boolean;
+  readonly declaresWasmBrowserProd: boolean;
+  readonly defaultFeaturesFalse: boolean;
+  readonly path?: string | undefined;
+  readonly rawDependencyLine?: string | undefined;
+}
+
+export interface SiblingWasmAuditResult {
+  readonly ok: boolean;
+  readonly allCratesDeclared: boolean;
+  readonly refutationRecorded: boolean;
+  readonly crates: Record<string, SiblingCrateManifestCheck>;
+  readonly refutationDetails?: string | undefined;
+}
+
+/**
+ * Inspect a sibling crate's Cargo.toml for the bare wasm-browser-prod dependency.
+ */
+export function checkSiblingWasmManifest(
+  crate: string,
+  frankensimRoot = "/Users/jemanuel/projects/frankensim",
+): SiblingCrateManifestCheck {
+  const manifestPath = resolve(frankensimRoot, "crates", crate, "Cargo.toml");
+  if (!existsSync(manifestPath)) {
+    return {
+      crate,
+      exists: false,
+      declaresWasmBrowserProd: false,
+      defaultFeaturesFalse: false,
+    };
+  }
+
+  const content = readFileSync(manifestPath, "utf8");
+  const asupersyncLine = content
+    .split("\n")
+    .map((l) => l.trim())
+    .find((l) => !l.startsWith("#") && l.includes("asupersync") && l.includes("wasm-browser-prod"));
+
+  const declaresWasmBrowserProd =
+    asupersyncLine !== undefined && asupersyncLine.includes("wasm-browser-prod");
+  const defaultFeaturesFalse =
+    asupersyncLine !== undefined &&
+    /default-features\s*=\s*false/.test(asupersyncLine);
+
+  return {
+    crate,
+    exists: true,
+    declaresWasmBrowserProd,
+    defaultFeaturesFalse,
+    path: manifestPath,
+    rawDependencyLine: asupersyncLine?.trim(),
+  };
+}
+
+/**
+ * Audit all six sibling wasm crates and verify the written refutation in FRANKENSIM_BINDING.md.
+ */
+export function verifySiblingWasmCrates(
+  frankensimRoot = "/Users/jemanuel/projects/frankensim",
+  bindingDocPath = "docs/FRANKENSIM_BINDING.md",
+): SiblingWasmAuditResult {
+  const crates: Record<string, SiblingCrateManifestCheck> = {};
+  let allCratesDeclared = true;
+
+  for (const crate of SIBLING_WASM_CRATES) {
+    const res = checkSiblingWasmManifest(crate, frankensimRoot);
+    crates[crate] = res;
+    if (!res.exists || !res.declaresWasmBrowserProd || !res.defaultFeaturesFalse) {
+      allCratesDeclared = false;
+    }
+  }
+
+  // Verify refutation in writing
+  const docResolved = resolve(bindingDocPath);
+  let refutationRecorded = false;
+  let refutationDetails: string | undefined;
+
+  if (existsSync(docResolved)) {
+    const docText = readFileSync(docResolved, "utf8");
+    const hasSection = docText.includes("4.13") && docText.includes("am-fs-asupersync-wasm-profile-jaax");
+    const hasRefutation =
+      docText.includes("REFUTED") &&
+      docText.includes("bare `wasm-browser-prod`") &&
+      docText.includes("fs-goddard-wasm");
+    refutationRecorded = hasSection && hasRefutation;
+    if (refutationRecorded) {
+      refutationDetails = "Formal prediction refutation documented in docs/FRANKENSIM_BINDING.md §4.13.";
+    }
+  }
+
+  return {
+    ok: allCratesDeclared && refutationRecorded,
+    allCratesDeclared,
+    refutationRecorded,
+    crates,
+    refutationDetails,
+  };
+}
+
+export interface CargoTreeFeatureCheck {
+  readonly ok: boolean;
+  readonly target: string;
+  readonly forbiddenFeature: string;
+  readonly occurrences: number;
+  readonly matchingLines: readonly string[];
+}
+
+/**
+ * Verify that cargo tree output for wasm32 excludes forbidden features (such as native-runtime).
+ */
+export function verifyCargoTreeFeatureAbsence(
+  treeOutput: string,
+  forbiddenFeature = "native-runtime",
+  target = "wasm32-unknown-unknown",
+): CargoTreeFeatureCheck {
+  const lines = treeOutput.split("\n");
+  const matchingLines: string[] = [];
+
+  for (const line of lines) {
+    if (line.includes(forbiddenFeature)) {
+      matchingLines.push(line.trim());
+    }
+  }
+
+  return {
+    ok: matchingLines.length === 0,
+    target,
+    forbiddenFeature,
+    occurrences: matchingLines.length,
+    matchingLines,
+  };
+}
+
+export interface CommandAuditRecord {
+  readonly commandId: string;
+  readonly command: string;
+  readonly exitCode: number;
+  readonly isInfrastructureFailure?: boolean | undefined;
+  readonly retryOf?: string | undefined;
+  readonly rationale?: string | undefined;
+}
+
+export interface CommandRetryDisciplineResult {
+  readonly ok: boolean;
+  readonly violations: readonly string[];
+  readonly totalCommands: number;
+  readonly infrastructureRetries: number;
+}
+
+/**
+ * Verify that command execution adheres to honest retry discipline:
+ * - Failing compilation commands (exit 101 or rustc errors) are never retried to manufacture green.
+ * - Infrastructure retries (exit 103, worker slots) document deliberate variation.
+ */
+export function verifyCommandRetryDiscipline(
+  records: readonly CommandAuditRecord[],
+): CommandRetryDisciplineResult {
+  const violations: string[] = [];
+  let infrastructureRetries = 0;
+  const commandMap = new Map<string, CommandAuditRecord>();
+
+  for (const record of records) {
+    commandMap.set(record.commandId, record);
+
+    if (record.retryOf) {
+      const parent = commandMap.get(record.retryOf);
+      if (parent) {
+        if (!parent.isInfrastructureFailure && parent.exitCode !== 0) {
+          violations.push(
+            `Command '${record.commandId}' retried failing non-infrastructure command '${parent.commandId}' (exit ${parent.exitCode}) violating non-retry discipline.`,
+          );
+        } else if (parent.isInfrastructureFailure) {
+          infrastructureRetries++;
+          if (!record.rationale) {
+            violations.push(
+              `Infrastructure retry '${record.commandId}' of '${parent.commandId}' lacks documented rationale or parameter variation.`,
+            );
+          }
+        }
+      }
+    }
+  }
+
+  return {
+    ok: violations.length === 0,
+    violations,
+    totalCommands: records.length,
+    infrastructureRetries,
+  };
+}
+

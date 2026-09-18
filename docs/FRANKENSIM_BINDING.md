@@ -759,6 +759,46 @@ Against a complete sibling copy, with rch remote for compilation:
 
 ---
 
+### 4.13 WASM Browser Profile Defect and Sibling Verification (`am-fs-asupersync-wasm-profile-jaax`)
+
+**Lane:** Grok lane / BoldHarbor, 2026-09-16.  
+**Owning bead:** `am-fs-asupersync-wasm-profile-jaax`.  
+**Upstream repository:** `asupersync` (`/Users/jemanuel/projects/asupersync`).
+
+#### 4.13.1 The defect
+
+`asupersync`'s canonical WASM browser profile `wasm-browser-prod` (along with `dev`, `deterministic`, and `minimal`) previously omitted `runtime-core`. Because `runtime-core` was the feature enabling `dep:serde`, any consumer specifying `default-features = false, features = ["wasm-browser-prod"]` failed compilation with 716 unresolved `serde` imports inside `asupersync`.
+
+#### 4.13.2 The upstream fix
+
+In `asupersync/Cargo.toml` (commit `3b6a708ce4484f80efad1826558343530cf14c59`), `runtime-core` was added to all four canonical WASM browser profiles:
+
+```toml
+wasm-browser-dev = ["wasm-runtime", "browser-io", "runtime-core"]
+wasm-browser-prod = ["wasm-runtime", "browser-io", "runtime-core"]
+wasm-browser-deterministic = ["wasm-runtime", "deterministic-mode", "browser-trace", "runtime-core"]
+wasm-browser-minimal = ["wasm-runtime", "runtime-core"]
+```
+
+`native-runtime` remains strictly absent from all WASM browser profiles, preventing the `asupersync/src/lib.rs:129` `compile_error!`. `desktop-runtime-profile` retains both `runtime-core` and `native-runtime`.
+
+#### 4.13.3 Sibling WASM crates and prediction refutation
+
+Six sibling crates declare bare `features = ["wasm-browser-prod"]` with `default-features = false`:
+1. `crates/fs-goddard-wasm`
+2. `crates/fs-flyer-wasm`
+3. `crates/fs-cmaes-viz-wasm`
+4. `crates/fs-crump-wasm`
+5. `crates/fs-edison-wasm`
+6. `crates/fs-wasm`
+
+The prediction that all six sibling crates were latently broken by bare `wasm-browser-prod` was **checked and REFUTED**:
+- All six crates were compiled for `wasm32-unknown-unknown` via `rch exec -- cargo check --target wasm32-unknown-unknown -j 3`.
+- All six exited 0 on remote worker nodes (`hz3`, `hz4`).
+- With `runtime-core` included in `wasm-browser-prod`, every sibling crate compiles cleanly standalone.
+
+---
+
 ## 5. Export Signatures, Buffer Layouts, and Decisions (a) and (b)
 
 **Lane:** B (SandyCedar swarm, 2026-09-15)
