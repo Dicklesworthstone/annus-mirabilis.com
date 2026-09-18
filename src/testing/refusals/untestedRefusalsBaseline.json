@@ -64,7 +64,7 @@
   "src/equations/genealogy/consistency.ts": 0,
   "src/equations/latex/collisions.ts": 1,
   "src/equations/monomial.ts": 0,
-  "src/equations/record.ts": 1,
+  "src/equations/record.ts": 0,
   "src/equations/spoken/lintSpokenForm.ts": 1,
   "src/equations/tree/schema.ts": 0,
   "src/experiments/identity/jsonCodec.ts": 1,
