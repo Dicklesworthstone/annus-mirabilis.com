@@ -134,9 +134,9 @@ export function LightComplexPlot({
               cx={cx1}
               cy={cy}
               r={baseRadius}
-              fill="#3b82f6"
+              fill="var(--plot)"
               fillOpacity={0.15}
-              stroke="#2563eb"
+              stroke="var(--plot)"
               strokeWidth={2}
             />
 
@@ -146,7 +146,7 @@ export function LightComplexPlot({
               cy={cy}
               r={baseRadius * 0.65}
               fill="none"
-              stroke="#3b82f6"
+              stroke="var(--plot)"
               strokeWidth={1}
               strokeDasharray="3 3"
               strokeOpacity={0.5}
@@ -156,7 +156,7 @@ export function LightComplexPlot({
               cy={cy}
               r={baseRadius * 0.35}
               fill="none"
-              stroke="#3b82f6"
+              stroke="var(--plot)"
               strokeWidth={1}
               strokeDasharray="3 3"
               strokeOpacity={0.5}
@@ -168,17 +168,17 @@ export function LightComplexPlot({
               y1={cy}
               x2={ray1X}
               y2={ray1Y}
-              stroke="#1d4ed8"
+              stroke="var(--plot)"
               strokeWidth={2.5}
               markerEnd="url(#arrow-k-ray)"
             />
-            <circle cx={cx1} cy={cy} r={3} fill="#1d4ed8" />
+            <circle cx={cx1} cy={cy} r={3} fill="var(--plot)" />
 
             {/* Angle arc */}
             <path
               d={`M ${cx1 + 25} ${cy} A 25 25 0 ${phiRadK > Math.PI ? 1 : 0} 0 ${cx1 + 25 * Math.cos(phiRadK)} ${cy - 25 * Math.sin(phiRadK)}`}
               fill="none"
-              stroke="#1d4ed8"
+              stroke="var(--plot)"
               strokeWidth={1.2}
               strokeDasharray="2 2"
             />
@@ -188,7 +188,7 @@ export function LightComplexPlot({
               fontSize="12"
               fontFamily="var(--font-mono, monospace)"
               fontWeight="500"
-              fill="#1d4ed8"
+              fill="var(--plot)"
             >
               φ = {phiStationaryDeg.toFixed(1)}°
             </text>
@@ -235,7 +235,7 @@ export function LightComplexPlot({
                 y1={0}
                 x2={50}
                 y2={0}
-                stroke="#f59e0b"
+                stroke="var(--accent)"
                 strokeWidth={2}
                 markerEnd="url(#arrow-boost-complex)"
               />
@@ -244,7 +244,7 @@ export function LightComplexPlot({
                 y={-5}
                 fontSize="10"
                 fontFamily="var(--font-mono, monospace)"
-                fill="#f59e0b"
+                fill="var(--accent)"
                 textAnchor="middle"
               >
                 v = {beta.toFixed(2)}c
@@ -260,7 +260,7 @@ export function LightComplexPlot({
                   rx={rx_rod}
                   ry={ry_rod}
                   fill="none"
-                  stroke="#ea580c"
+                  stroke="var(--muted)"
                   strokeWidth={1.5}
                   strokeDasharray="4 3"
                 />
@@ -269,7 +269,7 @@ export function LightComplexPlot({
                   y={cy + ry_rod - 10}
                   fontSize="9"
                   fontFamily="var(--font-mono, monospace)"
-                  fill="#ea580c"
+                  fill="var(--muted)"
                 >
                   Rod: 1/γ
                 </text>
@@ -283,9 +283,9 @@ export function LightComplexPlot({
                 cy={cy}
                 rx={ry_k}
                 ry={rx_k}
-                fill={energyFactor > 1 ? "#ef4444" : "#10b981"}
+                fill={energyFactor > 1 ? "var(--accent)" : "var(--plot)"}
                 fillOpacity={0.2}
-                stroke={energyFactor > 1 ? "#dc2626" : "#059669"}
+                stroke={energyFactor > 1 ? "var(--accent)" : "var(--plot)"}
                 strokeWidth={2}
               />
             </g>
@@ -296,17 +296,17 @@ export function LightComplexPlot({
               y1={cy}
               x2={ray2X}
               y2={ray2Y}
-              stroke="#dc2626"
+              stroke="var(--accent)"
               strokeWidth={2.5}
               markerEnd="url(#arrow-prime-ray)"
             />
-            <circle cx={cx2} cy={cy} r={3} fill="#dc2626" />
+            <circle cx={cx2} cy={cy} r={3} fill="var(--accent)" />
 
             {/* Transformed angle arc */}
             <path
               d={`M ${cx2 + 25} ${cy} A 25 25 0 ${phiRad_k > Math.PI ? 1 : 0} 0 ${cx2 + 25 * Math.cos(phiRad_k)} ${cy - 25 * Math.sin(phiRad_k)}`}
               fill="none"
-              stroke="#dc2626"
+              stroke="var(--accent)"
               strokeWidth={1.2}
               strokeDasharray="2 2"
             />
@@ -316,7 +316,7 @@ export function LightComplexPlot({
               fontSize="12"
               fontFamily="var(--font-mono, monospace)"
               fontWeight="500"
-              fill="#dc2626"
+              fill="var(--accent)"
             >
               φ′ = {phiMovingDeg.toFixed(1)}°
             </text>
@@ -333,7 +333,7 @@ export function LightComplexPlot({
               markerHeight={6}
               orient="auto-start-reverse"
             >
-              <path d="M 0 0 L 10 5 L 0 10 z" fill="#1d4ed8" />
+              <path d="M 0 0 L 10 5 L 0 10 z" fill="var(--plot)" />
             </marker>
             <marker
               id="arrow-prime-ray"
@@ -344,7 +344,7 @@ export function LightComplexPlot({
               markerHeight={6}
               orient="auto-start-reverse"
             >
-              <path d="M 0 0 L 10 5 L 0 10 z" fill="#dc2626" />
+              <path d="M 0 0 L 10 5 L 0 10 z" fill="var(--accent)" />
             </marker>
             <marker
               id="arrow-boost-complex"
@@ -355,7 +355,7 @@ export function LightComplexPlot({
               markerHeight={6}
               orient="auto-start-reverse"
             >
-              <path d="M 0 0 L 10 5 L 0 10 z" fill="#f59e0b" />
+              <path d="M 0 0 L 10 5 L 0 10 z" fill="var(--accent)" />
             </marker>
           </defs>
         </svg>

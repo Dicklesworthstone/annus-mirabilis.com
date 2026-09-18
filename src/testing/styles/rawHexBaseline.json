@@ -19,7 +19,7 @@
   "src/components/lab/sr06/VelocityCompositionPlot.tsx": 4,
   "src/components/lab/sr08/FieldFrameChangePlot.tsx": 0,
   "src/components/lab/sr09/DopplerAberrationPlot.tsx": 16,
-  "src/components/lab/sr10/LightComplexPlot.tsx": 23,
+  "src/components/lab/sr10/LightComplexPlot.tsx": 0,
   "src/components/lab/sr11/MovingMirrorPlot.tsx": 7,
   "src/components/lab/sr12/ChargeCurrentPlot.tsx": 13,
   "src/components/lab/sr13/ElectronDynamicsPlot.tsx": 6,
