@@ -348,13 +348,13 @@ export function generateDeterministicSvg(layout: GenealogyLayoutResult): string 
     `<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 ${width} ${height}" width="${width}" height="${height}" class="genealogy-graph-svg" role="img" aria-label="Equation genealogy graph">`,
     `  <defs>`,
     `    <marker id="genealogy-arrow-default" markerWidth="8" markerHeight="8" refX="7" refY="4" orient="auto">`,
-    `      <path d="M 0 1 L 8 4 L 0 7 z" fill="#5c5346" />`,
+    `      <path d="M 0 1 L 8 4 L 0 7 z" fill="var(--line)" />`,
     `    </marker>`,
     `    <marker id="genealogy-arrow-crosspaper" markerWidth="8" markerHeight="8" refX="7" refY="4" orient="auto">`,
-    `      <path d="M 0 1 L 8 4 L 0 7 z" fill="#c25e00" />`,
+    `      <path d="M 0 1 L 8 4 L 0 7 z" fill="var(--accent)" />`,
     `    </marker>`,
     `    <marker id="genealogy-arrow-oracle" markerWidth="8" markerHeight="8" refX="7" refY="4" orient="auto">`,
-    `      <path d="M 0 1 L 8 4 L 0 7 z" fill="#2d6a9f" />`,
+    `      <path d="M 0 1 L 8 4 L 0 7 z" fill="var(--plot)" />`,
     `    </marker>`,
     `  </defs>`,
     `  <g class="genealogy-edges">`,
@@ -368,7 +368,7 @@ export function generateDeterministicSvg(layout: GenealogyLayoutResult): string 
       : isOracle
         ? "genealogy-arrow-oracle"
         : "genealogy-arrow-default";
-    const strokeColor = isCross ? "#c25e00" : isOracle ? "#2d6a9f" : "#8c8273";
+    const strokeColor = isCross ? "var(--accent)" : isOracle ? "var(--plot)" : "var(--line)";
     const strokeDash = isCross ? `stroke-dasharray="4 3" ` : "";
 
     lines.push(
@@ -382,8 +382,8 @@ export function generateDeterministicSvg(layout: GenealogyLayoutResult): string 
   for (const n of nodes) {
     const isRoot = n.node.isRoot;
     const isResult = n.node.isNumberedResult;
-    const fill = isRoot ? "#f4ebd0" : isResult ? "#e8efe9" : "#ffffff";
-    const stroke = isRoot ? "#9b6b27" : isResult ? "#3d7a5a" : "#b0a898";
+    const fill = isRoot || isResult ? "var(--wash)" : "var(--panel)";
+    const stroke = isRoot ? "var(--ink)" : isResult ? "var(--plot)" : "var(--line)";
     const badgeText = isRoot ? "POSTULATE" : isResult ? "RESULT" : "EQUATION";
     const label = escapeXml(n.node.label);
 
@@ -397,7 +397,7 @@ export function generateDeterministicSvg(layout: GenealogyLayoutResult): string 
       `      <text x="8" y="18" font-family="sans-serif" font-size="9" font-weight="bold" fill="${stroke}">${badgeText}</text>`,
     );
     lines.push(
-      `      <text x="8" y="38" font-family="sans-serif" font-size="12" fill="#1c1917">${label}</text>`,
+      `      <text x="8" y="38" font-family="sans-serif" font-size="12" fill="var(--ink)">${label}</text>`,
     );
     lines.push(`    </g>`);
   }

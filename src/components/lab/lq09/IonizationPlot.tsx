@@ -105,7 +105,7 @@ export function IonizationThresholdLadderPlot({
             markerHeight="6"
             orient="auto-start-reverse"
           >
-            <path d="M 0 1 L 10 5 L 0 9 z" fill="#10b981" />
+            <path d="M 0 1 L 10 5 L 0 9 z" fill="var(--plot)" />
           </marker>
         </defs>
 
@@ -135,7 +135,7 @@ export function IonizationThresholdLadderPlot({
           y1={yIonization}
           x2={width - padding.right}
           y2={yIonization}
-          stroke="#e11d48"
+          stroke="var(--accent)"
           strokeWidth="2"
           strokeDasharray="4 3"
         />
@@ -178,9 +178,9 @@ export function IonizationThresholdLadderPlot({
               y={yPhoton}
               width={80}
               height={Math.max(2, yIonization - yPhoton)}
-              fill="#10b981"
+              fill="var(--plot)"
               fillOpacity="0.2"
-              stroke="#10b981"
+              stroke="var(--plot)"
               strokeWidth="1"
             />
             <text
@@ -201,9 +201,9 @@ export function IonizationThresholdLadderPlot({
               y={yPhoton}
               width={100}
               height={Math.max(2, yIonization - yPhoton)}
-              fill="#f43f5e"
+              fill="var(--accent)"
               fillOpacity="0.15"
-              stroke="#f43f5e"
+              stroke="var(--accent)"
               strokeWidth="1"
               strokeDasharray="2 2"
             />
@@ -317,7 +317,7 @@ export function IonizationCountingPlot({
           y={yIncident}
           width={Math.max(2, scaleX(incidentQuantaRate) - padding.left)}
           height={18}
-          fill="#3b82f6"
+          fill="var(--muted)"
           rx="2"
         />
         <text
@@ -345,7 +345,7 @@ export function IonizationCountingPlot({
           y={yAbsorbed}
           width={Math.max(2, scaleX(absorbedQuantaRate) - padding.left)}
           height={18}
-          fill="#8b5cf6"
+          fill="var(--accent)"
           rx="2"
         />
         <text
@@ -376,7 +376,7 @@ export function IonizationCountingPlot({
               y={yIons}
               width={Math.max(2, scaleX(ionizationRate) - padding.left)}
               height={18}
-              fill="#10b981"
+              fill="var(--plot)"
               rx="2"
             />
             <text
@@ -396,9 +396,9 @@ export function IonizationCountingPlot({
               y={yIons}
               width={Math.max(2, scaleX(absorbedQuantaRate) - padding.left)}
               height={18}
-              fill="#f59e0b"
-              fillOpacity="0.3"
-              stroke="#f59e0b"
+              fill="var(--accent)"
+              fillOpacity="0.2"
+              stroke="var(--accent)"
               strokeDasharray="3 3"
               rx="2"
             />
