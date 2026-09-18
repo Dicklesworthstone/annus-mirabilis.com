@@ -1,6 +1,7 @@
 import { describe, expect, it } from "bun:test";
 import { resolveQuantityId } from "../content/quantities/resolveQuantityId.ts";
 import { getConstantSet } from "../physics/reference/constants.ts";
+import { withinTolerance } from "../units/tolerance.ts";
 import {
   cathodeLuminescenceMinimumPotential,
   collectorSweep,
@@ -281,7 +282,10 @@ describe("Photoelectric Reference Evaluator (am-lq-08-photoelectric-va5a)", () =
     expect(spSub.status).toBe("not-applicable");
 
     const clSub = cathodeLuminescenceMinimumPotential(subThresholdNu, workFunctionJ, set);
-    expect(clSub.status).toBe("not-applicable");
+    expect(clSub.status).toBe("value");
+    if (clSub.status === "value") {
+      expect(clSub.value).toBe(0);
+    }
 
     // 3. No NaN or Infinity propagation; non-finite inputs yield outside-domain
     const kmNan = kMax(NaN, workFunctionJ, set);
@@ -420,7 +424,7 @@ describe("Photoelectric Reference Evaluator (am-lq-08-photoelectric-va5a)", () =
     expect(nu0Res.status).toBe("value");
     if (nu0Res.status === "value") {
       const expectedNu0 = phiJ / h;
-      expect(Math.abs(nu0Res.value - expectedNu0) / expectedNu0).toBeLessThan(1e-9);
+      expect(withinTolerance(nu0Res.value, expectedNu0, { relative: 1e-9 }).ok).toBe(true);
       expect(nu0Res.value / 1e12).toBeCloseTo(483.5978, 4);
     }
 
@@ -429,7 +433,7 @@ describe("Photoelectric Reference Evaluator (am-lq-08-photoelectric-va5a)", () =
     expect(kRes.status).toBe("value");
     if (kRes.status === "value") {
       const expectedKev = (h * nu - phiJ) / e;
-      expect(Math.abs(kRes.value - expectedKev) / expectedKev).toBeLessThan(1e-9);
+      expect(withinTolerance(kRes.value, expectedKev, { relative: 1e-9 }).ok).toBe(true);
       expect(kRes.value).toBeCloseTo(0.4814006, 6);
     }
 
@@ -438,7 +442,7 @@ describe("Photoelectric Reference Evaluator (am-lq-08-photoelectric-va5a)", () =
     expect(vsRes.status).toBe("value");
     if (vsRes.status === "value") {
       const expectedVs = (h * nu - phiJ) / e;
-      expect(Math.abs(vsRes.value - expectedVs) / expectedVs).toBeLessThan(1e-9);
+      expect(withinTolerance(vsRes.value, expectedVs, { relative: 1e-9 }).ok).toBe(true);
       expect(vsRes.value).toBeCloseTo(0.4814006, 6);
     }
 
@@ -521,12 +525,12 @@ describe("Photoelectric Reference Evaluator (am-lq-08-photoelectric-va5a)", () =
       expect(clRes.unit).toBe("V");
     }
 
-    // Cathode luminescence below threshold (nu <= nu_0) gives not-applicable
+    // Cathode luminescence below threshold (nu <= nu_0): minimum potential is 0
     const subNu = 450e12;
     const clSub = cathodeLuminescenceMinimumPotential(subNu, phiJ, set);
-    expect(clSub.status).toBe("not-applicable");
-    if (clSub.status === "not-applicable") {
-      expect(clSub.reason).toBe("this idealization implies no minimum potential");
+    expect(clSub.status).toBe("value");
+    if (clSub.status === "value") {
+      expect(clSub.value).toBe(0);
     }
   });
 
@@ -696,7 +700,8 @@ describe("Photoelectric Reference Evaluator (am-lq-08-photoelectric-va5a)", () =
     );
     expect(pcUniform.status).toBe("value");
     if (pcUniform.status === "value") {
-      const expectedFrac = 1 - Math.abs(ucInterior) / vs;
+      const retardingFraction = -ucInterior / vs;
+      const expectedFrac = 1 - retardingFraction;
       expect(pcUniform.value).toBeCloseTo(iSat * expectedFrac, 10);
     }
 
@@ -1166,5 +1171,29 @@ describe("Photoelectric Reference Evaluator (am-lq-08-photoelectric-va5a)", () =
     expect(col300.marker).toBe("outside-visible");
     expect(col300.color).toBe("outside-visible");
     expect(col300.band).toBe("infrared");
+  });
+
+  describe("photoelectric refusal throw sites (am-muyh)", () => {
+    it("refusal (photoelectric.ts:1271): nonfinite-frequency rejects non-finite frequency in fluorescenceBudget", () => {
+      // Accept: finite frequency
+      const accepted = fluorescenceBudget({ nu1: 850e12, nu2: 800e12, set });
+      expect(accepted.status).toBe("value");
+
+      // Reject: non-finite frequency
+      const rejected = fluorescenceBudget({ nu1: NaN, nu2: 800e12, set });
+      expect(rejected.status).toBe("outside-domain");
+      expect(rejected.refusalCode).toBe("nonfinite-frequency");
+    });
+
+    it("refusal (photoelectric.ts:1291): nonpositive-frequency rejects non-positive frequency in fluorescenceBudget", () => {
+      // Accept: positive frequency
+      const accepted = fluorescenceBudget({ nu1: 850e12, nu2: 800e12, set });
+      expect(accepted.status).toBe("value");
+
+      // Reject: non-positive frequency
+      const rejected = fluorescenceBudget({ nu1: -1e14, nu2: 800e12, set });
+      expect(rejected.status).toBe("outside-domain");
+      expect(rejected.refusalCode).toBe("nonpositive-frequency");
+    });
   });
 });

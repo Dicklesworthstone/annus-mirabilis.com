@@ -791,8 +791,7 @@ export function stoppingLine(
  * Cathode luminescence minimum potential (paper 1, §8):
  * Accelerating potential required for an impinging electron to excite emission of frequency nu.
  * In modern form an electron accelerated through potential U can produce a quantum of frequency nu
- * only if e*U + Phi >= h*nu, so U_min = (h*nu - Phi)/e.
- * When h*nu <= Phi, returns not-applicable ("this idealization implies no minimum potential").
+ * only if e*U + Phi >= h*nu, so U_min = max(0, (h*nu - Phi)/e).
  */
 export function cathodeLuminescenceMinimumPotential(
   nu: number,
@@ -806,13 +805,12 @@ export function cathodeLuminescenceMinimumPotential(
     return outsideDomain("invalid-work-function", "physical", "Work function must be non-negative.");
   }
   const h = getPlanckConstant(set);
-  const eq = h * nu;
-  if (eq <= workFunctionJoules) {
-    return notApplicable("this idealization implies no minimum potential");
-  }
   const e = getElementaryCharge(set);
-  const uMin = (eq - workFunctionJoules) / e;
-  return ok(uMin, "V");
+  const uMin = (h * nu - workFunctionJoules) / e;
+  return ok(Math.max(0, uMin), "V", {
+    quantityId: "acceleratingPotential",
+    note: "idealized minimum; the paper notes that Lenard's materials were far from equality",
+  });
 }
 
 export type VisibleColorBand =
