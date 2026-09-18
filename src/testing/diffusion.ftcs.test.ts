@@ -5,6 +5,7 @@ import {
   ftcsAnalyticComparison,
   REFERENCE_FTCS_BUDGET,
 } from "../physics/reference/diffusion.ts";
+import { withinTolerance } from "../units/tolerance.ts";
 
 function gaussian(x: number, xc: number, t: number, D: number): number {
   return (1 / Math.sqrt(4 * Math.PI * D * t)) * Math.exp(-((x - xc) ** 2) / (4 * D * t));
@@ -46,7 +47,7 @@ describe("FTCS 1D reference stepper (am-ref-diffusion-lr3 AC 14)", () => {
             expect(v).toBeGreaterThanOrEqual(initialMin - 1e-15);
             expect(v).toBeLessThanOrEqual(initialMax + 1e-15);
           }
-          expect(Math.abs(frameMass - initialMass) / initialMass).toBeLessThan(1e-12);
+          expect(withinTolerance(frameMass, initialMass, { relative: 1e-12 }).ok).toBe(true);
         }
       }
     }

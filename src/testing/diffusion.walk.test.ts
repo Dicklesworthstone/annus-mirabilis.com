@@ -7,6 +7,7 @@ import {
 } from "../experiments/streams/allocation.ts";
 import { brownianFrames } from "../physics/reference/diffusion.ts";
 import { createPhiloxStream } from "../physics/reference/philox.ts";
+import { withinTolerance } from "../units/tolerance.ts";
 import { assertGaussianVariance } from "./stats/assertions.ts";
 
 describe("brownianFrames reference walk generator (am-ref-diffusion-lr3 AC 15)", () => {
@@ -294,8 +295,7 @@ describe("brownianFrames reference walk generator (am-ref-diffusion-lr3 AC 15)",
         }
         m2 /= nSeries;
         const expected = 2 * D * s * dt;
-        const relErr = Math.abs(m2 - expected) / expected;
-        expect(relErr).toBeLessThan(0.06);
+        expect(withinTolerance(m2, expected, { relative: 0.06 }).ok).toBe(true);
       }
     }
   });

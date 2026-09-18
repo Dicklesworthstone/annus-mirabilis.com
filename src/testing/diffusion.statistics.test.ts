@@ -7,6 +7,7 @@ import {
   normalQuantile,
 } from "../physics/reference/diffusion.ts";
 import quantilesTable from "../physics/reference/special/quantiles.table.json";
+import { withinTolerance } from "../units/tolerance.ts";
 
 describe("normalQuantile", () => {
   test("reproduces committed table values within 1e-12 relative", () => {
@@ -15,8 +16,7 @@ describe("normalQuantile", () => {
       const res = normalQuantile(p);
       expect(res.kind).toBe("accepted");
       if (res.kind === "accepted") {
-        const relErr = Math.abs(res.data - item.value) / item.value;
-        expect(relErr).toBeLessThan(1e-12);
+        expect(withinTolerance(res.data, item.value, { relative: 1e-12 }).ok).toBe(true);
       }
     }
   });
@@ -78,8 +78,7 @@ describe("chiSquareQuantile", () => {
       const res = chiSquareQuantile(row.q, p);
       expect(res.kind).toBe("accepted");
       if (res.kind === "accepted") {
-        const relErr = Math.abs(res.data - row.value) / row.value;
-        expect(relErr).toBeLessThan(1e-9);
+        expect(withinTolerance(res.data, row.value, { relative: 1e-9 }).ok).toBe(true);
       }
     }
   });
@@ -97,8 +96,7 @@ describe("chiSquareQuantile", () => {
       const res = chiSquareQuantile(q, p);
       expect(res.kind).toBe("accepted");
       if (res.kind === "accepted") {
-        const relErr = Math.abs(res.data - expected) / expected;
-        expect(relErr).toBeLessThan(1e-6);
+        expect(withinTolerance(res.data, expected, { relative: 1e-6 }).ok).toBe(true);
       }
     }
   });
@@ -129,7 +127,7 @@ describe("chiSquareQuantile", () => {
     const tenThousand = chiSquareQuantile(10000, 0.5);
     expect(tenThousand.kind).toBe("accepted");
     if (tenThousand.kind === "accepted") {
-      expect(Math.abs(tenThousand.data - 9999.33) / 9999.33).toBeLessThan(1e-4);
+      expect(withinTolerance(tenThousand.data, 9999.33, { relative: 1e-4 }).ok).toBe(true);
     }
   });
 
@@ -183,16 +181,16 @@ describe("ensembleMomentBands", () => {
 
       // alpha = 1e-3
       expect(band1.alpha).toBe(1e-3);
-      expect(Math.abs(band1.meanHalfWidth - 0.130763) / 0.130763).toBeLessThan(1e-5);
-      expect(Math.abs(band1.meanSquare[0] - 0.494964) / 0.494964).toBeLessThan(1e-5);
-      expect(Math.abs(band1.meanSquare[1] - 0.789074) / 0.789074).toBeLessThan(1e-5);
+      expect(withinTolerance(band1.meanHalfWidth, 0.130763, { relative: 1e-5 }).ok).toBe(true);
+      expect(withinTolerance(band1.meanSquare[0]!, 0.494964, { relative: 1e-5 }).ok).toBe(true);
+      expect(withinTolerance(band1.meanSquare[1]!, 0.789074, { relative: 1e-5 }).ok).toBe(true);
       expect(band1.label).toBe("sampling band under the model");
 
       // alpha = 1e-4
       expect(band2.alpha).toBe(1e-4);
-      expect(Math.abs(band2.meanHalfWidth - 0.154609) / 0.154609).toBeLessThan(1e-5);
-      expect(Math.abs(band2.meanSquare[0] - 0.472572) / 0.472572).toBeLessThan(1e-5);
-      expect(Math.abs(band2.meanSquare[1] - 0.820525) / 0.820525).toBeLessThan(1e-5);
+      expect(withinTolerance(band2.meanHalfWidth, 0.154609, { relative: 1e-5 }).ok).toBe(true);
+      expect(withinTolerance(band2.meanSquare[0]!, 0.472572, { relative: 1e-5 }).ok).toBe(true);
+      expect(withinTolerance(band2.meanSquare[1]!, 0.820525, { relative: 1e-5 }).ok).toBe(true);
     }
   });
 
@@ -210,15 +208,15 @@ describe("ensembleMomentBands", () => {
 
       // alpha = 1e-3
       expect(band1.alpha).toBe(1e-3);
-      expect(Math.abs(band1.meanHalfWidth - 0.261526) / 0.261526).toBeLessThan(1e-5);
-      expect(Math.abs(band1.meanSquare[0] - 0.378349) / 0.378349).toBeLessThan(1e-5);
-      expect(Math.abs(band1.meanSquare[1] - 0.967526) / 0.967526).toBeLessThan(1e-5);
+      expect(withinTolerance(band1.meanHalfWidth, 0.261526, { relative: 1e-5 }).ok).toBe(true);
+      expect(withinTolerance(band1.meanSquare[0]!, 0.378349, { relative: 1e-5 }).ok).toBe(true);
+      expect(withinTolerance(band1.meanSquare[1]!, 0.967526, { relative: 1e-5 }).ok).toBe(true);
 
       // alpha = 1e-4
       expect(band2.alpha).toBe(1e-4);
-      expect(Math.abs(band2.meanHalfWidth - 0.309218) / 0.309218).toBeLessThan(1e-5);
-      expect(Math.abs(band2.meanSquare[0] - 0.341821) / 0.341821).toBeLessThan(1e-5);
-      expect(Math.abs(band2.meanSquare[1] - 1.040119) / 1.040119).toBeLessThan(1e-5);
+      expect(withinTolerance(band2.meanHalfWidth, 0.309218, { relative: 1e-5 }).ok).toBe(true);
+      expect(withinTolerance(band2.meanSquare[0]!, 0.341821, { relative: 1e-5 }).ok).toBe(true);
+      expect(withinTolerance(band2.meanSquare[1]!, 1.040119, { relative: 1e-5 }).ok).toBe(true);
     }
   });
 
