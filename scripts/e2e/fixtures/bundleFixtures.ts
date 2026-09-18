@@ -5,7 +5,7 @@
  * (`FIXTURE_BUNDLE_OUTPUT_NAMES`), then copies each entry's `staticInputs`
  * byte for byte. There is never a second bundler.
  *
- * `bun build <entry> --outdir <outDir> --entry-naming bundle.js
+ * `bun build <entry> --outdir <outDir> --entry-naming bundle.[ext]
  * --sourcemap=external --target=browser --format=esm` always emits exactly
  * `bundle.js` and `bundle.js.map`, verified deterministic (byte-identical
  * across two runs on the same input) in this module's own test.
@@ -70,7 +70,7 @@ export async function bundleFixtureApp(
     const buildResult = await Bun.build({
       entrypoints: [entryFile],
       outdir: outDir,
-      naming: "bundle.js",
+      naming: { entry: "bundle.[ext]" },
       sourcemap: "external",
       target: "browser",
       format: "esm",
@@ -107,7 +107,7 @@ export async function bundleFixtureApp(
         "--outdir",
         outDir,
         "--entry-naming",
-        "bundle.js",
+        "bundle.[ext]",
         "--sourcemap=external",
         "--target=browser",
         "--format=esm",

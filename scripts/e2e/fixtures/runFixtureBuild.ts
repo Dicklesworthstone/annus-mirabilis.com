@@ -14,7 +14,7 @@ declare global {
     build: (options: {
       entrypoints: readonly string[];
       outdir: string;
-      naming?: string;
+      naming?: string | { entry?: string; chunk?: string; asset?: string };
       sourcemap?: string;
       target?: string;
       format?: string;
@@ -55,7 +55,7 @@ export async function buildFixtureBundle(entryFile: string, outDir: string): Pro
   const buildResult = await Bun.build({
     entrypoints: [entryFile],
     outdir: outDir,
-    naming: "bundle.js",
+    naming: { entry: "bundle.[ext]" },
     sourcemap: "external",
     target: "browser",
     format: "esm",
