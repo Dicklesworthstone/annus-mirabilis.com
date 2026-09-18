@@ -26,7 +26,7 @@ export default function TwoLedgersPage() {
         </p>
         <p>
           <a href="/papers/mass-energy/#arg-me-two-ledgers">
-            Read the original 1905 mass–energy argument and open its derivation steps &rarr;
+            Read the two-ledger argument (explanatory preview) &rarr;
           </a>
         </p>
       </header>
@@ -107,7 +107,7 @@ export default function TwoLedgersPage() {
           <a className="button" href="/lab/me-02/">
             Explore the small-speed coefficient (ME-02) &rarr;
           </a>
-          <a href="/lab/bm-01/">The Brownian tracer laboratory</a>
+          <a href="/papers/mass-energy/#entry-mass-energy">Start with two concrete energy accounts</a>
         </div>
       </section>
     </>

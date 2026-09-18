@@ -1,0 +1,61 @@
+{
+  "id": "entrance-mass-energy",
+  "paper": "mass-energy",
+  "question": "Can a body lose energy of motion without changing speed?",
+  "story": "A body sends equal flashes of light in opposite directions. One observer stays beside it; a traveler keeps moving past. Both write a before-and-after energy account for the same event. The body does not recoil. Compare their accounts without guessing the energy inside the body.",
+  "sourceAnchor": "#entry-mass-energy",
+  "helpEntries": [
+    {
+      "obstacle": "Why are the body energies unknown?",
+      "clarification": "Only the amount transferred to the light is specified. The boxes are not hiding a mass-times-light-speed-squared formula; no absolute body energy has been supplied."
+    },
+    {
+      "obstacle": "Why do the two observers disagree about the light?",
+      "clarification": "The light-energy transformation is an input borrowed from relativity. It gives different energies in different frames. Each observer conserves energy within their own account."
+    },
+    {
+      "obstacle": "What is an unchanged offset?",
+      "clarification": "The difference between the two accounts is interpreted as energy of motion plus an offset. This route assumes that the offset is the same before and after emission. Without that assumption, subtraction alone cannot isolate the change in energy of motion."
+    }
+  ],
+  "agreement": "Admit the light-energy transformation and, separately, the unchanged-offset premise. These are model inputs, not conclusions of the table.",
+  "consistencyCase": "Compare a traveler at sixty percent of light speed with one at one percent. The slow-speed approximation must be tested at slow speed, not certified by the easier large-number example.",
+  "bridge": {
+    "id": "bridge-mass-energy-entrance",
+    "kind": "bridge",
+    "title": "From two accounts to inertia",
+    "concreteOperation": "Align two energy accounts and subtract their losses.",
+    "compactExplanation": "A difference can be known while the absolute energies remain unknown. Its interpretation requires a stated premise.",
+    "textualEquivalent": "Subtract the loss in the rest account from the loss in the moving account, then decide which premise permits a kinetic interpretation.",
+    "stoppingPoint": "Continue from the two-ledger subtraction to the low-speed coefficient; no absolute rest energy has been assigned.",
+    "readinessSign": "Can distinguish an algebraic subtraction from its physical interpretation and explain why the coefficient is identified at low speeds.",
+    "returnCaptions": [
+      {
+        "callingAnchor": "entry-mass-energy",
+        "caption": "Return to comparing the two energy accounts."
+      }
+    ],
+    "newSkill": "Subtract two accounts of the same event to eliminate what neither account determines.",
+    "whyUsefulHere": "This isolates a change without guessing how much internal energy the body had. The slow-speed comparison then identifies the change in inertia.",
+    "continueWith": [
+      {
+        "route": "more-guidance",
+        "targetId": "foundation:work-energy"
+      },
+      {
+        "route": "less-guidance",
+        "targetId": "instrument:me-01"
+      }
+    ],
+    "authorship": {
+      "draftedBy": [
+        {
+          "id": "agent:chatgpt",
+          "kind": "model",
+          "modelId": "gpt-6-astra-pro"
+        }
+      ]
+    },
+    "reviewState": "draft"
+  }
+}

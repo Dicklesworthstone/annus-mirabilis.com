@@ -34,6 +34,7 @@ export const CONTENT_COMPILER_FILES = [
   "src/equations/quantities.ts",
   "src/equations/latex.ts",
   "src/experiments/bm01/definition.ts",
+  "src/experiments/catalogue.ts",
 ] as const;
 
 const ROOT = resolve(dirname(fileURLToPath(import.meta.url)), "..");

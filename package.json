@@ -11,7 +11,7 @@
     "prebuild": "bun scripts/app-router-architecture.ts",
     "check:architecture": "bun scripts/app-router-architecture.ts",
     "prepare:content": "bun scripts/build-content.ts && bun scripts/build-equations.ts && bun scripts/generate-missing-steps.mjs && bun scripts/extract-kernel-source.ts && bun scripts/build-search-index.ts",
-    "prepare:lab": "bun scripts/generate-lab.mjs && bun scripts/generate-tracers.mjs && bun scripts/generate-brownian-comparison.mjs && bun scripts/generate-notebook-replay.mjs && bun scripts/generate-walks.mjs && bun scripts/generate-inference.mjs && bun scripts/generate-observation.mjs && bun scripts/generate-kitchen.mjs && bun scripts/generate-drift-diffusion.mjs && bun scripts/generate-me02.mjs && bun scripts/generate-photoelectric.mjs && bun scripts/generate-wave-description.mjs && bun scripts/generate-sr03.mjs && bun scripts/generate-sr02.mjs && bun scripts/generate-lq09.mjs && bun scripts/generate-sr05.mjs && bun scripts/generate-radiation-entropy.mjs && bun scripts/generate-lq06.mjs && bun scripts/generate-sr08.mjs && bun scripts/generate-sr09.mjs && bun scripts/generate-sr10.mjs && bun scripts/generate-sr11.mjs && bun scripts/generate-sr12.mjs && bun scripts/generate-sr13.mjs && bun scripts/generate-countermodels.mjs && bun scripts/generate-inference-workbench.mjs",
+    "prepare:lab": "bun scripts/generate-lab.mjs && bun scripts/generate-tracers.mjs && bun scripts/generate-brownian-comparison.mjs && bun scripts/generate-notebook-replay.mjs && bun scripts/generate-walks.mjs && bun scripts/generate-inference.mjs && bun scripts/generate-observation.mjs && bun scripts/generate-kitchen.mjs && bun scripts/generate-drift-diffusion.mjs && bun scripts/generate-me02.mjs && bun scripts/generate-photoelectric.mjs && bun scripts/generate-wave-description.mjs && bun scripts/generate-sr03.mjs && bun scripts/generate-sr02.mjs && bun scripts/generate-lq09.mjs && bun scripts/generate-sr05.mjs && bun scripts/generate-radiation-entropy.mjs && bun scripts/generate-lq06.mjs && bun scripts/generate-sr08.mjs && bun scripts/generate-sr09.mjs && bun scripts/generate-sr10.mjs && bun scripts/generate-sr11.mjs && bun scripts/generate-sr12.mjs && bun scripts/generate-sr13.mjs && bun scripts/generate-countermodels.mjs && bun scripts/generate-inference-workbench.mjs && bun scripts/generate-mass-energy-entrance.mjs",
     "dev": "bun run prepare:content && bun run prepare:lab && bun run prepare:offline && next dev",
     "build": "bun run prepare:content && bun run prepare:lab && bun run prepare:offline && next build",
     "start": "next start",
@@ -23,7 +23,7 @@
     "test": "bun run prepare:content && bun run prepare:lab && bun run prepare:offline && bun test --isolate --timeout 60000 src scripts",
     "test:node": "node --experimental-strip-types scripts/run-node-only-tests.ts",
     "test:reference": "bun run prepare:content && bun run prepare:lab && bun test --isolate --timeout 60000 src/testing/*.test.mjs",
-    "test:browser": "bun scripts/test-lab-browser.mjs",
+    "test:browser": "bun scripts/test-mass-energy-browser.mjs && bun scripts/test-lab-browser.mjs",
     "test:search": "node --experimental-strip-types --test src/search/*.test.mjs",
     "test:search:browser": "node --experimental-strip-types scripts/e2e/searchPalette.mjs",
     "prepare:offline": "bun scripts/build-offline-chapters.ts",
@@ -35,7 +35,8 @@
     "test:inference-workbench:browser": "node --experimental-strip-types scripts/e2e/inferenceWorkbench.mjs",
     "test:replay": "node --experimental-strip-types --test src/reader/notebook/*.test.mjs scripts/generate-notebook-replay.test.mjs",
     "test:replay:browser": "node --experimental-strip-types scripts/e2e/explanationReplay.mjs",
-    "test:missing-steps": "node --experimental-strip-types --test src/equations/missingStep/*.test.mjs src/physics/reference/stepEnumeration.test.mjs"
+    "test:missing-steps": "node --experimental-strip-types --test src/equations/missingStep/*.test.mjs src/physics/reference/stepEnumeration.test.mjs",
+    "test:mass-energy:browser": "bun scripts/test-mass-energy-browser.mjs"
   },
   "dependencies": {
     "js-yaml": "4.1.0",

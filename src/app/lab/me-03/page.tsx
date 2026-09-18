@@ -24,8 +24,8 @@ export default function BoundaryLedgerPage() {
           a thermodynamic boundary around the components and inspect what energy crosses it.
         </p>
         <p>
-          <a href="/papers/mass-energy/#arg-me-two-ledgers">
-            Read the original 1905 mass–energy argument &rarr;
+          <a href="/papers/mass-energy/#arg-me-scope">
+            Read the explanatory preview and its scope &rarr;
           </a>
         </p>
       </header>

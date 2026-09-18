@@ -21,12 +21,12 @@ export default function CoefficientPage() {
           at the same speed.
         </h1>
         <p className="lead">
-          After a body emits energy L, its energy of motion is smaller by L(γ − 1). What does that
+          Under the unchanged-offset premise, emitting energy L reduces energy of motion by L(γ − 1). What does that
           drop tell you about the body&apos;s inertia, and why does the conclusion come from low
           speeds rather than from a slogan assigned in advance?
         </p>
         <p>
-          <a href="/papers/">The four-paper catalogue (source edition in preparation) →</a>
+          <a href="/papers/mass-energy/#arg-me-small-speed">Read the coefficient argument (explanatory preview) →</a>
         </p>
       </header>
       <CoefficientComparison example={{ ...example, parameters: checked.data }} />
@@ -69,10 +69,10 @@ export default function CoefficientPage() {
           percentage computed in the page.
         </p>
         <div className="actions">
-          <a className="button" href="/papers/">
-            Return to the four papers →
+          <a className="button" href="/papers/mass-energy/#arg-me-small-speed">
+            Return to the small-speed argument →
           </a>
-          <a href="/lab/bm-06/">A Brownian laboratory that is already open</a>
+          <a href="/papers/mass-energy/#entry-mass-energy">Compare two energy accounts without algebra</a>
         </div>
       </section>
     </>
