@@ -138,6 +138,105 @@ describe("parseOwners", () => {
     );
   });
 
+  it("Site (parseOwners.ts:120) rejects missing table header with missing-header", () => {
+    const text = "# Heading\nNo table present in markdown text\n";
+    assert.throws(
+      () => parseOwners(text),
+      (err: unknown) => {
+        return err instanceof OwnersParseError && err.code === "missing-header";
+      },
+    );
+    // Accept pair
+    const reg = parseOwners(VALID_TABLE);
+    assert.ok(reg.rows.length > 0);
+  });
+
+  it("Site (parseOwners.ts:146) rejects missing table separator with missing-table-separator", () => {
+    const table = `| id | displayName | roles | scope | status | consentToBeNamed | assignedBy | assignedOn |`;
+    assert.throws(
+      () => parseOwners(table),
+      (err: unknown) => {
+        return err instanceof OwnersParseError && err.code === "missing-table-separator";
+      },
+    );
+    // Accept pair
+    const valid = `${table}\n|---|---|---|---|---|---|---|---|\n| u1 | User One | editorial-owner | light-quanta | assigned | yes | admin | 2026-09-16 |`;
+    const reg = parseOwners(valid);
+    assert.equal(reg.rows.length, 1);
+  });
+
+  it("Site (parseOwners.ts:156) rejects invalid table separator with invalid-table-separator", () => {
+    const table = `| id | displayName | roles | scope | status | consentToBeNamed | assignedBy | assignedOn |
+--- not pipe delimited ---
+| u1 | User One | editorial-owner | light-quanta | assigned | yes | admin | 2026-09-16 |`;
+    assert.throws(
+      () => parseOwners(table),
+      (err: unknown) => {
+        return err instanceof OwnersParseError && err.code === "invalid-table-separator";
+      },
+    );
+    // Accept pair
+    const valid = `| id | displayName | roles | scope | status | consentToBeNamed | assignedBy | assignedOn |
+|---|---|---|---|---|---|---|---|
+| u1 | User One | editorial-owner | light-quanta | assigned | yes | admin | 2026-09-16 |`;
+    const reg = parseOwners(valid);
+    assert.equal(reg.rows.length, 1);
+  });
+
+  it("Site (parseOwners.ts:189) rejects invalid column count with invalid-column-count", () => {
+    const table = `| id | displayName | roles | scope | status | consentToBeNamed | assignedBy | assignedOn |
+|---|---|---|---|---|---|---|---|
+| u1 | User One | editorial-owner | light-quanta | assigned | yes | admin |`;
+    assert.throws(
+      () => parseOwners(table),
+      (err: unknown) => {
+        return err instanceof OwnersParseError && err.code === "invalid-column-count";
+      },
+    );
+    // Accept pair: exactly 8 columns
+    const valid = `| id | displayName | roles | scope | status | consentToBeNamed | assignedBy | assignedOn |
+|---|---|---|---|---|---|---|---|
+| u1 | User One | editorial-owner | light-quanta | assigned | yes | admin | 2026-09-16 |`;
+    const reg = parseOwners(valid);
+    assert.equal(reg.rows.length, 1);
+  });
+
+  it("Site (parseOwners.ts:220) rejects invalid id format with invalid-id-format", () => {
+    const table = `| id | displayName | roles | scope | status | consentToBeNamed | assignedBy | assignedOn |
+|---|---|---|---|---|---|---|---|
+| Invalid_Uppercase | User One | editorial-owner | light-quanta | assigned | yes | admin | 2026-09-16 |`;
+    assert.throws(
+      () => parseOwners(table),
+      (err: unknown) => {
+        return err instanceof OwnersParseError && err.code === "invalid-id-format";
+      },
+    );
+    // Accept pair: valid lowercase alphanumeric with hyphen
+    const valid = `| id | displayName | roles | scope | status | consentToBeNamed | assignedBy | assignedOn |
+|---|---|---|---|---|---|---|---|
+| valid-user-1 | User One | editorial-owner | light-quanta | assigned | yes | admin | 2026-09-16 |`;
+    const reg = parseOwners(valid);
+    assert.equal(reg.rows.length, 1);
+  });
+
+  it("Site (parseOwners.ts:237) rejects missing roles with missing-roles", () => {
+    const table = `| id | displayName | roles | scope | status | consentToBeNamed | assignedBy | assignedOn |
+|---|---|---|---|---|---|---|---|
+| valid-user-1 | User One |   | light-quanta | assigned | yes | admin | 2026-09-16 |`;
+    assert.throws(
+      () => parseOwners(table),
+      (err: unknown) => {
+        return err instanceof OwnersParseError && err.code === "missing-roles";
+      },
+    );
+    // Accept pair: non-empty roles
+    const valid = `| id | displayName | roles | scope | status | consentToBeNamed | assignedBy | assignedOn |
+|---|---|---|---|---|---|---|---|
+| valid-user-1 | User One | editorial-owner | light-quanta | assigned | yes | admin | 2026-09-16 |`;
+    const reg = parseOwners(valid);
+    assert.equal(reg.rows.length, 1);
+  });
+
   it("parses the real repository docs/OWNERS.md without error", () => {
     const reg = loadOwnersRegistry();
     assert.ok(reg.rows.length > 10);
