@@ -17,33 +17,33 @@ export function Branch({ branch }: BranchProps) {
     switch (outcome.type) {
       case "papers-route":
         return {
-          background: "rgba(16, 185, 129, 0.15)",
-          color: "#10b981",
-          border: "1px solid rgba(16, 185, 129, 0.4)",
+          background: "var(--wash)",
+          color: "var(--plot)",
+          border: "1px solid var(--plot)",
         };
       case "dead-end-on-constraint":
         return {
-          background: "rgba(225, 29, 72, 0.15)",
-          color: "#e11d48",
-          border: "1px solid rgba(225, 29, 72, 0.4)",
+          background: "var(--wash)",
+          color: "var(--accent)",
+          border: "1px solid var(--accent)",
         };
       case "correct-but-weaker":
         return {
-          background: "rgba(14, 165, 233, 0.15)",
-          color: "#0284c7",
-          border: "1px solid rgba(14, 165, 233, 0.4)",
+          background: "var(--wash)",
+          color: "var(--plot)",
+          border: "1px solid var(--line)",
         };
       case "empirically-equivalent-not-refuted":
         return {
-          background: "rgba(6, 182, 212, 0.15)",
-          color: "#0891b2",
-          border: "1px solid rgba(6, 182, 212, 0.4)",
+          background: "var(--wash)",
+          color: "var(--plot)",
+          border: "1px solid var(--line)",
         };
       case "undecided-on-available-evidence":
         return {
-          background: "rgba(168, 85, 247, 0.15)",
-          color: "#9333ea",
-          border: "1px solid rgba(168, 85, 247, 0.4)",
+          background: "var(--wash)",
+          color: "var(--accent)",
+          border: "1px solid var(--line)",
         };
       default:
         return {
@@ -245,13 +245,13 @@ export function Branch({ branch }: BranchProps) {
         </p>
 
         {outcome.constraintRef && (
-          <p style={{ margin: 0, color: "#e11d48" }}>
+          <p style={{ margin: 0, color: "var(--accent)" }}>
             <span style={{ fontWeight: 600 }}>Contradicted by evidence / constraint: </span>
             <a
               href={`#${outcome.constraintRef}`}
               style={{
                 textDecoration: "underline",
-                color: "#e11d48",
+                color: "var(--accent)",
                 fontFamily: "var(--font-mono, monospace)",
               }}
             >
@@ -261,14 +261,14 @@ export function Branch({ branch }: BranchProps) {
         )}
 
         {outcome.scopeNote && (
-          <p style={{ margin: 0, color: "#0891b2" }}>
+          <p style={{ margin: 0, color: "var(--plot)" }}>
             <span style={{ fontWeight: 600 }}>Observable class scope: </span>
             <span>{outcome.scopeNote}</span>
           </p>
         )}
 
         {outcome.insufficiency && (
-          <p style={{ margin: 0, color: "#9333ea" }}>
+          <p style={{ margin: 0, color: "var(--muted)" }}>
             <span style={{ fontWeight: 600 }}>Why 1904 evidence is insufficient: </span>
             <span>{outcome.insufficiency}</span>
           </p>
@@ -280,7 +280,7 @@ export function Branch({ branch }: BranchProps) {
               margin: 0,
               paddingTop: "0.25rem",
               borderTop: "1px solid var(--line)",
-              color: "#9333ea",
+              color: "var(--ink)",
             }}
           >
             <span style={{ fontWeight: 600 }}>Later resolving measurement: </span>

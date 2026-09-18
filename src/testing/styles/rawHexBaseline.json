@@ -23,7 +23,7 @@
   "src/components/lab/sr11/MovingMirrorPlot.tsx": 7,
   "src/components/lab/sr12/ChargeCurrentPlot.tsx": 0,
   "src/components/lab/sr13/ElectronDynamicsPlot.tsx": 6,
-  "src/discovery/Branch.tsx": 10,
+  "src/discovery/Branch.tsx": 0,
   "src/equations/genealogy/Genealogy.tsx": 0,
   "src/equations/genealogy/layoutLayers.ts": 0,
   "src/experiments/interactions/partition/PartitionControl.tsx": 0,
