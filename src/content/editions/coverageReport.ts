@@ -24,6 +24,19 @@ export type EditionCoverageReport = Readonly<{
   ledger: LedgerPresence;
   translation: TranslationCompleteness;
   layers: readonly LayerCoverage[];
+  reviewStates?: Readonly<Record<string, number>> | undefined;
+  componentShapes?:
+    | Readonly<{ "1:1": number; "1:n": number; "n:1": number; "n:m": number }>
+    | undefined;
+  mathOrderWarnings?: readonly string[] | undefined;
+  termCount?: number | undefined;
+  glossTokensByKind?:
+    | Readonly<Record<string, { totalWords: number; glossedWords: number }>>
+    | undefined;
+  digestChain?:
+    | Readonly<{ ledgerDigest?: string; facsimileDigest?: string; lastFullVerification?: string }>
+    | undefined;
+  unresolvedDifferences?: readonly string[] | undefined;
 }>;
 
 export function coverageReport(input: {
@@ -34,6 +47,19 @@ export function coverageReport(input: {
   alignmentEdgeCount?: number | undefined;
   glossUnitCount?: number | undefined;
   germanEditionPresent?: boolean | undefined;
+  reviewStates?: Readonly<Record<string, number>> | undefined;
+  componentShapes?:
+    | Readonly<{ "1:1": number; "1:n": number; "n:1": number; "n:m": number }>
+    | undefined;
+  mathOrderWarnings?: readonly string[] | undefined;
+  termCount?: number | undefined;
+  glossTokensByKind?:
+    | Readonly<Record<string, { totalWords: number; glossedWords: number }>>
+    | undefined;
+  digestChain?:
+    | Readonly<{ ledgerDigest?: string; facsimileDigest?: string; lastFullVerification?: string }>
+    | undefined;
+  unresolvedDifferences?: readonly string[] | undefined;
 }): EditionCoverageReport {
   const presence = inspectLedgerPresence(input.slug, input.root);
   const german = input.germanUnitCount ?? 0;
@@ -91,6 +117,19 @@ export function coverageReport(input: {
     ledger: presence.presence,
     translation: completeness,
     layers: Object.freeze(layers),
+    ...(input.reviewStates ? { reviewStates: Object.freeze(input.reviewStates) } : {}),
+    ...(input.componentShapes ? { componentShapes: Object.freeze(input.componentShapes) } : {}),
+    ...(input.mathOrderWarnings
+      ? { mathOrderWarnings: Object.freeze(input.mathOrderWarnings) }
+      : {}),
+    ...(input.termCount !== undefined ? { termCount: input.termCount } : {}),
+    ...(input.glossTokensByKind
+      ? { glossTokensByKind: Object.freeze(input.glossTokensByKind) }
+      : {}),
+    ...(input.digestChain ? { digestChain: Object.freeze(input.digestChain) } : {}),
+    ...(input.unresolvedDifferences
+      ? { unresolvedDifferences: Object.freeze(input.unresolvedDifferences) }
+      : {}),
   };
 }
 
@@ -109,6 +148,77 @@ export function coverageReportMarkdown(report: EditionCoverageReport): string {
     lines.push(`| ${layer.layer} | ${layer.presence} | ${layer.unitCount} | ${layer.note} |`);
   }
   lines.push("");
+
+  if (report.reviewStates) {
+    lines.push("## Review states");
+    lines.push("");
+    for (const [state, count] of Object.entries(report.reviewStates)) {
+      lines.push(`- ${state}: ${count}`);
+    }
+    lines.push("");
+  }
+
+  if (report.componentShapes) {
+    lines.push("## Alignment component shapes");
+    lines.push("");
+    lines.push(`- 1:1: ${report.componentShapes["1:1"]}`);
+    lines.push(`- 1:n: ${report.componentShapes["1:n"]}`);
+    lines.push(`- n:1: ${report.componentShapes["n:1"]}`);
+    lines.push(`- n:m: ${report.componentShapes["n:m"]}`);
+    lines.push("");
+  }
+
+  if (report.mathOrderWarnings && report.mathOrderWarnings.length > 0) {
+    lines.push("## Math order warnings");
+    lines.push("");
+    for (const w of report.mathOrderWarnings) {
+      lines.push(`- ${w}`);
+    }
+    lines.push("");
+  }
+
+  if (report.termCount !== undefined) {
+    lines.push("## Term annotations");
+    lines.push("");
+    lines.push(`- Total term definitions: ${report.termCount}`);
+    lines.push("");
+  }
+
+  if (report.glossTokensByKind) {
+    lines.push("## Gloss token coverage by unit kind");
+    lines.push("");
+    for (const [kind, stats] of Object.entries(report.glossTokensByKind)) {
+      lines.push(
+        `- ${kind}: ${stats.glossedWords} glossed words out of ${stats.totalWords} total words`,
+      );
+    }
+    lines.push("");
+  }
+
+  if (report.digestChain) {
+    lines.push("## Digest chain");
+    lines.push("");
+    if (report.digestChain.ledgerDigest) {
+      lines.push(`- Ledger digest: ${report.digestChain.ledgerDigest}`);
+    }
+    if (report.digestChain.facsimileDigest) {
+      lines.push(`- Facsimile digest: ${report.digestChain.facsimileDigest}`);
+    }
+    if (report.digestChain.lastFullVerification) {
+      lines.push(`- Last full byte verification: ${report.digestChain.lastFullVerification}`);
+    }
+    lines.push("");
+  }
+
+  if (report.unresolvedDifferences && report.unresolvedDifferences.length > 0) {
+    lines.push("## Unresolved reconciliation differences");
+    lines.push("");
+    for (const d of report.unresolvedDifferences) {
+      lines.push(`- ${d}`);
+    }
+    lines.push("");
+  }
+
   return lines.join("\n");
 }
 
