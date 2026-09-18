@@ -333,6 +333,19 @@ export const DATA_COLOR_ALLOWLIST: readonly DataColorAllowlistEntry[] = [
     reason:
       "Underdetermined energy difference indicator when equal-emissivity premise C = C' is relaxed",
   },
+  // Physical transport mechanisms in DriftDiffusionPlots (Einstein 1905 paper 2, §3):
+  {
+    file: "src/components/lab/DriftDiffusionPlots.tsx",
+    hex: "#27ae60",
+    reason:
+      "Directed Stokes drift flux (J_drift = n*mu*F) physical transport mechanism representation in FluxBalancePlot",
+  },
+  {
+    file: "src/components/lab/DriftDiffusionPlots.tsx",
+    hex: "#c0392b",
+    reason:
+      "Brownian diffusive counter-flux (J_diff = -D*dn/dx) physical transport mechanism representation in FluxBalancePlot",
+  },
 ];
 
 const HEX_COLOR_RE = /#(?:[0-9a-fA-F]{8}|[0-9a-fA-F]{6}|[0-9a-fA-F]{4}|[0-9a-fA-F]{3})\b/g;

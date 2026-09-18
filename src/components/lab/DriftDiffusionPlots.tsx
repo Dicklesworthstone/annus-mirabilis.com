@@ -207,7 +207,7 @@ export function FluxBalancePlot({ snapshot }: { snapshot: AcceptedSnapshot }) {
         <line x1={250} y1={15} x2={250} y2={h - 15} stroke="var(--line)" strokeDasharray="3 3" />
 
         {/* Drift flux bar (top row) */}
-        <text x={20} y={40} fontSize="12" fill="var(--plot)" fontWeight="bold">
+        <text x={20} y={40} fontSize="12" fill="#27ae60" fontWeight="bold">
           Drift flux (J_drift)
         </text>
         <rect
@@ -215,7 +215,7 @@ export function FluxBalancePlot({ snapshot }: { snapshot: AcceptedSnapshot }) {
           y={28}
           width={Math.max(2, driftW)}
           height={barHeight}
-          fill="var(--plot)"
+          fill="#27ae60"
           rx="3"
         />
         <text
@@ -229,7 +229,7 @@ export function FluxBalancePlot({ snapshot }: { snapshot: AcceptedSnapshot }) {
         </text>
 
         {/* Diffusion flux bar (bottom row) */}
-        <text x={20} y={85} fontSize="12" fill="var(--accent)" fontWeight="bold">
+        <text x={20} y={85} fontSize="12" fill="#c0392b" fontWeight="bold">
           Diffusive flux (J_diff)
         </text>
         <rect
@@ -237,7 +237,7 @@ export function FluxBalancePlot({ snapshot }: { snapshot: AcceptedSnapshot }) {
           y={73}
           width={Math.max(2, diffW)}
           height={barHeight}
-          fill="var(--accent)"
+          fill="#c0392b"
           rx="3"
         />
         <text
