@@ -8,6 +8,7 @@
  * Zero mocks are used.
  */
 import { describe, expect, test } from "bun:test";
+import type { ReviewStateCheckContext } from "../../editions/reviewState.ts";
 import type { ReviewRecord } from "../../schemas/review.ts";
 import { createRecordBackedReviewStateCheck, ReviewStore } from "./editionReviewState.ts";
 
@@ -29,13 +30,14 @@ describe("editionReviewState.ts refusal throw sites (am-muyh)", () => {
     const check = createRecordBackedReviewStateCheck(store);
 
     // Reject: unit is at revision 2, but record covers revision 1
-    const rejectResult = check({
+    const rejectContext: ReviewStateCheckContext = {
       unitId: "unit-10",
       paper: "brownian-motion",
       layer: "german",
       reviewState: "reviewed",
       revision: 2,
-    });
+    };
+    const rejectResult = check(rejectContext);
     expect(rejectResult.ok).toBe(false);
     if (!rejectResult.ok) {
       expect(rejectResult.code).toBe("review-record-stale");
@@ -45,13 +47,14 @@ describe("editionReviewState.ts refusal throw sites (am-muyh)", () => {
     }
 
     // Accept: unit is at revision 1 matching record
-    const acceptResult = check({
+    const acceptContext: ReviewStateCheckContext = {
       unitId: "unit-10",
       paper: "brownian-motion",
       layer: "german",
       reviewState: "reviewed",
       revision: 1,
-    });
+    };
+    const acceptResult = check(acceptContext);
     expect(acceptResult.ok).toBe(true);
   });
 
@@ -78,14 +81,15 @@ describe("editionReviewState.ts refusal throw sites (am-muyh)", () => {
     const check = createRecordBackedReviewStateCheck(store);
 
     // Reject: unitHash in context differs from recorded unitHash
-    const rejectResult = check({
+    const rejectContext: ReviewStateCheckContext = {
       unitId: "unit-20",
       paper: "brownian-motion",
       layer: "german",
       reviewState: "reviewed",
       revision: 1,
       unitHash: "sha256-hash-modified",
-    });
+    };
+    const rejectResult = check(rejectContext);
     expect(rejectResult.ok).toBe(false);
     if (!rejectResult.ok) {
       expect(rejectResult.code).toBe("review-record-stale");
@@ -95,14 +99,15 @@ describe("editionReviewState.ts refusal throw sites (am-muyh)", () => {
     }
 
     // Accept: unitHash matches scopeEntry
-    const acceptResult = check({
+    const acceptContext: ReviewStateCheckContext = {
       unitId: "unit-20",
       paper: "brownian-motion",
       layer: "german",
       reviewState: "reviewed",
       revision: 1,
       unitHash: "sha256-hash-initial",
-    });
+    };
+    const acceptResult = check(acceptContext);
     expect(acceptResult.ok).toBe(true);
   });
 });
