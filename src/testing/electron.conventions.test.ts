@@ -1,4 +1,5 @@
 import { describe, expect, test } from "bun:test";
+import type { ScientificResult } from "../experiments/results/types.ts";
 import { logElectron } from "../physics/reference/electron.log.ts";
 import {
   C_SI,
@@ -10,6 +11,16 @@ import {
 } from "../physics/reference/electron.ts";
 import { withinTolerance } from "../units/tolerance.ts";
 
+function val(r: ScientificResult): number {
+  if (r.status !== "value") {
+    throw new Error(`expected value result, got ${r.status}`);
+  }
+  if (typeof r.value !== "number") {
+    throw new Error(`expected number, got ${typeof r.value}`);
+  }
+  return r.value;
+}
+
 describe("electron.conventions.test.ts: Historical mass conventions and modern momentum (AC2, AC5)", () => {
   test("implements both historical conventions under registry ids at beta = 0.6", () => {
     const t0 = performance.now();
@@ -19,19 +30,17 @@ describe("electron.conventions.test.ts: Historical mass conventions and modern m
     const longM = longitudinalMass(m, beta);
     expect(longM.status).toBe("value");
     expect(longM.quantityId).toBe("longitudinalMass");
-    expect(withinTolerance(longM.value as number, 1.953125 * m, { relative: 1e-12 }).ok).toBe(true);
+    expect(withinTolerance(val(longM), 1.953125 * m, { relative: 1e-12 }).ok).toBe(true);
 
     const transCom = transverseMassComoving(m, beta);
     expect(transCom.status).toBe("value");
     expect(transCom.quantityId).toBe("transverseMassComoving");
-    expect(withinTolerance(transCom.value as number, 1.5625 * m, { relative: 1e-12 }).ok).toBe(
-      true,
-    );
+    expect(withinTolerance(val(transCom), 1.5625 * m, { relative: 1e-12 }).ok).toBe(true);
 
     const transLab = transverseMassLaboratory(m, beta);
     expect(transLab.status).toBe("value");
     expect(transLab.quantityId).toBe("transverseMassLaboratory");
-    expect(withinTolerance(transLab.value as number, 1.25 * m, { relative: 1e-12 }).ok).toBe(true);
+    expect(withinTolerance(val(transLab), 1.25 * m, { relative: 1e-12 }).ok).toBe(true);
 
     logElectron({
       testId: "electron-conventions-fixture-0.6",
@@ -39,7 +48,7 @@ describe("electron.conventions.test.ts: Historical mass conventions and modern m
       convention: "historical-1905-and-1906",
       resultStatus: "value",
       expected: 1.5625 * m,
-      actual: transCom.value,
+      actual: val(transCom),
       outcome: "passed",
       durationMs: performance.now() - t0,
       message:
@@ -74,9 +83,9 @@ describe("electron.conventions.test.ts: Historical mass conventions and modern m
   test("guard: single scalar relativistic mass without definitions is rejected (AC5)", () => {
     const t0 = performance.now();
     // Verify that the module distinguishes longitudinal vs transverse mass and requires explicit conventions
-    const longVal = longitudinalMass(1.0, 0.6).value as number;
-    const transComVal = transverseMassComoving(1.0, 0.6).value as number;
-    const transLabVal = transverseMassLaboratory(1.0, 0.6).value as number;
+    const longVal = val(longitudinalMass(1.0, 0.6));
+    const transComVal = val(transverseMassComoving(1.0, 0.6));
+    const transLabVal = val(transverseMassLaboratory(1.0, 0.6));
 
     // They are distinctly different quantities: 1.953125 != 1.5625 != 1.25
     expect(longVal).not.toBe(transComVal);

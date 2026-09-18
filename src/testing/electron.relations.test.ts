@@ -1,4 +1,5 @@
 import { describe, expect, test } from "bun:test";
+import type { ScientificResult } from "../experiments/results/types.ts";
 import { logElectron } from "../physics/reference/electron.log.ts";
 import {
   C_SI,
@@ -8,6 +9,16 @@ import {
   threePrintedRelations,
 } from "../physics/reference/electron.ts";
 import { withinTolerance } from "../units/tolerance.ts";
+
+function val(r: ScientificResult): number {
+  if (r.status !== "value") {
+    throw new Error(`expected value result, got ${r.status}`);
+  }
+  if (typeof r.value !== "number") {
+    throw new Error(`expected number, got ${typeof r.value}`);
+  }
+  return r.value;
+}
 
 describe("electron.relations.test.ts: Transcribed printed relations and modern equivalents (AC6)", () => {
   test("transcribed relations match facsimile with page locators (AC6)", () => {
@@ -50,30 +61,30 @@ describe("electron.relations.test.ts: Transcribed printed relations and modern e
     for (const beta of speeds) {
       const rel = threePrintedRelations(beta, eField, bField);
       expect(rel.deflectabilityRatio.status).toBe("value");
-      expect(
-        withinTolerance(rel.deflectabilityRatio.value as number, beta, { relative: 1e-12 }).ok,
-      ).toBe(true);
+      expect(withinTolerance(val(rel.deflectabilityRatio), beta, { relative: 1e-12 }).ok).toBe(
+        true,
+      );
 
       const gammaVal = 1 / Math.sqrt(1 - beta * beta);
       const v = beta * C_SI;
 
       // Accelerating potential P = mc^2(gamma - 1) / e
       const expectedP = (ELECTRON_MASS * C_SI * C_SI * (gammaVal - 1)) / ELEMENTARY_CHARGE;
-      expect(
-        withinTolerance(rel.potentialDifference.value as number, expectedP, { relative: 1e-10 }).ok,
-      ).toBe(true);
+      expect(withinTolerance(val(rel.potentialDifference), expectedP, { relative: 1e-10 }).ok).toBe(
+        true,
+      );
 
       // Magnetic radius Rm = gamma * m * v / (e * B)
       const expectedRm = (gammaVal * ELECTRON_MASS * v) / (ELEMENTARY_CHARGE * bField);
-      expect(
-        withinTolerance(rel.magneticRadius.value as number, expectedRm, { relative: 1e-10 }).ok,
-      ).toBe(true);
+      expect(withinTolerance(val(rel.magneticRadius), expectedRm, { relative: 1e-10 }).ok).toBe(
+        true,
+      );
 
       // Electric radius Re = gamma * m * v^2 / (e * E)
       const expectedRe = (gammaVal * ELECTRON_MASS * v * v) / (ELEMENTARY_CHARGE * eField);
-      expect(
-        withinTolerance(rel.electricRadius.value as number, expectedRe, { relative: 1e-10 }).ok,
-      ).toBe(true);
+      expect(withinTolerance(val(rel.electricRadius), expectedRe, { relative: 1e-10 }).ok).toBe(
+        true,
+      );
     }
 
     logElectron({

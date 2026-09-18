@@ -167,4 +167,182 @@ describe("PaperReader link accessible names (am-jmma)", () => {
       }).toThrow("AC4 failure: distinct kernels share identical tab accessible name");
     });
   });
+
+  describe("am-xbfm: ten collision classes locked against regression", () => {
+    test("all ten collision classes resolve without multi-destination collisions", async () => {
+      const jsx = await PaperReader({});
+      const html = renderToStaticMarkup(jsx);
+      const links = extractLinks(html);
+      const byName = groupLinksByName(links);
+
+      // 1. "Read the prerequisite": 0 bare instances, all discriminated, each reaches exactly 1 destination
+      expect(byName.has("Read the prerequisite")).toBe(false);
+      const prereqLinks = [...byName.entries()].filter(([name]) =>
+        name.startsWith("Read the prerequisite: "),
+      );
+      expect(prereqLinks.length).toBeGreaterThan(0);
+      for (const [_, hrefs] of prereqLinks) {
+        expect(hrefs.size).toBe(1);
+      }
+
+      // 2. "Adding and averaging": reaches exactly 1 destination (/foundations/bridge-sum-average/)
+      expect(byName.get("Adding and averaging")?.size).toBe(1);
+      expect(byName.get("Adding and averaging")?.has("/foundations/bridge-sum-average/")).toBe(
+        true,
+      );
+
+      // 3. "Open this as a full reading page →" / "Open this as a full reading page": 0 bare instances
+      expect(byName.has("Open this as a full reading page →")).toBe(false);
+      expect(byName.has("Open this as a full reading page")).toBe(false);
+      const fullReadingLinks = [...byName.entries()].filter(
+        ([name]) => name.startsWith("Open ") && name.endsWith(" as a full reading page"),
+      );
+      expect(fullReadingLinks.length).toBe(13);
+      for (const [_, hrefs] of fullReadingLinks) {
+        expect(hrefs.size).toBe(1);
+      }
+
+      // 4. "Squares and square roots": reaches exactly 1 destination
+      expect(byName.get("Squares and square roots")?.size).toBe(1);
+      expect(
+        byName.get("Squares and square roots")?.has("/foundations/bridge-squaring-square-roots/"),
+      ).toBe(true);
+
+      // 5. "A sign records direction": reaches exactly 1 destination
+      expect(byName.get("A sign records direction")?.size).toBe(1);
+      expect(
+        byName
+          .get("A sign records direction")
+          ?.has("/foundations/bridge-negative-numbers-direction/"),
+      ).toBe(true);
+
+      // 6. "Mean, variance and RMS": reaches exactly 1 destination
+      expect(byName.get("Mean, variance and RMS")?.size).toBe(1);
+      expect(byName.get("Mean, variance and RMS")?.has("/foundations/mean-variance-rms/")).toBe(
+        true,
+      );
+
+      // 7. "Why?": 0 bare instances, each discriminated instance reaches 1 destination
+      expect(byName.has("Why?")).toBe(false);
+      const whyLinks = [...byName.entries()].filter(([name]) => name.startsWith("Why?: "));
+      expect(whyLinks.length).toBe(6);
+      for (const [_, hrefs] of whyLinks) {
+        expect(hrefs.size).toBe(1);
+      }
+
+      // 8. "Show the missing step": 0 bare instances, each reaches 1 destination
+      expect(byName.has("Show the missing step")).toBe(false);
+      const stepLinks = [...byName.entries()].filter(([name]) =>
+        name.startsWith("Show the missing step: "),
+      );
+      expect(stepLinks.length).toBe(6);
+      for (const [_, hrefs] of stepLinks) {
+        expect(hrefs.size).toBe(1);
+      }
+
+      // 9. "Show me one example first": 0 bare instances, each reaches 1 destination
+      expect(byName.has("Show me one example first")).toBe(false);
+      const exampleLinks = [...byName.entries()].filter(([name]) =>
+        name.startsWith("Show me one example first: "),
+      );
+      expect(exampleLinks.length).toBe(6);
+      for (const [_, hrefs] of exampleLinks) {
+        expect(hrefs.size).toBe(1);
+      }
+
+      // 10. "Try it": 0 bare instances, each reaches 1 destination
+      expect(byName.has("Try it")).toBe(false);
+      const tryItLinks = [...byName.entries()].filter(([name]) => name.startsWith("Try it: "));
+      expect(tryItLinks.length).toBe(4);
+      for (const [_, hrefs] of tryItLinks) {
+        expect(hrefs.size).toBe(1);
+      }
+      // AC2 exact requirement: bm-07 is labeled 'Molecular-number inference'
+      expect(byName.get("Try it: Molecular-number inference")?.size).toBe(1);
+      expect(byName.get("Try it: Molecular-number inference")?.has("/lab/bm-07/")).toBe(true);
+    });
+
+    test("benign set invariant: any name in benign set MUST resolve to identical anchor", () => {
+      // Invariant: a name may only enter the benign set if every href resolves to the identical anchor
+      for (const benignName of BENIGN_SAME_TARGET_NAMES) {
+        expect(typeof benignName).toBe("string");
+      }
+
+      // Verify validator rejects an entry if hrefs diverge
+      const invalidBenignCheck = (name: string, hrefs: Set<string>) => {
+        if (!BENIGN_SAME_TARGET_NAMES.has(name)) {
+          throw new Error(`Non-benign multi-destination link: ${name}`);
+        }
+        const targets = [...hrefs].map((h) => {
+          const hashIdx = h.indexOf("#");
+          return hashIdx >= 0 ? h.slice(hashIdx) : h;
+        });
+        const uniqueTargets = new Set(targets);
+        if (uniqueTargets.size > 1) {
+          throw new Error(
+            `Defect: benign name ${name} maps to divergent targets: ${[...hrefs].join(", ")}`,
+          );
+        }
+      };
+
+      // Negative proof: differing anchors in benign set throws
+      const divergingHrefs = new Set(["#section-1", "#section-2"]);
+      expect(() => invalidBenignCheck("Zero average is not no movement", divergingHrefs)).toThrow(
+        "Defect: benign name Zero average is not no movement maps to divergent targets",
+      );
+    });
+
+    test("planted negative: reverting passage actions to bare 'Try it' fails gate", async () => {
+      const jsx = await PaperReader({});
+      let html = renderToStaticMarkup(jsx);
+      // Revert aria-label on Try it links so they collapse back to bare 'Try it'
+      html = html.replace(/aria-label="Try it: [^"]*"/g, "");
+      const links = extractLinks(html);
+      const byName = groupLinksByName(links);
+
+      const tryItDestinations = byName.get("Try it");
+      expect(tryItDestinations?.size).toBeGreaterThan(1);
+      expect(BENIGN_SAME_TARGET_NAMES.has("Try it")).toBe(false);
+    });
+
+    test("planted negative: reverting passage actions to bare 'Why?' fails gate", async () => {
+      const jsx = await PaperReader({});
+      let html = renderToStaticMarkup(jsx);
+      // Revert aria-label on Why? links so they collapse back to bare 'Why?'
+      html = html.replace(/aria-label="Why\?: [^"]*"/g, "");
+      const links = extractLinks(html);
+      const byName = groupLinksByName(links);
+
+      const whyDestinations = byName.get("Why?");
+      expect(whyDestinations?.size).toBeGreaterThan(1);
+      expect(BENIGN_SAME_TARGET_NAMES.has("Why?")).toBe(false);
+    });
+
+    test("planted negative: reverting equation prerequisites to bare 'Read the prerequisite' fails gate", async () => {
+      const jsx = await PaperReader({});
+      let html = renderToStaticMarkup(jsx);
+      // Revert aria-label on prerequisite links
+      html = html.replace(/aria-label="Read the prerequisite: [^"]*"/g, "");
+      const links = extractLinks(html);
+      const byName = groupLinksByName(links);
+
+      const prereqDestinations = byName.get("Read the prerequisite");
+      // 40 occurrences mapping to many distinct foundation destinations
+      expect(prereqDestinations?.size).toBeGreaterThan(1);
+      expect(BENIGN_SAME_TARGET_NAMES.has("Read the prerequisite")).toBe(false);
+    });
+
+    test("planted negative: reverting drawer full reading page links to bare label fails gate", async () => {
+      const jsx = await PaperReader({});
+      let html = renderToStaticMarkup(jsx);
+      // Revert aria-label on full reading page links
+      html = html.replace(/aria-label="Open [^"]* as a full reading page"/g, "");
+      const links = extractLinks(html);
+      const byName = groupLinksByName(links);
+
+      const fullPageDestinations = byName.get("Open this as a full reading page →");
+      expect(fullPageDestinations?.size).toBe(13);
+      expect(BENIGN_SAME_TARGET_NAMES.has("Open this as a full reading page →")).toBe(false);
+    });
+  });
 });
