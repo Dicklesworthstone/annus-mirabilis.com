@@ -1,5 +1,5 @@
 import type { Me03Parameters } from "../../../experiments/me03/definition.ts";
-import type { PhotonInBoxResult } from "../../../physics/reference/massEnergy.ts";
+import type { PhotonInBoxResult } from "../../../experiments/me03/session.ts";
 import type { RepresentationScale } from "../../../visuals/kit/types.ts";
 
 export interface PhotonBoxPlotProps {
