@@ -5,25 +5,93 @@ import { join, relative, resolve } from "node:path";
 import { fileURLToPath } from "node:url";
 
 /**
- * A shrink-only ratchet gate against raw hardcoded hex colors in TSX components (am-design-themes-typography-288q).
+ * A shrink-only ratchet gate with enforced tightening pawl against raw hardcoded hex colors
+ * in TSX/TS UI components and visual renderers (am-design-themes-typography-288q).
  *
- * To ensure consistent theme support across Annalen, Kramgasse Night, and Slate,
- * components must use semantic theme tokens and CSS variables (e.g. var(--paper),
- * var(--ink), var(--muted), var(--accent)) rather than hardcoding hex colors.
+ * To guarantee complete, defect-free theme switching across Annalen (light cream),
+ * Kramgasse Night (dark slate/amber), and Slate (chalkboard), all user-facing UI and
+ * visual instrumentation must resolve colors via semantic CSS variables and design tokens
+ * (e.g. var(--paper), var(--ink), var(--muted), var(--line), var(--accent)).
  *
- * Ratchet rules:
+ * -----------------------------------------------------------------------------------------
+ * RATCHET RULES & THE TIGHTENING PAWL
+ * -----------------------------------------------------------------------------------------
  * 1. Pre-existing raw hex colors are pinned per file in rawHexBaseline.json.
- * 2. The baseline is shrink-only: a file exceeding its baseline count fails.
- * 3. A new file not in the baseline fails at the first raw hex color.
- * 4. Data colors representing physical phenomena (e.g. getFrequencyBand() mapping THz
- *    to optical light colors, or FalseColorLegend wavelength mappings) are explicitly
- *    allowlisted with scientific rationale, NOT via file-level exclusions.
- * 5. When all files reach zero raw hex colors, this ratchet has completed its lifecycle.
+ * 2. REGRESSION FAILURE (count > allowed): A file introducing new raw hex colors fails immediately.
+ * 3. SLACK BASELINE FAILURE (count < allowed): A shrink-only ratchet without an active pawl allows
+ *    backsliding. When a conversion commit eliminates hardcoded hexes, the test FAILS with an
+ *    actionable error printing the exact replacement number. The developer MUST tighten
+ *    rawHexBaseline.json in the same commit to permanently lock in the improvement.
+ * 4. UNLISTED FILE FAILURE: Any new or unlisted file in an audited directory fails at count > 0.
+ * 5. DATA COLOR EXEMPTIONS: Physical phenomena (e.g. optical light spectra mapped from frequency
+ *    in THz or wavelength in nm) are exempted via the explicit DATA_COLOR_ALLOWLIST.
+ *    Exemptions are strictly per-entry { file, hex, reason } and NEVER file-level exclusions.
+ * 6. TERMINATION: When all files reach zero raw hex colors, this ratchet has completed its lifecycle.
+ *
+ * -----------------------------------------------------------------------------------------
+ * AUDITED SCOPE (ENFORCED UI & VISUAL DIRECTORIES)
+ * -----------------------------------------------------------------------------------------
+ * All .tsx and .ts component files under:
+ * - src/components/: Core UI components and interactive laboratory instrumentation.
+ * - src/visuals/: 2D/3D visualization layers, studio chips, canvas overlays, Three.js scenes.
+ * - src/discovery/: Discovery mode journey cards, branches, and exercises.
+ * - src/reader/: Historical facsimile viewers, reading interfaces, and entrance interactives.
+ * - src/equations/genealogy/: Interactive SVG equation derivation graphs and layout renderers.
+ * - src/experiments/interactions/: Parametric interaction controls and sliders.
+ *
+ * -----------------------------------------------------------------------------------------
+ * DELIBERATE OUT-OF-SCOPE BOUNDARIES (ARCHITECTURAL DECISIONS)
+ * -----------------------------------------------------------------------------------------
+ * The following files contain literal hex strings outside the audited UI scope by design:
+ *
+ * 1. src/app/theme/tokens.ts:
+ *    Authoritative UI theme token definitions (THEME_TOKENS: Annalen, Kramgasse Night, Slate).
+ *    This module defines the color tokens that the rest of the application consumes; it cannot
+ *    consume tokens from itself.
+ *
+ * 2. src/equations/colorPalette.ts:
+ *    Authoritative KaTeX mathematical palette token registry (COLOR_STYLES).
+ *    DECISION: Deliberately recognized as a second token-definition home (not an ad-hoc UI gap).
+ *    KaTeX compiles LaTeX mathematical expressions into static HTML/MathML at build time. TeX color
+ *    macros (\textcolor{#hex}{...}) require literal hex arguments; KaTeX cannot evaluate dynamic
+ *    browser CSS custom properties (var(--...)) inside static equation ASTs. Every text color in
+ *    COLOR_STYLES is mathematically calibrated and verified in contrast.test.ts to guarantee
+ *    WCAG AA contrast (>= 4.5:1) against all three themes.
+ *
+ * 3. src/design/semanticColor/tokens.ts:
+ *    Authoritative semantic color system definitions.
+ *
+ * 4. src/app/opengraph-image.tsx:
+ *    Server-side OpenGraph social card image generator using @vercel/og canvas. Runs in an isolated
+ *    edge runtime to produce a static PNG, completely detached from browser DOM and theme stylesheets.
+ *
+ * 5. src/a11y/readingSettings/contrast.ts:
+ *    Pure numerical WCAG contrast calculation algorithms with standard black/white (#000000 / #ffffff)
+ *    default calculation boundaries.
+ *
+ * 6. src/design/spectralMapping.ts & src/physics/reference/photoelectric.ts:
+ *    Reference physics libraries computing physical optical dispersion, spectroscopy anchors (Balmer
+ *    series, Sodium D lines), and Planck/Einstein relations.
+ *
+ * 7. src/platform/offline/chapter.ts:
+ *    Offline export builder generating standalone single-file chapter artifacts.
+ *
+ * 8. *.test.ts, *.test.tsx:
+ *    Test suites, planted negative fixtures, and contrast verification gates (e.g. contrast.test.ts,
+ *    colorPalette.test.ts).
  */
 
 const ROOT = resolve(fileURLToPath(new URL("../../../", import.meta.url)));
 const BASELINE_PATH = join(ROOT, "src/testing/styles/rawHexBaseline.json");
-const DIRS_TO_SCAN = ["src/components", "src/visuals", "src/discovery"];
+
+export const AUDITED_DIRECTORIES = [
+  "src/components",
+  "src/visuals",
+  "src/discovery",
+  "src/reader",
+  "src/equations/genealogy",
+  "src/experiments/interactions",
+] as const;
 
 export interface DataColorAllowlistEntry {
   /** Relative path of the file containing the data color */
@@ -116,14 +184,18 @@ export const DATA_COLOR_ALLOWLIST: readonly DataColorAllowlistEntry[] = [
 
 const HEX_COLOR_RE = /#(?:[0-9a-fA-F]{8}|[0-9a-fA-F]{6}|[0-9a-fA-F]{4}|[0-9a-fA-F]{3})\b/g;
 
-export function findTsxFiles(dir: string): string[] {
+export function findAuditFiles(dir: string): string[] {
   const out: string[] = [];
   if (!existsSync(dir)) return out;
   for (const entry of readdirSync(dir)) {
     const full = join(dir, entry);
     if (statSync(full).isDirectory()) {
-      out.push(...findTsxFiles(full));
-    } else if (entry.endsWith(".tsx") && !entry.includes(".test.")) {
+      out.push(...findAuditFiles(full));
+    } else if (
+      (entry.endsWith(".tsx") || entry.endsWith(".ts")) &&
+      !entry.includes(".test.") &&
+      !entry.endsWith(".d.ts")
+    ) {
       out.push(full);
     }
   }
@@ -163,60 +235,102 @@ export function countUnallowlistedHexColors(
   return count;
 }
 
+export interface AuditResult {
+  readonly regressions: string[];
+  readonly slack: string[];
+  readonly replacementUpdates: string[];
+}
+
 export function auditFileHexCount(
   fileRel: string,
   count: number,
   baseline: ReadonlyMap<string, number>,
-): string[] {
+): AuditResult {
   const allowed = baseline.get(fileRel) ?? 0;
+
   if (count > allowed) {
-    return [
-      `${fileRel}: ${count} raw hex color(s), baseline ${allowed}. ` +
-        "Replace hardcoded hex with theme tokens (var(--paper), var(--ink), var(--accent), etc.) [am-design-themes-typography-288q]",
-    ];
+    return {
+      regressions: [
+        `${fileRel}: ${count} raw hex color(s) exceeds baseline ${allowed}. ` +
+          "Replace hardcoded hex with theme tokens (var(--paper), var(--ink), var(--accent), etc.) [am-design-themes-typography-288q]",
+      ],
+      slack: [],
+      replacementUpdates: [],
+    };
   }
-  return [];
+
+  if (count < allowed) {
+    return {
+      regressions: [],
+      slack: [
+        `${fileRel}: ${count} raw hex color(s) is below baseline ${allowed}. ` +
+          `Ratchet pawl engaged: tighten baseline to ${count} in rawHexBaseline.json to lock in improvement. [am-design-themes-typography-288q]`,
+      ],
+      replacementUpdates: [`  "${fileRel}": ${count},`],
+    };
+  }
+
+  return { regressions: [], slack: [], replacementUpdates: [] };
 }
 
 describe("raw hex colors ratchet (am-design-themes-typography-288q)", () => {
-  test("no file exceeds its recorded baseline and no new file introduces raw hex colors", () => {
+  test("no file exceeds its recorded baseline and no baseline is slack (enforced tightening pawl)", () => {
     const baselineRaw = JSON.parse(readFileSync(BASELINE_PATH, "utf8")) as Record<string, number>;
     const baseline = new Map<string, number>(Object.entries(baselineRaw));
 
-    const regressions: string[] = [];
-    const improvements: string[] = [];
+    const allRegressions: string[] = [];
+    const allSlack: string[] = [];
+    const replacementLines: string[] = [];
 
     const filesToAudit: string[] = [];
-    for (const d of DIRS_TO_SCAN) {
-      filesToAudit.push(...findTsxFiles(join(ROOT, d)));
+    for (const d of AUDITED_DIRECTORIES) {
+      filesToAudit.push(...findAuditFiles(join(ROOT, d)));
     }
 
     for (const file of filesToAudit) {
       const rel = relative(ROOT, file);
       const source = readFileSync(file, "utf8");
       const count = countUnallowlistedHexColors(source, rel, DATA_COLOR_ALLOWLIST);
-      const allowed = baseline.get(rel) ?? 0;
 
-      const fileRegressions = auditFileHexCount(rel, count, baseline);
-      if (fileRegressions.length > 0) {
-        regressions.push(...fileRegressions);
-      } else if (count < allowed) {
-        improvements.push(`${rel}: ${count} < ${allowed}`);
+      const result = auditFileHexCount(rel, count, baseline);
+      if (result.regressions.length > 0) {
+        allRegressions.push(...result.regressions);
+      }
+      if (result.slack.length > 0) {
+        allSlack.push(...result.slack);
+        replacementLines.push(...result.replacementUpdates);
       }
     }
 
-    assert.deepEqual(
-      regressions,
-      [],
-      `Raw hex colors increased:\n${regressions.join("\n")}\n` +
-        "Components must use theme CSS variables rather than hardcoded hex colors. See am-design-themes-typography-288q.",
-    );
+    // Check for stale baseline entries for files that no longer exist
+    for (const baselinedFile of baseline.keys()) {
+      if (!existsSync(join(ROOT, baselinedFile))) {
+        allSlack.push(
+          `${baselinedFile}: file does not exist in working tree. Remove from rawHexBaseline.json.`,
+        );
+      }
+    }
 
-    if (improvements.length > 0) {
-      console.log(
-        `[am-design-themes-typography-288q] baseline can be lowered for ${improvements.length} file(s): ${improvements.join(", ")}`,
+    const failureMessages: string[] = [];
+
+    if (allRegressions.length > 0) {
+      failureMessages.push(
+        `[REGRESSION] Raw hex colors increased in ${allRegressions.length} file(s):\n` +
+          allRegressions.join("\n") +
+          "\nComponents must use theme CSS variables rather than hardcoded hex colors. See am-design-themes-typography-288q.",
       );
     }
+
+    if (allSlack.length > 0) {
+      failureMessages.push(
+        `[SLACK BASELINE] Ratchet pawl engaged! ${allSlack.length} file(s) have improved below their baseline:\n` +
+          allSlack.join("\n") +
+          "\n\nTighten src/testing/styles/rawHexBaseline.json with the following exact replacement entries:\n" +
+          replacementLines.join("\n"),
+      );
+    }
+
+    assert.deepEqual(failureMessages, [], failureMessages.join("\n\n"));
   });
 
   test("planted negative: detector fires when a raw hex color is introduced", () => {
@@ -234,16 +348,35 @@ describe("raw hex colors ratchet (am-design-themes-typography-288q)", () => {
 
   test("planted negative: a file exceeding its baseline triggers regression failure", () => {
     const fakeBaseline = new Map([["src/components/Example.tsx", 2]]);
-    const violations = auditFileHexCount("src/components/Example.tsx", 3, fakeBaseline);
-    expect(violations.length).toBe(1);
-    expect(violations[0]).toContain("baseline 2");
+    const result = auditFileHexCount("src/components/Example.tsx", 3, fakeBaseline);
+    expect(result.regressions.length).toBe(1);
+    expect(result.slack.length).toBe(0);
+    expect(result.regressions[0]).toContain("exceeds baseline 2");
   });
 
   test("planted negative: an unlisted file with raw hex triggers regression failure", () => {
     const fakeBaseline = new Map<string, number>();
-    const violations = auditFileHexCount("src/components/NewComponent.tsx", 1, fakeBaseline);
-    expect(violations.length).toBe(1);
-    expect(violations[0]).toContain("baseline 0");
+    const result = auditFileHexCount("src/components/NewComponent.tsx", 1, fakeBaseline);
+    expect(result.regressions.length).toBe(1);
+    expect(result.slack.length).toBe(0);
+    expect(result.regressions[0]).toContain("baseline 0");
+  });
+
+  test("planted negative: a file below baseline triggers slack baseline failure (ratchet pawl test)", () => {
+    const fakeBaseline = new Map([["src/components/lab/DriftDiffusionPlots.tsx", 23]]);
+    // Actual drops to 14 (as pane21 achieved)
+    const result = auditFileHexCount(
+      "src/components/lab/DriftDiffusionPlots.tsx",
+      14,
+      fakeBaseline,
+    );
+    expect(result.regressions.length).toBe(0);
+    expect(result.slack.length).toBe(1);
+    expect(result.slack[0]).toContain("below baseline 23");
+    expect(result.slack[0]).toContain("tighten baseline to 14");
+    expect(result.replacementUpdates[0]).toBe(
+      '  "src/components/lab/DriftDiffusionPlots.tsx": 14,',
+    );
   });
 
   test("detector ignores comments and HTML character entities", () => {
@@ -284,13 +417,15 @@ describe("raw hex colors ratchet (am-design-themes-typography-288q)", () => {
     }
   });
 
-  test("the ratchet baseline records non-negative integers only", () => {
+  test("the ratchet baseline records non-negative integers only for audited paths", () => {
     const baselineRaw = JSON.parse(readFileSync(BASELINE_PATH, "utf8")) as Record<string, number>;
     for (const [file, count] of Object.entries(baselineRaw)) {
       expect(typeof count).toBe("number");
       expect(Number.isInteger(count)).toBe(true);
       expect(count).toBeGreaterThanOrEqual(0);
-      expect(file).toMatch(/^src\/(components|visuals|discovery)\//);
+      expect(file).toMatch(
+        /^src\/(components|visuals|discovery|reader|equations\/genealogy|experiments\/interactions)\//,
+      );
     }
   });
 });
