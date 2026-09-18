@@ -87,7 +87,7 @@ describe("DatasetEvidenceReveal (am-inst-dataset-overlay-ra9r)", () => {
       });
 
       // Check Step 1 (Source Region) is active by default
-      const reveal = container.querySelector(".dataset-evidence-reveal");
+      const reveal = container.querySelector('[data-testid="dataset-evidence-reveal"]');
       expect(reveal?.getAttribute("data-active-step")).toBe("1");
       expect(container.textContent).toContain("TABLE 1");
       expect(container.querySelector('[data-testid="crop-rendered"]')).not.toBeNull();

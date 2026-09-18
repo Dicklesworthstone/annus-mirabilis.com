@@ -50,24 +50,56 @@ export function DatasetEvidenceReveal({
 
   return (
     <div
-      className={`dataset-evidence-reveal border border-neutral-300 dark:border-neutral-700 rounded-lg p-4 bg-white dark:bg-neutral-900 text-sm ${className}`.trim()}
+      className={className || undefined}
+      style={{
+        border: "1px solid var(--line)",
+        borderRadius: "0.5rem",
+        padding: "1rem",
+        background: "var(--panel)",
+        fontSize: "0.875rem",
+        color: "var(--ink)",
+      }}
       data-testid="dataset-evidence-reveal"
       data-active-step={activeStep}
     >
-      <div className="flex items-center justify-between border-b pb-2 mb-3 dark:border-neutral-800">
-        <h3 className="font-semibold text-base text-neutral-900 dark:text-neutral-100">
+      <div
+        style={{
+          display: "flex",
+          alignItems: "center",
+          justifyContent: "space-between",
+          borderBottom: "1px solid var(--line)",
+          paddingBottom: "0.5rem",
+          marginBottom: "0.75rem",
+        }}
+      >
+        <h3 style={{ margin: 0, fontWeight: 600, fontSize: "1rem" }}>
           Source & Evidence Provenance: {dataset.title}
         </h3>
-        <span className="text-xs text-neutral-500">
+        <span className="fine" style={{ fontSize: "0.75rem" }}>
           Revision {dataset.digitizer.digitizationRevision}
         </span>
       </div>
 
       {/* 4-Step Navigation Tabs */}
-      <nav aria-label="Evidence Steps" className="flex border-b mb-4 dark:border-neutral-800">
+      <nav
+        aria-label="Evidence Steps"
+        style={{
+          display: "flex",
+          borderBottom: "1px solid var(--line)",
+          marginBottom: "1rem",
+          gap: "0.25rem",
+        }}
+      >
         <button
           type="button"
-          className={`px-3 py-1.5 text-xs font-medium border-b-2 -mb-px ${activeStep === 1 ? "border-amber-600 text-amber-900 dark:text-amber-200 font-semibold" : "border-transparent text-neutral-500 hover:text-neutral-700"}`}
+          className={activeStep === 1 ? "button" : "button secondary"}
+          style={{
+            padding: "0.375rem 0.75rem",
+            fontSize: "0.75rem",
+            borderBottom: activeStep === 1 ? "2px solid var(--accent)" : "2px solid transparent",
+            borderRadius: "0.25rem 0.25rem 0 0",
+            minHeight: "auto",
+          }}
           onClick={() => setActiveStep(1)}
           data-step-btn="1"
         >
@@ -75,7 +107,14 @@ export function DatasetEvidenceReveal({
         </button>
         <button
           type="button"
-          className={`px-3 py-1.5 text-xs font-medium border-b-2 -mb-px ${activeStep === 2 ? "border-amber-600 text-amber-900 dark:text-amber-200 font-semibold" : "border-transparent text-neutral-500 hover:text-neutral-700"}`}
+          className={activeStep === 2 ? "button" : "button secondary"}
+          style={{
+            padding: "0.375rem 0.75rem",
+            fontSize: "0.75rem",
+            borderBottom: activeStep === 2 ? "2px solid var(--accent)" : "2px solid transparent",
+            borderRadius: "0.25rem 0.25rem 0 0",
+            minHeight: "auto",
+          }}
           onClick={() => setActiveStep(2)}
           data-step-btn="2"
         >
@@ -83,7 +122,14 @@ export function DatasetEvidenceReveal({
         </button>
         <button
           type="button"
-          className={`px-3 py-1.5 text-xs font-medium border-b-2 -mb-px ${activeStep === 3 ? "border-amber-600 text-amber-900 dark:text-amber-200 font-semibold" : "border-transparent text-neutral-500 hover:text-neutral-700"}`}
+          className={activeStep === 3 ? "button" : "button secondary"}
+          style={{
+            padding: "0.375rem 0.75rem",
+            fontSize: "0.75rem",
+            borderBottom: activeStep === 3 ? "2px solid var(--accent)" : "2px solid transparent",
+            borderRadius: "0.25rem 0.25rem 0 0",
+            minHeight: "auto",
+          }}
           onClick={() => setActiveStep(3)}
           data-step-btn="3"
         >
@@ -91,7 +137,14 @@ export function DatasetEvidenceReveal({
         </button>
         <button
           type="button"
-          className={`px-3 py-1.5 text-xs font-medium border-b-2 -mb-px ${activeStep === 4 ? "border-amber-600 text-amber-900 dark:text-amber-200 font-semibold" : "border-transparent text-neutral-500 hover:text-neutral-700"}`}
+          className={activeStep === 4 ? "button" : "button secondary"}
+          style={{
+            padding: "0.375rem 0.75rem",
+            fontSize: "0.75rem",
+            borderBottom: activeStep === 4 ? "2px solid var(--accent)" : "2px solid transparent",
+            borderRadius: "0.25rem 0.25rem 0 0",
+            minHeight: "auto",
+          }}
           onClick={() => setActiveStep(4)}
           data-step-btn="4"
         >
@@ -101,18 +154,31 @@ export function DatasetEvidenceReveal({
 
       {/* Step 1: Source Region */}
       {activeStep === 1 && (
-        <section className="reveal-step-1" aria-labelledby="step-1-title">
+        <section aria-labelledby="step-1-title">
           <h4
             id="step-1-title"
-            className="font-semibold text-xs mb-2 text-neutral-700 dark:text-neutral-300"
+            className="eyebrow"
+            style={{ fontSize: "0.75rem", marginBottom: "0.5rem" }}
           >
             Step 1: Document Locator & Scan Region
           </h4>
-          <div className="bg-neutral-50 dark:bg-neutral-950 p-3 rounded mb-3 text-xs leading-relaxed space-y-1">
-            <p>
+          <div
+            style={{
+              background: "var(--wash)",
+              padding: "0.75rem",
+              borderRadius: "0.25rem",
+              marginBottom: "0.75rem",
+              fontSize: "0.75rem",
+              lineHeight: 1.5,
+              display: "flex",
+              flexDirection: "column",
+              gap: "0.25rem",
+            }}
+          >
+            <p style={{ margin: 0 }}>
               <strong>Publication:</strong> {citationText}
             </p>
-            <p>
+            <p style={{ margin: 0 }}>
               <strong>Locator:</strong>{" "}
               {locator?.kind === "table" || locator?.kind === "figure"
                 ? `${locator.kind.toUpperCase()} ${locator.number}`
@@ -120,22 +186,43 @@ export function DatasetEvidenceReveal({
                   ? `Unnumbered table on page ${locator.page}`
                   : `Text on page ${locator?.page ?? "unknown"}`}
             </p>
-            <p>
+            <p style={{ margin: 0 }}>
               <strong>Scan Asset:</strong> {dataset.digitizer.sourcePageImage}
             </p>
-            <p>
+            <p style={{ margin: 0 }}>
               <strong>Rights Status:</strong> {rights?.statement || "Rights statement verified."}
             </p>
           </div>
 
           {/* Crop display or locator-only fallback per rights policy */}
           {canPublishCrop ? (
-            <div className="source-crop-container border rounded p-2 bg-neutral-100 dark:bg-neutral-800 text-center">
-              <span className="text-[11px] text-neutral-500 block mb-1">
+            <div
+              style={{
+                border: "1px solid var(--line)",
+                borderRadius: "0.25rem",
+                padding: "0.5rem",
+                background: "var(--wash)",
+                textAlign: "center",
+              }}
+            >
+              <span
+                className="fine"
+                style={{ fontSize: "0.7rem", display: "block", marginBottom: "0.25rem" }}
+              >
                 Reviewed Figure / Table Crop ({dataset.digitizer.sourcePageImage})
               </span>
               <div
-                className="crop-placeholder h-24 flex items-center justify-center text-xs italic text-neutral-600 dark:text-neutral-400 bg-neutral-200 dark:bg-neutral-700 rounded"
+                style={{
+                  height: "6rem",
+                  display: "flex",
+                  alignItems: "center",
+                  justifyContent: "center",
+                  fontSize: "0.75rem",
+                  fontStyle: "italic",
+                  color: "var(--muted)",
+                  background: "var(--panel)",
+                  borderRadius: "0.25rem",
+                }}
                 data-testid="crop-rendered"
               >
                 [High-resolution scan crop: Table {locator?.kind === "table" ? locator.number : "1"}
@@ -144,7 +231,8 @@ export function DatasetEvidenceReveal({
             </div>
           ) : (
             <div
-              className="rights-withheld-notice p-3 border border-amber-300 bg-amber-50 dark:bg-amber-950/20 text-amber-900 dark:text-amber-200 rounded text-xs"
+              className="notice"
+              style={{ fontSize: "0.75rem" }}
               data-testid="locator-only-notice"
             >
               <strong>Scan image withheld per rights terms:</strong> Access to original scan is
@@ -156,29 +244,36 @@ export function DatasetEvidenceReveal({
 
       {/* Step 2: Printed Tokens vs Canonical Values */}
       {activeStep === 2 && (
-        <section className="reveal-step-2" aria-labelledby="step-2-title">
+        <section aria-labelledby="step-2-title">
           <h4
             id="step-2-title"
-            className="font-semibold text-xs mb-2 text-neutral-700 dark:text-neutral-300"
+            className="eyebrow"
+            style={{ fontSize: "0.75rem", marginBottom: "0.5rem" }}
           >
             Step 2: Original Printed Tokens vs Converted Values
           </h4>
-          <p className="text-xs text-neutral-600 dark:text-neutral-400 mb-2">
+          <p className="fine" style={{ margin: "0 0 0.5rem" }}>
             Selected row index: {selectedRowIndex} (showing exact printed tokens from historical
             source)
           </p>
           {activeRow && (
             <table
-              className="w-full text-xs border border-neutral-200 dark:border-neutral-700 mb-3"
+              style={{
+                width: "100%",
+                fontSize: "0.75rem",
+                border: "1px solid var(--line)",
+                borderCollapse: "collapse",
+                marginBottom: "0.75rem",
+              }}
               data-testid="tokens-table"
             >
-              <thead className="bg-neutral-100 dark:bg-neutral-800">
-                <tr>
-                  <th className="p-2 text-left">Column</th>
-                  <th className="p-2 text-left">Role</th>
-                  <th className="p-2 text-left">Printed Token</th>
-                  <th className="p-2 text-left">Canonical Value</th>
-                  <th className="p-2 text-left">Unit</th>
+              <thead>
+                <tr style={{ background: "var(--wash)", borderBottom: "1px solid var(--line)" }}>
+                  <th style={{ padding: "0.5rem", textAlign: "left" }}>Column</th>
+                  <th style={{ padding: "0.5rem", textAlign: "left" }}>Role</th>
+                  <th style={{ padding: "0.5rem", textAlign: "left" }}>Printed Token</th>
+                  <th style={{ padding: "0.5rem", textAlign: "left" }}>Canonical Value</th>
+                  <th style={{ padding: "0.5rem", textAlign: "left" }}>Unit</th>
                 </tr>
               </thead>
               <tbody>
@@ -195,15 +290,41 @@ export function DatasetEvidenceReveal({
                   return (
                     <tr
                       key={`token-${col?.quantityId ?? `col-${cIdx}`}`}
-                      className="border-t dark:border-neutral-800"
+                      style={{ borderTop: "1px solid var(--line)" }}
                     >
-                      <td className="p-2 font-medium">{col?.name ?? `Col ${cIdx}`}</td>
-                      <td className="p-2 font-mono text-[11px] text-neutral-500">{col?.role}</td>
-                      <td className="p-2 font-mono text-amber-800 dark:text-amber-300 bg-amber-50/50 dark:bg-amber-950/20">
+                      <td style={{ padding: "0.5rem", fontWeight: 500 }}>
+                        {col?.name ?? `Col ${cIdx}`}
+                      </td>
+                      <td
+                        style={{
+                          padding: "0.5rem",
+                          fontFamily: "var(--font-mono)",
+                          fontSize: "0.7rem",
+                          color: "var(--muted)",
+                        }}
+                      >
+                        {col?.role}
+                      </td>
+                      <td
+                        style={{
+                          padding: "0.5rem",
+                          fontFamily: "var(--font-mono)",
+                          color: "var(--accent)",
+                          background: "var(--wash)",
+                        }}
+                      >
                         {rawToken || "—"}
                       </td>
-                      <td className="p-2 font-mono font-semibold">{displayValue}</td>
-                      <td className="p-2 text-neutral-500">{col?.unit}</td>
+                      <td
+                        style={{
+                          padding: "0.5rem",
+                          fontFamily: "var(--font-mono)",
+                          fontWeight: 600,
+                        }}
+                      >
+                        {displayValue}
+                      </td>
+                      <td style={{ padding: "0.5rem", color: "var(--muted)" }}>{col?.unit}</td>
                     </tr>
                   );
                 })}
@@ -215,14 +336,25 @@ export function DatasetEvidenceReveal({
 
       {/* Step 3: Transformations */}
       {activeStep === 3 && (
-        <section className="reveal-step-3" aria-labelledby="step-3-title">
+        <section aria-labelledby="step-3-title">
           <h4
             id="step-3-title"
-            className="font-semibold text-xs mb-2 text-neutral-700 dark:text-neutral-300"
+            className="eyebrow"
+            style={{ fontSize: "0.75rem", marginBottom: "0.5rem" }}
           >
             Step 3: Applied Reduction & Normalization Transformations
           </h4>
-          <ul className="list-disc pl-5 text-xs text-neutral-700 dark:text-neutral-300 space-y-1.5 mb-3">
+          <ul
+            className="fine"
+            style={{
+              paddingLeft: "1.25rem",
+              listStyleType: "disc",
+              display: "flex",
+              flexDirection: "column",
+              gap: "0.375rem",
+              marginBottom: "0.75rem",
+            }}
+          >
             <li>
               <strong>Units conversion:</strong> All numerical columns mapped from historical CGS /
               printed units to SI standards.
@@ -246,21 +378,40 @@ export function DatasetEvidenceReveal({
 
       {/* Step 4: Durable Citation & Digitizer Attribution */}
       {activeStep === 4 && (
-        <section className="reveal-step-4" aria-labelledby="step-4-title">
+        <section aria-labelledby="step-4-title">
           <h4
             id="step-4-title"
-            className="font-semibold text-xs mb-2 text-neutral-700 dark:text-neutral-300"
+            className="eyebrow"
+            style={{ fontSize: "0.75rem", marginBottom: "0.5rem" }}
           >
             Step 4: Full Citation & Digitization Provenance
           </h4>
-          <div className="p-3 bg-neutral-50 dark:bg-neutral-950 rounded text-xs space-y-2 border dark:border-neutral-800">
+          <div
+            style={{
+              padding: "0.75rem",
+              background: "var(--wash)",
+              borderRadius: "0.25rem",
+              border: "1px solid var(--line)",
+              fontSize: "0.75rem",
+              display: "flex",
+              flexDirection: "column",
+              gap: "0.5rem",
+            }}
+          >
             <div>
-              <span className="font-semibold block text-neutral-800 dark:text-neutral-200">
-                Citation:
-              </span>
-              <p className="font-serif text-neutral-700 dark:text-neutral-300">{citationText}</p>
+              <span style={{ fontWeight: 600, display: "block" }}>Citation:</span>
+              <p style={{ margin: 0, fontFamily: "var(--font-serif)" }}>{citationText}</p>
             </div>
-            <div className="grid grid-cols-2 gap-2 text-[11px] pt-2 border-t dark:border-neutral-800">
+            <div
+              style={{
+                display: "grid",
+                gridTemplateColumns: "1fr 1fr",
+                gap: "0.5rem",
+                fontSize: "0.7rem",
+                paddingTop: "0.5rem",
+                borderTop: "1px solid var(--line)",
+              }}
+            >
               <div>
                 <strong>Digitizer:</strong> {dataset.digitizer.name}
               </div>
@@ -283,17 +434,30 @@ export function DatasetEvidenceReveal({
 
       {/* Static <details> fallback representation */}
       <details
-        className="mt-4 pt-3 border-t text-xs text-neutral-600 dark:text-neutral-400 dark:border-neutral-800"
+        className="fine"
+        style={{
+          marginTop: "1rem",
+          paddingTop: "0.75rem",
+          borderTop: "1px solid var(--line)",
+        }}
         data-testid="static-details-fallback"
       >
-        <summary className="cursor-pointer font-medium hover:text-neutral-900 dark:hover:text-neutral-100">
+        <summary style={{ cursor: "pointer", fontWeight: 500 }}>
           Static Provenance Summary (Accessible / Print View)
         </summary>
-        <div className="mt-2 space-y-1 pl-2">
-          <p>
+        <div
+          style={{
+            marginTop: "0.5rem",
+            paddingLeft: "0.5rem",
+            display: "flex",
+            flexDirection: "column",
+            gap: "0.25rem",
+          }}
+        >
+          <p style={{ margin: 0 }}>
             <strong>Citation:</strong> {citationText}
           </p>
-          <p>
+          <p style={{ margin: 0 }}>
             <strong>Digitizer:</strong> {dataset.digitizer.name} (Rev.{" "}
             {dataset.digitizer.digitizationRevision},{" "}
             {typeof dataset.digitizer.date === "string"
@@ -301,7 +465,7 @@ export function DatasetEvidenceReveal({
               : dataset.digitizer.date.text}
             )
           </p>
-          <p>
+          <p style={{ margin: 0 }}>
             <strong>Rights:</strong> {rights?.statement || "Rights statement verified."}
           </p>
         </div>
