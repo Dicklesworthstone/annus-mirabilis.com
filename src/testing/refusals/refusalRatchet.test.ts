@@ -3,10 +3,14 @@ import { readFileSync } from "node:fs";
 import { join, resolve } from "node:path";
 import { describe, test } from "node:test";
 import { fileURLToPath } from "node:url";
-import { analyzeUntestedRefusals, scanRefusalThrowSites } from "./refusalScanner.ts";
+import {
+  analyzeUntestedRefusals,
+  type RefusalCodeBreakdown,
+  scanRefusalThrowSites,
+} from "./refusalScanner.ts";
 
 /**
- * Untested Refusal Throw Site Ratchet Gate (am-muyh).
+ * Untested Refusal Throw Site Ratchet Gate with Tightening Pawl (am-muyh).
  *
  * Governed by bead am-muyh and doctrine 8 (typed refusal states).
  *
@@ -15,69 +19,132 @@ import { analyzeUntestedRefusals, scanRefusalThrowSites } from "./refusalScanner
  *
  * This ratchet ensures that:
  * 1. Pre-existing untested refusal throw sites are pinned per file in untestedRefusalsBaseline.json.
- * 2. The baseline may only SHRINK: a file exceeding its baseline count fails.
- * 3. A new file not in the baseline fails at the first unasserted refusal throw site.
- * 4. The unit of measure is the THROW SITE, not merely the refusal code string:
+ * 2. REGRESSION FAILURE (count > allowed): A file introducing new untested refusal throw sites fails.
+ * 3. SLACK BASELINE FAILURE (count < allowed): A shrink-only ratchet without an active pawl allows
+ *    backsliding. When test additions cover refusal throw sites, the test FAILS with an
+ *    actionable error printing the exact replacement numbers. The author MUST tighten
+ *    untestedRefusalsBaseline.json in the same commit to permanently lock in the improvement.
+ * 4. UNLISTED FILE FAILURE: Any new or unlisted file defaults to 0 and fails on its first untested throw site.
+ * 5. Unit of measure is the THROW SITE, not merely the refusal code string:
  *    - A single test naming a code covers AT MOST 1 throw site of that code in that file.
  *    - Multiple throw sites with the same code cannot be laundered behind a single test.
  *    - Cross-file test laundering is prohibited.
- * 5. Failure messages explicitly name the file, line numbers, and refusal codes.
- * 6. NO percentage, NO coverage target, NO dashboard - a count is a diagnostic, never a goal.
+ * 6. Failure messages explicitly name the file, line numbers, and refusal codes.
+ * 7. NO percentage, NO coverage target, NO dashboard - a count is a diagnostic, never a goal.
  */
 
 const ROOT = resolve(fileURLToPath(new URL("../../../", import.meta.url)));
 const BASELINE_PATH = join(ROOT, "src/testing/refusals/untestedRefusalsBaseline.json");
 
-describe("untested refusal throw site ratchet (am-muyh)", () => {
-  test("no file exceeds its recorded baseline and no new file introduces untested refusal throw sites", () => {
-    const baselineRaw = JSON.parse(readFileSync(BASELINE_PATH, "utf8")) as Record<string, number>;
-    const baseline = new Map<string, number>(Object.entries(baselineRaw));
-    const { analyses, totalUntested } = analyzeUntestedRefusals(ROOT);
+export function auditFileRefusalCount(
+  fileRel: string,
+  count: number,
+  baseline: ReadonlyMap<string, number>,
+  breakdown?: readonly RefusalCodeBreakdown[],
+): {
+  readonly regressions: readonly string[];
+  readonly slack: readonly string[];
+  readonly replacementUpdates: readonly string[];
+} {
+  const allowed = baseline.get(fileRel) ?? 0;
 
-    const regressions: string[] = [];
-    const improvements: string[] = [];
-
-    for (const [file, analysis] of analyses) {
-      const count = analysis.untestedSitesCount;
-      const allowed = baseline.get(file) ?? 0;
-
-      if (count > allowed) {
-        const details = analysis.untestedBreakdown
+  if (count > allowed) {
+    const details = breakdown
+      ? breakdown
           .map(
             (b) =>
               `${b.code} (${b.untestedSites} untested of ${b.totalSites}, lines ${b.lines.join(",")})`,
           )
-          .join("; ");
-        regressions.push(
-          `${file}: ${count} untested refusal throw site(s), baseline ${allowed}. ` +
-            `Untested refusals: [${details}]. ` +
-            "Add targeted tests for each refusal throw site or accept/reject test pairs. (See am-muyh)",
-        );
-      } else if (count < allowed) {
-        improvements.push(`${file}: ${count} < ${allowed}`);
+          .join("; ")
+      : "";
+    const detailSuffix = details ? ` Untested refusals: [${details}].` : "";
+    return {
+      regressions: [
+        `${fileRel}: ${count} untested refusal throw site(s), baseline ${allowed}.${detailSuffix} ` +
+          "Add targeted tests for each refusal throw site or accept/reject test pairs. (See am-muyh)",
+      ],
+      slack: [],
+      replacementUpdates: [],
+    };
+  }
+
+  if (count < allowed) {
+    return {
+      regressions: [],
+      slack: [
+        `${fileRel}: ${count} untested refusal throw site(s) is below baseline ${allowed}. ` +
+          `Ratchet pawl engaged: tighten baseline to ${count} in untestedRefusalsBaseline.json to permanently lock in improvement. (See am-muyh)`,
+      ],
+      replacementUpdates: [`  "${fileRel}": ${count},`],
+    };
+  }
+
+  return { regressions: [], slack: [], replacementUpdates: [] };
+}
+
+describe("untested refusal throw site ratchet (am-muyh)", () => {
+  test("no file exceeds its recorded baseline and no baseline is slack (enforced tightening pawl)", () => {
+    const baselineRaw = JSON.parse(readFileSync(BASELINE_PATH, "utf8")) as Record<string, number>;
+    const baseline = new Map<string, number>(Object.entries(baselineRaw));
+    const { analyses, totalUntested } = analyzeUntestedRefusals(ROOT);
+
+    const allRegressions: string[] = [];
+    const allSlack: string[] = [];
+    const replacementLines: string[] = [];
+
+    for (const [file, analysis] of analyses) {
+      const count = analysis.untestedSitesCount;
+      const res = auditFileRefusalCount(file, count, baseline, analysis.untestedBreakdown);
+      if (res.regressions.length > 0) allRegressions.push(...res.regressions);
+      if (res.slack.length > 0) {
+        allSlack.push(...res.slack);
+        replacementLines.push(...res.replacementUpdates);
       }
     }
 
+    // Check for stale baseline entries for files that no longer have untested throw sites
+    for (const [baselinedFile, baselinedCount] of baseline) {
+      const analysis = analyses.get(baselinedFile);
+      const actualCount = analysis?.untestedSitesCount ?? 0;
+      if (
+        actualCount < baselinedCount &&
+        !allSlack.some((s) => s.startsWith(`${baselinedFile}:`))
+      ) {
+        allSlack.push(
+          `${baselinedFile}: ${actualCount} untested refusal throw site(s) is below baseline ${baselinedCount}. ` +
+            `Ratchet pawl engaged: tighten baseline to ${actualCount} in untestedRefusalsBaseline.json.`,
+        );
+        replacementLines.push(`  "${baselinedFile}": ${actualCount},`);
+      }
+    }
+
+    const failureMessages: string[] = [];
+
+    if (allRegressions.length > 0) {
+      failureMessages.push(
+        `[REGRESSION] Untested refusal throw sites increased in ${allRegressions.length} file(s):\n` +
+          allRegressions.join("\n") +
+          "\nEvery refusal throw site must be exercised by a test. See am-muyh.",
+      );
+    }
+
+    if (allSlack.length > 0) {
+      failureMessages.push(
+        `[SLACK BASELINE] Ratchet pawl engaged! ${allSlack.length} file(s) have improved below their baseline:\n` +
+          allSlack.join("\n") +
+          "\n\nTighten src/testing/refusals/untestedRefusalsBaseline.json with the following exact replacement entries:\n" +
+          replacementLines.join("\n"),
+      );
+    }
+
+    assert.deepEqual(failureMessages, [], failureMessages.join("\n\n"));
+
     const baselineTotal = Array.from(baseline.values()).reduce((sum, n) => sum + n, 0);
-
-    assert.deepEqual(
-      regressions,
-      [],
-      `Untested refusal throw sites increased (am-muyh):\n${regressions.join("\n")}\n` +
-        "Every refusal throw site must be exercised by a test. See am-muyh.",
-    );
-
     assert.ok(
       totalUntested <= baselineTotal,
       `Total untested refusal throw sites (${totalUntested}) exceeds baseline total (${baselineTotal}). ` +
         "The repository refusal baseline is shrink-only.",
     );
-
-    if (improvements.length > 0) {
-      console.log(
-        `[am-muyh] baseline can be lowered for ${improvements.length} file(s): ${improvements.join(", ")}`,
-      );
-    }
   });
 
   test("the detector fires on an unasserted refusal throw site (planted negative)", () => {
@@ -174,5 +241,15 @@ export function check(x: number) {
     const testedCodes = new Set(["zero-value-refused", "negative-value-refused"]);
     const unasserted = sites.filter((s) => !testedCodes.has(s.code));
     assert.equal(unasserted.length, 0);
+  });
+
+  test("planted negative: a file below baseline triggers slack baseline failure (ratchet pawl test)", () => {
+    const fakeBaseline = new Map([["src/content/ledger/validateLedger.ts", 20]]);
+    // Actual drops to 16
+    const result = auditFileRefusalCount("src/content/ledger/validateLedger.ts", 16, fakeBaseline);
+    assert.equal(result.regressions.length, 0);
+    assert.equal(result.slack.length, 1);
+    assert.ok(result.slack[0]?.includes("below baseline 20"));
+    assert.ok(result.replacementUpdates[0]?.includes('"src/content/ledger/validateLedger.ts": 16'));
   });
 });
