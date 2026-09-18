@@ -437,3 +437,96 @@ describe("type-level: a branded id cannot be passed where a different branded id
     expect(true).toBe(true);
   });
 });
+
+describe("refusal coverage: slugs, bib keys, and paper codes (ids.ts throw sites)", () => {
+  test("PLANTED: malformed bibliographic key refuses with bib-key-grammar (ids.ts:59)", () => {
+    const res = parseBibKey("invalid-bib-key");
+    expect(res.ok).toBe(false);
+    if (!res.ok) expect(res.rule).toBe("bib-key-grammar");
+    const pass = parseBibKey("ap-17-132");
+    expect(pass.ok).toBe(true);
+  });
+
+  test("PLANTED: malformed route slug refuses with route-slug-grammar (ids.ts:70)", () => {
+    const res = parseRouteSlug("invalid-slug");
+    expect(res.ok).toBe(false);
+    if (!res.ok) expect(res.rule).toBe("route-slug-grammar");
+    const pass = parseRouteSlug("brownian-motion");
+    expect(pass.ok).toBe(true);
+  });
+
+  test("PLANTED: malformed paper code refuses with paper-code-grammar (ids.ts:81)", () => {
+    const res = parsePaperCode("xx");
+    expect(res.ok).toBe(false);
+    if (!res.ok) expect(res.rule).toBe("paper-code-grammar");
+    const pass = parsePaperCode("bm");
+    expect(pass.ok).toBe(true);
+  });
+
+  test("PLANTED: empty slug refuses with slug-grammar (ids.ts:101)", () => {
+    const res = validateSlug("");
+    expect(res.ok).toBe(false);
+    if (!res.ok) expect(res.rule).toBe("slug-grammar");
+    const pass = validateSlug("valid-slug");
+    expect(pass.ok).toBe(true);
+  });
+
+  test("PLANTED: slug with colon or space refuses with slug-grammar (ids.ts:107)", () => {
+    const resColon = validateSlug("foo:bar");
+    expect(resColon.ok).toBe(false);
+    if (!resColon.ok) expect(resColon.rule).toBe("slug-grammar");
+    const resSpace = validateSlug("foo bar");
+    expect(resSpace.ok).toBe(false);
+    if (!resSpace.ok) expect(resSpace.rule).toBe("slug-grammar");
+    const pass = validateSlug("foo-bar");
+    expect(pass.ok).toBe(true);
+  });
+
+  test("PLANTED: slug with leading/trailing/double hyphens refuses with slug-grammar (ids.ts:114)", () => {
+    const res = validateSlug("-foo-bar");
+    expect(res.ok).toBe(false);
+    if (!res.ok) expect(res.rule).toBe("slug-grammar");
+    const pass = validateSlug("foo-bar");
+    expect(pass.ok).toBe(true);
+  });
+
+  test("PLANTED: uppercase slug refuses with slug-grammar (ids.ts:118)", () => {
+    const res = validateSlug("Foo-bar");
+    expect(res.ok).toBe(false);
+    if (!res.ok) expect(res.rule).toBe("slug-grammar");
+    const pass = validateSlug("foo-bar");
+    expect(pass.ok).toBe(true);
+  });
+
+  test("PLANTED: slug token with invalid characters refuses with slug-grammar (ids.ts:147)", () => {
+    const res = validateSlug("foo@bar");
+    expect(res.ok).toBe(false);
+    if (!res.ok) expect(res.rule).toBe("slug-grammar");
+    const pass = validateSlug("foo-bar");
+    expect(pass.ok).toBe(true);
+  });
+
+  test("PLANTED: slug token starting/ending with dot refuses with slug-dot-rule (ids.ts:127)", () => {
+    const res = validateSlug(".6c");
+    expect(res.ok).toBe(false);
+    if (!res.ok) expect(res.rule).toBe("slug-dot-rule");
+    const pass = validateSlug("0.6c");
+    expect(pass.ok).toBe(true);
+  });
+
+  test("PLANTED: slug token with consecutive dots refuses with slug-dot-rule (ids.ts:134)", () => {
+    const res = validateSlug("0..6c");
+    expect(res.ok).toBe(false);
+    if (!res.ok) expect(res.rule).toBe("slug-dot-rule");
+    const pass = validateSlug("0.6c");
+    expect(pass.ok).toBe(true);
+  });
+
+  test("PLANTED: slug token with dot between non-digits refuses with slug-dot-rule (ids.ts:141)", () => {
+    const res = validateSlug("a.b");
+    expect(res.ok).toBe(false);
+    if (!res.ok) expect(res.rule).toBe("slug-dot-rule");
+    const pass = validateSlug("0.6c");
+    expect(pass.ok).toBe(true);
+  });
+});
