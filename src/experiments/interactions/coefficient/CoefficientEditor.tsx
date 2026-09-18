@@ -29,6 +29,18 @@ export interface CoefficientEditorProps extends BaseInteractionProps<Coefficient
   readonly transformedValues?: Readonly<Record<string, number | string>> | undefined;
 }
 
+const srOnlyStyle: React.CSSProperties = {
+  position: "absolute",
+  width: "1px",
+  height: "1px",
+  padding: 0,
+  margin: "-1px",
+  overflow: "hidden",
+  clip: "rect(0, 0, 0, 0)",
+  whiteSpace: "nowrap",
+  borderWidth: 0,
+};
+
 export function CoefficientEditor({
   instrumentId,
   actionId,
@@ -71,24 +83,49 @@ export function CoefficientEditor({
 
   return (
     <div
-      className={`coefficient-editor ${className}`}
+      className={className || undefined}
       data-interaction-family="fields-boosts"
       data-testid={testId}
     >
       {/* Live Region for Screen-Reader Announcements */}
-      <div className="sr-only" aria-live="polite" role="status">
+      <div style={srOnlyStyle} aria-live="polite" role="status">
         {announcement}
       </div>
 
       {/* Visual Component / Arrow Editing Pane */}
-      <div className="p-3 bg-stone-50 border border-stone-200 rounded">
-        <h4 className="text-xs font-semibold uppercase tracking-wider text-stone-800 mb-2">
+      <div
+        style={{
+          padding: "0.75rem",
+          background: "var(--panel)",
+          border: "1px solid var(--line)",
+          borderRadius: "0.25rem",
+        }}
+      >
+        <h4
+          className="eyebrow"
+          style={{
+            fontSize: "0.75rem",
+            fontWeight: 600,
+            textTransform: "uppercase",
+            letterSpacing: "0.05em",
+            color: "var(--ink)",
+            marginBottom: "0.5rem",
+          }}
+        >
           Field & Coordinate Transformation Coefficients
         </h4>
 
-        <div className="flex flex-wrap items-center gap-3 mb-3">
-          <div className="flex items-center gap-1.5">
-            <label htmlFor={`${compId}-comp-select`} className="text-xs text-stone-700 font-medium">
+        <div
+          style={{
+            display: "flex",
+            flexWrap: "wrap",
+            alignItems: "center",
+            gap: "0.75rem",
+            marginBottom: "0.75rem",
+          }}
+        >
+          <div style={{ display: "flex", alignItems: "center", gap: "0.375rem" }}>
+            <label htmlFor={`${compId}-comp-select`} className="fine" style={{ fontWeight: 500 }}>
               Component:
             </label>
             <select
@@ -96,7 +133,15 @@ export function CoefficientEditor({
               value={activeCompId}
               disabled={disabled}
               onChange={(e) => handleUpdate(e.target.value, val)}
-              className="text-xs border border-stone-300 rounded px-2 py-1 bg-white font-mono"
+              style={{
+                fontSize: "0.75rem",
+                border: "1px solid var(--line)",
+                borderRadius: "0.25rem",
+                padding: "0.25rem 0.5rem",
+                background: "var(--panel)",
+                color: "var(--ink)",
+                fontFamily: "var(--font-mono, monospace)",
+              }}
             >
               {components.map((c) => (
                 <option key={c.id} value={c.id}>
@@ -106,8 +151,8 @@ export function CoefficientEditor({
             </select>
           </div>
 
-          <div className="flex items-center gap-1.5">
-            <label htmlFor={`${compId}-slider`} className="text-xs text-stone-700 font-medium">
+          <div style={{ display: "flex", alignItems: "center", gap: "0.375rem" }}>
+            <label htmlFor={`${compId}-slider`} className="fine" style={{ fontWeight: 500 }}>
               Magnitude:
             </label>
             <input
@@ -119,15 +164,35 @@ export function CoefficientEditor({
               value={val}
               disabled={disabled}
               onChange={(e) => handleUpdate(activeCompId, Number.parseFloat(e.target.value))}
-              className="w-32 accent-amber-600"
+              style={{
+                width: "8rem",
+                accentColor: "var(--accent)",
+                cursor: disabled ? "not-allowed" : "pointer",
+              }}
             />
-            <span className="text-xs font-mono text-stone-900 w-12 text-right">
+            <span
+              style={{
+                fontSize: "0.75rem",
+                fontFamily: "var(--font-mono, monospace)",
+                color: "var(--ink)",
+                width: "3rem",
+                textAlign: "right",
+              }}
+            >
               {val.toFixed(2)}
             </span>
           </div>
 
-          <div className="flex items-center gap-1 text-xs ml-auto">
-            <label htmlFor={`${compId}-text-input`} className="text-stone-700">
+          <div
+            style={{
+              display: "flex",
+              alignItems: "center",
+              gap: "0.25rem",
+              fontSize: "0.75rem",
+              marginLeft: "auto",
+            }}
+          >
+            <label htmlFor={`${compId}-text-input`} className="fine">
               Direct entry:
             </label>
             <input
@@ -146,23 +211,70 @@ export function CoefficientEditor({
                 const p = Number.parseFloat(draftText);
                 if (!Number.isNaN(p)) handleUpdate(activeCompId, p);
               }}
-              className="w-20 px-2 py-1 border border-stone-300 rounded text-right font-mono text-xs"
+              style={{
+                width: "5rem",
+                padding: "0.25rem 0.5rem",
+                border: "1px solid var(--line)",
+                borderRadius: "0.25rem",
+                textAlign: "right",
+                fontFamily: "var(--font-mono, monospace)",
+                fontSize: "0.75rem",
+                background: "var(--panel)",
+                color: "var(--ink)",
+              }}
             />
-            <span className="text-stone-600 font-mono text-xs">{activeComp?.unit}</span>
+            <span
+              style={{
+                color: "var(--muted)",
+                fontFamily: "var(--font-mono, monospace)",
+                fontSize: "0.75rem",
+              }}
+            >
+              {activeComp?.unit}
+            </span>
           </div>
         </div>
 
         {/* Transformed Components Readout Table */}
         {transformedValues && Object.keys(transformedValues).length > 0 && (
-          <div className="mt-3 pt-2 border-t border-stone-200">
-            <h5 className="text-xs font-bold text-stone-800 mb-1">
+          <div
+            style={{
+              marginTop: "0.75rem",
+              paddingTop: "0.5rem",
+              borderTop: "1px solid var(--line)",
+            }}
+          >
+            <h5
+              style={{
+                fontSize: "0.75rem",
+                fontWeight: "bold",
+                color: "var(--ink)",
+                marginBottom: "0.25rem",
+              }}
+            >
               Transformed Quantities in Moving Frame
             </h5>
-            <div className="grid grid-cols-2 sm:grid-cols-3 gap-2 text-xs font-mono">
+            <div
+              style={{
+                display: "grid",
+                gridTemplateColumns: "repeat(auto-fit, minmax(140px, 1fr))",
+                gap: "0.5rem",
+                fontSize: "0.75rem",
+                fontFamily: "var(--font-mono, monospace)",
+              }}
+            >
               {Object.entries(transformedValues).map(([key, value]) => (
-                <div key={key} className="bg-white p-1.5 border border-stone-200 rounded">
-                  <span className="text-stone-500">{key}: </span>
-                  <span className="font-semibold text-stone-900">{String(value)}</span>
+                <div
+                  key={key}
+                  style={{
+                    background: "var(--wash)",
+                    padding: "0.375rem",
+                    border: "1px solid var(--line)",
+                    borderRadius: "0.25rem",
+                  }}
+                >
+                  <span style={{ color: "var(--muted)" }}>{key}: </span>
+                  <span style={{ fontWeight: 600, color: "var(--ink)" }}>{String(value)}</span>
                 </div>
               ))}
             </div>
