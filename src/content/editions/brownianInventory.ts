@@ -8,12 +8,14 @@
  * Bead: am-edn-inventory-brownian-slg
  */
 
+import { createHash } from "node:crypto";
 import { existsSync, readdirSync, readFileSync } from "node:fs";
 import { join } from "node:path";
 import { compileReadingContent } from "../compiler/compile.ts";
 import { parseIdSnapshot } from "../frozenIds.ts";
 import { validateSourceManifest } from "../manifest/schema.ts";
 import { validateManifest } from "../manifest/validator.ts";
+import { parseReceipt } from "../provenance/parseReceipt.ts";
 import { parseYaml } from "../provenance/yaml.ts";
 
 export const BROWNIAN_PAPER = "brownian-motion";
@@ -52,10 +54,24 @@ export type DifficultyFlag = Readonly<{
   rest: string;
 }>;
 
+export type FacsimilePinFailure =
+  | { readonly kind: "receipt-missing"; readonly path: string }
+  | { readonly kind: "receipt-invalid"; readonly path: string; readonly error: string }
+  | { readonly kind: "pdf-missing"; readonly path: string }
+  | { readonly kind: "digest-mismatch"; readonly expected: string; readonly actual: string };
+
+export type FacsimilePinVerification = Readonly<{
+  pinned: boolean;
+  sha256?: string;
+  pdfPath?: string;
+  failure?: FacsimilePinFailure;
+}>;
+
 export type BrownianInventory = Readonly<{
   paper: typeof BROWNIAN_PAPER;
   bibliographicKey: typeof BROWNIAN_BIB_KEY;
   facsimilePinned: boolean;
+  facsimilePinFailure?: FacsimilePinFailure | undefined;
   sourceUnitsFrozen: boolean;
   layers: readonly LayerInventory[];
   difficultyFlags: readonly DifficultyFlag[];
@@ -103,6 +119,88 @@ function jsonIds(dir: string, kind: string): string[] {
   return ids;
 }
 
+export function verifyBrownianFacsimilePin(root = process.cwd()): FacsimilePinVerification {
+  const receiptPath = join(root, "docs/provenance/ap-17-549.md");
+  if (!existsSync(receiptPath)) {
+    return { pinned: false, failure: { kind: "receipt-missing", path: receiptPath } };
+  }
+
+  let receiptContent: string;
+  try {
+    receiptContent = readFileSync(receiptPath, "utf8");
+  } catch (err) {
+    return {
+      pinned: false,
+      failure: {
+        kind: "receipt-invalid",
+        path: receiptPath,
+        error: err instanceof Error ? err.message : String(err),
+      },
+    };
+  }
+
+  const parsed = parseReceipt(receiptContent, receiptPath);
+  const scan = parsed.frontMatter?.scan;
+  if (!scan || typeof scan.sha256 !== "string" || !scan.sha256.trim()) {
+    return {
+      pinned: false,
+      failure: {
+        kind: "receipt-invalid",
+        path: receiptPath,
+        error: "Missing scan.sha256 in receipt front matter.",
+      },
+    };
+  }
+
+  const expectedSha256 = scan.sha256.trim().toLowerCase();
+  const pdfRelPath = scan.path ?? "public/papers/pdfs/ap-17-549.pdf";
+  const pdfPath = join(root, pdfRelPath);
+
+  if (!existsSync(pdfPath)) {
+    return {
+      pinned: false,
+      sha256: expectedSha256,
+      pdfPath,
+      failure: { kind: "pdf-missing", path: pdfPath },
+    };
+  }
+
+  let actualSha256: string;
+  try {
+    const pdfBuf = readFileSync(pdfPath);
+    actualSha256 = createHash("sha256").update(pdfBuf).digest("hex").toLowerCase();
+  } catch {
+    return {
+      pinned: false,
+      sha256: expectedSha256,
+      pdfPath,
+      failure: {
+        kind: "pdf-missing",
+        path: pdfPath,
+      },
+    };
+  }
+
+  if (actualSha256 !== expectedSha256) {
+    return {
+      pinned: false,
+      sha256: expectedSha256,
+      pdfPath,
+      failure: {
+        kind: "digest-mismatch",
+        expected: expectedSha256,
+        actual: actualSha256,
+      },
+    };
+  }
+
+  return {
+    pinned: true,
+    sha256: expectedSha256,
+    pdfPath,
+  };
+}
+
 export function loadBrownianInventory(root = process.cwd()): BrownianInventory {
   const paperPath = join(root, "content/papers/brownian-motion.json");
   const paper = JSON.parse(readFileSync(paperPath, "utf8")) as Record<string, unknown>;
@@ -119,7 +217,8 @@ export function loadBrownianInventory(root = process.cwd()): BrownianInventory {
         .sort()
     : [];
 
-  const facsimilePinned = existsSync(join(root, "docs/provenance/ap-17-549.md"));
+  const pinVerification = verifyBrownianFacsimilePin(root);
+  const facsimilePinned = pinVerification.pinned;
   const manifestPath = join(root, "content/source-blocks/brownian-motion/manifest.yaml");
   const snapshotPath = join(
     root,
@@ -219,6 +318,7 @@ export function loadBrownianInventory(root = process.cwd()): BrownianInventory {
     paper: BROWNIAN_PAPER,
     bibliographicKey: BROWNIAN_BIB_KEY,
     facsimilePinned,
+    facsimilePinFailure: pinVerification.failure,
     sourceUnitsFrozen: false,
     layers,
     difficultyFlags,

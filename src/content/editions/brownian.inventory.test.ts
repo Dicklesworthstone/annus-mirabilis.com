@@ -1,5 +1,5 @@
 import { describe, expect, test } from "bun:test";
-import { mkdtempSync, writeFileSync } from "node:fs";
+import { cpSync, mkdirSync, mkdtempSync, readFileSync, writeFileSync } from "node:fs";
 import { tmpdir } from "node:os";
 import { join } from "node:path";
 import { newRunIdentity, TestLogger } from "../../testing/log/logger.ts";
@@ -12,6 +12,7 @@ import {
   parseDifficultyFlags,
   reviewedWithoutRecord,
   TREATMENT_MAP_ROWS,
+  verifyBrownianFacsimilePin,
   WATCH_LIST_RESULTS,
 } from "./brownianInventory.ts";
 
@@ -137,5 +138,86 @@ describe("brownian editorial inventory (am-edn-inventory-brownian-slg)", () => {
         throw new InventoryHonestyError("source-claimed-complete", "planted");
       }
     }).toThrow(InventoryHonestyError);
+  });
+
+  test("verifyBrownianFacsimilePin verifies genuine pinned PDF hash against receipt", () => {
+    const verification = verifyBrownianFacsimilePin();
+    expect(verification.pinned).toBe(true);
+    expect(verification.sha256).toBe(
+      "c42f9ac278283bdaaee83b2c4ec0154645d4e4adc4249f8a62c45ed2e51c135f",
+    );
+    expect(verification.failure).toBeUndefined();
+  });
+
+  test("planted negative: corrupted digest causes facsimilePinned to be false with typed digest-mismatch failure", () => {
+    const tempRoot = mkdtempSync(join(tmpdir(), "bm-corrupt-digest-"));
+    mkdirSync(join(tempRoot, "docs/provenance"), { recursive: true });
+    mkdirSync(join(tempRoot, "public/papers/pdfs"), { recursive: true });
+    mkdirSync(join(tempRoot, "content/papers"), { recursive: true });
+    mkdirSync(join(tempRoot, "content/arguments/brownian-motion"), { recursive: true });
+    mkdirSync(join(tempRoot, "content/equations/brownian-motion"), { recursive: true });
+    mkdirSync(join(tempRoot, "content/source-blocks/brownian-motion"), { recursive: true });
+    mkdirSync(join(tempRoot, "content/aliases"), { recursive: true });
+    mkdirSync(join(tempRoot, "docs/editorial"), { recursive: true });
+
+    // Corrupt the receipt's sha256 to all zeros
+    const realReceipt = readFileSync("docs/provenance/ap-17-549.md", "utf8");
+    const corruptedReceipt = realReceipt.replace(
+      'sha256: "c42f9ac278283bdaaee83b2c4ec0154645d4e4adc4249f8a62c45ed2e51c135f"',
+      'sha256: "0000000000000000000000000000000000000000000000000000000000000000"',
+    );
+    writeFileSync(join(tempRoot, "docs/provenance/ap-17-549.md"), corruptedReceipt);
+
+    // Copy genuine PDF
+    cpSync("public/papers/pdfs/ap-17-549.pdf", join(tempRoot, "public/papers/pdfs/ap-17-549.pdf"));
+
+    // Copy inventory dependencies
+    cpSync(
+      "content/papers/brownian-motion.json",
+      join(tempRoot, "content/papers/brownian-motion.json"),
+    );
+    cpSync(
+      "content/source-blocks/brownian-motion/manifest.yaml",
+      join(tempRoot, "content/source-blocks/brownian-motion/manifest.yaml"),
+    );
+    cpSync(
+      "content/source-blocks/brownian-motion/manifest.ids.snapshot.txt",
+      join(tempRoot, "content/source-blocks/brownian-motion/manifest.ids.snapshot.txt"),
+    );
+    cpSync(
+      "content/aliases/brownian-motion.yaml",
+      join(tempRoot, "content/aliases/brownian-motion.yaml"),
+    );
+    cpSync(
+      "docs/editorial/brownian-motion-difficulties.md",
+      join(tempRoot, "docs/editorial/brownian-motion-difficulties.md"),
+    );
+
+    const verification = verifyBrownianFacsimilePin(tempRoot);
+    expect(verification.pinned).toBe(false);
+    expect(verification.failure).toEqual({
+      kind: "digest-mismatch",
+      expected: "0000000000000000000000000000000000000000000000000000000000000000",
+      actual: "c42f9ac278283bdaaee83b2c4ec0154645d4e4adc4249f8a62c45ed2e51c135f",
+    });
+
+    const inventory = loadBrownianInventory(tempRoot);
+    expect(inventory.facsimilePinned).toBe(false);
+    expect(inventory.facsimilePinFailure).toEqual({
+      kind: "digest-mismatch",
+      expected: "0000000000000000000000000000000000000000000000000000000000000000",
+      actual: "c42f9ac278283bdaaee83b2c4ec0154645d4e4adc4249f8a62c45ed2e51c135f",
+    });
+  });
+
+  test("planted negative: missing PDF causes facsimilePinned to be false with typed pdf-missing failure", () => {
+    const tempRoot = mkdtempSync(join(tmpdir(), "bm-missing-pdf-"));
+    mkdirSync(join(tempRoot, "docs/provenance"), { recursive: true });
+    cpSync("docs/provenance/ap-17-549.md", join(tempRoot, "docs/provenance/ap-17-549.md"));
+    // Deliberately do not copy the PDF
+
+    const verification = verifyBrownianFacsimilePin(tempRoot);
+    expect(verification.pinned).toBe(false);
+    expect(verification.failure?.kind).toBe("pdf-missing");
   });
 });
