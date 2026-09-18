@@ -3,7 +3,7 @@ kind: modern-golden
 title: Near-light velocity composition and speed shortfall
 description: >
   Collinear composition of two 0.99c velocities and cancellation-free shortfall helper:
-  0.99 ⊕ 0.99 = 0.9999494975... and 1 - (u ⊕ v) = 1/19801 = 5.0502500e-5.
+  0.99 (+) 0.99 = 0.9999494975... and 1 - (u (+) v) = 1/19801 = 5.0502500e-5.
 provenance:
   paper: special-relativity
   sectionId: s5
