@@ -90,10 +90,10 @@ describe("teachingTapes: Schema, Five-Name Audit, and Scientific Expectations (a
     assert.equal(isValidTapeId("trailing-hyphen-"), false);
   });
 
-  it("audits content/experiments/tapes/ if present and verifies registered teaching tapes", () => {
+  it("audits content/experiments/tapes/ if present and verifies registered teaching tapes", (t) => {
     const tapesDir = resolve(ROOT, "content/experiments/tapes");
     if (!existsSync(tapesDir)) {
-      // Not yet authored in tree; audit passes until instruments supply them
+      t.skip("content/experiments/tapes not present (owned by am-rt-control-tapes-0gc)");
       return;
     }
 
