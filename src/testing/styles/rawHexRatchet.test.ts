@@ -404,6 +404,38 @@ export const DATA_COLOR_ALLOWLIST: readonly DataColorAllowlistEntry[] = [
     reason:
       "Bucherer 1908 velocity-filter experimental data point stroke and uncertainty tick in electron dynamics",
   },
+  // Atmospheric procedural sky canvas texture in ThreeStudioScene:
+  {
+    file: "src/visuals/three/ThreeStudioScene.ts",
+    hex: "#60a5fa",
+    reason: "canvas 2D gradient stop; CSS custom properties do not resolve in canvas context",
+  },
+  {
+    file: "src/visuals/three/ThreeStudioScene.ts",
+    hex: "#93c5fd",
+    reason: "canvas 2D gradient stop; CSS custom properties do not resolve in canvas context",
+  },
+  {
+    file: "src/visuals/three/ThreeStudioScene.ts",
+    hex: "#bae6fd",
+    reason: "canvas 2D gradient stop; CSS custom properties do not resolve in canvas context",
+  },
+  {
+    file: "src/visuals/three/ThreeStudioScene.ts",
+    hex: "#e0f2fe",
+    reason: "canvas 2D gradient stop; CSS custom properties do not resolve in canvas context",
+  },
+  {
+    file: "src/visuals/three/ThreeStudioScene.ts",
+    hex: "#fef3c7",
+    reason: "canvas 2D gradient stop; CSS custom properties do not resolve in canvas context",
+  },
+  // Historical facsimile canvas render backing in usePinnedPdfFacsimile:
+  {
+    file: "src/reader/facsimile/usePinnedPdfFacsimile.ts",
+    hex: "#ffffff",
+    reason: "canvas 2D fillStyle and PDF.js background; CSS custom properties do not resolve in canvas context",
+  },
 ];
 
 const HEX_COLOR_RE = /#(?:[0-9a-fA-F]{8}|[0-9a-fA-F]{6}|[0-9a-fA-F]{4}|[0-9a-fA-F]{3})\b/g;
