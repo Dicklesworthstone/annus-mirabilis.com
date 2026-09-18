@@ -6,6 +6,7 @@ import type { NavigationNode } from "../navigation.ts";
 import { navigate } from "../navigation.ts";
 import { createSelectionStore, type EquationSelection } from "../selectionStore.ts";
 import type { TermSpokenDetails } from "../spoken/types.ts";
+import "../equations.css";
 
 export interface TermExplorerProps {
   readonly equationId: string;
@@ -24,6 +25,21 @@ export interface TermExplorerProps {
  * tab stop in the document outline, while allowing in-depth keyboard exploration
  * of all equation terms and operations.
  */
+const ROLE_BADGE_MAP: Record<string, string> = {
+  input: "badge-input",
+  constant: "badge-constant",
+  "model-result": "badge-model-result",
+  operation: "badge-operation",
+  parameter: "badge-parameter",
+  coordinate: "badge-coordinate",
+  field: "badge-field",
+  premise: "badge-premise",
+  conclusion: "badge-conclusion",
+  move: "badge-move",
+  countermodel: "badge-countermodel",
+  definition: "badge-definition",
+};
+
 export function TermExplorer({
   equationId,
   title,
@@ -158,6 +174,7 @@ export function TermExplorer({
           const isSelected = activeNodeId === n.id;
           const label = t?.name ?? n.id;
           const roleLabel = t?.role ?? (n.kind === "term" ? "term" : "operation");
+          const kindClass = n.kind === "operation" ? "am-chip-operation" : "am-chip-term";
 
           return (
             <button
@@ -170,7 +187,7 @@ export function TermExplorer({
                 }
               }}
               type="button"
-              className={`am-chip am-chip-${n.kind} ${isSelected ? "selected" : ""}`}
+              className={`am-chip ${kindClass} ${isSelected ? "selected" : ""}`}
               tabIndex={isSelected || (!activeNodeId && n.id === navigation[0]?.id) ? 0 : -1}
               data-node-id={n.id}
               data-quantity-id={n.quantityId ?? undefined}
@@ -206,7 +223,9 @@ export function TermExplorer({
         >
           <div className="inspector-head">
             <strong>{activeTerm.name}</strong>
-            <span className={`badge badge-${activeTerm.role}`}>{activeTerm.role}</span>
+            <span className={`badge ${ROLE_BADGE_MAP[activeTerm.role] ?? "badge-input"}`}>
+              {activeTerm.role}
+            </span>
           </div>
           <p className="inspector-speech">{activeTerm.speechText}</p>
           <div className="inspector-meta fine">

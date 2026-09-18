@@ -85,7 +85,7 @@
   "src/discovery/cards/StatusLabel.tsx": 0,
   "src/equations/SemanticEquation.tsx": 2,
   "src/equations/accessibility/EquationAccessibility.tsx": 1,
-  "src/equations/accessibility/TermExplorer.tsx": 19,
+  "src/equations/accessibility/TermExplorer.tsx": 0,
   "src/equations/derivations/DerivationStepComponent.tsx": 5,
   "src/equations/genealogy/Genealogy.tsx": 4,
   "src/equations/legacy/ColorizedEquation.tsx": 380,
