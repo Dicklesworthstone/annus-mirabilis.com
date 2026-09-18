@@ -65,7 +65,7 @@ import {
   speedForDailyLoss,
   transformEvent,
 } from "../../physics/reference/kinematics.ts";
-import { evaluatePhotonBox } from "../../physics/reference/massEnergy.ts";
+import { evaluatePhotonBox, printedMassConversion } from "../../physics/reference/massEnergy.ts";
 import {
   aperturePower,
   bandLimitedMeanQuantumEnergyWien,
@@ -91,6 +91,18 @@ import {
   timesTwoClosed,
   timesTwoFromAdd,
 } from "../scenario-fixtures/evaluator.ts";
+import {
+  aberration,
+  aberrationAngleFromSpeedRatio,
+  dopplerFactor,
+  lightComplexFactors,
+  lightComplexMaterialContractionCountermodel,
+  lightComplexVolumeNumeric,
+  mirrorFrameLedger,
+  modernEarthOrbitAberration,
+  movingMirror,
+  secondOrderShift,
+} from "../../physics/reference/waves.ts";
 import { timesTwoWrapper } from "../scenario-fixtures/evaluatorWrapper.ts";
 
 export type OwnerContext = Readonly<{
@@ -439,6 +451,75 @@ const OWNERS: OwnerRecord[] = [
         exactDiskPower: res.value.exactDiskPower,
         relativeDifference: res.value.relativeDifference,
       };
+    },
+  },
+  {
+    id: "waves",
+    sourcePath: fileURLToPath(new URL("../../physics/reference/waves.ts", import.meta.url)),
+    fn: (ctx: OwnerContext) => {
+      const out: Record<string, number> = {};
+      const beta = ctx.inputs.beta;
+
+      if (typeof ctx.inputs.speedRatio === "number") {
+        out.aberrationAngleArcsec = aberrationAngleFromSpeedRatio(ctx.inputs.speedRatio);
+      }
+
+      if (typeof beta === "number") {
+        if (typeof ctx.inputs.theta === "number") {
+          const theta = ctx.inputs.theta;
+          out.dopplerFactor = dopplerFactor(beta, theta);
+          const ab = aberration(beta, theta);
+          out.cosThetaPrime = ab.cosThetaPrime;
+          out.sinThetaPrime = ab.sinThetaPrime;
+          out.thetaPrimeRad = ab.thetaPrimeRad;
+          out.thetaPrimeDeg = (ab.thetaPrimeRad * 180) / Math.PI;
+
+          const lc = lightComplexFactors(beta, theta);
+          out.amplitudeFactor = lc.amplitudeFactor;
+          out.energyDensityFactor = lc.energyDensityFactor;
+          out.volumeFactor = lc.volumeFactor;
+          out.energyFactor = lc.energyFactor;
+          out.numericVolumeFactor = lightComplexVolumeNumeric(beta, theta);
+
+          const cm = lightComplexMaterialContractionCountermodel(beta, theta);
+          out.countermodelFactor = cm.factor;
+          out.countermodelVolumeFactor = cm.volumeFactor;
+        }
+
+        if (typeof ctx.inputs.phi === "number") {
+          const phi = ctx.inputs.phi;
+          const mm = movingMirror(beta, phi, {
+            u: ctx.inputs.u ?? 1.0,
+            c: ctx.inputs.c ?? 1.0,
+            Am: ctx.inputs.Am ?? 1.0,
+          });
+          if (mm.status === "value") {
+            out.frequencyRatio = mm.frequencyRatio;
+            out.reflectedFrequencyRatio = mm.frequencyRatio;
+            out.cosPhiReflected = mm.cosPhiReflected;
+            out.phiReflectedRad = mm.phiReflectedRad;
+            out.amplitudeRatio = mm.amplitudeRatio;
+            out.radiationPressure = mm.radiationPressure;
+            out.radiationForce = mm.radiationForce;
+            out.incidentPower = mm.incidentPower;
+            out.reflectedPower = mm.reflectedPower;
+            out.workRate = mm.workRate;
+            out.energyBalanceResidual = mm.energyBalanceResidual;
+          }
+        }
+
+        if (typeof ctx.inputs.secondOrderSpeed === "number") {
+          out.secondOrderShift = secondOrderShift(ctx.inputs.secondOrderSpeed);
+        } else if (
+          typeof beta === "number" &&
+          ctx.inputs.theta === undefined &&
+          ctx.inputs.phi === undefined
+        ) {
+          out.secondOrderShift = secondOrderShift(beta);
+        }
+      }
+
+      return out;
     },
   },
   {
@@ -1004,6 +1085,54 @@ const OWNERS: OwnerRecord[] = [
       if (box.lightMassAssigned.status === "value")
         out.lightMassAssigned = box.lightMassAssigned.value as number;
       return out;
+    },
+  },
+  {
+    id: "mass-energy",
+    sourcePath: fileURLToPath(new URL("../../physics/reference/massEnergy.ts", import.meta.url)),
+    fn(ctx: OwnerContext): Record<string, number> {
+      const emittedEnergyJoules =
+        ctx.inputs.emittedEnergyJoules ??
+        ctx.inputs.emittedEnergy ??
+        (typeof ctx.inputs.emittedEnergyErg === "number" ? ctx.inputs.emittedEnergyErg / 1e7 : undefined);
+      if (emittedEnergyJoules === undefined) {
+        throw new Error('Owner "mass-energy" requires emittedEnergyJoules or emittedEnergy input.');
+      }
+      const res = printedMassConversion({ emittedEnergyJoules });
+      if (res.status !== "value") {
+        throw new Error(`printedMassConversion returned status "${res.status}".`);
+      }
+      return {
+        printed: res.printed.value,
+        modern: res.modern.value,
+        ratioModernToPrinted: res.comparison.ratioModernToPrinted,
+        ratio: res.comparison.ratio,
+        relativeDifference: res.comparison.relativeDifference,
+      };
+    },
+  },
+  {
+    id: "massEnergy.printedFactor",
+    sourcePath: fileURLToPath(new URL("../../physics/reference/massEnergy.ts", import.meta.url)),
+    fn(ctx: OwnerContext): Record<string, number> {
+      const emittedEnergyJoules =
+        ctx.inputs.emittedEnergyJoules ??
+        ctx.inputs.emittedEnergy ??
+        (typeof ctx.inputs.emittedEnergyErg === "number" ? ctx.inputs.emittedEnergyErg / 1e7 : undefined);
+      if (emittedEnergyJoules === undefined) {
+        throw new Error('Owner "massEnergy.printedFactor" requires emittedEnergyJoules or emittedEnergy input.');
+      }
+      const res = printedMassConversion({ emittedEnergyJoules });
+      if (res.status !== "value") {
+        throw new Error(`printedMassConversion returned status "${res.status}".`);
+      }
+      return {
+        printed: res.printed.value,
+        modern: res.modern.value,
+        ratioModernToPrinted: res.comparison.ratioModernToPrinted,
+        ratio: res.comparison.ratio,
+        relativeDifference: res.comparison.relativeDifference,
+      };
     },
   },
   {

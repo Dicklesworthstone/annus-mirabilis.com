@@ -1,4 +1,7 @@
 import { describe, expect, it } from "bun:test";
+import { fileURLToPath } from "node:url";
+import { loadScenarioFile } from "../../testing/scenario-registry/load.ts";
+import { runScenariosIsolated } from "../../testing/scenario-registry/run.ts";
 import { withinTolerance } from "../../units/tolerance.ts";
 import { assertSameSet, ConstantSetError, constantValue, getConstantSet } from "./constants.ts";
 import {
@@ -119,6 +122,24 @@ describe("massEnergy.printedFactor: printed vs modern conversion and cross-set s
       expect(relDifference).toBeCloseTo(1.38505e-3, 5);
       expect(relDifference).toBeGreaterThan(1.38e-3);
       expect(relDifference).toBeLessThan(1.39e-3);
+    });
+  });
+
+  describe("historical scenario fixture file integration", () => {
+    it("mass-energy-printed-factor.yaml scenario loads and passes evaluation with 1 g printed output", () => {
+      const scenarioPath = fileURLToPath(
+        new URL("../../../content/scenarios/mass-energy-printed-factor.yaml", import.meta.url),
+      );
+      const loaded = loadScenarioFile(scenarioPath);
+      expect(loaded.scenario.id).toBe(MASS_ENERGY_PRINTED_FACTOR_SCENARIO);
+      expect(loaded.scenario.kind).toBe("historical-fixture");
+      expect(loaded.scenario.owner).toBe("mass-energy");
+      expect(loaded.scenario.constantSetId).toBe("einstein-1905-mass-energy-printed");
+
+      const { results } = runScenariosIsolated([loaded]);
+      expect(results.length).toBe(1);
+      expect(results[0]?.status).toBe("passed");
+      expect(results[0]?.scenarioId).toBe(MASS_ENERGY_PRINTED_FACTOR_SCENARIO);
     });
   });
 });

@@ -1,0 +1,29 @@
+id: mass-energy-printed-factor
+kind: historical-fixture
+title: "Einstein 1905 printed mass-energy conversion factor"
+description: >
+  Paper 4 closing calculation: an energy change L changes the mass in the same
+  sense by L / 9e20, giving 1 g printed for L = 9e20 erg (9e13 J).
+provenance:
+  paper: mass-energy
+  sectionId: main
+  printedPage: 641
+constantSetId: einstein-1905-mass-energy-printed
+owner: mass-energy
+transcription:
+  status: verified
+  facsimilePage: 3
+inputs:
+  emittedEnergy:
+    value: 9.0e13
+    unit: J
+expected:
+  outputs:
+    - outputId: printed
+      comparisonKind: rounds-to
+      printedValue: "1 g"
+      printedPrecision:
+        significantFigures: 1
+      qualifier: exact
+modelVersion: 1
+schemaVersion: 1
