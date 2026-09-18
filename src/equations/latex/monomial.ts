@@ -14,6 +14,7 @@ import { type MonomialFactor, extractMonomialFactorSet } from "../monomial.ts";
 import { modernGroupsFor } from "../../content/notation/resolve.ts";
 import { loadConcordanceForPaper } from "../../content/notation/loader.ts";
 import type { PaperConcordance } from "../../content/schemas/concordance.ts";
+import { wrapHtmlClass, wrapHtmlData } from "./markers.ts";
 import type { RenderLatexOptions } from "./types.ts";
 
 export interface MonomialMergeResult {
@@ -102,7 +103,18 @@ export function tryMergeMonomialQuotient(
     if (options.onAppliedOperation) {
       options.onAppliedOperation("group-planck", "group-merge");
     }
-    return formatMergedMonomial(modernGroupGlyph, remainingNum, remainingDen, renderSubtree, options, isNegated);
+    const firstRemovedNumerator =
+      factors.find((f) => f.exponent > 0 && (f === factorR || f === factorBeta)) ?? factorR;
+    return formatMergedMonomial(
+      modernGroupGlyph,
+      remainingNum,
+      remainingDen,
+      renderSubtree,
+      options,
+      isNegated,
+      firstRemovedNumerator,
+      "planckConstant",
+    );
   }
 
   // Case B: R / N -> k_B (Boltzmann constant group)
@@ -118,7 +130,16 @@ export function tryMergeMonomialQuotient(
     if (options.onAppliedOperation) {
       options.onAppliedOperation("group-boltzmann", "group-merge");
     }
-    return formatMergedMonomial(modernGroupGlyph, remainingNum, remainingDen, renderSubtree, options, isNegated);
+    return formatMergedMonomial(
+      modernGroupGlyph,
+      remainingNum,
+      remainingDen,
+      renderSubtree,
+      options,
+      isNegated,
+      factorR,
+      "boltzmannConstant",
+    );
   }
 
   // Case C: Exponent Wien merge: -\beta\nu / T -> -h\nu / (k_B T)
@@ -135,10 +156,20 @@ export function tryMergeMonomialQuotient(
         (f) => f.exponent < 0 && f !== factorT,
       );
 
+      const marked = options.mode === "colorized" || Boolean(options.marked);
+      const hRole = options.registry?.planckConstant?.role ?? "constant";
+      const kBRole = options.registry?.boltzmannConstant?.role ?? "constant";
+      const hStr = marked
+        ? wrapHtmlData("term", factorBeta.termId, wrapHtmlClass(hRole, "h"))
+        : "h";
+      const kBStr = marked
+        ? wrapHtmlData("term", factorBeta.termId, wrapHtmlClass(kBRole, "k_B"))
+        : "k_B";
+
       // Numerator gets 'h' plus other numerator factors (like \nu)
       // Denominator gets 'k_B' and 'T' plus other denominator factors
-      const numTerms = ["h", ...remainingNum.map((f) => renderFactor(f, renderSubtree, options))];
-      const denTerms = ["k_B", renderFactor(factorT, renderSubtree, options), ...remainingDen.map((f) => renderFactor(f, renderSubtree, options))];
+      const numTerms = [hStr, ...remainingNum.map((f) => renderFactor(f, renderSubtree, options))];
+      const denTerms = [kBStr, renderFactor(factorT, renderSubtree, options), ...remainingDen.map((f) => renderFactor(f, renderSubtree, options))];
 
       const numStr = numTerms.join("\\,");
       const denStr = denTerms.join("\\,");
@@ -175,8 +206,18 @@ function formatMergedMonomial(
   renderSubtree: (expr: Expression) => string,
   options: RenderLatexOptions,
   isNegated = false,
+  groupFactor?: MonomialFactor,
+  targetQuantityId?: string,
 ): string {
-  const numRendered = [groupGlyph, ...remainingNum.map((f) => renderFactor(f, renderSubtree, options))];
+  const marked = options.mode === "colorized" || Boolean(options.marked);
+  let groupPart = groupGlyph;
+  if (marked && groupFactor) {
+    const qid = targetQuantityId ?? groupFactor.quantityId;
+    const role = options.registry?.[qid]?.role ?? "constant";
+    groupPart = wrapHtmlData("term", groupFactor.termId, wrapHtmlClass(role, groupGlyph));
+  }
+
+  const numRendered = [groupPart, ...remainingNum.map((f) => renderFactor(f, renderSubtree, options))];
   const numStr = numRendered.join("\\,");
   const prefix = isNegated ? "-" : "";
 
