@@ -88,8 +88,8 @@ import {
   serializePaperE2EEvent,
   stableFailureStem,
   summarizePaperE2EEvents,
-} from "./e2e/paper-e2e-contract";
-import { newLogRunId } from "./runIds";
+} from "./e2e/paper-e2e-contract.ts";
+import { newLogRunId } from "./runIds.ts";
 
 // AGENTS.md "Web Requests": every request this repository makes sets this
 // user agent, regardless of what it is fetching or why.
@@ -112,12 +112,11 @@ class RunRecorder {
   readonly events: PaperE2EEvent[] = [];
   readonly runDirectory: string;
   readonly eventPath: string;
+  readonly logRunId: string;
   private readonly diagnosticsByScenario = new Map<string, ScenarioDiagnostics>();
 
-  constructor(
-    readonly logRunId: string,
-    outputRoot: string,
-  ) {
+  constructor(logRunId: string, outputRoot: string) {
+    this.logRunId = logRunId;
     this.runDirectory = path.resolve(outputRoot, logRunId);
     this.eventPath = path.join(this.runDirectory, "events.jsonl");
     fs.mkdirSync(this.runDirectory, { recursive: true });
