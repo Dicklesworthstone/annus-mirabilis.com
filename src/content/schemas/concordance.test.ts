@@ -420,4 +420,228 @@ test("Collision: (concordance.ts:519) missing-anchor rejected when section ancho
   assert.equal(accepted.firstUseBySection[0]?.anchor, "s1-p2-s3");
 });
 
+// ============================================================================
+// Group 4: ConcordanceEntry, ModernOnlySymbol, PaperConcordance (16 sites)
+// ============================================================================
+
+const VALID_ENTRY = {
+  id: "lq.beta.wien-constant",
+  paper: "light-quanta",
+  scope: ["s1"],
+  glyph: { unicode: "β", latex: "\\beta", variant: "plain" as const },
+  meaning: "Wien radiation constant in the exponent of Wien's law",
+  binding: { quantityId: "wienConstant" },
+  operation: {
+    kind: "rename" as const,
+    target: {
+      form: "symbol" as const,
+      modernGlyph: { unicode: "b", latex: "b", variant: "plain" as const },
+    },
+  },
+  sources: {
+    anchor: "s1-p2-s3",
+    facsimilePage: 133,
+  },
+  verification: {
+    printed: true,
+    checkedAgainst: "Annalen der Physik (4) 17, p. 133",
+    by: "Editor",
+    date: "2026-09-18",
+  },
+};
+
+const VALID_MODERN_ONLY = {
+  id: "modern.hbar",
+  glyph: { unicode: "ħ", latex: "\\hbar", variant: "plain" as const },
+  binding: { quantityId: "reducedPlanckConstant" },
+  scope: ["s1"],
+  introducedBy: "modern-lens",
+  label: "Reduced Planck constant",
+};
+
+const VALID_PAPER_CONCORDANCE = {
+  paper: "light-quanta",
+  entries: [VALID_ENTRY],
+  modernOnlySymbols: [VALID_MODERN_ONLY],
+};
+
+test("ConcordanceEntry: (concordance.ts:540) invalid-entry rejected when raw is not an object, accepted with valid entry", () => {
+  assertConcordanceRefusal(() => validateConcordanceEntry(null), "invalid-entry");
+  assertConcordanceRefusal(() => validateConcordanceEntry("not-an-object"), "invalid-entry");
+
+  const accepted = validateConcordanceEntry(VALID_ENTRY);
+  assert.equal(accepted.id, "lq.beta.wien-constant");
+});
+
+test("ConcordanceEntry: (concordance.ts:545) missing-id rejected when id is missing or empty, accepted with id", () => {
+  assertConcordanceRefusal(() => validateConcordanceEntry({ ...VALID_ENTRY, id: "" }), "missing-id");
+  assertConcordanceRefusal(() => validateConcordanceEntry({ ...VALID_ENTRY, id: "   " }), "missing-id");
+
+  const accepted = validateConcordanceEntry(VALID_ENTRY);
+  assert.equal(accepted.id, "lq.beta.wien-constant");
+});
+
+test("ConcordanceEntry: (concordance.ts:550) invalid-concordance-id-grammar rejected when id has fewer than 3 parts, accepted with 3 parts", () => {
+  assertConcordanceRefusal(
+    () => validateConcordanceEntry({ ...VALID_ENTRY, id: "invalid-id" }),
+    "invalid-concordance-id-grammar",
+  );
+  assertConcordanceRefusal(
+    () => validateConcordanceEntry({ ...VALID_ENTRY, id: "lq.beta" }),
+    "invalid-concordance-id-grammar",
+  );
+
+  const accepted = validateConcordanceEntry(VALID_ENTRY);
+  assert.equal(accepted.id, "lq.beta.wien-constant");
+});
+
+test("ConcordanceEntry: (concordance.ts:558) missing-paper rejected when paper slug is empty or missing, accepted with paper slug", () => {
+  assertConcordanceRefusal(() => validateConcordanceEntry({ ...VALID_ENTRY, paper: "" }), "missing-paper");
+  assertConcordanceRefusal(() => validateConcordanceEntry({ ...VALID_ENTRY, paper: "   " }), "missing-paper");
+
+  const accepted = validateConcordanceEntry(VALID_ENTRY);
+  assert.equal(accepted.paper, "light-quanta");
+});
+
+test("ConcordanceEntry: (concordance.ts:566) missing-scope rejected when scope is empty array or not array, accepted with non-empty array", () => {
+  assertConcordanceRefusal(() => validateConcordanceEntry({ ...VALID_ENTRY, scope: [] }), "missing-scope");
+  assertConcordanceRefusal(() => validateConcordanceEntry({ ...VALID_ENTRY, scope: null as any }), "missing-scope");
+
+  const accepted = validateConcordanceEntry(VALID_ENTRY);
+  assert.equal(accepted.scope.length, 1);
+});
+
+test("ConcordanceEntry: (concordance.ts:574) invalid-scope-id rejected when a scope item is empty or non-string, accepted with string ids", () => {
+  assertConcordanceRefusal(
+    () => validateConcordanceEntry({ ...VALID_ENTRY, scope: ["s1", "   "] }),
+    "invalid-scope-id",
+  );
+  assertConcordanceRefusal(
+    () => validateConcordanceEntry({ ...VALID_ENTRY, scope: [123 as any] }),
+    "invalid-scope-id",
+  );
+
+  const accepted = validateConcordanceEntry(VALID_ENTRY);
+  assert.deepEqual(accepted.scope, ["s1"]);
+});
+
+test("ConcordanceEntry: (concordance.ts:586) missing-meaning rejected when meaning is missing or empty, accepted with plain words", () => {
+  assertConcordanceRefusal(() => validateConcordanceEntry({ ...VALID_ENTRY, meaning: "" }), "missing-meaning");
+  assertConcordanceRefusal(() => validateConcordanceEntry({ ...VALID_ENTRY, meaning: "   " }), "missing-meaning");
+
+  const accepted = validateConcordanceEntry(VALID_ENTRY);
+  assert.ok(accepted.meaning.length > 0);
+});
+
+test("ConcordanceEntry: (concordance.ts:604) missing-sources-anchor rejected when sources.anchor is missing or empty, accepted with anchor", () => {
+  assertConcordanceRefusal(
+    () => validateConcordanceEntry({ ...VALID_ENTRY, sources: {} as any }),
+    "missing-sources-anchor",
+  );
+  assertConcordanceRefusal(
+    () => validateConcordanceEntry({ ...VALID_ENTRY, sources: { anchor: "   " } }),
+    "missing-sources-anchor",
+  );
+
+  const accepted = validateConcordanceEntry(VALID_ENTRY);
+  assert.equal(accepted.sources.anchor, "s1-p2-s3");
+});
+
+test("ConcordanceEntry: (concordance.ts:618) missing-verification rejected when verification is not an object, accepted with object", () => {
+  assertConcordanceRefusal(
+    () => validateConcordanceEntry({ ...VALID_ENTRY, verification: "not-an-object" as any }),
+    "missing-verification",
+  );
+
+  const accepted = validateConcordanceEntry(VALID_ENTRY);
+  assert.equal(accepted.verification.checkedAgainst, "Annalen der Physik (4) 17, p. 133");
+});
+
+test("ConcordanceEntry: (concordance.ts:625) missing-verification-checked-against rejected when checkedAgainst empty, accepted with source", () => {
+  assertConcordanceRefusal(
+    () =>
+      validateConcordanceEntry({
+        ...VALID_ENTRY,
+        verification: { ...VALID_ENTRY.verification, checkedAgainst: "   " },
+      }),
+    "missing-verification-checked-against",
+  );
+
+  const accepted = validateConcordanceEntry(VALID_ENTRY);
+  assert.ok(accepted.verification.checkedAgainst.length > 0);
+});
+
+test("ConcordanceEntry: (concordance.ts:632) missing-verification-by rejected when verification by is missing or empty, accepted with author", () => {
+  assertConcordanceRefusal(
+    () =>
+      validateConcordanceEntry({
+        ...VALID_ENTRY,
+        verification: { ...VALID_ENTRY.verification, by: "   " },
+      }),
+    "missing-verification-by",
+  );
+
+  const accepted = validateConcordanceEntry(VALID_ENTRY);
+  assert.equal(accepted.verification.by, "Editor");
+});
+
+test("ConcordanceEntry: (concordance.ts:639) missing-verification-date rejected when verification date is missing or empty, accepted with date", () => {
+  assertConcordanceRefusal(
+    () =>
+      validateConcordanceEntry({
+        ...VALID_ENTRY,
+        verification: { ...VALID_ENTRY.verification, date: "   " },
+      }),
+    "missing-verification-date",
+  );
+
+  const accepted = validateConcordanceEntry(VALID_ENTRY);
+  assert.equal(accepted.verification.date, "2026-09-18");
+});
+
+test("ModernOnlySymbol: (concordance.ts:688) invalid-modern-only-symbol rejected when raw is not an object, accepted with valid object", () => {
+  assertConcordanceRefusal(() => validateModernOnlySymbol(null), "invalid-modern-only-symbol");
+  assertConcordanceRefusal(() => validateModernOnlySymbol("not-an-object"), "invalid-modern-only-symbol");
+
+  const accepted = validateModernOnlySymbol(VALID_MODERN_ONLY);
+  assert.equal(accepted.id, "modern.hbar");
+});
+
+test("ModernOnlySymbol: (concordance.ts:696) missing-modern-only-id rejected when id is missing or empty, accepted with id", () => {
+  assertConcordanceRefusal(
+    () => validateModernOnlySymbol({ ...VALID_MODERN_ONLY, id: "" }),
+    "missing-modern-only-id",
+  );
+  assertConcordanceRefusal(
+    () => validateModernOnlySymbol({ ...VALID_MODERN_ONLY, id: "   " }),
+    "missing-modern-only-id",
+  );
+
+  const accepted = validateModernOnlySymbol(VALID_MODERN_ONLY);
+  assert.equal(accepted.id, "modern.hbar");
+});
+
+test("PaperConcordance: (concordance.ts:720) invalid-paper-concordance rejected when raw is not an object, accepted with valid object", () => {
+  assertConcordanceRefusal(() => validatePaperConcordance(null), "invalid-paper-concordance");
+  assertConcordanceRefusal(() => validatePaperConcordance("not-an-object"), "invalid-paper-concordance");
+
+  const accepted = validatePaperConcordance(VALID_PAPER_CONCORDANCE);
+  assert.equal(accepted.paper, "light-quanta");
+});
+
+test("PaperConcordance: (concordance.ts:728) missing-paper rejected when paper slug is empty or missing, accepted with paper slug", () => {
+  assertConcordanceRefusal(
+    () => validatePaperConcordance({ ...VALID_PAPER_CONCORDANCE, paper: "" }),
+    "missing-paper",
+  );
+  assertConcordanceRefusal(
+    () => validatePaperConcordance({ ...VALID_PAPER_CONCORDANCE, paper: "   " }),
+    "missing-paper",
+  );
+
+  const accepted = validatePaperConcordance(VALID_PAPER_CONCORDANCE);
+  assert.equal(accepted.paper, "light-quanta");
+});
+
+
 
