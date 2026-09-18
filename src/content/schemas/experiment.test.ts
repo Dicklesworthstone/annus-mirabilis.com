@@ -1156,6 +1156,597 @@ test("Experiment: (experiment.ts:982) static-owner-has-trace rejected when stati
   assert.equal(accepted.owner.kind, "static");
 });
 
+test("Experiment: (experiment.ts:998) invalid-kernel-function rejected when function item is not object, accepted when object", () => {
+  const yaml = fs.readFileSync(path.join(FIXTURES_DIR, "experiment-valid.yaml"), "utf8");
+  const raw = strictParse(yaml, "yaml") as any;
+  raw.owner.kernelFunctions = ["not-an-object"];
+  assert.throws(
+    () => validateExperiment(raw),
+    (err: any) => {
+      assert.ok(err instanceof ExperimentValidationError);
+      assert.equal(err.code, "invalid-kernel-function");
+      return true;
+    },
+  );
+  const raw2 = strictParse(yaml, "yaml");
+  const accepted = validateExperiment(raw2);
+  assert.ok(accepted);
+});
+
+test("Experiment: (experiment.ts:1007) invalid-kernel-display-role rejected when displayRole unknown, accepted for valid role", () => {
+  const yaml = fs.readFileSync(path.join(FIXTURES_DIR, "experiment-valid.yaml"), "utf8");
+  const raw = strictParse(yaml, "yaml") as any;
+  raw.owner.kernelFunctions[0].displayRole = "unknown-role";
+  assert.throws(
+    () => validateExperiment(raw),
+    (err: any) => {
+      assert.ok(err instanceof ExperimentValidationError);
+      assert.equal(err.code, "invalid-kernel-display-role");
+      return true;
+    },
+  );
+  raw.owner.kernelFunctions[0].displayRole = "reference-implementation";
+  const accepted = validateExperiment(raw);
+  assert.equal(accepted.owner.kernelFunctions[0]?.displayRole, "reference-implementation");
+});
+
+test("Experiment: (experiment.ts:1027) missing-ts-kernel-fields rejected when TS kernel lacks module/exportName, accepted with both", () => {
+  const yaml = fs.readFileSync(path.join(FIXTURES_DIR, "experiment-valid.yaml"), "utf8");
+  const raw = strictParse(yaml, "yaml") as any;
+  raw.owner.kernelFunctions = [
+    {
+      displayRole: "reference-implementation",
+      language: "ts",
+      module: "",
+      exportName: "",
+    },
+  ];
+  assert.throws(
+    () => validateExperiment(raw),
+    (err: any) => {
+      assert.ok(err instanceof ExperimentValidationError);
+      assert.equal(err.code, "missing-ts-kernel-fields");
+      return true;
+    },
+  );
+  raw.owner.kernelFunctions[0].module = "src/physics/reference/brownian.ts";
+  raw.owner.kernelFunctions[0].exportName = "evalDiffusivity";
+  const accepted = validateExperiment(raw);
+  assert.equal(accepted.owner.kernelFunctions[0]?.module, "src/physics/reference/brownian.ts");
+});
+
+test("Experiment: (experiment.ts:1036) missing-rust-kernel-fields rejected when Rust kernel lacks fields, accepted with all", () => {
+  const yaml = fs.readFileSync(path.join(FIXTURES_DIR, "experiment-valid.yaml"), "utf8");
+  const raw = strictParse(yaml, "yaml") as any;
+  raw.owner.kernelFunctions = [
+    {
+      displayRole: "reference-implementation",
+      language: "rust",
+      crate: "frankensim-core",
+    },
+  ];
+  assert.throws(
+    () => validateExperiment(raw),
+    (err: any) => {
+      assert.ok(err instanceof ExperimentValidationError);
+      assert.equal(err.code, "missing-rust-kernel-fields");
+      return true;
+    },
+  );
+  raw.owner.kernelFunctions[0] = {
+    displayRole: "reference-implementation",
+    language: "rust",
+    crate: "frankensim-core",
+    path: "src/diffusion.rs",
+    fnName: "step_diffusion",
+    revision: "v1.0.0",
+  };
+  const accepted = validateExperiment(raw);
+  assert.equal(accepted.owner.kernelFunctions[0]?.crate, "frankensim-core");
+});
+
+test("Experiment: (experiment.ts:1044) missing-kernel-language rejected when language not ts or rust, accepted with valid language", () => {
+  const yaml = fs.readFileSync(path.join(FIXTURES_DIR, "experiment-valid.yaml"), "utf8");
+  const raw = strictParse(yaml, "yaml") as any;
+  raw.owner.kernelFunctions = [
+    {
+      displayRole: "reference-implementation",
+      language: "python",
+    },
+  ];
+  assert.throws(
+    () => validateExperiment(raw),
+    (err: any) => {
+      assert.ok(err instanceof ExperimentValidationError);
+      assert.equal(err.code, "missing-kernel-language");
+      return true;
+    },
+  );
+  raw.owner.kernelFunctions = [
+    {
+      displayRole: "reference-implementation",
+      language: "ts",
+      module: "src/physics/reference/brownian.ts",
+      exportName: "evalDiffusivity",
+    },
+  ];
+  const accepted = validateExperiment(raw);
+  assert.equal(accepted.owner.kernelFunctions[0]?.language, "ts");
+});
+
+test("Experiment: (experiment.ts:1103) missing-views rejected when views empty or not array, accepted with views", () => {
+  const yaml = fs.readFileSync(path.join(FIXTURES_DIR, "experiment-valid.yaml"), "utf8");
+  const raw = strictParse(yaml, "yaml") as any;
+  raw.views = [];
+  assert.throws(
+    () => validateExperiment(raw),
+    (err: any) => {
+      assert.ok(err instanceof ExperimentValidationError);
+      assert.equal(err.code, "missing-views");
+      return true;
+    },
+  );
+  const raw2 = strictParse(yaml, "yaml");
+  const accepted = validateExperiment(raw2);
+  assert.ok(accepted.views.length > 0);
+});
+
+test("Experiment: (experiment.ts:1119) invalid-view rejected when view element not object, accepted when valid", () => {
+  const yaml = fs.readFileSync(path.join(FIXTURES_DIR, "experiment-valid.yaml"), "utf8");
+  const raw = strictParse(yaml, "yaml") as any;
+  raw.views[0] = "not-a-view-object";
+  assert.throws(
+    () => validateExperiment(raw),
+    (err: any) => {
+      assert.ok(err instanceof ExperimentValidationError);
+      assert.equal(err.code, "invalid-view");
+      return true;
+    },
+  );
+  const raw2 = strictParse(yaml, "yaml");
+  const accepted = validateExperiment(raw2);
+  assert.ok(accepted.views[0]?.id);
+});
+
+test("Experiment: (experiment.ts:1128) invalid-view-kind rejected when view kind unknown, accepted with standard kind", () => {
+  const yaml = fs.readFileSync(path.join(FIXTURES_DIR, "experiment-valid.yaml"), "utf8");
+  const raw = strictParse(yaml, "yaml") as any;
+  raw.views[0].kind = "webgl-mesh";
+  assert.throws(
+    () => validateExperiment(raw),
+    (err: any) => {
+      assert.ok(err instanceof ExperimentValidationError);
+      assert.equal(err.code, "invalid-view-kind");
+      return true;
+    },
+  );
+  raw.views[0].kind = "svg";
+  const accepted = validateExperiment(raw);
+  assert.equal(accepted.views[0]?.kind, "svg");
+});
+
+test("Experiment: (experiment.ts:1178) svg-view-declares-capability rejected when svg declares requires, accepted without requires", () => {
+  const yaml = fs.readFileSync(path.join(FIXTURES_DIR, "experiment-valid.yaml"), "utf8");
+  const raw = strictParse(yaml, "yaml") as any;
+  const svgView = raw.views.find((v: any) => v.kind === "svg");
+  svgView.requires = ["canvas-2d"];
+  assert.throws(
+    () => validateExperiment(raw),
+    (err: any) => {
+      assert.ok(err instanceof ExperimentValidationError);
+      assert.equal(err.code, "svg-view-declares-capability");
+      return true;
+    },
+  );
+  delete svgView.requires;
+  const accepted = validateExperiment(raw);
+  assert.ok(accepted);
+});
+
+test("Experiment: (experiment.ts:1210) all-views-require-capabilities invariant ensures at least one view has no capabilities requirement", () => {
+  const yaml = fs.readFileSync(path.join(FIXTURES_DIR, "experiment-valid.yaml"), "utf8");
+  const raw = strictParse(yaml, "yaml") as any;
+  const accepted = validateExperiment(raw);
+  assert.ok(accepted.views.some((v) => !v.requires || v.requires.length === 0));
+});
+
+test("Experiment: (experiment.ts:1231) missing-real-rate-quantity rejected when natural: true lacks quantity, accepted with quantity", () => {
+  const yaml = fs.readFileSync(path.join(FIXTURES_DIR, "experiment-valid.yaml"), "utf8");
+  const raw = strictParse(yaml, "yaml") as any;
+  raw.realRate = { natural: true, quantity: "   ", scaleBar: { length: 1, unit: "m" } };
+  assert.throws(
+    () => validateExperiment(raw),
+    (err: any) => {
+      assert.ok(err instanceof ExperimentValidationError);
+      assert.equal(err.code, "missing-real-rate-quantity");
+      return true;
+    },
+  );
+  raw.realRate.quantity = "length";
+  const accepted = validateExperiment(raw);
+  assert.equal(accepted.realRate.natural, true);
+});
+
+test("Experiment: (experiment.ts:1255) invalid-real-rate rejected when natural not boolean, accepted with boolean", () => {
+  const yaml = fs.readFileSync(path.join(FIXTURES_DIR, "experiment-valid.yaml"), "utf8");
+  const raw = strictParse(yaml, "yaml") as any;
+  raw.realRate = { natural: "neither-true-nor-false" };
+  assert.throws(
+    () => validateExperiment(raw),
+    (err: any) => {
+      assert.ok(err instanceof ExperimentValidationError);
+      assert.equal(err.code, "invalid-real-rate");
+      return true;
+    },
+  );
+  raw.realRate = { natural: false };
+  const accepted = validateExperiment(raw);
+  assert.equal(accepted.realRate.natural, false);
+});
+
+test("Experiment: (experiment.ts:1265) missing-predict-mode rejected when predictMode missing or not object, accepted with predictMode", () => {
+  const yaml = fs.readFileSync(path.join(FIXTURES_DIR, "experiment-valid.yaml"), "utf8");
+  const raw = strictParse(yaml, "yaml") as any;
+  delete raw.predictMode;
+  assert.throws(
+    () => validateExperiment(raw),
+    (err: any) => {
+      assert.ok(err instanceof ExperimentValidationError);
+      assert.equal(err.code, "missing-predict-mode");
+      return true;
+    },
+  );
+  const raw2 = strictParse(yaml, "yaml");
+  const accepted = validateExperiment(raw2);
+  assert.ok(accepted.predictMode);
+});
+
+test("Experiment: (experiment.ts:1287) missing-predict-prompts rejected when enabled is true but prompts empty, accepted with prompts", () => {
+  const yaml = fs.readFileSync(path.join(FIXTURES_DIR, "experiment-valid.yaml"), "utf8");
+  const raw = strictParse(yaml, "yaml") as any;
+  raw.predictMode = { enabled: true, prompts: [] };
+  assert.throws(
+    () => validateExperiment(raw),
+    (err: any) => {
+      assert.ok(err instanceof ExperimentValidationError);
+      assert.equal(err.code, "missing-predict-prompts");
+      return true;
+    },
+  );
+  const raw2 = strictParse(yaml, "yaml");
+  const accepted = validateExperiment(raw2);
+  assert.ok("enabled" in accepted.predictMode && accepted.predictMode.prompts.length > 0);
+});
+
+test("Experiment: (experiment.ts:1301) invalid-predict-prompt rejected when prompt element is not object, accepted when valid", () => {
+  const yaml = fs.readFileSync(path.join(FIXTURES_DIR, "experiment-valid.yaml"), "utf8");
+  const raw = strictParse(yaml, "yaml") as any;
+  raw.predictMode.prompts[0] = "not-a-prompt-object";
+  assert.throws(
+    () => validateExperiment(raw),
+    (err: any) => {
+      assert.ok(err instanceof ExperimentValidationError);
+      assert.equal(err.code, "invalid-predict-prompt");
+      return true;
+    },
+  );
+  const raw2 = strictParse(yaml, "yaml");
+  const accepted = validateExperiment(raw2);
+  assert.ok("enabled" in accepted.predictMode && accepted.predictMode.prompts[0]?.promptId);
+});
+
+test("Experiment: (experiment.ts:1310) missing-prompt-id rejected when promptId is missing, accepted with promptId", () => {
+  const yaml = fs.readFileSync(path.join(FIXTURES_DIR, "experiment-valid.yaml"), "utf8");
+  const raw = strictParse(yaml, "yaml") as any;
+  delete raw.predictMode.prompts[0].promptId;
+  assert.throws(
+    () => validateExperiment(raw),
+    (err: any) => {
+      assert.ok(err instanceof ExperimentValidationError);
+      assert.equal(err.code, "missing-prompt-id");
+      return true;
+    },
+  );
+  raw.predictMode.prompts[0].promptId = "bm-01-predict-radius-effect";
+  const accepted = validateExperiment(raw);
+  assert.ok("enabled" in accepted.predictMode && accepted.predictMode.prompts[0]?.promptId);
+});
+
+test("Experiment: (experiment.ts:1319) invalid-predict-prompt-id rejected when promptId format invalid, accepted with valid format", () => {
+  const yaml = fs.readFileSync(path.join(FIXTURES_DIR, "experiment-valid.yaml"), "utf8");
+  const raw = strictParse(yaml, "yaml") as any;
+  raw.predictMode.prompts[0].promptId = "invalid_prompt_id";
+  assert.throws(
+    () => validateExperiment(raw),
+    (err: any) => {
+      assert.ok(err instanceof ExperimentValidationError);
+      assert.equal(err.code, "invalid-predict-prompt-id");
+      return true;
+    },
+  );
+  raw.predictMode.prompts[0].promptId = "bm-01-predict-radius-effect";
+  const accepted = validateExperiment(raw);
+  assert.ok("enabled" in accepted.predictMode && accepted.predictMode.prompts[0]?.promptId);
+});
+
+test("Experiment: (experiment.ts:1329) missing-prompt-target rejected when neither controlId nor actionId present, accepted with controlId", () => {
+  const yaml = fs.readFileSync(path.join(FIXTURES_DIR, "experiment-valid.yaml"), "utf8");
+  const raw = strictParse(yaml, "yaml") as any;
+  delete raw.predictMode.prompts[0].controlId;
+  delete raw.predictMode.prompts[0].actionId;
+  assert.throws(
+    () => validateExperiment(raw),
+    (err: any) => {
+      assert.ok(err instanceof ExperimentValidationError);
+      assert.equal(err.code, "missing-prompt-target");
+      return true;
+    },
+  );
+  raw.predictMode.prompts[0].controlId = "particleRadius";
+  const accepted = validateExperiment(raw);
+  assert.ok("enabled" in accepted.predictMode && accepted.predictMode.prompts[0]?.controlId);
+});
+
+test("Experiment: (experiment.ts:1337) duplicate-prompt-target rejected when multiple prompts target same control/action, accepted when targets unique", () => {
+  const yaml = fs.readFileSync(path.join(FIXTURES_DIR, "experiment-valid.yaml"), "utf8");
+  const raw = strictParse(yaml, "yaml") as any;
+  const p0 = raw.predictMode.prompts[0];
+  raw.predictMode.prompts = [
+    p0,
+    {
+      ...p0,
+      promptId: "bm-01-predict-temperature-effect",
+      controlId: p0.controlId,
+    },
+  ];
+  assert.throws(
+    () => validateExperiment(raw),
+    (err: any) => {
+      assert.ok(err instanceof ExperimentValidationError);
+      assert.equal(err.code, "duplicate-prompt-target");
+      return true;
+    },
+  );
+  raw.predictMode.prompts[1].controlId = "temperature";
+  const accepted = validateExperiment(raw);
+  assert.ok("enabled" in accepted.predictMode && accepted.predictMode.prompts.length === 2);
+});
+
+test("Experiment: (experiment.ts:1363) invalid-candidate rejected when candidate element not object, accepted when valid", () => {
+  const yaml = fs.readFileSync(path.join(FIXTURES_DIR, "experiment-valid.yaml"), "utf8");
+  const raw = strictParse(yaml, "yaml") as any;
+  raw.predictMode.prompts[0].candidates[0] = "not-a-candidate-object";
+  assert.throws(
+    () => validateExperiment(raw),
+    (err: any) => {
+      assert.ok(err instanceof ExperimentValidationError);
+      assert.equal(err.code, "invalid-candidate");
+      return true;
+    },
+  );
+  const raw2 = strictParse(yaml, "yaml");
+  const accepted = validateExperiment(raw2);
+  assert.ok("enabled" in accepted.predictMode && accepted.predictMode.prompts[0]?.candidates[0]?.id);
+});
+
+test("Experiment: (experiment.ts:1372) missing-candidate-id rejected when candidate id missing or whitespace, accepted with id", () => {
+  const yaml = fs.readFileSync(path.join(FIXTURES_DIR, "experiment-valid.yaml"), "utf8");
+  const raw = strictParse(yaml, "yaml") as any;
+  raw.predictMode.prompts[0].candidates[0].id = "   ";
+  assert.throws(
+    () => validateExperiment(raw),
+    (err: any) => {
+      assert.ok(err instanceof ExperimentValidationError);
+      assert.equal(err.code, "missing-candidate-id");
+      return true;
+    },
+  );
+  raw.predictMode.prompts[0].candidates[0].id = "halves";
+  const accepted = validateExperiment(raw);
+  assert.ok("enabled" in accepted.predictMode && accepted.predictMode.prompts[0]?.candidates[0]?.id === "halves");
+});
+
+test("Experiment: (experiment.ts:1380) duplicate-candidate-id rejected when candidate id repeated, accepted when unique", () => {
+  const yaml = fs.readFileSync(path.join(FIXTURES_DIR, "experiment-valid.yaml"), "utf8");
+  const raw = strictParse(yaml, "yaml") as any;
+  raw.predictMode.prompts[0].candidates[1].id = raw.predictMode.prompts[0].candidates[0].id;
+  assert.throws(
+    () => validateExperiment(raw),
+    (err: any) => {
+      assert.ok(err instanceof ExperimentValidationError);
+      assert.equal(err.code, "duplicate-candidate-id");
+      return true;
+    },
+  );
+  raw.predictMode.prompts[0].candidates[1].id = "quarters";
+  const accepted = validateExperiment(raw);
+  assert.ok("enabled" in accepted.predictMode && accepted.predictMode.prompts[0]?.candidates[1]?.id === "quarters");
+});
+
+test("Experiment: (experiment.ts:1430) invalid-predict-mode rejected when neither enabled nor exempt, accepted with exempt", () => {
+  const yaml = fs.readFileSync(path.join(FIXTURES_DIR, "experiment-valid.yaml"), "utf8");
+  const raw = strictParse(yaml, "yaml") as any;
+  raw.predictMode = { neither: "enabled-nor-exempt" };
+  assert.throws(
+    () => validateExperiment(raw),
+    (err: any) => {
+      assert.ok(err instanceof ExperimentValidationError);
+      assert.equal(err.code, "invalid-predict-mode");
+      return true;
+    },
+  );
+  raw.predictMode = { exempt: true, reason: "Expository verification instrument" };
+  const accepted = validateExperiment(raw);
+  assert.ok("exempt" in accepted.predictMode && accepted.predictMode.exempt);
+});
+
+test("Experiment: (experiment.ts:1454) missing-preset-id rejected when preset lacks presetId, accepted with presetId", () => {
+  const yaml = fs.readFileSync(path.join(FIXTURES_DIR, "experiment-valid.yaml"), "utf8");
+  const raw = strictParse(yaml, "yaml") as any;
+  delete raw.presets[0].presetId;
+  assert.throws(
+    () => validateExperiment(raw),
+    (err: any) => {
+      assert.ok(err instanceof ExperimentValidationError);
+      assert.equal(err.code, "missing-preset-id");
+      return true;
+    },
+  );
+  raw.presets[0].presetId = "bm-01-standard-water";
+  const accepted = validateExperiment(raw);
+  assert.equal(accepted.presets[0]?.presetId, "bm-01-standard-water");
+});
+
+test("Experiment: (experiment.ts:1463) invalid-preset-id rejected when presetId format invalid, accepted with valid format", () => {
+  const yaml = fs.readFileSync(path.join(FIXTURES_DIR, "experiment-valid.yaml"), "utf8");
+  const raw = strictParse(yaml, "yaml") as any;
+  raw.presets[0].presetId = "invalid_preset_id";
+  assert.throws(
+    () => validateExperiment(raw),
+    (err: any) => {
+      assert.ok(err instanceof ExperimentValidationError);
+      assert.equal(err.code, "invalid-preset-id");
+      return true;
+    },
+  );
+  raw.presets[0].presetId = "bm-01-standard-water";
+  raw.presets[0].scenarioId = "bm-01-standard-water";
+  const accepted = validateExperiment(raw);
+  assert.equal(accepted.presets[0]?.presetId, "bm-01-standard-water");
+});
+
+test("Experiment: (experiment.ts:1505) missing-refusal-acceptance-case rejected when outputs allow non-value but acceptanceCases empty, accepted with case", () => {
+  const yaml = fs.readFileSync(path.join(FIXTURES_DIR, "experiment-valid.yaml"), "utf8");
+  const raw = strictParse(yaml, "yaml") as any;
+  raw.acceptanceCases = [];
+  assert.throws(
+    () => validateExperiment(raw),
+    (err: any) => {
+      assert.ok(err instanceof ExperimentValidationError);
+      assert.equal(err.code, "missing-refusal-acceptance-case");
+      return true;
+    },
+  );
+  raw.acceptanceCases = ["bm-01-refusal-outside-domain"];
+  const accepted = validateExperiment(raw);
+  assert.ok(accepted.acceptanceCases?.length === 1);
+});
+
+test("Experiment: (experiment.ts:1520) invalid-mode rejected when mode element is not an object, accepted when valid", () => {
+  const yaml = fs.readFileSync(path.join(FIXTURES_DIR, "experiment-valid.yaml"), "utf8");
+  const raw = strictParse(yaml, "yaml") as any;
+  raw.modes = ["not-a-mode-object"];
+  assert.throws(
+    () => validateExperiment(raw),
+    (err: any) => {
+      assert.ok(err instanceof ExperimentValidationError);
+      assert.equal(err.code, "invalid-mode");
+      return true;
+    },
+  );
+  raw.modes = [
+    {
+      id: "bm-01:standard",
+      label: "Standard Model",
+      historicalStatus: "original-1905",
+    },
+  ];
+  const accepted = validateExperiment(raw);
+  assert.equal(accepted.modes?.[0]?.id, "bm-01:standard");
+});
+
+test("Experiment: (experiment.ts:1529) missing-mode-id rejected when mode lacks id, accepted with id", () => {
+  const yaml = fs.readFileSync(path.join(FIXTURES_DIR, "experiment-valid.yaml"), "utf8");
+  const raw = strictParse(yaml, "yaml") as any;
+  raw.modes = [
+    {
+      label: "Standard Model",
+      historicalStatus: "original-1905",
+    },
+  ];
+  assert.throws(
+    () => validateExperiment(raw),
+    (err: any) => {
+      assert.ok(err instanceof ExperimentValidationError);
+      assert.equal(err.code, "missing-mode-id");
+      return true;
+    },
+  );
+  raw.modes[0].id = "bm-01:standard";
+  const accepted = validateExperiment(raw);
+  assert.equal(accepted.modes?.[0]?.id, "bm-01:standard");
+});
+
+test("Experiment: (experiment.ts:1538) invalid-mode-id rejected when mode id format invalid, accepted with valid format", () => {
+  const yaml = fs.readFileSync(path.join(FIXTURES_DIR, "experiment-valid.yaml"), "utf8");
+  const raw = strictParse(yaml, "yaml") as any;
+  raw.modes = [
+    {
+      id: "invalid_mode_format",
+      label: "Standard Model",
+      historicalStatus: "original-1905",
+    },
+  ];
+  assert.throws(
+    () => validateExperiment(raw),
+    (err: any) => {
+      assert.ok(err instanceof ExperimentValidationError);
+      assert.equal(err.code, "invalid-mode-id");
+      return true;
+    },
+  );
+  raw.modes[0].id = "bm-01:standard";
+  const accepted = validateExperiment(raw);
+  assert.equal(accepted.modes?.[0]?.id, "bm-01:standard");
+});
+
+test("Experiment: (experiment.ts:1546) invalid-historical-status rejected when historicalStatus unknown, accepted for valid status", () => {
+  const yaml = fs.readFileSync(path.join(FIXTURES_DIR, "experiment-valid.yaml"), "utf8");
+  const raw = strictParse(yaml, "yaml") as any;
+  raw.modes = [
+    {
+      id: "bm-01:standard",
+      label: "Standard Model",
+      historicalStatus: "invented-status",
+    },
+  ];
+  assert.throws(
+    () => validateExperiment(raw),
+    (err: any) => {
+      assert.ok(err instanceof ExperimentValidationError);
+      assert.equal(err.code, "invalid-historical-status");
+      return true;
+    },
+  );
+  raw.modes[0].historicalStatus = "contemporary-alternative";
+  const accepted = validateExperiment(raw);
+  assert.equal(accepted.modes?.[0]?.historicalStatus, "contemporary-alternative");
+});
+
+test("Experiment: (experiment.ts:1555) missing-lens-label rejected when later-development mode lacks lensLabel, accepted with lensLabel", () => {
+  const yaml = fs.readFileSync(path.join(FIXTURES_DIR, "experiment-valid.yaml"), "utf8");
+  const raw = strictParse(yaml, "yaml") as any;
+  raw.modes = [
+    {
+      id: "bm-01:relativistic",
+      label: "Relativistic Diffusion",
+      historicalStatus: "later-development",
+      lensLabel: "   ",
+    },
+  ];
+  assert.throws(
+    () => validateExperiment(raw),
+    (err: any) => {
+      assert.ok(err instanceof ExperimentValidationError);
+      assert.equal(err.code, "missing-lens-label");
+      return true;
+    },
+  );
+  raw.modes[0].lensLabel = "Post-1905 perspective";
+  const accepted = validateExperiment(raw);
+  assert.equal(accepted.modes?.[0]?.lensLabel, "Post-1905 perspective");
+});
+
 // ============================================================================
 // 2. SCENARIO TESTS
 // ============================================================================
