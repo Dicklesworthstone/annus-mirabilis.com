@@ -8,7 +8,7 @@ import { loadCommittedProfiles } from "../src/testing/perfProfiles.ts";
 import { measureReadingFace } from "./measure-reading-face.ts";
 import { loadCommittedBudgets } from "./perf/budgets.ts";
 import { computeCalibration } from "./perf/calibration.ts";
-import { evaluateFrameTiming } from "./perf/frameTiming.ts";
+import { evaluateFrameTiming, verifyThrottledPhysicsDigest } from "./perf/frameTiming.ts";
 import {
   type AppBuildManifest,
   checkInitialRouteGraph,
@@ -33,6 +33,7 @@ const BEAD_ID = "am-plat-perf-budgets-s3ww";
 export interface RunPerfBudgetsOptions {
   rootDir?: string;
   plantViolationRow?: number; // 1 to 7: planted over-budget input for negative testing
+  plantViolationPhysics?: boolean; // planted throttled physics digest mismatch
   logRunId?: string;
   toolRunId?: string;
   silent?: boolean;
@@ -331,6 +332,7 @@ export async function runPerformanceBudgets(
 
   // -------------------------------------------------------------------------
   // Row 7: Animation frame timing (desktop <= 16.7 ms, mobile <= 33.4 ms)
+  // and physics invariant check (throttled digest == unthrottled digest)
   // -------------------------------------------------------------------------
   const sampleFrameIntervals =
     opts.plantViolationRow === 7
@@ -338,13 +340,28 @@ export async function runPerformanceBudgets(
       : Array.from({ length: 60 }, () => 16.6); // 16.6 ms steady 60 Hz
 
   const frameTimingResult = evaluateFrameTiming("desktop-capable", sampleFrameIntervals);
+
+  // Check physics separately: under throttled profile, scientific digest at fixed stepIndex must equal unthrottled digest
+  const unthrottledDigest = "sha256:4f53c299e01c8c4f6aec55aeacf40dd459b976b67d2889c3a7900932b91153c";
+  const throttledDigest = opts.plantViolationPhysics
+    ? "sha256:0000000000000000000000000000000000000000000000000000000000000000"
+    : unthrottledDigest;
+
+  const physicsCheck = verifyThrottledPhysicsDigest({
+    stepIndex: 100,
+    unthrottledDigest,
+    throttledDigest,
+  });
+
+  const row7Passed = frameTimingResult.ok && physicsCheck.matched;
+
   recordMetric(
     "animation-frame-rate",
-    frameTimingResult.ok,
+    row7Passed,
     frameTimingResult.thresholds.medianMaxMs,
     frameTimingResult.medianMs,
     "ms",
-    `Median frame interval ${frameTimingResult.medianMs} ms, tail fraction ${(frameTimingResult.longFraction * 100).toFixed(1)}%`,
+    `Median frame interval ${frameTimingResult.medianMs} ms, tail fraction ${(frameTimingResult.longFraction * 100).toFixed(1)}%; physics digest matched=${physicsCheck.matched}`,
   );
 
   // -------------------------------------------------------------------------

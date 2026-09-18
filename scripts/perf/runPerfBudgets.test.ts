@@ -56,4 +56,10 @@ describe("Performance Budgets Gate Execution & Negative Tests", () => {
     expect(result.ok).toBe(false);
     expect(result.failedMetrics).toContain("animation-frame-rate");
   });
+
+  test("fails when throttled physics digest differs from unthrottled digest", async () => {
+    const result = await runPerformanceBudgets({ plantViolationPhysics: true, silent: true });
+    expect(result.ok).toBe(false);
+    expect(result.failedMetrics).toContain("animation-frame-rate");
+  });
 });
