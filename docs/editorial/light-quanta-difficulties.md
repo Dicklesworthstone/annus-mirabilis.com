@@ -1,0 +1,101 @@
+# Light quanta: translation, notation, segmentation, and verification flags
+
+Paper: light-quanta. Bibliographic key: `ap-17-132`. Inventory bead: `am-edn-inventory-light-quanta-skp`.
+
+This inventory is compiled from direct visual inspection of 200-DPI page images rendered from the pinned facsimile `public/papers/pdfs/ap-17-132.pdf` (SHA-256 `494f074dcb7e7def98f16c0196cd01f096b63a924704d53d46ef4f718b54f79e`). Every unit id and reading cited below corresponds to verified printed text on pages 132–148 of *Annalen der Physik* (4) 17.
+
+## 1. Translation difficulties
+
+Modality and qualification must survive in translation: the central claim is explicitly designated an "heuristic point of view" (*heuristischer Gesichtspunkt*, `masthead-title`), not a deductive certainty or complete quantum electrodynamics. Conditional and restrictive phrasing ("suggests," "must," "under these assumptions," "to this approximation," "so far as I can see") distinguishes inferences from established law.
+
+Period terms requiring precise lexical annotations on first use:
+- *heuristischer Gesichtspunkt* (heuristic point of view): `masthead-title`
+- *Undulationstheorie* (wave theory of light): `s0-p1`
+- *Energiequanten* (energy quanta): `s0-p3`
+- *Kathodenstrahlen* (cathode rays): `s0-p3`
+- *schwarze Strahlung* (black-body radiation): `s0-p3`
+- *Resonatoren* (resonators): `s1-p1`
+- *dynamisches Gleichgewicht* (dynamic equilibrium): `s1-p1`
+- *Elementarquanta* (elementary quanta): `s2` (heading)
+- *Grenzgesetz* (limiting law): `s4` (heading)
+- *Boltzmannsches Prinzip* (Boltzmann's principle): `s4-p5`
+- *statistische Wahrscheinlichkeit* (statistical probability): `s1-fn3` and `s5-p1`
+- *Stokessche Regel* (Stokes's rule): `s7` (heading)
+- *Photolumineszenz* (photoluminescence): `s0-p3` and `s7-p1`
+- *Kathodenlumineszenz* (cathode luminescence): `s8-p9`
+- *Grammäquivalent* (gram-equivalent): `s1-p3` and `s8-p3`
+- *Ionisierungsspannung* (ionization potential): `s9-p3`
+
+## 2. Notation difficulties
+
+Dangerous collisions and period conventions to flag on first use:
+
+- $R$ and $N$: $R$ is the molar gas constant ($8.31\times 10^7\ \text{erg}\cdot\text{mol}^{-1}\cdot\text{K}^{-1}$), first use `s1-p3`; $N$ is Avogadro's number ("Anzahl der wirklichen Moleküle in einem Grammäquivalent"), first use `s1-p3`. Neither numeral is printed in §2; both are symbolic/editorial inputs.
+- $\beta$: Wien's second radiation constant ($\beta = h/k_B = 4{,}866\cdot 10^{-11}\ \text{s}\cdot\text{K}$), first use `s2-p2`. Not to be confused with relativistic velocity ratio $\beta = v/c$ in paper 3.
+- $L$: Speed of light in vacuum in §§1–2 ($3\times 10^{10}\ \text{cm/s}$), first use `s1-p4` (p. 135) and `s2-p3` (p. 137). In §9 (`s9-p3`, p. 148), $L$ is reused for the absorbed light quantity ("absorbierte Lichtmenge $L$"), a within-paper collision.
+- $E$: Radiation energy in §4 (`s4-p3`) and §6 (`s6-p1`); average resonator energy $\bar{E}$ in §1 (`s1-p3`); system energy in §5 footnote 1 (`s5-fn1`); charge of a gram-equivalent of monovalent ions in §8 (`s8-p3`, $E = 9{,}6\cdot 10^3$ electromagnetic CGS / abcoulombs per mol).
+- $P$, $P'$, and $p$: $P$ is electron escape work (work function) in §8 (`s8-p2`); $P'$ is the potential of this quantity of negative electricity in §8 (`s8-p3`); $p$ is gas pressure in §5 footnote 1 (`s5-fn1`).
+- $\alpha$: Wien's first constant in §2 (`s2-p2`, printed as $6{,}10\cdot 10^{-56}$). In §1 footnote 2 (`s1-fn3`), $\alpha_\nu$ represents Fourier phase angles.
+- $\Pi$: Stopping potential magnitude in §8 (`s8-p3`), with $\Pi\varepsilon$ electron work and $\Pi E$ molar work.
+- $\varepsilon$: Electron charge ("elektrische Masse des Elektrons") in §8 (`s8-p3`).
+- $\varrho$ or $\varrho_\nu$: Radiation energy density per unit frequency interval, first use `s1-p4`.
+- $\varphi$: Spectral entropy density function in §§3–4 (`s3-p2`); entropy-probability functional relation in §5 (`s5-p2`).
+- $T$: Absolute temperature in §§1–6; in §1 footnote 2 (`s1-fn3`), $T$ denotes an observation time interval for Fourier expansion.
+- $\lambda$: Lagrange multiplier in §3 variational optimization (`s3-p3`), not wavelength.
+- "lg": Natural logarithm throughout ($\ln$), first use `s4-p2`. Modern ISO standard uses $\lg$ for $\log_{10}$, so this requires clear editorial disambiguation.
+- Units: §8 operates in electromagnetic CGS units where $E = 9{,}6\cdot 10^3$ abcoulomb/equiv and $\Pi\cdot 10^{-8}$ converts abvolts to volts.
+
+Treatment-map printed forms:
+- §1: $\varrho_\nu = \frac{R}{N}\frac{8\pi\nu^2}{L^3}T$; $\int_0^\infty\varrho_\nu\,d\nu = \infty$ (`eq-s1-d7`, `eq-s1-d8`)
+- §2: $N = \frac{\beta}{\alpha}\frac{8\pi R}{L^3} = 6{,}17\cdot 10^{23}$ (`eq-s2-d6`)
+- §3: $\frac{\partial\varphi}{\partial\varrho} = \frac{1}{T}$ (`eq-s3-d8`)
+- §4: $S - S_0 = \frac{E}{\beta\nu}\lg\left(\frac{v}{v_0}\right)$ (`eq-s4-d5`)
+- §5: $S - S_0 = \frac{R}{N}\lg W$; $W = \left(\frac{v}{v_0}\right)^n$ (`eq-s5-d6`, `eq-s5-d7`)
+- §6: $W = \left(\frac{v}{v_0}\right)^{\frac{N}{R}\frac{E}{\beta\nu}}$; energy quanta $R\beta\nu/N$; mean energy $3\frac{R}{N}T$ (`eq-s6-d4`, `eq-s6-d5`)
+- §7: $\frac{R}{N}\beta\nu_2 \leqq \frac{R}{N}\beta\nu_1$ or $\nu_2 \leqq \nu_1$ (`eq-s7-d1`, `eq-s7-d2`)
+- §8: $\Pi\varepsilon = \frac{R}{N}\beta\nu - P$; $\Pi E = R\beta\nu - P'$ (`eq-s8-d2`, `eq-s8-d3`)
+- §9: $R\beta\nu \geqq J$; $j = \frac{L}{R\beta\nu}$ (`eq-s9-d1`, `eq-s9-d3`)
+
+## 3. Segmentation decisions
+
+Sentence boundaries and paragraph splits decided under `docs/editorial/SEGMENTATION.md`:
+- Displays inside paragraphs do not terminate sentences unless followed by a capitalized initial letter; equations like `eq-s1-d1` and `eq-s4-d5` sit inside running sentences.
+- Multi-line displays grouped under one concept are counted as single display units: `eq-s5-d1` (system of two equations for $S_1$ and $S_2$) and `eq-s5-d5` (three logarithmic forms for $\varphi_1, \varphi_2, \varphi$).
+- Paragraphs crossing page breaks keep one canonical ID and multiple locators:
+  - `s0-p2`: pages 132–133
+  - `s1-p1`: pages 133–134
+  - `s1-p3`: pages 134–135
+  - `s3-p2`: pages 137–138
+  - `s3-p4`: pages 138–139
+  - `s4-p5`: pages 139–140
+  - `s5-p2`: pages 140–141
+  - `s5-p4`: pages 141–142
+  - `s6-p1`: pages 142–143
+  - `s6-p4`: pages 143–144
+  - `s7-p2`: pages 144–145
+  - `s8-p2`: pages 145–146
+  - `s8-p6`: pages 146–147
+  - `s9-p1`: pages 147–148
+- Footnotes are block-level units without internal sentence IDs; no footnote spans across a page boundary in this paper.
+- Displays printed inside footnotes:
+  - In `s1-fn3`: Fourier expansion `eq-s1-d3`, probability differential `eq-s1-d4`, and independence factorization `eq-s1-d5`.
+  - In `s5-fn1`: thermodynamic differential relation `eq-s5-d9` and ideal gas law `eq-s5-d10`.
+
+## 4. Verification flags
+
+Each flag begins with `flag:<key>` and a watch-list status (`pending`, `matches`, `differs`, or `not-found`):
+
+- `flag:s2-constants` matches printed exponent -56 differs from expected -57; printed alpha = 6,10 . 10^-56 and beta = 4,866 . 10^-11; recomputed N = 6.1705e23 for alpha = 6.10e-57 and 6.1705e22 for alpha = 6.10e-56; first use s2-p2
+- `flag:s2-r-and-l-not-printed` matches neither numeral R nor L is printed in §2 or elsewhere; hydrogen mass printed as 1,62 . 10^-24 g; first use s2-p3
+- `flag:s8-printed-check` matches printed charge quantity E = 9,6 . 10^3 emu (gram-equivalent charge); recomputed Pi = 4.3385 V; modern esu check gives 4.3057 V (at 299.792458 V/statvolt) and 4.3087 V (at 300 V/statvolt); first use s8-p3
+- `flag:s8-result-line` matches printed Pi . 10^7 = 4,3 Volt with exponent 7; first use s8-p5
+- `flag:fn-displays` matches displays inside footnotes: s1-fn3 contains eq-s1-d3, eq-s1-d4, eq-s1-d5; s5-fn1 contains eq-s5-d9, eq-s5-d10; first use s1-fn3
+- `flag:s3-variational-displays` matches variational displays with delta and Lagrange multiplier lambda; first use s3-p3
+- `flag:s6-mean-energy` matches mean quantum energy display 3(R/N)T; first use s6-p3
+- `flag:s8-inequalities` matches partial-transfer inequality eq-s8-d4 and cathode-luminescence inequality eq-s8-d5; first use s8-p8
+- `flag:s9-count-relation` matches count relation j = L/(R beta nu) and printed bounds 6.4e12 and 9.6e12 erg; first use s9-p3
+- `flag:glyph-collisions` matches scoped collisions for L, E, P/P'/p, phi, T, alpha_nu, lambda, lg; first uses s1-p4, s1-p3, s8-p2, s3-p2, s1-p3, s1-fn3, s3-p3, s4-p2
+- `flag:s7-thermal-caveat` matches explicit thermal caveat in §7 regarding Wien regime validity at extreme temperatures; first use s7-p2
+- `flag:no-ultraviolet-catastrophe` matches phrase ultraviolet catastrophe does not appear in 1905 print; first use s1-p6
+- `flag:footnote-citations` matches citations in footnotes to Drude, Planck, Lenard, Stark; first use s1-fn1
+- `flag:dates` matches dateline Bern, den 17. März 1905 and receipt note Eingegangen 18. März 1905; first use closing-dateline

@@ -1,0 +1,1962 @@
+paper: light-quanta
+document: ap-17-132
+figures: none
+status: in-preparation
+scope: full-document
+pageCount: 17
+pageRange: [132, 148]
+idsFrozenAt: "2026-09-19T04:30:00Z"
+frozenBy: pane16
+units:
+  - id: masthead-title
+    kind: masthead-title
+    locators:
+      - page: 132
+    destination:
+      editionBlockId: block-light-quanta-masthead-title
+      translationUnits:
+        - planned
+      argumentObligations:
+        - optics-undulation-heuristic
+
+  - id: masthead-author
+    kind: masthead-author
+    locators:
+      - page: 132
+    destination:
+      editionBlockId: block-light-quanta-masthead-author
+      translationUnits:
+        - planned
+      argumentObligations:
+        - optics-undulation-heuristic
+
+  - id: s0-p1
+    kind: paragraph
+    section: s0
+    locators:
+      - page: 132
+    destination:
+      editionBlockId: block-light-quanta-s0-p1
+      translationUnits:
+        - planned
+      argumentObligations:
+        - optics-undulation-heuristic
+
+  - id: s0-p2
+    kind: paragraph
+    section: s0
+    locators:
+      - page: 132
+        splitPage: true
+      - page: 133
+        splitPage: true
+    destination:
+      editionBlockId: block-light-quanta-s0-p2
+      translationUnits:
+        - planned
+      argumentObligations:
+        - optics-undulation-heuristic
+
+  - id: s0-p3
+    kind: paragraph
+    section: s0
+    locators:
+      - page: 133
+    destination:
+      editionBlockId: block-light-quanta-s0-p3
+      translationUnits:
+        - planned
+      argumentObligations:
+        - optics-undulation-heuristic
+
+  - id: s0-p4
+    kind: paragraph
+    section: s0
+    locators:
+      - page: 133
+    destination:
+      editionBlockId: block-light-quanta-s0-p4
+      translationUnits:
+        - planned
+      argumentObligations:
+        - optics-undulation-heuristic
+
+  - id: s1
+    kind: section-heading
+    section: s1
+    locators:
+      - page: 133
+    destination:
+      editionBlockId: block-light-quanta-s1-heading
+      translationUnits:
+        - planned
+      argumentObligations:
+        - blackbody-rayleigh-divergence
+
+  - id: s1-p1
+    kind: paragraph
+    section: s1
+    locators:
+      - page: 133
+        splitPage: true
+      - page: 134
+        splitPage: true
+    references:
+      - id: s1-p1-s2-r1
+        occurrenceId: s1-p1-s2-r1
+        printedText: "1)"
+        kind: internal
+        target:
+          id: s1-fn1
+    destination:
+      editionBlockId: block-light-quanta-s1-p1
+      translationUnits:
+        - planned
+      argumentObligations:
+        - blackbody-rayleigh-divergence
+
+  - id: s1-fn1
+    kind: footnote
+    section: s1
+    footnoteMark: "1)"
+    markPage: 133
+    locators:
+      - page: 133
+    references:
+      - id: s1-fn1-r1
+        occurrenceId: s1-fn1-r1
+        printedText: "Hr. Drude"
+        kind: bibliographic
+        target:
+          citationId: drude-1900
+    destination:
+      editionBlockId: block-light-quanta-s1-fn1
+      translationUnits:
+        - planned
+      argumentObligations:
+        - blackbody-rayleigh-divergence
+
+  - id: s1-p2
+    kind: paragraph
+    section: s1
+    locators:
+      - page: 134
+    destination:
+      editionBlockId: block-light-quanta-s1-p2
+      translationUnits:
+        - planned
+      argumentObligations:
+        - blackbody-rayleigh-divergence
+
+  - id: s1-p3
+    kind: paragraph
+    section: s1
+    locators:
+      - page: 134
+        splitPage: true
+      - page: 135
+        splitPage: true
+    destination:
+      editionBlockId: block-light-quanta-s1-p3
+      translationUnits:
+        - planned
+      argumentObligations:
+        - blackbody-rayleigh-divergence
+
+  - id: eq-s1-d1
+    kind: display-equation
+    section: s1
+    editorialLabel: "ed:s1-d1"
+    containedIn: s1-p3
+    locators:
+      - page: 134
+    destination:
+      editionBlockId: block-light-quanta-eq-s1-d1
+      translationUnits:
+        - planned
+      argumentObligations:
+        - blackbody-rayleigh-divergence
+
+  - id: s1-p4
+    kind: paragraph
+    section: s1
+    locators:
+      - page: 135
+    references:
+      - id: s1-p4-s1-r1
+        occurrenceId: s1-p4-s1-r1
+        printedText: "Hr. Planck"
+        kind: bibliographic
+        target:
+          citationId: planck-1900
+      - id: s1-p4-s1-r2
+        occurrenceId: s1-p4-s1-r2
+        printedText: "1)"
+        kind: internal
+        target:
+          id: s1-fn2
+      - id: s1-p4-s1-r3
+        occurrenceId: s1-p4-s1-r3
+        printedText: "2)"
+        kind: internal
+        target:
+          id: s1-fn3
+    destination:
+      editionBlockId: block-light-quanta-s1-p4
+      translationUnits:
+        - planned
+      argumentObligations:
+        - blackbody-rayleigh-divergence
+
+  - id: eq-s1-d2
+    kind: display-equation
+    section: s1
+    editorialLabel: "ed:s1-d2"
+    containedIn: s1-p4
+    locators:
+      - page: 135
+    destination:
+      editionBlockId: block-light-quanta-eq-s1-d2
+      translationUnits:
+        - planned
+      argumentObligations:
+        - blackbody-rayleigh-divergence
+
+  - id: s1-fn2
+    kind: footnote
+    section: s1
+    footnoteMark: "1)"
+    markPage: 135
+    locators:
+      - page: 135
+    references:
+      - id: s1-fn2-r1
+        occurrenceId: s1-fn2-r1
+        printedText: "M. Planck, Ann. d. Phys. 1. p. 99. 1900."
+        kind: bibliographic
+        target:
+          citationId: planck-1900
+    destination:
+      editionBlockId: block-light-quanta-s1-fn2
+      translationUnits:
+        - planned
+      argumentObligations:
+        - blackbody-rayleigh-divergence
+
+  - id: s1-fn3
+    kind: footnote
+    section: s1
+    footnoteMark: "2)"
+    markPage: 135
+    locators:
+      - page: 135
+    destination:
+      editionBlockId: block-light-quanta-s1-fn3
+      translationUnits:
+        - planned
+      argumentObligations:
+        - blackbody-rayleigh-divergence
+
+  - id: eq-s1-d3
+    kind: display-equation
+    section: s1
+    editorialLabel: "ed:s1-d3"
+    containedIn: s1-fn3
+    locators:
+      - page: 135
+    destination:
+      editionBlockId: block-light-quanta-eq-s1-d3
+      translationUnits:
+        - planned
+      argumentObligations:
+        - blackbody-rayleigh-divergence
+
+  - id: eq-s1-d4
+    kind: display-equation
+    section: s1
+    editorialLabel: "ed:s1-d4"
+    containedIn: s1-fn3
+    locators:
+      - page: 135
+    destination:
+      editionBlockId: block-light-quanta-eq-s1-d4
+      translationUnits:
+        - planned
+      argumentObligations:
+        - blackbody-rayleigh-divergence
+
+  - id: eq-s1-d5
+    kind: display-equation
+    section: s1
+    editorialLabel: "ed:s1-d5"
+    containedIn: s1-fn3
+    locators:
+      - page: 135
+    destination:
+      editionBlockId: block-light-quanta-eq-s1-d5
+      translationUnits:
+        - planned
+      argumentObligations:
+        - blackbody-rayleigh-divergence
+
+  - id: s1-p5
+    kind: paragraph
+    section: s1
+    locators:
+      - page: 136
+    destination:
+      editionBlockId: block-light-quanta-s1-p5
+      translationUnits:
+        - planned
+      argumentObligations:
+        - blackbody-rayleigh-divergence
+
+  - id: eq-s1-d6
+    kind: display-equation
+    section: s1
+    editorialLabel: "ed:s1-d6"
+    containedIn: s1-p5
+    locators:
+      - page: 136
+    destination:
+      editionBlockId: block-light-quanta-eq-s1-d6
+      translationUnits:
+        - planned
+      argumentObligations:
+        - blackbody-rayleigh-divergence
+
+  - id: eq-s1-d7
+    kind: display-equation
+    section: s1
+    editorialLabel: "ed:s1-d7"
+    containedIn: s1-p5
+    locators:
+      - page: 136
+    destination:
+      editionBlockId: block-light-quanta-eq-s1-d7
+      translationUnits:
+        - planned
+      argumentObligations:
+        - blackbody-rayleigh-divergence
+
+  - id: s1-p6
+    kind: paragraph
+    section: s1
+    locators:
+      - page: 136
+    destination:
+      editionBlockId: block-light-quanta-s1-p6
+      translationUnits:
+        - planned
+      argumentObligations:
+        - blackbody-rayleigh-divergence
+
+  - id: eq-s1-d8
+    kind: display-equation
+    section: s1
+    editorialLabel: "ed:s1-d8"
+    containedIn: s1-p6
+    locators:
+      - page: 136
+    destination:
+      editionBlockId: block-light-quanta-eq-s1-d8
+      translationUnits:
+        - planned
+      argumentObligations:
+        - blackbody-rayleigh-divergence
+
+  - id: s2
+    kind: section-heading
+    section: s2
+    locators:
+      - page: 136
+    destination:
+      editionBlockId: block-light-quanta-s2-heading
+      translationUnits:
+        - planned
+      argumentObligations:
+        - planck-quanta-constants
+
+  - id: s2-p1
+    kind: paragraph
+    section: s2
+    locators:
+      - page: 136
+    references:
+      - id: s2-p1-s1-r1
+        occurrenceId: s2-p1-s1-r1
+        printedText: "Hrn. Planck"
+        kind: bibliographic
+        target:
+          citationId: planck-1901
+    destination:
+      editionBlockId: block-light-quanta-s2-p1
+      translationUnits:
+        - planned
+      argumentObligations:
+        - planck-quanta-constants
+
+  - id: s2-p2
+    kind: paragraph
+    section: s2
+    locators:
+      - page: 136
+    references:
+      - id: s2-p2-s1-r1
+        occurrenceId: s2-p2-s1-r1
+        printedText: "Plancksche Formel 1)"
+        kind: bibliographic
+        target:
+          citationId: planck-1901
+      - id: s2-p2-s1-r2
+        occurrenceId: s2-p2-s1-r2
+        printedText: "1)"
+        kind: internal
+        target:
+          id: s2-fn1
+    destination:
+      editionBlockId: block-light-quanta-s2-p2
+      translationUnits:
+        - planned
+      argumentObligations:
+        - planck-quanta-constants
+
+  - id: eq-s2-d1
+    kind: display-equation
+    section: s2
+    editorialLabel: "ed:s2-d1"
+    containedIn: s2-p2
+    locators:
+      - page: 136
+    destination:
+      editionBlockId: block-light-quanta-eq-s2-d1
+      translationUnits:
+        - planned
+      argumentObligations:
+        - planck-quanta-constants
+
+  - id: eq-s2-d2
+    kind: display-equation
+    section: s2
+    editorialLabel: "ed:s2-d2"
+    containedIn: s2-p2
+    locators:
+      - page: 136
+    destination:
+      editionBlockId: block-light-quanta-eq-s2-d2
+      translationUnits:
+        - planned
+      argumentObligations:
+        - planck-quanta-constants
+
+  - id: eq-s2-d3
+    kind: display-equation
+    section: s2
+    editorialLabel: "ed:s2-d3"
+    containedIn: s2-p2
+    locators:
+      - page: 136
+    destination:
+      editionBlockId: block-light-quanta-eq-s2-d3
+      translationUnits:
+        - planned
+      argumentObligations:
+        - planck-quanta-constants
+
+  - id: eq-s2-d4
+    kind: display-equation
+    section: s2
+    editorialLabel: "ed:s2-d4"
+    containedIn: s2-p2
+    locators:
+      - page: 136
+    destination:
+      editionBlockId: block-light-quanta-eq-s2-d4
+      translationUnits:
+        - planned
+      argumentObligations:
+        - planck-quanta-constants
+
+  - id: s2-fn1
+    kind: footnote
+    section: s2
+    footnoteMark: "1)"
+    markPage: 136
+    locators:
+      - page: 136
+    references:
+      - id: s2-fn1-r1
+        occurrenceId: s2-fn1-r1
+        printedText: "M. Planck, Ann. d. Phys. 4. p. 561. 1901."
+        kind: bibliographic
+        target:
+          citationId: planck-1901
+    destination:
+      editionBlockId: block-light-quanta-s2-fn1
+      translationUnits:
+        - planned
+      argumentObligations:
+        - planck-quanta-constants
+
+  - id: s2-p3
+    kind: paragraph
+    section: s2
+    locators:
+      - page: 137
+    references:
+      - id: s2-p3-s1-r1
+        occurrenceId: s2-p3-s1-r1
+        printedText: "§ 1"
+        kind: internal
+        target:
+          id: s1
+      - id: s2-p3-s3-r1
+        occurrenceId: s2-p3-s3-r1
+        printedText: "Hrn. Planck"
+        kind: bibliographic
+        target:
+          citationId: planck-1901
+    destination:
+      editionBlockId: block-light-quanta-s2-p3
+      translationUnits:
+        - planned
+      argumentObligations:
+        - planck-quanta-constants
+
+  - id: eq-s2-d5
+    kind: display-equation
+    section: s2
+    editorialLabel: "ed:s2-d5"
+    containedIn: s2-p3
+    locators:
+      - page: 137
+    destination:
+      editionBlockId: block-light-quanta-eq-s2-d5
+      translationUnits:
+        - planned
+      argumentObligations:
+        - planck-quanta-constants
+
+  - id: eq-s2-d6
+    kind: display-equation
+    section: s2
+    editorialLabel: "ed:s2-d6"
+    containedIn: s2-p3
+    locators:
+      - page: 137
+    destination:
+      editionBlockId: block-light-quanta-eq-s2-d6
+      translationUnits:
+        - planned
+      argumentObligations:
+        - planck-quanta-constants
+
+  - id: s2-p4
+    kind: paragraph
+    section: s2
+    locators:
+      - page: 137
+    destination:
+      editionBlockId: block-light-quanta-s2-p4
+      translationUnits:
+        - planned
+      argumentObligations:
+        - planck-quanta-constants
+
+  - id: s2-p5
+    kind: paragraph
+    section: s2
+    locators:
+      - page: 137
+    destination:
+      editionBlockId: block-light-quanta-s2-p5
+      translationUnits:
+        - planned
+      argumentObligations:
+        - planck-quanta-constants
+
+  - id: s3
+    kind: section-heading
+    section: s3
+    locators:
+      - page: 137
+    destination:
+      editionBlockId: block-light-quanta-s3-heading
+      translationUnits:
+        - planned
+      argumentObligations:
+        - radiation-entropy-identity
+
+  - id: s3-p1
+    kind: paragraph
+    section: s3
+    locators:
+      - page: 137
+    references:
+      - id: s3-p1-s1-r1
+        occurrenceId: s3-p1-s1-r1
+        printedText: "Hrn. W. Wien"
+        kind: bibliographic
+        target:
+          citationId: wien-1896
+    destination:
+      editionBlockId: block-light-quanta-s3-p1
+      translationUnits:
+        - planned
+      argumentObligations:
+        - radiation-entropy-identity
+
+  - id: s3-p2
+    kind: paragraph
+    section: s3
+    locators:
+      - page: 137
+        splitPage: true
+      - page: 138
+        splitPage: true
+    references:
+      - id: s3-p2-s2-r1
+        occurrenceId: s3-p2-s2-r1
+        printedText: "1)"
+        kind: internal
+        target:
+          id: s3-fn1
+    destination:
+      editionBlockId: block-light-quanta-s3-p2
+      translationUnits:
+        - planned
+      argumentObligations:
+        - radiation-entropy-identity
+
+  - id: eq-s3-d1
+    kind: display-equation
+    section: s3
+    editorialLabel: "ed:s3-d1"
+    containedIn: s3-p2
+    locators:
+      - page: 137
+    destination:
+      editionBlockId: block-light-quanta-eq-s3-d1
+      translationUnits:
+        - planned
+      argumentObligations:
+        - radiation-entropy-identity
+
+  - id: s3-fn1
+    kind: footnote
+    section: s3
+    footnoteMark: "1)"
+    markPage: 137
+    locators:
+      - page: 137
+    destination:
+      editionBlockId: block-light-quanta-s3-fn1
+      translationUnits:
+        - planned
+      argumentObligations:
+        - radiation-entropy-identity
+
+  - id: s3-p3
+    kind: paragraph
+    section: s3
+    locators:
+      - page: 138
+    destination:
+      editionBlockId: block-light-quanta-s3-p3
+      translationUnits:
+        - planned
+      argumentObligations:
+        - radiation-entropy-identity
+
+  - id: eq-s3-d2
+    kind: display-equation
+    section: s3
+    editorialLabel: "ed:s3-d2"
+    containedIn: s3-p3
+    locators:
+      - page: 138
+    destination:
+      editionBlockId: block-light-quanta-eq-s3-d2
+      translationUnits:
+        - planned
+      argumentObligations:
+        - radiation-entropy-identity
+
+  - id: eq-s3-d3
+    kind: display-equation
+    section: s3
+    editorialLabel: "ed:s3-d3"
+    containedIn: s3-p3
+    locators:
+      - page: 138
+    destination:
+      editionBlockId: block-light-quanta-eq-s3-d3
+      translationUnits:
+        - planned
+      argumentObligations:
+        - radiation-entropy-identity
+
+  - id: eq-s3-d4
+    kind: display-equation
+    section: s3
+    editorialLabel: "ed:s3-d4"
+    containedIn: s3-p3
+    locators:
+      - page: 138
+    destination:
+      editionBlockId: block-light-quanta-eq-s3-d4
+      translationUnits:
+        - planned
+      argumentObligations:
+        - radiation-entropy-identity
+
+  - id: s3-p4
+    kind: paragraph
+    section: s3
+    locators:
+      - page: 138
+        splitPage: true
+      - page: 139
+        splitPage: true
+    destination:
+      editionBlockId: block-light-quanta-s3-p4
+      translationUnits:
+        - planned
+      argumentObligations:
+        - radiation-entropy-identity
+
+  - id: eq-s3-d5
+    kind: display-equation
+    section: s3
+    editorialLabel: "ed:s3-d5"
+    containedIn: s3-p4
+    locators:
+      - page: 138
+    destination:
+      editionBlockId: block-light-quanta-eq-s3-d5
+      translationUnits:
+        - planned
+      argumentObligations:
+        - radiation-entropy-identity
+
+  - id: eq-s3-d6
+    kind: display-equation
+    section: s3
+    editorialLabel: "ed:s3-d6"
+    containedIn: s3-p4
+    locators:
+      - page: 138
+    destination:
+      editionBlockId: block-light-quanta-eq-s3-d6
+      translationUnits:
+        - planned
+      argumentObligations:
+        - radiation-entropy-identity
+
+  - id: eq-s3-d7
+    kind: display-equation
+    section: s3
+    editorialLabel: "ed:s3-d7"
+    containedIn: s3-p4
+    locators:
+      - page: 138
+    destination:
+      editionBlockId: block-light-quanta-eq-s3-d7
+      translationUnits:
+        - planned
+      argumentObligations:
+        - radiation-entropy-identity
+
+  - id: eq-s3-d8
+    kind: display-equation
+    section: s3
+    editorialLabel: "ed:s3-d8"
+    containedIn: s3-p4
+    locators:
+      - page: 138
+    destination:
+      editionBlockId: block-light-quanta-eq-s3-d8
+      translationUnits:
+        - planned
+      argumentObligations:
+        - radiation-entropy-identity
+
+  - id: s4
+    kind: section-heading
+    section: s4
+    locators:
+      - page: 139
+    destination:
+      editionBlockId: block-light-quanta-s4-heading
+      translationUnits:
+        - planned
+      argumentObligations:
+        - wien-regime-entropy-volume
+
+  - id: s4-p1
+    kind: paragraph
+    section: s4
+    locators:
+      - page: 139
+    references:
+      - id: s4-p1-s1-r1
+        occurrenceId: s4-p1-s1-r1
+        printedText: "Hrn. W. Wien"
+        kind: bibliographic
+        target:
+          citationId: wien-1896
+    destination:
+      editionBlockId: block-light-quanta-s4-p1
+      translationUnits:
+        - planned
+      argumentObligations:
+        - wien-regime-entropy-volume
+
+  - id: eq-s4-d1
+    kind: display-equation
+    section: s4
+    editorialLabel: "ed:s4-d1"
+    containedIn: s4-p1
+    locators:
+      - page: 139
+    destination:
+      editionBlockId: block-light-quanta-eq-s4-d1
+      translationUnits:
+        - planned
+      argumentObligations:
+        - wien-regime-entropy-volume
+
+  - id: s4-p2
+    kind: paragraph
+    section: s4
+    locators:
+      - page: 139
+    references:
+      - id: s4-p2-s1-r1
+        occurrenceId: s4-p2-s1-r1
+        printedText: "in dem vorigen Paragraphen"
+        kind: internal
+        target:
+          id: s3
+    destination:
+      editionBlockId: block-light-quanta-s4-p2
+      translationUnits:
+        - planned
+      argumentObligations:
+        - wien-regime-entropy-volume
+
+  - id: eq-s4-d2
+    kind: display-equation
+    section: s4
+    editorialLabel: "ed:s4-d2"
+    containedIn: s4-p2
+    locators:
+      - page: 139
+    destination:
+      editionBlockId: block-light-quanta-eq-s4-d2
+      translationUnits:
+        - planned
+      argumentObligations:
+        - wien-regime-entropy-volume
+
+  - id: eq-s4-d3
+    kind: display-equation
+    section: s4
+    editorialLabel: "ed:s4-d3"
+    containedIn: s4-p2
+    locators:
+      - page: 139
+    destination:
+      editionBlockId: block-light-quanta-eq-s4-d3
+      translationUnits:
+        - planned
+      argumentObligations:
+        - wien-regime-entropy-volume
+
+  - id: s4-p3
+    kind: paragraph
+    section: s4
+    locators:
+      - page: 139
+    destination:
+      editionBlockId: block-light-quanta-s4-p3
+      translationUnits:
+        - planned
+      argumentObligations:
+        - wien-regime-entropy-volume
+
+  - id: eq-s4-d4
+    kind: display-equation
+    section: s4
+    editorialLabel: "ed:s4-d4"
+    containedIn: s4-p3
+    locators:
+      - page: 139
+    destination:
+      editionBlockId: block-light-quanta-eq-s4-d4
+      translationUnits:
+        - planned
+      argumentObligations:
+        - wien-regime-entropy-volume
+
+  - id: s4-p4
+    kind: paragraph
+    section: s4
+    locators:
+      - page: 139
+    destination:
+      editionBlockId: block-light-quanta-s4-p4
+      translationUnits:
+        - planned
+      argumentObligations:
+        - wien-regime-entropy-volume
+
+  - id: eq-s4-d5
+    kind: display-equation
+    section: s4
+    editorialLabel: "ed:s4-d5"
+    containedIn: s4-p4
+    locators:
+      - page: 139
+    destination:
+      editionBlockId: block-light-quanta-eq-s4-d5
+      translationUnits:
+        - planned
+      argumentObligations:
+        - wien-regime-entropy-volume
+
+  - id: s4-p5
+    kind: paragraph
+    section: s4
+    locators:
+      - page: 139
+        splitPage: true
+      - page: 140
+        splitPage: true
+    references:
+      - id: s4-p5-s2-r1
+        occurrenceId: s4-p5-s2-r1
+        printedText: "Hrn. Boltzmann"
+        kind: bibliographic
+        target:
+          citationId: boltzmann-1877
+    destination:
+      editionBlockId: block-light-quanta-s4-p5
+      translationUnits:
+        - planned
+      argumentObligations:
+        - wien-regime-entropy-volume
+
+  - id: s5
+    kind: section-heading
+    section: s5
+    locators:
+      - page: 140
+    destination:
+      editionBlockId: block-light-quanta-s5-heading
+      translationUnits:
+        - planned
+      argumentObligations:
+        - boltzmann-entropy-gas-solution
+
+  - id: s5-p1
+    kind: paragraph
+    section: s5
+    locators:
+      - page: 140
+    destination:
+      editionBlockId: block-light-quanta-s5-p1
+      translationUnits:
+        - planned
+      argumentObligations:
+        - boltzmann-entropy-gas-solution
+
+  - id: s5-p2
+    kind: paragraph
+    section: s5
+    locators:
+      - page: 140
+        splitPage: true
+      - page: 141
+        splitPage: true
+    destination:
+      editionBlockId: block-light-quanta-s5-p2
+      translationUnits:
+        - planned
+      argumentObligations:
+        - boltzmann-entropy-gas-solution
+
+  - id: eq-s5-d1
+    kind: display-equation
+    section: s5
+    editorialLabel: "ed:s5-d1"
+    containedIn: s5-p2
+    locators:
+      - page: 140
+    destination:
+      editionBlockId: block-light-quanta-eq-s5-d1
+      translationUnits:
+        - planned
+      argumentObligations:
+        - boltzmann-entropy-gas-solution
+
+  - id: eq-s5-d2
+    kind: display-equation
+    section: s5
+    editorialLabel: "ed:s5-d2"
+    containedIn: s5-p2
+    locators:
+      - page: 140
+    destination:
+      editionBlockId: block-light-quanta-eq-s5-d2
+      translationUnits:
+        - planned
+      argumentObligations:
+        - boltzmann-entropy-gas-solution
+
+  - id: eq-s5-d3
+    kind: display-equation
+    section: s5
+    editorialLabel: "ed:s5-d3"
+    containedIn: s5-p2
+    locators:
+      - page: 140
+    destination:
+      editionBlockId: block-light-quanta-eq-s5-d3
+      translationUnits:
+        - planned
+      argumentObligations:
+        - boltzmann-entropy-gas-solution
+
+  - id: eq-s5-d4
+    kind: display-equation
+    section: s5
+    editorialLabel: "ed:s5-d4"
+    containedIn: s5-p2
+    locators:
+      - page: 141
+    destination:
+      editionBlockId: block-light-quanta-eq-s5-d4
+      translationUnits:
+        - planned
+      argumentObligations:
+        - boltzmann-entropy-gas-solution
+
+  - id: eq-s5-d5
+    kind: display-equation
+    section: s5
+    editorialLabel: "ed:s5-d5"
+    containedIn: s5-p2
+    locators:
+      - page: 141
+    destination:
+      editionBlockId: block-light-quanta-eq-s5-d5
+      translationUnits:
+        - planned
+      argumentObligations:
+        - boltzmann-entropy-gas-solution
+
+  - id: eq-s5-d6
+    kind: display-equation
+    section: s5
+    editorialLabel: "ed:s5-d6"
+    containedIn: s5-p2
+    locators:
+      - page: 141
+    destination:
+      editionBlockId: block-light-quanta-eq-s5-d6
+      translationUnits:
+        - planned
+      argumentObligations:
+        - boltzmann-entropy-gas-solution
+
+  - id: s5-p3
+    kind: paragraph
+    section: s5
+    locators:
+      - page: 141
+    destination:
+      editionBlockId: block-light-quanta-s5-p3
+      translationUnits:
+        - planned
+      argumentObligations:
+        - boltzmann-entropy-gas-solution
+
+  - id: s5-p4
+    kind: paragraph
+    section: s5
+    locators:
+      - page: 141
+        splitPage: true
+      - page: 142
+        splitPage: true
+    destination:
+      editionBlockId: block-light-quanta-s5-p4
+      translationUnits:
+        - planned
+      argumentObligations:
+        - boltzmann-entropy-gas-solution
+
+  - id: eq-s5-d7
+    kind: display-equation
+    section: s5
+    editorialLabel: "ed:s5-d7"
+    containedIn: s5-p4
+    locators:
+      - page: 142
+    destination:
+      editionBlockId: block-light-quanta-eq-s5-d7
+      translationUnits:
+        - planned
+      argumentObligations:
+        - boltzmann-entropy-gas-solution
+
+  - id: eq-s5-d8
+    kind: display-equation
+    section: s5
+    editorialLabel: "ed:s5-d8"
+    containedIn: s5-p4
+    locators:
+      - page: 142
+    destination:
+      editionBlockId: block-light-quanta-eq-s5-d8
+      translationUnits:
+        - planned
+      argumentObligations:
+        - boltzmann-entropy-gas-solution
+
+  - id: s5-p5
+    kind: paragraph
+    section: s5
+    locators:
+      - page: 142
+    references:
+      - id: s5-p5-s1-r1
+        occurrenceId: s5-p5-s1-r1
+        printedText: "1)"
+        kind: internal
+        target:
+          id: s5-fn1
+    destination:
+      editionBlockId: block-light-quanta-s5-p5
+      translationUnits:
+        - planned
+      argumentObligations:
+        - boltzmann-entropy-gas-solution
+
+  - id: s5-fn1
+    kind: footnote
+    section: s5
+    footnoteMark: "1)"
+    markPage: 142
+    locators:
+      - page: 142
+    destination:
+      editionBlockId: block-light-quanta-s5-fn1
+      translationUnits:
+        - planned
+      argumentObligations:
+        - boltzmann-entropy-gas-solution
+
+  - id: eq-s5-d9
+    kind: display-equation
+    section: s5
+    editorialLabel: "ed:s5-d9"
+    containedIn: s5-fn1
+    locators:
+      - page: 142
+    destination:
+      editionBlockId: block-light-quanta-eq-s5-d9
+      translationUnits:
+        - planned
+      argumentObligations:
+        - boltzmann-entropy-gas-solution
+
+  - id: eq-s5-d10
+    kind: display-equation
+    section: s5
+    editorialLabel: "ed:s5-d10"
+    containedIn: s5-fn1
+    locators:
+      - page: 142
+    destination:
+      editionBlockId: block-light-quanta-eq-s5-d10
+      translationUnits:
+        - planned
+      argumentObligations:
+        - boltzmann-entropy-gas-solution
+
+  - id: s6
+    kind: section-heading
+    section: s6
+    locators:
+      - page: 142
+    destination:
+      editionBlockId: block-light-quanta-s6-heading
+      translationUnits:
+        - planned
+      argumentObligations:
+        - quanta-entropy-inference
+
+  - id: s6-p1
+    kind: paragraph
+    section: s6
+    locators:
+      - page: 142
+        splitPage: true
+      - page: 143
+        splitPage: true
+    references:
+      - id: s6-p1-s1-r1
+        occurrenceId: s6-p1-s1-r1
+        printedText: "§ 4"
+        kind: internal
+        target:
+          id: s4
+    destination:
+      editionBlockId: block-light-quanta-s6-p1
+      translationUnits:
+        - planned
+      argumentObligations:
+        - quanta-entropy-inference
+
+  - id: eq-s6-d1
+    kind: display-equation
+    section: s6
+    editorialLabel: "ed:s6-d1"
+    containedIn: s6-p1
+    locators:
+      - page: 142
+    destination:
+      editionBlockId: block-light-quanta-eq-s6-d1
+      translationUnits:
+        - planned
+      argumentObligations:
+        - quanta-entropy-inference
+
+  - id: eq-s6-d2
+    kind: display-equation
+    section: s6
+    editorialLabel: "ed:s6-d2"
+    containedIn: s6-p1
+    locators:
+      - page: 142
+    destination:
+      editionBlockId: block-light-quanta-eq-s6-d2
+      translationUnits:
+        - planned
+      argumentObligations:
+        - quanta-entropy-inference
+
+  - id: eq-s6-d3
+    kind: display-equation
+    section: s6
+    editorialLabel: "ed:s6-d3"
+    containedIn: s6-p1
+    locators:
+      - page: 143
+    destination:
+      editionBlockId: block-light-quanta-eq-s6-d3
+      translationUnits:
+        - planned
+      argumentObligations:
+        - quanta-entropy-inference
+
+  - id: eq-s6-d4
+    kind: display-equation
+    section: s6
+    editorialLabel: "ed:s6-d4"
+    containedIn: s6-p1
+    locators:
+      - page: 143
+    destination:
+      editionBlockId: block-light-quanta-eq-s6-d4
+      translationUnits:
+        - planned
+      argumentObligations:
+        - quanta-entropy-inference
+
+  - id: s6-p2
+    kind: paragraph
+    section: s6
+    locators:
+      - page: 143
+    destination:
+      editionBlockId: block-light-quanta-s6-p2
+      translationUnits:
+        - planned
+      argumentObligations:
+        - quanta-entropy-inference
+
+  - id: s6-p3
+    kind: paragraph
+    section: s6
+    locators:
+      - page: 143
+    destination:
+      editionBlockId: block-light-quanta-s6-p3
+      translationUnits:
+        - planned
+      argumentObligations:
+        - quanta-entropy-inference
+
+  - id: eq-s6-d5
+    kind: display-equation
+    section: s6
+    editorialLabel: "ed:s6-d5"
+    containedIn: s6-p3
+    locators:
+      - page: 143
+    destination:
+      editionBlockId: block-light-quanta-eq-s6-d5
+      translationUnits:
+        - planned
+      argumentObligations:
+        - quanta-entropy-inference
+
+  - id: s6-p4
+    kind: paragraph
+    section: s6
+    locators:
+      - page: 143
+        splitPage: true
+      - page: 144
+        splitPage: true
+    destination:
+      editionBlockId: block-light-quanta-s6-p4
+      translationUnits:
+        - planned
+      argumentObligations:
+        - quanta-entropy-inference
+
+  - id: s7
+    kind: section-heading
+    section: s7
+    locators:
+      - page: 144
+    destination:
+      editionBlockId: block-light-quanta-s7-heading
+      translationUnits:
+        - planned
+      argumentObligations:
+        - stokes-rule-photoluminescence
+
+  - id: s7-p1
+    kind: paragraph
+    section: s7
+    locators:
+      - page: 144
+    destination:
+      editionBlockId: block-light-quanta-s7-p1
+      translationUnits:
+        - planned
+      argumentObligations:
+        - stokes-rule-photoluminescence
+
+  - id: eq-s7-d1
+    kind: display-equation
+    section: s7
+    editorialLabel: "ed:s7-d1"
+    containedIn: s7-p1
+    locators:
+      - page: 144
+    destination:
+      editionBlockId: block-light-quanta-eq-s7-d1
+      translationUnits:
+        - planned
+      argumentObligations:
+        - stokes-rule-photoluminescence
+
+  - id: eq-s7-d2
+    kind: display-equation
+    section: s7
+    editorialLabel: "ed:s7-d2"
+    containedIn: s7-p1
+    locators:
+      - page: 144
+    destination:
+      editionBlockId: block-light-quanta-eq-s7-d2
+      translationUnits:
+        - planned
+      argumentObligations:
+        - stokes-rule-photoluminescence
+
+  - id: s7-p2
+    kind: paragraph
+    section: s7
+    locators:
+      - page: 144
+        splitPage: true
+      - page: 145
+        splitPage: true
+    destination:
+      editionBlockId: block-light-quanta-s7-p2
+      translationUnits:
+        - planned
+      argumentObligations:
+        - stokes-rule-photoluminescence
+
+  - id: s7-p3
+    kind: paragraph
+    section: s7
+    locators:
+      - page: 145
+    destination:
+      editionBlockId: block-light-quanta-s7-p3
+      translationUnits:
+        - planned
+      argumentObligations:
+        - stokes-rule-photoluminescence
+
+  - id: s8
+    kind: section-heading
+    section: s8
+    locators:
+      - page: 145
+    destination:
+      editionBlockId: block-light-quanta-s8-heading
+      translationUnits:
+        - planned
+      argumentObligations:
+        - photoelectric-stopping-potential
+
+  - id: s8-p1
+    kind: paragraph
+    section: s8
+    locators:
+      - page: 145
+    references:
+      - id: s8-p1-s1-r1
+        occurrenceId: s8-p1-s1-r1
+        printedText: "Hrn. Lenard"
+        kind: bibliographic
+        target:
+          citationId: lenard-1902
+      - id: s8-p1-s1-r2
+        occurrenceId: s8-p1-s1-r2
+        printedText: "1)"
+        kind: internal
+        target:
+          id: s8-fn1
+    destination:
+      editionBlockId: block-light-quanta-s8-p1
+      translationUnits:
+        - planned
+      argumentObligations:
+        - photoelectric-stopping-potential
+
+  - id: s8-fn1
+    kind: footnote
+    section: s8
+    footnoteMark: "1)"
+    markPage: 145
+    locators:
+      - page: 145
+    references:
+      - id: s8-fn1-r1
+        occurrenceId: s8-fn1-r1
+        printedText: "P. Lenard, Ann. d. Phys. 8. p. 169 u. 170. 1902."
+        kind: bibliographic
+        target:
+          citationId: lenard-1902
+    destination:
+      editionBlockId: block-light-quanta-s8-fn1
+      translationUnits:
+        - planned
+      argumentObligations:
+        - photoelectric-stopping-potential
+
+  - id: s8-p2
+    kind: paragraph
+    section: s8
+    locators:
+      - page: 145
+        splitPage: true
+      - page: 146
+        splitPage: true
+    destination:
+      editionBlockId: block-light-quanta-s8-p2
+      translationUnits:
+        - planned
+      argumentObligations:
+        - photoelectric-stopping-potential
+
+  - id: eq-s8-d1
+    kind: display-equation
+    section: s8
+    editorialLabel: "ed:s8-d1"
+    containedIn: s8-p2
+    locators:
+      - page: 146
+    destination:
+      editionBlockId: block-light-quanta-eq-s8-d1
+      translationUnits:
+        - planned
+      argumentObligations:
+        - photoelectric-stopping-potential
+
+  - id: s8-p3
+    kind: paragraph
+    section: s8
+    locators:
+      - page: 146
+    references:
+      - id: s8-p3-s3-r1
+        occurrenceId: s8-p3-s3-r1
+        printedText: "1)"
+        kind: internal
+        target:
+          id: s8-fn2
+    destination:
+      editionBlockId: block-light-quanta-s8-p3
+      translationUnits:
+        - planned
+      argumentObligations:
+        - photoelectric-stopping-potential
+
+  - id: eq-s8-d2
+    kind: display-equation
+    section: s8
+    editorialLabel: "ed:s8-d2"
+    containedIn: s8-p3
+    locators:
+      - page: 146
+    destination:
+      editionBlockId: block-light-quanta-eq-s8-d2
+      translationUnits:
+        - planned
+      argumentObligations:
+        - photoelectric-stopping-potential
+
+  - id: eq-s8-d3
+    kind: display-equation
+    section: s8
+    editorialLabel: "ed:s8-d3"
+    containedIn: s8-p3
+    locators:
+      - page: 146
+    destination:
+      editionBlockId: block-light-quanta-eq-s8-d3
+      translationUnits:
+        - planned
+      argumentObligations:
+        - photoelectric-stopping-potential
+
+  - id: s8-fn2
+    kind: footnote
+    section: s8
+    footnoteMark: "1)"
+    markPage: 146
+    locators:
+      - page: 146
+    destination:
+      editionBlockId: block-light-quanta-s8-fn2
+      translationUnits:
+        - planned
+      argumentObligations:
+        - photoelectric-stopping-potential
+
+  - id: s8-p4
+    kind: paragraph
+    section: s8
+    locators:
+      - page: 146
+    destination:
+      editionBlockId: block-light-quanta-s8-p4
+      translationUnits:
+        - planned
+      argumentObligations:
+        - photoelectric-stopping-potential
+
+  - id: s8-p5
+    kind: paragraph
+    section: s8
+    locators:
+      - page: 146
+    references:
+      - id: s8-p5-s1-r1
+        occurrenceId: s8-p5-s1-r1
+        printedText: "Hrn. Lenard"
+        kind: bibliographic
+        target:
+          citationId: lenard-1902
+      - id: s8-p5-s1-r2
+        occurrenceId: s8-p5-s1-r2
+        printedText: "2)"
+        kind: internal
+        target:
+          id: s8-fn3
+    destination:
+      editionBlockId: block-light-quanta-s8-p5
+      translationUnits:
+        - planned
+      argumentObligations:
+        - photoelectric-stopping-potential
+
+  - id: s8-fn3
+    kind: footnote
+    section: s8
+    footnoteMark: "2)"
+    markPage: 146
+    locators:
+      - page: 146
+    references:
+      - id: s8-fn3-r1
+        occurrenceId: s8-fn3-r1
+        printedText: "P. Lenard, Ann. d. Phys. 8. p. 165 u. 184. Taf. I, Fig. 2. 1902."
+        kind: bibliographic
+        target:
+          citationId: lenard-1902
+    destination:
+      editionBlockId: block-light-quanta-s8-fn3
+      translationUnits:
+        - planned
+      argumentObligations:
+        - photoelectric-stopping-potential
+
+  - id: s8-p6
+    kind: paragraph
+    section: s8
+    locators:
+      - page: 146
+        splitPage: true
+      - page: 147
+        splitPage: true
+    references:
+      - id: s8-p6-s2-r1
+        occurrenceId: s8-p6-s2-r1
+        printedText: "Hrn. Lenard"
+        kind: bibliographic
+        target:
+          citationId: lenard-1902
+      - id: s8-p6-s2-r2
+        occurrenceId: s8-p6-s2-r2
+        printedText: "1)"
+        kind: internal
+        target:
+          id: s8-fn4
+    destination:
+      editionBlockId: block-light-quanta-s8-p6
+      translationUnits:
+        - planned
+      argumentObligations:
+        - photoelectric-stopping-potential
+
+  - id: s8-fn4
+    kind: footnote
+    section: s8
+    footnoteMark: "1)"
+    markPage: 147
+    locators:
+      - page: 147
+    references:
+      - id: s8-fn4-r1
+        occurrenceId: s8-fn4-r1
+        printedText: "P. Lenard, l. c. p. 150 und p. 166–168."
+        kind: bibliographic
+        target:
+          citationId: lenard-1902
+    destination:
+      editionBlockId: block-light-quanta-s8-fn4
+      translationUnits:
+        - planned
+      argumentObligations:
+        - photoelectric-stopping-potential
+
+  - id: s8-p7
+    kind: paragraph
+    section: s8
+    locators:
+      - page: 147
+    destination:
+      editionBlockId: block-light-quanta-s8-p7
+      translationUnits:
+        - planned
+      argumentObligations:
+        - photoelectric-stopping-potential
+
+  - id: s8-p8
+    kind: paragraph
+    section: s8
+    locators:
+      - page: 147
+    destination:
+      editionBlockId: block-light-quanta-s8-p8
+      translationUnits:
+        - planned
+      argumentObligations:
+        - photoelectric-stopping-potential
+
+  - id: eq-s8-d4
+    kind: display-equation
+    section: s8
+    editorialLabel: "ed:s8-d4"
+    containedIn: s8-p8
+    locators:
+      - page: 147
+    destination:
+      editionBlockId: block-light-quanta-eq-s8-d4
+      translationUnits:
+        - planned
+      argumentObligations:
+        - photoelectric-stopping-potential
+
+  - id: s8-p9
+    kind: paragraph
+    section: s8
+    locators:
+      - page: 147
+    destination:
+      editionBlockId: block-light-quanta-s8-p9
+      translationUnits:
+        - planned
+      argumentObligations:
+        - photoelectric-stopping-potential
+
+  - id: eq-s8-d5
+    kind: display-equation
+    section: s8
+    editorialLabel: "ed:s8-d5"
+    containedIn: s8-p9
+    locators:
+      - page: 147
+    destination:
+      editionBlockId: block-light-quanta-eq-s8-d5
+      translationUnits:
+        - planned
+      argumentObligations:
+        - photoelectric-stopping-potential
+
+  - id: s8-p10
+    kind: paragraph
+    section: s8
+    locators:
+      - page: 147
+    references:
+      - id: s8-p10-s1-r1
+        occurrenceId: s8-p10-s1-r1
+        printedText: "Hrn. Lenard"
+        kind: bibliographic
+        target:
+          citationId: lenard-1902
+      - id: s8-p10-s1-r2
+        occurrenceId: s8-p10-s1-r2
+        printedText: "2)"
+        kind: internal
+        target:
+          id: s8-fn5
+    destination:
+      editionBlockId: block-light-quanta-s8-p10
+      translationUnits:
+        - planned
+      argumentObligations:
+        - photoelectric-stopping-potential
+
+  - id: s8-fn5
+    kind: footnote
+    section: s8
+    footnoteMark: "2)"
+    markPage: 147
+    locators:
+      - page: 147
+    references:
+      - id: s8-fn5-r1
+        occurrenceId: s8-fn5-r1
+        printedText: "P. Lenard, Ann. d. Phys. 12. p. 469. 1903."
+        kind: bibliographic
+        target:
+          citationId: lenard-1903
+    destination:
+      editionBlockId: block-light-quanta-s8-fn5
+      translationUnits:
+        - planned
+      argumentObligations:
+        - photoelectric-stopping-potential
+
+  - id: s9
+    kind: section-heading
+    section: s9
+    locators:
+      - page: 147
+    destination:
+      editionBlockId: block-light-quanta-s9-heading
+      translationUnits:
+        - planned
+      argumentObligations:
+        - gas-ionization-bounds
+
+  - id: s9-p1
+    kind: paragraph
+    section: s9
+    locators:
+      - page: 147
+        splitPage: true
+      - page: 148
+        splitPage: true
+    destination:
+      editionBlockId: block-light-quanta-s9-p1
+      translationUnits:
+        - planned
+      argumentObligations:
+        - gas-ionization-bounds
+
+  - id: eq-s9-d1
+    kind: display-equation
+    section: s9
+    editorialLabel: "ed:s9-d1"
+    containedIn: s9-p1
+    locators:
+      - page: 148
+    destination:
+      editionBlockId: block-light-quanta-eq-s9-d1
+      translationUnits:
+        - planned
+      argumentObligations:
+        - gas-ionization-bounds
+
+  - id: s9-p2
+    kind: paragraph
+    section: s9
+    locators:
+      - page: 148
+    references:
+      - id: s9-p2-s1-r1
+        occurrenceId: s9-p2-s1-r1
+        printedText: "Lenards"
+        kind: bibliographic
+        target:
+          citationId: lenard-1902
+    destination:
+      editionBlockId: block-light-quanta-s9-p2
+      translationUnits:
+        - planned
+      argumentObligations:
+        - gas-ionization-bounds
+
+  - id: eq-s9-d2
+    kind: display-equation
+    section: s9
+    editorialLabel: "ed:s9-d2"
+    containedIn: s9-p2
+    locators:
+      - page: 148
+    destination:
+      editionBlockId: block-light-quanta-eq-s9-d2
+      translationUnits:
+        - planned
+      argumentObligations:
+        - gas-ionization-bounds
+
+  - id: s9-p3
+    kind: paragraph
+    section: s9
+    locators:
+      - page: 148
+    references:
+      - id: s9-p3-s2-r1
+        occurrenceId: s9-p3-s2-r1
+        printedText: "J. Stark"
+        kind: bibliographic
+        target:
+          citationId: stark-1902
+      - id: s9-p3-s2-r2
+        occurrenceId: s9-p3-s2-r2
+        printedText: "1)"
+        kind: internal
+        target:
+          id: s9-fn1
+      - id: s9-p3-s2-r3
+        occurrenceId: s9-p3-s2-r3
+        printedText: "2)"
+        kind: internal
+        target:
+          id: s9-fn2
+    destination:
+      editionBlockId: block-light-quanta-s9-p3
+      translationUnits:
+        - planned
+      argumentObligations:
+        - gas-ionization-bounds
+
+  - id: eq-s9-d3
+    kind: display-equation
+    section: s9
+    editorialLabel: "ed:s9-d3"
+    containedIn: s9-p3
+    locators:
+      - page: 148
+    destination:
+      editionBlockId: block-light-quanta-eq-s9-d3
+      translationUnits:
+        - planned
+      argumentObligations:
+        - gas-ionization-bounds
+
+  - id: s9-fn1
+    kind: footnote
+    section: s9
+    footnoteMark: "1)"
+    markPage: 148
+    locators:
+      - page: 148
+    references:
+      - id: s9-fn1-r1
+        occurrenceId: s9-fn1-r1
+        printedText: "J. Stark, Die Elektrizität in Gasen p. 57. Leipzig 1902."
+        kind: bibliographic
+        target:
+          citationId: stark-1902
+    destination:
+      editionBlockId: block-light-quanta-s9-fn1
+      translationUnits:
+        - planned
+      argumentObligations:
+        - gas-ionization-bounds
+
+  - id: s9-fn2
+    kind: footnote
+    section: s9
+    footnoteMark: "2)"
+    markPage: 148
+    locators:
+      - page: 148
+    destination:
+      editionBlockId: block-light-quanta-s9-fn2
+      translationUnits:
+        - planned
+      argumentObligations:
+        - gas-ionization-bounds
+
+  - id: s9-p4
+    kind: paragraph
+    section: s9
+    locators:
+      - page: 148
+    destination:
+      editionBlockId: block-light-quanta-s9-p4
+      translationUnits:
+        - planned
+      argumentObligations:
+        - gas-ionization-bounds
+
+  - id: closing-dateline
+    kind: closing-dateline
+    locators:
+      - page: 148
+    destination:
+      editionBlockId: block-light-quanta-closing-dateline
+      translationUnits:
+        - planned
+      argumentObligations:
+        - closing-dated-provenance
+
+  - id: closing-received
+    kind: closing-received
+    locators:
+      - page: 148
+    destination:
+      editionBlockId: block-light-quanta-closing-received
+      translationUnits:
+        - planned
+      argumentObligations:
+        - closing-dated-provenance

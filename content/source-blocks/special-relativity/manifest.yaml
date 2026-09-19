@@ -1,0 +1,2420 @@
+paper: special-relativity
+document: ap-17-891
+figures: none
+status: in-preparation
+scope: full-document
+pageCount: 31
+pageRange:
+  - 891
+  - 921
+idsFrozenAt: '2026-09-19T00:00:00Z'
+frozenBy: am-edn-inventory-relativity-0u9
+exportedResults:
+  - id: eq-s8-d4
+    resultId: eq-s8-d4
+    statement: 'Energy of a light complex transformed between resting and moving frames: E''/E = (1 - (v/V) cos phi) / sqrt(1 - (v/V)^2)'
+    printedForm: \frac{E'}{E} = \frac{\frac{A'^2}{8\pi} S'}{\frac{A^2}{8\pi} S} = \frac{1 - \frac{v}{V}\cos\varphi}{\sqrt{1 - \left(\frac{v}{V}\right)^2}}
+    section: s8
+  - id: eq-s10-d8
+    resultId: eq-s10-d8
+    statement: 'Kinetic energy of an electron accelerated by an electrostatic force: W = mu V^2 { 1 / sqrt(1 - (v/V)^2) - 1 }'
+    printedForm: W = \int \varepsilon X dx = \int_0^v \beta^3 v dv = \mu V^2 \left\{\frac{1}{\sqrt{1 - \left(\frac{v}{V}\right)^2}} - 1\right\}
+    section: s10
+units:
+  - id: masthead-title
+    kind: masthead-title
+    locators:
+      - page: 891
+    destination:
+      editionBlockId: block-special-relativity-masthead-title
+      translationUnits:
+        - trans-special-relativity-masthead-title
+  - id: masthead-author
+    kind: masthead-author
+    locators:
+      - page: 891
+    destination:
+      editionBlockId: block-special-relativity-masthead-author
+      translationUnits:
+        - trans-special-relativity-masthead-author
+  - id: s0-p1
+    kind: paragraph
+    section: s0
+    locators:
+      - page: 891
+    destination:
+      editionBlockId: block-special-relativity-s0-p1
+      translationUnits:
+        - trans-special-relativity-s0-p1
+      argumentObligations:
+        - obl-s0-electrodynamic-asymmetry
+  - id: s0-p2
+    kind: paragraph
+    section: s0
+    locators:
+      - page: 891
+      - page: 892
+    destination:
+      editionBlockId: block-special-relativity-s0-p2
+      translationUnits:
+        - trans-special-relativity-s0-p2
+  - id: s0-p3
+    kind: paragraph
+    section: s0
+    locators:
+      - page: 892
+    destination:
+      editionBlockId: block-special-relativity-s0-p3
+      translationUnits:
+        - trans-special-relativity-s0-p3
+  - id: part-1
+    kind: part-heading
+    locators:
+      - page: 892
+    destination:
+      editionBlockId: block-special-relativity-part-1
+      translationUnits:
+        - trans-special-relativity-part-1
+  - id: s1
+    kind: section-heading
+    section: s1
+    locators:
+      - page: 892
+    destination:
+      editionBlockId: block-special-relativity-s1
+      translationUnits:
+        - trans-special-relativity-s1
+  - id: s1-p1
+    kind: paragraph
+    section: s1
+    locators:
+      - page: 892
+    destination:
+      editionBlockId: block-special-relativity-s1-p1
+      translationUnits:
+        - trans-special-relativity-s1-p1
+      argumentObligations:
+        - obl-s1-simultaneity-definition
+  - id: s1-p2
+    kind: paragraph
+    section: s1
+    locators:
+      - page: 892
+    destination:
+      editionBlockId: block-special-relativity-s1-p2
+      translationUnits:
+        - trans-special-relativity-s1-p2
+  - id: s1-p3
+    kind: paragraph
+    section: s1
+    locators:
+      - page: 892
+    destination:
+      editionBlockId: block-special-relativity-s1-p3
+      translationUnits:
+        - trans-special-relativity-s1-p3
+  - id: s1-p4
+    kind: paragraph
+    section: s1
+    locators:
+      - page: 893
+    destination:
+      editionBlockId: block-special-relativity-s1-p4
+      translationUnits:
+        - trans-special-relativity-s1-p4
+  - id: s1-fn1
+    kind: footnote
+    section: s1
+    locators:
+      - page: 893
+    containedIn: s1-p4
+    footnoteMark: 1)
+    markPage: 893
+    destination:
+      editionBlockId: block-special-relativity-s1-fn1
+      translationUnits:
+        - trans-special-relativity-s1-fn1
+  - id: s1-p5
+    kind: paragraph
+    section: s1
+    locators:
+      - page: 893
+    destination:
+      editionBlockId: block-special-relativity-s1-p5
+      translationUnits:
+        - trans-special-relativity-s1-p5
+  - id: s1-p6
+    kind: paragraph
+    section: s1
+    locators:
+      - page: 893
+    destination:
+      editionBlockId: block-special-relativity-s1-p6
+      translationUnits:
+        - trans-special-relativity-s1-p6
+  - id: s1-p7
+    kind: paragraph
+    section: s1
+    locators:
+      - page: 893
+      - page: 894
+    destination:
+      editionBlockId: block-special-relativity-s1-p7
+      translationUnits:
+        - trans-special-relativity-s1-p7
+  - id: eq-s1-d1
+    kind: display-equation
+    section: s1
+    locators:
+      - page: 894
+    containedIn: s1-p7
+    editorialLabel: ed:s1-d1
+    destination:
+      editionBlockId: block-special-relativity-eq-s1-d1
+      translationUnits:
+        - trans-special-relativity-eq-s1-d1
+  - id: s1-p8
+    kind: paragraph
+    section: s1
+    locators:
+      - page: 894
+    destination:
+      editionBlockId: block-special-relativity-s1-p8
+      translationUnits:
+        - trans-special-relativity-s1-p8
+  - id: s1-p9
+    kind: paragraph
+    section: s1
+    locators:
+      - page: 894
+    destination:
+      editionBlockId: block-special-relativity-s1-p9
+      translationUnits:
+        - trans-special-relativity-s1-p9
+  - id: s1-p10
+    kind: paragraph
+    section: s1
+    locators:
+      - page: 894
+    destination:
+      editionBlockId: block-special-relativity-s1-p10
+      translationUnits:
+        - trans-special-relativity-s1-p10
+  - id: eq-s1-d2
+    kind: display-equation
+    section: s1
+    locators:
+      - page: 894
+    containedIn: s1-p10
+    editorialLabel: ed:s1-d2
+    destination:
+      editionBlockId: block-special-relativity-eq-s1-d2
+      translationUnits:
+        - trans-special-relativity-eq-s1-d2
+  - id: s1-p11
+    kind: paragraph
+    section: s1
+    locators:
+      - page: 894
+      - page: 895
+    destination:
+      editionBlockId: block-special-relativity-s1-p11
+      translationUnits:
+        - trans-special-relativity-s1-p11
+  - id: s2
+    kind: section-heading
+    section: s2
+    locators:
+      - page: 895
+    destination:
+      editionBlockId: block-special-relativity-s2
+      translationUnits:
+        - trans-special-relativity-s2
+  - id: s2-p1
+    kind: paragraph
+    section: s2
+    locators:
+      - page: 895
+    references:
+      - id: s2-p1-r1
+        occurrenceId: s2-p1-r1
+        printedText: § 1
+        kind: internal
+        target:
+          id: s1
+    destination:
+      editionBlockId: block-special-relativity-s2-p1
+      translationUnits:
+        - trans-special-relativity-s2-p1
+      argumentObligations:
+        - obl-s2-relativity-lengths-times
+  - id: eq-s2-d1
+    kind: display-equation
+    section: s2
+    locators:
+      - page: 895
+    containedIn: s2-p1
+    editorialLabel: ed:s2-d1
+    destination:
+      editionBlockId: block-special-relativity-eq-s2-d1
+      translationUnits:
+        - trans-special-relativity-eq-s2-d1
+  - id: s2-p2
+    kind: paragraph
+    section: s2
+    locators:
+      - page: 895
+      - page: 896
+    references:
+      - id: s2-p2-r1
+        occurrenceId: s2-p2-r1
+        printedText: § 1
+        kind: internal
+        target:
+          id: s1
+    destination:
+      editionBlockId: block-special-relativity-s2-p2
+      translationUnits:
+        - trans-special-relativity-s2-p2
+  - id: s2-p3
+    kind: paragraph
+    section: s2
+    locators:
+      - page: 896
+    destination:
+      editionBlockId: block-special-relativity-s2-p3
+      translationUnits:
+        - trans-special-relativity-s2-p3
+  - id: s2-p4
+    kind: paragraph
+    section: s2
+    locators:
+      - page: 896
+    destination:
+      editionBlockId: block-special-relativity-s2-p4
+      translationUnits:
+        - trans-special-relativity-s2-p4
+  - id: s2-p5
+    kind: paragraph
+    section: s2
+    locators:
+      - page: 896
+    destination:
+      editionBlockId: block-special-relativity-s2-p5
+      translationUnits:
+        - trans-special-relativity-s2-p5
+  - id: s2-p6
+    kind: paragraph
+    section: s2
+    locators:
+      - page: 896
+    destination:
+      editionBlockId: block-special-relativity-s2-p6
+      translationUnits:
+        - trans-special-relativity-s2-p6
+  - id: s2-p7
+    kind: paragraph
+    section: s2
+    locators:
+      - page: 896
+      - page: 897
+    references:
+      - id: s2-p7-r1
+        occurrenceId: s2-p7-r1
+        printedText: § 1
+        kind: internal
+        target:
+          id: s1
+    destination:
+      editionBlockId: block-special-relativity-s2-p7
+      translationUnits:
+        - trans-special-relativity-s2-p7
+  - id: s2-fn1
+    kind: footnote
+    section: s2
+    locators:
+      - page: 896
+    containedIn: s2-p7
+    footnoteMark: 1)
+    markPage: 896
+    destination:
+      editionBlockId: block-special-relativity-s2-fn1
+      translationUnits:
+        - trans-special-relativity-s2-fn1
+  - id: eq-s2-d2
+    kind: display-equation
+    section: s2
+    locators:
+      - page: 896
+    containedIn: s2-p7
+    editorialLabel: ed:s2-d2
+    destination:
+      editionBlockId: block-special-relativity-eq-s2-d2
+      translationUnits:
+        - trans-special-relativity-eq-s2-d2
+  - id: eq-s2-d3
+    kind: display-equation
+    section: s2
+    locators:
+      - page: 897
+    containedIn: s2-p7
+    editorialLabel: ed:s2-d3
+    destination:
+      editionBlockId: block-special-relativity-eq-s2-d3
+      translationUnits:
+        - trans-special-relativity-eq-s2-d3
+  - id: s2-p8
+    kind: paragraph
+    section: s2
+    locators:
+      - page: 897
+    destination:
+      editionBlockId: block-special-relativity-s2-p8
+      translationUnits:
+        - trans-special-relativity-s2-p8
+  - id: s3
+    kind: section-heading
+    section: s3
+    locators:
+      - page: 897
+    destination:
+      editionBlockId: block-special-relativity-s3
+      translationUnits:
+        - trans-special-relativity-s3
+  - id: s3-p1
+    kind: paragraph
+    section: s3
+    locators:
+      - page: 897
+    destination:
+      editionBlockId: block-special-relativity-s3-p1
+      translationUnits:
+        - trans-special-relativity-s3-p1
+      argumentObligations:
+        - obl-s3-coordinate-transformation
+  - id: s3-p2
+    kind: paragraph
+    section: s3
+    locators:
+      - page: 897
+    destination:
+      editionBlockId: block-special-relativity-s3-p2
+      translationUnits:
+        - trans-special-relativity-s3-p2
+  - id: s3-p3
+    kind: paragraph
+    section: s3
+    locators:
+      - page: 897
+      - page: 898
+    references:
+      - id: s3-p3-r1
+        occurrenceId: s3-p3-r1
+        printedText: § 1
+        kind: internal
+        target:
+          id: s1
+      - id: s3-p3-r2
+        occurrenceId: s3-p3-r2
+        printedText: § 1
+        kind: internal
+        target:
+          id: s1
+    destination:
+      editionBlockId: block-special-relativity-s3-p3
+      translationUnits:
+        - trans-special-relativity-s3-p3
+  - id: s3-p4
+    kind: paragraph
+    section: s3
+    locators:
+      - page: 898
+    destination:
+      editionBlockId: block-special-relativity-s3-p4
+      translationUnits:
+        - trans-special-relativity-s3-p4
+  - id: s3-p5
+    kind: paragraph
+    section: s3
+    locators:
+      - page: 898
+    destination:
+      editionBlockId: block-special-relativity-s3-p5
+      translationUnits:
+        - trans-special-relativity-s3-p5
+  - id: s3-p6
+    kind: paragraph
+    section: s3
+    locators:
+      - page: 898
+    references:
+      - id: s3-p6-r1
+        occurrenceId: s3-p6-r1
+        printedText: § 1
+        kind: internal
+        target:
+          id: s1
+    destination:
+      editionBlockId: block-special-relativity-s3-p6
+      translationUnits:
+        - trans-special-relativity-s3-p6
+  - id: s3-p7
+    kind: paragraph
+    section: s3
+    locators:
+      - page: 898
+    destination:
+      editionBlockId: block-special-relativity-s3-p7
+      translationUnits:
+        - trans-special-relativity-s3-p7
+  - id: eq-s3-d1
+    kind: display-equation
+    section: s3
+    locators:
+      - page: 898
+    containedIn: s3-p7
+    editorialLabel: ed:s3-d1
+    destination:
+      editionBlockId: block-special-relativity-eq-s3-d1
+      translationUnits:
+        - trans-special-relativity-eq-s3-d1
+  - id: eq-s3-d2
+    kind: display-equation
+    section: s3
+    locators:
+      - page: 898
+    containedIn: s3-p7
+    editorialLabel: ed:s3-d2
+    destination:
+      editionBlockId: block-special-relativity-eq-s3-d2
+      translationUnits:
+        - trans-special-relativity-eq-s3-d2
+  - id: s3-p8
+    kind: paragraph
+    section: s3
+    locators:
+      - page: 899
+    destination:
+      editionBlockId: block-special-relativity-s3-p8
+      translationUnits:
+        - trans-special-relativity-s3-p8
+  - id: eq-s3-d3
+    kind: display-equation
+    section: s3
+    locators:
+      - page: 899
+    containedIn: s3-p8
+    editorialLabel: ed:s3-d3
+    destination:
+      editionBlockId: block-special-relativity-eq-s3-d3
+      translationUnits:
+        - trans-special-relativity-eq-s3-d3
+  - id: eq-s3-d4
+    kind: display-equation
+    section: s3
+    locators:
+      - page: 899
+    containedIn: s3-p8
+    editorialLabel: ed:s3-d4
+    destination:
+      editionBlockId: block-special-relativity-eq-s3-d4
+      translationUnits:
+        - trans-special-relativity-eq-s3-d4
+  - id: s3-p9
+    kind: paragraph
+    section: s3
+    locators:
+      - page: 899
+    destination:
+      editionBlockId: block-special-relativity-s3-p9
+      translationUnits:
+        - trans-special-relativity-s3-p9
+  - id: s3-p10
+    kind: paragraph
+    section: s3
+    locators:
+      - page: 899
+    destination:
+      editionBlockId: block-special-relativity-s3-p10
+      translationUnits:
+        - trans-special-relativity-s3-p10
+  - id: eq-s3-d5
+    kind: display-equation
+    section: s3
+    locators:
+      - page: 899
+    containedIn: s3-p10
+    editorialLabel: ed:s3-d5
+    destination:
+      editionBlockId: block-special-relativity-eq-s3-d5
+      translationUnits:
+        - trans-special-relativity-eq-s3-d5
+  - id: s3-p11
+    kind: paragraph
+    section: s3
+    locators:
+      - page: 899
+    destination:
+      editionBlockId: block-special-relativity-s3-p11
+      translationUnits:
+        - trans-special-relativity-s3-p11
+  - id: eq-s3-d6
+    kind: display-equation
+    section: s3
+    locators:
+      - page: 899
+    containedIn: s3-p11
+    editorialLabel: ed:s3-d6
+    destination:
+      editionBlockId: block-special-relativity-eq-s3-d6
+      translationUnits:
+        - trans-special-relativity-eq-s3-d6
+  - id: s3-p12
+    kind: paragraph
+    section: s3
+    locators:
+      - page: 899
+    destination:
+      editionBlockId: block-special-relativity-s3-p12
+      translationUnits:
+        - trans-special-relativity-s3-p12
+  - id: eq-s3-d7
+    kind: display-equation
+    section: s3
+    locators:
+      - page: 899
+    containedIn: s3-p12
+    editorialLabel: ed:s3-d7
+    destination:
+      editionBlockId: block-special-relativity-eq-s3-d7
+      translationUnits:
+        - trans-special-relativity-eq-s3-d7
+  - id: eq-s3-d8
+    kind: display-equation
+    section: s3
+    locators:
+      - page: 899
+    containedIn: s3-p12
+    editorialLabel: ed:s3-d8
+    destination:
+      editionBlockId: block-special-relativity-eq-s3-d8
+      translationUnits:
+        - trans-special-relativity-eq-s3-d8
+  - id: s3-p13
+    kind: paragraph
+    section: s3
+    locators:
+      - page: 899
+      - page: 900
+    destination:
+      editionBlockId: block-special-relativity-s3-p13
+      translationUnits:
+        - trans-special-relativity-s3-p13
+  - id: eq-s3-d9
+    kind: display-equation
+    section: s3
+    locators:
+      - page: 900
+    containedIn: s3-p13
+    editorialLabel: ed:s3-d9
+    destination:
+      editionBlockId: block-special-relativity-eq-s3-d9
+      translationUnits:
+        - trans-special-relativity-eq-s3-d9
+  - id: eq-s3-d10
+    kind: display-equation
+    section: s3
+    locators:
+      - page: 900
+    containedIn: s3-p13
+    editorialLabel: ed:s3-d10
+    destination:
+      editionBlockId: block-special-relativity-eq-s3-d10
+      translationUnits:
+        - trans-special-relativity-eq-s3-d10
+  - id: s3-p14
+    kind: paragraph
+    section: s3
+    locators:
+      - page: 900
+    destination:
+      editionBlockId: block-special-relativity-s3-p14
+      translationUnits:
+        - trans-special-relativity-s3-p14
+  - id: eq-s3-d11
+    kind: display-equation
+    section: s3
+    locators:
+      - page: 900
+    containedIn: s3-p14
+    editorialLabel: ed:s3-d11
+    destination:
+      editionBlockId: block-special-relativity-eq-s3-d11
+      translationUnits:
+        - trans-special-relativity-eq-s3-d11
+  - id: eq-s3-d12
+    kind: display-equation
+    section: s3
+    locators:
+      - page: 900
+    containedIn: s3-p14
+    editorialLabel: ed:s3-d12
+    destination:
+      editionBlockId: block-special-relativity-eq-s3-d12
+      translationUnits:
+        - trans-special-relativity-eq-s3-d12
+  - id: eq-s3-d13
+    kind: display-equation
+    section: s3
+    locators:
+      - page: 900
+    containedIn: s3-p14
+    editorialLabel: ed:s3-d13
+    destination:
+      editionBlockId: block-special-relativity-eq-s3-d13
+      translationUnits:
+        - trans-special-relativity-eq-s3-d13
+  - id: eq-s3-d14
+    kind: display-equation
+    section: s3
+    locators:
+      - page: 900
+    containedIn: s3-p14
+    editorialLabel: ed:s3-d14
+    destination:
+      editionBlockId: block-special-relativity-eq-s3-d14
+      translationUnits:
+        - trans-special-relativity-eq-s3-d14
+  - id: eq-s3-d15
+    kind: display-equation
+    section: s3
+    locators:
+      - page: 900
+    containedIn: s3-p14
+    editorialLabel: ed:s3-d15
+    destination:
+      editionBlockId: block-special-relativity-eq-s3-d15
+      translationUnits:
+        - trans-special-relativity-eq-s3-d15
+  - id: eq-s3-d16
+    kind: display-equation
+    section: s3
+    locators:
+      - page: 900
+    containedIn: s3-p14
+    editorialLabel: ed:s3-d16
+    destination:
+      editionBlockId: block-special-relativity-eq-s3-d16
+      translationUnits:
+        - trans-special-relativity-eq-s3-d16
+  - id: s3-p15
+    kind: paragraph
+    section: s3
+    locators:
+      - page: 900
+      - page: 901
+    destination:
+      editionBlockId: block-special-relativity-s3-p15
+      translationUnits:
+        - trans-special-relativity-s3-p15
+  - id: s3-p16
+    kind: paragraph
+    section: s3
+    locators:
+      - page: 901
+    destination:
+      editionBlockId: block-special-relativity-s3-p16
+      translationUnits:
+        - trans-special-relativity-s3-p16
+  - id: eq-s3-d17
+    kind: display-equation
+    section: s3
+    locators:
+      - page: 901
+    containedIn: s3-p16
+    editorialLabel: ed:s3-d17
+    destination:
+      editionBlockId: block-special-relativity-eq-s3-d17
+      translationUnits:
+        - trans-special-relativity-eq-s3-d17
+  - id: eq-s3-d18
+    kind: display-equation
+    section: s3
+    locators:
+      - page: 901
+    containedIn: s3-p16
+    editorialLabel: ed:s3-d18
+    destination:
+      editionBlockId: block-special-relativity-eq-s3-d18
+      translationUnits:
+        - trans-special-relativity-eq-s3-d18
+  - id: s3-p17
+    kind: paragraph
+    section: s3
+    locators:
+      - page: 901
+    destination:
+      editionBlockId: block-special-relativity-s3-p17
+      translationUnits:
+        - trans-special-relativity-s3-p17
+  - id: s3-p18
+    kind: paragraph
+    section: s3
+    locators:
+      - page: 901
+      - page: 902
+    destination:
+      editionBlockId: block-special-relativity-s3-p18
+      translationUnits:
+        - trans-special-relativity-s3-p18
+  - id: eq-s3-d19
+    kind: display-equation
+    section: s3
+    locators:
+      - page: 901
+    containedIn: s3-p18
+    editorialLabel: ed:s3-d19
+    destination:
+      editionBlockId: block-special-relativity-eq-s3-d19
+      translationUnits:
+        - trans-special-relativity-eq-s3-d19
+  - id: eq-s3-d20
+    kind: display-equation
+    section: s3
+    locators:
+      - page: 902
+    containedIn: s3-p18
+    editorialLabel: ed:s3-d20
+    destination:
+      editionBlockId: block-special-relativity-eq-s3-d20
+      translationUnits:
+        - trans-special-relativity-eq-s3-d20
+  - id: s3-p19
+    kind: paragraph
+    section: s3
+    locators:
+      - page: 902
+    destination:
+      editionBlockId: block-special-relativity-s3-p19
+      translationUnits:
+        - trans-special-relativity-s3-p19
+  - id: eq-s3-d21
+    kind: display-equation
+    section: s3
+    locators:
+      - page: 902
+    containedIn: s3-p19
+    editorialLabel: ed:s3-d21
+    destination:
+      editionBlockId: block-special-relativity-eq-s3-d21
+      translationUnits:
+        - trans-special-relativity-eq-s3-d21
+  - id: eq-s3-d22
+    kind: display-equation
+    section: s3
+    locators:
+      - page: 902
+    containedIn: s3-p19
+    editorialLabel: ed:s3-d22
+    destination:
+      editionBlockId: block-special-relativity-eq-s3-d22
+      translationUnits:
+        - trans-special-relativity-eq-s3-d22
+  - id: eq-s3-d23
+    kind: display-equation
+    section: s3
+    locators:
+      - page: 902
+    containedIn: s3-p19
+    editorialLabel: ed:s3-d23
+    destination:
+      editionBlockId: block-special-relativity-eq-s3-d23
+      translationUnits:
+        - trans-special-relativity-eq-s3-d23
+  - id: eq-s3-d24
+    kind: display-equation
+    section: s3
+    locators:
+      - page: 902
+    containedIn: s3-p19
+    editorialLabel: ed:s3-d24
+    destination:
+      editionBlockId: block-special-relativity-eq-s3-d24
+      translationUnits:
+        - trans-special-relativity-eq-s3-d24
+  - id: eq-s3-d25
+    kind: display-equation
+    section: s3
+    locators:
+      - page: 902
+    containedIn: s3-p19
+    editorialLabel: ed:s3-d25
+    destination:
+      editionBlockId: block-special-relativity-eq-s3-d25
+      translationUnits:
+        - trans-special-relativity-eq-s3-d25
+  - id: eq-s3-d26
+    kind: display-equation
+    section: s3
+    locators:
+      - page: 902
+    containedIn: s3-p19
+    editorialLabel: ed:s3-d26
+    destination:
+      editionBlockId: block-special-relativity-eq-s3-d26
+      translationUnits:
+        - trans-special-relativity-eq-s3-d26
+  - id: s4
+    kind: section-heading
+    section: s4
+    locators:
+      - page: 903
+    destination:
+      editionBlockId: block-special-relativity-s4
+      translationUnits:
+        - trans-special-relativity-s4
+  - id: s4-p1
+    kind: paragraph
+    section: s4
+    locators:
+      - page: 903
+    destination:
+      editionBlockId: block-special-relativity-s4-p1
+      translationUnits:
+        - trans-special-relativity-s4-p1
+      argumentObligations:
+        - obl-s4-physical-meaning
+  - id: s4-fn1
+    kind: footnote
+    section: s4
+    locators:
+      - page: 903
+    containedIn: s4-p1
+    footnoteMark: 1)
+    markPage: 903
+    destination:
+      editionBlockId: block-special-relativity-s4-fn1
+      translationUnits:
+        - trans-special-relativity-s4-fn1
+  - id: eq-s4-d1
+    kind: display-equation
+    section: s4
+    locators:
+      - page: 903
+    containedIn: s4-p1
+    editorialLabel: ed:s4-d1
+    destination:
+      editionBlockId: block-special-relativity-eq-s4-d1
+      translationUnits:
+        - trans-special-relativity-eq-s4-d1
+  - id: eq-s4-d2
+    kind: display-equation
+    section: s4
+    locators:
+      - page: 903
+    containedIn: s4-p1
+    editorialLabel: ed:s4-d2
+    destination:
+      editionBlockId: block-special-relativity-eq-s4-d2
+      translationUnits:
+        - trans-special-relativity-eq-s4-d2
+  - id: s4-p2
+    kind: paragraph
+    section: s4
+    locators:
+      - page: 903
+    destination:
+      editionBlockId: block-special-relativity-s4-p2
+      translationUnits:
+        - trans-special-relativity-s4-p2
+  - id: eq-s4-d3
+    kind: display-equation
+    section: s4
+    locators:
+      - page: 903
+    containedIn: s4-p2
+    editorialLabel: ed:s4-d3
+    destination:
+      editionBlockId: block-special-relativity-eq-s4-d3
+      translationUnits:
+        - trans-special-relativity-eq-s4-d3
+  - id: s4-p3
+    kind: paragraph
+    section: s4
+    locators:
+      - page: 903
+    destination:
+      editionBlockId: block-special-relativity-s4-p3
+      translationUnits:
+        - trans-special-relativity-s4-p3
+  - id: s4-p4
+    kind: paragraph
+    section: s4
+    locators:
+      - page: 903
+    destination:
+      editionBlockId: block-special-relativity-s4-p4
+      translationUnits:
+        - trans-special-relativity-s4-p4
+  - id: s4-p5
+    kind: paragraph
+    section: s4
+    locators:
+      - page: 903
+      - page: 904
+    destination:
+      editionBlockId: block-special-relativity-s4-p5
+      translationUnits:
+        - trans-special-relativity-s4-p5
+  - id: eq-s4-d4
+    kind: display-equation
+    section: s4
+    locators:
+      - page: 904
+    containedIn: s4-p5
+    editorialLabel: ed:s4-d4
+    destination:
+      editionBlockId: block-special-relativity-eq-s4-d4
+      translationUnits:
+        - trans-special-relativity-eq-s4-d4
+  - id: eq-s4-d5
+    kind: display-equation
+    section: s4
+    locators:
+      - page: 904
+    containedIn: s4-p5
+    editorialLabel: ed:s4-d5
+    destination:
+      editionBlockId: block-special-relativity-eq-s4-d5
+      translationUnits:
+        - trans-special-relativity-eq-s4-d5
+  - id: eq-s4-d6
+    kind: display-equation
+    section: s4
+    locators:
+      - page: 904
+    containedIn: s4-p5
+    editorialLabel: ed:s4-d6
+    destination:
+      editionBlockId: block-special-relativity-eq-s4-d6
+      translationUnits:
+        - trans-special-relativity-eq-s4-d6
+  - id: s4-p6
+    kind: paragraph
+    section: s4
+    locators:
+      - page: 904
+    destination:
+      editionBlockId: block-special-relativity-s4-p6
+      translationUnits:
+        - trans-special-relativity-s4-p6
+  - id: s4-p7
+    kind: paragraph
+    section: s4
+    locators:
+      - page: 904
+    destination:
+      editionBlockId: block-special-relativity-s4-p7
+      translationUnits:
+        - trans-special-relativity-s4-p7
+  - id: s4-p8
+    kind: paragraph
+    section: s4
+    locators:
+      - page: 904
+      - page: 905
+    destination:
+      editionBlockId: block-special-relativity-s4-p8
+      translationUnits:
+        - trans-special-relativity-s4-p8
+  - id: s5
+    kind: section-heading
+    section: s5
+    locators:
+      - page: 905
+    destination:
+      editionBlockId: block-special-relativity-s5
+      translationUnits:
+        - trans-special-relativity-s5
+  - id: s5-p1
+    kind: paragraph
+    section: s5
+    locators:
+      - page: 905
+    destination:
+      editionBlockId: block-special-relativity-s5-p1
+      translationUnits:
+        - trans-special-relativity-s5-p1
+      argumentObligations:
+        - obl-s5-velocity-addition
+  - id: eq-s5-d1
+    kind: display-equation
+    section: s5
+    locators:
+      - page: 905
+    containedIn: s5-p1
+    editorialLabel: ed:s5-d1
+    destination:
+      editionBlockId: block-special-relativity-eq-s5-d1
+      translationUnits:
+        - trans-special-relativity-eq-s5-d1
+  - id: s5-p2
+    kind: paragraph
+    section: s5
+    locators:
+      - page: 905
+    references:
+      - id: s5-p2-r1
+        occurrenceId: s5-p2-r1
+        printedText: § 3
+        kind: internal
+        target:
+          id: s3
+    destination:
+      editionBlockId: block-special-relativity-s5-p2
+      translationUnits:
+        - trans-special-relativity-s5-p2
+  - id: eq-s5-d2
+    kind: display-equation
+    section: s5
+    locators:
+      - page: 905
+    containedIn: s5-p2
+    editorialLabel: ed:s5-d2
+    destination:
+      editionBlockId: block-special-relativity-eq-s5-d2
+      translationUnits:
+        - trans-special-relativity-eq-s5-d2
+  - id: s5-p3
+    kind: paragraph
+    section: s5
+    locators:
+      - page: 905
+      - page: 906
+    destination:
+      editionBlockId: block-special-relativity-s5-p3
+      translationUnits:
+        - trans-special-relativity-s5-p3
+  - id: eq-s5-d3
+    kind: display-equation
+    section: s5
+    locators:
+      - page: 905
+    containedIn: s5-p3
+    editorialLabel: ed:s5-d3
+    destination:
+      editionBlockId: block-special-relativity-eq-s5-d3
+      translationUnits:
+        - trans-special-relativity-eq-s5-d3
+  - id: eq-s5-d4
+    kind: display-equation
+    section: s5
+    locators:
+      - page: 905
+    containedIn: s5-p3
+    editorialLabel: ed:s5-d4
+    destination:
+      editionBlockId: block-special-relativity-eq-s5-d4
+      translationUnits:
+        - trans-special-relativity-eq-s5-d4
+  - id: eq-s5-d5
+    kind: display-equation
+    section: s5
+    locators:
+      - page: 906
+    containedIn: s5-p3
+    editorialLabel: ed:s5-d5
+    destination:
+      editionBlockId: block-special-relativity-eq-s5-d5
+      translationUnits:
+        - trans-special-relativity-eq-s5-d5
+  - id: s5-p4
+    kind: paragraph
+    section: s5
+    locators:
+      - page: 906
+    destination:
+      editionBlockId: block-special-relativity-s5-p4
+      translationUnits:
+        - trans-special-relativity-s5-p4
+  - id: eq-s5-d6
+    kind: display-equation
+    section: s5
+    locators:
+      - page: 906
+    containedIn: s5-p4
+    editorialLabel: ed:s5-d6
+    destination:
+      editionBlockId: block-special-relativity-eq-s5-d6
+      translationUnits:
+        - trans-special-relativity-eq-s5-d6
+  - id: s5-p5
+    kind: paragraph
+    section: s5
+    locators:
+      - page: 906
+    destination:
+      editionBlockId: block-special-relativity-s5-p5
+      translationUnits:
+        - trans-special-relativity-s5-p5
+  - id: eq-s5-d7
+    kind: display-equation
+    section: s5
+    locators:
+      - page: 906
+    containedIn: s5-p5
+    editorialLabel: ed:s5-d7
+    destination:
+      editionBlockId: block-special-relativity-eq-s5-d7
+      translationUnits:
+        - trans-special-relativity-eq-s5-d7
+  - id: s5-p6
+    kind: paragraph
+    section: s5
+    locators:
+      - page: 906
+    destination:
+      editionBlockId: block-special-relativity-s5-p6
+      translationUnits:
+        - trans-special-relativity-s5-p6
+  - id: eq-s5-d8
+    kind: display-equation
+    section: s5
+    locators:
+      - page: 906
+    containedIn: s5-p6
+    editorialLabel: ed:s5-d8
+    destination:
+      editionBlockId: block-special-relativity-eq-s5-d8
+      translationUnits:
+        - trans-special-relativity-eq-s5-d8
+  - id: s5-p7
+    kind: paragraph
+    section: s5
+    locators:
+      - page: 906
+      - page: 907
+    references:
+      - id: s5-p7-r1
+        occurrenceId: s5-p7-r1
+        printedText: § 3
+        kind: internal
+        target:
+          id: s3
+      - id: s5-p7-r2
+        occurrenceId: s5-p7-r2
+        printedText: § 3
+        kind: internal
+        target:
+          id: s3
+      - id: s5-p7-r3
+        occurrenceId: s5-p7-r3
+        printedText: § 3
+        kind: internal
+        target:
+          id: s3
+    destination:
+      editionBlockId: block-special-relativity-s5-p7
+      translationUnits:
+        - trans-special-relativity-s5-p7
+  - id: eq-s5-d9
+    kind: display-equation
+    section: s5
+    locators:
+      - page: 906
+    containedIn: s5-p7
+    editorialLabel: ed:s5-d9
+    destination:
+      editionBlockId: block-special-relativity-eq-s5-d9
+      translationUnits:
+        - trans-special-relativity-eq-s5-d9
+  - id: s5-p8
+    kind: paragraph
+    section: s5
+    locators:
+      - page: 907
+    destination:
+      editionBlockId: block-special-relativity-s5-p8
+      translationUnits:
+        - trans-special-relativity-s5-p8
+  - id: part-2
+    kind: part-heading
+    locators:
+      - page: 907
+    destination:
+      editionBlockId: block-special-relativity-part-2
+      translationUnits:
+        - trans-special-relativity-part-2
+  - id: s6
+    kind: section-heading
+    section: s6
+    locators:
+      - page: 907
+    destination:
+      editionBlockId: block-special-relativity-s6
+      translationUnits:
+        - trans-special-relativity-s6
+  - id: s6-p1
+    kind: paragraph
+    section: s6
+    locators:
+      - page: 907
+    destination:
+      editionBlockId: block-special-relativity-s6-p1
+      translationUnits:
+        - trans-special-relativity-s6-p1
+      argumentObligations:
+        - obl-s6-maxwell-hertz-transformation
+  - id: eq-s6-d1
+    kind: display-equation
+    section: s6
+    locators:
+      - page: 907
+    containedIn: s6-p1
+    editorialLabel: ed:s6-d1
+    destination:
+      editionBlockId: block-special-relativity-eq-s6-d1
+      translationUnits:
+        - trans-special-relativity-eq-s6-d1
+  - id: s6-p2
+    kind: paragraph
+    section: s6
+    locators:
+      - page: 907
+      - page: 908
+    references:
+      - id: s6-p2-r1
+        occurrenceId: s6-p2-r1
+        printedText: § 3
+        kind: internal
+        target:
+          id: s3
+    destination:
+      editionBlockId: block-special-relativity-s6-p2
+      translationUnits:
+        - trans-special-relativity-s6-p2
+  - id: eq-s6-d2
+    kind: display-equation
+    section: s6
+    locators:
+      - page: 907
+      - page: 908
+    containedIn: s6-p2
+    editorialLabel: ed:s6-d2
+    destination:
+      editionBlockId: block-special-relativity-eq-s6-d2
+      translationUnits:
+        - trans-special-relativity-eq-s6-d2
+  - id: eq-s6-d3
+    kind: display-equation
+    section: s6
+    locators:
+      - page: 908
+    containedIn: s6-p2
+    editorialLabel: ed:s6-d3
+    destination:
+      editionBlockId: block-special-relativity-eq-s6-d3
+      translationUnits:
+        - trans-special-relativity-eq-s6-d3
+  - id: s6-p3
+    kind: paragraph
+    section: s6
+    locators:
+      - page: 908
+    destination:
+      editionBlockId: block-special-relativity-s6-p3
+      translationUnits:
+        - trans-special-relativity-s6-p3
+  - id: eq-s6-d4
+    kind: display-equation
+    section: s6
+    locators:
+      - page: 908
+    containedIn: s6-p3
+    editorialLabel: ed:s6-d4
+    destination:
+      editionBlockId: block-special-relativity-eq-s6-d4
+      translationUnits:
+        - trans-special-relativity-eq-s6-d4
+  - id: s6-p4
+    kind: paragraph
+    section: s6
+    locators:
+      - page: 908
+    destination:
+      editionBlockId: block-special-relativity-s6-p4
+      translationUnits:
+        - trans-special-relativity-s6-p4
+  - id: eq-s6-d5
+    kind: display-equation
+    section: s6
+    locators:
+      - page: 908
+    containedIn: s6-p4
+    editorialLabel: ed:s6-d5
+    destination:
+      editionBlockId: block-special-relativity-eq-s6-d5
+      translationUnits:
+        - trans-special-relativity-eq-s6-d5
+  - id: s6-p5
+    kind: paragraph
+    section: s6
+    locators:
+      - page: 909
+    destination:
+      editionBlockId: block-special-relativity-s6-p5
+      translationUnits:
+        - trans-special-relativity-s6-p5
+  - id: s6-fn1
+    kind: footnote
+    section: s6
+    locators:
+      - page: 909
+    containedIn: s6-p5
+    footnoteMark: 1)
+    markPage: 909
+    destination:
+      editionBlockId: block-special-relativity-s6-fn1
+      translationUnits:
+        - trans-special-relativity-s6-fn1
+  - id: eq-s6-d6
+    kind: display-equation
+    section: s6
+    locators:
+      - page: 909
+    containedIn: s6-p5
+    editorialLabel: ed:s6-d6
+    destination:
+      editionBlockId: block-special-relativity-eq-s6-d6
+      translationUnits:
+        - trans-special-relativity-eq-s6-d6
+  - id: eq-s6-d7
+    kind: display-equation
+    section: s6
+    locators:
+      - page: 909
+    containedIn: s6-p5
+    editorialLabel: ed:s6-d7
+    destination:
+      editionBlockId: block-special-relativity-eq-s6-d7
+      translationUnits:
+        - trans-special-relativity-eq-s6-d7
+  - id: eq-s6-d8
+    kind: display-equation
+    section: s6
+    locators:
+      - page: 909
+    containedIn: s6-p5
+    editorialLabel: ed:s6-d8
+    destination:
+      editionBlockId: block-special-relativity-eq-s6-d8
+      translationUnits:
+        - trans-special-relativity-eq-s6-d8
+  - id: eq-s6-d9
+    kind: display-equation
+    section: s6
+    locators:
+      - page: 909
+    containedIn: s6-p5
+    editorialLabel: ed:s6-d9
+    destination:
+      editionBlockId: block-special-relativity-eq-s6-d9
+      translationUnits:
+        - trans-special-relativity-eq-s6-d9
+  - id: s6-p6
+    kind: paragraph
+    section: s6
+    locators:
+      - page: 909
+      - page: 910
+    destination:
+      editionBlockId: block-special-relativity-s6-p6
+      translationUnits:
+        - trans-special-relativity-s6-p6
+  - id: s6-p7
+    kind: paragraph
+    section: s6
+    locators:
+      - page: 910
+    destination:
+      editionBlockId: block-special-relativity-s6-p7
+      translationUnits:
+        - trans-special-relativity-s6-p7
+  - id: s6-p8
+    kind: paragraph
+    section: s6
+    locators:
+      - page: 910
+    references:
+      - id: s6-p8-r1
+        occurrenceId: s6-p8-r1
+        printedText: Einleitung
+        kind: internal
+        target:
+          id: s0
+    destination:
+      editionBlockId: block-special-relativity-s6-p8
+      translationUnits:
+        - trans-special-relativity-s6-p8
+  - id: s7
+    kind: section-heading
+    section: s7
+    locators:
+      - page: 910
+    destination:
+      editionBlockId: block-special-relativity-s7
+      translationUnits:
+        - trans-special-relativity-s7
+  - id: s7-p1
+    kind: paragraph
+    section: s7
+    locators:
+      - page: 910
+    destination:
+      editionBlockId: block-special-relativity-s7-p1
+      translationUnits:
+        - trans-special-relativity-s7-p1
+      argumentObligations:
+        - obl-s7-doppler-aberration
+  - id: eq-s7-d1
+    kind: display-equation
+    section: s7
+    locators:
+      - page: 910
+    containedIn: s7-p1
+    editorialLabel: ed:s7-d1
+    destination:
+      editionBlockId: block-special-relativity-eq-s7-d1
+      translationUnits:
+        - trans-special-relativity-eq-s7-d1
+  - id: s7-p2
+    kind: paragraph
+    section: s7
+    locators:
+      - page: 910
+      - page: 911
+    references:
+      - id: s7-p2-r1
+        occurrenceId: s7-p2-r1
+        printedText: § 6
+        kind: internal
+        target:
+          id: s6
+      - id: s7-p2-r2
+        occurrenceId: s7-p2-r2
+        printedText: § 3
+        kind: internal
+        target:
+          id: s3
+    destination:
+      editionBlockId: block-special-relativity-s7-p2
+      translationUnits:
+        - trans-special-relativity-s7-p2
+  - id: eq-s7-d2
+    kind: display-equation
+    section: s7
+    locators:
+      - page: 911
+    containedIn: s7-p2
+    editorialLabel: ed:s7-d2
+    destination:
+      editionBlockId: block-special-relativity-eq-s7-d2
+      translationUnits:
+        - trans-special-relativity-eq-s7-d2
+  - id: eq-s7-d3
+    kind: display-equation
+    section: s7
+    locators:
+      - page: 911
+    containedIn: s7-p2
+    editorialLabel: ed:s7-d3
+    destination:
+      editionBlockId: block-special-relativity-eq-s7-d3
+      translationUnits:
+        - trans-special-relativity-eq-s7-d3
+  - id: eq-s7-d4
+    kind: display-equation
+    section: s7
+    locators:
+      - page: 911
+    containedIn: s7-p2
+    editorialLabel: ed:s7-d4
+    destination:
+      editionBlockId: block-special-relativity-eq-s7-d4
+      translationUnits:
+        - trans-special-relativity-eq-s7-d4
+  - id: eq-s7-d5
+    kind: display-equation
+    section: s7
+    locators:
+      - page: 911
+    containedIn: s7-p2
+    editorialLabel: ed:s7-d5
+    destination:
+      editionBlockId: block-special-relativity-eq-s7-d5
+      translationUnits:
+        - trans-special-relativity-eq-s7-d5
+  - id: eq-s7-d6
+    kind: display-equation
+    section: s7
+    locators:
+      - page: 911
+    containedIn: s7-p2
+    editorialLabel: ed:s7-d6
+    destination:
+      editionBlockId: block-special-relativity-eq-s7-d6
+      translationUnits:
+        - trans-special-relativity-eq-s7-d6
+  - id: s7-p3
+    kind: paragraph
+    section: s7
+    locators:
+      - page: 911
+    destination:
+      editionBlockId: block-special-relativity-s7-p3
+      translationUnits:
+        - trans-special-relativity-s7-p3
+  - id: eq-s7-d7
+    kind: display-equation
+    section: s7
+    locators:
+      - page: 911
+    containedIn: s7-p3
+    editorialLabel: ed:s7-d7
+    destination:
+      editionBlockId: block-special-relativity-eq-s7-d7
+      translationUnits:
+        - trans-special-relativity-eq-s7-d7
+  - id: s7-p4
+    kind: paragraph
+    section: s7
+    locators:
+      - page: 911
+      - page: 912
+    destination:
+      editionBlockId: block-special-relativity-s7-p4
+      translationUnits:
+        - trans-special-relativity-s7-p4
+  - id: eq-s7-d8
+    kind: display-equation
+    section: s7
+    locators:
+      - page: 912
+    containedIn: s7-p4
+    editorialLabel: ed:s7-d8
+    destination:
+      editionBlockId: block-special-relativity-eq-s7-d8
+      translationUnits:
+        - trans-special-relativity-eq-s7-d8
+  - id: s7-p5
+    kind: paragraph
+    section: s7
+    locators:
+      - page: 912
+    destination:
+      editionBlockId: block-special-relativity-s7-p5
+      translationUnits:
+        - trans-special-relativity-s7-p5
+  - id: eq-s7-d9
+    kind: display-equation
+    section: s7
+    locators:
+      - page: 912
+    containedIn: s7-p5
+    editorialLabel: ed:s7-d9
+    destination:
+      editionBlockId: block-special-relativity-eq-s7-d9
+      translationUnits:
+        - trans-special-relativity-eq-s7-d9
+  - id: eq-s7-d10
+    kind: display-equation
+    section: s7
+    locators:
+      - page: 912
+    containedIn: s7-p5
+    editorialLabel: ed:s7-d10
+    destination:
+      editionBlockId: block-special-relativity-eq-s7-d10
+      translationUnits:
+        - trans-special-relativity-eq-s7-d10
+  - id: s7-p6
+    kind: paragraph
+    section: s7
+    locators:
+      - page: 912
+    destination:
+      editionBlockId: block-special-relativity-s7-p6
+      translationUnits:
+        - trans-special-relativity-s7-p6
+  - id: eq-s7-d11
+    kind: display-equation
+    section: s7
+    locators:
+      - page: 912
+    containedIn: s7-p6
+    editorialLabel: ed:s7-d11
+    destination:
+      editionBlockId: block-special-relativity-eq-s7-d11
+      translationUnits:
+        - trans-special-relativity-eq-s7-d11
+  - id: eq-s7-d12
+    kind: display-equation
+    section: s7
+    locators:
+      - page: 912
+    containedIn: s7-p6
+    editorialLabel: ed:s7-d12
+    destination:
+      editionBlockId: block-special-relativity-eq-s7-d12
+      translationUnits:
+        - trans-special-relativity-eq-s7-d12
+  - id: s7-p7
+    kind: paragraph
+    section: s7
+    locators:
+      - page: 912
+    destination:
+      editionBlockId: block-special-relativity-s7-p7
+      translationUnits:
+        - trans-special-relativity-s7-p7
+  - id: s8
+    kind: section-heading
+    section: s8
+    locators:
+      - page: 913
+    destination:
+      editionBlockId: block-special-relativity-s8
+      translationUnits:
+        - trans-special-relativity-s8
+  - id: s8-p1
+    kind: paragraph
+    section: s8
+    locators:
+      - page: 913
+    destination:
+      editionBlockId: block-special-relativity-s8-p1
+      translationUnits:
+        - trans-special-relativity-s8-p1
+      argumentObligations:
+        - obl-s8-energy-radiation-pressure
+  - id: eq-s8-d1
+    kind: display-equation
+    section: s8
+    locators:
+      - page: 913
+    containedIn: s8-p1
+    editorialLabel: ed:s8-d1
+    destination:
+      editionBlockId: block-special-relativity-eq-s8-d1
+      translationUnits:
+        - trans-special-relativity-eq-s8-d1
+  - id: s8-p2
+    kind: paragraph
+    section: s8
+    locators:
+      - page: 913
+    destination:
+      editionBlockId: block-special-relativity-s8-p2
+      translationUnits:
+        - trans-special-relativity-s8-p2
+  - id: eq-s8-d2
+    kind: display-equation
+    section: s8
+    locators:
+      - page: 913
+    containedIn: s8-p2
+    editorialLabel: ed:s8-d2
+    destination:
+      editionBlockId: block-special-relativity-eq-s8-d2
+      translationUnits:
+        - trans-special-relativity-eq-s8-d2
+  - id: s8-p3
+    kind: paragraph
+    section: s8
+    locators:
+      - page: 913
+    destination:
+      editionBlockId: block-special-relativity-s8-p3
+      translationUnits:
+        - trans-special-relativity-s8-p3
+  - id: eq-s8-d3
+    kind: display-equation
+    section: s8
+    locators:
+      - page: 913
+    containedIn: s8-p3
+    editorialLabel: ed:s8-d3
+    destination:
+      editionBlockId: block-special-relativity-eq-s8-d3
+      translationUnits:
+        - trans-special-relativity-eq-s8-d3
+  - id: s8-p4
+    kind: paragraph
+    section: s8
+    locators:
+      - page: 913
+      - page: 914
+    destination:
+      editionBlockId: block-special-relativity-s8-p4
+      translationUnits:
+        - trans-special-relativity-s8-p4
+  - id: eq-s8-d4
+    kind: display-equation
+    section: s8
+    locators:
+      - page: 913
+    containedIn: s8-p4
+    editorialLabel: ed:s8-d4
+    destination:
+      editionBlockId: block-special-relativity-eq-s8-d4
+      translationUnits:
+        - trans-special-relativity-eq-s8-d4
+  - id: eq-s8-d5
+    kind: display-equation
+    section: s8
+    locators:
+      - page: 914
+    containedIn: s8-p4
+    editorialLabel: ed:s8-d5
+    destination:
+      editionBlockId: block-special-relativity-eq-s8-d5
+      translationUnits:
+        - trans-special-relativity-eq-s8-d5
+  - id: s8-p5
+    kind: paragraph
+    section: s8
+    locators:
+      - page: 914
+    destination:
+      editionBlockId: block-special-relativity-s8-p5
+      translationUnits:
+        - trans-special-relativity-s8-p5
+  - id: s8-p6
+    kind: paragraph
+    section: s8
+    locators:
+      - page: 914
+    references:
+      - id: s8-p6-r1
+        occurrenceId: s8-p6-r1
+        printedText: letzten Paragraph
+        kind: internal
+        target:
+          id: s7
+    destination:
+      editionBlockId: block-special-relativity-s8-p6
+      translationUnits:
+        - trans-special-relativity-s8-p6
+  - id: s8-p7
+    kind: paragraph
+    section: s8
+    locators:
+      - page: 914
+    destination:
+      editionBlockId: block-special-relativity-s8-p7
+      translationUnits:
+        - trans-special-relativity-s8-p7
+  - id: eq-s8-d6
+    kind: display-equation
+    section: s8
+    locators:
+      - page: 914
+    containedIn: s8-p7
+    editorialLabel: ed:s8-d6
+    destination:
+      editionBlockId: block-special-relativity-eq-s8-d6
+      translationUnits:
+        - trans-special-relativity-eq-s8-d6
+  - id: eq-s8-d7
+    kind: display-equation
+    section: s8
+    locators:
+      - page: 914
+    containedIn: s8-p7
+    editorialLabel: ed:s8-d7
+    destination:
+      editionBlockId: block-special-relativity-eq-s8-d7
+      translationUnits:
+        - trans-special-relativity-eq-s8-d7
+  - id: eq-s8-d8
+    kind: display-equation
+    section: s8
+    locators:
+      - page: 914
+    containedIn: s8-p7
+    editorialLabel: ed:s8-d8
+    destination:
+      editionBlockId: block-special-relativity-eq-s8-d8
+      translationUnits:
+        - trans-special-relativity-eq-s8-d8
+  - id: s8-p8
+    kind: paragraph
+    section: s8
+    locators:
+      - page: 914
+    destination:
+      editionBlockId: block-special-relativity-s8-p8
+      translationUnits:
+        - trans-special-relativity-s8-p8
+  - id: eq-s8-d9
+    kind: display-equation
+    section: s8
+    locators:
+      - page: 914
+    containedIn: s8-p8
+    editorialLabel: ed:s8-d9
+    destination:
+      editionBlockId: block-special-relativity-eq-s8-d9
+      translationUnits:
+        - trans-special-relativity-eq-s8-d9
+  - id: s8-p9
+    kind: paragraph
+    section: s8
+    locators:
+      - page: 914
+      - page: 915
+    destination:
+      editionBlockId: block-special-relativity-s8-p9
+      translationUnits:
+        - trans-special-relativity-s8-p9
+  - id: eq-s8-d10
+    kind: display-equation
+    section: s8
+    locators:
+      - page: 915
+    containedIn: s8-p9
+    editorialLabel: ed:s8-d10
+    destination:
+      editionBlockId: block-special-relativity-eq-s8-d10
+      translationUnits:
+        - trans-special-relativity-eq-s8-d10
+  - id: eq-s8-d11
+    kind: display-equation
+    section: s8
+    locators:
+      - page: 915
+    containedIn: s8-p9
+    editorialLabel: ed:s8-d11
+    destination:
+      editionBlockId: block-special-relativity-eq-s8-d11
+      translationUnits:
+        - trans-special-relativity-eq-s8-d11
+  - id: eq-s8-d12
+    kind: display-equation
+    section: s8
+    locators:
+      - page: 915
+    containedIn: s8-p9
+    editorialLabel: ed:s8-d12
+    destination:
+      editionBlockId: block-special-relativity-eq-s8-d12
+      translationUnits:
+        - trans-special-relativity-eq-s8-d12
+  - id: s8-p10
+    kind: paragraph
+    section: s8
+    locators:
+      - page: 915
+    destination:
+      editionBlockId: block-special-relativity-s8-p10
+      translationUnits:
+        - trans-special-relativity-s8-p10
+  - id: eq-s8-d13
+    kind: display-equation
+    section: s8
+    locators:
+      - page: 915
+    containedIn: s8-p10
+    editorialLabel: ed:s8-d13
+    destination:
+      editionBlockId: block-special-relativity-eq-s8-d13
+      translationUnits:
+        - trans-special-relativity-eq-s8-d13
+  - id: s8-p11
+    kind: paragraph
+    section: s8
+    locators:
+      - page: 915
+    destination:
+      editionBlockId: block-special-relativity-s8-p11
+      translationUnits:
+        - trans-special-relativity-s8-p11
+  - id: eq-s8-d14
+    kind: display-equation
+    section: s8
+    locators:
+      - page: 915
+    containedIn: s8-p11
+    editorialLabel: ed:s8-d14
+    destination:
+      editionBlockId: block-special-relativity-eq-s8-d14
+      translationUnits:
+        - trans-special-relativity-eq-s8-d14
+  - id: s8-p12
+    kind: paragraph
+    section: s8
+    locators:
+      - page: 915
+    destination:
+      editionBlockId: block-special-relativity-s8-p12
+      translationUnits:
+        - trans-special-relativity-s8-p12
+  - id: s9
+    kind: section-heading
+    section: s9
+    locators:
+      - page: 916
+    destination:
+      editionBlockId: block-special-relativity-s9
+      translationUnits:
+        - trans-special-relativity-s9
+  - id: s9-p1
+    kind: paragraph
+    section: s9
+    locators:
+      - page: 916
+    destination:
+      editionBlockId: block-special-relativity-s9-p1
+      translationUnits:
+        - trans-special-relativity-s9-p1
+      argumentObligations:
+        - obl-s9-convection-currents
+  - id: eq-s9-d1
+    kind: display-equation
+    section: s9
+    locators:
+      - page: 916
+    containedIn: s9-p1
+    editorialLabel: ed:s9-d1
+    destination:
+      editionBlockId: block-special-relativity-eq-s9-d1
+      translationUnits:
+        - trans-special-relativity-eq-s9-d1
+  - id: eq-s9-d2
+    kind: display-equation
+    section: s9
+    locators:
+      - page: 916
+    containedIn: s9-p1
+    editorialLabel: ed:s9-d2
+    destination:
+      editionBlockId: block-special-relativity-eq-s9-d2
+      translationUnits:
+        - trans-special-relativity-eq-s9-d2
+  - id: s9-p2
+    kind: paragraph
+    section: s9
+    locators:
+      - page: 916
+      - page: 917
+    references:
+      - id: s9-p2-r1
+        occurrenceId: s9-p2-r1
+        printedText: § 3
+        kind: internal
+        target:
+          id: s3
+      - id: s9-p2-r2
+        occurrenceId: s9-p2-r2
+        printedText: § 6
+        kind: internal
+        target:
+          id: s6
+      - id: s9-p2-r3
+        occurrenceId: s9-p2-r3
+        printedText: § 5
+        kind: internal
+        target:
+          id: s5
+    destination:
+      editionBlockId: block-special-relativity-s9-p2
+      translationUnits:
+        - trans-special-relativity-s9-p2
+  - id: eq-s9-d3
+    kind: display-equation
+    section: s9
+    locators:
+      - page: 916
+    containedIn: s9-p2
+    editorialLabel: ed:s9-d3
+    destination:
+      editionBlockId: block-special-relativity-eq-s9-d3
+      translationUnits:
+        - trans-special-relativity-eq-s9-d3
+  - id: eq-s9-d4
+    kind: display-equation
+    section: s9
+    locators:
+      - page: 916
+    containedIn: s9-p2
+    editorialLabel: ed:s9-d4
+    destination:
+      editionBlockId: block-special-relativity-eq-s9-d4
+      translationUnits:
+        - trans-special-relativity-eq-s9-d4
+  - id: s9-p3
+    kind: paragraph
+    section: s9
+    locators:
+      - page: 917
+    destination:
+      editionBlockId: block-special-relativity-s9-p3
+      translationUnits:
+        - trans-special-relativity-s9-p3
+  - id: s10
+    kind: section-heading
+    section: s10
+    locators:
+      - page: 917
+    destination:
+      editionBlockId: block-special-relativity-s10
+      translationUnits:
+        - trans-special-relativity-s10
+  - id: s10-p1
+    kind: paragraph
+    section: s10
+    locators:
+      - page: 917
+    destination:
+      editionBlockId: block-special-relativity-s10-p1
+      translationUnits:
+        - trans-special-relativity-s10-p1
+      argumentObligations:
+        - obl-s10-electron-dynamics
+  - id: s10-p2
+    kind: paragraph
+    section: s10
+    locators:
+      - page: 917
+    destination:
+      editionBlockId: block-special-relativity-s10-p2
+      translationUnits:
+        - trans-special-relativity-s10-p2
+  - id: eq-s10-d1
+    kind: display-equation
+    section: s10
+    locators:
+      - page: 917
+    containedIn: s10-p2
+    editorialLabel: ed:s10-d1
+    destination:
+      editionBlockId: block-special-relativity-eq-s10-d1
+      translationUnits:
+        - trans-special-relativity-eq-s10-d1
+  - id: s10-p3
+    kind: paragraph
+    section: s10
+    locators:
+      - page: 917
+    destination:
+      editionBlockId: block-special-relativity-s10-p3
+      translationUnits:
+        - trans-special-relativity-s10-p3
+  - id: s10-p4
+    kind: paragraph
+    section: s10
+    locators:
+      - page: 917
+      - page: 918
+    destination:
+      editionBlockId: block-special-relativity-s10-p4
+      translationUnits:
+        - trans-special-relativity-s10-p4
+  - id: s10-p5
+    kind: paragraph
+    section: s10
+    locators:
+      - page: 918
+    references:
+      - id: s10-p5-r1
+        occurrenceId: s10-p5-r1
+        printedText: §§ 3
+        kind: internal
+        target:
+          id: s3
+      - id: s10-p5-r2
+        occurrenceId: s10-p5-r2
+        printedText: '6'
+        kind: internal
+        target:
+          id: s6
+    destination:
+      editionBlockId: block-special-relativity-s10-p5
+      translationUnits:
+        - trans-special-relativity-s10-p5
+  - id: eq-s10-d2
+    kind: display-equation
+    section: s10
+    locators:
+      - page: 918
+    containedIn: s10-p5
+    editorialLabel: ed:s10-d2
+    destination:
+      editionBlockId: block-special-relativity-eq-s10-d2
+      translationUnits:
+        - trans-special-relativity-eq-s10-d2
+  - id: eq-s10-d3
+    kind: display-equation
+    section: s10
+    locators:
+      - page: 918
+    containedIn: s10-p5
+    editorialLabel: ed:s10-d3
+    destination:
+      editionBlockId: block-special-relativity-eq-s10-d3
+      translationUnits:
+        - trans-special-relativity-eq-s10-d3
+  - id: s10-p6
+    kind: paragraph
+    section: s10
+    locators:
+      - page: 918
+    destination:
+      editionBlockId: block-special-relativity-s10-p6
+      translationUnits:
+        - trans-special-relativity-s10-p6
+  - id: eq-A
+    kind: display-equation
+    section: s10
+    locators:
+      - page: 918
+    containedIn: s10-p6
+    originalLabel: (A)
+    editorialLabel: ed:s10-A
+    destination:
+      editionBlockId: block-special-relativity-eq-A
+      translationUnits:
+        - trans-special-relativity-eq-A
+  - id: s10-p7
+    kind: paragraph
+    section: s10
+    locators:
+      - page: 918
+      - page: 919
+    references:
+      - id: s10-p7-r1
+        occurrenceId: s10-p7-r1
+        printedText: (A)
+        kind: internal
+        target:
+          id: eq-A
+    destination:
+      editionBlockId: block-special-relativity-s10-p7
+      translationUnits:
+        - trans-special-relativity-s10-p7
+  - id: eq-s10-d4
+    kind: display-equation
+    section: s10
+    locators:
+      - page: 919
+    containedIn: s10-p7
+    editorialLabel: ed:s10-d4
+    destination:
+      editionBlockId: block-special-relativity-eq-s10-d4
+      translationUnits:
+        - trans-special-relativity-eq-s10-d4
+  - id: eq-s10-d5
+    kind: display-equation
+    section: s10
+    locators:
+      - page: 919
+    containedIn: s10-p7
+    editorialLabel: ed:s10-d5
+    destination:
+      editionBlockId: block-special-relativity-eq-s10-d5
+      translationUnits:
+        - trans-special-relativity-eq-s10-d5
+  - id: eq-s10-d6
+    kind: display-equation
+    section: s10
+    locators:
+      - page: 919
+    containedIn: s10-p7
+    editorialLabel: ed:s10-d6
+    destination:
+      editionBlockId: block-special-relativity-eq-s10-d6
+      translationUnits:
+        - trans-special-relativity-eq-s10-d6
+  - id: eq-s10-d7
+    kind: display-equation
+    section: s10
+    locators:
+      - page: 919
+    containedIn: s10-p7
+    editorialLabel: ed:s10-d7
+    destination:
+      editionBlockId: block-special-relativity-eq-s10-d7
+      translationUnits:
+        - trans-special-relativity-eq-s10-d7
+  - id: s10-p8
+    kind: paragraph
+    section: s10
+    locators:
+      - page: 919
+    destination:
+      editionBlockId: block-special-relativity-s10-p8
+      translationUnits:
+        - trans-special-relativity-s10-p8
+  - id: s10-p9
+    kind: paragraph
+    section: s10
+    locators:
+      - page: 919
+    destination:
+      editionBlockId: block-special-relativity-s10-p9
+      translationUnits:
+        - trans-special-relativity-s10-p9
+  - id: s10-p10
+    kind: paragraph
+    section: s10
+    locators:
+      - page: 919
+      - page: 920
+    references:
+      - id: s10-p10-r1
+        occurrenceId: s10-p10-r1
+        printedText: (A)
+        kind: internal
+        target:
+          id: eq-A
+    destination:
+      editionBlockId: block-special-relativity-s10-p10
+      translationUnits:
+        - trans-special-relativity-s10-p10
+  - id: eq-s10-d8
+    kind: display-equation
+    section: s10
+    locators:
+      - page: 920
+    containedIn: s10-p10
+    editorialLabel: ed:s10-d8
+    destination:
+      editionBlockId: block-special-relativity-eq-s10-d8
+      translationUnits:
+        - trans-special-relativity-eq-s10-d8
+  - id: s10-p11
+    kind: paragraph
+    section: s10
+    locators:
+      - page: 920
+    destination:
+      editionBlockId: block-special-relativity-s10-p11
+      translationUnits:
+        - trans-special-relativity-s10-p11
+  - id: s10-p12
+    kind: paragraph
+    section: s10
+    locators:
+      - page: 920
+    destination:
+      editionBlockId: block-special-relativity-s10-p12
+      translationUnits:
+        - trans-special-relativity-s10-p12
+  - id: s10-p13
+    kind: paragraph
+    section: s10
+    locators:
+      - page: 920
+      - page: 921
+    references:
+      - id: s10-p13-r1
+        occurrenceId: s10-p13-r1
+        printedText: (A)
+        kind: internal
+        target:
+          id: eq-A
+      - id: s10-p13-r2
+        occurrenceId: s10-p13-r2
+        printedText: (A)
+        kind: internal
+        target:
+          id: eq-A
+      - id: s10-p13-r3
+        occurrenceId: s10-p13-r3
+        printedText: (A)
+        kind: internal
+        target:
+          id: eq-A
+    destination:
+      editionBlockId: block-special-relativity-s10-p13
+      translationUnits:
+        - trans-special-relativity-s10-p13
+  - id: eq-s10-d9
+    kind: display-equation
+    section: s10
+    locators:
+      - page: 920
+    containedIn: s10-p13
+    editorialLabel: ed:s10-d9
+    destination:
+      editionBlockId: block-special-relativity-eq-s10-d9
+      translationUnits:
+        - trans-special-relativity-eq-s10-d9
+  - id: eq-s10-d10
+    kind: display-equation
+    section: s10
+    locators:
+      - page: 921
+    containedIn: s10-p13
+    editorialLabel: ed:s10-d10
+    destination:
+      editionBlockId: block-special-relativity-eq-s10-d10
+      translationUnits:
+        - trans-special-relativity-eq-s10-d10
+  - id: eq-s10-d11
+    kind: display-equation
+    section: s10
+    locators:
+      - page: 921
+    containedIn: s10-p13
+    editorialLabel: ed:s10-d11
+    destination:
+      editionBlockId: block-special-relativity-eq-s10-d11
+      translationUnits:
+        - trans-special-relativity-eq-s10-d11
+  - id: eq-s10-d12
+    kind: display-equation
+    section: s10
+    locators:
+      - page: 921
+    containedIn: s10-p13
+    editorialLabel: ed:s10-d12
+    destination:
+      editionBlockId: block-special-relativity-eq-s10-d12
+      translationUnits:
+        - trans-special-relativity-eq-s10-d12
+  - id: s10-p14
+    kind: paragraph
+    section: s10
+    locators:
+      - page: 921
+    destination:
+      editionBlockId: block-special-relativity-s10-p14
+      translationUnits:
+        - trans-special-relativity-s10-p14
+  - id: closing-ack
+    kind: closing-ack
+    locators:
+      - page: 921
+    destination:
+      editionBlockId: block-special-relativity-closing-ack
+      translationUnits:
+        - trans-special-relativity-closing-ack
+      argumentObligations:
+        - obl-closing-acknowledgment
+  - id: closing-dateline
+    kind: closing-dateline
+    locators:
+      - page: 921
+    destination:
+      editionBlockId: block-special-relativity-closing-dateline
+      translationUnits:
+        - trans-special-relativity-closing-dateline
+  - id: closing-received
+    kind: closing-received
+    locators:
+      - page: 921
+    destination:
+      editionBlockId: block-special-relativity-closing-received
+      translationUnits:
+        - trans-special-relativity-closing-received
