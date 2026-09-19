@@ -165,10 +165,12 @@ test("scopedGlyphs: every paper carries at least one cross-paper glyph collision
   for (const list of groups.values()) {
     for (const reading of list) covered.add(reading.paper);
   }
-  assert.equal(
-    REQUIRED_PAPERS.length,
-    4,
-    "the edition publishes four papers besides the companion",
+  // The four by name. A length of 4 is satisfied by any four slugs, including a set that
+  // silently swapped a paper for the companion.
+  assert.deepEqual(
+    [...REQUIRED_PAPERS].sort(),
+    ["brownian-motion", "light-quanta", "mass-energy", "special-relativity"],
+    "coverage is required for exactly the four papers of the edition",
   );
   for (const paper of REQUIRED_PAPERS) {
     assert.ok(covered.has(paper), `${paper} has no cross-paper glyph collision in the set`);

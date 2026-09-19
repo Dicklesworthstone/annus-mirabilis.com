@@ -175,10 +175,15 @@ test("mass-energy: colour is never the only channel carrying a distinction", () 
   // 1. Every colorized term carries its identity in a non-colour channel (the term id),
   //    beside the role class that drives the colour.
   const termMarkers = [...colorized.latex.matchAll(/\\htmlData\{term=([^}]+)\}/g)].map((m) => m[1]);
-  assert.ok(termMarkers.length >= 2, `expected bound terms, got ${colorized.latex}`);
-  for (const termId of termMarkers) {
-    assert.ok(typeof termId === "string" && termId.length > 0);
-  }
+  // The specific ids, not a count of them. "at least two markers" is satisfied by two
+  // markers on the SAME term while the other symbol goes unmarked entirely - the count
+  // matching while the property fails, which is the error pane30 found in the light-quanta
+  // manifest (50 units, 50 printed starts, boundaries wrong in both directions).
+  assert.deepEqual(
+    [...termMarkers].sort(),
+    ["eq-s0-d1.t.emitted", "eq-s0-d1.t.lightSpeed"],
+    `both bound symbols must carry their own identity marker, got ${colorized.latex}`,
+  );
 
   // 2. Two terms may share a role class, and therefore a colour. They must still be told
   //    apart without it, so the term ids are distinct even when the roles coincide.
@@ -212,7 +217,13 @@ test("mass-energy: every rendered term is bound to a canonical quantity in the r
     registry: MASS_ENERGY_QUANTITIES,
   });
 
-  assert.ok(res.termSpans.length >= 2, "expected term spans for both bound symbols");
+  // Again the ids, not the tally: a span emitted twice for one symbol would satisfy a count
+  // of two while the other symbol had no span at all.
+  assert.deepEqual(
+    res.termSpans.map((span) => span.termId ?? span.id).sort(),
+    ["eq-s0-d1.t.emitted", "eq-s0-d1.t.lightSpeed"],
+    "each bound symbol must have exactly one term span, named",
+  );
   const boundQuantities = ["emittedEnergyRestFrame", "speedOfLight"];
   for (const quantityId of boundQuantities) {
     assert.ok(

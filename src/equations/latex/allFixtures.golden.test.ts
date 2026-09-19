@@ -222,5 +222,13 @@ test("allFixtures.golden: the pinned file records that it is not editorially rev
   const pinned = JSON.parse(readFileSync(GOLDEN_PATH, "utf8")) as GoldenFile;
   assert.equal(typeof pinned.reviewed, "boolean");
   assert.equal(pinned.bead, "am-eq-latex-generation-hc3");
-  assert.ok(pinned.note.length > 80, "the file must say what kind of evidence it is");
+  // The note must SAY the thing, not merely be long enough. An 81-character note of
+  // anything at all satisfied the previous length check.
+  assert.match(pinned.note, /regression pins/i, "the note must say these are regression pins");
+  assert.match(
+    pinned.note,
+    /not an editorial judgement/i,
+    "the note must say they are not an editorial judgement",
+  );
+  assert.match(pinned.note, /AM_UPDATE_GOLDENS/, "the note must say how to regenerate them");
 });
