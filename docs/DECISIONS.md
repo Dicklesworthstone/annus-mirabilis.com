@@ -126,8 +126,36 @@ Every runtime library, build tool, and runtime environment is pinned to an exact
 | **Linter** | `@biomejs/biome` | `2.5.8` | MIT / Apache-2.0 | Development | High-speed linting, code formatting, and syntax verification. |
 | **Testing** | `playwright` | `1.62.1` | Apache-2.0 | Testing | Browser automation harness driving headless Chromium, WebKit, and Firefox acceptance suites. |
 | **Testing** | `@axe-core/playwright` | `4.10.1` | MPL-2.0 | Testing | Automated WCAG AA accessibility compliance verification in end-to-end tests. |
-| **Scanner** | `ubs` | `3.0.0` | MIT | Development | Ultimate Bug Scanner; local static analysis gate. |
+| **Scanner** | `ubs` | `3.0.0` | MIT | Development | Ultimate Bug Scanner; local static analysis gate. **Version and licence UNVERIFIED and known to disagree with the installed binary — read the verification note below this table before relying on this row.** |
 | **Deployment** | `vercel` | `59.10.0` | Apache-2.0 | Deployment | Vercel CLI driving candidate-then-promote deployment pipeline (`vercel build`, `vercel deploy --prebuilt`). |
+
+**Verification status of this table (added 2026-09-19, `am-niyd`).** The rows are not all
+evidenced the same way, and a reader should not treat the table as uniformly machine-checked.
+§3 below already records which versions were *probed* and which were *chosen, not probed*. This
+note adds the separate question of which rows anything currently *checks*.
+
+- The npm, font, vendored, WASM and donor rows are covered by the `license-inventory` gate
+  (`scripts/license-inventory/`, `requiredInCi: true`), which collects them from the manifests
+  on disk.
+- **`ubs` is covered by none of those five collectors**, because it is a local binary rather
+  than an npm dependency. It appears zero times in every
+  `artifacts/test-logs/license-inventory/*.jsonl` and `license-notice/*.jsonl` run.
+  `scripts/license-inventory/` contains no reference to this document, and the only test that
+  reads this file (`src/testing/docs/noticeLayers.test.ts`) asserts a decision heading exists
+  and never reads this table. So this row is hand-maintained and unvalidated.
+- **The recorded version is known to disagree with the installed tool.** This table records
+  `3.0.0`; `ubs --version` on the reference machine reports `UBS Meta-Runner v5.0.3`. Two major
+  versions apart. Which one is the project's pin is **not decided here** and must not be guessed:
+  putting a plausible number into this document is exactly the failure this note exists to
+  prevent.
+- **A version change in this table is a licence question, not a number edit.** The `MIT` in this
+  row was recorded against `3.0.0`. It is not evidence about `5.0.3`, and reconciling the version
+  without re-checking the licence of the version actually chosen would leave a licence claim
+  standing on a version nobody verified it against.
+- Note for whoever reconciles it: `ubs --version` prints a trailing `(git <hash>)` which is **this
+  repository's HEAD at invocation**, not an ubs build id. Observed as `(git 13b28fa9)` and
+  `(git fdf4042b)` in the same session as HEAD moved. The tool version is the `v5.0.3` part alone.
+
 
 ---
 
