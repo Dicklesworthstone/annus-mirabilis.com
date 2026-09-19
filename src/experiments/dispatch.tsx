@@ -25,7 +25,7 @@
  * real views, not to this generic module.
  */
 
-import { type ComponentType, lazy, Suspense } from "react";
+import { type ComponentType, type LazyExoticComponent, lazy, Suspense } from "react";
 import { ReadingOnlyKeepContent } from "../a11y/readingSettings/KeepContent.tsx";
 import { ReadingOnlyView } from "../a11y/readingSettings/ReadingOnlyView.tsx";
 import type { CatalogueAddressErrorCode, CatalogueId } from "./catalogue.ts";
@@ -52,6 +52,21 @@ export interface ViewModeLoaders {
 
 export type ViewLoaderEntry = ViewLoader | ViewModeLoaders;
 export type ViewLoaders = Readonly<Partial<Record<CatalogueId, ViewLoaderEntry>>>;
+
+// Component identity belongs to the loader, not to a render. Recreating
+// lazy(activeLoader) in ExperimentDispatch re-suspends/reinitializes views
+// on unrelated parent updates. Cache only component types (never owners,
+// snapshots or instance state); weak keys do not retain discarded loaders.
+const lazyViews = new WeakMap<ViewLoader, LazyExoticComponent<ComponentType<ExperimentViewProps>>>();
+
+function lazyView(loader: ViewLoader): LazyExoticComponent<ComponentType<ExperimentViewProps>> {
+  let view = lazyViews.get(loader);
+  if (!view) {
+    view = lazy(loader);
+    lazyViews.set(loader, view);
+  }
+  return view;
+}
 
 export type ExperimentDispatchState =
   | Readonly<{
@@ -250,7 +265,7 @@ export function ExperimentDispatch({
     return <InPreparationNotice id={address} question={state.question} sourceHref={sourceHref} />;
   }
 
-  const LazyView = lazy(activeLoader);
+  const LazyView = lazyView(activeLoader);
   return (
     <div data-instrument-id={address}>
       <ReadingOnlyKeepContent
@@ -263,7 +278,12 @@ export function ExperimentDispatch({
       <ReadingOnlyView {...(readingOnly !== undefined ? { readingOnly } : {})}>
         <PresentationProvider presentation={presentation}>
           <Suspense fallback={<InPreparationNotice id={address} sourceHref={sourceHref} />}>
-            <LazyView instanceId={instanceId} mode={state.mode} presentation={presentation} />
+            <LazyView
+              key={`${state.id}:${instanceId}`}
+              instanceId={instanceId}
+              mode={state.mode}
+              presentation={presentation}
+            />
           </Suspense>
         </PresentationProvider>
       </ReadingOnlyView>
