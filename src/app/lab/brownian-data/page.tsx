@@ -12,7 +12,7 @@ export default function BrownianDataPage() {
         <h1>What does your recording actually identify?</h1>
         <p className="lead">
           Bring an explicitly calibrated trajectory CSV, inspect the observations, and ask whether
-          the ideal inference model admits them before interpreting an estimate.
+          the selected observation model admits them before interpreting an estimate.
         </p>
         <p>
           <a href="/lab/bm-07/">Return to the synthetic inference exercise and derivation →</a>
@@ -29,9 +29,11 @@ export default function BrownianDataPage() {
           <pre>{"track,time,x,y\nA,0,0,0\nA,1,0.4,-0.2\nA,2,0.1,0.3"}</pre>
         </figure>
         <p>
-          Real camera recordings normally need a noise and exposure model. This route does not
-          subtract an invented correction, repair missing tracks or pass unknown noise off as zero.
-          The exact-model interval is deliberately unavailable when its declared assumptions fail.
+          Choose ideal independent increments or camera-aware disjoint frame pairs. The camera
+          method includes an explicitly known Gaussian localization noise scale and uniform
+          exposure, rather than silently ignoring them. Pairs stay within the same track; unmatched
+          final frames remain in the observations and are listed in the result and export. Unknown
+          noise, selection bias and unsupported observation models still receive no interval.
         </p>
       </section>
       <MeasuredTrajectoryLab />
@@ -39,9 +41,12 @@ export default function BrownianDataPage() {
         <h2 id="trajectory-limits">An interval is not an authenticity certificate</h2>
         <p>
           Conditional coverage describes a procedure under a model, not a posterior probability for
-          a realized interval. Calibration uncertainty, finite exposure, localization error,
-          selection, confinement and different particle properties are not included here. A
-          successful calculation does not establish that the recording satisfies the model.
+          a realized interval. The camera method models the declared noise and exposure while
+          holding their values, timing and spatial calibration exact. Uncertainty in those inputs,
+          selection, confinement, correlated tracking errors and different particle properties are
+          not included. A successful calculation does not establish that the recording satisfies
+          the model. A negative estimate or an empty physical confidence set is retained as a
+          diagnostic, never silently replaced by a plausible positive answer.
         </p>
         <p>
           <a href="/lab/bm-08/">Explore how a camera changes the inference →</a>

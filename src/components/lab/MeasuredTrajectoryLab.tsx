@@ -6,6 +6,10 @@ import {
   trajectoryAnalysisJson,
 } from "../../experiments/bm07/trajectoryAnalysis.ts";
 import {
+  cameraTrajectoryAnalysisJson,
+  isCameraTrajectoryAnalysis,
+} from "../../experiments/bm07/trajectoryCamera.ts";
+import {
   parseTrajectoryCsv,
   TRAJECTORY_LIMITS,
   trajectorySiCsv,
@@ -16,6 +20,7 @@ import {
   type TrajectoryDraft,
 } from "../../experiments/bm07/trajectoryDraft.ts";
 
+import { CameraTrajectoryResult } from "./CameraTrajectoryResult.tsx";
 import { TrajectoryInspection } from "./TrajectoryInspection.tsx";
 
 const estimatorNames = {
@@ -25,6 +30,7 @@ const estimatorNames = {
 };
 const display = (value: number) => (value === 0 ? "0" : value.toExponential(5));
 type Accepted = Readonly<{ analysis: TrajectoryAnalysis; source: string; run: number }>;
+type AnalysisModel = "ideal-increments" | "camera-disjoint-pairs";
 
 /** Measurements never enter a synthetic-recovery snapshot or a shared URL. */
 export function MeasuredTrajectoryLab() {
@@ -33,6 +39,8 @@ export function MeasuredTrajectoryLab() {
   const [source, setSource] = useState("Pasted CSV");
   const [draft, setDraft] = useState<TrajectoryDraft>(EMPTY_TRAJECTORY_DRAFT);
   const [accepted, setAccepted] = useState<Accepted | null>(null);
+  const [analysisModel, setAnalysisModel] = useState<AnalysisModel>("ideal-increments");
+  const [cameraModelDeclared, setCameraModelDeclared] = useState(false);
   const [ready, setReady] = useState(false);
   const [pending, setPending] = useState(false);
   const [dirty, setDirty] = useState(false);
@@ -57,6 +65,17 @@ export function MeasuredTrajectoryLab() {
   function edit<K extends keyof TrajectoryDraft>(key: K, value: TrajectoryDraft[K]) {
     invalidate();
     setDraft((current) => ({ ...current, [key]: value }));
+  }
+  function changeModel(model: AnalysisModel) {
+    invalidate();
+    setAnalysisModel(model);
+    // A declaration for ideal increments is not a declaration for a camera.
+    setCameraModelDeclared(false);
+    setDraft((current) => ({
+      ...current,
+      estimator: "drift-centered",
+      radiusIndependent: false,
+    }));
   }
   async function load(event: ChangeEvent<HTMLInputElement>) {
     const file = event.currentTarget.files?.[0];
@@ -96,11 +115,16 @@ export function MeasuredTrajectoryLab() {
       const request = readTrajectoryDraft(draft);
       const trajectory = parseTrajectoryCsv(csv, request.units);
       // The numerical reference owner is not loaded until an explicit request.
-      const { analyzeImportedTrajectory } = await import(
-        "../../experiments/bm07/trajectoryHost.ts"
-      );
+      const host = await import("../../experiments/bm07/trajectoryHost.ts");
       if (token !== epoch.current) return;
-      const analysis = analyzeImportedTrajectory(trajectory, request.assumptions);
+      const analysis =
+        analysisModel === "camera-disjoint-pairs"
+          ? host.analyzeImportedCameraTrajectory(
+              trajectory,
+              request.assumptions,
+              cameraModelDeclared,
+            )
+          : host.analyzeImportedTrajectory(trajectory, request.assumptions);
       setAccepted({ analysis, source, run: ++run.current });
       setDirty(false);
       setNotice(
@@ -122,6 +146,8 @@ export function MeasuredTrajectoryLab() {
     setCsv("");
     setSource("Pasted CSV");
     setDraft(EMPTY_TRAJECTORY_DRAFT);
+    setAnalysisModel("ideal-increments");
+    setCameraModelDeclared(false);
     setAccepted(null);
     setDirty(false);
     if (fileInput.current) fileInput.current.value = "";
@@ -133,10 +159,11 @@ export function MeasuredTrajectoryLab() {
     if (!accepted) return;
     let url: string | null = null;
     try {
-      const text =
-        kind === "json"
-          ? trajectoryAnalysisJson(accepted.analysis)
-          : trajectorySiCsv(accepted.analysis.trajectory);
+      let text: string;
+      if (kind === "csv") text = trajectorySiCsv(accepted.analysis.trajectory);
+      else if (isCameraTrajectoryAnalysis(accepted.analysis))
+        text = cameraTrajectoryAnalysisJson(accepted.analysis);
+      else text = trajectoryAnalysisJson(accepted.analysis);
       url = URL.createObjectURL(
         new Blob([text], { type: kind === "json" ? "application/json" : "text/csv;charset=utf-8" }),
       );
@@ -296,16 +323,48 @@ export function MeasuredTrajectoryLab() {
           </div>
         </fieldset>
         <fieldset disabled={!ready}>
-          <legend>2 · Declare what the ideal model leaves out</legend>
-          <label className="check" htmlFor={`${id}-independent`}>
-            <input
-              id={`${id}-independent`}
-              type="checkbox"
-              checked={draft.independentIsotropic}
-              onChange={(event) => edit("independentIsotropic", event.target.checked)}
-            />
-            I am explicitly assuming independent, isotropic Gaussian increments.
-          </label>
+          <legend>2 · Choose and declare an observation model</legend>
+          <div className="input-field">
+            <label htmlFor={`${id}-model`}>Observation model</label>
+            <select
+              id={`${id}-model`}
+              value={analysisModel}
+              onChange={(event) => changeModel(event.target.value as AnalysisModel)}
+            >
+              <option value="ideal-increments">
+                Ideal independent increments · no camera effects
+              </option>
+              <option value="camera-disjoint-pairs">
+                Camera-aware disjoint frame pairs · known noise
+              </option>
+            </select>
+          </div>
+          {analysisModel === "ideal-increments" ? (
+            <label className="check" htmlFor={`${id}-independent`}>
+              <input
+                id={`${id}-independent`}
+                type="checkbox"
+                checked={draft.independentIsotropic}
+                onChange={(event) => edit("independentIsotropic", event.target.checked)}
+              />
+              I am explicitly assuming independent, isotropic Gaussian increments.
+            </label>
+          ) : (
+            <label className="check" htmlFor={`${id}-camera-model`}>
+              <input
+                id={`${id}-camera-model`}
+                type="checkbox"
+                checked={cameraModelDeclared}
+                onChange={(event) => {
+                  invalidate();
+                  setCameraModelDeclared(event.target.checked);
+                }}
+              />
+              I am assuming isotropic Brownian motion with constant drift, independent particles,
+              and independent Gaussian localization errors with one common exactly known noise
+              scale. Exposure is uniform and does not overlap the next frame.
+            </label>
+          )}
           <label className="check" htmlFor={`${id}-pooled`}>
             <input
               id={`${id}-pooled`}
@@ -320,8 +379,12 @@ export function MeasuredTrajectoryLab() {
             These are declarations, not findings from the CSV. Different-sized particles,
             confinement, correlated motion or tracking errors can invalidate them. Leave unknown
             measurements blank. Entering zero is an explicit idealization, not a way to correct
-            camera data. Nonzero noise, nonzero exposure, censoring or irregular sampling require a
-            validated observation model and receive no estimate here.
+            camera data.
+          </p>
+          <p className="fine">
+            {analysisModel === "camera-disjoint-pairs"
+              ? "The camera model includes the declared localization noise and uniform exposure. It uses disjoint frame pairs within each track and fits a common drift. Noise scale, exposure, timing and calibration are held exact; their uncertainty is not included. Unknown noise, selection/censoring, irregular sampling and three-coordinate data are not admitted."
+              : "The ideal model does not admit nonzero noise or exposure. Select the camera model for an explicitly known Gaussian noise scale and uniform exposure; it never treats adjacent noisy displacements as independent."}
           </p>
           <div className="input-grid">
             {numberField(
@@ -345,51 +408,62 @@ export function MeasuredTrajectoryLab() {
                 <option value="no">No</option>
               </select>
             </div>
-            <div className="input-field">
-              <label htmlFor={`${id}-estimator`}>Estimator</label>
-              <select
-                id={`${id}-estimator`}
-                value={draft.estimator}
-                onChange={(event) =>
-                  edit("estimator", event.target.value as TrajectoryDraft["estimator"])
-                }
-              >
-                {Object.entries(estimatorNames).map(([key, label]) => (
-                  <option key={key} value={key}>
-                    {label}
-                  </option>
-                ))}
-              </select>
-            </div>
+            {analysisModel === "ideal-increments" && (
+              <div className="input-field">
+                <label htmlFor={`${id}-estimator`}>Estimator</label>
+                <select
+                  id={`${id}-estimator`}
+                  value={draft.estimator}
+                  onChange={(event) =>
+                    edit("estimator", event.target.value as TrajectoryDraft["estimator"])
+                  }
+                >
+                  {Object.entries(estimatorNames).map(([key, label]) => (
+                    <option key={key} value={key}>
+                      {label}
+                    </option>
+                  ))}
+                </select>
+              </div>
+            )}
+            {analysisModel === "camera-disjoint-pairs" && (
+              <p className="fine">
+                Estimator: disjoint frame pairs with a fitted common drift. At least two pairs are
+                required. An unmatched final frame is reported, never joined to another particle;
+                every imported position remains in the observation export.
+              </p>
+            )}
             {numberField("coveragePercent", "Conditional interval coverage (50–99.9%)")}
           </div>
         </fieldset>
-        <fieldset disabled={!ready}>
-          <legend>3 · Optional modern-SI consistency comparison</legend>
-          <label className="check" htmlFor={`${id}-radius`}>
-            <input
-              id={`${id}-radius`}
-              type="checkbox"
-              checked={draft.radiusIndependent}
-              onChange={(event) => edit("radiusIndependent", event.target.checked)}
-            />
-            I have an independently measured particle radius, not one inferred from these
-            displacements.
-          </label>
-          {draft.radiusIndependent && (
-            <div className="input-grid">
-              {numberField("temperatureKelvin", "Temperature (K)")}
-              {numberField("viscosityMillipascalSeconds", "Dynamic viscosity (mPa s)")}
-              {numberField("radiusMicrometres", "Independent particle radius (μm)")}
-            </div>
-          )}
-          <p className="fine">
-            Diffusion alone cannot determine molecular number independently of particle radius. With
-            modern SI constants, the optional inverse result is a consistency check, not an
-            independent count of molecules. Its interval holds all declared physical inputs and the
-            calibration exact.
-          </p>
-        </fieldset>
+        {analysisModel === "ideal-increments" && (
+          <fieldset disabled={!ready}>
+            <legend>3 · Optional modern-SI consistency comparison</legend>
+            <label className="check" htmlFor={`${id}-radius`}>
+              <input
+                id={`${id}-radius`}
+                type="checkbox"
+                checked={draft.radiusIndependent}
+                onChange={(event) => edit("radiusIndependent", event.target.checked)}
+              />
+              I have an independently measured particle radius, not one inferred from these
+              displacements.
+            </label>
+            {draft.radiusIndependent && (
+              <div className="input-grid">
+                {numberField("temperatureKelvin", "Temperature (K)")}
+                {numberField("viscosityMillipascalSeconds", "Dynamic viscosity (mPa s)")}
+                {numberField("radiusMicrometres", "Independent particle radius (μm)")}
+              </div>
+            )}
+            <p className="fine">
+              Diffusion alone cannot determine molecular number independently of particle radius. With
+              modern SI constants, the optional inverse result is a consistency check, not an
+              independent count of molecules. Its interval holds all declared physical inputs and the
+              calibration exact.
+            </p>
+          </fieldset>
+        )}
         <div className="actions">
           <button type="submit" disabled={!ready || pending}>
             {pending ? "Reading or calculating…" : "Apply observations and assumptions"}
@@ -423,15 +497,18 @@ export function MeasuredTrajectoryLab() {
           <h3 id={`${id}-result`}>Accepted result {accepted.run}</h3>
           <p>
             Source: {accepted.source}. {a.trajectory.points.length} positions in{" "}
-            {a.trajectory.trackCount} track(s), {a.trajectory.incrementCount} non-overlapping
-            displacements, {a.trajectory.dimension} coordinate(s). Sampling interval:{" "}
+            {a.trajectory.trackCount} track(s), {a.trajectory.incrementCount} adjacent displacements
+            in the observation ledger, {a.trajectory.dimension} coordinate(s). Sampling interval:{" "}
             {a.trajectory.dt === null
               ? "not admitted as equally spaced"
               : `${display(a.trajectory.dt)} s`}
             .
           </p>
           <p>
-            Accepted estimator: {estimatorNames[a.assumptions.estimator]}. Requested coverage:{" "}
+            Accepted estimator:{" "}
+            {isCameraTrajectoryAnalysis(a)
+              ? "Disjoint frame pairs · fitted common drift"
+              : estimatorNames[a.assumptions.estimator]}. Requested coverage:{" "}
             {(a.assumptions.coverage * 100).toFixed(1)}%. Input units: {a.trajectory.units.time},{" "}
             {a.trajectory.units.position}
             {a.trajectory.units.position === "px"
@@ -440,6 +517,7 @@ export function MeasuredTrajectoryLab() {
             .
           </p>
           <p className="notice">{a.message}</p>
+          {isCameraTrajectoryAnalysis(a) && <CameraTrajectoryResult analysis={a} />}
           {a.estimate && (
             <table className="inference-summary">
               <caption>Accepted diffusion analysis · host reference calculation · SI units</caption>
