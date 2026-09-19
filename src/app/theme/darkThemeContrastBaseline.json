@@ -1,0 +1,12 @@
+{
+  "src/a11y/actions/families/interval/interval.css": 2,
+  "src/app/globals.css": 2,
+  "src/app/notation/notation.css": 10,
+  "src/components/lab/showTheCode.css": 2,
+  "src/equations/derivations/derivation.css": 9,
+  "src/equations/equations.css": 6,
+  "src/equations/genealogy/genealogy.css": 10,
+  "src/platform/print/print.css": 2,
+  "src/platform/storage/dataPanel.css": 2,
+  "src/reader/reader.css": 22
+}

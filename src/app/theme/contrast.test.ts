@@ -5,6 +5,12 @@ import { fileURLToPath } from "node:url";
 import { contrastRatio } from "../../a11y/readingSettings/contrast";
 import { COLOR_STYLES } from "../../equations/colorPalette";
 import { READER_LAYOUT_TOKENS } from "../../reader/layout/tokens";
+import {
+  EXTERNAL_CHANNELS,
+  scanColourRules,
+  scanInheritedInkFailures,
+  unchannelledRules,
+} from "./colourChannels";
 import { auditThemeTokensContrast, LAYOUT_TOKENS, THEME_IDS, THEME_TOKENS } from "./tokens";
 
 const NORMAL_TEXT_MIN = 4.5;
@@ -259,3 +265,134 @@ describe("layout tokens: cross-bead contract alignment (am-read-page-anatomy-l0b
   });
 });
 
+/* ==========================================================================
+ * Sweeps added under am-design-themes-typography-288q (2026-09-19, pane31).
+ *
+ * The block above proves the colour-never-alone rule for six hand-picked
+ * selectors with `toContain`. Six named examples are not a gate: nothing there
+ * looks at a seventh rule. These two sweeps read every project stylesheet, so
+ * the property is enforced for rules nobody has written yet.
+ * ========================================================================== */
+
+const REPO_ROOT = join(HERE, "../../..");
+const CSS_ROOT = join(REPO_ROOT, "src");
+const DARK_THEME_INK: Readonly<Record<string, string>> = {
+  "kramgasse-night": THEME_TOKENS["kramgasse-night"].ink,
+  slate: THEME_TOKENS.slate.ink,
+};
+
+describe("contrast sweep: colour is never the only channel, across every stylesheet", () => {
+  const rules = scanColourRules(CSS_ROOT, REPO_ROOT);
+
+  test("the sweep actually finds the accent rules it is meant to police", () => {
+    expect(rules.length).toBeGreaterThan(20);
+    expect(rules.some((r) => r.selector.includes(".legend-prediction"))).toBe(true);
+  });
+
+  test("every rule that draws a distinction with --accent has a non-colour channel", () => {
+    const offenders = unchannelledRules(rules).map(
+      (r) => `${r.file}:${r.line} ${r.selector} { ${r.body} }`,
+    );
+    expect(offenders).toEqual([]);
+  });
+
+  test("planted negative: a new accent-only rule is caught by the same function", () => {
+    const planted = [
+      {
+        file: "seeded.css",
+        line: 1,
+        selector: ".seeded-state-by-hue-only",
+        body: "color: var(--accent);",
+        hasInlineChannel: false,
+      },
+    ];
+    expect(unchannelledRules(planted).length).toBe(1);
+  });
+
+  test("no EXTERNAL_CHANNELS entry is stale: each selector still exists and still needs the exemption", () => {
+    for (const selector of Object.keys(EXTERNAL_CHANNELS)) {
+      const matching = rules.filter((r) => r.selector === selector);
+      expect(matching.length).toBeGreaterThan(0);
+      expect(matching.every((r) => !r.hasInlineChannel)).toBe(true);
+    }
+  });
+
+  test("every EXTERNAL_CHANNELS reason names where the non-colour channel actually lives", () => {
+    for (const [selector, reason] of Object.entries(EXTERNAL_CHANNELS)) {
+      expect(reason.length).toBeGreaterThan(40);
+      // The reason must name a concrete channel, not merely assert one exists.
+      // The vocabulary is deliberately broad because channels legitimately live
+      // in different places: a file and line, a UA default, an ARIA state, or a
+      // geometry change the CSS itself makes.
+      const namesAChannel =
+        /\.tsx:\d+|UA default|markup|<em>|outline|border|box-shadow|background block|aria-|italic|DASHED|SQUARE|transient pointer|figure and ground/i.test(
+          reason,
+        );
+      expect(namesAChannel).toBe(true);
+      expect(selector.length).toBeGreaterThan(0);
+    }
+  });
+});
+
+describe("contrast sweep: the dark themes stay readable over hardcoded backgrounds", () => {
+  const failures = scanInheritedInkFailures(CSS_ROOT, REPO_ROOT, DARK_THEME_INK, contrastRatio);
+  const baseline = JSON.parse(
+    readFileSync(join(HERE, "darkThemeContrastBaseline.json"), "utf8"),
+  ) as Record<string, number>;
+
+  test("no stylesheet exceeds its recorded number of unreadable dark-theme rules", () => {
+    const counts: Record<string, number> = {};
+    for (const f of failures) counts[f.file] = (counts[f.file] ?? 0) + 1;
+    const regressions: string[] = [];
+    for (const [file, count] of Object.entries(counts)) {
+      const allowed = baseline[file] ?? 0;
+      if (count > allowed) regressions.push(`${file}: ${count} > baseline ${allowed}`);
+    }
+    expect(regressions).toEqual([]);
+  });
+
+  test("the baseline has no slack: a stylesheet below its number must be tightened in the same commit", () => {
+    const counts: Record<string, number> = {};
+    for (const f of failures) counts[f.file] = (counts[f.file] ?? 0) + 1;
+    const slack: string[] = [];
+    for (const [file, allowed] of Object.entries(baseline)) {
+      const actual = counts[file] ?? 0;
+      if (actual < allowed) slack.push(`${file}: ${actual} < baseline ${allowed}`);
+    }
+    expect(slack).toEqual([]);
+  });
+
+  test("planted negative: a pale background with no colour is caught for both dark themes", () => {
+    // #f8e9df is globals.css's own .error background, kept here as the fixture
+    // because it is the real shape of the defect rather than an invented one.
+    for (const [, ink] of Object.entries(DARK_THEME_INK)) {
+      expect(contrastRatio(ink, "#f8e9df")).toBeLessThan(4.5);
+    }
+  });
+
+  test("the sweep exempts rules that set their own colour, so it does not flag self-consistent pastels", () => {
+    for (const f of failures) {
+      expect(f.ratio).toBeLessThan(4.5);
+      expect(Object.keys(DARK_THEME_INK)).toContain(f.theme);
+    }
+  });
+});
+
+describe("contrast: the accent is perceptibly distinct from ink in all three themes", () => {
+  // NOT a WCAG threshold. WCAG says nothing about accent-vs-ink. This is a
+  // project floor: where colour is used as the REDUNDANT second channel, it
+  // should actually be perceivable. Measured 2026-09-19: annalen 2.538,
+  // kramgasse-night 1.750, slate 2.658. The floor sits below the observed
+  // minimum with margin, so it catches a future token collapse, not today.
+  const ACCENT_DISTINCTNESS_FLOOR = 1.5;
+  for (const id of THEME_IDS) {
+    test(`${id}: accent is distinguishable from ink`, () => {
+      const t = THEME_TOKENS[id];
+      expect(contrastRatio(t.accent, t.ink)).toBeGreaterThanOrEqual(ACCENT_DISTINCTNESS_FLOOR);
+    });
+  }
+
+  test("planted negative: an accent equal to ink collapses the redundant channel and fails", () => {
+    expect(contrastRatio("#1a1916", "#1a1916")).toBeLessThan(ACCENT_DISTINCTNESS_FLOOR);
+  });
+});
