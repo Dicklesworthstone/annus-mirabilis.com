@@ -54,4 +54,27 @@ describe("rankingLanguageScan: no interface string in src/experiments/labels/ ra
     ];
     for (const text of texts) expect(FORBIDDEN.test(text)).toBe(false);
   });
+
+  test("no parity rung or comparison kind identifier is declared as a string literal under src/experiments/labels/ source files", () => {
+    const RUNGS_AND_KINDS = [
+      "generator",
+      "transformed-distribution",
+      "trajectory",
+      "formatted",
+      "statistical",
+      "bitwise",
+      "tolerance",
+    ];
+    const offenders: string[] = [];
+    for (const file of sourceFiles(LABELS_DIR)) {
+      if (file.endsWith(".test.ts") || file.endsWith(".test.tsx")) continue;
+      const source = readFileSync(file, "utf8");
+      for (const literal of stringLiterals(source)) {
+        if (RUNGS_AND_KINDS.includes(literal)) {
+          offenders.push(`${file}: "${literal}"`);
+        }
+      }
+    }
+    expect(offenders).toEqual([]);
+  });
 });

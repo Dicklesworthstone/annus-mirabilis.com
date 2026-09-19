@@ -31,7 +31,12 @@ const composite: ModelNoteData = {
       engineSentence: "Host reduction (ensembleMoments) of the positions computed with FrankenSim.",
     },
   ],
+  modelVersion: "1.0.0",
+  artifactDigest: "sha256:7b54a1",
+  constantSetId: "period-1905",
+  constantSetLabel: "1905 reference values",
   seed: "18446744073709551615",
+  streamVersion: "philox-box-muller-v1",
   acceptedInputRevision: 3,
   snapshotVersion: 7,
   notModeled: "Molecular collisions (no collision bath owns the displacement).",
@@ -50,6 +55,11 @@ describe("ModelNote", () => {
     expect(html).toContain("Computed with FrankenSim (brownian_frames).");
     expect(html).toContain("Secondary output sampleMeanSquare");
     expect(html).toContain("Host reduction (ensembleMoments)");
+    expect(html).toContain("Model version 1.0.0.");
+    expect(html).toContain("Artifact digest sha256:7b54a1.");
+    expect(html).toContain("Constant set 1905 reference values (period-1905).");
+    expect(html).toContain("Seed 18446744073709551615.");
+    expect(html).toContain("Stream-semantics version philox-box-muller-v1.");
     expect(html).toContain("18446744073709551615");
     expect(html).not.toContain("18446744073709552000");
     expect(html).toContain("not an independent trial");
