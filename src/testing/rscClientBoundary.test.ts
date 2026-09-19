@@ -14,11 +14,13 @@
 import { describe, expect, it } from "bun:test";
 import {
   checkClientBoundaries,
+  checkSchemaLayerBoundaries,
   collectAppRouterSourceFiles,
   detectClientHookUsages,
   detectNodeBuiltinUsages,
   extractRuntimeImportSpecifiers,
   hasUseClientDirective,
+  isClientSafeSchemaModule,
   isNodeBuiltinSpecifier,
   runClientBoundaryGateCli,
   type SourceFileRecord,
@@ -677,6 +679,280 @@ describe("RSC Client Boundary Gate", () => {
     });
   });
 
+  describe("Schema Layer Boundary (am-bwnf standing rule)", () => {
+    /**
+     * The defect this rule exists for, transcribed from am-bwnf. Before the
+     * split, `glossConventions.ts` held `isModalityClass` beside a `node:fs`
+     * loader and imported `GLOSS_NOTE_CLASSES` from `source.ts`, which reaches
+     * `node:crypto` through `spans.ts`. Any Client Component that wanted the
+     * predicate took the filesystem with it. These fixtures reproduce that
+     * exact shape, module for module.
+     */
+    const HISTORICAL_DEFECT: SourceFileRecord[] = [
+      {
+        path: "src/app/papers/[paper]/[section]/page.tsx",
+        content: `
+          import { GlossFace } from "../../../../reader/faces/GlossFace.tsx";
+          export default function Page() { return <GlossFace />; }
+        `,
+      },
+      {
+        path: "src/reader/faces/GlossFace.tsx",
+        content: `
+          "use client";
+          import { useState } from "react";
+          import { isModalityClass } from "../../content/schemas/glossConventions.ts";
+          export function GlossFace() {
+            const [on, setOn] = useState(false);
+            return <span onClick={() => setOn(!on)}>{String(isModalityClass("hedge", []))}</span>;
+          }
+        `,
+      },
+      {
+        path: "src/content/schemas/glossConventions.ts",
+        content: `
+          import fs from "node:fs";
+          import path from "node:path";
+          import { GLOSS_NOTE_CLASSES } from "./source.ts";
+          export function isModalityClass(c: string, classes: readonly string[]) {
+            return classes.includes(c) && GLOSS_NOTE_CLASSES.includes(c);
+          }
+          export function loadGlossConventions() {
+            return fs.readFileSync(path.resolve("docs/editorial/GLOSS_CONVENTIONS.md"), "utf8");
+          }
+        `,
+      },
+      {
+        path: "src/content/schemas/source.ts",
+        content: `
+          import { validateSpanAnchor } from "./spans.ts";
+          import { loadRightsVocabulary } from "./rightsVocabulary.ts";
+          export const GLOSS_NOTE_CLASSES = ["konjunktiv-i", "hedge"];
+          export { validateSpanAnchor, loadRightsVocabulary };
+        `,
+      },
+      {
+        path: "src/content/schemas/spans.ts",
+        content: `
+          import crypto from "node:crypto";
+          export function validateSpanAnchor(text: string) {
+            return crypto.createHash("sha256").update(text).digest("hex");
+          }
+        `,
+      },
+      {
+        path: "src/content/schemas/rightsVocabulary.ts",
+        content: `
+          import { readFileSync } from "node:fs";
+          import path from "node:path";
+          export function loadRightsVocabulary() {
+            return readFileSync(path.join(process.cwd(), "docs", "rights-vocabulary.yaml"), "utf8");
+          }
+        `,
+      },
+    ];
+
+    it("rejects the historical defect: a client component reaching a filesystem-backed schema module", () => {
+      const violations = checkSchemaLayerBoundaries(HISTORICAL_DEFECT);
+
+      const entry = violations.filter(
+        (v) => v.kind === "node-builtin-in-client-reachable-schema",
+      );
+      expect(entry.length).toBe(1);
+      expect(entry[0]?.file).toBe("src/content/schemas/glossConventions.ts");
+      expect(entry[0]?.builtins).toContain("node:fs");
+      expect(entry[0]?.chain).toContain("src/reader/faces/GlossFace.tsx");
+      expect(entry[0]?.message).toContain("Client Component context");
+      expect(entry[0]?.repair).toContain(".pure.ts");
+    });
+
+    it("reports the schema entry module, not only the leaf that holds the builtin", () => {
+      // The pre-existing check names spans.ts and rightsVocabulary.ts. Neither
+      // is the module that needs splitting: glossConventions.ts is what the
+      // component reached for, and that is what this rule has to name.
+      const leaves = checkClientBoundaries(HISTORICAL_DEFECT)
+        .filter((v) => v.kind === "node-builtin-in-client-component")
+        .map((v) => v.file);
+      expect(leaves).toContain("src/content/schemas/spans.ts");
+      expect(leaves).toContain("src/content/schemas/rightsVocabulary.ts");
+
+      const named = checkSchemaLayerBoundaries(HISTORICAL_DEFECT).map((v) => v.file);
+      expect(named).toContain("src/content/schemas/glossConventions.ts");
+    });
+
+    it("rejects a .pure.ts module that reaches a Node builtin with no client component in the tree", () => {
+      // The regression the reachability checks cannot see. Nothing here is a
+      // Client Component and there is no App Router entry at all, so the trap
+      // is armed and silent until some future component walks into it.
+      const files: SourceFileRecord[] = [
+        {
+          path: "src/content/schemas/glossConventions.pure.ts",
+          content: `
+            import { GLOSS_NOTE_CLASSES } from "./source.pure.ts";
+            export function isModalityClass(c: string, classes: readonly string[]) {
+              return classes.includes(c) && GLOSS_NOTE_CLASSES.includes(c);
+            }
+          `,
+        },
+        {
+          path: "src/content/schemas/source.pure.ts",
+          content: `
+            import crypto from "node:crypto";
+            export const GLOSS_NOTE_CLASSES = ["konjunktiv-i"];
+            export function digest(t: string) {
+              return crypto.createHash("sha256").update(t).digest("hex");
+            }
+          `,
+        },
+      ];
+
+      // The pre-existing reachability checks see nothing: no client root exists.
+      expect(checkClientBoundaries(files)).toEqual([]);
+
+      const violations = checkSchemaLayerBoundaries(files);
+      const purity = violations.filter((v) => v.kind === "node-builtin-in-pure-schema-module");
+      expect(purity.map((v) => v.file).sort()).toEqual([
+        "src/content/schemas/glossConventions.pure.ts",
+        "src/content/schemas/source.pure.ts",
+      ]);
+      const transitive = purity.find(
+        (v) => v.file === "src/content/schemas/glossConventions.pure.ts",
+      );
+      expect(transitive?.offender).toBe("src/content/schemas/source.pure.ts");
+      expect(transitive?.builtins).toEqual(["node:crypto"]);
+      expect(transitive?.chain).toEqual([
+        "src/content/schemas/glossConventions.pure.ts",
+        "src/content/schemas/source.pure.ts",
+      ]);
+    });
+
+    it("rejects a .pure.ts module that imports the server half of its own schema", () => {
+      // The layering rule. source.ts carries no builtin in this fixture, so
+      // the purity check alone would pass it and the separation would rot.
+      const files: SourceFileRecord[] = [
+        {
+          path: "src/content/schemas/glossConventions.pure.ts",
+          content: `
+            import { GLOSS_NOTE_CLASSES } from "./source.ts";
+            export const CLASSES = GLOSS_NOTE_CLASSES;
+          `,
+        },
+        {
+          path: "src/content/schemas/source.ts",
+          content: `export const GLOSS_NOTE_CLASSES = ["konjunktiv-i"];`,
+        },
+      ];
+
+      const violations = checkSchemaLayerBoundaries(files);
+      expect(violations.length).toBe(1);
+      expect(violations[0]?.kind).toBe("server-schema-import-in-pure-schema-module");
+      expect(violations[0]?.file).toBe("src/content/schemas/glossConventions.pure.ts");
+      expect(violations[0]?.offender).toBe("src/content/schemas/source.ts");
+    });
+
+    it("accepts the repaired shape: client component -> pure half, loader half left on the server", () => {
+      const files: SourceFileRecord[] = [
+        {
+          path: "src/app/papers/[paper]/page.tsx",
+          content: `
+            import { getModalityClasses } from "../../content/schemas/glossConventions.ts";
+            import { Toggle } from "../../reader/faces/Toggle.tsx";
+            export default function Page() { return <Toggle classes={getModalityClasses()} />; }
+          `,
+        },
+        {
+          path: "src/reader/faces/Toggle.tsx",
+          content: `
+            "use client";
+            import { useState } from "react";
+            import { isModalityClass } from "../../content/schemas/glossConventions.pure.ts";
+            export function Toggle({ classes }: { classes: readonly string[] }) {
+              const [on, setOn] = useState(false);
+              return <span onClick={() => setOn(!on)}>{String(isModalityClass("hedge", classes))}</span>;
+            }
+          `,
+        },
+        {
+          path: "src/content/schemas/glossConventions.pure.ts",
+          content: `
+            import { GLOSS_NOTE_CLASSES } from "./source.pure.ts";
+            export function isModalityClass(c: string, classes: readonly string[]) {
+              return classes.includes(c) && GLOSS_NOTE_CLASSES.includes(c);
+            }
+          `,
+        },
+        {
+          path: "src/content/schemas/source.pure.ts",
+          content: `export const GLOSS_NOTE_CLASSES = ["konjunktiv-i", "hedge"];`,
+        },
+        {
+          path: "src/content/schemas/glossConventions.ts",
+          content: `
+            import fs from "node:fs";
+            export { isModalityClass } from "./glossConventions.pure.ts";
+            export function getModalityClasses() {
+              return fs.readFileSync("docs/editorial/GLOSS_CONVENTIONS.md", "utf8").split("\n");
+            }
+          `,
+        },
+      ];
+
+      expect(checkSchemaLayerBoundaries(files)).toEqual([]);
+      expect(checkClientBoundaries(files)).toEqual([]);
+    });
+
+    it("does not fire on a type-only import of a filesystem-backed schema module", () => {
+      const files: SourceFileRecord[] = [
+        {
+          path: "src/reader/faces/Face.tsx",
+          content: `
+            "use client";
+            import type { GlossUnit } from "../../content/schemas/source.ts";
+            export function Face({ unit }: { unit: GlossUnit }) { return <p>{unit.sentenceId}</p>; }
+          `,
+        },
+        {
+          path: "src/content/schemas/source.ts",
+          content: `
+            import fs from "node:fs";
+            export type GlossUnit = { sentenceId: string };
+            export function load() { return fs.readFileSync("x", "utf8"); }
+          `,
+        },
+      ];
+
+      expect(checkSchemaLayerBoundaries(files)).toEqual([]);
+    });
+
+    it("leaves server-only schema loaders alone when no client component reaches them", () => {
+      const files: SourceFileRecord[] = [
+        {
+          path: "src/app/page.tsx",
+          content: `
+            import { load } from "../content/schemas/rightsVocabulary.ts";
+            export default function Page() { return <p>{load()}</p>; }
+          `,
+        },
+        {
+          path: "src/content/schemas/rightsVocabulary.ts",
+          content: `
+            import { readFileSync } from "node:fs";
+            export function load() { return readFileSync("docs/rights-vocabulary.yaml", "utf8"); }
+          `,
+        },
+      ];
+
+      expect(checkSchemaLayerBoundaries(files)).toEqual([]);
+    });
+
+    it("recognises the client-safe suffix only inside the schema layer", () => {
+      expect(isClientSafeSchemaModule("src/content/schemas/source.pure.ts")).toBe(true);
+      expect(isClientSafeSchemaModule("src/content/schemas/nested/x.pure.ts")).toBe(true);
+      expect(isClientSafeSchemaModule("src/content/schemas/source.ts")).toBe(false);
+      expect(isClientSafeSchemaModule("src/reader/faces/x.pure.ts")).toBe(false);
+    });
+  });
+
   describe("Clean Repository & Live Working Tree", () => {
     it("passes with zero violations on all source files in the live repository tree", () => {
       const files = collectAppRouterSourceFiles(process.cwd());
@@ -686,6 +962,25 @@ describe("RSC Client Boundary Gate", () => {
         console.error("Live tree violations:", JSON.stringify(violations, null, 2));
       }
       expect(violations).toEqual([]);
+    });
+
+    it("passes the schema layer standing rule on the live repository tree", () => {
+      const files = collectAppRouterSourceFiles(process.cwd());
+      const violations = checkSchemaLayerBoundaries(files);
+      if (violations.length > 0) {
+        console.error("Live tree schema violations:", JSON.stringify(violations, null, 2));
+      }
+      expect(violations).toEqual([]);
+    });
+
+    it("holds src/content/schemas/glossConventions.pure.ts and source.pure.ts to the pure contract", () => {
+      // Named explicitly: these two are the split am-bwnf produced, and the
+      // rule above is vacuous for them if they are ever renamed away.
+      const files = collectAppRouterSourceFiles(process.cwd());
+      const paths = files.map((f) => f.path);
+      expect(paths).toContain("src/content/schemas/glossConventions.pure.ts");
+      expect(paths).toContain("src/content/schemas/source.pure.ts");
+      expect(checkSchemaLayerBoundaries(files)).toEqual([]);
     });
 
     it("passes with exit code 0 via runClientBoundaryGateCli", () => {
