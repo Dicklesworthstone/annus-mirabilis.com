@@ -41,7 +41,6 @@ import {
   PAPER_SLUGS,
   type PaperSlug,
   SOURCE_BLOCK_KINDS,
-  SOURCE_SCHEMA_VERSION,
   type SourceBlockKind,
 } from "./source.pure.ts";
 import { type SpanAnchor, validateSpanAnchor } from "./spans.ts";
