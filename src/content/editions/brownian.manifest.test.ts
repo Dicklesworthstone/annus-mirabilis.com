@@ -80,9 +80,12 @@ describe("brownian source manifest (am-edn-inventory-brownian-slg)", () => {
 
       // Destination is non-empty with argument obligations
       expect(unit.destination).toBeDefined();
-      expect(typeof unit.destination?.editionBlockId).toBe("string");
-      expect(unit.destination!.editionBlockId.length).toBeGreaterThan(0);
-      expect(unit.destination?.argumentObligations?.length).toBeGreaterThanOrEqual(1);
+      if (typeof unit.destination !== "object" || unit.destination === null) {
+        throw new Error("Expected a structured source destination.");
+      }
+      expect(typeof unit.destination.editionBlockId).toBe("string");
+      expect(unit.destination.editionBlockId?.length).toBeGreaterThan(0);
+      expect(unit.destination.argumentObligations?.length).toBeGreaterThanOrEqual(1);
     }
 
     // Corpus validation produces zero errors
@@ -286,7 +289,7 @@ describe("brownian source manifest (am-edn-inventory-brownian-slg)", () => {
 
         // Required fields
         expect(typeof ref.printedText).toBe("string");
-        expect(ref.printedText.length).toBeGreaterThan(0);
+        expect(ref.printedText?.length).toBeGreaterThan(0);
         expect(["bibliographic", "internal", "cross-paper"]).toContain(ref.kind);
         expect(ref.target).toBeDefined();
       }
@@ -343,7 +346,7 @@ describe("brownian source manifest (am-edn-inventory-brownian-slg)", () => {
       expect(unitsInRow.length).toBeGreaterThan(0);
 
       const obligationsInRow = unitsInRow.flatMap(
-        (u) => u.destination?.argumentObligations ?? [],
+        (u) => typeof u.destination === "object" ? u.destination.argumentObligations ?? [] : [],
       );
       expect(obligationsInRow.length).toBeGreaterThan(0);
     }
@@ -599,7 +602,7 @@ describe("brownian source manifest (am-edn-inventory-brownian-slg)", () => {
     expect(s5p4).toBeDefined();
     expect(s5p4?.section).toBe("s5");
     expect(s5p4?.locators[0]?.page).toBe(560);
-    expect(s5p4?.destination?.argumentObligations).toContain("arg:brownian-closing-outlook");
+    expect(typeof s5p4?.destination === "object" ? s5p4.destination.argumentObligations : undefined).toContain("arg:brownian-closing-outlook");
 
     logger.log({
       testId: "paper-specific-structural-obligations",

@@ -66,7 +66,7 @@ describe("special-relativity source manifest inventory (am-edn-inventory-relativ
       expect(typeof unit.destination === "object" && unit.destination !== null).toBe(true);
       if (typeof unit.destination === "object" && unit.destination !== null) {
         expect(typeof unit.destination.editionBlockId).toBe("string");
-        expect(unit.destination.editionBlockId.length).toBeGreaterThan(0);
+        expect(unit.destination.editionBlockId?.length).toBeGreaterThan(0);
       }
     }
 
