@@ -151,6 +151,25 @@ export function analyzeKitchen(
     warnings.push(
       "Timestamps are inferred from the declared frame rate. Per-frame presentation timing was not verified.",
     );
+  const captured = points.filter(p => p.capture);
+  if (captured.length) {
+    warnings.push("Local video coordinates refer to the browser-oriented intrinsic image. Encoded orientation and pixel aspect were not independently verified; this tool applied no crop or additional rotation.");
+    const adjusted = captured.filter(p => p.capture?.timingSource === "frame-callback-adjusted").length;
+    if (adjusted) warnings.push(`${adjusted} annotated frames were farther than half a declared frame period from the requested time. Actual presentation times were retained, never replaced with requested times.`);
+    let skipped = 0, lastCounter: number | null = null;
+    for (const p of captured) {
+      const counter = p.capture?.presentedFrames ?? null;
+      if (counter !== null && lastCounter !== null) {
+        skipped += Math.max(0, counter - lastCounter - 1);
+        if (counter <= lastCounter) intervalReasons.push("Frame presentation counters are not increasing along this particle track; timing provenance cannot support an interval.");
+      }
+      lastCounter = counter;
+    }
+    if (skipped) {
+      warnings.push(`The presentation counter passed ${skipped} additional frames between annotated particle frames. This is a compositor counter, not a count of every internally decoded frame.`);
+      intervalReasons.push("Presentation-counter gaps were recorded. This acquisition preview withholds interval coverage; inspect the actual frame times and missing observations.");
+    }
+  }
   const calibrationIds = new Set(points.map((p) => p.calibrationId));
   if (calibrationIds.size !== 1)
     intervalReasons.push(

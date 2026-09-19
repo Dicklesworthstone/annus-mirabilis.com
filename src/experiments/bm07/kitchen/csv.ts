@@ -1,5 +1,7 @@
 import {
   KITCHEN_COLUMNS,
+  KITCHEN_FRAME_COLUMNS,
+  type KitchenFrameStamp,
   KITCHEN_LIMITS,
   KITCHEN_METADATA_KEYS,
   KITCHEN_SCHEMA_VERSION,
@@ -24,7 +26,7 @@ function rows(text: string, firstLine: number): { cells: string[]; line: number 
     cells.push(cell);
     cell = "";
     closed = false;
-    if (cells.length > KITCHEN_COLUMNS.length)
+    if (cells.length > KITCHEN_COLUMNS.length + KITCHEN_FRAME_COLUMNS.length)
       throw new KitchenInputError(start, "columns", "too many columns.");
   }
   function endRow() {
@@ -177,7 +179,8 @@ export function parseKitchenCsv(text: string): KitchenDocument {
     );
   const parsed = rows(text.slice(offset), firstLine);
   const header = parsed.shift();
-  if (!header || header.cells.join(",") !== KITCHEN_COLUMNS.join(","))
+  const withFrames = header?.cells.join(",") === [...KITCHEN_COLUMNS, ...KITCHEN_FRAME_COLUMNS].join(",");
+  if (!header || (!withFrames && header.cells.join(",") !== KITCHEN_COLUMNS.join(",")))
     throw new KitchenInputError(
       header?.line ?? firstLine,
       "columns",
@@ -185,6 +188,8 @@ export function parseKitchenCsv(text: string): KitchenDocument {
     );
   if (!parsed.length)
     throw new KitchenInputError(firstLine, "observations", "include at least one observation.");
+  const admittedMetadata = validateKitchenMetadata(metadata);
+  const frames = new Map<number, string>();
   const points: KitchenPoint[] = [],
     last = new Map<string, { time: number; lost: boolean }>();
   const choice = <T extends string>(
@@ -198,8 +203,8 @@ export function parseKitchenCsv(text: string): KitchenDocument {
     return s as T;
   };
   for (const { cells: c, line } of parsed) {
-    if (c.length !== KITCHEN_COLUMNS.length)
-      throw new KitchenInputError(line, "columns", "every row must have exactly twelve cells.");
+    if (c.length !== KITCHEN_COLUMNS.length + (withFrames ? KITCHEN_FRAME_COLUMNS.length : 0))
+      throw new KitchenInputError(line, "columns", "each row must have exactly the columns declared in its header.");
     const [
       c0 = "",
       c1 = "",
@@ -269,11 +274,13 @@ export function parseKitchenCsv(text: string): KitchenDocument {
     );
     const key = JSON.stringify([kind, objectId]),
       previous = last.get(key);
-    if (previous && time <= previous.time)
+    // Repeated clicks on one paused stationary feature or calibration mark share
+    // its real frame time. Never manufacture later times to fit the CSV contract.
+    if (previous && (time < previous.time || (kind === "particle" && time === previous.time)))
       throw new KitchenInputError(
         line,
         "frame_time_s",
-        "times must strictly increase within each object; duplicates are not allowed.",
+        "particle times must strictly increase; stationary/calibration times may repeat but not go backwards.",
       );
     if (previous?.lost && status !== "lost" && !identityDecision)
       throw new KitchenInputError(
@@ -293,6 +300,28 @@ export function parseKitchenCsv(text: string): KitchenDocument {
         "point_status",
         "stationary and calibration rows must be measured, independent clicks.",
       );
+    let capture: KitchenFrameStamp | undefined;
+    if (withFrames && c.slice(12).some(value => value !== "")) {
+      if (c.slice(12).length !== 4) throw new KitchenInputError(line, "capture", "incomplete frame stamp.");
+      const requestedTime = kitchenNumber(c[12] ?? "", "requested_time_s", line);
+      const timingSource = choice(c[13] ?? "", ["frame-callback", "frame-callback-adjusted", "declared-rate"] as const, "timing_source", line);
+      const presentedFrames = c[14] === "" ? null : kitchenNumber(c[14] ?? "", "presented_frames", line);
+      const frameId = kitchenNumber(c[15] ?? "", "frame_id", line);
+      if (requestedTime < 0 || requestedTime > KITCHEN_LIMITS.duration ||
+          !Number.isSafeInteger(frameId) || frameId < 1 || frameId > 2000 ||
+          (presentedFrames !== null && (!Number.isSafeInteger(presentedFrames) || presentedFrames < 1)) ||
+          (timingSource === "declared-rate") !== (presentedFrames === null))
+        throw new KitchenInputError(line, "capture", "invalid frame identity, time or timing provenance.");
+      const adjusted = Math.abs(time - requestedTime) > 0.5 / Number(admittedMetadata.frame_rate_hz);
+      if ((timingSource === "frame-callback" && adjusted) || (timingSource === "frame-callback-adjusted" && !adjusted) ||
+          (timingSource === "declared-rate" && admittedMetadata.timing_source !== "declared-rate"))
+        throw new KitchenInputError(line, "capture", "timing provenance disagrees with the actual/requested times or the file declaration.");
+      const signature = JSON.stringify([time, requestedTime, timingSource, presentedFrames]);
+      if (frames.has(frameId) && frames.get(frameId) !== signature)
+        throw new KitchenInputError(line, "frame_id", "one acquired frame cannot have conflicting times or provenance.");
+      frames.set(frameId, signature);
+      capture = Object.freeze({ requestedTime, timingSource, presentedFrames, frameId });
+    }
     last.set(key, { time, lost: status === "lost" });
     points.push(
       Object.freeze({
@@ -306,22 +335,24 @@ export function parseKitchenCsv(text: string): KitchenDocument {
         exclusionReason,
         calibrationId,
         identityDecision,
+        ...(capture ? { capture } : {}),
       }),
     );
   }
   return Object.freeze({
     schemaVersion: 2,
-    metadata: validateKitchenMetadata(metadata),
+    metadata: admittedMetadata,
     points: Object.freeze(points),
     notes: Object.freeze(notes),
   });
 }
-const cell = (s: string) => (/[",\r\n]/.test(s) ? `"${s.replaceAll('"', '""')}"` : s);
+const cell = (s: string) => (/[,"\r\n]/.test(s) ? `"${s.replaceAll('"', '""')}"` : s);
 export function exportKitchenCsv(document: KitchenDocument): string {
   const lines = KITCHEN_METADATA_KEYS.map((k) => `# ${k}=${protect(document.metadata[k])}`);
   if (lines.some((line) => /[\r\n]/.test(line)))
     throw new KitchenInputError(0, "metadata", "metadata values cannot contain newlines.");
-  lines.push(KITCHEN_COLUMNS.join(","));
+  const withFrames = document.points.some(point => point.capture);
+  lines.push([...KITCHEN_COLUMNS, ...(withFrames ? KITCHEN_FRAME_COLUMNS : [])].join(","));
   for (const p of document.points)
     lines.push(
       [
@@ -337,6 +368,8 @@ export function exportKitchenCsv(document: KitchenDocument): string {
         protect(p.exclusionReason),
         protect(p.calibrationId),
         p.identityDecision,
+        ...(withFrames ? p.capture ? [String(p.capture.requestedTime), p.capture.timingSource,
+          p.capture.presentedFrames === null ? "" : String(p.capture.presentedFrames), String(p.capture.frameId)] : ["", "", "", ""] : []),
       ]
         .map(cell)
         .join(","),

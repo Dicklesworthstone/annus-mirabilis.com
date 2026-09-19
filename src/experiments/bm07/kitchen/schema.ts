@@ -45,6 +45,16 @@ export const KITCHEN_METADATA_KEYS = Object.freeze([
   "data_origin",
   "radius_provenance",
 ] as const);
+/** Optional acquisition columns. Legacy twelve-column observations remain valid. */
+export const KITCHEN_FRAME_COLUMNS = Object.freeze([
+  "requested_time_s", "timing_source", "presented_frames", "frame_id",
+] as const);
+export type KitchenFrameStamp = Readonly<{
+  requestedTime: number;
+  timingSource: "frame-callback" | "frame-callback-adjusted" | "declared-rate";
+  presentedFrames: number | null;
+  frameId: number;
+}>;
 export type MetadataKey = (typeof KITCHEN_METADATA_KEYS)[number];
 export type KitchenMetadata = Readonly<Record<MetadataKey, string>>;
 export type PointStatus = "measured" | "interpolated" | "excluded" | "lost";
@@ -59,6 +69,7 @@ export type KitchenPoint = Readonly<{
   exclusionReason: string;
   calibrationId: string;
   identityDecision: "" | "reacquired-same" | "new-object";
+  capture?: KitchenFrameStamp;
 }>;
 export type KitchenDocument = Readonly<{
   schemaVersion: 2;
