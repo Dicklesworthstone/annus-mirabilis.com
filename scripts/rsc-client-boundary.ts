@@ -495,16 +495,261 @@ export function collectAppRouterSourceFiles(rootDir: string = process.cwd()): So
   return records;
 }
 
+
+/* ------------------------------------------------------------------------- *
+ * Schema layer boundary (am-bwnf)
+ *
+ * The checks above are incident detectors: they fire when a Client Component
+ * already reaches a Node builtin. The schema layer needs a standing rule
+ * instead, because `src/content/schemas/` is where the recurring outage was
+ * manufactured -- single modules held pure types, constants and predicates
+ * beside `node:fs` loaders, so any Client Component that needed a content type
+ * dragged the filesystem with it.
+ *
+ * The convention this enforces:
+ *   - `src/content/schemas/**;/*.pure.ts` is the client-safe half of a schema.
+ *     It reads nothing, and it depends on nothing that reads anything.
+ *   - every other module under `src/content/schemas/` is server-only and may
+ *     load files freely.
+ *
+ * Three assertions follow. The second is the one the reachability checks above
+ * cannot make: a `.pure.ts` module is held to its contract even while no Client
+ * Component imports it yet, so the trap is disarmed before the next component
+ * walks into it.
+ * ------------------------------------------------------------------------- */
+
+export const SCHEMA_LAYER_PREFIX = "src/content/schemas/";
+export const CLIENT_SAFE_SCHEMA_SUFFIX = ".pure.ts";
+
+export type SchemaBoundaryViolationKind =
+  | "node-builtin-in-client-reachable-schema"
+  | "node-builtin-in-pure-schema-module"
+  | "server-schema-import-in-pure-schema-module";
+
+export interface SchemaBoundaryViolation {
+  readonly file: string;
+  readonly kind: SchemaBoundaryViolationKind;
+  /** The module that actually carries the offending import. */
+  readonly offender: string;
+  readonly builtins: readonly string[];
+  /** Import chain from the reported file to the offender, inclusive. */
+  readonly chain: readonly string[];
+  readonly message: string;
+  readonly repair: string;
+}
+
+export function isSchemaLayerModule(path: string): boolean {
+  return normalizePath(path).startsWith(SCHEMA_LAYER_PREFIX);
+}
+
+export function isClientSafeSchemaModule(path: string): boolean {
+  const norm = normalizePath(path);
+  return norm.startsWith(SCHEMA_LAYER_PREFIX) && norm.endsWith(CLIENT_SAFE_SCHEMA_SUFFIX);
+}
+
+function isTestModule(path: string): boolean {
+  return /\.(test|spec)\.[^.]+$/.test(normalizePath(path));
+}
+
+/**
+ * Breadth-first search for the shortest runtime import chain from `start` to a
+ * module that imports a forbidden Node builtin. Returns null when the whole
+ * reachable closure is free of them.
+ */
+export function findNodeBuiltinImportPath(
+  start: string,
+  fileMap: Map<string, string>,
+): { offender: string; builtins: readonly string[]; chain: readonly string[] } | null {
+  const visited = new Set<string>([start]);
+  const queue: { path: string; chain: readonly string[] }[] = [{ path: start, chain: [start] }];
+
+  while (queue.length > 0) {
+    const item = queue.shift();
+    if (!item) break;
+    const content = fileMap.get(item.path);
+    if (content === undefined) continue;
+
+    const builtins = detectNodeBuiltinUsages(content);
+    if (builtins.length > 0) {
+      return { offender: item.path, builtins, chain: item.chain };
+    }
+
+    for (const spec of extractRuntimeImportSpecifiers(content)) {
+      const resolved = resolveImport(item.path, spec, fileMap);
+      if (!resolved || visited.has(resolved)) continue;
+      visited.add(resolved);
+      queue.push({ path: resolved, chain: [...item.chain, resolved] });
+    }
+  }
+
+  return null;
+}
+
+/**
+ * Collects every module evaluated in Client Component context, with the import
+ * chain that put it there. Traversal matches `checkClientBoundaries`: App
+ * Router entries are explored in Server Component context until a 'use client'
+ * directive crosses the boundary, and every 'use client' module is a root in
+ * its own right.
+ */
+export function collectClientContextChains(
+  fileMap: Map<string, string>,
+): Map<string, readonly string[]> {
+  const clientChains = new Map<string, readonly string[]>();
+  const serverVisited = new Set<string>();
+  const serverQueue: { path: string; chain: readonly string[] }[] = [];
+  const clientQueue: { path: string; chain: readonly string[] }[] = [];
+
+  for (const path of [...fileMap.keys()].sort()) {
+    if (isAppRouterEntry(path)) {
+      const content = fileMap.get(path) ?? "";
+      if (hasUseClientDirective(content)) clientQueue.push({ path, chain: [path] });
+      else serverQueue.push({ path, chain: [path] });
+    }
+  }
+
+  while (serverQueue.length > 0) {
+    const item = serverQueue.shift();
+    if (!item) break;
+    if (serverVisited.has(item.path)) continue;
+    serverVisited.add(item.path);
+    const content = fileMap.get(item.path);
+    if (content === undefined) continue;
+
+    for (const spec of extractRuntimeImportSpecifiers(content)) {
+      const resolved = resolveImport(item.path, spec, fileMap);
+      if (!resolved) continue;
+      const resolvedContent = fileMap.get(resolved);
+      if (resolvedContent === undefined) continue;
+      const next = { path: resolved, chain: [...item.chain, resolved] };
+      if (hasUseClientDirective(resolvedContent)) clientQueue.push(next);
+      else serverQueue.push(next);
+    }
+  }
+
+  for (const [path, content] of [...fileMap.entries()].sort(([a], [b]) => (a < b ? -1 : 1))) {
+    if (hasUseClientDirective(content)) {
+      clientQueue.push({ path, chain: [path] });
+    }
+  }
+
+  while (clientQueue.length > 0) {
+    const item = clientQueue.shift();
+    if (!item) break;
+    if (clientChains.has(item.path)) continue;
+    clientChains.set(item.path, item.chain);
+    const content = fileMap.get(item.path);
+    if (content === undefined) continue;
+
+    for (const spec of extractRuntimeImportSpecifiers(content)) {
+      const resolved = resolveImport(item.path, spec, fileMap);
+      if (!resolved || clientChains.has(resolved)) continue;
+      clientQueue.push({ path: resolved, chain: [...item.chain, resolved] });
+    }
+  }
+
+  return clientChains;
+}
+
+/**
+ * The standing schema-layer rule. See the comment block above for the contract.
+ */
+export function checkSchemaLayerBoundaries(
+  files: readonly SourceFileRecord[],
+): SchemaBoundaryViolation[] {
+  const fileMap = new Map<string, string>();
+  for (const f of files) {
+    fileMap.set(normalizePath(f.path), f.content);
+  }
+
+  const violations: SchemaBoundaryViolation[] = [];
+
+  // 1. No schema module a Client Component reaches may carry a Node builtin,
+  //    itself or through anything it imports. Reported at the point where the
+  //    client chain first enters the schema layer, because that is the module
+  //    whose pure half is missing.
+  const clientChains = collectClientContextChains(fileMap);
+  const reportedEntries = new Set<string>();
+  for (const [path, chain] of clientChains) {
+    if (!isSchemaLayerModule(path) || isTestModule(path)) continue;
+    const importer = chain[chain.length - 2];
+    if (importer !== undefined && isSchemaLayerModule(importer)) continue; // not the entry
+    if (reportedEntries.has(path)) continue;
+
+    const found = findNodeBuiltinImportPath(path, fileMap);
+    if (!found) continue;
+    reportedEntries.add(path);
+    const throughSuffix =
+      found.offender === path ? "" : ` through ${found.chain.slice(1).join(" -> ")}`;
+    violations.push({
+      file: path,
+      kind: "node-builtin-in-client-reachable-schema",
+      offender: found.offender,
+      builtins: found.builtins,
+      chain: [...chain, ...found.chain.slice(1)],
+      message: `Schema module '${path}' is reachable from Client Component context (via ${chain.join(" -> ")}) and reaches Node builtin(s) [${found.builtins.join(", ")}] in '${found.offender}'${throughSuffix}.`,
+      repair: `Split '${path}': put the types, constants and predicates a component needs into a sibling '${path.replace(/\.tsx?$/, "")}${CLIENT_SAFE_SCHEMA_SUFFIX}' that imports nothing filesystem-backed, leave the loaders where they are, re-export the pure half so server callers keep one import, and point the component at the pure half.`,
+    });
+  }
+
+  // 2. A client-safe schema module is held to its contract whether or not a
+  //    Client Component imports it today. This is the standing half of the
+  //    rule: it fails when the trap is armed, not when someone walks into it.
+  for (const path of [...fileMap.keys()].sort()) {
+    if (!isClientSafeSchemaModule(path) || isTestModule(path)) continue;
+    const found = findNodeBuiltinImportPath(path, fileMap);
+    if (!found) continue;
+    const throughSuffix =
+      found.offender === path ? "" : ` through ${found.chain.slice(1).join(" -> ")}`;
+    violations.push({
+      file: path,
+      kind: "node-builtin-in-pure-schema-module",
+      offender: found.offender,
+      builtins: found.builtins,
+      chain: found.chain,
+      message: `Client-safe schema module '${path}' reaches Node builtin(s) [${found.builtins.join(", ")}] in '${found.offender}'${throughSuffix}. A '${CLIENT_SAFE_SCHEMA_SUFFIX}' module reads nothing and depends on nothing that reads anything.`,
+      repair: `Move the filesystem work out of '${found.offender}' and into a server-only sibling, or stop '${path}' from importing it at runtime. A type-only import is erased and is always allowed.`,
+    });
+  }
+
+  // 3. Layering: the pure half never depends on the loader half. Without this
+  //    the separation erodes silently the moment a loader is briefly builtin
+  //    free, and check 2 stops noticing.
+  for (const path of [...fileMap.keys()].sort()) {
+    if (!isClientSafeSchemaModule(path) || isTestModule(path)) continue;
+    const content = fileMap.get(path);
+    if (content === undefined) continue;
+    for (const spec of extractRuntimeImportSpecifiers(content)) {
+      const resolved = resolveImport(path, spec, fileMap);
+      if (!resolved) continue;
+      if (!isSchemaLayerModule(resolved) || isClientSafeSchemaModule(resolved)) continue;
+      violations.push({
+        file: path,
+        kind: "server-schema-import-in-pure-schema-module",
+        offender: resolved,
+        builtins: [],
+        chain: [path, resolved],
+        message: `Client-safe schema module '${path}' imports server-only schema module '${resolved}' at runtime. The pure half of a schema never depends on the loader half.`,
+        repair: `Import the value from a '${CLIENT_SAFE_SCHEMA_SUFFIX}' sibling of '${resolved}', creating one if it does not exist, or make the import type-only if only a type is needed.`,
+      });
+    }
+  }
+
+  return violations;
+}
+
 /**
  * CLI execution entry point.
  */
 export function runClientBoundaryGateCli(rootDir: string = process.cwd()): number {
   const files = collectAppRouterSourceFiles(rootDir);
   const violations = checkClientBoundaries(files);
+  const schemaViolations = checkSchemaLayerBoundaries(files);
+  const total = violations.length + schemaViolations.length;
 
-  if (violations.length > 0) {
+  if (total > 0) {
     console.error(
-      `\n🚨 RSC Client Boundary Gate Failed (${violations.length} violation${violations.length === 1 ? "" : "s"} found):`,
+      `\n🚨 RSC Client Boundary Gate Failed (${total} violation${total === 1 ? "" : "s"} found):`,
     );
     for (const v of violations) {
       const tag =
@@ -512,6 +757,12 @@ export function runClientBoundaryGateCli(rootDir: string = process.cwd()): numbe
           ? "[node-builtin-in-client-component]"
           : "[client-hook-in-server-component]";
       console.error(`\n  ${tag} ${v.file}`);
+      console.error(`    ${v.message}`);
+      console.error(`    Import chain: ${v.chain.join(" -> ")}`);
+      console.error(`    Repair: ${v.repair}`);
+    }
+    for (const v of schemaViolations) {
+      console.error(`\n  [${v.kind}] ${v.file}`);
       console.error(`    ${v.message}`);
       console.error(`    Import chain: ${v.chain.join(" -> ")}`);
       console.error(`    Repair: ${v.repair}`);
