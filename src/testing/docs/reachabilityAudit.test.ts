@@ -137,6 +137,34 @@ describe("reachabilityAudit (real compiler, real fixture corpus)", () => {
     assert.equal(explainResult.missingTarget, "foundation-link");
   });
 
+  it("removing a chain step's R1 reason reports Derive reach-set missing target", () => {
+    const baseNode =
+      brownianNodes.find((n) => n.id === "arg-bm-diffusion-equation") ?? brownianNodes[0];
+    assert.ok(baseNode, "Base node must exist");
+    const mutatedNode: Argument = {
+      ...baseNode,
+      readings: {
+        ...baseNode.readings,
+        steps: baseNode.readings.steps.map((b) => {
+          if (b.kind === "steps") {
+            // Remove R1 reason from first step (make it empty)
+            return { kind: "steps", items: ["", ...b.items.slice(1)] };
+          }
+          return b;
+        }),
+      },
+    };
+
+    const results = auditArgumentReachability(mutatedNode, {
+      knownFoundationIds: foundationIds,
+    });
+
+    const deriveResult = results.find((r) => r.accomplishment === "derive");
+    assert.ok(deriveResult, "Derive reach-set result must exist");
+    assert.equal(deriveResult.resolved, false);
+    assert.equal(deriveResult.missingTarget, "r1-reason");
+  });
+
   it("the audit report validates schema and never fails the build", () => {
     const report = auditCorpusReachability(brownianNodes, {
       knownFoundationIds: foundationIds,

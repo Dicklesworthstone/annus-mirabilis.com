@@ -280,6 +280,19 @@ export const QUALITY_GATE_STEPS: readonly GateStep[] = [
     owner: "am-cm-dimension-validator-aoz",
   },
   {
+    id: "audit-reachability",
+    title: "Argument reachability across five accomplishments audit",
+    command: ["bun", "scripts/audit-reachability.ts"],
+    family: "fast",
+    cadence: "every-run",
+    requiredInCi: true,
+    requiredInProfiles: ["preview", "launch"],
+    availability: {
+      scriptPath: "scripts/audit-reachability.ts",
+    },
+    owner: "am-edit-comprehension-protocol-ouih",
+  },
+  {
     id: "receipts",
     title: "Provenance receipt check",
     command: ["bun", "scripts/check-receipts.ts", "--surveys"],

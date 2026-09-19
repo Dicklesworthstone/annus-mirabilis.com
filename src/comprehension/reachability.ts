@@ -231,9 +231,14 @@ export function auditArgumentReachability(
   let deriveResolved = true;
   let missingDeriveTarget: string | undefined;
 
-  const stepsBlock = arg.readings?.steps?.find((b) => b.kind === "steps");
+  const stepsBlock = arg.readings?.steps?.find(
+    (b): b is { kind: "steps"; items: readonly string[] } => b.kind === "steps",
+  );
   if (arg.meaning?.logicalRole === "derivation" || stepsBlock) {
-    if (!stepsBlock && arg.readings?.full?.every((b) => b.kind !== "formula")) {
+    if (stepsBlock && stepsBlock.items.some((step) => !step || step.trim().length === 0)) {
+      deriveResolved = false;
+      missingDeriveTarget = "r1-reason";
+    } else if (!stepsBlock && arg.readings?.full?.every((b) => b.kind !== "formula")) {
       deriveResolved = false;
       missingDeriveTarget = "derivation-steps";
     }

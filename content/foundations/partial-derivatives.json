@@ -47,6 +47,24 @@
     {
       "kind": "paragraph",
       "text": "Example 3 (Thermodynamic derivatives: isothermal versus adiabatic): In gas thermodynamics, the volume response to pressure depends on thermal boundary conditions. The isothermal derivative (∂V/∂p)_T explicitly names temperature T as the held-fixed quantity while heat exchanges freely with a bath. Conversely, the adiabatic derivative (∂V/∂p)_S explicitly names entropy S as the held-fixed quantity under thermal insulation. Because isothermal compression permits heat release, the isothermal compressibility exceeds the adiabatic compressibility. Writing ∂V/∂p without identifying the held-fixed parameter is physically incomplete."
+    },
+    {
+      "kind": "formula",
+      "latex": "\\left(\\frac{\\partial s_\\nu}{\\partial u_\\nu}\\right)_{V, \\nu} = \\frac{1}{T}",
+      "spoken": "Monochromatic radiation entropy density derivative with respect to energy density holding volume V and frequency nu fixed."
+    },
+    {
+      "kind": "paragraph",
+      "text": "Example 4 (Radiation entropy derivative in Light Quanta §3): For blackbody radiation at frequency nu, the entropy density s_nu depends on both spectral energy density u_nu and enclosure volume V. Einstein's derivation of Wien's displacement law takes the partial derivative (∂s_nu/∂u_nu)_(V, nu) = 1/T. Here both cavity volume V and radiation frequency nu are strictly held fixed as the held-fixed parameters while varying energy density u_nu."
+    },
+    {
+      "kind": "formula",
+      "latex": "\\left(\\frac{\\partial}{\\partial x}\\right)_{y, z, t} = \\gamma \\left(\\frac{\\partial}{\\partial x'}\\right)_{y', z', t'} - \\gamma \\frac{v}{c^2} \\left(\\frac{\\partial}{\\partial t'}\\right)_{x', y', z'}",
+      "spoken": "Chain rule transformation of spatial partial derivative holding rest-frame coordinates fixed into moving-frame partial derivatives."
+    },
+    {
+      "kind": "paragraph",
+      "text": "Example 5 (Transformed derivatives in Relativity §6): In coordinate transformations between a resting frame (x, y, z, t) and a moving frame (x', y', z', t'), the partial derivative (∂/∂x)_(y, z, t) explicitly holds resting coordinates y, z, and time t fixed. When expressed in moving coordinates via the relativistic chain rule, it becomes a combination of moving spatial derivative (∂/∂x')_(y', z', t') holding y', z', and t' fixed, and moving time derivative (∂/∂t')_(x', y', z') holding x', y', and z' fixed. Changing coordinate systems changes which physical quantities are held fixed."
     }
   ],
   "prerequisites": [

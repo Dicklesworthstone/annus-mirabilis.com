@@ -109,3 +109,38 @@
 .evaluation-comparison {
   margin-top: 1rem;
 }
+
+/* Print Media Styles */
+@media print {
+  .proportional-controls,
+  .construction-controls,
+  .toggle-controls,
+  .nudge-controls,
+  .notation-toggle-controls {
+    display: none !important;
+  }
+
+  .foundation-construction,
+  .foundation-extension {
+    break-inside: avoid;
+    border: 1px solid #ccc !important;
+    background: transparent !important;
+  }
+
+  .construction-text-equivalent {
+    display: block !important;
+    color: #000 !important;
+  }
+
+  .proportional-readout,
+  .construction-display,
+  .held-fixed-display,
+  .nudge-readout,
+  .series-display,
+  .dimensionless-exponents-note,
+  .notation-callout,
+  .trustworthy-rule-statement {
+    background: transparent !important;
+    border: 1px solid #ccc !important;
+  }
+}

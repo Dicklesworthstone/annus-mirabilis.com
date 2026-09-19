@@ -350,12 +350,34 @@ test("foundCalculus.records: partial-derivatives explicitly names held-fixed qua
     "Example 3 must name entropy S held fixed for adiabatic derivative",
   );
 
+  // Example 4: Light Quanta §3 radiation entropy
+  assert.ok(
+    exampleText.includes("Example 4 (Radiation entropy derivative in Light Quanta §3)"),
+    "Example 4 must name radiation entropy derivative in Light Quanta §3",
+  );
+  assert.ok(
+    exampleText.includes("volume V and radiation frequency nu are strictly held fixed"),
+    "Example 4 must explicitly name volume V and frequency nu as held-fixed parameters",
+  );
+
+  // Example 5: Special Relativity §6 transformed derivatives
+  assert.ok(
+    exampleText.includes("Example 5 (Transformed derivatives in Relativity §6)"),
+    "Example 5 must name transformed derivatives in Relativity §6",
+  );
+  assert.ok(
+    exampleText.includes("holds resting coordinates y, z, and time t fixed"),
+    "Example 5 must explicitly name resting coordinates y, z, and time t held fixed",
+  );
+
   writeCalculusLog({
     testId: "partial-derivatives-held-fixed-explicit",
     foundationId: "partial-derivatives",
     callingAnchor: "brownian-motion:s4",
-    expected: "each example explicitly names its own held-fixed quantities (t, x, T, S)",
-    actual: "Example 1 names t, Example 2 names x, Example 3 names T and S",
+    expected:
+      "each example explicitly names its own held-fixed quantities (t, x, T, S, V, nu, y, z)",
+    actual:
+      "Example 1 names t, Example 2 names x, Example 3 names T and S, Example 4 names V and nu, Example 5 names y, z, t",
     outcome: "passed",
     message:
       "Verified each held-fixed example in partial-derivatives explicitly identifies its fixed quantities",
