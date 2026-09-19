@@ -3,6 +3,15 @@ import { readFile } from "node:fs/promises";
 import { dirname, resolve } from "node:path";
 import { fileURLToPath } from "node:url";
 import { renderToStaticMarkup } from "react-dom/server";
+import {
+  FIXTURE_BROWNIAN_ALIGNMENT,
+  FIXTURE_BROWNIAN_PAPER,
+  FIXTURE_BROWNIAN_SOURCE_BLOCKS,
+  FIXTURE_BROWNIAN_TRANSLATION_UNITS,
+  FIXTURE_EDITORIAL_NOTES,
+  FIXTURE_REVIEW_RECORDS,
+} from "../testing/fixtures/bilingual/brownianBilingualFixture.ts";
+import type { BilingualEdition } from "./faces/bilingualLoader.ts";
 import { PaperPage } from "./PaperPage.tsx";
 import { listReadablePapers } from "./paperRoutes.ts";
 
@@ -114,5 +123,98 @@ describe("PaperPage", () => {
     }
 
     expect(missingFromMarkup).toEqual([]);
+  });
+
+  test("face route fallback branch: paper with no source blocks renders honest fallback notice (the live condition today)", async () => {
+    const paperId = "brownian-motion";
+    const germanMarkup = renderToStaticMarkup(await PaperPage({ paperId, face: "german" }));
+
+    // Fallback notice is present
+    expect(germanMarkup).toContain("The german source for this paper is not yet available");
+    expect(germanMarkup).toContain('data-face-source="true"');
+    expect(germanMarkup).toContain('data-view="german"');
+    expect(germanMarkup).toContain("Read the explanation instead");
+
+    // Real source blocks are absent
+    expect(germanMarkup).not.toContain("source-blocks-list");
+    expect(germanMarkup).not.toContain('id="bm-s4-p1"');
+
+    // Same honest fallback holds on English and parallel faces
+    const englishMarkup = renderToStaticMarkup(await PaperPage({ paperId, face: "english" }));
+    expect(englishMarkup).toContain("The english translation for this paper is not yet available");
+
+    const parallelMarkup = renderToStaticMarkup(await PaperPage({ paperId, face: "parallel" }));
+    expect(parallelMarkup).toContain("The parallel bilingual for this paper is not yet available");
+  });
+
+  test("face route wiring decision (not live edition): paper with source blocks renders GermanFace with anchors and printed equation labels, and not-yet-available notice is absent", async () => {
+    const fixtureEdition: BilingualEdition = {
+      paper: FIXTURE_BROWNIAN_PAPER,
+      blocks: FIXTURE_BROWNIAN_SOURCE_BLOCKS,
+      units: FIXTURE_BROWNIAN_TRANSLATION_UNITS,
+      alignment: FIXTURE_BROWNIAN_ALIGNMENT,
+      editorialNotes: FIXTURE_EDITORIAL_NOTES,
+      reviewRecords: FIXTURE_REVIEW_RECORDS,
+    };
+
+    const paperId = "brownian-motion";
+    const germanMarkup = renderToStaticMarkup(
+      await PaperPage({ paperId, face: "german" }, { edition: fixtureEdition }),
+    );
+
+    // GermanFace output is rendered
+    expect(germanMarkup).toContain('data-face="german"');
+    expect(germanMarkup).toContain('lang="de"');
+    expect(germanMarkup).toContain("source-blocks-list");
+
+    // Anchors are present
+    expect(germanMarkup).toContain('id="bm-s4-p1"');
+    expect(germanMarkup).toContain('id="bm-s4-eq1"');
+    expect(germanMarkup).toContain('id="bm-s5-p1"');
+
+    // Printed equation labels and printed notation are present
+    expect(germanMarkup).toContain('data-equation-label="1"');
+    expect(germanMarkup).toContain("(1)");
+    expect(germanMarkup).toContain('data-printed-notation="true"');
+
+    // Date-line and footnotes are present
+    expect(germanMarkup).toContain("Bern, Mai 1905.");
+    expect(germanMarkup).toContain('id="footnote-bm-s5-fn1"');
+
+    // The not-yet-available notice is strictly ABSENT
+    expect(germanMarkup).not.toContain("is not yet available");
+    expect(germanMarkup).not.toContain("The german source for this paper is not yet available");
+  });
+
+  test("face route wiring decision (not live edition): paper with source blocks renders EnglishFace and ParallelFace with real units and fallback notice absent", async () => {
+    const fixtureEdition: BilingualEdition = {
+      paper: FIXTURE_BROWNIAN_PAPER,
+      blocks: FIXTURE_BROWNIAN_SOURCE_BLOCKS,
+      units: FIXTURE_BROWNIAN_TRANSLATION_UNITS,
+      alignment: FIXTURE_BROWNIAN_ALIGNMENT,
+      editorialNotes: FIXTURE_EDITORIAL_NOTES,
+      reviewRecords: FIXTURE_REVIEW_RECORDS,
+    };
+
+    const paperId = "brownian-motion";
+
+    // EnglishFace
+    const englishMarkup = renderToStaticMarkup(
+      await PaperPage({ paperId, face: "english" }, { edition: fixtureEdition }),
+    );
+    expect(englishMarkup).toContain('data-face="english"');
+    expect(englishMarkup).toContain('id="tr-bm-s4-p1-u1"');
+    expect(englishMarkup).toContain('id="tr-bm-s4-eq1"');
+    expect(englishMarkup).not.toContain("is not yet available");
+
+    // ParallelFace
+    const parallelMarkup = renderToStaticMarkup(
+      await PaperPage({ paperId, face: "parallel" }, { edition: fixtureEdition }),
+    );
+    expect(parallelMarkup).toContain('data-face="parallel"');
+    expect(parallelMarkup).toContain('id="bm-s4-p1"');
+    expect(parallelMarkup).toContain('id="tr-bm-s4-p1-u1"');
+    expect(parallelMarkup).toContain('data-equation-label="1"');
+    expect(parallelMarkup).not.toContain("is not yet available");
   });
 });

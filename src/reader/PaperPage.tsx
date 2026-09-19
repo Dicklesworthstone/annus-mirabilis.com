@@ -11,6 +11,10 @@ import { FoundationBody, ReadingBlocks } from "./Blocks.tsx";
 import { MassEnergyFirstEncounter } from "./entrances/MassEnergyFirstEncounter.tsx";
 import type { MassEnergyEntranceScenario } from "./entrances/massEnergyExample.ts";
 import { FaceFallback } from "./FaceFallback.tsx";
+import { type BilingualEdition, loadBilingualEdition } from "./faces/bilingualLoader.ts";
+import { EnglishFace } from "./faces/EnglishFace.tsx";
+import { GermanFace } from "./faces/GermanFace.tsx";
+import { ParallelFace } from "./faces/ParallelFace.tsx";
 import {
   isFaceFallbackId,
   type PaperRouteRequest,
@@ -21,23 +25,75 @@ import { ReaderController } from "./ReaderController.tsx";
 import { ROOT_ARMING_SOURCE } from "./rootArming.inline.ts";
 import "./reader.css";
 
+export interface PaperPageOptions {
+  readonly edition?: BilingualEdition | null | undefined;
+  readonly editionLoader?: ((paperId: string) => Promise<BilingualEdition | null>) | undefined;
+}
+
 /**
  * Generic paper/section/face renderer. The dedicated brownian-motion pages keep
  * using PaperReader (layout work in flight there). This shell is paper-agnostic:
  * it loads whichever compiled paper the route named.
  */
-export async function PaperPage(request: PaperRouteRequest) {
+export async function PaperPage(request: PaperRouteRequest, options?: PaperPageOptions) {
   const resolved = await resolvePaperRoute(request);
   if (!resolved.ok) notFound();
   if (resolved.face !== "reading") {
     if (!isFaceFallbackId(resolved.face)) notFound();
-    return (
-      <FaceFallback
-        paperId={resolved.paperId}
-        face={resolved.face}
-        {...(resolved.section !== undefined ? { section: resolved.section } : {})}
-      />
-    );
+
+    if (resolved.face === "german" || resolved.face === "english" || resolved.face === "parallel") {
+      const edition =
+        options?.edition !== undefined
+          ? options.edition
+          : options?.editionLoader
+            ? await options.editionLoader(resolved.paperId)
+            : await loadBilingualEdition(resolved.paperId);
+
+      if (edition && edition.blocks.length > 0 && edition.units.length > 0) {
+        if (resolved.face === "german") {
+          return (
+            <GermanFace
+              paper={edition.paper}
+              blocks={edition.blocks}
+              alignment={edition.alignment}
+              editorialNotes={edition.editorialNotes}
+              sectionId={resolved.section}
+            />
+          );
+        }
+        if (resolved.face === "english") {
+          return (
+            <EnglishFace
+              paper={edition.paper}
+              units={edition.units}
+              alignment={edition.alignment}
+              editorialNotes={edition.editorialNotes}
+              reviewRecords={edition.reviewRecords}
+              sectionId={resolved.section}
+            />
+          );
+        }
+        if (resolved.face === "parallel") {
+          return (
+            <ParallelFace
+              paper={edition.paper}
+              blocks={edition.blocks}
+              units={edition.units}
+              alignment={edition.alignment ?? { paper: edition.paper.slug, edges: [] }}
+              editorialNotes={edition.editorialNotes}
+              reviewRecords={edition.reviewRecords}
+              sectionId={resolved.section}
+            />
+          );
+        }
+      }
+    }
+
+    return await FaceFallback({
+      paperId: resolved.paperId,
+      face: resolved.face,
+      ...(resolved.section !== undefined ? { section: resolved.section } : {}),
+    });
   }
   const payload = await loadPaper(resolved.paperId);
   const { paper, foundations } = payload;
