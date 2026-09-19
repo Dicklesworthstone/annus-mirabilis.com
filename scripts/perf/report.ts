@@ -18,6 +18,25 @@ export interface RouteTransferSummary {
   scriptTransferBytes: number;
   totalTransferBytes: number;
   encoding?: string;
+  /**
+   * Per-route byte accounting, carried into the report so a reader can audit the
+   * budget decision from the artifact alone (am-lj8r). Before this, the report
+   * recorded only the derived scriptTransferBytes, so nothing in the emitted
+   * JSON showed which encoding was compared, what the raw and gzip figures were,
+   * or that a byte-budget violation had been raised at all.
+   */
+  byteAccounting?: {
+    rawBytes: number;
+    gzipBytes: number;
+    brotliBytes: number;
+    /** The figure actually compared against the budget, in `encoding`. */
+    compressedBytes: number;
+    budgetBytes: number;
+    overBudget: boolean;
+    chunkCount: number;
+  };
+  /** Route-graph violations, e.g. { kind: "byte-budget", ... }, as raised by checkInitialRouteGraph. */
+  violations?: readonly unknown[];
 }
 
 export interface MetricReportEntry {

@@ -188,6 +188,8 @@ export async function runPerformanceBudgets(
   for (const route of measuredRoutes) {
     let scriptBytes = 0;
     let totalBytes = 0;
+    let routeAccounting: RouteTransferSummary["byteAccounting"];
+    let routeViolations: readonly unknown[] = [];
 
     if (opts.plantViolationRow === 1) {
       scriptBytes = 250_000; // Planted over budget (> 204,800)
@@ -221,7 +223,19 @@ export async function runPerformanceBudgets(
       }
       scriptBytes = res.byteAccounting.effectiveBytes;
       totalBytes = scriptBytes + 25_000; // estimated HTML/CSS transfer
+      routeAccounting = {
+        rawBytes: res.byteAccounting.rawBytes,
+        gzipBytes: res.byteAccounting.gzipBytes,
+        brotliBytes: res.byteAccounting.brotliBytes,
+        compressedBytes: res.byteAccounting.effectiveBytes,
+        budgetBytes: res.byteAccounting.budgetBytes,
+        overBudget: res.byteAccounting.overBudget,
+        chunkCount: Object.keys(measured.sizes).length,
+      };
       if (!res.ok) {
+        // `violations` lives only on the failure branch of RouteGraphResult, and a
+        // byte-budget overrun always sets ok: false, so this is where they surface.
+        routeViolations = res.violations;
         row1Passed = false;
         routeNotes.push(`${route}: ${res.reason ?? "route graph violation"}`);
       }
@@ -242,6 +256,8 @@ export async function runPerformanceBudgets(
       scriptTransferBytes: scriptBytes,
       totalTransferBytes: totalBytes,
       encoding: "br",
+      ...(routeAccounting ? { byteAccounting: routeAccounting } : {}),
+      ...(routeViolations.length > 0 ? { violations: routeViolations } : {}),
     });
   }
 
