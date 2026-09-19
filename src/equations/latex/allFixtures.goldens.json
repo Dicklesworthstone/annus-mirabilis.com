@@ -1,0 +1,163 @@
+{
+  "bead": "am-eq-latex-generation-hc3",
+  "reviewed": false,
+  "note": "Regression pins of the renderer's current output, not an editorial judgement that each string is the right LaTeX for its passage. Set reviewed: true only after a human has read them against the printed equations. Regenerate with AM_UPDATE_GOLDENS=1.",
+  "outcomes": {
+    "1.eq-bm-s3-d4.printed.plain": {
+      "latex": "D = \\frac{R\\,T}{N}\\,\\frac{1}{6\\,\\pi\\,k\\,P}"
+    },
+    "1.eq-bm-s3-d4.printed.colorized": {
+      "latex": "\\htmlData{op=eq-bm-s3-d4.op.rel}{\\htmlData{term=eq-bm-s3-d4.t.d}{\\htmlClass{am-role-input}{D}} = \\htmlData{op=eq-bm-s3-d4.op.prod}{\\htmlData{op=eq-bm-s3-d4.op.thermalFactor}{\\frac{\\htmlData{op=eq-bm-s3-d4.op.rtProd}{\\htmlData{term=eq-bm-s3-d4.t.r}{\\htmlClass{am-role-input}{R}}\\,\\htmlData{term=eq-bm-s3-d4.t.t}{\\htmlClass{am-role-input}{T}}}}{\\htmlData{term=eq-bm-s3-d4.t.n}{\\htmlClass{am-role-input}{N}}}}\\,\\htmlData{op=eq-bm-s3-d4.op.stokesFactor}{\\frac{1}{\\htmlData{op=eq-bm-s3-d4.op.stokesDenominator}{6\\,\\pi\\,\\htmlData{term=eq-bm-s3-d4.t.k}{\\htmlClass{am-role-input}{k}}\\,\\htmlData{term=eq-bm-s3-d4.t.p}{\\htmlClass{am-role-input}{P}}}}}}}"
+    },
+    "1.eq-bm-s3-d4.modern.plain": {
+      "latex": "D = k_B\\,T\\,\\frac{1}{6\\,\\pi\\,\\eta\\,a}"
+    },
+    "1.eq-bm-s3-d4.modern.colorized": {
+      "latex": "\\htmlData{op=eq-bm-s3-d4.op.rel}{\\htmlData{term=eq-bm-s3-d4.t.d}{\\htmlClass{am-role-input}{D}} = \\htmlData{op=eq-bm-s3-d4.op.prod}{\\htmlData{op=eq-bm-s3-d4.op.thermalFactor}{\\htmlData{term=eq-bm-s3-d4.t.r}{\\htmlClass{am-role-constant}{k_B}}\\,\\htmlData{term=eq-bm-s3-d4.t.t}{\\htmlClass{am-role-input}{T}}}\\,\\htmlData{op=eq-bm-s3-d4.op.stokesFactor}{\\frac{1}{\\htmlData{op=eq-bm-s3-d4.op.stokesDenominator}{6\\,\\pi\\,\\htmlData{term=eq-bm-s3-d4.t.k}{\\htmlClass{am-role-input}{\\eta}}\\,\\htmlData{term=eq-bm-s3-d4.t.p}{\\htmlClass{am-role-input}{a}}}}}}}"
+    },
+    "2.eq-model-bm-modern.printed.plain": {
+      "refused": "Equation \"eq-model-bm-modern\" is missing notation scope (sectionId or anchor) for paper \"brownian-motion\"."
+    },
+    "2.eq-model-bm-modern.printed.colorized": {
+      "refused": "Equation \"eq-model-bm-modern\" is missing notation scope (sectionId or anchor) for paper \"brownian-motion\"."
+    },
+    "2.eq-model-bm-modern.modern.plain": {
+      "refused": "Equation \"eq-model-bm-modern\" is missing notation scope (sectionId or anchor) for paper \"brownian-motion\"."
+    },
+    "2.eq-model-bm-modern.modern.colorized": {
+      "refused": "Equation \"eq-model-bm-modern\" is missing notation scope (sectionId or anchor) for paper \"brownian-motion\"."
+    },
+    "3.eq-bm-disp.printed.plain": {
+      "refused": "Equation \"eq-bm-disp\" is missing notation scope (sectionId or anchor) for paper \"brownian-motion\"."
+    },
+    "3.eq-bm-disp.printed.colorized": {
+      "refused": "Equation \"eq-bm-disp\" is missing notation scope (sectionId or anchor) for paper \"brownian-motion\"."
+    },
+    "3.eq-bm-disp.modern.plain": {
+      "refused": "Equation \"eq-bm-disp\" is missing notation scope (sectionId or anchor) for paper \"brownian-motion\"."
+    },
+    "3.eq-bm-disp.modern.colorized": {
+      "refused": "Equation \"eq-bm-disp\" is missing notation scope (sectionId or anchor) for paper \"brownian-motion\"."
+    },
+    "4.eq-bm-trans.printed.plain": {
+      "refused": "Equation \"eq-bm-trans\" is missing notation scope (sectionId or anchor) for paper \"brownian-motion\"."
+    },
+    "4.eq-bm-trans.printed.colorized": {
+      "refused": "Equation \"eq-bm-trans\" is missing notation scope (sectionId or anchor) for paper \"brownian-motion\"."
+    },
+    "4.eq-bm-trans.modern.plain": {
+      "refused": "Equation \"eq-bm-trans\" is missing notation scope (sectionId or anchor) for paper \"brownian-motion\"."
+    },
+    "4.eq-bm-trans.modern.colorized": {
+      "refused": "Equation \"eq-bm-trans\" is missing notation scope (sectionId or anchor) for paper \"brownian-motion\"."
+    },
+    "5.eq-lq-s1-1.printed.plain": {
+      "refused": "Equation \"eq-lq-s1-1\" symbol \"eq-lq-s1-1.t.beta\" has no concordance entry in scope \"lq-s1\" for paper \"light-quanta\"."
+    },
+    "5.eq-lq-s1-1.printed.colorized": {
+      "refused": "Equation \"eq-lq-s1-1\" symbol \"eq-lq-s1-1.t.beta\" has no concordance entry in scope \"lq-s1\" for paper \"light-quanta\"."
+    },
+    "5.eq-lq-s1-1.modern.plain": {
+      "refused": "Equation \"eq-lq-s1-1\" symbol \"eq-lq-s1-1.t.beta\" has no concordance entry in scope \"lq-s1\" for paper \"light-quanta\"."
+    },
+    "5.eq-lq-s1-1.modern.colorized": {
+      "refused": "Equation \"eq-lq-s1-1\" symbol \"eq-lq-s1-1.t.beta\" has no concordance entry in scope \"lq-s1\" for paper \"light-quanta\"."
+    },
+    "6.eq-sr-s3-1.printed.plain": {
+      "refused": "Equation \"eq-sr-s3-1\" symbol \"eq-sr-s3-1.t.tau\" has no concordance entry in scope \"sr-s3\" for paper \"special-relativity\"."
+    },
+    "6.eq-sr-s3-1.printed.colorized": {
+      "refused": "Equation \"eq-sr-s3-1\" symbol \"eq-sr-s3-1.t.tau\" has no concordance entry in scope \"sr-s3\" for paper \"special-relativity\"."
+    },
+    "6.eq-sr-s3-1.modern.plain": {
+      "refused": "Equation \"eq-sr-s3-1\" symbol \"eq-sr-s3-1.t.tau\" has no concordance entry in scope \"sr-s3\" for paper \"special-relativity\"."
+    },
+    "6.eq-sr-s3-1.modern.colorized": {
+      "refused": "Equation \"eq-sr-s3-1\" symbol \"eq-sr-s3-1.t.tau\" has no concordance entry in scope \"sr-s3\" for paper \"special-relativity\"."
+    },
+    "7.eq-sr-s3-2.printed.plain": {
+      "refused": "Equation \"eq-sr-s3-2\" symbol \"eq-sr-s3-2.t.tau\" has no concordance entry in scope \"sr-s3\" for paper \"special-relativity\"."
+    },
+    "7.eq-sr-s3-2.printed.colorized": {
+      "refused": "Equation \"eq-sr-s3-2\" symbol \"eq-sr-s3-2.t.tau\" has no concordance entry in scope \"sr-s3\" for paper \"special-relativity\"."
+    },
+    "7.eq-sr-s3-2.modern.plain": {
+      "refused": "Equation \"eq-sr-s3-2\" symbol \"eq-sr-s3-2.t.tau\" has no concordance entry in scope \"sr-s3\" for paper \"special-relativity\"."
+    },
+    "7.eq-sr-s3-2.modern.colorized": {
+      "refused": "Equation \"eq-sr-s3-2\" symbol \"eq-sr-s3-2.t.tau\" has no concordance entry in scope \"sr-s3\" for paper \"special-relativity\"."
+    },
+    "8.eq-sr-boost.printed.plain": {
+      "refused": "undefined is not an object (evaluating 'children(root).flatMap')"
+    },
+    "8.eq-sr-boost.printed.colorized": {
+      "refused": "undefined is not an object (evaluating 'children(root).flatMap')"
+    },
+    "8.eq-sr-boost.modern.plain": {
+      "refused": "undefined is not an object (evaluating 'children(root).flatMap')"
+    },
+    "8.eq-sr-boost.modern.colorized": {
+      "refused": "undefined is not an object (evaluating 'children(root).flatMap')"
+    },
+    "9.eq-lq-pe.printed.plain": {
+      "refused": "undefined is not an object (evaluating 'children(root).flatMap')"
+    },
+    "9.eq-lq-pe.printed.colorized": {
+      "refused": "undefined is not an object (evaluating 'children(root).flatMap')"
+    },
+    "9.eq-lq-pe.modern.plain": {
+      "refused": "undefined is not an object (evaluating 'children(root).flatMap')"
+    },
+    "9.eq-lq-pe.modern.colorized": {
+      "refused": "undefined is not an object (evaluating 'children(root).flatMap')"
+    },
+    "10.eq-sr-s6-1.printed.plain": {
+      "latex": "Y' = \\beta\\,\\left(Y - \\frac{v}{V}\\,N\\right)"
+    },
+    "10.eq-sr-s6-1.printed.colorized": {
+      "latex": "\\htmlData{term=eq-sr-s6-1.t.yPrime}{\\htmlClass{am-role-input}{Y'}} = \\htmlData{term=eq-sr-s6-1.t.beta}{\\htmlClass{am-role-input}{\\beta}}\\,\\left(\\htmlData{term=eq-sr-s6-1.t.y}{\\htmlClass{am-role-input}{Y}} - \\frac{\\htmlData{term=eq-sr-s6-1.t.v}{\\htmlClass{am-role-input}{v}}}{\\htmlData{term=eq-sr-s6-1.t.vUpper}{\\htmlClass{am-role-input}{V}}}\\,\\htmlData{term=eq-sr-s6-1.t.n}{\\htmlClass{am-role-input}{N}}\\right)"
+    },
+    "10.eq-sr-s6-1.modern.plain": {
+      "latex": "E'_y = \\gamma\\,\\left(E_y - \\frac{v}{c}\\,B_z\\right)"
+    },
+    "10.eq-sr-s6-1.modern.colorized": {
+      "latex": "\\htmlData{term=eq-sr-s6-1.t.yPrime}{\\htmlClass{am-role-input}{E'_y}} = \\htmlData{term=eq-sr-s6-1.t.beta}{\\htmlClass{am-role-input}{\\gamma}}\\,\\left(\\htmlData{term=eq-sr-s6-1.t.y}{\\htmlClass{am-role-input}{E_y}} - \\frac{\\htmlData{term=eq-sr-s6-1.t.v}{\\htmlClass{am-role-input}{v}}}{\\htmlData{term=eq-sr-s6-1.t.vUpper}{\\htmlClass{am-role-input}{c}}}\\,\\htmlData{term=eq-sr-s6-1.t.n}{\\htmlClass{am-role-input}{B_z}}\\right)"
+    },
+    "11.eq-sr-s10-1.printed.plain": {
+      "refused": "Equation \"eq-sr-s10-1\" symbol \"eq-sr-s10-1.t.mu\" has no concordance entry in scope \"sr-s10\" for paper \"special-relativity\"."
+    },
+    "11.eq-sr-s10-1.printed.colorized": {
+      "refused": "Equation \"eq-sr-s10-1\" symbol \"eq-sr-s10-1.t.mu\" has no concordance entry in scope \"sr-s10\" for paper \"special-relativity\"."
+    },
+    "11.eq-sr-s10-1.modern.plain": {
+      "refused": "Equation \"eq-sr-s10-1\" symbol \"eq-sr-s10-1.t.mu\" has no concordance entry in scope \"sr-s10\" for paper \"special-relativity\"."
+    },
+    "11.eq-sr-s10-1.modern.colorized": {
+      "refused": "Equation \"eq-sr-s10-1\" symbol \"eq-sr-s10-1.t.mu\" has no concordance entry in scope \"sr-s10\" for paper \"special-relativity\"."
+    },
+    "12.eq-me-1.printed.plain": {
+      "latex": "K_0 - K_1 = L\\,\\left(\\frac{1}{\\sqrt{1 - \\left(\\left(\\frac{v}{V}\\right)\\right)^{2}}} - 1\\right)"
+    },
+    "12.eq-me-1.printed.colorized": {
+      "latex": "\\htmlData{op=eq-me-1.op.relation}{\\htmlData{op=eq-me-1.op.kineticDiff}{\\htmlData{term=eq-me-1.t.k0}{\\htmlClass{am-role-input}{K_0}} - \\htmlData{term=eq-me-1.t.k1}{\\htmlClass{am-role-input}{K_1}}} = \\htmlData{op=eq-me-1.op.rightProd}{\\htmlData{term=eq-me-1.t.l}{\\htmlClass{am-role-input}{L}}\\,\\htmlData{op=eq-me-1.op.bracket}{\\left(\\frac{1}{\\htmlData{op=eq-me-1.op.radicand}{\\sqrt{1 - \\left(\\left(\\frac{\\htmlData{term=eq-me-1.t.v}{\\htmlClass{am-role-input}{v}}}{\\htmlData{term=eq-me-1.t.vUpper}{\\htmlClass{am-role-input}{V}}}\\right)\\right)^{2}}}} - 1\\right)}}}"
+    },
+    "12.eq-me-1.modern.plain": {
+      "latex": "K_0 - K_1 = E_{\\text{emit}}\\,\\left(\\frac{1}{\\sqrt{1 - \\left(\\left(\\frac{v}{c}\\right)\\right)^{2}}} - 1\\right)"
+    },
+    "12.eq-me-1.modern.colorized": {
+      "latex": "\\htmlData{op=eq-me-1.op.relation}{\\htmlData{op=eq-me-1.op.kineticDiff}{\\htmlData{term=eq-me-1.t.k0}{\\htmlClass{am-role-input}{K_0}} - \\htmlData{term=eq-me-1.t.k1}{\\htmlClass{am-role-input}{K_1}}} = \\htmlData{op=eq-me-1.op.rightProd}{\\htmlData{term=eq-me-1.t.l}{\\htmlClass{am-role-input}{E_{\\text{emit}}}}\\,\\htmlData{op=eq-me-1.op.bracket}{\\left(\\frac{1}{\\htmlData{op=eq-me-1.op.radicand}{\\sqrt{1 - \\left(\\left(\\frac{\\htmlData{term=eq-me-1.t.v}{\\htmlClass{am-role-input}{v}}}{\\htmlData{term=eq-me-1.t.vUpper}{\\htmlClass{am-role-input}{c}}}\\right)\\right)^{2}}}} - 1\\right)}}}"
+    },
+    "13.eq-bm-s2-1.printed.plain": {
+      "latex": "2\\,\\frac{1}{2}\\left(\\kappa\\right)\\,N = R"
+    },
+    "13.eq-bm-s2-1.printed.colorized": {
+      "latex": "2\\,\\htmlData{term=eq-bm-s2-1.t.kappa}{\\htmlClass{am-role-input}{\\frac{1}{2}\\left(\\kappa\\right)}}\\,\\htmlData{term=eq-bm-s2-1.t.n}{\\htmlClass{am-role-input}{N}} = \\htmlData{term=eq-bm-s2-1.t.r}{\\htmlClass{am-role-input}{R}}"
+    },
+    "13.eq-bm-s2-1.modern.plain": {
+      "latex": "2\\,\\frac{1}{2}\\left(\\tfrac{1}{2}k_B\\right)\\,N_A = R"
+    },
+    "13.eq-bm-s2-1.modern.colorized": {
+      "latex": "2\\,\\htmlData{term=eq-bm-s2-1.t.kappa}{\\htmlClass{am-role-input}{\\frac{1}{2}\\left(\\tfrac{1}{2}k_B\\right)}}\\,\\htmlData{term=eq-bm-s2-1.t.n}{\\htmlClass{am-role-input}{N_A}} = \\htmlData{term=eq-bm-s2-1.t.r}{\\htmlClass{am-role-input}{R}}"
+    }
+  }
+}
