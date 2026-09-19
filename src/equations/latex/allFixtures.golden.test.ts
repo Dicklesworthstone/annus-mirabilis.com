@@ -101,8 +101,12 @@ function renderOne(
     // the criterion's "every fixture equation" cannot be reached without crossing them.
     // The cast is narrow and deliberate: it crosses the type boundary only, and what is
     // pinned below is the renderer's real runtime behaviour on these trees, including the
-    // two fixtures whose node kinds the renderer's own walker does not know. The divergence
-    // is raised on the bead rather than hidden by this cast.
+    // two fixtures (8, a matrix; 9, a piecewise) whose node kinds are OUTSIDE the
+    // renderer's declared Expression union. To be precise about whose fault that is:
+    // ast.ts's children() is exhaustive over ast.ts's own twelve kinds and is not
+    // defective. The TypeError those two produce is reachable only by crossing the models,
+    // which is what this cast does and which nothing in the product does. Whether the
+    // renderer must accept those kinds at all is am-ghr8, an owner decision.
     tree: fixture.root as unknown as RendererExpression,
   };
   try {
