@@ -1,11 +1,10 @@
 import { describe, expect, test } from "bun:test";
-import { existsSync, mkdirSync, mkdtempSync, readFileSync, writeFileSync } from "node:fs";
-import { tmpdir } from "node:os";
+import { existsSync, mkdirSync, readFileSync, writeFileSync } from "node:fs";
 import { join } from "node:path";
 import { loadReadingFiles } from "../../../scripts/build-content.ts";
 import { newRunIdentity, TestLogger } from "../../testing/log/logger.ts";
 import { withinTolerance } from "../../units/tolerance.ts";
-import { type AliasRecord } from "../aliases.ts";
+import type { AliasRecord } from "../aliases.ts";
 import { compileReadingContent } from "../compiler/compile.ts";
 import { parseIdSnapshot, validateFrozenIds } from "../frozenIds.ts";
 import { parseAlignableUnitId, parseInlineMathId, parseReferenceId } from "../ids.ts";
@@ -75,7 +74,10 @@ describe("light-quanta source manifest inventory (am-edn-inventory-light-quanta-
 
       // Destination is non-empty with argument obligations
       expect(unit.destination).toBeDefined();
-      const destObls = typeof unit.destination === "object" && unit.destination ? unit.destination.argumentObligations : undefined;
+      const destObls =
+        typeof unit.destination === "object" && unit.destination
+          ? unit.destination.argumentObligations
+          : undefined;
       expect(destObls?.length).toBeGreaterThanOrEqual(1);
     }
 
@@ -92,7 +94,8 @@ describe("light-quanta source manifest inventory (am-edn-inventory-light-quanta-
       paper: PAPER_SLUG,
       outcome: "passed",
       comparisonKind: "bitwise",
-      message: "Manifest schema and validator pass with 0 errors, 128 units, and absent derived statuses.",
+      message:
+        "Manifest schema and validator pass with 0 errors, 128 units, and absent derived statuses.",
       extra: { unitCount: manifest.units.length, check: "schema" },
     });
   });
@@ -145,7 +148,8 @@ describe("light-quanta source manifest inventory (am-edn-inventory-light-quanta-
       paper: PAPER_SLUG,
       outcome: "passed",
       comparisonKind: "bitwise",
-      message: "Masthead, 9 numbered sections plus s0, and closing units exist with verified locators.",
+      message:
+        "Masthead, 9 numbered sections plus s0, and closing units exist with verified locators.",
       extra: { check: "masthead-sections" },
     });
   });
@@ -187,7 +191,8 @@ describe("light-quanta source manifest inventory (am-edn-inventory-light-quanta-
       paper: PAPER_SLUG,
       outcome: "passed",
       comparisonKind: "bitwise",
-      message: "All 52 displays have editorial labels, locators, and valid parent containment (including 5 in footnotes).",
+      message:
+        "All 52 displays have editorial labels, locators, and valid parent containment (including 5 in footnotes).",
       extra: { displayCount: displays.length, check: "displays" },
     });
   });
@@ -399,7 +404,8 @@ describe("light-quanta source manifest inventory (am-edn-inventory-light-quanta-
       paper: PAPER_SLUG,
       outcome: "passed",
       comparisonKind: "bitwise",
-      message: "Per-page counts for displays, footnotes, and spanning paragraphs reconcile with receipt and SourceAsset.",
+      message:
+        "Per-page counts for displays, footnotes, and spanning paragraphs reconcile with receipt and SourceAsset.",
       extra: { check: "page-counts" },
     });
   });
@@ -435,7 +441,10 @@ describe("light-quanta source manifest inventory (am-edn-inventory-light-quanta-
       expect(unitsInRow.length).toBeGreaterThan(0);
       const rowObligations = new Set<string>();
       for (const u of unitsInRow) {
-        const uObls = typeof u.destination === "object" && u.destination ? u.destination.argumentObligations ?? [] : [];
+        const uObls =
+          typeof u.destination === "object" && u.destination
+            ? (u.destination.argumentObligations ?? [])
+            : [];
         for (const obl of uObls) {
           rowObligations.add(obl);
         }
@@ -544,9 +553,7 @@ describe("light-quanta source manifest inventory (am-edn-inventory-light-quanta-
     expect(failResult.ok).toBe(false);
     expect(failResult.missingCount).toBe(1);
     expect(
-      failResult.findings.some(
-        (f) => f.kind === "frozen-id-missing" && f.id === targetRetired,
-      ),
+      failResult.findings.some((f) => f.kind === "frozen-id-missing" && f.id === targetRetired),
     ).toBe(true);
 
     writeFileSync(join(tmpDir, "manifest.without-alias.txt"), mutatedWithoutAlias.join("\n"));
@@ -558,7 +565,7 @@ describe("light-quanta source manifest inventory (am-edn-inventory-light-quanta-
       replacementIds: ["s0-p4a", "s0-p4b"],
       reason: "Test split alias validation",
       date: "2026-09-19",
-      editor: "pane16",
+      editor: LIGHT_QUANTA_BEAD,
     };
 
     const mutatedWithSplitAlias = manifestIds.flatMap((id) =>
@@ -632,7 +639,9 @@ describe("light-quanta source manifest inventory (am-edn-inventory-light-quanta-
     expect(content).toContain("9,6 . 10^3");
 
     // Glyph collisions check: L, E, P/P'/p, phi, T, alpha_nu, lambda, lg
-    const notationSection = content.split("## 2. Notation difficulties")[1]?.split("## 3. Segmentation decisions")[0] ?? "";
+    const notationSection =
+      content.split("## 2. Notation difficulties")[1]?.split("## 3. Segmentation decisions")[0] ??
+      "";
     expect(notationSection).toContain("$L$");
     expect(notationSection).toContain("$E$");
     expect(notationSection).toContain("$P$, $P'$, and $p$");
@@ -649,7 +658,7 @@ describe("light-quanta source manifest inventory (am-edn-inventory-light-quanta-
     const factor = (8 * Math.PI * R) / Math.pow(L, 3);
 
     // 1. N for alpha = 6.10e-57 (relative 1e-4 against 6.1705e23)
-    const alpha1 = 6.10e-57;
+    const alpha1 = 6.1e-57;
     const N1_calc = (beta / alpha1) * factor;
     const tolN1 = { relative: 1e-4 };
     const verdictN1 = withinTolerance(N1_calc, 6.1705e23, tolN1);
@@ -668,7 +677,7 @@ describe("light-quanta source manifest inventory (am-edn-inventory-light-quanta-
     });
 
     // 2. N for alpha = 6.10e-56 (relative 1e-4 against 6.1705e22)
-    const alpha2 = 6.10e-56;
+    const alpha2 = 6.1e-56;
     const N2_calc = (beta / alpha2) * factor;
     const tolN2 = { relative: 1e-4 };
     const verdictN2 = withinTolerance(N2_calc, 6.1705e22, tolN2);
@@ -689,7 +698,7 @@ describe("light-quanta source manifest inventory (am-edn-inventory-light-quanta-
     // 3. Pi_emu for nu = 1.03e15, E = 9.6e3 (absolute 1e-4 V against 4.3385 V)
     const nu = 1.03e15;
     const E_emu = 9.6e3;
-    const Pi_emu_calc = (R * beta * nu / E_emu) * 1e-8;
+    const Pi_emu_calc = ((R * beta * nu) / E_emu) * 1e-8;
     const tolPi1 = { absolute: 1e-4 };
     const verdictPi1 = withinTolerance(Pi_emu_calc, 4.3385, tolPi1);
     expect(verdictPi1.ok).toBe(true);
@@ -709,7 +718,7 @@ describe("light-quanta source manifest inventory (am-edn-inventory-light-quanta-
     // 4. Pi_stat (299.792458 V/statvolt), N = 6.17e23, e_esu = 4.7e-10 (absolute 1e-4 V against 4.3057 V)
     const N_printed = 6.17e23;
     const e_esu = 4.7e-10;
-    const Pi_stat_299_calc = ((R / N_printed) * beta * nu / e_esu) * 299.792458;
+    const Pi_stat_299_calc = (((R / N_printed) * beta * nu) / e_esu) * 299.792458;
     const tolPi2 = { absolute: 1e-4 };
     const verdictPi2 = withinTolerance(Pi_stat_299_calc, 4.3057, tolPi2);
     expect(verdictPi2.ok).toBe(true);
@@ -722,12 +731,13 @@ describe("light-quanta source manifest inventory (am-edn-inventory-light-quanta-
       tolerance: tolPi2,
       expected: 4.3057,
       actual: Pi_stat_299_calc,
-      message: "Independent Pi_stat (299.792458 V/statvolt) matches 4.3057 V within absolute 1e-4 V tolerance.",
+      message:
+        "Independent Pi_stat (299.792458 V/statvolt) matches 4.3057 V within absolute 1e-4 V tolerance.",
       extra: { flagKey: "flag:s8-printed-check", check: "tolerance" },
     });
 
     // 5. Pi_stat (300 V/statvolt) (absolute 1e-4 V against 4.3087 V)
-    const Pi_stat_300_calc = ((R / N_printed) * beta * nu / e_esu) * 300;
+    const Pi_stat_300_calc = (((R / N_printed) * beta * nu) / e_esu) * 300;
     const tolPi3 = { absolute: 1e-4 };
     const verdictPi3 = withinTolerance(Pi_stat_300_calc, 4.3087, tolPi3);
     expect(verdictPi3.ok).toBe(true);
@@ -740,7 +750,8 @@ describe("light-quanta source manifest inventory (am-edn-inventory-light-quanta-
       tolerance: tolPi3,
       expected: 4.3087,
       actual: Pi_stat_300_calc,
-      message: "Independent Pi_stat (300 V/statvolt) matches 4.3087 V within absolute 1e-4 V tolerance.",
+      message:
+        "Independent Pi_stat (300 V/statvolt) matches 4.3087 V within absolute 1e-4 V tolerance.",
       extra: { flagKey: "flag:s8-printed-check", check: "tolerance" },
     });
   });
@@ -771,7 +782,8 @@ describe("light-quanta source manifest inventory (am-edn-inventory-light-quanta-
       paper: PAPER_SLUG,
       outcome: "passed",
       comparisonKind: "bitwise",
-      message: "Report CLI completes with 128 units, no unassigned destinations, and no percentages.",
+      message:
+        "Report CLI completes with 128 units, no unassigned destinations, and no percentages.",
       extra: { check: "report-cli" },
     });
   });

@@ -332,6 +332,23 @@ export const QUALITY_GATE_STEPS: readonly GateStep[] = [
     owner: "am-cf6m",
   },
   {
+    id: "facsimile-pins",
+    title: "Pinned facsimile verification against parent scans",
+    command: ["bun", "scripts/verify-facsimile-pins.ts"],
+    family: "fast",
+    cadence: "every-run",
+    // The parent scans are not committed (/sources is git-ignored), so CI has nothing to
+    // compare the pinned extracts against. The release profiles run on a machine that holds
+    // the parents, and an unavailable required step fails a profile run rather than passing.
+    requiredInCi: false,
+    requiredInProfiles: ["preview", "launch"],
+    availability: {
+      scriptPath: "scripts/verify-facsimile-pins.ts",
+      tool: "pdftoppm",
+    },
+    owner: "am-cf6m",
+  },
+  {
     id: "perf-budget-change",
     title: "Performance budget diff check",
     command: ["bun", "scripts/perf-budget-diff.ts"],

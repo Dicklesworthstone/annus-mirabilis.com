@@ -1,5 +1,6 @@
 import { describe, expect, test } from "bun:test";
 import fs from "node:fs";
+import os from "node:os";
 import path from "node:path";
 import yaml from "js-yaml";
 import { QUALITY_GATE_STEPS } from "./quality-gates/registry.ts";
@@ -17,36 +18,14 @@ const CONFIG_DIR = getDefaultConfigDir();
 
 describe("Facsimile Page Anchor Quality Gate (am-cf6m)", () => {
   describe("1. Real Defect Proving: disk configs under test", () => {
-    test("REAL DEFECT: ap-17-549 config on disk fails with FACSIMILE_PAGE_OFFSET_MISMATCH", () => {
-      const configPath = path.join(CONFIG_DIR, "ap-17-549.yaml");
-      expect(fs.existsSync(configPath)).toBe(true);
-
-      const raw = fs.readFileSync(configPath, "utf8");
-      const config = yaml.load(raw) as FacsimileSourceConfig;
-
-      // Assert current state of defect on disk: parentPageIndices holds [132, 133, ... 143]
-      expect(config.articlePages.printedFirst).toBe(549);
-      expect(config.articlePages.printedLast).toBe(560);
-      expect(config.articlePages.parentPageIndices?.[0]).toBe(132);
-
-      // Verified anchor recorded by agent:TanElk
-      expect(config.verifiedAnchor).toBeDefined();
-      expect(config.verifiedAnchor?.parentPageIndex).toBe(173);
-      expect(config.verifiedAnchor?.printedPage).toBe(549);
-      expect(config.verifiedAnchor?.verifiedBy).toBe("agent:TanElk");
-
-      // Validate against anchor gate
-      const res = validateFacsimileAnchor(config);
-      expect(res.valid).toBe(false);
-      expect(res.refusalCode).toBe("FACSIMILE_PAGE_OFFSET_MISMATCH");
-      expect(res.errors[0]).toContain("parentPageIndices[0] (132) does not match expected parent page index (173)");
-      expect(res.offset).toBe(173 - 549); // -376
-
-      // validateConfig also surfaces the refusal
-      const fullRes = validateConfig(config);
-      expect(fullRes.valid).toBe(false);
-      expect(fullRes.refusalCode).toBe("FACSIMILE_PAGE_OFFSET_MISMATCH");
-    });
+    // The production configs are asserted as a whole by the pinned-facsimile gate
+    // (scripts/verify-facsimile-pins.test.ts), which runs this same anchor validator as its
+    // first check and additionally compares the pinned bytes with the parent scans. This file
+    // owns the mechanism. It previously asserted that ap-17-549 still declares
+    // parentPageIndices[0] = 132 and that ap-19-289 and ap-34-591 still carry no anchor, which
+    // made a green suite the reward for leaving the defect in place and would have turned red
+    // on the owner-authorized repair. Those inverted assertions are gone; the defects are
+    // still enforced, against the real tree, by the pins gate.
 
     test("REAL CORRECT: ap-17-132 config on disk passes page anchor verification", () => {
       const configPath = path.join(CONFIG_DIR, "ap-17-132.yaml");
@@ -108,19 +87,6 @@ describe("Facsimile Page Anchor Quality Gate (am-cf6m)", () => {
       expect(fullRes.valid).toBe(true);
     });
 
-    test("REAL MISSING ANCHORS: ap-19-289 and ap-34-591 fail with MISSING_VERIFIED_ANCHOR", () => {
-      for (const key of ["ap-19-289", "ap-34-591"]) {
-        const configPath = path.join(CONFIG_DIR, `${key}.yaml`);
-        const raw = fs.readFileSync(configPath, "utf8");
-        const config = yaml.load(raw) as FacsimileSourceConfig;
-
-        const res = validateFacsimileAnchor(config);
-        expect(res.valid).toBe(false);
-        expect(res.refusalCode).toBe("MISSING_VERIFIED_ANCHOR");
-        expect(res.errors[0]).toContain("is missing a verified anchor");
-        expect(res.errors[0]).toContain("An unverifiable pin is not a verified pin");
-      }
-    });
   });
 
   describe("2. Structural and Arithmetic Constraints", () => {
@@ -270,12 +236,30 @@ describe("Facsimile Page Anchor Quality Gate (am-cf6m)", () => {
       expect(passReport.passedCount).toBe(1);
       expect(passReport.failedCount).toBe(0);
 
-      const failReport = verifyFacsimileAnchors({ key: "ap-17-549" });
+      // The failure path runs against a fixture so that repairing the pins on disk never
+      // turns this test red.
+      const dir = fs.mkdtempSync(path.join(os.tmpdir(), "am-anchor-fixture-"));
+      fs.writeFileSync(
+        path.join(dir, "fixture-offset.yaml"),
+        yaml.dump({
+          configVersion: 1,
+          key: "fixture-offset",
+          articlePages: { printedFirst: 10, printedLast: 12, parentPageIndices: [25, 26, 27] },
+          verifiedAnchor: { parentPageIndex: 20, printedPage: 10, verifiedBy: "human:reviewer" },
+        }),
+      );
+      const failReport = verifyFacsimileAnchors({ configDir: dir });
       expect(failReport.valid).toBe(false);
       expect(failReport.checkedCount).toBe(1);
       expect(failReport.passedCount).toBe(0);
       expect(failReport.failedCount).toBe(1);
-      expect(failReport.results["ap-17-549.yaml"]?.refusalCode).toBe("FACSIMILE_PAGE_OFFSET_MISMATCH");
+      expect(failReport.results["fixture-offset.yaml"]?.refusalCode).toBe(
+        "FACSIMILE_PAGE_OFFSET_MISMATCH",
+      );
+      expect(failReport.results["fixture-offset.yaml"]?.errors[0]).toContain(
+        "parentPageIndices[0] (25) does not match expected parent page index (20)",
+      );
+      fs.rmSync(dir, { recursive: true, force: true });
     });
 
     test("QUALITY_GATE_STEPS registers facsimile-page-anchors with requiredInCi true", () => {

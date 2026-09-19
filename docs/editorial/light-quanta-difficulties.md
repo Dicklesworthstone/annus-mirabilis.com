@@ -30,7 +30,7 @@ Period terms requiring precise lexical annotations on first use:
 
 Dangerous collisions and period conventions to flag on first use:
 
-- $R$ and $N$: $R$ is the molar gas constant ($8.31\times 10^7\ \text{erg}\cdot\text{mol}^{-1}\cdot\text{K}^{-1}$), first use `s1-p3`; $N$ is Avogadro's number ("Anzahl der wirklichen Moleküle in einem Grammäquivalent"), first use `s1-p3`. Neither numeral is printed in §2; both are symbolic/editorial inputs.
+- $R$ and $N$: $R$ is the molar gas constant ($8.31\times 10^7\ \text{erg}\cdot\text{mol}^{-1}\cdot\text{K}^{-1}$), first use `s1-p3`; $N$ is Avogadro's number ("Anzahl der wirklichen Moleküle in einem Grammäquivalent"), first use `s1-p3`. No numerical value of $R$ is printed anywhere in the paper, so $R$ is an editorial input. $N$ is likewise never printed as an input, but its computed value $6{,}17\cdot 10^{23}$ is printed as the result of `eq-s2-d6` on p. 137, so $N$ is an output of §2, not a given.
 - $\beta$: Wien's second radiation constant ($\beta = h/k_B = 4{,}866\cdot 10^{-11}\ \text{s}\cdot\text{K}$), first use `s2-p2`. Not to be confused with relativistic velocity ratio $\beta = v/c$ in paper 3.
 - $L$: Speed of light in vacuum in §§1–2 ($3\times 10^{10}\ \text{cm/s}$), first use `s1-p4` (p. 135) and `s2-p3` (p. 137). In §9 (`s9-p3`, p. 148), $L$ is reused for the absorbed light quantity ("absorbierte Lichtmenge $L$"), a within-paper collision.
 - $E$: Radiation energy in §4 (`s4-p3`) and §6 (`s6-p1`); average resonator energy $\bar{E}$ in §1 (`s1-p3`); system energy in §5 footnote 1 (`s5-fn1`); charge of a gram-equivalent of monovalent ions in §8 (`s8-p3`, $E = 9{,}6\cdot 10^3$ electromagnetic CGS / abcoulombs per mol).
@@ -85,7 +85,7 @@ Sentence boundaries and paragraph splits decided under `docs/editorial/SEGMENTAT
 
 Each flag begins with `flag:<key>` and a watch-list status (`pending`, `matches`, `differs`, or `not-found`):
 
-- `flag:s2-constants` matches printed exponent -56 differs from expected -57; printed alpha = 6,10 . 10^-56 and beta = 4,866 . 10^-11; recomputed N = 6.1705e23 for alpha = 6.10e-57 and 6.1705e22 for alpha = 6.10e-56; first use s2-p2
+- `flag:s2-constants` matches the comparison witness, which also reads the exponent -56. Printed on p. 136: alpha = 6,10 . 10^-56 (`eq-s2-d2`) and beta = 4,866 . 10^-11 (`eq-s2-d3`); printed on p. 137: N = 6,17 . 10^23 (`eq-s2-d6`). The printed alpha does not reproduce the printed N: recomputed N = 6.1705e23 for alpha = 6.10e-57 against N = 6.1705e22 for the printed alpha = 6.10e-56, a factor of ten. The exponent -57 (Planck's 1901 value) is therefore the only one consistent with the printed N, so the printed -56 is a suspected typographical error. This inventory records the printed reading only; the typographical-error decision belongs to the ledger bead `am-src-ledger-light-quanta-sxi` and the receipt's `typographicalErrors`, both out of scope here. First use s2-p2.
 - `flag:s2-r-and-l-not-printed` matches neither numeral R nor L is printed in §2 or elsewhere; hydrogen mass printed as 1,62 . 10^-24 g; first use s2-p3
 - `flag:s8-printed-check` matches printed charge quantity E = 9,6 . 10^3 emu (gram-equivalent charge); recomputed Pi = 4.3385 V; modern esu check gives 4.3057 V (at 299.792458 V/statvolt) and 4.3087 V (at 300 V/statvolt); first use s8-p3
 - `flag:s8-result-line` matches printed Pi . 10^7 = 4,3 Volt with exponent 7; first use s8-p5
@@ -93,7 +93,7 @@ Each flag begins with `flag:<key>` and a watch-list status (`pending`, `matches`
 - `flag:s3-variational-displays` matches variational displays with delta and Lagrange multiplier lambda; first use s3-p3
 - `flag:s6-mean-energy` matches mean quantum energy display 3(R/N)T; first use s6-p3
 - `flag:s8-inequalities` matches partial-transfer inequality eq-s8-d4 and cathode-luminescence inequality eq-s8-d5; first use s8-p8
-- `flag:s9-count-relation` matches count relation j = L/(R beta nu) and printed bounds 6.4e12 and 9.6e12 erg; first use s9-p3
+- `flag:s9-count-relation` matches count relation j = L/(R beta nu) (`eq-s9-d3`, p. 148) and both printed bounds, each with its printed input. Lower bound (`eq-s9-d2`, `s9-p2`): R beta nu = 6,4 . 10^12 Erg >= J, from Lenard's printed largest effective wavelength for air, ca. 1,9 . 10^-5 cm. Upper bound (`s9-p3`): J <= 9,6 . 10^12, from Stark's printed smallest measured ionization potential for air at platinum anodes, ca. 10 Volt. In this section L is the absorbed light quantity ("der absorbierten Lichtmenge L"), not the speed of light of SS 1-2. First use s9-p2.
 - `flag:glyph-collisions` matches scoped collisions for L, E, P/P'/p, phi, T, alpha_nu, lambda, lg; first uses s1-p4, s1-p3, s8-p2, s3-p2, s1-p3, s1-fn3, s3-p3, s4-p2
 - `flag:s7-thermal-caveat` matches explicit thermal caveat in §7 regarding Wien regime validity at extreme temperatures; first use s7-p2
 - `flag:no-ultraviolet-catastrophe` matches phrase ultraviolet catastrophe does not appear in 1905 print; first use s1-p6
