@@ -406,7 +406,10 @@ legend {
 }
 .error {
   border-color: var(--accent);
-  background: #f8e9df;
+  /* Was #f8e9df, a light peach that left near-white --ink text at 1.03:1 in
+     Kramgasse Night and Slate. .error is always used together with .notice,
+     which already paints var(--wash), so this follows the notice surface. */
+  background: var(--wash);
 }
 .error button {
   margin: 0.3rem 0.5rem 0.3rem 0;

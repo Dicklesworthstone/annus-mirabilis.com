@@ -9,6 +9,7 @@ import {
   EXTERNAL_CHANNELS,
   scanColourRules,
   scanInheritedInkFailures,
+  scanThemeSelectors,
   unchannelledRules,
 } from "./colourChannels";
 import { auditThemeTokensContrast, LAYOUT_TOKENS, THEME_IDS, THEME_TOKENS } from "./tokens";
@@ -181,7 +182,7 @@ describe("auditThemeTokensContrast: automated token contrast check (AC 3)", () =
   test("auditThemeTokensContrast passes for all declared pairs across all three themes", () => {
     const result = auditThemeTokensContrast(THEME_TOKENS);
     expect(result.passes).toBe(true);
-    expect(result.checkedCount).toBe(18); // 6 declared pairs * 3 themes
+    expect(result.checkedCount).toBe(24); // 8 declared pairs * 3 themes (ink/muted on wash added 2026-09-19)
     expect(result.violations).toHaveLength(0);
   });
 
@@ -394,5 +395,29 @@ describe("contrast: the accent is perceptibly distinct from ink in all three the
 
   test("planted negative: an accent equal to ink collapses the redundant channel and fails", () => {
     expect(contrastRatio("#1a1916", "#1a1916")).toBeLessThan(ACCENT_DISTINCTNESS_FLOOR);
+  });
+});
+
+describe("contrast sweep: no stylesheet targets a theme that does not exist", () => {
+  const selectors = scanThemeSelectors(CSS_ROOT, REPO_ROOT);
+
+  test("the sweep finds the theme-scoped rules it is meant to police", () => {
+    expect(selectors.length).toBeGreaterThan(4);
+  });
+
+  test("every [data-theme=...] selector names a real theme id", () => {
+    const dead = selectors
+      .filter((s) => !(THEME_IDS as readonly string[]).includes(s.theme))
+      .map((s) => `${s.file}:${s.line} [data-theme="${s.theme}"]`);
+    expect(dead).toEqual([]);
+  });
+
+  test("planted negative: the real historical typo is what this gate catches", () => {
+    // derivation.css shipped [data-theme="kramgasse"] twice against the real id
+    // kramgasse-night, so the move step and the move box silently lost their
+    // dark treatment. This is that exact defect, not an invented fixture.
+    const planted = [{ file: "derivation.css", line: 105, theme: "kramgasse" }];
+    const dead = planted.filter((s) => !(THEME_IDS as readonly string[]).includes(s.theme));
+    expect(dead).toHaveLength(1);
   });
 });

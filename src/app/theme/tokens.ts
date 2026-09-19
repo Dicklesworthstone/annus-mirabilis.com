@@ -24,6 +24,17 @@ export interface ThemeTokens {
   readonly rule: string;
   readonly accent: string;
   readonly focusRing: string;
+  /**
+   * The panel tint used behind notices, tables and inset blocks.
+   * It existed only in globals.css's :root and was never given a per-theme
+   * value, so every `background: var(--wash)` rule painted Annalen's light
+   * beige in the dark themes too: near-white --ink on #e5ded0 is 1.07:1 in
+   * Kramgasse Night and 1.16:1 in Slate, which is unreadable body copy, not a
+   * cosmetic slip. The dark values below are derived to reproduce Annalen's
+   * OWN relationships rather than invented: Annalen reads ink 13.14, muted
+   * 5.50, and wash-vs-paper 1.086.
+   */
+  readonly wash: string;
   readonly plotDarkfield: string;
 }
 
@@ -56,6 +67,7 @@ export const THEME_TOKENS: Readonly<Record<ThemeId, ThemeTokens>> = Object.freez
     rule: "#cbc1ac",
     accent: "#ae2119",
     focusRing: "#1a1916",
+    wash: "#e5ded0",
     plotDarkfield: "#0f172a",
   }),
   "kramgasse-night": Object.freeze({
@@ -65,6 +77,8 @@ export const THEME_TOKENS: Readonly<Record<ThemeId, ThemeTokens>> = Object.freez
     rule: "#33393f",
     accent: "#e0a458",
     focusRing: "#e8e6e1",
+    // ink 11.62, muted 5.50 (Annalen's muted figure exactly), wash-vs-paper 1.116
+    wash: "#232a32",
     plotDarkfield: "#0d1117",
   }),
   slate: Object.freeze({
@@ -74,6 +88,8 @@ export const THEME_TOKENS: Readonly<Record<ThemeId, ThemeTokens>> = Object.freez
     rule: "#2c3630",
     accent: "#e2726a",
     focusRing: "#f0efe7",
+    // ink 14.13, muted 7.74, wash-vs-paper 1.096 (closest to Annalen's 1.086)
+    wash: "#1b2123",
     plotDarkfield: "#0a0d0e",
   }),
 });
@@ -136,12 +152,49 @@ export function auditThemeTokensContrast(
     if (!tokens) continue;
 
     const declaredPairs = [
-      { name: "ink on paper", fg: tokens.ink, bg: tokens.paper, req: CONTRAST_THRESHOLDS.normalText },
-      { name: "muted on paper", fg: tokens.muted, bg: tokens.paper, req: CONTRAST_THRESHOLDS.normalText },
-      { name: "accent on paper", fg: tokens.accent, bg: tokens.paper, req: CONTRAST_THRESHOLDS.normalText },
-      { name: "paper on ink", fg: tokens.paper, bg: tokens.ink, req: CONTRAST_THRESHOLDS.normalText },
-      { name: "paper on accent", fg: tokens.paper, bg: tokens.accent, req: CONTRAST_THRESHOLDS.normalText },
-      { name: "focusRing on paper", fg: tokens.focusRing, bg: tokens.paper, req: CONTRAST_THRESHOLDS.uiBoundary },
+      {
+        name: "ink on paper",
+        fg: tokens.ink,
+        bg: tokens.paper,
+        req: CONTRAST_THRESHOLDS.normalText,
+      },
+      {
+        name: "muted on paper",
+        fg: tokens.muted,
+        bg: tokens.paper,
+        req: CONTRAST_THRESHOLDS.normalText,
+      },
+      {
+        name: "accent on paper",
+        fg: tokens.accent,
+        bg: tokens.paper,
+        req: CONTRAST_THRESHOLDS.normalText,
+      },
+      {
+        name: "paper on ink",
+        fg: tokens.paper,
+        bg: tokens.ink,
+        req: CONTRAST_THRESHOLDS.normalText,
+      },
+      {
+        name: "paper on accent",
+        fg: tokens.paper,
+        bg: tokens.accent,
+        req: CONTRAST_THRESHOLDS.normalText,
+      },
+      {
+        name: "focusRing on paper",
+        fg: tokens.focusRing,
+        bg: tokens.paper,
+        req: CONTRAST_THRESHOLDS.uiBoundary,
+      },
+      { name: "ink on wash", fg: tokens.ink, bg: tokens.wash, req: CONTRAST_THRESHOLDS.normalText },
+      {
+        name: "muted on wash",
+        fg: tokens.muted,
+        bg: tokens.wash,
+        req: CONTRAST_THRESHOLDS.normalText,
+      },
     ];
 
     for (const pair of declaredPairs) {
@@ -166,4 +219,3 @@ export function auditThemeTokensContrast(
     violations,
   };
 }
-

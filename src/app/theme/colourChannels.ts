@@ -223,3 +223,29 @@ export function scanInheritedInkFailures(
   }
   return failures;
 }
+
+/**
+ * Every `[data-theme="..."]` selector in the project's CSS, with the theme
+ * name it targets. A name that is not a real theme id is a dead selector:
+ * it parses, it lints, it ships, and it silently never matches. derivation.css
+ * carried two of these, `[data-theme="kramgasse"]` for the move step and the
+ * move box, against the real id `kramgasse-night`, so Kramgasse Night lost the
+ * dark treatment its author had written while Slate kept its own.
+ */
+export function scanThemeSelectors(
+  cssRoot: string,
+  repoRoot: string,
+): { file: string; line: number; theme: string }[] {
+  const found: { file: string; line: number; theme: string }[] = [];
+  for (const file of findProjectCssFiles(cssRoot)) {
+    const raw = readFileSync(file, "utf8").replace(COMMENT, "");
+    for (const m of raw.matchAll(/\[data-theme="([a-z-]+)"\]/g)) {
+      found.push({
+        file: file.slice(repoRoot.length + 1),
+        line: raw.slice(0, m.index).split("\n").length,
+        theme: m[1] ?? "",
+      });
+    }
+  }
+  return found;
+}

@@ -69,7 +69,7 @@
 .equation-inspector {
   padding: 0.85rem;
   border-left: 3px solid #7b5326;
-  background: #eee7d8;
+  background: var(--wash);
   margin: 0.9rem 0;
 }
 .equation-inspector h4 {

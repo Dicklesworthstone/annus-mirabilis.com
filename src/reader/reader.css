@@ -746,7 +746,7 @@ html:is(
 .gloss-coverage-notice {
   margin: 1rem 0;
   padding: 0.75rem 1rem;
-  background: #fffbeb;
+  background: var(--wash);
   border: 1px solid #fef3c7;
   border-left: 3px solid #d97706;
   font-size: 0.85rem;
@@ -876,7 +876,7 @@ html:is(
 }
 
 .text-layer-notice {
-  background: #fffbeb;
+  background: var(--wash);
   border: 1px solid #fef3c7;
   border-left: 4px solid #d97706;
 }
@@ -897,7 +897,7 @@ html:is(
 .verbatim-rights-statement {
   margin: 0.75rem 0;
   padding: 0.5rem 0.75rem;
-  background: #f1f5f9;
+  background: var(--wash);
   border-left: 2px solid #94a3b8;
   font-size: 0.8rem;
   font-style: italic;
@@ -985,7 +985,11 @@ html:is(
 }
 
 .facsimile-page-preview {
+  /* A depiction of a scanned page, so it is white in every theme rather than
+     themed. It must therefore declare its own ink: inheriting --ink would put
+     near-white text on white paper in Kramgasse Night and Slate. */
   background: #ffffff;
+  color: #1a1916;
   box-shadow:
     0 4px 6px -1px rgb(0 0 0 / 0.1),
     0 2px 4px -2px rgb(0 0 0 / 0.1);
@@ -1013,7 +1017,7 @@ html:is(
 .facsimile-noscript-fallback {
   margin: 1rem 0;
   padding: 1rem;
-  background: #fffbeb;
+  background: var(--wash);
   border: 1px solid #fef3c7;
   border-radius: 4px;
   font-size: 0.9rem;
@@ -1061,7 +1065,7 @@ html:is(
 }
 
 .pagemap-row.is-selected {
-  background: #fef3c7;
+  background: var(--wash);
 }
 
 .other-article-row {
@@ -1988,7 +1992,7 @@ html:is(
 /* Unreviewed Banner styles (am-vw1o) */
 .unreviewed-translation-banner {
   border-left: 3px solid #d97706;
-  background: #fffbeb;
+  background: var(--wash);
   padding: 0.75rem 1rem;
   margin: 1.5rem 0;
   border-radius: 0 4px 4px 0;

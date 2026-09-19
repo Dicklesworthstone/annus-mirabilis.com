@@ -102,11 +102,11 @@
 }
 
 /* Dark mode (Kramgasse Night) theme override */
-[data-theme="kramgasse"] .derivation-step[data-is-move="true"] {
+[data-theme="kramgasse-night"] .derivation-step[data-is-move="true"] {
   border-color: #f59e0b;
   background: #451a03;
 }
-[data-theme="kramgasse"] .the-move-box {
+[data-theme="kramgasse-night"] .the-move-box {
   color: #fbbf24;
   border-color: #f59e0b;
   background: #78350f;
@@ -222,7 +222,7 @@
   padding: 0.4rem 0.6rem;
   font-size: 0.8rem;
   border-radius: 3px;
-  background: #f8fafc;
+  background: var(--wash);
   border: 1px solid #cbd5e1;
 }
 

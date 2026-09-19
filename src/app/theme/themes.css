@@ -12,6 +12,7 @@
   --rule: #cbc1ac;
   --accent: #ae2119;
   --focus-ring: #1a1916;
+  --wash: #e5ded0;
   --plot-darkfield: #0f172a;
 }
 
@@ -22,7 +23,9 @@
   --rule: #33393f;
   --accent: #e0a458;
   --focus-ring: #e8e6e1;
+  --wash: #232a32;
   --plot-darkfield: #0d1117;
+  color-scheme: dark;
 }
 
 :root[data-theme="slate"] {
@@ -32,7 +35,9 @@
   --rule: #2c3630;
   --accent: #e2726a;
   --focus-ring: #f0efe7;
+  --wash: #1b2123;
   --plot-darkfield: #0a0d0e;
+  color-scheme: dark;
 }
 
 :root {
