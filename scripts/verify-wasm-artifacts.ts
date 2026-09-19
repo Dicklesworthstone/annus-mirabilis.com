@@ -21,6 +21,7 @@
 import { existsSync, mkdirSync, readFileSync, writeFileSync } from "node:fs";
 import { join, resolve } from "node:path";
 import { fileURLToPath } from "node:url";
+import { philox4x32_10 } from "../src/physics/reference/philox.ts";
 import { newRunIdentity } from "../src/testing/log/logger.ts";
 import {
   computeArtifactDigest,
@@ -412,15 +413,44 @@ export async function runWasmVerification(options: VerificationOptions = {}): Pr
   // --- Check 4: Philox normals KATs and suffix draw-indexing property ---
   try {
     const vectorsPath = join(repoRoot, "src/physics/reference/philox.vectors.json");
+    // The array is `knownAnswers`, and each entry's expected block is `block`.
+    // This check previously read `vectorsData.kats[].expected`, a shape the file
+    // has never had: verify-wasm-artifacts.ts was written against a placeholder
+    // schema at 7b602d4, and am-fs-philox-ts-port-7kp landed the real vectors at
+    // 5ec954b with this shape. `kats` was therefore always undefined and
+    // katsPassed was unconditionally false, so this check failed on every run
+    // regardless of which artifact was present.
     const vectorsData = JSON.parse(readFileSync(vectorsPath, "utf8")) as {
-      readonly kats: readonly {
-        readonly name: string;
-        readonly counter: readonly number[];
-        readonly key: readonly number[];
-        readonly expected: readonly number[];
+      readonly knownAnswers: readonly {
+        readonly counter: readonly string[];
+        readonly key: readonly string[];
+        readonly block: readonly string[];
+        readonly source: string;
       }[];
     };
-    const katsPassed = Array.isArray(vectorsData.kats) && vectorsData.kats.length >= 3;
+    // And it counted entries rather than checking them, while reporting that the
+    // generator "satisfies Random123 KATs". Run them against the TS port instead,
+    // reusing philox4x32_10 rather than reimplementing the round function here.
+    const knownAnswers = vectorsData.knownAnswers;
+    let katsPassed = Array.isArray(knownAnswers) && knownAnswers.length >= 3;
+    const katFailures: string[] = [];
+    if (katsPassed) {
+      for (const ka of knownAnswers) {
+        const counter = ka.counter.map((h) => Number.parseInt(h, 16));
+        const key = ka.key.map((h) => Number.parseInt(h, 16));
+        const expectedBlock = ka.block.map((h) => Number.parseInt(h, 16));
+        const actual = Array.from(philox4x32_10(counter, key));
+        if (
+          actual.length !== expectedBlock.length ||
+          actual.some((w, i) => w !== expectedBlock[i])
+        ) {
+          katsPassed = false;
+          katFailures.push(
+            `${ka.source}: expected ${ka.block.join(",")} got ${actual.map((w) => (w >>> 0).toString(16).padStart(8, "0")).join(",")}`,
+          );
+        }
+      }
+    }
 
     // Suffix draw indexing check:
     // sequence starting at draw 2*k equals sequence starting at draw 0 from k-th normal onward
@@ -443,8 +473,13 @@ export async function runWasmVerification(options: VerificationOptions = {}): Pr
       comparisonKind: "bitwise",
       message:
         "Philox normals generator satisfies Random123 KATs and strict draw-indexing suffix property.",
-      expected: { katsPassed: true, suffixMatches: true },
-      actual: { katsPassed, suffixMatches },
+      expected: { katsPassed: true, suffixMatches: true, knownAnswerCount: 3 },
+      actual: {
+        katsPassed,
+        suffixMatches,
+        knownAnswerCount: knownAnswers?.length ?? 0,
+        katFailures,
+      },
     });
   } catch (err) {
     checks.push({
