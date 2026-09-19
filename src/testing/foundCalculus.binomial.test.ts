@@ -6,6 +6,7 @@ import {
   binomialPartialSumsGamma,
   gammaMinusOneCancellationFree,
   gammaMinusOneNaive,
+  logarithmPower,
 } from "../foundations/calculus.ts";
 import { withinTolerance } from "../units/tolerance.ts";
 import { writeCalculusLog } from "./foundCalculus.logger.ts";
@@ -116,4 +117,57 @@ test("foundCalculus.binomial: cancellation-free gamma - 1 at v/c = 1e-4 gives 5.
     message:
       "Verified cancellation-free gamma - 1 gives 5.0000000375e-9; planted naive route fails assertion and failure evidence is retained",
   });
+});
+
+/**
+ * Domain refusals (am-muyh).
+ *
+ * A plant sweep found all three of calculus.ts's guards deletable with every
+ * test that reaches the module green. Without them the functions do not fail,
+ * they return NaN: binomialPartialSumsGamma(1.2) hands back an `exact` of NaN
+ * with four finite partial sums beside it, and gammaMinusOneCancellationFree
+ * at v/c = 1 returns Infinity. AGENTS.md's doctrine 8 forbids exactly that:
+ * a refusal is a typed state, never a silent NaN or infinity.
+ */
+test("foundCalculus.domain: logarithmPower refuses a non-positive argument and accepts a positive one", () => {
+  assert.throws(() => logarithmPower(0, 2), RangeError);
+  assert.throws(() => logarithmPower(-1, 2), /Logarithm argument must be positive/);
+  // Accept: the identity the refusal protects still evaluates.
+  assert.equal(
+    withinTolerance(logarithmPower(0.5, 10), 10 * Math.log(0.5), { absolute: 1e-12 }).ok,
+    true,
+  );
+});
+
+test("foundCalculus.domain: the binomial expansion refuses x outside [0, 1) rather than returning NaN", () => {
+  for (const x of [-0.1, 1, 1.2, Number.POSITIVE_INFINITY]) {
+    assert.throws(
+      () => binomialPartialSumsGamma(x),
+      /x must be in \[0, 1\) for binomial expansion/,
+      `x = ${x} is outside the series' domain and must be refused, not evaluated`,
+    );
+  }
+  // Accept: both ends of the admitted interval.
+  assert.equal(binomialPartialSumsGamma(0).exact, 0);
+  assert.equal(Number.isFinite(binomialPartialSumsGamma(0.9999).exact), true);
+});
+
+test("foundCalculus.domain: gamma - 1 refuses |v/c| >= 1, the speed no inertial observer has", () => {
+  for (const vOverC of [1, -1, 1.5, 2]) {
+    assert.throws(
+      () => gammaMinusOneCancellationFree(vOverC),
+      /v\/c must be strictly less than 1/,
+      `v/c = ${vOverC} admits no inertial observer and must be refused`,
+    );
+  }
+  // Accept: just inside the boundary, and the low-speed case the function exists for.
+  assert.equal(Number.isFinite(gammaMinusOneCancellationFree(0.999999)), true);
+  assert.equal(
+    withinTolerance(gammaMinusOneCancellationFree(1e-4), 5.0000000375e-9, { relative: 1e-9 }).ok,
+    true,
+  );
+
+  // The naive route has no guard by design; it is the counter-demonstration,
+  // and it returns Infinity where the audited route refuses.
+  assert.equal(gammaMinusOneNaive(1), Number.POSITIVE_INFINITY);
 });

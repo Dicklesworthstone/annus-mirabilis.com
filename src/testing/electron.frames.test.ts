@@ -123,3 +123,60 @@ describe("electron.frames.test.ts: Frame-tagged forces and accelerations (AC1, A
     });
   });
 });
+
+/**
+ * Domain refusals on the frame transforms (am-muyh).
+ *
+ * A plant sweep found both guards deletable with all twenty test files that
+ * reach electron.ts green. Without them the transforms do not refuse an
+ * inadmissible boost: gamma() returns a non-value result, `g` is read off it
+ * as undefined, and the components come back NaN with a frame tag still
+ * attached. AGENTS.md is explicit that a refusal is a typed state and never a
+ * silent NaN, and that no inertial observer exists at |beta| >= 1.
+ */
+describe("electron.frames: transforms refuse a boost outside the admitted domain", () => {
+  const labForce = Object.freeze({
+    frame: "laboratory" as const,
+    components: Object.freeze({ x: 1, y: 2, z: 3 }),
+  });
+  const labAcceleration = Object.freeze({
+    frame: "laboratory" as const,
+    components: Object.freeze({ x: 1, y: 2, z: 3 }),
+  });
+
+  test("transformForce refuses |beta| >= 1 and still transforms an admitted boost", () => {
+    for (const beta of [1, -1, 1.5, Number.NaN]) {
+      expect(() => transformForce(labForce, beta, "comoving")).toThrow(/Cannot transform force/);
+    }
+
+    // Accept: an admitted boost transforms, and the transverse components
+    // scale by gamma rather than coming back NaN.
+    const transformed = transformForce(labForce, 0.6, "comoving");
+    expect(transformed.frame).toBe("comoving");
+    expect(Number.isFinite(transformed.components.y)).toBe(true);
+    expect(
+      withinTolerance(transformed.components.y, 2 / Math.sqrt(1 - 0.36), { relative: 1e-12 }).ok,
+    ).toBe(true);
+  });
+
+  test("transformAcceleration refuses |beta| >= 1 and still transforms an admitted boost", () => {
+    for (const beta of [1, -1, 2, Number.NaN]) {
+      expect(() => transformAcceleration(labAcceleration, beta, "comoving")).toThrow(
+        /Cannot transform acceleration/,
+      );
+    }
+
+    const transformed = transformAcceleration(labAcceleration, 0.6, "comoving");
+    expect(transformed.frame).toBe("comoving");
+    expect(Number.isFinite(transformed.components.x)).toBe(true);
+    expect(Number.isFinite(transformed.components.y)).toBe(true);
+  });
+
+  test("a same-frame request is not a transform and never consults the domain", () => {
+    // The early return precedes the guard, so an inadmissible beta is
+    // irrelevant when no boost is being applied. This pins the guard to the
+    // branch it actually protects.
+    expect(transformForce(labForce, 5, "laboratory")).toBe(labForce);
+    expect(transformAcceleration(labAcceleration, 5, "laboratory")).toBe(labAcceleration);
+  });
+});
