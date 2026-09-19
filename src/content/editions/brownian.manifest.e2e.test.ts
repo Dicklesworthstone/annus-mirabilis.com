@@ -64,7 +64,7 @@ describe("brownian source-manifest report CLI (am-edn-inventory-brownian-slg)", 
       units: Array<{ id: string; destination?: unknown; locators: Array<{ page: number }> }>;
     };
 
-    assert.equal(manifest.units.length, 92);
+    assert.equal(manifest.units.length, 87); // 92 until the 2026-09-19 boundary audit retired five units
     for (const unit of manifest.units) {
       assert.ok(unit.destination, `Unit ${unit.id} must have a destination`);
     }
