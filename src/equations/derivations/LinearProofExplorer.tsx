@@ -92,7 +92,7 @@ export function LinearProofExplorer({ proof, restoreSettings = true }: {
     <nav aria-label="Steps in the elimination" className="linear-step-nav">
       {proof.steps.map((step, i) => <a key={step.id} href={`#${prefix}-${step.id}`}>{i + 1}. {step.title}</a>)}
     </nav>
-    <details className="linear-premises" open>
+    <details open>
       <summary>What is assumed, and what is only a definition?</summary>
       {proof.certificate.premises.map(p => <section key={p.id}>
         <h4>{labels.get(p.id)} · {p.kind}</h4>
