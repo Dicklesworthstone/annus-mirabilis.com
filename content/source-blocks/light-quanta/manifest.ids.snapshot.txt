@@ -93,6 +93,7 @@ eq-s7-d1
 eq-s7-d2
 s7-p2
 s7-p3
+s7-p4
 s8
 s8-p1
 s8-fn1

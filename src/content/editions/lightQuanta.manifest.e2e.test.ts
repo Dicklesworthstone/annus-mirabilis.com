@@ -60,7 +60,7 @@ describe("light-quanta source-manifest report CLI (am-edn-inventory-light-quanta
       units: Array<{ id: string; destination?: unknown; locators: Array<{ page: number }> }>;
     };
 
-    assert.equal(manifest.units.length, 128);
+    assert.equal(manifest.units.length, 129);
     for (const unit of manifest.units) {
       assert.ok(unit.destination, `Unit ${unit.id} must have a destination`);
     }

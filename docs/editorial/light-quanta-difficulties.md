@@ -72,7 +72,6 @@ Sentence boundaries and paragraph splits decided under `docs/editorial/SEGMENTAT
   - `s5-p4`: pages 141–142
   - `s6-p1`: pages 142–143
   - `s6-p4`: pages 143–144
-  - `s7-p2`: pages 144–145
   - `s8-p2`: pages 145–146
   - `s8-p6`: pages 146–147
   - `s9-p1`: pages 147–148
@@ -114,15 +113,26 @@ Sentence boundaries and paragraph splits decided under `docs/editorial/SEGMENTAT
   the introducing paragraph carries both numbered items, and "Die letztgenannte" is the
   second unit. Without the convention the same page reads as four.
 
-- **An open locator discrepancy at that same place, recorded not fixed.** Page 144 ends a
-  complete paragraph, "...unterhalb welcher das Licht unfähig wäre, lichterregend zu
-  wirken.", so nothing runs over the break into p. 145, and "Abweichungen..." begins a new
-  paragraph at the head of p. 145. The manifest nevertheless gives `s7-p2` the locators
-  144 and 145 and gives `s7-p3` only 145. One of the two is wrong: either `s7-p2` is the
-  paragraph that ends on 144 and its 145 locator is spurious, or `s7-p2` is the
-  "Abweichungen" paragraph and its 144 locator is spurious. Ids are frozen, so this is
-  recorded for the owner rather than changed here, and it is independent of the
-  sentence-unit question currently escalated on `am-edn-inventory-light-quanta-skp`.
+- **That boundary is now repaired (2026-09-19).** Page 144 ends a complete paragraph,
+  "...unterhalb welcher das Licht unfaehig waere, lichterregend zu wirken.", so nothing runs
+  over the break; "Abweichungen..." begins a new, indented paragraph at the head of p. 145.
+  Two defects followed from that and both are fixed:
+  - `s7-p2` carried locators 144 AND 145 although it is the paragraph that ends on 144. The
+    spurious 145 locator is removed, and `s7-p2` is no longer one of the paper's page-crossing
+    paragraphs, which fall from 14 to 13.
+  - The second indented paragraph on p. 145, "Die letztgenannte Moeglichkeit verdient
+    besonderes Interesse.", had NO unit at all. It is now `s7-p4`. Indentation was measured
+    the same way pane30 measured the mass-energy boundaries: "Abweichungen", the items "1."
+    and "2.", and "Die letztgenannte" all carry the paragraph indent, while §7's earlier
+    "Dies ist die bekannte Stokessche Regel." is set flush and is therefore a resumption of
+    `s7-p1` after its two displays, not a paragraph of its own.
+
+  Adding `s7-p4` does not break the freeze. No id is retired, renumbered or given a new
+  meaning: `s7-p4` was simply unused, and it sits in printed order after `s7-p3`. No alias is
+  required, because nothing was retired or split. The unit total moves 128 -> 129 and the
+  snapshot is regenerated in the same commit. This is a paragraph-granularity repair and is
+  independent of the sentence-unit and inline-math-unit question escalated on the bead.
+
 
 - Footnotes are block-level units without internal sentence IDs; no footnote spans across a page boundary in this paper.
 - Displays printed inside footnotes:

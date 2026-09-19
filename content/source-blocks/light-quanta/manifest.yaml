@@ -1386,9 +1386,6 @@ units:
     section: s7
     locators:
       - page: 144
-        splitPage: true
-      - page: 145
-        splitPage: true
     destination:
       editionBlockId: block-light-quanta-s7-p2
       translationUnits:
@@ -1403,6 +1400,18 @@ units:
       - page: 145
     destination:
       editionBlockId: block-light-quanta-s7-p3
+      translationUnits:
+        - planned
+      argumentObligations:
+        - stokes-rule-photoluminescence
+
+  - id: s7-p4
+    kind: paragraph
+    section: s7
+    locators:
+      - page: 145
+    destination:
+      editionBlockId: block-light-quanta-s7-p4
       translationUnits:
         - planned
       argumentObligations:

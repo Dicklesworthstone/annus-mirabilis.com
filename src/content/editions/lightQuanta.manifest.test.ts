@@ -44,7 +44,7 @@ describe("light-quanta source manifest inventory (am-edn-inventory-light-quanta-
     expect(manifest.idsFrozenAt).toBe("2026-09-19T04:30:00Z");
     expect(manifest.frozenBy).toBe(LIGHT_QUANTA_BEAD);
 
-    expect(manifest.units.length).toBe(128);
+    expect(manifest.units.length).toBe(129);
 
     // No duplicate IDs and check prefix / properties
     const idSet = new Set<string>();
@@ -95,7 +95,7 @@ describe("light-quanta source manifest inventory (am-edn-inventory-light-quanta-
       outcome: "passed",
       comparisonKind: "bitwise",
       message:
-        "Manifest schema and validator pass with 0 errors, 128 units, and absent derived statuses.",
+        "Manifest schema and validator pass with 0 errors, 129 units, and absent derived statuses.",
       extra: { unitCount: manifest.units.length, check: "schema" },
     });
   });
@@ -379,7 +379,7 @@ describe("light-quanta source manifest inventory (am-edn-inventory-light-quanta-
     const spanningParagraphs = manifest.units.filter(
       (u) => u.kind === "paragraph" && u.locators.length > 1,
     );
-    expect(spanningParagraphs.length).toBe(14);
+    expect(spanningParagraphs.length).toBe(13);
     const spanningIds = spanningParagraphs.map((u) => u.id).sort();
     expect(spanningIds).toEqual([
       "s0-p2",
@@ -392,7 +392,6 @@ describe("light-quanta source manifest inventory (am-edn-inventory-light-quanta-
       "s5-p4",
       "s6-p1",
       "s6-p4",
-      "s7-p2",
       "s8-p2",
       "s8-p6",
       "s9-p1",
@@ -535,7 +534,7 @@ describe("light-quanta source manifest inventory (am-edn-inventory-light-quanta-
     const manifestIds = manifest.units.map((u) => u.id);
 
     expect(snapshotIds).toEqual(manifestIds);
-    expect(snapshotIds.length).toBe(128);
+    expect(snapshotIds.length).toBe(129);
 
     // Validate frozen IDs
     const validResult = validateFrozenIds(snapshotText, manifestIds, []);
@@ -763,8 +762,8 @@ describe("light-quanta source manifest inventory (am-edn-inventory-light-quanta-
     const json = JSON.stringify(report, null, 2);
 
     expect(report.paper).toBe(PAPER_SLUG);
-    expect(report.totalUnits).toBe(128);
-    expect(report.inScopeCount).toBe(128);
+    expect(report.totalUnits).toBe(129);
+    expect(report.inScopeCount).toBe(129);
     expect(report.notInScopeCount).toBe(0);
 
     // No unit lacks a destination
@@ -783,7 +782,7 @@ describe("light-quanta source manifest inventory (am-edn-inventory-light-quanta-
       outcome: "passed",
       comparisonKind: "bitwise",
       message:
-        "Report CLI completes with 128 units, no unassigned destinations, and no percentages.",
+        "Report CLI completes with 129 units, no unassigned destinations, and no percentages.",
       extra: { check: "report-cli" },
     });
   });
