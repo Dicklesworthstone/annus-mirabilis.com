@@ -69,6 +69,18 @@ describe("bare throw ratchet (am-muyh)", () => {
         `Per root -- ${roots}. ` +
         "Bare sites carry no refusal code, so refusalRatchet cannot see them.",
     );
+    console.log(
+      `[bare-throw refusal-path signal] ${scan.projectClassLowerBound} of ${scan.totalBare} throw a ` +
+        `project-defined error class across ${scan.projectClassCounts.length} classes ` +
+        `(${scan.projectClassCounts
+          .slice(0, 5)
+          .map(([c, n]) => `${c} ${n}`)
+          .join(", ")}). ` +
+        "That is a MEASURED LOWER BOUND on how much of this block is refusal path, never a total: " +
+        `the remaining ${scan.builtinClassUnclassified} throw a built-in class and are UNCLASSIFIED, ` +
+        "which is not the same as not being refusals. The scanner cannot separate a reader-facing " +
+        "refusal from an internal invariant. See am-kfkw.",
+    );
 
     assert.equal(typeof scan.totalBare, "number");
     assert.ok(scan.totalCoded > 0, "the coded scanner must still be finding sites");
@@ -95,6 +107,30 @@ describe("bare throw ratchet (am-muyh)", () => {
       [...scan.byRoot.values()].reduce((n, t) => n + t.bare, 0),
       scan.totalBare,
       "the per-root totals must add up to the headline, or one root is uncounted",
+    );
+
+    // The refusal-path signal is reported as two classes that sum to the
+    // whole. Neither may vanish, and the lower bound may never be presented
+    // as the total: the unclassified remainder is the honest part of it.
+    assert.equal(
+      scan.projectClassLowerBound + scan.builtinClassUnclassified,
+      scan.totalBare,
+      "the lower bound and the unclassified remainder must sum to the bare total",
+    );
+    assert.ok(
+      scan.projectClassLowerBound > 0,
+      "a lower bound of zero means the classifier is broken, not that the codebase " +
+        "defines no refusal error classes; it defines dozens",
+    );
+    assert.ok(
+      scan.projectClassLowerBound < scan.totalBare,
+      "if every bare throw carried a project class the lower bound would be a total, " +
+        "and this test's framing would need revisiting rather than quietly holding",
+    );
+    assert.equal(
+      scan.projectClassCounts.reduce((n, [, c]) => n + c, 0),
+      scan.projectClassLowerBound,
+      "the per-class breakdown must account for every project-class site",
     );
   });
 

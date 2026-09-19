@@ -408,10 +408,40 @@ export function analyzeUntestedRefusals(rootDir: string): FullRefusalScanResult 
  * gives them a name so the class can be reported rather than omitted.
  * ------------------------------------------------------------------------- */
 
+/** The built-in error constructors, which say nothing about who was at fault. */
+export const BUILTIN_ERROR_CLASSES: ReadonlySet<string> = new Set([
+  "Error",
+  "TypeError",
+  "RangeError",
+  "SyntaxError",
+  "ReferenceError",
+  "EvalError",
+  "URIError",
+  "AggregateError",
+]);
+
 export interface BareThrowSite {
   readonly file: string;
   readonly line: number;
   readonly snippet: string;
+  /** The constructor named at the throw, e.g. "TypeError" or "KitchenInputError". */
+  readonly errorClass: string;
+  /**
+   * True when the class is defined by this project rather than the language.
+   *
+   * This is the ONLY signal the scanner has about the refusal path, and it is
+   * weak in a useful direction. Nobody defines KitchenInputError for an
+   * internal invariant, so a project-defined class is good evidence that a
+   * reader or an authored record was being refused. The converse does not
+   * hold: plenty of built-in throws are refusals too. The count is therefore
+   * a MEASURED LOWER BOUND on the refusal path and never a total.
+   *
+   * Doctrine 8 binds a throw where a reader should have received a typed
+   * refusal; it does not bind a parser's internal invariant. This scanner
+   * cannot separate those -- no caller analysis, no notion of reader-supplied
+   * input. See am-kfkw.
+   */
+  readonly projectDefinedClass: boolean;
 }
 
 /** `throw new X(` on one line. A bare `throw err;` re-throw is not a site. */
@@ -429,7 +459,14 @@ export function scanBareThrowSites(source: string, relPath: string): BareThrowSi
     const line = lines[i] ?? "";
     if (!THROW_NEW.test(line)) continue;
     if (coded.has(i + 1)) continue;
-    out.push({ file: relPath, line: i + 1, snippet: line.trim() });
+    const cls = /\bthrow\s+new\s+([A-Za-z_$][\w$]*)\s*\(/.exec(line)?.[1] ?? "";
+    out.push({
+      file: relPath,
+      line: i + 1,
+      snippet: line.trim(),
+      errorClass: cls,
+      projectDefinedClass: cls.length > 0 && !BUILTIN_ERROR_CLASSES.has(cls),
+    });
   }
   return out;
 }
@@ -445,6 +482,15 @@ export interface BareThrowScanResult {
     string,
     { readonly files: number; readonly bare: number; readonly coded: number }
   >;
+  /**
+   * Bare throws of a project-defined error class: a MEASURED LOWER BOUND on
+   * how much of the bare block is refusal path, never a total. See am-kfkw.
+   */
+  readonly projectClassLowerBound: number;
+  /** Bare throws of a built-in class: unclassified, which is not "not refusals". */
+  readonly builtinClassUnclassified: number;
+  /** Site counts per project-defined error class, largest first. */
+  readonly projectClassCounts: readonly (readonly [string, number])[];
 }
 
 /**
@@ -517,5 +563,30 @@ export function scanBareThrows(rootDir: string): BareThrowScanResult {
     }
   }
 
-  return { byFile, totalBare, totalCoded, filesScanned, byRoot };
+  let projectClassLowerBound = 0;
+  let builtinClassUnclassified = 0;
+  const classCounts = new Map<string, number>();
+  for (const sites of byFile.values()) {
+    for (const site of sites) {
+      if (site.projectDefinedClass) {
+        projectClassLowerBound += 1;
+        classCounts.set(site.errorClass, (classCounts.get(site.errorClass) ?? 0) + 1);
+      } else {
+        builtinClassUnclassified += 1;
+      }
+    }
+  }
+
+  return {
+    byFile,
+    totalBare,
+    totalCoded,
+    filesScanned,
+    byRoot,
+    projectClassLowerBound,
+    builtinClassUnclassified,
+    projectClassCounts: [...classCounts.entries()].sort(
+      (a, b) => b[1] - a[1] || a[0].localeCompare(b[0]),
+    ),
+  };
 }
