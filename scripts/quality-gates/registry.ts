@@ -23,6 +23,17 @@ export type GateSkipReason = "tool-unavailable" | "not-required-in-ci" | "cadenc
 export interface AvailabilityProbe {
   readonly scriptPath?: string;
   readonly tool?: string;
+  /**
+   * What to tell a reader when `tool` is missing (am-dbuk).
+   *
+   * A gate whose failure does not name its blocker trains people to discount it.
+   * Without this, a launch profile on a machine lacking the binary refuses with
+   * "Required tool 'ubs' was not found in PATH or node_modules/.bin", which reads
+   * as a broken release rather than an uninstalled dependency. State what the tool
+   * is, that its absence is not a scan finding, and where its provenance is
+   * recorded. Do not invent an install command that is not documented somewhere.
+   */
+  readonly toolHint?: string;
 }
 
 export interface GateStep {
@@ -129,6 +140,8 @@ export const QUALITY_GATE_STEPS: readonly GateStep[] = [
     requiredInProfiles: ["scaffold", "preview", "launch"],
     availability: {
       tool: "ubs",
+      toolHint:
+        "ubs is the Ultimate Bug Scanner, a LOCAL developer binary, not an npm dependency of this repo: it is absent from package.json and recorded in docs/DECISIONS.md as a Development-scope tool. Its absence here means the scanner is not installed on this machine - it is NOT a finding about the code, and nothing in the diff has been scanned. No install command is documented in this repository, so obtain the binary and put it on PATH (the reference machine has it at ~/.local/bin/ubs), or raise am-dbuk to decide whether ubs belongs on the launch path at all.",
     },
     owner: "am-scaf-quality-gates-ci-4xx",
   },
@@ -143,6 +156,8 @@ export const QUALITY_GATE_STEPS: readonly GateStep[] = [
     requiredInProfiles: ["scaffold", "preview", "launch"],
     availability: {
       tool: "ubs",
+      toolHint:
+        "ubs is the Ultimate Bug Scanner, a LOCAL developer binary, not an npm dependency of this repo: it is absent from package.json and recorded in docs/DECISIONS.md as a Development-scope tool. Its absence here means the scanner is not installed on this machine - it is NOT a finding about the code, and nothing in the diff has been scanned. No install command is documented in this repository, so obtain the binary and put it on PATH (the reference machine has it at ~/.local/bin/ubs), or raise am-dbuk to decide whether ubs belongs on the launch path at all.",
     },
     owner: "am-scaf-quality-gates-ci-4xx",
   },

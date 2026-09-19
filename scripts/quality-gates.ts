@@ -138,10 +138,13 @@ export function checkStepAvailability(step: GateStep, rootDir: string): Availabi
       // Check if tool is runnable via bun/npx in node_modules/.bin
       const localBin = join(rootDir, "node_modules", ".bin", tool);
       if (!existsSync(localBin)) {
+        const base = `Required tool '${tool}' was not found in PATH or node_modules/.bin.`;
         return {
           available: false,
           kind: "tool-missing",
-          details: `Required tool '${tool}' was not found in PATH or node_modules/.bin.`,
+          // The hint is what distinguishes "the scanner is not installed" from
+          // "the scanner found something". Both used to read the same way.
+          details: step.availability.toolHint ? `${base} ${step.availability.toolHint}` : base,
         };
       }
     }
