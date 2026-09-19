@@ -18,6 +18,8 @@ export default function Home() {
             Begin with a wandering particle →
           </a>
           <a href="/papers/brownian-motion/">Read the displacement argument</a>
+          <a href="/papers/light-quanta/#entry-light-quanta">Show me how counting can reveal a pattern</a>
+          <a href="/papers/special-relativity/#entry-special-relativity">How would you set a distant clock?</a>
         </div>
       </section>
       <section className="feature-row">

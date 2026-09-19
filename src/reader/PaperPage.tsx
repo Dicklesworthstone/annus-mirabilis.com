@@ -1,3 +1,7 @@
+import clockEntranceRaw from "../../content/arguments/special-relativity/entrance-special-relativity.json";
+import { ClockFirstEncounter } from "./entrances/ClockFirstEncounter.tsx";
+import lightQuantaEntrance from "../../content/arguments/light-quanta/entrance-light-quanta.json";
+import { LightQuantaFirstEncounter } from "./entrances/LightQuantaFirstEncounter.tsx";
 import { notFound } from "next/navigation";
 import { validateEntranceRecord } from "../content/entrances/entranceRecord.ts";
 import { loadPaper } from "../content/server.ts";
@@ -136,8 +140,11 @@ export async function PaperPage(request: PaperRouteRequest, options?: PaperPageO
   const args = payload.arguments.filter((a) => sections.some((s) => s.id === a.section));
   const entrance =
     paper.id === "mass-energy" ? validateEntranceRecord(entranceExample.record) : null;
+  const lightEntrance = paper.id === "light-quanta" ? validateEntranceRecord(lightQuantaEntrance) : null;
+  const clockEntrance = paper.id === "special-relativity" ? validateEntranceRecord(clockEntranceRaw) : null;
+  const entryAnchor = clockEntrance ? "entry-special-relativity" : lightEntrance ? "entry-light-quanta" : entrance ? "entry-mass-energy" : null;
   const anchors = [
-    ...(entrance ? ["entry-mass-energy"] : []),
+    ...(entryAnchor && (!sectionId || entrance) ? [entryAnchor] : []),
     ...args.map((a) => a.id),
     ...sections.map((s) => s.id),
   ];
@@ -145,6 +152,8 @@ export async function PaperPage(request: PaperRouteRequest, options?: PaperPageO
   const titles = Object.fromEntries(foundations.map((f) => [f.id, f.title]));
   const questions = Object.fromEntries(args.map((a) => [a.id, a.question]));
   if (entrance) questions["entry-mass-energy"] = entrance.question;
+  if (lightEntrance) questions["entry-light-quanta"] = lightEntrance.question;
+  if (clockEntrance) questions["entry-special-relativity"] = clockEntrance.question;
 
   return (
     <div data-reader-root data-ready="true" data-view="reading" className="reader-root">
@@ -158,6 +167,7 @@ export async function PaperPage(request: PaperRouteRequest, options?: PaperPageO
           {paper.sourceNotice}
         </p>
         {sectionId ? <a href={paperPath(paper.id)}>Read the whole available argument →</a> : null}
+        {entryAnchor && <p><a href={`${paperPath(paper.id)}#${entryAnchor}`}>Show me one example before the notation →</a></p>}
       </header>
       <ReaderController registry={registry} titles={titles} questions={questions} />
       <div className="reader-layout">
@@ -185,6 +195,9 @@ export async function PaperPage(request: PaperRouteRequest, options?: PaperPageO
           </nav>
         </aside>
         <div className="reader-body">
+          {lightEntrance && !sectionId && <LightQuantaFirstEncounter record={lightEntrance} />}
+          {clockEntrance && !sectionId && <ClockFirstEncounter record={clockEntrance} />}
+          {(lightEntrance || clockEntrance) && !sectionId && <noscript><p>The worked examples above are complete without JavaScript. Configuration links load their selected settings when JavaScript runs in the laboratory; its static page otherwise shows the prepared default.</p></noscript>}
           {entrance && (
             <MassEnergyFirstEncounter
               record={entrance}

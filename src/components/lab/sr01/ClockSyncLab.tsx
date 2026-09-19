@@ -1,6 +1,6 @@
 "use client";
 
-import { type FormEvent, useId, useState, useSyncExternalStore } from "react";
+import { type FormEvent, useEffect, useId, useRef, useState, useSyncExternalStore } from "react";
 import {
   SR01_CAPTION,
   SR01_DEFAULTS,
@@ -37,9 +37,11 @@ function formatOutput(output: PublishedResult | undefined): string {
 
 export function ClockSyncLab({
   example,
+  restoreFromLocation = false,
   title = "SR-01: Clock synchronization with the event ledger",
 }: {
   example?: PreparedSr01Example | undefined;
+  restoreFromLocation?: boolean;
   title?: string | undefined;
 }) {
   const id = useId();
@@ -70,6 +72,29 @@ export function ClockSyncLab({
   const [sharedUrl, setSharedUrl] = useState("");
   const [predictAnswer, setPredictAnswer] = useState<string | null>(null);
   const [predictRevealed, setPredictRevealed] = useState(false);
+  const [linkNote, setLinkNote] = useState("");
+  const restored = useRef(false);
+
+  // Only the standalone route opts into URL state. Embedded instruments keep their own setup.
+  useEffect(() => {
+    if (!restoreFromLocation || restored.current) return;
+    restored.current = true;
+    const decoded = decodeSr01Settings(window.location.search);
+    if (decoded.kind === "none") return;
+    if (decoded.kind === "invalid") {
+      setError(decoded.message);
+      setRefusalCode("invalid-permalink");
+      return;
+    }
+    const result = session.apply(decoded.parameters);
+    if (result.kind === "refused") {
+      setError(result.refusal.message);
+      setRefusalCode(result.refusal.code);
+      return;
+    }
+    setDraft(Object.fromEntries(Object.entries(decoded.parameters).map(([key, value]) => [key, String(value)])) as Record<keyof Sr01Parameters, string>);
+    setLinkNote("Loaded the linked setup and recalculated the event ledger. These are ideal-model results, not observations.");
+  }, [restoreFromLocation, session]);
 
   const outputs = accepted?.outputs ?? [];
   const ledger = computeSr01Ledger(p);
@@ -88,6 +113,7 @@ export function ClockSyncLab({
     }
     setError("");
     setRefusalCode(null);
+    setLinkNote("");
   }
 
   function submit(event: FormEvent<HTMLFormElement>) {
@@ -146,6 +172,7 @@ export function ClockSyncLab({
         <p className="caption-r0">{SR01_CAPTION.r0}</p>
       </div>
 
+      {linkNote && <p role="status" data-shared-clock-settings>{linkNote}</p>}
       <div className="presets-bar">
         <span className="presets-label">Presets:</span>
         {SR01_PRESETS.map((pr) => (
@@ -324,7 +351,7 @@ export function ClockSyncLab({
             <label key={c.id} className="predict-candidate">
               <input
                 type="radio"
-                name="predict-moving-pair"
+                name={`predict-moving-pair-${id}`}
                 value={c.id}
                 checked={predictAnswer === c.id}
                 onChange={() => setPredictAnswer(c.id)}
@@ -342,6 +369,7 @@ export function ClockSyncLab({
           >
             Commit prediction and reveal
           </button>
+          <button type="button" className="button" onClick={() => setPredictRevealed(true)}>Show the outcome without a prediction</button>
         </div>
         {predictRevealed && (
           <section className="predict-reveal" aria-live="polite">
@@ -390,8 +418,8 @@ const roundTripSpeedLsPerS = (2 * separationLs) / (receptionTimeA - emissionTime
   );
 }
 
-export function ClockSyncComparison({ example }: { example: PreparedSr01Example }) {
-  return <ClockSyncLab example={example} />;
+export function ClockSyncComparison({ example, restoreFromLocation = false }: { example: PreparedSr01Example; restoreFromLocation?: boolean }) {
+  return <ClockSyncLab example={example} restoreFromLocation={restoreFromLocation} />;
 }
 
 export { decodeSr01Settings };

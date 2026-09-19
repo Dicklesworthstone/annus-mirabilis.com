@@ -21,16 +21,16 @@ export default function ClockSyncPage() {
         <p className="lead">
           A signal goes out, bounces off a distant clock, and comes back. Splitting the round-trip
           time in half is Einstein&apos;s stated procedure for giving a time to something far away
-          &mdash; a measurement, not an assumption about simultaneity.
+          &mdash; a stated agreement, not an independent measurement of the two one-way travel times.
         </p>
         <p>
-          <a href="/papers/relativity/#arg-sr-clock-sync">
-            Read the original 1905 synchronization argument &rarr;
+          <a href="/papers/special-relativity/s1/#arg-sr-synchronization">
+            Read the synchronization argument (explanatory preview) &rarr;
           </a>
         </p>
       </header>
 
-      <ClockSyncComparison example={example} />
+      <ClockSyncComparison example={example} restoreFromLocation />
 
       <section className="reading" id="clock-sync-argument">
         <p className="eyebrow">Open the derivation</p>

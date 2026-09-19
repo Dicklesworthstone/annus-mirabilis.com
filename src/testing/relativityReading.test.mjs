@@ -55,7 +55,9 @@ for (const [name, compile] of [["synchronous", compileReadingContent], ["product
 }
 
 test("all new mathematical blocks pass the bounded reader schema independently of compiler routing", () => {
-  for (const f of files.filter(f => f.path.startsWith("arguments/special-relativity/"))) assert.doesNotThrow(() => validateReadingRecord(JSON.parse(f.text), f.path));
+  const argumentsOnly = files.filter(f => f.path.startsWith("arguments/special-relativity/arg-"));
+  assert.equal(argumentsOnly.length, 16);
+  for (const f of argumentsOnly) assert.doesNotThrow(() => validateReadingRecord(JSON.parse(f.text), f.path));
 });
 
 test("clock synchronization assigns the midpoint rather than reception time", () => {
