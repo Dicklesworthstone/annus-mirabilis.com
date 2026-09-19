@@ -90,6 +90,8 @@ export function GlossSentence({
         className="gloss-sentence gloss-sentence-missing"
         id={sentenceId}
         data-sentence-id={sentenceId}
+        data-source-sentence="true"
+        tabIndex={0}
       >
         <div className="sentence-german-unadorned" lang="de">
           {germanText}
@@ -120,6 +122,8 @@ export function GlossSentence({
       className="gloss-sentence"
       id={sentenceId}
       data-sentence-id={sentenceId}
+      data-source-sentence="true"
+      tabIndex={0}
       aria-labelledby={`sentence-header-${sentenceId}`}
     >
       {/* Semantic actions for non-visual and assistive reading */}

@@ -106,4 +106,22 @@ describe("GlossFace component rendering and interactions", () => {
     );
     expect(htmlFallback).not.toContain("gloss-pairs-container");
   });
+
+  test("sentence-alignment integration: renders data-reader-root, AlignmentController live region, and source-sentence anchors", () => {
+    const html = renderToStaticMarkup(<GlossFace {...defaultProps} />);
+
+    // Reader root contract
+    expect(html).toContain("data-reader-root");
+
+    // AlignmentController live region
+    expect(html).toContain('data-alignment-live-region="true"');
+    expect(html).toContain('role="status"');
+    expect(html).toContain('aria-live="polite"');
+
+    // Sentence anchors for alignment highlighting and keyboard stepping
+    expect(html).toContain('data-sentence-id="me-p1-s1"');
+    expect(html).toContain('data-source-sentence="true"');
+    expect(html).toContain('tabindex="0"');
+  });
 });
+

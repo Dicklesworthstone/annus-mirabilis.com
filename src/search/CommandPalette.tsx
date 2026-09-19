@@ -17,10 +17,10 @@
 
 import React, { useCallback, useEffect, useRef, useState } from "react";
 
-function SearchIcon({ className = "w-5 h-5" }: { readonly className?: string }) {
+function SearchIcon({ style }: { readonly style?: React.CSSProperties }) {
   return (
     <svg
-      className={className}
+      style={style}
       fill="none"
       stroke="currentColor"
       viewBox="0 0 24 24"
@@ -36,10 +36,10 @@ function SearchIcon({ className = "w-5 h-5" }: { readonly className?: string }) 
   );
 }
 
-function XIcon({ className = "w-4 h-4" }: { readonly className?: string }) {
+function XIcon({ style }: { readonly style?: React.CSSProperties }) {
   return (
     <svg
-      className={className}
+      style={style}
       fill="none"
       stroke="currentColor"
       viewBox="0 0 24 24"
@@ -50,10 +50,10 @@ function XIcon({ className = "w-4 h-4" }: { readonly className?: string }) {
   );
 }
 
-function CompassIcon({ className = "w-3.5 h-3.5" }: { readonly className?: string }) {
+function CompassIcon({ style }: { readonly style?: React.CSSProperties }) {
   return (
     <svg
-      className={className}
+      style={style}
       fill="none"
       stroke="currentColor"
       viewBox="0 0 24 24"
@@ -235,21 +235,68 @@ export function CommandPalette({
       ref={dialogRef}
       open={isOpen}
       data-search-dialog="true"
+      data-command-palette-dialog="true"
       aria-modal="true"
       aria-label="Search edition and papers"
       onKeyDown={handleKeyDown}
-      className="fixed inset-0 z-50 flex items-start justify-center pt-[10vh] sm:pt-[15vh] p-4 bg-ink-950/60 backdrop-blur-sm w-full h-full border-none m-0 max-w-none max-h-none overflow-hidden"
+      style={{
+        position: "fixed",
+        inset: 0,
+        zIndex: 50,
+        display: "flex",
+        alignItems: "flex-start",
+        justifyContent: "center",
+        padding: "1rem",
+        paddingTop: "10vh",
+        background: "rgba(0, 0, 0, 0.6)",
+        backdropFilter: "blur(4px)",
+        WebkitBackdropFilter: "blur(4px)",
+        width: "100%",
+        height: "100%",
+        border: "none",
+        margin: 0,
+        maxWidth: "none",
+        maxHeight: "none",
+        overflow: "hidden",
+      }}
       onClick={(e) => {
         if (e.target === dialogRef.current) handleClose();
       }}
     >
       <div
-        className="w-full max-w-2xl bg-parchment-50 dark:bg-ink-950 border border-parchment-300 dark:border-ink-800 rounded-2xl shadow-2xl overflow-hidden flex flex-col max-h-[75dvh]"
+        style={{
+          width: "100%",
+          maxWidth: "42rem",
+          background: "var(--panel)",
+          border: "1px solid var(--line)",
+          borderRadius: "1rem",
+          boxShadow: "0 25px 50px -12px rgba(0, 0, 0, 0.25)",
+          overflow: "hidden",
+          display: "flex",
+          flexDirection: "column",
+          maxHeight: "75dvh",
+        }}
         role="document"
       >
         {/* Search input bar */}
-        <div className="p-3.5 sm:p-4 border-b border-parchment-200 dark:border-ink-800 flex items-center gap-3 bg-parchment-100/70 dark:bg-ink-900/70">
-          <SearchIcon className="w-5 h-5 text-amber-700 dark:text-amber-400 shrink-0" />
+        <div
+          style={{
+            padding: "0.875rem 1rem",
+            borderBottom: "1px solid var(--line)",
+            display: "flex",
+            alignItems: "center",
+            gap: "0.75rem",
+            background: "var(--wash)",
+          }}
+        >
+          <SearchIcon
+            style={{
+              width: "1.25rem",
+              height: "1.25rem",
+              color: "var(--accent)",
+              flexShrink: 0,
+            }}
+          />
           <input
             ref={inputRef}
             type="search"
@@ -259,7 +306,15 @@ export function CommandPalette({
               setQuery(e.target.value);
               setSelectedIndex(0);
             }}
-            className="w-full bg-transparent border-none text-base font-sans text-ink-950 dark:text-parchment-50 placeholder:text-ink-400 focus:outline-none focus-visible:outline-none rounded-lg"
+            style={{
+              width: "100%",
+              background: "transparent",
+              border: "none",
+              fontSize: "1rem",
+              fontFamily: "var(--font-sans)",
+              color: "var(--ink)",
+              outline: "none",
+            }}
             aria-label="Search edition"
             role="combobox"
             aria-expanded="true"
@@ -273,16 +328,36 @@ export function CommandPalette({
               type="button"
               onClick={() => setQuery("")}
               aria-label="Clear search"
-              className="p-2 text-ink-400 hover:text-ink-700 dark:hover:text-ink-200 cursor-pointer"
+              style={{
+                padding: "0.5rem",
+                color: "var(--muted)",
+                background: "transparent",
+                border: "none",
+                cursor: "pointer",
+                display: "inline-flex",
+                alignItems: "center",
+                justifyContent: "center",
+                minHeight: "auto",
+              }}
             >
-              <XIcon className="w-4 h-4" />
+              <XIcon style={{ width: "1rem", height: "1rem" }} />
             </button>
           )}
           <button
             type="button"
             onClick={handleClose}
             aria-label="Close search"
-            className="px-2.5 py-1.5 rounded-md text-[11px] font-mono text-ink-500 hover:bg-parchment-200 dark:hover:bg-ink-800 border border-parchment-300 dark:border-ink-700 cursor-pointer"
+            style={{
+              padding: "0.375rem 0.625rem",
+              borderRadius: "0.375rem",
+              fontSize: "0.6875rem",
+              fontFamily: "var(--font-mono)",
+              color: "var(--muted)",
+              background: "var(--panel)",
+              border: "1px solid var(--line)",
+              cursor: "pointer",
+              minHeight: "auto",
+            }}
           >
             ESC
           </button>
@@ -293,7 +368,15 @@ export function CommandPalette({
           id="command-palette-results"
           role="listbox"
           aria-label="Search results"
-          className="p-3 overflow-y-auto max-h-[50dvh] space-y-1.5 flex-1"
+          style={{
+            padding: "0.75rem",
+            overflowY: "auto",
+            maxHeight: "50dvh",
+            display: "flex",
+            flexDirection: "column",
+            gap: "0.375rem",
+            flex: 1,
+          }}
         >
           {results.length > 0 ? (
             results.map((item, idx) => {
@@ -311,17 +394,45 @@ export function CommandPalette({
                     handleClose();
                   }}
                   onMouseEnter={() => setSelectedIndex(idx)}
-                  className={`w-full text-left p-3 rounded-xl flex items-center justify-between gap-3 cursor-pointer transition-colors ${
-                    isSelected
-                      ? "bg-amber-700 text-white shadow-sm"
-                      : "bg-parchment-100/50 dark:bg-ink-900/50 hover:bg-parchment-200/70 text-ink-900 dark:text-parchment-100"
-                  }`}
+                  style={{
+                    width: "100%",
+                    textAlign: "left",
+                    padding: "0.75rem",
+                    borderRadius: "0.75rem",
+                    display: "flex",
+                    alignItems: "center",
+                    justifyContent: "space-between",
+                    gap: "0.75rem",
+                    cursor: "pointer",
+                    transition: "background-color 150ms ease, color 150ms ease",
+                    border: "1px solid transparent",
+                    background: isSelected ? "var(--accent)" : "var(--wash)",
+                    color: isSelected ? "var(--paper)" : "var(--ink)",
+                    minHeight: "auto",
+                  }}
                 >
-                  <div className="space-y-0.5 min-w-0 flex-1">
-                    <div className="font-serif font-bold text-sm truncate">{item.title}</div>
+                  <div style={{ minWidth: 0, flex: 1, display: "flex", flexDirection: "column", gap: "0.125rem" }}>
+                    <div
+                      style={{
+                        fontFamily: "var(--font-serif)",
+                        fontWeight: 700,
+                        fontSize: "0.875rem",
+                        overflow: "hidden",
+                        textOverflow: "ellipsis",
+                        whiteSpace: "nowrap",
+                      }}
+                    >
+                      {item.title}
+                    </div>
                     {item.subtitle && (
                       <div
-                        className={`text-xs truncate ${isSelected ? "text-amber-100" : "text-ink-500 dark:text-ink-400"}`}
+                        style={{
+                          fontSize: "0.75rem",
+                          overflow: "hidden",
+                          textOverflow: "ellipsis",
+                          whiteSpace: "nowrap",
+                          color: isSelected ? "rgba(255, 255, 255, 0.85)" : "var(--muted)",
+                        }}
                       >
                         {item.subtitle}
                       </div>
@@ -329,11 +440,17 @@ export function CommandPalette({
                   </div>
                   {item.category && (
                     <span
-                      className={`text-[10px] font-mono font-semibold px-2 py-0.5 rounded-md ${
-                        isSelected
-                          ? "bg-white/20 text-white"
-                          : "bg-amber-100 dark:bg-amber-950 text-amber-900 dark:text-amber-300"
-                      }`}
+                      style={{
+                        fontSize: "0.625rem",
+                        fontFamily: "var(--font-mono)",
+                        fontWeight: 600,
+                        padding: "0.125rem 0.5rem",
+                        borderRadius: "0.375rem",
+                        background: isSelected ? "rgba(255, 255, 255, 0.2)" : "var(--panel)",
+                        color: isSelected ? "white" : "var(--ink)",
+                        border: isSelected ? "none" : "1px solid var(--line)",
+                        whiteSpace: "nowrap",
+                      }}
                     >
                       {item.category}
                     </span>
@@ -342,11 +459,26 @@ export function CommandPalette({
               );
             })
           ) : (
-            <div className="p-8 text-center space-y-1.5">
-              <p className="font-serif text-base font-bold text-ink-900 dark:text-parchment-100">
+            <div style={{ padding: "2rem", textAlign: "center", display: "flex", flexDirection: "column", gap: "0.375rem" }}>
+              <p
+                style={{
+                  fontFamily: "var(--font-serif)",
+                  fontSize: "1rem",
+                  fontWeight: 700,
+                  color: "var(--ink)",
+                  margin: 0,
+                }}
+              >
                 {query ? `No results found for "${query}"` : "Search index empty"}
               </p>
-              <p className="text-xs text-ink-500 dark:text-ink-400 font-sans">
+              <p
+                style={{
+                  fontSize: "0.75rem",
+                  color: "var(--muted)",
+                  fontFamily: "var(--font-sans)",
+                  margin: 0,
+                }}
+              >
                 {query
                   ? "Try searching for a paper title, equation symbol, or historical concept."
                   : "Search index will be indexed offline at build time."}
@@ -356,12 +488,24 @@ export function CommandPalette({
         </div>
 
         {/* Footer */}
-        <div className="p-3 border-t border-parchment-200 dark:border-ink-800 bg-parchment-100/70 dark:bg-ink-900/70 flex items-center justify-between text-xs font-mono text-ink-500">
-          <div className="flex items-center gap-2">
-            <CompassIcon className="w-3.5 h-3.5 text-amber-600" />
+        <div
+          style={{
+            padding: "0.75rem",
+            borderTop: "1px solid var(--line)",
+            background: "var(--wash)",
+            display: "flex",
+            alignItems: "center",
+            justifyContent: "space-between",
+            fontSize: "0.75rem",
+            fontFamily: "var(--font-mono)",
+            color: "var(--muted)",
+          }}
+        >
+          <div style={{ display: "flex", alignItems: "center", gap: "0.5rem" }}>
+            <CompassIcon style={{ width: "0.875rem", height: "0.875rem", color: "var(--accent)" }} />
             <span>Annus Mirabilis Critical Edition</span>
           </div>
-          <div className="text-[11px] flex items-center gap-2">
+          <div style={{ fontSize: "0.6875rem", display: "flex", alignItems: "center", gap: "0.5rem" }}>
             <span>↑↓ Navigate</span>
             <span>•</span>
             <span>↵ Select</span>

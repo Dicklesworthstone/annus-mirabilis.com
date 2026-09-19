@@ -95,4 +95,85 @@ describe("scheduler.conformance", () => {
       "Must reject tampered artifact before creating worker channel",
     );
   });
+
+  it("hostWorker emits unregistered-alien-code and unsupported-step-kernel refusal envelopes", async () => {
+    const channel = createHostWorkerChannel();
+
+    const alienReq = {
+      messageKind: "request",
+      protocolVersion: 1,
+      experimentId: "bm01",
+      instanceId: "inst-host-refusal-1",
+      runId: "run-host-refusal-1",
+      actionIndex: 1,
+      revisions: { input: 1, observer: 0, measurement: 0, estimator: 0 },
+      parameters: { _script: "emit-unregistered-refusal" },
+    };
+    const alienResp: any = await new Promise((resolve) => {
+      channel.onmessage = (ev: any) => resolve(ev.data ?? ev);
+      channel.postMessage(alienReq);
+    });
+
+    assert.equal(alienResp.messageKind, "refusal");
+    assert.equal(alienResp.refusal?.code, "unregistered-alien-code");
+
+    const kernelReq = {
+      messageKind: "request",
+      protocolVersion: 1,
+      experimentId: "bm01",
+      instanceId: "inst-host-refusal-1",
+      runId: "run-host-refusal-1",
+      actionIndex: 2,
+      revisions: { input: 1, observer: 0, measurement: 0, estimator: 0 },
+      parameters: { _script: "emit-envelope" },
+    };
+    const kernelResp: any = await new Promise((resolve) => {
+      channel.onmessage = (ev: any) => resolve(ev.data ?? ev);
+      channel.postMessage(kernelReq);
+    });
+
+    assert.equal(kernelResp.refusal?.code, "unsupported-step-kernel");
+    assert.match(kernelResp.refusal?.message ?? "", /Kernel 9 is unsupported/);
+  });
+
+  it("wasmWorker emits unregistered-alien-code and unsupported-step-kernel refusal envelopes", async () => {
+    const channel = await createWasmWorkerChannel();
+
+    const alienReq = {
+      messageKind: "request",
+      protocolVersion: 1,
+      experimentId: "bm01",
+      instanceId: "inst-wasm-refusal-1",
+      runId: "run-wasm-refusal-1",
+      actionIndex: 1,
+      revisions: { input: 1, observer: 0, measurement: 0, estimator: 0 },
+      parameters: { _script: "emit-unregistered-refusal" },
+    };
+    const alienResp: any = await new Promise((resolve) => {
+      channel.onmessage = (ev: any) => resolve(ev.data ?? ev);
+      channel.postMessage(alienReq);
+    });
+
+    assert.equal(alienResp.messageKind, "refusal");
+    assert.equal(alienResp.refusal?.code, "unregistered-alien-code");
+
+    const kernelReq = {
+      messageKind: "request",
+      protocolVersion: 1,
+      experimentId: "bm01",
+      instanceId: "inst-wasm-refusal-1",
+      runId: "run-wasm-refusal-1",
+      actionIndex: 2,
+      revisions: { input: 1, observer: 0, measurement: 0, estimator: 0 },
+      parameters: { _script: "emit-envelope" },
+    };
+    const kernelResp: any = await new Promise((resolve) => {
+      channel.onmessage = (ev: any) => resolve(ev.data ?? ev);
+      channel.postMessage(kernelReq);
+    });
+
+    assert.equal(kernelResp.refusal?.code, "unsupported-step-kernel");
+    assert.match(kernelResp.refusal?.message ?? "", /Kernel 9 is unsupported/);
+  });
 });
+
