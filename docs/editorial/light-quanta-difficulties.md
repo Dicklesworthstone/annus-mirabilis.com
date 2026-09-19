@@ -76,6 +76,54 @@ Sentence boundaries and paragraph splits decided under `docs/editorial/SEGMENTAT
   - `s8-p2`: pages 145–146
   - `s8-p6`: pages 146–147
   - `s9-p1`: pages 147–148
+- **Printed numbered items fold into the paragraph that introduces them.** A run of
+  printed enumerated items (`1.`, `2.`, or `a)`, `b)`) is NOT a unit of its own: the
+  introducing sentence and the items it governs are one paragraph unit, and the sentence
+  ids run on through the items. This decides several counts in this paper and is recorded
+  here because `docs/editorial/SEGMENTATION.md` does not state it.
+
+  **The precedent, verified rather than assumed.** Neither SEGMENTATION.md nor the
+  brownian or relativity difficulties files state this rule in words, so it was read off
+  the relativity manifest against the relativity facsimile. *Zur Elektrodynamik bewegter
+  Körper* p. 895 prints, after the §2 heading: an introducing paragraph ending
+  "...welche beiden Prinzipien wir folgendermaßen definieren.", then the indented item
+  "1. Die Gesetze, nach denen sich die Zustände...", then the indented item
+  "2. Jeder Lichtstrahl bewegt sich...", which runs on into the display
+  "Geschwindigkeit = Lichtweg / Zeitdauer". `content/source-blocks/special-relativity/manifest.yaml`
+  records exactly ONE paragraph unit, `s2-p1`, before `eq-s2-d1`. Two separately numbered
+  items therefore cannot each hold a unit there; they are already folded. The same page
+  prints the operations `a)` and `b)` under "...ermitteln denken:", and they likewise sit
+  inside `s2-p2` rather than taking units.
+
+  The brownian half of the precedent could NOT be checked the same way: the pinned
+  `public/papers/pdfs/ap-17-549.pdf` is the wrong page range. Its pdf pages 1-4 render as
+  printed 508-511 of L. Hermann's "Kombinationen von Kapazitäten und Selbstinduktionen",
+  not Einstein's 549-560, while `docs/provenance/ap-17-549.md` maps pdf 1-12 onto printed
+  549-560. That defect is already known and owned by `am-cf6m`, and `am-edn-inventory-brownian-slg`
+  works from `artifacts/page-images/ap-17-549-CORRECTED/`; it is named here only to say why
+  relativity, not brownian, is cited as the operative precedent.
+
+- **Where the convention bites in this paper: §7's close on p. 145.** Page 145 opens with
+  the introducing paragraph "Abweichungen von der Stokesschen Regel sind nach der
+  dargelegten Auffassung der Phänomene in folgenden Fällen denkbar:", then the indented
+  item "1. wenn die Anzahl der gleichzeitig in Umwandlung begriffenen Energiequanten..."
+  ending in a semicolon, then the indented item "2. wenn das erzeugende (oder erzeugte)
+  Licht nicht von derjenigen energetischen Beschaffenheit ist..." ending in a full stop,
+  then a fresh paragraph "Die letztgenannte Möglichkeit verdient besonderes Interesse."
+  Under the convention above, §7 contributes TWO paragraph units on p. 145, not four:
+  the introducing paragraph carries both numbered items, and "Die letztgenannte" is the
+  second unit. Without the convention the same page reads as four.
+
+- **An open locator discrepancy at that same place, recorded not fixed.** Page 144 ends a
+  complete paragraph, "...unterhalb welcher das Licht unfähig wäre, lichterregend zu
+  wirken.", so nothing runs over the break into p. 145, and "Abweichungen..." begins a new
+  paragraph at the head of p. 145. The manifest nevertheless gives `s7-p2` the locators
+  144 and 145 and gives `s7-p3` only 145. One of the two is wrong: either `s7-p2` is the
+  paragraph that ends on 144 and its 145 locator is spurious, or `s7-p2` is the
+  "Abweichungen" paragraph and its 144 locator is spurious. Ids are frozen, so this is
+  recorded for the owner rather than changed here, and it is independent of the
+  sentence-unit question currently escalated on `am-edn-inventory-light-quanta-skp`.
+
 - Footnotes are block-level units without internal sentence IDs; no footnote spans across a page boundary in this paper.
 - Displays printed inside footnotes:
   - In `s1-fn3`: Fourier expansion `eq-s1-d3`, probability differential `eq-s1-d4`, and independence factorization `eq-s1-d5`.
