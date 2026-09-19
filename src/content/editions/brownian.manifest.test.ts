@@ -49,7 +49,7 @@ describe("brownian source manifest (am-edn-inventory-brownian-slg)", () => {
     expect(manifest.pageCount).toBe(12);
     expect(manifest.pageRange).toEqual([549, 560]);
     expect(manifest.idsFrozenAt).toBe("2026-09-19T04:30:00Z");
-    expect(manifest.frozenBy).toBe("pane15");
+    expect(manifest.frozenBy).toBe("am-edn-inventory-brownian-slg");
 
     expect(manifest.units.length).toBe(92);
 

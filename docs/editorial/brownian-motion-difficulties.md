@@ -101,3 +101,110 @@ Each flag ends with a watch-list result (`pending`, `matches`, `differs`, or `no
 - `flag:velocity-warning` not-found
 - `flag:s4-tau-coarse-graining` matches `s4-p3-s1`
 - `flag:dates` matches `closing-dateline` `closing-received`
+
+---
+
+## Independent second read against the corrected renders (am-edn-inventory-brownian-slg, pane30, 2026-09-19)
+
+Every statement below was read directly from `artifacts/page-images/ap-17-549-CORRECTED/parent-173.png`
+through `parent-184.png`. The defective pin was not touched; `am-cf6m` keeps that repair.
+
+These are second-read findings, not contract flags. They use the `check:` prefix deliberately so
+they are not parsed by `parseDifficultyFlags`: `DIFFICULTY_FLAG_KEYS` in
+`src/content/editions/brownianInventory.ts` defines the seven `flag:` keys this bead owes, and
+`brownian.manifest.test.ts` asserts that count exactly. Extending that list is a gate change and
+belongs in its own commit, not inside inventory work. Promote any of these to a `flag:` key by
+adding it to `DIFFICULTY_FLAG_KEYS` and raising the expected count in the same change.
+
+
+### Confirmed correct
+
+- `check:masthead` matches `masthead-title` `masthead-author` — parent-173 prints article `5.` and
+  "Über die von der molekularkinetischen Theorie der Wärme geforderte Bewegung von in ruhenden
+  Flüssigkeiten suspendierten Teilchen; von A. Einstein."
+- `check:display-counts-per-page` matches — the per-page display-equation counts are correct on all
+  twelve pages (549:0, 550:1, 551:4, 552:2, 553:7, 554:5, 555:6, 556:3, 557:5, 558:4, 559:5, 560:1).
+- `check:footnote-list` matches `s2-fn1` `s2-fn2` `s3-fn1` — exactly three footnotes, on printed 551,
+  553 and 555. `s2-fn1`'s mark sits on the §2 heading itself, which the manifest records correctly
+  as `containedIn: s2`.
+- `check:bibliographic-references` matches `s2-fn1-r1` `s2-fn1-r2` `s2-fn2-r1` `s3-fn1-r1` — the
+  printed citation strings match the manifest byte for byte, including "Ann. d. Phys. 9. p. 417.
+  1902", "11. p. 170. 1903" and "G. Kirchhoff, Vorlesungen über Mechanik, 26. Vorlesung § 4".
+- `check:repeated-printed-label` matches `eq-s3-1` `eq-s4-1` — the label `(1)` is printed twice, in §3
+  (p. 554) and again in §4 (p. 558), and both correctly take section-qualified ids.
+- `check:s5-printed-numbers` matches `s5-p2` — p. 559 prints $N = 6\cdot10^{23}$, water at 17° C,
+  $k = 1{,}35\cdot10^{-2}$, particle diameter $0{,}001$ mm, and $\lambda_x = 8\cdot10^{-5}$ cm
+  $= 0{,}8$ Mikron; the next line prints "ca. 6 Mikron" for one minute.
+- `check:s5-printed-units` matches `s5-p2` — *Mikron* and *Sek.* appear as printed.
+- `check:notation-collisions` matches `s3-p6` — p. 555 prints "Kugelradius $P$" and
+  "Reibungskoeffizienten $k$" in one sentence, confirming both dangerous collisions ($k$ is
+  viscosity, not Boltzmann's constant; $P$ is radius, not pressure). $D$ and $\mu$ (particle mass)
+  are printed in `s3-p7`; $\nu$ as number density in `s1-p3` ("$n/V^* = \nu$"); $\varphi(\Delta)$ in
+  `s4-p4`; $\tau$ as an observation interval in `s4-p3`; $K$ as a force in `s3-p1`.
+- `check:s2-printed-symbols` matches `s2-p1` — $p_1 \ldots p_l$ with rates $\varphi_\nu$, the entropy
+  written with $2\varkappa$ and "lg", the relation $2\varkappa N = R$, both $\bar{E}$ and $E$, the
+  configuration integral $B$ and its volume-independent factor $J$, and the virtual variation
+  $\delta$ are all printed as the bead expected. $V^*$ and $z$ are printed in `s1-p1` (p. 549).
+- `check:closing-hope` matches `s5-p4` — p. 560 prints "Möge es bald einem Forscher gelingen, die
+  hier aufgeworfene, für die Theorie der Wärme wichtige Frage zu entscheiden!" as the final
+  paragraph of §5, before the date-line.
+- `check:dates` matches `closing-dateline` `closing-received` — "Bern, Mai 1905." and
+  "(Eingegangen 11. Mai 1905.)".
+- `check:no-acknowledgment` not-found — confirmed on p. 560: the paper carries no acknowledgment, as
+  the bead expected. This is a deliberate negative result, not an unchecked box.
+
+### `check:paragraph-over-split` differs — five spurious paragraph units
+
+**This is a defect in the inventory, not in the facsimile.** On three pages the manifest records a
+paragraph unit where the printing has no paragraph break. The 1905 setting indents the first line of
+every new paragraph by about 55 px at this render scale and sets a line that merely resumes after a
+display flush to the left margin. Measured left-edge offsets against the page's own body margin
+confirm it; the indented starts on p. 554 measure +55, +53 and +58 px, while "Es werde angenommen",
+"Die gesuchte Gleichgewichtsbedingung" and "Die letzte Gleichung sagt aus" all measure +1 to +5 px.
+
+| Spurious unit | Page | Printed text it wrongly splits off | Belongs to |
+|---|---|---|---|
+| `s2-p6` | 553 | "Aus dieser und aus der zuletzt gefundenen Gleichung folgt aber" | `s2-p5` |
+| `s3-p3` | 554 | "Es werde angenommen, daß die Flüssigkeit senkrecht zur X-Achse…" | `s3-p2` |
+| `s3-p4` | 554 | "Die gesuchte Gleichgewichtsbedingung ist also:" | `s3-p2` |
+| `s4-p7` | 557 | "Diese Entwicklung können wir unter dem Integral vornehmen…" | `s4-p6` |
+| `s4-p8` | 557 | "Auf der rechten Seite verschwindet wegen $\varphi(x) = \varphi(-x)$…" | `s4-p6` |
+
+The true paragraph-start counts per page are 549:3, 550:2, 551:1, 552:3, **553:3**, **554:3**,
+555:3, 556:4, **557:2**, 558:3, 559:3, 560:2. The manifest and its test assert 4, 5 and 4 on the
+three bold pages. True paragraph total is **32**, not 37.
+
+The error is not a convention applied consistently: `s4-p6` correctly absorbs two flush resumptions
+("Nun können wir aber…", "Ferner entwickeln wir…") and then `s4-p7`/`s4-p8` split at the next two,
+and p. 551, p. 555, p. 556 and p. 558 fold their flush resumptions correctly. Displays, footnotes and
+reference occurrences are unaffected and remain correct.
+
+**Not repaired here, and why.** The five ids are frozen (`idsFrozenAt: 2026-09-19T04:30:00Z`) and the
+snapshot is committed, so removing them is an alias operation under `am-cm-id-scheme-8bn`, not a
+renumbering: `s2-p7` must keep its number and the sequence must be left with gaps. That interacts
+with the snapshot-equals-manifest contract asserted by `brownian.manifest.test.ts`, so the format
+owner should rule before ids move. Recommended repair, for the record: retire the five ids in
+`content/aliases/brownian-motion.yaml` pointing at their absorbing paragraph, re-point the
+`containedIn` of `eq-s2-d9`, `eq-s3-d2`, `eq-s3-d3`, `eq-s3-1`, `eq-s3-d4`, `eq-s4-d7` and
+`eq-s4-d8`, and correct the three per-page numbers together with the total. Nothing downstream
+consumes these ids yet, so the repair is still cheap.
+
+### `check:test-claims-unperformed-scan-check` differs
+
+`src/content/editions/brownian.manifest.test.ts` introduces `expectedParagraphStartsPerPage` with the
+comment "Verified paragraph start counts per page from scans". Those numbers equal what the manifest
+already contains, so the assertion cannot fail for the defect above, and three of its twelve values
+(553, 554, 557) are contradicted by the corrected renders. The comment claims a proof class the test
+does not have. The neighbouring display and footnote tables were checked against the renders and are
+correct. The golden must not be edited on its own: it is only wrong because the data is wrong, and
+regenerating it to match would hide the defect rather than fix it.
+
+### `check:reference-id-grammar-inconsistent-across-papers` differs
+
+This paper's reference occurrence ids are sentence-scoped (`s3-p5-s1-r1`, `s3-p8-s1-r1`,
+`s4-p10-s5-r1`, `s5-p1-s1-r1`, `s5-p1-s2-r1`) while the relativity manifest uses paragraph-scoped
+ids (`s6-p2-r1`). Both are in tree. The sentence segments named here (`-s1-`, `-s5-`) do not exist as
+units in any manifest, because the canonical format has no `sentence` kind, so these ids reference a
+unit class that cannot be addressed. The same gap is recorded for the relativity paper as
+`check:blocking:sentence-units-unrepresentable`; it is one decision for `am-cm-source-manifest-6qa`
+across all four papers, and it should also settle which grammar reference occurrence ids use.

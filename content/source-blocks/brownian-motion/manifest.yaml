@@ -6,7 +6,7 @@ scope: full-document
 pageCount: 12
 pageRange: [549, 560]
 idsFrozenAt: "2026-09-19T04:30:00Z"
-frozenBy: pane15
+frozenBy: am-edn-inventory-brownian-slg
 units:
   - id: masthead-title
     kind: masthead-title
