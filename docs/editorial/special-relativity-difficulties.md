@@ -317,3 +317,48 @@ the evidence to the expected total is what produced the defect. Second, a later 
 produced three false positives — p. 911, p. 918 and p. 920 were each flagged and each turned out
 clean at 250 percent. Strip-scale reading is good enough to find candidates and not good enough to
 decide them.
+
+### The p. 920 judgement, and what would reverse it
+
+**This is the weakest reconciliation in the paper. It is recorded so that it can be re-opened
+deliberately rather than rediscovered.**
+
+p. 920 prints **five** indented lines: "Auch dieser Ausdruck für die kinetische Energie", "Wir wollen
+nun die aus dem Gleichungssystem (A) resultierenden, dem Experimente zugänglichen Eigenschaften der
+Bewegung des Elektrons aufzählen", "1. Aus der zweiten Gleichung", "Diese Beziehung ist der Prüfung
+zugänglich", and "2. Aus der Ableitung". The manifest records **three** starts on the page:
+`s10-p11`, `s10-p12`, `s10-p13`.
+
+**The judgement.** The page reconciles one-to-one only under this reading:
+
+- `s10-p11` = "Auch dieser Ausdruck…"
+- `s10-p12` = "Wir wollen nun … aufzählen:" — the sentence that introduces the enumeration
+- `s10-p13` = "1. Aus der zweiten Gleichung…", which absorbs the indented commentary "Diese
+  Beziehung ist der Prüfung zugänglich…", then item "2.", and continues onto p. 921 where it also
+  absorbs item "3." and ends before "Diese drei Beziehungen sind ein vollständiger Ausdruck".
+
+**Why that reading and not another.** Containment decides it, not the indents. `s10-p13` carries
+locators `[920, 921]` and holds `eq-s10-d9` (the printed $A_m/A_e = v/V$ on p. 920) together with
+`eq-s10-d10`, `eq-s10-d11` and `eq-s10-d12` on p. 921 — exactly the displays belonging to relations
+1, 2 and 3. If `s10-p13` instead began at "Diese Beziehung", it could not contain `eq-s10-d9`, which
+is printed above that line. So the enumeration is one paragraph unit, and the indented items and
+their indented commentary fold into it.
+
+**What would reverse it.** If the format owner rules that printed numbered or lettered list items
+are their own paragraph units rather than folding into the sentence that introduces them, then
+p. 920 has five printed starts, not three, and `s10-p13` must be split — one unit per relation, plus
+one for "Diese Beziehung ist der Prüfung zugänglich" — taking **new ids at the §10 end** under
+`am-cm-id-scheme-8bn`, never a renumbering. The four displays would then redistribute: `eq-s10-d9`
+to the unit for relation 1, `eq-s10-d10` and `eq-s10-d11` to relation 2, `eq-s10-d12` to relation 3.
+
+That ruling is not local to this page. The same folding convention is what makes §1 p. 894 (items
+`1.`, `2.`), §2 p. 895 (the two principles), §6 pp. 909–910 (items `1.`, `2.`), and §10 p. 921
+(item `3.`) reconcile, and the sibling rules recorded for light-quanta and brownian rest on it too.
+Reversing it changes all of them, in all four papers, in the same direction.
+
+**One further open item of the same class.** On p. 911 the manifest records five displays in
+`s7-p2` (`eq-s7-d2` … `eq-s7-d6`) for the printed sequence of the field system, $\Phi'$, $\omega'$,
+$a'$, $b'$ and $c'$. Whether $a'$, $b'$ and $c'$ are one left-aligned stacked display or separate
+ones was not resolved at magnification; the paragraph mapping reconciles either way and the per-page
+display count matched, so nothing was changed. It is recorded here because it is the same kind of
+grouping judgement as the stacked pair on p. 899, which *was* resolved at 280 percent.
