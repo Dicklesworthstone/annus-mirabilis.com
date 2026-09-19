@@ -1,7 +1,8 @@
-import { describe, expect, test } from "bun:test";
+import assert from "node:assert/strict";
 import { spawnSync } from "node:child_process";
 import { existsSync, mkdirSync, readFileSync, writeFileSync } from "node:fs";
 import { join } from "node:path";
+import { describe, it } from "node:test";
 import { loadReadingFiles } from "../../../scripts/build-content.ts";
 import { newRunIdentity, TestLogger } from "../../testing/log/logger.ts";
 import { compileReadingContent } from "../compiler/compile.ts";
@@ -17,7 +18,12 @@ const logRunId = newRunIdentity();
 const logRoot = join(ROOT, "artifacts/test-logs");
 const logger = new TestLogger("manifest-light-quanta-e2e", logRunId, logRoot);
 
-function retainEvidenceOnFailure(name: string, stdout: string, stderr: string, extra?: Record<string, unknown>) {
+function retainEvidenceOnFailure(
+  name: string,
+  stdout: string,
+  stderr: string,
+  extra?: Record<string, unknown>,
+) {
   const evidenceDir = join(ROOT, "artifacts/test-logs/manifest-light-quanta", logRunId, "evidence");
   mkdirSync(evidenceDir, { recursive: true });
   writeFileSync(join(evidenceDir, `${name}.stdout.log`), stdout);
@@ -27,8 +33,8 @@ function retainEvidenceOnFailure(name: string, stdout: string, stderr: string, e
   }
 }
 
-describe("light-quanta source-manifest report e2e (am-edn-inventory-light-quanta-skp)", () => {
-  test("source-manifest-report CLI runs cleanly with code 0, all destinations assigned, matching page counts, and no percentages", () => {
+describe("light-quanta source-manifest report CLI (am-edn-inventory-light-quanta-skp)", () => {
+  it("source-manifest-report CLI runs cleanly with code 0, all destinations assigned, matching page counts, and no percentages", () => {
     const proc = spawnSync("bun", ["scripts/source-manifest-report.ts", PAPER_SLUG], {
       cwd: ROOT,
       encoding: "utf8",
@@ -42,11 +48,11 @@ describe("light-quanta source-manifest report e2e (am-edn-inventory-light-quanta
       retainEvidenceOnFailure("source-manifest-report", stdout, stderr);
     }
 
-    expect(exitCode).toBe(0);
+    assert.equal(exitCode, 0, `source-manifest-report failed with stderr: ${stderr}`);
 
     // No percentage in output
-    expect(/%/.test(stdout)).toBe(false);
-    expect(/%/.test(stderr)).toBe(false);
+    assert.ok(!/%/.test(stdout), "Report stdout must not contain percentages");
+    assert.ok(!/%/.test(stderr), "Report stderr must not contain percentages");
 
     // Validate units and destinations against manifest
     const manifestPath = join(ROOT, "content/source-blocks/light-quanta/manifest.yaml");
@@ -54,22 +60,25 @@ describe("light-quanta source-manifest report e2e (am-edn-inventory-light-quanta
       units: Array<{ id: string; destination?: unknown; locators: Array<{ page: number }> }>;
     };
 
-    expect(manifest.units.length).toBe(128);
+    assert.equal(manifest.units.length, 128);
     for (const unit of manifest.units) {
-      expect(unit.destination).toBeDefined();
+      assert.ok(unit.destination, `Unit ${unit.id} must have a destination`);
     }
 
     // Verify per-page counts match SourceAsset.pageMapping
     const receiptPath = join(ROOT, "docs/provenance/ap-17-132.md");
+    assert.ok(existsSync(receiptPath), `${receiptPath} must exist`);
     const receiptParsed = parseReceipt(readFileSync(receiptPath, "utf8"), receiptPath);
-    expect(receiptParsed.ok).toBe(true);
+    assert.ok(receiptParsed.ok);
 
     const sourceAsset = receiptToSourceAsset(receiptParsed.frontMatter!);
-    expect(sourceAsset.pageMapping.length).toBe(17);
+    assert.equal(sourceAsset.pageMapping.length, 17);
 
     for (const pageEntry of sourceAsset.pageMapping) {
-      const pageUnits = manifest.units.filter((u) => u.locators.some((l) => l.page === pageEntry.printedPage));
-      expect(pageUnits.length).toBeGreaterThanOrEqual(1);
+      const pageUnits = manifest.units.filter((u) =>
+        u.locators.some((l) => l.page === pageEntry.printedPage),
+      );
+      assert.ok(pageUnits.length >= 1, `Page ${pageEntry.printedPage} must have units`);
     }
 
     logger.log({
@@ -78,12 +87,13 @@ describe("light-quanta source-manifest report e2e (am-edn-inventory-light-quanta
       paper: PAPER_SLUG,
       outcome: "passed",
       comparisonKind: "bitwise",
-      message: "source-manifest-report CLI completed with exit code 0, verified destinations, matching page counts, and no percentages.",
+      message:
+        "source-manifest-report CLI completed with exit code 0, verified destinations, matching page counts, and no percentages.",
       extra: { check: "report-cli" },
     });
   });
 
-  test("corpus content compiler check produces no rejections for light-quanta", async () => {
+  it("corpus content compiler check produces no rejections for light-quanta", async () => {
     const files = await loadReadingFiles();
     const compiled = compileReadingContent(files);
 
@@ -92,14 +102,14 @@ describe("light-quanta source-manifest report e2e (am-edn-inventory-light-quanta
       retainEvidenceOnFailure("content-compiler", "", JSON.stringify(errors, null, 2));
     }
 
-    expect(compiled.ok).toBe(true);
+    assert.equal(compiled.ok, true, "Content compiler must succeed");
 
     const lqRejections = compiled.diagnostics.filter(
       (d) =>
         d.severity === "error" &&
         (d.path?.includes("light-quanta") || d.message?.includes("light-quanta")),
     );
-    expect(lqRejections.length).toBe(0);
+    assert.equal(lqRejections.length, 0, "No rejections for light-quanta");
 
     logger.log({
       testId: "e2e-content-compiler-clean",
@@ -112,7 +122,7 @@ describe("light-quanta source-manifest report e2e (am-edn-inventory-light-quanta
     });
   });
 
-  test("receipt verification check passes cleanly with 0 errors for ap-17-132", () => {
+  it("receipt verification check passes cleanly with 0 errors for ap-17-132", () => {
     const proc = spawnSync("bun", ["scripts/check-receipts.ts", "--key", "ap-17-132"], {
       cwd: ROOT,
       encoding: "utf8",
@@ -126,8 +136,8 @@ describe("light-quanta source-manifest report e2e (am-edn-inventory-light-quanta
       retainEvidenceOnFailure("check-receipts", stdout, stderr);
     }
 
-    expect(exitCode).toBe(0);
-    expect(stdout).toContain("0 errors");
+    assert.equal(exitCode, 0, `check-receipts failed with stderr: ${stderr}`);
+    assert.ok(stdout.includes("0 errors"), "check-receipts must report 0 errors");
 
     logger.log({
       testId: "e2e-check-receipts",

@@ -6,7 +6,7 @@ scope: full-document
 pageCount: 17
 pageRange: [132, 148]
 idsFrozenAt: "2026-09-19T04:30:00Z"
-frozenBy: pane16
+frozenBy: am-edn-inventory-light-quanta-skp
 units:
   - id: masthead-title
     kind: masthead-title

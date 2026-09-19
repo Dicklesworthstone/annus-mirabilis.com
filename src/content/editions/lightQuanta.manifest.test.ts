@@ -43,7 +43,7 @@ describe("light-quanta source manifest inventory (am-edn-inventory-light-quanta-
     expect(manifest.pageCount).toBe(17);
     expect(manifest.pageRange).toEqual([132, 148]);
     expect(manifest.idsFrozenAt).toBe("2026-09-19T04:30:00Z");
-    expect(manifest.frozenBy).toBe("pane16");
+    expect(manifest.frozenBy).toBe(LIGHT_QUANTA_BEAD);
 
     expect(manifest.units.length).toBe(128);
 
