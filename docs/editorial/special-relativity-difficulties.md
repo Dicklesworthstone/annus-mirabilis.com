@@ -356,9 +356,57 @@ That ruling is not local to this page. The same folding convention is what makes
 (item `3.`) reconcile, and the sibling rules recorded for light-quanta and brownian rest on it too.
 Reversing it changes all of them, in all four papers, in the same direction.
 
-**One further open item of the same class.** On p. 911 the manifest records five displays in
-`s7-p2` (`eq-s7-d2` … `eq-s7-d6`) for the printed sequence of the field system, $\Phi'$, $\omega'$,
-$a'$, $b'$ and $c'$. Whether $a'$, $b'$ and $c'$ are one left-aligned stacked display or separate
-ones was not resolved at magnification; the paragraph mapping reconciles either way and the per-page
-display count matched, so nothing was changed. It is recorded here because it is the same kind of
-grouping judgement as the stacked pair on p. 899, which *was* resolved at 280 percent.
+### The p. 911 display-grouping judgement, and what would reverse it
+
+**Open. Not resolved at magnification.** On p. 911 the manifest records five displays in `s7-p2`
+(`eq-s7-d2` … `eq-s7-d6`) followed by `eq-s7-d7` in `s7-p3`, six on the page. The print shows the
+field-component system, then $\Phi' = \omega'(\tau - \ldots)$, then $\omega'$, $a'$, $b'$ and $c'$,
+then $\nu'$ — seven visually separable expressions if every one is its own unit.
+
+**The judgement.** The count reconciles if two of those are one unit. The likeliest grouping is that
+$a'$, $b'$ and $c'$ are a single left-aligned stacked display, by the same rule that settles p. 899:
+equations aligned with each other on their left edge, with no text between them, are one display.
+Nothing was changed on this basis, because unlike p. 899 it was **not** confirmed at magnification.
+
+**Why it was left open rather than decided.** The paragraph mapping for p. 911 reconciles either
+way — `s7-p3` "Aus der Gleichung für $\omega'$ folgt" and `s7-p4` "Dies ist das Doppelersche
+Prinzip" are both confirmed indented at 250 percent — and the per-page display total matched the
+boundary audit. Deciding the grouping from an unmagnified reading is exactly the error this file
+exists to prevent.
+
+**What would settle or reverse it.** Read the left edges of $a'$, $b'$, $c'$ on
+`artifacts/page-images/ap-17-891/page-21.png` at 280 percent or better, as was done for the
+`∂τ/∂y` / `∂τ/∂z` pair on p. 899. If they are left-aligned with each other, the present count is
+correct and this entry closes. If they are independently centred, the page prints **seven** displays
+against six recorded, one display unit is missing, and it takes a **new id at the §7 end** under
+`am-cm-id-scheme-8bn` — never a renumbering — with the containment of the affected displays
+re-pointed inside `s7-p2`.
+
+## 8. State of the relativity mapping
+
+**Coverage: 31 of 31 pages mapped one-to-one at 250 percent or better.** "One-to-one" means that for
+every manifest unit on a page, the printed line it begins at was named, and every display and
+footnote was checked into the paragraph the print puts it in. Counting starts per page is *not* what
+is meant, and is not sufficient: a page carrying one spurious unit and one missing paragraph nets to
+zero and passes a count check.
+
+How the coverage was reached, in three passes, because the passes catch different things:
+
+1. **Boundary pass** (2026-09-19, strips at 130 percent with 250–330 percent on any ambiguous line).
+   Found sixteen defects on ten pages: twelve spurious units and four missing paragraphs. Repaired
+   in `bc0e216`.
+2. **Denominator pass**, prompted by the light-quanta result that a boundary pass and a one-to-one
+   pass do not catch the same things. Found `s3-p19` on p. 902 — a page the boundary pass had
+   cleared as "1 start recorded, 1 start printed" because a flush line had been misread as indented
+   at strip scale. p. 902 in fact carries **no** indented line at all. Repaired in `7a366ed`.
+3. **Uniform re-map at 250 percent** of the nineteen pages that had only ever been read at 150
+   percent (891, 892, 894–898, 902, 907, 908, 910–912, 916–921). All nineteen reconcile exactly; no
+   new defect; p. 902's zero-start reading was independently re-confirmed. No file changed.
+
+Totals after repair: **211 units, 92 paragraphs**, thirteen ids retired through
+`content/aliases/special-relativity.yaml` and four added at their section ends (`s3-p20`, `s3-p21`,
+`s3-p22`, `s4-p9`).
+
+**What is still open.** Two judgements, both recorded above with their reversal conditions: the
+p. 920 enumeration folding and the p. 911 display grouping. Neither was decided from an unmagnified
+reading, and neither should be treated as settled because the page "reconciles".
