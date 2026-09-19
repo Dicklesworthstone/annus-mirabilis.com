@@ -4,6 +4,8 @@
  */
 
 import assert from "node:assert/strict";
+import { existsSync, readFileSync } from "node:fs";
+import { join } from "node:path";
 import { describe, test } from "node:test";
 import { TestLogger } from "../../testing/log/logger.ts";
 import { getQuantityRegistry } from "../quantities/registry.ts";
@@ -22,6 +24,11 @@ describe("am-not-entries-mass-energy-wq2: mass-energy notation concordance", () 
   const paper = "mass-energy";
   const emptyManifestIndex = buildSourceManifestIndex([]);
   const beadId = "am-not-entries-mass-energy-wq2";
+  const FACSIMILE_SHA256 = "c4770702edca3047c324a92cc0a008e27355c236b3e5e0a87d75eea630ab5f19";
+  const VERIFICATION_LOG = join(
+    process.cwd(),
+    "docs/editorial/mass-energy-notation-verification.md",
+  );
 
   function logPass(testId: string, message: string, extra: Record<string, unknown> = {}): void {
     logger.log({
@@ -55,15 +62,64 @@ describe("am-not-entries-mass-energy-wq2: mass-energy notation concordance", () 
     );
   });
 
-  test("Honesty: every entry is pending facsimile verification", () => {
+  test("Honesty: every entry is verified against the pinned facsimile, none left pending", () => {
     const file = loadConcordanceForPaper(paper);
     for (const entry of file.entries) {
+      const against = entry.verification.checkedAgainst;
       assert.ok(
-        entry.verification.checkedAgainst.toLowerCase().includes("pending"),
-        `${entry.id} must record pending facsimile verification`,
+        against.includes("ap-18-639") && against.includes(FACSIMILE_SHA256),
+        `${entry.id} must cite the pinned facsimile and its digest, got: ${against}`,
+      );
+      assert.ok(
+        !against.toLowerCase().includes("pending"),
+        `${entry.id} still records a pending verification; the facsimile is pinned`,
+      );
+      assert.ok(entry.verification.date >= "2026-09-19", `${entry.id} verification date is stale`);
+      assert.ok(
+        entry.sources?.facsimilePage !== undefined &&
+          [639, 640, 641].includes(Number(entry.sources.facsimilePage)),
+        `${entry.id} must cite a printed page of ap-18-639 (639-641)`,
       );
     }
-    logPass("honesty-pending-verification", "All entries marked pending facsimile");
+    logPass("honesty-verified-against-facsimile", "All entries verified against pinned ap-18-639");
+  });
+
+  test("Verification log exists and records every required result", () => {
+    assert.ok(existsSync(VERIFICATION_LOG), `${VERIFICATION_LOG} must exist`);
+    const log = readFileSync(VERIFICATION_LOG, "utf8");
+    assert.ok(log.includes(FACSIMILE_SHA256), "log must cite the pinned digest");
+    // The bead requires a recorded result for each of these.
+    for (const item of ["beta", "l*", "Coordinate-system names"]) {
+      assert.ok(log.includes(item), `verification log must record a result for ${item}`);
+    }
+    assert.ok(/`beta`[^|]*\|\s*\*\*not-found\*\*/.test(log), "log must record beta as not-found");
+    assert.ok(
+      /Explicit radical[^|]*\|\s*\*\*matches\*\*/.test(log),
+      "log must record the explicit radical as matching",
+    );
+    logPass("verification-log-complete", "Verification log records beta, l*, and system names");
+  });
+
+  test("Planted negative: no beta entry and no K/k coordinate-system entry may exist", () => {
+    const file = loadConcordanceForPaper(paper);
+    // beta is not printed in this paper; an entry for it would be imported from paper 3.
+    const beta = file.entries.find(
+      (e) => e.glyph.unicode === "\u03b2" || e.glyph.latex === "\\beta",
+    );
+    assert.equal(beta, undefined, "beta is not printed in ap-18-639; it must have no entry");
+
+    // K and k are never coordinate-system labels in this paper; K is kinetic energy only.
+    for (const e of file.entries) {
+      const isSystemLabel =
+        "nonQuantityKind" in e.binding && e.binding.nonQuantityKind === "coordinate-system-label";
+      if (isSystemLabel) {
+        assert.ok(
+          !["K", "k"].includes(e.glyph.unicode),
+          `${e.id}: K/k are not coordinate-system labels in paper 4; the systems are named (x, y, z) and (xi, eta, zeta)`,
+        );
+      }
+    }
+    logPass("no-imported-paper3-glyphs", "No beta entry and no K/k system-label entry");
   });
 
   test("Bindings: L in mass-energy binds emittedEnergyRestFrame, never speedOfLight", () => {
@@ -134,10 +190,10 @@ describe("am-not-entries-mass-energy-wq2: mass-energy notation concordance", () 
 
   test("Scopes: phi in citation binds propagationAngleStationary; in emission binds emissionAngle", () => {
     const file = loadConcordanceForPaper(paper);
-    const citeRes = resolveGlyph(paper, "me-s0-p1", "\\varphi", emptyManifestIndex, file);
-    const emitRes = resolveGlyph(paper, "me-s0-p2", "\\varphi", emptyManifestIndex, file);
-    assert.ok(citeRes.ok, "phi in citation paragraph me-s0-p1 must resolve");
-    assert.ok(emitRes.ok, "phi in emission paragraph me-s0-p2 must resolve");
+    const citeRes = resolveGlyph(paper, "me-s0-p5", "\\varphi", emptyManifestIndex, file);
+    const emitRes = resolveGlyph(paper, "me-s0-p7", "\\varphi", emptyManifestIndex, file);
+    assert.ok(citeRes.ok, "phi in citation paragraph me-s0-p5 must resolve");
+    assert.ok(emitRes.ok, "phi in emission paragraph me-s0-p7 must resolve");
 
     assert.ok("quantityId" in citeRes.entry.binding);
     assert.ok("quantityId" in emitRes.entry.binding);
@@ -156,12 +212,16 @@ describe("am-not-entries-mass-energy-wq2: mass-energy notation concordance", () 
     const entry = file.entries.find((e) => e.id === "me.root.lorentzFactor");
     assert.ok(entry, "me.root.lorentzFactor entry must exist");
     assert.ok(
-      entry?.notes?.includes("UNKNOWN pending direct facsimile verification"),
-      "Notes must explicitly state printed form is UNKNOWN pending facsimile",
+      entry?.notes?.includes("explicit radical every time"),
+      "Notes must record that the factor is printed as an explicit radical",
+    );
+    assert.ok(
+      entry?.notes?.includes("NOT printed"),
+      "Notes must record that beta is not printed in this paper",
     );
     logPass(
-      "lorentz-factor-group-unknown-pending",
-      "Lorentz factor group maps to \\gamma with pending honesty note",
+      "lorentz-factor-group-explicit-radical",
+      "Lorentz factor is the printed explicit radical, maps to \\gamma, beta absent",
     );
   });
 
@@ -221,6 +281,25 @@ describe("am-not-entries-mass-energy-wq2: mass-energy notation concordance", () 
     assert.equal(modernSymbolFor(paper, "me-s0", "V", emptyManifestIndex, file), "c");
     assert.equal(modernSymbolFor(paper, "me-s0", "v", emptyManifestIndex, file), "v");
     logPass("V-and-v-bound", "V -> c and v -> v resolved correctly");
+  });
+
+  test("Bindings: generic K binds kineticEnergy; L renders as E_emit, not bare E", () => {
+    const file = loadConcordanceForPaper(paper);
+    const k = resolveGlyph(paper, "me-s0-p9", "K", emptyManifestIndex, file);
+    assert.ok(k.ok, "generic K must resolve in the H - E = K + C paragraph");
+    assert.ok("quantityId" in k.entry.binding);
+    assert.equal(k.entry.binding.quantityId, "kineticEnergy");
+
+    // L must not render as bare E: the paper also prints a generic E, and two
+    // entries rendering to E in one scope would be a modern-glyph-collision.
+    const lModern = modernSymbolFor(paper, "me-s0", "L", emptyManifestIndex, file);
+    assert.equal(lModern, "E_{\\text{emit}}");
+    const eModern = modernSymbolFor(paper, "me-s0", "E", emptyManifestIndex, file);
+    assert.notEqual(lModern, eModern, "L and E must not render to the same modern glyph");
+    logPass(
+      "K-generic-and-L-modern-glyph",
+      "K binds kineticEnergy; L renders E_emit distinct from E",
+    );
   });
 
   test("Bindings: L/V^2 binds inertialMassDecrease", () => {

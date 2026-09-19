@@ -1,12 +1,18 @@
 # Scoped Notation Concordance for Mass-Energy Equivalence (ap-18-639)
 # Specification: AGENTS.md, am-not-concordance-model-uag, am-not-entries-mass-energy-wq2.
-# Verification status: all entries are marked pending per honesty constraint
-# (no pinned facsimile scan is currently committed in the repository).
-# Glyphs and scopes follow AGENTS.md, the quantity registry, and the paper's
-# printed text. They reflect checked period transcriptions rather than direct
-# pixel verifications. Absence is recorded; invented facsimile readings
-# are not admitted.
-# No parallel markdown ledger: pending/verified status lives on each entry.
+#
+# Verification status: every entry below was checked glyph by glyph against the
+# pinned facsimile public/papers/pdfs/ap-18-639.pdf (sha256
+# c4770702edca3047c324a92cc0a008e27355c236b3e5e0a87d75eea630ab5f19, matching
+# docs/provenance/ap-18-639.md), re-rendered locally at 400 dpi and read as
+# images. No OCR was run. The full log, including the glyphs that are NOT
+# printed and therefore get no entry, is docs/editorial/mass-energy-notation-verification.md.
+#
+# Two entries were removed in that pass because the facsimile does not print them:
+# me.K.stationarySystem and me.k.movingSystem. This paper names its coordinate
+# systems by their coordinates, (x, y, z) and (xi, eta, zeta); K and k as system
+# labels belong to paper 3. K here means kinetic energy and nothing else.
+# beta is not printed in this paper either; see the log and the bead comment.
 
 paper: mass-energy
 
@@ -34,19 +40,19 @@ entries:
       kind: cross-paper
       collidesWith: ["volume"]
       collidesWithModern: ["volume"]
-      firstUseAnchor: me-s0-p1
+      firstUseAnchor: me-s0-p5
       firstUseBySection:
         - sectionId: me-s0
-          anchor: me-s0-p1
+          anchor: me-s0-p5
     notes: "Speed of light in vacuum. In modern notation written c. Collides with volume V in papers 1 and 2."
     sources:
       facsimilePage: 639
-      anchor: me-s0-p1
+      anchor: me-s0-p5
     verification:
       printed: true
-      checkedAgainst: "Pending facsimile scan (ap-18-639)"
-      by: "Editorial Staff"
-      date: "2026-09-17"
+      checkedAgainst: "Pinned facsimile ap-18-639 (sha256 c4770702edca3047c324a92cc0a008e27355c236b3e5e0a87d75eea630ab5f19), pages 639-641 re-rendered at 400 dpi and read as images; no OCR. Log: docs/editorial/mass-energy-notation-verification.md"
+      by: "pane31 (agent reading; not the human German source review)"
+      date: "2026-09-19"
 
   - id: me.v.frameSpeed
     paper: mass-energy
@@ -68,87 +74,19 @@ entries:
       kind: cross-paper
       collidesWith: ["frequency", "waveSpeed"]
       collidesWithModern: ["frequency"]
-      firstUseAnchor: me-s0-p1
+      firstUseAnchor: me-s0-p5
       firstUseBySection:
         - sectionId: me-s0
-          anchor: me-s0-p1
+          anchor: me-s0-p5
     notes: "Relative velocity between the stationary system (x, y, z) and the moving system (xi, eta, zeta)."
     sources:
       facsimilePage: 639
-      anchor: me-s0-p1
+      anchor: me-s0-p5
     verification:
       printed: true
-      checkedAgainst: "Pending facsimile scan (ap-18-639)"
-      by: "Editorial Staff"
-      date: "2026-09-17"
-
-  - id: me.K.stationarySystem
-    paper: mass-energy
-    scope: ["me-s0-p1", "me-s0-p2"]
-    glyph:
-      unicode: "K"
-      latex: "K"
-      variant: plain
-    meaning: "The stationary coordinate system (x, y, z)"
-    binding:
-      nonQuantityKind: coordinate-system-label
-    operation:
-      kind: rename
-      target:
-        form: symbol
-        modernGlyph: "S"
-    collision:
-      severity: caution
-      kind: within-paper
-      collidesWith: ["me.K0.kineticEnergyBefore", "me.K1.kineticEnergyAfter", "dragForce"]
-      collidesWithModern: ["kineticEnergy", "dragForce"]
-      firstUseAnchor: me-s0-p1
-      firstUseBySection:
-        - sectionId: me-s0
-          anchor: me-s0-p1
-    notes: "Stationary coordinate system label. Collides with kinetic energy K within this paper and force K in paper 2."
-    sources:
-      facsimilePage: 639
-      anchor: me-s0-p1
-    verification:
-      printed: true
-      checkedAgainst: "Pending facsimile scan (ap-18-639)"
-      by: "Editorial Staff"
-      date: "2026-09-17"
-
-  - id: me.k.movingSystem
-    paper: mass-energy
-    scope: ["me-s0"]
-    glyph:
-      unicode: "k"
-      latex: "k"
-      variant: plain
-    meaning: "The moving coordinate system (xi, eta, zeta)"
-    binding:
-      nonQuantityKind: coordinate-system-label
-    operation:
-      kind: rename
-      target:
-        form: symbol
-        modernGlyph: "S'"
-    collision:
-      severity: caution
-      kind: cross-paper
-      collidesWith: ["viscosity", "boltzmannConstant"]
-      collidesWithModern: ["viscosity", "boltzmannConstant"]
-      firstUseAnchor: me-s0-p1
-      firstUseBySection:
-        - sectionId: me-s0
-          anchor: me-s0-p1
-    notes: "Moving coordinate system label. Not viscosity (paper 2) and not Boltzmann constant."
-    sources:
-      facsimilePage: 639
-      anchor: me-s0-p1
-    verification:
-      printed: true
-      checkedAgainst: "Pending facsimile scan (ap-18-639)"
-      by: "Editorial Staff"
-      date: "2026-09-17"
+      checkedAgainst: "Pinned facsimile ap-18-639 (sha256 c4770702edca3047c324a92cc0a008e27355c236b3e5e0a87d75eea630ab5f19), pages 639-641 re-rendered at 400 dpi and read as images; no OCR. Log: docs/editorial/mass-energy-notation-verification.md"
+      by: "pane31 (agent reading; not the human German source review)"
+      date: "2026-09-19"
 
   - id: me.xyz.coordinateAxesStationary
     paper: mass-energy
@@ -167,12 +105,12 @@ entries:
         modernGlyph: "(x, y, z)"
     sources:
       facsimilePage: 639
-      anchor: me-s0-p1
+      anchor: me-s0-p5
     verification:
       printed: true
-      checkedAgainst: "Pending facsimile scan (ap-18-639)"
-      by: "Editorial Staff"
-      date: "2026-09-17"
+      checkedAgainst: "Pinned facsimile ap-18-639 (sha256 c4770702edca3047c324a92cc0a008e27355c236b3e5e0a87d75eea630ab5f19), pages 639-641 re-rendered at 400 dpi and read as images; no OCR. Log: docs/editorial/mass-energy-notation-verification.md"
+      by: "pane31 (agent reading; not the human German source review)"
+      date: "2026-09-19"
 
   - id: me.xi_eta_zeta.coordinateAxesMoving
     paper: mass-energy
@@ -191,19 +129,19 @@ entries:
         modernGlyph: "(x', y', z')"
     sources:
       facsimilePage: 639
-      anchor: me-s0-p1
+      anchor: me-s0-p5
     verification:
       printed: true
-      checkedAgainst: "Pending facsimile scan (ap-18-639)"
-      by: "Editorial Staff"
-      date: "2026-09-17"
+      checkedAgainst: "Pinned facsimile ap-18-639 (sha256 c4770702edca3047c324a92cc0a008e27355c236b3e5e0a87d75eea630ab5f19), pages 639-641 re-rendered at 400 dpi and read as images; no OCR. Log: docs/editorial/mass-energy-notation-verification.md"
+      by: "pane31 (agent reading; not the human German source review)"
+      date: "2026-09-19"
 
   # =========================================================================
   # Citation from Paper 3 §8 (Electrodynamics Doppler/Aberration Transformation)
   # =========================================================================
   - id: me.l.lightComplexEnergyStationary
     paper: mass-energy
-    scope: ["me-s0-p1"]
+    scope: ["me-s0-p5"]
     glyph:
       unicode: "l"
       latex: "l"
@@ -222,23 +160,23 @@ entries:
       kind: cross-paper
       collidesWith: ["length", "meanFreePath"]
       collidesWithModern: ["length"]
-      firstUseAnchor: me-s0-p1
+      firstUseAnchor: me-s0-p5
       firstUseBySection:
         - sectionId: me-s0
-          anchor: me-s0-p1
+          anchor: me-s0-p5
     notes: "Energy of a light complex in §8 citation. Not a spatial length l."
     sources:
       facsimilePage: 639
-      anchor: me-s0-p1
+      anchor: me-s0-p5
     verification:
       printed: true
-      checkedAgainst: "Pending facsimile scan (ap-18-639)"
-      by: "Editorial Staff"
-      date: "2026-09-17"
+      checkedAgainst: "Pinned facsimile ap-18-639 (sha256 c4770702edca3047c324a92cc0a008e27355c236b3e5e0a87d75eea630ab5f19), pages 639-641 re-rendered at 400 dpi and read as images; no OCR. Log: docs/editorial/mass-energy-notation-verification.md"
+      by: "pane31 (agent reading; not the human German source review)"
+      date: "2026-09-19"
 
   - id: me.lstar.lightComplexEnergyMoving
     paper: mass-energy
-    scope: ["me-s0-p1"]
+    scope: ["me-s0-p5"]
     glyph:
       unicode: "l*"
       latex: "l^*"
@@ -254,16 +192,16 @@ entries:
         modernGlyph: "E'_{\\text{light}}"
     sources:
       facsimilePage: 639
-      anchor: me-s0-p1
+      anchor: me-s0-p5
     verification:
       printed: true
-      checkedAgainst: "Pending facsimile scan (ap-18-639)"
-      by: "Editorial Staff"
-      date: "2026-09-17"
+      checkedAgainst: "Pinned facsimile ap-18-639 (sha256 c4770702edca3047c324a92cc0a008e27355c236b3e5e0a87d75eea630ab5f19), pages 639-641 re-rendered at 400 dpi and read as images; no OCR. Log: docs/editorial/mass-energy-notation-verification.md"
+      by: "pane31 (agent reading; not the human German source review)"
+      date: "2026-09-19"
 
   - id: me.phi.propagationAngleStationary
     paper: mass-energy
-    scope: ["me-s0-p1"]
+    scope: ["me-s0-p5"]
     glyph:
       unicode: "φ"
       latex: "\\varphi"
@@ -281,19 +219,19 @@ entries:
       kind: within-paper
       collidesWith: ["me.phi.emissionAngle"]
       collidesWithModern: ["emissionAngle"]
-      firstUseAnchor: me-s0-p1
+      firstUseAnchor: me-s0-p5
       firstUseBySection:
         - sectionId: me-s0
-          anchor: me-s0-p1
+          anchor: me-s0-p5
     notes: "Propagation angle in cited §8 transformation formula. Scoped strictly to citation anchor me-s0-p1. Distinct from emission angle in me-s0-p2..p6."
     sources:
       facsimilePage: 639
-      anchor: me-s0-p1
+      anchor: me-s0-p5
     verification:
       printed: true
-      checkedAgainst: "Pending facsimile scan (ap-18-639)"
-      by: "Editorial Staff"
-      date: "2026-09-17"
+      checkedAgainst: "Pinned facsimile ap-18-639 (sha256 c4770702edca3047c324a92cc0a008e27355c236b3e5e0a87d75eea630ab5f19), pages 639-641 re-rendered at 400 dpi and read as images; no OCR. Log: docs/editorial/mass-energy-notation-verification.md"
+      by: "pane31 (agent reading; not the human German source review)"
+      date: "2026-09-19"
 
   - id: me.cos_phi.directionCosine
     paper: mass-energy
@@ -312,12 +250,12 @@ entries:
         modernGlyph: "\\cos\\varphi"
     sources:
       facsimilePage: 639
-      anchor: me-s0-p1
+      anchor: me-s0-p5
     verification:
       printed: true
-      checkedAgainst: "Pending facsimile scan (ap-18-639)"
-      by: "Editorial Staff"
-      date: "2026-09-17"
+      checkedAgainst: "Pinned facsimile ap-18-639 (sha256 c4770702edca3047c324a92cc0a008e27355c236b3e5e0a87d75eea630ab5f19), pages 639-641 re-rendered at 400 dpi and read as images; no OCR. Log: docs/editorial/mass-energy-notation-verification.md"
+      by: "pane31 (agent reading; not the human German source review)"
+      date: "2026-09-19"
 
   # =========================================================================
   # The Lorentz Factor (Pending Facsimile Verification)
@@ -329,7 +267,7 @@ entries:
       unicode: "1/√(1 - v²/V²)"
       latex: "\\frac{1}{\\sqrt{1 - v^2/V^2}}"
       variant: plain
-    meaning: "The Lorentz factor; printed form unconfirmed (explicit radical vs. beta) pending facsimile"
+    meaning: "The Lorentz factor, printed throughout as an explicit radical; beta is not printed in this paper"
     binding:
       quantityId: lorentzFactor
     operation:
@@ -350,19 +288,19 @@ entries:
       kind: cross-paper
       collidesWith: ["wienConstantBeta", "speedRatio"]
       collidesWithModern: ["speedRatio"]
-      firstUseAnchor: me-s0-p1
+      firstUseAnchor: me-s0-p5
       firstUseBySection:
         - sectionId: me-s0
-          anchor: me-s0-p1
-    notes: "The printed form in paper 4 (whether written as an explicit radical 1/\\sqrt{1 - v^2/V^2} or as shorthand \\beta) is UNKNOWN pending direct facsimile verification against ap-18-639. In modern notation, this expression maps to \\gamma."
+          anchor: me-s0-p5
+    notes: "Verified against ap-18-639: the factor is printed as an explicit radical every time, 6 occurrences (p. 639 once in the l* relation; p. 640 four times; p. 641 once). The shorthand \\beta is NOT printed anywhere in this paper, so no beta entry and no printed-collision flag for beta exist here; AGENTS.md, the master plan and the original inventory all expected beta and are wrong on that point. This is a group rename: the whole radical renders as \\gamma. The caution collision is a pointer to paper 3, where Einstein does write beta for this same factor, so a reader meeting beta there learns the correspondence."
     sources:
       facsimilePage: 639
-      anchor: me-s0-p1
+      anchor: me-s0-p5
     verification:
       printed: true
-      checkedAgainst: "Pending facsimile scan (ap-18-639)"
-      by: "Editorial Staff"
-      date: "2026-09-17"
+      checkedAgainst: "Pinned facsimile ap-18-639 (sha256 c4770702edca3047c324a92cc0a008e27355c236b3e5e0a87d75eea630ab5f19), pages 639-641 re-rendered at 400 dpi and read as images; no OCR. Log: docs/editorial/mass-energy-notation-verification.md"
+      by: "pane31 (agent reading; not the human German source review)"
+      date: "2026-09-19"
 
   # =========================================================================
   # Emitted Radiation Energy & Emission Angles
@@ -381,25 +319,25 @@ entries:
       kind: rename
       target:
         form: symbol
-        modernGlyph: "L"
+        modernGlyph: "E_{\\text{emit}}"
     collision:
       severity: caution
       kind: cross-paper
       collidesWith: ["speedOfLight", "magneticFieldComponent"]
       collidesWithModern: ["speedOfLight", "magneticFieldComponent"]
-      firstUseAnchor: me-s0-p2
+      firstUseAnchor: me-s0-p7
       firstUseBySection:
         - sectionId: me-s0
-          anchor: me-s0-p2
-    notes: "Total emitted energy in rest frame. Not the speed of light (paper 1) and not a magnetic-field component (paper 3 §6). A reader carrying paper 1's L into paper 4 misreads the central result as being about light speed when it is about radiated energy."
+          anchor: me-s0-p7
+    notes: "Total emitted energy in rest frame. Not the speed of light (paper 1) and not a magnetic-field component (paper 3 §6). A reader carrying paper 1's L into paper 4 misreads the central result as being about light speed when it is about radiated energy. Renders as E_{\\text{emit}}, not bare E, because the paper also prints a generic E that already renders as E; two entries rendering to E in scope me-s0 would be a modern-glyph-collision. Decision recorded in docs/editorial/mass-energy-notation-verification.md section 5."
     sources:
-      facsimilePage: 639
-      anchor: me-s0-p2
+      facsimilePage: 640
+      anchor: me-s0-p7
     verification:
       printed: true
-      checkedAgainst: "Pending facsimile scan (ap-18-639)"
-      by: "Editorial Staff"
-      date: "2026-09-17"
+      checkedAgainst: "Pinned facsimile ap-18-639 (sha256 c4770702edca3047c324a92cc0a008e27355c236b3e5e0a87d75eea630ab5f19), pages 639-641 re-rendered at 400 dpi and read as images; no OCR. Log: docs/editorial/mass-energy-notation-verification.md"
+      by: "pane31 (agent reading; not the human German source review)"
+      date: "2026-09-19"
 
   - id: me.half_L.emittedPulseEnergy
     paper: mass-energy
@@ -420,17 +358,17 @@ entries:
         form: symbol
         modernGlyph: "\\frac{L}{2}"
     sources:
-      facsimilePage: 639
-      anchor: me-s0-p2
+      facsimilePage: 640
+      anchor: me-s0-p7
     verification:
       printed: true
-      checkedAgainst: "Pending facsimile scan (ap-18-639)"
-      by: "Editorial Staff"
-      date: "2026-09-17"
+      checkedAgainst: "Pinned facsimile ap-18-639 (sha256 c4770702edca3047c324a92cc0a008e27355c236b3e5e0a87d75eea630ab5f19), pages 639-641 re-rendered at 400 dpi and read as images; no OCR. Log: docs/editorial/mass-energy-notation-verification.md"
+      by: "pane31 (agent reading; not the human German source review)"
+      date: "2026-09-19"
 
   - id: me.phi.emissionAngle
     paper: mass-energy
-    scope: ["me-s0-p2", "me-s0-p3", "me-s0-p4", "me-s0-p5", "me-s0-p6"]
+    scope: ["me-s0-p7", "me-s0-p8", "me-s0-p9", "me-s0-p10", "me-s0-p11", "me-s0-p12", "me-s0-p13", "me-s0-p14", "me-s0-p15"]
     glyph:
       unicode: "φ"
       latex: "\\varphi"
@@ -448,19 +386,19 @@ entries:
       kind: within-paper
       collidesWith: ["me.phi.propagationAngleStationary"]
       collidesWithModern: ["propagationAngleStationary"]
-      firstUseAnchor: me-s0-p2
+      firstUseAnchor: me-s0-p7
       firstUseBySection:
         - sectionId: me-s0
-          anchor: me-s0-p2
+          anchor: me-s0-p7
     notes: "Angle of emission relative to the x-axis. Light is emitted at angles phi and phi + pi simultaneously in opposite directions."
     sources:
-      facsimilePage: 639
-      anchor: me-s0-p2
+      facsimilePage: 640
+      anchor: me-s0-p7
     verification:
       printed: true
-      checkedAgainst: "Pending facsimile scan (ap-18-639)"
-      by: "Editorial Staff"
-      date: "2026-09-17"
+      checkedAgainst: "Pinned facsimile ap-18-639 (sha256 c4770702edca3047c324a92cc0a008e27355c236b3e5e0a87d75eea630ab5f19), pages 639-641 re-rendered at 400 dpi and read as images; no OCR. Log: docs/editorial/mass-energy-notation-verification.md"
+      by: "pane31 (agent reading; not the human German source review)"
+      date: "2026-09-19"
 
   # =========================================================================
   # Body Energies in Stationary and Moving Reference Frames
@@ -486,19 +424,19 @@ entries:
       kind: cross-paper
       collidesWith: ["electricFieldStationary", "lightComplexEnergyStationary"]
       collidesWithModern: ["electricFieldStationary"]
-      firstUseAnchor: me-s0-p2
+      firstUseAnchor: me-s0-p6
       firstUseBySection:
         - sectionId: me-s0
-          anchor: me-s0-p2
+          anchor: me-s0-p6
     notes: "Body energy in stationary system before emission. E carries frame: stationary-system, not electric field."
     sources:
-      facsimilePage: 639
-      anchor: me-s0-p2
+      facsimilePage: 640
+      anchor: me-s0-p6
     verification:
       printed: true
-      checkedAgainst: "Pending facsimile scan (ap-18-639)"
-      by: "Editorial Staff"
-      date: "2026-09-17"
+      checkedAgainst: "Pinned facsimile ap-18-639 (sha256 c4770702edca3047c324a92cc0a008e27355c236b3e5e0a87d75eea630ab5f19), pages 639-641 re-rendered at 400 dpi and read as images; no OCR. Log: docs/editorial/mass-energy-notation-verification.md"
+      by: "pane31 (agent reading; not the human German source review)"
+      date: "2026-09-19"
 
   - id: me.E1.bodyEnergyRestAfter
     paper: mass-energy
@@ -517,13 +455,13 @@ entries:
         form: symbol
         modernGlyph: "E_1"
     sources:
-      facsimilePage: 639
-      anchor: me-s0-p2
+      facsimilePage: 640
+      anchor: me-s0-p7
     verification:
       printed: true
-      checkedAgainst: "Pending facsimile scan (ap-18-639)"
-      by: "Editorial Staff"
-      date: "2026-09-17"
+      checkedAgainst: "Pinned facsimile ap-18-639 (sha256 c4770702edca3047c324a92cc0a008e27355c236b3e5e0a87d75eea630ab5f19), pages 639-641 re-rendered at 400 dpi and read as images; no OCR. Log: docs/editorial/mass-energy-notation-verification.md"
+      by: "pane31 (agent reading; not the human German source review)"
+      date: "2026-09-19"
 
   - id: me.E.bodyEnergyRest
     paper: mass-energy
@@ -546,19 +484,19 @@ entries:
       kind: cross-paper
       collidesWith: ["electricFieldStationary", "lightComplexEnergyStationary"]
       collidesWithModern: ["electricFieldStationary"]
-      firstUseAnchor: me-s0-p2
+      firstUseAnchor: me-s0-p9
       firstUseBySection:
         - sectionId: me-s0
-          anchor: me-s0-p2
+          anchor: me-s0-p9
     notes: "Body rest-frame energy. Collides with electric field E in modern usage and light complex energy in paper 3."
     sources:
       facsimilePage: 640
-      anchor: me-s0-p3
+      anchor: me-s0-p9
     verification:
       printed: true
-      checkedAgainst: "Pending facsimile scan (ap-18-639)"
-      by: "Editorial Staff"
-      date: "2026-09-17"
+      checkedAgainst: "Pinned facsimile ap-18-639 (sha256 c4770702edca3047c324a92cc0a008e27355c236b3e5e0a87d75eea630ab5f19), pages 639-641 re-rendered at 400 dpi and read as images; no OCR. Log: docs/editorial/mass-energy-notation-verification.md"
+      by: "pane31 (agent reading; not the human German source review)"
+      date: "2026-09-19"
 
   - id: me.H0.bodyEnergyMovingBefore
     paper: mass-energy
@@ -581,19 +519,19 @@ entries:
       kind: cross-paper
       collidesWith: ["magneticFieldStationary", "hamiltonian"]
       collidesWithModern: ["magneticFieldStationary"]
-      firstUseAnchor: me-s0-p2
+      firstUseAnchor: me-s0-p6
       firstUseBySection:
         - sectionId: me-s0
-          anchor: me-s0-p2
+          anchor: me-s0-p6
     notes: "Body energy in moving system before emission. Not magnetic field H or Hamiltonian."
     sources:
-      facsimilePage: 639
-      anchor: me-s0-p2
+      facsimilePage: 640
+      anchor: me-s0-p6
     verification:
       printed: true
-      checkedAgainst: "Pending facsimile scan (ap-18-639)"
-      by: "Editorial Staff"
-      date: "2026-09-17"
+      checkedAgainst: "Pinned facsimile ap-18-639 (sha256 c4770702edca3047c324a92cc0a008e27355c236b3e5e0a87d75eea630ab5f19), pages 639-641 re-rendered at 400 dpi and read as images; no OCR. Log: docs/editorial/mass-energy-notation-verification.md"
+      by: "pane31 (agent reading; not the human German source review)"
+      date: "2026-09-19"
 
   - id: me.H1.bodyEnergyMovingAfter
     paper: mass-energy
@@ -612,13 +550,13 @@ entries:
         form: symbol
         modernGlyph: "H_1"
     sources:
-      facsimilePage: 639
-      anchor: me-s0-p2
+      facsimilePage: 640
+      anchor: me-s0-p7
     verification:
       printed: true
-      checkedAgainst: "Pending facsimile scan (ap-18-639)"
-      by: "Editorial Staff"
-      date: "2026-09-17"
+      checkedAgainst: "Pinned facsimile ap-18-639 (sha256 c4770702edca3047c324a92cc0a008e27355c236b3e5e0a87d75eea630ab5f19), pages 639-641 re-rendered at 400 dpi and read as images; no OCR. Log: docs/editorial/mass-energy-notation-verification.md"
+      by: "pane31 (agent reading; not the human German source review)"
+      date: "2026-09-19"
 
   - id: me.H.bodyEnergyMoving
     paper: mass-energy
@@ -638,12 +576,12 @@ entries:
         modernGlyph: "H"
     sources:
       facsimilePage: 640
-      anchor: me-s0-p3
+      anchor: me-s0-p9
     verification:
       printed: true
-      checkedAgainst: "Pending facsimile scan (ap-18-639)"
-      by: "Editorial Staff"
-      date: "2026-09-17"
+      checkedAgainst: "Pinned facsimile ap-18-639 (sha256 c4770702edca3047c324a92cc0a008e27355c236b3e5e0a87d75eea630ab5f19), pages 639-641 re-rendered at 400 dpi and read as images; no OCR. Log: docs/editorial/mass-energy-notation-verification.md"
+      by: "pane31 (agent reading; not the human German source review)"
+      date: "2026-09-19"
 
   # =========================================================================
   # Kinetic Energy and Additive Constant
@@ -666,22 +604,22 @@ entries:
         modernGlyph: "K_0"
     collision:
       severity: caution
-      kind: within-paper
-      collidesWith: ["me.K.stationarySystem"]
+      kind: cross-paper
+      collidesWith: ["stationarySystemLabel", "dragForce"]
       collidesWithModern: ["dragForce"]
-      firstUseAnchor: me-s0-p3
+      firstUseAnchor: me-s0-p9
       firstUseBySection:
         - sectionId: me-s0
-          anchor: me-s0-p3
-    notes: "Kinetic energy of the body in the moving system before emission. Collides with stationary coordinate system K."
+          anchor: me-s0-p9
+    notes: "Kinetic energy of the body in the moving system before emission. K has only this meaning in paper 4; the stationary-system K belongs to paper 3 and the force K to paper 2."
     sources:
-      facsimilePage: 640
-      anchor: me-s0-p3
+      facsimilePage: 641
+      anchor: me-s0-p9
     verification:
       printed: true
-      checkedAgainst: "Pending facsimile scan (ap-18-639)"
-      by: "Editorial Staff"
-      date: "2026-09-17"
+      checkedAgainst: "Pinned facsimile ap-18-639 (sha256 c4770702edca3047c324a92cc0a008e27355c236b3e5e0a87d75eea630ab5f19), pages 639-641 re-rendered at 400 dpi and read as images; no OCR. Log: docs/editorial/mass-energy-notation-verification.md"
+      by: "pane31 (agent reading; not the human German source review)"
+      date: "2026-09-19"
 
   - id: me.K1.kineticEnergyAfter
     paper: mass-energy
@@ -700,24 +638,24 @@ entries:
         form: symbol
         modernGlyph: "K_1"
     sources:
-      facsimilePage: 640
-      anchor: me-s0-p3
+      facsimilePage: 641
+      anchor: me-s0-p9
     verification:
       printed: true
-      checkedAgainst: "Pending facsimile scan (ap-18-639)"
-      by: "Editorial Staff"
-      date: "2026-09-17"
+      checkedAgainst: "Pinned facsimile ap-18-639 (sha256 c4770702edca3047c324a92cc0a008e27355c236b3e5e0a87d75eea630ab5f19), pages 639-641 re-rendered at 400 dpi and read as images; no OCR. Log: docs/editorial/mass-energy-notation-verification.md"
+      by: "pane31 (agent reading; not the human German source review)"
+      date: "2026-09-19"
 
   - id: me.K.kineticEnergy
     paper: mass-energy
-    scope: ["me-s0-p3", "me-s0-p4", "me-s0-p5", "me-s0-p6"]
+    scope: ["me-s0-p9", "me-s0-p10", "me-s0-p11", "me-s0-p12", "me-s0-p13", "me-s0-p14", "me-s0-p15"]
     glyph:
       unicode: "K"
       latex: "K"
       variant: plain
     meaning: "Kinetic energy of the body relative to the moving system, as printed in H - E = K + C"
     binding:
-      quantityId: kineticEnergyBefore
+      quantityId: kineticEnergy
     frameOrReference: moving-system
     operation:
       kind: rename
@@ -726,22 +664,22 @@ entries:
         modernGlyph: "K"
     collision:
       severity: caution
-      kind: within-paper
-      collidesWith: ["me.K.stationarySystem"]
+      kind: cross-paper
+      collidesWith: ["stationarySystemLabel", "dragForce"]
       collidesWithModern: ["dragForce"]
-      firstUseAnchor: me-s0-p3
+      firstUseAnchor: me-s0-p9
       firstUseBySection:
         - sectionId: me-s0
-          anchor: me-s0-p3
-    notes: "Kinetic energy relative to moving system. Within paper, collides with stationary coordinate system K; in paper 2, collides with force K."
+          anchor: me-s0-p9
+    notes: "Kinetic energy relative to the moving system. K has only this meaning in paper 4; it collides across papers with the stationary system K of paper 3 and the force K of paper 2."
     sources:
       facsimilePage: 640
-      anchor: me-s0-p3
+      anchor: me-s0-p9
     verification:
       printed: true
-      checkedAgainst: "Pending facsimile scan (ap-18-639)"
-      by: "Editorial Staff"
-      date: "2026-09-17"
+      checkedAgainst: "Pinned facsimile ap-18-639 (sha256 c4770702edca3047c324a92cc0a008e27355c236b3e5e0a87d75eea630ab5f19), pages 639-641 re-rendered at 400 dpi and read as images; no OCR. Log: docs/editorial/mass-energy-notation-verification.md"
+      by: "pane31 (agent reading; not the human German source review)"
+      date: "2026-09-19"
 
   - id: me.K0_minus_K1.kineticEnergyDifference
     paper: mass-energy
@@ -760,13 +698,13 @@ entries:
         form: symbol
         modernGlyph: "\\Delta K"
     sources:
-      facsimilePage: 640
-      anchor: me-s0-p3
+      facsimilePage: 641
+      anchor: me-s0-p11
     verification:
       printed: true
-      checkedAgainst: "Pending facsimile scan (ap-18-639)"
-      by: "Editorial Staff"
-      date: "2026-09-17"
+      checkedAgainst: "Pinned facsimile ap-18-639 (sha256 c4770702edca3047c324a92cc0a008e27355c236b3e5e0a87d75eea630ab5f19), pages 639-641 re-rendered at 400 dpi and read as images; no OCR. Log: docs/editorial/mass-energy-notation-verification.md"
+      by: "pane31 (agent reading; not the human German source review)"
+      date: "2026-09-19"
 
   - id: me.C.additiveEnergyConstant
     paper: mass-energy
@@ -788,19 +726,19 @@ entries:
       kind: cross-paper
       collidesWith: ["capacitance", "integrationConstant"]
       collidesWithModern: ["capacitance"]
-      firstUseAnchor: me-s0-p3
+      firstUseAnchor: me-s0-p9
       firstUseBySection:
         - sectionId: me-s0
-          anchor: me-s0-p3
+          anchor: me-s0-p9
     notes: "Additive constant in H - E = K + C. Cancels in differences H0 - H1 and E0 - E1 because C depends on v and arbitrary energy baseline, which are unchanged by emission."
     sources:
       facsimilePage: 640
-      anchor: me-s0-p3
+      anchor: me-s0-p9
     verification:
       printed: true
-      checkedAgainst: "Pending facsimile scan (ap-18-639)"
-      by: "Editorial Staff"
-      date: "2026-09-17"
+      checkedAgainst: "Pinned facsimile ap-18-639 (sha256 c4770702edca3047c324a92cc0a008e27355c236b3e5e0a87d75eea630ab5f19), pages 639-641 re-rendered at 400 dpi and read as images; no OCR. Log: docs/editorial/mass-energy-notation-verification.md"
+      by: "pane31 (agent reading; not the human German source review)"
+      date: "2026-09-19"
 
   # =========================================================================
   # Inertial Mass Decrease and Quadratic Approximation
@@ -822,13 +760,13 @@ entries:
         form: symbol
         modernGlyph: "\\frac{1}{2}\\frac{L}{c^2}v^2"
     sources:
-      facsimilePage: 640
-      anchor: me-s0-p4
+      facsimilePage: 641
+      anchor: me-s0-p12
     verification:
       printed: true
-      checkedAgainst: "Pending facsimile scan (ap-18-639)"
-      by: "Editorial Staff"
-      date: "2026-09-17"
+      checkedAgainst: "Pinned facsimile ap-18-639 (sha256 c4770702edca3047c324a92cc0a008e27355c236b3e5e0a87d75eea630ab5f19), pages 639-641 re-rendered at 400 dpi and read as images; no OCR. Log: docs/editorial/mass-energy-notation-verification.md"
+      by: "pane31 (agent reading; not the human German source review)"
+      date: "2026-09-19"
 
   - id: me.L_over_V2.inertialMassDecrease
     paper: mass-energy
@@ -848,12 +786,12 @@ entries:
     notes: "The central result: if a body gives off energy L in radiation, its mass decreases by L/V^2 (in modern notation, Delta m = L/c^2)."
     sources:
       facsimilePage: 641
-      anchor: me-s0-p5
+      anchor: me-s0-p14
     verification:
       printed: true
-      checkedAgainst: "Pending facsimile scan (ap-18-639)"
-      by: "Editorial Staff"
-      date: "2026-09-17"
+      checkedAgainst: "Pinned facsimile ap-18-639 (sha256 c4770702edca3047c324a92cc0a008e27355c236b3e5e0a87d75eea630ab5f19), pages 639-641 re-rendered at 400 dpi and read as images; no OCR. Log: docs/editorial/mass-energy-notation-verification.md"
+      by: "pane31 (agent reading; not the human German source review)"
+      date: "2026-09-19"
 
   # =========================================================================
   # Unit Conversion (CGS ergs to grams with rounded speed of light)
@@ -877,12 +815,12 @@ entries:
     notes: "Unit-conversion entry for the paper's printed 9*10^20 factor. That is 0.14 percent above modern c^2 = 8.98755*10^20 cm^2/s^2 because the paper rounds V to 3*10^10 cm/s."
     sources:
       facsimilePage: 641
-      anchor: me-s0-p6
+      anchor: me-s0-p15
     verification:
       printed: true
-      checkedAgainst: "Pending facsimile scan (ap-18-639)"
-      by: "Editorial Staff"
-      date: "2026-09-17"
+      checkedAgainst: "Pinned facsimile ap-18-639 (sha256 c4770702edca3047c324a92cc0a008e27355c236b3e5e0a87d75eea630ab5f19), pages 639-641 re-rendered at 400 dpi and read as images; no OCR. Log: docs/editorial/mass-energy-notation-verification.md"
+      by: "pane31 (agent reading; not the human German source review)"
+      date: "2026-09-19"
 
 modernOnlySymbols:
   - id: me.m_inv.invariantMassSystem
