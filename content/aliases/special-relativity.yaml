@@ -1,10 +1,10 @@
 paper: special-relativity
 idsFrozenAt: "2026-09-19T00:00:00Z"
 frozenBy: am-edn-inventory-relativity-0u9
-# Twelve retirements and four new ids from the 2026-09-19 boundary audit. Retired ids are
+# Thirteen retirements and four new ids from the 2026-09-19 boundary audit. Retired ids are
 # never reused and survivors keep their numbers, so the gaps s1-p3 -> s1-p5, s3-p7 -> s3-p9,
 # s3-p10 -> s3-p12, s3-p12 -> s3-p14, s4-p1 -> s4-p3, s5-p2 -> s5-p4, s6-p5 -> s6-p7,
-# s8-p2 -> s8-p5, s8-p7 -> s8-p10 and s8-p10 -> s8-p12 are intentional. The four paragraphs
+# s8-p2 -> s8-p5, s8-p7 -> s8-p10, s8-p10 -> s8-p12 and s3-p18 -> s3-p20 are intentional. The four paragraphs
 # the manifest was missing took new ids at their section ends: s3-p20, s3-p21, s3-p22, s4-p9.
 aliases:
   - retiredId: s1-p4
@@ -89,5 +89,12 @@ aliases:
     replacementIds:
       - s8-p10
     reason: "Not a printed paragraph. 'In erster Annaeherung erhaelt man' on p. 915 is flush with 'Erfahrung und mit anderen'. Confirmed at 250 percent on page-25.png."
+    date: "2026-09-19"
+    editor: "agent:pane30 (BrightIsland), am-edn-inventory-relativity-0u9"
+  - retiredId: s3-p19
+    kind: merged
+    replacementIds:
+      - s3-p22
+    reason: "Not a printed paragraph. p. 902 carries NO indented line at all: 'Wir fragen nun nach der Bedeutung' and 'Aus dieser und der vorhin gefundenen Relation' are both flush at 290-300 percent on page-12.png, and every other line on the page is a continuation. The whole page continues s3-p22 from p. 901. Found by the one-to-one denominator pass, not by the boundary pass, which had counted one printed start against one recorded start and reported the page as matching."
     date: "2026-09-19"
     editor: "agent:pane30 (BrightIsland), am-edn-inventory-relativity-0u9"

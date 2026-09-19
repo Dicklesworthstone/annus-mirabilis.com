@@ -818,21 +818,12 @@ units:
       editionBlockId: block-special-relativity-eq-s3-d20
       translationUnits:
         - trans-special-relativity-eq-s3-d20
-  - id: s3-p19
-    kind: paragraph
-    section: s3
-    locators:
-      - page: 902
-    destination:
-      editionBlockId: block-special-relativity-s3-p19
-      translationUnits:
-        - trans-special-relativity-s3-p19
   - id: eq-s3-d21
     kind: display-equation
     section: s3
     locators:
       - page: 902
-    containedIn: s3-p19
+    containedIn: s3-p22
     editorialLabel: ed:s3-d21
     destination:
       editionBlockId: block-special-relativity-eq-s3-d21
@@ -843,7 +834,7 @@ units:
     section: s3
     locators:
       - page: 902
-    containedIn: s3-p19
+    containedIn: s3-p22
     editorialLabel: ed:s3-d22
     destination:
       editionBlockId: block-special-relativity-eq-s3-d22
@@ -854,7 +845,7 @@ units:
     section: s3
     locators:
       - page: 902
-    containedIn: s3-p19
+    containedIn: s3-p22
     editorialLabel: ed:s3-d23
     destination:
       editionBlockId: block-special-relativity-eq-s3-d23
@@ -865,7 +856,7 @@ units:
     section: s3
     locators:
       - page: 902
-    containedIn: s3-p19
+    containedIn: s3-p22
     editorialLabel: ed:s3-d24
     destination:
       editionBlockId: block-special-relativity-eq-s3-d24
@@ -876,7 +867,7 @@ units:
     section: s3
     locators:
       - page: 902
-    containedIn: s3-p19
+    containedIn: s3-p22
     editorialLabel: ed:s3-d25
     destination:
       editionBlockId: block-special-relativity-eq-s3-d25
@@ -887,7 +878,7 @@ units:
     section: s3
     locators:
       - page: 902
-    containedIn: s3-p19
+    containedIn: s3-p22
     editorialLabel: ed:s3-d26
     destination:
       editionBlockId: block-special-relativity-eq-s3-d26

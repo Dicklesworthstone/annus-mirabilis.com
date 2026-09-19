@@ -52,7 +52,7 @@ describe("special-relativity source manifest inventory (am-edn-inventory-relativ
     expect(manifest.idsFrozenAt).toBe("2026-09-19T00:00:00Z");
     expect(manifest.frozenBy).toBe(RELATIVITY_BEAD);
 
-    expect(manifest.units.length).toBe(212); // 220 until the 2026-09-19 boundary audit: 12 retired, 4 added
+    expect(manifest.units.length).toBe(211); // 220 originally; 13 retired, 4 added by the 2026-09-19 boundary and denominator passes
 
     const idSet = new Set<string>();
     for (const unit of manifest.units) {
@@ -522,15 +522,16 @@ describe("special-relativity source manifest inventory (am-edn-inventory-relativ
     // Twelve retirements from the 2026-09-19 boundary audit; four printed paragraphs that had no
     // unit took new ids at their section ends instead (s3-p20, s3-p21, s3-p22, s4-p9).
     const records = loadAliasRecords();
-    expect(records.length).toBe(12);
+    expect(records.length).toBe(13);
     expect(records.map((r) => r.retiredId).sort()).toEqual([
-      "s1-p4", "s3-p11", "s3-p13", "s3-p8", "s4-p2", "s5-p3",
-      "s6-p6", "s8-p11", "s8-p3", "s8-p4", "s8-p8", "s8-p9",
+      "s1-p4", "s3-p11", "s3-p13", "s3-p19", "s3-p8", "s4-p2",
+      "s5-p3", "s6-p6", "s8-p11", "s8-p3", "s8-p4", "s8-p8", "s8-p9",
     ]);
 
     const liveIds = manifest.units.map((u) => u.id);
     const expectedTarget: Record<string, string> = {
       "s1-p4": "s1-p3", "s3-p8": "s3-p7", "s3-p11": "s3-p10", "s3-p13": "s3-p12",
+      "s3-p19": "s3-p22",
       "s4-p2": "s4-p1", "s5-p3": "s5-p2", "s6-p6": "s6-p5", "s8-p3": "s8-p2",
       "s8-p4": "s8-p2", "s8-p8": "s8-p7", "s8-p9": "s8-p7", "s8-p11": "s8-p10",
     };
@@ -568,7 +569,7 @@ describe("special-relativity source manifest inventory (am-edn-inventory-relativ
     const unexplained = validateManifest(manifest, {
       manifests: new Map([[manifest.paper, manifest]]),
     }).filter((d) => d.rule === "sequence-gap" && d.severity === "error");
-    expect(unexplained.length).toBe(12);
+    expect(unexplained.length).toBe(13);
 
     // Snapshot file
     const snapshotPath = join(ROOT, "content/source-blocks/special-relativity/manifest.ids.snapshot.txt");
@@ -612,8 +613,8 @@ describe("special-relativity source manifest inventory (am-edn-inventory-relativ
 
     expect(report.paper).toBe(PAPER_SLUG);
     expect(report.status).toBe("in-preparation");
-    expect(report.totalUnits).toBe(212);
-    expect(report.inScopeCount).toBe(212);
+    expect(report.totalUnits).toBe(211);
+    expect(report.inScopeCount).toBe(211);
     expect(report.notInScopeCount).toBe(0);
 
     expect(report.layers.ledger.state).toBe("absent");

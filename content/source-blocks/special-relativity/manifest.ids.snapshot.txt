@@ -70,7 +70,6 @@ s3-p18
 eq-s3-d19
 s3-p22
 eq-s3-d20
-s3-p19
 eq-s3-d21
 eq-s3-d22
 eq-s3-d23
