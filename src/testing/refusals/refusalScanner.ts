@@ -440,6 +440,46 @@ export interface BareThrowScanResult {
   readonly totalBare: number;
   readonly totalCoded: number;
   readonly filesScanned: number;
+  /** Per-root totals, so no root can be silently missing from the census. */
+  readonly byRoot: ReadonlyMap<
+    string,
+    { readonly files: number; readonly bare: number; readonly coded: number }
+  >;
+}
+
+/**
+ * The roots this census covers.
+ *
+ * `findSourceFiles` is not used here, and deliberately. It takes a single
+ * directory, and every caller passes `src`, so `scripts/` was never a source
+ * root for any refusal instrument. It also skips anything under a `testing/`
+ * directory. Measured on 2026-09-19 that hid 388 bare throws in `scripts/`
+ * and 84 in `src/testing/**` -- 472 sites that were absent rather than zero,
+ * which is the defect am-kfkw exists to fix. This walk covers both.
+ */
+export const BARE_THROW_ROOTS = ["src", "scripts"] as const;
+
+const SKIP_DIRS = new Set(["node_modules", ".next", ".git", "artifacts", "out"]);
+
+function walkAllSources(dir: string): string[] {
+  const out: string[] = [];
+  if (!existsSync(dir)) return out;
+  for (const entry of readdirSync(dir)) {
+    if (SKIP_DIRS.has(entry)) continue;
+    const full = join(dir, entry);
+    if (statSync(full).isDirectory()) {
+      out.push(...walkAllSources(full));
+    } else if (
+      (entry.endsWith(".ts") || entry.endsWith(".tsx")) &&
+      !entry.includes(".test.") &&
+      !entry.includes(".spec.") &&
+      !entry.includes(".cases.") &&
+      !entry.includes(".fixture.")
+    ) {
+      out.push(full);
+    }
+  }
+  return out;
 }
 
 /**
@@ -448,19 +488,34 @@ export interface BareThrowScanResult {
  * zero, because its absence reads as absence of the problem.
  */
 export function scanBareThrows(rootDir: string): BareThrowScanResult {
-  const srcFiles = findSourceFiles(join(rootDir, "src"));
   const byFile = new Map<string, readonly BareThrowSite[]>();
+  const byRoot = new Map<string, { files: number; bare: number; coded: number }>();
   let totalBare = 0;
   let totalCoded = 0;
-  for (const sf of srcFiles.slice().sort()) {
-    const rel = relative(rootDir, sf);
-    const content = readFileSync(sf, "utf8");
-    totalCoded += new Set(scanRefusalThrowSites(content, rel).map((s) => s.line)).size;
-    const bare = scanBareThrowSites(content, rel);
-    if (bare.length > 0) {
-      byFile.set(rel, bare);
-      totalBare += bare.length;
+  let filesScanned = 0;
+
+  for (const root of BARE_THROW_ROOTS) {
+    // Every root is entered in the report, including one that contributes
+    // nothing. A root that appears only when it has sites is a root whose
+    // silence cannot be told from its absence.
+    const tally = { files: 0, bare: 0, coded: 0 };
+    byRoot.set(root, tally);
+    for (const sf of walkAllSources(join(rootDir, root)).sort()) {
+      const rel = relative(rootDir, sf);
+      const content = readFileSync(sf, "utf8");
+      const coded = new Set(scanRefusalThrowSites(content, rel).map((s) => s.line)).size;
+      const bare = scanBareThrowSites(content, rel);
+      tally.files += 1;
+      tally.coded += coded;
+      tally.bare += bare.length;
+      filesScanned += 1;
+      totalCoded += coded;
+      if (bare.length > 0) {
+        byFile.set(rel, bare);
+        totalBare += bare.length;
+      }
     }
   }
-  return { byFile, totalBare, totalCoded, filesScanned: srcFiles.length };
+
+  return { byFile, totalBare, totalCoded, filesScanned, byRoot };
 }

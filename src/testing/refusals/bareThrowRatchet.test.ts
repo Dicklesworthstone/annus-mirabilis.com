@@ -39,7 +39,12 @@ import assert from "node:assert/strict";
 import { readFileSync } from "node:fs";
 import { join } from "node:path";
 import { describe, it } from "node:test";
-import { type BareThrowSite, scanBareThrowSites, scanBareThrows } from "./refusalScanner.ts";
+import {
+  BARE_THROW_ROOTS,
+  type BareThrowSite,
+  scanBareThrowSites,
+  scanBareThrows,
+} from "./refusalScanner.ts";
 
 const ROOT = process.cwd();
 const BASELINE_PATH = "src/testing/refusals/bareThrowsBaseline.json";
@@ -55,9 +60,13 @@ describe("bare throw ratchet (am-muyh)", () => {
 
     // The report is the point. It is printed unconditionally so the class
     // cannot quietly disappear from a green run.
+    const roots = [...scan.byRoot.entries()]
+      .map(([r, t]) => `${r}/: ${t.bare} bare, ${t.coded} coded, ${t.files} files`)
+      .join(" | ");
     console.log(
       `[bare-throw census] ${scan.totalBare} bare throw site(s) in ${scan.byFile.size} file(s); ` +
         `${scan.totalCoded} coded refusal site(s); ${scan.filesScanned} source files scanned. ` +
+        `Per root -- ${roots}. ` +
         "Bare sites carry no refusal code, so refusalRatchet cannot see them.",
     );
 
@@ -68,6 +77,24 @@ describe("bare throw ratchet (am-muyh)", () => {
       scan.byFile.size === 0,
       scan.totalBare === 0,
       "a file map and a total that disagree mean the census is not measuring what it reports",
+    );
+
+    // Every declared root appears in the report, with a file count proving it
+    // was walked. This assertion would have caught the first version of this
+    // gate, which took its files from findSourceFiles("src") and therefore
+    // reported scripts/ as absent rather than as a number.
+    for (const root of BARE_THROW_ROOTS) {
+      const tally = scan.byRoot.get(root);
+      assert.ok(tally, `root ${root}/ is missing from the census report entirely`);
+      assert.ok(
+        tally.files > 0,
+        `root ${root}/ reports ${tally.files} files scanned; an unwalked root reads as a clean one`,
+      );
+    }
+    assert.equal(
+      [...scan.byRoot.values()].reduce((n, t) => n + t.bare, 0),
+      scan.totalBare,
+      "the per-root totals must add up to the headline, or one root is uncounted",
     );
   });
 
