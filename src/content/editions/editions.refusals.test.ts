@@ -13,16 +13,17 @@
  * - brownianInventory.ts (4 sites):
  *   7. (brownianInventory.ts:246) invented-source-units
  *   8. (brownianInventory.ts:252) ids-frozen-without-facsimile
- *   9. (brownianInventory.ts:258) aliases-not-empty
+ *   9. (brownianInventory.ts) alias admission: legitimate retirement vs defect
  *   10. (brownianInventory.ts:264) paper-overclaimed
  */
 
 import assert from "node:assert/strict";
-import { cpSync, mkdirSync, writeFileSync } from "node:fs";
+import { cpSync, mkdirSync, readFileSync, writeFileSync } from "node:fs";
 import { join } from "node:path";
 import { describe, it } from "node:test";
 import yaml from "js-yaml";
 import {
+  admitAliasRecords,
   InventoryHonestyError,
   loadBrownianInventory,
 } from "./brownianInventory.ts";
@@ -47,7 +48,10 @@ function createTempBrownianFixture(): string {
 
   cpSync("docs/provenance/ap-17-549.md", join(tempRoot, "docs/provenance/ap-17-549.md"));
   cpSync("public/papers/pdfs/ap-17-549.pdf", join(tempRoot, "public/papers/pdfs/ap-17-549.pdf"));
-  cpSync("content/papers/brownian-motion.json", join(tempRoot, "content/papers/brownian-motion.json"));
+  cpSync(
+    "content/papers/brownian-motion.json",
+    join(tempRoot, "content/papers/brownian-motion.json"),
+  );
   cpSync(
     "content/source-blocks/brownian-motion/manifest.yaml",
     join(tempRoot, "content/source-blocks/brownian-motion/manifest.yaml"),
@@ -56,7 +60,10 @@ function createTempBrownianFixture(): string {
     "content/source-blocks/brownian-motion/manifest.ids.snapshot.txt",
     join(tempRoot, "content/source-blocks/brownian-motion/manifest.ids.snapshot.txt"),
   );
-  cpSync("content/aliases/brownian-motion.yaml", join(tempRoot, "content/aliases/brownian-motion.yaml"));
+  cpSync(
+    "content/aliases/brownian-motion.yaml",
+    join(tempRoot, "content/aliases/brownian-motion.yaml"),
+  );
   cpSync(
     "docs/editorial/brownian-motion-difficulties.md",
     join(tempRoot, "docs/editorial/brownian-motion-difficulties.md"),
@@ -225,7 +232,10 @@ describe("Editions Refusal Sites", () => {
 
         // Break the facsimile receipt so facsimilePinned is false
         const receiptPath = join(tempRoot, "docs/provenance/ap-17-549.md");
-        writeFileSync(receiptPath, "sha256: 0000000000000000000000000000000000000000000000000000000000000000\n");
+        writeFileSync(
+          receiptPath,
+          "sha256: 0000000000000000000000000000000000000000000000000000000000000000\n",
+        );
 
         // Add units to manifest
         const manifestPath = join(tempRoot, "content/source-blocks/brownian-motion/manifest.yaml");
@@ -295,46 +305,164 @@ describe("Editions Refusal Sites", () => {
       });
     });
 
-    // 9. (brownianInventory.ts:258) aliases-not-empty
-    describe("Site (brownianInventory.ts:258): aliases-not-empty", () => {
-      it("throws aliases-not-empty when alias file contains alias entries (brownianInventory.ts:258)", () => {
-        const tempRoot = createTempBrownianFixture();
+    // 9. (brownianInventory.ts) alias admission: a retirement is legitimate, or it is a defect
+    //
+    // History, because the premise moved twice. The site began as `aliases-not-empty`, which
+    // refused ANY entry in the alias file. That was right when written: no alias had ever
+    // legitimately existed, so an entry meant the file had been populated by accident, or by
+    // a process that should have minted a new id instead. Under am-cm-id-scheme-8bn,
+    // retiring a spurious unit by alias is now the PRESCRIBED repair, and with ids frozen and
+    // RULE 1 forbidding deletion it is the only one available; pane30 and pane31 have done
+    // exactly that, each entry carrying page-image evidence in its reason.
+    //
+    // A previous pass renamed this describe to aliases-before-freeze but left the assertion
+    // demanding `aliases-not-empty`, a code the source can no longer emit, so the test failed
+    // while reading as though it had been updated.
+    //
+    // The refusal is therefore re-expressed, not deleted. What it protected against survives
+    // in two halves, both tested here: an alias file populated BEFORE the freeze, when no
+    // retirement can be legitimate yet; and an entry lacking the provenance
+    // am-cm-id-scheme-8bn requires - a reason, an ISO date, an editor. An entry carrying all
+    // three and pointing at a live replacement is admitted.
+    describe("Site (brownianInventory.ts): alias admission", () => {
+      const legitimate = {
+        retiredId: "s2-p6",
+        kind: "merged",
+        replacementIds: ["s2-p5"],
+        reason:
+          "Not a printed paragraph; the line is set flush to the margin and resumes s2-p5. Verified on the page image at 260 percent.",
+        date: "2026-09-19",
+        editor: "agent:pane30 (BrightIsland), am-edn-inventory-brownian-slg",
+      };
+      const frozen = { idsFrozenAt: "2026-09-19T04:30:00Z", liveIds: ["s2-p5", "s3-p2"] };
 
-        const aliasPath = join(tempRoot, "content/aliases/brownian-motion.yaml");
-        const aliasPayload = {
-          paper: "brownian-motion",
-          aliases: [
-            {
-              retiredId: "bm-s1-p9",
-              kind: "retired",
-              replacementIds: ["bm-s1-p8"],
-              reason: "Pre-freeze alias",
-              editor: "ed-albert",
-              date: "2026-09-18",
+      it("admits a retirement carrying a reason, a date and an editor", () => {
+        assert.doesNotThrow(() => admitAliasRecords([legitimate], frozen));
+      });
+
+      // THE NEGATIVE A NAIVE FIX WOULD FAIL. Deleting this site, or inverting it to accept
+      // any alias list, admits an entry that names nobody and gives no reason - an
+      // unattributed editorial judgement about which printed paragraphs exist, which is what
+      // the original refusal was there to stop. Each field is dropped separately, so a fix
+      // that restores only one of the three cannot pass.
+      for (const missing of ["reason", "date", "editor"] as const) {
+        it(`refuses a retirement with no ${missing}`, () => {
+          const record: Record<string, unknown> = { ...legitimate };
+          delete record[missing];
+          assert.throws(
+            () => admitAliasRecords([record], frozen),
+            (err: unknown) => {
+              assert.ok(err instanceof InventoryHonestyError);
+              assert.equal(err.code, "alias-record-invalid");
+              assert.ok(
+                err.message.includes(missing),
+                `the refusal must name the missing field, got: ${err.message}`,
+              );
+              return true;
             },
-          ],
-        };
-        writeFileSync(aliasPath, yaml.dump(aliasPayload));
+          );
+        });
+      }
 
+      it("refuses a date that is not an ISO calendar date", () => {
         assert.throws(
-          () => loadBrownianInventory(tempRoot),
+          () => admitAliasRecords([{ ...legitimate, date: "19 September 2026" }], frozen),
           (err: unknown) => {
             assert.ok(err instanceof InventoryHonestyError);
-            assert.equal(err.code, "aliases-not-empty");
-            assert.ok(err.message.includes("alias file must stay empty"));
+            assert.equal(err.code, "alias-record-invalid");
             return true;
           },
         );
       });
 
-      it("does not throw aliases-not-empty when alias file is empty (brownianInventory.ts:258)", () => {
+      // The surviving half of the original premise: before the freeze there is nothing to
+      // retire, so an entry means an id was aliased where one should have been minted.
+      it("refuses any entry while ids are not yet frozen", () => {
+        assert.throws(
+          () => admitAliasRecords([legitimate], { liveIds: ["s2-p5"] }),
+          (err: unknown) => {
+            assert.ok(err instanceof InventoryHonestyError);
+            assert.equal(err.code, "aliases-before-freeze");
+            return true;
+          },
+        );
+      });
+
+      it("refuses retiring an id that is still live in the manifest", () => {
+        assert.throws(
+          () => admitAliasRecords([legitimate], { ...frozen, liveIds: ["s2-p5", "s2-p6"] }),
+          (err: unknown) => {
+            assert.ok(err instanceof InventoryHonestyError);
+            assert.equal(err.code, "alias-retired-id-still-live");
+            return true;
+          },
+        );
+      });
+
+      it("refuses a replacement that is not a live manifest id", () => {
+        assert.throws(
+          () => admitAliasRecords([{ ...legitimate, replacementIds: ["s9-p9"] }], frozen),
+          (err: unknown) => {
+            assert.ok(err instanceof InventoryHonestyError);
+            assert.equal(err.code, "alias-replacement-missing");
+            return true;
+          },
+        );
+      });
+
+      // End to end, so the wiring is covered and not only the helper. The fixture copies the
+      // live alias file, which holds the real retirements, so this asserts that what is
+      // actually on disk is admitted - not that an empty file is. The guard above the load
+      // is there because the previous version of this test was named for an empty file while
+      // silently running against a populated one.
+      it("loads the inventory with the real alias file's retirements present", () => {
         const tempRoot = createTempBrownianFixture();
+        const aliasRaw = yaml.load(
+          readFileSync(join(tempRoot, "content/aliases/brownian-motion.yaml"), "utf8"),
+        ) as { aliases?: unknown[] };
+        assert.ok(
+          (aliasRaw.aliases ?? []).length > 0,
+          "this test is meaningless if the fixture's alias file is empty",
+        );
         const inv = loadBrownianInventory(tempRoot);
         assert.equal(inv.paper, "brownian-motion");
       });
     });
 
     // 10. (brownianInventory.ts:264) paper-overclaimed
+    // (brownianInventory.ts:304) ids-frozen-without-units (am-muyh).
+    // The last of the five sites ebe6529 added without a test; the refusal
+    // ratchet caught all five as a regression against a baseline of 0.
+    describe("Site (brownianInventory.ts:304): ids-frozen-without-units", () => {
+      it("throws ids-frozen-without-units when the manifest freezes ids over an empty inventory (brownianInventory.ts:304)", () => {
+        const tempRoot = createTempBrownianFixture();
+        const manifestPath = join(tempRoot, "content/source-blocks/brownian-motion/manifest.yaml");
+        const manifest = yaml.load(readFileSync(manifestPath, "utf8")) as Record<string, unknown>;
+        assert.ok(manifest.idsFrozenAt, "the fixture manifest must already be frozen");
+        assert.ok(
+          Array.isArray(manifest.units) && manifest.units.length > 0,
+          "the fixture manifest must start with units, or this drives nothing",
+        );
+        writeFileSync(manifestPath, yaml.dump({ ...manifest, units: [] }));
+
+        assert.throws(
+          () => loadBrownianInventory(tempRoot),
+          (err: unknown) => {
+            assert.ok(err instanceof InventoryHonestyError);
+            assert.equal(err.code, "ids-frozen-without-units");
+            assert.ok(err.message.includes("until units are inventoried"));
+            return true;
+          },
+        );
+      });
+
+      it("admits a frozen manifest that actually inventories its units (brownianInventory.ts:304)", () => {
+        const tempRoot = createTempBrownianFixture();
+        const inv = loadBrownianInventory(tempRoot);
+        assert.equal(inv.paper, "brownian-motion");
+      });
+    });
+
     describe("Site (brownianInventory.ts:264): paper-overclaimed", () => {
       it("throws paper-overclaimed when paper status is not explanation-preview (brownianInventory.ts:264)", () => {
         const tempRoot = createTempBrownianFixture();
