@@ -63,6 +63,33 @@ function assertRejection(
   }
 }
 
+/**
+ * Asserts the code AND the guard's own diagnosis (am-muyh).
+ *
+ * Three separate guards in validateBufferHeader answer with
+ * "buffer-shape-mismatch", so the code alone cannot say which one refused.
+ * A plant sweep found the consequence: the dimension-count guard at
+ * buffers.ts:145 could be deleted with this whole file green, because the
+ * layout-constraint guard below it re-checks shape.length for all three
+ * registered layouts and answers with the same code. The reader-facing
+ * difference is the reason string, so that is what pins the site.
+ */
+function assertRejectionReason(
+  res: ReturnType<typeof validateBufferHeader>,
+  expectedCode: BufferValidationError,
+  expectedReason: RegExp,
+  contextMsg: string,
+): void {
+  assertRejection(res, expectedCode, contextMsg);
+  if (!res.ok) {
+    assert.match(
+      res.reason,
+      expectedReason,
+      `Expected the refusal for ${contextMsg} to be diagnosed by the guard matching ${expectedReason}, but it was diagnosed as: ${res.reason}`,
+    );
+  }
+}
+
 describe("Versioned buffer header validation refusal sites (am-muyh)", () => {
   // Site 1 (line 95)
   test("site (buffers.ts:95) non-plain-header: rejects non-object or null header, accepts valid plain object header", () => {
@@ -236,14 +263,18 @@ describe("Versioned buffer header validation refusal sites (am-muyh)", () => {
     const accepted2D = validateBufferHeader(VALID_BROWNIAN_HEADER);
     assert.equal(accepted2D.ok, true);
 
+    // Each of these carries a self-consistent byteLength, so the length guard
+    // further down cannot rescue the check: nothing but the dimension count is
+    // wrong, and the dimension guard is the only thing that may say so.
     const shape1D = {
       ...VALID_BROWNIAN_HEADER,
       shape: [1010],
       byteLength: 1010 * 8,
     };
-    assertRejection(
+    assertRejectionReason(
       validateBufferHeader(shape1D),
       "buffer-shape-mismatch",
+      /expects 2 dimensions, got 1/,
       "1D shape for 2D brownian layout",
     );
 
@@ -252,9 +283,10 @@ describe("Versioned buffer header validation refusal sites (am-muyh)", () => {
       shape: [10, 101, 1],
       byteLength: 10 * 101 * 1 * 8,
     };
-    assertRejection(
+    assertRejectionReason(
       validateBufferHeader(shape3D),
       "buffer-shape-mismatch",
+      /expects 2 dimensions, got 3/,
       "3D shape for 2D brownian layout",
     );
 
@@ -264,9 +296,10 @@ describe("Versioned buffer header validation refusal sites (am-muyh)", () => {
       shape: [32, 32],
       byteLength: 32 * 32 * 8,
     };
-    assertRejection(
+    assertRejectionReason(
       validateBufferHeader(philox2D),
       "buffer-shape-mismatch",
+      /expects 1 dimensions, got 2/,
       "2D shape for 1D philox layout",
     );
   });

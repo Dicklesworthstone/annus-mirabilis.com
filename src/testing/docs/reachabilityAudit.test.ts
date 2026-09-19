@@ -165,6 +165,113 @@ describe("reachabilityAudit (real compiler, real fixture corpus)", () => {
     assert.equal(deriveResult.missingTarget, "r1-reason");
   });
 
+  /**
+   * The second and third branches of each reach-set (am-muyh).
+   *
+   * The tests above drive the first branch of every if/else chain, so each
+   * reach-set has a test and each rule name looks covered. A plant sweep says
+   * otherwise: these five branches could be deleted with this file green,
+   * because reaching them needs a node that clears the earlier guard and fails
+   * the later one. Each pair below does exactly that, and asserts the rule
+   * string as well as the missing target, so the branch is pinned to its own
+   * diagnosis rather than to its accomplishment.
+   */
+  it("an argument with an example but no citations reports the Appreciate source anchor, not the example", () => {
+    const baseNode = brownianNodes[0];
+    assert.ok(baseNode, "Base node must exist");
+
+    // Accept: the real node has both, so Appreciate resolves.
+    const accepted = auditArgumentReachability(baseNode, {
+      knownFoundationIds: foundationIds,
+    }).find((r) => r.accomplishment === "appreciate");
+    assert.ok(accepted);
+    assert.equal(accepted.resolved, true);
+    assert.equal(accepted.rule, "reachability.appreciate");
+
+    // Reject: keep the example, drop the citations.
+    const mutatedNode: Argument = { ...baseNode, citations: [] };
+    const result = auditArgumentReachability(mutatedNode, {
+      knownFoundationIds: foundationIds,
+    }).find((r) => r.accomplishment === "appreciate");
+    assert.ok(result, "Appreciate reach-set result must exist");
+    assert.equal(result.resolved, false);
+    assert.equal(result.missingTarget, "citations");
+    assert.equal(result.rule, "reachability.appreciate.sourceAnchor");
+  });
+
+  it("an argument with no overview reports the Explain R1 branch before anything else", () => {
+    const baseNode = brownianNodes[0];
+    assert.ok(baseNode, "Base node must exist");
+
+    const mutatedNode: Argument = {
+      ...baseNode,
+      readings: { ...baseNode.readings, overview: [] },
+    };
+    const result = auditArgumentReachability(mutatedNode, {
+      knownFoundationIds: foundationIds,
+    }).find((r) => r.accomplishment === "explain");
+    assert.ok(result, "Explain reach-set result must exist");
+    assert.equal(result.resolved, false);
+    assert.equal(result.missingTarget, "readings.overview");
+    assert.equal(result.rule, "reachability.explain.r1");
+  });
+
+  it("an argument with an overview but no full or steps reading reports the Explain R2 branch", () => {
+    const baseNode = brownianNodes[0];
+    assert.ok(baseNode, "Base node must exist");
+    assert.ok(
+      baseNode.readings.overview.length > 0,
+      "the base node must keep its overview, or this drives the R1 branch instead",
+    );
+
+    const mutatedNode: Argument = {
+      ...baseNode,
+      readings: { ...baseNode.readings, full: [], steps: [] },
+    };
+    const result = auditArgumentReachability(mutatedNode, {
+      knownFoundationIds: foundationIds,
+    }).find((r) => r.accomplishment === "explain");
+    assert.ok(result, "Explain reach-set result must exist");
+    assert.equal(result.resolved, false);
+    assert.equal(result.missingTarget, "readings.full");
+    assert.equal(result.rule, "reachability.explain.r2");
+  });
+
+  it("an argument listing no instruments reports the Predict instrument branch, not the units branch", () => {
+    const baseNode = brownianNodes[0];
+    assert.ok(baseNode, "Base node must exist");
+
+    const mutatedNode: Argument = { ...baseNode, experiments: [] };
+    const result = auditArgumentReachability(mutatedNode, {
+      knownFoundationIds: foundationIds,
+      // Supplying the units map proves the branch order: with no instruments at
+      // all, the audit must say so rather than complain about missing units.
+      instrumentOutputsWithUnits: new Map<string, boolean>(),
+    }).find((r) => r.accomplishment === "predict");
+    assert.ok(result, "Predict reach-set result must exist");
+    assert.equal(result.resolved, false);
+    assert.equal(result.missingTarget, "experiments");
+    assert.equal(result.rule, "reachability.predict.instrument");
+  });
+
+  it("an argument with limitations but no citations reports the Critique sources branch", () => {
+    const baseNode = brownianNodes[0];
+    assert.ok(baseNode, "Base node must exist");
+    assert.ok(
+      baseNode.limitations.length > 0,
+      "the base node must keep its limitations, or this drives the limitations branch instead",
+    );
+
+    const mutatedNode: Argument = { ...baseNode, citations: [] };
+    const result = auditArgumentReachability(mutatedNode, {
+      knownFoundationIds: foundationIds,
+    }).find((r) => r.accomplishment === "critique");
+    assert.ok(result, "Critique reach-set result must exist");
+    assert.equal(result.resolved, false);
+    assert.equal(result.missingTarget, "citations");
+    assert.equal(result.rule, "reachability.critique.sources");
+  });
+
   it("the audit report validates schema and never fails the build", () => {
     const report = auditCorpusReachability(brownianNodes, {
       knownFoundationIds: foundationIds,
