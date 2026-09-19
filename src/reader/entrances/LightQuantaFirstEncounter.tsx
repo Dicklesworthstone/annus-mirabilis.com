@@ -36,12 +36,14 @@ export function LightQuantaFirstEncounter({ record }: { record: EntranceRecord }
     <p className="notice">Authored counting examples, not measurements or movies of motion. Parts have equal size and no part is favored.</p>
     <h3>Try changing one thing</h3>
     <fieldset disabled={!ready}><legend>One box, one set of choices</legend>
-      <label>Tokens <select value={example.setup.tokens} onChange={event => change(Number(event.target.value), example.setup.parts, example.setup.locked)}>
+      <label htmlFor={`${id}-tokens`}>Tokens</label>{" "}
+      <select id={`${id}-tokens`} value={example.setup.tokens} onChange={event => change(Number(event.target.value), example.setup.parts, example.setup.locked)}>
         {[1, 2, 3, 4].map(n => <option key={n} value={n}>{n}</option>)}
-      </select></label>{" "}
-      <label>Equal parts <select value={example.setup.parts} onChange={event => change(example.setup.tokens, Number(event.target.value), example.setup.locked)}>
+      </select>{" "}
+      <label htmlFor={`${id}-parts`}>Equal parts</label>{" "}
+      <select id={`${id}-parts`} value={example.setup.parts} onChange={event => change(example.setup.tokens, Number(event.target.value), example.setup.locked)}>
         <option value={2}>Two</option><option value={3}>Three</option>
-      </select></label>
+      </select>
       <label className="check"><input type="checkbox" checked={example.setup.locked}
         onChange={event => change(example.setup.tokens, example.setup.parts, event.target.checked)} />Keep all tokens in the same part</label>
     </fieldset>

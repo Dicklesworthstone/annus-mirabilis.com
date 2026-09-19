@@ -78,10 +78,11 @@ export function LinearProofExplorer({ proof, restoreSettings = true }: {
             setMessage("");
           }} /> {p.label}
       </label>)}
-      <label>Presentation <select value={mode} onChange={event => setMode(event.target.value)}>
+      <label htmlFor={`${prefix}-presentation`}>Presentation</label>{" "}
+      <select id={`${prefix}-presentation`} value={mode} onChange={event => setMode(event.target.value)}>
         <option value="full">Equations with every explanation</option>
         <option value="compact">Compact equation sequence</option>
-      </select></label>
+      </select>
       <button type="button" onClick={() => { setSelected(proof.certificate.premises.map(p => p.id)); setMessage(""); }}>Restore all stated premises</button>
     </fieldset>
     <p role="status" aria-live="polite" aria-atomic="true" data-proof-status>

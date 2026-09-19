@@ -60,21 +60,24 @@ export function ClockFirstEncounter({ record }: { record: EntranceRecord }) {
       </fieldset>
       <form onSubmit={submit}>
         <fieldset disabled={!ready}><legend>Change the two local readings, in seconds</legend>
-          <label>Departure at A <input type="text" inputMode="decimal" value={departure} onChange={event => setDeparture(event.target.value)} /></label>
-          <label>Return to A <input type="text" inputMode="decimal" value={reception} onChange={event => setReception(event.target.value)} /></label>
+          <label htmlFor={`${id}-departure`}>Departure at A</label>{" "}
+          <input id={`${id}-departure`} type="text" inputMode="decimal" value={departure} onChange={event => setDeparture(event.target.value)} />
+          <label htmlFor={`${id}-reception`}>Return to A</label>{" "}
+          <input id={`${id}-reception`} type="text" inputMode="decimal" value={reception} onChange={event => setReception(event.target.value)} />
           <button type="submit">Apply readings</button>
         </fieldset>
       </form>
       {dirty && <p data-clock-draft>Draft readings have not been applied. The table and laboratory link still use the accepted example.</p>}
       {error && <p role="alert">{error}</p>}
       {sliderAvailable ? <fieldset disabled={!ready}><legend>Or adjust the accepted round-trip duration</legend>
-        <label>Seconds from departure to return <input type="range" min="2" max="40" step="any"
+        <label htmlFor={`${id}-elapsed`}>Seconds from departure to return</label>{" "}
+        <input id={`${id}-elapsed`} type="range" min="2" max="40" step="any"
           value={example.elapsed}
           onChange={event => {
             const result = clockExample({ departure: example.readings.departure,
               reception: example.readings.departure + Number(event.target.value) });
             if (result.kind === "ready") accept(result.example); else setError(result.message);
-          }} /></label>
+          }} />
         <p className="fine">The slider offers durations from 2 to 40 seconds. The editable readings above also admit other durations.</p>
       </fieldset> : <p>The accepted duration is outside this slider’s range. Use the editable readings to change it; no value has been clamped.</p>}
       <div data-clock-accepted><ClockTable example={example} agreed={agreed} /></div>
