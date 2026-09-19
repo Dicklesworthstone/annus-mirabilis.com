@@ -232,15 +232,29 @@ export function allPaperCoverage(root?: string): readonly EditionCoverageReport[
 
 const FORBIDDEN_SCORE = /percent|completeness|score/i;
 
+/** A scoring key anywhere in the tree, not only at the top. A per-kind block is still a place to hide an aggregate. */
+function hasScoringKey(value: unknown): boolean {
+  if (Array.isArray(value)) {
+    return value.some(hasScoringKey);
+  }
+  if (value === null || typeof value !== "object") {
+    return false;
+  }
+  for (const [key, child] of Object.entries(value as Record<string, unknown>)) {
+    if (FORBIDDEN_SCORE.test(key)) return true;
+    if (hasScoringKey(child)) return true;
+  }
+  return false;
+}
+
+/**
+ * The report states what is present and what is absent; it never scores the edition.
+ * The rule is a percent sign in the prose and a scoring KEY in the data, at any depth.
+ * It is deliberately not a vocabulary ban: the report's own notes say "This is not
+ * completeness" and "not as a score", and forbidding those words would forbid it from
+ * saying so.
+ */
 export function coverageReportIsHonest(markdown: string, json: string): boolean {
   if (markdown.includes("%")) return false;
-  if (FORBIDDEN_SCORE.test(markdown) && /completeness|percent|score/.test(markdown)) {
-    // "translationCompleteness" in JSON is the typed field name; Markdown must not score.
-  }
-  if (markdown.includes("%")) return false;
-  const jsonObj = JSON.parse(json) as Record<string, unknown>;
-  for (const key of Object.keys(jsonObj)) {
-    if (FORBIDDEN_SCORE.test(key)) return false;
-  }
-  return !markdown.includes("%");
+  return !hasScoringKey(JSON.parse(json));
 }
