@@ -8,6 +8,18 @@ anchors:
   - "#s4-formula-2"
   - "bm-01:step-drag"
 facilitator: open-comprehension-brownian-motion
+# Every barrier observed in this round, with what the site is doing about it
+# (PROTOCOL.md sections 14 and 15). Omit the key entirely when the round
+# recorded none. A recurrent or blocking barrier must name its bead: prose
+# saying an issue was logged is not a tracked issue, and roundReports.test.ts
+# refuses the report without it.
+barriers:
+  - code: undefined-symbol
+    anchor: "#s4-formula-2"
+    met: 1
+    resolved: 1
+    blocking: false
+    disposition: open
 ---
 
 # Comprehension Round Report: Brownian Motion Slice
@@ -54,9 +66,13 @@ All participant codes are pseudonymous and parsed via `parseParticipantCode`:
 
 ## 5. Stumbling Points Log
 
-| Code | Target Anchor | Observed Barrier |
-|---|---|---|
-| `undefined-symbol` | `#s4-formula-2` | Participant hesitated on the symbol tau for time step interval. |
+The prose below is the facilitator's observation. The machine-checked record of the same barriers,
+including what is being done about each, is the `barriers:` block in the front matter; the two must
+agree, and only the front matter is validated.
+
+| Code | Target Anchor | Met | Resolved | Blocking | Disposition | Observed Barrier |
+|---|---|---|---|---|---|---|
+| `undefined-symbol` | `#s4-formula-2` | 1 | 1 | No | `open` | Participant hesitated on the symbol tau for time step interval. |
 
 ---
 
@@ -68,6 +84,12 @@ All participant codes are pseudonymous and parsed via `parseParticipantCode`:
 
 ---
 
-## 7. Findings & Tracked Issues
-- Issue logged for notation clarity on time interval tau: bead link `am-bm-slice-notation-tau-fix`.
-- Recommendation: Add a tooltip explaining tau on first appearance in `#s4-formula-2`.
+## 7. Outcome and Findings
+
+**Outcome for this lesson on this route (PROTOCOL.md §14):** Reached. Both participants reached the
+targeted change, neither was blocked, and at most one dimension was `prompted`.
+
+- The tau barrier was met by one participant and resolved, so it is not recurrent within this round
+  and carries no bead. If a second report records `undefined-symbol` at `#s4-formula-2`, the
+  cross-report recurrence check fails both reports until each names a bead.
+- Recommendation: add a tooltip explaining tau on first appearance in `#s4-formula-2`.

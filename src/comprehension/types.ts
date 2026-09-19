@@ -47,6 +47,44 @@ export const STUMBLING_POINT_CODES = [
 
 export type StumblingPointCode = (typeof STUMBLING_POINT_CODES)[number];
 
+export const RUBRIC_SCALE = ["unaided", "recovered", "prompted", "not-reached"] as const;
+
+export type RubricValue = (typeof RUBRIC_SCALE)[number];
+
+export const BARRIER_DISPOSITIONS = ["open", "fixed", "accepted"] as const;
+
+export type BarrierDisposition = (typeof BARRIER_DISPOSITIONS)[number];
+
+/**
+ * A barrier observed in a round, with what the site is doing about it
+ * (PROTOCOL.md sections 14 and 15).
+ *
+ * `met` and `resolved` are participant counts, never scores. A barrier is
+ * recurrent when `met >= RECURRENT_BARRIER_THRESHOLD` in one round, or when the
+ * same code and anchor appear in two or more reports; a recurrent or blocking
+ * barrier must name the bead that tracks its repair, because "an issue was
+ * logged" in prose is exactly the kind of evidence this project has been
+ * burned by.
+ */
+export interface BarrierRecord {
+  readonly code: StumblingPointCode;
+  /** Passage anchor "#s<n>..." or action id "<instrument>:<action>". */
+  readonly anchor: string;
+  readonly met: number;
+  readonly resolved: number;
+  readonly blocking: boolean;
+  readonly disposition: BarrierDisposition;
+  /** Tracker id, required for a recurrent or blocking barrier and for every non-open disposition. */
+  readonly bead?: string | undefined;
+  /** The later round id that recorded no participant meeting this barrier. Required when fixed. */
+  readonly verifiedBy?: string | undefined;
+  /** Required when accepted: why the site will not repair it. */
+  readonly reason?: string | undefined;
+}
+
+/** Participants meeting a barrier in one round, at or above which it is recurrent. */
+export const RECURRENT_BARRIER_THRESHOLD = 2;
+
 export interface AccomplishmentChange {
   readonly timestamp: string; // ISO 8601
   readonly from: Accomplishment;

@@ -4,6 +4,12 @@
  * and strict participant code rules.
  */
 
+import {
+  BARRIER_DISPOSITIONS,
+  type BarrierRecord,
+  RECURRENT_BARRIER_THRESHOLD,
+  STUMBLING_POINT_CODES,
+} from "../../comprehension/types.ts";
 import { parseYaml } from "../../content/provenance/yaml.ts";
 import { parseParticipantCode, VALID_PAPERS, VALID_ROUTES } from "./participantCodes.ts";
 
@@ -19,8 +25,20 @@ export interface RoundReportFrontMatter {
 export interface ParsedRoundReport {
   readonly frontMatter: RoundReportFrontMatter;
   readonly participantCodes: readonly string[];
+  readonly barriers: readonly BarrierRecord[];
   readonly bodyText: string;
 }
+
+/** A barrier is recurrent within one round when enough participants met it (PROTOCOL.md §15). */
+export function isRecurrentBarrier(barrier: BarrierRecord): boolean {
+  return barrier.met >= RECURRENT_BARRIER_THRESHOLD;
+}
+
+/** Tracker ids as this repository writes them: the `am` prefix and a suffix. */
+const BEAD_ID = /^am-[a-z0-9-]+$/;
+
+/** A passage anchor (#s4-p2) or an action id (bm-01:step-drag). */
+const BARRIER_ANCHOR = /^(#[a-z0-9][a-z0-9-]*|[a-z]{2}-\d{2}:[a-z0-9-]+)$/;
 
 export class RoundReportValidationError extends Error {
   readonly code: string;
@@ -182,6 +200,149 @@ export function validateRoundReportText(content: string, filePath: string): Pars
     }
   }
 
+  // 2b. Barrier dispositions. PROTOCOL.md sections 14 and 15: a finding that
+  // changes nothing is not a finding, so a recurrent or blocking barrier has
+  // to name the bead that tracks its repair, and a barrier is not fixed
+  // because someone edited the passage.
+  const barriers: BarrierRecord[] = [];
+  const barriersLine = findLineOfKey(content, "barriers");
+  if (fm.barriers !== undefined) {
+    if (!Array.isArray(fm.barriers)) {
+      throw new RoundReportValidationError(
+        "invalid-barriers",
+        "barriers must be a list; omit the key entirely when the round recorded none",
+        filePath,
+        barriersLine,
+      );
+    }
+    for (const [index, raw] of fm.barriers.entries()) {
+      const where = `barriers[${index}]`;
+      if (!raw || typeof raw !== "object" || Array.isArray(raw)) {
+        throw new RoundReportValidationError(
+          "invalid-barrier",
+          `${where} must be a mapping`,
+          filePath,
+          barriersLine,
+        );
+      }
+      const b = raw as Record<string, unknown>;
+
+      if (
+        typeof b.code !== "string" ||
+        !(STUMBLING_POINT_CODES as readonly string[]).includes(b.code)
+      ) {
+        throw new RoundReportValidationError(
+          "unknown-stumbling-point-code",
+          `${where}.code "${String(b.code)}" is not one of the five stumbling-point codes: ${STUMBLING_POINT_CODES.join(", ")}`,
+          filePath,
+          barriersLine,
+        );
+      }
+
+      if (typeof b.anchor !== "string" || !BARRIER_ANCHOR.test(b.anchor)) {
+        throw new RoundReportValidationError(
+          "barrier-anchor-missing",
+          `${where}.anchor must be a passage anchor (#s4-p2) or an action id (bm-01:step-drag); got "${String(b.anchor)}". A barrier with no place on the page cannot be repaired.`,
+          filePath,
+          barriersLine,
+        );
+      }
+
+      const met = b.met;
+      const resolved = b.resolved;
+      if (typeof met !== "number" || !Number.isInteger(met) || met < 1) {
+        throw new RoundReportValidationError(
+          "barrier-counts-invalid",
+          `${where}.met must be a positive integer count of participants who met the barrier`,
+          filePath,
+          barriersLine,
+        );
+      }
+      if (
+        typeof resolved !== "number" ||
+        !Number.isInteger(resolved) ||
+        resolved < 0 ||
+        resolved > met
+      ) {
+        throw new RoundReportValidationError(
+          "barrier-counts-invalid",
+          `${where}.resolved must be an integer between 0 and met (${met}); got ${String(resolved)}`,
+          filePath,
+          barriersLine,
+        );
+      }
+
+      if (typeof b.blocking !== "boolean") {
+        throw new RoundReportValidationError(
+          "barrier-blocking-missing",
+          `${where}.blocking must be true or false: whether any participant could not continue without help beyond the neutral prompts`,
+          filePath,
+          barriersLine,
+        );
+      }
+
+      if (
+        typeof b.disposition !== "string" ||
+        !(BARRIER_DISPOSITIONS as readonly string[]).includes(b.disposition)
+      ) {
+        throw new RoundReportValidationError(
+          "barrier-disposition-unknown",
+          `${where}.disposition must be one of: ${BARRIER_DISPOSITIONS.join(", ")}`,
+          filePath,
+          barriersLine,
+        );
+      }
+
+      const barrier: BarrierRecord = {
+        code: b.code as BarrierRecord["code"],
+        anchor: b.anchor,
+        met,
+        resolved,
+        blocking: b.blocking,
+        disposition: b.disposition as BarrierRecord["disposition"],
+        ...(typeof b.bead === "string" ? { bead: b.bead } : {}),
+        ...(typeof b.verifiedBy === "string" ? { verifiedBy: b.verifiedBy } : {}),
+        ...(typeof b.reason === "string" ? { reason: b.reason } : {}),
+      };
+
+      const needsBead =
+        isRecurrentBarrier(barrier) || barrier.blocking || barrier.disposition !== "open";
+      if (needsBead && (!barrier.bead || !BEAD_ID.test(barrier.bead))) {
+        const why = barrier.blocking
+          ? "blocking"
+          : isRecurrentBarrier(barrier)
+            ? `met by ${barrier.met} participants, so recurrent`
+            : `dispositioned "${barrier.disposition}"`;
+        throw new RoundReportValidationError(
+          "recurrent-barrier-without-bead",
+          `${where} is ${why} and must name the bead tracking it (bead: am-...). Prose saying an issue was logged is not a tracked issue.`,
+          filePath,
+          barriersLine,
+        );
+      }
+
+      if (barrier.disposition === "fixed" && !barrier.verifiedBy) {
+        throw new RoundReportValidationError(
+          "fixed-barrier-without-verification",
+          `${where} is dispositioned "fixed" and must name the later round that recorded no participant meeting it (verifiedBy). Editing the passage is not verification.`,
+          filePath,
+          barriersLine,
+        );
+      }
+
+      if (barrier.disposition === "accepted" && !barrier.reason?.trim()) {
+        throw new RoundReportValidationError(
+          "accepted-barrier-without-reason",
+          `${where} is dispositioned "accepted" and must carry the written reason the site will not repair it`,
+          filePath,
+          barriersLine,
+        );
+      }
+
+      barriers.push(barrier);
+    }
+  }
+
   // 3. Extract and validate participant codes from the body
   const participantCodeRegex =
     /`([a-z0-9-]+-(?:no-algebra|nonvisual|full-derivation|low-cost-phone)-[a-z0-9-]+)`/g;
@@ -215,6 +376,42 @@ export function validateRoundReportText(content: string, filePath: string): Pars
       facilitator: fm.facilitator,
     },
     participantCodes: codes,
+    barriers,
     bodyText,
   };
+}
+
+/**
+ * Cross-report recurrence (PROTOCOL.md §15): the same stumbling-point code at
+ * the same anchor in two or more reports is recurrent even when no single
+ * round met it twice, and each occurrence must name its bead. Recurrence is
+ * computed over the directory, not remembered by a facilitator.
+ */
+export function findCrossReportRecurrenceViolations(
+  reports: readonly { readonly file: string; readonly report: ParsedRoundReport }[],
+): string[] {
+  const seen = new Map<string, { file: string; barrier: BarrierRecord }[]>();
+  for (const { file, report } of reports) {
+    for (const barrier of report.barriers) {
+      const key = `${barrier.code}@${barrier.anchor}`;
+      const bucket = seen.get(key) ?? [];
+      bucket.push({ file, barrier });
+      seen.set(key, bucket);
+    }
+  }
+
+  const violations: string[] = [];
+  for (const [key, bucket] of seen) {
+    if (bucket.length < 2) continue;
+    for (const { file, barrier } of bucket) {
+      if (!barrier.bead) {
+        violations.push(
+          `${file}: barrier ${key} appears in ${bucket.length} reports (${bucket
+            .map((b) => b.file)
+            .join(", ")}) and is therefore recurrent, but names no bead.`,
+        );
+      }
+    }
+  }
+  return violations;
 }

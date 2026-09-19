@@ -4,6 +4,47 @@
 
 ---
 
+## 0. Why this document is allowed to exist
+
+AGENTS.md lets a process artifact exist only if it names, at creation, its concrete consumer, the
+gate it enforces, the observed defect class that justifies it, and the condition under which it is
+deleted. A protocol that only humans and status reports read earns zero capability credit. This
+document answers all four, and the answers are testable.
+
+**Concrete consumers.** Running code reads this protocol's vocabulary and its report format:
+
+| Consumer | What it reads |
+|---|---|
+| `src/testing/docs/participantCodes.ts` | The closed route list and paper list of §3 and §5 |
+| `src/testing/docs/roundReports.ts` | The round-report front matter, the stumbling-point codes of §9, and the barrier dispositions of §16 |
+| `src/testing/docs/roundReports.test.ts` | Every report under `docs/comprehension/rounds/` |
+| `src/testing/docs/comprehensionProtocol.test.ts` | This document's own sections, and the question banks |
+| `src/comprehension/types.ts` | The accomplishments, rubric dimensions, support rungs and stumbling-point codes as constants |
+| `scripts/backfill-review-records.ts` (`am-edit-review-records-hofz`) | `parseParticipantCode` |
+| `scripts/audit-reachability.ts` | The reach-sets of §8 |
+
+**The gate it enforces.** A comprehension round is not recorded by writing prose about it. A report
+that names a recurrent or blocking barrier and files no bead fails `roundReports.test.ts`; so does a
+barrier claimed fixed with no verifying round, a stumbling-point code outside the closed list, a
+barrier with no anchor, a participant code the parser rejects, and an embedded email address. The
+failure names the file and the line.
+
+**The observed defect class.** Two, both already observed in this repository rather than imagined.
+First, coverage that over-reports itself: a name, a title, or a citation that looks like evidence and
+is not, which is why §16 requires a bead id rather than a sentence saying an issue was logged.
+Second, hyphen-splitting: both paper slugs and route ids contain hyphens (`brownian-motion`,
+`no-algebra`, `full-derivation`, `low-cost-phone`), so a naive `split("-")` misreads a participant
+code. `parseParticipantCode` exists so that mistake is made once, in one place, and caught by tests.
+
+**Deletion condition.** Delete this document, its materials, and its tests when the site stops making
+the fifth release claim: that an explanation helps a reader overcome the obstacle it was written for.
+If the About page no longer publishes tested routes and known barriers, and no bead depends on
+`parseParticipantCode`, nothing here gates anything and all of it should go. Narrow it sooner: any
+section that no consumer in the table above reads, and that no round has used within two rounds of
+its being written, is cut rather than maintained.
+
+---
+
 ## 1. Purpose & Stance
 
 The fifth release question for Annus Mirabilis is whether an authored explanation helps a reader overcome the specific obstacle it was written for (§17.1). Only human readers can answer this question.
@@ -117,6 +158,24 @@ Observations are evaluated across six core dimensions by a human observer (never
 | **Evidence** | Can the reader distinguish an empirical observation from a simulated or derived consequence? |
 | **Navigation** | Can the reader locate source passages and missing explanations independently? |
 
+### The scale
+
+Each dimension takes one of four values. The scale is deliberately coarse: it records what the
+facilitator saw, not a measurement, and a finer scale would invite arithmetic the sample size does
+not support. Never average these, never total them, never convert them to a percentage.
+
+| Value | What the facilitator observed |
+|---|---|
+| `unaided` | The reader did it without help, using only the material on the page |
+| `recovered` | The reader stalled and then got there using something the site offers: a bridge, a foundation lesson, a reading at a different detail, a source passage, an instrument |
+| `prompted` | The reader got there only after a facilitator prompt beyond the neutral ones in §6 |
+| `not-reached` | The reader did not get there in this session |
+
+`unaided` and `recovered` are both successes, and the difference between them is the most useful
+thing in the record: `recovered` says which affordance did the work, so §16 can tell a missing
+explanation from an unfindable one. `prompted` is a failure of the material that a person papered
+over. A dimension the session did not exercise is left blank, not scored.
+
 ---
 
 ## 8. Accomplishments and Reach-Sets
@@ -180,7 +239,71 @@ Every journey stage provides a structured support ladder: `workedExample` → `p
 
 ---
 
-## 14. Templates
+## 14. What counts as a failed comprehension
+
+A participant never fails. A lesson does, and this is what that means.
+
+**Per participant, per argument.** The targeted change stated in §6 step 1 is *reached* when the
+participant produces, unaided or recovered, the middle-column outcome of §8 for the accomplishment
+they chose at the start of the session. It is *not reached* when they produce it only `prompted`, or
+not at all. A participant who changes accomplishment mid-session is assessed against the one they
+ended on, and the change itself is recorded as information about the material.
+
+**Blocked** is a separate and more serious observation than not-reached. A participant is blocked
+when they cannot continue at all without help that goes beyond the neutral prompts of §6: an
+inaccessible control, an undefined symbol with no route to a definition, a dead end with no way
+back to the argument. Blocked is recorded even when the participant later reaches the targeted
+change with help, because the site failed before the facilitator intervened.
+
+**Per lesson, per route.** With five to eight participants this is a problem-discovery design, not a
+measurement, so the thresholds are thresholds for *acting*, not for concluding:
+
+| Outcome | Condition | Consequence |
+|---|---|---|
+| **Failed** | Any participant was blocked, or the targeted change was not reached by more than half the participants on that route | The lesson is not releasable on that route until the barrier is dispositioned and a verification round is run (§16) |
+| **Marginal** | The targeted change was reached by every participant, but two or more needed `prompted` on the same dimension | A barrier is recorded and dispositioned; a verification round is not required |
+| **Reached** | The targeted change was reached by every participant, at most one `prompted` | No barrier; the round still records what was `recovered` and through which affordance |
+
+None of these three words is a score, a grade, or a percentage, and none of them is published as a
+number. What is published is §11 of the public summary: which routes were tested, and which barriers
+are known and still open.
+
+---
+
+## 15. What the site does about a failed comprehension
+
+A finding that changes nothing is not a finding. Every barrier observed in a round takes exactly one
+of three dispositions, recorded in the round report's front matter and checked by
+`roundReports.test.ts`.
+
+| Disposition | Meaning | What the report must carry |
+|---|---|---|
+| `open` | The barrier is real and not yet repaired | A `bead` id when the barrier is recurrent or blocking |
+| `fixed` | The material was changed and a later round confirmed the change | A `bead` id and a `verifiedBy` round id |
+| `accepted` | The barrier is real and the site will not repair it | A `bead` id and a written reason, reviewed by a named owner |
+
+`accepted` exists because some barriers are honest: a reader on the `no-algebra` route who wants to
+reproduce the tensor algebra has met a boundary the site states rather than a defect it hides. It is
+not an escape hatch for barriers nobody wants to fix, which is why it needs the same bead and a
+named owner.
+
+**Recurrent barriers are repaired first** (§17.5). A barrier is recurrent when two or more
+participants met it in one round, or when the same stumbling-point code and anchor appear in two or
+more reports. Recurrence is computed across the whole reports directory, not by memory, and a
+recurrent barrier without a bead id fails the structural test.
+
+**Verification is a fresh round, with fresh participants** where the barrier was blocking (§5). A
+barrier is not `fixed` because someone edited the passage; it is `fixed` when a later round on the
+same anchor and route records no participant meeting it. The `verifiedBy` field names that round.
+
+**What blocks a release.** A paper's definition of done is not met while a tested lesson on a tested
+route is Failed with an `open` blocking barrier. That is the only release consequence this protocol
+claims: it does not gate the build, it does not produce a readiness score, and it never aggregates
+across papers into a single number.
+
+---
+
+## 16. Templates
 
 The protocol includes complete templates for:
 - Round Reports (`docs/comprehension/materials/round-report-template.md`)

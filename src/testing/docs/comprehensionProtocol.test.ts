@@ -1,11 +1,13 @@
 import assert from "node:assert/strict";
-import { readdirSync, readFileSync } from "node:fs";
+import { existsSync, readdirSync, readFileSync } from "node:fs";
 import { join, relative } from "node:path";
 import { describe, it } from "node:test";
 import { ComprehensionLogger } from "../../comprehension/logger.ts";
 import {
   ACCOMPLISHMENTS,
+  BARRIER_DISPOSITIONS,
   RUBRIC_DIMENSIONS,
+  RUBRIC_SCALE,
   STUMBLING_POINT_CODES,
 } from "../../comprehension/types.ts";
 import { VALID_ROUTES } from "./participantCodes.ts";
@@ -50,6 +52,9 @@ describe("comprehensionProtocol structural validation", () => {
       "comparative experiments",
       "support-ladder evidence",
       "templates",
+      "why this document is allowed to exist",
+      "what counts as a failed comprehension",
+      "what the site does about a failed comprehension",
     ];
 
     const lower = protocolText.toLowerCase();
@@ -234,5 +239,101 @@ describe("comprehensionProtocol structural validation", () => {
     }
 
     scanDir(docsDir);
+  });
+
+  /**
+   * AGENTS.md's creation gate. A protocol that only humans and status reports
+   * read earns zero capability credit, so the document has to answer four
+   * questions and the answers have to stay true.
+   */
+  describe("creation gate (AGENTS.md)", () => {
+    it("the protocol names its consumer, its gate, its defect class, and its deletion condition", () => {
+      const lower = protocolText.toLowerCase();
+      for (const answer of [
+        "concrete consumers",
+        "the gate it enforces",
+        "the observed defect class",
+        "deletion condition",
+      ]) {
+        logCheck(
+          `creation-gate-${answer.replace(/\s+/g, "-")}`,
+          protocolPath,
+          answer,
+          lower.includes(answer),
+          `PROTOCOL.md must answer "${answer}" at creation, or it is a document that gates nothing.`,
+        );
+      }
+    });
+
+    it("every consumer the protocol claims is a file that exists", () => {
+      // The boundary test in AGENTS.md is whether running code branches on the
+      // artifact. A consumer table that has gone stale is the failure mode.
+      const claimed = [
+        ...protocolText.matchAll(/`((?:src|scripts|docs)\/[A-Za-z0-9._/-]+\.(?:ts|tsx|md))`/g),
+      ].map((m) => m[1] as string);
+      assert.ok(claimed.length >= 5, "the protocol must name the code that reads it");
+      for (const file of new Set(claimed)) {
+        logCheck(
+          `consumer-exists-${file.replace(/[^a-z0-9]+/gi, "-")}`,
+          protocolPath,
+          "consumer-exists",
+          existsSync(join(rootDir, file)),
+          `PROTOCOL.md names "${file}" as a consumer or template, but that file does not exist.`,
+        );
+      }
+    });
+
+    it("the rubric carries a scale, and the scale is the one the records use", () => {
+      for (const value of RUBRIC_SCALE) {
+        logCheck(
+          `rubric-scale-${value}`,
+          protocolPath,
+          "rubric-scale",
+          protocolText.includes(`\`${value}\``),
+          `PROTOCOL.md must define the rubric value "${value}" verbatim; without a scale two facilitators record incomparable things.`,
+        );
+      }
+    });
+
+    it("the failure path names every disposition the validator accepts", () => {
+      for (const disposition of BARRIER_DISPOSITIONS) {
+        logCheck(
+          `disposition-${disposition}`,
+          protocolPath,
+          "barrier-disposition",
+          protocolText.includes(`\`${disposition}\``),
+          `PROTOCOL.md must document the barrier disposition "${disposition}" that roundReports.ts enforces.`,
+        );
+      }
+    });
+
+    it("no document under docs/comprehension/ states a percentage of readers", () => {
+      // AGENTS.md bans the single flattering completeness percentage, and this
+      // protocol's sample sizes cannot support one. Checked as a numeric claim
+      // rather than a banned phrase, so a sentence prohibiting scores does not
+      // trip its own rule.
+      const percentClaim = /\b\d+(?:\.\d+)?\s*(?:%|per ?cent)\s+of\s+(?:readers|participants)/i;
+      const offenders: string[] = [];
+      function scan(dir: string): void {
+        for (const entry of readdirSync(dir, { withFileTypes: true })) {
+          const full = join(dir, entry.name);
+          if (entry.isDirectory()) {
+            scan(full);
+          } else if (/\.(md|html)$/.test(entry.name)) {
+            const text = readFileSync(full, "utf8");
+            const match = text.match(percentClaim);
+            if (match) offenders.push(`${relative(rootDir, full)}: "${match[0]}"`);
+          }
+        }
+      }
+      scan(join(rootDir, "docs/comprehension"));
+      logCheck(
+        "no-reader-percentage",
+        "docs/comprehension",
+        "no-reader-percentage",
+        offenders.length === 0,
+        `A percentage of readers is not a finding this protocol can support: ${offenders.join("; ")}`,
+      );
+    });
   });
 });
