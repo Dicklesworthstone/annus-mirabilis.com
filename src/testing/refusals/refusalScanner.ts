@@ -442,6 +442,41 @@ export interface BareThrowSite {
    * input. See am-kfkw.
    */
   readonly projectDefinedClass: boolean;
+  /**
+   * True when the nearest enclosing function declares a parameter of the
+   * TypeScript `unknown` type.
+   *
+   * The second signal, and the only other principled one available without
+   * tagging the source. `unknown` is the type system stating that it cannot
+   * vouch for the value, which is the validation boundary itself. Sampling 12
+   * of the sites this matches, ten read as unambiguous refusal path
+   * (parseOfflineManifest, validateInline, a pasted-CSV size check,
+   * parseNotebookDocument, parseCountermodelCase, validateAliases); the two
+   * that did not are worker-host concurrency guards whose caller is our own
+   * scheduler.
+   *
+   * A heuristic on function NAMES would match roughly 300 more sites and is
+   * deliberately not implemented: it would classify on spelling and dilute
+   * the only figures here that are defensible.
+   */
+  readonly enclosingTakesUnknown: boolean;
+}
+
+/** A function declaration or arrow assignment, for finding the enclosing signature. */
+const ENCLOSING_FN =
+  /(?:export\s+)?(?:async\s+)?function\s+[A-Za-z_$][\w$]*\s*\(|(?:const|let)\s+[A-Za-z_$][\w$]*\s*[:=][^=]*?=\s*(?:async\s*)?\(/;
+
+/** How far back to look for the enclosing signature before giving up. */
+const ENCLOSING_LOOKBACK = 60;
+
+function enclosingTakesUnknownParam(lines: readonly string[], lineIndex: number): boolean {
+  for (let i = lineIndex; i >= Math.max(0, lineIndex - ENCLOSING_LOOKBACK); i--) {
+    if (!ENCLOSING_FN.test(lines[i] ?? "")) continue;
+    const signature = lines.slice(i, i + 6).join(" ");
+    const params = /\(([^)]*)\)/.exec(signature)?.[1] ?? "";
+    return /:\s*unknown\b/.test(params);
+  }
+  return false;
 }
 
 /** `throw new X(` on one line. A bare `throw err;` re-throw is not a site. */
@@ -466,6 +501,7 @@ export function scanBareThrowSites(source: string, relPath: string): BareThrowSi
       snippet: line.trim(),
       errorClass: cls,
       projectDefinedClass: cls.length > 0 && !BUILTIN_ERROR_CLASSES.has(cls),
+      enclosingTakesUnknown: enclosingTakesUnknownParam(lines, i),
     });
   }
   return out;
@@ -487,8 +523,25 @@ export interface BareThrowScanResult {
    * how much of the bare block is refusal path, never a total. See am-kfkw.
    */
   readonly projectClassLowerBound: number;
+  /**
+   * A SECOND, disjoint lower bound: built-in-class bare throws whose enclosing
+   * function takes an `unknown` parameter. Counted only among the built-in
+   * remainder, so it never double-counts a project-class site and the two
+   * bounds add.
+   */
+  readonly unknownParamLowerBound: number;
+  /**
+   * The combined lower bound on the refusal path: project class plus
+   * unknown-parameter. Still a LOWER BOUND and never a total.
+   */
+  readonly refusalPathLowerBound: number;
   /** Bare throws of a built-in class: unclassified, which is not "not refusals". */
   readonly builtinClassUnclassified: number;
+  /**
+   * What neither signal reaches: the block source tagging would still have to
+   * cover. builtinClassUnclassified minus unknownParamLowerBound.
+   */
+  readonly unreachedByEitherSignal: number;
   /** Site counts per project-defined error class, largest first. */
   readonly projectClassCounts: readonly (readonly [string, number])[];
 }
@@ -564,6 +617,7 @@ export function scanBareThrows(rootDir: string): BareThrowScanResult {
   }
 
   let projectClassLowerBound = 0;
+  let unknownParamLowerBound = 0;
   let builtinClassUnclassified = 0;
   const classCounts = new Map<string, number>();
   for (const sites of byFile.values()) {
@@ -573,6 +627,7 @@ export function scanBareThrows(rootDir: string): BareThrowScanResult {
         classCounts.set(site.errorClass, (classCounts.get(site.errorClass) ?? 0) + 1);
       } else {
         builtinClassUnclassified += 1;
+        if (site.enclosingTakesUnknown) unknownParamLowerBound += 1;
       }
     }
   }
@@ -584,7 +639,10 @@ export function scanBareThrows(rootDir: string): BareThrowScanResult {
     filesScanned,
     byRoot,
     projectClassLowerBound,
+    unknownParamLowerBound,
+    refusalPathLowerBound: projectClassLowerBound + unknownParamLowerBound,
     builtinClassUnclassified,
+    unreachedByEitherSignal: builtinClassUnclassified - unknownParamLowerBound,
     projectClassCounts: [...classCounts.entries()].sort(
       (a, b) => b[1] - a[1] || a[0].localeCompare(b[0]),
     ),

@@ -71,16 +71,19 @@ describe("bare throw ratchet (am-muyh)", () => {
         "Bare sites carry no refusal code, so refusalRatchet cannot see them.",
     );
     console.log(
-      `[bare-throw refusal-path signal] ${scan.projectClassLowerBound} of ${scan.totalBare} throw a ` +
-        `project-defined error class across ${scan.projectClassCounts.length} classes ` +
-        `(${scan.projectClassCounts
-          .slice(0, 5)
+      `[bare-throw refusal-path signal] LOWER BOUND ${scan.refusalPathLowerBound} of ${scan.totalBare}, ` +
+        `from two disjoint signals: ${scan.projectClassLowerBound} throw a project-defined error ` +
+        `class (${scan.projectClassCounts.length} classes: ` +
+        `${scan.projectClassCounts
+          .slice(0, 4)
           .map(([c, n]) => `${c} ${n}`)
-          .join(", ")}). ` +
-        "That is a MEASURED LOWER BOUND on how much of this block is refusal path, never a total: " +
-        `the remaining ${scan.builtinClassUnclassified} throw a built-in class and are UNCLASSIFIED, ` +
-        "which is not the same as not being refusals. The scanner cannot separate a reader-facing " +
-        "refusal from an internal invariant. See am-kfkw.",
+          .join(", ")}), and a further ` +
+        `${scan.unknownParamLowerBound} sit in a function taking an unknown-typed parameter, which is ` +
+        "the type system declaring it cannot vouch for the value. BOTH ARE LOWER BOUNDS, NEVER TOTALS. " +
+        `${scan.unreachedByEitherSignal} sites are reached by neither signal and stay UNCLASSIFIED, ` +
+        "which is not the same as not being refusals; that residue is what source tagging would still " +
+        "have to cover. A heuristic on function names would move roughly 300 more and is deliberately " +
+        "not implemented: it classifies on spelling. See am-kfkw.",
     );
 
     assert.equal(typeof scan.totalBare, "number");
@@ -146,6 +149,24 @@ describe("bare throw ratchet (am-muyh)", () => {
       join(root, "src/project.ts"),
       'export function b(): void {\n  throw new WidgetError("prose with no code at all");\n}\n',
     );
+    // One bare throw of a BUILT-IN class inside a function taking an
+    // unknown-typed parameter: the second, disjoint lower bound. Written here
+    // rather than asserted against the live tree, for the reason given above.
+    writeFileSync(
+      join(root, "src/validator.ts"),
+      "export function parseThing(value: unknown): void {\n" +
+        '  if (typeof value !== "string") throw new TypeError("prose with no code at all");\n}\n',
+    );
+    // A PROJECT-class throw that ALSO sits behind an unknown-typed parameter.
+    // Without this file the disjointness assertion below is vacuous: a plant
+    // that double-counts the unknown signal on project sites adds nothing to
+    // a fixture where no project site has an unknown param, and passes. Found
+    // by planting exactly that and watching the suite stay green.
+    writeFileSync(
+      join(root, "src/both.ts"),
+      "export function admitThing(value: unknown): void {\n" +
+        '  if (!value) throw new WidgetError("prose with no code at all");\n}\n',
+    );
     // One CODED throw: not bare at all, and proof the two scanners disagree
     // about this line on purpose.
     writeFileSync(
@@ -155,20 +176,56 @@ describe("bare throw ratchet (am-muyh)", () => {
 
     const scan = scanBareThrows(root);
 
-    assert.equal(scan.totalBare, 2, "two bare sites were written, one built-in and one project");
+    assert.equal(
+      scan.totalBare,
+      4,
+      "four bare sites: one built-in, one project, one built-in behind an unknown param, " +
+        "and one project behind an unknown param",
+    );
     assert.equal(
       scan.totalCoded,
       1,
       "the coded site must be seen by the coded scanner, not this one",
     );
-    assert.equal(scan.projectClassLowerBound, 1, "exactly one bare site throws a project class");
-    assert.equal(scan.builtinClassUnclassified, 1, "exactly one bare site throws a built-in class");
+    assert.equal(scan.projectClassLowerBound, 2, "two bare sites throw a project class");
+    assert.equal(scan.builtinClassUnclassified, 2, "two bare sites throw a built-in class");
+    assert.equal(
+      scan.unknownParamLowerBound,
+      1,
+      "only the BUILT-IN site behind an unknown param counts here; the project site behind " +
+        "one is already in the first bound and must not be counted twice",
+    );
+    assert.equal(scan.refusalPathLowerBound, 3, "the two disjoint signals reach three of the four");
+    assert.equal(scan.unreachedByEitherSignal, 1, "one site is reached by neither signal");
 
     // The invariants themselves, now standing on inputs this test owns.
     assert.equal(
       scan.projectClassLowerBound + scan.builtinClassUnclassified,
       scan.totalBare,
       "the lower bound and the unclassified remainder must sum to the bare total",
+    );
+
+    // The two bounds are disjoint by construction: the unknown-parameter
+    // signal is counted only among the built-in remainder. If that ever
+    // stopped holding they would double-count and the combined bound would
+    // exceed the population it is a bound on.
+    assert.equal(
+      scan.refusalPathLowerBound,
+      scan.projectClassLowerBound + scan.unknownParamLowerBound,
+      "the combined bound must be the sum of the two disjoint signals",
+    );
+    assert.ok(
+      scan.unknownParamLowerBound <= scan.builtinClassUnclassified,
+      "the unknown-parameter bound is counted among the built-in remainder and cannot exceed it",
+    );
+    assert.equal(
+      scan.unreachedByEitherSignal,
+      scan.builtinClassUnclassified - scan.unknownParamLowerBound,
+      "the residue must be exactly what neither signal reaches",
+    );
+    assert.ok(
+      scan.refusalPathLowerBound < scan.totalBare,
+      "a combined bound equal to the total would mean it is no longer a bound",
     );
     assert.ok(
       scan.projectClassLowerBound > 0,
@@ -185,8 +242,8 @@ describe("bare throw ratchet (am-muyh)", () => {
     );
     assert.deepEqual(
       scan.projectClassCounts,
-      [["WidgetError", 1]],
-      "the breakdown must name the class it counted",
+      [["WidgetError", 2]],
+      "the breakdown must name the class it counted, once per site",
     );
     assert.equal(
       [...scan.byRoot.values()].reduce((n, t) => n + t.bare, 0),
