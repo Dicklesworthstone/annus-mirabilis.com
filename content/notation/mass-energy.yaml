@@ -368,7 +368,7 @@ entries:
 
   - id: me.phi.emissionAngle
     paper: mass-energy
-    scope: ["me-s0-p7", "me-s0-p8", "me-s0-p9", "me-s0-p10", "me-s0-p11", "me-s0-p12", "me-s0-p13", "me-s0-p14", "me-s0-p15"]
+    scope: ["me-s0-p7", "me-s0-p11", "me-s0-p12", "me-s0-p13", "me-s0-p14", "me-s0-p15"]
     glyph:
       unicode: "φ"
       latex: "\\varphi"
@@ -484,14 +484,14 @@ entries:
       kind: cross-paper
       collidesWith: ["electricFieldStationary", "lightComplexEnergyStationary"]
       collidesWithModern: ["electricFieldStationary"]
-      firstUseAnchor: me-s0-p9
+      firstUseAnchor: me-s0-p7
       firstUseBySection:
         - sectionId: me-s0
-          anchor: me-s0-p9
+          anchor: me-s0-p7
     notes: "Body rest-frame energy. Collides with electric field E in modern usage and light complex energy in paper 3."
     sources:
       facsimilePage: 640
-      anchor: me-s0-p9
+      anchor: me-s0-p7
     verification:
       printed: true
       checkedAgainst: "Pinned facsimile ap-18-639 (sha256 c4770702edca3047c324a92cc0a008e27355c236b3e5e0a87d75eea630ab5f19), pages 639-641 re-rendered at 400 dpi and read as images; no OCR. Log: docs/editorial/mass-energy-notation-verification.md"
@@ -576,7 +576,7 @@ entries:
         modernGlyph: "H"
     sources:
       facsimilePage: 640
-      anchor: me-s0-p9
+      anchor: me-s0-p7
     verification:
       printed: true
       checkedAgainst: "Pinned facsimile ap-18-639 (sha256 c4770702edca3047c324a92cc0a008e27355c236b3e5e0a87d75eea630ab5f19), pages 639-641 re-rendered at 400 dpi and read as images; no OCR. Log: docs/editorial/mass-energy-notation-verification.md"
@@ -607,14 +607,14 @@ entries:
       kind: cross-paper
       collidesWith: ["stationarySystemLabel", "dragForce"]
       collidesWithModern: ["dragForce"]
-      firstUseAnchor: me-s0-p9
+      firstUseAnchor: me-s0-p7
       firstUseBySection:
         - sectionId: me-s0
-          anchor: me-s0-p9
+          anchor: me-s0-p7
     notes: "Kinetic energy of the body in the moving system before emission. K has only this meaning in paper 4; the stationary-system K belongs to paper 3 and the force K to paper 2."
     sources:
       facsimilePage: 641
-      anchor: me-s0-p9
+      anchor: me-s0-p7
     verification:
       printed: true
       checkedAgainst: "Pinned facsimile ap-18-639 (sha256 c4770702edca3047c324a92cc0a008e27355c236b3e5e0a87d75eea630ab5f19), pages 639-641 re-rendered at 400 dpi and read as images; no OCR. Log: docs/editorial/mass-energy-notation-verification.md"
@@ -639,7 +639,7 @@ entries:
         modernGlyph: "K_1"
     sources:
       facsimilePage: 641
-      anchor: me-s0-p9
+      anchor: me-s0-p7
     verification:
       printed: true
       checkedAgainst: "Pinned facsimile ap-18-639 (sha256 c4770702edca3047c324a92cc0a008e27355c236b3e5e0a87d75eea630ab5f19), pages 639-641 re-rendered at 400 dpi and read as images; no OCR. Log: docs/editorial/mass-energy-notation-verification.md"
@@ -648,7 +648,7 @@ entries:
 
   - id: me.K.kineticEnergy
     paper: mass-energy
-    scope: ["me-s0-p9", "me-s0-p10", "me-s0-p11", "me-s0-p12", "me-s0-p13", "me-s0-p14", "me-s0-p15"]
+    scope: ["me-s0-p7", "me-s0-p11", "me-s0-p12", "me-s0-p13", "me-s0-p14", "me-s0-p15"]
     glyph:
       unicode: "K"
       latex: "K"
@@ -667,14 +667,14 @@ entries:
       kind: cross-paper
       collidesWith: ["stationarySystemLabel", "dragForce"]
       collidesWithModern: ["dragForce"]
-      firstUseAnchor: me-s0-p9
+      firstUseAnchor: me-s0-p7
       firstUseBySection:
         - sectionId: me-s0
-          anchor: me-s0-p9
+          anchor: me-s0-p7
     notes: "Kinetic energy relative to the moving system. K has only this meaning in paper 4; it collides across papers with the stationary system K of paper 3 and the force K of paper 2."
     sources:
       facsimilePage: 640
-      anchor: me-s0-p9
+      anchor: me-s0-p7
     verification:
       printed: true
       checkedAgainst: "Pinned facsimile ap-18-639 (sha256 c4770702edca3047c324a92cc0a008e27355c236b3e5e0a87d75eea630ab5f19), pages 639-641 re-rendered at 400 dpi and read as images; no OCR. Log: docs/editorial/mass-energy-notation-verification.md"
@@ -726,14 +726,14 @@ entries:
       kind: cross-paper
       collidesWith: ["capacitance", "integrationConstant"]
       collidesWithModern: ["capacitance"]
-      firstUseAnchor: me-s0-p9
+      firstUseAnchor: me-s0-p7
       firstUseBySection:
         - sectionId: me-s0
-          anchor: me-s0-p9
+          anchor: me-s0-p7
     notes: "Additive constant in H - E = K + C. Cancels in differences H0 - H1 and E0 - E1 because C depends on v and arbitrary energy baseline, which are unchanged by emission."
     sources:
       facsimilePage: 640
-      anchor: me-s0-p9
+      anchor: me-s0-p7
     verification:
       printed: true
       checkedAgainst: "Pinned facsimile ap-18-639 (sha256 c4770702edca3047c324a92cc0a008e27355c236b3e5e0a87d75eea630ab5f19), pages 639-641 re-rendered at 400 dpi and read as images; no OCR. Log: docs/editorial/mass-energy-notation-verification.md"
