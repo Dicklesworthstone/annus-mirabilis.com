@@ -215,9 +215,20 @@ rules:
       - "✓"
       - "✗"
     markWordsProseExempt: true
+    # Technical compounds of "points". The flagged word is the plural "points", so only plural
+    # compounds can match; "data point" below is inert and kept only because it predates this entry.
+    # This list is deliberately an explicit enumeration and NOT a "<any word> points" pattern: a
+    # pattern would let "bonus points", "reward points" and "experience points" through, which is
+    # precisely the gamification this rule exists to catch. Anything not named here still fires, so
+    # the exception is precision, not relaxation. Exemption is per occurrence, not per string: in
+    # "Earn 5 points for every 10 data points you plot." the scoring "points" still errors.
+    # Extending this list is a gate change; see docs/DECISIONS.md D-2026-09-19-theater-points-compounds.
     allowlist:
       - data points
       - data point
+      - plot points
+      - sample points
+      - grid points
     severityByContext:
       task-feedback: error
       reader-progress: error

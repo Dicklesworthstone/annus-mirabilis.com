@@ -280,6 +280,74 @@ describe("theater", () => {
       false,
     );
   });
+
+  // am-a33s: the theater rule must let honest scientific "<technical> points" prose through while
+  // still catching prose that dresses a reader's activity up as a game.
+  it("am-a33s: technical points compounds pass in every context that scores theater as an error", () => {
+    // The original false positive, verbatim from TableToPlotBuilder.tsx:81 before ef5e69a reworded it.
+    assert.equal(has(checkVoice("Plot all data points", { context: "ui-label" }), "theater"), false);
+    assert.equal(has(checkVoice("connect the plot points", { context: "prose" }), "theater"), false);
+    assert.equal(
+      has(checkVoice("sample points along the curve", { context: "prose" }), "theater"),
+      false,
+    );
+    assert.equal(
+      has(checkVoice("interpolate between grid points", { context: "prose" }), "theater"),
+      false,
+    );
+    // Same compounds in the strict contexts, where a miss would be an error rather than a flag.
+    assert.equal(
+      has(checkVoice("Show the grid points", { context: "task-feedback" }), "theater"),
+      false,
+    );
+    assert.equal(
+      has(checkVoice("12 sample points recorded", { context: "reader-progress" }), "theater"),
+      false,
+    );
+  });
+
+  it("am-a33s planted negative: a '<any word> points' rule would pass these, so they must still fail", () => {
+    // These are the exact shape of the allowlisted compounds: one word, then "points". A naive fix
+    // that allowed any modifier before "points" would let every one of them through, which would
+    // blind the rule to the gamification it exists to catch. The enumeration must keep them failing.
+    for (const phrase of ["bonus points", "reward points", "experience points", "extra points"]) {
+      assert.equal(
+        has(checkVoice(phrase, { context: "task-feedback" }), "theater", "error"),
+        true,
+        `"${phrase}" is gamification vocabulary and must still be an error`,
+      );
+    }
+  });
+
+  it("am-a33s planted negative: the exemption is per occurrence, not per string", () => {
+    // A naive fix that bailed out on any text containing an allowlisted phrase would pass this.
+    // The scoring "points" must still be caught even when a legitimate compound sits beside it.
+    const mixed = checkVoice("Earn 5 points for every 10 data points you plot.", {
+      context: "task-feedback",
+    });
+    const theater = mixed.filter((f) => f.rule === "theater");
+    assert.equal(theater.length, 1, "exactly the scoring occurrence is reported");
+    assert.equal(theater[0]?.matchedText.toLowerCase(), "points");
+    assert.equal(theater[0]?.severity, "error");
+  });
+
+  it("am-a33s planted negative: the rest of the theater vocabulary is untouched", () => {
+    // Guards against a fix that widened the allowlist mechanism itself rather than this one word.
+    assert.equal(has(checkVoice("points", { context: "ui-label" }), "theater", "error"), true);
+    assert.equal(
+      has(checkVoice("earn points for each passage", { context: "task-feedback" }), "theater", "error"),
+      true,
+    );
+    assert.equal(has(checkVoice("a streak of three", { context: "prose" }), "theater"), true);
+    assert.equal(
+      has(checkVoice("Your score so far", { context: "reader-progress" }), "theater", "error"),
+      true,
+    );
+    assert.equal(
+      has(checkVoice("climb the leaderboard", { context: "prose" }), "theater"),
+      true,
+    );
+  });
   it('gamification "points" fails in task-feedback and reader-progress, flags in prose', () => {
     const feedback = checkVoice("You earned 10 points!", { context: "task-feedback" });
     assert.equal(has(feedback, "theater", "error"), true);
