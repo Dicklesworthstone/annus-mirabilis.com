@@ -9,10 +9,7 @@ import {
   validateConfig,
   validateFacsimileAnchor,
 } from "./sources/facsimileSourceSchema.ts";
-import {
-  getDefaultConfigDir,
-  verifyFacsimileAnchors,
-} from "./verify-facsimile-anchors.ts";
+import { getDefaultConfigDir, verifyFacsimileAnchors } from "./verify-facsimile-anchors.ts";
 
 const CONFIG_DIR = getDefaultConfigDir();
 
@@ -86,7 +83,6 @@ describe("Facsimile Page Anchor Quality Gate (am-cf6m)", () => {
       const fullRes = validateConfig(config);
       expect(fullRes.valid).toBe(true);
     });
-
   });
 
   describe("2. Structural and Arithmetic Constraints", () => {
@@ -224,7 +220,9 @@ describe("Facsimile Page Anchor Quality Gate (am-cf6m)", () => {
       const res = validateFacsimileAnchor(cfg);
       expect(res.valid).toBe(false);
       expect(res.refusalCode).toBe("FACSIMILE_PAGE_OFFSET_MISMATCH");
-      expect(res.errors[0]).toContain("parentPageIndices[0] (25) does not match expected parent page index (20)");
+      expect(res.errors[0]).toContain(
+        "parentPageIndices[0] (25) does not match expected parent page index (20)",
+      );
     });
   });
 

@@ -490,7 +490,10 @@ export function pdfPageTexts(pdfPath: string): string[] {
 const FOLIO_PATTERN = /(?<!\d)(\d{2,4})(?!\d)/g;
 
 /** Folio candidates from the head and foot of each page, where running heads and page numbers sit. */
-export function folioObservations(pageTexts: readonly string[], startIndex = 1): FolioObservation[] {
+export function folioObservations(
+  pageTexts: readonly string[],
+  startIndex = 1,
+): FolioObservation[] {
   const observations: FolioObservation[] = [];
   for (let i = 0; i < pageTexts.length; i++) {
     const lines = (pageTexts[i] ?? "")
@@ -618,7 +621,12 @@ export function verifyPin(config: unknown, repoRoot: string): PinResult {
     });
     return { key, verified: false, facts, findings };
   }
-  if (printedFirst === null || printedLast === null || declaredFirstIndex === null || declaredLastIndex === null) {
+  if (
+    printedFirst === null ||
+    printedLast === null ||
+    declaredFirstIndex === null ||
+    declaredLastIndex === null
+  ) {
     findings.push({
       check: "artifact",
       code: "INVALID_CONFIG",
@@ -683,8 +691,7 @@ export function verifyPin(config: unknown, repoRoot: string): PinResult {
       findings.push({
         check: "artifact",
         code: "PINNED_PAGE_COUNT_MISMATCH",
-        message:
-          `Config '${key}': pinned PDF holds ${extractPages} pages but the record says ${pinned.pageCount}.`,
+        message: `Config '${key}': pinned PDF holds ${extractPages} pages but the record says ${pinned.pageCount}.`,
       });
     }
     const parentPages = pdfPageCount(parentPath);
@@ -838,9 +845,7 @@ function num(value: number | null): string {
 export function formatPinReport(report: FacsimilePinReport): string {
   const lines: string[] = ["=== Pinned Facsimile Verification Gate (am-cf6m) ==="];
   lines.push("");
-  lines.push(
-    "key         printed      declared  anchor  folio   extract-is  content",
-  );
+  lines.push("key         printed      declared  anchor  folio   extract-is  content");
   for (const result of report.results) {
     const f = result.facts;
     lines.push(

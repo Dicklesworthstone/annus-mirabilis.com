@@ -215,10 +215,7 @@ describe("Pinned Facsimile Verification Gate (am-cf6m)", () => {
     });
 
     test("a folio vote without a clear winner refuses rather than picking one", () => {
-      const contested = [
-        ...parentVoting(-206, 210, 40),
-        ...parentVoting(-200, 210, 40),
-      ];
+      const contested = [...parentVoting(-206, 210, 40), ...parentVoting(-200, 210, 40)];
       expect(consensusOffsetFrom(contested)).toBeNull();
     });
   });
@@ -288,12 +285,16 @@ describe("Pinned Facsimile Verification Gate (am-cf6m)", () => {
 
   describe("3. The locator states only what it has confirmed", () => {
     test("a folio candidate is reported only when that parent page renders identically", () => {
-      const rendered: Record<number, string> = { 97: MEASURED.ap19Parent97, 83: MEASURED.ap19Parent83 };
+      const rendered: Record<number, string> = {
+        97: MEASURED.ap19Parent97,
+        83: MEASURED.ap19Parent83,
+      };
       const located = locateExtractInParent({
         parentPath: "/parent.pdf",
         parentPageCount: 239,
         extractFirstHash: MEASURED.ap19ExtractFirst,
-        extractFirstPageText: "Neue Bestimmung der Moleküldimensionen.       303\nr, lumeneinheit u",
+        extractFirstPageText:
+          "Neue Bestimmung der Moleküldimensionen.       303\nr, lumeneinheit u",
         consensusOffset: -206,
         renderHash: (_p, page) => rendered[page] ?? "no-such-page",
       });
@@ -320,7 +321,9 @@ describe("Pinned Facsimile Verification Gate (am-cf6m)", () => {
       );
       expect(observations).toContainEqual({ pageIndex: 219, folio: 591 });
       expect(observations).toContainEqual({ pageIndex: 220, folio: 592 });
-      expect(consensusOffsetFrom([...observations, ...parentVoting(-372, 400, 30)])?.offset).toBe(-372);
+      expect(consensusOffsetFrom([...observations, ...parentVoting(-372, 400, 30)])?.offset).toBe(
+        -372,
+      );
     });
   });
 
@@ -363,23 +366,19 @@ describe("Pinned Facsimile Verification Gate (am-cf6m)", () => {
   });
 
   describe("6. The pins on disk", () => {
-    test(
-      "every pinned facsimile verifies against its parent",
-      () => {
-        const report = verifyFacsimilePins();
-        if (!report.valid) {
-          // This is the deliverable red. Three pins carry wrong page windows (ap-17-549's
-          // config, ap-19-289's and ap-34-591's stale extracts) and re-pinning is owner-
-          // authorized work. This gate stays red until the owner authorizes the repair; do
-          // not silence it by editing configs, adding anchors, or exempting a key. If the
-          // report below says a parent scan is not on disk, the pins were not verified here
-          // either: /sources is git-ignored, so run this where the parents were downloaded.
-          throw new Error(`\n${formatPinReport(report)}`);
-        }
-        expect(report.valid).toBe(true);
-        expect(report.refusedCount).toBe(0);
-      },
-      180_000,
-    );
+    test("every pinned facsimile verifies against its parent", () => {
+      const report = verifyFacsimilePins();
+      if (!report.valid) {
+        // This is the deliverable red. Three pins carry wrong page windows (ap-17-549's
+        // config, ap-19-289's and ap-34-591's stale extracts) and re-pinning is owner-
+        // authorized work. This gate stays red until the owner authorizes the repair; do
+        // not silence it by editing configs, adding anchors, or exempting a key. If the
+        // report below says a parent scan is not on disk, the pins were not verified here
+        // either: /sources is git-ignored, so run this where the parents were downloaded.
+        throw new Error(`\n${formatPinReport(report)}`);
+      }
+      expect(report.valid).toBe(true);
+      expect(report.refusedCount).toBe(0);
+    }, 180_000);
   });
 });
