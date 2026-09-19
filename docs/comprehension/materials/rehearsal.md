@@ -1,5 +1,28 @@
 # Internal Facilitation Rehearsal Record
 
+> **VERIFICATION STATUS: UNVERIFIED.** Nothing outside this document corroborates that the
+> session below took place. The date, the facilitator id, the volunteer id, the timings and
+> the observations are as written here and nowhere else: there is no consent form on file for
+> the volunteer, no observation sheet from the session, no counter-signature, and no round
+> report, because a rehearsal is deliberately not a round. A reader of this file cannot tell a
+> real rehearsal that was written up from an account that was composed.
+>
+> **What would make it verifiable**, any one of which is enough and none of which may be
+> back-filled from this document: the completed observation sheet from the session, filed
+> beside this record; a second person named in the record who was present and can confirm it;
+> or a fresh rehearsal run and recorded under `docs/comprehension/PROTOCOL.md` with its
+> artefacts kept.
+>
+> **Consequence, stated rather than implied.** This bead's Test Plan requires "a dry run of one
+> session with an internal volunteer". An account that cannot be distinguished from a written
+> one does not establish that a dry run happened, so that item is NOT satisfied while this
+> banner stands. Nothing below has been deleted or altered: if the session did happen, the
+> record is intact and only needs its corroboration filed.
+>
+> Raised by pane28 on am-edit-comprehension-protocol-ouih; marked by pane29 on 2026-09-19.
+> AGENTS.md forbids manufacturing observations, so no verifier, date or session has been
+> invented to close this.
+
 **Context:** Internal rehearsal dry run to test facilitator script, timing, and recording procedures prior to recruiting public study participants.
 **Date:** 2026-09-16
 **Facilitator ID:** `open-comprehension-brownian-motion`
