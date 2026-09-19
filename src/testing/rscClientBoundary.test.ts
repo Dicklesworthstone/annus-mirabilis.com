@@ -574,10 +574,7 @@ describe("RSC Client Boundary Gate", () => {
         if (f.path === "src/content/kernel/trace.ts") {
           return {
             ...f,
-            content: f.content.replace(
-              'from "./traceValidation.ts";',
-              'from "./bindings.ts";',
-            ),
+            content: f.content.replace('from "./traceValidation.ts";', 'from "./bindings.ts";'),
           };
         }
         return f;
@@ -586,9 +583,7 @@ describe("RSC Client Boundary Gate", () => {
       const violations = checkClientBoundaries(plantedFiles);
       expect(violations.length).toBeGreaterThanOrEqual(1);
 
-      const bindingsViolation = violations.find(
-        (v) => v.file === "src/content/kernel/bindings.ts",
-      );
+      const bindingsViolation = violations.find((v) => v.file === "src/content/kernel/bindings.ts");
       expect(bindingsViolation).toBeDefined();
       expect(bindingsViolation?.kind).toBe("node-builtin-in-client-component");
       expect(bindingsViolation?.builtins).toContain("node:fs");
@@ -755,9 +750,7 @@ describe("RSC Client Boundary Gate", () => {
     it("rejects the historical defect: a client component reaching a filesystem-backed schema module", () => {
       const violations = checkSchemaLayerBoundaries(HISTORICAL_DEFECT);
 
-      const entry = violations.filter(
-        (v) => v.kind === "node-builtin-in-client-reachable-schema",
-      );
+      const entry = violations.filter((v) => v.kind === "node-builtin-in-client-reachable-schema");
       expect(entry.length).toBe(1);
       expect(entry[0]?.file).toBe("src/content/schemas/glossConventions.ts");
       expect(entry[0]?.builtins).toContain("node:fs");

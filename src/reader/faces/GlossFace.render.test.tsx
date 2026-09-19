@@ -139,4 +139,3 @@ describe("GlossFace component rendering and interactions", () => {
     expect(html).toContain('tabindex="0"');
   });
 });
-

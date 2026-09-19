@@ -495,7 +495,6 @@ export function collectAppRouterSourceFiles(rootDir: string = process.cwd()): So
   return records;
 }
 
-
 /* ------------------------------------------------------------------------- *
  * Schema layer boundary (am-bwnf)
  *

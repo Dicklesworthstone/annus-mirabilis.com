@@ -105,9 +105,15 @@ export function GlossPair({
       </span>
 
       {isReasoningMarked && activeGrammarNote && (
-        <span className="gloss-grammar-cue cue-reasoning-fallback" role="note"
-          title={activeGrammarNote} aria-label={`Grammar note: ${activeGrammarNote}`}>
-          <span className="cue-dot" aria-hidden="true">•</span>
+        <span
+          className="gloss-grammar-cue cue-reasoning-fallback"
+          role="note"
+          title={activeGrammarNote}
+          aria-label={`Grammar note: ${activeGrammarNote}`}
+        >
+          <span className="cue-dot" aria-hidden="true">
+            •
+          </span>
         </span>
       )}
       {activeGrammarNote && (

@@ -9,8 +9,8 @@ import type {
   SourceBlock,
   TranslationUnit,
 } from "../../content/schemas/source.ts";
-import { buildAlignmentIndex } from "./alignment.ts";
 import { AlignmentController } from "./AlignmentController.tsx";
+import { buildAlignmentIndex } from "./alignment.ts";
 import { FootnotesSection } from "./Footnote.tsx";
 import { GlossSentence } from "./GlossSentence.tsx";
 import { isPaperTranslationUnreviewed } from "./reviewState.ts";
@@ -61,7 +61,6 @@ export function GlossFace({
   initialReasoningWords = false,
   modalityClasses,
 }: GlossFaceProps) {
-
   // If no source blocks exist for the paper, render an honest fallback
   if (!blocks || blocks.length === 0) {
     return (
@@ -77,9 +76,7 @@ export function GlossFace({
   }
 
   // Build alignment index for looking up aligned translations by sentenceId
-  const alignmentIndex = alignment
-    ? buildAlignmentIndex(alignment, blocks, translations)
-    : null;
+  const alignmentIndex = alignment ? buildAlignmentIndex(alignment, blocks, translations) : null;
   const glossMap = new Map<string, GlossUnit>(glossUnits.map((g) => [g.sentenceId, g]));
   const translationMap = new Map<string, TranslationUnit>(translations.map((t) => [t.id, t]));
 

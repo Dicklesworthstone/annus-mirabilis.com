@@ -24,8 +24,6 @@ import { checkConstraints, loadRightsVocabulary, requiredFieldsFor } from "./rig
 
 export { type Inline, plainText, validateInline } from "./inlines.ts";
 
-import { type SpanAnchor, validateSpanAnchor } from "./spans.ts";
-
 /**
  * The closed vocabularies live in the client-safe half of this schema
  * (`source.pure.ts`): they are values a reading face legitimately needs, and
@@ -43,9 +41,10 @@ import {
   PAPER_SLUGS,
   type PaperSlug,
   SOURCE_BLOCK_KINDS,
-  type SourceBlockKind,
   SOURCE_SCHEMA_VERSION,
+  type SourceBlockKind,
 } from "./source.pure.ts";
+import { type SpanAnchor, validateSpanAnchor } from "./spans.ts";
 
 export {
   EDITORIAL_NOTE_KINDS,
@@ -57,8 +56,8 @@ export {
   PAPER_SLUGS,
   type PaperSlug,
   SOURCE_BLOCK_KINDS,
-  type SourceBlockKind,
   SOURCE_SCHEMA_VERSION,
+  type SourceBlockKind,
 } from "./source.pure.ts";
 
 export { type SpanAnchor, spanTextDigest, validateSpanAnchor } from "./spans.ts";
@@ -76,7 +75,6 @@ export class SchemaValidationError extends Error {
     this.path = path;
   }
 }
-
 
 // 1. PAPER
 
@@ -1172,7 +1170,6 @@ export function validateAlignment(raw: unknown, path = "Alignment"): Alignment {
 }
 
 // 6. GLOSS UNIT
-
 
 export type GlossToken = Readonly<{
   german: string;
