@@ -141,6 +141,55 @@ export function unchannelledRules(rules: readonly ColourRule[]): ColourRule[] {
  * theme-aware) or when a `[data-theme="..."]` rule re-paints the same selector.
  * ------------------------------------------------------------------------- */
 
+/**
+ * Removes `@media print` blocks before the dark-theme sweep runs.
+ *
+ * Print output is never themed: src/platform/print/print.css opens its print
+ * block with a universal reset, `*, *::before, *::after { background:
+ * transparent; color: #000000; }`, and notation.css's print block sets
+ * `.notation-page { color: #000; background: #fff; }`. So a rule inside a print
+ * block that paints a pale background and sets no colour inherits BLACK, not the
+ * theme's near-white --ink, and is correct rather than broken.
+ *
+ * Without this, the sweep reported three such rules as unreadable - notation.css's
+ * printed .concordance-card and .honesty-banner and print.css's
+ * .print-scale-facts-table th - and "fixing" them would have themed a monochrome
+ * page. The scanner cannot see @media context or an ancestor's inherited colour,
+ * so the context is removed instead of modelled.
+ */
+export function stripPrintBlocks(css: string): string {
+  let out = "";
+  let i = 0;
+  while (i < css.length) {
+    const at = css.indexOf("@media", i);
+    if (at === -1) {
+      out += css.slice(i);
+      break;
+    }
+    const open = css.indexOf("{", at);
+    if (open === -1) {
+      out += css.slice(i);
+      break;
+    }
+    const prelude = css.slice(at, open);
+    if (!/\bprint\b/.test(prelude)) {
+      out += css.slice(i, open + 1);
+      i = open + 1;
+      continue;
+    }
+    let depth = 1;
+    let j = open + 1;
+    while (j < css.length && depth > 0) {
+      if (css[j] === "{") depth++;
+      else if (css[j] === "}") depth--;
+      j++;
+    }
+    out += css.slice(i, at);
+    i = j;
+  }
+  return out;
+}
+
 const HARDCODED_BG = /background(?:-color)?:\s*(#[0-9a-fA-F]{6}|#[0-9a-fA-F]{3})\b/;
 const OWN_COLOUR = /(^|[\s;])color:/;
 
@@ -177,7 +226,7 @@ export function scanInheritedInkFailures(
   }
   const all: Rule[] = [];
   for (const file of findProjectCssFiles(cssRoot)) {
-    const raw = readFileSync(file, "utf8").replace(COMMENT, "");
+    const raw = stripPrintBlocks(readFileSync(file, "utf8").replace(COMMENT, ""));
     for (const m of raw.matchAll(RULE)) {
       all.push({
         file: file.slice(repoRoot.length + 1),
@@ -191,12 +240,33 @@ export function scanInheritedInkFailures(
   const overridden = new Map<string, Set<string>>();
   for (const theme of Object.keys(darkThemeInk)) overridden.set(theme, new Set());
   for (const rule of all) {
-    const m = rule.selector.match(/\[data-theme="([a-z-]+)"\]\s*(.*)$/);
-    if (!m || !/background(-color)?:|(^|[\s;])color:/.test(rule.body)) continue;
-    const bucket = overridden.get(m[1] ?? "");
-    if (!bucket) continue;
-    for (const part of (m[2] ?? "").split(",")) bucket.add(part.trim());
+    if (!/background(-color)?:|(^|[\s;])color:/.test(rule.body)) continue;
+    // Split the comma group FIRST: a theme override may list several parts, each
+    // carrying its own [data-theme="..."] prefix, and matching the whole string
+    // would leave the prefix glued to every part after the first.
+    for (const part of rule.selector.split(",")) {
+      const m = part.trim().match(/^\[data-theme="([a-z-]+)"\]\s*(.*)$/);
+      if (!m) continue;
+      const bucket = overridden.get(m[1] ?? "");
+      if (bucket) bucket.add((m[2] ?? "").trim());
+    }
   }
+
+  /**
+   * Selectors whose own rule sets `color`. A state rule such as
+   * `.genealogy-node-btn:hover { background: #f7f3eb }` inherits its colour from
+   * `.genealogy-node-btn { color: #2b2621 }`, the SAME element, not from --ink,
+   * so it is self-consistent in every theme. Only the state rule is inspected by
+   * the loop below, so without this the hover rule reads as unreadable.
+   */
+  const selfColoured = new Set<string>();
+  for (const rule of all) {
+    if (!OWN_COLOUR.test(rule.body)) continue;
+    for (const part of rule.selector.split(",")) selfColoured.add(part.trim());
+  }
+  /** Strips a trailing state so `.x:hover` and `.x[data-selected="true"]` find `.x`. */
+  const baseOf = (selector: string): string =>
+    selector.replace(/(?::[a-z-]+(?:\([^)]*\))?|\[[^\]]*\]|\.is-[a-z-]+)+$/i, "").trim();
 
   const failures: InheritedInkFailure[] = [];
   for (const rule of all) {
@@ -207,6 +277,8 @@ export function scanInheritedInkFailures(
     for (const [theme, ink] of Object.entries(darkThemeInk)) {
       for (const part of rule.selector.split(",").map((s) => s.trim())) {
         if (overridden.get(theme)?.has(part)) continue;
+        const base = baseOf(part);
+        if (base !== part && base !== "" && selfColoured.has(base)) continue;
         const ratio = contrast(ink, background);
         if (ratio < minRatio) {
           failures.push({

@@ -10,6 +10,7 @@ import {
   scanColourRules,
   scanInheritedInkFailures,
   scanThemeSelectors,
+  stripPrintBlocks,
   unchannelledRules,
 } from "./colourChannels";
 import { auditThemeTokensContrast, LAYOUT_TOKENS, THEME_IDS, THEME_TOKENS } from "./tokens";
@@ -419,5 +420,50 @@ describe("contrast sweep: no stylesheet targets a theme that does not exist", ()
     const planted = [{ file: "derivation.css", line: 105, theme: "kramgasse" }];
     const dead = planted.filter((s) => !(THEME_IDS as readonly string[]).includes(s.theme));
     expect(dead).toHaveLength(1);
+  });
+});
+
+describe("contrast sweep: the two exemptions are narrow, not a blunting of the gate", () => {
+  // Both exemptions below REMOVE findings, so each is shown to remove only the
+  // case it names and to leave the real defect catchable.
+
+  test("stripPrintBlocks removes the print block and nothing around it", () => {
+    const css = [
+      ".before { background: #fffbeb; }",
+      "@media print { .printed { background: #f5f5f5; } }",
+      ".after { background: #eef2ff; }",
+    ].join("\n");
+    const stripped = stripPrintBlocks(css);
+    expect(stripped).toContain(".before");
+    expect(stripped).toContain(".after");
+    expect(stripped).not.toContain(".printed");
+    expect(stripped).not.toContain("#f5f5f5");
+  });
+
+  test("stripPrintBlocks keeps a non-print @media block, which the sweep must still police", () => {
+    const css = "@media (min-width: 40em) { .wide { background: #fffbeb; } }";
+    const stripped = stripPrintBlocks(css);
+    expect(stripped).toContain(".wide");
+    expect(stripped).toContain("#fffbeb");
+  });
+
+  test("stripPrintBlocks handles a nested block inside the print block without eating the rest", () => {
+    const css = [
+      "@media print { @page { margin: 1cm; } .printed { background: #f5f5f5; } }",
+      ".kept { background: #eef2ff; }",
+    ].join("\n");
+    const stripped = stripPrintBlocks(css);
+    expect(stripped).not.toContain(".printed");
+    expect(stripped).toContain(".kept");
+  });
+
+  test("the print exemption is load-bearing: print.css has rules the sweep would otherwise flag", () => {
+    // .print-scale-facts-table th sets background-color: #f5f5f5 and no colour.
+    // It is correct because print.css opens its block with a universal
+    // `*, *::before, *::after { color: #000000 }` reset.
+    const printCss = readFileSync(join(REPO_ROOT, "src/platform/print/print.css"), "utf8");
+    expect(printCss).toContain("background-color: #f5f5f5");
+    expect(printCss).toContain("color: #000000");
+    expect(stripPrintBlocks(printCss)).not.toContain("background-color: #f5f5f5");
   });
 });

@@ -224,7 +224,7 @@
 .collision-cluster-section {
   margin-bottom: 3rem;
   padding: 1.5rem;
-  background: #fff8f7;
+  background: var(--wash);
   border: 2px solid #e17055;
   border-radius: 6px;
 }

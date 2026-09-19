@@ -73,7 +73,7 @@
   overflow-x: auto;
   border: 1px solid #e0d9cb;
   border-radius: 0.5rem;
-  background: #ffffff;
+  background: var(--panel);
   padding: 1rem;
 }
 
@@ -95,7 +95,7 @@
 .genealogy-list-nav {
   margin-top: 1rem;
   padding: 1rem;
-  background: #fdfbf7;
+  background: var(--wash);
   border: 1px solid #e0d9cb;
   border-radius: 0.5rem;
 }

@@ -102,7 +102,8 @@
 }
 
 /* Dark mode (Kramgasse Night) theme override */
-[data-theme="kramgasse-night"] .derivation-step[data-is-move="true"] {
+[data-theme="kramgasse-night"] .derivation-step[data-is-move="true"],
+[data-theme="kramgasse-night"] .derivation-step.is-move {
   border-color: #f59e0b;
   background: #451a03;
 }
@@ -113,7 +114,8 @@
 }
 
 /* Slate / Chalkboard theme override */
-[data-theme="slate"] .derivation-step[data-is-move="true"] {
+[data-theme="slate"] .derivation-step[data-is-move="true"],
+[data-theme="slate"] .derivation-step.is-move {
   border: 2px dashed #f1f5f9;
   background: #1e293b;
 }

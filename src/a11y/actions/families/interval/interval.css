@@ -58,7 +58,11 @@
   font-family: inherit;
   border: 1px solid #bcb5a6;
   border-radius: 0.25rem;
-  background: #ffffff;
+  /* Was background: #ffffff with no colour, so the field painted white in every
+     theme while its text followed the theme: near-white on white in Kramgasse
+     Night and Slate. A text field has to state both. */
+  background: var(--paper);
+  color: var(--ink);
 }
 
 .interval-number-input:focus-visible {
