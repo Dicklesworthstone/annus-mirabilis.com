@@ -41,6 +41,8 @@ jobs:
         run: node --experimental-strip-types --test src/testing/*.test.mjs 2>&1 | tee artifacts/browser/reference-tests.log
       - name: Exercise the no-algebra reader entrances
         run: bun test --isolate src/testing/light-quanta-entrance-ui.test.tsx src/testing/clock-entrance-ui.test.tsx
+      - name: Exercise semantic equation integration and server-rendered gloss controls
+        run: bun test --isolate src/testing/mass-energy-equation-ui.test.tsx src/reader/faces/GlossFace.render.test.tsx src/reader/faces/GlossPair.render.test.tsx src/testing/gloss-reasoning-toggle.test.tsx
       - run: bun run typecheck
       - name: Build the complete production preview
         shell: bash

@@ -3,6 +3,7 @@ import { type FormEvent, useEffect, useId, useRef, useState, useSyncExternalStor
 import {
   ME02_CAPTION,
   ME02_MODEL,
+  ME02_OUTPUTS,
   ME02_NOT_MODELED,
   ME02_PREDICT_PROMPT,
   type Me02Parameters,
@@ -22,6 +23,10 @@ import {
 import { parseResult } from "../../experiments/results/codec.ts";
 import type { ScientificResult } from "../../experiments/results/types.ts";
 import type { AcceptedSnapshot, PublishedResult } from "../../experiments/store/instanceStore.ts";
+import { EquationScope } from "../../equations/EquationScope.tsx";
+import { SemanticEquation } from "../../equations/SemanticEquation.tsx";
+import type { CompiledEquation } from "../../equations/viewTypes.ts";
+import { deriveHostExecution } from "../../experiments/provenance/executionState.ts";
 import { PredictPanel } from "./PredictPanel.tsx";
 import { display, identity, result } from "./presentation.ts";
 
@@ -150,9 +155,13 @@ function CoefficientBars({ snapshot, clipId }: { snapshot: AcceptedSnapshot; cli
 export function CoefficientLab({
   example,
   title = "Inertia from the small-speed coefficient",
+  equations = [],
+  restoreSettings = false,
 }: {
   example: PreparedMe02Example;
   title?: string;
+  equations?: readonly CompiledEquation[];
+  restoreSettings?: boolean;
 }) {
   const id = useId();
   const [session] = useState(() => createMe02Session(`me02-${id}`, example));
@@ -177,15 +186,15 @@ export function CoefficientLab({
   useEffect(() => {
     if (linkLoaded.current) return;
     linkLoaded.current = true;
-    const linked = decodeMe02Settings(window.location.search);
-    if (linked.kind === "invalid") setError(`${linked.message} The prepared example is unchanged.`);
-    if (linked.kind === "settings") {
+    const linked = restoreSettings ? decodeMe02Settings(window.location.search) : null;
+    if (linked?.kind === "invalid") setError(`${linked.message} The prepared example is unchanged.`);
+    if (linked?.kind === "settings") {
       const outcome = session.apply(linked.parameters);
       if (outcome.kind === "accepted") setDraft(linked.parameters);
       else setError(outcome.refusal.message);
     }
     setReady(true);
-  }, [session]);
+  }, [session, restoreSettings]);
   function apply(parameters: Me02Parameters) {
     const outcome = session.apply(parameters);
     if (outcome.kind === "refused") {
@@ -219,6 +228,10 @@ export function CoefficientLab({
   const find = (outputs: ReturnType<typeof parseResult>[], quantityId: string) =>
     outputs.find((item) => item.quantityId === quantityId);
   const printed = example.printedConversion;
+  const execution = deriveHostExecution(view, ME02_OUTPUTS, example.sourceDigest,
+    snapshot === session.getServerSnapshot().accepted);
+  const boundEquations = equations.filter(equation => equation.paper === "mass-energy" &&
+    equation.bindings.length > 0 && equation.bindings.every(binding => binding.experimentId === "me-02"));
   return (
     <section
       className="laboratory"
@@ -362,15 +375,7 @@ export function CoefficientLab({
             onKeepToSelf={() => setPredictRecord((current) => keepToSelf(current))}
             onAmend={(choice) => setPredictRecord((current) => amendAfterReveal(current, choice))}
           />
-          <div
-            data-response=""
-            hidden={
-              ready &&
-              (predictRecord.state === "hidden" ||
-                predictRecord.state === "predicted" ||
-                predictRecord.state === "predicted-unrecorded")
-            }
-          >
+          <div data-response="">
             <h3>Accepted snapshot</h3>
             <table>
               <caption>
@@ -470,11 +475,32 @@ export function CoefficientLab({
           </div>
         </div>
       </div>
+      {boundEquations.length > 0 && <section id={restoreSettings ? "coefficient-equations" : `${id}-equations`}
+        aria-labelledby={`${id}-equations-title`} data-coefficient-equations>
+        <h3 id={`${id}-equations-title`}>Explore the accepted result, term by term</h3>
+        <p>Only declared result terms read this laboratory's accepted snapshot. Body energies,
+          the unknown offset and unbound inputs stay symbolic. A draft edit does not change these values.</p>
+        {p.energyUnit === "normalized" && <p className="notice" data-equation-unit-notice>
+          The current example uses normalized units (c = 1). These SI equations remain symbolic.
+          Choose joule or erg and apply settings to attach physical-unit results.
+        </p>}
+        <EquationScope scope={`me02-${id}`}
+          slots={[{ slot: "primary", experimentId: "me-02", view, execution }]}>
+          {boundEquations.map(equation => <details key={equation.id}>
+            <summary>{equation.title}</summary>
+            <SemanticEquation equation={equation} />
+          </details>)}
+        </EquationScope>
+        <p><a href="/papers/mass-energy/#arg-me-constant-premise">Return to the unchanged-offset premise →</a></p>
+      </section>}
       <p className="fine">Not modeled: {ME02_NOT_MODELED.join("; ")}.</p>
     </section>
   );
 }
 
-export function CoefficientComparison({ example }: { example: PreparedMe02Example }) {
-  return <CoefficientLab example={example} />;
+export function CoefficientComparison({ example, equations = [] }: {
+  example: PreparedMe02Example;
+  equations?: readonly CompiledEquation[];
+}) {
+  return <CoefficientLab example={example} equations={equations} restoreSettings />;
 }

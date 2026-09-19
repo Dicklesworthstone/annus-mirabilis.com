@@ -1,4 +1,5 @@
-import { useState } from "react";
+import { GlossReasoningToggle } from "./GlossReasoningToggle.tsx";
+import "./glossReasoning.css";
 import { getModalityClasses } from "../../content/schemas/glossConventions.ts";
 import type { ReviewRecord } from "../../content/schemas/review.ts";
 import type {
@@ -54,8 +55,6 @@ export function GlossFace({
   initialReasoningWords = false,
   modalityClasses: propModalityClasses,
 }: GlossFaceProps) {
-  const [showReasoningWords, setShowReasoningWords] = useState(initialReasoningWords);
-
   const activeModalityClasses = propModalityClasses ?? getModalityClasses();
 
   // If no source blocks exist for the paper, render an honest fallback
@@ -91,7 +90,7 @@ export function GlossFace({
       data-reader-root
       data-face="gloss"
       data-paper-slug={paper.slug}
-      data-reasoning-words={showReasoningWords ? "on" : "off"}
+      data-reasoning-words={initialReasoningWords ? "on" : "off"}
     >
       {/* Optional Unreviewed Translation Banner */}
       {hasUnreviewed && <UnreviewedBanner />}
@@ -124,17 +123,7 @@ export function GlossFace({
         </div>
 
         <div className="gloss-face-controls">
-          <label className="reasoning-toggle-label">
-            <input
-              type="checkbox"
-              id="toggle-reasoning-words"
-              data-toggle-reasoning="true"
-              checked={showReasoningWords}
-              onChange={(e) => setShowReasoningWords(e.target.checked)}
-              className="reasoning-toggle-checkbox"
-            />
-            <span className="toggle-text">Show the reasoning words</span>
-          </label>
+          <GlossReasoningToggle initiallyChecked={initialReasoningWords} />
         </div>
       </header>
 
@@ -220,7 +209,7 @@ export function GlossFace({
                         glossUnit={glossUnit}
                         englishTranslation={englishText}
                         paperSlug={paper.slug}
-                        showReasoningWords={showReasoningWords}
+                        showReasoningWords
                         modalityClasses={activeModalityClasses}
                       />
                     );

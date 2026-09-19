@@ -162,7 +162,7 @@ export function GlossSentence({
             </li>
           )}
           {showReasoningWords && (
-            <li>
+            <li data-reasoning-action>
               <button
                 type="button"
                 className="sentence-action-btn"

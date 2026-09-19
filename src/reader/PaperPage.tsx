@@ -3,6 +3,7 @@ import { ClockFirstEncounter } from "./entrances/ClockFirstEncounter.tsx";
 import lightQuantaEntrance from "../../content/arguments/light-quanta/entrance-light-quanta.json";
 import { LightQuantaFirstEncounter } from "./entrances/LightQuantaFirstEncounter.tsx";
 import { notFound } from "next/navigation";
+import { ArgumentEquations } from "./ArgumentEquations.tsx";
 import { validateEntranceRecord } from "../content/entrances/entranceRecord.ts";
 import { loadPaper } from "../content/server.ts";
 import type { CompiledMissingStepLesson } from "../equations/missingStep/compiled.ts";
@@ -248,6 +249,7 @@ export async function PaperPage(request: PaperRouteRequest, options?: PaperPageO
                         .map((lesson) => (
                           <MissingStepDisclosure key={lesson.id} lesson={lesson} />
                         ))}
+                      <ArgumentEquations paperId={paper.id} argumentId={a.id} />
                       <details className="local-steps">
                         <summary>Show every step here: {a.title}</summary>
                         <ReadingBlocks

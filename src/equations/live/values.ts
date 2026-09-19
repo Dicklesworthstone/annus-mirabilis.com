@@ -61,6 +61,12 @@ export function readTermValue(
   });
   if (!slot?.view.accepted || slot.execution.label === "unavailable")
     return symbolic("No accepted value is available here.");
+  // ME-02 retains normalized c=1 settings for its teaching comparison. The SI
+  // equation catalogue must not mistake those numbers for joules/kilograms,
+  // even though the legacy output contract uses the same quantity identities.
+  if (slot.experimentId === "me-02" &&
+      !["joule", "erg"].includes(String(slot.view.accepted.parameters.energyUnit)))
+    return symbolic("SI substitution is unavailable for normalized units. Apply joule or erg settings in this laboratory first.");
   const outputs = slot.view.accepted.outputs.filter((o) => o.quantityId === term.quantityId);
   if (outputs.length !== 1)
     return symbolic("No unique accepted output is available for this term.");

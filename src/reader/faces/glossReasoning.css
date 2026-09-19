@@ -1,0 +1,19 @@
+.gloss-grammar-cue.cue-reasoning-fallback { display: none; }
+/* Server-render all marked source text once; native checkbox state controls the
+   optional reasoning layer even before hydration or when JavaScript is disabled.
+   Print deliberately retains reasoning emphasis while hiding interactive controls. */
+@media screen {
+  .gloss-face:not(:has([data-toggle-reasoning]:checked)) .reasoning-words-details,
+  .gloss-face:not(:has([data-toggle-reasoning]:checked)) .cue-reasoning-marked,
+  .gloss-face:not(:has([data-toggle-reasoning]:checked)) [data-reasoning-action] {
+    display: none;
+  }
+  .gloss-face:not(:has([data-toggle-reasoning]:checked)) .cue-reasoning-fallback {
+    display: inline-block;
+  }
+  .gloss-face:not(:has([data-toggle-reasoning]:checked)) .reasoning-marked-text {
+    font-weight: inherit;
+    text-decoration: none;
+  }
+}
+

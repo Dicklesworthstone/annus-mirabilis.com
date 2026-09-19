@@ -63,7 +63,7 @@ describe("GlossFace component rendering and interactions", () => {
     expect(html).toContain('data-parallel-fallback="true"');
   });
 
-  test("sentence actions: 3 standard actions present in stable order; 4th action present only when toggle is on", () => {
+  test("sentence actions: reasoning source is static and visibility follows the native toggle", () => {
     // Toggle OFF
     const htmlOff = renderToStaticMarkup(
       <GlossFace {...defaultProps} initialReasoningWords={false} />,
@@ -71,7 +71,12 @@ describe("GlossFace component rendering and interactions", () => {
     expect(htmlOff).toContain('data-action="read-german"');
     expect(htmlOff).toContain('data-action="read-glosses"');
     expect(htmlOff).toContain('data-action="read-translation"');
-    expect(htmlOff).not.toContain('data-action="read-reasoning"');
+    // The source layer is rendered once on the server. Native :checked CSS,
+    // rather than client-side removal/recreation, controls its visibility.
+    expect(htmlOff).toContain('data-action="read-reasoning"');
+    expect(htmlOff).toContain('data-reasoning-action="true"');
+    expect(htmlOff).toContain('data-reasoning-words="off"');
+    expect(htmlOff).not.toContain('checked=""');
 
     // Toggle ON
     const htmlOn = renderToStaticMarkup(

@@ -3,6 +3,8 @@ import { Formula } from "../../../components/edition/Formula.tsx";
 import { CoefficientComparison } from "../../../components/lab/CoefficientLab.tsx";
 import { validateMe02Parameters } from "../../../experiments/me02/parameters.ts";
 import example from "../../../generated/me02-example.json";
+import massEnergyEquations from "../../../generated/mass-energy-equations.json";
+import type { CompiledEquation } from "../../../equations/viewTypes.ts";
 
 export const metadata: Metadata = { title: "Inertia from the small-speed coefficient" };
 
@@ -29,7 +31,8 @@ export default function CoefficientPage() {
           <a href="/papers/mass-energy/#arg-me-small-speed">Read the coefficient argument (explanatory preview) →</a>
         </p>
       </header>
-      <CoefficientComparison example={{ ...example, parameters: checked.data }} />
+      <CoefficientComparison example={{ ...example, parameters: checked.data }}
+        equations={massEnergyEquations.equations as readonly CompiledEquation[]} />
       <section className="reading" id="coefficient-argument">
         <p className="eyebrow">Open the coefficient argument</p>
         <h2>The exact drop, then the Newtonian coefficient</h2>
