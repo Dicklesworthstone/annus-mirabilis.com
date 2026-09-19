@@ -36,7 +36,8 @@
  */
 
 import assert from "node:assert/strict";
-import { readFileSync } from "node:fs";
+import { mkdirSync, mkdtempSync, readFileSync, writeFileSync } from "node:fs";
+import { tmpdir } from "node:os";
 import { join } from "node:path";
 import { describe, it } from "node:test";
 import {
@@ -55,7 +56,7 @@ function readBaseline(): Map<string, number> {
 }
 
 describe("bare throw ratchet (am-muyh)", () => {
-  it("reports the bare throw census every run, including if it is zero", () => {
+  it("reports the live-tree census every run, including if it is zero", () => {
     const scan = scanBareThrows(ROOT);
 
     // The report is the point. It is printed unconditionally so the class
@@ -109,9 +110,61 @@ describe("bare throw ratchet (am-muyh)", () => {
       "the per-root totals must add up to the headline, or one root is uncounted",
     );
 
-    // The refusal-path signal is reported as two classes that sum to the
-    // whole. Neither may vanish, and the lower bound may never be presented
-    // as the total: the unclassified remainder is the honest part of it.
+    // The classifier's accounting invariants are NOT asserted here. They are
+    // statements about scanBareThrows' logic, and asserting them against the
+    // live tree makes them contingent on what the repository happens to
+    // contain: the day every bare throw carries a project class,
+    // `lowerBound < totalBare` fails and names the classifier, when what
+    // actually changed is the codebase. They are proven against an injected
+    // root in the test below.
+  });
+
+  it("accounts for every bare site against an injected root, not the live tree", () => {
+    // Isolation. Everything below is a claim about scanBareThrows' ACCOUNTING,
+    // so it runs on a root this test builds and fully controls. These
+    // assertions used to sit in the census test above, where they read the
+    // real repository: they held only while the codebase happened to contain
+    // both a project-defined and a built-in bare throw, and would have failed
+    // naming the classifier when the truth was that the tree had changed.
+    //
+    // The expected values here are derived from the fixture by construction -
+    // it is written to contain exactly one of each kind - not read back from a
+    // scan. No expected number was carried over from the live-tree assertions;
+    // those were all relational and remain so.
+    const root = mkdtempSync(join(tmpdir(), "bare-throw-injected-"));
+    mkdirSync(join(root, "src"), { recursive: true });
+    mkdirSync(join(root, "scripts"), { recursive: true });
+
+    // One bare throw of a BUILT-IN class: counts as bare, stays unclassified.
+    writeFileSync(
+      join(root, "src/builtin.ts"),
+      'export function a(): void {\n  throw new Error("prose with no code at all");\n}\n',
+    );
+    // One bare throw of a PROJECT-DEFINED class: counts as bare and as the
+    // measured lower bound on refusal path.
+    writeFileSync(
+      join(root, "src/project.ts"),
+      'export function b(): void {\n  throw new WidgetError("prose with no code at all");\n}\n',
+    );
+    // One CODED throw: not bare at all, and proof the two scanners disagree
+    // about this line on purpose.
+    writeFileSync(
+      join(root, "scripts/coded.ts"),
+      'export function c(): void {\n  throw new WidgetError({ code: "widget-unavailable", message: "x" });\n}\n',
+    );
+
+    const scan = scanBareThrows(root);
+
+    assert.equal(scan.totalBare, 2, "two bare sites were written, one built-in and one project");
+    assert.equal(
+      scan.totalCoded,
+      1,
+      "the coded site must be seen by the coded scanner, not this one",
+    );
+    assert.equal(scan.projectClassLowerBound, 1, "exactly one bare site throws a project class");
+    assert.equal(scan.builtinClassUnclassified, 1, "exactly one bare site throws a built-in class");
+
+    // The invariants themselves, now standing on inputs this test owns.
     assert.equal(
       scan.projectClassLowerBound + scan.builtinClassUnclassified,
       scan.totalBare,
@@ -119,18 +172,26 @@ describe("bare throw ratchet (am-muyh)", () => {
     );
     assert.ok(
       scan.projectClassLowerBound > 0,
-      "a lower bound of zero means the classifier is broken, not that the codebase " +
-        "defines no refusal error classes; it defines dozens",
+      "a lower bound of zero means the classifier cannot see a project-defined class",
     );
     assert.ok(
       scan.projectClassLowerBound < scan.totalBare,
-      "if every bare throw carried a project class the lower bound would be a total, " +
-        "and this test's framing would need revisiting rather than quietly holding",
+      "a lower bound equal to the total means the classifier cannot see a built-in class",
     );
     assert.equal(
       scan.projectClassCounts.reduce((n, [, c]) => n + c, 0),
       scan.projectClassLowerBound,
       "the per-class breakdown must account for every project-class site",
+    );
+    assert.deepEqual(
+      scan.projectClassCounts,
+      [["WidgetError", 1]],
+      "the breakdown must name the class it counted",
+    );
+    assert.equal(
+      [...scan.byRoot.values()].reduce((n, t) => n + t.bare, 0),
+      scan.totalBare,
+      "the per-root totals must add up to the headline",
     );
   });
 
