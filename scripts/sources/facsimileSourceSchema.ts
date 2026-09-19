@@ -34,10 +34,20 @@ export interface Candidate {
   maxBytes?: number | undefined;
 }
 
+export interface VerifiedAnchor {
+  parentPageIndex: number;
+  printedPage: number;
+  verifiedBy: string;
+  verifiedAt?: string | undefined;
+  verifiedDate?: string | undefined;
+  notes?: string | undefined;
+}
+
 export interface ArticlePages {
   printedFirst: number;
   printedLast: number;
   parentPageIndices?: number[] | undefined;
+  verifiedAnchor?: VerifiedAnchor | undefined;
 }
 
 export interface FacsimileRights {
@@ -82,6 +92,7 @@ export interface FacsimileSourceConfig {
   articlePages: ArticlePages;
   rights: FacsimileRights;
   pinned?: PinnedRecord | undefined;
+  verifiedAnchor?: VerifiedAnchor | undefined;
 }
 
 export type FacsimileErrorCode =
@@ -111,6 +122,9 @@ export type FacsimileErrorCode =
   // PARENT_PAGE_INDEX_MISSING. scripts/ is outside the typecheck program
   // (am-7mp8), so nothing reported the missing member.
   | "EXTRACTION_ERROR"
+  | "MISSING_VERIFIED_ANCHOR"
+  | "FACSIMILE_PAGE_OFFSET_MISMATCH"
+  | "NON_CONTIGUOUS_PARENT_PAGES"
   // Network failures (exit code 4)
   | "HTTP_NOT_HTTPS"
   | "REDIRECT_TO_HTTP"
@@ -140,6 +154,9 @@ export function getExitCodeForError(code: FacsimileErrorCode): number {
     case "HOST_CHECKSUM_MISMATCH":
     case "EXTRACTION_NONDETERMINISTIC":
     case "EXTRACTION_ERROR":
+    case "MISSING_VERIFIED_ANCHOR":
+    case "FACSIMILE_PAGE_OFFSET_MISMATCH":
+    case "NON_CONTIGUOUS_PARENT_PAGES":
       return 3;
     case "HTTP_NOT_HTTPS":
     case "REDIRECT_TO_HTTP":
@@ -397,6 +414,21 @@ export function validateConfig(config: unknown): ValidationResult {
     }
   }
 
+  // Verified anchor validation (if present)
+  if (
+    c.verifiedAnchor !== undefined ||
+    (isRecord(c.articlePages) && c.articlePages.verifiedAnchor !== undefined)
+  ) {
+    const anchorRes = validateFacsimileAnchor(c);
+    if (!anchorRes.valid) {
+      return {
+        valid: false,
+        errors: anchorRes.errors,
+        refusalCode: anchorRes.refusalCode,
+      };
+    }
+  }
+
   if (errors.length > 0) {
     return {
       valid: false,
@@ -406,4 +438,227 @@ export function validateConfig(config: unknown): ValidationResult {
   }
 
   return { valid: true, errors: [] };
+}
+
+export interface AnchorValidationResult {
+  valid: boolean;
+  errors: string[];
+  refusalCode?: FacsimileErrorCode | undefined;
+  anchor?: VerifiedAnchor | undefined;
+  offset?: number | undefined;
+}
+
+/**
+ * Validates that a facsimile source configuration records a verified anchor
+ * and that articlePages.printedFirst/printedLast map consistently onto parentPageIndices
+ * through the anchor's offset, with contiguous indices and matching page counts.
+ *
+ * Spec: am-cf6m
+ * Rules:
+ * 1. Missing anchor must FAIL loudly (MISSING_VERIFIED_ANCHOR). An unverifiable pin is not a verified pin.
+ * 2. parentPageIndices must be non-empty, contiguous, and length == printedLast - printedFirst + 1.
+ * 3. parentPageIndices[0] and parentPageIndices[last] must equal printedFirst/printedLast + offset.
+ */
+export function validateFacsimileAnchor(config: unknown): AnchorValidationResult {
+  if (!config || typeof config !== "object") {
+    return {
+      valid: false,
+      errors: ["Configuration root must be an object"],
+      refusalCode: "INVALID_CONFIG",
+    };
+  }
+
+  const c = config as Record<string, unknown>;
+  const key = typeof c.key === "string" ? c.key : "unknown";
+
+  // 1. Locate anchor
+  const ap = (c.articlePages && typeof c.articlePages === "object"
+    ? c.articlePages
+    : null) as Record<string, unknown> | null;
+  const rawAnchor = (c.verifiedAnchor ?? ap?.verifiedAnchor) as
+    | Record<string, unknown>
+    | null
+    | undefined;
+
+  if (!rawAnchor || typeof rawAnchor !== "object") {
+    return {
+      valid: false,
+      errors: [
+        `Config '${key}' is missing a verified anchor. An unverifiable pin is not a verified pin. Each facsimile source config must record a verified anchor with parentPageIndex, printedPage, and verifiedBy.`,
+      ],
+      refusalCode: "MISSING_VERIFIED_ANCHOR",
+    };
+  }
+
+  const parentPageIndex = rawAnchor.parentPageIndex;
+  const printedPage = rawAnchor.printedPage;
+  const verifiedBy = rawAnchor.verifiedBy;
+
+  if (
+    typeof parentPageIndex !== "number" ||
+    !Number.isInteger(parentPageIndex) ||
+    parentPageIndex < 1
+  ) {
+    return {
+      valid: false,
+      errors: [
+        `Config '${key}' verifiedAnchor.parentPageIndex must be a positive integer, got ${String(parentPageIndex)}`,
+      ],
+      refusalCode: "INVALID_CONFIG",
+    };
+  }
+
+  if (
+    typeof printedPage !== "number" ||
+    !Number.isInteger(printedPage) ||
+    printedPage < 1
+  ) {
+    return {
+      valid: false,
+      errors: [
+        `Config '${key}' verifiedAnchor.printedPage must be a positive integer, got ${String(printedPage)}`,
+      ],
+      refusalCode: "INVALID_CONFIG",
+    };
+  }
+
+  if (typeof verifiedBy !== "string" || verifiedBy.trim().length === 0) {
+    return {
+      valid: false,
+      errors: [
+        `Config '${key}' verifiedAnchor.verifiedBy must be a non-empty string`,
+      ],
+      refusalCode: "INVALID_CONFIG",
+    };
+  }
+
+  const anchor: VerifiedAnchor = {
+    parentPageIndex,
+    printedPage,
+    verifiedBy: verifiedBy.trim(),
+    ...(typeof rawAnchor.verifiedAt === "string" ? { verifiedAt: rawAnchor.verifiedAt } : {}),
+    ...(typeof rawAnchor.verifiedDate === "string" ? { verifiedDate: rawAnchor.verifiedDate } : {}),
+    ...(typeof rawAnchor.notes === "string" ? { notes: rawAnchor.notes } : {}),
+  };
+
+  // 2. Validate articlePages exists
+  if (!ap) {
+    return {
+      valid: false,
+      errors: [`Config '${key}' is missing articlePages section`],
+      refusalCode: "INVALID_CONFIG",
+    };
+  }
+
+  const printedFirst = ap.printedFirst;
+  const printedLast = ap.printedLast;
+
+  if (
+    typeof printedFirst !== "number" ||
+    !Number.isInteger(printedFirst) ||
+    typeof printedLast !== "number" ||
+    !Number.isInteger(printedLast) ||
+    printedLast < printedFirst
+  ) {
+    return {
+      valid: false,
+      errors: [
+        `Config '${key}' articlePages must specify integer printedFirst and printedLast with printedLast >= printedFirst`,
+      ],
+      refusalCode: "INVALID_CONFIG",
+    };
+  }
+
+  const expectedPageCount = printedLast - printedFirst + 1;
+  const parentPageIndices = ap.parentPageIndices;
+
+  if (!Array.isArray(parentPageIndices) || parentPageIndices.length === 0) {
+    return {
+      valid: false,
+      errors: [
+        `Config '${key}' articlePages.parentPageIndices must be a non-empty array of positive integers`,
+      ],
+      refusalCode: "PARENT_PAGE_INDEX_MISSING",
+    };
+  }
+
+  for (let i = 0; i < parentPageIndices.length; i++) {
+    const idx = parentPageIndices[i];
+    if (typeof idx !== "number" || !Number.isInteger(idx) || idx < 1) {
+      return {
+        valid: false,
+        errors: [
+          `Config '${key}' articlePages.parentPageIndices[${i}] must be a positive integer, found ${String(idx)}`,
+        ],
+        refusalCode: "INVALID_CONFIG",
+      };
+    }
+  }
+
+  // 3. Length check
+  if (parentPageIndices.length !== expectedPageCount) {
+    return {
+      valid: false,
+      errors: [
+        `Config '${key}' articlePages.parentPageIndices length (${parentPageIndices.length}) does not match expected page count (${expectedPageCount}) for printed pages ${printedFirst}..${printedLast}`,
+      ],
+      refusalCode: "FACSIMILE_PAGE_OFFSET_MISMATCH",
+      anchor,
+    };
+  }
+
+  // 4. Contiguity check
+  for (let i = 1; i < parentPageIndices.length; i++) {
+    const prev = parentPageIndices[i - 1] as number;
+    const curr = parentPageIndices[i] as number;
+    if (curr !== prev + 1) {
+      return {
+        valid: false,
+        errors: [
+          `Config '${key}' articlePages.parentPageIndices are not contiguous at index ${i}: expected ${prev + 1}, found ${curr}`,
+        ],
+        refusalCode: "NON_CONTIGUOUS_PARENT_PAGES",
+        anchor,
+      };
+    }
+  }
+
+  // 5. Arithmetic check against verified anchor offset
+  const offset = anchor.parentPageIndex - anchor.printedPage;
+  const expectedFirstParent = printedFirst + offset;
+  const expectedLastParent = printedLast + offset;
+
+  const actualFirstParent = parentPageIndices[0] as number;
+  const actualLastParent = parentPageIndices[parentPageIndices.length - 1] as number;
+
+  if (actualFirstParent !== expectedFirstParent) {
+    return {
+      valid: false,
+      errors: [
+        `Config '${key}' parentPageIndices[0] (${actualFirstParent}) does not match expected parent page index (${expectedFirstParent}) for printedFirst (${printedFirst}) via verified anchor (parent ${anchor.parentPageIndex} -> printed ${anchor.printedPage}, offset ${offset})`,
+      ],
+      refusalCode: "FACSIMILE_PAGE_OFFSET_MISMATCH",
+      anchor,
+      offset,
+    };
+  }
+
+  if (actualLastParent !== expectedLastParent) {
+    return {
+      valid: false,
+      errors: [
+        `Config '${key}' parentPageIndices[last] (${actualLastParent}) does not match expected parent page index (${expectedLastParent}) for printedLast (${printedLast}) via verified anchor (parent ${anchor.parentPageIndex} -> printed ${anchor.printedPage}, offset ${offset})`,
+      ],
+      refusalCode: "FACSIMILE_PAGE_OFFSET_MISMATCH",
+      anchor,
+      offset,
+    };
+  }
+
+  return {
+    valid: true,
+    errors: [],
+    anchor,
+    offset,
+  };
 }

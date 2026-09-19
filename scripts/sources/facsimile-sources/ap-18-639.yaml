@@ -1,5 +1,11 @@
 configVersion: 1
 key: ap-18-639
+verifiedAnchor:
+  parentPageIndex: 233
+  printedPage: 639
+  verifiedBy: agent:TanElk
+  verifiedAt: '2026-09-19'
+  notes: 'Printed page 639, article 13: Ist die Traegheit eines Koerpers von seinem Energieinhalt abhaengig?'
 candidates:
   - url: https://archive.org/download/sim_annalen-der-physik_1905_18_3/sim_annalen-der-physik_1905_18_3.pdf
     kind: whole-issue

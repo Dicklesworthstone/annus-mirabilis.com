@@ -1,5 +1,11 @@
 configVersion: 1
 key: ap-17-549
+verifiedAnchor:
+  parentPageIndex: 173
+  printedPage: 549
+  verifiedBy: agent:TanElk
+  verifiedAt: '2026-09-19'
+  notes: 'Parent page 173 of sources/parents/2c2e9e595a77338d7c4846242fbaa0c26e6ee03e8ebe3686b080a3ced078945a.pdf is printed page 549, article 5: Ueber die von der molekularkinetischen Theorie der Waerme geforderte Bewegung...; von A. Einstein. Parent page 184 is printed 560 and ends Bern, Mai 1905. / (Eingegangen 11. Mai 1905.).'
 candidates:
   - url: https://archive.org/download/sim_annalen-der-physik_1905_17_3/sim_annalen-der-physik_1905_17_3.pdf
     kind: whole-issue

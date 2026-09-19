@@ -1,5 +1,11 @@
 configVersion: 1
 key: ap-17-891
+verifiedAnchor:
+  parentPageIndex: 115
+  printedPage: 891
+  verifiedBy: agent:TanElk
+  verifiedAt: '2026-09-19'
+  notes: 'Printed page 891, article 3: Zur Elektrodynamik bewegter Koerper; von A. Einstein'
 candidates:
   - url: https://archive.org/download/sim_annalen-der-physik_1905_17_5/sim_annalen-der-physik_1905_17_5.pdf
     kind: whole-issue

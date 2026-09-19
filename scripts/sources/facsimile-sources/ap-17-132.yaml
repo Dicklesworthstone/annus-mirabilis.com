@@ -1,5 +1,11 @@
 configVersion: 1
 key: ap-17-132
+verifiedAnchor:
+  parentPageIndex: 144
+  printedPage: 132
+  verifiedBy: agent:TanElk
+  verifiedAt: '2026-09-19'
+  notes: 'Printed page 132, article 6: Ueber einen die Erzeugung und Verwandlung des Lichtes betreffenden heuristischen Gesichtspunkt; von A. Einstein'
 candidates:
   - url: https://archive.org/download/sim_annalen-der-physik_1905_17_1/sim_annalen-der-physik_1905_17_1.pdf
     kind: whole-issue

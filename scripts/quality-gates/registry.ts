@@ -319,6 +319,19 @@ export const QUALITY_GATE_STEPS: readonly GateStep[] = [
     owner: "am-src-download-script-15ar",
   },
   {
+    id: "facsimile-page-anchors",
+    title: "Facsimile page anchor and offset verification",
+    command: ["bun", "scripts/verify-facsimile-anchors.ts"],
+    family: "fast",
+    cadence: "every-run",
+    requiredInCi: true,
+    requiredInProfiles: ["preview", "launch"],
+    availability: {
+      scriptPath: "scripts/verify-facsimile-anchors.ts",
+    },
+    owner: "am-cf6m",
+  },
+  {
     id: "perf-budget-change",
     title: "Performance budget diff check",
     command: ["bun", "scripts/perf-budget-diff.ts"],
