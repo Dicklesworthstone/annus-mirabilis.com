@@ -1,0 +1,83 @@
+.mass-energy-investigation {
+  max-width: 76rem;
+  margin-inline: auto;
+  padding-inline: clamp(0.5rem, 2vw, 1.5rem);
+  overflow-wrap: anywhere;
+}
+.argument-workbench {
+  margin-block: 2rem;
+  padding: clamp(0.75rem, 2vw, 1.5rem);
+  border: 1px solid var(--line);
+  background: var(--panel);
+}
+.argument-columns {
+  display: grid;
+  grid-template-columns: minmax(0, 1fr);
+  gap: 1.5rem;
+}
+.argument-columns > section,
+.argument-columns li,
+.argument-worked-route li {
+  min-width: 0;
+}
+.argument-selection,
+.argument-deck {
+  list-style: none;
+  padding: 0;
+}
+.argument-selection > li,
+.argument-deck > li {
+  margin-block: 0.75rem;
+  padding: 0.75rem;
+  border: 1px solid var(--line);
+}
+.argument-selection h4 {
+  margin-top: 0;
+}
+.argument-workbench .actions {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.5rem;
+  margin-block: 0.75rem;
+}
+.argument-workbench button {
+  min-height: 2.75rem;
+  max-width: 100%;
+  white-space: normal;
+  overflow-wrap: anywhere;
+}
+.argument-workbench textarea {
+  display: block;
+  box-sizing: border-box;
+  width: 100%;
+  margin-block: 0.75rem;
+}
+.mass-energy-investigation .formula {
+  max-width: 100%;
+  overflow-x: auto;
+}
+.argument-share code {
+  white-space: normal;
+  overflow-wrap: anywhere;
+}
+.argument-worked-route ol {
+  padding-inline-start: 1.25rem;
+}
+@media (min-width: 60rem) {
+  .argument-columns {
+    grid-template-columns: minmax(0, 3fr) minmax(0, 2fr);
+  }
+}
+@media print {
+  .argument-columns {
+    display: block;
+  }
+  .argument-workbench .actions,
+  .argument-deck button {
+    display: none;
+  }
+  .argument-selection > li,
+  .argument-worked-route li {
+    break-inside: avoid;
+  }
+}

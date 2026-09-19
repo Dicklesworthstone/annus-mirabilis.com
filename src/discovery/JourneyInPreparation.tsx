@@ -33,6 +33,22 @@ export function JourneyInPreparation({
           The discovery journey for this paper has not yet been published. The critical reading
           edition and companion materials remain available.
         </p>
+        {paperId === "mass-energy" && (
+          <section aria-labelledby="mass-energy-investigation-link">
+            <h3 id="mass-energy-investigation-link">Try the two-ledger argument workbench</h3>
+            <p>
+              Assemble a conditional derivation, inspect an unresolved offset, and distinguish a
+              derivation from a consistency check that assumes its conclusion. The worked route and
+              the existing laboratory are available now. This explanatory investigation does not
+              publish the full reviewed journey or its historical knowledge shelf.
+            </p>
+            <p>
+              <a className="button" href="/discover/mass-energy/investigate/">
+                Build and test the mass–energy argument →
+              </a>
+            </p>
+          </section>
+        )}
         <p className="actions">
           <a className="button" href={`/papers/${paperId}/`}>
             Read the paper edition →
