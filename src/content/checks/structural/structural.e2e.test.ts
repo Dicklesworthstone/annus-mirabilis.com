@@ -10,7 +10,15 @@
 
 import assert from "node:assert/strict";
 import { execFileSync } from "node:child_process";
-import { existsSync, mkdirSync, mkdtempSync, readFileSync, rmSync, writeFileSync } from "node:fs";
+import {
+  existsSync,
+  mkdirSync,
+  mkdtempSync,
+  readdirSync,
+  readFileSync,
+  rmSync,
+  writeFileSync,
+} from "node:fs";
 import { dirname, join, resolve } from "node:path";
 import { after, describe, it } from "node:test";
 import { fileURLToPath } from "node:url";
@@ -21,6 +29,26 @@ import { type ContentFile, createBaseCorpus, mutateCorpus } from "./testFixtures
 const ROOT = resolve(dirname(fileURLToPath(import.meta.url)), "../../../..");
 const TEMP_BASE = "/Volumes/USBNVME16TB/temp_agent_space";
 const logger = new TestLogger("content-structural-tests");
+const REPO_INDEX_PATH = join(ROOT, "generated", "content", "index.json");
+
+/**
+ * The repository's compiled index as it stood before any e2e compile in this
+ * file ran. The corpus guard at the end compares against this rather than
+ * against a literal payload count: authoring a record is ordinary work, and a
+ * guard that has to be edited whenever the corpus grows teaches everyone to
+ * edit the guard instead of reading it.
+ */
+const REPO_INDEX_BEFORE: string | null = existsSync(REPO_INDEX_PATH)
+  ? readFileSync(REPO_INDEX_PATH, "utf8")
+  : null;
+
+/** The paper ids the corpus declares on disk, which the compiled index must match. */
+function corpusPaperIds(): string[] {
+  return readdirSync(join(ROOT, "content", "papers"))
+    .filter((name) => name.endsWith(".json"))
+    .map((name) => name.slice(0, -".json".length))
+    .sort();
+}
 
 after(async () => {
   await logger.flush();
@@ -803,18 +831,43 @@ describe("Structural Compiler E2E CLI (`bun scripts/build-content.ts --corpus <d
   });
 
   it("never corrupts or wipes the repository generated/content corpus during e2e runs (am-arlh)", () => {
-    const indexPath = join(ROOT, "generated", "content", "index.json");
-    assert.equal(existsSync(indexPath), true, "Expected generated/content/index.json to exist");
-    const index = JSON.parse(readFileSync(indexPath, "utf8"));
     assert.equal(
-      index.payloads.length,
-      28,
-      `Expected 28 compiled payloads, but found ${index.payloads.length}. Corpus was corrupted!`,
+      existsSync(REPO_INDEX_PATH),
+      true,
+      "Expected generated/content/index.json to exist",
     );
-    const paperIds = index.payloads
+    assert.notEqual(
+      REPO_INDEX_BEFORE,
+      null,
+      "generated/content/index.json was missing before the e2e runs started; compile the corpus first",
+    );
+
+    const after = readFileSync(REPO_INDEX_PATH, "utf8");
+    assert.equal(
+      after,
+      REPO_INDEX_BEFORE,
+      "generated/content/index.json changed while the structural e2e suite ran. Every compile in this file targets a temp directory; the repository corpus must come out byte for byte as it went in.",
+    );
+
+    // Independently of the snapshot: every compiled paper answers to a record
+    // the corpus actually declares, and the set is not empty. Deliberately a
+    // subset and not an equality, because this lane does not run
+    // `bun run prepare:content` first: an index that predates a record
+    // authored a minute ago is a stale index, which is a different complaint
+    // than a corrupted one and belongs to a different gate.
+    const index = JSON.parse(after);
+    const paperIds: string[] = index.payloads
       .filter((p: { kind: string }) => p.kind === "paper")
-      .map((p: { id: string }) => p.id);
-    assert.deepEqual(paperIds, ["brownian-motion", "mass-energy"]);
+      .map((p: { id: string }) => p.id)
+      .sort();
+    const declared = new Set(corpusPaperIds());
+    assert.ok(paperIds.length > 0, "Repository compiled corpus declares no papers at all!");
+    for (const id of paperIds) {
+      assert.ok(
+        declared.has(id),
+        `Compiled paper '${id}' has no record under content/papers. A fixture leaked into the repository corpus.`,
+      );
+    }
     assert.equal(
       paperIds.includes("test-paper"),
       false,
