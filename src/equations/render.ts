@@ -3,15 +3,16 @@ import { renderToString } from "katex";
 import { canonical, quantityBindings } from "./ast.ts";
 import { expressionLatex } from "./latex.ts";
 import { navigationTree } from "./navigation.ts";
-import { BROWNIAN_QUANTITIES } from "./quantities.ts";
+import { teachingProfile } from "./teachingProfiles.ts";
 import { type EquationRecord, parseEquationRecord } from "./record.ts";
 import type { CompiledEquation } from "./viewTypes.ts";
 export function compileEquation(input: EquationRecord): CompiledEquation {
   const eq = parseEquationRecord(input, input.id),
     nav = navigationTree(eq.tree),
     allowed = new Set(nav.map((n) => n.id));
-  const plain = expressionLatex(eq.tree, BROWNIAN_QUANTITIES),
-    marked = expressionLatex(eq.tree, BROWNIAN_QUANTITIES, true);
+  const quantities = teachingProfile(eq.paper)!.quantities;
+  const plain = expressionLatex(eq.tree, quantities),
+    marked = expressionLatex(eq.tree, quantities, true);
   const html = renderToString(marked, {
     displayMode: true,
     output: "html",
@@ -62,6 +63,6 @@ export function compileEquation(input: EquationRecord): CompiledEquation {
     plainLatex: plain,
     treeDigest: createHash("sha256").update(canonical(eq)).digest("hex"),
     navigation: nav,
-    terms: bindings.map((t) => ({ ...t, quantity: BROWNIAN_QUANTITIES[t.quantityId]! })),
+    terms: bindings.map((t) => ({ ...t, quantity: quantities[t.quantityId]! })),
   };
 }

@@ -1,8 +1,7 @@
 import { ContentError } from "../content/compiler/json.ts";
-import { BM01_OUTPUTS } from "../experiments/bm01/definition.ts";
 import { type Expression, nodeId, parseExpression, record, walk } from "./ast.ts";
 import { checkDimensions } from "./dimensions.ts";
-import { BROWNIAN_QUANTITIES } from "./quantities.ts";
+import { teachingProfile, type TeachingExperiment, type TeachingPaper } from "./teachingProfiles.ts";
 export type EquationNote = Readonly<{
   nodeId: string;
   title: string;
@@ -12,7 +11,7 @@ export type EquationNote = Readonly<{
 export type NumericalBinding = Readonly<{
   termId: string;
   quantityId: string;
-  experimentId: "bm-01";
+  experimentId: TeachingExperiment;
   outputId: string;
   instanceSlot: "primary";
 }>;
@@ -20,7 +19,7 @@ export type EquationRecord = Readonly<{
   schemaVersion: 1;
   kind: "equation";
   id: string;
-  paper: "brownian-motion";
+  paper: TeachingPaper;
   argument: string;
   title: string;
   spoken: string;
@@ -63,24 +62,25 @@ export function parseEquationRecord(input: unknown, path: string): EquationRecor
     "sentence",
     "assumptions",
   ]);
+  const profile = teachingProfile(o.paper);
   if (
     o.schemaVersion !== 1 ||
     o.kind !== "equation" ||
-    o.paper !== "brownian-motion" ||
+    !profile ||
     o.review !== "draft" ||
     o.notation !== "modern-pedagogical" ||
     o.unitSystem !== "si"
   )
-    fail(path, "Only the labeled modern Brownian teaching slice is admitted.");
+    fail(path, "Only registered modern teaching papers in SI are admitted; source or review status is not inferred.");
   for (const k of ["id", "argument", "title", "spoken", "explanation"]) text(o[k], path);
   if (
     !/^eq-model-[a-z0-9-]+$/.test(String(o.id)) ||
-    !/^arg-bm-[a-z0-9-]+$/.test(String(o.argument))
+    !new RegExp(`^${profile.argumentPrefix}[a-z0-9-]+$`).test(String(o.argument))
   )
     fail(path, "Teaching equations must not invent printed source ids.");
-  const tree = parseExpression(o.tree, String(o.id), BROWNIAN_QUANTITIES),
+  const tree = parseExpression(o.tree, String(o.id), profile.quantities),
     nodes = walk(tree);
-  const dimensions = checkDimensions(tree, BROWNIAN_QUANTITIES);
+  const dimensions = checkDimensions(tree, profile.quantities);
   if (dimensions.status !== "consistent") fail(path, dimensions.reason);
   if (tree.kind !== "relation") fail(path, "A displayed equation must be a relation.");
   const selectable = new Map(
@@ -110,14 +110,15 @@ export function parseEquationRecord(input: unknown, path: string): EquationRecor
       n?.kind !== "symbol" ||
       n.quantityId !== v.quantityId ||
       v.outputId !== v.quantityId ||
-      v.experimentId !== "bm-01" ||
+      typeof v.experimentId !== "string" ||
+      !Object.hasOwn(profile.outputs, v.experimentId) ||
       v.instanceSlot !== "primary" ||
       bindings.has(String(v.termId))
     )
       fail(path, "Binding must resolve the exact term, quantity, output and instance slot.");
-    const q = BROWNIAN_QUANTITIES[n.quantityId];
+    const q = profile.quantities[n.quantityId];
     if (!q) fail(path, "Binding must resolve the exact term, quantity, output and instance slot.");
-    const c = BM01_OUTPUTS[String(v.outputId)];
+    const c = profile.outputs[v.experimentId as TeachingExperiment]?.[String(v.outputId)];
     if (!c || c.unit !== q.unit || c.semanticKind !== q.semanticKind)
       fail(path, "The output contract does not have this quantity's units and meaning.");
     bindings.add(n.termId);
