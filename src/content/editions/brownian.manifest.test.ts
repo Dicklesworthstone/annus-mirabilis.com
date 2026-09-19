@@ -3,6 +3,7 @@ import { existsSync, mkdirSync, mkdtempSync, readFileSync, writeFileSync } from 
 import { tmpdir } from "node:os";
 import { join } from "node:path";
 import { newRunIdentity, TestLogger } from "../../testing/log/logger.ts";
+import { resolveAlias, validateAliasRecord } from "../aliases.ts";
 import { parseIdSnapshot, validateFrozenIds } from "../frozenIds.ts";
 import {
   normalizePrintedLabel,
@@ -22,11 +23,24 @@ import {
   DIFFICULTY_FLAG_KEYS,
   TREATMENT_MAP_ROWS,
   brownianSourceManifestDiagnostics,
+  admitAliasRecords,
   loadBrownianInventory,
   parseDifficultyFlags,
 } from "./brownianInventory.ts";
 
 const ROOT = process.cwd();
+
+/** The 2026-09-19 boundary-audit retirements, given to the validator as gap evidence. */
+function loadAliasRecords() {
+  const raw = parseYaml(
+    readFileSync(join(process.cwd(), "content/aliases/brownian-motion.yaml"), "utf8"),
+  ) as { aliases?: unknown[] };
+  return (raw.aliases ?? []).map((rec) => {
+    const parsed = validateAliasRecord(rec);
+    if (!parsed.ok) throw new Error(`Invalid alias record: ${parsed.error}`);
+    return parsed.value;
+  });
+}
 const logRunId = newRunIdentity();
 const logRoot = join(ROOT, "artifacts/test-logs");
 const logger = new TestLogger("manifest-brownian-motion", logRunId, logRoot);
@@ -51,7 +65,7 @@ describe("brownian source manifest (am-edn-inventory-brownian-slg)", () => {
     expect(manifest.idsFrozenAt).toBe("2026-09-19T04:30:00Z");
     expect(manifest.frozenBy).toBe("am-edn-inventory-brownian-slg");
 
-    expect(manifest.units.length).toBe(92);
+    expect(manifest.units.length).toBe(87); // 92 until the 2026-09-19 boundary audit retired five units
 
     const idSet = new Set<string>();
     for (const unit of manifest.units) {
@@ -89,11 +103,22 @@ describe("brownian source manifest (am-edn-inventory-brownian-slg)", () => {
     }
 
     // Corpus validation produces zero errors
+    // The sequence-gap rule errors on a missing paragraph number unless an alias record explains
+    // it, so the validator is given the real alias file: the gaps are explained, never waived.
+    const aliasRecords = loadAliasRecords();
     const diags = validateManifest(manifest, {
       manifests: new Map([[manifest.paper, manifest]]),
+      aliases: aliasRecords,
     });
     const errors = diags.filter((d) => d.severity === "error");
     expect(errors.length).toBe(0);
+
+    // Planted negative: strip the alias records and the same gaps are still errors, which proves
+    // the records carry the explanation rather than the rule having been softened.
+    const unexplained = validateManifest(manifest, {
+      manifests: new Map([[manifest.paper, manifest]]),
+    }).filter((d) => d.rule === "sequence-gap" && d.severity === "error");
+    expect(unexplained.length).toBe(5);
 
     const helperDiags = brownianSourceManifestDiagnostics();
     expect(helperDiags.filter((d) => d.severity === "error").length).toBe(0);
@@ -146,9 +171,9 @@ describe("brownian source manifest (am-edn-inventory-brownian-slg)", () => {
     expect(unitMap.has("closing-received")).toBe(true);
     expect(unitMap.get("closing-received")?.locators[0]?.page).toBe(560);
 
-    // 37 paragraphs total
+    // 32 paragraphs total (37 until the boundary audit; five were flush resumptions, not breaks)
     const paragraphs = manifest.units.filter((u) => u.kind === "paragraph");
-    expect(paragraphs.length).toBe(37);
+    expect(paragraphs.length).toBe(32);
 
     // 7 multi-page spanning paragraphs
     const spanningParagraphs = manifest.units.filter(
@@ -163,7 +188,7 @@ describe("brownian source manifest (am-edn-inventory-brownian-slg)", () => {
       "s3-p5",
       "s3-p8",
       "s4-p11",
-      "s4-p8",
+      "s4-p6",
     ]);
 
     logger.log({
@@ -398,11 +423,103 @@ describe("brownian source manifest (am-edn-inventory-brownian-slg)", () => {
     });
   });
 
-  test("alias file is empty and snapshot matches frozen manifest units", () => {
+  test("planted negatives: the alias guard still refuses dishonest records", () => {
+    const good = {
+      retiredId: "s2-p6",
+      kind: "merged",
+      replacementIds: ["s2-p5"],
+      reason: "flush resumption, not a printed paragraph break",
+      date: "2026-09-19",
+      editor: "test",
+    };
+    const live = ["s2-p5", "s3-p2", "s4-p6"];
+
+    // Admitted only because the ids are frozen.
+    expect(() => admitAliasRecords([good], { idsFrozenAt: "2026-09-19T04:30:00Z", liveIds: live })).not.toThrow();
+
+    // 1. Before the freeze there is nothing to retire: a non-empty alias file is still refused.
+    //    This is the original guard's rule, and it must not have been lost by making the file non-empty.
+    expect(() => admitAliasRecords([good], { liveIds: live })).toThrow(/must stay empty until ids freeze/);
+
+    // 2. A retirement that redirects to an id the manifest does not contain is refused.
+    const dangling = { ...good, replacementIds: ["s2-p99"] };
+    expect(() =>
+      admitAliasRecords([dangling], { idsFrozenAt: "2026-09-19T04:30:00Z", liveIds: live }),
+    ).toThrow(/not a live manifest id/);
+
+    // 3. Reusing a retired id as a live unit is refused: retired ids are never reused.
+    expect(() =>
+      admitAliasRecords([good], { idsFrozenAt: "2026-09-19T04:30:00Z", liveIds: [...live, "s2-p6"] }),
+    ).toThrow(/still present in the manifest/);
+
+    // 4. A malformed record is refused rather than silently skipped.
+    expect(() =>
+      admitAliasRecords([{ ...good, kind: "invented" }], {
+        idsFrozenAt: "2026-09-19T04:30:00Z",
+        liveIds: live,
+      }),
+    ).toThrow(/Invalid alias record/);
+
+    logger.log({
+      testId: "alias-guard-planted-negatives",
+      beadId: BROWNIAN_INVENTORY_BEAD,
+      paper: BROWNIAN_PAPER,
+      outcome: "passed",
+      comparisonKind: "bitwise",
+      message: "Alias admission guard refuses pre-freeze, dangling, reused and malformed records.",
+      extra: { check: "alias-guard" },
+    });
+  });
+
+  test("alias file records the boundary-audit retirements and snapshot matches frozen manifest units", () => {
+    const { manifest } = loadManifest();
     const aliasPath = join(ROOT, "content/aliases/brownian-motion.yaml");
     expect(existsSync(aliasPath)).toBe(true);
     const aliasRaw = parseYaml(readFileSync(aliasPath, "utf8")) as { aliases?: unknown[] };
-    expect(aliasRaw.aliases).toEqual([]);
+    const aliasList = aliasRaw.aliases as unknown[];
+    expect(aliasList.length).toBe(5);
+    const records = aliasList.map((r) => {
+      const v = validateAliasRecord(r);
+      if (!v.ok) throw new Error(v.error);
+      return v.value;
+    });
+    expect(records.map((r) => r.retiredId).sort()).toEqual([
+      "s2-p6",
+      "s3-p3",
+      "s3-p4",
+      "s4-p7",
+      "s4-p8",
+    ]);
+
+    // Each retired id resolves to its surviving paragraph and is absent from the live ids.
+    const liveIds = manifest.units.map((u) => u.id);
+    const expectedTarget: Record<string, string> = {
+      "s2-p6": "s2-p5",
+      "s3-p3": "s3-p2",
+      "s3-p4": "s3-p2",
+      "s4-p7": "s4-p6",
+      "s4-p8": "s4-p6",
+    };
+    for (const [retired, target] of Object.entries(expectedTarget)) {
+      expect(liveIds).not.toContain(retired);
+      const resolved = resolveAlias(retired, records, liveIds);
+      expect(resolved.ok).toBe(true);
+      if (resolved.ok) expect(resolved.targetIds).toEqual([target]);
+    }
+
+    // Displays that hung off a retired unit now hang off its survivor.
+    const containment: Record<string, string> = {
+      "eq-s2-d9": "s2-p5",
+      "eq-s3-d2": "s3-p2",
+      "eq-s3-d3": "s3-p2",
+      "eq-s3-1": "s3-p2",
+      "eq-s3-d4": "s3-p2",
+      "eq-s4-d7": "s4-p6",
+      "eq-s4-d8": "s4-p6",
+    };
+    for (const [d, parent] of Object.entries(containment)) {
+      expect(manifest.units.find((u) => u.id === d)?.containedIn).toBe(parent);
+    }
 
     const snapshotPath = join(
       ROOT,
@@ -411,9 +528,8 @@ describe("brownian source manifest (am-edn-inventory-brownian-slg)", () => {
     const snapshotText = readFileSync(snapshotPath, "utf8");
     const snapshotIds = parseIdSnapshot(snapshotText);
 
-    expect(snapshotIds.length).toBe(92);
+    expect(snapshotIds.length).toBe(87);
 
-    const { manifest } = loadManifest();
     const manifestIds = manifest.units.map((u) => u.id);
     expect(snapshotIds).toEqual(manifestIds);
 
@@ -430,7 +546,7 @@ describe("brownian source manifest (am-edn-inventory-brownian-slg)", () => {
       paper: BROWNIAN_PAPER,
       outcome: "passed",
       comparisonKind: "bitwise",
-      message: "Snapshot equals manifest units (92 IDs) and aliases file is empty.",
+      message: "Snapshot equals manifest units (87 IDs) and the five boundary-audit retirements resolve.",
       extra: { check: "frozen-ids" },
     });
   });
@@ -521,17 +637,20 @@ describe("brownian source manifest (am-edn-inventory-brownian-slg)", () => {
       560: 1,
     };
 
-    // Verified paragraph start counts per page from scans:
+    // Paragraph start counts per page, read from the corrected renders
+    // artifacts/page-images/ap-17-549-CORRECTED/parent-173.png..parent-184.png at magnification.
+    // 553, 554 and 557 were corrected by the 2026-09-19 boundary audit; see
+    // docs/editorial/brownian-motion-difficulties.md "Indent versus flush".
     const expectedParagraphStartsPerPage: Record<number, number> = {
       549: 3,
       550: 2,
       551: 1,
       552: 3,
-      553: 4,
-      554: 5,
+      553: 3,
+      554: 3,
       555: 3,
       556: 4,
-      557: 4,
+      557: 2,
       558: 3,
       559: 3,
       560: 2,
@@ -588,7 +707,7 @@ describe("brownian source manifest (am-edn-inventory-brownian-slg)", () => {
 
     // All 36 units of §§4-5 exist
     const s4Units = manifest.units.filter((u) => u.section === "s4");
-    expect(s4Units.length).toBe(26); // heading, 12 paragraphs, 13 displays (12 unnumbered + 1 numbered)
+    expect(s4Units.length).toBe(24); // heading, 10 paragraphs, 13 displays (12 unnumbered + 1 numbered)
 
     const s5Units = manifest.units.filter((u) => u.section === "s5");
     expect(s5Units.length).toBe(10); // heading, 4 paragraphs, 5 displays

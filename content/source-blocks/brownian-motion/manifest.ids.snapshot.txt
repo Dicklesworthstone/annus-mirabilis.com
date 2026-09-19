@@ -25,7 +25,6 @@ eq-s2-d7
 s2-p5
 s2-fn2
 eq-s2-d8
-s2-p6
 eq-s2-d9
 s2-p7
 eq-s2-d10
@@ -36,10 +35,8 @@ s3
 s3-p1
 s3-p2
 eq-s3-d1
-s3-p3
 eq-s3-d2
 eq-s3-d3
-s3-p4
 eq-s3-1
 eq-s3-d4
 s3-p5
@@ -54,6 +51,9 @@ eq-2
 s3-p8
 eq-s3-d9
 # s4-s5
+# 2026-09-19 boundary audit: s2-p6, s3-p3, s3-p4, s4-p7 and s4-p8 retired (merged into
+# s2-p5, s3-p2 and s4-p6). Ids are never reused and survivors keep their numbers, so the
+# gaps s2-p5 -> s2-p7, s3-p2 -> s3-p5 and s4-p6 -> s4-p9 are intentional.
 s4
 s4-p1
 s4-p2
@@ -67,9 +67,7 @@ s4-p6
 eq-s4-d4
 eq-s4-d5
 eq-s4-d6
-s4-p7
 eq-s4-d7
-s4-p8
 eq-s4-d8
 eq-s4-d9
 eq-s4-1

@@ -13,6 +13,7 @@ import { existsSync, readdirSync, readFileSync } from "node:fs";
 import { join } from "node:path";
 import { compileReadingContent } from "../compiler/compile.ts";
 import { parseIdSnapshot } from "../frozenIds.ts";
+import { validateAliasRecord } from "../aliases.ts";
 import { validateSourceManifest } from "../manifest/schema.ts";
 import { validateManifest } from "../manifest/validator.ts";
 import { parseReceipt } from "../provenance/parseReceipt.ts";
@@ -201,6 +202,51 @@ export function verifyBrownianFacsimilePin(root = process.cwd()): FacsimilePinVe
   };
 }
 
+/**
+ * Admits alias records only when they are honest.
+ *
+ * Retiring an id is the sanctioned way to correct a boundary after the ids are frozen
+ * (am-cm-id-scheme-8bn): retired ids are never reused and survivors keep their numbers. Before the
+ * freeze there is nothing to retire, so a non-empty alias file is still refused, which is the rule
+ * the original guard's message stated. A record that does not parse, or that redirects to an id the
+ * manifest does not contain, is refused in either case.
+ */
+export function admitAliasRecords(
+  aliasList: readonly unknown[],
+  context: { readonly idsFrozenAt?: string | undefined; readonly liveIds: readonly string[] },
+): void {
+  if (aliasList.length === 0) return;
+  if (!context.idsFrozenAt) {
+    throw new InventoryHonestyError(
+      "aliases-before-freeze",
+      "The Brownian alias file must stay empty until ids freeze.",
+    );
+  }
+  const live = new Set(context.liveIds);
+  for (const record of aliasList) {
+    const parsed = validateAliasRecord(record);
+    if (!parsed.ok) {
+      throw new InventoryHonestyError("alias-record-invalid", `Invalid alias record: ${parsed.error}`);
+    }
+    if (live.has(parsed.value.retiredId)) {
+      throw new InventoryHonestyError(
+        "alias-retired-id-still-live",
+        `Retired id '${parsed.value.retiredId}' is still present in the manifest; retired ids are never reused.`,
+      );
+    }
+    for (const replacement of parsed.value.replacementIds) {
+      // A reference occurrence resolves to another occurrence id, not to a unit id.
+      if (replacement.includes("-r") && /-r\d+$/.test(replacement)) continue;
+      if (!live.has(replacement)) {
+        throw new InventoryHonestyError(
+          "alias-replacement-missing",
+          `Alias for '${parsed.value.retiredId}' points at '${replacement}', which is not a live manifest id.`,
+        );
+      }
+    }
+  }
+}
+
 export function loadBrownianInventory(root = process.cwd()): BrownianInventory {
   const paperPath = join(root, "content/papers/brownian-motion.json");
   const paper = JSON.parse(readFileSync(paperPath, "utf8")) as Record<string, unknown>;
@@ -260,12 +306,10 @@ export function loadBrownianInventory(root = process.cwd()): BrownianInventory {
       "Source ids cannot freeze until units are inventoried.",
     );
   }
-  if (aliasList.length > 0) {
-    throw new InventoryHonestyError(
-      "aliases-not-empty",
-      "The Brownian alias file must stay empty until ids freeze.",
-    );
-  }
+  admitAliasRecords(aliasList, {
+    idsFrozenAt: manifest.idsFrozenAt,
+    liveIds: manifest.units.map((u) => u.id),
+  });
   if (paperStatus !== "explanation-preview" || sourceStatus !== "in-preparation") {
     throw new InventoryHonestyError(
       "paper-overclaimed",
@@ -376,5 +420,18 @@ export function brownianSourceManifestDiagnostics(root = process.cwd()) {
     parseYaml(readFileSync(manifestPath, "utf8")),
     manifestPath,
   );
-  return validateManifest(manifest, { manifests: new Map([[manifest.paper, manifest]]) });
+  // The paper's id sequence has deliberate gaps: the 2026-09-19 boundary audit retired five
+  // paragraph units that were flush resumptions rather than printed breaks. Retired ids are never
+  // reused and survivors keep their numbers, so the validator needs the alias records to tell an
+  // explained gap from an unexplained one. Passing them explains the gaps; it does not waive them.
+  const aliasPath = join(root, "content/aliases/brownian-motion.yaml");
+  const aliasRaw = parseYaml(readFileSync(aliasPath, "utf8")) as { aliases?: unknown[] };
+  const aliases = (aliasRaw.aliases ?? []).map((record) => {
+    const parsed = validateAliasRecord(record);
+    if (!parsed.ok) {
+      throw new Error(`Invalid alias record in ${aliasPath}: ${parsed.error}`);
+    }
+    return parsed.value;
+  });
+  return validateManifest(manifest, { manifests: new Map([[manifest.paper, manifest]]), aliases });
 }

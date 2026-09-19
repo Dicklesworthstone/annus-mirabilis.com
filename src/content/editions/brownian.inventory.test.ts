@@ -28,7 +28,7 @@ describe("brownian editorial inventory (am-edn-inventory-brownian-slg)", () => {
     expect(inventory.sourceStatus).toBe("in-preparation");
     const byLayer = Object.fromEntries(inventory.layers.map((l) => [l.layer, l]));
     expect(byLayer["source-units"]?.existence).toBe("authored");
-    expect(byLayer["source-units"]?.ids.length).toBe(92);
+    expect(byLayer["source-units"]?.ids.length).toBe(87); // 92 until the 2026-09-19 boundary audit
     expect(byLayer.translation?.existence).toBe("absent");
     expect(byLayer.arguments?.existence).toBe("authored");
     expect(byLayer.arguments?.reviewClaim).toBe("pending");
@@ -183,9 +183,14 @@ describe("brownian editorial inventory (am-edn-inventory-brownian-slg)", () => {
       join(tempRoot, "content/source-blocks/brownian-motion/manifest.ids.snapshot.txt"),
       "# empty\n",
     );
-    cpSync(
-      "content/aliases/brownian-motion.yaml",
+    // This fixture's manifest is deliberately un-frozen (`units: []`, no idsFrozenAt), so its
+    // alias file must be empty to match: retirements only exist after a freeze. Copying the real,
+    // populated alias file here would make the fixture self-contradictory, and the admission guard
+    // rightly rejects that combination. Alias admission is covered by its own planted negatives in
+    // brownian.manifest.test.ts.
+    writeFileSync(
       join(tempRoot, "content/aliases/brownian-motion.yaml"),
+      "paper: brownian-motion\naliases: []\n",
     );
     cpSync(
       "docs/editorial/brownian-motion-difficulties.md",

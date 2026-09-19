@@ -1,4 +1,39 @@
 paper: brownian-motion
 idsFrozenAt: "2026-09-19T04:30:00Z"
 frozenBy: am-edn-inventory-brownian-slg
-aliases: []
+aliases:
+  - retiredId: s2-p6
+    kind: merged
+    replacementIds:
+      - s2-p5
+    reason: "Not a printed paragraph. On p. 553 the line 'Aus dieser und aus der zuletzt gefundenen Gleichung folgt aber' is set flush to the margin, resuming s2-p5 after the dB/B display; the neighbouring real starts 'Aus der in den zitierten Arbeiten' and 'Es ist somit erwiesen' are indented. Verified at 260 percent on artifacts/page-images/ap-17-549-CORRECTED/parent-177.png."
+    date: "2026-09-19"
+    editor: "agent:pane30 (BrightIsland), am-edn-inventory-brownian-slg"
+  - retiredId: s3-p3
+    kind: merged
+    replacementIds:
+      - s3-p2
+    reason: "Not a printed paragraph. On p. 554 'Es werde angenommen, dass die Fluessigkeit senkrecht zur X-Achse' is flush, resuming s3-p2 after the delta-F display. Measured left offsets: the real starts 'In einer Fluessigkeit' and 'Es sei nu die Anzahl' sit at +55 and +53 px, this line at +1. Verified on parent-178.png."
+    date: "2026-09-19"
+    editor: "agent:pane30 (BrightIsland), am-edn-inventory-brownian-slg"
+  - retiredId: s3-p4
+    kind: merged
+    replacementIds:
+      - s3-p2
+    reason: "Not a printed paragraph. On p. 554 'Die gesuchte Gleichgewichtsbedingung ist also:' is flush, resuming s3-p2 before printed equation (1). Same measurement and page image as s3-p3."
+    date: "2026-09-19"
+    editor: "agent:pane30 (BrightIsland), am-edn-inventory-brownian-slg"
+  - retiredId: s4-p7
+    kind: merged
+    replacementIds:
+      - s4-p6
+    reason: "Not a printed paragraph. On p. 557 'Diese Entwicklung koennen wir unter dem Integral vornehmen' is flush, resuming s4-p6 after the Taylor expansion display. In the lower band of that page no line is indented relative to its neighbours, while 'Wir untersuchen nun' and 'Es sei nu = f(x,t)' higher on the page clearly are. Verified at 280 percent on parent-181.png."
+    date: "2026-09-19"
+    editor: "agent:pane30 (BrightIsland), am-edn-inventory-brownian-slg"
+  - retiredId: s4-p8
+    kind: merged
+    replacementIds:
+      - s4-p6
+    reason: "Not a printed paragraph. On p. 557 'Auf der rechten Seite verschwindet wegen phi(x) = phi(-x)' is flush, resuming s4-p6 after the integrated display, and the run continues onto p. 558. The 557-558 span therefore belongs to s4-p6. Same page image and magnification as s4-p7."
+    date: "2026-09-19"
+    editor: "agent:pane30 (BrightIsland), am-edn-inventory-brownian-slg"

@@ -153,7 +153,7 @@ adding it to `DIFFICULTY_FLAG_KEYS` and raising the expected count in the same c
 - `check:no-acknowledgment` not-found — confirmed on p. 560: the paper carries no acknowledgment, as
   the bead expected. This is a deliberate negative result, not an unchecked box.
 
-### `check:paragraph-over-split` differs — five spurious paragraph units
+### `check:paragraph-over-split` differs — five spurious paragraph units — **REPAIRED 2026-09-19**
 
 **This is a defect in the inventory, not in the facsimile.** On three pages the manifest records a
 paragraph unit where the printing has no paragraph break. The 1905 setting indents the first line of
@@ -179,15 +179,45 @@ The error is not a convention applied consistently: `s4-p6` correctly absorbs tw
 and p. 551, p. 555, p. 556 and p. 558 fold their flush resumptions correctly. Displays, footnotes and
 reference occurrences are unaffected and remain correct.
 
-**Not repaired here, and why.** The five ids are frozen (`idsFrozenAt: 2026-09-19T04:30:00Z`) and the
-snapshot is committed, so removing them is an alias operation under `am-cm-id-scheme-8bn`, not a
-renumbering: `s2-p7` must keep its number and the sequence must be left with gaps. That interacts
-with the snapshot-equals-manifest contract asserted by `brownian.manifest.test.ts`, so the format
-owner should rule before ids move. Recommended repair, for the record: retire the five ids in
-`content/aliases/brownian-motion.yaml` pointing at their absorbing paragraph, re-point the
-`containedIn` of `eq-s2-d9`, `eq-s3-d2`, `eq-s3-d3`, `eq-s3-1`, `eq-s3-d4`, `eq-s4-d7` and
-`eq-s4-d8`, and correct the three per-page numbers together with the total. Nothing downstream
-consumes these ids yet, so the repair is still cheap.
+**Repaired on 2026-09-19**, after the p. 557 case was re-confirmed at 280% magnification. Nothing was
+deleted and nothing was renumbered: the five ids are retired as `merged` in
+`content/aliases/brownian-motion.yaml`, survivors keep their numbers, and the sequence deliberately
+jumps `s2-p5` → `s2-p7`, `s3-p2` → `s3-p5` and `s4-p6` → `s4-p9`. `s4-p6` took over the 557–558 span
+that had been recorded on `s4-p8`. The displays that hung off retired units were re-pointed:
+`eq-s2-d9` → `s2-p5`; `eq-s3-d2`, `eq-s3-d3`, `eq-s3-1`, `eq-s3-d4` → `s3-p2`; `eq-s4-d7`,
+`eq-s4-d8`, and also `eq-s4-d9` and `eq-s4-1` on p. 558 → `s4-p6`. Totals moved from 92 units and 37
+paragraphs to **87 units and 32 paragraphs**, and the per-page start counts for 553, 554 and 557 are
+now 3, 3 and 2.
+
+### Indent versus flush: how a paragraph break is identified in this printing
+
+**Apply this before adding or splitting any paragraph unit in this paper.** It is recorded because
+five units were created against it, and because the error is invisible to any check that only counts
+units: the per-page totals stayed self-consistent while the boundaries were wrong.
+
+- A **new paragraph** begins with an indented first line, about **55 px at the 200 dpi render**
+  (`artifacts/page-images/ap-17-549-CORRECTED/parent-173.png` … `parent-184.png`), and the indent is
+  present even when the paragraph starts at the top of a page.
+- A line that **resumes after a displayed equation** is set **flush to the left margin**, however
+  much prose follows it and however many further displays it introduces. Measured on p. 554: the
+  real starts sit at +55, +53 and +58 px while the flush resumptions sit at +1 to +5 px.
+- A line that **continues across a page break** is likewise flush.
+- Printed **numbered or lettered list items** (`1.`, `2.`, `a)`, `b)`) are indented but are *not*
+  separate paragraphs: they fold into the sentence that introduces them. See
+  `flag:segmentation:numbered-list-items-folded` above, and the sibling rule recorded for
+  light-quanta.
+
+Worked contrast on p. 554, which is where two of the five errors were made: "In einer Flüssigkeit
+seien suspendierte Teilchen" and "Es sei ν die Anzahl der suspendierten Teilchen" are indented and
+are genuine starts; "Es werde angenommen, daß die Flüssigkeit senkrecht zur X-Achse", "Die gesuchte
+Gleichgewichtsbedingung ist also:" and "Die letzte Gleichung sagt aus" sit flush and are not. On
+p. 557 the same contrast holds between the indented "Wir untersuchen nun" and "Es sei ν = f(x,t)" and
+the flush "Diese Entwicklung können wir unter dem Integral vornehmen" and "Auf der rechten Seite
+verschwindet".
+
+Read the left margin at 300% or more before deciding. At full-page scale the two cases are easy to
+confuse: during the audit two calls made from full-page reads were wrong and the magnified check
+reversed them.
 
 ### `check:test-claims-unperformed-scan-check` differs
 

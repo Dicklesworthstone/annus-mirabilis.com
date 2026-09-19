@@ -333,6 +333,8 @@ units:
         - planned
       argumentObligations:
         - arg:brownian-statistical-mechanics
+      notes:
+        - "Runs on flush after eq-s2-d8; absorbed the retired s2-p6 in the 2026-09-19 boundary audit."
 
   - id: s2-fn2
     kind: footnote
@@ -369,22 +371,10 @@ units:
       argumentObligations:
         - arg:brownian-statistical-mechanics
 
-  - id: s2-p6
-    kind: paragraph
-    section: s2
-    locators:
-      - page: 553
-    destination:
-      editionBlockId: de-brownian-motion-s2-p6
-      translationUnits:
-        - planned
-      argumentObligations:
-        - arg:brownian-statistical-mechanics
-
   - id: eq-s2-d9
     kind: display-equation
     section: s2
-    containedIn: s2-p6
+    containedIn: s2-p5
     editorialLabel: "ed:s2-d9"
     locators:
       - page: 553
@@ -497,6 +487,8 @@ units:
         - planned
       argumentObligations:
         - arg:brownian-stokes-diffusion
+      notes:
+        - "Runs on flush after eq-s3-d1 through the equilibrium condition; absorbed the retired s3-p3 and s3-p4 in the 2026-09-19 boundary audit."
 
   - id: eq-s3-d1
     kind: display-equation
@@ -512,22 +504,10 @@ units:
       argumentObligations:
         - arg:brownian-stokes-diffusion
 
-  - id: s3-p3
-    kind: paragraph
-    section: s3
-    locators:
-      - page: 554
-    destination:
-      editionBlockId: de-brownian-motion-s3-p3
-      translationUnits:
-        - planned
-      argumentObligations:
-        - arg:brownian-stokes-diffusion
-
   - id: eq-s3-d2
     kind: display-equation
     section: s3
-    containedIn: s3-p3
+    containedIn: s3-p2
     editorialLabel: "ed:s3-d2"
     locators:
       - page: 554
@@ -541,7 +521,7 @@ units:
   - id: eq-s3-d3
     kind: display-equation
     section: s3
-    containedIn: s3-p3
+    containedIn: s3-p2
     editorialLabel: "ed:s3-d3"
     locators:
       - page: 554
@@ -552,22 +532,10 @@ units:
       argumentObligations:
         - arg:brownian-stokes-diffusion
 
-  - id: s3-p4
-    kind: paragraph
-    section: s3
-    locators:
-      - page: 554
-    destination:
-      editionBlockId: de-brownian-motion-s3-p4
-      translationUnits:
-        - planned
-      argumentObligations:
-        - arg:brownian-stokes-diffusion
-
   - id: eq-s3-1
     kind: display-equation
     section: s3
-    containedIn: s3-p4
+    containedIn: s3-p2
     originalLabel: "(1)"
     locators:
       - page: 554
@@ -581,7 +549,7 @@ units:
   - id: eq-s3-d4
     kind: display-equation
     section: s3
-    containedIn: s3-p4
+    containedIn: s3-p2
     editorialLabel: "ed:s3-d4"
     locators:
       - page: 554
@@ -887,12 +855,15 @@ units:
     section: s4
     locators:
       - page: 557
+      - page: 558
     destination:
       editionBlockId: de-brownian-motion-s4-p6
       translationUnits:
         - planned
       argumentObligations:
         - arg:brownian-random-walk-diffusion
+      notes:
+        - "Runs on flush after eq-s4-d6 and crosses to page 558; absorbed the retired s4-p7 and s4-p8 in the 2026-09-19 boundary audit."
 
   - id: eq-s4-d4
     kind: display-equation
@@ -936,22 +907,10 @@ units:
       argumentObligations:
         - arg:brownian-random-walk-diffusion
 
-  - id: s4-p7
-    kind: paragraph
-    section: s4
-    locators:
-      - page: 557
-    destination:
-      editionBlockId: de-brownian-motion-s4-p7
-      translationUnits:
-        - planned
-      argumentObligations:
-        - arg:brownian-random-walk-diffusion
-
   - id: eq-s4-d7
     kind: display-equation
     section: s4
-    containedIn: s4-p7
+    containedIn: s4-p6
     editorialLabel: "ed:s4-d7"
     locators:
       - page: 557
@@ -962,23 +921,10 @@ units:
       argumentObligations:
         - arg:brownian-random-walk-diffusion
 
-  - id: s4-p8
-    kind: paragraph
-    section: s4
-    locators:
-      - page: 557
-      - page: 558
-    destination:
-      editionBlockId: de-brownian-motion-s4-p8
-      translationUnits:
-        - planned
-      argumentObligations:
-        - arg:brownian-random-walk-diffusion
-
   - id: eq-s4-d8
     kind: display-equation
     section: s4
-    containedIn: s4-p8
+    containedIn: s4-p6
     editorialLabel: "ed:s4-d8"
     locators:
       - page: 557
@@ -992,7 +938,7 @@ units:
   - id: eq-s4-d9
     kind: display-equation
     section: s4
-    containedIn: s4-p8
+    containedIn: s4-p6
     editorialLabel: "ed:s4-d9"
     locators:
       - page: 558
@@ -1006,7 +952,7 @@ units:
   - id: eq-s4-1
     kind: display-equation
     section: s4
-    containedIn: s4-p8
+    containedIn: s4-p6
     originalLabel: "(1)"
     locators:
       - page: 558
