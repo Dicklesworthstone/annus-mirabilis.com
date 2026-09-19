@@ -87,8 +87,20 @@ describe("bare throw ratchet (am-muyh)", () => {
     );
 
     assert.equal(typeof scan.totalBare, "number");
-    assert.ok(scan.totalCoded > 0, "the coded scanner must still be finding sites");
-    assert.ok(scan.filesScanned > 100, "the census must be scanning the real tree");
+    // `totalCoded > 0` used to be asserted here. It is an existence claim
+    // about what the repository happens to contain, and on the day the last
+    // coded refusal is rewritten it would fail naming the coded scanner when
+    // what changed is the tree. It is proven by construction on the injected
+    // root below instead.
+    //
+    // What stays is a claim about THIS TEST'S SETUP rather than about the
+    // code: that the census was pointed at the real repository and not at an
+    // empty directory. That is the assertion that would have caught the first
+    // version of this gate taking its files from findSourceFiles("src").
+    assert.ok(
+      scan.filesScanned > 100,
+      "the census must be scanning the real tree, not an empty root",
+    );
     assert.equal(
       scan.byFile.size === 0,
       scan.totalBare === 0,
@@ -250,6 +262,34 @@ describe("bare throw ratchet (am-muyh)", () => {
       scan.totalBare,
       "the per-root totals must add up to the headline",
     );
+  });
+
+  it("reports zeros for an empty root rather than omitting it", () => {
+    // The header of this file promises the census is reported "including when
+    // it is zero, because a class that vanishes from a report is worse than
+    // one reported as zero". Nothing proved that: on the live tree the zero
+    // branch is never taken, so the promise was prose. Here it is a fixture.
+    const root = mkdtempSync(join(tmpdir(), "bare-throw-empty-"));
+    mkdirSync(join(root, "src"), { recursive: true });
+    mkdirSync(join(root, "scripts"), { recursive: true });
+    writeFileSync(join(root, "src/clean.ts"), "export const a = 1;\n");
+
+    const scan = scanBareThrows(root);
+
+    assert.equal(scan.totalBare, 0, "the fixture contains no throw of any kind");
+    assert.equal(scan.byFile.size, 0);
+    assert.equal(scan.refusalPathLowerBound, 0);
+    assert.equal(scan.unreachedByEitherSignal, 0);
+
+    // The point of the test: both roots are still PRESENT in the report with
+    // an explicit tally, not dropped for having nothing to say.
+    for (const declared of BARE_THROW_ROOTS) {
+      const tally = scan.byRoot.get(declared);
+      assert.ok(tally, `root ${declared}/ vanished from the census when it had nothing to report`);
+      assert.equal(tally.bare, 0, `root ${declared}/ must report zero, not be absent`);
+      assert.equal(tally.coded, 0);
+    }
+    assert.equal(scan.byRoot.size, BARE_THROW_ROOTS.length, "every declared root is entered");
   });
 
   it("no file exceeds its recorded bare throw count, and no count is slack", () => {
