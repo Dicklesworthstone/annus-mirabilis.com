@@ -2,6 +2,7 @@ import { describe, expect, test } from "bun:test";
 import { existsSync, mkdtempSync, readFileSync } from "node:fs";
 import { tmpdir } from "node:os";
 import { join } from "node:path";
+import { resolveAlias, validateAliasRecord } from "../aliases.ts";
 import { parseIdSnapshot, validateFrozenIds } from "../frozenIds.ts";
 import { validateSourceManifest } from "../manifest/schema.ts";
 import { validateManifest } from "../manifest/validator.ts";
@@ -24,6 +25,21 @@ function loadManifest() {
   return { manifest: validateSourceManifest(raw, manifestPath), manifestPath };
 }
 
+/**
+ * The retirements from the 2026-09-19 boundary audit. The sequence-gap rule treats a missing
+ * paragraph number as an error unless an alias record explains it, so the validator is given the
+ * real alias file rather than an empty list: the gap s0-p7 -> s0-p11 is explained, not waived.
+ */
+function loadAliasRecords() {
+  const aliasPath = join(ROOT, "content/aliases/mass-energy.yaml");
+  const raw = parseYaml(readFileSync(aliasPath, "utf8")) as Record<string, unknown>;
+  return (raw.aliases as unknown[]).map((rec) => {
+    const parsed = validateAliasRecord(rec);
+    if (!parsed.ok) throw new Error(`Invalid alias record in ${aliasPath}: ${parsed.error}`);
+    return parsed.value;
+  });
+}
+
 describe("mass-energy source manifest inventory (am-edn-inventory-mass-energy-g2d)", () => {
   test("manifest validates with valid ids, locators, frozen headers, and absent derived statuses", () => {
     const { manifest, manifestPath } = loadManifest();
@@ -37,7 +53,7 @@ describe("mass-energy source manifest inventory (am-edn-inventory-mass-energy-g2
     expect(manifest.idsFrozenAt).toBe("2026-09-19T00:00:00Z");
     expect(manifest.frozenBy).toBe(MASS_ENERGY_BEAD);
 
-    expect(manifest.units.length).toBe(28);
+    expect(manifest.units.length).toBe(25); // 28 until the 2026-09-19 boundary audit retired s0-p8, s0-p9, s0-p10
 
     // No duplicate ids
     const idSet = new Set<string>();
@@ -66,6 +82,7 @@ describe("mass-energy source manifest inventory (am-edn-inventory-mass-energy-g2
     // Corpus validation has zero errors
     const diags = validateManifest(manifest, {
       manifests: new Map([[manifest.paper, manifest]]),
+      aliases: loadAliasRecords(),
     });
     const errors = diags.filter((d) => d.severity === "error");
     expect(errors.length).toBe(0);
@@ -177,16 +194,30 @@ describe("mass-energy source manifest inventory (am-edn-inventory-mass-energy-g2
     const pStartsP2 = manifest.units.filter(
       (u) => u.kind === "paragraph" && u.locators[0]?.page === 640,
     );
-    expect(pStartsP2.length).toBe(4); // s0-p6 .. s0-p9
+    expect(pStartsP2.length).toBe(2); // s0-p6, s0-p7 (the print indents a new paragraph; s0-p8/s0-p9 were flush resumptions)
 
     const pStartsP3 = manifest.units.filter(
       (u) => u.kind === "paragraph" && u.locators[0]?.page === 641,
     );
-    expect(pStartsP3.length).toBe(6); // s0-p10 .. s0-p15
+    expect(pStartsP3.length).toBe(5); // s0-p11 .. s0-p15 (s0-p10 was a flush resumption of s0-p7)
 
-    // Paragraph s0-p9 spans across pages 640 and 641
-    const p9 = manifest.units.find((u) => u.id === "s0-p9");
-    expect(p9?.locators.map((l) => l.page)).toEqual([640, 641]);
+    // Paragraph s0-p7 spans pages 640 and 641: the printed run is hyphenated across the break
+    // ("addi-" / "tiven"). Recorded on s0-p9 until the 2026-09-19 boundary audit.
+    const p7 = manifest.units.find((u) => u.id === "s0-p7");
+    expect(p7?.locators.map((l) => l.page)).toEqual([640, 641]);
+
+    // Retired ids are gone from the manifest and are NOT reused; survivors keep their numbers,
+    // so the sequence deliberately jumps s0-p7 -> s0-p11.
+    for (const retired of ["s0-p8", "s0-p9", "s0-p10"]) {
+      expect(manifest.units.some((u) => u.id === retired)).toBe(false);
+    }
+    expect(manifest.units.some((u) => u.id === "s0-p11")).toBe(true);
+
+    // Every display that used to hang off a retired unit now hangs off s0-p7.
+    for (const d of ["eq-s0-d4", "eq-s0-d5", "eq-s0-d6"]) {
+      const unit = manifest.units.find((u) => u.id === d);
+      expect(unit?.containedIn).toBe("s0-p7");
+    }
 
     logger.log({
       testId: "mass-energy-counts-reconcile-pagemap",
@@ -317,12 +348,13 @@ describe("mass-energy source manifest inventory (am-edn-inventory-mass-energy-g2
     expect(rP4?.target?.id).toBe("ap-17-891-s8");
     expect(rP4?.printedText).toBe("l. c. § 8");
 
-    // 3. Cross-paper reference to §10 in s0-p10
-    const p10 = manifest.units.find((u) => u.id === "s0-p10");
+    // 3. Cross-paper reference to §10, carried by s0-p7 since the boundary audit moved the
+    //    sentence that prints "l. c. § 10" out of the retired s0-p10.
+    const p10 = manifest.units.find((u) => u.id === "s0-p7");
     expect(p10?.references?.length).toBe(1);
     const rP10 = p10!.references![0];
-    expect(rP10?.id).toBe("s0-p10-r1");
-    expect(rP10?.occurrenceId).toBe("s0-p10-r1");
+    expect(rP10?.id).toBe("s0-p7-r1");
+    expect(rP10?.occurrenceId).toBe("s0-p7-r1");
     expect(rP10?.kind).toBe("cross-paper");
     expect(rP10?.target?.paper).toBe("special-relativity");
     expect(rP10?.target?.id).toBe("ap-17-891-s10");
@@ -363,7 +395,7 @@ describe("mass-energy source manifest inventory (am-edn-inventory-mass-energy-g2
 
     // Planted mutation 1: renumber reference id to wrong unit prefix
     const mutatedUnits1 = manifest.units.map((u) => {
-      if (u.id === "s0-p10" && u.references) {
+      if (u.id === "s0-p7" && u.references) {
         return {
           ...u,
           references: [
@@ -425,7 +457,7 @@ describe("mass-energy source manifest inventory (am-edn-inventory-mass-energy-g2
     });
   });
 
-  test("alias file is empty and snapshot equals manifest IDs; mutation removing ID fails", () => {
+  test("alias file records the boundary-audit retirements and snapshot equals manifest IDs; mutation removing ID fails", () => {
     const { manifest } = loadManifest();
 
     // Alias file check
@@ -437,7 +469,45 @@ describe("mass-energy source manifest inventory (am-edn-inventory-mass-energy-g2
     expect(aliasRaw.idsFrozenAt).toBe("2026-09-19T00:00:00Z");
     expect(aliasRaw.frozenBy).toBe(MASS_ENERGY_BEAD);
     expect(Array.isArray(aliasRaw.aliases)).toBe(true);
-    expect((aliasRaw.aliases as unknown[]).length).toBe(0);
+
+    // Four retirements from the 2026-09-19 boundary audit: three paragraph units that were flush
+    // resumptions after displays, plus the reference occurrence that moved with its sentence.
+    const aliasList = aliasRaw.aliases as unknown[];
+    expect(aliasList.length).toBe(4);
+    for (const rec of aliasList) {
+      const parsed = validateAliasRecord(rec);
+      expect(parsed.ok).toBe(true);
+    }
+    const records = aliasList.map((r) => {
+      const v = validateAliasRecord(r);
+      if (!v.ok) throw new Error(v.error);
+      return v.value;
+    });
+    expect(records.map((r) => r.retiredId).sort()).toEqual([
+      "s0-p10",
+      "s0-p10-r1",
+      "s0-p8",
+      "s0-p9",
+    ]);
+
+    // Retired ids must resolve to their surviving unit, and must NOT be reused as live ids.
+    const liveIds = manifest.units.map((u) => u.id);
+    for (const retired of ["s0-p8", "s0-p9", "s0-p10"]) {
+      expect(liveIds).not.toContain(retired);
+      const resolved = resolveAlias(retired, records, liveIds);
+      expect(resolved.ok).toBe(true);
+      if (resolved.ok) expect(resolved.targetIds).toEqual(["s0-p7"]);
+    }
+    const movedRef = resolveAlias("s0-p10-r1", records, ["s0-p7-r1"]);
+    expect(movedRef.ok).toBe(true);
+    if (movedRef.ok) expect(movedRef.targetIds).toEqual(["s0-p7-r1"]);
+
+    // Planted negative: without the alias records the gap is an error, so the records are
+    // carrying the explanation rather than the rule having been softened.
+    const unexplained = validateManifest(manifest, {
+      manifests: new Map([[manifest.paper, manifest]]),
+    }).filter((d) => d.rule === "sequence-gap" && d.severity === "error");
+    expect(unexplained.length).toBe(3);
 
     // Snapshot check
     const snapshotPath = join(ROOT, "content/source-blocks/mass-energy/manifest.ids.snapshot.txt");

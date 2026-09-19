@@ -1,5 +1,7 @@
 # Mass-energy source-id snapshot (am-edn-inventory-mass-energy-g2d)
 # Pinned facsimile ap-18-639 verified and frozen 2026-09-19T00:00:00Z
+# 2026-09-19 boundary audit: s0-p8, s0-p9 and s0-p10 retired (merged into s0-p7); ids are
+# never reused and survivors keep their numbers, so the sequence gap p7 -> p11 is intentional.
 # Unit ids in printed order
 masthead-title
 masthead-author
@@ -15,12 +17,9 @@ s0-p6
 s0-p7
 eq-s0-d2
 eq-s0-d3
-s0-p8
 eq-s0-d4
-s0-p9
 eq-s0-d5
 eq-s0-d6
-s0-p10
 s0-p11
 eq-s0-d7
 s0-p12

@@ -99,7 +99,9 @@ Any editorial reconstruction or modern transcription that replaces the radical w
 ## 3. Segmentation decisions
 
 ### Paragraph and sentence census
-The paper contains 15 paragraphs and 27 sentences across its 3 printed pages:
+The paper contains **12 paragraphs** and 27 sentences across its 3 printed pages. The count was 15
+until the boundary audit of 2026-09-19; see "Indent versus flush" below and
+`content/aliases/mass-energy.yaml`.
 
 - **Page 639 (5 paragraphs, 8 sentences)**:
   - `s0-p1`: 1 sentence (`s0-p1-s1`, "Die Resultate einer jüngst in diesen Annalen..."). Contains footnote mark `1)`.
@@ -111,7 +113,7 @@ The paper contains 15 paragraphs and 27 sentences across its 3 printed pages:
     - `s0-p5-s2`: "Bezieht man die Energie..." continues through display `eq-s0-d1` to "...wobei $V$ die Lichtgeschwindigkeit bedeutet."
     - `s0-p5-s3`: "Von diesem Resultat machen wir im folgenden Gebrauch."
 
-- **Page 640 (4 paragraphs, 8 sentences)**:
+- **Page 640 (2 paragraphs starting on page, 8 sentences)**:
   - `s0-p6`: 2 sentences:
     - `s0-p6-s1`: "Es befinde sich nun ein Körper..." ends at "...seine Energie auf das System $(x, y, z)$ bezogen $E_0$ sei."
     - `s0-p6-s2`: "Er bewege sich..." ends at "...dessen Energie auf $(\xi, \eta, \zeta)$ bezogen $H_0$ sei."
@@ -120,20 +122,20 @@ The paper contains 15 paragraphs and 27 sentences across its 3 printed pages:
     - `s0-p7-s2`: "Diese Aussendung geschehe..." ends at "...relativ zum System $(x, y, z)$."
     - `s0-p7-s3`: "Für diesen Vorgang..." ends at "...beide Koordinatensysteme."
     - `s0-p7-s4`: "Wir haben demnach..." continues through displays `eq-s0-d2` and `eq-s0-d3` to end at "...angegebenen Relation:".
-  - `s0-p8`: 1 sentence:
-    - `s0-p8-s1`: "Durch Subtraktion erhält man aus diesen Gleichungen:" introducing display `eq-s0-d4`.
-  - `s0-p9` (starts on p. 640, continues onto p. 641):
-    - `s0-p9-s1` (p. 640): "Die beiden in diesem Ausdruck auftretenden Differenzen... einfache physikalische Bedeutungen."
+  - `s0-p7` continues, flush after `eq-s0-d3` (formerly the separate unit `s0-p8`, retired):
+    - `s0-p7-s5`: "Durch Subtraktion erhält man aus diesen Gleichungen:" introducing display `eq-s0-d4`.
+  - `s0-p7` continues again, flush after `eq-s0-d4` (formerly `s0-p9`, retired; this is the run that crosses onto p. 641):
+    - (p. 640): "Die beiden in diesem Ausdruck auftretenden Differenzen... einfache physikalische Bedeutungen."
     - `s0-p9-s2` (p. 640): "$H$ und $E$ sind Energiewerte... solange er relativ zu $(x, y, z)$ ruht."
     - `s0-p9-s3` (spans p. 640 and p. 641): starts on p. 640 "Folglich muß $H - E$ der kinetischen Energie $K$ des Körpers... welche von der Wahl der willkürlichen addi-", continuing on p. 641 line 1 "tiven Konstanten der Energien $H$ und $E$ abhängt."
 
-- **Page 641 (6 new paragraphs starting on page, 11 sentences)**:
+- **Page 641 (5 new paragraphs starting on page, 11 sentences)**:
   - `s0-p9` (continuation):
     - `s0-p9-s4`: "Wir können also setzen:" introducing display `eq-s0-d5`, followed by "...da $C$ sich während der Lichtaussendung nicht ändert."
     - `s0-p9-s5`: "Wir erhalten also:" introducing display `eq-s0-d6`.
-  - `s0-p10`: 2 sentences:
-    - `s0-p10-s1`: "Die kinetische Energie des Körpers..." ends at "...ihrem Betrag."
-    - `s0-p10-s2`: "Die Differenz $K_0 - K_1$ hängt..." contains reference `s0-p10-r1` to "l. c. § 10".
+  - `s0-p7` continues, flush after `eq-s0-d6` (formerly `s0-p10`, retired): 2 sentences:
+    - "Die kinetische Energie des Körpers..." ends at "...ihrem Betrag."
+    - "Die Differenz $K_0 - K_1$ hängt..." contains reference `s0-p7-r1` (formerly `s0-p10-r1`) to "l. c. § 10".
   - `s0-p11`: 1 sentence:
     - `s0-p11-s1`: "Unter Vernachlässigung von Größen vierter und höherer Ordnung können wir setzen:" introducing display `eq-s0-d7`.
   - `s0-p12`: 3 sentences:
@@ -149,7 +151,31 @@ The paper contains 15 paragraphs and 27 sentences across its 3 printed pages:
 
 ### Boundary across page breaks
 - **Page break 639/640**: Sits cleanly between `s0-p5` (and bottom footnotes `s0-fn1`, `s0-fn2`) and `s0-p6`.
-- **Page break 640/641**: Crosses inside paragraph `s0-p9`, splitting sentence `s0-p9-s3` at the hyphenated word "addi-" (end of p. 640, line 31) and "tiven" (start of p. 641, line 1). The paragraph unit `s0-p9` carries two locators: `[{ page: 640 }, { page: 641 }]`.
+- **Page break 640/641**: Crosses inside paragraph `s0-p7`, splitting a sentence at the hyphenated word "addi-" (end of p. 640, line 31) and "tiven" (start of p. 641, line 1). The paragraph unit `s0-p7` carries two locators: `[{ page: 640 }, { page: 641 }]`. Until 2026-09-19 this span was recorded on `s0-p9`; that unit was a flush resumption of `s0-p7`, so the span belonged to `s0-p7` all along. The hyphenated word is the decisive evidence that the run is one paragraph.
+
+### Indent versus flush: how a paragraph break is identified in this printing
+
+**This is the rule to apply before adding or splitting any paragraph unit in this paper.** It is
+recorded because three units were created against it and the error is invisible to any check that
+only counts units: the per-page totals stayed self-consistent while the boundaries were wrong.
+
+- A **new paragraph** begins with an indented first line, about **55 px at the 200 dpi render**
+  (`artifacts/page-images/ap-18-639/page-*.png`), and the indent is present even when the paragraph
+  starts at the very top of a page.
+- A line that **resumes after a displayed equation** is set **flush to the left margin**. It is the
+  same paragraph, however much prose follows and however many further displays it introduces.
+- A line that **continues across a page break** is likewise flush, and is often provable
+  independently by a hyphenated word split across the two pages (here "addi-" / "tiven").
+
+Worked contrast on p. 640, which is where the error was made: "Es befinde sich nun im System" and
+"Dieser Körper sende in einer" are indented and are genuine starts; "Durch Subtraktion erhält man
+aus diesen Gleichungen:" and "Die beiden in diesem Ausdruck auftretenden Differenzen" sit flush at
+the margin and are not. On p. 641 the same contrast holds between the flush "Die kinetische Energie
+des Körpers" and the indented "Unter Vernachlässigung von Größen vierter und höherer Ordnung".
+
+Read the left margin at 300% or more before deciding. At full-page scale the two cases are easy to
+confuse, and the sibling papers record the same trap: light-quanta records its numbered-item folding
+rule for the same reason.
 
 ---
 

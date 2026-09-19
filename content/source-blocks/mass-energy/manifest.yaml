@@ -151,13 +151,25 @@ units:
     kind: paragraph
     locators:
       - page: 640
+      - page: 641
+    references:
+      - id: s0-p7-r1
+        occurrenceId: s0-p7-r1
+        printedText: "l. c. § 10"
+        kind: cross-paper
+        target:
+          paper: special-relativity
+          id: ap-17-891-s10
     destination:
       editionBlockId: s0-p7
       argumentObligations:
         - equal-opposite-emissions
         - energy-balances
+        - subtraction-kinetic-energy
       notes:
         - "Emission of two equal and opposite plane light pulses each of energy L/2"
+        - "Runs on through the subtraction of the two energy balances, the reading of H - E as kinetic energy K plus a constant C, and the comparison with the electron kinetic energy of the relativity paper; spans pages 640-641"
+        - "Absorbed the retired units s0-p8, s0-p9 and s0-p10 in the 2026-09-19 boundary audit; the three were flush resumptions after displays, not printed paragraph breaks. See content/aliases/mass-energy.yaml"
 
   - id: eq-s0-d2
     kind: display-equation
@@ -189,22 +201,10 @@ units:
       notes:
         - "Moving system energy balance with cancellation of directional cosine terms"
 
-  - id: s0-p8
-    kind: paragraph
-    locators:
-      - page: 640
-    destination:
-      editionBlockId: s0-p8
-      argumentObligations:
-        - energy-balances
-        - subtraction-kinetic-energy
-      notes:
-        - "Subtraction of rest energy balance from moving energy balance"
-
   - id: eq-s0-d4
     kind: display-equation
     editorialLabel: "ed:s0-d4"
-    containedIn: s0-p8
+    containedIn: s0-p7
     locators:
       - page: 640
     printedForm: "(H_0 - E_0) - (H_1 - E_1) = L \\left\\{ \\frac{1}{\\sqrt{1 - (v/V)^2}} - 1 \\right\\}"
@@ -216,22 +216,10 @@ units:
       notes:
         - "Subtracted balance expressing difference of energy differences"
 
-  - id: s0-p9
-    kind: paragraph
-    locators:
-      - page: 640
-      - page: 641
-    destination:
-      editionBlockId: s0-p9
-      argumentObligations:
-        - subtraction-kinetic-energy
-      notes:
-        - "Physical interpretation of H - E as kinetic energy K plus constant C; spans pages 640-641"
-
   - id: eq-s0-d5
     kind: display-equation
     editorialLabel: "ed:s0-d5"
-    containedIn: s0-p9
+    containedIn: s0-p7
     locators:
       - page: 641
     printedForm: "\\begin{aligned} H_0 - E_0 &= K_0 + C, \\\\ H_1 - E_1 &= K_1 + C \\end{aligned}"
@@ -245,7 +233,7 @@ units:
   - id: eq-s0-d6
     kind: display-equation
     editorialLabel: "ed:s0-d6"
-    containedIn: s0-p9
+    containedIn: s0-p7
     locators:
       - page: 641
     printedForm: "K_0 - K_1 = L \\left\\{ \\frac{1}{\\sqrt{1 - (v/V)^2}} - 1 \\right\\}"
@@ -255,25 +243,6 @@ units:
         - subtraction-kinetic-energy
       notes:
         - "Exact relativistic kinetic energy difference equation"
-
-  - id: s0-p10
-    kind: paragraph
-    locators:
-      - page: 641
-    references:
-      - id: s0-p10-r1
-        occurrenceId: s0-p10-r1
-        printedText: "l. c. § 10"
-        kind: cross-paper
-        target:
-          paper: special-relativity
-          id: ap-17-891-s10
-    destination:
-      editionBlockId: s0-p10
-      argumentObligations:
-        - subtraction-kinetic-energy
-      notes:
-        - "Kinetic energy discussion referencing electron kinetic energy in §10"
 
   - id: s0-p11
     kind: paragraph

@@ -1,4 +1,32 @@
 paper: mass-energy
 idsFrozenAt: "2026-09-19T00:00:00Z"
 frozenBy: am-edn-inventory-mass-energy-g2d
-aliases: []
+aliases:
+  - retiredId: s0-p8
+    kind: merged
+    replacementIds:
+      - s0-p7
+    reason: "Not a printed paragraph. The line 'Durch Subtraktion erhaelt man aus diesen Gleichungen:' on p. 640 is set flush to the margin, resuming s0-p7 after the H_0 display; a new paragraph on this page is indented by about 55 px at 200 dpi. Boundary audit of 2026-09-19 against artifacts/page-images/ap-18-639/page-2.png."
+    date: "2026-09-19"
+    editor: "agent:pane30 (BrightIsland), am-edn-inventory-mass-energy-g2d"
+  - retiredId: s0-p9
+    kind: merged
+    replacementIds:
+      - s0-p7
+    reason: "Not a printed paragraph. 'Die beiden in diesem Ausdruck auftretenden Differenzen...' on p. 640 is set flush, resuming s0-p7 after the subtraction display, and carries the hyphenated word 'addi-tiven' across the page break into p. 641. The 640-641 span therefore belongs to s0-p7. Same audit."
+    date: "2026-09-19"
+    editor: "agent:pane30 (BrightIsland), am-edn-inventory-mass-energy-g2d"
+  - retiredId: s0-p10
+    kind: merged
+    replacementIds:
+      - s0-p7
+    reason: "Not a printed paragraph. 'Die kinetische Energie des Koerpers in bezug auf (xi, eta, zeta)...' on p. 641 is set flush, resuming s0-p7 after the K_0 - K_1 display. Verified against artifacts/page-images/ap-18-639/page-3.png; the next line, 'Unter Vernachlaessigung von Groessen vierter und hoeherer Ordnung', is indented and is the real next paragraph (s0-p11)."
+    date: "2026-09-19"
+    editor: "agent:pane30 (BrightIsland), am-edn-inventory-mass-energy-g2d"
+  - retiredId: s0-p10-r1
+    kind: merged
+    replacementIds:
+      - s0-p7-r1
+    reason: "Reference occurrence moved with its text. The printed cross-reference 'l. c. § 10' to the relativity paper's electron kinetic energy sits in the sentence retired with s0-p10, so the occurrence is now the first reference of s0-p7. The id names the occurrence, never the target, and s0-p7 had no prior reference occurrence."
+    date: "2026-09-19"
+    editor: "agent:pane30 (BrightIsland), am-edn-inventory-mass-energy-g2d"
