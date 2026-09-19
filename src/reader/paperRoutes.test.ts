@@ -1,4 +1,6 @@
 import { describe, expect, test } from "bun:test";
+import { PAPER_SLUGS } from "../content/schemas/source.ts";
+import { DEFAULT_FACE } from "./faces/registry.ts";
 import {
   classifyPaperParam,
   FACE_FALLBACK_IDS,
@@ -94,9 +96,39 @@ describe("resolvePaperRoute", () => {
     });
   });
 
-  test("reject: (paperRoutes.ts:98) valid paper slug not in readable papers yields unknown-paper", async () => {
-    const res = await resolvePaperRoute({ paperId: "special-relativity" });
-    expect(res).toEqual({ ok: false, code: "unknown-paper" });
+  /**
+   * paperRoutes.ts:98-99 - a slug can be valid and still not be a route, because a paper
+   * without a compiled payload is not readable. This was written against the literal
+   * "special-relativity", which was valid-but-unreadable when the test was authored and
+   * became readable as the compiled set grew, so the fixture's premise expired rather than
+   * the rule. Asserting the partition instead keeps the rule pinned as papers land: every
+   * valid slug resolves exactly according to whether it is readable, and nothing else.
+   *
+   * Note for whoever compiles the companion dissertation: when PAPER_SLUGS and the readable
+   * set coincide, the valid-but-unreadable branch has no live example left and this test
+   * covers only the readable half. The branch stays reachable in tests through the
+   * invalid-slug case above (classifyPaperParam -> "invalid" -> unknown-paper).
+   */
+  test("invariant: a valid slug is a route exactly when it is readable", async () => {
+    const readable = await listReadablePapers();
+    expect(readable.length).toBeGreaterThan(0);
+    // The readable set is drawn from the slug set, never wider than it.
+    for (const id of readable) {
+      expect(PAPER_SLUGS as readonly string[]).toContain(id);
+    }
+
+    for (const slug of PAPER_SLUGS) {
+      const res = await resolvePaperRoute({ paperId: slug });
+      if (readable.includes(slug)) {
+        expect(res).toEqual({ ok: true, paperId: slug, face: DEFAULT_FACE });
+      } else {
+        expect(res).toEqual({ ok: false, code: "unknown-paper" });
+      }
+    }
+
+    // The partition is exhaustive: no valid slug escapes both branches.
+    const unreadable = (PAPER_SLUGS as readonly string[]).filter((s) => !readable.includes(s));
+    expect(readable.length + unreadable.length).toBe(PAPER_SLUGS.length);
   });
 
   test("compiled papers never include a bibliographic key", async () => {
