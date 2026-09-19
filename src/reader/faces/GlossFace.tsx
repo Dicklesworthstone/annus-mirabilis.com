@@ -1,6 +1,5 @@
 import { GlossReasoningToggle } from "./GlossReasoningToggle.tsx";
 import "./glossReasoning.css";
-import { getModalityClasses } from "../../content/schemas/glossConventions.ts";
 import type { ReviewRecord } from "../../content/schemas/review.ts";
 import type {
   Alignment,
@@ -35,10 +34,11 @@ export interface GlossFaceProps {
   readonly entryLink?: GlossEntryLink | undefined;
   readonly initialReasoningWords?: boolean | undefined;
   /**
-   * The modality vocabulary for this edition, resolved on the server by
-   * `getModalityClasses()`. This face owns the reasoning-words toggle, so it is
-   * a Client Component and cannot read `docs/editorial/GLOSS_CONVENTIONS.md`
-   * itself; the list arrives as data. See am-bwnf.
+   * The modality vocabulary for this edition, resolved once by the route with
+   * `getModalityClasses()` and passed in as data. The face does not read
+   * `docs/editorial/GLOSS_CONVENTIONS.md` itself: that keeps the whole gloss
+   * subtree free of `node:fs`, so `GlossReasoningToggle` and any later client
+   * component in it stay legal. See am-bwnf.
    */
   readonly modalityClasses: readonly string[];
 }
@@ -61,7 +61,6 @@ export function GlossFace({
   initialReasoningWords = false,
   modalityClasses,
 }: GlossFaceProps) {
-  const activeModalityClasses = propModalityClasses ?? getModalityClasses();
 
   // If no source blocks exist for the paper, render an honest fallback
   if (!blocks || blocks.length === 0) {
@@ -216,7 +215,7 @@ export function GlossFace({
                         englishTranslation={englishText}
                         paperSlug={paper.slug}
                         showReasoningWords
-                        modalityClasses={activeModalityClasses}
+                        modalityClasses={modalityClasses}
                       />
                     );
                   })}
