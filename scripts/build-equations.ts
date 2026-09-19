@@ -14,6 +14,10 @@ const sourcePaths = [
   "src/equations/ast.ts",
   "src/equations/dimensions.ts",
   "src/equations/quantities.ts",
+  "src/equations/massEnergyQuantities.ts",
+  "src/equations/teachingProfiles.ts",
+  "src/experiments/bm01/definition.ts",
+  "src/experiments/me02/definition.ts",
   "src/equations/navigation.ts",
   "src/content/dimensions/rational.ts",
   "scripts/build-equations.ts",
@@ -27,10 +31,18 @@ const rendererDigest = createHash("sha256")
   )
   .digest("hex");
 await mkdir("src/generated", { recursive: true });
-await writeFile(
-  "src/generated/brownian-equations.json",
-  `${JSON.stringify({ schemaVersion: 1, rendererDigest, equations }, null, 2)}\n`,
-);
+// Each route receives only its paper's payload. Extending admission must not
+// quietly attach every mass-energy equation to the Brownian reader/laboratory.
+for (const [paper, file] of [
+  ["brownian-motion", "brownian-equations"],
+  ["mass-energy", "mass-energy-equations"],
+] as const) {
+  await writeFile(
+    `src/generated/${file}.json`,
+    `${JSON.stringify({ schemaVersion: 1, rendererDigest,
+      equations: equations.filter(equation => equation.paper === paper) }, null, 2)}\n`,
+  );
+}
 console.log(
   JSON.stringify({ event: "equations-compiled", count: equations.length, rendererDigest }),
 );
