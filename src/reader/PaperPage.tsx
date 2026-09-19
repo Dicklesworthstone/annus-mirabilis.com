@@ -14,6 +14,7 @@ import { FaceFallback } from "./FaceFallback.tsx";
 import { type BilingualEdition, loadBilingualEdition } from "./faces/bilingualLoader.ts";
 import { EnglishFace } from "./faces/EnglishFace.tsx";
 import { GermanFace } from "./faces/GermanFace.tsx";
+import { GlossFace } from "./faces/GlossFace.tsx";
 import { ParallelFace } from "./faces/ParallelFace.tsx";
 import {
   isFaceFallbackId,
@@ -41,7 +42,12 @@ export async function PaperPage(request: PaperRouteRequest, options?: PaperPageO
   if (resolved.face !== "reading") {
     if (!isFaceFallbackId(resolved.face)) notFound();
 
-    if (resolved.face === "german" || resolved.face === "english" || resolved.face === "parallel") {
+    if (
+      resolved.face === "german" ||
+      resolved.face === "english" ||
+      resolved.face === "parallel" ||
+      resolved.face === "gloss"
+    ) {
       const edition =
         options?.edition !== undefined
           ? options.edition
@@ -49,8 +55,8 @@ export async function PaperPage(request: PaperRouteRequest, options?: PaperPageO
             ? await options.editionLoader(resolved.paperId)
             : await loadBilingualEdition(resolved.paperId);
 
-      if (edition && edition.blocks.length > 0 && edition.units.length > 0) {
-        if (resolved.face === "german") {
+      if (edition) {
+        if (resolved.face === "german" && edition.blocks.length > 0) {
           return (
             <GermanFace
               paper={edition.paper}
@@ -61,7 +67,7 @@ export async function PaperPage(request: PaperRouteRequest, options?: PaperPageO
             />
           );
         }
-        if (resolved.face === "english") {
+        if (resolved.face === "english" && edition.units.length > 0) {
           return (
             <EnglishFace
               paper={edition.paper}
@@ -73,16 +79,44 @@ export async function PaperPage(request: PaperRouteRequest, options?: PaperPageO
             />
           );
         }
-        if (resolved.face === "parallel") {
+        if (
+          resolved.face === "parallel" &&
+          edition.blocks.length > 0 &&
+          edition.units.length > 0
+        ) {
           return (
             <ParallelFace
               paper={edition.paper}
               blocks={edition.blocks}
               units={edition.units}
-              alignment={edition.alignment ?? { paper: edition.paper.slug, edges: [] }}
+              alignment={
+                edition.alignment ?? {
+                  id: `${edition.paper.slug}-empty-alignment`,
+                  paper: edition.paper.slug,
+                  edges: [],
+                }
+              }
               editorialNotes={edition.editorialNotes}
               reviewRecords={edition.reviewRecords}
               sectionId={resolved.section}
+            />
+          );
+        }
+        if (
+          resolved.face === "gloss" &&
+          edition.blocks.length > 0 &&
+          edition.glossUnits &&
+          edition.glossUnits.length > 0
+        ) {
+          return (
+            <GlossFace
+              paper={edition.paper}
+              blocks={edition.blocks}
+              glossUnits={edition.glossUnits}
+              translations={edition.units}
+              alignment={edition.alignment}
+              editorialNotes={edition.editorialNotes}
+              reviewRecords={edition.reviewRecords}
             />
           );
         }
