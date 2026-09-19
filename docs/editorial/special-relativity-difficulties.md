@@ -47,9 +47,9 @@ Einstein phrases the foundation, physical arguments, stipulations, and approxima
 
 ### Scoped glyphs and dangerous collisions
 - $V \to c$: The speed of light in empty space is printed as uppercase letter $V$ throughout the entire paper (first used in `s1-p10` and display `eq-s1-d2`). It is never printed as modern $c$.
-- $\beta \to \gamma$: The printed factor $\beta = 1/\sqrt{1 - (v/V)^2}$ (first introduced in `s3-p18` and display `eq-s3-d19`) represents the modern relativistic Lorentz factor $\gamma$. In 1905, $\beta$ denotes this dilation factor. The modern ratio $v/c$ (often denoted $\beta$ in modern textbooks) is printed as $v/V$ in this paper. This collision must be prominently highlighted on first use.
+- $\beta \to \gamma$: The printed factor $\beta = 1/\sqrt{1 - (v/V)^2}$ (first printed on p. 900: already used in the display group `eq-s3-d15` and defined in `eq-s3-d16`; verified on `artifacts/page-images/ap-17-891/page-10.png`) represents the modern relativistic Lorentz factor $\gamma$. In 1905, $\beta$ denotes this dilation factor. The modern ratio $v/c$ (often denoted $\beta$ in modern textbooks) is printed as $v/V$ in this paper. This collision must be prominently highlighted on first use.
 - $(\xi, \eta, \zeta, \tau) \to (x', y', z', t')$: Moving coordinate system coordinates are $\xi, \eta, \zeta$ and moving time is $\tau$ (first used in `s3-p1`). In modern relativity $\tau$ almost universally denotes invariant proper time; here, $\tau$ is simply the coordinate time of the moving frame $k$.
-- Galilean auxiliary coordinate $x' = x - vt$: In §3 (`s3-p4`), Einstein introduces $x' = x - vt$ as an auxiliary coordinate measured from the origin of $k$ to simplify differentiation. This $x'$ is NOT the relativistic spatial coordinate of $k$ (which is $\xi = \beta x'$). Every occurrence of this auxiliary $x'$ must be distinguished from the moving coordinate.
+- Galilean auxiliary coordinate $x' = x - vt$: In §3 (`s3-p6`, p. 898, the paragraph beginning "Setzen wir $x' = x - vt$"; verified on `artifacts/page-images/ap-17-891/page-08.png`), Einstein introduces $x' = x - vt$ as an auxiliary coordinate measured from the origin of $k$ to simplify differentiation. This $x'$ is NOT the relativistic spatial coordinate of $k$ (which is $\xi = \beta x'$). Every occurrence of this auxiliary $x'$ must be distinguished from the moving coordinate.
 - Field vectors: Electric field components are $(X, Y, Z)$ and magnetic field components are $(L, M, N)$ in Gaussian CGS units (first used in `s6-p1` and display `eq-s6-d1`). $N$ is the z-component of magnetic force, not Avogadro's number. $L$ is the x-component of magnetic force in §6, distinct from radiation energy $L$ in paper 4.
 - $\varphi$: Angle between the wave normal of a light ray and the motion axis of the coordinate system (first used in `s7-p3` and display `eq-s7-d7`).
 - $K$ and $k$: Coordinate systems: uppercase $K$ denotes the stationary system $(x, y, z, t)$, while lowercase $k$ denotes the moving system $(\xi, \eta, \zeta, \tau)$ (first used in `s1-p1` and `s3-p1`).
@@ -67,7 +67,7 @@ Einstein phrases the foundation, physical arguments, stipulations, and approxima
    - Synchronism condition (`eq-s1-d1`): $t_B - t_A = t'_A - t_B$.
    - Round-trip speed (`eq-s1-d2`): $\frac{2AB}{t'_A - t_A} = V$.
 3. **§2 Lengths and times (`s2`)**:
-   - Moving rod chase times (`eq-s2-d2`): $t_B - t_A = \frac{r_{AB}}{V - v}$, $t'_A - t_B = \frac{r_{AB}}{V + v}$.
+   - Moving rod chase times, printed as **two separate displays** on facing pages, so two units: `eq-s2-d2` (p. 896) $t_B - t_A = \frac{r_{AB}}{V - v}$, and `eq-s2-d3` (p. 897, introduced by the connecting word "und") $t'_A - t_B = \frac{r_{AB}}{V + v}$.
 4. **§3 Coordinate transformation (`s3`)**:
    - Final transformation, one printed display (`eq-s3-d25`, p. 902, contained in `s3-p19`): $\tau = \beta\left(t - \frac{v}{V^2}x\right)$, $\xi = \beta(x - vt)$, $\eta = y$, $\zeta = z$. The four lines are printed as a single stacked display and are therefore one unit, not two.
    - Lorentz factor, a separate printed display after the connecting word "wobei" (`eq-s3-d26`, p. 902): $\beta = \frac{1}{\sqrt{1 - \left(\frac{v}{V}\right)^2}}$.
@@ -174,7 +174,7 @@ Each flag below corresponds to an audited feature on the facsimile page images, 
 
 - `flag:watch-speed-of-light-v` matches Printed uppercase letter $V$ denotes the speed of light throughout the paper rather than modern $c$.
 - `flag:watch-simultaneity-definition` matches Section 1 clock synchronization definition $t_B - t_A = t'_A - t_B$ on p. 893 (`eq-s1-d1`).
-- `flag:watch-rod-chase-times` matches Section 2 moving rod transit times $r_{AB} / (V - v)$ and $r_{AB} / (V + v)$ on p. 896 (`eq-s2-d2`).
+- `flag:watch-rod-chase-times` matches Section 2 moving rod transit times, but they are two printed displays, not one: $r_{AB} / (V - v)$ on p. 896 (`eq-s2-d2`) and $r_{AB} / (V + v)$ on p. 897 (`eq-s2-d3`).
 - `flag:watch-coord-transforms` matches Section 3 coordinate transformation system ($\xi, \eta, \zeta, \tau$) with $\beta = 1/\sqrt{1 - v^2/V^2}$ on pp. 897–902 (`eq-s3-d19`, `eq-s3-d20`).
 - `flag:watch-velocity-composition` matches Section 5 velocity addition law on pp. 905–907 (`eq-s5-d3`, `eq-s5-d5`).
 - `flag:watch-field-transforms` matches Section 6 Maxwell-Hertz field component transformations under boost on pp. 907–910 (`eq-s6-d5`).
@@ -191,3 +191,89 @@ Each flag below corresponds to an audited feature on the facsimile page images, 
   3. `part-2` heading (p. 907): Prints "II. Eektrodynamischer Teil." (missing 'l' in Elektrodynamischer).
   4. `s6-p5` display (p. 909): Notation switches between $\psi(v)$ and $\varphi(v)$ across displays.
   5. `s10-p10` display (p. 920): Middle integral $\int_0^v \beta^3 v dv$ drops mass factor $\mu$ before the equals sign.
+
+---
+
+## 5. Blocking flags
+
+A blocking flag is a required deliverable this bead could not produce because a dependency cannot
+express it. It is recorded here exactly as a translation difficulty is recorded, and it is not a
+licence to invent a representation.
+
+### `flag:blocking:sentence-units-unrepresentable`
+
+**Owner of the blockage:** `am-cm-source-manifest-6qa` (source manifest format and compiler).
+**Raised by:** `am-edn-inventory-relativity-0u9`, 2026-09-19.
+**Status:** open. `ap-17-891` is **not** fully inventoried while this is open.
+
+This bead's "Units to inventory" table requires two unit classes that the canonical manifest format
+cannot currently express:
+
+| Required unit | Id grammar | State |
+|---|---|---|
+| Sentences | `s<n>-p<m>-s<k>` | not inventoried, not frozen |
+| Substantive inline equations and nontrivial symbol occurrences | `s<n>-p<m>-s<k>-m<i>` | not inventoried, not frozen |
+
+**Why it is blocked, precisely.** `MANIFEST_UNIT_KINDS` in `src/content/manifest/types.ts` lists
+`masthead`, `masthead-title`, `masthead-author`, `heading`, `part-heading`, `section-heading`,
+`paragraph`, `equation`, `display-equation`, `inline-equation`, `footnote`, `citation`,
+`closing-dateline`, `closing-ack`, `closing-received`, `closing`. There is no `sentence` kind.
+`ManifestLocator` addresses `{page, column?, line?, region?}`, which locates a unit on a page rather
+than a span inside a paragraph, so a sentence-scoped unit has no locator that distinguishes it from
+its paragraph. `inline-equation` does exist as a kind, but the id grammar this bead mandates for it
+is derived from a sentence id, so it is blocked on the same decision rather than on a separate one.
+
+**What was done instead.** Every unit class the format *can* express was inventoried from the page
+images and frozen: masthead title and author, both part headings, all ten section headings, 101
+paragraphs, 98 display equations, 4 footnotes, 25 internal reference occurrences across 16 units,
+and the three closing units. The manifest header carries a `FREEZE SCOPE` block naming exactly which
+kinds are frozen and which are not, so the freeze cannot be misread as a whole-paper freeze.
+
+**What must not happen.** No `sentence` kind may be invented in this paper's manifest, and no
+sentence-like id may be smuggled in under `paragraph` or `inline-equation`. The four consumers of
+these ids (`am-edn-german-edition-relativity-9p5`, `am-not-entries-relativity-f6e`,
+`am-me-equations-0mgx`, `am-edn-german-edition-mass-energy-srv`) must not be told the paper is fully
+inventoried until the format owner rules.
+
+**Resolution paths, for the format owner to choose between.** (1) Add a `sentence` kind with a
+span-capable locator and allow sentence-derived inline-math ids. (2) Rule that sentences are an
+alignment-layer concern owned by `am-edn-alignment-tooling-do1` and `docs/editorial/SEGMENTATION.md`
+rather than manifest units, and amend the four inventory beads so their acceptance criteria stop
+requiring them. Either way the decision belongs in `docs/PLAN_MINING_DECISIONS.md`, because all four
+papers are affected identically: no paper's manifest carries sentence units.
+
+### `flag:segmentation:numbered-list-items-folded`
+
+**Status:** not blocking. Recorded because it is an undocumented rule that governs paragraph ids.
+
+The manifest folds printed, separately indented numbered and lettered list items into the paragraph
+that introduces them, rather than giving each its own paragraph id. Verified occurrences:
+
+- §1 p. 894: the items `1.` and `2.` ("Wenn die Uhr in $B$ synchron mit der Uhr in $A$ läuft...")
+  belong to `s1-p8`, which introduces them with "daß also allgemein die Beziehungen gelten:".
+- §2 p. 895: the two principles `1.` and `2.` belong to `s2-p1`, which introduces them with
+  "welche beiden Prinzipien wir folgendermaßen definieren:".
+- §2 pp. 895–896: the operations `a)` and `b)` belong to `s2-p2`.
+- §10 pp. 920–921: the three relations `1.`, `2.` and `3.` belong to `s10-p13`, which introduces
+  them with "Wir wollen nun die aus dem Gleichungssystem (A) resultierenden, dem Experimente
+  zugänglichen Eigenschaften der Bewegung des Elektrons aufzählen."
+
+This rule is what makes the per-page paragraph counts reconcile (for example p. 894 has five
+paragraph units, not seven). Whoever builds the German edition blocks must apply the same rule or
+the paragraph ids will shift. If the rule is ever reversed, it is an alias operation in
+`content/aliases/special-relativity.yaml`, never a silent renumbering.
+
+## 6. Corrections to first-use and equation ids in sections 1 and 2 above
+
+These were found by reading the page images against the ids and are corrected in place above; they
+are listed together here because `am-not-entries-relativity-f6e` scopes its concordance entries to
+first-use ids and would otherwise inherit them.
+
+| Item | Recorded as | Printed reality |
+|---|---|---|
+| $\beta$ first use | `s3-p18`, `eq-s3-d19` | p. 900: $\beta$ is already used in the display group `eq-s3-d15` and defined in `eq-s3-d16` |
+| Galilean auxiliary $x' = x - vt$ first use | `s3-p4` | `s3-p6` (p. 898), the paragraph beginning "Setzen wir $x' = x - vt$" |
+| $A_m$, $A_e$ | asserted absent | printed on p. 920, display `eq-s10-d9` |
+| §7 heading spelling | `Doppler'schen` | `Doppelerschen` (p. 910) |
+| §3 transformation result | `eq-s3-d19` / `eq-s3-d20` | `eq-s3-d25` (group) and `eq-s3-d26` ($\beta$), both p. 902 |
+| §2 rod chase times | both under `eq-s2-d2` | two separate printed displays: `eq-s2-d2` (p. 896) and `eq-s2-d3` (p. 897) |

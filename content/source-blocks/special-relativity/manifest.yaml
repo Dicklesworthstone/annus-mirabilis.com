@@ -9,6 +9,39 @@ pageRange:
   - 921
 idsFrozenAt: '2026-09-19T00:00:00Z'
 frozenBy: am-edn-inventory-relativity-0u9
+# FREEZE SCOPE (am-edn-inventory-relativity-0u9). This is NOT a whole-paper id freeze.
+# The ids below are frozen only for the unit classes the canonical manifest format can express.
+# Two unit classes required by this bead are not inventoried here and are therefore not frozen:
+#   - sentence units, id grammar s<n>-p<m>-s<k>
+#   - substantive inline-equation units, id grammar s<n>-p<m>-s<k>-m<i>
+# MANIFEST_UNIT_KINDS in src/content/manifest/types.ts has no `sentence` kind and ManifestLocator
+# addresses a page, not a span, so a sentence-scoped id cannot be expressed. `inline-equation` does
+# exist as a kind, but the id grammar this bead mandates for it is derived from a sentence id, so it
+# is blocked on the same decision. No sentence kind was invented here.
+# Blocked on: am-cm-source-manifest-6qa (format owner). Recorded as a blocking flag in
+# docs/editorial/special-relativity-difficulties.md section 5.
+# Until that is resolved, do not treat this paper as fully inventoried.
+frozenUnitKinds:
+  - masthead-title
+  - masthead-author
+  - part-heading
+  - section-heading
+  - paragraph
+  - display-equation
+  - footnote
+  - closing-ack
+  - closing-dateline
+  - closing-received
+frozenReferenceOccurrences: true
+unfrozenRequiredUnitKinds:
+  - kind: sentence
+    idGrammar: s<n>-p<m>-s<k>
+    blockedBy: am-cm-source-manifest-6qa
+    reason: MANIFEST_UNIT_KINDS has no sentence kind and locators are page-scoped.
+  - kind: inline-equation
+    idGrammar: s<n>-p<m>-s<k>-m<i>
+    blockedBy: am-cm-source-manifest-6qa
+    reason: The mandated id grammar is derived from a sentence id, which cannot be expressed.
 exportedResults:
   - id: eq-s8-d4
     resultId: eq-s8-d4
