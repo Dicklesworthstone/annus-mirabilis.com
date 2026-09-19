@@ -196,4 +196,77 @@ describe("Authoring Format Parser (parse.test.ts)", () => {
     expect(() => parseAuthoring(`k_${cyrillicA}`, { symbols })).toThrow(ParseError);
     expect(() => parseAuthoring(`k_${cyrillicA}`, { symbols })).toThrow(/Non-ASCII/);
   });
+
+  /**
+   * Arity and syntax refusals (am-muyh).
+   *
+   * A deletion-mode plant sweep found 19 of this parser's 23 throw sites
+   * deletable with parse.test.ts and roundtrip.property.test.ts fully green.
+   * An unexercised arity guard is not a cosmetic gap: with it gone,
+   * sqrt(a, b) silently builds a root node from the first argument and drops
+   * the second, and the malformed authoring reaches publication as a valid
+   * tree. Each case below asserts the guard's own message, so a test pins one
+   * site rather than the word ParseError.
+   *
+   * One site is not covered here and cannot be: parse.ts:542, the
+   * "Unexpected infix token" default. getInfixPrecedence returns the floor
+   * for every token type that the branches above it do not handle, so no
+   * input reaches it. That is an argument from the dispatch, not a fuzz
+   * result, and it is recorded rather than papered over with a test that
+   * would have to reach inside the parser to fire.
+   */
+  describe("arity and syntax refusals, one case per throw site", () => {
+    const cases: readonly (readonly [string, string, RegExp])[] = [
+      ["parse.ts:140", "(a", /Expected '\)' to close grouped expression/],
+      ["parse.ts:257", ")", /Unexpected token '\)' \(RPAREN\)/],
+      ["parse.ts:274", "frac(a)", /frac\(numerator, denominator\) requires exactly 2 arguments/],
+      ["parse.ts:286", "sqrt(a, b)", /sqrt\(radicand\) requires exactly 1 argument/],
+      ["parse.ts:293", "root(a)", /root\(radicand, degree\) requires exactly 2 arguments/],
+      ["parse.ts:302", "ln(a, b)", /ln\(x\) requires exactly 1 argument/],
+      ["parse.ts:309", "diff(a)", /diff\(.*\) requires at least 2 arguments/],
+      ["parse.ts:328", "int(a)", /int\(.*\) requires at least 2 arguments/],
+      ["parse.ts:344", "sum(a)", /sum\(.*\) requires at least 2 arguments/],
+      ["parse.ts:360", "prod(a)", /prod\(.*\) requires at least 2 arguments/],
+      ["parse.ts:376", "limit(a, x)", /limit\(body, variable, target\) requires 3 arguments/],
+      ["parse.ts:388", "avg(a, b)", /avg\(x\) requires 1 argument/],
+      ["parse.ts:395", "norm(a, b)", /norm\(x\) requires 1 argument/],
+      ["parse.ts:402", "dot(a)", /dot\(a, b\) requires 2 arguments/],
+      ["parse.ts:409", "cross(a)", /cross\(a, b\) requires 2 arguments/],
+      ["parse.ts:466", "bogusfn(a)", /Unknown function or operator 'bogusfn'/],
+      ["parse.ts:578", "a )", /Extra tokens after expression: '\)'/],
+      ["parse.ts:794", "a # b", /Unexpected character '#'/],
+    ];
+
+    for (const [site, source, message] of cases) {
+      test(`site (${site}) refuses ${JSON.stringify(source)}`, () => {
+        expect(() => parseAuthoring(source, { symbols })).toThrow(ParseError);
+        expect(() => parseAuthoring(source, { symbols })).toThrow(message);
+      });
+    }
+
+    test("the accept side: every refused form has a well-formed counterpart that parses", () => {
+      // Without these the cases above would pass against a parser that
+      // refused everything.
+      for (const source of [
+        "(a)",
+        "a",
+        "frac(a, b)",
+        "sqrt(a)",
+        "root(a, 2)",
+        "ln(a)",
+        "diff(a, x)",
+        "int(a, x)",
+        "sum(a, x)",
+        "prod(a, x)",
+        "limit(a, x, 0)",
+        "avg(a)",
+        "norm(a)",
+        "dot(a, b)",
+        "cross(a, b)",
+        "a + b",
+      ]) {
+        expect(() => parseAuthoring(source, { symbols })).not.toThrow();
+      }
+    });
+  });
 });
