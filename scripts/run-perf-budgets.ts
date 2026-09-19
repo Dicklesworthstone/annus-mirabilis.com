@@ -4,6 +4,7 @@ import { existsSync, readFileSync } from "node:fs";
 import * as os from "node:os";
 import { dirname, resolve } from "node:path";
 import { fileURLToPath } from "node:url";
+import { brotliCompressSync, gzipSync } from "node:zlib";
 import { loadCommittedProfiles } from "../src/testing/perfProfiles.ts";
 import { measureReadingFace } from "./measure-reading-face.ts";
 import { loadCommittedBudgets } from "./perf/budgets.ts";
@@ -13,6 +14,8 @@ import {
   type AppBuildManifest,
   checkInitialRouteGraph,
   INITIAL_ROUTE_JS_BUDGET_BYTES,
+  normalizeAppManifestKey,
+  normalizeRoute,
 } from "./perf/initialRouteGraph.ts";
 import { evaluateInstrumentFeedback } from "./perf/instrumentFeedback.ts";
 import { evaluateInteractionLatency } from "./perf/interactionLatency.ts";
@@ -110,12 +113,67 @@ export async function runPerformanceBudgets(
     });
   }
 
+  /**
+   * Reads the real transfer size of every chunk a route loads (am-lj8r).
+   *
+   * checkInitialRouteGraph only produces byteAccounting when it is GIVEN sizes:
+   * hasByteInfo is set from input.chunkSizes or input.chunkContents, and the
+   * byte-budget violation is pushed only inside `if (hasByteInfo)`. The call site
+   * below used to pass neither and then substitute a literal 120_000 when the
+   * accounting came back undefined, so the budget row could not fail for byte
+   * reasons on any build. This supplies the sizes so it can.
+   *
+   * Chunk paths in app-build-manifest.json are relative to .next, and the route
+   * lookup mirrors checkInitialRouteGraph's own: normalize every manifest key and
+   * match the normalized route.
+   *
+   * Returns null when the sizes cannot be read. The caller reports that as a
+   * failure naming the reason rather than substituting a passing number: a gate
+   * that cannot measure must say so, not guess low.
+   */
+  function readRouteChunkSizes(
+    rootDir: string,
+    manifest: AppBuildManifest,
+    route: string,
+  ): {
+    sizes: Record<string, { raw: number; gzip: number; brotli: number }>;
+    missing: string[];
+  } | null {
+    const wanted = normalizeRoute(route);
+    let chunks: readonly string[] | undefined;
+    for (const [key, value] of Object.entries(manifest.pages)) {
+      if (normalizeAppManifestKey(key) === wanted) {
+        chunks = value;
+        break;
+      }
+    }
+    if (chunks === undefined || chunks.length === 0) return null;
+
+    const sizes: Record<string, { raw: number; gzip: number; brotli: number }> = {};
+    const missing: string[] = [];
+    for (const chunk of chunks) {
+      const chunkPath = resolve(rootDir, ".next", chunk);
+      if (!existsSync(chunkPath)) {
+        missing.push(chunk);
+        continue;
+      }
+      const buf = readFileSync(chunkPath);
+      sizes[chunk] = {
+        raw: buf.byteLength,
+        gzip: gzipSync(buf).length,
+        brotli: brotliCompressSync(buf).length,
+      };
+    }
+    return { sizes, missing };
+  }
+
   // -------------------------------------------------------------------------
   // Row 1: Initial reading route JavaScript budget (<= 204,800 bytes)
   // -------------------------------------------------------------------------
   const measuredRoutes = ["/", "/papers", "/papers/brownian-motion"];
   let maxRouteJsBytes = 0;
   let row1Passed = true;
+  const routeNotes: string[] = [];
 
   const manifestPath = resolve(root, ".next/app-build-manifest.json");
   let appManifest: AppBuildManifest = { pages: {} };
@@ -135,26 +193,45 @@ export async function runPerformanceBudgets(
       scriptBytes = 250_000; // Planted over budget (> 204,800)
       totalBytes = 320_000;
     } else if (Object.keys(appManifest.pages).length > 0) {
-      // Evaluate against real manifest
+      // Evaluate against the real manifest, with the real chunk bytes.
+      const measured = readRouteChunkSizes(root, appManifest, route);
+      if (measured === null) {
+        row1Passed = false;
+        routeNotes.push(`${route}: not present in app-build-manifest.json, or lists no chunks`);
+        continue;
+      }
+      if (measured.missing.length > 0) {
+        row1Passed = false;
+        routeNotes.push(
+          `${route}: ${measured.missing.length} chunk file(s) absent under .next, first ${measured.missing[0]}`,
+        );
+        continue;
+      }
       const res = checkInitialRouteGraph({
         route,
         manifest: appManifest,
         preferredEncoding: "brotli",
+        chunkSizes: measured.sizes,
       });
-      if (res.byteAccounting) {
-        scriptBytes = res.byteAccounting.effectiveBytes;
-        totalBytes = scriptBytes + 25_000; // estimated HTML/CSS transfer
-      } else {
-        scriptBytes = 120_000;
-        totalBytes = 145_000;
+      if (!res.byteAccounting) {
+        // Unreachable while sizes are supplied; fail rather than substitute.
+        row1Passed = false;
+        routeNotes.push(`${route}: byte accounting unavailable despite supplied chunk sizes`);
+        continue;
       }
+      scriptBytes = res.byteAccounting.effectiveBytes;
+      totalBytes = scriptBytes + 25_000; // estimated HTML/CSS transfer
       if (!res.ok) {
         row1Passed = false;
+        routeNotes.push(`${route}: ${res.reason ?? "route graph violation"}`);
       }
     } else {
-      // Baseline cold estimate for initial scaffold routes
-      scriptBytes = 115_000;
-      totalBytes = 140_000;
+      // No build output to measure. Say so; do not estimate a passing number.
+      row1Passed = false;
+      routeNotes.push(
+        `${route}: .next/app-build-manifest.json absent or empty, so no build was measured`,
+      );
+      continue;
     }
 
     if (scriptBytes > maxRouteJsBytes) maxRouteJsBytes = scriptBytes;
@@ -174,7 +251,9 @@ export async function runPerformanceBudgets(
     INITIAL_ROUTE_JS_BUDGET_BYTES,
     maxRouteJsBytes,
     "bytes",
-    `Max route script transfer ${maxRouteJsBytes} bytes`,
+    routeNotes.length > 0
+      ? `${maxRouteJsBytes > 0 ? `Max route script transfer ${maxRouteJsBytes} bytes (brotli, measured from .next)` : "No route could be measured"}. ${routeNotes.join("; ")}`
+      : `Max route script transfer ${maxRouteJsBytes} bytes (brotli, measured from .next across ${measuredRoutes.length} routes)`,
   );
 
   // -------------------------------------------------------------------------
@@ -342,7 +421,8 @@ export async function runPerformanceBudgets(
   const frameTimingResult = evaluateFrameTiming("desktop-capable", sampleFrameIntervals);
 
   // Check physics separately: under throttled profile, scientific digest at fixed stepIndex must equal unthrottled digest
-  const unthrottledDigest = "sha256:4f53c299e01c8c4f6aec55aeacf40dd459b976b67d2889c3a7900932b91153c";
+  const unthrottledDigest =
+    "sha256:4f53c299e01c8c4f6aec55aeacf40dd459b976b67d2889c3a7900932b91153c";
   const throttledDigest = opts.plantViolationPhysics
     ? "sha256:0000000000000000000000000000000000000000000000000000000000000000"
     : unthrottledDigest;
