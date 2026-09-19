@@ -1,5 +1,6 @@
 import { describe, expect, test } from "bun:test";
 import { renderToStaticMarkup } from "react-dom/server";
+import { DEFAULT_MODALITY_CLASSES } from "../../content/schemas/glossConventions.pure.ts";
 import {
   FIXTURE_MASS_ENERGY_ALIGNMENT,
   FIXTURE_MASS_ENERGY_GLOSS_UNITS,
@@ -16,6 +17,10 @@ describe("GlossFace component rendering and interactions", () => {
     glossUnits: FIXTURE_MASS_ENERGY_GLOSS_UNITS,
     translations: FIXTURE_MASS_ENERGY_TRANSLATION_UNITS,
     alignment: FIXTURE_MASS_ENERGY_ALIGNMENT,
+    // GlossFace is a Client Component: the server resolves the modality
+    // vocabulary and passes it in. This is the list loadGlossConventions()
+    // returns while docs/editorial/GLOSS_CONVENTIONS.md is absent.
+    modalityClasses: DEFAULT_MODALITY_CLASSES,
   };
 
   test("renders continuous gloss face with German title, subtitle, and default toggle state (off)", () => {
@@ -102,7 +107,12 @@ describe("GlossFace component rendering and interactions", () => {
 
   test("when no blocks exist, renders honest FaceFallback notice without crashing or inventing text", () => {
     const htmlFallback = renderToStaticMarkup(
-      <GlossFace paper={FIXTURE_MASS_ENERGY_PAPER} blocks={[]} glossUnits={[]} />,
+      <GlossFace
+        paper={FIXTURE_MASS_ENERGY_PAPER}
+        blocks={[]}
+        glossUnits={[]}
+        modalityClasses={DEFAULT_MODALITY_CLASSES}
+      />,
     );
 
     expect(htmlFallback).toContain('data-face-fallback="gloss"');

@@ -9,7 +9,12 @@ describe("GlossPair component rendering", () => {
   test("renders single token with german, english gloss, and correct lang attributes", () => {
     const token: GlossToken = { german: "Energie", english: "energy" };
     const html = renderToStaticMarkup(
-      <GlossPair token={token} tokenIndex={0} showReasoningWords={false} />,
+      <GlossPair
+        token={token}
+        tokenIndex={0}
+        showReasoningWords={false}
+        modalityClasses={modalityClasses}
+      />,
     );
 
     expect(html).toContain('lang="de"');
@@ -26,7 +31,12 @@ describe("GlossPair component rendering", () => {
       noteClass: "formula-phrase",
     };
     const html = renderToStaticMarkup(
-      <GlossPair token={token} tokenIndex={1} showReasoningWords={false} />,
+      <GlossPair
+        token={token}
+        tokenIndex={1}
+        showReasoningWords={false}
+        modalityClasses={modalityClasses}
+      />,
     );
 
     expect(html).toContain("katex");
@@ -41,7 +51,12 @@ describe("GlossPair component rendering", () => {
       noteClass: "formula-phrase",
     };
     const html = renderToStaticMarkup(
-      <GlossPair token={token} tokenIndex={2} showReasoningWords={false} />,
+      <GlossPair
+        token={token}
+        tokenIndex={2}
+        showReasoningWords={false}
+        modalityClasses={modalityClasses}
+      />,
     );
 
     expect(html).toContain("gloss-grammar-cue");
@@ -124,6 +139,7 @@ describe("GlossPair component rendering", () => {
         multiwordUnit={mw}
         isMultiwordFirst={true}
         showReasoningWords={false}
+        modalityClasses={modalityClasses}
       />,
     );
 
@@ -134,6 +150,7 @@ describe("GlossPair component rendering", () => {
         multiwordUnit={mw}
         isMultiwordFirst={false}
         showReasoningWords={false}
+        modalityClasses={modalityClasses}
       />,
     );
 
