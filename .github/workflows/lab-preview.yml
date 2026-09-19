@@ -43,6 +43,8 @@ jobs:
         run: bun test --isolate src/testing/light-quanta-entrance-ui.test.tsx src/testing/clock-entrance-ui.test.tsx
       - name: Exercise semantic equation integration and server-rendered gloss controls
         run: bun test --isolate src/testing/mass-energy-equation-ui.test.tsx src/reader/faces/GlossFace.render.test.tsx src/reader/faces/GlossPair.render.test.tsx src/testing/gloss-reasoning-toggle.test.tsx
+      - name: Exercise the checked mass-energy derivation
+        run: bun test --isolate src/testing/mass-energy-elimination-ui.test.tsx
       - run: bun run typecheck
       - name: Build the complete production preview
         shell: bash

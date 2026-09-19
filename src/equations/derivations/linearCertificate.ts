@@ -120,16 +120,4 @@ export function checkLinearCertificate(input: unknown, source: readonly Equation
     check: "exact-polynomial-elimination" as const, requirements });
 }
 
-/** Pure presentation state; the arithmetic certificate has already been checked
- * at build time. Omitted premises block dependent steps but do not erase them.
- */
-export function assessLinearCertificate(proof: CheckedLinearCertificate, selected: readonly string[]) {
-  const known = new Set(proof.premises.map(p => p.id));
-  if (new Set(selected).size !== selected.length || selected.some(id => !known.has(id)))
-    fail("Unknown or duplicated selected premise.");
-  const active = new Set(selected);
-  return proof.requirements.map(step => {
-    const missing = step.premises.filter(id => !active.has(id));
-    return { id: step.step, status: missing.length ? "blocked" as const : "supported" as const, missing };
-  });
-}
+export { assessLinearCertificate } from "./linearProofState.ts";

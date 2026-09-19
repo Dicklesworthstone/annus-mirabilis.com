@@ -1,0 +1,20 @@
+.linear-proof { margin-block: 2rem; min-width: 0; }
+.linear-proof fieldset { display: grid; gap: .7rem; padding: 1rem; min-inline-size: 0; }
+.linear-proof label { display: block; }
+.linear-proof label:has(input) { min-height: 2.75rem; }
+.linear-step-nav { display: flex; flex-wrap: wrap; gap: .7rem 1.1rem; margin-block: 1rem; }
+.linear-step-list { list-style: none; padding: 0; }
+.linear-step-list > li { border-block-start: 1px solid currentColor; margin-block: 1.5rem; padding-block: 1rem; scroll-margin-top: 6rem; }
+.linear-step-list > li:focus { outline: 2px solid currentColor; outline-offset: .4rem; }
+.linear-formula { overflow-wrap: anywhere; }
+.linear-formula > [aria-hidden] { overflow-x: auto; padding-block: .4rem; }
+.linear-formula .katex-display { margin-block: .5rem; }
+.linear-support { font-weight: 600; }
+.linear-mathml { position: absolute; width: 1px; height: 1px; overflow: hidden; clip-path: inset(50%); white-space: nowrap; }
+.linear-proof[data-proof-mode="compact"] .linear-step-reason { display: none; }
+@media print {
+  .linear-proof .linear-controls, .linear-proof .linear-step-nav { display: none; }
+  .linear-proof[data-proof-mode] .linear-step-reason,
+  .linear-proof[data-proof-mode] .linear-step-detail > :not(summary) { display: revert; }
+  .linear-step-list > li { break-inside: avoid; }
+}
