@@ -1,11 +1,19 @@
 import { createHash } from "node:crypto";
 import { mkdir, readFile, writeFile } from "node:fs/promises";
 import { compileReadingContent } from "../src/content/compiler/compile.ts";
+import { buildMassEnergyElimination } from "../src/equations/derivations/massEnergyElimination.ts";
 import { compileEquation } from "../src/equations/render.ts";
 import { loadReadingFiles } from "./build-content.ts";
 
 const result = compileReadingContent(await loadReadingFiles());
 if (!result.ok) throw new Error("Invalid reading content; equations were not generated.");
+const massEnergyPaper = result.papers.find(p => p.paper.id === "mass-energy");
+if (!massEnergyPaper) throw new Error("Missing mass-energy paper for the checked derivation.");
+const elimination = buildMassEnergyElimination(massEnergyPaper.equations);
+for (const step of elimination.steps) {
+  if (!result.foundations.some(f => f.id === step.foundation))
+    throw new Error(`Missing derivation foundation ${step.foundation}.`);
+}
 const equations = result.papers.flatMap((p) => p.equations.map(compileEquation));
 const sourcePaths = [
   "src/equations/render.ts",
@@ -19,6 +27,9 @@ const sourcePaths = [
   "src/experiments/bm01/definition.ts",
   "src/experiments/me02/definition.ts",
   "src/equations/navigation.ts",
+  "src/equations/derivations/exactPolynomial.ts",
+  "src/equations/derivations/linearCertificate.ts",
+  "src/equations/derivations/massEnergyElimination.ts",
   "src/content/dimensions/rational.ts",
   "scripts/build-equations.ts",
   "package.json",
@@ -43,6 +54,18 @@ for (const [paper, file] of [
       equations: equations.filter(equation => equation.paper === paper) }, null, 2)}\n`,
   );
 }
+const usedIds = new Set([
+  ...elimination.certificate.premises.flatMap(p => p.equations),
+  ...elimination.certificate.steps.map(step => step.equation),
+]);
+const proofEquations = equations.filter(e => usedIds.has(e.id))
+  .map(({ id, argument, title, spoken, html, mathml, plainLatex, treeDigest }) =>
+    ({ id, argument, title, spoken, html, mathml, plainLatex, treeDigest }));
+if (proofEquations.length !== usedIds.size) throw new Error("A checked proof equation was not rendered.");
+const sourceDigest = `sha256:${createHash("sha256")
+  .update(JSON.stringify({ rendererDigest, elimination, proofEquations })).digest("hex")}`;
+await writeFile("src/generated/mass-energy-elimination.json",
+  JSON.stringify({ ...elimination, equations: proofEquations, sourceDigest }, null, 2) + "\n");
 console.log(
   JSON.stringify({ event: "equations-compiled", count: equations.length, rendererDigest }),
 );

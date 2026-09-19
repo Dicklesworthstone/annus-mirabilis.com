@@ -33,9 +33,9 @@ test("reader disclosures contain every equation exactly once, scoped to its own 
   const shell = document.createElement("div");
   shell.innerHTML = renderToStaticMarkup(<>{args.map(argumentId =>
     <ArgumentEquations key={argumentId} paperId="mass-energy" argumentId={argumentId} />)}</>);
-  expect(shell.querySelectorAll("[data-equation-id]").length).toBe(11);
-  expect(new Set([...shell.querySelectorAll("[data-equation-id]")].map(e => e.getAttribute("data-equation-id"))).size).toBe(11);
-  expect(shell.querySelectorAll("math").length).toBe(11);
+  expect(shell.querySelectorAll("[data-equation-id]").length).toBe(15);
+  expect(new Set([...shell.querySelectorAll("[data-equation-id]")].map(e => e.getAttribute("data-equation-id"))).size).toBe(15);
+  expect(shell.querySelectorAll("[data-equation-id] math").length).toBe(15);
   for (const eq of equations) {
     const disclosure = shell.querySelector(`[data-argument-equations="${eq.argument}"]`)!;
     expect(disclosure.querySelector(`[data-equation-id^="${eq.id}-"]`)).not.toBeNull();

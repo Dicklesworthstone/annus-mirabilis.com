@@ -8,8 +8,8 @@ const directory = new URL("../../content/equations/mass-energy/", import.meta.ur
 const records = await Promise.all((await readdir(directory)).filter(p => p.endsWith(".json")).map(async p =>
   JSON.parse(await readFile(new URL(p, directory), "utf8"))));
 
-test("all eleven mass-energy equations render every selectable node and a single semantic MathML tree", () => {
-  assert.equal(records.length, 11);
+test("all fifteen mass-energy equations render every selectable node and a single semantic MathML tree", () => {
+  assert.equal(records.length, 15);
   for (const raw of records) {
     const compiled = compileEquation(raw);
     for (const node of compiled.navigation) assert.ok(compiled.html.includes(
@@ -24,7 +24,7 @@ test("all eleven mass-energy equations render every selectable node and a single
 test("generated payloads remain paper-local and match the actual renderer", async () => {
   const mass = JSON.parse(await readFile(new URL("../generated/mass-energy-equations.json", import.meta.url), "utf8"));
   const brownian = JSON.parse(await readFile(new URL("../generated/brownian-equations.json", import.meta.url), "utf8"));
-  assert.equal(mass.equations.length, 11);
+  assert.equal(mass.equations.length, 15);
   assert.equal(brownian.equations.length, 3);
   assert.ok(mass.equations.every(e => e.paper === "mass-energy"));
   assert.ok(brownian.equations.every(e => e.paper === "brownian-motion"));

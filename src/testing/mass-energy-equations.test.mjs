@@ -68,11 +68,11 @@ for (const source of records) {
   }
 }
 
-test("all eleven equations join the real compiler without changing the Brownian slice", async () => {
+test("all fifteen equations join the real compiler without changing the Brownian slice", async () => {
   const result = compileReadingContent(await loadReadingFiles());
   assert.equal(result.ok, true, JSON.stringify(result.diagnostics));
   const me = result.papers.find(p => p.paper.id === "mass-energy");
-  assert.equal(me.equations.length, 11);
+  assert.equal(me.equations.length, 15);
   assert.equal(result.papers.find(p => p.paper.id === "brownian-motion").equations.length, 3);
   for (const eq of me.equations) {
     assert.ok(me.arguments.some(a => a.id === eq.argument));
