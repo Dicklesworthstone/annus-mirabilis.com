@@ -6,7 +6,7 @@ const papers = [
     german:
       "Über einen die Erzeugung und Verwandlung des Lichtes betreffenden heuristischen Gesichtspunkt",
     locator: "Annalen der Physik (4), 17, 132–148 (1905)",
-    status: "Critical edition in preparation",
+    status: "Explanatory reader and laboratories available; source edition in preparation",
   },
   {
     title: "Brownian motion",
@@ -32,7 +32,7 @@ const papers = [
     title: "Special relativity",
     german: "Zur Elektrodynamik bewegter Körper",
     locator: "Annalen der Physik (4), 17, 891–921 (1905)",
-    status: "Critical edition in preparation",
+    status: "Explanatory reader and laboratories available; source edition in preparation",
   },
   {
     title: "Mass and energy",
@@ -86,8 +86,9 @@ export default function Papers() {
             <p className="badge">{paper.status}</p>
             {i === 0 && (
               <div className="actions">
+                <a href="/papers/light-quanta/">Read the entropy and light-quantum argument →</a>
                 <a href="/lab/lq-01/">Wave description & energy spreading →</a>
-                <a href="/lab/lq-06/">Derive the light quantum from entropy matching →</a>
+                <a href="/lab/lq-06/">Compare the entropy coefficients →</a>
               </div>
             )}
             {i === 1 && (
@@ -102,6 +103,7 @@ export default function Papers() {
             )}
             {i === 2 && (
               <div className="actions">
+                <a href="/papers/special-relativity/">Read from clocks to electrodynamics →</a>
                 <a href="/lab/sr-02/">Magnet and conductor →</a>
                 <a href="/lab/sr-03/">Rod measurement & simultaneity →</a>
                 <a href="/lab/sr-10/">Finite light complex →</a>
