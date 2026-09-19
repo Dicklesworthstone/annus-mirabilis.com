@@ -1,4 +1,93 @@
 paper: special-relativity
 idsFrozenAt: "2026-09-19T00:00:00Z"
 frozenBy: am-edn-inventory-relativity-0u9
-aliases: []
+# Twelve retirements and four new ids from the 2026-09-19 boundary audit. Retired ids are
+# never reused and survivors keep their numbers, so the gaps s1-p3 -> s1-p5, s3-p7 -> s3-p9,
+# s3-p10 -> s3-p12, s3-p12 -> s3-p14, s4-p1 -> s4-p3, s5-p2 -> s5-p4, s6-p5 -> s6-p7,
+# s8-p2 -> s8-p5, s8-p7 -> s8-p10 and s8-p10 -> s8-p12 are intentional. The four paragraphs
+# the manifest was missing took new ids at their section ends: s3-p20, s3-p21, s3-p22, s4-p9.
+aliases:
+  - retiredId: s1-p4
+    kind: merged
+    replacementIds:
+      - s1-p3
+    reason: "Not a printed paragraph. p. 893 opens 'Wir haben zu beruecksichtigen, dass alle unsere Urteile' set FLUSH with every line that follows, while 'Es koennte scheinen' below it is indented; it continues the paragraph that begins on p. 892, so s1-p3 now carries the 892-893 span. Confirmed at 330 percent on page-03.png."
+    date: "2026-09-19"
+    editor: "agent:pane30 (BrightIsland), am-edn-inventory-relativity-0u9"
+  - retiredId: s3-p8
+    kind: merged
+    replacementIds:
+      - s3-p7
+    reason: "Not a printed paragraph. p. 899 opens 'Hieraus folgt, wenn man x-prime unendlich klein waehlt:' flush, continuing the paragraph that begins on p. 898; s3-p7 now carries the 898-899 span. Confirmed at 150 percent full-width band on page-09.png."
+    date: "2026-09-19"
+    editor: "agent:pane30 (BrightIsland), am-edn-inventory-relativity-0u9"
+  - retiredId: s3-p11
+    kind: merged
+    replacementIds:
+      - s3-p10
+    reason: "Not a printed paragraph. 'Aus diesen Gleichungen folgt, da tau eine lineare Funktion ist:' on p. 899 is flush, resuming s3-p10 after the stacked d-tau/d-y, d-tau/d-z display. Confirmed at 300 percent on page-09.png."
+    date: "2026-09-19"
+    editor: "agent:pane30 (BrightIsland), am-edn-inventory-relativity-0u9"
+  - retiredId: s3-p13
+    kind: merged
+    replacementIds:
+      - s3-p12
+    reason: "Not a printed paragraph. 'Nun bewegt sich aber der Lichtstrahl' on p. 899 is flush, resuming s3-p12 after the xi displays, and the run continues onto p. 900, so the 899-900 span belongs to s3-p12."
+    date: "2026-09-19"
+    editor: "agent:pane30 (BrightIsland), am-edn-inventory-relativity-0u9"
+  - retiredId: s4-p2
+    kind: merged
+    replacementIds:
+      - s4-p1
+    reason: "Not a printed paragraph. 'Ein starrer Koerper, welcher in ruhendem Zustande' on p. 903 is flush with the three lines that follow it. Confirmed at 300 percent on page-13.png."
+    date: "2026-09-19"
+    editor: "agent:pane30 (BrightIsland), am-edn-inventory-relativity-0u9"
+  - retiredId: s5-p3
+    kind: merged
+    replacementIds:
+      - s5-p2
+    reason: "Not a printed paragraph. 'Das Gesetz vom Parallelogramm' on p. 905 is flush with 'also nach unserer Theorie' and 'setzen:'; the run continues onto p. 906, so the 905-906 span belongs to s5-p2. Confirmed at 250 percent on page-15.png."
+    date: "2026-09-19"
+    editor: "agent:pane30 (BrightIsland), am-edn-inventory-relativity-0u9"
+  - retiredId: s6-p6
+    kind: merged
+    replacementIds:
+      - s6-p5
+    reason: "Not a printed paragraph. 'Zur Interpretation dieser Gleichungen' on p. 909 is flush with the five lines that follow it; the run continues onto p. 910, so the 909-910 span belongs to s6-p5. Confirmed at 250 percent on page-19.png."
+    date: "2026-09-19"
+    editor: "agent:pane30 (BrightIsland), am-edn-inventory-relativity-0u9"
+  - retiredId: s8-p3
+    kind: merged
+    replacementIds:
+      - s8-p2
+    reason: "Not a printed paragraph. 'Nennt man S das Volumen' on p. 913 is flush with 'Ellipsoides, so ist, wie ein'. Confirmed at 250 percent on page-23.png."
+    date: "2026-09-19"
+    editor: "agent:pane30 (BrightIsland), am-edn-inventory-relativity-0u9"
+  - retiredId: s8-p4
+    kind: merged
+    replacementIds:
+      - s8-p2
+    reason: "Not a printed paragraph. 'Nennt man also E die im ruhenden' on p. 913 is flush with the two lines that follow it; the run continues onto p. 914, so the 913-914 span belongs to s8-p2. The exported result eq-s8-d4 is a display id and is unaffected; it now records containedIn: s8-p2. Confirmed at 280 percent on page-23.png."
+    date: "2026-09-19"
+    editor: "agent:pane30 (BrightIsland), am-edn-inventory-relativity-0u9"
+  - retiredId: s8-p8
+    kind: merged
+    replacementIds:
+      - s8-p7
+    reason: "Not a printed paragraph. 'Fuer das reflektierte Licht' on p. 914 is flush with 'gang auf das System k'. Confirmed at 250 percent on page-24.png."
+    date: "2026-09-19"
+    editor: "agent:pane30 (BrightIsland), am-edn-inventory-relativity-0u9"
+  - retiredId: s8-p9
+    kind: merged
+    replacementIds:
+      - s8-p7
+    reason: "Not a printed paragraph. 'Endlich erhaelt man durch' on p. 914 is flush with 'System K fuer das reflekti'; the run continues onto p. 915, so the 914-915 span belongs to s8-p7. Confirmed at 250 percent on page-24.png."
+    date: "2026-09-19"
+    editor: "agent:pane30 (BrightIsland), am-edn-inventory-relativity-0u9"
+  - retiredId: s8-p11
+    kind: merged
+    replacementIds:
+      - s8-p10
+    reason: "Not a printed paragraph. 'In erster Annaeherung erhaelt man' on p. 915 is flush with 'Erfahrung und mit anderen'. Confirmed at 250 percent on page-25.png."
+    date: "2026-09-19"
+    editor: "agent:pane30 (BrightIsland), am-edn-inventory-relativity-0u9"

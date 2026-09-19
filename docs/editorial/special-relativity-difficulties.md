@@ -277,3 +277,43 @@ first-use ids and would otherwise inherit them.
 | §7 heading spelling | `Doppler'schen` | `Doppelerschen` (p. 910) |
 | §3 transformation result | `eq-s3-d19` / `eq-s3-d20` | `eq-s3-d25` (group) and `eq-s3-d26` ($\beta$), both p. 902 |
 | §2 rod chase times | both under `eq-s2-d2` | two separate printed displays: `eq-s2-d2` (p. 896) and `eq-s2-d3` (p. 897) |
+
+---
+
+## 7. Indent versus flush: how a paragraph break is identified in this printing
+
+**Apply this before adding or splitting any paragraph unit in this paper.** It is recorded because
+sixteen units were wrong against it, and because the error is invisible to any check that only
+counts: 101 recorded paragraph starts against 93 printed ones, twelve spurious partly cancelling
+four missing, with every per-page total internally self-consistent.
+
+- A **new paragraph** begins with an indented first line, about **55 px at the 200 dpi render**
+  (`artifacts/page-images/ap-17-891/page-01.png` … `page-31.png`), and the indent is present even
+  when the paragraph starts at the very top of a page. p. 892 and p. 936 both begin that way.
+- A line that **resumes after a displayed equation** is set **flush to the left margin**, however
+  much prose follows it and however many further displays it introduces.
+- A line that **continues across a page break** is likewise flush. p. 893, p. 899 and p. 913 each
+  open flush and are continuations, which is why three page-spans were missing.
+- Printed **numbered or lettered list items** (`1.`, `2.`, `a)`, `b)`) are indented but are *not*
+  separate paragraphs: they fold into the sentence that introduces them. This governs §1 p. 894,
+  §2 p. 895, §6 p. 909 and §10 p. 920, and the sibling rule is recorded for light-quanta and for
+  brownian.
+- **Stacked equations that are left-aligned with each other**, with no text between them, are ONE
+  display, not several. The pair `∂τ/∂y = 0` and `∂τ/∂z = 0` on p. 899 is the case that matters
+  here: it looks like two displays at page scale and is one at 280 percent. The same convention
+  makes the mass-energy `H₀−E₀` / `H₁−E₁` pair a single unit.
+
+Worked contrast on p. 901, where three paragraphs were missing: "Zur Zeit t = τ = 0", "Diese
+Gleichung transformieren wir", "Die betrachtete Welle ist also", "In den entwickelten
+Transformationsgleichungen", "Wir führen zu diesem Zwecke noch" and "Da die Beziehungen zwischen
+x'" are each indented and each is a paragraph. On p. 913, by contrast, "Nennt man S das Volumen"
+and "Nennt man also E die im ruhenden" sit flush and are not.
+
+**Read the left margin at 300 percent or more before deciding, and do not decide from a full page.**
+Two lessons are recorded here at cost. First, in the original audit of this paper the line at the
+top of p. 893 was seen to look flush and was then called a start anyway, because treating it as a
+start made §1 total eleven paragraphs and agree with a number already written in this file. Fitting
+the evidence to the expected total is what produced the defect. Second, a later sweep at 130 percent
+produced three false positives — p. 911, p. 918 and p. 920 were each flagged and each turned out
+clean at 250 percent. Strip-scale reading is good enough to find candidates and not good enough to
+decide them.

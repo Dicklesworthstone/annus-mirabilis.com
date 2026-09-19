@@ -2,6 +2,7 @@ import { describe, expect, test } from "bun:test";
 import { existsSync, mkdtempSync, readFileSync } from "node:fs";
 import { tmpdir } from "node:os";
 import { join } from "node:path";
+import { resolveAlias, validateAliasRecord } from "../aliases.ts";
 import { parseIdSnapshot, validateFrozenIds } from "../frozenIds.ts";
 import { formatManifestReportText, generateManifestReport } from "../manifest/report.ts";
 import { validateSourceManifest } from "../manifest/schema.ts";
@@ -13,6 +14,18 @@ import { parseYaml } from "../provenance/yaml.ts";
 import { newRunIdentity, TestLogger } from "../../testing/log/logger.ts";
 
 const ROOT = process.cwd();
+
+/** The 2026-09-19 boundary-audit retirements, given to the validator as gap evidence. */
+function loadAliasRecords() {
+  const raw = parseYaml(
+    readFileSync(join(process.cwd(), "content/aliases/special-relativity.yaml"), "utf8"),
+  ) as { aliases?: unknown[] };
+  return (raw.aliases ?? []).map((rec) => {
+    const parsed = validateAliasRecord(rec);
+    if (!parsed.ok) throw new Error(`Invalid alias record: ${parsed.error}`);
+    return parsed.value;
+  });
+}
 const RELATIVITY_BEAD = "am-edn-inventory-relativity-0u9";
 const BIB_KEY = "ap-17-891";
 const PAPER_SLUG = "special-relativity";
@@ -39,7 +52,7 @@ describe("special-relativity source manifest inventory (am-edn-inventory-relativ
     expect(manifest.idsFrozenAt).toBe("2026-09-19T00:00:00Z");
     expect(manifest.frozenBy).toBe(RELATIVITY_BEAD);
 
-    expect(manifest.units.length).toBe(220);
+    expect(manifest.units.length).toBe(212); // 220 until the 2026-09-19 boundary audit: 12 retired, 4 added
 
     const idSet = new Set<string>();
     for (const unit of manifest.units) {
@@ -71,8 +84,11 @@ describe("special-relativity source manifest inventory (am-edn-inventory-relativ
     }
 
     // Validator check over corpus produces zero errors
+    // The sequence-gap rule errors on a missing paragraph number unless an alias record explains
+    // it, so the validator is given the real alias file: the gaps are explained, never waived.
     const diags = validateManifest(manifest, {
       manifests: new Map([[manifest.paper, manifest]]),
+      aliases: loadAliasRecords(),
     });
     const errors = diags.filter((d) => d.severity === "error");
     expect(errors.length).toBe(0);
@@ -502,7 +518,57 @@ describe("special-relativity source manifest inventory (am-edn-inventory-relativ
     expect(aliasRaw.idsFrozenAt).toBe("2026-09-19T00:00:00Z");
     expect(aliasRaw.frozenBy).toBe(RELATIVITY_BEAD);
     expect(Array.isArray(aliasRaw.aliases)).toBe(true);
-    expect((aliasRaw.aliases as unknown[]).length).toBe(0);
+
+    // Twelve retirements from the 2026-09-19 boundary audit; four printed paragraphs that had no
+    // unit took new ids at their section ends instead (s3-p20, s3-p21, s3-p22, s4-p9).
+    const records = loadAliasRecords();
+    expect(records.length).toBe(12);
+    expect(records.map((r) => r.retiredId).sort()).toEqual([
+      "s1-p4", "s3-p11", "s3-p13", "s3-p8", "s4-p2", "s5-p3",
+      "s6-p6", "s8-p11", "s8-p3", "s8-p4", "s8-p8", "s8-p9",
+    ]);
+
+    const liveIds = manifest.units.map((u) => u.id);
+    const expectedTarget: Record<string, string> = {
+      "s1-p4": "s1-p3", "s3-p8": "s3-p7", "s3-p11": "s3-p10", "s3-p13": "s3-p12",
+      "s4-p2": "s4-p1", "s5-p3": "s5-p2", "s6-p6": "s6-p5", "s8-p3": "s8-p2",
+      "s8-p4": "s8-p2", "s8-p8": "s8-p7", "s8-p9": "s8-p7", "s8-p11": "s8-p10",
+    };
+    for (const [retired, target] of Object.entries(expectedTarget)) {
+      expect(liveIds).not.toContain(retired);
+      const resolved = resolveAlias(retired, records, liveIds);
+      expect(resolved.ok).toBe(true);
+      if (resolved.ok) expect(resolved.targetIds).toEqual([target]);
+    }
+    for (const added of ["s3-p20", "s3-p21", "s3-p22", "s4-p9"]) {
+      expect(liveIds).toContain(added);
+    }
+
+    // Page-span records moved onto the surviving paragraphs.
+    const pagesOf = (id: string) =>
+      manifest.units.find((u) => u.id === id)?.locators.map((l) => l.page);
+    expect(pagesOf("s1-p3")).toEqual([892, 893]);
+    expect(pagesOf("s3-p7")).toEqual([898, 899]);
+    expect(pagesOf("s3-p12")).toEqual([899, 900]);
+    expect(pagesOf("s3-p18")).toEqual([901]);
+    expect(pagesOf("s3-p22")).toEqual([901, 902]);
+    expect(pagesOf("s5-p2")).toEqual([905, 906]);
+    expect(pagesOf("s6-p5")).toEqual([909, 910]);
+    expect(pagesOf("s8-p2")).toEqual([913, 914]);
+    expect(pagesOf("s8-p7")).toEqual([914, 915]);
+
+    // No display, footnote or other unit still hangs off a retired id.
+    const live = new Set(liveIds);
+    for (const u of manifest.units) {
+      if (u.containedIn) expect(live.has(u.containedIn)).toBe(true);
+    }
+
+    // Planted negative: withhold the alias records and the same twelve gaps are still errors, so
+    // the records carry the explanation rather than the rule having been softened.
+    const unexplained = validateManifest(manifest, {
+      manifests: new Map([[manifest.paper, manifest]]),
+    }).filter((d) => d.rule === "sequence-gap" && d.severity === "error");
+    expect(unexplained.length).toBe(12);
 
     // Snapshot file
     const snapshotPath = join(ROOT, "content/source-blocks/special-relativity/manifest.ids.snapshot.txt");
@@ -546,8 +612,8 @@ describe("special-relativity source manifest inventory (am-edn-inventory-relativ
 
     expect(report.paper).toBe(PAPER_SLUG);
     expect(report.status).toBe("in-preparation");
-    expect(report.totalUnits).toBe(220);
-    expect(report.inScopeCount).toBe(220);
+    expect(report.totalUnits).toBe(212);
+    expect(report.inScopeCount).toBe(212);
     expect(report.notInScopeCount).toBe(0);
 
     expect(report.layers.ledger.state).toBe("absent");
