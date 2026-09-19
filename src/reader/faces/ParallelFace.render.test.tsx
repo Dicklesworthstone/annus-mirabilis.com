@@ -8,9 +8,71 @@ import {
   FIXTURE_EDITORIAL_NOTES,
   FIXTURE_REVIEW_RECORDS,
 } from "../../testing/fixtures/bilingual/brownianBilingualFixture.ts";
+import { EnglishFace } from "./EnglishFace.tsx";
+import { GermanFace } from "./GermanFace.tsx";
 import { ParallelFace } from "./ParallelFace.tsx";
 
 describe("ParallelFace render tests", () => {
+  test("Brownian §§4–5 fixture renders on all three faces with anchors, printed equation numbers, footnotes, term annotations, and the date-line", () => {
+    // 1. GermanFace renders anchors, printed equation numbers, footnotes, term annotations, and date-line
+    const germanHtml = renderToStaticMarkup(
+      <GermanFace
+        paper={FIXTURE_BROWNIAN_PAPER}
+        blocks={FIXTURE_BROWNIAN_SOURCE_BLOCKS}
+        alignment={FIXTURE_BROWNIAN_ALIGNMENT}
+        editorialNotes={FIXTURE_EDITORIAL_NOTES}
+      />,
+    );
+    expect(germanHtml).toContain('id="bm-s4-p1"');
+    expect(germanHtml).toContain('id="bm-s4-eq1"');
+    expect(germanHtml).toContain('data-equation-label="1"');
+    expect(germanHtml).toContain("(1)");
+    expect(germanHtml).toContain('data-printed-notation="true"');
+    expect(germanHtml).toContain('id="footnote-bm-s5-fn1"');
+    expect(germanHtml).toContain("Fußnoten");
+    expect(germanHtml).toContain('data-term-id="term-verschiebung"');
+    expect(germanHtml).toContain("Verschiebung");
+    expect(germanHtml).toContain("Bern, Mai 1905.");
+
+    // 2. EnglishFace renders anchors, printed equation numbers, term annotations
+    const englishHtml = renderToStaticMarkup(
+      <EnglishFace
+        paper={FIXTURE_BROWNIAN_PAPER}
+        units={FIXTURE_BROWNIAN_TRANSLATION_UNITS}
+        alignment={FIXTURE_BROWNIAN_ALIGNMENT}
+        editorialNotes={FIXTURE_EDITORIAL_NOTES}
+        reviewRecords={FIXTURE_REVIEW_RECORDS}
+      />,
+    );
+    expect(englishHtml).toContain('id="tr-bm-s4-p1-u1"');
+    expect(englishHtml).toContain('id="tr-bm-s4-eq1"');
+    expect(englishHtml).toContain('data-equation-id="eq-diffusion-1d"');
+    expect(englishHtml).toContain('data-printed-notation="true"');
+    expect(englishHtml).toContain('data-term-id="term-verschiebung"');
+    expect(englishHtml).toContain("displacement");
+
+    // 3. ParallelFace renders anchors, printed equation numbers, footnotes, term annotations, and date-line
+    const parallelHtml = renderToStaticMarkup(
+      <ParallelFace
+        paper={FIXTURE_BROWNIAN_PAPER}
+        blocks={FIXTURE_BROWNIAN_SOURCE_BLOCKS}
+        units={FIXTURE_BROWNIAN_TRANSLATION_UNITS}
+        alignment={FIXTURE_BROWNIAN_ALIGNMENT}
+        editorialNotes={FIXTURE_EDITORIAL_NOTES}
+        reviewRecords={FIXTURE_REVIEW_RECORDS}
+      />,
+    );
+    expect(parallelHtml).toContain('id="bm-s4-p1"');
+    expect(parallelHtml).toContain('id="tr-bm-s4-p1-u1"');
+    expect(parallelHtml).toContain('data-equation-label="1"');
+    expect(parallelHtml).toContain("(1)");
+    expect(parallelHtml).toContain('id="footnote-bm-s5-fn1"');
+    expect(parallelHtml).toContain("Fußnoten");
+    expect(parallelHtml).toContain('data-term-id="term-verschiebung"');
+    expect(parallelHtml).toContain("Verschiebung");
+    expect(parallelHtml).toContain("displacement");
+    expect(parallelHtml).toContain("Bern, Mai 1905.");
+  });
   test("renders both German source and English translation columns", () => {
     const html = renderToStaticMarkup(
       <ParallelFace
