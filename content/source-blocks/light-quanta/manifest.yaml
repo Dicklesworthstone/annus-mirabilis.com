@@ -339,23 +339,11 @@ units:
       argumentObligations:
         - blackbody-rayleigh-divergence
 
-  - id: s1-p6
-    kind: paragraph
-    section: s1
-    locators:
-      - page: 136
-    destination:
-      editionBlockId: block-light-quanta-s1-p6
-      translationUnits:
-        - planned
-      argumentObligations:
-        - blackbody-rayleigh-divergence
-
   - id: eq-s1-d8
     kind: display-equation
     section: s1
     editorialLabel: "ed:s1-d8"
-    containedIn: s1-p6
+    containedIn: s1-p5
     locators:
       - page: 136
     destination:

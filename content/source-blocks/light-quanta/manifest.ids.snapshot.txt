@@ -20,7 +20,6 @@ eq-s1-d5
 s1-p5
 eq-s1-d6
 eq-s1-d7
-s1-p6
 eq-s1-d8
 s2
 s2-p1

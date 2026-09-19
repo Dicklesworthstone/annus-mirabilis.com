@@ -2,6 +2,13 @@ paper: light-quanta
 idsFrozenAt: "2026-09-19T04:30:00Z"
 frozenBy: am-edn-inventory-light-quanta-skp
 aliases:
+  - retiredId: s1-p6
+    kind: merged
+    replacementIds:
+      - s1-p5
+    reason: "Not a printed paragraph. 'Diese als Bedingung des dynamischen Gleichgewichtes gefundene Beziehung...' on p. 136 is set FLUSH, resuming s1-p5 after the two displays eq-s1-d6 and eq-s1-d7. Verified at 210 percent against the known indented opener 'Soll die Strahlungsenergie' on the same page: that line stands clearly to the right, while this one aligns exactly with the flush lines below it. Found by the per-page denominator audit of 2026-09-19, NOT by the earlier audit, which did not report p. 136. eq-s1-d8 moves into s1-p5. Page 136 therefore has three printed paragraph starts, not four."
+    date: "2026-09-19"
+    editor: "agent:pane31, am-edn-inventory-light-quanta-skp"
   - retiredId: s2-p3
     kind: merged
     replacementIds:

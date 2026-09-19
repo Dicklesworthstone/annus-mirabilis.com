@@ -105,8 +105,19 @@ Sentence boundaries and paragraph splits decided under `docs/editorial/SEGMENTAT
   p. 147 opens with the indented "Mit den von Hrn. Lenard beobachteten...". `s2-p2` gains the
   136–137 span that was missing, since p. 137 opens flush.
 
-  *Per-page true starts, as measured:* p. 139 three, p. 141 three, p. 142 four, p. 143 five,
-  p. 145 two, p. 148 one.
+  *A sixth spurious unit, found by the denominator audit and not by the earlier one.*
+  `s1-p6` p.136 "Diese als Bedingung des dynamischen Gleichgewichtes gefundene Beziehung..."
+  is FLUSH, resuming `s1-p5` after the displays `eq-s1-d6` and `eq-s1-d7`; `eq-s1-d8` moves
+  into `s1-p5`. Checked at 210 percent against the known indented opener "Soll die
+  Strahlungsenergie" on the same page, which stands clearly to the right while this line
+  aligns exactly with the flush lines below it. Page 136 has three printed paragraph starts,
+  not four. The earlier audit did not report p. 136 either way.
+
+  *Per-page paragraph starts, every page measured against the manifest (17 of 17):*
+  p.132 two, p.133 three, p.134 two, p.135 one, p.136 three, p.137 four, p.138 two,
+  p.139 three, p.140 two, p.141 three, p.142 four, p.143 five, p.144 two, p.145 four,
+  p.146 four, p.147 five, p.148 one. Displays, footnotes and section headings were counted
+  on every page as well and matched the manifest on all seventeen.
 
   *One disagreement with the audit, recorded rather than silently resolved.* The audit lists
   `s7-p2`'s 144–145 span among twelve it checked and found correct. I make it wrong, and fixed
