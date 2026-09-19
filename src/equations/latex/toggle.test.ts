@@ -540,3 +540,96 @@ test("toggle.test: Toggle contract guarantees unit conversion is NOT applied und
   assert.ok(!altRes.latex.includes("\\frac{v}{c}"));
   assert.equal(altRes.formRelation, "unit-conversion");
 });
+
+/**
+ * Refusal pair for render.ts's alternate-form lookup (am-eq-latex-generation-hc3).
+ *
+ * The orchestrator's plant sweep of 2026-09-18 measured 19 throw sites and found eight dead.
+ * Its unit was the typed error constructor (AuthoredLatexError, LatexTokenizerError,
+ * NotationScopeError), so the two plain `throw new Error` sites in render.ts were never
+ * counted. Planting the alternate-form lookup and running toggle, transform, render.golden
+ * and determinism leaves every one of them green: no test notices the rule's removal.
+ *
+ * The rule matters because the spec is "render that alternate's own tree, never a
+ * transformed primary tree". Without the guard, an unknown form id reaches `alt.tree` on
+ * undefined and the reader gets a TypeError from the renderer's internals instead of a
+ * message naming the form and the equation.
+ */
+test("toggle.test: an alternate form that the equation does not declare is refused by name (render.ts:363)", () => {
+  const concordance = loadConcordanceForPaper("special-relativity");
+
+  const declaredId = parseAlternateFormId("eq-s6-d7.alt.si");
+  assert.ok(declaredId.ok);
+  const undeclaredId = parseAlternateFormId("eq-s6-d7.alt.nosuch");
+  assert.ok(undeclaredId.ok);
+
+  const declaredAlternate: AlternateForm = {
+    id: declaredId.value,
+    relation: "unit-conversion",
+    label: "SI units",
+    tree: rel(
+      "=",
+      sym("eq-s6-d7.alt.t.e", "electricFieldMoving"),
+      sym("eq-s6-d7.alt.t.b", "magneticFieldStationary"),
+    ),
+    unitSystem: { from: "gaussian-cgs", to: "si" },
+    derivationChainId: "chain-sr-s6-si-conversion",
+  };
+
+  const equation = {
+    id: "eq-s6-d7",
+    paper: "special-relativity",
+    sectionId: "sr-s6",
+    tree: rel(
+      "=",
+      sym("eq-s6-d7.t.e", "electricFieldMoving"),
+      sym("eq-s6-d7.t.b", "magneticFieldStationary"),
+    ),
+    alternateForms: [declaredAlternate],
+  };
+
+  // REJECT: an id the equation does not declare, naming both the form id and the equation.
+  assert.throws(
+    () =>
+      renderEquationLatex({
+        equation,
+        form: { kind: "alternate", id: undeclaredId.value },
+        color: "plain",
+        concordance,
+      }),
+    (err: unknown) => {
+      assert.ok(err instanceof Error);
+      assert.match(err.message, /eq-s6-d7\.alt\.nosuch/);
+      assert.match(err.message, /eq-s6-d7/);
+      // Not the TypeError the unguarded path would raise from alt.tree on undefined.
+      assert.doesNotMatch(err.message, /undefined/);
+      return true;
+    },
+  );
+
+  // ACCEPT: the declared id renders that alternate's own tree with its own relation.
+  const accepted = renderEquationLatex({
+    equation,
+    form: { kind: "alternate", id: declaredId.value },
+    color: "plain",
+    concordance,
+  });
+  assert.equal(accepted.formRelation, "unit-conversion");
+  assert.ok(accepted.latex.length > 0);
+
+  // An equation that declares no alternate forms at all refuses the same way, not differently.
+  assert.throws(
+    () =>
+      renderEquationLatex({
+        equation: { ...equation, alternateForms: undefined },
+        form: { kind: "alternate", id: declaredId.value },
+        color: "plain",
+        concordance,
+      }),
+    (err: unknown) => {
+      assert.ok(err instanceof Error);
+      assert.match(err.message, /eq-s6-d7\.alt\.si/);
+      return true;
+    },
+  );
+});
