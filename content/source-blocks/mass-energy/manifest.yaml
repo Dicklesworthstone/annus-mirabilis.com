@@ -1,0 +1,367 @@
+paper: mass-energy
+document: ap-18-639
+figures: none
+status: in-preparation
+scope: full-document
+pageCount: 3
+pageRange: [639, 641]
+idsFrozenAt: "2026-09-19T00:00:00Z"
+frozenBy: am-edn-inventory-mass-energy-g2d
+units:
+  - id: masthead-title
+    kind: masthead-title
+    locators:
+      - page: 639
+    destination:
+      editionBlockId: masthead-title
+      notes:
+        - "Article title as printed"
+
+  - id: masthead-author
+    kind: masthead-author
+    locators:
+      - page: 639
+    destination:
+      editionBlockId: masthead-author
+      notes:
+        - "Author line as printed"
+
+  - id: s0-p1
+    kind: paragraph
+    locators:
+      - page: 639
+    destination:
+      editionBlockId: s0-p1
+      argumentObligations:
+        - imported-result
+      notes:
+        - "Opening sentence referencing recent electrodynamic investigation"
+
+  - id: s0-fn1
+    kind: footnote
+    footnoteMark: "1)"
+    markPage: 639
+    locators:
+      - page: 639
+    references:
+      - id: s0-fn1-r1
+        occurrenceId: s0-fn1-r1
+        printedText: "A. Einstein, Ann. d. Phys. 17. p. 891. 1905."
+        kind: bibliographic
+        target:
+          citationId: ap-17-891
+    destination:
+      editionBlockId: s0-fn1
+      argumentObligations:
+        - imported-result
+      notes:
+        - "Footnote citing special relativity paper in Annalen der Physik 17"
+
+  - id: s0-p2
+    kind: paragraph
+    locators:
+      - page: 639
+    destination:
+      editionBlockId: s0-p2
+      argumentObligations:
+        - imported-result
+      notes:
+        - "Premise statement: Maxwell-Hertz equations and principle of relativity"
+
+  - id: s0-p3
+    kind: paragraph
+    locators:
+      - page: 639
+    destination:
+      editionBlockId: s0-p3
+      argumentObligations:
+        - imported-result
+      notes:
+        - "Quoted formulation of the principle of relativity (Relativitätsprinzip)"
+
+  - id: s0-p4
+    kind: paragraph
+    locators:
+      - page: 639
+    references:
+      - id: s0-p4-r1
+        occurrenceId: s0-p4-r1
+        printedText: "l. c. § 8"
+        kind: cross-paper
+        target:
+          paper: special-relativity
+          id: ap-17-891-s8
+    destination:
+      editionBlockId: s0-p4
+      argumentObligations:
+        - imported-result
+      notes:
+        - "Reference to §8 of special relativity paper"
+
+  - id: s0-fn2
+    kind: footnote
+    footnoteMark: "2)"
+    markPage: 639
+    locators:
+      - page: 639
+    destination:
+      editionBlockId: s0-fn2
+      argumentObligations:
+        - imported-result
+      notes:
+        - "Footnote confirming constancy of light speed is contained in Maxwell equations"
+
+  - id: s0-p5
+    kind: paragraph
+    locators:
+      - page: 639
+    destination:
+      editionBlockId: s0-p5
+      argumentObligations:
+        - imported-result
+      notes:
+        - "Setup of plane light waves and light energy transformation"
+
+  - id: eq-s0-d1
+    kind: display-equation
+    editorialLabel: "ed:s0-d1"
+    containedIn: s0-p5
+    locators:
+      - page: 639
+    printedForm: "l^* = l \\frac{1 - \\frac{v}{V}\\cos\\varphi}{\\sqrt{1 - (v/V)^2}}"
+    destination:
+      editionBlockId: eq-s0-d1
+      argumentObligations:
+        - imported-result
+      notes:
+        - "Transformation law for energy of plane light waves from relativity paper §8"
+
+  - id: s0-p6
+    kind: paragraph
+    locators:
+      - page: 640
+    destination:
+      editionBlockId: s0-p6
+      argumentObligations:
+        - equal-opposite-emissions
+      notes:
+        - "Definition of rest body energy E_0 and moving body energy H_0"
+
+  - id: s0-p7
+    kind: paragraph
+    locators:
+      - page: 640
+    destination:
+      editionBlockId: s0-p7
+      argumentObligations:
+        - equal-opposite-emissions
+        - energy-balances
+      notes:
+        - "Emission of two equal and opposite plane light pulses each of energy L/2"
+
+  - id: eq-s0-d2
+    kind: display-equation
+    editorialLabel: "ed:s0-d2"
+    containedIn: s0-p7
+    locators:
+      - page: 640
+    printedForm: "E_0 = E_1 + \\left[ \\frac{L}{2} + \\frac{L}{2} \\right]"
+    destination:
+      editionBlockId: eq-s0-d2
+      argumentObligations:
+        - equal-opposite-emissions
+        - energy-balances
+      notes:
+        - "Rest system energy balance before and after emission"
+
+  - id: eq-s0-d3
+    kind: display-equation
+    editorialLabel: "ed:s0-d3"
+    containedIn: s0-p7
+    locators:
+      - page: 640
+    printedForm: "H_0 = H_1 + \\left[ \\frac{L}{2} \\frac{1 - \\frac{v}{V}\\cos\\varphi}{\\sqrt{1 - (v/V)^2}} + \\frac{L}{2} \\frac{1 + \\frac{v}{V}\\cos\\varphi}{\\sqrt{1 - (v/V)^2}} \\right] = H_1 + \\frac{L}{\\sqrt{1 - (v/V)^2}}"
+    destination:
+      editionBlockId: eq-s0-d3
+      argumentObligations:
+        - equal-opposite-emissions
+        - energy-balances
+      notes:
+        - "Moving system energy balance with cancellation of directional cosine terms"
+
+  - id: s0-p8
+    kind: paragraph
+    locators:
+      - page: 640
+    destination:
+      editionBlockId: s0-p8
+      argumentObligations:
+        - energy-balances
+        - subtraction-kinetic-energy
+      notes:
+        - "Subtraction of rest energy balance from moving energy balance"
+
+  - id: eq-s0-d4
+    kind: display-equation
+    editorialLabel: "ed:s0-d4"
+    containedIn: s0-p8
+    locators:
+      - page: 640
+    printedForm: "(H_0 - E_0) - (H_1 - E_1) = L \\left\\{ \\frac{1}{\\sqrt{1 - (v/V)^2}} - 1 \\right\\}"
+    destination:
+      editionBlockId: eq-s0-d4
+      argumentObligations:
+        - energy-balances
+        - subtraction-kinetic-energy
+      notes:
+        - "Subtracted balance expressing difference of energy differences"
+
+  - id: s0-p9
+    kind: paragraph
+    locators:
+      - page: 640
+      - page: 641
+    destination:
+      editionBlockId: s0-p9
+      argumentObligations:
+        - subtraction-kinetic-energy
+      notes:
+        - "Physical interpretation of H - E as kinetic energy K plus constant C; spans pages 640-641"
+
+  - id: eq-s0-d5
+    kind: display-equation
+    editorialLabel: "ed:s0-d5"
+    containedIn: s0-p9
+    locators:
+      - page: 641
+    printedForm: "\\begin{aligned} H_0 - E_0 &= K_0 + C, \\\\ H_1 - E_1 &= K_1 + C \\end{aligned}"
+    destination:
+      editionBlockId: eq-s0-d5
+      argumentObligations:
+        - subtraction-kinetic-energy
+      notes:
+        - "Two-line system relating total energy difference to kinetic energy and constant C"
+
+  - id: eq-s0-d6
+    kind: display-equation
+    editorialLabel: "ed:s0-d6"
+    containedIn: s0-p9
+    locators:
+      - page: 641
+    printedForm: "K_0 - K_1 = L \\left\\{ \\frac{1}{\\sqrt{1 - (v/V)^2}} - 1 \\right\\}"
+    destination:
+      editionBlockId: eq-s0-d6
+      argumentObligations:
+        - subtraction-kinetic-energy
+      notes:
+        - "Exact relativistic kinetic energy difference equation"
+
+  - id: s0-p10
+    kind: paragraph
+    locators:
+      - page: 641
+    references:
+      - id: s0-p10-r1
+        occurrenceId: s0-p10-r1
+        printedText: "l. c. § 10"
+        kind: cross-paper
+        target:
+          paper: special-relativity
+          id: ap-17-891-s10
+    destination:
+      editionBlockId: s0-p10
+      argumentObligations:
+        - subtraction-kinetic-energy
+      notes:
+        - "Kinetic energy discussion referencing electron kinetic energy in §10"
+
+  - id: s0-p11
+    kind: paragraph
+    locators:
+      - page: 641
+    destination:
+      editionBlockId: s0-p11
+      argumentObligations:
+        - low-speed-expansion
+      notes:
+        - "Expansion neglecting fourth and higher order quantities"
+
+  - id: eq-s0-d7
+    kind: display-equation
+    editorialLabel: "ed:s0-d7"
+    containedIn: s0-p11
+    locators:
+      - page: 641
+    printedForm: "K_0 - K_1 = \\frac{L}{V^2} \\frac{v^2}{2}"
+    destination:
+      editionBlockId: eq-s0-d7
+      argumentObligations:
+        - low-speed-expansion
+      notes:
+        - "Low-speed kinetic energy reduction printed without ellipsis"
+
+  - id: s0-p12
+    kind: paragraph
+    locators:
+      - page: 641
+    destination:
+      editionBlockId: s0-p12
+      argumentObligations:
+        - inertia-change-generalization
+      notes:
+        - "Deduction that body mass diminishes by L/V^2 upon radiation emission"
+
+  - id: s0-p13
+    kind: paragraph
+    locators:
+      - page: 641
+    destination:
+      editionBlockId: s0-p13
+      argumentObligations:
+        - inertia-change-generalization
+      notes:
+        - "Generalization: mass is measure of energy content; factor 9*10^20 in Erg and Grammen"
+
+  - id: s0-p14
+    kind: paragraph
+    locators:
+      - page: 641
+    destination:
+      editionBlockId: s0-p14
+      argumentObligations:
+        - empirical-closing-remarks
+      notes:
+        - "Empirical prospect: test with bodies of highly variable energy content such as radium salts"
+
+  - id: s0-p15
+    kind: paragraph
+    locators:
+      - page: 641
+    destination:
+      editionBlockId: s0-p15
+      argumentObligations:
+        - empirical-closing-remarks
+      notes:
+        - "Closing conclusion: radiation transfers inertia between emitting and absorbing bodies"
+
+  - id: closing-dateline
+    kind: closing-dateline
+    locators:
+      - page: 641
+    destination:
+      editionBlockId: closing-dateline
+      argumentObligations:
+        - dateline-receipt
+      notes:
+        - "Printed date-line: Bern, September 1905."
+
+  - id: closing-received
+    kind: closing-received
+    locators:
+      - page: 641
+    destination:
+      editionBlockId: closing-received
+      argumentObligations:
+        - dateline-receipt
+      notes:
+        - "Journal receipt note: (Eingegangen 27. September 1905.)"

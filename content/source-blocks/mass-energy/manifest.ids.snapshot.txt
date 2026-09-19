@@ -1,0 +1,31 @@
+# Mass-energy source-id snapshot (am-edn-inventory-mass-energy-g2d)
+# Pinned facsimile ap-18-639 verified and frozen 2026-09-19T00:00:00Z
+# Unit ids in printed order
+masthead-title
+masthead-author
+s0-p1
+s0-fn1
+s0-p2
+s0-p3
+s0-p4
+s0-fn2
+s0-p5
+eq-s0-d1
+s0-p6
+s0-p7
+eq-s0-d2
+eq-s0-d3
+s0-p8
+eq-s0-d4
+s0-p9
+eq-s0-d5
+eq-s0-d6
+s0-p10
+s0-p11
+eq-s0-d7
+s0-p12
+s0-p13
+s0-p14
+s0-p15
+closing-dateline
+closing-received
