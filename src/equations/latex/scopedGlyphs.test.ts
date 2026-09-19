@@ -21,11 +21,22 @@ import assert from "node:assert/strict";
 import test from "node:test";
 import { loadConcordanceForPaper } from "../../content/notation/loader.ts";
 import type { ConcordanceEntry, PaperConcordance } from "../../content/schemas/concordance.ts";
+import { PAPER_SLUGS } from "../../content/schemas/source.ts";
 import type { Expression } from "../ast.ts";
 import type { Quantity, QuantityRegistry } from "../quantities.ts";
 import { renderLatex } from "./render.ts";
 
 const PAPERS = ["light-quanta", "brownian-motion", "special-relativity", "mass-energy"] as const;
+
+/**
+ * The papers coverage is REQUIRED for, taken from the canonical slug set rather than from
+ * PAPERS above. Deriving the requirement from the same list the data is loaded from makes
+ * the coverage test vacuous: drop a paper and both the data and the requirement vanish
+ * together. The companion dissertation is excluded; it is not one of the four.
+ */
+const REQUIRED_PAPERS = (PAPER_SLUGS as readonly string[]).filter(
+  (slug) => slug !== "molecular-dimensions",
+);
 
 type Reading = Readonly<{
   paper: string;
@@ -131,14 +142,21 @@ function collisionGroups(): ReadonlyMap<string, readonly Reading[]> {
 
 test("scopedGlyphs: the concordances really do reuse glyphs across papers", () => {
   const groups = collisionGroups();
-  assert.ok(
-    groups.size >= 10,
-    `expected the known cross-paper glyph reuse, found ${groups.size} groups`,
-  );
-  // The three the doctrine calls out by name must be among them.
-  for (const glyph of ["\\beta", "P", "V"]) {
+  // Named glyphs, not a count. A threshold of ten would be satisfied by ten collisions that
+  // are not the ones the doctrine cares about, which is the shape of error pane30 found in
+  // the light-quanta manifest: the total matched while the specifics were wrong.
+  for (const glyph of ["\\beta", "P", "V", "L", "N", "\\nu"]) {
     assert.ok(groups.has(glyph), `glyph ${glyph} must be a recorded cross-paper collision`);
   }
+  // And the specific readings AGENTS.md calls out by name, each pinned to its paper.
+  const readingOfPaper = (glyph: string, paper: string) =>
+    [...(groups.get(glyph) ?? [])].find((r) => r.paper === paper);
+  assert.equal(readingOfPaper("\\beta", "light-quanta")?.quantityId, "wienConstantBeta");
+  assert.equal(readingOfPaper("\\beta", "special-relativity")?.quantityId, "lorentzFactor");
+  assert.equal(readingOfPaper("P", "brownian-motion")?.quantityId, "particleRadius");
+  assert.equal(readingOfPaper("P", "light-quanta")?.quantityId, "workFunction");
+  assert.equal(readingOfPaper("V", "special-relativity")?.quantityId, "speedOfLight");
+  assert.equal(readingOfPaper("V", "brownian-motion")?.quantityId, "volume");
 });
 
 test("scopedGlyphs: every paper carries at least one cross-paper glyph collision", () => {
@@ -147,7 +165,12 @@ test("scopedGlyphs: every paper carries at least one cross-paper glyph collision
   for (const list of groups.values()) {
     for (const reading of list) covered.add(reading.paper);
   }
-  for (const paper of PAPERS) {
+  assert.equal(
+    REQUIRED_PAPERS.length,
+    4,
+    "the edition publishes four papers besides the companion",
+  );
+  for (const paper of REQUIRED_PAPERS) {
     assert.ok(covered.has(paper), `${paper} has no cross-paper glyph collision in the set`);
   }
 });
@@ -168,7 +191,7 @@ test("scopedGlyphs: each reading renders its OWN paper's modern glyph", () => {
 });
 
 test("scopedGlyphs: a paper never renders another paper's reading of the same glyph", () => {
-  let comparisons = 0;
+  const compared = new Set<string>();
   for (const [glyph, list] of collisionGroups()) {
     for (const a of list) {
       for (const b of list) {
@@ -193,9 +216,21 @@ test("scopedGlyphs: a paper never renders another paper's reading of the same gl
           `printed ${glyph} in ${a.paper} (${a.quantityId}) rendered ${b.paper}'s reading ` +
             `${b.modernGlyph} (${b.quantityId}); the lookup leaked across papers`,
         );
-        comparisons += 1;
+        compared.add(`${glyph}|${a.paper}|${b.paper}`);
       }
     }
   }
-  assert.ok(comparisons >= 20, `expected a real comparison matrix, ran ${comparisons}`);
+  // Named pairs, not a count: a threshold would be met by twenty comparisons among glyphs
+  // nobody cares about while beta or V quietly dropped out of the matrix.
+  for (const [glyph, paperA, paperB] of [
+    ["\\beta", "light-quanta", "special-relativity"],
+    ["V", "brownian-motion", "special-relativity"],
+    ["P", "light-quanta", "brownian-motion"],
+    ["L", "light-quanta", "mass-energy"],
+  ] as const) {
+    assert.ok(
+      compared.has(`${glyph}|${paperA}|${paperB}`) || compared.has(`${glyph}|${paperB}|${paperA}`),
+      `the ${glyph} collision between ${paperA} and ${paperB} was never compared`,
+    );
+  }
 });

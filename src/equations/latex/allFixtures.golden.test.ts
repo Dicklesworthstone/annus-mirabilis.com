@@ -151,11 +151,23 @@ type GoldenFile = Readonly<{
 test("allFixtures.golden: every fixture renders in every form and both colour modes", () => {
   const actual = buildAll();
 
-  // 13 fixtures x {printed, modern} x {plain, colorized}.
-  assert.equal(
-    Object.keys(actual).length,
-    ALL_13_FIXTURES.length * 2 * 2,
-    "the cross-product must cover every fixture, form and colour mode",
+  // The SET, not the total. pane30's light-quanta audit found a manifest whose paragraph
+  // count matched exactly while the boundaries were wrong in both directions, the errors
+  // cancelling. A total of 52 would survive one fixture dropping out and one extra form
+  // appearing, so the specific keys are asserted instead.
+  const expectedKeys: string[] = [];
+  for (const [index, fixture] of ALL_13_FIXTURES.entries()) {
+    const base = identityOf(fixture).base;
+    for (const form of ["printed", "modern"]) {
+      for (const color of ["plain", "colorized"]) {
+        expectedKeys.push(`${index + 1}.${base}.${form}.${color}`);
+      }
+    }
+  }
+  assert.deepEqual(
+    Object.keys(actual).sort(),
+    expectedKeys.sort(),
+    "every fixture must appear in both forms and both colour modes, by name",
   );
 
   if (process.env.AM_UPDATE_GOLDENS === "1" || !existsSync(GOLDEN_PATH)) {
