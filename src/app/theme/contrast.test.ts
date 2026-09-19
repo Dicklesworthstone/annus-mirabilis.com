@@ -467,3 +467,61 @@ describe("contrast sweep: the two exemptions are narrow, not a blunting of the g
     expect(stripPrintBlocks(printCss)).not.toContain("background-color: #f5f5f5");
   });
 });
+
+describe("contrast: the result weave stays readable and as prominent as authored", () => {
+  // The weave lights whole source sentences, so its fill sits under the
+  // edition's own body copy. Read from the real stylesheet, never a copy.
+  const READER_CSS = readFileSync(join(REPO_ROOT, "src/reader/reader.css"), "utf8");
+  const MEANINGS = [
+    { name: "assumption-active", border: "#4338ca", authoredFill: "#eef2ff", style: "dotted" },
+    { name: "quantity-compared", border: "#15803d", authoredFill: "#f0fdf4", style: "solid" },
+    { name: "agreement-within-bound", border: "#0e7490", authoredFill: "#ecfeff", style: "double" },
+    { name: "outside-domain", border: "#c2410c", authoredFill: "#fff7ed", style: "dashed" },
+  ] as const;
+
+  function darkFill(theme: string, meaning: string): string {
+    const re = new RegExp(
+      `\\[data-theme="${theme}"\\]\\s*\\.weave-${meaning}\\s*\\{[^}]*background:\\s*(#[0-9a-f]{6})`,
+      "i",
+    );
+    const m = READER_CSS.match(re);
+    if (!m?.[1]) throw new Error(`No ${theme} fill declared for .weave-${meaning}`);
+    return m[1];
+  }
+
+  for (const theme of ["kramgasse-night", "slate"] as const) {
+    for (const { name, authoredFill } of MEANINGS) {
+      test(`${theme}: .weave-${name} keeps body copy at AA and matches Annalen's prominence`, () => {
+        const tokens = THEME_TOKENS[theme];
+        const fill = darkFill(theme, name);
+        // The lit sentence is body copy, so it takes the normal-text minimum.
+        expect(contrastRatio(tokens.ink, fill)).toBeGreaterThanOrEqual(4.5);
+        // And it stays as prominent as the author made it on paper.
+        const authoredSeparation = contrastRatio(authoredFill, THEME_TOKENS.annalen.paper);
+        const derivedSeparation = contrastRatio(fill, tokens.paper);
+        expect(Math.abs(derivedSeparation - authoredSeparation)).toBeLessThan(0.05);
+      });
+    }
+  }
+
+  test("planted negative: the authored light fills are exactly what fails on a dark page", () => {
+    // This is the real defect this block exists for, not an invented fixture.
+    for (const theme of ["kramgasse-night", "slate"] as const) {
+      for (const { authoredFill } of MEANINGS) {
+        expect(contrastRatio(THEME_TOKENS[theme].ink, authoredFill)).toBeLessThan(4.5);
+      }
+    }
+  });
+
+  test("the four meanings stay distinguishable without colour, by border style", () => {
+    const styles = MEANINGS.map((m) => m.style);
+    expect(new Set(styles).size).toBe(styles.length);
+    for (const { name, border, style } of MEANINGS) {
+      const re = new RegExp(
+        `\\.weave-${name}\\s*\\{[^}]*border-bottom:[^;]*${style}[^;]*${border}`,
+        "i",
+      );
+      expect(re.test(READER_CSS)).toBe(true);
+    }
+  });
+});

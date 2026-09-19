@@ -411,6 +411,35 @@ html:is(
   border-bottom: 2px dashed #c2410c;
 }
 
+/* Dark-theme weave fills (am-design-themes-typography-288q).
+   The authored fills above are light tints for the Annalen page. On the dark
+   themes they left near-white --ink on a pale block - 1.12 to 1.20 against the
+   4.5 minimum - which is a reading failure on the edition's own body copy,
+   since the weave lights whole source sentences.
+
+   These values introduce NO new hue. Each is the meaning's OWN authored border
+   colour mixed 18 percent into that theme's own --paper. 18 percent was not
+   picked for looks: it is the single ratio that reproduces Annalen's authored
+   fill-vs-paper separation for all four meanings at once
+   (authored 1.102 / 1.177 / 1.184 / 1.160; derived 1.10 / 1.19 / 1.18 / 1.15),
+   so a lit sentence is exactly as prominent in the dark themes as the author
+   made it on paper. Resulting --ink contrast is 10.9 to 14.0.
+
+   The four distinctions are untouched: they are carried by border-style
+   (dotted, solid, double, dashed) and by the visually-hidden accessible-name
+   prefix, not by these fills. Which hue means what stays with
+   am-design-semantic-color-8vbq; this only says how the authored hue behaves
+   over a dark surface. */
+[data-theme="kramgasse-night"] .weave-assumption-active { background: #232545; }
+[data-theme="kramgasse-night"] .weave-quantity-compared { background: #1b322c; }
+[data-theme="kramgasse-night"] .weave-agreement-within-bound { background: #19303b; }
+[data-theme="kramgasse-night"] .weave-outside-domain { background: #3a2723; }
+
+[data-theme="slate"] .weave-assumption-active { background: #1c1e3a; }
+[data-theme="slate"] .weave-quantity-compared { background: #142b20; }
+[data-theme="slate"] .weave-agreement-within-bound { background: #13292f; }
+[data-theme="slate"] .weave-outside-domain { background: #331f17; }
+
 .weave-pointer {
   display: block;
   font-size: 0.85em;
