@@ -1,5 +1,5 @@
 import { renderToString } from "katex";
-import { isModalityClass } from "../../content/schemas/glossConventions.ts";
+import { isModalityClass } from "../../content/schemas/glossConventions.pure.ts";
 import type { GlossToken, MultiwordUnit } from "../../content/schemas/source.ts";
 
 export interface GlossPairProps {
@@ -8,7 +8,8 @@ export interface GlossPairProps {
   readonly multiwordUnit?: MultiwordUnit | undefined;
   readonly isMultiwordFirst?: boolean | undefined;
   readonly showReasoningWords?: boolean | undefined;
-  readonly modalityClasses?: readonly string[] | undefined;
+  /** The modality vocabulary the server resolved for this edition. */
+  readonly modalityClasses: readonly string[];
 }
 
 const MODALITY_LABELS: Record<string, string> = {

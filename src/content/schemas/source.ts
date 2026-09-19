@@ -26,6 +26,41 @@ export { type Inline, plainText, validateInline } from "./inlines.ts";
 
 import { type SpanAnchor, validateSpanAnchor } from "./spans.ts";
 
+/**
+ * The closed vocabularies live in the client-safe half of this schema
+ * (`source.pure.ts`): they are values a reading face legitimately needs, and
+ * they must not carry this module's filesystem-backed validators into a
+ * browser bundle. They are declared once there and re-exported here so every
+ * existing server-side consumer of `source.ts` keeps its import. See am-bwnf.
+ */
+import {
+  EDITORIAL_NOTE_KINDS,
+  type EditorialNoteKind,
+  GLOSS_NOTE_CLASSES,
+  type GlossNoteClass,
+  MULTIWORD_UNIT_KINDS,
+  type MultiwordUnitKind,
+  PAPER_SLUGS,
+  type PaperSlug,
+  SOURCE_BLOCK_KINDS,
+  type SourceBlockKind,
+  SOURCE_SCHEMA_VERSION,
+} from "./source.pure.ts";
+
+export {
+  EDITORIAL_NOTE_KINDS,
+  type EditorialNoteKind,
+  GLOSS_NOTE_CLASSES,
+  type GlossNoteClass,
+  MULTIWORD_UNIT_KINDS,
+  type MultiwordUnitKind,
+  PAPER_SLUGS,
+  type PaperSlug,
+  SOURCE_BLOCK_KINDS,
+  type SourceBlockKind,
+  SOURCE_SCHEMA_VERSION,
+} from "./source.pure.ts";
+
 export { type SpanAnchor, spanTextDigest, validateSpanAnchor } from "./spans.ts";
 
 export class SchemaValidationError extends Error {
@@ -42,17 +77,8 @@ export class SchemaValidationError extends Error {
   }
 }
 
-export const SOURCE_SCHEMA_VERSION = 1;
 
 // 1. PAPER
-export const PAPER_SLUGS = [
-  "light-quanta",
-  "brownian-motion",
-  "special-relativity",
-  "mass-energy",
-  "molecular-dimensions",
-] as const;
-export type PaperSlug = (typeof PAPER_SLUGS)[number];
 
 export type EditorialAddition = Readonly<{
   phrase: string;
@@ -609,16 +635,6 @@ export function validateSourceAsset(raw: unknown, path = "SourceAsset"): SourceA
 }
 
 // 3. SOURCE BLOCK
-export const SOURCE_BLOCK_KINDS = [
-  "masthead",
-  "heading",
-  "part-heading",
-  "paragraph",
-  "equation",
-  "footnote",
-  "closing",
-] as const;
-export type SourceBlockKind = (typeof SOURCE_BLOCK_KINDS)[number];
 
 export type BlockLocator = Readonly<{
   pdfPageIndex: number;
@@ -1156,34 +1172,7 @@ export function validateAlignment(raw: unknown, path = "Alignment"): Alignment {
 }
 
 // 6. GLOSS UNIT
-export const GLOSS_NOTE_CLASSES = [
-  "konjunktiv-i",
-  "konjunktiv-ii",
-  "separable-verb",
-  "genitive-construction",
-  "compound",
-  "attributive-phrase",
-  "formula-phrase",
-  "archaic-spelling",
-  "abbreviation",
-  "ordinal",
-  "unit",
-  "term",
-  "hedge",
-  "necessity",
-  "condition",
-  "consequence",
-  "restriction",
-] as const;
-export type GlossNoteClass = (typeof GLOSS_NOTE_CLASSES)[number];
 
-export const MULTIWORD_UNIT_KINDS = [
-  "separable-verb",
-  "fixed-phrase",
-  "reflexive",
-  "split-construction",
-] as const;
-export type MultiwordUnitKind = (typeof MULTIWORD_UNIT_KINDS)[number];
 
 export type GlossToken = Readonly<{
   german: string;
@@ -1485,14 +1474,6 @@ export function validateGlossUnit(raw: unknown, path = "GlossUnit"): GlossUnit {
 }
 
 // 7. EDITORIAL NOTE
-export const EDITORIAL_NOTE_KINDS = [
-  "historian-margin",
-  "correction",
-  "typographical",
-  "dispute",
-  "side-note",
-] as const;
-export type EditorialNoteKind = (typeof EDITORIAL_NOTE_KINDS)[number];
 
 export type SourceSupport = Readonly<{
   citationId: string;

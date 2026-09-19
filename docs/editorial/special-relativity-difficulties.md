@@ -56,7 +56,9 @@ Einstein phrases the foundation, physical arguments, stipulations, and approxima
 - §10 electron dynamic quantities:
   - Electron mass is printed as $\mu$ (first used in `s10-p1` and display `eq-s10-d1`), NOT $m$.
   - Electron charge is printed as $\varepsilon$ (first used in `s10-p1`), NOT $e$.
-  - Deflectability relations: The paper states the three relations accessible to experiment without defining separate single-letter symbols like $A_m$ or $A_e$ in the formulas. The text describes "magnetische Ablenkbarkeit" and "elektrische Ablenkbarkeit" using the explicit dynamical formulas.
+  - Deflectability relations: **printed.** The paper does name single-letter symbols for the deflectabilities. Verified on `artifacts/page-images/ap-17-891/page-30.png` (p. 920), relation 1 of the three "dem Experimente zuganglichen" properties prints: "...die Ermittelung der Geschwindigkeit des Elektrons aus dem Verhaltnis der magnetischen Ablenkbarkeit $A_m$ und der elektrischen Ablenkbarkeit $A_e$ nach unserer Theorie fur beliebige Geschwindigkeiten moglich ist durch Anwendung des Gesetzes:", followed by the display $\frac{A_m}{A_e} = \frac{v}{V}$ (`eq-s10-d9`, contained in `s10-p13`).
+    - Printed definitions: $A_m$ is the *magnetische Ablenkbarkeit* and $A_e$ the *elektrische Ablenkbarkeit*; they are introduced in running text rather than by a display definition, and the only display in which they appear is `eq-s10-d9`.
+    - Consequence: this is a **positive** result for the check owned by this bead. The reserved spellings `magneticDeflectability` and `electricDeflectability` in `am-not-quantity-registry-2f7` are printed quantities, so `am-sre-equations-2g3h` is required to add records for them.
 
 ### Printed forms of treatment-map results
 1. **Introduction (`s0`)**:
@@ -67,9 +69,9 @@ Einstein phrases the foundation, physical arguments, stipulations, and approxima
 3. **§2 Lengths and times (`s2`)**:
    - Moving rod chase times (`eq-s2-d2`): $t_B - t_A = \frac{r_{AB}}{V - v}$, $t'_A - t_B = \frac{r_{AB}}{V + v}$.
 4. **§3 Coordinate transformation (`s3`)**:
-   - Time transformation (`eq-s3-d19`): $\tau = \beta(t - \frac{v}{V^2}x)$.
-   - Space transformations (`eq-s3-d20`): $\xi = \beta(x - vt)$, $\eta = y$, $\zeta = z$.
-   - Lorentz factor (`eq-s3-d19`): $\beta = \frac{1}{\sqrt{1 - (v/V)^2}}$.
+   - Final transformation, one printed display (`eq-s3-d25`, p. 902, contained in `s3-p19`): $\tau = \beta\left(t - \frac{v}{V^2}x\right)$, $\xi = \beta(x - vt)$, $\eta = y$, $\zeta = z$. The four lines are printed as a single stacked display and are therefore one unit, not two.
+   - Lorentz factor, a separate printed display after the connecting word "wobei" (`eq-s3-d26`, p. 902): $\beta = \frac{1}{\sqrt{1 - \left(\frac{v}{V}\right)^2}}$.
+   - Note: `eq-s3-d19` is **not** the time transformation. Verified on `artifacts/page-images/ap-17-891/page-11.png` (p. 901), `eq-s3-d19` is the double-application/reciprocity display $t' = \varphi(-v)\beta(-v)\left\{\tau + \frac{v}{V^2}\xi\right\} = \varphi(v)\varphi(-v)t$ with its $x'$, $y'$, $z'$ companions. The p. 902 order is `eq-s3-d20` $\varphi(v)\varphi(-v) = 1$; `eq-s3-d21`/`eq-s3-d22` the rod endpoint coordinates; `eq-s3-d23` $\frac{l}{\varphi(v)} = \frac{l}{\varphi(-v)}$; `eq-s3-d24` $\varphi(v) = \varphi(-v)$; then `eq-s3-d25` and `eq-s3-d26`.
 5. **§4 Physical meaning (`s4`)**:
    - Contracted ellipsoid (`eq-s4-d1`): $\frac{\xi^2}{1 - v^2/V^2} + \eta^2 + \zeta^2 = R^2$.
    - Dilation approximation (`s4-p6`): $t(1 - \sqrt{1 - (v/V)^2}) = \frac{1}{2} t (v/V)^2$ neglecting magnitudes of fourth and higher order.
@@ -182,7 +184,7 @@ Each flag below corresponds to an audited feature on the facsimile page images, 
 - `flag:footnotes` matches exactly 4 footnotes: s1-fn1, s2-fn1, s4-fn1, s6-fn1; s0 has no footnotes.
 - `flag:watch-fourth-order-statement` matches Exact printed phrasing in `s4-p6` neglecting fourth and higher order magnitudes ("Unter Vernachlässigung von Größen vierter und höherer Ordnung...").
 - `flag:watch-equator-clock` matches Equator clock remark qualification under otherwise identical conditions ("unter sonst gleichen Bedingungen") in `s4-p8`.
-- `flag:watch-spelling-doppeler` matches Section 7 heading printed as "Doppler'schen" on p. 910, but sentence text on p. 911 prints "Doppelersche Prinzip". Both witnesses confirmed on scan.
+- `flag:watch-spelling-doppeler`: the misspelling is **in the heading itself**. Verified on `artifacts/page-images/ap-17-891/page-20.png` (p. 910), the section heading prints "§ 7. Theorie des **Doppelerschen** Prinzips und der Aberration." The expected wording *Doppler'schen* is **not** printed, and the printed genitive is *Prinzips*, not *Prinzipes*. The body sentence on p. 911 (`page-21.png`) likewise prints "Dies ist das **Doppelersche** Prinzip für beliebige Geschwindig-". The ledger and the German edition keep both as printed; the receipt's `typographicalErrors` records the heading with layer `source`. Nothing silently corrects it.
 - `flag:watch-typos` matches Verified printed typographical errors in the original 1905 journal text:
   1. `s3-p10-s1` (p. 899): Prints "auf die H- und Z-Achse" instead of Y-Achse.
   2. `s3-p19-s1` (p. 902): Prints "Stück der H-Achse" instead of Y-Achse.

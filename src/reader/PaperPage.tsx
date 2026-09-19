@@ -4,6 +4,7 @@ import lightQuantaEntrance from "../../content/arguments/light-quanta/entrance-l
 import { LightQuantaFirstEncounter } from "./entrances/LightQuantaFirstEncounter.tsx";
 import { notFound } from "next/navigation";
 import { ArgumentEquations } from "./ArgumentEquations.tsx";
+import { getModalityClasses } from "../content/schemas/glossConventions.ts";
 import { validateEntranceRecord } from "../content/entrances/entranceRecord.ts";
 import { loadPaper } from "../content/server.ts";
 import type { CompiledMissingStepLesson } from "../equations/missingStep/compiled.ts";
@@ -122,6 +123,7 @@ export async function PaperPage(request: PaperRouteRequest, options?: PaperPageO
               alignment={edition.alignment}
               editorialNotes={edition.editorialNotes}
               reviewRecords={edition.reviewRecords}
+              modalityClasses={getModalityClasses()}
             />
           );
         }

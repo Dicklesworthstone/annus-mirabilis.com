@@ -1,72 +1,31 @@
+/**
+ * Gloss modality conventions: the filesystem loader.
+ *
+ * This module reads `docs/editorial/GLOSS_CONVENTIONS.md` and is therefore
+ * server-only. Everything that is not I/O -- `DEFAULT_MODALITY_CLASSES`, the
+ * `GlossConventions` shape, `parseModalityClassesFromContent`, and the
+ * `isModalityClass` predicate -- is declared in `glossConventions.pure.ts` and
+ * re-exported here, so a server-side caller keeps one import and a Client
+ * Component can reach the pure half without reaching `node:fs`.
+ *
+ * A Client Component must never import this file. The RSC client boundary gate
+ * enforces that. Specification: AGENTS.md. Separation: am-bwnf.
+ */
+
 import fs from "node:fs";
 import path from "node:path";
-import { GLOSS_NOTE_CLASSES } from "./source.ts";
+import {
+  DEFAULT_MODALITY_CLASSES,
+  type GlossConventions,
+  parseModalityClassesFromContent,
+} from "./glossConventions.pure.ts";
 
-export const DEFAULT_MODALITY_CLASSES: readonly string[] = Object.freeze([
-  "konjunktiv-i",
-  "konjunktiv-ii",
-]);
-
-export interface GlossConventions {
-  readonly modalityClasses: readonly string[];
-  readonly warnings: readonly string[];
-}
-
-/**
- * Parses modalityClasses from a markdown/YAML conventions content string.
- */
-export function parseModalityClassesFromContent(
-  content: string,
-  sourcePath = "GLOSS_CONVENTIONS.md",
-): { modalityClasses: string[] | null; warnings: string[] } {
-  const warnings: string[] = [];
-
-  // Match YAML block or frontmatter: modalityClasses:\n  - item1\n  - item2
-  const yamlMatch = content.match(/modalityClasses:\s*\n((?:\s*-\s*[^\n]+\n*)+)/);
-  if (yamlMatch?.[1]) {
-    const rawItems = yamlMatch[1]
-      .split("\n")
-      .map((line) => line.replace(/^\s*-\s*/, "").trim())
-      .filter(Boolean);
-
-    // Validate against GLOSS_NOTE_CLASSES
-    for (const item of rawItems) {
-      if (!(GLOSS_NOTE_CLASSES as readonly string[]).includes(item)) {
-        throw new Error(
-          `[${path.basename(sourcePath)} -> source.ts] Class "${item}" in modalityClasses is not a valid GlossNoteClass in GLOSS_NOTE_CLASSES.`,
-        );
-      }
-    }
-
-    return { modalityClasses: rawItems, warnings };
-  }
-
-  // Fallback: search for markdown table with modality classes if present
-  // e.g. | `konjunktiv-i` | or | konjunktiv-i |
-  const tableMatches = content.match(/\|\s*`?([a-z0-9-]+)`?\s*\|\s*[^|]+\|/g);
-  if (tableMatches && tableMatches.length > 0) {
-    const foundClasses: string[] = [];
-    for (const row of tableMatches) {
-      const match = row.match(/\|\s*`?([a-z0-9-]+)`?\s*\|/);
-      if (match?.[1]) {
-        const cls = match[1];
-        if ((GLOSS_NOTE_CLASSES as readonly string[]).includes(cls)) {
-          if (!foundClasses.includes(cls)) {
-            foundClasses.push(cls);
-          }
-        }
-      }
-    }
-    if (foundClasses.length > 0) {
-      return { modalityClasses: foundClasses, warnings };
-    }
-  }
-
-  warnings.push(
-    `${sourcePath} does not define modalityClasses; falling back to default modality classes [${DEFAULT_MODALITY_CLASSES.join(", ")}].`,
-  );
-  return { modalityClasses: null, warnings };
-}
+export {
+  DEFAULT_MODALITY_CLASSES,
+  type GlossConventions,
+  isModalityClass,
+  parseModalityClassesFromContent,
+} from "./glossConventions.pure.ts";
 
 /**
  * Loads gloss conventions from the filesystem.
@@ -117,6 +76,9 @@ let cachedConventions: GlossConventions | null = null;
 
 /**
  * Retrieves the active modality classes for reasoning words.
+ *
+ * Server-only. A Server Component calls this once and passes the result to the
+ * reading faces as data; the faces never resolve the list themselves.
  */
 export function getModalityClasses(customPath?: string): readonly string[] {
   if (customPath) {
@@ -126,16 +88,4 @@ export function getModalityClasses(customPath?: string): readonly string[] {
     cachedConventions = loadGlossConventions();
   }
   return cachedConventions.modalityClasses;
-}
-
-/**
- * Checks if a note class belongs to the reasoning words modality group.
- */
-export function isModalityClass(
-  noteClass: string | undefined,
-  modalityClasses?: readonly string[],
-): boolean {
-  if (!noteClass) return false;
-  const classes = modalityClasses ?? getModalityClasses();
-  return classes.includes(noteClass);
 }

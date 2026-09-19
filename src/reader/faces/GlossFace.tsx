@@ -34,7 +34,13 @@ export interface GlossFaceProps {
   readonly reviewRecords?: readonly ReviewRecord[] | undefined;
   readonly entryLink?: GlossEntryLink | undefined;
   readonly initialReasoningWords?: boolean | undefined;
-  readonly modalityClasses?: readonly string[] | undefined;
+  /**
+   * The modality vocabulary for this edition, resolved on the server by
+   * `getModalityClasses()`. This face owns the reasoning-words toggle, so it is
+   * a Client Component and cannot read `docs/editorial/GLOSS_CONVENTIONS.md`
+   * itself; the list arrives as data. See am-bwnf.
+   */
+  readonly modalityClasses: readonly string[];
 }
 
 /**
@@ -53,7 +59,7 @@ export function GlossFace({
   reviewRecords = [],
   entryLink,
   initialReasoningWords = false,
-  modalityClasses: propModalityClasses,
+  modalityClasses,
 }: GlossFaceProps) {
   const activeModalityClasses = propModalityClasses ?? getModalityClasses();
 

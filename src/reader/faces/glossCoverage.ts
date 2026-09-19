@@ -1,4 +1,4 @@
-import { isModalityClass } from "../../content/schemas/glossConventions.ts";
+import { isModalityClass } from "../../content/schemas/glossConventions.pure.ts";
 import type { GlossUnit, SourceBlock } from "../../content/schemas/source.ts";
 
 export interface ModalityClassCount {
@@ -23,7 +23,7 @@ export function computeGlossCoverageReport(
   paperSlug: string,
   blocks: readonly SourceBlock[],
   glossUnits: readonly GlossUnit[],
-  modalityClasses?: readonly string[],
+  modalityClasses: readonly string[],
 ): GlossCoverageReport {
   let totalSentences = 0;
   for (const b of blocks) {

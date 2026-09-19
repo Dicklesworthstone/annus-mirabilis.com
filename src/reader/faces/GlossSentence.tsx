@@ -1,4 +1,4 @@
-import { isModalityClass } from "../../content/schemas/glossConventions.ts";
+import { isModalityClass } from "../../content/schemas/glossConventions.pure.ts";
 import type { GlossUnit } from "../../content/schemas/source.ts";
 import { GlossPair } from "./GlossPair.tsx";
 
@@ -9,7 +9,8 @@ export interface GlossSentenceProps {
   readonly englishTranslation?: string | undefined;
   readonly paperSlug?: string | undefined;
   readonly showReasoningWords?: boolean | undefined;
-  readonly modalityClasses?: readonly string[] | undefined;
+  /** The modality vocabulary the server resolved for this edition. */
+  readonly modalityClasses: readonly string[];
 }
 
 export interface ReasoningWordItem {
@@ -25,7 +26,7 @@ export interface ReasoningWordItem {
  */
 export function extractReasoningWords(
   glossUnit: GlossUnit,
-  modalityClasses?: readonly string[],
+  modalityClasses: readonly string[],
 ): readonly ReasoningWordItem[] {
   const items: ReasoningWordItem[] = [];
 
