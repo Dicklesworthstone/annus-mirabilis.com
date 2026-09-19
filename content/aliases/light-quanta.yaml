@@ -1,2 +1,60 @@
 paper: light-quanta
-aliases: []
+idsFrozenAt: "2026-09-19T04:30:00Z"
+frozenBy: am-edn-inventory-light-quanta-skp
+aliases:
+  - retiredId: s2-p3
+    kind: merged
+    replacementIds:
+      - s2-p2
+    reason: "Not a printed paragraph. 'Man erkennt, dass diese Formel mit der in Paragraph 1...' is set FLUSH at the top of p. 137, so it resumes the paragraph that ends p. 136 with the display rho_nu = (alpha/beta) nu^2 T rather than starting a new one. A new paragraph in this printing is indented by roughly 50 px at the 400 dpi render. s2-p2 therefore gains the 136-137 span the audit recorded as missing, and eq-s2-d5 and eq-s2-d6 move into it."
+    date: "2026-09-19"
+    editor: "agent:pane31, am-edn-inventory-light-quanta-skp"
+  - retiredId: s2-p3-s1-r1
+    kind: merged
+    replacementIds:
+      - s2-p2-s1-r3
+    reason: "Reference occurrence moved with its text into the surviving paragraph, taking the next unused index on that alignable unit (s2-p2-s1 already carried r1 and r2). The id names the occurrence, never its target."
+    date: "2026-09-19"
+    editor: "agent:pane31, am-edn-inventory-light-quanta-skp"
+  - retiredId: s2-p3-s3-r1
+    kind: merged
+    replacementIds:
+      - s2-p2-s3-r1
+    reason: "Reference occurrence moved with its text; s2-p2-s3 carried no prior occurrence, so the index is unchanged."
+    date: "2026-09-19"
+    editor: "agent:pane31, am-edn-inventory-light-quanta-skp"
+  - retiredId: s4-p3
+    kind: merged
+    replacementIds:
+      - s4-p2
+    reason: "Not a printed paragraph. 'Es sei nun eine Strahlung von der Energie E gegeben...' on p. 139 is FLUSH after the display eq-s4-d3, resuming s4-p2. Page 139 has exactly three indented starts - 'Aus den bisherigen', 'Aus dieser Formel' and 'Diese Gleichung zeigt' - not five. eq-s4-d4 moves into s4-p2."
+    date: "2026-09-19"
+    editor: "agent:pane31, am-edn-inventory-light-quanta-skp"
+  - retiredId: s4-p4
+    kind: merged
+    replacementIds:
+      - s4-p2
+    reason: "Not a printed paragraph. 'Beschraenken wir uns darauf, die Abhaengigkeit der Entropie...' on p. 139 is FLUSH after the display eq-s4-d4, resuming the same paragraph. eq-s4-d5 moves into s4-p2."
+    date: "2026-09-19"
+    editor: "agent:pane31, am-edn-inventory-light-quanta-skp"
+  - retiredId: s9-p2
+    kind: merged
+    replacementIds:
+      - s9-p1
+    reason: "Not a printed paragraph. 'Nach Messungen Lenards ist aber die groesste wirksame Wellenlaenge...' on p. 148 is FLUSH after the display eq-s9-d1, resuming s9-p1. Page 148 has exactly ONE indented start, 'Eine obere Grenze fuer die Ionisierungsarbeit', not three. eq-s9-d2 moves into s9-p1."
+    date: "2026-09-19"
+    editor: "agent:pane31, am-edn-inventory-light-quanta-skp"
+  - retiredId: s9-p2-s1-r1
+    kind: merged
+    replacementIds:
+      - s9-p1-s1-r1
+    reason: "The printed reference to Lenard's measurements moved with its sentence into s9-p1, which carried no prior reference occurrence."
+    date: "2026-09-19"
+    editor: "agent:pane31, am-edn-inventory-light-quanta-skp"
+  - retiredId: s9-p4
+    kind: merged
+    replacementIds:
+      - s9-p3
+    reason: "Not a printed paragraph. 'Diese Beziehung muss, wenn unsere Auffassung der Wirklichkeit entspricht...' on p. 148 is FLUSH after the display eq-s9-d3, resuming s9-p3."
+    date: "2026-09-19"
+    editor: "agent:pane31, am-edn-inventory-light-quanta-skp"

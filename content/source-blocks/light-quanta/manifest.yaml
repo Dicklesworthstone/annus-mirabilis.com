@@ -401,6 +401,9 @@ units:
     section: s2
     locators:
       - page: 136
+        splitPage: true
+      - page: 137
+        splitPage: true
     references:
       - id: s2-p2-s1-r1
         occurrenceId: s2-p2-s1-r1
@@ -414,6 +417,18 @@ units:
         kind: internal
         target:
           id: s2-fn1
+      - id: s2-p2-s1-r3
+        occurrenceId: s2-p2-s1-r3
+        printedText: "§ 1"
+        kind: internal
+        target:
+          id: s1
+      - id: s2-p2-s3-r1
+        occurrenceId: s2-p2-s3-r1
+        printedText: "Hrn. Planck"
+        kind: bibliographic
+        target:
+          citationId: planck-1901
     destination:
       editionBlockId: block-light-quanta-s2-p2
       translationUnits:
@@ -498,36 +513,11 @@ units:
       argumentObligations:
         - planck-quanta-constants
 
-  - id: s2-p3
-    kind: paragraph
-    section: s2
-    locators:
-      - page: 137
-    references:
-      - id: s2-p3-s1-r1
-        occurrenceId: s2-p3-s1-r1
-        printedText: "§ 1"
-        kind: internal
-        target:
-          id: s1
-      - id: s2-p3-s3-r1
-        occurrenceId: s2-p3-s3-r1
-        printedText: "Hrn. Planck"
-        kind: bibliographic
-        target:
-          citationId: planck-1901
-    destination:
-      editionBlockId: block-light-quanta-s2-p3
-      translationUnits:
-        - planned
-      argumentObligations:
-        - planck-quanta-constants
-
   - id: eq-s2-d5
     kind: display-equation
     section: s2
     editorialLabel: "ed:s2-d5"
-    containedIn: s2-p3
+    containedIn: s2-p2
     locators:
       - page: 137
     destination:
@@ -541,7 +531,7 @@ units:
     kind: display-equation
     section: s2
     editorialLabel: "ed:s2-d6"
-    containedIn: s2-p3
+    containedIn: s2-p2
     locators:
       - page: 137
     destination:
@@ -873,23 +863,11 @@ units:
       argumentObligations:
         - wien-regime-entropy-volume
 
-  - id: s4-p3
-    kind: paragraph
-    section: s4
-    locators:
-      - page: 139
-    destination:
-      editionBlockId: block-light-quanta-s4-p3
-      translationUnits:
-        - planned
-      argumentObligations:
-        - wien-regime-entropy-volume
-
   - id: eq-s4-d4
     kind: display-equation
     section: s4
     editorialLabel: "ed:s4-d4"
-    containedIn: s4-p3
+    containedIn: s4-p2
     locators:
       - page: 139
     destination:
@@ -899,23 +877,11 @@ units:
       argumentObligations:
         - wien-regime-entropy-volume
 
-  - id: s4-p4
-    kind: paragraph
-    section: s4
-    locators:
-      - page: 139
-    destination:
-      editionBlockId: block-light-quanta-s4-p4
-      translationUnits:
-        - planned
-      argumentObligations:
-        - wien-regime-entropy-volume
-
   - id: eq-s4-d5
     kind: display-equation
     section: s4
     editorialLabel: "ed:s4-d5"
-    containedIn: s4-p4
+    containedIn: s4-p2
     locators:
       - page: 139
     destination:
@@ -1028,11 +994,23 @@ units:
       argumentObligations:
         - boltzmann-entropy-gas-solution
 
+  - id: s5-p6
+    kind: paragraph
+    section: s5
+    locators:
+      - page: 141
+    destination:
+      editionBlockId: block-light-quanta-s5-p6
+      translationUnits:
+        - planned
+      argumentObligations:
+        - boltzmann-entropy-gas-solution
+
   - id: eq-s5-d4
     kind: display-equation
     section: s5
     editorialLabel: "ed:s5-d4"
-    containedIn: s5-p2
+    containedIn: s5-p6
     locators:
       - page: 141
     destination:
@@ -1046,7 +1024,7 @@ units:
     kind: display-equation
     section: s5
     editorialLabel: "ed:s5-d5"
-    containedIn: s5-p2
+    containedIn: s5-p6
     locators:
       - page: 141
     destination:
@@ -1060,7 +1038,7 @@ units:
     kind: display-equation
     section: s5
     editorialLabel: "ed:s5-d6"
-    containedIn: s5-p2
+    containedIn: s5-p6
     locators:
       - page: 141
     destination:
@@ -1087,11 +1065,32 @@ units:
     section: s5
     locators:
       - page: 141
-        splitPage: true
-      - page: 142
-        splitPage: true
     destination:
       editionBlockId: block-light-quanta-s5-p4
+      translationUnits:
+        - planned
+      argumentObligations:
+        - boltzmann-entropy-gas-solution
+
+  - id: s5-p7
+    kind: paragraph
+    section: s5
+    locators:
+      - page: 142
+    destination:
+      editionBlockId: block-light-quanta-s5-p7
+      translationUnits:
+        - planned
+      argumentObligations:
+        - boltzmann-entropy-gas-solution
+
+  - id: s5-p8
+    kind: paragraph
+    section: s5
+    locators:
+      - page: 142
+    destination:
+      editionBlockId: block-light-quanta-s5-p8
       translationUnits:
         - planned
       argumentObligations:
@@ -1101,7 +1100,7 @@ units:
     kind: display-equation
     section: s5
     editorialLabel: "ed:s5-d7"
-    containedIn: s5-p4
+    containedIn: s5-p8
     locators:
       - page: 142
     destination:
@@ -1115,7 +1114,7 @@ units:
     kind: display-equation
     section: s5
     editorialLabel: "ed:s5-d8"
-    containedIn: s5-p4
+    containedIn: s5-p8
     locators:
       - page: 142
     destination:
@@ -1262,11 +1261,23 @@ units:
       argumentObligations:
         - quanta-entropy-inference
 
+  - id: s6-p5
+    kind: paragraph
+    section: s6
+    locators:
+      - page: 143
+    destination:
+      editionBlockId: block-light-quanta-s6-p5
+      translationUnits:
+        - planned
+      argumentObligations:
+        - quanta-entropy-inference
+
   - id: eq-s6-d4
     kind: display-equation
     section: s6
     editorialLabel: "ed:s6-d4"
-    containedIn: s6-p1
+    containedIn: s6-p5
     locators:
       - page: 143
     destination:
@@ -1283,6 +1294,18 @@ units:
       - page: 143
     destination:
       editionBlockId: block-light-quanta-s6-p2
+      translationUnits:
+        - planned
+      argumentObligations:
+        - quanta-entropy-inference
+
+  - id: s6-p6
+    kind: paragraph
+    section: s6
+    locators:
+      - page: 143
+    destination:
+      editionBlockId: block-light-quanta-s6-p6
       translationUnits:
         - planned
       argumentObligations:
@@ -1628,9 +1651,6 @@ units:
     section: s8
     locators:
       - page: 146
-        splitPage: true
-      - page: 147
-        splitPage: true
     references:
       - id: s8-p6-s2-r1
         occurrenceId: s8-p6-s2-r1
@@ -1802,6 +1822,13 @@ units:
         splitPage: true
       - page: 148
         splitPage: true
+    references:
+      - id: s9-p1-s1-r1
+        occurrenceId: s9-p1-s1-r1
+        printedText: "Lenards"
+        kind: bibliographic
+        target:
+          citationId: lenard-1902
     destination:
       editionBlockId: block-light-quanta-s9-p1
       translationUnits:
@@ -1823,30 +1850,11 @@ units:
       argumentObligations:
         - gas-ionization-bounds
 
-  - id: s9-p2
-    kind: paragraph
-    section: s9
-    locators:
-      - page: 148
-    references:
-      - id: s9-p2-s1-r1
-        occurrenceId: s9-p2-s1-r1
-        printedText: "Lenards"
-        kind: bibliographic
-        target:
-          citationId: lenard-1902
-    destination:
-      editionBlockId: block-light-quanta-s9-p2
-      translationUnits:
-        - planned
-      argumentObligations:
-        - gas-ionization-bounds
-
   - id: eq-s9-d2
     kind: display-equation
     section: s9
     editorialLabel: "ed:s9-d2"
-    containedIn: s9-p2
+    containedIn: s9-p1
     locators:
       - page: 148
     destination:
@@ -1931,18 +1939,6 @@ units:
       - page: 148
     destination:
       editionBlockId: block-light-quanta-s9-fn2
-      translationUnits:
-        - planned
-      argumentObligations:
-        - gas-ionization-bounds
-
-  - id: s9-p4
-    kind: paragraph
-    section: s9
-    locators:
-      - page: 148
-    destination:
-      editionBlockId: block-light-quanta-s9-p4
       translationUnits:
         - planned
       argumentObligations:

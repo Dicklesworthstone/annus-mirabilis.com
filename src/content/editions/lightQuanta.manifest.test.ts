@@ -4,7 +4,7 @@ import { join } from "node:path";
 import { loadReadingFiles } from "../../../scripts/build-content.ts";
 import { newRunIdentity, TestLogger } from "../../testing/log/logger.ts";
 import { withinTolerance } from "../../units/tolerance.ts";
-import type { AliasRecord } from "../aliases.ts";
+import { type AliasRecord, validateAliasRecord } from "../aliases.ts";
 import { compileReadingContent } from "../compiler/compile.ts";
 import { parseIdSnapshot, validateFrozenIds } from "../frozenIds.ts";
 import { parseAlignableUnitId, parseInlineMathId, parseReferenceId } from "../ids.ts";
@@ -23,6 +23,22 @@ const PAPER_SLUG = "light-quanta";
 const logRunId = newRunIdentity();
 const logRoot = join(ROOT, "artifacts/test-logs");
 const logger = new TestLogger("manifest-light-quanta", logRunId, logRoot);
+
+/**
+ * The retirements recorded in content/aliases/light-quanta.yaml leave gaps in the
+ * printed paragraph numbering (s2-p2 -> s2-p4, s4-p2 -> s4-p5, s9-p1 -> s9-p3).
+ * The validator reads a gap as an error unless an alias explains it, so it is given
+ * the real alias file rather than an empty list: each gap is explained, not waived.
+ */
+function loadAliasRecords(): AliasRecord[] {
+  const aliasPath = join(ROOT, "content/aliases/light-quanta.yaml");
+  const raw = parseYaml(readFileSync(aliasPath, "utf8")) as Record<string, unknown>;
+  return (raw.aliases as unknown[]).map((rec) => {
+    const parsed = validateAliasRecord(rec);
+    if (!parsed.ok) throw new Error(`Invalid alias record in ${aliasPath}: ${parsed.error}`);
+    return parsed.value;
+  });
+}
 
 function loadManifest() {
   const manifestPath = join(ROOT, "content/source-blocks/light-quanta/manifest.yaml");
@@ -84,6 +100,7 @@ describe("light-quanta source manifest inventory (am-edn-inventory-light-quanta-
     // Corpus validation produces zero errors
     const diags = validateManifest(manifest, {
       manifests: new Map([[manifest.paper, manifest]]),
+      aliases: loadAliasRecords(),
     });
     const errors = diags.filter((d) => d.severity === "error");
     expect(errors.length).toBe(0);
@@ -379,21 +396,20 @@ describe("light-quanta source manifest inventory (am-edn-inventory-light-quanta-
     const spanningParagraphs = manifest.units.filter(
       (u) => u.kind === "paragraph" && u.locators.length > 1,
     );
-    expect(spanningParagraphs.length).toBe(13);
+    expect(spanningParagraphs.length).toBe(12);
     const spanningIds = spanningParagraphs.map((u) => u.id).sort();
     expect(spanningIds).toEqual([
       "s0-p2",
       "s1-p1",
       "s1-p3",
+      "s2-p2",
       "s3-p2",
       "s3-p4",
       "s4-p5",
       "s5-p2",
-      "s5-p4",
       "s6-p1",
       "s6-p4",
       "s8-p2",
-      "s8-p6",
       "s9-p1",
     ]);
 
@@ -503,17 +519,41 @@ describe("light-quanta source manifest inventory (am-edn-inventory-light-quanta-
     });
   });
 
-  test("content/aliases/light-quanta.yaml exists and is empty", () => {
+  test("content/aliases/light-quanta.yaml records the boundary retirements, each with a reason", () => {
     const aliasPath = join(ROOT, "content/aliases/light-quanta.yaml");
     expect(existsSync(aliasPath)).toBe(true);
 
     const aliasRaw = parseYaml(readFileSync(aliasPath, "utf8")) as Record<string, unknown>;
     expect(aliasRaw.paper).toBe(PAPER_SLUG);
     expect(Array.isArray(aliasRaw.aliases)).toBe(true);
-    expect((aliasRaw.aliases as unknown[]).length).toBe(0);
+    // Was asserted empty at freeze. The 2026-09-19 boundary audit retired five
+    // spurious paragraph units and moved three reference occurrences with their
+    // text, so the file now carries those eight records. Every one must parse and
+    // must say WHY, so a later reader can check the argument rather than trust it.
+    const records = loadAliasRecords();
+    expect(records.length).toBe(8);
+    const retired = records.map((r) => r.retiredId).sort();
+    expect(retired).toEqual([
+      "s2-p3",
+      "s2-p3-s1-r1",
+      "s2-p3-s3-r1",
+      "s4-p3",
+      "s4-p4",
+      "s9-p2",
+      "s9-p2-s1-r1",
+      "s9-p4",
+    ]);
+    for (const record of records) {
+      expect(record.replacementIds.length).toBeGreaterThanOrEqual(1);
+      expect(record.reason.length).toBeGreaterThan(60);
+      expect(record.date).toBe("2026-09-19");
+    }
+    // A retired id must not still be a live unit.
+    const liveIds = new Set(loadManifest().manifest.units.map((u) => u.id));
+    for (const record of records) expect(liveIds.has(record.retiredId)).toBe(false);
 
     logger.log({
-      testId: "aliases-empty",
+      testId: "aliases-boundary-retirements",
       beadId: LIGHT_QUANTA_BEAD,
       paper: PAPER_SLUG,
       outcome: "passed",

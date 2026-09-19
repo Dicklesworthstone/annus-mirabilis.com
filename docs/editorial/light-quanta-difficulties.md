@@ -65,16 +65,56 @@ Sentence boundaries and paragraph splits decided under `docs/editorial/SEGMENTAT
   - `s0-p2`: pages 132–133
   - `s1-p1`: pages 133–134
   - `s1-p3`: pages 134–135
+  - `s2-p2`: pages 136–137 (added by the boundary audit; see below)
   - `s3-p2`: pages 137–138
   - `s3-p4`: pages 138–139
   - `s4-p5`: pages 139–140
   - `s5-p2`: pages 140–141
-  - `s5-p4`: pages 141–142
   - `s6-p1`: pages 142–143
   - `s6-p4`: pages 143–144
   - `s8-p2`: pages 145–146
-  - `s8-p6`: pages 146–147
   - `s9-p1`: pages 147–148
+
+- **The paragraph-boundary audit of 2026-09-19, and how to check it.** pane30 audited all
+  128 units against the page images and found the boundaries wrong in BOTH directions, with
+  the two errors cancelling in the total: 50 paragraph units against 50 printed starts, so a
+  count-only check passed while the boundaries were wrong. Every call below was re-measured
+  independently before the repair by cropping the left margin of the 400 dpi render and
+  comparing a line's left edge against known indented and known flush lines on the same page.
+  **The rule this printing follows:** a new paragraph is indented by roughly 50 px at that
+  scale, including at the top of a page; a line that merely resumes after a display, or
+  continues across a page break, sits flush at the margin.
+
+  *Five units retired* (flush lines the manifest had split into paragraphs). Each is an alias
+  record in `content/aliases/light-quanta.yaml` with its reasoning:
+  `s2-p3` p.137 "Man erkennt, daß diese Formel..." → `s2-p2`;
+  `s4-p3` p.139 "Es sei nun eine Strahlung..." and `s4-p4` p.139 "Beschränken wir uns darauf..." → `s4-p2`;
+  `s9-p2` p.148 "Nach Messungen Lenards..." → `s9-p1`; `s9-p4` p.148 "Diese Beziehung muß..." → `s9-p3`.
+  Three reference occurrences moved with their text and have their own alias records.
+
+  *Five printed paragraphs that had no unit at all*, now recorded with new ids at their
+  sections' ends so nothing is renumbered:
+  `s5-p6` p.141 "Aus diesen Gleichungen folgt:" (and `eq-s5-d4`, `eq-s5-d5`, `eq-s5-d6` move into it);
+  `s5-p7` p.142 "Wir fragen: Wie groß ist..."; `s5-p8` p.142 "Für diese Wahrscheinlichkeit..."
+  (and `eq-s5-d7`, `eq-s5-d8` move into it);
+  `s6-p5` p.143 "Ist monochromatische Strahlung..." (and `eq-s6-d4` moves into it);
+  `s6-p6` p.143 "Monochromatische Strahlung von geringer Dichte...".
+
+  *Three page spans corrected.* `s5-p4` was 141–142 and is 141 only, because p. 142 opens with
+  the indented "Wir fragen: Wie groß ist...". `s8-p6` was 146–147 and is 146 only, because
+  p. 147 opens with the indented "Mit den von Hrn. Lenard beobachteten...". `s2-p2` gains the
+  136–137 span that was missing, since p. 137 opens flush.
+
+  *Per-page true starts, as measured:* p. 139 three, p. 141 three, p. 142 four, p. 143 five,
+  p. 145 two, p. 148 one.
+
+  *One disagreement with the audit, recorded rather than silently resolved.* The audit lists
+  `s7-p2`'s 144–145 span among twelve it checked and found correct. I make it wrong, and fixed
+  it in an earlier commit: p. 144 ends a complete paragraph, "...unterhalb welcher das Licht
+  unfähig wäre, lichterregend zu wirken.", and p. 145 opens with the indented "Abweichungen
+  von der Stokesschen Regel...", so nothing crosses that break. Both crops are reproducible
+  from `public/papers/pdfs/ap-17-132.pdf` pages 13 and 14 at 400 dpi. If the audit's reading
+  is right, `s7-p2` should regain its 145 locator and `s7-p4` should be retired.
 - **Printed numbered items fold into the paragraph that introduces them.** A run of
   printed enumerated items (`1.`, `2.`, or `a)`, `b)`) is NOT a unit of its own: the
   introducing sentence and the items it governs are one paragraph unit, and the sentence

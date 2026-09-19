@@ -30,7 +30,6 @@ eq-s2-d2
 eq-s2-d3
 eq-s2-d4
 s2-fn1
-s2-p3
 eq-s2-d5
 eq-s2-d6
 s2-p4
@@ -55,9 +54,7 @@ eq-s4-d1
 s4-p2
 eq-s4-d2
 eq-s4-d3
-s4-p3
 eq-s4-d4
-s4-p4
 eq-s4-d5
 s4-p5
 s5
@@ -66,11 +63,14 @@ s5-p2
 eq-s5-d1
 eq-s5-d2
 eq-s5-d3
+s5-p6
 eq-s5-d4
 eq-s5-d5
 eq-s5-d6
 s5-p3
 s5-p4
+s5-p7
+s5-p8
 eq-s5-d7
 eq-s5-d8
 s5-p5
@@ -82,8 +82,10 @@ s6-p1
 eq-s6-d1
 eq-s6-d2
 eq-s6-d3
+s6-p5
 eq-s6-d4
 s6-p2
+s6-p6
 s6-p3
 eq-s6-d5
 s6-p4
@@ -118,12 +120,10 @@ s8-fn5
 s9
 s9-p1
 eq-s9-d1
-s9-p2
 eq-s9-d2
 s9-p3
 eq-s9-d3
 s9-fn1
 s9-fn2
-s9-p4
 closing-dateline
 closing-received
