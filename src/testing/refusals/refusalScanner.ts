@@ -390,3 +390,77 @@ export function analyzeUntestedRefusals(rootDir: string): FullRefusalScanResult 
 
   return { analyses, totalUntested, totalSites };
 }
+
+/* ------------------------------------------------------------------------- *
+ * Bare throw sites (am-muyh)
+ *
+ * `scanRefusalThrowSites` records a site only when it can read a kebab-case
+ * refusal code off it. A `throw new TypeError("Concurrent requests to a single
+ * walk owner.")` carries prose and no code, so it produces no site at all: it
+ * is not counted as tested, not counted as untested, and does not appear in
+ * any report. Measured on 2026-09-19 the repository held 1832 coded sites and
+ * 1018 bare ones across 294 files, so 36% of the refusal population was
+ * invisible to the instrument that governs it.
+ *
+ * A bare throw is not automatically a defect. Invariant guards and re-throws
+ * are legitimate, and this scanner makes no claim about which is which. It
+ * claims only that these sites are UNMEASURED by the code-based scanner, and
+ * gives them a name so the class can be reported rather than omitted.
+ * ------------------------------------------------------------------------- */
+
+export interface BareThrowSite {
+  readonly file: string;
+  readonly line: number;
+  readonly snippet: string;
+}
+
+/** `throw new X(` on one line. A bare `throw err;` re-throw is not a site. */
+const THROW_NEW = /\bthrow\s+new\s+[A-Za-z_$][\w$]*\s*\(/;
+
+/**
+ * Throw sites in one file that `scanRefusalThrowSites` does not record,
+ * because no refusal code can be read off them.
+ */
+export function scanBareThrowSites(source: string, relPath: string): BareThrowSite[] {
+  const coded = new Set(scanRefusalThrowSites(source, relPath).map((s) => s.line));
+  const out: BareThrowSite[] = [];
+  const lines = source.split("\n");
+  for (let i = 0; i < lines.length; i++) {
+    const line = lines[i] ?? "";
+    if (!THROW_NEW.test(line)) continue;
+    if (coded.has(i + 1)) continue;
+    out.push({ file: relPath, line: i + 1, snippet: line.trim() });
+  }
+  return out;
+}
+
+export interface BareThrowScanResult {
+  /** Files holding at least one bare throw, in path order. */
+  readonly byFile: ReadonlyMap<string, readonly BareThrowSite[]>;
+  readonly totalBare: number;
+  readonly totalCoded: number;
+  readonly filesScanned: number;
+}
+
+/**
+ * Repository-wide bare throw census. Reported every run, including when it is
+ * zero: a class that vanishes from a report is worse than one reported as
+ * zero, because its absence reads as absence of the problem.
+ */
+export function scanBareThrows(rootDir: string): BareThrowScanResult {
+  const srcFiles = findSourceFiles(join(rootDir, "src"));
+  const byFile = new Map<string, readonly BareThrowSite[]>();
+  let totalBare = 0;
+  let totalCoded = 0;
+  for (const sf of srcFiles.slice().sort()) {
+    const rel = relative(rootDir, sf);
+    const content = readFileSync(sf, "utf8");
+    totalCoded += new Set(scanRefusalThrowSites(content, rel).map((s) => s.line)).size;
+    const bare = scanBareThrowSites(content, rel);
+    if (bare.length > 0) {
+      byFile.set(rel, bare);
+      totalBare += bare.length;
+    }
+  }
+  return { byFile, totalBare, totalCoded, filesScanned: srcFiles.length };
+}
