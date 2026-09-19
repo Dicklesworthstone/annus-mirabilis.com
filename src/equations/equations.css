@@ -120,6 +120,21 @@
   outline: 2px solid currentColor;
   outline-offset: 2px;
 }
+
+/* Dark themes: drop the pale selection fill, keep the channel (am-design-themes-typography-288q).
+   #efe0ad is a light gold chosen for the Annalen page; on the dark themes it left
+   near-white --ink on a pale swatch at 1.06 against the 4.5 minimum. Both rules
+   already carry their distinction in currentColor - an underline on the sentence
+   span, a 2px outline on the visual - so the mark follows --ink and stays visible
+   at full contrast whatever the theme. Nothing is invented: no replacement hue is
+   chosen, the fill is simply removed where its own lightness is wrong, and the
+   authored Annalen appearance is untouched. */
+[data-theme="kramgasse-night"] .equation-sentence span[data-selected="true"],
+[data-theme="slate"] .equation-sentence span[data-selected="true"],
+[data-theme="kramgasse-night"] .equation-visual [data-selected="true"],
+[data-theme="slate"] .equation-visual [data-selected="true"] {
+  background: transparent;
+}
 .semantic-equation[data-pattern="true"] .am-role-input {
   color: inherit;
   text-decoration: underline dashed;

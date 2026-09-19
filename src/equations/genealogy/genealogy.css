@@ -68,6 +68,19 @@
   font-weight: 600;
 }
 
+/* Dark-theme fill derived from the pill's own authored #9c4200 mixed into each
+   theme's --paper (night 7%, slate 6%), reproducing its authored separation of
+   1.036; --ink over the result is 12.5 and 14.9. NOTE for
+   am-design-semantic-color-8vbq: 1.036 is a very small LUMINANCE separation. On
+   the Annalen page this pill reads as a pill mostly by hue, pale orange on cream,
+   and hue survives a light mix better than a dark one. Luminance-matching is
+   therefore the weakest here of all the rules converted this way; the shape,
+   padding plus radius plus font-weight 600, is doing most of the work on a dark
+   page. If the pill should stay hue-legible in the dark themes it wants a
+   deliberate colour, which is that bead's call, not a derivation. */
+[data-theme="kramgasse-night"] .genealogy-cross-paper-pill { background: #252325; }
+[data-theme="slate"] .genealogy-cross-paper-pill { background: #1c1b18; }
+
 .genealogy-graph-wrapper {
   width: 100%;
   overflow-x: auto;

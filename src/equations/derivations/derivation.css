@@ -190,6 +190,16 @@
   background: #fef2f2;
 }
 
+/* Dark-theme fill derived from this rule's OWN authored #b91c1c mixed into each
+   theme's --paper, at the percentage that reproduces its authored fill-vs-paper
+   separation of 1.126 (night 24%, slate 22%; derived 1.129 and 1.125). --ink over
+   the result is 11.5 and 13.8 against the 4.5 minimum. The outline and the
+   border-bottom, which carry the distinction, are untouched. A border-only
+   treatment was rejected on measurement: #b91c1c is 2.50 and 2.76 against the dark
+   papers, below the 3:1 non-text minimum, so the fill has to keep carrying it. */
+[data-theme="kramgasse-night"] .derivation-subexpression-highlight { background: #422025; }
+[data-theme="slate"] .derivation-subexpression-highlight { background: #38191a; }
+
 .step-reasons {
   margin: 0.75rem 0;
   font-size: 0.95rem;

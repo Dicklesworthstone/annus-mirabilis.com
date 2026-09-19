@@ -76,6 +76,20 @@
 }
 .equation-context[data-selected-quantity-id] .kernel-ident[data-selected="true"] {
   background: #efe0ad;
+  /* This rule paints a SHORT identifier, and AGENTS.md requires the kernel
+     identifier to share its equation term's colour, so the authored gold is kept
+     in every theme rather than re-derived: changing it would break the term
+     correspondence. It therefore has to state its own ink, exactly like the
+     facsimile page preview, because inheriting a near-white --ink left it at 1.06
+     and 1.14 against the 4.5 minimum. #1a1916 on #efe0ad is 13.34.
+
+     KNOWN GAP for am-design-semantic-color-8vbq, recorded rather than patched:
+     this selection is carried by hue ALONE. Its siblings in equations.css each
+     have a non-colour channel - an underline on the sentence span, a 2px
+     currentColor outline on the visual - and this one has neither, so a reader
+     who cannot separate the gold from the surrounding code has no other cue that
+     an identifier is selected. Adding a channel is a design decision. */
+  color: #1a1916;
 }
 
 .show-the-code .kernel-refusal {

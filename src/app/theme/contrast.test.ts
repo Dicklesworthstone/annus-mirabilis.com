@@ -364,6 +364,15 @@ describe("contrast sweep: the dark themes stay readable over hardcoded backgroun
     expect(slack).toEqual([]);
   });
 
+  test("the debt is fully paid: no stylesheet has any unreadable dark-theme rule", () => {
+    // The baseline began at 67 file-theme pairs across 10 stylesheets and is now
+    // empty. An empty baseline is STRICTER than a populated one, not weaker: every
+    // file's allowance is 0, so the very next hardcoded pale background with no
+    // colour fails on its first run.
+    expect(failures).toEqual([]);
+    expect(Object.keys(baseline)).toEqual([]);
+  });
+
   test("planted negative: a pale background with no colour is caught for both dark themes", () => {
     // #f8e9df is globals.css's own .error background, kept here as the fixture
     // because it is the real shape of the defect rather than an invented one.
